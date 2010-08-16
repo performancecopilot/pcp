@@ -6,7 +6,7 @@ OTHERPAGES = pcpdoc.css mover2pcp
 CONFFILES = pmchart.adp pmtime.adp
 CONFIGURE = pmchart.adp.in pmtime.adp.in
 LSRCFILES = $(HTMLPAGES) $(OTHERPAGES) $(CONFIGURE) template
-SUBDIRS = images diskmodel diskperf cpuperf
+SUBDIRS = images diskmodel diskperf cpuperf pmieconf
 
 default: $(HTMLPAGES) $(OTHERPAGES)
 	$(SUBDIRS_MAKERULE)

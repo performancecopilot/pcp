@@ -1,5 +1,6 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
+ (c) Copyright 2010 Aconex. All rights reserved.
  (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
  Permission is granted to copy, distribute, and/or modify this document
  under the terms of the Creative Commons Attribution-Share Alike, Version
@@ -7,264 +8,199 @@
  of the license is available at
  http://creativecommons.org/licenses/by-sa/3.0/us/ .
 -->
-<html>
-<head>
-    <title>Performance Co-Pilot Tutorial - pmieconf Lab</title>
-</head>
-<body bgcolor=#ffffff>
-<p>
-</p>
-<h1>
-PCP Tutorial</h1>
-<hr>
-<h2>
-Lab - rule customization with <i>pmieconf</i></h2>
-<p>
-<b>URL</b>: file:/var/pcp/Tutorial/lab-pmieconf.html </p>
-<hr>
-<p>
-This &quot;lab&quot; is part of the Performance Co-Pilot Tutorial and 
-covers customization of <i>pmie</i> rules using <i>pmieconf</i>.</p>
-<p>
-For an explanation of Performance Co-Pilot terms and acronyms, consult 
-the <a href="glossary.html">PCP glossary</a>.</p>
-<H4>
-<font color=purple>NOTE:</font></H4>
-
-<p>
-This tutorial uses platform independent pathnames to identify
-control files and scripts, typically shown with a  &quot;$PCP_&quot;
-prefix.  To enable the correct translations for your local
-installation:
-<ul>
-  <li><i>sh</i> or <i>ksh</i> or <i>bash</i> users should
-      <PRE>
-<B>$</B> . /etc/pcp.conf
-</PRE>
-  <li><i>csh</i> or <i>tcsh</i> users should
-      <PRE>
-<B>%</B> sed -n -e '/=/s/^/set /p' /etc/pcp.conf >/tmp/foo
-<B>%</B> source /tmp/foo
-</PRE>
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE>Site rules with pmieconf</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Linux)">
+	<META NAME="CREATED" CONTENT="20100801;12372700">
+	<META NAME="CHANGEDBY" CONTENT="Nathan Scott">
+	<META NAME="CHANGED" CONTENT="20100801;12372700">
+	<META NAME="qrichtext" CONTENT="1">
+	<STYLE TYPE="text/css">
+	<!--
+		H1 { color: #000060; font-family: "Lucida Grande"; font-size: 48pt; font-style: bold; font-weight: medium }
+		TD P { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
+		UL { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
+		P { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>
+Site rules with <I>pmieconf</I></FONT></H1>
+<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+pmie
+pmval
+pmchart
+pmieconf
+pmdashping
+</PRE></TD></TR>
+</TABLE>
+<P>This tutorial covers customization of <I>pmie</I> rules using
+<I>pmieconf</I>.&nbsp;&nbsp;For an explanation of Performance Co-Pilot
+terms and acronyms, consult the <A HREF="glossary.html">PCP glossary</A>.</P>
+<UL>
+    <LI>
+    <A HREF="#start">Initial setup</A>
+    <LI>
+    <A HREF="#pmieconf">Using <I>pmieconf</I> and <I>pmie</I></A>
+    <LI>
+    <A HREF="#shping">Monitoring state with the <I>shping</I> PMDA</A>
+    <LI>
+    <A HREF="#custom">Custom site rules with <I>pmieconf</I></A>
 </ul>
 
-<p>
-Before you start working through this lab make sure the following 
-prerequisites have been satisfied: </p>
-<ul>
-    <li>
-    the products <b>pcp_eoe</b> and <b>pcp</b> are installed on the 
-    local workstation 
-    <li>
-    a PCP Monitor License is installed on the local workstation 
-    <li>
-    the shell variable <tt>$pmcd_host</tt> is set to the name of the 
-    host which has a PCP Collector License and where <i>pmcd</i>(1) is 
-    running (this is only necessary if you intend to use cut-n-paste to run 
-    the examples) 
-    <li>
-    if <i>pmcd</i> is running on the local system, then either omit the <tt>-h 
-    $pmcd_host</tt> part of the command lines in the examples, or set <tt>$pmcd_host</tt>
-     to <b>localhost</b> or the host name of your workstation 
-    <li>
-    the shell variable <tt>$script_dir</tt> is set to <i>$PCP_VAR_DIR/Tutorial/Scripts</i>
-     (this is only necessary if you intend to use cut-n-paste to run the 
-    examples), e.g. use one of the following:
-<br>
-<tt><b>$</b> export script_dir=$PCP_VAR_DIR/Tutorial/Scripts</tt>
-<br>
-<tt><b>%</b> setenv script_dir $PCP_VAR_DIR/Tutorial/Scripts</tt>
-</ul>
-<p>
-For more information about the prerequisites mentioned above see the <a
- href="index.html">Introduction</a> chapter of the PCP tutorial. </p>
-<H4>
-Chapter Contents</H4>
-<ul>
-    <li>
-    <a href="#start">Initial setup</a> 
-    <li>
-    <a href="#pmieconf">Using <i>pmieconf</i> and <i>pmie</i></a>
-    <li>
-    <a href="#shping">Monitoring state with the <i>shping</i> PMDA</a>
-    <li>
-    <a href="#pmieconf-2">Localization of <i>pmieconf</i></a></h3>
-</ul>
-<p>
-</p>
-<hr>
-<h3>
-<a name="start">Initial Setup</a></h3>
-<p>
-In this lab you will run a process which creates an interesting load 
-that would be of concern in a production environment.  You will then use 
-several PCP tools to detect, identify and understand the process.</p>
-<ol>
-    <li>
-    Run an interesting program: 
-    <PRE>
-<b>$</b> $PCP_VAR_DIR/Tutorial/Scripts/piggie &amp;
-<br>
-</PRE>
-    <p><b>Important</b> &quot;piggie&quot; is very intrusive, so remember
-    to kill it off when you've finished this lab session.  However you
-    should leave it running throughout all of the tests in this lab.
-    <li>
-    Have a look at what it is doing: 
-    <PRE>
-<b>$</b> pmchart -c CPU &amp;
-</PRE>
-    <p>
-    And add the <b>Syscalls</b> view to the <i>pmchart</i> display.
-    <p>
-    </p>
-</ol>
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="start">Initial Setup</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>In this exercise we run a process which creates an interesting load that
+would be of concern in a production environment.&nbsp;&nbsp;We'll then use 
+several PCP tools to detect, identify and understand the process.</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+<TR><TD>
+  <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=50%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;Run an &quot;interesting&quot; program:<BR>
+<PRE><B>
+$ source /etc/pcp.conf
+$ cd $PCP_DEMOS_DIR/pmieconf
+$ sh ./piggie &amp;
+</B></PRE>
+&nbsp;&nbsp;Have a look at some of the effects it's having on the system:<BR>
+<PRE><B>
+<b>$</b> pmchart -t 0.5sec -c CPU &amp;
+</B></PRE>
+</TD></TR>
+</TABLE>
+  <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+<TR><TD>
+<P><B>Important</B> &quot;piggie&quot; can be quite intrusive, so remember
+to terminate it when you've finished this tutorial.&nbsp;&nbsp;However,
+you should leave it running throughout all of the tests below.</P>
+</TR></TD>
+</TABLE>
+  <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Create a new chart showing the process context switch rate (<I>kernel.all.pswitch</I>), adding it to your existing display.
+</TD></TR>
+</TABLE>
+</TD>
+<TD><IMG ALIGN=RIGHT SRC="images/cpu_pswitch.png" BORDER=0></TD>
+</TR>
+</TABLE>
 
-<hr>
-<h3>
-<a name="pmieconf">Using <i>pmieconf</i> and <i>pmie</i></a></h3>
-<p>
-<ol>
-    <li>
-    Create your own <i>pmie</i> rules using <i>pmieconf</i>.
-    <PRE>
-<b>$</b> pmieconf -f myrules
-<b>pmieconf&gt;</b> disable all
-<b>pmieconf&gt;</b> enable cpu.syscall
-<b>pmieconf&gt;</b> modify global delta "5 sec"
-<b>pmieconf&gt;</b> modify global holdoff ""
-<b>pmieconf&gt;</b> modify global syslog_action no
-<b>pmieconf&gt;</b> modify global user_action yes
-<b>pmieconf&gt;</b> quit
-<br>
-</PRE>
-    <li>
-    Determine what this command sequence has done by:
-    <ul>
-	<li>inspecting the created file <i>myrules</i>
-	<li>reference to the <i>pmieconf</i> man page
-	<li>exploring other<i>pmieconf</i> commands (&quot;help&quot; and
-    &quot;list&quot; are useful in this context)
-    </ul>
-    <p>
-    <li>
-    Run <i>pmie</i> rules using <i>pmieconf</i>, and see if the alarm
-    messages appear on standard output.
-    <PRE>
-<b>$</b> pmie -c myrules
-<br>
-</PRE>
-    <li>
-    Kill off <i>pmie</i>, and use the reported values from <i>pmchart</i>
-    to determine what the average rate of system calls is.  Then
-    re-run <i>pmieconf</i> to adjust the
-    threshold level up or down to alter the behaviour of <i>pmie</i>.
-    Re-run <i>pmie</i>.
-    <PRE>
-<b>$</b> pmieconf -f myrules
-<b>pmieconf&gt;</b> modify cpu.syscall threshold 25000 <-- suitable value here
-<b>pmieconf&gt;</b> quit
-<b>$</b> pmie -c myrules
-<br>
-</pre>
-</ol>
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="pmieconf">Using <I>pmieconf</I> and <I>pmie</I></A></B></FONT></P></TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Create your own <I>pmie</I> rules using <I>pmieconf</I>:<BR>
+<PRE><B>$ pmieconf -f myrules
+<I>pmieconf&gt;</I> disable all
+<I>pmieconf&gt;</I> enable cpu.context_switch
+<I>pmieconf&gt;</I> modify global delta "5 sec"
+<I>pmieconf&gt;</I> modify global holdoff ""
+<I>pmieconf&gt;</I> modify global syslog_action no
+<I>pmieconf&gt;</I> modify global user_action yes
+<I>pmieconf&gt;</I> quit
+</B></PRE>
+Determine what this command sequence has done by:<BR>
+<UL>
+	<LI>Inspecting the created file <I>myrules</I>
+	<LI>Making reference to the <I>pmieconf</I> man page
+	<LI>Exploring other <I>pmieconf</I> commands (&quot;help&quot;
+	and &quot;list&quot; are useful in this context)
+</UL>
+Run <I>pmie</I> rules using <I>pmieconf</I>, and see if the alarm messages appear on standard output:<BR>
+<PRE><B>$ pmie -c myrules
+</B></PRE>
+Terminate <I>pmie</I> and use the reported values from <I>pmchart</I>
+to determine what the average rate of system calls is.&nbsp;&nbsp;Then
+re-run <I>pmieconf</I> to adjust the threshold level up or down to alter
+the behaviour of <I>pmie</I>.
+Re-run <I>pmie</I>.
+<PRE><B>
+$ pmieconf -f myrules
+<I>pmieconf&gt;</I> modify cpu.context_switch threshold 5000 <-- suitable value here
+<I>pmieconf&gt;</I> quit
+$ pmie -c myrules
+</B></PRE>
+</TD></TR>
+</TABLE>
 
-<hr>
-<h3>
-<a name="shping">Monitoring state with the <i>shping</i> PMDA</h3>
-<p>
-<ol>
-    <li>
-    Using <i>pmdashping</i> to record system state.
-    <ul>
-        <li>
-        The default <i>shping</i> configuration is <i>$PCP_PMDAS_DIR/shping/sample.conf</i>. 
-        The comments explain the syntax.
-	<p>
-        <li>
-	As <b>root</b>,
-	create a new configuration file, say <i>$PCP_PMDAS_DIR/shping/my.conf</i>, with shell tag and command of the form:
-<pre>
-no-pmie	test ! -f /tmp/no-pmie
-<br>
-</pre>
-	<li>
-	As <b>root</b>,
-        Install <i>pmdashping</i>
-        <pre>
-<b>#</b> cd $PCP_PMDAS_DIR/shping
-<b>#</b> ./Install
-<br>
-</pre>
-        Mostly take the defaults, other than specifying your own
-	configuration file (<i>my.conf</i>) and setting the cycle
-	time to 5 (seconds); don't worry about the timeout period, as
-	timeouts are not going to happen in this configuration of the
-	agent.
-    </ul>
-    <p>
-    <li>
-    In one window, use <i>pmval</i> to monitor shping.status, i.e.
-    <pre>
-<b>$</b> pmval -t 5 shping.status
-<br>
-</pre>
-    <li>
-    In another window, first create the file <i>/tmp/no-pmie</i>,
-    wait ten seconds, and then remove the file.  Observe what <i>pmval</i>
-    reports in the other window.  Terminate <i>pmval</i>.
-</ol>
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="shping">Monitoring state with the <I>shping</I> PMDA</A></B></FONT></P></TD></TR>
+</TABLE>
+<H3>Installing <I>pmdashping</I> to record system state</H3>
+<P>The default <I>shping</I> configuration is <I>$PCP_PMDAS_DIR/shping/sample.conf</I>.&nbsp;&nbsp;The comments explain the syntax.</P>
+<P>Create a new configuration file, say <I>$PCP_PMDAS_DIR/shping/my.conf</I>, with shell tag and command of the form:</P>
+<PRE><B>
+&nbsp;&nbsp;&nbsp;&nbsp;no-pmie&nbsp;&nbsp;&nbsp;&nbsp;test ! -f /tmp/no-pmie
+</B></PRE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install <I>pmdashping</I>:
+<PRE><B># cd $PCP_PMDAS_DIR/shping
+# ./Install
+</B></PRE>
+Mostly take the defaults, other than specifying your own
+configuration file (<I>my.conf</I>) and setting the cycle
+time to 5 (seconds); don't worry about the timeout period, as
+timeouts are not going to happen in this configuration of the
+agent.
+</TABLE>
 
-<hr>
-<h3>
-<a name="pmieconf-2">Localization of <i>pmieconf</i></a></h3>
-<p>
-<ol>
-    <li>
-    Using your editor of choice, edit the <i>pmieconf</i> output
-    file created earlier, i.e. <i>myrules</i>.  Append a new
-    rule at the end (after the <b>END GENERATED SECTION</b> line),
-    that is a <u>copy</u> of the <b>cpu.syscall</b> rule.
-    <p>
-    <li>
-    To this new rule, add the following conjunct before the
-    action line (containing ->), modify the message in the
-    new rule's action to be different to the standard rule,
-    make sure the threshold is low enough for the predicate
-    to be true, and then save the file.
-    <pre>
-    && shping.status #'no-pmie' == 0
-<br>
-</pre>
-    <li>
-    Re-run <i>pmieconf</i> to disable the standard rule.
-    <pre>
-<b>$</b> pmieconf -f myrules
-<b>pmieconf&gt;</b> disable cpu.syscall
-<b>pmieconf&gt;</b> quit
-<br>
-</pre>
-    <li>
-    Inspect the re-created file <i>myrules</i>.  Check your new rule is still
-    there and the standard rule has been removed.
-    <p>
-    <li>
-    Run <i>pmie</i> rules using <i>myrules</i>, and verify that your
-    new alarm messages appear on standard output.
-    In another window, create the file <i>/tmp/no-pmie</i>;
-    wait a while;
-    remove the file.
-    <p>
-    <li>
-    Notice there may be some delay between the creation or removal of
-    <i>/tmp/no-pmie</i> and the change in <i>pmie</i> behaviour.
-    Can you explain this?
-</ol>
+<H3>Monitoring <I>pmdashping</I> to observe system state</H3>
+<P>In one window, use <I>pmval</I> to monitor shping.status.</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;In a command shell:<BR>
+<PRE><B>$ pmval -t 5 shping.status</B></PRE>
+</TD></TR>
+</TABLE>
+<P>In another window, first create the file <I>/tmp/no-pmie</I>,
+wait ten seconds, and then remove the file.
+Observe what <I>pmval</I> reports in the other window.
+Terminate <I>pmval</I>.
+</P>
 
-<hr>
-<p>
-This chapter is complete, you may return to the <a
- href="index.html#contents">Tutorial Contents</a> in the introductory 
-chapter. </p>
-</body>
-</html>
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="custom">Custom site rules with <I>pmieconf</I></A></B></FONT></P></TD></TR>
+</TABLE>
+<P>Using your editor of choice, edit the <I>pmieconf</I> output
+file created earlier, i.e. <I>myrules</I>.
+Append a new rule at the end (after the <b>END GENERATED SECTION</b> line),
+that is a <I>copy</I> of the <b>cpu.context_switch</b> rule.</P>
+<P>To this new rule, add the following conjunct before the action line (containing ->), modify the message in the new rule's action to be different to the standard rule, make sure the threshold is low enough for the predicate to be true, and then save the file.</P>
+<PRE><B>&nbsp;&nbsp;&nbsp;&nbsp;&& shping.status #'no-pmie' == 0</B></PRE>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Re-run <I>pmieconf</I> to disable the standard rule:<BR>
+<PRE><B>$ pmieconf -f myrules
+<I>pmieconf&gt;</I> disable cpu.context_switch
+<I>pmieconf&gt;</I> quit
+</B></PRE>
+Inspect the re-created file <I>myrules</I>.
+Check your new rule is still there and the standard rule has been removed.
+</TABLE>
+<P>Run <I>pmie</I> using <I>myrules</I>, and verify that your new alarm messages appear on standard output.
+In another window, create the file <I>/tmp/no-pmie</I>, wait a while, then remove the file.</P>
+<P>Notice there may be some delay between the creation or removal of <I>/tmp/no-pmie</I> and the change in <I>pmie</I> behaviour.&nbsp;&nbsp;Can you explain this?</P>
+
+<P><BR></P>
+<HR>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=80%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc.</FONT></P></TD>
+	<TD WIDTH=20%><P ALIGN=RIGHT><A HREF="http://oss.sgi.com/projects/pcp/"><FONT COLOR="#000060">PCP</FONT></A></P></TD> </TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>
