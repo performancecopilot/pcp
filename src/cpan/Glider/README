@@ -53,6 +53,10 @@ DOS> qt-win-opensource-*-mingw.exe
   - ignore warning about mismatched versions (moving to a
     newer version of Qt will probably fix this up).
 
+DOS> autoconf*.exe
+[ graphical installer ]
+  - accept all the defaults
+
 DOS> Coin*.exe
 [ graphical installer ]
   - set the Install Location to be C:\Coin3D
@@ -93,7 +97,6 @@ Step 4 -- building PCP from the git tree
 
 DOS> set PATH=C:\MSYS\bin;C:\MSYS\local\bin;%PATH%
 DOS> cd D:\source\git\pcp
-[ I have no working autoconf yet, so copy ./configure from elsewhere ]
 DOS> make
 [ if all goes well, try creating some tarballs ]
 DOS> sh ./Makepkgs -verbose pcp
