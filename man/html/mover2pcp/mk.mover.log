@@ -1,0 +1,35 @@
+#!/bin/sh
+#
+# Generate a mover.log to be used with mover2pcp
+#
+
+find $HOME -type f \
+| sed -e 5000q \
+| while read f
+do
+    stat --format="%n %s" "$f"
+done \
+| awk '
+BEGIN	{ now = systime(); start = now - 30*24*3600
+	  maxbatch = 60;
+	  want = int(rand()*maxbatch);
+	  n = c[0] = c[1] = c[2] = max_b = b = 0
+	}
+	#debug# { print }
+	{ want--;
+	  if (want < 0) {
+	    if (rand() < 0.15) {
+		# 15% of the time, output a no activity line
+	      n = c[0] = c[1] = c[2] = max_b = b = 0
+	    }
+	    printf "%s %d files (%d, %d, %d) %d bytes (%d)\n", strftime("%Y-%m-%d %H:%M:%S", start), n, c[0], c[1], c[2], b, max_b
+	    start += 30;
+	    want = int(rand()*maxbatch);
+	    n = c[0] = c[1] = c[2] = max_b = b = 0
+	  }
+	  n++; b += $2
+	  if ($2 <= 1024) c[0]++
+	  else if ($2 <= 1024*1024) c[1]++
+	  else c[2]++
+	  if ($2 > max_b) max_b = $2
+	}'
