@@ -22,7 +22,7 @@ usr/share/doc/pcp-doc/html/lab.pmlogconf.html
 usr/share/doc/pcp-doc/html/lab.pmlogger.html
 usr/share/doc/pcp-doc/html/lab.pmview.html
 usr/share/doc/pcp-doc/html/lab.trace.html
-usr/share/doc/pcp-doc/html/mover2pcp
+usr/share/doc/pcp-doc/html/importdata/mover2pcp
 usr/share/doc/pcp-doc/html/overview.html
 usr/share/doc/pcp-doc/html/pcpdoc.css
 usr/share/doc/pcp-doc/html/pcpgui.whatsnew.html
@@ -54,6 +54,11 @@ usr/share/doc/pcp-doc/html/images/mover.nfile.instant.png
 usr/share/doc/pcp-doc/html/images/mover.nfile.step.png
 usr/share/doc/pcp-doc/html/images/mover.png
 usr/share/doc/pcp-doc/html/images/mover.v3.png
+usr/share/doc/pcp-doc/html/images/mover.nfile.instant.png
+usr/share/doc/pcp-doc/html/images/mover.nfile.step.png
+usr/share/doc/pcp-doc/html/images/mover.nfile.counter.png
+usr/share/doc/pcp-doc/html/images/mover.nfile.instant.3min.png
+usr/share/doc/pcp-doc/html/images/mover.nfile.counter.3min.png
 usr/share/doc/pcp-doc/html/images/ovevents.png
 usr/share/doc/pcp-doc/html/images/pcpicon.png
 usr/share/doc/pcp-doc/html/images/pmcharticon.png

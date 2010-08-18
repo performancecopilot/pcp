@@ -16,12 +16,11 @@
 <h1>Importing data and creating PCP archives</h1>
 <table width="15%" border=0 cellpadding=5 cellspacing=10 align=right>
 	<tr><td bgcolor="#e2e2e2"><img src="images/system-search.png" alt="search" width=16 height=16 border=0>&nbsp;&nbsp;<i>Tools</i><br><pre>
-LOGIMPORT
 PCP::LogImport
+pmlogsummary
 pmlogger
 pmchart
 pmie
-pmlogsummary
 perl
 </pre></td></tr>
 </table>
@@ -38,8 +37,8 @@ performance data into PCP by creating PCP archives from files or data
 streams that have no knowledge of PCP.
 </p>
 <p>
-The services needed to build an import tool are packaged into the
-<i>libpcp_import</i> and a Perl wrapper is provided in the <b>PCP::LogImport</b>
+The services needed to build an import tool are included in the
+<i>libpcp_import</i> package and a Perl wrapper is provided in the <b>PCP::LogImport</b>
 module.
 The C and Perl APIs are effectively identical.
 Refer to the <b>LOGIMPORT</b>(3)
@@ -271,7 +270,7 @@ mover.nfile
 </td></tr></table>
 
 <p><table><tr style="vertical-align:top;"><td>
-<p>And when plotted with <b>pmchart</b>(1) produces a graph like
+<p>And when plotted with <i>pmchart</i> produces a graph like
 this ...</p>
 </td><td>
 <img src="images/mover.nfile.instant.png" alt="nfile.instant">
@@ -316,7 +315,7 @@ graph for the <b>PM_SEM_INSTANT</b> data.</p>
 </td></tr></table>
 
 <p>
-For the <b>PM_SEM_INSTANT</b> metric, the only choice available to <b>pmchart</b>
+For the <b>PM_SEM_INSTANT</b> metric, the only choice available to <i>pmchart</i>
 (and indeed any PCP reporting tool) is to use the most recent observed
 value at each reporting interval.  In the example above, this means 5
 data values from the archive are skipped and the 6th value is used for
@@ -408,7 +407,7 @@ pmiEnd();
 </td></tr></table>
 
 <p>
-This produces a PCP archive that can be plotted with <b>pmchart</b>
+This produces a PCP archive that can be plotted with <i>pmchart</i>
 to produce the following graph.</p>
 <p>
 <img src="images/mover.v3.png" alt="mover.v3">
@@ -463,11 +462,11 @@ pmiPutValue("mover.nfile_by_size", "&gt;1Mbyte", $nfile_by_size[2]);
 </td></tr></table>
 
 <p>
-This produces our final PCP archive that can be plotted with <b>pmchart</b>
+This produces our final PCP archive that can be plotted with <i>pmchart</i>
 to produce the following graph.</p>
-<p>
+<p><center>
 <img src="images/mover.png" alt="mover">
-</p>
+</center></p>
 
 <h2>Handles</h2>
 
@@ -497,7 +496,7 @@ Unfortunately the format for the timezone offset is not handled
 the same in all places &ndash; for the ugly details,
 refer to the <b>&ndash;Z</b> command line
 processing and the <b>do_label</b>() procedure in the
-complete <a href="mover2pcp">mover2pcp</a> example code.</p>
+complete <a href="importdata/mover2pcp">mover2pcp</a> example code.</p>
 
 <h2>Bells and Whistles</h2>
 
@@ -538,7 +537,7 @@ value has been added to the next output record.</li>
 
 <h2>The Complete Solution</h2>
 
-<p>The complete mover2pcp Perl script can be viewed <a href="mover2pcp">here</a>.</p>
+<p>The complete mover2pcp Perl script can be viewed <a href="importdata/mover2pcp">here</a>.</p>
 
 <hr>
 <center>

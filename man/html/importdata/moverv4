@@ -1,0 +1,54 @@
+#!/usr/bin/perl
+#
+# Minimalist Version 4.
+#
+
+use strict;
+use warnings;
+use Date::Parse;
+use Date::Format;
+use PCP::LogImport;
+
+my $nfile = 0;
+my $nbyte = 0;
+my $sz_indom = pmInDom_build(PMI_DOMAIN, 0);
+my @nfile_by_size = (0,0,0);
+
+pmiStart("mover_v4", 0);
+pmiAddMetric("mover.nfile",
+	     PM_ID_NULL, PM_TYPE_U32, PM_INDOM_NULL,
+	     PM_SEM_COUNTER, pmiUnits(0,0,1,0,0,PM_COUNT_ONE));
+pmiAddMetric("mover.nfile_by_size",
+	     PM_ID_NULL, PM_TYPE_U32, $sz_indom,
+	     PM_SEM_COUNTER, pmiUnits(0,0,1,0,0,PM_COUNT_ONE));
+pmiAddInstance($sz_indom, "<=1Kbyte", 0);
+pmiAddInstance($sz_indom, "<=1Mbyte", 1);
+pmiAddInstance($sz_indom, ">1Mbyte", 2);
+pmiAddMetric("mover.nbyte",
+	     PM_ID_NULL, PM_TYPE_U64, PM_INDOM_NULL,
+	     PM_SEM_COUNTER, pmiUnits(1,0,0,PM_SPACE_BYTE,0,0));
+pmiAddMetric("mover.max_file_size",
+	     PM_ID_NULL, PM_TYPE_U64, PM_INDOM_NULL,
+	     PM_SEM_INSTANT, pmiUnits(1,0,0,PM_SPACE_BYTE,0,0));
+
+open(INFILE, "<mover.log");
+while (<INFILE>) {
+    my @part;
+    chomp;
+    s/[(),]//g;		# all remove (, ) and ,
+    @part = split(/\s+/, $_);
+    $nfile += $part[2];
+    pmiPutValue("mover.nfile", "", $nfile);
+    $nfile_by_size[0] += $part[4];
+    pmiPutValue("mover.nfile_by_size", "<=1Kbyte", $nfile_by_size[0]);
+    $nfile_by_size[1] += $part[5];
+    pmiPutValue("mover.nfile_by_size", "<=1Mbyte", $nfile_by_size[1]);
+    $nfile_by_size[2] += $part[6];
+    pmiPutValue("mover.nfile_by_size", ">1Mbyte", $nfile_by_size[2]);
+    $nbyte += $part[7];
+    pmiPutValue("mover.nbyte", "", $nbyte);
+    pmiPutValue("mover.max_file_size", "", $part[9]);
+    pmiWrite(str2time($part[0] . "T" . $part[1], "UTC"), 0);
+}
+
+pmiEnd();

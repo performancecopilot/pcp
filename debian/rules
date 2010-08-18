@@ -13,6 +13,7 @@ options = export DEBUG=-DNDEBUG DISTRIBUTION=debian;
 checkdir = test -f debian/rules
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcpgui)/," | xargs rm -f
 uninstalldirs =	debian/$(pcpgui)/usr/share/doc/pcp-doc/html/images \
+		debian/$(pcpgui)/usr/share/doc/pcp-doc/html/importdata \
 		debian/$(pcpgui)/usr/share/doc/pcp-doc/html/diskmodel \
 		debian/$(pcpgui)/usr/share/doc/pcp-doc/html/pmie \
 		debian/$(pcpgui)/usr/share/doc/pcp-doc/html \
@@ -56,7 +57,7 @@ binary-arch: checkroot built
 	@$(uninstall)
 	@$(uninstalld)
 	dh_strip
-	dh_compress --exclude=mover2pcp
+	dh_compress
 	dh_fixperms
 	dh_makeshlibs -N $(pcpgui)
 	dh_makeshlibs --package $(pcpgui)
