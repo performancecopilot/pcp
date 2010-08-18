@@ -85,7 +85,7 @@ then
     done
 else
     for pid in $pids ; do
-	kill -s $signal $pid
+	kill -$signal $pid
 	[ $? -eq 0 ] || sts=$?
     done
 fi

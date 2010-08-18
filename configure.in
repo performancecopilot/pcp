@@ -109,7 +109,7 @@ in
     linux)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
     mingw)	pcp_platform_paths='/mingw/bin:/perl/bin:/usr/local/bin';;
     darwin)	pcp_platform_paths='/usr/local/bin';;
-    solaris)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin';;
+    solaris)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/usr/sfw/bin';;
     freebsd)	pcp_platform_paths='/usr/bin/X11:/usr/bsd';;
 esac
 AC_SUBST(pcp_platform_paths)
@@ -321,7 +321,7 @@ AC_SUBST(pcp_group)
 
 dnl check if the tar program is available
 if test -z "$TAR"; then
-    AC_PATH_PROG(TAR, tar)
+    AC_PATH_PROGS(TAR, gtar tar, tar)
 fi
 if test $target_os = darwin -a -x /usr/bin/gnutar
 then
@@ -525,7 +525,7 @@ fi
 
 dnl check if user wants their own awk, sed and echo
 if test -z "$AWK"; then
-    AC_PATH_PROG(AWK, awk, /usr/bin/awk)
+    AC_PATH_PROGS(AWK, gawk awk, /usr/bin/awk)
 fi
 awk=$AWK
 AC_SUBST(awk)
