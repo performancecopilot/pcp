@@ -40,6 +40,8 @@ usr/share/doc/pcp-doc/html/diskmodel/model.view
 usr/share/doc/pcp-doc/html/diskmodel/model.xls
 usr/share/doc/pcp-doc/html/diskmodel/nasread.out
 usr/share/doc/pcp-doc/html/diskmodel/naswrite.out
+usr/share/doc/pcp-doc/html/images/cpu_pswitch.png
+usr/share/doc/pcp-doc/html/images/dkvis.png
 usr/share/doc/pcp-doc/html/images/iv_hand.png
 usr/share/doc/pcp-doc/html/images/model_biload.png
 usr/share/doc/pcp-doc/html/images/model_dbload.png
@@ -65,10 +67,16 @@ usr/share/doc/pcp-doc/html/images/pmchart_new_chart_colors.png
 usr/share/doc/pcp-doc/html/images/pmchart_cpu_disk_load.png
 usr/share/doc/pcp-doc/html/images/pmchart_stop_recording.png
 usr/share/doc/pcp-doc/html/images/pmchart_cpu_disk_record.png
-usr/share/doc/pcp-doc/html/images/pmie.rule1.png
-usr/share/doc/pcp-doc/html/images/pmie.rule2.png
-usr/share/doc/pcp-doc/html/images/pmie.rule3.png
-usr/share/doc/pcp-doc/html/images/pmie.rule4.png
+usr/share/doc/pcp-doc/html/images/pmie_axis1.png
+usr/share/doc/pcp-doc/html/images/pmie_axis2.png
+usr/share/doc/pcp-doc/html/images/pmie_axis3.png
+usr/share/doc/pcp-doc/html/images/pmie_axis4.png
+usr/share/doc/pcp-doc/html/images/pmie_rule1.png
+usr/share/doc/pcp-doc/html/images/pmie_rule2.png
+usr/share/doc/pcp-doc/html/images/pmie_rule3.png
+usr/share/doc/pcp-doc/html/images/pmie_rule4.png
+usr/share/doc/pcp-doc/html/images/pmie_rule5.png
+usr/share/doc/pcp-doc/html/images/pmie_rule6.png
 usr/share/doc/pcp-doc/html/images/pmtimeicon.png
 usr/share/doc/pcp-doc/html/images/pmtime_live.png
 usr/share/doc/pcp-doc/html/images/pmtime_archive.png
@@ -88,3 +96,7 @@ usr/share/doc/pcp-doc/html/images/trace_example.png
 usr/share/doc/pcp-doc/html/images/trace_libpcp.png
 usr/share/doc/pcp-doc/html/images/xenln.png
 usr/share/doc/pcp-doc/html/images/xnmevents.png
+usr/share/doc/pcp-doc/html/pmie/answer.pmie
+usr/share/doc/pcp-doc/html/pmie/disk.pmie
+usr/share/doc/pcp-doc/html/pmie/pswitch.pmie
+usr/share/doc/pcp-doc/html/pmie/pswitch.view

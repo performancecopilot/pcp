@@ -2,7 +2,8 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 PNGFILES = $(shell echo *.png)
-LSRCFILES = $(PNGFILES)
+SVGFILES = $(shell echo *.svg)
+LSRCFILES = $(PNGFILES) $(SVGFILES)
 ICONLINKS = pcpicon.png pmcharticon.png pmtimeicon.png stepfwd_on.png system-search.png
 INSTFILES = $(ICONLINKS) $(PNGFILES)
 LDIRT = $(ICONLINKS)

@@ -57,38 +57,41 @@ terms and acronyms, consult the <A HREF="glossary.html">PCP glossary</A>.</P>
     <LI>
     <A HREF="#custom">Custom site rules with <I>pmieconf</I></A>
 </ul>
+<P>It is advisable to first read the comprehensive introductory
+<A HREF="lab.pmie.html">pmie</A> tutorial before tackling this one.</P>
 
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="start">Initial Setup</A></B></FONT></P></TD></TR>
 </TABLE>
-<P>In this exercise we run a process which creates an interesting load that
-would be of concern in a production environment.&nbsp;&nbsp;We'll then use 
-several PCP tools to detect, identify and understand the process.</P>
+<P>In this exercise we create a scenario which exhibits the sort of behaviour
+that might be of concern in a production environment.&nbsp;&nbsp;We'll then use 
+several PCP tools to detect, identify and understand the problem.</P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 <TR><TD>
   <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=50%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;Run an &quot;interesting&quot; program:<BR>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=50%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;Simulate an &quot;interesting&quot; problem scenario:<BR>
 <PRE><B>
-$ source /etc/pcp.conf
-$ cd $PCP_DEMOS_DIR/pmieconf
-$ sh ./piggie &amp;
+$ while true; do sleep 0; done &amp;
 </B></PRE>
+<BR>
 &nbsp;&nbsp;Have a look at some of the effects it's having on the system:<BR>
 <PRE><B>
-<b>$</b> pmchart -t 0.5sec -c CPU &amp;
+$ pmchart -t 0.5sec -c CPU &amp;
 </B></PRE>
-</TD></TR>
-</TABLE>
-  <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
-<TR><TD>
-<P><B>Important</B> &quot;piggie&quot; can be quite intrusive, so remember
-to terminate it when you've finished this tutorial.&nbsp;&nbsp;However,
-you should leave it running throughout all of the tests below.</P>
-</TR></TD>
-</TABLE>
-  <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Create a new chart showing the process context switch rate (<I>kernel.all.pswitch</I>), adding it to your existing display.
+<BR>
+Create a new chart showing the process context switch rate (<I>kernel.all.pswitch</I>),
+adding it to your existing display.<BR><BR>
+<B>Important:</B> the above test case can be quite intrusive on low processor
+count machines, so remember to terminate it when you've finished this tutorial:
+<PRE><B>
+$ jobs
+[1]- Running     while true; do sleep 0; done &amp;
+[2]+ Running     pmchart -t 0.5sec -c CPU &amp;
+$ fg %1
+</B></PRE>
+<BR>
+However, you should leave it running throughout all of the tests below.
 </TD></TR>
 </TABLE>
 </TD>
@@ -128,7 +131,7 @@ the behaviour of <I>pmie</I>.
 Re-run <I>pmie</I>.
 <PRE><B>
 $ pmieconf -f myrules
-<I>pmieconf&gt;</I> modify cpu.context_switch threshold 5000 <-- suitable value here
+<I>pmieconf&gt;</I> modify cpu.context_switch threshold 5000&nbsp;&nbsp;&nbsp;&nbsp;<I># <-- insert suitable value here</I>
 <I>pmieconf&gt;</I> quit
 $ pmie -c myrules
 </B></PRE>

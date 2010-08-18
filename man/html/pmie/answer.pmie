@@ -1,0 +1,23 @@
+//
+// solution for the pmie tutorial
+//
+
+// show any disk doing more than 50 I/Os per second
+some_inst ( disk.dev.total > 50 ) -> print "high IOPs:" " %i: %v";
+
+// some disk is doing more than 30 reads per second
+some_inst ( disk.dev.read > 30 ) -> print "busy reads:" " %i: %v";
+
+// some disk is doing more than 30 writes per second
+some_inst ( disk.dev.write > 30 ) -> print "busy writes:" " %i: %v";
+
+// some disk has a high I/O rate and more than 95% reads
+some_inst ( disk.dev.total > 40 &&
+	    disk.dev.read / disk.dev.total > 0.95 )
+-> print "busy disk and >95% writes";
+
+// some disk has a high I/O rate and 1 minute load average is
+// greater than 5
+kernel.all.load #'1 minute' > 5 &&
+some_inst ( disk.dev.total > 40 )
+-> print "busy disk and high load avg";
