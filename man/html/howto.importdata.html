@@ -36,8 +36,18 @@ subsequent retrospective analysis using these same PCP tools.
 performance data into PCP by creating PCP archives from files or data
 streams that have no knowledge of PCP.
 </p>
-<p>
-The services needed to build an import tool are included in the
+<ul>
+  <li><a href="#prereqs">Prerequisites</a>
+  <li><a href="#identify">Identify Metrics and Metadata</a>
+  <li><a href="#scripting">Getting Started Scripting</a>
+  <li><a href="#metadata">Revisiting the Metadata</a>
+  <li><a href="#instances">Multi-valued Metrics and Instance Domains</a>
+  <li><a href="#handles">Handles</a>
+  <li><a href="#timezones">Timezones</a>
+  <li><a href="#extras">Bells and Whistles</a>
+  <li><a href="#complete">Complete Solution</a>
+</ul>
+<p>The services needed to build an import tool are included in the
 <i>libpcp_import</i> package and a Perl wrapper is provided in the <b>PCP::LogImport</b>
 module.
 The C and Perl APIs are effectively identical.
@@ -45,8 +55,7 @@ Refer to the <b>LOGIMPORT</b>(3)
 manual page for an overview of these services.
 The examples in this document will be given in Perl.
 </p>
-<p>
-Several import tools are already provided with PCP, namely:
+<p>Several import tools are already provided with PCP, namely:
 </p>
 <table border="1" cellspacing="1" cellpadding="5">
 <tr><th>Tool</th><th>Function</th>
@@ -101,7 +110,7 @@ number of bytes moved and finally the size (in bytes) of the largest
 file moved.
 </p>
 
-<h2>Prerequisites</h2>
+<h2><a name="prereqs">Prerequisites</a></h2>
 
 <p>The input data stream needs to conform to some basic principles
 before we can consider importing information to PCP:</p>
@@ -137,7 +146,7 @@ file from <i>sadc</i> into an XML stream that is much easier to process.
 </li>
 </ul>
 
-<h2>Identify PCP Metrics and Metadata</h2>
+<h2><a name="identify">Identify PCP Metrics and Metadata</a></h2>
 
 <p>
 Incremental development is encouraged.  So we shall start with one
@@ -216,7 +225,7 @@ options and the values chosen for <b>mover.nfile</b>.
 </table>
 <p>&nbsp;</p>
 
-<h2>Getting Started</h2>
+<h2><a name="scripting">Getting Started Scripting</a></h2>
 
 <p>The basic algorithm follows this template:</p>
 <ul>
@@ -277,7 +286,7 @@ this ...</p>
 </td></tr></table>
 <p>&nbsp;</p>
 
-<h2>Revisiting the Metadata</h2>
+<h2><a name="metadata">Revisiting the Metadata</a></h2>
 
 <table><tr style="vertical-align:top;"><td>
 <p>The number of files migrated in this example could be exported as either
@@ -413,7 +422,7 @@ to produce the following graph.</p>
 <img src="images/mover.v3.png" alt="mover.v3">
 </center></p>
 
-<h2>Multi-valued Metrics and Instance Domains</h2>
+<h2><a name="instances">Multi-valued Metrics and Instance Domains</a></h2>
 
 <p>Metrics that have more than one value are supported in PCP through
 the concept of an Instance Domain (or <b>indom</b>) which is a
@@ -468,7 +477,7 @@ to produce the following graph.</p>
 <img src="images/mover.png" alt="mover">
 </center></p>
 
-<h2>Handles</h2>
+<h2><a name="handles">Handles</a></h2>
 
 <p>If there is a lot of data and/or a lot of PCP metrics, the calls
 to <b>pmiPutValue</b>(3) in the inner loop of the import application
@@ -481,7 +490,7 @@ mechanism that may be used to improve efficiency.
 a metric-instance pair (once the metric and instance have been defined),
 then <b>pmiPutValueHandle</b>(3) may be used instead of <b>pmiPutValue</b>(3).</p>
 
-<h2>Timezones</h2>
+<h2><a name="timezones">Timezones</a></h2>
 
 <p>The interpretation of the timestamps in the output PCP archive is
 dependent on the timezone in which PCP believes the archive was created.</p>
@@ -498,7 +507,7 @@ refer to the <b>&ndash;Z</b> command line
 processing and the <b>do_label</b>() procedure in the
 complete <a href="importdata/mover2pcp">mover2pcp</a> example code.</p>
 
-<h2>Bells and Whistles</h2>
+<h2><a name="extras">Bells and Whistles</a></h2>
 
 <p>The Perl code we've been using thus far is minimalist and needs
 several extensions to make the application robust.  Specifically these
@@ -535,7 +544,7 @@ value has been added to the next output record.</li>
 
 </ul>
 
-<h2>The Complete Solution</h2>
+<h2><a name="complete">Complete Solution</a></h2>
 
 <p>The complete mover2pcp Perl script can be viewed <a href="importdata/mover2pcp">here</a>.</p>
 
