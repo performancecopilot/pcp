@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
  Permission is granted to copy, distribute, and/or modify this document
@@ -9,91 +9,35 @@
 -->
 <HTML>
 <HEAD>
-    <TITLE>Performance Co-Pilot Tutorial - pmview Lab</TITLE>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<TITLE>Performance Visualisation with pmview</TITLE>
 </HEAD>
-<BODY BGCOLOR="#ffffff">
-<P>
-</P>
-<H1>
-PCP Tutorial</H1>
-<HR>
-<H2>
-Lab - <I>pmview</I></H2>
-<P>
-<B>URL</B>: file:/var/pcp/Tutorial/lab-pmview.html </P>
-<HR>
-<P>
-This &quot;lab&quot; is part of the Performance Co-Pilot Tutorial and 
-covers the <I>pmview</I> tools and the performance monitoring tools 
-constructed as front-ends to <I>pmview</I>.</P>
-<P>
-For an explanation of Performance Co-Pilot terms and acronyms, consult 
-the <A HREF="glossary.html">PCP glossary</A>.</P>
-
-<H4>
-<FONT COLOR="purple">NOTE:</FONT></H4>
-
-<p>
-This tutorial uses platform independent pathnames to identify
-control files and scripts, typically shown with a  &quot;$PCP_&quot;
-prefix.  To enable the correct translations for your local
-installation:
-<ul>
-  <li><i>sh</i> or <i>ksh</i> or <i>bash</i> users should
-      <PRE>
-<B>$</B> . /etc/pcp.conf
-</PRE>
-  <li><i>csh</i> or <i>tcsh</i> users should
-      <PRE>
-<B>%</B> sed -n -e '/=/s/^/set /p' /etc/pcp.conf >/tmp/foo
-<B>%</B> source /tmp/foo
-</PRE>
-</ul>
-
-<P>
-Before you start working through this lab make sure the following 
-prerequisites have been satisfied: </P>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Performance Visualisation with <I>pmview</I></FONT></H1>
+<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+pmview
+mpvis
+osvis
+dkvis
+pmafm
+pmtime
+pmchart
+</PRE></TD></TR>
+</TABLE>
+<P>This tutorial discusses <I>pmview</I> and some of the performance monitoring
+tools constructed as front-ends to it.</P>
 <UL>
     <LI>
-    the products <B>pcp_eoe</B> and <B>pcp</B> are installed on the 
-    local workstation 
-    <LI>
-    a PCP Monitor License is installed on the local workstation 
-    <LI>
-    the shell variable <TT>$pmcd_host</TT> is set to the name of the 
-    host which has a PCP Collector License and where <I>pmcd</I>(1) is 
-    running (this is only necessary if you intend to use cut-n-paste to run 
-    the examples) 
-    <LI>
-    if <I>pmcd</I> is running on the local system, then either omit the <TT>-h 
-    $pmcd_host</TT> part of the command lines in the examples, or set <TT>$pmcd_host</TT>
-     to <B>localhost</B> or the host name of your workstation 
-    <LI>
-    the shell variable <TT>$archive_dir</TT> is set to <I>$PCP_VAR_DIR/Tutorial/Archives</I>
-     (this is only necessary if you intend to use cut-n-paste to run the 
-    examples), e.g. use one of the following:
-<BR>
-<TT><B>$</B> export archive_dir=$PCP_VAR_DIR/Tutorial/Archives</TT>
-<BR>
-<TT><B>%</B> setenv archive_dir $PCP_VAR_DIR/Tutorial/Archives</TT>
-    <LI>
-    the shell variable <TT>$script_dir</TT> is set to <I>$PCP_VAR_DIR/Tutorial/Scripts</I>
-     (this is only necessary if you intend to use cut-n-paste to run the 
-    examples), e.g. use one of the following:
-<BR>
-<TT><B>$</B> export script_dir=$PCP_VAR_DIR/Tutorial/Scripts</TT>
-<BR>
-<TT><B>%</B> setenv script_dir $PCP_VAR_DIR/Tutorial/Scripts</TT>
-</UL>
-<P>
-For more information about the prerequisites mentioned above see the <A
- HREF="index.html">Introduction</A> chapter of the PCP tutorial. </P>
-<H4>
-Chapter Contents</H4>
-<UL>
-    <LI>
-    <A HREF="#real-time">Real-time monitoring and user interface 
-    concepts</A> 
+    <A HREF="#realtime">Live monitoring and user interface concepts</A> 
     <LI>
     <A HREF="#archive">Retrospective monitoring and tool drill-down</A> 
     <LI>
@@ -101,101 +45,82 @@ Chapter Contents</H4>
     <LI>
     <A HREF="#simple">Simple scene construction</A> 
 </UL>
-<HR>
-<H3>
-<A NAME="real-time">Real</A>-time monitoring and user interface concepts</H3>
-<OL>
-    <LI>
-    The <I>mpvis</I> command monitors the CPU utilization for each CPU:
-    <PRE>
-<B>$</B> mpvis -h $pmcd_host
-</PRE>
-    <P>
-    </P>
-    <LI>
-    Move the cursor over each block in the scene. Take time to read the 
+<P>For an explanation of Performance Co-Pilot terms and acronyms, consult 
+the <A HREF="glossary.html">PCP glossary</A>.</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="realtime">Live monitoring and user interface concepts</A></B></FONT></P></TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;The <I>mpvis</I> command monitors the CPU utilization for each CPU:<BR>
+<PRE><B>
+$ mpvis
+</B></PRE>
+<UL>
+    <LI> Move the cursor over each block in the scene. Take time to read the 
     (changed) text box above the 3D scene and understand what it is telling 
     you. In particular, identify the source of the metric, the name of the 
     metric, the instance of the metric, the current value ... can you 
     explain what &quot;millisec / second&quot; really means? 
-    <P>
-    </P>
-    <LI>
-    Click the left mouse over one block in the scene. How is this 
+    <LI> Click the left mouse over one block in the scene. How is this 
     different? 
-    <P>
-    </P>
-    <LI>
-    Click on the &quot;Live&quot; button or Ctrl-T or <B><I>Options-&gt;Show 
+    <LI> Click on the &quot;Live&quot; button or Ctrl-T or <B><I>Options-&gt;Show 
     Time Control</I></B> from the menu bar. In the <B>PCP Live Time 
     Control</B> dialog, experiment with changing the update <B><I>Interval</I></B>
      (this is the interval at which new metric values are fetched from <I>pmcd</I>). 
-    <P>
-    </P>
-    <LI>
-    Quit with <B><I>File-&gt;Quit</I></B> or Ctrl-Q. 
-</OL>
-<HR>
-<H3>
-<A NAME="archive">Retrospective</A> monitoring and tool drill-down</H3>
-<OL>
-    <LI>
-    The <I>dkvis</I> command monitors the per-disk I/O activity: 
-    <PRE>
-<B>$</B> dkvis -a $archive_dir/babylon.perdisk
-</PRE>
-    <P>
-    </P>
-    <LI>
-    In the <I>dkvis</I> window (above the top left-hand corner of the 
+    <LI> Quit with <B><I>File-&gt;Quit</I></B> or Ctrl-Q. 
+</UL>
+</TD></TR>
+</TABLE>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="archive">Retrospective monitoring and tool drill-down</A></B></FONT></P></TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;The <I>dkvis</I> command monitors the per-disk I/O activity:<BR>
+<PRE><B>
+$ . /etc/pcp.env
+$ cd $PCP_DEMOS_DIR/pmview
+$ dkvis -a $archive_dir/babylon.perdisk
+</B></PRE>
+<UL>
+    <LI> In the <I>dkvis</I> window (above the top left-hand corner of the 
     scene) change the <B><I>Scale</I></B> to be 5 using either the 
     thumbwheel or the text box to the right of the thumbwheel. 
-    <P>
-    </P>
-    <LI>
-    In the associated <B>PCP Archive Time Control</B> dialog, changing 
+    <LI> In the associated <B>PCP Archive Time Control</B> dialog, changing 
     the update <B><I>Interval</I></B> to 2 minutes (remember to Enter 
     after you have changed the <B><I>Interval</I></B> text box).
-    <P>
-    </P>
-    <LI>
-    Double click the <B><I>Play</I></B> button. When the replay 
+    <LI> Double click the <B><I>Play</I></B> button. When the replay 
     finished, drag the slider in the <B>PCP Archive Time Control</B>
-     dialog back to near the middle of the range and release the 
+    dialog back to near the middle of the range and release the 
     slider. 
-    <P>
-    </P>
-    <LI>
-    Back in the <I>dkvis</I> window, move the cursor over each block in 
+    <LI> Back in the <I>dkvis</I> window, move the cursor over each block in 
     the scene. Take time to read the (changed) text box above the 3D scene 
     and understand what it's telling you. In particular, identify the 
     source of the metric, the name of the metric, the instance of the 
     metric, the current value ... can you explain what &quot;count / 
     second&quot; really means? 
-    <P>
-    </P>
-    <LI>
-    Select all of the blocks for controller <B>dks1</B> (use 
+    <LI> Select all of the blocks for controller <B>dks1</B> (use 
     &quot;Shift-select&quot; to do multiple selections), and then <B><I>Launch-&gt;pmchart</I></B>
      from the main menu. In the pmchart window use <B><I>File-&gt;Open 
     View</I></B> from the menu bar to add the <B>LoadAvg</B> view. 
     This is a &quot;drill-down&quot; example. 
-    <P>
-    </P>
-    <LI>
-    Use the <B>PCP Archive Time Control</B> dialog again - this time 
+    <LI> Use the <B>PCP Archive Time Control</B> dialog again - this time 
     notice that you're controlling movement through both <I>dkvis</I>
-     and <I>pmchart</I> using the same time control window (that's 
+    and <I>pmchart</I> using the same time control window (that's 
     because <I>pmchart</I> was launched from <I>dkvis</I>). 
-    <P>
-    </P>
-    <LI>
-    Quit from <I>dkvis</I>. Notice that <I>pmchart</I> and the <I>pmtime</I>
-     dialog remain. Quit from <I>pmchart</I>.
-</OL>
-<HR>
-<H3>
-<A NAME="vis">The</A> &quot;*vis&quot; tools</H3>
+    <LI> Quit from <I>dkvis</I>. Notice that <I>pmchart</I> and the <I>pmtime</I>
+    dialog remain. Quit from <I>pmchart</I>.
+</UL>
+</TD></TR>
+</TABLE>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="vis">The &quot;*vis&quot; tools</A></B></FONT></P></TD></TR>
+</TABLE>
 <OL>
     <LI>
     Try some of the other &quot;*vis&quot; tools. All of these are 
@@ -209,25 +134,22 @@ Chapter Contents</H4>
     <P>
     and move the cursor over each baseplane for more information. Now try:</P>
     <PRE>
-<B>$</B> pmafm $archive_dir/godzillaweb replay
+<B>$</B> pmafm pmie/godzillaweb.folio replay
 </PRE>
     <P>
     <I>pmafm</I> is a folio manager which allows you to work with a folio of archives for
     many visualisation tools; in this case, with the folio <TT>godzillaweb</TT>.
     </P>
-    <LI>
-    Other <I>pmview</I> front-ends include: <I>osvis</I>, <I>nfsvis</I>, <I>routervis</I>,
-    <I>xbowvis</I>, <I>webvis</I>... take an opportunity to browse around the available
-    front-end *vis scripts in the <B>PerfTools</B> category of the <B>Icon Catalog</B>
-    (use the <B>Find</B> menu of the <B>Toolchest</B>) and review their manual pages.
 </OL>
-<HR>
-<H3>
-<A NAME="simple">Simple</A> scene construction</H3>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="simple">Simple scene construction</A></B></FONT></P></TD></TR>
+</TABLE>
 <OL>
     <LI>
-    The text file <i>$PCP_VAR_DIR/Tutorial/Scripts/pmview.lab</i>
-     specifies a <I>pmview</I> configuration has one baseplane with 
+    The text file <i>$PCP_DEMOS_DIR/pmview/example.scene</i>
+    specifies a <I>pmview</I> configuration has one baseplane with 
     one bar containing three metrics (5, 10, and 15 minute load averages), 
     and separate bars for each of the disk read and disk write metrics. 
     <P>
@@ -267,10 +189,14 @@ Hints</H4>
     The <I>pmview(1)</I> man page describes the <I>pmview </I>configuration 
     format in detail. Look for the <B><TT>_stack</TT></B> object. 
 </UL>
+
+<P><BR></P>
 <HR>
-<P>
-This chapter is complete, you may return to the <A
- HREF="index.html#contents">Tutorial Contents</A> in the introductory 
-chapter. </P>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=80%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc.</FONT></P></TD>
+	<TD WIDTH=20%><P ALIGN=RIGHT><A HREF="http://oss.sgi.com/projects/pcp/"><FONT COLOR="#000060">PCP</FONT></A></P></TD> </TR>
+</TABLE>
+</CENTER>
 </BODY>
 </HTML>
