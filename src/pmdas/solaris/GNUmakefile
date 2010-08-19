@@ -32,7 +32,7 @@ CFILES	= solaris.c data.c sysinfo.c disk.c zpool.c zfs.c \
 
 BARE_NS = disk kernel mem network hinv zpool zfs zpool_perdisk
 PMNS	= $(BARE_NS:%=pmns.%)
-LSRCFILES = $(PMNS) help root common.h
+LSRCFILES = $(PMNS) help root common.h clusters.h netmib2.h
 LDIRT	= domain.h *.log *.dir *.pag root_solaris
 
 LLDLIBS = -lpcp -lpcp_pmda -lkstat -lzfs -lnvpair -lkvm
