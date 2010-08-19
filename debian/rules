@@ -16,6 +16,7 @@ uninstalldirs =	debian/$(pcpgui)/usr/share/doc/pcp-doc/html/images \
 		debian/$(pcpgui)/usr/share/doc/pcp-doc/html/importdata \
 		debian/$(pcpgui)/usr/share/doc/pcp-doc/html/diskmodel \
 		debian/$(pcpgui)/usr/share/doc/pcp-doc/html/pmie \
+		debian/$(pcpgui)/usr/share/doc/pcp-doc/html/pmview \
 		debian/$(pcpgui)/usr/share/doc/pcp-doc/html \
 		debian/$(pcpgui)/usr/share/doc-base
 uninstalld = rmdir $(uninstalldirs)

@@ -45,6 +45,14 @@ tools constructed as front-ends to it.</P>
     <LI>
     <A HREF="#simple">Simple scene construction</A> 
 </UL>
+<TABLE WIDTH=50% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Extract the PCP archives and configuration files we will use in this tutorial into the current working directory:
+<PRE><B>
+$ . /etc/pcp.env
+$ tar xzf $PCP_DEMOS_DIR/tutorials/pmview.tar.gz
+</B></PRE>
+</TD></TR>
+</TABLE>
 <P>For an explanation of Performance Co-Pilot terms and acronyms, consult 
 the <A HREF="glossary.html">PCP glossary</A>.</P>
 
@@ -52,8 +60,11 @@ the <A HREF="glossary.html">PCP glossary</A>.</P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="realtime">Live monitoring and user interface concepts</A></B></FONT></P></TD></TR>
 </TABLE>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;The <I>mpvis</I> command monitors the CPU utilization for each CPU:<BR>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=568><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/mpvis.png" BORDER=0></CENTER></P></TD>
+	<TD WIDTH=10></TD>
+	<TD><TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+		<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;The <I>mpvis</I> command monitors the CPU utilization for each CPU:<BR>
 <PRE><B>
 $ mpvis
 </B></PRE>
@@ -65,25 +76,26 @@ $ mpvis
     explain what &quot;millisec / second&quot; really means? 
     <LI> Click the left mouse over one block in the scene. How is this 
     different? 
-    <LI> Click on the &quot;Live&quot; button or Ctrl-T or <B><I>Options-&gt;Show 
-    Time Control</I></B> from the menu bar. In the <B>PCP Live Time 
+    <LI> Click on the &quot;Live&quot; button or Ctrl-T or <B><I>Options -&gt;
+    Show Time Control</I></B> from the menu bar. In the <B>PCP Live Time 
     Control</B> dialog, experiment with changing the update <B><I>Interval</I></B>
      (this is the interval at which new metric values are fetched from <I>pmcd</I>). 
-    <LI> Quit with <B><I>File-&gt;Quit</I></B> or Ctrl-Q. 
+    <LI> Quit with <B><I>File -&gt; Quit</I></B> or Ctrl-Q. 
 </UL>
-</TD></TR>
+		</TD></TR>
+	</TABLE></TD>
 </TABLE>
 
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="archive">Retrospective monitoring and tool drill-down</A></B></FONT></P></TD></TR>
 </TABLE>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;The <I>dkvis</I> command monitors the per-disk I/O activity:<BR>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR><TD><TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+		<TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;The <I>dkvis</I> command monitors the per-disk I/O activity:<BR>
 <PRE><B>
-$ . /etc/pcp.env
-$ cd $PCP_DEMOS_DIR/pmview
-$ dkvis -a $archive_dir/babylon.perdisk
+$ dkvis -a pmie/babylon.perdisk
 </B></PRE>
 <UL>
     <LI> In the <I>dkvis</I> window (above the top left-hand corner of the 
@@ -103,9 +115,9 @@ $ dkvis -a $archive_dir/babylon.perdisk
     metric, the current value ... can you explain what &quot;count / 
     second&quot; really means? 
     <LI> Select all of the blocks for controller <B>dks1</B> (use 
-    &quot;Shift-select&quot; to do multiple selections), and then <B><I>Launch-&gt;pmchart</I></B>
-     from the main menu. In the pmchart window use <B><I>File-&gt;Open 
-    View</I></B> from the menu bar to add the <B>LoadAvg</B> view. 
+    &quot;Shift-select&quot; to do multiple selections), and then <B><I>Launch -&gt; pmchart</I></B>
+    from the main menu. In the pmchart window use <B><I>File -&gt; Open View</I></B>
+    from the menu bar to add the <B>LoadAvg</B> view. 
     This is a &quot;drill-down&quot; example. 
     <LI> Use the <B>PCP Archive Time Control</B> dialog again - this time 
     notice that you're controlling movement through both <I>dkvis</I>
@@ -114,63 +126,56 @@ $ dkvis -a $archive_dir/babylon.perdisk
     <LI> Quit from <I>dkvis</I>. Notice that <I>pmchart</I> and the <I>pmtime</I>
     dialog remain. Quit from <I>pmchart</I>.
 </UL>
-</TD></TR>
+		</TD></TABLE>
+	</TD>
+	<TD WIDTH=10></TD>
+	<TD WIDTH=486><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/dkvis.png" BORDER=0></CENTER></P></TD>
+	</TR>
 </TABLE>
 
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="vis">The &quot;*vis&quot; tools</A></B></FONT></P></TD></TR>
 </TABLE>
-<OL>
-    <LI>
-    Try some of the other &quot;*vis&quot; tools. All of these are 
-    "front-ends" to <I>pmview</I> as shown in this diagram:
+<P> Try some of the other &quot;*vis&quot; tools. All of these are 
+    "front-ends" to <I>pmview</I> as shown in this diagram:</P>
 <CENTER>
 <IMG SRC="images/pmview.flow.png" ALIGN="MIDDLE" WIDTH="444" HEIGHT="227">
 </CENTER>
-    <PRE>
-<B>$</B> osvis -h $pmcd_host
-</PRE>
-    <P>
-    and move the cursor over each baseplane for more information. Now try:</P>
-    <PRE>
-<B>$</B> pmafm pmie/godzillaweb.folio replay
-</PRE>
-    <P>
-    <I>pmafm</I> is a folio manager which allows you to work with a folio of archives for
-    many visualisation tools; in this case, with the folio <TT>godzillaweb</TT>.
-    </P>
-</OL>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;In a command shell enter:<BR>
+<PRE><B>
+$ osvis
+</B></PRE>
+Move the cursor over each baseplane for more information.&nbsp;&nbsp;Now enter:
+<PRE><B>
+$ pmafm pmie/godzillaweb.folio replay
+</B></PRE>
+<I>pmafm</I> is a folio manager which allows you to work with a folio of archives for
+many visualisation tools; in this case, with the folio <TT>godzillaweb</TT>.
+</TD></TR>
+</TABLE>
 
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="simple">Simple scene construction</A></B></FONT></P></TD></TR>
 </TABLE>
-<OL>
-    <LI>
-    The text file <i>$PCP_DEMOS_DIR/pmview/example.scene</i>
-    specifies a <I>pmview</I> configuration has one baseplane with 
-    one bar containing three metrics (5, 10, and 15 minute load averages), 
-    and separate bars for each of the disk read and disk write metrics. 
-    <P>
-    </P>
-    <LI>
-    To display this scene, run: 
-    <PRE>
-<B>$</B> pmview -h $pmcd_host &lt;$script_dir/pmview.lab
-</PRE>
-    <P>
-    </P>
-    <LI>
-    The exercise is to copy pmview.lab and modify the configuration so that 
-    instead of having the disk metrics as two separate blocks (bars), they 
-    appear as a single stacked bar showing both metrics in top of on 
-    another. 
-    <P>
-    </P>
-</OL>
-<H4>
-Hints</H4>
+<P>The text file <A HREF="pmview/example.view">pmview/example.view</A>
+specifies a <I>pmview</I> configuration having one baseplane with 
+one bar containing three metrics (5, 10, and 15 minute load averages), 
+and separate bars for each of the disk read and write metrics. 
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To display this scene, run:<BR>
+<PRE><B>
+$ pmview &lt; pmie/example.view
+</B></PRE>
+An a learning exercise, copy <I>example.view</I> and modify the configuration so
+that instead of having the disk metrics as two separate blocks (bars), they 
+appear as a single stacked bar showing both metrics, one on top of the other. 
+</TD></TR>
+</TABLE>
+<H4>Hints</H4>
 <UL>
     <LI>
     The <I>osvis</I> tool we saw earlier uses stacked bars for memory 
@@ -182,7 +187,7 @@ Hints</H4>
     configuration (do not launch <I>pmview</I>). So the following may 
     be helpful: 
     <PRE>
- <I> </I><B>$</B><I> </I>osvis -V -C<I> </I>-h $pmcd_host
+ <I> </I><B>$</B><I> </I>osvis -V -C<I> </I>
     
 </PRE>
     <LI>

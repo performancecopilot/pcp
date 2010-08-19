@@ -59,6 +59,7 @@ usr/share/doc/pcp-doc/html/images/mover.nfile.step.png
 usr/share/doc/pcp-doc/html/images/mover.nfile.counter.png
 usr/share/doc/pcp-doc/html/images/mover.nfile.instant.3min.png
 usr/share/doc/pcp-doc/html/images/mover.nfile.counter.3min.png
+usr/share/doc/pcp-doc/html/images/mpvis.png
 usr/share/doc/pcp-doc/html/images/ovevents.png
 usr/share/doc/pcp-doc/html/images/pcpicon.png
 usr/share/doc/pcp-doc/html/images/pmcharticon.png
@@ -105,3 +106,12 @@ usr/share/doc/pcp-doc/html/pmie/answer.pmie
 usr/share/doc/pcp-doc/html/pmie/disk.pmie
 usr/share/doc/pcp-doc/html/pmie/pswitch.pmie
 usr/share/doc/pcp-doc/html/pmie/pswitch.view
+usr/share/doc/pcp-doc/html/pmview/example.view
+usr/share/doc/pcp-doc/html/pmview/godzilla.disk.0
+usr/share/doc/pcp-doc/html/pmview/godzilla.disk.index
+usr/share/doc/pcp-doc/html/pmview/godzilla.disk.meta
+usr/share/doc/pcp-doc/html/pmview/godzilla.web.0
+usr/share/doc/pcp-doc/html/pmview/godzilla.web.folio
+usr/share/doc/pcp-doc/html/pmview/godzilla.web.index
+usr/share/doc/pcp-doc/html/pmview/godzilla.web.meta
+usr/share/doc/pcp-doc/html/pmview/godzilla.web.view
