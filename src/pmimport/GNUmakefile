@@ -19,7 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 CFILES = 
 CMDTARGET =
 LLDLIBS =
-SUBDIRS = sar2pcp sheet2pcp iostat2pcp examples
+SUBDIRS = sar2pcp sheet2pcp iostat2pcp
 
 default: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
