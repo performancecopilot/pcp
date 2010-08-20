@@ -5,7 +5,7 @@ Homepage: http://oss.sgi.com/projects/pcp
 Maintainer: Nathan Scott <nathans@debian.org>
 Uploaders: Anibal Monsalve Salazar <anibal@debian.org>
 Build-Depends: autoconf, bison, flex, gawk, procps, debhelper (>= 5), perl (>= 5.6), libreadline-dev
-Standards-Version: 3.9.0
+Standards-Version: 3.9.1
 
 Package: pcp
 Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, sysv-rc-conf, cpp
@@ -260,10 +260,27 @@ Description: Performance Co-Pilot Memory Mapped Value Perl module
  instrumented script into the PCP infrastructure for monitoring
  and analysis with pmchart, pmie, pmlogger and other PCP tools.
 
-Package: pcp-import
+Package: pcp-import-sar2pcp
+Depends: ${perl:Depends}, ${misc:Depends}, libpcp-import-perl, libxml-tokeparser-perl
+Architecture: all
+Description: Tool for importing data from sar into PCP archive logs
+ Performance Co-Pilot (PCP) front-end tool for importing data from sar
+ into standard PCP archive logs for replay with any PCP monitoring tool
+ (such as pmie, pmlogsummary, pmchart or pmdumptext).
+
+Package: pcp-import-sheet2pcp
 Depends: ${perl:Depends}, ${misc:Depends}, libpcp-import-perl, libxml-tokeparser-perl, libspreadsheet-read-perl
 Architecture: all
-Description: Tools for importing 3rd party data into PCP archive logs
- Performance Co-Pilot (PCP) front-end tools for importing 3rd party data
+Description: Tool for importing data from a spreadsheet into PCP archive logs
+ Performance Co-Pilot (PCP) front-end tool for importing spreadheet data
  into standard PCP archive logs for replay with any PCP monitoring tool.
- Currently imports data from sar, iostat and generic spreadsheets.
+ (such as pmie, pmlogsummary, pmchart, or pmdumptext).
+
+Package: pcp-import-iostat2pcp
+Depends: ${perl:Depends}, ${misc:Depends}, libpcp-import-perl
+Architecture: all
+Description: Tool for importing data from iostat into PCP archive logs
+ Performance Co-Pilot (PCP) front-end tool for importing data from iostat
+ into standard PCP archive logs for replay with any PCP monitoring tool.
+ (such as pmie, pmlogsummary, pmchart or pmdumptext).
+

@@ -3,9 +3,17 @@ include $(TOPDIR)/src/include/builddefs
 
 PCP_FILES = pcp.prerm pcp.postinst pcp.postrm
 
-PCPIMPORT = pcp-import
-PCPIMPORT_FILES = pcp-import.install
-PCPIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import
+PCPIMPORTSAR = pcp-import-sar2pcp
+PCPIMPORTSAR_FILES = pcp-import-sar2pcp.install
+PCPIMPORTSAR_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-sar2pcp
+
+PCPIMPORTSHEET = pcp-import-sheet2pcp
+PCPIMPORTSHEET_FILES = pcp-import-sheet2pcp.install
+PCPIMPORTSHEET_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-sheet2pcp
+
+PCPIMPORTIOSTAT = pcp-import-iostat2pcp
+PCPIMPORTIOSTAT_FILES = pcp-import-iostat2pcp.install
+PCPIMPORTIOSTAT_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-iostat2pcp
 
 LIBPCPPCP = libpcp3
 LIBPCP_FILES = libpcp3.dirs libpcp3.install
@@ -47,14 +55,16 @@ SUBDIRS = source
 LDIRT = *.debhelper *.substvars *.log pcp files $(LIBPCPPCP) $(LIBPCPPCP)-dev \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
 	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev \
-	$(LIBIMPORTPCP) $(LIBIMPORTPCP)-dev $(PCPIMPORT)
+	$(LIBIMPORTPCP) $(LIBIMPORTPCP)-dev \
+	$(PCPIMPORTSAR) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT)
 LSRCFILES = changelog compat control copyright rules \
 		$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) shlibs.local \
 		$(LIBGUI_FILES) $(DEVGUI_FILES) \
 		$(LIBMMV_FILES) $(DEVMMV_FILES) \
 		$(LIBPMDA_FILES) $(DEVPMDA_FILES) \
 		$(LIBTRACE_FILES) $(DEVTRACE_FILES) \
-		$(LIBIMPORT_FILES) $(DEVIMPORT_FILES) $(PCPIMPORT_FILES)
+		$(LIBIMPORT_FILES) $(DEVIMPORT_FILES) \
+		$(PCPIMPORTSAR_FILES) $(PCPIMPORTSHEET_FILES) $(PCPIMPORTIOSTAT_FILES)
 
 default:
 
@@ -154,9 +164,23 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 644 changelog $(DEVIMPORT_DOC_DIR)/changelog.Debian
 endif
 
-install-pcpimport: default
+install-pcpimportsar: default
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
-	$(INSTALL) -m 755 -d $(PCPIMPORT_DOC_DIR)
-	$(INSTALL) -m 644 copyright $(PCPIMPORT_DOC_DIR)
-	$(INSTALL) -m 644 changelog $(PCPIMPORT_DOC_DIR)/changelog.Debian
+	$(INSTALL) -m 755 -d $(PCPIMPORTSAR_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPIMPORTSAR_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPIMPORTSAR_DOC_DIR)/changelog.Debian
+endif
+
+install-pcpimportsheet: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPIMPORTSHEET_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPIMPORTSHEET_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPIMPORTSHEET_DOC_DIR)/changelog.Debian
+endif
+
+install-pcpimportiostat: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPIMPORTIOSTAT_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPIMPORTIOSTAT_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPIMPORTIOSTAT_DOC_DIR)/changelog.Debian
 endif
