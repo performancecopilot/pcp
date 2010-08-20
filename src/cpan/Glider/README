@@ -36,7 +36,7 @@ Step 2 -- install initial bootstrap tools
 DOS> msiexec /i strawberry-perl-*.msi
 [ graphical installer ]
   - accept all the defaults
-  - should have a populated C:\Strawberry\* at the end.
+  - should have a populated C:\strawberry\* at the end.
 
 DOS> Git*.exe
 [ graphical installer ]
@@ -49,7 +49,7 @@ DOS> qt-win-opensource-*-mingw.exe
 [ graphical installer ]
   - install to C:\Qt
   - enter the "Previously installed MinGW" at:
-	C:\Strawberry\c
+	C:\strawberry\c
   - ignore warning about mismatched versions (moving to a
     newer version of Qt will probably fix this up).
 
@@ -88,9 +88,9 @@ GIT> vi etc/fstab
   d:/source            /source
 GIT> mkdir -p /d/source/git
 GIT> cd /d/source/git
-GIT> git clone git://oss.sgi.com/nathans/pcp.git
-GIT> git clone git://oss.sgi.com/nathans/pcpqa.git
-GIT> git clone git://oss.sgi.com/nathans/pcp-gui.git
+GIT> git clone git://oss.sgi.com/pcp/pcp.git
+GIT> git clone git://oss.sgi.com/pcp/pcpqa.git
+GIT> git clone git://oss.sgi.com/pcphans/pcp-gui.git
 
 
 Step 4 -- building PCP from the git tree
