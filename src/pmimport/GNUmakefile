@@ -16,9 +16,6 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES = 
-CMDTARGET =
-LLDLIBS =
 SUBDIRS = sar2pcp sheet2pcp iostat2pcp
 
 default: $(SUBDIRS)
@@ -26,7 +23,7 @@ default: $(SUBDIRS)
 
 include $(BUILDRULES)
 
-install:	default $(SUBDIRS)
+install: default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 default_pcp: default
