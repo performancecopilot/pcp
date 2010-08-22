@@ -268,6 +268,15 @@ Description: Tool for importing data from sar into PCP archive logs
  into standard PCP archive logs for replay with any PCP monitoring tool
  (such as pmie, pmlogsummary, pmchart or pmdumptext).
 
+Package: pcp-import-mrtg2pcp
+Depends: ${perl:Depends}, ${misc:Depends}, libpcp-import-perl
+Architecture: all
+Description: Tool for importing data from MRTG into PCP archive logs
+ Performance Co-Pilot (PCP) front-end tool for importing data from MRTG
+ (the Multi Router Traffic Grapher tool) into standard PCP archive logs
+ for replay with any PCP monitoring tool (such as pmie, pmlogsummary,
+ pmchart or pmdumptext).
+
 Package: pcp-import-sheet2pcp
 Depends: ${perl:Depends}, ${misc:Depends}, libpcp-import-perl, libxml-tokeparser-perl, libspreadsheet-read-perl
 Architecture: all

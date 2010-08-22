@@ -7,6 +7,10 @@ PCPIMPORTSAR = pcp-import-sar2pcp
 PCPIMPORTSAR_FILES = pcp-import-sar2pcp.install
 PCPIMPORTSAR_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-sar2pcp
 
+PCPIMPORTMRTG = pcp-import-mrtg2pcp
+PCPIMPORTMRTG_FILES = pcp-import-mrtg2pcp.install
+PCPIMPORTMRTG_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-mrtg2pcp
+
 PCPIMPORTSHEET = pcp-import-sheet2pcp
 PCPIMPORTSHEET_FILES = pcp-import-sheet2pcp.install
 PCPIMPORTSHEET_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-sheet2pcp
@@ -56,7 +60,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files $(LIBPCPPCP) $(LIBPCPPCP)-dev \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
 	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev \
 	$(LIBIMPORTPCP) $(LIBIMPORTPCP)-dev \
-	$(PCPIMPORTSAR) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT)
+	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT)
 LSRCFILES = changelog compat control copyright rules \
 		$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) shlibs.local \
 		$(LIBGUI_FILES) $(DEVGUI_FILES) \
@@ -64,7 +68,8 @@ LSRCFILES = changelog compat control copyright rules \
 		$(LIBPMDA_FILES) $(DEVPMDA_FILES) \
 		$(LIBTRACE_FILES) $(DEVTRACE_FILES) \
 		$(LIBIMPORT_FILES) $(DEVIMPORT_FILES) \
-		$(PCPIMPORTSAR_FILES) $(PCPIMPORTSHEET_FILES) $(PCPIMPORTIOSTAT_FILES)
+		$(PCPIMPORTSAR_FILES) $(PCPIMPORTMRTG_FILES) \
+		$(PCPIMPORTSHEET_FILES) $(PCPIMPORTIOSTAT_FILES)
 
 default:
 
@@ -169,6 +174,13 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(PCPIMPORTSAR_DOC_DIR)
 	$(INSTALL) -m 644 copyright $(PCPIMPORTSAR_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(PCPIMPORTSAR_DOC_DIR)/changelog.Debian
+endif
+
+install-pcpimportmrtg: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPIMPORTMRTG_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPIMPORTMRTG_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPIMPORTMRTG_DOC_DIR)/changelog.Debian
 endif
 
 install-pcpimportsheet: default

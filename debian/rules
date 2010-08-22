@@ -18,6 +18,7 @@ libpcp_tracedev = libpcp-trace2-dev
 libpcp_import = libpcp-import1
 libpcp_importdev = libpcp-import1-dev
 pcp_import_sar = pcp-import-sar2pcp
+pcp_import_mrtg = pcp-import-mrtg2pcp
 pcp_import_sheet = pcp-import-sheet2pcp
 pcp_import_iostat = pcp-import-iostat2pcp
 
@@ -39,6 +40,7 @@ dirlibpcp_tracedev = debian/$(libpcp_tracedev)
 dirlibpcp_import = debian/$(libpcp_import)
 dirlibpcp_importdev = debian/$(libpcp_importdev)
 dirpcp_import_sar = debian/$(pcp_import_sar)
+dirpcp_import_mrtg = debian/$(pcp_import_mrtg)
 dirpcp_import_sheet = debian/$(pcp_import_sheet)
 dirpcp_import_iostat = debian/$(pcp_import_iostat)
 alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) \
@@ -48,7 +50,8 @@ alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) \
 		$(dirlibpcp_import) $(dirlibpcp_importdev) \
 		$(dirlibpcp_import_perl) $(dirpcp_logsummary_perl) \
 		$(dirlibpcp_mmv) $(dirlibpcp_mmvdev) $(dirlibpcp_mmv_perl) \
-		$(dirpcp_import_sar) $(dirpcp_import_sheet) $(dirpcp_import_iostat) \
+		$(dirpcp_import_sar) $(dirpcp_import_mrtg) \
+		$(dirpcp_import_sheet) $(dirpcp_import_iostat) \
 
 zip = @export GZIP=-9q
 pkgpcp = $(zip); export DIST_ROOT=`pwd`/$(dirpcp);
@@ -63,6 +66,7 @@ pkglibpcp_pmda_perl = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_pmda_perl);
 pkglibpcp_import_perl = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_import_perl);
 pkgpcp_logsummary_perl = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_logsummary_perl);
 pkgpcp_import_sar = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_import_sar);
+pkgpcp_import_mrtg = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_import_mrtg);
 pkgpcp_import_sheet = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_import_sheet);
 pkgpcp_import_iostat = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_import_iostat);
 
@@ -105,6 +109,7 @@ binary-arch: checkroot built
 	$(pkglibpcp_import_perl) $(MAKE) -C src/cpan/LogImport install_perl
 	$(pkgpcp_logsummary_perl) $(MAKE) -C src/cpan/LogSummary install_perl
 	$(pkgpcp_import_sar) $(MAKE) -C src/pmimport/sar2pcp install
+	$(pkgpcp_import_mrtg) $(MAKE) -C src/pmimport/mrtg2pcp install
 	$(pkgpcp_import_sheet) $(MAKE) -C src/pmimport/sheet2pcp install
 	$(pkgpcp_import_iostat) $(MAKE) -C src/pmimport/iostat2pcp install
 
@@ -134,6 +139,7 @@ binary-arch: checkroot built
 	dh_perl -p $(libpcp_import_perl)
 	dh_perl -p $(pcp_logsummary_perl)
 	dh_perl -p $(pcp_import_sar)
+	dh_perl -p $(pcp_import_mrtg)
 	dh_perl -p $(pcp_import_sheet)
 	dh_perl -p $(pcp_import_iostat)
 	dh_installdeb
