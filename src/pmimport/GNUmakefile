@@ -16,7 +16,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-SUBDIRS = sar2pcp sheet2pcp iostat2pcp
+SUBDIRS = sar2pcp sheet2pcp iostat2pcp mrtg2pcp
 
 default: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
