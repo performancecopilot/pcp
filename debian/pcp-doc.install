@@ -41,7 +41,6 @@ usr/share/doc/pcp-doc/html/diskmodel/nasread.out
 usr/share/doc/pcp-doc/html/diskmodel/naswrite.out
 usr/share/doc/pcp-doc/html/images/cpu_pswitch.png
 usr/share/doc/pcp-doc/html/images/dkvis.png
-usr/share/doc/pcp-doc/html/images/iv_hand.png
 usr/share/doc/pcp-doc/html/images/model_biload.png
 usr/share/doc/pcp-doc/html/images/model_dbload.png
 usr/share/doc/pcp-doc/html/images/model_nasload.png
