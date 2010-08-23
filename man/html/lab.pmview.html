@@ -1,5 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
+ (c) Copyright 2010 Aconex. All rights reserved.
  (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
  Permission is granted to copy, distribute, and/or modify this document
  under the terms of the Creative Commons Attribution-Share Alike, Version
@@ -33,15 +34,17 @@ pmtime
 pmchart
 </PRE></TD></TR>
 </TABLE>
-<P>This tutorial discusses <I>pmview</I> and some of the performance monitoring
-tools constructed as front-ends to it.</P>
+<P><B>Note:</B> The open source version of <I>pmview</I> is currently under development, and is <B>not</B> yet shipped as part of PCP GUI, but is available for experimental use in the development source tree.</P>
+<P>Visual tools take advantage of common cognitive skills, especially for visual pattern matching and scene change discrimination.
+The motivation for visualization of performance data is very similar to that used for engineering visualization, visual simulation, and database mining through visualization - visually rich representations of complex data sets are powerful aids to understanding and detection of unexpected relationships.</P>
+
 <UL>
     <LI>
     <A HREF="#realtime">Live monitoring and user interface concepts</A> 
     <LI>
     <A HREF="#archive">Retrospective monitoring and tool drill-down</A> 
     <LI>
-    <A HREF="#vis">The &quot;*vis&quot; tools</A> 
+    <A HREF="#vis">The &quot;vis&quot; tools</A> 
     <LI>
     <A HREF="#simple">Simple scene construction</A> 
 </UL>
@@ -135,9 +138,9 @@ $ dkvis -a pmie/babylon.perdisk
 
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="vis">The &quot;*vis&quot; tools</A></B></FONT></P></TD></TR>
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="vis">The &quot;vis&quot; tools</A></B></FONT></P></TD></TR>
 </TABLE>
-<P> Try some of the other &quot;*vis&quot; tools. All of these are 
+<P> Try some of the other &quot;vis&quot; tools. All of these are 
     "front-ends" to <I>pmview</I> as shown in this diagram:</P>
 <CENTER>
 <IMG SRC="images/pmview.flow.png" ALIGN="MIDDLE" WIDTH="444" HEIGHT="227">
