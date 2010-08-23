@@ -51,12 +51,12 @@ sysinfo_init(int first)
 	if (ksp == NULL) break;
 	if ((ctl = (ctl_t *)realloc(ctl, (ncpu+1) * sizeof(ctl_t))) == NULL) {
 	    fprintf(stderr, "sysinfo_init: ctl realloc[%d] @ cpu=%d failed: %s\n",
-		(ncpu+1) * sizeof(ctl_t), ncpu, strerror(errno));
+		(int)((ncpu+1) * sizeof(ctl_t)), ncpu, strerror(errno));
 	    exit(1);
 	}
 	if ((cpustat = (cpu_stat_t *)realloc(cpustat, (ncpu+1) * sizeof(cpu_stat_t))) == NULL) {
 	    fprintf(stderr, "sysinfo_init: cpustat realloc[%d] @ cpu=%d failed: %s\n",
-		(ncpu+1) * sizeof(cpu_stat_t), ncpu, strerror(errno));
+		(int)((ncpu+1) * sizeof(cpu_stat_t)), ncpu, strerror(errno));
 	    exit(1);
 	}
 	ctl[ncpu].ksp = ksp;

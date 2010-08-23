@@ -44,8 +44,6 @@ zfs_cache_inst(zfs_handle_t *zf, void *arg)
 {
     const char *fsname = zfs_get_name(zf);
     pmInDom zfindom;
-    zfs_handle_t *cached = NULL;
-    uint_t cnt = 0;
     int inst, rv;
     struct zfs_data *zdata = NULL;
     uint64_t *snapcnt = arg;
@@ -58,6 +56,9 @@ zfs_cache_inst(zfs_handle_t *zf, void *arg)
 	(*snapcnt)++;
 	zfindom = indomtab[ZFS_SNAP_INDOM].it_indom;
 	break;
+    default:
+	zfs_close(zf);
+	return 0;
     }
 
     if ((rv = pmdaCacheLookupName(zfindom, fsname, &inst,

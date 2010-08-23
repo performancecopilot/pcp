@@ -115,8 +115,6 @@ netlink_refresh(void)
 void
 netlink_init(int first)
 {
-    int i;
-
     pmdaCacheOp(indomtab[NETLINK_INDOM].it_indom, PMDA_CACHE_LOAD);
     netlink_update_stats(0);
     pmdaCacheOp(indomtab[NETLINK_INDOM].it_indom, PMDA_CACHE_SAVE);

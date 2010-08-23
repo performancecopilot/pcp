@@ -155,7 +155,6 @@ zp_cache_vdevs(zpool_handle_t *zp, void *arg)
 	char *zpname = (char *)zpool_get_name(zp);
 	struct vdev_stats *zps = NULL;
 	pmInDom zpindom = indomtab[ZPOOL_PERDISK_INDOM].it_indom;
-        uint_t cnt = 0;
 	int rv;
 	int inst;
         nvlist_t *vdt;

@@ -23,7 +23,6 @@
 
 #include <fcntl.h>
 #include <stropts.h>
-//#define NEW_MIB_COMPLIANT
 #include <inet/mib2.h>
 #include <sys/tihdr.h>
 #include <sys/socket.h>

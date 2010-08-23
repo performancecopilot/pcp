@@ -691,7 +691,6 @@ init_data(int domain)
     int			i;
     int			serial;
     __pmID_int		*ip;
-    __pmInDom_int	*iip;
 
     /*
      * set up kstat() handle ... failure is fatal
@@ -710,7 +709,7 @@ init_data(int domain)
      */
     if ((metrictab = (pmdaMetric *)malloc(metrictab_sz * sizeof(pmdaMetric))) == NULL) {
 	fprintf(stderr, "init_data: Error: malloc metrictab [%d] failed: %s\n",
-	    metrictab_sz * sizeof(pmdaMetric), strerror(errno));
+	    (int)(metrictab_sz * sizeof(pmdaMetric)), strerror(errno));
 	exit(1);
     }
     for (i = 0; i < metrictab_sz; i++) {

@@ -102,7 +102,6 @@ main(int argc, char **argv)
     int			err = 0;
     int			sep = __pmPathSeparator();
     pmdaInterface	desc;
-    char		*p;
 
     _isDSO = 0;
     __pmSetProgname(argv[0]);

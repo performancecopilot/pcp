@@ -49,12 +49,12 @@ disk_init(int first)
 	if (ksp->ks_type != KSTAT_TYPE_IO) continue;
 	if ((ctl = (ctl_t *)realloc(ctl, (ndisk+1) * sizeof(ctl_t))) == NULL) {
 	    fprintf(stderr, "disk_init: ctl realloc[%d] @ disk=%d failed: %s\n",
-		(ndisk+1) * sizeof(ctl_t), ndisk, strerror(errno));
+		(int)((ndisk+1) * sizeof(ctl_t)), ndisk, strerror(errno));
 	    exit(1);
 	}
 	if ((iostat = (kstat_io_t *)realloc(iostat, (ndisk+1) * sizeof(kstat_io_t))) == NULL) {
 	    fprintf(stderr, "disk_init: iostat realloc[%d] @ disk=%d failed: %s\n",
-		(ndisk+1) * sizeof(kstat_io_t), ndisk, strerror(errno));
+		(int)((ndisk+1) * sizeof(kstat_io_t)), ndisk, strerror(errno));
 	    exit(1);
 	}
 	ctl[ndisk].ksp = ksp;
@@ -132,10 +132,10 @@ disk_derived(pmdaMetric *mdesc, int inst)
     if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
 	/* desperate */
 	fprintf(stderr, "disk_derived: pmid %s inst %d val %llu\n",
-	    pmIDStr(mdesc->m_desc.pmid), inst, val);
+	    pmIDStr(mdesc->m_desc.pmid), inst, (unsigned long long)val);
     }
 #endif
-    
+
     return val;
 }
 
@@ -192,7 +192,8 @@ disk_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 		    if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
 			/* desperate */
 			fprintf(stderr, "disk_fetch: pmid %s inst %d val %llu\n",
-			    pmIDStr(mdesc->m_desc.pmid), i, *ullp);
+			    pmIDStr(mdesc->m_desc.pmid), i,
+			    (unsigned long long)*ullp);
 		    }
 #endif
 		}
