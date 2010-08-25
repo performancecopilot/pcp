@@ -33,6 +33,7 @@ disk.dev {
     total_bytes		SOLARIS:SCLR_DISK:15
     wait
     run
+    errors
 }
 
 disk.dev.wait {
@@ -42,4 +43,16 @@ disk.dev.wait {
 disk.dev.run {
 	time		SOLARIS:SCLR_DISK:18
 	count		SOLARIS:SCLR_DISK:19
+}
+
+disk.dev.errors {
+	soft		SOLARIS:SCLR_DISK:21
+	hard		SOLARIS:SCLR_DISK:22
+	transport	SOLARIS:SCLR_DISK:23
+	media		SOLARIS:SCLR_DISK:24
+	recoverable	SOLARIS:SCLR_DISK:25
+	notready	SOLARIS:SCLR_DISK:26
+	nodevice	SOLARIS:SCLR_DISK:27
+	badrequest	SOLARIS:SCLR_DISK:28
+	pfa		SOLARIS:SCLR_DISK:29
 }

@@ -4,10 +4,19 @@ hinv {
     pagesize	SOLARIS:SCLR_SYSINFO:108
     physmem	SOLARIS:SCLR_SYSINFO:109
     cpu
+    disk
 }
 
 hinv.cpu {
     brand	SOLARIS:0:149
     maxclock	SOLARIS:0:147
     clock	SOLARIS:0:148
+}
+
+hinv.disk {
+    vendor	SOLARIS:SCLR_DISK:30
+    product	SOLARIS:SCLR_DISK:31
+    revision	SOLARIS:SCLR_DISK:32
+    serial	SOLARIS:SCLR_DISK:33
+    capacity	SOLARIS:SCLR_DISK:34
 }

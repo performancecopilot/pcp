@@ -453,3 +453,22 @@ could differ from the nominal ("maximum") clock frequency specified by
 the manufacturer.
 @hinv.cpu.maxclock Maximum clock frequency supported by CPU
 Nominal CPU clock frequency as specified by the manufacturer.
+
+@disk.dev.errors.soft Number of soft errors per device
+@disk.dev.errors.hard Number of hard errors per device
+@disk.dev.errors.transport Number of transport errors per device
+@disk.dev.errors.media Number of media errors per device
+@disk.dev.errors.recoverable Number of recoverable errors per device
+@disk.dev.errors.notready Number of times device reported as not ready
+@disk.dev.errors.nodevice Number of times device was found missing
+@disk.dev.errors.badrequest Number of illegal requests per device
+@disk.dev.errors.pfa Number of times failure prediction threshold has been exceeded
+@hinv.disk.vendor Device Vendor
+Can be reported as ATA if SATA device is behind SAS expander
+@hinv.disk.product Device name
+Vendor's device name (up-to 16 characters long)
+@hinv.disk.revision Device Revision
+@hinv.disk.serial Device Serial Number
+@hinv.disk.capacity Device Capacity
+For removal devices capacity of the media is reported.
+

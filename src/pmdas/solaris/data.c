@@ -319,10 +319,6 @@ metricdesc_t metricdesc[] = {
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
       }, KSTAT_IO_OFF(reads) },
 
-    { "hinv.disk.product",
-      { PMDA_PMID(SCLR_DISK,500), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
-      }, (ptrdiff_t)"Product" },
 
     { "disk.dev.write",
       { PMDA_PMID(SCLR_DISK,11), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER,
@@ -1060,7 +1056,64 @@ metricdesc_t metricdesc[] = {
     { "hinv.cpu.brand",
       {PMDA_PMID(SCLR_SYSINFO, 149), PM_TYPE_STRING, CPU_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
-      }, (ptrdiff_t)"brand"}
+      }, (ptrdiff_t)"brand"},
+
+    { "disk.dev.errors.soft",
+      {PMDA_PMID(SCLR_DISK, 21), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
+      }, (ptrdiff_t)"Soft Errors"},
+    { "disk.dev.errors.hard",
+      {PMDA_PMID(SCLR_DISK, 22), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
+      }, (ptrdiff_t)"Hard Errors"},
+    { "disk.dev.errors.transport",
+      {PMDA_PMID(SCLR_DISK, 23), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
+      }, (ptrdiff_t)"Transport Errors"},
+    { "disk.dev.errors.media",
+      {PMDA_PMID(SCLR_DISK, 24), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
+      }, (ptrdiff_t)"Media Error"},
+    { "disk.dev.errors.recoverable",
+      {PMDA_PMID(SCLR_DISK, 25), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
+      }, (ptrdiff_t)"Recoverable"},
+    { "disk.dev.errors.notready",
+      {PMDA_PMID(SCLR_DISK, 26), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
+      }, (ptrdiff_t)"Device Not Ready"},
+    { "disk.dev.errors.nodevice",
+      {PMDA_PMID(SCLR_DISK, 27), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
+      }, (ptrdiff_t)"No Device"},
+    { "disk.dev.errors.badrequest",
+      {PMDA_PMID(SCLR_DISK, 28), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
+      }, (ptrdiff_t)"Illegal Request"},
+    { "disk.dev.errors.pfa",
+      {PMDA_PMID(SCLR_DISK, 29), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
+      }, (ptrdiff_t)"Predictive Failure Analysis"},
+    { "hinv.disk.vendor",
+      {PMDA_PMID(SCLR_DISK, 30), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, (ptrdiff_t)"Vendor"},
+    { "hinv.disk.product",
+      {PMDA_PMID(SCLR_DISK, 31), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, (ptrdiff_t)"Product"},
+    { "hinv.disk.revision",
+      {PMDA_PMID(SCLR_DISK, 32), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, (ptrdiff_t)"Revision"},
+    { "hinv.disk.serial",
+      {PMDA_PMID(SCLR_DISK, 33), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, (ptrdiff_t)"Serial No"},
+    { "hinv.disk.capacity",
+      { PMDA_PMID(SCLR_DISK,34), PM_TYPE_U64, DISK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, (ptrdiff_t)"Size" }
 
     /* remember to add trailing comma before adding more entries ... */
 };

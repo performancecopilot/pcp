@@ -130,8 +130,10 @@ sysinfo_prefetch(void)
 }
 
 int
-kstat_named_to_pmAtom( const kstat_named_t *kn, pmAtomValue *atom)
+kstat_named_to_pmAtom(const kstat_named_t *kn, pmAtomValue *atom)
 {
+    static char chardat[sizeof(kn->value.c) + 1];
+
     switch (kn->data_type) {
     case KSTAT_DATA_UINT64:
 	atom->ull = kn->value.ui64;
@@ -149,7 +151,9 @@ kstat_named_to_pmAtom( const kstat_named_t *kn, pmAtomValue *atom)
 	atom->cp = kn->value.str.addr.ptr;
 	return 1;
     case KSTAT_DATA_CHAR:
-	atom->cp = (char *)kn->value.c;
+	memcpy(chardat, kn->value.c, sizeof(kn->value.c));
+	chardat[sizeof(chardat)-1] = '\0';
+	atom->cp = chardat;
 	return 1;
     default:
 	return 0;
