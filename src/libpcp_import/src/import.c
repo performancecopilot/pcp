@@ -4,16 +4,16 @@
 #include "domain.h"
 #include "private.h"
 
-static pmi_context *context_tab = NULL;
-static int ncontext = 0;
-static pmi_context *current = NULL;
+static pmi_context *context_tab;
+static int ncontext;
+static pmi_context *current;
 
 void
 pmiDump(void)
 {
     FILE	*f = stderr;
 
-    fprintf(f, "pmiDump: context %d of %d", current-context_tab, ncontext);
+    fprintf(f, "pmiDump: context %ld of %d", current - context_tab, ncontext);
     if (current == NULL) {
 	fprintf(f, " Error: current context is not defined.\n");
 	return;
