@@ -77,4 +77,18 @@ AC_DEFUN([AC_PACKAGE_GLOBALS],
     fi
     test -z "$HTMLDIR" || pkg_html_dir="$HTMLDIR"
     AC_SUBST(pkg_html_dir)
+
+    pkg_icon_dir=`eval echo $datadir`
+    pkg_icon_dir=`eval echo $pkg_icon_dir/pixmaps`
+    if test "`echo $pkg_icon_dir | sed 's;/.*\$;;'`" = NONE
+    then
+	if test -d /usr/share/doc
+	then
+	    pkg_icon_dir=/usr/share/doc/pcp-gui/pixmaps
+	else
+	    pkg_icon_dir=/usr/share/pcp-gui/pixmaps
+	fi
+    fi
+    test -z "$ICONDIR" || pkg_icon_dir="$ICONDIR"
+    AC_SUBST(pkg_icon_dir)
   ])

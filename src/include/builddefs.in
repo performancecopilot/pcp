@@ -42,7 +42,7 @@ PKG_MAN_DIR	= $(PCP_MAN_DIR)
 PKG_DEMOS_DIR	= $(PCP_DEMOS_DIR)
 PKG_DOC_DIR	= @pkg_doc_dir@
 PKG_HTML_DIR	= @pkg_html_dir@
-PKG_ICON_DIR	= $(datadir)/pixmaps
+PKG_ICON_DIR	= @pkg_icon_dir@
 PKG_DESKTOP_DIR	= $(datadir)/applications
 
 QMAKE		= @qmake@

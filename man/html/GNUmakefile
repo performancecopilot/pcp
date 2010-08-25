@@ -3,8 +3,8 @@ include $(TOPDIR)/src/include/builddefs
 
 HTMLPAGES = $(shell echo *.html)
 OTHERPAGES = pcpdoc.css
-CONFFILES = pmchart.adp pmtime.adp
-CONFIGURE = pmchart.adp.in pmtime.adp.in
+CONFFILES = pcpdoc.adp
+CONFIGURE = pcpdoc.adp.in
 LSRCFILES = $(HTMLPAGES) $(OTHERPAGES) $(CONFIGURE)
 SUBDIRS = images \
 	  cpuperf \

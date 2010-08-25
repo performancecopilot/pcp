@@ -115,7 +115,6 @@ public slots:
     virtual void fileQuit();
     virtual void assistantError(const QString &);
     virtual void helpManual();
-    virtual void helpTutorial();
     virtual void helpAbout();
     virtual void helpSeeAlso();
     virtual void whatsThis();

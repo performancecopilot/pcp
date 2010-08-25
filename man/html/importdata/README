@@ -1,4 +1,4 @@
-mover2pcp - example used in howto.importdata.html in pcp-doc
+mover2pcp - example used in lab.importdata.html in pcp-doc
 
     mover.log - sample log file
     mk.mover.log - script to create fake mover.log

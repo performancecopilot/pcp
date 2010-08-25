@@ -412,7 +412,7 @@ void PmChart::setupAssistant()
     QString documents = HTMLDIR;
     QString separator = QString(__pmPathSeparator());
     documents.append(separator).append("html");
-    documents.append(separator).append("pmchart.adp");
+    documents.append(separator).append("pcpdoc.adp");
 
     QStringList arguments;
     arguments << "-profile" << documents;
@@ -426,16 +426,6 @@ void PmChart::helpManual()
     QString separator = QString(__pmPathSeparator());
     documents.append(separator).append("html");
     documents.append(separator).append("index.html");
-    my.assistant->showPage(documents);
-}
-
-void PmChart::helpTutorial()
-{
-    setupAssistant();
-    QString documents = HTMLDIR;
-    QString separator = QString(__pmPathSeparator());
-    documents.append(separator).append("html");
-    documents.append(separator).append("tutorial.html");
     my.assistant->showPage(documents);
 }
 

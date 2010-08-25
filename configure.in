@@ -39,6 +39,5 @@ AC_OUTPUT( \
 	src/query/pmquery.pro \
 	src/chart/pmchart.pro \
 	src/time/pmtime.pro \
-	man/html/pmchart.adp \
-	man/html/pmtime.adp \
+	man/html/pcpdoc.adp \
 	pcp-gui.lsm )

@@ -774,7 +774,7 @@ void PmTimeArch::setupAssistant()
     QString documents = HTMLDIR;
     QString separator = QString(__pmPathSeparator());
     documents.append(separator).append("html");
-    documents.append(separator).append("pmtime.adp");
+    documents.append(separator).append("pcpdoc.adp");
     arguments << "-profile" << documents;
     my.assistant->setArguments(arguments);
 }

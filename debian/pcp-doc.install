@@ -1,6 +1,4 @@
 usr/share/doc-base/pcp-doc
-usr/share/doc/pcp-doc/html/pmchart.adp
-usr/share/doc/pcp-doc/html/pmtime.adp
 usr/share/doc/pcp-doc/html/cclicense.html
 usr/share/doc/pcp-doc/html/contacts.html
 usr/share/doc/pcp-doc/html/credits.html
@@ -24,6 +22,7 @@ usr/share/doc/pcp-doc/html/lab.pmview.html
 usr/share/doc/pcp-doc/html/lab.trace.html
 usr/share/doc/pcp-doc/html/importdata/mover2pcp
 usr/share/doc/pcp-doc/html/overview.html
+usr/share/doc/pcp-doc/html/pcpdoc.adp
 usr/share/doc/pcp-doc/html/pcpdoc.css
 usr/share/doc/pcp-doc/html/pcpgui.whatsnew.html
 usr/share/doc/pcp-doc/html/pcpintro.html
