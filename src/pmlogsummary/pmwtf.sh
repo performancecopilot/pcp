@@ -12,10 +12,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
 # Compare two PCP archives and report significant differences
 #
 tmp=/var/tmp/$$
@@ -37,6 +33,7 @@ _usage()
     echo "  -B start   start time, second archive (optional)"
     echo "  -E end     end time, second archive (optional)"
     echo "  -x metric  egrep(1) pattern of metric(s) to be excluded"
+    echo "  -X file    file containing egrep(1) patterns to exclude"
     echo "  -z         use local timezone, see PCPIntro(1)"
     echo "  -Z zone    set reporting timezone"
     sts=1
@@ -61,7 +58,7 @@ start2=""
 finish1=""
 finish2=""
 precision=3
-while getopts dp:q:S:T:B:E:x:zZ:? c
+while getopts dp:q:S:T:B:E:x:X:zZ:? c
 do
     case $c
     in
@@ -92,6 +89,9 @@ do
 	    ;;
 	x)
 	    echo "$OPTARG" >>$tmp.exclude
+	    ;;
+	X)
+	    cat "$OPTARG" >>$tmp.exclude
 	    ;;
 	z)
 	    opts="$opts -z"
