@@ -52,11 +52,11 @@ pmafm
 <P>The time axis along the bottom of the window scrolls with the current time, updated every second, by default (this is also called the <I>sample interval</I>).</P>
 <P>To the left of the time axis is the time control status button.</P><P>The blue arrow signifies that (live) time is moving forward.&nbsp;&nbsp;Pressing the button once will show the Time Control tool, <i>pmtime</i>, pressing it a second time hides it.</P>
 	</TD>
-	<TD WIDTH=380><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/pmchart_blank_canvas.png" BORDER=0></CENTER></P></TD>
+	<TD WIDTH=372><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/pmchart_blank_canvas.png" BORDER=0></CENTER></P></TD>
 	</TR>
 </TABLE>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR> <TD WIDTH=350><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/pmtime_live.png" BORDER=0></CENTER></P></TD>
+	<TR> <TD WIDTH=312><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/pmtime_live.png" BORDER=0></CENTER></P></TD>
 	<TD WIDTH=10></TD>
 	<TD><P><BR><P>The time controls allow you to modify various aspects of the flow of time in your charts, and clearly displays the current time position.</P>
 <P>A VCR paradigm is used to allow stopping and starting the flow of time, and in the case of historical data (PCP archives), allow movement both forwards and backwards through time, and allow fast, slow, or step-by-step updates to the displayed data.</P></TD>
@@ -102,7 +102,7 @@ $ find / -xdev >/dev/null 2>&1
 </TD></TR>
 </TABLE>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR> <TD WIDTH=350><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/pmchart_cpu_disk.png" BORDER=0></CENTER></P></TD>
+	<TR> <TD WIDTH=377><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/pmchart_cpu_disk.png" BORDER=0></CENTER></P></TD>
 	<TD WIDTH=15></TD>
 	<TD><P><BR><P>This command scans every inode on the root filesystem, which is usually a local disk.&nbsp;&nbsp;We observe a large increase in disk read operations as each inode is read in from disk (yellow plot in the <I>Disk</I> chart).</P><P>At the same time we observe a small increase in processor utilisation, in both kernel and user mode (red and navy blue in the <I>CPU</I> chart), as the command executes the code to read directories and query the <B>stat</B>(2) information for each file.&nbsp;&nbsp;Since we account for all CPU time, these increases in system and user time cause a corresponding decrease in the idle time (green area in the <I>CPU</I> chart).</P><P>There is also now an increase in the amount of time spent executing interrupt handlers (yellow plot in the <I>CPU</I> chart) since the device must generate an interrupt completion event for every I/O.</P><P>On systems that support a separate I/O wait CPU utilisation metric (Linux 2.6+ and IRIX), we also see a significant amount of time is spent with outstanding I/O requests (cyan plot in the <I>CPU</I> chart).</P></TD>
 	</TR>
@@ -144,7 +144,7 @@ In a command shell, take a look through the saved View configuration.
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;From the <I>Edit</I> menu select the <I>Chart</I> item.<BR></TD></TR>
 </TABLE>
-<P>A tabbed window with every setting for the Disk chart is displayed.&nbsp;&nbsp;In the tree view on the left side of the window are the metrics from our selected Disk chart.
+<P>A tabbed window with all settings for the Disk chart is displayed.&nbsp;&nbsp;In the tree view on the left side of the window are the metrics from our selected Disk chart.
 <BR><CENTER><IMG SRC="images/pmchart_edit_chart.png" BORDER=0></CENTER></P>
 <P>The three tabs on the right side of the window show the current settings for this chart in three categories:<UL><LI>Properties relating to the entire chart (Title, Legend settings, Y-Axis scaling, etc);
 	<LI>Available metrics (performance data) for plotting in the chart
@@ -183,7 +183,7 @@ In a command shell, take a look through the saved View configuration.
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;End your pmchart process now, open a command shell and run:<BR>
 <PRE><B>
-$ pmafm ~/.pcp/pmlogger/20080201.folio replay</B><BR></TD></TR>
+$ pmafm ~/.pcp/pmlogger/20100826.10.11.28.folio replay</B><BR></TD></TR>
 </B></PRE>
 </TABLE>
 <P>(substituting the current recording timestamp into the folio file name from your earlier recording session)</P>
