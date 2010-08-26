@@ -112,6 +112,9 @@ static char		timebuf[32];		/* for pmCtime result + .xxx */
 /* duration of log */
 static double		logspan;
 
+/* optional metric specification, optionally with instances */
+pmMetricSpec		*msp;
+
 /* time manipulation */
 static int
 tsub(struct timeval *a, struct timeval *b)
@@ -222,6 +225,7 @@ printsummary(const char *name)
 {
     int			sts;
     int			i, j;
+    int			star;
     pmID		pmid;
     char		*str;
     const char		*u;
@@ -260,19 +264,30 @@ printsummary(const char *name)
 	    metrictimespan = instdata->lasttime;
 	    tsub(&metrictimespan, &instdata->firsttime);
 	    metricspan = tosec(metrictimespan);
-	    if (avedata->desc.sem == PM_SEM_COUNTER &&
-				metricspan / logspan <= 0.1) {
-		/* counter metric doesn't cover 90% of log */
-		putchar('*');
-	    }
+	    /* counter metric doesn't cover 90% of log */
+	    star = (avedata->desc.sem == PM_SEM_COUNTER && metricspan / logspan <= 0.1);
 	    str = NULL;
+
 	    if ((sts = pmNameInDom(avedata->desc.indom, instdata->inst, &str)) < 0) {
+		if (msp && msp->ninst > 0 && avedata->desc.indom == PM_INDOM_NULL)
+		    break;
+		if (star)
+		    putchar('*');
 		if (avedata->desc.indom == PM_INDOM_NULL)
 		    printf("%s%c", name, delimiter);
 		else
 		    printf("%s%c[%u]", name, delimiter, instdata->inst);
 	    }
 	    else {	/* part of an instance domain */
+		if (msp && msp->ninst > 0) {
+		    for (j = 0; j < msp->ninst; j++)
+			if (strcmp(msp->inst[j], str) == 0)
+			    break;
+		    if (j == msp->ninst)
+			continue;
+		}
+		if (star)
+		    putchar('*');
 		printf("%s%c[\"%s\"]", name, delimiter, str);
 		if (str) free(str);
 	    }
@@ -926,6 +941,7 @@ main(int argc, char *argv[])
     struct timeval 	timespan = {0, 0};
     int			zflag = 0;		/* for -z */
     char 		*tz = NULL;		/* for -Z timezone */
+    char		*archive;
     char		timebuf[32];		/* for pmCtime result + .xxx */
 
     __pmSetProgname(argv[0]);
@@ -1068,8 +1084,9 @@ main(int argc, char *argv[])
     if (errflag || optind >= argc)
 	usage();
 
-    if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, argv[optind])) < 0) {
-	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n", pmProgname, argv[optind], pmErrStr(sts));
+    archive = argv[optind];
+    if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, archive)) < 0) {
+	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n", pmProgname, archive, pmErrStr(sts));
 	exit(1);
     }
     optind++;
@@ -1237,10 +1254,17 @@ main(int argc, char *argv[])
     }
     else {		/* print only selected results */
 	for (i = optind; i < argc; i++) {
-	    if ((sts = pmTraversePMNS(argv[i], printsummary)) < 0) {
-		fprintf(stderr, "%s: PMNS traversal failed for %s: %s\n", pmProgname, argv[i], pmErrStr(sts));
+	    char *msg;
+
+	    if (pmParseMetricSpec(argv[i], 1, archive, &msp, &msg) < 0) {
+		fputs(msg, stderr);
+		free(msg);
 		continue;
 	    }
+	    if ((sts = pmTraversePMNS(msp->metric, printsummary)) < 0)
+		fprintf(stderr, "%s: PMNS traversal failed for %s: %s\n",
+			pmProgname, msp->metric, pmErrStr(sts));
+	    pmFreeMetricSpec(msp);
 	}
     }
 
