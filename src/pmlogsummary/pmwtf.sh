@@ -192,8 +192,18 @@ function doval(v)
     else
 	printf "%*.*f%*s",12+extra,precision,v,1," "
 }
-$3+0 == 0			{ next }
-$2+0 == 0			{ next }
+$3+0 == 0 || $2+0 == 0 {
+		if ($3 == $2)
+		    next
+		doval($2)
+		doval($3)
+		printf "   "
+		if ($3+0 == 0)
+		    printf "|-|   %s\n",$1
+		else if ($2+0 == 0)
+		    printf "|+|   %s\n",$1
+		next
+}
 $2 / $3 > '"$thres"' || $3 / $2 > '"$thres"'	{
 		doval($2)
 		doval($3)
