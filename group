@@ -622,6 +622,7 @@ derive		pcpqa
 419 pmdumplog local oss
 420 pmafm local oss
 421 trace local pmda.install oss
+424 logutil local pmlogsummary oss
 425 wrap logutil local pmlogsummary oss
 426 trace local oss
 427 pmcd #564017 local oss
