@@ -8,9 +8,9 @@ usr/share/doc/pcp-doc/html/howto.cpuperf.html
 usr/share/doc/pcp-doc/html/howto.diskmodel.html
 usr/share/doc/pcp-doc/html/howto.diskperf.html
 usr/share/doc/pcp-doc/html/howto.enterprise.html
-usr/share/doc/pcp-doc/html/howto.importdata.html
 usr/share/doc/pcp-doc/html/index.html
 usr/share/doc/pcp-doc/html/installation.html
+usr/share/doc/pcp-doc/html/lab.importdata.html
 usr/share/doc/pcp-doc/html/lab.mmapvalues.html
 usr/share/doc/pcp-doc/html/lab.pmchart.html
 usr/share/doc/pcp-doc/html/lab.pmdas.html
