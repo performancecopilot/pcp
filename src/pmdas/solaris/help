@@ -470,5 +470,238 @@ Vendor's device name (up-to 16 characters long)
 @hinv.disk.revision Device Revision
 @hinv.disk.serial Device Serial Number
 @hinv.disk.capacity Device Capacity
-For removal devices capacity of the media is reported.
+For removable devices capacity of the media is reported.
 
+@kernel.fs.vnops.access Number of times VOP_ACCESS was called on a specific filesystem
+VOP_ACCESS is used by access(2) system call.
+@kernel.fs.vnops.addmap Number of times VOP_ADDMAP was called on a specific filesystem
+VOP_ADDMAP is used to manage reference counting of the vnode used by
+mmap(2) operations.
+@kernel.fs.vnops.close Number of times VOP_CLOSE was called on the specific filesystem
+VOP_CLOSE is called every time a close(2) system call is called
+@kernel.fs.vnops.cmp Number of times VOP_CMP was called on the specific filesystem
+VOP_CMP is used to check if two vnodes are "equal" to each other, i.e.
+both refer to the same filesystem object.
+@kernel.fs.vnops.create Number of times VOP_CREATE was called on the specific filesystem
+VOP_CREATE is used to create regular files and device or FIFO nodes.
+@kernel.fs.vnops.delmap Number of times VOP_DELMAP was called
+VOP_DELMAP is used to destroy a previously created memory-mapped region
+of a file.
+@kernel.fs.vnops.dispose Number ot times VOP_DISPOSE was called on a specific filesystem
+VOP_DISPOSE is used to dispose(free or invalidate) of a page associated
+with a file.
+@kernel.fs.vnops.dump Number of times VOP_DUMP was called on a specific filesystem
+VOP_DUMP is used to transfer data from the frozen kernel directly
+to the dump device
+@kernel.fs.vnops.dumpctl Number of times VOP_DUMPCTL was called on a specific filesystem
+VOP_DUMPCTL sets up context used by VOP_DUMP call. It is used to
+allocate, free or search for data blocks on the dump device.
+@kernel.fs.vnops.fid Number of times VOP_FID was called on a specific filesystem
+VOP_FID is used to get file identifier which can be used instead of the
+file name in some operations. NFS server is one known user of this vnode
+operation.
+@kernel.fs.vnops.frlock Number of time VOP_FRLOCK was called on a specific filesystem
+VOP_FRLOCK is used to implement file record locking used by flock(2)
+@kernel.fs.vnops.fsync Number of times VOP_FSYNC was called on a specific filesystem
+VOP_FSYNC is used to implement fsync(2) system call which flushes
+data for a specific file to disk.
+@kernel.fs.vnops.getattr Number of times VOP_GETATTR was called on a specific filesystem
+VOP_GETATTR is used to extract vnode attributes. It use used as part of many
+system calls which manipulate file attributes, e.g. chmod(2), stat(2), utimes(2) etc.
+@kernel.fs.vnops.getpage Number of times VOP_GETPAGE was called on a specific filesystem
+VOP_GETPAGE is used to allocate pages (could be several at a time) to cover
+a region in a file.
+@kernel.fs.vnops.getsecattr Number of times VOP_GETSECATTR was called on a specific filesystem
+VOP_GETSECATTR used to extract ACL entires associated with a file.
+@kernel.fs.vnops.inactive Number of times VOP_INACTIVE was called on a specific filesystem
+VOP_INACTIVE is used to destroy vnode before it is removed from the
+cache or reused.
+@kernel.fs.vnops.ioctl Number of times VOP_IOCTL was called on a specific filesystem
+VOP_IOCTL is used to implement ioctl(2) system call.
+@kernel.fs.vnops.link Number of times VOP_LINK was called on a specific filesystem
+VOP_LINK is used to implement support for hard links
+@kernel.fs.vnops.lookup Number of times VOP_LOOKUP was called on a specific filesystem
+VOP_LOOKUP is used to translate filename to vnode.
+@kernel.fs.vnops.map Number of times VOP_MAP was called on a specific filesystem
+VOP_MAP is used to create a new memory-mapped region of a file
+@kernel.fs.vnops.mkdir Number of times VOP_MKDIR was called on a specific filesystem
+VOP_MKDIR is used to create directories
+@kernel.fs.vnops.open Number of times VOP_OPEN was called on a specific filesystem
+VOP_OPEN is called every time open(2) system call is called.
+@kernel.fs.vnops.pageio Number of times VOP_PAGEIO was called on a specific filesystem
+VOP_PAGEIO is similar to VOP_GETPAGE and VOP_PUTPAGE and can be used when
+either of the other two are less efficient, e.g. in the case when pages
+will be reused after the IO is done.
+@kernel.fs.vnops.pathconf Number of times VOP_PATHCONF was called on a specific filesystem
+VOP_PATHCONF is used to obtain information about filesystem's parameters
+reported by pathconf(2) system call
+@kernel.fs.vnops.poll Number of times VOP_POLL was called on a specific filesystem
+VOP_POLL is used to implement pool(2) system call
+@kernel.fs.vnops.putpage Number of times VOP_PUTPAGE was called on a specific filesystem
+VOP_PUTPAGE is used to release pages which have been used to hold
+data from a file
+@kernel.fs.vnops.read Number of times VOP_READ was called on a specific filesystem
+VOP_READ is used to implement read(2) system call
+@kernel.fs.vnops.readdir Number of times VOP_READDIR was called on a specific filesystem
+VOP_READDIR is used to read directory entries
+@kernel.fs.vnops.readlink Number of times VOP_READLINK was called on a specific filesystem
+VOP_READLINK is used to read the information about the target of the symbolic
+link
+@kernel.fs.vnops.realvp Number of times VOP_REALVP was called on a specific filesystem
+VOP_REALVP is used to traverse stacking filesystems and extract information
+about the vnode which refers to the "real" filesystem object.
+@kernel.fs.vnops.remove Number of times VOP_REMOVE was called on a specific filesystem
+VOP_REMOVE is used to remove entires from a directory.
+@kernel.fs.vnops.rename Number of times VOP_RENAME was called on a specific filesystem
+VOP_RENAME is used to implement rename(2) system call
+@kernel.fs.vnops.rmdir Number of times VOP_RMDIR was called on a specific filesystem
+VOP_RMDIR is used to implement rmdir(2) system call
+@kernel.fs.vnops.rwlock Number of times VOP_RWLOCK was called on a specific filesystem
+VOP_RWLOCK and VOP_RWUNLOCK are used to protect access to vnode data.
+@kernel.fs.vnops.rwunlock Number of times VOP_RWUNLOCK was called on a specific filesystem
+VOP_RWLOCK and VOP_RWUNLOCK are used to protect access to vnode data.
+@kernel.fs.vnops.seek Number of times VOP_SEEK was called on a specific filesystem
+VOP_SEEK is used by lseek(2). Because vnodes can be shared across multiple instances of
+vfile VOP_SEEK does not usually change the position of the file pointer, it instead
+used to verify the offset before it is changed.
+@kernel.fs.vnops.setattr Number of times VOP_SETATTR was called on a specific filesystem
+VOP_SETATTR is used to change vnode attributes which are modified by system
+calls like chmod(2), chown(2), utimes(2) etc.
+@kernel.fs.vnops.setfl  Number of times VOP_SETFL was called on a specific filesystem
+VOP_SETFL is used to implement fcntl(2) F_SETFL option.
+Currently only sockfs pseudo filesystem is implementing this vnode operation.
+@kernel.fs.vnops.setsecattr Number of times VOP_SETSECATTR was called on a specific filesystem
+VOP_SETSECATTR is used to change ACL entries
+@kernel.fs.vnops.shrlock Number of times VOP_SHRLOCK was called on a specific filesystem
+VOP_SHRLOCK is usually used to implement CIFS and NLMv3 shared reservations.
+@kernel.fs.vnops.space Number of times VOP_SPACE was called on a specific filesystem
+VOP_SPACE is used to provide optimized support for growing and shrinking the files.
+F_FREESP option of fcntl(2) is using this vnode operation to implment ftruncate(3c)
+function.
+@kernel.fs.vnops.symlink Number of times VOP_SYMLINK was called on a specific filesystem
+VOP_SYMLINK is used to create symbolic links.
+@kernel.fs.vnops.vnevent Number of times VOP_VNEVENT was called on a specific filesystem
+VIP_VNEVENT is used to check if a filesystem support vnode event
+notifications for operations which change the names of the files.
+@kernel.fs.vnops.write Number of times VOP_WRITE was called on a specific filesystem
+VOP_WRITE is used to implement write(2) system call
+@kernel.fs.read_bytes Number of bytes read from a specific filesystem
+@kernel.fs.readdir_bytes Number of bytes containting directory entires read from a specific filesystem
+@kernel.fs.write_bytes Number of bytes written to a specific filesystem
+
+@kernel.fstype.vnops.access Number of times VOP_ACCESS was called on all filesystems of a given type
+VOP_ACCESS is used by access(2) system call.
+@kernel.fstype.vnops.addmap Number of times VOP_ADDMAP was called on all filesystems of a given type
+VOP_ADDMAP is used to manage reference counting of the vnode used by
+mmap(2) operations.
+@kernel.fstype.vnops.close Number of times VOP_CLOSE was called on the specific filesystem
+VOP_CLOSE is called every time a close(2) system call is called
+@kernel.fstype.vnops.cmp Number of times VOP_CMP was called on the specific filesystem
+VOP_CMP is used to check if two vnodes are "equal" to each other, i.e.
+both refer to the same filesystem object.
+@kernel.fstype.vnops.create Number of times VOP_CREATE was called on all filesystems of a given type
+VOP_CREATE is used to create regular files and device or FIFO nodes.
+@kernel.fstype.vnops.delmap Number of times VOP_DELMAP was called
+VOP_DELMAP is used to destroy a previously created memory-mapped region
+of a file.
+@kernel.fstype.vnops.dispose Number ot times VOP_DISPOSE was called on all filesystems of a given type
+VOP_DISPOSE is used to dispose(free or invalidate) of a page associated
+with a file.
+@kernel.fstype.vnops.dump Number of times VOP_DUMP was called on all filesystems of a given type
+VOP_DUMP is used to transfer data from the frozen kernel directly
+to the dump device
+@kernel.fstype.vnops.dumpctl Number of times VOP_DUMPCTL was called on all filesystems of a given type
+VOP_DUMPCTL sets up context used by VOP_DUMP call. It is used to
+allocate, free or search for data blocks on the dump device.
+@kernel.fstype.vnops.fid Number of times VOP_FID was called on all filesystems of a given type
+VOP_FID is used to get file identifier which can be used instead of the
+file name in some operations. NFS server is one known user of this vnode
+operation.
+@kernel.fstype.vnops.frlock Number of time VOP_FRLOCK was called on all filesystems of a given type
+VOP_FRLOCK is used to implement file record locking used by flock(2)
+@kernel.fstype.vnops.fsync Number of times VOP_FSYNC was called on all filesystems of a given type
+VOP_FSYNC is used to implement fsync(2) system call which flushes
+data for a specific file to disk.
+@kernel.fstype.vnops.getattr Number of times VOP_GETATTR was called on all filesystems of a given type
+VOP_GETATTR is used to extract vnode attributes. It use used as part of many
+system calls which manipulate file attributes, e.g. chmod(2), stat(2), utimes(2) etc.
+@kernel.fstype.vnops.getpage Number of times VOP_GETPAGE was called on all filesystems of a given type
+VOP_GETPAGE is used to allocate pages (could be several at a time) to cover
+a region in a file.
+@kernel.fstype.vnops.getsecattr Number of times VOP_GETSECATTR was called on all filesystems of a given type
+VOP_GETSECATTR used to extract ACL entires associated with a file.
+@kernel.fstype.vnops.inactive Number of times VOP_INACTIVE was called on all filesystems of a given type
+VOP_INACTIVE is used to destroy vnode before it is removed from the
+cache or reused.
+@kernel.fstype.vnops.ioctl Number of times VOP_IOCTL was called on all filesystems of a given type
+VOP_IOCTL is used to implement ioctl(2) system call.
+@kernel.fstype.vnops.link Number of times VOP_LINK was called on all filesystems of a given type
+VOP_LINK is used to implement support for hard links
+@kernel.fstype.vnops.lookup Number of times VOP_LOOKUP was called on all filesystems of a given type
+VOP_LOOKUP is used to translate filename to vnode.
+@kernel.fstype.vnops.map Number of times VOP_MAP was called on all filesystems of a given type
+VOP_MAP is used to create a new memory-mapped region of a file
+@kernel.fstype.vnops.mkdir Number of times VOP_MKDIR was called on all filesystems of a given type
+VOP_MKDIR is used to create directories
+@kernel.fstype.vnops.open Number of times VOP_OPEN was called on all filesystems of a given type
+VOP_OPEN is called every time open(2) system call is called.
+@kernel.fstype.vnops.pageio Number of times VOP_PAGEIO was called on all filesystems of a given type
+VOP_PAGEIO is similar to VOP_GETPAGE and VOP_PUTPAGE and can be used when
+either of the other two are less efficient, e.g. in the case when pages
+will be reused after the IO is done.
+@kernel.fstype.vnops.pathconf Number of times VOP_PATHCONF was called on all filesystems of a given type
+VOP_PATHCONF is used to obtain information about filesystem's parameters
+reported by pathconf(2) system call
+@kernel.fstype.vnops.poll Number of times VOP_POLL was called on all filesystems of a given type
+VOP_POLL is used to implement pool(2) system call
+@kernel.fstype.vnops.putpage Number of times VOP_PUTPAGE was called on all filesystems of a given type
+VOP_PUTPAGE is used to release pages which have been used to hold
+data from a file
+@kernel.fstype.vnops.read Number of times VOP_READ was called on all filesystems of a given type
+VOP_READ is used to implement read(2) system call
+@kernel.fstype.vnops.readdir Number of times VOP_READDIR was called on all filesystems of a given type
+VOP_READDIR is used to read directory entries
+@kernel.fstype.vnops.readlink Number of times VOP_READLINK was called on all filesystems of a given type
+VOP_READLINK is used to read the information about the target of the symbolic
+link
+@kernel.fstype.vnops.realvp Number of times VOP_REALVP was called on all filesystems of a given type
+VOP_REALVP is used to traverse stacking filesystems and extract information
+about the vnode which refers to the "real" filesystem object.
+@kernel.fstype.vnops.remove Number of times VOP_REMOVE was called on all filesystems of a given type
+VOP_REMOVE is used to remove entires from a directory.
+@kernel.fstype.vnops.rename Number of times VOP_RENAME was called on all filesystems of a given type
+VOP_RENAME is used to implement rename(2) system call
+@kernel.fstype.vnops.rmdir Number of times VOP_RMDIR was called on all filesystems of a given type
+VOP_RMDIR is used to implement rmdir(2) system call
+@kernel.fstype.vnops.rwlock Number of times VOP_RWLOCK was called on all filesystems of a given type
+VOP_RWLOCK and VOP_RWUNLOCK are used to protect access to vnode data.
+@kernel.fstype.vnops.rwunlock Number of times VOP_RWUNLOCK was called on all filesystems of a given type
+VOP_RWLOCK and VOP_RWUNLOCK are used to protect access to vnode data.
+@kernel.fstype.vnops.seek Number of times VOP_SEEK was called on all filesystems of a given type
+VOP_SEEK is used by lseek(2). Because vnodes can be shared across multiple instances of
+vfile VOP_SEEK does not usually change the position of the file pointer, it instead
+used to verify the offset before it is changed.
+@kernel.fstype.vnops.setattr Number of times VOP_SETATTR was called on all filesystems of a given type
+VOP_SETATTR is used to change vnode attributes which are modified by system
+calls like chmod(2), chown(2), utimes(2) etc.
+@kernel.fstype.vnops.setfl  Number of times VOP_SETFL was called on all filesystems of a given type
+VOP_SETFL is used to implement fcntl(2) F_SETFL option.
+Currently only sockfs pseudo filesystem is implementing this vnode operation.
+@kernel.fstype.vnops.setsecattr Number of times VOP_SETSECATTR was called on all filesystems of a given type
+VOP_SETSECATTR is used to change ACL entries
+@kernel.fstype.vnops.shrlock Number of times VOP_SHRLOCK was called on all filesystems of a given type
+VOP_SHRLOCK is usually used to implement CIFS and NLMv3 shared reservations.
+@kernel.fstype.vnops.space Number of times VOP_SPACE was called on all filesystems of a given type
+VOP_SPACE is used to provide optimized support for growing and shrinking the files.
+F_FREESP option of fcntl(2) is using this vnode operation to implment ftruncate(3c)
+function.
+@kernel.fstype.vnops.symlink Number of times VOP_SYMLINK was called on all filesystems of a given type
+VOP_SYMLINK is used to create symbolic links.
+@kernel.fstype.vnops.vnevent Number of times VOP_VNEVENT was called on all filesystems of a given type
+VIP_VNEVENT is used to check if a filesystem support vnode event
+notifications for operations which change the names of the files.
+@kernel.fstype.vnops.write Number of times VOP_WRITE was called on all filesystems of a given type
+VOP_WRITE is used to implement write(2) system call
+@kernel.fstype.read_bytes Number of bytes read from all filesystems of a given type
+@kernel.fstype.readdir_bytes Number of bytes containting directory entires read from all filesystems of a given type
+@kernel.fstype.write_bytes Number of bytes written to all filesystems of a given type

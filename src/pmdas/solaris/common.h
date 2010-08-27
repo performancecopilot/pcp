@@ -109,6 +109,7 @@ extern int		metrictab_sz;
 #define PREFETCH_INDOM	9
 #define METRIC_INDOM	10
 #define FILESYS_INDOM	11
+#define FSTYPE_INDOM	12
 
 extern pmdaIndom	indomtab[];
 extern int		indomtab_sz;
