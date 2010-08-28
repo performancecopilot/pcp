@@ -1247,6 +1247,46 @@ metricdesc_t metricdesc[] = {
       {PMDA_PMID(SCLR_SYSINFO, 149), PM_TYPE_STRING, CPU_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
       }, (ptrdiff_t)"brand"},
+    { "hinv.cpu.frequencies",
+      {PMDA_PMID(SCLR_SYSINFO, 150), PM_TYPE_STRING, CPU_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, (ptrdiff_t)"supported_frequencies_Hz"},
+    { "hinv.cpu.implementation",
+      {PMDA_PMID(SCLR_SYSINFO, 151), PM_TYPE_STRING, CPU_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, (ptrdiff_t)"implementation"},
+    { "hinv.cpu.chip_id",
+      {PMDA_PMID(SCLR_SYSINFO, 152), PM_TYPE_64, CPU_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, (ptrdiff_t)"chip_id"},
+    { "hinv.cpu.clog_id",
+      {PMDA_PMID(SCLR_SYSINFO, 153), PM_TYPE_32, CPU_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, (ptrdiff_t)"clog_id"},
+    { "hinv.cpu.core_id",
+      {PMDA_PMID(SCLR_SYSINFO, 154), PM_TYPE_64, CPU_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, (ptrdiff_t)"core_id"},
+    { "hinv.cpu.pkg_core_id",
+      {PMDA_PMID(SCLR_SYSINFO, 155), PM_TYPE_64, CPU_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, (ptrdiff_t)"pkg_core_id"},
+    { "hinv.cpu.cstate",
+      {PMDA_PMID(SCLR_SYSINFO, 156), PM_TYPE_32, CPU_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, (ptrdiff_t)"current_cstate"},
+    { "hinv.cpu.maxcstates",
+      {PMDA_PMID(SCLR_SYSINFO, 157), PM_TYPE_32, CPU_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, (ptrdiff_t)"supported_max_cstates"},
+    { "hinv.cpu.ncores",
+      {PMDA_PMID(SCLR_SYSINFO, 158), PM_TYPE_32, CPU_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, (ptrdiff_t)"ncore_per_chip"},
+    { "hinv.cpu.ncpus",
+      {PMDA_PMID(SCLR_SYSINFO, 159), PM_TYPE_32, CPU_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, (ptrdiff_t)"ncpu_per_chip"},
 
     { "disk.dev.errors.soft",
       {PMDA_PMID(SCLR_DISK, 21), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER,

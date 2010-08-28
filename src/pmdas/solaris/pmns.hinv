@@ -8,9 +8,19 @@ hinv {
 }
 
 hinv.cpu {
-    brand	SOLARIS:0:149
-    maxclock	SOLARIS:0:147
-    clock	SOLARIS:0:148
+    maxclock		SOLARIS:SCLR_SYSINFO:147
+    clock		SOLARIS:SCLR_SYSINFO:148
+    brand		SOLARIS:SCLR_SYSINFO:149
+    frequencies		SOLARIS:SCLR_SYSINFO:150
+    implementation	SOLARIS:SCLR_SYSINFO:151
+    chip_id		SOLARIS:SCLR_SYSINFO:152
+    clog_id		SOLARIS:SCLR_SYSINFO:153
+    core_id		SOLARIS:SCLR_SYSINFO:154
+    pkg_core_id		SOLARIS:SCLR_SYSINFO:155
+    cstate		SOLARIS:SCLR_SYSINFO:156
+    maxcstates		SOLARIS:SCLR_SYSINFO:157
+    ncores		SOLARIS:SCLR_SYSINFO:158
+    ncpus		SOLARIS:SCLR_SYSINFO:159
 }
 
 hinv.disk {

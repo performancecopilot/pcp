@@ -119,6 +119,7 @@ extern int		indomtab_sz;
  */
 extern kstat_ctl_t		*kc;
 int kstat_named_to_pmAtom(const kstat_named_t *, pmAtomValue *);
+int kstat_named_to_typed_atom(const kstat_named_t *, int, pmAtomValue *);
 
 /* Snarfed from usr/src/uts/common/fs/fsflush.c in OpenSolaris source tree */
 typedef struct {

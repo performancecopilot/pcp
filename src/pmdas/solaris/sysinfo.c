@@ -27,6 +27,7 @@ typedef struct {
     kstat_t	*ksp;
     cpu_stat_t	cpustat;
     kstat_t	*info;
+    int		info_is_good;
 } ctl_t;
 
 static int		ncpu;
@@ -125,8 +126,10 @@ sysinfo_prefetch(void)
     int		i;
 
     nloadavgs = -1;
-    for (i = 0; i < ncpu; i++)
+    for (i = 0; i < ncpu; i++) {
 	ctl[i].fetched = 0;
+	ctl[i].info_is_good = 0;
+    }
 }
 
 int
@@ -176,6 +179,53 @@ kstat_fetch_named(pmAtomValue *atom, char *metric, int shift_bits)
 		atom->ull = (atom->ull * pagesize) >> shift_bits;
 		return 1;
 	}
+    }
+    return 0;
+}
+
+int
+kstat_named_to_typed_atom(const kstat_named_t *kn, int pmtype,
+			  pmAtomValue *atom)
+{
+    static char chardat[sizeof(kn->value.c) + 1];
+
+    switch (pmtype) {
+    case PM_TYPE_32:
+	if (kn->data_type == KSTAT_DATA_INT32) {
+	    atom->l = kn->value.i32;
+	    return 1;
+	}
+	break;
+    case PM_TYPE_U32:
+	if (kn->data_type == KSTAT_DATA_UINT32) {
+	    atom->ul = kn->value.ui32;
+	    return 1;
+	}
+	break;
+    case PM_TYPE_64:
+	if (kn->data_type == KSTAT_DATA_INT64) {
+	    atom->ll = kn->value.i64;
+	    return 1;
+	}
+	break;
+    case PM_TYPE_U64:
+	if (kn->data_type == KSTAT_DATA_UINT64) {
+	    atom->ull = kn->value.ui64;
+	    return 1;
+	}
+	break;
+    case PM_TYPE_STRING:
+	switch(kn->data_type) {
+	case KSTAT_DATA_STRING:
+	    atom->cp = kn->value.str.addr.ptr;
+	    return 1;
+	case KSTAT_DATA_CHAR:
+	    memcpy(chardat, kn->value.c, sizeof(kn->value.c));
+	    chardat[sizeof(chardat)-1] = '\0';
+	    atom->cp = chardat;
+	    return 1;
+	}
+	break;
     }
     return 0;
 }
@@ -238,6 +288,11 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
     ok = 1;
     for (i = 0; i < ncpu; i++) {
 	if (inst == PM_IN_NULL || inst == i) {
+	    if (!ctl[i].info_is_good) {
+		ctl[i].info_is_good = (ctl[i].info &&
+					(kstat_read(kc, ctl[i].info,
+						    NULL) != -1));
+	    }
 	    if (ctl[i].fetched == 1)
 		continue;
 	    if (kstat_read(kc, ctl[i].ksp, &ctl[i].cpustat) == -1) {
@@ -250,7 +305,6 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 		ok = 0;
 	    }
 	    else {
-	kstat_read(kc, ctl[i].info, NULL);
 		ctl[i].fetched = 1;
 		if (ctl[i].err != 0) {
 		    fprintf(stderr, "Success: sysinfo_fetch(pmid=%s cpu=%d ...) after %d errors as previously reported\n",
@@ -273,50 +327,17 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 		ull += sysinfo_derived(mdesc, i);
 	    } else if (offset > sizeof(ctl[i].cpustat)) {
 		char *stat = (char *)offset;
-                kstat_named_t *kn = kstat_data_lookup(ctl[i].info, stat);
+                kstat_named_t *kn;
 
-                if (kn == NULL) {
+		if (!ctl[i].info_is_good)
+			return 0;
+
+		if ((kn = kstat_data_lookup(ctl[i].info, stat)) == NULL) {
 		    fprintf(stderr, "No kstat called %s for CPU %d\n", stat, i);
 		    return 0;
 		}
 
-		switch (mdesc->m_desc.type) {
-		case PM_TYPE_32:
-		    if (kn->data_type == KSTAT_DATA_INT32) {
-			atom->l = kn->value.i32;
-			return 1;
-		    }
-		    break;
-		case PM_TYPE_U32:
-		    if (kn->data_type == KSTAT_DATA_UINT32) {
-			atom->ul = kn->value.ui32;
-			return 1;
-		    }
-		    break;
-		case PM_TYPE_64:
-		    if (kn->data_type == KSTAT_DATA_INT64) {
-			atom->ll = kn->value.i64;
-			return 1;
-		    }
-		    break;
-		case PM_TYPE_U64:
-		    if (kn->data_type == KSTAT_DATA_UINT64) {
-			atom->ull = kn->value.ui64;
-			return 1;
-		    }
-		    break;
-		case PM_TYPE_STRING:
-		    switch(kn->data_type) {
-		    case KSTAT_DATA_STRING:
-			atom->cp = kn->value.str.addr.ptr;
-			return 1;
-		    case KSTAT_DATA_CHAR:
-			atom->cp = kn->value.c;
-			return 1;
-		    }
-		    break;
-		}
-		return 0;
+		return kstat_named_to_typed_atom(kn, mdesc->m_desc.type, atom);
 	    } else {
 		/* all the kstat fields are 32-bit unsigned */
 		__uint32_t		*ulp;

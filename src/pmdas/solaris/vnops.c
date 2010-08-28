@@ -135,32 +135,7 @@ vnops_fetch(pmdaMetric *pm, int inst, pmAtomValue *av)
 	    return 0;
 	}
 
-        switch (pm->m_desc.type) {
-        case PM_TYPE_32:
-	    if (kn->data_type == KSTAT_DATA_INT32) {
-		av->l = kn->value.i32;
-		return 1;
-	    }
-	    break;
-        case PM_TYPE_U32:
-	    if (kn->data_type == KSTAT_DATA_UINT32) {
-		av->ul = kn->value.ui32;
-		return 1;
-	    }
-	    break;
-        case PM_TYPE_64:
-	    if (kn->data_type == KSTAT_DATA_INT64) {
-		av->ll = kn->value.i64;
-		return 1;
-	    }
-	    break;
-        case PM_TYPE_U64:
-	    if (kn->data_type == KSTAT_DATA_UINT64) {
-		av->ull = kn->value.ui64;
-		return 1;
-	    }
-	    break;
-	}
+	return kstat_named_to_typed_atom(kn, pm->m_desc.type, av);
     }
 
     return 0;
