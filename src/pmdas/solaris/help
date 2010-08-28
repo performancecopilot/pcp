@@ -31,37 +31,26 @@
 # blank lines before the @ line are ignored
 #
 
-@ kernel.all.cpu.idle TODO
-@ kernel.all.cpu.user TODO
-@ kernel.all.cpu.sys TODO
-@ kernel.all.cpu.wait.total TODO
-@ kernel.percpu.cpu.user TODO
-@ kernel.percpu.cpu.idle TODO
-@ kernel.percpu.cpu.sys TODO
-@ kernel.percpu.cpu.wait.total TODO
-@ disk.all.read TODO
-@ disk.all.write TODO
-@ disk.all.total TODO
-@ disk.all.read_bytes TODO
-@ disk.all.write_bytes TODO
-@ disk.all.total_bytes TODO
-@ disk.dev.read TODO
-@ disk.dev.write TODO
-@ disk.dev.total TODO
-@ disk.dev.read_bytes TODO
-@ disk.dev.write_bytes TODO
-@ disk.dev.total_bytes TODO
-# #@ mem.page_faults TODO
-# #@ mem.available TODO
-# #@ mem.committed_bytes TODO
-# #@ mem.pool.paged_bytes TODO
-# #@ mem.pool.non_paged_bytes TODO
-# #@ mem.cache.read_ahead TODO
-# #@ mem.cache.lazy_writes TODO
-# #@ mem.cache.lazy_write_pages TODO
-# #@ mem.cache.mdl.read TODO
-# #@ mem.cache.mdl.sync_read TODO
-# #@ mem.cache.mdl.async_read TODO
+@ kernel.all.cpu.idle Amount of time CPUs were idle
+@ kernel.all.cpu.user Amount of time spent executing userspace tasks
+@ kernel.all.cpu.sys Amount of time spent executing kernel code
+@ kernel.all.cpu.wait.total Amount of time CPU spent waiting for events
+@ kernel.percpu.cpu.user Amount of time spent executing userspace tasks by each CPU
+@ kernel.percpu.cpu.idle Amount of time each CPU was idle
+@ kernel.percpu.cpu.sys Amount of time each CPU spent executing kernel code
+@ kernel.percpu.cpu.wait.total Amount of time each CPU spent waiting for events
+@ disk.all.read Number of read requests aggregated across all disks
+@ disk.all.write Number of write requests aggregated across all disks
+@ disk.all.total Number of IO requests aggregated across all disks
+@ disk.all.read_bytes Number of bytes read from all disks
+@ disk.all.write_bytes Number of bytes written to all disk
+@ disk.all.total_bytes Number of bytes transferred to and from all disks
+@ disk.dev.read Number of read requests for each individual disk
+@ disk.dev.write Number of write requests for each individual disk
+@ disk.dev.total Number of IO requests for each individual disk
+@ disk.dev.read_bytes Number of bytes read from each individual disk
+@ disk.dev.write_bytes Number of bytes written to each individual disk
+@ disk.dev.total_bytes Number of bytes transferred to and from each individual disk
 @ network.interface.mtu Maximum Transmission Unit of a network interface
 Maximum Transmision Unit is the largest size of IP datagram which can be
 transferred over the data link.
@@ -96,11 +85,8 @@ Number of UDP packets received for which here is no port can be found.
 This counter is reported on the per-interface basis and aggregated by the PMDA.
 
 @ network.udp.overflows Number of UDP packets droped due to queue overflow
-Number of UDP packets droped due to queue overflow. 
+Number of UDP packets droped due to queue overflow.
 This counter is reported on the per-interface basis and aggregated by the PMDA.
-
-# #@ network.interface.total.packets TODO
-# #@ network.interface.total.bytes TODO
 
 @zpool.capacity	Total capacity of a zpool in bytes
 @zpool.used Total space used on a pool
