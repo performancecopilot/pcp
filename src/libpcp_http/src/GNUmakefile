@@ -16,11 +16,10 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 STATICLIBTARGET = libpcp_http.a
-
 LCFLAGS = -DVERSION=\"1.1.0\" -DHAVE_HSTRERROR
-
 CFILES = http_error_codes.c http_fetcher.c
 HFILES = http_error_codes.h http_fetcher.h
+LSRCFILES = README
 
 base default : $(STATICLIBTARGET)
 
