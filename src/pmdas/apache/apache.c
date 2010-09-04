@@ -1,8 +1,8 @@
 /*
  * Apache PMDA
  *
+ * Copyright (C) 2008-2010 Aconex.  All Rights Reserved.
  * Copyright (C) 2000 Michal Kara.  All Rights Reserved.
- * Copyright (C) 2008 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,19 +13,19 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
 #include "domain.h"
-#include "http_lib.h"
+#include "http_fetcher.h"
 
-static char server_path[260];
+static char url[256];
+static char uptime_s[64];
+static int http_port = 80;
+static char *http_server = "localhost";
+static char *http_path = "server-status";
 
 static pmdaMetric metrictab[] = {
 /* apache.total_accesses */
@@ -99,7 +99,6 @@ struct {
     unsigned int	timeout;	/* There was a timeout (a bool) */
     time_t		timestamp;	/* Time of last attempted fetch */
 
-    char		uptime_s[64];
     unsigned long long	uptime;
     unsigned long long	total_accesses;
     unsigned long long	total_kbytes;
@@ -137,16 +136,6 @@ enum {
     SCOREBOARD		= (1<<8),
 };
 
-/* Dummy signal handler */
-void sigalrm(int unused)
-{
-    data.timeout = 1;
-    raise(SIGINT);
-}
-
-/* Dummy signal handler */
-void sigint(int unused) { }
-
 static void uptime_string(time_t now, char *s, size_t sz)
 {
     int days, hours, minutes, seconds;
@@ -169,11 +158,12 @@ static void uptime_string(time_t now, char *s, size_t sz)
 
 static void dumpData(void)
 {
+    uptime_string(data.uptime, uptime_s, sizeof(uptime_s));
     fprintf(stderr, "Apache data from %s port %d, path %s:\n",
-	    http_server, http_port, server_path);
+	    http_server, http_port, http_path);
     fprintf(stderr, "  flags=0x%x timeout=%d timestamp=%lu\n",
 	    data.flags, data.timeout, (unsigned long)data.timestamp);
-    fprintf(stderr, "  uptime=%llu (%s)\n", data.uptime, data.uptime_s);
+    fprintf(stderr, "  uptime=%llu (%s)\n", data.uptime, uptime_s);
     fprintf(stderr, "  accesses=%llu  kbytes=%llu  req/sec=%.2f  b/sec=%.2f\n",
 	    data.total_accesses, data.total_kbytes,
 	    data.requests_per_sec, data.bytes_per_sec);
@@ -194,30 +184,18 @@ static void dumpData(void)
  */
 static int refreshData(time_t now)
 {
-    char	*res;
+    char	*res = NULL;
     int		len;
     char	*s,*s2,*s3;
-    int		r;
 
-    if (pmDebug & DBG_TRACE_APPL0) {
-	fprintf(stderr, "Doing httpget - server='%s', path='%s'\n",
-		http_server, server_path);
-    }
+    if (pmDebug & DBG_TRACE_APPL0)
+	fprintf(stderr, "Doing http_fetch(%s)\n", url);
 
-    /* Setup timeout */
-    signal(SIGALRM, sigalrm);
-    signal(SIGINT, sigint);
-    data.timeout = 0;
-    alarm(1);
-
-    res = NULL;
-    r = http_get(server_path, &res, &len, NULL);
-    alarm(0); /* Clear alarm */
-
-    if (r != OK200) {
+    len = http_fetch(url, &res);
+    if (len < 0) {
 	if (pmDebug & DBG_TRACE_APPL1)
-	    __pmNotifyErr(LOG_ERR, "Cannot get stats: libhttp error #%d\n", r);
-	data.flags = 0;
+	    __pmNotifyErr(LOG_ERR, "HTTP fetch (stats) failed: %s\n", http_strerror());
+	data.timeout = http_getTimeoutError();
 	if (data.timeout)
 	    data.timestamp = now;  /* Don't retry too soon */
 	if (res)
@@ -255,7 +233,6 @@ static int refreshData(time_t now)
 	}
 	else if (strcmp(s2, "Uptime:") == 0) {
 	    data.uptime = strtoull(s3, (char **)NULL, 10);
-	    uptime_string(data.uptime, data.uptime_s, sizeof(data.uptime_s));
 	    data.flags |= UPTIME;
 	}
 	else if (strcmp(s2, "ReqPerSec:") == 0) {
@@ -456,7 +433,8 @@ apache_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 19:
  	    if (!(data.flags & UPTIME))
 		return 0;
-	    atom->cp = data.uptime_s;
+	    uptime_string(data.uptime, uptime_s, sizeof(uptime_s));
+	    atom->cp = uptime_s;
 	    break;
 
 	default:
@@ -466,17 +444,16 @@ apache_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     return 1;
 }
 
-/*
- * Initialise the agent (both daemon and DSO).
- */
 void 
 apache_init(pmdaInterface *dp)
 {
+    http_setTimeout(1);
+    http_setUserAgent(pmProgname);
+    snprintf(url, sizeof(url), "http://%s:%u/%s?auto", http_server, http_port, http_path);
+
     pmdaSetFetchCallBack(dp, apache_fetchCallBack);
     pmdaInit(dp, NULL, 0, metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
 }
-
-#define OPTIONS "D:d:i:l:pu:L:P:S:?"
 
 static void
 usage(void)
@@ -496,29 +473,20 @@ usage(void)
     exit(1);
 }
 
-/*
- * Set up the agent if running as a daemon.
- */
 int
 main(int argc, char **argv)
 {
     int			c, errflag = 0, sep = __pmPathSeparator();
-    pmdaInterface	dispatch;
+    pmdaInterface	pmda;
     char		helppath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
     snprintf(helppath, sizeof(helppath), "%s%c" "apache" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, APACHE, "apache.log",
+    pmdaDaemon(&pmda, PMDA_INTERFACE_3, pmProgname, APACHE, "apache.log",
 		helppath);
 
-    http_port = 80;
-    http_server = "localhost";
-    http_proxy_port = 3128;
-    http_proxy_server = NULL;
-    strcpy(server_path, "/server-status?auto");
-
-    while ((c = pmdaGetOpt(argc, argv, OPTIONS, &dispatch, &errflag)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:L:P:S:?", &pmda, &errflag)) != EOF) {
 	switch(c) {
 	case 'S':
 	    http_server = optarg;
@@ -529,7 +497,7 @@ main(int argc, char **argv)
 	case 'L':
 	    if (optarg[0] == '/')
 		optarg++;
-	    snprintf(server_path, sizeof(server_path), "%s?auto", optarg);
+	    http_path = optarg;
 	    break;
 	default:
 	    errflag++;
@@ -539,9 +507,9 @@ main(int argc, char **argv)
     if (errflag)
 	usage();
 
-    pmdaOpenLog(&dispatch);
-    apache_init(&dispatch);
-    pmdaConnect(&dispatch);
-    pmdaMain(&dispatch);
+    pmdaOpenLog(&pmda);
+    apache_init(&pmda);
+    pmdaConnect(&pmda);
+    pmdaMain(&pmda);
     exit(0);
 }

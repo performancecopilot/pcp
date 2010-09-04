@@ -41,7 +41,6 @@ default: build-me
 
 include $(BUILDRULES)
 
-ifneq "$(TARGET_OS)" "mingw"
 build-me: $(TARGETS)
 
 install: build-me
@@ -54,10 +53,6 @@ install: build-me
 	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
 	$(INSTALL) -m 644 pmlogconf.processes $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/processes
 	$(INSTALL) -m 644 pmlogconf.uptime $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/uptime
-else
-build-me:
-install:
-endif
 
 $(IAM)$(EXECSUFFIX):	$(OBJECTS)
 
