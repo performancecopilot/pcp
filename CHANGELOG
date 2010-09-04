@@ -1,11 +1,18 @@
-pcp-3.4.0 (under development)
+pcp-3.4.0 (30 Aug 2010)
     - Add new libpcp_import C API library to pcp-libs
     - Add perl-PCP-LogImport RPM sub-package for libpcp_import perl binding
-    - Add pcp-import RPM sub-package containing front-end tools for importing
-      data from sar, iostat and generic speadsheets
+    - Add pcp-import-* RPM sub-packages containing front-end tools for importing
+      data from sar, iostat, generic speadsheets and mrtg.
+    - Major Solaris PMDA updates: CPUs, vnode ops, disk stats and disk queue
+      stats, switch to using pmid clusters, internal timers, ZFS Adjustable
+      Replacement Cache stats, new help text, memory metrics, fsflush stats.
     - Fix a memory leak in Perl PMDA wrapper string handling
     - Use correct structure to extrace zpool write counters in Solaris PMDA 
     - pmafm now supports multiple -a arguments 
+    - Fix pmie multiple -a options bug
+    - Fix pmdaInit() callback handling where it did not handle all the
+      interface versions correctly
+    - Quote filenames reported by pmwtf, else awk can get confused
 
 pcp-3.3.3 (16 July 2010)
     - Fix two off-by-one errors in NUMA metrics in Linux PMDA.

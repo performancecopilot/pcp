@@ -242,69 +242,61 @@ network {
 network.interface {
     in
     out
-    total
-    mtu		SOLARIS:0:81
-/*
-*    collisions	SOLARIS:0:xx
-*    noproto	SOLARIS:0:xx
-*/
+    mtu		SOLARIS:SCLR_NETIF:0
 }
 
 network.interface.in {
-	errors		SOLARIS:0:90
-	packets		SOLARIS:0:84
-	bytes		SOLARIS:0:82
-	bcasts		SOLARIS:0:86
-	mcasts		SOLARIS:0:88
-	drops		SOLARIS:0:92
-	delivers	SOLARIS:0:94
+    errors	SOLARIS:SCLR_NETIF:1
+    packets	SOLARIS:SCLR_NETIF:2
+    bytes	SOLARIS:SCLR_NETIF:3
+    bcasts	SOLARIS:SCLR_NETIF:4
+    mcasts	SOLARIS:SCLR_NETIF:5
+    drops	SOLARIS:SCLR_NETIF:6
+    delivers	SOLARIS:SCLR_NETIF:7
 }
 
 network.interface.out {
-	errors		SOLARIS:0:91
-	packets		SOLARIS:0:85
-	bytes		SOLARIS:0:83
-	bcasts		SOLARIS:0:87
-	mcasts		SOLARIS:0:89
-	drops		SOLARIS:0:93
-}
-
-network.interface.total {
+    errors	SOLARIS:SCLR_NETIF:8
+    packets	SOLARIS:SCLR_NETIF:9
+    bytes	SOLARIS:SCLR_NETIF:10
+    bcasts	SOLARIS:SCLR_NETIF:11
+    mcasts	SOLARIS:SCLR_NETIF:12
+    drops	SOLARIS:SCLR_NETIF:13
 }
 
 network.udp {
-	ipackets    SOLARIS:0:77
-	opackets    SOLARIS:0:78
-	ierrors     SOLARIS:0:79
-	oerrors     SOLARIS:0:80
-        noports     SOLARIS:0:95
-        overflows   SOLARIS:0:96
+    ipackets    SOLARIS:SCLR_NETIF:14
+    opackets    SOLARIS:SCLR_NETIF:15
+    ierrors     SOLARIS:SCLR_NETIF:16
+    oerrors     SOLARIS:SCLR_NETIF:17
+    noports     SOLARIS:SCLR_NETIF:18
+    overflows   SOLARIS:SCLR_NETIF:19
 }
 
 network.link {
-	in
-	out
-	collisions	SOLARIS:0:110
-	state		SOLARIS:0:111
-	duplex		SOLARIS:0:112
-	speed		SOLARIS:0:113
+    in
+    out
+    collisions	SOLARIS:SCLR_NETLINK:0
+    state	SOLARIS:SCLR_NETLINK:1
+    duplex	SOLARIS:SCLR_NETLINK:2
+    speed	SOLARIS:SCLR_NETLINK:3
 }
 
 network.link.in {
-	errors		SOLARIS:0:114
-	packets		SOLARIS:0:115
-	bytes		SOLARIS:0:116
-	bcasts		SOLARIS:0:117
-	mcasts		SOLARIS:0:118
-	nobufs		SOLARIS:0:119
+    errors	SOLARIS:SCLR_NETLINK:4
+    packets	SOLARIS:SCLR_NETLINK:5
+    bytes	SOLARIS:SCLR_NETLINK:6
+    bcasts	SOLARIS:SCLR_NETLINK:7
+    mcasts	SOLARIS:SCLR_NETLINK:8
+    nobufs	SOLARIS:SCLR_NETLINK:9
 }
 
 network.link.out {
-	errors		SOLARIS:0:120
-	packets		SOLARIS:0:121
-	bytes		SOLARIS:0:122
-	bcasts		SOLARIS:0:123
-	mcasts		SOLARIS:0:124
-	nobufs		SOLARIS:0:125
+    errors	SOLARIS:SCLR_NETLINK:10
+    packets	SOLARIS:SCLR_NETLINK:11
+    bytes	SOLARIS:SCLR_NETLINK:12
+    bcasts	SOLARIS:SCLR_NETLINK:13
+    mcasts	SOLARIS:SCLR_NETLINK:14
+    nobufs	SOLARIS:SCLR_NETLINK:15
 }
 

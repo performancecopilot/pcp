@@ -28,20 +28,20 @@ LIBTARGET = pmda_solaris.so
 CONF_LINE = "solaris	75	dso	solaris_init	$(PMDADIR)/$(LIBTARGET)"
 
 CFILES	= solaris.c data.c sysinfo.c disk.c zpool.c zfs.c \
-	 zpool_perdisk.c netmib2.c netlink.c
+	 zpool_perdisk.c netmib2.c netlink.c kvm.c arcstats.c vnops.c
 
 BARE_NS = disk kernel mem network hinv zpool zfs zpool_perdisk
 PMNS	= $(BARE_NS:%=pmns.%)
-LSRCFILES = $(PMNS) help root common.h
+LSRCFILES = $(PMNS) help root common.h clusters.h netmib2.h
 LDIRT	= domain.h *.log *.dir *.pag root_solaris
 
-LLDLIBS = -lpcp -lpcp_pmda -lkstat -lzfs -lnvpair
+LLDLIBS = -lpcp -lpcp_pmda -lkstat -lzfs -lnvpair -lkvm
 
 default: build-me
 
 include $(BUILDRULES)
 
-ifeq "$(TARGET_OS)" "solaris" 
+ifeq "$(TARGET_OS)" "solaris"
 build-me: root_solaris domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
 	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -66,7 +66,7 @@ $(OBJECTS):	common.h
 help.dir help.pag: help root_solaris
 	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_solaris -v 2 -o help < help
 
-root_solaris: ../../pmns/stdpmid $(PMNS)
+root_solaris: ../../pmns/stdpmid $(PMNS) root
 	rm -f root_solaris
 	$(CPP_SIMPLE) -I../../pmns < root | sed -e '/^#/d' > root_solaris
 
