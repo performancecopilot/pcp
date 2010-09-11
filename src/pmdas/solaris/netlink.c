@@ -109,7 +109,9 @@ netlink_update_stats(int fetch)
 void
 netlink_refresh(void)
 {
+    pmdaCacheOp(indomtab[NETLINK_INDOM].it_indom, PMDA_CACHE_INACTIVE);
     netlink_update_stats(1);
+    pmdaCacheOp(indomtab[NETLINK_INDOM].it_indom, PMDA_CACHE_SAVE);
 }
 
 void
