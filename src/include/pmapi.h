@@ -359,7 +359,7 @@ struct sockaddr;
 extern int pmContextConnectTo(int, const struct sockaddr *);
 extern int pmContextConnectChangeState(int);
 
-extern void pmContextUndef (void);
+extern void pmContextUndef(void);
 
 /*
  * Add to instance profile.
@@ -631,28 +631,29 @@ char *pmDerivedErrStr(void);
  */ 
 extern int pmReceiveDesc(int, pmDesc *);
 extern int pmReceiveFetch(int, pmResult **);
-extern int pmReceiveInDom (int,  int **, char ***);
-extern int pmReceiveInDomInst (int);
-extern int pmReceiveInDomName (int, char **);
-extern int pmReceiveNameID (int, char **);
-extern int pmReceiveNames (int, int, pmID []);
-extern int pmReceiveNamesAll (int, char ***);
-extern int pmReceiveNamesOfChildren (int, char ***, int **);
-extern int pmReceiveStore (int);
-extern int pmReceiveText (int, char **);
-extern int pmReceiveTraversePMNS (int, void (*)(const char *));
-extern int pmRequestDesc (int, pmID );
+extern int pmReceiveInDom(int,  int **, char ***);
+extern int pmReceiveInDomInst(int);
+extern int pmReceiveInDomName(int, char **);
+extern int pmReceiveNameID(int, char **);
+extern int pmReceiveNames(int, int, pmID []);
+extern int pmReceiveNamesAll(int, char ***);
+extern int pmReceiveNamesOfChildren(int, char ***, int **);
+extern int pmReceiveStore(int);
+extern int pmReceiveText(int, char **);
+extern int pmReceiveTraversePMNS(int, void (*)(const char *));
+extern int pmRequestDesc(int, pmID);
 extern int pmRequestFetch(int, int, pmID *);
-extern int pmRequestInDom (int, pmInDom);
-extern int pmRequestInDomInst (int, pmInDom, const char *);
-extern int pmRequestInDomName (int, pmInDom, int);
-extern int pmRequestInDomText (int, pmID, int);
-extern int pmRequestNameID (int, pmID);
-extern int pmRequestNames (int, int, char *[]);
-extern int pmRequestNamesOfChildern (int, const char *, int );
-extern int pmRequestStore (int, const pmResult *);
-extern int pmRequestText (int, pmID, int);
-extern int pmRequestTraversePMNS (int, const char *);
+extern int pmRequestInDom(int, pmInDom);
+extern int pmRequestInDomInst(int, pmInDom, const char *);
+extern int pmRequestInDomName(int, pmInDom, int);
+extern int pmRequestInDomText(int, pmID, int);
+extern int pmRequestNameID(int, pmID);
+extern int pmRequestNames(int, int, char *[]);
+extern int pmRequestNamesOfChildren(int, const char *, int);
+extern int pmRequestNamesOfChildern(int, const char *, int);	/* API typo */
+extern int pmRequestStore(int, const pmResult *);
+extern int pmRequestText(int, pmID, int);
+extern int pmRequestTraversePMNS(int, const char *);
 
 #ifdef __cplusplus
 }

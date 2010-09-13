@@ -266,7 +266,7 @@ EXTERN int __pmLogReads;
 extern void __pmDumpIDList(FILE *, int, const pmID *);
 extern void __pmDumpNameList(FILE *, int, char **);
 extern void __pmDumpStatusList(FILE *, int, const int *);
-extern void __pmDumpNameandStatusList(FILE *, int, char **, int *);
+extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *);
 #endif
 
 /*

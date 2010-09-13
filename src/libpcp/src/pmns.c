@@ -1639,17 +1639,15 @@ request_names (__pmContext *ctxp, int numpmid, char *namelist[])
 {
     int n;
 
-    if (ctxp->c_pmcd->pc_curpdu != 0) {
-	return (PM_ERR_CTXBUSY);
-    }
+    if (ctxp->c_pmcd->pc_curpdu != 0)
+	return PM_ERR_CTXBUSY;
 
     n = __pmSendNameList(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
 			 numpmid, namelist, NULL);
-    if (n < 0) {
+    if (n < 0)
 	n = __pmMapErrno(n);
-    }
 
-    return (n);
+    return n;
 }
 
 int
@@ -1665,7 +1663,7 @@ pmRequestNames (int ctxid, int numpmid, char *namelist[])
 	}
     }
 
-    return (n);
+    return n;
 }
 
 static int
@@ -1713,7 +1711,7 @@ pmReceiveNames (int ctxid, int numpmid, pmID pmidlist[])
 
     }
 
-    return (n);
+    return n;
 }
 
 int
@@ -1922,7 +1920,7 @@ request_names_of_children(__pmContext *ctxp, const char *name, int wantstatus)
     int n;
 
     if (ctxp->c_pmcd->pc_curpdu != 0) {
-	return (PM_ERR_CTXBUSY);
+	return PM_ERR_CTXBUSY;
     }
 
     n = __pmSendChildReq(ctxp->c_pmcd->pc_fd, PDU_BINARY, name, wantstatus);
@@ -1930,28 +1928,35 @@ request_names_of_children(__pmContext *ctxp, const char *name, int wantstatus)
         n =  __pmMapErrno(n);
     }
 
-    return (0);
+    return 0;
 }
 
 int
-pmRequestNamesOfChildern (int ctxid, const char *name, int wantstatus)
+pmRequestNamesOfChildren(int ctxid, const char *name, int wantstatus)
 {
     int n;
     __pmContext *ctxp;
 
-    if ((n = __pmGetHostContextByID (ctxid, &ctxp)) >= 0) {
+    if ((n = __pmGetHostContextByID(ctxid, &ctxp)) >= 0) {
 	if ((n = request_names_of_children(ctxp, name, wantstatus)) >= 0) {
 	    ctxp->c_pmcd->pc_curpdu = PDU_PMNS_CHILD;
 	    ctxp->c_pmcd->pc_tout_sec = TIMEOUT_DEFAULT;
 	}
     }
 
-    return (n);
+    return n;
+}
+
+/* Ugh!  Backward compatibility, remove during next major API revision */
+int
+pmRequestNamesOfChildern(int ctxid, const char *name, int wantstatus)
+{
+    return pmRequestNamesOfChildren(ctxid, name, wantstatus);
 }
 
 static int
-receive_names_of_children (__pmContext *ctxp, char ***offspring,
-			   int **statuslist)
+receive_names_of_children(__pmContext *ctxp, char ***offspring,
+			  int **statuslist)
 {
     int n;
     __pmPDU      *pb;
@@ -1977,7 +1982,7 @@ receive_names_of_children (__pmContext *ctxp, char ***offspring,
 }
 
 int
-pmReceiveNamesOfChildren (int ctxid, char ***offsprings, int **status)
+pmReceiveNamesOfChildren(int ctxid, char ***offsprings, int **status)
 {
     int n;
     __pmContext *ctxp;
@@ -1989,7 +1994,7 @@ pmReceiveNamesOfChildren (int ctxid, char ***offsprings, int **status)
 	ctxp->c_pmcd->pc_tout_sec = 0;
     }
 
-    return (n);
+    return n;
 }
 
 static int
@@ -2002,7 +2007,7 @@ GetChildrenStatusRemote(__pmContext *ctxp, const char *name,
 				       (statuslist==NULL) ? 0 : 1)) >= 0) {
 	n = receive_names_of_children (ctxp, offspring, statuslist);
     }
-    return (n);
+    return n;
 }
 
 static void
@@ -2341,7 +2346,7 @@ report:
 	    fprintf(stderr, "leaf\n");
 	else if (num > 0) {
 	    if (statuslist != NULL)
-		__pmDumpNameandStatusList(stderr, num, *offspring, *statuslist);
+		__pmDumpNameAndStatusList(stderr, num, *offspring, *statuslist);
 	    else
 		__pmDumpNameList(stderr, num, *offspring);
 	}
@@ -2733,7 +2738,7 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 	assert(sts >= 0);
 	ctxp = __pmHandleToPtr(sts);
 	if ((sts = request_traverse_pmns (ctxp, name)) < 0) {
-	    return (sts);
+	    return sts;
 	} else {
 	    int		numnames;
 	    int		i;
