@@ -1635,7 +1635,7 @@ pmUnloadNameSpace(void)
 }
 
 static int
-request_names (__pmContext *ctxp, int numpmid, char *namelist[])
+request_names(__pmContext *ctxp, int numpmid, char *namelist[])
 {
     int n;
 
@@ -1651,7 +1651,7 @@ request_names (__pmContext *ctxp, int numpmid, char *namelist[])
 }
 
 int
-pmRequestNames (int ctxid, int numpmid, char *namelist[])
+pmRequestNames(int ctxid, int numpmid, char *namelist[])
 {
     int n;
     __pmContext *ctxp;
@@ -1667,7 +1667,7 @@ pmRequestNames (int ctxid, int numpmid, char *namelist[])
 }
 
 static int
-receive_names (__pmContext *ctxp, int numpmid, pmID pmidlist[])
+receive_names(__pmContext *ctxp, int numpmid, pmID pmidlist[])
 {
     int n;
     __pmPDU      *pb;
@@ -1697,7 +1697,7 @@ receive_names (__pmContext *ctxp, int numpmid, pmID pmidlist[])
 }
 
 int
-pmReceiveNames (int ctxid, int numpmid, pmID pmidlist[])
+pmReceiveNames(int ctxid, int numpmid, pmID pmidlist[])
 {
     int n;
     __pmContext *ctxp;
@@ -1945,13 +1945,6 @@ pmRequestNamesOfChildren(int ctxid, const char *name, int wantstatus)
     }
 
     return n;
-}
-
-/* Ugh!  Backward compatibility, remove during next major API revision */
-int
-pmRequestNamesOfChildern(int ctxid, const char *name, int wantstatus)
-{
-    return pmRequestNamesOfChildren(ctxid, name, wantstatus);
 }
 
 static int
@@ -2365,7 +2358,7 @@ pmGetChildren(const char *name, char ***offspring)
 }
 
 static int
-request_namebypmid (__pmContext *ctxp, pmID pmid)
+request_namebypmid(__pmContext *ctxp, pmID pmid)
 {
     int n;
 
@@ -2379,13 +2372,13 @@ request_namebypmid (__pmContext *ctxp, pmID pmid)
 }
 
 int
-pmRequestNameID (int ctxid, pmID pmid)
+pmRequestNameID(int ctxid, pmID pmid)
 {
     int n;
     __pmContext *ctxp;
 
     if ((n = __pmGetHostContextByID(ctxid, &ctxp)) >= 0) {
-	if ((n = request_namebypmid (ctxp, pmid)) >= 0) {
+	if ((n = request_namebypmid(ctxp, pmid)) >= 0) {
 	    ctxp->c_pmcd->pc_curpdu = PDU_PMNS_IDS;
 	    ctxp->c_pmcd->pc_tout_sec = TIMEOUT_DEFAULT;
 	}
@@ -2395,7 +2388,7 @@ pmRequestNameID (int ctxid, pmID pmid)
 }
 
 static int
-receive_namesbyid (__pmContext *ctxp, char ***namelist)
+receive_namesbyid(__pmContext *ctxp, char ***namelist)
 {
     int         n;
     __pmPDU      *pb;
@@ -2419,7 +2412,7 @@ receive_namesbyid (__pmContext *ctxp, char ***namelist)
 }
 
 static int 
-receive_a_name (__pmContext *ctxp, char **name)
+receive_a_name(__pmContext *ctxp, char **name)
 {
     int n;
     char **namelist;
@@ -2439,13 +2432,13 @@ receive_a_name (__pmContext *ctxp, char **name)
 }
 
 int
-pmReceiveNameID (int ctxid, char **name)
+pmReceiveNameID(int ctxid, char **name)
 {
     int n;
     __pmContext *ctxp;
 
     if ((n = __pmGetBusyHostContextByID(ctxid, &ctxp, PDU_PMNS_IDS)) >= 0) {
-	n = receive_a_name (ctxp, name);
+	n = receive_a_name(ctxp, name);
 
 	ctxp->c_pmcd->pc_curpdu = 0;
 	ctxp->c_pmcd->pc_tout_sec = 0;
@@ -2455,13 +2448,13 @@ pmReceiveNameID (int ctxid, char **name)
 }
 
 int
-pmReceiveNamesAll (int ctxid, char ***namelist)
+pmReceiveNamesAll(int ctxid, char ***namelist)
 {
     int n;
     __pmContext *ctxp;
 
     if ((n = __pmGetBusyHostContextByID(ctxid, &ctxp, PDU_PMNS_IDS)) >= 0) {
-	n = receive_namesbyid (ctxp, namelist);
+	n = receive_namesbyid(ctxp, namelist);
 
 	ctxp->c_pmcd->pc_curpdu = 0;
 	ctxp->c_pmcd->pc_tout_sec = 0;
@@ -2504,7 +2497,7 @@ pmNameID(pmID pmid, char **name)
 	assert(n >= 0);
 	ctxp = __pmHandleToPtr(n);
 
-	if ((n = request_namebypmid (ctxp, pmid)) >= 0) {
+	if ((n = request_namebypmid(ctxp, pmid)) >= 0) {
 	    n = receive_a_name(ctxp, name);
 	}
 	if (n >= 0) return n;
@@ -2637,7 +2630,7 @@ TraversePMNS_local(const char *name, void(*func)(const char *name))
 }
 
 static int
-request_traverse_pmns (__pmContext *ctxp, const char *name)
+request_traverse_pmns(__pmContext *ctxp, const char *name)
 {
     int n;
 
@@ -2660,7 +2653,7 @@ request_traverse_pmns (__pmContext *ctxp, const char *name)
  */
 
 int
-pmRequestTraversePMNS (int ctx, const char *name)
+pmRequestTraversePMNS(int ctx, const char *name)
 {
     int n;
     __pmContext *ctxp;
@@ -2675,7 +2668,7 @@ pmRequestTraversePMNS (int ctx, const char *name)
 }
 
 int
-pmReceiveTraversePMNS (int ctxid, void(*func)(const char *name))
+pmReceiveTraversePMNS(int ctxid, void(*func)(const char *name))
 {
     int n;
     __pmContext *ctxp;
@@ -2693,7 +2686,7 @@ pmReceiveTraversePMNS (int ctxid, void(*func)(const char *name))
 
 	n = __pmDecodeNameList(pb, PDU_BINARY, &numnames, &namelist, NULL);
 	if (n >= 0) {
-	    for (i=0; i<numnames; i++) {
+	    for (i = 0; i < numnames; i++) {
 		func(namelist[i]);
 	    }
 	

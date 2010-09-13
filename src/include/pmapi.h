@@ -650,7 +650,6 @@ extern int pmRequestInDomText(int, pmID, int);
 extern int pmRequestNameID(int, pmID);
 extern int pmRequestNames(int, int, char *[]);
 extern int pmRequestNamesOfChildren(int, const char *, int);
-extern int pmRequestNamesOfChildern(int, const char *, int);	/* API typo */
 extern int pmRequestStore(int, const pmResult *);
 extern int pmRequestText(int, pmID, int);
 extern int pmRequestTraversePMNS(int, const char *);
