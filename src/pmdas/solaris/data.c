@@ -1372,7 +1372,28 @@ pmdaIndom indomtab[] = {
 };
 
 int indomtab_sz = sizeof(indomtab) / sizeof(indomtab[0]);
-kstat_ctl_t		*kc;
+
+static kstat_ctl_t *kc;
+static int kstat_chains_updated;
+
+kstat_ctl_t *
+kstat_ctl_update(void)
+{
+    if (!kstat_chains_updated) {
+	if (kstat_chain_update(kc) == -1)  {
+	    kstat_chains_updated = 0;
+	    return NULL;
+	}
+	kstat_chains_updated = 1;
+    }
+    return kc;
+}
+
+void
+kstat_ctl_needs_update(void)
+{
+	kstat_chains_updated = 0;
+}
 
 void
 init_data(int domain)

@@ -72,6 +72,10 @@ static void
 disk_walk_chains(pmInDom dindom)
 {
     kstat_t	*ksp;
+    kstat_ctl_t *kc;
+
+    if ((kc = kstat_ctl_update()) == NULL)
+	return;
 
     for (ksp = kc->kc_chain; ksp != NULL; ksp = ksp->ks_next) {
 	ctl_t *ctl;
@@ -181,7 +185,8 @@ disk_derived(pmdaMetric *mdesc, int inst, const kstat_io_t *iostat)
 }
 
 static int
-fetch_disk_data(const pmdaMetric *mdesc, ctl_t *ctl, const char *diskname)
+fetch_disk_data(kstat_ctl_t *kc, const pmdaMetric *mdesc, ctl_t *ctl,
+		const char *diskname)
 {
     if (ctl->fetched == 1)
 	return 1;
@@ -223,6 +228,10 @@ get_instance_value(pmdaMetric *mdesc, pmInDom dindom, int inst,
     char *diskname;
     uint64_t ull;
     ptrdiff_t offset = ((metricdesc_t *)mdesc->m_user)->md_offset;
+    kstat_ctl_t *kc;
+
+    if ((kc = kstat_ctl_update()) == NULL)
+	return 0;
 
     if (pmdaCacheLookup(dindom, inst, &diskname,
 			(void **)&ctl) != PMDA_CACHE_ACTIVE) {
@@ -238,7 +247,7 @@ get_instance_value(pmdaMetric *mdesc, pmInDom dindom, int inst,
     }
 
     if (offset == -1) {
-	if (!fetch_disk_data(mdesc, ctl, diskname))
+	if (!fetch_disk_data(kc, mdesc, ctl, diskname))
 	    return 0;
 	ull = disk_derived(mdesc, inst, &ctl->iostat);
     } else if (offset > sizeof(ctl->iostat)) { /* device_error */
@@ -266,7 +275,7 @@ get_instance_value(pmdaMetric *mdesc, pmInDom dindom, int inst,
 	return 0;
     } else {
 	char *iop = ((char *)&ctl->iostat) + offset;
-	if (!fetch_disk_data(mdesc, ctl, diskname))
+	if (!fetch_disk_data(kc, mdesc, ctl, diskname))
 	    return 0;
 	if (mdesc->m_desc.type == PM_TYPE_U64) {
 	    __uint64_t *ullp = (__uint64_t *)iop;

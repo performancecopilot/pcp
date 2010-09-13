@@ -145,8 +145,10 @@ static void
 vnops_update_stats(int fetch)
 {
     kstat_t *k;
+    kstat_ctl_t *kc = kstat_ctl_update();
 
-    kstat_chain_update(kc);
+    if (kc == NULL)
+	return;
 
     for (k = kc->kc_chain; k != NULL; k = k->ks_next) {
 	int rv;
