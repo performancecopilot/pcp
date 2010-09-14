@@ -29,4 +29,5 @@ hinv.disk {
     revision	SOLARIS:SCLR_DISK:32
     serial	SOLARIS:SCLR_DISK:33
     capacity	SOLARIS:SCLR_DISK:34
+    devlink	SOLARIS:SCLR_DISK:35
 }
