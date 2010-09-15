@@ -4,14 +4,6 @@
   <property name="windowModality" >
    <enum>Qt::WindowModal</enum>
   </property>
-  <property name="geometry" >
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>330</width>
-    <height>180</height>
-   </rect>
-  </property>
   <property name="sizePolicy" >
    <sizepolicy>
     <hsizetype>0</hsizetype>
@@ -23,13 +15,13 @@
   <property name="minimumSize" >
    <size>
     <width>330</width>
-    <height>180</height>
+    <height>220</height>
    </size>
   </property>
   <property name="maximumSize" >
    <size>
     <width>330</width>
-    <height>180</height>
+    <height>220</height>
    </size>
   </property>
   <property name="focusPolicy" >
