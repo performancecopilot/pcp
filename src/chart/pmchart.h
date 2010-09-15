@@ -74,7 +74,7 @@ public:
     virtual void setupAssistant();
     virtual void updateHeight(int);
     virtual void createNewChart();
-    virtual void metricInfo(QString src, QString m, QString inst, bool archive);
+    virtual void metricInfo(QString src, QString m, QString inst, int srcType);
     virtual void metricSearch(QTreeWidget *pmns);
     virtual void createNewTab(bool liveMode);
     virtual void setValueText(QString &text);

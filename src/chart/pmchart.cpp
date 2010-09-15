@@ -598,10 +598,10 @@ void PmChart::closeChart()
     enableUi();
 }
 
-void PmChart::metricInfo(QString src, QString m, QString inst, bool archive)
+void PmChart::metricInfo(QString src, QString m, QString inst, int srcType)
 {
     setupDialogs();
-    my.info->reset(src, m, inst, archive);
+    my.info->reset(src, m, inst, srcType);
     my.info->show();
 }
 
