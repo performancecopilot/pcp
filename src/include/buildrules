@@ -53,8 +53,9 @@ src-link-pcp-gui : $(SRCFILES) $(CONFFILES) $(SUBDIRS)
 	done
 
 ifeq ($(PKG_PLATFORM),darwin)
-QTMAKE = $(QMAKE) -spec macx-xcode && xcodebuild -configuration $(QT_RELEASE)
-BINARY = build/Default/$(COMMAND).app/Contents/MacOS/$(COMMAND)
+QTMAKE = $(QMAKE) -spec macx-g++ && make -f Makefile
+MACBUILD = $(COMMAND).app/Contents
+BINARY = $(MACBUILD)/MacOS/$(COMMAND)
 LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || $(LN_S) $(BINARY) $(COMMAND)
 WINDOW = mac
 endif

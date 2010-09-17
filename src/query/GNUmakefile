@@ -24,7 +24,6 @@ default: iconlinks wrappers
 include $(BUILDRULES)
 
 ifeq ($(WINDOW),mac)
-MACBUILD = build/Default/$(COMMAND).app/Contents
 PKG_MAC_DIR = /Library/PCP/$(COMMAND).app/Contents
 PKG_SUB_DIR = $(PKG_MAC_DIR)/MacOS
 wrappers: $(WRAPPER) $(SCRIPTS)
