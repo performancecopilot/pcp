@@ -36,8 +36,11 @@ AC_OUTPUT( \
 	src/libqmc/libqmc.pro \
 	src/libqwt/libqwt.pro \
 	src/dumptext/pmdumptext.pro \
+	src/query/pmquery.info \
 	src/query/pmquery.pro \
+	src/chart/pmchart.info \
 	src/chart/pmchart.pro \
+	src/time/pmtime.info \
 	src/time/pmtime.pro \
 	man/html/pcpdoc.adp \
 	pcp-gui.lsm )

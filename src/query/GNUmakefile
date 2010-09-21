@@ -52,7 +52,7 @@ endif
 ifeq ($(WINDOW),mac)
 	$(INSTALL) -m 755 $(WRAPPER) $(PKG_BIN_DIR)/$(COMMAND)
 	$(call INSTALL_DIRECTORY_HIERARCHY,$(PKG_MAC_DIR))
-	$(INSTALL) -m 644 $(MACBUILD)/Info.plist $(PKG_MAC_DIR)/Info.plist
+	$(INSTALL) -m 644 pmquery.info $(PKG_MAC_DIR)/Info.plist
 	$(INSTALL) -m 644 $(MACBUILD)/PkgInfo $(PKG_MAC_DIR)/PkgInfo
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/MacOS
 	$(INSTALL) -m 755 $(BINARY) $(PKG_MAC_DIR)/MacOS/$(COMMAND)
