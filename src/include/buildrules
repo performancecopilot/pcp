@@ -73,7 +73,7 @@ WINDOW = x11
 endif
 
 INSTALL_DIRECTORY_HIERARCHY=\
-	d=$(1); while [ "$$d" != "/" -a "$$d" != "." ] ; do \
+	d=$(1); while [ "$$d" != "$(2)" -a "$$d" != "/" -a "$$d" != "." ] ; do \
                 echo $$d; d=`dirname $$d`; done | sort | while read id; do \
                 $(INSTALL) -m 755 -d $$id || exit 1; done;
 

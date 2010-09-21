@@ -79,7 +79,7 @@ ifeq ($(WINDOW),x11)
 endif
 ifeq ($(WINDOW),mac)
 	$(INSTALL) -m 755 $(WRAPPER) $(PKG_BIN_DIR)/$(COMMAND)
-	$(call INSTALL_DIRECTORY_HIERARCHY,$(PKG_MAC_DIR))
+	$(call INSTALL_DIRECTORY_HIERARCHY,$(PKG_MAC_DIR),/Applications)
 	$(INSTALL) -m 644 $(MACBUILD)/PkgInfo $(PKG_MAC_DIR)/PkgInfo
 	$(INSTALL) -m 644 pmchart.info $(PKG_MAC_DIR)/Info.plist
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/MacOS
