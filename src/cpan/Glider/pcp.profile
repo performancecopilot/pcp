@@ -1,4 +1,9 @@
 alias vi=vim
+alias pcp=pcp.sh
+alias mkaf=mkaf.sh
+alias pmafm=pmafm.sh
+alias pmsignal=pmsignal.sh
+
 export PCP_DIR=/c/glider
 export PCP_CONF=$PCP_DIR/etc/pcp.conf
 export PCP_CONFIG=$PCP_DIR/local/bin/pmconfig.exe
