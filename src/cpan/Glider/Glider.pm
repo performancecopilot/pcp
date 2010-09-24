@@ -67,7 +67,7 @@ BEGIN {
 	$PKGNAME = 'pcp-glider';
 	$PKGURLS = 'file://D|/packages/',
 	$PKGCPAN = 'file://D|/minicpan/',
-	$VERSION = '0.9.7';
+	$VERSION = '0.9.8';
 	@ISA     = 'Perl::Dist::Strawberry';
 }
 
@@ -146,7 +146,7 @@ my %PKG = (
 	'qt'		=> 'PCP-qt-4.6.3-lib.tar.gz',
 	'coin'		=> 'PCP-coin-2.5.0-lib.tar.gz',
 
-	'pcp'		=> 'pcp-3.3.3-1.tar.gz',
+	'pcp'		=> 'pcp-3.4.0-1.tar.gz',
 	'pcp_gui'	=> 'pcp-gui-1.4.9.tar.gz',
 );
 
