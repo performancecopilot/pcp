@@ -1612,22 +1612,27 @@ usage(void)
 int
 main(int argc, char **argv)
 {
+    int			sep = __pmPathSeparator();
     int			err = 0;
-    pmdaInterface	d;
     int			c;
+    pmdaInterface	dispatch;
+    char		helppath[MAXPATHLEN];
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
-    pmdaDaemon(&d, PMDA_INTERFACE_3, pmProgname, WINDOWS, "windows.log", NULL);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:?", &d, &err)) != EOF)
+    snprintf(helppath, sizeof(helppath), "%s%c" "windows" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, WINDOWS, "windows.log", helppath);
+
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err)) != EOF)
 	err++;
     if (err)
     	usage();
 
-    pmdaOpenLog(&d);
-    windows_init(&d);
-    pmdaConnect(&d);
-    pmdaMain(&d);
+    pmdaOpenLog(&dispatch);
+    windows_init(&dispatch);
+    pmdaConnect(&dispatch);
+    pmdaMain(&dispatch);
     exit(0);
 }
