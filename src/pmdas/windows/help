@@ -36,10 +36,10 @@
 @ kernel.uname.distro Windows distribution name
 The Windows distribution name, from the GetVersionEx Win32 API.
 
-@ network.interface.baudrate interface speed in bytes per second
-The linespeed on the network interface, as reported by the kernel
-which is in bits/second, divided by 8 to convert to bytes/second.
-See also network.interface.speed for the Megbytes/second value.
+@ network.interface.speed interface speed in megabytes per second
+The linespeed on the network interface, as reported by the kernel,
+scaled from Megabits/second to Megabytes/second.
+See also network.interface.baudrate for the bytes/second value.
 
 @ network.interface.baudrate interface speed in bytes per second
 The linespeed on the network interface, as reported by the kernel,
