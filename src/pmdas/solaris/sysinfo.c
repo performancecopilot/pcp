@@ -44,9 +44,13 @@ sysinfo_init(int first)
     kstat_t	*ksp;
     int		i;
     char	buf[10];	/* cpuXXXXX */
+    kstat_ctl_t *kc;
 
     if (!first)
 	/* TODO ... not sure if/when we'll use this re-init hook */
+	return;
+
+    if ((kc = kstat_ctl_update()) == NULL)
 	return;
 
     for (ncpu = 0; ; ncpu++) {
@@ -164,7 +168,8 @@ kstat_named_to_pmAtom(const kstat_named_t *kn, pmAtomValue *atom)
 }
 
 static int
-kstat_fetch_named(pmAtomValue *atom, char *metric, int shift_bits)
+kstat_fetch_named(kstat_ctl_t *kc, pmAtomValue *atom, char *metric,
+		  int shift_bits)
 {
     kstat_t *ks;
 
@@ -238,20 +243,24 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
     int			ok;
     ptrdiff_t		offset;
     struct utsname	u;
+    kstat_ctl_t		*kc;
+
+    if ((kc = kstat_ctl_update()) == NULL)
+	return 0;
 
     /* Special processing of metrics which notionally belong
      * to sysinfo category */
     switch (pmid_item(mdesc->m_desc.pmid)) {
     case 109: /* hinv.physmem */
-	return kstat_fetch_named(atom, "physmem", 20);
+	return kstat_fetch_named(kc, atom, "physmem", 20);
     case 136: /* mem.physmem */
-	return kstat_fetch_named(atom, "physmem", 10);
+	return kstat_fetch_named(kc, atom, "physmem", 10);
     case 137: /* mem.freemem */
-	return kstat_fetch_named(atom, "freemem", 10);
+	return kstat_fetch_named(kc, atom, "freemem", 10);
     case 138: /* mem.lotsfree */
-	return kstat_fetch_named(atom, "lotsfree", 10);
+	return kstat_fetch_named(kc, atom, "lotsfree", 10);
     case 139: /* mem.availrmem */
-	return kstat_fetch_named(atom, "availrmem", 10);
+	return kstat_fetch_named(kc, atom, "availrmem", 10);
 
     case 108: /* hinv.pagesize */
 	atom->ul = pagesize;

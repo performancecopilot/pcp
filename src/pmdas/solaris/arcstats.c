@@ -30,7 +30,10 @@ int arcstats_fresh;
 void
 arcstats_refresh(void)
 {
+    kstat_ctl_t *kc;
     arcstats_fresh = 0;
+    if ((kc = kstat_ctl_update()) == NULL)
+	return;
     if ((arcstats = kstat_lookup(kc, "zfs", -1, "arcstats")) != NULL)
         arcstats_fresh = kstat_read(kc, arcstats, NULL) != -1;
 }
