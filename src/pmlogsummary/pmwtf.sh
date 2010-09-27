@@ -16,7 +16,7 @@
 #
 tmp=/var/tmp/$$
 sts=0
-trap "rm -f $tmp.tmp; exit \$sts" 0 1 2 3 15
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 rm -f $tmp.*
 
 _usage()
