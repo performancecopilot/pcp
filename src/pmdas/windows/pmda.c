@@ -1557,8 +1557,14 @@ windows_init(pmdaInterface *dp)
     int			metrictab_sz = metricdesc_sz;
     int			i;
 
-    if (isDSO)
-	pmdaDSO(dp, PMDA_INTERFACE_3, "windows DSO", NULL);
+    if (isDSO) {
+	char		helppath[MAXPATHLEN];
+	int		sep = __pmPathSeparator();
+
+	snprintf(helppath, sizeof(helppath), "%s%c" "windows" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+	pmdaDSO(dp, PMDA_INTERFACE_3, "windows DSO", helptext);
+    }
 
     if (dp->status != 0)
 	return;
