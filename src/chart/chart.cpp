@@ -144,7 +144,6 @@ Chart::~Chart()
 	free(plot);
     }
     delete my.picker;
-    delete my.engine;
 }
 
 void Chart::setCurrent(bool enable)
