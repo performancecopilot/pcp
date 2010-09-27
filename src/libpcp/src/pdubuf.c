@@ -122,7 +122,8 @@ __pmPinPDUBuf(void *handle)
 	if (pcp != NULL)
 	    pcp->bc_pincnt++;
 	else {
-	    __pmNotifyErr(LOG_WARNING, "__pmPinPDUBuf: 0x%x not in pool!", handle);
+	    __pmNotifyErr(LOG_WARNING, "__pmPinPDUBuf: 0x%lx not in pool!",
+		(unsigned long)handle);
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_PDUBUF)
 		pdubufdump();

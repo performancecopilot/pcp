@@ -600,7 +600,7 @@ __pmdaSetup(pmdaInterface *dispatch, int version, char *name)
     if (pmda == NULL) {
 	__pmNotifyErr(LOG_ERR, 
 		     "%s: Unable to allocate memory for pmdaExt structure (%d bytes)",
-		     name, sizeof(pmdaExt));
+		     name, (int)sizeof(pmdaExt));
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
@@ -659,7 +659,7 @@ __pmdaSetup(pmdaInterface *dispatch, int version, char *name)
     if (extp == NULL) {
 	__pmNotifyErr(LOG_ERR, 
 		     "%s: Unable to allocate memory for e_ext_t structure (%d bytes)",
-		     name, sizeof(*extp));
+		     name, (int)sizeof(*extp));
 	free(pmda);
 	if (HAVE_V_FOUR(version))
 	    dispatch->version.four.ext = NULL;

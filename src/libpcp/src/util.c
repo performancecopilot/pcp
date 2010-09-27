@@ -561,7 +561,8 @@ void
 __pmNoMem(const char *where, size_t size, int fatal)
 {
     __pmNotifyErr(fatal ? LOG_ERR : LOG_WARNING,
-		 "%s: malloc(%d) failed: %s", where, size, strerror(errno));
+			"%s: malloc(%d) failed: %s",
+			where, (int)size, strerror(errno));
     if (fatal)
 	exit(1);
 }

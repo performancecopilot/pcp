@@ -518,7 +518,7 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
     if ((dup = strdup(name)) == NULL) {
 	__pmNotifyErr(LOG_ERR, 
 	     "insert_cache: indom %s: unable to allocate %d bytes for name: %s\n",
-	     pmInDomStr(h->indom), strlen(name), name);
+	     pmInDomStr(h->indom), (int)strlen(name), name);
 	*sts = PM_ERR_GENERIC;
 	return NULL;
     }

@@ -586,7 +586,13 @@ extern void pmFreeMetricSpec(pmMetricSpec *p);
 /*
  * configurable error reporting
  */
-extern int pmprintf(const char *, ...);
+#ifdef __GNUC__
+# define __PM_PRINTFLIKE(idx,cnt) __attribute__ ((format (printf, idx,cnt)))
+#else
+# define __PM_PRINTFLIKE(idx,cnt)
+#endif
+
+extern int pmprintf(const char *, ...) __PM_PRINTFLIKE(1,2);
 extern int pmflush(void);
 
 /*
