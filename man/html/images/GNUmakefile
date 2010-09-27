@@ -5,7 +5,7 @@ PNGFILES = $(shell echo *.png)
 SVGFILES = $(shell echo *.svg)
 LSRCFILES = $(PNGFILES) $(SVGFILES)
 ICONLINKS = pcpicon.png pmcharticon.png pmtimeicon.png stepfwd_on.png system-search.png
-INSTFILES = $(PNGFILES)
+INSTFILES = $(shell echo $(ICONLINKS) $(PNGFILES) | tr ' ' '\n' | $(SORT) -u)
 LDIRT = $(ICONLINKS)
 
 default: iconlinks
