@@ -1563,7 +1563,7 @@ windows_init(pmdaInterface *dp)
 
 	snprintf(helppath, sizeof(helppath), "%s%c" "windows" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_3, "windows DSO", helptext);
+	pmdaDSO(dp, PMDA_INTERFACE_3, "windows DSO", helppath);
     }
 
     if (dp->status != 0)
