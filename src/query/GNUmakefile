@@ -24,15 +24,12 @@ default: iconlinks wrappers
 include $(BUILDRULES)
 
 ifeq ($(WINDOW),mac)
-MACBUILD = build/Default/$(COMMAND).app/Contents
 PKG_MAC_DIR = /Library/PCP/$(COMMAND).app/Contents
 PKG_SUB_DIR = $(PKG_MAC_DIR)/MacOS
 wrappers: $(WRAPPER) $(SCRIPTS)
-copies: Info.plist PkgInfo
 else
 PKG_SUB_DIR = $(PKG_BIN_DIR)
 wrappers: $(WRAPPER) $(SCRIPTS)
-copies:
 endif
 
 $(WRAPPER): $(WRAPPER).IN
@@ -41,12 +38,8 @@ pmmessage.sh: pmmessage.sh.IN
 	@ $(SED) -e '/\# .*/b' -e 's;PKG_BIN_DIR;$(PKG_SUB_DIR);g' < $< > $@
 pmconfirm.sh: pmconfirm.sh.IN
 	@ $(SED) -e '/\# .*/b' -e 's;PKG_BIN_DIR;$(PKG_SUB_DIR);g' < $< > $@
-Info.plist: default
-	@ cp -f $(MACBUILD)/Info.plist Info.plist
-PkgInfo: default
-	@ cp -f $(MACBUILD)/PkgInfo PkgInfo
 
-install: default copies
+install: default
 	$(INSTALL) -m 755 -d $(PKG_BIN_DIR)
 ifeq ($(WINDOW),x11)
 	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
@@ -58,14 +51,14 @@ endif
 	$(INSTALL) -m 755 pmmessage.sh $(PKG_BIN_DIR)/pmmessage
 ifeq ($(WINDOW),mac)
 	$(INSTALL) -m 755 $(WRAPPER) $(PKG_BIN_DIR)/$(COMMAND)
-	$(INSTALL) -m 755 -d /Library
-	$(INSTALL) -m 755 -d /Library/PCP
-	$(INSTALL) -m 755 -d /Library/PCP/$(COMMAND).app
-	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)
-	$(INSTALL) -m 644 Info.plist $(PKG_MAC_DIR)/Info.plist
-	$(INSTALL) -m 644 PkgInfo $(PKG_MAC_DIR)/PkgInfo
+	$(call INSTALL_DIRECTORY_HIERARCHY,$(PKG_MAC_DIR),/Library)
+	$(INSTALL) -m 644 pmquery.info $(PKG_MAC_DIR)/Info.plist
+	$(INSTALL) -m 644 $(MACBUILD)/PkgInfo $(PKG_MAC_DIR)/PkgInfo
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/MacOS
+	$(call INSTALL_QT_FRAMEWORKS,$(BINARY))
 	$(INSTALL) -m 755 $(BINARY) $(PKG_MAC_DIR)/MacOS/$(COMMAND)
+	rm $(BINARY)
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/Resources
 	$(INSTALL) -m 644 $(ICNFILE) $(PKG_MAC_DIR)/Resources/$(ICNFILE)
+	$(call INSTALL_QT_CONF,$(PKG_MAC_DIR)/Resources)
 endif

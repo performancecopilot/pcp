@@ -50,7 +50,7 @@ idb-pcp-gui: $(DIST_MANIFEST)
 	@echo "# Version 1" > idb-pcp-gui
 	@echo "# IDB for pcp-gui" >> idb-pcp-gui
 	@WA=`cd $(TOPDIR) ; pwd` ; \
-	$(AWK) ' \
+	sort -u $(DIST_MANIFEST) | $(AWK) ' \
 		$$1 == "d" { printf "%s %s %s %s %s src/ replace\n", $$1, $$2, $$3, $$4, $$5 ; next; } \
 		$$1 == "l" { \
 			i = split($$3, a, "/"); \
@@ -67,8 +67,7 @@ idb-pcp-gui: $(DIST_MANIFEST)
 		{ \
 			printf "%s %s %s %s %s %s replace\n", $$1, $$2, $$3, $$4, $$6, $$5 ; \
 		} \
-		' $$DIST_MANIFEST \
-	| sed -e 's# '$$WA'/# #g' -e 's# /# #g' >> idb-pcp-gui
+		' | sed -e 's# '$$WA'/# #g' -e 's# /# #g' >> idb-pcp-gui
 	@(bdir=`echo $(PCP_BINADM_DIR) | cut -c2-`; \
 	  echo "f 644 root admin $$bdir/idb-pcp-gui idb-pcp-gui replace"; \
 	  echo "f 755 root admin $$bdir/install-pcp-gui install-pcp-gui replace"; \
