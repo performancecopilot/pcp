@@ -219,11 +219,8 @@ traverse(const char *str, double scale)
 	    if (sts >= 0 && doMetricFlag == false)
 		sts = -1;
 	    else if (sts < 0) {
-		QmcSource source = group->context()->source();
-		pmprintf("%s: Error: %s%c%s: %s\n",
-			 pmProgname, source.sourceAscii(),
-			 source.type() == PM_CONTEXT_ARCHIVE ? '/' : ':',
-			 theMetric->metric, pmErrStr(sts));
+		pmprintf("%s: Error: %s: %s\n",
+			 pmProgname, theMetric->metric, pmErrStr(sts));
 	    }
 	}
     }
