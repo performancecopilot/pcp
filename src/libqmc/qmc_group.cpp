@@ -82,37 +82,36 @@ QmcGroup::use(int type, const QString &theSource)
 	    if (my.contexts[i]->source().type() == type)
 		break;
     }
+    else if (type == PM_CONTEXT_ARCHIVE) {
+	if (source == QString::null) {
+	    pmprintf("%s: Error: Archive context requires archive path\n",
+			 pmProgname);
+	    return PM_ERR_NOCONTEXT;
+	}
+	// This doesn't take into account {.N,.meta,.index,} ... but
+	// then again, nor does pmNewContext.  More work ... useful?
+	for (i = 0; i < numContexts(); i++) {
+	    if (source == my.contexts[i]->source().source())
+		break;
+	}
+    }
     else {
 	if (source == QString::null) {
-	    if (type == PM_CONTEXT_ARCHIVE) {
-		pmprintf("%s: Error: Archive context requires archive path\n",
-			 pmProgname);
-		return PM_ERR_NOCONTEXT;
-	    }
-	    else {
+	    if (!defaultDefined()) {
+		createLocalContext();
 		if (!defaultDefined()) {
-		    createLocalContext();
-		    if (!defaultDefined()) {
-			pmprintf("%s: Error: "
-				 "Cannot connect to PMCD on localhost: %s\n",
-				 pmProgname,
-				 pmErrStr(my.localSource->status()));
-			return my.localSource->status();
-			/*NOTREACHED*/
-		    }
+		    pmprintf("%s: Error: "
+			 "Cannot connect to PMCD on localhost: %s\n",
+			 pmProgname,
+			 pmErrStr(my.localSource->status()));
+		    return my.localSource->status();
 		}
-		source = my.contexts[0]->source().source();
 	    }
+	    source = my.contexts[0]->source().source();
 	}
 
-	// Search contexts in this group for an existing match
-	// Note: Archive hostnames may be truncated, so we only
-	// compare up to PM_LOG_MAXHOSTLEN-1 characters.
-	QString chop1 = source.remove(PM_LOG_MAXHOSTLEN-1, INT_MAX);
 	for (i = 0; i < numContexts(); i++) {
-	    QString chop2 = my.contexts[i]->source().source();
-	    chop2.remove(PM_LOG_MAXHOSTLEN-1, INT_MAX);
-	    if (chop1 == chop2)
+	    if (source == my.contexts[i]->source().source())
 		break;
 	}
     }
