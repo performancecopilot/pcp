@@ -154,7 +154,7 @@ main(int argc, char **argv)
     }
 
     /* initialize the "fake context" ... */
-    pmWhichContext();
+    setup_context();
 
     setlinebuf(stdout);
     setlinebuf(stderr);

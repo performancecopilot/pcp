@@ -28,14 +28,14 @@ extern pmdaInterface	dispatch;
 extern int		infd;
 extern int		outfd;
 
-__pmProfile		*profile = NULL;
+__pmProfile		*profile;
 int			profile_changed;
-int			timer = 0;
-int			get_desc = 0;
+int			timer;
+int			get_desc;
 
 static pmID		*pmidlist;
 static int		numpmid;
-static __pmContext	ctx;
+static __pmContext	*ctxp;
 
 static char	**argv;
 static int	argc;
@@ -59,10 +59,25 @@ reset_profile(void)
 	__pmNoMem("reset_profile", sizeof(__pmProfile), PM_FATAL_ERR);
 	exit(1);
     }
-    ctx.c_instprof = profile;
+    ctxp->c_instprof = profile;
     memset(profile, 0, sizeof(__pmProfile));
     profile->state = PM_PROFILE_INCLUDE;        /* default global state */
     profile_changed = 1;
+}
+
+void
+setup_context(void)
+{
+    int sts;
+
+    if ((sts = pmNewContext(PM_CONTEXT_LOCAL | PM_CTXFLAG_SHALLOW, NULL)) < 0) {
+	fprintf(stderr, "setup_context: creation failed: %s\n", pmErrStr(sts));
+	exit(1);
+    }
+    ctxp = __pmHandleToPtr(sts);
+    memset(ctxp, 0, sizeof(__pmContext));
+    ctxp->c_type = PM_CONTEXT_HOST;
+    reset_profile();
 }
 
 char *
@@ -183,29 +198,6 @@ printindom(FILE *f, __pmInResult *irp)
 	    fprintf(f, " name: \"%s\"", irp->namelist[i]);
 	fputc('\n', f);
     }
-}
-
-/*
- * Fake out a context for use with the profile routines
- */
-
-int pmWhichContext(void)
-{
-    static int		first = 1;
-
-    if (first) {
-	memset(&ctx, 0, sizeof(__pmContext));
-	ctx.c_type = PM_CONTEXT_HOST;
-	reset_profile();
-	first = 0;
-    }
-    return 0;
-}
-
-__pmContext *
-__pmHandleToPtr(int dummy)
-{
-    return(&ctx);
 }
 
 void
