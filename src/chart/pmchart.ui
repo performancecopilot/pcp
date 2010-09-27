@@ -349,6 +349,9 @@
    <property name="iconText" >
     <string>Close Tab</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+W</string>
+   </property>
   </action>
   <action name="fileNewChartAction" >
    <property name="icon" >
@@ -373,6 +376,9 @@
    <property name="iconText" >
     <string>Add Tab</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+T</string>
+   </property>
   </action>
   <action name="closeChartAction" >
    <property name="icon" >
@@ -384,6 +390,9 @@
    </property>
    <property name="iconText" >
     <string>Close Chart</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+D</string>
    </property>
   </action>
   <action name="zoomInAction" >
