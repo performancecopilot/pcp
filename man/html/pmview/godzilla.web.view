@@ -44,12 +44,12 @@ _grid _hide (
  _grid 1 0 6 2 south _hide (
  _bar 0 1 6 1 west _row _groupbyrow (
  _metrics (
- irix.network.tcp.drops 7
- irix.network.tcp.conndrops 7
- irix.network.tcp.timeoutdrop 7
- irix.network.tcp.rcvbadsum 7
- irix.network.tcp.rexmttimeo 7
- irix.network.tcp.sndrexmitpack 7
+ network.tcp.drops 7
+ network.tcp.conndrops 7
+ network.tcp.timeoutdrop 7
+ network.tcp.rcvbadsum 7
+ network.tcp.rexmttimeo 7
+ network.tcp.sndrexmitpack 7
  )
  _colorList (
  red1 red1 red1 red1 red1 red1
@@ -58,9 +58,9 @@ _grid _hide (
  )
  _bar 0 0 3 1 west _row _groupbyrow (
  _metrics (
- irix.swap.pagesout 7
- irix.network.mbuf.failed 7
- irix.network.mbuf.waited 7
+ swap.pagesout 7
+ network.mbuf.failed 7
+ network.mbuf.waited 7
  )
  _colorList (
  yellow rgbi:1.0/0.5/0.0 rgbi:1.0/0.5/0.0
@@ -110,10 +110,10 @@ _grid _hide (
  _grid 1 3 5 3 southwest (
  _stack 0 0 (
  _metrics (
- irix.kernel.all.cpu.user 1000
- irix.kernel.all.cpu.sys 1000
- irix.kernel.all.cpu.intr 1000
- irix.kernel.all.cpu.wait.total 1000
+ kernel.all.cpu.user 1000
+ kernel.all.cpu.sys 1000
+ kernel.all.cpu.intr 1000
+ kernel.all.cpu.wait.total 1000
  )
  _colorList cpu_colors
  _baseLabel "CPU Utilization\nSummed over 1 CPU"
@@ -128,15 +128,15 @@ _baseHeight 4
 _baseColor rgbi:0.30/0.30/0.30
  _stack 0 0 south _cylinder (
  _metrics (
- irix.disk.all.write 100
- irix.disk.all.read 100
+ disk.all.write 100
+ disk.all.read 100
  )
  _colorList disk_colors
  _baseLabel "Read and Write activity for all Disks\nNormalized to 100 I/Os per second"
  ) 
  _bar 1 0 _cylinder (
  _metrics (
- irix.disk.all.avg_disk.active 300
+ disk.all.avg_disk.active 300
  )
  _colorList ( green2 )
  _baseLabel "Average Disk Utilization\nNormalized to 30% across 2 disks"
@@ -149,7 +149,7 @@ _baseColor rgbi:0.15/0.15/0.15
 _baseColor rgbi:0.30/0.30/0.30
  _stack 0 0 (
  _metrics (
- irix.mem.freemem 98304
+ mem.freemem 98304
  )
  _colorList ( rgbi:0.0/0.8/0.0 )
  _baseLabel "Free memory"
@@ -157,11 +157,11 @@ _baseColor rgbi:0.30/0.30/0.30
 
  _stack 1 0 (
  _metrics (
- irix.mem.util.kernel 98304
- irix.mem.util.fs_ctl 98304
- irix.mem.util.fs_dirty 98304
- irix.mem.util.fs_clean 98304
- irix.mem.util.user 98304
+ mem.util.kernel 98304
+ mem.util.fs_ctl 98304
+ mem.util.fs_dirty 98304
+ mem.util.fs_clean 98304
+ mem.util.user 98304
  )
  _colorList memory_colors
  _baseLabel "Physical Memory Utilization\nNormalized to 98304 Kbytes"
@@ -190,18 +190,18 @@ _baseColor rgbi:0.30/0.30/0.30
 
  _stack 0 0 (
  _metrics (
- irix.network.interface.in.errors[ec0] 7
- irix.network.interface.in.drops[ec0] 7
- irix.network.interface.in.packets[ec0] 750
+ network.interface.in.errors[ec0] 7
+ network.interface.in.drops[ec0] 7
+ network.interface.in.packets[ec0] 750
  )
  _colorList network_colors
  _baseLabel "Input and Output on Network Interfaces\nPackets are normalized to 750 packets per second"
  )
  _stack 0 1 (
  _metrics (
- irix.network.interface.out.errors[ec0] 7
- irix.network.interface.out.drops[ec0] 7
- irix.network.interface.out.packets[ec0] 750
+ network.interface.out.errors[ec0] 7
+ network.interface.out.drops[ec0] 7
+ network.interface.out.packets[ec0] 750
  )
  _colorList network_colors
  _baseLabel "Input and Output on Network Interfaces\nPackets are normalized to 750 packets per second"
@@ -209,18 +209,18 @@ _baseColor rgbi:0.30/0.30/0.30
 
  _stack 1 0 (
  _metrics (
- irix.network.interface.in.errors[lo0] 7
- irix.network.interface.in.drops[lo0] 7
- irix.network.interface.in.packets[lo0] 750
+ network.interface.in.errors[lo0] 7
+ network.interface.in.drops[lo0] 7
+ network.interface.in.packets[lo0] 750
  )
  _colorList network_colors
  _baseLabel "Input and Output on Network Interfaces\nPackets are normalized to 750 packets per second"
  )
  _stack 1 1 (
  _metrics (
- irix.network.interface.out.errors[lo0] 7
- irix.network.interface.out.drops[lo0] 7
- irix.network.interface.out.packets[lo0] 750
+ network.interface.out.errors[lo0] 7
+ network.interface.out.drops[lo0] 7
+ network.interface.out.packets[lo0] 750
  )
  _colorList network_colors
  _baseLabel "Input and Output on Network Interfaces\nPackets are normalized to 750 packets per second"
