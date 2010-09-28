@@ -157,7 +157,6 @@ void PmChart::setValueText(QString &string)
 
 void PmChart::timeout()
 {
-    setupDialogs();
     my.statusBar->clearValueText();
 }
 
