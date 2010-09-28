@@ -129,6 +129,8 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
 			 SLOT(moved(const QwtDoublePoint &)));
 
     replot();
+
+    console->post("Chart::ctor complete(%p)", this);
 }
 
 Chart::~Chart()
@@ -165,12 +167,12 @@ void Chart::setCurrent(bool enable)
     palette.setColor(QPalette::Active, QPalette::Text,
 		enable ? globalSettings.chartHighlight : QColor("black"));
     titleLabel()->setPalette(palette);
+
     sp = axisWidget(QwtPlot::yLeft);
     t = sp->title();
     t.setColor(enable ? globalSettings.chartHighlight : "black");
     sp->setTitle(t);
 }
-
 
 void Chart::preserveLiveData(int i, int oi)
 {
@@ -1115,13 +1117,14 @@ void Chart::setRateConvert(bool rateConvert)
 void Chart::setYAxisTitle(const char *p)
 {
     QwtText *t;
+    bool enable = (my.tab->currentGadget() == this);
 
     if (!p || *p == '\0')
 	t = new QwtText(" ");	// for y-axis alignment (space is invisible)
     else
 	t = new QwtText(p);
     t->setFont(*globalFont);
-    t->setColor(globalSettings.chartHighlight);
+    t->setColor(enable ? globalSettings.chartHighlight : "black");
     setAxisTitle(QwtPlot::yLeft, *t);
 }
 
