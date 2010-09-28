@@ -4,8 +4,6 @@
 #
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 #
-# creator
-owner=nathans
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -15,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.filter
 
-tmp=/tmp/$$
 status=1
 done_clean=false
 kvm_stats_path=/sys/kernel/debug/kvm
@@ -38,9 +35,9 @@ _cleanup()
     then
 	:
     else
-	[ -f $tmp.pmcd.conf ] && $here/sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	rm -f $tmp.*
-	$here/sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	done_clean=true
@@ -51,7 +48,6 @@ _cleanup()
 trap "_cleanup" 0 1 2 3 15
 
 # real QA test starts here
-here=`pwd`
 home=$PCP_PMDAS_DIR
 iam=kvm
 if [ ! -d $home/$iam ]
@@ -66,12 +62,12 @@ unset ROOT
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 
 # start from a known starting point
-$here/sudo ./Remove >/dev/null 2>&1
-$here/sudo rm -f pmns domain.h
+$sudo ./Remove >/dev/null 2>&1
+$sudo rm -f pmns domain.h
 
 echo
 echo "=== $iam agent installation ==="
-$here/sudo ./Install </dev/null >$tmp.out 2>&1
+$sudo ./Install </dev/null >$tmp.out 2>&1
 # Check kvm metrics have appeared ... X metrics and Y values
 _filter_pmda_install <$tmp.out \
 | $PCP_AWK_PROG '
@@ -110,7 +106,7 @@ fi
 
 echo
 echo "=== remove $iam agent ==="
-$here/sudo ./Remove >$tmp.out 2>&1
+$sudo ./Remove >$tmp.out 2>&1
 _filter_pmda_remove <$tmp.out
 
 status=0

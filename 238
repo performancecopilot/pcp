@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 238
-# $Revision: 1.7 $
 # pmnsmerge with group at deep level of PMNS and intervening
 # levels missing
 #
@@ -14,9 +13,8 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-tmp=/tmp/$$
 status=0
-trap "cd /; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 mkdir $tmp.dir

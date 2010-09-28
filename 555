@@ -1,14 +1,10 @@
 #!/bin/sh
 # PCP QA Test No. 555
-# $Revision: 1.13 $
 # pmie syslog(3) changes and parsing -t tag and -p pri arguments in
 # a syslog action
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 . ./localconfig
@@ -21,8 +17,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 

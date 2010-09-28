@@ -4,9 +4,7 @@
 # exercise __pmLocalPMDA functionality
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
-
-# creator
-owner=kenj
+#
 
 # get standard environment, filters and checks
 . ./common.product
@@ -26,9 +24,6 @@ fi
 
 echo "QA output created by $seq"
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

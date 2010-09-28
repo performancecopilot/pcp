@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 182
-# $Revision: 2.9 $
 # pmlogger gets SIGPIPE if pmlc goes away unexpectedly
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -14,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
 signal=$PCP_BINADM_DIR/pmsignal
 trap "rm -f $tmp.*; $signal -s TERM \$pid; exit" 0 1 2 3 15
 

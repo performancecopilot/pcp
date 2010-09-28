@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 162
-# $Revision: 2.29 $
 # namespace only Install/Remove for pmdas
 #
 # this is less important for PCP 2.0 than it was for PCP 1.x, but we
@@ -22,12 +21,8 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
-. ./localconfig
 
-tmp=/tmp/$$
 trap "rm -rf $tmp; exit" 0 1 2 3 15
-
-sudo=`pwd`/sudo
 
 if [ $PCP_VER -ge 2402 ]
 then
@@ -83,7 +78,6 @@ trivial
 txmon'
 
 # real QA test starts here
-here=`pwd`
 unset ROOT
 mkdir $tmp
 

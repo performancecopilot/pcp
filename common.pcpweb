@@ -105,22 +105,3 @@ _require_pmda()
 ##############################################################################
 
 unset ROOT
-
-sudo=`pwd`/sudo
-[ -x $sudo ] \
-    || _fail "Sudo busted?"
-
-[ $PCP_VER -lt 2100 ] \
-    && _notrun "Requires PCP >= 2.1"
-
-if [ $PCP_VER -eq 2100 ]
-then
-    _installed pcp_web.sw.collector \
-        || _notrun "On PCP 2.1, requires pcp_web.sw.collector"
-    
-    _installed pcp_web.sw.monitor \
-        || _notrun "On PCP 2.1, requires pcp_web.sw.monitor"
-    
-    _installed pcp_web.sw.webping \
-        || _notrun "On PCP 2.1, requires pcp_web.sw.webping"
-fi

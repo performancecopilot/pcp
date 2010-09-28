@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 023
-# $Revision: 1.15 $
 # Multiple PMCDs test
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -74,9 +73,6 @@ $3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
 
 }
 
-tmp=/var/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 _needclean=true
 

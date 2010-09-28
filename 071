@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 071
-# $Revision: 2.12 $
 # used to cause core dump when using libpcp_lite ... problem moved
 # slightly when libpcp_lite replaced by PM_CONTEXT_LOCAL
 #
@@ -14,9 +13,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
@@ -26,7 +22,7 @@ $sudo rm -f core*
 for args in "" "-L" "-h localhost" "-a foo"
 do
     echo
-    echo "../sudo ./pcp_lite_crash $args ..."
+    echo "sudo ./pcp_lite_crash $args ..."
     eval $sudo ./pcp_lite_crash $args >$tmp.out 2>&1
     s=$?
 

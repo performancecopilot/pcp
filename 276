@@ -1,14 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 276
-# $Revision: 1.33 $
-#
 # check tools with indoms that have bizarre instance names, e.g.
 # @fcsw=asg-fcsw8:port=007
 #
 # Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
-
-# creator
-owner=kenmcd
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -19,9 +15,6 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.config
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

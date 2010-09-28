@@ -1,14 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 307
-# $Revision: 1.11 $
-#
 # pv:936084 - nasflush from nasmgr causes high rate of tcp drops
 # (because it uses pmlc a lot)
 #
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-
-# creator
-owner=kenmcd
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -26,9 +22,6 @@ then
     exit 0
 fi
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

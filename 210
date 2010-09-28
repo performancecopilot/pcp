@@ -1,14 +1,9 @@
 #! /bin/sh
 # PCP QA Test No. 210
-# $Revision: 1.1 $
-#
 # Check dynamic metrics work with PMAPI clients - DSO PMDA version
 #
 # Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
-
-# creator
-owner=kenj
-
+#
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
@@ -27,9 +22,6 @@ fi
 
 echo "QA output created by $seq"
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

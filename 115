@@ -1,14 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 115
-# $Revision: 2.12 $
-#
 # exercises pmie_check functionality
 # See also of No. 504 ... for a version that uses pmsocks
 #
 # Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
-
-# creator
-owner=nathans
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -18,9 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.filter
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 lhost=`hostname | sed -e 's/\..*//'`
 host=`_get_fqdn`

@@ -1,13 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 208
-# $Revision: 1.1 $
 #
 # Exercise dynamic PMNS features
 #
 # Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
-
-# creator
-owner=kenj
+#
 
 seq=`basename $0`
 
@@ -27,9 +24,6 @@ fi
 
 echo "QA output created by $seq"
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

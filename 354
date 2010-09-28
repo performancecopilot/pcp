@@ -4,11 +4,8 @@
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
-
 echo "QA output created by $seq"
 
 # get standard filters
@@ -16,13 +13,10 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 host=`hostname`
 status=1	# failure is the default!
-trap "cd /; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 rm -rf $tmp
 mkdir $tmp
 if [ ! -d $tmp ]

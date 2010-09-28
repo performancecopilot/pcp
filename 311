@@ -1,17 +1,13 @@
 #! /bin/sh
 # PCP QA Test No. 311
-# $Revision: 1.13 $
 # check error code handling of 1.3 pmlogger generated archives
 # pv #509592
 #
 # Note: archive src-oss/err_v1 has been converted from V.1 to V.2 format,
 #	so this test is now somewhat different.
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=chatz
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -21,8 +17,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

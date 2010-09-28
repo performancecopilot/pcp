@@ -1,43 +1,21 @@
 #! /bin/sh
 # PCP QA Test No. 110
-# $Revision: 2.26 $
 # check out simple PMDA
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
-
-. ./localconfig
-
-# COMPILER_73:  0 yes, 1 no
-if [ $PCP_PLATFORM = irix ]
-then
-    versions -n compiler_dev.sw | grep '7\.3' >/dev/null
-    COMPILER_73=$?
-else
-    COMPILER_73=1
-fi
-
-if [ $PCP_VER -eq 2100 -a $COMPILER_73 -eq 0 ]
-then
-    echo "[expect compiler warnings with PCP 2.1]"
-    rm -f $seq.out; ln $seq.out.2 $seq.out
-else
-    echo "[expect no compiler warnings]"
-    rm -f $seq.out; ln $seq.out.1 $seq.out
-fi
-
-echo "QA output created by $seq"
-
 # get standard filters
 . ./common.product
 . ./common.check
 . ./common.filter
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
+echo "[expect no compiler warnings]"
+rm -f $seq.out; ln $seq.out.1 $seq.out
+
+echo "QA output created by $seq"
+
 signal=$PCP_BINADM_DIR/pmsignal
 status=1
 

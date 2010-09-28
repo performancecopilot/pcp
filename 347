@@ -1,12 +1,9 @@
 #! /bin/sh
 # PCP QA Test No. 347
-# $Revision: 1.14 $
 # Exercise the Install/Remove for the news PMDA
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -16,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.filter
 
-tmp=/tmp/$$
 status=1
 done_clean=false
 
@@ -26,9 +22,9 @@ _cleanup()
     then
 	:
     else
-	[ -f $tmp.pmcd.conf ] && $here/sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	rm -f $tmp.*
-	$here/sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	done_clean=true
@@ -54,7 +50,6 @@ _filter_info()
 }
 
 # real QA test starts here
-here=`pwd`
 home=$PCP_PMDAS_DIR
 iam=news
 if [ ! -d $home/$iam ]
@@ -69,7 +64,7 @@ unset ROOT
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 
 # start from a known starting point
-$here/sudo ./Remove >/dev/null 2>&1
+$sudo ./Remove >/dev/null 2>&1
 
 # now that pmcd is also known to be alive, give the news PMDA
 # a bit more breathing space to respond
@@ -80,9 +75,9 @@ export PMCD_REQUEST_TIMEOUT
 
 echo
 echo "=== default $iam agent installation ==="
-$here/sudo ./Remove >$tmp.out 2>&1
+$sudo ./Remove >$tmp.out 2>&1
 
-$here/sudo ./Install </dev/null >>$tmp.out 2>&1
+$sudo ./Install </dev/null >>$tmp.out 2>&1
 _filter <$tmp.out
 
 if pminfo -v $iam
@@ -117,7 +112,7 @@ fi
 
 echo
 echo "=== remove $iam agent ==="
-$here/sudo ./Remove >$tmp.out 2>&1
+$sudo ./Remove >$tmp.out 2>&1
 _filter <$tmp.out
 
 # be a good citizen

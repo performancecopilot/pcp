@@ -1,10 +1,9 @@
 #! /bin/sh
 # PCP QA Test No. 196
-# $Revision: 2.11 $
 #
 # Test pmcd's "-i ipaddr" option
 # Don't expect this one to work away from Melbourne!
-# Need pcpqa rlogin to other machines
+# Need pcpqa remote access to other machines
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -16,10 +15,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-tmp=/var/tmp/$$
 _needclean=true
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1
 trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15

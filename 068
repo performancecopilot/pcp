@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 068
-# $Revision: 2.15 $
 # pmNewContext() bad error status if pmcd is not running
 #
 # Note: this is the simplest test to get the pmcd start/stop filtering
@@ -11,26 +10,14 @@
 #
 
 seq=`basename $0`
-
-. ./localconfig
-if [ $PCP_VER -lt 2200 ]
-then
-    echo "need pmcdgone, which isn't compilable with 2.1 pmapi.h" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
 echo "QA output created by $seq"
 
 . ./common.product
 . ./common.check
 . ./common.filter
 
-tmp=/tmp/$$
 _needclean=true
 LOCALHOST=`hostname`
-here=`pwd`
-sudo=$here/sudo
 
 trap "_cleanup" 0 1 2 3 15
 

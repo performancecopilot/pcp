@@ -1,10 +1,16 @@
 #! /bin/sh
 # PCP QA Test No. 039
-# $Revision: 2.7 $
 # Can we access archives as they are being created?
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
 
 _filter()
 {
@@ -27,14 +33,6 @@ $1 == "TIMESTAMP" && NF == 4	{ print "TIMESTAMP       0       OFFSET       OFFSE
     | src-oss/hex2nbo
 }
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
-# get standard filters
-. ./common.product
-. ./common.filter
-
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here

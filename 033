@@ -1,14 +1,17 @@
 #! /bin/sh
 # PCP QA Test No. 033
-# $Revision: 2.13 $
 # check filesys metrics for root fs
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
-. ./localconfig
+# get standard filters
+. ./common.product
+. ./common.filter
+
 rm -f $seq.out
 if [ $PCP_PLATFORM = irix ]
 then
@@ -29,13 +32,6 @@ else
     fi
 fi
 
-echo "QA output created by $seq"
-
-# get standard filters
-. ./common.product
-. ./common.filter
-
-tmp=/tmp/$$
 status=1	# failure is the default
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

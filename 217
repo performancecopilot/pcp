@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 217
-# $Revision: 2.19 $
 # check mkaf and pmafm, after file(1) not used
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -15,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 tmp=$$"_pmafm"
-sudo=`pwd`/sudo
 $sudo rm -f $tmp
 
 status=0

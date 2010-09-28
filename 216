@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 216
-# $Revision: 1.1 $
 #
 # Verify network.<protocol> statistics
 # (Linux version, see 117 for non-Linux version - although this version
@@ -9,9 +8,7 @@
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
-
-# creator
-owner=kenj
+#
 
 # get standard environment, filters and checks
 . ./common.product
@@ -31,10 +28,7 @@ fi
 echo "QA output created by $seq"
 
 #debug# tmp=`pwd`/tmp
-tmp=/tmp/$$
 compare=`pwd`/src-oss/compare
-here=`pwd`
-sudo=$here/sudo
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

@@ -3,18 +3,17 @@
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
--include ./GNUlocaldefs
+ifdef PCP_CONF
+include $(PCP_CONF)
+else
+include /etc/pcp.conf
+endif
+PATH	= $(shell . /etc/pcp.env; echo $$PATH)
+include $(PCP_INC_DIR)/builddefs
 
-SUBDIRS = home
-
-SHELL	= /bin/sh
-
-PATH	= $(shell PATH=/sbin:/bin:/usr/sbin:/usr/bin . /etc/pcp.env; echo $$PATH)
-MAKEOPTS = --no-print-directory
+SUBDIRS = src-oss pmdas
 
 TESTS	= $(shell sed -e 's/ .*//' owner)
-
-OTHERS	=
 
 default:	new remake check qa_hosts $(OTHERS)
 
@@ -24,8 +23,6 @@ default_pcp default_pro:
 
 install_pcp install_pro:
 
-src-pcp:
-
 exports install:
 
 clobber cleanup:
@@ -33,7 +30,7 @@ clobber cleanup:
 	rm -f *.bak *.bad *.core *.full *.raw *.o core a.out core.*
 	rm -f *.log eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz
 	rm -f *.full.ok *.new rc_cron_check.clean
-	rm -f sudo make.out qa_hosts localconfig localconfig.h check.time
+	rm -f make.out qa_hosts localconfig localconfig.h check.time
 	if [ -d src ]; then cd src; $(MAKE) clobber; else exit 0; fi
 	if [ -d src-oss ]; then cd src-oss; $(MAKE) clobber; else exit 0; fi
 	find ???.out ????.out -type f -links +1 | xargs rm -f
@@ -56,12 +53,6 @@ clobber cleanup:
 051.work/die.001: 051.setup
 	chmod u+x 051.setup
 	./051.setup
-
-sudo:	sudo.c
-	cc -o sudo sudo.c
-	chown root sudo
-	chmod 4755 sudo
-	@echo "NOTE sudo is a giant security hole, but this is needed by the PCP QA"
 
 qa_hosts:	qa_hosts.master mk.qa_hosts
 	PATH=$(PATH); ./mk.qa_hosts

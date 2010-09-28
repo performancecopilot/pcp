@@ -1,13 +1,9 @@
 #!/bin/sh
 # PCP QA Test No. 353
-# $Revision: 1.13 $
 # check pmsocks for IRIX o32, n32, 64 object styles
-#
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=markgw
 
 seq=`basename $0`
 
@@ -30,8 +26,6 @@ _filter() {
     sed -e '/not QAing/d'
 }
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

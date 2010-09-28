@@ -1,13 +1,9 @@
 #! /bin/sh
 # PCP QA Test No. 340
-# $Revision: 1.23 $
 # PMCD denies all access?
-#
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -26,9 +22,6 @@ else
     PCP_LOGGING_DIR=$PCP_LOG_DIR
 fi
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=1	# failure is the default!
 
 [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \

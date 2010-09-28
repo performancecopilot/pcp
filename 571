@@ -1,17 +1,13 @@
 #! /bin/sh
 # PCP QA Test No. 571
-# $Revision: 1.7 $
 #
 # #676245 - dynamic indoms for pmlogger, uses sample.dynamic.*
 # Check that when the instance domain changes for logged metrics
 # the new indom is only added once. The bug was for pmlogger 
 # adding the indom once for each metric using it.
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=hrm
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -21,8 +17,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 control=$PCP_PMDAS_DIR/sample/dynamic.indom

@@ -1,16 +1,18 @@
 #! /bin/sh
 # PCP QA Test No. 532
-# $Revision: 1.16 $
 # pmlogger_check with *-xx.* archives and .meta files in subdirs
 # (loosely based on 530 and 338)
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
 
 # check for new version ... may need -o to force "old style" behaviour
 #
@@ -20,10 +22,6 @@ then
 else
     oflag=''
 fi
-
-# get standard filters
-. ./common.filter
-. ./common.check
 
 _filter()
 {
@@ -40,10 +38,8 @@ _filter()
     | _filter_cron_scripts
 }
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 status=1	# failure is the default!
-trap "cd /; rm -rf $tmp $tmp.*; $sudo mv $PCP_LOG_DIR/NOTICES.$$ $PCP_LOG_DIR/NOTICES; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp $tmp.*; $sudo mv $PCP_LOG_DIR/NOTICES.$$ $PCP_LOG_DIR/NOTICES; exit \$status" 0 1 2 3 15
 
 # take explicit control of the umask
 #

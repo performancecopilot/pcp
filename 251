@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 251
-# $Revision: 1.10 $
 # libpcp for archives with missing volumes
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -36,13 +35,10 @@ _filter()
     fi
 }
 
-tmp=/tmp/$$
 status=1	# failure is the default!
-trap "cd /; rm -rf $tmp; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-here=`pwd`
-sudo=$here/sudo
 mkdir $tmp
 cp src-oss/mv-bar.* $tmp
 offset=`_arch_start src-oss/mv-bar 0`

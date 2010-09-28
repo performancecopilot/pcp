@@ -1,13 +1,9 @@
 #! /bin/sh
 # PCP QA Test No. 294
-# $Revision: 1.15 $
-#
 # Basic pmproxy functionality
 #
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-
-# creator
-owner=kenmcd
+#
 
 seq=`basename $0`
 rm -f $seq.out
@@ -25,19 +21,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if which pmproxy >/dev/null 2>&1
-then
-    :
-else
-    echo "No pmproxy binary installed" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
-tmp=/tmp/$$
 #debug# tmp=`pwd`/tmp
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!
 $sudo rm -rf $tmp.*

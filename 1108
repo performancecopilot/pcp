@@ -1,8 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 1108 (formerly 830)
-# $Revision: 1.6 $
 # pv:821339 sed gives "Too many commands" in cron.pmdaily script
-#
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -10,14 +8,6 @@
 owner=kenmcd
 
 seq=`basename $0`
-
-. ./localconfig
-if [ $PCP_VER -lt 2300 ]
-then
-    echo "Requires PCP >= 2.3" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
 
 echo "QA output created by $seq"
 
@@ -35,9 +25,6 @@ fi
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

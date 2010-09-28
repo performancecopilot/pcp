@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 199
-# $Revision: 2.17 $
 # check out trivial PMDA
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -13,9 +12,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1
 install_on_cleanup=true

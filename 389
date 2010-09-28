@@ -1,14 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 389
-# $Revision: 1.6 $
 # pmlogger does not exit with -L when it loses pmcd connection?
 # #528442
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -18,8 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 host=`hostname`
 status=1	# failure is the default!
 

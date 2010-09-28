@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 600
-# $Revision: 1.16 $
 # Test __pmTimezone
 #
 # This test looks like its tripping genuine bugs in Linux:
@@ -29,11 +28,8 @@
 #
 # 3. glibc 2.2.93 and 2.3.x just gets it wrong
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=max
 
 seq=`basename $0`
 
@@ -151,9 +147,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

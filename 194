@@ -1,14 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 194
-# $Revision: 2.20 $
-#
-# pv 935490
 # fallout ... initial fix introduced a bug in the timeout path
+# pv 935490
 #
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-
-# creator
-owner=kenmcd
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -18,9 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!
 $sudo rm -rf $tmp.*

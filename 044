@@ -1,10 +1,17 @@
 #! /bin/sh
 # PCP QA Test No. 044
-# $Revision: 2.7 $
 # check pmval and pminfo for numval == 0 and < 0
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
 
 _filter()
 {
@@ -13,7 +20,7 @@ _filter()
 
 _doit()
 {
-    ./sudo rm -f core*
+    $sudo rm -f core*
     pmval -s 1 $m 2>$tmp.err | _filter
     _filter <$tmp.err
     case $1
@@ -31,7 +38,7 @@ _doit()
 	file core*
     fi
 
-    ./sudo rm -f core*
+    $sudo rm -f core*
     pminfo -f $m
     if [ "`echo core*`" != "core*" ]
     then
@@ -42,10 +49,7 @@ _doit()
 
 }
 
-seq=`basename $0`
-
 rm -f $seq.out $seq.full
-. ./localconfig
 if [ $PCP_PLATFORM = linux ]
 then
     ln $seq.linux $seq.out
@@ -56,14 +60,6 @@ else
     echo "Warning: no validated output for $PCP_PLATFORM"
 fi
 
-echo "QA output created by $seq"
-
-# get standard filters
-. ./common.product
-. ./common.filter
-. ./common.check
-
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here

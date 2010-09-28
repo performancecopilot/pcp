@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 120
-# $Revision: 2.9 $
 #
 # Verify some irix.resource.efs metrics
 #
@@ -16,9 +15,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-tmp=/var/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 rm -rf $tmp.*
 
 # Find an efs filesystem ... if you do not have one, abandon ship

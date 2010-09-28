@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 038
-# $Revision: 2.15 $
 # pmlogger would die with horrible errors when diagnostics enabled, due
 # to early timer events
 #
@@ -23,7 +22,6 @@ s;inst \[[0-9][0-9]* or ".*/dbs/.*\.dbf"];inst [FILE];
 
 }
 
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
@@ -117,7 +115,7 @@ log mandatory on 1 sec {
 }
 End-of-File
 
-./sudo rm -f core*
+$sudo rm -f core*
 # -D 511 is all of the PMAPI debug flags, excluding PM_TRACE_AF (the
 # latter is non-deterministic, unfortunately)
 pmlogger -D 511 -c $tmp.config -s 2 -l $tmp.log $tmp >$tmp.out 2>&1 &

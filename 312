@@ -7,8 +7,6 @@
 #
 # Copyright (c) 2007 Aconex.
 #
-# creator
-owner=nathans
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -18,9 +16,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 $sudo rm -rf $tmp.*

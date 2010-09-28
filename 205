@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 205
-# $Revision: 2.9 $
 # GETPDU_ASYNC mode for __pmGetPDU()
 # TIMEOUT_NEVER mode for __pmGetPDU()
 #
@@ -14,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here

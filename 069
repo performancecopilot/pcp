@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 069
-# $Revision: 2.33 $
 # Test pmcd's ability to supress multiple access control warnings from the same
 # host
 #
@@ -8,6 +7,12 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
 
 # ideally want a host with only 1 network interface ... getpmcdhosts
 # cannot express this, so we used to go for 1 CPU as a likely co-condition,
@@ -30,7 +35,6 @@ then
     exit
 fi
 
-. ./localconfig
 rm -f $seq.out
 if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
 then
@@ -39,19 +43,9 @@ else
     ln $seq.out.1 $seq.out
 fi
 
-echo "QA output created by $seq"
-
-# get standard filters
-. ./common.product
-. ./common.filter
-. ./common.check
-
 # real QA test starts here
 
-tmp=/tmp/$$
 status=0
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 usersignal=pmsignal	# not run as root, which may lose pcpqa PATH setting
 config=$PCP_PMCDCONF_PATH

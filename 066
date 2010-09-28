@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 066
-# $Revision: 2.18 $
 # Test PMCD correctly restores original access control list after
 # reconfiguration with a bad config file.
 #
@@ -8,8 +7,13 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
-. ./localconfig
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
 rm -f $seq.out
 if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
 then
@@ -23,21 +27,10 @@ else
     ln $seq.out.1 $seq.out
 fi
 
-echo "QA output created by $seq"
-
-# get standard filters
-. ./common.product
-. ./common.filter
-. ./common.check
-
-. ./localconfig
-
-tmp=/tmp/$$
 trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
 
-sudo=`pwd`/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 config=$PCP_PMCDCONF_PATH
 oconfig=$tmp.pmcd.config

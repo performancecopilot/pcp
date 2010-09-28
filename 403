@@ -1,15 +1,11 @@
 #! /bin/sh
 # PCP QA Test No. 403
-# $Revision: 1.12 $
 # check some ASCII tools handling of failed fetches causing pmFetch to
 # return a null pmResult.
 # Bug #541380
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=chatz
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -19,8 +15,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

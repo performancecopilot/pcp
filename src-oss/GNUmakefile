@@ -51,7 +51,7 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	pcp_lite_crash.c compare.c mkfiles.c nameall.c nullinst.c \
 	storepdu.c fetchpdu.c badloglabel.c interp_bug2.c interp_bug.c \
 	xmktime.c descreqX2.c recon.c torture_indom.c \
-	fetchrate.c stripmark.c broken_pmda.c pmnsinarchives.c \
+	fetchrate.c stripmark.c pmnsinarchives.c \
 	endian.c chk_memleak.c chk_metric_types.c mark-bug.c \
 	pmnsunload.c parsemetricspec.c pdu-server.c parseinterval.c \
 	pmprintf.c pmsocks_objstyle.c numberstr.c \
@@ -84,9 +84,7 @@ CFILES_TARGETS = $(CFILES)
 TARGETS = \
 	$(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
 	chkctx2_lite template \
-	fetchrate_lite pv \
-	broken_pmda_2_0 broken_v2.dir broken_pmda_2_1 broken_pmda_2_2 \
-	broken_pmda_2_3 broken_pmda_2_4 broken_pmda_2_5 
+	fetchrate_lite pv
 
 ifeq ($(HAVE_64), 1)
 TARGETS	+= pv64
@@ -104,8 +102,7 @@ TRACELIB	= -lpcp_trace
 LDIRT	= *.log domain.h help.pag help.dir mv-foo.? mv-bar.? mv-bigbin.? \
 	$(subst .c,.o,$(CFILES)) \
 	chkctx2_lite.c mv-interp.? fetchrate_lite.c \
-	broken_pmda_*.c real_broken_pmns broken_v?.dir broken_v?.pag \
-	broken_pmda_? localconfig.h gmon.out pmtimzone.so pmtimezone.o
+	localconfig.h gmon.out pmtimzone.so pmtimezone.o
 
 .ORDER:	torture_api \
 	chkctx2 fetchrate
@@ -291,52 +288,6 @@ domain.h:	$(PCP_VAR_DIR)/pmns/stdpmid
 pmdashutdown:	pmdashutdown.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ pmdashutdown.c -lpcp_pmda $(LDLIBS)
-
-pmdacomatose: pmdacomatose.c domain.h
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
-
-broken_v2.dir:	broken_help real_broken_pmns
-	rm -f broken_v2.pag broken_v2.dir
-	newhelp -n real_broken_pmns -v 2 -o broken_v2 broken_help
-
-real_broken_pmns:	domain.h broken_pmns
-	cat domain.h >real_broken_pmns
-	echo >>real_broken_pmns
-	echo 'root {' >>real_broken_pmns
-	echo '  broken' >>real_broken_pmns
-	echo '}' >>real_broken_pmns
-	echo >>real_broken_pmns
-	cat broken_pmns >>real_broken_pmns
-
-broken_pmda_2_0: broken_pmda.c domain.h
-	rm -f $@ $@.c
-	ln -s broken_pmda.c $@.c
-	$(CCF) $(CDEFS) -DVERSION_2 -o $@ $@.c -lpcp_pmda $(LDLIBS)
-
-broken_pmda_2_1: broken_pmda.c domain.h
-	rm -f $@ $@.c
-	ln -s broken_pmda.c $@.c
-	$(CCF) $(CDEFS) -DVERSION_2 -DBUG_1 -o $@ $@.c -lpcp_pmda $(LDLIBS)
-
-broken_pmda_2_2: broken_pmda.c domain.h
-	rm -f $@ $@.c
-	ln -s broken_pmda.c $@.c
-	$(CCF) $(CDEFS) -DVERSION_2 -DBUG_2 -o $@ $@.c -lpcp_pmda $(LDLIBS)
-
-broken_pmda_2_3: broken_pmda.c domain.h
-	rm -f $@ $@.c
-	ln -s broken_pmda.c $@.c
-	$(CCF) $(CDEFS) -DVERSION_2 -DBUG_3 -o $@ $@.c -lpcp_pmda $(LDLIBS)
-
-broken_pmda_2_4: broken_pmda.c domain.h
-	rm -f $@ $@.c
-	ln -s broken_pmda.c $@.c
-	$(CCF) $(CDEFS) -DVERSION_2 -DBUG_4 -o $@ $@.c -lpcp_pmda $(LDLIBS)
-
-broken_pmda_2_5: broken_pmda.c domain.h
-	rm -f $@ $@.c
-	ln -s broken_pmda.c $@.c
-	$(CCF) $(CDEFS) -DVERSION_2 -DBUG_5 -o $@ $@.c -lpcp_pmda $(LDLIBS)
 
 dumb_pmda: dumb_pmda.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)

@@ -1,13 +1,9 @@
 #! /bin/sh
 # PCP QA Test No. 529
-# $Revision: 1.13 $
 # verify the pmcd.pmie metrics from the pmcd PMDA
-#
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=nathans
 
 seq=`basename $0`
 
@@ -34,8 +30,6 @@ _cleanup()
     fi
 }
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15

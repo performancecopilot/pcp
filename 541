@@ -1,17 +1,13 @@
 #! /bin/sh
 # PCP QA Test No. 541
-# $Revision: 1.6 $
 # another variant on ...
 # #535080 - dynamic indoms for pmie, uses sample.dynamic.*
 # this time, the problem is when the intial instance domain contains
 # one instance, the pmie expression tree uses the 1:1 operator instead
 # of the n:1 operator
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -21,8 +17,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 control=$PCP_PMDAS_DIR/sample/dynamic.indom

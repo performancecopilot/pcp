@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 192
-# $Revision: 2.14 $
 # sending 2 DESC_REQ PDUs back to back
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -14,12 +13,9 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-here=`pwd`
-sudo=$here/sudo
 LOCALHOST=`hostname`
 _needclean=true
 status=0
-tmp=/tmp/$$
 
 _interrupt()
 {

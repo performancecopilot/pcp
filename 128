@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 128
-# $Revision: 2.11 $
 # Check NFS Server and Client stats (v2 and v3)
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -14,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 signal=$PCP_BINADM_DIR/pmsignal
 

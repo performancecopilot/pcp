@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 012
-# $Revision: 2.12 $
 # exercise __pmOpenLog
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -14,13 +13,9 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-. ./localconfig
 rm -f $seq.out && ln $seq.${PCP_PLATFORM} $seq.out || exit 1
 
-tmp=/tmp/$$
-trap "cd /; rm -rf $tmp $tmp.* /tmp/chk.fout; exit" 0 1 2 3 15
-here=`pwd`
-sudo=$here/sudo
+trap "cd $here; rm -rf $tmp $tmp.* /tmp/chk.fout; exit" 0 1 2 3 15
 $sudo rm -rf $tmp $tmp.*
 mkdir $tmp
 cd $tmp

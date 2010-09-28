@@ -1,10 +1,17 @@
 #! /bin/sh
 # PCP QA Test No. 080
-# $Revision: 2.18 $
 # exercise new options to pmval: -r -z -Z -S -p
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
 
 _filter()
 {
@@ -26,15 +33,6 @@ NF == 1 && $1 ~ /^[0-9][0-9.eE+]*$/ &&  $1 != 1	{ print "number, not one"; next 
 						{ print }'
 }
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
-
-tmp=/tmp/$$
 status=0	# success by default
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

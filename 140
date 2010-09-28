@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 140
-# $Revision: 2.7 $
 # strange include file processing by pmnscomp
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -13,11 +12,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
-
-# real QA test starts here
-sudo=`pwd`/sudo
 
 # this test and the web pmda are not good friends
 #
@@ -28,12 +23,13 @@ then
 	:
     else
 	# remove web from namespace
-	here=`pwd`
 	cd $PCP_PMDAS_DIR/web
 	$sudo ./Remove
 	cd $here
     fi
 fi
+
+# real QA test starts here
 
 cd $PCP_VAR_DIR/pmns
 $sudo rm -f /tmp/pmcd

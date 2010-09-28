@@ -1,16 +1,12 @@
 #! /bin/sh
 # PCP QA Test No. 430
-# $Revision: 1.16 $
 # Bugs #568199 #553276
 # Test out pmcheck with duplicate directory names
 # Test out pmcheck with directory names where one is a subname
 # of the other.
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=tes
 #  EXPUNGED: dual of 481, 625, this test may *not* work
 
 seq=`basename $0`
@@ -31,9 +27,6 @@ else  #  includes Linux...
 fi
 #  assumed that no $seq.out file exists already
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 LOCALHOST=`hostname | sed -e 's/\..*//'`

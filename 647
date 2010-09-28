@@ -4,8 +4,6 @@
 #
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 #
-# creator
-owner=nathans
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -15,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.filter
 
-tmp=/tmp/$$
 status=1
 done_clean=false
 MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
@@ -26,14 +23,14 @@ _cleanup()
     then
 	:
     else
-	[ -f $tmp.pmcd.conf ] && $here/sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	if [ -d $tmp.mmv.dir ]
 	then
 	    rm -fr "$MMV_STATS_DIR"
-	    $here/sudo mv $tmp.mmv.dir $MMV_STATS_DIR
+	    $sudo mv $tmp.mmv.dir $MMV_STATS_DIR
 	fi
 	rm -f $tmp.*
-	$here/sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	done_clean=true
@@ -50,7 +47,6 @@ _filter_mmv_values()
 }
 
 # real QA test starts here
-here=`pwd`
 home="$PCP_PMDAS_DIR"
 iam=mmv
 if [ ! -d "$home/$iam" ]
@@ -64,17 +60,17 @@ unset ROOT
 # copy the pmcd config file to restore state later.
 cp $PCP_PMCDCONF_PATH "$tmp.pmcd.conf"
 # move the MMV directory to restore contents later.
-[ -d $MMV_STATS_DIR ] && $here/sudo mv -f $MMV_STATS_DIR $tmp.mmv.dir
+[ -d $MMV_STATS_DIR ] && $sudo mv -f $MMV_STATS_DIR $tmp.mmv.dir
 
 # start from a known starting point
-$here/sudo ./Remove >/dev/null 2>&1
+$sudo ./Remove >/dev/null 2>&1
 
 mkdir "$MMV_STATS_DIR"
 chmod 1777 "$MMV_STATS_DIR"
 
 echo
 echo "=== $iam agent installation ==="
-$here/sudo ./Install </dev/null >$tmp.out 2>&1
+$sudo ./Install </dev/null >$tmp.out 2>&1
 _filter_pmda_install <$tmp.out
 
 $here/src-oss/mmv_genstats
@@ -109,12 +105,12 @@ fi
 
 echo
 echo "=== remove $iam agent ==="
-$here/sudo ./Remove >$tmp.out 2>&1
+$sudo ./Remove >$tmp.out 2>&1
 _filter_pmda_remove <$tmp.out
 
 echo
 echo "=== $iam agent re-installation ==="
-cat <<End-of-File | $here/sudo ./Install >$tmp.out 2>&1
+cat <<End-of-File | $sudo ./Install >$tmp.out 2>&1
 b
 dso
 End-of-File

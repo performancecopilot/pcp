@@ -1,7 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 283
-# $Revision: 1.10 $
-#
 # Move pmcd port to iana registered 44321, and the associated multiple
 # port changes for ...
 #	pmcd via -p
@@ -9,9 +7,7 @@
 #	clients via PMCD_PORT
 #
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-
-# creator
-owner=kenmcd
+#
 
 seq=`basename $0`
 
@@ -38,9 +34,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!
 $sudo rm -rf $tmp.*

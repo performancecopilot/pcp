@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 170
-# $Revision: 2.12 $
 # Test $PCP_RC_DIR/pcp script pmcd log location
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -13,9 +12,6 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.filter
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=1
 
 _cleanup()

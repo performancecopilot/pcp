@@ -1,9 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 445
-# $Revision: 1.12 $
 # check bug #580005 - trace PMDA doesn't exit if address in use
-#
-owner=nathans
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -12,11 +9,10 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard filters
-. ./common.check
+. ./common.product
 . ./common.filter
+. ./common.check
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 host=`hostname`
 
 _cleanup()

@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 075
-# $Revision: 2.15 $
 # tests for proper handling of white spaces in pmval and pmstore 
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -8,6 +7,10 @@
 
 seq=`basename $0`
 echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
 
 _cmd()
 {
@@ -46,7 +49,6 @@ _cmd()
     esac
 }
 
-. ./localconfig
 rm -f $seq.out
 if [ $PCP_VER -ge 2707 ]
 then
@@ -64,11 +66,6 @@ else
 	ln $seq.out.2 $seq.out
 fi
 
-# get standard filters
-. ./common.product
-. ./common.filter
-
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 PMCD_CONNECT_TIMEOUT=30

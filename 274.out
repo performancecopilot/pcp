@@ -14,12 +14,12 @@ Compiled PMNS contains
   NNN non-leaf nodes
   NNN bytes of symbol table
 Skipping PMDA install and PMCD re-configuration
-dbpmda> open pipe src-oss/broken_pmda_2_0 -D47104 -l logfile
-Start broken_pmda_2_0 PMDA: ./src-oss/broken_pmda_2_0 -D47104 -l logfile
+dbpmda> open pipe pmdas/broken/broken_pmda_2_0 -D47104 -l logfile
+Start broken_pmda_2_0 PMDA: pmdas/broken/broken_pmda_2_0 -D47104 -l logfile
 dbpmda> status
 
 Namespace:              (default)
-PMDA:                   ./src-oss/broken_pmda_2_0
+PMDA:                   pmdas/broken/broken_pmda_2_0
 Connection:             daemon
 PMDA PMAPI Version:     2
 pmDebug:                0 (none)
@@ -136,7 +136,7 @@ broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: Metric 0.0.1(1) matched to in
 broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: Metric 0.0.7(3) matched to indom 249.7(1)
 broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: Metric 0.0.13(8) matched to indom 249.7(1)
 broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: Metric 0.0.14(12) matched to indom 249.8(2)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: help file src-oss/broken_v2 opened
+broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: help file pmdas/broken/broken_v2 opened
 broken pmda Warning: pmdaInit: PMDA broken_pmda_2_0: Direct mapping for metrics disabled @ metrics[2] 249.0.5
 broken pmda Info: name        = broken_pmda_2_0
 broken pmda Info: domain      = 249
@@ -170,12 +170,12 @@ broken pmda Debug: Received PDU_FETCH
 broken pmda Error: pmdaFetch: Instance 10 of PMID 249.0.13 not handled by fetch callback
 
 Log finished
-dbpmda> open pipe src-oss/broken_pmda_2_1 -D47104 -l logfile
-Start broken_pmda_2_1 PMDA: ./src-oss/broken_pmda_2_1 -D47104 -l logfile
+dbpmda> open pipe pmdas/broken/broken_pmda_2_1 -D47104 -l logfile
+Start broken_pmda_2_1 PMDA: pmdas/broken/broken_pmda_2_1 -D47104 -l logfile
 dbpmda> status
 
 Namespace:              (default)
-PMDA:                   ./src-oss/broken_pmda_2_1
+PMDA:                   pmdas/broken/broken_pmda_2_1
 Connection:             daemon
 PMDA PMAPI Version:     2
 pmDebug:                0 (none)
@@ -200,12 +200,12 @@ broken pmda Debug: pmdaConnect: PMDA broken_pmda_2_1: opened pipe to pmcd, infd 
 broken pmda Error: PMDA Initialisation Failed
 
 Log finished
-dbpmda> open pipe src-oss/broken_pmda_2_2 -D47104 -l logfile
-Start broken_pmda_2_2 PMDA: ./src-oss/broken_pmda_2_2 -D47104 -l logfile
+dbpmda> open pipe pmdas/broken/broken_pmda_2_2 -D47104 -l logfile
+Start broken_pmda_2_2 PMDA: pmdas/broken/broken_pmda_2_2 -D47104 -l logfile
 dbpmda> status
 
 Namespace:              (default)
-PMDA:                   ./src-oss/broken_pmda_2_2
+PMDA:                   pmdas/broken/broken_pmda_2_2
 Connection:             daemon
 PMDA PMAPI Version:     2
 pmDebug:                0 (none)
@@ -223,12 +223,12 @@ broken pmda Debug: pmdaConnect: PMDA broken_pmda_2_2: opened pipe to pmcd, infd 
 broken pmda Error: PMDA Initialisation Failed
 
 Log finished
-dbpmda> open pipe src-oss/broken_pmda_2_3 -D47104 -l logfile
-Start broken_pmda_2_3 PMDA: ./src-oss/broken_pmda_2_3 -D47104 -l logfile
+dbpmda> open pipe pmdas/broken/broken_pmda_2_3 -D47104 -l logfile
+Start broken_pmda_2_3 PMDA: pmdas/broken/broken_pmda_2_3 -D47104 -l logfile
 dbpmda> status
 
 Namespace:              (default)
-PMDA:                   ./src-oss/broken_pmda_2_3
+PMDA:                   pmdas/broken/broken_pmda_2_3
 Connection:             daemon
 PMDA PMAPI Version:     2
 pmDebug:                0 (none)
@@ -246,12 +246,12 @@ broken pmda Debug: pmdaConnect: PMDA broken_pmda_2_3: opened pipe to pmcd, infd 
 broken pmda Error: PMDA Initialisation Failed
 
 Log finished
-dbpmda> open pipe src-oss/broken_pmda_2_4 -D47104 -l logfile
-Start broken_pmda_2_4 PMDA: ./src-oss/broken_pmda_2_4 -D47104 -l logfile
+dbpmda> open pipe pmdas/broken/broken_pmda_2_4 -D47104 -l logfile
+Start broken_pmda_2_4 PMDA: pmdas/broken/broken_pmda_2_4 -D47104 -l logfile
 dbpmda> status
 
 Namespace:              (default)
-PMDA:                   ./src-oss/broken_pmda_2_4
+PMDA:                   pmdas/broken/broken_pmda_2_4
 Connection:             daemon
 PMDA PMAPI Version:     2
 pmDebug:                0 (none)
@@ -272,7 +272,7 @@ broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: Metric 0.0.1(1) matched to in
 broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: Metric 0.0.7(3) matched to indom 249.7(1)
 broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: Metric 0.0.13(8) matched to indom 249.7(1)
 broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: Metric 0.0.14(12) matched to indom 249.8(2)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: help file src-oss/broken_v2 opened
+broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: help file pmdas/broken/broken_v2 opened
 broken pmda Warning: pmdaInit: PMDA broken_pmda_2_4: Direct mapping for metrics disabled @ metrics[2] 249.0.5
 broken pmda Info: name        = broken_pmda_2_4
 broken pmda Info: domain      = 249
@@ -284,15 +284,15 @@ broken pmda Debug: Received PDU_TEXT_REQ
 broken pmda Debug: Received PDU_TEXT_REQ
 
 Log finished
-dbpmda> open pipe src-oss/broken_pmda_2_5 -D47104 -l logfile
+dbpmda> open pipe pmdas/broken/broken_pmda_2_5 -D47104 -l logfile
 [DATE] broken_pmda_2_5(PID) Critical: __pmdaSetup: broken_pmda_2_5 PMDA: interface version 77 not supported (domain=249)
 pmdaDaemon() failed!
-Warning: no version exchange with PMDA ./src-oss/broken_pmda_2_5: assuming PCP 1.x PMDA.
-Start broken_pmda_2_5 PMDA: ./src-oss/broken_pmda_2_5 -D47104 -l logfile
+Warning: no version exchange with PMDA pmdas/broken/broken_pmda_2_5: assuming PCP 1.x PMDA.
+Start broken_pmda_2_5 PMDA: pmdas/broken/broken_pmda_2_5 -D47104 -l logfile
 dbpmda> status
 
 Namespace:              (default)
-PMDA:                   ./src-oss/broken_pmda_2_5
+PMDA:                   pmdas/broken/broken_pmda_2_5
 Connection:             daemon
 PMDA PMAPI Version:     1
 pmDebug:                0 (none)

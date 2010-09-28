@@ -1,14 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 279
-# $Revision: 1.18 $
 # Check recovery actions when procedures in pmdaproc.sh fail to
 # restart/start PMCD
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -18,10 +14,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
 status=1	# failure is the default!
-here=`pwd`
-sudo=$here/sudo
 killer=`pwd`/src-oss/killparent
 LOCALHOST=`hostname`
 _needclean=true

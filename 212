@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 212
-# $Revision: 2.16 $
 # can I make pmdacisco dump core during exit()?
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -22,11 +21,8 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.filter
 
-tmp=/tmp/$$
 status=0
 _needclean=true
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 trap "_cleanup" 0 1 2 3 15
 
@@ -39,7 +35,7 @@ _cleanup()
 	    file $PMCD_LOG_DIR/core*
 	fi
 	rm -f $tmp.*
-	./sudo ex - $PCP_PMCDCONF_PATH <<End-of-File
+	$sudo ex - $PCP_PMCDCONF_PATH <<End-of-File
 g/^#$seq#.*pmdacisco/s/^#$seq#//
 w!
 q
@@ -54,7 +50,7 @@ End-of-File
 
 # real QA test starts here
 status=1
-./sudo rm -f $PMCD_LOG_DIR/core*
+$sudo rm -f $PMCD_LOG_DIR/core*
 
 echo "SIGINT to pmdacisco parent ..."
 for i in 1 2 3
@@ -152,7 +148,7 @@ echo
 for i in 1 2 3
 do
     echo "[pass $i] configure pmdacisco and notify pmcd ..."
-    ./sudo ex - $PCP_PMCDCONF_PATH <<End-of-File
+    $sudo ex - $PCP_PMCDCONF_PATH <<End-of-File
 g/^#$seq#.*pmdacisco/s/^#$seq#//
 w!
 q
@@ -161,7 +157,7 @@ End-of-File
     _wait_for_pmcd
 
     echo "[pass $i] unconfigure pmdacisco and notify pmcd ..."
-    ./sudo ex - $PCP_PMCDCONF_PATH <<End-of-File
+    $sudo ex - $PCP_PMCDCONF_PATH <<End-of-File
 g/^[^#].*pmdacisco/s/^/#$seq#/
 w!
 q

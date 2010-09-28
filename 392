@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 392
-# $Revision: 1.9 $
 # Rebuild problems with duplicates and check irix.* and hw.* culling
 # when -u used
 #
@@ -9,11 +8,8 @@
 # to prevent the unwanted translation from an irix namespace to non-irix.
 # hpux was chosed since it is 'replaced' in the old and new Rebuilds.
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -23,11 +19,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-_here=`pwd`
-sudo=`pwd`/sudo
 status=1	# failure is the default!
-trap "cd /; rm -rf $tmp; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 _filter()
 {

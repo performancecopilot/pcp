@@ -1,13 +1,9 @@
 #! /bin/sh
 # PCP QA Test No. 381
-# $Revision: 1.11 $
 # pmlc with new -p port and "connect port <n>" options
-#
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 
@@ -96,9 +92,7 @@ _cleanup()
     exit
 }
 
-tmp=/tmp/$$
 need_clean=true
-sudo=`pwd`/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 DEBUG=''

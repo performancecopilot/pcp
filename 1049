@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 1049 (formerly 552)
-# $Revision: 1.5 $
 # make sure that installed pmie rule files are syntactically OK.
 #
 #
@@ -28,8 +27,6 @@ echo "QA output created by $seq"
 . ./common.check
 . ./localconfig
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

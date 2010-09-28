@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 462
-# $Revision: 1.9 $
 # For pv #581025, pv #589006
 #
 # Test out pmcd_wait 
@@ -18,8 +17,6 @@
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=tes
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -29,8 +26,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 LOCALHOST=`hostname`

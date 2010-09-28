@@ -1,18 +1,19 @@
 #! /bin/sh
 # PCP QA Test No. 255
-# $Revision: 1.45 $
 # exercise pmcd <-> pmda version exchange
 # Bug #508731
-# 
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=nathans
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
-. ./localconfig
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
 rm -f $seq.out
 if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
 then
@@ -26,16 +27,6 @@ else
     ln $seq.out.1 $seq.out
 fi
 
-echo "QA output created by $seq"
-
-# get standard filters
-. ./common.product
-. ./common.filter
-. ./common.check
-
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 errlist=''
@@ -83,7 +74,7 @@ _filter_pmcd()
 	-e "s;$PCP_PMDAS_DIR;PCP_PMDAS_DIR;g" \
 	-e "s/ISA\.//g" \
 	-e "s/ \[(nil)]//g" \
-	-e "s/cmd=.*src-oss./cmd=/" \
+	-e "s/cmd=.*pmdas\/broken./cmd=/" \
 	-e "s/ fd=[0-9]*/ fd=FD/" \
     | $PCP_AWK_PROG '
 BEGIN				{ skip = 0 }
@@ -106,7 +97,7 @@ _cleanup()
 {
     echo ""
     echo "=== Removing broken_pmda namespace ==="
-    cd src-oss; ../sudo ./broken_Remove -N; cd ..
+    cd $here/pmdas/broken; $sudo ./broken_Remove -N; cd ..
     sleep 4
     _wait_for_pmcd
 
@@ -165,9 +156,9 @@ _remove_cron $tmp.cron $sudo
 # Install broken pmda namespace
 #
 echo "=== Install broken namespace ==="
-cd src-oss
+cd $here/pmdas/broken
 $sudo ./broken_Install -N < /dev/null | _filter_ins 2>&1
-cd ..
+cd $here
 echo "=== Broken PMNS ==="
 if pminfo broken
 then
@@ -319,7 +310,7 @@ _broken_install()
     echo "=== Installing $agent ==="
     cp $tmp.newconf $tmp.latest
     cat << end-of-file >> $tmp.latest
-broken	$broken_domain	pipe	binary	$here/src-oss/$agent -d $broken_domain
+broken	$broken_domain	pipe	binary	$here/pmdas/broken/$agent -d $broken_domain
 end-of-file
 
     $sudo cp $tmp.latest $PCP_PMCDCONF_PATH

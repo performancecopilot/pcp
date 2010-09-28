@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 054
-# $Revision: 2.8 $
 # Server, not client, hostname in archive label, ...
 # also exposed pmlogger "dump core when no more events" problem!
 #
@@ -14,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-tmp=/tmp/$$
 trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here

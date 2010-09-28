@@ -24,6 +24,7 @@ else
     exit 1
 fi
 
+# QA default environment variables
 PCP_PMCD_PROG=$PCP_BINADM_DIR/pmcd
 PCP_PMCDLOG_PATH=$PCP_LOG_DIR/pmcd/pmcd.log
 
@@ -40,3 +41,6 @@ in
 	;;
 esac
 
+sudo=`which sudo`
+here=`pwd`
+tmp=/tmp/$$

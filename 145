@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 145
-# $Revision: 2.9 $
 # Duplicate PMIDs in the PMNS
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -13,7 +12,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-tmp=/tmp/$$
 trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
 
 _filter()

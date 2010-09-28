@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 174
-# $Revision: 2.18 $
 # validate profile cacheing in dbpmda matches that in libpcp
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -14,14 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./localconfig
 
-if [ $PCP_PLATFORM = irix ]
-then
-   BINFMT=`/usr/pcp/bin/pmobjstyle`
-   sampledso=/var/pcp/lib/$BINFMT.pmda_sample.so
-else
-   sampledso=$PCP_PMDAS_DIR/sample/pmda_sample.so
-fi
-
+sampledso=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX
 
 _filter()
 {
@@ -60,7 +52,6 @@ _filter_stderr()
 			{gotGetPDU=0; print}'
 }
 
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here

@@ -1,13 +1,9 @@
 #! /bin/sh
 # PCP QA Test No. 319
-# $Revision: 1.1 $
-#
 # reworked AND and OR logic in the presence of unavailable results
 #
 # Copyright (c) 2007 Silicon Graphics, Inc.  All Rights Reserved.
-
-# creator
-owner=kmcdonell
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -17,9 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

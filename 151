@@ -1,21 +1,16 @@
 #! /bin/sh
 # PCP QA Test No. 151
-# $Revision: 2.13 $
-#
 # check the new behaviour of pmlogger_daily to collect archives
-# from longer ago than just yesterday
-#
-# Based on qa/532.
+# from longer ago than just yesterday.  Based on qa/532.
 #
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
-
-# creator
-owner=kenmcd
+# 
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard filters
+. ./common.product
 . ./common.filter
 . ./common.check
 
@@ -45,10 +40,8 @@ _filter()
     | _filter_cron_scripts
 }
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 status=1	# failure is the default!
-trap "cd /; rm -rf $tmp $tmp.*; $sudo mv $PCP_LOG_DIR/NOTICES.$$ $PCP_LOG_DIR/NOTICES; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp $tmp.*; $sudo mv $PCP_LOG_DIR/NOTICES.$$ $PCP_LOG_DIR/NOTICES; exit \$status" 0 1 2 3 15
 
 # take explicit control of the umask
 #

@@ -1,7 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 117
-# $Revision: 2.9 $
-#
 # Verify network.ip statistics (Non-linux version, see 216 for Linux version)
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -14,9 +12,7 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
-. ./localconfig
 
-tmp=/var/tmp/pcp.ip.$$
 compare=`pwd`/src-oss/compare
 rm -rf $tmp.*
 

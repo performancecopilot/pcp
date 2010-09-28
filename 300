@@ -1,13 +1,9 @@
 #! /bin/sh
 # PCP QA Test No. 300
-# $Revision: 1.21 $
-#
 # Change in handling of .NeedInstall protocols
 #
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-
-# creator
-owner=kenmcd
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -17,9 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "$sudo rm -rf $tmp.* $PCP_VAR_DIR/pmdas/bozo; exit \$status" 0 1 2 3 15
