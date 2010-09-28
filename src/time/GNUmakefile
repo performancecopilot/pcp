@@ -6,17 +6,18 @@ include $(TOPDIR)/src/include/builddefs
 WRAPPER = $(COMMAND).sh
 QRCFILE = $(COMMAND).qrc
 RCFILE  = $(COMMAND).rc
-ICOFILE  = $(COMMAND).ico
+ICOFILE = $(COMMAND).ico
 ICNFILE = $(COMMAND).icns
+XMLFILE = $(COMMAND).info
 UIFILES = $(shell echo *.ui)
 HEADERS = aboutdialog.h console.h pmtimearch.h pmtimelive.h \
 	  seealsodialog.h showboundsdialog.h timelord.h timezone.h
 SOURCES = aboutdialog.cpp console.cpp pmtimearch.cpp pmtimelive.cpp \
 	  seealsodialog.cpp showboundsdialog.cpp timelord.cpp main.cpp
 CONFFILES = $(PROJECT)
-LSRCFILES = $(PROJECT).in $(QRCFILE) $(RCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
-	  $(WRAPPER).IN
-LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER)
+LSRCFILES = $(PROJECT).in $(QRCFILE) $(RCFILE) $(UIFILES) $(HEADERS) \
+	   $(SOURCES) $(WRAPPER).IN $(XMLFILE).in
+LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(XMLFILE)
 
 ICONLINKS = play_off.png play_on.png fastfwd_off.png fastfwd_on.png \
 	fastback_off.png fastback_on.png back_off.png back_on.png \
@@ -52,7 +53,7 @@ endif
 ifeq ($(WINDOW),mac)
 	$(INSTALL) -m 755 $(WRAPPER) $(PKG_BIN_DIR)/$(COMMAND)
 	$(call INSTALL_DIRECTORY_HIERARCHY,$(PKG_MAC_DIR),/Library)
-	$(INSTALL) -m 644 pmtime.info $(PKG_MAC_DIR)/Info.plist
+	$(INSTALL) -m 644 $(XMLFILE) $(PKG_MAC_DIR)/Info.plist
 	$(INSTALL) -m 644 $(MACBUILD)/PkgInfo $(PKG_MAC_DIR)/PkgInfo
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/MacOS
 	$(call INSTALL_QT_FRAMEWORKS,$(BINARY))

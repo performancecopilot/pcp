@@ -6,13 +6,14 @@ include $(TOPDIR)/src/include/builddefs
 WRAPPER = $(COMMAND).sh
 QRCFILE = $(COMMAND).qrc
 ICNFILE = $(COMMAND).icns
+XMLFILE = $(COMMAND).info
 HEADERS = pmquery.h
 SOURCES = $(HEADERS:.h=.cpp) main.cpp
 SCRIPTS = pmconfirm.sh pmmessage.sh
 CONFFILES = $(PROJECT)
 LSRCFILES = $(PROJECT).in $(QRCFILE) $(SCRIPTS) $(HEADERS) $(SOURCES) \
-	  $(WRAPPER).IN pmconfirm.sh.IN pmmessage.sh.IN
-LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(SCRIPTS)
+	  $(WRAPPER).IN pmconfirm.sh.IN pmmessage.sh.IN $(XMLFILE).in
+LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(SCRIPTS) $(XMLFILE)
 
 ICONLINKS = $(ICNFILE) dialog-archive.png dialog-error.png dialog-host.png \
 	    dialog-information.png dialog-question.png dialog-warning.png
@@ -52,7 +53,7 @@ endif
 ifeq ($(WINDOW),mac)
 	$(INSTALL) -m 755 $(WRAPPER) $(PKG_BIN_DIR)/$(COMMAND)
 	$(call INSTALL_DIRECTORY_HIERARCHY,$(PKG_MAC_DIR),/Library)
-	$(INSTALL) -m 644 pmquery.info $(PKG_MAC_DIR)/Info.plist
+	$(INSTALL) -m 644 $(XMLFILE) $(PKG_MAC_DIR)/Info.plist
 	$(INSTALL) -m 644 $(MACBUILD)/PkgInfo $(PKG_MAC_DIR)/PkgInfo
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/MacOS
 	$(call INSTALL_QT_FRAMEWORKS,$(BINARY))
