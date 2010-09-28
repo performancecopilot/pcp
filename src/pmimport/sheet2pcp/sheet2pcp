@@ -421,7 +421,7 @@ sub domap($)
     }
 }
 
-$sts = getopts('h:Z:', \%options);
+my $sts = getopts('h:Z:', \%options);
 
 if (!defined($sts) || $#ARGV != 2) {
     print "Usage: sheet2pcp [-h host] [-Z timezone] infile mapfile outfile\n";
