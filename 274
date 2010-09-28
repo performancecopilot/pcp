@@ -183,7 +183,7 @@ sleep 1
 rm -f $tmp.log
 
 dbpmda -ie 2>&1 <<End-of-File | _filter | _filterStartBrokenPMDA25
-open pipe $here/pmdas/broken/broken_pmda_2_5 -D47104 -l $tmp.log
+open pipe pmdas/broken/broken_pmda_2_5 -D47104 -l $tmp.log
 status
 text broken.valid.one
 close

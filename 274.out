@@ -15,11 +15,11 @@ Compiled PMNS contains
   NNN bytes of symbol table
 Skipping PMDA install and PMCD re-configuration
 dbpmda> open pipe pmdas/broken/broken_pmda_2_0 -D47104 -l logfile
-Start broken_pmda_2_0 PMDA: pmdas/broken/broken_pmda_2_0 -D47104 -l logfile
+Start broken_pmda_2_0 PMDA: ./pmdas/broken/broken_pmda_2_0 -D47104 -l logfile
 dbpmda> status
 
 Namespace:              (default)
-PMDA:                   pmdas/broken/broken_pmda_2_0
+PMDA:                   ./pmdas/broken/broken_pmda_2_0
 Connection:             daemon
 PMDA PMAPI Version:     2
 pmDebug:                0 (none)
@@ -171,11 +171,11 @@ broken pmda Error: pmdaFetch: Instance 10 of PMID 249.0.13 not handled by fetch 
 
 Log finished
 dbpmda> open pipe pmdas/broken/broken_pmda_2_1 -D47104 -l logfile
-Start broken_pmda_2_1 PMDA: pmdas/broken/broken_pmda_2_1 -D47104 -l logfile
+Start broken_pmda_2_1 PMDA: ./pmdas/broken/broken_pmda_2_1 -D47104 -l logfile
 dbpmda> status
 
 Namespace:              (default)
-PMDA:                   pmdas/broken/broken_pmda_2_1
+PMDA:                   ./pmdas/broken/broken_pmda_2_1
 Connection:             daemon
 PMDA PMAPI Version:     2
 pmDebug:                0 (none)
@@ -201,11 +201,11 @@ broken pmda Error: PMDA Initialisation Failed
 
 Log finished
 dbpmda> open pipe pmdas/broken/broken_pmda_2_2 -D47104 -l logfile
-Start broken_pmda_2_2 PMDA: pmdas/broken/broken_pmda_2_2 -D47104 -l logfile
+Start broken_pmda_2_2 PMDA: ./pmdas/broken/broken_pmda_2_2 -D47104 -l logfile
 dbpmda> status
 
 Namespace:              (default)
-PMDA:                   pmdas/broken/broken_pmda_2_2
+PMDA:                   ./pmdas/broken/broken_pmda_2_2
 Connection:             daemon
 PMDA PMAPI Version:     2
 pmDebug:                0 (none)
@@ -224,11 +224,11 @@ broken pmda Error: PMDA Initialisation Failed
 
 Log finished
 dbpmda> open pipe pmdas/broken/broken_pmda_2_3 -D47104 -l logfile
-Start broken_pmda_2_3 PMDA: pmdas/broken/broken_pmda_2_3 -D47104 -l logfile
+Start broken_pmda_2_3 PMDA: ./pmdas/broken/broken_pmda_2_3 -D47104 -l logfile
 dbpmda> status
 
 Namespace:              (default)
-PMDA:                   pmdas/broken/broken_pmda_2_3
+PMDA:                   ./pmdas/broken/broken_pmda_2_3
 Connection:             daemon
 PMDA PMAPI Version:     2
 pmDebug:                0 (none)
@@ -247,11 +247,11 @@ broken pmda Error: PMDA Initialisation Failed
 
 Log finished
 dbpmda> open pipe pmdas/broken/broken_pmda_2_4 -D47104 -l logfile
-Start broken_pmda_2_4 PMDA: pmdas/broken/broken_pmda_2_4 -D47104 -l logfile
+Start broken_pmda_2_4 PMDA: ./pmdas/broken/broken_pmda_2_4 -D47104 -l logfile
 dbpmda> status
 
 Namespace:              (default)
-PMDA:                   pmdas/broken/broken_pmda_2_4
+PMDA:                   ./pmdas/broken/broken_pmda_2_4
 Connection:             daemon
 PMDA PMAPI Version:     2
 pmDebug:                0 (none)
@@ -287,12 +287,12 @@ Log finished
 dbpmda> open pipe pmdas/broken/broken_pmda_2_5 -D47104 -l logfile
 [DATE] broken_pmda_2_5(PID) Critical: __pmdaSetup: broken_pmda_2_5 PMDA: interface version 77 not supported (domain=249)
 pmdaDaemon() failed!
-Warning: no version exchange with PMDA pmdas/broken/broken_pmda_2_5: assuming PCP 1.x PMDA.
-Start broken_pmda_2_5 PMDA: pmdas/broken/broken_pmda_2_5 -D47104 -l logfile
+Warning: no version exchange with PMDA ./pmdas/broken/broken_pmda_2_5: assuming PCP 1.x PMDA.
+Start broken_pmda_2_5 PMDA: ./pmdas/broken/broken_pmda_2_5 -D47104 -l logfile
 dbpmda> status
 
 Namespace:              (default)
-PMDA:                   pmdas/broken/broken_pmda_2_5
+PMDA:                   ./pmdas/broken/broken_pmda_2_5
 Connection:             daemon
 PMDA PMAPI Version:     1
 pmDebug:                0 (none)
