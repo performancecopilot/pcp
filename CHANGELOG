@@ -1,4 +1,4 @@
-pcp-3.4.0 (25 September 2010)
+pcp-3.4.0 (29 September 2010)
     - Add new libpcp_import C API library to pcp-libs.
     - Add perl-PCP-LogImport RPM sub-package for libpcp_import perl binding.
     - Add pcp-import-* RPM sub-packages containing front-end tools for
