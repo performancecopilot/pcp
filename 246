@@ -50,7 +50,10 @@ _filter()
 BEGIN				{ n = 0; PICK = 40 }
 $1 == "__dmclosecontext"	{ if (map[$4] != "") next
 				  if (n >= PICK) next
-				  print "s/" $4 "/<addr>/"; n++ }
+				  print "s/" $4 "/<addr>/"
+				  map[$4] = 1
+				  n++
+				}
 				{ next }'
     echo "=== sed ===" >>$seq.full
     cat $tmp.sed >>$seq.full
