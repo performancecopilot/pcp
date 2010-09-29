@@ -224,7 +224,7 @@ extern FILE *__pmRotateLog(const char *, const char *, FILE *, int *);
 /* make __pmNotifyErr also add entries to syslog */
 extern void __pmSyslog(int);
 /* standard error, warning and info wrapper for syslog(3C) */
-extern void __pmNotifyErr(int, const char *, ...);
+extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
 
 /*
  * These are for debugging only (but are present in the shipped libpcp)
@@ -266,7 +266,7 @@ EXTERN int __pmLogReads;
 extern void __pmDumpIDList(FILE *, int, const pmID *);
 extern void __pmDumpNameList(FILE *, int, char **);
 extern void __pmDumpStatusList(FILE *, int, const int *);
-extern void __pmDumpNameandStatusList(FILE *, int, char **, int *);
+extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *);
 #endif
 
 /*

@@ -9,10 +9,9 @@ set PATH=%PCP_DIR%\bin;%PCP_DIR%\local\bin;%PATH%
 
 set TMP=D:\tmp
 set TEMP=D:\tmp
-set PACKAGE=D:\packages
+set PACKAGE=C:\packages
 copy pcp.fstab %PACKAGE%
 copy pcpsh.bat %PACKAGE%
-copy setup.bat %PACKAGE%
 copy prerm.bat %PACKAGE%
 copy postinst.bat %PACKAGE%
 copy pcp.profile %PACKAGE%

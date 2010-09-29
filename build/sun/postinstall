@@ -1,5 +1,8 @@
 #!/bin/sh
 # Import PCP services into SMF but do not start them - let admin do it
-# when and it she's ready.
+# when she's ready.
 
 svccfg import /var/svc/manifest/application/pcp.xml
+
+. /etc/pcp.env
+rm -f $PCP_VAR_DIR/pmns/root $PCP_VAR_DIR/pmns/root.bin

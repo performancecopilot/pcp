@@ -3,6 +3,22 @@ include $(TOPDIR)/src/include/builddefs
 
 PCP_FILES = pcp.prerm pcp.postinst pcp.postrm
 
+PCPIMPORTSAR = pcp-import-sar2pcp
+PCPIMPORTSAR_FILES = pcp-import-sar2pcp.install
+PCPIMPORTSAR_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-sar2pcp
+
+PCPIMPORTMRTG = pcp-import-mrtg2pcp
+PCPIMPORTMRTG_FILES = pcp-import-mrtg2pcp.install
+PCPIMPORTMRTG_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-mrtg2pcp
+
+PCPIMPORTSHEET = pcp-import-sheet2pcp
+PCPIMPORTSHEET_FILES = pcp-import-sheet2pcp.install
+PCPIMPORTSHEET_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-sheet2pcp
+
+PCPIMPORTIOSTAT = pcp-import-iostat2pcp
+PCPIMPORTIOSTAT_FILES = pcp-import-iostat2pcp.install
+PCPIMPORTIOSTAT_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-iostat2pcp
+
 LIBPCPPCP = libpcp3
 LIBPCP_FILES = libpcp3.dirs libpcp3.install
 DEVPCP_FILES = libpcp3-dev.dirs libpcp3-dev.install
@@ -33,16 +49,27 @@ DEVTRACE_FILES = libpcp-trace2-dev.dirs libpcp-trace2-dev.install
 LIBTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2
 DEVTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2-dev
 
+LIBIMPORTPCP = libpcp-import1
+LIBIMPORT_FILES = libpcp-import1.install
+DEVIMPORT_FILES = libpcp-import1-dev.dirs libpcp-import1-dev.install
+LIBIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1
+DEVIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1-dev
+
 SUBDIRS = source
 LDIRT = *.debhelper *.substvars *.log pcp files $(LIBPCPPCP) $(LIBPCPPCP)-dev \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
-	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev
+	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev \
+	$(LIBIMPORTPCP) $(LIBIMPORTPCP)-dev \
+	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT)
 LSRCFILES = changelog compat control copyright rules \
 		$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) shlibs.local \
 		$(LIBGUI_FILES) $(DEVGUI_FILES) \
 		$(LIBMMV_FILES) $(DEVMMV_FILES) \
 		$(LIBPMDA_FILES) $(DEVPMDA_FILES) \
-		$(LIBTRACE_FILES) $(DEVTRACE_FILES)
+		$(LIBTRACE_FILES) $(DEVTRACE_FILES) \
+		$(LIBIMPORT_FILES) $(DEVIMPORT_FILES) \
+		$(PCPIMPORTSAR_FILES) $(PCPIMPORTMRTG_FILES) \
+		$(PCPIMPORTSHEET_FILES) $(PCPIMPORTIOSTAT_FILES)
 
 default:
 
@@ -126,4 +153,46 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(DEVTRACE_DOC_DIR)
 	$(INSTALL) -m 644 copyright $(DEVTRACE_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(DEVTRACE_DOC_DIR)/changelog.Debian
+endif
+
+install-libimport: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(LIBIMPORT_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(LIBIMPORT_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(LIBIMPORT_DOC_DIR)/changelog.Debian
+endif
+
+install-devimport: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(DEVIMPORT_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(DEVIMPORT_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(DEVIMPORT_DOC_DIR)/changelog.Debian
+endif
+
+install-pcpimportsar: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPIMPORTSAR_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPIMPORTSAR_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPIMPORTSAR_DOC_DIR)/changelog.Debian
+endif
+
+install-pcpimportmrtg: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPIMPORTMRTG_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPIMPORTMRTG_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPIMPORTMRTG_DOC_DIR)/changelog.Debian
+endif
+
+install-pcpimportsheet: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPIMPORTSHEET_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPIMPORTSHEET_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPIMPORTSHEET_DOC_DIR)/changelog.Debian
+endif
+
+install-pcpimportiostat: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPIMPORTIOSTAT_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPIMPORTIOSTAT_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPIMPORTIOSTAT_DOC_DIR)/changelog.Debian
 endif

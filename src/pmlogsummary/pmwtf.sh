@@ -12,15 +12,11 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
 # Compare two PCP archives and report significant differences
 #
 tmp=/var/tmp/$$
 sts=0
-trap "rm -f $tmp.tmp; exit \$sts" 0 1 2 3 15
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 rm -f $tmp.*
 
 _usage()
@@ -37,6 +33,7 @@ _usage()
     echo "  -B start   start time, second archive (optional)"
     echo "  -E end     end time, second archive (optional)"
     echo "  -x metric  egrep(1) pattern of metric(s) to be excluded"
+    echo "  -X file    file containing egrep(1) patterns to exclude"
     echo "  -z         use local timezone, see PCPIntro(1)"
     echo "  -Z zone    set reporting timezone"
     sts=1
@@ -61,7 +58,7 @@ start2=""
 finish1=""
 finish2=""
 precision=3
-while getopts dp:q:S:T:B:E:x:zZ:? c
+while getopts dp:q:S:T:B:E:x:X:zZ:? c
 do
     case $c
     in
@@ -92,6 +89,9 @@ do
 	    ;;
 	x)
 	    echo "$OPTARG" >>$tmp.exclude
+	    ;;
+	X)
+	    cat "$OPTARG" >>$tmp.exclude
 	    ;;
 	z)
 	    opts="$opts -z"
@@ -172,7 +172,7 @@ a1=`basename "$1"`
 a2=`basename "$2"`
 echo "$thres" | awk '
     { printf "Ratio Threshold: > %.2f or < %.3f\n",'"$thres"',1/'"$thres"'
-      printf "%12s %12s   Ratio  Metric-Instance\n",'"$a1"','"$a2"' }'
+      printf "%12s %12s   Ratio  Metric-Instance\n","'"$a1"'","'"$a2"'" }'
 join -t\| $tmp.1 $tmp.2 \
 | awk -F\| '
 function doval(v)
@@ -192,8 +192,18 @@ function doval(v)
     else
 	printf "%*.*f%*s",12+extra,precision,v,1," "
 }
-$3+0 == 0			{ next }
-$2+0 == 0			{ next }
+$3+0 == 0 || $2+0 == 0 {
+		if ($3 == $2)
+		    next
+		doval($2)
+		doval($3)
+		printf "   "
+		if ($3+0 == 0)
+		    printf "|-|   %s\n",$1
+		else if ($2+0 == 0)
+		    printf "|+|   %s\n",$1
+		next
+}
 $2 / $3 > '"$thres"' || $3 / $2 > '"$thres"'	{
 		doval($2)
 		doval($3)

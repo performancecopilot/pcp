@@ -1,9 +1,9 @@
 Apache PMDA
-=============
+===========
 
 Export information from apache server info.
 
-Author: Michal Kara, lemming@netcentrum.cz
+Author: Michal Kara
 
 To use this PMDA, you must be running Apache 1.3.2 or later (for the
 extended statistics).
@@ -12,13 +12,11 @@ First configure your apache http server to enable status support.
 The full procedure is documented at
 http://www.apache.org/docs/mod/mod_status.html 
 
-Briefly, do the following:
-# edit /etc/httpd/conf/access.conf (or /etc/httpd/conf/httpd.conf)
-and enable the following lines:
+Edit /etc/apache2/mods-enabled/status.conf and enable the following:
 
 <Location /server-status>
-SetHandler server-status
-Allow from all
+  SetHandler server-status
+  Allow from all
 </Location>
 ExtendedStatus On
 
@@ -27,7 +25,7 @@ the local host only. See the Apache web site for instructions.
 
 You will need to stop and restart your Apache server after making
 this change:
-# /etc/rc.d/init.d/httpd restart
+# apachectl restart
 
 Metrics
 =======
@@ -57,9 +55,7 @@ Installation
 
 	# ./Install
 
-    and choose both the "collector" and "monitor" installation
-    configuration options.
-
+    and optionally specify the port number where Apache is running.
     Everything else is automated.
 
 De-installation
@@ -81,11 +77,8 @@ Troubleshooting
 Credits
 =======
 
-Package was written by Michal Kara, lemming@ucw.cz
+Original PMDA was written by Michal Kara.
 
-This package uses (slightly modified) http_lib:
-
-Http put/get mini lib
-written by L. Demailly
-(c) 1998 Laurent Demailly - http://www.demailly.com/~dl/
-(c) 1996 Observatoire de Paris - Meudon - France
+This PMDA embeds a (slightly modified) lightweight "Http Fetcher" library,
+written by Lyle Hanson (lhanson@users.sourceforge.net) (C) 2001, 2003, 2004
+http://http-fetcher.sourceforge.net

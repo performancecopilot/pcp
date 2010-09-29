@@ -91,10 +91,9 @@ refresh_proc_net_dev(pmInDom indom)
 {
     char		buf[1024];
     FILE		*fp;
-    int			j;
     unsigned long long	llval;
-    char		*p;
-    int			sts;
+    char		*p, *v;
+    int			j, sts;
     net_interface_t	*netip;
 
     static uint64_t	gen;	/* refresh generation number */
@@ -122,7 +121,7 @@ Inter-|   Receive                                                |  Transmit
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
-	if ((p = strchr(buf, ':')) == NULL)
+	if ((p = v = strchr(buf, ':')) == NULL)
 	    continue;
 	*p = '\0';
 	for (p=buf; *p && isspace(*p); p++) {;}
@@ -167,7 +166,7 @@ Inter-|   Receive                                                |  Transmit
 	/* Issue ioctls for remaining data, not exported through proc */
 	refresh_net_dev_ioctl(p, netip);
 
-	for (p=buf+6, j=0; j < PROC_DEV_COUNTERS_PER_LINE; j++) {
+	for (p=v, j=0; j < PROC_DEV_COUNTERS_PER_LINE; j++) {
 	    for (; !isdigit(*p); p++) {;}
 	    sscanf(p, "%llu", &llval);
 	    if (llval >= netip->last_counters[j]) {

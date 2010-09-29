@@ -146,8 +146,8 @@ __pmSendInstance(int fd, int mode, __pmInResult *result)
     rp->hdr.type = PDU_INSTANCE;
     rp->indom = __htonpmInDom(result->indom);
     rp->numinst = htonl(result->numinst);
-    j = 0;
-    for (i = 0; i < result->numinst; i++) {
+
+    for (i = j = 0; i < result->numinst; i++) {
 	ip = (instlist_t *)&rp->rest[j/sizeof(__pmPDU)];
 	if (result->instlist != NULL)
 	    ip->inst = htonl(result->instlist[i]);
@@ -211,46 +211,41 @@ __pmDecodeInstance(__pmPDU *pdubuf, int mode, __pmInResult **result)
 	sts = -errno;
 	goto badsts;
     }
-    /*
-     * seems paranoid, but required for __pmFreeInResult() in the event of
-     * a later error
-     */
-    for (i = 0; i < res->numinst; i++)
-	res->namelist[i] = NULL;
+    /* required for __pmFreeInResult() in the event of a later error */
+    memset(res->namelist, 0, res->numinst * sizeof(res->namelist[0]));
 
     if (res->numinst == 1)
 	keep_instlist = keep_namelist = 0;
     else
 	keep_instlist = keep_namelist = 1;
-    j = 0;
 
-	for (i = 0; i < res->numinst; i++) {
-	    ip = (instlist_t *)&rp->rest[j/sizeof(__pmPDU)];
-	    res->instlist[i] = ntohl(ip->inst);
-	    if (res->instlist[i] != PM_IN_NULL)
-		keep_instlist = 1;
-	    ip->namelen = ntohl(ip->namelen);
-	    if (ip->namelen > 0)
-		keep_namelist = 1;
-	    if ((p = (char *)malloc(ip->namelen + 1)) == NULL) {
-		sts = -errno;
-		goto badsts;
-	    }
-	    memcpy((void *)p, (void *)ip->name, ip->namelen);
-	    p[ip->namelen] = '\0';
-	    res->namelist[i] = p;
-	    j += sizeof(*ip) - sizeof(ip->name) +
+    for (i = j = 0; i < res->numinst; i++) {
+	ip = (instlist_t *)&rp->rest[j/sizeof(__pmPDU)];
+	res->instlist[i] = ntohl(ip->inst);
+	if (res->instlist[i] != PM_IN_NULL)
+	    keep_instlist = 1;
+	ip->namelen = ntohl(ip->namelen);
+	if (ip->namelen > 0)
+	    keep_namelist = 1;
+	if ((p = (char *)malloc(ip->namelen + 1)) == NULL) {
+	    sts = -errno;
+	    goto badsts;
+	}
+	memcpy((void *)p, (void *)ip->name, ip->namelen);
+	p[ip->namelen] = '\0';
+	res->namelist[i] = p;
+	j += sizeof(*ip) - sizeof(ip->name) +
 		    sizeof(__pmPDU)*((ip->namelen - 1 + sizeof(__pmPDU))/sizeof(__pmPDU));
-	}
-	if (keep_instlist == 0) {
-	    free(res->instlist);
-	    res->instlist = NULL;
-	}
-	if (keep_namelist == 0) {
-	    free(res->namelist[0]);
-	    free(res->namelist);
-	    res->namelist = NULL;
-	}
+    }
+    if (keep_instlist == 0) {
+	free(res->instlist);
+	res->instlist = NULL;
+    }
+    if (keep_namelist == 0) {
+	free(res->namelist[0]);
+	free(res->namelist);
+	res->namelist = NULL;
+    }
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_INDOM)
@@ -261,7 +256,5 @@ __pmDecodeInstance(__pmPDU *pdubuf, int mode, __pmInResult **result)
 
 badsts:
     __pmFreeInResult(res);
-    /* FALLTHRU */
-
     return sts;
 }

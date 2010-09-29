@@ -300,7 +300,10 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
 	return;
     }
 
-    if (dispatch->version.two.fetch == pmdaFetch && 
+    if (((HAVE_V_FOUR(dispatch->comm.pmda_interface) &&
+	  dispatch->version.four.fetch == pmdaFetch) ||
+	 (HAVE_V_TWO(dispatch->comm.pmda_interface) &&
+	  dispatch->version.two.fetch == pmdaFetch)) &&
 	pmda->e_fetchCallBack == (pmdaFetchCallBack)0) {
 	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: using pmdaFetch() but fetch call back not set", pmda->e_name);
 	dispatch->status = PM_ERR_GENERIC;
@@ -597,7 +600,7 @@ __pmdaSetup(pmdaInterface *dispatch, int version, char *name)
     if (pmda == NULL) {
 	__pmNotifyErr(LOG_ERR, 
 		     "%s: Unable to allocate memory for pmdaExt structure (%d bytes)",
-		     name, sizeof(pmdaExt));
+		     name, (int)sizeof(pmdaExt));
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
@@ -656,7 +659,7 @@ __pmdaSetup(pmdaInterface *dispatch, int version, char *name)
     if (extp == NULL) {
 	__pmNotifyErr(LOG_ERR, 
 		     "%s: Unable to allocate memory for e_ext_t structure (%d bytes)",
-		     name, sizeof(*extp));
+		     name, (int)sizeof(*extp));
 	free(pmda);
 	if (HAVE_V_FOUR(version))
 	    dispatch->version.four.ext = NULL;

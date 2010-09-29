@@ -42,6 +42,7 @@ my @postfix_queues_dom = (    0 => 'total',
 
 my $postfix_sent_indom = 1;
 my @postfix_sent_dom = (       0 => 'smtp',
+		1 => 'local',
 	     );
 
 my $postfix_received_indom = 2;

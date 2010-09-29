@@ -28,6 +28,7 @@ static pmdaInterface dispatch;
 static pmdaMetric *metrictab;
 static int mtab_size;
 static pmdaIndom *indomtab;
+static char *saved_string;
 static int itab_size;
 static int *clustertab;
 static int ctab_size;
@@ -136,10 +137,17 @@ prefetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
 int
 fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
 {
+    int sts;
+
     prefetch(numpmid, pmidlist, rp, pmda);
     if (refresh_func)
 	refresh(numpmid, pmidlist);
-    return pmdaFetch(numpmid, pmidlist, rp, pmda);
+    sts = pmdaFetch(numpmid, pmidlist, rp, pmda);
+    if (saved_string) {
+	free(saved_string);
+	saved_string = NULL;
+    }
+    return sts;
 }
 
 void
@@ -247,7 +255,12 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 	case PM_TYPE_U64:	atom->ull = POPl; break;
 	case PM_TYPE_FLOAT:	atom->f = POPn; break;
 	case PM_TYPE_DOUBLE:	atom->d = POPn; break;
-	case PM_TYPE_STRING:	atom->cp = strdup(POPpx); break;
+	case PM_TYPE_STRING:	{
+	    if (saved_string)
+		free(saved_string);
+	    atom->cp = saved_string = strdup(POPpx);
+	    break;
+	}
     }
 
 fetch_end:
@@ -655,7 +668,7 @@ error(self,message)
 	pmdaInterface *self
 	char *	message
     CODE:
-	__pmNotifyErr(LOG_ERR, message);
+	__pmNotifyErr(LOG_ERR, "%s", message);
 
 void
 set_fetch(self,function)
@@ -909,14 +922,14 @@ log(self,message)
 	pmdaInterface *self
 	char *	message
     CODE:
-	__pmNotifyErr(LOG_INFO, message);
+	__pmNotifyErr(LOG_INFO, "%s", message);
 
 void
 err(self,message)
 	pmdaInterface *self
 	char *	message
     CODE:
-	__pmNotifyErr(LOG_ERR, message);
+	__pmNotifyErr(LOG_ERR, "%s", message);
 
 void
 run(self)

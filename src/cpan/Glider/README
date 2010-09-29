@@ -12,18 +12,20 @@ If you have issues with these instructions (good chance you will)
 drop in on the #pcp channel on irc.freenode.net for pointers and/
 or a shoulder to cry on.  A list of known issues and resolutions,
 for specific applications or Windows versions, can be found at the
-end of this document.
-
+end of this document.  Note that these instructions assume use of
+the C: drive for installed software and use of D: drive for source
+code and build target.
 
 Step 1 -- download bootstrap environment
 
-DOS> mkdir C:\package
-DOS> cd C:\package
+DOS> mkdir C:\packages
+DOS> cd C:\packages
 DOS> ftp oss.sgi.com
 User: anonymous
+Pass: (anything)
 > binary
 > prompt
-> cd /projects/pcp/package
+> cd /projects/pcp/packages
 > mget *
 ...
 > bye
@@ -31,10 +33,10 @@ User: anonymous
 
 Step 2 -- install initial bootstrap tools
 
-DOS> msiexec /i bootperl*.msi
+DOS> msiexec /i strawberry-perl-*.msi
 [ graphical installer ]
   - accept all the defaults
-  - should have a populated C:\bootperl\* at the end.
+  - should have a populated C:\strawberry\* at the end.
 
 DOS> Git*.exe
 [ graphical installer ]
@@ -43,13 +45,17 @@ DOS> Git*.exe
   - choose "Use Git Bash only" option (do not modify PATH)
   - choose "Use Unix style line endings"
 
-DOS> qt-win-*.exe
+DOS> qt-win-opensource-*-mingw.exe
 [ graphical installer ]
   - install to C:\Qt
   - enter the "Previously installed MinGW" at:
-	C:\bootperl\c
+	C:\strawberry\c
   - ignore warning about mismatched versions (moving to a
     newer version of Qt will probably fix this up).
+
+DOS> autoconf*.exe
+[ graphical installer ]
+  - accept all the defaults
 
 DOS> Coin*.exe
 [ graphical installer ]
@@ -61,17 +67,15 @@ DOS> Soqt*.exe
   - set the Install Location to be C:\Coin3D (yep, same as above)
   - accept other defaults
 
-DOS> isetup*.exe
-[ graphical installer ]
-  - accept all defaults
-  - especially, installing to default location
-
 
 Step 3 -- unpack secondary bootstrap tools
 
+GIT> mkdir /c/minicpan
+GIT> cd /c
+GIT> tar zxf /c/packages/minicpan.tgz
 GIT> mkdir /c/MSYS
 GIT> cd /c/MSYS
-GIT> for file in `echo /c/package/*.gz`
+GIT> for file in `echo /c/packages/*.gz`
    > do
    >     echo $file
    >     tar zxf $file
@@ -79,21 +83,20 @@ GIT> for file in `echo /c/package/*.gz`
 GIT> cp etc/fstab.sample etc/fstab
 GIT> vi etc/fstab
 [ edit, add these lines: ]
-  c:/bootperl/c      /mingw
-  c:/bootperl/perl   /perl
-  d:/source          /source
+  c:/strawberry/c      /mingw
+  c:/strawberry/perl   /perl
+  d:/source            /source
 GIT> mkdir -p /d/source/git
 GIT> cd /d/source/git
-GIT> git clone git://oss.sgi.com/nathans/pcp.git
-GIT> git clone git://oss.sgi.com/nathans/pcpqa.git
-GIT> git clone git://oss.sgi.com/nathans/pcp-gui.git
+GIT> git clone git://oss.sgi.com/pcp/pcp.git
+GIT> git clone git://oss.sgi.com/pcp/pcpqa.git
+GIT> git clone git://oss.sgi.com/pcphans/pcp-gui.git
 
 
 Step 4 -- building PCP from the git tree
 
 DOS> set PATH=C:\MSYS\bin;C:\MSYS\local\bin;%PATH%
 DOS> cd D:\source\git\pcp
-[ we have no working autoconf yet, copy ./configure from elsewhere ]
 DOS> make
 [ if all goes well, try creating some tarballs ]
 DOS> sh ./Makepkgs -verbose pcp
@@ -122,19 +125,9 @@ DOS> sh ./Makepkgs -verbose pcp-gui
 
 Step 7 -- packaging it all up
 
-DOS> cpan
-cpan> install File::Copy::Recursive File::PathList File::ShareDir
-cpan> install Object::Tiny IO::Capture::Stdout Process::Delegatable
-cpan> install LWP::UserAgent::WithCache Cache::Cache Cache::FileCache
-cpan> install Module::CoreList Template
-[ answer 'n' to any/all questions about Template module ]
-cpan> install Portable::Dist
-cpan> install Perl::Dist::Strawberry
-cpan> quit
-
 DOS> cd D:\source\git\pcp\src\cpan\Glider
-DOS> copy D:\source\git\pcp\pcp*\build\tar\pcp*.tar.gz C:\package
-DOS> copy D:\source\git\pcp-gui\pcp-gui*\build\tar\pcp-gui*.tar.gz C:\package
+DOS> copy D:\source\git\pcp\pcp*\build\tar\pcp*.tar.gz C:\packages
+DOS> copy D:\source\git\pcp-gui\pcp-gui*\build\tar\pcp-gui*.tar.gz C:\packages
 DOS> vim Glider.pm
   - check that Glider.pm uses the versions of pcp and pcp-gui just built
 DOS> Glider.bat
@@ -144,7 +137,7 @@ DOS> Glider.bat
 
 Step 8 -- installation and post-install setup
 
-DOS> msiexec /i pcp-glider*.msi
+DOS> msiexec /i pcp-glider-*.msi
 [ graphical installer ]
   - accept all defaults
 

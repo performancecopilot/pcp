@@ -79,9 +79,11 @@ void
 netlink_update_stats(int fetch)
 {
     kstat_t *k;
+    kstat_ctl_t *kc;
     pmInDom indom = indomtab[NETLINK_INDOM].it_indom;
 
-    kstat_chain_update(kc);
+    if ((kc = kstat_ctl_update()) == NULL)
+	return;
 
     for (k = kc->kc_chain; k != NULL; k = k->ks_next) {
 	if (strcmp(k->ks_module, "link") == 0) {
@@ -109,14 +111,14 @@ netlink_update_stats(int fetch)
 void
 netlink_refresh(void)
 {
+    pmdaCacheOp(indomtab[NETLINK_INDOM].it_indom, PMDA_CACHE_INACTIVE);
     netlink_update_stats(1);
+    pmdaCacheOp(indomtab[NETLINK_INDOM].it_indom, PMDA_CACHE_SAVE);
 }
 
 void
 netlink_init(int first)
 {
-    int i;
-
     pmdaCacheOp(indomtab[NETLINK_INDOM].it_indom, PMDA_CACHE_LOAD);
     netlink_update_stats(0);
     pmdaCacheOp(indomtab[NETLINK_INDOM].it_indom, PMDA_CACHE_SAVE);

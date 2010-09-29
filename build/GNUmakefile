@@ -63,15 +63,15 @@ pack_pcp : pcp.src
 # After sources have been packed, touch .census in the topdir to
 # prevent second run on setup by RPM.
 pcp.src : $(_FORCE)
-	export PKG_ROOT=$(PACKAGE_NAME)-$(PACKAGE_VERSION); \
+	PKG_ROOT=$(PACKAGE_NAME)-$(PACKAGE_VERSION); \
 	if [ "$(TARGET_OS)" = mingw ] ; then \
-	    export SRC_ROOT=. ; \
+	    SRC_ROOT=. ; \
 	else \
-	    export SRC_ROOT=$$PKG_ROOT; \
+	    SRC_ROOT=$$PKG_ROOT; \
 	    if [ ! -L $(TOPDIR)/$$SRC_ROOT ] ; then \
 		$(LN_S) . $(TOPDIR)/$$SRC_ROOT || exit 1; \
 	    fi; \
-	fi; \
+	fi; export PKG_ROOT SRC_ROOT; \
 	CDIR=`pwd`; cd $(TOPDIR); \
 	$(MAKE) -j 1 $(MAKEOPTS) $(@:%.src=src-%) >/tmp/$$$$.makesrc; \
 	s=$$?; if [ $$s -ne 0 ] ; then exit $$s; \

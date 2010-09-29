@@ -16,20 +16,16 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES = pmimport.c
-CMDTARGET = pmimport$(EXECSUFFIX)
-LLDLIBS = -lpcp
-SUBDIRS = demos
+SUBDIRS = sar2pcp sheet2pcp iostat2pcp mrtg2pcp
 
-default: $(CMDTARGET)
+default: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
 
-install:	default
-	# $(INSTALL) -m 755 pmimport $(PCP_BIN_DIR)/pmimport
+install: default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
-default_pcp:
+default_pcp: default
 
-install_pcp:
+install_pcp: install

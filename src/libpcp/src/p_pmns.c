@@ -130,11 +130,11 @@ typedef struct {
 } name_status_t;
 
 typedef struct {
-    __pmPDUHdr   hdr;
+    __pmPDUHdr	hdr;
     int		nstrbytes; /* number of str bytes including null terminators */
     int 	numstatus; /* = 0 if there is no status to be encoded */
     int		numnames;
-    __pmPDU      names[1]; /* list of variable length name_t or name_status_t */
+    __pmPDU	names[1]; /* list of variable length name_t or name_status_t */
 } namelist_t;
 
 /*
@@ -165,31 +165,32 @@ typedef struct {
 void
 __pmDumpNameList(FILE *f, int numnames, char *namelist[])
 {
-  int i;
-  fprintf(f, "namelist dump: numnames = %d\n", numnames);
-  for(i=0; i<numnames; i++) {
-    fprintf(f, "  name[%d]: \"%s\"\n", i, namelist[i]);
-  }
+    int i;
+
+    fprintf(f, "namelist dump: numnames = %d\n", numnames);
+    for (i = 0; i < numnames; i++)
+	fprintf(f, "  name[%d]: \"%s\"\n", i, namelist[i]);
 }
 
 void
 __pmDumpStatusList(FILE *f, int numstatus, const int statuslist[])
 {
-  int i;
-  fprintf(f, "statuslist dump: numstatus = %d\n", numstatus);
-  for(i=0; i<numstatus; i++) {
-    fprintf(f, "  status[%d]: %d\n", i, statuslist[i]);
-  }
+    int i;
+
+    fprintf(f, "statuslist dump: numstatus = %d\n", numstatus);
+    for (i = 0; i < numstatus; i++)
+	fprintf(f, "  status[%d]: %d\n", i, statuslist[i]);
 }
 
 void
-__pmDumpNameandStatusList(FILE *f, int numnames, char *namelist[], int statuslist[])
+__pmDumpNameAndStatusList(FILE *f, int numnames, char *namelist[], int statuslist[])
 {
-  int i;
-  fprintf(f, "namelist & statuslist dump: numnames = %d\n", numnames);
-  for(i=0; i<numnames; i++) {
-    fprintf(f, "  name[%d]: \"%s\" (%s)\n", i, namelist[i], statuslist[i] == PMNS_LEAF_STATUS ? "leaf" : "non-leaf");
-  }
+    int i;
+
+    fprintf(f, "namelist & statuslist dump: numnames = %d\n", numnames);
+    for (i = 0; i < numnames; i++)
+	fprintf(f, "  name[%d]: \"%s\" (%s)\n", i, namelist[i],
+		statuslist[i] == PMNS_LEAF_STATUS ? "leaf" : "non-leaf");
 }
 #endif
 
@@ -215,7 +216,7 @@ __pmSendNameList(int fd, int mode, int numnames, char *namelist[],
         fprintf(stderr, "__pmSendNameList\n");
 	__pmDumpNameList(stderr, numnames, namelist);
         if (statuslist != NULL)
-	  __pmDumpStatusList(stderr, numnames, statuslist);
+	    __pmDumpStatusList(stderr, numnames, statuslist);
     }
 #endif
 

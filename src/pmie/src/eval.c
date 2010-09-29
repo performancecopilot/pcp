@@ -751,7 +751,7 @@ run(void)
 	    now = t->retry;
 	    if (now > stop)
 		break;
-	    sleepTight(t->retry);
+	    sleepTight(t, SLEEP_RETRY);
 	    enable(t);
 	    t->retry = waiting(t) ? now + RETRY : 0;
 	}
@@ -760,7 +760,7 @@ run(void)
 	    if (now > stop)
 		break;
 	    reflectTime(t->delta);
-	    sleepTight(t->eval);
+	    sleepTight(t, SLEEP_EVAL);
 	    eval(t);
 	    t->tick++;
 	    t->eval = t->epoch + t->tick * t->delta;

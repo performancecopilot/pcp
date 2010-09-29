@@ -94,7 +94,7 @@ dataprint(__pmHashTable *t, void *e)
 	" txsum:    %f\nSize:      %d\n"
 	"-----------\n",
 	h->tag, h->fd, h->tracetype, h->taglength, h->padding,
-	(int)h->txcount, h->txmin, h->txmax, (int)h->txsum, sizeof(*h));
+	(int)h->txcount, h->txmin, h->txmax, h->txsum, (int)sizeof(*h));
 }
 
 

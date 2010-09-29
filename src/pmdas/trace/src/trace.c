@@ -479,7 +479,7 @@ readData(int clientfd, int *protocol)
 	if (pmDebug & DBG_TRACE_APPL0)
 	    __pmNotifyErr(LOG_DEBUG, "Updating data on fd=%d ('%s': type=%d "
 		    "count=%d min=%f max=%f sum=%f)",
-		    clientfd, hptr->tag, hptr->tracetype, hptr->taglength,
+		    clientfd, hptr->tag, hptr->tracetype,
 		    hptr->txcount, hptr->txmin, hptr->txmax, hptr->txsum);
 #endif
     }
@@ -989,8 +989,8 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    }
 	    else if ((sts = __pmStuffValue(&atom, 0, &vset->vlist[j], 
 						dp->type)) == PM_ERR_GENERIC)
-		__pmNotifyErr(LOG_ERR, "bad desc type (%s) for metric %s",
-				pmIDStr(dp->pmid));
+		__pmNotifyErr(LOG_ERR, "bad desc type (%d) for metric %s",
+				dp->type, pmIDStr(dp->pmid));
 	    else if (sts >= 0) {
 		vset->valfmt = sts;
 		j++;

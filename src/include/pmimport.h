@@ -1,4 +1,9 @@
 /*
+ * NOTE
+ *	This is the OLD pmimport API which has been retired.
+ *	This header and the associated pmiport driver and plugins
+ *	are not included in the PCP build and installation.
+ *
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it

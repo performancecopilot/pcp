@@ -102,6 +102,77 @@ This mechanism allows arbitrary values to be exported from an
 instrumented script into the PCP infrastructure for monitoring
 and analysis with pmchart, pmie, pmlogger and other PCP tools.
 
+#
+# perl-PCP-LogImport
+#
+%package -n perl-PCP-LogImport
+License: GPLv2
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) Perl bindings for importing external data into PCP archives
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp >= @package_version@
+
+%description -n perl-PCP-LogImport
+The PCP::LogImport module contains the Perl language bindings for
+importing data in various 3rd party formats into PCP archives so
+they can be replayed with standard PCP monitoring tools.
+
+#
+# pcp-import-sar2pcp
+#
+%package import-sar2pcp
+License: LGPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for importing sar data into PCP archive logs
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@ sysstat
+
+%description import-sar2pcp
+Performance Co-Pilot (PCP) front-end tools for importing sar data
+into standard PCP archive logs for replay with any PCP monitoring tool.
+
+#
+# pcp-import-iostat2pcp
+#
+%package import-iostat2pcp
+License: LGPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for importing iostat data into PCP archive logs
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@ sysstat
+
+%description import-iostat2pcp
+Performance Co-Pilot (PCP) front-end tools for importing iostat data
+into standard PCP archive logs for replay with any PCP monitoring tool.
+
+#
+# pcp-import-sheet2pcp
+#
+%package import-sheet2pcp
+License: LGPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for importing spreadsheet data into PCP archive logs
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@ sysstat
+
+%description import-sheet2pcp
+Performance Co-Pilot (PCP) front-end tools for importing spreadsheet data
+into standard PCP archive logs for replay with any PCP monitoring tool.
+
+#
+# pcp-import-mrtg2pcp
+#
+%package import-mrtg2pcp
+License: LGPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for importing MTRG data into PCP archive logs
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@
+
+%description import-mrtg2pcp
+Performance Co-Pilot (PCP) front-end tools for importing MTRG data
+into standard PCP archive logs for replay with any PCP monitoring tool.
+
 %prep
 %setup -q
 autoconf
@@ -127,12 +198,12 @@ set +x
 PCP_CONF=$BACKDIR/src/include/pcp.conf
 export PCP_CONF
 . $BACKDIR/src/include/pcp.env
-LIBFILELIST=`ls -1 $BACKDIR/debian/*.{install,dirs} | fgrep -v -- -dev.`
+LIBFILELIST=`ls -1 $BACKDIR/debian/*.{install,dirs} | fgrep -v -- -dev. | fgrep -v -- -import`
 DEVFILELIST=`ls -1 $BACKDIR/debian/*-dev.{install,dirs}`
 
 #
-# Package split: pcp, pcp-libs, pcp-libs-devel
-# -libs gets first pick, then libs-devel.
+# Package split: pcp, pcp-libs, pcp-libs-devel, pcp-import-*
+# -libs gets first pick, then libs-devel, then pcp-import-*
 # The base package catches-all remaining.
 #
 sed -e 's/^/\//' $LIBFILELIST >libs_files
@@ -166,16 +237,32 @@ pmproxy/pmproxy.options
 bash_completion.d/pcp
 EOFEOF
 
-rm -f devel_files.rpm libs_files.rpm base_files.rpm
+#
+# Files for the pcp-import subpackages. We use these sub-packages
+# to isolate the (somwhat exotic) dependencies for these tools
+awk '{print $NF}' $DIST_MANIFEST | egrep 'sar2pcp' >import_sar2pcp_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'iostat2pcp' >import_iostat2pcp_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'sheet2pcp' >import_sheet2pcp_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'mrtg2pcp' >import_mrtg2pcp_files
+
+rm -f devel_files.rpm libs_files.rpm base_files.rpm import_*_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
 BEGIN {
     while( getline < "libs_files") lib[$0]=1;
     while( getline < "devel_files") dev[$0]=1;
+    while( getline < "import_sar2pcp_files") import_sar2pcp[$0]=1;
+    while( getline < "import_iostat2pcp_files") import_iostat2pcp[$0]=1;
+    while( getline < "import_sheet2pcp_files") import_sheet2pcp[$0]=1;
+    while( getline < "import_mrtg2pcp_files") import_mrtg2pcp[$0]=1;
     while( getline < "conf_files") conf[nconf++]=$0;
 }
 {
     if (lib[$NF]) f="libs_files.rpm";
     else if (dev[$NF]) f="devel_files.rpm";
+    else if (import_sar2pcp[$NF]) f="import_sar2pcp_files.rpm";
+    else if (import_iostat2pcp[$NF]) f="import_iostat2pcp_files.rpm";
+    else if (import_sheet2pcp[$NF]) f="import_sheet2pcp_files.rpm";
+    else if (import_mrtg2pcp[$NF]) f="import_mrtg2pcp_files.rpm";
     else f="base_files.rpm"
 }
 $1 == "d" { printf ("%%%%dir %%%%attr(%s,root,root) %s\n", $2, $5) >> f } 
@@ -228,13 +315,34 @@ fi
 %files libs-devel -f devel_files.rpm
 %defattr(-,root,root)
 
+%files import-sar2pcp -f import_sar2pcp_files.rpm
+%defattr(-,root,root)
+
+%files import-iostat2pcp -f import_iostat2pcp_files.rpm
+%defattr(-,root,root)
+
+%files import-sheet2pcp -f import_sheet2pcp_files.rpm
+%defattr(-,root,root)
+
+%files import-mrtg2pcp -f import_mrtg2pcp_files.rpm
+%defattr(-,root,root)
+
 %files -n perl-PCP-PMDA -f perl-pcp-pmda.list
 %defattr(-,root,root)
 
 %files -n perl-PCP-MMV -f perl-pcp-mmv.list
 %defattr(-,root,root)
 
+%files -n perl-PCP-LogImport -f perl-pcp-logimport.list
+%defattr(-,root,root)
+
 %changelog
+* Mon Aug 30 2010 Mark Goodwin <mgoodwin@redhat.com>
+- bump to 3.4.0-1, split out individual pcp-import-* packages
+
+* Mon Aug  2 2010 Mark Goodwin <mgoodwin@redhat.com>
+- bump to 3.4.0, add the perl-PCP-LogImport sub-package
+
 * Thu Feb 25 2010 Martin Hicks <mort@sgi.com>
 - Remove SGI cruft from specfile.
 

@@ -3,6 +3,7 @@
  */
 
 #include <stdpmid>
+#include "clusters.h"
 
 root {
 	kernel
@@ -17,6 +18,18 @@ root {
 
 pmda {
 	uname SOLARIS:0:107
+	prefetch
+	metric
+}
+
+pmda.prefetch {
+	time	SOLARIS:4095:0
+	count	SOLARIS:4095:1
+}
+
+pmda.metric {
+	time	SOLARIS:4095:2
+	count	SOLARIS:4095:3
 }
 
 #include "pmns.kernel"

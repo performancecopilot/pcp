@@ -208,7 +208,7 @@ opensocket(char *fname)
     infd = fd;
     outfd = fd;
 
-    printf("Connect to PDMA on socket %s\n", fname);
+    printf("Connect to PMDA on socket %s\n", fname);
 
     connmode = PDU_BINARY;
     reset_profile();

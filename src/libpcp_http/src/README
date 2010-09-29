@@ -1,0 +1,78 @@
+HTTP Fetcher
+Lyle Hanson (lhanson@users.sourceforge.net) (C) 2001, 2003, 2004
+http://http-fetcher.sourceforge.net
+===============================================================================
+
+
+ABOUT
+=====
+HTTP Fetcher is a small library that downloads files via HTTP.  I developed
+it for use within another project, and because I didn't find any pre-existing
+software that did exactly what I wanted without hassle.  Hopefully you'll find
+it useful and avoid writing similar code yourself.
+
+It supports the GET method.  Anything further would involve more than
+fetching, now wouldn't it?  If you need more than GET, there are other
+libaries out ther that would be better suited to your needs (try http-tiny,
+find it at freshmeat.net).
+
+HTTP Fetcher is meant to be small, fast, and flexible at what it does.
+It's very robust, in my opinion.  It's easy to use;  using one function,
+it can download any kind of file via HTTP.  It also offers further
+sophistication, allowing you control over what (if any) User-Agent or
+Referrer you wish to show to the web server.  Which is neat stuff, depending
+on your use (testing and stealth/deception are two that come to mind).
+
+
+DEPENDENCIES
+============
+HTTP Fetcher should run on most unices that support BSD-type sockets and have
+a network connection.  Developed and tested on x86 machines running recent
+versions of RedHat.
+
+
+INSTALLATION
+============
+Read the INSTALL file for info on building and installing the library
+
+
+USAGE
+=====
+Read the manpages in the docs directory, see the 'testfetch' example included,
+check out 'fetch' (http://fetch.sourceforge.net), a complete HTTP file download utility.
+
+
+LICENCE
+=======
+HTTP Fetcher is licenced under the GNU Lesser General Public License (LGPL)
+version 2 or newer.  See the LICENSE file for full info.  Feel free to contact
+me if you have any questions/concerns over licensing issues.
+
+
+FEEDBACK
+========
+If you use this library for anything, drop me a line (lhanson@users.sourceforge.net).
+I'd love to know that formally releasing this stuff was worth it.  I'm open
+to any input (bad or good).
+
+
+TODO:
+====
+Further development is focused on the 2.x series of http-fetcher.  Only bugfixes
+and minor improvements will be added to 1.x releases.
+
+
+BUGS:
+=====
+This version introduces transparent redirects, but the 1.x series still does
+not allow the client program access to the HTTP return code.  So while you can
+now follow redirects, your program won't know anything about it.  You can,
+however, turn off or configure the number of redirects to follow.
+
+A better interface is planned for 2.x.x.
+
+
+CREDITS:
+========
+Steve Augart (steve@augart.com) has been a huge contributor to the project.
+Thanks, Steve!

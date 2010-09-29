@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 #
 # Copyright (c) 1999,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -12,26 +12,13 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
 # Remove the apache PMDA
 #
 
-# Get standard environment
 . $PCP_DIR/etc/pcp.env
-
-# Get the common procedures and variable assignments
-#
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-# The name of the PMDA
-#
 iam=apache
-
-# Do it
-#
 pmdaSetup
 pmdaRemove
 

@@ -422,6 +422,7 @@ __pmLogCreate(const char *host, const char *base, int log_version,
     lcp->l_minvol = lcp->l_maxvol = lcp->l_curvol = 0;
     lcp->l_hashpmid.nodes = lcp->l_hashpmid.hsize = 0;
     lcp->l_hashindom.nodes = lcp->l_hashindom.hsize = 0;
+    lcp->l_tifp = lcp->l_mdfp = lcp->l_mfp = NULL;
 
     if ((lcp->l_tifp = __pmLogNewFile(base, PM_LOG_VOL_TI)) != NULL) {
 	if ((lcp->l_mdfp = __pmLogNewFile(base, PM_LOG_VOL_META)) != NULL) {
@@ -812,6 +813,14 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
 {
     static __pmLogTI	ti;
     __pmLogTI		oti;
+
+    if (lcp->l_tifp == NULL || lcp->l_mdfp == NULL || lcp->l_mfp == NULL) {
+	/*
+	 * archive not really created (failed in __pmLogCreate) ...
+	 * nothing to be done
+	 */
+	return;
+    }
 
     if (tp == NULL) {
 	struct timeval	tmp;
@@ -1980,7 +1989,9 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 	physend = (__pm_off_t)sbuf.st_size;
 	if (sizeof(off_t) > sizeof(__pm_off_t)) {
 	    if (physend != sbuf.st_size) {
-		__pmNotifyErr(LOG_ERR, "pmGetArchiveEnd: PCP archive file (meta) too big (%lld bytes)\n", (__int64_t)sbuf.st_size);
+		__pmNotifyErr(LOG_ERR, "pmGetArchiveEnd: PCP archive file"
+			" (meta) too big (%lld bytes)\n",
+			(long long)sbuf.st_size);
 		exit(1);
 	    }
 	}

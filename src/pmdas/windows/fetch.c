@@ -139,13 +139,14 @@ windows_collect_callback(pdh_metric_t *pmp, LPTSTR pat, pdh_value_t *pvp)
 
 /*
  * Called before each PMDA fetch ... force value refreshes for
- * requested metrics here; special case derived filesys metrics.
+ * requested metrics here; and special case any derived metrics.
  */
 void
 windows_fetch_refresh(int numpmid, pmID pmidlist[], pmdaExt *pmda)
 {
     int	i, j, extra_filesys = 0, extra_memstat = 0;
     int extra_hinv_ncpu = -1, extra_hinv_ndisk = -1;
+    int extra_network = -1;
 
     for (i = 0; i < NUMINDOMS; i++)
 	windows_indom_reset[i] = 0;
@@ -171,6 +172,8 @@ windows_fetch_refresh(int numpmid, pmID pmidlist[], pmdaExt *pmda)
 	    extra_hinv_ndisk = 1;
 	else if (item >= 117 && item <= 119)
 	    extra_filesys = 1;
+	else if (item >= 236 && item <= 237 && extra_network == -1)
+	    extra_network = 1;
 	else {
 	    if (item >= 4 && item <= 7)
 		extra_hinv_ncpu = 0;
@@ -178,6 +181,8 @@ windows_fetch_refresh(int numpmid, pmID pmidlist[], pmdaExt *pmda)
 		     (item >= 217 && item <= 219) || item == 101 ||
 		     (item >= 226 && item <= 231) || item == 133)
 		extra_hinv_ndisk = 0;
+	    else if (item == 235)
+		extra_network = 0;
 
 	    windows_visit_metric(&metricdesc[item], windows_collect_callback);
 	}
@@ -193,6 +198,8 @@ windows_fetch_refresh(int numpmid, pmID pmidlist[], pmdaExt *pmda)
 	windows_visit_metric(&metricdesc[120], windows_collect_callback);
 	windows_visit_metric(&metricdesc[121], windows_collect_callback);
     }
+    if (extra_network == 1)
+	windows_visit_metric(&metricdesc[235], windows_collect_callback);
 
     for (i = 0; i < NUMINDOMS; i++) {
 	/* Do we want to persist this instance domain to disk? */

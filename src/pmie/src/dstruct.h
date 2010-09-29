@@ -69,15 +69,6 @@ typedef double		RealTime;	/* wall clock time or interval */
 #define DELTA_DFLT	10		/* default sample interval */
 #define DELTA_MIN	0.1		/* minimum sample interval */
 
-/* convert timeval to RealTime */
-#define realize(t) (1.0e-6 * (RealTime)(t).tv_usec + (RealTime)(t).tv_sec)
-/* convert RealTime to timeval */
-void unrealize(RealTime, struct timeval *);
-
-RealTime getReal(void);			/* return current time */
-void reflectTime(RealTime);		/* update time vars to reflect now */
-void sleepTight(RealTime);		/* sleep until given RealTime */
-
 
 /***********************************************************************
  * evaluator functions
@@ -361,6 +352,20 @@ Expr *primary(Expr *, Expr *);
 void changeSmpls(Expr **, int);
 void instFetchExpr(Expr *);
 
+/***********************************************************************
+ * time methods
+ ***********************************************************************/
+
+/* convert timeval to RealTime */
+#define realize(t) (1.0e-6 * (RealTime)(t).tv_usec + (RealTime)(t).tv_sec)
+/* convert RealTime to timeval */
+void unrealize(RealTime, struct timeval *);
+RealTime getReal(void);			/* return current time */
+void reflectTime(RealTime);		/* update time vars to reflect now */
+#define SLEEP_EVAL	0
+#define SLEEP_RETRY	1
+void sleepTight(Task *, int);		/* sleep until retry or eval time */
+
 /*
  * diagnostic tracing
  */
@@ -368,6 +373,7 @@ void dumpRules(void);
 void dumpExpr(Expr *);
 void dumpTree(Expr *);
 void dumpMetric(Metric *);
+void dumpTask(Task *);
 void __dumpExpr(int, Expr *);
 void __dumpTree(int, Expr *);
 void __dumpMetric(int, Metric *);

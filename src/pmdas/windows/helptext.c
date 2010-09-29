@@ -60,11 +60,8 @@ windows_help(int ident, int type, char **buf, pmdaExt *pmda)
     pmID	pmid = (pmID)ident;
     int		i;
 
-    if (pmDebug & DBG_TRACE_APPL2)
-	fprintf(stderr, "help(ident=%s, type=%d)\n", pmIDStr(pmid), type);
-
     if ((type & PM_TEXT_PMID) != PM_TEXT_PMID)
-	return PM_ERR_TEXT;
+	return pmdaText(ident, type, buf, pmda);
 
     for (i = 0; i < metricdesc_sz; i++)
 	if (pmid == metricdesc[i].desc.pmid)
@@ -74,13 +71,13 @@ windows_help(int ident, int type, char **buf, pmdaExt *pmda)
 
     if (type & PM_TEXT_ONELINE) {
 	if (metricdesc[i].pat[0] == '\0')
-	    return PM_ERR_TEXT;
+	    return pmdaText(ident, type, buf, pmda);
 	*buf = windows_fmt(strncpy(texts, &metricdesc[i].pat[0], sizeof(texts)));
     } else {
 	text = NULL;
 	windows_visit_metric(&metricdesc[i], windows_helptext_callback);
 	if (!text)
-	    return -ESRCH;
+	    return pmdaText(ident, type, buf, pmda);
 	*buf = windows_fmt(strncpy(texts, text, sizeof(texts)));
     }
     return 0;

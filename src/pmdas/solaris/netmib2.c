@@ -235,8 +235,13 @@ netmib2_refresh(void)
 	    if (oh->name == 0) {
 		mib2_udp_t *m2u = (mib2_udp_t *)data.buf;
 
+#ifdef EXPER_IP_AND_TESTHIDDEN
 		nm2_udp.ipackets = m2u->udpHCInDatagrams;
 		nm2_udp.opackets = m2u->udpHCOutDatagrams;
+#else
+		nm2_udp.ipackets = m2u->udpInDatagrams;
+		nm2_udp.opackets = m2u->udpOutDatagrams;
+#endif
 		nm2_udp.ierrors = m2u->udpInErrors;
 		nm2_udp.oerrors = m2u->udpOutErrors;
 	    }

@@ -5,23 +5,25 @@
  * the most part.
  *
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ * Copyright (c) 2010 Max Matveev.  All Rights Reserved.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <time.h>
+#include <sys/time.h>
 #include "common.h"
 
 static int	_isDSO = 1;
@@ -37,8 +39,10 @@ solaris_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
     int		i;
 
+    kstat_ctl_needs_update();
+
     for (i = 0; i < methodtab_sz; i++) {
-	methodtab[i].fetched = 0;
+	methodtab[i].m_fetched = 0;
     }
 
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
@@ -51,19 +55,59 @@ static int
 solaris_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     metricdesc_t *mdp = (metricdesc_t *)mdesc->m_user;
-    method_t *m = methodtab + mdp->md_method;
+    int cluster = pmid_cluster(mdesc->m_desc.pmid);
+    method_t *m = methodtab + cluster;
+    hrtime_t start;
+    int rv;
+    __pmID_int *id = __pmid_int(&mdesc->m_desc.pmid);
 
-    if (!m->fetched && m->m_prefetch) {
-	m->m_prefetch();
-	m->fetched = 1;
+    if (cluster == 4095) {
+	switch (id->item) {
+	case 0:
+		if ((inst <= 0) || (inst > methodtab_sz+1))
+			return PM_ERR_INST;
+		atom->ull = methodtab[inst-1].m_elapsed;
+		return 1;
+	case 1:
+		if ((inst <= 0) || (inst > methodtab_sz+1))
+			return PM_ERR_INST;
+		atom->ull = methodtab[inst-1].m_hits;
+		return 1;
+	case 2:
+		if ((inst <= 0) || (inst > metrictab_sz+1))
+			return PM_ERR_INST;
+		atom->ull = metricdesc[inst-1].md_elapsed;
+		return 1;
+	case 3:
+		if ((inst <= 0) || (inst > metrictab_sz+1))
+			return PM_ERR_INST;
+		atom->ull = metricdesc[inst-1].md_hits;
+		return 1;
+	default:
+		return PM_ERR_PMID;
+	}
+    } else if (cluster >= methodtab_sz) {
+	return PM_ERR_PMID;
     }
-    return m->m_fetch(mdesc, inst, atom);
+
+    if (!m->m_fetched && m->m_prefetch) {
+	start = gethrtime();
+	m->m_prefetch();
+	m->m_elapsed = gethrtime() - start;
+	m->m_hits++;
+	m->m_fetched = 1;
+    }
+    start = gethrtime();
+    rv = m->m_fetch(mdesc, inst, atom);
+    mdp->md_elapsed = gethrtime() - start;
+    mdp->md_hits++;
+    return rv;
 }
 
 /*
  * Initialise the agent (both daemon and DSO).
  */
-void 
+void
 solaris_init(pmdaInterface *dp)
 {
     if (_isDSO) {
@@ -88,9 +132,22 @@ usage(void)
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
     fputs("Options:\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile   write log into logfile rather than using default log name\n",
-	      stderr);		
+	  "  -l logfile   write log into logfile rather than using default log name\n"
+	  "  -N namespace verify consistency of internal metrics with the namespace\n", 
+	      stderr);
     exit(1);
+}
+
+
+void
+checkname(const char *mname)
+{
+    int i;
+    for (i = 0; i < metrictab_sz; i++) {
+	if (strcmp(mname, metricdesc[i].md_name) == 0)
+	    return;
+    }
+    printf ("Cannot find %s in the code\n", mname);
 }
 
 /*
@@ -102,7 +159,8 @@ main(int argc, char **argv)
     int			err = 0;
     int			sep = __pmPathSeparator();
     pmdaInterface	desc;
-    char		*p;
+    int			c;
+    char		*namespace = NULL;
 
     _isDSO = 0;
     __pmSetProgname(argv[0]);
@@ -112,10 +170,46 @@ main(int argc, char **argv)
     pmdaDaemon(&desc, PMDA_INTERFACE_3, pmProgname, SOLARIS,
 		"solaris.log", mypath);
 
-    if (pmdaGetOpt(argc, argv, "D:d:l:?", &desc, &err) != EOF)
-	err++;
+    while ((c = pmdaGetOpt(argc, argv, "N:D:d:l:?", &desc, &err)) != EOF) {
+	switch (c) {
+	case 'N':
+	    namespace = optarg;
+	    break;
+	default:
+	    err++;
+	    break;
+	}
+    }
     if (err)
 	usage();
+
+    if (namespace) {
+	if (pmLoadNameSpace(namespace))
+	    exit(1);
+
+	for (c = 0; c < metrictab_sz; c++) {
+	    char *name;
+	    int e;
+	    __pmID_int *id = __pmid_int(&metricdesc[c].md_desc.pmid);
+	    id->domain = desc.domain;
+
+	    if ((e = pmNameID(metricdesc[c].md_desc.pmid, &name)) != 0) {
+		printf ("Cannot find %s(%s) in %s: %s\n",
+		        metricdesc[c].md_name,
+			pmIDStr(metricdesc[c].md_desc.pmid),
+			namespace, pmErrStr(e));
+	    } else {
+		if (strcmp(name, metricdesc[c].md_name)) {
+			printf ("%s is %s in the %s but %s in code\n",
+				pmIDStr(metricdesc[c].md_desc.pmid),
+				name, namespace,metricdesc[c].md_name);
+		}
+	    }
+	}
+
+	pmTraversePMNS("", checkname);
+	exit (0);
+    }
 
     pmdaOpenLog(&desc);
     solaris_init(&desc);
