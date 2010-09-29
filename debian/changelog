@@ -4,7 +4,7 @@ pcp (3.4.0) unstable; urgency=low
   * Several Debian packaging updates to get lintian happier.
   * New packages for PCP archive importing - libs, dev, perl tools.
 
- -- Nathan Scott <nathans@debian.org>  Tue, 03 Aug 2010 12:02:51 +1000
+ -- Nathan Scott <nathans@debian.org>  Wed, 29 Sep 2010 16:23:05 +1000
 
 pcp (3.3.3) unstable; urgency=low
 
