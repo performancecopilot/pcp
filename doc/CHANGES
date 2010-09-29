@@ -1,3 +1,19 @@
+pcp-gui 1.5.0 (29 September 2010)
+    - Split out pcp-doc from pcp-gui (packaging, not source).
+    - Merged Qwt 5.2 sources.
+    - Fix image generation issues.
+    - Fix auto-scaling Y-axis to clamp it at zero.
+    - Fix dotted instance names in Edit Chart dialog.
+    - Fix online menu links to tutorial in pmchart/pmtime.
+    - Fix long archive path name failure.
+    - Added hotkeys for chart delete, new tab and close tab.
+    - Fixed up the not-selected-chart font colouring.
+    - Improved Mac build process to ship Qt libraries.
+    - Fix online help links and icons in Qt adp files.
+    - Merged old (SGI) tutorial docs, and extensively updated them.
+    - Added new docs for pmimport, and disk workkload modelling.
+    - Updated images in the online docs to match current UI.
+
 pcp-gui 1.4.9 (13 July 2010)
     - Fix path issues for online html docs.
     - Fix metric selector failure to handle metric lookup errors.
