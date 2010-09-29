@@ -97,7 +97,9 @@ _cleanup()
 {
     echo ""
     echo "=== Removing broken_pmda namespace ==="
-    cd $here/pmdas/broken; $sudo ./broken_Remove -N; cd ..
+    cd $here/pmdas/broken
+    $sudo ./broken_Remove -N
+    cd $here
     sleep 4
     _wait_for_pmcd
 
