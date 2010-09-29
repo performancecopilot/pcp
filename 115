@@ -45,7 +45,6 @@ _filter()
 	-e "s/$lhost/LOCALHOST/g"
 }
 
-
 _filter_pmie_start()
 {
     sed \
@@ -130,7 +129,7 @@ echo "pmie count after chkconfig pmie off: $?"
 echo
 
 echo === check for missing control file ===
-_change_config pmie on
+_change_config pmie off
 $sudo rm -f $control
 _change_config pmie on
 $sudo $PCP_RC_DIR/pmie start 2>&1 | _filter_pmie_start
