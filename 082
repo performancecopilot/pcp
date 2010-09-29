@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 082
-# $Revision: 2.12 $
 # Test permissions left on namespace by pmnsadd, pmnsdel
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -8,11 +7,11 @@
 
 seq=`basename $0`
 echo "QA output created by $seq"
+
 # get standard filters
 . ./common.product
 . ./common.filter
 
-. ./localconfig
 rm -f $seq.out
 if [ $PCP_EOE_VER -ge 6514 -o \( $PCP_EOE_VER -ge 2201 -a $PCP_EOE_VER -lt 6500 \) ]
 then
@@ -23,8 +22,7 @@ else
     ln $seq.out.1 $seq.out
 fi
 
-tmp=/tmp/$$
-trap "cd /; rm -rf $tmp; exit" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp; exit" 0 1 2 3 15
 
 _ls()
 {

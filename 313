@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 313
-# $Revision: 1.15 $
 # assorted issues associated with pmval and archives with mark
 # records
 #
@@ -8,8 +7,6 @@
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -36,8 +33,6 @@ else
     exit 1
 fi
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

@@ -1,13 +1,15 @@
 #! /bin/sh
 # PCP QA Test No. 191
-# $Revision: 2.11 $
-# what am I here for?
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
 
 _filter()
 {
@@ -19,11 +21,6 @@ _filter()
 	-e '/^pmie> $/d'
 }
 
-# get standard filters
-. ./common.product
-. ./common.filter
-
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 signal=$PCP_BINADM_DIR/pmsignal
 

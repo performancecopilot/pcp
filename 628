@@ -1,14 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 628
-# $Revision: 1.6 $
 # libpcp_pmda botch in pmdaFetch for multiple DSO PMDAs used in the
 # on pmFetch ... bug #809111
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 
@@ -35,23 +31,20 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=1	# failure is the default!
 
 _cleanup()
 {
     cd $here
 
-    [ -f $tmp.root ] && $here/sudo cp $tmp.root $PCP_VAR_DIR/pmns/root
-    [ -f $tmp.root.bin ] && $here/sudo cp $tmp.root.bin $PCP_VAR_DIR/pmns/root.bin
+    [ -f $tmp.root ] && $sudo cp $tmp.root $PCP_VAR_DIR/pmns/root
+    [ -f $tmp.root.bin ] && $sudo cp $tmp.root.bin $PCP_VAR_DIR/pmns/root.bin
     if [ -f $tmp.pmcd.conf ]
     then
-	$here/sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	$sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
     fi
-    $here/sudo $PCP_RC_DIR/pcp start >/dev/null 2>&1
-    $here/sudo rm -rf $tmp.* $PCP_PMDAS_DIR/idiot
+    $sudo $PCP_RC_DIR/pcp start >/dev/null 2>&1
+    $sudo rm -rf $tmp.* $PCP_PMDAS_DIR/idiot
     exit $status
 }
 
@@ -68,12 +61,12 @@ unset ROOT
 
 # restart pmcd and copy the pmcd config file and pmns to restore state later
 #
-$here/sudo $PCP_RC_DIR/pcp start >/dev/null 2>&1
+$sudo $PCP_RC_DIR/pcp start >/dev/null 2>&1
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 cp $PCP_VAR_DIR/pmns/root $tmp.root
 cp $PCP_VAR_DIR/pmns/root.bin $tmp.root.bin
 
-if $here/sudo make clobber >$tmp.out 2>&1
+if $sudo make clobber >$tmp.out 2>&1
 then
     :
 else
@@ -82,13 +75,13 @@ else
     exit
 fi
 
-$here/sudo rm -rf $PCP_PMDAS_DIR/idiot
-$here/sudo mkdir $PCP_PMDAS_DIR/idiot
-$here/sudo chmod 777 $PCP_PMDAS_DIR/idiot
+$sudo rm -rf $PCP_PMDAS_DIR/idiot
+$sudo mkdir $PCP_PMDAS_DIR/idiot
+$sudo chmod 777 $PCP_PMDAS_DIR/idiot
 cp * $PCP_PMDAS_DIR/idiot
 
-$here/sudo ./Remove >/dev/null 2>&1
-cat <<End-of-File | $here/sudo ./Install >$tmp.out 2>&1
+$sudo ./Remove >/dev/null 2>&1
+cat <<End-of-File | $sudo ./Install >$tmp.out 2>&1
 both
 dso
 End-of-File
@@ -117,8 +110,8 @@ q
 End-of-File
 done
 
-$here/sudo ./Remove >/dev/null 2>&1
-cat <<End-of-File | $here/sudo ./Install >$tmp.out 2>&1
+$sudo ./Remove >/dev/null 2>&1
+cat <<End-of-File | $sudo ./Install >$tmp.out 2>&1
 both
 dso
 End-of-File

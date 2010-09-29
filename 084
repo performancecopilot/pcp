@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 084
-# $Revision: 2.8 $
 # twiddle bits in the pmlogger/pmlc state word
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -13,8 +12,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-tmp=/tmp/$$
-here=`pwd`
 $sudo rm -f $tmp.*
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 

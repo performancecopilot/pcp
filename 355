@@ -1,13 +1,11 @@
 #! /bin/sh
 # PCP QA Test No. 355
-# $Revision: 1.13 $
 # try to reproduce bug #517713
-#
-owner=nathans
-seq=`basename $0`
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
+
+seq=`basename $0`
 
 . ./localconfig
 if [ $PCP_VER -ge 2200 ]
@@ -20,6 +18,7 @@ fi
 echo "QA output created by $seq"
 
 # get standard filters
+. ./common.product
 . ./common.check
 
 _cleanup()
@@ -33,9 +32,6 @@ _cleanup()
     exit $status
 }
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=1	# failure is the default!
 trap "_cleanup" 0 1 2 3 15
 
@@ -57,7 +53,7 @@ remove=$?
 
 cd $PCP_PMDAS_DIR/trace
 
-$here/sudo ./Install -R / </dev/null 2>&1 | sed \
+$sudo ./Install -R / </dev/null 2>&1 | sed \
         -e '/.[0-9][0-9]* hash table entries/d' \
         -e '/.[0-9][0-9]* leaf nodes/d' \
         -e '/.[0-9][0-9]* non-leaf nodes/d' \
@@ -87,7 +83,7 @@ echo -n "    pmtracetransact "
 pminfo -f trace.transact.count | _countinst
 
 
-[ $remove -eq 1 ] && $here/sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
+[ $remove -eq 1 ] && $sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
 
 # success, all done
 status=0

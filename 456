@@ -1,14 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 456
-# $Revision: 1.16 $
 #
-# Bug #591459
-# incomplete control file for cron.pm*
+# Bug #591459: incomplete control file for cron.pm*
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
-
-# creator
-owner=kenmcd
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -20,8 +16,6 @@ echo "QA output created by $seq"
 
 . ./localconfig
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 LOCALHOST=`hostname | sed -e 's/\..*//'`

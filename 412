@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 412
-# $Revision: 1.11 $
 # Test out wrapping on libpcp/interp
 #
 #  Test the creation and reading of an archive created using pmlogger(1) and
@@ -8,11 +7,8 @@
 #  variable to specify daylight savings using the extended format, in a way
 #  that does not break libc.so.
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=tes
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -22,9 +18,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

@@ -1,14 +1,16 @@
 #! /bin/sh
 # PCP QA Test No. 159
-# $Revision: 2.25 $
 # check out cisco PMDA
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
-# New cisco metrics in pcp2.2 
-. ./localconfig
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
 
 if [ -z "$PCP_CISCO_ROUTER" ]
 then
@@ -17,6 +19,7 @@ then
     exit 0
 fi
 
+# New cisco metrics in pcp2.2 
 if [ $PCP_VER -ge 2300 ]
 then
     rm -f $seq.out && ln $seq.out.3 $seq.out
@@ -27,16 +30,7 @@ else
     rm -f $seq.out && ln $seq.out.1 $seq.out
 fi
 
-echo "QA output created by $seq"
-
-# get standard filters
-. ./common.product
-. ./common.filter
-
 status=1
-here=`pwd`
-tmp=/tmp/$$
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 trap _cleanup 0 1 2 3 15
 
@@ -52,16 +46,16 @@ _cleanup_agent()
 {
     cd $home/$iam
 
-    [ -f $tmp_configfile ] && $here/sudo mv $tmp_configfile $configfile
+    [ -f $tmp_configfile ] && $sudo mv $tmp_configfile $configfile
 
     if grep $iam $tmp.pmcd.conf > /dev/null
     then
-	$here/sudo ./Install < /dev/null > /dev/null 2>&1
+	$sudo ./Install < /dev/null > /dev/null 2>&1
     else
-	$here/sudo ./Remove < /dev/null > /dev/null 2>&1
+	$sudo ./Remove < /dev/null > /dev/null 2>&1
     fi
 
-    [ -f $tmp.pmcd.conf ] && $here/sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+    [ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
     $sudo $signal -a -s HUP pmcd
 
     cd $here

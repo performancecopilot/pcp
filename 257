@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 257
-# $Revision: 1.27 $
 # Tests out the api (uses torture_api)
 # when connecting to different hosts.
 # Initial motivation was to test the distributed PMNS.
@@ -16,9 +15,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.check
 . ./common.filter
-. ./localconfig
 
-tmp=/tmp/$$
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

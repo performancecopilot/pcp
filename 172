@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 172
-# $Revision: 2.19 $
 # Exercise $PMCD_PORT and $PMLOGGER_PORT mechanisms
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -13,12 +12,9 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.filter
 
-here=`pwd`
-sudo=$here/sudo
 LOCALHOST=`hostname`
 _needclean=true
 status=0
-tmp=/tmp/$$
 
 _interrupt()
 {

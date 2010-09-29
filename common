@@ -43,7 +43,7 @@ _log_fyi()
 	    echo ":::::::::  start $log  ::::::::"
 	    cat $log
 	    echo "::::::::::  end $log  :::::::::"
-	    ./sudo rm -f $log
+	    $sudo rm -f $log
 	else
 	    echo "$log: not found"
 	fi
@@ -52,20 +52,11 @@ _log_fyi()
 
 _havesudo()
 {
-    if [ ! -x ./sudo ]
-    then
-	echo \
-'You need to create an executable sudo, for which the suggested recipe, is ...
-    # make sudo (as root)'
-	exit 1
-    fi
-
-    setuid=`./sudo id | sed -e 's/(.*//' -e 's/.*=//'`
+    setuid=`$sudo id | sed -e 's/(.*//' -e 's/.*=//'`
     if [ "$setuid" != 0 ]
     then
 	echo "\"sudo\" is not an executable setuid root. This is fatal."
-	ls -l ./sudo
-	echo "As root you should: rm -f sudo; make sudo"
+	echo "As root, you need to setup your sudoers file for pcpqa."
 	exit 1
     fi
 }
@@ -148,7 +139,7 @@ _haveagents()
 		else
 		    _log_fyi $PCP_LOG_DIR/pmcd/pmcd.log $agentlog
 		    echo "Restarting PMCD ..."
-		    $here/sudo $PCP_RC_DIR/pcp start
+		    $sudo $PCP_RC_DIR/pcp start
 		    restart=true
 		fi
 		if $reinstall
@@ -168,7 +159,7 @@ _haveagents()
 			cd $agentdir
 			unset ROOT
 			unset TOOLROOT
-			$here/sudo ./Remove </dev/null >>$here/$iam.out
+			$sudo ./Remove </dev/null >>$here/$iam.out
 			case $agent
 			in
 			    cisco)
@@ -176,7 +167,7 @@ _haveagents()
 				./common.install.cisco $iam $agentdir
 				;;
 			    *)
-				$here/sudo ./Install </dev/null >>$here/$iam.out
+				$sudo ./Install </dev/null >>$here/$iam.out
 				;;
 			esac
 			cd $here
@@ -241,7 +232,7 @@ End-of-File
 		fi
 	    fi
 	fi
-	$here/sudo $PCP_RC_DIR/pcp start
+	$sudo $PCP_RC_DIR/pcp start
 	_wait_for_pmlogger
     fi
 }
@@ -265,8 +256,8 @@ _havepmcdtrace()
 	[ -z "PCP_PMCDOPTIONS_PATH" ] && \
 	      PCP_PMCDOPTIONS_PATH="$PCP_VAR_DIR/config/pmcd/pmcd.options"
 	PCPQA_PMCDOPTIONS="$PCP_PMCDOPTIONS_PATH"
-	$here/sudo chmod u+w $PCPQA_PMCDOPTIONS
-	$here/sudo ed - $PCPQA_PMCDOPTIONS <<'End-of-File'
+	$sudo chmod u+w $PCPQA_PMCDOPTIONS
+	$sudo ed - $PCPQA_PMCDOPTIONS <<'End-of-File'
 g/^-T/s/^/#/
 $a
 -T 3
@@ -274,7 +265,7 @@ $a
 w
 q
 End-of-File
-	$here/sudo $PCP_RC_DIR/pcp start
+	$sudo $PCP_RC_DIR/pcp start
 	_wait_for_pmlogger
     fi
 
@@ -433,7 +424,6 @@ check options
     -g group	include tests from these groups (multiple flags allowed)
     -l		line mode diff [xdiff]
     -n		show me, do not run tests
-    -p		paranoid, check Revision in test against census
     -q		quick, no PMDA checks (you are on your own)
     -t		turn on tracing
     -T		output timestamps
@@ -469,25 +459,6 @@ show-me options
 
 	-l)	# line mode for diff, not gdiff over modems
 	    diff=diff
-	    xpand=false
-	    ;;
-
-	-p)	# paranoid ... check Revision in test against census
-	    if [ -z "$WORKAREA" ]
-	    then
-		echo "Warning: \$WORKAREA not set in environment"
-	    elif [ ! -f $WORKAREA/census ]
-	    then
-		echo "Warning: cannot find WORKAREA census \"$WORKAREA/census\""
-	    else
-		paranoid=true
-	    fi
-	    if $paranoid
-	    then
-		:
-	    else
-		echo "	paranoid version checking will be skipped"
-	    fi
 	    xpand=false
 	    ;;
 
@@ -635,8 +606,8 @@ in
 	# don't need sudo
 	;;
     *)
+	sudo=`which sudo`
 	_havesudo
-	sudo=`pwd`/sudo
 	;;
 esac
 

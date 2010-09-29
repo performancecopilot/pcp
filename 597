@@ -1,15 +1,17 @@
 #! /bin/sh
 # PCP QA Test No. 597
-# $Revision: 1.6 $
 # Install/Remove of shping PMDA
-#
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
 
 rm -f $seq.out
 if grep PCP_DIR $PCP_PMDAS_DIR/shping/sample.conf >/dev/null ; then
@@ -18,16 +20,6 @@ else
     ln $seq.out.1 $seq.out
 fi
 
-echo "QA output created by $seq"
-
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
-
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1
 
@@ -61,7 +53,6 @@ _cleanup()
 trap "_cleanup" 0 1 2 3 15
 
 # real QA test starts here
-here=`pwd`
 home=$PCP_PMDAS_DIR
 iam=shping
 if [ ! -d $home/$iam ]

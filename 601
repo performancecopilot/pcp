@@ -1,24 +1,11 @@
 #! /bin/sh
 # PCP QA Test No. 601
-# $Revision: 1.10 $
 # PCP 2.2 duplicate of 273 (pmdatrace, pmtrace, and libpcp_trace tests)
-#
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=nathans
 
 seq=`basename $0`
-
-. ./localconfig
-if [ $PCP_VER -lt 2200 ]
-then
-    echo "test has extensions for PCP 2.2 and later, skipping" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
 echo "QA output created by $seq"
 
 # get standard filters
@@ -37,8 +24,6 @@ _cleanup()
     exit $status
 }
 
-tmp=/tmp/$$
-here=`pwd`
 status=1	# failure is the default!
 trap "_cleanup" 0 1 2 3 15
 
@@ -54,7 +39,7 @@ remove=$?
 # real QA test starts here
 
 cd $PCP_PMDAS_DIR/trace
-$here/sudo ./Install -R / </dev/null 2>&1 | _filter_pmda_install
+$sudo ./Install -R / </dev/null 2>&1 | _filter_pmda_install
 cd $here
 
 _wait_for_pmcd
@@ -182,8 +167,8 @@ echo "Finished checking trace.point"
 
 echo -n "Checking sample programs build - "
 cd $PCP_DEMOS_DIR/trace
-$here/sudo make clobber 2>&1 >/dev/null
-$here/sudo make app1 app2 app3 pmtrace >$tmp.make 2>&1
+$sudo make clobber 2>&1 >/dev/null
+$sudo make app1 app2 app3 pmtrace >$tmp.make 2>&1
 if [ $? -ne 0 ]
 then
     echo "demo trace programs make failed.  Here is the make output ..."
@@ -197,7 +182,7 @@ $PCP_DEMOS_DIR/trace/app1 >/dev/null 2>&1
 sleep $interval
 pminfo -f trace.transact.count
 
-[ $remove -eq 1 ] && $here/sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
+[ $remove -eq 1 ] && $sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
 
 # success, all done
 status=0

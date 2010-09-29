@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 274
-# $Revision: 1.11 $
 # Throw a broken PMDA at PCP 2.0 libpcp_pmda and dbpmda
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -14,8 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-
-tmp=/tmp/$$
 status=1
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -85,21 +82,22 @@ BEGIN   { found = false }
 unset ROOT
 
 # Install the PMDA
-cd src-oss
-../sudo ./broken_Install -N < /dev/null | _filter_ins
-cd ..
+cd $here/pmdas/broken
+$sudo ./broken_Install -N < /dev/null | _filter_ins
+cd $here
 
 # Remove the PMDA
 _remove()
 {
-    cd src-oss; ../sudo ./broken_Remove -N; cd ..
+    cd $here/pmdas/broken
+    $sudo ./broken_Remove -N
+    cd $here
 }
 
 trap "_remove; exit \$status" 0 1 2 3 15
 
-
 dbpmda -ie 2>&1 <<End-of-File | _filter
-open pipe src-oss/broken_pmda_2_0 -D47104 -l $tmp.log
+open pipe pmdas/broken/broken_pmda_2_0 -D47104 -l $tmp.log
 status
 # Test the valid metrics
 fetch broken.valid.one broken.valid.two broken.valid.three
@@ -138,7 +136,7 @@ sleep 1
 rm -f $tmp.log
 
 dbpmda -ie 2>&1 <<End-of-File | _filter
-open pipe src-oss/broken_pmda_2_1 -D47104 -l $tmp.log
+open pipe pmdas/broken/broken_pmda_2_1 -D47104 -l $tmp.log
 status
 wait 5
 fetch broken.bad.indom
@@ -151,7 +149,7 @@ sleep 1
 rm -f $tmp.log
 
 dbpmda -ie 2>&1 <<End-of-File | _filter
-open pipe src-oss/broken_pmda_2_2 -D47104 -l $tmp.log
+open pipe pmdas/broken/broken_pmda_2_2 -D47104 -l $tmp.log
 status
 close
 quit
@@ -162,7 +160,7 @@ sleep 1
 rm -f $tmp.log
 
 dbpmda -ie 2>&1 <<End-of-File | _filter
-open pipe src-oss/broken_pmda_2_3 -D47104 -l $tmp.log
+open pipe pmdas/broken/broken_pmda_2_3 -D47104 -l $tmp.log
 status
 close
 quit
@@ -173,7 +171,7 @@ sleep 1
 rm -f $tmp.log
 
 dbpmda -ie 2>&1 <<End-of-File | _filter
-open pipe src-oss/broken_pmda_2_4 -D47104 -l $tmp.log
+open pipe pmdas/broken/broken_pmda_2_4 -D47104 -l $tmp.log
 status
 text broken.valid.one
 close
@@ -185,7 +183,7 @@ sleep 1
 rm -f $tmp.log
 
 dbpmda -ie 2>&1 <<End-of-File | _filter | _filterStartBrokenPMDA25
-open pipe src-oss/broken_pmda_2_5 -D47104 -l $tmp.log
+open pipe pmdas/broken/broken_pmda_2_5 -D47104 -l $tmp.log
 status
 text broken.valid.one
 close

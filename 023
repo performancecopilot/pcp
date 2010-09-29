@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 023
-# $Revision: 2.30 $
 # Test PMCD's PMDA timeout behaviour
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -15,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-. ./localconfig
 rm -f $seq.out
 if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
 then
@@ -77,7 +75,6 @@ $1 == "y" && $2 = "y" && $8 == "localhost"	{ $5 = "IP-addr-in-hex" }
     | sed -e '/^pmcd 2 A_PID /s/ A_PID .*/ A_PID .../'
 }
 
-tmp=/var/tmp/$$
 CONFIG=$PCP_PMCDCONF_PATH
 TMP_CONFIG=$tmp/conf.tmp
 SAVE_CONFIG=$tmp/pmcd.conf.save
@@ -85,8 +82,6 @@ SAVE_CONFIG=$tmp/pmcd.conf.save
 	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
 LOGCONTROL="$PCP_PMLOGGERCONTROL_PATH"
 SAVE_LOGCONTROL=$tmp/control.save
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 _needclean=true
 

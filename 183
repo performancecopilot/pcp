@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 183
-# $Revision: 2.24 $
 # pmnewlog error handling
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -23,9 +22,6 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.filter
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 status=1

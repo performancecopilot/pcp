@@ -1,27 +1,11 @@
 #! /bin/sh
 # PCP QA Test No. 232
-# $Revision: 1.15 $
-#
 # exercise instance API functions for PM_CONTEXT_LOCAL
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
-
-sudo=
-. ./localconfig
-if [ $PCP_PLATFORM = irix ]
-then
-  if [ $PCP_EOE_VER = 2000 -o $PCP_EOE_VER = 6500 ]
-  then
-    echo "Requires PCP > 2.0 or IRIX > 6.5" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-  fi
-  sudo=./sudo
-fi
-
 echo "QA output created by $seq"
 
 # get standard filters
@@ -35,7 +19,6 @@ _filter_dodgey_nfs_indom()
 	-e '/number of instances .* (0) != that for pmGetInDom (22)/d'
 }
 
-tmp=/tmp/$$
 status=0
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -58,7 +41,7 @@ for metric in \
     nfs3.server.reqs \
     sampledso.hordes.one
 do
-    $sudo src-oss/torture_indom $metric >$tmp.out 2>&1
+    $here/src-oss/torture_indom $metric >$tmp.out 2>&1
     status=$?
     sed -e '/using .* kmem interface/d' $tmp.out \
     | _filter_pmcd_log \

@@ -1,24 +1,19 @@
 #!/bin/sh
 # PCP QA Test No. 289
-# $Revision: 1.9 $
 # exposes a bug in interp when rewind across mark record
 # pv #505498
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard filters
+. ./common.product
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

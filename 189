@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 189
-# $Revision: 2.14 $
 # pmie does not wait() for children ... defunct processes accummulate
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -9,12 +8,11 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-tmp=/tmp/$$
-trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
-
 # get standard filters
 . ./common.product
 . ./common.filter
+
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 _numchildren()
 {

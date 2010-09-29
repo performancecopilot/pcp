@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 235
-# $Revision: 1.9 $
 # exercise pmnsmerge error handling, and null operation
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -13,9 +12,8 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-tmp=/tmp/$$
 status=0
-trap "cd /; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo "+++ Errors +++"

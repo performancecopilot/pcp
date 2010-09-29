@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 218
-# $Revision: 2.5 $
 # pmFetch for non-interp mode should not return mark records
 # pmFetchArchive should
 #
@@ -14,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-tmp=/tmp/$$
 status=0
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

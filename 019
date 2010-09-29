@@ -1,7 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 019
-# $Revision: 2.15 $
-#
 # Exercse optional PMDA availability for PM_CONTEXT_LOCAL
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -26,9 +24,9 @@ fi
 echo "QA output created by $seq"
 
 # get standard filters
+. ./common.product
 . ./common.filter
 
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 _filter()

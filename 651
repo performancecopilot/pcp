@@ -4,8 +4,6 @@
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -29,9 +27,6 @@ _filter()
 	-e '/hinv.ncpu/s/ 1 [0-9][0-9]*/ 1 <n>/'
 }
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!
 $sudo rm -rf $tmp.*

@@ -4,8 +4,6 @@
 #
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 #
-# creator
-owner=nathans
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -15,8 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
 status=1
 trap "rm -fr $tmp; exit $status" 0 1 2 3 15
 

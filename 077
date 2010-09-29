@@ -1,28 +1,18 @@
 #! /bin/sh
 # PCP QA Test No. 077
-# $Revision: 2.12 $
 # exercise new _pm*Zone* functions
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
-if [ -f 1232 ]
-then
-    # 1232 is the original test with the dependence on moomba.melbourne
-    # and tokyo.engr hostnames ... use this one within sgi
-    #
-    echo "Will run qa/1232 variant in preference to $seq" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
 echo "QA output created by $seq"
+
 # get standard filters
 . ./common.product
 . ./common.filter
 
 status=0
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 remote=`./getpmcdhosts -n 1 -L`

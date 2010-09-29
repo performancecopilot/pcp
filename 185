@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 185
-# $Revision: 2.9 $
 # pmnewlog config save/restore checks
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -12,6 +11,7 @@ echo "QA output created by $seq"
 tmpdir=/tmp/$$
 rm -rf $tmpdir
 mkdir $tmpdir
+
 # get standard filters
 . ./common.product
 . ./common.filter

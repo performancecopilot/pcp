@@ -1,14 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 317
-# $Revision: 1.1 $
-#
 # pmie failure with 80%_time rule and imprecision in double arithmetic
 # when integer arithmetic would workd just fine
 #
 # Copyright (c) 2007 Aconex.  All Rights Reserved.
-
-# creator
-owner=kmcdonell
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -18,9 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

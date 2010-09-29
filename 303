@@ -1,15 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 303
-# $Revision: 1.10 $
-#
 # merge two archives, and check that mark records are placed in the
 # correct positions!!!
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=ania
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -25,8 +20,6 @@ _filter()
 	-e '/\[[0-9][0-9]* bytes\]/d'
 }
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

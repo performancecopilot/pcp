@@ -1,20 +1,20 @@
 #! /bin/sh
 # PCP QA Test No. 119
-# $Revision: 2.19 $
-#
 # pmlogger_check failure produces way too many lines of output
 # pv 877570
 #
 # Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
-
-# creator
-owner=kenmcd
+#
 
 seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
 
 # need fix for pv 877570
-#
-. ./localconfig
 if [ $PCP_PLATFORM = linux -a $PCP_VER -ge 2300 ]
 then
     # fix is in pcp-2.3.0-11
@@ -28,13 +28,6 @@ else
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
 fi
-
-echo "QA output created by $seq"
-
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
 
 rm -f $seq.out
 if $PCP_BINADM_DIR/pmlogger_check -x 2>&1 | grep NTV >/dev/null
@@ -50,9 +43,6 @@ else
     ln $seq.old.out $seq.out
 fi
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 $sudo rm -rf $tmp.*
 status=1	# failure is the default!
 _needclean=true

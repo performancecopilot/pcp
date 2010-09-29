@@ -4,13 +4,12 @@
 #
 # Copyright (c) 2010 Aconex.  All Rights Reserved.
 #
-# creator
-owner=nathans
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard filters
+. ./common.product
 . ./common.check
 . ./localconfig
 
@@ -21,9 +20,7 @@ _cleanup()
     rmdir $grp 2>/dev/null
 }
 
-tmp=/tmp/$$
 grp=/tmp/cgroup_$seq
-sudo=`pwd`/sudo
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 

@@ -1,14 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 504
-# $Revision: 1.24 $
-#
 # exercises pmie_check functionality
 # Version of No. 115 ... this one uses pmsocks
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
-
-# creator
-owner=nathans
+#
 
 seq=`basename $0`
 
@@ -35,9 +31,6 @@ then
     exit 0
 fi
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 lhost=`hostname`
 host=`_get_fqdn`

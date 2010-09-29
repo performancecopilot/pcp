@@ -1,24 +1,11 @@
 #! /bin/sh
 # PCP QA Test No. 298
-# $Revision: 1.14 $
-#
 # exercise pmie2col
 #
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-
-# creator
-owner=kenmcd
+#
 
 seq=`basename $0`
-
-if which pmie2col >/dev/null 2>&1
-then
-    :
-else
-    echo "No pmie2col mview binary installed" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
 
 echo "QA output created by $seq"
 
@@ -27,9 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

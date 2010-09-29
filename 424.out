@@ -5,7 +5,6 @@ sampledso.milliseconds  1.000 none
 sampledso.bin ["bin-100"] 100.000 none
 sampledso.bin ["bin-500"] 500.000 none
 sampledso.bin ["bin-900"] 900.000 none
-pmcd.pmlogger.port ["15381"] 4331.000 none
 
 Single noindom metric, no instances
 sampledso.milliseconds  1.000 none

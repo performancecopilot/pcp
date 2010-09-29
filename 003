@@ -1,18 +1,22 @@
 #! /bin/sh
 # PCP QA Test No. 003
 # Check that we get the expected metrics failing for each OS
-# Will need to be updated with every libirixpmda change
-# Assumes that (???) and hw.r10kevctr are not active
+# Will need to be updated with every kernel pmda change
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-linux=false
+seq=`basename $0`
+echo "QA output created by $seq"
 
-version=`uname -sr`
-case "$version"
+# get standard filters
+. ./common.product
+. ./common.filter
+
+linux=false
+case "$PCP_PLATFORM"
 in
-    Linux*)
+    linux*)
 	linux=true
 	;;
     *)
@@ -20,6 +24,8 @@ in
 	exit 1
 	;;
 esac
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # Expected error messages
 #
@@ -29,16 +35,6 @@ unavailable="pmFetch: no value available"
 explicit="pmFetch: Explicit instance identifier(s) required"
 missing="pmFetch: Missing metric value(s)"
 nyi="pmFetch: Functionality not yet implemented"
-
-seq=`basename $0`
-echo "QA output created by $seq"
-
-# get standard filters
-. ./common.product
-. ./common.filter
-
-tmp=/tmp/$$
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 pmie_filter()
 {

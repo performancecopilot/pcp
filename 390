@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 390
-# $Revision: 1.7 $
 # Test out the proc agents handling of 
 # mapping external instance names to internal instance names (pids).
 # It was truncating the first number.
@@ -15,18 +14,14 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-# creator
-owner=tes
-
 seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard filters
+. ./common.product
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

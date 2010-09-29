@@ -1,32 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 121
-# $Revision: 2.9 $
-#
 # check that pmlogconf finds new groups, pv 893249
 #
 # Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
 
-# creator
-owner=kenmcd
-
 seq=`basename $0`
-
-# need fix for pv 893249
-#
-. ./localconfig
-if [ $PCP_PLATFORM = linux -a $PCP_VER -ge 2310 ]
-then
-    # fix is in pcp-2.3.1-1
-    :
-elif [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -ge 6522 ]
-then
-    # IRIX 6.5.22 or later
-    :
-else
-    echo "need fix for pv #893249" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
 
 echo "QA output created by $seq"
 
@@ -35,9 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

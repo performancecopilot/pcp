@@ -1,24 +1,11 @@
 #! /bin/sh
 # PCP QA Test No. 594
-# $Revision: 1.10 $
 # pv 779246/782029 test sample.sysinfo vtype / desc
-#
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator dxm
-owner=dxm
 
 seq=`basename $0`
-
-. ./localconfig
-if [ $PCP_VER -le 2100 ]
-then
-    echo "fixes pv#779246, which is only done in pcp 2.2" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
@@ -26,9 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

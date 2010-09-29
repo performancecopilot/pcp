@@ -77,11 +77,11 @@ quit
 
 End-of-File
 	#DEBUG# cat $tmp
-	$here/sudo ./Install <$tmp >>$here/$1.out
+	$sudo ./Install <$tmp >>$here/$1.out
     ;;
 
 #    *.engr.*)
-#	cat <<End-of-File | $here/sudo ./Install >>$here/$1.out
+#	cat <<End-of-File | $sudo ./Install >>$here/$1.out
 #both
 #b43-11-cisco6-168.corp
 #

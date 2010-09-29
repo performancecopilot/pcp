@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 097
-# $Revision: 2.11 $
 # check time updates after EOL/SOL in interpolate mode
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -8,6 +7,10 @@
 
 seq=`basename $0`
 echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
 
 _filterfoo()
 {
@@ -39,11 +42,6 @@ BEGIN	{ lo[0] = 40; hi[0] = 42
 		{ print }'
 }
 
-# get standard filters
-. ./common.product
-. ./common.filter
-
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here

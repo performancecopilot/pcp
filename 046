@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 046
-# $Revision: 2.8 $
 # archive logs for metrics with numval <= 0 ??
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -30,7 +29,6 @@ $1 == "TIMESTAMP" && NF == 4	{ print "TIMESTAMP       0       OFFSET       OFFSE
 }
 
 
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here

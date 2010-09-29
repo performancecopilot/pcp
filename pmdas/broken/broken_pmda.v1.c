@@ -155,9 +155,9 @@ static pmdaMetric metrictab[] = {
 static int		_isDSO = 1;	/* =0 I am a daemon */
 static char		*_logFile = "broken.log";
 #if defined(VERSION_1)
-static char		*_helpText = "src-oss/broken_v1";
+static char		*_helpText = "pmdas/broken/broken_v1";
 #else
-static char		*_helpText = "src-oss/broken_v2";
+static char		*_helpText = "pmdas/broken/broken_v2";
 #endif
 
 /*

@@ -1,13 +1,9 @@
 #! /bin/sh
 # PCP QA Test No. 280
-# $Revision: 1.24 $
 # pmlogger_check basic sanity check
-#
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -44,10 +40,7 @@ _filter()
     | _filter_cron_scripts
 }
 
-tmp=/tmp/$$
 status=1	# failure is the default!
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 LOCALHOST=`hostname | sed -e 's/\..*//'`
 trap "rm -f $tmp.* $LOGGING_DIR/$LOCALHOST/lock; exit \$status" 0 1 2 3 15

@@ -1,6 +1,5 @@
 #!/bin/sh
 # PCP QA Test No. 062
-# $Revision: 2.9 $
 # Test pmcd's ability to supress multiple access control warnings from the same
 # host
 #
@@ -14,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./localconfig
 
 # real QA test starts here
 

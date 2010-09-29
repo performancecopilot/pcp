@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 200
-# $Revision: 2.19 $
 # $PMCD_RECONNECT_TIMEOUT validation
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -24,10 +23,7 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.filter
 
-tmp=/tmp/$$
 LOCALHOST=`hostname`
-here=`pwd`
-sudo=$here/sudo
 status=1
 rm -f $seq.full
 

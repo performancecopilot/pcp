@@ -1,9 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 096
-# $Revision: 2.26 $
 # proc.psinfo.ttyname
-#
-owner=tes
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -14,10 +11,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.check
 . ./common.filter
-. ./localconfig
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here

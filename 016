@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 016
-# $Revision: 2.10 $
 # an instance domain that changes in an archive
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -14,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 
 status=0
-tmp=/tmp/$$
 trap "rm -f $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here

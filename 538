@@ -1,18 +1,15 @@
 #! /bin/sh
 # PCP QA Test No. 538
-# $Revision: 1.14 $
 # check pmie atexit problem
-#
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=nathans
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
+. ./common.product
 . ./common.filter
 
 _cleanup()
@@ -21,8 +18,6 @@ _cleanup()
     pmstore sample.write_me 2 >/dev/null	# reset value
 }
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15

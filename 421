@@ -1,32 +1,28 @@
 #! /bin/sh
 # PCP QA Test No. 421
-# $Revision: 1.10 $
 # verifies pmtraceabort functionality
-#
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=nathans
 
 seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.check
 
 # Different output for different circumstances:
 # On irix we install Makefile for trace, so we're going to get
 # "Installing files..." fluff. On Linux we don't get that. In PCP 2.2. we
 # changed procpmda.sh to be less verbose and added some extra trace
 # metrics, so more stuff to change.
-. ./localconfig
 if [ $PCP_VER -ge 2200 ]
 then
     rm -f $seq.out && ln $seq.${PCP_PLATFORM}.2 $seq.out
 else
     rm -f $seq.out && ln $seq.${PCP_PLATFORM}.1 $seq.out
 fi
-
-echo "QA output created by $seq"
-
-. ./common.check
 
 _cleanup()
 {
@@ -39,8 +35,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-here=`pwd`
-sudo=$here/sudo
 trap "_cleanup" 0 1 2 3 15
 
 if [ -n "$PCP_TRACE_HOST" ]
@@ -52,7 +46,7 @@ pminfo trace >/dev/null 2>&1
 remove=$?
 
 cd $PCP_PMDAS_DIR/trace
-$here/sudo ./Install -R / </dev/null 2>&1 | sed \
+$sudo ./Install -R / </dev/null 2>&1 | sed \
 	-e '/.[0-9][0-9]* hash table entries/d' \
 	-e '/.[0-9][0-9]* leaf nodes/d' \
 	-e '/.[0-9][0-9]* non-leaf nodes/d' \
@@ -68,6 +62,6 @@ $here/src-oss/tabort
 status=$?
 pminfo -f trace.transact.count
 
-[ $remove -eq 1 ] && $here/sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
+[ $remove -eq 1 ] && $sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
 
 exit

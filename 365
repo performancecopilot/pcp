@@ -1,13 +1,9 @@
 #!/bin/sh
 # PCP QA Test No. 365
-# $Revision: 1.16 $
 # Errors in pmcd.conf [acccess] that should not prevent pmcd starting
-#
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 
@@ -15,7 +11,6 @@ seq=`basename $0`
 . ./common.product
 . ./common.check
 . ./common.filter
-
 . ./localconfig
 
 rm -f $seq.out
@@ -31,8 +26,6 @@ else
     ln $seq.out.1 $seq.out
 fi
 
-
-tmp=/tmp/$$
 status=1
 done_clean=false
 
@@ -42,9 +35,9 @@ _cleanup()
     then
 	:
     else
-	[ -f $tmp.pmcd.conf ] && $here/sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	rm -f $tmp.*
-	$here/sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	done_clean=true
@@ -77,7 +70,6 @@ echo "other2=$other2" >>$seq.full
 echo "localhost=$localhost" >>$seq.full
 
 # real QA test starts here
-here=`pwd`
 home=$PCP_PMDAS_DIR
 
 # copy the pmcd config file to restore state later.
@@ -109,8 +101,8 @@ allow $other1, not.a.real.host, localhost : fetch;
 allow localhost, $other2, nohost.melbourne.sgi.com : store;
 End-of-File
 
-$here/sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
-$here/sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd
 
 _filter_pmcd_log <$PCP_PMCDLOG_PATH \

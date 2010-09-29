@@ -4,8 +4,6 @@
 #
 # Copyright (c) 2010 Aconex.  All Rights Reserved.
 #
-# creator
-owner=nathans
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -15,15 +13,19 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -e '/^pmcd.pmlogger.port/d'
+}
 
 # real QA test starts here
 
 echo
 echo "Every metric, every instance"
-pmlogsummary src-oss/bar
+pmlogsummary src-oss/bar | _filter
 echo
 
 echo "Single noindom metric, no instances"

@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 006
-# $Revision: 2.12 $
 # Check error codes ... 
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -13,7 +12,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 PM_ERR_BASE=12345

@@ -1,12 +1,9 @@
 #! /bin/sh
 # PCP QA Test No. 333
-# $Revision: 1.11 $
 # Interp mode (similar to qa/097, but with purify)
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
-
-# creator
-owner=kenmcd
+#
 
 seq=`basename $0`
 
@@ -30,11 +27,8 @@ _check_purify src-oss/interp4
 
 echo "QA output created by $seq"
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=1	# failure is the default!
-trap "cd /; rm -rf $tmp; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 _setup_purify src-oss/interp4

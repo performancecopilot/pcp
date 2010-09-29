@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 100
-# $Revision: 2.16 $
 # exercise the logging state compatibility matrix for pmlc ...
 # initial: singular metric request: different singular metric
 #
@@ -14,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-tmp=/tmp/$$
 trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
 
 _filter_pmlc()

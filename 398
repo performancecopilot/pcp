@@ -1,13 +1,9 @@
 #! /bin/sh
 # PCP QA Test No. 398
-# $Revision: 1.11 $
 # checks pmcd handling empty $PCP_PMCDCONF_PATH
-#
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=nathans
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -17,8 +13,6 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.filter
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 

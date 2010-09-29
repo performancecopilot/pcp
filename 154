@@ -1,28 +1,25 @@
 #! /bin/sh
 # PCP QA Test No. 154
-# $Revision: 2.13 $
 # what the hell is chkhelp supposed to do?
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
-
-# New cisco metrics in pcp2.2 
-. ./localconfig
-if [ $PCP_VER -ge 2200 ]
-then
-    rm -f $seq.out && ln $seq.out.2 $seq.out
-else
-    rm -f $seq.out && ln $seq.out.1 $seq.out
-fi
-
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+
+# New cisco metrics in pcp2.2 
+if [ $PCP_VER -ge 2200 ]
+then
+    rm -f $seq.out && ln $seq.out.2 $seq.out
+else
+    rm -f $seq.out && ln $seq.out.1 $seq.out
+fi
 
 _filter_illegal()
 {
@@ -38,9 +35,6 @@ _filter_chk()
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;"
 }
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
@@ -66,8 +60,8 @@ fi
 
 echo
 echo bad dbf
-ln -s $here/sudo $tmp.pag
-ln -s $here/sudo $tmp.dir
+ln -s $sudo $tmp.pag
+ln -s $sudo $tmp.dir
 echo "chkhelp bad-helpfile"
 chkhelp $tmp >$tmp.out 2>&1
 status=$?

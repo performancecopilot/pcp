@@ -1,10 +1,7 @@
 #! /bin/sh
 # PCP QA Test No. 055
-# $Revision: 2.17 $
 # pmie basic expression evaluation and scheduling
 # for remote version using other hosts, see 360
-#
-owner=ania
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -16,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # get standard filters

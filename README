@@ -66,17 +66,16 @@ Basic getting started
 
     The PCP QA tests are designed to be run by a non-root user.  Where
     root privileges are needed, e.g. to stop or start pmcd, install/remove
-    PMDAs, etc. the "sudo" application is used.
+    PMDAs, etc. the "sudo" application is used.  When using sudo for QA,
+    your local or pcpqa user needs to be able to execute commands as root
+    without being prompted for a password.  This can be achieved by adding
+    the following line to the /etc/sudoers file:
 
-    WARNING: sudo is a GIANT security hole, so do not run the PCP QA on
-             on a machine with sensitivity to security and hacking
-	     issues.
+	pcpqa   ALL=(ALL) NOPASSWD: ALL
 
-    To get sudo set up,
+    You can now verify your QA setup, by running:
 
-    $ ./check 0
-    # remake sudo as suggested
-    $ ./check 0
+	./check 000
 
     The first time you run "check" (see below) it will descend into the
     src-oss directory (see below) and make all of the QA test programs and

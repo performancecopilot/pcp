@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 220
-# $Revision: 2.14 $
 # Does primary logger die and cleanup when pmcd exits?
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -14,10 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
 status=0
-here=`pwd`
-sudo=$here/sudo
 clean=false
 LOCALHOST=`hostname`
 

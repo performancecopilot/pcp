@@ -1,8 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 1046 (formerly 527)
-# $Revision: 1.4 $
 # exercise pmieconf global parameters
-#
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -27,8 +25,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

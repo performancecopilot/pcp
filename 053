@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 053
-# $Revision: 2.8 $
 # Verify the good stuff happens with pmclient
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -22,7 +21,6 @@ _filter()
 			{ print }'
 }
 
-tmp=/tmp/$$
 trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here

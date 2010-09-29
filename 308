@@ -1,14 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 308
-# $Revision: 1.16 $
 # pmlogger and pmlc for proc metrics ... indom problems
 # pv #452417
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 
@@ -34,8 +30,6 @@ _filter()
 	  -e 's/init *"/init"/'
 }
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

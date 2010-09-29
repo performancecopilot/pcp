@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 244
-# $Revision: 1.20 $
 # PMCD SIGHUP processing tests with $PCP_PMCDCONF_PATH changes
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -85,7 +84,6 @@ $1 == "cisco"		{ $4 = "fd_in"; $5 = "fd_out"
 	-e 's/_64/_SIZE/'
 }
 
-tmp=/var/tmp/$$
 CONFIG=$PCP_PMCDCONF_PATH
 NEWCONFIG=$tmp/pmcd.conf
 CONFIGSAVE=$tmp/pmcd.conf.save
@@ -93,8 +91,6 @@ CONFIGSAVE=$tmp/pmcd.conf.save
 	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
 LOGCONTROL=$PCP_PMLOGGERCONTROL_PATH
 SAVE_LOGCONTROL=$tmp/control.save
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 _needclean=true
 

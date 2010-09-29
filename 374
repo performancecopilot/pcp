@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 374
-# $Revision: 1.16 $
 # pmlogger (assorted) and pmlc (PCP 2.0) version compatibility
 #
 # 64-bit host version ... see 322 for 32-bit host version ... this
@@ -9,8 +8,6 @@
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -148,9 +145,7 @@ _cleanup()
     exit
 }
 
-tmp=/tmp/$$
 need_clean=true
-sudo=`pwd`/sudo
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 

@@ -1,7 +1,8 @@
 #! /bin/sh
 # PCP QA Test No. 008
-# $Revision: 2.14 $
 # exercise disk statistics on localhost
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # NOTE
 #	This test depends on the the local hostname and the disk configuration.
@@ -10,10 +11,6 @@
 #		$ remake 008
 #		$ mv 008.out 008.out.`hostname | sed -e 's/\..*//'`
 #	and check that the comments and the output match up.
-#
-owner=ania
-#
-# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -37,7 +34,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 PMCD_CONNECT_TIMEOUT=60

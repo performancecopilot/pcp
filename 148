@@ -1,32 +1,28 @@
 #! /bin/sh
 # PCP QA Test No. 148
-# $Revision: 2.11 $
 # validate ipc.shm metric values
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
-
-. ./localconfig
-if [ $PCP_PLATFORM = linux ]
-then
-    echo "No ipc/shm/sem metrics in Linux" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
 echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
 . ./common.filter
 
-tmp=/tmp/$$
+if [ $PCP_PLATFORM != irix ]
+then
+    echo "No ipc/shm/sem metrics yet" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 # blow away any residual junk
-./sudo src-oss/ipcs_clear
+$sudo src-oss/ipcs_clear
 
 
 # real QA test starts here
@@ -39,7 +35,7 @@ trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 #
 # build the sed filter from the heading line of the output
 #
-./sudo ipcs -am >$tmp.out
+$sudo ipcs -am >$tmp.out
 sed -n <$tmp.out >$tmp.sed -e '/NATTCH/{
 s/./.\\(/
 s/ID/..\\)/
@@ -83,7 +79,7 @@ then
     echo "ipc.shm and ipcs agree"
 else
     echo "=== ipcs -am ==="
-    ./sudo ipcs -am
+    $sudo ipcs -am
     echo "=== summary ==="
     cat $tmp.ipc
     echo "=== pminfo -F ==="

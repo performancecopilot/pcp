@@ -1,13 +1,9 @@
 #! /bin/sh
 # PCP QA Test No. 534
-# $Revision: 1.7 $
 # #566355 - Macros cannot be used to define a metric name
-#
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -17,8 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 status=1	# failure is the default!
 trap "rm -f /tmp/echo-out $tmp.*; exit \$status" 0 1 2 3 15
 rm -f /tmp/echo-out

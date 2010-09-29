@@ -1,26 +1,21 @@
 #! /bin/sh
 # PCP QA Test No. 250
-# $Revision: 1.11 $
 # Rebuild -u should be idempotent in this case
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
-
-. ./localconfig
-rm -f $seq.out && ln $seq.out.${PCP_PLATFORM} $seq.out
-
-
 echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
 . ./common.filter
 
-tmp=/tmp/$$
+rm -f $seq.out && ln $seq.out.${PCP_PLATFORM} $seq.out
+
 status=1	# failure is the default!
-trap "cd /; rm -rf $tmp; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 _copy_Rebuild()
 {
@@ -48,8 +43,6 @@ _remove_rebuild()
 }
 
 # real QA test starts here
-_here=`pwd`
-sudo=`pwd`/sudo
 mkdir $tmp
 cd $tmp
 

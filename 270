@@ -1,8 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 270
-# $Revision: 1.18 $
-# what am I here for?
-#    test `pmlogextract':
+# Test `pmlogextract':
 #	 1. one input file, one output file, no parameters		- work
 #	 2. one input file, one output file, -S, -T and -z parameters	- work
 #		(-S and -T are within the archive)
@@ -15,11 +13,8 @@
 #	 7. one input file, one output file, -c, -S, -T & -z parameter	- work
 #	 8. one input file, one output file, -S, -T, -w & -z parameter	- work
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=ania
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -28,7 +23,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-tmp=/tmp/$$
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

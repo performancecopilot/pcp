@@ -4,22 +4,16 @@
 # Check timeouts for pmlc's calls to __pmGetPDU
 #
 # Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
 
-# creator
-owner=kenj
+seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-
-echo "QA output created by $seq"
-
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "_cleanup; exit \$status" 0 1 2 3 15

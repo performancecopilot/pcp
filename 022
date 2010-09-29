@@ -1,15 +1,18 @@
 #! /bin/sh
 # PCP QA Test No. 022
-# $Revision: 2.26 $
 # proc PMDA exerciser
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
 
 rm -f $seq.out $seq.full
-. ./localconfig
 if [ $PCP_PLATFORM = linux -a $PCP_EOE_VER -ge 2704 ]
 then
     ln $seq.linux.2 $seq.out
@@ -29,15 +32,6 @@ else
     echo "Warning: no validated output for $PCP_PLATFORM"
 fi
 
-echo "QA output created by $seq"
-
-# get standard filters
-. ./common.product
-. ./common.filter
-
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 _filter_pmids()

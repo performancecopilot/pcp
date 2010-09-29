@@ -6,27 +6,22 @@
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
 
 echo "Not yet working - libpcp_gui recording" > $seq.notrun
 exit 0
 
-echo "QA output created by $seq"
-
-# get standard filters
-. ./common.filter
-. ./common.check
-
-tmp=/tmp/$$
-sudo=`pwd`/sudo
-here=`pwd`
 status=1	# failure is the default!
-trap "cd /; rm -rf $tmp; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
-./sudo rm -rf $tmp
+$sudo rm -rf $tmp
 mkdir $tmp
 cd $tmp
 

@@ -1,13 +1,10 @@
 #!/bin/sh
 # PCP QA Test No. 359
-#
 # Simple sanity check that we can get through validation of all
 # of the metrics without any surprises
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
-
-# creator
-owner=kenj
+#
 
 # get standard environment, filters and checks
 . ./common.product
@@ -15,12 +12,8 @@ owner=kenj
 . ./common.check
 
 seq=`basename $0`
-
 echo "QA output created by $seq"
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

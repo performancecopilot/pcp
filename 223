@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 223
-# $Revision: 2.15 $
 # Exercise the new pmns/Rebuild
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -20,6 +19,7 @@ echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
+. ./common.filter
 
 _copy_Rebuild()
 {
@@ -136,7 +136,7 @@ _remove_rebuild()
 tmp=/tmp/$$
 status=0
 DO_VALIDATE=true
-trap "cd /; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
@@ -146,7 +146,7 @@ rm -rf $PMNS_OLD
 echo "=== PMNS_OLD does not exist ===" >>$seq.full
 ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
 _copy_Rebuild $PMNS_NEW
-./sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
+$sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
 _remove_rebuild $PMNS_NEW
 _filter <$tmp.err
@@ -158,7 +158,7 @@ _setup
 echo "=== PMNS_OLD is empty ===" >>$seq.full
 ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
 _copy_Rebuild $PMNS_NEW
-./sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
+$sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
 _remove_rebuild $PMNS_NEW
 _filter <$tmp.err
@@ -171,7 +171,7 @@ touch $PMNS_OLD/Brand $PMNS_OLD/Makefile $PMNS_OLD/Rebuild
 echo "=== PMNS_OLD contains scripts that can safely be nuked ===" >>$seq.full
 ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
 _copy_Rebuild $PMNS_NEW
-./sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
+$sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
 _remove_rebuild $PMNS_NEW
 _filter <$tmp.err
@@ -188,7 +188,7 @@ extra.xxx {
 echo "=== PMNS_OLD contains files not in conflict with PMNS_NEW, copy them ===" >>$seq.full
 ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
 _copy_Rebuild $PMNS_NEW
-./sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
+$sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
 _remove_rebuild $PMNS_NEW
 _filter <$tmp.err
@@ -203,7 +203,7 @@ cp $PMNS_NEW/* $PMNS_OLD
 echo "=== files in PMNS_OLD and PMNS_NEW are identical ===" >>$seq.full
 ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
 _copy_Rebuild $PMNS_NEW
-./sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
+$sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
 _remove_rebuild $PMNS_NEW
 _filter <$tmp.err
@@ -221,7 +221,7 @@ DO_VALIDATE=true
 echo "=== salvage useful stuff from PMNS_OLD ===" >>$seq.full
 ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
 _copy_Rebuild $PMNS_NEW
-./sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
+$sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
 _remove_rebuild $PMNS_NEW
 _filter <$tmp.err
@@ -238,7 +238,7 @@ _check N/A
 echo "=== hard cases ===" >>$seq.full
 ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
 _copy_Rebuild $PMNS_NEW
-./sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
+$sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
 _remove_rebuild $PMNS_NEW
 _filter <$tmp.err
@@ -252,7 +252,7 @@ touch $PMNS_OLD
 echo "=== PMNS_OLD is a file (error) ===" >>$seq.full
 ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
 _copy_Rebuild $PMNS_NEW
-./sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
+$sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
 _remove_rebuild $PMNS_NEW
 _filter <$tmp.err
@@ -267,7 +267,7 @@ _check N/A
 echo "=== www.orphan, xxx.N and yyy.O in both places, waste the ones from PMNS_OLD ===" >>$seq.full
 ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
 _copy_Rebuild $PMNS_NEW
-./sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
+$sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
 _remove_rebuild $PMNS_NEW
 _filter <$tmp.err
@@ -280,7 +280,7 @@ touch $PMNS_OLD/saveme
 echo "=== orphan (saveme) in PMNS_OLD ===" >>$seq.full
 ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
 _copy_Rebuild $PMNS_NEW
-./sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
+$sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
 _remove_rebuild $PMNS_NEW
 _filter <$tmp.err
@@ -333,7 +333,7 @@ extra.ID.special {
 echo "=== nested decls, a la DBMS PMDAS ===" >>$seq.full
 ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
 _copy_Rebuild $PMNS_NEW
-./sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
+$sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
 _remove_rebuild $PMNS_NEW
 _filter <$tmp.err

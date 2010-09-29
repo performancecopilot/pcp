@@ -18,10 +18,7 @@ echo ""
 . ./common.check
 . ./common.filter
 
-tmp=/tmp/$$
 LOCALHOST=`hostname`
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 
 if [ -d $PCP_LOG_DIR/pmlogger ]

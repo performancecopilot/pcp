@@ -1,10 +1,16 @@
 #! /bin/sh
 # PCP QA Test No. 037
-# $Revision: 2.9 $
 # exercise meta-data services from an archive
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
 
 # format of the line to match ...
 # refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin 804982618.523843 delta 5
@@ -30,14 +36,6 @@ $1 == "refcnt" && $11 == "origin"	{ if (t == 0) {
 					{ print }'
 }
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
-# get standard filters
-. ./common.product
-. ./common.filter
-
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here

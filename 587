@@ -1,14 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 587
-# $Revision: 1.12 $
 # pmcd long line handling error
 # #754795 - pmcd botches handling of long lines in pmcd.conf
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -20,9 +16,6 @@ rm -f $seq.out && ln $seq.${PCP_PLATFORM} $seq.out || exit 1
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15

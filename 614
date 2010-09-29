@@ -1,15 +1,11 @@
 #! /bin/sh
 # PCP QA Test No. 614
-# $Revision: 1.7 $
 # pv#794379
 #
 # pmns processing accepts hyphens when it shouldn't
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=tes
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -19,9 +15,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

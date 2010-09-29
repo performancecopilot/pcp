@@ -1,14 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 501
 # COPY of PCP QA Test No. 413 with different 2.0/2.0+ output ...
-# $Revision: 1.13 $
 # #552517 pmie dumps core with bad metric and -V or -W
-#
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=nathans
 
 seq=`basename $0`
 host=`hostname`
@@ -38,9 +34,6 @@ _filter()
         -e "s/$host/HOST/"
 }
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

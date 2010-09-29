@@ -1,12 +1,9 @@
 #! /bin/sh
 # PCP QA Test No. 469
-# $Revision: 1.8 $
 # test for long help text exceeding maximum length
 #
 # Don't test the libirixpmda help text metrics here.
 # Test them in the libirixpmda QA
-#
-owner=tes
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -27,8 +24,6 @@ fi
 . ./common.filter
 . ./common.check
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

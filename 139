@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 139
-# $Revision: 2.14 $
 # Illegal/unknown metrics to pmlc
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -30,7 +29,6 @@ _filter()
 
 }
 
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here

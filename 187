@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 187
-# $Revision: 2.11 $
 # for bug #327288 - $PCP_RC_DIR/pcp blows away $PCP_TMP_DIR/pmlogger entries
 #
 # Note ... this will be a "sometimes" failure ... requires special
@@ -18,10 +17,7 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.filter
 
-tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
-here=`pwd`
-sudo=`pwd`/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 
 _burn_pids()

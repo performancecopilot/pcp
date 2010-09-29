@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 224
-# $Revision: 2.12 $
 # This used to cause a core dump for pmcd
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -15,8 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 done_reset=false
-sudo=./sudo
-tmp=/tmp/$$
 status=0
 LOCALHOST=`hostname`
 

@@ -132,13 +132,10 @@ echo -n "Creating skeletal script for you to edit ..."
 cat <<End-of-File >$id
 #!/bin/sh
 # PCP QA Test No. $id
-#
 # what am I here for?
 #
 # Copyright (c) `date +%Y` Silicon Graphics, Inc.  All Rights Reserved.
-
-# creator
-owner=$USER
+#
 
 # get standard environment, filters and checks
 . ./common.product
@@ -158,9 +155,6 @@ seq=\`basename \$0\`
 
 echo "QA output created by \$seq"
 
-tmp=/tmp/\$\$
-here=\`pwd\`
-sudo=\$here/sudo
 status=0	# success is the default!
 \$sudo rm -rf \$tmp.* \$seq.full
 trap "rm -f \$tmp.*; exit \\\$status" 0 1 2 3 15

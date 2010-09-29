@@ -6,7 +6,6 @@
 #
 
 mypid=$$
-tmp=/tmp/$mypid
 status=0
 needwrap=true
 try=0
@@ -315,7 +314,7 @@ export PCP_TRACE_TIMEOUT
 
 # we have to cheat a bit... but we need to create a check.[pid|sts] file
 # to tell hangcheck that we are alive, but not ready to run yet.
-sudo=`pwd`/sudo  #  ... from common
+sudo=`which sudo`
 if [ "$HANGCHECK" = true -a "$USER" = pcpqa -a -x $sudo ]
 then
     # for hangcheck ...

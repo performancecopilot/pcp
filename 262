@@ -1,13 +1,9 @@
 #! /bin/sh
 # PCP QA Test No. 262
-# $Revision: 1.21 $
 # assorted PM_CONTEXT_LOCAL sanity checks
-#
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 
@@ -18,8 +14,6 @@ then
     exit 0
 fi
 
-. ./localconfig
-
 echo "QA output created by $seq"
 
 # get standard filters
@@ -27,6 +21,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 . ./common.config
+. ./localconfig
 
 _filter_number()
 {
@@ -43,8 +38,6 @@ _filter_number()
 	-e 's/Jan\|Feb\|Mar\|Apr\|May\|Jun\|Jul\|Aug\|Sep\|Oct\|Nov\|Dec/MONTH/' 
 }
 
-
-tmp=/tmp/$$
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -75,15 +68,15 @@ $PROG -t1 -s1 2>&1 | _filter_number
 
 echo
 echo "=== $PROG + PM_CONTEXT_LOCAL ==="
-./sudo $PROG -L -t1 -s1 2>&1 | _filter_number | _filter_pmcd_log
+$sudo $PROG -L -t1 -s1 2>&1 | _filter_number | _filter_pmcd_log
 
 echo
 echo "=== $PROG + PM_CONTEXT_HOST + pmsocks ==="
-./sudo pmsocks $PROG -t1 -s1 2>&1 | _filter_number
+$sudo pmsocks $PROG -t1 -s1 2>&1 | _filter_number
 
 echo
 echo "=== $PROG + PM_CONTEXT_LOCAL + pmsocks ==="
-./sudo pmsocks $PROG -L -t1 -s1 2>&1 | _filter_number | _filter_pmcd_log
+$sudo pmsocks $PROG -L -t1 -s1 2>&1 | _filter_number | _filter_pmcd_log
 
 echo
 echo "Expect no error messages or ?'s from pmie"

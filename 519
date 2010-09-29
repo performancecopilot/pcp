@@ -1,14 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 519
-# $Revision: 1.16 $
 # exercise new action args (no limit of 2) for pmie ... caused
 # pmie to dump core initially
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
 
@@ -30,9 +26,6 @@ _filter()
 	-e 's/\(pmie[([]\)[0-9][0-9]*/\1PID/'
 }
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=$here/sudo
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
