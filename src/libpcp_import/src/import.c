@@ -13,7 +13,8 @@ pmiDump(void)
 {
     FILE	*f = stderr;
 
-    fprintf(f, "pmiDump: context %d of %d", current - context_tab, ncontext);
+    fprintf(f, "pmiDump: context %ld of %d",
+	(long)(current - context_tab), ncontext);
     if (current == NULL) {
 	fprintf(f, " Error: current context is not defined.\n");
 	return;

@@ -1270,6 +1270,23 @@ pdh_metric_t metricdesc[] = {
       "\\System\\System Up Time"
     },
 
+/* network.interface.bandwidth */
+    { { PMDA_PMID(0,235), PM_TYPE_U32, NETIF_INDOM, PM_SEM_DISCRETE, 
+	PMDA_PMUNITS(0, -1, 0, 0, PM_TIME_SEC, 0)
+      }, M_REDO | M_AUTO64, 0, 0, 0, NULL,
+      "\\Network Interface(*)\\Current Bandwidth"
+    },
+/* network.interface.speed */
+    { { PMDA_PMID(0,236), PM_TYPE_FLOAT, NETIF_INDOM, PM_SEM_DISCRETE, 
+	PMDA_PMUNITS(1, -1, 0, PM_SPACE_MBYTE, PM_TIME_SEC, 0)
+      }, M_REDO, 0, 0, 0, NULL, ""
+    },
+/* network.interface.baudrate */
+    { { PMDA_PMID(0,237), PM_TYPE_U32, NETIF_INDOM, PM_SEM_DISCRETE, 
+	PMDA_PMUNITS(1, -1, 0, PM_SPACE_BYTE, PM_TIME_SEC, 0)
+      }, M_REDO, 0, 0, 0, NULL, ""
+    },
+
 /* mem.physmem */
     { { PMDA_PMID(1,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
@@ -1399,6 +1416,27 @@ filesys_fetch_callback(unsigned int item, unsigned int inst, pmAtomValue *atom)
 }
 
 static int
+network_fetch_callback(unsigned int item, unsigned int inst, pmAtomValue *atom)
+{
+    pdh_value_t		*vp;
+
+    /*
+     * Special case handling for the derived network bandwidth metrics
+     *		235 network.interface.bandwidth (base, no derived)
+     *		236 network.interface.speed (mbytes, float)
+     * 		237 network.interface.baudrate (in bytes)
+     */
+    vp = find_instance_value(235,inst);
+    if (!vp)
+	return 0;
+    if (item == 236)
+	atom->f = ((float)vp->atom.ull / 8 / 1024 / 1024);
+    else if (item == 237)
+	atom->ul = (vp->atom.ull / 8);
+    return 1;
+}
+
+static int
 memstat_fetch_callback(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
     if (inst == PM_INDOM_NULL) {
@@ -1495,6 +1533,8 @@ windows_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case 233:	/* hinv.pagesize */
 	atom->ul = windows_pagesize;
 	return 1;
+    case 236: case 237:
+	return network_fetch_callback(pmidp->item, inst, atom);
     }
 
     /*
@@ -1517,8 +1557,14 @@ windows_init(pmdaInterface *dp)
     int			metrictab_sz = metricdesc_sz;
     int			i;
 
-    if (isDSO)
-	pmdaDSO(dp, PMDA_INTERFACE_3, "windows DSO", NULL);
+    if (isDSO) {
+	char		helppath[MAXPATHLEN];
+	int		sep = __pmPathSeparator();
+
+	snprintf(helppath, sizeof(helppath), "%s%c" "windows" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+	pmdaDSO(dp, PMDA_INTERFACE_3, "windows DSO", helppath);
+    }
 
     if (dp->status != 0)
 	return;
@@ -1572,22 +1618,27 @@ usage(void)
 int
 main(int argc, char **argv)
 {
+    int			sep = __pmPathSeparator();
     int			err = 0;
-    pmdaInterface	d;
     int			c;
+    pmdaInterface	dispatch;
+    char		helppath[MAXPATHLEN];
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
-    pmdaDaemon(&d, PMDA_INTERFACE_3, pmProgname, WINDOWS, "windows.log", NULL);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:?", &d, &err)) != EOF)
+    snprintf(helppath, sizeof(helppath), "%s%c" "windows" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, WINDOWS, "windows.log", helppath);
+
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err)) != EOF)
 	err++;
     if (err)
     	usage();
 
-    pmdaOpenLog(&d);
-    windows_init(&d);
-    pmdaConnect(&d);
-    pmdaMain(&d);
+    pmdaOpenLog(&dispatch);
+    windows_init(&dispatch);
+    pmdaConnect(&dispatch);
+    pmdaMain(&dispatch);
     exit(0);
 }

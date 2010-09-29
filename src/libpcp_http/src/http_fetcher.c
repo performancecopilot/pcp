@@ -17,18 +17,9 @@
 
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <strings.h>
 #include <ctype.h>
-#include <errno.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/time.h>
+#include "pmapi.h"
+#include "impl.h"
 #include "http_fetcher.h"
 
 /* Globals */
@@ -606,9 +597,9 @@ int http_parseFilename(const char *url, char **filename)
 void http_perror(const char *string)
 	{
 	if(errorSource == ERRNO)
-		perror(string);
+		fprintf(stderr, "%s: %s\n", string, strerror(errno));
 	else if(errorSource == H_ERRNO)
-		herror(string);
+		fprintf(stderr, "%s: %s\n", string, hstrerror(h_errno));
 	else if(errorSource == FETCHER_ERROR)
 		{
 		const char *stringIndex;
@@ -661,8 +652,6 @@ int http_getTimeoutError()
 	 */
 const char *http_strerror()
 	{
-	extern int errno;
-	
 	if(errorSource == ERRNO)
 		return strerror(errno);
 	else if(errorSource == H_ERRNO)

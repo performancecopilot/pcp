@@ -117,7 +117,8 @@ extern int		indomtab_sz;
 /*
  * kstat() control
  */
-extern kstat_ctl_t		*kc;
+kstat_ctl_t *kstat_ctl_update(void);
+void kstat_ctl_needs_update(void);
 int kstat_named_to_pmAtom(const kstat_named_t *, pmAtomValue *);
 int kstat_named_to_typed_atom(const kstat_named_t *, int, pmAtomValue *);
 

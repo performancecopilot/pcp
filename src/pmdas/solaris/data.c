@@ -1343,7 +1343,11 @@ metricdesc_t metricdesc[] = {
     { "hinv.disk.capacity",
       { PMDA_PMID(SCLR_DISK,34), PM_TYPE_U64, DISK_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
-      }, (ptrdiff_t)"Size" }
+      }, (ptrdiff_t)"Size" },
+    { "hinv.disk.devlink",
+      {PMDA_PMID(SCLR_DISK, 35), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, -1}
 
     /* remember to add trailing comma before adding more entries ... */
 };
@@ -1372,7 +1376,28 @@ pmdaIndom indomtab[] = {
 };
 
 int indomtab_sz = sizeof(indomtab) / sizeof(indomtab[0]);
-kstat_ctl_t		*kc;
+
+static kstat_ctl_t *kc;
+static int kstat_chains_updated;
+
+kstat_ctl_t *
+kstat_ctl_update(void)
+{
+    if (!kstat_chains_updated) {
+	if (kstat_chain_update(kc) == -1)  {
+	    kstat_chains_updated = 0;
+	    return NULL;
+	}
+	kstat_chains_updated = 1;
+    }
+    return kc;
+}
+
+void
+kstat_ctl_needs_update(void)
+{
+	kstat_chains_updated = 0;
+}
 
 void
 init_data(int domain)

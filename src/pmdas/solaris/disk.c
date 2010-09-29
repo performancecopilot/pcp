@@ -18,6 +18,7 @@
  */
 
 #include "common.h"
+#include <libdevinfo.h>
 
 #define SOLARIS_PMDA_TRACE (DBG_TRACE_APPL0|DBG_TRACE_APPL2)
 
@@ -29,6 +30,9 @@ typedef struct {
     kstat_t	*sderr;
     int		sderr_fresh;
 } ctl_t;
+
+static di_devlink_handle_t devlink_hndl = DI_LINK_NIL;
+static di_node_t di_root = DI_NODE_NIL;
 
 static ctl_t *
 getDiskCtl(pmInDom dindom, const char *name)
@@ -72,6 +76,10 @@ static void
 disk_walk_chains(pmInDom dindom)
 {
     kstat_t	*ksp;
+    kstat_ctl_t *kc;
+
+    if ((kc = kstat_ctl_update()) == NULL)
+	return;
 
     for (ksp = kc->kc_chain; ksp != NULL; ksp = ksp->ks_next) {
 	ctl_t *ctl;
@@ -117,6 +125,15 @@ disk_init(int first)
 void
 disk_prefetch(void)
 {
+    if (di_root != DI_NODE_NIL) {
+	di_fini(di_root);
+	di_root = DI_NODE_NIL;
+    }
+
+    if (devlink_hndl != DI_LINK_NIL) {
+	di_devlink_fini(&devlink_hndl);
+	devlink_hndl = DI_LINK_NIL;
+    }
     pmdaCacheOp(indomtab[DISK_INDOM].it_indom, PMDA_CACHE_INACTIVE);
     disk_walk_chains(indomtab[DISK_INDOM].it_indom);
     pmdaCacheOp(indomtab[DISK_INDOM].it_indom, PMDA_CACHE_SAVE);
@@ -181,7 +198,8 @@ disk_derived(pmdaMetric *mdesc, int inst, const kstat_io_t *iostat)
 }
 
 static int
-fetch_disk_data(const pmdaMetric *mdesc, ctl_t *ctl, const char *diskname)
+fetch_disk_data(kstat_ctl_t *kc, const pmdaMetric *mdesc, ctl_t *ctl,
+		const char *diskname)
 {
     if (ctl->fetched == 1)
 	return 1;
@@ -216,6 +234,70 @@ fetch_disk_data(const pmdaMetric *mdesc, ctl_t *ctl, const char *diskname)
 }
 
 static int
+get_devlink_path(di_devlink_t devlink, void *arg)
+{
+	const char **p = arg;
+        *p = di_devlink_path(devlink);
+        return DI_WALK_TERMINATE;
+}
+
+static int
+fetch_disk_devlink(const kstat_t *ksp, pmAtomValue *atom)
+{
+    di_node_t n;
+
+    if (di_root == DI_NODE_NIL) {
+	if ((di_root = di_init("/", DINFOCPYALL)) == DI_NODE_NIL)
+	    return 0;
+    }
+
+    if (devlink_hndl == DI_LINK_NIL) {
+	if ((devlink_hndl = di_devlink_init(NULL, DI_MAKE_LINK)) == DI_LINK_NIL)
+	    return 0;
+    }
+
+    if ((n = di_drv_first_node(ksp->ks_module, di_root)) == DI_NODE_NIL) {
+#ifdef PCP_DEBUG
+	if ((pmDebug & SOLARIS_PMDA_TRACE) == SOLARIS_PMDA_TRACE) {
+	    fprintf(stderr,"No nodes for %s: %s\n",
+		    ksp->ks_name, strerror(errno));
+	}
+#endif
+	return 0;
+    }
+
+    do {
+	if (di_instance(n) == ksp->ks_instance) {
+	    di_minor_t minor = di_minor_next(n, DI_MINOR_NIL);
+	    char *path;
+	    char *devlink = NULL;
+
+	    if (minor == DI_MINOR_NIL) {
+#ifdef PCP_DEBUG
+		if ((pmDebug & SOLARIS_PMDA_TRACE) == SOLARIS_PMDA_TRACE) {
+		    fprintf (stderr, "No minors of %s: %s\n",
+			     ksp->ks_name, strerror(errno));
+		}
+#endif
+		return 0;
+	    }
+	    path = di_devfs_minor_path(minor);
+	    di_devlink_walk(devlink_hndl, NULL, path, 0, &devlink,
+			    get_devlink_path);
+	    di_devfs_path_free(path);
+
+	    if (devlink) {
+		atom->cp = devlink;
+		return 1;
+	    }
+	    return 0;
+	}
+	n = di_drv_next_node(n);
+    } while (n != DI_NODE_NIL);
+    return 0;
+}
+
+static int
 get_instance_value(pmdaMetric *mdesc, pmInDom dindom, int inst,
 		   pmAtomValue *atom)
 {
@@ -223,6 +305,10 @@ get_instance_value(pmdaMetric *mdesc, pmInDom dindom, int inst,
     char *diskname;
     uint64_t ull;
     ptrdiff_t offset = ((metricdesc_t *)mdesc->m_user)->md_offset;
+    kstat_ctl_t *kc;
+
+    if ((kc = kstat_ctl_update()) == NULL)
+	return 0;
 
     if (pmdaCacheLookup(dindom, inst, &diskname,
 			(void **)&ctl) != PMDA_CACHE_ACTIVE) {
@@ -238,7 +324,10 @@ get_instance_value(pmdaMetric *mdesc, pmInDom dindom, int inst,
     }
 
     if (offset == -1) {
-	if (!fetch_disk_data(mdesc, ctl, diskname))
+	if (pmid_item(mdesc->m_desc.pmid) == 35) { /* hinv.disk.devlink */
+	    return fetch_disk_devlink(ctl->ksp, atom);
+	}
+	if (!fetch_disk_data(kc, mdesc, ctl, diskname))
 	    return 0;
 	ull = disk_derived(mdesc, inst, &ctl->iostat);
     } else if (offset > sizeof(ctl->iostat)) { /* device_error */
@@ -266,7 +355,7 @@ get_instance_value(pmdaMetric *mdesc, pmInDom dindom, int inst,
 	return 0;
     } else {
 	char *iop = ((char *)&ctl->iostat) + offset;
-	if (!fetch_disk_data(mdesc, ctl, diskname))
+	if (!fetch_disk_data(kc, mdesc, ctl, diskname))
 	    return 0;
 	if (mdesc->m_desc.type == PM_TYPE_U64) {
 	    __uint64_t *ullp = (__uint64_t *)iop;

@@ -266,11 +266,11 @@ INIT_CONTEXT:
 	}
 	new->c_pmcd->pc_refcnt++;
     }
-    else if (type == PM_CONTEXT_LOCAL) {
-	if ((sts = __pmConnectLocal()) != 0)
+    else if (new->c_type == PM_CONTEXT_LOCAL) {
+	if (!(type & PM_CTXFLAG_SHALLOW) && (sts = __pmConnectLocal()) != 0)
 	    goto FAILED;
     }
-    else if (type == PM_CONTEXT_ARCHIVE) {
+    else if (new->c_type == PM_CONTEXT_ARCHIVE) {
 	if ((new->c_archctl = (__pmArchCtl *)malloc(sizeof(__pmArchCtl))) == NULL) {
 	    sts = -errno;
 	    goto FAILED;

@@ -18,18 +18,18 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM		= windows
 DOMAIN		= WINDOWS
-CFILES		= pmda.c error.c open.c instance.c fetch.c help.c
+CFILES		= pmda.c error.c open.c instance.c fetch.c helptext.c
 HFILES		= hypnotoad.h libpdh.h
 LCFLAGS		= -DWIN32_LEAN_AND_MEAN -D_WIN32_WINNT=0x0500
 LLDLIBS		= -lpcp -lpcp_pmda libpdh.a
 PMNS		= pmns.disk pmns.kernel pmns.mem pmns.network \
 		  pmns.sqlserver pmns.filesys pmns.hinv pmns.pmda \
 		  pmns.process
-LSRCFILES	= $(PMNS) root README libpdh.def pdhlist.c pdhmatch.sh
+LSRCFILES	= $(PMNS) root help README libpdh.def pdhlist.c pdhmatch.sh
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CMDTARGET	= pmdawindows.exe
 LIBTARGET	= pmda_windows.dll
-EXTRATARGETS	= pdhlist.exe
+EXTRATARGETS	= pdhlist.exe help.dir help.pag
 
 LDIRT		= root_windows domain.h $(IAM).log pmda$(IAM) libpdh.a \
 		  $(EXTRATARGETS) pdhlist.o
@@ -49,12 +49,16 @@ build-me: root_windows $(LSRCFILES) $(CMDTARGET) $(LIBTARGET) $(EXTRATARGETS)
 install: build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 pdhlist.exe $(LIBTARGET) $(PMDADIR)
-	$(INSTALL) -m 644 README root $(PMNS) domain.h $(PMDADIR)
+	$(INSTALL) -m 644 README root $(PMNS) $(PMDADIR)
+	$(INSTALL) -m 644 domain.h help.dir help.pag help $(PMDADIR)
 	$(INSTALL) -m 644 root_windows $(PCP_VAR_DIR)/pmns/root_windows
 else
 build-me:
 install:
 endif
+
+help.dir help.pag : help root_windows
+	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_windows -v 2 -o help < help
 
 default_pcp:	default
 

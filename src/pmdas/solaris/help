@@ -713,3 +713,15 @@ VOP_WRITE is used to implement write(2) system call
 @kernel.fstype.read_bytes Number of bytes read from all filesystems of a given type
 @kernel.fstype.readdir_bytes Number of bytes containting directory entires read from all filesystems of a given type
 @kernel.fstype.write_bytes Number of bytes written to all filesystems of a given type
+
+@hinv.disk.devlink Disk name in the descriptive format
+Solaris uses symbolic links under /dev to provide access to device nodes via
+"descriptive" names like /dev/dsk/cXtYdZsN. This metrics provides a
+translation from a "descriptive" name to instances in the disk instance
+domain.
+
+The name is always the name of the first minor device for a particular disk
+and includes the slice information.
+
+NOTE! Fetching this metric is expensive - several system calls are made
+      to fetch each instance.

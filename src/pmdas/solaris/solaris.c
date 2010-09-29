@@ -39,6 +39,8 @@ solaris_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
     int		i;
 
+    kstat_ctl_needs_update();
+
     for (i = 0; i < methodtab_sz; i++) {
 	methodtab[i].m_fetched = 0;
     }

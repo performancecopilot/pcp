@@ -7,6 +7,9 @@ network.interface {
     in
     out
     total
+    bandwidth		WINDOWS:0:235
+    speed		WINDOWS:0:236
+    baudrate		WINDOWS:0:237
 }
 
 network.interface.in {

@@ -30,6 +30,7 @@ extern int markpos(void);
 extern void locateError(void);
 
 /* utiltity routines */
+extern void setup_context(void);
 extern void reset_profile(void);
 extern char *strcons(char *, char *);
 extern char *strnum(int);

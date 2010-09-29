@@ -24,13 +24,12 @@
 #include <unistd.h>
 #include <sys/param.h>
 #include "pmapi.h"
+#include "impl.h"
 #include "rules.h"
 
 #define MAXSYMLEN	(MAXPATHLEN+1)
 #define MAXVARLEN	(512+1)
 #define MAXBUFLEN	(1024+1)
-
-extern char		*pmProgname;
 
 static int	verbose;
 static int	interactive = 1;

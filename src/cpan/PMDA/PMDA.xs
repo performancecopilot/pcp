@@ -668,7 +668,7 @@ error(self,message)
 	pmdaInterface *self
 	char *	message
     CODE:
-	__pmNotifyErr(LOG_ERR, message);
+	__pmNotifyErr(LOG_ERR, "%s", message);
 
 void
 set_fetch(self,function)
@@ -922,14 +922,14 @@ log(self,message)
 	pmdaInterface *self
 	char *	message
     CODE:
-	__pmNotifyErr(LOG_INFO, message);
+	__pmNotifyErr(LOG_INFO, "%s", message);
 
 void
 err(self,message)
 	pmdaInterface *self
 	char *	message
     CODE:
-	__pmNotifyErr(LOG_ERR, message);
+	__pmNotifyErr(LOG_ERR, "%s", message);
 
 void
 run(self)

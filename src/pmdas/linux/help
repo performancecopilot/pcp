@@ -662,7 +662,7 @@ See also network.interface.baudrate for the bytes/second value.
 The linespeed on the network interface, as reported by the kernel,
 scaled up from Megabits/second to bits/second and divided by 8 to convert
 to bytes/second.
-See also network.interface.speed for the Megbytes/second value.
+See also network.interface.speed for the Megabytes/second value.
 @ network.interface.duplex value one for half or two for full duplex interface
 @ network.interface.up boolean for whether interface is currently up or down
 @ network.interface.running boolean for whether interface has resources allocated

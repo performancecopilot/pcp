@@ -18,6 +18,7 @@ use warnings;
 
 use XML::TokeParser;
 use Spreadsheet::Read;
+use Getopt::Std;
 use Date::Parse;
 use Date::Format;
 use PCP::LogImport;
@@ -421,7 +422,7 @@ sub domap($)
     }
 }
 
-$sts = getopts('h:Z:', \%options);
+my $sts = getopts('h:Z:', \%options);
 
 if (!defined($sts) || $#ARGV != 2) {
     print "Usage: sheet2pcp [-h host] [-Z timezone] infile mapfile outfile\n";
