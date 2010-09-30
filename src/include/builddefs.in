@@ -67,6 +67,7 @@ QT_RELEASE	= @qt_release@
 
 HAVE_PM_SET_PROGNAME = @have_pm_set_progname@
 HAVE_ZIPPED_MANPAGES = @have_zipped_manpages@
+HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
 
 include $(TOPDIR)/src/include/buildmacros
 

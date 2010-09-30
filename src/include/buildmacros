@@ -39,6 +39,9 @@ INSTALL_MAN = \
 				if $(HAVE_ZIPPED_MANPAGES); then \
 					$(ZIP) -9 -c $$d > $$d.gz; _sfx=.gz; \
 				fi; \
+				if $(HAVE_BZIP2ED_MANPAGES) ; then \
+					$(BZIP2) -c $$d > $$d.bz2; _sfx=.bz2; \
+				fi; \
 				u=$$m.$(MAN_SECTION)$$_sfx; \
 				echo $(INSTALL) -m 644 $${d}$$_sfx $${t}$$_sfx;\
 				$(INSTALL) -m 644 $${d}$$_sfx $${t}$$_sfx; \

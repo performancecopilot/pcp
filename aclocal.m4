@@ -13,20 +13,18 @@
 
 # 
 # Find format of installed man pages.
-# Always gzipped on Debian, but not Redhat pre-7.0.
-# We don't deal with bzip2'd man pages, which Mandrake uses,
-# someone will send us a patch sometime hopefully. :-)
 # 
 AC_DEFUN([AC_MANUAL_FORMAT],
   [ have_zipped_manpages=false
-    for d in ${prefix}/share/man ${prefix}/man ; do
-        if test -f $d/man1/man.1.gz
-        then
-            have_zipped_manpages=true
-            break
-        fi
-    done
+    have_bzip2ed_manpages=false
+    source /etc/pcp.env
+    if test -f "$PCP_MAN_DIR/man1/pcp.1.gz"; then
+        have_zipped_manpages=true
+    elif test -f "$PCP_MAN_DIR/man1/pcp.1.bz2"; then
+        have_bzip2ed_manpages=true
+    fi
     AC_SUBST(have_zipped_manpages)
+    AC_SUBST(have_bzip2ed_manpages)
   ])
 
 #
