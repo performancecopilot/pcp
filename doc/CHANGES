@@ -1,3 +1,9 @@
+pcp-gui 1.5.1 (1 October 2010)
+    - Build fix for rpm generation.
+    - Build fix for Win32 builds (hide Mac).
+    - Add support for .bz2 manual page compression.
+    - Fix lintian warning (deb packages) wrt an empty dir.
+
 pcp-gui 1.5.0 (29 September 2010)
     - Split out pcp-doc from pcp-gui (packaging, not source).
     - Merged Qwt 5.2 sources.

@@ -1,9 +1,9 @@
-pcp-gui (1.5.0) unstable; urgency=low
+pcp-gui (1.5.1) unstable; urgency=low
 
   * New pcp-gui release (see doc/CHANGES for details).
   * Major packaging change - pcp-doc is now a separate package.
 
- -- Nathan Scott <nathans@debian.org>  Wed, 29 Sep 2010 18:10:40 +1000
+ -- Nathan Scott <nathans@debian.org>  Fri, 01 Oct 2010 08:25:32 +1000
 
 pcp-gui (1.4.9) unstable; urgency=low
 
