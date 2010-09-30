@@ -72,6 +72,7 @@ LNMAKE =
 WINDOW = x11
 endif
 
+ifeq ($(PKG_PLATFORM),darwin)
 INSTALL_DIRECTORY_HIERARCHY=\
 	d=$(1); while [ "$$d" != "$(2)" -a "$$d" != "/" -a "$$d" != "." ] ; do \
                 echo $$d; d=`dirname $$d`; done | sort | while read id; do \
@@ -116,6 +117,7 @@ INSTALL_QT_FRAMEWORKS=\
 		    $(INSTALL) $$fwpath $(MAC_FRAMEWORKS_DIR)/$$rfpath;\
 		done \
 	fi; done
+endif
 
 ifdef ICONLINKS
 iconlinks:

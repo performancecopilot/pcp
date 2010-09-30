@@ -18,6 +18,10 @@ include $(BUILDRULES)
 
 install: default
 	$(INSTALL) -m 755 -d $(PKG_BIN_DIR)
+ifeq ($(WINDOW),mac)
 	$(call INSTALL_QT_FRAMEWORKS,$(BINARY))
 	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
 	rm $(BINARY)
+else
+	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
+endif
