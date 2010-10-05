@@ -1,6 +1,6 @@
 QA output created by 342
 dbpmda> open socket MYSOCKET
-Connect to PDMA on socket MYSOCKET
+Connect to PMDA on socket MYSOCKET
 dbpmda> getdesc on
 dbpmda> fetch sample.colour
 PMID(s): 29.0.5
