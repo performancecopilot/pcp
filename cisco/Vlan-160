@@ -1,0 +1,29 @@
+! donated by Tore Høivaag Larsen
+
+Username:
+Password:
+
+bgo-sw20#
+show int
+Vlan160 is up, line protocol is up
+  Hardware is EtherSVI, address is ec30.91f9.0241 (bia ec30.91f9.0241)
+  Internet address is 10.163.160.210/24
+  MTU 1500 bytes, BW 1000000 Kbit, DLY 10 usec,
+     reliability 255/255, txload 1/255, rxload 1/255
+  Encapsulation ARPA, loopback not set
+  ARP type: ARPA, ARP Timeout 04:00:00
+  Last input 00:00:00, output 00:00:01, output hang never
+  Last clearing of "show interface" counters never
+  Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+  Queueing strategy: fifo
+  Output queue: 0/40 (size/max)
+  5 minute input rate 3000 bits/sec, 4 packets/sec
+  5 minute output rate 1000 bits/sec, 2 packets/sec
+     61717640 packets input, 5045205764 bytes, 0 no buffer
+     Received 0 broadcasts (0 IP multicasts)
+     0 runts, 0 giants, 0 throttles
+     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+     1190554 packets output, 656481017 bytes, 0 underruns
+     0 output errors, 0 interface resets
+     0 output buffer failures, 0 output buffers swapped out
+bgo-sw20#

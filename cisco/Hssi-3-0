@@ -1,0 +1,22 @@
+>
+show interface
+Hssi3/0 is administratively down, line protocol is down 
+  Hardware is cxBus HSSI
+  Description: 45 Meg Microwave Link to Building 27
+  Internet address is 150.166.124.1 255.255.255.0
+  MTU 4470 bytes, BW 45045 Kbit, DLY 200 usec, rely 255/255, load 1/255
+  Encapsulation HDLC, loopback not set, keepalive set (10 sec)
+  Last input 1:07:12, output 1:07:08, output hang never
+  Last clearing of "show interface" counters never
+  Output queue 0/40, 2 drops; input queue 0/75, 37 drops
+  5 minute input rate 0 bits/sec, 0 packets/sec
+  5 minute output rate 0 bits/sec, 0 packets/sec
+     306700515 packets input, 1443052046 bytes, 5 no buffer
+     Received 1118787 broadcasts, 0 runts, 0 giants
+              0 parity
+     241 input errors, 0 CRC, 241 frame, 0 overrun, 0 ignored, 0 abort
+     246381377 packets output, 3684064154 bytes, 0 underruns
+     0 output errors, 0 applique, 210 interface resets, 0 restarts
+     0 output buffer failures, 83 output buffers swapped out
+     8214 carrier transitions
+>

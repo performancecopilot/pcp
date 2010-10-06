@@ -1,0 +1,22 @@
+>
+show interface
+Serial0 is up, line protocol is up 
+  Hardware is MK5025
+  Description: frame-relay to MtVA, Tokyo, Hong Kong 
+  Internet address is 155.11.201.172, subnet mask is 255.255.255.128
+  MTU 1500 bytes, BW 64 Kbit, DLY 20000 usec, rely 255/255, load 15/255
+  Encapsulation FRAME-RELAY, loopback not set, keepalive set (10 sec)
+  LMI DLCI 0, LMI sent 346516, LMI stat recvd 345070, LMI upd recvd 2
+  LMI type is ANSI Annex D
+  Last input 0:00:01, output 0:00:00, output hang never
+  Last clearing of "show interface" counters never
+  Output queue 0/8, 298580 drops; input queue 0/75, 0 drops
+  Five minute input rate 60000 bits/sec, 16 packets/sec
+  Five minute output rate 4000 bits/sec, 12 packets/sec
+     18139408 packets input, 2763796661 bytes, 0 no buffer
+     Received 0 broadcasts, 0 runts, 0 giants
+     189 input errors, 189 CRC, 0 frame, 0 overrun, 0 ignored, 0 abort
+     15860554 packets output, 3098844973 bytes, 0 underruns
+     0 output errors, 0 collisions, 668 interface resets, 0 restarts
+     686 carrier transitions
+>

@@ -1,0 +1,21 @@
+>
+show interface
+ATM12/0 is up, line protocol is up 
+  Hardware is cxBus ATM
+  Internet address is 150.166.230.24 255.255.255.0
+  MTU 4470 bytes, BW 156250 Kbit, DLY 80 usec, rely 255/255, load 1/255
+  Encapsulation ATM, loopback not set, keepalive set (10 sec)
+  Encapsulation(s): AAL5, PVC mode
+  256 TX buffers, 256 RX buffers, 2048 maximum active VCs, 1024 VCs per VP, 15 current VCCs
+  Last input 0:00:00, output 0:00:00, output hang never
+  Last clearing of "show interface" counters never
+  Output queue 0/40, 511 drops; input queue 0/75, 10612 drops
+  5 minute input rate 181000 bits/sec, 116 packets/sec
+  5 minute output rate 160000 bits/sec, 68 packets/sec
+     658262505 packets input, 1239748718 bytes, 199 no buffer
+     Received 0 broadcasts, 0 runts, 0 giants
+     2570 input errors, 2569 CRC, 1 frame, 0 overrun, 0 ignored, 0 abort
+     788426419 packets output, 4188341273 bytes, 0 underruns
+     0 output errors, 0 collisions, 21 interface resets, 0 restarts
+     0 output buffer failures, 63 output buffers swapped out
+>
