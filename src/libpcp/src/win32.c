@@ -485,6 +485,8 @@ rindex(const char *string, int marker)
     char *p;
     for (p = (char *)string; *p != '\0'; p++)
 	;
+    if (p == string)
+	return NULL;
     for (--p; p != string; p--)
 	if (*p == marker)
 	    return p;
