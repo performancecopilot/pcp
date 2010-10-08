@@ -1,3 +1,9 @@
+pcp (3.4.1) unstable; urgency=low
+
+  * New release (Win32 specific changes only).
+
+ -- Nathan Scott <nathans@debian.org>  Sat, 09 Oct 2010 06:22:42 +1100
+
 pcp (3.4.0) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

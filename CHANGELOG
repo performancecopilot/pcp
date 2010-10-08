@@ -1,3 +1,8 @@
+pcp-3.4.1 (9 October 2010)
+    - Remove bogus (expected) errors/warnings from Win32 install/remove.
+    - Remove couple of no longer needed local Win32 API wrappers.
+    - Fix rindex code for Win32 so it handles empty strings.
+
 pcp-3.4.0 (29 September 2010)
     - Add new libpcp_import C API library to pcp-libs.
     - Add perl-PCP-LogImport RPM sub-package for libpcp_import perl binding.
