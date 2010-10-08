@@ -146,8 +146,8 @@ my %PKG = (
 	'qt'		=> 'PCP-qt-4.6.3-lib.tar.gz',
 	'coin'		=> 'PCP-coin-2.5.0-lib.tar.gz',
 
-	'pcp'		=> 'pcp-3.4.0-1.tar.gz',
-	'pcp_gui'	=> 'pcp-gui-1.4.9.tar.gz',
+	'pcp'		=> 'pcp-3.4.1-1.tar.gz',
+	'pcp_gui'	=> 'pcp-gui-1.5.0.tar.gz',
 );
 
 sub output_fragment_name
@@ -261,7 +261,7 @@ sub install_environment
     # utilities that conflict with Windows utilities in
     # terms of name (sort, date, etc).
 
-    $self->add_path( 'local', 'bin' );
+    $self->add_env( PATH	=> '[INSTALLDIR]local\\bin', 1 );
 
     # It would be good to get this to just the one variable
     # (i.e. PCP_DIR).  Require PCP changes to support that.
