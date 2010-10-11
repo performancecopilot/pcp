@@ -67,7 +67,7 @@ BEGIN {
 	$PKGNAME = 'pcp-glider';
 	$PKGURLS = 'file://D|/packages/',
 	$PKGCPAN = 'file://D|/minicpan/',
-	$VERSION = '0.9.8';
+	$VERSION = '0.9.9';
 	@ISA     = 'Perl::Dist::Strawberry';
 }
 

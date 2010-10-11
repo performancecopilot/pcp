@@ -16,7 +16,7 @@ ping -n 1 localhost > nul
 @rem then use a bigger hammer:
 
 taskkill /F /IM pmcd.exe /T 2> nul
-taskkill /F /IM pmie.exe /T > nul
+taskkill /F /IM pmie.exe /T 2> nul
 taskkill /F /IM pmproxy.exe /T 2> nul
 taskkill /F /IM pmlogger.exe /T 2> nul
 taskkill /F /IM pmchart.exe /T 2> nul

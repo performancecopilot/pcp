@@ -115,7 +115,6 @@ __pmUsePMNS(__pmnsTree *t)
     curr_pmns = t;
 }
 
-
 static const char *
 pmPMNSLocationStr(int location)
 {
@@ -123,149 +122,155 @@ pmPMNSLocationStr(int location)
 	return pmErrStr(location);
 
     switch(location) {
-      case PMNS_LOCAL: return "Local";
-      case PMNS_REMOTE: return "Remote";
-      case PMNS_ARCHIVE: return "Archive";
-      default: return "Internal Error";
+    case PMNS_LOCAL:	return "Local";
+    case PMNS_REMOTE:	return "Remote";
+    case PMNS_ARCHIVE:	return "Archive";
     }
+    return "Internal Error";
 }
 
 
 static int
 LoadDefault(char *reason_msg)
 {
-  if (main_pmns == NULL) {
+    if (main_pmns == NULL) {
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMNS) {
-	fprintf(stderr, "pmGetPMNSLocation: Loading local PMNS for %s PMAPI context\n",
-                reason_msg);
-    }
+	if (pmDebug & DBG_TRACE_PMNS) {
+	    fprintf(stderr,
+		"pmGetPMNSLocation: Loading local PMNS for %s PMAPI context\n",
+		reason_msg);
+	}
 #endif
-    if (load(PM_NS_DEFAULT, 1, 0) < 0)
-      return PM_ERR_NOPMNS;
-    else
-      return PMNS_LOCAL;
-  }
-  else
+	if (load(PM_NS_DEFAULT, 1, 0) < 0)
+	    return PM_ERR_NOPMNS;
+	else
+	    return PMNS_LOCAL;
+    }
     return PMNS_LOCAL;
 }
 
 /*
- * Return the pmns_location.
- * Possibly load the default PMNS.
+ * Return the pmns_location.  Possibly load the default PMNS.
  */
 int 
 pmGetPMNSLocation(void)
 {
-  int pmns_location = PM_ERR_NOPMNS;
-  int n;
-  int sts;
-  __pmContext  *ctxp;
-  int version;
+    int pmns_location = PM_ERR_NOPMNS;
+    int n;
+    int sts;
+    int version;
+    __pmContext  *ctxp;
 
-  if (useExtPMNS) {
-      return PMNS_LOCAL;
-  }
+    if (useExtPMNS)
+	return PMNS_LOCAL;
 
-  /* 
-   * Determine if we are to use PDUs or local PMNS file.
-   * Load PMNS if necessary.
-   */
-  if (!havePmLoadCall) {
-    if ((n = pmWhichContext()) >= 0) {
-      ctxp = __pmHandleToPtr(n);
-      switch(ctxp->c_type) {
-        case PM_CONTEXT_HOST:
-	    if (ctxp->c_pmcd->pc_fd == -1)
-		return PM_ERR_IPC;
-	    if ((sts = version = __pmVersionIPC(ctxp->c_pmcd->pc_fd)) < 0) {
-	      __pmNotifyErr(LOG_ERR, 
-			"pmGetPMNSLocation: version lookup failed (context=%d, fd=%d): %s", 
-			n, ctxp->c_pmcd->pc_fd, pmErrStr(sts));
-	      pmns_location = PM_ERR_NOPMNS;
+    /* 
+     * Determine if we are to use PDUs or local PMNS file.
+     * Load PMNS if necessary.
+     */
+    if (!havePmLoadCall) {
+	if ((n = pmWhichContext()) >= 0) {
+	    ctxp = __pmHandleToPtr(n);
+	    switch(ctxp->c_type) {
+		case PM_CONTEXT_HOST:
+		    if (ctxp->c_pmcd->pc_fd == -1)
+			return PM_ERR_IPC;
+		    if ((sts = version = __pmVersionIPC(ctxp->c_pmcd->pc_fd)) < 0) {
+			__pmNotifyErr(LOG_ERR, 
+				"pmGetPMNSLocation: version lookup failed "
+				"(context=%d, fd=%d): %s", 
+				n, ctxp->c_pmcd->pc_fd, pmErrStr(sts));
+			pmns_location = PM_ERR_NOPMNS;
+		    }
+		    else if (version == PDU_VERSION1) {
+			pmns_location = LoadDefault("PMCD (version 1)");
+		    }
+		    else if (version == PDU_VERSION2) {
+			pmns_location = PMNS_REMOTE;
+		    }
+		    else {
+			__pmNotifyErr(LOG_ERR, 
+				"pmGetPMNSLocation: bad host PDU version "
+				"(context=%d, fd=%d, ver=%d)",
+				n, ctxp->c_pmcd->pc_fd, version);
+			pmns_location = PM_ERR_NOPMNS;
+		    }
+		    break;
+
+		case PM_CONTEXT_LOCAL:
+		    pmns_location = LoadDefault("local");
+		    break;
+
+		case PM_CONTEXT_ARCHIVE:
+		    version = ctxp->c_archctl->ac_log->l_label.ill_magic & 0xff;
+		    if (version == PM_LOG_VERS01) {
+			pmns_location = LoadDefault("archive (version 1)");
+		    }
+		    else if (version == PM_LOG_VERS02) {
+			pmns_location = PMNS_ARCHIVE;
+			curr_pmns = ctxp->c_archctl->ac_log->l_pmns; 
+		    }
+		    else {
+			__pmNotifyErr(LOG_ERR, "pmGetPMNSLocation: bad archive "
+				"version (context=%d, fd=%d, ver=%d)",
+				n, ctxp->c_pmcd->pc_fd, version); 
+			pmns_location = PM_ERR_NOPMNS;
+		    }
+		    break;
+
+		default: 
+		    __pmNotifyErr(LOG_ERR, "pmGetPMNSLocation: bogus context "
+				"type: %d", ctxp->c_type); 
+		    pmns_location = PM_ERR_NOPMNS;
+		    break;
 	    }
-            else if (version == PDU_VERSION1) {
-	      pmns_location = LoadDefault("PMCD (version 1)");
-	    }
-	    else if (version == PDU_VERSION2) {
-	      pmns_location = PMNS_REMOTE;
-	    }
-	    else {
-            	__pmNotifyErr(LOG_ERR, 
-			"pmGetPMNSLocation: bad host PDU version (context=%d, fd=%d, ver=%d)",
-			n, ctxp->c_pmcd->pc_fd, version);
-	      	pmns_location = PM_ERR_NOPMNS;
-	    }
-	    break;
-        case PM_CONTEXT_LOCAL:
-	    pmns_location = LoadDefault("local");
-	    break;
-        case PM_CONTEXT_ARCHIVE:
-            version = ctxp->c_archctl->ac_log->l_label.ill_magic & 0xff;
-	    if (version == PM_LOG_VERS01) {
-	    	pmns_location = LoadDefault("archive (version 1)");
-            }
-	    else if (version == PM_LOG_VERS02) {
-		pmns_location = PMNS_ARCHIVE;
-                curr_pmns = ctxp->c_archctl->ac_log->l_pmns; 
-            }
-	    else {
-	        __pmNotifyErr(LOG_ERR, "pmGetPMNSLocation: bad archive version (context=%d, fd=%d, ver=%d)",
-			n, ctxp->c_pmcd->pc_fd, version); 
-	        pmns_location = PM_ERR_NOPMNS;
-	    }
-	    break;
-        default: 
-	    __pmNotifyErr(LOG_ERR, "pmGetPMNSLocation: bogus context type: %d", ctxp->c_type); 
-            pmns_location = PM_ERR_NOPMNS;
-      }
+	}
+	else {
+	    pmns_location = PM_ERR_NOPMNS; /* no context for client */
+	}
     }
-    else {
-      pmns_location = PM_ERR_NOPMNS; /* no context for client */
+    else { /* have explicit external load call */
+	if (main_pmns == NULL)
+	    pmns_location = PM_ERR_NOPMNS;
+	else
+	    pmns_location = PMNS_LOCAL;
     }
-  }
-  else { /* have explicit external load call */
-    if (main_pmns == NULL)
-      pmns_location = PM_ERR_NOPMNS;
-    else
-      pmns_location = PMNS_LOCAL;
-  }
 
 #ifdef PCP_DEBUG
-  if (pmDebug & DBG_TRACE_PMNS) {
-    static int last_pmns_location = -1;
-    if (pmns_location != last_pmns_location) {
-	fprintf(stderr, "pmGetPMNSLocation() -> %s\n", 
-            pmPMNSLocationStr(pmns_location));
-	last_pmns_location = pmns_location;
+    if (pmDebug & DBG_TRACE_PMNS) {
+	static int last_pmns_location = -1;
+
+	if (pmns_location != last_pmns_location) {
+	    fprintf(stderr, "pmGetPMNSLocation() -> %s\n", 
+			    pmPMNSLocationStr(pmns_location));
+	    last_pmns_location = pmns_location;
+	}
     }
-  }
 #endif
 
-  /* fix up curr_pmns for API ops */
-  if (pmns_location == PMNS_LOCAL)
-    curr_pmns = main_pmns;
-  else if (pmns_location != PMNS_ARCHIVE)
-    curr_pmns = NULL;
-
-  return pmns_location;
-}/*pmGetPMNSLocation*/
-
+    /* fix up curr_pmns for API ops */
+    if (pmns_location == PMNS_LOCAL)
+	curr_pmns = main_pmns;
+    else if (pmns_location != PMNS_ARCHIVE)
+	curr_pmns = NULL;
+    return pmns_location;
+}
 
 /*
- * Our own PMNS locator.
- * Don't distinguish between ARCHIVE or LOCAL.
+ * Our own PMNS locator.  Don't distinguish between ARCHIVE or LOCAL.
  */
 static
 int GetLocation(void)
 {
-  int loc = pmGetPMNSLocation();
-  if (loc == PMNS_ARCHIVE) return PMNS_LOCAL;
-  return loc;
+    int	loc = pmGetPMNSLocation();
+
+    if (loc == PMNS_ARCHIVE)
+	return PMNS_LOCAL;
+    return loc;
 }
 
 /*
- * for debugging, and visible via __pmDumpNameSpace()
+ * For debugging, and visible via __pmDumpNameSpace()
  *
  * verbosity is 0 (name), 1 (names and pmids) or 2 (names, pmids and
  * linked-list structures)
@@ -286,8 +291,8 @@ dumptree(FILE *f, int level, __pmnsNode *rp, int verbosity)
 	pp = (__pmID_int *)&rp->pmid;
 	if (verbosity > 0 && rp->first == NULL)
 	    fprintf(f, " %d %d.%d.%d 0x%08x", rp->pmid,
-	        pp->domain, pp->cluster, pp->item,
-	        rp->pmid);
+		    pp->domain, pp->cluster, pp->item,
+		    rp->pmid);
 	if (verbosity > 1) {
 	    fprintf(f, "\t[first: ");
 	    if (rp->first) fprintf(f, "" PRINTF_P_PFX "%p", rp->first);
@@ -407,8 +412,8 @@ lex(int reset)
 	    if (fgets(linebuf, sizeof(linebuf), fin) == NULL) {
 		if ( pclose(fin) != 0 ) {
 		    lineno = -1; /* We're outside of line counting range now */
-                    err("cpp returned non-zero exit status");
-                    return PM_ERR_PMNS;
+		    err("cpp returned non-zero exit status");
+		    return PM_ERR_PMNS;
 		} else {
 		    return 0;
 		}
@@ -447,7 +452,7 @@ lex(int reset)
 		/* cpp control line */
 		if ( sscanf(linebuf, "# %d \"%s", &lineno, fname) != 2 ) {
 		    err ("Illegal cpp construction");
-                    return PM_ERR_PMNS;
+		    return PM_ERR_PMNS;
 		}
 #if defined(IS_DARWIN)
 skipline:
@@ -719,7 +724,7 @@ pass2(int dupok)
 
     main_pmns = (__pmnsTree*)malloc(sizeof(*main_pmns));
     if (main_pmns == NULL) {
-        return -errno;
+	return -errno;
     }
 
     /* Get the root subtree out of the seen list */
@@ -766,7 +771,7 @@ mark_all(__pmnsTree *pmns, int bit)
     __pmnsNode	*pp;
 
     if (pmns->mark_state == bit)
-        return;
+	return;
 
     pmns->mark_state = bit;
     for (i = 0; i < pmns->htabsize; i++) {
@@ -791,7 +796,7 @@ mark_one(__pmnsTree *pmns, pmID pmid, int bit)
     __pmnsNode	*np;
 
     if (pmns->mark_state == bit)
-        return;
+	return;
 
     pmns->mark_state = UNKNOWN_MARK_STATE;
     for (np = pmns->htab[pmid % pmns->htabsize]; np != NULL; np = np->hash) {
@@ -820,7 +825,7 @@ __pmNewPMNS(__pmnsTree **pmns)
 
     t = (__pmnsTree*)malloc(sizeof(*main_pmns));
     if (t == NULL) {
-        return -errno;
+	return -errno;
     }
 
     /* Insert the "root" node first */
@@ -869,7 +874,7 @@ __pmFixPMNSHashTab(__pmnsTree *tree, int numpmid, int dupok)
 	return -errno;
 
     if ((sts = backlink(tree, tree->root, dupok)) < 0)
-        return sts;
+	return sts;
     mark_all(tree, 0);
     return 0;
 }
@@ -903,55 +908,52 @@ AddPMNSNode(__pmnsNode *root, int pmid, const char *name)
 
     if (np == NULL) { /* no match with child */
 	__pmnsNode *parent_np = root;
-        const char *name_p = name;
-        int is_first = 1;
+	const char *name_p = name;
+	int is_first = 1;
  
-        /* create nodes until reach leaf */
+	/* create nodes until reach leaf */
 
-        for ( ; ; ) { 
+	for ( ; ; ) { 
 	    if ((np = (__pmnsNode *)malloc(sizeof(*np))) == NULL)
 		return -errno;
 
-
-            /* fixup name */
+	    /* fixup name */
 	    if ((np->name = (char *)malloc(nch+1)) == NULL)
 		return -errno;
 	    strncpy(np->name, name_p, nch);
 	    np->name[nch] = '\0';
 
-
-            /* fixup some links */
+	    /* fixup some links */
 	    np->first = np->hash = np->next = NULL;
-            np->parent = parent_np;
-            if (is_first) {
-                is_first = 0;
-                if (root->first != NULL) {
-                    /* chuck new node at front of list */
-                    np->next = root->first;
+	    np->parent = parent_np;
+	    if (is_first) {
+		is_first = 0;
+		if (root->first != NULL) {
+		    /* chuck new node at front of list */
+		    np->next = root->first;
 		}
-            }
-            parent_np->first = np;
+	    }
+	    parent_np->first = np;
 
-            /* at this stage, assume np is a non-leaf */
+	    /* at this stage, assume np is a non-leaf */
 	    np->pmid = PM_ID_NULL;
 
-            parent_np = np;
-            if (*tail == '\0')
-               break;
-            name_p += nch+1; /* skip over node + dot */ 
-            for (tail = name_p; *tail && *tail != '.'; tail++)
-	        ;
-            nch = (int)(tail - name_p);
-
-        }/*loop*/
+	    parent_np = np;
+	    if (*tail == '\0')
+		break;
+	    name_p += nch+1; /* skip over node + dot */ 
+	    for (tail = name_p; *tail && *tail != '.'; tail++)
+		;
+	    nch = (int)(tail - name_p);
+	}
 
 	np->pmid = pmid; /* set pmid of leaf node */
 	return 0;
     }
     else if (*tail == '\0') { /* matched with whole path */
-        if (np->pmid != pmid)
+	if (np->pmid != pmid)
 	    return PM_ERR_PMID;
-        else 
+	else 
 	    return 0;
     }
     else {
@@ -970,9 +972,9 @@ int
 __pmAddPMNSNode(__pmnsTree *tree, int pmid, const char *name)
 {
     if (tree->contiguous) {
-       pmprintf("Cannot add node to contiguously allocated tree!\n"); 
-       pmflush();
-       exit(1);
+	pmprintf("Cannot add node to contiguously allocated tree!\n"); 
+	pmflush();
+	exit(1);
     }
 
     return AddPMNSNode(tree->root, pmid, name);
@@ -1124,7 +1126,7 @@ loadbinary(void)
 		/* skip over hash-table and node-table */
 		skip = htabsize * sz_htab_ent + nodecnt * sz_nodetab_ent;
 		fseek(fbin, skip, SEEK_CUR);
-            }
+	    }
 
 	    /* the structure elements are all the right size */
 	    main_pmns = (__pmnsTree*)malloc(sizeof(*main_pmns));
@@ -1221,10 +1223,10 @@ loadbinary(void)
 	    root[i].name = &symbol[ord];
 	}
 
-        /* set the pmns tree fields */
+	/* set the pmns tree fields */
 	main_pmns->root = root;
 	main_pmns->htab = htab;
-        main_pmns->htabsize = htabsize;
+	main_pmns->htabsize = htabsize;
 	main_pmns->symbol = symbol;
 	main_pmns->contiguous = 1;
 	main_pmns->mark_state = UNKNOWN_MARK_STATE;
@@ -1417,58 +1419,68 @@ getfname(const char *filename)
 int
 __pmHasPMNSFileChanged(const char *filename)
 {
-  static const char *f = NULL;
+    static const char *f;
 
-  f = getfname(filename);
-  if (f == NULL)
-     return 1; /* error encountered -> must have changed :) */
+    f = getfname(filename);
+    if (f == NULL)
+	return 1; /* error encountered -> must have changed :) */
  
-  /* if still using same filename ... */
-  if (strcmp(f, fname) == 0) {
-     struct stat statbuf;
+    /* if still using same filename ... */
+    if (strcmp(f, fname) == 0) {
+	struct stat statbuf;
 
-     if (stat(f, &statbuf) == 0) {
-         /* If the modification times have changed */
+	if (stat(f, &statbuf) == 0) {
+	    /* If the modification times have changed */
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PMNS) {
-	    fprintf(stderr, "__pmHasPMNSFileChanged(%s) -> %s last=%d now=%d\n",
-		filename == PM_NS_DEFAULT || (__psint_t)filename == 0xffffffff ? "PM_NS_DEFAULT" : filename,
-		f, (int)last_mtim, (int)statbuf.st_mtime);
-	}
+	    if (pmDebug & DBG_TRACE_PMNS) {
+		fprintf(stderr,
+			"__pmHasPMNSFileChanged(%s) -> %s last=%d now=%d\n",
+			filename == PM_NS_DEFAULT ||
+			(__psint_t)filename == 0xffffffff ?
+				"PM_NS_DEFAULT" : filename,
+			f, (int)last_mtim, (int)statbuf.st_mtime);
+	    }
 #endif
-         return ((statbuf.st_mtime == last_mtim) ? 0 : 1);
+	    return ((statbuf.st_mtime == last_mtim) ? 0 : 1);
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PMNS) {
-	    fprintf(stderr, "__pmHasPMNSFileChanged(%s) -> %s last=%d.%09ld now=%d.%09ld\n",
-		filename == PM_NS_DEFAULT || (__psint_t)filename == 0xffffffff ? "PM_NS_DEFAULT" : filename,
-		f, (int)last_mtim.tv_sec, last_mtim.tv_nsec,
-		(int)statbuf.st_mtimespec.tv_sec, statbuf.st_mtimespec.tv_nsec);
-	}
+	    if (pmDebug & DBG_TRACE_PMNS) {
+		fprintf(stderr,
+			"__pmHasPMNSFileChanged(%s) -> %s last=%d.%09ld now=%d.%09ld\n",
+			filename == PM_NS_DEFAULT ||
+			(__psint_t)filename == 0xffffffff ?
+				"PM_NS_DEFAULT" : filename,
+			f, (int)last_mtim.tv_sec, last_mtim.tv_nsec,
+			(int)statbuf.st_mtimespec.tv_sec,
+			statbuf.st_mtimespec.tv_nsec);
+	    }
 #endif
-	return ((statbuf.st_mtimespec.tv_sec == last_mtim.tv_sec &&
-	    statbuf.st_mtimespec.tv_nsec == last_mtim.tv_nsec) ? 0 : 1);
+	    return ((statbuf.st_mtimespec.tv_sec == last_mtim.tv_sec &&
+		statbuf.st_mtimespec.tv_nsec == last_mtim.tv_nsec) ? 0 : 1);
 #elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PMNS) {
-	    fprintf(stderr, "__pmHasPMNSFileChanged(%s) -> %s last=%d.%09ld now=%d.%09ld\n",
-		filename == PM_NS_DEFAULT || (__psint_t)filename == 0xffffffff ? "PM_NS_DEFAULT" : filename,
-		f, (int)last_mtim.tv_sec, last_mtim.tv_nsec,
-		(int)statbuf.st_mtim.tv_sec, statbuf.st_mtim.tv_nsec);
-	}
+	    if (pmDebug & DBG_TRACE_PMNS) {
+		fprintf(stderr,
+			"__pmHasPMNSFileChanged(%s) -> %s last=%d.%09ld now=%d.%09ld\n",
+			filename == PM_NS_DEFAULT ||
+			(__psint_t)filename == 0xffffffff ?
+				"PM_NS_DEFAULT" : filename,
+			f, (int)last_mtim.tv_sec, last_mtim.tv_nsec,
+			(int)statbuf.st_mtim.tv_sec, statbuf.st_mtim.tv_nsec);
+	    }
 #endif
-	return ((statbuf.st_mtim.tv_sec == last_mtim.tv_sec &&
-	    statbuf.st_mtim.tv_nsec == last_mtim.tv_nsec) ? 0 : 1);
+	    return ((statbuf.st_mtim.tv_sec == last_mtim.tv_sec &&
+		    (statbuf.st_mtim.tv_nsec == last_mtim.tv_nsec)) ? 0 : 1);
 #else
 !bozo!
 #endif
-     }
-     else {
-         return 1; /* error encountered -> must have changed :) */
-     }
-  }
-  return 1; /* different filenames atleast */
+	}
+	else {
+	    return 1;	/* error encountered -> must have changed */
+	}
+    }
+    return 1;	/* different filenames at least */
 }
 
 static int
@@ -1489,7 +1501,7 @@ load(const char *filename, int binok, int dupok)
 	}
 	else {
 	    return PM_ERR_DUPPMNS;
-        }
+	}
     }
 
     strcpy(fname, getfname(filename));
@@ -1502,16 +1514,17 @@ load(const char *filename, int binok, int dupok)
 
     /* Note modification time of pmns file */
     {
-        struct stat statbuf;
-        if (stat(fname, &statbuf) == 0) {
+	struct stat statbuf;
+
+	if (stat(fname, &statbuf) == 0) {
 #if defined(HAVE_ST_MTIME_WITH_E)
-            last_mtim = statbuf.st_mtime; /* possible struct assignment */
+	    last_mtim = statbuf.st_mtime; /* possible struct assignment */
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
-            last_mtim = statbuf.st_mtimespec; /* possible struct assignment */
+	    last_mtim = statbuf.st_mtimespec; /* possible struct assignment */
 #else
-            last_mtim = statbuf.st_mtim; /* possible struct assignment */
+	    last_mtim = statbuf.st_mtim; /* possible struct assignment */
 #endif
-        }
+	}
     }
 
     /* try the easy way, c/o pmnscomp */
@@ -1593,36 +1606,36 @@ pmLoadASCIINameSpace(const char *filename, int dupok)
 static void
 FreeTraversePMNS(__pmnsNode *parent)
 {
-  __pmnsNode *np, *next;
+    __pmnsNode *np, *next;
 
-  if (!parent) return;
+    if (!parent)
+	return;
 
-  /* Free child sub-trees */
-  for (np = parent->first; np != NULL; np = next) {
-    next = np->next;
-    FreeTraversePMNS(np);
-  }
+    /* Free child sub-trees */
+    for (np = parent->first; np != NULL; np = next) {
+	next = np->next;
+	FreeTraversePMNS(np);
+    }
 
-  free(parent->name);
-  free(parent);
-
+    free(parent->name);
+    free(parent);
 }
 
 void
 __pmFreePMNS(__pmnsTree *pmns)
 {
     if (pmns != NULL) {
-      if (pmns->contiguous) {
-        free(pmns->root);
-        free(pmns->htab);
-        free(pmns->symbol);
-      }
-      else { 
-        free(pmns->htab);
-        FreeTraversePMNS(pmns->root); 
-      }
+	if (pmns->contiguous) {
+	    free(pmns->root);
+	    free(pmns->htab);
+	    free(pmns->symbol);
+	}
+	else { 
+	    free(pmns->htab);
+	    FreeTraversePMNS(pmns->root); 
+	}
 
-      free(pmns);
+	free(pmns);
     }
 }
 
@@ -1704,11 +1717,8 @@ pmReceiveNames(int ctxid, int numpmid, pmID pmidlist[])
 
     if ((n =__pmGetBusyHostContextByID(ctxid, &ctxp, PDU_PMNS_NAMES)) >= 0) {
 	n = receive_names(ctxp, numpmid, pmidlist);
-
 	ctxp->c_pmcd->pc_curpdu = 0;
 	ctxp->c_pmcd->pc_tout_sec = 0;
-
-
     }
 
     return n;
@@ -1740,28 +1750,28 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
     pmns_location = GetLocation();
     
     if (pmns_location < 0) {
-        sts = pmns_location;
+	sts = pmns_location;
     }
     else if (pmns_location == PMNS_LOCAL) {
-        int		i;
+	int		i;
 	char		*xname;
 	char		*xp;
-        __pmnsNode	*np;
+	__pmnsNode	*np;
 
 	for (i = 0; i < numpmid; i++) {
-            /*
+	    /*
 	     * if we locate the name and it is a leaf in the PMNS
 	     * this is good
 	     */
 	    if ((np = locate(namelist[i], curr_pmns->root)) != NULL ) {
-               if (np->first == NULL)
-		  pmidlist[i] = np->pmid;
-               else {
-		  sts = PM_ERR_NONLEAF;
-		  pmidlist[i] = PM_ID_NULL;
-               }
-	       continue;
-            }
+		if (np->first == NULL)
+		    pmidlist[i] = np->pmid;
+		else {
+		    sts = PM_ERR_NONLEAF;
+		    pmidlist[i] = PM_ID_NULL;
+		}
+		continue;
+	    }
 	    pmidlist[i] = PM_ID_NULL;
 	    /*
 	     * did not match name ... return PM_ERR_NAME, unless name
@@ -1839,9 +1849,9 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 #endif
     }
     else {
-        /*
+	/*
 	 * PMNS_REMOTE so there must be a current host context
-         */
+	 */
 	assert(ctxp != NULL && ctxp->c_type == PM_CONTEXT_HOST);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PMNS) {
@@ -1919,16 +1929,13 @@ request_names_of_children(__pmContext *ctxp, const char *name, int wantstatus)
 {
     int n;
 
-    if (ctxp->c_pmcd->pc_curpdu != 0) {
+    if (ctxp->c_pmcd->pc_curpdu != 0)
 	return PM_ERR_CTXBUSY;
-    }
 
     n = __pmSendChildReq(ctxp->c_pmcd->pc_fd, PDU_BINARY, name, wantstatus);
-    if (n < 0) {
-        n =  __pmMapErrno(n);
-    }
-
-    return 0;
+    if (n < 0)
+	n =  __pmMapErrno(n);
+    return n;
 }
 
 int
@@ -1961,16 +1968,13 @@ receive_names_of_children(__pmContext *ctxp, char ***offspring,
 
 	n = __pmDecodeNameList(pb, PDU_BINARY, &numnames, 
 			       offspring, statuslist);
-	if (n >= 0) {
+	if (n >= 0)
 	    n = numnames;
-	}
     }
-    else if (n == PDU_ERROR) {
+    else if (n == PDU_ERROR)
 	__pmDecodeError(pb, PDU_BINARY, &n);
-	    }
     else if (n != PM_ERR_TIMEOUT)
-	n =  PM_ERR_IPC;
-
+	n = PM_ERR_IPC;
     return n;
 }
 
@@ -1998,7 +2002,7 @@ GetChildrenStatusRemote(__pmContext *ctxp, const char *name,
 
     if ((n = request_names_of_children(ctxp, name,
 				       (statuslist==NULL) ? 0 : 1)) >= 0) {
-	n = receive_names_of_children (ctxp, offspring, statuslist);
+	n = receive_names_of_children(ctxp, offspring, statuslist);
     }
     return n;
 }
@@ -2239,7 +2243,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	need = 0;
 	num = 0;
 
-        if (np != NULL) {
+	if (np != NULL) {
 	    for (i = 0, tnp = np->first; tnp != NULL; tnp = tnp->next, i++) {
 	        if ((tnp->pmid & MARK_BIT) == 0) {
 		    num++;
@@ -2249,20 +2253,20 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	}
 
 	if ((result = (char **)malloc(need)) == NULL) {
-            num = -errno;
+	    num = -errno;
 	    goto report;
 	}
 
-        if (statuslist != NULL) {
-          if ((status = (int *)malloc(num*sizeof(int))) == NULL) {
-            num = -errno;
-	    goto report;
-	  }
-        }
+	if (statuslist != NULL) {
+	    if ((status = (int *)malloc(num*sizeof(int))) == NULL) {
+		num = -errno;
+		goto report;
+	    }
+	}
 
 	p = (char *)&result[num];
 
-        if (np != NULL) {
+	if (np != NULL) {
 	    for (i = 0, tnp = np->first; tnp != NULL; tnp = tnp->next) {
 	        if ((tnp->pmid & MARK_BIT) == 0) {
 		    result[i] = p;
@@ -2287,19 +2291,19 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	        }
 	    }
 	}
-        else
-            i = 0;
+	else
+	    i = 0;
 
 	*offspring = result;
 	if (statuslist != NULL)
 	  *statuslist = status;
     }
     else {
-        /*
+	/*
 	 * PMNS_REMOTE so there must be a current host context
-         */
+	 */
 	assert(ctxp != NULL && ctxp->c_type == PM_CONTEXT_HOST);
-        num = GetChildrenStatusRemote(ctxp, name, offspring, statuslist);
+	num = GetChildrenStatusRemote(ctxp, name, offspring, statuslist);
     }
 
 check:
@@ -2394,7 +2398,7 @@ receive_namesbyid(__pmContext *ctxp, char ***namelist)
     __pmPDU      *pb;
 
     n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
-                   ctxp->c_pmcd->pc_tout_sec, &pb);
+		   ctxp->c_pmcd->pc_tout_sec, &pb);
     
     if (n == PDU_PMNS_NAMES) {
 	int numnames;
@@ -2490,9 +2494,7 @@ pmNameID(pmID pmid, char **name)
 	int         n;
 	__pmContext  *ctxp;
 
-        /* As we have PMNS_REMOTE there must be
-         * a current host context.
-         */
+	/* As we have PMNS_REMOTE there must be a current host context */
 	n = pmWhichContext();
 	assert(n >= 0);
 	ctxp = __pmHandleToPtr(n);
@@ -2569,9 +2571,7 @@ pmNameAll(pmID pmid, char ***namelist)
 	int         n;
 	__pmContext  *ctxp;
 
-        /* As we have PMNS_REMOTE there must be
-         * a current host context.
-         */
+	/* As we have PMNS_REMOTE there must be a current host context */
 	n = pmWhichContext();
 	assert(n >= 0);
 	ctxp = __pmHandleToPtr(n);
@@ -2724,9 +2724,7 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 	__pmPDU      *pb;
 	__pmContext  *ctxp;
 
-        /* As we have PMNS_REMOTE there must be
-         * a current host context.
-         */
+	/* As we have PMNS_REMOTE there must be a current host context */
 	sts = pmWhichContext();
 	assert(sts >= 0);
 	ctxp = __pmHandleToPtr(sts);
@@ -2739,9 +2737,8 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 	    char	**namelist;
 
 	    sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
-                          TIMEOUT_DEFAULT, &pb);
+				TIMEOUT_DEFAULT, &pb);
 	    if (sts == PDU_PMNS_NAMES) {
-
 		sts = __pmDecodeNameList(pb, PDU_BINARY, &numnames, 
 		                      &namelist, NULL);
 		if (sts > 0) {
@@ -2759,7 +2756,7 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 		if (sts != PM_ERR_NAME)
 		    return sts;
 		numnames = 0;
-            }
+	    }
 	    else if (sts != PM_ERR_TIMEOUT)
 		return PM_ERR_IPC;
 
@@ -2788,15 +2785,14 @@ pmTrimNameSpace(void)
     int		i;
     __pmContext	*ctxp;
     __pmHashCtl	*hcp;
-    __pmHashNode	*hp;
+    __pmHashNode *hp;
     int 	version;
-    int pmns_location = GetLocation();
+    int		pmns_location = GetLocation();
 
     if (pmns_location < 0)
 	return pmns_location;
-
     else if (pmns_location == PMNS_REMOTE)
-        return 0;
+	return 0;
 
     /* for PMNS_LOCAL ... */
 
@@ -2839,10 +2835,9 @@ __pmDumpNameSpace(FILE *f, int verbosity)
     int pmns_location = GetLocation();
 
     if (pmns_location < 0)
-        fprintf(f, "__pmDumpNameSpace: Unable to determine PMNS location\n");
-
+	fprintf(f, "__pmDumpNameSpace: Unable to determine PMNS location\n");
     else if (pmns_location == PMNS_REMOTE)
-        fprintf(f, "__pmDumpNameSpace: Name Space is remote !\n");
+	fprintf(f, "__pmDumpNameSpace: Name Space is remote !\n");
 
     dumptree(f, 0, curr_pmns->root, verbosity);
 }
