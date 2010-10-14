@@ -35,7 +35,7 @@ PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 PMCHART	= $(PCP_VAR_DIR)/config/pmchart
 PMIE	= $(PCP_VAR_DIR)/config/pmie/$(IAM)
 
-LDIRT	= domain.h *.log *.dir *.pag so_locations a.out parse.? probe.o \
+LDIRT	= domain.h cisco.log *.dir *.pag so_locations a.out parse.? probe.o \
 	$(TARGETS)
 
 default:	build-me

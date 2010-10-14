@@ -46,7 +46,7 @@ pollrate=120		# poll each Cisco interface once every 120 seconds
 
 if $do_pmda
 then
-    args="-r $pollrate"
+    args="-r$pollrate"
     default="wanptg"
     while true
     do
@@ -74,10 +74,18 @@ A username and/or user-level password may be required for the Cisco
 	    read passwd
 	    passarg=""
 	    [ "X$passwd" != X ] && passarg="-P$passwd"
+	    $PCP_ECHO_PROG $PCP_ECHO_N "Cisco prompt? [>] ""$PCP_ECHO_C"
+	    read prompt
+	    promptarg=""
+	    if [ "X$prompt" != X ]
+	    then
+		promptarg="-s'$prompt'"
+		args="$args -s$prompt"
+	    fi
 	    echo "Probing Cisco for list of interfaces ..."
 	    for try in 1 2 3
 	    do
-		intf=`./probe $userarg $passarg $host 2>$tmp.err`
+		intf=`eval ./probe $userarg $passarg $promptarg $host 2>$tmp.err`
 		[ ! -z "$intf" ] && break
 		sleep 2
 	    done
