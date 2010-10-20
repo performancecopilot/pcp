@@ -73,14 +73,14 @@ options=''
 force=''
 eval `sed -n <"$1" \
     -e '/^#/d' \
-    -e 's/?/\\\\?/g' \
-    -e 's/\*/\\\\*/g' \
-    -e 's/\[/\\\\[/g' \
+    -e 's/?/"\\\\?"/g' \
+    -e 's/\*/"\\\\*"/g' \
+    -e 's/\[/"\\\\["/g' \
     -e '/^probe[ 	]/{
-s/^probe[ 	]*/metric='"'"'/
+s/^probe[ 	]*/metric="/
 s/$/ /
-s/ /'"'"' options='"'"'/
-s/ *$/'"'"'/
+s/ /" options="/
+s/ *$/"/
 p
 q
 }' \
