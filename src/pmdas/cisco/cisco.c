@@ -50,10 +50,10 @@ static pmdaMetric	metrictab[] = {
     /* 0,0 ... for direct map, sigh */
     { NULL, { PMDA_PMID(0,0), 0, 0, 0, PMDA_PMUNITS(0,0,0,0,0,0) } },
     /* bytes-in */
-    { NULL, { PMDA_PMID(0,1), PM_TYPE_U32, CISCO_INDOM, PM_SEM_COUNTER, 
+    { NULL, { PMDA_PMID(0,1), PM_TYPE_U64, CISCO_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
     /* bytes-out */
-    { NULL, { PMDA_PMID(0,2), PM_TYPE_U32, CISCO_INDOM, PM_SEM_COUNTER, 
+    { NULL, { PMDA_PMID(0,2), PM_TYPE_U64, CISCO_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
     /* rate-in */
     { NULL, { PMDA_PMID(0,3), PM_TYPE_U32, CISCO_INDOM, PM_SEM_INSTANT, 
@@ -65,7 +65,7 @@ static pmdaMetric	metrictab[] = {
     { NULL, { PMDA_PMID(0,5), PM_TYPE_U32, CISCO_INDOM, PM_SEM_DISCRETE, 
 	PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_SEC,0) } },
     /* bytes_out_bcast */
-    { NULL, { PMDA_PMID(0,6), PM_TYPE_U32, CISCO_INDOM, PM_SEM_COUNTER, 
+    { NULL, { PMDA_PMID(0,6), PM_TYPE_U64, CISCO_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
     };
@@ -136,7 +136,8 @@ refresh(void *dummy)
 		if (pmDebug & DBG_TRACE_APPL0)
 		    fprintf(stderr, "... %s voluntary disconnect\n", cisco[i].host);
 #endif
-
+		if (parse_only)
+		    exit(0);
 		/* close CISCO telnet session */
 		fprintf(cisco[i].fout, "exit\n");
 		fclose(cisco[i].fout);

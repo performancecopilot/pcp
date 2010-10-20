@@ -70,7 +70,7 @@ skip2eol(FILE *f)
     int		c;
 
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebug & DBG_TRACE_APPL2)
 	fprintf(stderr, "skip2eol:");
 #endif
 
@@ -78,22 +78,23 @@ skip2eol(FILE *f)
 	if (c == '\n')
 	    break;
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebug & DBG_TRACE_APPL2)
 	    fprintf(stderr, "%c", c);
 #endif
     }
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebug & DBG_TRACE_APPL2)
 	fputc('\n', stderr);
 #endif
 }
 
 char *
-mygetwd(FILE *f)
+mygetwd(FILE *f, char *prompt)
 {
     char	*p;
     int		c;
     static char	buf[1024];
+    int		len_prompt = strlen(prompt);
 
     p = buf;
 
@@ -104,14 +105,14 @@ mygetwd(FILE *f)
 	    break;
 	}
         *p++ = c;
-        if (c == '>')
+	if (p-buf >= len_prompt && strncmp(&p[-len_prompt], prompt, len_prompt) == 0)
 	    break;
     }
     *p = '\0';
 
     if (feof(f)) {
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebug & DBG_TRACE_APPL2)
 	    fprintf(stderr, "mygetwd: EOF fd=%d\n", fileno(f));
 #endif
 	return NULL;
@@ -126,8 +127,42 @@ mygetwd(FILE *f)
 }
 
 /*
- * CISCO "show interface" command has one of the following formats ...
- * the parser below is sensitive to this!
+ * The CISCO "show interface" command output is parsed.
+ *
+ * See the file Samples for examples.
+ *
+ * The parser is a Finite State Automaton (FSA) that follows these
+ * rules:
+ *
+ * SHOW_INT style ... uses "show int <interface>" command
+ * state	token			next state
+ * NOISE	<interface name>	IN_REPORT
+ * IN_REPORT	Description:		skip rest of line, IN_REPORT
+ * IN_REPORT	<prompt>		DONE
+ * IN_REPORT	minute			RATE
+ * IN_REPORT	second			RATE
+ * IN_REPORT	input,			BYTES_IN
+ * IN_REPORT	output,			BYTES_OUT
+ * IN_REPORT	BW			BW
+ * RATE		input			skip next token, RATE_IN
+ * RATE		output			skip next token, RATE_OUT
+ * RATE_IN	<number> (rate_in)	IN_REPORT
+ * RATE_OUT	<number> (rate_out)	IN_REPORT
+ * BYTES_IN	<number> (bytes_in)	IN_REPORT
+ * BYTES_OUT	<number> (bytes_out)	IN_REPORT
+ * BW		<number> (bandwidth)	IN_REPORT
+ *
+ * SHOW_FRAME style ... uses "show frame pvc int <interface>" command
+ * state		token			next state
+ * NOISE		<interface name>	IN_REPORT
+ * IN_REPORT		Description:		skip rest of line, IN_REPORT
+ * IN_REPORT		<prompt>		DONE
+ * IN_REPORT		1st bytes		BYTES_IN
+ * IN_REPORT		2nd bytes		BYTES_OUT
+ * IN_REPORT		3rd bytes		BYTES_OUT_BCAST
+ * BYTES_IN		<number> (bytes_in)	IN_REPORT
+ * BYTES_OUT		<number> (bytes_out)	IN_REPORT
+ * BYTES_OUT_BCAST	<number> (bytes_out_bcast)	IN_REPORT
  *
  * Note lines are terminated with \r
  */
@@ -152,32 +187,36 @@ static char *statestr[] = {
 #endif
 
 int
-dousername(FILE *fin, FILE *fout, char *username, char *host, char **pass)
+dousername(cisco_t *cp, char **pw_prompt)
 {
     char	*w;
     int		len, done = 0;
+    int		len_prompt = strlen(cp->prompt);
 
     for ( ; ; ) {
-	w = mygetwd(fin);
-	if (w == NULL || w[strlen(w)-1] == '>')
+	w = mygetwd(cp->fin, cp->prompt);
+	if (w == NULL)
+	    break;
+	if (strlen(w) >= len_prompt && strncmp(&w[strlen(w)-len_prompt], cp->prompt, len_prompt) == 0)
 	    break;
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL0)
 	    fprintf(stderr, "Username:? got - %s\n", w);
 #endif
 	if (strcmp(w, USERPROMPT) == 0) {
-	    fprintf(fout, "%s\n", username);
-	    fflush(fout);
+	    fprintf(cp->fout, "%s\n", cp->username);
+	    fflush(cp->fout);
 	    for ( ; ; ) {
-		w = mygetwd(fin);
+		w = mygetwd(cp->fin, cp->prompt);
 		if (w == NULL || strcmp(w, USERPROMPT) == 0)
 		    /* closed connection or Username re-prompt */
 		    break;
-		len = strlen(w) - 1;
-		if (w[len] == '>' || w[len] == ':') {
+		len = strlen(w);
+		if ((len >= len_prompt && strncmp(&w[len-len_prompt], cp->prompt, len_prompt) == 0) ||
+		    w[len-1] == ':') {
 		    /* command prompt or passwd */
-		    if (w[len] == ':')
-			*pass = w;
+		    if (w[len-1] == ':')
+			*pw_prompt = w;
 		    done = 1;
 		    break;
 		}
@@ -188,46 +227,49 @@ dousername(FILE *fin, FILE *fout, char *username, char *host, char **pass)
 
     if (done == 0) {
 	fprintf(stderr, "Error: Cisco username negotiation failed for \"%s\"\n",
-		    host);
+		    cp->host);
 	fprintf(stderr,
 "To check that a username is required, enter the following command:\n"
 "   $ telnet %s\n"
 "If the prompt \"%s\" does not appear, no username is required.\n"
 "Otherwise, enter the username \"%s\" to check that this\n"
 "is correct.\n",
-host, USERPROMPT, username);
+cp->host, USERPROMPT, cp->username);
     }
 
     return done;
 }
 
 int
-dopasswd(FILE *fin, FILE *fout, char *passwd, char *host, char *pass)
+dopasswd(cisco_t *cp, char *pw_prompt)
 {
     char	*w;
     int		done = 0;
+    int		len_prompt = strlen(cp->prompt);
 
     for ( ; ; ) {
-	if (pass)	/* dousername may have read passwd prompt */
-	    w = pass;
+	if (pw_prompt)	/* dousername may have read passwd prompt */
+	    w = pw_prompt;
 	else
-	    w = mygetwd(fin);
-	pass = NULL;
-	if (w == NULL || w[strlen(w)-1] == '>')
+	    w = mygetwd(cp->fin, cp->prompt);
+	pw_prompt = NULL;
+	if (w == NULL)
+	    break;
+	if (strlen(w) >= len_prompt && strncmp(&w[strlen(w)-len_prompt], cp->prompt, len_prompt) == 0)
 	    break;
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL0)
 	    fprintf(stderr, "Password:? got - %s\n", w);
 #endif
 	if (strcmp(w, PWPROMPT) == 0) {
-	    fprintf(fout, "%s\n", passwd);
-	    fflush(fout);
+	    fprintf(cp->fout, "%s\n", cp->passwd);
+	    fflush(cp->fout);
 	    for ( ; ; ) {
-		w = mygetwd(fin);
+		w = mygetwd(cp->fin, cp->prompt);
 		if (w == NULL || strcmp(w, PWPROMPT) == 0)
 		    /* closed connection or user-level password re-prompt */
 		    break;
-		if (w[strlen(w)-1] == '>') {
+		if (strlen(w) >= len_prompt && strncmp(&w[strlen(w)-len_prompt], cp->prompt, len_prompt) == 0) {
 		    /* command prompt */
 		    done = 1;
 		    break;
@@ -239,14 +281,14 @@ dopasswd(FILE *fin, FILE *fout, char *passwd, char *host, char *pass)
 
     if (done == 0) {
 	fprintf(stderr, "Error: Cisco user-level password negotiation failed for \"%s\"\n",
-		    host);
+		    cp->host);
 	fprintf(stderr,
 "To check that a user-level password is required, enter the following command:\n"
 "   $ telnet %s\n"
 "If the prompt \"%s\" does not appear, no user-level password is required.\n"
 "Otherwise, enter the user-level password \"%s\" to check that this\n"
 "is correct.\n",
-host, PWPROMPT, passwd);
+cp->host, PWPROMPT, cp->passwd);
     }
 
     return done;
@@ -272,11 +314,12 @@ get_fr_bw(cisco_t *cp, char *interface)
     int		state = NOISE;
     int		bandwidth = -1;
     char	*w;
+    int		len_prompt = strlen(cp->prompt);
 
     fprintf(cp->fout, "show int s%s\n", interface);
     fflush(cp->fout);
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebug & DBG_TRACE_APPL2)
 	fprintf(stderr, "BW Parse:");
 #endif
     while (state != DONE) {
@@ -284,7 +327,7 @@ get_fr_bw(cisco_t *cp, char *interface)
 	if (pmDebug & DBG_TRACE_APPL2)
 	    fprintf(stderr, "[%s] ", statestr[state+1]);
 #endif
-	w = mygetwd(cp->fin);
+	w = mygetwd(cp->fin, cp->prompt);
 	if (w == NULL || timeout) {
 	    /*
 	     * End of File (telenet timeout?)
@@ -302,7 +345,7 @@ get_fr_bw(cisco_t *cp, char *interface)
 	    case IN_REPORT:
 		if (strcmp(w, "Description:") == 0)
 		    skip2eol(cp->fin);
-		else if (w[strlen(w)-1] == '>')
+		else if (strlen(w) >= len_prompt && strncmp(&w[strlen(w)-len_prompt], cp->prompt, len_prompt) == 0)
 		    state = DONE;
 		else if (strcmp(w, "BW") == 0)
 		    state = BW;
@@ -310,8 +353,8 @@ get_fr_bw(cisco_t *cp, char *interface)
 
 	    case BW:
 		sscanf(w, "%d", &bandwidth);
-		bandwidth *= 1024;		/* Kbit -> bytes/sec */
-		bandwidth /= 10;
+		bandwidth *= 1000;		/* Kbit -> bytes/sec */
+		bandwidth /= 8;
 		state = IN_REPORT;
 		break;
 
@@ -335,15 +378,16 @@ grab_cisco(intf_t *ip)
     int		style;
     int		next_state;
     int		state = NOISE;
-    int		skip = 0;		/* initialize to pander to gcc */
+    int		skip = 0;
     int		i;
     int		namelen;
-    char	*pass = NULL;
+    char	*pw_prompt = NULL;
     char	*w;
     int		fd;
     int		nval = 0;
     cisco_t	*cp = ip->cp;
     intf_t	tmp;
+    int		len_prompt = strlen(cp->prompt);
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
@@ -351,7 +395,8 @@ grab_cisco(intf_t *ip)
     }
 #endif
 
-    tmp.bandwidth = tmp.rate_in = tmp.rate_out = tmp.bytes_in = tmp.bytes_out = tmp.bytes_out_bcast = -1;
+    tmp.bandwidth = tmp.rate_in = tmp.rate_out = -1;
+    tmp.bytes_in = tmp.bytes_out = tmp.bytes_out_bcast = -1;
 
     if (cp->fin == NULL) {
 	fd = conn_cisco(cp);
@@ -368,7 +413,7 @@ grab_cisco(intf_t *ip)
 	    cp->fin = fdopen (fd, "r");
 	    cp->fout = fdopen (dup(fd), "w");
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL1) {
+	    if (pmDebug & DBG_TRACE_APPL0) {
 		fprintf(stderr, "grab_cisco(%s:%s): connected fin=%d fout=%d",
 		    cp->host, ip->interface, fileno(cp->fin), fileno(cp->fout));
 		if (cp->username != NULL)
@@ -387,7 +432,7 @@ grab_cisco(intf_t *ip)
 		/*
 		 * Username stuff ...
 		 */
-		if (dousername(cp->fin, cp->fout, cp->username, cp->host, &pass) == 0) {
+		if (dousername(cp, &pw_prompt) == 0) {
 		    fclose(cp->fin);
 		    fclose(cp->fout);
 		    cp->fin = NULL;
@@ -398,7 +443,7 @@ grab_cisco(intf_t *ip)
 		/*
 		 * User-level password stuff ...
 		 */
-		if (dopasswd(cp->fin, cp->fout, cp->passwd, cp->host, pass) == 0) {
+		if (dopasswd(cp, pw_prompt) == 0) {
 		    fclose(cp->fin);
 		    fclose(cp->fout);
 		    cp->fin = NULL;
@@ -443,7 +488,7 @@ grab_cisco(intf_t *ip)
     fflush(cp->fout);
     state = NOISE;
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebug & DBG_TRACE_APPL2)
 	fprintf(stderr, "Parse:");
 #endif
     while (state != DONE) {
@@ -451,7 +496,7 @@ grab_cisco(intf_t *ip)
 	if (pmDebug & DBG_TRACE_APPL2)
 	    fprintf(stderr, "[%s] ", statestr[state+1]);
 #endif
-	w = mygetwd(cp->fin);
+	w = mygetwd(cp->fin, cp->prompt);
 	if (w == NULL || timeout) {
 	    /*
 	     * End of File (telenet timeout?)
@@ -483,7 +528,7 @@ grab_cisco(intf_t *ip)
 	    case IN_REPORT:
 		if (strcmp(w, "Description:") == 0)
 		    skip2eol(cp->fin);
-		else if (w[strlen(w)-1] == '>')
+		if (strlen(w) >= len_prompt && strncmp(&w[strlen(w)-len_prompt], cp->prompt, len_prompt) == 0)
 		    state = DONE;
 		else if (style == SHOW_INT) {
 		    if (strcmp(w, "minute") == 0 || strcmp(w, "second") == 0)
@@ -528,7 +573,7 @@ grab_cisco(intf_t *ip)
 
 	    case RATE_IN:
 		if (skip-- == 0) {
-		    tmp.rate_in = atol(w) / 10;
+		    tmp.rate_in = atol(w) / 8;
 		    nval++;
 		    state = IN_REPORT;
 		}
@@ -536,34 +581,34 @@ grab_cisco(intf_t *ip)
 
 	    case RATE_OUT:
 		if (skip-- == 0) {
-		    tmp.rate_out = atol(w) / 10;
+		    tmp.rate_out = atol(w) / 8;
 		    nval++;
 		    state = IN_REPORT;
 		}
 		break;
 
 	    case BYTES_IN:
-		sscanf(w, "%u", &tmp.bytes_in);
+		tmp.bytes_in = strtoull(w, NULL, 10);
 		nval++;
 		state = IN_REPORT;
 		break;
 
 	    case BYTES_OUT:
-		sscanf(w, "%u", &tmp.bytes_out);
+		tmp.bytes_out = strtoull(w, NULL, 10);
 		nval++;
 		state = IN_REPORT;
 		break;
 
 	    case BYTES_OUT_BCAST:
-		sscanf(w, "%u", &tmp.bytes_out_bcast);
+		tmp.bytes_out_bcast = strtoull(w, NULL, 10);
 		nval++;
 		state = IN_REPORT;
 		break;
 
 	    case BW:
 		sscanf(w, "%d", &tmp.bandwidth);
-		tmp.bandwidth *= 1024;		/* Kbit -> bytes/sec */
-		tmp.bandwidth /= 10;
+		tmp.bandwidth *= 1000;		/* Kbit -> bytes/sec */
+		tmp.bandwidth /= 8;
 		nval++;
 		state = IN_REPORT;
 		break;
@@ -573,8 +618,34 @@ grab_cisco(intf_t *ip)
     alarm(0);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
-	fprintf(stderr, "Extracted %d values ...\nbandwidth: %d bytes/sec\nrecent rate (bytes/sec): %d in %d out  total bytes: %u in %u out %u out_bcast\n\n",
-	    nval, tmp.bandwidth, tmp.rate_in, tmp.rate_out, tmp.bytes_in, tmp.bytes_out, tmp.bytes_out_bcast);
+	fprintf(stderr, "Extracted %d values ...\n", nval);
+	if (tmp.bandwidth != 0xffffffff)
+	    fprintf(stderr, "bandwidth: %d bytes/sec\n", tmp.bandwidth);
+	else
+	    fprintf(stderr, "bandwidth: ? bytes/sec\n");
+	fprintf(stderr, "recent rate (bytes/sec):");
+	if (tmp.rate_in != 0xffffffff)
+	    fprintf(stderr, " %d in", tmp.rate_in);
+	else
+	    fprintf(stderr, " ? in");
+	if (tmp.rate_out != 0xffffffff)
+	    fprintf(stderr, " %d out", tmp.rate_out);
+	else
+	    fprintf(stderr, " ? out");
+	fprintf(stderr, "\ntotal bytes:");
+	if (tmp.bytes_in != 0xffffffffffffffffLL)
+	    fprintf(stderr, " %llu in", tmp.bytes_in);
+	else
+	    fprintf(stderr, " ? in");
+	if (tmp.bytes_out != 0xffffffffffffffffLL)
+	    fprintf(stderr, " %llu out", tmp.bytes_out);
+	else
+	    fprintf(stderr, " ? out");
+	if (tmp.bytes_out_bcast != 0xffffffffffffffffLL)
+	    fprintf(stderr, " %llu out_bcast", tmp.bytes_out_bcast);
+	else
+	    fprintf(stderr, " ? out_bcast");
+	fprintf(stderr, "\n\n");
     }
 #endif
 

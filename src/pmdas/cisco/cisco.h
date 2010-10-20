@@ -31,21 +31,22 @@ typedef struct {
     struct sockaddr_in	ipaddr;		/* IP address for 'host' */
     char		*username;	/* username */
     char		*passwd;	/* password */
+    char		*prompt;	/* command prompt */
     FILE		*fout;		/* write cmds here */
     FILE		*fin;		/* read output here */
 } cisco_t;
 
 typedef struct {
 
+    cisco_t		*cp;		/* which CISCO? */
     char		*interface;	/* interface name, e.g. s0 or e10/10 */
     int			fetched;	/* valid stats? */
     __uint32_t		bandwidth;	/* peak bandwidth */
-    __uint32_t		bytes_in;	/* stats */
-    __uint32_t		bytes_out;
-    __uint32_t		bytes_out_bcast;
     __uint32_t		rate_in;
     __uint32_t		rate_out;
-    cisco_t		*cp;		/* which CISCO? */
+    __uint64_t		bytes_in;	/* stats */
+    __uint64_t		bytes_out;
+    __uint64_t		bytes_out_bcast;
 } intf_t;
 
 extern cisco_t		*cisco;
@@ -74,8 +75,10 @@ extern pmdaInstid	*_router;
 
 extern int conn_cisco(cisco_t *);
 extern int grab_cisco(intf_t *);
-extern int dousername(FILE *, FILE *, char *, char *, char **);
-extern int dopasswd(FILE *, FILE *, char *, char *, char *);
-extern char *mygetwd(FILE *);
+extern int dousername(cisco_t *, char **);
+extern int dopasswd(cisco_t *, char *);
+extern char *mygetwd(FILE *, char *);
+
+extern int parse_only;
 
 #endif /* _CISCO_H */
