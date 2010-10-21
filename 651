@@ -20,9 +20,12 @@ then
     exit 0
 fi
 
+hostname=`_get_fqdn`
+
 _filter()
 {
     sed \
+	-e "s/$hostname/MYHOST/" \
 	-e "s/`hostname`/MYHOST/" \
 	-e '/hinv.ncpu/s/ 1 [0-9][0-9]*/ 1 <n>/'
 }
@@ -42,7 +45,7 @@ _cleanup()
 $sudo $signal -a pmproxy
 sleep 1
 
-PMPROXY_HOST=`hostname`
+PMPROXY_HOST=$hostname
 export PMPROXY_HOST
 
 echo "== pmproxy not running =="
