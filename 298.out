@@ -1,13 +1,13 @@
 QA output created by 298
 === live ===
-  loadav    %usr    %sys    %wio   %idle max-iop
+  loadav    %usr    %sys    %wio   %idle max-iops
  N       ?       ?       ?       ?       ?
  N N N N N N
  N N N N N N
  N N N N N N
 
 === live, pmie -e ===
-                           loadav    %usr    %sys    %wio   %idle max-iop
+                           loadav    %usr    %sys    %wio   %idle max-iops
 DATE N       ?       ?       ?       ?       ?
 DATE N N N N N N
 DATE N N N N N N
