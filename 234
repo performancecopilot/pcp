@@ -15,6 +15,8 @@ echo "QA output created by $seq"
 status=0
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+rm -f $seq.full
+
 stocave=0
 noncountstocave=0
 timeave=0
@@ -263,6 +265,11 @@ $sudo rm -f $tmp.b.0 $tmp.b.meta $tmp.b.index
 pmlogger -c $tmp.a.config -l $tmp.a.log -s 2 $tmp.a >$tmp.a.err 2>&1
 pmlogger -c $tmp.b.config -l $tmp.b.log -s 5 $tmp.b >$tmp.b.err 2>&1
 
+echo "=== tmp.a ===" >>$seq.full
+pmdumplog $tmp.a >>$seq.full
+echo "=== tmp.b ===" >>$seq.full
+pmdumplog $tmp.b >>$seq.full
+
 wait
 echo "Filtering ..."
 cat $tmp.a.err $tmp.a.log | _filter_pmlogger_log
@@ -271,6 +278,9 @@ cat $tmp.b.err $tmp.b.log | _filter_pmlogger_log
 echo "Merging ..."
 rm -f $tmp.merge.*
 pmlogextract $tmp.a $tmp.b $tmp.merge
+
+echo "=== tmp.merge ===" >>$seq.full
+pmdumplog $tmp.merge >>$seq.full
 
 # ensure no mark records in archive...
 # 
