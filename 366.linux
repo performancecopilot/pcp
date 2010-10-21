@@ -288,14 +288,8 @@ QA output created by 366
 > #----
 > #+ apache/uptime:x::
 > #----
-> #+ filesystem/summary:y:default:
+> #+ filesystem/summary:n:default:
 > ## filesystem size and fullness
-> log advisory on default {
-> 	filesys.full
-> 	filesys.used
-> 	filesys.free
-> 	filesys.avail		# for Linux
-> }
 > #----
 > #+ filesystem/xfs-io-linux:n:default:
 > ## XFS data and log I/O traffic [Linux]
@@ -322,8 +316,7 @@ QA output created by 366
 > 	network.interface.in.drops
 > 	network.interface.out.drops
 > 	disk.dev.avactive
-> 	mem.slabinfo.objects.active [ ext3_inode_cache dentry_cache buffer_head ]
-> 	mem.slabinfo.objects.total [ ext3_inode_cache dentry_cache buffer_head ]
+> 	filesys.full
 > }
 > #----
 > #+ kernel/summary-windows:x::
@@ -364,7 +357,7 @@ QA output created by 366
 > ## Linux swap, cache and networking configuration
 > log advisory on once {
 > 	swap.length
-> 	mem.slabinfo.objects.size [ ext3_inode_cache dentry_cache buffer_head ]
+> 	mem.slabinfo.objects.size
 > 	network.interface.mtu
 > 	network.interface.speed
 > 	network.interface.duplex
