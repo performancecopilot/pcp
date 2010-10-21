@@ -100,15 +100,12 @@ p
 
 _host_to_fqdn()
 {
-    ans=`hostname -f 2>/dev/null`
+    ans=`hostname -f 2>/dev/null | grep '\.'`
     if [ -z "$ans" ]
     then
 	if which nslookup >/dev/null 2>&1
 	then
-	    nslookup $1 2>&1 \
-	    | sed -n \
-		-e '1,/^$/d' \
-		-e '/^Name:  */s///p'
+	    ans=`nslookup $1 2>&1 | sed -n -e '/^Name:[ 	][ 	]*/s///p'`
 	fi
     fi
     if [ -z "$ans" ]
@@ -139,6 +136,9 @@ _wait_for_pmcd()
     _host=${2-localhost}
     _i=0
     _dead=true
+    #debug# ping -c 2 $_host
+    #debug# pcp -h $_host
+    #debug# pcp -h `hostname`
     while [ $_i -lt $_can_wait ]
     do
 	#debug# pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients
@@ -156,11 +156,15 @@ _wait_for_pmcd()
     if $_dead
     then
 	echo "Arrgghhh ... pmcd at $_host failed to start after $_can_wait seconds"
+	echo "=== failing pmprobe ==="
+	echo "+ pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients"
+	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients
 	case $_host
 	in
 	    localhost)
 		echo "=== pmcd.log ==="
 		cat $PCP_LOG_DIR/pmcd/pmcd.log
+
 		echo "likely looking processes ..."
 		ps "$PCP_PS_ALL_FLAGS" | egrep "pm|PPID"
 		;;
