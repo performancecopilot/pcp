@@ -142,4 +142,11 @@ sample.const_rate.value
 sample.const_rate.gradient
 sample.scramble.version
 sample.scramble.bin
+sample.percontext.pdu
+sample.percontext.recv_pdu
+sample.percontext.xmit_pdu
+sample.percontext.control.ctx
+sample.percontext.control.active
+sample.percontext.control.start
+sample.percontext.control.end
 pmlc> 

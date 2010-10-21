@@ -86,6 +86,13 @@ PMID: 29.0.2 (sample.seconds)
 0 sample.not_ready
 0 sample.part_bin
 0 sample.pdu
+0 sample.percontext.control.active
+0 sample.percontext.control.ctx
+0 sample.percontext.control.end
+0 sample.percontext.control.start
+0 sample.percontext.pdu
+0 sample.percontext.recv_pdu
+0 sample.percontext.xmit_pdu
 0 sample.rapid
 0 sample.recv_pdu
 0 sample.scale_step.bytes_down
@@ -200,6 +207,13 @@ PMID: 29.0.2 (sample.seconds)
 2 sample.not_ready
 2 sample.part_bin
 2 sample.pdu
+2 sample.percontext.control.active
+2 sample.percontext.control.ctx
+2 sample.percontext.control.end
+2 sample.percontext.control.start
+2 sample.percontext.pdu
+2 sample.percontext.recv_pdu
+2 sample.percontext.xmit_pdu
 2 sample.rapid
 2 sample.recv_pdu
 2 sample.scale_step.bytes_down
