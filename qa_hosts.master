@@ -47,7 +47,7 @@ deb32.bork.org
 #order	.aconex.com		.localdomain	.aconex.com
 #order	.localdomain		.localdomain
 # Kenj Section
-#order	bozo.localdomain	.localdomain
-#order	bozo-laptop.localdomain	.localdomain
+#order	bozo			.localdomain
+#order	bozo-laptop		.localdomain
 # Mort Section
 #order .bork.org .bork.org
