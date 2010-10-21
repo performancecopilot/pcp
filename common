@@ -642,7 +642,7 @@ else
 
     # make in the src and src-oss subdirectories
     #
-    for dir in src src-oss
+    for dir in src src-oss pmdas
     do
 	[ -d $dir ] || continue
 	if ( cd $dir; unset ROOT TOOLROOT; make -i )

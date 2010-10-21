@@ -13,7 +13,8 @@ include $(PCP_INC_DIR)/builddefs
 
 SUBDIRS = broken
 
-default: 
+default: $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 
-install:
-
+clobber install: $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)

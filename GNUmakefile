@@ -25,7 +25,7 @@ install_pcp install_pro:
 
 exports install:
 
-clobber cleanup:
+clobber cleanup:	$(SUBDIRS)
 	rm -rf 051.work
 	rm -f *.bak *.bad *.core *.full *.raw *.o core a.out core.*
 	rm -f *.log eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz
@@ -48,6 +48,7 @@ clobber cleanup:
 	    376.out 411.out 417.out 419.out 421.out 430.out 465.out 519.out \
 	    555.out 558.out 560.out 565.out 574.out \
 	    580.out 587.out 597.out 600.out 603.out 605.out
+	$(SUBDIRS_MAKERULE)
 
 # 051 depends on this rule being here
 051.work/die.001: 051.setup

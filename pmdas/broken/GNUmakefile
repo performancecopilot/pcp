@@ -30,6 +30,9 @@ LDIRT	= *.log domain.h help.pag help.dir $(subst .c,.o,$(CFILES)) \
 
 default: $(CFILES_TARGETS) $(TARGETS)
 
+clobber:
+	rm -f $(LDIRT) $(TARGETS)
+
 $(TARGETS):
 
 install: default
