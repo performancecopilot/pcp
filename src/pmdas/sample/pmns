@@ -77,6 +77,7 @@ sample {
     datasize	SAMPLE:0:91
     secret	SAMPLE:*:*
     scramble
+    percontext
 }
 
 sample.long {
@@ -224,4 +225,18 @@ sample.many {
 sample.scramble {
     version	SAMPLE:0:120
     bin		SAMPLE:0:121
+}
+
+sample.percontext {
+    control
+    pdu		SAMPLE:0:43
+    recv_pdu	SAMPLE:0:44
+    xmit_pdu	SAMPLE:0:45
+}
+
+sample.percontext.control {
+    ctx		SAMPLE:0:122
+    active	SAMPLE:0:123
+    start	SAMPLE:0:124
+    end		SAMPLE:0:125
 }

@@ -40,12 +40,15 @@ PMDADIR = $(PCP_PMDAS_DIR)/sample
 
 LDIRT = $(TARGETS)
 
-CFILES = pmda.c sample.c
+CFILES = pmda.c sample.c percontext.c
+HFILES = percontext.h
 
 LCFLAGS = -DDYNAMIC_SPEC=\"$(PCP_PMDAS_DIR)/sample/dynamic.indom\"
 LLDLIBS = -lpcp -lpcp_pmda
 
 default:	../domain.h $(TARGETS)
+
+pmda.o sample.o percontext.o: percontext.h
 
 ../domain.h:
 	$(MAKE) -C .. domain.h

@@ -15,6 +15,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "percontext.h"
 #include <limits.h>
 #include <sys/stat.h>
 #include "../domain.h"
@@ -129,12 +130,12 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,41), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /* xmit-pdu */
     { PMDA_PMID(0,42), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* UNUSED  */
-    { PMDA_PMID(0,43), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* UNUSED */
-    { PMDA_PMID(0,44), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* UNUSED */
-    { PMDA_PMID(0,45), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* percontext.pdu */
+    { PMDA_PMID(0,43), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* percontext.recv-pdu */
+    { PMDA_PMID(0,44), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* percontext.xmit-pdu */
+    { PMDA_PMID(0,45), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /* lights */
     { PMDA_PMID(0,46), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* magnitude */
@@ -287,9 +288,15 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,120), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* scramble.bin */
     { PMDA_PMID(0,121), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* percontext.control.ctx */
+    { PMDA_PMID(0,122), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* percontext.control.active */
+    { PMDA_PMID(0,123), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* percontext.control.start */
+    { PMDA_PMID(0,124), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* percontext.control.end */
+    { PMDA_PMID(0,125), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 
-/* bigid */
-    { PMDA_PMID(0,1023), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /*
  * dynamic PMNS ones
  * secret.bar
@@ -309,6 +316,9 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,1006), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /*  secret.foo.bar.grunt.snort.seven */
     { PMDA_PMID(0,1007), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+
+/* bigid */
+    { PMDA_PMID(0,1023), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 
 /* End-of-List */
     { PM_ID_NULL, 0, 0, 0, { 0, 0, 0, 0, 0, 0 } }
@@ -509,8 +519,6 @@ static void		*_aggr34;	/* aggregate.hullo */
 static int		_len34;
 static void		*_aggr35;	/* aggregate.write_me */
 static int		_len35;
-static long		_recv_pdu;	/* # pdus recv */
-static long		_xmit_pdu;	/* # pdus out */
 static long		_col46;		/* lights */
 static int		_n46;		/* sample count for lights */
 static long		_mag47;		/* magnitude */
@@ -1119,7 +1127,7 @@ init_tables(int dom)
 static int
 sample_profile(__pmProfile *prof, pmdaExt *ep)
 {
-    _recv_pdu++;
+    sample_inc_recv(ep->e_context);
     _profile = prof;	
     return 0;
 }
@@ -1132,11 +1140,10 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
     indom_t	*idp;
     int		err = 0;
 
-    _recv_pdu++;
-    _xmit_pdu++;
+    sample_inc_recv(ep->e_context);
+    sample_inc_xmit(ep->e_context);
 
     if (not_ready > 0) {
-	_xmit_pdu++;
 	return limbo();
     }
 
@@ -1503,11 +1510,10 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
     pmAtomValue	atom;
     int		type;
 
-    _recv_pdu++;
-    _xmit_pdu++;
+    sample_inc_recv(ep->e_context);
+    sample_inc_xmit(ep->e_context);
 
     if (not_ready > 0) {
-	_xmit_pdu++;
 	return limbo();
     }
 
@@ -1752,16 +1758,32 @@ doit:
 		    atom.l = (1 + (time(NULL) - _start) / 30) * _step;
 		    break;
 		case 40:
-		    /* total pdu count */
-		    atom.ll = (__int64_t)_recv_pdu + (__int64_t)_xmit_pdu;
+		    /* total pdu count for all contexts */
+		    atom.ll = (__int64_t)sample_get_recv(CTX_ALL) + (__int64_t)sample_get_xmit(CTX_ALL);
 		    break;
 		case 41:
-		    /* recv pdu count */
-		    atom.l = (__int32_t)_recv_pdu;
+		    /* recv pdu count for all contexts */
+		    atom.l = sample_get_recv(CTX_ALL);
 		    break;
 		case 42:
-		    /* xmit pdu count */
-		    atom.l = (__int32_t)_xmit_pdu;
+		    /* xmit pdu count for all contexts */
+		    atom.l = sample_get_xmit(CTX_ALL);
+		    break;
+		case 43:
+		case 44:
+		case 45:
+		case 122:
+		case 123:
+		case 124:
+		case 125:
+		    /* percontext.pdu */
+		    /* percontext.recv-pdu */
+		    /* percontext.xmit-pdu */
+		    /* percontext.control.ctx */
+		    /* percontext.control.active */
+		    /* percontext.control.start */
+		    /* percontext.control.end */
+		    atom.l = sample_ctx_fetch(ep->e_context, pmidp->item);
 		    break;
 		case 37:
 		    /* mirage */
@@ -2268,11 +2290,10 @@ sample_desc(pmID pmid, pmDesc *desc, pmdaExt *ep)
     int		i;
     __pmID_int	*pmidp = (__pmID_int *)&pmid;
 
-    _recv_pdu++;
-    _xmit_pdu++;
+    sample_inc_recv(ep->e_context);
+    sample_inc_xmit(ep->e_context);
 
     if (not_ready > 0) {
-	_xmit_pdu++;
 	return limbo();
     }
 
@@ -2305,11 +2326,10 @@ sample_text(int ident, int type, char **buffer, pmdaExt *ep)
 {
     int sts;
 
-    _recv_pdu++;
-    _xmit_pdu++;
+    sample_inc_recv(ep->e_context);
+    sample_inc_xmit(ep->e_context);
 
     if (not_ready > 0) {
-	_xmit_pdu++;
 	return limbo();
     }
 
@@ -2350,11 +2370,10 @@ sample_store(pmResult *result, pmdaExt *ep)
     __int32_t	*lp;
     pmAtomValue	av;
 
-    _recv_pdu++;
-    _xmit_pdu++;
+    sample_inc_recv(ep->e_context);
+    sample_inc_xmit(ep->e_context);
 
     if (not_ready > 0) {
-	_xmit_pdu++;
 	return limbo();
     }
 
@@ -2394,7 +2413,6 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 36:
 	    case 42:
 	    case 41:
-	    case 40:	/* pdu */
 	    case 14:	/* long.write_me */
 	    case 8:	/* step */
 	    case 7:	/* drift */
@@ -2413,6 +2431,12 @@ sample_store(pmResult *result, pmdaExt *ep)
 		if (vsp->numval != 1)
 		    sts = PM_ERR_CONV;
 		/* accommodate both old and new encoding styles for floats */
+		break;
+
+	    case 40:	/* pdu */
+		/* value is ignored, so valfmt does not matter */
+		if (vsp->numval != 1)
+		    sts = PM_ERR_CONV;
 		break;
 
 	    default:
@@ -2463,13 +2487,14 @@ sample_store(pmResult *result, pmdaExt *ep)
 		 * for the pdu group, the value is ignored, and the only
 		 * operation is to reset the counter(s)
 		 */
-		_xmit_pdu = _recv_pdu = 0;
+		sample_clr_recv(CTX_ALL);
+		sample_clr_xmit(CTX_ALL);
 		break;
 	    case 41:
-		_recv_pdu = 0;
+		sample_clr_recv(CTX_ALL);
 		break;
 	    case 42:
-		_xmit_pdu = 0;
+		sample_clr_xmit(CTX_ALL);
 		break;
 	    case 36:
 		_write_me = av.l;
@@ -2548,7 +2573,7 @@ void sample_init(pmdaInterface *dp)
 	int sep = __pmPathSeparator();
 	snprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "dsohelp",
 			pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_4, "sample DSO", helppath);
+	pmdaDSO(dp, PMDA_INTERFACE_LATEST, "sample DSO", helppath);
     }
     else {
 	__pmProcessDataSize(NULL);
@@ -2566,6 +2591,7 @@ void sample_init(pmdaInterface *dp)
     dp->version.four.pmid = sample_pmid;
     dp->version.four.name = sample_name;
     dp->version.four.children = sample_children;
+    pmdaSetEndContextCallBack(dp, sample_ctx_end);
 
     pmdaInit(dp, NULL, 0, NULL, 0);	/* don't use indomtab or metrictab */
 
