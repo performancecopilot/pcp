@@ -28,7 +28,8 @@ extern "C" {
 #define PMDA_INTERFACE_2	2	/* new function arguments */
 #define PMDA_INTERFACE_3	3	/* 3-state return from fetch callback */
 #define PMDA_INTERFACE_4	4	/* dynamic pmns */
-#define PMDA_INTERFACE_LATEST	4
+#define PMDA_INTERFACE_5	5	/* client context in pmda */
+#define PMDA_INTERFACE_LATEST	5
 
 /*
  * Type of I/O connection to PMCD (pmdaUnknown defaults to pmdaPipe)
@@ -84,6 +85,12 @@ typedef int (*pmdaCheckCallBack)(void);
  */
 typedef void (*pmdaDoneCallBack)(void);
 
+/* 
+ * Type of function call back used by pmdaMain when a client context is
+ * closed by PMCD.
+ */
+typedef void (*pmdaEndContextCallBack)(int);
+
 /*
  * libpcp_pmda extension structure.
  *
@@ -122,6 +129,9 @@ typedef struct {
     pmdaFetchCallBack  e_fetchCallBack;  /* callback to assign metric values in fetch */
     pmdaCheckCallBack  e_checkCallBack;  /* callback on receipt of a PDU */
     pmdaDoneCallBack   e_doneCallBack;   /* callback after PDU has been processed */
+    /* added for PMDA_INTERFACE_5 */
+    int		e_context;	/* client context id from pmcd */
+    pmdaEndContextCallBack	e_endCallBack;	/* callback after client context closed */
 } pmdaExt;
 
 /*
@@ -176,8 +186,9 @@ typedef struct {
 	} two;
 
 /*
- * Interface Version 4 (dynamic pmns support)
- * PMDA_INTERFACE_4
+ * Interface Version 4 (dynamic pmns support) and Version 5 (client context
+ * in pmda)
+ * PMDA_INTERFACE_4 and PMDA_INTERFACE_5
  */
 
 	struct {
@@ -269,13 +280,20 @@ extern __pmDSO *__pmLookupDSO(int /*domain*/);
  *
  * pmdaSetCheckCallBack
  *      Allows an application specific routine to be called upon receipt of any
- *      PDU. For all PDUs except PDU_PROFILE, a result less than zero indicates an
- *      error. If set to zero (which is also the default), the callback is ignored.
+ *      PDU. For all PDUs except PDU_PROFILE, a result less than zero
+ *      indicates an error. If set to zero (which is also the default),
+ *      the callback is ignored.
  *
  * pmdaSetDoneCallBack
  *      Allows an application specific routine to be called after each PDU is
- *      processed. The result is ignored. If set to zero (which is also the default),
- *      the callback is ignored.
+ *      processed. The result is ignored. If set to zero (which is also
+ *      the default), the callback is ignored.
+ *
+ * pmdaSetEndContextCallBack
+ *      Allows an application specific routine to be called when a
+ *      PMCD context is closed, so any per-context state can be cleaned
+ *      up.  If set to zero (which is also the default), the callback
+ *      is ignored.
  */
 
 extern int pmdaGetOpt(int, char *const *, const char *, pmdaInterface *, int *);
@@ -291,6 +309,7 @@ extern void pmdaSetResultCallBack(pmdaInterface *, pmdaResultCallBack);
 extern void pmdaSetFetchCallBack(pmdaInterface *, pmdaFetchCallBack);
 extern void pmdaSetCheckCallBack(pmdaInterface *, pmdaCheckCallBack);
 extern void pmdaSetDoneCallBack(pmdaInterface *, pmdaDoneCallBack);
+extern void pmdaSetEndContextCallBack(pmdaInterface *, pmdaEndContextCallBack);
 
 /*
  * Callbacks to PMCD which should be adequate for most PMDAs.
@@ -482,6 +501,12 @@ extern int __pmdaInFd(pmdaInterface *);
 
 extern void __pmdaCacheDumpAll(FILE *, int);
 extern void __pmdaCacheDump(FILE *, pmInDom, int);
+
+/*
+ * Client Context support
+ */
+extern int pmdaGetContext(void);
+extern void __pmdaSetContext(int);
 
 /*
  * Outdated routines

@@ -17,7 +17,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 -include GNUlocaldefs
 
-CFILES	= callback.c open.c mainloop.c help.c cache.c tree.c
+CFILES	= callback.c open.c mainloop.c help.c cache.c tree.c context.c
 HFILES	= libdefs.h
 LLDLIBS	= -lpcp
 
