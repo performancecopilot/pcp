@@ -442,7 +442,7 @@ sendDesc(Expr *x, pmValueSet *vset)
 	d.sem = PM_SEM_INSTANT;
 	d.units = noUnits;
     }
-    __pmSendDesc(STDOUT_FILENO, PDU_BINARY, &d);
+    __pmSendDesc(STDOUT_FILENO, pmWhichContext(), &d);
 }
 
 

@@ -156,7 +156,7 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 			sts = dtp->version.two.profile(profile,
                                                        dtp->version.two.ext);
 		    if (sts < 0)
-			__pmSendError(outfd, PDU_BINARY, sts);
+			__pmSendError(outfd, FROM_ANON, sts);
 		    else {
 			if (saveprofile != NULL)
 			    free(saveprofile);
@@ -182,10 +182,10 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 			__pmUnpinPDUBuf(pmidlist);
 		    }
 		    if (sts < 0)
-			__pmSendError(outfd, PDU_BINARY, sts);
+			__pmSendError(outfd, FROM_ANON, sts);
 		    else {
 			int st;
-			st =__pmSendResult(outfd, PDU_BINARY, result);
+			st =__pmSendResult(outfd, FROM_ANON, result);
 			if (st < 0) {
 			    __pmNotifyErr(LOG_ERR, 
 					  "Cannot send fetch result: %s\n",
@@ -201,9 +201,9 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 						    dtp->version.two.ext);
 		    }
 		    if (sts < 0)
-			__pmSendError(outfd, PDU_BINARY, sts);
+			__pmSendError(outfd, FROM_ANON, sts);
 		    else
-			__pmSendDesc(outfd, PDU_BINARY, &desc);
+			__pmSendDesc(outfd, FROM_ANON, &desc);
 		    break;
 
 		case PDU_INSTANCE_REQ:
@@ -219,9 +219,9 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 						        dtp->version.two.ext);
 		    }
 		    if (sts < 0)
-			__pmSendError(outfd, PDU_BINARY, sts);
+			__pmSendError(outfd, FROM_ANON, sts);
 		    else {
-			__pmSendInstance(outfd, PDU_BINARY, inres);
+			__pmSendInstance(outfd, FROM_ANON, inres);
 			__pmFreeInResult(inres);
 		    }
 		    break;
@@ -232,22 +232,22 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 						    dtp->version.two.ext);
 		    }
 		    if (sts < 0)
-			__pmSendError(outfd, PDU_BINARY, sts);
+			__pmSendError(outfd, FROM_ANON, sts);
 		    else
-			__pmSendText(outfd, PDU_BINARY, ident, buffer);
+			__pmSendText(outfd, FROM_ANON, ident, buffer);
 		    break;
 
 		case PDU_RESULT:
 		    if ((sts = __pmDecodeResult(pb_pmcd, PDU_BINARY, &result)) >= 0)
 			sts = dtp->version.two.store(result,
 						     dtp->version.two.ext);
-		    __pmSendError(outfd, PDU_BINARY, sts);
+		    __pmSendError(outfd, FROM_ANON, sts);
 		    pmFreeResult(result);
 		    break;
 
 		default:
 		    fprintf(stderr, "%s: bogus pdu type: 0x%0x?\n", pmdaname, sts);
-		    __pmSendError(outfd, PDU_BINARY, PM_ERR_NYI);
+		    __pmSendError(outfd, FROM_ANON, PM_ERR_NYI);
 		    break;
 	    }
 	}

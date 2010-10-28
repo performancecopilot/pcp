@@ -222,7 +222,7 @@ eval(Task *task)
 		s++;
 	    }
 	    __pmOverrideLastFd(PDU_OVERRIDE2);
-	    sts = __pmSendResult(1, PDU_BINARY, task->rslt);
+	    sts = __pmSendResult(STDOUT_FILENO, pmWhichContext(), task->rslt);
 	    if (sts < 0) {
 		fprintf(stderr, "Error: __pmSendResult to summary agent failed: %s\n", pmErrStr(sts));
 		exit(0);

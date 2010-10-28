@@ -55,7 +55,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	if (pmDebug & DBG_TRACE_PROFILE)
 	    fprintf(stderr, "myFetch: calling __pmSendProfile, context: %d\n", ctx);
 #endif
-	if ((n = __pmSendProfile(ctxp->c_pmcd->pc_fd, PDU_BINARY, ctx, ctxp->c_instprof)) >= 0)
+	if ((n = __pmSendProfile(ctxp->c_pmcd->pc_fd, FROM_ANON, ctx, ctxp->c_instprof)) >= 0)
 	    ctxp->c_sent = 1;
     }
 
@@ -74,7 +74,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	else
 	    newlist = NULL;
 
-	n = __pmSendFetch(ctxp->c_pmcd->pc_fd, PDU_BINARY, ctx, &ctxp->c_origin, numpmid, pmidlist);
+	n = __pmSendFetch(ctxp->c_pmcd->pc_fd, FROM_ANON, ctx, &ctxp->c_origin, numpmid, pmidlist);
 	if (n >= 0){
 	    int		changed = 0;
 	    do {

@@ -411,7 +411,7 @@ control_req(void)
 	return 0;
     }
     if (clientfd != -1) {
-	sts = __pmSendError(fd, PDU_BINARY, -EADDRINUSE);
+	sts = __pmSendError(fd, FROM_ANON, -EADDRINUSE);
 	if (sts < 0)
 	    fprintf(stderr, "error sending connection NACK to client: %s\n",
 			 pmErrStr(sts));
@@ -422,7 +422,7 @@ control_req(void)
     sts = __pmSetVersionIPC(fd, UNKNOWN_VERSION);
     __pmSetSocketIPC(fd);
     if (sts < 0) {
-	__pmSendError(fd, PDU_BINARY, sts);
+	__pmSendError(fd, FROM_ANON, sts);
 	fprintf(stderr, "error connecting to client: %s\n", pmErrStr(sts));
 	__pmCloseSocket(fd);
 	return 0;
@@ -442,7 +442,7 @@ control_req(void)
     if ((sts = __pmAccAddClient(&addr.sin_addr, &clientops)) < 0) {
 	if (sts == PM_ERR_CONNLIMIT || sts == PM_ERR_PERMISSION)
 	    sts = XLATE_ERR_2TO1(sts);	/* connect - send these as down-rev */
-	sts = __pmSendError(fd, PDU_BINARY, sts);
+	sts = __pmSendError(fd, FROM_ANON, sts);
 	if (sts < 0)
 	    fprintf(stderr, "error sending connection access NACK to client: %s\n",
 			 pmErrStr(sts));
@@ -450,8 +450,12 @@ control_req(void)
 	return 0;
     }
 
-    /* encode pdu version in the acknowledgement */
-    sts = __pmSendError(fd, PDU_BINARY, LOG_PDU_VERSION);
+    /*
+     * encode pdu version in the acknowledgement
+     * also need "from" to be pmlogger's pid as this is checked at
+     * the other end
+     */
+    sts = __pmSendError(fd, getpid(), LOG_PDU_VERSION);
     if (sts < 0) {
 	fprintf(stderr, "error sending connection ACK to client: %s\n",
 		     pmErrStr(sts));
