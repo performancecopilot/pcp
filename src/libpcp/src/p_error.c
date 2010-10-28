@@ -38,16 +38,15 @@ typedef struct {
 } x_error_t;
 
 int
-__pmSendError(int fd, int mode, int code)
+__pmSendError(int fd, int from, int code)
 {
     p_error_t	*pp;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     if ((pp = (p_error_t *)__pmFindPDUBuf(sizeof(p_error_t))) == NULL)
 	return -errno;
     pp->hdr.len = sizeof(p_error_t);
     pp->hdr.type = PDU_ERROR;
+    pp->hdr.from = from;
 
     if (__pmVersionIPC(fd) == PDU_VERSION1)
 	pp->code = XLATE_ERR_2TO1(code);
@@ -67,16 +66,15 @@ __pmSendError(int fd, int mode, int code)
 }
 
 int
-__pmSendXtendError(int fd, int mode, int code, int datum)
+__pmSendXtendError(int fd, int from, int code, int datum)
 {
     x_error_t	*pp;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     if ((pp = (x_error_t *)__pmFindPDUBuf(sizeof(x_error_t))) == NULL)
 	return -errno;
     pp->hdr.len = sizeof(x_error_t);
     pp->hdr.type = PDU_ERROR;
+    pp->hdr.from = from;
 
     pp->code = htonl(XLATE_ERR_2TO1(code));
     pp->datum = datum; /* NOTE: caller must swab this */

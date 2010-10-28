@@ -33,14 +33,11 @@ typedef struct {
 } instance_req_t;
 
 int
-__pmSendInstanceReq(int fd, int mode, const __pmTimeval *when, pmInDom indom, 
+__pmSendInstanceReq(int fd, int from, const __pmTimeval *when, pmInDom indom, 
 		    int inst, const char *name)
 {
     instance_req_t	*pp;
     int			need;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     need = sizeof(instance_req_t) - sizeof(int);
     if (name != NULL)
@@ -49,6 +46,7 @@ __pmSendInstanceReq(int fd, int mode, const __pmTimeval *when, pmInDom indom,
 	return -errno;
     pp->hdr.len = need;
     pp->hdr.type = PDU_INSTANCE_REQ;
+    pp->hdr.from = from;
     pp->when.tv_sec = htonl((__int32_t)when->tv_sec);
     pp->when.tv_usec = htonl((__int32_t)when->tv_usec);
     pp->indom = __htonpmInDom(indom);
@@ -116,16 +114,13 @@ typedef struct {
 } instance_t;
 
 int
-__pmSendInstance(int fd, int mode, __pmInResult *result)
+__pmSendInstance(int fd, int from, __pmInResult *result)
 {
     instance_t	*rp;
     instlist_t		*ip;
     int			need;
     int			i;
     int			j;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_INDOM)
@@ -144,6 +139,7 @@ __pmSendInstance(int fd, int mode, __pmInResult *result)
 	return -errno;
     rp->hdr.len = need;
     rp->hdr.type = PDU_INSTANCE;
+    rp->hdr.from = from;
     rp->indom = __htonpmInDom(result->indom);
     rp->numinst = htonl(result->numinst);
 

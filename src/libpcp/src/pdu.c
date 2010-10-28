@@ -32,7 +32,9 @@ static unsigned int	outctrs[PDU_MAX+1];
 INTERN unsigned int	*__pmPDUCntIn = inctrs;
 INTERN unsigned int	*__pmPDUCntOut = outctrs;
 
+#ifdef PCP_DEBUG
 static int		mypid = -1;
+#endif
 static int              ceiling = PDU_CHUNK * 64;
 
 static struct timeval	def_wait = { 10, 0 };
@@ -256,9 +258,6 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 
     setup_sigpipe();
 
-    if (mypid == -1)
-	mypid = getpid();
-    php->from = mypid;
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU) {
 	int	j;
@@ -270,6 +269,8 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 	while (p < (char *)pdubuf + jend*sizeof(__pmPDU))
 	    *p++ = '~';	/* buffer end */
 
+	if (mypid == -1)
+	    mypid = getpid();
 	fprintf(stderr, "[%d]pmXmitPDU: %s fd=%d len=%d",
 		mypid, __pmPDUTypeStr(php->type), fd, php->len);
 	for (j = 0; j < jend; j++) {
@@ -321,8 +322,6 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
     __pmPDU		*pdubuf_prev;
     __pmPDUHdr		*php;
 
-    if (mypid == -1)
-	mypid = getpid();
     if (mode != PDU_ASCII) {
 	if ((pdubuf = __pmFindPDUBuf(maxsize)) == NULL)
 	    return -errno;
@@ -477,6 +476,8 @@ check_read_len:
 	    while (p < (char *)*result + jend*sizeof(__pmPDU))
 		*p++ = '~';	/* buffer end */
 
+	    if (mypid == -1)
+		mypid = getpid();
 	    fprintf(stderr, "[%d]pmGetPDU: %s fd=%d len=%d from=%d",
 		    mypid, __pmPDUTypeStr(php->type), fd, php->len, php->from);
 	    for (j = 0; j < jend; j++) {

@@ -213,7 +213,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	    handshake[0].c_vala = LOG_PDU_VERSION;
 	    handshake[0].c_valb = 0;
 	    handshake[0].c_valc = 0;
-	    sts = __pmSendCreds(fd, PDU_BINARY, 1, handshake);
+	    sts = __pmSendCreds(fd, getpid(), 1, handshake);
 	}
 	if (sts >= 0) {
 #ifdef PCP_DEBUG

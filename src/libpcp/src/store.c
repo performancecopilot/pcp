@@ -29,7 +29,7 @@ sendstore (__pmContext *ctxp, const pmResult *result)
 	return (PM_ERR_CTXBUSY);
     }
 
-    sts = __pmSendResult(ctxp->c_pmcd->pc_fd, PDU_BINARY, result);
+    sts = __pmSendResult(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), result);
     if (sts < 0) {
 	sts = __pmMapErrno(sts);
     }
@@ -107,6 +107,7 @@ pmStore(const pmResult *result)
     }
 
     if ((sts = pmWhichContext()) >= 0) {
+	int	ctx = n;
 	ctxp = __pmHandleToPtr(sts);
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((sts = sendstore (ctxp, result)) >= 0) {
@@ -131,7 +132,9 @@ pmStore(const pmResult *result)
 		    tmpvset.pmid = result->vset[n]->pmid;
 		    tmpvset.valfmt = result->vset[n]->valfmt;
 		    tmpvset.vlist[0] = result->vset[n]->vlist[0];
-		    if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+			dp->dispatch.version.four.ext->e_context = ctx;
+		    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 			sts = dp->dispatch.version.four.store(&tmp,
 						dp->dispatch.version.four.ext);
 		    else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||

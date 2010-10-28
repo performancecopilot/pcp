@@ -38,6 +38,7 @@ __pmSendLogStatus(int fd, __pmLoggerStatus *status)
 	return -errno;
     pp->hdr.len = sizeof(logstatus_t);
     pp->hdr.type = PDU_LOG_STATUS;
+    pp->hdr.from = FROM_ANON;		/* context does not matter here */
     memcpy(&pp->status, status, sizeof(__pmLoggerStatus));
 
     /* Conditional convertion from host to network byteorder HAVE to be

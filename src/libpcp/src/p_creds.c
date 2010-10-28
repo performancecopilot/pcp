@@ -29,7 +29,7 @@ typedef struct {
 } creds_t;
 
 int
-__pmSendCreds(int fd, int mode, int credcount, const __pmCred *credlist)
+__pmSendCreds(int fd, int from, int credcount, const __pmCred *credlist)
 {
     size_t	need = 0;
     creds_t	*pp = NULL;
@@ -37,14 +37,13 @@ __pmSendCreds(int fd, int mode, int credcount, const __pmCred *credlist)
 
     if (credcount <= 0 || credlist == NULL)
 	return PM_ERR_IPC;
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     need = sizeof(creds_t) + ((credcount-1) * sizeof(__pmCred));
     if ((pp = (creds_t *)__pmFindPDUBuf((int)need)) == NULL)
 	return -errno;
     pp->hdr.len = (int)need;
     pp->hdr.type = PDU_CREDS;
+    pp->hdr.from = from;
     pp->numcreds = htonl(credcount);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)

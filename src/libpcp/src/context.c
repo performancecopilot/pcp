@@ -867,9 +867,15 @@ pmContextConnectChangeState (int ctxid)
 
 
 void
-pmContextUndef()
+pmContextUndef(void)
 {
     curcontext = PM_CONTEXT_UNDEF;
+}
+
+int
+__pmPtrToHandle(__pmContext *ctxp)
+{
+    return ctxp - contexts;
 }
 
 

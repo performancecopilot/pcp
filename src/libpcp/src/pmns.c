@@ -1642,8 +1642,8 @@ request_names(__pmContext *ctxp, int numpmid, char *namelist[])
     if (ctxp->c_pmcd->pc_curpdu != 0)
 	return PM_ERR_CTXBUSY;
 
-    n = __pmSendNameList(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
-			 numpmid, namelist, NULL);
+    n = __pmSendNameList(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+		numpmid, namelist, NULL);
     if (n < 0)
 	n = __pmMapErrno(n);
 
@@ -1721,6 +1721,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
     int	sts = 0;
     __pmContext	*ctxp;
     int		lsts;
+    int		ctx;
 
     if (numpmid < 1) {
 #ifdef PCP_DEBUG
@@ -1731,7 +1732,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	return PM_ERR_TOOSMALL;
     }
 
-    lsts = pmWhichContext();
+    ctx = lsts = pmWhichContext();
     if (lsts >= 0)
 	ctxp = __pmHandleToPtr(lsts);
     else
@@ -1790,14 +1791,16 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 			    if (sts >= 0) sts = PM_ERR_NOAGENT;
 			    break;
 			}
-			if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+			if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+			    dp->dispatch.version.four.ext->e_context = ctx;
+			if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
 			    lsts = dp->dispatch.version.four.pmid(namelist[i], &pmidlist[i], dp->dispatch.version.four.ext);
 
 			    if (lsts < 0 && sts >= 0) sts = lsts;
 			    break;
 			}
 			else {
-			    /* Not PMDA_INTERFACE_4 */
+			    /* Not PMDA_INTERFACE_4 or later */
 			    sts = PM_ERR_NAME;
 			    break;
 			}
@@ -1923,7 +1926,8 @@ request_names_of_children(__pmContext *ctxp, const char *name, int wantstatus)
 	return PM_ERR_CTXBUSY;
     }
 
-    n = __pmSendChildReq(ctxp->c_pmcd->pc_fd, PDU_BINARY, name, wantstatus);
+    n = __pmSendChildReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+		name, wantstatus);
     if (n < 0) {
         n =  __pmMapErrno(n);
     }
@@ -2100,6 +2104,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
     char	**dm_offspring;
     int		*dm_statuslist;
     int		sts;
+    int		ctx;
     __pmContext	*ctxp;
 
     if (pmns_location < 0 )
@@ -2108,7 +2113,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
     if (name == NULL) 
 	return PM_ERR_NAME;
 
-    sts = pmWhichContext();
+    ctx = sts = pmWhichContext();
     if (sts >= 0)
 	ctxp = __pmHandleToPtr(sts);
     else
@@ -2166,7 +2171,9 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 			    free(xname);
 			    goto check;
 			}
-			if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+			if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+			    dp->dispatch.version.four.ext->e_context = ctx;
+			if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
 			    char	**x_offspring = NULL;
 			    int		*x_statuslist = NULL;
 			    int		x_num;
@@ -2182,7 +2189,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 			    goto check;
 			}
 			else {
-			    /* Not PMDA_INTERFACE_4 */
+			    /* Not PMDA_INTERFACE_4 or later */
 			    num = PM_ERR_NAME;
 			    free(xname);
 			    goto check;
@@ -2211,7 +2218,9 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 			num = PM_ERR_NOAGENT;
 			goto check;
 		    }
-		    if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+		    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+			dp->dispatch.version.four.ext->e_context = ctx;
+		    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
 			char	**x_offspring = NULL;
 			int	*x_statuslist = NULL;
 			int	x_num;
@@ -2226,7 +2235,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 			goto check;
 		    }
 		    else {
-			/* Not PMDA_INTERFACE_4 */
+			/* Not PMDA_INTERFACE_4 or later */
 			num = PM_ERR_NAME;
 			goto check;
 		    }
@@ -2365,7 +2374,7 @@ request_namebypmid(__pmContext *ctxp, pmID pmid)
     if (ctxp->c_pmcd->pc_curpdu != 0)
 	return PM_ERR_CTXBUSY;
 
-    n = __pmSendIDList(ctxp->c_pmcd->pc_fd, PDU_BINARY, 1, &pmid, 0);
+    n = __pmSendIDList(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), 1, &pmid, 0);
     if (n < 0)
 	n = __pmMapErrno(n);
     return n;
@@ -2636,7 +2645,8 @@ request_traverse_pmns(__pmContext *ctxp, const char *name)
 
     if (ctxp->c_pmcd->pc_curpdu != 0)
 	return PM_ERR_CTXBUSY;
-    n = __pmSendTraversePMNSReq(ctxp->c_pmcd->pc_fd, PDU_BINARY, name);
+    n = __pmSendTraversePMNSReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+    		name);
     if (n < 0)
 	n = __pmMapErrno(n);
     return n;

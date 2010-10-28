@@ -42,14 +42,14 @@ request_fetch (int ctxid, __pmContext *ctxp,  int numpmid, pmID pmidlist[])
 	    __pmDumpProfile(stderr, PM_INDOM_NULL, ctxp->c_instprof);
 	}
 #endif
-	if ((n = __pmSendProfile(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
-				 ctxid, ctxp->c_instprof)) < 0)
+	if ((n = __pmSendProfile(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+			ctxid, ctxp->c_instprof)) < 0)
 	    return (__pmMapErrno(n));
 	else
 	    ctxp->c_sent = 1;
     }
 
-    n = __pmSendFetch(ctxp->c_pmcd->pc_fd, PDU_BINARY, ctxid, 
+    n = __pmSendFetch(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), ctxid, 
 		      &ctxp->c_origin, numpmid, pmidlist);
     if (n < 0) {
 	    n = __pmMapErrno(n);

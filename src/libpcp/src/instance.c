@@ -29,7 +29,7 @@ request_instance (__pmContext *ctxp, pmInDom indom, int inst, const char *name)
 	return (PM_ERR_CTXBUSY);
     }
     
-    n = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
+    n = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 				&ctxp->c_origin, indom, inst, name);
     if (n < 0) {
 	n = __pmMapErrno(n);
@@ -110,7 +110,8 @@ pmLookupInDom(pmInDom indom, const char *name)
     if (indom == PM_INDOM_NULL)
 	return PM_ERR_INDOM;
     if ((n = pmWhichContext()) >= 0) {
-	ctxp = __pmHandleToPtr(n);
+	int	ctx = n;
+	ctxp = __pmHandleToPtr(ctx);
 
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((n = request_instance (ctxp, indom, PM_IN_NULL, name)) >= 0) {
@@ -122,7 +123,9 @@ pmLookupInDom(pmInDom indom, const char *name)
 		n = PM_ERR_NOAGENT;
 	    else {
 		/* We can safely cast away const here */
-		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    dp->dispatch.version.four.ext->e_context = ctx;
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    n = dp->dispatch.version.four.instance(indom, PM_IN_NULL, 
 							  (char *)name, 
 							  &result, 
@@ -211,7 +214,8 @@ pmNameInDom(pmInDom indom, int inst, char **name)
     if (indom == PM_INDOM_NULL)
 	return PM_ERR_INDOM;
     if ((n = pmWhichContext()) >= 0) {
-	ctxp = __pmHandleToPtr(n);
+	int	ctx = n;
+	ctxp = __pmHandleToPtr(ctx);
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((n = request_instance(ctxp, indom, inst, NULL)) >= 0) {
 		n = receive_instance_name (ctxp, name);
@@ -221,7 +225,9 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 	    if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
 		n = PM_ERR_NOAGENT;
 	    else {
-		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    dp->dispatch.version.four.ext->e_context = ctx;
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    n = dp->dispatch.version.four.instance(indom, inst, NULL, &result, dp->dispatch.version.four.ext);
 		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
@@ -356,7 +362,8 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 	return PM_ERR_INDOM;
 
     if ((n = pmWhichContext()) >= 0) {
-	ctxp = __pmHandleToPtr(n);
+	int	ctx = n;
+	ctxp = __pmHandleToPtr(ctx);
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((n = request_instance (ctxp, indom, PM_IN_NULL, NULL)) >= 0) {
 		n = receive_indom (ctxp, instlist, namelist);
@@ -366,7 +373,9 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 	    if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
 		n = PM_ERR_NOAGENT;
 	    else {
-		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    dp->dispatch.version.four.ext->e_context = ctx;
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    n = dp->dispatch.version.four.instance(indom, PM_IN_NULL, NULL,
 					       &result,
 					       dp->dispatch.version.four.ext);

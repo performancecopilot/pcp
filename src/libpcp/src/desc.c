@@ -29,7 +29,7 @@ request_desc (__pmContext *ctxp, pmID pmid)
 	return (PM_ERR_CTXBUSY);
     }
 
-    if ((n = __pmSendDescReq(ctxp->c_pmcd->pc_fd, PDU_BINARY, pmid)) < 0) {
+    if ((n = __pmSendDescReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), pmid)) < 0) {
 	n = __pmMapErrno(n);
     }
 
@@ -93,7 +93,8 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
     __pmDSO	*dp;
 
     if ((n = pmWhichContext()) >= 0) {
-	ctxp = __pmHandleToPtr(n);
+	int	ctx = n;
+	ctxp = __pmHandleToPtr(ctx);
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((n = request_desc(ctxp, pmid)) >= 0) {
 		n = receive_desc(ctxp, desc);
@@ -103,7 +104,9 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 	    if ((dp = __pmLookupDSO(((__pmID_int *)&pmid)->domain)) == NULL)
 		n = PM_ERR_NOAGENT;
 	    else {
-		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    dp->dispatch.version.four.ext->e_context = ctx;
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    n = dp->dispatch.version.four.desc(pmid, desc, dp->dispatch.version.four.ext);
 		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)

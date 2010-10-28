@@ -128,19 +128,20 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 }
 
 int
-__pmSendResult(int fd, int mode, const pmResult *result)
+__pmSendResult(int fd, int from, const pmResult *result)
 {
     int		sts;
     __pmPDU	*pdubuf;
+    result_t	*pp;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU)
 	__pmDumpResult(stderr, result);
 #endif
     if ((sts = __pmEncodeResult(fd, result, &pdubuf)) < 0)
 	return sts;
+    pp = (result_t *)&pdubuf;
+    pp->hdr.from = from;
     return __pmXmitPDU(fd, pdubuf);
 }
 

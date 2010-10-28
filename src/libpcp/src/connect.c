@@ -152,7 +152,7 @@ __pmConnectHandshake(int fd)
 	    handshake[0].c_vala = PDU_VERSION;
 	    handshake[0].c_valb = 0;
 	    handshake[0].c_valc = 0;
-	    sts = __pmSendCreds(fd, PDU_BINARY, 1, handshake);
+	    sts = __pmSendCreds(fd, getpid(), 1, handshake);
 	}
     }
     else

@@ -539,6 +539,7 @@ typedef struct {
 
 /* handle to __pmContext pointer */
 extern __pmContext *__pmHandleToPtr(int);
+extern int __pmPtrToHandle(__pmContext *);
 extern int __pmGetHostContextByID(int, __pmContext **);
 extern int __pmGetBusyHostContextByID(int, __pmContext **, int);
 
@@ -628,6 +629,12 @@ extern void __pmCountPDUBuf(int, int *, int *);
 #define PDU_BINARY	0
 #define PDU_ASCII	1
 #define PDU_CLIENT	2
+
+/*
+ * Anonymous PDU sender, when context does not matter, e.g. PDUs from
+ * a PMDA sent to PMCD
+ */
+#define FROM_ANON	0
 
 extern int __pmSendError(int, int, int);
 extern int __pmDecodeError(__pmPDU *, int, int *);
