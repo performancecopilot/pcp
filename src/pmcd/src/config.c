@@ -1276,7 +1276,7 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
 	handshake[0].c_vala = PDU_VERSION;
 	handshake[0].c_valb = 0;
 	handshake[0].c_valc = 0;
-	if ((sts = __pmSendCreds(aPtr->inFd, PDU_BINARY, 1, handshake)) < 0)
+	if ((sts = __pmSendCreds(aPtr->inFd, getpid(), 1, handshake)) < 0)
 	    return sts;
 	else if (_pmcd_trace_mask)
 	    pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_CREDS, credcount);
@@ -2322,7 +2322,7 @@ ParseRestartAgents(char *fileName)
 	    /* ignore errors, the client is being terminated in any case */
 	    if (_pmcd_trace_mask)
 		pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, s);
-	    __pmSendError(cp->fd, PDU_BINARY, s);
+	    __pmSendError(cp->fd, FROM_ANON, s);
 	    CleanupClient(cp, s);
 	}
     }

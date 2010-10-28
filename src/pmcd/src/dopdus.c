@@ -80,7 +80,9 @@ DoText(ClientInfo *cp, __pmPDU* pb)
 	return PM_ERR_NOAGENT;
 
     if (ap->ipcType == AGENT_DSO) {
-	if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+	    ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
+	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 	    sts = ap->ipc.dso.dispatch.version.four.text(ident, type, &buffer,
 					  ap->ipc.dso.dispatch.version.four.ext);
 	else if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
@@ -98,7 +100,7 @@ DoText(ClientInfo *cp, __pmPDU* pb)
 	    return PM_ERR_AGAIN;
 	if (_pmcd_trace_mask)
 	    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_TEXT_REQ, ident);
-	sts = __pmSendTextReq(ap->inFd, ap->pduProtocol, ident, type);
+	sts = __pmSendTextReq(ap->inFd, cp - client, ident, type);
 	if (sts >= 0) {
 	    sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
 	    if (sts > 0 && _pmcd_trace_mask)
@@ -129,7 +131,7 @@ DoText(ClientInfo *cp, __pmPDU* pb)
     if (sts >= 0) {
 	if (_pmcd_trace_mask)
 	    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_TEXT, ident);
-	sts = __pmSendText(cp->fd, PDU_BINARY, ident, buffer);
+	sts = __pmSendText(cp->fd, FROM_ANON, ident, buffer);
 	if (sts < 0 && ap->ipcType != AGENT_DSO) {
 	    pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_TEXT, sts);
 	    CleanupClient(cp, sts);
@@ -224,7 +226,9 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
 	return PM_ERR_NOAGENT;
 
     if (ap->ipcType == AGENT_DSO) {
-	if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+	    ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
+	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 	    sts = ap->ipc.dso.dispatch.version.four.desc(pmid, &desc,
 					ap->ipc.dso.dispatch.version.four.ext);
 	else if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
@@ -242,7 +246,7 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
 	    return PM_ERR_AGAIN;
 	if (_pmcd_trace_mask)
 	    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_DESC_REQ, (int)pmid);
-	sts = __pmSendDescReq(ap->inFd, ap->pduProtocol, pmid);
+	sts = __pmSendDescReq(ap->inFd, cp - client, pmid);
 	if (sts >= 0) {
 	    sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
 	    if (sts > 0 && _pmcd_trace_mask)
@@ -272,7 +276,7 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
     if (sts >= 0) {
 	if (_pmcd_trace_mask)
 	    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_DESC, (int)desc.pmid);
-	sts = __pmSendDesc(cp->fd, PDU_BINARY, &desc);
+	sts = __pmSendDesc(cp->fd, FROM_ANON, &desc);
 	if (sts < 0) {
 	    pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_DESC, sts);
 	    CleanupClient(cp, sts);
@@ -321,7 +325,9 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
     }
 
     if (ap->ipcType == AGENT_DSO) {
-	if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+	    ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
+	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 	    sts = ap->ipc.dso.dispatch.version.four.instance(indom, inst, name,
 					&inresult,
 					ap->ipc.dso.dispatch.version.four.ext);
@@ -342,7 +348,7 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
 	    return PM_ERR_AGAIN;
 	if (_pmcd_trace_mask)
 	    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_INSTANCE_REQ, (int)indom);
-	sts = __pmSendInstanceReq(ap->inFd, ap->pduProtocol, &when, indom, inst, name);
+	sts = __pmSendInstanceReq(ap->inFd, cp - client, &when, indom, inst, name);
 	if (sts >= 0) {
 	    sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
 	    if (sts > 0 && _pmcd_trace_mask)
@@ -374,7 +380,7 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
     if (sts >= 0) {
 	if (_pmcd_trace_mask)
 	    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_INSTANCE, (int)(inresult->indom));
-	sts = __pmSendInstance(cp->fd, PDU_BINARY, inresult);
+	sts = __pmSendInstance(cp->fd, FROM_ANON, inresult);
 	if (sts < 0) {
 	    pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_INSTANCE, sts);
 	    CleanupClient(cp, sts);
@@ -423,12 +429,14 @@ DoPMNSIDs(ClientInfo *cp, __pmPDU *pb)
 	    goto fail;
 	}
 	if (ap->ipcType == AGENT_DSO) {
-	    if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+	    if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
+	    if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
 		sts = ap->ipc.dso.dispatch.version.four.name(idlist[0], &namelist, 
 				  ap->ipc.dso.dispatch.version.four.ext);
 	    }
 	    else {
-		/* Not PMDA_INTERFACE_4 */
+		/* Not PMDA_INTERFACE_4 or later */
 		sts = PM_ERR_PMID;
 	    }
 	}
@@ -438,7 +446,7 @@ DoPMNSIDs(ClientInfo *cp, __pmPDU *pb)
 		return PM_ERR_AGAIN;
 	    if (_pmcd_trace_mask)
 		pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PMNS_IDS, 1);
-	    sts = __pmSendIDList(ap->inFd, ap->pduProtocol, 1, &idlist[0], 0);
+	    sts = __pmSendIDList(ap->inFd, cp - client, 1, &idlist[0], 0);
 	    if (sts >= 0) {
 		sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
 		if (sts > 0 && _pmcd_trace_mask)
@@ -471,7 +479,7 @@ DoPMNSIDs(ClientInfo *cp, __pmPDU *pb)
 
     if (_pmcd_trace_mask)
 	pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_PMNS_NAMES, numnames);
-    if ((sts = __pmSendNameList(cp->fd, PDU_BINARY, numnames, namelist, NULL)) < 0){
+    if ((sts = __pmSendNameList(cp->fd, FROM_ANON, numnames, namelist, NULL)) < 0){
 	pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_PMNS_NAMES, sts);
 	CleanupClient(cp, sts);
     	goto fail;
@@ -529,12 +537,14 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 		continue;
 	    }
 	    if (ap->ipcType == AGENT_DSO) {
-		if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+		if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
+		if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
 		    lsts = ap->ipc.dso.dispatch.version.four.pmid(namelist[i], &idlist[i],
 				      ap->ipc.dso.dispatch.version.four.ext);
 		}
 		else {
-		    /* Not PMDA_INTERFACE_4 */
+		    /* Not PMDA_INTERFACE_4 or later */
 		    lsts = PM_ERR_NAME;
 		}
 	    }
@@ -546,7 +556,7 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 		else {
 		    if (_pmcd_trace_mask)
 			pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PMNS_NAMES, 1);
-		    lsts = __pmSendNameList(ap->inFd, ap->pduProtocol, 1, &namelist[i], NULL);
+		    lsts = __pmSendNameList(ap->inFd, cp - client, 1, &namelist[i], NULL);
 		    if (lsts >= 0) {
 			lsts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
 			if (lsts > 0 && _pmcd_trace_mask)
@@ -600,7 +610,7 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 
     if (_pmcd_trace_mask)
 	pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_PMNS_IDS, numids);
-    if ((sts = __pmSendIDList(cp->fd, PDU_BINARY, numids, idlist, sts)) < 0) {
+    if ((sts = __pmSendIDList(cp->fd, FROM_ANON, numids, idlist, sts)) < 0) {
 	pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_PMNS_IDS, sts);
 	CleanupClient(cp, sts);
     	goto done;
@@ -645,7 +655,9 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
 	    goto done;
 	}
 	if (ap->ipcType == AGENT_DSO) {
-	    if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+	    if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
+	    if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
 		sts = ap->ipc.dso.dispatch.version.four.children(name, 0, &offspring, &statuslist,
 				  ap->ipc.dso.dispatch.version.four.ext);
 		if (sts < 0)
@@ -656,7 +668,7 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
 		}
 	    }
 	    else {
-		/* Not PMDA_INTERFACE_4 */
+		/* Not PMDA_INTERFACE_4 or later */
 		sts = PM_ERR_NAME;
 		goto done;
 	    }
@@ -669,7 +681,7 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
 	    else {
 		if (_pmcd_trace_mask)
 		    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PMNS_CHILD, 1);
-		sts = __pmSendChildReq(ap->inFd, ap->pduProtocol, name, subtype);
+		sts = __pmSendChildReq(ap->inFd, cp - client, name, subtype);
 		if (sts >= 0) {
 		    sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
 		    if (sts > 0 && _pmcd_trace_mask)
@@ -723,7 +735,7 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
     numnames = sts;
     if (_pmcd_trace_mask)
 	pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_PMNS_NAMES, numnames);
-    if ((sts = __pmSendNameList(cp->fd, PDU_BINARY, numnames, offspring, statuslist)) < 0) {
+    if ((sts = __pmSendNameList(cp->fd, FROM_ANON, numnames, offspring, statuslist)) < 0) {
 	pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_PMNS_NAMES, sts);
 	CleanupClient(cp, sts);
     }
@@ -767,7 +779,7 @@ BuildNameList(const char *name)
  * single malloc block
  */
 static void
-traverse_dynamic(char *start, int *num_names, char ***names)
+traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
 {
     int		sts;
     int		i;
@@ -817,7 +829,9 @@ traverse_dynamic(char *start, int *num_names, char ***names)
 	    if (!ap->status.connected)
 		continue;
 	    if (ap->ipcType == AGENT_DSO) {
-		if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+		if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
+		if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
 		    sts = ap->ipc.dso.dispatch.version.four.children(namelist[0], 1, &offspring, &statuslist,
 				      ap->ipc.dso.dispatch.version.four.ext);
 #ifdef PCP_DEBUG
@@ -839,7 +853,7 @@ traverse_dynamic(char *start, int *num_names, char ***names)
 		    if (statuslist) free(statuslist);
 		}
 		else {
-		    /* Not PMDA_INTERFACE_4 */
+		    /* Not PMDA_INTERFACE_4 or later */
 		    continue;
 		}
 	    }
@@ -850,7 +864,7 @@ traverse_dynamic(char *start, int *num_names, char ***names)
 		    continue;
 		if (_pmcd_trace_mask)
 		    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PMNS_TRAVERSE, 1);
-		sts = __pmSendTraversePMNSReq(ap->inFd, ap->pduProtocol, namelist[0]);
+		sts = __pmSendTraversePMNSReq(ap->inFd, cp - client, namelist[0]);
 		if (sts >= 0) {
 		    int		numnames;
 		    __pmPDU	*pb;
@@ -1013,13 +1027,13 @@ check:
      * for dynamic PMNS entries, travNL_num will be 0 (PM_ERR_PMID from
      * pmTraversePMNS()).
      */
-    traverse_dynamic(name, &travNL_num, &travNL);
+    traverse_dynamic(cp, name, &travNL_num, &travNL);
     if (travNL_num < 1)
 	goto done;
 
     if (_pmcd_trace_mask)
 	pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_PMNS_NAMES, travNL_num);
-    if ((sts = __pmSendNameList(cp->fd, PDU_BINARY, 
+    if ((sts = __pmSendNameList(cp->fd, FROM_ANON, 
                   travNL_num, travNL, NULL)) < 0) {
 	pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_PMNS_NAMES, sts);
 	CleanupClient(cp, sts);

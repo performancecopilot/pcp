@@ -524,7 +524,7 @@ HandleClientInput(fd_set *fdsPtr)
 	    if (cp->status.connected) {
 		if (_pmcd_trace_mask)
 		    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
-		sts = __pmSendError(cp->fd, PDU_BINARY, sts);
+		sts = __pmSendError(cp->fd, FROM_ANON, sts);
 		if (sts < 0)
 		    __pmNotifyErr(LOG_ERR, "HandleClientInput: "
 			"error sending Error PDU to client[%d] %s\n", i, pmErrStr(sts));
@@ -826,7 +826,7 @@ ClientLoop(void)
 		     */
 		    xchallenge = *(__pmPDUInfo *)&challenge;
 		    xchallenge = __htonpmPDUInfo(xchallenge);
-		    s = __pmSendXtendError(cp->fd, PDU_BINARY, sts, *(unsigned int *)&xchallenge);
+		    s = __pmSendXtendError(cp->fd, FROM_ANON, sts, *(unsigned int *)&xchallenge);
 		    if (s < 0) {
 			__pmNotifyErr(LOG_ERR,
 				"ClientLoop: error sending Conn ACK PDU to new client %s\n",

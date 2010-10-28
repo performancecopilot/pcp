@@ -232,7 +232,9 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 
     if (aPtr->profClient != cPtr || ctxnum != aPtr->profIndex) {
 	if (aPtr->ipcType == AGENT_DSO) {
-	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		aPtr->ipc.dso.dispatch.version.four.ext->e_context = cPtr - client;
+	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		sts = aPtr->ipc.dso.dispatch.version.four.profile(cPtr->profile[ctxnum],
 				     aPtr->ipc.dso.dispatch.version.four.ext);
 	    else if (aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
@@ -248,8 +250,8 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 	else {
 	    if (aPtr->status.notReady == 0) {
 		if (_pmcd_trace_mask)
-		    pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_PROFILE, -1);
-		if ((sts = __pmSendProfile(aPtr->inFd, aPtr->pduProtocol,
+		    pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_PROFILE, ctxnum);
+		if ((sts = __pmSendProfile(aPtr->inFd, cPtr - client,
 					   ctxnum, cPtr->profile[ctxnum])) < 0) {
 		    pmcd_trace(TR_XMIT_ERR, aPtr->inFd, PDU_PROFILE, sts);
 		}
@@ -266,7 +268,9 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 
     if (sts >= 0) {
 	if (aPtr->ipcType == AGENT_DSO) {
-	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		aPtr->ipc.dso.dispatch.version.four.ext->e_context = cPtr - client;
+	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		sts = aPtr->ipc.dso.dispatch.version.four.fetch(dpList->listSize,
 				   dpList->list, &result, 
 				   aPtr->ipc.dso.dispatch.version.four.ext);
@@ -310,7 +314,7 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 		/* agent is ready for PDUs */
 		if (_pmcd_trace_mask)
 		    pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_FETCH, dpList->listSize);
-		if ((sts = __pmSendFetch(aPtr->inFd, aPtr->pduProtocol, ctxnum, &when,
+		if ((sts = __pmSendFetch(aPtr->inFd, cPtr - client, ctxnum, &when,
 				   dpList->listSize, dpList->list)) < 0)
 		    pmcd_trace(TR_XMIT_ERR, aPtr->inFd, PDU_FETCH, sts);
 	    }
@@ -566,14 +570,14 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
     if (cip->status.changes) {
 	if (__pmVersionIPC(cip->fd) >= PDU_VERSION2) {
 	    /* notify PCP >= 2.0 client of PMCD state change */
-	    sts = __pmSendError(cip->fd, PDU_BINARY, (int)cip->status.changes);
+	    sts = __pmSendError(cip->fd, FROM_ANON, (int)cip->status.changes);
 	    if (sts > 0)
 		sts = 0;
 	}
 	cip->status.changes = 0;
     }
     if (sts == 0)
-	sts = __pmSendResult(cip->fd, PDU_BINARY, endResult);
+	sts = __pmSendResult(cip->fd, FROM_ANON, endResult);
 
     if (sts < 0) {
 	pmcd_trace(TR_XMIT_ERR, cip->fd, PDU_RESULT, sts);

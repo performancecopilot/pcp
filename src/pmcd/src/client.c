@@ -25,6 +25,68 @@ static int	clientSize = 0;
 
 extern void	Shutdown(void);
 
+/*
+ * For PMDA_INTERFACE_5 or later PMDAs, post a notification that
+ * a context has been closed.
+ */
+static void
+NotifyEndContext(int ctx)
+{
+    int i;
+
+    for (i = 0; i < nAgents; i++) {
+	if (!agent[i].status.connected ||
+	    agent[i].status.busy || agent[i].status.notReady)
+	    continue;
+	if (agent[i].ipcType == AGENT_DSO) {
+	    pmdaInterface	*dp = &agent[i].ipc.dso.dispatch;
+	    if (dp->comm.pmda_interface >= PMDA_INTERFACE_5) {
+		if (dp->version.four.ext->e_endCallBack != NULL) {
+#ifdef PCP_DEBUG
+		    if (pmDebug & DBG_TRACE_CONTEXT) {
+			fprintf(stderr, "NotifyEndContext: DSO PMDA %s (%d) notified of context %d close\n",
+			    agent[i].pmDomainLabel, agent[i].pmDomainId,
+			    ctx);
+		    }
+#endif
+		    (*(dp->version.four.ext->e_endCallBack))(ctx);
+		}
+	    }
+	}
+	else {
+	    /* daemon PMDA case ... we don't know the PMDA_INTERFACE
+	     * version, so send anyway, and rely on __pmdaMainPDU()
+	     * doing the right thing
+	     */
+	    int			sts;
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_CONTEXT) {
+		fprintf(stderr, "NotifyEndContext: daemon PMDA %s (%d) notified of context %d close\n",
+		    agent[i].pmDomainLabel, agent[i].pmDomainId,
+		    ctx);
+	    }
+#endif
+	    pmcd_trace(TR_XMIT_PDU, agent[i].inFd, PDU_ERROR, PM_ERR_NOTCONN);
+	    if ((sts = __pmSendError(agent[i].inFd, ctx, PM_ERR_NOTCONN)) < 0) {
+		/*
+		 * agent may have decided to spontaneously die? ...
+		 * nothing to be done.
+		 */
+		;
+	    }
+	    else {
+		/*
+		 * Expect PDU_ERROR from agent, but as above if nothing
+		 * returned or not an ERROR PDU, nothing to be done.
+		 */
+		__pmPDU	*pb;
+		sts = __pmGetPDU(agent[i].outFd, agent[i].pduProtocol, _pmcd_timeout, &pb);
+		pmcd_trace(TR_RECV_PDU, agent[i].outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+	    }
+	}
+    }
+}
+
 /* Establish a new socket connection to a client */
 ClientInfo *
 AcceptNewClient(int reqfd)
@@ -155,6 +217,8 @@ DeleteClient(ClientInfo *cp)
     }
     cp->status.connected = 0;
     cp->fd = -1;
+
+    NotifyEndContext(cp-client);
 }
 
 void
