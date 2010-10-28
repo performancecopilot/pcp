@@ -32,7 +32,6 @@
 
 static struct ksym *ksym_a;
 static size_t ksym_a_sz;
-static int ksym_mismatch_count;
 
 static int
 find_index(__psint_t addr, int lo, int hi)
@@ -340,9 +339,8 @@ next:
     return ksym_a_sz;
 }
 
-
-int
-read_sysmap(__psint_t end_addr)
+static int
+read_sysmap(const char *release, __psint_t end_addr)
 {
     char	inbuf[256], path[MAXPATHLEN], **fmt;
     __psint_t	addr;
@@ -352,8 +350,8 @@ read_sysmap(__psint_t end_addr)
     char	*sp;
     int		major, minor, patch;
     FILE	*fp;
-    struct utsname uts;
     char	*bestpath = NULL;
+    int		ksym_mismatch_count;
     char *sysmap_paths[] = {	/* Paths to check for System.map file */
 	"/boot/System.map-%s",
 	"/boot/System.map",
@@ -363,10 +361,8 @@ read_sysmap(__psint_t end_addr)
 	NULL
     };
 
-    uname(&uts);
-
     /* Create version symbol name to look for in System.map */
-    if (sscanf(uts.release, "%d.%d.%d", &major, &minor, &patch) < 3 )
+    if (sscanf(release, "%d.%d.%d", &major, &minor, &patch) < 3 )
 	return -1;
     sprintf(inbuf, "Version_%u", KERNEL_VERSION(major, minor, patch));
 
@@ -375,7 +371,7 @@ read_sysmap(__psint_t end_addr)
      * either _end from /proc/ksyms or the uts version.
      */
     for (fmt = sysmap_paths; *fmt; fmt++) {
-	snprintf(path, MAXPATHLEN, *fmt, uts.release);
+	snprintf(path, MAXPATHLEN, *fmt, release);
 	if ((fp = fopen(path, "r"))) {
 	    if ((e = validate_sysmap(fp, inbuf, end_addr)) != 0) {
 		if (e == 2) {
@@ -542,10 +538,10 @@ fail:
 
 
 void
-read_ksym_sources() 
+read_ksym_sources(const char *release) 
 {
     __psint_t end_addr;
 
     if (read_ksyms(&end_addr) > 0)	/* read /proc/ksyms first */
-	read_sysmap(end_addr);	/* then System.map  */
+	read_sysmap(release, end_addr);	/* then System.map  */
 }

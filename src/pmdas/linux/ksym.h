@@ -31,11 +31,11 @@
 #define KSYM_MISMATCH_MAX_ALLOWED 10
 
 struct ksym {
-    __psint_t addr;
-    char *name;
-    char *module;
+    __psint_t	addr;
+    char	*name;
+    char	*module;
 };
 
 extern char *wchan(__psint_t);
-extern void read_ksym_sources();
+extern void read_ksym_sources(const char *);
 
