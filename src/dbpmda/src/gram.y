@@ -55,13 +55,13 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 
     if (((__pmID_int *)pmidp)->domain == DYNAMIC_PMID) {
 	if (connmode == PDU_DSO) {
-	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+	    if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
 		sts = dispatch.version.four.pmid(name, pmidp, dispatch.version.four.ext);
 		if (sts < 0) return sts;
 	    }
 	}
 	else if (connmode == PDU_BINARY) {
-	    sts = __pmSendNameList(outfd, PDU_BINARY, 1, &name, NULL);
+	    sts = __pmSendNameList(outfd, FROM_ANON, 1, &name, NULL);
 	    if (sts < 0) return sts;
 	    sts = __pmGetPDU(infd, PDU_BINARY, TIMEOUT_NEVER, &pb);
 	    if (sts < 0) return sts;
@@ -137,7 +137,7 @@ stmt	: OPEN EOL				{
 		opendso($3, $4, $5);
 		stmt_type = OPEN; YYACCEPT;
 	    }
-	| OPEN PIPE fname arglist EOL		{
+	| OPEN PIPE fname arglist {
 		openpmda($3);
 		stmt_type = OPEN; YYACCEPT;
 	    }

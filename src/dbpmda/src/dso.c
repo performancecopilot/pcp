@@ -147,6 +147,13 @@ opendso(char *dso, char *init, int domain)
 		if (myPmdaName != NULL)
 		    free(myPmdaName);
 		myPmdaName = strdup(dso);
+
+		/*
+		 * set here once and used by all subsequent calls into the
+		 * PMDA
+		 */
+		if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    dispatch.version.four.ext->e_context = 0;
 	    }
 	}
     }
@@ -161,6 +168,11 @@ void
 closedso(void)
 {
     if (dsoname != NULL) {
+	if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_5) {
+	    if (dispatch.version.four.ext->e_endCallBack != NULL) {
+		(*(dispatch.version.four.ext->e_endCallBack))(0);
+	    }
+	}
 #ifdef HAVE_DLOPEN
 	dlclose(handle);
 #endif
@@ -183,7 +195,7 @@ dodso_desc(pmID pmid, pmDesc *desc)
     if (pmDebug & DBG_TRACE_PDU)
 	fprintf(stderr, "DSO desc()\n");
 #endif
-    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+    if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 	sts = dispatch.version.four.desc(pmid, desc, dispatch.version.four.ext);
     else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
              dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
@@ -258,7 +270,7 @@ dodso(int pdu)
 		if (pmDebug & DBG_TRACE_PDU)
 		    fprintf(stderr, "DSO profile()\n");
 #endif
-		if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    sts = dispatch.version.four.profile(profile, dispatch.version.four.ext);
 		else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 		         dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
@@ -279,7 +291,7 @@ dodso(int pdu)
 		if (pmDebug & DBG_TRACE_PDU)
 		    fprintf(stderr, "DSO fetch()\n");
 #endif
-		if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    sts = dispatch.version.four.fetch(param.numpmid, param.pmidlist, 
 						     &result, dispatch.version.four.ext);
 		else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
@@ -319,7 +331,7 @@ dodso(int pdu)
 		fprintf(stderr, "DSO instance()\n");
 #endif
 
-	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	    if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		sts = dispatch.version.four.instance(param.indom, param.number, 
 						    param.name, &inresult,
 						    dispatch.version.four.ext);
@@ -352,7 +364,7 @@ dodso(int pdu)
 
 	    if (profile_changed) {
 		printf("Sending Profile...\n");
-		if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    sts = dispatch.version.four.profile(profile, dispatch.version.four.ext);
 		else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 			 dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
@@ -371,7 +383,7 @@ dodso(int pdu)
 	    }
 
 	    printf("Getting Result Structure...\n");
-	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	    if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		sts = dispatch.version.four.fetch(1, &(desc.pmid), &result,
 						    dispatch.version.four.ext);
 	    else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
@@ -406,7 +418,7 @@ dodso(int pdu)
 		return;
 	    }
 
-	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	    if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		sts = dispatch.version.four.store(result, dispatch.version.four.ext);
 	    else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 	             dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
@@ -441,7 +453,7 @@ dodso(int pdu)
 		    param.number |= PM_TEXT_HELP;
 		}
 
-		if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    sts = dispatch.version.four.text(i, param.number, &buffer, dispatch.version.four.ext);
 		else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 			 dispatch.comm.pmda_interface == PMDA_INTERFACE_2)

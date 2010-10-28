@@ -108,7 +108,7 @@ agent_creds(__pmPDU *pb)
 	handshake[0].c_vala = PDU_VERSION;
 	handshake[0].c_valb = 0;
 	handshake[0].c_valc = 0;
-	if ((sts = __pmSendCreds(outfd, PDU_BINARY, 1, handshake)) < 0)
+	if ((sts = __pmSendCreds(outfd, getpid(), 1, handshake)) < 0)
 	    return sts;
     }
 
@@ -229,6 +229,15 @@ void
 closepmda(void)
 {
     if (connmode != PDU_NOT) {
+	/*
+	 * end of context logic mimics pmcd, only miminal error checking
+	 * is needed
+	 */
+	if (__pmSendError(outfd, 0, PM_ERR_NOTCONN) >= 0) {
+	    __pmPDU	*pb;
+	    /* don't wait forever, PMDA could have exited ... */
+	    __pmGetPDU(infd, connmode, _creds_timeout, &pb);
+	}
 	close(outfd);
 	close(infd);
 	__pmResetIPC(infd);
@@ -248,7 +257,7 @@ dopmda_desc(pmID pmid, pmDesc *desc, int print)
     __pmPDU *pb;
     int i;
 
-    if ((sts = __pmSendDescReq(outfd, connmode, pmid)) >= 0) {
+    if ((sts = __pmSendDescReq(outfd, FROM_ANON, pmid)) >= 0) {
 	if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_DESC) {
 	    if ((sts = __pmDecodeDesc(pb, connmode, desc)) >= 0) {
 		if (print)
@@ -330,13 +339,13 @@ dopmda(int pdu)
 
 	    sts = 0;
 	    if (profile_changed) {
-		if ((sts = __pmSendProfile(outfd, connmode, 0, profile)) < 0)
+		if ((sts = __pmSendProfile(outfd, FROM_ANON, 0, profile)) < 0)
 		    printf("Error: __pmSendProfile() failed: %s\n", pmErrStr(sts));
 		else
 		    profile_changed = 0;
 	    }
 	    if (sts >= 0) {
-		if ((sts = __pmSendFetch(outfd, connmode, 0, NULL, param.numpmid, param.pmidlist)) >= 0) {
+		if ((sts = __pmSendFetch(outfd, FROM_ANON, 0, NULL, param.numpmid, param.pmidlist)) >= 0) {
 		    if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_RESULT) {
 			if ((sts = __pmDecodeResult(pb, connmode, &result)) >= 0) {
 			    if (get_desc) 
@@ -366,7 +375,7 @@ dopmda(int pdu)
 
 	case PDU_INSTANCE_REQ:
 	    printf("pmInDom: %s\n", pmInDomStr(param.indom));
-	    if ((sts = __pmSendInstanceReq(outfd, connmode, &now, param.indom, param.number, param.name)) >= 0) {
+	    if ((sts = __pmSendInstanceReq(outfd, FROM_ANON, &now, param.indom, param.number, param.name)) >= 0) {
 		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_INSTANCE) {
 		    if ((sts = __pmDecodeInstance(pb, connmode, &inresult)) >= 0)
 			printindom(stdout, inresult);
@@ -396,7 +405,7 @@ dopmda(int pdu)
 
     	    if (profile_changed) {
 		printf("Sending Profile...\n");
-		if ((sts = __pmSendProfile(outfd, connmode, 0, profile)) < 0) {
+		if ((sts = __pmSendProfile(outfd, FROM_ANON, 0, profile)) < 0) {
 		    printf("Error: __pmSendProfile() failed: %s\n", pmErrStr(sts));
 		    return;
 		}
@@ -405,7 +414,7 @@ dopmda(int pdu)
 	    }
 
 	    printf("Getting Result Structure...\n");
-	    if ((sts = __pmSendFetch(outfd, connmode, 0, NULL, 
+	    if ((sts = __pmSendFetch(outfd, FROM_ANON, 0, NULL, 
 				    1, &(desc.pmid))) >= 0) {
 		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, 
 				     &pb)) == PDU_RESULT) {
@@ -440,7 +449,7 @@ dopmda(int pdu)
 	    }
 
 	    printf("Sending Result...\n");
-	    if ((sts = __pmSendResult(outfd, connmode, result)) >= 0) {
+	    if ((sts = __pmSendResult(outfd, FROM_ANON, result)) >= 0) {
 		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, 
 				     &pb)) == PDU_ERROR) {
 		    if ((i = __pmDecodeError(pb, connmode, &sts)) >= 0) {
@@ -478,7 +487,7 @@ dopmda(int pdu)
 		    param.number |= PM_TEXT_HELP;
 		}
 
-		if ((sts = __pmSendTextReq(outfd, connmode, ident, param.number)) >= 0) {
+		if ((sts = __pmSendTextReq(outfd, FROM_ANON, ident, param.number)) >= 0) {
 		    if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_TEXT) {
 			if ((sts = __pmDecodeText(pb, connmode, &i, &buffer)) >= 0) {
 			    if (j == 0) {
@@ -513,7 +522,7 @@ dopmda(int pdu)
 
 	case PDU_PMNS_IDS:
             printf("PMID: %s\n", pmIDStr(param.pmid));
-	    if ((sts = __pmSendIDList(outfd, connmode, 1, &param.pmid, 0)) >= 0) {
+	    if ((sts = __pmSendIDList(outfd, FROM_ANON, 1, &param.pmid, 0)) >= 0) {
 		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_PMNS_NAMES) {
 		    if ((sts = __pmDecodeNameList(pb, connmode, &numnames, &namelist, NULL)) >= 0) {
 			for (i = 0; i < sts; i++) {
@@ -539,7 +548,7 @@ dopmda(int pdu)
 
 	case PDU_PMNS_NAMES:
             printf("Metric: %s\n", param.name);
-	    if ((sts = __pmSendNameList(outfd, connmode, 1, &param.name, NULL)) >= 0) {
+	    if ((sts = __pmSendNameList(outfd, FROM_ANON, 1, &param.name, NULL)) >= 0) {
 		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_PMNS_IDS) {
 		    int		xsts;
 		    if ((sts = __pmDecodeIDList(pb, connmode, 1, &pmid, &xsts)) >= 0) {
@@ -563,7 +572,7 @@ dopmda(int pdu)
 
 	case PDU_PMNS_CHILD:
             printf("Metric: %s\n", param.name);
-	    if ((sts = __pmSendChildReq(outfd, connmode, param.name, 1)) >= 0) {
+	    if ((sts = __pmSendChildReq(outfd, FROM_ANON, param.name, 1)) >= 0) {
 		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_PMNS_NAMES) {
 		    if ((sts = __pmDecodeNameList(pb, connmode, &numnames, &namelist, &statuslist)) >= 0) {
 			for (i = 0; i < numnames; i++) {
@@ -590,7 +599,7 @@ dopmda(int pdu)
 
 	case PDU_PMNS_TRAVERSE:
             printf("Metric: %s\n", param.name);
-	    if ((sts = __pmSendTraversePMNSReq(outfd, connmode, param.name)) >= 0) {
+	    if ((sts = __pmSendTraversePMNSReq(outfd, FROM_ANON, param.name)) >= 0) {
 		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_PMNS_NAMES) {
 		    if ((sts = __pmDecodeNameList(pb, connmode, &numnames, &namelist, &statuslist)) >= 0) {
 			for (i = 0; i < numnames; i++) {

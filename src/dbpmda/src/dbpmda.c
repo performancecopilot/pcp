@@ -269,7 +269,7 @@ main(int argc, char **argv)
 		break;
 
 	    case QUIT:
-		exit(0);
+		goto done;
 
 	    case STATUS:
 		dostatus();
@@ -402,6 +402,13 @@ main(int argc, char **argv)
 	}
 	__pmSetInternalState(PM_STATE_APPL);
     }
+
+done:
+    /* cleanup on exit */
+    if (connmode == PDU_DSO)
+	closedso();
+    else if (connmode == PDU_BINARY)
+	closepmda();
 
     exit(0);
 }
