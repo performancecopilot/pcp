@@ -432,7 +432,7 @@ HandleClientInput(fd_set *fdsPtr)
 	cp = &client[i];
 	this_client_id = i;
 
-	sts = __pmGetPDU(cp->fd, PDU_CLIENT, _pmcd_timeout, &pb);
+	sts = __pmGetPDU(cp->fd, LIMIT_SIZE, _pmcd_timeout, &pb);
 	if (sts > 0 && _pmcd_trace_mask)
 	    pmcd_trace(TR_RECV_PDU, cp->fd, sts, (int)((__psint_t)pb & 0xffffffff));
 	if (sts <= 0) {
@@ -675,11 +675,11 @@ HandleReadyAgents(fd_set *readyFds)
 
 		/* Expect an error PDU containing PM_ERR_PMDAREADY */
 		reason = AT_COMM;	/* most errors are protocol failures */
-		sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+		sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 		if (sts > 0 && _pmcd_trace_mask)
 		    pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		if (sts == PDU_ERROR) {
-		    s = __pmDecodeError(pb, ap->pduProtocol, &sts);
+		    s = __pmDecodeError(pb, &sts);
 		    if (s < 0) {
 			sts = s;
 			pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_ERROR, sts);

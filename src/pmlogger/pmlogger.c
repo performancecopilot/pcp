@@ -898,7 +898,7 @@ Options:\n\
 		 */
 		__pmPDU		*pb;
 		__pmPDUHdr	*php;
-		sts = __pmGetPDU(pmcdfd, PDU_BINARY, TIMEOUT_NEVER, &pb);
+		sts = __pmGetPDU(pmcdfd, ANY_SIZE, TIMEOUT_NEVER, &pb);
 		if (sts <= 0) {
 		    if (sts < 0)
 			fprintf(stderr, "Error: __pmGetPDU: %s\n", pmErrStr(sts));

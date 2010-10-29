@@ -43,15 +43,15 @@ receivetext (__pmContext *ctxp, char **buffer)
     int n;
     __pmPDU *pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY,
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_TEXT) {
 	int x_ident;
 
-	n = __pmDecodeText(pb, PDU_BINARY, &x_ident, buffer);
+	n = __pmDecodeText(pb, &x_ident, buffer);
     }
     else if (n == PDU_ERROR)
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
 

@@ -103,7 +103,7 @@ __pmSendProfile(int fd, int from, int ctxnum, __pmProfile *instprof)
 }
 
 int
-__pmDecodeProfile(__pmPDU *pdubuf, int mode, int *ctxnum, __pmProfile **result)
+__pmDecodeProfile(__pmPDU *pdubuf, int *ctxnum, __pmProfile **result)
 {
     __pmProfile		*instprof = NULL;
     __pmInDomProfile	*prof, *p_end;
@@ -111,9 +111,6 @@ __pmDecodeProfile(__pmPDU *pdubuf, int mode, int *ctxnum, __pmProfile **result)
     instprof_t		*pduInstProf;
     __pmPDU		*p;
     int			sts = 0;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     p = (__pmPDU *)pdubuf;
 

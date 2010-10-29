@@ -73,12 +73,10 @@ __pmSendInstanceReq(int fd, int from, const __pmTimeval *when, pmInDom indom,
 }
 
 int
-__pmDecodeInstanceReq(__pmPDU *pdubuf, int mode, __pmTimeval *when, pmInDom *indom, int *inst, char **name)
+__pmDecodeInstanceReq(__pmPDU *pdubuf, __pmTimeval *when, pmInDom *indom, int *inst, char **name)
 {
     instance_req_t	*pp;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     pp = (instance_req_t *)pdubuf;
     when->tv_sec = ntohl(pp->when.tv_sec);
     when->tv_usec = ntohl(pp->when.tv_usec);
@@ -176,7 +174,7 @@ __pmSendInstance(int fd, int from, __pmInResult *result)
 }
 
 int
-__pmDecodeInstance(__pmPDU *pdubuf, int mode, __pmInResult **result)
+__pmDecodeInstance(__pmPDU *pdubuf, __pmInResult **result)
 {
     int			i;
     int			j;
@@ -188,8 +186,6 @@ __pmDecodeInstance(__pmPDU *pdubuf, int mode, __pmInResult **result)
     int			keep_instlist;
     int			keep_namelist;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     if ((res = (__pmInResult *)malloc(sizeof(*res))) == NULL)
 	return -errno;
     res->instlist = NULL;

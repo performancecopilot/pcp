@@ -66,13 +66,11 @@ __pmSendFetch(int fd, int from, int ctxnum, __pmTimeval *when, int numpmid, pmID
 }
 
 int
-__pmDecodeFetch(__pmPDU *pdubuf, int mode, int *ctxnum, __pmTimeval *when, int *numpmid, pmID **pmidlist)
+__pmDecodeFetch(__pmPDU *pdubuf, int *ctxnum, __pmTimeval *when, int *numpmid, pmID **pmidlist)
 {
     fetch_t	*pp;
     int		j;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     pp = (fetch_t *)pdubuf;
     *ctxnum = ntohl(pp->ctxnum);
     when->tv_sec = ntohl(pp->when.tv_sec);

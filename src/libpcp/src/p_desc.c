@@ -47,12 +47,10 @@ __pmSendDescReq(int fd, int from, pmID pmid)
 }
 
 int
-__pmDecodeDescReq(__pmPDU *pdubuf, int mode, pmID *pmid)
+__pmDecodeDescReq(__pmPDU *pdubuf, pmID *pmid)
 {
     desc_req_t	*pp;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     pp = (desc_req_t *)pdubuf;
     *pmid = __ntohpmID(pp->pmid);
     return 0;
@@ -86,12 +84,10 @@ __pmSendDesc(int fd, int ctx, pmDesc *desc)
 }
 
 int
-__pmDecodeDesc(__pmPDU *pdubuf, int mode, pmDesc *desc)
+__pmDecodeDesc(__pmPDU *pdubuf, pmDesc *desc)
 {
     desc_t	*pp;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     pp = (desc_t *)pdubuf;
     desc->type = ntohl(pp->desc.type);
     desc->sem = ntohl(pp->desc.sem);

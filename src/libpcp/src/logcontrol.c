@@ -34,12 +34,12 @@ __pmControlLog(int fd, const pmResult *request, int control, int state, int delt
 	n = __pmMapErrno(n);
     else {
 	/* get the reply */
-	n = __pmGetPDU(fd, PDU_BINARY, __pmLoggerTimeout(), &pb);
+	n = __pmGetPDU(fd, ANY_SIZE, __pmLoggerTimeout(), &pb);
 	if (n == PDU_RESULT) {
-	    n = __pmDecodeResult(pb, PDU_BINARY, status);
+	    n = __pmDecodeResult(pb, status);
 	}
 	else if (n == PDU_ERROR)
-	    __pmDecodeError(pb, PDU_BINARY, &n);
+	    __pmDecodeError(pb, &n);
 	else if (n != PM_ERR_TIMEOUT)
 	    n = PM_ERR_IPC; /* unknown reply type */
     }

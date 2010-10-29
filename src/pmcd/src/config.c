@@ -667,7 +667,6 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 
     newAgent->ipcType = AGENT_DSO;
     newAgent->pmDomainId = pmDomainId;
-    newAgent->pduProtocol = PDU_BINARY;
     newAgent->inFd = -1;
     newAgent->outFd = -1;
     newAgent->pmDomainLabel = pmDomainLabel;
@@ -741,7 +740,6 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
 
     newAgent->ipcType = AGENT_SOCKET;
     newAgent->pmDomainId = pmDomainId;
-    newAgent->pduProtocol = PDU_BINARY;
     newAgent->inFd = -1;
     newAgent->outFd = -1;
     newAgent->pmDomainLabel = pmDomainLabel;
@@ -768,14 +766,12 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
 static int
 ParsePipe(char *pmDomainLabel, int pmDomainId)
 {
-    int		i, pduProtocol;
+    int		i;
     AgentInfo	*newAgent;
     int notReady = 0;
 
     FindNextToken();
-    if (TokenIs("binary"))
-	pduProtocol = PDU_BINARY;
-    else {
+    if (!TokenIs("binary")) {
 	fprintf(stderr,
 		     "pmcd: line %d, pipe PDU type expected (`binary')\n",
 		     nLines);
@@ -800,7 +796,6 @@ ParsePipe(char *pmDomainLabel, int pmDomainId)
     newAgent = GetNewAgent();
     newAgent->ipcType = AGENT_PIPE;
     newAgent->pmDomainId = pmDomainId;
-    newAgent->pduProtocol = pduProtocol;
     newAgent->inFd = -1;
     newAgent->outFd = -1;
     newAgent->pmDomainLabel = pmDomainLabel;
@@ -1243,7 +1238,7 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
     int			version = UNKNOWN_VERSION;
     __pmCred		*credlist = NULL;
 
-    if ((sts = __pmDecodeCreds(pb, PDU_BINARY, &sender, &credcount, &credlist)) < 0)
+    if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0)
 	return sts;
     else if (_pmcd_trace_mask)
 	pmcd_trace(TR_RECV_PDU, aPtr->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
@@ -1293,37 +1288,35 @@ AgentNegotiate(AgentInfo *aPtr)
     int		version;
     __pmPDU	*ack;
 
-    if (aPtr->pduProtocol == PDU_BINARY) {
-	sts = __pmGetPDU(aPtr->outFd, PDU_BINARY, _creds_timeout, &ack);
-	if (sts == PDU_CREDS) {
-	    if ((sts = DoAgentCreds(aPtr, ack)) < 0) {
-		fprintf(stderr, "pmcd: version exchange failed "
-		    "for \"%s\" agent: %s\n", aPtr->pmDomainLabel, pmErrStr(sts));
-		return sts;
-	    }
-	    return 0;
+    sts = __pmGetPDU(aPtr->outFd, ANY_SIZE, _creds_timeout, &ack);
+    if (sts == PDU_CREDS) {
+	if ((sts = DoAgentCreds(aPtr, ack)) < 0) {
+	    fprintf(stderr, "pmcd: version exchange failed "
+		"for \"%s\" agent: %s\n", aPtr->pmDomainLabel, pmErrStr(sts));
+	    return sts;
 	}
-	else if (sts == PM_ERR_TIMEOUT) {
-	    fprintf(stderr, "pmcd: no version exchange with PMDA %s: "
-		    "assuming PCP 1.x PMDA.\n", aPtr->pmDomainLabel);
-	    /*FALLTHROUGH*/
-	}
-	else {
-	    if (sts > 0)
-		fprintf(stderr, "pmcd: unexpected PDU type (0x%x) at initial "
-			"exchange with %s PMDA\n", sts, aPtr->pmDomainLabel);
-	    else if (sts == 0)
-		fprintf(stderr, "pmcd: unexpected end-of-file at initial "
-			"exchange with %s PMDA\n", aPtr->pmDomainLabel);
-	    else
-		fprintf(stderr, "pmcd: error at initial PDU exchange with "
-			"%s PMDA: %s\n", aPtr->pmDomainLabel, pmErrStr(sts));
-	    return PM_ERR_IPC;
-	}
+	return 0;
+    }
+    else if (sts == PM_ERR_TIMEOUT) {
+	fprintf(stderr, "pmcd: no version exchange with PMDA %s: "
+		"assuming PCP 1.x PMDA.\n", aPtr->pmDomainLabel);
+	/*FALLTHROUGH*/
+    }
+    else {
+	if (sts > 0)
+	    fprintf(stderr, "pmcd: unexpected PDU type (0x%x) at initial "
+		    "exchange with %s PMDA\n", sts, aPtr->pmDomainLabel);
+	else if (sts == 0)
+	    fprintf(stderr, "pmcd: unexpected end-of-file at initial "
+		    "exchange with %s PMDA\n", aPtr->pmDomainLabel);
+	else
+	    fprintf(stderr, "pmcd: error at initial PDU exchange with "
+		    "%s PMDA: %s\n", aPtr->pmDomainLabel, pmErrStr(sts));
+	return PM_ERR_IPC;
     }
 
     /*
-     * Either (PDU_ASCII _is_ version 1 ONLY), or timed out in PDU exchange
+     * Either Version 1 or timed out in PDU exchange
      */
     aPtr->pduVersion = PDU_VERSION1;
     version = PDU_VERSION1;
@@ -1689,10 +1682,7 @@ PrintAgentInfo(FILE *stream)
 	    version = __pmVersionIPC(aPtr->inFd);
 	    fprintf(stream, " %3d %5d %3d %3d %3d ",
 		aPtr->pmDomainId, (int)aPtr->ipc.pipe.agentPid, aPtr->inFd, aPtr->outFd, version);
-	    if (aPtr->pduProtocol == PDU_BINARY)
-		fputs("bin ", stream);
-	    else
-		fputs("txt ", stream);
+	    fputs("bin ", stream);
 	    if (aPtr->ipc.pipe.commandLine) {
 		fputs("pipe cmd=", stream);
 		fputs(aPtr->ipc.pipe.commandLine, stream);
@@ -2023,8 +2013,6 @@ AgentsDiffer(AgentInfo *a1, AgentInfo *a2)
 	return 1;
     if (a1->ipcType != a2->ipcType)
 	return 1;
-    if (a1->pduProtocol != a2->pduProtocol)
-	return 1;
     if (a1->ipcType == AGENT_DSO) {
 	DsoInfo	*dso1 = &a1->ipc.dso;
 	DsoInfo	*dso2 = &a2->ipc.dso;
@@ -2156,7 +2144,7 @@ ParseRestartAgents(char *fileName)
 
 		    /* try to discover more ... */
 		    __pmPDU	*pb;
-		    sts = __pmGetPDU(ap->outFd, ap->pduProtocol, TIMEOUT_NEVER, &pb);
+		    sts = __pmGetPDU(ap->outFd, ANY_SIZE, TIMEOUT_NEVER, &pb);
 		    if (sts > 0 && _pmcd_trace_mask)
 			pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		    if (sts == 0)

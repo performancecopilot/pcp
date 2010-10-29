@@ -72,7 +72,7 @@ static const struct {
     { PM_ERR_IPC,		"PM_ERR_IPC",
 	"IPC protocol failure" },
     { PM_ERR_NOASCII,		"PM_ERR_NOASCII",
-	"ASCII format not supported for this PDU" },
+	"ASCII format not supported for this PDU (no longer used)" },
     { PM_ERR_EOF,		"PM_ERR_EOF",
 	"IPC channel closed" },
     { PM_ERR_NOTHOST,		"PM_ERR_NOTHOST",

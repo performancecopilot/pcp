@@ -485,7 +485,7 @@ typedef struct {
     int		pc_timeout;		/* set if connect times out */
     time_t	pc_again;		/* time to try again */
     int		pc_curpdu; 		/* current pdu in flight */
-    int		pc_tout_sec;		/* timeout for pmGetPDU */
+    int		pc_tout_sec;		/* timeout for __pmGetPDU */
     pmcd_ctl_state_t pc_state;		/* current state of this context */
     int		pc_fdflags;		/* fcntl(2) flags for pc_fd */
     struct sockaddr pc_addr;		/* server address */
@@ -587,10 +587,14 @@ EXTERN unsigned int *__pmPDUCntIn;
 EXTERN unsigned int *__pmPDUCntOut;
 extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 
-/* for __pmGetPDU */
+/* timeout ouptions for __pmGetPDU */
 #define TIMEOUT_NEVER	 0
 #define TIMEOUT_DEFAULT	-1
 #define GETPDU_ASYNC	-2
+
+/* mode options for __pmGetPDU */
+#define ANY_SIZE	0	/* replacement for old PDU_BINARY */
+#define LIMIT_SIZE	2	/* replacement for old PDU_CLIENT */
 
 extern __pmPDU *__pmFindPDUBuf(int);
 extern void __pmPinPDUBuf(void *);
@@ -625,10 +629,12 @@ extern void __pmCountPDUBuf(int, int *, int *);
 
 /*
  * PDU encoding formats
+ * These have been retired ...
+ *  #define PDU_BINARY	0
+ *  #define PDU_ASCII	1
+ * And this has been replaced by LIMIT_SIZE for __pmGetPDU
+ *  #define PDU_CLIENT	2
  */
-#define PDU_BINARY	0
-#define PDU_ASCII	1
-#define PDU_CLIENT	2
 
 /*
  * Anonymous PDU sender, when context does not matter, e.g. PDUs from
@@ -637,38 +643,38 @@ extern void __pmCountPDUBuf(int, int *, int *);
 #define FROM_ANON	0
 
 extern int __pmSendError(int, int, int);
-extern int __pmDecodeError(__pmPDU *, int, int *);
+extern int __pmDecodeError(__pmPDU *, int *);
 extern int __pmSendXtendError(int, int, int, int);
-extern int __pmDecodeXtendError(__pmPDU *, int, int *, int *);
+extern int __pmDecodeXtendError(__pmPDU *, int *, int *);
 extern int __pmSendResult(int, int, const pmResult *);
 extern int __pmEncodeResult(int, const pmResult *, __pmPDU **);
-extern int __pmDecodeResult(__pmPDU *, int, pmResult **);
+extern int __pmDecodeResult(__pmPDU *, pmResult **);
 extern int __pmSendProfile(int, int, int, __pmProfile *);
-extern int __pmDecodeProfile(__pmPDU *, int, int *, __pmProfile **);
+extern int __pmDecodeProfile(__pmPDU *, int *, __pmProfile **);
 extern int __pmSendFetch(int, int, int, __pmTimeval *, int, pmID *);
-extern int __pmDecodeFetch(__pmPDU *, int, int *, __pmTimeval *, int *, pmID **);
+extern int __pmDecodeFetch(__pmPDU *, int *, __pmTimeval *, int *, pmID **);
 extern int __pmSendDescReq(int, int, pmID);
-extern int __pmDecodeDescReq(__pmPDU *, int, pmID *);
+extern int __pmDecodeDescReq(__pmPDU *, pmID *);
 extern int __pmSendDesc(int, int, pmDesc *);
-extern int __pmDecodeDesc(__pmPDU *, int, pmDesc *);
+extern int __pmDecodeDesc(__pmPDU *, pmDesc *);
 extern int __pmSendInstanceReq(int, int, const __pmTimeval *, pmInDom, int, const char *);
-extern int __pmDecodeInstanceReq(__pmPDU *, int, __pmTimeval *, pmInDom *, int *, char **);
+extern int __pmDecodeInstanceReq(__pmPDU *, __pmTimeval *, pmInDom *, int *, char **);
 extern int __pmSendInstance(int, int, __pmInResult *);
-extern int __pmDecodeInstance(__pmPDU *, int, __pmInResult **);
+extern int __pmDecodeInstance(__pmPDU *, __pmInResult **);
 extern int __pmSendTextReq(int, int, int, int);
-extern int __pmDecodeTextReq(__pmPDU *, int, int *, int *);
+extern int __pmDecodeTextReq(__pmPDU *, int *, int *);
 extern int __pmSendText(int, int, int, const char *);
-extern int __pmDecodeText(__pmPDU *, int, int *, char **);
+extern int __pmDecodeText(__pmPDU *, int *, char **);
 extern int __pmSendCreds(int, int, int, const __pmCred *);
-extern int __pmDecodeCreds(__pmPDU *, int, int *, int *, __pmCred **);
+extern int __pmDecodeCreds(__pmPDU *, int *, int *, __pmCred **);
 extern int __pmSendIDList(int, int, int, const pmID *, int);
-extern int __pmDecodeIDList(__pmPDU *, int, int, pmID *, int *);
+extern int __pmDecodeIDList(__pmPDU *, int, pmID *, int *);
 extern int __pmSendNameList(int, int, int, char **, const int *);
-extern int __pmDecodeNameList(__pmPDU *, int, int *, char ***, int **);
+extern int __pmDecodeNameList(__pmPDU *, int *, char ***, int **);
 extern int __pmSendChildReq(int, int, const char *, int);
-extern int __pmDecodeChildReq(__pmPDU *, int , char **, int *);
+extern int __pmDecodeChildReq(__pmPDU *, char **, int *);
 extern int __pmSendTraversePMNSReq(int, int, const char *);
-extern int __pmDecodeTraversePMNSReq(__pmPDU *, int, char **);
+extern int __pmDecodeTraversePMNSReq(__pmPDU *, char **);
 
 #if defined(HAVE_64BIT_LONG)
 

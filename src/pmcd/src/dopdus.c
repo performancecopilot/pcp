@@ -71,7 +71,7 @@ DoText(ClientInfo *cp, __pmPDU* pb)
     AgentInfo	*ap;
     char	*buffer;
 
-    if ((sts = __pmDecodeTextReq(pb, PDU_BINARY, &ident, &type)) < 0)
+    if ((sts = __pmDecodeTextReq(pb, &ident, &type)) < 0)
 	return sts;
 
     if ((ap = FindDomainAgent(((__pmID_int *)&ident)->domain)) == NULL)
@@ -102,13 +102,13 @@ DoText(ClientInfo *cp, __pmPDU* pb)
 	    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_TEXT_REQ, ident);
 	sts = __pmSendTextReq(ap->inFd, cp - client, ident, type);
 	if (sts >= 0) {
-	    sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+	    sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 	    if (sts > 0 && _pmcd_trace_mask)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 	    if (sts == PDU_TEXT)
-		sts = __pmDecodeText(pb, ap->pduProtocol, &ident, &buffer);
+		sts = __pmDecodeText(pb, &ident, &buffer);
 	    else if (sts == PDU_ERROR) {
-		s = __pmDecodeError(pb, ap->pduProtocol, &sts);
+		s = __pmDecodeError(pb, &sts);
 		if (s < 0)
 		    sts = s;
 		else
@@ -153,7 +153,7 @@ DoProfile(ClientInfo *cp, __pmPDU *pb)
     __pmProfile	*newProf;
     int		ctxnum;
 
-    sts = __pmDecodeProfile(pb, PDU_BINARY, &ctxnum, &newProf);
+    sts = __pmDecodeProfile(pb, &ctxnum, &newProf);
     if (sts >= 0) {
 	int i;
 
@@ -217,7 +217,7 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
     pmDesc	desc;
     int		fdfail = -1;
 
-    if ((sts = __pmDecodeDescReq(pb, PDU_BINARY, &pmid)) < 0)
+    if ((sts = __pmDecodeDescReq(pb, &pmid)) < 0)
 	return sts;
 
     if ((ap = FindDomainAgent(((__pmID_int *)&pmid)->domain)) == NULL)
@@ -248,13 +248,13 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
 	    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_DESC_REQ, (int)pmid);
 	sts = __pmSendDescReq(ap->inFd, cp - client, pmid);
 	if (sts >= 0) {
-	    sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+	    sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 	    if (sts > 0 && _pmcd_trace_mask)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 	    if (sts == PDU_DESC)
-		sts = __pmDecodeDesc(pb, ap->pduProtocol, &desc);
+		sts = __pmDecodeDesc(pb, &desc);
 	    else if (sts == PDU_ERROR) {
-		s = __pmDecodeError(pb, ap->pduProtocol, &sts);
+		s = __pmDecodeError(pb, &sts);
 		if (s < 0)
 		    sts = s;
 		else
@@ -303,7 +303,7 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
     AgentInfo		*ap;
     int			fdfail = -1;
 
-    __pmDecodeInstanceReq(pb, PDU_BINARY, &when, &indom, &inst, &name);
+    __pmDecodeInstanceReq(pb, &when, &indom, &inst, &name);
     if (when.tv_sec != 0 || when.tv_usec != 0) {
 	/*
 	 * we have no idea how to do anything but current, yet!
@@ -350,14 +350,14 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
 	    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_INSTANCE_REQ, (int)indom);
 	sts = __pmSendInstanceReq(ap->inFd, cp - client, &when, indom, inst, name);
 	if (sts >= 0) {
-	    sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+	    sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 	    if (sts > 0 && _pmcd_trace_mask)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 	    if (sts == PDU_INSTANCE)
-		sts = __pmDecodeInstance(pb, ap->pduProtocol, &inresult);
+		sts = __pmDecodeInstance(pb, &inresult);
 	    else if (sts == PDU_ERROR) {
 		inresult = NULL;
-		s = __pmDecodeError(pb, ap->pduProtocol, &sts);
+		s = __pmDecodeError(pb, &sts);
 		if (s < 0)
 		    sts = s;
 		else
@@ -412,7 +412,7 @@ DoPMNSIDs(ClientInfo *cp, __pmPDU *pb)
     AgentInfo	*ap = NULL;
     int		fdfail = -1;
 
-    if ((sts = __pmDecodeIDList(pb, PDU_BINARY, 1, idlist, &op_sts)) < 0)
+    if ((sts = __pmDecodeIDList(pb, 1, idlist, &op_sts)) < 0)
 	goto fail;
 
     if ((sts = pmNameAll(idlist[0], &namelist)) < 0) {
@@ -448,14 +448,14 @@ DoPMNSIDs(ClientInfo *cp, __pmPDU *pb)
 		pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PMNS_IDS, 1);
 	    sts = __pmSendIDList(ap->inFd, cp - client, 1, &idlist[0], 0);
 	    if (sts >= 0) {
-		sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+		sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 		if (sts > 0 && _pmcd_trace_mask)
 		    pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		if (sts == PDU_PMNS_NAMES) {
-		    sts = __pmDecodeNameList(pb, ap->pduProtocol, &numnames, &namelist, NULL);
+		    sts = __pmDecodeNameList(pb, &numnames, &namelist, NULL);
 		}
 		else if (sts == PDU_ERROR) {
-		    __pmDecodeError(pb, ap->pduProtocol, &sts);
+		    __pmDecodeError(pb, &sts);
 		    if (_pmcd_trace_mask)
 			pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_PMNS_NAMES, sts);
 		}
@@ -508,7 +508,7 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
     int		i;
     AgentInfo	*ap = NULL;
 
-    if ((sts = __pmDecodeNameList(pb, PDU_BINARY, &numids, &namelist, NULL)) < 0)
+    if ((sts = __pmDecodeNameList(pb, &numids, &namelist, NULL)) < 0)
 	goto done;
 
     if ((idlist = (pmID*)malloc(sizeof(int)*numids)) == NULL) {
@@ -558,17 +558,17 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 			pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PMNS_NAMES, 1);
 		    lsts = __pmSendNameList(ap->inFd, cp - client, 1, &namelist[i], NULL);
 		    if (lsts >= 0) {
-			lsts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+			lsts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 			if (lsts > 0 && _pmcd_trace_mask)
 			    pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 			if (lsts == PDU_PMNS_IDS) {
 			    int		xsts;
-			    lsts = __pmDecodeIDList(pb, ap->pduProtocol, 1, &idlist[i], &xsts);
+			    lsts = __pmDecodeIDList(pb, 1, &idlist[i], &xsts);
 			    if (lsts >= 0)
 				lsts = xsts;
 			}
 			else if (lsts == PDU_ERROR) {
-			    __pmDecodeError(pb, ap->pduProtocol, &lsts);
+			    __pmDecodeError(pb, &lsts);
 			    if (_pmcd_trace_mask)
 				pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_PMNS_IDS, lsts);
 			}
@@ -638,7 +638,7 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
     char	*namelist[1];
     pmID	idlist[1];
 
-    if ((sts = __pmDecodeChildReq(pb, PDU_BINARY, &name, &subtype)) < 0)
+    if ((sts = __pmDecodeChildReq(pb, &name, &subtype)) < 0)
 	goto done;
 
     namelist[0] = name;
@@ -683,11 +683,11 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
 		    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PMNS_CHILD, 1);
 		sts = __pmSendChildReq(ap->inFd, cp - client, name, subtype);
 		if (sts >= 0) {
-		    sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+		    sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 		    if (sts > 0 && _pmcd_trace_mask)
 			pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		    if (sts == PDU_PMNS_NAMES) {
-			sts = __pmDecodeNameList(pb, ap->pduProtocol, &numnames,
+			sts = __pmDecodeNameList(pb, &numnames,
 			                               &offspring, &statuslist);
 			if (sts >= 0) {
 			    sts = numnames;
@@ -698,7 +698,7 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
 			}
 		    }
 		    else if (sts == PDU_ERROR) {
-			__pmDecodeError(pb, ap->pduProtocol, &sts);
+			__pmDecodeError(pb, &sts);
 			if (_pmcd_trace_mask)
 			    pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_PMNS_NAMES, sts);
 		    }
@@ -868,11 +868,11 @@ traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
 		if (sts >= 0) {
 		    int		numnames;
 		    __pmPDU	*pb;
-		    sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+		    sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 		    if (sts > 0 && _pmcd_trace_mask)
 			pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		    if (sts == PDU_PMNS_NAMES) {
-			sts = __pmDecodeNameList(pb, ap->pduProtocol, &numnames,
+			sts = __pmDecodeNameList(pb, &numnames,
 						       &offspring, &statuslist);
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_PMNS) {
@@ -897,7 +897,7 @@ traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
 			}
 		    }
 		    else if (sts == PDU_ERROR) {
-			__pmDecodeError(pb, ap->pduProtocol, &sts);
+			__pmDecodeError(pb, &sts);
 			if (_pmcd_trace_mask)
 			    pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_PMNS_NAMES, sts);
 		    }
@@ -995,7 +995,7 @@ DoPMNSTraverse(ClientInfo *cp, __pmPDU *pb)
 
     travNL = NULL;
 
-    if ((sts = __pmDecodeTraversePMNSReq(pb, PDU_BINARY, &name)) < 0)
+    if ((sts = __pmDecodeTraversePMNSReq(pb, &name)) < 0)
 	goto done;
   
     travNL_strlen = 0;
@@ -1057,7 +1057,7 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
     unsigned int	cookie = 0;
     __pmCred		*credlist = NULL;
 
-    if ((sts = __pmDecodeCreds(pb, PDU_BINARY, &sender, &credcount, &credlist)) < 0)
+    if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0)
 	return sts;
 
     if (_pmcd_trace_mask)

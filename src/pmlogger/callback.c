@@ -491,7 +491,7 @@ log_callback(int afid, void *data)
 	}
 
 	__pmOverrideLastFd(fileno(logctl.l_mfp));
-	if ((sts = __pmDecodeResult(pb, PDU_BINARY, &resp)) < 0) {
+	if ((sts = __pmDecodeResult(pb, &resp)) < 0) {
 	    fprintf(stderr, "__pmDecodeResult: %s\n", pmErrStr(sts));
 	    exit(1);
 	}

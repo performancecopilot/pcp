@@ -59,10 +59,10 @@ store_check (__pmContext *ctxp)
     int sts;
     __pmPDU	*pb;
  
-    sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY,
+    sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 		     ctxp->c_pmcd->pc_tout_sec, &pb);
     if (sts == PDU_ERROR)
-	__pmDecodeError(pb, PDU_BINARY, &sts);
+	__pmDecodeError(pb, &sts);
     else if (sts != PM_ERR_TIMEOUT)
 	sts = PM_ERR_IPC;
 

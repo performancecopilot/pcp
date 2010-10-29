@@ -88,7 +88,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	first_time = 0;
     }
 
-    sts = __pmGetPDU(pmda->e_infd, PDU_BINARY, TIMEOUT_NEVER, &pb);
+    sts = __pmGetPDU(pmda->e_infd, ANY_SIZE, TIMEOUT_NEVER, &pb);
     if (sts == 0)
 	/* End of File */
 	return PM_ERR_EOF;
@@ -125,7 +125,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	/*
 	 * expect PM_ERR_NOTCONN to mark end of context
 	 */
-	if (__pmDecodeError(pb, PDU_BINARY, &endsts) >= 0 && endsts == PM_ERR_NOTCONN) {
+	if (__pmDecodeError(pb, &endsts) >= 0 && endsts == PM_ERR_NOTCONN) {
 	    if (HAVE_V_FIVE(dispatch->comm.pmda_interface)) {
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_CONTEXT) {
@@ -156,7 +156,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	 * free last profile received (if any)
 	 * Note error responses are not sent for PDU_PROFILE
 	 */
-	if (__pmDecodeProfile(pb, PDU_BINARY, &ctxnum, &new_profile) < 0) 
+	if (__pmDecodeProfile(pb, &ctxnum, &new_profile) < 0) 
 	   break;
 
 	if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
@@ -183,7 +183,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	sts = __pmDecodeFetch(pb, PDU_BINARY, &ctxnum, &when, &npmids, &pmidlist);
+	sts = __pmDecodeFetch(pb, &ctxnum, &when, &npmids, &pmidlist);
 
 	/* Ignore "when"; pmcd should intercept archive log requests */
 	if (sts >= 0) {
@@ -213,7 +213,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	if ((sts = __pmDecodeNameList(pb, PDU_BINARY, &npmids, &namelist, NULL)) >= 0) {
+	if ((sts = __pmDecodeNameList(pb, &npmids, &namelist, NULL)) >= 0) {
 	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface)) {
 		if (npmids != 1)
 		    /*
@@ -244,7 +244,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	if ((sts = __pmDecodeChildReq(pb, PDU_BINARY, &name, &subtype)) >= 0) {
+	if ((sts = __pmDecodeChildReq(pb, &name, &subtype)) >= 0) {
 	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface)) {
 		sts = dispatch->version.four.children(name, 0, &offspring, &statuslist, pmda);
 		if (sts >= 0) {
@@ -275,7 +275,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	if ((sts = __pmDecodeTraversePMNSReq(pb, PDU_BINARY, &name)) >= 0) {
+	if ((sts = __pmDecodeTraversePMNSReq(pb, &name)) >= 0) {
 	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface)) {
 		sts = dispatch->version.four.children(name, 1, &offspring, &statuslist, pmda);
 		if (sts >= 0) {
@@ -303,7 +303,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	sts = __pmDecodeIDList(pb, PDU_BINARY, 1, &pmid, &op_sts);
+	sts = __pmDecodeIDList(pb, 1, &pmid, &op_sts);
 	if (sts >= 0)
 	    sts = op_sts;
 	if (sts >= 0) {
@@ -330,7 +330,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	if ((sts = __pmDecodeDescReq(pb, PDU_BINARY, &pmid)) >= 0) {
+	if ((sts = __pmDecodeDescReq(pb, &pmid)) >= 0) {
 	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
 		sts = dispatch->version.four.desc(pmid, &desc, pmda);
 	    else
@@ -350,7 +350,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	if ((sts = __pmDecodeInstanceReq(pb, PDU_BINARY, &when, &indom, &inst, 
+	if ((sts = __pmDecodeInstanceReq(pb, &when, &indom, &inst, 
 					 &iname)) >= 0) {
 	    /*
 	     * Note: when is ignored.
@@ -382,7 +382,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	if ((sts = __pmDecodeTextReq(pb, PDU_BINARY, &ident, &type)) >= 0) {
+	if ((sts = __pmDecodeTextReq(pb, &ident, &type)) >= 0) {
 	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
 		sts = dispatch->version.four.text(ident, type, &buffer, pmda);
 	    else
@@ -406,7 +406,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	if ((sts = __pmDecodeResult(pb, PDU_BINARY, &result)) >= 0) {
+	if ((sts = __pmDecodeResult(pb, &result)) >= 0) {
 	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
 		sts = dispatch->version.four.store(result, pmda);
 	    else
@@ -434,7 +434,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	 * this function moved to libpcp_dev.a - this isn't being used
 	 * by any PMDA, so its out of 2.0 libpcp.
 	 */
-	if ((sts = __pmDecodeControlReq(pb, PDU_BINARY, &result, &control, &state, &delta)) >= 0) {
+	if ((sts = __pmDecodeControlReq(pb, &result, &control, &state, &delta)) >= 0) {
 	    __pmNotifyErr(LOG_ERR, "PDU_CONTROL_REQ not supported");
 	}
 #endif

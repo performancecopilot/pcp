@@ -82,14 +82,10 @@ __pmSendIDList(int fd, int from, int numids, const pmID idlist[], int sts)
  * Returns 0 on success.
  */
 int
-__pmDecodeIDList(__pmPDU *pdubuf, int mode, 
-                     int numids, pmID idlist[], int *sts)
+__pmDecodeIDList(__pmPDU *pdubuf, int numids, pmID idlist[], int *sts)
 {
     idlist_t	*idlist_pdu;
     int		j;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     idlist_pdu = (idlist_t *)pdubuf;
 
@@ -286,7 +282,7 @@ __pmSendNameList(int fd, int from, int numnames, char *namelist[],
  * Decode a PDU_PMNS_NAMES
  */
 int
-__pmDecodeNameList(__pmPDU *pdubuf, int mode, int *numnames, 
+__pmDecodeNameList(__pmPDU *pdubuf, int *numnames, 
                   char*** namelist, int** statuslist)
 {
     namelist_t	*namelist_pdu;
@@ -294,9 +290,6 @@ __pmDecodeNameList(__pmPDU *pdubuf, int mode, int *numnames,
     int		*status = NULL;
     int 	need;
     int		numstatus;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     namelist_pdu = (namelist_t *)pdubuf;
 
@@ -429,14 +422,11 @@ SendNameReq(int fd, int from, const char *name, int pdu_type, int subtype)
  * Decode a name request
  */
 static int
-DecodeNameReq(__pmPDU *pdubuf, int mode, char **name_p, int *subtype)
+DecodeNameReq(__pmPDU *pdubuf, char **name_p, int *subtype)
 {
     namereq_t	*namereq_pdu;
     char	*name;
     int		namelen;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     namereq_pdu = (namereq_t *)pdubuf;
 
@@ -476,9 +466,9 @@ __pmSendChildReq(int fd, int from, const char *name, int subtype)
  * Decode a PDU_PMNS_CHILD
  */
 int
-__pmDecodeChildReq(__pmPDU *pdubuf, int mode, char **name_p, int *subtype)
+__pmDecodeChildReq(__pmPDU *pdubuf, char **name_p, int *subtype)
 {
-    return DecodeNameReq(pdubuf, mode, name_p, subtype);
+    return DecodeNameReq(pdubuf, name_p, subtype);
 }
 
 /*********************************************************************/
@@ -497,9 +487,9 @@ __pmSendTraversePMNSReq(int fd, int from, const char *name)
  * Decode a PDU_PMNS_TRAVERSE
  */
 int
-__pmDecodeTraversePMNSReq(__pmPDU *pdubuf, int mode, char **name_p)
+__pmDecodeTraversePMNSReq(__pmPDU *pdubuf, char **name_p)
 {
-    return DecodeNameReq(pdubuf, mode, name_p, 0);
+    return DecodeNameReq(pdubuf, name_p, 0);
 }
 
 /*********************************************************************/

@@ -141,7 +141,7 @@ opendso(char *dso, char *init, int domain)
 		}
 #endif
 		dsoname = strdup(dso);
-		connmode = PDU_DSO;
+		connmode = CONN_DSO;
 		reset_profile();
 
 		if (myPmdaName != NULL)
@@ -178,7 +178,7 @@ closedso(void)
 #endif
 	free(dsoname);
 	dsoname = NULL;
-	connmode = PDU_NOT;
+	connmode = NO_CONN;
     }
 }
 

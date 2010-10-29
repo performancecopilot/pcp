@@ -312,7 +312,7 @@ HandleInput(fd_set *fdsPtr)
 	 * handle any input here, not just clients ... or treat pmcd
 	 * connections as clients also?
 	 */
-	ists = __pmGetPDU(cp->fd, PDU_CLIENT, 0, &pb);
+	ists = __pmGetPDU(cp->fd, LIMIT_SIZE, 0, &pb);
 	if (ists <= 0) {
 	    CleanupClient(cp, ists);
 	    continue;
@@ -343,7 +343,7 @@ HandleInput(fd_set *fdsPtr)
 	 * handle any input here, not just clients ... or treat pmcd
 	 * connections as clients also?
 	 */
-	ists = __pmGetPDU(cp->pmcd_fd, PDU_BINARY, 0, &pb);
+	ists = __pmGetPDU(cp->pmcd_fd, ANY_SIZE, 0, &pb);
 	if (ists <= 0) {
 	    CleanupClient(cp, ists);
 	    continue;

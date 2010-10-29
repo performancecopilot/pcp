@@ -83,12 +83,10 @@ __pmSendXtendError(int fd, int from, int code, int datum)
 }
 
 int
-__pmDecodeError(__pmPDU *pdubuf, int mode, int *code)
+__pmDecodeError(__pmPDU *pdubuf, int *code)
 {
     p_error_t	*pp;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     pp = (p_error_t *)pdubuf;
     if (__pmLastVersionIPC() == PDU_VERSION1)
 	*code = XLATE_ERR_1TO2((int)ntohl(pp->code));
@@ -104,13 +102,11 @@ __pmDecodeError(__pmPDU *pdubuf, int mode, int *code)
 }
 
 int
-__pmDecodeXtendError(__pmPDU *pdubuf, int mode, int *code, int *datum)
+__pmDecodeXtendError(__pmPDU *pdubuf, int *code, int *datum)
 {
     x_error_t	*pp = (x_error_t *)pdubuf;
     int		sts;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     /*
      * it is ALWAYS a PCP 1.x error code here
      */

@@ -80,7 +80,7 @@ NotifyEndContext(int ctx)
 		 * returned or not an ERROR PDU, nothing to be done.
 		 */
 		__pmPDU	*pb;
-		sts = __pmGetPDU(agent[i].outFd, agent[i].pduProtocol, _pmcd_timeout, &pb);
+		sts = __pmGetPDU(agent[i].outFd, ANY_SIZE, _pmcd_timeout, &pb);
 		pmcd_trace(TR_RECV_PDU, agent[i].outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 	    }
 	}

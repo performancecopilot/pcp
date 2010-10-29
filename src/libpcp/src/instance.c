@@ -66,18 +66,18 @@ receive_instance_id (__pmContext *ctxp)
     int n;
     __pmPDU	*pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_INSTANCE) {
 	__pmInResult	*result;
 	
-	if ((n = __pmDecodeInstance(pb, PDU_BINARY, &result)) >= 0) {
+	if ((n = __pmDecodeInstance(pb, &result)) >= 0) {
 	    n = result->instlist[0];
 	    __pmFreeInResult(result);
 	}
     }
     else if (n == PDU_ERROR)
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
 
@@ -169,19 +169,19 @@ receive_instance_name (__pmContext *ctxp, char **name)
     int n;
     __pmPDU *pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY,
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_INSTANCE) {
 	__pmInResult *result;
 	
-	if ((n = __pmDecodeInstance(pb, PDU_BINARY, &result)) >= 0) {
+	if ((n = __pmDecodeInstance(pb, &result)) >= 0) {
 	    if ((*name = strdup(result->namelist[0]))== NULL)
 		n = (errno) ? -errno : -ENOMEM;
 	    __pmFreeInResult(result);
 	}
     }
     else if (n == PDU_ERROR)
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
 
@@ -309,18 +309,18 @@ receive_indom (__pmContext *ctxp,  int **instlist, char ***namelist)
     int n;
     __pmPDU	*pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY,
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_INSTANCE) {
 	__pmInResult	*result;
 	    
-	if ((n = __pmDecodeInstance(pb, PDU_BINARY, &result)) < 0)
+	if ((n = __pmDecodeInstance(pb, &result)) < 0)
 	    return n;
 
 	n = inresult_to_lists (result, instlist, namelist);
     }
     else if (n == PDU_ERROR)
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
 

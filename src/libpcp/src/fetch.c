@@ -79,13 +79,13 @@ receive_fetch (__pmContext *ctxp, pmResult **result)
     int n;
     __pmPDU	*pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY,
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_RESULT) {
-	n = __pmDecodeResult(pb, PDU_BINARY, result);
+	n = __pmDecodeResult(pb, result);
     }
     else if (n == PDU_ERROR) {
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     }
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;

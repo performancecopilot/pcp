@@ -1330,7 +1330,7 @@ again:
 	fseek(f, -(long)sizeof(trail), SEEK_CUR);
 
     __pmOverrideLastFd(fileno(f));
-    sts = __pmDecodeResult(pb, PDU_BINARY, result); /* also swabs the result */
+    sts = __pmDecodeResult(pb, result); /* also swabs the result */
     /* note, PDU buffer (pb) is now pinned */
 
 #ifdef PCP_DEBUG

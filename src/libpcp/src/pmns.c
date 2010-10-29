@@ -1672,7 +1672,7 @@ receive_names(__pmContext *ctxp, int numpmid, pmID pmidlist[])
     int n;
     __pmPDU      *pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY,
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_PMNS_IDS) {
 	/* Note:
@@ -1681,13 +1681,12 @@ receive_names(__pmContext *ctxp, int numpmid, pmID pmidlist[])
 	 * This is why we need op_status.
 	 */
 	int op_status; 
-	n = __pmDecodeIDList(pb, PDU_BINARY, 
-			       numpmid, pmidlist, &op_status);
+	n = __pmDecodeIDList(pb, numpmid, pmidlist, &op_status);
 	if (n >= 0)
 	    n = op_status;
     }
     else if (n == PDU_ERROR) {
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     }
     else if (n != PM_ERR_TIMEOUT) {
 	n = PM_ERR_IPC;
@@ -1958,19 +1957,18 @@ receive_names_of_children(__pmContext *ctxp, char ***offspring,
     int n;
     __pmPDU      *pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_PMNS_NAMES) {
 	int numnames;
 
-	n = __pmDecodeNameList(pb, PDU_BINARY, &numnames, 
-			       offspring, statuslist);
+	n = __pmDecodeNameList(pb, &numnames, offspring, statuslist);
 	if (n >= 0) {
 	    n = numnames;
 	}
     }
     else if (n == PDU_ERROR) {
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
 	    }
     else if (n != PM_ERR_TIMEOUT)
 	n =  PM_ERR_IPC;
@@ -2402,18 +2400,18 @@ receive_namesbyid(__pmContext *ctxp, char ***namelist)
     int         n;
     __pmPDU      *pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
                    ctxp->c_pmcd->pc_tout_sec, &pb);
     
     if (n == PDU_PMNS_NAMES) {
 	int numnames;
 
-	n = __pmDecodeNameList(pb, PDU_BINARY, &numnames, namelist, NULL);
+	n = __pmDecodeNameList(pb, &numnames, namelist, NULL);
 	if (n >= 0)
 	    n = numnames;
     }
     else if (n == PDU_ERROR)
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
 
@@ -2687,14 +2685,14 @@ pmReceiveTraversePMNS(int ctxid, void(*func)(const char *name))
     if ((n = __pmGetBusyHostContextByID(ctxid, &ctxp, PDU_PMNS_TRAVERSE)) < 0)
 	return n;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_PMNS_NAMES) {
 	int numnames;
 	int i;
 	char **namelist;
 
-	n = __pmDecodeNameList(pb, PDU_BINARY, &numnames, &namelist, NULL);
+	n = __pmDecodeNameList(pb, &numnames, &namelist, NULL);
 	if (n >= 0) {
 	    for (i = 0; i < numnames; i++) {
 		func(namelist[i]);
@@ -2704,7 +2702,7 @@ pmReceiveTraversePMNS(int ctxid, void(*func)(const char *name))
 	}
     }
     else if (n == PDU_ERROR) {
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     }
     else if (n != PM_ERR_TIMEOUT) {
 	n = PM_ERR_IPC;
@@ -2748,11 +2746,11 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 	    int		xtra;
 	    char	**namelist;
 
-	    sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
+	    sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
                           TIMEOUT_DEFAULT, &pb);
 	    if (sts == PDU_PMNS_NAMES) {
 
-		sts = __pmDecodeNameList(pb, PDU_BINARY, &numnames, 
+		sts = __pmDecodeNameList(pb, &numnames, 
 		                      &namelist, NULL);
 		if (sts > 0) {
 		    for (i=0; i<numnames; i++) {
@@ -2765,7 +2763,7 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 		    return sts;
 	    }
 	    else if (sts == PDU_ERROR) {
-		__pmDecodeError(pb, PDU_BINARY, &sts);
+		__pmDecodeError(pb, &sts);
 		if (sts != PM_ERR_NAME)
 		    return sts;
 		numnames = 0;

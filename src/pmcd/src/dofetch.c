@@ -392,7 +392,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
     }
     memset(results, 0, (nAgents + 1) * sizeof(results[0]));
 
-    sts = __pmDecodeFetch(pb, PDU_BINARY, &ctxnum, &when, &nPmids, &pmidList);
+    sts = __pmDecodeFetch(pb, &ctxnum, &when, &nPmids, &pmidList);
     if (sts < 0)
 	return sts;
 
@@ -485,11 +485,11 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	    ap->status.busy = 0;
 	    FD_CLR(ap->outFd, &waitFds);
 	    nWait--;
-	    sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+	    sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 	    if (sts > 0 && _pmcd_trace_mask)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 	    if (sts == PDU_RESULT) {
-		if ((sts = __pmDecodeResult(pb, ap->pduProtocol, &results[i])) >= 0)
+		if ((sts = __pmDecodeResult(pb, &results[i])) >= 0)
 		    if (results[i]->numpmid != aFreq[i]) {
 			pmFreeResult(results[i]);
 			sts = PM_ERR_IPC;
@@ -503,7 +503,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	    else {
 		if (sts == PDU_ERROR) {
 		    int s;
-		    if ((s = __pmDecodeError(pb, ap->pduProtocol, &sts)) < 0)
+		    if ((s = __pmDecodeError(pb, &sts)) < 0)
 			sts = s;
 		    else if (sts >= 0)
 			sts = PM_ERR_GENERIC;

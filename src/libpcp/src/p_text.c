@@ -52,12 +52,9 @@ __pmSendTextReq(int fd, int from, int ident, int type)
 }
 
 int
-__pmDecodeTextReq(__pmPDU *pdubuf, int mode, int *ident, int *type)
+__pmDecodeTextReq(__pmPDU *pdubuf, int *ident, int *type)
 {
     text_req_t	*pp;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     pp = (text_req_t *)pdubuf;
     *type = ntohl(pp->type);
@@ -110,13 +107,10 @@ __pmSendText(int fd, int ctx, int ident, const char *buffer)
 }
 
 int
-__pmDecodeText(__pmPDU *pdubuf, int mode, int *ident, char **buffer)
+__pmDecodeText(__pmPDU *pdubuf, int *ident, char **buffer)
 {
     text_t	*pp;
     int		buflen;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     pp = (text_t *)pdubuf;
     /*

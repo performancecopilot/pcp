@@ -147,7 +147,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
     struct timeval	timeout;
 
 
-    if ((sts = __pmDecodeResult(pb, PDU_BINARY, &result)) < 0)
+    if ((sts = __pmDecodeResult(pb, &result)) < 0)
 	return sts;
 
     dResult = SplitResult(result);
@@ -249,12 +249,12 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	    ap->status.busy = 0;
 	    FD_CLR(ap->outFd, &waitFds);
 	    nWait--;
-	    s = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+	    s = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 	    if (s > 0 && _pmcd_trace_mask)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, s, (int)((__psint_t)pb & 0xffffffff));
 	    if (s == PDU_ERROR) {
 		int ss;
-		if ((ss = __pmDecodeError(pb, ap->pduProtocol, &s)) < 0)
+		if ((ss = __pmDecodeError(pb, &s)) < 0)
 		    sts = ss;
 		else {
 		    if (s < 0) {

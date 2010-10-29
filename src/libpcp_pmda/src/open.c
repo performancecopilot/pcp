@@ -469,13 +469,13 @@ __pmdaSetupPDU(int infd, int outfd, char *agentname)
 	return -1;
     }
 
-    if ((sts = __pmGetPDU(infd, PDU_BINARY, TIMEOUT_DEFAULT, &pb)) < 0) {
+    if ((sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_DEFAULT, &pb)) < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s getting creds: %s\n", agentname, pmErrStr(sts));
 	return -1;
     }
 
     if (sts == PDU_CREDS) {
-	if ((sts = __pmDecodeCreds(pb, PDU_BINARY, &sender, &credcount, &credlist)) < 0) {
+	if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0) {
 	    __pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s decode creds: %s\n", agentname, pmErrStr(sts));
 	    return -1;
 	}

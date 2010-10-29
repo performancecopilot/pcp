@@ -146,7 +146,7 @@ __pmSendResult(int fd, int from, const pmResult *result)
 }
 
 int
-__pmDecodeResult(__pmPDU *pdubuf, int mode, pmResult **result)
+__pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 {
     int		numpmid;	/* number of metrics */
     int		sts;		/* function status */
@@ -175,9 +175,6 @@ __pmDecodeResult(__pmPDU *pdubuf, int mode, pmResult **result)
 #else
     Bozo - unexpected sizeof pointer!!
 #endif
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     if ((sts = version = __pmLastVersionIPC()) < 0)
 	return sts;

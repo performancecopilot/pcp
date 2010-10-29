@@ -438,18 +438,18 @@ dostatus(void)
             printf("%s\n", pmnsfile);
     }
 
-    if (myPmdaName == NULL || connmode == PDU_NOT)
+    if (myPmdaName == NULL || connmode == NO_CONN)
 	printf("PMDA:                   none\n");
     else {
 	printf("PMDA:                   %s\n", myPmdaName);
 	printf("Connection:             ");
 	switch (connmode) {
-	case PDU_DSO:
+	case CONN_DSO:
 	    printf("dso\n");
 	    printf("DSO Interface Version:  %d\n", dispatch.comm.pmda_interface);
 	    printf("PMDA PMAPI Version:     %d\n", dispatch.comm.pmapi_version);
 	    break;
-	case PDU_BINARY:
+	case CONN_DAEMON:
 	    printf("daemon\n");
 	    printf("PMDA PMAPI Version:     ");
 	    i = __pmVersionIPC(infd);

@@ -57,12 +57,12 @@ receive_desc (__pmContext *ctxp, pmDesc *desc)
     int n;
     __pmPDU	*pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY,
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_DESC)
-	n = __pmDecodeDesc(pb, PDU_BINARY, desc);
+	n = __pmDecodeDesc(pb, desc);
     else if (n == PDU_ERROR)
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
 

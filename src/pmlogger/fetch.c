@@ -78,7 +78,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	if (n >= 0){
 	    int		changed = 0;
 	    do {
-		n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, TIMEOUT_DEFAULT, &pb);
+		n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
 		/*
 		 * expect PDU_RESULT or
 		 *        PDU_ERROR(changed > 0)+PDU_RESULT or
@@ -102,7 +102,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			pmResult	*result;
 			__pmPDU		*npb;
 			int		sts;
-			if ((sts = __pmDecodeResult(pb, PDU_BINARY, &result)) < 0) {
+			if ((sts = __pmDecodeResult(pb, &result)) < 0) {
 			    n = sts;
 			}
 			else {
@@ -119,7 +119,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			*pdup = pb;
 		}
 		else if (n == PDU_ERROR) {
-		    __pmDecodeError(pb, PDU_BINARY, &n);
+		    __pmDecodeError(pb, &n);
 		    if (n > 0) {
 			/* PMCD state change protocol */
 			changed = n;

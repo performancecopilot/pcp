@@ -57,15 +57,12 @@ __pmSendCreds(int fd, int from, int credcount, const __pmCred *credlist)
 }
 
 int
-__pmDecodeCreds(__pmPDU *pdubuf, int mode, int *sender, int *credcount, __pmCred **credlist)
+__pmDecodeCreds(__pmPDU *pdubuf, int *sender, int *credcount, __pmCred **credlist)
 {
     creds_t	*pp;
     int		i;
     int		numcred;
     __pmCred	*list;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     pp = (creds_t *)pdubuf;
     numcred = ntohl(pp->numcreds);
