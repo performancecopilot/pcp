@@ -61,7 +61,12 @@ _check()
     $debug && echo "+ check pmlogsummary=$1 qa=$2"
     echo "$1 $2" \
     | $PCP_AWK_PROG '
-    { err=($1-$2)/$1
+    { if ($1 == 0 && $2 == 0)
+	err=0
+      else if ($1 == 0)
+	err=100		# infinity
+      else
+	err=($1-$2)/$1
       if (-0.05 <= err && err <= 0.05)
 	  print "Pass"
       else
@@ -76,7 +81,8 @@ _check_counter_stocave()
     from_summary=`pmlogsummary -x $tmp.merge $1 \
 		  | $PCP_AWK_PROG '$1 == "'$1'" { print $2 }'`
     
-    from_qa=`_xtract $1 | $PCP_AWK_PROG '
+    echo "_check_counter_stocave" >>$seq.full
+    from_qa=`_xtract $1 | tee -a $seq.full | $PCP_AWK_PROG '
 	{
 	  if (count > 0) {
 	      avg += ($3 - prevval)/($2 - prevtime)
@@ -262,7 +268,7 @@ End-of-File
 echo "Creating log files ..."
 $sudo rm -f $tmp.a.0 $tmp.a.meta $tmp.a.index
 $sudo rm -f $tmp.b.0 $tmp.b.meta $tmp.b.index
-pmlogger -c $tmp.a.config -l $tmp.a.log -s 2 $tmp.a >$tmp.a.err 2>&1
+pmlogger -c $tmp.a.config -l $tmp.a.log -s 3 $tmp.a >$tmp.a.err 2>&1
 pmlogger -c $tmp.b.config -l $tmp.b.log -s 5 $tmp.b >$tmp.b.err 2>&1
 
 echo "=== tmp.a ===" >>$seq.full
