@@ -56,7 +56,9 @@ _filter()
 	-e '/Unknown or illegal metric identifier/d' \
 	-e '/Unknown or illegal instance domain identifier/d' \
 	-e '/Operation not permitted/s/line 1: //' \
-	-e 's/Address already in use/Connection reset by peer/'
+	-e 's/Address already in use/[TCP\/IP error]/' \
+	-e 's/Connection reset by peer/[TCP\/IP error]/' \
+	-e 's/Connection refused/[TCP\/IP error]/'
 }
 
 cat <<End-of-File >$tmp.config

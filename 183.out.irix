@@ -46,21 +46,21 @@ Sorry, but this is fatal.  No new pmlogger instance has been started.
 === process is not really pmlogger ===
 Getting logged host name from pmlogger (process PID) ... failed to connect
 
-	Unable to connect to pmlogger pid PID at HOST: Connection refused
+	Unable to connect to pmlogger pid PID at HOST: [TCP/IP error]
 
 Sorry, but this is fatal.  No new pmlogger instance has been started.
 
 === non-primary logger busy ===
 Getting logged host name from pmlogger (process PID) ... failed to connect
 
-	Unable to connect to pmlogger on port PORT at HOST: Connection reset by peer
+	Unable to connect to pmlogger on port PORT at HOST: [TCP/IP error]
 
 Sorry, but this is fatal.  No new pmlogger instance has been started.
 
 === primary logger busy ===
 Contacting primary pmlogger to get logging state ... failed to connect
 
-	Unable to connect to primary pmlogger at HOST: Connection reset by peer
+	Unable to connect to primary pmlogger at HOST: [TCP/IP error]
 
 Sorry, but this is fatal.  No new pmlogger instance has been started.
 
