@@ -456,12 +456,10 @@ DoPMNSIDs(ClientInfo *cp, __pmPDU *pb)
 		}
 		else if (sts == PDU_ERROR) {
 		    __pmDecodeError(pb, &sts);
-		    if (_pmcd_trace_mask)
-			pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_PMNS_NAMES, sts);
+		    pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_PMNS_NAMES, sts);
 		}
 		else {
-		    if (_pmcd_trace_mask)
-			pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_PMNS_NAMES, sts);
+		    pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_PMNS_NAMES, sts);
 		    sts = PM_ERR_IPC;	/* Wrong PDU type */
 		    fdfail = ap->outFd;
 		}
@@ -569,12 +567,10 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 			}
 			else if (lsts == PDU_ERROR) {
 			    __pmDecodeError(pb, &lsts);
-			    if (_pmcd_trace_mask)
-				pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_PMNS_IDS, lsts);
+			    pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_PMNS_IDS, lsts);
 			}
 			else {
-			    if (_pmcd_trace_mask)
-				pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_PMNS_IDS, sts);
+			    pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_PMNS_IDS, sts);
 			    lsts = PM_ERR_IPC;	/* Wrong PDU type */
 			    fdfail = ap->outFd;
 			}
@@ -699,12 +695,10 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
 		    }
 		    else if (sts == PDU_ERROR) {
 			__pmDecodeError(pb, &sts);
-			if (_pmcd_trace_mask)
-			    pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_PMNS_NAMES, sts);
+			pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_PMNS_NAMES, sts);
 		    }
 		    else {
-			if (_pmcd_trace_mask)
-			    pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_PMNS_NAMES, sts);
+			pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_PMNS_NAMES, sts);
 			sts = PM_ERR_IPC;	/* Wrong PDU type */
 			fdfail = ap->outFd;
 		    }
@@ -898,12 +892,10 @@ traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
 		    }
 		    else if (sts == PDU_ERROR) {
 			__pmDecodeError(pb, &sts);
-			if (_pmcd_trace_mask)
-			    pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_PMNS_NAMES, sts);
+			pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_PMNS_NAMES, sts);
 		    }
 		    else {
-			if (_pmcd_trace_mask)
-			    pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_PMNS_IDS, sts);
+			pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_PMNS_IDS, sts);
 			sts = PM_ERR_IPC;	/* Wrong PDU type */
 			fdfail = ap->outFd;
 		    }
