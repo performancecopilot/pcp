@@ -65,7 +65,7 @@ s/value [0-9][0-9]*/value INTEGER/
 	-e "s/$BINFMT/ISA/g" \
 	-e '/access violation from host/d' \
 	-e '/endclient client.* No permission/d' \
-	-e 's/ while attempting to read 12 bytes out of 12 in mode -1//' \
+	-e 's/ while attempting to read 12 bytes out of 12 in .*on fd/ on fd/' \
 	-e 's/fd=[0-9][0-9]*/fd=FD/g' \
     | $PCP_AWK_PROG '
 $3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }

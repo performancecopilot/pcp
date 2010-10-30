@@ -76,22 +76,22 @@ char *argv[];
 	exit(1);
     }
 
-    if ((e = __pmSendDescReq(fd, PDU_BINARY, pmid)) < 0) {
+    if ((e = __pmSendDescReq(fd, FROM_ANON, pmid)) < 0) {
 	fprintf(stderr, "Error: SendDescReqX1: %s\n", pmErrStr(e));
 	exit(1);
     }
 
-    if ((e = __pmSendDescReq(fd, PDU_BINARY, pmid)) < 0) {
+    if ((e = __pmSendDescReq(fd, FROM_ANON, pmid)) < 0) {
 	fprintf(stderr, "Error: SendDescReqX2: %s\n", pmErrStr(e));
 	exit(1);
     }
 
-    if ((e = __pmGetPDU(fd, PDU_BINARY, TIMEOUT_DEFAULT, &pb)) < 0)
+    if ((e = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb)) < 0)
 	fprintf(stderr, "Error: __pmGetPDUX1: %s\n", pmErrStr(e));
     else
 	fprintf(stderr, "__pmGetPDUX1 -> 0x%x\n", e);
 
-    if ((e = __pmGetPDU(fd, PDU_BINARY, TIMEOUT_DEFAULT, &pb)) < 0)
+    if ((e = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb)) < 0)
 	fprintf(stderr, "Error: __pmGetPDUX2: %s\n", pmErrStr(e));
     else
 	fprintf(stderr, "__pmGetPDUX2 -> 0x%x\n", e);

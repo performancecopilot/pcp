@@ -30,7 +30,6 @@ typedef struct {		/* from src/libpcp/src/p_pmns.c */
 static int
 decode_encode(int fd, __pmPDU *pb, int type)
 {
-    int		mode = PDU_BINARY;
     int		e;
     int		code;
     int		proto;
@@ -70,7 +69,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
     switch (type) {
 
 	case PDU_ERROR:
-	    if ((e = __pmDecodeError(pb, mode, &code)) < 0) {
+	    if ((e = __pmDecodeError(pb, &code)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeError: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -78,7 +77,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    if (pmDebug & DBG_TRACE_APPL0)
 		fprintf(stderr, "+ PDU_ERROR: code=%d\n", code);
 #endif
-	    if ((e = __pmSendError(fd, mode, code)) < 0) {
+	    if ((e = __pmSendError(fd, FROM_ANON, code)) < 0) {
 		fprintf(stderr, "%s: Error: SendError: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -86,7 +85,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_RESULT:
-	    if ((e = __pmDecodeResult(pb, mode, &rp)) < 0) {
+	    if ((e = __pmDecodeResult(pb, &rp)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeResult: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -96,7 +95,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		__pmDumpResult(stderr, rp);
 	    }
 #endif
-	    e = __pmSendResult(fd, mode, rp);
+	    e = __pmSendResult(fd, FROM_ANON, rp);
 	    pmFreeResult(rp);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendResult: %s\n", pmProgname, pmErrStr(e));
@@ -106,7 +105,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_PROFILE:
-	    if ((e = __pmDecodeProfile(pb, mode, &ctxnum, &profp)) < 0) {
+	    if ((e = __pmDecodeProfile(pb, &ctxnum, &profp)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeProfile: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -116,7 +115,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		__pmDumpProfile(stderr, PM_INDOM_NULL, profp);
 	    }
 #endif
-	    e = __pmSendProfile(fd, mode, ctxnum, profp);
+	    e = __pmSendProfile(fd, FROM_ANON, ctxnum, profp);
 	    free(profp->profile);
 	    free(profp);
 	    if (e < 0) {
@@ -127,7 +126,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_FETCH:
-	    if ((e = __pmDecodeFetch(pb, mode, &ctxnum, &now, &numpmid, &pmidp)) < 0) {
+	    if ((e = __pmDecodeFetch(pb, &ctxnum, &now, &numpmid, &pmidp)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeFetch: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -146,7 +145,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fputc('\n', stderr);
 	    }
 #endif
-	    e = __pmSendFetch(fd, mode, ctxnum, &now, numpmid, pmidp);
+	    e = __pmSendFetch(fd, FROM_ANON, ctxnum, &now, numpmid, pmidp);
 	    __pmUnpinPDUBuf(pmidp);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendFetch: %s\n", pmProgname, pmErrStr(e));
@@ -156,7 +155,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_DESC_REQ:
-	    if ((e = __pmDecodeDescReq(pb, mode, &pmid)) < 0) {
+	    if ((e = __pmDecodeDescReq(pb, &pmid)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeDescReq: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -164,7 +163,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    if (pmDebug & DBG_TRACE_APPL0)
 		fprintf(stderr, "+ PDU_DESC_REQ: pmid=%s\n", pmIDStr(pmid));
 #endif
-	    if ((e = __pmSendDescReq(fd, mode, pmid)) < 0) {
+	    if ((e = __pmSendDescReq(fd, FROM_ANON, pmid)) < 0) {
 		fprintf(stderr, "%s: Error: SendDescReq: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -172,7 +171,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_DESC:
-	    if ((e = __pmDecodeDesc(pb, mode, &desc)) < 0) {
+	    if ((e = __pmDecodeDesc(pb, &desc)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeDesc: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -182,7 +181,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		__pmPrintDesc(stderr, &desc);
 	    }
 #endif
-	    if ((e = __pmSendDesc(fd, mode, &desc)) < 0) {
+	    if ((e = __pmSendDesc(fd, FROM_ANON, &desc)) < 0) {
 		fprintf(stderr, "%s: Error: SendDesc: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -190,7 +189,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_INSTANCE_REQ:
-	    if ((e = __pmDecodeInstanceReq(pb, mode, &now, &indom, &inst, &name)) < 0) {
+	    if ((e = __pmDecodeInstanceReq(pb, &now, &indom, &inst, &name)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeInstanceReq: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -213,7 +212,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    fprintf(stderr, " name=\"%s\"\n", name);
 	    }
 #endif
-	    if ((e = __pmSendInstanceReq(fd, mode, &now, indom, inst, name)) < 0) {
+	    if ((e = __pmSendInstanceReq(fd, FROM_ANON, &now, indom, inst, name)) < 0) {
 		fprintf(stderr, "%s: Error: SendInstanceReq: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -221,7 +220,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_INSTANCE:
-	    if ((e = __pmDecodeInstance(pb, mode, &inres)) < 0) {
+	    if ((e = __pmDecodeInstance(pb, &inres)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeInstance: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -231,7 +230,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		__pmDumpInResult(stderr, inres);
 	    }
 #endif
-	    e = __pmSendInstance(fd, mode, inres);
+	    e = __pmSendInstance(fd, FROM_ANON, inres);
 	    __pmFreeInResult(inres);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendInstance: %s\n", pmProgname, pmErrStr(e));
@@ -241,7 +240,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_TEXT_REQ:
-	    if ((e = __pmDecodeTextReq(pb, mode, &ident, &txtype)) < 0) {
+	    if ((e = __pmDecodeTextReq(pb, &ident, &txtype)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeTextReq: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -255,7 +254,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, " txtype=%d\n", txtype);
 	    }
 #endif
-	    if ((e = __pmSendTextReq(fd, mode, ident, txtype)) < 0) {
+	    if ((e = __pmSendTextReq(fd, FROM_ANON, ident, txtype)) < 0) {
 		fprintf(stderr, "%s: Error: SendTextReq: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -263,7 +262,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_TEXT:
-	    if ((e = __pmDecodeText(pb, mode, &ident, &buffer)) < 0) {
+	    if ((e = __pmDecodeText(pb, &ident, &buffer)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeText: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -284,7 +283,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		buffer[len - 1] = c;
 	    }
 #endif
-	    if ((e = __pmSendText(fd, mode, ident, buffer)) < 0) {
+	    if ((e = __pmSendText(fd, FROM_ANON, ident, buffer)) < 0) {
 		fprintf(stderr, "%s: Error: SendText: %s\n", pmProgname, pmErrStr(e));
 		free(buffer);
 		break;
@@ -294,7 +293,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_CREDS:
-	    if ((e = __pmDecodeCreds(pb, mode, &sender, &count, &creds)) < 0) {
+	    if ((e = __pmDecodeCreds(pb, &sender, &count, &creds)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeCreds: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -310,7 +309,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		}
 	    }
 #endif
-	    if ((e = __pmSendCreds(fd, mode, count, creds)) < 0) {
+	    if ((e = __pmSendCreds(fd, FROM_ANON, count, creds)) < 0) {
 		fprintf(stderr, "%s: Error: SendCreds: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -330,7 +329,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		}
 		numpmidlist = numpmid;
 	    }
-	    if ((e = __pmDecodeIDList(pb, mode, numpmid, pmidlist, &code)) < 0) {
+	    if ((e = __pmDecodeIDList(pb, numpmid, pmidlist, &code)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeIDList: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -340,7 +339,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		__pmDumpIDList(stderr, numpmid, pmidlist);
 	    }
 #endif
-	    e = __pmSendIDList(fd, mode, numpmid, pmidlist, code);
+	    e = __pmSendIDList(fd, FROM_ANON, numpmid, pmidlist, code);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendIDList: %s\n", pmProgname, pmErrStr(e));
 		break;
@@ -349,7 +348,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_PMNS_NAMES:
-	    if ((e = __pmDecodeNameList(pb, mode, &numlist, &namelist, &statlist)) < 0) {
+	    if ((e = __pmDecodeNameList(pb, &numlist, &namelist, &statlist)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeNameList: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -362,7 +361,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    __pmDumpStatusList(stderr, numlist, statlist);
 	    }
 #endif
-	    e = __pmSendNameList(fd, mode, numlist, namelist, statlist);
+	    e = __pmSendNameList(fd, FROM_ANON, numlist, namelist, statlist);
 	    if (namelist != NULL)
 		free(namelist);
 	    if (statlist != NULL)
@@ -375,7 +374,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_PMNS_CHILD:
-	    if ((e = __pmDecodeChildReq(pb, mode, &name, &code)) < 0) {
+	    if ((e = __pmDecodeChildReq(pb, &name, &code)) < 0) {
 		fprintf(stderr, "%s Error: DecodeChildReq: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -384,7 +383,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "+ PDU_PMNS_CHILD: name=\"%s\" code=%d\n", name, code);
 	    }
 #endif
-	    e = __pmSendChildReq(fd, mode, name, code);
+	    e = __pmSendChildReq(fd, FROM_ANON, name, code);
 	    if (name != NULL)
 		free(name);
 	    if (e < 0) {
@@ -395,7 +394,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_PMNS_TRAVERSE:
-	    if ((e = __pmDecodeTraversePMNSReq(pb, mode, &name)) < 0) {
+	    if ((e = __pmDecodeTraversePMNSReq(pb, &name)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeTraversePMNSReq: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -404,7 +403,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "+ PDU_PMNS_TRAVERSE: name=\"%s\"\n", name);
 	    }
 #endif
-	    e = __pmSendTraversePMNSReq(fd, mode, name);
+	    e = __pmSendTraversePMNSReq(fd, FROM_ANON, name);
 	    if (name != NULL)
 		free(name);
 	    if (e < 0) {
@@ -542,7 +541,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	default:
-	    if ((e = __pmSendError(fd, mode, PM_ERR_NYI)) < 0) {
+	    if ((e = __pmSendError(fd, FROM_ANON, PM_ERR_NYI)) < 0) {
 		fprintf(stderr, "%s: Error: SendError: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -671,7 +670,7 @@ main(int argc, char *argv[])
 	    if (pmDebug & DBG_TRACE_APPL0)
 		fprintf(stderr, "\n%s: waiting ...\n", pmProgname);
 #endif
-	    sts = __pmGetPDU(newfd, PDU_BINARY, TIMEOUT_NEVER, &pb);
+	    sts = __pmGetPDU(newfd, ANY_SIZE, TIMEOUT_NEVER, &pb);
 	    if (sts == 0) {
 		fprintf(stderr, "%s: end-of-file\n", pmProgname);
 		break;

@@ -21,7 +21,7 @@ QA output created by 006
 -12364 Negative value in conversion to unsigned
 -12365 Explicit instance identifier(s) required
 -12366 IPC protocol failure
--12367 ASCII format not supported for this PDU
+-12367 ASCII format not supported for this PDU (no longer used)
 -12368 IPC channel closed
 -12369 Operation requires context with host source of metrics
 -12370 End of PCP archive log

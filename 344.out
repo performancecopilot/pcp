@@ -99,6 +99,7 @@ Options:
   -z            set timezone for -O to local time for host from -a
 +++ -K add, +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/sample/pmda_sample$DSO_SUFFIX (30) notified of context 0 close
 
 sample.string.write_me PMID: 30.0.29
     value 13
@@ -106,6 +107,7 @@ qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K add,400 +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
 __pmConnectLocal: Warning: cannot find DSO at "(null)$DSO_SUFFIX" or "(null)"
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/sample/pmda_sample$DSO_SUFFIX (30) notified of context 0 close
 
 sample.string.write_me PMID: 30.0.29
     value 13
@@ -113,6 +115,7 @@ qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K add,400, +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
 __pmConnectLocal: Warning: cannot find DSO at "(null)$DSO_SUFFIX" or "(null)"
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/sample/pmda_sample$DSO_SUFFIX (30) notified of context 0 close
 
 sample.string.write_me PMID: 30.0.29
     value 13
@@ -120,6 +123,7 @@ qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K add,400,TMP +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
 __pmConnectLocal: Warning: couldn't find init function "(null)" in DSO "TMP$DSO_SUFFIX"
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/sample/pmda_sample$DSO_SUFFIX (30) notified of context 0 close
 
 sample.string.write_me PMID: 30.0.29
     value 13
@@ -127,12 +131,15 @@ qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K add,400,TMP, +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
 __pmConnectLocal: Warning: couldn't find init function "(null)" in DSO "TMP$DSO_SUFFIX"
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/sample/pmda_sample$DSO_SUFFIX (30) notified of context 0 close
 
 sample.string.write_me PMID: 30.0.29
     value 13
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K add,400,TMP,sample_init +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/sample/pmda_sample$DSO_SUFFIX (30) notified of context 0 close
+NotifyEndLocalContext: DSO PMDA TMP (400) notified of context 0 close
 
 sample.string.write_me PMID: 30.0.29
     value 13
@@ -237,6 +244,8 @@ qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 
 === some __pmLocalPMDA() exercises ===
 build_dsotab: parsing $PCP_PMCDCONF_PATH
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/sample/pmda_sample$DSO_SUFFIX (130) notified of context 0 close
+NotifyEndLocalContext: DSO PMDA TMP (400) notified of context 0 close
 
 tmpsample.bin PMID: 130.0.6
     inst [100 or "bin-100"] value 100

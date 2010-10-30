@@ -91,7 +91,7 @@ foorand(void)
 }
 
 static void
-_z(int mode)
+_z(void)
 {
     __pmPDU		*pb;
     __pmTracePDU	*tpb;
@@ -143,12 +143,12 @@ _z(int mode)
 
 /* PDU_ERROR */
     for (i = -1; i < 2; i += 2) {
-	if ((e = __pmSendError(fd[1], mode, i * PM_ERR_GENERIC)) < 0) {
+	if ((e = __pmSendError(fd[1], FROM_ANON, i * PM_ERR_GENERIC)) < 0) {
 	    fprintf(stderr, "Error: SendError: %s\n", pmErrStr(e));
 	    exit(1);
 	}
 	else {
-	    if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	    if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 		fprintf(stderr, "Error: RecvError: %s\n", pmErrStr(e));
 		exit(1);
 	    }
@@ -162,7 +162,7 @@ _z(int mode)
 	    }
 	    else {
 		__pmOverrideLastFd(PDU_OVERRIDE2);
-		if ((e = __pmDecodeError(pb, mode, &code)) < 0) {
+		if ((e = __pmDecodeError(pb, &code)) < 0) {
 		    fprintf(stderr, "Error: DecodeError: %s\n", pmErrStr(e));
 		    exit(1);
 		}
@@ -257,12 +257,12 @@ _z(int mode)
     i++;
     /* done with setup, do it! */
     rp->numpmid = i;
-    if ((e = __pmSendResult(fd[1], mode, rp)) < 0) {
+    if ((e = __pmSendResult(fd[1], FROM_ANON, rp)) < 0) {
 	fprintf(stderr, "Error: SendResult: %s\n", pmErrStr(e));
 	exit(1);
     }
     else {
-	if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvResult: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -275,7 +275,7 @@ _z(int mode)
 	    exit(1);
 	}
 	else {
-	    if ((e = __pmDecodeResult(pb, mode, &resp)) < 0) {
+	    if ((e = __pmDecodeResult(pb, &resp)) < 0) {
 		fprintf(stderr, "Error: DecodeResult: %s\n", pmErrStr(e));
 		exit(1);
 	    }
@@ -380,12 +380,12 @@ _z(int mode)
     idp[1].instances_len = 1 + (foorand() % n);
     idp[1].instances = &instlist[n - idp[1].instances_len];
     /* context no == 42 ... hack */
-    if ((e = __pmSendProfile(fd[1], mode, 42, &curprof)) < 0) {
+    if ((e = __pmSendProfile(fd[1], FROM_ANON, 42, &curprof)) < 0) {
 	fprintf(stderr, "Error: SendProfile: %s\n", pmErrStr(e));
 	exit(1);
     }
     else {
-	if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvProfile: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -399,7 +399,7 @@ _z(int mode)
 	}
 	else {
 	    profp = NULL;
-	    if ((e = __pmDecodeProfile(pb, mode, &ctxnum, &profp)) < 0) {
+	    if ((e = __pmDecodeProfile(pb, &ctxnum, &profp)) < 0) {
 		fprintf(stderr, "Error: DecodeProfile: %s\n", pmErrStr(e));
 		exit(1);
 	    }
@@ -452,12 +452,12 @@ _z(int mode)
     n = sizeof(pmidlist) / sizeof(pmidlist[0]);
     if (pass != 0)
 	n = 1 + (foorand() % n);
-    if ((e = __pmSendFetch(fd[1], mode, 43, (__pmTimeval *)0, n, pmidlist)) < 0) {
+    if ((e = __pmSendFetch(fd[1], FROM_ANON, 43, (__pmTimeval *)0, n, pmidlist)) < 0) {
 	fprintf(stderr, "Error: SendFetch: %s\n", pmErrStr(e));
 	exit(1);
     }
     else {
-	if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvFetch: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -470,7 +470,7 @@ _z(int mode)
 	    exit(1);
 	}
 	else {
-	    if ((e = __pmDecodeFetch(pb, mode, &ctxnum, &now, &num, &pmidp)) < 0) {
+	    if ((e = __pmDecodeFetch(pb, &ctxnum, &now, &num, &pmidp)) < 0) {
 		fprintf(stderr, "Error: DecodeFetch: %s\n", pmErrStr(e));
 		exit(1);
 	    }
@@ -494,12 +494,12 @@ _z(int mode)
     }
 
 /* PDU_DESC_REQ */
-    if ((e = __pmSendDescReq(fd[1], mode, 0xdeadbeef)) < 0) {
+    if ((e = __pmSendDescReq(fd[1], FROM_ANON, 0xdeadbeef)) < 0) {
 	fprintf(stderr, "Error: SendDescReq: %s\n", pmErrStr(e));
 	exit(1);
     }
     else {
-	if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvDescReq: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -512,7 +512,7 @@ _z(int mode)
 	    exit(1);
 	}
 	else {
-	    if ((e = __pmDecodeDescReq(pb, mode, &pmid)) < 0) {
+	    if ((e = __pmDecodeDescReq(pb, &pmid)) < 0) {
 		fprintf(stderr, "Error: DecodeDescReq: %s\n", pmErrStr(e));
 		exit(1);
 	    }
@@ -525,12 +525,12 @@ _z(int mode)
     }
 
 /* PDU_DESC */
-    if ((e = __pmSendDesc(fd[1], mode, &desc)) < 0) {
+    if ((e = __pmSendDesc(fd[1], FROM_ANON, &desc)) < 0) {
 	fprintf(stderr, "Error: SendDesc: %s\n", pmErrStr(e));
 	exit(1);
     }
     else {
-	if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvDesc: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -543,7 +543,7 @@ _z(int mode)
 	    exit(1);
 	}
 	else {
-	    if ((e = __pmDecodeDesc(pb, mode, descp)) < 0) {
+	    if ((e = __pmDecodeDesc(pb, descp)) < 0) {
 		fprintf(stderr, "Error: DecodeDesc: %s\n", pmErrStr(e));
 		exit(1);
 	    }
@@ -590,12 +590,12 @@ _z(int mode)
     now.tv_usec = 654321;		/* plus a gnat */
     for (i = 0; i < n; i++) {
 	__pmTimeval	tmp;
-	if ((e = __pmSendInstanceReq(fd[1], mode, &now, 0xface, indomlist[i].inst, indomlist[i].name)) < 0) {
+	if ((e = __pmSendInstanceReq(fd[1], FROM_ANON, &now, 0xface, indomlist[i].inst, indomlist[i].name)) < 0) {
 	    fprintf(stderr, "Error: SendInstanceReq: %s\n", pmErrStr(e));
 	    exit(1);
 	}
 	else {
-	    if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	    if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 		fprintf(stderr, "Error: RecvInstanceReq: %s\n", pmErrStr(e));
 		exit(1);
 	    }
@@ -608,7 +608,7 @@ _z(int mode)
 		exit(1);
 	    }
 	    else {
-		if ((e = __pmDecodeInstanceReq(pb, mode, &tmp, &indom, &inst, &resname)) < 0) {
+		if ((e = __pmDecodeInstanceReq(pb, &tmp, &indom, &inst, &resname)) < 0) {
 		    fprintf(stderr, "Error: DecodeInstanceReq: %s\n", pmErrStr(e));
 		    exit(1);
 		}
@@ -658,12 +658,12 @@ _z(int mode)
 	    inres.namelist = NULL;
 	}
 	inresp = NULL;
-	if ((e = __pmSendInstance(fd[1], mode, &inres)) < 0) {
+	if ((e = __pmSendInstance(fd[1], FROM_ANON, &inres)) < 0) {
 	    fprintf(stderr, "Error: SendInstance: %s\n", pmErrStr(e));
 	    exit(1);
 	}
 	else {
-	    if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	    if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 		fprintf(stderr, "Error: RecvInstance: %s\n", pmErrStr(e));
 		exit(1);
 	    }
@@ -676,7 +676,7 @@ _z(int mode)
 		exit(1);
 	    }
 	    else {
-		if ((e = __pmDecodeInstance(pb, mode, &inresp)) < 0) {
+		if ((e = __pmDecodeInstance(pb, &inresp)) < 0) {
 		    fprintf(stderr, "Error: DecodeInstance: %s\n", pmErrStr(e));
 		    exit(1);
 		}
@@ -706,87 +706,13 @@ _z(int mode)
 	    __pmFreeInResult(inresp);
     }
 
-#if 0 /* PDU_CONTROL_REQ deprecated as of PCP 2.2 */
-    sav_nv = rp->vset[0]->numval;
-    sav_np = rp->numpmid;
-    for (nv = -1; nv < 2; nv++) {
-	rp->numpmid = 2;	/* use only first 2 from PDU_RESULT above */
-	rp->vset[0]->numval  = nv;
-	if ((e = __pmSendControlReq(fd[1], mode, rp, PM_LOG_MANDATORY, PM_LOG_MAYBE, 1000)) < 0) {
-	    fprintf(stderr, "Error: SendControlReq: numval=%d %s\n", nv, pmErrStr(e));
-	    exit(1);
-	}
-	else {
-	    if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
-		fprintf(stderr, "Error: RecvControlReq: numval=%d %s\n", nv, pmErrStr(e));
-		exit(1);
-	    }
-	    else if (e == 0) {
-		fprintf(stderr, "Error: RecvControlReq: end-of-file!\n");
-		exit(1);
-	    }
-	    else if (e != PDU_CONTROL_REQ) {
-		fprintf(stderr, "Error: RecvControlReq: numval=%d %s wrong type PDU!\n", nv, __pmPDUTypeStr(e));
-		exit(1);
-	    }
-	    else {
-		if ((e = __pmDecodeControlReq(pb, mode, &resp, &control, &state, &rate)) < 0) {
-		    fprintf(stderr, "Error: DecodeControlReq: numval=%d %s\n", nv, pmErrStr(e));
-		    exit(1);
-		}
-		else {
-		    if (state != PM_LOG_MAYBE)
-			fprintf(stderr, "Botch: ControlReq: numval=%d state: got: %d expect: %d\n",
-			    nv, state, PM_LOG_MAYBE);
-		    if (control != PM_LOG_MANDATORY)
-			fprintf(stderr, "Botch: ControlReq: numval=%d control: got: %d expect: %d\n",
-			    nv, control, PM_LOG_MANDATORY);
-		    if (rate != 1000)
-			fprintf(stderr, "Botch: ControlReq: numval=%d rate: got: %d expect: %d\n",
-			    nv, rate, 1000);
-		    if (resp->numpmid != rp->numpmid)
-			fprintf(stderr, "Botch: ControlReq: numval=%d numpmid: got: %d expect: %d\n",
-			    nv, resp->numpmid, rp->numpmid);
-		    else {
-			for (i = 0; i < rp->numpmid; i++) {
-			    if (resp->vset[i]->pmid != rp->vset[i]->pmid)
-				fprintf(stderr, "Botch: ControlReq: numval=%d vset[%d].pmid: got: 0x%x expect: 0x%x\n",
-				    nv, i, resp->vset[i]->pmid, rp->vset[i]->pmid);
-			    if (resp->vset[i]->valfmt != rp->vset[i]->valfmt)
-				fprintf(stderr, "Botch: ControlReq: numval=%d vset[%d].valfmt: got: %d expect: %d\n",
-				    nv, i, resp->vset[i]->valfmt, rp->vset[i]->valfmt);
-			    if (resp->vset[i]->numval != rp->vset[i]->numval)
-				fprintf(stderr, "Botch: ControlReq: numval=%d vset[%d].numval: got: %d expect: %d\n",
-				    nv, i, resp->vset[i]->numval, rp->vset[i]->numval);
-			    else {
-				for (j = 0; j < rp->vset[i]->numval; j++) {
-				    if (resp->vset[i]->vlist[j].inst != rp->vset[i]->vlist[j].inst)
-					fprintf(stderr, "Botch: ControlReq: numval=%d vset[%d][%d].inst: got: %d expect: %d\n",
-					    nv, i, j, resp->vset[i]->vlist[j].inst, rp->vset[i]->vlist[j].inst);
-				    if (resp->vset[i]->vlist[j].value.lval != rp->vset[i]->vlist[j].value.lval)
-					fprintf(stderr, "Botch: ControlReq: numval=%d vset[%d][%d].value.lval: got: %d expect: %d\n",
-					    nv, i, j, resp->vset[i]->vlist[j].value.lval, rp->vset[i]->vlist[j].value.lval);
-				}
-			    }
-			}
-		    }
-		    pmFreeResult(resp);
-		}
-	    }
-	}
-    }
-    rp->vset[0]->numval = sav_nv;
-    rp->numpmid = sav_np;
-
-#endif /* PDU_CONTROL_REQ deprecated as of PCP 2.2 */
-
 /* PDU_TEXT_REQ */
-    if ((e = __pmSendTextReq(fd[1], mode, 0x12341234, PM_TEXT_PMID|PM_TEXT_ONELINE)) < 0) {
+    if ((e = __pmSendTextReq(fd[1], FROM_ANON, 0x12341234, PM_TEXT_PMID|PM_TEXT_ONELINE)) < 0) {
 	fprintf(stderr, "Error: SendTextReq: %s\n", pmErrStr(e));
 	exit(1);
     }
     else {
-	if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvTextReq: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -799,7 +725,7 @@ _z(int mode)
 	    exit(1);
 	}
 	else {
-	    if ((e = __pmDecodeTextReq(pb, mode, &ident, &type)) < 0) {
+	    if ((e = __pmDecodeTextReq(pb, &ident, &type)) < 0) {
 		fprintf(stderr, "Error: DecodeTextReq: %s\n", pmErrStr(e));
 		exit(1);
 	    }
@@ -816,12 +742,12 @@ _z(int mode)
 
 /* PDU_TEXT */
 #define MARY "mary had a little lamb\nits fleece was white as snow\n"
-    if ((e = __pmSendText(fd[1], mode, 0x43214321, MARY)) < 0) {
+    if ((e = __pmSendText(fd[1], FROM_ANON, 0x43214321, MARY)) < 0) {
 	fprintf(stderr, "Error: SendText: %s\n", pmErrStr(e));
 	exit(1);
     }
     else {
-	if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvText: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -835,7 +761,7 @@ _z(int mode)
 	}
 	else {
 	    buffer = NULL;
-	    if ((e = __pmDecodeText(pb, mode, &ident, &buffer)) < 0) {
+	    if ((e = __pmDecodeText(pb, &ident, &buffer)) < 0) {
 		fprintf(stderr, "Error: DecodeText: %s\n", pmErrStr(e));
 		exit(1);
 	    }
@@ -855,63 +781,6 @@ _z(int mode)
 	}
     }
 
-    if (mode != PDU_BINARY)
-	return;
-
-    /* from here on, PDUs only supported in BINARY mode */
-	
-#if 0 /* PDU_DATA_X deprecated so of PCP 2.2 */
-{
-    int vlen = foorand() % 50;
-    char *p;
-    vp = (char *)malloc(vlen);
-    if (vp == (char *)0) {
-	perror("DATA_X malloc");
-	exit(1);
-    }
-    for (i = 0, p = vp; i < vlen; i++, p++)
-	*p = i % 0xff;
-    if ((e = __pmSendDataX(fd[1], mode, 0xdeadbeef, vlen, vp)) < 0) {
-	fprintf(stderr, "Error: SendDataX: %s\n", pmErrStr(e));
-	exit(1);
-    }
-    else {
-	free(vp);
-	if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
-	    fprintf(stderr, "Error: RecvDataX: %s\n", pmErrStr(e));
-	    exit(1);
-	}
-	else if (e == 0) {
-	    fprintf(stderr, "Error: RecvDataX: end-of-file!\n");
-	    exit(1);
-	}
-	else if (e != PDU_DATA_X) {
-	    fprintf(stderr, "Error: RecvDataX: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
-	}
-	else {
-	    if ((e = __pmDecodeDataX(pb, mode, &i, &j, (void **)&vp)) < 0) {
-		fprintf(stderr, "Error: DecodeDataX: %s\n", pmErrStr(e));
-		exit(1);
-	    }
-	    else {
-		if (i != 0xdeadbeef)
-		    fprintf(stderr, "Botch: DataX: subtype: got: 0x%x expect: 0x%x\n",
-			i, 0xdeadbeef);
-		if (j != vlen)
-		    fprintf(stderr, "Botch: DataX: vlen: got: %d expect: %d\n",
-			j, vlen);
-		for (i = 0, p = vp; i < vlen; i++, p++)
-		    if (*p != i % 0xff)
-			fprintf(stderr, "Botch: DataX: vp[%d]: got: 0x%x expect: 0x%x\n",
-			    i, *p & 0xff, i % 0xff);
-		__pmUnpinPDUBuf(vp);
-	    }
-	}
-    }
-}
-#endif /* PDU_DATA_X deprecated so of PCP 2.2 */
-
 /* PDU_CREDS */
     sender = 0;
     count = -1;
@@ -930,12 +799,12 @@ _z(int mode)
 	fprintf(stderr, "1 = %x\n", *(unsigned int*)&(increds[1]));
     }
 #endif
-    if ((e = __pmSendCreds(fd[1], mode, 2, increds)) < 0) {
+    if ((e = __pmSendCreds(fd[1], getpid(), 2, increds)) < 0) {
 	fprintf(stderr, "Error: SendCreds: %s\n", pmErrStr(e));
 	exit(1);
     }
     else {
-	if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvCreds: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -949,7 +818,7 @@ _z(int mode)
 	}
 	else {
 	    outcreds = NULL;
-	    if ((e = __pmDecodeCreds(pb, mode, &sender, &count, &outcreds)) < 0) {
+	    if ((e = __pmDecodeCreds(pb, &sender, &count, &outcreds)) < 0) {
 		fprintf(stderr, "Error: DecodeCreds: %s\n", pmErrStr(e));
 		exit(1);
 	    }
@@ -991,12 +860,12 @@ _z(int mode)
     n = sizeof(pmidlist) / sizeof(pmidlist[0]);
     if (pass != 0)
 	n = 1 + (foorand() % n);
-    if ((e = __pmSendIDList(fd[1], mode, n, pmidlist, 43)) < 0) {
+    if ((e = __pmSendIDList(fd[1], FROM_ANON, n, pmidlist, 43)) < 0) {
 	fprintf(stderr, "Error: SendIDList: %s\n", pmErrStr(e));
 	exit(1);
     }
     else {
-	if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvIDList: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -1010,7 +879,7 @@ _z(int mode)
 	}
 	else {
 	    pmID	mylist[6];
-	    if ((e = __pmDecodeIDList(pb, mode, n, mylist, &k)) < 0) {
+	    if ((e = __pmDecodeIDList(pb, n, mylist, &k)) < 0) {
 		fprintf(stderr, "Error: DecodeIDList: %s\n", pmErrStr(e));
 		exit(1);
 	    }
@@ -1031,12 +900,12 @@ _z(int mode)
     n = sizeof(namelist) / sizeof(namelist[0]);
     if (pass != 0)
 	n = 1 + (foorand() % n);
-    if ((e = __pmSendNameList(fd[1], mode, n, namelist, statlist)) < 0) {
+    if ((e = __pmSendNameList(fd[1], FROM_ANON, n, namelist, statlist)) < 0) {
 	fprintf(stderr, "Error: SendNameList: %s\n", pmErrStr(e));
 	exit(1);
     }
     else {
-	if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvNameList: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -1051,7 +920,7 @@ _z(int mode)
 	else {
 	    resnamelist = NULL;
 	    resstatlist = NULL;
-	    if ((e = __pmDecodeNameList(pb, mode, &num, &resnamelist, &resstatlist)) < 0) {
+	    if ((e = __pmDecodeNameList(pb, &num, &resnamelist, &resstatlist)) < 0) {
 		fprintf(stderr, "Error: DecodeNameList: %s\n", pmErrStr(e));
 		exit(1);
 	    }
@@ -1079,12 +948,12 @@ _z(int mode)
 	}
     }
     /* and again, with NULL statlist */
-    if ((e = __pmSendNameList(fd[1], mode, n, namelist, NULL)) < 0) {
+    if ((e = __pmSendNameList(fd[1], FROM_ANON, n, namelist, NULL)) < 0) {
 	fprintf(stderr, "Error: SendNameList-2: %s\n", pmErrStr(e));
 	exit(1);
     }
     else {
-	if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvNameList-2: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -1099,7 +968,7 @@ _z(int mode)
 	else {
 	    resnamelist = NULL;
 	    resstatlist = NULL;
-	    if ((e = __pmDecodeNameList(pb, mode, &num, &resnamelist, &resstatlist)) < 0) {
+	    if ((e = __pmDecodeNameList(pb, &num, &resnamelist, &resstatlist)) < 0) {
 		fprintf(stderr, "Error: DecodeNameList-2: %s\n", pmErrStr(e));
 		exit(1);
 	    }
@@ -1126,12 +995,12 @@ _z(int mode)
     }
 
 /* PDU_PMNS_CHILD */
-    if ((e = __pmSendChildReq(fd[1], mode, "mumble.fumble", 1)) < 0) {
+    if ((e = __pmSendChildReq(fd[1], FROM_ANON, "mumble.fumble", 1)) < 0) {
 	fprintf(stderr, "Error: SendChildReq: %s\n", pmErrStr(e));
 	exit(1);
     }
     else {
-	if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvChildReq: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -1145,7 +1014,7 @@ _z(int mode)
 	}
 	else {
 	    resname = NULL;
-	    if ((e = __pmDecodeChildReq(pb, mode, &resname, &k)) < 0) {
+	    if ((e = __pmDecodeChildReq(pb, &resname, &k)) < 0) {
 		fprintf(stderr, "Error: DecodeChildReq: %s\n", pmErrStr(e));
 		exit(1);
 	    }
@@ -1166,12 +1035,12 @@ _z(int mode)
     }
 
 /* PDU_PMNS_TRAVERSE */
-    if ((e = __pmSendTraversePMNSReq(fd[1], mode, "foo.bar.snort")) < 0) {
+    if ((e = __pmSendTraversePMNSReq(fd[1], FROM_ANON, "foo.bar.snort")) < 0) {
 	fprintf(stderr, "Error: SendTraversePMNSReq: %s\n", pmErrStr(e));
 	exit(1);
     }
     else {
-	if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvTraversePMNSReq: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -1185,7 +1054,7 @@ _z(int mode)
 	}
 	else {
 	    resname = NULL;
-	    if ((e = __pmDecodeTraversePMNSReq(pb, mode, &resname)) < 0) {
+	    if ((e = __pmDecodeTraversePMNSReq(pb, &resname)) < 0) {
 		fprintf(stderr, "Error: DecodeTraversePMNSReq: %s\n", pmErrStr(e));
 		exit(1);
 	    }
@@ -1213,7 +1082,7 @@ _z(int mode)
 	    exit(1);
 	}
 	else {
-	    if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	    if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 		fprintf(stderr, "Error: RecvLogControl: numval=%d %s\n", nv, pmErrStr(e));
 		exit(1);
 	    }
@@ -1293,7 +1162,7 @@ _z(int mode)
 	exit(1);
     }
     else {
-	if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvLogStatus: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -1361,7 +1230,7 @@ _z(int mode)
 	exit(1);
     }
     else {
-	if ((e = __pmGetPDU(fd[0], mode, timeout, &pb)) < 0) {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvLogRequest: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -1593,7 +1462,7 @@ main(int argc, char **argv)
 	fprintf(stderr, "+ Mode: PDU_BINARY Pass %d +\n", pass);
 	fprintf(stderr, "+++++++++++++++++++++++++++\n");
 
-	_z(PDU_BINARY);
+	_z();
     }
 
     if (standalone) {
