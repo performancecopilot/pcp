@@ -560,13 +560,13 @@ sample.scale_step.time_up_nanosecs 1 NUMBER
 sample.scale_step.none_up 1 NUMBER
 sample.const_rate.value 1 10485760
 sample.const_rate.gradient 1 0
-sample.percontext.pdu 1 -12376
-sample.percontext.recv_pdu 1 -12376
-sample.percontext.xmit_pdu 1 -12376
-sample.percontext.control.ctx 1 -12376
-sample.percontext.control.active 1 -12376
-sample.percontext.control.start 1 -12376
-sample.percontext.control.end 1 -12376
+sample.percontext.pdu 1 NUMBER
+sample.percontext.recv_pdu 1 NUMBER
+sample.percontext.xmit_pdu 1 NUMBER
+sample.percontext.control.ctx 1 NUMBER
+sample.percontext.control.active 1 NUMBER
+sample.percontext.control.start 1 NUMBER
+sample.percontext.control.end 1 NUMBER
 
 === -iI ===
 sample.control 1 PM_IN_NULL PM_IN_NULL
