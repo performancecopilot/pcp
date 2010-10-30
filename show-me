@@ -121,6 +121,16 @@ here=`pwd`
 
 for id
 do
+    case "$id"
+    in
+	[0-9])
+		id=00$id
+		;;
+	[0-9][0-9])
+		id=0$id
+		;;
+    esac
+
     if [ "$QA_HOST" != $HOST ]
     then
 	echo "Fetch files from $QA_USER@$QA_HOST:$QA_DIR ..."

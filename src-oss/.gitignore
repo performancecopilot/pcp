@@ -151,6 +151,7 @@ pmnsunload
 pmpost-exploit
 pmprintf
 pmsocks_objstyle
+pmtimezone.so
 proc_test
 pv
 pv64

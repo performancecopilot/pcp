@@ -209,10 +209,13 @@ _wait_for_pmlogger()
 	    ;;
     esac
    
+    #debug# set -x
     _i=0
     _dead=true
     while [ $_i -lt $_maxdelay ]
     do
+	#debug# ps -ef | grep "[^0-9]$_pid[^0-9]"
+	#debug# pmlc $_pid </dev/null
 	if pmlc $_pid </dev/null 2>&1 | egrep "Connection refused|Transport endpoint is not connected" >/dev/null
 	then
 	    sleep 1
@@ -266,7 +269,17 @@ _wait_for_pmlogger()
 	    	fi
 	    fi
 	fi
-	
+	base=`cat $_logfile | sed -n '/^Archive basename:[ 	]*/s///p'`
+	if [ -f $base.0 ]
+	then
+	    echo "archive created ..."
+	    pmdumplog -l $base.0
+	    nres=`pmdumplog $base.0 | grep '^[0-9]' | wc -l | sed -e 's/ //g'`
+	    echo "archive contains $nres records"
+	else
+	    echo "archive not created"
+	fi
+	echo
 	echo "local pmlogger map ..."
 	for map in $PCP_TMP_DIR/pmlogger/*
 	do
