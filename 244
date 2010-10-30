@@ -66,6 +66,7 @@ s/value [0-9][0-9]*/value INTEGER/
 	-e '/endclient client.* No permission/d' \
 	-e '/localhost/s/ [0-9a-f][0-9a-f][0-9a-f]* / MYIPADDR /' \
 	-e 's/fd=[0-9][0-9]*/fd=FD/g' \
+	-e "/sed: couldn't flush stdout: Broken pipe/d" \
     | $PCP_AWK_PROG '
 $3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
 $1 == "news"		{ $4 = "fd_in"; $5 = "fd_out" }
