@@ -934,3 +934,4 @@ derive		pcpqa
 378 pmie local oss
 379 pmda.cisco local oss
 380 libpcp pmda pmda.sample pmda.sampledso local oss
+382 dbpmda pmda pmda.sample pmda.sampledso local oss
