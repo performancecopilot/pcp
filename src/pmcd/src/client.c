@@ -54,35 +54,23 @@ NotifyEndContext(int ctx)
 	    }
 	}
 	else {
-	    /* daemon PMDA case ... we don't know the PMDA_INTERFACE
-	     * version, so send anyway, and rely on __pmdaMainPDU()
-	     * doing the right thing
+	    /*
+	     * Daemon PMDA case ... we don't know the PMDA_INTERFACE
+	     * version, so send the notification PDU anyway, and rely on
+	     * __pmdaMainPDU() doing the right thing.
+	     * Do not expect a response.
+	     * Agent may have decided to spontaneously die so don't
+	     * bother about any return status from the __pmSendError
+	     * either.
 	     */
-	    int			sts;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT) {
 		fprintf(stderr, "NotifyEndContext: daemon PMDA %s (%d) notified of context %d close\n",
-		    agent[i].pmDomainLabel, agent[i].pmDomainId,
-		    ctx);
+		    agent[i].pmDomainLabel, agent[i].pmDomainId, ctx);
 	    }
 #endif
 	    pmcd_trace(TR_XMIT_PDU, agent[i].inFd, PDU_ERROR, PM_ERR_NOTCONN);
-	    if ((sts = __pmSendError(agent[i].inFd, ctx, PM_ERR_NOTCONN)) < 0) {
-		/*
-		 * agent may have decided to spontaneously die? ...
-		 * nothing to be done.
-		 */
-		;
-	    }
-	    else {
-		/*
-		 * Expect PDU_ERROR from agent, but as above if nothing
-		 * returned or not an ERROR PDU, nothing to be done.
-		 */
-		__pmPDU	*pb;
-		sts = __pmGetPDU(agent[i].outFd, ANY_SIZE, _pmcd_timeout, &pb);
-		pmcd_trace(TR_RECV_PDU, agent[i].outFd, sts, (int)((__psint_t)pb & 0xffffffff));
-	    }
+	    __pmSendError(agent[i].inFd, ctx, PM_ERR_NOTCONN);
 	}
     }
 }

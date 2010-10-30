@@ -123,21 +123,29 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 
     case PDU_ERROR:
 	/*
-	 * expect PM_ERR_NOTCONN to mark end of context
+	 * If __pmDecodeError() fails, just ignore it as no response PDU
+	 * is required nor expected.
+	 * Expect PM_ERR_NOTCONN to mark client context being closed.
 	 */
-	if (__pmDecodeError(pb, &endsts) >= 0 && endsts == PM_ERR_NOTCONN) {
-	    if (HAVE_V_FIVE(dispatch->comm.pmda_interface)) {
+	if (__pmDecodeError(pb, &endsts) >= 0) {
+	    if (endsts == PM_ERR_NOTCONN) {
+		if (HAVE_V_FIVE(dispatch->comm.pmda_interface)) {
 #ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_CONTEXT) {
-		    __pmNotifyErr(LOG_DEBUG, "Received PDU_ERROR (end context %d)\n", dispatch->version.four.ext->e_context);
-		}
+		    if (pmDebug & DBG_TRACE_CONTEXT) {
+			__pmNotifyErr(LOG_DEBUG, "Received PDU_ERROR (end context %d)\n", dispatch->version.four.ext->e_context);
+		    }
 #endif
-		if (pmda->e_endCallBack != NULL) {
-		    (*(pmda->e_endCallBack))(dispatch->version.four.ext->e_context);
+		    if (pmda->e_endCallBack != NULL) {
+			(*(pmda->e_endCallBack))(dispatch->version.four.ext->e_context);
+		    }
 		}
 	    }
+	    else {
+		__pmNotifyErr(LOG_ERR,
+		      "%s: unexpected error pdu from pmcd: %s?\n",
+		      pmda->e_name, pmErrStr(endsts));
+	    }
 	}
-	__pmSendError(pmda->e_outfd, FROM_ANON, 0);
 	break;
 
     case PDU_PROFILE:

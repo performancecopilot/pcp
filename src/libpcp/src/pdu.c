@@ -165,9 +165,9 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 			__pmNotifyErr(LOG_WARNING, 
 				      "pduread: timeout (after %d.%03d "
 				      "sec) while attempting to read %d "
-				      "bytes out of %d in part %d on fd=%d",
+				      "bytes out of %d in %s on fd=%d",
 				      tosec, tomsec, len - have, len, 
-				      part, fd);
+				      part == HEADER ? "HDR" : "BODY", fd);
 		    }
 		    return PM_ERR_TIMEOUT;
 		}

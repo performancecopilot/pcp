@@ -229,15 +229,8 @@ void
 closepmda(void)
 {
     if (connmode != NO_CONN) {
-	/*
-	 * end of context logic mimics pmcd, only miminal error checking
-	 * is needed
-	 */
-	if (__pmSendError(outfd, 0, PM_ERR_NOTCONN) >= 0) {
-	    __pmPDU	*pb;
-	    /* don't wait forever, PMDA could have exited ... */
-	    __pmGetPDU(infd, ANY_SIZE, _creds_timeout, &pb);
-	}
+	/* End of context logic mimics PMCD, no error checking is needed. */
+	__pmSendError(outfd, FROM_ANON, PM_ERR_NOTCONN);
 	close(outfd);
 	close(infd);
 	__pmResetIPC(infd);
