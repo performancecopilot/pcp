@@ -43,6 +43,7 @@
 #include "proc_interrupts.h"
 #include "filesys.h"
 #include "swapdev.h"
+#include "getinfo.h"
 #include "proc_net_rpc.h"
 #include "proc_net_sockstat.h"
 #include "proc_net_tcp.h"
@@ -82,7 +83,6 @@ static proc_net_sockstat_t	proc_net_sockstat;
 static proc_pid_t		proc_pid;
 static struct utsname		kernel_uname;
 static char 			uname_string[sizeof(kernel_uname)];
-static char			*distro_name;
 static proc_runq_t		proc_runq;
 static proc_net_snmp_t		proc_net_snmp;
 static proc_scsi_t		proc_scsi;
@@ -5375,7 +5375,6 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = proc_pid.indom->it_numinst;
 	else {
 	    static char ttyname[MAXPATHLEN];
-	    extern char *get_ttyname_info(int, dev_t, char *);
 
 	    if ((entry = fetch_proc_pid_stat(inst, &proc_pid)) == NULL)
 	    	return PM_ERR_INST;
@@ -5396,18 +5395,18 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		}
 		break;
 
-		case PROC_PID_STAT_CMD:
-			if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-				return PM_ERR_INST;
-			atom->cp = f + 1;
-			atom->cp[strlen(atom->cp)-1] = '\0';
-			break;
+	    case PROC_PID_STAT_CMD:
+		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
+		    return PM_ERR_INST;
+		atom->cp = f + 1;
+		atom->cp[strlen(atom->cp)-1] = '\0';
+		break;
 
-		case PROC_PID_STAT_PSARGS:
-			atom->cp = entry->name + 7;
-			break;
+	    case PROC_PID_STAT_PSARGS:
+		atom->cp = entry->name + 7;
+		break;
 
-		case PROC_PID_STAT_STATE:
+	    case PROC_PID_STAT_STATE:
 		/*
 		 * string
 		 */
@@ -5432,7 +5431,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		 * pages converted to kbytes
 		 */
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-			return PM_ERR_INST;
+		    return PM_ERR_INST;
 		sscanf(f, "%u", &atom->ul);
 		atom->ul *= _pm_system_pagesize / 1024;
 		break;
@@ -5700,66 +5699,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 
 	case 7:	/* kernel.uname.distro ... not from uname(2) */
-	    if (distro_name == NULL) {
-		/*
-		 * Heuristic guesswork ... add stuff here as we learn
-		 * more
-		 */
-		struct stat	sbuf;
-		int		r, fd = -1, len = 0;
-		char		prefix[16];
-		char *rfiles[] = {
-			"/etc/lsb-release",
-			"/etc/debian_version",
-			"/etc/fedora-release",
-			"/etc/redhat-release",
-			"/etc/slackware-version",
-			"/etc/SuSE-release",
-			NULL
-		};
-		for (r = 0; rfiles[r] != NULL; r++) {
-		    if (stat(rfiles[r], &sbuf) == 0 && S_ISREG(sbuf.st_mode)) {
-			fd = open(rfiles[r], O_RDONLY);
-			break;
-		    }
-		}
-		if (fd != -1) {
-		    if (r == 1) {	/* Debian, needs prefix */
-			strncpy(prefix, "Debian ", sizeof(prefix));
-			len = 7;
-		    }
-		    /*
-		     * at this point, assume sbuf is good and file contains
-		     * the string we want, probably with a \n terminator
-		     */
-		    distro_name = (char *)malloc(len + (int)sbuf.st_size + 1);
-		    if (distro_name != NULL) {
-			if (len)
-			    strncpy(distro_name, prefix, len);
-			sts = read(fd, distro_name + len, (int)sbuf.st_size);
-			close(fd);
-			if (sts <= 0) {
-			    free(distro_name);
-			    distro_name = NULL;
-			} else {
-			    char *nl;
-
-			    if (r == 0) { /* LSB, skip DISTRIB_ID */
-				if (!strncmp(distro_name, "DISTRIB_ID = ", 13))
-				    distro_name += 13;	/* ick */
-				if (!strncmp(distro_name, "DISTRIB_ID=", 11))
-				    distro_name += 11;	/* more ick */
-			    }
-			    distro_name[sts + len] = '\0';
-			    if ((nl = strchr(distro_name, '\n')) != NULL)
-				*nl = '\0';
-			}
-		    }
-		}
-		if (distro_name == NULL) 
-		    distro_name = "?";
-	    }
-	    atom->cp = distro_name;
+	    atom->cp = get_distro_info();
 	    break;
 
 	default:
@@ -6593,7 +6533,7 @@ linux_init(pmdaInterface *dp)
      * addresses to symbol names. 
      * Added by Mike Mason <mmlnx@us.ibm.com>
      */
-    read_ksym_sources();
+    read_ksym_sources(kernel_uname.release);
 
     cgroup_init();
 

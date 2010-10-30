@@ -15,9 +15,10 @@ sc stop   pmproxy > nul
 ping -n 1 localhost > nul
 @rem then use a bigger hammer:
 
-taskkill /F /IM pmcd.exe /T > nul
-taskkill /F /IM pmie.exe /T > nul
-taskkill /F /IM pmproxy.exe /T > nul
+taskkill /F /IM pmcd.exe /T 2> nul
+taskkill /F /IM pmie.exe /T 2> nul
+taskkill /F /IM pmproxy.exe /T 2> nul
+taskkill /F /IM pmlogger.exe /T 2> nul
 
 sc delete pcp > nul
 sc create pcp binPath= "%PCP_DIR%\local\bin\pcp-services pcp %PCP_DIR%" start= auto DisplayName= "PCP Collector Processes" 

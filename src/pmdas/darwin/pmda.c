@@ -778,7 +778,7 @@ fetch_vmstat(unsigned int item, unsigned int inst, pmAtomValue *atom)
 	atom->ull = page_count_to_kb(mach_vmstat.inactive_count);
 	return 1;
     case 19: /* mem.util.wired */
-	atom->ull = page_count_to_kb(mach_vmstat.free_count);
+	atom->ull = page_count_to_kb(mach_vmstat.wire_count);
 	return 1;
     case 20: /* mem.util.active */
 	atom->ull = page_count_to_kb(mach_vmstat.active_count);

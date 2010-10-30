@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -29,59 +29,6 @@ static struct {
     HANDLE		waithandle;
     __pmSignalHandler	callback;
 } signals[MAX_SIGNALS];
-
-static HMODULE	kernel32;
-
-static void
-LoadKernel32(void)
-{
-    if (!kernel32 &&
-	(kernel32 = LoadLibraryEx("kernel32.dll", NULL, 0)) == NULL)
-	fprintf(stderr, "LoadKernel32 failed (%ld)\n", GetLastError());
-}
-
-
-typedef void(CALLBACK *WAITORTIMERCALLBACK)(PVOID,BOOLEAN);
-typedef BOOL (WINAPI * __RegisterWaitForSingleObject)
-    (PHANDLE, HANDLE, WAITORTIMERCALLBACK, PVOID, ULONG, ULONG);
-typedef BOOL (WINAPI * __UnregisterWait)(HANDLE);
-__RegisterWaitForSingleObject _RegisterWaitForSingleObject;
-__UnregisterWait _UnregisterWait;
-
-BOOL WINAPI
-RegisterWaitForSingleObject(PHANDLE phNewWaitObject, HANDLE hObject,
-			    WAITORTIMERCALLBACK Callback, PVOID Context,
-			    ULONG dwMilliseconds, ULONG dwFlags)
-{
-    if (_RegisterWaitForSingleObject == NULL) {
-	LoadKernel32();
-	_RegisterWaitForSingleObject = (__RegisterWaitForSingleObject)
-	    GetProcAddress(kernel32, "RegisterWaitForSingleObject");
-	if (_RegisterWaitForSingleObject == NULL) {
-	    fprintf(stderr, "Cannot locate RegisterWaitForSingleObject "
-			    "in kernel32.dll (%ld)\n", GetLastError());
-	    return FALSE;
-	}
-    }
-    return (_RegisterWaitForSingleObject)
-	(phNewWaitObject, hObject, Callback, Context, dwMilliseconds, dwFlags);
-}
-
-BOOL WINAPI
-UnregisterWait(HANDLE hWaitObject)
-{
-    if (_UnregisterWait == NULL) {
-	LoadKernel32();
-	_UnregisterWait = (__UnregisterWait)
-	    GetProcAddress(kernel32, "UnregisterWait");
-	if (_UnregisterWait == NULL) {
-	    fprintf(stderr, "Cannot locate UnregisterWait "
-			    "in kernel32.dll (%ld)\n", GetLastError());
-	    return FALSE;
-	}
-    }
-    return (_UnregisterWait)(hWaitObject);
-}
 
 VOID CALLBACK
 SignalCallback(PVOID param, BOOLEAN timerorwait)
@@ -485,6 +432,8 @@ rindex(const char *string, int marker)
     char *p;
     for (p = (char *)string; *p != '\0'; p++)
 	;
+    if (p == string)
+	return NULL;
     for (--p; p != string; p--)
 	if (*p == marker)
 	    return p;
