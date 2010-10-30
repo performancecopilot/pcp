@@ -146,6 +146,8 @@ then
     exit 1
 fi
 
+export PCP_TRACE_HOST=$qahost
+
 echo '=== Running demo program (app2) ==='
 # use app2 process to bump the number of connections.
 ( ( $PCP_DEMOS_DIR/trace/app2 2>&1 >$tmp.out & ) )
@@ -164,6 +166,8 @@ $signal -a -s KILL app2
 wait
 echo "=== app2 ===" >>$here/$seq.full
 cat $tmp.out >>$here/$seq.full
+
+unset PCP_TRACE_HOST
 
 echo '=== Attempting bad remote access ==='
 echo "=== Attempting bad remote access ===" >>$here/$seq.full
