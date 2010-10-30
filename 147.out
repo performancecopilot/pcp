@@ -1,6 +1,5 @@
 QA output created by 147
 dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29
-dbpmda> 
 Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29
 dbpmda> getdesc on
 dbpmda> fetch 29.0.6

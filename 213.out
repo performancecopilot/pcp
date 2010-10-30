@@ -52,7 +52,6 @@ dbpmda>
 
 === Daemon PMDA test ===
 dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample 29
-dbpmda> 
 Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample 29
 dbpmda> name 29.0.1001
 PMID: 29.0.1001
