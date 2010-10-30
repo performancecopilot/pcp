@@ -2747,7 +2747,6 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 	    sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 				TIMEOUT_DEFAULT, &pb);
 	    if (sts == PDU_PMNS_NAMES) {
-
 		sts = __pmDecodeNameList(pb, &numnames, 
 		                      &namelist, NULL);
 		if (sts > 0) {
