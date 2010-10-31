@@ -245,6 +245,10 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 		    pmFreeResult(result);
 		    break;
 
+		case PDU_ERROR:
+		    /* end of context from PMCD ... we don't care */
+		    break;
+
 		default:
 		    fprintf(stderr, "%s: bogus pdu type: 0x%0x?\n", pmdaname, sts);
 		    __pmSendError(outfd, FROM_ANON, PM_ERR_NYI);
