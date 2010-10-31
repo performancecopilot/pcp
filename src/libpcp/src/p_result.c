@@ -140,7 +140,7 @@ __pmSendResult(int fd, int from, const pmResult *result)
 #endif
     if ((sts = __pmEncodeResult(fd, result, &pdubuf)) < 0)
 	return sts;
-    pp = (result_t *)&pdubuf;
+    pp = (result_t *)pdubuf;
     pp->hdr.from = from;
     return __pmXmitPDU(fd, pdubuf);
 }
