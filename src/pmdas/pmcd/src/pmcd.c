@@ -81,78 +81,78 @@ static pmDesc	desctab[] = {
 /* build -- pcp build number */
     { PMDA_PMID(0,20), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 
-/* pdu-in.error */
+/* pdu_in.error */
     { PMDA_PMID(1,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.result */
+/* pdu_in.result */
     { PMDA_PMID(1,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.profile */
+/* pdu_in.profile */
     { PMDA_PMID(1,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.fetch */
+/* pdu_in.fetch */
     { PMDA_PMID(1,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.desc-req */
+/* pdu_in.desc-req */
     { PMDA_PMID(1,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.desc */
+/* pdu_in.desc */
     { PMDA_PMID(1,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.instance-req */
+/* pdu_in.instance-req */
     { PMDA_PMID(1,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.instance */
+/* pdu_in.instance */
     { PMDA_PMID(1,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.text-req */
+/* pdu_in.text-req */
     { PMDA_PMID(1,8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.text */
+/* pdu_in.text */
     { PMDA_PMID(1,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.control-req */
+/* pdu_in.control-req */
     { PMDA_PMID(1,10), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.datax */
+/* pdu_in.datax */
     { PMDA_PMID(1,11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.creds */
+/* pdu_in.creds */
     { PMDA_PMID(1,12), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.pmns-ids */
+/* pdu_in.pmns-ids */
     { PMDA_PMID(1,13), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.pmns-names */
+/* pdu_in.pmns-names */
     { PMDA_PMID(1,14), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.pmns-child */
+/* pdu_in.pmns-child */
     { PMDA_PMID(1,15), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.total */
+/* pdu_in.total */
     { PMDA_PMID(1,_TOTAL), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.pmns-traverse */
+/* pdu_in.pmns-traverse */
     { PMDA_PMID(1,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 
-/* pdu-out.error */
+/* pdu_out.error */
     { PMDA_PMID(2,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.result */
+/* pdu_out.result */
     { PMDA_PMID(2,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.profile */
+/* pdu_out.profile */
     { PMDA_PMID(2,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.fetch */
+/* pdu_out.fetch */
     { PMDA_PMID(2,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.desc-req */
+/* pdu_out.desc-req */
     { PMDA_PMID(2,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.desc */
+/* pdu_out.desc */
     { PMDA_PMID(2,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.instance-req */
+/* pdu_out.instance-req */
     { PMDA_PMID(2,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.instance */
+/* pdu_out.instance */
     { PMDA_PMID(2,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.text-req */
+/* pdu_out.text-req */
     { PMDA_PMID(2,8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.text */
+/* pdu_out.text */
     { PMDA_PMID(2,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.control-req */
+/* pdu_out.control-req */
     { PMDA_PMID(2,10), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.datax */
+/* pdu_out.datax */
     { PMDA_PMID(2,11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.creds */
+/* pdu_out.creds */
     { PMDA_PMID(2,12), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.pmns-ids */
+/* pdu_out.pmns-ids */
     { PMDA_PMID(2,13), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.pmns-names */
+/* pdu_out.pmns-names */
     { PMDA_PMID(2,14), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.pmns-child */
+/* pdu_out.pmns-child */
     { PMDA_PMID(2,15), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.total */
+/* pdu_out.total */
     { PMDA_PMID(2,_TOTAL), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.pmns-traverse */
+/* pdu_out.pmns-traverse */
     { PMDA_PMID(2,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 
 /* pmlogger.port */
@@ -194,6 +194,11 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(6,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* client.start_date */
     { PMDA_PMID(6,1), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+
+/* pmcd.cputime.total */
+    { PMDA_PMID(7,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) },
+/* pmcd.cputime.per_pdu_in */
+    { PMDA_PMID(7,1), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,-1,0,PM_TIME_USEC,PM_COUNT_ONE) },
 
 /* End-of-List */
     { PM_ID_NULL, 0, 0, 0, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }
@@ -249,6 +254,37 @@ typedef struct {
 } whoami_t;
 static whoami_t		*whoamis;
 static unsigned int	nwhoamis;
+
+typedef struct {
+    int			state;
+    double		last_cputime;
+    __uint64_t		last_pdu_in;
+} perctx_t;
+
+/* values for per context state */
+#define CTX_INACTIVE    0
+#define CTX_ACTIVE      1
+
+static perctx_t *ctxtab = NULL;
+static int      num_ctx = 0;
+
+/*
+ * expand and initialize the per client context table
+ */
+static void
+grow_ctxtab(int ctx)
+{
+    ctxtab = (perctx_t *)realloc(ctxtab, (ctx+1)*sizeof(ctxtab[0]));
+    if (ctxtab == NULL) {
+        __pmNoMem("grow_ctxtab", (ctx+1)*sizeof(ctxtab[0]), PM_FATAL_ERR);
+        /*NOTREACHED*/
+    }
+    while (num_ctx <= ctx) {
+        ctxtab[num_ctx].state = CTX_INACTIVE;
+        num_ctx++;
+    }
+    ctxtab[ctx].state = CTX_INACTIVE;
+}
 
 /*
  * this routine is called at initialization to patch up any parts of the
@@ -959,6 +995,58 @@ tzinfo(void)
 }
 
 static int
+fetch_cputime(int item, int ctx, pmAtomValue *avp)
+{
+    double	usr, sys;
+    double	cputime;
+
+    if (item < 0 || item > 1) {
+	return PM_ERR_PMID;
+    }
+    if (ctx < 0) {
+	/* should not happen */
+	return PM_ERR_NOTCONN;
+    }
+    __pmProcessRunTimes(&usr, &sys);
+    cputime = (usr+sys)*1000;
+    if (ctx >= num_ctx)
+	grow_ctxtab(ctx);
+    if (item == 0) {	/* pmcd.cputime.total */
+	avp->ull = (__uint64_t)cputime;
+    }
+    else if (item == 1) {	/* pmcd.cputime.per_pdu_in */
+	int	j;
+	int	pdu_in;
+	for (pdu_in = j = 0; j <= PDU_MAX; j++)
+	    pdu_in += __pmPDUCntIn[j];
+	if (ctxtab[ctx].state == CTX_INACTIVE) {
+	    /* first call for this context */
+	    ctxtab[ctx].state = CTX_ACTIVE;
+	    avp->d = cputime*1000/pdu_in;
+	}
+	else {
+	    if (pdu_in > ctxtab[ctx].last_pdu_in)
+		avp->d = 1000*(cputime-ctxtab[ctx].last_cputime)/(pdu_in-ctxtab[ctx].last_pdu_in);
+	    else {
+		/* should not happen, as you need another pdu to get here */
+		avp->d = 0;
+	    }
+	}
+	ctxtab[ctx].last_cputime = cputime;
+	ctxtab[ctx].last_pdu_in = pdu_in;
+    }
+    return 0;
+}
+
+static void
+end_context(int ctx)
+{
+    if (ctx >= 0 && ctx < num_ctx && ctxtab[ctx].state == CTX_ACTIVE) {
+	ctxtab[ctx].state = CTX_INACTIVE;
+    }
+}
+
+static int
 pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
     int			i;		/* over pmidlist[] */
@@ -1417,6 +1505,10 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    pmSortInstances(&sortme);
 		}
 		break;
+
+	    case 7:	/* cputime metrics */
+		sts = fetch_cputime(pmidp->item, pmda->e_context, &atom);
+		break;
 	}
 
 	if (sts == 0 && valfmt == -1 && vset->numval == 1)
@@ -1627,13 +1719,14 @@ pmcd_init(pmdaInterface *dp)
  
     snprintf(helppath, sizeof(helppath), "%s%c" "pmcd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDSO(dp, PMDA_INTERFACE_2, "pmcd", helppath);
+    pmdaDSO(dp, PMDA_INTERFACE_5, "pmcd", helppath);
 
-    dp->version.two.profile = pmcd_profile;
-    dp->version.two.fetch = pmcd_fetch;
-    dp->version.two.desc = pmcd_desc;
-    dp->version.two.instance = pmcd_instance;
-    dp->version.two.store = pmcd_store;
+    dp->version.four.profile = pmcd_profile;
+    dp->version.four.fetch = pmcd_fetch;
+    dp->version.four.desc = pmcd_desc;
+    dp->version.four.instance = pmcd_instance;
+    dp->version.four.store = pmcd_store;
+    dp->version.four.ext->e_endCallBack = end_context;
 
     init_tables(dp->domain);
 
