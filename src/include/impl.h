@@ -587,7 +587,7 @@ EXTERN unsigned int *__pmPDUCntIn;
 EXTERN unsigned int *__pmPDUCntOut;
 extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 
-/* timeout ouptions for __pmGetPDU */
+/* timeout options for __pmGetPDU */
 #define TIMEOUT_NEVER	 0
 #define TIMEOUT_DEFAULT	-1
 #define GETPDU_ASYNC	-2

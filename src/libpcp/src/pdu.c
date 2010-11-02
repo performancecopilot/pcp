@@ -346,7 +346,7 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 		 *
 		 * failed as a result of pmcd exiting and the connection
 		 * being reset, or as a result of the kernel ripping
-		 * down the connection (most likely becuase the host at
+		 * down the connection (most likely because the host at
 		 * the other end just took a dive)
 		 *
 		 * from IRIX BDS kernel sources, seems like all of the
@@ -469,9 +469,9 @@ check_read_len:
     php->from = ntohl((unsigned int)php->from);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU) {
-	int		j;
+	int	j;
 	char	*p;
-	int		jend = (php->len+(int)sizeof(__pmPDU)-1)/(int)sizeof(__pmPDU);
+	int	jend = (php->len+(int)sizeof(__pmPDU)-1)/(int)sizeof(__pmPDU);
 
 	/* for Purify ... */
 	p = (char *)*result + php->len;

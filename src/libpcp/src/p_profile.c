@@ -64,7 +64,7 @@ __pmSendProfile(int fd, int from, int ctxnum, __pmProfile *instprof)
     pduProfile->hdr.len = (int)need;
     pduProfile->hdr.type = PDU_PROFILE;
     /* 
-     * note: context id may be send twice due to protocol evolution and
+     * note: context id may be sent twice due to protocol evolution and
      * backwards compatibility issues
      */
     pduProfile->hdr.from = from;

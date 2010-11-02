@@ -43,7 +43,7 @@ __pmSendFetch(int fd, int from, int ctxnum, __pmTimeval *when, int numpmid, pmID
     pp->hdr.len = (int)need;
     pp->hdr.type = PDU_FETCH;
     /* 
-     * note: context id may be send twice due to protocol evolution and
+     * note: context id may be sent twice due to protocol evolution and
      * backwards compatibility issues
      */
     pp->hdr.from = from;
