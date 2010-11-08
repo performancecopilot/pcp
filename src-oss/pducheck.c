@@ -140,10 +140,16 @@ _z(void)
     __pmLoggerStatus	*lsp;
     double		pi = M_PI;
     char		mytag[10];
+    /*
+     * use pid as "from" context for backwards compatibility to
+     * keep QA tests happy, rather than FROM_ANON which would be
+     * the more normal value for this usage.
+     */
+    pid_t		mypid = getpid();
 
 /* PDU_ERROR */
     for (i = -1; i < 2; i += 2) {
-	if ((e = __pmSendError(fd[1], FROM_ANON, i * PM_ERR_GENERIC)) < 0) {
+	if ((e = __pmSendError(fd[1], mypid, i * PM_ERR_GENERIC)) < 0) {
 	    fprintf(stderr, "Error: SendError: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -257,7 +263,7 @@ _z(void)
     i++;
     /* done with setup, do it! */
     rp->numpmid = i;
-    if ((e = __pmSendResult(fd[1], FROM_ANON, rp)) < 0) {
+    if ((e = __pmSendResult(fd[1], mypid, rp)) < 0) {
 	fprintf(stderr, "Error: SendResult: %s\n", pmErrStr(e));
 	exit(1);
     }
@@ -380,7 +386,7 @@ _z(void)
     idp[1].instances_len = 1 + (foorand() % n);
     idp[1].instances = &instlist[n - idp[1].instances_len];
     /* context no == 42 ... hack */
-    if ((e = __pmSendProfile(fd[1], FROM_ANON, 42, &curprof)) < 0) {
+    if ((e = __pmSendProfile(fd[1], mypid, 42, &curprof)) < 0) {
 	fprintf(stderr, "Error: SendProfile: %s\n", pmErrStr(e));
 	exit(1);
     }
@@ -452,7 +458,7 @@ _z(void)
     n = sizeof(pmidlist) / sizeof(pmidlist[0]);
     if (pass != 0)
 	n = 1 + (foorand() % n);
-    if ((e = __pmSendFetch(fd[1], FROM_ANON, 43, (__pmTimeval *)0, n, pmidlist)) < 0) {
+    if ((e = __pmSendFetch(fd[1], mypid, 43, (__pmTimeval *)0, n, pmidlist)) < 0) {
 	fprintf(stderr, "Error: SendFetch: %s\n", pmErrStr(e));
 	exit(1);
     }
@@ -494,7 +500,7 @@ _z(void)
     }
 
 /* PDU_DESC_REQ */
-    if ((e = __pmSendDescReq(fd[1], FROM_ANON, 0xdeadbeef)) < 0) {
+    if ((e = __pmSendDescReq(fd[1], mypid, 0xdeadbeef)) < 0) {
 	fprintf(stderr, "Error: SendDescReq: %s\n", pmErrStr(e));
 	exit(1);
     }
@@ -525,7 +531,7 @@ _z(void)
     }
 
 /* PDU_DESC */
-    if ((e = __pmSendDesc(fd[1], FROM_ANON, &desc)) < 0) {
+    if ((e = __pmSendDesc(fd[1], mypid, &desc)) < 0) {
 	fprintf(stderr, "Error: SendDesc: %s\n", pmErrStr(e));
 	exit(1);
     }
@@ -590,7 +596,7 @@ _z(void)
     now.tv_usec = 654321;		/* plus a gnat */
     for (i = 0; i < n; i++) {
 	__pmTimeval	tmp;
-	if ((e = __pmSendInstanceReq(fd[1], FROM_ANON, &now, 0xface, indomlist[i].inst, indomlist[i].name)) < 0) {
+	if ((e = __pmSendInstanceReq(fd[1], mypid, &now, 0xface, indomlist[i].inst, indomlist[i].name)) < 0) {
 	    fprintf(stderr, "Error: SendInstanceReq: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -658,7 +664,7 @@ _z(void)
 	    inres.namelist = NULL;
 	}
 	inresp = NULL;
-	if ((e = __pmSendInstance(fd[1], FROM_ANON, &inres)) < 0) {
+	if ((e = __pmSendInstance(fd[1], mypid, &inres)) < 0) {
 	    fprintf(stderr, "Error: SendInstance: %s\n", pmErrStr(e));
 	    exit(1);
 	}
@@ -707,7 +713,7 @@ _z(void)
     }
 
 /* PDU_TEXT_REQ */
-    if ((e = __pmSendTextReq(fd[1], FROM_ANON, 0x12341234, PM_TEXT_PMID|PM_TEXT_ONELINE)) < 0) {
+    if ((e = __pmSendTextReq(fd[1], mypid, 0x12341234, PM_TEXT_PMID|PM_TEXT_ONELINE)) < 0) {
 	fprintf(stderr, "Error: SendTextReq: %s\n", pmErrStr(e));
 	exit(1);
     }
@@ -742,7 +748,7 @@ _z(void)
 
 /* PDU_TEXT */
 #define MARY "mary had a little lamb\nits fleece was white as snow\n"
-    if ((e = __pmSendText(fd[1], FROM_ANON, 0x43214321, MARY)) < 0) {
+    if ((e = __pmSendText(fd[1], mypid, 0x43214321, MARY)) < 0) {
 	fprintf(stderr, "Error: SendText: %s\n", pmErrStr(e));
 	exit(1);
     }
@@ -799,7 +805,7 @@ _z(void)
 	fprintf(stderr, "1 = %x\n", *(unsigned int*)&(increds[1]));
     }
 #endif
-    if ((e = __pmSendCreds(fd[1], getpid(), 2, increds)) < 0) {
+    if ((e = __pmSendCreds(fd[1], mypid, 2, increds)) < 0) {
 	fprintf(stderr, "Error: SendCreds: %s\n", pmErrStr(e));
 	exit(1);
     }
@@ -845,9 +851,9 @@ _z(void)
 		    (outcreds[1].c_valb != (unsigned char)21) ||
 		    (outcreds[1].c_valc != (unsigned char)22))
 		    fprintf(stderr, "Botch: Creds: value mismatch (cred #1)\n");
-		if (standalone && sender != getpid())
+		if (standalone && sender != mypid)
 		    fprintf(stderr, "Botch: Creds: sender pid mismatch: got:%d expect:%d\n",
-			    sender, getpid());
+			    sender, mypid);
 		if (count != 2)
 		    fprintf(stderr, "Botch: Creds: PDU count: got:%d expect:%d\n", count, 2);
 		if (outcreds != NULL)
@@ -860,7 +866,7 @@ _z(void)
     n = sizeof(pmidlist) / sizeof(pmidlist[0]);
     if (pass != 0)
 	n = 1 + (foorand() % n);
-    if ((e = __pmSendIDList(fd[1], FROM_ANON, n, pmidlist, 43)) < 0) {
+    if ((e = __pmSendIDList(fd[1], mypid, n, pmidlist, 43)) < 0) {
 	fprintf(stderr, "Error: SendIDList: %s\n", pmErrStr(e));
 	exit(1);
     }
@@ -900,7 +906,7 @@ _z(void)
     n = sizeof(namelist) / sizeof(namelist[0]);
     if (pass != 0)
 	n = 1 + (foorand() % n);
-    if ((e = __pmSendNameList(fd[1], FROM_ANON, n, namelist, statlist)) < 0) {
+    if ((e = __pmSendNameList(fd[1], mypid, n, namelist, statlist)) < 0) {
 	fprintf(stderr, "Error: SendNameList: %s\n", pmErrStr(e));
 	exit(1);
     }
@@ -948,7 +954,7 @@ _z(void)
 	}
     }
     /* and again, with NULL statlist */
-    if ((e = __pmSendNameList(fd[1], FROM_ANON, n, namelist, NULL)) < 0) {
+    if ((e = __pmSendNameList(fd[1], mypid, n, namelist, NULL)) < 0) {
 	fprintf(stderr, "Error: SendNameList-2: %s\n", pmErrStr(e));
 	exit(1);
     }
@@ -995,7 +1001,7 @@ _z(void)
     }
 
 /* PDU_PMNS_CHILD */
-    if ((e = __pmSendChildReq(fd[1], FROM_ANON, "mumble.fumble", 1)) < 0) {
+    if ((e = __pmSendChildReq(fd[1], mypid, "mumble.fumble", 1)) < 0) {
 	fprintf(stderr, "Error: SendChildReq: %s\n", pmErrStr(e));
 	exit(1);
     }
@@ -1035,7 +1041,7 @@ _z(void)
     }
 
 /* PDU_PMNS_TRAVERSE */
-    if ((e = __pmSendTraversePMNSReq(fd[1], FROM_ANON, "foo.bar.snort")) < 0) {
+    if ((e = __pmSendTraversePMNSReq(fd[1], mypid, "foo.bar.snort")) < 0) {
 	fprintf(stderr, "Error: SendTraversePMNSReq: %s\n", pmErrStr(e));
 	exit(1);
     }

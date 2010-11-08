@@ -368,8 +368,8 @@ pdu-server: waiting ...
 008: 747e7e7e 
 
 pdu-server: waiting ...
-[SERVER]pmGetPDU: LOG_CONTROL fd=<n> len=68 from=CLIENT
-000:       44     8000   CLIENT        b        1      3e8        2     dead 
+[SERVER]pmGetPDU: LOG_CONTROL fd=<n> len=68 from=0
+000:       44     8000        0        b        1      3e8        2     dead 
 008: ffffffff     beef        3        2      929        4      d80        8 
 016:     11d7 
 + PDU_LOG_CONTROL: control=11 state=1 rate=1000
@@ -386,13 +386,13 @@ pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
     inst [4 or ???] value 3456 0 0xd80
     inst [8 or ???] value 4567 0 0x11d7
 [SERVER]pmXmitPDU: LOG_CONTROL fd=<n> len=68
-000:       44     8000   SERVER        b        1      3e8        2     dead 
+000:       44     8000        0        b        1      3e8        2     dead 
 008: ffffffff     beef        3        2      929        4      d80        8 
 016:     11d7 
 
 pdu-server: waiting ...
-[SERVER]pmGetPDU: LOG_CONTROL fd=<n> len=68 from=CLIENT
-000:       44     8000   CLIENT        b        1      3e8        2     dead 
+[SERVER]pmGetPDU: LOG_CONTROL fd=<n> len=68 from=0
+000:       44     8000        0        b        1      3e8        2     dead 
 008:        0     beef        3        2      929        4      d80        8 
 016:     11d7 
 + PDU_LOG_CONTROL: control=11 state=1 rate=1000
@@ -409,13 +409,13 @@ pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
     inst [4 or ???] value 3456 0 0xd80
     inst [8 or ???] value 4567 0 0x11d7
 [SERVER]pmXmitPDU: LOG_CONTROL fd=<n> len=68
-000:       44     8000   SERVER        b        1      3e8        2     dead 
+000:       44     8000        0        b        1      3e8        2     dead 
 008:        0     beef        3        2      929        4      d80        8 
 016:     11d7 
 
 pdu-server: waiting ...
-[SERVER]pmGetPDU: LOG_CONTROL fd=<n> len=76 from=CLIENT
-000:       4c     8000   CLIENT        b        1      3e8        2     dead 
+[SERVER]pmGetPDU: LOG_CONTROL fd=<n> len=76 from=0
+000:       4c     8000        0        b        1      3e8        2     dead 
 008:        1 ffffffff      4d2     beef        3        2      929        4 
 016:      d80        8     11d7 
 + PDU_LOG_CONTROL: control=11 state=1 rate=1000
@@ -434,13 +434,13 @@ pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
     inst [4 or ???] value 3456 0 0xd80
     inst [8 or ???] value 4567 0 0x11d7
 [SERVER]pmXmitPDU: LOG_CONTROL fd=<n> len=76
-000:       4c     8000   SERVER        b        1      3e8        2     dead 
+000:       4c     8000        0        b        1      3e8        2     dead 
 008:        1 ffffffff      4d2     beef        3        2      929        4 
 016:      d80        8     11d7 
 
 pdu-server: waiting ...
-[SERVER]pmGetPDU: LOG_STATUS fd=<n> len=264 from=CLIENT
-000:      108     8001   CLIENT ?? pad ?     b6d0     3039     b6da     5ba0 
+[SERVER]pmGetPDU: LOG_STATUS fd=<n> len=264 from=0
+000:      108     8001        0 ?? pad ?     b6d0     3039     b6da     5ba0 
 008:     b6e4     8707        1        1        0      800 666f6f00        0 
 016:        0        0        0        0        0        0        0        0 
 024:        0        0        0        0        0        0 666f6f2e 6261722e 
@@ -455,7 +455,7 @@ last=46810.023456 13:00:10.023 now=46820.034567 13:00:20.034
 state=1 vol=1 size=2048 host=foo tz="TZ-THERE" tzlogger="TZ-HERE"
 __pmSendLogStatus: sending PDU (toversion=2)
 [SERVER]pmXmitPDU: LOG_STATUS fd=<n> len=264
-000:      108     8001   SERVER ?? pad ?     b6d0     3039     b6da     5ba0 
+000:      108     8001        0 ?? pad ?     b6d0     3039     b6da     5ba0 
 008:     b6e4     8707        1        1        0      800 666f6f00        0 
 016:        0        0        0        0        0        0        0        0 
 024:        0        0        0        0        0        0 666f6f2e 6261722e 
@@ -466,13 +466,13 @@ __pmSendLogStatus: sending PDU (toversion=2)
 064:        0        0 
 
 pdu-server: waiting ...
-[SERVER]pmGetPDU: LOG_REQUEST fd=<n> len=16 from=CLIENT
-000:       10     8002   CLIENT        3 
+[SERVER]pmGetPDU: LOG_REQUEST fd=<n> len=16 from=0
+000:       10     8002        0        3 
 __pmDecodeLogRequest: got PDU (type=3, version=2)
 + PDU_LOG_REQUEST: request=sync
 _pmSendRequest: sending PDU (type=3, version=2)
 [SERVER]pmXmitPDU: LOG_REQUEST fd=<n> len=16
-000:       10     8002   SERVER        3 
+000:       10     8002        0        3 
 
 pdu-server: waiting ...
 [SERVER]pmGetPDU: TYPE-28752? fd=<n> len=16 from=CLIENT

@@ -17,6 +17,8 @@ signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+rm -f $seq.full
+
 # real QA test starts here
 $signal -a -s KILL pdu-server >/dev/null 2>&1
 sleep 1
@@ -40,11 +42,18 @@ sleep 1
 
 $signal -s TERM $server_pid
 
+cp $tmp.out $seq.full
+
 eval `sed -n <$tmp.out -e '/MYPID/{
 s/.*MYPID /server=/
 s/ / server_x=/p
 q
 }'`
+
+echo >>$seq.full
+echo "================" >>$seq.full
+echo "server=$server" >>$seq.full
+echo "server_x=$server_x" >>$seq.full
 
 if [ -z "$server" -o -z "$server_x" ]
 then
@@ -58,15 +67,15 @@ s/.*CLIENTPID /client=/
 s/ / client_x=/p
 q
 }'`
+echo "client=$client" >>$seq.full
+echo "client_x=$client_x" >>$seq.full
 
-if [ -z "$client" -o -z "$client" ]
+if [ -z "$client" -o -z "$client_x" ]
 then
     cat $tmp.out
     echo "Error: arrgh, cannot get client PID from output ..."
     exit
 fi
-
-cp $tmp.out $seq.raw
 
 sed <$tmp.out \
     -e '/MYPID/d' \
@@ -131,9 +140,9 @@ s/80030201 fb210940 182d4454 7e7e0062/ 1020380 400921fb 54442d18 62007e7e/
 s/cefa0000 c04b0300 f1fb0900/    face    34bc0    9fbf1/
 s/ 2000000  b0a0201 16151402/       2  1020a0b  2141516/
 s/34123412  5000000/12341234        5/
-s/    8001   CLIENT ......../    8001   CLIENT ?? pad ?/
-s/    8001   SERVER ......../    8001   SERVER ?? pad ?/
-s/    8002   CLIENT  3000000/    8002   CLIENT        3/
+s/    8001        0 ......../    8001        0 ?? pad ?/
+s/    8001        0 ......../    8001        0 ?? pad ?/
+s/    8002        0  3000000/    8002        0        3/
 s/SERVER  3000000/SERVER        3/
 s/CLIENT 41000000/CLIENT       41/
 s/SERVER 39300000/SERVER     3039/

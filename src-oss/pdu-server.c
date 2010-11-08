@@ -27,6 +27,13 @@ typedef struct {		/* from src/libpcp/src/p_pmns.c */
     pmID        idlist[1];
 } idlist_t;
 
+/*
+ * use pid as "from" context for backwards compatibility to
+ * keep QA tests happy, rather than FROM_ANON which would be
+ * the more normal value for this usage.
+ */
+static pid_t		mypid;
+
 static int
 decode_encode(int fd, __pmPDU *pb, int type)
 {
@@ -77,7 +84,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    if (pmDebug & DBG_TRACE_APPL0)
 		fprintf(stderr, "+ PDU_ERROR: code=%d\n", code);
 #endif
-	    if ((e = __pmSendError(fd, FROM_ANON, code)) < 0) {
+	    if ((e = __pmSendError(fd, mypid, code)) < 0) {
 		fprintf(stderr, "%s: Error: SendError: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -95,7 +102,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		__pmDumpResult(stderr, rp);
 	    }
 #endif
-	    e = __pmSendResult(fd, FROM_ANON, rp);
+	    e = __pmSendResult(fd, mypid, rp);
 	    pmFreeResult(rp);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendResult: %s\n", pmProgname, pmErrStr(e));
@@ -115,7 +122,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		__pmDumpProfile(stderr, PM_INDOM_NULL, profp);
 	    }
 #endif
-	    e = __pmSendProfile(fd, FROM_ANON, ctxnum, profp);
+	    e = __pmSendProfile(fd, mypid, ctxnum, profp);
 	    free(profp->profile);
 	    free(profp);
 	    if (e < 0) {
@@ -145,7 +152,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fputc('\n', stderr);
 	    }
 #endif
-	    e = __pmSendFetch(fd, FROM_ANON, ctxnum, &now, numpmid, pmidp);
+	    e = __pmSendFetch(fd, mypid, ctxnum, &now, numpmid, pmidp);
 	    __pmUnpinPDUBuf(pmidp);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendFetch: %s\n", pmProgname, pmErrStr(e));
@@ -163,7 +170,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    if (pmDebug & DBG_TRACE_APPL0)
 		fprintf(stderr, "+ PDU_DESC_REQ: pmid=%s\n", pmIDStr(pmid));
 #endif
-	    if ((e = __pmSendDescReq(fd, FROM_ANON, pmid)) < 0) {
+	    if ((e = __pmSendDescReq(fd, mypid, pmid)) < 0) {
 		fprintf(stderr, "%s: Error: SendDescReq: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -181,7 +188,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		__pmPrintDesc(stderr, &desc);
 	    }
 #endif
-	    if ((e = __pmSendDesc(fd, FROM_ANON, &desc)) < 0) {
+	    if ((e = __pmSendDesc(fd, mypid, &desc)) < 0) {
 		fprintf(stderr, "%s: Error: SendDesc: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -212,7 +219,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    fprintf(stderr, " name=\"%s\"\n", name);
 	    }
 #endif
-	    if ((e = __pmSendInstanceReq(fd, FROM_ANON, &now, indom, inst, name)) < 0) {
+	    if ((e = __pmSendInstanceReq(fd, mypid, &now, indom, inst, name)) < 0) {
 		fprintf(stderr, "%s: Error: SendInstanceReq: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -230,7 +237,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		__pmDumpInResult(stderr, inres);
 	    }
 #endif
-	    e = __pmSendInstance(fd, FROM_ANON, inres);
+	    e = __pmSendInstance(fd, mypid, inres);
 	    __pmFreeInResult(inres);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendInstance: %s\n", pmProgname, pmErrStr(e));
@@ -254,7 +261,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, " txtype=%d\n", txtype);
 	    }
 #endif
-	    if ((e = __pmSendTextReq(fd, FROM_ANON, ident, txtype)) < 0) {
+	    if ((e = __pmSendTextReq(fd, mypid, ident, txtype)) < 0) {
 		fprintf(stderr, "%s: Error: SendTextReq: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -283,7 +290,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		buffer[len - 1] = c;
 	    }
 #endif
-	    if ((e = __pmSendText(fd, FROM_ANON, ident, buffer)) < 0) {
+	    if ((e = __pmSendText(fd, mypid, ident, buffer)) < 0) {
 		fprintf(stderr, "%s: Error: SendText: %s\n", pmProgname, pmErrStr(e));
 		free(buffer);
 		break;
@@ -309,7 +316,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		}
 	    }
 #endif
-	    if ((e = __pmSendCreds(fd, FROM_ANON, count, creds)) < 0) {
+	    if ((e = __pmSendCreds(fd, mypid, count, creds)) < 0) {
 		fprintf(stderr, "%s: Error: SendCreds: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -339,7 +346,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		__pmDumpIDList(stderr, numpmid, pmidlist);
 	    }
 #endif
-	    e = __pmSendIDList(fd, FROM_ANON, numpmid, pmidlist, code);
+	    e = __pmSendIDList(fd, mypid, numpmid, pmidlist, code);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendIDList: %s\n", pmProgname, pmErrStr(e));
 		break;
@@ -361,7 +368,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    __pmDumpStatusList(stderr, numlist, statlist);
 	    }
 #endif
-	    e = __pmSendNameList(fd, FROM_ANON, numlist, namelist, statlist);
+	    e = __pmSendNameList(fd, mypid, numlist, namelist, statlist);
 	    if (namelist != NULL)
 		free(namelist);
 	    if (statlist != NULL)
@@ -383,7 +390,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "+ PDU_PMNS_CHILD: name=\"%s\" code=%d\n", name, code);
 	    }
 #endif
-	    e = __pmSendChildReq(fd, FROM_ANON, name, code);
+	    e = __pmSendChildReq(fd, mypid, name, code);
 	    if (name != NULL)
 		free(name);
 	    if (e < 0) {
@@ -403,7 +410,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "+ PDU_PMNS_TRAVERSE: name=\"%s\"\n", name);
 	    }
 #endif
-	    e = __pmSendTraversePMNSReq(fd, FROM_ANON, name);
+	    e = __pmSendTraversePMNSReq(fd, mypid, name);
 	    if (name != NULL)
 		free(name);
 	    if (e < 0) {
@@ -541,7 +548,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	default:
-	    if ((e = __pmSendError(fd, FROM_ANON, PM_ERR_NYI)) < 0) {
+	    if ((e = __pmSendError(fd, mypid, PM_ERR_NYI)) < 0) {
 		fprintf(stderr, "%s: Error: SendError: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -573,6 +580,7 @@ main(int argc, char *argv[])
     __pmPDUHdr	*php;
 
     __pmSetProgname(argv[0]);
+    mypid = getpid();
 
     while ((c = getopt(argc, argv, "D:p:rZ:?")) != EOF) {
 	switch (c) {
@@ -648,7 +656,7 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-    fprintf(stderr, "%s: MYPID %d %x\n", pmProgname, getpid(), getpid());
+    fprintf(stderr, "%s: MYPID %d %x\n", pmProgname, mypid, mypid);
 
     for ( ; ; ) {
 
