@@ -388,9 +388,18 @@ then
     $verbose && printf "%68s\r" " "
 fi
 
+torun=`echo $list | wc -w | sed -e 's/ //g'`
+haverun=0
+
 for seq in $list
 do
     err=false
+    if [ $torun -gt 9 ]
+    then
+	pct=`expr 100 \* $haverun / $torun`
+	haverun=`expr $haverun + 1`
+	echo -n "[$pct%] "
+    fi
     echo -n "$seq"
     if $showme
     then
