@@ -186,7 +186,7 @@ main(int argc, char **argv)
 	    *myprompt++ = '\0';
 	}
 	else
-	    myprompt = prompt;
+	    myprompt = NULL;
 	mypasswd = strchr(p, '?');
 	if (mypasswd) {
 	    /* save user-level password for later */
@@ -298,7 +298,7 @@ main(int argc, char **argv)
 		if (myusername != NULL) {
 		    if (strcmp(cisco[i].username, myusername) != 0) {
 			fprintf(stderr, 
-				"%s: conflicting usernames\n(\"%s\" "
+				"%s: conflicting usernames (\"%s\" "
 				"and \"%s\") for cisco \"%s\"\n",
 				pmProgname, cisco[i].username, myusername, 
 				cisco[i].host);
@@ -315,7 +315,7 @@ main(int argc, char **argv)
 		if (mypasswd != NULL) {
 		    if (strcmp(cisco[i].passwd, mypasswd) != 0) {
 			fprintf(stderr, 
-				"%s: conflicting user-level passwords\n(\"%s\" "
+				"%s: conflicting user-level passwords (\"%s\" "
 				"and \"%s\") for cisco \"%s\"\n",
 				pmProgname, cisco[i].passwd, mypasswd, 
 				cisco[i].host);
@@ -332,7 +332,7 @@ main(int argc, char **argv)
 		if (myprompt != NULL) {
 		    if (strcmp(cisco[i].prompt, myprompt) != 0) {
 			fprintf(stderr, 
-				"%s: conflicting user-level prompts\n(\"%s\" "
+				"%s: conflicting user-level prompts (\"%s\" "
 				"and \"%s\") for cisco \"%s\"\n",
 				pmProgname, cisco[i].prompt, myprompt, 
 				cisco[i].host);

@@ -249,9 +249,17 @@ but executes outside the control of any
 .BR pmcd (1)
 and so may be used to diagnose problems with handling a particular
 Cisco router and/or one of its interfaces.
+.PP
 Additional diagnostic verbosity may be produced using the
 .B "\-D appl0,appl1,appl2"
 command line option.
+.B appl0
+logs connect and disconnect events, login progress, high-level
+flow of control and extracted statistics.
+.B appl1
+traces all commands sent to the Cisco device.
+.B appl2
+logs tokenizing and parsing of the output from the Cisco device.
 Diagnostics are generated on standard error as each sample is fetched
 and parsed.
 .SH INSTALLATION

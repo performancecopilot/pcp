@@ -95,6 +95,7 @@ mygetwd(FILE *f, char *prompt)
     int		c;
     static char	buf[1024];
     int		len_prompt = strlen(prompt);
+    int		found_prompt = 0;
 
     p = buf;
 
@@ -105,8 +106,10 @@ mygetwd(FILE *f, char *prompt)
 	    break;
 	}
         *p++ = c;
-	if (p-buf >= len_prompt && strncmp(&p[-len_prompt], prompt, len_prompt) == 0)
+	if (p-buf >= len_prompt && strncmp(&p[-len_prompt], prompt, len_prompt) == 0) {
+	    found_prompt = 1;
 	    break;
+	}
     }
     *p = '\0';
 
@@ -120,7 +123,7 @@ mygetwd(FILE *f, char *prompt)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL2)
-	fprintf(stderr, "mygetwd: fd=%d wd=\"%s\"\n", fileno(f), buf);
+	fprintf(stderr, "mygetwd: fd=%d wd=\"%s\"%s\n", fileno(f), buf, found_prompt ? " [prompt]" : "");
 #endif
 
     return buf;
@@ -204,6 +207,11 @@ dousername(cisco_t *cp, char **pw_prompt)
 	    fprintf(stderr, "Username:? got - %s\n", w);
 #endif
 	if (strcmp(w, USERPROMPT) == 0) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL1) {
+		fprintf(stderr, "Send username: %s\n", cp->username);
+	    }
+#endif
 	    fprintf(cp->fout, "%s\n", cp->username);
 	    fflush(cp->fout);
 	    for ( ; ; ) {
@@ -262,6 +270,11 @@ dopasswd(cisco_t *cp, char *pw_prompt)
 	    fprintf(stderr, "Password:? got - %s\n", w);
 #endif
 	if (strcmp(w, PWPROMPT) == 0) {
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_APPL1) {
+		    fprintf(stderr, "Send passwd: %s\n", cp->passwd);
+		}
+#endif
 	    fprintf(cp->fout, "%s\n", cp->passwd);
 	    fflush(cp->fout);
 	    for ( ; ; ) {
@@ -316,6 +329,11 @@ get_fr_bw(cisco_t *cp, char *interface)
     char	*w;
     int		len_prompt = strlen(cp->prompt);
 
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL1) {
+	fprintf(stderr, "Send: s%s\n", interface);
+    }
+#endif
     fprintf(cp->fout, "show int s%s\n", interface);
     fflush(cp->fout);
 #ifdef PCP_DEBUG
@@ -435,7 +453,7 @@ grab_cisco(intf_t *ip)
 		if (dousername(cp, &pw_prompt) == 0) {
 		    fclose(cp->fin);
 		    fclose(cp->fout);
-		    cp->fin = NULL;
+		    cp->fin = cp->fout = NULL;
 		    return -1;
 		}
 	    }
@@ -446,21 +464,36 @@ grab_cisco(intf_t *ip)
 		if (dopasswd(cp, pw_prompt) == 0) {
 		    fclose(cp->fin);
 		    fclose(cp->fout);
-		    cp->fin = NULL;
+		    cp->fin = cp->fout = NULL;
 		    return -1;
 		}
 	    }
-
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL1) {
+		fprintf(stderr, "Send: \n");
+	    }
+#endif
 	    fprintf(cp->fout, "\n");
 	    fflush(cp->fout);
 	}
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL1) {
+	    fprintf(stderr, "Send: terminal length 0\n");
+	}
+#endif
 	fprintf(cp->fout, "terminal length 0\n");
 	fflush(cp->fout);
     }
 
     timeout = 0;
     signal(SIGALRM, onalarm);
-    alarm(5);
+    /*
+     * Choice of timeout here is somewhat arbitrary ... for a long
+     * time this was 5 (seconds), but then testing with an entry
+     * level Model 800 ADSL router revealed that up to 20 seconds
+     * was required to generate the expected output.
+     */
+    alarm(20);
 
     style = SHOW_INT;			/* default Cisco command */
     if (ip->interface[0] == 's' && strchr(ip->interface, '.') != NULL) {
@@ -480,21 +513,36 @@ grab_cisco(intf_t *ip)
 	    nval++;
     }
     if (style == SHOW_FRAME) {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL1) {
+	    fprintf(stderr, "Send: show frame pvc int s%s\n", &ip->interface[1]);
+	}
+#endif
 	fprintf(cp->fout, "show frame pvc int s%s\n", &ip->interface[1]);
 	next_state = BYTES_IN;
     }
-    else
+    else {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL1) {
+	    fprintf(stderr, "Send: show int %s\n", ip->interface);
+	}
+#endif
 	fprintf(cp->fout, "show int %s\n", ip->interface);
+    }
     fflush(cp->fout);
     state = NOISE;
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebug & DBG_TRACE_APPL2) {
 	fprintf(stderr, "Parse:");
+	fflush(stderr);
+    }
 #endif
     while (state != DONE) {
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebug & DBG_TRACE_APPL2) {
 	    fprintf(stderr, "[%s] ", statestr[state+1]);
+	    fflush(stderr);
+	}
 #endif
 	w = mygetwd(cp->fin, cp->prompt);
 	if (w == NULL || timeout) {
@@ -509,7 +557,7 @@ grab_cisco(intf_t *ip)
 #endif
 	    fclose(cp->fin);
 	    fclose(cp->fout);
-	    cp->fin = NULL;
+	    cp->fin = cp->fout = NULL;
 	    alarm(0);
 	    return -1;
 	}

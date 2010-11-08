@@ -34,9 +34,6 @@
 #include <errno.h>
 #include "./cisco.h"
 
-static FILE	*fin;
-static FILE	*fout;
-
 int		port = 23;
 int		seen_fr = 0;
 char		*prompt = ">";		/* unique suffix to IOS prompt */
@@ -120,8 +117,8 @@ probe_cisco(cisco_t * cp)
 	    return;
 	}
 	else {
-	    fin = fdopen (fd, "r");
-	    fout = fdopen (dup(fd), "w");
+	    cp->fin = fdopen (fd, "r");
+	    cp->fout = fdopen (dup(fd), "w");
 	    if (cp->username != NULL) {
 		/*
 		 * Username stuff ...
@@ -139,13 +136,24 @@ probe_cisco(cisco_t * cp)
 		}
 	    }
 	}
-	fprintf(fout, "\n");
-	fflush(fout);
-	fprintf(fout, "terminal length 0\n");
-	fflush(fout);
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL1) {
+	    fprintf(stderr, "Send: \n");
+	    fprintf(stderr, "Send: terminal length 0\n");
+	}
+#endif
+	fprintf(cp->fout, "\n");
+	fflush(cp->fout);
+	fprintf(cp->fout, "terminal length 0\n");
+	fflush(cp->fout);
 
-	fprintf(fout, "show int\n");
-	fflush(fout);
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL1) {
+	    fprintf(stderr, "Send: show int\n");
+	}
+#endif
+	fprintf(cp->fout, "show int\n");
+	fflush(cp->fout);
 
     }
     else {
@@ -153,12 +161,11 @@ probe_cisco(cisco_t * cp)
 	 * parsing text from a file, not a TCP/IP connection to a
 	 * Cisco device
 	 */
-	fin = cp->fin;
-	fout = cp->fout;
+	;
     }
 
     for ( ; ; ) {
-	w = mygetfirstwd(fin);
+	w = mygetfirstwd(cp->fin);
 	if (defer) {
 	    if (seen_fr) {
 		if (first)
@@ -175,7 +182,7 @@ probe_cisco(cisco_t * cp)
 	     * End of File (telenet timeout?)
 	     */
 	    fprintf(stderr, "grab_cisco(%s): forced disconnect fin=%d\n",
-		cp->host, fileno(fin));
+		cp->host, fileno(cp->fin));
 	    return;
 	}
 	if (*w == '\0')
@@ -238,8 +245,13 @@ probe_cisco(cisco_t * cp)
     putchar('\n');
 
     /* close CISCO telnet session */
-    fprintf(fout, "exit\n");
-    fflush(fout);
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL1) {
+	fprintf(stderr, "Send: exit\n");
+    }
+#endif
+    fprintf(cp->fout, "exit\n");
+    fflush(cp->fout);
 
     return;
 }
@@ -301,7 +313,7 @@ main(int argc, char **argv)
 	fprintf(stderr, "Usage: %s [-U username] [-P passwd] [-s prompt] [-x port] host\n\n", pmProgname);
 	exit(1);
     }
-	    
+
     if ((hostInfo = gethostbyname(argv[optind])) == NULL) {
 	FILE	*f;
 	if ((f = fopen(argv[optind], "r")) == NULL) {
@@ -320,6 +332,7 @@ main(int argc, char **argv)
 	    c.passwd = NULL;
 	    c.fin = f;
 	    c.fout = fopen("/dev/null", "w");
+	    c.prompt = prompt;
 
 	    probe_cisco(&c);
 	}
@@ -332,6 +345,7 @@ main(int argc, char **argv)
 	c.passwd = passwd;
 	c.fin = NULL;
 	c.fout = NULL;
+	c.prompt = prompt;
 
 	memset(sinp, 0, sizeof(c.ipaddr));
 	sinp->sin_family = AF_INET;

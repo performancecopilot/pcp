@@ -65,6 +65,10 @@ A username and/or user-level password may be required for the Cisco
     and if the prompt "Username:" appears, then a username is required,
     and if the prompt "Password:" appears, a user-level password is required,
     otherwise respond with an empty line for the next two questions.
+    Once logged in, we need to know the termination string for the command
+    line prompt (one or more unique characters at the end of the prompt) -
+    the default is ">", but if this is not correct, enter the prompt
+    termination string also.
 '
 	    $PCP_ECHO_PROG $PCP_ECHO_N "Cisco username? ""$PCP_ECHO_C"
 	    read username
@@ -74,14 +78,10 @@ A username and/or user-level password may be required for the Cisco
 	    read passwd
 	    passarg=""
 	    [ "X$passwd" != X ] && passarg="-P$passwd"
-	    $PCP_ECHO_PROG $PCP_ECHO_N "Cisco prompt? [>] ""$PCP_ECHO_C"
+	    $PCP_ECHO_PROG $PCP_ECHO_N "Cisco command line prompt termination? [>] ""$PCP_ECHO_C"
 	    read prompt
 	    promptarg=""
-	    if [ "X$prompt" != X ]
-	    then
-		promptarg="-s'$prompt'"
-		args="$args -s$prompt"
-	    fi
+	    [ "X$prompt" != X ] && promptarg="-s'$prompt'"
 	    echo "Probing Cisco for list of interfaces ..."
 	    for try in 1 2 3
 	    do
@@ -116,6 +116,7 @@ interfaces for this Cisco.
 	    login="@$username"
 	fi
 	[ ! -z "$passwd" ] && login="$login?$passwd"
+	[ ! -z "$prompt" ] && login="$login!$prompt"
 
 	echo '
 Enter interfaces to monitor, one per line in the format tX where "t" is
