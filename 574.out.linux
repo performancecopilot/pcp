@@ -9,6 +9,7 @@ children of "pmcd" ...
     build               <s = 0>
     client              <s = 1>
     control             <s = 1>
+    cputime             <s = 1>
     datasize            <s = 0>
     license             <s = 0>
     numagents           <s = 0>
