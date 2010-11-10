@@ -102,12 +102,12 @@ probe_cisco(cisco_t * cp)
     int		fd;
     int		first = 1;
     char	*pass = NULL;
-    int		defer;
+    int		defer = 0;
     int		state = PREAMBLE;
     int		i;
     int		namelen;
-    char	*ctype;
-    char	*name;
+    char	*ctype = NULL;
+    char	*name = NULL;
 
     if (cp->fin == NULL) {
 	fd = conn_cisco(cp);
@@ -166,7 +166,7 @@ probe_cisco(cisco_t * cp)
 
     for ( ; ; ) {
 	w = mygetfirstwd(cp->fin);
-	if (defer) {
+	if (defer && ctype != NULL && name != NULL) {
 	    if (seen_fr) {
 		if (first)
 		    first = 0;
@@ -174,6 +174,7 @@ probe_cisco(cisco_t * cp)
 		    putchar(' ');
 		printf("%s%s", ctype, name);
 		free(name);
+		name = NULL;
 	    }
 	}
 	defer = 0;
@@ -232,13 +233,14 @@ probe_cisco(cisco_t * cp)
 	    }
 	    if (i == num_intf_tab)
 		fprintf(stderr, "%s: Warning, unknown interface: %s\n", pmProgname, w);
-	    if (ctype != NULL && !defer) {
+	    if (ctype != NULL && name != NULL && !defer) {
 		if (first)
 		    first = 0;
 		else
 		    putchar(' ');
 		printf("%s%s", ctype, name);
 		free(name);
+		name = NULL;
 	    }
 	}
     }
