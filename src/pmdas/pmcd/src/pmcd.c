@@ -1391,7 +1391,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.cp = "";
 			    break;
 			case 1:		/* client.start_date */
-			    atom.cp = ctime_r(&client[j].start, ctim);
+			    atom.cp = strcpy(ctim, ctime(&client[j].start));
 			    /* trim trailing \n */
 			    k = strlen(atom.cp);
 			    atom.cp[k-1] = '\0';
