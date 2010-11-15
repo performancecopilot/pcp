@@ -265,7 +265,7 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
     if (pmDebug & DBG_TRACE_PDU) {
 	int	j;
 	char	*p;
-	int	jend = (php->len+(int)sizeof(__pmPDU)-1)/(int)sizeof(__pmPDU);
+	int	jend = PM_PDU_SIZE(php->len);
 
 	/* for Purify ... */
 	p = (char *)pdubuf + php->len;
@@ -471,7 +471,7 @@ check_read_len:
     if (pmDebug & DBG_TRACE_PDU) {
 	int	j;
 	char	*p;
-	int	jend = (php->len+(int)sizeof(__pmPDU)-1)/(int)sizeof(__pmPDU);
+	int	jend = PM_PDU_SIZE(php->len);
 
 	/* for Purify ... */
 	p = (char *)*result + php->len;

@@ -84,7 +84,7 @@ __pmSendText(int fd, int ctx, int ident, const char *buffer)
     text_t	*pp;
     size_t	need;
 
-    need = sizeof(text_t) - sizeof(pp->buffer) + sizeof(__pmPDU)*((strlen(buffer) - 1 + sizeof(__pmPDU))/sizeof(__pmPDU));
+    need = sizeof(text_t) - sizeof(pp->buffer) + PM_PDU_SIZE_BYTES(strlen(buffer));
     if ((pp = (text_t *)__pmFindPDUBuf((int)need)) == NULL)
 	return -errno;
     pp->hdr.len = (int)need;

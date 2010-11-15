@@ -110,8 +110,6 @@ __pmDecodeIDList(__pmPDU *pdubuf, int numids, pmID idlist[], int *sts)
  * PDU for name list (PDU_PMNS_NAMES)
  */
 
-#define NAME_ALLOC(len) (sizeof(__pmPDU) * (((len)-1 + sizeof(__pmPDU))/sizeof(__pmPDU)))
-
 typedef struct {
     int namelen;
     char name[sizeof(__pmPDU)]; /* variable length */
@@ -217,7 +215,7 @@ __pmSendNameList(int fd, int from, int numnames, char *namelist[],
 	int len = (int)strlen(namelist[i]);
         nstrbytes += len+1;
         if (namelist != NULL)
-	    need += NAME_ALLOC(len);
+	    need += PM_PDU_SIZE_BYTES(len);
 	if (statuslist == NULL) 
             need += sizeof(*nt) - sizeof(nt->name);
 	else 
@@ -248,7 +246,7 @@ __pmSendNameList(int fd, int from, int numnames, char *namelist[],
 		    *padp++ = '~';	/* buffer end */
 	    }
 #endif
-	    j += sizeof(namelen) + NAME_ALLOC(namelen);
+	    j += sizeof(namelen) + PM_PDU_SIZE_BYTES(namelen);
 	    nt->namelen = htonl(namelen);
 	}
     }
@@ -270,7 +268,7 @@ __pmSendNameList(int fd, int from, int numnames, char *namelist[],
 	    }
 #endif
 	    j += sizeof(nst->status) + sizeof(namelen) +
-	         NAME_ALLOC(namelen);
+	         PM_PDU_SIZE_BYTES(namelen);
 	    nst->namelen = htonl(namelen);
 	}
     }
@@ -333,7 +331,7 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
 	    *(dest + namelen) = '\0';
 	    dest += namelen + 1; 
 
-	    j += sizeof(namelen) + NAME_ALLOC(namelen);
+	    j += sizeof(namelen) + PM_PDU_SIZE_BYTES(namelen);
 	}
     }
     else { /* include the status fields */
@@ -352,7 +350,7 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
 	    *(dest + namelen) = '\0';
 	    dest += namelen + 1; 
 
-	    j += sizeof(np->status) + sizeof(namelen) + NAME_ALLOC(namelen);
+	    j += sizeof(np->status) + sizeof(namelen) + PM_PDU_SIZE_BYTES(namelen);
 	}
     }
 

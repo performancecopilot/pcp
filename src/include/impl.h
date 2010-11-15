@@ -558,6 +558,14 @@ typedef struct {
 } __pmPDUHdr;
 
 typedef __uint32_t	__pmPDU;
+/*
+ * round a size up to the next multiple of a __pmPDU size
+ *
+ * PM_PDU_SIZE is in units of __pmPDU size
+ * PM_PDU_SIZE_BYTES is in units of bytes
+ */
+#define PM_PDU_SIZE(x) (((x)+sizeof(__pmPDU)-1)/sizeof(__pmPDU))
+#define PM_PDU_SIZE_BYTES(x) (sizeof(__pmPDU)*PM_PDU_SIZE(x))
 
 /* Individual credential PDU elements look like this */
 typedef struct {

@@ -57,7 +57,7 @@ do_size(pmResult *rp)
 		if (vsp->valfmt != PM_VAL_INSITU)
 							/* + pmValueBlock */
 							/* rounded up */
-		    nbyte += sizeof(__pmPDU)*((vsp->vlist[j].value.pval->vlen - 1 + sizeof(__pmPDU))/sizeof(__pmPDU));
+		    nbyte += PM_PDU_SIZE_BYTES(vsp->vlist[j].value.pval->vlen);
 	    }
 	}
     }

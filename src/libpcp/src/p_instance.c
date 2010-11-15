@@ -41,7 +41,7 @@ __pmSendInstanceReq(int fd, int from, const __pmTimeval *when, pmInDom indom,
 
     need = sizeof(instance_req_t) - sizeof(int);
     if (name != NULL)
-	need += sizeof(__pmPDU)*((strlen(name) - 1 + sizeof(__pmPDU))/sizeof(__pmPDU));
+	need += PM_PDU_SIZE_BYTES(strlen(name));
     if ((pp = (instance_req_t *)__pmFindPDUBuf(sizeof(need))) == NULL)
 	return -errno;
     pp->hdr.len = need;
@@ -130,7 +130,7 @@ __pmSendInstance(int fd, int from, __pmInResult *result)
     for (i = 0; i < result->numinst; i++) {
 	need += sizeof(*ip) - sizeof(ip->name);
 	if (result->namelist != NULL)
-	    need += sizeof(__pmPDU)*((strlen(result->namelist[i]) - 1 + sizeof(__pmPDU))/sizeof(__pmPDU));
+	    need += PM_PDU_SIZE_BYTES(strlen(result->namelist[i]));
     }
 
     if ((rp = (instance_t *)__pmFindPDUBuf(need)) == NULL)
@@ -160,8 +160,7 @@ __pmSendInstance(int fd, int from, __pmInResult *result)
 		    *padp++ = '~';	/* buffer end */
 	    }
 #endif
-	    j += sizeof(*ip) - sizeof(ip->name) +
-		sizeof(__pmPDU)*((ip->namelen - 1 + sizeof(__pmPDU))/sizeof(__pmPDU));
+	    j += sizeof(*ip) - sizeof(ip->name) + PM_PDU_SIZE_BYTES(ip->namelen);
 	    ip->namelen = htonl(ip->namelen);
 	}
 	else {
@@ -226,8 +225,7 @@ __pmDecodeInstance(__pmPDU *pdubuf, __pmInResult **result)
 	memcpy((void *)p, (void *)ip->name, ip->namelen);
 	p[ip->namelen] = '\0';
 	res->namelist[i] = p;
-	j += sizeof(*ip) - sizeof(ip->name) +
-		    sizeof(__pmPDU)*((ip->namelen - 1 + sizeof(__pmPDU))/sizeof(__pmPDU));
+	j += sizeof(*ip) - sizeof(ip->name) + PM_PDU_SIZE_BYTES(ip->namelen);
     }
     if (keep_instlist == 0) {
 	free(res->instlist);

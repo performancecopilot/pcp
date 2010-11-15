@@ -65,7 +65,7 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 	    need += sizeof(__pmValue_PDU);
 	    if (vsp->valfmt != PM_VAL_INSITU) {
 		/* plus pmValueBlock */
-		vneed += sizeof(__pmPDU)*((vsp->vlist[j].value.pval->vlen - 1 + sizeof(__pmPDU))/sizeof(__pmPDU));
+		vneed += PM_PDU_SIZE_BYTES(vsp->vlist[j].value.pval->vlen);
 	    }
 	}
 	if (j)
@@ -114,7 +114,7 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 		__htonpmValueBlock((pmValueBlock *)vbp);
 		/* point to the value block at the end of the PDU */
 		vlp->vlist[j].value.lval = htonl((int)(vbp - _pdubuf));
-		vbp += (nb - 1 + sizeof(__pmPDU))/sizeof(__pmPDU);
+		vbp += PM_PDU_SIZE(nb);
 	    }
 	}
 	vlp->numval = htonl(vsp->numval);
@@ -216,7 +216,7 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 		    pmValueBlock *pduvbp = (pmValueBlock *)&pdubuf[index];
 
 		    __ntohpmValueBlock(pduvbp);
-		    vbsize += sizeof(__pmPDU) * ((pduvbp->vlen + sizeof(__pmPDU) - 1) / sizeof(__pmPDU));
+		    vbsize += PM_PDU_SIZE_BYTES(pduvbp->vlen);
 #ifdef DESPERATE
 		    fprintf(stderr, " len: %d type: %d",
 			    pduvbp->vlen - PM_VAL_HDR_SIZE, pduvbp->vtype);
