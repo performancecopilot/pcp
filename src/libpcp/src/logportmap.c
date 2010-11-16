@@ -100,7 +100,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
     static int		lendir;
     int			i, j, n;
     int			nf;		/* number of port files found */
-    struct dirent	**files;	/* array of port file dirents */
+    struct dirent	**files = NULL;	/* array of port file dirents */
     char		*p;
     int			len;
     static char		*namebuf = NULL;
@@ -154,8 +154,12 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	pmflush();
 	return -errno;
     }
-    if (resize_logports(nf) < 0)
+    if (resize_logports(nf) < 0) {
+	for (i=0; i < nf; i++)
+	    free(files[i]);
+	free(files);
 	return -errno;
+    }
     if (nf == 0) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG) {
@@ -164,6 +168,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	}
 #endif
 	*result = NULL;
+	free(files);
 	return 0;
     }
 
@@ -179,6 +184,9 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	    free(namebuf);
 	if ((namebuf = (char *)malloc(len)) == NULL) {
 	    __pmNoMem("__pmLogFindLocalPorts.namebuf", len, PM_RECOV_ERR);
+	    for (i=0; i < nf; i++)
+		free(files[i]);
+	    free(files);
 	    return -errno;
 	}
 	sznamebuf = len;
