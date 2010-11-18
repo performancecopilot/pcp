@@ -106,7 +106,9 @@ done
 
 grep ridiculous $PMCDLOG
 
-cd $PCP_PMDAS_DIR/trivial; $sudo ./Remove >/dev/null 2>&1
+cd $PCP_PMDAS_DIR/trivial
+$sudo ./Remove >/dev/null 2>&1
+$sudo make >/dev/null 2>&1
 
 # success, all done
 status=0
