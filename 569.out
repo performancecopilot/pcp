@@ -119,6 +119,14 @@ sample.percontext.control.ctx 1
 sample.percontext.control.active 1
 sample.percontext.control.start 1
 sample.percontext.control.end 1
+sample.event.records 1
+sample.event.type 0
+sample.event.param_u32 0
+sample.event.param_u64 0
+sample.event.param_string 0
+sample.event.param_float 0
+sample.event.param_double 0
+sample.event.reset 1
 
 === -i ===
 sample.control 1 PM_IN_NULL
@@ -269,6 +277,14 @@ sample.percontext.control.ctx 1 PM_IN_NULL
 sample.percontext.control.active 1 PM_IN_NULL
 sample.percontext.control.start 1 PM_IN_NULL
 sample.percontext.control.end 1 PM_IN_NULL
+sample.event.records 1 PM_IN_NULL
+sample.event.type 0
+sample.event.param_u32 0
+sample.event.param_u64 0
+sample.event.param_string 0
+sample.event.param_float 0
+sample.event.param_double 0
+sample.event.reset 1 PM_IN_NULL
 
 === -I ===
 sample.control 1 PM_IN_NULL
@@ -425,6 +441,14 @@ sample.percontext.control.ctx 1 PM_IN_NULL
 sample.percontext.control.active 1 PM_IN_NULL
 sample.percontext.control.start 1 PM_IN_NULL
 sample.percontext.control.end 1 PM_IN_NULL
+sample.event.records 1 PM_IN_NULL
+sample.event.type 0
+sample.event.param_u32 0
+sample.event.param_u64 0
+sample.event.param_string 0
+sample.event.param_float 0
+sample.event.param_double 0
+sample.event.reset 1 PM_IN_NULL
 
 === -v ===
 sample.control 1 0
@@ -567,6 +591,14 @@ sample.percontext.control.ctx 1 NUMBER
 sample.percontext.control.active 1 NUMBER
 sample.percontext.control.start 1 NUMBER
 sample.percontext.control.end 1 NUMBER
+sample.event.records 1 [RECORDS]
+sample.event.type 0
+sample.event.param_u32 0
+sample.event.param_u64 0
+sample.event.param_string 0
+sample.event.param_float 0
+sample.event.param_double 0
+sample.event.reset 1 2
 
 === -iI ===
 sample.control 1 PM_IN_NULL PM_IN_NULL
@@ -754,6 +786,14 @@ sample.percontext.control.ctx 1 PM_IN_NULL PM_IN_NULL
 sample.percontext.control.active 1 PM_IN_NULL PM_IN_NULL
 sample.percontext.control.start 1 PM_IN_NULL PM_IN_NULL
 sample.percontext.control.end 1 PM_IN_NULL PM_IN_NULL
+sample.event.records 1 PM_IN_NULL PM_IN_NULL
+sample.event.type 0
+sample.event.param_u32 0
+sample.event.param_u64 0
+sample.event.param_string 0
+sample.event.param_float 0
+sample.event.param_double 0
+sample.event.reset 1 PM_IN_NULL PM_IN_NULL
 
 === -iv ===
 pmprobe: at most one of -v and (-i or -I) allowed
