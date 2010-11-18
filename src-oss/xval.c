@@ -7,14 +7,15 @@
 #include <pcp/pmapi.h>
 
 static int type[] = {
-    PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING, PM_TYPE_AGGREGATE };
+    PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING, PM_TYPE_AGGREGATE, PM_TYPE_EVENT };
 static char *name[] = {
-    "long", "ulong", "longlong", "ulonglong", "float", "double", "char *", "void *" };
+    "long", "ulong", "longlong", "ulonglong", "float", "double", "char *", "void *", "pmEventArray" };
 
 static void
 _y(pmAtomValue *ap, int type)
 {
-    long	*lp;
+    long		*lp;
+    pmEventArray	*eap;
 
     switch (type) {
 	case PM_TYPE_32:
@@ -49,8 +50,14 @@ _y(pmAtomValue *ap, int type)
 		printf("%08x %08x %08x",
 			(unsigned)lp[0], (unsigned)lp[1], (unsigned)lp[2]);
 	    break;
+	case PM_TYPE_EVENT:
+	    eap = (pmEventArray *)ap;
+		printf("[%d event records]", eap->ea_nrecords);
+	    break;
     }
 }
+
+static pmEventArray	ea;
 
 int
 main(int argc, char *argv[])
@@ -68,16 +75,26 @@ main(int argc, char *argv[])
     int		valfmt;
     int		vflag = 0;	/* set to 1 to show all results */
     long long 	lv;
-    double	v;
     int		match;
+
+    ea.ea_nrecords = 1;
+    ea.ea_record[0].er_nparams = 0;
+    vb = (pmValueBlock *)&ea;
+    vb->vtype = PM_TYPE_EVENT;
+    vb->vlen = sizeof(ea);	/* not quite correct, but close enough */
 
     vb = (pmValueBlock *)&foo;
 
     while (argc > 1) {
-	sscanf(argv[1], "%llx", &lv);
-	printf("\nValue: %lld 0x%016llx\n", lv, lv);
 	argc--;
 	argv++;
+	if (strcmp(argv[0], "-v") == 0) {
+	    vflag = 1;
+	    continue;
+	}
+	/* note value is in hex! */
+	sscanf(argv[0], "%llx", &lv);
+	printf("\nValue: %lld 0x%016llx\n", lv, lv);
 
 	for (i = 0; i < sizeof(type)/sizeof(type[0]); i++) {
 	    valfmt = PM_VAL_INSITU;
@@ -122,7 +139,7 @@ main(int argc, char *argv[])
 		case PM_TYPE_STRING:
 		    valfmt = PM_VAL_SPTR;
 		    pv.value.pval = vb;
-		    sprintf(vb->vbuf, "%e", v);
+		    sprintf(vb->vbuf, "%lld", lv);
 		    vb->vlen = PM_VAL_HDR_SIZE + strlen(vb->vbuf) + 1;
 		    vb->vtype = PM_TYPE_STRING;
 		    ap = &bv;
@@ -137,13 +154,23 @@ main(int argc, char *argv[])
 		    ap = &bv;
 		    bv.vp = (void *)vb->vbuf;
 		    break;
+		case PM_TYPE_EVENT:
+		    valfmt = PM_VAL_DPTR;
+		    ea.ea_nmissed = lv;
+		    ap = (void *)&ea;
+		    break;
 	    }
 	    for (o = 0; o < sizeof(type)/sizeof(type[0]); o++) {
 		if ((e = pmExtractValue(valfmt, &pv, type[i], &av, type[o])) < 0) {
-		    if (vflag == 0 && type[i] != type[o] &&
-			(type[i] == PM_TYPE_STRING || type[o] == PM_TYPE_STRING ||
-			 type[i] == PM_TYPE_AGGREGATE || type[o] == PM_TYPE_AGGREGATE))
+		    if (vflag == 0) {
+			/* silently ignore the expected failures */
+			if (type[i] != type[o] &&
+			    (type[i] == PM_TYPE_STRING || type[o] == PM_TYPE_STRING ||
+			     type[i] == PM_TYPE_AGGREGATE || type[o] == PM_TYPE_AGGREGATE))
 			    continue;
+			 if (type[i] == PM_TYPE_EVENT || type[o] == PM_TYPE_EVENT)
+			    continue;
+		    }
 		    printf("(%s) ", name[i]);
 		    _y(ap, type[i]);
 		    printf(" => (%s) ", name[o]);
@@ -196,6 +223,10 @@ main(int argc, char *argv[])
 			    match = 0;
 			    for (k = 0; match == 0 && k < vb->vlen - PM_VAL_HDR_SIZE; k++)
 				match = (bv.cp[k] == av.cp[k]);
+			    break;
+			case PM_TYPE_EVENT:
+			    /* should never get here */
+			    match = 0;
 			    break;
 		    }
 		    if (match == 0 || vflag) {

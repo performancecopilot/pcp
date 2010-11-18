@@ -15,4 +15,6 @@ echo "QA output created by $seq"
 
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
-src-oss/xval
+# value is in hex (!) 0x7b == 123
+#
+src-oss/xval -v 7b
