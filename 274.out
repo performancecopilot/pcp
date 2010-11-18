@@ -76,7 +76,7 @@ dbpmda> # Test for illegal data types
 dbpmda> fetch broken.bad.type
 PMID(s): 249.0.5
 pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 1
-  249.0.5 (broken.bad.type): Generic error, already reported above
+  249.0.5 (broken.bad.type): Unknown or illegal metric type
 dbpmda> # Test for metric with no fetch support
 dbpmda> fetch broken.no.fetch
 PMID(s): 249.0.9

@@ -51,7 +51,7 @@ QA output created by 006
 -12394 Metric name is not a leaf in PMNS
 -12395 Caller does not match object style of running kernel
 -12396 PMCD is not licensed to accept client connections
--12397 No such PMAPI error code (-12397)
+-12397 Unknown or illegal metric type
 -12398 No such PMAPI error code (-12398)
 -12399 No such PMAPI error code (-12399)
 -12400 No such PMAPI error code (-12400)
