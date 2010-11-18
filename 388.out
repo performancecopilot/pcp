@@ -1,0 +1,51 @@
+QA output created by 388
+
+interpolate 50, 1 seconds appart
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp0 -a src-oss/interp -t 1 -s 50
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+interpolate 20, 4 seconds appart
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp0 -a src-oss/interp -t 1 -s 50
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+interpolate 16, 5 seconds appart
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp0 -a src-oss/interp -t 1 -s 50
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+interpolate 10, 8 seconds appart
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp0 -a src-oss/interp -t 1 -s 50
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+interpolate 8, 10 seconds appart
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp0 -a src-oss/interp -t 1 -s 50
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

@@ -1,0 +1,51 @@
+QA output created by 394
+
+=== src-oss/bigbin delta=2 ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp3 -a src-oss/bigbin -t 2
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== src-oss/bigbin delta=0.012 ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp3 -a src-oss/bigbin -t 0.012
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== src-oss/noti-ok-foo delta=0.5 ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp3 -a src-oss/noti-ok-foo -t 0.5
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== src-oss/noti-ok-foo delta=1.0 ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp3 -a src-oss/noti-ok-foo -t 1.0
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== src-oss/noti-ok-foo delta=2.0 ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp3 -a src-oss/noti-ok-foo -t 2.0
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

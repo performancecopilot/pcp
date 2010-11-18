@@ -196,6 +196,10 @@ pmgadgets	pcpqa
 purify		pcpqa
 
 #
+# tests that use valgrind
+valgrind	pcpqa
+
+#
 # pmcd_wait - wait for pmcd to be ready for connections
 pmcd_wait	pcpqa
 
@@ -596,18 +600,40 @@ derive		pcpqa
 359 pmcd pminfo sanity local oss
 360 pmie remote oss
 361 pmda.linux local oss
+362 pmlogconf local oss
 363 logutil local oss
+364 pmlogconf local oss
 365 pmcd remote oss
+366 pmlogconf local oss
 367 pdu local trace oss
+368 pmlogconf local oss
+369 pmimport local oss
+370 pmimport local oss derive
+371 pmimport local oss
+372 pmimport local oss
+373 pmimport local oss
 374 pmlc pmlogger remote oss
 375 pmlc pmlogger remote oss
 376 trace local pmda.install oss
 377 other local oss
+378 pmie local oss
+379 pmda.cisco local oss
+380 libpcp pmda pmda.sample pmda.sampledso local oss
 381 logutil pmlc remote oss
+382 dbpmda pmda pmda.sample pmda.sampledso local oss
+383 pmda.cisco local oss
 384 pmda.pmcd local oss
+385 libpcp pmda.sample pminfo pmprobe local oss
+386 pdu valgrind local oss
+387 pmns valgrind local oss
+388 archive mem_leak valgrind local oss
 389 pmlogger local oss
 390 pmda.proc local pmval oss
+391 archive mem_leak valgrind local oss
 392 pmns local oss
+393 archive mem_leak valgrind local oss
+394 archive mem_leak valgrind local oss
+395 archive mem_leak valgrind local oss
 396 pmval local oss
 398 pmcd local oss
 399 pmie local oss
@@ -922,17 +948,3 @@ derive		pcpqa
 1233 pmsnap local sgi
 1234 pmchart local sgi
 1236 #935639 pmchart local sgi
-362 pmlogconf local oss
-364 pmlogconf local oss
-366 pmlogconf local oss
-368 pmlogconf local oss
-369 pmimport local oss
-370 pmimport local oss derive
-371 pmimport local oss
-372 pmimport local oss
-373 pmimport local oss
-378 pmie local oss
-379 pmda.cisco local oss
-380 libpcp pmda pmda.sample pmda.sampledso local oss
-382 dbpmda pmda pmda.sample pmda.sampledso local oss
-383 pmda.cisco local oss

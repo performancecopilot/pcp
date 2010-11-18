@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 329
-# Interp mode (similar to qa/090, but with purify)
+# Interp mode (similar to qa/090, but with purify) (see also 388)
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #

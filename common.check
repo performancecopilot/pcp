@@ -399,6 +399,54 @@ _check_purify()
     [ $? -eq 0 ] || _notrun "No purify binary found"
 }
 
+# valgrind support
+#
+# typical usage:
+#
+# At the top before outputting $seq.out but after setting $seq ...
+#   _check_valgrind
+#
+# Main code...
+#   _run_valgrind app [arg1 [arg2] ... ]
+#
+
+_check_valgrind()
+{
+    which valgrind >/dev/null 2>&1
+    [ $? -eq 0 ] || _notrun "No valgrind binary found"
+}
+
+_run_valgrind()
+{
+    valgrind \
+	--leak-check=full --read-var-info=yes \
+	--suppressions=valgrind-suppress --log-file=$tmp.valgrind \
+	    $* 2>$tmp.valgrind.err >$tmp.valgrind.out
+    echo "=== std out ==="
+    cat $tmp.valgrind.out
+    echo "=== std err ==="
+    cat $tmp.valgrind.err
+    echo "=== valgrind report ===" >>$seq.full
+    cat $tmp.valgrind >>$seq.full
+    echo "=== filtered valgrind report ==="
+    sed <$tmp.valgrind \
+	-e 's/^==*[1-9][0-9]*==* *//' \
+	-e '/^$/d' \
+	-e '/^Copyright (/d' \
+	-e '/^Using Valgrind-/d' \
+	-e '/^Parent PID:/d' \
+	-e '/^HEAP SUMMARY:/d' \
+	-e '/^in use at exit:/d' \
+	-e '/^total heap usage:/d' \
+	-e '/^possibly lost:/d' \
+	-e '/^still reachable:/d' \
+	-e '/^suppressed:/d' \
+	-e '/^Reachable blocks (those to which a pointer was found)/d' \
+	-e '/^To see them, rerun with:/d' \
+	-e '/^For counts of detected and suppressed errors,/d' \
+	-e '/^ERROR SUMMARY:/s/ (suppressed: [^)]*)/ .../'
+}
+
 #
 # Checks that given_value is in range of correct_value +/- tolerance.
 # Tolerance can be an absolute value or a percentage of the correct value

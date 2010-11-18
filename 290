@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 290
-# Run pmnsunload using purify
+# Run pmnsunload using purify (see also 387)
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #

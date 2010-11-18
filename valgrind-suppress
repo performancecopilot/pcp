@@ -1,0 +1,14 @@
+{
+   posix_formatter_calls_putenv
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:posix_formatter
+   fun:__pmConfig
+   fun:pmGetConfig
+   fun:getfname
+   fun:load
+   fun:pmLoadNameSpace
+   fun:main
+}
+
