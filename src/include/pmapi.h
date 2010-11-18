@@ -125,6 +125,7 @@ typedef struct {
 #define PM_TYPE_STRING		6	/* array of char */
 #define PM_TYPE_AGGREGATE	7	/* arbitrary binary data (aggregate) */
 #define PM_TYPE_AGGREGATE_STATIC 8	/* static pointer to aggregate */
+#define PM_TYPE_EVENT		9	/* packed pmEventArray */
 #define PM_TYPE_UNKNOWN		255	/* used in pmValueBlock, not pmDesc */
 
 /* pmDesc.sem -- semantics/interpretation of metric values */
@@ -213,6 +214,7 @@ typedef union {
 #define PM_ERR_NONLEAF		(-PM_ERR_BASE-49)   /* PMNS node is not a leaf node */
 #define PM_ERR_OBJSTYLE		(-PM_ERR_BASE-50)   /* user/kernel object style mismatch */
 #define PM_ERR_PMCDLICENSE	(-PM_ERR_BASE-51)   /* PMCD is not licensed to accept connections */
+#define PM_ERR_TYPE		(-PM_ERR_BASE-52)   /* Unknown or illegal metric type */
 
 #define PM_ERR_CTXBUSY		(-PM_ERR_BASE-97)   /* Context is busy */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */
@@ -659,6 +661,49 @@ extern int pmRequestNamesOfChildren(int, const char *, int);
 extern int pmRequestStore(int, const pmResult *);
 extern int pmRequestText(int, pmID, int);
 extern int pmRequestTraversePMNS(int, const char *);
+
+/*
+ * Event Record support
+ *
+ * PM_CLUSTER_EVENT is reserved value for cluster field of a PMID
+ */
+#define PM_CLUSTER_EVENT	4095
+
+typedef struct {
+    pmID                ep_pmid;
+    /* vtype and vlen fields the format same as for pmValueBlock */
+#ifdef HAVE_BITFIELDS_LTOR
+    unsigned int	ep_type : 8;	/* value type */
+    unsigned int	ep_len : 24;	/* bytes for type/len + vbuf */
+#else
+    unsigned int	ep_len : 24;	/* bytes for type/len + vbuf */
+    unsigned int	ep_type : 8;	/* value type */
+#endif
+    /* actual value (vbuf) goes here ... */
+} pmEventParameter;
+
+typedef struct {
+    struct timeval      er_timestamp;
+    int                 er_nparams;     /* number of er_param[] entries */
+    pmEventParameter    er_param[1];
+} pmEventRecord;
+
+typedef struct {
+		/* align initial declarations with start of pmValueBlock */
+#ifdef HAVE_BITFIELDS_LTOR
+    unsigned int	ea_type : 8;	/* value type */
+    unsigned int	ea_len : 24;	/* bytes for type/len + vbuf */
+#else
+    unsigned int	ea_len : 24;	/* bytes for type/len + vbuf */
+    unsigned int	ea_type : 8;	/* value type */
+#endif
+		/* real event records start here */
+    int                 ea_nrecords;    /* number of ea_record[] entries */
+    int                 ea_nmissed;     /* number of missed event records */
+    pmEventRecord       ea_record[1];
+} pmEventArray;
+
+extern int pmUnpackEventRecords(pmValueBlock *, pmResult **, int *);
 
 #ifdef __cplusplus
 }

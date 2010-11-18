@@ -62,6 +62,8 @@ $(LIBTARGET_V1): $(LIBTARGET_V3)
 $(LIBTARGET_V2): $(LIBTARGET_V3)
 	$(LN_S) -f $(LIBTARGET_V3) $(LIBTARGET_V2)
 
+callback.o mainloop.o open.o : libdefs.h
+
 include $(BUILDRULES)
 
 install : default

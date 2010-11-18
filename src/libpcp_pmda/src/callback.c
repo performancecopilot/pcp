@@ -559,23 +559,42 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		/*
 		 * PMDA_INTERFACE_2
 		 *	>= 0 => OK
-		 * PMDA_INTERFACE_3 or later
+		 * PMDA_INTERFACE_3 or PMDA_INTERFACE_4
 		 *	== 0 => no values
 		 *	> 0  => OK
+		 * PMDA_INTERFACE_5 or later
+		 *	== 0 (PMDA_FETCH_NOVALUES) => no values
+		 *	== 1 (PMDA_FETCH_STATIC) or > 2 => OK
+		 *	== 2 (PMDA_FETCH_DYNAMIC) => OK and free(atom.vp)
+		 *	     after __pmStuffValue() called
 		 */
 		if (extp->pmda_interface == PMDA_INTERFACE_2 ||
 		    (extp->pmda_interface >= PMDA_INTERFACE_3 && sts > 0)) {
+		    int		lsts;
 
-		    if ((sts = __pmStuffValue(&atom, 0, &vset->vlist[j], 
-					     type)) == PM_ERR_GENERIC) {
+		    if ((lsts = __pmStuffValue(&atom, 0, &vset->vlist[j], 
+					     type)) == PM_ERR_TYPE) {
 			__pmNotifyErr(LOG_ERR, 
 				     "pmdaFetch: Descriptor type (%s) for metric %s is bad",
-				     pmTypeStr(dp->type), pmIDStr(dp->pmid));
+				     pmTypeStr(type), pmIDStr(dp->pmid));
 		    }
-		    else if (sts >= 0) {
-			vset->valfmt = sts;
+		    else if (lsts >= 0) {
+			vset->valfmt = lsts;
 			j++;
 		    }
+		    if (extp->pmda_interface >= PMDA_INTERFACE_5 && sts == PMDA_FETCH_DYNAMIC) {
+			if (type == PM_TYPE_STRING)
+			    free(atom.cp);
+			else if (type == PM_TYPE_AGGREGATE)
+			    free(atom.vp);
+			else {
+			    __pmNotifyErr(LOG_WARNING,
+					  "pmdaFetch: Attempt to free value for metric %s of wrong type %s\n",
+					  pmIDStr(dp->pmid), pmTypeStr(type));
+			}
+		    }
+		    if (lsts < 0)
+			sts = lsts;
 		}
 	    }
 	} while (dp->indom != PM_INDOM_NULL && __pmdaNextInst(&inst, pmda));

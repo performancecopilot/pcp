@@ -59,6 +59,8 @@ static const struct {
 	"Unknown or illegal instance domain identifier" },
     { PM_ERR_INST,		"PM_ERR_INST",
 	"Unknown or illegal instance identifier" },
+    { PM_ERR_TYPE,		"PM_ERR_TYPE",
+	"Unknown or illegal metric type" },
     { PM_ERR_UNIT,		"PM_ERR_UNIT",
 	"Illegal pmUnits specification" },
     { PM_ERR_CONV,		"PM_ERR_CONV",

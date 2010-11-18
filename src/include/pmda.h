@@ -22,13 +22,14 @@ extern "C" {
 #endif
 
 /*
- * libpcp_pmda interface versions ... _must_ be bit field values
+ * libpcp_pmda interface versions
  */
 #define PMDA_INTERFACE_1	1	/* initial argument style */
 #define PMDA_INTERFACE_2	2	/* new function arguments */
 #define PMDA_INTERFACE_3	3	/* 3-state return from fetch callback */
 #define PMDA_INTERFACE_4	4	/* dynamic pmns */
-#define PMDA_INTERFACE_5	5	/* client context in pmda */
+#define PMDA_INTERFACE_5	5	/* client context in pmda and */
+					/* 4-state return from fetch callback */
 #define PMDA_INTERFACE_LATEST	5
 
 /*
@@ -66,6 +67,13 @@ typedef struct {
  * Type of function call back used by pmdaFetch.
  */
 typedef int (*pmdaFetchCallBack)(pmdaMetric *, unsigned int, pmAtomValue *);
+
+/*
+ * return values for a pmdaFetchCallBack method
+ */
+#define PMDA_FETCH_NOVALUES	0
+#define PMDA_FETCH_STATIC	1
+#define PMDA_FETCH_DYNAMIC	2	/* free avp->vp after __pmStuffValue */
 
 /*
  * Type of function call back used by pmdaMain to clean up a pmResult structure

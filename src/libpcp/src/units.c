@@ -74,6 +74,16 @@ pmAtomStr(const pmAtomValue *avp, int type)
 	    else
 		snprintf(buf, sizeof(buf), "%08x %08x %08x...", lp[0], lp[1], lp[2]);
 	    break;
+	case PM_TYPE_EVENT:
+	    {
+		/* have to assume alignment is OK in this case */
+		pmEventArray	*eap = (pmEventArray *)avp;
+		if (eap->ea_nrecords == 1)
+		    snprintf(buf, sizeof(buf), "[1 event record]");
+		else
+		    snprintf(buf, sizeof(buf), "[%d event records]", eap->ea_nrecords);
+	    }
+	    break;
 	case PM_TYPE_NOSUPPORT:
 	    snprintf(buf, sizeof(buf), "bogus value, metric Not Supported");
 	    break;
@@ -87,7 +97,7 @@ pmAtomStr(const pmAtomValue *avp, int type)
  * must be in agreement with ordinal values for PM_TYPE_* #defines
  */
 static char *typename[] = {
-    "32", "U32", "64", "U64", "FLOAT", "DOUBLE", "STRING", "AGGREGATE"
+    "32", "U32", "64", "U64", "FLOAT", "DOUBLE", "STRING", "AGGREGATE", "EVENT"
 };
 
 /* PM_TYPE_* -> string, max length is 20 bytes */
@@ -647,6 +657,7 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 	    case PM_TYPE_DOUBLE:
 	    case PM_TYPE_STRING:
 	    case PM_TYPE_AGGREGATE:
+	    case PM_TYPE_EVENT:
 	    default:
 		sts = PM_ERR_CONV;
 	}
@@ -961,6 +972,7 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 
 	    case PM_TYPE_32:
 	    case PM_TYPE_U32:
+	    case PM_TYPE_EVENT:
 	    default:
 		sts = PM_ERR_CONV;
 	}

@@ -38,7 +38,6 @@ check_buf(int need)
 	ebuflen *= 2;
 	if ((ebuf = (char *)realloc(ebuf, ebuflen)) == NULL)
 	    return -errno;
-fprintf(stderr, "check_buf increase to %d\n", ebuflen);
 	eptr = &ebuf[offset];
 	ebufend = &ebuf[ebuflen-1];
     }
@@ -72,7 +71,6 @@ add_param(pmID pmid, int type, pmAtomValue *avp)
 	    vlen = strlen(avp->cp);
 	    need += PM_PDU_SIZE_BYTES(vlen);
 	    src = avp->cp;
-fprintf(stderr, "string vlen=%d pdulen=%d need=%d string=\"%s\"\n", vlen, PM_PDU_SIZE_BYTES(vlen), need, avp->cp);
 	    break;
 	case PM_TYPE_FLOAT:
 	    vlen = sizeof(avp->f);
@@ -163,7 +161,6 @@ sample_fetch_events(pmEventArray **eapp)
 	 */
 	((__pmID_int *)&pmid_type)->domain = mydomain;
 	((__pmID_int *)&pmid_u32)->domain = mydomain;
-fprintf(stderr, "mydomain %d %s %s\n", mydomain, pmIDStr(pmid_type), pmIDStr(pmid_u32));
 	((__pmID_int *)&pmid_u64)->domain = mydomain;
 	((__pmID_int *)&pmid_string)->domain = mydomain;
 	((__pmID_int *)&pmid_float)->domain = mydomain;
@@ -278,5 +275,6 @@ fprintf(stderr, "mydomain %d %s %s\n", mydomain, pmIDStr(pmid_type), pmIDStr(pmi
     nfetch++;
 
     *eapp = (pmEventArray *)ebuf;
+
     return eptr - ebuf;
 }

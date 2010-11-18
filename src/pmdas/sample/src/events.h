@@ -1,6 +1,7 @@
 /*
- * Some functions become per-client (of pmcd) with the introduction
- * of PMDA_INTERFACE_5.
+ * The "event" records here are all fake.  But the logic does show
+ * how a real PMDA could deliver values for metrics of type
+ * PM_TYPE_EVENT.
  *
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * 
@@ -14,18 +15,14 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef _PERCONTEXT_H
-#define _PERCONTEXT_H
 
-extern int sample_get_recv(int);
-extern int sample_get_xmit(int);
-extern void sample_clr_recv(int);
-extern void sample_clr_xmit(int);
-extern void sample_inc_recv(int);
-extern void sample_inc_xmit(int);
-extern int sample_ctx_fetch(int, int);
-extern void sample_ctx_end(int);
+#ifndef _EVENTS_H
+#define _EVENTS_H
 
-#define CTX_ALL	-1
+extern int mydomain;
 
-#endif /* _PERCONTEXT_H */
+extern int sample_fetch_events(pmEventArray **);
+extern void event_set_c(unsigned int);
+extern unsigned int event_get_c(void);
+
+#endif /* _EVENTS_H */

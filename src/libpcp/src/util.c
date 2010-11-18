@@ -408,6 +408,48 @@ __pmDumpResult(FILE *f, const pmResult *resp)
     pmDebug = saveDebug;
 }
 
+static void
+print_event_summary(FILE *f, const pmValue *val)
+{
+    pmEventArray	*eap = (pmEventArray *)val->value.pval;
+    char		*base;
+    struct timeval	stamp;
+
+    fprintf(f, "[%d event record", eap->ea_nrecords);
+    if (eap->ea_nrecords != 1)
+	fputc('s', f);
+    if (eap->ea_nmissed > 0)
+	fprintf(f, " (%d missed)", eap->ea_nmissed);
+    if (eap->ea_nrecords > 0) {
+	fprintf(f, " timestamp");
+	if (eap->ea_nrecords > 1)
+	    fputc('s', f);
+	fputc(' ', f);
+	base = (char *)&eap->ea_record[0];
+	memcpy((void *)&stamp, base, sizeof(stamp));
+	__pmPrintStamp(f, &stamp);
+	if (eap->ea_nrecords > 1) {
+	    int			r;	/* records */
+	    int			p;	/* parameters in a record ... */
+	    pmEventRecord	*erp;
+	    pmEventParameter	*epp;
+	    /* walk packed event record array */
+	    for (r = 0; r < eap->ea_nrecords-1; r++) {
+		erp = (pmEventRecord *)base;
+		base += sizeof(erp->er_timestamp) + sizeof(erp->er_nparams);
+		for (p = 0; p < erp->er_nparams; p++) {
+		    epp = (pmEventParameter *)base;
+		    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);
+		}
+	    }
+	    fprintf(f, "...");
+	    memcpy((void *)&stamp, base, sizeof(stamp));
+	    __pmPrintStamp(f, &stamp);
+	}
+    }
+    fputc(']', f);
+}
+
 
 /* Print single pmValue. */
 void
@@ -423,7 +465,7 @@ pmPrintValue(FILE *f,			/* output stream */
     char        *p;
     int		sts;
 
-    if (type != PM_TYPE_UNKNOWN) {
+    if (type != PM_TYPE_UNKNOWN && type != PM_TYPE_EVENT) {
 	sts = pmExtractValue(valfmt, val, type, &a, type);
 	if (sts < 0)
 	    type = PM_TYPE_UNKNOWN;
@@ -549,9 +591,14 @@ pmPrintValue(FILE *f,			/* output stream */
 	    free(a.vp);
 	break;
 
+    case PM_TYPE_EVENT:		/* not much we can do about minwidth */
+	print_event_summary(f, val);
+	break;
+
     case PM_TYPE_NOSUPPORT:
         fprintf(f, "pmPrintValue: bogus value, metric Not Supported\n");
 	break;
+
     default:
         fprintf(f, "pmPrintValue: unknown value type=%d\n", type);
     }
@@ -646,6 +693,12 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
 	    break;
 	case PM_TYPE_AGGREGATE:
 	    type = "aggregate";
+	    break;
+	case PM_TYPE_AGGREGATE_STATIC:
+	    type = "static aggregate";
+	    break;
+	case PM_TYPE_EVENT:
+	    type = "event record array";
 	    break;
 	default:
 	    type = unknownVal;

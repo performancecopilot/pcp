@@ -315,6 +315,11 @@ dodso(int pdu)
 		    }
                     else
 		        __pmDumpResult(stdout, result);
+		    /*
+		     * DSO PMDA will manage the pmResult skelton, but
+		     * we need to free the pmValueSets and values here
+		     */
+		    __pmFreeResultValues(result);
                 }
 		else {
 		    if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)

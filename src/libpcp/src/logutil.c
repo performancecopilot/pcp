@@ -1085,7 +1085,7 @@ paranoidCheck(int len, __pmPDU *pb)
 #endif
 			return -1;
 		    }
-		    vbsize += sizeof(__pmPDU) * ((vlen + sizeof(__pmPDU) - 1) / sizeof(__pmPDU));
+		    vbsize += PM_PDU_SIZE_BYTES(vlen);
 		}
 	    }
 	}

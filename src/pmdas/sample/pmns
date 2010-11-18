@@ -78,6 +78,7 @@ sample {
     secret	SAMPLE:*:*
     scramble
     percontext
+    event
 }
 
 sample.long {
@@ -239,4 +240,15 @@ sample.percontext.control {
     active	SAMPLE:0:123
     start	SAMPLE:0:124
     end		SAMPLE:0:125
+}
+
+sample.event {
+    records		SAMPLE:4095:0
+    type		SAMPLE:0:126
+    param_u32		SAMPLE:0:127
+    param_u64		SAMPLE:0:128
+    param_string	SAMPLE:0:129
+    param_float		SAMPLE:0:130
+    param_double	SAMPLE:0:131
+    reset		SAMPLE:0:132
 }

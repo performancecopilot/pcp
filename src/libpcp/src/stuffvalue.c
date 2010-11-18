@@ -54,11 +54,22 @@ __pmStuffValue(const pmAtomValue *avp, int aggr_len, pmValue *vp, int type)
 	    break;
 
 	case PM_TYPE_AGGREGATE_STATIC:
+	case PM_TYPE_EVENT:
+	    /*
+	     * vp field of pmAtomValue points to a statically allocated
+	     * pmValueBlock that includes the vtype and vlen fields
+	     * (with appropriate HAVE_BITFIELDS_LTOR guards) followed
+	     * by a correspondingly sized vbuf[] ... the vlen and vtype
+	     * fields MUST have been already set up and are not modified
+	     * here
+	     *
+	     * DO NOT make a copy of the value in this case
+	     */
 	    vp->value.pval = (pmValueBlock *)avp->vp;
 	    return PM_VAL_SPTR;
 
 	default:
-	    return PM_ERR_GENERIC;
+	    return PM_ERR_TYPE;
     }
     need = body + PM_VAL_HDR_SIZE;
     if (body == sizeof(__int64_t)) {

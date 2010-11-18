@@ -21,8 +21,8 @@
 
 #define HAVE_V_ONE(interface) (interface == PMDA_INTERFACE_1)
 #define HAVE_V_TWO(interface) (interface == PMDA_INTERFACE_2 || interface == PMDA_INTERFACE_3)
-#define HAVE_V_FOUR(interface) (interface >= PMDA_INTERFACE_4)
-#define HAVE_V_FIVE(interface) (interface >= PMDA_INTERFACE_5)
+#define HAVE_V_FOUR(interface) (interface == PMDA_INTERFACE_4 || interface == PMDA_INTERFACE_5)
+#define HAVE_V_FIVE(interface) (interface == PMDA_INTERFACE_5)
 
 /*
  * Auxilliary structure used to save data from pmdaDSO or pmdaDaemon and
