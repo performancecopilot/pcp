@@ -598,7 +598,7 @@ sample.event.param_u64 0
 sample.event.param_string 0
 sample.event.param_float 0
 sample.event.param_double 0
-sample.event.reset 1 2
+sample.event.reset 1 NUMBER
 
 === -iI ===
 sample.control 1 PM_IN_NULL PM_IN_NULL

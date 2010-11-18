@@ -35,6 +35,8 @@ src-oss/nullinst irix hinv sample \
     -e '/^irix\.engr/d' \
     -e '/^irix\.gfx/d' \
     -e '/^irix\.xfs/d' \
+    -e '/^sample\.event\.type/d' \
+    -e '/^sample\.event\.param_/d' \
 | if [ $PCP_PLATFORM != "irix" ]
 then
     sed \
