@@ -474,6 +474,8 @@ pmDupContext(void)
     oldcon = &contexts[old];	/* contexts[] may have been relocated */
     newcon = &contexts[new];
     save = newcon->c_instprof;	/* need this later */
+    if (newcon->c_archctl != NULL)
+	free(newcon->c_archctl);	/* will allocate a new one below */
     *newcon = *oldcon;		/* struct copy */
     newcon->c_instprof = save;	/* restore saved instprof from pmNewContext */
 
