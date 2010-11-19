@@ -948,4 +948,5 @@ derive		pcpqa
 1233 pmsnap local sgi
 1234 pmchart local sgi
 1236 #935639 pmchart local sgi
-397 dbpmda libpcp local oss
+397 dbpmda libpcp local oss pdu
+400 pminfo mem_leak valgrind context_local libpcp local oss

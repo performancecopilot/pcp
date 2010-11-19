@@ -1,0 +1,231 @@
+QA output created by 400
+=== std out ===
+
+sampledso.event.records
+    value [0 event records]
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -x -L sampledso.event.records
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+
+sampledso.event.records
+    value [1 event record timestamp TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP ---
+	No parameters
+
+sampledso.event.records
+    value [1 event record timestamp TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP ---
+	No parameters
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -x -L sampledso.event.records sampledso.event.records
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+
+sampledso.event.records
+    value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 1
+    --- event record [1] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 2
+	PMID: 30.0.130
+	    value -3
+
+sampledso.event.records
+    value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 1
+    --- event record [1] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 2
+	PMID: 30.0.130
+	    value -3
+
+sampledso.event.records
+    value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 1
+    --- event record [1] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 2
+	PMID: 30.0.130
+	    value -3
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -x -L sampledso.event.records sampledso.event.records sampledso.event.records
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+
+sampledso.event.records
+    value [4 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 4
+	PMID: 30.0.131
+	    value 5
+	PMID: 30.0.134
+	    value "6"
+    --- event record [1] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 7
+	PMID: 30.0.133
+	    value 8
+	PMID: 30.0.133
+	    value -9
+    --- event record [2] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 10
+	PMID: 30.0.131
+	    value 11
+	PMID: 30.0.134
+	    value "twelve"
+	PMID: 30.0.134
+	    value "thirteen"
+	PMID: 30.0.128
+	    value -14
+	PMID: 30.0.129
+	    value 15
+    --- event record [3] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 16
+	PMID: 30.0.132
+	    value -17
+	PMID: 30.0.135
+value 18410503204342530817 blah blah [blob]
+
+sampledso.event.records
+    value [4 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 4
+	PMID: 30.0.131
+	    value 5
+	PMID: 30.0.134
+	    value "6"
+    --- event record [1] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 7
+	PMID: 30.0.133
+	    value 8
+	PMID: 30.0.133
+	    value -9
+    --- event record [2] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 10
+	PMID: 30.0.131
+	    value 11
+	PMID: 30.0.134
+	    value "twelve"
+	PMID: 30.0.134
+	    value "thirteen"
+	PMID: 30.0.128
+	    value -14
+	PMID: 30.0.129
+	    value 15
+    --- event record [3] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 16
+	PMID: 30.0.132
+	    value -17
+	PMID: 30.0.135
+value 18410503204342530817 blah blah [blob]
+
+sampledso.event.records
+    value [4 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 4
+	PMID: 30.0.131
+	    value 5
+	PMID: 30.0.134
+	    value "6"
+    --- event record [1] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 7
+	PMID: 30.0.133
+	    value 8
+	PMID: 30.0.133
+	    value -9
+    --- event record [2] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 10
+	PMID: 30.0.131
+	    value 11
+	PMID: 30.0.134
+	    value "twelve"
+	PMID: 30.0.134
+	    value "thirteen"
+	PMID: 30.0.128
+	    value -14
+	PMID: 30.0.129
+	    value 15
+    --- event record [3] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 16
+	PMID: 30.0.132
+	    value -17
+	PMID: 30.0.135
+value 18410503204342530817 blah blah [blob]
+
+sampledso.event.records
+    value [4 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 4
+	PMID: 30.0.131
+	    value 5
+	PMID: 30.0.134
+	    value "6"
+    --- event record [1] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 7
+	PMID: 30.0.133
+	    value 8
+	PMID: 30.0.133
+	    value -9
+    --- event record [2] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 10
+	PMID: 30.0.131
+	    value 11
+	PMID: 30.0.134
+	    value "twelve"
+	PMID: 30.0.134
+	    value "thirteen"
+	PMID: 30.0.128
+	    value -14
+	PMID: 30.0.129
+	    value 15
+    --- event record [3] timestamp TIMESTAMP ---
+	PMID: 30.0.127
+	    value 16
+	PMID: 30.0.132
+	    value -17
+	PMID: 30.0.135
+value 18410503204342530817 blah blah [blob]
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -x -L sampledso.event.records sampledso.event.records sampledso.event.records sampledso.event.records
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
