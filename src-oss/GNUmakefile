@@ -61,7 +61,7 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	matchInstanceName.c torture_pmns.c \
 	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c \
 	record.c record-setarg.c clientid.c killparent.c grind_ctx.c \
-	pmdacache.c check_import.c
+	pmdacache.c check_import.c unpack.c
 
 POSIXFILES = \
 	ipc.c proc_test.c context_fd_leak.c arch_maxfd.c torture_trace.c \

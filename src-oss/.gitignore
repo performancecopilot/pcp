@@ -185,6 +185,7 @@ truncbin.index
 truncbin.meta
 tstate
 tztest
+unpack
 whichtimezone
 wrap_int
 write-bf

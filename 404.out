@@ -1,0 +1,67 @@
+QA output created by 404
+Expecting ... Unknown or illegal metric type
+pmUnpackEventRecords: Unknown or illegal metric type
+Expecting ... Error - ea_nrecords < 0
+pmUnpackEventRecords: Insufficient elements in list
+Expecting ... Error - ea_nmissed < 0
+pmUnpackEventRecords: Insufficient elements in list
+Expecting ... No records
+Array contains 0 records and 0 records were missed
+Expecting ... 1 record, no params
+Array contains 1 records and 0 records were missed
+pmResult[0]
+pmResult dump from 0x9e1b628 timestamp: CLOCK TIMESTAMP numpmid: 0
+Expecting ... 1 record, u32 param = 1
+Array contains 1 records and 0 records were missed
+pmResult[0]
+pmResult dump from 0x9e1b660 timestamp: CLOCK TIMESTAMP numpmid: 1
+  29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 1 1.4012985e-45 0x1
+Expecting ... 1 record, u32 param = 2, u64 param = -3
+Array contains 1 records and 0 records were missed
+pmResult[0]
+pmResult dump from 0x9e1b660 timestamp: CLOCK TIMESTAMP numpmid: 2
+  29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 2 2.8025969e-45 0x2
+  29.0.130 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value -3
+Expecting ... 4 records, 7 missed [u32=4 u64=5 str="6"][u32=7 d=8 d=-9][u32=10 u64=11 str="twelve" str="thirteen" 32=-14 u32=15][u32=16 f=-17 aggr=...]
+Array contains 4 records and 7 records were missed
+pmResult[0]
+pmResult dump from 0x9e1b6c8 timestamp: CLOCK TIMESTAMP numpmid: 3
+  29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 4 5.6051939e-45 0x4
+  29.0.131 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 5
+  29.0.134 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value "6"
+pmResult[1]
+pmResult dump from 0x9e1b710 timestamp: CLOCK TIMESTAMP numpmid: 3
+  29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 7 9.8090893e-45 0x7
+  29.0.133 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 8
+  29.0.133 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value -9
+pmResult[2]
+pmResult dump from 0x9e1bad0 timestamp: CLOCK TIMESTAMP numpmid: 6
+  29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 10 1.4012985e-44 0xa
+  29.0.131 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 11
+  29.0.134 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value "twelve"
+  29.0.134 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value "thirteen"
+  29.0.128 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 4294967282 0xfffffff2
+  29.0.129 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 15 2.1019477e-44 0xf
+pmResult[3]
+pmResult dump from 0x9e1bba0 timestamp: CLOCK TIMESTAMP numpmid: 3
+  29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 16 2.2420775e-44 0x10
+  29.0.132 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value -17
+  29.0.135 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value [blob]
