@@ -52,6 +52,9 @@ PMID: 29.0.2 (sample.seconds)
 0 sample.drift
 0 sample.error_check
 0 sample.error_code
+0 sample.event.param_32
+0 sample.event.param_64
+0 sample.event.param_aggregate
 0 sample.event.param_double
 0 sample.event.param_float
 0 sample.event.param_string
@@ -181,6 +184,9 @@ PMID: 29.0.2 (sample.seconds)
 2 sample.drift
 2 sample.error_check
 2 sample.error_code
+2 sample.event.param_32
+2 sample.event.param_64
+2 sample.event.param_aggregate
 2 sample.event.param_double
 2 sample.event.param_float
 2 sample.event.param_string
