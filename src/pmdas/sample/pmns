@@ -244,11 +244,14 @@ sample.percontext.control {
 
 sample.event {
     records		SAMPLE:4095:0
-    type		SAMPLE:0:126
-    param_u32		SAMPLE:0:127
-    param_u64		SAMPLE:0:128
-    param_string	SAMPLE:0:129
-    param_float		SAMPLE:0:130
-    param_double	SAMPLE:0:131
-    reset		SAMPLE:0:132
+    reset		SAMPLE:0:126
+    type		SAMPLE:0:127
+    param_32		SAMPLE:0:128
+    param_u32		SAMPLE:0:129
+    param_64		SAMPLE:0:130
+    param_u64		SAMPLE:0:131
+    param_float		SAMPLE:0:132
+    param_double	SAMPLE:0:133
+    param_string	SAMPLE:0:134
+    param_aggregate	SAMPLE:0:135
 }

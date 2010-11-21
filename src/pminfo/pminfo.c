@@ -41,6 +41,7 @@ static int	batchsize = 20;
 static int	batchidx;
 
 static char	*Oflag;		/* argument of -O flag */
+static int	xflag;		/* for -x */
 static int	zflag;		/* for -z */
 static char 	*tz;		/* for -Z timezone */
 static struct timeval 	start;	/* start of time window */
@@ -79,11 +80,13 @@ lookup(pmInDom indom, int inst)
  * we only ever have one metric
  */
 void
-mydump(pmDesc *dp, pmValueSet *vsp)
+mydump(pmDesc *dp, pmValueSet *vsp, char *indent)
 {
     int		j;
     char	*p;
 
+    if (indent != NULL)
+	printf("%s", indent);
     if (vsp->numval == 0) {
 	printf("No value(s) available!\n");
 	return;
@@ -117,6 +120,46 @@ mydump(pmDesc *dp, pmValueSet *vsp)
 	printf(" value ");
 	pmPrintValue(stdout, vsp->valfmt, dp->type, vp, 1);
 	putchar('\n');
+	if (dp->type == PM_TYPE_EVENT && xflag) {
+	    int		r;		/* event records */
+	    int		p;		/* event parameters */
+	    int		nrecords;
+	    pmResult	**res;
+
+	    nrecords = pmUnpackEventRecords(vp->value.pval, &res, NULL);
+
+	    for (r = 0; r < nrecords; r++) {
+		printf("    --- event record [%d] timestamp ", r);
+		__pmPrintStamp(stdout, &res[r]->timestamp);
+		printf(" ---\n");
+		if (res[r]->numpmid == 0) {
+		    printf("	No parameters\n");
+		    continue;
+		}
+		if (res[r]->numpmid < 0) {
+		    printf("	Error: illegal number of parameters (%d)\n", res[r]->numpmid);
+		    continue;
+		}
+		for (p = 0; p < res[r]->numpmid; p++) {
+		    pmValueSet	*xvsp = res[r]->vset[p];
+		    int		sts;
+		    pmDesc	desc;
+		    char	*name;
+		    if (pmNameID(xvsp->pmid, &name) >= 0) {
+			printf("    %s (%s)\n", name, pmIDStr(xvsp->pmid));
+			free(name);
+		    }
+		    else
+			printf("	PMID: %s\n", pmIDStr(xvsp->pmid));
+		    if ((sts = pmLookupDesc(xvsp->pmid, &desc)) < 0) {
+			printf("	pmLookupDesc: %s\n", pmErrStr(sts));
+			continue;
+		    }
+		    mydump(&desc, xvsp, "    ");
+		}
+	    }
+	    pmFreeEventResult(res);
+	}
     }
 }
 
@@ -287,7 +330,7 @@ report(void)
 	}
 
 	if (p_value) {
-	    mydump(&desc, vsp);
+	    mydump(&desc, vsp, NULL);
 	}
     }
 
@@ -350,6 +393,7 @@ Options:\n\
   -T		get and display (verbose) help text\n\
   -v		verify mode, be quiet and only report errors\n\
 		(forces other output control options off)\n\
+  -x		like -f and expand event records\n\
   -Z timezone   set timezone for -O\n\
   -z            set timezone for -O to local time for host from -a\n",
 		pmProgname);
@@ -363,7 +407,7 @@ ParseOptions(int argc, char *argv[])
     int		errflag = 0;
     char	*endnum;
     char	*errmsg;
-    char	*opts = "a:b:c:dD:Ffn:h:K:LMmO:tTvzZ:?";
+    char	*opts = "a:b:c:dD:Ffn:h:K:LMmO:tTvxzZ:?";
 
     while ((c = getopt(argc, argv, opts)) != EOF) {
 	switch (c) {
@@ -483,6 +527,12 @@ ParseOptions(int argc, char *argv[])
 
 	    case 'v':
 		verify = 1;
+		need_context = 1;
+		need_pmid = 1;
+		break;
+
+	    case 'x':
+		xflag = p_value = 1;
 		need_context = 1;
 		need_pmid = 1;
 		break;

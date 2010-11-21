@@ -230,28 +230,28 @@ extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
  * These are for debugging only (but are present in the shipped libpcp)
  */
 EXTERN int	pmDebug;
-#define  DBG_TRACE_PDU		1	/* PDU send and receive */
-#define  DBG_TRACE_FETCH	2	/* dump pmFetch results */
-#define  DBG_TRACE_PROFILE	4	/* trace profile changes */
-#define  DBG_TRACE_VALUE	8	/* metric value conversions */
-#define  DBG_TRACE_CONTEXT	16	/* trace PMAPI context changes */
-#define  DBG_TRACE_INDOM	32	/* instance domain operations */
-#define  DBG_TRACE_PDUBUF	64	/* PDU buffer management */
-#define  DBG_TRACE_LOG		128	/* generic archive log operations */
-#define  DBG_TRACE_LOGMETA	(1<<8)	/* meta data in archives */
-#define  DBG_TRACE_OPTFETCH	(1<<9)	/* optFetch tracing */
-#define  DBG_TRACE_AF		(1<<10)	/* trace async timer events */
-#define  DBG_TRACE_APPL0	(1<<11)	/* reserved for applications */
-#define  DBG_TRACE_APPL1	(1<<12)	/* reserved for applications */
-#define  DBG_TRACE_APPL2	(1<<13)	/* reserved for applications */
-#define  DBG_TRACE_PMNS		(1<<14)	/* PMNS operations */
-#define  DBG_TRACE_LIBPMDA	(1<<15)	/* libpcp_pmda */
-#define  DBG_TRACE_TIMECONTROL	(1<<16)	/* time control api */
-#define  DBG_TRACE_PMC		(1<<17)	/* metrics class */
-#define  DBG_TRACE_DERIVE	(1<<18)	/* derived metrics */
-#define  DBG_TRACE_INTERP	(1<<20)	/* interpolate mode for archives */
-#define  DBG_TRACE_CONFIG	(1<<21) /* configuration parameters */
-#define  DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
+#define DBG_TRACE_PDU		1	/* PDU send and receive */
+#define DBG_TRACE_FETCH		2	/* dump pmFetch results */
+#define DBG_TRACE_PROFILE	4	/* trace profile changes */
+#define DBG_TRACE_VALUE		8	/* metric value conversions */
+#define DBG_TRACE_CONTEXT	16	/* trace PMAPI context changes */
+#define DBG_TRACE_INDOM		32	/* instance domain operations */
+#define DBG_TRACE_PDUBUF	64	/* PDU buffer management */
+#define DBG_TRACE_LOG		128	/* generic archive log operations */
+#define DBG_TRACE_LOGMETA	(1<<8)	/* meta data in archives */
+#define DBG_TRACE_OPTFETCH	(1<<9)	/* optFetch tracing */
+#define DBG_TRACE_AF		(1<<10)	/* trace async timer events */
+#define DBG_TRACE_APPL0		(1<<11)	/* reserved for applications */
+#define DBG_TRACE_APPL1		(1<<12)	/* reserved for applications */
+#define DBG_TRACE_APPL2		(1<<13)	/* reserved for applications */
+#define DBG_TRACE_PMNS		(1<<14)	/* PMNS operations */
+#define DBG_TRACE_LIBPMDA	(1<<15)	/* libpcp_pmda */
+#define DBG_TRACE_TIMECONTROL	(1<<16)	/* time control api */
+#define DBG_TRACE_PMC		(1<<17)	/* metrics class */
+#define DBG_TRACE_DERIVE	(1<<18)	/* derived metrics */
+#define DBG_TRACE_INTERP	(1<<20)	/* interpolate mode for archives */
+#define DBG_TRACE_CONFIG	(1<<21) /* configuration parameters */
+#define DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
 
 extern int __pmParseDebug(const char *);
 extern void __pmDumpResult(FILE *, const pmResult *);
@@ -268,15 +268,6 @@ extern void __pmDumpNameList(FILE *, int, char **);
 extern void __pmDumpStatusList(FILE *, int, const int *);
 extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *);
 #endif
-
-/*
- * struct timeval is sometimes 2 x 64-bit ... we use a 2 x 32-bit format for
- * PDUs, internally within libpcp and for (external) archive logs
- */
-typedef struct {
-    __int32_t	tv_sec;		/* seconds since Jan. 1, 1970 */
-    __int32_t	tv_usec;	/* and microseconds */
-} __pmTimeval;
 
 /*
  * Logs and archives of performance metrics (not to be confused
@@ -358,7 +349,7 @@ typedef struct {
     __pmTimeval	l_endtime;	/* (when reading) timestamp at logical EOF */
     int		l_numti;	/* (when reading) no. temporal index entries */
     __pmLogTI	*l_ti;		/* (when reading) temporal index */
-    __pmnsTree  *l_pmns;        /* namespace from meta data */
+    __pmnsTree	*l_pmns;        /* namespace from meta data */
 } __pmLogCtl;
 
 /* l_state values */

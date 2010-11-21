@@ -478,13 +478,22 @@ extern int pmFetch(int, pmID *, pmResult **);
 extern int pmFetchArchive(pmResult **);
 
 /*
+ * struct timeval is sometimes 2 x 64-bit ... we use a 2 x 32-bit format for
+ * PDUs, internally within libpcp and for (external) archive logs
+ */
+typedef struct {
+    __int32_t	tv_sec;		/* seconds since Jan. 1, 1970 */
+    __int32_t	tv_usec;	/* and microseconds */
+} __pmTimeval;
+
+/*
  * Label Record at the start of every log file - as exported above
  * the PMAPI ...
  * NOTE MAXHOSTNAMELEN is a bad choice here for ll_hostname[], as
  *	it may vary on different hosts ... we use PM_LOG_MAXHOSTLEN instead, and
  *	size this to be the same as MAXHOSTNAMELEN in IRIX 5.3
- * NOTE	that the struct timeval means we have another struct (__pmLogLabel32)
- *	for internal use that has a timeval_32 in place of the struct timeval.
+ * NOTE	that the struct timeval means we have another struct (__pmLogLabel)
+ *	for internal use that has a __pmTimeval in place of the struct timeval.
  */
 #define PM_TZ_MAXLEN	40
 #define PM_LOG_MAXHOSTLEN		64
@@ -573,11 +582,11 @@ extern struct tm *pmLocaltime(const time_t *, struct tm *);
 
 /* Parse host:metric[instances] or archive/metric[instances] */
 typedef struct {
-    int         isarch;         /* source type: 0 -> live host, 1 -> archive, 2 -> local context */
-    char        *source;        /* name of source host or archive */
-    char        *metric;        /* name of metric */
-    int         ninst;          /* number of instances, 0 -> all */
-    char        *inst[1];       /* array of instance names */
+    int		isarch;         /* source type: 0 -> live host, 1 -> archive, 2 -> local context */
+    char	*source;        /* name of source host or archive */
+    char	*metric;        /* name of metric */
+    int		ninst;          /* number of instances, 0 -> all */
+    char	*inst[1];       /* array of instance names */
 } pmMetricSpec;
 
 /* parsing of host:metric[instances] or archive/metric[instances] */
@@ -670,7 +679,7 @@ extern int pmRequestTraversePMNS(int, const char *);
 #define PM_CLUSTER_EVENT	4095
 
 typedef struct {
-    pmID                ep_pmid;
+    pmID		ep_pmid;
     /* vtype and vlen fields the format same as for pmValueBlock */
 #ifdef HAVE_BITFIELDS_LTOR
     unsigned int	ep_type : 8;	/* value type */
@@ -683,9 +692,9 @@ typedef struct {
 } pmEventParameter;
 
 typedef struct {
-    struct timeval      er_timestamp;
-    int                 er_nparams;     /* number of er_param[] entries */
-    pmEventParameter    er_param[1];
+    __pmTimeval		er_timestamp;	/* must be 2 x 32-bit format */
+    int			er_nparams;	/* number of er_param[] entries */
+    pmEventParameter	er_param[1];
 } pmEventRecord;
 
 typedef struct {
@@ -698,12 +707,16 @@ typedef struct {
     unsigned int	ea_type : 8;	/* value type */
 #endif
 		/* real event records start here */
-    int                 ea_nrecords;    /* number of ea_record[] entries */
-    int                 ea_nmissed;     /* number of missed event records */
-    pmEventRecord       ea_record[1];
+    int			ea_nrecords;    /* number of ea_record[] entries */
+    int			ea_nmissed;	/* number of missed event records */
+    pmEventRecord	ea_record[1];
 } pmEventArray;
 
-extern int pmUnpackEventRecords(pmValueBlock *, pmResult **, int *);
+/* unpack a PM_TYPE_EVENT value into a set on pmResults */
+extern int pmUnpackEventRecords(pmValueBlock *, pmResult ***, int *);
+
+/* Free set of pmResults from pmUnpackEventRecords */
+extern void pmFreeEventResult(pmResult **);
 
 #ifdef __cplusplus
 }

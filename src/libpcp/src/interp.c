@@ -396,7 +396,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		    }
 #ifdef PCP_DEBUG
 		    if ((pmDebug & DBG_TRACE_INTERP) && changed) {
-			fprintf(stderr, "update%s pmid %s inst %d prior: t==%.3f",
+			fprintf(stderr, "update%s pmid %s inst %d prior: t=%.3f",
 			    changed & 2 ? "+search" : "",
 			    pmIDStr(logrp->vset[k]->pmid), icp->inst, icp->t_prior);
 			if (icp->m_prior)

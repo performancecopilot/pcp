@@ -301,20 +301,26 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,125), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /* event.records */
     { PMDA_PMID(PM_CLUSTER_EVENT,0), PM_TYPE_EVENT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* event.type */
-    { PMDA_PMID(0,126), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* event.param_u32 */
-    { PMDA_PMID(0,127), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* event.param_u64 */
-    { PMDA_PMID(0,128), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* event.param_string */
-    { PMDA_PMID(0,129), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* event.param_float */
-    { PMDA_PMID(0,130), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* event.param_double */
-    { PMDA_PMID(0,131), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* event.reset */
-    { PMDA_PMID(0,132), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+    { PMDA_PMID(0,126), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.type */
+    { PMDA_PMID(0,127), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.param_32 */
+    { PMDA_PMID(0,128), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.param_u32 */
+    { PMDA_PMID(0,129), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.param_64 */
+    { PMDA_PMID(0,130), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.param_u64 */
+    { PMDA_PMID(0,131), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.param_float */
+    { PMDA_PMID(0,132), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.param_double */
+    { PMDA_PMID(0,133), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.param_string */
+    { PMDA_PMID(0,134), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.param_aggregate */
+    { PMDA_PMID(0,135), PM_TYPE_AGGREGATE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /*
  * dynamic PMNS ones
@@ -1584,12 +1590,15 @@ doit:
 	    else if (pmidp->cluster == 0 && pmidp->item == 92)	/* darkness */
 		numval = 0;
 	    else if (pmidp->cluster == 0 &&
-	             (pmidp->item == 126 ||	/* event.type */
-		      pmidp->item == 127 ||	/* event.param_u32 */
-		      pmidp->item == 128 ||	/* event.param_u64 */
-		      pmidp->item == 129 ||	/* event.param_string */
-		      pmidp->item == 130 ||	/* event.param_float */
-		      pmidp->item == 131))	/* event.param_double */
+	             (pmidp->item == 127 ||	/* event.type */
+		      pmidp->item == 128 ||	/* event.param_32 */
+		      pmidp->item == 129 ||	/* event.param_u32 */
+		      pmidp->item == 130 ||	/* event.param_64 */
+		      pmidp->item == 131 ||	/* event.param_u64 */
+		      pmidp->item == 132 ||	/* event.param_float */
+		      pmidp->item == 133 ||	/* event.param_double */
+		      pmidp->item == 134 ||	/* event.param_string */
+		      pmidp->item == 135))	/* event.param_aggregate */
 		numval = 0;
 	    else if (dp->type == PM_TYPE_NOSUPPORT)
 		numval = PM_ERR_APPVERSION;
@@ -2267,7 +2276,7 @@ doit:
 		    case 120:	/* scramble.version */
 			atom.ll = scramble_ver;
 			break;
-		    case 132:	/* event.reset */
+		    case 126:	/* event.reset */
 			atom.ul = event_get_c();
 			break;
 		    case 1000:	/* secret.bar */
@@ -2474,7 +2483,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 89:	/* dynamic.meta.pmdesc.sem */
 	    case 90:	/* dynamic.meta.pmdesc.units */
 	    case 97:	/* ulong.write_me */
-	    case 132:	/* event.reset */
+	    case 126:	/* event.reset */
 		if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
 		    sts = PM_ERR_CONV;
 		break;
@@ -2607,7 +2616,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 		}
 		indomtab[SCRAMBLE_INDOM].it_numinst = indomtab[BIN_INDOM].it_numinst;
 		break;
-	    case 132:	/* event.reset */
+	    case 126:	/* event.reset */
 		event_set_c(av.ul);
 		break;
 	    default:
