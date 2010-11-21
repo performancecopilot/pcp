@@ -138,8 +138,8 @@ dump(char *xpect)
     for (r = 0; r < nrecords; r++) {
 	fprintf(stderr, "pmResult[%d]\n", r);
 	__pmDumpResult(stderr, res[r]);
-	pmFreeResult(res[r]);
     }
+    pmFreeEventResult(res);
 }
 
 int
@@ -150,6 +150,7 @@ main(int argc, char **argv)
     char		c;
     struct timeval	stamp;
     pmAtomValue		atom;
+    int			savelen;
 /* === begin largely copied from samplepmda events.c === */
     static char		aggr[] = { '\01', '\03', '\07', '\017', '\037', '\077', '\177', '\377' };
     pmID		pmid_type = PMDA_PMID(0,127);	/* event.type */
@@ -235,6 +236,9 @@ main(int argc, char **argv)
     dump("Error - ea_nmissed < 0");
     eap->ea_nmissed = 0;
 
+    eap->ea_len = PM_VAL_HDR_SIZE;
+    dump("Error - vlen way too small");
+
     eap->ea_len = eptr - ebuf;
     dump("No records");
 
@@ -260,6 +264,8 @@ main(int argc, char **argv)
     add_param(pmid_64, PM_TYPE_64, &atom);
     eap->ea_len = eptr - ebuf;
     dump("1 record, u32 param = 2, u64 param = -3");
+    eap->ea_len--;
+    dump("Error - buffer overrun @ parameter");
 
     reset();
     add_record(&stamp);
@@ -292,6 +298,7 @@ main(int argc, char **argv)
     add_param(pmid_32, PM_TYPE_32, &atom);
     atom.ul = 15;
     add_param(pmid_u32, PM_TYPE_U32, &atom);
+    savelen = eptr - ebuf;
     add_record(&stamp);
     stamp.tv_sec++;
     atom.ul = 16;
@@ -304,6 +311,9 @@ main(int argc, char **argv)
     eap->ea_nmissed = 7;
     dump("4 records, 7 missed [u32=4 u64=5 str=\"6\"][u32=7 d=8 d=-9][u32=10 u64=11 str=\"twelve\" str=\"thirteen\" 32=-14 u32=15][u32=16 f=-17 aggr=...]");
     eap->ea_nmissed = 0;
+
+    eap->ea_len = savelen;
+    dump("Error - buffer overrun @ record");
 
     return 0;
 }

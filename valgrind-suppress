@@ -1,5 +1,13 @@
+# to add to these, run the failing case with
+#	valgrind --gen-suppressions=yes ...
+#
+# I see different results on Ubuntu 10.10 depending if the binaries
+# are build by Makepkgs or build and installed from a source repository
+# which probably a compiler flags issue
+# - Ken
+#
 {
-   posix_formatter_calls_putenv
+   posix_formatter calls putenv debug binaries
    Memcheck:Leak
    fun:malloc
    fun:strdup
@@ -9,6 +17,21 @@
    fun:getfname
    fun:load
    fun:pmLoadNameSpace
-   fun:main
+   fun:*
 }
+
+{
+   posix_formatter calls putenv for packaged binaries
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   obj:/usr/lib/libpcp.so*
+   fun:__pmConfig
+   fun:pmGetConfig
+   obj:/usr/lib/libpcp.so*
+   obj:/usr/lib/libpcp.so*
+   fun:pmLoadNameSpace
+   fun:*
+}
+
 
