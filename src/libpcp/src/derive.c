@@ -546,8 +546,9 @@ map_desc(int n, node_t *np)
      * PM_SEM_DISCRETE in which case the result is also PM_SEM_DISCRETE
      *
      * type promotion (similar to ANSI C)
-     * PM_TYPE_STRING, PM_TYPE_AGGREGATE and PM_TYPE_AGGREGATE_STATIC are
-     * illegal operands except for renaming (no operator involved)
+     * PM_TYPE_STRING, PM_TYPE_AGGREGATE, PM_TYPE_AGGREGATE_STATIC
+     * and PM_TYPE_EVENT are illegal operands except for renaming
+     * (where no operator is involved)
      * for all operands, division => PM_TYPE_DOUBLE
      * else PM_TYPE_DOUBLE & any type => PM_TYPE_DOUBLE
      * else PM_TYPE_FLOAT & any type => PM_TYPE_FLOAT
@@ -807,6 +808,8 @@ dump_value(int type, pmAtomValue *avp)
 	    break;
 
 	case PM_TYPE_AGGREGATE:
+	case PM_TYPE_AGGREGATE_STATIC:
+	case PM_TYPE_EVENT:
 	case PM_TYPE_UNKNOWN:
 	    fprintf(stderr, "[blob]");
 	    break;
@@ -1262,6 +1265,7 @@ next_line:
 	else
 	    *p++ = c;
     }
+    free(buf);
     return sts;
 }
 

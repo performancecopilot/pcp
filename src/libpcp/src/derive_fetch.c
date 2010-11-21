@@ -151,8 +151,8 @@ __dmprefetch(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmID **newlist)
 
 /*
  * Free the old ivlist[] (if any) ... may need to walk the list because
- * the pmAtomValues may have buffers attached in the type STRING and
- * type AGGREGATE* cases.
+ * the pmAtomValues may have buffers attached in the type STRING,
+ * type AGGREGATE* and type EVENT cases.
  * Includes logic to save one history sample (for delta()).
  */
 static void
@@ -164,7 +164,10 @@ free_ivlist(node_t *np)
 
     if (np->save_last) {
 	if (np->info->last_ivlist != NULL) {
-	    /* no STRING or AGGREGATE types for delta(), so simple free() */
+	    /*
+	     * no STRING, AGGREGATE or EVENT types for delta(),
+	     * so simple free()
+	     */
 	    free(np->info->last_ivlist);
 	}
 	np->info->last_numval = np->info->numval;
@@ -175,7 +178,8 @@ free_ivlist(node_t *np)
 	if (np->info->ivlist != NULL) {
 	    if (np->desc.type == PM_TYPE_STRING ||
 		np->desc.type == PM_TYPE_AGGREGATE ||
-		np->desc.type == PM_TYPE_AGGREGATE_STATIC) {
+		np->desc.type == PM_TYPE_AGGREGATE_STATIC ||
+		np->desc.type == PM_TYPE_EVENT) {
 		for (i = 0; i < np->info->numval; i++) {
 		    if (np->info->ivlist[i].value.vp != NULL)
 			free(np->info->ivlist[i].value.vp);
@@ -817,6 +821,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 
 			    case PM_TYPE_AGGREGATE:
 			    case PM_TYPE_AGGREGATE_STATIC:
+			    case PM_TYPE_EVENT:
 				if ((np->info->ivlist[i].value.vp = (void *)malloc(rp->vset[j]->vlist[i].value.pval->vlen)) == NULL) {
 				    __pmNoMem("eval_expr: aggregate value", rp->vset[j]->vlist[i].value.pval->vlen, PM_FATAL_ERR);
 				    /*NOTREACHED*/
@@ -830,7 +835,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 				 * really only PM_TYPE_NOSUPPORT should
 				 * end up here
 				 */
-				return PM_ERR_APPVERSION;
+				return PM_ERR_TYPE;
 			}
 		    }
 		    return np->info->numval;
@@ -1178,6 +1183,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		case PM_TYPE_STRING:
 		case PM_TYPE_AGGREGATE:
 		case PM_TYPE_AGGREGATE_STATIC:
+		case PM_TYPE_EVENT:
 		    need = PM_VAL_HDR_SIZE + cp->mlist[m].expr->info->ivlist[i].vlen;
 		    if (need == PM_VAL_HDR_SIZE + sizeof(__int64_t))
 			vp = (pmValueBlock *)__pmPoolAlloc(need);
