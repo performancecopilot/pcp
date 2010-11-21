@@ -1,0 +1,22 @@
+QA output created by 407
+=== This should work ===
+
+myevents
+    value [0 event records]
+
+myevents
+    value [1 event record timestamp TIMESTAMP]
+
+myevents
+    value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+
+myevents
+    value [4 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+
+=== These should NOT work ===
+Semantic error: derived metric mybad_1: sample.event.records - sample.event.records: Non-arithmetic type for left operand
+Semantic error: derived metric mybad_2: sample.event.records + 1: Non-arithmetic type for left operand
+Semantic error: derived metric mybad_3: <expr> + sample.event.records: Non-arithmetic type for right operand
+mybad_1: pmLookupDesc: Unknown or illegal metric identifier
+mybad_2: pmLookupDesc: Unknown or illegal metric identifier
+mybad_3: pmLookupDesc: Unknown or illegal metric identifier
