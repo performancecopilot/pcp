@@ -706,7 +706,7 @@ derive		pcpqa
 581 pmie local oss
 583 pmie #698718 remote oss
 584 libpcp pmie local #698774 oss
-587 pmcd #754795 local pmda.install oss
+587 pmcd #754795 local pmda.install oss pmda.trivial
 589 remote oss
 592 pmda.sample local oss
 593 pmlogger #779495 local oss
@@ -729,7 +729,7 @@ derive		pcpqa
 638 pmns local oss
 639 pmns local oss
 640 pmpost local oss
-642 pmda.trivial pmns local oss
+642 pmda.trivial pmns local oss pmda.simple pmda.sample pmda.sendmail pmda.trace
 643 pmda.trivial pmns local oss
 644 pmns local oss
 645 pmlogger local oss
@@ -952,3 +952,5 @@ derive		pcpqa
 400 pminfo mem_leak valgrind context_local libpcp local oss
 401 libpcp pminfo local oss
 404 libpcp local oss
+405 libpcp mem_leak valgrind local oss
+406 libpcp local oss

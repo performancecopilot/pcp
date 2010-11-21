@@ -177,7 +177,10 @@ Options\n\
 	sts = pmFetch(numpmid, pmid, &result);
 	if (sts < 0) {
 	    printf("sample[%d] pmFetch: %s\n", i, pmErrStr(sts));
-	    break;
+	    if (sts == PM_ERR_EOL)
+		break;
+	    printf("... this is unexpected and fatal!\n");
+	    exit(1);
 	}
 	if (prev) {
 	    tdiff = result->timestamp.tv_sec - prev->timestamp.tv_sec +
