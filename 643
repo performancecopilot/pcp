@@ -13,6 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 done_clean=false
@@ -23,6 +24,7 @@ _cleanup()
     then
 	:
     else
+	( cd $PCP_PMDAS_DIR/trivial ; $sudo make >/dev/null 2>&1 )
 	[ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
