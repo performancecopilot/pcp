@@ -31,7 +31,7 @@ pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 1
 dbpmda> 
 
 === pmda log ===
-Log for pmdasample on bozo started DATE
+Log for pmdasample on MYHOST started DATE
 
 
 Log finished DATE
