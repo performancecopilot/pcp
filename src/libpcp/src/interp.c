@@ -652,6 +652,9 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	if (pcp->desc.type == -1) {
 	    pcp->numval = PM_ERR_PMID_LOG;
 	}
+	else if (pcp->desc.type == PM_TYPE_EVENT) {
+	    pcp->numval = PM_ERR_TYPE;
+	}
 	else if (pcp->desc.indom != PM_INDOM_NULL) {
 	    /* use the profile to filter the instances to be returned */
 	    for (icp = pcp->first; icp != NULL; icp = icp->next) {
@@ -987,7 +990,7 @@ retry_forw:
 			pcp->desc.type != PM_TYPE_U64 &&
 			pcp->desc.type != PM_TYPE_FLOAT &&
 			pcp->desc.type != PM_TYPE_DOUBLE)
-			    pcp->numval = PM_ERR_VALUE;
+			    pcp->numval = PM_ERR_TYPE;
 		}
 	    }
 	}
