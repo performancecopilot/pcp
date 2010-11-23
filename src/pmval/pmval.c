@@ -369,7 +369,7 @@ howide(int type)
     case PM_TYPE_STRING: return(21);
     case PM_TYPE_AGGREGATE: return(21);
     default:
-	fprintf(stderr, "pmval: unknown performance metric value type\n");
+	fprintf(stderr, "pmval: unknown performance metric value type %s\n", pmTypeStr(type));
 	exit(EXIT_FAILURE);
     }
 }
@@ -1215,6 +1215,13 @@ main(int argc, char *argv[])
     setlinebuf(stdout);
 
     getargs(argc, argv, &cntxt, &now, &delta, &smpls, &cols);
+
+    if (cntxt.desc.type == PM_TYPE_EVENT) {
+	fprintf(stderr, "%s: Cannot display values for PM_TYPE_EVENT metrics\n",
+		pmProgname);
+	exit(EXIT_FAILURE);
+    }
+
     forever = (smpls == ALL_SAMPLES || gui);
 
     if (cols <= 0) cols = howide(cntxt.desc.type);

@@ -115,6 +115,63 @@ dumpresult(pmResult *resp)
 	    else
 		desc.type = PM_TYPE_AGGREGATE;
 	}
+	if (desc.type == PM_TYPE_EVENT) {
+	    /* lifted from pminfo -x ... */
+	    int		r;		/* event records */
+	    int		p;		/* event parameters */
+	    int		nrecords;
+	    int		nmissed;
+	    pmResult	**res;
+
+	    nrecords = pmUnpackEventRecords(vsp, &res, &nmissed);
+	    if (nrecords < 0)
+		continue;
+	    if (nrecords == 0) {
+		printf(" No event records\n");
+		continue;
+	    }
+	    printf(" %d", nrecords);
+	    if (nmissed > 0)
+		printf(" (and %d missed)", nmissed);
+	    if (nrecords + nmissed == 1)
+		printf(" event record\n");
+	    else
+		printf(" event records\n");
+	    for (r = 0; r < nrecords; r++) {
+		printf("              --- event record [%d] timestamp ", r);
+		__pmPrintStamp(stdout, &res[r]->timestamp);
+		printf(" ---\n");
+		if (res[r]->numpmid == 0) {
+		    printf("	          No parameters\n");
+		    continue;
+		}
+		if (res[r]->numpmid < 0) {
+		    printf("	          Error: illegal number of parameters (%d)\n", res[r]->numpmid);
+		    continue;
+		}
+		for (p = 0; p < res[r]->numpmid; p++) {
+		    pmValueSet	*xvsp = res[r]->vset[p];
+		    int		sts;
+		    pmDesc	desc;
+		    char	*name;
+		    if (pmNameID(xvsp->pmid, &name) >= 0) {
+			printf("              %s (%s):", pmIDStr(xvsp->pmid), name);
+			free(name);
+		    }
+		    else
+			printf("	      PMID: %s:", pmIDStr(xvsp->pmid));
+		    if ((sts = pmLookupDesc(xvsp->pmid, &desc)) < 0) {
+			printf("	      pmLookupDesc: %s\n", pmErrStr(sts));
+			continue;
+		    }
+		    printf(" value ");
+		    pmPrintValue(stdout, xvsp->valfmt, desc.type, &xvsp->vlist[0], 1);
+		    putchar('\n');
+		}
+	    }
+	    pmFreeEventResult(res);
+	    continue;
+	}
 	if (vsp->numval > 1)
 	    printf("\n              ");
 	for (j = 0; j < vsp->numval; j++) {

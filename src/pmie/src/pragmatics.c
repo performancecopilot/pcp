@@ -648,6 +648,7 @@ initMetric(Metric *m)
     if (m->desc.type == PM_TYPE_STRING ||
 	m->desc.type == PM_TYPE_AGGREGATE ||
 	m->desc.type == PM_TYPE_AGGREGATE_STATIC ||
+	m->desc.type == PM_TYPE_EVENT ||
 	m->desc.type == PM_TYPE_UNKNOWN) {
 	fprintf(stderr, "%s: metric %s has non-numeric type\n", pmProgname, mname);
 	ret = -1;
@@ -821,6 +822,7 @@ reinitMetric(Metric *m)
     if (m->desc.type == PM_TYPE_STRING ||
 	m->desc.type == PM_TYPE_AGGREGATE ||
 	m->desc.type == PM_TYPE_AGGREGATE_STATIC ||
+	m->desc.type == PM_TYPE_EVENT ||
 	m->desc.type == PM_TYPE_UNKNOWN) {
 	fprintf(stderr, "%s: metric %s has non-numeric type\n", pmProgname, mname);
 	ret = -1;

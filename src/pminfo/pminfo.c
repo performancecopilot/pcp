@@ -158,7 +158,8 @@ mydump(pmDesc *dp, pmValueSet *vsp, char *indent)
 		    mydump(&desc, xvsp, "    ");
 		}
 	    }
-	    pmFreeEventResult(res);
+	    if (nrecords >= 0)
+		pmFreeEventResult(res);
 	}
     }
 }

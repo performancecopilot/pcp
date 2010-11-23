@@ -421,6 +421,12 @@ main(int argc, char **argv)
 	exit(1);
     }
 
+    if (desc.type == PM_TYPE_EVENT) {
+	fprintf(stderr, "%s: Cannot modify values for PM_TYPE_EVENT metrics\n",
+	    pmProgname);
+	exit(1);
+    }
+
     /* value is argv[optind] */
     mkAtom(&nav, &aggr_len, desc.type, argv[optind]);
 
