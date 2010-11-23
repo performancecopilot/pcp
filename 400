@@ -28,7 +28,6 @@ _filter()
 want == 1	{ print "        value [blob]"; want = 0; next }
 $1 == "sampledso.event.param_aggregate"	{ want = 1 }
 		{ print }'
-
 }
 
 # real QA test starts here
