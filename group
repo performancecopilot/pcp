@@ -635,14 +635,25 @@ derive		pcpqa
 394 archive mem_leak valgrind local oss
 395 archive mem_leak valgrind local oss
 396 pmval local oss
+397 dbpmda libpcp local oss pdu
 398 pmcd local oss
 399 pmie local oss
+400 pminfo mem_leak valgrind context_local libpcp local oss
+401 libpcp pminfo local oss
 402 archive local pmprobe oss
 403 pmprobe pminfo pmval #541380 local oss sanity
+404 libpcp local oss
+405 libpcp mem_leak valgrind local oss
+406 libpcp local oss
+407 derive local oss
 408 pmda local #627395 help oss
+409 libpcp pminfo local oss
+410 pmdumplog local oss
 411 pmda.simple local pmda.install oss
 412 wrap archive libpcp pmval local oss
+413 pmie local oss
 414 libpcp_dev local oss
+415 pmval pmstore local oss
 417 archive local oss
 418 pmdumplog local oss
 419 pmdumplog local oss
@@ -948,12 +959,3 @@ derive		pcpqa
 1233 pmsnap local sgi
 1234 pmchart local sgi
 1236 #935639 pmchart local sgi
-397 dbpmda libpcp local oss pdu
-400 pminfo mem_leak valgrind context_local libpcp local oss
-401 libpcp pminfo local oss
-404 libpcp local oss
-405 libpcp mem_leak valgrind local oss
-406 libpcp local oss
-407 derive local oss
-409 libpcp pminfo local oss
-410 pmdumplog local oss
