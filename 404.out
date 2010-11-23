@@ -1,11 +1,26 @@
 QA output created by 404
 Expecting ... Unknown or illegal metric type
+Event Records Dump ...
+PMID: 29.4095.0 numval: 1 valfmt: 1 inst: -1 vtype: 32 vlen: 0
+Error: bad vtype
 pmUnpackEventRecords: Unknown or illegal metric type
 Expecting ... Error - ea_nrecords < 0
+Event Records Dump ...
+PMID: 29.4095.0 numval: 1 valfmt: 1 inst: -1 vtype: EVENT vlen: 12
+nrecords: -1 nmissed: 0
+Error: bad nrecords
 pmUnpackEventRecords: Insufficient elements in list
 Expecting ... Error - ea_nmissed < 0
+Event Records Dump ...
+PMID: 29.4095.0 numval: 1 valfmt: 1 inst: -1 vtype: EVENT vlen: 12
+nrecords: 0 nmissed: -1
+Warning: bad nmissed
+Warning: no event records
 pmUnpackEventRecords: Insufficient elements in list
 Expecting ... Error - vlen way too small
+Event Records Dump ...
+PMID: 29.4095.0 numval: 1 valfmt: 1 inst: -1 vtype: EVENT vlen: 4
+Error: bad len (smaller than minimum size 12)
 pmUnpackEventRecords: Insufficient elements in list
 Expecting ... No records
 Array contains 0 records and 0 records were missed
@@ -28,6 +43,12 @@ pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 2
   29.0.130 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value -3
 Expecting ... Error - buffer overrun @ parameter
+Event Records Dump ...
+PMID: 29.4095.0 numval: 1 valfmt: 1 inst: -1 vtype: EVENT vlen: 51
+nrecords: 1 nmissed: 0
+Event Record [0] with 2 parameters
+    Parameter [0]: 29.0.127 = 2
+    Parameter [1]: Error: buffer overflow
 pmUnpackEventRecords: Result size exceeded
 Expecting ... 4 records, 7 missed [u32=4 u64=5 str="6"][u32=7 d=8 d=-9][u32=10 u64=11 str="twelve" str="thirteen" 32=-14 u32=15][u32=16 f=-17 aggr=...]
 Array contains 4 records and 7 records were missed
@@ -70,4 +91,24 @@ pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 3
   29.0.135 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value [blob]
 Expecting ... Error - buffer overrun @ record
+Event Records Dump ...
+PMID: 29.4095.0 numval: 1 valfmt: 1 inst: -1 vtype: EVENT vlen: 216
+nrecords: 4 nmissed: 0
+Event Record [0] with 3 parameters
+    Parameter [0]: 29.0.127 = 4
+    Parameter [1]: 29.0.131 = 5
+    Parameter [2]: 29.0.134 = "6"
+Event Record [1] with 3 parameters
+    Parameter [0]: 29.0.127 = 7
+    Parameter [1]: 29.0.133 = 8
+    Parameter [2]: 29.0.133 = -9
+Event Record [2] with 6 parameters
+    Parameter [0]: 29.0.127 = 10
+    Parameter [1]: 29.0.131 = 11
+    Parameter [2]: 29.0.134 = "twelve"
+    Parameter [3]: 29.0.134 = "thirteen"
+    Parameter [4]: 29.0.128 = -14
+    Parameter [5]: 29.0.129 = 15
+Event Record [3]
+Error: buffer overflow
 pmUnpackEventRecords: Result size exceeded
