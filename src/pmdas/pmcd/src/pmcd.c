@@ -1307,16 +1307,11 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.ul = lpp[j].port;
 				break;
 			    case 1:		/* pmlogger.pmcd_host */
-				if (lpp[j].pmcd_host != NULL)
-				    atom.cp = lpp[j].pmcd_host;
-				else
-				    atom.cp = strdup("");
+				atom.cp = lpp[j].pmcd_host ?
+						lpp[j].pmcd_host : "";
 				break;
 			    case 2:		/* pmlogger.archive */
-				if (lpp[j].archive != NULL)
-				    atom.cp = lpp[j].archive;
-				else
-				    atom.cp = strdup("");
+				atom.cp = lpp[j].archive ? lpp[j].archive : "";
 				break;
 			    case 3:		/* pmlogger.host */
 				if (hostname == NULL) {
@@ -1328,10 +1323,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				    if (hep != NULL)
 					hostname = strdup(hep->h_name);
 				}
-				if (hostname != NULL)
-				    atom.cp = strdup(hostname);
-				else
-				    atom.cp = strdup("");
+				atom.cp = (hostname != NULL) ? hostname : "";
 				break;
 			}
 			sts = __pmStuffValue(&atom, 0,
@@ -1408,13 +1400,13 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    pmie = (pmiestats_t *)pmies[j].mmap;
 		    switch (pmidp->item) {
 			case 0:		/* pmie.configfile */
-			    atom.cp = strdup(pmie->config);
+			    atom.cp = pmie->config;
 			    break;
 			case 1:		/* pmie.logfile */
-			    atom.cp = strdup(pmie->logfile);
+			    atom.cp = pmie->logfile;
 			    break;
 			case 2:		/* pmie.pmcd_host */
-			    atom.cp = strdup(pmie->defaultfqdn);
+			    atom.cp = pmie->defaultfqdn;
 			    break;
 			case 3:		/* pmie.numrules */
 			    atom.ul = pmie->numrules;
@@ -1468,6 +1460,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		}
 		for (j = numval = 0; j < nClients; ++j) {
 		    int		k;
+		    char	ctim[sizeof("Thu Nov 24 18:22:48 1986\n")];
 		    if (!client[j].status.connected)
 			continue;
 		    if (!__pmInProfile(clientindom, _profile, client[j].seq))
@@ -1477,16 +1470,16 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			case 0:		/* client.whoami */
 			    for (k = 0; k < nwhoamis; k++) {
 				if (whoamis[k].seq == client[j].seq) {
-				    atom.cp = strdup(whoamis[k].value);
+				    atom.cp = whoamis[k].value;
 				    break;
 				}
 			    }
 			    if (k == nwhoamis)
 				/* no id registered, so no value */
-				atom.cp = strdup("");
+				atom.cp = "";
 			    break;
 			case 1:		/* client.start_date */
-			    atom.cp = strdup(ctime(&client[j].start));
+			    atom.cp = strcpy(ctim, ctime(&client[j].start));
 			    /* trim trailing \n */
 			    k = strlen(atom.cp);
 			    atom.cp[k-1] = '\0';

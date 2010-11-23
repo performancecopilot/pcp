@@ -45,7 +45,7 @@ is initiated by a client calling
 This is the only generic callback (see
 .BR PMDA (3))
 that is incomplete, requiring
-a callback of it's own.  The additional callback should be registered using
+a callback of its own.  The additional callback should be registered using
 .BR pmdaSetFetchCallBack.
 .PP
 .B pmdaFetch
@@ -66,9 +66,9 @@ structure with the metric's value.  This value is then copied into the
 .B pmResult
 structure.
 .PP
-For example, a PMDA has two metrics (A and B) and an instance domain (X) with
-two instances (X1 and X2).  The instance domain and metrics description tables
-(see 
+For example, a PMDA has three metrics (A, B and C) and an instance
+domain (X) with two instances (X1 and X2).  The instance domain and
+metrics description tables (see
 .BR pmdaInit (3))
 could be defined as:
 .PP
@@ -93,6 +93,10 @@ static pmdaMetric metrictab[] = {
     { (void *)0, 
       { PMDA_PMID(0,1), PM_TYPE_DOUBLE, X_INDOM, PM_SEM_INSTANT, 
         { 0,1,0,0,PM_TIME_SEC,0} }, },
+/* C */
+    { (void *)0, 
+      { PMDA_PMID(0,2), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, 
+        { 0,0,0,0,0,0} }, },
 };
 .in
 .fi
@@ -108,6 +112,10 @@ static int
 myFetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmdaAtomValue *atom)
 {
     __pmID_int    *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    static char *was_string = NULL;
+
+    free(was_string);
+    was_string = NULL;
 
     switch (idp->item) {
         case 0:
@@ -124,6 +132,10 @@ myFetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmdaAtomValue *atom)
                 default:
                     return PM_ERR_INST;
             }
+        case 2:
+            atom->cp = was_string = strdup("value of C");
+            break;
+	    
         default:
             return PM_ERR_PMID;
     }
@@ -147,6 +159,15 @@ the PMID or the instance are not supported then
 or
 .B PM_ERR_INST
 should be returned, respectively.
+.PP
+If the callback returns a value for an instance of a metric of type
+.B PM_TYPE_STRING
+or
+.B PM_TYPE_AGGREGATE
+then the callback is responsible for the memory allocation and release.
+The callback has the option of using a static buffer and returning the
+pointer to such buffer or allocating the memory dynamically and releasing
+the allocated memory on next call.
 .SH DIAGNOSTICS
 The following error messages indicate that there is discrepancy between the
 namespace, 
