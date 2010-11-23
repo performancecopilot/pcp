@@ -88,6 +88,7 @@ typedef struct {
 #define PM_TYPE_STRING           6    /* array of char */
 #define PM_TYPE_AGGREGATE        7    /* arbitrary binary data */
 #define PM_TYPE_AGGREGATE_STATIC 8    /* static pointer to aggregate */
+#define PM_TYPE_EVENT            9    /* packed pmEventArray */
 #define PM_TYPE_UNKNOWN          255  /* used in pmValueBlock, not pmDesc */
 
 
@@ -114,9 +115,11 @@ i.e. applications above the PMAPI never have to deal with 8-bit and 16-bit
 counters.
 .PP
 If the value of a performance metric is of type
-.B PM_TYPE_AGGREGATE
-(or indeed
-.BR PM_TYPE_STRING ),
+.BR PM_TYPE_AGGREGATE ,
+.BR PM_TYPE_AGGREGATE_STATIC,
+.B PM_TYPE_EVENT
+or
+.BR PM_TYPE_STRING ,
 the interpretation of the value is unknown to the PMCS.
 In these cases, the
 application using the value, and the PMDA providing the value must have some

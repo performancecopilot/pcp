@@ -126,7 +126,7 @@ mydump(pmDesc *dp, pmValueSet *vsp, char *indent)
 	    int		nrecords;
 	    pmResult	**res;
 
-	    nrecords = pmUnpackEventRecords(vp->value.pval, &res, NULL);
+	    nrecords = pmUnpackEventRecords(vsp, &res, NULL);
 
 	    for (r = 0; r < nrecords; r++) {
 		printf("    --- event record [%d] timestamp ", r);

@@ -18,10 +18,178 @@
 #include "pmapi.h"
 #include "impl.h"
 
-int
-pmUnpackEventRecords(pmValueBlock *vbp, pmResult ***rap, int *nmissed)
+/*
+ * Dump a packed array of event records ... need to be paranoid
+ * with checking here, because typically called after
+ * __pmCheckEventRecords() finds an error
+ */
+void
+__pmDumpEventRecords(FILE *f, pmValueSet *vsp)
 {
-    pmEventArray	*eap = (pmEventArray *)vbp;
+    pmEventArray	*eap;
+    char		*base;
+    char		*valend;	/* end of the value */
+    pmEventRecord	*erp;
+    pmEventParameter	*epp;
+    char		*vbuf;
+    int			r;	/* records */
+    int			p;	/* parameters in a record ... */
+    pmAtomValue		atom;
+
+    fprintf(f, "Event Records Dump ...\n");
+    fprintf(f, "PMID: %s numval: %d", pmIDStr(vsp->pmid), vsp->numval);
+    if (vsp->numval <= 0) {
+	fprintf(f, "\nError: bad numval\n");
+	return;
+    }
+    fprintf(f, " valfmt: %d inst: %d", vsp->valfmt, vsp->vlist[0].inst);
+    if (vsp->valfmt != PM_VAL_DPTR && vsp->valfmt != PM_VAL_SPTR) {
+	fprintf(f, "\nError: bad valfmt\n");
+	return;
+    }
+    eap = (pmEventArray *)vsp->vlist[0].value.pval;
+    fprintf(f, " vtype: %s vlen: %d\n", pmTypeStr(eap->ea_type), eap->ea_len);
+    if (eap->ea_type != PM_TYPE_EVENT) {
+	fprintf(f, "Error: bad vtype\n");
+	return;
+    }
+    if (eap->ea_len < PM_VAL_HDR_SIZE + sizeof(eap->ea_nrecords) + sizeof(eap->ea_nmissed)) {
+	fprintf(f, "Error: bad len (smaller than minimum size %d)\n", PM_VAL_HDR_SIZE + sizeof(eap->ea_nrecords) + sizeof(eap->ea_nmissed));
+	return;
+    }
+    fprintf(f, "nrecords: %d nmissed: %d\n", eap->ea_nrecords, eap->ea_nmissed);
+    if (eap->ea_nrecords < 0) {
+	fprintf(f, "Error: bad nrecords\n");
+	return;
+    }
+    if (eap->ea_nmissed < 0)
+	fprintf(f, "Warning: bad nmissed\n");
+    if (eap->ea_nrecords == 0) {
+	fprintf(f, "Warning: no event records\n");
+	return;
+    }
+    /* have something plausible to report in the array buffer ... */
+    base = (char *)&eap->ea_record[0];
+    valend = &((char *)eap)[eap->ea_len];
+    for (r = 0; r < eap->ea_nrecords; r++) {
+	fprintf(f, "Event Record [%d]", r);
+	if (base + sizeof(erp->er_timestamp) + sizeof(erp->er_nparams) > valend) {
+	    fprintf(f, " Error: buffer overflow\n");
+	    return;
+	}
+	erp = (pmEventRecord *)base;
+	fprintf(f, " with %d parameters\n", erp->er_nparams);
+	base += sizeof(erp->er_timestamp) + sizeof(erp->er_nparams);
+	for (p = 0; p < erp->er_nparams; p++) {
+	    char	*name;
+	    fprintf(f, "    Parameter [%d]:", p);
+	    if (base + sizeof(pmEventParameter) > valend) {
+		fprintf(f, " Error: buffer overflow\n");
+		return;
+	    }
+	    epp = (pmEventParameter *)base;
+	    if (base + sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len) > valend) {
+		fprintf(f, " Error: buffer overflow\n");
+		return;
+	    }
+	    if (pmNameID(epp->ep_pmid, &name) == 0) {
+		fprintf(f, " %s", name);
+		free(name);
+	    }
+	    else
+		fprintf(f, " %s", pmIDStr(epp->ep_pmid));
+	    vbuf = (char *)epp + sizeof(epp->ep_pmid) + sizeof(int);
+	    switch (epp->ep_type) {
+		case PM_TYPE_32:
+		    fprintf(f, " = %i", *((__int32_t *)vbuf));
+		    break;
+		case PM_TYPE_U32:
+		    fprintf(f, " = %u", *((__uint32_t *)vbuf));
+		    break;
+		case PM_TYPE_64:
+		    memcpy((void *)&atom.ll, (void *)vbuf, sizeof(atom.ll));
+		    fprintf(f, " = %lli", atom.ll);
+		    break;
+		case PM_TYPE_U64:
+		    memcpy((void *)&atom.ull, (void *)vbuf, sizeof(atom.ull));
+		    fprintf(f, " = %llu", atom.ull);
+		    break;
+		case PM_TYPE_FLOAT:
+		    memcpy((void *)&atom.f, (void *)vbuf, sizeof(atom.f));
+		    fprintf(f, " = %.8g", (double)atom.f);
+		    break;
+		case PM_TYPE_DOUBLE:
+		    memcpy((void *)&atom.d, (void *)vbuf, sizeof(atom.d));
+		    fprintf(f, " = %.16g", atom.d);
+		    break;
+		case PM_TYPE_STRING:
+		    fprintf(f, " = \"%*.*s\"", epp->ep_len-PM_VAL_HDR_SIZE, epp->ep_len-PM_VAL_HDR_SIZE, vbuf);
+		    break;
+		case PM_TYPE_AGGREGATE:
+		case PM_TYPE_AGGREGATE_STATIC:
+		    fprintf(f, " = [%08x...]", ((__uint32_t *)vbuf)[0]);
+		    break;
+		default:
+		    fprintf(f, " : bad type %s", pmTypeStr(epp->ep_type));
+	    }
+	    fputc('\n', f);
+	    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);
+	}
+    }
+    return;
+}
+
+/*
+ * Integrity checker for a packed array of event records
+ */
+int
+__pmCheckEventRecords(pmValueSet *vsp)
+{
+    pmEventArray	*eap;
+    char		*base;
+    char		*valend;	/* end of the value */
+    pmEventRecord	*erp;
+    pmEventParameter	*epp;
+    int			r;	/* records */
+    int			p;	/* parameters in a record ... */
+
+    if (vsp->numval < 1)
+	return vsp->numval;
+    if (vsp->numval > 1)
+	return PM_ERR_TOOBIG;
+    if (vsp->valfmt != PM_VAL_DPTR && vsp->valfmt != PM_VAL_SPTR)
+	return PM_ERR_CONV;
+    eap = (pmEventArray *)vsp->vlist[0].value.pval;
+    if (eap->ea_type != PM_TYPE_EVENT)
+	return PM_ERR_TYPE;
+    if (eap->ea_len < PM_VAL_HDR_SIZE + sizeof(eap->ea_nrecords) + sizeof(eap->ea_nmissed))
+	return PM_ERR_TOOSMALL;
+    if (eap->ea_nrecords < 0 || eap->ea_nmissed < 0)
+	return PM_ERR_TOOSMALL;
+    base = (char *)&eap->ea_record[0];
+    valend = &((char *)eap)[eap->ea_len];
+    /* header seems OK, onto each event record */
+    for (r = 0; r < eap->ea_nrecords; r++) {
+	if (base + sizeof(erp->er_timestamp) + sizeof(erp->er_nparams) > valend)
+	    return PM_ERR_TOOBIG;
+	erp = (pmEventRecord *)base;
+	base += sizeof(erp->er_timestamp) + sizeof(erp->er_nparams);
+	for (p = 0; p < erp->er_nparams; p++) {
+	    if (base + sizeof(pmEventParameter) > valend)
+		return PM_ERR_TOOBIG;
+	    epp = (pmEventParameter *)base;
+	    if (base + sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len) > valend)
+		return PM_ERR_TOOBIG;
+	    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);
+	}
+    }
+    return 0;
+}
+
+int
+pmUnpackEventRecords(pmValueSet *vsp, pmResult ***rap, int *nmissed)
+{
+    pmEventArray	*eap;
     pmEventRecord	*erp;
     pmEventParameter	*epp;
     pmResult		*rp;
@@ -34,12 +202,13 @@ pmUnpackEventRecords(pmValueBlock *vbp, pmResult ***rap, int *nmissed)
     int			vsize;
     int			sts;
 
-    if (vbp->vtype != PM_TYPE_EVENT)
-	return PM_ERR_TYPE;
-    if (vbp->vlen < PM_VAL_HDR_SIZE + sizeof(eap->ea_nrecords) + sizeof(eap->ea_nmissed))
-	return PM_ERR_TOOSMALL;
-    if (eap->ea_nrecords < 0 || eap->ea_nmissed < 0)
-	return PM_ERR_TOOSMALL;
+    sts = __pmCheckEventRecords(vsp);
+    if (sts < 0) {
+	__pmDumpEventRecords(stderr, vsp);
+	return sts;
+    }
+
+    eap = (pmEventArray *)vsp->vlist[0].value.pval;
     if (nmissed != NULL)
 	*nmissed = eap->ea_nmissed;
     if (eap->ea_nrecords == 0) {
@@ -57,15 +226,10 @@ pmUnpackEventRecords(pmValueBlock *vbp, pmResult ***rap, int *nmissed)
     }
 
     base = (char *)&eap->ea_record[0];
-    valend = &((char *)eap)[vbp->vlen];
+    valend = &((char *)eap)[eap->ea_len];
     /* walk packed event record array */
     for (r = 0; r < eap->ea_nrecords; r++) {
 	rp = NULL;
-	if (base + sizeof(erp->er_timestamp) + sizeof(erp->er_nparams) > valend) {
-	    sts = PM_ERR_TOOBIG;
-	    r--;
-	    goto bail;
-	}
 	erp = (pmEventRecord *)base;
 	need = sizeof(pmResult) + (erp->er_nparams-1)*sizeof(pmValueSet *);
 	rp = (pmResult *)malloc(need); 
@@ -87,17 +251,7 @@ pmUnpackEventRecords(pmValueBlock *vbp, pmResult ***rap, int *nmissed)
 		sts = -errno;
 		goto bail;
 	    }
-	    if (base + sizeof(pmEventParameter) > valend) {
-		rp->numpmid = p+1;
-		sts = PM_ERR_TOOBIG;
-		goto bail;
-	    }
 	    epp = (pmEventParameter *)base;
-	    if (base + sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len) > valend) {
-		rp->numpmid = p+1;
-		sts = PM_ERR_TOOBIG;
-		goto bail;
-	    }
 	    rp->vset[p]->pmid = epp->ep_pmid;
 	    rp->vset[p]->numval = 1;
 	    rp->vset[p]->vlist[0].inst = PM_IN_NULL;

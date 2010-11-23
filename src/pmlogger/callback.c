@@ -528,6 +528,16 @@ log_callback(int afid, void *data)
 		    free(names);
 		}
 	    }
+	    if (desc.type == PM_TYPE_EVENT) {
+		/*
+		 * Event records need some special handling ...
+		 */
+		if ((sts = do_events(vsp)) < 0) {
+		    fprintf(stderr, "Failed to process event records: %s\n", pmErrStr(sts));
+		    exit(1);
+		}
+		continue;
+	    }
 	    if (desc.indom != PM_INDOM_NULL && vsp->numval > 0) {
 		/*
 		 * __pmLogGetInDom has been replaced by __localLogGetInDom so that

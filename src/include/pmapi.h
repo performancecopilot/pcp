@@ -713,7 +713,7 @@ typedef struct {
 } pmEventArray;
 
 /* unpack a PM_TYPE_EVENT value into a set on pmResults */
-extern int pmUnpackEventRecords(pmValueBlock *, pmResult ***, int *);
+extern int pmUnpackEventRecords(pmValueSet *, pmResult ***, int *);
 
 /* Free set of pmResults from pmUnpackEventRecords */
 extern void pmFreeEventResult(pmResult **);

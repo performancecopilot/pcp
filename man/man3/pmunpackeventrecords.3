@@ -20,7 +20,7 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-void pmUnpackEventRecords(pmValueBlock *vbp, pmResult ***rap, int *nmissed)
+void pmUnpackEventRecords(pmValueSet *vsp, pmResult ***rap, int *nmissed)
 .sp
 cc ... \-lpcp
 .ft 1
@@ -37,7 +37,7 @@ using a container metric with a value of type
 .B pmUnpackEventRecords
 may be used to unpack event records from a metric value
 identified by
-.IR vbp .
+.IR vsp .
 The unpacked records are turned into
 .I pmResult
 structures, one per event record and one metic per event parameter, and
@@ -66,8 +66,18 @@ structures may be freed using the convenience function
 .SH "RETURN VALUE"
 The following errors are possible:
 .TP 10n
+PM_ERR_CONV
+The values associated with
+.I vsp
+are not encoded using the format PM_VAL_DPTR or PM_VAL_SPTR.
+.TP 10n
+PM_ERR_INST
+The value associated with
+.I vsp
+is not singular as expected.
+.TP 10n
 PM_ERR_TYPE
-.I vbp
+.I vsp
 is not a value of type
 .BR PM_TYPE_EVENT .
 .TP 10n
@@ -82,7 +92,11 @@ structure is negative, or the number of missed event records in the
 array is negative.
 .TP 10n
 PM_ERR_TOOBIG
-When unpacking the event records, the processing continues past the end of
+Either
+.B vsp
+indicates more than one value is present (all the event records
+are expected to be packed in a single metric value), or
+when unpacking the event records, the processing continues past the end of
 the enclosing value.  Indicates corruption of the packed event record.
 .TP 10n
 PM_ERR_TYPE

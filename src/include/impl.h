@@ -1217,6 +1217,12 @@ extern void __dmpostfetch(__pmContext *, pmResult **);
 extern int __pmLocalPMDA(int, int, const char *, const char *);
 extern char *__pmSpecLocalPMDA(const char *);
 
+/*
+ * helper methods for packed arrays of event records (PM_TYPE_EVENT)
+ */
+extern int __pmCheckEventRecords(pmValueSet *);
+extern void __pmDumpEventRecords(FILE *, pmValueSet *);
+
 #ifdef __cplusplus
 }
 #endif

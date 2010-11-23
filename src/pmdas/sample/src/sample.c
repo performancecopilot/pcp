@@ -302,9 +302,9 @@ static pmDesc	desctab[] = {
 /* event.records */
     { PMDA_PMID(PM_CLUSTER_EVENT,0), PM_TYPE_EVENT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* event.reset */
-    { PMDA_PMID(0,126), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+    { PMDA_PMID(0,126), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* event.type */
-    { PMDA_PMID(0,127), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+    { PMDA_PMID(0,127), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* event.param_32 */
     { PMDA_PMID(0,128), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* event.param_u32 */
@@ -2277,7 +2277,7 @@ doit:
 			atom.ll = scramble_ver;
 			break;
 		    case 126:	/* event.reset */
-			atom.ul = event_get_c();
+			atom.l = event_get_c();
 			break;
 		    case 1000:	/* secret.bar */
 			atom.cp = "foo";
@@ -2617,7 +2617,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 		indomtab[SCRAMBLE_INDOM].it_numinst = indomtab[BIN_INDOM].it_numinst;
 		break;
 	    case 126:	/* event.reset */
-		event_set_c(av.ul);
+		event_set_c(av.l);
 		break;
 	    default:
 		sts = -EACCES;

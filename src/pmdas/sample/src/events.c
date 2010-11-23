@@ -126,14 +126,14 @@ add_record(struct timeval *tp)
     return 0;
 }
 
-unsigned int
+int
 event_get_c(void)
 {
     return nfetch % 4;
 }
 
 void
-event_set_c(unsigned int c)
+event_set_c(int c)
 {
     nfetch = c;
 }
@@ -143,7 +143,7 @@ sample_fetch_events(pmEventArray **eapp)
 {
     int			sts;
     struct timeval	stamp;
-    int			c = nfetch % 4;
+    int			c;
     pmAtomValue		atom;
     static char		aggr[] = { '\01', '\03', '\07', '\017', '\037', '\077', '\177', '\377' };
     static pmID		pmid_type = PMDA_PMID(0,127);	/* event.type */
@@ -155,6 +155,13 @@ sample_fetch_events(pmEventArray **eapp)
     static pmID		pmid_double = PMDA_PMID(0,133);	/* event.param_double */
     static pmID		pmid_string = PMDA_PMID(0,134);	/* event.param_string */
     static pmID		pmid_aggregate = PMDA_PMID(0,135);	/* event.param_aggregate */
+
+    if (nfetch >= 0)
+	c = nfetch % 4;
+    else {
+	/* one of the error injection cases */
+	c = nfetch;
+    }
 
     if (eptr == NULL) {
 	/* first time, punt on a 512 byte buffer */
@@ -288,6 +295,18 @@ sample_fetch_events(pmEventArray **eapp)
 	    if ((sts = add_param(pmid_aggregate, PM_TYPE_AGGREGATE, &atom)) < 0)
 		return sts;
 	    eap->ea_nmissed = 7;
+	    break;
+	case -1:
+	    /* error injection */
+	    if ((sts = add_record(&stamp)) < 0)
+		return sts;
+	    stamp.tv_sec++;
+	    atom.ul = c;
+	    if ((sts = add_param(pmid_type, PM_TYPE_U32, &atom)) < 0)
+		return sts;
+	    /* pmid that is not in PMNS and not known to the PMDA */
+	    if ((sts = add_param(PMDA_PMID(100,200), PM_TYPE_U32, &atom)) < 0)
+		return sts;
 	    break;
     }
     nfetch++;

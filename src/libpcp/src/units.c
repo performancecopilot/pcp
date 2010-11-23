@@ -68,6 +68,7 @@ pmAtomStr(const pmAtomValue *avp, int type)
 	    }
 	    break;
 	case PM_TYPE_AGGREGATE:
+	case PM_TYPE_AGGREGATE_STATIC:
 	    lp = av.vp;
 	    if (lp == NULL)
 		snprintf(buf, sizeof(buf), "<null>");
@@ -97,7 +98,7 @@ pmAtomStr(const pmAtomValue *avp, int type)
  * must be in agreement with ordinal values for PM_TYPE_* #defines
  */
 static char *typename[] = {
-    "32", "U32", "64", "U64", "FLOAT", "DOUBLE", "STRING", "AGGREGATE", "EVENT"
+    "32", "U32", "64", "U64", "FLOAT", "DOUBLE", "STRING", "AGGREGATE", "AGGREGATE_STATIC", "EVENT"
 };
 
 /* PM_TYPE_* -> string, max length is 20 bytes */

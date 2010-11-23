@@ -740,9 +740,11 @@ END {
 	    else if (type[metric] == "PM_TYPE_STRING")
 		printf "\t\tatom->cp = \"string value\"; /* ADD CODE HERE */\n" >>fetch_c
 	    else if (type[metric] == "PM_TYPE_AGGREGATE")
-		printf "\t\tatom->cp = NULL; /* ADD CODE HERE */\n" >>fetch_c
+		printf "\t\tatom->vp = NULL; /* ADD CODE HERE */\n" >>fetch_c
 	    else if (type[metric] == "PM_TYPE_AGGREGATE_STATIC")
-		printf "\t\tatom->cp = NULL; /* ADD CODE HERE */\n" >>fetch_c
+		printf "\t\tatom->vp = NULL; /* ADD CODE HERE */\n" >>fetch_c
+	    else if (type[metric] == "PM_TYPE_EVENT")
+		printf "\t\tatom->vp = NULL; /* ADD CODE HERE */\n" >>fetch_c
 
 	    printf "\t\tbreak;\n\n" >>fetch_c
 	}

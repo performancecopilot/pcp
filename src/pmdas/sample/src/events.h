@@ -22,7 +22,7 @@
 extern int mydomain;
 
 extern int sample_fetch_events(pmEventArray **);
-extern void event_set_c(unsigned int);
-extern unsigned int event_get_c(void);
+extern void event_set_c(int);
+extern int event_get_c(void);
 
 #endif /* _EVENTS_H */
