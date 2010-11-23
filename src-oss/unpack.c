@@ -6,6 +6,7 @@
 
 static int mydomain = 29;
 
+static pmValueSet	vs;
 static char		*ebuf;
 static int		ebuflen;
 static char		*eptr;
@@ -24,6 +25,7 @@ check_buf(int need)
 	    return -errno;
 	eptr = &ebuf[offset];
 	ebufend = &ebuf[ebuflen-1];
+	vs.vlist[0].value.pval = (pmValueBlock *)ebuf;
     }
     return 0;
 }
@@ -125,7 +127,7 @@ dump(char *xpect)
 
     fprintf(stderr, "Expecting ... %s\n", xpect);
 
-    nrecords = pmUnpackEventRecords((pmValueBlock *)eap, &res, &nmissed);
+    nrecords = pmUnpackEventRecords(&vs, &res, &nmissed);
 
     if (nrecords < 0) {
 	fprintf(stderr, "pmUnpackEventRecords: %s\n", pmErrStr(nrecords));
@@ -153,6 +155,7 @@ main(int argc, char **argv)
     int			savelen;
 /* === begin largely copied from samplepmda events.c === */
     static char		aggr[] = { '\01', '\03', '\07', '\017', '\037', '\077', '\177', '\377' };
+    pmID		pmid_array = PMDA_PMID(4095,0);	/* event.records */
     pmID		pmid_type = PMDA_PMID(0,127);	/* event.type */
     pmID		pmid_32 = PMDA_PMID(0,128);	/* event.param_32 */
     pmID		pmid_u32 = PMDA_PMID(0,129);	/* event.param_u32 */
@@ -176,6 +179,7 @@ main(int argc, char **argv)
      * note these PMIDs must match the corresponding metrics in
      * desctab[] and this cannot easily be done automatically
      */
+    ((__pmID_int *)&pmid_array)->domain = mydomain;
     ((__pmID_int *)&pmid_type)->domain = mydomain;
     ((__pmID_int *)&pmid_32)->domain = mydomain;
     ((__pmID_int *)&pmid_u32)->domain = mydomain;
@@ -187,7 +191,14 @@ main(int argc, char **argv)
     ((__pmID_int *)&pmid_aggregate)->domain = mydomain;
 /* === end copied from samplepmda events.c === */
 
+    vs.pmid = pmid_array;
+    vs.numval = 1;
+    vs.valfmt = PM_VAL_DPTR;
+    vs.vlist[0].inst = PM_IN_NULL;
+    vs.vlist[0].value.pval = (pmValueBlock *)ebuf;
+
     __pmSetProgname(argv[0]);
+
 
     while ((c = getopt(argc, argv, "D:")) != EOF) {
 	switch (c) {
