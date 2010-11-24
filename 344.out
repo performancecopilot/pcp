@@ -95,6 +95,7 @@ Options:
   -T		get and display (verbose) help text
   -v		verify mode, be quiet and only report errors
 		(forces other output control options off)
+  -x		like -f and expand event records
   -Z timezone   set timezone for -O
   -z            set timezone for -O to local time for host from -a
 +++ -K add, +++
@@ -169,6 +170,7 @@ Options:
   -T		get and display (verbose) help text
   -v		verify mode, be quiet and only report errors
 		(forces other output control options off)
+  -x		like -f and expand event records
   -Z timezone   set timezone for -O
   -z            set timezone for -O to local time for host from -a
 +++ -K del, +++
@@ -196,6 +198,7 @@ Options:
   -T		get and display (verbose) help text
   -v		verify mode, be quiet and only report errors
 		(forces other output control options off)
+  -x		like -f and expand event records
   -Z timezone   set timezone for -O
   -z            set timezone for -O to local time for host from -a
 +++ -K del,30 +++
@@ -231,6 +234,7 @@ Options:
   -T		get and display (verbose) help text
   -v		verify mode, be quiet and only report errors
 		(forces other output control options off)
+  -x		like -f and expand event records
   -Z timezone   set timezone for -O
   -z            set timezone for -O to local time for host from -a
 +++ -K del,30,sample/pmda_sample$DSO_SUFFIX, +++
