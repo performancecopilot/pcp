@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "local.h"
@@ -25,9 +21,6 @@ static timers_t *timers;
 static int ntimers;
 static files_t *files;
 static int nfiles;
-
-extern void timer_callback(int, void *);
-extern void input_callback(scalar_t *, int, char *);
 
 char *
 local_strdup_suffix(const char *string, const char *suffix)
@@ -393,44 +386,4 @@ multiread:
 
 	__pmAFunblock();
     }
-}
-
-static void
-local_pmns_path(__pmnsNode *base, FILE *f)
-{
-    if (base && base->parent) {
-	local_pmns_path(base->parent, f);
-	fprintf(f, "%s.", base->name);
-    }
-}
-
-/*
- * Print out all entries at the current level, including leaf nodes
- * (with PMIDs) then recursively descend into subtrees.
- */
-void
-local_pmns_write(__pmnsNode *base, FILE *f)
-{
-    __pmnsNode *np;
-
-    /* Print out full path to this part of the tree */
-    local_pmns_path(base->parent, f);
-    fprintf(f, "%s {\n", base->name);
-
-    /* Print out nodes at this level of the tree */
-    for (np = base->first; np != NULL; np = np->next) {
-	if (np->pmid == PM_ID_NULL)
-	    fprintf(f, "\t%s\n", np->name);
-	else
-	    fprintf(f, "\t%s\t\t%u:%u:%u\n", np->name,
-			pmid_domain(np->pmid),
-			pmid_cluster(np->pmid),
-			pmid_item(np->pmid));
-    }
-    fprintf(f, "}\n\n");
-
-    /* Print out all the children of this subtree */
-    for (np = base->first; np != NULL; np = np->next)
-	if (np->pmid == PM_ID_NULL)
-	    local_pmns_write(np, f);
 }
