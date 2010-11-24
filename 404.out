@@ -109,6 +109,5 @@ Event Record [2] with 6 parameters
     Parameter [3]: 29.0.134 = "thirteen"
     Parameter [4]: 29.0.128 = -14
     Parameter [5]: 29.0.129 = 15
-Event Record [3]
-Error: buffer overflow
+Event Record [3] Error: buffer overflow
 pmUnpackEventRecords: Result size exceeded
