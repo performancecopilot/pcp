@@ -67,6 +67,7 @@ _filter_log()
 	-e 's/ \[0x[0-9a-f]*]//' \
 	-e 's/ \[(nil)]//' \
 	-e "/$LOCALHOST\$/s/$LOCALHOSTe/ME/" \
+	-e "s/ 127\.0\.0\.1:/ MY_IP:/" \
 	-e "s/$me_ip/MY_IP/" \
 	-e "s/$other1_ip/OTHER1_IP/" \
 	-e "s/$other2_ip/OTHER2_IP/" \
@@ -166,6 +167,7 @@ then
     echo "Arrgh ... no free TCP port in the range 4340 ... 4350"
     exit 1
 fi
+echo "port=$port" >>$seq.full
 
 me_ip=`_host_to_ipaddr $LOCALHOST`
 me_xip=`_get_hex_addr $me_ip`
@@ -184,10 +186,17 @@ grep '^pmcd' $config >>$nconfig
 
 $sudo cp $config $oconfig
 $sudo cp $nconfig $config
-PMCD_CONNECT_TIMEOUT=30
-PMCD_PORT=$port
-export PMCD_CONNECT_TIMEOUT PMCD_PORT
-$sudo $PCP_RC_DIR/pcp start | sed '/Wait/d' | _filter_pcp_start
+echo "--- initial pmcd.conf ---" >>$seq.full
+cat $config >>$seq.full
+export PMCD_CONNECT_TIMEOUT=30
+export PMCD_PORT=$port
+echo "export PMCD_CONNECT_TIMEOUT=30" >$tmp.start
+echo "export PMCD_PORT=$port" >>$tmp.start
+echo "sh $PCP_RC_DIR/pcp start" >>$tmp.start
+$sudo sh $tmp.start 2>&1 \
+| tee -a $seq.full \
+| sed '/Wait/d' \
+| _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 
