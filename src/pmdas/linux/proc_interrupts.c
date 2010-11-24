@@ -25,24 +25,16 @@
 #include <sys/stat.h>
 #include "proc_interrupts.h"
 
-static int started = 0;
-
 int
 refresh_proc_interrupts(proc_interrupts_t *proc_interrupts)
 {
-    char buf[1024];
-    FILE *fp;
-    unsigned int cpu;
-    unsigned int intr;
-    unsigned int inst;
-    unsigned int id;
-    unsigned int count;
-    int i;
-    int n;
-    int free_entry;
-    int is_syscall;
-    char *s, *p;
-    pmdaIndom *indomp = proc_interrupts->indom;
+    static int	started = 0;
+    char	buf[1024];
+    FILE	*fp;
+    unsigned	cpu, intr, inst, id, count;
+    int		i, n, free_entry, is_syscall;
+    char	*s, *p;
+    pmdaIndom	*indomp = proc_interrupts->indom;
     
     if (!started) {
     	started = 1;
