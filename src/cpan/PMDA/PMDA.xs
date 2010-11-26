@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -11,13 +11,7 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
-
-/* XXX - TODO: Need POD updates to document all of the perl APIs & PMDAs. */
 
 #include "local.h"
 #include "EXTERN.h"
@@ -27,8 +21,10 @@
 static pmdaInterface dispatch;
 static pmdaMetric *metrictab;
 static int mtab_size;
-static pmdaIndom *indomtab;
+static __pmnsTree *pmns;
+static int need_refresh;
 static char *saved_string;
+static pmdaIndom *indomtab;
 static int itab_size;
 static int *clustertab;
 static int ctab_size;
@@ -118,6 +114,99 @@ refresh(int numpmid, pmID *pmidlist)
 }
 
 void
+pmns_refresh(void)
+{
+    char *pmid, *next;
+    I32 idsize;
+    SV *metric;
+    int sts;
+
+    if (pmns)
+	__pmFreePMNS(pmns);
+
+    if ((sts = __pmNewPMNS(&pmns)) < 0)
+	croak("failed to create namespace root: %s", pmErrStr(sts));
+
+    hv_iterinit(metric_names);
+    while ((metric = hv_iternextsv(metric_names, &pmid, &idsize)) != NULL) {
+	unsigned int domain, cluster, item, id;
+
+	domain = strtoul(pmid, &next, 10);
+	cluster = strtoul(next+1, &next, 10);
+	item = strtoul(next+1, &next, 10);
+	id = pmid_build(domain, cluster, item);
+	if ((sts = __pmAddPMNSNode(pmns, id, SvPV_nolen(metric))) < 0)
+	    croak("failed to add metric %s(%s) to namespace: %s",
+		SvPV_nolen(metric), pmIDStr(id), pmErrStr(sts));
+    }
+
+    pmdaTreeRebuildHash(pmns, mtab_size); /* for reverse (pmid->name) lookups */
+    need_refresh = 0;
+}
+
+int
+pmns_desc(pmID pmid, pmDesc *desc, pmdaExt *ep)
+{
+    if (need_refresh)
+	pmns_refresh();
+    return pmdaDesc(pmid, desc, ep);
+}
+
+int
+pmns_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
+{
+    if (need_refresh)
+	pmns_refresh();
+    return pmdaTreePMID(pmns, name, pmid);
+}
+
+int
+pmns_name(pmID pmid, char ***nameset, pmdaExt *pmda)
+{
+    if (need_refresh)
+	pmns_refresh();
+    return pmdaTreeName(pmns, pmid, nameset);
+}
+
+int
+pmns_children(const char *name, int traverse, char ***kids, int **sts, pmdaExt *pmda)
+{
+    if (need_refresh)
+	pmns_refresh();
+    return pmdaTreeChildren(pmns, name, traverse, kids, sts);
+}
+
+void
+pmns_write(void)
+{
+    __pmnsNode *node;
+    int root = strcmp(getenv("PCP_PERL_PMNS"), "root") == 0;
+    char *prefix = root ? "\t" : "";
+
+    pmns_refresh();
+
+    if (root)
+	printf("root {\n");
+    for (node = pmns->root->first; node != NULL; node = node->next)
+	printf("%s%s\t%u:*:*\n", prefix, node->name, dispatch.domain);
+    if (root)
+	printf("}\n");
+}
+
+void
+domain_write(void)
+{
+    char name[512] = { 0 };
+    int i, len = strlen(pmProgname);
+
+    if (len >= sizeof(name) - 1)
+	len = sizeof(name) - 2;
+    for (i = 0; i < len; i++)
+	name[i] = toupper(pmProgname[i]);
+    printf("#define %s %u\n", name, dispatch.domain);
+}
+
+void
 prefetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
 {
     dSP;
@@ -139,6 +228,8 @@ fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
 {
     int sts;
 
+    if (need_refresh)
+	pmns_refresh();
     prefetch(numpmid, pmidlist, rp, pmda);
     if (refresh_func)
 	refresh(numpmid, pmidlist);
@@ -171,6 +262,8 @@ preinstance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
 int
 instance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
 {
+    if (need_refresh)
+	pmns_refresh();
     preinstance(indom, a, b, rp, pmda);
     return pmdaInstance(indom, a, b, rp, pmda);
 }
@@ -318,6 +411,9 @@ store(pmResult *result, pmdaExt *pmda)
     pmValueSet	*vsp;
     __pmID_int	*pmid;
 
+    if (need_refresh)
+	pmns_refresh();
+
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
 	pmid = (__pmID_int *)&vsp->pmid;
@@ -349,6 +445,9 @@ text(int ident, int type, char **buffer, pmdaExt *pmda)
     int size;
     SV **sv;
 
+    if (need_refresh)
+	pmns_refresh();
+
     if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
 	hash = pmIDStr((pmID)ident);
 	size = strlen(hash);
@@ -369,54 +468,6 @@ text(int ident, int type, char **buffer, pmdaExt *pmda)
     if (sv && (*sv))
 	*buffer = SvPV_nolen(*sv);
     return (*buffer == NULL) ? PM_ERR_TEXT : 0;
-}
-
-void
-pmns(void)
-{
-    __pmnsTree *pmns;
-    char *pmid, *next;
-    I32 idsize;
-    SV *metric;
-    int sts;
-
-    if ((sts = __pmNewPMNS(&pmns)) < 0)
-	croak("failed to create namespace root: %s", pmErrStr(sts));
-
-    hv_iterinit(metric_names);
-    while ((metric = hv_iternextsv(metric_names, &pmid, &idsize)) != NULL) {
-	unsigned int domain, cluster, item, id;
-	domain = strtoul(pmid, &next, 10);
-	cluster = strtoul(next+1, &next, 10);
-	item = strtoul(next+1, &next, 10);
-	id = pmid_build(domain, cluster, item);
-	if ((sts = __pmAddPMNSNode(pmns, id, SvPV_nolen(metric))) < 0)
-	    croak("failed to add metric %s(%s) to namespace: %s",
-		SvPV_nolen(metric), pmIDStr(id), pmErrStr(sts));
-    }
-
-    if (strcmp(getenv("PCP_PERL_PMNS"), "root") == 0)
-	local_pmns_write(pmns->root, stdout);
-    else {
-	__pmnsNode *node;
-	for (node = pmns->root->first; node != NULL; node = node->next)
-	    local_pmns_write(node, stdout);
-    }
-
-    __pmFreePMNS(pmns);
-}
-
-void
-domain(void)
-{
-    char name[512] = { 0 };
-    int i, len = strlen(pmProgname);
-
-    if (len >= sizeof(name) - 1)
-	len = sizeof(name) - 2;
-    for (i = 0; i < len; i++)
-	name[i] = toupper(pmProgname[i]);
-    printf("#define %s %u\n", name, dispatch.domain);
 }
 
 /*
@@ -496,14 +547,19 @@ new(CLASS,name,domain)
 	snprintf(helpfile, sizeof(helpfile), "%s%c%s%c" "help",
 			pmGetConfig("PCP_PMDAS_DIR"), sep, name, sep);
 	if (access(helpfile, R_OK) != 0) {
-	    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmdaname, domain,
+	    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmdaname, domain,
 			logfile, NULL);
-	    dispatch.version.two.text = text;
+	    dispatch.version.four.text = text;
 	}
 	else {
-	    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmdaname, domain,
+	    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmdaname, domain,
 			logfile, helpfile);
 	}
+	dispatch.version.four.desc = pmns_desc;
+	dispatch.version.four.pmid = pmns_pmid;
+	dispatch.version.four.name = pmns_name;
+	dispatch.version.four.children = pmns_children;
+
 	if (!getenv("PCP_PERL_PMNS") && !getenv("PCP_PERL_DOMAIN")) {
 	    pmdaOpenLog(&dispatch);
 	}
@@ -512,7 +568,6 @@ new(CLASS,name,domain)
 	metric_helptext = newHV();
 	indom_helptext = newHV();
 	indom_oneline = newHV();
-	pmProgname = name;
     OUTPUT:
 	RETVAL
 
@@ -677,7 +732,7 @@ set_fetch(self,function)
     CODE:
 	if (function != (SV *)NULL) {
 	    fetch_func = newSVsv(function);
-	    self->version.two.fetch = fetch;
+	    self->version.four.fetch = fetch;
 	}
 
 void
@@ -696,7 +751,7 @@ set_instance(self,function)
     CODE:
 	if (function != (SV *)NULL) {
 	    instance_func = newSVsv(function);
-	    self->version.two.instance = instance;
+	    self->version.four.instance = instance;
 	}
 
 void
@@ -706,7 +761,7 @@ set_store_callback(self,cb_function)
     CODE:
 	if (cb_function != (SV *)NULL) {
 	    store_cb_func = newSVsv(cb_function);
-	    self->version.two.store = store;
+	    self->version.four.store = store;
 	}
 
 void
@@ -724,16 +779,31 @@ set_inet_socket(self,port)
 	pmdaInterface *self
 	int	port
     CODE:
-	self->version.two.ext->e_io = pmdaInet;
-	self->version.two.ext->e_port = port;
+	self->version.four.ext->e_io = pmdaInet;
+	self->version.four.ext->e_port = port;
 
 void
 set_unix_socket(self,socket_name)
 	pmdaInterface *self
 	char *	socket_name
     CODE:
-	self->version.two.ext->e_io = pmdaUnix;
-	self->version.two.ext->e_sockname = socket_name;
+	self->version.four.ext->e_io = pmdaUnix;
+	self->version.four.ext->e_sockname = socket_name;
+
+void
+clear_metrics(self)
+	pmdaInterface *self
+    CODE:
+	need_refresh = 1;
+	if (clustertab)
+	    free(clustertab);
+	ctab_size = 0;
+	if (metrictab)
+	    free(metrictab);
+	mtab_size = 0;
+	clearHV(metric_names);
+	clearHV(metric_oneline);
+	clearHV(metric_helptext);
 
 void
 add_metric(self,pmid,type,indom,sem,units,name,help,longhelp)
@@ -753,6 +823,7 @@ add_metric(self,pmid,type,indom,sem,units,name,help,longhelp)
 	int          size;
     CODE:
 	(void)self;
+	need_refresh = 1;
 	pmidp = (__pmID_int *)&pmid;
 	if (!clustertab_lookup(pmidp->cluster)) {
 	    size = sizeof(int) * (ctab_size + 1);
@@ -781,12 +852,24 @@ add_metric(self,pmid,type,indom,sem,units,name,help,longhelp)
 
 	hash = pmIDStr(pmid);
 	size = strlen(hash);
-	if (name)
-	    hv_store(metric_names, hash, size, newSVpv(name,0), 0);
+	hv_store(metric_names, hash, size, newSVpv(name,0), 0);
 	if (help)
 	    hv_store(metric_oneline, hash, size, newSVpv(help,0), 0);
 	if (longhelp)
 	    hv_store(metric_helptext, hash, size, newSVpv(longhelp,0), 0);
+
+void
+clear_indoms(self)
+	pmdaInterface *self
+    CODE:
+	if (indomtab)
+	    free(indomtab);
+	itab_size = 0;
+	if (metrictab)
+	    free(metrictab);
+	mtab_size = 0;
+	clearHV(indom_oneline);
+	clearHV(indom_helptext);
 
 int
 add_indom(self,indom,list,help,longhelp)
@@ -805,6 +888,7 @@ add_indom(self,indom,list,help,longhelp)
 	indomtab = (pmdaIndom *)realloc(indomtab, size);
 	if (indomtab == NULL) {
 	    warn("unable to allocate memory for indom table");
+	    itab_size = 0;
 	    XSRETURN_UNDEF;
 	}
 
@@ -936,10 +1020,11 @@ run(self)
 	pmdaInterface *self
     CODE:
 	if (getenv("PCP_PERL_PMNS") != NULL)
-	    pmns();	/* generate ascii namespace */
+	    pmns_write();	/* generate ascii namespace */
 	else if (getenv("PCP_PERL_DOMAIN") != NULL)
-	    domain();	/* generate the domain header */
+	    domain_write();	/* generate the domain header */
 	else {		/* or normal operating mode ... */
+	    pmns_refresh();
 	    pmdaInit(self, indomtab, itab_size, metrictab, mtab_size);
 	    pmdaConnect(self);
 	    local_pmdaMain(self);

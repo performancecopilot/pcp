@@ -1,5 +1,9 @@
 Revision history for Perl extension PCP::PMDA.
 
+1.10  Thu Nov 25 03:30:18 EST 2010
+	- Convert to using dynamic namespace interfaces.
+	- Added metric and indom table clearing interfaces.
+
 1.09  Sun Aug  1 09:04:38 EST 2010
 	- Fix memory leak in fetch routine string handling.
 
