@@ -72,7 +72,6 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     struct hostent*	servInfo;
     int			fd;	/* Fd for socket connection to pmcd */
     __pmPDU		*pb;
-    __pmPDUHdr		*php;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
@@ -167,16 +166,6 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	     */
 	    sts = XLATE_ERR_1TO2(sts);
 	}
-	php = (__pmPDUHdr *)pb;
-	if (*pid != PM_LOG_NO_PID && *pid != PM_LOG_PRIMARY_PID && php->from != *pid) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "__pmConnectLogger: ACK response from pid %d, expected pid %d\n",
-			    php->from, *pid);
-#endif
-	    sts = -ECONNREFUSED;
-	}
-	*pid = php->from;
     }
     else if (sts < 0) {
 #ifdef PCP_DEBUG

@@ -410,7 +410,12 @@ control_req(void)
 	perror("error accepting client");
 	return 0;
     }
+    __pmSetSocketIPC(fd);
     if (clientfd != -1) {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_CONTEXT)
+	    fprintf(stderr, "control_req: send EADDRINUSE on fd=%d (client already on fd=%d)\n", fd, clientfd);
+#endif
 	sts = __pmSendError(fd, FROM_ANON, -EADDRINUSE);
 	if (sts < 0)
 	    fprintf(stderr, "error sending connection NACK to client: %s\n",
@@ -420,7 +425,6 @@ control_req(void)
     }
 
     sts = __pmSetVersionIPC(fd, UNKNOWN_VERSION);
-    __pmSetSocketIPC(fd);
     if (sts < 0) {
 	__pmSendError(fd, FROM_ANON, sts);
 	fprintf(stderr, "error connecting to client: %s\n", pmErrStr(sts));
@@ -440,12 +444,20 @@ control_req(void)
 	strcpy(pmlc_host, hp->h_name);
 
     if ((sts = __pmAccAddClient(&addr.sin_addr, &clientops)) < 0) {
-	if (sts == PM_ERR_CONNLIMIT || sts == PM_ERR_PERMISSION)
-	    sts = XLATE_ERR_2TO1(sts);	/* connect - send these as down-rev */
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_CONTEXT) {
+	    char	*p = (char *)&addr.sin_addr.s_addr;
+	    fprintf(stderr, "client addr: %d.%d.%d.%d\n",
+		p[0] & 0xff, p[1] & 0xff, p[2] & 0xff, p[3] & 0xff);
+	    __pmAccDumpHosts(stderr);
+	    fprintf(stderr, "control_req: connection rejected on fd=%d from %s: %s\n", fd, pmlc_host, pmErrStr(sts));
+	}
+#endif
 	sts = __pmSendError(fd, FROM_ANON, sts);
 	if (sts < 0)
 	    fprintf(stderr, "error sending connection access NACK to client: %s\n",
 			 pmErrStr(sts));
+	sleep(1);	/* QA 083 seems like there is a race w/out this delay */
 	__pmCloseSocket(fd);
 	return 0;
     }
@@ -463,5 +475,11 @@ control_req(void)
 	return 0;
     }
     clientfd = fd;
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_CONTEXT)
+	fprintf(stderr, "control_req: connection accepted on fd=%d from %s\n", fd, pmlc_host);
+#endif
+
     return 1;
 }

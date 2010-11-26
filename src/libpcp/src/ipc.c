@@ -116,6 +116,10 @@ __pmSetSocketIPC(int fd)
 int
 __pmVersionIPC(int fd)
 {
+    if (fd == PDU_OVERRIDE2)
+	return PDU_VERSION2;
+    if (fd == PDU_OVERRIDE1)
+	return PDU_VERSION1;
     if (__pmIPCTablePtr == NULL || fd < 0 || fd >= ipctablesize) {
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr,
