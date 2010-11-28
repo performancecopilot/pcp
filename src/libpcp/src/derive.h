@@ -92,5 +92,6 @@ typedef struct {
 #define L_MAX		12
 #define L_MIN		13
 #define L_SUM		14
+#define L_ANON		15
 
 void __dmdumpexpr(node_t *, int);

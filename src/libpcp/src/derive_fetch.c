@@ -849,6 +849,10 @@ eval_expr(node_t *np, pmResult *rp, int level)
 #endif
 	    return PM_ERR_PMID;
 
+	case L_ANON:
+	    /* no values available for anonymous metrics */
+	    return 0;
+
 	default:
 	    /*
 	     * binary operator cases ... always have a left and right

@@ -50,7 +50,7 @@ static int	lexpeek = 0;
 static char	*string;
 static char	*errmsg;
 
-static char *type_dbg[] = { "ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "PLUS", "MINUS", "STAR", "SLASH", "LPAREN", "RPAREN", "AVG", "COUNT", "DELTA", "MAX", "MIN", "SUM" };
+static char *type_dbg[] = { "ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "PLUS", "MINUS", "STAR", "SLASH", "LPAREN", "RPAREN", "AVG", "COUNT", "DELTA", "MAX", "MIN", "SUM", "ANON" };
 static char type_c[] = { '\0', '\0', '\0', '\0', '\0', '+', '-', '*', '/', '(', ')', '\0' };
 
 /* function table for lexer */
@@ -64,6 +64,7 @@ static struct {
     { L_MAX,	"max" },
     { L_MIN,	"min" },
     { L_SUM,	"sum" },
+    { L_ANON,	"anon" },
     { L_UNDEF,	NULL }
 };
 
@@ -82,6 +83,12 @@ static void
 init(void)
 {
     char	*configpath;
+
+
+    /* Register the anonymous metrics */
+    pmRegisterDerived("anon.32", "anon(PM_TYPE_32)");
+    pmRegisterDerived("anon.64", "anon(PM_TYPE_64)");
+    pmRegisterDerived("anon.double", "anon(PM_TYPE_DOUBLE)");
 
     if ((configpath = getenv("PCP_DERIVED_CONFIG")) != NULL) {
 	int	sts;
@@ -376,6 +383,7 @@ void report_sem_error(char *name, node_t *np)
 	case L_MAX:
 	case L_MIN:
 	case L_SUM:
+	case L_ANON:
 	    pmprintf("%s(%s)", type_dbg[np->type+2], np->left->value);
 	    break;
 	default:
@@ -728,7 +736,7 @@ check_expr(int n, node_t *np)
 	/*
 	 * special cases for functions ...
 	 * delta	expect numeric operand, result is instantaneous
-	 * aggr funcs	expect numeric operand, result is instantaneous
+	 * aggr funcs	most expect numeric operand, result is instantaneous
 	 *		and singular
 	 */
 	if (np->type == L_AVG || np->type == L_COUNT || np->type == L_DELTA
@@ -764,6 +772,10 @@ check_expr(int n, node_t *np)
 		/* avg() returns float result */
 		np->desc.type = PM_TYPE_FLOAT;
 	    }
+	}
+	else if (np->type == L_ANON) {
+	    /* do nothing, pmDesc inherited "as is" from left node */
+	    ;
 	}
     }
     else {
@@ -959,7 +971,8 @@ parse(int level)
 		    state = P_LEAF_PAREN;
 		}
 		else if (type == L_AVG || type == L_COUNT || type == L_DELTA
-		         || type == L_MAX || type == L_MIN || type == L_SUM) {
+		         || type == L_MAX || type == L_MIN || type == L_SUM 
+			 || type == L_ANON) {
 		    expr = curr = newnode(type);
 		    state = P_FUNC_OP;
 		}
@@ -976,6 +989,7 @@ parse(int level)
 			curr->type == L_AVG || curr->type == L_COUNT ||
 			curr->type == L_DELTA || curr->type == L_MAX ||
 			curr->type == L_MIN || curr->type == L_SUM ||
+			curr->type == L_ANON ||
 		        type == L_PLUS || type == L_MINUS) {
 			/*
 			 * first operator or equal or lower precedence
@@ -1027,7 +1041,8 @@ parse(int level)
 		    state = P_LEAF_PAREN;
 		}
 		else if (type == L_AVG || type == L_COUNT || type == L_DELTA
-		         || type == L_MAX || type == L_MIN || type == L_SUM) {
+		         || type == L_MAX || type == L_MIN || type == L_SUM
+			 || type == L_ANON) {
 		    np = newnode(type);
 		    curr->right = np;
 		    curr = np;
@@ -1047,6 +1062,37 @@ parse(int level)
 			/*NOTREACHED*/
 		    }
 		    np->save_last = 1;
+		    if (curr->type == L_ANON) {
+			/*
+			 * anon(PM_TYPE_...) is a special case ... the
+			 * argument defines the metric type, the remainder
+			 * of the metadata is fixed and there are never any
+			 * values available. So we build the pmDesc and then
+			 * clobber the "left" node and prevent any attempt to
+			 * contact a PMDA for metadata or values
+			 */
+			if (strcmp(np->value, "PM_TYPE_32") == 0)
+			    np->desc.type = PM_TYPE_32;
+			else if (strcmp(np->value, "PM_TYPE_U32") == 0)
+			    np->desc.type = PM_TYPE_U32;
+			else if (strcmp(np->value, "PM_TYPE_64") == 0)
+			    np->desc.type = PM_TYPE_64;
+			else if (strcmp(np->value, "PM_TYPE_U64") == 0)
+			    np->desc.type = PM_TYPE_U64;
+			else if (strcmp(np->value, "PM_TYPE_FLOAT") == 0)
+			    np->desc.type = PM_TYPE_FLOAT;
+			else if (strcmp(np->value, "PM_TYPE_DOUBLE") == 0)
+			    np->desc.type = PM_TYPE_DOUBLE;
+			else {
+			    fprintf(stderr, "Error: type=%s not allowed for anon()\n", np->value);
+			    free_expr(np);
+			    return NULL;
+			}
+			np->desc.indom = PM_INDOM_NULL;
+			np->desc.sem = PM_SEM_DISCRETE;
+			memset((void *)&np->desc.units, 0, sizeof(np->desc.units));
+			np->type = L_NUMBER;
+		    }
 		    curr->left = np;
 		    curr = expr;
 		    state = P_FUNC_END;
