@@ -111,7 +111,7 @@ reset(void)
 }
 
 static int
-add_record(struct timeval *tp)
+add_record(struct timeval *tp, int flags)
 {
     int				sts;
 
@@ -122,6 +122,7 @@ add_record(struct timeval *tp)
     erp->er_timestamp.tv_sec = (__int32_t)tp->tv_sec;
     erp->er_timestamp.tv_usec = (__int32_t)tp->tv_usec;
     erp->er_nparams = 0;
+    erp->er_flags = flags;
     eptr += sizeof(pmEventRecord) - sizeof(pmEventParameter);
     return 0;
 }
@@ -202,7 +203,7 @@ sample_fetch_events(pmEventArray **eapp)
 	     * 2nd fetch
 	     * 1 event with NO parameters
 	     */
-	    if ((sts = add_record(&stamp)) < 0)
+	    if ((sts = add_record(&stamp, 0)) < 0)
 		return sts;
 	    stamp.tv_sec++;
 	    break;
@@ -212,13 +213,13 @@ sample_fetch_events(pmEventArray **eapp)
 	     * 1 event with one U32 parameter
 	     * 1 event with 2 parameters(U32 and 64 types)
 	     */
-	    if ((sts = add_record(&stamp)) < 0)
+	    if ((sts = add_record(&stamp, 0)) < 0)
 		return sts;
 	    stamp.tv_sec++;
 	    atom.ul = 1;
 	    if ((sts = add_param(pmid_type, PM_TYPE_U32, &atom)) < 0)
 		return sts;
-	    if ((sts = add_record(&stamp)) < 0)
+	    if ((sts = add_record(&stamp, 1)) < 0)
 		return sts;
 	    stamp.tv_sec++;
 	    atom.ul = 2;
@@ -237,7 +238,7 @@ sample_fetch_events(pmEventArray **eapp)
 	     * 1 event with 3 parameters (U32, FLOAT and AGGREGATE types)
 	     * + 7 "missed" events
 	     */
-	    if ((sts = add_record(&stamp)) < 0)
+	    if ((sts = add_record(&stamp, 0)) < 0)
 		return sts;
 	    stamp.tv_sec++;
 	    atom.ul = 4;
@@ -249,7 +250,7 @@ sample_fetch_events(pmEventArray **eapp)
 	    atom.cp = "6";
 	    if ((sts = add_param(pmid_string, PM_TYPE_STRING, &atom)) < 0)
 		return sts;
-	    if ((sts = add_record(&stamp)) < 0)
+	    if ((sts = add_record(&stamp, 0)) < 0)
 		return sts;
 	    stamp.tv_sec++;
 	    atom.ul = 7;
@@ -261,7 +262,7 @@ sample_fetch_events(pmEventArray **eapp)
 	    atom.d = -9;
 	    if ((sts = add_param(pmid_double, PM_TYPE_DOUBLE, &atom)) < 0)
 		return sts;
-	    if ((sts = add_record(&stamp)) < 0)
+	    if ((sts = add_record(&stamp, 2)) < 0)
 		return sts;
 	    stamp.tv_sec++;
 	    atom.ul = 10;
@@ -282,7 +283,7 @@ sample_fetch_events(pmEventArray **eapp)
 	    atom.ul = 15;
 	    if ((sts = add_param(pmid_u32, PM_TYPE_U32, &atom)) < 0)
 		return sts;
-	    if ((sts = add_record(&stamp)) < 0)
+	    if ((sts = add_record(&stamp, 0)) < 0)
 		return sts;
 	    stamp.tv_sec++;
 	    atom.ul = 16;
@@ -298,7 +299,7 @@ sample_fetch_events(pmEventArray **eapp)
 	    break;
 	case -1:
 	    /* error injection */
-	    if ((sts = add_record(&stamp)) < 0)
+	    if ((sts = add_record(&stamp, 0)) < 0)
 		return sts;
 	    stamp.tv_sec++;
 	    atom.ul = c;

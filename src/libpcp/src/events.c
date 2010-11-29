@@ -73,13 +73,15 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp)
     valend = &((char *)eap)[eap->ea_len];
     for (r = 0; r < eap->ea_nrecords; r++) {
 	fprintf(f, "Event Record [%d]", r);
-	if (base + sizeof(erp->er_timestamp) + sizeof(erp->er_nparams) > valend) {
+	if (base + sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams) > valend) {
 	    fprintf(f, " Error: buffer overflow\n");
 	    return;
 	}
 	erp = (pmEventRecord *)base;
+	if (erp->er_flags != 0)
+	    fprintf(f, " flags=%x", erp->er_flags);
 	fprintf(f, " with %d parameters\n", erp->er_nparams);
-	base += sizeof(erp->er_timestamp) + sizeof(erp->er_nparams);
+	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
 	for (p = 0; p < erp->er_nparams; p++) {
 	    char	*name;
 	    fprintf(f, "    Parameter [%d]:", p);
@@ -170,10 +172,10 @@ __pmCheckEventRecords(pmValueSet *vsp)
     valend = &((char *)eap)[eap->ea_len];
     /* header seems OK, onto each event record */
     for (r = 0; r < eap->ea_nrecords; r++) {
-	if (base + sizeof(erp->er_timestamp) + sizeof(erp->er_nparams) > valend)
+	if (base + sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams) > valend)
 	    return PM_ERR_TOOBIG;
 	erp = (pmEventRecord *)base;
-	base += sizeof(erp->er_timestamp) + sizeof(erp->er_nparams);
+	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
 	for (p = 0; p < erp->er_nparams; p++) {
 	    if (base + sizeof(pmEventParameter) > valend)
 		return PM_ERR_TOOBIG;
@@ -196,8 +198,9 @@ pmUnpackEventRecords(pmValueSet *vsp, pmResult ***rap, int *nmissed)
     char		*base;
     char		*vbuf;
     char		*valend;	/* end of the value */
-    int			r;	/* records */
-    int			p;	/* parameters in a record ... */
+    int			r;		/* records */
+    int			p;		/* parameters in a record ... */
+    int			numpmid;	/* metrics in a pmResult */
     int			need;
     int			vsize;
     int			sts;
@@ -231,7 +234,14 @@ pmUnpackEventRecords(pmValueSet *vsp, pmResult ***rap, int *nmissed)
     for (r = 0; r < eap->ea_nrecords; r++) {
 	rp = NULL;
 	erp = (pmEventRecord *)base;
-	need = sizeof(pmResult) + (erp->er_nparams-1)*sizeof(pmValueSet *);
+	numpmid = erp->er_nparams;
+	/*
+	 * er_flags optionally unpacked into an extra anon.32 metric
+	 * before all the event record parameters
+	 */
+	if (erp->er_flags != 0)
+	    numpmid++;
+	need = sizeof(pmResult) + (numpmid-1)*sizeof(pmValueSet *);
 	rp = (pmResult *)malloc(need); 
 	if (rp == NULL) {
 	    sts = -errno;
@@ -241,15 +251,34 @@ pmUnpackEventRecords(pmValueSet *vsp, pmResult ***rap, int *nmissed)
 	(*rap)[r] = rp;
 	rp->timestamp.tv_sec = erp->er_timestamp.tv_sec;
 	rp->timestamp.tv_usec = erp->er_timestamp.tv_usec;
-	rp->numpmid = erp->er_nparams;
-	base += sizeof(erp->er_timestamp) + sizeof(erp->er_nparams);
-	for (p = 0; p < erp->er_nparams; p++) {
+	rp->numpmid = numpmid;
+	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
+	for (p = 0; p < numpmid; p++) {
 	    /* always have numval == 1 */
 	    rp->vset[p] = (pmValueSet *)__pmPoolAlloc(sizeof(pmValueSet));
 	    if (rp->vset[p] == NULL) {
 		rp->numpmid = p;
 		sts = -errno;
 		goto bail;
+	    }
+	    if (p == 0 && erp->er_flags != 0) {
+		static pmID	anon_pmid = 0;
+		static char	*anon_name = "anon.32";
+		int		lsts;
+		if (anon_pmid == 0) {
+		    lsts = pmLookupName(1, &anon_name, &anon_pmid);
+		    if (lsts < 0) {
+			fprintf(stderr, "pmUnpackEventRecords: Warning: failed to get PMID for %s: %s\n", anon_name, pmErrStr(lsts));
+			__pmid_int(&anon_pmid)->item = 1;
+		    }
+		    fprintf(stderr, "using anon pmid %s\n", pmIDStr(anon_pmid));
+		}
+		rp->vset[p]->pmid = anon_pmid;
+		rp->vset[p]->numval = 1;
+		rp->vset[p]->vlist[0].inst = PM_IN_NULL;
+		rp->vset[p]->valfmt = PM_VAL_INSITU;
+		rp->vset[p]->vlist[0].value.lval = erp->er_flags;
+		continue;
 	    }
 	    epp = (pmEventParameter *)base;
 	    rp->vset[p]->pmid = epp->ep_pmid;

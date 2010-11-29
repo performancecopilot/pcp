@@ -83,7 +83,7 @@ __htonpmValueBlock(pmValueBlock * const vb)
 	/* walk packed event record array */
 	for (r = 0; r < eap->ea_nrecords; r++) {
 	    erp = (pmEventRecord *)base;
-	    base += sizeof(erp->er_timestamp) + sizeof(erp->er_nparams);
+	    base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
 	    for (p = 0; p < erp->er_nparams; p++) {
 		epp = (pmEventParameter *)base;
 		epp->ep_pmid = __htonpmID(epp->ep_pmid);
@@ -114,6 +114,7 @@ __htonpmValueBlock(pmValueBlock * const vb)
 	    }
 	    erp->er_timestamp.tv_sec = htonl(erp->er_timestamp.tv_sec);
 	    erp->er_timestamp.tv_usec = htonl(erp->er_timestamp.tv_usec);
+	    erp->er_flags = htonl(erp->er_flags);
 	    erp->er_nparams = htonl(erp->er_nparams);
 	}
 	eap->ea_nrecords = htonl(eap->ea_nrecords);
@@ -164,9 +165,10 @@ __ntohpmValueBlock(pmValueBlock * const vb)
 	/* walk packed event record array */
 	for (r = 0; r < eap->ea_nrecords; r++) {
 	    erp = (pmEventRecord *)base;
-	    base += sizeof(erp->er_timestamp) + sizeof(erp->er_nparams);
+	    base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
 	    erp->er_timestamp.tv_sec = ntohl(erp->er_timestamp.tv_sec);
 	    erp->er_timestamp.tv_usec = ntohl(erp->er_timestamp.tv_usec);
+	    erp->er_flags = ntohl(erp->er_flags);
 	    erp->er_nparams = ntohl(erp->er_nparams);
 	    for (p = 0; p < erp->er_nparams; p++) {
 		epp = (pmEventParameter *)base;

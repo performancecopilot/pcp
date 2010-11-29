@@ -131,12 +131,13 @@ mydump(pmDesc *dp, pmValueSet *vsp, char *indent)
 	    for (r = 0; r < nrecords; r++) {
 		printf("    --- event record [%d] timestamp ", r);
 		__pmPrintStamp(stdout, &res[r]->timestamp);
-		printf(" ---\n");
 		if (res[r]->numpmid == 0) {
+		    printf(" ---\n");
 		    printf("	No parameters\n");
 		    continue;
 		}
 		if (res[r]->numpmid < 0) {
+		    printf(" ---\n");
 		    printf("	Error: illegal number of parameters (%d)\n", res[r]->numpmid);
 		    continue;
 		}
@@ -146,6 +147,15 @@ mydump(pmDesc *dp, pmValueSet *vsp, char *indent)
 		    pmDesc	desc;
 		    char	*name;
 		    if (pmNameID(xvsp->pmid, &name) >= 0) {
+			if (p == 0) {
+			    if (strcmp(name, "anon.32") == 0) {
+				printf(" flags 0x%x", xvsp->vlist[0].value.lval);
+				printf(" ---\n");
+				continue;
+			    }
+			    else
+				printf(" ---\n");
+			}
 			printf("    %s (%s)\n", name, pmIDStr(xvsp->pmid));
 			free(name);
 		    }

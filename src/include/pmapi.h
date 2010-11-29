@@ -693,6 +693,7 @@ typedef struct {
 
 typedef struct {
     __pmTimeval		er_timestamp;	/* must be 2 x 32-bit format */
+    int			er_flags;	/* type of event record */
     int			er_nparams;	/* number of er_param[] entries */
     pmEventParameter	er_param[1];
 } pmEventRecord;
