@@ -79,16 +79,29 @@ static struct {
 
 static char *state_dbg[] = { "INIT", "LEAF", "LEAF_PAREN", "BINOP", "FUNC_OP", "FUNC_END" };
 
+int
+pmRegisterAnon(void)
+{
+    static int	done = 0;
+
+    if (!done) {
+	char	*msg;
+	/* Register the anonymous metrics */
+	done = 1;
+	if ((msg = pmRegisterDerived("anon.32", "anon(PM_TYPE_32)")) != NULL ||
+	    (msg = pmRegisterDerived("anon.64", "anon(PM_TYPE_64)")) != NULL ||
+	    (msg = pmRegisterDerived("anon.double", "anon(PM_TYPE_DOUBLE)")) != NULL) {
+	    pmprintf("pmRegisterAnon: Error: %s", msg);
+	    return PM_ERR_GENERIC;
+	}
+    }
+    return 0;
+}
+
 static void
 init(void)
 {
     char	*configpath;
-
-
-    /* Register the anonymous metrics */
-    pmRegisterDerived("anon.32", "anon(PM_TYPE_32)");
-    pmRegisterDerived("anon.64", "anon(PM_TYPE_64)");
-    pmRegisterDerived("anon.double", "anon(PM_TYPE_DOUBLE)");
 
     if ((configpath = getenv("PCP_DERIVED_CONFIG")) != NULL) {
 	int	sts;
@@ -1088,6 +1101,7 @@ parse(int level)
 			    free_expr(np);
 			    return NULL;
 			}
+			np->desc.pmid = PM_ID_NULL;
 			np->desc.indom = PM_INDOM_NULL;
 			np->desc.sem = PM_SEM_DISCRETE;
 			memset((void *)&np->desc.units, 0, sizeof(np->desc.units));
@@ -1487,7 +1501,7 @@ __dmopencontext(__pmContext *ctxp)
 
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
-	fprintf(stderr, "__dmopencontext() called\n");
+	fprintf(stderr, "__dmopencontext(->ctx %d) called\n", __pmPtrToHandle(ctxp));
     }
 #endif
     if (registered.nmetric == 0) {
@@ -1542,7 +1556,7 @@ __dmclosecontext(__pmContext *ctxp)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DERIVE) {
-	fprintf(stderr, "__dmclosecontext() called dm->%p %d metrics\n", cp, cp == NULL ? -1 : cp->nmetric);
+	fprintf(stderr, "__dmclosecontext(->ctx %d) called dm->%p %d metrics\n", __pmPtrToHandle(ctxp), cp, cp == NULL ? -1 : cp->nmetric);
     }
 #endif
     if (cp == NULL) return;

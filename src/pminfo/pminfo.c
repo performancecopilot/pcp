@@ -124,9 +124,28 @@ mydump(pmDesc *dp, pmValueSet *vsp, char *indent)
 	    int		r;		/* event records */
 	    int		p;		/* event parameters */
 	    int		nrecords;
+	    int		flags;
+	    static pmID	pmid_anon = 0;
 	    pmResult	**res;
 
-	    nrecords = pmUnpackEventRecords(vsp, &res, NULL);
+	    nrecords = pmUnpackEventRecords(vsp, &res);
+
+	    if (pmid_anon == 0) {
+		/*
+		 * get PMID for anon.32 ... note that pmUnpackEventRecords()
+		 * will have called pmRegisterAnon(), so the anon metrics
+		 * should now be in the PMNS
+		 */
+		char	*name_anon = "anon.32";
+		int	sts;
+		sts = pmLookupName(1, &name_anon, &pmid_anon);
+		if (sts < 0) {
+		    /* should not happen! */
+		    fprintf(stderr, "Warning: cannot get PMID for %s: %s\n", name_anon, pmErrStr(sts));
+		    /* avoid subsequent warnings ... */
+		    __pmid_int(&pmid_anon)->item = 1;
+		}
+	    }
 
 	    for (r = 0; r < nrecords; r++) {
 		printf("    --- event record [%d] timestamp ", r);
@@ -148,13 +167,22 @@ mydump(pmDesc *dp, pmValueSet *vsp, char *indent)
 		    char	*name;
 		    if (pmNameID(xvsp->pmid, &name) >= 0) {
 			if (p == 0) {
-			    if (strcmp(name, "anon.32") == 0) {
-				printf(" flags 0x%x", xvsp->vlist[0].value.lval);
+			    if (xvsp->pmid == pmid_anon) {
+				flags = xvsp->vlist[0].value.lval;
+				printf(" flags 0x%x", flags);
 				printf(" ---\n");
+				free(name);
 				continue;
 			    }
-			    else
+			    else {
+				flags = 0;
 				printf(" ---\n");
+			    }
+			}
+			if (flags == PM_ER_FLAG_MISSED && p == 1 && xvsp->pmid == pmid_anon) {
+			    printf("        ==> %d missed event records\n", xvsp->vlist[0].value.lval);
+			    free(name);
+			    continue;
 			}
 			printf("    %s (%s)\n", name, pmIDStr(xvsp->pmid));
 			free(name);

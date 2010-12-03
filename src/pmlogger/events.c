@@ -48,7 +48,7 @@ do_events(pmValueSet *vsp)
     base = (char *)&eap->ea_record[0];
     for (r = 0; r < eap->ea_nrecords; r++) {
 	erp = (pmEventRecord *)base;
-	base += sizeof(erp->er_timestamp) + sizeof(erp->er_nparams);
+	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
 	for (p = 0; p < erp->er_nparams; p++) {
 	    epp = (pmEventParameter *)base;
 	    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);

@@ -29,7 +29,6 @@ _pmi_put_result(pmi_context *current, pmResult *result)
     stamp.tv_usec = result->timestamp.tv_usec;
 
     if (current->state == CONTEXT_START) {
-	// TODO
 	if (current->hostname == NULL) {
 	    (void)gethostname(myname, MAXHOSTNAMELEN);
 	    myname[MAXHOSTNAMELEN-1] = '\0';

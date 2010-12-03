@@ -116,20 +116,47 @@ dumpresult(pmResult *resp)
 		desc.type = PM_TYPE_AGGREGATE;
 	}
 	if (desc.type == PM_TYPE_EVENT) {
-	    /* lifted from pminfo -x ... */
+	    /* largely lifted from pminfo -x ... */
 	    int		r;		/* event records */
 	    int		p;		/* event parameters */
 	    int		nrecords;
-	    int		nmissed;
+	    int		nmissed = 0;
 	    pmResult	**res;
+	    static pmID	pmid_anon = 0;
 
-	    nrecords = pmUnpackEventRecords(vsp, &res, &nmissed);
+	    nrecords = pmUnpackEventRecords(vsp, &res);
 	    if (nrecords < 0)
 		continue;
 	    if (nrecords == 0) {
 		printf(" No event records\n");
 		continue;
 	    }
+
+	    if (pmid_anon == 0) {
+		/*
+		 * get PMID for anon.32 ... note that pmUnpackEventRecords()
+		 * will have called pmRegisterAnon(), so the anon metrics
+		 * should now be in the PMNS
+		 */
+		char	*name_anon = "anon.32";
+		int	sts;
+		sts = pmLookupName(1, &name_anon, &pmid_anon);
+		if (sts < 0) {
+		    /* should not happen! */
+		    fprintf(stderr, "Warning: cannot get PMID for %s: %s\n", name_anon, pmErrStr(sts));
+		    /* avoid subsequent warnings ... */
+		    __pmid_int(&pmid_anon)->item = 1;
+		}
+	    }
+
+	    for (r = 0; r < nrecords; r++) {
+		if (res[r]->numpmid == 2 && res[r]->vset[0]->pmid == pmid_anon &&
+		    res[r]->vset[0]->vlist[0].value.lval == PM_ER_FLAG_MISSED &&
+		    res[r]->vset[1]->pmid == pmid_anon) {
+		    nmissed += res[r]->vset[1]->vlist[0].value.lval;
+		}
+	    }
+
 	    printf(" %d", nrecords);
 	    if (nmissed > 0)
 		printf(" (and %d missed)", nmissed);
@@ -140,12 +167,13 @@ dumpresult(pmResult *resp)
 	    for (r = 0; r < nrecords; r++) {
 		printf("              --- event record [%d] timestamp ", r);
 		__pmPrintStamp(stdout, &res[r]->timestamp);
-		printf(" ---\n");
 		if (res[r]->numpmid == 0) {
+		    printf(" ---\n");
 		    printf("	          No parameters\n");
 		    continue;
 		}
 		if (res[r]->numpmid < 0) {
+		    printf(" ---\n");
 		    printf("	          Error: illegal number of parameters (%d)\n", res[r]->numpmid);
 		    continue;
 		}
@@ -154,7 +182,25 @@ dumpresult(pmResult *resp)
 		    int		sts;
 		    pmDesc	desc;
 		    char	*name;
+		    int		flags;
 		    if (pmNameID(xvsp->pmid, &name) >= 0) {
+			if (p == 0) {
+			    if (xvsp->pmid == pmid_anon) {
+				flags = xvsp->vlist[0].value.lval;
+				printf(" flags 0x%x", flags);
+				printf(" ---\n");
+				free(name);
+				continue;
+			    }
+			    else
+				flags = 0;
+			    printf(" ---\n");
+			}
+			if (flags == PM_ER_FLAG_MISSED && p == 1 && xvsp->pmid == pmid_anon) {
+			    printf("              ==> %d missed event records\n", xvsp->vlist[0].value.lval);
+			    free(name);
+			    continue;
+			}
 			printf("              %s (%s):", pmIDStr(xvsp->pmid), name);
 			free(name);
 		    }

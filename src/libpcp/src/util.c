@@ -414,34 +414,43 @@ print_event_summary(FILE *f, const pmValue *val)
     pmEventArray	*eap = (pmEventArray *)val->value.pval;
     char		*base;
     struct timeval	stamp;
+    int			nrecords;
+    int			nmissed = 0;
+    int			r;	/* records */
+    int			p;	/* parameters in a record ... */
+    pmEventRecord	*erp;
+    pmEventParameter	*epp;
 
-    fprintf(f, "[%d event record", eap->ea_nrecords);
-    if (eap->ea_nrecords != 1)
+    nrecords = eap->ea_nrecords;
+    base = (char *)&eap->ea_record[0];
+    memcpy((void *)&stamp, base, sizeof(stamp));
+    /* walk packed event record array */
+    for (r = 0; r < eap->ea_nrecords-1; r++) {
+	erp = (pmEventRecord *)base;
+	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
+	for (p = 0; p < erp->er_nparams; p++) {
+	    epp = (pmEventParameter *)base;
+	    if (p == 0 && erp->er_flags == PM_ER_FLAG_MISSED) {
+		int		*ip = (int *)epp;
+		ip += 2;	/* + pmid + vtype/vlen */
+		nmissed += *ip;
+		nrecords--;
+	    }
+	    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);
+	}
+    }
+    fprintf(f, "[%d event record", nrecords);
+    if (nrecords != 1)
 	fputc('s', f);
-    if (eap->ea_nmissed > 0)
-	fprintf(f, " (%d missed)", eap->ea_nmissed);
-    if (eap->ea_nrecords > 0) {
+    if (nmissed > 0)
+	fprintf(f, " (%d missed)", nmissed);
+    if (nrecords > 0) {
 	fprintf(f, " timestamp");
-	if (eap->ea_nrecords > 1)
+	if (nrecords > 1)
 	    fputc('s', f);
 	fputc(' ', f);
-	base = (char *)&eap->ea_record[0];
-	memcpy((void *)&stamp, base, sizeof(stamp));
 	__pmPrintStamp(f, &stamp);
 	if (eap->ea_nrecords > 1) {
-	    int			r;	/* records */
-	    int			p;	/* parameters in a record ... */
-	    pmEventRecord	*erp;
-	    pmEventParameter	*epp;
-	    /* walk packed event record array */
-	    for (r = 0; r < eap->ea_nrecords-1; r++) {
-		erp = (pmEventRecord *)base;
-		base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
-		for (p = 0; p < erp->er_nparams; p++) {
-		    epp = (pmEventParameter *)base;
-		    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);
-		}
-	    }
 	    fprintf(f, "...");
 	    memcpy((void *)&stamp, base, sizeof(stamp));
 	    __pmPrintStamp(f, &stamp);
@@ -449,7 +458,6 @@ print_event_summary(FILE *f, const pmValue *val)
     }
     fputc(']', f);
 }
-
 
 /* Print single pmValue. */
 void

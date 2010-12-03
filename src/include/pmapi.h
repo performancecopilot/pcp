@@ -641,6 +641,7 @@ extern int pmLoopDebug;
 int pmLoadDerivedConfig(char *);
 char *pmRegisterDerived(char *, char *);
 char *pmDerivedErrStr(void);
+int pmRegisterAnon(void);
 
 /*
  * Asynchronous versions of main pmapi client routines - each one
@@ -698,6 +699,8 @@ typedef struct {
     pmEventParameter	er_param[1];
 } pmEventRecord;
 
+#define PM_ER_FLAG_MISSED	0x80000000
+
 typedef struct {
 		/* align initial declarations with start of pmValueBlock */
 #ifdef HAVE_BITFIELDS_LTOR
@@ -709,12 +712,11 @@ typedef struct {
 #endif
 		/* real event records start here */
     int			ea_nrecords;    /* number of ea_record[] entries */
-    int			ea_nmissed;	/* number of missed event records */
     pmEventRecord	ea_record[1];
 } pmEventArray;
 
 /* unpack a PM_TYPE_EVENT value into a set on pmResults */
-extern int pmUnpackEventRecords(pmValueSet *, pmResult ***, int *);
+extern int pmUnpackEventRecords(pmValueSet *, pmResult ***);
 
 /* Free set of pmResults from pmUnpackEventRecords */
 extern void pmFreeEventResult(pmResult **);

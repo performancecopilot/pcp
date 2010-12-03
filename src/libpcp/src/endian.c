@@ -118,7 +118,6 @@ __htonpmValueBlock(pmValueBlock * const vb)
 	    erp->er_nparams = htonl(erp->er_nparams);
 	}
 	eap->ea_nrecords = htonl(eap->ea_nrecords);
-	eap->ea_nmissed = htonl(eap->ea_nmissed);
     }
 
     *ip = htonl(*ip);
@@ -161,7 +160,6 @@ __ntohpmValueBlock(pmValueBlock * const vb)
 	/* ea_type and ea_len handled via *ip above */
 	base = (char *)&eap->ea_record[0];
 	eap->ea_nrecords = ntohl(eap->ea_nrecords);
-	eap->ea_nmissed = ntohl(eap->ea_nmissed);
 	/* walk packed event record array */
 	for (r = 0; r < eap->ea_nrecords; r++) {
 	    erp = (pmEventRecord *)base;

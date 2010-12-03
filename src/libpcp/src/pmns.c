@@ -1731,6 +1731,8 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
     __pmContext	*ctxp;
     int		lsts;
     int		ctx;
+    int		i;
+    int		nfail = 0;
 
     if (numpmid < 1) {
 #ifdef PCP_DEBUG
@@ -1751,9 +1753,13 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
     
     if (pmns_location < 0) {
 	sts = pmns_location;
+	/* only hope is derived metrics ... set up for this */
+	for (i = 0; i < numpmid; i++) {
+	    pmidlist[i] = PM_ID_NULL;
+	    nfail++;
+	}
     }
     else if (pmns_location == PMNS_LOCAL) {
-	int		i;
 	char		*xname;
 	char		*xp;
 	__pmnsNode	*np;
@@ -1769,15 +1775,17 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 		else {
 		    sts = PM_ERR_NONLEAF;
 		    pmidlist[i] = PM_ID_NULL;
+		    nfail++;
 		}
 		continue;
 	    }
 	    pmidlist[i] = PM_ID_NULL;
+	    nfail++;
 	    /*
-	     * did not match name ... return PM_ERR_NAME, unless name
-	     * prefix matches a name that is the root of a dynamic
-	     * subtree of the PMNS, or possibly we're using a local
-	     * context and then we may be able to ship request to PMDA
+	     * did not match name in PMNS ... try for prefix matching
+	     * the name to the root of a dynamic subtree of the PMNS,
+	     * or possibly we're using a local context and then we may
+	     * be able to ship request to PMDA
 	     */
 	    xname = strdup(namelist[i]);
 	    if (xname == NULL) {
@@ -1787,6 +1795,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	    }
 	    while ((xp = rindex(xname, '.')) != NULL) {
 		*xp = '\0';
+		lsts = 0;
 		np = locate(xname, curr_pmns->root);
 		if (np != NULL && np->first == NULL &&
 		    pmid_domain(np->pmid) == DYNAMIC_PMID &&
@@ -1804,36 +1813,24 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 			    dp->dispatch.version.four.ext->e_context = ctx;
 			if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
 			    lsts = dp->dispatch.version.four.pmid(namelist[i], &pmidlist[i], dp->dispatch.version.four.ext);
+			    if (lsts >= 0)
+				nfail--;
 
-			    if (lsts < 0 && sts >= 0) sts = lsts;
-			    break;
-			}
-			else {
-			    /* Not PMDA_INTERFACE_4 or later */
-			    sts = PM_ERR_NAME;
 			    break;
 			}
 		    }
 		    else {
-			/* No PM_LOCAL_CONTEXT, used PMID from PMNS */
-			  pmidlist[i] = np->pmid;
-			  break;
+			/* No PM_LOCAL_CONTEXT, use PMID from PMNS */
+			pmidlist[i] = np->pmid;
+			nfail--;
+			break;
 		    }
 		}
 	    }
 	    free(xname);
-	    if (xp == NULL || sts < 0) {
-		/*
-		 * try derived metrics for a metric that is
-		 * still unknown ... on failure we'll set sts to 
-		 * PM_ERR_NAME if this is the first error
-		 */
-		lsts = __dmgetpmid(namelist[i], &pmidlist[i]);
-		if (lsts < 0 && sts >= 0) sts = lsts;
-	    }
 	}
 
-    	sts = (sts == 0 ? numpmid : sts);
+    	sts = (sts == 0 ? numpmid - nfail : sts);
 
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PMNS) {
@@ -1857,7 +1854,6 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	assert(ctxp != NULL && ctxp->c_type == PM_CONTEXT_HOST);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PMNS) {
-	    int		i;
 	    fprintf(stderr, "pmLookupName: request_names ->");
 	    for (i = 0; i < numpmid; i++)
 		fprintf(stderr, " [%d] %s", i, namelist[i]);
@@ -1866,11 +1862,12 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 #endif
 	if ((sts = request_names (ctxp, numpmid, namelist)) >= 0) {
 	    sts = receive_names(ctxp, numpmid, pmidlist);
+	    if (sts >= 0)
+		nfail = numpmid - sts;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_PMNS) {
 		fprintf(stderr, "pmLookupName: receive_names <-");
 		if (sts >= 0) {
-		    int	i;
 		    for (i = 0; i < numpmid; i++)
 			fprintf(stderr, " [%d] %s", i, pmIDStr(pmidlist[i]));
 		    fputc('\n', stderr);
@@ -1879,39 +1876,45 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 		fprintf(stderr, " %s\n", pmErrStr(sts));
 	    }
 #endif
-	    /*
-	     * the return status is a little tricky ... prefer the
-	     * status from receive_names(), unless all of the remaining
-	     * unknown PMIDs are resolved by __dmgetpmid() in which case
-	     * success (numpmid) is the right return status
-	     */
-	    if (sts < 0) {
-		/* try derived metrics for any remaining unknown pmids */
-		int		nsts;
-		int		nfail = 0;
-		int		i;
-		for (i = 0; i < numpmid; i++) {
-		    if (pmidlist[i] == PM_ID_NULL) {
-			nsts = __dmgetpmid(namelist[i], &pmidlist[i]);
-			if (nsts < 0) {
-			    nfail++;
-			}
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_DERIVE) {
-			    fprintf(stderr, "__dmgetpmid: metric \"%s\" -> ", namelist[i]);
-			    if (nsts < 0)
-				fprintf(stderr, "%s\n", pmErrStr(nsts));
-			    else
-				fprintf(stderr, "PMID %s\n", pmIDStr(pmidlist[i]));
-			}
-#endif
-		    }
-		}
-		if (nfail == 0)
-		    sts = numpmid;
-	    }
 	}
     }
+
+    if (sts < 0 || nfail > 0) {
+	/*
+	 * Try derived metrics for any remaining unknown pmids.
+	 * The return status is a little tricky ... prefer the status
+	 * from above unless all of the remaining unknown PMIDs are
+	 * resolved by __dmgetpmid() in which case success (numpmid)
+	 * is the right return status
+	 */
+	nfail = 0;
+	for (i = 0; i < numpmid; i++) {
+	    if (pmidlist[i] == PM_ID_NULL) {
+		lsts = __dmgetpmid(namelist[i], &pmidlist[i]);
+		if (lsts < 0) {
+		    nfail++;
+		}
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_DERIVE) {
+		    fprintf(stderr, "__dmgetpmid: metric \"%s\" -> ", namelist[i]);
+		    if (lsts < 0)
+			fprintf(stderr, "%s\n", pmErrStr(lsts));
+		    else
+			fprintf(stderr, "PMID %s\n", pmIDStr(pmidlist[i]));
+		}
+#endif
+	    }
+	}
+	if (nfail == 0)
+	    sts = numpmid;
+    }
+
+    /*
+     * special case for a single metric, PM_ERR_NAME is more helpful than
+     * returning 0 and having one PM_ID_NULL pmid
+     */
+    if (sts == 0 && numpmid == 1)
+	sts = PM_ERR_NAME;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {
@@ -2517,7 +2520,11 @@ pmNameID(pmID pmid, char **name)
 int
 pmNameAll(pmID pmid, char ***namelist)
 {
-    int pmns_location = GetLocation();
+    int		pmns_location = GetLocation();
+    char	**tmp = NULL;
+    int		n = 0;
+    int		len = 0;
+    char	*sp;
 
     if (pmns_location < 0)
 	return pmns_location;
@@ -2525,11 +2532,7 @@ pmNameAll(pmID pmid, char ***namelist)
     else if (pmns_location == PMNS_LOCAL) {
     	__pmnsNode	*np;
 	int		sts;
-	int		n = 0;
-	int		len = 0;
 	int		i;
-	char	*sp;
-	char	**tmp = NULL;
 
 	if (pmid_domain(pmid) == DYNAMIC_PMID && pmid_item(pmid) == 0) {
 	    /*
@@ -2555,7 +2558,7 @@ pmNameAll(pmID pmid, char ***namelist)
 	}
 
 	if (n == 0)
-	    return PM_ERR_PMID;
+	    goto try_derive;
 
 	len += n * sizeof(tmp[0]);
 	if ((tmp = (char **)realloc(tmp, len)) == NULL)
@@ -2586,8 +2589,28 @@ pmNameAll(pmID pmid, char ***namelist)
 	if ((n = request_namebypmid (ctxp, pmid)) >= 0) {
 	    n = receive_namesbyid (ctxp, namelist);
 	}
+	if (n == 0)
+	    goto try_derive;
 	return n;
     }
+
+try_derive:
+    if ((tmp = (char **)malloc(sizeof(tmp[0]))) == NULL)
+	return -errno;
+    n = __dmgetname(pmid, tmp);
+    if (n < 0) {
+	free(tmp);
+	return n;
+    }
+    len = sizeof(tmp[0]) + strlen(tmp[0])+1;
+    if ((tmp = (char **)realloc(tmp, len)) == NULL)
+	return -errno;
+    sp = (char *)&tmp[1];
+    strcpy(sp, tmp[0]);
+    free(tmp[0]);
+    tmp[0] = sp;
+    *namelist = tmp;
+    return 1;
 }
 
 
@@ -2751,7 +2774,12 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 		                      &namelist, NULL);
 		if (sts > 0) {
 		    for (i=0; i<numnames; i++) {
-			func(namelist[i]);
+			/*
+			 * Do not process anonymous metrics here, we'll
+			 * pick them up with the derived metrics later on
+			 */
+			if (strncmp(namelist[i], "anon.", 5) != 0)
+			    func(namelist[i]);
 		    }
 		    numnames = sts;
 		    free(namelist);
