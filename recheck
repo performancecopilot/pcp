@@ -6,4 +6,4 @@
 
 list=`echo *.out.bad | sed -e 's/.out.bad//g'`
 
-./check $list
+./check $* $list
