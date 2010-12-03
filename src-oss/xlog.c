@@ -213,8 +213,12 @@ main(int argc, char **argv)
 	pmTrimNameSpace();
 
 	sts = pmLookupName(numpmid, namelist, pmidlist);
-	if (sts < 0) {
-	    printf("pmLookupName: %s\n", pmErrStr(sts));
+	if (sts != numpmid) {
+	    if (sts < 0)
+		printf("pmLookupName: %s\n", pmErrStr(sts));
+	    else
+		printf("pmLookupName: Warning: some metrics unknown\n", pmErrStr(sts));
+
 	    for (i = 0; i < numpmid; i++) {
 		if (pmidlist[i] == PM_ID_NULL)
 		    printf("	%s - not known\n", namelist[i]);

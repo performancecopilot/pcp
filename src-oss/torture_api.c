@@ -303,6 +303,9 @@ test_api(void)
     if (n != PM_ERR_NONLEAF) {	/* expect failure due to pmcd */
 	_err++;
 	printf("pmLookupName: Unexpected error: %s\n", pmErrStr(n));
+	for (i = 0; i < numpmid; i++) {
+	    printf("name[%d] %s -> %s\n", i, namelist[i], pmIDStr(midlist[i]));
+	}
     }
 
 #ifdef PCP_DEBUG
