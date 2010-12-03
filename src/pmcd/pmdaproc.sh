@@ -168,6 +168,7 @@ do_pmda=true
 do_check=true
 __here=`pwd`
 __pmcd_is_dead=false
+__echo=false
 __verbose=false
 __ns_opt=''
 
@@ -179,6 +180,10 @@ while [ $# -gt 0 ]
 do
     case $1
     in
+	-e)	# echo user input
+	    __echo=true
+	    ;;
+
 	-N)	# name space only
 	    do_pmda=false
 	    ;;
@@ -203,7 +208,7 @@ do
 	-R)	# $ROOT
 	    if [ "$prog" = "Remove" ]
 	    then
-		echo "Usage: $prog [-NQV] [-n namespace]"
+		echo "Usage: $prog [-eNQV] [-n namespace]"
 		exit 1
 	    fi
 	    if [ $# -lt 2 ]
@@ -222,9 +227,9 @@ do
 	*)
 	    if [ "$prog" = "Install" ]
 	    then
-		echo "Usage: $prog [-NQV] [-n namespace] [-R rootdir]"
+		echo "Usage: $prog [-eNQV] [-n namespace] [-R rootdir]"
 	    else
-		echo "Usage: $prog [-NQV] [-n namespace]"
+		echo "Usage: $prog [-eNQV] [-n namespace]"
 	    fi
 	    exit 1
 	    ;;
@@ -577,6 +582,7 @@ _choose_configfile()
 
 	$PCP_ECHO_PROG $PCP_ECHO_N "Which configuration file do you want to use ? [1] ""$PCP_ECHO_C"
 	read __reply
+	$__echo && echo "$__reply"
 
 	# default
 	if [ -z "$__reply" ] 
@@ -589,6 +595,7 @@ _choose_configfile()
 	then
 	    $PCP_ECHO_PROG $PCP_ECHO_N "Enter the name of the existing configuration file: ""$PCP_ECHO_C"
 	    read __choice
+	    $__echo && echo "$__choice"
 	    if [ ! -f "$__choice" ]
 	    then
 		echo "Cannot open \"$__choice\"."
@@ -622,6 +629,7 @@ _choose_configfile()
 
 	    $PCP_ECHO_PROG $PCP_ECHO_N "Use this configuration file? [y] ""$PCP_ECHO_C"
 	    read ans
+	    $__echo && echo "$ans"
 	    if [ ! -z "$ans" -a "X$ans" != Xy -a "X$ans" != XY ]
 	    then
 		echo ""
@@ -679,6 +687,7 @@ the "'$iam'" Performance Metrics Domain Agent (PMDA).
     do
 	$PCP_ECHO_PROG $PCP_ECHO_N 'Please enter c(ollector) or m(onitor) or b(oth) ['$__def'] '"$PCP_ECHO_C"
 	read ans
+	$__echo && echo "$ans"
 	case "$ans"
 	in
 	    "")	break
@@ -695,7 +704,6 @@ the "'$iam'" Performance Metrics Domain Agent (PMDA).
 		    ;;
 	esac
     done
-    echo
 }
 
 # choose an IPC method
@@ -713,6 +721,7 @@ __choose_ipc()
 	do
 	    $PCP_ECHO_PROG $PCP_ECHO_N "PMCD should communicate with the $iam daemon via a pipe or a socket? [pipe] ""$PCP_ECHO_C"
 	    read ipc_type
+	    $__echo && echo "$ipc_type"
 	    if  [ "X$ipc_type" = Xpipe -o "X$ipc_type" = X ]
 	    then
 		ipc_type=pipe
@@ -736,10 +745,12 @@ __choose_ipc()
 	do
 	    $PCP_ECHO_PROG $PCP_ECHO_N "Use Internet or Unix domain sockets? [Internet] ""$PCP_ECHO_C"
 	    read ans
+	    $__echo && echo "$ans"
 	    if [ "X$ans" = XInternet -o "X$ans" = X ]
 	    then
 		$PCP_ECHO_PROG $PCP_ECHO_N "Internet port number or service name? [$socket_inet_def] ""$PCP_ECHO_C"
 		read port
+		$__echo && echo "$port"
 		[ "X$port" = X ] && port=$socket_inet_def
 		case $port
 		in
@@ -761,6 +772,7 @@ __choose_ipc()
 	    then
 		$PCP_ECHO_PROG $PCP_ECHO_N "Unix FIFO name? ""$PCP_ECHO_C"
 		read fifo
+		$__echo && echo "$fifo"
 		if [ "X$fifo" = X ]
 		then
 		    echo "Must provide a name, please try again"
@@ -821,8 +833,8 @@ _setup()
     then
 	perl_name="${PCP_PMDAS_DIR}/${iam}/pmda${iam}.pl"
 	perl_name=`__strip_pcp_dir "$perl_name"`
-	perl_pmns="${PCP_PMDAS_DIR}/${iam}/pmns"
-	perl_dom="${PCP_PMDAS_DIR}/${iam}/domain.h"
+	perl_pmns="${PCP_PMDAS_DIR}/${iam}/pmns.perl"
+	perl_dom="${PCP_PMDAS_DIR}/${iam}/domain.h.perl"
 	perl -e 'use PCP::PMDA' 2>/dev/null
 	if test $? -eq 0
 	then
@@ -836,6 +848,14 @@ _setup()
 	    exit 1
 	fi
     fi
+
+    # Juggle pmns and domain.h in case perl pmda install was done here
+    # last time
+    #
+    for file in pmns domain.h
+    do
+	[ -f $file.save ] && mv $file.save $file
+    done
 
     # Set $domain and $SYMDOM from domain.h
     #
@@ -915,6 +935,142 @@ _install()
 		exit 1
 	    fi
 	fi
+
+	# Select a PMDA style (dso/perl/deamon), and for daemons the
+	# IPC method for communication between PMCD and the PMDA.
+	#
+	pmda_options=''
+	pmda_default_option=''
+	pmda_multiple_options=false
+
+	if $dso_opt
+	then
+	    pmda_options="dso"
+	    pmda_default_option="dso"
+	fi
+	if $perl_opt
+	then
+	    pmda_default_option="perl"
+	    if test -n "$pmda_options"
+	    then
+		pmda_options="perl or $pmda_options"
+		pmda_multiple_options=true
+	    else
+		pmda_options="perl"
+	    fi
+	fi
+	if $daemon_opt
+	then
+	    pmda_default_option="daemon"
+	    if test -n "$pmda_options"
+	    then
+		pmda_options="daemon or $pmda_options"
+		pmda_multiple_options=true
+	    else
+		pmda_options="daemon"
+	    fi
+	fi
+
+	pmda_type="$pmda_default_option"
+	if $pmda_multiple_options
+	then
+	    while true
+	    do
+		$PCP_ECHO_PROG $PCP_ECHO_N "Install $iam as a $pmda_options agent? [$pmda_default_option] ""$PCP_ECHO_C"
+		read pmda_type
+		$__echo && echo "$pmda_type"
+		if [ "X$pmda_type" = Xdaemon -o "X$pmda_type" = X ]
+		then
+		    pmda_type=daemon
+		    break
+		elif [ "X$pmda_type" = Xdso ]
+		then
+		    break
+		elif [ "X$pmda_type" = Xperl ]
+		then
+		    perl -e 'use PCP::PMDA' 2>/dev/null
+		    if test $? -ne 0
+		    then
+			echo 'Perl PCP::PMDA module is not installed, install it and try again'
+		    else
+			break
+		    fi
+		else
+		    echo "Must choose one of $pmda_options, please try again"
+		fi
+	    done
+	fi
+	if [ "$pmda_type" = daemon ]
+	then
+	    __choose_ipc $pmda_dir
+	    args="-d $domain $args"
+	elif [ "$pmda_type" = perl ]
+	then
+	    type="pipe	binary		perl $perl_name"
+	    args=""
+	else
+	    type="dso	$dso_entry	$dso_name"
+	    args=""
+	fi
+
+	# Install binaries
+	#
+	if [ -f Makefile -o -f makefile -o -f GNUmakefile ]
+	then
+	    if [ ! -f "$PCP_MAKE_PROG" -o ! -f "$PCP_INC_DIR/pmda.h" ]
+	    then
+		echo "$prog: Arrgh, PCP devel environment required to install this PMDA"
+		exit 1
+	    fi
+
+	    echo "Installing files ..."
+	    if $PCP_MAKE_PROG install
+	    then
+		:
+	    else
+		echo "$prog: Arrgh, \"$PCP_MAKE_PROG install\" failed!"
+		exit 1
+	    fi
+	fi
+
+	# Fix domain in help for instance domains (if any)
+	#
+	if [ -f $help_source ]
+	then
+	    help_version=1
+	    case $pmda_interface
+	    in
+		2|3|4)	# PMDA_INTERFACE_2 or PMDA_INTERFACE_3 or PMDA_INTERFACE_4
+			help_version=2
+			;;
+	    esac
+	    sed -e "/^@ $SYMDOM\./s/$SYMDOM\./$domain./" <$help_source \
+	    | newhelp -n root -v $help_version -o $help_source
+	fi
+    fi
+
+    if [ "X$pmda_type" = Xperl ]
+    then
+	# Juggle pmns and domain.h ... save originals and
+	# use *.perl ones created earlier
+	for file in pmns domain.h
+	do
+	    if [ ! -f $file.perl ]
+	    then
+		echo "Botch: $file.perl missing ... giving up"
+		exit 1
+	    fi
+	    if [ -f $file ]
+	    then
+		if diff $file.perl $file >/dev/null
+		then
+		    :
+		else
+		    [ ! -f $file.save ] && mv $file $file.save
+		    cp $file.perl $file
+		fi
+	    fi
+	done
     fi
 
     $PCP_SHARE_DIR/lib/lockpmns $NAMESPACE
@@ -994,121 +1150,10 @@ _install()
 
     if $do_pmda
     then
-	# Select a PMDA style (dso/perl/deamon), and for daemons the
-	# IPC method for communication between PMCD and the PMDA.
-	#
-	pmda_options=''
-	pmda_default_option=''
-	pmda_multiple_options=false
-
-	if $dso_opt
-	then
-	    pmda_options="dso"
-	    pmda_default_option="dso"
-	fi
-	if $perl_opt
-	then
-	    pmda_default_option="perl"
-	    if test -n "$pmda_options"
-	    then
-		pmda_options="perl or $pmda_options"
-		pmda_multiple_options=true
-	    else
-		pmda_options="perl"
-	    fi
-	fi
-	if $daemon_opt
-	then
-	    pmda_default_option="daemon"
-	    if test -n "$pmda_options"
-	    then
-		pmda_options="daemon or $pmda_options"
-		pmda_multiple_options=true
-	    else
-		pmda_options="daemon"
-	    fi
-	fi
-
-	pmda_type="$pmda_default_option"
-	if $pmda_multiple_options
-	then
-	    while true
-	    do
-		$PCP_ECHO_PROG $PCP_ECHO_N "Install $iam as a $pmda_options agent? [$pmda_default_option] ""$PCP_ECHO_C"
-		read pmda_type
-		if [ "X$pmda_type" = Xdaemon -o "X$pmda_type" = X ]
-		then
-		    pmda_type=daemon
-		    break
-		elif [ "X$pmda_type" = Xdso ]
-		then
-		    break
-		elif [ "X$pmda_type" = Xperl ]
-		then
-		    perl -e 'use PCP::PMDA' 2>/dev/null
-		    if test $? -ne 0
-		    then
-			echo 'Perl PCP::PMDA module is not installed, install it and try again'
-		    else
-			break
-		    fi
-		else
-		    echo "Must choose one of $pmda_options, please try again"
-		fi
-	    done
-	fi
-	if [ "$pmda_type" = daemon ]
-	then
-	    __choose_ipc $pmda_dir
-	    args="-d $domain $args"
-	elif [ "$pmda_type" = perl ]
-	then
-	    type="pipe	binary		perl $perl_name"
-	    args=""
-	else
-	    type="dso	$dso_entry	$dso_name"
-	    args=""
-	fi
-
-	# Fix domain in help for instance domains (if any)
-	#
-	if [ -f $help_source ]
-	then
-	    help_version=1
-	    case $pmda_interface
-	    in
-		2|3|4)	# PMDA_INTERFACE_2 or PMDA_INTERFACE_3 or PMDA_INTERFACE_4
-			help_version=2
-			;;
-	    esac
-	    sed -e "/^@ $SYMDOM\./s/$SYMDOM\./$domain./" <$help_source \
-	    | newhelp -v $help_version -o $help_source
-	fi
-
 	# Terminate old PMDA
 	#
 	echo "Terminate PMDA if already installed ..."
 	__pmda_cull $iam $domain
-
-	# Install binaries
-	#
-	if [ -f Makefile -o -f makefile -o -f GNUmakefile ]
-	then
-	    if [ ! -f "$PCP_MAKE_PROG" -o ! -f "$PCP_INC_DIR/pmda.h" ]
-	    then
-		echo "$prog: Arrgh, PCP devel environment required to install this PMDA"
-		exit 1
-	    fi
-
-	    echo "Installing files ..."
-	    if $PCP_MAKE_PROG install
-	    then
-		:
-	    else
-		echo "$prog: Arrgh, \"$PCP_MAKE_PROG install\" failed!"
-		exit 1
-	    fi
-	fi
 
 	# Add PMDA to pmcd's configuration file
 	#
