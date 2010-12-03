@@ -236,7 +236,7 @@ main(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    /* setup dispatch table and sentinal */
+    /* setup dispatch table and sentinel */
     dispatchTable[0].lpServiceName = services[0].name;
     dispatchTable[0].lpServiceProc = services[0].setup;
     dispatchTable[1].lpServiceName = NULL;
