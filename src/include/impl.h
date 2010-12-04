@@ -1223,6 +1223,9 @@ extern char *__pmSpecLocalPMDA(const char *);
 extern int __pmCheckEventRecords(pmValueSet *);
 extern void __pmDumpEventRecords(FILE *, pmValueSet *);
 
+/* anonymous metric registration (uses derived metrics support) */
+int __pmRegisterAnon(char *, int);
+
 #ifdef __cplusplus
 }
 #endif

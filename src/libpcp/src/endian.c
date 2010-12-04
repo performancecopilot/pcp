@@ -74,6 +74,7 @@ __htonpmValueBlock(pmValueBlock * const vb)
 	char			*base;
 	int			r;	/* records */
 	int			p;	/* parameters in a record ... */
+	int			nparams;
 	int			vtype;
 	int			vlen;
 	__uint32_t		*tp;	/* points to int holding vtype/vlen */
@@ -84,7 +85,15 @@ __htonpmValueBlock(pmValueBlock * const vb)
 	for (r = 0; r < eap->ea_nrecords; r++) {
 	    erp = (pmEventRecord *)base;
 	    base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
-	    for (p = 0; p < erp->er_nparams; p++) {
+	    erp->er_timestamp.tv_sec = htonl(erp->er_timestamp.tv_sec);
+	    erp->er_timestamp.tv_usec = htonl(erp->er_timestamp.tv_usec);
+	    if (erp->er_flags == PM_ER_FLAG_MISSED)
+		nparams = 0;
+	    else
+		nparams = erp->er_nparams;
+	    erp->er_flags = htonl(erp->er_flags);
+	    erp->er_nparams = htonl(erp->er_nparams);
+	    for (p = 0; p < nparams; p++) {
 		epp = (pmEventParameter *)base;
 		epp->ep_pmid = __htonpmID(epp->ep_pmid);
 		vtype = epp->ep_type;
@@ -112,10 +121,6 @@ __htonpmValueBlock(pmValueBlock * const vb)
 		}
 		base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(vlen);
 	    }
-	    erp->er_timestamp.tv_sec = htonl(erp->er_timestamp.tv_sec);
-	    erp->er_timestamp.tv_usec = htonl(erp->er_timestamp.tv_usec);
-	    erp->er_flags = htonl(erp->er_flags);
-	    erp->er_nparams = htonl(erp->er_nparams);
 	}
 	eap->ea_nrecords = htonl(eap->ea_nrecords);
     }
@@ -155,6 +160,7 @@ __ntohpmValueBlock(pmValueBlock * const vb)
 	char			*base;
 	int			r;	/* records */
 	int			p;	/* parameters in a record ... */
+	int			nparams;
 	__uint32_t		*tp;	/* points to int holding vtype/vlen */
 
 	/* ea_type and ea_len handled via *ip above */
@@ -168,7 +174,11 @@ __ntohpmValueBlock(pmValueBlock * const vb)
 	    erp->er_timestamp.tv_usec = ntohl(erp->er_timestamp.tv_usec);
 	    erp->er_flags = ntohl(erp->er_flags);
 	    erp->er_nparams = ntohl(erp->er_nparams);
-	    for (p = 0; p < erp->er_nparams; p++) {
+	    if (erp->er_flags == PM_ER_FLAG_MISSED)
+		nparams = 0;
+	    else
+		nparams = erp->er_nparams;
+	    for (p = 0; p < nparams; p++) {
 		epp = (pmEventParameter *)base;
 		epp->ep_pmid = __ntohpmID(epp->ep_pmid);
 		tp = (__uint32_t *)&epp->ep_pmid;

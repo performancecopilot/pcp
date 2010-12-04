@@ -35,7 +35,6 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp)
     int			r;	/* records */
     int			p;	/* parameters in a record ... */
     pmAtomValue		atom;
-    static pmID		pmid_anon = 0;
 
     fprintf(f, "Event Records Dump ...\n");
     fprintf(f, "PMID: %s numval: %d", pmIDStr(vsp->pmid), vsp->numval);
@@ -68,18 +67,6 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp)
 	return;
     }
 
-    if (pmid_anon == 0) {
-	char	*name_anon = "anon.32";
-	int	sts;
-	sts = pmLookupName(1, &name_anon, &pmid_anon);
-	if (sts < 0) {
-	    /* should not happen! */
-	    fprintf(f, "Warning: failed to get PMID for %s: %s\n", name_anon, pmErrStr(sts));
-	    /* avoid subsequent warnings ... */
-	    __pmid_int(&pmid_anon)->item = 1;
-	}
-    }
-
     /* have something plausible to report in the array buffer ... */
     base = (char *)&eap->ea_record[0];
     valend = &((char *)eap)[eap->ea_len];
@@ -92,8 +79,12 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp)
 	erp = (pmEventRecord *)base;
 	if (erp->er_flags != 0)
 	    fprintf(f, " flags=%x", erp->er_flags);
-	fprintf(f, " with %d parameters\n", erp->er_nparams);
 	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
+	if (erp->er_flags == PM_ER_FLAG_MISSED) {
+	    fprintf(f, "\n    ==> %d missed records\n", erp->er_nparams);
+	    continue;
+	}
+	fprintf(f, " with %d parameters\n", erp->er_nparams);
 	for (p = 0; p < erp->er_nparams; p++) {
 	    char	*name;
 	    fprintf(f, "    Parameter [%d]:", p);
@@ -146,11 +137,6 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp)
 		default:
 		    fprintf(f, " : bad type %s", pmTypeStr(epp->ep_type));
 	    }
-	    if (erp->er_flags == PM_ER_FLAG_MISSED && epp->ep_pmid == pmid_anon) {
-		int		*ip = (int *)epp;
-		ip += 2;	/* + pmid + vtype/vlen */
-		fprintf(f, " ==> %d missed records", *ip);
-	    }
 	    fputc('\n', f);
 	    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);
 	}
@@ -171,6 +157,7 @@ __pmCheckEventRecords(pmValueSet *vsp)
     pmEventParameter	*epp;
     int			r;	/* records */
     int			p;	/* parameters in a record ... */
+    int			nparams;
 
     if (vsp->numval < 1)
 	return vsp->numval;
@@ -193,7 +180,11 @@ __pmCheckEventRecords(pmValueSet *vsp)
 	    return PM_ERR_TOOBIG;
 	erp = (pmEventRecord *)base;
 	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
-	for (p = 0; p < erp->er_nparams; p++) {
+	if (erp->er_flags == PM_ER_FLAG_MISSED)
+	    nparams = 0;
+	else
+	    nparams = erp->er_nparams;
+	for (p = 0; p < nparams; p++) {
 	    if (base + sizeof(pmEventParameter) > valend)
 		return PM_ERR_TOOBIG;
 	    epp = (pmEventParameter *)base;
@@ -222,11 +213,21 @@ pmUnpackEventRecords(pmValueSet *vsp, pmResult ***rap)
     int			vsize;
     int			sts;
     static int		first = 1;
+    static char		*name_flags = "event.flags";
+    static char		*name_missed = "event.missed";
 
     if (first) {
-	sts = pmRegisterAnon();
-	if (sts < 0)
+	sts = __pmRegisterAnon(name_flags, PM_TYPE_U32);
+	if (sts < 0) {
+	    fprintf(stderr, "pmUnpackEventRecords: Warning: failed to register %s: %s\n", name_flags, pmErrStr(sts));
 	    return sts;
+	}
+	sts = __pmRegisterAnon(name_missed, PM_TYPE_U32);
+	if (sts < 0) {
+	    fprintf(stderr, "pmUnpackEventRecords: Warning: failed to register %s: %s\n", name_missed, pmErrStr(sts));
+	    return sts;
+	}
+	first = 0;
     }
 
     sts = __pmCheckEventRecords(vsp);
@@ -256,13 +257,17 @@ pmUnpackEventRecords(pmValueSet *vsp, pmResult ***rap)
     for (r = 0; r < eap->ea_nrecords; r++) {
 	rp = NULL;
 	erp = (pmEventRecord *)base;
-	numpmid = erp->er_nparams;
 	/*
-	 * er_flags optionally unpacked into an extra anon.32 metric
-	 * before all the event record parameters
+	 * er_flags optionally unpacked into an extra anon events.flags metric
+	 * before all the event record parameters, and for PM_ER_FLAG_MISSED
+	 * er_nparams is a count of the missed records.
 	 */
-	if (erp->er_flags != 0)
-	    numpmid++;
+	if (erp->er_flags == 0)
+	    numpmid = erp->er_nparams;
+	else if (erp->er_flags == PM_ER_FLAG_MISSED)
+	    numpmid = 2;
+	else
+	    numpmid = erp->er_nparams + 1;
 	need = sizeof(pmResult) + (numpmid-1)*sizeof(pmValueSet *);
 	rp = (pmResult *)malloc(need); 
 	if (rp == NULL) {
@@ -284,21 +289,39 @@ pmUnpackEventRecords(pmValueSet *vsp, pmResult ***rap)
 		goto bail;
 	    }
 	    if (p == 0 && erp->er_flags != 0) {
-		static pmID	pmid_anon = 0;
-		static char	*name_anon = "anon.32";
+		/* rewrite non-zero er_flags as the anon event.flags metric */
+		static pmID	pmid_flags = 0;
 		int		lsts;
-		if (pmid_anon == 0) {
-		    lsts = pmLookupName(1, &name_anon, &pmid_anon);
+		if (pmid_flags == 0) {
+		    lsts = pmLookupName(1, &name_flags, &pmid_flags);
 		    if (lsts < 0) {
-			fprintf(stderr, "pmUnpackEventRecords: Warning: failed to get PMID for %s: %s\n", name_anon, pmErrStr(lsts));
-			__pmid_int(&pmid_anon)->item = 1;
+			fprintf(stderr, "pmUnpackEventRecords: Warning: failed to get PMID for %s: %s\n", name_flags, pmErrStr(lsts));
+			__pmid_int(&pmid_flags)->item = 1;
 		    }
 		}
-		rp->vset[p]->pmid = pmid_anon;
+		rp->vset[p]->pmid = pmid_flags;
 		rp->vset[p]->numval = 1;
 		rp->vset[p]->vlist[0].inst = PM_IN_NULL;
 		rp->vset[p]->valfmt = PM_VAL_INSITU;
 		rp->vset[p]->vlist[0].value.lval = erp->er_flags;
+		continue;
+	    }
+	    if (p == 1 && erp->er_flags == PM_ER_FLAG_MISSED) {
+		/* rewrite missed count as the anon event.missed metric */
+		static pmID	pmid_missed = 0;
+		int		lsts;
+		if (pmid_missed == 0) {
+		    lsts = pmLookupName(1, &name_missed, &pmid_missed);
+		    if (lsts < 0) {
+			fprintf(stderr, "pmUnpackEventRecords: Warning: failed to get PMID for %s: %s\n", name_missed, pmErrStr(lsts));
+			__pmid_int(&pmid_missed)->item = 1;
+		    }
+		}
+		rp->vset[p]->pmid = pmid_missed;
+		rp->vset[p]->numval = 1;
+		rp->vset[p]->vlist[0].inst = PM_IN_NULL;
+		rp->vset[p]->valfmt = PM_VAL_INSITU;
+		rp->vset[p]->vlist[0].value.lval = erp->er_nparams;
 		continue;
 	    }
 	    epp = (pmEventParameter *)base;

@@ -428,14 +428,12 @@ print_event_summary(FILE *f, const pmValue *val)
     for (r = 0; r < eap->ea_nrecords-1; r++) {
 	erp = (pmEventRecord *)base;
 	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
+	if (erp->er_flags == PM_ER_FLAG_MISSED) {
+	    nmissed += erp->er_nparams;
+	    continue;
+	}
 	for (p = 0; p < erp->er_nparams; p++) {
 	    epp = (pmEventParameter *)base;
-	    if (p == 0 && erp->er_flags == PM_ER_FLAG_MISSED) {
-		int		*ip = (int *)epp;
-		ip += 2;	/* + pmid + vtype/vlen */
-		nmissed += *ip;
-		nrecords--;
-	    }
 	    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);
 	}
     }

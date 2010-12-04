@@ -641,7 +641,6 @@ extern int pmLoopDebug;
 int pmLoadDerivedConfig(char *);
 char *pmRegisterDerived(char *, char *);
 char *pmDerivedErrStr(void);
-int pmRegisterAnon(void);
 
 /*
  * Asynchronous versions of main pmapi client routines - each one

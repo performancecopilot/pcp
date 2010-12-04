@@ -79,21 +79,39 @@ static struct {
 
 static char *state_dbg[] = { "INIT", "LEAF", "LEAF_PAREN", "BINOP", "FUNC_OP", "FUNC_END" };
 
+/* Register an anonymous metric */
 int
-pmRegisterAnon(void)
+__pmRegisterAnon(char *name, int type)
 {
-    static int	done = 0;
+    char	*msg;
+    char	buf[21];	/* anon(PM_TYPE_XXXXXX) */
 
-    if (!done) {
-	char	*msg;
-	/* Register the anonymous metrics */
-	done = 1;
-	if ((msg = pmRegisterDerived("anon.32", "anon(PM_TYPE_32)")) != NULL ||
-	    (msg = pmRegisterDerived("anon.64", "anon(PM_TYPE_64)")) != NULL ||
-	    (msg = pmRegisterDerived("anon.double", "anon(PM_TYPE_DOUBLE)")) != NULL) {
-	    pmprintf("pmRegisterAnon: Error: %s", msg);
-	    return PM_ERR_GENERIC;
-	}
+    switch (type) {
+	case PM_TYPE_32:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_32)");
+	    break;
+	case PM_TYPE_U32:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_U32)");
+	    break;
+	case PM_TYPE_64:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_64)");
+	    break;
+	case PM_TYPE_U64:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_U64)");
+	    break;
+	case PM_TYPE_FLOAT:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_FLOAT)");
+	    break;
+	case PM_TYPE_DOUBLE:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_DOUBLE)");
+	    break;
+	default:
+	    return PM_ERR_TYPE;
+    }
+    if ((msg = pmRegisterDerived(name, buf)) != NULL) {
+	pmprintf("__pmRegisterAnon(%s, %d): Error: %s\n", name, type, pmDerivedErrStr());
+	pmflush();
+	return PM_ERR_GENERIC;
     }
     return 0;
 }

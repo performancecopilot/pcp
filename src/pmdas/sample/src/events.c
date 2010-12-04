@@ -155,23 +155,6 @@ sample_fetch_events(pmEventArray **eapp)
     static pmID		pmid_double = PMDA_PMID(0,133);	/* event.param_double */
     static pmID		pmid_string = PMDA_PMID(0,134);	/* event.param_string */
     static pmID		pmid_aggregate = PMDA_PMID(0,135);	/* event.param_aggregate */
-    static pmID		pmid_anon = 0;			/* anon.32 */
-
-    if (pmid_anon == 0) {
-	/*
-	 * get PMID for anon.32 ... need to call pmRegisterAnon(), so
-	 * the anon metrics will appear in the PMNS
-	 */
-	char	*name = "anon.32";
-	pmRegisterAnon();
-	sts = pmLookupName(1, &name, &pmid_anon);
-	if (sts < 0) {
-	    /* should not happen! */
-	    fprintf(stderr, "sample_fetch_events: Warning: cannot get PMID for anon.32: %s\n", pmErrStr(sts));
-	    __pmid_int(&pmid_anon)->item = 1;
-	    fprintf(stderr, "... using %s instead\n", pmErrStr(sts));
-	}
-    }
 
     if (nfetch >= 0)
 	c = nfetch % 4;
@@ -303,9 +286,7 @@ sample_fetch_events(pmEventArray **eapp)
 	    if ((sts = add_record(&stamp, PM_ER_FLAG_MISSED)) < 0)
 		return sts;
 	    stamp.tv_sec++;
-	    atom.l = 7;
-	    if ((sts = add_param(pmid_anon, PM_TYPE_32, &atom)) < 0)
-		return sts;
+	    erp->er_nparams = 7;
 	    if ((sts = add_record(&stamp, 0)) < 0)
 		return sts;
 	    stamp.tv_sec++;
