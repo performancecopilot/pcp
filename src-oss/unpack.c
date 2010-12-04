@@ -94,12 +94,11 @@ reset(void)
     eptr = ebuf;
     eap = (pmEventArray *)eptr;
     eap->ea_nrecords = 0;
-    eap->ea_nmissed = 0;
     eptr += sizeof(pmEventArray) - sizeof(pmEventRecord);
 }
 
 static int
-add_record(struct timeval *tp)
+add_record(struct timeval *tp, int flags)
 {
     int				sts;
 
@@ -112,6 +111,7 @@ add_record(struct timeval *tp)
     erp->er_timestamp.tv_sec = (__int32_t)tp->tv_sec;
     erp->er_timestamp.tv_usec = (__int32_t)tp->tv_usec;
     erp->er_nparams = 0;
+    erp->er_flags = flags;
     eptr += sizeof(pmEventRecord) - sizeof(pmEventParameter);
     return 0;
 }
@@ -124,16 +124,55 @@ dump(char *xpect)
     int		nmissed;
     int		nrecords;
     int		r;
+    static pmID	pmid_flags = 0;
+    static pmID	pmid_missed;
 
     fprintf(stderr, "Expecting ... %s\n", xpect);
 
-    nrecords = pmUnpackEventRecords(&vs, &res, &nmissed);
+    nrecords = pmUnpackEventRecords(&vs, &res);
 
     if (nrecords < 0) {
 	fprintf(stderr, "pmUnpackEventRecords: %s\n", pmErrStr(nrecords));
 	return;
     }
-    fprintf(stderr, "Array contains %d records and %d records were missed\n", nrecords, nmissed);
+
+    /* lifted from pminfo.c */
+    if (pmid_flags == 0) {
+	/*
+	 * get PMID for event.flags and event.missed
+	 * note that pmUnpackEventRecords() will have called
+	 * __pmRegisterAnon(), so the anon metrics
+	 * should now be in the PMNS
+	 */
+	char	*name_flags = "event.flags";
+	char	*name_missed = "event.missed";
+	int	sts;
+	sts = pmLookupName(1, &name_flags, &pmid_flags);
+	if (sts < 0) {
+	    /* should not happen! */
+	    fprintf(stderr, "Warning: cannot get PMID for %s: %s\n", name_flags, pmErrStr(sts));
+	    /* avoid subsequent warnings ... */
+	    __pmid_int(&pmid_flags)->item = 1;
+	}
+	sts = pmLookupName(1, &name_missed, &pmid_missed);
+	if (sts < 0) {
+	    /* should not happen! */
+	    fprintf(stderr, "Warning: cannot get PMID for %s: %s\n", name_missed, pmErrStr(sts));
+	    /* avoid subsequent warnings ... */
+	    __pmid_int(&pmid_missed)->item = 1;
+	}
+    }
+
+    nmissed = 0;
+    for (r = 0; r < nrecords; r++) {
+	if (res[r]->numpmid == 2 && res[r]->vset[0]->pmid == pmid_flags &&
+	    res[r]->vset[0]->vlist[0].value.lval == PM_ER_FLAG_MISSED &&
+	    res[r]->vset[1]->pmid == pmid_missed) {
+	    nmissed += res[r]->vset[1]->vlist[0].value.lval;
+	}
+    }
+
+    fprintf(stderr, "Array contains %d records and %d missed records\n", nrecords, nmissed);
     if (nrecords == 0)
 	return;
 
@@ -189,6 +228,7 @@ main(int argc, char **argv)
     ((__pmID_int *)&pmid_double)->domain = mydomain;
     ((__pmID_int *)&pmid_string)->domain = mydomain;
     ((__pmID_int *)&pmid_aggregate)->domain = mydomain;
+
 /* === end copied from samplepmda events.c === */
 
     vs.pmid = pmid_array;
@@ -243,23 +283,19 @@ main(int argc, char **argv)
     dump("Error - ea_nrecords < 0");
     eap->ea_nrecords = 0;
 
-    eap->ea_nmissed = -1;
-    dump("Error - ea_nmissed < 0");
-    eap->ea_nmissed = 0;
-
     eap->ea_len = PM_VAL_HDR_SIZE;
     dump("Error - vlen way too small");
 
     eap->ea_len = eptr - ebuf;
     dump("No records");
 
-    add_record(&stamp);
+    add_record(&stamp, 0);
     stamp.tv_sec++;
     eap->ea_len = eptr - ebuf;
     dump("1 record, no params");
 
     reset();
-    add_record(&stamp);
+    add_record(&stamp, 0);
     stamp.tv_sec++;
     atom.ul = 1;
     add_param(pmid_type, PM_TYPE_U32, &atom);
@@ -267,7 +303,7 @@ main(int argc, char **argv)
     dump("1 record, u32 param = 1");
 
     reset();
-    add_record(&stamp);
+    add_record(&stamp, 1);
     stamp.tv_sec++;
     atom.ul = 2;
     add_param(pmid_type, PM_TYPE_U32, &atom);
@@ -279,7 +315,10 @@ main(int argc, char **argv)
     dump("Error - buffer overrun @ parameter");
 
     reset();
-    add_record(&stamp);
+    add_record(&stamp, PM_ER_FLAG_MISSED);
+    stamp.tv_sec++;
+    erp->er_nparams = 3;
+    add_record(&stamp, 0);
     stamp.tv_sec++;
     atom.ul = 4;
     add_param(pmid_type, PM_TYPE_U32, &atom);
@@ -287,7 +326,7 @@ main(int argc, char **argv)
     add_param(pmid_u64, PM_TYPE_U64, &atom);
     atom.cp = "6";
     add_param(pmid_string, PM_TYPE_STRING, &atom);
-    add_record(&stamp);
+    add_record(&stamp, 0);
     stamp.tv_sec++;
     atom.ul = 7;
     add_param(pmid_type, PM_TYPE_U32, &atom);
@@ -295,7 +334,7 @@ main(int argc, char **argv)
     add_param(pmid_double, PM_TYPE_DOUBLE, &atom);
     atom.d = -9;
     add_param(pmid_double, PM_TYPE_DOUBLE, &atom);
-    add_record(&stamp);
+    add_record(&stamp, 2);
     stamp.tv_sec++;
     atom.ul = 10;
     add_param(pmid_type, PM_TYPE_U32, &atom);
@@ -309,8 +348,11 @@ main(int argc, char **argv)
     add_param(pmid_32, PM_TYPE_32, &atom);
     atom.ul = 15;
     add_param(pmid_u32, PM_TYPE_U32, &atom);
+    add_record(&stamp, PM_ER_FLAG_MISSED);
+    stamp.tv_sec++;
+    erp->er_nparams = 4;
     savelen = eptr - ebuf;
-    add_record(&stamp);
+    add_record(&stamp,0);
     stamp.tv_sec++;
     atom.ul = 16;
     add_param(pmid_type, PM_TYPE_U32, &atom);
@@ -319,9 +361,7 @@ main(int argc, char **argv)
     atom.vp = (void *)aggr;
     add_param(pmid_aggregate, PM_TYPE_AGGREGATE, &atom);
     eap->ea_len = eptr - ebuf;
-    eap->ea_nmissed = 7;
-    dump("4 records, 7 missed [u32=4 u64=5 str=\"6\"][u32=7 d=8 d=-9][u32=10 u64=11 str=\"twelve\" str=\"thirteen\" 32=-14 u32=15][u32=16 f=-17 aggr=...]");
-    eap->ea_nmissed = 0;
+    dump("6 records, 7 missed [u32=4 u64=5 str=\"6\"][u32=7 d=8 d=-9][u32=10 u64=11 str=\"twelve\" str=\"thirteen\" 32=-14 u32=15][u32=16 f=-17 aggr=...]");
 
     eap->ea_len = savelen;
     dump("Error - buffer overrun @ record");

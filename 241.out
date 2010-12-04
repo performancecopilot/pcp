@@ -8,7 +8,8 @@ the "mmv" Performance Metrics Domain Agent (PMDA).
   monitor	allow this system to monitor local and/or remote systems
   both		collector and monitor configuration for this system
 
-Please enter c(ollector) or m(onitor) or b(oth) [b] 
+Please enter c(ollector) or m(onitor) or b(oth) [b] b
+Install mmv as a daemon or dso agent? [daemon] dso
 Updating the Performance Metrics Name Space (PMNS) ...
 Compiled PMNS contains
   NNN hash table entries

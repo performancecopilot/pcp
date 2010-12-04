@@ -25,10 +25,11 @@ _filter()
 }
 
 # real QA test starts here
-pminfo -f simple | _filter
-pminfo -T simple | _filter
-pminfo -f simple | _filter
-pminfo -t simple | _filter
+metrics=`pminfo simple | LC_COLLATE=POSIX sort`
+pminfo -f $metrics | _filter
+pminfo -T $metrics | _filter
+pminfo -f $metrics | _filter
+pminfo -t $metrics | _filter
 
 # success, all done
 exit

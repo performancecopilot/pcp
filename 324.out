@@ -13,7 +13,7 @@ the "txmon" Performance Metrics Domain Agent (PMDA).
   monitor	allow this system to monitor local and/or remote systems
   both		collector and monitor configuration for this system
 
-Please enter c(ollector) or m(onitor) or b(oth) [b] 
+Please enter c(ollector) or m(onitor) or b(oth) [b] b
 Welcome to the Install script for the demonstration "txmon" PMDA.
 This PMDA will establish a shared memory segment with one statistics
 structure per transaction type.
@@ -21,7 +21,9 @@ structure per transaction type.
 You must define the names of the transaction types (the names are
 arbitrary strings with no embedded white space, e.g. mytx#1).
 
-Name for transaction type? [return if no more] Name for transaction type? [return if no more] Name for transaction type? [return if no more] Name for transaction type? [return if no more] Updating the Performance Metrics Name Space (PMNS) ...
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
 Compiled PMNS contains
   NNN hash table entries
   NNN leaf nodes

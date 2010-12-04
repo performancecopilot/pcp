@@ -167,7 +167,7 @@ Derived metric expr dump from <addr-43>...
 expr node <addr-43> type=MINUS left=<addr-44> right=<addr-45> save_last=0
 expr node <addr-44> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pmlogger.port] master=1
 expr node <addr-45> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pmlogger.port] master=1
-__dmopencontext() called
+__dmopencontext(->ctx 0) called
 __dmopencontext: bind metric[0] my.space_over_time1
 Derived metric expr dump from <addr-46>...
 expr node <addr-46> type=PLUS left=<addr-47> right=<addr-48> save_last=0
@@ -604,7 +604,7 @@ pmRegisterDerived: register metric[3] gcov.d = sample.ulong.count.base - sample.
 pmRegisterDerived: register metric[4] gcov.e = sample.ulong.count.mega - sample.ulong.count.kilo
 pmRegisterDerived: register metric[5] gcov.f = (1/sample.ulong.count.base) - (1/sample.ulong.count.kilo)
 pmRegisterDerived: register metric[6] gcov.g = (1/sample.ulong.count.mega) - (1/sample.ulong.count.kilo)
-__dmopencontext() called
+__dmopencontext(->ctx 0) called
 __dmopencontext: bind metric[0] gcov.a
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=SLASH left=<addr-1> right=<addr-4> save_last=0

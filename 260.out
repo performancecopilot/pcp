@@ -122,7 +122,7 @@ expr node <addr-33> type=DELTA left=<addr-34> right=(nil) save_last=0
 expr node <addr-34> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_out.total] master=1
 expr node <addr-35> type=DELTA left=<addr-36> right=(nil) save_last=0
 expr node <addr-36> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=1
-__dmopencontext() called
+__dmopencontext(->ctx 0) called
 __dmopencontext: bind metric[0] delta.m1
 Derived metric expr dump from <addr-37>...
 expr node <addr-37> type=DELTA left=<addr-38> right=(nil) save_last=0

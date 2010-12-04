@@ -23,7 +23,7 @@ _setup_pmdas()
     for pmda in trivial simple sample sendmail trace
     do
 	cd $pmda
-	$sudo ./Install -Q </dev/null >/dev/null 2>&1
+	$sudo ./Install -e -Q </dev/null >/dev/null 2>&1
 	cd ..
     done
 }
@@ -62,7 +62,7 @@ i=1
 for pmda in trivial simple sample sendmail trace
 do
     cd $pmda
-    $sudo ./Install -Q </dev/null >$tmp.out.$i 2>&1 &
+    $sudo ./Install -e -Q </dev/null >$tmp.out.$i 2>&1 &
     cd ..
     i=`expr $i + 1`
 done

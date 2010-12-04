@@ -11,7 +11,7 @@ myevents
     value [2 event records timestamps TIMESTAMP...TIMESTAMP]
 
 myevents
-    value [4 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
 
 === These should NOT work ===
 Semantic error: derived metric mybad_1: sample.event.records - sample.event.records: Non-arithmetic type for left operand

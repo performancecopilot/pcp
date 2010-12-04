@@ -27,7 +27,7 @@ dbpmda> fetch sample.event.records
 PMID(s): 29.4095.0
 pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 1
   29.4095.0 (sample.event.records): numval: 1 valfmt: 2 vlist[]:
-   value [4 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+   value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
 dbpmda> 
 
 === pmda log ===

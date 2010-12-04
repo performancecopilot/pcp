@@ -80,7 +80,10 @@ _filter()
 	-e 's/.* \(hash table entries\)/  NNN \1/' \
 	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
 	-e 's/.* \(leaf nodes\)/  NNN \1/' \
-	-e 's/.* \(bytes of symbol table\)/  NNN \1/'
+	-e 's/.* \(bytes of symbol table\)/  NNN \1/' \
+	-e "s;$tmp;TMP;" \
+	-e "s/$port1/PORT1/" \
+	-e "s/$port2/PORT2/"
 }
 
 _full()
@@ -128,7 +131,7 @@ echo "=== pipe daemon agent ===" >>$here/$seq.full
 $sudo ./Remove >$tmp.out 2>&1
 echo 'both
 daemon
-pipe' | $sudo ./Install >>$tmp.out 2>&1
+pipe' | $sudo ./Install -e >>$tmp.out 2>&1
 _full
 
 _filter <$tmp.out
@@ -148,12 +151,12 @@ echo 'both
 daemon
 socket
 Unix
-'"$tmp.fifo-1" | $sudo ./Install >>$tmp.out 2>&1
+'"$tmp.fifo-1" | $sudo ./Install -e >>$tmp.out 2>&1
 echo 'both
 daemon
 socket
 Unix
-'"$tmp.fifo-2" | $sudo ./Install >>$tmp.out 2>&1
+'"$tmp.fifo-2" | $sudo ./Install -e >>$tmp.out 2>&1
 _full
 
 _filter <$tmp.out
@@ -172,10 +175,10 @@ $sudo ./Remove >$tmp.out 2>&1
 
 # pick a tcp port that is not in use
 #
-port=`_get_port tcp 5670 5689`
-if [ -z "$port" ]
+port1=`_get_port tcp 5650 5699`
+if [ -z "$port1" ]
 then
-    echo "Arrgh ... no free TCP port in the range 5670 ... 5689"
+    echo "Arrgh ... no free TCP port in the range 5650 ... 5699"
     exit 1
 fi
 
@@ -183,16 +186,16 @@ echo 'both
 daemon
 socket
 Internet
-'$port | $sudo ./Install >>$tmp.out 2>&1
+'$port1 | $sudo ./Install -e >>$tmp.out 2>&1
 
 # use next port this time
-port=`expr $port + 1`
+port2=`expr $port1 + 1`
 
 echo 'both
 daemon
 socket
 Internet
-'$port | $sudo ./Install >>$tmp.out 2>&1
+'$port2 | $sudo ./Install -e >>$tmp.out 2>&1
 _full
 
 _filter <$tmp.out
@@ -209,9 +212,9 @@ echo "=== dso agent ==="
 echo "=== dso agent ===" >>$here/$seq.full
 $sudo ./Remove >$tmp.out 2>&1
 echo 'both
-dso' | $sudo ./Install >>$tmp.out 2>&1
+dso' | $sudo ./Install -e >>$tmp.out 2>&1
 echo 'both
-dso' | $sudo ./Install >>$tmp.out 2>&1
+dso' | $sudo ./Install -e >>$tmp.out 2>&1
 _full
 
 _filter <$tmp.out

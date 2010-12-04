@@ -93,7 +93,7 @@ End-of-File
 
 echo
 echo "=== $iam agent installation ==="
-cat <<End-of-File | $sudo ./Install >$tmp.out 2>&1
+cat <<End-of-File | $sudo ./Install -e >$tmp.out 2>&1
 b
 dso
 End-of-File

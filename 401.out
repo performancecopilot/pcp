@@ -13,14 +13,14 @@ sample.event.records
     --- event record [0] timestamp TIMESTAMP ---
     sample.event.type (29.0.127)
         value 1
-    --- event record [1] timestamp TIMESTAMP ---
+    --- event record [1] timestamp TIMESTAMP flags 0x1 ---
     sample.event.type (29.0.127)
         value 2
     sample.event.param_64 (29.0.130)
         value -3
 
 sample.event.records
-    value [4 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
     --- event record [0] timestamp TIMESTAMP ---
     sample.event.type (29.0.127)
         value 4
@@ -35,7 +35,7 @@ sample.event.records
         value 8
     sample.event.param_double (29.0.133)
         value -9
-    --- event record [2] timestamp TIMESTAMP ---
+    --- event record [2] timestamp TIMESTAMP flags 0x2 ---
     sample.event.type (29.0.127)
         value 10
     sample.event.param_u64 (29.0.131)
@@ -48,7 +48,9 @@ sample.event.records
         value -14
     sample.event.param_u32 (29.0.129)
         value 15
-    --- event record [3] timestamp TIMESTAMP ---
+    --- event record [3] timestamp TIMESTAMP flags 0x80000000 ---
+        ==> 7 missed event records
+    --- event record [4] timestamp TIMESTAMP ---
     sample.event.type (29.0.127)
         value 16
     sample.event.param_float (29.0.132)

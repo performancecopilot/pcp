@@ -6,15 +6,25 @@ the "simple" Performance Metrics Domain Agent (PMDA).
   monitor	allow this system to monitor local and/or remote systems
   both		collector and monitor configuration for this system
 
-Please enter c(ollector) or m(onitor) or b(oth) [b] Sorry, that is not acceptable response ...
-Please enter c(ollector) or m(onitor) or b(oth) [b] 
-Updating the Performance Metrics Name Space (PMNS) ...
-Install simple as a daemon or dso agent? [daemon] Must choose one of "daemon" or "dso", please try again
-Install simple as a daemon or dso agent? [daemon] PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] Must choose one of "pipe" or "socket", please try again
-PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] Use Internet or Unix domain sockets? [Internet] Must choose one of "Unix" or "Internet", please try again
-Use Internet or Unix domain sockets? [Internet] Unix FIFO name? Must provide a name, please try again
-Use Internet or Unix domain sockets? [Internet] Internet port number or service name? [2078] Terminate PMDA if already installed ...
+Please enter c(ollector) or m(onitor) or b(oth) [b] foo
+Sorry, that is not acceptable response ...
+Please enter c(ollector) or m(onitor) or b(oth) [b] both
+Install simple as a daemon or dso agent? [daemon] foo
+Must choose one of "daemon" or "dso", please try again
+Install simple as a daemon or dso agent? [daemon] daemon
+PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] foo
+Must choose one of "pipe" or "socket", please try again
+PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] socket
+Use Internet or Unix domain sockets? [Internet] foo
+Must choose one of "Unix" or "Internet", please try again
+Use Internet or Unix domain sockets? [Internet] Unix
+Unix FIFO name? 
+Must provide a name, please try again
+Use Internet or Unix domain sockets? [Internet] Internet
+Internet port number or service name? [2078] 
 Installing files ...
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
 Check simple metrics have appeared ... 5 metrics and 9 values
 in $PCP_PMCDCONF_PATH ...

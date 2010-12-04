@@ -60,7 +60,7 @@ fi
 # start from a known starting point
 $sudo ./Remove >/dev/null 2>&1
 
-$sudo ./Install </dev/null >$tmp.out 2>&1
+$sudo ./Install -e </dev/null >$tmp.out 2>&1
 _filter_pmda_install <$tmp.out
 
 # exercise various configuration file entries (updated on the fly) ...

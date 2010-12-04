@@ -22,7 +22,10 @@ _filter()
     _filter_pmda_install | \
     sed -e 's/ 1[1-2][0-9][0-9] values/ 1200+ values/' \
 	-e 's/ 1[0-9] warnings/ 10+ warnings/' \
-	-e 's/ 1[0-4][0-9] metrics/ 100+ metrics/'
+	-e 's/ 1[0-4][0-9] metrics/ 100+ metrics/' \
+	-e "s;$tmp;TMP;" \
+	-e "s/$port1/PORT1/" \
+	-e "s/$port2/PORT2/"
 }
 
 _filter_rem()
@@ -84,11 +87,11 @@ _check_pmda_gone $iam
 echo
 echo "=== pipe agent ==="
 echo 'both
-pipe' | $sudo ./Install >$tmp.out 2>&1
+pipe' | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
 echo 'both
-pipe' | $sudo ./Install >$tmp.out 2>&1
+pipe' | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
 
@@ -97,8 +100,8 @@ echo "=== socket Internet agent ==="
 
 # pick a tcp port that is not in use
 #
-port=`_get_port tcp 5670 5689`
-if [ -z "$port" ]
+port1=`_get_port tcp 5670 5689`
+if [ -z "$port1" ]
 then
     echo "Arrgh ... no free TCP port in the range 5670 ... 5689"
     exit 1
@@ -107,17 +110,17 @@ fi
 echo 'both
 socket
 Internet
-'$port | $sudo ./Install >$tmp.out 2>&1
+'$port1 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
 
 # use next port this time
-port=`expr $port + 1`
+port2=`expr $port1 + 1`
 
 echo 'both
 socket
 Internet
-'$port | $sudo ./Install >$tmp.out 2>&1
+'$port2 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
 
@@ -126,13 +129,13 @@ echo "=== socket Unix agent ==="
 echo 'both
 socket
 Unix
-'"$tmp.fifo" | $sudo ./Install >$tmp.out 2>&1
+'"$tmp.fifo" | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
 echo 'both
 socket
 Unix
-'"$tmp.fifo" | $sudo ./Install >$tmp.out 2>&1
+'"$tmp.fifo" | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
 

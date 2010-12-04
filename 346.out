@@ -12,7 +12,6 @@ the "mailq" Performance Metrics Domain Agent (PMDA).
   monitor	allow this system to monitor local and/or remote systems
   both		collector and monitor configuration for this system
 
-Please enter c(ollector) or m(onitor) or b(oth) [b] 
 The default delay thresholds for grouping the pending mail items are:
     1 hour, 4 hours, 8 hours, 1 day, 3 days and 7 days
 

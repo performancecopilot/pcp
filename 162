@@ -95,7 +95,7 @@ do
     if [ -f $instdir/Install ] 
     then
 	cd $instdir
-	$sudo ./Install -n $tmp/root -N </dev/null 2>&1 | _filter_ins
+	$sudo ./Install -e -n $tmp/root -N </dev/null 2>&1 | _filter_ins
 	pminfo -n $tmp/root $pmda | _filter | LC_COLLATE=POSIX sort
     else
 	echo "Error: $instdir/Install does not exist"

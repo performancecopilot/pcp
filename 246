@@ -42,9 +42,9 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 _filter()
 {
     cat $tmp.out >>$seq.full
-    # __dmclosecontext() called dm->0x9216d58 3 metrics
+    # __dmclosecontext(->ctx 8) called dm->0x9216d58 3 metrics
     sed <$tmp.out \
-	-e 's/()//' \
+	-e 's/(->ctx [0-9][0-9]*)//' \
 	-e 's/->/ /' \
     | awk >$tmp.sed '
 BEGIN				{ n = 0; PICK = 40 }
@@ -64,7 +64,7 @@ s/bind metric... //
 s/$/ .../
 }' \
 	-e '/__dmopencontext/s/__dmopencontext:/open/' \
-	-e '/__dmclosecontext/s/__dmclosecontext() called dm->/close /' \
+	-e '/__dmclosecontext/s/__dmclosecontext(->ctx [0-9][0-9]*) called dm->/close /' \
 	-e "s;$tmp;TMP;" \
     | sed -f $tmp.sed
 }

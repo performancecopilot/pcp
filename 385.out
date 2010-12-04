@@ -12,7 +12,7 @@ sample.event.records
     value [2 event records timestamps TIMESTAMP...TIMESTAMP]
 
 sample.event.records
-    value [4 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
 
 === __pmPrintDesc ===
 

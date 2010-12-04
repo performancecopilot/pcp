@@ -7,7 +7,7 @@ Dump Contexts: current context = 0
 Context[0] log src-oss/foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
-pmLookupName: Unknown metric name
+pmLookupName: Warning: some metrics unknown
 	sampledso.milliseconds - not known
 	sampledso.bin - not known
 
@@ -45,7 +45,7 @@ Dump Contexts: current context = 1
 Context[1] log src-oss/foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin SAME TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
-pmLookupName: Unknown metric name
+pmLookupName: Warning: some metrics unknown
 	sampledso.milliseconds - not known
 	sampledso.bin - not known
 
@@ -85,7 +85,7 @@ Dump Contexts: current context = 0
 Context[0] log src-oss/bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
-pmLookupName: Unknown metric name
+pmLookupName: Warning: some metrics unknown
 	sample.seconds - not known
 	sample.bin - not known
 	sample.colour - not known
@@ -113,7 +113,7 @@ Dump Contexts: current context = 1
 Context[1] log src-oss/bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin SAME TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
-pmLookupName: Unknown metric name
+pmLookupName: Warning: some metrics unknown
 	sample.seconds - not known
 	sample.bin - not known
 	sample.colour - not known
@@ -143,7 +143,7 @@ Dump Contexts: current context = 0
 Context[0] log src-oss/mv-foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
-pmLookupName: Unknown metric name
+pmLookupName: Warning: some metrics unknown
 	sampledso.milliseconds - not known
 	sampledso.bin - not known
 
@@ -181,7 +181,7 @@ Dump Contexts: current context = 1
 Context[1] log src-oss/mv-foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin SAME TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
-pmLookupName: Unknown metric name
+pmLookupName: Warning: some metrics unknown
 	sampledso.milliseconds - not known
 	sampledso.bin - not known
 
@@ -221,7 +221,7 @@ Dump Contexts: current context = 0
 Context[0] log src-oss/mv-bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
-pmLookupName: Unknown metric name
+pmLookupName: Warning: some metrics unknown
 	sample.seconds - not known
 	sample.bin - not known
 	sample.colour - not known
@@ -249,7 +249,7 @@ Dump Contexts: current context = 1
 Context[1] log src-oss/mv-bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin SAME TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
-pmLookupName: Unknown metric name
+pmLookupName: Warning: some metrics unknown
 	sample.seconds - not known
 	sample.bin - not known
 	sample.colour - not known
@@ -279,7 +279,7 @@ Dump Contexts: current context = 0
 Context[0] log src-oss/noti-foo: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 0 origin TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
-pmLookupName: Unknown metric name
+pmLookupName: Warning: some metrics unknown
 	sampledso.milliseconds - not known
 	sampledso.bin - not known
 
@@ -317,7 +317,7 @@ Dump Contexts: current context = 1
 Context[1] log src-oss/noti-foo: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 0 origin SAME TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
-pmLookupName: Unknown metric name
+pmLookupName: Warning: some metrics unknown
 	sampledso.milliseconds - not known
 	sampledso.bin - not known
 
@@ -357,7 +357,7 @@ Dump Contexts: current context = 0
 Context[0] log src-oss/noti-bar: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 0 origin TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
-pmLookupName: Unknown metric name
+pmLookupName: Warning: some metrics unknown
 	sample.seconds - not known
 	sample.bin - not known
 	sample.colour - not known
@@ -385,7 +385,7 @@ Dump Contexts: current context = 1
 Context[1] log src-oss/noti-bar: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 0 origin SAME TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
-pmLookupName: Unknown metric name
+pmLookupName: Warning: some metrics unknown
 	sample.seconds - not known
 	sample.bin - not known
 	sample.colour - not known

@@ -439,7 +439,7 @@ pmRegisterDerived: register metric[39] aggr.countblob = count(sample.sysinfo)
 Derived metric expr dump from <addr-93>...
 expr node <addr-93> type=COUNT left=<addr-94> right=(nil) save_last=0
 expr node <addr-94> type=NAME left=(nil) right=(nil) save_last=1 [sample.sysinfo] master=1
-__dmopencontext() called
+__dmopencontext(->ctx 0) called
 __dmopencontext: bind metric[0] aggr.max32
 Derived metric expr dump from <addr-95>...
 expr node <addr-95> type=MAX left=<addr-96> right=(nil) save_last=0
@@ -1239,7 +1239,7 @@ pmRegisterDerived: register metric[0] aggr.non_arith = max(sample.lights)
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=MAX left=<addr-1> right=(nil) save_last=0
 expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.lights] master=1
-__dmopencontext() called
+__dmopencontext(->ctx 0) called
 Semantic error: derived metric aggr.non_arith: MAX(sample.lights): Non-arithmetic operand for function
 __dmgetpmid: metric "aggr.non_arith" -> PMID 511.0.1
 aggr.non_arith: pmLookupDesc: Unknown or illegal metric identifier

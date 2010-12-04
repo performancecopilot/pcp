@@ -35,7 +35,7 @@ $sudo make >/dev/null 2>&1
 
 unset ROOT
 
-cat <<End-of-File | $sudo ./Install >$tmp.out 2>&1
+cat <<End-of-File | $sudo ./Install -e >$tmp.out 2>&1
 foo
 both
 foo

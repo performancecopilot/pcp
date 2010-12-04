@@ -91,7 +91,7 @@ pigs
 can
 fly
 ' \
-| $sudo ./Install >>$tmp.out 2>&1
+| $sudo ./Install -e >>$tmp.out 2>&1
 
 _filter <$tmp.out
 
