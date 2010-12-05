@@ -123,7 +123,7 @@ __pmSetProgname(const char *program)
     if (program)
 	pmProgname = (char *)program;
     for (p = pmProgname; pmProgname && *p; p++) {
-	if (*p == '\\')
+	if (*p == '\\' || *p == '/')
 	    pmProgname = p + 1;
 	if (*p == '.')
 	    suffix = p;

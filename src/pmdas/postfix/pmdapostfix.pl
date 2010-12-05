@@ -20,14 +20,16 @@ use Time::HiRes qw ( time );
 use vars qw( $pmda );
 use vars qw( %caches );
 use vars qw( %logstats );
-my $logfile = '/var/log/mail.log';
+my @logfiles = ( '/var/log/mail.log', '/var/log/maillog' );
+my $logfile;
 my $qshape = 'qshape -b 10 -t 5';
 my $refresh = 5.0; # 5 seconds between qshape refreshes
 
 my $cached = 0;
 
 my $postfix_queues_indom = 0;
-my @postfix_queues_dom = (    0 => 'total',
+my @postfix_queues_dom = (
+		0 => 'total',
 		1 => '0-5 mins',
 		2 => '5-10 mins',
 		3 => '10-20 mins',
@@ -41,12 +43,14 @@ my @postfix_queues_dom = (    0 => 'total',
 	     );
 
 my $postfix_sent_indom = 1;
-my @postfix_sent_dom = (       0 => 'smtp',
+my @postfix_sent_dom = (
+		0 => 'smtp',
 		1 => 'local',
 	     );
 
 my $postfix_received_indom = 2;
-my @postfix_received_dom = (   0 => 'local',
+my @postfix_received_dom = (
+		0 => 'local',
 		1 => 'smtp',
 	     );
 
@@ -56,7 +60,7 @@ sub postfix_do_refresh
     foreach my $qname ("maildrop", "incoming", "hold", "active", "deferred") {
 	unless (open(PIPE, "$qshape $qname |")) {
 	    $pmda->log("couldn't execute '$qshape $qname'");
-	     next QUEUE;
+	    next QUEUE;
 	}
 	while(<PIPE>) {
 	    last if (/^[\t ]*TOTAL /);
@@ -168,30 +172,37 @@ $pmda = PCP::PMDA->new('postfix', 103);
 
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, $postfix_queues_indom,
 	PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-	"postfix.queues.maildrop", '', '');
+	'postfix.queues.maildrop', '', '');
 $pmda->add_metric(pmda_pmid(0,1), PM_TYPE_U32, $postfix_queues_indom,
 	PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-	"postfix.queues.incoming", '', '');
+	'postfix.queues.incoming', '', '');
 $pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U32, $postfix_queues_indom,
 	PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-	"postfix.queues.hold", '', '');
+	'postfix.queues.hold', '', '');
 $pmda->add_metric(pmda_pmid(0,3), PM_TYPE_U32, $postfix_queues_indom,
 	PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-	"postfix.queues.active", '', '');
+	'postfix.queues.active', '', '');
 $pmda->add_metric(pmda_pmid(0,4), PM_TYPE_U32, $postfix_queues_indom,
 	PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-	"postfix.queues.deferred", '', '');
+	'postfix.queues.deferred', '', '');
 
 $pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U32, $postfix_sent_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-	"postfix.sent", '', '');
+	'postfix.sent', '', '');
 $pmda->add_metric(pmda_pmid(1,1), PM_TYPE_U32, $postfix_received_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-	"postfix.received", '', '');
+	'postfix.received', '', '');
 
 $logstats{"sent"}{0} = 0;
 $logstats{"received"}{0} = 0;
 $logstats{"received"}{1} = 0;
+
+foreach my $file ( @logfiles ) {
+    if ( -r $file ) {
+	$logfile = $file;
+    }
+}
+die 'No Postfix log file found' unless defined($logfile);
 
 $pmda->add_indom($postfix_queues_indom, \@postfix_queues_dom, '', '');
 $pmda->add_indom($postfix_sent_indom, \@postfix_sent_dom, '', '');
