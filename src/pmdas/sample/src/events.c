@@ -283,7 +283,7 @@ sample_fetch_events(pmEventArray **eapp)
 	    if ((sts = add_param(pmid_u32, PM_TYPE_U32, &atom)) < 0)
 		return sts;
 	    /* "missed 7 records */
-	    if ((sts = add_record(&stamp, PM_ER_FLAG_MISSED)) < 0)
+	    if ((sts = add_record(&stamp, PM_EVENT_FLAG_MISSED)) < 0)
 		return sts;
 	    stamp.tv_sec++;
 	    erp->er_nparams = 7;

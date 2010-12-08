@@ -161,7 +161,7 @@ dumpresult(pmResult *resp)
 
 	    for (r = 0; r < nrecords; r++) {
 		if (res[r]->numpmid == 2 && res[r]->vset[0]->pmid == pmid_flags &&
-		    res[r]->vset[0]->vlist[0].value.lval == PM_ER_FLAG_MISSED &&
+		    (res[r]->vset[0]->vlist[0].value.lval & PM_EVENT_FLAG_MISSED) &&
 		    res[r]->vset[1]->pmid == pmid_missed) {
 		    nmissed += res[r]->vset[1]->vlist[0].value.lval;
 		}
@@ -206,7 +206,7 @@ dumpresult(pmResult *resp)
 				flags = 0;
 			    printf(" ---\n");
 			}
-			if (flags == PM_ER_FLAG_MISSED && p == 1 && xvsp->pmid == pmid_missed) {
+			if ((flags & PM_EVENT_FLAG_MISSED) && p == 1 && xvsp->pmid == pmid_missed) {
 			    printf("              ==> %d missed event records\n", xvsp->vlist[0].value.lval);
 			    free(name);
 			    continue;

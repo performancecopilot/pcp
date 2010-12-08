@@ -428,7 +428,7 @@ print_event_summary(FILE *f, const pmValue *val)
     for (r = 0; r < eap->ea_nrecords-1; r++) {
 	erp = (pmEventRecord *)base;
 	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
-	if (erp->er_flags == PM_ER_FLAG_MISSED) {
+	if (erp->er_flags & PM_EVENT_FLAG_MISSED) {
 	    nmissed += erp->er_nparams;
 	    continue;
 	}

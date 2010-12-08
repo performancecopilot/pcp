@@ -401,6 +401,11 @@ main(int argc, char **argv)
 	printf("%s: pmLookupDesc: %s\n", namelist[0], pmErrStr(n));
 	exit(1);
     }
+    if (desc.type == PM_TYPE_EVENT) {
+	fprintf(stderr, "%s: Cannot modify values for PM_TYPE_EVENT metrics\n",
+	    pmProgname);
+	exit(1);
+    }
     if (instnames != NULL) {
 	pmDelProfile(desc.indom, 0, NULL);
 	for (i = 0; i < numinst; i++) {
@@ -418,12 +423,6 @@ main(int argc, char **argv)
     }
     if ((n = pmFetch(1, pmidlist, &result)) < 0) {
 	printf("%s: pmFetch: %s\n", namelist[0], pmErrStr(n));
-	exit(1);
-    }
-
-    if (desc.type == PM_TYPE_EVENT) {
-	fprintf(stderr, "%s: Cannot modify values for PM_TYPE_EVENT metrics\n",
-	    pmProgname);
 	exit(1);
     }
 

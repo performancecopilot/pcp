@@ -194,7 +194,7 @@ mydump(pmDesc *dp, pmValueSet *vsp, char *indent)
 				printf(" ---\n");
 			    }
 			}
-			if (flags == PM_ER_FLAG_MISSED && p == 1 && xvsp->pmid == pmid_missed) {
+			if ((flags & PM_EVENT_FLAG_MISSED) && p == 1 && xvsp->pmid == pmid_missed) {
 			    printf("        ==> %d missed event records\n", xvsp->vlist[0].value.lval);
 			    free(name);
 			    continue;

@@ -80,8 +80,11 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp)
 	if (erp->er_flags != 0)
 	    fprintf(f, " flags=%x", erp->er_flags);
 	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
-	if (erp->er_flags == PM_ER_FLAG_MISSED) {
-	    fprintf(f, "\n    ==> %d missed records\n", erp->er_nparams);
+	if (erp->er_flags & PM_EVENT_FLAG_MISSED) {
+	    fprintf(f, "\n    ==> %d missed records", erp->er_nparams);
+	    if (erp->er_flags != PM_EVENT_FLAG_MISSED)
+		fprintf(f, " (Warning: extra flags %x ignored)", erp->er_flags & (~PM_EVENT_FLAG_MISSED));
+	    fputc('\n', f);
 	    continue;
 	}
 	fprintf(f, " with %d parameters\n", erp->er_nparams);
@@ -180,8 +183,17 @@ __pmCheckEventRecords(pmValueSet *vsp)
 	    return PM_ERR_TOOBIG;
 	erp = (pmEventRecord *)base;
 	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
-	if (erp->er_flags == PM_ER_FLAG_MISSED)
-	    nparams = 0;
+	if (erp->er_flags & PM_EVENT_FLAG_MISSED) {
+	    if (erp->er_flags == PM_EVENT_FLAG_MISSED)
+		nparams = 0;
+	    else {
+		/*
+		 * not legal to have other flag bits set when
+		 * PM_EVENT_FLAG_MISSED is set
+		 */
+		return PM_ERR_CONV;
+	    }
+	}
 	else
 	    nparams = erp->er_nparams;
 	for (p = 0; p < nparams; p++) {
@@ -243,7 +255,7 @@ pmUnpackEventRecords(pmValueSet *vsp, pmResult ***rap)
     }
 
     /*
-     * allocate one more than needed as a NULL sentinal to be used
+     * allocate one more than needed as a NULL sentinel to be used
      * in pmFreeEventResult
      */
     *rap = (pmResult **)malloc((eap->ea_nrecords+1) * sizeof(pmResult *));
@@ -259,12 +271,12 @@ pmUnpackEventRecords(pmValueSet *vsp, pmResult ***rap)
 	erp = (pmEventRecord *)base;
 	/*
 	 * er_flags optionally unpacked into an extra anon events.flags metric
-	 * before all the event record parameters, and for PM_ER_FLAG_MISSED
+	 * before all the event record parameters, and for PM_EVENT_FLAG_MISSED
 	 * er_nparams is a count of the missed records.
 	 */
 	if (erp->er_flags == 0)
 	    numpmid = erp->er_nparams;
-	else if (erp->er_flags == PM_ER_FLAG_MISSED)
+	else if (erp->er_flags & PM_EVENT_FLAG_MISSED)
 	    numpmid = 2;
 	else
 	    numpmid = erp->er_nparams + 1;
@@ -306,7 +318,7 @@ pmUnpackEventRecords(pmValueSet *vsp, pmResult ***rap)
 		rp->vset[p]->vlist[0].value.lval = erp->er_flags;
 		continue;
 	    }
-	    if (p == 1 && erp->er_flags == PM_ER_FLAG_MISSED) {
+	    if (p == 1 && erp->er_flags & PM_EVENT_FLAG_MISSED) {
 		/* rewrite missed count as the anon event.missed metric */
 		static pmID	pmid_missed = 0;
 		int		lsts;
@@ -382,7 +394,7 @@ done:
 	    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);
 	}
     }
-    (*rap)[r] = NULL;		/* sentinal */
+    (*rap)[r] = NULL;		/* sentinel */
 
     return eap->ea_nrecords;
 

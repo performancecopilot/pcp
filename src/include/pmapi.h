@@ -698,7 +698,7 @@ typedef struct {
     pmEventParameter	er_param[1];
 } pmEventRecord;
 
-#define PM_ER_FLAG_MISSED	0x80000000
+#define PM_EVENT_FLAG_MISSED	0x80000000
 
 typedef struct {
 		/* align initial declarations with start of pmValueBlock */
