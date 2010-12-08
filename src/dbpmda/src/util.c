@@ -515,7 +515,7 @@ _dbDumpResult(FILE *f, pmResult *resp, pmDesc *desc_list)
     int		n;
     char	*p;
 
-    fprintf(f,"pmResult dump from 0x%p timestamp: %d.%06d ",
+    fprintf(f,"pmResult dump from " PRINTF_P_PFX "%p timestamp: %d.%06d ",
         resp, (int)resp->timestamp.tv_sec, (int)resp->timestamp.tv_usec);
     __pmPrintStamp(f, &resp->timestamp);
     fprintf(f, " numpmid: %d\n", resp->numpmid);
