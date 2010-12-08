@@ -465,26 +465,31 @@ __check_domain()
 {
     if [ -f domain.h ]
     then
-	# $domain is for backwards compatibility, modern PMDAs
-	# have something like
-	#	#define FOO 123
-	#
-	domain=''
-	eval `$PCP_AWK_PROG <domain.h '
-/^#define/ && $3 ~ /^[0-9][0-9]*$/	{ print $2 "=" $3
-					  if (seen == 0) {
-					    print "domain=" $3
-					    print "SYMDOM=" $2
-					    seen = 1
-					  }
-					}'`
-	if [ "X$domain" = X ]
-	then
-	    echo "Install: cannot determine the Performance Metrics Domain from ./domain.h"
-	    exit 1
-	fi
+	__infile=domain.h
+    elif [ -f domain.h.perl ]
+    then
+	__infile=domain.h.perl
     else
 	echo "Install: cannot find ./domain.h to determine the Performance Metrics Domain"
+	exit 1
+    fi
+    # $domain is for backwards compatibility, modern PMDAs
+    # have something like
+    #	#define FOO 123
+    #
+    domain=''
+    eval `$PCP_AWK_PROG <$__infile '
+/^#define/ && $3 ~ /^[0-9][0-9]*$/	{ print $2 "=" $3
+				      if (seen == 0) {
+					print "domain=" $3
+					sub(/^PMDA/, "", $2)
+					print "SYMDOM=" $2
+					seen = 1
+				      }
+				    }'`
+    if [ "X$domain" = X ]
+    then
+	echo "Install: cannot determine the Performance Metrics Domain from ./domain.h"
 	exit 1
     fi
 }
@@ -1067,8 +1072,10 @@ _install()
 		    :
 		else
 		    [ ! -f $file.save ] && mv $file $file.save
-		    cp $file.perl $file
+		    mv $file.perl $file
 		fi
+	    else
+		mv $file.perl $file
 	    fi
 	done
     fi
