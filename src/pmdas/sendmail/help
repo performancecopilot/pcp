@@ -38,7 +38,7 @@ sendmail.cf file.
 
 @ sendmail.start_date Date on which sendmail stats file was created
 The date in ctime(2) format on which the sendmail statistics file was
-first created.  All statistics are cummulative from that time.
+first created.  All statistics are cumulative from that time.
 
 The sendmail statistics file is /var/sendmailst by default, but may be
 redefined by an "OS" or "O StatusFile" record in the sendmail.cf file.

@@ -114,7 +114,7 @@ A kernel patch is required for the instrumentation to use this metric
 (contact markgw@sgi.com).
 
 @ disk.dev.read per-disk read operations
-Cummulative number of disk read operations since system boot time (subject
+Cumulative number of disk read operations since system boot time (subject
 to counter wrap).
 
 If the "sard" patch has been applied, the values are obtained from
@@ -128,7 +128,7 @@ installed in the system, and is the unfortunate end result of a
 limitation in the kernel's I/O accounting.
 
 @ disk.dev.write per-disk write operations
-Cummulative number of disk write operations since system boot time (subject
+Cumulative number of disk write operations since system boot time (subject
 to counter wrap).
 
 If the "sard" patch has been applied, the values are obtained from
@@ -142,7 +142,7 @@ installed in the system, and is the unfortunate end result of a
 limitation in the kernel's I/O accounting.
 
 @ disk.dev.total per-disk total (read+write) operations
-Cummulative number of disk read and write operations since system boot
+Cumulative number of disk read and write operations since system boot
 time (subject to counter wrap).
 
 If the "sard" patch has been applied, the values are obtained from
@@ -156,7 +156,7 @@ installed in the system, and is the unfortunate end result of a
 limitation in the kernel's I/O accounting.
 
 @ disk.dev.blkread per-disk block read operations
-Cummulative number of disk block read operations since system boot time
+Cumulative number of disk block read operations since system boot time
 (subject to counter wrap).
 
 If the "sard" patch has been applied, the values are obtained from
@@ -170,7 +170,7 @@ installed in the system, and is the unfortunate end result of a
 limitation in the kernel's I/O accounting.
 
 @ disk.dev.blkwrite per-disk block write operations
-Cummulative number of disk block write operations since system boot time
+Cumulative number of disk block write operations since system boot time
 (subject to counter wrap).
 
 If the "sard" patch has been applied, the values are obtained from
@@ -184,7 +184,7 @@ installed in the system, and is the unfortunate end result of a
 limitation in the kernel's I/O accounting.
 
 @ disk.dev.blktotal per-disk total (read+write) block operations
-Cummulative number of disk block read and write operations since system
+Cumulative number of disk block read and write operations since system
 boot time (subject to counter wrap).
 
 If the "sard" patch has been applied, the values are obtained from
@@ -251,31 +251,31 @@ value of 1.5 (or 150%) suggests that (on average) each all disk experienced a
 time averaged queue length of 1.5 requests during the sampling interval.
 
 @ disk.all.read total read operations, summed for all disks
-Cummulative number of disk read operations since system boot time
+Cumulative number of disk read operations since system boot time
 (subject to counter wrap), summed over all disk devices.
 
 @ disk.all.write total write operations, summed for all disks
-Cummulative number of disk read operations since system boot time
+Cumulative number of disk read operations since system boot time
 (subject to counter wrap), summed over all disk devices.
 
 @ disk.all.total total (read+write) operations, summed for all disks
-Cummulative number of disk read and write operations since system boot
+Cumulative number of disk read and write operations since system boot
 time (subject to counter wrap), summed over all disk devices.
 
 @ disk.all.blkread block read operations, summed for all disks
-Cummulative number of disk block read operations since system boot time
+Cumulative number of disk block read operations since system boot time
 (subject to counter wrap), summed over all disk devices.
 
 @ disk.all.blkwrite block write operations, summed for all disks
-Cummulative number of disk block write operations since system boot time
+Cumulative number of disk block write operations since system boot time
 (subject to counter wrap), summed over all disk devices.
 
 @ disk.all.blktotal total (read+write) block operations, summed for all disks
-Cummulative number of disk block read and write operations since system
+Cumulative number of disk block read and write operations since system
 boot time (subject to counter wrap), summed over all disk devices.
 
 @ disk.partitions.read read operations metric from /proc/partitions
-Cummulative number of disk read operations since system boot time
+Cumulative number of disk read operations since system boot time
 (subject to counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
@@ -294,56 +294,56 @@ This metric is not available if the "sard" patch has not been applied.
 See disk.all.total for further details.
 
 @ disk.partitions.write write operations metric from /proc/partitions
-Cummulative number of disk write operations since system boot time
+Cumulative number of disk write operations since system boot time
 (subject to counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
 are unavailable.
 
 @ disk.partitions.total total (read+write) I/O operations metric from /proc/partitions
-Cummulative number of disk read and write operations since system boot
+Cumulative number of disk read and write operations since system boot
 time (subject to counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
 are unavailable.
 
 @ disk.partitions.blkread block read operations metric from /proc/partitions
-Cummulative number of disk block read operations since system boot time
+Cumulative number of disk block read operations since system boot time
 (subject to counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
 are unavailable.
 
 @ disk.partitions.blkwrite block write operations metric from /proc/partitions
-Cummulative number of disk block write operations since system boot time
+Cumulative number of disk block write operations since system boot time
 (subject to counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
 are unavailable.
 
 @ disk.partitions.blktotal total (read+write) block operations metric from /proc/partitions
-Cummulative number of disk block read and write operations since system
+Cumulative number of disk block read and write operations since system
 boot time (subject to counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
 are unavailable.
 
 @ disk.partitions.read_bytes number of bytes read, from /proc/partitions
-Cummulative number of bytes read since system boot time (subject to
+Cumulative number of bytes read since system boot time (subject to
 counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
 are unavailable.
 
 @ disk.partitions.write_bytes number of bytes written, from /proc/partitions
-Cummulative number of bytes written since system boot time (subject to
+Cumulative number of bytes written since system boot time (subject to
 counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
 are unavailable.
 
 @ disk.partitions.total_bytes total number of bytes read and written, from /proc/partitions
-Cummulative number of bytes read and written since system boot time
+Cumulative number of bytes read and written since system boot time
 (subject to counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
