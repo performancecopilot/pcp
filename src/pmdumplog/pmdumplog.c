@@ -121,6 +121,7 @@ dumpresult(pmResult *resp)
 	    int		p;		/* event parameters */
 	    int		nrecords;
 	    int		nmissed = 0;
+	    int		flags;
 	    pmResult	**res;
 	    static pmID	pmid_flags = 0;
 	    static pmID	pmid_missed;
@@ -187,12 +188,13 @@ dumpresult(pmResult *resp)
 		    printf("	          Error: illegal number of parameters (%d)\n", res[r]->numpmid);
 		    continue;
 		}
+		flags = 0;
 		for (p = 0; p < res[r]->numpmid; p++) {
 		    pmValueSet	*xvsp = res[r]->vset[p];
 		    int		sts;
 		    pmDesc	desc;
 		    char	*name;
-		    int		flags;
+
 		    if (pmNameID(xvsp->pmid, &name) >= 0) {
 			if (p == 0) {
 			    if (xvsp->pmid == pmid_flags) {
@@ -202,8 +204,6 @@ dumpresult(pmResult *resp)
 				free(name);
 				continue;
 			    }
-			    else
-				flags = 0;
 			    printf(" ---\n");
 			}
 			if ((flags & PM_EVENT_FLAG_MISSED) && p == 1 && xvsp->pmid == pmid_missed) {

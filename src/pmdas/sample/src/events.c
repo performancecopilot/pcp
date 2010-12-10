@@ -87,6 +87,8 @@ add_param(pmID pmid, int type, pmAtomValue *avp)
 	    need += PM_PDU_SIZE_BYTES(vlen);
 	    src = avp->vp;
 	    break;
+	default:
+	    return PM_ERR_TYPE;
     }
     if ((sts = check_buf(need)) < 0)
 	return sts;

@@ -125,7 +125,7 @@ mydump(pmDesc *dp, pmValueSet *vsp, char *indent)
 	    int		p;		/* event parameters */
 	    int		nrecords;
 	    int		flags;
-	    static pmID	pmid_flags = 0;
+	    static pmID	pmid_flags;
 	    static pmID	pmid_missed;
 	    pmResult	**res;
 
@@ -175,6 +175,7 @@ mydump(pmDesc *dp, pmValueSet *vsp, char *indent)
 		    printf("	Error: illegal number of parameters (%d)\n", res[r]->numpmid);
 		    continue;
 		}
+		flags = 0;
 		for (p = 0; p < res[r]->numpmid; p++) {
 		    pmValueSet	*xvsp = res[r]->vset[p];
 		    int		sts;
@@ -189,10 +190,8 @@ mydump(pmDesc *dp, pmValueSet *vsp, char *indent)
 				free(name);
 				continue;
 			    }
-			    else {
-				flags = 0;
+			    else
 				printf(" ---\n");
-			    }
 			}
 			if ((flags & PM_EVENT_FLAG_MISSED) && p == 1 && xvsp->pmid == pmid_missed) {
 			    printf("        ==> %d missed event records\n", xvsp->vlist[0].value.lval);

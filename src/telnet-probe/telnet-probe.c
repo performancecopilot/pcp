@@ -23,7 +23,7 @@ main(int argc, char *argv[])
 {
     struct hostent	*servInfo;
     char		*endnum;
-    int			port;
+    int			port = 0;
     int			s;
     int			nodelay = 1;
     struct linger	nolinger = {1, 0};

@@ -146,6 +146,9 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 	    data = (void *)value;
 	    break;
 
+	default:
+	    vsp->numval = PM_ERR_TYPE;
+	    return PM_ERR_TYPE;
     }
 
     if (dsize != -1) {

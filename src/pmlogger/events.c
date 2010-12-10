@@ -74,7 +74,7 @@ do_events(pmValueSet *vsp)
 		     */
 		    char	*name;
 		    names = (char **)malloc(sizeof(char *)+strlen("event_param")+3+1+4+1+4+1);
-		    if (name == NULL)
+		    if (names == NULL)
 			return -errno;
 		    name = (char *)&names[1];
 		    names[0] = name;
