@@ -1054,27 +1054,41 @@ _install()
 	fi
     fi
 
-    if [ "X$pmda_type" = Xperl ]
+    if $do_pmda
     then
-	# Juggle pmns and domain.h ... save originals and
-	# use *.perl ones created earlier
-	for file in pmns domain.h
-	do
-	    if [ ! -f $file.perl ]
-	    then
-		echo "Botch: $file.perl missing ... giving up"
-		exit 1
-	    fi
-	    if [ -f $file ]
-	    then
-		if diff $file.perl $file >/dev/null
+	if [ "X$pmda_type" = Xperl ]
+	then
+	    # Juggle pmns and domain.h ... save originals and
+	    # use *.perl ones created earlier
+	    for file in pmns domain.h
+	    do
+		if [ ! -f $file.perl ]
 		then
-		    :
+		    echo "Botch: $file.perl missing ... giving up"
+		    exit 1
+		fi
+		if [ -f $file ]
+		then
+		    if diff $file.perl $file >/dev/null
+		    then
+			:
+		    else
+			[ ! -f $file.save ] && mv $file $file.save
+			mv $file.perl $file
+		    fi
 		else
-		    [ ! -f $file.save ] && mv $file $file.save
 		    mv $file.perl $file
 		fi
-	    else
+	    done
+	fi
+    else
+	# Maybe PMNS only install, and only implementation may be a
+	# Perl one ... simpler juggling needed here
+	#
+	for file in pmns domain.h
+	do
+	    if [ ! -f $file -a -f $file.perl ]
+	    then
 		mv $file.perl $file
 	    fi
 	done
