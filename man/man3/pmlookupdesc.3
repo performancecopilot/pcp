@@ -36,9 +36,9 @@
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmLookupDesc(pmID pmid, pmDesc *desc)
-int pmRequestDesc(int ctx, pmID pmid)
-int pmReceiveDesc(int ctx, pmDesc *desc)
+int pmLookupDesc(pmID \fIpmid\fP, pmDesc *\fIdesc\fP);
+int pmRequestDesc(int \fIctx\fP, pmID \fIpmid\fP);
+int pmReceiveDesc(int \fIctx\fP, pmDesc *\fIdesc\fP);
 .fi
 .sp
 cc ... \-lpcp

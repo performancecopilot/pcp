@@ -29,14 +29,14 @@
 #include <pcp/trace.h>
 .sp
 .nf
-int pmtracebegin(const char *tag);
-int pmtraceend(const char *tag);
-int pmtraceabort(const char *tag);
-int pmtracepoint(const char *tag);
-int pmtraceobs(const char *tag, double value);
-int pmtracecounter(const char *tag, double value);
-char *pmtraceerrstr(int code);
-int pmtracestate(int flags);
+int pmtracebegin(const char *\fItag\fP);
+int pmtraceend(const char *\fItag\fP);
+int pmtraceabort(const char *\fItag\fP);
+int pmtracepoint(const char *\fItag\fP);
+int pmtraceobs(const char *\fItag\fP, double \fIvalue\fP);
+int pmtracecounter(const char *\fItag\fP, double \fIvalue\fP);
+char *pmtraceerrstr(int \fIcode\fP);
+int pmtracestate(int \fIflags\fP);
 .fi
 .sp
 cc ... \-lpcp_trace
@@ -44,23 +44,23 @@ cc ... \-lpcp_trace
 .SH "FORTRAN SYNOPSIS"
 .ft 3
 .nf
-character*(*) tag
-integer code
-integer flags
-integer state
-character*(*) estr
-real*8 value
+character*(*) \fItag\fP
+integer \fIcode\fP
+integer \fIflags\fP
+integer \fIstate\fP
+character*(*) \fIestr\fP
+real*8 \fIvalue\fP
 .fi
 .sp
 .nf
-code = pmtracebegin(tag)
-code = pmtraceend(tag)
-code = pmtraceabort(tag)
-code = pmtracepoint(tag)
-code = pmtraceobs(tag, value)
-code = pmtracecounter(tag, value)
-pmtraceerrstr(code, estr)
-state = pmtracestate(flags)
+\fIcode\fP = pmtracebegin(\fItag\fP)
+\fIcode\fP = pmtraceend(\fItag\fP)
+\fIcode\fP = pmtraceabort(\fItag\fP)
+\fIcode\fP = pmtracepoint(\fItag\fP)
+\fIcode\fP = pmtraceobs(\fItag\fP, \fIvalue\fP)
+\fIcode\fP = pmtracecounter(\fItag\fP, \fIvalue\fP)
+pmtraceerrstr(\fIcode\fP, \fIestr\fP)
+\fIstate\fP = pmtracestate(\fIflags\fP)
 .fi
 .sp
 .nf
@@ -74,14 +74,14 @@ f77 ... \-lpcp_trace  \f1or\f3  f90 ... \-lpcp_trace
 import sgi.pcp.trace;
 .sp
 .nf
-int trace.pmtracebegin(String tag);
-int trace.pmtraceend(String tag);
-int trace.pmtraceabort(String tag);
-int trace.pmtracepoint(String tag);
-int trace.pmtraceobs(String tag, double value);
-int trace.pmtracecounter(String tag, double value);
-String trace.pmtraceerrstr(int code);
-int trace.pmtracestate(int flags);
+int trace.pmtracebegin(String \fItag\fP);
+int trace.pmtraceend(String \fItag\fP);
+int trace.pmtraceabort(String \fItag\fP);
+int trace.pmtracepoint(String \fItag\fP);
+int trace.pmtraceobs(String \fItag\fP, double \fIvalue\fP);
+int trace.pmtracecounter(String \fItag\fP, double \fIvalue\fP);
+String trace.pmtraceerrstr(int \fIcode\fP);
+int trace.pmtracestate(int \fIflags\fP);
 .fi
 .sp
 .ft 1

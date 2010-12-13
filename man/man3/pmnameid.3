@@ -23,9 +23,9 @@
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmNameID(pmID pmid, char **name)
-int pmRequestNameID(int ctx, pmID pmid)
-int pmRecieveNameID(int ctx, char **name)
+int pmNameID(pmID \fIpmid\fP, char **\fIname\fP);
+int pmRequestNameID(int \fIctx\fP, pmID \fIpmid\fP);
+int pmRecieveNameID(int \fIctx\fP, char **\fIname\fP);
 .fi
 .sp
 cc ... \-lpcp

@@ -21,10 +21,18 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-int __pmParseHostSpec(const char *string, pmHostSpec **rsltp, int *count, char **errmsg)
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int __pmParseHostSpec(const char *\fIstring\fP, pmHostSpec **\fIrsltp\fP, int\ *\fIcount\fP, char\ **\fIerrmsg\fP);
+.br
+.ti -8n
+void __pmFreeHostSpec(pmHostSpec *\fIrslt\fP, int \fIcount\fP);
 .sp
-void __pmFreeHostSpec(pmHostSpec *rslt, int count)
-.sp
+.in
+.hy
+.ad
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION

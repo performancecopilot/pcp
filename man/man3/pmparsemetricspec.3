@@ -21,10 +21,18 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-int pmParseMetricSpec(const char *string, int isarch, char *source, pmMetricSpec **rsltp, char **errmsg)
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmParseMetricSpec(const char *\fIstring\fP, int \fIisarch\fP, char\ *\fIsource\fP, pmMetricSpec\ **\fIrsltp\fP, char\ **\fIerrmsg\fP);
+.br
+.ti -8n
+void pmFreeMetricSpec(pmMetricSpec *\fIrslt\fP);
 .sp
-void pmFreeMetricSpec(pmMetricSpec *rslt)
-.sp
+.in
+.hy
+.ad
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION

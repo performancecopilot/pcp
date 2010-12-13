@@ -21,11 +21,14 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-.nf
-int pmContextConnectTo(int ctx, const struct sockaddr *addr)
-int pmContextChangeState(int ctx)
-.fi
+.ad l
+.hy 0
+int pmContextConnectTo(int \fIctx\fP, const struct sockaddr *\fIaddr\fP);
+.br
+int pmContextChangeState(int \fIctx\fP);
 .sp
+.hy
+.ad
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION

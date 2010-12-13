@@ -20,8 +20,15 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-int pmGetChildrenStatus(const char *name, char ***offspring, int **status)
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmGetChildrenStatus(const char *\fIname\fP, char ***\fIoffspring\fP, int\ **\fIstatus\fP);
 .sp
+.in
+.hy
+.ad
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION

@@ -24,7 +24,7 @@
 .br
 #include <pcp/import.h>
 .sp
-int pmiAddInstance(pmInDom \fIindom\fP, const char *\fIinstance\fP, int \fIinst\fP)
+int pmiAddInstance(pmInDom \fIindom\fP, const char *\fIinstance\fP, int \fIinst\fP);
 .sp
 cc ... \-lpcp_import \-lpcp
 .ft 1
@@ -32,7 +32,7 @@ cc ... \-lpcp_import \-lpcp
 .ft 3
 use PCP::LogImport;
 .sp
-pmiAddInstance($\fIindom\fP, $\fIinstance\fP, $\fIinst\fP)
+pmiAddInstance($\fIindom\fP, $\fIinstance\fP, $\fIinst\fP);
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see

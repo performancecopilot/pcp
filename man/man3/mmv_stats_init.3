@@ -23,13 +23,15 @@
 .br
 #include <pcp/mmv_stats.h>
 .sp
-.nf
-void * mmv_stats_init(const char *name,
-			int cluster, mmv_stats_flags_t flags,
-			const mmv_metric_t *stats, int nstats,
-			mmv_indom_t *indoms, int nindoms);
-.fi
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+void *mmv_stats_init(const char *\fIname\fP, int \fIcluster\fP, mmv_stats_flags_t\ \fIflags\fP, const\ mmv_metric_t\ *\fIstats\fP, int\ \fInstats\fP, mmv_indom_t\ *\fIindoms\fP, int\ \fInindoms\fP);
 .sp
+.in
+.hy
+.ad
 cc ... \-lpcp_mmv \-lpcp
 .ft 1
 .SH DESCRIPTION

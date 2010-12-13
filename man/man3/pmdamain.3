@@ -35,21 +35,40 @@ cc ... \-lpcp_pmda \-lpcp
 PMDA Interface 2 or higher
 .ft 3
 .sp
-void pmdaMain(pmdaInterface *dispatch);
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+void pmdaMain(pmdaInterface *\fIdispatch\fP);
+.br
+.ti -8n
+void pmdaSetResultCallBack(pmdaInterface *\fIdispatch\fP, pmdaResultCallBack\ \fIcallback\fP);
+.br
+.ti -8n
+void pmdaSetCheckCallBack(pmdaInterface *\fIdispatch\fP, pmdaCheckCallBack\ \fIcallback\fP);
+.br
+.ti -8n
+void pmdaSetDoneCallBack(pmdaInterface *\fIdispatch\fP, pmdaDoneCallBack\ \fIcallback\fP);
 .sp
-void pmdaSetResultCallBack(pmdaInterface *dispatch, pmdaResultCallBack callback);
-.sp
-void pmdaSetCheckCallBack(pmdaInterface *dispatch, pmdaCheckCallBack callback);
-.sp
-void pmdaSetDoneCallBack(pmdaInterface *dispatch, pmdaDoneCallBack callback);
-.sp
+.in
+.hy
+.ad
 .ft 2
 PMDA Interface 1
 .ft 3
 .sp
-void pmdaMainLoop(char *name, int infd, int outfd, _pmPMDA *dispatch, int (*check)(void), void (*done)(void));
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+void pmdaMainLoop(char *\fIname\fP, int \fIinfd\fP, int \fIoutfd\fP, _pmPMDA\ *\fIdispatch\fP, int\ (*\fIcheck\fP)(void), void\ (*\fIdone\fP)(void));
+.br
+.ti -8n
+void pmdaMainLoopFreeResultCallback(void (*\fIcallback\fP)(pmResult *\fIres\fP));
 .sp
-void pmdaMainLoopFreeResultCallback(void (*callback)(pmResult *res));
+.in
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 For Performance Metric Domain Agents 

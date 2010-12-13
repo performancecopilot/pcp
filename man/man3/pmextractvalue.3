@@ -20,9 +20,15 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-int pmExtractValue(int valfmt, const pmValue *ival, int itype, pmAtomValue 
-*oval, int otype)
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmExtractValue(int \fIvalfmt\fP, const pmValue *\fIival\fP, int\ \fIitype\fP, pmAtomValue\ *\fIoval\fP, int\ \fIotype\fP);
 .sp
+.in
+.hy
+.ad
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION

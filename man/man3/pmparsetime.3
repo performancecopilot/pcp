@@ -22,10 +22,15 @@
 .br
 #include <pcp/impl.h>
 .sp
-int __pmParseTime(const char *string,
-struct timeval *logStart, struct timeval *logEnd,
-struct timeval *rslt, char **errMsg)
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int __pmParseTime(const char *\fIstring\fP, struct timeval *\fIlogStart\fP, struct\ timeval\ *\fIlogEnd\fP, struct\ timeval\ *\fIrslt\fP, char\ **\fIerrMsg\fP);
 .sp
+.in
+.hy
+.ad
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION

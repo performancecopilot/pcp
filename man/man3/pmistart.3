@@ -24,7 +24,7 @@
 .br
 #include <pcp/import.h>
 .sp
-int pmiStart(const char *\fIarchive\fP, int \fIinherit\fP)
+int pmiStart(const char *\fIarchive\fP, int \fIinherit\fP);
 .sp
 cc ... \-lpcp_import \-lpcp
 .ft 1
@@ -32,7 +32,7 @@ cc ... \-lpcp_import \-lpcp
 .ft 3
 use PCP::LogImport;
 .sp
-pmiStart($\fIarchive\fP, $\fIinherit\fP)
+pmiStart($\fIarchive\fP, $\fIinherit\fP);
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see

@@ -23,9 +23,9 @@
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
-int pmRequestInDom(int ctx, pmInDom indom)
-int pmReceiveInDom(int ctx, int **instlist, char ***namelist)
+int pmGetInDom(pmInDom \fIindom\fP, int **\fIinstlist\fP, char ***\fInamelist\fP);
+int pmRequestInDom(int \fIctx\fP, pmInDom \fIindom\fP);
+int pmReceiveInDom(int \fIctx\fP, int **\fIinstlist\fP, char ***\fInamelist\fP);
 .fi
 .sp
 cc ... \-lpcp

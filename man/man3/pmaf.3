@@ -26,17 +26,22 @@
 .br
 #include <pcp/impl.h>
 .sp
-.nf
-int __pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *))
-.fi
-.sp
-int __pmAFunregister(int afid)
-.sp
-void __pmAFblock(void)
-.sp
-void __pmAFunblock(void)
-.sp
-int __pmAFisempty(void)
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int __pmAFregister(const struct timeval *\fIdelta\fP, void *\fIdata\fP, void\ (*\fIfunc\fP)(int,\ void *));
+.br
+.in
+.hy
+.ad
+int __pmAFunregister(int \fIafid\fP);
+.br
+void __pmAFblock(void);
+.br
+void __pmAFunblock(void);
+.br
+int __pmAFisempty(void);
 .sp
 cc ... \-lpcp
 .ft 1

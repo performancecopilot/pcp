@@ -29,16 +29,27 @@
 .br
 #include <pcp/pmda.h>
 .sp
-int pmdaCacheStore(pmInDom indom, int flags, const char *name, void *private)
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmdaCacheStore(pmInDom \fIindom\fP, int \fIflags\fP, const\ char\ *\fIname\fP, void\ *\fIprivate\fP);
 .br
-int pmdaCacheLookup(pmInDom indom, int inst, char **name, void **private)
+.ti -8n
+int pmdaCacheLookup(pmInDom \fIindom\fP, int \fIinst\fP, char **\fIname\fP, void\ **\fIprivate\fP);
 .br
-int pmdaCacheLookupName(pmInDom indom, const char *name, int *inst, void **private)
+.ti -8n
+int pmdaCacheLookupName(pmInDom \fIindom\fP, const char *\fIname\fP, int\ *\fIinst\fP, void\ **\fIprivate\fP);
 .br
-int pmdaCacheOp(pmInDom indom, int op)
+.ti -8n
+int pmdaCacheOp(pmInDom \fIindom\fP, int \fIop\fP);
 .br
-int pmdaCachePurge(pmInDom indom, time_t recent)
+.ti -8n
+int pmdaCachePurge(pmInDom \fIindom\fP, time_t \fIrecent\fP);
 .sp
+.in
+.hy
+.ad
 cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .de EX

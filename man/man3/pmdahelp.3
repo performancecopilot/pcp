@@ -27,13 +27,13 @@
 .br
 #include <pcp/pmda.h>
 .sp
-int pmdaOpenHelp(char *fname);
+int pmdaOpenHelp(char *\fIfname\fP);
 .br
-char *pmdaGetHelp(int handle, pmID pmid, int type);
+char *pmdaGetHelp(int \fIhandle\fP, pmID \fIpmid\fP, int \fItype\fP);
 .br
-char *pmdaGetInDomHelp(int handle, pmInDom indom, int type);
+char *pmdaGetInDomHelp(int \fIhandle\fP, pmInDom \fIindom\fP, int \fItype\fP);
 .br
-void pmdaCloseHelp(int handle);
+void pmdaCloseHelp(int \fIhandle\fP);
 .sp
 cc ... \-lpcp_pmda \-lpcp
 .ft 1

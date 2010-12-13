@@ -25,10 +25,18 @@
 .br
 #include <pcp/pmda.h>
 .sp
-int pmdaFetch(int numpmid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda);
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmdaFetch(int \fInumpmid\fP, pmID *\fIpmidlist\fP, pmResult **\fIresp\fP, pmdaExt\ *\fIpmda\fP);
+.br
+.ti -8n
+void pmdaSetFetchCallBack(pmdaInterface *\fIdispatch\fP, pmdaFetchCallBack\ \fIcallback\fP);
 .sp
-void pmdaSetFetchCallBack(pmdaInterface *dispatch, pmdaFetchCallBack callback);
-.sp
+.in
+.hy
+.ad
 cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .SH DESCRIPTION
