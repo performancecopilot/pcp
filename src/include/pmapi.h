@@ -558,6 +558,7 @@ extern const char *pmTypeStr(int);
 extern const char *pmUnitsStr(const pmUnits *);
 extern const char *pmAtomStr(const pmAtomValue *, int);
 extern const char *pmNumberStr(double);
+extern const char *pmEventFlagsStr(int);
 
 /* Extended time base definitions and macros */
 #define PM_XTB_FLAG	0x1000000
@@ -693,12 +694,18 @@ typedef struct {
 
 typedef struct {
     __pmTimeval		er_timestamp;	/* must be 2 x 32-bit format */
-    int			er_flags;	/* type of event record */
+    int			er_flags;	/* event record characteristics */
     int			er_nparams;	/* number of er_param[] entries */
     pmEventParameter	er_param[1];
 } pmEventRecord;
 
-#define PM_EVENT_FLAG_MISSED	0x80000000
+/* potential flags bits set in er_flags (above) */
+#define PM_EVENT_FLAG_POINT	(1<<0)	/* an observation, default type */
+#define PM_EVENT_FLAG_START	(1<<1)	/* marking start of a new event */
+#define PM_EVENT_FLAG_END	(1<<2)	/* completion of a traced event */
+#define PM_EVENT_FLAG_ID	(1<<3)	/* 1st parameter is a trace ID */
+#define PM_EVENT_FLAG_PARENT	(1<<4)	/* 2nd parameter is parents ID */
+#define PM_EVENT_FLAG_MISSED	(1<<31)	/* nparams shows #missed events */
 
 typedef struct {
 		/* align initial declarations with start of pmValueBlock */

@@ -1,7 +1,6 @@
 /*
- * The "event" records here are all fake.  But the logic does show
- * how a real PMDA could deliver values for metrics of type
- * PM_TYPE_EVENT.
+ * The "event" records here are all fake.  But the logic does show how
+ * a real PMDA could deliver values for metrics of type PM_TYPE_EVENT.
  *
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * 
@@ -22,7 +21,7 @@
 extern int mydomain;
 
 extern int sample_fetch_events(pmEventArray **);
-extern void event_set_c(int);
-extern int event_get_c(void);
+extern void event_set_fetch_count(int);
+extern int event_get_fetch_count(void);
 
 #endif /* _EVENTS_H */

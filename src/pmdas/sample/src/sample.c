@@ -1845,8 +1845,6 @@ doit:
 
 			    sivb->vlen = size;
 			    sivb->vtype = PM_TYPE_AGGREGATE;
-			    /* set, but will not be used in __pmStuffValue */
-			    aggregate_len = size;
 			}
 
 #ifdef HAVE_SYSINFO
@@ -2277,7 +2275,7 @@ doit:
 			atom.ll = scramble_ver;
 			break;
 		    case 126:	/* event.reset */
-			atom.l = event_get_c();
+			atom.l = event_get_fetch_count();
 			break;
 		    case 1000:	/* secret.bar */
 			atom.cp = "foo";
@@ -2310,17 +2308,9 @@ doit:
 	    }
 	    else if (pmidp->cluster == PM_CLUSTER_EVENT) {
 		/* only one sort of event record metric */
-		pmEventArray	*eap;
-		aggregate_len = sample_fetch_events((pmEventArray **)&atom.vp);
-		if (aggregate_len < 0)
-		    return aggregate_len;
-		eap = (pmEventArray *)atom.vp;
-		/*
-		 * need to set these here, as they will NOT be set
-		 * in __pmStuffValue
-		 */
-		eap->ea_type = PM_TYPE_EVENT;
-		eap->ea_len = aggregate_len;
+		sts = sample_fetch_events((pmEventArray **)&atom.vp);
+		if (sts < 0)
+		    return sts;
 	    }
 	    if ((sts = __pmStuffValue(&atom, aggregate_len, &vset->vlist[j], type)) < 0) {
 		__pmFreeResultValues(res);
@@ -2617,7 +2607,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 		indomtab[SCRAMBLE_INDOM].it_numinst = indomtab[BIN_INDOM].it_numinst;
 		break;
 	    case 126:	/* event.reset */
-		event_set_c(av.l);
+		event_set_fetch_count(av.l);
 		break;
 	    default:
 		sts = -EACCES;

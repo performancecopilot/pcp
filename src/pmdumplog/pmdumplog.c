@@ -200,7 +200,7 @@ dumpresult(pmResult *resp)
 			    if (xvsp->pmid == pmid_flags) {
 				flags = xvsp->vlist[0].value.lval;
 				printf(" flags 0x%x", flags);
-				printf(" ---\n");
+				printf(" (%s) ---\n", pmEventFlagsStr(flags));
 				free(name);
 				continue;
 			    }

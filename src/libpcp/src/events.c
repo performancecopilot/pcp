@@ -396,6 +396,16 @@ done:
     }
     (*rap)[r] = NULL;		/* sentinel */
 
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_FETCH) {
+	fprintf(stderr, "pmUnpackEventRecords returns ...\n");
+	for (r = 0; r < eap->ea_nrecords; r++) {
+	    fprintf(stderr, "pmResult[%d]\n", r);
+	    __pmDumpResult(stderr, (*rap)[r]);
+	}
+    }
+#endif
+
     return eap->ea_nrecords;
 
 bail:

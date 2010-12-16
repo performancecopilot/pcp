@@ -332,6 +332,45 @@ pmNumberStr(double value)
     return buf;
 }
 
+const char *
+pmEventFlagsStr(int flags)
+{
+    /*
+     * buffer needs to be long enough to hold each flag name
+     * (excluding missed) plus the separation commas, so
+     * point,start,end,id,parent (even though it is unlikely that
+     * both start and end would be set for the one event record)
+     */
+    static char buffer[64];
+    int started = 0;
+
+    if (flags & PM_EVENT_FLAG_MISSED)
+	return strcpy(buffer, "missed");
+
+    buffer[0] = '\0';
+    if (flags & PM_EVENT_FLAG_POINT) {
+	if (started++) strcat(buffer, ",");
+	strcat(buffer, "point");
+    }
+    if (flags & PM_EVENT_FLAG_START) {
+	if (started++) strcat(buffer, ",");
+	strcat(buffer, "start");
+    }
+    if (flags & PM_EVENT_FLAG_END) {
+	if (started++) strcat(buffer, ",");
+	strcat(buffer, "end");
+    }
+    if (flags & PM_EVENT_FLAG_ID) {
+	if (started++) strcat(buffer, ",");
+	strcat(buffer, "id");
+    }
+    if (flags & PM_EVENT_FLAG_PARENT) {
+	if (started++) strcat(buffer, ",");
+	strcat(buffer, "parent");
+    }
+    return buffer;
+}
+
 void
 __pmDumpResult(FILE *f, const pmResult *resp)
 {

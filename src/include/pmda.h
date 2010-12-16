@@ -517,6 +517,18 @@ extern int pmdaGetContext(void);
 extern void __pmdaSetContext(int);
 
 /*
+ * Event Record support
+ */
+extern int pmdaEventNewArray(void);
+extern int pmdaEventResetArray(int);
+extern int pmdaEventReleaseArray(int);
+extern int pmdaEventAddRecord(int, struct timeval *, int);
+extern int pmdaEventAddMissedRecord(int, struct timeval *, int);
+extern int pmdaEventAddParam(int, pmID, int, pmAtomValue *);
+extern int pmdaEventAddAggrParam(int, pmID, int, pmAtomValue *, int);
+extern pmEventArray *pmdaEventGetAddr(int);
+
+/*
  * Outdated routines
  *
  * pmdaMainLoopFreeResultCallback
