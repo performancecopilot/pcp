@@ -159,11 +159,6 @@ mmv_stats_init(const char *fname,
 	}
     }
 
-    if (nvalues == 0) {
-	errno = ERANGE;
-	return NULL;
-    }
-
     /* TOC follows header, with enough entries to hold */
     /* indoms, instances, metrics, values, and strings */
     size = sizeof(mmv_disk_toc_t) * 2;
