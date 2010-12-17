@@ -59,7 +59,7 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	multifetch.c pmconvscale.c torture-eol.c \
 	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c \
 	matchInstanceName.c torture_pmns.c \
-	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c \
+	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c mmv_nostats.c \
 	record.c record-setarg.c clientid.c killparent.c grind_ctx.c \
 	pmdacache.c check_import.c unpack.c
 
@@ -317,6 +317,10 @@ mmv_instances:	mmv_instances.c
 	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_mmv $(LDLIBS)
 
 mmv_noinit:	mmv_noinit.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_mmv $(LDLIBS)
+
+mmv_nostats:	mmv_nostats.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_mmv $(LDLIBS)
 

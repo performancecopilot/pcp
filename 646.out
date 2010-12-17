@@ -84,3 +84,14 @@ TOC[4]: offset 104, string offset 1528 (11 entries)
   [9/3576] Yes, this is a test string metric with instances
   [10/3832] We can be heroes
   [11/4088] We can be heroes, just for one day
+MMV file   = /var/tmp/mmv/notestPID
+Version    = 1
+Generated  = TIMESTAMP
+TOC count  = 2
+Cluster    = 0
+Process    = PID
+Flags      = 0x0
+
+TOC[0]: toc offset 40, metrics offset 72 (0 entries)
+
+TOC[1]: offset 56, values offset 72 (0 entries)
