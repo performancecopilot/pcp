@@ -525,7 +525,6 @@ extern int pmdaEventReleaseArray(int);
 extern int pmdaEventAddRecord(int, struct timeval *, int);
 extern int pmdaEventAddMissedRecord(int, struct timeval *, int);
 extern int pmdaEventAddParam(int, pmID, int, pmAtomValue *);
-extern int pmdaEventAddAggrParam(int, pmID, int, pmAtomValue *, int);
 extern pmEventArray *pmdaEventGetAddr(int);
 
 /*

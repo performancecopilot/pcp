@@ -1162,8 +1162,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 					continue;
 				    vset->vlist[numval].inst = j;
 				    atom.l = reg[j];
-				    sts = __pmStuffValue(&atom, 0,
-							&vset->vlist[numval], dp->type);
+				    sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
 				    if (sts < 0)
 					break;
 				    valfmt = sts;
@@ -1239,8 +1238,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 					atom.l = alloced;
 				    else
 					atom.l = free;
-				    sts = __pmStuffValue(&atom, 0,
-							&vset->vlist[numval], dp->type);
+				    sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
 				    if (sts < 0)
 					break;
 				    valfmt = sts;
@@ -1326,8 +1324,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.cp = (hostname != NULL) ? hostname : "";
 				break;
 			}
-			sts = __pmStuffValue(&atom, 0,
-				    &vset->vlist[numval], dp->type);
+			sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
 			if (sts < 0)
 			    break;
 			valfmt = sts;
@@ -1364,8 +1361,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.l = agent[j].reason;
 			    break;
 		    }
-		    sts = __pmStuffValue(&atom, 0,
-					&vset->vlist[numval], dp->type);
+		    sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
 		    if (sts < 0)
 			break;
 		    valfmt = sts;
@@ -1430,8 +1426,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			    atom.ul = pmie->eval_actual;
 			    break;
 		    }
-		    if ((sts = __pmStuffValue(&atom, 0,
-				&vset->vlist[numval], dp->type)) < 0)
+		    if ((sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type)) < 0)
 			break;
 		    valfmt = sts;
 		    numval++;
@@ -1485,8 +1480,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			    atom.cp[k-1] = '\0';
 			    break;
 		    }
-		    if ((sts = __pmStuffValue(&atom, 0,
-				&vset->vlist[numval], dp->type)) < 0)
+		    if ((sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type)) < 0)
 			break;
 		    valfmt = sts;
 		    numval++;
@@ -1505,7 +1499,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	}
 
 	if (sts == 0 && valfmt == -1 && vset->numval == 1)
-	    sts = valfmt = __pmStuffValue(&atom, 0, &vset->vlist[0], dp->type);
+	    sts = valfmt = __pmStuffValue(&atom, &vset->vlist[0], dp->type);
 
 	if (sts < 0) {
 	    /* failure, encode status in numval, need a different vset size */

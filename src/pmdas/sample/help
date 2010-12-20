@@ -552,22 +552,10 @@ to pmStore().
 @ sample.event.records Dummy event records
 Dummy event records are generated in a fixed pattern to help QA.
 
-1st fetch
-	No events
-2nd fetch
-	1 event with NO parameters
-3rd fetch
-	1 event with one U32 parameter
-	1 event with 2 parameters(U32 and 64 types)
-4th fetch
-	1 event with 3 parameters (U32, U64 and STRING types)
-	1 event with 3 parameters (U32 and 2 DOUBLE types)
-	1 event with 6 (U32, U64, STRING, STRING, 32 and U32 types)
-	1 event with 3 parameters (U32, FLOAT and AGGREGATE types)
-	+ 7 "missed" events
+Once all setups have been returned, the cycle is repeated.
 
-Then the cycle is repeated.  See event.reset to exert explicit
-control over the next batch of event records to be returned.
+See event.reset to exert explicit control over the next batch of event
+records to be returned.
 
 @ sample.event.reset reset event record state
 Used for QA, should take one of the values 0, 1, 2 or 3

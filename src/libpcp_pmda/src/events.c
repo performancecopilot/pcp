@@ -72,6 +72,7 @@ pmdaEventNewArray(void)
     bufs[i].bptr = bufs[i].baddr = NULL;
     bufs[i].blen = 0;
     bufs[i].bstate = B_INUSE;
+    pmdaEventResetArray(i);
     return i;
 }
 
@@ -159,8 +160,8 @@ pmdaEventAddMissedRecord(int idx, struct timeval *tp, int missed)
     return 0;
 }
 
-static int
-add_param(int idx, pmID pmid, int type, pmAtomValue *avp, int aggrlen)
+int
+pmdaEventAddParam(int idx, pmID pmid, int type, pmAtomValue *avp)
 {
     int			sts;
     int			need;	/* bytes in the buffer */
@@ -203,9 +204,10 @@ add_param(int idx, pmID pmid, int type, pmAtomValue *avp, int aggrlen)
 	    src = avp->cp;
 	    break;
 	case PM_TYPE_AGGREGATE:
-	    vlen = aggrlen;
+	    /* PM_VAL_HDR_SIZE is added back in below */
+	    vlen = avp->vbp->vlen - PM_VAL_HDR_SIZE;
 	    need += PM_PDU_SIZE_BYTES(vlen);
-	    src = avp->vp;
+	    src = avp->vbp->vbuf;
 	    break;
 	default:
 	    return PM_ERR_TYPE;
@@ -220,22 +222,6 @@ add_param(int idx, pmID pmid, int type, pmAtomValue *avp, int aggrlen)
     bp->bptr += need;
     bp->berp->er_nparams++;
     return 0;
-}
-
-int
-pmdaEventAddParam(int idx, pmID pmid, int type, pmAtomValue *avp)
-{
-    if (type == PM_TYPE_AGGREGATE)
-	return PM_ERR_TYPE;
-    return add_param(idx, pmid, type, avp, 0);
-}
-
-int
-pmdaEventAddAggrParam(int idx, pmID pmid, int type, pmAtomValue *avp, int aggrlen)
-{
-    if (type != PM_TYPE_AGGREGATE)
-	return PM_ERR_TYPE;
-    return add_param(idx, pmid, type, avp, aggrlen);
 }
 
 /*

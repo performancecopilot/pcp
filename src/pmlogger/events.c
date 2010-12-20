@@ -60,7 +60,6 @@ do_events(pmValueSet *vsp)
 	    epp = (pmEventParameter *)base;
 	    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);
 	    sts = __pmLogLookupDesc(&logctl, epp->ep_pmid, &desc);
-	    printf("__pmLogLookupDesc -> %d\n", sts);
 	    if (sts < 0) {
 		int	numnames;
 		char	**names;

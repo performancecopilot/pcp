@@ -633,7 +633,6 @@ fillResult(pmResult *result, int type)
 {
     int		i;
     int		sts = 0;
-    int		nbyte = 0;	/* initialize to pander to gcc */
     pmAtomValue	atom;
     pmValueSet	*vsp;
     char	*endbuf = NULL;
@@ -641,19 +640,15 @@ fillResult(pmResult *result, int type)
     switch(type) {
     case PM_TYPE_32:
 	atom.l = (int)strtol(param.name, &endbuf, 10);
-	nbyte = sizeof(atom.l);
 	break;
     case PM_TYPE_U32:
 	atom.ul = (unsigned int)strtoul(param.name, &endbuf, 10);
-	nbyte = sizeof(atom.ul);
 	break;
     case PM_TYPE_64:
 	atom.ll = strtoll(param.name, &endbuf, 10);
-	nbyte = sizeof(atom.ll);
 	break;
     case PM_TYPE_U64:
 	atom.ull = strtoull(param.name, &endbuf, 10);
-	nbyte = sizeof(atom.ull);
 	break;
     case PM_TYPE_FLOAT:
 	atom.d = strtod(param.name, &endbuf);
@@ -661,16 +656,13 @@ fillResult(pmResult *result, int type)
 	    sts = ERANGE;
 	else {
 	    atom.f = atom.d;
-	    nbyte = sizeof(atom.f);
 	}
 	break;
     case PM_TYPE_DOUBLE:
 	atom.d = strtod(param.name, &endbuf);
-	nbyte = sizeof(atom.d);
 	break;
     case PM_TYPE_STRING:
-	nbyte = (int)strlen(param.name);
-	atom.cp = (char *)malloc(nbyte * sizeof(char));
+	atom.cp = (char *)malloc(strlen(param.name));
 	if (atom.cp == NULL)
 	    sts = ENOMEM;
 	else {
@@ -679,14 +671,15 @@ fillResult(pmResult *result, int type)
 	}
 	break;
     default:
-	printf("Error: dbpmda does not support storing into aggregate metrics");
-	sts = PM_ERR_VALUE;
+	printf("Error: dbpmda does not support storing into %s metrics\n", pmTypeStr(type));
+	sts = PM_ERR_TYPE;
     }
     
-    if (sts < 0)
-	printf("Error: Decoding value: %s\n", pmErrStr(sts));
-    
-    if (*endbuf != '\0') {
+    if (sts < 0) {
+	if (sts != PM_ERR_TYPE)
+	    printf("Error: Decoding value: %s\n", pmErrStr(sts));
+    }
+    else if (*endbuf != '\0') {
 	printf("Error: Value \"%s\" is incompatible with metric type (PM_TYPE_%s)\n",
 	       param.name, pmTypeStr(type));
 	sts = PM_ERR_VALUE;
@@ -712,7 +705,7 @@ fillResult(pmResult *result, int type)
 		printf("%s: ", pmIDStr(param.pmid));
 	    
 	    pmPrintValue(stdout, vsp->valfmt, type, &vsp->vlist[i], 1);
-	    vsp->valfmt = __pmStuffValue(&atom, nbyte, &vsp->vlist[i], type); 
+	    vsp->valfmt = __pmStuffValue(&atom, &vsp->vlist[i], type); 
 	    printf(" -> ");
 	    pmPrintValue(stdout, vsp->valfmt, type, &vsp->vlist[i], 1);
 	    putchar('\n');

@@ -16,7 +16,7 @@
 .TH PMDAEVENT 3 "SGI" "Performance Co-Pilot"
 .SH NAME
 .ad l
-\f3pmdaEventNewArray\f1, \f3pmdaEventResetArray\f1, \f3pmdaEventReleaseArray\f1, \f3pmdaEventAddRecord\f1, \f3pmdaEventAddMissedRecord\f1, \f3pmdaEventAddParam\f1, \f3pmdaEventAddAggrParam\f1, \f3pmdaEventGetAddr\f1 \- utilities for PMDAs to build packed arrays of event records
+\f3pmdaEventNewArray\f1, \f3pmdaEventResetArray\f1, \f3pmdaEventReleaseArray\f1, \f3pmdaEventAddRecord\f1, \f3pmdaEventAddMissedRecord\f1, \f3pmdaEventAddParam\f1, \f3pmdaEventGetAddr\f1 \- utilities for PMDAs to build packed arrays of event records
 .br
 .ad
 .SH "C SYNOPSIS"
@@ -47,9 +47,6 @@ int pmdaEventAddMissedRecord(int \fIidx\fP, struct timeval *\fItp\fP, int\ \fInm
 .br
 .ti -8n
 int pmdaEventAddParam(int \fIidx\fP, pmID \fIpmid\fP, int \fItype\fP, pmAtomValue\ *\fIavp\fP);
-.br
-.ti -8n
-int pmdaEventAddAggrParam(int \fIidx\fP, pmID \fIpmid\fP, int \fItype\fP, pmAtomValue\ *\fIavp\fP, int\ \fIaggrlen\fP);
 .br
 .ti -8n
 pmEventArray *pmdaEventGetAddr(int \fIidx\fP);
@@ -159,14 +156,11 @@ of the value that is passed via
 should one where the size of the value is implied by the
 .I type
 or by the length of a string value (for
-.BR PM_TYPE_STRING ).
-.B PM_TYPE_AGGREGATE
-is a special case where the length of the value cannot be deduced, and
-for this case the comparable
-.B pmdaEventAddAggrParam
-routine should be used and the value length is passed via the additional
-.I aggrlen
-parameter.
+.BR PM_TYPE_STRING )
+or encoded within
+.I avp->vbp
+(for
+.BR PM_TYPE_AGGREGATE ).
 .PP
 Once the packed array has been constructed,
 .B pmdaEventGetAddr

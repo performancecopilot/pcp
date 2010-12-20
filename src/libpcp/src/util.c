@@ -633,7 +633,7 @@ pmPrintValue(FILE *f,			/* output stream */
 	    }
 	}
 	if (type != PM_TYPE_UNKNOWN)
-	    free(a.vp);
+	    free(a.vbp);
 	break;
 
     case PM_TYPE_EVENT:		/* not much we can do about minwidth */

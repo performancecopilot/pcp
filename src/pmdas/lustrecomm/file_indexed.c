@@ -83,31 +83,8 @@ int file_indexed (struct file_state *f_s, int type, int *base, void **vpp, int i
     case PM_TYPE_DOUBLE:
 	*((double *)(*vpp)) = strtod(sp,0);
 	break;
-    case PM_TYPE_STRING:
-    case PM_TYPE_AGGREGATE:
-       /* Here we take whatever pointed to and hand it out.
-	* Clearly this won't work for all strings and aggregates
-	*/
-	i = strlen (sp);
-	if (*base < i){
-	    /* check! vp is no longer valid */
-	    if ((*vpp = realloc(*vpp, i)) == NULL){
-		free(*vpp);
-		perror("file_indexed: realloc");
-		free (cp);
-		return -1;
-	    }
-	    /* This doesn't get used... for now. */
-	    /* FIXME to prevent future accidents */
-	}
-	/* We can't check for lying programmers
-	 * strcpy is just as safe as strncpy
-	 */
-	strcpy(sp, *vpp);
-	break;
-    case PM_TYPE_NOSUPPORT:
     default:
-	fprintf(stderr,"file_indexed: type %d not supported\n", type);
+	fprintf(stderr,"file_indexed: type %s not supported\n", pmTypeStr(type));
 	break;
     }
     /* so, write it up and slice and dice */

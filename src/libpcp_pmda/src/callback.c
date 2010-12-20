@@ -572,8 +572,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    (extp->pmda_interface >= PMDA_INTERFACE_3 && sts > 0)) {
 		    int		lsts;
 
-		    if ((lsts = __pmStuffValue(&atom, 0, &vset->vlist[j], 
-					     type)) == PM_ERR_TYPE) {
+		    if ((lsts = __pmStuffValue(&atom, &vset->vlist[j], type)) == PM_ERR_TYPE) {
 			__pmNotifyErr(LOG_ERR, 
 				     "pmdaFetch: Descriptor type (%s) for metric %s is bad",
 				     pmTypeStr(type), pmIDStr(dp->pmid));
@@ -586,7 +585,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			if (type == PM_TYPE_STRING)
 			    free(atom.cp);
 			else if (type == PM_TYPE_AGGREGATE)
-			    free(atom.vp);
+			    free(atom.vbp);
 			else {
 			    __pmNotifyErr(LOG_WARNING,
 					  "pmdaFetch: Attempt to free value for metric %s of wrong type %s\n",

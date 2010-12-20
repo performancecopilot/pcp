@@ -134,19 +134,6 @@ typedef struct {
 #define PM_SEM_INSTANT	3	/* instantaneous value, continuous domain */
 #define PM_SEM_DISCRETE	4	/* instantaneous value, discrete domain */
 
-/* Generic Union for Value-Type conversions */
-typedef union {
-    __int32_t	l;	/* 32-bit signed */
-    __uint32_t	ul;	/* 32-bit unsigned */
-    __int64_t	ll;	/* 64-bit signed */
-    __uint64_t	ull;	/* 64-bit unsigned */
-    float	f;	/* 32-bit floating point */
-    double	d;	/* 64-bit floating point */
-    char	*cp;	/* char ptr */
-    void	*vp;	/* void ptr */
-} pmAtomValue;
-
-
 /*
  * for PCP 1.x PMDAs and PMCDs, need to map errors unconditionally sometimes
  * otherwise mapping is conditional upon value being in range
@@ -451,6 +438,17 @@ typedef struct {
     pmValueSet	*vset[1];		/* set of value sets, one per PMID */
 } pmResult;
 
+/* Generic Union for Value-Type conversions */
+typedef union {
+    __int32_t		l;	/* 32-bit signed */
+    __uint32_t		ul;	/* 32-bit unsigned */
+    __int64_t		ll;	/* 64-bit signed */
+    __uint64_t		ull;	/* 64-bit unsigned */
+    float		f;	/* 32-bit floating point */
+    double		d;	/* 64-bit floating point */
+    char		*cp;	/* char ptr */
+    pmValueBlock	*vbp;	/* pmValueBlock ptr */
+} pmAtomValue;
 
 /*
  * Fetch metrics. Value/instances returned depends on current instance profile.

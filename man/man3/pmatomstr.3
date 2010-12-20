@@ -44,7 +44,7 @@ typedef union {
     float        f;     /* 32-bit floating point */
     double       d;     /* 64-bit floating point */
     char         *cp;   /* char ptr */
-    void         *vp;   /* void ptr */
+    pmValueBlock *vbp;  /* pmValueBlock ptr */
 } pmAtomValue;
 .in
 .fi
@@ -76,7 +76,7 @@ If the
 .I type
 is
 .B PM_TYPE_AGGREGATE
-only the first three 32-bit words are displayed as hexadecimal values.
+then up to the first three 32-bit words are displayed as hexadecimal values.
 .PP
 If the
 .I type

@@ -20,7 +20,7 @@
 
 extern int mydomain;
 
-extern int sample_fetch_events(pmEventArray **);
+extern int sample_fetch_events(pmValueBlock **);
 extern void event_set_fetch_count(int);
 extern int event_get_fetch_count(void);
 

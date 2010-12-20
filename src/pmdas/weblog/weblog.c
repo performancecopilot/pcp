@@ -3022,7 +3022,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
             }
             
             if (haveValue) {
-                sts = __pmStuffValue(&atom, 0, &vset->vlist[j], type);
+                sts = __pmStuffValue(&atom, &vset->vlist[j], type);
                 if (sts < 0) {
                     __pmFreeResultValues(res);
                     return sts;

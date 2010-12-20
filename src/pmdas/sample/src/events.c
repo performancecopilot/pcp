@@ -36,7 +36,7 @@ event_set_fetch_count(int c)
 }
 
 int
-sample_fetch_events(pmEventArray **eapp)
+sample_fetch_events(pmValueBlock **vbpp)
 {
     int			c;
     int			sts;
@@ -45,7 +45,8 @@ sample_fetch_events(pmEventArray **eapp)
     pmAtomValue		atom;
     static int		first = 1;
 
-    static char		aggr[] = { '\01', '\03', '\07', '\017', '\037', '\077', '\177', '\377' };
+    static pmValueBlock	*aggr;
+    static char		aggrval[] = { '\01', '\03', '\07', '\017', '\037', '\077', '\177', '\377' };
     static pmID		pmid_type = PMDA_PMID(0,127);	/* event.type */
     static pmID		pmid_32 = PMDA_PMID(0,128);	/* event.param_32 */
     static pmID		pmid_u32 = PMDA_PMID(0,129);	/* event.param_u32 */
@@ -84,6 +85,11 @@ sample_fetch_events(pmEventArray **eapp)
 	((__pmID_int *)&pmid_double)->domain = mydomain;
 	((__pmID_int *)&pmid_string)->domain = mydomain;
 	((__pmID_int *)&pmid_aggregate)->domain = mydomain;
+	/* build pmValueBlock for aggregate value */
+	aggr = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE + sizeof(aggrval));
+	aggr->vtype = PM_TYPE_AGGREGATE;
+	aggr->vlen = PM_VAL_HDR_SIZE + sizeof(aggrval);
+	memcpy(aggr->vbuf, (void *)aggrval, sizeof(aggrval));
     }
 
     pmdaEventResetArray(myarray);
@@ -202,8 +208,8 @@ sample_fetch_events(pmEventArray **eapp)
 	    atom.f = -17;
 	    if ((sts = pmdaEventAddParam(myarray, pmid_float, PM_TYPE_FLOAT, &atom)) < 0)
 		return sts;
-	    atom.vp = (void *)aggr;
-	    if ((sts = pmdaEventAddAggrParam(myarray, pmid_aggregate, PM_TYPE_AGGREGATE, &atom, sizeof(aggr))) < 0)
+	    atom.vbp = aggr;
+	    if ((sts = pmdaEventAddParam(myarray, pmid_aggregate, PM_TYPE_AGGREGATE, &atom)) < 0)
 		return sts;
 	    break;
 	case -1:
@@ -222,7 +228,7 @@ sample_fetch_events(pmEventArray **eapp)
     }
     nfetch++;
 
-    *eapp = pmdaEventGetAddr(myarray);
+    *vbpp = (pmValueBlock *)pmdaEventGetAddr(myarray);
 
     return 0;
 }

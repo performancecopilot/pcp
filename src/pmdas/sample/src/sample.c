@@ -538,12 +538,9 @@ static __uint64_t	_ulonglong = 13;/* ulonglong.write_me */
 static float		_float = 13;	/* float.write_me */
 static double		_double = 13;	/* double.write_me */
 static char		*_string;	/* string.write_me */
-static void		*_aggr33;	/* aggregate.null */
-static int		_len33;
-static void		*_aggr34;	/* aggregate.hullo */
-static int		_len34;
-static void		*_aggr35;	/* aggregate.write_me */
-static int		_len35;
+static pmValueBlock	*_aggr33;	/* aggregate.null */
+static pmValueBlock	*_aggr34;	/* aggregate.hullo */
+static pmValueBlock	*_aggr35;	/* aggregate.write_me */
 static long		_col46;		/* lights */
 static int		_n46;		/* sample count for lights */
 static long		_mag47;		/* magnitude */
@@ -1137,14 +1134,17 @@ init_tables(int dom)
     /* local hacks */
     _string = (char *)malloc(3);
     strcpy(_string, "13");
-    _len33 = 0;
-    _aggr33 = "";
-    _len34 = 12;
-    _aggr34 = (char *)malloc(_len34);
-    memcpy(_aggr34, "hullo world!", _len34);
-    _len35 = 2;
-    _aggr35 = (char *)malloc(_len35);
-    memcpy(_aggr35, "13", _len35);
+    _aggr33 = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE);
+    _aggr33->vlen = PM_VAL_HDR_SIZE + 0;
+    _aggr33->vtype = PM_TYPE_AGGREGATE;
+    _aggr34 = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE+strlen("hullo world!"));
+    _aggr34->vlen = PM_VAL_HDR_SIZE + strlen("hullo world!");
+    _aggr34->vtype = PM_TYPE_AGGREGATE;
+    memcpy(_aggr34->vbuf, "hullo world!", strlen("hullo world!"));
+    _aggr35 = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE+strlen("13"));
+    _aggr35->vlen = PM_VAL_HDR_SIZE + strlen("13");
+    _aggr35->vtype = PM_TYPE_AGGREGATE;
+    memcpy(_aggr35->vbuf, "13", strlen("13"));
 
     (void)redo_many();
 }
@@ -1522,7 +1522,6 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
     int		need;
     int		inst;
     int		numval;
-    int		aggregate_len = 0;
     static pmResult	*res;
     static int		maxnpmids;
     static int		nbyte;
@@ -1852,7 +1851,7 @@ doit:
 #else
 			strncpy((char *)sivb->vbuf, si.dummy, sizeof(struct sysinfo));
 #endif
-			atom.vp = (void *)sivb;
+			atom.vbp = sivb;
 
 			/*
 			 * pv:782029 The actual type must be PM_TYPE_AGGREGATE, 
@@ -1998,16 +1997,13 @@ doit:
 			atom.cp = _string;
 			break;
 		    case 33:
-			atom.vp = _aggr33;
-			aggregate_len = _len33;
+			atom.vbp = _aggr33;
 			break;
 		    case 34:
-			atom.vp = _aggr34;
-			aggregate_len = _len34;
+			atom.vbp = _aggr34;
 			break;
 		    case 35:
-			atom.vp = _aggr35;
-			aggregate_len = _len35;
+			atom.vbp = _aggr35;
 			break;
 		    case 52:
 			atom.l = inst;
@@ -2308,11 +2304,11 @@ doit:
 	    }
 	    else if (pmidp->cluster == PM_CLUSTER_EVENT) {
 		/* only one sort of event record metric */
-		sts = sample_fetch_events((pmEventArray **)&atom.vp);
+		sts = sample_fetch_events(&atom.vbp);
 		if (sts < 0)
 		    return sts;
 	    }
-	    if ((sts = __pmStuffValue(&atom, aggregate_len, &vset->vlist[j], type)) < 0) {
+	    if ((sts = __pmStuffValue(&atom, &vset->vlist[j], type)) < 0) {
 		__pmFreeResultValues(res);
 		return sts;
 	    }
@@ -2558,9 +2554,8 @@ sample_store(pmResult *result, pmdaExt *ep)
 		_string = av.cp;
 		break;
 	    case 35:	/* aggregate.write_me */
-		_len35 = vsp->vlist[0].value.pval->vlen - PM_VAL_HDR_SIZE;
 		free(_aggr35);
-		_aggr35 = av.vp;
+		_aggr35 = av.vbp;
 		break;
 	    case 56:	/* not_ready */
 		not_ready = av.l;

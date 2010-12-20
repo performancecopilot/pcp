@@ -905,7 +905,7 @@ extern void __pmPrintIPC(void);
 extern void __pmResetIPC(int);
 
 /* safely insert an atom value into a pmValue */
-extern int __pmStuffValue(const pmAtomValue *, int, pmValue *, int);
+extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);
 
 /*
  * "optfetch" api

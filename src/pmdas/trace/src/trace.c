@@ -987,8 +987,7 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 					ins->i_name, pmIDStr(dp->pmid));
 #endif
 	    }
-	    else if ((sts = __pmStuffValue(&atom, 0, &vset->vlist[j], 
-						dp->type)) == PM_ERR_TYPE)
+	    else if ((sts = __pmStuffValue(&atom, &vset->vlist[j], dp->type)) == PM_ERR_TYPE)
 		__pmNotifyErr(LOG_ERR, "bad desc type (%d) for metric %s",
 				dp->type, pmIDStr(dp->pmid));
 	    else if (sts >= 0) {
