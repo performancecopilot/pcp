@@ -1,0 +1,16 @@
+QA output created by 423
+-42 -> -42
+2147483648 -> 2147483648
+-1234567890123 -> -1234567890123
+9223372036854775808 -> 9223372036854775808
+123.456 -> 1.234560e+02
+0.123456789 -> 1.234568e-01
+mary had a little lamb-> "mary had a little lamb"
+??? -> [1 event record]
+??? -> [type=AGGREGATE len=7] 01020304 05060700
+??? -> [type=AGGREGATE_STATIC len=7] 01020304 05060700
+
+And now some error cases ...
+bad type -> Error: unexpected type: Illegal type=123
+no support type -> Error: unexpected type: Not Supported
+unknown type -> Error: unexpected type: Unknown
