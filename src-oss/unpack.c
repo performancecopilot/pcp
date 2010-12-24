@@ -69,9 +69,9 @@ add_param(pmID pmid, int type, pmAtomValue *avp)
 	    src = avp->cp;
 	    break;
 	case PM_TYPE_AGGREGATE:
-	    vlen = 8;		/* hardcoded for aggr[] */
+	    vlen = avp->vbp->vlen - PM_VAL_HDR_SIZE;
 	    need += PM_PDU_SIZE_BYTES(vlen);
-	    src = avp->cp;
+	    src = avp->vbp->vbuf;
 	    break;
     }
     if ((sts = check_buf(need)) < 0) {
@@ -166,7 +166,7 @@ dump(char *xpect)
     nmissed = 0;
     for (r = 0; r < nrecords; r++) {
 	if (res[r]->numpmid == 2 && res[r]->vset[0]->pmid == pmid_flags &&
-	    res[r]->vset[0]->vlist[0].value.lval == PM_ER_FLAG_MISSED &&
+	    (res[r]->vset[0]->vlist[0].value.lval & PM_EVENT_FLAG_MISSED) &&
 	    res[r]->vset[1]->pmid == pmid_missed) {
 	    nmissed += res[r]->vset[1]->vlist[0].value.lval;
 	}
@@ -193,7 +193,8 @@ main(int argc, char **argv)
     pmAtomValue		atom;
     int			savelen;
 /* === begin largely copied from samplepmda events.c === */
-    static char		aggr[] = { '\01', '\03', '\07', '\017', '\037', '\077', '\177', '\377' };
+    static pmValueBlock	*aggr;
+    static char		aggrval[] = { '\01', '\03', '\07', '\017', '\037', '\077', '\177', '\377' };
     pmID		pmid_array = PMDA_PMID(4095,0);	/* event.records */
     pmID		pmid_type = PMDA_PMID(0,127);	/* event.type */
     pmID		pmid_32 = PMDA_PMID(0,128);	/* event.param_32 */
@@ -228,6 +229,11 @@ main(int argc, char **argv)
     ((__pmID_int *)&pmid_double)->domain = mydomain;
     ((__pmID_int *)&pmid_string)->domain = mydomain;
     ((__pmID_int *)&pmid_aggregate)->domain = mydomain;
+    /* build pmValueBlock for aggregate value */
+    aggr = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE + sizeof(aggrval));
+    aggr->vtype = PM_TYPE_AGGREGATE;
+    aggr->vlen = PM_VAL_HDR_SIZE + sizeof(aggrval);
+    memcpy(aggr->vbuf, (void *)aggrval, sizeof(aggrval));
 
 /* === end copied from samplepmda events.c === */
 
@@ -315,7 +321,7 @@ main(int argc, char **argv)
     dump("Error - buffer overrun @ parameter");
 
     reset();
-    add_record(&stamp, PM_ER_FLAG_MISSED);
+    add_record(&stamp, PM_EVENT_FLAG_MISSED);
     stamp.tv_sec++;
     erp->er_nparams = 3;
     add_record(&stamp, 0);
@@ -348,7 +354,7 @@ main(int argc, char **argv)
     add_param(pmid_32, PM_TYPE_32, &atom);
     atom.ul = 15;
     add_param(pmid_u32, PM_TYPE_U32, &atom);
-    add_record(&stamp, PM_ER_FLAG_MISSED);
+    add_record(&stamp, PM_EVENT_FLAG_MISSED);
     stamp.tv_sec++;
     erp->er_nparams = 4;
     savelen = eptr - ebuf;
@@ -358,7 +364,7 @@ main(int argc, char **argv)
     add_param(pmid_type, PM_TYPE_U32, &atom);
     atom.f = -17;
     add_param(pmid_float, PM_TYPE_FLOAT, &atom);
-    atom.vp = (void *)aggr;
+    atom.vbp = aggr;
     add_param(pmid_aggregate, PM_TYPE_AGGREGATE, &atom);
     eap->ea_len = eptr - ebuf;
     dump("6 records, 7 missed [u32=4 u64=5 str=\"6\"][u32=7 d=8 d=-9][u32=10 u64=11 str=\"twelve\" str=\"thirteen\" 32=-14 u32=15][u32=16 f=-17 aggr=...]");

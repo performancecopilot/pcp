@@ -139,6 +139,8 @@ store 20.0.36 4
 store sample.write_me "Hello there"
 store 29.0.20 "3"
 store 0.0.0 "5"
+store sample.aggregate.write_me "foo bar"
+store sample.event.records "foo bar"
 #test the close and open commands
 close
 status

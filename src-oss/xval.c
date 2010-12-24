@@ -9,7 +9,7 @@
 static int type[] = {
     PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING, PM_TYPE_AGGREGATE, PM_TYPE_EVENT };
 static char *name[] = {
-    "long", "ulong", "longlong", "ulonglong", "float", "double", "char *", "void *", "pmEventArray" };
+    "long", "ulong", "longlong", "ulonglong", "float", "double", "char *", "pmValueBlock *", "pmEventArray" };
 
 static void
 _y(pmAtomValue *ap, int type)
@@ -43,11 +43,19 @@ _y(pmAtomValue *ap, int type)
 		printf("\"%s\"", ap->cp);
 	    break;
 	case PM_TYPE_AGGREGATE:
-	    lp = ap->vp;
-	    if (lp == (long *)0)
-		printf("(void *)0");
-	    else
+	    printf("[vlen=%d] ", ap->vbp->vlen - PM_VAL_HDR_SIZE);
+	    lp = (long *)ap->vbp->vbuf;
+	    if (ap->vbp->vlen - PM_VAL_HDR_SIZE == 0)
+		;
+	    else if (ap->vbp->vlen - PM_VAL_HDR_SIZE <= 4)
+		printf("%08x", (unsigned)lp[0]);
+	    else if (ap->vbp->vlen - PM_VAL_HDR_SIZE <= 8)
+		printf("%08x %08x", (unsigned)lp[0], (unsigned)lp[1]);
+	    else if (ap->vbp->vlen - PM_VAL_HDR_SIZE <= 12)
 		printf("%08x %08x %08x",
+			(unsigned)lp[0], (unsigned)lp[1], (unsigned)lp[2]);
+	    else
+		printf("%08x %08x %08x ...",
 			(unsigned)lp[0], (unsigned)lp[1], (unsigned)lp[2]);
 	    break;
 	case PM_TYPE_EVENT:
@@ -70,7 +78,7 @@ main(int argc, char *argv[])
     pmAtomValue	av;
     pmAtomValue	bv;
     pmAtomValue	*ap;
-    pmValueBlock	*vb;
+    pmValueBlock	*vbp;
     int		foo[7];		/* foo[0] = len, foo[1]... = vbuf */
     int		valfmt;
     int		vflag = 0;	/* set to 1 to show all results */
@@ -79,11 +87,11 @@ main(int argc, char *argv[])
 
     ea.ea_nrecords = 1;
     ea.ea_record[0].er_nparams = 0;
-    vb = (pmValueBlock *)&ea;
-    vb->vtype = PM_TYPE_EVENT;
-    vb->vlen = sizeof(ea);	/* not quite correct, but close enough */
+    vbp = (pmValueBlock *)&ea;
+    vbp->vtype = PM_TYPE_EVENT;
+    vbp->vlen = sizeof(ea);	/* not quite correct, but close enough */
 
-    vb = (pmValueBlock *)&foo;
+    vbp = (pmValueBlock *)&foo;
 
     while (argc > 1) {
 	argc--;
@@ -106,57 +114,58 @@ main(int argc, char *argv[])
 		    break;
 		case PM_TYPE_64:
 		    valfmt = PM_VAL_SPTR;
-		    pv.value.pval = vb;
-		    vb->vlen = PM_VAL_HDR_SIZE + sizeof(__int64_t);
-		    vb->vtype = PM_TYPE_64;
-		    ap = (pmAtomValue *)vb->vbuf;
+		    pv.value.pval = vbp;
+		    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(__int64_t);
+		    vbp->vtype = PM_TYPE_64;
+		    ap = (pmAtomValue *)vbp->vbuf;
 		    ap->ll = lv;
 		    break;
 		case PM_TYPE_U64:
 		    valfmt = PM_VAL_SPTR;
-		    pv.value.pval = vb;
-		    vb->vlen = PM_VAL_HDR_SIZE + sizeof(__uint64_t);
-		    vb->vtype = PM_TYPE_U64;
-		    ap = (pmAtomValue *)vb->vbuf;
+		    pv.value.pval = vbp;
+		    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(__uint64_t);
+		    vbp->vtype = PM_TYPE_U64;
+		    ap = (pmAtomValue *)vbp->vbuf;
 		    ap->ull = lv;
 		    break;
 		case PM_TYPE_FLOAT:
 		    valfmt = PM_VAL_SPTR;
-		    pv.value.pval = vb;
-		    vb->vlen = PM_VAL_HDR_SIZE + sizeof(float);
-		    vb->vtype = PM_TYPE_FLOAT;
-		    ap = (pmAtomValue *)vb->vbuf;
+		    pv.value.pval = vbp;
+		    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(float);
+		    vbp->vtype = PM_TYPE_FLOAT;
+		    ap = (pmAtomValue *)vbp->vbuf;
 		    ap->f = lv;
 		    break;
 		case PM_TYPE_DOUBLE:
 		    valfmt = PM_VAL_SPTR;
-		    pv.value.pval = vb;
-		    vb->vlen = PM_VAL_HDR_SIZE + sizeof(double);
-		    vb->vtype = PM_TYPE_DOUBLE;
-		    ap = (pmAtomValue *)vb->vbuf;
+		    pv.value.pval = vbp;
+		    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(double);
+		    vbp->vtype = PM_TYPE_DOUBLE;
+		    ap = (pmAtomValue *)vbp->vbuf;
 		    ap->d = lv;
 		    break;
 		case PM_TYPE_STRING:
 		    valfmt = PM_VAL_SPTR;
-		    pv.value.pval = vb;
-		    sprintf(vb->vbuf, "%lld", lv);
-		    vb->vlen = PM_VAL_HDR_SIZE + strlen(vb->vbuf) + 1;
-		    vb->vtype = PM_TYPE_STRING;
+		    pv.value.pval = vbp;
+		    sprintf(vbp->vbuf, "%lld", lv);
+		    vbp->vlen = PM_VAL_HDR_SIZE + strlen(vbp->vbuf) + 1;
+		    vbp->vtype = PM_TYPE_STRING;
 		    ap = &bv;
-		    bv.cp = (char *)vb->vbuf;
+		    bv.cp = (char *)vbp->vbuf;
 		    break;
 		case PM_TYPE_AGGREGATE:
 		    valfmt = PM_VAL_SPTR;
-		    pv.value.pval = vb;
-		    vb->vlen = PM_VAL_HDR_SIZE + 3 * sizeof(foo[0]);
-		    vb->vtype = PM_TYPE_AGGREGATE;
+		    pv.value.pval = vbp;
+		    vbp->vlen = PM_VAL_HDR_SIZE + 3 * sizeof(foo[0]);
+		    vbp->vtype = PM_TYPE_AGGREGATE;
 		    foo[1] = foo[2] = foo[3] = lv;
+		    foo[1]--;
+		    foo[3]++;
 		    ap = &bv;
-		    bv.vp = (void *)vb->vbuf;
+		    bv.vbp = vbp;
 		    break;
 		case PM_TYPE_EVENT:
 		    valfmt = PM_VAL_DPTR;
-		    ea.ea_nmissed = lv;
 		    ap = (void *)&ea;
 		    break;
 	    }
@@ -221,7 +230,7 @@ main(int argc, char *argv[])
 			    break;
 			case PM_TYPE_AGGREGATE:
 			    match = 0;
-			    for (k = 0; match == 0 && k < vb->vlen - PM_VAL_HDR_SIZE; k++)
+			    for (k = 0; match == 0 && k < vbp->vlen - PM_VAL_HDR_SIZE; k++)
 				match = (bv.cp[k] == av.cp[k]);
 			    break;
 			case PM_TYPE_EVENT:
@@ -241,7 +250,7 @@ main(int argc, char *argv[])
 		    if (type[o] == PM_TYPE_STRING)
 			free(av.cp);
 		    else if (type[o] == PM_TYPE_AGGREGATE)
-			free(av.vp);
+			free(av.vbp);
 		}
 	    }
 	}

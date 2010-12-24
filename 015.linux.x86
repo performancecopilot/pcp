@@ -163,41 +163,25 @@ sampledso.string.write_me
     value "zoo"
 
 stuff "123" into sampledso.aggregate.write_me
-sampledso.aggregate.write_me old value=? new value=XXX [7b000000]
-sampledso.aggregate.write_me
-    value XXX[7b000000]
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
 
 stuff "123.456" into sampledso.aggregate.write_me
-sampledso.aggregate.write_me old value=? new value=XXX [79e9f642]
-sampledso.aggregate.write_me
-    value XXX[79e9f642]
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
 
 stuff "1e10" into sampledso.aggregate.write_me
-sampledso.aggregate.write_me old value=? new value=XXX [31653130]
-sampledso.aggregate.write_me
-    value XXX[31653130]
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
 
 stuff "9.87654321e40" into sampledso.aggregate.write_me
-sampledso.aggregate.write_me old value=? new value=XXX [4cf30aa5ed237248]
-sampledso.aggregate.write_me
-    value XXX[4cf30aa5ed237248]
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
 
 stuff "0xdeadbeef" into sampledso.aggregate.write_me
-sampledso.aggregate.write_me old value=? new value=XXX [efbeadde]
-sampledso.aggregate.write_me
-    value XXX[efbeadde]
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
 
 stuff "0x100000000" into sampledso.aggregate.write_me
-sampledso.aggregate.write_me old value=? new value=XXX [0000000001000000]
-sampledso.aggregate.write_me
-    value XXX[0000000001000000]
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
 
 stuff "0xdeadbeefcafefeed" into sampledso.aggregate.write_me
-sampledso.aggregate.write_me old value=? new value=XXX [edfefecaefbeadde]
-sampledso.aggregate.write_me
-    value XXX[edfefecaefbeadde]
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
 
 stuff "zoo" into sampledso.aggregate.write_me
-sampledso.aggregate.write_me old value=? new value=XXX [7a6f6f]
-sampledso.aggregate.write_me
-    value XXX[7a6f6f]
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics

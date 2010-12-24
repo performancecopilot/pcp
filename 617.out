@@ -482,6 +482,16 @@ dbpmda> store 0.0.0 Warning: PMID (0.0.0) is not defined in the PMNS
 PMID: 0.0.0
 Getting description...
 Error PDU: Unknown or illegal metric identifier
+dbpmda> store sample.aggregate.write_me "foo bar"
+PMID: 29.0.35
+Getting description...
+Getting Result Structure...
+Error: dbpmda does not support storing into AGGREGATE metrics
+dbpmda> store sample.event.records "foo bar"
+PMID: 29.4095.0
+Getting description...
+Getting Result Structure...
+Error: dbpmda does not support storing into EVENT metrics
 dbpmda> #test the close and open commands
 dbpmda> close
 dbpmda> status
