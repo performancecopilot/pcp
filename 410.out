@@ -13,14 +13,14 @@ TIMESTAMP  29.4095.0 (sample.event.records): 5 (and 7 missed) event records
               29.0.127 (sample.event.type): value 7
               29.0.133 (sample.event.param_double): value 8
               29.0.133 (sample.event.param_double): value -9
-              --- event record [2] timestamp TIMESTAMP flags 0x2 ---
+              --- event record [2] timestamp TIMESTAMP flags 0x2 (start) ---
               29.0.127 (sample.event.type): value 10
               29.0.131 (sample.event.param_u64): value 11
               29.0.134 (sample.event.param_string): value "twelve"
               29.0.134 (sample.event.param_string): value "thirteen"
               29.0.128 (sample.event.param_32): value -14
               29.0.129 (sample.event.param_u32): value 15
-              --- event record [3] timestamp TIMESTAMP flags 0x80000000 ---
+              --- event record [3] timestamp TIMESTAMP flags 0x80000000 (missed) ---
               ==> 7 missed event records
               --- event record [4] timestamp TIMESTAMP ---
               29.0.127 (sample.event.type): value 16
@@ -36,7 +36,7 @@ TIMESTAMP  29.4095.0 (sample.event.records): 1 event record
 TIMESTAMP  29.4095.0 (sample.event.records): 2 event records
               --- event record [0] timestamp TIMESTAMP ---
               29.0.127 (sample.event.type): value 1
-              --- event record [1] timestamp TIMESTAMP flags 0x1 ---
+              --- event record [1] timestamp TIMESTAMP flags 0x1 (point) ---
               29.0.127 (sample.event.type): value 2
               29.0.130 (sample.event.param_64): value -3
 
@@ -49,14 +49,14 @@ TIMESTAMP  29.4095.0 (sample.event.records): 5 (and 7 missed) event records
               29.0.127 (sample.event.type): value 7
               29.0.133 (sample.event.param_double): value 8
               29.0.133 (sample.event.param_double): value -9
-              --- event record [2] timestamp TIMESTAMP flags 0x2 ---
+              --- event record [2] timestamp TIMESTAMP flags 0x2 (start) ---
               29.0.127 (sample.event.type): value 10
               29.0.131 (sample.event.param_u64): value 11
               29.0.134 (sample.event.param_string): value "twelve"
               29.0.134 (sample.event.param_string): value "thirteen"
               29.0.128 (sample.event.param_32): value -14
               29.0.129 (sample.event.param_u32): value 15
-              --- event record [3] timestamp TIMESTAMP flags 0x80000000 ---
+              --- event record [3] timestamp TIMESTAMP flags 0x80000000 (missed) ---
               ==> 7 missed event records
               --- event record [4] timestamp TIMESTAMP ---
               29.0.127 (sample.event.type): value 16

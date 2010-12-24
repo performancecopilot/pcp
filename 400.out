@@ -15,13 +15,11 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 sampledso.event.records
     value [1 event record timestamp TIMESTAMP]
-    --- event record [0] timestamp TIMESTAMP ---
-	No parameters
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
 
 sampledso.event.records
     value [1 event record timestamp TIMESTAMP]
-    --- event record [0] timestamp TIMESTAMP ---
-	No parameters
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
@@ -34,10 +32,10 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 sampledso.event.records
     value [2 event records timestamps TIMESTAMP...TIMESTAMP]
-    --- event record [0] timestamp TIMESTAMP ---
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
     sampledso.event.type (30.0.127)
         value 1
-    --- event record [1] timestamp TIMESTAMP flags 0x1 ---
+    --- event record [1] timestamp TIMESTAMP flags 0x1 (point) ---
     sampledso.event.type (30.0.127)
         value 2
     sampledso.event.param_64 (30.0.130)
@@ -45,10 +43,10 @@ sampledso.event.records
 
 sampledso.event.records
     value [2 event records timestamps TIMESTAMP...TIMESTAMP]
-    --- event record [0] timestamp TIMESTAMP ---
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
     sampledso.event.type (30.0.127)
         value 1
-    --- event record [1] timestamp TIMESTAMP flags 0x1 ---
+    --- event record [1] timestamp TIMESTAMP flags 0x1 (point) ---
     sampledso.event.type (30.0.127)
         value 2
     sampledso.event.param_64 (30.0.130)
@@ -56,10 +54,10 @@ sampledso.event.records
 
 sampledso.event.records
     value [2 event records timestamps TIMESTAMP...TIMESTAMP]
-    --- event record [0] timestamp TIMESTAMP ---
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
     sampledso.event.type (30.0.127)
         value 1
-    --- event record [1] timestamp TIMESTAMP flags 0x1 ---
+    --- event record [1] timestamp TIMESTAMP flags 0x1 (point) ---
     sampledso.event.type (30.0.127)
         value 2
     sampledso.event.param_64 (30.0.130)
@@ -76,21 +74,21 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 sampledso.event.records
     value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
-    --- event record [0] timestamp TIMESTAMP ---
+    --- event record [0] timestamp TIMESTAMP flags 0x1a (start,id,parent) ---
     sampledso.event.type (30.0.127)
         value 4
     sampledso.event.param_u64 (30.0.131)
         value 5
     sampledso.event.param_string (30.0.134)
         value "6"
-    --- event record [1] timestamp TIMESTAMP ---
+    --- event record [1] timestamp TIMESTAMP flags 0x1 (point) ---
     sampledso.event.type (30.0.127)
         value 7
     sampledso.event.param_double (30.0.133)
         value 8
     sampledso.event.param_double (30.0.133)
         value -9
-    --- event record [2] timestamp TIMESTAMP flags 0x2 ---
+    --- event record [2] timestamp TIMESTAMP flags 0x4 (end) ---
     sampledso.event.type (30.0.127)
         value 10
     sampledso.event.param_u64 (30.0.131)
@@ -103,9 +101,9 @@ sampledso.event.records
         value -14
     sampledso.event.param_u32 (30.0.129)
         value 15
-    --- event record [3] timestamp TIMESTAMP flags 0x80000000 ---
+    --- event record [3] timestamp TIMESTAMP flags 0x80000000 (missed) ---
         ==> 7 missed event records
-    --- event record [4] timestamp TIMESTAMP ---
+    --- event record [4] timestamp TIMESTAMP flags 0x1 (point) ---
     sampledso.event.type (30.0.127)
         value 16
     sampledso.event.param_float (30.0.132)
@@ -115,21 +113,21 @@ sampledso.event.records
 
 sampledso.event.records
     value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
-    --- event record [0] timestamp TIMESTAMP ---
+    --- event record [0] timestamp TIMESTAMP flags 0x1a (start,id,parent) ---
     sampledso.event.type (30.0.127)
         value 4
     sampledso.event.param_u64 (30.0.131)
         value 5
     sampledso.event.param_string (30.0.134)
         value "6"
-    --- event record [1] timestamp TIMESTAMP ---
+    --- event record [1] timestamp TIMESTAMP flags 0x1 (point) ---
     sampledso.event.type (30.0.127)
         value 7
     sampledso.event.param_double (30.0.133)
         value 8
     sampledso.event.param_double (30.0.133)
         value -9
-    --- event record [2] timestamp TIMESTAMP flags 0x2 ---
+    --- event record [2] timestamp TIMESTAMP flags 0x4 (end) ---
     sampledso.event.type (30.0.127)
         value 10
     sampledso.event.param_u64 (30.0.131)
@@ -142,9 +140,9 @@ sampledso.event.records
         value -14
     sampledso.event.param_u32 (30.0.129)
         value 15
-    --- event record [3] timestamp TIMESTAMP flags 0x80000000 ---
+    --- event record [3] timestamp TIMESTAMP flags 0x80000000 (missed) ---
         ==> 7 missed event records
-    --- event record [4] timestamp TIMESTAMP ---
+    --- event record [4] timestamp TIMESTAMP flags 0x1 (point) ---
     sampledso.event.type (30.0.127)
         value 16
     sampledso.event.param_float (30.0.132)
@@ -154,21 +152,21 @@ sampledso.event.records
 
 sampledso.event.records
     value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
-    --- event record [0] timestamp TIMESTAMP ---
+    --- event record [0] timestamp TIMESTAMP flags 0x1a (start,id,parent) ---
     sampledso.event.type (30.0.127)
         value 4
     sampledso.event.param_u64 (30.0.131)
         value 5
     sampledso.event.param_string (30.0.134)
         value "6"
-    --- event record [1] timestamp TIMESTAMP ---
+    --- event record [1] timestamp TIMESTAMP flags 0x1 (point) ---
     sampledso.event.type (30.0.127)
         value 7
     sampledso.event.param_double (30.0.133)
         value 8
     sampledso.event.param_double (30.0.133)
         value -9
-    --- event record [2] timestamp TIMESTAMP flags 0x2 ---
+    --- event record [2] timestamp TIMESTAMP flags 0x4 (end) ---
     sampledso.event.type (30.0.127)
         value 10
     sampledso.event.param_u64 (30.0.131)
@@ -181,9 +179,9 @@ sampledso.event.records
         value -14
     sampledso.event.param_u32 (30.0.129)
         value 15
-    --- event record [3] timestamp TIMESTAMP flags 0x80000000 ---
+    --- event record [3] timestamp TIMESTAMP flags 0x80000000 (missed) ---
         ==> 7 missed event records
-    --- event record [4] timestamp TIMESTAMP ---
+    --- event record [4] timestamp TIMESTAMP flags 0x1 (point) ---
     sampledso.event.type (30.0.127)
         value 16
     sampledso.event.param_float (30.0.132)
@@ -193,21 +191,21 @@ sampledso.event.records
 
 sampledso.event.records
     value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
-    --- event record [0] timestamp TIMESTAMP ---
+    --- event record [0] timestamp TIMESTAMP flags 0x1a (start,id,parent) ---
     sampledso.event.type (30.0.127)
         value 4
     sampledso.event.param_u64 (30.0.131)
         value 5
     sampledso.event.param_string (30.0.134)
         value "6"
-    --- event record [1] timestamp TIMESTAMP ---
+    --- event record [1] timestamp TIMESTAMP flags 0x1 (point) ---
     sampledso.event.type (30.0.127)
         value 7
     sampledso.event.param_double (30.0.133)
         value 8
     sampledso.event.param_double (30.0.133)
         value -9
-    --- event record [2] timestamp TIMESTAMP flags 0x2 ---
+    --- event record [2] timestamp TIMESTAMP flags 0x4 (end) ---
     sampledso.event.type (30.0.127)
         value 10
     sampledso.event.param_u64 (30.0.131)
@@ -220,9 +218,9 @@ sampledso.event.records
         value -14
     sampledso.event.param_u32 (30.0.129)
         value 15
-    --- event record [3] timestamp TIMESTAMP flags 0x80000000 ---
+    --- event record [3] timestamp TIMESTAMP flags 0x80000000 (missed) ---
         ==> 7 missed event records
-    --- event record [4] timestamp TIMESTAMP ---
+    --- event record [4] timestamp TIMESTAMP flags 0x1 (point) ---
     sampledso.event.type (30.0.127)
         value 16
     sampledso.event.param_float (30.0.132)
