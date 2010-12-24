@@ -394,6 +394,11 @@ haverun=0
 for seq in $list
 do
     err=false
+    if $showme
+    then
+	echo $seq
+	continue
+    fi
     if [ $torun -gt 9 ]
     then
 	pct=`expr 100 \* $haverun / $torun`
@@ -401,11 +406,7 @@ do
 	echo -n "[$pct%] "
     fi
     echo -n "$seq"
-    if $showme
-    then
-	echo
-	continue
-    elif [ ! -f $seq ]
+    if [ ! -f $seq ]
     then
 	echo " [not run, missing]"
 	notrun="$notrun $seq"

@@ -87,10 +87,16 @@ if [ $# -eq -0 ]
 then
     if $local
     then
-	set - `echo *.out.bad \
+	list="`echo *.out.bad \
 	       | tr ' ' '\012' \
 	       | sed -e 's/\.out\.bad//' \
-	       | LC_COLLATE=POSIX sort -n`
+	       | LC_COLLATE=POSIX sort -n`"
+	if [ "$list" = '*' ]
+	then
+	    echo "No failing tests!"
+	    exit
+	fi
+	set - `echo $list`
     else
 	x=`ssh QA_USER@$QA_HOST echo $QA_DIR/\[0-9]*.out.bad 2>$tmp.err`
 	if [ -z "$x" ]

@@ -469,6 +469,7 @@ show-me options
 
 	-n)	# show me, don't do it
 	    showme=true
+	    quick=true
 	    xpand=false
 	    ;;
 
