@@ -8,7 +8,6 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
-static char *typeName(int);
 static void checkMetric(const char *);
 
 int
@@ -300,8 +299,9 @@ checkMetric(const char *metric)
 		}
 		else
 		if (val->value.pval->vtype != desc.type) {
-		    printf("metric \"%s\" vtype for instance %d, type (%s) does not match descriptor (%s)\n",
-			metric, val->inst, typeName(val->value.pval->vtype), typeName(desc.type));
+		    printf("metric \"%s\" vtype for instance %d, type (%s)",
+			metric, val->inst, pmTypeStr(val->value.pval->vtype));
+		    printf(" does not match descriptor (%s)\n", pmTypeStr(desc.type));
 
 		}
 	    }
@@ -310,43 +310,4 @@ checkMetric(const char *metric)
 
 
     pmFreeResult(result);
-}
-
-
-static char *
-typeName(int itype)
-{
-    char *type;
-
-    switch (itype) {
-	case PM_TYPE_32:
-	    type = "32-bit int";
-	    break;
-	case PM_TYPE_U32:
-	    type = "32-bit unsigned int";
-	    break;
-	case PM_TYPE_64:
-	    type = "64-bit int";
-	    break;
-	case PM_TYPE_U64:
-	    type = "64-bit unsigned int";
-	    break;
-	case PM_TYPE_FLOAT:
-	    type = "float";
-	    break;
-	case PM_TYPE_DOUBLE:
-	    type = "double";
-	    break;
-	case PM_TYPE_STRING:
-	    type = "string";
-	    break;
-	case PM_TYPE_AGGREGATE:
-	    type = "aggregate";
-	    break;
-	default:
-	    type = "unknown";
-	    break;
-    }
-
-    return type;
 }
