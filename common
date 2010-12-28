@@ -422,6 +422,7 @@ common options
 check options
     -c		check configuration files [off]
     -g group	include tests from these groups (multiple flags allowed)
+    -G          report groups and number of tests per group
     -l		line mode diff [xdiff]
     -n		show me, do not run tests
     -q		quick, no PMDA checks (you are on your own)
@@ -445,6 +446,17 @@ show-me options
 	-d)	# directory for show-me
 	    snarf=d
 	    xpand=false
+	    ;;
+
+	-G)	# -G report groups and number of tests per group
+	    sed -n -e '/^[a-z]/s/[ 	].*//p' <group >$tmp.group
+	    LC_COLLATE=POSIX sort $tmp.group \
+	    | while read group
+	    do
+		num=`egrep "[ 	]$group([ 	]|$)" group | wc -l | sed -e 's/ //g'`
+		printf "%-20.20s %3d\n" $group $num
+	    done
+	    exit 0
 	    ;;
 
 	-g)	# -g group ... pick from group file

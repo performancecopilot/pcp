@@ -78,11 +78,11 @@ libpcp		pcpqa
 #
 fetch		pcpqa
 
-# archives in libpcp, includes interp.c
+# archive support in libpcp, includes interp.c
 #
 archive		pcpqa
 
-# cron.*, pmlog* apps
+# cron.*, pm*log* apps (except pmlogger)
 #
 logutil		pcpqa
 
@@ -973,3 +973,6 @@ event		pcpqa
 1233 pmsnap local sgi
 1234 pmchart local sgi
 1236 #935639 pmchart local sgi
+435 archive local oss
+436 archive local oss
+437 archive local oss

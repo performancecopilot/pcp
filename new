@@ -146,11 +146,9 @@ seq=\`basename \$0\`
 
 #if test something
 #then
-#    :
+#    rm -f $seq.notrun
 #else
-#    echo "No support for something" >\$seq.notrun
-#    echo "\$seq: [not run] \`cat \$seq.notrun\`"
-#    exit 0
+#    _notrun No support for something
 #fi
 
 echo "QA output created by \$seq"

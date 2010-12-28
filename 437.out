@@ -1,0 +1,14 @@
+QA output created by 437
+__pmLogOpen: inspect file "./null.meta"
+__pmLogOpen: inspect file "./null.index"
+__pmLogOpen: inspect file "./null.0.bz2"
+__pmLogOpen: uncompress using: bzcat ./null.0.bz2 >LIBTMP
+__pmLogOpen: uncompress failed, exit status: 1
+pminfo: Cannot open archive "null": Corrupted record in a PCP archive log
+__pmLogOpen: inspect file "./null.meta"
+__pmLogOpen: inspect file "./null.index"
+__pmLogOpen: inspect file "./null.0.bz2"
+__pmLogOpen: uncompress using: bzcat ./null.0.bz2 >LIBTMP
+Killed
+__pmLogOpen: uncompress failed, exit status: 137
+pminfo: Cannot open archive "null": Corrupted record in a PCP archive log
