@@ -324,7 +324,17 @@ metadata (metric descriptions, instance domains, etc.) for the archive log
 initial volume of metrics values (subsequent volumes have suffixes
 .BR 1 ,
 .BR 2 ,
-\&...)
+\&...) \- for
+.I input
+these files may have been previously compressed with
+.BR bzip2 (1)
+or
+.BR gzip (1)
+and thus may have an additional
+.B .bz2
+or
+.B .gz
+suffix.
 .TP
 \f2archive\f3.index
 temporal index to support rapid random access to the other files in the

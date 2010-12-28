@@ -15,12 +15,35 @@
 #include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
+#if defined(HAVE_SYS_WAIT_H)
+#include <sys/wait.h>
+#endif
 
 INTERN int	__pmLogReads = 0;
 
 static char	*logfilename;
 static int	logfilenamelen;
 static int	seeking_end;
+
+/*
+ * Suffixes and associated compresssion application for compressed filenames.
+ * These can appear _after_ the volume number in the name of a file for an
+ * archive metric log file, e.g. /var/log/pmlogger/myhost/20101219.0.bz2
+ */
+#define	USE_NONE	0
+#define	USE_BZIP2	1
+#define USE_GZIP	2
+static struct {
+    const char	*suff;
+    int		appl;
+} compress_ctl[] = {
+    { ".bz2",	USE_BZIP2 },
+    { ".bz",	USE_BZIP2 },
+    { ".gz",	USE_GZIP },
+    { ".Z",	USE_GZIP },
+    { ".z",	USE_GZIP }
+};
+static int	ncompress = sizeof(compress_ctl) / sizeof(compress_ctl[0]);
 
 /*
  * first two fields are made to look like a pmValueSet when no values are
@@ -199,6 +222,88 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 }
 
 static FILE *
+fopen_compress(const char *fname)
+{
+    int		sts;
+    int		fd;
+    int		i;
+    char	*cmd;
+    FILE	*fp;
+    static char	tmpname[MAXPATHLEN];
+    static char	shellcmd[2*MAXPATHLEN];	/* assuming fname is not that long */
+
+    for (i = 0; i < ncompress; i++) {
+	snprintf(tmpname, sizeof(tmpname), "%s%s", fname, compress_ctl[i].suff);
+	if (access(tmpname, R_OK) == 0) {
+	    break;
+	}
+    }
+    if (i == ncompress) {
+	/* end up here if it does not look like a compressed file */
+	return NULL;
+    }
+    if (compress_ctl[i].appl == USE_BZIP2)
+	cmd = "bzcat";
+    else if (compress_ctl[i].appl == USE_GZIP)
+	cmd = "gunzip -c";
+    else {
+	/* botch in compress_ctl[] ... should not happen */
+	cmd = "false";
+	return NULL;
+    }
+    snprintf(tmpname, sizeof(tmpname), "%s/XXXXXX", pmGetConfig("PCP_TMP_DIR"));
+    fd = mkstemp(tmpname);
+    snprintf(shellcmd, sizeof(shellcmd), "%s %s%s >%s", cmd, fname, compress_ctl[i].suff, tmpname);
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_LOG)
+	fprintf(stderr, "__pmLogOpen: uncompress using: %s\n", shellcmd);
+#endif
+    sts = system(shellcmd);
+    if (sts == -1) {
+	/* trust that errno will explain why ... */
+	sts = errno;
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LOG)
+	    fprintf(stderr, "__pmLogOpen: uncompress command failed: %s\n", strerror(sts));
+#endif
+	unlink(tmpname);
+	errno = sts;
+	return NULL;
+    }
+    if (sts != 0) {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LOG) {
+#if defined(HAVE_SYS_WAIT_H)
+	    if (WIFEXITED(sts))
+		fprintf(stderr, "__pmLogOpen: uncompress failed, exit status: %d\n", WEXITSTATUS(sts));
+	    else if (WIFSIGNALED(sts))
+		fprintf(stderr, "__pmLogOpen: uncompress failed, signal: %d\n", WTERMSIG(sts));
+	    else
+#endif
+		fprintf(stderr, "__pmLogOpen: uncompress failed, system() returns: %d\n", sts);
+	}
+#endif
+	unlink(tmpname);
+	/* not a great error code, but the best we can do */
+	errno = -PM_ERR_LOGREC;
+	return NULL;
+    }
+    if ((fp = fdopen(fd, "r")) == NULL) {
+	/* trust that errno will explain why ... */
+	sts = errno;
+	unlink(tmpname);
+	errno = sts;
+	return NULL;
+    }
+    /*
+     * success, unlink to avoid namespace pollution and allow O/S
+     * space cleanup on last close
+     */
+    unlink(tmpname);
+    return fp;
+}
+
+static FILE *
 _logpeek(__pmLogCtl *lcp, int vol)
 {
     int		sts;
@@ -215,8 +320,10 @@ _logpeek(__pmLogCtl *lcp, int vol)
     }
 
     snprintf(logfilename, sts, "%s.%d", lcp->l_name, vol);
-    if ((f = fopen(logfilename, "r")) == NULL)
-	return f;
+    if ((f = fopen(logfilename, "r")) == NULL) {
+	if ((f = fopen_compress(logfilename)) == NULL)
+	    return f;
+    }
 
     if ((sts = __pmLogChkLabel(lcp, f, &label, vol)) < 0) {
 	fclose(f);
@@ -241,8 +348,11 @@ __pmLogChangeVol(__pmLogCtl *lcp, int vol)
 	fclose(lcp->l_mfp);
     }
     snprintf(name, sizeof(name), "%s.%d", lcp->l_name, vol);
-    if ((lcp->l_mfp = fopen(name, "r")) == NULL)
-	return -errno;
+    if ((lcp->l_mfp = fopen(name, "r")) == NULL) {
+	/* try for a compressed file */
+	if ((lcp->l_mfp = fopen_compress(name)) == NULL)
+	    return -errno;
+    }
 
     if ((sts = __pmLogChkLabel(lcp, lcp->l_mfp, &lcp->l_label, vol)) < 0)
 	return sts;
@@ -358,7 +468,8 @@ __pmLogNewFile(const char *base, int vol)
 
     fname = __pmLogName(base, vol);
 
-    if (access(fname, F_OK) != -1) {
+    if (access(fname, R_OK) != -1) {
+	/* exists and readable ... */
 	pmprintf("__pmLogNewFile: \"%s\" already exists, not over-written\n", fname);
 	pmflush();
 	setoserror(EEXIST);
@@ -576,6 +687,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
     int		sts;
     int		blen;
     int		exists = 0;
+    int		i;
     int		sep = __pmPathSeparator();
     char	*q;
     char	*base;
@@ -608,23 +720,50 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 	return sts;
     }
 
-    if (access(name, F_OK) == 0) {
+    if (access(name, R_OK) == 0) {
 	/*
-	 * file exists ... if name contains '.' and suffix is
-	 * "index", "meta" or a string of digits, strip the
-	 * suffix
+	 * file exists and is readable ... if name contains '.' and
+	 * suffix is "index", "meta" or a string of digits or a string
+	 * of digits followed by one of the compression suffixes,
+	 * strip the suffix
 	 */
 	int	strip = 0;
 	if ((q = strrchr(base, '.')) != NULL) {
-	    if (strcmp(q, ".index") == 0) strip = 1;
-	    else if (strcmp(q, ".meta") == 0) strip = 1;
-	    else if (q[1] != '\0') {
+	    if (strcmp(q, ".index") == 0) {
+		strip = 1;
+		goto done;
+	    }
+	    if (strcmp(q, ".meta") == 0) {
+		strip = 1;
+		goto done;
+	    }
+	    for (i = 0; i < ncompress; i++) {
+		if (strcmp(q, compress_ctl[i].suff) == 0) {
+		    char	*q2;
+		    /*
+		     * name ends with one of the supported compressed file
+		     * suffixes, check for a string of digits before that,
+		     * e.g. if base is initially "foo.0.bz2", we want it
+		     * stripped to "foo"
+		     */
+		    *q = '\0';
+		    if ((q2 = strrchr(base, '.')) == NULL) {
+			/* no . to the left of the suffix */
+			*q = '.';
+			goto done;
+		    }
+		    q = q2;
+		    break;
+		}
+	    }
+	    if (q[1] != '\0') {
 		char	*end;
 		long	tmpl;	/* NOTUSED, pander to gcc */
 		tmpl = strtol(q+1, &end, 10);
 		if (*end == '\0') strip = 1;
 	    }
 	}
+done:
 	if (strip) {
 	    *q = '\0';
 	}
@@ -685,6 +824,17 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 		char	*q;
 		int	vol;
 		vol = (int)strtol(tp, &q, 10);
+		if (*q != '0') {
+		    /* may have one of the trailing compressed file suffixes */
+		    int		i;
+		    for (i = 0; i < ncompress; i++) {
+			if (strcmp(q, compress_ctl[i].suff) == 0) {
+			    /* match */
+			    *q = '\0';
+			    break;
+			}
+		    }
+		}
 		if (*q == '\0') {
 		    exists = 1;
 		    if (lcp->l_minvol == -1) {

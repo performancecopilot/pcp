@@ -348,7 +348,7 @@ dumpTI(__pmContext *ctxp)
 		log_size = sbuf.st_size;
 	    else {
 		log_size = -1;
-		printf("             Warning: file missing for log volume %d\n", tip->ti_vol);
+		printf("             Warning: file missing or compressed for log volume %d\n", tip->ti_vol);
 	    }
 	}
 	/*
