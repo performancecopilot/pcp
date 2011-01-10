@@ -369,13 +369,22 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 
     /* Ignore dead client connections */
     one = 1;
+#ifndef IS_MINGW
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&one, (mysocklen_t)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) setsockopt(SO_REUSEADDR): %s\n", port, ipAddr, strerror(errno));
+	goto fail;
     }
+#else
+    if (setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one, (mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) setsockopt(SO_EXCLUSIVEADDRUSE): %s\n", port, ipAddr, strerror(errno));
+	goto fail;
+    }
+#endif
 
     /* and keep alive please - pv 916354 bad networks eat fds */
     if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one, (mysocklen_t)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) setsockopt(SO_KEEPALIVE): %s\n", port, ipAddr, strerror(errno));
+	goto fail;
     }
 
     memset(&myAddr, 0, sizeof(myAddr));
@@ -387,17 +396,19 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) bind: %s\n", port, ipAddr, strerror(errno));
 	if (errno == EADDRINUSE)
 	    __pmNotifyErr(LOG_ERR, "pmcd may already be running\n");
-	__pmCloseSocket(fd);
-	return -1;
+	goto fail;
     }
 
     sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) listen: %s\n", port, ipAddr, strerror(errno));
-	__pmCloseSocket(fd);
-	return -1;
+	goto fail;
     }
     return fd;
+
+fail:
+    __pmCloseSocket(fd);
+    return -1;
 }
 
 extern int DoFetch(ClientInfo *, __pmPDU *);
