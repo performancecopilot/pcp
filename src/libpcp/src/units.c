@@ -18,6 +18,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include <math.h>
 
 #if defined(HAVE_CONST_LONGLONG)
 #define SIGN_64_MASK 0x8000000000000000LL
@@ -30,8 +31,7 @@ const char *
 pmAtomStr(const pmAtomValue *avp, int type)
 {
     int		i;
-    __int32_t	*lp;
-    static char	buf[60];
+    static char	buf[80];
     pmAtomValue	av;
     int		vlen;
 
@@ -70,18 +70,31 @@ pmAtomStr(const pmAtomValue *avp, int type)
 	    break;
 	case PM_TYPE_AGGREGATE:
 	case PM_TYPE_AGGREGATE_STATIC:
-	    lp = (int *)av.vbp->vbuf;
+	    if (av.vbp == NULL) {
+		snprintf(buf, sizeof(buf), "<null>");
+		break;
+	    }
 	    vlen = av.vbp->vlen - PM_VAL_HDR_SIZE;
-	    if (lp == NULL || vlen == 0)
-		snprintf(buf, sizeof(buf), "[type=%s len=%d] <null>", pmTypeStr(av.vbp->vtype), vlen);
-	    else if (vlen <= 4)
-		snprintf(buf, sizeof(buf), "[type=%s len=%d] %08x", pmTypeStr(av.vbp->vtype), vlen, lp[0]);
-	    else if (vlen <= 8)
-		snprintf(buf, sizeof(buf), "[type=%s len=%d] %08x %08x", pmTypeStr(av.vbp->vtype), vlen, lp[0], lp[1]);
-	    else if (vlen <= 12)
-		snprintf(buf, sizeof(buf), "[type=%s len=%d] %08x %08x %08x", pmTypeStr(av.vbp->vtype), vlen, lp[0], lp[1], lp[2]);
-	    else
-		snprintf(buf, sizeof(buf), "[type=%s len=%d] %08x %08x %08x...", pmTypeStr(av.vbp->vtype), vlen, lp[0], lp[1], lp[2]);
+	    if (vlen == 0)
+		snprintf(buf, sizeof(buf), "[type=%s len=%d]", pmTypeStr(av.vbp->vtype), vlen);
+	    else {
+		char	*cp;
+		char	*bp;
+		snprintf(buf, sizeof(buf), "[type=%s len=%d]", pmTypeStr(av.vbp->vtype), vlen);
+		cp = (char *)av.vbp->vbuf;
+		for (i = 0; i < vlen && i < 12; i++) {
+		    bp = &buf[strlen(buf)];
+		    if ((i % 4) == 0)
+			snprintf(bp, sizeof(buf) - (bp-buf), " %02x", *cp & 0xff);
+		    else
+			snprintf(bp, sizeof(buf) - (bp-buf), "%02x", *cp & 0xff);
+		    cp++;
+		}
+		if (vlen > 12) {
+		    bp = &buf[strlen(buf)];
+		    snprintf(bp, sizeof(buf) - (bp-buf), " ...");
+		}
+	    }
 	    break;
 	case PM_TYPE_EVENT:
 	    {
@@ -265,6 +278,12 @@ pmUnitsStr(const pmUnits *pu)
     }
 
     if (buf[0] == '\0') {
+	/*
+	 * dimension is all 0, but scale maybe specified ... small
+	 * anomaly here as we would expect dimCount to be 1 not
+	 * 0 for these cases, but support maintained for historical
+	 * behaviour
+	 */
 	if (pu->scaleCount == 1)
 	    snprintf(buf, sizeof(buf), "x 10");
 	else if (pu->scaleCount != 0)
@@ -531,7 +550,7 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
     int		sts = 0;
     int		len;
     const char	*vp;
-    static char	buf[60];
+    static char	buf[80];
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_VALUE) {
@@ -609,16 +628,22 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		}
 		break;
 
+	    /*
+	     * Notes on conversion to FLOAT ... because of the limited
+	     * precision of the mantissa, more than one integer value
+	     * maps to the same floating point value ... hence the
+	     * >= (float)max-int-value style of tests
+	     */
 	    case PM_TYPE_FLOAT:		/* old style insitu encoding */
 		switch (otype) {
 		    case PM_TYPE_32:
-			if (av.f > 0x7fffffff)
+			if ((float)fabs(av.f) >= (float)0x7fffffff)
 			    sts = PM_ERR_TRUNC;
 			else
 			    oval->l = (__int32_t)av.f;
 			break;
 		    case PM_TYPE_U32:
-			if (av.f > (unsigned)0xffffffff)
+			if (av.f >= (float)((unsigned)0xffffffff))
 			    sts = PM_ERR_TRUNC;
 			else if (av.f < 0)
 			    sts = PM_ERR_SIGN;
@@ -627,10 +652,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 			break;
 		    case PM_TYPE_64:
 #if defined(HAVE_CONST_LONGLONG)
-			if (av.f > (__int64_t)0x7fffffffffffffffLL)
+			if (av.f >= (float)0x7fffffffffffffffLL)
 			    sts = PM_ERR_TRUNC;
 #else
-			if (av.f > (__int64_t)0x7fffffffffffffff)
+			if (av.f >= (float)0x7fffffffffffffff)
 			    sts = PM_ERR_TRUNC;
 #endif
 			else
@@ -638,10 +663,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 			break;
 		    case PM_TYPE_U64:
 #if defined(HAVE_CONST_LONGLONG)
-			if (av.f > (__uint64_t)0xffffffffffffffffLL)
+			if (av.f >= (float)((__uint64_t)0xffffffffffffffffLL))
 			    sts = PM_ERR_TRUNC;
 #else
-			if (av.f > (__uint64_t)0xffffffffffffffff)
+			if (av.f >= (float)((__uint64_t)0xffffffffffffffff))
 			    sts = PM_ERR_TRUNC;
 #endif
 			else if (av.f < 0)
@@ -805,13 +830,13 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		memcpy((void *)&dsrc, (void *)ap, sizeof(dsrc));
 		switch (otype) {
 		    case PM_TYPE_32:
-			if (dsrc > 0x7fffffff)
+			if (fabs(dsrc) >= (double)0x7fffffff)
 			    sts = PM_ERR_TRUNC;
 			else
 			    oval->l = (__int32_t)dsrc;
 			break;
 		    case PM_TYPE_U32:
-			if (dsrc > (unsigned)0xffffffff)
+			if (dsrc >= (double)((unsigned)0xffffffff))
 			    sts = PM_ERR_TRUNC;
 			else if (dsrc < 0)
 			    sts = PM_ERR_SIGN;
@@ -820,10 +845,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 			break;
 		    case PM_TYPE_64:
 #if defined(HAVE_CONST_LONGLONG)
-			if (av.f > (__int64_t)0x7fffffffffffffffLL)
+			if (dsrc >= (double)0x7fffffffffffffffLL)
 			    sts = PM_ERR_TRUNC;
 #else
-			if (av.f > (__int64_t)0x7fffffffffffffff)
+			if (dsrc >= (double)0x7fffffffffffffff)
 			    sts = PM_ERR_TRUNC;
 #endif
 			else
@@ -831,10 +856,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 			break;
 		    case PM_TYPE_U64:
 #if defined(HAVE_CONST_LONGLONG)
-			if (av.f > (__uint64_t)0xffffffffffffffffLL)
+			if (dsrc >= (double)((__uint64_t)0xffffffffffffffffLL))
 			    sts = PM_ERR_TRUNC;
 #else
-			if (av.f > (__uint64_t)0xffffffffffffffff)
+			if (dsrc >= (double)((__uint64_t)0xffffffffffffffff))
 			    sts = PM_ERR_TRUNC;
 #endif
 			else if (dsrc < 0)
@@ -868,13 +893,13 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		memcpy((void *)&fsrc, (void *)ap, sizeof(fsrc));
 		switch (otype) {
 		    case PM_TYPE_32:
-			if (fsrc > 0x7fffffff)
+			if ((float)fabs(fsrc) >= (float)0x7fffffff)
 			    sts = PM_ERR_TRUNC;
 			else
 			    oval->l = (__int32_t)fsrc;
 			break;
 		    case PM_TYPE_U32:
-			if (fsrc > (unsigned)0xffffffff)
+			if (fsrc >= (float)((unsigned)0xffffffff))
 			    sts = PM_ERR_TRUNC;
 			else if (fsrc < 0)
 			    sts = PM_ERR_SIGN;
@@ -883,10 +908,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 			break;
 		    case PM_TYPE_64:
 #if defined(HAVE_CONST_LONGLONG)
-			if (av.f > (__int64_t)0x7fffffffffffffffLL)
+			if (fsrc >= (float)0x7fffffffffffffffLL)
 			    sts = PM_ERR_TRUNC;
 #else
-			if (av.f > (__int64_t)0x7fffffffffffffff)
+			if (fsrc >= (float)0x7fffffffffffffff)
 			    sts = PM_ERR_TRUNC;
 #endif
 			else
@@ -894,10 +919,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 			break;
 		    case PM_TYPE_U64:
 #if defined(HAVE_CONST_LONGLONG)
-			if (av.f > (__uint64_t)0xffffffffffffffffLL)
+			if (fsrc >= (float)((__uint64_t)0xffffffffffffffffLL))
 			    sts = PM_ERR_TRUNC;
 #else
-			if (av.f > (__uint64_t)0xffffffffffffffff)
+			if (fsrc >= (float)((__uint64_t)0xffffffffffffffff))
 			    sts = PM_ERR_TRUNC;
 #endif
 			else if (fsrc < 0)
@@ -958,18 +983,29 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		len = ival->value.pval->vlen;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_VALUE) {
-		    __int32_t	*lp;
-		    lp = (__int32_t *)ival->value.pval->vbuf;
-		    if (lp == NULL || ival->value.pval->vlen == 0)
-			snprintf(buf, sizeof(buf), "[len=%d] <null>", ival->value.pval->vlen);
-		    else if (av.vbp->vlen <= 4)
-			snprintf(buf, sizeof(buf), "[len=%d] %08x", ival->value.pval->vlen, lp[0]);
-		    else if (av.vbp->vlen <= 8)
-			snprintf(buf, sizeof(buf), "[len=%d] %08x %08x", ival->value.pval->vlen, lp[0], lp[1]);
-		    else if (av.vbp->vlen <= 12)
-			snprintf(buf, sizeof(buf), "[len=%d] %08x %08x %08x", ival->value.pval->vlen, lp[0], lp[1], lp[2]);
-		    else
-			snprintf(buf, sizeof(buf), "[len=%d] %08x %08x %08x...", ival->value.pval->vlen, lp[0], lp[1], lp[2]);
+		    int		vlen;
+		    int		i;
+		    vlen = ival->value.pval->vlen - PM_VAL_HDR_SIZE;
+		    if (vlen == 0)
+			snprintf(buf, sizeof(buf), "[len=%d]", vlen);
+		    else {
+			char	*cp;
+			char	*bp;
+			snprintf(buf, sizeof(buf), "[len=%d]", vlen);
+			cp = (char *)ival->value.pval->vbuf;
+			for (i = 0; i < vlen && i < 12; i++) {
+			    bp = &buf[strlen(buf)];
+			    if ((i % 4) == 0)
+				snprintf(bp, sizeof(buf) - (bp-buf), " %02x", *cp & 0xff);
+			    else
+				snprintf(bp, sizeof(buf) - (bp-buf), "%02x", *cp & 0xff);
+			    cp++;
+			}
+			if (vlen > 12) {
+			    bp = &buf[strlen(buf)];
+			    snprintf(bp, sizeof(buf) - (bp-buf), " ...");
+			}
+		    }
 		    vp = buf;
 		}
 #endif
