@@ -268,7 +268,6 @@ sub install_environment
 
     $self->add_env( PCP_DIR	=> '[INSTALLDIR]' );
     $self->add_env( PCP_CONF	=> '[INSTALLDIR]etc\\pcp.conf' );
-    $self->add_env( PCP_CONFIG	=> '[INSTALLDIR]local\\bin\\pmconfig.exe' );
 
     return 1;
 }
