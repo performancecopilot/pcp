@@ -27,7 +27,7 @@ GENERATED_HFILES = pmdbg.h platform_defs.h
 CONFFILES = platform_defs.h builddefs pcp.conf
 
 LSRCFILES = platform_defs.h.in builddefs.in buildrules pcp.conf.in \
-	    pcp.env mk_pmdbg
+	    pcp.env pcp.mingw mk_pmdbg
 
 LDIRT = builddefs.install
 
@@ -41,7 +41,11 @@ install :: default_pcp install_pcp
 
 install_pcp : default_pcp
 	$(INSTALL) -m 644 pcp.conf /etc/pcp.conf
+ifeq "$(TARGET_OS)" "mingw"
+	$(INSTALL) -m 644 pcp.mingw /etc/pcp.env
+else
 	$(INSTALL) -m 644 pcp.env /etc/pcp.env
+endif
 	$(INSTALL) -m 644 $(HFILES) $(GENERATED_HFILES) buildrules $(PCP_INC_DIR)
 	$(INSTALL) -m 644 builddefs.install $(PCP_INC_DIR)/builddefs
 

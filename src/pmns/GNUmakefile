@@ -68,7 +68,7 @@ install:	default
 stdpmid:	$(STDPMID)
 	rm -f build.script
 	$(PCP_AWK_PROG) <Make.stdpmid >build.script '\
-/^. \$$PCP_DIR/	{ print "PCP_CONF=../include/pcp.conf"; print "unset PCP_CONFIG"; print ". ../include/pcp.env"; next }\
+/^. \$$PCP_DIR/	{ print "PCP_CONF=../include/pcp.conf"; print ". ../include/pcp.env"; next }\
 		{ print }'
 	sh ./build.script
 
