@@ -24,7 +24,7 @@ static int		nfetch;
 static int		myarray;
 static int		mydomain;
 
-int
+void
 init_events(int domain)
 {
     mydomain = domain;
