@@ -23,10 +23,15 @@ metrics
 .br
 #include <pcp/impl.h>
 .sp
-.nf
-int __pmControlLog(int fd, const pmResult *request, int control, int state, int delta, pmResult **status)
-.fi
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int __pmControlLog(int \fIfd\fP, const pmResult *\fIrequest\fP, int\ \fIcontrol\fP, int\ \fIstate\fP, int\ \fIdelta\fP, pmResult\ **\fIstatus\fP);
 .sp
+.in
+.hy
+.ad
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION

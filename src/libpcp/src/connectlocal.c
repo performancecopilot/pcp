@@ -170,6 +170,30 @@ __pmLookupDSO(int domain)
     return NULL;
 }
 
+#ifdef HAVE_ATEXIT
+static void
+EndLocalContext(void)
+{
+    int		i;
+    __pmDSO	*dp;
+    int		ctx = pmWhichContext();
+
+    for (i = 0; i < numdso; i++) {
+	dp = &dsotab[i];
+	if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5 &&
+	    dp->dispatch.version.four.ext->e_endCallBack != NULL) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_CONTEXT) {
+		fprintf(stderr, "NotifyEndLocalContext: DSO PMDA %s (%d) notified of context %d close\n", 
+		    dp->name, dp->domain, ctx);
+	    }
+#endif
+	    (*(dp->dispatch.version.four.ext->e_endCallBack))(ctx);
+	}
+    }
+}
+#endif
+
 int
 __pmConnectLocal(void)
 {
@@ -180,6 +204,9 @@ __pmConnectLocal(void)
 #if defined(HAVE_DLOPEN)
     unsigned int	challenge;
     void		(*initp)(pmdaInterface *);
+#ifdef HAVE_ATEXIT
+    static int		atexit_installed = 0;
+#endif
 #endif
 
     if (numdso == -1) {
@@ -326,6 +353,14 @@ __pmConnectLocal(void)
 		dp->domain = -1;
 	    }
 	}
+#ifdef HAVE_ATEXIT
+	if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5 &&
+	    atexit_installed == 0) {
+	    /* install end of local context handler */
+	    atexit(EndLocalContext);
+	    atexit_installed = 1;
+	}
+#endif
 #endif	/* HAVE_DLOPEN */
     }
 

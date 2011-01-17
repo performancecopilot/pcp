@@ -42,14 +42,14 @@ request_fetch (int ctxid, __pmContext *ctxp,  int numpmid, pmID pmidlist[])
 	    __pmDumpProfile(stderr, PM_INDOM_NULL, ctxp->c_instprof);
 	}
 #endif
-	if ((n = __pmSendProfile(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
-				 ctxid, ctxp->c_instprof)) < 0)
+	if ((n = __pmSendProfile(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+			ctxid, ctxp->c_instprof)) < 0)
 	    return (__pmMapErrno(n));
 	else
 	    ctxp->c_sent = 1;
     }
 
-    n = __pmSendFetch(ctxp->c_pmcd->pc_fd, PDU_BINARY, ctxid, 
+    n = __pmSendFetch(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), ctxid, 
 		      &ctxp->c_origin, numpmid, pmidlist);
     if (n < 0) {
 	    n = __pmMapErrno(n);
@@ -79,13 +79,13 @@ receive_fetch (__pmContext *ctxp, pmResult **result)
     int n;
     __pmPDU	*pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY,
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_RESULT) {
-	n = __pmDecodeResult(pb, PDU_BINARY, result);
+	n = __pmDecodeResult(pb, result);
     }
     else if (n == PDU_ERROR) {
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     }
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;

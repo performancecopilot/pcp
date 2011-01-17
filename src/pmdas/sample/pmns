@@ -77,6 +77,8 @@ sample {
     datasize	SAMPLE:0:91
     secret	SAMPLE:*:*
     scramble
+    percontext
+    event
 }
 
 sample.long {
@@ -224,4 +226,32 @@ sample.many {
 sample.scramble {
     version	SAMPLE:0:120
     bin		SAMPLE:0:121
+}
+
+sample.percontext {
+    control
+    pdu		SAMPLE:0:43
+    recv_pdu	SAMPLE:0:44
+    xmit_pdu	SAMPLE:0:45
+}
+
+sample.percontext.control {
+    ctx		SAMPLE:0:122
+    active	SAMPLE:0:123
+    start	SAMPLE:0:124
+    end		SAMPLE:0:125
+}
+
+sample.event {
+    records		SAMPLE:4095:0
+    reset		SAMPLE:0:126
+    type		SAMPLE:0:127
+    param_32		SAMPLE:0:128
+    param_u32		SAMPLE:0:129
+    param_64		SAMPLE:0:130
+    param_u64		SAMPLE:0:131
+    param_float		SAMPLE:0:132
+    param_double	SAMPLE:0:133
+    param_string	SAMPLE:0:134
+    param_aggregate	SAMPLE:0:135
 }

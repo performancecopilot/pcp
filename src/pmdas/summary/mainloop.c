@@ -107,7 +107,7 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 	    /*
 	     * Service the config
 	     */
-	    sts = __pmGetPDU(configfd, PDU_BINARY, TIMEOUT_NEVER, &pb_config);
+	    sts = __pmGetPDU(configfd, ANY_SIZE, TIMEOUT_NEVER, &pb_config);
 	    if (sts < 0) {
 		__pmNotifyErr(LOG_ERR, "config __pmGetPDU: %s\n", pmErrStr(sts));
 	    }
@@ -124,7 +124,7 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 	    /*
 	     * Service the command/client
 	     */
-	    sts = __pmGetPDU(clientfd, PDU_BINARY, TIMEOUT_NEVER, &pb_client);
+	    sts = __pmGetPDU(clientfd, ANY_SIZE, TIMEOUT_NEVER, &pb_client);
 	    if (sts < 0)
 		__pmNotifyErr(LOG_ERR, "client __pmGetPDU: %s\n", pmErrStr(sts));
 	    if (sts <= 0) {
@@ -136,7 +136,7 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 
 	if (pmcdReady) {
 	    /* service pmcd */
-	    sts = __pmGetPDU(infd, PDU_BINARY, TIMEOUT_NEVER, &pb_pmcd);
+	    sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb_pmcd);
 
 	    if (sts < 0)
 		__pmNotifyErr(LOG_ERR, "__pmGetPDU: %s\n", pmErrStr(sts));
@@ -152,11 +152,11 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 		     * can ignore ctxnum, since pmcd has already used this to send
 		     * the correct profile, if required
 		     */
-		    if ((sts = __pmDecodeProfile(pb_pmcd, PDU_BINARY, &ctxnum, &profile)) >= 0)
+		    if ((sts = __pmDecodeProfile(pb_pmcd, &ctxnum, &profile)) >= 0)
 			sts = dtp->version.two.profile(profile,
                                                        dtp->version.two.ext);
 		    if (sts < 0)
-			__pmSendError(outfd, PDU_BINARY, sts);
+			__pmSendError(outfd, FROM_ANON, sts);
 		    else {
 			if (saveprofile != NULL)
 			    free(saveprofile);
@@ -173,7 +173,7 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 		     * can ignore ctxnum, since pmcd has already used this to send
 		     * the correct profile, if required
 		     */
-		    sts = __pmDecodeFetch(pb_pmcd, PDU_BINARY, &ctxnum, &when, &npmids, &pmidlist);
+		    sts = __pmDecodeFetch(pb_pmcd, &ctxnum, &when, &npmids, &pmidlist);
 
 		    /* Ignore "when"; pmcd should intercept archive log requests */
 		    if (sts >= 0) {
@@ -182,10 +182,10 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 			__pmUnpinPDUBuf(pmidlist);
 		    }
 		    if (sts < 0)
-			__pmSendError(outfd, PDU_BINARY, sts);
+			__pmSendError(outfd, FROM_ANON, sts);
 		    else {
 			int st;
-			st =__pmSendResult(outfd, PDU_BINARY, result);
+			st =__pmSendResult(outfd, FROM_ANON, result);
 			if (st < 0) {
 			    __pmNotifyErr(LOG_ERR, 
 					  "Cannot send fetch result: %s\n",
@@ -196,18 +196,18 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 		    break;
 
 		case PDU_DESC_REQ:
-		    if ((sts = __pmDecodeDescReq(pb_pmcd, PDU_BINARY, &pmid)) >= 0) {
+		    if ((sts = __pmDecodeDescReq(pb_pmcd, &pmid)) >= 0) {
 			sts = dtp->version.two.desc(pmid, &desc,
 						    dtp->version.two.ext);
 		    }
 		    if (sts < 0)
-			__pmSendError(outfd, PDU_BINARY, sts);
+			__pmSendError(outfd, FROM_ANON, sts);
 		    else
-			__pmSendDesc(outfd, PDU_BINARY, &desc);
+			__pmSendDesc(outfd, FROM_ANON, &desc);
 		    break;
 
 		case PDU_INSTANCE_REQ:
-		    if ((sts = __pmDecodeInstanceReq(pb_pmcd, PDU_BINARY, &when, &indom, &inst, &name)) >= 0) {
+		    if ((sts = __pmDecodeInstanceReq(pb_pmcd, &when, &indom, &inst, &name)) >= 0) {
 			/*
 			 * Note: when is ignored.
 			 *		If we get this far, we are _only_ dealing
@@ -219,35 +219,39 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 						        dtp->version.two.ext);
 		    }
 		    if (sts < 0)
-			__pmSendError(outfd, PDU_BINARY, sts);
+			__pmSendError(outfd, FROM_ANON, sts);
 		    else {
-			__pmSendInstance(outfd, PDU_BINARY, inres);
+			__pmSendInstance(outfd, FROM_ANON, inres);
 			__pmFreeInResult(inres);
 		    }
 		    break;
 
 		case PDU_TEXT_REQ:
-		    if ((sts = __pmDecodeTextReq(pb_pmcd, PDU_BINARY, &ident, &type)) >= 0) {
+		    if ((sts = __pmDecodeTextReq(pb_pmcd, &ident, &type)) >= 0) {
 			sts = dtp->version.two.text(ident, type, &buffer,
 						    dtp->version.two.ext);
 		    }
 		    if (sts < 0)
-			__pmSendError(outfd, PDU_BINARY, sts);
+			__pmSendError(outfd, FROM_ANON, sts);
 		    else
-			__pmSendText(outfd, PDU_BINARY, ident, buffer);
+			__pmSendText(outfd, FROM_ANON, ident, buffer);
 		    break;
 
 		case PDU_RESULT:
-		    if ((sts = __pmDecodeResult(pb_pmcd, PDU_BINARY, &result)) >= 0)
+		    if ((sts = __pmDecodeResult(pb_pmcd, &result)) >= 0)
 			sts = dtp->version.two.store(result,
 						     dtp->version.two.ext);
-		    __pmSendError(outfd, PDU_BINARY, sts);
+		    __pmSendError(outfd, FROM_ANON, sts);
 		    pmFreeResult(result);
+		    break;
+
+		case PDU_ERROR:
+		    /* end of context from PMCD ... we don't care */
 		    break;
 
 		default:
 		    fprintf(stderr, "%s: bogus pdu type: 0x%0x?\n", pmdaname, sts);
-		    __pmSendError(outfd, PDU_BINARY, PM_ERR_NYI);
+		    __pmSendError(outfd, FROM_ANON, PM_ERR_NYI);
 		    break;
 	    }
 	}

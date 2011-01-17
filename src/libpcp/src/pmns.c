@@ -1655,8 +1655,8 @@ request_names(__pmContext *ctxp, int numpmid, char *namelist[])
     if (ctxp->c_pmcd->pc_curpdu != 0)
 	return PM_ERR_CTXBUSY;
 
-    n = __pmSendNameList(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
-			 numpmid, namelist, NULL);
+    n = __pmSendNameList(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+		numpmid, namelist, NULL);
     if (n < 0)
 	n = __pmMapErrno(n);
 
@@ -1685,7 +1685,7 @@ receive_names(__pmContext *ctxp, int numpmid, pmID pmidlist[])
     int n;
     __pmPDU      *pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY,
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_PMNS_IDS) {
 	/* Note:
@@ -1694,13 +1694,12 @@ receive_names(__pmContext *ctxp, int numpmid, pmID pmidlist[])
 	 * This is why we need op_status.
 	 */
 	int op_status; 
-	n = __pmDecodeIDList(pb, PDU_BINARY, 
-			       numpmid, pmidlist, &op_status);
+	n = __pmDecodeIDList(pb, numpmid, pmidlist, &op_status);
 	if (n >= 0)
 	    n = op_status;
     }
     else if (n == PDU_ERROR) {
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     }
     else if (n != PM_ERR_TIMEOUT) {
 	n = PM_ERR_IPC;
@@ -1731,6 +1730,9 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
     int	sts = 0;
     __pmContext	*ctxp;
     int		lsts;
+    int		ctx;
+    int		i;
+    int		nfail = 0;
 
     if (numpmid < 1) {
 #ifdef PCP_DEBUG
@@ -1741,7 +1743,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	return PM_ERR_TOOSMALL;
     }
 
-    lsts = pmWhichContext();
+    ctx = lsts = pmWhichContext();
     if (lsts >= 0)
 	ctxp = __pmHandleToPtr(lsts);
     else
@@ -1751,9 +1753,13 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
     
     if (pmns_location < 0) {
 	sts = pmns_location;
+	/* only hope is derived metrics ... set up for this */
+	for (i = 0; i < numpmid; i++) {
+	    pmidlist[i] = PM_ID_NULL;
+	    nfail++;
+	}
     }
     else if (pmns_location == PMNS_LOCAL) {
-	int		i;
 	char		*xname;
 	char		*xp;
 	__pmnsNode	*np;
@@ -1769,15 +1775,17 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 		else {
 		    sts = PM_ERR_NONLEAF;
 		    pmidlist[i] = PM_ID_NULL;
+		    nfail++;
 		}
 		continue;
 	    }
 	    pmidlist[i] = PM_ID_NULL;
+	    nfail++;
 	    /*
-	     * did not match name ... return PM_ERR_NAME, unless name
-	     * prefix matches a name that is the root of a dynamic
-	     * subtree of the PMNS, or possibly we're using a local
-	     * context and then we may be able to ship request to PMDA
+	     * did not match name in PMNS ... try for prefix matching
+	     * the name to the root of a dynamic subtree of the PMNS,
+	     * or possibly we're using a local context and then we may
+	     * be able to ship request to PMDA
 	     */
 	    xname = strdup(namelist[i]);
 	    if (xname == NULL) {
@@ -1787,6 +1795,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	    }
 	    while ((xp = rindex(xname, '.')) != NULL) {
 		*xp = '\0';
+		lsts = 0;
 		np = locate(xname, curr_pmns->root);
 		if (np != NULL && np->first == NULL &&
 		    pmid_domain(np->pmid) == DYNAMIC_PMID &&
@@ -1800,38 +1809,28 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 			    if (sts >= 0) sts = PM_ERR_NOAGENT;
 			    break;
 			}
-			if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+			if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+			    dp->dispatch.version.four.ext->e_context = ctx;
+			if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
 			    lsts = dp->dispatch.version.four.pmid(namelist[i], &pmidlist[i], dp->dispatch.version.four.ext);
+			    if (lsts >= 0)
+				nfail--;
 
-			    if (lsts < 0 && sts >= 0) sts = lsts;
-			    break;
-			}
-			else {
-			    /* Not PMDA_INTERFACE_4 */
-			    sts = PM_ERR_NAME;
 			    break;
 			}
 		    }
 		    else {
-			/* No PM_LOCAL_CONTEXT, used PMID from PMNS */
-			  pmidlist[i] = np->pmid;
-			  break;
+			/* No PM_LOCAL_CONTEXT, use PMID from PMNS */
+			pmidlist[i] = np->pmid;
+			nfail--;
+			break;
 		    }
 		}
 	    }
 	    free(xname);
-	    if (xp == NULL || sts < 0) {
-		/*
-		 * try derived metrics for a metric that is
-		 * still unknown ... on failure we'll set sts to 
-		 * PM_ERR_NAME if this is the first error
-		 */
-		lsts = __dmgetpmid(namelist[i], &pmidlist[i]);
-		if (lsts < 0 && sts >= 0) sts = lsts;
-	    }
 	}
 
-    	sts = (sts == 0 ? numpmid : sts);
+    	sts = (sts == 0 ? numpmid - nfail : sts);
 
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PMNS) {
@@ -1855,7 +1854,6 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	assert(ctxp != NULL && ctxp->c_type == PM_CONTEXT_HOST);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PMNS) {
-	    int		i;
 	    fprintf(stderr, "pmLookupName: request_names ->");
 	    for (i = 0; i < numpmid; i++)
 		fprintf(stderr, " [%d] %s", i, namelist[i]);
@@ -1864,11 +1862,12 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 #endif
 	if ((sts = request_names (ctxp, numpmid, namelist)) >= 0) {
 	    sts = receive_names(ctxp, numpmid, pmidlist);
+	    if (sts >= 0)
+		nfail = numpmid - sts;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_PMNS) {
 		fprintf(stderr, "pmLookupName: receive_names <-");
 		if (sts >= 0) {
-		    int	i;
 		    for (i = 0; i < numpmid; i++)
 			fprintf(stderr, " [%d] %s", i, pmIDStr(pmidlist[i]));
 		    fputc('\n', stderr);
@@ -1877,39 +1876,45 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 		fprintf(stderr, " %s\n", pmErrStr(sts));
 	    }
 #endif
-	    /*
-	     * the return status is a little tricky ... prefer the
-	     * status from receive_names(), unless all of the remaining
-	     * unknown PMIDs are resolved by __dmgetpmid() in which case
-	     * success (numpmid) is the right return status
-	     */
-	    if (sts < 0) {
-		/* try derived metrics for any remaining unknown pmids */
-		int		nsts;
-		int		nfail = 0;
-		int		i;
-		for (i = 0; i < numpmid; i++) {
-		    if (pmidlist[i] == PM_ID_NULL) {
-			nsts = __dmgetpmid(namelist[i], &pmidlist[i]);
-			if (nsts < 0) {
-			    nfail++;
-			}
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_DERIVE) {
-			    fprintf(stderr, "__dmgetpmid: metric \"%s\" -> ", namelist[i]);
-			    if (nsts < 0)
-				fprintf(stderr, "%s\n", pmErrStr(nsts));
-			    else
-				fprintf(stderr, "PMID %s\n", pmIDStr(pmidlist[i]));
-			}
-#endif
-		    }
-		}
-		if (nfail == 0)
-		    sts = numpmid;
-	    }
 	}
     }
+
+    if (sts < 0 || nfail > 0) {
+	/*
+	 * Try derived metrics for any remaining unknown pmids.
+	 * The return status is a little tricky ... prefer the status
+	 * from above unless all of the remaining unknown PMIDs are
+	 * resolved by __dmgetpmid() in which case success (numpmid)
+	 * is the right return status
+	 */
+	nfail = 0;
+	for (i = 0; i < numpmid; i++) {
+	    if (pmidlist[i] == PM_ID_NULL) {
+		lsts = __dmgetpmid(namelist[i], &pmidlist[i]);
+		if (lsts < 0) {
+		    nfail++;
+		}
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_DERIVE) {
+		    fprintf(stderr, "__dmgetpmid: metric \"%s\" -> ", namelist[i]);
+		    if (lsts < 0)
+			fprintf(stderr, "%s\n", pmErrStr(lsts));
+		    else
+			fprintf(stderr, "PMID %s\n", pmIDStr(pmidlist[i]));
+		}
+#endif
+	    }
+	}
+	if (nfail == 0)
+	    sts = numpmid;
+    }
+
+    /*
+     * special case for a single metric, PM_ERR_NAME is more helpful than
+     * returning 0 and having one PM_ID_NULL pmid
+     */
+    if (sts == 0 && numpmid == 1)
+	sts = PM_ERR_NAME;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {
@@ -1932,7 +1937,8 @@ request_names_of_children(__pmContext *ctxp, const char *name, int wantstatus)
     if (ctxp->c_pmcd->pc_curpdu != 0)
 	return PM_ERR_CTXBUSY;
 
-    n = __pmSendChildReq(ctxp->c_pmcd->pc_fd, PDU_BINARY, name, wantstatus);
+    n = __pmSendChildReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+		name, wantstatus);
     if (n < 0)
 	n =  __pmMapErrno(n);
     return n;
@@ -1961,18 +1967,17 @@ receive_names_of_children(__pmContext *ctxp, char ***offspring,
     int n;
     __pmPDU      *pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_PMNS_NAMES) {
 	int numnames;
 
-	n = __pmDecodeNameList(pb, PDU_BINARY, &numnames, 
-			       offspring, statuslist);
+	n = __pmDecodeNameList(pb, &numnames, offspring, statuslist);
 	if (n >= 0)
 	    n = numnames;
     }
     else if (n == PDU_ERROR)
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
     return n;
@@ -2104,6 +2109,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
     char	**dm_offspring;
     int		*dm_statuslist;
     int		sts;
+    int		ctx;
     __pmContext	*ctxp;
 
     if (pmns_location < 0 )
@@ -2112,7 +2118,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
     if (name == NULL) 
 	return PM_ERR_NAME;
 
-    sts = pmWhichContext();
+    ctx = sts = pmWhichContext();
     if (sts >= 0)
 	ctxp = __pmHandleToPtr(sts);
     else
@@ -2170,7 +2176,9 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 			    free(xname);
 			    goto check;
 			}
-			if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+			if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+			    dp->dispatch.version.four.ext->e_context = ctx;
+			if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
 			    char	**x_offspring = NULL;
 			    int		*x_statuslist = NULL;
 			    int		x_num;
@@ -2186,7 +2194,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 			    goto check;
 			}
 			else {
-			    /* Not PMDA_INTERFACE_4 */
+			    /* Not PMDA_INTERFACE_4 or later */
 			    num = PM_ERR_NAME;
 			    free(xname);
 			    goto check;
@@ -2215,7 +2223,9 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 			num = PM_ERR_NOAGENT;
 			goto check;
 		    }
-		    if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+		    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+			dp->dispatch.version.four.ext->e_context = ctx;
+		    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
 			char	**x_offspring = NULL;
 			int	*x_statuslist = NULL;
 			int	x_num;
@@ -2230,7 +2240,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 			goto check;
 		    }
 		    else {
-			/* Not PMDA_INTERFACE_4 */
+			/* Not PMDA_INTERFACE_4 or later */
 			num = PM_ERR_NAME;
 			goto check;
 		    }
@@ -2369,7 +2379,7 @@ request_namebypmid(__pmContext *ctxp, pmID pmid)
     if (ctxp->c_pmcd->pc_curpdu != 0)
 	return PM_ERR_CTXBUSY;
 
-    n = __pmSendIDList(ctxp->c_pmcd->pc_fd, PDU_BINARY, 1, &pmid, 0);
+    n = __pmSendIDList(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), 1, &pmid, 0);
     if (n < 0)
 	n = __pmMapErrno(n);
     return n;
@@ -2397,18 +2407,18 @@ receive_namesbyid(__pmContext *ctxp, char ***namelist)
     int         n;
     __pmPDU      *pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
-		   ctxp->c_pmcd->pc_tout_sec, &pb);
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
+                   ctxp->c_pmcd->pc_tout_sec, &pb);
     
     if (n == PDU_PMNS_NAMES) {
 	int numnames;
 
-	n = __pmDecodeNameList(pb, PDU_BINARY, &numnames, namelist, NULL);
+	n = __pmDecodeNameList(pb, &numnames, namelist, NULL);
 	if (n >= 0)
 	    n = numnames;
     }
     else if (n == PDU_ERROR)
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
 
@@ -2510,7 +2520,11 @@ pmNameID(pmID pmid, char **name)
 int
 pmNameAll(pmID pmid, char ***namelist)
 {
-    int pmns_location = GetLocation();
+    int		pmns_location = GetLocation();
+    char	**tmp = NULL;
+    int		n = 0;
+    int		len = 0;
+    char	*sp;
 
     if (pmns_location < 0)
 	return pmns_location;
@@ -2518,11 +2532,7 @@ pmNameAll(pmID pmid, char ***namelist)
     else if (pmns_location == PMNS_LOCAL) {
     	__pmnsNode	*np;
 	int		sts;
-	int		n = 0;
-	int		len = 0;
 	int		i;
-	char	*sp;
-	char	**tmp = NULL;
 
 	if (pmid_domain(pmid) == DYNAMIC_PMID && pmid_item(pmid) == 0) {
 	    /*
@@ -2548,7 +2558,7 @@ pmNameAll(pmID pmid, char ***namelist)
 	}
 
 	if (n == 0)
-	    return PM_ERR_PMID;
+	    goto try_derive;
 
 	len += n * sizeof(tmp[0]);
 	if ((tmp = (char **)realloc(tmp, len)) == NULL)
@@ -2579,8 +2589,28 @@ pmNameAll(pmID pmid, char ***namelist)
 	if ((n = request_namebypmid (ctxp, pmid)) >= 0) {
 	    n = receive_namesbyid (ctxp, namelist);
 	}
+	if (n == 0)
+	    goto try_derive;
 	return n;
     }
+
+try_derive:
+    if ((tmp = (char **)malloc(sizeof(tmp[0]))) == NULL)
+	return -errno;
+    n = __dmgetname(pmid, tmp);
+    if (n < 0) {
+	free(tmp);
+	return n;
+    }
+    len = sizeof(tmp[0]) + strlen(tmp[0])+1;
+    if ((tmp = (char **)realloc(tmp, len)) == NULL)
+	return -errno;
+    sp = (char *)&tmp[1];
+    strcpy(sp, tmp[0]);
+    free(tmp[0]);
+    tmp[0] = sp;
+    *namelist = tmp;
+    return 1;
 }
 
 
@@ -2636,7 +2666,8 @@ request_traverse_pmns(__pmContext *ctxp, const char *name)
 
     if (ctxp->c_pmcd->pc_curpdu != 0)
 	return PM_ERR_CTXBUSY;
-    n = __pmSendTraversePMNSReq(ctxp->c_pmcd->pc_fd, PDU_BINARY, name);
+    n = __pmSendTraversePMNSReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+    		name);
     if (n < 0)
 	n = __pmMapErrno(n);
     return n;
@@ -2677,14 +2708,14 @@ pmReceiveTraversePMNS(int ctxid, void(*func)(const char *name))
     if ((n = __pmGetBusyHostContextByID(ctxid, &ctxp, PDU_PMNS_TRAVERSE)) < 0)
 	return n;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_PMNS_NAMES) {
 	int numnames;
 	int i;
 	char **namelist;
 
-	n = __pmDecodeNameList(pb, PDU_BINARY, &numnames, &namelist, NULL);
+	n = __pmDecodeNameList(pb, &numnames, &namelist, NULL);
 	if (n >= 0) {
 	    for (i = 0; i < numnames; i++) {
 		func(namelist[i]);
@@ -2694,7 +2725,7 @@ pmReceiveTraversePMNS(int ctxid, void(*func)(const char *name))
 	}
     }
     else if (n == PDU_ERROR) {
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     }
     else if (n != PM_ERR_TIMEOUT) {
 	n = PM_ERR_IPC;
@@ -2736,14 +2767,19 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 	    int		xtra;
 	    char	**namelist;
 
-	    sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
+	    sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 				TIMEOUT_DEFAULT, &pb);
 	    if (sts == PDU_PMNS_NAMES) {
-		sts = __pmDecodeNameList(pb, PDU_BINARY, &numnames, 
+		sts = __pmDecodeNameList(pb, &numnames, 
 		                      &namelist, NULL);
 		if (sts > 0) {
 		    for (i=0; i<numnames; i++) {
-			func(namelist[i]);
+			/*
+			 * Do not process anonymous metrics here, we'll
+			 * pick them up with the derived metrics later on
+			 */
+			if (strncmp(namelist[i], "anon.", 5) != 0)
+			    func(namelist[i]);
 		    }
 		    numnames = sts;
 		    free(namelist);
@@ -2752,7 +2788,7 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 		    return sts;
 	    }
 	    else if (sts == PDU_ERROR) {
-		__pmDecodeError(pb, PDU_BINARY, &sts);
+		__pmDecodeError(pb, &sts);
 		if (sts != PM_ERR_NAME)
 		    return sts;
 		numnames = 0;

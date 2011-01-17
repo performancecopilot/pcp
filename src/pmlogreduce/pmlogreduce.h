@@ -54,8 +54,11 @@ typedef struct {
     pmDesc	odesc;		/* output archive descriptor */
     value_t	*first;		/* list of values, one per instance */
     indom_t	*idp;		/* instance domain control, if any */
-    int		rewrite;	/* have to rewrite the value format */
+    int		mode;		/* have to skip or rewrite the value format */
 } metric_t;
+#define MODE_NORMAL	0
+#define MODE_REWRITE	1
+#define MODE_SKIP	2
 
 extern __pmTimeval	current;	/* most recent timestamp overall */
 extern char		*iname;		/* name of input archive */

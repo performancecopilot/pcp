@@ -33,6 +33,7 @@ pmAtomStr(const pmAtomValue *avp, int type)
     __int32_t	*lp;
     static char	buf[60];
     pmAtomValue	av;
+    int		vlen;
 
     /* avoid alignment problems ... avp may be unaligned! */
     memcpy((void *)&av, (void *)avp, sizeof(av));
@@ -68,17 +69,32 @@ pmAtomStr(const pmAtomValue *avp, int type)
 	    }
 	    break;
 	case PM_TYPE_AGGREGATE:
-	    lp = av.vp;
-	    if (lp == NULL)
-		snprintf(buf, sizeof(buf), "<null>");
+	case PM_TYPE_AGGREGATE_STATIC:
+	    lp = (int *)av.vbp->vbuf;
+	    vlen = av.vbp->vlen - PM_VAL_HDR_SIZE;
+	    if (lp == NULL || vlen == 0)
+		snprintf(buf, sizeof(buf), "[type=%s len=%d] <null>", pmTypeStr(av.vbp->vtype), vlen);
+	    else if (vlen <= 4)
+		snprintf(buf, sizeof(buf), "[type=%s len=%d] %08x", pmTypeStr(av.vbp->vtype), vlen, lp[0]);
+	    else if (vlen <= 8)
+		snprintf(buf, sizeof(buf), "[type=%s len=%d] %08x %08x", pmTypeStr(av.vbp->vtype), vlen, lp[0], lp[1]);
+	    else if (vlen <= 12)
+		snprintf(buf, sizeof(buf), "[type=%s len=%d] %08x %08x %08x", pmTypeStr(av.vbp->vtype), vlen, lp[0], lp[1], lp[2]);
 	    else
-		snprintf(buf, sizeof(buf), "%08x %08x %08x...", lp[0], lp[1], lp[2]);
+		snprintf(buf, sizeof(buf), "[type=%s len=%d] %08x %08x %08x...", pmTypeStr(av.vbp->vtype), vlen, lp[0], lp[1], lp[2]);
 	    break;
-	case PM_TYPE_NOSUPPORT:
-	    snprintf(buf, sizeof(buf), "bogus value, metric Not Supported");
+	case PM_TYPE_EVENT:
+	    {
+		/* have to assume alignment is OK in this case */
+		pmEventArray	*eap = (pmEventArray *)avp->vbp;
+		if (eap->ea_nrecords == 1)
+		    snprintf(buf, sizeof(buf), "[1 event record]");
+		else
+		    snprintf(buf, sizeof(buf), "[%d event records]", eap->ea_nrecords);
+	    }
 	    break;
 	default:
-	    snprintf(buf, sizeof(buf), "botched type=%d", type);
+	    snprintf(buf, sizeof(buf), "Error: unexpected type: %s", pmTypeStr(type));
     }
     return buf;
 }
@@ -87,7 +103,7 @@ pmAtomStr(const pmAtomValue *avp, int type)
  * must be in agreement with ordinal values for PM_TYPE_* #defines
  */
 static char *typename[] = {
-    "32", "U32", "64", "U64", "FLOAT", "DOUBLE", "STRING", "AGGREGATE"
+    "32", "U32", "64", "U64", "FLOAT", "DOUBLE", "STRING", "AGGREGATE", "AGGREGATE_STATIC", "EVENT"
 };
 
 /* PM_TYPE_* -> string, max length is 20 bytes */
@@ -99,8 +115,10 @@ pmTypeStr(int type)
 	snprintf(buf, sizeof(buf), "%s", typename[type]);
     else if (type == PM_TYPE_NOSUPPORT)
 	strcpy(buf, "Not Supported");
+    else if (type == PM_TYPE_UNKNOWN)
+	strcpy(buf, "Unknown");
     else
-	snprintf(buf, sizeof(buf), "botched type=%d", type);
+	snprintf(buf, sizeof(buf), "Illegal type=%d", type);
 
     return buf;
 }
@@ -647,6 +665,7 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 	    case PM_TYPE_DOUBLE:
 	    case PM_TYPE_STRING:
 	    case PM_TYPE_AGGREGATE:
+	    case PM_TYPE_EVENT:
 	    default:
 		sts = PM_ERR_CONV;
 	}
@@ -924,7 +943,7 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		    break;
 		}
 		if ((oval->cp = (char *)malloc(len + 1)) == NULL) {
-		    __pmNoMem("pmConvValue.string", len + 1, PM_FATAL_ERR);
+		    __pmNoMem("pmExtractValue.string", len + 1, PM_FATAL_ERR);
 		}
 		memcpy(oval->cp, ival->value.pval->vbuf, len);
 		oval->cp[len] = '\0';
@@ -936,31 +955,37 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		    sts = PM_ERR_CONV;
 		    break;
 		}
-		len = ival->value.pval->vlen - PM_VAL_HDR_SIZE;
+		len = ival->value.pval->vlen;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_VALUE) {
 		    __int32_t	*lp;
 		    lp = (__int32_t *)ival->value.pval->vbuf;
-		    if (lp == NULL)
-			vp = "<null>";
-		    else {
-			snprintf(buf, sizeof(buf), "%08x %08x %08x...", lp[0], lp[1], lp[2]);
-			vp = buf;
-		    }
+		    if (lp == NULL || ival->value.pval->vlen == 0)
+			snprintf(buf, sizeof(buf), "[len=%d] <null>", ival->value.pval->vlen);
+		    else if (av.vbp->vlen <= 4)
+			snprintf(buf, sizeof(buf), "[len=%d] %08x", ival->value.pval->vlen, lp[0]);
+		    else if (av.vbp->vlen <= 8)
+			snprintf(buf, sizeof(buf), "[len=%d] %08x %08x", ival->value.pval->vlen, lp[0], lp[1]);
+		    else if (av.vbp->vlen <= 12)
+			snprintf(buf, sizeof(buf), "[len=%d] %08x %08x %08x", ival->value.pval->vlen, lp[0], lp[1], lp[2]);
+		    else
+			snprintf(buf, sizeof(buf), "[len=%d] %08x %08x %08x...", ival->value.pval->vlen, lp[0], lp[1], lp[2]);
+		    vp = buf;
 		}
 #endif
 		if (otype != PM_TYPE_AGGREGATE) {
 		    sts = PM_ERR_CONV;
 		    break;
 		}
-		if ((oval->vp = (void *)malloc(len)) == NULL) {
-		    __pmNoMem("pmConvValue.aggr", len, PM_FATAL_ERR);
+		if ((oval->vbp = (pmValueBlock *)malloc(len)) == NULL) {
+		    __pmNoMem("pmExtractValue.aggr", len, PM_FATAL_ERR);
 		}
-		memcpy(oval->vp, ival->value.pval->vbuf, len);
+		memcpy(oval->vbp, ival->value.pval, len);
 		break;
 
 	    case PM_TYPE_32:
 	    case PM_TYPE_U32:
+	    case PM_TYPE_EVENT:
 	    default:
 		sts = PM_ERR_CONV;
 	}

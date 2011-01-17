@@ -443,7 +443,7 @@ HandleClientInput(fd_set *fdsPtr)
 	cp = &client[i];
 	this_client_id = i;
 
-	sts = __pmGetPDU(cp->fd, PDU_CLIENT, _pmcd_timeout, &pb);
+	sts = __pmGetPDU(cp->fd, LIMIT_SIZE, _pmcd_timeout, &pb);
 	if (sts > 0 && _pmcd_trace_mask)
 	    pmcd_trace(TR_RECV_PDU, cp->fd, sts, (int)((__psint_t)pb & 0xffffffff));
 	if (sts <= 0) {
@@ -535,7 +535,7 @@ HandleClientInput(fd_set *fdsPtr)
 	    if (cp->status.connected) {
 		if (_pmcd_trace_mask)
 		    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
-		sts = __pmSendError(cp->fd, PDU_BINARY, sts);
+		sts = __pmSendError(cp->fd, FROM_ANON, sts);
 		if (sts < 0)
 		    __pmNotifyErr(LOG_ERR, "HandleClientInput: "
 			"error sending Error PDU to client[%d] %s\n", i, pmErrStr(sts));
@@ -686,11 +686,11 @@ HandleReadyAgents(fd_set *readyFds)
 
 		/* Expect an error PDU containing PM_ERR_PMDAREADY */
 		reason = AT_COMM;	/* most errors are protocol failures */
-		sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+		sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 		if (sts > 0 && _pmcd_trace_mask)
 		    pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		if (sts == PDU_ERROR) {
-		    s = __pmDecodeError(pb, ap->pduProtocol, &sts);
+		    s = __pmDecodeError(pb, &sts);
 		    if (s < 0) {
 			sts = s;
 			pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_ERROR, sts);
@@ -837,7 +837,7 @@ ClientLoop(void)
 		     */
 		    xchallenge = *(__pmPDUInfo *)&challenge;
 		    xchallenge = __htonpmPDUInfo(xchallenge);
-		    s = __pmSendXtendError(cp->fd, PDU_BINARY, sts, *(unsigned int *)&xchallenge);
+		    s = __pmSendXtendError(cp->fd, FROM_ANON, sts, *(unsigned int *)&xchallenge);
 		    if (s < 0) {
 			__pmNotifyErr(LOG_ERR,
 				"ClientLoop: error sending Conn ACK PDU to new client %s\n",

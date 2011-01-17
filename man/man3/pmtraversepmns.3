@@ -23,9 +23,9 @@
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmTraversePMNS(const char *name, void (*dometric)(const char *))
-int pmRequestTraversePMNS(int ctx, const char *name)
-int pmReceiveTraversePMNS(int ctx, void (*dometric)(const char *))
+int pmTraversePMNS(const char *\fIname\fP, void (*\fIdometric\fP)(const char *));
+int pmRequestTraversePMNS(int \fIctx\fP, const char *\fIname\fP);
+int pmReceiveTraversePMNS(int \fIctx\fP, void (*\fIdometric\fP)(const char *));
 .fi
 .sp
 cc ... \-lpcp

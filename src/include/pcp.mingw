@@ -21,15 +21,21 @@
 # This is a security issue so don't change it.
 # Note also, this variant of pcp.env is *only* used on Windows.
 #
-__CONF=${PCP_CONF-/etc/pcp.conf}
-if [ ! -f "$__CONF" ]
+if [ -z "$PCP_ENV_DONE" ]
 then
-    echo "pcp.env: Fatal Error: \"$__CONF\" not found" >&2
-    exit 1
+    __CONF=${PCP_CONF-/etc/pcp.conf}
+    if [ ! -f "$__CONF" ]
+    then
+	echo "pcp.env: Fatal Error: \"$__CONF\" not found" >&2
+	exit 1
+    fi
+    export PCP_DIR=/c/Glider
+    export PCP_CONF=$PCP_DIR/etc/pcp.conf
+    eval `$PCP_DIR/local/bin/pmconfig.exe -s`
+
+    export PATH="/usr/sbin:/sbin:/bin:/usr/bin:/etc:${PCP_BIN_DIR}:${PCP_BINADM_DIR}:${PCP_SHARE_DIR}/bin:${PCP_SHARE_DIR}/lib:${PCP_PLATFORM_PATHS}"
+    export PCP_ENV_DONE=y
 fi
-export PCP_DIR=/c/Glider
-export PCP_CONF=$PCP_DIR/etc/pcp.conf
-eval `$PCP_DIR/local/bin/pmconfig.exe -s`
 
 mkaf() {
     mkaf.sh $@
@@ -40,9 +46,6 @@ pmafm() {
 pmsignal() {
     pmsignal.sh $@
 }
-
-PATH="/usr/sbin:/sbin:/bin:/usr/bin:/etc:${PCP_BIN_DIR}:${PCP_BINADM_DIR}:${PCP_SHARE_DIR}/bin:${PCP_SHARE_DIR}/lib:${PCP_PLATFORM_PATHS}"
-export PATH
 
 _get_pids_by_name()
 {

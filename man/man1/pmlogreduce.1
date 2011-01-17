@@ -50,6 +50,17 @@ archive (independent of the sampling intervals in the
 .I input
 archive), and is further controlled by
 other command line arguments.
+.PP
+For some metrics, temporal data reduction is not going to be helpful,
+so for metrics with types
+.B PM_TYPE_AGGREGATE
+or
+.BR PM_TYPE_EVENT ,
+a warning is issued if these metrics are found in
+.I input
+and they will be skipped and not appear in the
+.I output
+archive.
 .SH COMMAND LINE OPTIONS
 The command line options for
 .B pmlogreduce
@@ -151,7 +162,7 @@ The default is to initially use the timezone of the local host.
 .PP
 The statistical and temporal reduction follows the following rules:
 .TP 4m
-x.
+1.
 Consecutive records from
 .I input
 are read without interpolation, and at most one output record
@@ -159,7 +170,7 @@ is written for each
 .IR interval ,
 summarizing the performance data over that period.
 .TP 4m
-x.
+2.
 If the semantics of a metric indicates it is
 .B instantaneous
 or
@@ -170,7 +181,7 @@ value is computed as the arithmetic mean of the observations (if any)
 over each
 .IR interval .
 .TP 4m
-x.
+3.
 If the semantics of a metric indicates it is a
 .B counter
 then the following transformations are applied:
@@ -203,10 +214,10 @@ is most likely to be deployed.
 .RE
 .PD
 .TP 4m
-x.
+4.
 Any changes in instance domains, and indeed all metadata, is preserved.
 .TP 4m
-x.
+5.
 Any ``mark'' records in the
 .I input
 archive (as created by
@@ -234,7 +245,17 @@ metadata (metric descriptions, instance domains, etc.) for the archive log
 initial volume of metrics values (subsequent volumes have suffixes
 .BR 1 ,
 .BR 2 ,
-\&...)
+\&...) \- for
+.I input
+these files may have been previously compressed with
+.BR bzip2 (1)
+or
+.BR gzip (1)
+and thus may have an additional
+.B .bz2
+or
+.B .gz
+suffix.
 .TP
 \f2archive\f3.index
 temporal index to support rapid random access to the other files in the

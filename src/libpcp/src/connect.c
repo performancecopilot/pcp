@@ -91,7 +91,7 @@ __pmConnectHandshake(int fd)
     int		sts;
 
     /* Expect an error PDU back from PMCD: ACK/NACK for connection */
-    sts = __pmGetPDU(fd, PDU_BINARY, TIMEOUT_DEFAULT, &pb);
+    sts = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
     if (sts == PDU_ERROR) {
 	/*
 	 * See comments in pmcd ... we actually get an extended PDU
@@ -113,7 +113,7 @@ __pmConnectHandshake(int fd)
 	 * days of PCP on IRIX.  Modern day, open source PCP has no
 	 * run-time licensing restrictions using this mechanism.
 	 */
-	ok = __pmDecodeXtendError(pb, PDU_BINARY, &sts, &challenge);
+	ok = __pmDecodeXtendError(pb, &sts, &challenge);
 	if (ok < 0)
 	    return ok;
 
@@ -152,7 +152,7 @@ __pmConnectHandshake(int fd)
 	    handshake[0].c_vala = PDU_VERSION;
 	    handshake[0].c_valb = 0;
 	    handshake[0].c_valc = 0;
-	    sts = __pmSendCreds(fd, PDU_BINARY, 1, handshake);
+	    sts = __pmSendCreds(fd, getpid(), 1, handshake);
 	}
     }
     else

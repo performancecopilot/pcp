@@ -17,7 +17,8 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 -include GNUlocaldefs
 
-CFILES	= callback.c open.c mainloop.c help.c cache.c tree.c
+CFILES	= callback.c open.c mainloop.c help.c cache.c tree.c context.c \
+	  events.c
 HFILES	= libdefs.h
 LLDLIBS	= -lpcp
 
@@ -61,6 +62,8 @@ $(LIBTARGET_V1): $(LIBTARGET_V3)
 
 $(LIBTARGET_V2): $(LIBTARGET_V3)
 	$(LN_S) -f $(LIBTARGET_V3) $(LIBTARGET_V2)
+
+callback.o mainloop.o open.o : libdefs.h
 
 include $(BUILDRULES)
 

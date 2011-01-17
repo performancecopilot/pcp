@@ -36,7 +36,7 @@ delpmns(__pmnsNode *base, char *name)
     char	*tail;
     ptrdiff_t	nch;
     __pmnsNode	*np;
-    __pmnsNode	*lastp;
+    __pmnsNode	*lastp = NULL;
 
     for (tail = name; *tail && *tail != '.'; tail++)
 	;

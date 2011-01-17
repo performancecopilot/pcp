@@ -56,10 +56,70 @@ __ntohpmUnits(pmUnits units)
 #endif
 
 #ifndef __htonpmValueBlock
+static void
+htonEventArray(pmValueBlock * const vb)
+{
+    pmEventArray	*eap = (pmEventArray *)vb;
+    pmEventRecord	*erp;
+    pmEventParameter	*epp;
+    char		*base;
+    int			r;	/* records */
+    int			p;	/* parameters in a record ... */
+    int			nparams;
+    int			vtype;
+    int			vlen;
+    __uint32_t		*tp;	/* points to int holding vtype/vlen */
+
+    /* ea_type and ea_len handled via *ip below */
+    base = (char *)&eap->ea_record[0];
+    /* walk packed event record array */
+    for (r = 0; r < eap->ea_nrecords; r++) {
+	erp = (pmEventRecord *)base;
+	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
+	erp->er_timestamp.tv_sec = htonl(erp->er_timestamp.tv_sec);
+	erp->er_timestamp.tv_usec = htonl(erp->er_timestamp.tv_usec);
+	if (erp->er_flags & PM_EVENT_FLAG_MISSED)
+	    nparams = 0;
+	else
+	    nparams = erp->er_nparams;
+	erp->er_flags = htonl(erp->er_flags);
+	erp->er_nparams = htonl(erp->er_nparams);
+	for (p = 0; p < nparams; p++) {
+	    epp = (pmEventParameter *)base;
+	    epp->ep_pmid = __htonpmID(epp->ep_pmid);
+	    vtype = epp->ep_type;
+	    vlen = epp->ep_len;
+	    tp = (__uint32_t *)&epp->ep_pmid;
+	    tp++;		/* now points to ep_type/ep_len */
+	    *tp = htonl(*tp);
+	    tp++;		/* now points to vbuf */
+	    /* convert the types we're able to ... */
+	    switch (vtype) {
+		case PM_TYPE_32:
+		case PM_TYPE_U32:
+		    *tp = htonl(*tp);
+		    break;
+		case PM_TYPE_64:
+		case PM_TYPE_U64:
+		    __htonll((void *)tp);
+		    break;
+		case PM_TYPE_DOUBLE:
+		    __htond((void *)tp);
+		    break;
+		case PM_TYPE_FLOAT:
+		    __htonf((void *)tp);
+		    break;
+	    }
+	    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(vlen);
+	}
+    }
+    eap->ea_nrecords = htonl(eap->ea_nrecords);
+}
+
 void
 __htonpmValueBlock(pmValueBlock * const vb)
 {
-    unsigned int	*ip = (unsigned int *) vb;
+    unsigned int	*ip = (unsigned int *)vb;
 
     if (vb->vtype == PM_TYPE_U64 || vb->vtype == PM_TYPE_64)
 	__htonll(vb->vbuf);
@@ -67,19 +127,77 @@ __htonpmValueBlock(pmValueBlock * const vb)
 	__htond(vb->vbuf);
     else if (vb->vtype == PM_TYPE_FLOAT)
 	__htonf(vb->vbuf);
+    else if (vb->vtype == PM_TYPE_EVENT)
+	htonEventArray(vb);
 
-    *ip = htonl(*ip);
+    *ip = htonl(*ip);	/* vtype/vlen */
 }
 #endif
 
 #ifndef __ntohpmValueBlock
+static void
+ntohEventArray(pmValueBlock * const vb)
+{
+    pmEventArray	*eap = (pmEventArray *)vb;
+    pmEventRecord	*erp;
+    pmEventParameter	*epp;
+    char		*base;
+    int			r;	/* records */
+    int			p;	/* parameters in a record ... */
+    int			nparams;
+    __uint32_t		*tp;	/* points to int holding vtype/vlen */
+
+    /* ea_type and ea_len handled via *ip above */
+    base = (char *)&eap->ea_record[0];
+    eap->ea_nrecords = ntohl(eap->ea_nrecords);
+    /* walk packed event record array */
+    for (r = 0; r < eap->ea_nrecords; r++) {
+	erp = (pmEventRecord *)base;
+	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
+	erp->er_timestamp.tv_sec = ntohl(erp->er_timestamp.tv_sec);
+	erp->er_timestamp.tv_usec = ntohl(erp->er_timestamp.tv_usec);
+	erp->er_flags = ntohl(erp->er_flags);
+	erp->er_nparams = ntohl(erp->er_nparams);
+	if (erp->er_flags & PM_EVENT_FLAG_MISSED)
+	    nparams = 0;
+	else
+	    nparams = erp->er_nparams;
+	for (p = 0; p < nparams; p++) {
+	    epp = (pmEventParameter *)base;
+	    epp->ep_pmid = __ntohpmID(epp->ep_pmid);
+	    tp = (__uint32_t *)&epp->ep_pmid;
+	    tp++;		/* now points to ep_type/ep_len */
+	    *tp = ntohl(*tp);
+	    tp++;		/* now points to vbuf */
+	    /* convert the types we're able to ... */
+	    switch (epp->ep_type) {
+		case PM_TYPE_32:
+		case PM_TYPE_U32:
+		    *tp = ntohl(*tp);
+		    break;
+		case PM_TYPE_64:
+		case PM_TYPE_U64:
+		    __ntohll((void *)tp);
+		    break;
+		case PM_TYPE_DOUBLE:
+		    __ntohd((void *)tp);
+		    break;
+		case PM_TYPE_FLOAT:
+		    __ntohf((void *)tp);
+		    break;
+	    }
+	    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);
+	}
+    }
+}
+
 void
 __ntohpmValueBlock(pmValueBlock * const vb)
 {
-    unsigned int	* tp = (unsigned int *) vb;
+    unsigned int	*ip = (unsigned int *)vb;
 
     /* Swab the first word, which contain vtype and vlen */
-    *tp = ntohl(*tp);
+    *ip = ntohl(*ip);
 
     switch (vb->vtype) {
     case PM_TYPE_U64:
@@ -94,6 +212,11 @@ __ntohpmValueBlock(pmValueBlock * const vb)
     case PM_TYPE_FLOAT:
 	__ntohf(vb->vbuf);
 	break;
+
+    case PM_TYPE_EVENT:
+	ntohEventArray(vb);
+	break;
+
     }
 }
 #endif

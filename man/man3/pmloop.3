@@ -17,33 +17,48 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-.nf
-int pmLoopRegisterChild(pid_t pid,
-    int (*callback)(pid_t pid, int status, const struct rusage *rusage, void *closure),
-    void *closure);
-int pmLoopRegisterIdle(
-    int (*callback)(void *closure),
-    void *closure);
-int pmLoopRegisterInput(int fd, int flags,
-    int (*callback)(int fd, int flags, void *closure),
-    void *closure, int priority);
-int pmLoopRegisterSignal(int sig,
-    int (*callback)(int sig, void *closure),
-    void *closure);
-int pmLoopRegisterTimeout(int delay_msec,
-    int (*callback)(void *closure),
-    void *closure);
-
-int pmLoopUnregisterChild(int tag);
-int pmLoopUnregisterIdle(int tag);
-int pmLoopUnregisterInput(int tag);
-int pmLoopUnregisterSignal(int tag);
-int pmLoopUnregisterTimeout(int tag);
-
-void pmLoopStop(void);
-void pmLoopMain(void);
-.fi
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmLoopRegisterChild(pid_t \fIpid\fP, int\ (*\fIcallback\fP)(pid_t\ \fIpid\fP, int\ \fIstatus\fP, const\ struct\ rusage\ *\fIrusage\fP, void\ *\fIclosure\fP), void\ *\fIclosure\fP);
+.br
+.ti -8n
+int pmLoopRegisterIdle(int\ (*\fIcallback\fP)(void\ *\fIclosure\fP), void\ *\fIclosure\fP);
+.br
+.ti -8n
+int pmLoopRegisterInput(int \fIfd\fP, int \fIflags\fP, int\ (*\fIcallback\fP)(int\ \fIfd\fP, int\ \fIflags\fP, void\ *\fIclosure\fP), void\ *\fIclosure\fP, int\ \fIpriority\fP);
+.br
+.ti -8n
+int pmLoopRegisterSignal(int \fIsig\fP, int\ (*\fIcallback\fP)(int\ \fIsig\fP, void\ *\fIclosure\fP), void\ *\fIclosure\fP);
+.br
+.ti -8n
+int pmLoopRegisterTimeout(int \fIdelay_msec\fP, int\ (*\fIcallback\fP)(void\ *\fIclosure\fP), void\ *\fIclosure\fP);
 .sp
+.ti -8n
+int pmLoopUnregisterChild(int \fItag\fP);
+.br
+.ti -8n
+int pmLoopUnregisterIdle(int \fItag\fP);
+.br
+.ti -8n
+int pmLoopUnregisterInput(int \fItag\fP);
+.br
+.ti -8n
+int pmLoopUnregisterSignal(int \fItag\fP);
+.br
+.ti -8n
+int pmLoopUnregisterTimeout(int \fItag\fP);
+.sp
+.ti -8n
+void pmLoopStop(void);
+.br
+.ti -8n
+void pmLoopMain(void);
+.sp
+.in
+.hy
+.ad
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION

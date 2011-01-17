@@ -1039,7 +1039,7 @@ do_control(__pmPDU *pb)
     if (sts < 0) {
 	if (control == PM_LOG_MANDATORY || control == PM_LOG_ADVISORY)
 	    fprintf(stderr, "Error: %s\n", pmErrStr(sts));
-	if ((sts = __pmSendError(clientfd, PDU_BINARY, sts)) < 0)
+	if ((sts = __pmSendError(clientfd, FROM_ANON, sts)) < 0)
 	    __pmNotifyErr(LOG_ERR,
 			 "do_control: error sending Error PDU to client: %s\n",
 			 pmErrStr(sts));
@@ -1234,7 +1234,7 @@ do_control(__pmPDU *pb)
     }
 #endif
 
-    if ((sts = __pmSendResult(clientfd, PDU_BINARY, result)) < 0)
+    if ((sts = __pmSendResult(clientfd, FROM_ANON, result)) < 0)
 		__pmNotifyErr(LOG_ERR,
 			     "do_control: error sending Error PDU to client: %s\n",
 			     pmErrStr(sts));
@@ -1338,12 +1338,12 @@ do_request(__pmPDU *pb)
 	    sts = newvolume(VOL_SW_PMLC);
 	    if (sts >= 0)
 		sts = logctl.l_label.ill_vol;
-	    __pmSendError(clientfd, PDU_BINARY, sts);
+	    __pmSendError(clientfd, FROM_ANON, sts);
 	    break;
 
 	case LOG_REQUEST_SYNC:
 	    sts = do_flush();
-	    __pmSendError(clientfd, PDU_BINARY, sts);
+	    __pmSendError(clientfd, FROM_ANON, sts);
 	    break;
 
 	/*
@@ -1361,12 +1361,12 @@ do_request(__pmPDU *pb)
 
 	case QA_OFF:
 	    qa_case = 0;
-	    __pmSendError(clientfd, PDU_BINARY, 0);
+	    __pmSendError(clientfd, FROM_ANON, 0);
 	    break;
 
 	case QA_SLEEPY:
 	    qa_case = type;
-	    __pmSendError(clientfd, PDU_BINARY, 0);
+	    __pmSendError(clientfd, FROM_ANON, 0);
 	    break;
 
 	default:
@@ -1387,7 +1387,7 @@ do_creds(__pmPDU *pb)
     int		sender;
     __pmCred	*credlist = NULL;
 
-    if ((sts = __pmDecodeCreds(pb, PDU_BINARY, &sender, &credcount, &credlist)) < 0) {
+    if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0) {
 	__pmNotifyErr(LOG_ERR, "do_creds: error decoding PDU: %s\n", pmErrStr(sts));
 		return PM_ERR_IPC;
     }
@@ -1424,7 +1424,7 @@ client_req(void)
     __pmPDU	*pb;
     __pmPDUHdr	*php;
 
-    if ((sts = __pmGetPDU(clientfd, PDU_BINARY, TIMEOUT_DEFAULT, &pb)) <= 0) {
+    if ((sts = __pmGetPDU(clientfd, ANY_SIZE, TIMEOUT_DEFAULT, &pb)) <= 0) {
 	if (sts != 0)
 	    fprintf(stderr, "client_req: %s\n", pmErrStr(sts));
 	__pmResetIPC(clientfd);
@@ -1459,7 +1459,7 @@ client_req(void)
 	return 0;
     else {
 	/* the client isn't playing by the rules; disconnect it */
-	__pmSendError(clientfd, PDU_BINARY, sts);
+	__pmSendError(clientfd, FROM_ANON, sts);
 	__pmCloseSocket(clientfd);
 	clientfd = -1;
 	return 1;

@@ -33,22 +33,20 @@ typedef struct {
 } instance_req_t;
 
 int
-__pmSendInstanceReq(int fd, int mode, const __pmTimeval *when, pmInDom indom, 
+__pmSendInstanceReq(int fd, int from, const __pmTimeval *when, pmInDom indom, 
 		    int inst, const char *name)
 {
     instance_req_t	*pp;
     int			need;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
-
     need = sizeof(instance_req_t) - sizeof(int);
     if (name != NULL)
-	need += sizeof(__pmPDU)*((strlen(name) - 1 + sizeof(__pmPDU))/sizeof(__pmPDU));
+	need += PM_PDU_SIZE_BYTES(strlen(name));
     if ((pp = (instance_req_t *)__pmFindPDUBuf(sizeof(need))) == NULL)
 	return -errno;
     pp->hdr.len = need;
     pp->hdr.type = PDU_INSTANCE_REQ;
+    pp->hdr.from = from;
     pp->when.tv_sec = htonl((__int32_t)when->tv_sec);
     pp->when.tv_usec = htonl((__int32_t)when->tv_usec);
     pp->indom = __htonpmInDom(indom);
@@ -75,12 +73,10 @@ __pmSendInstanceReq(int fd, int mode, const __pmTimeval *when, pmInDom indom,
 }
 
 int
-__pmDecodeInstanceReq(__pmPDU *pdubuf, int mode, __pmTimeval *when, pmInDom *indom, int *inst, char **name)
+__pmDecodeInstanceReq(__pmPDU *pdubuf, __pmTimeval *when, pmInDom *indom, int *inst, char **name)
 {
     instance_req_t	*pp;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     pp = (instance_req_t *)pdubuf;
     when->tv_sec = ntohl(pp->when.tv_sec);
     when->tv_usec = ntohl(pp->when.tv_usec);
@@ -116,16 +112,13 @@ typedef struct {
 } instance_t;
 
 int
-__pmSendInstance(int fd, int mode, __pmInResult *result)
+__pmSendInstance(int fd, int from, __pmInResult *result)
 {
     instance_t	*rp;
     instlist_t		*ip;
     int			need;
     int			i;
     int			j;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_INDOM)
@@ -137,13 +130,14 @@ __pmSendInstance(int fd, int mode, __pmInResult *result)
     for (i = 0; i < result->numinst; i++) {
 	need += sizeof(*ip) - sizeof(ip->name);
 	if (result->namelist != NULL)
-	    need += sizeof(__pmPDU)*((strlen(result->namelist[i]) - 1 + sizeof(__pmPDU))/sizeof(__pmPDU));
+	    need += PM_PDU_SIZE_BYTES(strlen(result->namelist[i]));
     }
 
     if ((rp = (instance_t *)__pmFindPDUBuf(need)) == NULL)
 	return -errno;
     rp->hdr.len = need;
     rp->hdr.type = PDU_INSTANCE;
+    rp->hdr.from = from;
     rp->indom = __htonpmInDom(result->indom);
     rp->numinst = htonl(result->numinst);
 
@@ -166,8 +160,7 @@ __pmSendInstance(int fd, int mode, __pmInResult *result)
 		    *padp++ = '~';	/* buffer end */
 	    }
 #endif
-	    j += sizeof(*ip) - sizeof(ip->name) +
-		sizeof(__pmPDU)*((ip->namelen - 1 + sizeof(__pmPDU))/sizeof(__pmPDU));
+	    j += sizeof(*ip) - sizeof(ip->name) + PM_PDU_SIZE_BYTES(ip->namelen);
 	    ip->namelen = htonl(ip->namelen);
 	}
 	else {
@@ -180,7 +173,7 @@ __pmSendInstance(int fd, int mode, __pmInResult *result)
 }
 
 int
-__pmDecodeInstance(__pmPDU *pdubuf, int mode, __pmInResult **result)
+__pmDecodeInstance(__pmPDU *pdubuf, __pmInResult **result)
 {
     int			i;
     int			j;
@@ -192,8 +185,6 @@ __pmDecodeInstance(__pmPDU *pdubuf, int mode, __pmInResult **result)
     int			keep_instlist;
     int			keep_namelist;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     if ((res = (__pmInResult *)malloc(sizeof(*res))) == NULL)
 	return -errno;
     res->instlist = NULL;
@@ -234,8 +225,7 @@ __pmDecodeInstance(__pmPDU *pdubuf, int mode, __pmInResult **result)
 	memcpy((void *)p, (void *)ip->name, ip->namelen);
 	p[ip->namelen] = '\0';
 	res->namelist[i] = p;
-	j += sizeof(*ip) - sizeof(ip->name) +
-		    sizeof(__pmPDU)*((ip->namelen - 1 + sizeof(__pmPDU))/sizeof(__pmPDU));
+	j += sizeof(*ip) - sizeof(ip->name) + PM_PDU_SIZE_BYTES(ip->namelen);
     }
     if (keep_instlist == 0) {
 	free(res->instlist);

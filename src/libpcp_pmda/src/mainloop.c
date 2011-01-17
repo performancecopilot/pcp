@@ -88,13 +88,20 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	first_time = 0;
     }
 
-    sts = __pmGetPDU(pmda->e_infd, PDU_BINARY, TIMEOUT_NEVER, &pb);
+    sts = __pmGetPDU(pmda->e_infd, ANY_SIZE, TIMEOUT_NEVER, &pb);
     if (sts == 0)
 	/* End of File */
 	return PM_ERR_EOF;
     if (sts < 0) {
 	__pmNotifyErr(LOG_ERR, "IPC Error: %s\n", pmErrStr(sts));
 	return sts;
+    }
+
+    if (HAVE_V_FIVE(dispatch->comm.pmda_interface)) {
+	/* set up sender context */
+	__pmPDUHdr	*php = (__pmPDUHdr *)pb;
+	/* ntohl() converted already in __pmGetPDU() */
+	dispatch->version.four.ext->e_context = php->from;
     }
 
     /*
@@ -106,12 +113,40 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	if (i < 0) {
 	    if (sts != PDU_PROFILE)
 		/* all other PDUs expect an ACK */
-		__pmSendError(pmda->e_outfd, PDU_BINARY, i);
+		__pmSendError(pmda->e_outfd, FROM_ANON, i);
 	    return 0;
 	}
     }
 
     switch (sts) {
+	int	endsts;
+
+    case PDU_ERROR:
+	/*
+	 * If __pmDecodeError() fails, just ignore it as no response PDU
+	 * is required nor expected.
+	 * Expect PM_ERR_NOTCONN to mark client context being closed.
+	 */
+	if (__pmDecodeError(pb, &endsts) >= 0) {
+	    if (endsts == PM_ERR_NOTCONN) {
+		if (HAVE_V_FIVE(dispatch->comm.pmda_interface)) {
+#ifdef PCP_DEBUG
+		    if (pmDebug & DBG_TRACE_CONTEXT) {
+			__pmNotifyErr(LOG_DEBUG, "Received PDU_ERROR (end context %d)\n", dispatch->version.four.ext->e_context);
+		    }
+#endif
+		    if (pmda->e_endCallBack != NULL) {
+			(*(pmda->e_endCallBack))(dispatch->version.four.ext->e_context);
+		    }
+		}
+	    }
+	    else {
+		__pmNotifyErr(LOG_ERR,
+		      "%s: unexpected error pdu from pmcd: %s?\n",
+		      pmda->e_name, pmErrStr(endsts));
+	    }
+	}
+	break;
 
     case PDU_PROFILE:
 	/*
@@ -129,7 +164,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	 * free last profile received (if any)
 	 * Note error responses are not sent for PDU_PROFILE
 	 */
-	if (__pmDecodeProfile(pb, PDU_BINARY, &ctxnum, &new_profile) < 0) 
+	if (__pmDecodeProfile(pb, &ctxnum, &new_profile) < 0) 
 	   break;
 
 	if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
@@ -156,7 +191,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	sts = __pmDecodeFetch(pb, PDU_BINARY, &ctxnum, &when, &npmids, &pmidlist);
+	sts = __pmDecodeFetch(pb, &ctxnum, &when, &npmids, &pmidlist);
 
 	/* Ignore "when"; pmcd should intercept archive log requests */
 	if (sts >= 0) {
@@ -168,12 +203,12 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    __pmUnpinPDUBuf(pmidlist);
 	}
 	if (sts < 0)
-	    __pmSendError(pmda->e_outfd, PDU_BINARY, sts);
+	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	else {
 	    /* this is for PURIFY to prevent a UMR in __pmXmitPDU */
 	    result->timestamp.tv_sec = 0;
 	    result->timestamp.tv_usec = 0;
-	    __pmSendResult(pmda->e_outfd, PDU_BINARY, result);
+	    __pmSendResult(pmda->e_outfd, FROM_ANON, result);
 	    (pmda->e_resultCallBack)(result);
 	}
 	break;
@@ -186,7 +221,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	if ((sts = __pmDecodeNameList(pb, PDU_BINARY, &npmids, &namelist, NULL)) >= 0) {
+	if ((sts = __pmDecodeNameList(pb, &npmids, &namelist, NULL)) >= 0) {
 	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface)) {
 		if (npmids != 1)
 		    /*
@@ -204,9 +239,9 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    __pmUnpinPDUBuf(namelist);
 	}
 	if (sts < 0)
-	    __pmSendError(pmda->e_outfd, PDU_BINARY, sts);
+	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	else
-	    __pmSendIDList(pmda->e_outfd, PDU_BINARY, 1, &pmid, sts);
+	    __pmSendIDList(pmda->e_outfd, FROM_ANON, 1, &pmid, sts);
 	break;
 
     case PDU_PMNS_CHILD:
@@ -217,7 +252,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	if ((sts = __pmDecodeChildReq(pb, PDU_BINARY, &name, &subtype)) >= 0) {
+	if ((sts = __pmDecodeChildReq(pb, &name, &subtype)) >= 0) {
 	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface)) {
 		sts = dispatch->version.four.children(name, 0, &offspring, &statuslist, pmda);
 		if (sts >= 0) {
@@ -233,9 +268,9 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    }
 	}
 	if (sts < 0)
-	    __pmSendError(pmda->e_outfd, PDU_BINARY, sts);
+	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	else
-	    __pmSendNameList(pmda->e_outfd, PDU_BINARY, sts, offspring, statuslist);
+	    __pmSendNameList(pmda->e_outfd, FROM_ANON, sts, offspring, statuslist);
 	if (offspring) free(offspring);
 	if (statuslist) free(statuslist);
 	break;
@@ -248,7 +283,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	if ((sts = __pmDecodeTraversePMNSReq(pb, PDU_BINARY, &name)) >= 0) {
+	if ((sts = __pmDecodeTraversePMNSReq(pb, &name)) >= 0) {
 	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface)) {
 		sts = dispatch->version.four.children(name, 1, &offspring, &statuslist, pmda);
 		if (sts >= 0) {
@@ -262,9 +297,9 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    }
 	}
 	if (sts < 0)
-	    __pmSendError(pmda->e_outfd, PDU_BINARY, sts);
+	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	else
-	    __pmSendNameList(pmda->e_outfd, PDU_BINARY, sts, offspring, NULL);
+	    __pmSendNameList(pmda->e_outfd, FROM_ANON, sts, offspring, NULL);
 	if (offspring) free(offspring);
 	break;
 
@@ -276,7 +311,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	sts = __pmDecodeIDList(pb, PDU_BINARY, 1, &pmid, &op_sts);
+	sts = __pmDecodeIDList(pb, 1, &pmid, &op_sts);
 	if (sts >= 0)
 	    sts = op_sts;
 	if (sts >= 0) {
@@ -289,9 +324,9 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    }
 	}
 	if (sts < 0)
-	    __pmSendError(pmda->e_outfd, PDU_BINARY, sts);
+	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	else
-	    __pmSendNameList(pmda->e_outfd, PDU_BINARY, sts, namelist, NULL);
+	    __pmSendNameList(pmda->e_outfd, FROM_ANON, sts, namelist, NULL);
 	if (namelist) free(namelist);
 	break;
 
@@ -303,16 +338,16 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	if ((sts = __pmDecodeDescReq(pb, PDU_BINARY, &pmid)) >= 0) {
+	if ((sts = __pmDecodeDescReq(pb, &pmid)) >= 0) {
 	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
 		sts = dispatch->version.four.desc(pmid, &desc, pmda);
 	    else
 		sts = dispatch->version.two.desc(pmid, &desc, pmda);
 	}
 	if (sts < 0)
-	    __pmSendError(pmda->e_outfd, PDU_BINARY, sts);
+	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	else
-	    __pmSendDesc(pmda->e_outfd, PDU_BINARY, &desc);
+	    __pmSendDesc(pmda->e_outfd, FROM_ANON, &desc);
 	break;
 
     case PDU_INSTANCE_REQ:
@@ -323,7 +358,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	if ((sts = __pmDecodeInstanceReq(pb, PDU_BINARY, &when, &indom, &inst, 
+	if ((sts = __pmDecodeInstanceReq(pb, &when, &indom, &inst, 
 					 &iname)) >= 0) {
 	    /*
 	     * Note: when is ignored.
@@ -338,9 +373,9 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 		sts = dispatch->version.two.instance(indom, inst, iname, &inres, pmda);
 	}
 	if (sts < 0)
-	    __pmSendError(pmda->e_outfd, PDU_BINARY, sts);
+	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	else {
-	    __pmSendInstance(pmda->e_outfd, PDU_BINARY, inres);
+	    __pmSendInstance(pmda->e_outfd, FROM_ANON, inres);
 	    __pmFreeInResult(inres);
 	}
 	if (iname)
@@ -355,16 +390,16 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	if ((sts = __pmDecodeTextReq(pb, PDU_BINARY, &ident, &type)) >= 0) {
+	if ((sts = __pmDecodeTextReq(pb, &ident, &type)) >= 0) {
 	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
 		sts = dispatch->version.four.text(ident, type, &buffer, pmda);
 	    else
 		sts = dispatch->version.two.text(ident, type, &buffer, pmda);
 	}
 	if (sts < 0)
-	    __pmSendError(pmda->e_outfd, PDU_BINARY, sts);
+	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	else {
-	    __pmSendText(pmda->e_outfd, PDU_BINARY, ident, buffer);
+	    __pmSendText(pmda->e_outfd, FROM_ANON, ident, buffer);
 	    /* only PMDA_INTERFACE_1 malloc's the buffer */
 	    if (HAVE_V_ONE(dispatch->comm.pmda_interface))
 		free(buffer);
@@ -379,13 +414,13 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	if ((sts = __pmDecodeResult(pb, PDU_BINARY, &result)) >= 0) {
+	if ((sts = __pmDecodeResult(pb, &result)) >= 0) {
 	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
 		sts = dispatch->version.four.store(result, pmda);
 	    else
 		sts = dispatch->version.two.store(result, pmda);
 	}
-	__pmSendError(pmda->e_outfd, PDU_BINARY, sts);
+	__pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	pmFreeResult(result);
 	break;
 
@@ -407,7 +442,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	 * this function moved to libpcp_dev.a - this isn't being used
 	 * by any PMDA, so its out of 2.0 libpcp.
 	 */
-	if ((sts = __pmDecodeControlReq(pb, PDU_BINARY, &result, &control, &state, &delta)) >= 0) {
+	if ((sts = __pmDecodeControlReq(pb, &result, &control, &state, &delta)) >= 0) {
 	    __pmNotifyErr(LOG_ERR, "PDU_CONTROL_REQ not supported");
 	}
 #endif
@@ -449,6 +484,18 @@ pmdaSetResultCallBack(pmdaInterface *dispatch, pmdaResultCallBack callback)
 	dispatch->version.two.ext->e_resultCallBack = callback;
     else {
 	__pmNotifyErr(LOG_CRIT, "Unable to set result callback for PMDA interface version %d.",
+		     dispatch->comm.pmda_interface);
+	dispatch->status = PM_ERR_GENERIC;
+    }
+}
+
+void
+pmdaSetEndContextCallBack(pmdaInterface *dispatch, pmdaEndContextCallBack callback)
+{
+    if (HAVE_V_FIVE(dispatch->comm.pmda_interface) || callback == NULL)
+	dispatch->version.four.ext->e_endCallBack = callback;
+    else {
+	__pmNotifyErr(LOG_CRIT, "Unable to set end context callback for PMDA interface version %d.",
 		     dispatch->comm.pmda_interface);
 	dispatch->status = PM_ERR_GENERIC;
     }

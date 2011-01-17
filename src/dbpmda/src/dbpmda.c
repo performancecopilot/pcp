@@ -31,7 +31,7 @@ char		*pmnsfile = PM_NS_DEFAULT;
 char		*cmd_namespace = NULL; /* namespace given from command */
 int             _creds_timeout = 3;     /* Timeout for agents credential PDU */
 
-int		connmode = PDU_NOT;
+int		connmode = NO_CONN;
 int		stmt_type;
 int		eflag;
 int		iflag;
@@ -178,32 +178,32 @@ main(int argc, char **argv)
 
 	    case CLOSE:
 		switch (connmode) {
-		    case PDU_DSO:
+		    case CONN_DSO:
 			closedso();
 			break;
 		    
-		    case PDU_BINARY:
+		    case CONN_DAEMON:
 			closepmda();
 			break;
 		    
-		    case PDU_NOT:
+		    case NO_CONN:
 			yywarn("No PMDA currently opened");
 			break;
 		}
-		connmode = PDU_NOT;
+		connmode = NO_CONN;
 		break;
 
 	    case DESC:
 		switch (connmode) {
-		    case PDU_DSO:
+		    case CONN_DSO:
 			dodso(PDU_DESC_REQ);
 			break;
 		    
-		    case PDU_BINARY:
+		    case CONN_DAEMON:
 			dopmda(PDU_DESC_REQ);
 			break;
 		    
-		    case PDU_NOT:
+		    case NO_CONN:
 			yywarn("No PMDA currently opened");
 			break;
 		}
@@ -211,15 +211,15 @@ main(int argc, char **argv)
 
 	    case FETCH:
 		switch (connmode) {
-		    case PDU_DSO:
+		    case CONN_DSO:
 			dodso(PDU_FETCH);
 			break;
 		    
-		    case PDU_BINARY:
+		    case CONN_DAEMON:
 			dopmda(PDU_FETCH);
 			break;
 		    
-		    case PDU_NOT:
+		    case NO_CONN:
 			yywarn("No PMDA currently opened");
 			break;
 		}
@@ -227,15 +227,15 @@ main(int argc, char **argv)
 
 	    case INSTANCE:
 		switch (connmode) {
-		    case PDU_DSO:
+		    case CONN_DSO:
 			dodso(PDU_INSTANCE_REQ);
 			break;
 		    
-		    case PDU_BINARY:
+		    case CONN_DAEMON:
 			dopmda(PDU_INSTANCE_REQ);
 			break;
 		    
-		    case PDU_NOT:
+		    case NO_CONN:
 			yywarn("No PMDA currently opened");
 			break;
 		}
@@ -243,15 +243,15 @@ main(int argc, char **argv)
 
 	    case STORE:
 		switch (connmode) {
-		    case PDU_DSO:
+		    case CONN_DSO:
 			dodso(PDU_RESULT);
 			break;
 		    
-		    case PDU_BINARY:
+		    case CONN_DAEMON:
 			dopmda(PDU_RESULT);
 			break;
 		    
-		    case PDU_NOT:
+		    case NO_CONN:
 			yywarn("No PMDA currently opened");
 			break;
 		}
@@ -269,7 +269,7 @@ main(int argc, char **argv)
 		break;
 
 	    case QUIT:
-		exit(0);
+		goto done;
 
 	    case STATUS:
 		dostatus();
@@ -277,15 +277,15 @@ main(int argc, char **argv)
 
 	    case INFO:
 		switch (connmode) {
-		case PDU_DSO:
+		case CONN_DSO:
 		    dodso(PDU_TEXT_REQ);
 		    break;
 
-		case PDU_BINARY:
+		case CONN_DAEMON:
 		    dopmda(PDU_TEXT_REQ);
 		    break;
 
-		case PDU_NOT:
+		case NO_CONN:
 		    yywarn("No PMDA currently opened");
 		    break;
 		}
@@ -334,15 +334,15 @@ main(int argc, char **argv)
 
 	    case PMNS_NAME:
 		switch (connmode) {
-		    case PDU_DSO:
+		    case CONN_DSO:
 			dodso(PDU_PMNS_IDS);
 			break;
 		    
-		    case PDU_BINARY:
+		    case CONN_DAEMON:
 			dopmda(PDU_PMNS_IDS);
 			break;
 		    
-		    case PDU_NOT:
+		    case NO_CONN:
 			yywarn("No PMDA currently opened");
 			break;
 		}
@@ -350,15 +350,15 @@ main(int argc, char **argv)
 
 	    case PMNS_PMID:
 		switch (connmode) {
-		    case PDU_DSO:
+		    case CONN_DSO:
 			dodso(PDU_PMNS_NAMES);
 			break;
 		    
-		    case PDU_BINARY:
+		    case CONN_DAEMON:
 			dopmda(PDU_PMNS_NAMES);
 			break;
 		    
-		    case PDU_NOT:
+		    case NO_CONN:
 			yywarn("No PMDA currently opened");
 			break;
 		}
@@ -366,15 +366,15 @@ main(int argc, char **argv)
 
 	    case PMNS_CHILDREN:
 		switch (connmode) {
-		    case PDU_DSO:
+		    case CONN_DSO:
 			dodso(PDU_PMNS_CHILD);
 			break;
 		    
-		    case PDU_BINARY:
+		    case CONN_DAEMON:
 			dopmda(PDU_PMNS_CHILD);
 			break;
 		    
-		    case PDU_NOT:
+		    case NO_CONN:
 			yywarn("No PMDA currently opened");
 			break;
 		}
@@ -382,15 +382,15 @@ main(int argc, char **argv)
 
 	    case PMNS_TRAVERSE:
 		switch (connmode) {
-		    case PDU_DSO:
+		    case CONN_DSO:
 			dodso(PDU_PMNS_TRAVERSE);
 			break;
 		    
-		    case PDU_BINARY:
+		    case CONN_DAEMON:
 			dopmda(PDU_PMNS_TRAVERSE);
 			break;
 		    
-		    case PDU_NOT:
+		    case NO_CONN:
 			yywarn("No PMDA currently opened");
 			break;
 		}
@@ -402,6 +402,13 @@ main(int argc, char **argv)
 	}
 	__pmSetInternalState(PM_STATE_APPL);
     }
+
+done:
+    /* cleanup on exit */
+    if (connmode == CONN_DSO)
+	closedso();
+    else if (connmode == CONN_DAEMON)
+	closepmda();
 
     exit(0);
 }

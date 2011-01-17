@@ -74,7 +74,7 @@ service_client(__pmPDU *pb)
     switch (ph->type) {
 
     case PDU_DESC:
-	if ((n = __pmDecodeDesc(pb, PDU_BINARY, &desc)) < 0) {
+	if ((n = __pmDecodeDesc(pb, &desc)) < 0) {
 	    fprintf(stderr, "service_client: __pmDecodeDesc failed: %s\n",
                     pmErrStr(n));
 	    exit(1);
@@ -102,7 +102,7 @@ service_client(__pmPDU *pb)
 	break;
 
     case PDU_RESULT:
-	if ((n = __pmDecodeResult(pb, PDU_BINARY, &resp)) < 0) {
+	if ((n = __pmDecodeResult(pb, &resp)) < 0) {
 	    fprintf(stderr, "service_client: __pmDecodeResult failed: %s\n", pmErrStr(n));
 	    exit(1);
 	}
@@ -157,7 +157,7 @@ service_client(__pmPDU *pb)
 	break;
 	    
     case PDU_ERROR:
-	if ((n = __pmDecodeError(pb, PDU_BINARY, &i)) < 0) {
+	if ((n = __pmDecodeError(pb, &i)) < 0) {
 	    fprintf(stderr, "service_client: __pmDecodeError failed: %s\n", pmErrStr(n));
 	    exit(1);
 	}
@@ -184,12 +184,12 @@ service_config(__pmPDU *pb)
     case PDU_RESULT:
 	if (cachedConfigResult != NULL)
 	    pmFreeResult(cachedConfigResult);
-	n = __pmDecodeResult(pb, PDU_BINARY, &cachedConfigResult);
+	n = __pmDecodeResult(pb, &cachedConfigResult);
 	__pmPinPDUBuf(pb);
 	break;
 	    
     case PDU_ERROR:
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
 	break;
     
     default:

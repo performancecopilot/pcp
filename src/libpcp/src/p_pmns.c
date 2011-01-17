@@ -46,14 +46,11 @@ __pmDumpIDList(FILE *f, int numids, const pmID idlist[])
  * Send a PDU_PMNS_IDS across socket.
  */
 int
-__pmSendIDList(int fd, int mode, int numids, const pmID idlist[], int sts)
+__pmSendIDList(int fd, int from, int numids, const pmID idlist[], int sts)
 {
     idlist_t	*ip;
     int		need;
     int		j;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {
@@ -68,6 +65,7 @@ __pmSendIDList(int fd, int mode, int numids, const pmID idlist[], int sts)
 	return -errno;
     ip->hdr.len = need;
     ip->hdr.type = PDU_PMNS_IDS;
+    ip->hdr.from = from;
     ip->sts = htonl(sts);
     ip->numids = htonl(numids);
     for (j = 0; j < numids; j++) {
@@ -84,14 +82,10 @@ __pmSendIDList(int fd, int mode, int numids, const pmID idlist[], int sts)
  * Returns 0 on success.
  */
 int
-__pmDecodeIDList(__pmPDU *pdubuf, int mode, 
-                     int numids, pmID idlist[], int *sts)
+__pmDecodeIDList(__pmPDU *pdubuf, int numids, pmID idlist[], int *sts)
 {
     idlist_t	*idlist_pdu;
     int		j;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     idlist_pdu = (idlist_t *)pdubuf;
 
@@ -115,8 +109,6 @@ __pmDecodeIDList(__pmPDU *pdubuf, int mode,
 /*
  * PDU for name list (PDU_PMNS_NAMES)
  */
-
-#define NAME_ALLOC(len) (sizeof(__pmPDU) * (((len)-1 + sizeof(__pmPDU))/sizeof(__pmPDU)))
 
 typedef struct {
     int namelen;
@@ -198,7 +190,7 @@ __pmDumpNameAndStatusList(FILE *f, int numnames, char *namelist[], int statuslis
  * Send a PDU_PMNS_NAMES across socket.
  */
 int
-__pmSendNameList(int fd, int mode, int numnames, char *namelist[],
+__pmSendNameList(int fd, int from, int numnames, char *namelist[],
 		 const int statuslist[])
 {
     namelist_t	*nlistp;
@@ -207,9 +199,6 @@ __pmSendNameList(int fd, int mode, int numnames, char *namelist[],
     int 	i;
     name_t	*nt; 
     name_status_t *nst; 
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {
@@ -226,7 +215,7 @@ __pmSendNameList(int fd, int mode, int numnames, char *namelist[],
 	int len = (int)strlen(namelist[i]);
         nstrbytes += len+1;
         if (namelist != NULL)
-	    need += NAME_ALLOC(len);
+	    need += PM_PDU_SIZE_BYTES(len);
 	if (statuslist == NULL) 
             need += sizeof(*nt) - sizeof(nt->name);
 	else 
@@ -237,6 +226,7 @@ __pmSendNameList(int fd, int mode, int numnames, char *namelist[],
 	return -errno;
     nlistp->hdr.len = need;
     nlistp->hdr.type = PDU_PMNS_NAMES;
+    nlistp->hdr.from = from;
     nlistp->nstrbytes = htonl(nstrbytes);
     nlistp->numnames = htonl(numnames);
 
@@ -256,7 +246,7 @@ __pmSendNameList(int fd, int mode, int numnames, char *namelist[],
 		    *padp++ = '~';	/* buffer end */
 	    }
 #endif
-	    j += sizeof(namelen) + NAME_ALLOC(namelen);
+	    j += sizeof(namelen) + PM_PDU_SIZE_BYTES(namelen);
 	    nt->namelen = htonl(namelen);
 	}
     }
@@ -278,7 +268,7 @@ __pmSendNameList(int fd, int mode, int numnames, char *namelist[],
 	    }
 #endif
 	    j += sizeof(nst->status) + sizeof(namelen) +
-	         NAME_ALLOC(namelen);
+	         PM_PDU_SIZE_BYTES(namelen);
 	    nst->namelen = htonl(namelen);
 	}
     }
@@ -290,7 +280,7 @@ __pmSendNameList(int fd, int mode, int numnames, char *namelist[],
  * Decode a PDU_PMNS_NAMES
  */
 int
-__pmDecodeNameList(__pmPDU *pdubuf, int mode, int *numnames, 
+__pmDecodeNameList(__pmPDU *pdubuf, int *numnames, 
                   char*** namelist, int** statuslist)
 {
     namelist_t	*namelist_pdu;
@@ -298,9 +288,6 @@ __pmDecodeNameList(__pmPDU *pdubuf, int mode, int *numnames,
     int		*status = NULL;
     int 	need;
     int		numstatus;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     namelist_pdu = (namelist_t *)pdubuf;
 
@@ -344,7 +331,7 @@ __pmDecodeNameList(__pmPDU *pdubuf, int mode, int *numnames,
 	    *(dest + namelen) = '\0';
 	    dest += namelen + 1; 
 
-	    j += sizeof(namelen) + NAME_ALLOC(namelen);
+	    j += sizeof(namelen) + PM_PDU_SIZE_BYTES(namelen);
 	}
     }
     else { /* include the status fields */
@@ -363,7 +350,7 @@ __pmDecodeNameList(__pmPDU *pdubuf, int mode, int *numnames,
 	    *(dest + namelen) = '\0';
 	    dest += namelen + 1; 
 
-	    j += sizeof(np->status) + sizeof(namelen) + NAME_ALLOC(namelen);
+	    j += sizeof(np->status) + sizeof(namelen) + PM_PDU_SIZE_BYTES(namelen);
 	}
     }
 
@@ -400,19 +387,17 @@ typedef struct {
  * Send a PDU_PMNS_CHILD_REQ across socket.
  */
 static int
-SendNameReq(int fd, int mode, const char *name, int pdu_type, int subtype)
+SendNameReq(int fd, int from, const char *name, int pdu_type, int subtype)
 {
     namereq_t	*nreq;
     int		need;
     int		namelen;
     int		alloc_len; /* length allocated for name */
- 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS)
-	fprintf(stderr, "SendNameReq: name=\"%s\" pdu=%s subtype=%d\n", name, __pmPDUTypeStr(pdu_type), subtype);
+	fprintf(stderr, "SendNameReq: from=%d name=\"%s\" pdu=%s subtype=%d\n",
+		from, name, __pmPDUTypeStr(pdu_type), subtype);
 #endif
 
     namelen = (int)strlen(name);
@@ -423,6 +408,7 @@ SendNameReq(int fd, int mode, const char *name, int pdu_type, int subtype)
 	return -errno;
     nreq->hdr.len = need;
     nreq->hdr.type = pdu_type;
+    nreq->hdr.from = from;
     nreq->subtype = htonl(subtype);
     nreq->namelen = htonl(namelen);
     memcpy(&nreq->name[0], name, namelen);
@@ -434,14 +420,11 @@ SendNameReq(int fd, int mode, const char *name, int pdu_type, int subtype)
  * Decode a name request
  */
 static int
-DecodeNameReq(__pmPDU *pdubuf, int mode, char **name_p, int *subtype)
+DecodeNameReq(__pmPDU *pdubuf, char **name_p, int *subtype)
 {
     namereq_t	*namereq_pdu;
     char	*name;
     int		namelen;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     namereq_pdu = (namereq_t *)pdubuf;
 
@@ -471,9 +454,9 @@ DecodeNameReq(__pmPDU *pdubuf, int mode, char **name_p, int *subtype)
  * Send a PDU_PMNS_CHILD
  */
 int
-__pmSendChildReq(int fd, int mode, const char *name, int subtype)
+__pmSendChildReq(int fd, int from, const char *name, int subtype)
 {
-    return SendNameReq(fd, mode, name, PDU_PMNS_CHILD, subtype);
+    return SendNameReq(fd, from, name, PDU_PMNS_CHILD, subtype);
 }
 
 
@@ -481,9 +464,9 @@ __pmSendChildReq(int fd, int mode, const char *name, int subtype)
  * Decode a PDU_PMNS_CHILD
  */
 int
-__pmDecodeChildReq(__pmPDU *pdubuf, int mode, char **name_p, int *subtype)
+__pmDecodeChildReq(__pmPDU *pdubuf, char **name_p, int *subtype)
 {
-    return DecodeNameReq(pdubuf, mode, name_p, subtype);
+    return DecodeNameReq(pdubuf, name_p, subtype);
 }
 
 /*********************************************************************/
@@ -492,9 +475,9 @@ __pmDecodeChildReq(__pmPDU *pdubuf, int mode, char **name_p, int *subtype)
  * Send a PDU_PMNS_TRAVERSE
  */
 int
-__pmSendTraversePMNSReq(int fd, int mode, const char *name)
+__pmSendTraversePMNSReq(int fd, int from, const char *name)
 {
-    return SendNameReq(fd, mode, name, PDU_PMNS_TRAVERSE, 0);
+    return SendNameReq(fd, from, name, PDU_PMNS_TRAVERSE, 0);
 }
 
 
@@ -502,9 +485,9 @@ __pmSendTraversePMNSReq(int fd, int mode, const char *name)
  * Decode a PDU_PMNS_TRAVERSE
  */
 int
-__pmDecodeTraversePMNSReq(__pmPDU *pdubuf, int mode, char **name_p)
+__pmDecodeTraversePMNSReq(__pmPDU *pdubuf, char **name_p)
 {
-    return DecodeNameReq(pdubuf, mode, name_p, 0);
+    return DecodeNameReq(pdubuf, name_p, 0);
 }
 
 /*********************************************************************/

@@ -230,28 +230,28 @@ extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
  * These are for debugging only (but are present in the shipped libpcp)
  */
 EXTERN int	pmDebug;
-#define  DBG_TRACE_PDU		1	/* PDU send and receive */
-#define  DBG_TRACE_FETCH	2	/* dump pmFetch results */
-#define  DBG_TRACE_PROFILE	4	/* trace profile changes */
-#define  DBG_TRACE_VALUE	8	/* metric value conversions */
-#define  DBG_TRACE_CONTEXT	16	/* trace PMAPI context changes */
-#define  DBG_TRACE_INDOM	32	/* instance domain operations */
-#define  DBG_TRACE_PDUBUF	64	/* PDU buffer management */
-#define  DBG_TRACE_LOG		128	/* generic archive log operations */
-#define  DBG_TRACE_LOGMETA	(1<<8)	/* meta data in archives */
-#define  DBG_TRACE_OPTFETCH	(1<<9)	/* optFetch tracing */
-#define  DBG_TRACE_AF		(1<<10)	/* trace async timer events */
-#define  DBG_TRACE_APPL0	(1<<11)	/* reserved for applications */
-#define  DBG_TRACE_APPL1	(1<<12)	/* reserved for applications */
-#define  DBG_TRACE_APPL2	(1<<13)	/* reserved for applications */
-#define  DBG_TRACE_PMNS		(1<<14)	/* PMNS operations */
-#define  DBG_TRACE_LIBPMDA	(1<<15)	/* libpcp_pmda */
-#define  DBG_TRACE_TIMECONTROL	(1<<16)	/* time control api */
-#define  DBG_TRACE_PMC		(1<<17)	/* metrics class */
-#define  DBG_TRACE_DERIVE	(1<<18)	/* derived metrics */
-#define  DBG_TRACE_INTERP	(1<<20)	/* interpolate mode for archives */
-#define  DBG_TRACE_CONFIG	(1<<21) /* configuration parameters */
-#define  DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
+#define DBG_TRACE_PDU		1	/* PDU send and receive */
+#define DBG_TRACE_FETCH		2	/* dump pmFetch results */
+#define DBG_TRACE_PROFILE	4	/* trace profile changes */
+#define DBG_TRACE_VALUE		8	/* metric value conversions */
+#define DBG_TRACE_CONTEXT	16	/* trace PMAPI context changes */
+#define DBG_TRACE_INDOM		32	/* instance domain operations */
+#define DBG_TRACE_PDUBUF	64	/* PDU buffer management */
+#define DBG_TRACE_LOG		128	/* generic archive log operations */
+#define DBG_TRACE_LOGMETA	(1<<8)	/* meta data in archives */
+#define DBG_TRACE_OPTFETCH	(1<<9)	/* optFetch tracing */
+#define DBG_TRACE_AF		(1<<10)	/* trace async timer events */
+#define DBG_TRACE_APPL0		(1<<11)	/* reserved for applications */
+#define DBG_TRACE_APPL1		(1<<12)	/* reserved for applications */
+#define DBG_TRACE_APPL2		(1<<13)	/* reserved for applications */
+#define DBG_TRACE_PMNS		(1<<14)	/* PMNS operations */
+#define DBG_TRACE_LIBPMDA	(1<<15)	/* libpcp_pmda */
+#define DBG_TRACE_TIMECONTROL	(1<<16)	/* time control api */
+#define DBG_TRACE_PMC		(1<<17)	/* metrics class */
+#define DBG_TRACE_DERIVE	(1<<18)	/* derived metrics */
+#define DBG_TRACE_INTERP	(1<<20)	/* interpolate mode for archives */
+#define DBG_TRACE_CONFIG	(1<<21) /* configuration parameters */
+#define DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
 
 extern int __pmParseDebug(const char *);
 extern void __pmDumpResult(FILE *, const pmResult *);
@@ -268,15 +268,6 @@ extern void __pmDumpNameList(FILE *, int, char **);
 extern void __pmDumpStatusList(FILE *, int, const int *);
 extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *);
 #endif
-
-/*
- * struct timeval is sometimes 2 x 64-bit ... we use a 2 x 32-bit format for
- * PDUs, internally within libpcp and for (external) archive logs
- */
-typedef struct {
-    __int32_t	tv_sec;		/* seconds since Jan. 1, 1970 */
-    __int32_t	tv_usec;	/* and microseconds */
-} __pmTimeval;
 
 /*
  * Logs and archives of performance metrics (not to be confused
@@ -358,7 +349,7 @@ typedef struct {
     __pmTimeval	l_endtime;	/* (when reading) timestamp at logical EOF */
     int		l_numti;	/* (when reading) no. temporal index entries */
     __pmLogTI	*l_ti;		/* (when reading) temporal index */
-    __pmnsTree  *l_pmns;        /* namespace from meta data */
+    __pmnsTree	*l_pmns;        /* namespace from meta data */
 } __pmLogCtl;
 
 /* l_state values */
@@ -485,7 +476,7 @@ typedef struct {
     int		pc_timeout;		/* set if connect times out */
     time_t	pc_again;		/* time to try again */
     int		pc_curpdu; 		/* current pdu in flight */
-    int		pc_tout_sec;		/* timeout for pmGetPDU */
+    int		pc_tout_sec;		/* timeout for __pmGetPDU */
     pmcd_ctl_state_t pc_state;		/* current state of this context */
     int		pc_fdflags;		/* fcntl(2) flags for pc_fd */
     struct sockaddr pc_addr;		/* server address */
@@ -539,6 +530,7 @@ typedef struct {
 
 /* handle to __pmContext pointer */
 extern __pmContext *__pmHandleToPtr(int);
+extern int __pmPtrToHandle(__pmContext *);
 extern int __pmGetHostContextByID(int, __pmContext **);
 extern int __pmGetBusyHostContextByID(int, __pmContext **, int);
 
@@ -557,6 +549,14 @@ typedef struct {
 } __pmPDUHdr;
 
 typedef __uint32_t	__pmPDU;
+/*
+ * round a size up to the next multiple of a __pmPDU size
+ *
+ * PM_PDU_SIZE is in units of __pmPDU size
+ * PM_PDU_SIZE_BYTES is in units of bytes
+ */
+#define PM_PDU_SIZE(x) (((x)+sizeof(__pmPDU)-1)/sizeof(__pmPDU))
+#define PM_PDU_SIZE_BYTES(x) (sizeof(__pmPDU)*PM_PDU_SIZE(x))
 
 /* Individual credential PDU elements look like this */
 typedef struct {
@@ -586,10 +586,14 @@ EXTERN unsigned int *__pmPDUCntIn;
 EXTERN unsigned int *__pmPDUCntOut;
 extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 
-/* for __pmGetPDU */
+/* timeout options for __pmGetPDU */
 #define TIMEOUT_NEVER	 0
 #define TIMEOUT_DEFAULT	-1
 #define GETPDU_ASYNC	-2
+
+/* mode options for __pmGetPDU */
+#define ANY_SIZE	0	/* replacement for old PDU_BINARY */
+#define LIMIT_SIZE	2	/* replacement for old PDU_CLIENT */
 
 extern __pmPDU *__pmFindPDUBuf(int);
 extern void __pmPinPDUBuf(void *);
@@ -624,44 +628,52 @@ extern void __pmCountPDUBuf(int, int *, int *);
 
 /*
  * PDU encoding formats
+ * These have been retired ...
+ *  #define PDU_BINARY	0
+ *  #define PDU_ASCII	1
+ * And this has been replaced by LIMIT_SIZE for __pmGetPDU
+ *  #define PDU_CLIENT	2
  */
-#define PDU_BINARY	0
-#define PDU_ASCII	1
-#define PDU_CLIENT	2
+
+/*
+ * Anonymous PDU sender, when context does not matter, e.g. PDUs from
+ * a PMDA sent to PMCD
+ */
+#define FROM_ANON	0
 
 extern int __pmSendError(int, int, int);
-extern int __pmDecodeError(__pmPDU *, int, int *);
+extern int __pmDecodeError(__pmPDU *, int *);
 extern int __pmSendXtendError(int, int, int, int);
-extern int __pmDecodeXtendError(__pmPDU *, int, int *, int *);
+extern int __pmDecodeXtendError(__pmPDU *, int *, int *);
 extern int __pmSendResult(int, int, const pmResult *);
 extern int __pmEncodeResult(int, const pmResult *, __pmPDU **);
-extern int __pmDecodeResult(__pmPDU *, int, pmResult **);
+extern int __pmDecodeResult(__pmPDU *, pmResult **);
 extern int __pmSendProfile(int, int, int, __pmProfile *);
-extern int __pmDecodeProfile(__pmPDU *, int, int *, __pmProfile **);
+extern int __pmDecodeProfile(__pmPDU *, int *, __pmProfile **);
 extern int __pmSendFetch(int, int, int, __pmTimeval *, int, pmID *);
-extern int __pmDecodeFetch(__pmPDU *, int, int *, __pmTimeval *, int *, pmID **);
+extern int __pmDecodeFetch(__pmPDU *, int *, __pmTimeval *, int *, pmID **);
 extern int __pmSendDescReq(int, int, pmID);
-extern int __pmDecodeDescReq(__pmPDU *, int, pmID *);
+extern int __pmDecodeDescReq(__pmPDU *, pmID *);
 extern int __pmSendDesc(int, int, pmDesc *);
-extern int __pmDecodeDesc(__pmPDU *, int, pmDesc *);
+extern int __pmDecodeDesc(__pmPDU *, pmDesc *);
 extern int __pmSendInstanceReq(int, int, const __pmTimeval *, pmInDom, int, const char *);
-extern int __pmDecodeInstanceReq(__pmPDU *, int, __pmTimeval *, pmInDom *, int *, char **);
+extern int __pmDecodeInstanceReq(__pmPDU *, __pmTimeval *, pmInDom *, int *, char **);
 extern int __pmSendInstance(int, int, __pmInResult *);
-extern int __pmDecodeInstance(__pmPDU *, int, __pmInResult **);
+extern int __pmDecodeInstance(__pmPDU *, __pmInResult **);
 extern int __pmSendTextReq(int, int, int, int);
-extern int __pmDecodeTextReq(__pmPDU *, int, int *, int *);
+extern int __pmDecodeTextReq(__pmPDU *, int *, int *);
 extern int __pmSendText(int, int, int, const char *);
-extern int __pmDecodeText(__pmPDU *, int, int *, char **);
+extern int __pmDecodeText(__pmPDU *, int *, char **);
 extern int __pmSendCreds(int, int, int, const __pmCred *);
-extern int __pmDecodeCreds(__pmPDU *, int, int *, int *, __pmCred **);
+extern int __pmDecodeCreds(__pmPDU *, int *, int *, __pmCred **);
 extern int __pmSendIDList(int, int, int, const pmID *, int);
-extern int __pmDecodeIDList(__pmPDU *, int, int, pmID *, int *);
+extern int __pmDecodeIDList(__pmPDU *, int, pmID *, int *);
 extern int __pmSendNameList(int, int, int, char **, const int *);
-extern int __pmDecodeNameList(__pmPDU *, int, int *, char ***, int **);
+extern int __pmDecodeNameList(__pmPDU *, int *, char ***, int **);
 extern int __pmSendChildReq(int, int, const char *, int);
-extern int __pmDecodeChildReq(__pmPDU *, int , char **, int *);
+extern int __pmDecodeChildReq(__pmPDU *, char **, int *);
 extern int __pmSendTraversePMNSReq(int, int, const char *);
-extern int __pmDecodeTraversePMNSReq(__pmPDU *, int, char **);
+extern int __pmDecodeTraversePMNSReq(__pmPDU *, char **);
 
 #if defined(HAVE_64BIT_LONG)
 
@@ -893,7 +905,7 @@ extern void __pmPrintIPC(void);
 extern void __pmResetIPC(int);
 
 /* safely insert an atom value into a pmValue */
-extern int __pmStuffValue(const pmAtomValue *, int, pmValue *, int);
+extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);
 
 /*
  * "optfetch" api
@@ -1204,6 +1216,15 @@ extern void __dmpostfetch(__pmContext *, pmResult **);
 #define PM_LOCAL_CLEAR	3
 extern int __pmLocalPMDA(int, int, const char *, const char *);
 extern char *__pmSpecLocalPMDA(const char *);
+
+/*
+ * helper methods for packed arrays of event records (PM_TYPE_EVENT)
+ */
+extern int __pmCheckEventRecords(pmValueSet *);
+extern void __pmDumpEventRecords(FILE *, pmValueSet *);
+
+/* anonymous metric registration (uses derived metrics support) */
+int __pmRegisterAnon(char *, int);
 
 #ifdef __cplusplus
 }

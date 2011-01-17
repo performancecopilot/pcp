@@ -491,7 +491,7 @@ log_callback(int afid, void *data)
 	}
 
 	__pmOverrideLastFd(fileno(logctl.l_mfp));
-	if ((sts = __pmDecodeResult(pb, PDU_BINARY, &resp)) < 0) {
+	if ((sts = __pmDecodeResult(pb, &resp)) < 0) {
 	    fprintf(stderr, "__pmDecodeResult: %s\n", pmErrStr(sts));
 	    exit(1);
 	}
@@ -527,6 +527,16 @@ log_callback(int afid, void *data)
 		if (numnames) {
 		    free(names);
 		}
+	    }
+	    if (desc.type == PM_TYPE_EVENT) {
+		/*
+		 * Event records need some special handling ...
+		 */
+		if ((sts = do_events(vsp)) < 0) {
+		    fprintf(stderr, "Failed to process event records: %s\n", pmErrStr(sts));
+		    exit(1);
+		}
+		continue;
 	    }
 	    if (desc.indom != PM_INDOM_NULL && vsp->numval > 0) {
 		/*

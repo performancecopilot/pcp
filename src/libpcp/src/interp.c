@@ -396,7 +396,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		    }
 #ifdef PCP_DEBUG
 		    if ((pmDebug & DBG_TRACE_INTERP) && changed) {
-			fprintf(stderr, "update%s pmid %s inst %d prior: t==%.3f",
+			fprintf(stderr, "update%s pmid %s inst %d prior: t=%.3f",
 			    changed & 2 ? "+search" : "",
 			    pmIDStr(logrp->vset[k]->pmid), icp->inst, icp->t_prior);
 			if (icp->m_prior)
@@ -651,6 +651,9 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	pcp->numval = 0;
 	if (pcp->desc.type == -1) {
 	    pcp->numval = PM_ERR_PMID_LOG;
+	}
+	else if (pcp->desc.type == PM_TYPE_EVENT) {
+	    pcp->numval = PM_ERR_TYPE;
 	}
 	else if (pcp->desc.indom != PM_INDOM_NULL) {
 	    /* use the profile to filter the instances to be returned */
@@ -987,7 +990,7 @@ retry_forw:
 			pcp->desc.type != PM_TYPE_U64 &&
 			pcp->desc.type != PM_TYPE_FLOAT &&
 			pcp->desc.type != PM_TYPE_DOUBLE)
-			    pcp->numval = PM_ERR_VALUE;
+			    pcp->numval = PM_ERR_TYPE;
 		}
 	    }
 	}

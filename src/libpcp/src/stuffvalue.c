@@ -20,7 +20,7 @@
 #include "impl.h"
 
 int
-__pmStuffValue(const pmAtomValue *avp, int aggr_len, pmValue *vp, int type)
+__pmStuffValue(const pmAtomValue *avp, pmValue *vp, int type)
 {
     void	*src;
     size_t	need, body;
@@ -44,8 +44,15 @@ __pmStuffValue(const pmAtomValue *avp, int aggr_len, pmValue *vp, int type)
 	    break;
 
 	case PM_TYPE_AGGREGATE:
-	    body = aggr_len;
-	    src  = avp->vp;
+	    /*
+	     * vbp field of pmAtomValue points to a dynamically allocated
+	     * pmValueBlock ... the vlen and vtype fields MUST have been
+	     * already set up.
+	     * A new pmValueBlock header will be allocated below, so adjust
+	     * the length here (PM_VAL_HDR_SIZE will be added back later).
+	     */
+	    body = avp->vbp->vlen - PM_VAL_HDR_SIZE;
+	    src  = avp->vbp->vbuf;
 	    break;
 	    
 	case PM_TYPE_STRING:
@@ -54,11 +61,19 @@ __pmStuffValue(const pmAtomValue *avp, int aggr_len, pmValue *vp, int type)
 	    break;
 
 	case PM_TYPE_AGGREGATE_STATIC:
-	    vp->value.pval = (pmValueBlock *)avp->vp;
+	case PM_TYPE_EVENT:
+	    /*
+	     * vbp field of pmAtomValue points to a statically allocated
+	     * pmValueBlock ... the vlen and vtype fields MUST have been
+	     * already set up and are not modified here
+	     *
+	     * DO NOT make a copy of the value in this case
+	     */
+	    vp->value.pval = avp->vbp;
 	    return PM_VAL_SPTR;
 
 	default:
-	    return PM_ERR_GENERIC;
+	    return PM_ERR_TYPE;
     }
     need = body + PM_VAL_HDR_SIZE;
     if (body == sizeof(__int64_t)) {

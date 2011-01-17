@@ -24,7 +24,7 @@
 .br
 #include <pcp/import.h>
 .sp
-int pmiPutValueHandle(int *\fIhandle\fP, const char *\fIvalue\fP)
+int pmiPutValueHandle(int *\fIhandle\fP, const char *\fIvalue\fP);
 .sp
 cc ... \-lpcp_import \-lpcp
 .ft 1
@@ -32,7 +32,7 @@ cc ... \-lpcp_import \-lpcp
 .ft 3
 use PCP::LogImport;
 .sp
-pmiPutValueHandle($\fIhandle\fP, $\fIvalue\fP)
+pmiPutValueHandle($\fIhandle\fP, $\fIvalue\fP);
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see

@@ -1123,13 +1123,10 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case PM_TYPE_FLOAT:	atom->f = *(float *)mdesc->m_user; break;
 	case PM_TYPE_DOUBLE:	atom->d = *(double *)mdesc->m_user; break;
 	case PM_TYPE_STRING:	atom->cp = (char *)mdesc->m_user; break;
-	case PM_TYPE_AGGREGATE_STATIC:
-	case PM_TYPE_AGGREGATE:	atom->vp = (void *)mdesc->m_user; break;
 	case PM_TYPE_NOSUPPORT: return 0;
-	case PM_TYPE_UNKNOWN:
 	default:		fprintf(stderr,
-			"Error in fetchCallBack: unknown metric type %d\n",
-					mdesc->m_desc.type);
+			"Error in fetchCallBack: unsupported metric type %s\n",
+					pmAtomStr(mdesc->m_desc.type));
 				return 0;
 	}
 	return 1;

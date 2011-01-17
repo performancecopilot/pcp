@@ -29,7 +29,6 @@ _pmi_put_result(pmi_context *current, pmResult *result)
     stamp.tv_usec = result->timestamp.tv_usec;
 
     if (current->state == CONTEXT_START) {
-	// TODO
 	if (current->hostname == NULL) {
 	    (void)gethostname(myname, MAXHOSTNAMELEN);
 	    myname[MAXHOSTNAMELEN-1] = '\0';
@@ -110,7 +109,9 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 int
 _pmi_end(pmi_context *current)
 {
-    // TODO flushing and end label processing
+    // Final temporal index update to finish the archive
+    // ... same logic here as in run_done() for pmlogger
+    //
     __pmLogPutIndex(&current->logctl, &stamp);
 
     current->state = CONTEXT_END;

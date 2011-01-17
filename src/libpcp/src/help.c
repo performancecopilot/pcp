@@ -29,7 +29,7 @@ requesttext (__pmContext *ctxp, int ident, int type)
 	return (PM_ERR_CTXBUSY);
     }
 
-    n = __pmSendTextReq(ctxp->c_pmcd->pc_fd, PDU_BINARY, ident, type);
+    n = __pmSendTextReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), ident, type);
     if (n < 0) {
 	n = __pmMapErrno(n);
     }
@@ -43,15 +43,15 @@ receivetext (__pmContext *ctxp, char **buffer)
     int n;
     __pmPDU *pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY,
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_TEXT) {
 	int x_ident;
 
-	n = __pmDecodeText(pb, PDU_BINARY, &x_ident, buffer);
+	n = __pmDecodeText(pb, &x_ident, buffer);
     }
     else if (n == PDU_ERROR)
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
 
@@ -67,7 +67,8 @@ lookuptext(int ident, int type, char **buffer)
 
 
     if ((n = pmWhichContext()) >= 0) {
-	ctxp = __pmHandleToPtr(n);
+	int	ctx = n;
+	ctxp = __pmHandleToPtr(ctx);
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
 again:
 	    if ((n = requesttext (ctxp, ident, type)) >= 0) {
@@ -92,7 +93,9 @@ again:
 		n = PM_ERR_NOAGENT;
 	    else {
 again_local:
-		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    dp->dispatch.version.four.ext->e_context = ctx;
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    n = dp->dispatch.version.four.text(ident, type, buffer, dp->dispatch.version.four.ext);
 		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)

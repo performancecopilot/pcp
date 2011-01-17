@@ -32,11 +32,16 @@ static unsigned int	outctrs[PDU_MAX+1];
 INTERN unsigned int	*__pmPDUCntIn = inctrs;
 INTERN unsigned int	*__pmPDUCntOut = outctrs;
 
+#ifdef PCP_DEBUG
 static int		mypid = -1;
+#endif
 static int              ceiling = PDU_CHUNK * 64;
 
 static struct timeval	def_wait = { 10, 0 };
 static double		def_timeout = 10.0;
+
+#define HEADER	-1
+#define BODY	0
 
 const struct timeval *
 __pmDefaultRequestTimeout(void)
@@ -67,7 +72,7 @@ __pmDefaultRequestTimeout(void)
 }
 
 int
-pduread(int fd, char *buf, int len, int mode, int timeout)
+pduread(int fd, char *buf, int len, int part, int timeout)
 {
     /*
      * handle short reads that may split a PDU ...
@@ -160,9 +165,9 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 			__pmNotifyErr(LOG_WARNING, 
 				      "pduread: timeout (after %d.%03d "
 				      "sec) while attempting to read %d "
-				      "bytes out of %d in mode %d on fd=%d",
+				      "bytes out of %d in %s on fd=%d",
 				      tosec, tomsec, len - have, len, 
-				      mode, fd);
+				      part == HEADER ? "HDR" : "BODY", fd);
 		    }
 		    return PM_ERR_TIMEOUT;
 		}
@@ -177,7 +182,7 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 	    if (status <= 0)
 		/* EOF or error */
 		return status;
-	    if (mode == -1)
+	    if (part == HEADER)
 		/* special case, see __pmGetPDU */
 		return status;
 	    have += status;
@@ -256,20 +261,19 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 
     setup_sigpipe();
 
-    if (mypid == -1)
-	mypid = getpid();
-    php->from = mypid;
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU) {
 	int	j;
 	char	*p;
-	int	jend = (php->len+(int)sizeof(__pmPDU)-1)/(int)sizeof(__pmPDU);
+	int	jend = PM_PDU_SIZE(php->len);
 
 	/* for Purify ... */
 	p = (char *)pdubuf + php->len;
 	while (p < (char *)pdubuf + jend*sizeof(__pmPDU))
 	    *p++ = '~';	/* buffer end */
 
+	if (mypid == -1)
+	    mypid = getpid();
 	fprintf(stderr, "[%d]pmXmitPDU: %s fd=%d len=%d",
 		mypid, __pmPDUTypeStr(php->type), fd, php->len);
 	for (j = 0; j < jend; j++) {
@@ -321,178 +325,175 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
     __pmPDU		*pdubuf_prev;
     __pmPDUHdr		*php;
 
-    if (mypid == -1)
-	mypid = getpid();
-    if (mode != PDU_ASCII) {
-	if ((pdubuf = __pmFindPDUBuf(maxsize)) == NULL)
-	    return -errno;
+    if ((pdubuf = __pmFindPDUBuf(maxsize)) == NULL)
+	return -errno;
 
-	/* First read - try to read the header */
-	len = pduread(fd, (void *)pdubuf, sizeof(__pmPDUHdr), -1, timeout);
-	php = (__pmPDUHdr *)pdubuf;
+    /* First read - try to read the header */
+    len = pduread(fd, (void *)pdubuf, sizeof(__pmPDUHdr), HEADER, timeout);
+    php = (__pmPDUHdr *)pdubuf;
 
-	if (len < (int)sizeof(__pmPDUHdr)) {
-	    if (len == -1) {
+    if (len < (int)sizeof(__pmPDUHdr)) {
+	if (len == -1) {
 #if defined(IS_MINGW)	/* sometimes errno not even set on recv failure */
-		len = 0;
+	    len = 0;
 #else
-		if (errno == ECONNRESET || errno == EPIPE || 
-		    errno == ETIMEDOUT || errno == ENETDOWN ||
-		    errno == ENETUNREACH || errno == EHOSTDOWN ||
-		    errno == EHOSTUNREACH || errno == ECONNREFUSED)
-		    /*
-		     * Treat this like end of file on input.
-		     *
-		     * failed as a result of pmcd exiting and the connection
-		     * being reset, or as a result of the kernel ripping
-		     * down the connection (most likely becuase the host at
-		     * the other end just took a dive)
-		     *
-		     * from IRIX BDS kernel sources, seems like all of the
-		     * following are peers here:
-		     *  ECONNRESET (pmcd terminated?)
-		     *  ETIMEDOUT ENETDOWN ENETUNREACH EHOSTDOWN EHOSTUNREACH
-		     *  ECONNREFUSED
-		     * peers for BDS but not here:
-		     *  ENETRESET ENONET ESHUTDOWN (cache_fs only?)
-		     *  ECONNABORTED (accept, user req only?)
-		     *  ENOTCONN (udp?)
-		     *  EPIPE EAGAIN (nfs, bds & ..., but not ip or tcp?)
-		     */
-		    len = 0;
-		else
-		    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr(-errno));
-#endif
-	    }
-	    else if (len >= (int)sizeof(php->len)) {
+	    if (errno == ECONNRESET || errno == EPIPE || 
+		errno == ETIMEDOUT || errno == ENETDOWN ||
+		errno == ENETUNREACH || errno == EHOSTDOWN ||
+		errno == EHOSTUNREACH || errno == ECONNREFUSED)
 		/*
-		 * Have part of a PDU header.  Enough for the "len"
-		 * field to be valid, but not yet all of it - save
-		 * what we have received and try to read some more.
-		 * Note this can only happen once per PDU, so the
-		 * ntohl() below will _only_ be done once per PDU.
+		 * Treat this like end of file on input.
+		 *
+		 * failed as a result of pmcd exiting and the connection
+		 * being reset, or as a result of the kernel ripping
+		 * down the connection (most likely because the host at
+		 * the other end just took a dive)
+		 *
+		 * from IRIX BDS kernel sources, seems like all of the
+		 * following are peers here:
+		 *  ECONNRESET (pmcd terminated?)
+		 *  ETIMEDOUT ENETDOWN ENETUNREACH EHOSTDOWN EHOSTUNREACH
+		 *  ECONNREFUSED
+		 * peers for BDS but not here:
+		 *  ENETRESET ENONET ESHUTDOWN (cache_fs only?)
+		 *  ECONNABORTED (accept, user req only?)
+		 *  ENOTCONN (udp?)
+		 *  EPIPE EAGAIN (nfs, bds & ..., but not ip or tcp?)
 		 */
-		goto check_read_len;	/* continue, do not return */
-	    }
-	    else if (len == PM_ERR_TIMEOUT)
-		return PM_ERR_TIMEOUT;
-	    else if (len < 0) {
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr(len));
-		return PM_ERR_IPC;
-	    }
-	    else if (len > 0) {
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: bad len=%d", fd, len);
-		return PM_ERR_IPC;
-	    }
-
-	    /*
-	     * end-of-file with no data
-	     */
-	    return 0;
+		len = 0;
+	    else
+		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr(-errno));
+#endif
 	}
+	else if (len >= (int)sizeof(php->len)) {
+	    /*
+	     * Have part of a PDU header.  Enough for the "len"
+	     * field to be valid, but not yet all of it - save
+	     * what we have received and try to read some more.
+	     * Note this can only happen once per PDU, so the
+	     * ntohl() below will _only_ be done once per PDU.
+	     */
+	    goto check_read_len;	/* continue, do not return */
+	}
+	else if (len == PM_ERR_TIMEOUT)
+	    return PM_ERR_TIMEOUT;
+	else if (len < 0) {
+	    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr(len));
+	    return PM_ERR_IPC;
+	}
+	else if (len > 0) {
+	    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: bad len=%d", fd, len);
+	    return PM_ERR_IPC;
+	}
+
+	/*
+	 * end-of-file with no data
+	 */
+	return 0;
+    }
 
 check_read_len:
-	php->len = ntohl(php->len);
-	if (php->len < (int)sizeof(__pmPDUHdr)) {
-	    /*
-	     * PDU length indicates insufficient bytes for a PDU header
-	     * ... looks like DOS attack like PV 935490
-	     */
-	    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d illegal PDU len=%d in hdr", fd, php->len);
-	    return PM_ERR_IPC;
-	} else if ( mode == PDU_CLIENT && php->len > ceiling ) {
-	    /*
-	     * Guard against denial of service attack ... don't accept PDUs
-	     * from clients that are larger than 64 Kbytes (ceiling)
-	     * (note, pmcd and pmdas have to be able to _send_ large PDUs,
-	     * e.g. for a pmResult or instance domain enquiry)
-	     */
-	    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d bad PDU len=%d in hdr exceeds maximum client PDU size (%d)",
-    			  fd, php->len, ceiling);
+    php->len = ntohl(php->len);
+    if (php->len < (int)sizeof(__pmPDUHdr)) {
+	/*
+	 * PDU length indicates insufficient bytes for a PDU header
+	 * ... looks like DOS attack like PV 935490
+	 */
+	__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d illegal PDU len=%d in hdr", fd, php->len);
+	return PM_ERR_IPC;
+    } else if (mode == LIMIT_SIZE && php->len > ceiling) {
+	/*
+	 * Guard against denial of service attack ... don't accept PDUs
+	 * from clients that are larger than 64 Kbytes (ceiling)
+	 * (note, pmcd and pmdas have to be able to _send_ large PDUs,
+	 * e.g. for a pmResult or instance domain enquiry)
+	 */
+	__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d bad PDU len=%d in hdr exceeds maximum client PDU size (%d)",
+		      fd, php->len, ceiling);
 
-	    return PM_ERR_TOOBIG;
-	}
-
-	if (len < php->len) {
-	    /*
-	     * need to read more ...
-	     */
-	    int		tmpsize;
-	    int		have = len;
-
-	    if (php->len > maxsize) {
-		tmpsize = PDU_CHUNK * ( 1 + php->len / PDU_CHUNK);
-	    } else {
-		tmpsize = maxsize;
-	    }
-
-	    __pmPinPDUBuf(pdubuf);
-	    pdubuf_prev = pdubuf;
-	    if ((pdubuf = __pmFindPDUBuf(tmpsize)) == NULL) {
-		__pmUnpinPDUBuf(pdubuf_prev);
-		return -errno;
-	    }
-
-	    maxsize = tmpsize;
-
-	    memmove((void *)pdubuf, (void *)php, len);
-	    __pmUnpinPDUBuf(pdubuf_prev);
-
-	    php = (__pmPDUHdr *)pdubuf;
-	    need = php->len - have;
-	    handle = (char *)pdubuf;
-	    /* block until all of the PDU is received this time */
-	    len = pduread(fd, (void *)&handle[len], need, PDU_BINARY, timeout);
-	    if (len != need) {
-		if (len == PM_ERR_TIMEOUT)
-		    return PM_ERR_TIMEOUT;
-		else if (len < 0)
-		    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: len=%d: %s", fd, len, pmErrStr(-errno));
-		else
-		    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: have %d, want %d, got %d", fd, have, need, len);
-		/*
-		 * only report header fields if you've read enough bytes
-		 */
-		if (len > 0)
-		    have += len;
-		if (have >= (int)(sizeof(php->len)+sizeof(php->type)+sizeof(php->from)))
-		    __pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x from=0x%x", php->len, ntohl(php->type), ntohl(php->from));
-		else if (have >= (int)(sizeof(php->len)+sizeof(php->type)))
-		    __pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x", php->len, ntohl(php->type));
-		return PM_ERR_IPC;
-	    }
-	}
-
-	*result = (__pmPDU *)php;
-	php->type = ntohl((unsigned int)php->type);
-	php->from = ntohl((unsigned int)php->from);
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PDU) {
-	    int		j;
-	    char	*p;
-	    int		jend = (php->len+(int)sizeof(__pmPDU)-1)/(int)sizeof(__pmPDU);
-
-	    /* for Purify ... */
-	    p = (char *)*result + php->len;
-	    while (p < (char *)*result + jend*sizeof(__pmPDU))
-		*p++ = '~';	/* buffer end */
-
-	    fprintf(stderr, "[%d]pmGetPDU: %s fd=%d len=%d from=%d",
-		    mypid, __pmPDUTypeStr(php->type), fd, php->len, php->from);
-	    for (j = 0; j < jend; j++) {
-		if ((j % 8) == 0)
-		    fprintf(stderr, "\n%03d: ", j);
-		fprintf(stderr, "%8x ", (*result)[j]);
-	    }
-	    putc('\n', stderr);
-	}
-#endif
-	if (php->type >= PDU_START && php->type <= PDU_FINISH)
-	    __pmPDUCntIn[php->type-PDU_START]++;
-
-	return php->type;
+	return PM_ERR_TOOBIG;
     }
-    return PM_ERR_NOASCII;
+
+    if (len < php->len) {
+	/*
+	 * need to read more ...
+	 */
+	int		tmpsize;
+	int		have = len;
+
+	if (php->len > maxsize) {
+	    tmpsize = PDU_CHUNK * ( 1 + php->len / PDU_CHUNK);
+	} else {
+	    tmpsize = maxsize;
+	}
+
+	__pmPinPDUBuf(pdubuf);
+	pdubuf_prev = pdubuf;
+	if ((pdubuf = __pmFindPDUBuf(tmpsize)) == NULL) {
+	    __pmUnpinPDUBuf(pdubuf_prev);
+	    return -errno;
+	}
+
+	maxsize = tmpsize;
+
+	memmove((void *)pdubuf, (void *)php, len);
+	__pmUnpinPDUBuf(pdubuf_prev);
+
+	php = (__pmPDUHdr *)pdubuf;
+	need = php->len - have;
+	handle = (char *)pdubuf;
+	/* block until all of the PDU is received this time */
+	len = pduread(fd, (void *)&handle[len], need, BODY, timeout);
+	if (len != need) {
+	    if (len == PM_ERR_TIMEOUT)
+		return PM_ERR_TIMEOUT;
+	    else if (len < 0)
+		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: len=%d: %s", fd, len, pmErrStr(-errno));
+	    else
+		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: have %d, want %d, got %d", fd, have, need, len);
+	    /*
+	     * only report header fields if you've read enough bytes
+	     */
+	    if (len > 0)
+		have += len;
+	    if (have >= (int)(sizeof(php->len)+sizeof(php->type)+sizeof(php->from)))
+		__pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x from=0x%x", php->len, ntohl(php->type), ntohl(php->from));
+	    else if (have >= (int)(sizeof(php->len)+sizeof(php->type)))
+		__pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x", php->len, ntohl(php->type));
+	    return PM_ERR_IPC;
+	}
+    }
+
+    *result = (__pmPDU *)php;
+    php->type = ntohl((unsigned int)php->type);
+    php->from = ntohl((unsigned int)php->from);
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PDU) {
+	int	j;
+	char	*p;
+	int	jend = PM_PDU_SIZE(php->len);
+
+	/* for Purify ... */
+	p = (char *)*result + php->len;
+	while (p < (char *)*result + jend*sizeof(__pmPDU))
+	    *p++ = '~';	/* buffer end */
+
+	if (mypid == -1)
+	    mypid = getpid();
+	fprintf(stderr, "[%d]pmGetPDU: %s fd=%d len=%d from=%d",
+		mypid, __pmPDUTypeStr(php->type), fd, php->len, php->from);
+	for (j = 0; j < jend; j++) {
+	    if ((j % 8) == 0)
+		fprintf(stderr, "\n%03d: ", j);
+	    fprintf(stderr, "%8x ", (*result)[j]);
+	}
+	putc('\n', stderr);
+    }
+#endif
+    if (php->type >= PDU_START && php->type <= PDU_FINISH)
+	__pmPDUCntIn[php->type-PDU_START]++;
+
+    return php->type;
 }
 
 int

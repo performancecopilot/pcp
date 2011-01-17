@@ -57,7 +57,7 @@ do_size(pmResult *rp)
 		if (vsp->valfmt != PM_VAL_INSITU)
 							/* + pmValueBlock */
 							/* rounded up */
-		    nbyte += sizeof(__pmPDU)*((vsp->vlist[j].value.pval->vlen - 1 + sizeof(__pmPDU))/sizeof(__pmPDU));
+		    nbyte += PM_PDU_SIZE_BYTES(vsp->vlist[j].value.pval->vlen);
 	    }
 	}
     }
@@ -114,6 +114,119 @@ dumpresult(pmResult *resp)
 		desc.type = PM_TYPE_32;
 	    else
 		desc.type = PM_TYPE_AGGREGATE;
+	}
+	if (desc.type == PM_TYPE_EVENT) {
+	    /* largely lifted from pminfo -x ... */
+	    int		r;		/* event records */
+	    int		p;		/* event parameters */
+	    int		nrecords;
+	    int		nmissed = 0;
+	    int		flags;
+	    pmResult	**res;
+	    static pmID	pmid_flags = 0;
+	    static pmID	pmid_missed;
+
+	    nrecords = pmUnpackEventRecords(vsp, &res);
+	    if (nrecords < 0)
+		continue;
+	    if (nrecords == 0) {
+		printf(" No event records\n");
+		continue;
+	    }
+
+	    if (pmid_flags == 0) {
+		/*
+		 * get PMID for event.flags and event.missed
+		 * note that pmUnpackEventRecords() will have called
+		 * __pmRegisterAnon(), so the anon metrics
+		 * should now be in the PMNS
+		 */
+		char	*name_flags = "event.flags";
+		char	*name_missed = "event.missed";
+		int	sts;
+		sts = pmLookupName(1, &name_flags, &pmid_flags);
+		if (sts < 0) {
+		    /* should not happen! */
+		    fprintf(stderr, "Warning: cannot get PMID for %s: %s\n", name_flags, pmErrStr(sts));
+		    /* avoid subsequent warnings ... */
+		    __pmid_int(&pmid_flags)->item = 1;
+		}
+		sts = pmLookupName(1, &name_missed, &pmid_missed);
+		if (sts < 0) {
+		    /* should not happen! */
+		    fprintf(stderr, "Warning: cannot get PMID for %s: %s\n", name_missed, pmErrStr(sts));
+		    /* avoid subsequent warnings ... */
+		    __pmid_int(&pmid_missed)->item = 1;
+		}
+	    }
+
+	    for (r = 0; r < nrecords; r++) {
+		if (res[r]->numpmid == 2 && res[r]->vset[0]->pmid == pmid_flags &&
+		    (res[r]->vset[0]->vlist[0].value.lval & PM_EVENT_FLAG_MISSED) &&
+		    res[r]->vset[1]->pmid == pmid_missed) {
+		    nmissed += res[r]->vset[1]->vlist[0].value.lval;
+		}
+	    }
+
+	    printf(" %d", nrecords);
+	    if (nmissed > 0)
+		printf(" (and %d missed)", nmissed);
+	    if (nrecords + nmissed == 1)
+		printf(" event record\n");
+	    else
+		printf(" event records\n");
+	    for (r = 0; r < nrecords; r++) {
+		printf("              --- event record [%d] timestamp ", r);
+		__pmPrintStamp(stdout, &res[r]->timestamp);
+		if (res[r]->numpmid == 0) {
+		    printf(" ---\n");
+		    printf("	          No parameters\n");
+		    continue;
+		}
+		if (res[r]->numpmid < 0) {
+		    printf(" ---\n");
+		    printf("	          Error: illegal number of parameters (%d)\n", res[r]->numpmid);
+		    continue;
+		}
+		flags = 0;
+		for (p = 0; p < res[r]->numpmid; p++) {
+		    pmValueSet	*xvsp = res[r]->vset[p];
+		    int		sts;
+		    pmDesc	desc;
+		    char	*name;
+
+		    if (pmNameID(xvsp->pmid, &name) >= 0) {
+			if (p == 0) {
+			    if (xvsp->pmid == pmid_flags) {
+				flags = xvsp->vlist[0].value.lval;
+				printf(" flags 0x%x", flags);
+				printf(" (%s) ---\n", pmEventFlagsStr(flags));
+				free(name);
+				continue;
+			    }
+			    printf(" ---\n");
+			}
+			if ((flags & PM_EVENT_FLAG_MISSED) && p == 1 && xvsp->pmid == pmid_missed) {
+			    printf("              ==> %d missed event records\n", xvsp->vlist[0].value.lval);
+			    free(name);
+			    continue;
+			}
+			printf("              %s (%s):", pmIDStr(xvsp->pmid), name);
+			free(name);
+		    }
+		    else
+			printf("	      PMID: %s:", pmIDStr(xvsp->pmid));
+		    if ((sts = pmLookupDesc(xvsp->pmid, &desc)) < 0) {
+			printf("	      pmLookupDesc: %s\n", pmErrStr(sts));
+			continue;
+		    }
+		    printf(" value ");
+		    pmPrintValue(stdout, xvsp->valfmt, desc.type, &xvsp->vlist[0], 1);
+		    putchar('\n');
+		}
+	    }
+	    pmFreeEventResult(res);
+	    continue;
 	}
 	if (vsp->numval > 1)
 	    printf("\n              ");
@@ -235,7 +348,7 @@ dumpTI(__pmContext *ctxp)
 		log_size = sbuf.st_size;
 	    else {
 		log_size = -1;
-		printf("             Warning: file missing for log volume %d\n", tip->ti_vol);
+		printf("             Warning: file missing or compressed for log volume %d\n", tip->ti_vol);
 	    }
 	}
 	/*

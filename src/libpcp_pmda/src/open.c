@@ -473,18 +473,18 @@ __pmdaSetupPDU(int infd, int outfd, char *agentname)
     handshake[0].c_vala = PDU_VERSION;
     handshake[0].c_valb = 0;
     handshake[0].c_valc = 0;
-    if ((sts = __pmSendCreds(outfd, PDU_BINARY, 1, handshake)) < 0) {
+    if ((sts = __pmSendCreds(outfd, getpid(), 1, handshake)) < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s send creds: %s\n", agentname, pmErrStr(sts));
 	return -1;
     }
 
-    if ((sts = __pmGetPDU(infd, PDU_BINARY, TIMEOUT_DEFAULT, &pb)) < 0) {
+    if ((sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_DEFAULT, &pb)) < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s getting creds: %s\n", agentname, pmErrStr(sts));
 	return -1;
     }
 
     if (sts == PDU_CREDS) {
-	if ((sts = __pmDecodeCreds(pb, PDU_BINARY, &sender, &credcount, &credlist)) < 0) {
+	if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0) {
 	    __pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s decode creds: %s\n", agentname, pmErrStr(sts));
 	    return -1;
 	}
@@ -686,6 +686,7 @@ __pmdaSetup(pmdaInterface *dispatch, int version, char *name)
     pmdaSetFetchCallBack(dispatch, (pmdaFetchCallBack)0);
     pmdaSetCheckCallBack(dispatch, (pmdaCheckCallBack)0);
     pmdaSetDoneCallBack(dispatch, (pmdaDoneCallBack)0);
+    pmdaSetEndContextCallBack(dispatch, (pmdaEndContextCallBack)0);
 }
 
 /*

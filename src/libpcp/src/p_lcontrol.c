@@ -73,6 +73,7 @@ __pmSendLogControl(int fd, const pmResult *request, int control, int state, int 
 	return -errno;
     pp->c_hdr.len = need;
     pp->c_hdr.type = PDU_LOG_CONTROL;
+    pp->c_hdr.from = FROM_ANON;		/* context does not matter here */
     pp->c_control = htonl(control);
     pp->c_state = htonl(state);
     pp->c_delta = htonl(delta);

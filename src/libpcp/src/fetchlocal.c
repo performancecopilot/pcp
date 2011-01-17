@@ -102,7 +102,9 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 			    "__pmFetchLocal: calling ???_profile(domain: %d), "
 			    "context: %d\n", dp->domain, ctx);
 #endif
-		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    dp->dispatch.version.four.ext->e_context = ctx;
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    sts = dp->dispatch.version.four.profile(ctxp->c_instprof,
 							   dp->dispatch.version.four.ext);
 		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
@@ -125,7 +127,9 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 	}
 
 	if (sts >= 0) {
-	    if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		dp->dispatch.version.four.ext->e_context = ctx;
+	    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		sts = dp->dispatch.version.four.fetch(cnt, splitlist, &tmp_ans,
 						     dp->dispatch.version.four.ext);
 	    else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||

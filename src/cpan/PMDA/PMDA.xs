@@ -23,7 +23,6 @@ static pmdaMetric *metrictab;
 static int mtab_size;
 static __pmnsTree *pmns;
 static int need_refresh;
-static char *saved_string;
 static pmdaIndom *indomtab;
 static int itab_size;
 static int *clustertab;
@@ -234,10 +233,6 @@ fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
     if (refresh_func)
 	refresh(numpmid, pmidlist);
     sts = pmdaFetch(numpmid, pmidlist, rp, pmda);
-    if (saved_string) {
-	free(saved_string);
-	saved_string = NULL;
-    }
     return sts;
 }
 
@@ -341,6 +336,7 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 	goto fetch_end;
     }
 
+    sts = PMDA_FETCH_STATIC;
     switch (metric->m_desc.type) {	/* pop result value */
 	case PM_TYPE_32:	atom->l = POPi; break;
 	case PM_TYPE_U32:	atom->ul = POPi; break;
@@ -349,9 +345,8 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 	case PM_TYPE_FLOAT:	atom->f = POPn; break;
 	case PM_TYPE_DOUBLE:	atom->d = POPn; break;
 	case PM_TYPE_STRING:	{
-	    if (saved_string)
-		free(saved_string);
-	    atom->cp = saved_string = strdup(POPpx);
+	    atom->cp = strdup(POPpx);
+	    sts = PMDA_FETCH_DYNAMIC;
 	    break;
 	}
     }
@@ -547,12 +542,12 @@ new(CLASS,name,domain)
 	snprintf(helpfile, sizeof(helpfile), "%s%c%s%c" "help",
 			pmGetConfig("PCP_PMDAS_DIR"), sep, name, sep);
 	if (access(helpfile, R_OK) != 0) {
-	    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmdaname, domain,
+	    pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmdaname, domain,
 			logfile, NULL);
 	    dispatch.version.four.text = text;
 	}
 	else {
-	    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmdaname, domain,
+	    pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmdaname, domain,
 			logfile, helpfile);
 	}
 	dispatch.version.four.desc = pmns_desc;

@@ -150,6 +150,8 @@ doscan(struct timeval *end)
 		exit(1);
 	    }
 	    mp = &metriclist[i];
+	    if (mp->mode == MODE_SKIP)
+		continue;
 
 	    for (j = 0; j < vsp->numval; j++) {
 		value_t		*lvp = NULL;

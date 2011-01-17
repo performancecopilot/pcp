@@ -23,9 +23,9 @@
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmLookupName(int numpmid, char **namelist, pmID *pmidlist)
-int pmRequestNames(int ctx, int numpmid, char **namelist)
-int pmReceiveNames(int ctx, pmID *pmidlist)
+int pmLookupName(int \fInumpmid\fP, char **\fInamelist\fP, pmID *\fIpmidlist\fP);
+int pmRequestNames(int \fIctx\fP, int \fInumpmid\fP, char **\fInamelist\fP);
+int pmReceiveNames(int \fIctx\fP, pmID *\fIpmidlist\fP);
 .fi
 .sp
 cc ... \-lpcp

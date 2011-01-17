@@ -24,8 +24,15 @@
 .br
 #include <pcp/pmda.h>
 .sp
-int pmdaGetOpt(int argc, char *const *argv, const char *optstring, pmdaInterface *dispatch, int *err)
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmdaGetOpt(int \fIargc\fP, char *const *\fIargv\fP, const\ char\ *\fIoptstring\fP, pmdaInterface\ *\fIdispatch\fP, int\ *\fIerr\fP);
 .sp
+.in
+.hy
+.ad
 cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .SH DESCRIPTION

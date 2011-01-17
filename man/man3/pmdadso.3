@@ -24,8 +24,15 @@
 .br
 #include <pcp/pmda.h>
 .sp
-int pmdaDSO(pmdaInterface *dispatch, int interface, char *name, char *helptext);
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmdaDSO(pmdaInterface *\fIdispatch\fP, int \fIinterface\fP, char\ *\fIname\fP, char\ *\fIhelptext\fP);
 .sp
+.in
+.hy
+.ad
 cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .SH DESCRIPTION

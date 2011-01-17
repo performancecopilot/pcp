@@ -27,17 +27,17 @@
 .br
 #include <pcp/impl.h>
 .sp
-int __pmAddIPC(int fd, __pmIPC ipc)
+int __pmAddIPC(int \fIfd\fP, __pmIPC \fIipc\fP);
 .br
-int __pmLookupIPC(__pmIPC **)
+int __pmLookupIPC(__pmIPC **\fIipcp\fP);
 .br
-int __pmFdLookupIPC(int fd, __pmIPC **ipcp)
+int __pmFdLookupIPC(int \fIfd\fP, __pmIPC **\fIipcp\fP);
 .br
-void __pmOverrideLastFd(int fd)
+void __pmOverrideLastFd(int \fIfd\fP);
 .br
-void __pmPrintIPC(void)
+void __pmPrintIPC(void);
 .br
-void __pmResetIPC(int fd)
+void __pmResetIPC(int \fIfd\fP);
 .sp
 cc ... \-lpcp
 .ft 1

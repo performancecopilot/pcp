@@ -20,7 +20,7 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-int pmNewContext(int type, const char *name)
+int pmNewContext(int \fItype\fP, const char *\fIname\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -43,16 +43,39 @@ and may be either a host name (\c
 .I type
 is
 .BR PM_CONTEXT_HOST ),
-or the base name for the files of an archive log (\c
-.IR type is
+or the base name common to all of the physical files of an archive log (\c
+.I type
+is
 .BR PM_CONTEXT_ARCHIVE ).
 In the latter case,
 .I name
-may also be the name of any component file of an
-archive, e.g. the base name with the suffix
-.BR .index ,
-.BR .meta ,
-.BR .0 ,
+may also be the name of any of the physical files of an
+archive, e.g.
+.IB myarchive .meta
+(the metadata file) or
+.IB myarchive .index
+(the temporal index) or
+.IB myarchive .0
+(the first data volume of the archive)
+or
+.IB myarchive .0.bz2
+or
+.IB myarchive .0.bz
+(the first data volume compressed with
+.BR bzip2 (1))
+or
+.IB myarchive .0.gz
+or
+.IB myarchive .0.Z
+or
+.IB myarchive .0.z
+(the first data volume compressed with
+.BR gzip (1)),
+.IB myarchive .1
+or
+.IB myarchive .3.bz2
+or
+.IB myarchive .42.gz
 etc.
 .PP
 In the case where

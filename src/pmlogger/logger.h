@@ -163,6 +163,9 @@ extern int		parse_done;
 extern long		exit_bytes;
 extern long		vol_bytes;
 
+/* event record handling */
+extern int do_events(pmValueSet *);
+
 /* QA testing and error injection support ... see do_request() */
 extern int	qa_case;
 #define QA_OFF		100

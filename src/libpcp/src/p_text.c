@@ -29,16 +29,15 @@ typedef struct {
 } text_req_t;
 
 int
-__pmSendTextReq(int fd, int mode, int ident, int type)
+__pmSendTextReq(int fd, int from, int ident, int type)
 {
     text_req_t	*pp;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     if ((pp = (text_req_t *)__pmFindPDUBuf(sizeof(text_req_t))) == NULL)
 	return -errno;
     pp->hdr.len = sizeof(text_req_t);
     pp->hdr.type = PDU_TEXT_REQ;
+    pp->hdr.from = from;
 
     if (type & PM_TEXT_PMID)
 	pp->ident = __htonpmID((pmID)ident);
@@ -53,12 +52,9 @@ __pmSendTextReq(int fd, int mode, int ident, int type)
 }
 
 int
-__pmDecodeTextReq(__pmPDU *pdubuf, int mode, int *ident, int *type)
+__pmDecodeTextReq(__pmPDU *pdubuf, int *ident, int *type)
 {
     text_req_t	*pp;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     pp = (text_req_t *)pdubuf;
     *type = ntohl(pp->type);
@@ -83,19 +79,17 @@ typedef struct {
 } text_t;
 
 int
-__pmSendText(int fd, int mode, int ident, const char *buffer)
+__pmSendText(int fd, int ctx, int ident, const char *buffer)
 {
     text_t	*pp;
     size_t	need;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
-
-    need = sizeof(text_t) - sizeof(pp->buffer) + sizeof(__pmPDU)*((strlen(buffer) - 1 + sizeof(__pmPDU))/sizeof(__pmPDU));
+    need = sizeof(text_t) - sizeof(pp->buffer) + PM_PDU_SIZE_BYTES(strlen(buffer));
     if ((pp = (text_t *)__pmFindPDUBuf((int)need)) == NULL)
 	return -errno;
     pp->hdr.len = (int)need;
     pp->hdr.type = PDU_TEXT;
+    pp->hdr.from = ctx;
     /*
      * Note: ident argument must already be in network byte order.
      * The caller has to do this because the type of ident is not
@@ -113,13 +107,10 @@ __pmSendText(int fd, int mode, int ident, const char *buffer)
 }
 
 int
-__pmDecodeText(__pmPDU *pdubuf, int mode, int *ident, char **buffer)
+__pmDecodeText(__pmPDU *pdubuf, int *ident, char **buffer)
 {
     text_t	*pp;
     int		buflen;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     pp = (text_t *)pdubuf;
     /*

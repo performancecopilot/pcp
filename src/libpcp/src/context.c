@@ -449,6 +449,7 @@ pmDupContext(void)
     __pmContext		*newcon, *oldcon;
     __pmInDomProfile	*q, *p, *p_end;
     __pmProfile		*save;
+    void		*save_dm;
 
     if ((old = pmWhichContext()) < 0) {
 	sts = old;
@@ -474,8 +475,12 @@ pmDupContext(void)
     oldcon = &contexts[old];	/* contexts[] may have been relocated */
     newcon = &contexts[new];
     save = newcon->c_instprof;	/* need this later */
+    save_dm = newcon->c_dm;	/* need this later */
+    if (newcon->c_archctl != NULL)
+	free(newcon->c_archctl);	/* will allocate a new one below */
     *newcon = *oldcon;		/* struct copy */
     newcon->c_instprof = save;	/* restore saved instprof from pmNewContext */
+    newcon->c_dm = save_dm;	/* restore saved derived metrics control also */
 
     /* clone the per-domain profiles (if any) */
     if (oldcon->c_instprof->profile_len > 0) {
@@ -867,9 +872,15 @@ pmContextConnectChangeState (int ctxid)
 
 
 void
-pmContextUndef()
+pmContextUndef(void)
 {
     curcontext = PM_CONTEXT_UNDEF;
+}
+
+int
+__pmPtrToHandle(__pmContext *ctxp)
+{
+    return ctxp - contexts;
 }
 
 

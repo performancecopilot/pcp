@@ -147,7 +147,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
     struct timeval	timeout;
 
 
-    if ((sts = __pmDecodeResult(pb, PDU_BINARY, &result)) < 0)
+    if ((sts = __pmDecodeResult(pb, &result)) < 0)
 	return sts;
 
     dResult = SplitResult(result);
@@ -161,7 +161,9 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	/* If it's in a "good" list, pmID has agent that is connected */
 
 	if (ap->ipcType == AGENT_DSO) {
-	    if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	    if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
+	    if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		s = ap->ipc.dso.dispatch.version.four.store(dResult[i],
 				       ap->ipc.dso.dispatch.version.four.ext);
 	    else if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
@@ -179,7 +181,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 		/* agent is ready for PDUs */
 		if (_pmcd_trace_mask)
 		    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_RESULT, dResult[i]->numpmid);
-		s = __pmSendResult(ap->inFd, ap->pduProtocol, dResult[i]);
+		s = __pmSendResult(ap->inFd, cp - client, dResult[i]);
 		if (s >= 0) {
 		    ap->status.busy = 1;
 		    fd = ap->outFd;
@@ -247,12 +249,12 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	    ap->status.busy = 0;
 	    FD_CLR(ap->outFd, &waitFds);
 	    nWait--;
-	    s = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+	    s = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 	    if (s > 0 && _pmcd_trace_mask)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, s, (int)((__psint_t)pb & 0xffffffff));
 	    if (s == PDU_ERROR) {
 		int ss;
-		if ((ss = __pmDecodeError(pb, ap->pduProtocol, &s)) < 0)
+		if ((ss = __pmDecodeError(pb, &s)) < 0)
 		    sts = ss;
 		else {
 		    if (s < 0) {
@@ -302,7 +304,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	int s;
 	if (_pmcd_trace_mask)
 	    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, 0);
-	s = __pmSendError(cp->fd, PDU_BINARY, 0);
+	s = __pmSendError(cp->fd, FROM_ANON, 0);
 	if (s < 0)
 	    CleanupClient(cp, s);
     }

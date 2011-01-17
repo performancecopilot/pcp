@@ -55,7 +55,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	if (pmDebug & DBG_TRACE_PROFILE)
 	    fprintf(stderr, "myFetch: calling __pmSendProfile, context: %d\n", ctx);
 #endif
-	if ((n = __pmSendProfile(ctxp->c_pmcd->pc_fd, PDU_BINARY, ctx, ctxp->c_instprof)) >= 0)
+	if ((n = __pmSendProfile(ctxp->c_pmcd->pc_fd, FROM_ANON, ctx, ctxp->c_instprof)) >= 0)
 	    ctxp->c_sent = 1;
     }
 
@@ -74,11 +74,11 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	else
 	    newlist = NULL;
 
-	n = __pmSendFetch(ctxp->c_pmcd->pc_fd, PDU_BINARY, ctx, &ctxp->c_origin, numpmid, pmidlist);
+	n = __pmSendFetch(ctxp->c_pmcd->pc_fd, FROM_ANON, ctx, &ctxp->c_origin, numpmid, pmidlist);
 	if (n >= 0){
 	    int		changed = 0;
 	    do {
-		n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, TIMEOUT_DEFAULT, &pb);
+		n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
 		/*
 		 * expect PDU_RESULT or
 		 *        PDU_ERROR(changed > 0)+PDU_RESULT or
@@ -102,7 +102,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			pmResult	*result;
 			__pmPDU		*npb;
 			int		sts;
-			if ((sts = __pmDecodeResult(pb, PDU_BINARY, &result)) < 0) {
+			if ((sts = __pmDecodeResult(pb, &result)) < 0) {
 			    n = sts;
 			}
 			else {
@@ -119,7 +119,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			*pdup = pb;
 		}
 		else if (n == PDU_ERROR) {
-		    __pmDecodeError(pb, PDU_BINARY, &n);
+		    __pmDecodeError(pb, &n);
 		    if (n > 0) {
 			/* PMCD state change protocol */
 			changed = n;

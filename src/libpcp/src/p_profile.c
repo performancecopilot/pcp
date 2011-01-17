@@ -38,7 +38,7 @@ typedef struct {
 } profile_t;
 
 int
-__pmSendProfile(int fd, int mode, int ctxnum, __pmProfile *instprof)
+__pmSendProfile(int fd, int from, int ctxnum, __pmProfile *instprof)
 {
     __pmInDomProfile	*prof, *p_end;
     profile_t		*pduProfile;
@@ -46,9 +46,6 @@ __pmSendProfile(int fd, int mode, int ctxnum, __pmProfile *instprof)
     __pmPDU		*p;
     size_t		need;
     __pmPDU		*pdubuf;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     /* work out how much space we need and then alloc a pdu buf */
     need = sizeof(profile_t) + instprof->profile_len * sizeof(instprof_t);
@@ -66,6 +63,11 @@ __pmSendProfile(int fd, int mode, int ctxnum, __pmProfile *instprof)
     pduProfile = (profile_t *)p;
     pduProfile->hdr.len = (int)need;
     pduProfile->hdr.type = PDU_PROFILE;
+    /* 
+     * note: context id may be sent twice due to protocol evolution and
+     * backwards compatibility issues
+     */
+    pduProfile->hdr.from = from;
     pduProfile->ctxnum = htonl(ctxnum);
     pduProfile->g_state = htonl(instprof->state);
     pduProfile->numprof = htonl(instprof->profile_len);
@@ -101,7 +103,7 @@ __pmSendProfile(int fd, int mode, int ctxnum, __pmProfile *instprof)
 }
 
 int
-__pmDecodeProfile(__pmPDU *pdubuf, int mode, int *ctxnum, __pmProfile **result)
+__pmDecodeProfile(__pmPDU *pdubuf, int *ctxnum, __pmProfile **result)
 {
     __pmProfile		*instprof = NULL;
     __pmInDomProfile	*prof, *p_end;
@@ -109,9 +111,6 @@ __pmDecodeProfile(__pmPDU *pdubuf, int mode, int *ctxnum, __pmProfile **result)
     instprof_t		*pduInstProf;
     __pmPDU		*p;
     int			sts = 0;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     p = (__pmPDU *)pdubuf;
 

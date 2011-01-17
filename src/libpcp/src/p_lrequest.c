@@ -37,6 +37,7 @@ __pmSendLogRequest(int fd, int type)
 	return -errno;
     pp->hdr.len = sizeof(notify_t);
     pp->hdr.type = PDU_LOG_REQUEST;
+    pp->hdr.from = FROM_ANON;		/* context does not matter here */
     pp->type = htonl(type);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU) {

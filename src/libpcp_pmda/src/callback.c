@@ -401,6 +401,9 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int			type;
     e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
 
+    if (extp->pmda_interface >= PMDA_INTERFACE_5)
+	__pmdaSetContext(pmda->e_context);
+
     if (numpmid > extp->maxnpmids) {
 	if (extp->res != NULL)
 	    free(extp->res);
@@ -559,21 +562,38 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		 * PMDA_INTERFACE_3 or PMDA_INTERFACE_4
 		 *	== 0 => no values
 		 *	> 0  => OK
+		 * PMDA_INTERFACE_5 or later
+		 *	== 0 (PMDA_FETCH_NOVALUES) => no values
+		 *	== 1 (PMDA_FETCH_STATIC) or > 2 => OK
+		 *	== 2 (PMDA_FETCH_DYNAMIC) => OK and free(atom.vp)
+		 *	     after __pmStuffValue() called
 		 */
 		if (extp->pmda_interface == PMDA_INTERFACE_2 ||
-		    (extp->pmda_interface == PMDA_INTERFACE_3 && sts > 0) ||
-		    (extp->pmda_interface == PMDA_INTERFACE_4 && sts > 0)) {
+		    (extp->pmda_interface >= PMDA_INTERFACE_3 && sts > 0)) {
+		    int		lsts;
 
-		    if ((sts = __pmStuffValue(&atom, 0, &vset->vlist[j], 
-					     type)) == PM_ERR_GENERIC) {
+		    if ((lsts = __pmStuffValue(&atom, &vset->vlist[j], type)) == PM_ERR_TYPE) {
 			__pmNotifyErr(LOG_ERR, 
 				     "pmdaFetch: Descriptor type (%s) for metric %s is bad",
-				     pmTypeStr(dp->type), pmIDStr(dp->pmid));
+				     pmTypeStr(type), pmIDStr(dp->pmid));
 		    }
-		    else if (sts >= 0) {
-			vset->valfmt = sts;
+		    else if (lsts >= 0) {
+			vset->valfmt = lsts;
 			j++;
 		    }
+		    if (extp->pmda_interface >= PMDA_INTERFACE_5 && sts == PMDA_FETCH_DYNAMIC) {
+			if (type == PM_TYPE_STRING)
+			    free(atom.cp);
+			else if (type == PM_TYPE_AGGREGATE)
+			    free(atom.vbp);
+			else {
+			    __pmNotifyErr(LOG_WARNING,
+					  "pmdaFetch: Attempt to free value for metric %s of wrong type %s\n",
+					  pmIDStr(dp->pmid), pmTypeStr(type));
+			}
+		    }
+		    if (lsts < 0)
+			sts = lsts;
 		}
 	    }
 	} while (dp->indom != PM_INDOM_NULL && __pmdaNextInst(&inst, pmda));
@@ -605,6 +625,10 @@ pmdaDesc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 {
     int			j;
     int			sts = 0;
+    e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
+
+    if (extp->pmda_interface >= PMDA_INTERFACE_5)
+	__pmdaSetContext(pmda->e_context);
 
     if (pmda->e_direct) {
 	__pmID_int	*pmidp = (__pmID_int *)&pmid;
@@ -648,6 +672,11 @@ pmdaDesc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 int
 pmdaText(int ident, int type, char **buffer, pmdaExt *pmda)
 {
+    e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
+
+    if (extp->pmda_interface >= PMDA_INTERFACE_5)
+	__pmdaSetContext(pmda->e_context);
+
     if (pmda->e_help >= 0) {
 	if ((type & PM_TEXT_PMID) == PM_TEXT_PMID)
 	    *buffer = pmdaGetHelp(pmda->e_help, (pmID)ident, type);
@@ -676,7 +705,7 @@ pmdaStore(pmResult *result, pmdaExt *pmda)
  *	pmdaName()
  *	pmdaChildren()
  * to be overridden with real routines for any PMDA that is
- * using PMDA_INTERFACE_4 and supporting dynamic metrics.
+ * using PMDA_INTERFACE_4 or later and supporting dynamic metrics.
  *
  * These implementations are stubs that return appropriate errors
  * if they are ever called.

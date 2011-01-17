@@ -65,7 +65,7 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 	    need += sizeof(__pmValue_PDU);
 	    if (vsp->valfmt != PM_VAL_INSITU) {
 		/* plus pmValueBlock */
-		vneed += sizeof(__pmPDU)*((vsp->vlist[j].value.pval->vlen - 1 + sizeof(__pmPDU))/sizeof(__pmPDU));
+		vneed += PM_PDU_SIZE_BYTES(vsp->vlist[j].value.pval->vlen);
 	    }
 	}
 	if (j)
@@ -114,7 +114,7 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 		__htonpmValueBlock((pmValueBlock *)vbp);
 		/* point to the value block at the end of the PDU */
 		vlp->vlist[j].value.lval = htonl((int)(vbp - _pdubuf));
-		vbp += (nb - 1 + sizeof(__pmPDU))/sizeof(__pmPDU);
+		vbp += PM_PDU_SIZE(nb);
 	    }
 	}
 	vlp->numval = htonl(vsp->numval);
@@ -128,24 +128,25 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 }
 
 int
-__pmSendResult(int fd, int mode, const pmResult *result)
+__pmSendResult(int fd, int from, const pmResult *result)
 {
     int		sts;
     __pmPDU	*pdubuf;
+    result_t	*pp;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU)
 	__pmDumpResult(stderr, result);
 #endif
     if ((sts = __pmEncodeResult(fd, result, &pdubuf)) < 0)
 	return sts;
+    pp = (result_t *)pdubuf;
+    pp->hdr.from = from;
     return __pmXmitPDU(fd, pdubuf);
 }
 
 int
-__pmDecodeResult(__pmPDU *pdubuf, int mode, pmResult **result)
+__pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 {
     int		numpmid;	/* number of metrics */
     int		sts;		/* function status */
@@ -174,9 +175,6 @@ __pmDecodeResult(__pmPDU *pdubuf, int mode, pmResult **result)
 #else
     Bozo - unexpected sizeof pointer!!
 #endif
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     if ((sts = version = __pmLastVersionIPC()) < 0)
 	return sts;
@@ -218,7 +216,7 @@ __pmDecodeResult(__pmPDU *pdubuf, int mode, pmResult **result)
 		    pmValueBlock *pduvbp = (pmValueBlock *)&pdubuf[index];
 
 		    __ntohpmValueBlock(pduvbp);
-		    vbsize += sizeof(__pmPDU) * ((pduvbp->vlen + sizeof(__pmPDU) - 1) / sizeof(__pmPDU));
+		    vbsize += PM_PDU_SIZE_BYTES(pduvbp->vlen);
 #ifdef DESPERATE
 		    fprintf(stderr, " len: %d type: %d",
 			    pduvbp->vlen - PM_VAL_HDR_SIZE, pduvbp->vtype);

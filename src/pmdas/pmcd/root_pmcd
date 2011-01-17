@@ -31,6 +31,7 @@ pmcd {
     pmie
     buf
     client
+    cputime
 }
 
 pmcd.control {
@@ -131,6 +132,12 @@ pmcd.client {
     whoami		PMCD:6:0
     start_date		PMCD:6:1
 }
+
+pmcd.cputime {
+    total		PMCD:7:0
+    per_pdu_in		PMCD:7:1
+}
+
 
 
 #undef PMCD

@@ -119,7 +119,7 @@ do_preamble(void)
 	    }
 	}
 
-	sts = __pmStuffValue(&atom, 0,  &res->vset[i]->vlist[0], desc[i].type);
+	sts = __pmStuffValue(&atom, &res->vset[i]->vlist[0], desc[i].type);
 	if (sts < 0)
 	    return sts;
 	res->vset[i]->vlist[0].inst = mypid;

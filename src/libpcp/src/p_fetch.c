@@ -31,19 +31,22 @@ typedef struct {
 } fetch_t;
 
 int
-__pmSendFetch(int fd, int mode, int ctxnum, __pmTimeval *when, int numpmid, pmID *pmidlist)
+__pmSendFetch(int fd, int from, int ctxnum, __pmTimeval *when, int numpmid, pmID *pmidlist)
 {
     size_t	need;
     fetch_t	*pp;
     int		j;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     need = sizeof(fetch_t) + (numpmid-1) * sizeof(pmID);
     if ((pp = (fetch_t *)__pmFindPDUBuf((int)need)) == NULL)
 	return -errno;
     pp->hdr.len = (int)need;
     pp->hdr.type = PDU_FETCH;
+    /* 
+     * note: context id may be sent twice due to protocol evolution and
+     * backwards compatibility issues
+     */
+    pp->hdr.from = from;
     pp->ctxnum = htonl(ctxnum);
     if (when == NULL)
 	memset((void *)&pp->when, 0, sizeof(pp->when));
@@ -63,13 +66,11 @@ __pmSendFetch(int fd, int mode, int ctxnum, __pmTimeval *when, int numpmid, pmID
 }
 
 int
-__pmDecodeFetch(__pmPDU *pdubuf, int mode, int *ctxnum, __pmTimeval *when, int *numpmid, pmID **pmidlist)
+__pmDecodeFetch(__pmPDU *pdubuf, int *ctxnum, __pmTimeval *when, int *numpmid, pmID **pmidlist)
 {
     fetch_t	*pp;
     int		j;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     pp = (fetch_t *)pdubuf;
     *ctxnum = ntohl(pp->ctxnum);
     when->tv_sec = ntohl(pp->when.tv_sec);

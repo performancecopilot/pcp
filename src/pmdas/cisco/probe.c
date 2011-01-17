@@ -34,11 +34,9 @@
 #include <errno.h>
 #include "./cisco.h"
 
-static FILE	*fin;
-static FILE	*fout;
-
 int		port = 23;
 int		seen_fr = 0;
+char		*prompt = ">";		/* unique suffix to IOS prompt */
 
 char *
 mygetfirstwd(FILE *f)
@@ -75,9 +73,10 @@ mygetfirstwd(FILE *f)
     }
     /* either EOF, or line starts with a non-space */
 
-    p = mygetwd(f);
+    p = mygetwd(f, prompt);
 
-    if (p != NULL && p[strlen(p)-1] != '>') {
+    if (p != NULL && (strlen(p) < strlen(prompt) ||
+	    strcmp(&p[strlen(p)-strlen(prompt)], prompt)) != 0) {
 	/* skip to end of line, ready for next one */
 	while ((c = fgetc(f)) != EOF) {
 	    if (c == '\r' || c == '\n')
@@ -103,50 +102,71 @@ probe_cisco(cisco_t * cp)
     int		fd;
     int		first = 1;
     char	*pass = NULL;
-    int		defer;
+    int		defer = 0;
     int		state = PREAMBLE;
     int		i;
     int		namelen;
-    char	*ctype;
-    char	*name;
+    char	*ctype = NULL;
+    char	*name = NULL;
 
-    fd = conn_cisco(cp);
-    if (fd == -1) {
-	fprintf(stderr, "grab_cisco(%s): connect failed: %s\n",
-	    cp->host, strerror(errno));
-	return;
+    if (cp->fin == NULL) {
+	fd = conn_cisco(cp);
+	if (fd == -1) {
+	    fprintf(stderr, "grab_cisco(%s): connect failed: %s\n",
+		cp->host, strerror(errno));
+	    return;
+	}
+	else {
+	    cp->fin = fdopen (fd, "r");
+	    cp->fout = fdopen (dup(fd), "w");
+	    if (cp->username != NULL) {
+		/*
+		 * Username stuff ...
+		 */
+		if (dousername(cp, &pass) == 0) {
+		    exit(1);
+		}
+	    }
+	    if (cp->passwd != NULL) {
+		/*
+		 * User-level password stuff ...
+		 */
+		if (dopasswd(cp, pass) == 0) {
+		    exit(1);
+		}
+	    }
+	}
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL1) {
+	    fprintf(stderr, "Send: \n");
+	    fprintf(stderr, "Send: terminal length 0\n");
+	}
+#endif
+	fprintf(cp->fout, "\n");
+	fflush(cp->fout);
+	fprintf(cp->fout, "terminal length 0\n");
+	fflush(cp->fout);
+
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL1) {
+	    fprintf(stderr, "Send: show int\n");
+	}
+#endif
+	fprintf(cp->fout, "show int\n");
+	fflush(cp->fout);
+
     }
     else {
-	fin = fdopen (fd, "r");
-	fout = fdopen (dup(fd), "w");
-	if (cp->username != NULL) {
-	    /*
-	     * Username stuff ...
-	     */
-	    if (dousername(fin, fout, cp->username, cp->host, &pass) == 0) {
-		exit(1);
-	    }
-	}
-	if (cp->passwd != NULL) {
-	    /*
-	     * User-level password stuff ...
-	     */
-	    if (dopasswd(fin, fout, cp->passwd, cp->host, pass) == 0) {
-		exit(1);
-	    }
-	}
+	/*
+	 * parsing text from a file, not a TCP/IP connection to a
+	 * Cisco device
+	 */
+	;
     }
-    fprintf(fout, "\n");
-    fflush(fout);
-    fprintf(fout, "terminal length 0\n");
-    fflush(fout);
-
-    fprintf(fout, "show int\n");
-    fflush(fout);
 
     for ( ; ; ) {
-	w = mygetfirstwd(fin);
-	if (defer) {
+	w = mygetfirstwd(cp->fin);
+	if (defer && ctype != NULL && name != NULL) {
 	    if (seen_fr) {
 		if (first)
 		    first = 0;
@@ -154,6 +174,7 @@ probe_cisco(cisco_t * cp)
 		    putchar(' ');
 		printf("%s%s", ctype, name);
 		free(name);
+		name = NULL;
 	    }
 	}
 	defer = 0;
@@ -162,7 +183,7 @@ probe_cisco(cisco_t * cp)
 	     * End of File (telenet timeout?)
 	     */
 	    fprintf(stderr, "grab_cisco(%s): forced disconnect fin=%d\n",
-		cp->host, fileno(fin));
+		cp->host, fileno(cp->fin));
 	    return;
 	}
 	if (*w == '\0')
@@ -179,14 +200,15 @@ probe_cisco(cisco_t * cp)
 	    continue;
 	}
 	else {
-	    if (w[strlen(w)-1] == '>')
+	    if (strlen(w) >= strlen(prompt) &&
+		strcmp(&w[strlen(w)-strlen(prompt)], prompt) == 0)
 		break;
 	    ctype = NULL;
 	    for (i = 0; i < num_intf_tab; i++) {
 		namelen = strlen(intf_tab[i].name);
 		if (strncmp(w, intf_tab[i].name, namelen) == 0) {
 #ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_APPL1) {
+		    if (pmDebug & DBG_TRACE_APPL2) {
 			fprintf(stderr, "Match: if=%s word=%s\n", intf_tab[i].name, w);
 		    }
 #endif
@@ -211,21 +233,27 @@ probe_cisco(cisco_t * cp)
 	    }
 	    if (i == num_intf_tab)
 		fprintf(stderr, "%s: Warning, unknown interface: %s\n", pmProgname, w);
-	    if (ctype != NULL && !defer) {
+	    if (ctype != NULL && name != NULL && !defer) {
 		if (first)
 		    first = 0;
 		else
 		    putchar(' ');
 		printf("%s%s", ctype, name);
 		free(name);
+		name = NULL;
 	    }
 	}
     }
     putchar('\n');
 
     /* close CISCO telnet session */
-    fprintf(fout, "exit\n");
-    fflush(fout);
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL1) {
+	fprintf(stderr, "Send: exit\n");
+    }
+#endif
+    fprintf(cp->fout, "exit\n");
+    fflush(cp->fout);
 
     return;
 }
@@ -243,7 +271,7 @@ main(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "D:P:U:x:?")) != EOF) {
+    while ((c = getopt(argc, argv, "D:P:s:U:x:?")) != EOF) {
 	switch (c) {
 
 	    case 'D':	/* debug flag */
@@ -259,6 +287,10 @@ main(int argc, char **argv)
 
 	    case 'P':		/* passwd */
 		passwd = optarg;
+		break;
+
+	    case 's':		/* prompt */
+	    	prompt = optarg;
 		break;
 
 	    case 'U':		/* username */
@@ -280,28 +312,48 @@ main(int argc, char **argv)
     }
 
     if (errflag || optind != argc-1) {
-	fprintf(stderr, "Usage: %s [-U username] [-P passwd] [-x port] host\n\n", pmProgname);
+	fprintf(stderr, "Usage: %s [-U username] [-P passwd] [-s prompt] [-x port] host\n\n", pmProgname);
 	exit(1);
     }
-	    
+
     if ((hostInfo = gethostbyname(argv[optind])) == NULL) {
-	fprintf(stderr, "%s: unknown hostname %s: %s\n",
+	FILE	*f;
+	if ((f = fopen(argv[optind], "r")) == NULL) {
+	    fprintf(stderr, "%s: unknown hostname or filename %s: %s\n",
 		pmProgname, argv[optind], hstrerror(h_errno));
+	    exit(1);
+	}
+	else {
+	    cisco_t c;
+
+	    fprintf(stderr, "%s: assuming file %s contains output from \"show int\" command\n",
+	    	pmProgname, argv[optind]);
+
+	    c.host = argv[optind];
+	    c.username = NULL;
+	    c.passwd = NULL;
+	    c.fin = f;
+	    c.fout = fopen("/dev/null", "w");
+	    c.prompt = prompt;
+
+	    probe_cisco(&c);
+	}
     } else {
 	cisco_t c;
 	struct sockaddr_in *sinp = & c.ipaddr;
-	
+
 	c.host = argv[optind];
 	c.username = username;
 	c.passwd = passwd;
 	c.fin = NULL;
 	c.fout = NULL;
-		
+	c.prompt = prompt;
+
 	memset(sinp, 0, sizeof(c.ipaddr));
 	sinp->sin_family = AF_INET;
 	memcpy(&sinp->sin_addr, hostInfo->h_addr, hostInfo->h_length);
 	sinp->sin_port = htons(23);	/* telnet */
-	
+
 	probe_cisco(&c);
     }
 

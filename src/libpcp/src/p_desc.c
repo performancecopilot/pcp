@@ -28,16 +28,15 @@ typedef struct {
 } desc_req_t;
 
 int
-__pmSendDescReq(int fd, int mode, pmID pmid)
+__pmSendDescReq(int fd, int from, pmID pmid)
 {
     desc_req_t	*pp;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     if ((pp = (desc_req_t *)__pmFindPDUBuf(sizeof(desc_req_t))) == NULL)
 	return -errno;
     pp->hdr.len = sizeof(desc_req_t);
     pp->hdr.type = PDU_DESC_REQ;
+    pp->hdr.from = from;
     pp->pmid = __htonpmID(pmid);
 
 #ifdef DESPERATE
@@ -48,12 +47,10 @@ __pmSendDescReq(int fd, int mode, pmID pmid)
 }
 
 int
-__pmDecodeDescReq(__pmPDU *pdubuf, int mode, pmID *pmid)
+__pmDecodeDescReq(__pmPDU *pdubuf, pmID *pmid)
 {
     desc_req_t	*pp;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     pp = (desc_req_t *)pdubuf;
     *pmid = __ntohpmID(pp->pmid);
     return 0;
@@ -68,17 +65,16 @@ typedef struct {
 } desc_t;
 
 int
-__pmSendDesc(int fd, int mode, pmDesc *desc)
+__pmSendDesc(int fd, int ctx, pmDesc *desc)
 {
     desc_t	*pp;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     if ((pp = (desc_t *)__pmFindPDUBuf(sizeof(desc_t))) == NULL)
 	return -errno;
 
     pp->hdr.len = sizeof(desc_t);
     pp->hdr.type = PDU_DESC;
+    pp->hdr.from = ctx;
     pp->desc.type = htonl(desc->type);
     pp->desc.sem = htonl(desc->sem);
     pp->desc.indom = __htonpmInDom(desc->indom);
@@ -88,12 +84,10 @@ __pmSendDesc(int fd, int mode, pmDesc *desc)
 }
 
 int
-__pmDecodeDesc(__pmPDU *pdubuf, int mode, pmDesc *desc)
+__pmDecodeDesc(__pmPDU *pdubuf, pmDesc *desc)
 {
     desc_t	*pp;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
     pp = (desc_t *)pdubuf;
     desc->type = ntohl(pp->desc.type);
     desc->sem = ntohl(pp->desc.sem);

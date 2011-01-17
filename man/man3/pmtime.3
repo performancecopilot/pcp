@@ -23,15 +23,15 @@ update interval between one or more applications
 .ft 3
 #include <pcp/pmtime.h>
 .sp
-int pmTimeConnect(int port, pmTime *state)
+int pmTimeConnect(int \fIport\fP, pmTime *\fIstate\fP);
 .br
-int pmTimeDisconnect(int fd)
+int pmTimeDisconnect(int \fIfd\fP);
 .br
-int pmTimeSendAck(int fd, struct timeval *fetchTime)
+int pmTimeSendAck(int \fIfd\fP, struct timeval *\fIfetchTime\fP);
 .br
-int pmTimeShowDialog(int fd, int show)
+int pmTimeShowDialog(int \fIfd\fP, int \fIshow\fP);
 .br
-int pmTimeRecv(int fd, pmTime *state)
+int pmTimeRecv(int \fIfd\fP, pmTime *\fIstate\fP);
 .sp
 cc ... \-lpcp_gui
 .ft 1
