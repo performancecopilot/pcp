@@ -41,13 +41,7 @@ int file_single (char *filename, int type, int *base, void **vpp)
     int fd;
     int n;
     /* overlarge */
-    char b[80];
-    /* this is bad - FIX */
-    struct stat sb = {
-    	.st_size = 0
-    };
-
-    memset (b, 0, 80);
+    char b[80] = { 0 };
 
     /* Read in the file into the buffer b */
     if (( fd = open (filename, O_RDONLY)) < 0) {

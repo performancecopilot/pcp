@@ -682,15 +682,15 @@ grab_cisco(intf_t *ip)
 	    fprintf(stderr, " ? out");
 	fprintf(stderr, "\ntotal bytes:");
 	if (tmp.bytes_in != 0xffffffffffffffffLL)
-	    fprintf(stderr, " %llu in", tmp.bytes_in);
+	    fprintf(stderr, " %llu in", (unsigned long long)tmp.bytes_in);
 	else
 	    fprintf(stderr, " ? in");
 	if (tmp.bytes_out != 0xffffffffffffffffLL)
-	    fprintf(stderr, " %llu out", tmp.bytes_out);
+	    fprintf(stderr, " %llu out", (unsigned long long)tmp.bytes_out);
 	else
 	    fprintf(stderr, " ? out");
 	if (tmp.bytes_out_bcast != 0xffffffffffffffffLL)
-	    fprintf(stderr, " %llu out_bcast", tmp.bytes_out_bcast);
+	    fprintf(stderr, " %llu out_bcast", (unsigned long long)tmp.bytes_out_bcast);
 	else
 	    fprintf(stderr, " ? out_bcast");
 	fprintf(stderr, "\n\n");

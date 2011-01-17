@@ -241,10 +241,19 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 	maxSockFd = fd;
     FD_SET(fd, &sockFds);
 
+#ifndef IS_MINGW
     /* Ignore dead client connections */
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one, (mysocklen_t)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) setsockopt(SO_REUSEADDR): %s\n", port, strerror(errno));
+	DontStart();
     }
+#else
+    /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
+    if (setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one, (mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) setsockopt(SO_EXCLUSIVEADDRUSE): %s\n", port, strerror(errno));
+	DontStart();
+    }
+#endif
 
     memset(&myAddr, 0, sizeof(myAddr));
     myAddr.sin_family = AF_INET;

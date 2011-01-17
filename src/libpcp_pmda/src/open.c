@@ -60,6 +60,7 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet socket: %s\n", strerror(errno));
 	exit(1);
     }
+#ifndef IS_MINGW
     /*
      * allow port to be quickly re-used, e.g. when Install and PMDA already
      * installed, this becomes terminate and restart in a hurry ...
@@ -68,6 +69,14 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: setsockopt(reuseaddr): %s\n", strerror(errno));
 	exit(1);
     }
+#else
+    /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
+    if (setsockopt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one, (mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: setsockopt(excladdruse): %s\n", strerror(errno));
+	exit(1);
+    }
+#endif
+
     memset(&myaddr, 0, sizeof(myaddr));
     myaddr.sin_family = AF_INET;
     myaddr.sin_addr.s_addr = htonl(INADDR_ANY);

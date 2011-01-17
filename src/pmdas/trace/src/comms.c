@@ -228,6 +228,7 @@ getcport(void)
 		strerror(errno));
 	exit(1);
     }
+#ifndef IS_MINGW
     /* ignore dead client connections */
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one,
 					    (mysocklen_t)sizeof(one)) < 0) {
@@ -235,6 +236,15 @@ getcport(void)
 		strerror(errno));
 	exit(1);
     }
+#else
+    /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
+    if (setsockopt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one,
+					    (mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(excladdruse): %s",
+		strerror(errno));
+	exit(1);
+    }
+#endif
 
     if (ctlport == -1) {
 	/*
