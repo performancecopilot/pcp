@@ -26,9 +26,11 @@ request_fetch (int ctxid, __pmContext *ctxp,  int numpmid, pmID pmidlist[])
 {
     int n;
 
+#ifdef ASYNC_API
     if (ctxp->c_pmcd->pc_curpdu != 0) {
 	return (PM_ERR_CTXBUSY);
     }
+#endif /*ASYNC_API*/
 
     if (ctxp->c_sent == 0) {
 	/*
@@ -57,6 +59,7 @@ request_fetch (int ctxid, __pmContext *ctxp,  int numpmid, pmID pmidlist[])
     return (n);
 }
 
+#ifdef ASYNC_API
 int 
 pmRequestFetch(int ctxid, int numpmid, pmID pmidlist[])
 {
@@ -71,7 +74,7 @@ pmRequestFetch(int ctxid, int numpmid, pmID pmidlist[])
     }
     return (n);
 }
-
+#endif /*ASYNC_API*/
 
 static int
 receive_fetch (__pmContext *ctxp, pmResult **result)
@@ -93,6 +96,7 @@ receive_fetch (__pmContext *ctxp, pmResult **result)
     return (n);
 }
 
+#ifdef ASYNC_API
 int
 pmReceiveFetch (int ctxid, pmResult **result)
 {
@@ -111,6 +115,7 @@ pmReceiveFetch (int ctxid, pmResult **result)
     }
     return (n);
 }
+#endif /*ASYNC_API*/
 
 int
 pmFetch(int numpmid, pmID pmidlist[], pmResult **result)

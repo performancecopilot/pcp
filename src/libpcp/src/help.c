@@ -25,9 +25,11 @@ requesttext (__pmContext *ctxp, int ident, int type)
 {
     int n;
 
+#ifdef ASYNC_API
     if (ctxp->c_pmcd->pc_curpdu != 0) {
 	return (PM_ERR_CTXBUSY);
     }
+#endif /*ASYNC_API*/
 
     n = __pmSendTextReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), ident, type);
     if (n < 0) {
@@ -129,6 +131,7 @@ again_local:
     return n;
 }
 
+#ifdef ASYNC_API
 static int
 ctxidRequestText (int ctx, int id, int level)
 {
@@ -170,6 +173,7 @@ pmRequestInDomText (int ctx, pmID pmid, int level)
 {
     return (ctxidRequestText (ctx, (int)pmid, level | PM_TEXT_INDOM));
 }
+#endif /*ASYNC_API*/
 
 int
 pmLookupText(pmID pmid, int level, char **buffer)

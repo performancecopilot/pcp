@@ -25,9 +25,11 @@ request_desc (__pmContext *ctxp, pmID pmid)
 {
     int n;
 
+#ifdef ASYNC_API
     if (ctxp->c_pmcd->pc_curpdu != 0) {
 	return (PM_ERR_CTXBUSY);
     }
+#endif /*ASYNC_API*/
 
     if ((n = __pmSendDescReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), pmid)) < 0) {
 	n = __pmMapErrno(n);
@@ -36,6 +38,7 @@ request_desc (__pmContext *ctxp, pmID pmid)
     return (n);
 }
 
+#ifdef ASYNC_API
 int
 pmRequestDesc (int ctx, pmID pmid)
 {
@@ -50,6 +53,7 @@ pmRequestDesc (int ctx, pmID pmid)
     }
     return (n);
 }
+#endif /*ASYNC_API*/
 
 static int
 receive_desc (__pmContext *ctxp, pmDesc *desc)
@@ -69,6 +73,7 @@ receive_desc (__pmContext *ctxp, pmDesc *desc)
     return (n);
 }
 
+#ifdef ASYNC_API
 int
 pmReceiveDesc(int ctx, pmDesc *desc)
 {
@@ -84,6 +89,7 @@ pmReceiveDesc(int ctx, pmDesc *desc)
 
     return (n);
 }
+#endif /*ASYNC_API*/
 
 int
 pmLookupDesc(pmID pmid, pmDesc *desc)

@@ -87,6 +87,12 @@ __pmHandleToPtr(int handle)
 	return &contexts[handle];
 }
 
+int
+__pmPtrToHandle(__pmContext *ctxp)
+{
+    return ctxp - contexts;
+}
+
 const char * 
 pmGetContextHostName (int ctxid)
 {
@@ -125,7 +131,6 @@ pmWhichContext(void)
 #endif
     return sts;
 }
-
 
 static int
 __pmConvertTimeout (int timeo)
@@ -696,6 +701,7 @@ __pmGetHostContextByID (int ctxid, __pmContext **cp)
     return (0);
 }
 
+#ifdef ASYNC_API
 int
 __pmGetBusyHostContextByID (int ctxid, __pmContext **cp, int pdu)
 {
@@ -880,11 +886,4 @@ pmContextUndef(void)
 {
     curcontext = PM_CONTEXT_UNDEF;
 }
-
-int
-__pmPtrToHandle(__pmContext *ctxp)
-{
-    return ctxp - contexts;
-}
-
-
+#endif /*ASYNC_API*/

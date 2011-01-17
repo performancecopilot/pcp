@@ -135,8 +135,10 @@ static const struct {
 	"Result size exceeded" },
     { PM_ERR_NYI,		"PM_ERR_NYI",
 	"Functionality not yet implemented" },
+#ifdef ASYNC_API
     { PM_ERR_CTXBUSY,		"PM_ERR_CTXBUSY",
         "Current context is used by asynchronous operation" },
+#endif /*ASYNC_API*/
     { 0,			"",
 	"" }
 };

@@ -12,6 +12,7 @@
  * License for more details.
  */
 
+#ifdef ASYNC_API
 #include "pmapi.h"
 #include "impl.h"
 #include <assert.h>
@@ -879,3 +880,4 @@ pmLoopMain(void)
 }
 
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
+#endif /*ASYNC_API*/
