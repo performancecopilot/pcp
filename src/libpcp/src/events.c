@@ -54,7 +54,8 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp)
 	return;
     }
     if (eap->ea_len < PM_VAL_HDR_SIZE + sizeof(eap->ea_nrecords)) {
-	fprintf(f, "Error: bad len (smaller than minimum size %lu)\n", PM_VAL_HDR_SIZE + sizeof(eap->ea_nrecords));
+	fprintf(f, "Error: bad len (smaller than minimum size %lu)\n",
+		(unsigned long)PM_VAL_HDR_SIZE + sizeof(eap->ea_nrecords));
 	return;
     }
     fprintf(f, "nrecords: %d\n", eap->ea_nrecords);
