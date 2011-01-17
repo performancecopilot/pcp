@@ -9,11 +9,9 @@ oss		pcpqa
 sgi		pcpqa
 
 # catch-all
-#
 other		pcpqa
 
 # sanity check ... quick coverage of most functionality
-#
 sanity		pcpqa
 
 # specific apps
@@ -54,82 +52,72 @@ pmprobe		pcpqa
 routervis	pcpqa
 # diskstat
 diskstat	pcpqa
+# pmpost
+pmpost		pcpqa
+# pmdate
+pmdate		pcpqa
 
 # general PDU encode/decode
-#
 pdu		pcpqa
 
 # time control services
-# 
 pmtime		pcpqa
 
 # PMNS related functions/programs
 pmns		pcpqa
 
 # PCP version compatability
-#
 compat		pcpqa
 
 # generic libpcp services (not pdu, not context, not archive)
-#
 libpcp		pcpqa
 
 # fetch-specific, optfetch, groupfetch
-#
 fetch		pcpqa
 
 # archive support in libpcp, includes interp.c
-#
 archive		pcpqa
 
 # cron.*, pm*log* apps (except pmlogger)
-#
 logutil		pcpqa
 
-# log processing apps apps
+# log processing apps
 pmlogextract	pcpqa
-
-# pmlogsummary
-# 
+pmlogreduce	pcpqa
 pmlogsummary	pcpqa
+pmlogconf	pcpqa
 
 # general context manipulations, includes profile cacheing
-#
 context		pcpqa
 
 # indom specific services
-#
 indom		pcpqa
 
 # PM_CONTEXT_LOCAL
 context_local	pcpqa
 
 # PCP on different platforms
-#
 interop		pcpqa
 
 # memory leaks, assorted
-#
 mem_leak	pcpqa
 
 # general pmdas, but includes libpcp_pmda
-#
 pmda		pcpqa
 
+# pmda installation scripts and procedures
+pmda.install	pcpqa
+
 # launching tools from pmview/oview
-#
 pmlaunch	pcpqa
 
 # tools which use PCP_COUNTER_WRAP 
-#
 wrap		pcpqa
 
 # pmsnap utility
-#
 pmsnap		pcpqa
 
-# pmstore command
-#
+# pmstore command and pmStore() libpcp routine
 pmstore		pcpqa
 
 # trace library and PMDA
@@ -169,85 +157,66 @@ pmda.txmon	pcpqa
 pmda.mmv	pcpqa
 
 # libirixpmda
-#
 libirixpmda	pcpqa
 
 # Linux platform PMDA
-#
 pmda.linux	pcpqa
 
 # libpcp_dev
-#
 libpcp_dev	pcpqa
 
 # pmsocks
-#
 pmsocks		pcpqa
 
 # newhelp, chkhelp and associated library support
 help		pcpqa
 
 # oview
-#
 oview		pcpqa
 
 # pmgadgets
-#
 pmgadgets	pcpqa
 
-#
 # tests that use purify
 purify		pcpqa
 
-#
 # tests that use valgrind
 valgrind	pcpqa
 
-#
 # pmcd_wait - wait for pmcd to be ready for connections
 pmcd_wait	pcpqa
 
 # pmimport and plugins
-#
 pmimport	pcpqa
 
 # pmieconf - app, pconf and lconf
-#
 pmieconf	pcpqa
 
 # os testing - eagan
-#
 ostest		pcpqa
 
 # pcpweb
 pcpweb		pcpqa
 
 # mpi stuff
-#
 mpi		pcpqa
 
 # mpi PMDA
-#
 pmda.mpi	pcpqa
 
 # mpi library
-#
 libpcp_mpi	pcpqa
 
 # mpi read library
-#
 libpcp_mpiread	pcpqa
 
 # dmf stuff
-#
 dmf		pcpqa
 
 # derived metrics
-#
 derive		pcpqa
 
 # event records
-#
 event		pcpqa
 
 
@@ -280,11 +249,11 @@ event		pcpqa
 023 pmcd local pmprobe ostest oss
 024 context context_local ostest remote oss sanity
 025 context pmlc local ostest oss
-026 other help local ostest oss sanity
+026 other help local ostest oss sanity libpcp
 027 libpcp local ostest oss sanity
 028 pmns local ostest oss
 029 pmns local ostest oss
-030 pdu pmcd pmda context_local local ostest oss
+030 pdu pmcd pmda context_local local ostest oss pmstore
 031 pmns local oss sanity
 032 pmlc local ostest oss
 033 libirixpmda local ostest oss
@@ -294,7 +263,7 @@ event		pcpqa
 039 pmlogger archive local ostest oss
 040 pmlogger mem_leak local ostest oss
 041 pmcd local ostest oss
-043 libpcp fetch pmlc local ostest oss
+043 libpcp fetch pmlc local ostest oss pmstore
 044 fetch pmval local ostest oss
 045 libpcp pmda local ostest oss pmstore
 046 archive pmlogger pmdumplog local ostest oss
@@ -313,7 +282,7 @@ event		pcpqa
 061 pmlogger pmlc local ostest oss
 062 pmcd local ostest oss
 063 fetch local ostest oss
-065 libpcp local ostest oss
+065 libpcp local ostest oss pmstore
 066 pmcd ostest remote oss
 067 pmcd local ostest oss
 068 context pmlc local ostest oss sanity
@@ -368,7 +337,6 @@ event		pcpqa
 118 pmie local oss
 119 logutil local #877570 oss
 120 libirixpmda local oss
-121 pmlogconf #893249 local oss
 121 pmlogconf #893249 local oss
 122 trace local #893884 remote oss
 123 libpcp local oss
@@ -431,7 +399,7 @@ event		pcpqa
 180 archive pmval local oss
 181 pmval archive pmval local oss
 182 pmlc pmlogger local oss
-183 pmnewlog logutil local oss
+183 logutil local oss
 184 logutil remote folio oss sanity
 185 logutil local folio oss
 186 logutil local pmlogextract oss
@@ -446,10 +414,10 @@ event		pcpqa
 195 archive local oss
 196 pmcd remote oss
 197 context local oss
-198 libpcp_pmda profile #934332 local oss
+198 pmda context #934332 local oss
 199 pmda.trivial pmda.proc local pmda.install oss
 200 context local oss
-201 libpcp_pmda local oss sanity
+201 pmda local oss sanity
 202 logutil pmval local pmlogextract oss
 203 logutil archive pmval local pmlogextract oss
 204 pmlogger local oss
@@ -513,7 +481,7 @@ event		pcpqa
 262 context_local pmie pmsocks remote pmstat oss
 263 derive local oss sanity
 264 pmns local oss
-265 util_lib local oss
+265 libpcp local oss
 266 logutil #466346 patch2140 patch2141 local pmlogextract oss
 267 pmlogger local oss
 268 interop local oss
@@ -521,8 +489,10 @@ event		pcpqa
 270 pmlogextract logutil local oss
 271 archive local oss
 272 pmcd pmval pmprobe remote oss
+273 libpcp local oss
 274 pmda help local pmda.install oss dbpmda
 275 derive local oss
+276 pmie pmval indom local oss
 277 libpcp pdu interop local oss
 278 other help local oss sanity
 279 pmcd local oss
@@ -573,7 +543,7 @@ event		pcpqa
 324 pmda.txmon pmda.proc local pmda.install oss
 325 libpcp local oss
 326 pmlogger pmval libpcp pmcd local pmda.install folio oss
-327 pmloglabel oss local
+327 archive oss local
 328 logutil local pmlogextract oss
 329 archive mem_leak local purify oss
 330 archive mem_leak local purify oss
@@ -666,7 +636,7 @@ event		pcpqa
 417 archive local oss
 418 pmdumplog local oss
 419 pmdumplog local oss
-420 pmafm local oss
+420 folio local oss
 421 trace local pmda.install oss
 422 libpcp local oss pmstore
 423 libpcp local oss
@@ -681,6 +651,11 @@ event		pcpqa
 432 pmlogreduce local oss
 433 pmie local #573184 oss
 434 pmval local oss
+435 archive local oss
+436 archive local oss
+437 archive local oss
+438 archive local oss
+439 pmlc local oss
 445 trace local oss
 446 trace local oss
 450 pmlogextract local #584487 pmval oss
@@ -692,7 +667,7 @@ event		pcpqa
 469 help local #626853 oss
 471 pmda local #621699 oss
 482 pmlogsummary local oss
-500 pmnewlog local #636417 folio oss
+500 logutil local #636417 folio oss
 501 pmie remote oss
 504 pmie remote pmsocks oss
 507 other local oss
@@ -721,7 +696,7 @@ event		pcpqa
 564 logutil local oss
 565 pmda.sendmail local pmda.install oss
 569 pmprobe #679693 local oss sanity
-570 pmnscomp #690735 local oss
+570 pmns #690735 local oss
 571 pmlogger local oss
 572 pmcd pmda local pmda.install oss
 574 libpcp pmns compat local oss sanity
@@ -754,7 +729,7 @@ event		pcpqa
 638 pmns local oss
 639 pmns local oss
 640 pmpost local oss
-642 pmda.trivial pmns local oss pmda.simple pmda.sample pmda.sendmail pmda.trace
+642 pmda.trivial pmns local oss pmda.simple pmda.sample pmda.sendmail trace
 643 pmda.trivial pmns local oss
 644 pmns local oss
 645 pmlogger local oss
@@ -829,6 +804,10 @@ event		pcpqa
 1063 pmgadgets remote sgi
 1064 pmgadgets local #526784 sgi
 1073 pmval pmdumplog local OSS-CONFLICT sgi
+1075 libpcp_omc local sgi
+1076 libpcp_omc local sgi
+1077 libpcp_omc local sgi
+1078 libpcp_omc local sgi
 1079 mpi libpcp_mpi local sgi
 1080 mpi libpcp_mpiread local sgi
 1081 mpi pmda.mpi libpcp_mpiread local sgi
@@ -973,6 +952,3 @@ event		pcpqa
 1233 pmsnap local sgi
 1234 pmchart local sgi
 1236 #935639 pmchart local sgi
-435 archive local oss
-436 archive local oss
-437 archive local oss

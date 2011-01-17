@@ -39,7 +39,7 @@ main(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "D:h:i:n:p:r:")) != EOF) {
+    while ((c = getopt(argc, argv, "D:h:i:n:P:p:r:")) != EOF) {
 	switch (c) {
 
 	case 'D':	/* debug flag */
@@ -63,6 +63,14 @@ main(int argc, char **argv)
 
 	case 'n':	/* alternative name space file */
 	    namespace = optarg;
+	    break;
+
+	case 'P':	/* port for pmlogger */
+	    port = (int)strtol(optarg, &endnum, 10);
+	    if (*endnum != '\0') {
+		fprintf(stderr, "%s: -P requires numeric argument\n", pmProgname);
+		errflag++;
+	    }
 	    break;
 
 	case 'p':	/* pid for pmlogger */
@@ -98,6 +106,7 @@ USAGE:
 " -h hostname	contact PMCD at this host\n"
 " -i instance	apply only to this instance\n"
 " -n namespace	use and alternative name space\n"
+" -P port	port for pmlogger instance\n"
 " -p pid	pid for pmlogger instance\n"
 " -r delta	requested logging interval (msec)\n"
 "\n"
