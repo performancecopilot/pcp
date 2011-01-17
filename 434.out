@@ -52,7 +52,7 @@ host:      localhost
 semantics: cumulative counter (converting to rate)
 units:     sec (converting to time utilization)
 samples:   1
-     NUMBER
+NUMBER
 counter -s 1 - exit status 0
 
 metric:    sample.seconds
@@ -61,8 +61,8 @@ semantics: cumulative counter (converting to rate)
 units:     sec (converting to time utilization)
 samples:   2
 interval:  0.10 sec
-     NUMBER
-     NUMBER
+NUMBER
+NUMBER
 counter -s 2 - exit status 0
 
 metric:    sample.seconds
@@ -77,7 +77,7 @@ host:      localhost
 semantics: cumulative counter
 units:     sec
 samples:   1
-      NUMBER
+NUMBER
 counter -r -s 1 - exit status 0
 
 metric:    sample.seconds
@@ -86,8 +86,8 @@ semantics: cumulative counter
 units:     sec
 samples:   2
 interval:  0.10 sec
-      NUMBER
-      NUMBER
+NUMBER
+NUMBER
 counter -r -s 2 - exit status 0
 
 metric:    sample.long.ten
@@ -102,7 +102,7 @@ host:      localhost
 semantics: instantaneous value
 units:     none
 samples:   1
-         NUMBER
+NUMBER
 instantaneuos -s 1 - exit status 0
 
 metric:    sample.long.ten
@@ -111,6 +111,6 @@ semantics: instantaneous value
 units:     none
 samples:   2
 interval:  0.10 sec
-         NUMBER
-         NUMBER
+NUMBER
+NUMBER
 instantaneuos -s 2 - exit status 0
