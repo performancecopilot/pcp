@@ -1,3 +1,28 @@
+pcp-3.5.0 (19 January 2011)
+    - Infrastucture support for doing distributed event tracing with PCP.
+      This includes a new metric type (PM_TYPE_EVENT), cunning mechanisms
+      for encoding event records in pmResults, and providing PMDAs with
+      per-client context connection information allowing agents to track
+      which clients have seen which parts of a trace stream so far.  Some
+      reference uses of these extensions can be seen in pmdasample and in
+      the pmcd PMDA as well.
+    - Transparent support for archive de-compression by clients.
+    - Manual page formatting errors corrected.
+    - Fix a pmDupContext memory corruption issue seen with derived metrics.
+    - Added a one-trip optimisation/guard to pcp.env
+    - Improved pmdaFetch and pmdaFetchCallback man pages with respect to
+      return codes and value memory allocation models.
+    - Fix for Windows unintentionally allowing multiple pmcd processes
+      to startup and bind to the same port, with "undefined" results.
+    - Fix Windows services interaction, preventing pmcd service stop.
+    - Fix Mac OS X scandir memory leak on empty directories.
+    - Fix Mac OS X mem.util.wired metric, was exporting the wrong value.
+    - Correct the handling of SLES11 distro identification (lsb-release
+      file not used again, on SuSE Linux distributions).
+    - Fix postfix PMDA log file path handling for Redhat Linux distros.
+    - Extend Perl PMDA interfaces to allow additional metrics to be
+      added at runtime (now makes use of dynamic namespace support).
+
 pcp-3.4.1 (9 October 2010)
     - Remove bogus (expected) errors/warnings from Win32 install/remove.
     - Remove couple of no longer needed local Win32 API wrappers.
