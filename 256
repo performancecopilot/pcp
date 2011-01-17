@@ -162,6 +162,14 @@ NF == 0	{ want = 0; next }
 $1 == "sampledso.one"	{ print ""; want = 1 }
 $1 ~ /^sampledso\.suba\./	{ print ""; want = 1 }
 want == 1		{ print }'
+    echo "=== -n .../root -L ===" | tee -a $seq.full
+    pminfo -L -c $tmp.config -n $PCP_VAR_DIR/pmns/root $args >$tmp.out 2>&1
+    _filter
+    echo "=== -n .../root ===" | tee -a $seq.full
+    export PCP_DERIVED_CONFIG=$tmp.config
+    src-oss/nameall -n $PCP_VAR_DIR/pmns/root $args >$tmp.out 2>&1
+    _filter | sed -e '/Name space load:/s/[0-9.]* msec/N.NN msec/'
+    unset PCP_DERIVED_CONFIG
 done
 
 echo | tee -a $seq.full
