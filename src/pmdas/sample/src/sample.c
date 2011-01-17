@@ -33,11 +33,8 @@ static struct sysinfo {
 } };
 #endif
 
-int	mydomain;	/* from dp->domain in sample_init() */
-
-int	sample_done=0;	/* pending request to terminate, see sample_store() */
-int	need_mirage=0;	/* only do mirage glop is someone asks for it */
-int	need_dynamic=0;	/* only do dynamic glop is someone asks for it */
+static int need_mirage;	/* only do mirage glop is someone asks for it */
+static int need_dynamic;/* only do dynamic glop is someone asks for it */
 
 /* from pmda.c: simulate PMDA busy */
 extern int	limbo(void);
@@ -578,6 +575,7 @@ static struct timeval	const_rate_timestamp = {0,0};
 
 /* this needs to be visible in pmda.c */
 int			not_ready = 0;	/* sleep interval in seconds */
+int			sample_done = 0;/* pending request to terminate, see sample_store() */
 
 int			_isDSO = 1;	/* =0 I am a daemon */
 
@@ -2631,8 +2629,6 @@ void sample_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
-    mydomain = dp->domain;
-
     dp->version.four.fetch = sample_fetch;
     dp->version.four.desc = sample_desc;
     dp->version.four.instance = sample_instance;
@@ -2649,6 +2645,7 @@ void sample_init(pmdaInterface *dp)
     __pmtimevalNow(&_then);
     _start = time(NULL);
     init_tables(dp->domain);
+    init_events(dp->domain);
     redo_mirage();
     redo_dynamic();
 

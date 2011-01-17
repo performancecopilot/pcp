@@ -18,8 +18,7 @@
 #ifndef _EVENTS_H
 #define _EVENTS_H
 
-extern int mydomain;
-
+extern int init_events(int);
 extern int sample_fetch_events(pmValueBlock **);
 extern void event_set_fetch_count(int);
 extern int event_get_fetch_count(void);

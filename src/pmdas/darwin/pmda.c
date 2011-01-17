@@ -1126,7 +1126,7 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case PM_TYPE_NOSUPPORT: return 0;
 	default:		fprintf(stderr,
 			"Error in fetchCallBack: unsupported metric type %s\n",
-					pmAtomStr(mdesc->m_desc.type));
+					pmTypeStr(mdesc->m_desc.type));
 				return 0;
 	}
 	return 1;

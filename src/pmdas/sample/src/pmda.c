@@ -27,6 +27,8 @@
 #include "percontext.h"
 
 extern void sample_init(pmdaInterface *);
+extern int sample_done;
+extern int not_ready;
 
 static pmdaInterface	dispatch;
 
@@ -36,8 +38,6 @@ static pmdaInterface	dispatch;
 int
 limbo(void)
 {
-    extern int not_ready;
-
     __pmSendError(dispatch.version.two.ext->e_outfd, FROM_ANON, PM_ERR_PMDANOTREADY);
     while (not_ready > 0)
 	not_ready = sleep(not_ready);
@@ -61,8 +61,6 @@ check(void)
 static void
 done(void)
 {
-    extern int	sample_done;
-
     if (sample_done)
 	exit(0);
 }

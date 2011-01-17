@@ -27,25 +27,6 @@
 #include "trace_dev.h"
 
 /*
- * But we don't want to force linking with libpcp, so this is a direct
- * copy of the only implementation in libpcp from src/endian.c there
- */
-#ifndef __htonll
-void
-__htonll(char *p)
-{
-    char 	c;
-    int		i;
-
-    for (i = 0; i < 4; i++) {
-	c = p[i];
-	p[i] = p[7-i];
-	p[7-i] = c;
-    }
-}
-#endif
-
-/*
  * PDU for all trace data updates (TRACE_PDU_DATA)
  *
  * note "taglen" includes the null-byte terminator

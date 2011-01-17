@@ -22,6 +22,13 @@
 
 static int		nfetch;
 static int		myarray;
+static int		mydomain;
+
+int
+init_events(int domain)
+{
+    mydomain = domain;
+}
 
 int
 event_get_fetch_count(void)
