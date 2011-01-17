@@ -38,6 +38,19 @@ int		iflag;
 
 extern int yyparse(void);
 
+/*
+ * called before regular exit() or as atexit() handler
+ */
+static void
+cleanup()
+{
+    if (connmode == CONN_DSO)
+	closedso();
+    else if (connmode == CONN_DAEMON)
+	closepmda();
+    connmode = NO_CONN;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -158,6 +171,10 @@ main(int argc, char **argv)
 
     setlinebuf(stdout);
     setlinebuf(stderr);
+
+#ifdef HAVE_ATEXIT
+    atexit(cleanup);
+#endif
 
     for ( ; ; ) {
 	initmetriclist();
@@ -404,11 +421,7 @@ main(int argc, char **argv)
     }
 
 done:
-    /* cleanup on exit */
-    if (connmode == CONN_DSO)
-	closedso();
-    else if (connmode == CONN_DAEMON)
-	closepmda();
+    cleanup();
 
     exit(0);
 }
