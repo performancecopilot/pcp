@@ -1652,8 +1652,10 @@ request_names(__pmContext *ctxp, int numpmid, char *namelist[])
 {
     int n;
 
+#ifdef ASYNC_API
     if (ctxp->c_pmcd->pc_curpdu != 0)
 	return PM_ERR_CTXBUSY;
+#endif /*ASYNC_API*/
 
     n = __pmSendNameList(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 		numpmid, namelist, NULL);
@@ -1663,6 +1665,7 @@ request_names(__pmContext *ctxp, int numpmid, char *namelist[])
     return n;
 }
 
+#ifdef ASYNC_API
 int
 pmRequestNames(int ctxid, int numpmid, char *namelist[])
 {
@@ -1678,6 +1681,7 @@ pmRequestNames(int ctxid, int numpmid, char *namelist[])
 
     return n;
 }
+#endif /*ASYNC_API*/
 
 static int
 receive_names(__pmContext *ctxp, int numpmid, pmID pmidlist[])
@@ -1708,6 +1712,7 @@ receive_names(__pmContext *ctxp, int numpmid, pmID pmidlist[])
     return n;
 }
 
+#ifdef ASYNC_API
 int
 pmReceiveNames(int ctxid, int numpmid, pmID pmidlist[])
 {
@@ -1722,6 +1727,7 @@ pmReceiveNames(int ctxid, int numpmid, pmID pmidlist[])
 
     return n;
 }
+#endif /*ASYNC_API*/
 
 int
 pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
@@ -1934,8 +1940,10 @@ request_names_of_children(__pmContext *ctxp, const char *name, int wantstatus)
 {
     int n;
 
+#ifdef ASYNC_API
     if (ctxp->c_pmcd->pc_curpdu != 0)
 	return PM_ERR_CTXBUSY;
+#endif /*ASYNC_API*/
 
     n = __pmSendChildReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 		name, wantstatus);
@@ -1944,6 +1952,7 @@ request_names_of_children(__pmContext *ctxp, const char *name, int wantstatus)
     return n;
 }
 
+#ifdef ASYNC_API
 int
 pmRequestNamesOfChildren(int ctxid, const char *name, int wantstatus)
 {
@@ -1959,6 +1968,7 @@ pmRequestNamesOfChildren(int ctxid, const char *name, int wantstatus)
 
     return n;
 }
+#endif /*ASYNC_API*/
 
 static int
 receive_names_of_children(__pmContext *ctxp, char ***offspring,
@@ -1983,6 +1993,7 @@ receive_names_of_children(__pmContext *ctxp, char ***offspring,
     return n;
 }
 
+#ifdef ASYNC_API
 int
 pmReceiveNamesOfChildren(int ctxid, char ***offsprings, int **status)
 {
@@ -1998,6 +2009,7 @@ pmReceiveNamesOfChildren(int ctxid, char ***offsprings, int **status)
 
     return n;
 }
+#endif /*ASYNC_API*/
 
 static int
 GetChildrenStatusRemote(__pmContext *ctxp, const char *name,
@@ -2376,8 +2388,10 @@ request_namebypmid(__pmContext *ctxp, pmID pmid)
 {
     int n;
 
+#ifdef ASYNC_API
     if (ctxp->c_pmcd->pc_curpdu != 0)
 	return PM_ERR_CTXBUSY;
+#endif /*ASYNC_API*/
 
     n = __pmSendIDList(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), 1, &pmid, 0);
     if (n < 0)
@@ -2385,6 +2399,7 @@ request_namebypmid(__pmContext *ctxp, pmID pmid)
     return n;
 }
 
+#ifdef ASYNC_API
 int
 pmRequestNameID(int ctxid, pmID pmid)
 {
@@ -2400,6 +2415,7 @@ pmRequestNameID(int ctxid, pmID pmid)
 
     return n;
 }
+#endif /*ASYNC_API*/
 
 static int
 receive_namesbyid(__pmContext *ctxp, char ***namelist)
@@ -2445,6 +2461,7 @@ receive_a_name(__pmContext *ctxp, char **name)
     return n;
 }
 
+#ifdef ASYNC_API
 int
 pmReceiveNameID(int ctxid, char **name)
 {
@@ -2476,6 +2493,7 @@ pmReceiveNamesAll(int ctxid, char ***namelist)
 
     return n;
 }
+#endif /*ASYNC_API*/
 
 int
 pmNameID(pmID pmid, char **name)
@@ -2664,8 +2682,11 @@ request_traverse_pmns(__pmContext *ctxp, const char *name)
 {
     int n;
 
+#ifdef ASYNC_API
     if (ctxp->c_pmcd->pc_curpdu != 0)
 	return PM_ERR_CTXBUSY;
+#endif /*ASYNC_API*/
+
     n = __pmSendTraversePMNSReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
     		name);
     if (n < 0)
@@ -2673,6 +2694,7 @@ request_traverse_pmns(__pmContext *ctxp, const char *name)
     return n;
 }
 
+#ifdef ASYNC_API
 /*
  * Note: derived metrics will not work with pmRequestTraversePMNS() and
  * pmReceiveTraversePMNS() because the by the time the list of names
@@ -2736,6 +2758,7 @@ pmReceiveTraversePMNS(int ctxid, void(*func)(const char *name))
 
     return n;
 }
+#endif /*ASYNC_API*/
 
 int
 pmTraversePMNS(const char *name, void(*func)(const char *name))

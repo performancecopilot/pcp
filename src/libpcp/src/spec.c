@@ -436,8 +436,11 @@ __pmParseHostSpec(
 	    if (*s == ':') {
 		for (++s, start = s; s != NULL; s++) {
 		    if (*s == ',' || *s == '@' || *s == '\0') {
-			if (s == start)
-			    continue;
+			if (s - start < 1) {
+			    hostError(spec, s, "missing port", errmsg);
+			    sts = PM_ERR_GENERIC;
+			    goto fail;
+			}
 			int port = atoi(start);
 			sts = __pmAddHostPorts(&hsp[nhosts-1], &port, 1);
 			if (sts < 0)

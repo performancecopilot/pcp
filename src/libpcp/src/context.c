@@ -87,6 +87,12 @@ __pmHandleToPtr(int handle)
 	return &contexts[handle];
 }
 
+int
+__pmPtrToHandle(__pmContext *ctxp)
+{
+    return ctxp - contexts;
+}
+
 const char * 
 pmGetContextHostName (int ctxid)
 {
@@ -125,7 +131,6 @@ pmWhichContext(void)
 #endif
     return sts;
 }
-
 
 static int
 __pmConvertTimeout (int timeo)
@@ -206,13 +211,17 @@ INIT_CONTEXT:
     new->c_origin.tv_sec = new->c_origin.tv_usec = 0;	/* default time */
 
     if (new->c_type == PM_CONTEXT_HOST) {
-	pmHostSpec *hosts;
-	int nhosts;
+	pmHostSpec	*hosts;
+	int		nhosts;
+	char		*errmsg;
 
 	/* deconstruct a host[:port@proxy:port] specification */
-	sts = __pmParseHostSpec(name, &hosts, &nhosts, NULL);
-	if (sts < 0)
+	sts = __pmParseHostSpec(name, &hosts, &nhosts, &errmsg);
+	if (sts < 0) {
+	    pmprintf("pmNewContext: bad host specification\n%s", errmsg);
+	    pmflush();
 	    goto FAILED;
+	}
 
 	if ((type & PM_CTXFLAG_EXCLUSIVE) == 0 && nhosts == 1) {
 	    for (i = 0; i < contexts_len; i++) {
@@ -692,6 +701,7 @@ __pmGetHostContextByID (int ctxid, __pmContext **cp)
     return (0);
 }
 
+#ifdef ASYNC_API
 int
 __pmGetBusyHostContextByID (int ctxid, __pmContext **cp, int pdu)
 {
@@ -876,11 +886,4 @@ pmContextUndef(void)
 {
     curcontext = PM_CONTEXT_UNDEF;
 }
-
-int
-__pmPtrToHandle(__pmContext *ctxp)
-{
-    return ctxp - contexts;
-}
-
-
+#endif /*ASYNC_API*/

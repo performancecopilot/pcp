@@ -145,8 +145,8 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 	else {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG)
-		fprintf(stderr, " header read -> %d or bad header len=%d: expected %d\n",
-		    n, len, xpectlen);
+		fprintf(stderr, " header read -> %d (expect %d) or bad header len=%d (expected %d)\n",
+		    n, sizeof(len), len, xpectlen);
 #endif
 	    if (ferror(f)) {
 		clearerr(f);
@@ -184,8 +184,8 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
     if (n != sizeof(len) || len != xpectlen) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, " trailer read -> %d or bad trailer len=%d: expected %d\n",
-		n, len, xpectlen);
+	    fprintf(stderr, " trailer read -> %d (expect %d) or bad trailer len=%d (expected %d)\n",
+		n, sizeof(len), len, xpectlen);
 #endif
 	if (ferror(f)) {
 	    clearerr(f);
@@ -1358,7 +1358,7 @@ again:
 
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "\nError: hdr fread got %d expected %d\n", n, (int)sizeof(head));
+	    fprintf(stderr, "\nError: header fread got %d expected %d\n", n, (int)sizeof(head));
 #endif
 	if (ferror(f)) {
 	    /* I/O error */
@@ -1447,7 +1447,7 @@ again:
     if ((n = (int)fread(&trail, 1, sizeof(trail), f)) != sizeof(trail)) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "\nError: hdr fread got %d expected %d\n", n, (int)sizeof(trail));
+	    fprintf(stderr, "\nError: trailer fread got %d expected %d\n", n, (int)sizeof(trail));
 #endif
 	fseek(f, offset, SEEK_SET);
 	if (ferror(f)) {
@@ -1468,7 +1468,7 @@ again:
     if (trail != head) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "\nError: hdr (%d) - trail (%d) mismatch\n", head, trail);
+	    fprintf(stderr, "\nError: record length mismatch: header (%d) != trailer (%d)\n", head, trail);
 #endif
 	return PM_ERR_LOGREC;
     }
@@ -1491,7 +1491,7 @@ again:
 	    printstamp(&(*result)->timestamp);
 	else
 	    fprintf(stderr, "unknown time");
-	fprintf(stderr, " len=head+%d+trail\n", head);
+	fprintf(stderr, " len=header+%d+trailer\n", head);
     }
 #endif
 

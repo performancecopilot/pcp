@@ -1075,6 +1075,14 @@ do_control(__pmPDU *pb)
 
 	for (i = 0; i < request->numpmid; i++) {
 	    vsp = request->vset[i];
+	    if (vsp->numval < 0)
+		/*
+		 * request is malformed, as we cannot control logging
+		 * for an undefined instance ... there is no way to
+		 * return an error from here, so simply ignore this
+		 * metric
+		 */
+		continue;
 	    mflags = find_metric(vsp->pmid);
 	    if (mflags < 0) {
 		/* only add new metrics if they are ON or MANDATORY OFF

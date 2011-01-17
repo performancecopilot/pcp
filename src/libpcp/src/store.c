@@ -25,9 +25,11 @@ sendstore (__pmContext *ctxp, const pmResult *result)
 {
     int sts;
 
+#ifdef ASYNC_API
     if (ctxp->c_pmcd->pc_curpdu != 0) {
 	return (PM_ERR_CTXBUSY);
     }
+#endif /*ASYNC_API*/
 
     sts = __pmSendResult(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), result);
     if (sts < 0) {
@@ -37,6 +39,7 @@ sendstore (__pmContext *ctxp, const pmResult *result)
     return (sts);
 }
 
+#ifdef ASYNC_API
 int
 pmStoreSend (int ctx, const pmResult *result)
 {
@@ -52,6 +55,7 @@ pmStoreSend (int ctx, const pmResult *result)
 
     return (sts);
 }
+#endif /*ASYNC_API*/
 
 static int
 store_check (__pmContext *ctxp)
@@ -69,6 +73,7 @@ store_check (__pmContext *ctxp)
     return (sts);
 }
 
+#ifdef ASYNC_API
 int 
 pmStoreCheck (int ctx)
 {
@@ -88,6 +93,7 @@ pmStoreCheck (int ctx)
 
     return (sts);
 }
+#endif /*ASYNC_API*/
 
 int
 pmStore(const pmResult *result)
