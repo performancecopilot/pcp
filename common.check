@@ -110,7 +110,14 @@ _host_to_fqdn()
     fi
     if [ -z "$ans" ]
     then
-	echo "_host_to_fqdn: cannot find dns lookup command" >&2
+	echo "_host_to_fqdn: cannot find FQDN" >&2
+	echo "... hostname -f reports" >&2
+	hostname -f >&2
+	if which nslookup >/dev/null 2>&1
+	then
+	    echo "... nslookup $1 reports" >&2
+	    nslookup $1 >&2
+	fi
     fi
     echo "$ans"
 }
