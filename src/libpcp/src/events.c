@@ -54,7 +54,7 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp)
 	return;
     }
     if (eap->ea_len < PM_VAL_HDR_SIZE + sizeof(eap->ea_nrecords)) {
-	fprintf(f, "Error: bad len (smaller than minimum size %d)\n", PM_VAL_HDR_SIZE + sizeof(eap->ea_nrecords));
+	fprintf(f, "Error: bad len (smaller than minimum size %lu)\n", PM_VAL_HDR_SIZE + sizeof(eap->ea_nrecords));
 	return;
     }
     fprintf(f, "nrecords: %d\n", eap->ea_nrecords);
@@ -116,11 +116,11 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp)
 		    break;
 		case PM_TYPE_64:
 		    memcpy((void *)&atom.ll, (void *)vbuf, sizeof(atom.ll));
-		    fprintf(f, " = %lli", atom.ll);
+		    fprintf(f, " = %lli", (long long)atom.ll);
 		    break;
 		case PM_TYPE_U64:
 		    memcpy((void *)&atom.ull, (void *)vbuf, sizeof(atom.ull));
-		    fprintf(f, " = %llu", atom.ull);
+		    fprintf(f, " = %llu", (unsigned long long)atom.ull);
 		    break;
 		case PM_TYPE_FLOAT:
 		    memcpy((void *)&atom.f, (void *)vbuf, sizeof(atom.f));
