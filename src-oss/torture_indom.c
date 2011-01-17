@@ -83,6 +83,31 @@ do_test(char *name)
     }
     else
 	n_instlist = err;
+
+    /*
+     * check lookup for instances in both directions
+     */
+    for (i = 0; i < n_instlist; i++) {
+	char	*myname;
+	if ((err = pmLookupInDom(desc.indom, namelist[i])) < 0) {
+	    fprintf(stderr, "pmLookupInDom failed for %s[%s]: %s\n", name, namelist[i], pmErrStr(err));
+	    return err;
+	}
+	if (err != instlist[i]) {
+	    fprintf(stderr, "pmLookupInDom %s[%s] -> %d, expecting %d\n", name, namelist[i], err, instlist[i]);
+	    return PM_ERR_GENERIC;
+	}
+	if ((err = pmNameInDom(desc.indom, instlist[i], &myname)) < 0) {
+	    fprintf(stderr, "pmNameInDom failed for %s[#%d]: %s\n", name, instlist[i], pmErrStr(err));
+	    return err;
+	}
+	if (strcmp(namelist[i], myname) != 0) {
+	    fprintf(stderr, "pmNameInDom %s[#%d] -> %s, expecting %s\n", name, instlist[i], myname, namelist[i]);
+	    free(myname);
+	    return PM_ERR_GENERIC;
+	}
+	free(myname);
+    }
     
     if ((err = pmFetch(1, &pmid, &r1)) < 0) {
 	fprintf(stderr, "pmFetch failed for %s: %s\n", name, pmErrStr(err));
@@ -91,6 +116,14 @@ do_test(char *name)
 
     if ((err = pmDelProfile(desc.indom, 0, (int *)0)) < 0) {
 	fprintf(stderr, "pmDelProfile failed for %s: %s\n", name, pmErrStr(err));
+	return err;
+    }
+    
+    /*
+     * DupContext should inherit profile ...
+     */
+    if ((err = pmDupContext()) < 0) {
+	fprintf(stderr, "pmDupContext failed: %s\n", pmErrStr(err));
 	return err;
     }
 
@@ -202,6 +235,7 @@ main(int argc, char **argv)
     int		c;
     int		sts;
     int		errflag = 0;
+    char	*errmsg;
     int		type = 0;
     char	*host;
     int		mode = PM_MODE_INTERP;		/* mode for archives */
@@ -212,12 +246,12 @@ main(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "a:D:h:n:?")) != EOF) {
+    while ((c = getopt(argc, argv, "a:D:h:K:Ln:?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* archive name */
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a, -h and -u allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
 		errflag++;
 	    }
 	    type = PM_CONTEXT_ARCHIVE;
@@ -240,11 +274,28 @@ main(int argc, char **argv)
 
 	case 'h':	/* contact PMCD on this hostname */
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a, -h and -u allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
 		errflag++;
 	    }
 	    host = optarg;
 	    type = PM_CONTEXT_HOST;
+	    break;
+
+	case 'K':	/* update local PMDA table */
+	    if ((errmsg = __pmSpecLocalPMDA(optarg)) != NULL) {
+		fprintf(stderr, "%s: __pmSpecLocalPMDA failed: %s\n", pmProgname, errmsg);
+		errflag++;
+	    }
+	    break;
+
+	case 'L':	/* local PMDA connection, no PMCD */
+	    if (type != 0) {
+		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
+		errflag++;
+	    }
+	    type = PM_CONTEXT_LOCAL;
+	    gethostname(local, sizeof(local));
+	    host = local;
 	    break;
 
 	case 'n':	/* alternative name space file */
@@ -277,6 +328,9 @@ Options\n\
   -a archive	metrics source is an archive log\n\
   -D debug	standard PCP debug flag\n\
   -h host	metrics source is PMCD on host (default is local libirixpmda)\n\
+  -L            metrics source is local connection to PMDA, no PMCD\n\
+  -K spec       optional additional PMDA spec for local connection\n\
+                spec is of the form op,domain,dso-path,init-routine\n\
   -n namespace  use an alternative PMNS\n",
 		pmProgname);
 	exit(1);
@@ -299,9 +353,8 @@ Options\n\
 	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
 		pmProgname, host, pmErrStr(sts));
 	else if (type == PM_CONTEXT_LOCAL) {
-	    fprintf(stderr, "%s: Cannot find libirixpmda.so on localhost: %s\n",
+	    fprintf(stderr, "%s: pmNewContext failed for PM_CONTEXT_LOCAL: %s\n",
 		pmProgname, pmErrStr(sts));
-	    fprintf(stderr, "\t\t(Check PMDA_PATH environment variable)\n");
 	}
 	else
 	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
