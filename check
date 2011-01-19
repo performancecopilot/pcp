@@ -32,7 +32,7 @@ _wallclock()
 _timestamp()
 {
     now=`date "+%D-%T"` 
-    echo -n " [$now]"
+    $PCP_ECHO_PROG $PCP_ECHO_N " [$now]""$PCP_ECHO_C"
 }
 
 _release_lock()
@@ -188,7 +188,7 @@ _get_lock()
     	    	    return 1
     	    	else
     	    	    $echomessage && \
-    	    	      echo -n " waiting for lock [owner pid=$LOCKOWNER]... " && \
+    	    	      $PCP_ECHO_PROG $PCP_ECHO_N " waiting for lock [owner pid=$LOCKOWNER]... ""$PCP_ECHO_C" && \
     	    	      echomessage=false
     	    	    sleep $sleeptime
     	    	fi
@@ -403,9 +403,9 @@ do
     then
 	pct=`expr 100 \* $haverun / $torun`
 	haverun=`expr $haverun + 1`
-	echo -n "[$pct%] "
+	$PCP_ECHO_PROG $PCP_ECHO_N "[$pct%] ""$PCP_ECHO_C"
     fi
-    echo -n "$seq"
+    $PCP_ECHO_PROG $PCP_ECHO_N "$seq""$PCP_ECHO_C"
     if [ ! -f $seq ]
     then
 	echo " [not run, missing]"
@@ -416,7 +416,7 @@ do
 	#
 	rm -f $seq.out.bad
 	lasttime=`sed -n -e "/^$seq /s/.* //p" <check.time`
-	[ "X$lasttime" != X ] && echo -n " ${lasttime}s ..."
+	[ "X$lasttime" != X ] && $PCP_ECHO_PROG $PCP_ECHO_N " ${lasttime}s ...""$PCP_ECHO_C"
 	rm -f core $seq.notrun
 
     	# acquire lock
@@ -464,7 +464,7 @@ do
 	    then
 		echo "$myname: $seq: ERROR: test failed to restore the following config files:" >>$tmp.out
 		cat $tmp.check >>$tmp.out
-		echo -n " [config not restored]"
+		$PCP_ECHO_PROG $PCP_ECHO_N " [config not restored]""$PCP_ECHO_C"
 	    fi
 	fi
 
@@ -473,7 +473,7 @@ do
 
 	if [ -f core ]
 	then
-	    echo -n " [dumped core]"
+	    $PCP_ECHO_PROG $PCP_ECHO_N " [dumped core]""$PCP_ECHO_C"
 	    mv core $seq.core
 	    err=true
 	fi
@@ -485,7 +485,7 @@ do
 	else
 	    if [ $sts -ne 0 ]
 	    then
-		echo -n " [failed, exit status $sts]"
+		$PCP_ECHO_PROG $PCP_ECHO_N " [failed, exit status $sts]""$PCP_ECHO_C"
 		err=true
 	    fi
 	    if [ ! -f $seq.out ]

@@ -17,6 +17,7 @@ web1.drp.acx
 bozo.localdomain
 bozo-laptop.localdomain
 comma.localdomain
+colleens-imac.local
 
 # Mort Section
 opensuse11-1.bork.org
@@ -49,5 +50,6 @@ deb32.bork.org
 # Kenj Section
 #order	bozo			.localdomain
 #order	bozo-laptop		.localdomain
+#order	colleens-imac.local	.local
 # Mort Section
 #order .bork.org .bork.org

@@ -30,6 +30,7 @@ _filter()
 	-e "s/$remote\([):]\)/<remotehost>\1/" \
 	-e 's/fd=[0-9][0-9]*/fd=<n>/g' \
 	-e 's/port=[0-9][0-9]*/port=<n>/g' \
+	-e 's/handle=0x0/handle=(nil)/' \
 	-e '/ Debug: reload_nodes: /d'\
 	-e '/ Debug: reload_nodeinfo: /d'\
 	-e '/ Debug: node_init: /d' \
@@ -40,7 +41,7 @@ _filter()
 	-e '/__pmSendCreds: #0/s/= 201/= 1020000/' \
 	-e 's/ [0-9][0-9]*(?)//g' \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
-	-e "s/$DSO_SUFFIX /\$DSO_SUFFIX /" \
+	-e "s/$DSO_SUFFIX\([ ,]\)/\$DSO_SUFFIX\1/" \
         -e '/IPC table/{
 s/ [0-9][0-9]*(?)//g
 s/ [0-9][0-9]*(2)/ <n>(2)/g

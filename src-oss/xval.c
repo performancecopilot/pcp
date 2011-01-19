@@ -17,7 +17,9 @@ static char *name[] = {
 static void
 _y(pmAtomValue *ap, int type)
 {
-    long		*lp;
+    int			i;
+    int			vlen;
+    char		*cp;
     pmEventArray	*eap;
 
     switch (type) {
@@ -46,20 +48,16 @@ _y(pmAtomValue *ap, int type)
 		printf("\"%s\"", ap->cp);
 	    break;
 	case PM_TYPE_AGGREGATE:
-	    printf("[vlen=%d] ", ap->vbp->vlen - PM_VAL_HDR_SIZE);
-	    lp = (long *)ap->vbp->vbuf;
-	    if (ap->vbp->vlen - PM_VAL_HDR_SIZE == 0)
-		;
-	    else if (ap->vbp->vlen - PM_VAL_HDR_SIZE <= 4)
-		printf("%08x", (unsigned)lp[0]);
-	    else if (ap->vbp->vlen - PM_VAL_HDR_SIZE <= 8)
-		printf("%08x %08x", (unsigned)lp[0], (unsigned)lp[1]);
-	    else if (ap->vbp->vlen - PM_VAL_HDR_SIZE <= 12)
-		printf("%08x %08x %08x",
-			(unsigned)lp[0], (unsigned)lp[1], (unsigned)lp[2]);
-	    else
-		printf("%08x %08x %08x ...",
-			(unsigned)lp[0], (unsigned)lp[1], (unsigned)lp[2]);
+	    vlen = ap->vbp->vlen - PM_VAL_HDR_SIZE;
+	    printf("[vlen=%d]", vlen);
+	    cp = (char *)ap->vbp->vbuf;
+	    for (i = 0; i < vlen && i < 12; i++) {
+		if ((i % 4) == 0)
+		    putchar(' ');
+		printf("%02x", *cp & 0xff);
+		cp++;
+	    }
+	    if (vlen > 12) printf(" ...");
 	    break;
 	case PM_TYPE_EVENT:
 	    eap = (pmEventArray *)ap;
@@ -82,7 +80,7 @@ main(int argc, char *argv[])
     pmAtomValue	bv;
     pmAtomValue	*ap;
     pmValueBlock	*vbp;
-    int		foo[7];		/* foo[0] = len/type, foo[1]... = vbuf */
+    __int32_t	foo[7];		/* foo[0] = len/type, foo[1]... = vbuf */
     int		valfmt;
     int		vflag = 0;	/* set to 1 to show all results */
     int		sgn = 1;	/* -u to force 64 unsigned from command line value */
@@ -192,6 +190,10 @@ main(int argc, char *argv[])
 		    foo[1] = foo[2] = foo[3] = llv;
 		    foo[1]--;
 		    foo[3]++;
+		    /* remove endian diff in value dump output */
+		    foo[1] = htonl(foo[1]);
+		    foo[2] = htonl(foo[2]);
+		    foo[3] = htonl(foo[3]);
 		    ap = &bv;
 		    bv.vbp = vbp;
 		    break;

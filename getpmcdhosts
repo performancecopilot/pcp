@@ -674,7 +674,7 @@ do
 	    then
 	        echo "-> $HOST" >&2
 	    else
-		echo -n "$HOST "
+		$PCP_ECHO_PROG $PCP_ECHO_N "$HOST ""$PCP_ECHO_C"
 	    fi
 	else
 	    echo "$HOST"

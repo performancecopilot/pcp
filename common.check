@@ -754,9 +754,9 @@ END						{ print "End-of-List" }' \
 	    __host=`_ipaddr_to_host $__ip`
 	    if [ ! -z "$__host" ]
 	    then
-		echo -n ",$__host"
+		$PCP_ECHO_PROG $PCP_ECHO_N ",$__host""$PCP_ECHO_C"
 	    else
-		echo -n ",$__ip"
+		$PCP_ECHO_PROG $PCP_ECHO_N ",$__ip""$PCP_ECHO_C"
 	    fi
 	fi
     done \
@@ -832,7 +832,7 @@ END						{ print "End-of-List" }' \
 	    echo
 	    break
 	fi
-	echo -n ",$__ip"
+	$PCP_ECHO_PROG $PCP_ECHO_N ",$__ip""$PCP_ECHO_C"
     done \
     | sed -e 's/^,//'
 }
@@ -913,7 +913,52 @@ _change_config()
 	    	exit 1
 	    fi
       
-       else
+    elif [ $PCP_PLATFORM = darwin ]
+    then
+	case $1 
+	in
+	    pmcd)	pat=""
+			;;
+	    pmlogger)	pat=PCP
+			;;
+	    pmie)	pat=pmie-TODO
+			;;
+	    verbose)	pat=""
+			;;
+	    *)		pat=$1
+			;;
+	esac
+	if [ -n "$pat" ]
+	then
+	    state=`sed -n -e "/^$pat=/{"'
+s/.*=//
+s/-//g
+p
+}' /etc/hostconfig`
+	    if [ -z "$state" ]
+	    then
+		echo "_change_config: Error: No $pat control line in /etc/hostconfig"
+		echo "You need to add a $pat=-YES- line to this file"
+		exit 1
+	    fi
+	    if [ "$2" = "on" ]
+	    then
+		req_state=YES
+	    elif [ "$2" = "off" ]
+	    then
+		req_state=NO
+	    else
+		echo "_change_config: Error: bad state ($2) should be on or off"
+		exit 1
+	    fi
+	    if [ "$state" != "$req_state" ]
+	    then
+		sed </etc/hostconfig >$tmp.state \
+		    -e "/^$pat=/s/-.*/-$req_state-/"
+		sudo cp $tmp.state /etc/hostconfig
+	    fi
+	fi
+    else
 	# Try the IRIX way
 	#
 	if which chkconfig >/dev/null 2>&1
@@ -1105,12 +1150,12 @@ _check_core()
     then
 	[ -z "$here" ] && here=/tmp
 	[ -z "$seq" ] && seq=9999
-	echo -n "Dumped core! (saved in $here as"
+	$PCP_ECHO_PROG $PCP_ECHO_N "Dumped core! (saved in $here as""$PCP_ECHO_C"
 	for c in ${dir}core*
 	do
 	    d=`basename $c`
 	    $sudo mv $c $here/$seq.$d
-	    echo -n " $seq.$d"
+	    $PCP_ECHO_PROG $PCP_ECHO_N " $seq.$d""$PCP_ECHO_C"
 	done
 	echo ")"
 	status=1

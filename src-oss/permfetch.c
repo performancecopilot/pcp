@@ -143,11 +143,18 @@ Options:\n\
 	printf("%s:\n", argv[optind]);
 	if (verbose)
 	    printf("... %d metrics,", todolist[todo].numpmid);
+	if (todolist[todo].numpmid == 0) {
+	    printf("... no metrics in PMNS ... skip tests\n");
+	    goto next;
+	}
 	sts = pmLookupName(todolist[todo].numpmid, todolist[todo].namelist, todolist[todo].pmidlist);
-	if (sts < 0) {
+	if (sts != todolist[todo].numpmid) {
 	    int		i;
 	    putchar('\n');
-	    fprintf(stderr, "%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
+	    if (sts < 0)
+		fprintf(stderr, "%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
+	    else
+		fprintf(stderr, "%s: pmLookupName: ...\n", pmProgname);
 	    for (i = 0; i < todolist[todo].numpmid; i++) {
 		if (todolist[todo].pmidlist[i] == PM_ID_NULL)
 		    fprintf(stderr, "   %s is bad\n", todolist[todo].namelist[i]);
@@ -166,11 +173,14 @@ Options:\n\
 	    printf("botch: %d metrics != %d value sets!\n",
 		todolist[todo].numpmid, todolist[todo].rp->numpmid);
 
+next:
 	optind++;
 	todo++;
     }
 
     for (n = 0; n < todo; n++) {
+	if (todolist[todo-n-1].numpmid <= 0)
+	    continue;
 	printf("%s: free names and result\n", todolist[todo-n-1].base);
 	for (j = 0; j < todolist[todo-n-1].numpmid; j++) {
 	    free(todolist[todo-n-1].namelist[j]);
@@ -188,6 +198,8 @@ Options:\n\
 	}
     }
     for (n = 0; n < todo; n++) {
+	if (todolist[n].numpmid <= 0)
+	    continue;
 	printf("%s (reverse):\n", todolist[n].base);
 	if (verbose)
 	    printf("... %d metrics,", todolist[n].numpmid);

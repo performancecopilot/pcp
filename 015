@@ -24,6 +24,9 @@ then
 		echo "Warning: no validated output for Linux and `uname -m`"
 		;;
     esac
+elif [ $PCP_PLATFORM = darwin ]
+then
+    ln $seq.linux.x86 $seq.out
 else
     echo "Warning: no validated output for $PCP_PLATFORM"
 fi

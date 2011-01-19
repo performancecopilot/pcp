@@ -85,8 +85,10 @@ then
 	vlist="1 2"
 	rm -f $seq.out && ln $seq.irix $seq.out
     fi
-elif [ $PCP_PLATFORM = linux ]
+elif [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin ]
 then
+    # same output for Linux and Mac OS X
+    #
     vlist="2"
     rm -f $seq.out && ln $seq.linux $seq.out
 else

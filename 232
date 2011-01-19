@@ -41,6 +41,16 @@ for metric in \
     nfs3.server.reqs \
     sampledso.hordes.one
 do
+    if [ $PCP_PLATFORM = "darwin" ]
+    then
+	# some of the metrics just aren't there on Mac OS X
+	case $metric
+	in
+	    swapdev.length|nfs.client.reqs|nfs.server.reqs)
+		continue
+		;;
+	esac
+    fi
     $here/src-oss/torture_indom $metric >$tmp.out 2>&1
     status=$?
     sed -e '/using .* kmem interface/d' $tmp.out \

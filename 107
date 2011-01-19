@@ -48,7 +48,7 @@ connect primary
 query { disk network kernel pmcd sample sampledso }
 End-of-File
 
-echo -n "Expect at least one metric with logging state \"on\" ..."
+$PCP_ECHO_PROG $PCP_ECHO_N "Expect at least one metric with logging state \"on\" ...""$PCP_ECHO_C"
 if egrep '^    (mand on )|(adv  on )' $seq.full >/dev/null
 then
     echo " PASS"
@@ -56,7 +56,7 @@ else
     echo " FAIL"
 fi
 
-echo -n "Expect at least 250 metrics to be reported ..."
+$PCP_ECHO_PROG $PCP_ECHO_N "Expect at least 250 metrics to be reported ...""$PCP_ECHO_C"
 num=`egrep '^(disk|network|kernel|pmcd|sample|sampledso)\.' $seq.full | wc -l | sed -e 's/ //g'`
 if [ $num -ge 250 ]
 then

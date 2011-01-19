@@ -50,9 +50,9 @@ do
 	    echo "Error: cannot write \"$seq.full.ok\""
 	    exit 1
 	fi
-	echo -n "$seq"
+	$PCP_ECHO_PROG $PCP_ECHO_N "$seq""$PCP_ECHO_C"
 	lasttime=`sed -n -e "/^$seq /s/.* //p" <check.time`
-	[ "X$lasttime" != X ] && echo -n " ${lasttime}s"
+	[ "X$lasttime" != X ] && $PCP_ECHO_PROG $PCP_ECHO_N " ${lasttime}s""$PCP_ECHO_C"
 	rm -f $seq.out.bak $seq.full.ok.bak
 	if sh $seq >$seq.new 2>&1
 	then

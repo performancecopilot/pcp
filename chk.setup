@@ -49,7 +49,7 @@ _check_pmcd()
 
 _check_pmlogger()
 {
-    echo -n "Contacting primary logger at $host ... "
+    $PCP_ECHO_PROG $PCP_ECHO_N "Contacting primary logger at $host ... ""$PCP_ECHO_C"
     if pmlc -P -h $1 </dev/null 2>/dev/null | grep 'Connected to primary pmlogger' >/dev/null
     then
 	echo "OK"
@@ -61,7 +61,7 @@ _check_pmlogger()
 _check_pmdas()
 {
     rm -f $tmp.bad
-    echo -n "Checking installed PMDAS at $host ... "
+    $PCP_ECHO_PROG $PCP_ECHO_N "Checking installed PMDAS at $host ... ""$PCP_ECHO_C"
     pminfo -f -h $1 pmcd.agent.type >$tmp.tmp
     for pmda in sample simple
     do
@@ -253,10 +253,13 @@ do
     if [ -z "$host" ]
     then
 	echo "$0: Warning: variable \$$var is not set from common.config"
+    elif [ "$host" = "some-host" -o "$host" = "far_away_pmcd" ]
+    then
+	echo "$0: Warning: variable \$$var using bogus default from common.config"
     else
 	# try to contact pmcd ...
 	#
-	echo -n "Contacting pmcd at $host ... "
+	$PCP_ECHO_PROG $PCP_ECHO_N "Contacting pmcd at $host ... ""$PCP_ECHO_C"
 	_check_pmcd $host
 	if [ -f $tmp.ok ]
 	then
@@ -290,7 +293,7 @@ for host in `cat qa_hosts`
 do
     # try to contact remote pmcd ...
     #
-    echo -n "Contacting remote pmcd at $host ... "
+    $PCP_ECHO_PROG $PCP_ECHO_N "Contacting remote pmcd at $host ... ""$PCP_ECHO_C"
     _check_pmcd $host
     if [ -f $tmp.ok ]
     then
@@ -301,7 +304,7 @@ do
 	_check_pmdas $host
 	# if the host is there, then the login for pcpqa needs to be
 	# setup and and ssh/scp working without passwords
-	echo -n "Trying scp/ssh for login pcpqa at $host ... "
+	$PCP_ECHO_PROG $PCP_ECHO_N "Trying scp/ssh for login pcpqa at $host ... ""$PCP_ECHO_C"
 	echo "== ssh 1st rm ==" >$tmp.out
 	ssh pcpqa@$host rm -f chk.hullo >>$tmp.out 2>&1
 	echo "== scp -> $host ==" >>$tmp.out
@@ -323,7 +326,7 @@ do
 	fi
 	# check remote shell's path includes the PCP binary directories
 	#
-	echo -n "Trying shell's path for login pcpqa at $host ... "
+	$PCP_ECHO_PROG $PCP_ECHO_N "Trying shell's path for login pcpqa at $host ... ""$PCP_ECHO_C"
 	echo "== ssh $host pmhostname ==" >$tmp.out
 	if ssh pcpqa@$host pmhostname >>$tmp.out 2>&1
 	then
@@ -344,7 +347,7 @@ for host in localhost `hostname | sed -e 's/\..*//'` `_get_fqdn`
 do
     # try to contact pmcd ...
     #
-    echo -n "Contacting local pmcd at $host ... "
+    $PCP_ECHO_PROG $PCP_ECHO_N "Contacting local pmcd at $host ... ""$PCP_ECHO_C"
     _check_pmcd $host
     if [ -f $tmp.ok ]
     then
@@ -360,10 +363,10 @@ done
 $fail && _fail_check
 
 echo "Check the sanity of these:"
-echo -n "  \$PCP_PLATFORM=$PCP_PLATFORM [y] ? "
+$PCP_ECHO_PROG $PCP_ECHO_N "  \$PCP_PLATFORM=$PCP_PLATFORM [y] ? ""$PCP_ECHO_C"
 read ans
 [ ! -z "$ans" -a "$ans" != y ] && _fail_check
-echo -n "  \$PCP_VERSION=$PCP_VERSION [y] ? "
+$PCP_ECHO_PROG $PCP_ECHO_N "  \$PCP_VERSION=$PCP_VERSION [y] ? ""$PCP_ECHO_C"
 read ans
 [ ! -z "$ans" -a "$ans" != y ] && _fail_check
 

@@ -585,10 +585,10 @@ event		pcpqa
 366 pmlogconf local oss
 367 pdu local trace oss
 368 pmlogconf local oss
-369 pmimport local oss
+369 pmimport local oss sanity
 370 pmimport local oss derive
-371 pmimport local oss
-372 pmimport local oss
+371 pmimport local oss sanity
+372 pmimport local oss sanity
 373 pmimport local oss
 374 pmlc pmlogger remote oss
 375 pmlc pmlogger remote oss
@@ -601,29 +601,29 @@ event		pcpqa
 382 dbpmda pmda pmda.sample pmda.sampledso local oss
 383 pmda.cisco local oss
 384 pmda.pmcd local oss
-385 libpcp pmda.sample pminfo pmprobe local oss event
+385 libpcp pmda.sample pminfo pmprobe local oss event sanity
 386 pdu valgrind local oss
 387 pmns valgrind local oss
 388 archive mem_leak valgrind local oss
 389 pmlogger local oss
 390 pmda.proc local pmval oss
 391 archive mem_leak valgrind local oss
-392 pmns local oss event
+392 pmns local oss
 393 archive mem_leak valgrind local oss
 394 archive mem_leak valgrind local oss
 395 archive mem_leak valgrind local oss
 396 pmval local oss
-397 dbpmda libpcp local oss pdu event
+397 dbpmda libpcp local oss pdu event sanity
 398 pmcd local oss
 399 pmie local oss
 400 pminfo mem_leak valgrind context_local libpcp local oss event
-401 libpcp pminfo local oss event
+401 libpcp pminfo local oss event sanity
 402 archive local pmprobe oss
 403 pmprobe pminfo pmval #541380 local oss sanity
-404 libpcp local oss event
+404 libpcp local oss event sanity
 405 libpcp mem_leak valgrind local oss event
 406 libpcp local oss event
-407 derive local oss event
+407 derive local oss event sanity
 408 pmda local #627395 help oss
 409 libpcp pminfo local oss event
 410 pmdumplog local oss event
@@ -651,9 +651,9 @@ event		pcpqa
 432 pmlogreduce local oss
 433 pmie local #573184 oss
 434 pmval local oss
-435 archive local oss
-436 archive local oss
-437 archive local oss
+435 archive local oss sanity
+436 archive local oss sanity
+437 archive local oss sanity
 438 archive local oss
 439 pmlc local oss
 445 trace local oss

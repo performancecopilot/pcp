@@ -33,14 +33,17 @@ cat <<End-of-File >bzcat
 exit 1
 End-of-File
 chmod 755 bzcat
-pminfo -Dlog -a null 2>&1 | _filter
+pminfo -Dlog -a null 2>&1 | _filter \
+| LC_COLLATE=POSIX sort
 
 cat <<End-of-File >bzcat
 #!/bin/sh
 kill -KILL \$\$
 End-of-File
 chmod 755 bzcat
-pminfo -Dlog -a null 2>&1 | _filter
+pminfo -Dlog -a null 2>&1 | _filter \
+| sed -e '/Killed/s/.*/[Killed]/' \
+| LC_COLLATE=POSIX sort
 
 # success, all done
 exit

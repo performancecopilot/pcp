@@ -73,13 +73,13 @@ $here/src-oss/torture_trace
 sleep 2
 
 echo "QA test counters:"
-echo -n "    pmtraceobs      "
+$PCP_ECHO_PROG $PCP_ECHO_N "    pmtraceobs      ""$PCP_ECHO_C"
 pminfo -f trace.observe.count | _countinst
 
-echo -n "    pmtracepoint    "
+$PCP_ECHO_PROG $PCP_ECHO_N "    pmtracepoint    ""$PCP_ECHO_C"
 pminfo -f trace.point.count | _countinst
 
-echo -n "    pmtracetransact "
+$PCP_ECHO_PROG $PCP_ECHO_N "    pmtracetransact ""$PCP_ECHO_C"
 pminfo -f trace.transact.count | _countinst
 
 

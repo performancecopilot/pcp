@@ -28,7 +28,7 @@ then
 	USER=$REMOTEUSER
     else
 	echo "Error: user \"pcpqa\" cannot create tests ... who are you?"
-	echo -n "Enter login: "
+	$PCP_ECHO_PROG $PCP_ECHO_N "Enter login: ""$PCP_ECHO_C"
 	read USER
 	if [ ! -z "$USER" ]
 	then
@@ -127,7 +127,7 @@ then
     exit 1
 fi
 
-echo -n "Creating skeletal script for you to edit ..."
+$PCP_ECHO_PROG $PCP_ECHO_N "Creating skeletal script for you to edit ...""$PCP_ECHO_C"
 
 cat <<End-of-File >$id
 #!/bin/sh
@@ -189,7 +189,7 @@ if [ $# -eq 0 ]
 then
     while true
     do
-	echo -n "Add to group(s) [other] (? for list): "
+	$PCP_ECHO_PROG $PCP_ECHO_N "Add to group(s) [other] (? for list): ""$PCP_ECHO_C"
 	read ans
 	[ -z "$ans" ] && ans=other
 	if [ "X$ans" = "X?" ]
@@ -204,7 +204,7 @@ NF < 2		{ next }
 	    break
 	fi
     done
-    echo -n "Runs on QA machine alone? (local pmcd, local pmlogger, no ssh, ...) [y] "
+    $PCP_ECHO_PROG $PCP_ECHO_N "Runs on QA machine alone? (local pmcd, local pmlogger, no ssh, ...) [y] ""$PCP_ECHO_C"
     read _ans
     if [ -z "$_ans" -o "$_ans" = "y" ]
     then
@@ -227,13 +227,13 @@ else
     ans="$*"
 fi
 
-echo -n "Adding $id to group index ..."
+$PCP_ECHO_PROG $PCP_ECHO_N "Adding $id to group index ...""$PCP_ECHO_C"
 dist=oss
 [ "$id" -ge 1000 ] && dist=sgi
 echo "$id $ans $dist" >>group
 echo " done."
 
-echo -n "Adding $id to owner index ..."
+$PCP_ECHO_PROG $PCP_ECHO_N "Adding $id to owner index ...""$PCP_ECHO_C"
 echo "$id pcpqa" >>owner
 echo " done."
 

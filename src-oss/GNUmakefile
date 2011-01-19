@@ -12,10 +12,19 @@ endif
 PATH	= $(shell . /etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
+PMLOGGER	= $(PCP_BINADM_DIR)/pmlogger
+PMLOGEXTRACT	= $(PCP_BINADM_DIR)/pmlogextract
+
 #DBG    = -DPCP_DEBUG -DDEBUG -DMALLOC_AUDIT -g
 DBG     = -DPCP_DEBUG -DDEBUG -g
 
 DEBUG   = $(DBG)
+
+# remove -Lpath and -Ipath options from builddefs CFLAGS value
+#
+PCP_LIBS	=
+TMP		:= $(CFLAGS:-I%=)
+CFLAGS		= $(TMP)
 
 HAVE_64	= $(shell test `uname -m | sed -e 's/.*64/64/g'` = "64" && echo 1 || echo 0)
 
@@ -396,11 +405,11 @@ endif
 
 foo.0:	config.foo
 	rm -f foo.index foo.meta foo.0
-	pmlogger -c config.foo -s 8 foo
+	$(PMLOGGER) -c config.foo -s 8 foo
 
 mv-foo.0:	config.foo
 	rm -f mv-foo.index mv-foo.meta mv-foo.?
-	pmlogger -c config.foo -s 8 -v 3 mv-foo
+	$(PMLOGGER) -c config.foo -s 8 -v 3 mv-foo
 
 noti-foo.0:	foo.0
 	cp foo.0 noti-foo.0
@@ -412,11 +421,11 @@ noti-ok-foo.0:	ok-foo.0
 
 bar.0:	config.bar
 	rm -f bar.index bar.meta bar.0
-	pmlogger -c config.bar -s 70 bar
+	$(PMLOGGER) -c config.bar -s 70 bar
 
 mv-bar.0:	config.bar
 	rm -f mv-bar.index mv-bar.meta mv-bar.?
-	pmlogger -c config.bar -s 70 -v 20 mv-bar
+	$(PMLOGGER) -c config.bar -s 70 -v 20 mv-bar
 
 noti-bar.0:	bar.0
 	cp bar.0 noti-bar.0
@@ -424,7 +433,7 @@ noti-bar.0:	bar.0
 
 mirage.0:
 	rm -f mirage.index mirage.meta mirage.0
-	pmlogger -c config.mirage -s 20 mirage
+	$(PMLOGGER) -c config.mirage -s 20 mirage
 
 dodgey-some.0:	make.dodgey config.dodgey-some
 	./make.dodgey some 50
@@ -439,13 +448,13 @@ bigbin.0:	config.bigbin
 	rm -f bigbin.index bigbin.meta bigbin.0
 	sync
 	sleep 3
-	pmlogger -c config.bigbin -s 1000 bigbin
+	$(PMLOGGER) -c config.bigbin -s 1000 bigbin
 
 mv-bigbin.0:	config.bigbin
 	rm -f mv-bigbin.index mv-bigbin.meta mv-bigbin.?
 	sync
 	sleep 3
-	pmlogger -c config.bigbin -s 1000 -v 101 mv-bigbin
+	$(PMLOGGER) -c config.bigbin -s 1000 -v 101 mv-bigbin
 
 noti-bigbin.0:	bigbin.0
 	cp bigbin.0 noti-bigbin.0
@@ -453,11 +462,11 @@ noti-bigbin.0:	bigbin.0
 
 interp.0:	config.interp
 	rm -f interp.index interp.meta interp.0
-	pmlogger -c config.interp -s 30 interp
+	$(PMLOGGER) -c config.interp -s 30 interp
 
 mv-interp.0:	config.interp
 	rm -f mv-interp.index mv-interp.meta mv-interp.?
-	pmlogger -c config.interp -s 30 -v 10 mv-interp
+	$(PMLOGGER) -c config.interp -s 30 -v 10 mv-interp
 
 noti-interp.0:	interp.0
 	cp interp.0 noti-interp.0
@@ -499,13 +508,13 @@ changeinst.0:
 	echo '  sample.seconds,sample.bin["bin-200","bin-300","bin-400","bin-500"]' >>tmp/C.config
 	echo '  irix.network.interface.total.packets["ec2","lo0"]' >>tmp/C.config
 	echo '}' >>tmp/C.config
-	pmlogger -s 5 -c tmp/A.config tmp/A
+	$(PMLOGGER) -s 5 -c tmp/A.config tmp/A
 	sleep 3
-	pmlogger -s 5 -c tmp/B.config tmp/B
+	$(PMLOGGER) -s 5 -c tmp/B.config tmp/B
 	sleep 3
-	pmlogger -s 5 -c tmp/C.config tmp/C
+	$(PMLOGGER) -s 5 -c tmp/C.config tmp/C
 	rm -f changeinst.index changeinst.meta changeinst.0
-	pmlogextract tmp/A tmp/B tmp/C changeinst
+	$(PMLOGEXTRACT) tmp/A tmp/B tmp/C changeinst
 	rm -rf tmp
 
 # gap: 10 sec data, 5 sec gap, 10 sec data
@@ -518,20 +527,20 @@ gap.0 gap2.0:
 	echo 'log mandatory on 1sec { pmcd.pdu_in,pmcd.numagents,hinv.ncpu,sample.bin["bin-100","bin-200","bin-400"] }' >tmp/A.config
 	echo 'log mandatory on 1sec { pmcd.pdu_in,pmcd.numagents,hinv.ncpu,sample.bin["bin-100","bin-300","bin-400"] }' >tmp/B.config
 	echo 'log mandatory on 1sec { pmcd.pdu_in,pmcd.numagents,hinv.ncpu,sample.bin["bin-100","bin-400"] }' >tmp/C.config
-	pmlogger -s 10 -c tmp/A.config tmp/A
+	$(PMLOGGER) -s 10 -c tmp/A.config tmp/A
 	sleep 5
-	pmlogger -s 10 -c tmp/B.config tmp/B
+	$(PMLOGGER) -s 10 -c tmp/B.config tmp/B
 	sleep 5
-	pmlogger -s 10 -c tmp/C.config tmp/C
+	$(PMLOGGER) -s 10 -c tmp/C.config tmp/C
 	rm -f gap.index gap.meta gap.0
-	pmlogextract tmp/A tmp/B gap
+	$(PMLOGEXTRACT) tmp/A tmp/B gap
 	rm -f gap2.index gap2.meta gap2.0
-	pmlogextract tmp/A tmp/B tmp/C gap2
+	$(PMLOGEXTRACT) tmp/A tmp/B tmp/C gap2
 	rm -rf tmp
 
 reduce-gap.0:	reduce-1.0 reduce-2.0
 	rm -f reduce-gap.*
-	pmlogextract reduce-1 reduce-2 reduce-gap
+	$(PMLOGEXTRACT) reduce-1 reduce-2 reduce-gap
 
 torture_indom: torture_indom.c
 	rm -f $@

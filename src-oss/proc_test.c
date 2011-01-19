@@ -55,10 +55,12 @@
  */
 
 #include <ctype.h>
-#include <sys/procfs.h>
 #include <sys/wait.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+
+#ifdef HAVE_PROCFS
+#include <sys/procfs.h>
 
 #define MAXMETRICS 1024
 
@@ -607,3 +609,11 @@ main(int argc, char **argv)
 
     exit(0);
 }
+#else
+int
+main(int argc, char **argv)
+{
+    printf("No /proc pseudo filesystem on this platform\n");
+    exit(1);
+}
+#endif /* HAVE_PROCFS */

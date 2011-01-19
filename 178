@@ -102,7 +102,7 @@ echo >>$seq.full
 echo "Log record counts ..." | tee -a $seq.full
 for i in a b c merge
 do
-    echo -n "$i: "
+    $PCP_ECHO_PROG $PCP_ECHO_N "$i: ""$PCP_ECHO_C"
     ( echo; echo "=== $i ===" ) >>$seq.full
     pmdumplog -m $tmp.$i | tee -a $seq.full | _count_rec
 done
@@ -126,7 +126,7 @@ echo | tee -a $seq.full
 echo "merge -s 10" | tee -a $seq.full
 rm -f $tmp.merge.*
 pmlogextract -s 10 $tmp.a $tmp.b $tmp.c $tmp.merge
-echo -n "merge (expect 10): "
+$PCP_ECHO_PROG $PCP_ECHO_N "merge (expect 10): ""$PCP_ECHO_C"
 pmdumplog -m $tmp.merge \
 | tee -a $seq.full \
 | _count_rec 
@@ -137,7 +137,7 @@ echo | tee -a $seq.full
 echo "merge -T 6.9" | tee -a $seq.full
 rm -f $tmp.merge.*
 pmlogextract -T 6.9 $tmp.a $tmp.b $tmp.c $tmp.merge
-echo -n "merge (expect 31 + 2 preamble + 1 mark): "
+$PCP_ECHO_PROG $PCP_ECHO_N "merge (expect 31 + 2 preamble + 1 mark): ""$PCP_ECHO_C"
 pmdumplog -m $tmp.merge \
 | tee -a $seq.full \
 | _count_rec
@@ -147,7 +147,7 @@ echo | tee -a $seq.full
 echo "merge -S 6.9 -T 7.2" | tee -a $seq.full
 rm -f $tmp.merge.*
 pmlogextract -S 6.9 -T 7.2 $tmp.a $tmp.b $tmp.c $tmp.merge
-echo -n "merge (expect 12): "
+$PCP_ECHO_PROG $PCP_ECHO_N "merge (expect 12): ""$PCP_ECHO_C"
 pmdumplog -m $tmp.merge \
 | tee -a $seq.full \
 | _count_rec
@@ -161,7 +161,7 @@ pmlogextract -v 15 $tmp.a $tmp.b $tmp.c $tmp.merge 2>&1 \
 echo "Log record counts ..." | tee -a $seq.full
 for i in a b c merge
 do
-    echo -n "$i: "
+    $PCP_ECHO_PROG $PCP_ECHO_N "$i: ""$PCP_ECHO_C"
     ( echo; echo "=== $i ===" ) >>$seq.full
     pmdumplog -m $tmp.$i \
     | tee -a $seq.full \

@@ -8,9 +8,11 @@
 
 #include <ctype.h>
 #include <string.h>
-#include <sys/sysinfo.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+
+#ifdef HAVE_SYSINFO
+#include <sys/sysinfo.h>
 
 #define NUM 1
 
@@ -137,3 +139,11 @@ main(int argc, char *argv[])
     printf("+++ Expect %d bytes\n", (int)sizeof(struct sysinfo));
     return dometric();
 }
+#else
+int
+main(int argc, char **argv)
+{
+    printf("No sysinfo on this platform\n");
+    exit(1);
+}
+#endif /* HAVE_SYSINFO */

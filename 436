@@ -101,7 +101,8 @@ do
     pmie -a $arch </dev/null
 done
 touch null.0.bz2 null.meta null.index
-pminfo -a null
+pminfo -a null 2>&1 \
+| sed -e '/bzcat: Undefined error: 0/s/Undefined.*/Success/'
 
 # success, all done
 exit

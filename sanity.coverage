@@ -38,3 +38,6 @@ pmlogsummary	234
 dynamic pmns	207, 208, 210
 local context	232 (torture_indom), 345 (derived & dynamic metrics)
 pmieconf	1044
+compressed archives	435, 436, 437
+event records	385, 397, 401, 404, 407
+pmimport	369, 371, 372

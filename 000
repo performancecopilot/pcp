@@ -27,7 +27,13 @@ $7 == "TIME" || $10 == "TIME"		{ next }
 		    { want = 0
 		      psargs = 0
 		      for (i = 12; i >= 7; i--) {
+			# most ps variants have TIME as N:NN
 			if ($i ~ /[0-9]:[0-9][0-9]$/) {
+			    psargs=i+1
+			    break
+			}
+			# darwin ps has TIME as N:NN.NN
+			if ($i ~ /[0-9]:[0-9][0-9]\.[0-9][0-9]$/) {
 			    psargs=i+1
 			    break
 			}

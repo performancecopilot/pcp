@@ -1,5 +1,5 @@
 QA output created by 137
-dbpmda> open dso $PCP_PMDAS_DIR/simple/pmda_simple.so simple_init 253
+dbpmda> open dso $PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX simple_init 253
 dbpmda> getdesc on
 dbpmda> desc simple.numfetch
 PMID: 253.0.0

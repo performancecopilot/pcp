@@ -19,6 +19,7 @@ _filter()
     sed \
 	-e 's,/[^/]*\.pmda,/ISA.pmda,' \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+	-e "s/\.$DSO_SUFFIX/.\$DSO_SUFFIX/" \
     | _filter_dumpresult
 }
 
@@ -29,7 +30,7 @@ _filter()
 
 # real QA test starts here
 dbpmda -n $PCP_PMDAS_DIR/simple/root -ie <<End-of-File 2>&1 | _filter
-open dso $PCP_PMDAS_DIR/simple/pmda_simple.so simple_init 253
+open dso $PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX simple_init 253
 getdesc on
 desc simple.numfetch
 fetch simple.numfetch

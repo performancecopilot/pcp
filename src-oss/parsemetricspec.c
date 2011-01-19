@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <pcp/pmapi.h>
 
+int
 main(int argc, char **argv)
 {
     int			isarch;

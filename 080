@@ -48,7 +48,20 @@ export TZ
 
 # real QA test starts here
 echo "sum of $ARCH ..."
-sum -r $ARCH.* | sed -e 's/[ ][ ]*[0-9]*[ ]/ /'
+# want historic BSD "sum" algorithm ...
+#
+if [ $PCP_PLATFORM = "darwin" ]
+then
+    SUM=sum
+else
+    SUM="sum -r"
+fi
+$SUM $ARCH.* | sed -e 's/[ ][ ]*[0-9]*[ ]/ /' \
+| sed -e 's/^00*//' \
+| while read chksum path
+do
+    printf "%05d %s\n" $chksum $path
+done
 
 echo; echo "-- -t 0.2 -s 4 --"
 pmval -t 0.2 -s 4 sample.milliseconds 2>$tmp.err | _filter | _one

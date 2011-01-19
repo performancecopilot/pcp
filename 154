@@ -57,11 +57,12 @@ then
     fi
     cleanup=true
 fi
+$sudo chmod 644 $PCP_PMDAS_DIR/cisco/help.*
 
 echo
 echo bad dbf
-ln -s $sudo $tmp.pag
-ln -s $sudo $tmp.dir
+dd if=/dev/zero ibs=1024 count=4 of=$tmp.pag >/dev/null 2>&1
+cp $tmp.pag $tmp.dir
 echo "chkhelp bad-helpfile"
 chkhelp $tmp >$tmp.out 2>&1
 status=$?
