@@ -146,7 +146,7 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG)
 		fprintf(stderr, " header read -> %d (expect %d) or bad header len=%d (expected %d)\n",
-		    n, sizeof(len), len, xpectlen);
+		    n, (int)sizeof(len), len, xpectlen);
 #endif
 	    if (ferror(f)) {
 		clearerr(f);
@@ -185,7 +185,7 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, " trailer read -> %d (expect %d) or bad trailer len=%d (expected %d)\n",
-		n, sizeof(len), len, xpectlen);
+		n, (int)sizeof(len), len, xpectlen);
 #endif
 	if (ferror(f)) {
 	    clearerr(f);
@@ -228,6 +228,7 @@ fopen_compress(const char *fname)
     int		fd;
     int		i;
     char	*cmd;
+    char	*msg;
     FILE	*fp;
     static char	tmpname[MAXPATHLEN];
     static char	shellcmd[2*MAXPATHLEN];	/* assuming fname is not that long */
@@ -248,12 +249,20 @@ fopen_compress(const char *fname)
 	cmd = "gunzip -c";
     else {
 	/* botch in compress_ctl[] ... should not happen */
-	cmd = "false";
 	return NULL;
     }
+
+#if HAVE_MKSTEMP
     snprintf(tmpname, sizeof(tmpname), "%s/XXXXXX", pmGetConfig("PCP_TMP_DIR"));
+    msg = tmpname;
     fd = mkstemp(tmpname);
-    snprintf(shellcmd, sizeof(shellcmd), "%s %s%s >%s", cmd, fname, compress_ctl[i].suff, tmpname);
+#else
+    if ((msg = tmpnam(NULL)) == NULL)
+	return NULL;
+    fd = open(msg, O_RDONLY|O_CREAT|O_EXCL, 0600);
+#endif
+
+    snprintf(shellcmd, sizeof(shellcmd), "%s %s%s >%s", cmd, fname, compress_ctl[i].suff, msg);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG)
 	fprintf(stderr, "__pmLogOpen: uncompress using: %s\n", shellcmd);
@@ -266,7 +275,8 @@ fopen_compress(const char *fname)
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "__pmLogOpen: uncompress command failed: %s\n", strerror(sts));
 #endif
-	unlink(tmpname);
+	close(fd);
+	unlink(msg);
 	errno = sts;
 	return NULL;
     }
@@ -283,7 +293,8 @@ fopen_compress(const char *fname)
 		fprintf(stderr, "__pmLogOpen: uncompress failed, system() returns: %d\n", sts);
 	}
 #endif
-	unlink(tmpname);
+	close(fd);
+	unlink(msg);
 	/* not a great error code, but the best we can do */
 	errno = -PM_ERR_LOGREC;
 	return NULL;
@@ -291,7 +302,8 @@ fopen_compress(const char *fname)
     if ((fp = fdopen(fd, "r")) == NULL) {
 	/* trust that errno will explain why ... */
 	sts = errno;
-	unlink(tmpname);
+	close(fd);
+	unlink(msg);
 	errno = sts;
 	return NULL;
     }
@@ -299,7 +311,7 @@ fopen_compress(const char *fname)
      * success, unlink to avoid namespace pollution and allow O/S
      * space cleanup on last close
      */
-    unlink(tmpname);
+    unlink(msg);
     return fp;
 }
 

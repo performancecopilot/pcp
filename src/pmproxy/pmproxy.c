@@ -255,6 +255,12 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     }
 #endif
 
+    /* and keep alive please - pv 916354 bad networks eat fds */
+    if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one, (mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) setsockopt(SO_KEEPALIVE): %s\n", port, ipAddr, strerror(errno));
+	DontStart();
+    }
+
     memset(&myAddr, 0, sizeof(myAddr));
     myAddr.sin_family = AF_INET;
     myAddr.sin_addr.s_addr = ipAddr;
