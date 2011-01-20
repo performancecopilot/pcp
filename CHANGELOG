@@ -22,6 +22,8 @@ pcp-3.5.0 (19 January 2011)
     - Fix postfix PMDA log file path handling for Redhat Linux distros.
     - Extend Perl PMDA interfaces to allow additional metrics to be
       added at runtime (now makes use of dynamic namespace support).
+    - Set KEEPALIVE option on pmproxy client sockets, mirroring pmcd
+      behaviour and reducing open file descriptor pressure.
 
 pcp-3.4.1 (9 October 2010)
     - Remove bogus (expected) errors/warnings from Win32 install/remove.
