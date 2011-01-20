@@ -146,7 +146,7 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG)
 		fprintf(stderr, " header read -> %d (expect %d) or bad header len=%d (expected %d)\n",
-		    n, sizeof(len), len, xpectlen);
+		    n, (int)sizeof(len), len, xpectlen);
 #endif
 	    if (ferror(f)) {
 		clearerr(f);
@@ -185,7 +185,7 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, " trailer read -> %d (expect %d) or bad trailer len=%d (expected %d)\n",
-		n, sizeof(len), len, xpectlen);
+		n, (int)sizeof(len), len, xpectlen);
 #endif
 	if (ferror(f)) {
 	    clearerr(f);
