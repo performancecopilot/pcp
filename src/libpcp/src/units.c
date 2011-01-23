@@ -20,6 +20,10 @@
 #include "impl.h"
 #include <math.h>
 
+#ifndef ABS
+#define    ABS(a)          ((a) < 0 ? -(a) : (a))
+#endif
+
 #if defined(HAVE_CONST_LONGLONG)
 #define SIGN_64_MASK 0x8000000000000000LL
 #else
@@ -637,7 +641,7 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 	    case PM_TYPE_FLOAT:		/* old style insitu encoding */
 		switch (otype) {
 		    case PM_TYPE_32:
-			if ((float)fabs(av.f) >= (float)0x7fffffff)
+			if ((float)ABS(av.f) >= (float)0x7fffffff)
 			    sts = PM_ERR_TRUNC;
 			else
 			    oval->l = (__int32_t)av.f;
@@ -830,7 +834,7 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		memcpy((void *)&dsrc, (void *)ap, sizeof(dsrc));
 		switch (otype) {
 		    case PM_TYPE_32:
-			if (fabs(dsrc) >= (double)0x7fffffff)
+			if (ABS(dsrc) >= (double)0x7fffffff)
 			    sts = PM_ERR_TRUNC;
 			else
 			    oval->l = (__int32_t)dsrc;
@@ -893,7 +897,7 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		memcpy((void *)&fsrc, (void *)ap, sizeof(fsrc));
 		switch (otype) {
 		    case PM_TYPE_32:
-			if ((float)fabs(fsrc) >= (float)0x7fffffff)
+			if ((float)ABS(fsrc) >= (float)0x7fffffff)
 			    sts = PM_ERR_TRUNC;
 			else
 			    oval->l = (__int32_t)fsrc;
