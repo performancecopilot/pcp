@@ -477,10 +477,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	}
 
 	/* Must use individual malloc()s because of pmFreeResult() */
-	if (numval == 1)
-	    extp->res->vset[i] = vset = (pmValueSet *)
-	    				__pmPoolAlloc(sizeof(pmValueSet));
-	else if (numval > 1)
+	if (numval >= 1)
 	    extp->res->vset[i] = vset = (pmValueSet *)malloc(sizeof(pmValueSet) +
 					    (numval - 1)*sizeof(pmValue));
 	else

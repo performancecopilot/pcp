@@ -57,8 +57,6 @@ identifiers are the process ids of the pmie instances.
 @ 2.5 buffer pool Instance Domain
 The instances are as follows:
 
-  0012  12-byte buffers managed by __pmPoolAlloc and __pmPoolFree
-  0020  20-byte buffers managed by __pmPoolAlloc and __pmPoolFree
   1024  1024-byte PDU buffers managed by __pmFindPDUBuf, __pmPinPDUBuf
 	and __pmUnpinPDUBuf
   2048  2-Kbyte PDU buffers managed by __pmFindPDUBuf, __pmPinPDUBuf

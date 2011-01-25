@@ -729,13 +729,6 @@ bozo - unknown size of long !!!
 #define PM_TEXT_INDOM	8
 
 /*
- * Quick-and-dirty pool memory allocator ...
- */
-extern void *__pmPoolAlloc(size_t);
-extern void __pmPoolFree(void *, size_t);
-extern void __pmPoolCount(size_t, int *, int *);
-
-/*
  * no mem today, my love has gone away ....
  */
 extern void __pmNoMem(const char *, size_t, int);

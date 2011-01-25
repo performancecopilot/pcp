@@ -558,7 +558,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	}
     }
 
-    if ((rp = (pmResult *) malloc(sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *))) == NULL)
+    if ((rp = (pmResult *)malloc(sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *))) == NULL)
 	return -errno;
 
     rp->timestamp.tv_sec = ctxp->c_origin.tv_sec;
@@ -1005,9 +1005,7 @@ retry_forw:
 	    hp = __pmHashSearch((int)pmidlist[j], hcp);
 	    pcp = (pmidcntl_t *)hp->data;
 
-	    if (pcp->numval == 1)
-		rp->vset[j] = (pmValueSet *)__pmPoolAlloc(sizeof(pmValueSet));
-	    else if (pcp->numval > 1)
+	    if (pcp->numval >= 1)
 		rp->vset[j] = (pmValueSet *)malloc(sizeof(pmValueSet) +
 						(pcp->numval - 1)*sizeof(pmValue));
 	    else
@@ -1211,7 +1209,7 @@ retry_forw:
 		    int			ok = 1;
 
 		    need = PM_VAL_HDR_SIZE + sizeof(__int64_t);
-		    if ((vp = (pmValueBlock *)__pmPoolAlloc(need)) == NULL) {
+		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
 			sts = -errno;
 			goto bad_alloc;
 		    }
@@ -1350,7 +1348,7 @@ retry_forw:
 		    int			ok = 1;
 
 		    need = PM_VAL_HDR_SIZE + sizeof(double);
-		    if ((vp = (pmValueBlock *)__pmPoolAlloc(need)) == NULL) {
+		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
 			sts = -errno;
 			goto bad_alloc;
 		    }
@@ -1409,10 +1407,7 @@ retry_forw:
 
 		    need = icp->v_prior.pval->vlen;
 
-		    if (need == PM_VAL_HDR_SIZE + sizeof(__int64_t))
-			vp = (pmValueBlock *)__pmPoolAlloc(need);
-		    else
-			vp = (pmValueBlock *)malloc(need);
+		    vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {
 			sts = -errno;
 			goto bad_alloc;

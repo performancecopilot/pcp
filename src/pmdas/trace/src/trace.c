@@ -922,10 +922,7 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    numval = 1;
 
 	/* Must use individual malloc()s because of pmFreeResult() */
-	if (numval == 1)
-	    res->vset[i] = vset = (pmValueSet *)
-					__pmPoolAlloc(sizeof(pmValueSet));
-	else if (numval > 1)
+	if (numval >= 1)
 	    res->vset[i] = vset = (pmValueSet *)malloc(sizeof(pmValueSet)+
 					(numval - 1)*sizeof(pmValue));
 	else
