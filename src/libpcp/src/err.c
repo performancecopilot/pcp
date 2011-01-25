@@ -111,14 +111,18 @@ static const struct {
 	"PMCD connection limit for this host exceeded" },
     { PM_ERR_AGAIN,		"PM_ERR_AGAIN",
 	"Try again. Information not currently available" },
+#ifdef ASYNC_API
     { PM_ERR_ISCONN,		"PM_ERR_ISCONN",
 	"Already Connected" },
+#endif /*ASYNC_API*/
     { PM_ERR_NOTCONN,		"PM_ERR_NOTCONN",
 	"Not Connected" },
+#ifdef ASYNC_API
     { PM_ERR_NEEDPORT,		"PM_ERR_NEEDPORT",
 	"A non-null port name is required" },
     { PM_ERR_WANTACK,		"PM_ERR_WANTACK",
 	"Cannot send due to pending acknowledgements" },
+#endif /*ASYNC_API*/
     { PM_ERR_NONLEAF,		"PM_ERR_NONLEAF",
 	"Metric name is not a leaf in PMNS" },
     { PM_ERR_PMDANOTREADY,	"PM_ERR_PMDANOTREADY",

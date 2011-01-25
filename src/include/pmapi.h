@@ -194,10 +194,14 @@ typedef struct {
 #define PM_ERR_CONNLIMIT	(-PM_ERR_BASE-43)   /* PMCD connection limit for this host exceeded */
 #define PM_ERR_AGAIN		(-PM_ERR_BASE-44)   /* try again. Info not currently available */
 
+#ifdef ASYNC_API
 #define PM_ERR_ISCONN		(-PM_ERR_BASE-45)   /* already connected */
+#endif /* ASYNC_API */
 #define PM_ERR_NOTCONN		(-PM_ERR_BASE-46)   /* not connected */
+#ifdef ASYNC_API
 #define PM_ERR_NEEDPORT		(-PM_ERR_BASE-47)   /* port name required */
 #define PM_ERR_WANTACK		(-PM_ERR_BASE-48)   /* can not send due to pending acks */
+#endif /* ASYNC_API */
 #define PM_ERR_NONLEAF		(-PM_ERR_BASE-49)   /* PMNS node is not a leaf node */
 #define PM_ERR_OBJSTYLE		(-PM_ERR_BASE-50)   /* user/kernel object style mismatch */
 #define PM_ERR_PMCDLICENSE	(-PM_ERR_BASE-51)   /* PMCD is not licensed to accept connections */
@@ -320,10 +324,12 @@ extern int pmNewContext(int, const char *);
 #define PM_CONTEXT_HOST		1	/* context types */
 #define PM_CONTEXT_ARCHIVE	2
 #define PM_CONTEXT_LOCAL	3	/* local host, no pmcd connection */
+#ifdef ASYNC_API
 #define PM_CONTEXT_TYPEMASK	0xff	/* Mask to separate types from flags */
 
 #define PM_CTXFLAG_SHALLOW	(1<<8)  /* Shallow host context - don't connect */
 #define PM_CTXFLAG_EXCLUSIVE	(1<<9)  /* Exclusive host context - don't share socket */
+#endif /*ASYNC_API*/
 
 /*
  * Duplicate current context -- returns handle to new one for pmUseContext()
@@ -341,6 +347,7 @@ extern int pmUseContext(int);
  */
 extern int pmReconnectContext(int);
 
+#ifdef ASYNC_API
 extern int pmGetContextFD(int);
 extern int pmGetContextTimeout(int, int*);
 
@@ -349,6 +356,7 @@ extern int pmContextConnectTo(int, const struct sockaddr *);
 extern int pmContextConnectChangeState(int);
 
 extern void pmContextUndef(void);
+#endif /*ASYNC_API*/
 
 /*
  * Add to instance profile.
@@ -612,6 +620,7 @@ extern int pmflush(void);
  */
 extern char *pmGetConfig(const char *);
 
+#ifdef ASYNC_API
 /*
  * Mainloop implementation.
  */
@@ -633,6 +642,7 @@ void pmLoopStop(void);
 int pmLoopMain(void);
 
 extern int pmLoopDebug;
+#endif /*ASYNC_API*/
 
 /*
  * Derived Metrics support
@@ -641,6 +651,7 @@ int pmLoadDerivedConfig(char *);
 char *pmRegisterDerived(char *, char *);
 char *pmDerivedErrStr(void);
 
+#ifdef ASYNC_API
 /*
  * Asynchronous versions of main pmapi client routines - each one
  * either sends or receives a PDU.
@@ -669,6 +680,7 @@ extern int pmRequestNamesOfChildren(int, const char *, int);
 extern int pmRequestStore(int, const pmResult *);
 extern int pmRequestText(int, pmID, int);
 extern int pmRequestTraversePMNS(int, const char *);
+#endif /*ASYNC_API*/
 
 /*
  * Event Record support
