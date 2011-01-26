@@ -92,6 +92,7 @@ typedef struct {
 #define VOL_SW_COUNTER 2
 #define VOL_SW_BYTES   3
 #define VOL_SW_TIME    4
+#define VOL_SW_MAX     5
 
 /* flush requested via SIGUSR1 */
 extern int	wantflush;
@@ -156,12 +157,12 @@ extern int		clientfd;
 extern int		ctlfd;
 extern int		exit_samples;
 extern int		vol_switch_samples;
-extern long		vol_switch_bytes;
+extern __int64_t	vol_switch_bytes;
 extern int		vol_samples_counter;
 extern int		archive_version; 
 extern int		parse_done;
-extern long		exit_bytes;
-extern long		vol_bytes;
+extern __int64_t	exit_bytes;
+extern __int64_t	vol_bytes;
 
 /* event record handling */
 extern int do_events(pmValueSet *);
