@@ -93,33 +93,19 @@ opendso(char *dso, char *init, int domain)
 		dlclose(handle);
 	    }
 	    else {
-		if (dispatch.comm.pmda_interface != challenge) {
-		    /*
-		     * gets a bit tricky ... 
-		     * interface_version (8-bits) used to be version (4-bits),
-		     * so it is possible that only the bottom 4 bits were
-		     * changed and in this case the PMAPI version is 1 for
-		     * PCP 1.x
-		     */
-		    if ((dispatch.comm.pmda_interface & 0xf0) == (challenge & 0xf0)) {
-			dispatch.comm.pmapi_version = PMAPI_VERSION_1;
-			dispatch.comm.pmda_interface &= 0x0f;
-		    }
-		    if (dispatch.comm.pmda_interface < PMDA_INTERFACE_2 ||
-			dispatch.comm.pmda_interface > PMDA_INTERFACE_LATEST) {
+		if (dispatch.comm.pmda_interface < PMDA_INTERFACE_2 ||
+		    dispatch.comm.pmda_interface > PMDA_INTERFACE_LATEST) {
 
-			printf("Error: Unsupported PMDA interface version %d returned by DSO \"%s\"\n",
-			       dispatch.comm.pmda_interface, dso);
-			dispatch.status = -1;
-			dlclose(handle);
-		    }
-		    if (dispatch.comm.pmapi_version != PMAPI_VERSION_1 &&
-			dispatch.comm.pmapi_version != PMAPI_VERSION_2) {
-			printf("Error: Unsupported PMAPI version %d returned by DSO \"%s\"\n",
-			       dispatch.comm.pmapi_version, dso);
-			dispatch.status = -1;
-			dlclose(handle);
-		    }
+		    printf("Error: Unsupported PMDA interface version %d returned by DSO \"%s\"\n",
+			   dispatch.comm.pmda_interface, dso);
+		    dispatch.status = -1;
+		    dlclose(handle);
+		}
+		if (dispatch.comm.pmapi_version != PMAPI_VERSION_2) {
+		    printf("Error: Unsupported PMAPI version %d returned by DSO \"%s\"\n",
+			   dispatch.comm.pmapi_version, dso);
+		    dispatch.status = -1;
+		    dlclose(handle);
 		}
 	    }
 
@@ -191,8 +177,6 @@ dodso_desc(pmID pmid, pmDesc *desc)
 	sts = dispatch.version.four.desc(pmid, desc, dispatch.version.four.ext);
     else
 	sts = dispatch.version.two.desc(pmid, desc, dispatch.version.two.ext);
-    if (sts < 0 && dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-	sts = XLATE_ERR_1TO2(sts);
 
 #ifdef PCP_DEBUG
     if (sts >= 0  && (pmDebug & DBG_TRACE_PDU))
@@ -265,8 +249,6 @@ dodso(int pdu)
 		    sts = dispatch.version.two.profile(profile, dispatch.version.two.ext);
 
 		if (sts < 0) {
-		    if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-			sts = XLATE_ERR_1TO2(sts);
 		    printf("Error: DSO profile() failed: %s\n", pmErrStr(sts));
 		}
 		else
@@ -285,12 +267,6 @@ dodso(int pdu)
 						     &result, dispatch.version.two.ext);
 
 		if (sts >= 0) {
-		    if (result != NULL &&
-			dispatch.comm.pmapi_version == PMAPI_VERSION_1) {
-			for (j = 0; j < result->numpmid; j++)
-			    result->vset[j]->numval =
-				    XLATE_ERR_1TO2(result->vset[j]->numval);
-		    }
 		    if (get_desc) {
 		        _dbDumpResult(stdout, result, desc_list);
 			free(desc_list);
@@ -304,8 +280,6 @@ dodso(int pdu)
 		    __pmFreeResultValues(result);
                 }
 		else {
-		    if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-			sts = XLATE_ERR_1TO2(sts);
 		    printf("Error: DSO fetch() failed: %s\n", pmErrStr(sts));
 		}
 	    }
@@ -330,8 +304,6 @@ dodso(int pdu)
 	    if (sts >= 0)
 		printindom(stdout, inresult);
 	    else {
-		if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-		    sts = XLATE_ERR_1TO2(sts);
 		printf("Error: DSO instance() failed: %s\n", pmErrStr(sts));
 	    }
 	    break;
@@ -353,8 +325,6 @@ dodso(int pdu)
 		    sts = dispatch.version.two.profile(profile, dispatch.version.two.ext);
 
 		if (sts < 0) {
-		    if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-			sts = XLATE_ERR_1TO2(sts);
 		    printf("Error: DSO profile() failed: %s\n", pmErrStr(sts));
 		    return;
 		}
@@ -371,16 +341,8 @@ dodso(int pdu)
 						    dispatch.version.two.ext);
 	    
 	    if (sts < 0) {
-		if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-		    sts = XLATE_ERR_1TO2(sts);
 		printf("Error: DSO fetch() failed: %s\n", pmErrStr(sts));
 		return;
-	    }
-	    if (result != NULL &&
-		dispatch.comm.pmapi_version == PMAPI_VERSION_1) {
-		for (j = 0; j < result->numpmid; j++)
-		    result->vset[j]->numval =
-			    XLATE_ERR_1TO2(result->vset[j]->numval);
 	    }
 
 #ifdef PCP_DEBUG
@@ -400,11 +362,8 @@ dodso(int pdu)
 	    else
 		sts = dispatch.version.two.store(result, dispatch.version.two.ext);
 	    
-	    if (sts < 0) {
-		if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-		    sts = XLATE_ERR_1TO2(sts);
+	    if (sts < 0)
 		printf("Error: DSO store() failed: %s\n", pmErrStr(sts));
-	    }
 
 	    break;
 
@@ -444,11 +403,8 @@ dodso(int pdu)
 		    else
 			printf("<no help text specified>\n");
 		}
-		else {
-		    if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-			sts = XLATE_ERR_1TO2(sts);
+		else
 		    printf("Error: DSO text() failed: %s\n", pmErrStr(sts));
-		}
 	    }
 	    break;
 

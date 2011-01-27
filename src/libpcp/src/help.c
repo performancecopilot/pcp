@@ -113,9 +113,6 @@ again_local:
 		     * free it, so malloc and copy
 		     */
 		    *buffer = strdup(*buffer);
-		} else if (n < 0 &&
-		    dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1) {
-			n = XLATE_ERR_1TO2(n);
 		}
 	    }
 	}

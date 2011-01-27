@@ -169,9 +169,6 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	    else
 		s = ap->ipc.dso.dispatch.version.two.store(dResult[i],
 				       ap->ipc.dso.dispatch.version.two.ext);
-	    if (s < 0 &&
-		ap->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-		    s = XLATE_ERR_1TO2(s);
 	}
 	else {
 	    if (ap->status.notReady == 0) {

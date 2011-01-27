@@ -1801,20 +1801,6 @@ GetAgentDso(AgentInfo *aPtr)
 	    return -1;
     }
 
-    if (dso->dispatch.comm.pmda_interface != challenge) {
-	/*
-	 * gets a bit tricky ...
-	 * interface_version (8-bits) used to be version (4-bits),
-	 * so it is possible that only the bottom 4 bits were
-	 * changed and in this case the PMAPI version is 1 for
-	 * PCP 1.x
-	 */
-	if ((dso->dispatch.comm.pmda_interface & 0xf0) == (challenge & 0xf0)) {
-	    dso->dispatch.comm.pmda_interface &= 0x0f;
-	    dso->dispatch.comm.pmapi_version = PMAPI_VERSION_1;
-	}
-    }
-
     if (dso->dispatch.comm.pmda_interface < PMDA_INTERFACE_2 ||
 	dso->dispatch.comm.pmda_interface > PMDA_INTERFACE_LATEST) {
 	__pmNotifyErr(LOG_ERR,
@@ -1826,9 +1812,7 @@ GetAgentDso(AgentInfo *aPtr)
 	return -1;
     }
 
-    if (dso->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-	aPtr->pduVersion = PDU_VERSION1;
-    else if (dso->dispatch.comm.pmapi_version == PMAPI_VERSION_2)
+    if (dso->dispatch.comm.pmapi_version == PMAPI_VERSION_2)
 	aPtr->pduVersion = PDU_VERSION2;
     else {
 	__pmNotifyErr(LOG_ERR,

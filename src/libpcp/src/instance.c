@@ -141,8 +141,6 @@ pmLookupInDom(pmInDom indom, const char *name)
 							  (char *)name, 
 							  &result, 
 							  dp->dispatch.version.two.ext);
-		if (n < 0 && dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-		    n = XLATE_ERR_1TO2(n);
 	    }
 	    if (n >= 0) {
 		n = result->instlist[0];
@@ -236,9 +234,6 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 		    n = dp->dispatch.version.four.instance(indom, inst, NULL, &result, dp->dispatch.version.four.ext);
 		else
 		    n = dp->dispatch.version.two.instance(indom, inst, NULL, &result, dp->dispatch.version.two.ext);
-		if (n < 0 &&
-		    dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-			n = XLATE_ERR_1TO2(n);
 	    }
 	    if (n >= 0) {
 		if ((*name = strdup(result->namelist[0])) == NULL)
@@ -389,9 +384,6 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 		    n = dp->dispatch.version.two.instance(indom, PM_IN_NULL, NULL,
 					       &result,
 					       dp->dispatch.version.two.ext);
-		if (n < 0 &&
-		    dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-			n = XLATE_ERR_1TO2(n);
 	    }
 	    if (n >= 0) {
 		n = inresult_to_lists (result, instlist, namelist);

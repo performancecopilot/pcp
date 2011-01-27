@@ -146,9 +146,6 @@ pmStore(const pmResult *result)
 		    else
 			sts = dp->dispatch.version.two.store(&tmp,
 						dp->dispatch.version.two.ext);
-		    if (sts < 0 &&
-			dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-			sts = XLATE_ERR_1TO2(sts);
 		}
 	    }
 	}

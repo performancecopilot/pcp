@@ -88,9 +88,6 @@ DoText(ClientInfo *cp, __pmPDU* pb)
 	else
 	    sts = ap->ipc.dso.dispatch.version.two.text(ident, type, &buffer,
 					  ap->ipc.dso.dispatch.version.two.ext);
-	if (sts < 0 &&
-	    ap->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-		sts = XLATE_ERR_1TO2(sts);
     }
     else {
 	if (ap->status.notReady)
@@ -229,9 +226,6 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
 	else
 	    sts = ap->ipc.dso.dispatch.version.two.desc(pmid, &desc,
 					ap->ipc.dso.dispatch.version.two.ext);
-	if (sts < 0 &&
-	    ap->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-		sts = XLATE_ERR_1TO2(sts);
     }
     else {
 	if (ap->status.notReady)
@@ -327,9 +321,6 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
 	    sts = ap->ipc.dso.dispatch.version.two.instance(indom, inst, name,
 					&inresult,
 					ap->ipc.dso.dispatch.version.two.ext);
-	if (sts < 0 &&
-	    ap->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-		sts = XLATE_ERR_1TO2(sts);
     }
     else {
 	if (ap->status.notReady)

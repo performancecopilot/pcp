@@ -37,7 +37,6 @@
 extern "C" {
 #endif
 
-#define PMAPI_VERSION_1	1
 #define PMAPI_VERSION_2	2
 #define PMAPI_VERSION	PMAPI_VERSION_2
 

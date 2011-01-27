@@ -240,9 +240,6 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 	    else
 		sts = aPtr->ipc.dso.dispatch.version.two.profile(cPtr->profile[ctxnum],
 				     aPtr->ipc.dso.dispatch.version.two.ext);
-	    if (sts < 0 &&
-		aPtr->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-		    sts = XLATE_ERR_1TO2(sts);
 	}
 	else {
 	    if (aPtr->status.notReady == 0) {
@@ -292,15 +289,8 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 			sts = PM_ERR_PMID;
 			bad = 2;
 		    }
-		    if (aPtr->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1) {
-			for (i = 0; i < result->numpmid; i++)
-			    if (result->vset[i]->numval < 0)
-				result->vset[i]->numval = XLATE_ERR_1TO2(result->vset[i]->numval);
-		    }
 		}
 	    }
-	    else if (aPtr->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-		    sts = XLATE_ERR_1TO2(sts);
 	}
 	else {
 	    if (aPtr->status.notReady == 0) {

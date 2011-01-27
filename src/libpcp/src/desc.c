@@ -116,9 +116,6 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 		    n = dp->dispatch.version.four.desc(pmid, desc, dp->dispatch.version.four.ext);
 		else
 		    n = dp->dispatch.version.two.desc(pmid, desc, dp->dispatch.version.two.ext);
-		if (n < 0 &&
-		    dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-			n = XLATE_ERR_1TO2(n);
 	    }
 	}
 	else {
