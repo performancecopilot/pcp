@@ -599,11 +599,10 @@ main(int argc, char **argv)
         case 'V': 
 	    archive_version = (int)strtol(optarg, &endnum, 10);
             if (*endnum != '\0' ||
-		(archive_version != PM_LOG_VERS01 &&
-                 archive_version != PM_LOG_VERS02)) {
+                archive_version != PM_LOG_VERS02) {
                 fprintf(stderr, "%s: -V requires a version number of "
-                        "%d or %d\n", pmProgname, 
-                        PM_LOG_VERS01, PM_LOG_VERS02); 
+                        "%d\n", pmProgname, 
+                        PM_LOG_VERS02); 
 		errflag++;
             }
 	    break;
@@ -641,7 +640,7 @@ Options:\n\
   -T endtime	terminate at given time\n\
   -u		output is unbuffered\n\
   -v volsize	switch log volumes after volsize has been accumulated\n\
-  -V version    generate version 1 or 2 archives (default is 2)\n\
+  -V version    version for archive (default and only version is 2)\n\
   -x fd		control file descriptor for application launching pmlogger\n\
 		via pmRecordControl(3)\n",
 			pmProgname);
