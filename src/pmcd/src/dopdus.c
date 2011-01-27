@@ -85,12 +85,9 @@ DoText(ClientInfo *cp, __pmPDU* pb)
 	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 	    sts = ap->ipc.dso.dispatch.version.four.text(ident, type, &buffer,
 					  ap->ipc.dso.dispatch.version.four.ext);
-	else if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
-	         ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
+	else
 	    sts = ap->ipc.dso.dispatch.version.two.text(ident, type, &buffer,
 					  ap->ipc.dso.dispatch.version.two.ext);
-	else
-	    sts = ap->ipc.dso.dispatch.version.one.text(ident, type, &buffer);
 	if (sts < 0 &&
 	    ap->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 		sts = XLATE_ERR_1TO2(sts);
@@ -136,11 +133,9 @@ DoText(ClientInfo *cp, __pmPDU* pb)
 	    pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_TEXT, sts);
 	    CleanupClient(cp, sts);
 	}
-	if ((ap->ipcType == AGENT_DSO &&
-	     ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_1) ||
-	    ap->ipcType != AGENT_DSO) {
-		/* daemons and old-style DSOs have a malloc'd buffer */
-		free(buffer);
+	if (ap->ipcType != AGENT_DSO) {
+	    /* daemon PMDAs have a malloc'd buffer */
+	    free(buffer);
 	}
     }
     return sts;
@@ -231,12 +226,9 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
 	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 	    sts = ap->ipc.dso.dispatch.version.four.desc(pmid, &desc,
 					ap->ipc.dso.dispatch.version.four.ext);
-	else if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
-	         ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
+	else
 	    sts = ap->ipc.dso.dispatch.version.two.desc(pmid, &desc,
 					ap->ipc.dso.dispatch.version.two.ext);
-	else
-	    sts = ap->ipc.dso.dispatch.version.one.desc(pmid, &desc);
 	if (sts < 0 &&
 	    ap->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 		sts = XLATE_ERR_1TO2(sts);
@@ -331,14 +323,10 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
 	    sts = ap->ipc.dso.dispatch.version.four.instance(indom, inst, name,
 					&inresult,
 					ap->ipc.dso.dispatch.version.four.ext);
-	else if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
-	         ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
+	else
 	    sts = ap->ipc.dso.dispatch.version.two.instance(indom, inst, name,
 					&inresult,
 					ap->ipc.dso.dispatch.version.two.ext);
-	else
-	    sts = ap->ipc.dso.dispatch.version.one.instance(indom, inst, name, 
-							     &inresult);
 	if (sts < 0 &&
 	    ap->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 		sts = XLATE_ERR_1TO2(sts);

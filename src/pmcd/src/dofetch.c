@@ -237,12 +237,9 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		sts = aPtr->ipc.dso.dispatch.version.four.profile(cPtr->profile[ctxnum],
 				     aPtr->ipc.dso.dispatch.version.four.ext);
-	    else if (aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
-	        aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
+	    else
 		sts = aPtr->ipc.dso.dispatch.version.two.profile(cPtr->profile[ctxnum],
 				     aPtr->ipc.dso.dispatch.version.two.ext);
-	    else
-		sts = aPtr->ipc.dso.dispatch.version.one.profile(cPtr->profile[ctxnum]);
 	    if (sts < 0 &&
 		aPtr->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 		    sts = XLATE_ERR_1TO2(sts);
@@ -274,14 +271,10 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 		sts = aPtr->ipc.dso.dispatch.version.four.fetch(dpList->listSize,
 				   dpList->list, &result, 
 				   aPtr->ipc.dso.dispatch.version.four.ext);
-	    else if (aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
-	        aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
+	    else
 		sts = aPtr->ipc.dso.dispatch.version.two.fetch(dpList->listSize,
 				   dpList->list, &result, 
 				   aPtr->ipc.dso.dispatch.version.two.ext);
-	    else
-		sts = aPtr->ipc.dso.dispatch.version.one.fetch(dpList->listSize,
-				   dpList->list, &result);
 	    if (sts >= 0) {
 		if (result == NULL) {
 		    __pmNotifyErr(LOG_WARNING,

@@ -107,12 +107,9 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    sts = dp->dispatch.version.four.profile(ctxp->c_instprof,
 							   dp->dispatch.version.four.ext);
-		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
+		else
 		    sts = dp->dispatch.version.two.profile(ctxp->c_instprof,
 							   dp->dispatch.version.two.ext);
-		else
-		    sts = dp->dispatch.version.one.profile(ctxp->c_instprof);
 		if (sts >= 0)
 		    ctxp->c_sent = dp->domain;
 	    }
@@ -132,12 +129,9 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 	    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		sts = dp->dispatch.version.four.fetch(cnt, splitlist, &tmp_ans,
 						     dp->dispatch.version.four.ext);
-	    else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-		     dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
+	    else
 		sts = dp->dispatch.version.two.fetch(cnt, splitlist, &tmp_ans,
 						     dp->dispatch.version.two.ext);
-	    else
-		sts = dp->dispatch.version.one.fetch(cnt, splitlist, &tmp_ans);
 	}
 
 	/* Copy results back

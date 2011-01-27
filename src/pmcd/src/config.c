@@ -1801,15 +1801,7 @@ GetAgentDso(AgentInfo *aPtr)
 	    return -1;
     }
 
-    if (dso->dispatch.comm.pmda_interface == challenge) {
-	/*
-	 * DSO did not change pmda_interface, assume PMAPI version 1
-	 * from PCP 1.x and PMDA_INTERFACE_1
-	 */
-	dso->dispatch.comm.pmda_interface = PMDA_INTERFACE_1;
-	dso->dispatch.comm.pmapi_version = PMAPI_VERSION_1;
-    }
-    else {
+    if (dso->dispatch.comm.pmda_interface != challenge) {
 	/*
 	 * gets a bit tricky ...
 	 * interface_version (8-bits) used to be version (4-bits),
@@ -1823,7 +1815,7 @@ GetAgentDso(AgentInfo *aPtr)
 	}
     }
 
-    if (dso->dispatch.comm.pmda_interface < PMDA_INTERFACE_1 ||
+    if (dso->dispatch.comm.pmda_interface < PMDA_INTERFACE_2 ||
 	dso->dispatch.comm.pmda_interface > PMDA_INTERFACE_LATEST) {
 	__pmNotifyErr(LOG_ERR,
 		 "Unknown PMDA interface version (%d) used by DSO %s\n",

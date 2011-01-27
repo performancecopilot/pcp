@@ -143,12 +143,9 @@ pmStore(const pmResult *result)
 		    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 			sts = dp->dispatch.version.four.store(&tmp,
 						dp->dispatch.version.four.ext);
-		    else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-			     dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
+		    else
 			sts = dp->dispatch.version.two.store(&tmp,
 						dp->dispatch.version.two.ext);
-		    else
-			sts = dp->dispatch.version.one.store(&tmp);
 		    if (sts < 0 &&
 			dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 			sts = XLATE_ERR_1TO2(sts);

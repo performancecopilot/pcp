@@ -400,9 +400,6 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	else {
 	    __pmSendText(pmda->e_outfd, FROM_ANON, ident, buffer);
-	    /* only PMDA_INTERFACE_1 malloc's the buffer */
-	    if (HAVE_V_ONE(dispatch->comm.pmda_interface))
-		free(buffer);
 	}
 	break;
 

@@ -93,15 +93,7 @@ opendso(char *dso, char *init, int domain)
 		dlclose(handle);
 	    }
 	    else {
-		if (dispatch.comm.pmda_interface == challenge) {
-		    /*
-		     * DSO did not change pmda_interface, assume PMAPI
-		     * version 1 from PCP 1.x and PMDA_INTERFACE_1
-		     */
-		    dispatch.comm.pmda_interface = PMDA_INTERFACE_1;
-		    dispatch.comm.pmapi_version = PMAPI_VERSION_1;
-		}
-		else {
+		if (dispatch.comm.pmda_interface != challenge) {
 		    /*
 		     * gets a bit tricky ... 
 		     * interface_version (8-bits) used to be version (4-bits),
@@ -113,7 +105,7 @@ opendso(char *dso, char *init, int domain)
 			dispatch.comm.pmapi_version = PMAPI_VERSION_1;
 			dispatch.comm.pmda_interface &= 0x0f;
 		    }
-		    if (dispatch.comm.pmda_interface < PMDA_INTERFACE_1 ||
+		    if (dispatch.comm.pmda_interface < PMDA_INTERFACE_2 ||
 			dispatch.comm.pmda_interface > PMDA_INTERFACE_LATEST) {
 
 			printf("Error: Unsupported PMDA interface version %d returned by DSO \"%s\"\n",
@@ -197,11 +189,8 @@ dodso_desc(pmID pmid, pmDesc *desc)
 #endif
     if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 	sts = dispatch.version.four.desc(pmid, desc, dispatch.version.four.ext);
-    else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-             dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
-	sts = dispatch.version.two.desc(pmid, desc, dispatch.version.two.ext);
     else
-	sts = dispatch.version.one.desc(pmid, desc);
+	sts = dispatch.version.two.desc(pmid, desc, dispatch.version.two.ext);
     if (sts < 0 && dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 	sts = XLATE_ERR_1TO2(sts);
 
@@ -272,11 +261,8 @@ dodso(int pdu)
 #endif
 		if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    sts = dispatch.version.four.profile(profile, dispatch.version.four.ext);
-		else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-		         dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
-		    sts = dispatch.version.two.profile(profile, dispatch.version.two.ext);
 		else
-		    sts = dispatch.version.one.profile(profile);
+		    sts = dispatch.version.two.profile(profile, dispatch.version.two.ext);
 
 		if (sts < 0) {
 		    if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)
@@ -294,13 +280,9 @@ dodso(int pdu)
 		if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    sts = dispatch.version.four.fetch(param.numpmid, param.pmidlist, 
 						     &result, dispatch.version.four.ext);
-		else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-		         dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
+		else
 		    sts = dispatch.version.two.fetch(param.numpmid, param.pmidlist, 
 						     &result, dispatch.version.two.ext);
-		else
-		    sts = dispatch.version.one.fetch(param.numpmid, param.pmidlist, 
-						     &result);
 
 		if (sts >= 0) {
 		    if (result != NULL &&
@@ -340,14 +322,10 @@ dodso(int pdu)
 		sts = dispatch.version.four.instance(param.indom, param.number, 
 						    param.name, &inresult,
 						    dispatch.version.four.ext);
-	    else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-	             dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
+	    else
 		sts = dispatch.version.two.instance(param.indom, param.number, 
 						    param.name, &inresult,
 						    dispatch.version.two.ext);
-	    else
-		sts = dispatch.version.one.instance(param.indom, param.number, 
-						    param.name, &inresult);
 
 	    if (sts >= 0)
 		printindom(stdout, inresult);
@@ -371,11 +349,8 @@ dodso(int pdu)
 		printf("Sending Profile...\n");
 		if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    sts = dispatch.version.four.profile(profile, dispatch.version.four.ext);
-		else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-			 dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
-		    sts = dispatch.version.two.profile(profile, dispatch.version.two.ext);
 		else
-		    sts = dispatch.version.one.profile(profile);
+		    sts = dispatch.version.two.profile(profile, dispatch.version.two.ext);
 
 		if (sts < 0) {
 		    if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)
@@ -391,12 +366,9 @@ dodso(int pdu)
 	    if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		sts = dispatch.version.four.fetch(1, &(desc.pmid), &result,
 						    dispatch.version.four.ext);
-	    else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-	             dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
+	    else
 		sts = dispatch.version.two.fetch(1, &(desc.pmid), &result,
 						    dispatch.version.two.ext);
-	    else
-		sts = dispatch.version.one.fetch(1, &(desc.pmid), &result); 
 	    
 	    if (sts < 0) {
 		if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)
@@ -425,11 +397,8 @@ dodso(int pdu)
 
 	    if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		sts = dispatch.version.four.store(result, dispatch.version.four.ext);
-	    else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-	             dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
-		sts = dispatch.version.two.store(result, dispatch.version.two.ext);
 	    else
-		sts = dispatch.version.one.store(result);
+		sts = dispatch.version.two.store(result, dispatch.version.two.ext);
 	    
 	    if (sts < 0) {
 		if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)
@@ -460,11 +429,8 @@ dodso(int pdu)
 
 		if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    sts = dispatch.version.four.text(i, param.number, &buffer, dispatch.version.four.ext);
-		else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-			 dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
-		    sts = dispatch.version.two.text(i, param.number, &buffer, dispatch.version.two.ext);
 		else
-		    sts = dispatch.version.one.text(i, param.number, &buffer);
+		    sts = dispatch.version.two.text(i, param.number, &buffer, dispatch.version.two.ext);
 
 		if (sts >= 0) {
 		    if (j == 0) {
@@ -477,9 +443,6 @@ dodso(int pdu)
 			printf("%s\n", buffer);
 		    else
 			printf("<no help text specified>\n");
-		    /* only PMDA_INTERFACE_1 uses a malloc'd buffer */
-		    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-			free(buffer);
 		}
 		else {
 		    if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)
@@ -490,8 +453,7 @@ dodso(int pdu)
 	    break;
 
 	case PDU_PMNS_IDS:
-	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1 ||
-		dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
+	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
 		dispatch.comm.pmda_interface == PMDA_INTERFACE_3) {
 		printf("Error: PMDA Interface %d does not support dynamic metric names\n", dispatch.comm.pmda_interface);
 		break;
@@ -513,8 +475,7 @@ dodso(int pdu)
 	    break;
 
 	case PDU_PMNS_NAMES:
-	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1 ||
-		dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
+	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
 		dispatch.comm.pmda_interface == PMDA_INTERFACE_3) {
 		printf("Error: PMDA Interface %d does not support dynamic metric names\n", dispatch.comm.pmda_interface);
 		break;
@@ -530,8 +491,7 @@ dodso(int pdu)
 	    break;
 
 	case PDU_PMNS_CHILD:
-	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1 ||
-		dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
+	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
 		dispatch.comm.pmda_interface == PMDA_INTERFACE_3) {
 		printf("Error: PMDA Interface %d does not support dynamic metric names\n", dispatch.comm.pmda_interface);
 		break;
@@ -554,8 +514,7 @@ dodso(int pdu)
 	    break;
 
 	case PDU_PMNS_TRAVERSE:
-	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1 ||
-		dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
+	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
 		dispatch.comm.pmda_interface == PMDA_INTERFACE_3) {
 		printf("Error: PMDA Interface %d does not support dynamic metric names\n", dispatch.comm.pmda_interface);
 		break;

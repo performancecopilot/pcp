@@ -166,12 +166,9 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	    if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		s = ap->ipc.dso.dispatch.version.four.store(dResult[i],
 				       ap->ipc.dso.dispatch.version.four.ext);
-	    else if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
-	        ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
+	    else
 		s = ap->ipc.dso.dispatch.version.two.store(dResult[i],
 				       ap->ipc.dso.dispatch.version.two.ext);
-	    else
-		s = ap->ipc.dso.dispatch.version.one.store(dResult[i]);
 	    if (s < 0 &&
 		ap->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 		    s = XLATE_ERR_1TO2(s);

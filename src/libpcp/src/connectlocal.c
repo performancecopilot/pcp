@@ -311,15 +311,7 @@ __pmConnectLocal(void)
 	    dp->domain = -1;
 	}
 	else {
-	    if (dp->dispatch.comm.pmda_interface == challenge) {
-		/*
-		 * DSO did not change pmda_interface, assume PMAPI version 1
-		 * from PCP 1.x and PMDA_INTERFACE_1
-		 */
-		dp->dispatch.comm.pmda_interface = PMDA_INTERFACE_1;
-		dp->dispatch.comm.pmapi_version = PMAPI_VERSION_1;
-	    }
-	    else {
+	    if (dp->dispatch.comm.pmda_interface != challenge) {
 		/*
 		 * gets a bit tricky ...
 		 * interface_version (8-bits) used to be version (4-bits),
@@ -333,7 +325,7 @@ __pmConnectLocal(void)
 		}
 	    }
 
-	    if (dp->dispatch.comm.pmda_interface < PMDA_INTERFACE_1 ||
+	    if (dp->dispatch.comm.pmda_interface < PMDA_INTERFACE_2 ||
 		dp->dispatch.comm.pmda_interface > PMDA_INTERFACE_LATEST) {
 		pmprintf("__pmConnectLocal: Error: Unknown PMDA interface "
 			 "version %d in \"%s\" DSO\n", 
