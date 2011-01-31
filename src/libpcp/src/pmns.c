@@ -687,7 +687,8 @@ backlink(__pmnsTree *tree, __pmnsNode *root, int dupok)
 	    __pmnsNode	*xp;
 	    i = np->pmid % tree->htabsize;
 	    for (xp = tree->htab[i]; xp != NULL; xp = xp->hash) {
-		if (xp->pmid == np->pmid && !dupok) {
+		if (xp->pmid == np->pmid && !dupok &&
+		    pmid_domain(np->pmid) != DYNAMIC_PMID) {
 		    char *nn, *xn;
 		    backname(np, &nn);
 		    backname(xp, &xn);
