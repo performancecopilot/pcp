@@ -453,7 +453,7 @@ del_insts(pmID pmid)
     return dp;
 }
 
-/* Update an exisiting metric (given a pmValueSet) adding it to the specified
+/* Update an existing metric (given a pmValueSet) adding it to the specified
  * task. Allocate and return a new task_t if the specified task pointer is nil.
  */
 static int

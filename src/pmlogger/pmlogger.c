@@ -837,7 +837,9 @@ Options:\n\
     init_ports();
     FD_ZERO(&fds);
     FD_SET(ctlfd, &fds);
+#ifndef IS_MINGW
     FD_SET(pmcdfd, &fds);
+#endif
     if (rsc_fd != -1)
 	FD_SET(rsc_fd, &fds);
     numfds = maxfd() + 1;
@@ -891,10 +893,15 @@ Options:\n\
 		    qa_case = 0;
 		}
 	    }
+#ifndef IS_MINGW
 	    if (pmcdfd >= 0 && FD_ISSET(pmcdfd, &readyfds)) {
 		/*
 		 * do not expect this, given synchronous commumication with the
-		 * pmcd ... either pmcd has terminated, or bogus PDU ...
+		 * pmcd ... either pmcd has terminated, or bogus PDU ... or its
+		 * Win32 and we are operating under the different conditions of
+		 * our AF.c implementation there, which has to deal with a lack
+		 * of signal support on Windows - race condition exists between
+		 * this check and the async event timer callback.
 		 */
 		__pmPDU		*pb;
 		__pmPDUHdr	*php;
@@ -911,6 +918,7 @@ Options:\n\
 		    disconnect(PM_ERR_IPC);
 		}
 	    }
+#endif
 	    if (rsc_fd >= 0 && FD_ISSET(rsc_fd, &readyfds)) {
 		/*
 		 * some action on the recording session control fd
