@@ -1,4 +1,4 @@
-pcp-3.5.0 (19 January 2011)
+pcp-3.5.0 (31 January 2011)
     - Infrastucture support for doing distributed event tracing with PCP.
       This includes a new metric type (PM_TYPE_EVENT), cunning mechanisms
       for encoding event records in pmResults, and providing PMDAs with
@@ -24,6 +24,9 @@ pcp-3.5.0 (19 January 2011)
       added at runtime (now makes use of dynamic namespace support).
     - Set KEEPALIVE option on pmproxy client sockets, mirroring pmcd
       behaviour and reducing open file descriptor pressure.
+    - Improvements to the native Windows version of pmlogger, preventing
+      it from exiting prematurely thanks to a socket read race condition.
+    - Fix /proc/interrupts parser in Linux PMDA, thanks to Arthur Kepner.
 
 pcp-3.4.1 (9 October 2010)
     - Remove bogus (expected) errors/warnings from Win32 install/remove.
