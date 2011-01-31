@@ -65,9 +65,9 @@ refresh_proc_interrupts(proc_interrupts_t *proc_interrupts)
     }
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
-	if (buf[3] != ':')
+	s = strchr(buf, ':');
+	if (s == NULL)
 	    continue;
-	s = buf + 3;
 	is_syscall = 0;
 
 	if (sscanf(buf, "%u:", &intr) != 1) {
