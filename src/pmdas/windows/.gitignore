@@ -1,4 +1,6 @@
 domain.h
+help.dir
+help.pag
 libpdh.a
 pmda_windows.dll
 root_windows
