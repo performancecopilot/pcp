@@ -2,8 +2,8 @@
  * Linux PMDA
  *
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
- * Portions Copyright (c) International Business Machines Corp., 2002
- * Portions Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
+ * Portions Copyright (c) 2002 International Business Machines Corp.
+ * Portions Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,7 +40,6 @@
 #include "proc_meminfo.h"
 #include "proc_loadavg.h"
 #include "proc_net_dev.h"
-#include "proc_interrupts.h"
 #include "filesys.h"
 #include "swapdev.h"
 #include "getinfo.h"
@@ -64,6 +63,7 @@
 #include "sysfs_kernel.h"
 #include "linux_table.h"
 #include "numa_meminfo.h"
+#include "interrupts.h"
 #include "cgroups.h"
 
 /*
@@ -76,7 +76,6 @@
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
 static proc_loadavg_t		proc_loadavg;
-static proc_interrupts_t	proc_interrupts;
 static proc_net_rpc_t		proc_net_rpc;
 static proc_net_tcp_t		proc_net_tcp;
 static proc_net_sockstat_t	proc_net_sockstat;
@@ -248,7 +247,7 @@ pmdaIndom indomtab[] = {
     { DISK_INDOM, 0, NULL }, /* cached */
     { LOADAVG_INDOM, 3, loadavg_indom_id },
     { NET_DEV_INDOM, 0, NULL },
-    { PROC_INTERRUPTS_INDOM, 0, NULL },
+    { PROC_INTERRUPTS_INDOM, 0, NULL },	/* deprecated */
     { FILESYS_INDOM, 0, NULL },
     { SWAPDEV_INDOM, 0, NULL },
     { NFS_INDOM, NR_RPC_COUNTERS, nfs_indom_id },
@@ -1290,25 +1289,6 @@ pmdaMetric linux_metrictab[] = {
     { NULL, 
       { PMDA_PMID(CLUSTER_NET_INET,0), PM_TYPE_STRING, NET_INET_INDOM, PM_SEM_INSTANT, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
-
-/*
- * /proc/interrupts cluster
- */
-
-/* kernel.percpu.interrupts */
-    { NULL,
-      { PMDA_PMID(CLUSTER_INTERRUPTS, 0), PM_TYPE_U32, PROC_INTERRUPTS_INDOM, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* kernel.all.syscall */
-    { NULL,
-      { PMDA_PMID(CLUSTER_INTERRUPTS,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* kernel.percpu.syscall */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_INTERRUPTS,2), PM_TYPE_U32, CPU_INDOM, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /*
  * filesys cluster
@@ -3996,8 +3976,24 @@ pmdaMetric linux_metrictab[] = {
  */
     /* sysfs.kernel.uevent_seqnum */
     { &sysfs_kernel.uevent_seqnum,
-    {PMDA_PMID(CLUSTER_SYSFS_KERNEL,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,0), PM_TYPE_U64, PM_INDOM_NULL,
+	PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/*
+ * /proc/interrupts cluster
+ */
+    /* kernel.all.interrupts.errors */
+    { &irq_err_count,
+      { PMDA_PMID(CLUSTER_INTERRUPTS, 3), PM_TYPE_U32, PM_INDOM_NULL,
+	PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* kernel.percpu.interrupts.line[<N>] */
+    { NULL, { PMDA_PMID(CLUSTER_INTERRUPT_LINES, 0), PM_TYPE_U32,
+    CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* kernel.percpu.interrupts.[<other>] */
+    { NULL, { PMDA_PMID(CLUSTER_INTERRUPT_OTHER, 0), PM_TYPE_U32,
+    CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /*
  * control groups cluster
@@ -4158,9 +4154,6 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
     if (need_refresh[CLUSTER_LOADAVG])
 	refresh_proc_loadavg(&proc_loadavg);
 
-    if (need_refresh[CLUSTER_INTERRUPTS])
-	refresh_proc_interrupts(&proc_interrupts);
-
     if (need_refresh[CLUSTER_NET_DEV])
 	refresh_proc_net_dev(INDOM(NET_DEV_INDOM));
 
@@ -4268,9 +4261,6 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	break;
     case NET_DEV_INDOM:
     	need_refresh[CLUSTER_NET_DEV]++;
-	break;
-    case PROC_INTERRUPTS_INDOM:
-    	need_refresh[CLUSTER_INTERRUPTS]++;
 	break;
     case FILESYS_INDOM:
     	need_refresh[CLUSTER_FILESYS]++;
@@ -4420,11 +4410,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case PM_TYPE_STRING:
 	    atom->cp = (char *)mdesc->m_user;
 	    break;
-	case PM_TYPE_NOSUPPORT:
-	    return 0;
-
 	default:
-	    fprintf(stderr, "error in linux_fetchCallBack : unsupported metric type %d\n", mdesc->m_desc.type);
 	    return 0;
 	}
     }
@@ -5057,41 +5043,6 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 0;
 	    if ((atom->cp = inet_ntoa(inetp->addr)) == NULL)
 		return 0;
-	    break;
-	default:
-	    return PM_ERR_PMID;
-	}
-	break;
-
-    case CLUSTER_INTERRUPTS:
-	switch (idp->item) {
-	case 0: /* kernel.percpu.interrupts */
-	    if (proc_interrupts.nstats == 0)
-		return 0; /* no values available */
-	    for (i=0; i < proc_interrupts.nstats; i++) {
-		if (proc_interrupts.stats[i].valid && proc_interrupts.stats[i].id == inst) {
-		    atom->ul = proc_interrupts.stats[i].count;
-		    break;
-		}
-	    }
-	    if (i == proc_interrupts.nstats)
-		return PM_ERR_INST;
-	    break;
-
-	case 1: /* kernel.all.syscall */
-	    if (proc_interrupts.ncpus == 0)
-		return 0; /* need syscall-acct patch, so no values available */
-	    for (atom->ul=0, i=0; i < proc_interrupts.ncpus; i++) {
-		atom->ul += proc_interrupts.syscall[i];
-	    }
-	    break;
-
-	case 2: /* kernel.percpu.syscall */
-	    if (proc_interrupts.ncpus == 0)
-		return 0; /* need syscall-acct patch, so no values available */
-	    if (inst < 0 || inst >= proc_interrupts.ncpus)
-		return PM_ERR_INST;
-	    atom->ul = proc_interrupts.syscall[inst];
 	    break;
 	default:
 	    return PM_ERR_PMID;
@@ -6300,6 +6251,22 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_NET_CLS_PROCS:
 	return cgroup_procs_fetch(idp->cluster, idp->item, inst, atom);
 
+    case CLUSTER_INTERRUPTS:
+	switch (idp->item) {
+	case 3:	/* kernel.all.interrupts.error */
+	    atom->ul = irq_err_count;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_INTERRUPT_LINES:
+    case CLUSTER_INTERRUPT_OTHER:
+	if (inst >= indomtab[CPU_INDOM].it_numinst)
+	    return PM_ERR_INST;
+	return interrupts_fetch(idp->cluster, idp->item, inst, atom);
+
     default: /* unknown cluster */
 	return PM_ERR_PMID;
     }
@@ -6323,7 +6290,10 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		need_refresh[CLUSTER_PARTITIONS] == 0 &&
 		is_partitions_metric(pmidlist[i]))
 		need_refresh[CLUSTER_PARTITIONS]++;
-	    if (idp->cluster == CLUSTER_CPUACCT_GROUPS)
+	    if (idp->cluster == CLUSTER_CPUACCT_GROUPS ||
+		idp->cluster == CLUSTER_INTERRUPT_LINES ||
+		idp->cluster == CLUSTER_INTERRUPT_OTHER ||
+		idp->cluster == CLUSTER_INTERRUPTS)
 		need_refresh[CLUSTER_STAT]++;
 	}
 
@@ -6442,7 +6412,6 @@ linux_init(pmdaInterface *dp)
     dp->version.four.children = linux_children;
     pmdaSetFetchCallBack(dp, linux_fetchCallBack);
 
-    proc_interrupts.indom = &indomtab[PROC_INTERRUPTS_INDOM];
     proc_pid.indom = &indomtab[PROC_INDOM];
     proc_stat.cpu_indom = proc_cpuinfo.cpuindom = &indomtab[CPU_INDOM];
     numa_meminfo.node_indom = proc_cpuinfo.node_indom = &indomtab[NODE_INDOM];
@@ -6529,6 +6498,7 @@ linux_init(pmdaInterface *dp)
      */
     read_ksym_sources(kernel_uname.release);
 
+    interrupts_init();
     cgroup_init();
 
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), linux_metrictab,

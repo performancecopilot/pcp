@@ -95,23 +95,9 @@ Per-CPU time when the CPU had a runnable process, but the hypervisor
 @ kernel.percpu.cpu.guest percpu guest CPU time
 Per-CPU time spent running (virtual) guest operating systems.
 
-@ kernel.percpu.interrupts per-CPU interrupt counters from /proc/interrupts
-This provides one counter (normally converted to a count/second)
-for each type of interrupt, for each CPU in the system.
-
-@ kernel.all.syscall total system calls counter from /proc/interrupts
-This provides a counter (normally converted to a count/second)
-of the total number of system calls executed across all CPUs.
-
-A kernel patch is required for the instrumentation to use this metric
-(contact markgw@sgi.com).
-
-@ kernel.percpu.syscall per-CPU system call counters from /proc/interrupts
-This provides a counter (normally converted to a count/second)
-of the total number of system calls executed per-CPU.
-
-A kernel patch is required for the instrumentation to use this metric
-(contact markgw@sgi.com).
+@ kernel.all.interrupts.errors interrupt error count from /proc/interrupts
+This is a global counter (normally converted to a count/second)
+for any and all errors that occur while handling interrupts.
 
 @ disk.dev.read per-disk read operations
 Cumulative number of disk read operations since system boot time (subject
