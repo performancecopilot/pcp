@@ -109,13 +109,35 @@ extract_values(char *buffer, unsigned long long *values, int ncolumns)
     return end;
 }
 
+/* Create oneline help text - remove duplicates and end-of-line marker */
+static char *
+oneline_reformat(char *buf)
+{
+    char *result, *start, *end;
+
+    /* position end marker, and skip over whitespace at the start */
+    for (start = end = buf; *end != '\n' && *end != '\0'; end++)
+	if (isspace(*start) && isspace(*end))
+	    start = end+1;
+    *end = '\0';
+
+    /* squash duplicate whitespace and remove trailing whitespace */
+    for (result = start; *result != '\0'; result++) {
+	if (isspace(result[0]) && (isspace(result[1]) || result[1] == '\0')) {
+	    memmove(&result[0], &result[1], end - &result[0]);
+	    result--;
+	}
+    }
+    return start;
+}
+
 static void
 initialise_interrupt(interrupt_t *ip, unsigned int id, char *s, char *end)
 {
     ip->id = id;
     ip->name = strdup(s);
     if (end)
-	ip->text = strdup(end);
+	ip->text = strdup(oneline_reformat(end));
 }
 
 static int
@@ -319,11 +341,37 @@ size_metrictable(int *total, int *trees)
     *trees = lines_count + other_count;
 }
 
+static int
+interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
+{
+    int item = pmid_item(pmid);
+    int cluster = pmid_cluster(pmid);
+
+    switch (cluster) {
+	case CLUSTER_INTERRUPT_LINES:
+	    if (item > lines_count)
+		return PM_ERR_PMID;
+	    if (interrupt_lines[item].text == NULL)
+		return PM_ERR_TEXT;
+	    *buf = interrupt_lines[item].text;
+	    return 0;
+	case CLUSTER_INTERRUPT_OTHER:
+	    if (item > other_count)
+		return PM_ERR_PMID;
+	    if (interrupt_other[item].text == NULL)
+		return PM_ERR_TEXT;
+	    *buf = interrupt_other[item].text;
+	    return 0;
+    }
+    return PM_ERR_PMID;
+}
+
 void
 interrupts_init(void)
 {
     int set[] = { CLUSTER_INTERRUPT_LINES, CLUSTER_INTERRUPT_OTHER };
 
     linux_dynamic_pmns("kernel.percpu.interrupts", set, sizeof(set)/sizeof(int),
-		refresh_interrupts, refresh_metrictable, size_metrictable);
+			refresh_interrupts, interrupts_text,
+			refresh_metrictable, size_metrictable);
 }

@@ -697,6 +697,12 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
 		cgroup_pmid_metric(dest->m_desc.pmid));
 }
 
+static int
+cgroup_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
+{
+    return PM_ERR_TEXT;
+}
+
 void
 cgroup_init(void)
 {
@@ -708,5 +714,6 @@ cgroup_init(void)
 		};
 
     linux_dynamic_pmns("cgroup", set, sizeof(set)/sizeof(int),
-		refresh_cgroups, refresh_metrictable, size_metrictable);
+			refresh_cgroups, cgroup_text,
+			refresh_metrictable, size_metrictable);
 }

@@ -6356,6 +6356,17 @@ linux_store(pmResult *result, pmdaExt *pmda)
 }
 
 static int
+linux_text(int ident, int type, char **buf, pmdaExt *pmda)
+{
+    if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
+	int sts = linux_dynamic_lookup_text(ident, type, buf, pmda);
+	if (sts != -ENOENT)
+	    return sts;
+    }
+    return pmdaText(ident, type, buf, pmda);
+}
+
+static int
 linux_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
     __pmnsTree *tree = linux_dynamic_lookup_name(pmda, name);
@@ -6398,7 +6409,7 @@ linux_init(pmdaInterface *dp)
 	int sep = __pmPathSeparator();
 	snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    	pmdaDSO(dp, PMDA_INTERFACE_4, "linux DSO", helppath);
+	pmdaDSO(dp, PMDA_INTERFACE_4, "linux DSO", helppath);
     }
 
     if (dp->status != 0)
@@ -6407,6 +6418,7 @@ linux_init(pmdaInterface *dp)
     dp->version.two.instance = linux_instance;
     dp->version.two.store = linux_store;
     dp->version.two.fetch = linux_fetch;
+    dp->version.four.text = linux_text;
     dp->version.four.pmid = linux_pmid;
     dp->version.four.name = linux_name;
     dp->version.four.children = linux_children;

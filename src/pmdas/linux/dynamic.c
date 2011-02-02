@@ -29,6 +29,7 @@ static struct dynamic {
     int		nclusters;
     int		clusters[NUM_CLUSTERS];
     pmnsUpdate	pmnsupdate;
+    textUpdate	textupdate;
     mtabUpdate	mtabupdate;
     mtabCounts	mtabcounts;
     __pmnsTree 	*pmns;
@@ -38,7 +39,8 @@ static int dynamic_count;
 
 void
 linux_dynamic_pmns(const char *prefix, int *clusters, int nclusters,
-	    pmnsUpdate pmnsupdate, mtabUpdate mtabupdate, mtabCounts mtabcounts)
+	    pmnsUpdate pmnsupdate, textUpdate textupdate,
+	    mtabUpdate mtabupdate, mtabCounts mtabcounts)
 {
     int size = (dynamic_count+1) * sizeof(struct dynamic);
 
@@ -51,6 +53,7 @@ linux_dynamic_pmns(const char *prefix, int *clusters, int nclusters,
     dynamic[dynamic_count].nclusters = nclusters;
     memcpy(dynamic[dynamic_count].clusters, clusters, nclusters * sizeof(int));
     dynamic[dynamic_count].pmnsupdate = pmnsupdate;
+    dynamic[dynamic_count].textupdate = textupdate;
     dynamic[dynamic_count].mtabupdate = mtabupdate;
     dynamic[dynamic_count].mtabcounts = mtabcounts;
     dynamic[dynamic_count].pmns = NULL;
@@ -86,6 +89,20 @@ linux_dynamic_lookup_pmid(pmdaExt *pmda, pmID pmid)
 	}
     }
     return NULL;
+}
+
+int
+linux_dynamic_lookup_text(pmID pmid, int type, char **buf, pmdaExt *pmda)
+{
+    int i, j;
+    int cluster = pmid_cluster(pmid);
+
+    for (i = 0; i < dynamic_count; i++) {
+	for (j = 0; j < dynamic[i].nclusters; j++)
+	    if (cluster == dynamic[i].clusters[j])
+		return dynamic[i].textupdate(pmda, pmid, type, buf);
+    }
+    return -ENOENT;
 }
 
 /*
