@@ -1285,7 +1285,6 @@ static int
 AgentNegotiate(AgentInfo *aPtr)
 {
     int		sts;
-    int		version;
     __pmPDU	*ack;
 
     sts = __pmGetPDU(aPtr->outFd, ANY_SIZE, _creds_timeout, &ack);
@@ -1297,32 +1296,17 @@ AgentNegotiate(AgentInfo *aPtr)
 	}
 	return 0;
     }
-    else if (sts == PM_ERR_TIMEOUT) {
-	fprintf(stderr, "pmcd: no version exchange with PMDA %s: "
-		"assuming PCP 1.x PMDA.\n", aPtr->pmDomainLabel);
-	/*FALLTHROUGH*/
-    }
-    else {
-	if (sts > 0)
-	    fprintf(stderr, "pmcd: unexpected PDU type (0x%x) at initial "
-		    "exchange with %s PMDA\n", sts, aPtr->pmDomainLabel);
-	else if (sts == 0)
-	    fprintf(stderr, "pmcd: unexpected end-of-file at initial "
-		    "exchange with %s PMDA\n", aPtr->pmDomainLabel);
-	else
-	    fprintf(stderr, "pmcd: error at initial PDU exchange with "
-		    "%s PMDA: %s\n", aPtr->pmDomainLabel, pmErrStr(sts));
-	return PM_ERR_IPC;
-    }
 
-    /*
-     * Either Version 1 or timed out in PDU exchange
-     */
-    aPtr->pduVersion = PDU_VERSION1;
-    version = PDU_VERSION1;
-    if ((sts = __pmSetVersionIPC(aPtr->inFd, version)) >= 0)
-	sts = __pmSetVersionIPC(aPtr->outFd, version);
-    return sts;
+    if (sts > 0)
+	fprintf(stderr, "pmcd: unexpected PDU type (0x%x) at initial "
+		"exchange with %s PMDA\n", sts, aPtr->pmDomainLabel);
+    else if (sts == 0)
+	fprintf(stderr, "pmcd: unexpected end-of-file at initial "
+		"exchange with %s PMDA\n", aPtr->pmDomainLabel);
+    else
+	fprintf(stderr, "pmcd: error at initial PDU exchange with "
+		"%s PMDA: %s\n", aPtr->pmDomainLabel, pmErrStr(sts));
+    return PM_ERR_IPC;
 }
 
 /* Connect to an agent's socket. */

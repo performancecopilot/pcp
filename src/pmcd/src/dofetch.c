@@ -508,16 +508,11 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 
 		if (sts == PM_ERR_PMDANOTREADY) {
 		    /* the agent is indicating it can't handle PDUs for now */
-		    int s, k;
+		    int k;
 		    extern int CheckError(AgentInfo *ap, int sts);
 
-		    if (__pmVersionIPC(cip->fd) == PDU_VERSION1)
-			s = PM_ERR_V1(PM_ERR_AGAIN);
-		    else
-			s = PM_ERR_AGAIN;
-
 		    for (k = 0; k < dList[j].listSize; k++)
-			results[i]->vset[k]->numval = s;
+			results[i]->vset[k]->numval = PM_ERR_AGAIN;
 		    sts = CheckError(&agent[i], sts);
 		}
 
@@ -551,12 +546,10 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 
     sts = 0;
     if (cip->status.changes) {
-	if (__pmVersionIPC(cip->fd) >= PDU_VERSION2) {
-	    /* notify PCP >= 2.0 client of PMCD state change */
-	    sts = __pmSendError(cip->fd, FROM_ANON, (int)cip->status.changes);
-	    if (sts > 0)
-		sts = 0;
-	}
+	/* notify client of PMCD state change */
+	sts = __pmSendError(cip->fd, FROM_ANON, (int)cip->status.changes);
+	if (sts > 0)
+	    sts = 0;
 	cip->status.changes = 0;
     }
     if (sts == 0)

@@ -31,7 +31,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive.c derive_fetch.c events.c
 
-HFILES = derive.h
+HFILES = derive.h oldpmapi.h
 
 ifneq "$(TARGET_OS)" "mingw"
 CFILES += loop.c
@@ -85,6 +85,8 @@ include $(BUILDRULES)
 connect.o:
 
 derive.o derive_fetch.o: derive.h
+
+p_error.o p_result.o: oldpmapi.h
 
 ifeq "$(TARGET_OS)" "mingw"
 kernel_pmda_dso	= windows

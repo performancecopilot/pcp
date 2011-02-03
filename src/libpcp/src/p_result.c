@@ -19,6 +19,7 @@
 #include <ctype.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "oldpmapi.h"
 
 /*
  * PDU for pmResult (PDU_RESULT)
@@ -324,6 +325,7 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	    }
 	}
 	else if (nvsp->numval < 0 && version == PDU_VERSION1) {
+	    /* PDU_VERSION1 error codes in V1 archives */
 	    nvsp->numval = XLATE_ERR_1TO2(nvsp->numval);
 	}
 #ifdef DESPERATE
@@ -370,6 +372,7 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	}
 	else {
 	    if (vsp->numval < 0 && version == PDU_VERSION1)
+		/* PDU_VERSION1 error codes in V1 archives */
 		vsp->numval = XLATE_ERR_1TO2(vsp->numval);
 	    vlp = (vlist_t *)((__psint_t)vlp + sizeof(vlp->pmid) + sizeof(vlp->numval));
 	}

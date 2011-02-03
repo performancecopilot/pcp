@@ -94,59 +94,31 @@ __pmConnectHandshake(int fd)
     sts = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
     if (sts == PDU_ERROR) {
 	/*
-	 * See comments in pmcd ... we actually get an extended PDU
-	 * from a 2.0 pmcd, of the form
+	 * See comments in pmcd ... we actually get an extended error PDU
+	 * from pmcd, of the form
 	 *
 	 *  :----------:-----------:
 	 *  |  status  | challenge |
 	 *  :----------:-----------:
 	 *
-	 *                            status      challenge
-	 *     pmcd  licensed             0          bits
-	 *	     unlicensed       -1007          bits
+	 *   For a good connection, status is 0, else a PCP error code.
 	 *
-	 * -1007 is magic and is PM_ERR_LICENSE for PCP 1.x.
-	 * A 1.x pmcd will send us just the regular error PDU with
-	 * a "status" value.
-	 *
-	 * NB: Licensing is a historical remnant from the earlier
-	 * days of PCP on IRIX.  Modern day, open source PCP has no
-	 * run-time licensing restrictions using this mechanism.
+	 *   challenge was used for old PCP versions and can be ignored.
 	 */
-	ok = __pmDecodeXtendError(pb, &sts, &challenge);
-	if (ok < 0)
-	    return ok;
+	version = __pmDecodeXtendError(pb, &sts, &challenge);
+	if (version < 0)
+	    return version;
+	if (sts < 0)
+	    return sts;
 
-	/*
-	 * At this point, ok is PDU_VERSION1 or PDU_VERSION2 and
-	 * sts is a PCP 2.0 error code
-	 */
-	version = ok;
-	if ((ok = __pmSetVersionIPC(fd, version)) < 0)
-	    return ok;
-
-	if (version == PDU_VERSION1) {
-	    /* 1.x pmcd */
-	    ;
-	}
-	else if (sts < 0 && sts != PM_ERR_LICENSE) {
-	    /* 2.0+ pmcd, but we have a fatal error on the connection ... */
-	    ;
-	}
-	else {
+	if (version == PDU_VERSION2) {
 	    /*
-	     * 2.0+ pmcd, either pmcd is not licensed or no error so far,
-	     * so negotiate connection version and credentials
+	     * negotiate connection version and credentials
 	     */
-	    __pmPDUInfo	*pduinfo;
 	    __pmCred	handshake[2];
 
-	    /*
-	     * note: __pmDecodeXtendError() has not swabbed challenge
-	     * because it does not know it's data type.
-	     */
-	    pduinfo = (__pmPDUInfo *)&challenge;
-	    *pduinfo = __ntohpmPDUInfo(*pduinfo);
+	    if ((ok = __pmSetVersionIPC(fd, version)) < 0)
+		return ok;
 
 	    handshake[0].c_type = CVERSION;
 	    handshake[0].c_vala = PDU_VERSION;
@@ -154,6 +126,8 @@ __pmConnectHandshake(int fd)
 	    handshake[0].c_valc = 0;
 	    sts = __pmSendCreds(fd, getpid(), 1, handshake);
 	}
+	else
+	    sts = PM_ERR_IPC;
     }
     else
 	sts = PM_ERR_IPC;

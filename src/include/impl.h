@@ -422,7 +422,6 @@ extern void __pmFreeInResult(__pmInResult *);
  */
 
 #define UNKNOWN_VERSION	0
-#define PDU_VERSION1	1
 #define PDU_VERSION2	2
 #define PDU_VERSION	PDU_VERSION2
 

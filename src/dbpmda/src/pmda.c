@@ -132,10 +132,10 @@ pmdaversion(void)
     else {
 	if (sts < 0)
 	    fprintf(stderr, "__pmGetPDU(%d): %s\n", infd, pmErrStr(sts));
-	fprintf(stderr, "Warning: no version exchange with PMDA %s: "
-			"assuming PCP 1.x PMDA.\n", myPmdaName);
-	__pmSetVersionIPC(infd, PDU_VERSION1);
-	__pmSetVersionIPC(outfd, PDU_VERSION1);
+	else
+	    fprintf(stderr, "pmdaversion: expecting PDU_CREDS, got PDU type %d\n", sts);
+	fprintf(stderr, "Warning: no version exchange with PMDA %s\n",
+			myPmdaName);
     }
 }
 

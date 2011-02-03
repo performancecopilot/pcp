@@ -133,21 +133,8 @@ typedef struct {
 #define PM_SEM_INSTANT	3	/* instantaneous value, continuous domain */
 #define PM_SEM_DISCRETE	4	/* instantaneous value, discrete domain */
 
-/*
- * for PCP 1.x PMDAs and PMCDs, need to map errors unconditionally sometimes
- * otherwise mapping is conditional upon value being in range
- */
-
-#define PM_ERR_BASE1 1000
 #define PM_ERR_BASE2 12345
 #define PM_ERR_BASE  PM_ERR_BASE2
-
-#define PM_ERR_V1(e) (e)+PM_ERR_BASE2-PM_ERR_BASE1
-
-#define XLATE_ERR_1TO2(e) \
-	((e) <= -PM_ERR_BASE1 ? (e)+PM_ERR_BASE1-PM_ERR_BASE2 : (e))
-#define XLATE_ERR_2TO1(e) \
-	((e) <= -PM_ERR_BASE2 ? PM_ERR_V1(e) : (e))
 
 /* PMAPI Error Conditions */
 
