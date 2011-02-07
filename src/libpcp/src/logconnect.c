@@ -157,16 +157,6 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     if (sts == PDU_ERROR) {
 	__pmOverrideLastFd(PDU_OVERRIDE2);	/* don't dink with the value */
 	__pmDecodeError(pb, &sts);
-	if (sts == 0)
-	    sts = LOG_PDU_VERSION1;
-	else if (sts == PM_ERR_V1(PM_ERR_CONNLIMIT) ||
-	         sts == PM_ERR_V1(PM_ERR_PERMISSION)) {
-	    /*
-	     * we do expect PM_ERR_CONNLIMIT and PM_ERR_PERMISSION as
-	     * real responses, even from a PCP 1.x pmcd
-	     */
-	    sts = XLATE_ERR_1TO2(sts);
-	}
 	php = (__pmPDUHdr *)pb;
 	if (*pid != PM_LOG_NO_PID && *pid != PM_LOG_PRIMARY_PID && php->from != *pid) {
 #ifdef PCP_DEBUG
@@ -199,13 +189,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     }
 
     if (sts >= 0) {
-	if (sts == LOG_PDU_VERSION1) {
-	    /* no support for LOG_PDU_VERSION1 any more */
-	    pmprintf("__pmConnectLogger: logger PDU version 1 not supported\n");
-	    pmflush();
-	    sts = PM_ERR_GENERIC;
-	}
-	else if (sts >= LOG_PDU_VERSION2) {
+	if (sts == LOG_PDU_VERSION2) {
 	    __pmCred	handshake[1];
 
 	    __pmSetVersionIPC(fd, sts);
@@ -215,6 +199,8 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	    handshake[0].c_valc = 0;
 	    sts = __pmSendCreds(fd, getpid(), 1, handshake);
 	}
+	else
+	    sts = PM_ERR_IPC;
 	if (sts >= 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)

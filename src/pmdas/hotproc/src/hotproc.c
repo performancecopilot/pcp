@@ -1023,7 +1023,7 @@ hotproc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
         /* create a vset with the error code in it */
 	if (pmidErr < 0) {
-	    res->vset[i] = vset = (pmValueSet *)__pmPoolAlloc(sizeof(pmValueSet));
+	    res->vset[i] = vset = (pmValueSet *)malloc(sizeof(pmValueSet));
 	    if (vset == NULL) {
 		if (i) {
 		    res->numpmid = i;
@@ -1039,7 +1039,7 @@ hotproc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	if (pmidp->cluster == CLUSTER_GLOBAL) {
 
 	    /* global metrics, singular instance domain */
-	    res->vset[i] = vset = (pmValueSet *)__pmPoolAlloc(sizeof(pmValueSet));
+	    res->vset[i] = vset = (pmValueSet *)malloc(sizeof(pmValueSet));
 	    if (vset == NULL) {
 		if (i > 0) {
 		    res->numpmid = i;

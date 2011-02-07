@@ -99,26 +99,20 @@ again_local:
 		    dp->dispatch.version.four.ext->e_context = ctx;
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    n = dp->dispatch.version.four.text(ident, type, buffer, dp->dispatch.version.four.ext);
-		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
-		    n = dp->dispatch.version.two.text(ident, type, buffer, dp->dispatch.version.two.ext);
 		else
-		    n = dp->dispatch.version.one.text(ident, type, buffer);
+		    n = dp->dispatch.version.two.text(ident, type, buffer, dp->dispatch.version.two.ext);
 		if (n == 0 && (*buffer)[0] == '\0' && (type & PM_TEXT_HELP)) {
 		    /* fall back to oneline, if possible */
 		    type &= ~PM_TEXT_HELP;
 		    type |= PM_TEXT_ONELINE;
 		    goto again_local;
 		}
-		if (n == 0 && dp->dispatch.comm.pmda_interface != PMDA_INTERFACE_1) {
+		if (n == 0) {
 		    /*
-		     * PMDAs after PMDA_INTERFACE_1 don't malloc the buffer
-		     * but the caller will free it, so malloc and copy
+		     * PMDAs don't malloc the buffer but the caller will
+		     * free it, so malloc and copy
 		     */
 		    *buffer = strdup(*buffer);
-		} else if (n < 0 &&
-		    dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1) {
-			n = XLATE_ERR_1TO2(n);
 		}
 	    }
 	}

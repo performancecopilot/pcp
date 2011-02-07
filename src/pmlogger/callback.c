@@ -373,6 +373,7 @@ log_callback(int afid, void *data)
     char		**namelist;
     __pmTimeval		tmp;
     __pmTimeval		resp_tval;
+    unsigned long	peek_offset;
 
     if (!parse_done)
 	/* ignore callbacks until all of the config file has been parsed */
@@ -477,6 +478,20 @@ log_callback(int afid, void *data)
 	    if (fp == tp->t_fetch)
 		pdu_first_pmid = fp->f_pmidlist[0];
 	    pdu_last_pmid = fp->f_pmidlist[fp->f_numpmid-1];
+	}
+
+	/*
+	 * Even without a -v option, we may need to switch volumes
+	 * if the data file exceeds 2^31-1 bytes
+	 */
+	peek_offset = ftell(logctl.l_mfp);
+	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
+	if (peek_offset > 0x7fffffff) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2)
+		fprintf(stderr, "callback: new volume based on max size, currently %ld\n", ftell(logctl.l_mfp));
+#endif
+	    (void)newvolume(VOL_SW_MAX);
 	}
 
 	/*

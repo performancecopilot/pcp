@@ -1285,7 +1285,6 @@ static int
 AgentNegotiate(AgentInfo *aPtr)
 {
     int		sts;
-    int		version;
     __pmPDU	*ack;
 
     sts = __pmGetPDU(aPtr->outFd, ANY_SIZE, _creds_timeout, &ack);
@@ -1297,32 +1296,17 @@ AgentNegotiate(AgentInfo *aPtr)
 	}
 	return 0;
     }
-    else if (sts == PM_ERR_TIMEOUT) {
-	fprintf(stderr, "pmcd: no version exchange with PMDA %s: "
-		"assuming PCP 1.x PMDA.\n", aPtr->pmDomainLabel);
-	/*FALLTHROUGH*/
-    }
-    else {
-	if (sts > 0)
-	    fprintf(stderr, "pmcd: unexpected PDU type (0x%x) at initial "
-		    "exchange with %s PMDA\n", sts, aPtr->pmDomainLabel);
-	else if (sts == 0)
-	    fprintf(stderr, "pmcd: unexpected end-of-file at initial "
-		    "exchange with %s PMDA\n", aPtr->pmDomainLabel);
-	else
-	    fprintf(stderr, "pmcd: error at initial PDU exchange with "
-		    "%s PMDA: %s\n", aPtr->pmDomainLabel, pmErrStr(sts));
-	return PM_ERR_IPC;
-    }
 
-    /*
-     * Either Version 1 or timed out in PDU exchange
-     */
-    aPtr->pduVersion = PDU_VERSION1;
-    version = PDU_VERSION1;
-    if ((sts = __pmSetVersionIPC(aPtr->inFd, version)) >= 0)
-	sts = __pmSetVersionIPC(aPtr->outFd, version);
-    return sts;
+    if (sts > 0)
+	fprintf(stderr, "pmcd: unexpected PDU type (0x%x) at initial "
+		"exchange with %s PMDA\n", sts, aPtr->pmDomainLabel);
+    else if (sts == 0)
+	fprintf(stderr, "pmcd: unexpected end-of-file at initial "
+		"exchange with %s PMDA\n", aPtr->pmDomainLabel);
+    else
+	fprintf(stderr, "pmcd: error at initial PDU exchange with "
+		"%s PMDA: %s\n", aPtr->pmDomainLabel, pmErrStr(sts));
+    return PM_ERR_IPC;
 }
 
 /* Connect to an agent's socket. */
@@ -1801,29 +1785,7 @@ GetAgentDso(AgentInfo *aPtr)
 	    return -1;
     }
 
-    if (dso->dispatch.comm.pmda_interface == challenge) {
-	/*
-	 * DSO did not change pmda_interface, assume PMAPI version 1
-	 * from PCP 1.x and PMDA_INTERFACE_1
-	 */
-	dso->dispatch.comm.pmda_interface = PMDA_INTERFACE_1;
-	dso->dispatch.comm.pmapi_version = PMAPI_VERSION_1;
-    }
-    else {
-	/*
-	 * gets a bit tricky ...
-	 * interface_version (8-bits) used to be version (4-bits),
-	 * so it is possible that only the bottom 4 bits were
-	 * changed and in this case the PMAPI version is 1 for
-	 * PCP 1.x
-	 */
-	if ((dso->dispatch.comm.pmda_interface & 0xf0) == (challenge & 0xf0)) {
-	    dso->dispatch.comm.pmda_interface &= 0x0f;
-	    dso->dispatch.comm.pmapi_version = PMAPI_VERSION_1;
-	}
-    }
-
-    if (dso->dispatch.comm.pmda_interface < PMDA_INTERFACE_1 ||
+    if (dso->dispatch.comm.pmda_interface < PMDA_INTERFACE_2 ||
 	dso->dispatch.comm.pmda_interface > PMDA_INTERFACE_LATEST) {
 	__pmNotifyErr(LOG_ERR,
 		 "Unknown PMDA interface version (%d) used by DSO %s\n",
@@ -1834,9 +1796,7 @@ GetAgentDso(AgentInfo *aPtr)
 	return -1;
     }
 
-    if (dso->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-	aPtr->pduVersion = PDU_VERSION1;
-    else if (dso->dispatch.comm.pmapi_version == PMAPI_VERSION_2)
+    if (dso->dispatch.comm.pmapi_version == PMAPI_VERSION_2)
 	aPtr->pduVersion = PDU_VERSION2;
     else {
 	__pmNotifyErr(LOG_ERR,

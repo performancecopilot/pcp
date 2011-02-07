@@ -114,14 +114,8 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 		    dp->dispatch.version.four.ext->e_context = ctx;
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    n = dp->dispatch.version.four.desc(pmid, desc, dp->dispatch.version.four.ext);
-		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
-		    n = dp->dispatch.version.two.desc(pmid, desc, dp->dispatch.version.two.ext);
 		else
-		    n = dp->dispatch.version.one.desc(pmid, desc);
-		if (n < 0 &&
-		    dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-			n = XLATE_ERR_1TO2(n);
+		    n = dp->dispatch.version.two.desc(pmid, desc, dp->dispatch.version.two.ext);
 	    }
 	}
 	else {

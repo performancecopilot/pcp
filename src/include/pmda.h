@@ -24,7 +24,6 @@ extern "C" {
 /*
  * libpcp_pmda interface versions
  */
-#define PMDA_INTERFACE_1	1	/* initial argument style */
 #define PMDA_INTERFACE_2	2	/* new function arguments */
 #define PMDA_INTERFACE_3	3	/* 3-state return from fetch callback */
 #define PMDA_INTERFACE_4	4	/* dynamic pmns */
@@ -162,21 +161,6 @@ typedef struct {
     int	status;		/* return initialization status here */
 
     union {
-
-/*
- * Interface Version 1 (PCP 1.0 & PCP 1.1)
- * PMDA_INTERFACE_1
- */
-
-    	struct {
-	    int	    (*profile)(__pmProfile *);
-	    int	    (*fetch)(int, pmID *, pmResult **);
-	    int	    (*desc)(pmID, pmDesc *);
-	    int	    (*instance)(pmInDom, int, char *, __pmInResult **);
-	    int	    (*text)(int, int, char **);
-	    int	    (*control)(pmResult *, int, int, int);
-	    int	    (*store)(pmResult *);
-	} one;
 
 /*
  * Interface Version 2 and 3 (PCP 2.0)

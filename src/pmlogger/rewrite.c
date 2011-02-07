@@ -39,49 +39,8 @@ typedef struct {
 __pmPDU *
 rewrite_pdu(__pmPDU *pb, int version)
 {
-    result_t		*pp;
-    int			numpmid;
-    int			valfmt;
-    int			numval;
-    int			vsize;
-    vlist_t		*vlp;
-    pmValueSet		*vsp;
-    pmValueBlock	*vbp;
-    int			i;
-    int			j;
-
     if (version == PM_LOG_VERS02)
 	return pb;
-
-    if (version == PM_LOG_VERS01) {
-	pp = (result_t *)pb;
-	numpmid = ntohl(pp->numpmid);
-	vsize = 0;
-	for (i = 0; i < numpmid; i++) {
-	    vlp = (vlist_t *)&pp->data[vsize/sizeof(__pmPDU)];
-	    numval = ntohl(vlp->numval);
-	    valfmt = ntohl(vlp->valfmt);
-	    for (j = 0; j < numval; j++) {
-		vsp = (pmValueSet *)vlp;
-		if (valfmt == PM_VAL_INSITU)
-		    continue;
-		vbp = (pmValueBlock *)&pb[ntohl(vsp->vlist[j].value.lval)];
-		if (vbp->vtype == PM_TYPE_FLOAT) {
-		    /* suck FLOAT back from pmValueBlock and make INSITU */
-		    vlp->valfmt = htonl(PM_VAL_INSITU);
-		    memcpy(&vsp->vlist[j].value.lval, &vbp->vbuf, sizeof(float));
-		}
-		vbp->vtype = 0;
-	    }
-	    vsize += sizeof(vlp->pmid) + sizeof(vlp->numval);
-	    if (numval > 0)
-		vsize += sizeof(vlp->valfmt) + numval * sizeof(__pmValue_PDU);
-	    if (numval < 0)
-		vlp->numval = htonl(XLATE_ERR_2TO1(numval));
-	}
-
-	return pb;
-    }
 
     fprintf(stderr, "Errors: do not know how to re-write the PDU buffer for a version %d archive\n", version);
     exit(1);

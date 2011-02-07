@@ -80,7 +80,7 @@ do_preamble(void)
     tmp.tv_usec = (__int32_t)epoch.tv_usec;
 
     for (i = 0; i < n_metric; i++) {
-	res->vset[i] = (pmValueSet *)__pmPoolAlloc(sizeof(pmValueSet));
+	res->vset[i] = (pmValueSet *)malloc(sizeof(pmValueSet));
 	if (res->vset[i] == NULL)
 	    return -errno;
 	res->vset[i]->pmid = desc[i].pmid;
@@ -190,7 +190,7 @@ do_preamble(void)
      *		is only ever called once, so tough luck
      */
     for (i = 0; i < n_metric; i++)
-	__pmPoolFree(res->vset[i], sizeof(pmValueSet));
+	free(res->vset[i]);
     free(res);
 
     return 0;

@@ -182,9 +182,6 @@ pmGetPMNSLocation(void)
 				n, ctxp->c_pmcd->pc_fd, pmErrStr(sts));
 			pmns_location = PM_ERR_NOPMNS;
 		    }
-		    else if (version == PDU_VERSION1) {
-			pmns_location = LoadDefault("PMCD (version 1)");
-		    }
 		    else if (version == PDU_VERSION2) {
 			pmns_location = PMNS_REMOTE;
 		    }

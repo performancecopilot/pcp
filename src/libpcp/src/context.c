@@ -196,7 +196,11 @@ INIT_CONTEXT:
      * Set up the default state
      */
     memset(new, 0, sizeof(__pmContext));
+#ifdef ASYNC_API
     new->c_type = (type & PM_CONTEXT_TYPEMASK);
+#else
+    new->c_type = type;
+#endif /*ASYNC_API*/
     if ((new->c_instprof = (__pmProfile *)malloc(sizeof(__pmProfile))) == NULL) {
 	/*
 	 * fail : nothing changed -- actually list is changed, but restoring
@@ -223,12 +227,18 @@ INIT_CONTEXT:
 	    goto FAILED;
 	}
 
-	if ((type & PM_CTXFLAG_EXCLUSIVE) == 0 && nhosts == 1) {
+	if (
+#ifdef ASYNC_API
+	    (type & PM_CTXFLAG_EXCLUSIVE) == 0 &&
+#endif
+	    nhosts == 1) {
 	    for (i = 0; i < contexts_len; i++) {
 		if (i == curcontext)
 		    continue;
 		if (contexts[i].c_type == PM_CONTEXT_HOST &&
+#ifdef ASYNC_API
 		    (contexts[i].c_pmcd->pc_curpdu == 0) &&
+#endif
 		    strcmp(contexts[i].c_pmcd->pc_hosts[0].name,
 			    hosts[0].name) == 0) {
 		    new->c_pmcd = contexts[i].c_pmcd;
@@ -237,12 +247,13 @@ INIT_CONTEXT:
 	    }
 	}
 	if (new->c_pmcd == NULL) {
-	    pmcd_ctl_state_t inistate;
 	    /*
 	     * Try to establish the connection.
 	     * If this fails, restore the original current context
 	     * and return an error.
 	     */
+#ifdef ASYNC_API
+	    pmcd_ctl_state_t inistate;
 	    if (type & PM_CTXFLAG_SHALLOW) {
 		sts = __pmCreateSocket();
 		inistate = PC_FETAL;
@@ -250,6 +261,9 @@ INIT_CONTEXT:
 		sts = __pmConnectPMCD(hosts, nhosts);
 		inistate = PC_READY;
 	    }
+#else
+	    sts = __pmConnectPMCD(hosts, nhosts);
+#endif /*ASYNC_API*/
 
 	    if (sts < 0) {
 		__pmFreeHostSpec(hosts, nhosts);
@@ -264,7 +278,9 @@ INIT_CONTEXT:
 		goto FAILED;
 	    }
 	    new->c_pmcd->pc_fd = sts;
+#ifdef ASYNC_API
 	    new->c_pmcd->pc_state = inistate;
+#endif /*ASYNC_API*/
 	    new->c_pmcd->pc_hosts = hosts;
 	    new->c_pmcd->pc_nhosts = nhosts;
 	    new->c_pmcd->pc_tout_sec = __pmConvertTimeout(TIMEOUT_DEFAULT) / 1000;
@@ -276,7 +292,11 @@ INIT_CONTEXT:
 	new->c_pmcd->pc_refcnt++;
     }
     else if (new->c_type == PM_CONTEXT_LOCAL) {
-	if (!(type & PM_CTXFLAG_SHALLOW) && (sts = __pmConnectLocal()) != 0)
+	if (
+#ifdef ASYNC_API
+	    !(type & PM_CTXFLAG_SHALLOW) &&
+#endif /*ASYNC_API*/
+	    (sts = __pmConnectLocal()) != 0)
 	    goto FAILED;
     }
     else if (new->c_type == PM_CONTEXT_ARCHIVE) {
@@ -682,6 +702,7 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
     }
 }
 
+#ifdef ASYNC_API
 int
 __pmGetHostContextByID (int ctxid, __pmContext **cp)
 {
@@ -701,7 +722,6 @@ __pmGetHostContextByID (int ctxid, __pmContext **cp)
     return (0);
 }
 
-#ifdef ASYNC_API
 int
 __pmGetBusyHostContextByID (int ctxid, __pmContext **cp, int pdu)
 {

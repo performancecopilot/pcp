@@ -452,12 +452,16 @@ HandleClientInput(fd_set *fdsPtr)
 	}
 
 	php = (__pmPDUHdr *)pb;
-	if (__pmVersionIPC(cp->fd) == UNKNOWN_VERSION && php->type != PDU_CREDS)
-	    __pmSetVersionIPC(cp->fd, PDU_VERSION1);
+	if (__pmVersionIPC(cp->fd) == UNKNOWN_VERSION && php->type != PDU_CREDS) {
+	    /* old V1 client protocol, no longer supported */
+	    sts = PM_ERR_IPC;
+	    CleanupClient(cp, sts);
+	    continue;
+	}
 
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
-		ShowClients(stderr);
+	if (pmDebug & DBG_TRACE_APPL0)
+	    ShowClients(stderr);
 #endif
 
 	switch (php->type) {
@@ -511,14 +515,7 @@ HandleClientInput(fd_set *fdsPtr)
 		break;
 
 	    case PDU_CREDS:
-		if ((sts = __pmVersionIPC(cp->fd)) < 0)
-		    break;
-		if (sts == PDU_VERSION1) {
-		    __pmNotifyErr(LOG_ERR, "pmcd: protocol version error on fd=%d\n", cp->fd);
-		    sts = PM_ERR_V1(PM_ERR_IPC);
-		}
-		else
-		    sts = DoCreds(cp, pb);
+		sts = DoCreds(cp, pb);
 		break;
 
 	    default:
@@ -828,13 +825,6 @@ ClientLoop(void)
 
 		    if (_pmcd_trace_mask)
 			pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
-		    /*
-		     * Note. in the event of an error being detected,
-		     *       sts is converted from 2.0 to 1.x in
-		     *       __pmSendXtendError() ... special case code
-		     *	     on the client side knows about this for 2.0
-		     *       clients.
-		     */
 		    xchallenge = *(__pmPDUInfo *)&challenge;
 		    xchallenge = __htonpmPDUInfo(xchallenge);
 		    s = __pmSendXtendError(cp->fd, FROM_ANON, sts, *(unsigned int *)&xchallenge);

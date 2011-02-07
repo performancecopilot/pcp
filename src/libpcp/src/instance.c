@@ -136,18 +136,11 @@ pmLookupInDom(pmInDom indom, const char *name)
 							  (char *)name, 
 							  &result, 
 							  dp->dispatch.version.four.ext);
-		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
+		else
 		    n = dp->dispatch.version.two.instance(indom, PM_IN_NULL, 
 							  (char *)name, 
 							  &result, 
 							  dp->dispatch.version.two.ext);
-		else
-		    n = dp->dispatch.version.one.instance(indom, PM_IN_NULL, 
-							  (char *)name, 
-							  &result);
-		if (n < 0 && dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-		    n = XLATE_ERR_1TO2(n);
 	    }
 	    if (n >= 0) {
 		n = result->instlist[0];
@@ -239,14 +232,8 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 		    dp->dispatch.version.four.ext->e_context = ctx;
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    n = dp->dispatch.version.four.instance(indom, inst, NULL, &result, dp->dispatch.version.four.ext);
-		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
-		    n = dp->dispatch.version.two.instance(indom, inst, NULL, &result, dp->dispatch.version.two.ext);
 		else
-		    n = dp->dispatch.version.one.instance(indom, inst, NULL, &result);
-		if (n < 0 &&
-		    dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-			n = XLATE_ERR_1TO2(n);
+		    n = dp->dispatch.version.two.instance(indom, inst, NULL, &result, dp->dispatch.version.two.ext);
 	    }
 	    if (n >= 0) {
 		if ((*name = strdup(result->namelist[0])) == NULL)
@@ -393,17 +380,10 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 		    n = dp->dispatch.version.four.instance(indom, PM_IN_NULL, NULL,
 					       &result,
 					       dp->dispatch.version.four.ext);
-		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
+		else
 		    n = dp->dispatch.version.two.instance(indom, PM_IN_NULL, NULL,
 					       &result,
 					       dp->dispatch.version.two.ext);
-		else
-		    n = dp->dispatch.version.one.instance(indom, PM_IN_NULL, NULL,
-					      &result);
-		if (n < 0 &&
-		    dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-			n = XLATE_ERR_1TO2(n);
 	    }
 	    if (n >= 0) {
 		n = inresult_to_lists (result, instlist, namelist);

@@ -223,6 +223,7 @@ pmUnpackEventRecords(pmValueSet *vsp, pmResult ***rap)
     int			p;		/* parameters in a record ... */
     int			numpmid;	/* metrics in a pmResult */
     int			need;
+    int			want;
     int			vsize;
     int			sts;
     static int		first = 1;
@@ -295,7 +296,7 @@ pmUnpackEventRecords(pmValueSet *vsp, pmResult ***rap)
 	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
 	for (p = 0; p < numpmid; p++) {
 	    /* always have numval == 1 */
-	    rp->vset[p] = (pmValueSet *)__pmPoolAlloc(sizeof(pmValueSet));
+	    rp->vset[p] = (pmValueSet *)malloc(sizeof(pmValueSet));
 	    if (rp->vset[p] == NULL) {
 		rp->numpmid = p;
 		sts = -errno;
@@ -366,21 +367,16 @@ pmUnpackEventRecords(pmValueSet *vsp, pmResult ***rap)
 		case PM_TYPE_EVENT:	/* no nesting! */
 		default:
 		    while (p-- >= 0)
-			__pmPoolFree(rp->vset[p], sizeof(pmValueSet));
+			free(rp->vset[p]);
 		    while (r-- >= 0)
 			pmFreeResult((*rap)[r]);
 		    return PM_ERR_TYPE;
 	    }
 	    need = vsize + PM_VAL_HDR_SIZE;
-	    if (vsize == sizeof(__int64_t)) {
-		rp->vset[p]->vlist[0].value.pval = (pmValueBlock *)__pmPoolAlloc(need);
-	    }
-	    else {
-		int	want = need;
-		if (want < sizeof(pmValueBlock))
-		    want = sizeof(pmValueBlock);
-		rp->vset[p]->vlist[0].value.pval = (pmValueBlock *)malloc(want);
-	    }
+	    want = need;
+	    if (want < sizeof(pmValueBlock))
+		want = sizeof(pmValueBlock);
+	    rp->vset[p]->vlist[0].value.pval = (pmValueBlock *)malloc(want);
 	    if (rp->vset[p]->vlist[0].value.pval == NULL) {
 		sts = -errno;
 		rp->vset[p]->valfmt = PM_VAL_INSITU;

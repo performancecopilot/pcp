@@ -996,12 +996,9 @@ eval_expr(node_t *np, pmResult *rp, int level)
  * - if valfmt is not PM_VAL_INSITU use PM_VAL_DPTR (not PM_VAL_SPTR),
  *   so anything we point to is going to be released when our caller
  *   calls pmFreeResult()
- * - if numval == 1,  use __pmPoolAlloc() for the pmValueSet;
- *   otherwise use one malloc() for each pmValueSet with vlist[] sized
- *   to be 0 if numval < 0 else numval
- * - pmValueBlocks for 64-bit integers, doubles or anything with a
- *   length equal to the size of a 64-bit integer are from
- *   __pmPoolAlloc(); otherwise pmValueBlocks are from malloc()
+ * - use one malloc() for each pmValueSet with vlist[] sized to be 0
+ *   if numval < 0 else numval
+ * - pmValueBlocks are from malloc()
  *
  * For reference, the same logic appears in __pmLogFetchInterp() to
  * sythesize a pmResult there.
@@ -1093,14 +1090,9 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 	    }
 	}
 
-	if (numval < 0) {
+	if (numval <= 0) {
 	    /* only need pmid and numval */
 	    need = sizeof(pmValueSet) - sizeof(pmValue);
-	}
-	else if (numval == 1) {
-	    /* special case for single value */
-	    newrp->vset[j] = (pmValueSet *)__pmPoolAlloc(sizeof(pmValueSet));
-	    need = 0;
 	}
 	else {
 	    /* already one pmValue in a pmValueSet */
@@ -1128,10 +1120,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		}
 		else {
 		    need = rp->vset[j]->vlist[i].value.pval->vlen;
-		    if (need == PM_VAL_HDR_SIZE + sizeof(__int64_t))
-			vp = (pmValueBlock *)__pmPoolAlloc(need);
-		    else
-			vp = (pmValueBlock *)malloc(need);
+		    vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {
 			__pmNoMem("__dmpostfetch: copy value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
@@ -1155,7 +1144,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		case PM_TYPE_64:
 		case PM_TYPE_U64:
 		    need = PM_VAL_HDR_SIZE + sizeof(__int64_t);
-		    if ((vp = (pmValueBlock *)__pmPoolAlloc(need)) == NULL) {
+		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
 			__pmNoMem("__dmpostfetch: 64-bit int value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
@@ -1179,7 +1168,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 
 		case PM_TYPE_DOUBLE:
 		    need = PM_VAL_HDR_SIZE + sizeof(double);
-		    if ((vp = (pmValueBlock *)__pmPoolAlloc(need)) == NULL) {
+		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
 			__pmNoMem("__dmpostfetch: double value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
@@ -1191,10 +1180,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 
 		case PM_TYPE_STRING:
 		    need = PM_VAL_HDR_SIZE + cp->mlist[m].expr->info->ivlist[i].vlen;
-		    if (need == PM_VAL_HDR_SIZE + sizeof(__int64_t))
-			vp = (pmValueBlock *)__pmPoolAlloc(need);
-		    else
-			vp = (pmValueBlock *)malloc(need);
+		    vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {
 			__pmNoMem("__dmpostfetch: string value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
@@ -1209,10 +1195,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		case PM_TYPE_AGGREGATE_STATIC:
 		case PM_TYPE_EVENT:
 		    need = cp->mlist[m].expr->info->ivlist[i].vlen;
-		    if (need == PM_VAL_HDR_SIZE + sizeof(__int64_t))
-			vp = (pmValueBlock *)__pmPoolAlloc(need);
-		    else
-			vp = (pmValueBlock *)malloc(need);
+		    vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {
 			__pmNoMem("__dmpostfetch: aggregate or event value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/

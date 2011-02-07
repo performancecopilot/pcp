@@ -156,10 +156,7 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 	//
 	int	need = dsize + PM_VAL_HDR_SIZE;
 
-	if (dsize == sizeof(__int64_t))
-	    vp->value.pval = (pmValueBlock *)__pmPoolAlloc(need);
-	else
-	    vp->value.pval = (pmValueBlock *)malloc(need < sizeof(pmValueBlock) ? sizeof(pmValueBlock) : need);
+	vp->value.pval = (pmValueBlock *)malloc(need < sizeof(pmValueBlock) ? sizeof(pmValueBlock) : need);
 	if (vp->value.pval == NULL) {
 	    __pmNoMem("_pmi_stuff_value: pmValueBlock:", need < sizeof(pmValueBlock) ? sizeof(pmValueBlock) : need, PM_FATAL_ERR);
 	    /*NOTREACHED*/

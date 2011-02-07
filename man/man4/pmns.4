@@ -76,7 +76,7 @@ command line option where an explicit root PMNS file is specified.
 Since PCP version 2 uses a distributed PMNS (see below), 
 an application can extract PMNS information from a
 host's PMCD or an archive.  If the PMNS source
-(pmcd or archive) is version 1 (see
+is a version 1 archive (see
 .BR PCPIntro (1)),
 however, 
 then the local PMNS will be loaded using the path specified by the 
@@ -86,32 +86,7 @@ environment variable
 In PCP version 1, the PMNS functions in the API all operated on
 a PMNS loaded locally from a file. Since PCP version 2, however,
 PMNS functions may get the PMNS information remotely from a PMCD
-or directly from the meta data of an archive. We call this a
-distributed PMNS. It has the advantage
-that the PMNS should always match the source of the metrics.
-For example, in PCP version 1, if one wanted to access a remote PMCD 
-which had an agent
-installed which one didn't have installed locally, then the local
-PMNS had to be updated just for that agent. This is no longer the case.
-.PP
-In order to be compatible with version 1 PMCDs and version 1 archives
-(see
-.BR PCPIntro (1)),
-the local PMNS (\c
-.BR PMNS_DEFAULT )
-is automatically loaded as was done previously in PCP version 1.
-.PP
-From an API level, there has been minimal changes.
-The main change is that if an application wants to use the distributed PMNS
-then it should \f3not\f1 call
-.BR pmLoadNameSpace (3) 
-or
-.BR pmLoadASCIINameSpace (3).
-Doing so will load the local PMNS as specified above. Not calling these
-functions would previously (in PCP version 1) cause an error when trying
-to access the PMNS but now
-(in PCP version 2) it will force the PMNS functions to look at the metrics source for
-their information.
+or directly from the meta data of an archive.
 .SH PROCESSING FRAMEWORK
 .de CW
 .ie t \f(CW\\$1\f1\\$2
