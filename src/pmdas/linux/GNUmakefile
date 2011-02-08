@@ -24,7 +24,7 @@ PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "linux	60	dso	linux_init	$(PMDADIR)/$(LIBTARGET)"
 
 CFILES		= pmda.c proc_stat.c proc_meminfo.c proc_loadavg.c \
-		  proc_net_dev.c proc_interrupts.c filesys.c \
+		  proc_net_dev.c interrupts.c filesys.c \
 		  swapdev.c proc_net_rpc.c proc_pid.c proc_partitions.c \
 		  getinfo.c proc_net_sockstat.c proc_runq.c \
 		  proc_net_snmp.c proc_scsi.c proc_fs_xfs.c \
@@ -35,7 +35,7 @@ CFILES		= pmda.c proc_stat.c proc_meminfo.c proc_loadavg.c \
 		  dynamic.c cgroups.c
 
 HFILES		= proc_stat.h proc_meminfo.h proc_loadavg.h \
-		  proc_net_dev.h proc_interrupts.h filesys.h swapdev.h \
+		  proc_net_dev.h interrupts.h filesys.h swapdev.h \
 		  proc_net_rpc.h proc_pid.h proc_partitions.h getinfo.h \
 		  proc_net_sockstat.h proc_runq.h proc_net_snmp.h \
 		  proc_scsi.h proc_fs_xfs.h \
