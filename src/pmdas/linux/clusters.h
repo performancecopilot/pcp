@@ -68,6 +68,8 @@ enum {
 	CLUSTER_MEMORY_PROCS,	/* 46 memory group processes */
 	CLUSTER_NET_CLS_GROUPS,	/* 47 network classification control groups */
 	CLUSTER_NET_CLS_PROCS,	/* 48 network classification group processes */
+	CLUSTER_INTERRUPT_LINES,/* 49 /proc/interrupts percpu interrupts */
+	CLUSTER_INTERRUPT_OTHER,/* 50 /proc/interrupts percpu interrupts */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

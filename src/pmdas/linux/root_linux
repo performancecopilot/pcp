@@ -77,7 +77,6 @@ kernel.all {
     intr		60:0:12
     pswitch		60:0:13
     sysfork		60:0:14
-    syscall		60:4:1
     hz			60:0:48
     uptime		60:26:0
     idletime		60:26:1
@@ -85,6 +84,11 @@ kernel.all {
     lastpid		60:2:1
     runnable		60:2:2
     nprocs		60:2:3
+    interrupts
+}
+
+kernel.all.interrupts {
+    errors		60:4:3
 }
 
 kernel.all.cpu {
@@ -109,8 +113,7 @@ kernel.all.cpu.irq {
 }
 
 kernel.percpu {
-    interrupts		60:4:0
-    syscall		60:4:2
+    interrupts		60:*:*
     cpu
 }
 
