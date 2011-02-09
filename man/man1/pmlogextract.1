@@ -21,7 +21,6 @@ and merge Performance Co-Pilot archives
 \f3$PCP_BINADM_DIR/pmlogextract\f1
 [\f3\-dfwz\f1]
 [\f3\-c\f1 \f2configfile\f1]
-[\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-s\f1 \f2samples\f1]
 [\f3\-T\f1 \f2endtime\f1]
@@ -111,18 +110,6 @@ The
 option forces the timezone from the
 .I first
 input archive log to be used.
-.TP 7
-.BI \-n " pmnsfile"
-Normally
-.B pmlogextract
-operates on the Performance Metrics Name Space (PMNS) from
-.IR input ,
-however if the
-.B -n
-option is specified an alternative
-local PMNS is loaded from the file
-.IR pmnsfile .
-.PP
 .TP 7
 .BI \-S " starttime"
 Define the start of a time window to restrict the samples retrieved

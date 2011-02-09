@@ -425,7 +425,6 @@ extern void __pmFreeInResult(__pmInResult *);
 #define PDU_VERSION2	2
 #define PDU_VERSION	PDU_VERSION2
 
-#define PDU_OVERRIDE1	-1001
 #define PDU_OVERRIDE2	-1002
 
 typedef struct {
