@@ -1,5 +1,5 @@
 /*
- * pmnscomp [-n pmnsfile ] [-d debug] outfile
+ * pmnscomp [-d debug] outfile
  *
  * Construct a compiled PMNS suitable for "fast" loading in pmLoadNameSpace
  *
@@ -35,7 +35,7 @@ static char	*symp;		/* pointer into same */
 static __pmnsNode	**_map;		/* point-to-ordinal map */
 static int	i;		/* node counter for traversal */
 
-static int	version = 1;	/* default output format version */
+static int	version = 2;	/* default output format version */
 
 /*
  * 32-bit pointer version of __pmnsNode
@@ -253,8 +253,8 @@ main(int argc, char **argv)
 		fprintf(stderr, "%s: -v requires numeric argument\n", pmProgname);
 		errflag++;
 	    }
-	    if (version < 0 || version > 2) {
-		fprintf(stderr, "%s: version must be 0, 1 or 2\n", pmProgname);
+	    if (version < 1 || version > 2) {
+		fprintf(stderr, "%s: output format version %d not supported\n", pmProgname, version);
 		errflag++;
 	    }
 	    break;
@@ -274,7 +274,7 @@ Options:\n\
   -d		duplicate PMIDs are allowed\n\
   -f		force overwriting of an existing output file if it exists\n\
   -n pmnsfile 	use an alternative PMNS\n\
-  -v version	alternate output format version\n",
+  -v version	alternate output format version [default 2]\n",
 			pmProgname);	
 	exit(1);
     }
@@ -401,44 +401,7 @@ Options:\n\
 	startsum = ftell(outf);
     }
 
-    if (version == 0) {
-	/* don't bother doing endian conversion */
-	fwrite(&htabcnt, sizeof(int), 1, outf);
-	fwrite(&nodecnt, sizeof(int), 1, outf);
-	fwrite(&symbsize, sizeof(int), 1, outf);
-
-	fwrite(_htab, sizeof(_htab[0]), htabcnt, outf);
-	fwrite(_nodetab, sizeof(_nodetab[0]), nodecnt, outf);
-	fwrite(_symbol, sizeof(_symbol[0]), symbsize, outf);
-
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0) {
-	    __psint_t	k;
-	    printf("Hash Table\n");
-	    for (j = 0; j < htabcnt; j++) {
-		if (j % 10 == 0) {
-		    if (j)
-			putchar('\n');
-		    printf("htab[%3d]", j);
-		}
-		printf(" %5ld", (long)_htab[j]);
-	    }
-	    printf("\n\nNode Table\n");
-	    for (j = 0; j < nodecnt; j++) {
-		if (j % 20 == 0)
-		    printf("           Parent   Next  First   Hash Symbol           PMID\n");
-		k = (__psint_t)_nodetab[j].name;
-		printf("node[%4d] %6ld %6ld %6ld %6ld %-16.16s",
-		    j, (long)_nodetab[j].parent, (long)_nodetab[j].next, (long)_nodetab[j].first,
-		    (long)_nodetab[j].hash, &_symbol[k]);
-		if (_nodetab[j].first == (__pmnsNode *)-1)
-		    printf(" %s", pmIDStr(_nodetab[j].pmid));
-		putchar('\n');
-	    }
-	}
-#endif
-    }
-    else if(version == 1 || version == 2) {
+    if(version == 1 || version == 2) {
 	/*
 	 * Version 1, after label, comes repetitions of, one for each "style"
 	 *
