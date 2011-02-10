@@ -38,9 +38,9 @@ IAM	= logger
 DOMAIN	= LOGGER
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
-LDIRT	= domain.h pcp *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so
+LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so
 
-default_pcp default:	pcp domain.h $(TARGETS)
+default_pcp default:	domain.h $(TARGETS)
 
 logger.o percontext.o: percontext.h
 
@@ -55,7 +55,23 @@ install install_pcp:	default
 .NOTPARALLEL:
 .ORDER:	domain.h $(OBJECTS)
 
-domain.h: ../../pmns/stdpmid
+# If we're in the pcp source tree, generate domain.h from
+# pmns/stdpmid.  Otherwise, use the system one.  The best place to put
+# a value for this pmda is in stdpmid.local (which is either in
+# ../../pmns or in /var/lib/pcp/pmns).
+# 
+# If you receive an error like:
+#   Botch: no #define for domain LOGGER in /var/lib/pcp/pmns/stdpmid
+# add the following line to stdpmid.local:
+#   LOGGER 255
+# Then run /var/lib/pcp/pmns/Make.stdpmid
+ifeq ($(wildcard ../../pmns/stdpmid), ../../pmns/stdpmid)
+STDPMID = ../../pmns/stdpmid
+else
+STDPMID = /var/lib/pcp/pmns/stdpmid
+endif
+
+domain.h: $(STDPMID)
 	rm -f domain.h
 	@echo "/*" >domain.h
 	@echo " * built from $<" >>domain.h
@@ -66,6 +82,3 @@ END	{ if (found == 0) { print "Botch: no #define for domain $(DOMAIN) in $<";  e
           if (found > 1) { print "Botch: multiple #defines for domain $(DOMAIN) in $<"; print "... see $@ for details"; exit(1) }\
 	  exit(0)\
 	}'
-
-pcp:
-	$(LN_S) -f $(TOPDIR)/src/include pcp

@@ -31,9 +31,9 @@
 #
 iam=logger
 
-# Using libpcp_pmda.so.2 and PMDA_INTERFACE_2
+# Using PMDA_INTERFACE_5.  But, pmdaproc.sh only handles 1-4.
 #
-pmda_interface=2
+pmda_interface=4
 
 # Do it
 #
