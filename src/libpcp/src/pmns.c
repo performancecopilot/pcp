@@ -1043,24 +1043,16 @@ loadbinary(void)
 	if ((fbin = fopen(linebuf, "r")) == NULL)
 	    continue;
 
+	version = -1;	/* fall through with this version for an ascii pmns */
+
 	if (fread(magic, sizeof(magic), 1, fbin) != 1) {
 	    fclose(fbin);
 	    continue;
 	}
-	version = -1;
-	if (strncmp(magic, "PmNs", 4) == 0) {
-#if !defined(HAVE_32BIT_PTR)
-	    __pmNotifyErr(LOG_WARNING, "pmLoadNameSpace: old 32-bit format binary file \"%s\"", linebuf);
-	    fclose(fbin);
-	    continue;
-#else
-	    version = 0;
-#endif
-	}
-	else if (strncmp(magic, "PmN1", 4) == 0)
-	    version= 1;
+	if (strncmp(magic, "PmN1", 4) == 0)
+	    version = 1;
 	else if (strncmp(magic, "PmN2", 4) == 0) {
-	    version= 2;
+	    version = 2;
 	    if (fread(&sum, sizeof(sum), 1, fbin) != 1) {
 		fclose(fbin);
 		continue;
@@ -1079,18 +1071,11 @@ loadbinary(void)
 	    }
 	    fseek(fbin, endsum, SEEK_SET);
 	}
-	if (version == -1) {
-	    fclose(fbin);
-	    continue;
-	}
+	else if (strncmp(magic, "PmNs", 4) == 0)
+	    version = 0;
 
-	if (version == 0) {
-	    /*
-	     * Expunge support for Version 0 binary PMNS format.
-	     * It can never work on anything but 32-bit int and 32-bit ptrs.
-	     */
-	    goto bad;
-	}
+	if (version == -1)
+	    continue;
 	else if (version == 1 || version == 2) {
 	    int		sz_htab_ent;
 	    int		sz_nodetab_ent;
@@ -1183,9 +1168,11 @@ loadbinary(void)
 	    if (pmDebug & DBG_TRACE_PMNS)
 		fprintf(stderr, "Loaded Version 1 or 2 Binary PMNS, nodetab ent = %d bytes\n", sz_nodetab_ent);
 #endif
+	    fclose(fbin);
 	}
-
-	fclose(fbin);
+	else
+	    /* not a version we're willing to support */
+	    goto bad;
 
 	/* relocate */
 	for (i = 0; i < htabsize; i++) {
