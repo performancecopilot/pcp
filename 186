@@ -12,18 +12,25 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
+if [ $PCP_VER -lt 4000 ]
+then
+    arch=src-oss/951127.23.01
+else
+    arch=src-oss/951127.23.01_v2
+fi
+
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
 echo "=== merge ==="
-pmlogextract src-oss/951127.23.01 $tmp
+pmlogextract $arch $tmp
 
 echo
 echo "=== cmp files ==="
 for x in meta 0
 do
     echo $x:
-    od -x src-oss/951127.23.01.$x \
+    od -x $arch.$x \
     | $PCP_AWK_PROG 'NR == 1 { print $1,$2,$3,$4,$5,".... .PID",$8,$9 }' >$tmp.input.hex
     od -x $tmp.$x \
     | $PCP_AWK_PROG 'NR == 1 { print $1,$2,$3,$4,$5,".... .PID",$8,$9 }' >$tmp.output.hex

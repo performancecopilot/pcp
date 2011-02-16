@@ -30,7 +30,8 @@ HAVE_64	= $(shell test `uname -m | sed -e 's/.*64/64/g'` = "64" && echo 1 || ech
 
 SRCARCH	= mirage.0 moomba.client.0 babylon.percpu.0 omen.client.0 \
 	bozo.client.0 late.0 ok-bigbin.0 ok-mv-bigbin.0 ok-noti-bigbin.0 \
-	babylon.pmview.0 ok-foo.0 ok-mv-foo.0 bug.0 ace.0 951127.23.01.0 \
+	babylon.pmview.0 ok-foo.0 ok-mv-foo.0 bug.0 ace.0 \
+	951127.23.01.0 951127.23.01_v2.0 \
 	bigace.0 960624.08.17.0 rattle.0 mark-bug.0 arch_a.0 arch_b.0 \
 	err_v1.0 changeinst.0 19970807.09.54.0 19970807.09.59.0 \
 	binning.0 wrap.0 573184.0 xbug1.0 pcpcmd.0 markmerge.0 \
