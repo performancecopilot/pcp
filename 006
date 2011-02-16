@@ -14,6 +14,15 @@ echo "QA output created by $seq"
 
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
+rm -f $seq.out
+if pmerr -l | grep 'asynchronous operation' >/dev/null
+then
+    # pre PCP-4.0, still have async api error codes
+    ln $seq.out.1 $seq.out
+else
+    ln $seq.out.2 $seq.out
+fi
+
 PM_ERR_BASE=12345
 PM_ERR_COUNT=100
 

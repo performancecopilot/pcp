@@ -15,6 +15,7 @@ tmp.*
 134.full.*
 051.work/*
 151.work/*
+006.out
 008.out
 012.out
 015.out
@@ -54,6 +55,7 @@ tmp.*
 255.out
 256.out
 262.out
+274.out
 278.out
 282.out
 283.out
@@ -79,6 +81,7 @@ tmp.*
 558.out
 560.out
 565.out
+570.out
 574.out
 580.out
 587.out

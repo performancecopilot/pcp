@@ -1,0 +1,86 @@
+QA output created by 570
+
+dir is writeable, output file does not exist
+Compiled PMNS contains
+	    1 hash table entries
+	    2 leaf nodes
+	    2 non-leaf nodes
+	   18 bytes of symbol table
+-rw-r--r-- ... 362 ... root.bin
+
+dir is writeable, output file exists and is writeable
+Compiled PMNS contains
+	    1 hash table entries
+	    2 leaf nodes
+	    2 non-leaf nodes
+	   18 bytes of symbol table
+-rw-r--r-- ... 362 ... root.bin
+
+dir is writeable, output file exists and is non-writeable
+Compiled PMNS contains
+	    1 hash table entries
+	    2 leaf nodes
+	    2 non-leaf nodes
+	   18 bytes of symbol table
+-rw-r--r-- ... 362 ... root.bin
+
+dir is writeable, output file exists but is hidden
+pmnscomp: cannot stat "hide/root.bin": Permission denied
+-rw-r--r-- ... 0 ... hide/root.bin
+
+dir is writeable, output "file" is /dev/null
+pmnscomp: "/dev/null" is not a regular file
+crw-rw-rw- ... /dev/null
+
+dir is writeable, output "file" is a directory
+pmnscomp: "mydir" is not a regular file
+drwxr-xr-x ... mydir
+
+dir is non-writeable, output file does not exist
+pmnscomp: cannot create "root.bin": Permission denied
+Cannot access root.bin: No such file or directory
+
+dir is non-writeable, output file exists and is writeable
+pmnscomp: cannot unlink "root.bin": Permission denied
+-rw-r--r-- ... 0 ... root.bin
+
+dir does not exist
+pmnscomp: cannot create "no/such/path/root.bin": No such file or directory
+Cannot access no/such/path/root.bin: No such file or directory
+
+some options errors
+pmnscomp: output format version 3 not supported
+Usage: pmnscomp [options] outfile
+
+Options:
+  -d		duplicate PMIDs are allowed
+  -f		force overwriting of an existing output file if it exists
+  -n pmnsfile 	use an alternative PMNS
+  -v version	alternate output format version [default 2]
+Usage: pmnscomp [options] outfile
+
+Options:
+  -d		duplicate PMIDs are allowed
+  -f		force overwriting of an existing output file if it exists
+  -n pmnsfile 	use an alternative PMNS
+  -v version	alternate output format version [default 2]
+Usage: pmnscomp [options] outfile
+
+Options:
+  -d		duplicate PMIDs are allowed
+  -f		force overwriting of an existing output file if it exists
+  -n pmnsfile 	use an alternative PMNS
+  -v version	alternate output format version [default 2]
+
+duplicate PMIDs in pmns
+Error Parsing ASCII PMNS: Duplicate metric id (0.1.1) in name space for metrics "node.two" and "one"
+
+pmLoadNameSpace: Problems parsing PMNS definitions
+Cannot access root.bin: No such file or directory
+and again with -d
+Compiled PMNS contains
+	    1 hash table entries
+	    2 leaf nodes
+	    2 non-leaf nodes
+	   18 bytes of symbol table
+-rw-r--r-- ... 362 ... root.bin
