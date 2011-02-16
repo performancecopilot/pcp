@@ -13,11 +13,9 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-linux=false
 case "$PCP_PLATFORM"
 in
-    linux*)
-	linux=true
+    linux|darwin)
 	;;
     *)
 	echo "Need to hand-craft the exceptions list in ./003 for this platform"
@@ -145,7 +143,7 @@ do
     | pmie_filter \
     | count_filter >$tmp.tmp
 
-    if $linux
+    if [ "$PCP_PLATFORM" = linux ]
     then
 	  sed <$tmp.tmp \
 	    -e "/disk\.all\.avactive: $unavailable/d" \
@@ -184,6 +182,7 @@ do
 	    -e "/mem\.util\.shared: $unavailable/d" \
 	    -e "/network\.ib\..*/d" \
 	    -e "/network\.interface\.baudrate: $unavailable/d" \
+	    -e "/network\.interface\.duplex: $unavailable/d" \
 	    -e "/network\.interface\.inet_addr: $unavailable/d" \
 	    -e "/network\.interface\.speed: $unavailable/d" \
 	    -e "/nfs3\.server\..*: $unavailable/d" \
@@ -195,11 +194,10 @@ do
 	    -e "/rpc\.server\..*: $unavailable/d" \
 	    -e "/sampledso\.sysinfo: $nosupport/d" \
 	    -e "/sample\.sysinfo: $nosupport/d" \
-	    -e "/xfs\..*: $unavailable/d" \
-
-    else
-	echo "Arrgh ... need filter for your OS!"
-	exit 1
-
+	    -e "/xfs\..*: $unavailable/d"
+    elif [ "$PCP_PLATFORM" = darwin ]
+    then
+	  sed <$tmp.tmp \
+	    -e 's/a/a/'
     fi
 done

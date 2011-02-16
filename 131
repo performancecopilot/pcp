@@ -26,4 +26,7 @@ export PMCD_CONNECT_TIMEOUT
 
 echo "Expect: Connection timed out"
 echo "The far host is $farhost" >$seq.full
-pminfo -f -h $farhost pmcd 2>&1 | sed -e "s/$farhost/HOST/g"
+pminfo -f -h $farhost pmcd 2>&1 \
+| sed \
+    -e "s/$farhost/HOST/g" \
+    -e 's/Operation timed out/Connection timed out/'

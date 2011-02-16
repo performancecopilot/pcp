@@ -57,6 +57,9 @@ rm -f $seq.full
 if [ $PCP_PLATFORM = linux ]
 then
 	PMDA_PMCD_PATH=$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+elif [ $PCP_PLATFORM = darwin ]
+then
+	PMDA_PMCD_PATH=$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
 else
 	PMDA_PMCD_PATH=/usr/pcp/lib/`pmobjstyle`.pmda_pmcd.so
 fi

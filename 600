@@ -136,6 +136,9 @@ then
     fi
     #DEBUG# echo "glibc version $a.$b.$c"
     #DEBUG# ls -l $seq*
+elif [ $PCP_PLATFORM = "darwin" ]
+then
+    ln $seq.out.darwin $seq.out
 else
     ln $seq.out.irix $seq.out
 fi

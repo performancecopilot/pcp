@@ -17,6 +17,9 @@ then
     else
 	ln $seq.linux.2 $seq.out
     fi
+elif [ $PCP_PLATFORM = darwin ]
+then
+    ln $seq.linux.2 $seq.out
 else
     echo "Warning: no validated output for $PCP_PLATFORM"
 fi
@@ -43,7 +46,7 @@ unset PMDA_LOCAL_SAMPLE
 unset PMDA_LOCAL_PROC
 echo "*** This should fail"
 echo "PCP_LITE_SAMPLE=$PCP_LITE_SAMPLE PMDA_LOCAL_SAMPLE=$PMDA_LOCAL_SAMPLE"
-pminfo -L -f 2>&1 \
+pminfo -K clear -L -f 2>&1 \
     sampledso.bin sampledso.long sampledso.longlong \
     sampledso.float sampledso.double sampledso.string sampledso.aggregate \
 | _filter
@@ -89,7 +92,7 @@ unset PMDA_LOCAL_SAMPLE PCP_LITE_SAMPLE
 echo
 echo "*** This should 1/3 work, proc[no] irix[yes] sampledso[n]"
 echo "PCP_LITE_SAMPLE=$PCP_LITE_SAMPLE PMDA_LOCAL_SAMPLE=$PMDA_LOCAL_SAMPLE"
-pminfo -L -f 2>&1 \
+pminfo -K clear -L -f 2>&1 \
     proc.nprocs kernel.all.cpu.idle kernel.all.load sampledso.float \
 | _filter \
 | sed -e '/value /{

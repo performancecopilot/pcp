@@ -16,12 +16,12 @@ echo "QA output created by $seq"
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+rm -f $seq.full
 
 _filter()
 {
     egrep 'QA-clientid|Error|__pmSetClientId' \
     | sed -e 's/value ".* QA/value "<host> QA/' \
-    | sort -u \
     | sed -e 's/\[/[ /' -e 's/]/ ]/' \
     | awk '
 BEGIN		{ seq = 1 }
@@ -31,24 +31,26 @@ $1 == "inst"	{ if (seen[$3] == "") {
 		  $5 = "\"" seen[$3] "\""
 		  $3 = seen[$3]
 		}
-		{ print }'
+		{ print }' \
+    | LC_COLLATE=POSIX sort -u
 }
 
 # real QA test starts here
-src-oss/clientid -l a bb ccc dddd eeeee ffffff ggggggg hhhhhhhh iiiiiiiii >$tmp.1 2>&1 &
+src-oss/clientid -l a bb ccc dddd eeeee ffffff ggggggg hhhhhhhh iiiiiiiii >$tmp.1 2>$tmp.2 &
 pidlist="$pidlist $!"
-sleep 1
-src-oss/clientid -l foo-bar-mumble >$tmp.2 2>&1 &
+sleep 2
+src-oss/clientid -l foo-bar-mumble >$tmp.3 2>$tmp.4 &
 pidlist="$pidlist $!"
-sleep 1
-src-oss/clientid -l "here is a longer string to go in the ident place holder to try things out that are not quite so short and boring" >$tmp.3 2>&1 &
+sleep 2
+src-oss/clientid -l "here is a longer string to go in the ident place holder to try things out that are not quite so short and boring" >$tmp.5 2>$tmp.6 &
 pidlist="$pidlist $!"
-sleep 1
+sleep 2
 
 kill -TERM $pidlist
 wait
 
 cat $tmp.? \
+| tee $seq.full \
 | _filter
 
 # success, all done

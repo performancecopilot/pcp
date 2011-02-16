@@ -457,7 +457,7 @@ event		pcpqa
 238 pmns local oss
 239 pmns local oss
 240 pmns local oss
-241 pmda.mmv local oss pmval
+241 pmda.mmv local oss pmval sanity
 242 pmlogger local oss
 243 pmcd local pmprobe oss
 244 pmcd local pmprobe oss
@@ -632,7 +632,7 @@ event		pcpqa
 413 pmie local oss event
 414 libpcp_dev local oss
 415 pmval pmstore local oss event
-416 pmda.news dbpmda local oss
+416 pmda.news dbpmda local oss sanity
 417 archive local oss
 418 pmdumplog local oss
 419 pmdumplog local oss
