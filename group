@@ -219,7 +219,6 @@ derive		pcpqa
 # event records
 event		pcpqa
 
-
 # test-group association ... one line per test
 # ... use sort -n from here on down to tidy up this mess
 #
@@ -656,6 +655,7 @@ event		pcpqa
 437 archive local oss sanity
 438 archive local oss
 439 pmlc local oss
+440 pmlogger local oss
 445 trace local oss
 446 trace local oss
 450 pmlogextract local #584487 pmval oss
