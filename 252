@@ -174,7 +174,7 @@ _test_time_end()
 cat <<EOF >$tmp.config
 # pmlogger(1) configuration file for doing QA tests
 #
-log mandatory on 1 sec {
+log mandatory on 100 msec {
     sample.control
     sample.milliseconds
     sample.load
@@ -194,14 +194,14 @@ log mandatory on 1 sec {
 EOF
 
 # Test out -s
-_test_file_size "4000bytes" 4000
-_test_file_size "4K" 4096
-_test_file_size "0.004Mb" 4194
-_test_sample_size "2"
-_test_time_size "5secs" 5
+_test_file_size 4000bytes 4000
+_test_file_size 4K 4096
+_test_file_size 4194B 4194
+_test_sample_size 2
+_test_time_size 3secs 3
 
 # Test out -T
-_test_time_end "5secs" 5
+_test_time_end 3secs 3
 
 # success, all done
 status=0
