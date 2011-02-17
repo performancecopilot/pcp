@@ -18,6 +18,8 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
 
+VPATH = @srcdir@
+srcdir = @srcdir@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
@@ -50,8 +52,9 @@ include $(BUILDRULES)
 
 install install_pcp:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h $(PMDADIR)
+	(cd $(srcdir) && $(INSTALL) -m 755 Install Remove $(PMDADIR))
+	(cd $(srcdir) && $(INSTALL) -m 644 $(DFILES) root help pmns $(PMDADIR))
+	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
 	$(INSTALL) -m 755 $(CMDTARGET) $(LIBTARGET) $(PMDADIR)
 
 .NOTPARALLEL:
