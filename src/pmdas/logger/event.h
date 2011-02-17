@@ -1,5 +1,5 @@
 /*
- * logger functions
+ * event support for the Logger PMDA
  *
  * Copyright (c) 2011 Red Hat Inc.
  * 
@@ -12,13 +12,17 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#ifndef _LOGGER_H
-#define _LOGGER_H
+#ifndef _EVENT_H
+#define _EVENT_H
 
-extern char *monitor_path;
+extern void event_init(int domain);
+extern int event_create(int fd);
+extern int event_fetch(pmValueBlock **vbpp);
 
-extern void loggerMain(pmdaInterface *dispatch);
-
-#endif /* _LOGGER_H */
+#endif /* _EVENT_H */

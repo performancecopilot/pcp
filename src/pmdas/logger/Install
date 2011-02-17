@@ -38,6 +38,28 @@ pmda_interface=4
 # Do it
 #
 pmdaSetup
+
+# Get logfile to monitor
+if $do_pmda
+then
+    args=""
+
+    $PCP_ECHO_PROG $PCP_ECHO_N "Logfile path to monintor? ""$PCP_ECHO_C"
+    read value
+
+    if [ -z "$value" ]
+    then
+	echo "Error: logfile path must be specifed." >&2
+	exit 1
+    else
+	if [ ! -e $value ]
+	then
+	    echo "Warning: logfile $value doesn't exist!  Reinstall to change."
+	fi
+	args="$args -m $value"
+    fi
+fi
+
 pmdaInstall
 
 exit 0

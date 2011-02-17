@@ -26,8 +26,8 @@ LIBTARGET = pmda_logger.$(DSOSUFFIX)
 TARGETS = $(CMDTARGET) $(LIBTARGET)
 
 DFILES 	= README
-CFILES	= logger.c percontext.c
-HFILES = percontext.h
+CFILES	= logger.c percontext.c loggerMain.c event.c
+HFILES = percontext.h logger.h event.h
 LLDLIBS = -lpcp -lpcp_pmda
 LCFLAGS = -I.
 LSRCFILES = Install Remove pmns help $(DFILES) root GNUmakefile.install
@@ -42,7 +42,9 @@ LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so
 
 default_pcp default:	domain.h $(TARGETS)
 
-logger.o percontext.o: percontext.h
+logger.o percontext.o event.o: percontext.h
+logger.o loggerMain.o: logger.h
+event.o loggerMain.o: event.h
 
 include $(BUILDRULES)
 

@@ -23,6 +23,7 @@
 #include <pcp/impl.h>
 #include <pcp/pmda.h>
 #include "domain.h"
+#include "logger.h"
 #include "percontext.h"
 
 /*
@@ -51,6 +52,7 @@ static pmdaMetric metrictab[] = {
 
 static char	mypath[MAXPATHLEN];
 static int	isDSO = 1;		/* ==0 if I am a daemon */
+char	       *monitor_path = NULL;
 
 void
 logger_end_contextCallBack(int ctx)
@@ -123,7 +125,8 @@ usage(void)
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
     fputs("Options:\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile   write log into logfile rather than using default log name\n",
+	  "  -l logfile   write log into logfile rather than using default log name\n"
+	  "  -m logfile   logfile to monitor (required)\n",
 	      stderr);		
     exit(1);
 }
@@ -134,6 +137,7 @@ usage(void)
 int
 main(int argc, char **argv)
 {
+    int			c;
     int			err = 0;
     int			sep = __pmPathSeparator();
     pmdaInterface	desc;
@@ -146,9 +150,17 @@ main(int argc, char **argv)
     pmdaDaemon(&desc, PMDA_INTERFACE_5, pmProgname, LOGGER,
 		"logger.log", mypath);
 
-    if (pmdaGetOpt(argc, argv, "D:d:l:?", &desc, &err) != EOF)
-    	err++;
-    if (err)
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:m:?", &desc, &err)) != EOF) {
+	switch (c) {
+	  case 'm':
+	    monitor_path = optarg;
+	    break;
+	  default:
+	    err++;
+	    break;
+	}
+    }
+    if (err || monitor_path == NULL)
     	usage();
 
     pmdaOpenLog(&desc);
@@ -163,7 +175,8 @@ main(int argc, char **argv)
     signal(SIGHUP, SIG_IGN);
 #endif
 
-    pmdaMain(&desc);
+    // We use our custom main.
+    loggerMain(&desc);
 
     exit(0);
 }
