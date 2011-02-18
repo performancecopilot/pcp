@@ -3,6 +3,18 @@ ALL_RULES = util syscall context_switch system load_average \
 
 LOCAL_RULES = $(ALL_RULES)
 
+# Metrics missing from Linux
+#
+# rule: excess_fpe
+#   kernel.percpu.syscall -12357 Unknown metric name
+#
+# rule: syscall
+#   kernel.all.syscall -12357 Unknown metric name
+#
+ifeq ($(TARGET_OS), linux)
+LOCAL_RULES = util context_switch system load_average low_util
+endif
+
 # Metrics missing from Mac OS X
 #
 # rule: util
