@@ -7,8 +7,11 @@ LOCAL_RULES = $(ALL_RULES)
 # rule: context_switch
 #   kernel.percpu.pswitch -12357 Unknown metric name
 #
+# rule: syscall
+#   kernel.percpu.syscall -12357 Unknown metric name
+#
 ifeq ($(TARGET_OS), linux)
-LOCAL_RULES = syscall some_util many_util system
+LOCAL_RULES = some_util many_util system
 endif
 
 # Metrics missing from Mac OS X
