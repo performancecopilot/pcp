@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2008-2011 Aconex.  All Rights Reserved.
+# Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,24 +12,30 @@
 # for more details.
 #
 
-TOPDIR = ../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-SUBDIRS	= include lib \
-	  eventlog services setevent
-BATCH	= pcp.bat pmafm.bat mkaf.bat pmsignal.bat
+CFILES = pcp-services.c
+TARGETS = pcp-services.exe
+LLDLIBS = -lpcp
+LSRCFILES = $(WRAPPERS)
 
-default :: default_pcp
-
-default_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-
-install :: default_pcp install_pcp
-
-install_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-ifeq "$(TARGET_OS)" "mingw"
-	$(INSTALL) -m 755 $(BATCH) $(PCP_BIN_DIR)
-endif
+default:	build-me
 
 include $(BUILDRULES)
+
+ifeq "$(TARGET_OS)" "mingw"
+build-me:	$(TARGETS)
+install:	default
+	$(INSTALL) -m 755 $(TARGETS) $(PCP_BIN_DIR)
+else
+build-me:
+install:
+endif
+
+pcp-services.exe:	pcp-services.o
+	$(CCF) -o $@ $(LDFLAGS) $< $(LDLIBS)
+
+default_pcp:	default
+
+install_pcp:	install
