@@ -10,7 +10,7 @@ forge.engr.acx
 furnace.engr.acx
 edge.engr.acx
 verge.yarra.acx
-nathan-laptop.yarra.acx
+verge.scott.net.au
 web1.drp.acx
 
 # Kenj Section
@@ -44,6 +44,7 @@ deb32.bork.org
 #order	edge			.engr.acx
 #order	.engr.acx		.localdomain
 #order	.yarra.acx		.localdomain
+#order	.scott.net.au		.localdomain
 #order	.aconex.com		.localdomain	.aconex.com
 #order	.localdomain		.localdomain
 # Kenj Section
