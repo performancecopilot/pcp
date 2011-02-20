@@ -175,10 +175,9 @@ addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp, int numinst,
 }
 
 /*
- * load _all_ of the hashed pmDesc and __pmLogInDom structures from the metadata
- * log file -- used at the initialization (NewContext) of an archive
- * If version 2 then
- * load all the names from the meta data and create l_pmns.
+ * Load _all_ of the hashed pmDesc and __pmLogInDom structures from the metadata
+ * log file -- used at the initialization (NewContext) of an archive.
+ * Also load all the metric names from the metadata log file and create l_pmns.
  */
 int
 __pmLogLoadMeta(__pmLogCtl *lcp)
@@ -189,15 +188,11 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
     int		sts = 0;
     __pmLogHdr	h;
     FILE	*f = lcp->l_mdfp;
-    int         version2 = ((lcp->l_label.ill_magic & 0xff) == PM_LOG_VERS02);
     int		numpmid = 0;
     int		n;
     
-    if (version2) {
-       if ((sts = __pmNewPMNS(&(lcp->l_pmns))) < 0) {
-          goto end;
-       }
-    }
+    if ((sts = __pmNewPMNS(&(lcp->l_pmns))) < 0)
+      goto end;
 
     fseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
     for ( ; ; ) {
@@ -267,7 +262,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 	    if ((sts = __pmHashAdd((int)dp->pmid, (void *)dp, &lcp->l_hashpmid)) < 0)
 		goto end;
 
-            if (version2) {
+            else {
                 char name[MAXPATHLEN];
                 int numnames;
 		int i;
@@ -353,7 +348,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 			sts = 0;
 		    } 
 		}/*for*/
-            }/*version2*/
+            }
 	}
 	else if (h.type == TYPE_INDOM) {
 	    int			*tbuf;
@@ -450,7 +445,7 @@ end:
     
     fseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
 
-    if (version2 && sts == 0) {
+    if (sts == 0) {
         __pmFixPMNSHashTab(lcp->l_pmns, numpmid, 1);
     }
     return sts;

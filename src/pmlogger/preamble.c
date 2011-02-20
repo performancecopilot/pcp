@@ -135,14 +135,8 @@ do_preamble(void)
 	return sts;
 
     for (i = 0; i < n_metric; i++) {
-	if (archive_version == PM_LOG_VERS02) {
-	    if ((sts = __pmLogPutDesc(&logctl, &desc[i], 1, &names[i])) < 0)
-		return sts;
-        }
-        else {
-	    if ((sts = __pmLogPutDesc(&logctl, &desc[i], 0, NULL)) < 0)
-		return sts;
-        }
+	if ((sts = __pmLogPutDesc(&logctl, &desc[i], 1, &names[i])) < 0)
+	    return sts;
 	if (desc[i].indom == PM_INDOM_NULL)
 	    continue;
 	for (j = 0; j < i; j++) {
