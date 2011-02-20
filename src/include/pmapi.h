@@ -490,7 +490,6 @@ typedef struct {
 #define PM_TZ_MAXLEN	40
 #define PM_LOG_MAXHOSTLEN		64
 #define PM_LOG_MAGIC	0x50052600
-#define PM_LOG_VERS01	0x1
 #define PM_LOG_VERS02	0x2
 #define PM_LOG_VOL_TI	-2	/* temporal index */
 #define PM_LOG_VOL_META	-1	/* meta data */

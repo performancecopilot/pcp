@@ -200,10 +200,7 @@ pmGetPMNSLocation(void)
 
 		case PM_CONTEXT_ARCHIVE:
 		    version = ctxp->c_archctl->ac_log->l_label.ill_magic & 0xff;
-		    if (version == PM_LOG_VERS01) {
-			pmns_location = LoadDefault("archive (version 1)");
-		    }
-		    else if (version == PM_LOG_VERS02) {
+		    if (version == PM_LOG_VERS02) {
 			pmns_location = PMNS_ARCHIVE;
 			curr_pmns = ctxp->c_archctl->ac_log->l_pmns; 
 		    }
@@ -2851,11 +2848,10 @@ pmTrimNameSpace(void)
 
     version = ctxp->c_archctl->ac_log->l_label.ill_magic & 0xff;
 
-    /* Don't do any trimming for the new archives -
-     * they have their own built-in PMNS.
+    /* Don't do any trimming for archives.
      * Exception: if an explicit load PMNS call was made.
      */
-    if (version == PM_LOG_VERS01 || havePmLoadCall) {
+    if (havePmLoadCall) {
 	/*
 	 * (1) set all of the marks, and
 	 * (2) clear the marks for those metrics defined in the archive

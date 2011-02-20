@@ -197,8 +197,7 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 
     version = lp->ill_magic & 0xff;
     if ((lp->ill_magic & 0xffffff00) != PM_LOG_MAGIC ||
-	(version != PM_LOG_VERS01 && version != PM_LOG_VERS02) ||
-	lp->ill_vol != vol) {
+	(version != PM_LOG_VERS02) || lp->ill_vol != vol) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, " version %d not supported\n", version);
