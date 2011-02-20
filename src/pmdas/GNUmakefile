@@ -16,7 +16,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-SUBDIRS = pmcd linux solaris aix darwin windows \
+SUBDIRS = pmcd linux solaris aix darwin windows etw \
 	sample simple trivial sendmail mailq txmon \
 	news cisco trace apache shping mounts weblog \
 	lmsensors process roomtemp summary hotproc \
