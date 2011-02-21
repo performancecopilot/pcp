@@ -15,7 +15,8 @@
  */
 
 #include <windows.h>
-#include "libpdh.h"
+#include <pdh.h>
+#include <pdhmsg.h>
 #include <stdio.h>
 #include <stdlib.h>
 

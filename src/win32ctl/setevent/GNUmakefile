@@ -10,33 +10,32 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 
-TOPDIR	= ../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-SUBDIRS	= PMDA LogSummary MMV Glider LogImport
+CFILES = pcp-setevent.c
+TARGETS = pcp-setevent.exe
+LLDLIBS = -lpcp
+LSRCFILES = $(WRAPPERS)
 
-default: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-
-install: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-ifeq ($(TARGET_OS),darwin)
-	if [ -n "$(DIST_MANIFEST)" ] ; then \
-	    cat $(TOPDIR)/perl-pcp-*.list | while read f; do \
-		bn=`basename $$f .gz`; \
-		dn=`dirname $$f`; \
-		$(INSTALL) -d $$dn || exit 1; \
-		src=`find $$PWD/*/blib -name $$bn`; \
-		if [ -x $$src ] ; then mode=0755; else mode=0644; fi; \
-		$(INSTALL) -m $$mode $$src $$dn/$$bn || exit 1; \
-	    done; \
-	fi
-endif
+default:	build-me
 
 include $(BUILDRULES)
 
-default_pcp : default
+ifeq "$(TARGET_OS)" "mingw"
+build-me:	$(TARGETS)
+install:	default
+	$(INSTALL) -m 755 $(TARGETS) $(PCP_BIN_DIR)
+else
+build-me:
+install:
+endif
 
-install_pcp : install
+pcp-setevent.exe:	pcp-setevent.o
+	$(CCF) -o $@ $(LDFLAGS) $< $(LDLIBS)
+
+default_pcp:	default
+
+install_pcp:	install

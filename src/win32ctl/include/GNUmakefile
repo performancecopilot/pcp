@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2008-2011 Aconex.  All Rights Reserved.
+# Copyright (c) 2011 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -10,26 +10,22 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-#
+# 
 
-TOPDIR = ../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-SUBDIRS	= include lib \
-	  eventlog services setevent
-BATCH	= pcp.bat pmafm.bat mkaf.bat pmsignal.bat
+HFILES = _mingw_unicode.h pshpack8.h \
+	evntcons.h evntprov.h evntrace.h \
+	pdh.h pdhmsg.h \
+	tdh.h winevt.h winmeta.h winperf.h
 
 default :: default_pcp
 
-default_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+default_pcp : 
+
+include $(BUILDRULES)
 
 install :: default_pcp install_pcp
 
-install_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-ifeq "$(TARGET_OS)" "mingw"
-	$(INSTALL) -m 755 $(BATCH) $(PCP_BIN_DIR)
-endif
-
-include $(BUILDRULES)
+install_pcp : default_pcp

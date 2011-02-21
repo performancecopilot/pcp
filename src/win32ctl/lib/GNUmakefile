@@ -1,5 +1,6 @@
+#!gmake
 #
-# Copyright (c) 2008-2011 Aconex.  All Rights Reserved.
+# Copyright (c) 2010-2011 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -10,26 +11,30 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-#
+# 
 
-TOPDIR = ../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-SUBDIRS	= include lib \
-	  eventlog services setevent
-BATCH	= pcp.bat pmafm.bat mkaf.bat pmsignal.bat
+STATICLIBS = libpcp_pdh.a libpcp_tdh.a
+STATICDEFS = libpcp_pdh.def libpcp_tdh.def
+MKWIN32LIB = sh -c "$(DLLTOOL) -d $< -k -l $@"
 
-default :: default_pcp
+LSRCFILES = $(STATICDEFS)
+LDIRT = $(STATICLIBS)
 
-default_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-
-install :: default_pcp install_pcp
-
-install_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-ifeq "$(TARGET_OS)" "mingw"
-	$(INSTALL) -m 755 $(BATCH) $(PCP_BIN_DIR)
-endif
+default: $(STATICLIBS)
 
 include $(BUILDRULES)
+
+libpcp_pdh.a:	libpcp_pdh.def
+	$(MKWIN32LIB)
+
+libpcp_tdh.a:	libpcp_tdh.def
+	$(MKWIN32LIB)
+
+default_pcp:	default
+
+install:	default
+
+install_pcp:	install
