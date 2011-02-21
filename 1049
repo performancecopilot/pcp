@@ -52,9 +52,6 @@ then
     # rules
     #
     cat >>$tmp.cmd <<EOF
-modify cpu.excess_fpe enabled no
-modify cpu.syscall enabled no
-modify per_cpu.syscall enabled no
 EOF
 fi
 
