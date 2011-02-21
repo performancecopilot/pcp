@@ -29,8 +29,8 @@ PACKAGE=$4-$PACKAGE_VERSION-$PACKAGE_BUILD
 PKG=$PACKAGE.pkg
 DMG=$PACKAGE.dmg
 TEMPDMG=$PACKAGE.tmp.dmg
-IDB=$5
 HERE=`pwd`
+IDB=$HERE/$5
 
 prog=`basename $0`
 tmp=/tmp/$$
@@ -60,7 +60,7 @@ echo "Gathering files from the source tree using install-pcp"
 _do rm -rf $IFDIR
 _do mkdir $IFDIR
 cd $IFDIR
-_do ../install-pcp -R $DIST_ROOT -c ../idb
+_do ../install-pcp -R $DIST_ROOT -c $IDB
 cd $HERE
 
 pwd

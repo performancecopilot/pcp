@@ -1,3 +1,9 @@
+pcp-git (under development)
+    - Rearrange the per-CPU interrupt metrics on Linux to use dynamic
+      namespace.
+    - Update PDH Win32 headers to use those from current mingw-m64 tree.
+    - Add perl modules into Mac OS X installations.
+
 pcp-3.5.0 (31 January 2011)
     - Infrastucture support for doing distributed event tracing with PCP.
       This includes a new metric type (PM_TYPE_EVENT), cunning mechanisms

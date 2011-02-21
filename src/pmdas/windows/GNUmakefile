@@ -20,18 +20,20 @@ IAM		= windows
 DOMAIN		= WINDOWS
 CFILES		= pmda.c error.c open.c instance.c fetch.c helptext.c
 HFILES		= hypnotoad.h libpdh.h
-LCFLAGS		= -DWIN32_LEAN_AND_MEAN -D_WIN32_WINNT=0x0500
-LLDLIBS		= -lpcp -lpcp_pmda libpdh.a
+LCFLAGS		= -DWIN32_LEAN_AND_MEAN -D_WIN32_WINNT=0x0500 \
+		  -I../../win32ctl/include
+LLDFLAGS	= -L../../win32ctl/lib
+LLDLIBS		= -lpcp -lpcp_pmda -lpcp_pdh
 PMNS		= pmns.disk pmns.kernel pmns.mem pmns.network \
 		  pmns.sqlserver pmns.filesys pmns.hinv pmns.pmda \
 		  pmns.process
-LSRCFILES	= $(PMNS) root help README libpdh.def pdhlist.c pdhmatch.sh
+LSRCFILES	= $(PMNS) root help README pdhlist.c pdhmatch.sh
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CMDTARGET	= pmdawindows.exe
 LIBTARGET	= pmda_windows.dll
 EXTRATARGETS	= pdhlist.exe help.dir help.pag
 
-LDIRT		= root_windows domain.h $(IAM).log pmda$(IAM) libpdh.a \
+LDIRT		= root_windows domain.h $(IAM).log pmda$(IAM) \
 		  $(EXTRATARGETS) pdhlist.o
 
 CONF_LINE = "windows	79	dso	windows_init	$(PCP_PMDAS_DIR)/windows/pmda_windows.dll"
@@ -80,10 +82,7 @@ END	{ if (found == 0) { print "Botch: no #define for domain $(DOMAIN) in $<";  e
 	  exit(0)\
 	}'
 
-$(OBJECTS):	hypnotoad.h domain.h libpdh.a
-
-libpdh.a:	libpdh.def
-	sh -c "$(DLLTOOL) -d libpdh.def -k -l libpdh.a"
+$(OBJECTS):	hypnotoad.h domain.h
 
 pdhlist.exe:	pdhlist.o error.o
-	$(CCF) -o pdhlist.exe pdhlist.o error.o libpdh.a
+	$(CCF) -o pdhlist.exe pdhlist.o error.o $(LLDFLAGS) -lpcp_pdh
