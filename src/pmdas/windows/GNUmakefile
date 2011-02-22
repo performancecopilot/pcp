@@ -20,7 +20,7 @@ WINDIR = $(TOPDIR)/src/win32ctl
 IAM		= windows
 DOMAIN		= WINDOWS
 CFILES		= pmda.c error.c open.c instance.c fetch.c helptext.c
-HFILES		= hypnotoad.h libpdh.h
+HFILES		= hypnotoad.h
 LCFLAGS		= -DWIN32_LEAN_AND_MEAN -D_WIN32_WINNT=0x0500 \
 		  -I$(WINDIR)/include
 LLDFLAGS	= -L$(WINDOR)/lib
