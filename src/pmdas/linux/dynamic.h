@@ -15,7 +15,7 @@
  */
 
 /* function to refresh a specific subtree */
-typedef void (*pmnsUpdate)(pmdaExt *, __pmnsTree **);
+typedef int  (*pmnsUpdate)(pmdaExt *, __pmnsTree **);
 typedef int  (*textUpdate)(pmdaExt *, pmID, int, char **);
 typedef void (*mtabUpdate)(pmdaMetric *, pmdaMetric *, int);
 typedef void (*mtabCounts)(int *, int *);
