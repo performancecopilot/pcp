@@ -12,6 +12,15 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
+if [ $PCP_VER -lt 4000 ]
+then
+    # V1 archives supported
+    arch=src-oss/babylon.percpu
+else
+    # no support for V1 archives
+    arch=src-oss/babylon.percpu_v2
+fi
+
 status=0
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -42,4 +51,4 @@ src-oss/exertz -h $remote -z $remote | sed -e '/PMAPI context/s/:.*/: REMOTE TIM
 
 echo ""
 echo "source babylon archive, babylon time"
-src-oss/exertz -a src-oss/babylon.percpu -z babylon
+src-oss/exertz -a $arch -z babylon

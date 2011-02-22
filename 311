@@ -10,12 +10,23 @@
 #
 
 seq=`basename $0`
-echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
+
+if [ $PCP_VER -lt 4000 ]
+then
+    # V1 archives supported
+    :
+else
+    # no support for V1 archives
+    _notrun "no support for V1 archives"
+    # NOTREACHED
+fi
+
+echo "QA output created by $seq"
 
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

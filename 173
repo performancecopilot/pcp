@@ -13,6 +13,17 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+if [ $PCP_VER -lt 4000 ]
+then
+    # V1 archives supported
+    arch=src-oss/bug
+    pmns="-n src-oss/root_irix"
+else
+    # no support for V1 archives
+    arch=src-oss/bug_v2
+    pmns=
+fi
+
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 # deal with an annoying libc error ... using TZ=:Australia/Melbourne
@@ -27,14 +38,14 @@ export TZ
 # need -n src-oss/root_irix 'cause app looks up some metrics not in the
 # archive
 #
-src-oss/interp_bug2 -n src-oss/root_irix -t 0.5 -a src-oss/bug
+src-oss/interp_bug2 -n src-oss/root_irix -t 0.5 -a $arch
 status=$?
 
 if [ $status != 0 ]
 then
     echo
     echo "Error ... here is the log"
-    pmdumplog -n src-oss/root_irix -a src-oss/bug
+    pmdumplog $pmns -a $arch
 fi
 
 exit $status

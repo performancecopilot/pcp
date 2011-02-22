@@ -12,6 +12,18 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
+rm -f $seq.out
+if [ $PCP_VER -lt 4000 ]
+then
+    # V1 archives supported
+    arch=src-oss/ace
+    ln $seq.out.1 $seq.out
+else
+    # no support for V1 archives
+    arch=src-oss/ace_v2
+    ln $seq.out.2 $seq.out
+fi
+
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -30,7 +42,7 @@ export TZ
 # real QA test starts here
 echo
 echo "=== Sanity checks ==="
-pmlogsummary -z -n src-oss/root_irix -bmMy src-oss/ace \
+pmlogsummary -z -n src-oss/root_irix -bmMy $arch \
      | LC_COLLATE=POSIX sort -f | ./xlate_2_new_pmns
 echo
 echo "=== Down-rev error check ==="

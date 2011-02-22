@@ -33,6 +33,7 @@ tmp.*
 069.out
 074.out
 075.out
+078.out
 082.out
 083.out
 110.out
@@ -43,12 +44,17 @@ tmp.*
 158.out
 159.out
 162.out
+163.out
+176.out
 180.out
+181.out
 183.out
 188.out
 190.out
 200.out
+209.out
 215.out
+217.out
 243.out
 244.out
 245.out
@@ -64,8 +70,10 @@ tmp.*
 294.out
 299.out
 313.out
+320.out
 340.out
 355.out
+363.out
 364.out
 365.out
 366.out

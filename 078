@@ -12,34 +12,45 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
-
 # need a constant archive for this ...
-ARCH=src-oss/babylon.percpu
+
+rm -f $seq.out
+if [ $PCP_VER -lt 4000 ]
+then
+    # V1 archives supported
+    arch=src-oss/babylon.percpu
+    ln $seq.out.1 $seq.out
+else
+    # no support for V1 archives
+    arch=src-oss/babylon.percpu_v2
+    ln $seq.out.2 $seq.out
+fi
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
 echo "Dump first 128 bytes ..."
-dd bs=128 count=1 if=$ARCH.0 2>/dev/null | od -c -j 020
+dd bs=128 count=1 if=$arch.0 2>/dev/null | od -c -j 020
 
 echo ""
 TZ=EST-11
 export TZ
 echo "Local time, TZ=$TZ"
-pmdumplog -l $ARCH
+pmdumplog -l $arch
 
 echo ""
 TZ=""
 echo "GMT time, TZ is empty"
-pmdumplog -l $ARCH
+pmdumplog -l $arch
 
 echo ""
 echo "-Z UTC"
-pmdumplog -l -Z UTC $ARCH
+pmdumplog -l -Z UTC $arch
 
 echo ""
 echo "-Z PDT8"
-pmdumplog -l -Z PDT8 $ARCH
+pmdumplog -l -Z PDT8 $arch
 
 echo ""
 echo "local time at collection host"
-pmdumplog -lz $ARCH
+pmdumplog -lz $arch

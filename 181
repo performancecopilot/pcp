@@ -13,6 +13,18 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+rm -f $seq.out
+if [ $PCP_VER -lt 4000 ]
+then
+    # V1 archives supported
+    arch=src-oss/bigace
+    ln $seq.out.1 $seq.out
+else
+    # no support for V1 archives
+    arch=src-oss/bigace_v2
+    ln $seq.out.2 $seq.out
+fi
+
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 _filter()
@@ -27,4 +39,4 @@ root {
 }
 End-of-File
 
-pmval -z -U src-oss/bigace -n $tmp.pmns -i 4653127 -s 3 foo | _filter
+pmval -z -U $arch -n $tmp.pmns -i 4653127 -s 3 foo | _filter

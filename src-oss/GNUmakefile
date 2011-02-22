@@ -28,11 +28,19 @@ CFLAGS		= $(TMP)
 
 HAVE_64	= $(shell test `uname -m | sed -e 's/.*64/64/g'` = "64" && echo 1 || echo 0)
 
-SRCARCH	= mirage.0 moomba.client.0 babylon.percpu.0 omen.client.0 \
-	bozo.client.0 late.0 ok-bigbin.0 ok-mv-bigbin.0 ok-noti-bigbin.0 \
-	babylon.pmview.0 ok-foo.0 ok-mv-foo.0 bug.0 ace.0 \
-	951127.23.01.0 951127.23.01_v2.0 960624.08.17.0 960624.08.17_v2.0 \
-	bigace.0 rattle.0 mark-bug.0 arch_a.0 arch_b.0 \
+SRCARCH	= mirage.0 moomba.client.0 \
+	babylon.percpu.0 babylon.percpu_v2.0 \
+	omen.client.0 \
+	bozo.client.0 bozo.client_v2.0 \
+	late.0 ok-bigbin.0 ok-mv-bigbin.0 ok-noti-bigbin.0 \
+	babylon.pmview.0 babylon.pmview_v2.0 \
+	ok-foo.0 ok-mv-foo.0 \
+	bug.0 bug_v2.0 \
+	ace.0 ace_v2.0 \
+	951127.23.01.0 951127.23.01_v2.0 \
+	960624.08.17.0 960624.08.17_v2.0 \
+	bigace.0 bigace_v2.0 \
+	rattle.0 mark-bug.0 arch_a.0 arch_b.0 \
 	err_v1.0 changeinst.0 19970807.09.54.0 19970807.09.59.0 \
 	binning.0 wrap.0 573184.0 xbug1.0 pcpcmd.0 markmerge.0 \
 	sample-secs.0 gmt-boring.0 kenj-pc-1.0 kenj-pc-2.0 \
@@ -43,7 +51,10 @@ SRCARCH	= mirage.0 moomba.client.0 babylon.percpu.0 omen.client.0 \
 	tzchange-10-a.0 tzchange-10-b.0 tzchange-11-a.0 tzchange-11-b.0 \
 	tzchange-12-a.0 tzchange-12-b.0 sample_expr.0 eventrec.0 \
 	badlen-0.0 badlen-1.0 badlen-2.0 badlen-3.0 badlen-4.0 \
-	badlen-5.0 badlen-6.0 badlen-7.0 badlen-8.0
+	badlen-5.0 badlen-6.0 badlen-7.0 badlen-8.0 \
+	540117-short.0 \
+	541380.0 541380_v2.0 \
+	573184.0
 
 MKARCH	= foo.0 mv-foo.0 noti-foo.0 bar.0 mv-bar.0 noti-bar.0 \
 	bigbin.0 mv-bigbin.0 noti-bigbin.0 truncbin.0 null.0 \

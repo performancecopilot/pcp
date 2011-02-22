@@ -13,6 +13,18 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+rm -f $seq.out
+if [ $PCP_VER -lt 4000 ]
+then
+    # V1 archives supported
+    LIST="src-oss/951127.23.01.0 src-oss/960624.08.17.0 src-oss/ace.0 src-oss/bar.0 src-oss/bigace.0 src-oss/bigbin.0 src-oss/bug.0 src-oss/dodgey-all.0 src-oss/dodgey-mixed.0 src-oss/dodgey-some.0 src-oss/foo.0 src-oss/interp.0 src-oss/mirage.0 src-oss/mv-bar.0 src-oss/mv-bigbin.0 src-oss/mv-foo.0 src-oss/mv-interp.0 src-oss/truncbin.0"
+    ln $seq.out.1 $seq.out
+else
+    # no support for V1 archives
+    LIST="src-oss/951127.23.01_v2.0 src-oss/960624.08.17_v2.0 src-oss/ace_v2.0 src-oss/bar.0 src-oss/bigace_v2.0 src-oss/bigbin.0 src-oss/bug_v2.0 src-oss/dodgey-all.0 src-oss/dodgey-mixed.0 src-oss/dodgey-some.0 src-oss/foo.0 src-oss/interp.0 src-oss/mirage.0 src-oss/mv-bar.0 src-oss/mv-bigbin.0 src-oss/mv-foo.0 src-oss/mv-interp.0 src-oss/truncbin.0"
+    ln $seq.out.2 $seq.out
+fi
+
 tmp=$$"_pmafm"
 $sudo rm -f $tmp
 
@@ -46,8 +58,6 @@ $1 == "Archive:"	{ if ($3 ~ /bar$/ || $3 ~ /bigbin$/ ||
 			{ print }'
 
 }
-
-LIST="src-oss/951127.23.01.0 src-oss/960624.08.17.0 src-oss/ace.0 src-oss/bar.0 src-oss/bigace.0 src-oss/bigbin.0 src-oss/bug.0 src-oss/dodgey-all.0 src-oss/dodgey-mixed.0 src-oss/dodgey-some.0 src-oss/foo.0 src-oss/interp.0 src-oss/mirage.0 src-oss/mv-bar.0 src-oss/mv-bigbin.0 src-oss/mv-foo.0 src-oss/mv-interp.0 src-oss/truncbin.0"
 
 HERE=`pwd`
 ABSLIST=""

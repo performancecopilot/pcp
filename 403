@@ -15,6 +15,15 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+if [ $PCP_VER -lt 4000 ]
+then
+    # V1 archives supported
+    arch=src-oss/541380
+else
+    # no support for V1 archives
+    arch=src-oss/541380_v2
+fi
+
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -25,9 +34,9 @@ $sudo rm -f core*
 # -n src-oss/root_irix because there are no metric descriptors (hence no PMNS)
 # in this archive
 #
-pmprobe -v -n src-oss/root_irix -a src-oss/541380.0 hinv.nrouter >$tmp.out 2>&1
-pminfo -f -n src-oss/root_irix -a src-oss/541380.0 hinv.nrouter  >$tmp.out 2>&1
-pmval -s 1 -n src-oss/root_irix -a src-oss/541380.0 hinv.nrouter >$tmp.out 2>$tmp.err
+pmprobe -v -n src-oss/root_irix -a $arch hinv.nrouter >$tmp.out 2>&1
+pminfo -f -n src-oss/root_irix -a $arch hinv.nrouter  >$tmp.out 2>&1
+pmval -s 1 -n src-oss/root_irix -a $arch hinv.nrouter >$tmp.out 2>$tmp.err
 cat $tmp.err
 
 if [ "`echo core*`" != "core*" ]

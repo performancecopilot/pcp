@@ -52,9 +52,9 @@ _filter()
 	-e 's/^ //' \
 	-e "s/$MKTEMP/MKTEMP/" \
 	-e "s/$host/HOST/" \
-	-e "s/$$/PID/g" \
 	-e 's/[0-9][^ ]* [kmKM]*bytes/SOME bytes/g' \
 	-e 's/[0-9][^ ]* seconds/SOME seconds/g' \
+	-e "s/$$/PID/g" \
 	-e '/xconfirm: Not found/d' \
     | _filter_pmlogger_log \
     | sed \

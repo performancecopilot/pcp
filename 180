@@ -8,12 +8,24 @@
 seq=`basename $0`
 
 . ./localconfig
+rm -f $seq.out
 if [ $PCP_EOE_VER -ge 6512 -o \
      \( $PCP_EOE_VER -ge 2200 -a $PCP_EOE_VER -lt 6500 \) ]
 then
-    rm -f $seq.out; ln $seq.out.1 $seq.out
+    ln $seq.out.1 $seq.out
 else
-    rm -f $seq.out; ln $seq.out.2 $seq.out
+    ln $seq.out.2 $seq.out
+fi
+
+if [ $PCP_VER -lt 4000 ]
+then
+    # V1 archives supported
+    arch=src-oss/bigace
+else
+    # no support for V1 archives
+    arch=src-oss/bigace_v2
+    rm -f $seq.out
+    ln $seq.out.3 $seq.out
 fi
 
 echo "QA output created by $seq"
@@ -58,20 +70,20 @@ DEBUG=
 DELTA=20
 
 echo "=== all of the instances ==="
-(time pmval -z -n $tmp.pmns -a src-oss/bigace -t $DELTA foo) >$tmp.out 2>$tmp.err
+(time pmval -z -n $tmp.pmns -a $arch -t $DELTA foo) >$tmp.out 2>$tmp.err
 _filter <$tmp.out
 echo
 echo "samples: `grep '^[0-9][0-9]:' $tmp.out | wc -l | sed -e 's/  *//g'`"
 egrep '^(user|sys)' $tmp.err | _do_cpu
-pmval -z -D128 -n $tmp.pmns -a src-oss/bigace -t $DELTA foo 2>$tmp.err >/dev/null
+pmval -z -D128 -n $tmp.pmns -a $arch -t $DELTA foo 2>$tmp.err >/dev/null
 echo "__pmLogReads: `grep __pmLogRead $tmp.err | wc -l | sed -e 's/  *//g'`"
 
 echo
 echo "=== just instance #4653127 (always there) ==="
-(time pmval -z -i 4653127 -n $tmp.pmns -a src-oss/bigace -t $DELTA foo) >$tmp.out 2>$tmp.err
+(time pmval -z -i 4653127 -n $tmp.pmns -a $arch -t $DELTA foo) >$tmp.out 2>$tmp.err
 _filter <$tmp.out
 echo
 echo "samples: `grep '^[0-9][0-9]:' $tmp.out | wc -l | sed -e 's/  *//g'`"
 egrep '^(user|sys)' $tmp.err | _do_cpu
-pmval -z -D128 -i 4653127 -n $tmp.pmns -a src-oss/bigace -t $DELTA foo 2>$tmp.err >/dev/null
+pmval -z -D128 -i 4653127 -n $tmp.pmns -a $arch -t $DELTA foo 2>$tmp.err >/dev/null
 echo "__pmLogReads: `grep __pmLogRead $tmp.err | wc -l | sed -e 's/  *//g'`"
