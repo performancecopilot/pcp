@@ -16,7 +16,9 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
+ifeq "$(TARGET_OS)" "mingw"
 STATICLIBS = libpcp_pdh.a libpcp_tdh.a
+endif
 STATICDEFS = libpcp_pdh.def libpcp_tdh.def
 MKWIN32LIB = sh -c "$(DLLTOOL) -d $< -k -l $@"
 

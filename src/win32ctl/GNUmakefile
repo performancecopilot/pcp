@@ -17,7 +17,8 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS	= include lib \
 	  eventlog services setevent
-BATCH	= pcp.bat pmafm.bat mkaf.bat pmsignal.bat
+BATCHES	= pcp.bat pmafm.bat mkaf.bat pmsignal.bat
+LSRCFILES = $(BATCHES)
 
 default :: default_pcp
 
@@ -29,7 +30,7 @@ install :: default_pcp install_pcp
 install_pcp : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 ifeq "$(TARGET_OS)" "mingw"
-	$(INSTALL) -m 755 $(BATCH) $(PCP_BIN_DIR)
+	$(INSTALL) -m 755 $(BATCHES) $(PCP_BIN_DIR)
 endif
 
 include $(BUILDRULES)
