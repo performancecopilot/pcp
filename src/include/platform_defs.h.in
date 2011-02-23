@@ -197,7 +197,6 @@ extern "C" {
 #undef HAVE_UNSETENV
 
 #undef HAVE_GETHOSTNAME
-#undef HAVE_HSTRERROR
 #undef HAVE_SELECT
 #undef HAVE_SOCKET
 
@@ -237,7 +236,6 @@ extern "C" {
 #undef HAVE_REGEXEC
 #undef HAVE_REGCOMP
 
-#undef HAVE_STRERROR
 #undef HAVE_STRTOD
 #undef HAVE_STRTOL
 #undef HAVE_STRTOLL
@@ -377,8 +375,20 @@ bozo! need to find where MAXPATHLEN is defined for this platform
 bozo! need to find where MAXHOSTNAMELEN is defined for this platform
 #endif
 
-#ifndef HAVE_OSERROR
-#define oserror() errno
+#ifndef IS_MINGW
+#define oserror()	errno
+#define neterror()	errno
+#define hosterror()	h_errno
+#define osstrerror(n)	strerror(n)
+#define netstrerror(n)	strerror(n)
+#define hoststrerror(n)	hstrerror(n)
+#else
+#define oserror()	GetLastError()
+#define neterror()	WSAGetLastError()
+#define hosterror()	WSAGetLastError()
+#define osstrerror(n)	strerror(n)
+#define netstrerror(n)	strerror(n)
+#define hoststrerror(n)	strerror(n)
 #endif
 
 #ifndef HAVE_SETOSERROR
@@ -481,7 +491,6 @@ typedef void (*SIG_PF) (int);
 #define HAVE_RENAME2
 #define HAVE_DLOPEN
 #define HAVE_FNDELAY
-#define HAVE_HSTRERROR
 
 #define MAP_FAILED	NULL
 #define O_NDELAY	0
@@ -501,7 +510,6 @@ typedef void (*SIG_PF) (int);
 #define pipe1(fds) _pipe(fds, 4096, O_BINARY)
 
 extern void setlinebuf(FILE *);
-extern const char *hstrerror(int);
 extern char *index(const char *, int);
 extern char *rindex(const char *, int);
 extern long int lrand48(void);
@@ -523,6 +531,7 @@ extern void closelog(void);
 enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
        LOG_WARNING, LOG_NOTICE, LOG_INFO, LOG_DEBUG,
        LOG_PID, LOG_CONS, LOG_DAEMON };
+
 #ifdef LIBPCP_INTERNAL
 #define INTERN __declspec(dllexport)
 #define EXTERN
@@ -530,6 +539,7 @@ enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
 #define INTERN
 #define EXTERN __declspec(dllimport)
 #endif
+
 #else /*!MINGW*/
 #define INTERN
 #define EXTERN extern
