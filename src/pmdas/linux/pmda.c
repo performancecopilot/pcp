@@ -4108,9 +4108,10 @@ pmdaMetric linux_metrictab[] = {
 
 };
 
-void
+int
 refresh_cgroups(pmdaExt *pmda, __pmnsTree **tree)
 {
+    int changed;
     time_t rightnow;
     static time_t previoustime;
     static __pmnsTree *previoustree;
@@ -4118,24 +4119,27 @@ refresh_cgroups(pmdaExt *pmda, __pmnsTree **tree)
     if (tree) {
 	if ((rightnow = time(NULL)) == previoustime) {
 	    *tree = previoustree;
-	    return;
+	    return 0;
 	}
     }
 
     refresh_filesys(INDOM(FILESYS_INDOM), INDOM(QUOTA_PRJ_INDOM),
 		    INDOM(TMPFS_INDOM), INDOM(CGROUP_MOUNTS_INDOM));
     refresh_cgroup_subsys(INDOM(CGROUP_SUBSYS_INDOM));
-    refresh_cgroup_groups(pmda, INDOM(CGROUP_MOUNTS_INDOM), tree);
+    changed = refresh_cgroup_groups(pmda, INDOM(CGROUP_MOUNTS_INDOM), tree);
 
     if (tree) {
 	previoustime = rightnow;
 	previoustree = *tree;
     }
+    return changed;
 }
 
 static void
 linux_refresh(pmdaExt *pmda, int *need_refresh)
 {
+    int need_refresh_mtab = 0;
+
     if (need_refresh[CLUSTER_PARTITIONS])
     	refresh_proc_partitions(INDOM(DISK_INDOM), INDOM(PARTITIONS_INDOM));
 
@@ -4172,13 +4176,18 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
 	need_refresh[CLUSTER_MEMORY_GROUPS] ||
         need_refresh[CLUSTER_NET_CLS_PROCS] ||
         need_refresh[CLUSTER_NET_CLS_GROUPS]) {
-	refresh_cgroups(pmda, NULL);
+	need_refresh_mtab |= refresh_cgroups(pmda, NULL);
     }
     else
     if (need_refresh[CLUSTER_FILESYS] ||
 	need_refresh[CLUSTER_QUOTA] || need_refresh[CLUSTER_TMPFS])
 	refresh_filesys(INDOM(FILESYS_INDOM), INDOM(QUOTA_PRJ_INDOM),
 			INDOM(TMPFS_INDOM), INDOM(CGROUP_MOUNTS_INDOM));
+
+    if (need_refresh[CLUSTER_INTERRUPTS] ||
+	need_refresh[CLUSTER_INTERRUPT_LINES] ||
+	need_refresh[CLUSTER_INTERRUPT_OTHER])
+	need_refresh_mtab |= refresh_interrupt_values();
 
     if (need_refresh[CLUSTER_SWAPDEV])
 	refresh_swapdev(INDOM(SWAPDEV_INDOM));
@@ -4235,6 +4244,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
 
     if (need_refresh[CLUSTER_SYSFS_KERNEL])
     	refresh_sysfs_kernel(&sysfs_kernel);
+
+    if (need_refresh_mtab)
+	linux_dynamic_metrictable(pmda);
 }
 
 static int
@@ -6415,9 +6427,9 @@ linux_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
-    dp->version.two.instance = linux_instance;
-    dp->version.two.store = linux_store;
-    dp->version.two.fetch = linux_fetch;
+    dp->version.four.instance = linux_instance;
+    dp->version.four.store = linux_store;
+    dp->version.four.fetch = linux_fetch;
     dp->version.four.text = linux_text;
     dp->version.four.pmid = linux_pmid;
     dp->version.four.name = linux_name;

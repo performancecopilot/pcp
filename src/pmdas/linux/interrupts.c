@@ -222,7 +222,7 @@ extract_interrupt_other(char *buffer, int ncolumns, int nlines)
     return 1;
 }
 
-static int
+int
 refresh_interrupt_values(void)
 {
     FILE *fp;
@@ -250,13 +250,13 @@ refresh_interrupt_values(void)
     }
 
     /* next we parse each interrupt line row (starting with a digit) */
-    i = 0;
+    i = lines_count = 0;
     while (fgets(buf, sizeof(buf), fp))
 	if (!extract_interrupt_lines(buf, ncolumns, i++))
 	    break;
 
     /* parse other per-CPU interrupt counter rows (starts non-digit) */
-    i = 0;
+    i = other_count = 0;
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if (extract_interrupt_errors(buf))
 	    continue;
@@ -270,7 +270,7 @@ refresh_interrupt_values(void)
     return 0;
 }
 
-static void
+static int
 refresh_interrupts(pmdaExt *pmda, __pmnsTree **tree)
 {
     int i, sts, dom = pmda->e_domain;
@@ -291,8 +291,9 @@ refresh_interrupts(pmdaExt *pmda, __pmnsTree **tree)
 	for (i = 0; i < other_count; i++)
 	    update_other_pmns(dom, i, interrupt_other[i].name);
 	*tree = interrupt_tree;
-	linux_dynamic_metrictable(pmda);
+	return 1;
     }
+    return 0;
 }
 
 int
@@ -327,6 +328,12 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
 
     memcpy(dest, source, sizeof(pmdaMetric));
     dest->m_desc.pmid = pmid_build(domain, cluster, id);
+
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+	fprintf(stderr, "interrupts refresh_metrictable: (%p -> %p) "
+			"metric ID dup: %d.%d.%d -> %d.%d.%d\n",
+		source, dest, domain, cluster,
+		pmid_item(source->m_desc.pmid), domain, cluster, id);
 }
 
 /*
@@ -338,7 +345,11 @@ static void
 size_metrictable(int *total, int *trees)
 {
     *total = 2;	/* lines and other */
-    *trees = lines_count + other_count;
+    *trees = lines_count > other_count ? lines_count : other_count;
+
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+	fprintf(stderr, "interrupts size_metrictable: %d total x %d trees\n",
+		*total, *trees);
 }
 
 static int
