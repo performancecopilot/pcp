@@ -208,7 +208,6 @@ __pmPDUTypeStr(int type)
     else if (type == PDU_TEXT_REQ) return "TEXT_REQ";
     else if (type == PDU_TEXT) return "TEXT";
     else if (type == PDU_CONTROL_REQ) return "CONTROL_REQ";
-    else if (type == PDU_DATA_X) return "DATA_X";
     else if (type == PDU_CREDS) return "CREDS";
     else if (type == PDU_PMNS_IDS) return "PMNS_IDS";
     else if (type == PDU_PMNS_NAMES) return "PMNS_NAMES";

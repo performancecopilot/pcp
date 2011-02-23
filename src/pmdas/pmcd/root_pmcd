@@ -64,7 +64,6 @@ pmcd.pdu_in {
     text_req		PMCD:1:8
     text		PMCD:1:9
     control_req		PMCD:1:10
-    datax		PMCD:1:11
     creds		PMCD:1:12
     pmns_ids		PMCD:1:13
     pmns_names		PMCD:1:14
@@ -85,7 +84,6 @@ pmcd.pdu_out {
     text_req		PMCD:2:8
     text		PMCD:2:9
     control_req		PMCD:2:10
-    datax		PMCD:2:11
     creds		PMCD:2:12
     pmns_ids		PMCD:2:13
     pmns_names		PMCD:2:14

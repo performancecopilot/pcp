@@ -1260,7 +1260,6 @@ do_control(__pmPDU *pb)
 
 /*
  * sendstatus
- * (data_x send is kept for backwards compatability with PCP 1.x)
  */
 static int
 sendstatus(void)

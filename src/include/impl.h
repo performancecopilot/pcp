@@ -616,7 +616,6 @@ extern void __pmCountPDUBuf(int, int *, int *);
 #define PDU_TEXT_REQ		0x7008
 #define PDU_TEXT		0x7009
 #define PDU_CONTROL_REQ		0x700a
-#define PDU_DATA_X		0x700b
 #define PDU_CREDS		0x700c
 #define PDU_PMNS_IDS		0x700d
 #define PDU_PMNS_NAMES		0x700e
@@ -1102,7 +1101,6 @@ extern int __pmAFisempty(void);
 /*
  * private PDU protocol between pmlc and pmlogger
  */
-#define LOG_PDU_VERSION1	1	/* datax pdus & PCP 1.x error codes */
 #define LOG_PDU_VERSION2	2	/* private pdus & PCP 2.0 error codes */
 #define LOG_PDU_VERSION		LOG_PDU_VERSION2
 
