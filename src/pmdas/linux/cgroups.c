@@ -355,7 +355,7 @@ namespace(__pmnsTree *pmns, cgroup_subsys_t *subsys,
 	metrics->prepare(pmns, cgrouppath, subsys, group, i, id, domain);
     }
     process_prepare(pmns, cgrouppath, subsys, group, id, domain);
-    return id;
+    return 1;
 }
 
 int
@@ -447,10 +447,13 @@ cgroup_namespace(__pmnsTree *pmns, const char *options,
 
     /* use options to tell which cgroup controller(s) are active here */
     for (i = 0; i < sizeof(controllers)/sizeof(controllers[0]); i++) {
+	int	lsts;
 	cgroup_subsys_t *subsys = &controllers[i];
 	if (scan_filesys_options(options, subsys->name) == NULL)
 	    continue;
-	sts |= namespace(pmns, subsys, cgrouppath, cgroupname, domain);
+	lsts = namespace(pmns, subsys, cgrouppath, cgroupname, domain);
+	if (lsts > 0)
+	    sts = 1;
     }
     return sts;
 }
@@ -484,6 +487,7 @@ cgroup_scan(const char *mnt, const char *path, const char *options,
      * populate namespace with <controller>[.<groupname>].<metrics>
      */
     while ((dp = readdir(dirp)) != NULL) {
+	int	lsts;
 	if (!valid_pmns_name(dp->d_name))
 	    continue;
 	if (path[0] == '\0')
@@ -498,10 +502,17 @@ cgroup_scan(const char *mnt, const char *path, const char *options,
 	if (!(S_ISDIR(sbuf.st_mode)))
 	    continue;
 
-	sts |= cgroup_namespace(pmns, options, cgrouppath, cgroupname, domain);
+	lsts = cgroup_namespace(pmns, options, cgrouppath, cgroupname, domain);
+	if (lsts > 0)
+	    sts = 1;
 
-	/* also scan for any child cgroups */
-        sts |= cgroup_scan(mnt, cgrouppath, options, domain, pmns, 0);
+	/*
+	 * also scan for any child cgroups, but cgroup_scan() may return
+	 * an error
+	 */
+	lsts = cgroup_scan(mnt, cgrouppath, options, domain, pmns, 0);
+	if (lsts > 0)
+	    sts = 1;
     }
     closedir(dirp);
     return sts;
@@ -528,7 +539,7 @@ cgroup_regulars(__pmnsTree *pmns, int domain)
     }
 }
 
-void
+int
 refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **pmns)
 {
     int i, j, k, a;
@@ -544,7 +555,7 @@ refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **pmns)
 			pmProgname, pmErrStr(sts));
 	if (pmns)
 	    *pmns = NULL;
-	return;
+	return 0;
     }
 
     cgroup_regulars(tree, domain);
@@ -571,19 +582,21 @@ refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **pmns)
 
     pmdaCacheOp(mounts, PMDA_CACHE_WALK_REWIND);
     while ((sts = pmdaCacheOp(mounts, PMDA_CACHE_WALK_NEXT)) != -1) {
+	int	lsts;
 	if (!pmdaCacheLookup(mounts, sts, NULL, (void **)&fs))
 	    continue;
 	/* walk this cgroup mount finding groups (subdirs) */
-	mtab |= cgroup_scan(fs->path, "", fs->options, domain, tree, 1);
+	lsts = cgroup_scan(fs->path, "", fs->options, domain, tree, 1);
+	if (lsts > 0)
+	    mtab = 1;
     }
-
-    if (mtab)
-	linux_dynamic_metrictable(pmda);
 
     if (pmns)
 	*pmns = tree;
     else
 	__pmFreePMNS(tree);
+
+    return mtab;
 }
 
 int
@@ -672,6 +685,10 @@ size_metrictable(int *total, int *trees)
 
     *total = count;
     *trees = maxid;
+
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+	fprintf(stderr, "cgroups size_metrictable: %d total x %d trees\n",
+		*total, *trees);
 }
 
 /*
@@ -688,9 +705,10 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
     dest->m_desc.pmid = cgroup_pmid_build(domain, cluster, id, item);
 
     if (pmDebug & DBG_TRACE_LIBPMDA)
-	fprintf(stderr, "cgroup refresh_metrictable: "
+	fprintf(stderr, "cgroup refresh_metrictable: (%p -> %p) "
 			"metric ID dup: %d.%d.%d.%d -> %d.%d.%d.%d\n",
-		domain, cluster, cgroup_pmid_group(source->m_desc.pmid),
+		source, dest, domain, cluster,
+		cgroup_pmid_group(source->m_desc.pmid),
 		cgroup_pmid_metric(source->m_desc.pmid),
 		pmid_domain(dest->m_desc.pmid), pmid_cluster(dest->m_desc.pmid),
 		cgroup_pmid_group(dest->m_desc.pmid),

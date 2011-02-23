@@ -67,7 +67,8 @@ linux_dynamic_lookup_name(pmdaExt *pmda, const char *name)
 
     for (i = 0; i < dynamic_count; i++) {
 	if (strncmp(name, dynamic[i].prefix, dynamic[i].prefixlen) == 0) {
-	    dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns);
+	    if (dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns))
+		linux_dynamic_metrictable(pmda);
 	    return dynamic[i].pmns;
 	}
     }
@@ -83,7 +84,8 @@ linux_dynamic_lookup_pmid(pmdaExt *pmda, pmID pmid)
     for (i = 0; i < dynamic_count; i++) {
 	for (j = 0; j < dynamic[i].nclusters; j++) {
 	    if (cluster == dynamic[i].clusters[j]) {
-		dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns);
+		if (dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns))
+		    linux_dynamic_metrictable(pmda);
 		return dynamic[i].pmns;
 	    }
 	}
@@ -107,33 +109,32 @@ linux_dynamic_lookup_text(pmID pmid, int type, char **buf, pmdaExt *pmda)
 
 /*
  * Call the update function for each new metric we're adding.
- * We pass in the original metric, and the new (uninit'd) slot which
- * needs to be filled in.  All a bit obscure, really.
+ * We pass in the original metric, and the new (uninit'd) slot
+ * which needs to be filled in.  All a bit obscure, really.
  */
-static void
+static pmdaMetric *
 linux_dynamic_mtab(struct dynamic *dynamic, pmdaMetric *offset)
 {
-    int m, c, id;
-    int metric_count = linux_metrictable_size();
+    int m, metric_count = linux_metrictable_size();
     int tree_count = dynamic->extratrees;
 
     for (m = 0; m < metric_count; m++) {
-	int cluster = pmid_cluster(linux_metrictab[m].m_desc.pmid);
-	for (c = 0; c < dynamic->nclusters; c++) {
-	    if (dynamic->clusters[c] != cluster)
-		continue;
+	int c, id, cluster = pmid_cluster(linux_metrictab[m].m_desc.pmid);
+	for (c = 0; c < dynamic->nclusters; c++)
+	    if (dynamic->clusters[c] == cluster)
+		break;
+	if (c < dynamic->nclusters)
 	    for (id = 0; id < tree_count; id++)
 		dynamic->mtabupdate(&linux_metrictab[m], offset++, id+1);
-	    break;
-	}
     }
+    return offset;
 }
 
 /*
  * Iterate through the dynamic table working out how many additional metric
  * table entries are needed.  Then allocate a new metric table, if needed,
  * and run through the dynamic table once again to fill in the additional
- * entries.  Finally, we update the metric table pointed to be the pmdaExt
+ * entries.  Finally, we update the metric table pointer to be the pmdaExt
  * for libpcp_pmda routines subsequent use.
  */
 void
@@ -161,14 +162,12 @@ fallback:
 	pmda->e_nmetrics = linux_metrictable_size();
     } else {
 	resize += linux_metrictable_size();
-	if ((mtab = calloc(sizeof(pmdaMetric), resize)) == NULL)
+	if ((mtab = calloc(resize, sizeof(pmdaMetric))) == NULL)
 	    goto fallback;
 	memcpy(mtab, linux_metrictab, linux_metrictable_size() * sizeof(pmdaMetric));
 	offset = mtab + linux_metrictable_size();
-	for (i = 0; i < dynamic_count; i++) {
-	    linux_dynamic_mtab(&dynamic[i], offset);
-	    offset += dynamic[i].mtabcount;
-	}
+	for (i = 0; i < dynamic_count; i++)
+	    offset = linux_dynamic_mtab(&dynamic[i], offset);
 	if (pmda->e_metrics != linux_metrictab)
 	    free(pmda->e_metrics);
 	pmda->e_metrics = mtab;
