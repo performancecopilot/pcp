@@ -63,27 +63,60 @@ install install_pcp:	default
 # If we're in the pcp source tree, generate domain.h from
 # pmns/stdpmid.  Otherwise, use the system one.  The best place to put
 # a value for this pmda is in stdpmid.local (which is either in
-# ../../pmns or in /var/lib/pcp/pmns).
+# ../../pmns or in $(PCP_VAR_DIR)/pmns).
 # 
 # If you receive an error like:
-#   Botch: no #define for domain LOGGER in /var/lib/pcp/pmns/stdpmid
+#   Botch: no #define for domain LOGGER in $(PCP_VAR_DIR)/pmns/stdpmid
 # add the following line to stdpmid.local:
 #   LOGGER 255
-# Then run /var/lib/pcp/pmns/Make.stdpmid
+# Then run $(PCP_VAR_DIR)/pmns/Make.stdpmid (or just use the code
+# below that autogenerates a pmid).
 ifeq ($(wildcard ../../pmns/stdpmid), ../../pmns/stdpmid)
 STDPMID = ../../pmns/stdpmid
-else
-STDPMID = /var/lib/pcp/pmns/stdpmid
+STDPMID_LOCAL =
+else ifeq ($(wildcard $(PCP_VAR_DIR)/pmns/stdpmid), $(PCP_VAR_DIR)/pmns/stdpmid)
+STDPMID = $(PCP_VAR_DIR)/pmns/stdpmid
+STDPMID_LOCAL =
+else 
+STDPMID_PCP = $(PCP_VAR_DIR)/pmns/stdpmid.pcp
+STDPMID_LOCAL = $(PCP_VAR_DIR)/pmns/stdpmid.local
 endif
 
-domain.h: $(STDPMID)
+domain.h: $(STDPMID) $(STDPMID_PCP) $(STDPMID_LOCAL)
 	rm -f domain.h
 	@echo "/*" >domain.h
 	@echo " * built from $<" >>domain.h
 	@echo " */" >>domain.h
+ifdef STDPMID
 	@$(PCP_AWK_PROG) <$< '\
 $$1=="#define" && $$2 == "$(DOMAIN)" { print "#define $(DOMAIN) " $$3 >>"$@"; found++ }\
 END	{ if (found == 0) { print "Botch: no #define for domain $(DOMAIN) in $<";  exit(1) }\
           if (found > 1) { print "Botch: multiple #defines for domain $(DOMAIN) in $<"; print "... see $@ for details"; exit(1) }\
 	  exit(0)\
 	}'
+else
+# Perhaps we just haven't generated STDPMID yet, but $(DOMAIN) is
+# present in one or the other of the source files.
+	@$(PCP_AWK_PROG) '\
+$$1 == "$(DOMAIN)" { print "#define $(DOMAIN) " $$2 >>"$@"; found++ }\
+END	{ if (found == 0) { print "Warning: domain $(DOMAIN) not found in $(STDPMID_PCP) or $(STDPMID_LOCAL)"; exit(0) }\
+	  if (found == 1) { print "Domain $(DOMAIN) found in $(STDPMID_PCP) or $(STDPMID_LOCAL)"; exit(0) }\
+	  if (found > 1) { print "Botch: multiple definitions for domain $(DOMAIN) found in $(STDPMID_PCP) or $(STDPMID_LOCAL)"; exit(-1) }\
+	}' $(STDPMID_PCP) $(STDPMID_LOCAL)
+# If we didn't find $(DOMAIN), find a free number and use it.
+# Starting looking for a free number just past 511 (DYNAMIC_PMID).
+	@if ! $(GREP) -q $(DOMAIN) $@; then \
+	    num=512; \
+	    while true ; do \
+		if ! $(GREP) -q $$num $(STDPMID_PCP) $(STDPMID_LOCAL); then \
+		    echo "Using generated $$num as domain $(DOMAIN) pmid"; \
+		    echo "/*" > $@; \
+		    echo " * auto-generated" >> $@; \
+		    echo " */" >> $@; \
+		    echo "#define $(DOMAIN) $$num" >> $@; \
+		    break; \
+		fi; \
+		num=`expr $$num + 1`; \
+	    done; \
+	fi
+endif
