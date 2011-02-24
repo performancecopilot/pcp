@@ -104,9 +104,10 @@ END	{ if (found == 0) { print "Warning: domain $(DOMAIN) not found in $(STDPMID_
 	  if (found > 1) { print "Botch: multiple definitions for domain $(DOMAIN) found in $(STDPMID_PCP) or $(STDPMID_LOCAL)"; exit(-1) }\
 	}' $(STDPMID_PCP) $(STDPMID_LOCAL)
 # If we didn't find $(DOMAIN), find a free number and use it.
-# Starting looking for a free number just past 511 (DYNAMIC_PMID).
+# Starting looking for a free number at the end of the range - one
+# less than 511 (DYNAMIC_PMID).
 	@if ! $(GREP) -q $(DOMAIN) $@; then \
-	    num=512; \
+	    num=510; \
 	    while true ; do \
 		if ! $(GREP) -q $$num $(STDPMID_PCP) $(STDPMID_LOCAL); then \
 		    echo "Using generated $$num as domain $(DOMAIN) pmid"; \
@@ -116,7 +117,7 @@ END	{ if (found == 0) { print "Warning: domain $(DOMAIN) not found in $(STDPMID_
 		    echo "#define $(DOMAIN) $$num" >> $@; \
 		    break; \
 		fi; \
-		num=`expr $$num + 1`; \
+		num=`expr $$num - 1`; \
 	    done; \
 	fi
 endif
