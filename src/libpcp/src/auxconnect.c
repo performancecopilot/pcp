@@ -26,21 +26,6 @@
 /* default connect timeout is 5 seconds */
 static struct timeval	canwait = { 5, 000000 };
 
-#if !defined(HAVE_HSTRERROR)
-static char *
-hstrerror(int h_errno)
-{
-    switch (h_errno) {
-	case 0: return "";
-	case 1: return "Host not found";
-	case 2: return "Try again";
-	case 3: return "Non-recoverable error";
-	case 4: return "No address";
-	default: return "Unknown error";
-    }
-}
-#endif /* HAVE_HSTRERROR */
-
 int
 __pmCreateSocket(void)
 {
@@ -226,21 +211,20 @@ __pmAuxConnectPMCD(const char *hostname)
     return __pmAuxConnectPMCDPort(hostname, pmcd_port);
 }
 
-
 int
 __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 {
-    int			sts;
     struct sockaddr_in	myAddr;
     struct hostent*	servInfo;
     int			fd;	/* Fd for socket connection to pmcd */
+    int			sts;
     int			fdFlags;
 
     if ((servInfo = gethostbyname(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
-	    fprintf(stderr, "__pmAuxConnectPMCDPort(%s, %d) : h_errno=%d, ``%s''\n",
-		    hostname, pmcd_port, h_errno, hstrerror(h_errno));
+	    fprintf(stderr, "__pmAuxConnectPMCDPort(%s, %d) : hosterror=%d, ``%s''\n",
+		    hostname, pmcd_port, hosterror(), hoststrerror(hosterror()));
 	}
 #endif
 	return -EHOSTUNREACH;

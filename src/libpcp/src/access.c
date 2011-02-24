@@ -20,21 +20,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-#if !defined(HAVE_HSTRERROR)
-static char *
-hstrerror(int err)
-{
-    switch (err) {
-	    case 0: return "";
-	    case 1: return "Host not found";
-	    case 2: return "Try again";
-	    case 3: return "Non-recoverable error";
-	    case 4: return "No address";
-	    default: return "Unknown error";
-    }
-}
-#endif
-
 /* Host access control list */
 
 typedef struct {
@@ -101,7 +86,7 @@ GetMyHostId(void)
     if ((hep = gethostbyname(myHostName)) == NULL) {
 	__pmNotifyErr(LOG_ERR,
 		     "gethostbyname(%s), %s\n",
-		     myHostName, hstrerror(h_errno));
+		     myHostName, hoststrerror(hosterror()));
 	return -1;
     }
     myHostId.s_addr = ((struct in_addr *)hep->h_addr_list[0])->s_addr;
@@ -300,8 +285,8 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	if ((hep = gethostbyname(realName)) == NULL) {
 	    __pmNotifyErr(LOG_ERR,
 			 "gethostbyname(%s), %s\n",
-			 realName, hstrerror(h_errno));
-	    return -EHOSTUNREACH;	/* h_errno isn't suitable to return */
+			 realName, hoststrerror(hosterror()));
+	    return -EHOSTUNREACH;	/* host error unsuitable to return */
 	}
 	hostId.s_addr = ((struct in_addr *)hep->h_addr_list[0])->s_addr;
 	hostMask.s_addr = 0xffffffff;

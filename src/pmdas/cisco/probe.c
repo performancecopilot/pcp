@@ -320,7 +320,7 @@ main(int argc, char **argv)
 	FILE	*f;
 	if ((f = fopen(argv[optind], "r")) == NULL) {
 	    fprintf(stderr, "%s: unknown hostname or filename %s: %s\n",
-		pmProgname, argv[optind], hstrerror(h_errno));
+		pmProgname, argv[optind], hoststrerror(hosterror()));
 	    exit(1);
 	}
 	else {

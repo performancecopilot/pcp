@@ -127,7 +127,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
-		    hstrerror(h_errno));
+		    hoststrerror(hosterror()));
 #endif
 	return -ECONNREFUSED;
     }

@@ -398,12 +398,6 @@ void setlinebuf(FILE *stream)
     setvbuf(stream, NULL, _IONBF, 0);	/* no line buffering in Win32 */
 }
 
-const char *
-hstrerror(int error)
-{
-    return strerror(error);
-}
-
 long int
 lrand48(void)
 {

@@ -14,10 +14,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-#ifdef IS_MINGW
-const char *hstrerror(int error) { return strerror(error); }
-#endif
-
 int
 main(int argc, char *argv[])
 {
@@ -68,7 +64,7 @@ main(int argc, char *argv[])
 
     if ((servInfo = gethostbyname(argv[optind])) == NULL) {
 	if (vflag)
-	    fprintf(stderr, "gethostbyname: %s\n", hstrerror(h_errno));
+	    fprintf(stderr, "gethostbyname: %s\n", hoststrerror(hosterror()));
 	goto done;
     }
     if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
