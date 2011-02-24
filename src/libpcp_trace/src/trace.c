@@ -643,7 +643,6 @@ static void _pmtraceinit(void)
     WSAStartup(wVersionRequested, &wsaData);
     _fmode = O_BINARY;
 }
-const char *hstrerror(int error) { return strerror(error); }
 #endif
 
 static int
@@ -737,7 +736,8 @@ _pmauxtraceconnect(void)
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
 	    fprintf(stderr, "_pmtraceconnect(gethostbyname(hostname=%s): "
-		    "h_errno=%d, ``%s''\n", hostname, h_errno, hstrerror(h_errno));
+		    "hosterror=%d, ``%s''\n", hostname, hosterror(),
+		    hoststrerror(hosterror()));
 #endif
 	return -EHOSTUNREACH;
     }

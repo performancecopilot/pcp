@@ -94,7 +94,7 @@ PCFLAGS = -fPIC
 ifeq "@cc_is_gcc@" "yes"
 PCFLAGS += -fno-strict-aliasing
 else
-# Assume that is's the Sun compiler which does not grok -Wall
+# Assume that this is the Sun compiler which does not grok -Wall
 WARN_OFF =
 endif
 PLDLAGS = -fPIC
