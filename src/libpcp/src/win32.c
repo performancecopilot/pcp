@@ -375,7 +375,7 @@ nanosleep(const struct timespec *req, struct timespec *rem)
     DWORD milliseconds;
 
     if (req->tv_sec < 0 || req->tv_nsec < 0 || req->tv_nsec > NANOSEC_BOUND) {
-	errno = EINVAL;
+	SetLastError(EINVAL);
 	return -1;
     }
     milliseconds = req->tv_sec * MILLISEC_PER_SEC

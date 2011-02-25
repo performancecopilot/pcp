@@ -196,7 +196,8 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 
     oldstream = freopen(logname, "w", oldstream);
     if (oldstream == NULL) {
-	int	save_errno = errno;	/* need for error message */
+	int	save_error = oserror();	/* need for error message */
+
 	close(oldfd);
 	if (dup(dupoldfd) != oldfd)
 	    /* fd juggling failed! */
@@ -213,7 +214,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 	}
 	*status = 0;
 	pmprintf("%s: cannot open log \"%s\" for writing : %s\n",
-		progname, logname, strerror(save_errno));
+		progname, logname, strerror(save_error));
 	pmflush();
     }
     else {
