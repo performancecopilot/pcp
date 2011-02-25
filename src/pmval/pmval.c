@@ -905,7 +905,7 @@ getargs(int		argc,		/* in - command line argument count */
 	    port = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0' || port < 0) {
 		fprintf(stderr, "%s: Error: invalid pmtime port \"%s\": %s\n",
-			pmProgname, optarg, pmErrStr(-errno));
+			pmProgname, optarg, pmErrStr(-oserror()));
 		errflag++;
 	    }
 	    break;
@@ -959,9 +959,9 @@ getargs(int		argc,		/* in - command line argument count */
 	    break;
 
 	case 'w':		/* output column width */
-	    errno = 0;
+	    setoserror(0);
 	    d = atol(optarg);
-	    if (errno || d < 1) errflag++;
+	    if (oserror() || d < 1) errflag++;
 	    else *cols = d;
 	    break;
 
