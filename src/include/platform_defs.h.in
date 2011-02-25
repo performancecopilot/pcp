@@ -376,6 +376,7 @@ bozo! need to find where MAXHOSTNAMELEN is defined for this platform
 #endif
 
 #ifndef IS_MINGW
+#define setoserror(n)	(errno = (n))
 #define oserror()	errno
 #define neterror()	errno
 #define hosterror()	h_errno
@@ -383,16 +384,13 @@ bozo! need to find where MAXHOSTNAMELEN is defined for this platform
 #define netstrerror(n)	strerror(n)
 #define hoststrerror(n)	hstrerror(n)
 #else
+#define setoserror(n)	SetLastError(n)
 #define oserror()	GetLastError()
 #define neterror()	WSAGetLastError()
 #define hosterror()	WSAGetLastError()
 #define osstrerror(n)	strerror(n)
 #define netstrerror(n)	strerror(n)
 #define hoststrerror(n)	strerror(n)
-#endif
-
-#ifndef HAVE_SETOSERROR
-#define setoserror(e) errno = e
 #endif
 
 #ifndef HAVE_FLOG10

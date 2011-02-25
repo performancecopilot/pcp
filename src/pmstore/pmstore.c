@@ -112,7 +112,7 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
     switch (type) {
 	case PM_TYPE_32:
 		temp_l = strtol(buf, &endbuf, base);
-		if (errno != ERANGE) {
+		if (oserror() != ERANGE) {
 		    /*
 		     * ugliness here is for cases where pmstore is compiled
 		     * 64-bit (e.g. on ia64) and then strtol() may return
@@ -123,7 +123,7 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
 		     */
 #ifdef HAVE_64BIT_LONG
 		    if (temp_l > 0x7fffffffLL || temp_l < (-0x7fffffffLL - 1))
-			errno = ERANGE;
+			setoserror(ERANGE);
 		    else 
 #endif
 		    {
@@ -134,10 +134,10 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
 
 	case PM_TYPE_U32:
 		temp_ul = strtoul(buf, &endbuf, base);
-		if (errno != ERANGE) {
+		if (oserror() != ERANGE) {
 #ifdef HAVE_64BIT_LONG
 		    if (temp_ul > 0xffffffffLL)
-			errno = ERANGE;
+			setoserror(ERANGE);
 		    else 
 #endif
 		    {
@@ -165,7 +165,7 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
 		else {
 		    d = strtod(buf, &endbuf);
 		    if (d < FLT_MIN || d > FLT_MAX)
-			errno = ERANGE;
+			setoserror(ERANGE);
 		    else {
 			avp->f = (float)d;
 		    }
@@ -198,7 +198,7 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
 			buf, pmTypeStr(type));
 	exit(1);
     }
-    if (errno == ERANGE) {
+    if (oserror() == ERANGE) {
 	fprintf(stderr, 
 			"The value \"%s\" is out of range for the data "
 			"type (PM_TYPE_%s)\n",

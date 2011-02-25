@@ -238,22 +238,22 @@ static void
 simple_timenow_check(void)
 {
     struct stat		statbuf;
-    static int		last_errno = 0;
+    static int		last_error = 0;
     int			sep = __pmPathSeparator();
 
     /* stat the file & check modification time has changed */
     snprintf(mypath, sizeof(mypath), "%s%c" "simple" "%c" "simple.conf",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     if (stat(mypath, &statbuf) == -1) {
-	if (errno != last_errno) {
+	if (oserror() != last_error) {
+	    last_error = oserror();
 	    __pmNotifyErr(LOG_ERR, "stat failed on %s: %s\n",
-			  mypath, pmErrStr(-errno));
-	    last_errno = errno;
+			  mypath, pmErrStr(-last_error));
 	}
 	simple_timenow_clear();
     }
     else {
-	last_errno = 0;
+	last_error = 0;
 #if defined(HAVE_ST_MTIME_WITH_E)
 	if (statbuf.st_mtime != file_change.st_mtime) {
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
@@ -319,7 +319,7 @@ simple_timenow_init(void)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     if ((fp = fopen(mypath, "r")) == NULL) {
 	__pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
-		      mypath, pmErrStr(-errno));
+		      mypath, pmErrStr(-oserror()));
 	return;
     }
     if ((p = fgets(&buf[0], SIMPLE_BUFSIZE, fp)) == NULL) {
