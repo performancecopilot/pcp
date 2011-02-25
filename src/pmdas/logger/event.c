@@ -96,6 +96,7 @@ event_fetch(pmValueBlock **vbpp)
     struct timeval stamp;
     pmAtomValue atom;
     int rc;
+    int records = 0;
     
     if (vbpp == NULL)
 	return -1;
@@ -115,6 +116,7 @@ event_fetch(pmValueBlock **vbpp)
 	if ((rc = pmdaEventAddParam(eventarray, pmid_string, PM_TYPE_STRING,
 				    &atom)) < 0)
 	    return rc;
+	records++;
 
 	/* Get the next event. */
 	next = e->events.tqe_next;
@@ -129,7 +131,10 @@ event_fetch(pmValueBlock **vbpp)
 	e = next;
     }
 
-    *vbpp = (pmValueBlock *)pmdaEventGetAddr(eventarray);
+    if (records > 0)
+	*vbpp = (pmValueBlock *)pmdaEventGetAddr(eventarray);
+    else
+	*vbpp = NULL;
     return 0;
 }
 

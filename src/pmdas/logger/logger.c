@@ -123,6 +123,8 @@ logger_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	  case 0:
 	    if ((rc = event_fetch(&atom->vbp)) != 0)
 		return rc;
+	    if (atom->vbp == NULL)
+		status = PMDA_FETCH_NOVALUES;
 	    break;
 	  default:
 	    __pmNotifyErr(LOG_ERR,
