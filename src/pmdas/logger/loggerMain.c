@@ -43,10 +43,16 @@ loggerMain(pmdaInterface *dispatch)
 	exit(1);
     }
 
+    /* Skip to the end. */
+    //(void)lseek(monitorfd, 0, SEEK_END);
+
+    /* We can't really select on the logfile.  Why?  If the logfile
+     * is a normal file, select will (continually) return EOF after
+     * we've read all the data.  So, instead, we'll try to read data
+     * before handling any message we get on the control channel. */
     FD_ZERO(&fds);
-    FD_SET(monitorfd, &fds);
     FD_SET(pmcdfd, &fds);
-    maxfd = (monitorfd > pmcdfd) ? monitorfd : pmcdfd;
+    maxfd = pmcdfd;
 
     for (;;) {
 	memcpy(&readyfds, &fds, sizeof(readyfds));
@@ -63,6 +69,8 @@ loggerMain(pmdaInterface *dispatch)
 	}
 
 	if (FD_ISSET(pmcdfd, &readyfds)) {
+	    if (event_create(monitorfd) < 0)
+		exit(1);
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
 		__pmNotifyErr(LOG_DEBUG, "processing pmcd request [fd=%d]", pmcdfd);
@@ -70,10 +78,6 @@ loggerMain(pmdaInterface *dispatch)
 	    if (__pmdaMainPDU(dispatch) < 0) {
 		exit(1);	/* fatal if we lose pmcd */
 	    }
-	}
-	if (FD_ISSET(monitorfd, &readyfds)) {
-	    if (event_create(monitorfd) < 0)
-		exit(1);
 	}
     }
 }

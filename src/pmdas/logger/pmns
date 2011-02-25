@@ -19,12 +19,11 @@
  */
 
 logger {
-    clients	LOGGER:0:0
+    clients		LOGGER:0:0
+    event
 }
 
-/*
- * logger.event {
- *    records		LOGGER:0:0
- *    param_string	LOGGER:0:1
- * }
- */
+logger.event {
+    records		LOGGER:4095:0
+    param_string	LOGGER:0:1
+}

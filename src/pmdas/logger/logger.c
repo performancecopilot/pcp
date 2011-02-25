@@ -25,6 +25,7 @@
 #include "domain.h"
 #include "logger.h"
 #include "percontext.h"
+#include "event.h"
 
 /*
  * Logger PMDA
@@ -44,10 +45,18 @@
  */
 
 static pmdaMetric metrictab[] = {
-/* clients */
     { NULL, 
+/* clients */
       { PMDA_PMID(0,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-        PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* event.records */
+    { NULL,
+      { PMDA_PMID(PM_CLUSTER_EVENT,0), PM_TYPE_EVENT, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* event.param_string */
+    { NULL,
+      { PMDA_PMID(0,1), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 
 static char	mypath[MAXPATHLEN];
@@ -59,6 +68,7 @@ logger_end_contextCallBack(int ctx)
 {
     __pmNotifyErr(LOG_INFO, "%s: saw context %d\n", __FUNCTION__, ctx);
     ctx_end(ctx);
+    event_cleanup();
 }
 
 static int
@@ -76,10 +86,13 @@ logger_profile(__pmProfile *prof, pmdaExt *ep)
 static int
 logger_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    __pmID_int *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    int		rc;
+    int		status = PMDA_FETCH_STATIC;
 
     __pmNotifyErr(LOG_INFO, "%s called\n", __FUNCTION__);
-    if (idp->cluster != 0 || idp->item != 0) {
+    if ((idp->cluster == 0 && (idp->item < 0 || idp->item > 1))
+	|| (idp->cluster == PM_CLUSTER_EVENT && idp->item != 0)) {
 	__pmNotifyErr(LOG_ERR, "%s: PM_ERR_PMID (cluster = %d, item = %d)\n",
 		      __FUNCTION__, idp->cluster, idp->item);
 	return PM_ERR_PMID;
@@ -90,8 +103,36 @@ logger_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return PM_ERR_INST;
     }
 
-    atom->ul = ctx_get_num();
-    return PMDA_FETCH_STATIC;
+    if (idp->cluster == 0) {
+	switch(idp->item) {
+	  case 0:
+	    atom->ul = ctx_get_num();
+	    break;
+	  case 1:
+	    status = PMDA_FETCH_NOVALUES;
+	    break;
+	  default:
+	    __pmNotifyErr(LOG_ERR,
+			  "%s: PM_ERR_PMID (cluster = %d, item = %d)\n",
+			  __FUNCTION__, idp->cluster, idp->item);
+	    return PM_ERR_PMID;
+	}
+    }
+    else if (idp->cluster == PM_CLUSTER_EVENT) {
+	switch(idp->item) {
+	  case 0:
+	    if ((rc = event_fetch(&atom->vbp)) != 0)
+		return rc;
+	    break;
+	  default:
+	    __pmNotifyErr(LOG_ERR,
+			  "%s: PM_ERR_PMID (cluster = %d, item = %d)\n",
+			  __FUNCTION__, idp->cluster, idp->item);
+	    return PM_ERR_PMID;
+	}
+    }
+
+    return status;
 }
 
 /*

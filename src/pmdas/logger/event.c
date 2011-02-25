@@ -40,7 +40,9 @@ struct event {
 
 static TAILQ_HEAD(tailhead, event) head;
 static int eventarray;
-static pmID pmid_string = PMDA_PMID(0,134); /* event.param_string */
+
+/* This has to match the values in the metric table. */
+static pmID pmid_string = PMDA_PMID(0,1); /* event.param_string */
 
 void
 event_init(int domain)
@@ -71,10 +73,15 @@ event_create(int fd)
 
     /* Read up to BUF_SIZE bytes at a time. */
     if ((c = read(fd, e->buffer, sizeof(e->buffer) - 1)) < 0) {
-	__pmNotifyErr(LOG_ERR, "allocation failure: %s", strerror(errno));
+	__pmNotifyErr(LOG_ERR, "read failure: %s", strerror(errno));
+	free(e);
 	return -1;
     }
-    
+    else if (c == 0) {	     /* EOF */
+	free(e);
+	return 0;
+    }
+
     /* Store event in queue. */
     e->clients = ctx_get_num();
     e->buffer[c] = '\0';
@@ -104,6 +111,7 @@ event_fetch(pmValueBlock **vbpp)
 	/* Add the string parameter.  Note that pmdaEventAddParam()
 	 * copies the string, so we can free it soon after. */
 	atom.cp = e->buffer;
+	__pmNotifyErr(LOG_INFO, "Adding param: %s", e->buffer);
 	if ((rc = pmdaEventAddParam(eventarray, pmid_string, PM_TYPE_STRING,
 				    &atom)) < 0)
 	    return rc;
@@ -112,7 +120,7 @@ event_fetch(pmValueBlock **vbpp)
 	next = e->events.tqe_next;
 
 	/* Remove the current one (if its use count is at 0). */
-	if (--e->clients == 0) {
+	if (--e->clients <= 0) {
 	    TAILQ_REMOVE(&head, e, events);
 	    free(e);
 	}
@@ -123,4 +131,26 @@ event_fetch(pmValueBlock **vbpp)
 
     *vbpp = (pmValueBlock *)pmdaEventGetAddr(eventarray);
     return 0;
+}
+
+void
+event_cleanup(void)
+{
+    struct event *e, *next;
+
+    /* We've lost a client.  Cleanup. */
+    e = head.tqh_first;
+    while (e != NULL) {
+	/* Get the next event. */
+	next = e->events.tqe_next;
+
+	/* Remove the current one (if its use count is at 0). */
+	if (--e->clients <= 0) {
+	    TAILQ_REMOVE(&head, e, events);
+	    free(e);
+	}
+
+	/* Go on to the next event. */
+	e = next;
+    }
 }

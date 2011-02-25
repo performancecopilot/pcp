@@ -33,3 +33,7 @@
 
 @ logger.clients The number of attached clients
 The number of attached clients.
+@ logger.event.records Logfile event records
+Logfile event records.
+@ logger.event.param_string String event data
+String event data.
