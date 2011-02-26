@@ -495,6 +495,8 @@ User memory (Kbytes) in pages not backed by files, e.g. from malloc()
 @ mem.numa.alloc.other_node count of times a process ran on this node and got memory from another node
 @ mem.vmstat.nr_dirty number of pages in dirty state
 Instantaneous number of pages in dirty state, from /proc/vmstat
+@ mem.vmstat.nr_dirtied count of pages dirtied
+Count of pages entering dirty state, from /proc/vmstat
 @ mem.vmstat.nr_writeback number of pages in writeback state
 Instantaneous number of pages in writeback state, from /proc/vmstat
 @ mem.vmstat.nr_unstable number of pages in unstable state
@@ -506,8 +508,16 @@ Instantaneous number of mapped pagecache pages, from /proc/vmstat
 See also mem.vmstat.nr_anon for anonymous mapped pages.
 @ mem.vmstat.nr_slab number of slab pages
 Instantaneous number of slab pages, from /proc/vmstat
-This counter was retired in 2.6.18 kernels, and replaced by
+This counter was retired in 2.6.18 kernels, and is now the sum of
 mem.vmstat.nr_slab_reclaimable and mem.vmstat.nr_slab_unreclaimable.
+@ mem.vmstat.nr_written count of pages written out
+Count of pages written out, from /proc/vmstat
+@ mem.vmstat.numa_foreign count of foreign NUMA zone allocations
+@ mem.vmstat.numa_hit count of successful allocations from preferred NUMA zone
+@ mem.vmstat.numa_interleave count of interleaved NUMA allocations
+@ mem.vmstat.numa_local count of successful allocations from local NUMA zone
+@ mem.vmstat.numa_miss count of unsuccessful allocations from preferred NUMA zona
+@ mem.vmstat.numa_other count of unsuccessful allocations from local NUMA zone
 @ mem.vmstat.pgpgin page in operations
 Count of page in operations since boot, from /proc/vmstat
 @ mem.vmstat.pgpgout page out operations
@@ -587,6 +597,13 @@ Count of pages reclaimed via inode freeing since boot, from /proc/vmstat
 Count of slab pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.kswapd_steal pages reclaimed by kswapd
 Count of pages reclaimed by kswapd since boot, from /proc/vmstat
+@ mem.vmstat.kswapd_low_wmark_hit_quickly count of times low watermark reached quickly
+Count of times kswapd reached low watermark quickly, from /proc/vmstat
+@ mem.vmstat.kswapd_high_wmark_hit_quickly count of times high watermark reached quickly
+Count of times kswapd reached high watermark quickly, from /proc/vmstat
+@ mem.vmstat.kswapd_skip_congestion_wait count of times kswapd skipped waiting on device congestion
+Count of times kswapd skipped waiting due to device congestion as a
+result of being under the low watermark, from /proc/vmstat
 @ mem.vmstat.kswapd_inodesteal pages reclaimed via kswapd inode freeing
 Count of pages reclaimed via kswapd inode freeing since boot, from
 /proc/vmstat
@@ -599,6 +616,8 @@ Count of pages rotated to tail of the LRU since boot, from /proc/vmstat
 @mem.vmstat.nr_anon_pages number of anonymous mapped pagecache pages
 Instantaneous number of anonymous mapped pagecache pages, from /proc/vmstat
 See also mem.vmstat.mapped for other mapped pages.
+@mem.vmstat.nr_anon_transparent_hugepages number of anonymous transparent huge pages
+Instantaneous number of anonymous transparent huge pages, from /proc/vmstat
 @mem.vmstat.nr_bounce number of bounce buffer pages
 Instantaneous number of bounce buffer pages, from /proc/vmstat
 @mem.vmstat.nr_slab_reclaimable reclaimable slab pages

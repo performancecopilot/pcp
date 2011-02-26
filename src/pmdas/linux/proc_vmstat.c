@@ -38,12 +38,19 @@ static struct {
     { "htlb_buddy_alloc_fail",	&vmstat.htlb_buddy_alloc_fail },
     { "htlb_buddy_alloc_success", &vmstat.htlb_buddy_alloc_success },
     { "kswapd_inodesteal",	&vmstat.kswapd_inodesteal },
+    { "kswapd_low_wmark_hit_quickly", &vmstat.kswapd_low_wmark_hit_quickly },
+    { "kswapd_high_wmark_hit_quickly", &vmstat.kswapd_high_wmark_hit_quickly },
+    { "kswapd_skip_congestion_wait", &vmstat.kswapd_skip_congestion_wait },
     { "kswapd_steal",		&vmstat.kswapd_steal },
     { "nr_active_anon",		&vmstat.nr_active_anon },
     { "nr_active_file",		&vmstat.nr_active_file },
     { "nr_anon_pages",		&vmstat.nr_anon_pages },
+    { "nr_anon_transparent_hugepages", &vmstat.nr_anon_transparent_hugepages },
     { "nr_bounce",		&vmstat.nr_bounce },
     { "nr_dirty",		&vmstat.nr_dirty },
+    { "nr_dirtied",		&vmstat.nr_dirtied },
+    { "nr_dirty_threshold",	&vmstat.nr_dirty_threshold },
+    { "nr_dirty_background_threshold", &vmstat.nr_dirty_background_threshold },
     { "nr_file_pages",		&vmstat.nr_file_pages },
     { "nr_free_pages",		&vmstat.nr_free_pages },
     { "nr_inactive_anon",	&vmstat.nr_inactive_anon },
@@ -63,6 +70,13 @@ static struct {
     { "nr_vmscan_write",	&vmstat.nr_vmscan_write },
     { "nr_writeback",		&vmstat.nr_writeback },
     { "nr_writeback_temp",	&vmstat.nr_writeback_temp },
+    { "nr_written",		&vmstat.nr_written },
+    { "numa_hit",		&vmstat.numa_hit },
+    { "numa_miss",		&vmstat.numa_miss },
+    { "numa_foreign",		&vmstat.numa_foreign },
+    { "numa_interleave",	&vmstat.numa_interleave },
+    { "numa_local",		&vmstat.numa_local },
+    { "numa_other",		&vmstat.numa_other },
     { "pageoutrun",		&vmstat.pageoutrun },
     { "pgactivate",		&vmstat.pgactivate },
     { "pgalloc_dma",		&vmstat.pgalloc_dma },
@@ -161,7 +175,7 @@ refresh_proc_vmstat(proc_vmstat_t *proc_vmstat)
 	    }
 	}
     }
-    if (!proc_vmstat->nr_slab)	/* split apart in 2.6.18 */
+    if (proc_vmstat->nr_slab == -1)	/* split apart in 2.6.18 */
 	proc_vmstat->nr_slab = proc_vmstat->nr_slab_reclaimable +
 				proc_vmstat->nr_slab_unreclaimable;
 

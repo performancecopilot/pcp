@@ -1077,12 +1077,19 @@ mem.vmstat {
 	htlb_buddy_alloc_fail		60:28:43
 	htlb_buddy_alloc_success	60:28:44
 	kswapd_inodesteal		60:28:33
+	kswapd_low_wmark_hit_quickly	60:28:87
+	kswapd_high_wmark_hit_quickly	60:28:88
+	kswapd_skip_congestion_wait	60:28:89
 	kswapd_steal			60:28:32
 	nr_active_anon			60:28:45
 	nr_active_file			60:28:46
 	nr_anon_pages			60:28:39
+	nr_anon_transparent_hugepages	60:28:90
 	nr_bounce			60:28:40
+	nr_dirtied			60:28:91
 	nr_dirty			60:28:0
+	nr_dirty_background_threshold	60:28:92
+	nr_dirty_threshold		60:28:93
 	nr_free_pages			60:28:47
 	nr_inactive_anon		60:28:48
 	nr_inactive_file		60:28:49
@@ -1101,6 +1108,13 @@ mem.vmstat {
 	nr_vmscan_write			60:28:42
 	nr_writeback			60:28:1
 	nr_writeback_temp		60:28:56
+	nr_written			60:28:94
+	numa_foreign			60:28:95
+	numa_hit			60:28:96
+	numa_interleave			60:28:97
+	numa_local			60:28:98
+	numa_miss			60:28:99
+	numa_other			60:28:100
 	pageoutrun			60:28:34
 	pgactivate			60:28:14
 	pgalloc_dma			60:28:12
