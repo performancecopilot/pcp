@@ -522,6 +522,10 @@ Count of high mem page allocations since boot, from /proc/vmstat
 Count of normal mem page allocations since boot, from /proc/vmstat
 @ mem.vmstat.pgalloc_dma dma mem page allocations
 Count of dma mem page allocations since boot, from /proc/vmstat
+@ mem.vmstat.pgalloc_dma32 dma32 mem page allocations
+Count of dma32 mem page allocations since boot, from /proc/vmstat
+@ mem.vmstat.pgalloc_movable movable mem page allocations
+Count of movable mem page allocations since boot, from /proc/vmstat
 @ mem.vmstat.pgfree page free operations
 Count of page free operations since boot, from /proc/vmstat
 @ mem.vmstat.pgactivate pages moved from inactive to active
@@ -541,24 +545,42 @@ from /proc/vmstat
 @ mem.vmstat.pgrefill_dma dma mem pages inspected in refill_inactive_zone
 Count of dma mem pages inspected in refill_inactive_zone since boot,
 from /proc/vmstat
+@ mem.vmstat.pgrefill_dma32 dma32 mem pages inspected in refill_inactive_zone
+Count of dma32 mem pages inspected in refill_inactive_zone since boot,
+from /proc/vmstat
+@ mem.vmstat.pgrefill_movable movable mem pages inspected in refill_inactive_zone
+Count of movable mem pages inspected in refill_inactive_zone since boot,
+from /proc/vmstat
 @ mem.vmstat.pgsteal_high high mem pages reclaimed
 Count of high mem pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_normal normal mem pages reclaimed
 Count of normal mem pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_dma dma mem pages reclaimed
 Count of dma mem pages reclaimed since boot, from /proc/vmstat
+@ mem.vmstat.pgsteal_dma32 dma32 mem pages reclaimed
+Count of dma32 mem pages reclaimed since boot, from /proc/vmstat
+@ mem.vmstat.pgsteal_movable movable mem pages reclaimed
+Count of movable mem pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_kswapd_high high mem pages scanned by kswapd
 Count of high mem pages scanned by kswapd since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_kswapd_normal normal mem pages scanned by kswapd
 Count of normal mem pages scanned by kswapd since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_kswapd_dma dma mem pages scanned by kswapd
 Count of dma mem pages scanned by kswapd since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_kswapd_dma32 dma32 mem pages scanned by kswapd
+Count of dma32 mem pages scanned by kswapd since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_kswapd_movable movable mem pages scanned by kswapd
+Count of movable mem pages scanned by kswapd since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_direct_high high mem pages scanned
 Count of high mem pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_direct_normal normal mem pages scanned
 Count of normal mem pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_direct_dma dma mem pages scanned
 Count of dma mem pages scanned since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_direct_dma32 dma32 mem pages scanned
+Count of dma32 mem pages scanned since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_direct_movable 
+Count of movable mem pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.pginodesteal pages reclaimed via inode freeing
 Count of pages reclaimed via inode freeing since boot, from /proc/vmstat
 @ mem.vmstat.slabs_scanned slab pages scanned
@@ -581,15 +603,50 @@ See also mem.vmstat.mapped for other mapped pages.
 Instantaneous number of bounce buffer pages, from /proc/vmstat
 @mem.vmstat.nr_slab_reclaimable reclaimable slab pages
 Instantaneous number of reclaimable slab pages, from /proc/vmstat.
-Added in 2.6.18 kernels.
 @mem.vmstat.nr_slab_unreclaimable unreclaimable slab pages
 Instantaneous number of unreclaimable slab pages, from /proc/vmstat.
-Added in 2.6.18 kernels.
 @mem.vmstat.nr_vmscan_write pages written by VM scanner from LRU
 Count of pages written from the LRU by the VM scanner, from /proc/vmstat.
 The VM is supposed to minimise the number of pages which get written
 from the LRU (for IO scheduling efficiency, and for high reclaim-success
 rates).
+@ mem.vmstat.htlb_buddy_alloc_fail huge TLB page buddy allocation failures
+Count of huge TLB page buddy allocation failures, from /proc/vmstat
+@ mem.vmstat.htlb_buddy_alloc_success huge TLB page buddy allocation successes
+Count of huge TLB page buddy allocation successes, from /proc/vmstat
+@ mem.vmstat.nr_active_anon number of active anonymous memory pages
+@ mem.vmstat.nr_active_file number of active file memory memory pages
+@ mem.vmstat.nr_free_pages number of free pages
+@ mem.vmstat.nr_inactive_anon number of inactive anonymous memory pages
+@ mem.vmstat.nr_inactive_file number of inactive file memory pages
+@ mem.vmstat.nr_isolated_anon number of isolated anonymous memory pages
+@ mem.vmstat.nr_isolated_file number of isolated file memory pages
+@ mem.vmstat.nr_kernel_stack number of pages of kernel stack
+@ mem.vmstat.nr_mlock number of pages under mlock
+@ mem.vmstat.nr_shmem number of shared memory pages
+@ mem.vmstat.nr_unevictable number of unevictable pages
+@ mem.vmstat.nr_writeback_temp number of temporary writeback pages
+@ mem.vmstat.compact_blocks_moved count of compact blocks moved
+@ mem.vmstat.compact_fail count of unsuccessful compactions for high order allocations
+@ mem.vmstat.compact_pagemigrate_failed count of pages unsuccessfully compacted
+@ mem.vmstat.compact_pages_moved count of pages successfully moved for compaction
+@ mem.vmstat.compact_stall count of failures to even start compacting
+@ mem.vmstat.compact_success count of successful compactions for high order allocations
+@ mem.vmstat.thp_fault_alloc transparent huge page fault allocations
+@ mem.vmstat.thp_fault_fallback transparent huge page fault fallbacks
+@ mem.vmstat.thp_collapse_alloc transparent huge page collapse allocations
+@ mem.vmstat.thp_collapse_alloc_failed transparent huge page collapse failures
+@ mem.vmstat.thp_split count of transparent huge page splits
+@ mem.vmstat.unevictable_pgs_cleared count of unevictable pages cleared
+@ mem.vmstat.unevictable_pgs_culled count of unevictable pages culled
+@ mem.vmstat.unevictable_pgs_mlocked count of mlocked unevictable pages
+@ mem.vmstat.unevictable_pgs_mlockfreed count of unevictable pages mlock freed
+@ mem.vmstat.unevictable_pgs_munlocked count of unevictable pages munlocked
+@ mem.vmstat.unevictable_pgs_rescued count of unevictable pages rescued
+@ mem.vmstat.unevictable_pgs_scanned count of unevictable pages scanned
+@ mem.vmstat.unevictable_pgs_stranded count of unevictable pages stranded
+@ mem.vmstat.zone_reclaim_failed number of zone reclaim failures
+
 
 @ swap.length total swap available metric from /proc/meminfo
 @ swap.used swap used metric from /proc/meminfo
