@@ -89,19 +89,19 @@ static int stomp_read_ack(void)
     if (nready <= 0) {
 	if (nready == 0)
 	    __pmNotifyErr(LOG_ERR, "Timed out waiting for server %s:%d - %s",
-				hostname, port, strerror(errno));
+				hostname, port, netstrerror(neterror()));
 	else
 	    __pmNotifyErr(LOG_ERR, "Error waiting for server %s:%d - %s",
-				hostname, port, strerror(errno));
+				hostname, port, netstrerror(neterror()));
 	stomp_disconnect();
 	return -1;
     }
 
     do {
-	sts = read(fd, buffer, sizeof(buffer));
+	sts = recv(fd, buffer, sizeof(buffer), 0);
 	if (sts < 0) {
-	    __pmNotifyErr(LOG_ERR, "Error reading from server %s:%d - %s",
-				hostname, port, strerror(errno));
+	    __pmNotifyErr(LOG_ERR, "Error recving from server %s:%d - %s",
+				hostname, port, netstrerror(neterror()));
 	    stomp_disconnect();
 	    return -1;
 	}
@@ -118,10 +118,10 @@ static int stomp_write(const char *buffer, int length)
     int sts;
 
     do {
-	sts = write(fd, buffer, length);
+	sts = send(fd, buffer, length, 0);
 	if (sts < 0) {
 	    __pmNotifyErr(LOG_ERR, "Write error to JMS server %s:%d - %s",
-			hostname, port, strerror(errno));
+			hostname, port, netstrerror(neterror()));
 	    stomp_disconnect();
 	    return -1;
 	}
@@ -218,7 +218,7 @@ static void stomp_parse(void)
 		 pmGetConfig("PCP_VAR_DIR"), sep, sep, sep);
     if ((f = fopen(config, "r")) == NULL) {
 	__pmNotifyErr(LOG_ERR, "Cannot open STOMP configuration file %s: %s",
-			config, strerror(errno));
+			config, osstrerror(oserror()));
 	exit(1);
     }
     while (fgets(buffer, sizeof(buffer), f)) {

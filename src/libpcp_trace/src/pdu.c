@@ -169,12 +169,16 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 	    status = select(fd+1, &onefd, NULL, NULL, &wait);
 	    if (status == 0)
 		return PMTRACE_ERR_TIMEOUT;
-	    else if (status < 0)
+	    else if (status < 0) {
+		setoserror(neterror());
 		return status;
+	    }
 	}
-	status = (int)read(fd, buf, len);
-	if (status <= 0)	/* EOF or error */
+	status = (int)recv(fd, buf, len, 0);
+	if (status <= 0) {	/* EOF or error */
+	    setoserror(neterror());
 	    return status;
+	}
 	if (mode == -1)
 	    /* special case, see __pmtracegetPDU */
 	    return status;
@@ -241,7 +245,7 @@ __pmtracexmitPDU(int fd, __pmTracePDU *pdubuf)
     php->len = htonl(php->len);
     php->from = htonl(php->from);
     php->type = htonl(php->type);
-    n = (int)write(fd, pdubuf, len);
+    n = (int)send(fd, pdubuf, len, 0);
     php->len = ntohl(php->len);
     php->from = ntohl(php->from);
     php->type = ntohl(php->type);

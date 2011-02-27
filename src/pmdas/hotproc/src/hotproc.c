@@ -14,10 +14,6 @@
 
 #include <unistd.h>
 #include <stdio.h>
-#include <syslog.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <errno.h>
 #include <ctype.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -155,7 +151,7 @@ init_proc_list(void)
     proc_list[0] = (process_t*)malloc(INIT_PROC_MAX * sizeof(process_t));
     proc_list[1] = (process_t*)malloc(INIT_PROC_MAX * sizeof(process_t));
     if (proc_list[0] == NULL || proc_list[1] == NULL || active_list == NULL)
-        return -errno;
+        return -oserror();
     return 0;
 }
 
@@ -189,7 +185,7 @@ add_active_list(process_t *node, config_vars *vars)
 	maxactive = numactive*2;
 	res = (pid_t *)realloc(active_list, maxactive * sizeof(pid_t));
 	if (res == NULL)
-	    return -errno;
+	    return -osoerror();
 	active_list = res;
     } 
     active_list[numactive++] = node->pid;
@@ -380,7 +376,7 @@ read_buf_file(int *rcount, char *suffix, FILE **testing_file, config_vars *vars)
 	*testing_file = fopen(fname, "r"); 
 	if (*testing_file == NULL) {
 	    (void)fprintf(stderr, "%s: Unable to open test file \"%s\": %s\n",
-	    pmProgname, fname, strerror(errno));
+	    pmProgname, fname, osstrerror(oserror()));
 	    return -1;
 	}
     }
@@ -570,7 +566,7 @@ refresh_proc_list(void)
 	    res = (process_t *)realloc(proc_list[current], 
                                        maxprocs[current] * sizeof(process_t));
 	    if (res == NULL)
-		return -errno;
+		return -oserror();
 	    proc_list[current] = res;
 	} 
 
@@ -742,7 +738,8 @@ refresh_proc_list(void)
 
     bzero(&sinfo, sizeof(sinfo)); /* for purify */
     if ((sysmp_sts = (int)sysmp(MP_SAGET, MPSA_SINFO, &sinfo, sizeof(struct sysinfo))) < 0) {
-   	__pmNotifyErr(LOG_ERR, "sysmp failed in refresh: %s\n", strerror(errno));
+   	__pmNotifyErr(LOG_ERR, "sysmp failed in refresh: %s\n",
+			osstrerror(oserror()));
         sysidle[current] = -1;
     }
     else {
@@ -844,7 +841,7 @@ hotproc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmd
 	return PM_ERR_INDOM;
 
     if ((res = (__pmInResult *)malloc(sizeof(*res))) == NULL)
-	return -errno;
+	return -oserror();
     res->indom = indom;
     res->instlist = NULL;
     res->namelist = NULL;
@@ -858,14 +855,14 @@ hotproc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmd
     if (inst == PM_IN_NULL) {
 	if ((res->instlist = (int *)malloc(res->numinst * sizeof(res->instlist[0]))) == NULL) {
 	    __pmFreeInResult(res);
-	    return -errno;
+	    return -oserror();
 	}
     }
 
     if (name == NULL) {
 	if ((res->namelist = (char **)malloc(res->numinst * sizeof(res->namelist[0]))) == NULL) {
 	    __pmFreeInResult(res);
-	    return -errno;
+	    return -oserror();
 	}
 	for (j = 0; j < res->numinst; j++)
 	    res->namelist[j] = NULL;
@@ -971,7 +968,7 @@ hotproc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     if (fetched == NULL) {
 	fetched = (int **)malloc(nctltab * sizeof(fetched[0]));
 	if (fetched == NULL)
-	    return -errno;
+	    return -oserror();
         memset(fetched, 0, nctltab * sizeof(fetched[0]));
     }
 
@@ -982,7 +979,7 @@ hotproc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	/* (numpmid - 1) because there's room for one valueSet in a pmResult */
 	need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
 	if ((res = (pmResult *) malloc(need)) == NULL)
-	    return -errno;
+	    return -oserror();
 	maxnpmids = numpmid;
     }
     res->timestamp.tv_sec = 0;
@@ -1002,7 +999,7 @@ hotproc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		        free(fetched[ctl_j]);
 		    fetched[ctl_j] = NULL;
 		}
-		return -errno;
+		return -oserror();
             }
 	    fetched[ctl_i] = f;
         }
@@ -1029,7 +1026,7 @@ hotproc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    res->numpmid = i;
 		    __pmFreeResultValues(res);
 		}
-		return -errno;
+		return -oserror();
 	    }
 	    vset->pmid = pmidlist[i];
 	    vset->numval = pmidErr;
@@ -1045,7 +1042,7 @@ hotproc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    res->numpmid = i;
 		    __pmFreeResultValues(res);
 		}
-		return -errno;
+		return -oserror();
 	    }
 	    vset->pmid = pmidlist[i];
 	    vset->numval = 1;
@@ -1209,7 +1206,7 @@ hotproc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    res->numpmid = i;
 		    __pmFreeResultValues(res);
 		}
-		return -errno;
+		return -oserror();
 	    }
 	    vset->pmid = pmidlist[i];
 	    vset->numval = numvals;
@@ -1376,8 +1373,9 @@ hotproc_init(pmdaInterface *dp)
     hotproc_domain = dp->domain;
 
     if ((procdir = opendir(PROCFS)) == NULL) {
-	dp->status = -errno;
-	__pmNotifyErr(LOG_ERR, "opendir(%s) failed: %s\n", PROCFS, strerror(errno));
+	dp->status = -oserror();
+	__pmNotifyErr(LOG_ERR, "opendir(%s) failed: %s\n", PROCFS,
+			osstrerror(oserror()));
         return;
     }
 
@@ -1385,8 +1383,9 @@ hotproc_init(pmdaInterface *dp)
 
     
     if ((num_cpus = (int)sysmp(MP_NPROCS)) < 0) {
-   	__pmNotifyErr(LOG_ERR, "sysmp failed to get NPROCS: %s\n", strerror(errno));
-	dp->status = -errno;
+	dp->status = -oserror();
+   	__pmNotifyErr(LOG_ERR, "sysmp failed to get NPROCS: %s\n",
+			osstrerror(oserror()));
         return;
     }
 
@@ -1541,8 +1540,9 @@ main(int argc, char **argv)
 		break;
 	    __pmAFunblock();
 	}
-	else if (nready < 0 && errno != EINTR) {
-	    __pmNotifyErr(LOG_ERR, "select failed: %s\n", strerror(errno));
+	else if (nready < 0 && neterror() != EINTR) {
+	    __pmNotifyErr(LOG_ERR, "select failed: %s\n",
+				netstrerror(neterror()));
 	}
     }
 

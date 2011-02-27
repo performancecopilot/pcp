@@ -143,7 +143,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 
     sts = connect(fd, (struct sockaddr*) &myAddr, sizeof(myAddr));
     if (sts < 0) {
-	sts = -errno;
+	sts = -neterror();
 	__pmCloseSocket(fd);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)

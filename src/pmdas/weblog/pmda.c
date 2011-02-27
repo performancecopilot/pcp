@@ -330,7 +330,7 @@ receivePDUs(pmdaInterface *dispatch)
 	sts = select(nfds, &rfds, (fd_set*)0, (fd_set*)0, &timeout);
 	if (sts < 0) {
 	    logmessage(LOG_ERR, "Error on fetch select: %s", 
-			 strerror(errno));
+			 netstrerror(neterror()));
 	    exit(1);
 	}  
 
@@ -1130,7 +1130,7 @@ main(int argc, char **argv)
 
 	    if (proc->pid < 0) {
 	    	logmessage(LOG_ERR, "main: error creating sproc %d: %s\n",
-			     n, strerror(errno));
+			     n, osstrerror(oserror()));
 		exit(1);
 	    }
 
@@ -1149,13 +1149,13 @@ main(int argc, char **argv)
 		logmessage(LOG_WARNING,
 			   "main: pipe close(fd=%d) failed: %s\n",
 			   proc->inFD[0],
-			   strerror(errno));
+			   osstrerror(oserror()));
 	    }
 	    if(close(proc->outFD[1]) < 0) {
 		logmessage(LOG_WARNING,
 			   "main: pipe close(fd=%d) failed: %s\n",
 			   proc->outFD[1],
-			   strerror(errno));
+			   osstrerror(oserror()));
 	    }
 	}
     }

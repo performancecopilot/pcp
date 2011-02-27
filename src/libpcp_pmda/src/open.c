@@ -49,7 +49,7 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 	service = getservbyname(sockname, NULL);
 	if (service == NULL) {
 	    __pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: getservbyname(%s): %s\n", 
-		    sockname, strerror(errno));
+		    sockname, netstrerror(neterror()));
 	    exit(1);
 	}
 	myport = service->s_port;
@@ -57,7 +57,8 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 
     sfd = __pmCreateSocket();
     if (sfd < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet socket: %s\n", strerror(errno));
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet socket: %s\n",
+			netstrerror(neterror()));
 	exit(1);
     }
 #ifndef IS_MINGW
@@ -65,14 +66,18 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
      * allow port to be quickly re-used, e.g. when Install and PMDA already
      * installed, this becomes terminate and restart in a hurry ...
      */
-    if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, (char *) &one, (mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: setsockopt(reuseaddr): %s\n", strerror(errno));
+    if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
+		(mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: setsockopt(reuseaddr): %s\n",
+			netstrerror(neterror()));
 	exit(1);
     }
 #else
     /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
-    if (setsockopt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one, (mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: setsockopt(excladdruse): %s\n", strerror(errno));
+    if (setsockopt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
+		(mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: setsockopt(excladdruse): %s\n",
+			netstrerror(neterror()));
 	exit(1);
     }
 #endif
@@ -83,19 +88,22 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
     myaddr.sin_port = htons(myport);
     sts = bind(sfd, (struct sockaddr*) &myaddr, sizeof(myaddr));
     if (sts < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet bind: %s\n", strerror(errno));
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet bind: %s\n",
+			netstrerror(neterror()));
 	exit(1);
     }
 
     sts = listen(sfd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet listen: %s\n", strerror(errno));
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet listen: %s\n",
+			netstrerror(neterror()));
 	exit(1);
     }
     addrlen = sizeof(from);
     /* block here, waiting for a connection */
     if ((*infd = accept(sfd, (struct sockaddr *)&from, &addrlen)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet accept: %s\n", strerror(errno));
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet accept: %s\n",
+			netstrerror(neterror()));
 	exit(1);
     }
     __pmCloseSocket(sfd);
@@ -121,7 +129,7 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
     sfd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sfd < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: Unix domain socket: %s",
-		     strerror(errno));
+		     netstrerror(neterror()));
 	exit(1);
     }
     /* Sockets in the Unix domain are named pipes in the file system.
@@ -132,12 +140,12 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
     if ((sts = unlink(sockname)) == 0)
     	__pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: Unix domain socket '%s' existed, unlinked it\n",
 		     sockname);
-    else if (sts < 0 && errno != ENOENT) {
+    else if (sts < 0 && oserror() != ENOENT) {
 	/* If can't unlink socket, give up.  We might end up with an
 	 * unwanted connection to some other socket (from outer space)
 	 */
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: Unlinking Unix domain socket '%s': %s\n",
-		     sockname, strerror(errno));
+		     sockname, osstrerror(oserror()));
 	exit(1);
     }
     memset(&myaddr, 0, sizeof(myaddr));
@@ -146,19 +154,22 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
     len = (int)strlen(myaddr.sun_path) + (int)sizeof(myaddr.sun_family);
     sts = bind(sfd, (struct sockaddr*) &myaddr, len);
     if (sts < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix bind: %s\n", strerror(errno));
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix bind: %s\n",
+			netstrerror(neterror()));
 	exit(1);
     }
 
     sts = listen(sfd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix listen: %s\n", strerror(errno));
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix listen: %s\n",
+			netstrerror(neterror()));
 	exit(1);
     }
     addrlen = sizeof(from);
     /* block here, waiting for a connection */
     if ((*infd = accept(sfd, (struct sockaddr *)&from, &addrlen)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix accept: %s\n", strerror(errno));
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix accept: %s\n",
+			netstrerror(neterror()));
 	exit(1);
     }
     close(sfd);

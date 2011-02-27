@@ -406,6 +406,7 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 			}
 		else if(selectRet == -1)
 			{
+			setoserror(neterror());
 			close(sock);
 			free(pageBuf);
 			errorSource = ERRNO;
@@ -415,6 +416,7 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 		ret = recv(sock, pageBuf + bytesRead, contentLength, 0);
 		if(ret == -1)
 			{
+			setoserror(neterror());
 			close(sock);
 			free(pageBuf);
 			errorSource = ERRNO;
@@ -716,10 +718,20 @@ int _http_read_header(int sock, char *headerPtr)
 			errorInt = timeout;
 			return -1;
 			}
-		else if(selectRet == -1) { errorSource = ERRNO; return -1; }
+		else if(selectRet == -1)
+			{
+			setoserror(neterror());
+			errorSource = ERRNO;
+			return -1;
+			}
 
 		ret = recv(sock, headerPtr, 1, 0);
-		if(ret == -1) { errorSource = ERRNO; return -1; }
+		if(ret == -1)
+			{
+			setoserror(neterror());
+			errorSource = ERRNO;
+			return -1;
+			}
 		bytesRead++;
 
 		if(*headerPtr == '\r')			/* Ignore CR */

@@ -74,7 +74,7 @@ AcceptNewClient(int reqfd)
     fd = accept(reqfd, (struct sockaddr *)&client[i].addr, &addrlen);
     if (fd == -1) {
 	__pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) accept failed: %s",
-			reqfd, strerror(errno));
+			reqfd, netstrerror(neterror()));
 	Shutdown();
 	exit(1);
     }

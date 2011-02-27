@@ -63,11 +63,11 @@ do_flush(void)
 
     sts = 0;
     if (fflush(logctl.l_mdfp) != 0)
-	sts = errno;
+	sts = oserror();
     if (fflush(logctl.l_mfp) != 0 && sts == 0)
-	sts = errno;
+	sts = oserror();
     if (fflush(logctl.l_tifp) != 0 && sts == 0)
-	sts = errno;
+	sts = oserror();
 
     return sts;
 }
@@ -392,7 +392,7 @@ do_dialog(char cmd)
 	    msgf = fdopen(fd, "w");
 	if (msgf == NULL) {
 	    fprintf(stderr, "\nError: failed create temporary message file for recording session dialog\n");
-	    fprintf(stderr, "Reason? %s\n", strerror(errno));
+	    fprintf(stderr, "Reason? %s\n", osstrerror(oserror()));
 	    if (fd != -1)
 		close(fd);
 	    goto failed;
@@ -437,7 +437,7 @@ failed:
     }
     else {
 	fprintf(stderr, "Error: failed to create recording session dialog message!\n");
-	fprintf(stderr, "Reason? %s\n", strerror(errno));
+	fprintf(stderr, "Reason? %s\n", osstrerror(oserror()));
 	strcpy(lbuf, "Yes");
     }
 
@@ -702,7 +702,7 @@ Options:\n\
     if (configfile != NULL) {
 	if ((yyin = fopen(configfile, "r")) == NULL) {
 	    fprintf(stderr, "%s: Cannot open config file \"%s\": %s\n",
-		pmProgname, configfile, strerror(errno));
+		pmProgname, configfile, osstrerror(oserror()));
 	    exit(1);
 	}
     }
@@ -995,8 +995,8 @@ Options:\n\
 
 	    __pmAFunblock();
 	}
-	else if (nready < 0 && errno != EINTR)
-	    perror("select");
+	else if (nready < 0 && neterror() != EINTR)
+	    fprintf(stderr, "Error: select: %s\n", netstrerror(neterror()));
     }
 
 }
@@ -1068,7 +1068,7 @@ newvolume(int vol_switch_type)
 	return nextvol;
     }
     else
-	return -errno;
+	return -oserror();
 }
 
 

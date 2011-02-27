@@ -146,7 +146,7 @@ openpmda(char *fname)
     struct stat	buf;
 
     if (stat(fname, &buf) < 0) {
-	fprintf(stderr, "openpmda: %s: %s\n", fname, strerror(errno));
+	fprintf(stderr, "openpmda: %s: %s\n", fname, osstrerror(oserror()));
 	return;
     }
 
@@ -160,7 +160,7 @@ openpmda(char *fname)
     putchar('\n');
 
     if (__pmProcessCreate(param.argv, &infd, &outfd) < 0) {
-	fprintf(stderr, "openpmda: create process: %s\n", strerror(errno));
+	fprintf(stderr, "openpmda: create process: %s\n", osstrerror(oserror()));
     }
     else {
 	connmode = CONN_DAEMON;
@@ -182,13 +182,13 @@ opensocket(char *fname)
     int 		len;
 
     if (stat(fname, &buf) < 0) {
-	fprintf(stderr, "opensocket: %s: %s\n", fname, strerror(errno));
+	fprintf(stderr, "opensocket: %s: %s\n", fname, osstrerror(oserror()));
 	return;
     }
 
     fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (fd < 0) {
-	fprintf(stderr, "opensocket: socket: %s\n", strerror(errno));
+	fprintf(stderr, "opensocket: socket: %s\n", netstrerror(neterror()));
 	return;
     }
 
@@ -200,7 +200,7 @@ opensocket(char *fname)
     closepmda();
 
     if (connect(fd, (struct sockaddr *)&s_un, len) < 0) {
-	fprintf(stderr, "opensocket: connect: %s\n", strerror(errno));
+	fprintf(stderr, "opensocket: connect: %s\n", netstrerror(neterror()));
 	close(fd);
 	return;
     }

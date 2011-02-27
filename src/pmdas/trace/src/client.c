@@ -44,7 +44,7 @@ acceptClient(int reqfd)
     fd = accept(reqfd, (struct sockaddr *)&clients[i].addr, &addrlen);
     if (fd == -1) {
 	__pmNotifyErr(LOG_ERR, "acceptClient(%d) accept: %s",
-		reqfd, strerror(errno));
+		reqfd, netstrerror(neterror()));
 	return NULL;
     }
     if (fd > maxfd)

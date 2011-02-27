@@ -360,7 +360,8 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 
     fd = __pmCreateSocket();
     if (fd < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) socket: %s\n", port, ipAddr, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) socket: %s\n",
+		port, ipAddr, netstrerror(neterror()));
 	return -1;
     }
     if (fd > maxClientFd)
@@ -370,20 +371,29 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     /* Ignore dead client connections */
     one = 1;
 #ifndef IS_MINGW
-    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&one, (mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) setsockopt(SO_REUSEADDR): %s\n", port, ipAddr, strerror(errno));
+    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
+		(mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_ERR,
+		"OpenRequestSocket(%d, 0x%x) setsockopt(SO_REUSEADDR): %s\n",
+		port, ipAddr, netstrerror(neterror()));
 	goto fail;
     }
 #else
-    if (setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one, (mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) setsockopt(SO_EXCLUSIVEADDRUSE): %s\n", port, ipAddr, strerror(errno));
+    if (setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
+		(mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_ERR,
+		"OpenRequestSocket(%d,0x%x) setsockopt(EXCLUSIVEADDRUSE): %s\n",
+		port, ipAddr, netstrerror(neterror()));
 	goto fail;
     }
 #endif
 
     /* and keep alive please - pv 916354 bad networks eat fds */
-    if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one, (mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) setsockopt(SO_KEEPALIVE): %s\n", port, ipAddr, strerror(errno));
+    if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one,
+		(mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_ERR,
+		"OpenRequestSocket(%d, 0x%x) setsockopt(SO_KEEPALIVE): %s\n",
+		port, ipAddr, netstrerror(neterror()));
 	goto fail;
     }
 
@@ -392,16 +402,19 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     myAddr.sin_addr.s_addr = ipAddr;
     myAddr.sin_port = htons(port);
     sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
-    if (sts < 0){
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) bind: %s\n", port, ipAddr, strerror(errno));
-	if (errno == EADDRINUSE)
+    if (sts < 0) {
+	sts = neterror();
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) bind: %s\n",
+		port, ipAddr, netstrerror(sts));
+	if (sts == EADDRINUSE)
 	    __pmNotifyErr(LOG_ERR, "pmcd may already be running\n");
 	goto fail;
     }
 
     sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) listen: %s\n", port, ipAddr, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) listen: %s\n",
+		port, ipAddr, netstrerror(neterror()));
 	goto fail;
     }
     return fd;
@@ -751,8 +764,8 @@ ClientLoop(void)
 
     for (;;) {
 	if (_pmcd_done) {
-	    /* from pmcd pmda */
-	    __pmNotifyErr(LOG_INFO, "pmcd terminated via pmcd pmda and pmcd.control.debug");
+	    __pmNotifyErr(LOG_INFO,
+		"pmcd terminated via pmcd pmda and pmcd.control.debug");
 	    break;
 	}
 
@@ -859,8 +872,9 @@ ClientLoop(void)
 		reload_ns = HandleReadyAgents(&readableFds);
 	    HandleClientInput(&readableFds);
 	}
-	else if (sts == -1 && errno != EINTR) {
-	    __pmNotifyErr(LOG_ERR, "ClientLoop select: %s\n", strerror(errno));
+	else if (sts == -1 && neterror() != EINTR) {
+	    __pmNotifyErr(LOG_ERR, "ClientLoop select: %s\n",
+			netstrerror(neterror()));
 	    break;
 	}
 	if (restart) {

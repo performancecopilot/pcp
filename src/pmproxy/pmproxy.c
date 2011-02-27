@@ -234,7 +234,8 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 
     fd = __pmCreateSocket();
     if (fd < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) socket: %s\n", port, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) socket: %s\n",
+			port, netstrerror(neterror()));
 	DontStart();
     }
     if (fd > maxSockFd)
@@ -243,21 +244,30 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 
 #ifndef IS_MINGW
     /* Ignore dead client connections */
-    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one, (mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) setsockopt(SO_REUSEADDR): %s\n", port, strerror(errno));
+    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one,
+			(mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_ERR,
+		"OpenRequestSocket(%d) setsockopt(SO_REUSEADDR): %s\n",
+		port, netstrerror(neterror()));
 	DontStart();
     }
 #else
     /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
-    if (setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one, (mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) setsockopt(SO_EXCLUSIVEADDRUSE): %s\n", port, strerror(errno));
+    if (setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one,
+			(mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_ERR,
+		"OpenRequestSocket(%d) setsockopt(SO_EXCLUSIVEADDRUSE): %s\n",
+		port, netstrerror(neterror()));
 	DontStart();
     }
 #endif
 
     /* and keep alive please - pv 916354 bad networks eat fds */
-    if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one, (mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) setsockopt(SO_KEEPALIVE): %s\n", port, ipAddr, strerror(errno));
+    if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one,
+			(mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_ERR,
+		"OpenRequestSocket(%d, 0x%x) setsockopt(SO_KEEPALIVE): %s\n",
+		port, ipAddr, netstrerror(neterror()));
 	DontStart();
     }
 
@@ -267,14 +277,16 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     myAddr.sin_port = htons(port);
     sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
     if (sts < 0){
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) bind: %s\n", port, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) bind: %s\n",
+			port, netstrerror(neterror()));
 	__pmNotifyErr(LOG_ERR, "pmproxy is already running\n");
 	DontStart();
     }
 
     sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) listen: %s\n", port, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) listen: %s\n",
+			port, netstrerror(neterror()));
 	DontStart();
     }
     return fd;
@@ -471,10 +483,12 @@ ClientLoop(void)
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_CONTEXT)
 			    /* append to message started in AcceptNewClient() */
-			    fprintf(stderr, " oops!\n__pmAuxConnectPMCDPort(%s,%d) failed: %s\n",
-				cp->pmcd_hostname, cp->pmcd_port, pmErrStr(-errno));
+			    fprintf(stderr, " oops!\n"
+				"__pmAuxConnectPMCDPort(%s,%d) failed: %s\n",
+				cp->pmcd_hostname, cp->pmcd_port,
+				pmErrStr(-oserror()));
 #endif
-			CleanupClient(cp, -errno);
+			CleanupClient(cp, -oserror());
 		    }
 		    else {
 			if (cp->pmcd_fd > maxSockFd)
@@ -491,8 +505,9 @@ ClientLoop(void)
 
 	    HandleInput(&readableFds);
 	}
-	else if (sts == -1 && errno != EINTR) {
-	    __pmNotifyErr(LOG_ERR, "ClientLoop select: %s\n", strerror(errno));
+	else if (sts == -1 && neterror() != EINTR) {
+	    __pmNotifyErr(LOG_ERR, "ClientLoop select: %s\n",
+				netstrerror(neterror()));
 	    break;
 	}
 	if (timeToDie) {
@@ -591,7 +606,7 @@ main(int argc, char *argv[])
     fflush(stdout);
     close(fileno(stdout));
     if (dup(fileno(stderr)) == -1) {
-	fprintf(stderr, "Warning: dup() failed: %s\n", pmErrStr(-errno));
+	fprintf(stderr, "Warning: dup() failed: %s\n", pmErrStr(-oserror()));
     }
 
     fprintf(stderr, "pmproxy: PID = %u", getpid());

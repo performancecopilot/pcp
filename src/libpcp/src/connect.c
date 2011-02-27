@@ -41,7 +41,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
     if (send(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
 	__pmNotifyErr(LOG_WARNING,
 	     "__pmConnectPMCD: send version string to pmproxy failed: %s\n",
-	     pmErrStr(-errno));
+	     pmErrStr(-neterror()));
 	return PM_ERR_IPC;
     }
     for (bp = buf; bp < &buf[MY_BUFLEN]; bp++) {
@@ -71,7 +71,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
     if (send(fd, buf, strlen(buf), 0) != strlen(buf)) {
 	__pmNotifyErr(LOG_WARNING,
 	     "__pmConnectPMCD: send hostname+port string to pmproxy failed: %s'\n",
-	     pmErrStr(-errno));
+	     pmErrStr(-neterror()));
 	return PM_ERR_IPC;
     }
 
@@ -255,7 +255,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	    if (proxy.name == NULL) {
 		__pmNotifyErr(LOG_WARNING,
 			     "__pmConnectPMCD: cannot save PMPROXY_HOST: %s\n",
-			     pmErrStr(-errno));
+			     pmErrStr(-oserror()));
 	    }
 	    else {
 		static int proxy_port = PROXY_PORT;

@@ -471,7 +471,8 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	    }
 	    else if (sts < 0) {
 		/* this is not expected to happen! */
-		__pmNotifyErr(LOG_ERR, "DoFetch: fatal select failure: %s\n", strerror(errno));
+		__pmNotifyErr(LOG_ERR, "DoFetch: fatal select failure: %s\n",
+			netstrerror(neterror()));
 		Shutdown();
 		exit(1);
 	    }

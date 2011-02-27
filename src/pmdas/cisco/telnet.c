@@ -28,7 +28,6 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <syslog.h>
-#include <errno.h>
 #include "./cisco.h"
 
 extern int	port;
@@ -42,21 +41,21 @@ conn_cisco(cisco_t * cp)
     fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0) {
 	fprintf(stderr, "conn_cisco(%s) socket: %s\n",
-	    cp->host, strerror(errno));
+	    cp->host, netstrerror(neterror()));
 	return -1;
     }
 
     i = 1;
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i, (mysocklen_t)sizeof(i)) < 0) {
 	fprintf(stderr, "conn_cisco(%s): setsockopt: %s\n",
-	    cp->host, strerror(errno));
+	    cp->host, netstrerror(neterror()));
 	close(fd);
 	return -1;
     }
 
-    if ( connect(fd, (struct sockaddr *)&cp->ipaddr, sizeof(cp->ipaddr)) < 0) {
+    if (connect(fd, (struct sockaddr *)&cp->ipaddr, sizeof(cp->ipaddr)) < 0) {
 	fprintf(stderr, "conn_cisco(%s): connect: %s\n",
-	    cp->host, strerror(errno));
+	    cp->host, netstrerror(neterror()));
 	close(fd);
 	return -1;
     }
@@ -420,10 +419,9 @@ grab_cisco(intf_t *ip)
 	fd = conn_cisco(cp);
 	if (fd < 0) {
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebug & DBG_TRACE_APPL0)
 		fprintf(stderr, "grab_cisco(%s:%s): connect failed: %s\n",
-			cp->host, ip->interface, strerror(errno));
-	    }
+			cp->host, ip->interface, netstrerror(neterror()));
 #endif
 	    return -1;
 	}

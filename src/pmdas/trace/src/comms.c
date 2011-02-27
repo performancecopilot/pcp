@@ -75,8 +75,9 @@ traceMain(pmdaInterface *dispatch)
 	if (nready == 0)
 	    continue;
 	else if (nready < 0) {
-	    if (errno != EINTR) {
-		__pmNotifyErr(LOG_ERR, "select failure");
+	    if (neterror() != EINTR) {
+		__pmNotifyErr(LOG_ERR, "select failure: %s",
+				netstrerror(neterror()));
 		exit(1);
 	    }
 	    continue;
@@ -211,37 +212,38 @@ getcport(void)
 
     fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0) {
-	perror("getcport: socket");
+	__pmNotifyErr(LOG_ERR, "getcport: socket: %s",
+			netstrerror(neterror()));
 	exit(1);
     }
     /* avoid 200 ms delay */
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i,
-					    (mysocklen_t)sizeof(i)) < 0) {
+				    (mysocklen_t)sizeof(i)) < 0) {
 	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(nodelay): %s",
-		strerror(errno));
+		netstrerror(neterror()));
 	exit(1);
     }
     /* don't linger on close */
     if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger,
-					    (mysocklen_t)sizeof(noLinger)) < 0) {
+				    (mysocklen_t)sizeof(noLinger)) < 0) {
 	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(nolinger): %s",
-		strerror(errno));
+		netstrerror(neterror()));
 	exit(1);
     }
 #ifndef IS_MINGW
     /* ignore dead client connections */
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one,
-					    (mysocklen_t)sizeof(one)) < 0) {
+				    (mysocklen_t)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(reuseaddr): %s",
-		strerror(errno));
+		netstrerror(neterror()));
 	exit(1);
     }
 #else
     /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
     if (setsockopt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one,
-					    (mysocklen_t)sizeof(one)) < 0) {
+				    (mysocklen_t)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(excladdruse): %s",
-		strerror(errno));
+		netstrerror(neterror()));
 	exit(1);
     }
 #endif
@@ -270,12 +272,14 @@ getcport(void)
     myAddr.sin_port = htons(ctlport);
     sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
     if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "bind(%d): %s", ctlport, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "bind(%d): %s", ctlport,
+			netstrerror(neterror()));
 	exit(1);
     }
     sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	perror("getcport: listen");
+	__pmNotifyErr(LOG_ERR, "listen: %s",
+			netstrerror(neterror()));
 	exit(1);
     }
 

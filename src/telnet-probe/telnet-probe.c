@@ -69,7 +69,7 @@ main(int argc, char *argv[])
     }
     if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 	if (vflag)
-	    fprintf(stderr, "socket: %s\n", strerror(errno));
+	    fprintf(stderr, "socket: %s\n", netstrerror(neterror()));
 	goto done;
     }
     setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char *) &nodelay, (mysocklen_t)sizeof(nodelay));
@@ -80,7 +80,7 @@ main(int argc, char *argv[])
     myAddr.sin_port = htons(port);
     if (connect(s, (struct sockaddr*) &myAddr, sizeof(myAddr)) < 0) {
 	if (vflag)
-	    fprintf(stderr, "connect: %s\n", strerror(errno));
+	    fprintf(stderr, "connect: %s\n", netstrerror(neterror()));
 	goto done;
     }
 
@@ -101,7 +101,7 @@ main(int argc, char *argv[])
 	fputc(c, fp);
 	if (ferror(fp)) {
 	    if (vflag)
-		fprintf(stderr, "telnet write: %s\n", strerror(errno));
+		fprintf(stderr, "telnet write: %s\n", osstrerror(oserror()));
 	    goto done;
 	}
 	fflush(fp);
@@ -117,7 +117,7 @@ main(int argc, char *argv[])
     }
     if (ferror(fp)) {
 	if (vflag)
-	    fprintf(stderr, "telnet read: %s\n", strerror(errno));
+	    fprintf(stderr, "telnet read: %s\n", osstrerror(oserror()));
 	goto done;
     }
 
