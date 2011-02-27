@@ -11,7 +11,7 @@ endif
 PATH	= $(shell . /etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-SUBDIRS = broken
+SUBDIRS = broken bigun
 
 default: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

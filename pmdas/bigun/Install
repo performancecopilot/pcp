@@ -1,0 +1,16 @@
+#! /bin/sh
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=bigun
+pmdaSetup
+
+pmda_interface=4
+dso_opt=true
+dso_name=`pwd`/bigun.${dso_suffix}
+daemon_opt=false
+
+pmdaInstall
+
+exit 0
