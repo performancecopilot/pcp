@@ -29,7 +29,6 @@
  *	  fetch, even only once in the input archive
  * 	- performance profiling
  * 	- testing with dynamic instance domains
- *	- implement -v volsamples
  *	- check comments ahead of call to doscan() and the description
  *	  in the head of scan.c
  */
@@ -89,6 +88,7 @@ main(int argc, char **argv)
     pmResult	*orp;		/* output pmResult */
     __pmPDU	*pb;		/* pdu buffer */
     struct timeval	unused;
+    unsigned long	peek_offset;
 #ifdef DESPERATE
     char	buf[26];
 #endif
@@ -265,7 +265,7 @@ main(int argc, char **argv)
 #endif
 
 	/*
-	 * traverse the interval, looking at every archive recoed ...
+	 * traverse the interval, looking at every archive record ...
 	 * we are particularly interested in:
 	 * 	- metric-values that are interpolated but not present in
 	 * 	  this interval
@@ -280,7 +280,27 @@ main(int argc, char **argv)
 	    goto cleanup;
 	}
 
-	/* TODO - volume switching as per -v */
+	/* switch volumes if required */
+	if (varg > 0) {
+	    if (written > 0 && (written % varg) == 0) {
+		__pmTimeval	next_stamp;
+		next_stamp.tv_sec = irp->timestamp.tv_sec;
+		next_stamp.tv_usec = irp->timestamp.tv_usec;
+		newvolume(oname, &next_stamp);
+	    }
+	}
+	/*
+	 * Even without a -v option, we may need to switch volumes
+	 * if the data file exceeds 2^31-1 bytes
+	 */
+	peek_offset = ftell(logctl.l_mfp);
+	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
+	if (peek_offset > 0x7fffffff) {
+	    __pmTimeval	next_stamp;
+	    next_stamp.tv_sec = irp->timestamp.tv_sec;
+	    next_stamp.tv_usec = irp->timestamp.tv_usec;
+	    newvolume(oname, &next_stamp);
+	}
 
 	if ((orp = rewrite(irp)) == NULL) {
 	    /* reporting done in rewrite() */
