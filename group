@@ -1,223 +1,223 @@
 # QA groups control
 #
-# define groups and default owners
+# define groups
 # do not start group name with a digit
 #
 
 # separate groups by distribution
-oss		pcpqa
-sgi		pcpqa
+oss
+sgi
 
 # catch-all
-other		pcpqa
+other
 
 # sanity check ... quick coverage of most functionality
-sanity		pcpqa
+sanity
 
 # specific apps
 #
 # pmcd app and control infrastructure
-pmcd		pcpqa
+pmcd
 # pmcd proxy
-pmproxy		pcpqa
+pmproxy
 # pmchart app
-pmchart		pcpqa
+pmchart
 # pmdumplog app
-pmdumplog	pcpqa
+pmdumplog
 # pmlogger app (not control scripts)
-pmlogger	pcpqa
+pmlogger
 # pmview app
-pmview		pcpqa
+pmview
 # pmie app, sample rules and friends
-pmie		pcpqa
+pmie
 # dbpmda app
-dbpmda		pcpqa
+dbpmda
 # pmlc app and pmlc-pmlogger IPC
-pmlc		pcpqa
+pmlc
 # folio handling (mkaf and pmafm), also record mode
-folio		pcpqa
+folio
 # pmval app
-pmval		pcpqa
+pmval
 # pmkstat app
-pmkstat		pcpqa
+pmkstat
 # pmstat app
-pmstat		pcpqa
+pmstat
 # pmem app
-pmem		pcpqa
+pmem
 # pminfo app
-pminfo		pcpqa
+pminfo
 # pmprobe app
-pmprobe		pcpqa
+pmprobe
 # routervis
-routervis	pcpqa
+routervis
 # diskstat
-diskstat	pcpqa
+diskstat
 # pmpost
-pmpost		pcpqa
+pmpost
 # pmdate
-pmdate		pcpqa
+pmdate
 
 # general PDU encode/decode
-pdu		pcpqa
+pdu
 
 # time control services
-pmtime		pcpqa
+pmtime
 
 # PMNS related functions/programs
-pmns		pcpqa
+pmns
 
 # PCP version compatability
-compat		pcpqa
+compat
 
 # generic libpcp services (not pdu, not context, not archive)
-libpcp		pcpqa
+libpcp
 
 # fetch-specific, optfetch, groupfetch
-fetch		pcpqa
+fetch
 
 # archive support in libpcp, includes interp.c
-archive		pcpqa
+archive
 
 # cron.*, pm*log* apps (except pmlogger)
-logutil		pcpqa
+logutil
 
 # log processing apps
-pmlogextract	pcpqa
-pmlogreduce	pcpqa
-pmlogsummary	pcpqa
-pmlogconf	pcpqa
+pmlogextract
+pmlogreduce
+pmlogsummary
+pmlogconf
 
 # general context manipulations, includes profile cacheing
-context		pcpqa
+context
 
 # indom specific services
-indom		pcpqa
+indom
 
 # PM_CONTEXT_LOCAL
-context_local	pcpqa
+context_local
 
 # PCP on different platforms
-interop		pcpqa
+interop
 
 # memory leaks, assorted
-mem_leak	pcpqa
+mem_leak
 
 # general pmdas, but includes libpcp_pmda
-pmda		pcpqa
+pmda
 
 # pmda installation scripts and procedures
-pmda.install	pcpqa
+pmda.install
 
 # launching tools from pmview/oview
-pmlaunch	pcpqa
+pmlaunch
 
 # tools which use PCP_COUNTER_WRAP 
-wrap		pcpqa
+wrap
 
 # pmsnap utility
-pmsnap		pcpqa
+pmsnap
 
 # pmstore command and pmStore() libpcp routine
-pmstore		pcpqa
+pmstore
 
 # trace library and PMDA
-trace		pcpqa
+trace
 # cisco PMDA
-pmda.cisco	pcpqa
+pmda.cisco
 # environ PMDA
-pmda.environ	pcpqa
+pmda.environ
 # hotproc PMDA
-pmda.hotproc	pcpqa
+pmda.hotproc
 # mailq PMDA
-pmda.mailq	pcpqa
+pmda.mailq
 # news PMDA
-pmda.news	pcpqa
+pmda.news
 # kvm PMDA
-pmda.kvm	pcpqa
+pmda.kvm
 # pmcd PMDA
-pmda.pmcd	pcpqa
+pmda.pmcd
 # proc PMDA
-pmda.proc	pcpqa
+pmda.proc
 # sample PMDA
-pmda.sample	pcpqa
-pmda.sampledso	pcpqa
+pmda.sample
+pmda.sampledso
 # shping PMDA
-pmda.shping	pcpqa
+pmda.shping
 # simple PMDA
-pmda.simple	pcpqa
+pmda.simple
 # summary PMDA
-pmda.summary	pcpqa
+pmda.summary
 # trivial PMDA
-pmda.trivial	pcpqa
+pmda.trivial
 # sendmail PMDA
-pmda.sendmail	pcpqa
+pmda.sendmail
 # txmon PMDA
-pmda.txmon	pcpqa
+pmda.txmon
 # mmv PMDA
-pmda.mmv	pcpqa
+pmda.mmv
 
 # libirixpmda
-libirixpmda	pcpqa
+libirixpmda
 
 # Linux platform PMDA
-pmda.linux	pcpqa
+pmda.linux
 
 # libpcp_dev
-libpcp_dev	pcpqa
+libpcp_dev
 
 # pmsocks
-pmsocks		pcpqa
+pmsocks
 
 # newhelp, chkhelp and associated library support
-help		pcpqa
+help
 
 # oview
-oview		pcpqa
+oview
 
 # pmgadgets
-pmgadgets	pcpqa
+pmgadgets
 
 # tests that use purify
-purify		pcpqa
+purify
 
 # tests that use valgrind
-valgrind	pcpqa
+valgrind
 
 # pmcd_wait - wait for pmcd to be ready for connections
-pmcd_wait	pcpqa
+pmcd_wait
 
 # pmimport and plugins
-pmimport	pcpqa
+pmimport
 
 # pmieconf - app, pconf and lconf
-pmieconf	pcpqa
+pmieconf
 
 # os testing - eagan
-ostest		pcpqa
+ostest
 
 # pcpweb
-pcpweb		pcpqa
+pcpweb
 
 # mpi stuff
-mpi		pcpqa
+mpi
 
 # mpi PMDA
-pmda.mpi	pcpqa
+pmda.mpi
 
 # mpi library
-libpcp_mpi	pcpqa
+libpcp_mpi
 
 # mpi read library
-libpcp_mpiread	pcpqa
+libpcp_mpiread
 
 # dmf stuff
-dmf		pcpqa
+dmf
 
 # derived metrics
-derive		pcpqa
+derive
 
 # event records
-event		pcpqa
+event
 
 # test-group association ... one line per test
 # ... use sort -n from here on down to tidy up this mess

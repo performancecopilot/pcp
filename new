@@ -50,33 +50,22 @@ then
 #
 # $Id: new,v 2.40 2005/02/21 22:33:43 kenmcd Exp $
 #
-# define groups and default owners
+# define groups
 # do not start group name with a digit
 #
 
 # catch-all
 #
-other		some-user-login
+other
 
 # test-group association ... one line per test
 #
 End-of-File
 fi
 
-if [ ! -f owner ]
-then
-    echo "Creating the owner index ..."
-    touch owner
-fi
-
 if [ ! -w group ]
 then
     echo "Error: cannot write index file \"group\""
-    _cleanup
-    exit 1
-elif [ ! -w owner ]
-then
-    echo "Error: cannot write index file \"owner\""
     _cleanup
     exit 1
 fi
@@ -97,12 +86,10 @@ else
     try=100
 fi
 # pick first hole after $try, provided the test does not already exist
-# (second condition needed for lagging owner updates after test checked
-# in).
 #
 while true
 do
-    id=`grep '^[0-9][0-9]* ' owner \
+    id=`sed -n -e '/^[0-9]/s/[ 	].*//p' <group \
 	| LC_COLLATE=POSIX sort -n \
 	| $PCP_AWK_PROG '
 BEGIN		{ last = '$try' }
@@ -231,10 +218,6 @@ $PCP_ECHO_PROG $PCP_ECHO_N "Adding $id to group index ...""$PCP_ECHO_C"
 dist=oss
 [ "$id" -ge 1000 ] && dist=sgi
 echo "$id $ans $dist" >>group
-echo " done."
-
-$PCP_ECHO_PROG $PCP_ECHO_N "Adding $id to owner index ...""$PCP_ECHO_C"
-echo "$id pcpqa" >>owner
 echo " done."
 
 exit 0

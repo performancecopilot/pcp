@@ -357,15 +357,11 @@ s/ .*//p
     then
     	selbygroup=true
 
-	# if no test numbers, do everything from owner file
-	[ ! -s $tmp.list ] && sed -e '/^#/d' -e 's/[ 	].*//' <owner >$tmp.list
-	####  WAS: [ ! -s $tmp.list ] && ls [0-9][0-9][0-9] [0-9][0-9][0-9][0-9] \
-    	####         >$tmp.list 2>/dev/null
+	# if no test numbers, do everything from group file
+	[ ! -s $tmp.list ] && sed -n -e '/^[0-9]/s/[ 	].*//p' <group >$tmp.list
 
 	# arg after -x
-	group_list=`sed -n <group -e 's/$/ /' -e "/^[0-9][0-9][0-9].* $r /"'{
-s/ .*//p
-}'`
+	group_list=`sed -n -e "/^[0-9].* $r /s/[ 	].*//p" <group`
 	if [ -z "$group_list" ]
 	then
 	    echo "Group \"$r\" is empty or not defined; ignored"
@@ -551,9 +547,9 @@ BEGIN	{ for (t='$start'; t<='$end'; t++) printf "%03d\n",t }' \
 	do
 	    # if test not present, silently forget about it
 	    [ -f $id ] || continue
-	    if grep -s "^$id " owner >/dev/null
+	    if grep -s "^$id[ 	]" group >/dev/null
 	    then
-		# in owner file ... OK
+		# in group file ... OK
 		echo $id >>$tmp.list
 	    else
 		# oops
@@ -571,7 +567,7 @@ then
 else
     if $have_test_arg
     then
-	# had test numbers, but none in owner file ... do nothing
+	# had test numbers, but none in group file ... do nothing
 	touch $tmp.list
     else
 	if $selbygroup
@@ -579,9 +575,9 @@ else
     	    echo "No tests selected?"
     	    exit 1
     	else
-	    # no test numbers, do everything from owner file
+	    # no test numbers, do everything from group file
 	    touch $tmp.list
-    	    sed -e '/^#/d' -e 's/[ 	].*//' <owner \
+	    sed -n -e '/^[0-9]/s/[ 	].*//p' <group \
 	    | while read id
 	    do
 		[ -f $id ] || continue

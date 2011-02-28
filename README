@@ -158,7 +158,7 @@ Doing the Real Work
 	has been made to the NNN script or the filters it uses.
 
     new
-	Make sure "group" and "owner" are writeable, then run "new" to
+	Make sure "group" is writeable, then run "new" to
 	create the skeletal framework of a new test.
 
 	It is strongly suggested that you base your test on an existing test
@@ -227,7 +227,7 @@ cisco PMDA Issues
     If you are unable to install the cisco PMDA, then the workarounds are:
 
     1. don't run tests 159 and 212, or
-    2. edit the "owner" file to comment out the lines for tests 159 and 212, 
+    2. edit the "group" file to comment out the lines for tests 159 and 212, 
        or
     3. alway run tests using -x pmda.cisco with the "check" script (this
        will exclude all of the pmda.cisco group, which is somewhat larger

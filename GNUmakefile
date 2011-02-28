@@ -13,7 +13,7 @@ include $(PCP_INC_DIR)/builddefs
 
 SUBDIRS = src-oss pmdas
 
-TESTS	= $(shell sed -e 's/ .*//' owner)
+TESTS	= $(shell sed -n -e '/^[0-9]/s/[ 	].*//p' <group)
 
 default:	new remake check qa_hosts $(OTHERS)
 
@@ -38,16 +38,10 @@ clobber cleanup:	$(SUBDIRS)
 	# these ones are links to the real files created when the associated
 	# test is run
 	#
-	rm -f 008.out 012.out 015.out 019.out 022.out 023.out 024.out 031.out \
-	    033.out 044.out 051.out 062.out 066.out 067.out 069.out 075.out \
-	    082.out 083.out 110.out 119.out 130.out 149.out 154.out \
-	    158.out 159.out 162.out 180.out 183.out 188.out 190.out \
-	    200.out 215.out 243.out 244.out 245.out 250.out 255.out \
-	    262.out 278.out 282.out 283.out \
-	    294.out 299.out 313.out 355.out 365.out 375.out \
-	    376.out 411.out 417.out 419.out 421.out 430.out 465.out 519.out \
-	    555.out 558.out 560.out 565.out 574.out \
-	    580.out 587.out 597.out 600.out 603.out 605.out
+	grep '\.out$$' .gitignore | xargs rm -f
+	# from QA 441
+	#
+	rm -f big1.*
 	$(SUBDIRS_MAKERULE)
 
 # 051 depends on this rule being here

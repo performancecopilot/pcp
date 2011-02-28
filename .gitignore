@@ -9,6 +9,7 @@
 *.new
 *.raw
 *.log
+big1.*
 commit-id.*
 commit-msg.*
 tmp.*
