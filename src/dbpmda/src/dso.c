@@ -12,10 +12,7 @@
  * for more details.
  */
 
-#include <string.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <errno.h>
 #include "./dbpmda.h"
 #include "pmapi.h"
 
@@ -37,7 +34,7 @@ opendso(char *dso, char *init, int domain)
     dispatch.status = -1;
 
     if (stat(dso, &buf) < 0) {
-	fprintf(stderr, "opendso: %s: %s\n", dso, strerror(errno));
+	fprintf(stderr, "opendso: %s: %s\n", dso, osstrerror(oserror()));
 	return;
     }
    

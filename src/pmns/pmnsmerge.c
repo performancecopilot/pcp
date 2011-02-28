@@ -268,7 +268,7 @@ Options:\n\
     __pmSetSignalHandler(SIGTERM, SIG_IGN);
 
     if ((outf = fopen(argv[argc-1], "w+")) == NULL) {
-	fprintf(stderr, "%s: Error: cannot create output PMNS file \"%s\": %s\n", pmProgname, argv[argc-1], strerror(oserror()));
+	fprintf(stderr, "%s: Error: cannot create output PMNS file \"%s\": %s\n", pmProgname, argv[argc-1], osstrerror(oserror()));
 	exit(1);
     }
 

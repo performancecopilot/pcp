@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmcd.h"
@@ -405,7 +401,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     if (sts < 0) {
 	sts = neterror();
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) bind: %s\n",
-		port, ipAddr, netstrerror(sts));
+		port, ipAddr, netstrerror(neterror()));
 	if (sts == EADDRINUSE)
 	    __pmNotifyErr(LOG_ERR, "pmcd may already be running\n");
 	goto fail;

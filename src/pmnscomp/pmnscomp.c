@@ -14,10 +14,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <ctype.h>
@@ -282,9 +278,9 @@ Options:\n\
     if (force) {
 	struct stat	sbuf;
 	if (stat(argv[optind], &sbuf) == -1) {
-	    if (errno != ENOENT) {
+	    if (oserror() != ENOENT) {
 		fprintf(stderr, "%s: cannot stat \"%s\": %s\n",
-		    pmProgname, argv[optind], strerror(errno));
+		    pmProgname, argv[optind], osstrerror(oserror()));
 		exit(1);
 	    }
 	}
@@ -297,7 +293,7 @@ Options:\n\
 	    }
 	    if (unlink(argv[optind]) == -1) {
 		fprintf(stderr, "%s: cannot unlink \"%s\": %s\n",
-		    pmProgname, argv[optind], strerror(errno));
+		    pmProgname, argv[optind], osstrerror(oserror()));
 		exit(1);
 	    }
 	}
@@ -375,7 +371,7 @@ Options:\n\
     __pmSetSignalHandler(SIGTERM, SIG_IGN);
 
     if ((outf = fopen(argv[optind], "w+")) == NULL) {
-	fprintf(stderr, "%s: cannot create \"%s\": %s\n", pmProgname, argv[optind], strerror(errno));
+	fprintf(stderr, "%s: cannot create \"%s\": %s\n", pmProgname, argv[optind], osstrerror(oserror()));
 	exit(1);
     }
 

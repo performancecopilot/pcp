@@ -428,7 +428,7 @@ pmtraceerrstr(int code)
 
     if ((code < 0) && (code > -PMTRACE_ERR_BASE))
 	/* intro(2) errors */
-	return strerror(-code);
+	return osstrerror(-code);
     else if (code == 0)
 	return "No error.";
     else {

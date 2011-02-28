@@ -10,15 +10,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
-#include <fcntl.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-
 #include "pmapi.h"
 #include "impl.h"
 #include "pmiestats.h"
@@ -36,13 +29,13 @@ main(int argc, char **argv)
 
 	if (f < 0) {
 	    fprintf(stderr, "%s: cannot open %s - %s\n",
-		    pmProgname, argv[i], strerror(errno));
+		    pmProgname, argv[i], osstrerror(oserror()));
 	    continue;
 	}
 
 	if (fstat(f, &st) < 0) {
 	    fprintf(stderr, "%s: cannot get size of %s - %s\n",
-		    pmProgname, argv[i], strerror(errno));
+		    pmProgname, argv[i], osstrerror(oserror()));
 	    continue;
 	}
 

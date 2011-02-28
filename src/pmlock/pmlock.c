@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -36,18 +32,18 @@ main(int argc, char **argv)
     }
     if (open(argv[1], O_CREAT|O_EXCL|O_RDONLY, 0) < 0) {
 	if (verbose) {
-	    if (errno == EACCES) {
+	    if (oserror() == EACCES) {
 		char	*p = dirname(argv[1]);
 		if (access(p, W_OK) == -1)
 		    printf("%s: Directory not writeable\n", p);
 		else
-		    printf("%s: %s\n", argv[1], strerror(EACCES));
+		    printf("%s: %s\n", argv[1], osstrerror(EACCES));
 	    }
 	    else
-		printf("%s: %s\n", argv[1], strerror(errno));
+		printf("%s: %s\n", argv[1], osstrerror(oserror()));
 	}
 	exit(1);
     }
-	
+
     exit(0);
 }

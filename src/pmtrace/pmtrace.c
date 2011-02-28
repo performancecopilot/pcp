@@ -12,11 +12,6 @@
  * for more details.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "trace.h"
@@ -141,13 +136,13 @@ Options:\n\
     if (api.host != NULL) {
 	if ((p = (char *)malloc(strlen(api.host) + 20)) == NULL) {
 	    fprintf(stderr, "%s: malloc failed: %s\n",
-		    me, pmtraceerrstr(-errno));
+		    me, pmtraceerrstr(-oserror()));
 	    exit(0);
 	}
 	sprintf(p, "PCP_TRACE_HOST=%s", api.host);
 	if (putenv(p) < 0) {
 	    fprintf(stderr, "%s: putenv failed: %s\n",
-		    me, pmtraceerrstr(-errno));
+		    me, pmtraceerrstr(-oserror()));
 	    exit(0);
 	}
     }
@@ -186,7 +181,7 @@ Options:\n\
 
 	if ((c = system(api.arg.command)) < 0) {
 	    fprintf(stderr, "%s: system error running '%s': %s\n",
-		    me, api.arg.command, pmtraceerrstr(-errno));
+		    me, api.arg.command, pmtraceerrstr(-oserror()));
 	    exit(0);
 	}
 	if (err < 0)

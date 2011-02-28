@@ -314,7 +314,7 @@ pmLoopRegisterSignal(
 	    int ee = oserror();
 
 	    __pmNotifyErr(LOG_WARNING, 
-			  "sigaction failed - %s", strerror(ee));
+			  "sigaction failed - %s", osstrerror(ee));
 	    return -ee;
 	}
     }

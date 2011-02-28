@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 /* 
@@ -138,7 +134,7 @@ dowhat		: logopt action
 		{
                     if ((tp = (task_t *)calloc(1, sizeof(task_t))) == NULL) {
 			char emess[256];
-			sprintf(emess, "malloc failed: %s", strerror(errno));
+			sprintf(emess, "malloc failed: %s", osstrerror(oserror()));
 			yyerror(emess);
                     }
                     tp->t_delta.tv_sec = $2 / 1000;
@@ -216,7 +212,7 @@ metricspec	: NAME
 		{ 
                     if ((metricName = strdup($1)) == NULL) {
 			char emess[256];
-			sprintf(emess, "malloc failed: %s", strerror(errno));
+			sprintf(emess, "malloc failed: %s", osstrerror(oserror()));
                         yyerror(emess);
 		    }
                 }
@@ -539,7 +535,7 @@ defer:
     return;
 
 nomem:
-    sprintf(emess, "malloc failed: %s", strerror(errno));
+    sprintf(emess, "malloc failed: %s", osstrerror(oserror()));
     yyerror(emess);
 
 snarf:

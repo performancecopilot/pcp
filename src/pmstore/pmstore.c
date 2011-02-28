@@ -13,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -148,11 +144,11 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
 
 	case PM_TYPE_64:
 		avp->ll = strtoll(buf, &endbuf, base);
-		/* trust the library to set errno to ERANGE as appropriate * */
+		/* trust library to set error code to ERANGE as appropriate */
 		break;
 
 	case PM_TYPE_U64:
-		/* trust the library to set errno to ERANGE as appropriate * */
+		/* trust library to set error code to ERANGE as appropriate */
 		avp->ull = strtoull(buf, &endbuf, base);
 		break;
 
