@@ -301,6 +301,7 @@ newvolume(char *base, __pmTimeval *tvp)
 		pmProgname, nextvol, pmErrStr(-errno));
 	abandon();
     }
+    flushsize = 100000;
 }
 
 
@@ -1430,6 +1431,7 @@ writerlist(rlist_t **rlready, double mintime)
     rlist_t	*elm;		/* element of rlready to be written out */
     __pmPDU	*pb;		/* pdu buffer */
     __pmTimeval	this;		/* timeval of this record */
+    unsigned long	peek_offset;
 
     needti = 0;
     titime = 0.0;
@@ -1467,11 +1469,6 @@ writerlist(rlist_t **rlready, double mintime)
 	    pre_startwin = 0;
 
 
-	/* write out the descriptor and instance domain pdu's first
-	 */
-	write_metareclist(elm->res, &needti);
-
-
 	/* convert log record to a pdu
 	 */
 	if (outarchvers == 1)
@@ -1488,6 +1485,20 @@ writerlist(rlist_t **rlready, double mintime)
 	/* __pmEncodeResult doesn't pin the PDU buffer, so we have to
 	 */
 	__pmPinPDUBuf(pb);
+
+	/*
+	 * Even without a -v option, we may need to switch volumes
+	 * if the data file exceeds 2^31-1 bytes
+	 */
+	peek_offset = ftell(logctl.l_mfp);
+	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
+	if (peek_offset > 0x7fffffff) {
+	    newvolume(outarchname, (__pmTimeval *)&pb[3]);
+	}
+
+	/* write out the descriptor and instance domain pdu's first
+	 */
+	write_metareclist(elm->res, &needti);
 
 
 	/* write out log record */
@@ -1540,8 +1551,9 @@ writerlist(rlist_t **rlready, double mintime)
 
         /* switch volumes if required */
         if (varg > 0) {
-            if (written % varg == 0)
+            if (written % varg == 0) {
                 newvolume(outarchname, (__pmTimeval *)&pb[3]);
+	    }
         }
 
 	/* LOG: free PDU buffer */
