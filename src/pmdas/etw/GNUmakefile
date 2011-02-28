@@ -26,7 +26,7 @@ LCFLAGS		= -I$(WINDIR)/include -D_WIN32_WINNT=0x0600
 LLDFLAGS	= -L$(WINDIR)/lib
 LLDLIBS		= -lpcp_tdh
 
-PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM) 
+PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 #CMDTARGET	= pmdaetw.exe
 #LIBTARGET	= pmda_etw.dll
 EXTRATARGETS	= tdhlist.exe
