@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include <signal.h>
@@ -79,7 +75,7 @@ moreinput(int fd, __pmTracePDU *pdubuf, int len)
 	if ((more = (more_ctl *)realloc(more, (fd+1)*sizeof(more[0]))) == NULL)
 {
 	    fprintf(stderr, "realloc failed (%d bytes): %s\n",
-		    (fd+1)*(int)sizeof(more[0]), strerror(-oserror()));
+		    (fd+1)*(int)sizeof(more[0]), osstrerror());
 	    return;
 	}
 	maxfd = fd;
@@ -169,12 +165,16 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 	    status = select(fd+1, &onefd, NULL, NULL, &wait);
 	    if (status == 0)
 		return PMTRACE_ERR_TIMEOUT;
-	    else if (status < 0)
+	    else if (status < 0) {
+		setoserror(neterror());
 		return status;
+	    }
 	}
-	status = (int)read(fd, buf, len);
-	if (status <= 0)	/* EOF or error */
+	status = (int)recv(fd, buf, len, 0);
+	if (status <= 0) {	/* EOF or error */
+	    setoserror(neterror());
 	    return status;
+	}
 	if (mode == -1)
 	    /* special case, see __pmtracegetPDU */
 	    return status;
@@ -241,7 +241,7 @@ __pmtracexmitPDU(int fd, __pmTracePDU *pdubuf)
     php->len = htonl(php->len);
     php->from = htonl(php->from);
     php->type = htonl(php->type);
-    n = (int)write(fd, pdubuf, len);
+    n = (int)send(fd, pdubuf, len, 0);
     php->len = ntohl(php->len);
     php->from = ntohl(php->from);
     php->type = ntohl(php->type);
@@ -330,7 +330,7 @@ __pmtracegetPDU(int fd, int timeout, __pmTracePDU **result)
 		len = 0;
 	    else
 		fprintf(stderr, "__pmtracegetPDU: fd=%d hdr: %s",
-			fd, strerror(-oserror()));
+			fd, osstrerror());
 	}
 	else if (len > 0)
 	    fprintf(stderr, "__pmtracegetPDU: fd=%d hdr: len=%d, not %d?",
@@ -387,7 +387,7 @@ __pmtracegetPDU(int fd, int timeout, __pmTracePDU **result)
 	    if (len == PMTRACE_ERR_TIMEOUT)
 		return PMTRACE_ERR_TIMEOUT;
 	    if (len < 0)
-		fprintf(stderr, "__pmtracegetPDU: error (%d) fd=%d: %s\n", oserror(), fd, strerror(-oserror()));
+		fprintf(stderr, "__pmtracegetPDU: error (%d) fd=%d: %s\n", oserror(), fd, osstrerror());
 	    else
 		fprintf(stderr, "__pmtracegetPDU: len=%d, not %d? (fd=%d)\n", len, need, fd);
 	    fprintf(stderr, "hdr: len=0x%08x type=0x%08x from=0x%08x\n",

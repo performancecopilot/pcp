@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "common.h"
@@ -80,7 +76,7 @@ disk_total_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	sts = perfstat_disk_total(NULL, &diskstat, sizeof(perfstat_disk_total_t), 1);
 	if (sts != 1) {
 	    /* TODO - how to find/decode errors? */
-	    fprintf(stderr, "perfstat_disk_total: failed %s\n", strerror(errno));
+	    fprintf(stderr, "perfstat_disk_total: failed %s\n", osstrerror());
 	    fetched = -1;
 	}
 	else

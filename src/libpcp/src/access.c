@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include <limits.h>
@@ -84,9 +80,8 @@ GetMyHostId(void)
     myHostName[MAXHOSTNAMELEN-1] = '\0';
 
     if ((hep = gethostbyname(myHostName)) == NULL) {
-	__pmNotifyErr(LOG_ERR,
-		     "gethostbyname(%s), %s\n",
-		     myHostName, hoststrerror(hosterror()));
+	__pmNotifyErr(LOG_ERR, "gethostbyname(%s), %s\n",
+		     myHostName, hoststrerror());
 	return -1;
     }
     myHostId.s_addr = ((struct in_addr *)hep->h_addr_list[0])->s_addr;
@@ -197,7 +192,7 @@ __pmAccFreeSavedHosts(void)
  *	id.  Zero means unspecified, which will allow unlimited connections or
  *	a subsequent __pmAccAddHost call with the same host to override maxCons.
  *
- * Returns a negated errno code on failure.
+ * Returns a negated system error code on failure.
  */
 
 int
@@ -283,9 +278,8 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	else
 	    realName = name;
 	if ((hep = gethostbyname(realName)) == NULL) {
-	    __pmNotifyErr(LOG_ERR,
-			 "gethostbyname(%s), %s\n",
-			 realName, hoststrerror(hosterror()));
+	    __pmNotifyErr(LOG_ERR, "gethostbyname(%s), %s\n",
+			 realName, hoststrerror());
 	    return -EHOSTUNREACH;	/* host error unsuitable to return */
 	}
 	hostId.s_addr = ((struct in_addr *)hep->h_addr_list[0])->s_addr;

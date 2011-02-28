@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "logger.h"
@@ -72,7 +68,7 @@ do_preamble(void)
     /* start to build the pmResult */
     res = (pmResult *)malloc(sizeof(pmResult) + (n_metric - 1) * sizeof(pmValueSet *));
     if (res == NULL)
-	return -errno;
+	return -oserror();
 
     res->numpmid = n_metric;
     last_stamp = res->timestamp = epoch;	/* struct assignment */
@@ -82,7 +78,7 @@ do_preamble(void)
     for (i = 0; i < n_metric; i++) {
 	res->vset[i] = (pmValueSet *)malloc(sizeof(pmValueSet));
 	if (res->vset[i] == NULL)
-	    return -errno;
+	    return -oserror();
 	res->vset[i]->pmid = desc[i].pmid;
 	res->vset[i]->numval = 1;
 	/* special case for each value 0 .. n_metric-1 */
@@ -149,11 +145,11 @@ do_preamble(void)
 	    char	**instname;
 
 	    if ((instid = (int *)malloc(sizeof(*instid))) == NULL)
-		return -errno;
+		return -oserror();
 	    *instid = mypid;
 	    sprintf(path, "%d", (int)mypid);
 	    if ((instname = (char **)malloc(sizeof(char *)+strlen(path)+1)) == NULL)
-		return -errno;
+		return -oserror();
 	    /*
 	     * this _is_ correct ... instname[] is a one element array
 	     * with the string value immediately following

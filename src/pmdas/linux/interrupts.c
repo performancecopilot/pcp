@@ -233,13 +233,13 @@ refresh_interrupt_values(void)
 	long ncpus = sysconf(_SC_NPROCESSORS_CONF);
 	online_cpumap = malloc(ncpus * sizeof(int));
 	if (!online_cpumap)
-	    return -errno;
+	    return -oserror();
 	cpu_count = ncpus;
     }
     memset(online_cpumap, 0, cpu_count * sizeof(int));
 
     if ((fp = fopen("/proc/interrupts", "r")) < 0)
-	return -errno;
+	return -oserror();
 
     /* first parse header, which maps online CPU number to column number */
     if (fgets(buf, sizeof(buf), fp)) {

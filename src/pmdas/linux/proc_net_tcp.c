@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1999,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * This code contributed by Michal Kara (lemming@arthur.plbohnice.cz)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -10,23 +11,10 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-/*
- * This code contributed by Michal Kara (lemming@arthur.plbohnice.cz)
- */
-
-#include <stdio.h>
-#include <errno.h>
 #include <ctype.h>
-#include <string.h>
-#include <stddef.h>
-#include <unistd.h>
-
+#include "pmapi.h"
 #include "proc_net_tcp.h"
 
 #define MYBUFSZ (1<<14) /*16k*/
@@ -45,12 +33,12 @@ refresh_proc_net_tcp(proc_net_tcp_t *proc_net_tcp)
     memset(proc_net_tcp, 0, sizeof(*proc_net_tcp));
 
     if ((fp = fopen("/proc/net/tcp", "r")) == NULL) {
-    	return -errno;
+    	return -oserror();
     }
     /* skip header */
     if (fgets(buf, sizeof(buf), fp) == NULL) {
     	/* oops, no header! */
-	return -errno;
+	return -oserror();
     }
     for (buf[0]='\0';;) {
 	q = strchrnul(p, '\n');
@@ -79,4 +67,3 @@ refresh_proc_net_tcp(proc_net_tcp_t *proc_net_tcp)
     /* success */
     return 0;
 }
-

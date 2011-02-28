@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 /* Extract network-related information from the kernel using MIB2
@@ -159,7 +155,7 @@ netmib2_refresh(void)
 
     if (putmsg(afd, &ctrl, NULL, 0) == -1) {
 	__pmNotifyErr(LOG_ERR, "Failed to push message down stream: %s\n",
-		      strerror(errno));
+		      osstrerror());
 	return;
     }
 
@@ -176,7 +172,7 @@ netmib2_refresh(void)
 	rv = getmsg(afd, &ctrl, NULL, &flags);
 	if (rv < 0) {
 	    __pmNotifyErr(LOG_ERR, "netmib2: failed to get a response: %s\n",
-			  strerror(errno));
+			  osstrerror());
 	    break;
 	}
 
@@ -208,7 +204,7 @@ netmib2_refresh(void)
 	if (rv) {
 	    __pmNotifyErr(LOG_ERR,
 			  "net2mib: Failed to get additional data: %s\n",
-			  strerror(errno));
+			  osstrerror());
 	    break;
 	}
 
@@ -314,14 +310,14 @@ netmib2_init(int first)
 
     afd = open("/dev/arp", O_RDWR);
     if (afd < 0) {
-	__pmNotifyErr(LOG_ERR, "Cannot open /dev/arp: %s\n", strerror(errno));
+	__pmNotifyErr(LOG_ERR, "Cannot open /dev/arp: %s\n", osstrerror());
 	return;
     }
 
     for (i = 0; i < 3; i++ ) {
 	if (ioctl(afd, I_PUSH, mods[i]) < 0) {
 	    __pmNotifyErr(LOG_ERR, "Cannot push %s into /dev/arp: %s\n",
-			  mods[i], strerror(errno));
+			  mods[i], osstrerror());
 	    close(afd);
 	    afd = -1;
 	    return;

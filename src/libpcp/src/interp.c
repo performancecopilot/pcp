@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include <limits.h>
@@ -559,7 +555,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     }
 
     if ((rp = (pmResult *)malloc(sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *))) == NULL)
-	return -errno;
+	return -oserror();
 
     rp->timestamp.tv_sec = ctxp->c_origin.tv_sec;
     rp->timestamp.tv_usec = ctxp->c_origin.tv_usec;
@@ -1153,7 +1149,7 @@ retry_forw:
 
 		    need = PM_VAL_HDR_SIZE + sizeof(float);
 		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
-			sts = -errno;
+			sts = -oserror();
 			goto bad_alloc;
 		    }
 		    vp->vlen = need;
@@ -1210,7 +1206,7 @@ retry_forw:
 
 		    need = PM_VAL_HDR_SIZE + sizeof(__int64_t);
 		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
-			sts = -errno;
+			sts = -oserror();
 			goto bad_alloc;
 		    }
 		    vp->vlen = need;
@@ -1349,7 +1345,7 @@ retry_forw:
 
 		    need = PM_VAL_HDR_SIZE + sizeof(double);
 		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
-			sts = -errno;
+			sts = -oserror();
 			goto bad_alloc;
 		    }
 		    vp->vlen = need;
@@ -1409,7 +1405,7 @@ retry_forw:
 
 		    vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {
-			sts = -errno;
+			sts = -oserror();
 			goto bad_alloc;
 		    }
 		    rp->vset[j]->valfmt = PM_VAL_DPTR;

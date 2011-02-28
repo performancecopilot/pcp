@@ -56,7 +56,7 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
      */
     need = (int)sizeof(pmResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
     if ((ans = (pmResult *)malloc(need)) == NULL)
-	return -errno;
+	return -oserror();
 
     /*
      * Check if we have enough space to accomodate "best" case scenario -
@@ -67,7 +67,7 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 	if ((splitlist = (pmID *)realloc (splitlist,
 					  sizeof (pmID)*splitmax)) == NULL) {
 	    splitmax = 0;
-	    return -errno;
+	    return -oserror();
 	}
     }
 
@@ -144,7 +144,7 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 		if (sts < 0) {
 		    ans->vset[k] = (pmValueSet *)malloc(sizeof(pmValueSet));
 		    if (ans->vset[k] == NULL)
-			return -errno;
+			return -oserror();
 		    ans->vset[k]->numval = sts;
 		    ans->vset[k]->pmid = pmidlist[k];
 		}

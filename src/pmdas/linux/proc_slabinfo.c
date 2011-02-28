@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <ctype.h>
@@ -50,7 +46,7 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
     }
 
     if ((fp = fopen("/proc/slabinfo", "r")) == (FILE *)NULL)
-	return -errno;
+	return -oserror();
 
     for (i=0; i < slabinfo->ncaches; i++) {
 	slabinfo->caches[i].seen = 0;
@@ -59,7 +55,7 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
     /* skip header */
     if (fgets(buf, sizeof(buf), fp) == NULL) {
     	/* oops, no header! */
-	return -errno;
+	return -oserror();
     }
 
     if (major_version < 0) {

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) International Business Machines Corp., 2002
+ * This code contributed by Mike Mason <mmlnx@us.ibm.com>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -10,31 +11,19 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-/*
- * This code contributed by Mike Mason <mmlnx@us.ibm.com>
- */
-
-#include <errno.h>
-#include <string.h>
-#include <sys/types.h>
 #define __USE_GNU 1   /* required for IPC_INFO define */
 #include <sys/ipc.h>
 #include <sys/sem.h>
 
+#include "pmapi.h"
 #include "sem_limits.h"
-
-static int started = 0;
 
 int
 refresh_sem_limits(sem_limits_t *sem_limits)
 {
-
+	static int started;
 	static struct seminfo seminfo;
 	static union semun arg;
 
@@ -45,7 +34,7 @@ refresh_sem_limits(sem_limits_t *sem_limits)
 	}
 
 	if (semctl(0, 0, IPC_INFO, arg) < 0) {
-		return -errno;
+		return -oserror();
 	}
 
 	sem_limits->semmap = seminfo.semmap;
@@ -58,8 +47,5 @@ refresh_sem_limits(sem_limits_t *sem_limits)
 	sem_limits->semusz = seminfo.semusz;
 	sem_limits->semvmx = seminfo.semvmx;
 	sem_limits->semaem = seminfo.semaem;
-
-	/* success */
 	return 0;
 }
-

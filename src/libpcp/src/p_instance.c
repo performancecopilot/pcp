@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include <ctype.h>
@@ -43,7 +39,7 @@ __pmSendInstanceReq(int fd, int from, const __pmTimeval *when, pmInDom indom,
     if (name != NULL)
 	need += PM_PDU_SIZE_BYTES(strlen(name));
     if ((pp = (instance_req_t *)__pmFindPDUBuf(sizeof(need))) == NULL)
-	return -errno;
+	return -oserror();
     pp->hdr.len = need;
     pp->hdr.type = PDU_INSTANCE_REQ;
     pp->hdr.from = from;
@@ -85,7 +81,7 @@ __pmDecodeInstanceReq(__pmPDU *pdubuf, __pmTimeval *when, pmInDom *indom, int *i
     pp->namelen = ntohl(pp->namelen);
     if (pp->namelen) {
 	if ((*name = (char *)malloc(pp->namelen+1)) == NULL)
-	    return -errno;
+	    return -oserror();
 	strncpy(*name, pp->name, pp->namelen);
 	(*name)[pp->namelen] = '\0';
     }
@@ -134,7 +130,7 @@ __pmSendInstance(int fd, int from, __pmInResult *result)
     }
 
     if ((rp = (instance_t *)__pmFindPDUBuf(need)) == NULL)
-	return -errno;
+	return -oserror();
     rp->hdr.len = need;
     rp->hdr.type = PDU_INSTANCE;
     rp->hdr.from = from;
@@ -186,7 +182,7 @@ __pmDecodeInstance(__pmPDU *pdubuf, __pmInResult **result)
     int			keep_namelist;
 
     if ((res = (__pmInResult *)malloc(sizeof(*res))) == NULL)
-	return -errno;
+	return -oserror();
     res->instlist = NULL;
     res->namelist = NULL;
 
@@ -195,11 +191,11 @@ __pmDecodeInstance(__pmPDU *pdubuf, __pmInResult **result)
     res->numinst = ntohl(rp->numinst);
 
     if ((res->instlist = (int *)malloc(res->numinst * sizeof(res->instlist[0]))) == NULL) {
-	sts = -errno;
+	sts = -oserror();
 	goto badsts;
     }
     if ((res->namelist = (char **)malloc(res->numinst * sizeof(res->namelist[0]))) == NULL) {
-	sts = -errno;
+	sts = -oserror();
 	goto badsts;
     }
     /* required for __pmFreeInResult() in the event of a later error */
@@ -219,7 +215,7 @@ __pmDecodeInstance(__pmPDU *pdubuf, __pmInResult **result)
 	if (ip->namelen > 0)
 	    keep_namelist = 1;
 	if ((p = (char *)malloc(ip->namelen + 1)) == NULL) {
-	    sts = -errno;
+	    sts = -oserror();
 	    goto badsts;
 	}
 	memcpy((void *)p, (void *)ip->name, ip->namelen);

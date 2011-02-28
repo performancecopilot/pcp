@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -41,7 +37,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
     if (send(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
 	__pmNotifyErr(LOG_WARNING,
 	     "__pmConnectPMCD: send version string to pmproxy failed: %s\n",
-	     pmErrStr(-errno));
+	     pmErrStr(-neterror()));
 	return PM_ERR_IPC;
     }
     for (bp = buf; bp < &buf[MY_BUFLEN]; bp++) {
@@ -71,7 +67,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
     if (send(fd, buf, strlen(buf), 0) != strlen(buf)) {
 	__pmNotifyErr(LOG_WARNING,
 	     "__pmConnectPMCD: send hostname+port string to pmproxy failed: %s'\n",
-	     pmErrStr(-errno));
+	     pmErrStr(-neterror()));
 	return PM_ERR_IPC;
     }
 
@@ -229,7 +225,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	    if (proxy.name == NULL) {
 		__pmNotifyErr(LOG_WARNING,
 			     "__pmConnectPMCD: cannot save PMPROXY_HOST: %s\n",
-			     pmErrStr(-errno));
+			     pmErrStr(-oserror()));
 	    }
 	    else {
 		static int proxy_port = PROXY_PORT;
@@ -312,7 +308,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT) {
 		fprintf(stderr, "__pmConnectPMCD(%s): proxy to %s port=%d failed: %s \n",
-			hosts[0].name, proxyhost->name, proxyport, pmErrStr(-errno));
+			hosts[0].name, proxyhost->name, proxyport, pmErrStr(-neterror()));
 	    }
 #endif
 	    return fd;

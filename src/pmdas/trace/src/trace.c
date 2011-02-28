@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -154,7 +150,7 @@ updateValueUnits(const char *str, int offset)
     char	*s, *sptr, *endp;
 
     if ((sptr = strdup(str)) == NULL)
-	return -errno;
+	return -oserror();
     s = sptr;
 
     for (i = 0; i < 6; i++) {
@@ -304,7 +300,7 @@ readData(int clientfd, int *protocol)
 	    return -1;
 	}
 	if ((newhash.tag = strdup(tag)) == NULL) {
-	    __pmNotifyErr(LOG_ERR, "string copy failed: %s", strerror(errno));
+	    __pmNotifyErr(LOG_ERR, "string copy failed: %s", osstrerror());
 	    return -1;
 	}
 	newhash.taglength = taglen;
@@ -390,7 +386,7 @@ readData(int clientfd, int *protocol)
 	if ((indomtab[indom].it_set = (pmdaInstid *)
 			realloc(indomtab[indom].it_set, size)) == NULL) {
 	    __pmNotifyErr(LOG_ERR, "dropping instance '%s': %s", hptr->tag,
-							strerror(errno));
+							osstrerror());
 	    free(hptr->tag);
 	    return -1;
 	}
@@ -870,7 +866,7 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	/* (numpmid - 1) because there's room for one valueSet in a pmResult */
 	need = (int)sizeof(pmResult) + (numpmid-1)*(int)sizeof(pmValueSet *);
 	if ((res = (pmResult *) malloc(need)) == NULL) {
-	    return -errno;
+	    return -oserror();
 	}
 	maxnpmids = numpmid;
     }
@@ -931,7 +927,7 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	if (vset == NULL) {
 	    if ((res->numpmid = i) > 0)
 		__pmFreeResultValues(res);
-	    return -errno;
+	    return -oserror();
 	}
 
 	vset->pmid = pmidlist[i];
@@ -962,7 +958,7 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		if (vset == NULL) {
 		    if ((res->numpmid = i) > 0)
 			__pmFreeResultValues(res);
-		    return -errno;
+		    return -oserror();
 		}
 	    }
 	    vset->vlist[j].inst = ins->i_inst;
@@ -1115,20 +1111,20 @@ traceInit(pmdaInterface *dp)
     rsize = (int)(sizeof(statlist_t) * rbufsize);
     if ((ringbuf.ring = (statlist_t *)malloc(rsize)) == NULL) {
 	__pmNotifyErr(LOG_ERR, "failed during ring buffer initialise: %s",
-		strerror(errno));
+		osstrerror());
 	exit(1);
     }
     for (rsize=0; rsize < rbufsize; rsize++) {
 	if ((ringbuf.ring[rsize].stats = (__pmHashTable *)
 	 			malloc(sizeof(__pmHashTable))) == NULL) {
 	    __pmNotifyErr(LOG_ERR, "ring buffer initialise failed: %s",
-		strerror(errno));
+		osstrerror());
 	    exit(1);
 	}
 	if ((sts = __pmhashinit(ringbuf.ring[rsize].stats, 0, sizeof(hashdata_t),
 						datacmp, datadel)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "ring buffer initialisation failed: %s",
-		strerror(sts));
+		osstrerror());
 	    exit(1);
 	}
 	ringbuf.ring[rsize].working = 0;
@@ -1145,14 +1141,14 @@ traceInit(pmdaInterface *dp)
     if ((sts = __pmhashinit(&summary, 0, sizeof(hashdata_t),
 						datacmp, summarydel)) < 0) {
 	__pmNotifyErr(LOG_ERR, "summary table initialisation failed: %s",
-						strerror(sts));
+						osstrerror());
 	exit(1);
     }
     /* initialise list of reserved instance domains (for store recovery) */
     if ((sts = __pmhashinit(&history, 0, sizeof(instdata_t),
 						instcmp, instdel)) < 0) {
 	__pmNotifyErr(LOG_ERR, "history table initialisation failed: %s",
-						strerror(sts));
+						osstrerror());
 	exit(1);
     }
 }

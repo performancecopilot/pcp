@@ -59,20 +59,20 @@ build_dsotab(void)
     }
 #endif
     if (stat(configFileName, &sbuf) < 0) {
-	return -errno;
+	return -oserror();
     }
     configFile = fopen(configFileName, "r");
     if (configFile == NULL) {
-	return -errno;
+	return -oserror();
     }
     if ((config = malloc(sbuf.st_size+1)) == NULL) {
 	__pmNoMem("build_dsotbl:", sbuf.st_size+1, PM_RECOV_ERR);
 	fclose(configFile);
-	return -errno;
+	return -oserror();
     }
     if (fread(config, 1, sbuf.st_size, configFile) != sbuf.st_size) {
 	fclose(configFile);
-	return -errno;
+	return -oserror();
     }
     config[sbuf.st_size] = '\0';
 
@@ -379,7 +379,7 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
 	    }
 	    else {
 		if ((dsotab[numdso].name = strdup(name)) == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    __pmNoMem("__pmLocalPMDA name", strlen(name)+1, PM_RECOV_ERR);
 		    return sts;
 		}
@@ -390,7 +390,7 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
 	    }
 	    else {
 		if ((dsotab[numdso].init = strdup(init)) == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    __pmNoMem("__pmLocalPMDA init", strlen(init)+1, PM_RECOV_ERR);
 		    return sts;
 		}
@@ -472,7 +472,7 @@ __pmSpecLocalPMDA(const char *spec)
     char	*ap;
 
     if ((arg = sbuf = strdup(spec)) == NULL) {
-	sts = -errno;
+	sts = -oserror();
 	__pmNoMem("__pmSpecLocalPMDA dup spec", strlen(spec)+1, PM_RECOV_ERR);
 	return "strdup failed";
     }

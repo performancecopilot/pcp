@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -39,7 +35,7 @@ refresh_swapdev(pmInDom swapdev_indom)
     pmdaCacheOp(swapdev_indom, PMDA_CACHE_INACTIVE);
 
     if ((fp = fopen("/proc/swaps", "r")) == (FILE *)NULL)
-	return -errno;
+	return -oserror();
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if (buf[0] != '/')
@@ -70,10 +66,6 @@ refresh_swapdev(pmInDom swapdev_indom)
 	sscanf(used, "%u", &swap->used);
 	sscanf(priority, "%d", &swap->priority);
     }
-
-    /*
-     * success
-     */
     fclose(fp);
     return 0;
 }

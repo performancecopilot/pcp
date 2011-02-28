@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include <signal.h>
@@ -80,6 +76,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
     int			socketipc = __pmSocketIPC(fd);
     int			status = 0;
     int			have = 0;
+    int			size;
     fd_set		onefd;
 
     while (len) {
@@ -94,9 +91,12 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 	     */
 	    __pmPDU	*lp;
 
-	    status = socketipc ?
-		recv(fd, buf, (int)sizeof(__pmPDU), 0) :
+	    if (socketipc) {
+		status = recv(fd, buf, (int)sizeof(__pmPDU), 0);
+		setoserror(neterror());
+	    } else {
 		read(fd, buf, (int)sizeof(__pmPDU));
+	    }
 	    __pmOverrideLastFd(fd);
 	    if (status <= 0)
 		/* EOF or error */
@@ -106,15 +106,21 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		return PM_ERR_IPC;
 	    lp = (__pmPDU *)buf;
 	    have = ntohl(*lp);
-	    status = socketipc ?
-		recv(fd, &buf[sizeof(__pmPDU)], have - (int)sizeof(__pmPDU), 0):
-		read(fd, &buf[sizeof(__pmPDU)], have - (int)sizeof(__pmPDU));
+	    size = have - (int)sizeof(__pmPDU);
+	    if (socketipc) {
+		status = recv(fd, &buf[sizeof(__pmPDU)], size, 0);
+		setoserror(neterror());
+	    } else {
+		read(fd, &buf[sizeof(__pmPDU)], size);
+	    }
 	    if (status <= 0)
 		/* EOF or error */
 		return status;
-	    else if (status != have - (int)sizeof(__pmPDU))
+	    else if (status != have - (int)sizeof(__pmPDU)) {
 		/* short read, bad error! */
+		setoserror(ENODATA);
 		return PM_ERR_IPC;
+	    }
 	    break;
 	}
 	else {
@@ -173,11 +179,17 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		}
 		else if (status < 0) {
 		    __pmNotifyErr(LOG_ERR, "pduread: select() on fd=%d: %s",
-			    fd, strerror(errno));
+			    fd, netstrerror());
+		    setoserror(neterror());
 		    return status;
 		}
 	    }
-	    status = socketipc ? recv(fd, buf, len, 0) : read(fd, buf, len);
+	    if (socketipc) {
+		status = recv(fd, buf, len, 0);
+		setoserror(neterror());
+	    } else {
+		status = read(fd, buf, len);
+	    }
 	    __pmOverrideLastFd(fd);
 	    if (status <= 0)
 		/* EOF or error */
@@ -303,8 +315,11 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
     php->from = ntohl(php->from);
     php->type = ntohl(php->type);
 
-    if (off != len)
-	return errno ? -errno : PM_ERR_IPC;
+    if (off != len) {
+	if (socketipc)
+	    return neterror() ? -neterror() : PM_ERR_IPC;
+	return oserror() ? -oserror() : PM_ERR_IPC;
+    }
 
     __pmOverrideLastFd(fd);
     if (php->type >= PDU_START && php->type <= PDU_FINISH)
@@ -325,7 +340,7 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
     __pmPDUHdr		*php;
 
     if ((pdubuf = __pmFindPDUBuf(maxsize)) == NULL)
-	return -errno;
+	return -oserror();
 
     /* First read - try to read the header */
     len = pduread(fd, (void *)pdubuf, sizeof(__pmPDUHdr), HEADER, timeout);
@@ -333,13 +348,10 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 
     if (len < (int)sizeof(__pmPDUHdr)) {
 	if (len == -1) {
-#if defined(IS_MINGW)	/* sometimes errno not even set on recv failure */
-	    len = 0;
-#else
-	    if (errno == ECONNRESET || errno == EPIPE || 
-		errno == ETIMEDOUT || errno == ENETDOWN ||
-		errno == ENETUNREACH || errno == EHOSTDOWN ||
-		errno == EHOSTUNREACH || errno == ECONNREFUSED)
+	    if (oserror() == ECONNRESET || oserror() == EPIPE || 
+		oserror() == ETIMEDOUT || oserror() == ENETDOWN ||
+		oserror() == ENETUNREACH || oserror() == EHOSTDOWN ||
+		oserror() == EHOSTUNREACH || oserror() == ECONNREFUSED)
 		/*
 		 * Treat this like end of file on input.
 		 *
@@ -361,8 +373,7 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 		 */
 		len = 0;
 	    else
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr(-errno));
-#endif
+		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr(-oserror()));
 	}
 	else if (len >= (int)sizeof(php->len)) {
 	    /*
@@ -430,7 +441,7 @@ check_read_len:
 	pdubuf_prev = pdubuf;
 	if ((pdubuf = __pmFindPDUBuf(tmpsize)) == NULL) {
 	    __pmUnpinPDUBuf(pdubuf_prev);
-	    return -errno;
+	    return -oserror();
 	}
 
 	maxsize = tmpsize;
@@ -447,7 +458,7 @@ check_read_len:
 	    if (len == PM_ERR_TIMEOUT)
 		return PM_ERR_TIMEOUT;
 	    else if (len < 0)
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: len=%d: %s", fd, len, pmErrStr(-errno));
+		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: len=%d: %s", fd, len, pmErrStr(-oserror()));
 	    else
 		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: have %d, want %d, got %d", fd, have, need, len);
 	    /*

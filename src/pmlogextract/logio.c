@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -69,29 +65,29 @@ again:
 	}
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "Error: hdr fread=%d %s\n", sts, strerror(errno));
+	    fprintf(stderr, "Error: hdr fread=%d %s\n", sts, osstrerror());
 #endif
 	if (sts > 0)
 	    return PM_ERR_LOGREC;
 	else
-	    return -errno;
+	    return -oserror();
     }
 
     if ((lpb = (__pmPDU *)malloc(ntohl(head))) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "Error: __pmFindPDUBuf(%d) %s\n",
-		(int)ntohl(head), strerror(errno));
+		(int)ntohl(head), osstrerror());
 #endif
 	fseek(f, offset, SEEK_SET);
-	return -errno;
+	return -oserror();
     }
 
     lpb[0] = head;
     if ((sts = (int)fread(&lpb[1], 1, ntohl(head) - sizeof(head), f)) != ntohl(head) - sizeof(head)) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "Error: data fread=%d %s\n", sts, strerror(errno));
+	    fprintf(stderr, "Error: data fread=%d %s\n", sts, osstrerror());
 #endif
 	if (sts == 0) {
 	    fseek(f, offset, SEEK_SET);
@@ -100,7 +96,7 @@ again:
 	else if (sts > 0)
 	    return PM_ERR_LOGREC;
 	else
-	    return -errno;
+	    return -oserror();
     }
 
 
@@ -180,9 +176,9 @@ _pmLogPut(FILE *f, __pmPDU *pb)
     if ((sts = (int)fwrite(pb, 1, rlen, f)) != rlen) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "_pmLogPut: fwrite=%d %s\n", sts, strerror(errno));
+	    fprintf(stderr, "_pmLogPut: fwrite=%d %s\n", sts, osstrerror());
 #endif
-	return -errno;
+	return -oserror();
     }
     return 0;
 }

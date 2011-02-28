@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -426,7 +422,7 @@ dometric(const char *name)
 
     namelist[batchidx]= strdup(name);
     if (namelist[batchidx] == NULL) {
-	fprintf(stderr, "%s: namelist string malloc: %s\n", pmProgname, strerror(errno));
+	fprintf(stderr, "%s: namelist string malloc: %s\n", pmProgname, osstrerror());
 	exit(1);
     }
 
@@ -674,12 +670,12 @@ main(int argc, char **argv)
     ParseOptions(argc, argv);
 
     if ((namelist = (char **)malloc(batchsize * sizeof(char *))) == NULL) {
-	fprintf(stderr, "%s: namelist malloc: %s\n", pmProgname, strerror(errno));
+	fprintf(stderr, "%s: namelist malloc: %s\n", pmProgname, osstrerror());
 	exit(1);
     }
 
     if ((pmidlist = (pmID *)malloc(batchsize * sizeof(pmID))) == NULL) {
-	fprintf(stderr, "%s: pmidlist malloc: %s\n", pmProgname, strerror(errno));
+	fprintf(stderr, "%s: pmidlist malloc: %s\n", pmProgname, osstrerror());
 	exit(1);
     }
 

@@ -11,10 +11,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
- *
  * Debug Flags
  *	DERIVE - high-level diagnostics
  *	DERIVE & APPL0 - configuration and static syntax analysis
@@ -1240,7 +1236,7 @@ pmLoadDerivedConfig(char *fname)
 #endif
 
     if ((fp = fopen(fname, "r")) == NULL) {
-	return -errno;
+	return -oserror();
     }
     buflen = 128;
     if ((buf = (char *)malloc(buflen)) == NULL) {
@@ -1500,7 +1496,7 @@ __dmgetname(pmID pmid, char ** name)
 	if (pmid == registered.mlist[i].pmid) {
 	    *name = strdup(registered.mlist[i].name);
 	    if (*name == NULL)
-		return -errno;
+		return -oserror();
 	    else
 		return 0;
 	}

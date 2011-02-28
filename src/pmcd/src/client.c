@@ -89,7 +89,7 @@ AcceptNewClient(int reqfd)
     addrlen = sizeof(client[i].addr);
     fd = accept(reqfd, (struct sockaddr *)&client[i].addr, &addrlen);
     if (fd == -1) {
-    	if (errno == EPERM) {
+    	if (neterror() == EPERM) {
 	    __pmNotifyErr(LOG_NOTICE, "AcceptNewClient(%d): "
 	 	          "Permission Denied\n", reqfd);
 	    client[i].fd = -1;
@@ -98,7 +98,7 @@ AcceptNewClient(int reqfd)
 	}
 	else {
 	    __pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) accept: %s\n",
-	    reqfd, strerror(errno));
+	    reqfd, netstrerror());
 	    Shutdown();
 	    exit(1);
 	}

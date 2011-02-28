@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "common.h"
@@ -413,7 +409,7 @@ init_data(int domain)
      */
     if ((metrictab = (pmdaMetric *)malloc(metrictab_sz * sizeof(pmdaMetric))) == NULL) {
 	fprintf(stderr, "init_data: Error: malloc metrictab [%d] failed: %s\n",
-	    metrictab_sz * sizeof(pmdaMetric), strerror(errno));
+	    metrictab_sz * sizeof(pmdaMetric), osstrerror());
 	exit(1);
     }
     for (i = 0; i < metrictab_sz; i++) {

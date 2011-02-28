@@ -1,5 +1,6 @@
 /*
  * Copyright (c) International Business Machines Corp., 2002
+ * This code contributed by Mike Mason <mmlnx@us.ibm.com>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -10,57 +11,32 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-/*
- * This code contributed by Mike Mason <mmlnx@us.ibm.com>
- */
-
-#include <errno.h>
-#include <string.h>
-#include <unistd.h>
 #include <fcntl.h>
-#include <stdio.h>
-
+#include "pmapi.h"
 #include "proc_uptime.h"
-
-static int started = 0;
 
 int
 refresh_proc_uptime(proc_uptime_t *proc_uptime)
 {
-	char buf[80];
-	int fd, n;
-	float uptime, idletime;
+    char buf[80];
+    int fd, n;
+    float uptime, idletime;
 
-	if (!started) {
-		started = 1;
-		memset(proc_uptime, 0, sizeof(proc_uptime_t));
-	}
+    memset(proc_uptime, 0, sizeof(proc_uptime_t));
 
-	if ((fd = open("/proc/uptime", O_RDONLY)) < 0) {
-		return -errno;
-	}
+    if ((fd = open("/proc/uptime", O_RDONLY)) < 0)
+	return -oserror();
 
-	if ((n = read(fd, buf, sizeof(buf))) < 0) {
-		return -errno;
-	}
-	close(fd);
+    n = read(fd, buf, sizeof(buf));
+    close(fd);
+    if (n < 0)
+	return -oserror();
+    buf[n] = '\0';
 
-	buf[n] = '\0';
-
-	/*
-	 * 0.00 0.00
-	 */
-	sscanf((const char *)buf, "%f %f", &uptime, &idletime);
-	proc_uptime->uptime = (unsigned long) uptime;
-	proc_uptime->idletime = (unsigned long) idletime;
-
-	/* success */
-	return 0;
+    sscanf((const char *)buf, "%f %f", &uptime, &idletime);
+    proc_uptime->uptime = (unsigned long) uptime;
+    proc_uptime->idletime = (unsigned long) idletime;
+    return 0;
 }
-

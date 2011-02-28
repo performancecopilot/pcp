@@ -12,20 +12,10 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <fcntl.h>
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
-
+#include "pmapi.h"
 #include "proc_loadavg.h"
 
 int
@@ -43,12 +33,12 @@ refresh_proc_loadavg(proc_loadavg_t *proc_loadavg)
     }
 
     if ((fd = open("/proc/loadavg", O_RDONLY)) < 0)
-	return -errno;
+	return -oserror();
 
     n = read(fd, buf, sizeof(buf));
     close(fd);
     if (n < 0)
-	return -errno;
+	return -oserror();
 
     buf[sizeof(buf)-1] = '\0';
 

@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -158,14 +154,14 @@ pmLookupInDom(pmInDom indom, const char *name)
 
 #ifdef ASYNC_API
 int
-pmRequestInDomName (int ctx, pmInDom indom, int inst)
+pmRequestInDomName(int ctx, pmInDom indom, int inst)
 {
     return (ctxid_request_instance (ctx, indom, inst, NULL));
 }
 #endif /*ASYNC_API*/
 
 static int
-receive_instance_name (__pmContext *ctxp, char **name)
+receive_instance_name(__pmContext *ctxp, char **name)
 {
     int n;
     __pmPDU *pb;
@@ -174,10 +170,10 @@ receive_instance_name (__pmContext *ctxp, char **name)
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_INSTANCE) {
 	__pmInResult *result;
-	
+
 	if ((n = __pmDecodeInstance(pb, &result)) >= 0) {
-	    if ((*name = strdup(result->namelist[0]))== NULL)
-		n = (errno) ? -errno : -ENOMEM;
+	    if ((*name = strdup(result->namelist[0])) == NULL)
+		n = -oserror();
 	    __pmFreeInResult(result);
 	}
     }
@@ -186,12 +182,12 @@ receive_instance_name (__pmContext *ctxp, char **name)
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
 
-    return (n);
+    return n;
 }
 
 #ifdef ASYNC_API
 int
-pmReceiveInDomName (int ctx, char **name)
+pmReceiveInDomName(int ctx, char **name)
 {
     int n;
     __pmContext	*ctxp;
@@ -237,7 +233,7 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 	    }
 	    if (n >= 0) {
 		if ((*name = strdup(result->namelist[0])) == NULL)
-		    n = -errno;
+		    n = -oserror();
 		__pmFreeInResult(result);
 	    }
 	}
@@ -246,7 +242,7 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 	    char	*tmp;
 	    if ((n = __pmLogNameInDom(ctxp->c_archctl->ac_log, indom, &ctxp->c_origin, inst, &tmp)) >= 0) {
 		if ((*name = strdup(tmp)) == NULL)
-		    n = -errno;
+		    n = -oserror();
 	    }
 	}
     }
@@ -265,7 +261,7 @@ pmRequestInDom (int ctx, pmInDom indom)
 static int
 inresult_to_lists (__pmInResult *result, int **instlist, char ***namelist)
 {
-    int n, i, need;
+    int n, i, sts, need;
     char *p;
     int *ilist;
     char **nlist;
@@ -278,14 +274,17 @@ inresult_to_lists (__pmInResult *result, int **instlist, char ***namelist)
     for (i = 0; i < result->numinst; i++) {
 	need += sizeof(**namelist) + strlen(result->namelist[i]) + 1;
     }
-    if ((ilist = (int *)malloc(result->numinst * sizeof(result->instlist[0]))) == NULL) {
+    ilist = (int *)malloc(result->numinst * sizeof(result->instlist[0]));
+    if (ilist == NULL) {
+	sts = -oserror();
 	__pmFreeInResult(result);
-	return ((errno) ? -errno : -ENOMEM);
+	return sts;
     }
     if ((nlist = (char **)malloc(need)) == NULL) {
+	sts = -oserror();
 	free(ilist);
 	__pmFreeInResult(result);
-	return ((errno) ? -errno : -ENOMEM);
+	return sts;
     }
 
     *instlist = ilist;
@@ -299,7 +298,7 @@ inresult_to_lists (__pmInResult *result, int **instlist, char ***namelist)
     }
     n = result->numinst;
     __pmFreeInResult(result);
-    return (n);
+    return n;
 }
 
 int
@@ -399,11 +398,11 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 		    need += sizeof(char *) + strlen(nametmp[i]) + 1;
 		}
 		if ((ilist = (int *)malloc(n * sizeof(insttmp[0]))) == NULL) {
-		    return -errno;
+		    return -oserror();
 		}
 		if ((nlist = (char **)malloc(need)) == NULL) {
 		    free(ilist);
-		    return -errno;
+		    return -oserror();
 		}
 		*instlist = ilist;
 		*namelist = nlist;

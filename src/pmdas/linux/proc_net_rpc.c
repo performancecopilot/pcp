@@ -12,21 +12,9 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <ctype.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
+#include "pmapi.h"
 #include "proc_net_rpc.h"
 
 int
@@ -43,7 +31,7 @@ refresh_proc_net_rpc(proc_net_rpc_t *proc_net_rpc)
      * client stats
      */
     if ((fp = fopen("/proc/net/rpc/nfs", "r")) == (FILE *)NULL) {
-    	proc_net_rpc->client.errcode = -errno;
+    	proc_net_rpc->client.errcode = -oserror();
     }
     else {
     	proc_net_rpc->client.errcode = 0;
@@ -99,7 +87,7 @@ refresh_proc_net_rpc(proc_net_rpc_t *proc_net_rpc)
      * server stats
      */
     if ((fp = fopen("/proc/net/rpc/nfsd", "r")) == (FILE *)NULL) {
-    	proc_net_rpc->server.errcode = -errno;
+    	proc_net_rpc->server.errcode = -oserror();
     }
     else {
 	proc_net_rpc->server.errcode = 0;
