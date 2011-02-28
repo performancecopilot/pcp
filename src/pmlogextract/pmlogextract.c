@@ -1486,6 +1486,12 @@ writerlist(rlist_t **rlready, double mintime)
 	 */
 	__pmPinPDUBuf(pb);
 
+        /* switch volumes if required */
+        if (varg > 0) {
+            if (written > 0 && (written % varg) == 0) {
+                newvolume(outarchname, (__pmTimeval *)&pb[3]);
+	    }
+        }
 	/*
 	 * Even without a -v option, we may need to switch volumes
 	 * if the data file exceeds 2^31-1 bytes
@@ -1547,13 +1553,6 @@ writerlist(rlist_t **rlready, double mintime)
             old_meta_offset = ftell(logctl.l_mdfp);
 
             flushsize = ftell(logctl.l_mfp) + 100000;
-        }
-
-        /* switch volumes if required */
-        if (varg > 0) {
-            if (written % varg == 0) {
-                newvolume(outarchname, (__pmTimeval *)&pb[3]);
-	    }
         }
 
 	/* LOG: free PDU buffer */
