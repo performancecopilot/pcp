@@ -52,9 +52,13 @@ Full merge with volume switch ...
 pmlogextract: New log volume 1, at datestamp
 pmlogextract: New log volume 2, at datestamp
 pmlogextract: New log volume 3, at datestamp
-pmlogextract: New log volume 4, at datestamp
 Log record counts ...
 a: 26
 b: 21
 c: 11
 merge: 58 (+2 marks)
+Log record counts per merged volume ...
+volume 0: 15
+volume 1: 15
+volume 2: 14 (+1 mark)
+volume 3: 14 (+1 mark)

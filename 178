@@ -168,3 +168,20 @@ do
     | _count_rec
 done
 
+for file in $tmp.merge.[0-9]*
+do
+    mv $file $file.x
+done
+
+echo "Log record counts per merged volume ..." | tee -a $seq.full
+for vol in `echo $tmp.merge.[0-9]* | sed -e "s;$tmp\\.merge\\.\\([0-9]*\\)\\.x;\\1;g"`
+do
+    $PCP_ECHO_PROG $PCP_ECHO_N "volume $vol: ""$PCP_ECHO_C"
+    ( echo; echo "=== volume $vol ===" ) >>$seq.full
+    mv $tmp.merge.$vol.x $tmp.merge.$vol
+    pmdumplog -m $tmp.merge \
+    | tee -a $seq.full \
+    | _count_rec
+    mv $tmp.merge.$vol $tmp.merge.$vol.x
+done
+
