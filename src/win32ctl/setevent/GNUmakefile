@@ -33,9 +33,6 @@ build-me:
 install:
 endif
 
-pcp-setevent.exe:	pcp-setevent.o
-	$(CCF) -o $@ $(LDFLAGS) $< $(LDLIBS)
-
 default_pcp:	default
 
 install_pcp:	install

@@ -33,9 +33,6 @@ build-me:
 install:
 endif
 
-pcp-eventlog.exe:	pcp-eventlog.o
-	$(CCF) -o $@ $(LDFLAGS) $< $(LDLIBS)
-
 default_pcp:	default
 
 install_pcp:	install

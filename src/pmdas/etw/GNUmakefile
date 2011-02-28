@@ -39,7 +39,7 @@ ifeq "$(TARGET_OS)" "mingw"
 build-me: $(LSRCFILES) $(CMDTARGET) $(LIBTARGET) $(EXTRATARGETS)
 install: build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 tdhlist.exe $(PMDADIR)
+	$(INSTALL) -m 755 tdhlist.exe $(PMDADIR)/tdhlist.exe
 else
 build-me:
 install:

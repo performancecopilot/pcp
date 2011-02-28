@@ -33,9 +33,6 @@ build-me:
 install:
 endif
 
-pcp-services.exe:	pcp-services.o
-	$(CCF) -o $@ $(LDFLAGS) $< $(LDLIBS)
-
 default_pcp:	default
 
 install_pcp:	install
