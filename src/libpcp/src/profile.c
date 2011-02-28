@@ -218,7 +218,7 @@ pmAddProfile(pmInDom indom, int instlist_len, int instlist[])
     if ((prof = __pmFindProfile(indom, ctxp->c_instprof)) == NULL) {
 	if ((prof = _newprof(indom, ctxp)) == NULL) {
 	    /* fail */
-	    return -errno;
+	    return -oserror();
 	}
 	else {
 	    /* starting state: exclude all except the supplied list */
@@ -293,7 +293,7 @@ pmDelProfile(pmInDom indom, int instlist_len, int instlist[])
     if ((prof = __pmFindProfile(indom, ctxp->c_instprof)) == NULL) {
 	if ((prof = _newprof(indom, ctxp)) == NULL) {
 	    /* fail */
-	    return -errno;
+	    return -oserror();
 	}
 	else {
 	    /* starting state: include all except the supplied list */

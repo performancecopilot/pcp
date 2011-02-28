@@ -39,7 +39,7 @@ __pmSendFetch(int fd, int from, int ctxnum, __pmTimeval *when, int numpmid, pmID
 
     need = sizeof(fetch_t) + (numpmid-1) * sizeof(pmID);
     if ((pp = (fetch_t *)__pmFindPDUBuf((int)need)) == NULL)
-	return -errno;
+	return -oserror();
     pp->hdr.len = (int)need;
     pp->hdr.type = PDU_FETCH;
     /* 

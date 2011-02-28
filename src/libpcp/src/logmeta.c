@@ -70,7 +70,7 @@ __pmHashAdd(unsigned int key, void *data, __pmHashCtl *hcp)
 	hcp->hsize = 1;	/* arbitrary number */
 	if ((hcp->hash = (__pmHashNode **)calloc(hcp->hsize, sizeof(__pmHashNode *))) == NULL) {
 	    hcp->hsize = 0;
-	    return -errno;
+	    return -oserror();
 	}
     }
     else if (hcp->nodes / 4 > hcp->hsize) {
@@ -85,7 +85,7 @@ __pmHashAdd(unsigned int key, void *data, __pmHashCtl *hcp)
 	if ((hcp->hash = (__pmHashNode **)calloc(hcp->hsize, sizeof(__pmHashNode *))) == NULL) {
 	    hcp->hsize = oldsize;
 	    hcp->hash = old;
-	    return -errno;
+	    return -oserror();
 	}
 	/*
 	 * re-link chains
@@ -103,7 +103,7 @@ __pmHashAdd(unsigned int key, void *data, __pmHashCtl *hcp)
     }
 
     if ((hp = (__pmHashNode *)malloc(sizeof(__pmHashNode))) == NULL)
-	return -errno;
+	return -oserror();
 
     k = key % hcp->hsize;
     hp->key = key;
@@ -147,7 +147,7 @@ addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp, int numinst,
     int		sts;
 
     if ((idp = (__pmLogInDom *)malloc(sizeof(__pmLogInDom))) == NULL)
-	return -errno;
+	return -oserror();
     idp->stamp = *tp;		/* struct assignment */
     idp->numinst = numinst;
     idp->instlist = instlist;
@@ -221,7 +221,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 #endif
 	    if (ferror(f)) {
 		clearerr(f);
-		sts = -errno;
+		sts = -oserror();
 	    }
 	    else
 		sts = PM_ERR_LOGREC;
@@ -237,7 +237,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 	if (h.type == TYPE_DESC) {
             numpmid++;
 	    if ((dp = (pmDesc *)malloc(sizeof(pmDesc))) == NULL) {
-		sts = -errno;
+		sts = -oserror();
 		goto end;
 	    }
 	    if ((n = (int)fread(dp, 1, sizeof(pmDesc), f)) != sizeof(pmDesc)) {
@@ -249,7 +249,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 #endif
 		if (ferror(f)) {
 		    clearerr(f);
-		    sts = -errno;
+		    sts = -oserror();
 		}
 		else
 		    sts = PM_ERR_LOGREC;
@@ -284,7 +284,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 #endif
 		    if (ferror(f)) {
 			clearerr(f);
-			sts = -errno;
+			sts = -oserror();
 		    }
 		    else
 			sts = PM_ERR_LOGREC;
@@ -306,7 +306,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 #endif
 			if (ferror(f)) {
 			    clearerr(f);
-			    sts = -errno;
+			    sts = -oserror();
 			}
 			else
 			    sts = PM_ERR_LOGREC;
@@ -326,7 +326,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 #endif
 			if (ferror(f)) {
 			    clearerr(f);
-			    sts = -errno;
+			    sts = -oserror();
 			}
 			else
 			    sts = PM_ERR_LOGREC;
@@ -369,7 +369,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 	    int			allinbuf;
 
 	    if ((tbuf = (int *)malloc(rlen)) == NULL) {
-		sts = -errno;
+		sts = -oserror();
 		goto end;
 	    }
 	    if ((n = (int)fread(tbuf, 1, rlen, f)) != rlen) {
@@ -381,7 +381,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 #endif
 		if (ferror(f)) {
 		    clearerr(f);
-		    sts = -errno;
+		    sts = -oserror();
 		}
 		else
 		    sts = PM_ERR_LOGREC;
@@ -407,7 +407,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 		/* need to allocate to hold the pointers */
 		namelist = (char **)malloc(numinst*sizeof(char*));
 		if (namelist == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    goto end;
 		}
 #endif
@@ -439,7 +439,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 #endif
 	    if (ferror(f)) {
 		clearerr(f);
-		sts = -errno;
+		sts = -oserror();
 	    }
 	    else
 		sts = PM_ERR_LOGREC;
@@ -510,21 +510,21 @@ __pmLogPutDesc(__pmLogCtl *lcp, const pmDesc *dp, int numnames, char **names)
 	if (fwrite(&h, 1, sizeof(__pmLogHdr), f) != sizeof(__pmLogHdr) ||
 	    fwrite(odp, 1, sizeof(pmDesc), f) != sizeof(pmDesc) ||
             fwrite(&onumnames, 1, sizeof(numnames), f) != sizeof(numnames))
-		return -errno;
+		return -oserror();
 
         /* write out the names */
         for (i = 0; i < numnames; i++) {
 	    int slen = (int)strlen(names[i]);
 	    olen = htonl(slen);
             if (fwrite(&olen, 1, LENSIZE, f) != LENSIZE)
-                return -errno;
+                return -oserror();
             if (fwrite(names[i], 1, slen, f) != slen)
-                return -errno;
+                return -oserror();
         }
 
 	olen = htonl(len);
 	if (fwrite(&olen, 1, LENSIZE, f) != LENSIZE)
-	    return -errno;
+	    return -oserror();
     }
     else {
 	h.len = htonl(len);
@@ -532,7 +532,7 @@ __pmLogPutDesc(__pmLogCtl *lcp, const pmDesc *dp, int numnames, char **names)
 	if (fwrite(&h, 1, sizeof(__pmLogHdr), f) != sizeof(__pmLogHdr) ||
 	    fwrite(odp, 1, sizeof(pmDesc), f) != sizeof(pmDesc) ||
 	    fwrite(&olen, 1, LENSIZE, f) != LENSIZE)
-		return -errno;
+		return -oserror();
     }
 
     /*
@@ -540,7 +540,7 @@ __pmLogPutDesc(__pmLogCtl *lcp, const pmDesc *dp, int numnames, char **names)
      * may re-use *dp
      */
     if ((tdp = (pmDesc *)malloc(sizeof(pmDesc))) == NULL)
-	return -errno;
+	return -oserror();
     *tdp = *dp;		/* struct assignment */
     return __pmHashAdd((int)dp->pmid, (void *)tdp, &lcp->l_hashpmid);
 }
@@ -684,7 +684,7 @@ __pmLogPutInDom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp,
 
     real_numinst = numinst > 0 ? numinst : 0;
     if ((stridx = (int *)malloc(real_numinst * sizeof(stridx[0]))) == NULL)
-	return -errno;
+	return -oserror();
 
     h.len = (int)sizeof(__pmLogHdr) + (int)sizeof(*tp) + (int)sizeof(indom) +
 	    (int)sizeof(numinst) +
@@ -723,9 +723,9 @@ __pmLogPutInDom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp,
 
     if (wlen != ntohl(h.len)) {
 	pmprintf("__pmLogPutInDom: wrote %d, expected %d: %s\n",
-	    wlen, ntohl(h.len), strerror(errno));
+	    wlen, ntohl(h.len), osstrerror(oserror()));
 	pmflush();
-	return -errno;
+	return -oserror();
     }
 
     sts = addindom(lcp, indom, tp, numinst, instlist, namelist, NULL, 0);
@@ -806,7 +806,7 @@ pmNameInDomArchive(pmInDom indom, int inst, char **name)
 	    for (j = 0; j < idp->numinst; j++) {
 		if (idp->instlist[j] == inst) {
 		    if ((*name = strdup(idp->namelist[j])) == NULL)
-			n = -errno;
+			n = -oserror();
 		    else
 			n = 0;
 		    return n;

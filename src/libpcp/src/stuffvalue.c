@@ -83,7 +83,7 @@ __pmStuffValue(const pmAtomValue *avp, pmValue *vp, int type)
 		(need < sizeof(pmValueBlock)) ? sizeof(pmValueBlock) : need);
     }
     if (vp->value.pval == NULL)
-	return -errno;
+	return -oserror();
     vp->value.pval->vlen = (int)need;
     vp->value.pval->vtype = type;
     memcpy((void *)vp->value.pval->vbuf, (void *)src, body);

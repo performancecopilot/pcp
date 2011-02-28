@@ -34,7 +34,7 @@ __pmSendTextReq(int fd, int from, int ident, int type)
     text_req_t	*pp;
 
     if ((pp = (text_req_t *)__pmFindPDUBuf(sizeof(text_req_t))) == NULL)
-	return -errno;
+	return -oserror();
     pp->hdr.len = sizeof(text_req_t);
     pp->hdr.type = PDU_TEXT_REQ;
     pp->hdr.from = from;
@@ -86,7 +86,7 @@ __pmSendText(int fd, int ctx, int ident, const char *buffer)
 
     need = sizeof(text_t) - sizeof(pp->buffer) + PM_PDU_SIZE_BYTES(strlen(buffer));
     if ((pp = (text_t *)__pmFindPDUBuf((int)need)) == NULL)
-	return -errno;
+	return -oserror();
     pp->hdr.len = (int)need;
     pp->hdr.type = PDU_TEXT;
     pp->hdr.from = ctx;
@@ -123,7 +123,7 @@ __pmDecodeText(__pmPDU *pdubuf, int *ident, char **buffer)
     *ident = pp->ident;
     buflen = ntohl(pp->buflen);
     if ((*buffer = (char *)malloc(buflen+1)) == NULL)
-	return -errno;
+	return -oserror();
     strncpy(*buffer, pp->buffer, buflen);
     (*buffer)[buflen] = '\0';
     return 0;

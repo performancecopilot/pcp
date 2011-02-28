@@ -43,7 +43,7 @@ __pmSendError(int fd, int from, int code)
     p_error_t	*pp;
 
     if ((pp = (p_error_t *)__pmFindPDUBuf(sizeof(p_error_t))) == NULL)
-	return -errno;
+	return -oserror();
     pp->hdr.len = sizeof(p_error_t);
     pp->hdr.type = PDU_ERROR;
     pp->hdr.from = from;
@@ -71,7 +71,7 @@ __pmSendXtendError(int fd, int from, int code, int datum)
     x_error_t	*pp;
 
     if ((pp = (x_error_t *)__pmFindPDUBuf(sizeof(x_error_t))) == NULL)
-	return -errno;
+	return -oserror();
     pp->hdr.len = sizeof(x_error_t);
     pp->hdr.type = PDU_ERROR;
     pp->hdr.from = from;

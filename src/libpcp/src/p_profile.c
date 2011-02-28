@@ -55,7 +55,7 @@ __pmSendProfile(int fd, int from, int ctxnum, __pmProfile *instprof)
 	need += prof->instances_len * sizeof(int);
 
     if ((pdubuf = __pmFindPDUBuf((int)need)) == NULL)
-	return -errno;
+	return -oserror();
 
     p = (__pmPDU *)pdubuf;
 
@@ -118,7 +118,7 @@ __pmDecodeProfile(__pmPDU *pdubuf, int *ctxnum, __pmProfile **result)
     pduProfile = (profile_t *)p;
     *ctxnum = ntohl(pduProfile->ctxnum);
     if ((instprof = (__pmProfile *)malloc(sizeof(__pmProfile))) == NULL)
-	return -errno;
+	return -oserror();
     instprof->state = ntohl(pduProfile->g_state);
     instprof->profile = NULL;
     instprof->profile_len = ntohl(pduProfile->numprof);
@@ -127,7 +127,7 @@ __pmDecodeProfile(__pmPDU *pdubuf, int *ctxnum, __pmProfile **result)
     if (instprof->profile_len > 0) {
 	if ((instprof->profile = (__pmInDomProfile *)malloc(
 	     instprof->profile_len * sizeof(__pmInDomProfile))) == NULL) {
-	    sts = -errno;
+	    sts = -oserror();
 	    goto fail;
 	}
 
@@ -152,7 +152,7 @@ __pmDecodeProfile(__pmPDU *pdubuf, int *ctxnum, __pmProfile **result)
 	    if (prof->instances_len > 0) {
 		prof->instances = (int *)malloc(prof->instances_len * sizeof(int));
 		if (prof->instances == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    goto fail;
 		}
 		for (j = 0; j < prof->instances_len; j++, p++)

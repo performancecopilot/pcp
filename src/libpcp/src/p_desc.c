@@ -33,7 +33,7 @@ __pmSendDescReq(int fd, int from, pmID pmid)
     desc_req_t	*pp;
 
     if ((pp = (desc_req_t *)__pmFindPDUBuf(sizeof(desc_req_t))) == NULL)
-	return -errno;
+	return -oserror();
     pp->hdr.len = sizeof(desc_req_t);
     pp->hdr.type = PDU_DESC_REQ;
     pp->hdr.from = from;
@@ -70,7 +70,7 @@ __pmSendDesc(int fd, int ctx, pmDesc *desc)
     desc_t	*pp;
 
     if ((pp = (desc_t *)__pmFindPDUBuf(sizeof(desc_t))) == NULL)
-	return -errno;
+	return -oserror();
 
     pp->hdr.len = sizeof(desc_t);
     pp->hdr.type = PDU_DESC;

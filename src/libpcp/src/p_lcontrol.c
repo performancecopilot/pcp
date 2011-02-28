@@ -70,7 +70,7 @@ __pmSendLogControl(int fd, const pmResult *request, int control, int state, int 
 	    need += sizeof(vlist_t) - sizeof(__pmValue_PDU);
     }
     if ((pp = (control_req_t *)__pmFindPDUBuf(need)) == NULL)
-	return -errno;
+	return -oserror();
     pp->c_hdr.len = need;
     pp->c_hdr.type = PDU_LOG_CONTROL;
     pp->c_hdr.from = FROM_ANON;		/* context does not matter here */
@@ -125,7 +125,7 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
     if ((req = (pmResult *)malloc(need)) == NULL) {
 	__pmNoMem("__pmDecodeLogControl.req", need, PM_RECOV_ERR);
 	pmFreeResult(req);
-	return -errno;
+	return -oserror();
     }
     req->numpmid = numpmid;
 
@@ -137,7 +137,7 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
 	    need = sizeof(pmValueSet) - sizeof(pmValue);
 	if ((vsp = (pmValueSet *)malloc(need)) == NULL) {
 	    __pmNoMem("__pmDecodeLogControl.vsp", need, PM_RECOV_ERR);
-	    sts = -errno;
+	    sts = -oserror();
 	    i--;
 	    while (i)
 		free(req->vset[i--]);

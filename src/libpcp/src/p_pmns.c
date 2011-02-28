@@ -62,7 +62,7 @@ __pmSendIDList(int fd, int from, int numids, const pmID idlist[], int sts)
     need = (int)(sizeof(idlist_t) + (numids-1) * sizeof(idlist[0]));
 
     if ((ip = (idlist_t *)__pmFindPDUBuf(need)) == NULL)
-	return -errno;
+	return -oserror();
     ip->hdr.len = need;
     ip->hdr.type = PDU_PMNS_IDS;
     ip->hdr.from = from;
@@ -223,7 +223,7 @@ __pmSendNameList(int fd, int from, int numnames, char *namelist[],
     }
 
     if ((nlistp = (namelist_t *)__pmFindPDUBuf(need)) == NULL)
-	return -errno;
+	return -oserror();
     nlistp->hdr.len = need;
     nlistp->hdr.type = PDU_PMNS_NAMES;
     nlistp->hdr.from = from;
@@ -304,14 +304,14 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
     /* need space for name ptrs and the name characters */
     need = *numnames * ((int)sizeof(char*)) + ntohl(namelist_pdu->nstrbytes);
     if ((names = (char**)malloc(need)) == NULL)
-	return -errno;
+	return -oserror();
 
     /* need space for status values */
     if (numstatus > 0) {
 	need = numstatus * (int)sizeof(int);
 	if ((status = (int*)malloc(need)) == NULL) {
 	    free(names);
-	    return -errno;
+	    return -oserror();
 	}
     }
 
@@ -405,7 +405,7 @@ SendNameReq(int fd, int from, const char *name, int pdu_type, int subtype)
     need = (int)(sizeof(*nreq) - sizeof(nreq->name) + alloc_len);
 
     if ((nreq = (namereq_t *)__pmFindPDUBuf(need)) == NULL)
-	return -errno;
+	return -oserror();
     nreq->hdr.len = need;
     nreq->hdr.type = pdu_type;
     nreq->hdr.from = from;
@@ -435,7 +435,7 @@ DecodeNameReq(__pmPDU *pdubuf, char **name_p, int *subtype)
     namelen = ntohl(namereq_pdu->namelen);
     name = malloc(namelen+1);
     if (name == NULL)
-	return -errno; 
+	return -oserror(); 
     memcpy(name, namereq_pdu->name, namelen);
     name[namelen] = '\0';
 

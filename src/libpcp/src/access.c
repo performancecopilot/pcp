@@ -197,7 +197,7 @@ __pmAccFreeSavedHosts(void)
  *	id.  Zero means unspecified, which will allow unlimited connections or
  *	a subsequent __pmAccAddHost call with the same host to override maxCons.
  *
- * Returns a negated errno code on failure.
+ * Returns a negated system error code on failure.
  */
 
 int

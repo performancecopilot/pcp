@@ -35,7 +35,7 @@ __pmSendLogStatus(int fd, __pmLoggerStatus *status)
     logstatus_t	*pp;
 
     if ((pp = (logstatus_t *)__pmFindPDUBuf(sizeof(logstatus_t))) == NULL)
-	return -errno;
+	return -oserror();
     pp->hdr.len = sizeof(logstatus_t);
     pp->hdr.type = PDU_LOG_STATUS;
     pp->hdr.from = FROM_ANON;		/* context does not matter here */

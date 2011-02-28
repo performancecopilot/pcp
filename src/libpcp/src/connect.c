@@ -338,7 +338,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT) {
 		fprintf(stderr, "__pmConnectPMCD(%s): proxy to %s port=%d failed: %s \n",
-			hosts[0].name, proxyhost->name, proxyport, pmErrStr(-errno));
+			hosts[0].name, proxyhost->name, proxyport, pmErrStr(-neterror()));
 	    }
 #endif
 	    return fd;

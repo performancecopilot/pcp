@@ -34,7 +34,7 @@ __pmSendLogRequest(int fd, int type)
     notify_t	*pp;
 
     if ((pp = (notify_t *)__pmFindPDUBuf(sizeof(notify_t))) == NULL)
-	return -errno;
+	return -oserror();
     pp->hdr.len = sizeof(notify_t);
     pp->hdr.type = PDU_LOG_REQUEST;
     pp->hdr.from = FROM_ANON;		/* context does not matter here */

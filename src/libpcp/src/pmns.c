@@ -376,7 +376,7 @@ lex(int reset)
 		+ strlen(cpp_path[i]) + strlen(CPP_SIMPLE_ARGS)
 		+ strlen(var_dir) + strlen(share_dir) 
 		+ strlen(fname))) == NULL) {
-		return -errno;
+		return -oserror();
 	    }
 
 /* safe */  sprintf(lp, CPP_FMT, cpp_path[i], CPP_SIMPLE_ARGS, var_dir, 
@@ -385,7 +385,7 @@ lex(int reset)
 	    fin = popen(lp, "r");
 	    free(lp);
 	    if (fin == NULL)
-		return -errno;
+		return -oserror();
 	    break;
 	}
 	if (cpp_path[i] == NULL) {
@@ -600,12 +600,12 @@ attach(char *base, __pmnsNode *rp)
 		/* non-terminal node ... */
 		if (*base == '\0') {
 		    if ((path = (char *)malloc(strlen(np->name)+1)) == NULL)
-			return -errno;
+			return -oserror();
 		    strcpy(path, np->name);
 		}
 		else {
 		    if ((path = (char *)malloc(strlen(base)+strlen(np->name)+2)) == NULL)
-			return -errno;
+			return -oserror();
 		    strcpy(path, base);
 		    strcat(path, ".");
 		    strcat(path, np->name);
@@ -648,7 +648,7 @@ backname(__pmnsNode *np, char **name)
     }
 
     if ((p = (char *)malloc(nch)) == NULL)
-	return -errno;
+	return -oserror();
 
     p[--nch] = '\0';
     xp = np;
@@ -725,7 +725,7 @@ pass2(int dupok)
 
     main_pmns = (__pmnsTree*)malloc(sizeof(*main_pmns));
     if (main_pmns == NULL) {
-	return -errno;
+	return -oserror();
     }
 
     /* Get the root subtree out of the seen list */
@@ -826,18 +826,18 @@ __pmNewPMNS(__pmnsTree **pmns)
 
     t = (__pmnsTree*)malloc(sizeof(*main_pmns));
     if (t == NULL) {
-	return -errno;
+	return -oserror();
     }
 
     /* Insert the "root" node first */
     if ((np = (__pmnsNode *)malloc(sizeof(*np))) == NULL)
-	return -errno;
+	return -oserror();
     np->pmid = PM_ID_NULL;
     np->parent = np->first = np->hash = np->next = NULL;
     np->name = strdup("root");
     if (np->name == NULL) {
 	free(np);
-	return -errno;
+	return -oserror();
     }
 
     t->root = np;
@@ -872,7 +872,7 @@ __pmFixPMNSHashTab(__pmnsTree *tree, int numpmid, int dupok)
     tree->htabsize = htabsize;
     tree->htab = (__pmnsNode **)calloc(htabsize, sizeof(__pmnsNode *));
     if (tree->htab == NULL)
-	return -errno;
+	return -oserror();
 
     if ((sts = backlink(tree, tree->root, dupok)) < 0)
 	return sts;
@@ -916,11 +916,11 @@ AddPMNSNode(__pmnsNode *root, int pmid, const char *name)
 
 	for ( ; ; ) { 
 	    if ((np = (__pmnsNode *)malloc(sizeof(*np))) == NULL)
-		return -errno;
+		return -oserror();
 
 	    /* fixup name */
 	    if ((np->name = (char *)malloc(nch+1)) == NULL)
-		return -errno;
+		return -oserror();
 	    strncpy(np->name, name_p, nch);
 	    np->name[nch] = '\0';
 
@@ -1274,7 +1274,7 @@ loadascii(int dupok)
     if (access(fname, R_OK) == -1) {
 	snprintf(linebuf, sizeof(linebuf), "Cannot open \"%s\"", fname);
 	err(linebuf);
-	return -errno;
+	return -oserror();
     }
     lineno = 1;
 
@@ -1341,10 +1341,10 @@ loadascii(int dupok)
 
 	if (state == 1 || state == 3) {
 	    if ((np = (__pmnsNode *)malloc(sizeof(*np))) == NULL)
-		return -errno;
+		return -oserror();
 	    numpmid++;
 	    if ((np->name = (char *)malloc(strlen(tokbuf)+1)) == NULL)
-		return -errno;
+		return -oserror();
 	    strcpy(np->name, tokbuf);
 	    np->first = np->hash = np->next = np->parent = NULL;
 	    np->pmid = PM_ID_NULL;
@@ -1797,7 +1797,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	    xname = strdup(namelist[i]);
 	    if (xname == NULL) {
 		__pmNoMem("pmLookupName", strlen(namelist[i])+1, PM_RECOV_ERR);
-		sts = -errno;
+		sts = -oserror();
 		continue;
 	    }
 	    while ((xp = rindex(xname, '.')) != NULL) {
@@ -2173,7 +2173,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 		char	*xp;
 		if (xname == NULL) {
 		    __pmNoMem("pmGetChildrenStatus", strlen(name)+1, PM_RECOV_ERR);
-		    num = -errno;
+		    num = -oserror();
 		    goto report;
 		}
 		while ((xp = rindex(xname, '.')) != NULL) {
@@ -2276,13 +2276,13 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	}
 
 	if ((result = (char **)malloc(need)) == NULL) {
-	    num = -errno;
+	    num = -oserror();
 	    goto report;
 	}
 
 	if (statuslist != NULL) {
 	    if ((status = (int *)malloc(num*sizeof(int))) == NULL) {
-		num = -errno;
+		num = -oserror();
 		goto report;
 	    }
 	}
@@ -2452,7 +2452,7 @@ receive_a_name(__pmContext *ctxp, char **name)
 	char *newname = strdup(namelist[0]);
 	free(namelist);
 	if (newname == NULL) {
-	    n =  -((errno) ? errno : ENOMEM);
+	    n = -oserror();
 	} else {
 	    *name = newname;
 	    n = 0;
@@ -2564,7 +2564,7 @@ pmNameAll(pmID pmid, char ***namelist)
 	    if (np->pmid == pmid) {
 		n++;
 		if ((tmp = (char **)realloc(tmp, n * sizeof(tmp[0]))) == NULL)
-		    return -errno;
+		    return -oserror();
 		if ((sts = backname(np, &tmp[n-1])) < 0) {
 		    /* error, ... free any partial allocations */
 		    for (i = n-2; i >= 0; i--)
@@ -2581,7 +2581,7 @@ pmNameAll(pmID pmid, char ***namelist)
 
 	len += n * sizeof(tmp[0]);
 	if ((tmp = (char **)realloc(tmp, len)) == NULL)
-	    return -errno;
+	    return -oserror();
 
 	sp = (char *)&tmp[n];
 	for (i = 0; i < n; i++) {
@@ -2615,7 +2615,7 @@ pmNameAll(pmID pmid, char ***namelist)
 
 try_derive:
     if ((tmp = (char **)malloc(sizeof(tmp[0]))) == NULL)
-	return -errno;
+	return -oserror();
     n = __dmgetname(pmid, tmp);
     if (n < 0) {
 	free(tmp);
@@ -2623,7 +2623,7 @@ try_derive:
     }
     len = sizeof(tmp[0]) + strlen(tmp[0])+1;
     if ((tmp = (char **)realloc(tmp, len)) == NULL)
-	return -errno;
+	return -oserror();
     sp = (char *)&tmp[1];
     strcpy(sp, tmp[0]);
     free(tmp[0]);
@@ -2653,7 +2653,7 @@ TraversePMNS_local(const char *name, void(*func)(const char *name))
 	for (j = 0; j < sts; j++) {
 	    newname = (char *)malloc(strlen(name) + 1 + strlen(enfants[j]) + 1);
 	    if (newname == NULL) {
-		printf("pmTraversePMNS: malloc: %s\n", strerror(errno));
+		printf("pmTraversePMNS: malloc: %s\n", osstrerror(oserror()));
 		exit(1);
 	    }
 	    if (*name == '\0')

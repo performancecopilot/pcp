@@ -147,18 +147,18 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
     }
 
     nf = scandir(dir, &files, scanfn, alphasort);
-    if (nf == -1 && errno == ENOENT)
+    if (nf == -1 && oserror() == ENOENT)
 	nf = 0;
     else if (nf == -1) {
-	pmprintf("__pmLogFindLocalPorts: scandir: %s\n", strerror(errno));
+	pmprintf("__pmLogFindLocalPorts: scandir: %s\n", osstrerror(oserror()));
 	pmflush();
-	return -errno;
+	return -oserror();
     }
     if (resize_logports(nf) < 0) {
 	for (i=0; i < nf; i++)
 	    free(files[i]);
 	free(files);
-	return -errno;
+	return -oserror();
     }
     if (nf == 0) {
 #ifdef PCP_DEBUG
@@ -187,7 +187,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	    for (i=0; i < nf; i++)
 		free(files[i]);
 	    free(files);
-	    return -errno;
+	    return -oserror();
 	}
 	sznamebuf = len;
     }
@@ -210,7 +210,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	strcpy(p, fname);
 	if ((pfile = fopen(namebuf, "r")) == NULL) {
 	    pmprintf("__pmLogFindLocalPorts: pmlogger port file %s: %s\n",
-		    namebuf, strerror(errno));
+		    namebuf, osstrerror(oserror()));
 	    free(files[i]);
 	    pmflush();
 	    continue;
@@ -223,7 +223,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	    }
 	    else
 		pmprintf("__pmLogFindLocalPorts: pmlogger port file %s: %s\n",
-			namebuf, strerror(errno));
+			namebuf, osstrerror(oserror()));
 	    err = 1;
 	}
 	else {
@@ -301,7 +301,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	*result = NULL;
 	for (j = i; j < nf; j++)
 	    free(files[j]);
-	n = -errno;
+	n = -oserror();
     }
     free(files);
     return n;
@@ -323,7 +323,7 @@ __pmIsLocalhost(const char *hostname)
 	struct hostent * he;
 
 	if (gethostname(lhost, MAXHOSTNAMELEN) < 0)
-	   return -errno;
+	   return -oserror();
 
         if ((he = gethostbyname(lhost)) != NULL ) {
 	    int i;
@@ -402,7 +402,7 @@ __pmLogFindPort(const char *host, int pid, __pmLogPort **lpp)
     j = 0;
     if (numval) {
 	if (resize_logports(findone ? 1 : numval) < 0) {
-	    sts = -errno;
+	    sts = -oserror();
 	    goto resErr;
 	}
 	/* scan the pmResult, copying matching pid(s) to logport */
