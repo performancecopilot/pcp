@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "sysfs_kernel.h"
@@ -28,7 +24,7 @@ refresh_sysfs_kernel(sysfs_kernel_t *sk)
 
     if ((fd = open("/sys/kernel/uevent_seqnum", O_RDONLY)) < 0) {
     	sk->valid_uevent_seqnum = 0;
-	return -errno;
+	return -oserror();
     }
 
     if (read(fd, buf, sizeof(buf)) <= 0)
@@ -38,6 +34,5 @@ refresh_sysfs_kernel(sysfs_kernel_t *sk)
 	sk->valid_uevent_seqnum = 1;
     }
     close(fd);
-
     return 0;
 }

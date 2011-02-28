@@ -1573,7 +1573,7 @@ windows_init(pmdaInterface *dp)
     metrictab = (pmdaMetric *)malloc(metrictab_sz * sizeof(pmdaMetric));
     if (metrictab == NULL) {
 	fprintf(stderr, "Error: malloc metrictab [%d] failed: %s\n",
-		metrictab_sz * sizeof(pmdaMetric), strerror(errno));
+		metrictab_sz * sizeof(pmdaMetric), osstrerror(oserror()));
 	return;
     }
 

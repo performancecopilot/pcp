@@ -29,9 +29,7 @@
 //  Version: 1.03
 //
 
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
+#include "pmapi.h"
 #include "mlan.h"
 
 // external function prototypes
@@ -70,7 +68,7 @@ int Aquire1WireNet(char *port_zstr, char *return_msg)
    else
    {
       cnt += sprintf(&return_msg[cnt],"Could not open port %s: %s,"
-              " aborting.\nClosing port %s.\n",port_zstr,strerror(errno),port_zstr);
+              " aborting.\nClosing port %s.\n",port_zstr,osstrerror(oserror()),port_zstr);
       return FALSE;
    }
 

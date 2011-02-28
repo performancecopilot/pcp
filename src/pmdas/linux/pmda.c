@@ -5371,7 +5371,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    sbuf = &fs->stats;
 	    if (!(fs->flags & FSF_FETCHED)) {
 		if (statfs(fs->path, sbuf) < 0)
-		    return -errno;
+		    return -oserror();
 		fs->flags |= FSF_FETCHED;
 	    }
 
@@ -5434,7 +5434,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    sbuf = &fs->stats;
 	    if (!(fs->flags & FSF_FETCHED)) {
 		if (statfs(fs->path, sbuf) < 0)
-		    return -errno;
+		    return -oserror();
 		fs->flags |= FSF_FETCHED;
 	    }
 
@@ -5778,7 +5778,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_PID_SCHEDSTAT:
 	if ((entry = fetch_proc_pid_schedstat(inst, &proc_pid)) == NULL)
-	    return (errno == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
+	    return (oserror() == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
 
 	if (idp->item >= 0 && idp->item < NR_PROC_PID_SCHED) {
 	    if ((f = _pm_getfield(entry->schedstat_buf, idp->item)) == NULL)
@@ -6617,7 +6617,7 @@ procfs_zero(const char *filename, pmValueSet *vsp)
 
     fp = fopen(filename, "w");
     if (!fp) {
-	sts = -errno;
+	sts = -oserror();
     } else {
 	fprintf(fp, "%d\n", value);
 	fclose(fp);

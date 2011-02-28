@@ -10,17 +10,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 #include <sys/procfs.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -60,7 +55,7 @@ open_config(void)
     FILE *conf;
     if ((conf = fopen(configfile, "r")) == NULL) {
 	(void)fprintf(stderr, "%s: Unable to open configuration file \"%s\": %s\n",
-	    pmProgname, configfile, strerror(errno));
+	    pmProgname, configfile, osstrerror(oserror()));
 	exit(1);
     }
     return conf;
@@ -152,7 +147,7 @@ read_config(FILE *conf)
     sts = fstat(fileno(conf), &stat_buf);
     if (sts < 0) {
 	(void)fprintf(stderr, "%s: Failure to stat configuration file \"%s\": %s\n",
-	    pmProgname, configfile, strerror(errno));
+	    pmProgname, configfile, osstrerror(oserror()));
 	exit(1);
     }
     size = (long)stat_buf.st_size;

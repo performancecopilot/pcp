@@ -11,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "common.h"
@@ -209,12 +205,12 @@ fetch_disk_data(kstat_ctl_t *kc, const pmdaMetric *mdesc, ctl_t *ctl,
 
     if ((kstat_read(kc, ctl->ksp, &ctl->iostat) == -1)) {
 	if (ctl->err == 0) {
-	    int e = errno;
+	    int e = oserror();
 	    __pmNotifyErr(LOG_WARNING,
 			  "Error: disk_fetch(pmid=%s disk=%s ...) - "
 			   "kstat_read(kc=%p, ksp=%p, ...) failed: %s\n",
 			   pmIDStr(mdesc->m_desc.pmid), diskname,
-			   kc, ctl->ksp, strerror(e));
+			   kc, ctl->ksp, osstrerror(e));
 	    }
 	    ctl->err++;
 	    ctl->fetched = -1;
@@ -260,7 +256,7 @@ fetch_disk_devlink(const kstat_t *ksp, pmAtomValue *atom)
 #ifdef PCP_DEBUG
 	if ((pmDebug & SOLARIS_PMDA_TRACE) == SOLARIS_PMDA_TRACE) {
 	    fprintf(stderr,"No nodes for %s: %s\n",
-		    ksp->ks_name, strerror(errno));
+		    ksp->ks_name, osstrerror(oserror()));
 	}
 #endif
 	return 0;
@@ -276,7 +272,7 @@ fetch_disk_devlink(const kstat_t *ksp, pmAtomValue *atom)
 #ifdef PCP_DEBUG
 		if ((pmDebug & SOLARIS_PMDA_TRACE) == SOLARIS_PMDA_TRACE) {
 		    fprintf (stderr, "No minors of %s: %s\n",
-			     ksp->ks_name, strerror(errno));
+			     ksp->ks_name, osstrerror(oserror()));
 		}
 #endif
 		return 0;

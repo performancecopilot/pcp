@@ -13,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "common.h"
@@ -1410,7 +1406,7 @@ init_data(int domain)
      * set up kstat() handle ... failure is fatal
      */
     if ((kc = kstat_open()) == NULL) {
-	fprintf(stderr, "init_data: kstat_open failed: %s\n", strerror(errno));
+	fprintf(stderr, "init_data: kstat_open failed: %s\n", osstrerror(oserror()));
 	exit(1);
     }
 
@@ -1423,7 +1419,7 @@ init_data(int domain)
      */
     if ((metrictab = (pmdaMetric *)malloc(metrictab_sz * sizeof(pmdaMetric))) == NULL) {
 	fprintf(stderr, "init_data: Error: malloc metrictab [%d] failed: %s\n",
-	    (int)(metrictab_sz * sizeof(pmdaMetric)), strerror(errno));
+	    (int)(metrictab_sz * sizeof(pmdaMetric)), osstrerror(oserror()));
 	exit(1);
     }
     for (i = 0; i < metrictab_sz; i++) {

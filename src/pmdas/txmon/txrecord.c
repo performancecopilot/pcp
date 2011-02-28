@@ -10,12 +10,7 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
-
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
@@ -44,12 +39,12 @@ main(int argc, char **argv)
      * attach to the txmon PMDA shm segment ...
      */
     if ((shmid = shmget(KEY, 0, 0)) < 0) {
-	fprintf(stderr, "Cannot attach to shm segment, shmid: %s\n", strerror(errno));
+	fprintf(stderr, "Cannot attach to shm segment, shmid: %s\n", osstrerror(oserror()));
 	fprintf(stderr, "Is the txmon PMDA configured and running?\n");
 	exit(1);
     }
     if ((control = (control_t *)shmat(shmid, NULL, 0)) == (control_t *)-1) {
-	fprintf(stderr, "Cannot attach to shm segment, shmat: %s\n", strerror(errno));
+	fprintf(stderr, "Cannot attach to shm segment, shmat: %s\n", osstrerror(oserror()));
 	fprintf(stderr, "Is the txmon PMDA configured and running?\n");
 	exit(1);
     }

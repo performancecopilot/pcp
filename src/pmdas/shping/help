@@ -11,10 +11,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-#
 # shping PMDA help file in the ASCII format
 #
 # lines beginning with a # are ignored
@@ -57,7 +53,7 @@ shping.status as follows:
     complete in the time specified by shping.control.timeout.
 
     If shping.status is 4 (the commands was not run) then shping.error
-    is the value of errno.
+    is the value of the system error code.
 
     Otherwise shping.error will be zero.
 

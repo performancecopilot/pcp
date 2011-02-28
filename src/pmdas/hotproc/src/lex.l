@@ -10,18 +10,9 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 %{
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
 #include "./gram_node.h"
 #include "./gram.h"
 
@@ -75,7 +66,7 @@ false		{ return FALSE; }
 	    char *str;
 	    yylval.y_str = (char *)malloc(yyleng-1);
 	    if (yylval.y_str == 0) {
-		(void)sprintf(emsg, "malloc failed: %s", strerror(errno));
+		(void)sprintf(emsg, "malloc failed: %s", osstrerror(oserror()));
 		yyerror(emsg);
 	    }
 	    strncpy(yylval.y_str, &yytext[1], yyleng-2);
@@ -89,7 +80,7 @@ false		{ return FALSE; }
 \"[^"\n]*["\n] {
 	    yylval.y_str = (char *)malloc(yyleng-1);
 	    if (yylval.y_str == 0) {
-		(void)sprintf(emsg, "malloc failed: %s", strerror(errno));
+		(void)sprintf(emsg, "malloc failed: %s", osstrerror(oserror()));
 		yyerror(emsg);
 	    }
 	    strncpy(yylval.y_str, &yytext[1], yyleng-2);

@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 /*
@@ -26,13 +22,8 @@
  *	input		test input to try and match, defaults to stdin
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <strings.h>
-#include <string.h>
 #include <ctype.h>
-#include <platform_defs.h>
+#include <pmapi.h>
 #if defined(HAVE_REGEX_H)
 #include <regex.h>
 #endif
@@ -73,13 +64,13 @@ main(int argc, char *argv[])
     }
 
     if ((fc = fopen(argv[1], "r")) == NULL) {
-	fprintf(stderr, "check_match: cannot open configfile \"%s\": %s\n", argv[1], strerror(errno));
+	fprintf(stderr, "check_match: cannot open configfile \"%s\": %s\n", argv[1], osstrerror(oserror()));
 	exit(1);
     }
 
     if (argc == 4) {
 	if (freopen(argv[3], "r", stdin) == NULL) {
-	    fprintf(stderr, "check_match: cannot open input \"%s\": %s\n", argv[3], strerror(errno));
+	    fprintf(stderr, "check_match: cannot open input \"%s\": %s\n", argv[3], osstrerror(oserror()));
 	    exit(1);
 	}
     }

@@ -54,7 +54,7 @@ refresh_pidlist()
     char taskpath[1024];
 
     if ((dirp = opendir("/proc")) == NULL)
-	return -errno;
+	return -oserror();
 
     allpids.count = 0;
     while ((dp = readdir(dirp)) != NULL) {
@@ -253,7 +253,7 @@ int
 refresh_proc_pid(proc_pid_t *proc_pid)
 {
     if (refresh_pidlist() <= 0)
-    	return -errno;
+    	return -oserror();
 
 #if PCP_DEBUG
     if (pmDebug & DBG_TRACE_LIBPMDA)
@@ -284,10 +284,10 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid)
     if (ep->stat_fetched == 0) {
 	sprintf(buf, "/proc/%d/stat", ep->id);
 	if ((fd = open(buf, O_RDONLY)) < 0)
-	    sts = -errno;
+	    sts = -oserror();
 	else
 	if ((n = read(fd, buf, sizeof(buf))) < 0)
-	    sts = -errno;
+	    sts = -oserror();
 	else {
 	    if (n == 0)
 		/* eh? */
@@ -312,7 +312,7 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid)
 	    sts = 0;	/* ignore failure here, backwards compat */
 	else
 	if ((n = read(fd, buf, sizeof(buf)-1)) < 0)
-	    sts = -errno;
+	    sts = -oserror();
 	else {
 	    if (n == 0)
 		/* eh? */
@@ -360,9 +360,9 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid)
 
 	sprintf(buf, "/proc/%d/status", ep->id);
 	if ((fd = open(buf, O_RDONLY)) < 0)
-	    sts = -errno;
+	    sts = -oserror();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0)
-	    sts = -errno;
+	    sts = -oserror();
 	else {
 	    if (n == 0)
 		sts = -1;
@@ -446,10 +446,10 @@ fetch_proc_pid_statm(int id, proc_pid_t *proc_pid)
     if (ep->statm_fetched == 0) {
 	sprintf(buf, "/proc/%d/statm", ep->id);
 	if ((fd = open(buf, O_RDONLY)) < 0)
-	    sts = -errno;
+	    sts = -oserror();
 	else
 	if ((n = read(fd, buf, sizeof(buf))) < 0)
-	    sts = -errno;
+	    sts = -oserror();
 	else {
 	    if (n == 0)
 	    	/* eh? */
@@ -499,7 +499,7 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid)
     if (ep->maps_fetched == 0) {
 	sprintf(buf, "/proc/%d/maps", ep->id);
 	if ((fd = open(buf, O_RDONLY)) < 0)
-	    sts = -errno;
+	    sts = -oserror();
 	else {
 	    while ((n = read(fd, buf, sizeof(buf))) > 0) {
 		len += n;
@@ -546,10 +546,10 @@ fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid)
     if (ep->schedstat_fetched == 0) {
 	sprintf(buf, "/proc/%d/schedstat", ep->id);
 	if ((fd = open(buf, O_RDONLY)) < 0)
-	    sts = -errno;
+	    sts = -oserror();
 	else
 	if ((n = read(fd, buf, sizeof(buf))) < 0)
-	    sts = -errno;
+	    sts = -oserror();
 	else {
 	    if (n == 0)
 		/* eh? */
@@ -596,9 +596,9 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid)
 
 	sprintf(buf, "/proc/%d/io", ep->id);
 	if ((fd = open(buf, O_RDONLY)) < 0)
-	    sts = -errno;
+	    sts = -oserror();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0)
-	    sts = -errno;
+	    sts = -oserror();
 	else {
 	    if (n == 0)
 		sts = -1;

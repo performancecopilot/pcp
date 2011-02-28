@@ -19,8 +19,6 @@
 #include "pmapi.h"
 #include "proc_vmstat.h"
 
-static int started = 0;
-
 static proc_vmstat_t vmstat;
 
 static struct {
@@ -138,6 +136,7 @@ static struct {
 int
 refresh_proc_vmstat(proc_vmstat_t *proc_vmstat)
 {
+    static int	started;
     char	buf[1024];
     char	*bufp;
     int64_t	*p;
@@ -145,25 +144,25 @@ refresh_proc_vmstat(proc_vmstat_t *proc_vmstat)
     FILE	*fp;
 
     if (!started) {
-    	started = 1;
+	started = 1;
 	memset(proc_vmstat, 0, sizeof(proc_vmstat));
     }
 
-    for (i=0; vmstat_fields[i].field != NULL; i++) {
+    for (i = 0; vmstat_fields[i].field != NULL; i++) {
 	p = VMSTAT_OFFSET(i, proc_vmstat);
 	*p = -1; /* marked as "no value available" */
     }
 
-    if ((fp = fopen("/proc/vmstat", "r")) == (FILE *)0) {
-    	return -errno;
-    }
+    if ((fp = fopen("/proc/vmstat", "r")) == NULL)
+    	return -oserror();
+
     _pm_have_proc_vmstat = 1;
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if ((bufp = strchr(buf, ' ')) == NULL)
 	    continue;
 	*bufp = '\0';
-	for (i=0; vmstat_fields[i].field != NULL; i++) {
+	for (i = 0; vmstat_fields[i].field != NULL; i++) {
 	    if (strcmp(buf, vmstat_fields[i].field) != 0)
 		continue;
 	    p = VMSTAT_OFFSET(i, proc_vmstat);
@@ -175,11 +174,11 @@ refresh_proc_vmstat(proc_vmstat_t *proc_vmstat)
 	    }
 	}
     }
+    fclose(fp);
+
     if (proc_vmstat->nr_slab == -1)	/* split apart in 2.6.18 */
 	proc_vmstat->nr_slab = proc_vmstat->nr_slab_reclaimable +
 				proc_vmstat->nr_slab_unreclaimable;
-
-    fclose(fp);
 
     /* success */
     return 0;

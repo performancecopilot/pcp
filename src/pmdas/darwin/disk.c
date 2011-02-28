@@ -10,14 +10,9 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
-#include <errno.h>
-#include <mach/mach.h>
 
+#include <mach/mach.h>
 #define IOKIT 1
 #include <device/device_types.h>
 #include <CoreFoundation/CoreFoundation.h>
@@ -179,7 +174,7 @@ update_disk(diskstats_t *stats, io_registry_entry_t drive, int index)
     /* Get the drives parent, from which we get statistics. */
     status = IORegistryEntryGetParentEntry(drive, kIOServicePlane, &device);
     if (status != KERN_SUCCESS)
-	return -errno;
+	return -oserror();
 
     if (!IOObjectConformsTo(device, "IOBlockStorageDriver")) {
 	IOObjectRelease(device);
@@ -193,7 +188,7 @@ update_disk(diskstats_t *stats, io_registry_entry_t drive, int index)
 			kCFAllocatorDefault, kNilOptions);
     if (status != KERN_SUCCESS) {
 	IOObjectRelease(device);
-	return -errno;
+	return -oserror();
     }
 
     /* Obtain the device properties. */
@@ -203,7 +198,7 @@ update_disk(diskstats_t *stats, io_registry_entry_t drive, int index)
 			kCFAllocatorDefault, kNilOptions);
     if (status != KERN_SUCCESS) {
 	IOObjectRelease(device);
-	return -errno;
+	return -oserror();
     }
 
     /* Make space to store the actual values, then go get them. */
@@ -233,7 +228,7 @@ refresh_disks(struct diskstats *stats, pmdaIndom *indom)
 	/* Get ports and services for device statistics. */
 	if (IOMasterPort(bootstrap_port, &mach_master_port)) {
 	    fprintf(stderr, "%s: IOMasterPort error\n", __FUNCTION__);
-	    return -errno;
+	    return -oserror();
 	}
 	memset(stats, 0, sizeof(struct diskstats));
 	inited = 1;
@@ -247,7 +242,7 @@ refresh_disks(struct diskstats *stats, pmdaIndom *indom)
     if (status != KERN_SUCCESS) {
 	    fprintf(stderr, "%s: IOServiceGetMatchingServices error\n",
 			__FUNCTION__);
-	    return -errno;
+	    return -oserror();
     }
 
     indom->it_numinst = 0;

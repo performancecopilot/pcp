@@ -1302,7 +1302,7 @@ openLogFile(FileInfo *theFile)
 	    logmessage(LOG_ERR,
 		       "openLogFile: open %s: %s\n", 
 		       theFile->fileName,
-		       strerror(errno));
+		       osstrerror(oserror()));
 	}
 	return -1;
     }
@@ -1311,7 +1311,7 @@ openLogFile(FileInfo *theFile)
     	logmessage(LOG_ERR,
 		   "openLogFile: stat for %s: %s\n", 
 		   theFile->fileName,
-		   strerror(errno));
+		   osstrerror(oserror()));
     	wl_close(theFile->filePtr);
 	return -1;
     }
@@ -1333,7 +1333,7 @@ openLogFile(FileInfo *theFile)
     	logmessage(LOG_ERR,
 		   "openLogFile: update stat for %s: %s\n", 
 		   theFile->fileName,
-		   strerror(errno));
+		   osstrerror(oserror()));
 	wl_close(theFile->filePtr);
 	return -1;	
     }
@@ -1399,7 +1399,7 @@ checkLogFile(FileInfo *theFile,
 	    logmessage(LOG_ERR,
 		       "checkLogFile: stat on open %s: %s\n",
 		       theFile->fileName,
-		       strerror(errno));
+		       osstrerror(oserror()));
 	    wl_close(theFile->filePtr);
 	    result = wl_unableToStat;
 
@@ -1462,7 +1462,7 @@ checkLogFile(FileInfo *theFile,
 	    logmessage(LOG_ERR, 
 		       "checkLogFile: 2nd open to %s: %s\n",
 		       theFile->fileName,
-		       strerror(errno));
+		       osstrerror(oserror()));
 	    wl_close(theFile->filePtr);
 
 #ifdef PCP_DEBUG
@@ -1478,7 +1478,7 @@ checkLogFile(FileInfo *theFile,
 	    logmessage(LOG_ERR,
 		       "checkLogFile: stat on inactive %s: %s\n",
 		       theFile->fileName,
-		       strerror(errno));
+		       osstrerror(oserror()));
 	    wl_close(theFile->filePtr);
 	    result = wl_unableToStat;
 
@@ -1535,7 +1535,7 @@ checkLogFile(FileInfo *theFile,
 	    logmessage(LOG_ERR,
 		       "checkLogFile - stat on reopened %s: %s\n",
 		       theFile->fileName,
-		       strerror(errno));
+		       osstrerror(oserror()));
 	    wl_close(theFile->filePtr);
 	    result = wl_unableToStat;
 	}
@@ -1591,12 +1591,12 @@ sprocMain(void *sprocNum)
     if(close(extp->e_infd) < 0) {
     	logmessage(LOG_ERR, "sprocMain: pmcd ch. close(fd=%d) failed: %s\n",
 		   extp->e_infd,
-		   strerror(errno));
+		   osstrerror(oserror()));
     }
     if(close(extp->e_outfd) < 0) {
     	logmessage(LOG_ERR, "sprocMain: pmcd ch. close(fd=%d) failed: %s\n",
 		   extp->e_outfd,
-		   strerror(errno));
+		   osstrerror(oserror()));
     }
 
 /* close pipes to main process which are not to be used */
@@ -1605,13 +1605,13 @@ sprocMain(void *sprocNum)
     	logmessage(LOG_ERR, "sprocMain[%d]: pipe close(fd=%d) failed: %s\n",
 		   mySprocNum,
 		   sprocData->inFD[1],
-		   strerror(errno));
+		   osstrerror(oserror()));
     }
     if(close(sprocData->outFD[0]) < 0) {
     	logmessage(LOG_ERR, "sprocMain[%d]: pipe close(fd=%d) failed: %s\n",
 		   mySprocNum,
 		   sprocData->outFD[0],
-		   strerror(errno));
+		   osstrerror(oserror()));
     }
     
 /* open up all file descriptors */
@@ -1641,7 +1641,7 @@ sprocMain(void *sprocNum)
 	    logmessage(LOG_ERR, "Sproc[%d] read(fd=%d) failed: %s\n",
 		       mySprocNum,
 		       sprocData->inFD[0],
-		       strerror(errno));
+		       osstrerror(oserror()));
 	    exit(1);
 	}
 	refresh(sprocData);
@@ -1650,7 +1650,7 @@ sprocMain(void *sprocNum)
 	    logmessage(LOG_ERR, "Sproc[%d] write(fd=%d) failed: %s\n",
 		       sprocData->outFD[1],
 		       mySprocNum,
-		       strerror(errno));
+		       osstrerror(oserror()));
 	    exit(1);
 	}
     }
@@ -1742,7 +1742,7 @@ refresh(WebSproc* proc)
 			else {
 			    logmessage(LOG_ERR, "refresh %s: %s\n",
 				       accessFile->fileName,
-				       strerror(errno));
+				       osstrerror(oserror()));
 			}
 
 			wl_close(accessFile->filePtr);
@@ -2207,7 +2207,7 @@ refresh(WebSproc* proc)
                     if (sts < 0) {
                         logmessage(LOG_ERR, "refresh %s: %s\n",
                                errorFile->fileName,
-                               strerror(errno));
+                               osstrerror(oserror()));
                     }
                     else {
                         logmessage(LOG_WARNING, 
@@ -2365,7 +2365,7 @@ probe(void)
 	if (sts < 0) {
 	    logmessage(LOG_ERR, "Error on fetch write(fd=%d): %s", 
 		       sprocData->inFD[1],
-		       strerror(errno));
+		       osstrerror(oserror()));
 	    exit(1);
 	}
 
@@ -2420,7 +2420,7 @@ probe(void)
 	sts = select(nfds, &tmprfds, (fd_set*)0, (fd_set*)0, 
 		     (struct timeval*)0);
 	if (sts < 0) {
-	    logmessage(LOG_ERR, "Error on fetch select: %s", strerror(errno));
+	    logmessage(LOG_ERR, "Error on fetch select: %s", osstrerror(oserror()));
 	    exit(1);
 	}
 	else if (sts == 0)
@@ -2437,7 +2437,7 @@ probe(void)
 
 		if (sts < 0) {
 		    logmessage(LOG_ERR, "Error on fetch read: %s",
-			       strerror(errno));
+			       osstrerror(oserror()));
 		    exit(1);
 		}
 	    }
@@ -2555,7 +2555,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 
 	need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
 	if ((res = (pmResult *) malloc(need)) == (pmResult *)0)
-	    return -errno;
+	    return -oserror();
 	maxnpmids = numpmid;
     }
 
@@ -2631,7 +2631,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
                 res->numpmid = i;
                 __pmFreeResultValues(res);
             }
-            return -errno;
+            return -oserror();
         }
 
         vset->pmid = pmidlist[i];
@@ -2664,7 +2664,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
                     res->numpmid = i;
                     __pmFreeResultValues(res);
                 }
-                return -errno;
+                return -oserror();
             }
             }
 

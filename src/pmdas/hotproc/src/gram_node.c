@@ -10,16 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 #include "./gram_node.h"
 
 /* functions */
@@ -60,7 +55,7 @@ create_tag_node(N_tag tag)
 
     new_node = (bool_node*)malloc(sizeof(bool_node));
     if (new_node == NULL) {
-	(void)fprintf(stderr, "hotproc: malloc failed in config: %s", strerror(errno));
+	fprintf(stderr, "hotproc: malloc failed in config: %s", osstrerror(oserror()));
 	exit(1);
     }
     new_node->tag = tag;

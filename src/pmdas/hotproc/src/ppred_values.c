@@ -10,18 +10,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <unistd.h>
 #include <stdio.h>
 #include <syslog.h>
-#include <errno.h>
 #include <fcntl.h>
-#include <errno.h>
 #include <ctype.h>
 #include <pwd.h>
 
@@ -144,7 +138,7 @@ ppred_getinfo(pid_t pid, int j)
     }
     proc_pid_to_path(pid, NULL, &path, PINFO_PATH);
     if (access(path, R_OK) < 0)
-	return -errno; 
+	return -oserror(); 
 		
     pred_buf[j] = node->preds;
     return 0;
@@ -160,7 +154,7 @@ ppred_allocbuf(int size)
     if (size > max_size) {
 	predb = realloc(pred_buf, size * sizeof(derived_pred_t));  
 	if (predb == NULL)
-	    return -errno;
+	    return -oserror();
 	pred_buf = predb;
 	max_size = size;
     }

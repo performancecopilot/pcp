@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -33,8 +29,8 @@ typedef struct {
     time_t	delay;		/* in queue for at least this long (seconds) */
 } histo_t;
 
-static histo_t	*histo = NULL;
-static int	numhisto = 0;
+static histo_t	*histo;
+static int	numhisto;
 static int	queue;
 
 /*
@@ -143,7 +139,7 @@ mailq_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	if (chdir(queuedir) < 0) {
 	    if (warn == 0) {
 		__pmNotifyErr(LOG_ERR, "chdir(\"%s\") failed: %s\n",
-		    queuedir, strerror(errno));
+		    queuedir, osstrerror(oserror()));
 		warn = 1;
 	    }
 	}
@@ -166,9 +162,9 @@ mailq_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    /*
 		     * ENOENT expected sometimes if sendmail is doing its job
 		     */
-		    if (errno == ENOENT)
+		    if (oserror() == ENOENT)
 			goto next;
-		    fprintf(stderr, "stat(\"%s\"): %s\n", p, strerror(errno));
+		    fprintf(stderr, "stat(\"%s\"): %s\n", p, osstrerror(oserror()));
 		    goto next;
 		}
 		if (sbuf.st_size > 0 && S_ISREG(sbuf.st_mode)) {
@@ -195,7 +191,7 @@ next:
 	}
 	if (chdir(startdir) < 0) {
 	    __pmNotifyErr(LOG_ERR, "chdir(\"%s\") failed: %s\n",
-			startdir, strerror(errno));
+			startdir, osstrerror(oserror()));
 	}
     }
 
@@ -255,7 +251,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     if (getcwd(startdir, sizeof(startdir)) == NULL) {
 	fprintf(stderr, "%s: getcwd() failed: %s\n",
-	    pmProgname, pmErrStr(-errno));
+	    pmProgname, pmErrStr(-oserror()));
 	exit(1);
     }
 

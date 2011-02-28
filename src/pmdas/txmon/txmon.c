@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <pcp/pmapi.h>
@@ -301,7 +297,7 @@ main(int argc, char **argv)
      */
     if ((tx_indom = (pmdaInstid *)malloc(n * sizeof(pmdaInstid))) == NULL) {
 	fprintf(stderr, "malloc(%d): %s\n",
-	    n * (int)sizeof(pmdaInstid), strerror(errno));
+	    n * (int)sizeof(pmdaInstid), osstrerror(oserror()));
 	exit(1);
     }
     indomtab[0].it_numinst = n;
@@ -320,12 +316,12 @@ main(int argc, char **argv)
      * create the shm segment, and install exit() handler to remove it
      */
     if ((shmid = shmget(KEY, shm_size, IPC_CREAT|0666)) < 0) {
-	fprintf(stderr, "shmid: %s\n", strerror(errno));
+	fprintf(stderr, "shmid: %s\n", osstrerror(oserror()));
 	exit(1);
     }
     atexit(done);
     if ((control = (control_t *)shmat(shmid, NULL, 0)) == (control_t *)-1) {
-	fprintf(stderr, "shmat: %s\n", strerror(errno));
+	fprintf(stderr, "shmat: %s\n", osstrerror(oserror()));
 	exit(1);
     }
 #ifdef PCP_DEBUG

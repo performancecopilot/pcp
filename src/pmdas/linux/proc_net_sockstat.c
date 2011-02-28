@@ -10,23 +10,15 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-
+#include "pmapi.h"
 #include "proc_net_sockstat.h"
-
-static int started = 0;
 
 int
 refresh_proc_net_sockstat(proc_net_sockstat_t *proc_net_sockstat)
 {
+    static int started;
     char buf[1024];
     char fmt[64];
     FILE *fp;
@@ -37,7 +29,7 @@ refresh_proc_net_sockstat(proc_net_sockstat_t *proc_net_sockstat)
     }
 
     if ((fp = fopen("/proc/net/sockstat", "r")) == NULL) {
-    	return -errno;
+    	return -oserror();
     }
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {

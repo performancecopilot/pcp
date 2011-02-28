@@ -262,16 +262,16 @@ refresh(void *dummy)
 		if (sts == -1)
 		    open("/dev/null", O_WRONLY, 0);
 		if (dup(1) == -1) {
-		    fprintf(stderr, "Warning: dup() failed: %s\n", pmErrStr(-errno));
+		    fprintf(stderr, "Warning: dup() failed: %s\n", pmErrStr(-oserror()));
 		}
 		argv[2] = cmdlist[i].cmd;
 		sts = execv("/bin/sh", argv);
 		exit(-1);
 	    }
 	    else if (shpid < 0) {
-		logmessage(LOG_CRIT, "refresh: fork() failed: %s", strerror(errno));
+		logmessage(LOG_CRIT, "refresh: fork() failed: %s", osstrerror(oserror()));
 		cmdlist[i].status = STATUS_SYS;
-		cmdlist[i].error = errno;
+		cmdlist[i].error = oserror();
 		cmdlist[i].real = cmdlist[i].usr = cmdlist[i].sys = -1;
 		continue;
 
@@ -406,7 +406,7 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 
 	need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
 	if ((res = (pmResult *) malloc(need)) == NULL)
-	    return -errno;
+	    return -oserror();
 	maxnpmids = numpmid;
     }
 
@@ -463,7 +463,7 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 		res->numpmid = i;
 		__pmFreeResultValues(res);
 	    }
-	    return -errno;
+	    return -oserror();
 	}
 	vset->pmid = pmidlist[i];
 	vset->numval = numval;
@@ -493,7 +493,7 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 			res->numpmid = i;
 			__pmFreeResultValues(res);
 		    }
-		    return -errno;
+		    return -oserror();
 		}
 	    }
 	    vset->vlist[j].inst = inst;
@@ -648,7 +648,7 @@ shping_init(pmdaInterface *dp)
     /* start the sproc for async fetches */
 #ifdef HAVE_SPROC
     if ( (sprocpid = sproc(refresh, PR_SADDR, NULL)) < 0 ) {
-	logmessage(LOG_CRIT, "sproc failed: %s\n", strerror(-errno));
+	logmessage(LOG_CRIT, "sproc failed: %s\n", osstrerror(-oserror()));
 	dp->status = sprocpid;
     }
     else {
