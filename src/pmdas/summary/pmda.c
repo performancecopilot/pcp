@@ -10,27 +10,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
-
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <sys/un.h>
-#include <netdb.h>
-#include <string.h>
-#include <errno.h>
 
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include <sys/stat.h>
 #include "./summary.h"
 #include "./domain.h"
 
@@ -139,7 +124,7 @@ main(int argc, char **argv)
      */
     if (pipe1(clientPipe) < 0) {
 	perror("pipe");
-	exit(errno);
+	exit(oserror());
     }
 
     if ((clientPID = fork()) == 0) {
@@ -148,7 +133,7 @@ main(int argc, char **argv)
 	close(clientPipe[0]);
 	if (dup2(clientPipe[1], fileno(stdout)) < 0) {
 	    perror("dup");
-	    exit(errno);
+	    exit(oserror());
 	}
 	close(clientPipe[1]);
 
@@ -156,7 +141,7 @@ main(int argc, char **argv)
 	execv(commandArgv[0], commandArgv);
   
 	perror(cmdpath);
-	exit(errno);
+	exit(oserror());
     }
 
     fprintf(stderr, "clientPID = %d\n", clientPID);

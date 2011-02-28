@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <sys/types.h>
@@ -31,7 +27,6 @@
 #include <netdb.h>
 #include <fcntl.h>
 #include <syslog.h>
-#include <errno.h>
 #include "./cisco.h"
 
 int		port = 23;
@@ -113,7 +108,7 @@ probe_cisco(cisco_t * cp)
 	fd = conn_cisco(cp);
 	if (fd == -1) {
 	    fprintf(stderr, "grab_cisco(%s): connect failed: %s\n",
-		cp->host, strerror(errno));
+		cp->host, osstrerror());
 	    return;
 	}
 	else {
@@ -320,7 +315,7 @@ main(int argc, char **argv)
 	FILE	*f;
 	if ((f = fopen(argv[optind], "r")) == NULL) {
 	    fprintf(stderr, "%s: unknown hostname or filename %s: %s\n",
-		pmProgname, argv[optind], hoststrerror(hosterror()));
+		pmProgname, argv[optind], hoststrerror());
 	    exit(1);
 	}
 	else {

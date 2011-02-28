@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "common.h"
@@ -36,12 +32,12 @@ disk_init(int first)
     ndisk =  perfstat_disk(NULL, NULL, sizeof(perfstat_disk_t), 0);
     if ((fetched = (int *)malloc(ndisk * sizeof(int))) == NULL) {
 	fprintf(stderr, "disk_init: fetched malloc[%d] failed: %s\n",
-	    ndisk * sizeof(int), strerror(errno));
+	    ndisk * sizeof(int), osstrerror());
 	exit(1);
     }
     if ((diskstat = (perfstat_disk_t *)malloc(ndisk * sizeof(perfstat_disk_t))) == NULL) {
 	fprintf(stderr, "disk_init: diskstat malloc[%d] failed: %s\n",
-	    ndisk * sizeof(perfstat_disk_t), strerror(errno));
+	    ndisk * sizeof(perfstat_disk_t), osstrerror());
 	exit(1);
     }
     ndisk_alloc = ndisk;
@@ -56,7 +52,7 @@ disk_init(int first)
     indomtab[DISK_INDOM].it_set = (pmdaInstid *)malloc(ndisk * sizeof(pmdaInstid));
     if (indomtab[DISK_INDOM].it_set == NULL) {
 	fprintf(stderr, "disk_init: indomtab malloc[%d] failed: %s\n",
-	    ndisk * sizeof(pmdaInstid), strerror(errno));
+	    ndisk * sizeof(pmdaInstid), osstrerror());
 	exit(1);
     }
     for (i = 0; i < ndisk; i++) {

@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 #include "pmapi.h"
 #include "impl.h"
@@ -65,14 +61,17 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
     myaddr.sin_family = AF_INET;
     myaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     myaddr.sin_port = htons(port);
-    if ((sts = connect(fd, (struct sockaddr *)&myaddr, sizeof(myaddr))) < 0)
+    if ((sts = connect(fd, (struct sockaddr *)&myaddr, sizeof(myaddr))) < 0) {
+	setoserror(neterror());
 	goto error;
+    }
 
     /*
      * Write the packet, then wait for an ACK.
      */
     sts = send(fd, (const void *)pkt, pkt->length, 0);
     if (sts < 0) {
+	setoserror(neterror());
 	goto error;
     } else if (sts != pkt->length) {
 	setoserror(EMSGSIZE);
@@ -81,6 +80,7 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
     ack = (pmTime *)buffer;
     sts = recv(fd, buffer, sizeof(buffer), 0);
     if (sts < 0) {
+	setoserror(neterror());
 	goto error;
     } else if (sts != ack->length) {
 	setoserror(EMSGSIZE);
@@ -133,13 +133,17 @@ int
 pmTimeSendAck(int fd, struct timeval *tv)
 {
     pmTime data;
+    int sts;
 
     memset(&data, 0, sizeof(data));
     data.magic = PMTIME_MAGIC;
     data.length = sizeof(data);
     data.command = PM_TCTL_ACK;
     data.position = *tv;
-    return send(fd, (const void *)&data, sizeof(data), 0);
+    sts = send(fd, (const void *)&data, sizeof(data), 0);
+    if (sts < 0)
+	setoserror(neterror());
+    return sts;
 }
 
 int
@@ -156,7 +160,8 @@ pmTimeShowDialog(int fd, int show)
     if (sts >= 0 && sts != sizeof(data)) {
 	setoserror(EMSGSIZE);
 	sts = -1;
-    }
+    } else if (sts < 0)
+	setoserror(neterror());
     return sts;
 }
 
@@ -171,6 +176,8 @@ pmTimeRecv(int fd, pmTime **datap)
     if (sts >= 0 && sts != sizeof(pmTime)) {
 	setoserror(EMSGSIZE);
 	sts = -1;
+    } else if (sts < 0) {
+	setoserror(neterror());
     } else if (k->length > sizeof(pmTime)) {	/* double dipping */
 	remains = k->length - sizeof(pmTime);
 	*datap = k = realloc(k, k->length);
@@ -178,6 +185,8 @@ pmTimeRecv(int fd, pmTime **datap)
 	if (sts >= 0 && sts != remains) {
 	    setoserror(E2BIG);
 	    sts = -1;
+	} else if (sts < 0) {
+	    setoserror(neterror());
 	}
     }
     if (sts < 0)

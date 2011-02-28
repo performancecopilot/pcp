@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -40,8 +36,8 @@ refresh_proc_runq(proc_runq_t *proc_runq)
     char buf[4096];
 
     memset(proc_runq, 0, sizeof(proc_runq_t));
-    if ((dir=opendir("/proc")) == NULL)
-    	return -errno;
+    if ((dir = opendir("/proc")) == NULL)
+    	return -oserror();
 
     while((d = readdir(dir)) != NULL) {
 	if (!isdigit(d->d_name[0]))

@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <libzfs.h>
@@ -167,7 +163,7 @@ zp_cache_vdevs(zpool_handle_t *zp, void *arg)
 	rv = nvlist_lookup_nvlist(cfg, ZPOOL_CONFIG_VDEV_TREE, &vdt);
 	if (rv != 0) {
 	    __pmNotifyErr(LOG_ERR, "Cannot get vdev tree for '%s': %d %d\n",
-		    zpname, rv, errno);
+		    zpname, rv, oserror());
 	    goto done;
 	}
 
@@ -216,7 +212,7 @@ zp_cache_vdevs(zpool_handle_t *zp, void *arg)
 	    } else {
 		__pmNotifyErr(LOG_ERR,
 			"Cannot get stats for '%s': %d %d\n",
-			vdev_names[i], rv, errno);
+			vdev_names[i], rv, oserror());
 		zps->vdev_stats_fresh = 0;
 	    }
 	}

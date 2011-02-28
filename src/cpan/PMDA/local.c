@@ -110,7 +110,7 @@ local_pipe(char *pipe, scalar_t *callback, int cookie)
     signal(SIGPIPE, SIG_IGN);
 #endif
     if (!fp) {
-	__pmNotifyErr(LOG_ERR, "popen failed (%s): %s", pipe, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "popen failed (%s): %s", pipe, osstrerror());
 	exit(1);
     }
     me = local_file(FILE_PIPE, fileno(fp), callback, cookie);
@@ -126,11 +126,11 @@ local_tail(char *file, scalar_t *callback, int cookie)
     int me;
 
     if (fd < 0) {
-	__pmNotifyErr(LOG_ERR, "open failed (%s): %s", file, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "open failed (%s): %s", file, osstrerror());
 	exit(1);
     }
     if (fstat(fd, &stats) < 0) {
-	__pmNotifyErr(LOG_ERR, "fstat failed (%s): %s", file, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "fstat failed (%s): %s", file, osstrerror());
 	exit(1);
     }
     lseek(fd, 0L, SEEK_END);
@@ -149,11 +149,11 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
     int me, fd;
 
     if ((servinfo = gethostbyname(host)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "gethostbyname (%s): %s", host, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "gethostbyname (%s): %s", host, netstrerror());
 	exit(1);
     }
     if ((fd = __pmCreateSocket()) < 0) {
-	__pmNotifyErr(LOG_ERR, "socket (%s): %s", host, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "socket (%s): %s", host, netstrerror());
 	exit(1);
     }
     memset(&myaddr, 0, sizeof(myaddr));
@@ -161,7 +161,7 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
     memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
     myaddr.sin_port = htons(port);
     if (connect(fd, (struct sockaddr *)&myaddr, sizeof(myaddr)) < 0) {
-	__pmNotifyErr(LOG_ERR, "connect (%s): %s", host, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "connect (%s): %s", host, netstrerror());
 	exit(1);
     }
     me = local_file(FILE_SOCK, fd, callback, cookie);
@@ -243,7 +243,7 @@ local_log_rotated(files_t *file)
     file->fd = open(file->me.tail.path, O_RDONLY);
     if (file->fd < 0) {
 	__pmNotifyErr(LOG_ERR, "fopen failed after log rotate (%s): %s",
-			file->me.tail.path, strerror(errno));
+			file->me.tail.path, osstrerror());
 	return;
     }
     files->me.tail.dev = stats.st_dev;
@@ -318,8 +318,9 @@ local_pmdaMain(pmdaInterface *self)
 	memcpy(&readyfds, &fds, sizeof(readyfds));
 	nready = select(nfds, &readyfds, NULL, NULL, &timeout);
 	if (nready < 0) {
-	    if (errno != EINTR) {
-		__pmNotifyErr(LOG_ERR, "select failed: %s\n", strerror(errno));
+	    if (neterror() != EINTR) {
+		__pmNotifyErr(LOG_ERR, "select failed: %s\n",
+				netstrerror());
 		exit(1);
 	    }
 	    continue;
@@ -351,7 +352,7 @@ multiread:
 		    continue;
 		}
 		__pmNotifyErr(LOG_ERR, "Data read error on %s: %s\n",
-				local_filetype(files[i].type), strerror(errno));
+				local_filetype(files[i].type), osstrerror());
 		exit(1);
 	    }
 	    if (bytes == 0) {

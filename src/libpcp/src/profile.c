@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -218,7 +214,7 @@ pmAddProfile(pmInDom indom, int instlist_len, int instlist[])
     if ((prof = __pmFindProfile(indom, ctxp->c_instprof)) == NULL) {
 	if ((prof = _newprof(indom, ctxp)) == NULL) {
 	    /* fail */
-	    return -errno;
+	    return -oserror();
 	}
 	else {
 	    /* starting state: exclude all except the supplied list */
@@ -293,7 +289,7 @@ pmDelProfile(pmInDom indom, int instlist_len, int instlist[])
     if ((prof = __pmFindProfile(indom, ctxp->c_instprof)) == NULL) {
 	if ((prof = _newprof(indom, ctxp)) == NULL) {
 	    /* fail */
-	    return -errno;
+	    return -oserror();
 	}
 	else {
 	    /* starting state: include all except the supplied list */

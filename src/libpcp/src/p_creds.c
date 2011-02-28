@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -40,7 +36,7 @@ __pmSendCreds(int fd, int from, int credcount, const __pmCred *credlist)
 
     need = sizeof(creds_t) + ((credcount-1) * sizeof(__pmCred));
     if ((pp = (creds_t *)__pmFindPDUBuf((int)need)) == NULL)
-	return -errno;
+	return -oserror();
     pp->hdr.len = (int)need;
     pp->hdr.type = PDU_CREDS;
     pp->hdr.from = from;
@@ -69,7 +65,7 @@ __pmDecodeCreds(__pmPDU *pdubuf, int *sender, int *credcount, __pmCred **credlis
     if (pp == NULL || numcred < 0) return PM_ERR_IPC;
     *sender = pp->hdr.from;	/* ntohl() converted already in __pmGetPDU() */
     if ((list = (__pmCred *)malloc(sizeof(__pmCred) * numcred)) == NULL)
-	return -errno;
+	return -oserror();
 
     /* swab and fix bitfield order */
     for (i = 0; i < numcred; i++) {

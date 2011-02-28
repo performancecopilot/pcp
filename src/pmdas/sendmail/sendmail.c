@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <ctype.h>
@@ -189,14 +185,14 @@ map_stats(void)
 
 	if ((fd = open(statsfile, O_RDONLY)) < 0) {
 	    __pmNotifyErr(LOG_WARNING, "%s: map_stats: cannot open(\"%s\",...): %s",
-			pmProgname, statsfile, strerror(errno));
+			pmProgname, statsfile, osstrerror());
 	    return;
 	}
 	ptr = __pmMemoryMap(fd, statbuf.st_size, 0);
 	if (ptr == NULL) {
 	    if (!(notified & MAPSTATS_MAPFAIL)) {
 		__pmNotifyErr(LOG_ERR, "%s: map_stats: memmap of %s failed: %s",
-			    pmProgname, statsfile, strerror(errno));
+			    pmProgname, statsfile, osstrerror());
     	    }
 	    close(fd);
 	    ptr = NULL;

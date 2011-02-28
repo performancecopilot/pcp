@@ -56,7 +56,7 @@ pmdaTreeRebuildHash(__pmnsTree *tree, int numpmid)
     tree->htab = (__pmnsNode **)calloc(htabsize, sizeof(__pmnsNode *));
     if (tree->htab == NULL)
 	__pmNotifyErr(LOG_ERR, "%s: out of memory in pmns rebuild - %s",
-			pmProgname, strerror(errno));
+			pmProgname, osstrerror());
     else
 	__pmdaTreeReindexHash(tree, tree->root);
 }
@@ -151,7 +151,7 @@ pmdaTreeName(__pmnsTree *pmns, pmID pmid, char ***nameset)
     length += nmatch * sizeof(char *);		/* pointers to names */
 
     if ((list = (char **)malloc(length)) == NULL)
-	return -errno;
+	return -oserror();
 
     p = (char *)&list[nmatch];
     nmatch = 0;
@@ -178,10 +178,10 @@ __pmdaNodeRelativeChildren(__pmnsNode *base, char ***offspring, int **status)
 	length += strlen(node->name) + 1;
     length += nmatch * sizeof(char *);	/* pointers to names */
     if ((list = (char **)malloc(length)) == NULL)
-	return -errno;
+	return -oserror();
     if ((leaf = (int *)malloc(nmatch * sizeof(int*))) == NULL) {
 	free(list);
-	return -errno;
+	return -oserror();
     }
     p = (char *)&list[nmatch];
     nmatch = 0;
@@ -263,10 +263,10 @@ __pmdaNodeAbsoluteChildren(__pmnsNode *node, char ***offspring, int **status)
  
     length += nmetrics * sizeof(char *);	/* pointers to names */
     if ((list = (char **)malloc(length)) == NULL)
-	return -errno;
+	return -oserror();
     if ((leaf = (int *)malloc(nmetrics * sizeof(int*))) == NULL) {
 	free(list);
-	return -errno;
+	return -oserror();
     }
 
     p = (char *)&list[nmetrics];

@@ -10,12 +10,7 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
-#include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <sys/socket.h>
@@ -173,7 +168,7 @@ refresh_nfs(struct nfsstats *stats)
 	struct vfsconf vfsconf;
 
 	if (getvfsbyname("nfs", &vfsconf) == -1)
-	    return -errno;
+	    return -oserror();
 	nfstype = vfsconf.vfc_typenum;
     }
 
@@ -181,7 +176,7 @@ refresh_nfs(struct nfsstats *stats)
     name[1] = nfstype;
     name[0] = NFS_NFSSTATS;
     if (sysctl(name, 3, stats, &length, NULL, 0) == -1)
-	return -errno;
+	return -oserror();
     stats->biocache_reads -= stats->read_bios;
     stats->biocache_writes -= stats->write_bios;
     stats->biocache_readlinks -= stats->readlink_bios;

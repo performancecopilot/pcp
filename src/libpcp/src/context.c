@@ -11,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -183,7 +179,7 @@ pmNewContext(int type, const char *name)
 
     if (list == NULL) {
 	/* fail : nothing changed */
-	sts = -errno;
+	sts = -oserror();
 	goto FAILED;
     }
 
@@ -202,7 +198,7 @@ INIT_CONTEXT:
 	 * fail : nothing changed -- actually list is changed, but restoring
 	 * contexts_len should make it ok next time through
 	 */
-	sts = -errno;
+	sts = -oserror();
 	goto FAILED;
     }
     memset(new->c_instprof, 0, sizeof(__pmProfile));
@@ -258,7 +254,7 @@ INIT_CONTEXT:
 
 	    new->c_pmcd = (__pmPMCDCtl *)calloc(1,sizeof(__pmPMCDCtl));
 	    if (new->c_pmcd == NULL) {
-		sts = -errno;
+		sts = -oserror();
 		__pmCloseSocket(sts);
 		__pmFreeHostSpec(hosts, nhosts);
 		goto FAILED;
@@ -281,7 +277,7 @@ INIT_CONTEXT:
     }
     else if (new->c_type == PM_CONTEXT_ARCHIVE) {
 	if ((new->c_archctl = (__pmArchCtl *)malloc(sizeof(__pmArchCtl))) == NULL) {
-	    sts = -errno;
+	    sts = -oserror();
 	    goto FAILED;
 	}
 	new->c_archctl->ac_log = NULL;
@@ -296,7 +292,7 @@ INIT_CONTEXT:
 	if (new->c_archctl->ac_log == NULL) {
 	    if ((new->c_archctl->ac_log = (__pmLogCtl *)malloc(sizeof(__pmLogCtl))) == NULL) {
 		free(new->c_archctl);
-		sts = -errno;
+		sts = -oserror();
 		goto FAILED;
 	    }
 	    if ((sts = __pmLogOpen(name, new)) < 0) {
@@ -496,7 +492,7 @@ pmDupContext(void)
 	newcon->c_instprof->profile = (__pmInDomProfile *)malloc(
 	    oldcon->c_instprof->profile_len * sizeof(__pmInDomProfile));
 	if (newcon->c_instprof->profile == NULL) {
-	    sts = -errno;
+	    sts = -oserror();
 	    goto done;
 	}
 	memcpy(newcon->c_instprof->profile, oldcon->c_instprof->profile,
@@ -508,7 +504,7 @@ pmDupContext(void)
 	    if (p->instances) {
 		q->instances = (int *)malloc(p->instances_len * sizeof(int));
 		if (q->instances == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    goto done;
 		}
 		memcpy(q->instances, p->instances,
@@ -526,7 +522,7 @@ pmDupContext(void)
     /* clone the archive control struct, if any */
     if (oldcon->c_archctl != NULL) {
 	if ((newcon->c_archctl = (__pmArchCtl *)malloc(sizeof(__pmArchCtl))) == NULL) {
-	    sts = -errno;
+	    sts = -oserror();
 	    goto done;
 	}
 	*newcon->c_archctl = *oldcon->c_archctl;	/* struct assignment */
@@ -825,7 +821,7 @@ pmContextConnectChangeState (int ctxid)
 			__pmSetSocketIPC(pc->pc_fd);
 			__pmCloseSocket(fd);
 		    } else {
-			fd = -errno;
+			fd = -oserror();
 		    }
 		}
 

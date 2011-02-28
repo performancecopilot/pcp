@@ -60,7 +60,7 @@ pmdaOpenHelp(char *fname)
 	if (tab == NULL) {
 	    __pmNoMem("pmdaOpenHelp", numhelp * sizeof(tab[0]), PM_RECOV_ERR);
 	    numhelp = 0;
-	    return -errno;
+	    return -oserror();
 	}
     }
     hp = &tab[sts];
@@ -71,7 +71,7 @@ pmdaOpenHelp(char *fname)
     snprintf(pathname, sizeof(pathname), "%s.dir", fname);
     hp->dir_fd = open(pathname, O_RDONLY);
     if (hp->dir_fd < 0) {
-	sts = -errno;
+	sts = -oserror();
 	goto failed;
     }
 
@@ -91,24 +91,24 @@ pmdaOpenHelp(char *fname)
 
     hp->index = (help_idx_t *)__pmMemoryMap(hp->dir_fd, size, 0);
     if (hp->index == NULL) {
-	sts = -errno;
+	sts = -oserror();
 	goto failed;
     }
 
     snprintf(pathname, sizeof(pathname), "%s.pag", fname);
     hp->pag_fd = open(pathname, O_RDONLY);
     if (hp->pag_fd < 0) {
-	sts = -errno;
+	sts = -oserror();
 	goto failed;
     }
     if (fstat(hp->pag_fd, &sbuf) < 0) {
-	sts = -errno;
+	sts = -oserror();
 	goto failed;
     }
     hp->textlen = (int)sbuf.st_size;
     hp->text = (char *)__pmMemoryMap(hp->pag_fd, hp->textlen, 0);
     if (hp->text == NULL) {
-	sts = -errno;
+	sts = -oserror();
 	goto failed;
     }
     return numhelp - 1;
