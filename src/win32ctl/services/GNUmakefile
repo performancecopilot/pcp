@@ -16,7 +16,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES = pcp-services.c
-TARGETS = pcp-services.exe
+CMDTARGET = pcp-services.exe
 LLDLIBS = -lpcp
 LSRCFILES = $(WRAPPERS)
 
@@ -25,9 +25,9 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "mingw"
-build-me:	$(TARGETS)
+build-me:	$(CMDTARGET)
 install:	default
-	$(INSTALL) -m 755 $(TARGETS) $(PCP_BIN_DIR)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 else
 build-me:
 install:
