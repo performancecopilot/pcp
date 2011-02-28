@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmproxy.h"
@@ -235,7 +231,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     fd = __pmCreateSocket();
     if (fd < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) socket: %s\n",
-			port, netstrerror(neterror()));
+			port, netstrerror());
 	DontStart();
     }
     if (fd > maxSockFd)
@@ -248,7 +244,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 			(mysocklen_t)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
 		"OpenRequestSocket(%d) setsockopt(SO_REUSEADDR): %s\n",
-		port, netstrerror(neterror()));
+		port, netstrerror());
 	DontStart();
     }
 #else
@@ -257,7 +253,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 			(mysocklen_t)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
 		"OpenRequestSocket(%d) setsockopt(SO_EXCLUSIVEADDRUSE): %s\n",
-		port, netstrerror(neterror()));
+		port, netstrerror());
 	DontStart();
     }
 #endif
@@ -267,7 +263,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 			(mysocklen_t)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
 		"OpenRequestSocket(%d, 0x%x) setsockopt(SO_KEEPALIVE): %s\n",
-		port, ipAddr, netstrerror(neterror()));
+		port, ipAddr, netstrerror());
 	DontStart();
     }
 
@@ -278,7 +274,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
     if (sts < 0){
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) bind: %s\n",
-			port, netstrerror(neterror()));
+			port, netstrerror());
 	__pmNotifyErr(LOG_ERR, "pmproxy is already running\n");
 	DontStart();
     }
@@ -286,7 +282,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) listen: %s\n",
-			port, netstrerror(neterror()));
+			port, netstrerror());
 	DontStart();
     }
     return fd;
@@ -506,8 +502,7 @@ ClientLoop(void)
 	    HandleInput(&readableFds);
 	}
 	else if (sts == -1 && neterror() != EINTR) {
-	    __pmNotifyErr(LOG_ERR, "ClientLoop select: %s\n",
-				netstrerror(neterror()));
+	    __pmNotifyErr(LOG_ERR, "ClientLoop select: %s\n", netstrerror());
 	    break;
 	}
 	if (timeToDie) {

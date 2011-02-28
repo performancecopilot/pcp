@@ -108,7 +108,7 @@ probe_cisco(cisco_t * cp)
 	fd = conn_cisco(cp);
 	if (fd == -1) {
 	    fprintf(stderr, "grab_cisco(%s): connect failed: %s\n",
-		cp->host, osstrerror(oserror()));
+		cp->host, osstrerror());
 	    return;
 	}
 	else {
@@ -315,7 +315,7 @@ main(int argc, char **argv)
 	FILE	*f;
 	if ((f = fopen(argv[optind], "r")) == NULL) {
 	    fprintf(stderr, "%s: unknown hostname or filename %s: %s\n",
-		pmProgname, argv[optind], hoststrerror(hosterror()));
+		pmProgname, argv[optind], hoststrerror());
 	    exit(1);
 	}
 	else {

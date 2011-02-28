@@ -599,9 +599,9 @@ int http_parseFilename(const char *url, char **filename)
 void http_perror(const char *string)
 	{
 	if(errorSource == ERRNO)
-		fprintf(stderr, "%s: %s\n", string, osstrerror(oserror()));
+		fprintf(stderr, "%s: %s\n", string, osstrerror());
 	else if(errorSource == H_ERRNO)
-		fprintf(stderr, "%s: %s\n", string, hoststrerror(hosterror()));
+		fprintf(stderr, "%s: %s\n", string, hoststrerror());
 	else if(errorSource == FETCHER_ERROR)
 		{
 		const char *stringIndex;
@@ -655,9 +655,9 @@ int http_getTimeoutError()
 const char *http_strerror()
 	{
 	if(errorSource == ERRNO)
-		return osstrerror(oserror());
+		return osstrerror();
 	else if(errorSource == H_ERRNO)
-		return hoststrerror(hosterror());
+		return hoststrerror();
 	else if(errorSource == FETCHER_ERROR)
 		{
 		if(strstr(http_errlist[http_errno], "%d") == NULL)

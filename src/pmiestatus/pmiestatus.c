@@ -29,13 +29,13 @@ main(int argc, char **argv)
 
 	if (f < 0) {
 	    fprintf(stderr, "%s: cannot open %s - %s\n",
-		    pmProgname, argv[i], osstrerror(oserror()));
+		    pmProgname, argv[i], osstrerror());
 	    continue;
 	}
 
 	if (fstat(f, &st) < 0) {
 	    fprintf(stderr, "%s: cannot get size of %s - %s\n",
-		    pmProgname, argv[i], osstrerror(oserror()));
+		    pmProgname, argv[i], osstrerror());
 	    continue;
 	}
 

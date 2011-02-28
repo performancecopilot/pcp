@@ -64,13 +64,13 @@ main(int argc, char *argv[])
     }
 
     if ((fc = fopen(argv[1], "r")) == NULL) {
-	fprintf(stderr, "check_match: cannot open configfile \"%s\": %s\n", argv[1], osstrerror(oserror()));
+	fprintf(stderr, "check_match: cannot open configfile \"%s\": %s\n", argv[1], osstrerror());
 	exit(1);
     }
 
     if (argc == 4) {
 	if (freopen(argv[3], "r", stdin) == NULL) {
-	    fprintf(stderr, "check_match: cannot open input \"%s\": %s\n", argv[3], osstrerror(oserror()));
+	    fprintf(stderr, "check_match: cannot open input \"%s\": %s\n", argv[3], osstrerror());
 	    exit(1);
 	}
     }

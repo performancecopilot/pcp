@@ -429,7 +429,7 @@ rawdump(FILE *f)
 	}
     }
     if (sts < 0)
-	printf("fread fails: %s\n", osstrerror(oserror()));
+	printf("fread fails: %s\n", osstrerror());
     fseek(f, old, SEEK_SET);
 }
 
@@ -609,7 +609,7 @@ main(int argc, char *argv[])
     if (vflag) {
 	FILE	*f;
 	if ((f = fopen(rawfile, "r")) == NULL) {
-	    fprintf(stderr, "%s: Cannot open \"%s\": %s\n", pmProgname, rawfile, osstrerror(oserror()));
+	    fprintf(stderr, "%s: Cannot open \"%s\": %s\n", pmProgname, rawfile, osstrerror());
 	    exit(1);
 	}
 	printf("Raw dump of physical archive file \"%s\" ...\n", rawfile);

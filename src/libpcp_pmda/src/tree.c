@@ -56,7 +56,7 @@ pmdaTreeRebuildHash(__pmnsTree *tree, int numpmid)
     tree->htab = (__pmnsNode **)calloc(htabsize, sizeof(__pmnsNode *));
     if (tree->htab == NULL)
 	__pmNotifyErr(LOG_ERR, "%s: out of memory in pmns rebuild - %s",
-			pmProgname, osstrerror(oserror()));
+			pmProgname, osstrerror());
     else
 	__pmdaTreeReindexHash(tree, tree->root);
 }

@@ -242,7 +242,7 @@ main(int argc, char **argv)
 		FILE	*f;
 		if ((f = fopen(p, "r")) == NULL) {
 		    fprintf(stderr, "%s: unknown hostname or filename %s: %s\n",
-			pmProgname, argv[optind], hoststrerror(hosterror()));
+			pmProgname, argv[optind], hoststrerror());
 		    /* abandon this host (cisco) */
 		    continue;
 		}
@@ -260,7 +260,7 @@ main(int argc, char **argv)
 		}
 #else
 		fprintf(stderr, "%s: unknown hostname %s: %s\n",
-			pmProgname, p, hoststrerror(hosterror()));
+			pmProgname, p, hoststrerror());
 		/* abandon this host (cisco) */
 		continue;
 #endif

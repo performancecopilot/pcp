@@ -75,7 +75,7 @@ moreinput(int fd, __pmTracePDU *pdubuf, int len)
 	if ((more = (more_ctl *)realloc(more, (fd+1)*sizeof(more[0]))) == NULL)
 {
 	    fprintf(stderr, "realloc failed (%d bytes): %s\n",
-		    (fd+1)*(int)sizeof(more[0]), osstrerror(oserror()));
+		    (fd+1)*(int)sizeof(more[0]), osstrerror());
 	    return;
 	}
 	maxfd = fd;
@@ -330,7 +330,7 @@ __pmtracegetPDU(int fd, int timeout, __pmTracePDU **result)
 		len = 0;
 	    else
 		fprintf(stderr, "__pmtracegetPDU: fd=%d hdr: %s",
-			fd, osstrerror(oserror()));
+			fd, osstrerror());
 	}
 	else if (len > 0)
 	    fprintf(stderr, "__pmtracegetPDU: fd=%d hdr: len=%d, not %d?",
@@ -387,7 +387,7 @@ __pmtracegetPDU(int fd, int timeout, __pmTracePDU **result)
 	    if (len == PMTRACE_ERR_TIMEOUT)
 		return PMTRACE_ERR_TIMEOUT;
 	    if (len < 0)
-		fprintf(stderr, "__pmtracegetPDU: error (%d) fd=%d: %s\n", oserror(), fd, osstrerror(oserror()));
+		fprintf(stderr, "__pmtracegetPDU: error (%d) fd=%d: %s\n", oserror(), fd, osstrerror());
 	    else
 		fprintf(stderr, "__pmtracegetPDU: len=%d, not %d? (fd=%d)\n", len, need, fd);
 	    fprintf(stderr, "hdr: len=0x%08x type=0x%08x from=0x%08x\n",

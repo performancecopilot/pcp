@@ -272,7 +272,7 @@ fopen_compress(const char *fname)
 	sts = oserror();
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "__pmLogOpen: uncompress command failed: %s\n", osstrerror(sts));
+	    fprintf(stderr, "__pmLogOpen: uncompress command failed: %s\n", osstrerror());
 #endif
 	close(fd);
 	unlink(msg);
@@ -488,7 +488,7 @@ __pmLogNewFile(const char *base, int vol)
 
     if ((f = fopen(fname, "w")) == NULL) {
 	save_error = oserror();
-	pmprintf("__pmLogNewFile: failed to create \"%s\": %s\n", fname, osstrerror(save_error));
+	pmprintf("__pmLogNewFile: failed to create \"%s\": %s\n", fname, osstrerror());
 
 	pmflush();
 	setoserror(save_error);
@@ -496,7 +496,7 @@ __pmLogNewFile(const char *base, int vol)
     }
 
     if ((save_error = __pmSetVersionIPC(fileno(f), PDU_VERSION)) < 0) {
-	pmprintf("__pmLogNewFile: failed to setup \"%s\": %s\n", fname, osstrerror(save_error));
+	pmprintf("__pmLogNewFile: failed to setup \"%s\": %s\n", fname, osstrerror());
 	pmflush();
 	setoserror(save_error);
 	return NULL;
@@ -526,7 +526,7 @@ __pmLogWriteLabel(FILE *f, const __pmLogLabel *lp)
 	(int)fwrite(&outll, 1, sizeof(outll), f) != sizeof(outll) ||
         (int)fwrite(&len, 1, sizeof(len), f) != sizeof(len)) {
 	    sts = -oserror();
-	    pmprintf("__pmLogWriteLabel: %s\n", osstrerror(oserror()));
+	    pmprintf("__pmLogWriteLabel: %s\n", osstrerror());
 	    pmflush();
 	    fclose(f);
     }
@@ -1421,7 +1421,7 @@ again:
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "\nError: __pmFindPDUBuf(%d) %s\n",
 		(int)(rlen + sizeof(__pmPDUHdr)),
-		osstrerror(oserror()));
+		osstrerror());
 #endif
 	fseek(f, offset, SEEK_SET);
 	return -oserror();

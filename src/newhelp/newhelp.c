@@ -360,7 +360,7 @@ Options:\n\
 	    sprintf(pathname, "%s.pag", fname);
 	    if ((f = fopen(pathname, "w")) == NULL) {
 		fprintf(stderr, "%s: fopen(\"%s\", ...) failed: %s\n",
-		    pmProgname, pathname, osstrerror(oserror()));
+		    pmProgname, pathname, osstrerror());
 		exit(2);
 	    }
 	    /* header: 2 => pag cf 1 => dir */
@@ -445,7 +445,7 @@ Options:\n\
 	sprintf(pathname, "%s.dir", fname);
 	if ((f = fopen(pathname, "w")) == NULL) {
 	    fprintf(stderr, "%s: fopen(\"%s\", ...) failed: %s\n",
-		pmProgname, pathname, osstrerror(oserror()));
+		pmProgname, pathname, osstrerror());
 	    exit(2);
 	}
 
@@ -457,7 +457,7 @@ Options:\n\
 	fwrite(&hdr, sizeof(hdr), 1, f);
 	if (ferror(f)) {
 	     fprintf(stderr, "%s: fwrite index failed: %s\n",
-		     pmProgname, osstrerror(oserror()));
+		     pmProgname, osstrerror());
 	     exit(2);
 	}
 
@@ -467,7 +467,7 @@ Options:\n\
 	    fwrite(&hindex[i], sizeof(hindex[0]), 1, f);
 	    if (ferror(f)) {
 		 fprintf(stderr, "%s: fwrite index failed: %s\n",
-			 pmProgname, osstrerror(oserror()));
+			 pmProgname, osstrerror());
 		 exit(2);
 	    }
 	}

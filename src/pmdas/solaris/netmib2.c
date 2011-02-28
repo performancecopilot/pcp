@@ -155,7 +155,7 @@ netmib2_refresh(void)
 
     if (putmsg(afd, &ctrl, NULL, 0) == -1) {
 	__pmNotifyErr(LOG_ERR, "Failed to push message down stream: %s\n",
-		      osstrerror(oserror()));
+		      osstrerror());
 	return;
     }
 
@@ -172,7 +172,7 @@ netmib2_refresh(void)
 	rv = getmsg(afd, &ctrl, NULL, &flags);
 	if (rv < 0) {
 	    __pmNotifyErr(LOG_ERR, "netmib2: failed to get a response: %s\n",
-			  osstrerror(oserror()));
+			  osstrerror());
 	    break;
 	}
 
@@ -204,7 +204,7 @@ netmib2_refresh(void)
 	if (rv) {
 	    __pmNotifyErr(LOG_ERR,
 			  "net2mib: Failed to get additional data: %s\n",
-			  osstrerror(oserror()));
+			  osstrerror());
 	    break;
 	}
 
@@ -310,14 +310,14 @@ netmib2_init(int first)
 
     afd = open("/dev/arp", O_RDWR);
     if (afd < 0) {
-	__pmNotifyErr(LOG_ERR, "Cannot open /dev/arp: %s\n", osstrerror(oserror()));
+	__pmNotifyErr(LOG_ERR, "Cannot open /dev/arp: %s\n", osstrerror());
 	return;
     }
 
     for (i = 0; i < 3; i++ ) {
 	if (ioctl(afd, I_PUSH, mods[i]) < 0) {
 	    __pmNotifyErr(LOG_ERR, "Cannot push %s into /dev/arp: %s\n",
-			  mods[i], osstrerror(oserror()));
+			  mods[i], osstrerror());
 	    close(afd);
 	    afd = -1;
 	    return;

@@ -43,7 +43,7 @@ __pmCreateSocket(void)
 		   (mysocklen_t)sizeof(nodelay)) < 0) {
 	__pmNotifyErr(LOG_ERR, 
 		      "__pmCreateSocket(%d): setsockopt TCP_NODELAY: %s\n",
-		      fd, netstrerror(neterror()));
+		      fd, netstrerror());
     }
 
     /* don't linger on close */
@@ -51,7 +51,7 @@ __pmCreateSocket(void)
 		   (mysocklen_t)sizeof(nolinger)) < 0) {
 	__pmNotifyErr(LOG_ERR, 
 		      "__pmCreateSocket(%d): setsockopt SO_LINGER: %s\n",
-		      fd, netstrerror(neterror()));
+		      fd, netstrerror());
     }
 
     return fd;
@@ -81,7 +81,7 @@ __pmConnectTo(int fd, const struct sockaddr *addr, int port)
     if (fcntl(fd, F_SETFL, fdFlags | FNDELAY) < 0) {
         __pmNotifyErr(LOG_ERR, "__pmConnectTo: cannot set FNDELAY - "
 		      "fcntl(%d,F_SETFL,0x%x) failed: %s\n",
-		      fd, fdFlags|FNDELAY , osstrerror(oserror()));
+		      fd, fdFlags|FNDELAY , osstrerror());
     }
     
     if (connect(fd, (struct sockaddr*)&myAddr, sizeof(myAddr)) < 0) {
@@ -105,7 +105,7 @@ __pmConnectCheckError(int fd)
 	so_err = neterror();
 	__pmNotifyErr(LOG_ERR, 
 		"__pmConnectCheckError: getsockopt(SO_ERROR) failed: %s\n",
-		netstrerror(so_err));
+		netstrerror());
     }
     return so_err;
 }
@@ -118,7 +118,7 @@ __pmConnectRestoreFlags(int fd, int fdFlags)
     if (fcntl(fd, F_SETFL, fdFlags) < 0) {
 	__pmNotifyErr(LOG_WARNING,"__pmConnectRestoreFlags: cannot restore "
 		      "flags fcntl(%d,F_SETFL,0x%x) failed: %s\n",
-		      fd, fdFlags, osstrerror(oserror()));
+		      fd, fdFlags, osstrerror());
     }
 
     if ((fdFlags = fcntl(fd, F_GETFD)) >= 0)
@@ -129,7 +129,7 @@ __pmConnectRestoreFlags(int fd, int fdFlags)
     if (sts == -1) {
         __pmNotifyErr(LOG_WARNING, "__pmConnectRestoreFlags: "
 		      "fcntl(%d) get/set flags failed: %s\n",
-		      fd, osstrerror(oserror()));
+		      fd, osstrerror());
 	close(fd);
 	return sts;
     }
@@ -219,7 +219,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
 	    fprintf(stderr, "__pmAuxConnectPMCDPort(%s, %d) : hosterror=%d, ``%s''\n",
-		    hostname, pmcd_port, hosterror(), hoststrerror(hosterror()));
+		    hostname, pmcd_port, hosterror(), hoststrerror());
 	}
 #endif
 	return -EHOSTUNREACH;

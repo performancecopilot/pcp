@@ -262,7 +262,7 @@ _report(FILE *fp)
     fprintf(stderr, "%s: Error occurred at byte offset %ld into a file of",
 	    pmProgname, (long int)here);
     if (fstat(fileno(fp), &sbuf) < 0)
-	fprintf(stderr, ": stat: %s\n", osstrerror(oserror()));
+	fprintf(stderr, ": stat: %s\n", osstrerror());
     else
 	fprintf(stderr, " %ld bytes.\n", (long int)sbuf.st_size);
     fprintf(stderr, "The last record, and the remainder of this file will not be extracted.\n");
@@ -866,7 +866,7 @@ _createmark(void)
     markp = (mark_t *)malloc(sizeof(mark_t));
     if (markp == NULL) {
 	fprintf(stderr, "%s: Error: mark_t malloc: %s\n",
-		pmProgname, osstrerror(oserror()));
+		pmProgname, osstrerror());
 	abandon();
     }
 #ifdef PCP_DEBUG
@@ -1288,7 +1288,7 @@ parseconfig(void)
 
     if ((yyin = fopen(configfile, "r")) == NULL) {
 	fprintf(stderr, "%s: Cannot open config file \"%s\": %s\n",
-		pmProgname, configfile, osstrerror(oserror()));
+		pmProgname, configfile, osstrerror());
 	exit(1);
     }
 
@@ -1640,7 +1640,7 @@ main(int argc, char **argv)
     inarch = (inarch_t *) malloc(inarchnum * sizeof(inarch_t));
     if (inarch == NULL) {
 	fprintf(stderr, "%s: Error: mallco inarch: %s\n",
-		pmProgname, osstrerror(oserror()));
+		pmProgname, osstrerror());
 	exit(1);
     }
 #ifdef PCP_DEBUG

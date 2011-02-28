@@ -34,7 +34,7 @@ opendso(char *dso, char *init, int domain)
     dispatch.status = -1;
 
     if (stat(dso, &buf) < 0) {
-	fprintf(stderr, "opendso: %s: %s\n", dso, osstrerror(oserror()));
+	fprintf(stderr, "opendso: %s: %s\n", dso, osstrerror());
 	return;
     }
    

@@ -32,12 +32,12 @@ disk_init(int first)
     ndisk =  perfstat_disk(NULL, NULL, sizeof(perfstat_disk_t), 0);
     if ((fetched = (int *)malloc(ndisk * sizeof(int))) == NULL) {
 	fprintf(stderr, "disk_init: fetched malloc[%d] failed: %s\n",
-	    ndisk * sizeof(int), osstrerror(oserror()));
+	    ndisk * sizeof(int), osstrerror());
 	exit(1);
     }
     if ((diskstat = (perfstat_disk_t *)malloc(ndisk * sizeof(perfstat_disk_t))) == NULL) {
 	fprintf(stderr, "disk_init: diskstat malloc[%d] failed: %s\n",
-	    ndisk * sizeof(perfstat_disk_t), osstrerror(oserror()));
+	    ndisk * sizeof(perfstat_disk_t), osstrerror());
 	exit(1);
     }
     ndisk_alloc = ndisk;
@@ -52,7 +52,7 @@ disk_init(int first)
     indomtab[DISK_INDOM].it_set = (pmdaInstid *)malloc(ndisk * sizeof(pmdaInstid));
     if (indomtab[DISK_INDOM].it_set == NULL) {
 	fprintf(stderr, "disk_init: indomtab malloc[%d] failed: %s\n",
-	    ndisk * sizeof(pmdaInstid), osstrerror(oserror()));
+	    ndisk * sizeof(pmdaInstid), osstrerror());
 	exit(1);
     }
     for (i = 0; i < ndisk; i++) {

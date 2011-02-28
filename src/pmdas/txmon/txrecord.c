@@ -39,12 +39,12 @@ main(int argc, char **argv)
      * attach to the txmon PMDA shm segment ...
      */
     if ((shmid = shmget(KEY, 0, 0)) < 0) {
-	fprintf(stderr, "Cannot attach to shm segment, shmid: %s\n", osstrerror(oserror()));
+	fprintf(stderr, "Cannot attach to shm segment, shmid: %s\n", osstrerror());
 	fprintf(stderr, "Is the txmon PMDA configured and running?\n");
 	exit(1);
     }
     if ((control = (control_t *)shmat(shmid, NULL, 0)) == (control_t *)-1) {
-	fprintf(stderr, "Cannot attach to shm segment, shmat: %s\n", osstrerror(oserror()));
+	fprintf(stderr, "Cannot attach to shm segment, shmat: %s\n", osstrerror());
 	fprintf(stderr, "Is the txmon PMDA configured and running?\n");
 	exit(1);
     }

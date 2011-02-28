@@ -76,7 +76,7 @@ disk_total_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	sts = perfstat_disk_total(NULL, &diskstat, sizeof(perfstat_disk_total_t), 1);
 	if (sts != 1) {
 	    /* TODO - how to find/decode errors? */
-	    fprintf(stderr, "perfstat_disk_total: failed %s\n", osstrerror(oserror()));
+	    fprintf(stderr, "perfstat_disk_total: failed %s\n", osstrerror());
 	    fetched = -1;
 	}
 	else

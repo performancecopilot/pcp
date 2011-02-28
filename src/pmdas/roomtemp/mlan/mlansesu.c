@@ -68,7 +68,7 @@ int Aquire1WireNet(char *port_zstr, char *return_msg)
    else
    {
       cnt += sprintf(&return_msg[cnt],"Could not open port %s: %s,"
-              " aborting.\nClosing port %s.\n",port_zstr,osstrerror(oserror()),port_zstr);
+              " aborting.\nClosing port %s.\n",port_zstr,osstrerror(),port_zstr);
       return FALSE;
    }
 

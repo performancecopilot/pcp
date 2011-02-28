@@ -164,7 +164,7 @@ __pmConfig(const char *name, __pmConfigCallback formatter)
     if (access((const char *)conf, R_OK) < 0 ||
 	(fp = fopen(conf, "r")) == (FILE *)NULL) {
 	pmprintf("FATAL PCP ERROR: could not open config file \"%s\" : %s\n",
-		conf, osstrerror(oserror()));
+		conf, osstrerror());
 	pmprintf("You may need to set PCP_CONF or PCP_DIR in your environment.\n");
 	pmflush();
 	exit(1);

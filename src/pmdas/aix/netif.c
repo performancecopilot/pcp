@@ -32,12 +32,12 @@ netif_init(int first)
     nnetif =  perfstat_netinterface(NULL, NULL, sizeof(perfstat_netinterface_t), 0);
     if ((fetched = (int *)malloc(nnetif * sizeof(int))) == NULL) {
 	fprintf(stderr, "netif_init: fetched malloc[%d] failed: %s\n",
-	    nnetif * sizeof(int), osstrerror(oserror()));
+	    nnetif * sizeof(int), osstrerror());
 	exit(1);
     }
     if ((netifstat = (perfstat_netinterface_t *)malloc(nnetif * sizeof(perfstat_netinterface_t))) == NULL) {
 	fprintf(stderr, "netif_init: netifstat malloc[%d] failed: %s\n",
-	    nnetif * sizeof(perfstat_netinterface_t), osstrerror(oserror()));
+	    nnetif * sizeof(perfstat_netinterface_t), osstrerror());
 	exit(1);
     }
     nnetif_alloc = nnetif;
@@ -52,7 +52,7 @@ netif_init(int first)
     indomtab[NETIF_INDOM].it_set = (pmdaInstid *)malloc(nnetif * sizeof(pmdaInstid));
     if (indomtab[NETIF_INDOM].it_set == NULL) {
 	fprintf(stderr, "netif_init: indomtab malloc[%d] failed: %s\n",
-	    nnetif * sizeof(pmdaInstid), osstrerror(oserror()));
+	    nnetif * sizeof(pmdaInstid), osstrerror());
 	exit(1);
     }
     for (i = 0; i < nnetif; i++) {

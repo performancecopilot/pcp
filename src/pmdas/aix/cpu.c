@@ -32,12 +32,12 @@ cpu_init(int first)
     ncpu =  perfstat_cpu(NULL, NULL, sizeof(perfstat_cpu_t), 0);
     if ((fetched = (int *)malloc(ncpu * sizeof(int))) == NULL) {
 	fprintf(stderr, "cpu_init: fetched malloc[%d] failed: %s\n",
-	    ncpu * sizeof(int), osstrerror(oserror()));
+	    ncpu * sizeof(int), osstrerror());
 	exit(1);
     }
     if ((cpustat = (perfstat_cpu_t *)malloc(ncpu * sizeof(perfstat_cpu_t))) == NULL) {
 	fprintf(stderr, "cpu_init: cpustat malloc[%d] failed: %s\n",
-	    ncpu * sizeof(perfstat_cpu_t), osstrerror(oserror()));
+	    ncpu * sizeof(perfstat_cpu_t), osstrerror());
 	exit(1);
     }
     ncpu_alloc = ncpu;
@@ -52,7 +52,7 @@ cpu_init(int first)
     indomtab[CPU_INDOM].it_set = (pmdaInstid *)malloc(ncpu * sizeof(pmdaInstid));
     if (indomtab[CPU_INDOM].it_set == NULL) {
 	fprintf(stderr, "cpu_init: indomtab malloc[%d] failed: %s\n",
-	    ncpu * sizeof(pmdaInstid), osstrerror(oserror()));
+	    ncpu * sizeof(pmdaInstid), osstrerror());
 	exit(1);
     }
     for (i = 0; i < ncpu; i++) {

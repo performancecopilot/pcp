@@ -67,7 +67,7 @@ metriclist	: metricspec
 metricspec	: NAME { name = strdup($1); numinst = 0; } optinst
 		    {
 			if (name == NULL) {
-			    snprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror(oserror()));
+			    snprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
 			    yyerror(emess);
 			}
 			found = 0;
@@ -322,7 +322,7 @@ defer:
     return;
 
 nomem:
-    snprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror(oserror()));
+    snprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
     yyerror(emess);
 }
 

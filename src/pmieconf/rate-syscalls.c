@@ -93,7 +93,7 @@ main()
     __pmtimevalNow(&then);
     for (i = 0; i < n; i++) {
 	if ((fd = creat("/tmp/creat-clo", 0644)) < 0) {
-	    fprintf(stderr, "creat: %s\n", osstrerror(oserror()));
+	    fprintf(stderr, "creat: %s\n", osstrerror());
 	    exit(1);
 	}
 	close(fd);
@@ -115,17 +115,17 @@ main()
     for (i = 0; i < n; i++) {
 
 	if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-	    fprintf(stderr, "socket: %s\n", netstrerror(neterror()));
+	    fprintf(stderr, "socket: %s\n", netstrerror());
 	    exit(1);
 	}
 
 	if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger, sizeof(noLinger)) < 0) {
-	    fprintf(stderr, "setsockopt(SO_LINGER): %s\n", netstrerror(neterror()));
+	    fprintf(stderr, "setsockopt(SO_LINGER): %s\n", netstrerror());
 	    exit(1);
 	}
 
 	if (connect(s, (struct sockaddr*) &myAddr, sizeof(myAddr)) < 0) {
-	    fprintf(stderr, "connect: %s\n", netstrerror(neterror()));
+	    fprintf(stderr, "connect: %s\n", netstrerror());
 	    exit(1);
 	}
 	close(s);

@@ -87,7 +87,7 @@ int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo)
 	numa_meminfo->node_info = (nodeinfo_t *)malloc(max_node * sizeof(nodeinfo_t));
 	if (!numa_meminfo->node_info) {
 	    fprintf(stderr, "%s: error allocating numa node_info: %s\n",
-		__FUNCTION__, osstrerror(oserror()));
+		__FUNCTION__, osstrerror());
 	    return -1;
 	}
 	memset(numa_meminfo->node_info, 0, max_node * sizeof(nodeinfo_t));
@@ -96,13 +96,13 @@ int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo)
 	    numa_meminfo->node_info[i].meminfo = linux_table_clone(numa_meminfo_table);
 	    if (!numa_meminfo->node_info[i].meminfo) {
 		fprintf(stderr, "%s: error allocating meminfo: %s\n",
-		    __FUNCTION__, osstrerror(oserror()));
+		    __FUNCTION__, osstrerror());
 		return -1;
 	    }
 	    numa_meminfo->node_info[i].memstat = linux_table_clone(numa_memstat_table);
 	    if (!numa_meminfo->node_info[i].memstat) {
 		fprintf(stderr, "%s: error allocating memstat: %s\n",
-		    __FUNCTION__, osstrerror(oserror()));
+		    __FUNCTION__, osstrerror());
 		return -1;
 	    }
 	}

@@ -655,7 +655,7 @@ __pmNoMem(const char *where, size_t size, int fatal)
 {
     __pmNotifyErr(fatal ? LOG_ERR : LOG_WARNING,
 			"%s: malloc(%d) failed: %s",
-			where, (int)size, osstrerror(oserror()));
+			where, (int)size, osstrerror());
     if (fatal)
 	exit(1);
 }
@@ -917,7 +917,7 @@ pmfstate(int state)
 		char * xconfirm = pmGetConfig("PCP_XCONFIRM_PROG");
 		if (access(__pmNativePath(xconfirm), X_OK) < 0) {
 		    fprintf(stderr, "%s: using stderr - cannot access %s: %s\n",
-			    pmProgname, xconfirm, osstrerror(oserror()));
+			    pmProgname, xconfirm, osstrerror());
 		}
 		else
 		    errtype = PM_USEDIALOG;
@@ -942,7 +942,7 @@ vpmprintf(const char *msg, va_list arg)
 	    (fd = open(fname, O_RDWR|O_APPEND|O_CREAT|O_EXCL, 0600)) < 0 ||
 	    (fptr = fdopen(fd, "a")) == NULL) {
 	    fprintf(stderr, "%s: vpmprintf: failed to create \"%s\": %s\n",
-		pmProgname, fname, osstrerror(oserror()));
+		pmProgname, fname, osstrerror());
 	    fprintf(stderr, "vpmprintf msg:\n");
 	    if (fd != -1)
 		close(fd);
@@ -987,7 +987,7 @@ pmflush(void)
 	if (state == PM_USEFILE) {
 	    if ((eptr = fopen(ferr, "a")) == NULL) {
 		fprintf(stderr, "pmflush: cannot append to file '%s' (from "
-			"$PCP_STDERR): %s\n", ferr, osstrerror(oserror()));
+			"$PCP_STDERR): %s\n", ferr, osstrerror());
 		state = PM_USESTDERR;
 	    }
 	}
@@ -998,7 +998,7 @@ pmflush(void)
 		sts = write(fileno(stderr), outbuf, len);
 		if (sts != len) {
 		    fprintf(stderr, "pmflush: write() failed: %s\n", 
-			osstrerror(oserror()));
+			osstrerror());
 		}
 		sts = 0;
 	    }
@@ -1011,7 +1011,7 @@ pmflush(void)
 		    (msgsize > 80 ? "-useslider" : ""));
 	    if (system(outbuf) < 0) {
 		fprintf(stderr, "%s: system failed: %s\n", pmProgname,
-			osstrerror(oserror()));
+			osstrerror());
 		sts = -oserror();
 	    }
 	    break;
@@ -1021,7 +1021,7 @@ pmflush(void)
 		sts = write(fileno(eptr), outbuf, len);
 		if (sts != len) {
 		    fprintf(stderr, "pmflush: write() failed: %s\n", 
-			osstrerror(oserror()));
+			osstrerror());
 		}
 		sts = 0;
 	    }
@@ -1339,7 +1339,7 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	    close(out[1]);
 	}
 	execvp(argv[0], argv);
-	fprintf(stderr, "execvp: %s\n", osstrerror(oserror()));
+	fprintf(stderr, "execvp: %s\n", osstrerror());
 	exit(1);
     }
     return 0;

@@ -35,7 +35,7 @@ refresh_proc_sys_fs(proc_sys_fs_t *proc_sys_fs)
 	proc_sys_fs->errcode = -oserror();
 	if (err_reported == 0)
 	    fprintf(stderr, "Warning: vfs metrics are not available : %s\n",
-		    osstrerror(oserror()));
+		    osstrerror());
     }
     else {
 	proc_sys_fs->errcode = 0;

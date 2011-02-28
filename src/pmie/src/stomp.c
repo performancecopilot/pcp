@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <ctype.h>
@@ -89,10 +85,10 @@ static int stomp_read_ack(void)
     if (nready <= 0) {
 	if (nready == 0)
 	    __pmNotifyErr(LOG_ERR, "Timed out waiting for server %s:%d - %s",
-				hostname, port, netstrerror(neterror()));
+				hostname, port, netstrerror());
 	else
 	    __pmNotifyErr(LOG_ERR, "Error waiting for server %s:%d - %s",
-				hostname, port, netstrerror(neterror()));
+				hostname, port, netstrerror());
 	stomp_disconnect();
 	return -1;
     }
@@ -101,7 +97,7 @@ static int stomp_read_ack(void)
 	sts = recv(fd, buffer, sizeof(buffer), 0);
 	if (sts < 0) {
 	    __pmNotifyErr(LOG_ERR, "Error recving from server %s:%d - %s",
-				hostname, port, netstrerror(neterror()));
+				hostname, port, netstrerror());
 	    stomp_disconnect();
 	    return -1;
 	}
@@ -121,7 +117,7 @@ static int stomp_write(const char *buffer, int length)
 	sts = send(fd, buffer, length, 0);
 	if (sts < 0) {
 	    __pmNotifyErr(LOG_ERR, "Write error to JMS server %s:%d - %s",
-			hostname, port, netstrerror(neterror()));
+			hostname, port, netstrerror());
 	    stomp_disconnect();
 	    return -1;
 	}
@@ -218,7 +214,7 @@ static void stomp_parse(void)
 		 pmGetConfig("PCP_VAR_DIR"), sep, sep, sep);
     if ((f = fopen(config, "r")) == NULL) {
 	__pmNotifyErr(LOG_ERR, "Cannot open STOMP configuration file %s: %s",
-			config, osstrerror(oserror()));
+			config, osstrerror());
 	exit(1);
     }
     while (fgets(buffer, sizeof(buffer), f)) {

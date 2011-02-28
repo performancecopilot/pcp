@@ -380,17 +380,17 @@ bozo! need to find where MAXHOSTNAMELEN is defined for this platform
 #define oserror()	errno
 #define neterror()	errno
 #define hosterror()	h_errno
-#define osstrerror(n)	strerror(n)
-#define netstrerror(n)	strerror(n)
-#define hoststrerror(n)	hstrerror(n)
+#define osstrerror()	strerror(errno)
+#define netstrerror()	strerror(errno)
+#define hoststrerror()	hstrerror(h_errno)
 #else
 #define setoserror(n)	SetLastError(n)
 #define oserror()	GetLastError()
 #define neterror()	WSAGetLastError()
 #define hosterror()	WSAGetLastError()
-#define osstrerror(n)	strerror(n)
-#define netstrerror(n)	strerror(n)
-#define hoststrerror(n)	strerror(n)
+#define osstrerror()	strerror(GetLastError())
+#define netstrerror()	strerror(WSAGetLastError())
+#define hoststrerror()	strerror(WSAGetLastError())
 #endif
 
 #ifndef HAVE_FLOG10

@@ -422,7 +422,7 @@ dometric(const char *name)
 
     namelist[batchidx]= strdup(name);
     if (namelist[batchidx] == NULL) {
-	fprintf(stderr, "%s: namelist string malloc: %s\n", pmProgname, osstrerror(oserror()));
+	fprintf(stderr, "%s: namelist string malloc: %s\n", pmProgname, osstrerror());
 	exit(1);
     }
 
@@ -670,12 +670,12 @@ main(int argc, char **argv)
     ParseOptions(argc, argv);
 
     if ((namelist = (char **)malloc(batchsize * sizeof(char *))) == NULL) {
-	fprintf(stderr, "%s: namelist malloc: %s\n", pmProgname, osstrerror(oserror()));
+	fprintf(stderr, "%s: namelist malloc: %s\n", pmProgname, osstrerror());
 	exit(1);
     }
 
     if ((pmidlist = (pmID *)malloc(batchsize * sizeof(pmID))) == NULL) {
-	fprintf(stderr, "%s: pmidlist malloc: %s\n", pmProgname, osstrerror(oserror()));
+	fprintf(stderr, "%s: pmidlist malloc: %s\n", pmProgname, osstrerror());
 	exit(1);
     }
 

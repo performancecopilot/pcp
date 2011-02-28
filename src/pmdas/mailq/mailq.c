@@ -139,7 +139,7 @@ mailq_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	if (chdir(queuedir) < 0) {
 	    if (warn == 0) {
 		__pmNotifyErr(LOG_ERR, "chdir(\"%s\") failed: %s\n",
-		    queuedir, osstrerror(oserror()));
+		    queuedir, osstrerror());
 		warn = 1;
 	    }
 	}
@@ -164,7 +164,7 @@ mailq_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		     */
 		    if (oserror() == ENOENT)
 			goto next;
-		    fprintf(stderr, "stat(\"%s\"): %s\n", p, osstrerror(oserror()));
+		    fprintf(stderr, "stat(\"%s\"): %s\n", p, osstrerror());
 		    goto next;
 		}
 		if (sbuf.st_size > 0 && S_ISREG(sbuf.st_mode)) {
@@ -191,7 +191,7 @@ next:
 	}
 	if (chdir(startdir) < 0) {
 	    __pmNotifyErr(LOG_ERR, "chdir(\"%s\") failed: %s\n",
-			startdir, osstrerror(oserror()));
+			startdir, osstrerror());
 	}
     }
 

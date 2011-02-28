@@ -179,7 +179,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		}
 		else if (status < 0) {
 		    __pmNotifyErr(LOG_ERR, "pduread: select() on fd=%d: %s",
-			    fd, netstrerror(neterror()));
+			    fd, netstrerror());
 		    setoserror(neterror());
 		    return status;
 		}

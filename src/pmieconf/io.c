@@ -73,7 +73,7 @@ promptformore(void)
     if (first) {
 	if (ioctl(0, TCGETA, &otty) < 0) {
 	    fprintf(stderr, "%s: TCGETA ioctl failed: %s\n", pmProgname,
-		    osstrerror(oserror()));
+		    osstrerror());
 	    exit(1);
 	}
 	first = 0;
@@ -86,7 +86,7 @@ promptformore(void)
     ntty.c_lflag &= ~(ICANON | ECHO);
     if (ioctl(0, TCSETAW, &ntty) < 0) {
 	fprintf(stderr, "%s: TCSETAW ioctl failed: %s\n", pmProgname,
-		osstrerror(oserror()));
+		osstrerror());
 	exit(1);
     }
 #endif
@@ -129,7 +129,7 @@ reset_tty:
 #ifdef HAVE_TERMIO_H
     if (ioctl(0, TCSETAW, &otty) < 0) {
 	fprintf(stderr, "%s: reset TCSETAW ioctl failed: %s\n", pmProgname,
-		osstrerror(oserror()));
+		osstrerror());
 	exit(1);
     }
 #endif

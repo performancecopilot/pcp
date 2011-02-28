@@ -428,7 +428,7 @@ pmtraceerrstr(int code)
 
     if ((code < 0) && (code > -PMTRACE_ERR_BASE))
 	/* intro(2) errors */
-	return osstrerror(-code);
+	return strerror(-code);
     else if (code == 0)
 	return "No error.";
     else {
@@ -730,7 +730,7 @@ _pmauxtraceconnect(void)
 	if (__pmstate & PMTRACE_STATE_COMMS)
 	    fprintf(stderr, "_pmtraceconnect(gethostbyname(hostname=%s): "
 		    "hosterror=%d, ``%s''\n", hostname, hosterror(),
-		    hoststrerror(hosterror()));
+		    hoststrerror());
 #endif
 	return -EHOSTUNREACH;
     }
@@ -740,7 +740,7 @@ _pmauxtraceconnect(void)
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
 	    fprintf(stderr, "_pmtraceconnect(socket failed): %s\n",
-		    netstrerror(neterror()));
+		    netstrerror());
 #endif
 	return -neterror();
     }
@@ -751,7 +751,7 @@ _pmauxtraceconnect(void)
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
 	    fprintf(stderr, "_pmtraceconnect(setsockopt1 failed): %s\n",
-		    netstrerror(neterror()));
+		    netstrerror());
 #endif
 	return -neterror();
     }
@@ -762,7 +762,7 @@ _pmauxtraceconnect(void)
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
 	    fprintf(stderr, "_pmtraceconnect(setsockopt2 failed): %s\n",
-		    netstrerror(neterror()));
+		    netstrerror());
 #endif
 	return -neterror();
     }

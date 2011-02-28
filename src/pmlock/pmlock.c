@@ -37,10 +37,10 @@ main(int argc, char **argv)
 		if (access(p, W_OK) == -1)
 		    printf("%s: Directory not writeable\n", p);
 		else
-		    printf("%s: %s\n", argv[1], osstrerror(EACCES));
+		    printf("%s: %s\n", argv[1], strerror(EACCES));
 	    }
 	    else
-		printf("%s: %s\n", argv[1], osstrerror(oserror()));
+		printf("%s: %s\n", argv[1], osstrerror());
 	}
 	exit(1);
     }

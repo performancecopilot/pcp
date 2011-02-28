@@ -280,7 +280,7 @@ Options:\n\
 	if (stat(argv[optind], &sbuf) == -1) {
 	    if (oserror() != ENOENT) {
 		fprintf(stderr, "%s: cannot stat \"%s\": %s\n",
-		    pmProgname, argv[optind], osstrerror(oserror()));
+		    pmProgname, argv[optind], osstrerror());
 		exit(1);
 	    }
 	}
@@ -293,7 +293,7 @@ Options:\n\
 	    }
 	    if (unlink(argv[optind]) == -1) {
 		fprintf(stderr, "%s: cannot unlink \"%s\": %s\n",
-		    pmProgname, argv[optind], osstrerror(oserror()));
+		    pmProgname, argv[optind], osstrerror());
 		exit(1);
 	    }
 	}
@@ -371,7 +371,7 @@ Options:\n\
     __pmSetSignalHandler(SIGTERM, SIG_IGN);
 
     if ((outf = fopen(argv[optind], "w+")) == NULL) {
-	fprintf(stderr, "%s: cannot create \"%s\": %s\n", pmProgname, argv[optind], osstrerror(oserror()));
+	fprintf(stderr, "%s: cannot create \"%s\": %s\n", pmProgname, argv[optind], osstrerror());
 	exit(1);
     }
 

@@ -269,7 +269,7 @@ refresh(void *dummy)
 		exit(-1);
 	    }
 	    else if (shpid < 0) {
-		logmessage(LOG_CRIT, "refresh: fork() failed: %s", osstrerror(oserror()));
+		logmessage(LOG_CRIT, "refresh: fork() failed: %s", osstrerror());
 		cmdlist[i].status = STATUS_SYS;
 		cmdlist[i].error = oserror();
 		cmdlist[i].real = cmdlist[i].usr = cmdlist[i].sys = -1;
@@ -648,7 +648,7 @@ shping_init(pmdaInterface *dp)
     /* start the sproc for async fetches */
 #ifdef HAVE_SPROC
     if ( (sprocpid = sproc(refresh, PR_SADDR, NULL)) < 0 ) {
-	logmessage(LOG_CRIT, "sproc failed: %s\n", osstrerror(-oserror()));
+	logmessage(LOG_CRIT, "sproc failed: %s\n", osstrerror());
 	dp->status = sprocpid;
     }
     else {

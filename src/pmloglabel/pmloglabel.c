@@ -43,7 +43,7 @@ verify_label(FILE *f, const char *file)
 	}
 	else if (ferror(f)) {
 	    fprintf(stderr, "Prefix sentinel read error for %s: %s\n",
-			file, osstrerror(oserror()));
+			file, osstrerror());
 	    status = 2;
 	}
 	else {
@@ -70,7 +70,7 @@ verify_label(FILE *f, const char *file)
 	}
 	else if (ferror(f)) {
 	    fprintf(stderr, "Suffix sentinel read error for %s: %s\n",
-			file, osstrerror(oserror()));
+			file, osstrerror());
 	    status = 2;
 	}
 	else {
@@ -322,7 +322,7 @@ main(int argc, char *argv[])
 	    snprintf(buffer, sizeof(buffer), "%s.%d", logctl.l_name, c);
 	    if ((logctl.l_mfp = fopen(buffer, "r+")) == NULL) {
 		fprintf(stderr, "Failed data volume %d open: %s\n",
-				c, osstrerror(oserror()));
+				c, osstrerror());
 		status = 3;
 	    }
 	    else if ((sts = __pmLogWriteLabel(logctl.l_mfp, &golden)) < 0) {
@@ -346,7 +346,7 @@ main(int argc, char *argv[])
 	    snprintf(buffer, sizeof(buffer), "%s.index", logctl.l_name);
 	    if ((logctl.l_tifp = fopen(buffer, "r+")) == NULL) {
 		fprintf(stderr, "Failed temporal index open: %s\n",
-				osstrerror(oserror()));
+				osstrerror());
 		status = 3;
 	    }
 	    else if ((sts = __pmLogWriteLabel(logctl.l_tifp, &golden)) < 0) {
@@ -363,7 +363,7 @@ main(int argc, char *argv[])
 	snprintf(buffer, sizeof(buffer), "%s.meta", logctl.l_name);
 	if ((logctl.l_mdfp = fopen(buffer, "r+")) == NULL) {
 	    fprintf(stderr, "Failed metadata volume open: %s\n",
-			    osstrerror(oserror()));
+			    osstrerror());
 	    status = 3;
 	}
 	else if ((sts = __pmLogWriteLabel(logctl.l_mdfp, &golden)) < 0) {

@@ -400,7 +400,7 @@ refresh_pmie_indom(void)
 	    /* open the directory iterate through mmaping as we go */
 	    if ((pmiedir = opendir(PMIE_DIR)) == NULL) {
 		__pmNotifyErr(LOG_ERR, "pmcd pmda cannot open %s: %s",
-				PMIE_DIR, osstrerror(oserror()));
+				PMIE_DIR, osstrerror());
 		return 0;
 	    }
 	    /* NOTE:  all valid files are already mmapped by pmie */
@@ -414,7 +414,7 @@ refresh_pmie_indom(void)
 		snprintf(fullpath, sizeof(fullpath), "%s%c%s", PMIE_DIR, sep, dp->d_name);
 		if (stat(fullpath, &statbuf) < 0) {
 		    __pmNotifyErr(LOG_WARNING, "pmcd pmda cannot stat %s: %s",
-				fullpath, osstrerror(oserror()));
+				fullpath, osstrerror());
 		    continue;
 		}
 		if (statbuf.st_size != sizeof(pmiestats_t))
@@ -430,7 +430,7 @@ refresh_pmie_indom(void)
 		}
 		if ((fd = open(fullpath, O_RDONLY)) < 0) {
 		    __pmNotifyErr(LOG_WARNING, "pmcd pmda cannot open %s: %s",
-				fullpath, osstrerror(oserror()));
+				fullpath, osstrerror());
 		    free(endp);
 		    continue;
 		}
@@ -438,7 +438,7 @@ refresh_pmie_indom(void)
 		close(fd);
 		if (ptr == NULL) {
 		    __pmNotifyErr(LOG_ERR, "pmcd pmda memmap of %s failed: %s",
-				fullpath, osstrerror(oserror()));
+				fullpath, osstrerror());
 		    free(endp);
 		    continue;
 		}

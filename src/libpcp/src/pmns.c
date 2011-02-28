@@ -2649,7 +2649,7 @@ TraversePMNS_local(const char *name, void(*func)(const char *name))
 	for (j = 0; j < sts; j++) {
 	    newname = (char *)malloc(strlen(name) + 1 + strlen(enfants[j]) + 1);
 	    if (newname == NULL) {
-		printf("pmTraversePMNS: malloc: %s\n", osstrerror(oserror()));
+		printf("pmTraversePMNS: malloc: %s\n", osstrerror());
 		exit(1);
 	    }
 	    if (*name == '\0')

@@ -82,7 +82,7 @@ strcons(char *s1, char *s2)
 
     buf = (char *)malloc(i);
     if (buf == NULL) {
-	fprintf(stderr, "strcons: malloc failed: %s\n", osstrerror(oserror()));
+	fprintf(stderr, "strcons: malloc failed: %s\n", osstrerror());
 	exit(1);
     }
 
@@ -99,7 +99,7 @@ strnum(int n)
 
     buf = (char *)malloc(13);
     if (buf == NULL) {
-	fprintf(stderr, "strnum: malloc failed: %s\n", osstrerror(oserror()));
+	fprintf(stderr, "strnum: malloc failed: %s\n", osstrerror());
 	exit(1);
     }
     sprintf(buf, "%d", n);
@@ -122,7 +122,7 @@ addmetriclist(pmID pmid)
         numpmid = param.numpmid;
 	pmidlist = (pmID *)realloc(pmidlist, numpmid * sizeof(pmidlist[0]));
 	if (pmidlist == NULL) {
-	    fprintf(stderr, "addmetriclist: realloc failed: %s\n", osstrerror(oserror()));
+	    fprintf(stderr, "addmetriclist: realloc failed: %s\n", osstrerror());
 	    exit(1);
 	}
     }
@@ -153,7 +153,7 @@ addarglist(char *arg)
         argc = param.argc;
 	argv = (char **)realloc(argv, argc * sizeof(pmProgname));
 	if (argv == NULL) {
-	    fprintf(stderr, "addarglist: realloc failed: %s\n", osstrerror(oserror()));
+	    fprintf(stderr, "addarglist: realloc failed: %s\n", osstrerror());
 	    exit(1);
 	}
     }

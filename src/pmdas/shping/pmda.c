@@ -157,7 +157,7 @@ main(int argc, char **argv)
     configfile = argv[optind];
     if ((conf = fopen(configfile, "r")) == NULL) {
 	fprintf(stderr, "%s: Unable to open config file \"%s\": %s\n",
-	    pmProgname, configfile, osstrerror(oserror()));
+	    pmProgname, configfile, osstrerror());
 	exit(1);
     }
     line = 0;

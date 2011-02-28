@@ -74,7 +74,7 @@ cpu_total_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	sts = perfstat_cpu_total(NULL, &cpustat, sizeof(perfstat_cpu_total_t), 1);
 	if (sts != 1) {
 	    /* TODO - how to find/decode errors? */
-	    fprintf(stderr, "perfstat_cpu_total: failed %s\n", osstrerror(oserror()));
+	    fprintf(stderr, "perfstat_cpu_total: failed %s\n", osstrerror());
 	    fetched = -1;
 	}
 	else

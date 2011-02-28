@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <stdio.h>
@@ -1267,13 +1263,13 @@ read_rule_subdir(char *subdir)
 
     if (stat(subdir, &sbuf) < 0) {
 	snprintf(errmsg, sizeof(errmsg), "cannot stat %s: %s",
-		subdir, osstrerror(oserror()));
+		subdir, osstrerror());
 	return errmsg;
     }
     if (!S_ISDIR(sbuf.st_mode)) {
 	if ((fp = fopen(subdir, "r")) == NULL) {
 	    snprintf(errmsg, sizeof(errmsg), "cannot open %s: %s",
-		    subdir, osstrerror(oserror()));
+		    subdir, osstrerror());
 	    return errmsg;
 	}
 	linenum = 1;
@@ -1297,7 +1293,7 @@ read_rule_subdir(char *subdir)
 	/* fetch all the rules along with associated parameters & values  */
 
 	if ((dirp = opendir(subdir)) == NULL) {
-	    snprintf(errmsg, sizeof(errmsg), "cannot opendir %s: %s", subdir, osstrerror(oserror()));
+	    snprintf(errmsg, sizeof(errmsg), "cannot opendir %s: %s", subdir, osstrerror());
 	    return errmsg;
 	}
 	while ((dp = readdir(dirp)) != NULL) {	  /* groups */
@@ -1809,14 +1805,14 @@ write_pmiefile(char *program)
     }
 
     if ((fp = fopen(fname, "w")) == NULL) {
-	snprintf(errmsg, sizeof(errmsg), "cannot write file %s: %s", fname, osstrerror(oserror()));
+	snprintf(errmsg, sizeof(errmsg), "cannot write file %s: %s", fname, osstrerror());
 	return errmsg;
     }
     else if (!gotpath) {
 	strcpy(token, fname);
 	if (realpath(token, pmiefile) == NULL) {
 	    fclose(fp);
-	    snprintf(errmsg, sizeof(errmsg), "failed to resolve %s realpath: %s", token, osstrerror(oserror()));
+	    snprintf(errmsg, sizeof(errmsg), "failed to resolve %s realpath: %s", token, osstrerror());
 	    return errmsg;
 	}
 	gotpath = 1;
@@ -2125,7 +2121,7 @@ read_pmiefile(char *warning)
 	if (oserror() == ENOENT)
 	    return NULL;
 	snprintf(errmsg, sizeof(errmsg), "cannot open %s: %s",
-		get_pmiefile(), osstrerror(oserror()));
+		get_pmiefile(), osstrerror());
 	return errmsg;
     }
 
@@ -2196,7 +2192,7 @@ initialise(char *in_rules, char *in_pmie, char *warning)
 	    snprintf(pmiefile, sizeof(pmiefile), "%s%c%s", pmGetConfig("PCP_VAR_DIR"), SEP, DEFAULT_ROOT_PMIE);
 	else if (realpath(in_pmie, pmiefile) == NULL && oserror() != ENOENT) {
 	    snprintf(errmsg, sizeof(errmsg), "failed to resolve realpath for %s: %s",
-		    in_pmie, osstrerror(oserror()));
+		    in_pmie, osstrerror());
 	    return errmsg;
 	}
 	else if (oserror() != ENOENT)
@@ -2272,7 +2268,7 @@ lookup_processes(int *count, char ***processes)
 
     if ((dirp = opendir(PMIE_DIR)) == NULL) {
 	snprintf(errmsg, sizeof(errmsg), "cannot opendir %s: %s",
-		PMIE_DIR, osstrerror(oserror()));
+		PMIE_DIR, osstrerror());
 	return NULL;
     }
     while ((dp = readdir(dirp)) != NULL) {

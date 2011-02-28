@@ -143,7 +143,7 @@ main(int argc, char **argv)
     if (sts < 0) {
 	if (verbose) {
 	    fprintf(stderr, "%s: Failed to create env string: %s\n",
-		pmProgname, osstrerror(oserror()));
+		pmProgname, osstrerror());
         }
 	exit(EXIT_STS_UNIXERR);
     }
@@ -151,7 +151,7 @@ main(int argc, char **argv)
     if (sts != 0) {
 	if (verbose) {
 	    fprintf(stderr, "%s: Failed to set PMCD_CONNECT_TIMEOUT: %s\n",
-		pmProgname, osstrerror(oserror()));
+		pmProgname, osstrerror());
         }
 	exit(EXIT_STS_UNIXERR);
     }

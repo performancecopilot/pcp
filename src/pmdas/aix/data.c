@@ -409,7 +409,7 @@ init_data(int domain)
      */
     if ((metrictab = (pmdaMetric *)malloc(metrictab_sz * sizeof(pmdaMetric))) == NULL) {
 	fprintf(stderr, "init_data: Error: malloc metrictab [%d] failed: %s\n",
-	    metrictab_sz * sizeof(pmdaMetric), osstrerror(oserror()));
+	    metrictab_sz * sizeof(pmdaMetric), osstrerror());
 	exit(1);
     }
     for (i = 0; i < metrictab_sz; i++) {

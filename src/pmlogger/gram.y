@@ -134,7 +134,7 @@ dowhat		: logopt action
 		{
                     if ((tp = (task_t *)calloc(1, sizeof(task_t))) == NULL) {
 			char emess[256];
-			sprintf(emess, "malloc failed: %s", osstrerror(oserror()));
+			sprintf(emess, "malloc failed: %s", osstrerror());
 			yyerror(emess);
                     }
                     tp->t_delta.tv_sec = $2 / 1000;
@@ -212,7 +212,7 @@ metricspec	: NAME
 		{ 
                     if ((metricName = strdup($1)) == NULL) {
 			char emess[256];
-			sprintf(emess, "malloc failed: %s", osstrerror(oserror()));
+			sprintf(emess, "malloc failed: %s", osstrerror());
                         yyerror(emess);
 		    }
                 }
@@ -535,7 +535,7 @@ defer:
     return;
 
 nomem:
-    sprintf(emess, "malloc failed: %s", osstrerror(oserror()));
+    sprintf(emess, "malloc failed: %s", osstrerror());
     yyerror(emess);
 
 snarf:

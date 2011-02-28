@@ -357,7 +357,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     fd = __pmCreateSocket();
     if (fd < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) socket: %s\n",
-		port, ipAddr, netstrerror(neterror()));
+		port, ipAddr, netstrerror());
 	return -1;
     }
     if (fd > maxClientFd)
@@ -371,7 +371,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 		(mysocklen_t)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
 		"OpenRequestSocket(%d, 0x%x) setsockopt(SO_REUSEADDR): %s\n",
-		port, ipAddr, netstrerror(neterror()));
+		port, ipAddr, netstrerror());
 	goto fail;
     }
 #else
@@ -379,7 +379,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 		(mysocklen_t)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
 		"OpenRequestSocket(%d,0x%x) setsockopt(EXCLUSIVEADDRUSE): %s\n",
-		port, ipAddr, netstrerror(neterror()));
+		port, ipAddr, netstrerror());
 	goto fail;
     }
 #endif
@@ -389,7 +389,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 		(mysocklen_t)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
 		"OpenRequestSocket(%d, 0x%x) setsockopt(SO_KEEPALIVE): %s\n",
-		port, ipAddr, netstrerror(neterror()));
+		port, ipAddr, netstrerror());
 	goto fail;
     }
 
@@ -401,7 +401,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     if (sts < 0) {
 	sts = neterror();
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) bind: %s\n",
-		port, ipAddr, netstrerror(neterror()));
+		port, ipAddr, netstrerror());
 	if (sts == EADDRINUSE)
 	    __pmNotifyErr(LOG_ERR, "pmcd may already be running\n");
 	goto fail;
@@ -410,7 +410,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) listen: %s\n",
-		port, ipAddr, netstrerror(neterror()));
+		port, ipAddr, netstrerror());
 	goto fail;
     }
     return fd;
@@ -869,8 +869,7 @@ ClientLoop(void)
 	    HandleClientInput(&readableFds);
 	}
 	else if (sts == -1 && neterror() != EINTR) {
-	    __pmNotifyErr(LOG_ERR, "ClientLoop select: %s\n",
-			netstrerror(neterror()));
+	    __pmNotifyErr(LOG_ERR, "ClientLoop select: %s\n", netstrerror());
 	    break;
 	}
 	if (restart) {

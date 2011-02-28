@@ -314,7 +314,7 @@ pmLoopRegisterSignal(
 	    int ee = oserror();
 
 	    __pmNotifyErr(LOG_WARNING, 
-			  "sigaction failed - %s", osstrerror(ee));
+			  "sigaction failed - %s", osstrerror());
 	    return -ee;
 	}
     }
@@ -355,7 +355,7 @@ pmLoopUnregisterSignal(int tag)
 	    sa.sa_handler = SIG_DFL;
 	    if (sigaction(sig, &sa, NULL) < 0) {
 		__pmNotifyErr(LOG_WARNING, 
-			      "sigaction failed - %s", osstrerror(oserror()));
+			      "sigaction failed - %s", osstrerror());
 		return;
 	    }
 	}
@@ -847,7 +847,7 @@ pmLoopMain(void)
 	    	continue;
 	    }
 	    __pmNotifyErr(LOG_ERR, "pmLoopMain: poll failed - %s",
-			  osstrerror(oserror()));
+			  osstrerror());
 	    break;
 	} else if (r == 0) {
 	    if (timeout > 0)

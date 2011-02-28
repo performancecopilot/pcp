@@ -186,7 +186,7 @@ GetPort(char *file)
 
     fd = __pmCreateSocket();
     if (fd < 0) {
-	fprintf(stderr, "GetPort: socket failed: %s\n", netstrerror(neterror()));
+	fprintf(stderr, "GetPort: socket failed: %s\n", netstrerror());
 	exit(1);
     }
 
@@ -222,8 +222,7 @@ GetPort(char *file)
 	sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
 	if (sts < 0) {
 	    if (neterror() != EADDRINUSE) {
-		fprintf(stderr, "bind(%d): %s\n",
-			ctlport, netstrerror(neterror()));
+		fprintf(stderr, "bind(%d): %s\n", ctlport, netstrerror());
 		exit(1);
 	    }
 	}
@@ -232,7 +231,7 @@ GetPort(char *file)
     }
     sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	fprintf(stderr, "listen: %s\n", netstrerror(neterror()));
+	fprintf(stderr, "listen: %s\n", netstrerror());
 	exit(1);
     }
 
@@ -242,7 +241,7 @@ GetPort(char *file)
 		 S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (mapfd == -1) {
 	fprintf(stderr, "%s: error creating port map file %s: %s.  Exiting.\n",
-		pmProgname, file, osstrerror(oserror()));
+		pmProgname, file, osstrerror());
 	exit(1);
     }
     /* write the port number to the port map file */
@@ -341,7 +340,7 @@ init_ports(void)
     sts = mkdir2(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO);
     if (sts < 0 && oserror() != EEXIST) {
 	fprintf(stderr, "%s: error creating port file dir %s: %s\n",
-		pmProgname, ctlfile, osstrerror(oserror()));
+		pmProgname, ctlfile, osstrerror());
 	exit(1);
     }
     chmod(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
@@ -351,7 +350,7 @@ init_ports(void)
     sts = unlink(ctlfile);
     if (sts == -1 && oserror() != ENOENT) {
 	fprintf(stderr, "%s: error removing %s: %s.  Exiting.\n",
-		pmProgname, ctlfile, osstrerror(oserror()));
+		pmProgname, ctlfile, osstrerror());
 	exit(1);
     }
 
@@ -380,7 +379,7 @@ init_ports(void)
 		fprintf(stderr, "%s: there is already a primary pmlogger running\n", pmProgname);
 	    else
 		fprintf(stderr, "%s: error creating primary logger link %s: %s\n",
-			pmProgname, linkfile, osstrerror(oserror()));
+			pmProgname, linkfile, osstrerror());
 	    exit(1);
 	}
     }
@@ -406,8 +405,7 @@ control_req(void)
     addrlen = sizeof(addr);
     fd = accept(ctlfd, (struct sockaddr *)&addr, &addrlen);
     if (fd == -1) {
-	fprintf(stderr, "error accepting client: %s\n",
-			netstrerror(neterror()));
+	fprintf(stderr, "error accepting client: %s\n", netstrerror());
 	return 0;
     }
     __pmSetSocketIPC(fd);

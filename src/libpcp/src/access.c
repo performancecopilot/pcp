@@ -80,9 +80,8 @@ GetMyHostId(void)
     myHostName[MAXHOSTNAMELEN-1] = '\0';
 
     if ((hep = gethostbyname(myHostName)) == NULL) {
-	__pmNotifyErr(LOG_ERR,
-		     "gethostbyname(%s), %s\n",
-		     myHostName, hoststrerror(hosterror()));
+	__pmNotifyErr(LOG_ERR, "gethostbyname(%s), %s\n",
+		     myHostName, hoststrerror());
 	return -1;
     }
     myHostId.s_addr = ((struct in_addr *)hep->h_addr_list[0])->s_addr;
@@ -279,9 +278,8 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	else
 	    realName = name;
 	if ((hep = gethostbyname(realName)) == NULL) {
-	    __pmNotifyErr(LOG_ERR,
-			 "gethostbyname(%s), %s\n",
-			 realName, hoststrerror(hosterror()));
+	    __pmNotifyErr(LOG_ERR, "gethostbyname(%s), %s\n",
+			 realName, hoststrerror());
 	    return -EHOSTUNREACH;	/* host error unsuitable to return */
 	}
 	hostId.s_addr = ((struct in_addr *)hep->h_addr_list[0])->s_addr;

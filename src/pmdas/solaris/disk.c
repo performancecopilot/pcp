@@ -210,7 +210,7 @@ fetch_disk_data(kstat_ctl_t *kc, const pmdaMetric *mdesc, ctl_t *ctl,
 			  "Error: disk_fetch(pmid=%s disk=%s ...) - "
 			   "kstat_read(kc=%p, ksp=%p, ...) failed: %s\n",
 			   pmIDStr(mdesc->m_desc.pmid), diskname,
-			   kc, ctl->ksp, osstrerror(e));
+			   kc, ctl->ksp, osstrerror());
 	    }
 	    ctl->err++;
 	    ctl->fetched = -1;
@@ -256,7 +256,7 @@ fetch_disk_devlink(const kstat_t *ksp, pmAtomValue *atom)
 #ifdef PCP_DEBUG
 	if ((pmDebug & SOLARIS_PMDA_TRACE) == SOLARIS_PMDA_TRACE) {
 	    fprintf(stderr,"No nodes for %s: %s\n",
-		    ksp->ks_name, osstrerror(oserror()));
+		    ksp->ks_name, osstrerror());
 	}
 #endif
 	return 0;
@@ -272,7 +272,7 @@ fetch_disk_devlink(const kstat_t *ksp, pmAtomValue *atom)
 #ifdef PCP_DEBUG
 		if ((pmDebug & SOLARIS_PMDA_TRACE) == SOLARIS_PMDA_TRACE) {
 		    fprintf (stderr, "No minors of %s: %s\n",
-			     ksp->ks_name, osstrerror(oserror()));
+			     ksp->ks_name, osstrerror());
 		}
 #endif
 		return 0;

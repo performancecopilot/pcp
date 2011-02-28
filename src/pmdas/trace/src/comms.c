@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -76,8 +72,7 @@ traceMain(pmdaInterface *dispatch)
 	    continue;
 	else if (nready < 0) {
 	    if (neterror() != EINTR) {
-		__pmNotifyErr(LOG_ERR, "select failure: %s",
-				netstrerror(neterror()));
+		__pmNotifyErr(LOG_ERR, "select failure: %s", netstrerror());
 		exit(1);
 	    }
 	    continue;
@@ -212,22 +207,21 @@ getcport(void)
 
     fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0) {
-	__pmNotifyErr(LOG_ERR, "getcport: socket: %s",
-			netstrerror(neterror()));
+	__pmNotifyErr(LOG_ERR, "getcport: socket: %s", netstrerror());
 	exit(1);
     }
     /* avoid 200 ms delay */
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i,
 				    (mysocklen_t)sizeof(i)) < 0) {
 	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(nodelay): %s",
-		netstrerror(neterror()));
+		netstrerror());
 	exit(1);
     }
     /* don't linger on close */
     if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger,
 				    (mysocklen_t)sizeof(noLinger)) < 0) {
 	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(nolinger): %s",
-		netstrerror(neterror()));
+		netstrerror());
 	exit(1);
     }
 #ifndef IS_MINGW
@@ -235,7 +229,7 @@ getcport(void)
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one,
 				    (mysocklen_t)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(reuseaddr): %s",
-		netstrerror(neterror()));
+		netstrerror());
 	exit(1);
     }
 #else
@@ -243,7 +237,7 @@ getcport(void)
     if (setsockopt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one,
 				    (mysocklen_t)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(excladdruse): %s",
-		netstrerror(neterror()));
+		netstrerror());
 	exit(1);
     }
 #endif
@@ -272,14 +266,12 @@ getcport(void)
     myAddr.sin_port = htons(ctlport);
     sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
     if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "bind(%d): %s", ctlport,
-			netstrerror(neterror()));
+	__pmNotifyErr(LOG_ERR, "bind(%d): %s", ctlport, netstrerror());
 	exit(1);
     }
     sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	__pmNotifyErr(LOG_ERR, "listen: %s",
-			netstrerror(neterror()));
+	__pmNotifyErr(LOG_ERR, "listen: %s", netstrerror());
 	exit(1);
     }
 

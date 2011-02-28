@@ -55,7 +55,7 @@ open_config(void)
     FILE *conf;
     if ((conf = fopen(configfile, "r")) == NULL) {
 	(void)fprintf(stderr, "%s: Unable to open configuration file \"%s\": %s\n",
-	    pmProgname, configfile, osstrerror(oserror()));
+	    pmProgname, configfile, osstrerror());
 	exit(1);
     }
     return conf;
@@ -147,7 +147,7 @@ read_config(FILE *conf)
     sts = fstat(fileno(conf), &stat_buf);
     if (sts < 0) {
 	(void)fprintf(stderr, "%s: Failure to stat configuration file \"%s\": %s\n",
-	    pmProgname, configfile, osstrerror(oserror()));
+	    pmProgname, configfile, osstrerror());
 	exit(1);
     }
     size = (long)stat_buf.st_size;

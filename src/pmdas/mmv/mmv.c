@@ -158,17 +158,17 @@ create_client_stat(const char *client, const char *path, size_t size)
 		scnt++;
 	    } else {
 		__pmNotifyErr(LOG_ERR, "%s: client \"%s\" out of memory - %s",
-				pmProgname, client, osstrerror(oserror()));
+				pmProgname, client, osstrerror());
 		__pmMemoryUnmap(m, size);
 		scnt = 0;
 	    }
 	} else {
             __pmNotifyErr(LOG_ERR, "%s: failed to memory map \"%s\" - %s",
-				pmProgname, path, osstrerror(oserror()));
+				pmProgname, path, osstrerror());
 	}
     } else {
 	__pmNotifyErr(LOG_ERR, "%s: failed to open client file \"%s\" - %s",
-				pmProgname, client, osstrerror(oserror()));
+				pmProgname, client, osstrerror());
     }
     return 0;
 }

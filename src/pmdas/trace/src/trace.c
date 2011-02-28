@@ -300,7 +300,7 @@ readData(int clientfd, int *protocol)
 	    return -1;
 	}
 	if ((newhash.tag = strdup(tag)) == NULL) {
-	    __pmNotifyErr(LOG_ERR, "string copy failed: %s", osstrerror(oserror()));
+	    __pmNotifyErr(LOG_ERR, "string copy failed: %s", osstrerror());
 	    return -1;
 	}
 	newhash.taglength = taglen;
@@ -386,7 +386,7 @@ readData(int clientfd, int *protocol)
 	if ((indomtab[indom].it_set = (pmdaInstid *)
 			realloc(indomtab[indom].it_set, size)) == NULL) {
 	    __pmNotifyErr(LOG_ERR, "dropping instance '%s': %s", hptr->tag,
-							osstrerror(oserror()));
+							osstrerror());
 	    free(hptr->tag);
 	    return -1;
 	}
@@ -1114,20 +1114,20 @@ traceInit(pmdaInterface *dp)
     rsize = (int)(sizeof(statlist_t) * rbufsize);
     if ((ringbuf.ring = (statlist_t *)malloc(rsize)) == NULL) {
 	__pmNotifyErr(LOG_ERR, "failed during ring buffer initialise: %s",
-		osstrerror(oserror()));
+		osstrerror());
 	exit(1);
     }
     for (rsize=0; rsize < rbufsize; rsize++) {
 	if ((ringbuf.ring[rsize].stats = (__pmHashTable *)
 	 			malloc(sizeof(__pmHashTable))) == NULL) {
 	    __pmNotifyErr(LOG_ERR, "ring buffer initialise failed: %s",
-		osstrerror(oserror()));
+		osstrerror());
 	    exit(1);
 	}
 	if ((sts = __pmhashinit(ringbuf.ring[rsize].stats, 0, sizeof(hashdata_t),
 						datacmp, datadel)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "ring buffer initialisation failed: %s",
-		osstrerror(sts));
+		osstrerror());
 	    exit(1);
 	}
 	ringbuf.ring[rsize].working = 0;
@@ -1144,14 +1144,14 @@ traceInit(pmdaInterface *dp)
     if ((sts = __pmhashinit(&summary, 0, sizeof(hashdata_t),
 						datacmp, summarydel)) < 0) {
 	__pmNotifyErr(LOG_ERR, "summary table initialisation failed: %s",
-						osstrerror(sts));
+						osstrerror());
 	exit(1);
     }
     /* initialise list of reserved instance domains (for store recovery) */
     if ((sts = __pmhashinit(&history, 0, sizeof(instdata_t),
 						instcmp, instdel)) < 0) {
 	__pmNotifyErr(LOG_ERR, "history table initialisation failed: %s",
-						osstrerror(sts));
+						osstrerror());
 	exit(1);
     }
 }

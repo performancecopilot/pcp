@@ -297,7 +297,7 @@ main(int argc, char **argv)
      */
     if ((tx_indom = (pmdaInstid *)malloc(n * sizeof(pmdaInstid))) == NULL) {
 	fprintf(stderr, "malloc(%d): %s\n",
-	    n * (int)sizeof(pmdaInstid), osstrerror(oserror()));
+	    n * (int)sizeof(pmdaInstid), osstrerror());
 	exit(1);
     }
     indomtab[0].it_numinst = n;
@@ -316,12 +316,12 @@ main(int argc, char **argv)
      * create the shm segment, and install exit() handler to remove it
      */
     if ((shmid = shmget(KEY, shm_size, IPC_CREAT|0666)) < 0) {
-	fprintf(stderr, "shmid: %s\n", osstrerror(oserror()));
+	fprintf(stderr, "shmid: %s\n", osstrerror());
 	exit(1);
     }
     atexit(done);
     if ((control = (control_t *)shmat(shmid, NULL, 0)) == (control_t *)-1) {
-	fprintf(stderr, "shmat: %s\n", osstrerror(oserror()));
+	fprintf(stderr, "shmat: %s\n", osstrerror());
 	exit(1);
     }
 #ifdef PCP_DEBUG

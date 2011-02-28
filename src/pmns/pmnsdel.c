@@ -176,7 +176,7 @@ main(int argc, char **argv)
     snprintf(outfname, sizeof(outfname), "%s.new", pmnsfile);
     if ((outf = fopen(outfname, "w")) == NULL) {
 	fprintf(stderr, "%s: Error: cannot open PMNS file \"%s\" for writing: %s\n",
-	    pmProgname, outfname, osstrerror(oserror()));
+	    pmProgname, outfname, osstrerror());
 	exit(1);
     }
     if (stat(pmnsfile, &sbuf) == 0) {
@@ -187,7 +187,7 @@ main(int argc, char **argv)
 #if defined(HAVE_CHOWN)
 	if (chown(outfname, sbuf.st_uid, sbuf.st_gid) < 0)
 		fprintf(stderr, "%s: chown(%s, ...) failed: %s\n",
-		    pmProgname, outfname, osstrerror(oserror()));
+		    pmProgname, outfname, osstrerror());
 #endif
     }
 
@@ -201,7 +201,7 @@ main(int argc, char **argv)
     if (sts == 0) {
 	/* rename the ascii PMNS */
 	if (rename2(outfname, pmnsfile) == -1) {
-	    fprintf(stderr, "%s: cannot rename \"%s\" to \"%s\": %s\n", pmProgname, outfname, pmnsfile, osstrerror(oserror()));
+	    fprintf(stderr, "%s: cannot rename \"%s\" to \"%s\": %s\n", pmProgname, outfname, pmnsfile, osstrerror());
 	    /* remove _both_ the ascii and binary versions of the new PMNS */
 	    unlink(outfname);
 	    strcat(outfname, ".bin");
@@ -219,11 +219,11 @@ main(int argc, char **argv)
 #if defined(HAVE_CHOWN)
 	    if (chown(outfname, sbuf.st_uid, sbuf.st_gid) < 0)
 		fprintf(stderr, "%s: chown(%s, ...) failed: %s\n",
-		    pmProgname, outfname, osstrerror(oserror()));
+		    pmProgname, outfname, osstrerror());
 #endif
 	}
 	if (rename2(outfname, pmnsfile) == -1) {
-	    fprintf(stderr, "%s: cannot rename \"%s\" to \"%s\": %s\n", pmProgname, outfname, pmnsfile, osstrerror(oserror()));
+	    fprintf(stderr, "%s: cannot rename \"%s\" to \"%s\": %s\n", pmProgname, outfname, pmnsfile, osstrerror());
 	    /*
 	     * ascii file has been updated, remove the old binary file
 	     * to avoid inconsistency between the ascii and binary PMNS

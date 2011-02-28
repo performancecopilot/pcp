@@ -41,11 +41,11 @@ get_sample(void)
 
 	numpmid = sizeof(metrics) / sizeof(char *);
 	if ((pmidlist = (pmID *)malloc(numpmid * sizeof(pmidlist[0]))) == NULL) {
-	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmProgname, osstrerror(oserror()));
+	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmProgname, osstrerror());
 	    exit(1);
 	}
 	if ((desclist = (pmDesc *)malloc(numpmid * sizeof(desclist[0]))) == NULL) {
-	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmProgname, osstrerror(oserror()));
+	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmProgname, osstrerror());
 	    exit(1);
 	}
 	if ((sts = pmLookupName(numpmid, metrics, pmidlist)) < 0) {

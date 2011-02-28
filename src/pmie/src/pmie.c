@@ -13,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 /*
@@ -236,7 +232,7 @@ load(char *fname)
 	    strcpy(perf->config, "<stdin>");
 	else if (realpath(fname, perf->config) == NULL) {
 	    fprintf(stderr, "%s: failed to resolve realpath for %s: %s\n",
-		    pmProgname, fname, osstrerror(oserror()));
+		    pmProgname, fname, osstrerror());
 	    exit(1);
 	}
     }
@@ -331,7 +327,7 @@ startmonitor(void)
     if ( (mkdir2(PMIE_DIR, S_IRWXU | S_IRWXG | S_IRWXO) < 0) &&
 	 (oserror() != EEXIST) ) {
 	fprintf(stderr, "%s: error creating stats file dir %s: %s\n",
-		pmProgname, PMIE_DIR, osstrerror(oserror()));
+		pmProgname, PMIE_DIR, osstrerror());
 	exit(1);
     }
 
@@ -344,20 +340,20 @@ startmonitor(void)
     if ((fd = open(perffile, O_RDWR | O_CREAT | O_EXCL | O_TRUNC,
 			     S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0) {
 	fprintf(stderr, "%s: cannot create stats file %s: %s\n",
-		pmProgname, perffile, osstrerror(oserror()));
+		pmProgname, perffile, osstrerror());
 	exit(1);
     }
     /* seek to struct size and write one zero */
     lseek(fd, sizeof(pmiestats_t)-1, SEEK_SET);
     if (write(fd, &zero, 1) != 1) {
 	fprintf(stderr, "%s: Warning: write failed for stats file %s: %s\n",
-		pmProgname, perffile, osstrerror(oserror()));
+		pmProgname, perffile, osstrerror());
     }
 
     /* map perffile & associate the instrumentation struct with it */
     if ((ptr = __pmMemoryMap(fd, sizeof(pmiestats_t), 1)) == NULL) {
 	fprintf(stderr, "%s: memory map failed for stats file %s: %s\n",
-		pmProgname, perffile, osstrerror(oserror()));
+		pmProgname, perffile, osstrerror());
 	exit(1);
     }
     close(fd);
@@ -708,7 +704,7 @@ getargs(int argc, char *argv[])
 	logfp = __pmOpenLog(pmProgname, commandlog, stderr, &sts);
 	if (realpath(commandlog, logfile) == NULL) {
 	    fprintf(stderr, "%s: cannot find realpath for log %s: %s\n",
-		    pmProgname, commandlog, osstrerror(oserror()));
+		    pmProgname, commandlog, osstrerror());
 	    exit(1);
 	}
 	__pmSetSignalHandler(SIGHUP, (isdaemon && !agent) ? sighupproc : SIG_IGN);

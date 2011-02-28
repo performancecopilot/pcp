@@ -375,8 +375,8 @@ read_buf_file(int *rcount, char *suffix, FILE **testing_file, config_vars *vars)
 	strcat(fname, suffix);
 	*testing_file = fopen(fname, "r"); 
 	if (*testing_file == NULL) {
-	    (void)fprintf(stderr, "%s: Unable to open test file \"%s\": %s\n",
-	    pmProgname, fname, osstrerror(oserror()));
+	    fprintf(stderr, "%s: Unable to open test file \"%s\": %s\n",
+	    pmProgname, fname, osstrerror());
 	    return -1;
 	}
     }
@@ -738,8 +738,7 @@ refresh_proc_list(void)
 
     bzero(&sinfo, sizeof(sinfo)); /* for purify */
     if ((sysmp_sts = (int)sysmp(MP_SAGET, MPSA_SINFO, &sinfo, sizeof(struct sysinfo))) < 0) {
-   	__pmNotifyErr(LOG_ERR, "sysmp failed in refresh: %s\n",
-			osstrerror(oserror()));
+   	__pmNotifyErr(LOG_ERR, "sysmp failed in refresh: %s\n", osstrerror());
         sysidle[current] = -1;
     }
     else {
@@ -1374,8 +1373,7 @@ hotproc_init(pmdaInterface *dp)
 
     if ((procdir = opendir(PROCFS)) == NULL) {
 	dp->status = -oserror();
-	__pmNotifyErr(LOG_ERR, "opendir(%s) failed: %s\n", PROCFS,
-			osstrerror(oserror()));
+	__pmNotifyErr(LOG_ERR, "opendir(%s) failed: %s\n", PROCFS, osstrerror());
         return;
     }
 
@@ -1384,8 +1382,7 @@ hotproc_init(pmdaInterface *dp)
     
     if ((num_cpus = (int)sysmp(MP_NPROCS)) < 0) {
 	dp->status = -oserror();
-   	__pmNotifyErr(LOG_ERR, "sysmp failed to get NPROCS: %s\n",
-			osstrerror(oserror()));
+   	__pmNotifyErr(LOG_ERR, "sysmp failed to get NPROCS: %s\n", osstrerror());
         return;
     }
 
@@ -1541,8 +1538,7 @@ main(int argc, char **argv)
 	    __pmAFunblock();
 	}
 	else if (nready < 0 && neterror() != EINTR) {
-	    __pmNotifyErr(LOG_ERR, "select failed: %s\n",
-				netstrerror(neterror()));
+	    __pmNotifyErr(LOG_ERR, "select failed: %s\n", netstrerror());
 	}
     }
 

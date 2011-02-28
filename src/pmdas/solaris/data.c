@@ -1406,7 +1406,7 @@ init_data(int domain)
      * set up kstat() handle ... failure is fatal
      */
     if ((kc = kstat_open()) == NULL) {
-	fprintf(stderr, "init_data: kstat_open failed: %s\n", osstrerror(oserror()));
+	fprintf(stderr, "init_data: kstat_open failed: %s\n", osstrerror());
 	exit(1);
     }
 
@@ -1419,7 +1419,7 @@ init_data(int domain)
      */
     if ((metrictab = (pmdaMetric *)malloc(metrictab_sz * sizeof(pmdaMetric))) == NULL) {
 	fprintf(stderr, "init_data: Error: malloc metrictab [%d] failed: %s\n",
-	    (int)(metrictab_sz * sizeof(pmdaMetric)), osstrerror(oserror()));
+	    (int)(metrictab_sz * sizeof(pmdaMetric)), osstrerror());
 	exit(1);
     }
     for (i = 0; i < metrictab_sz; i++) {

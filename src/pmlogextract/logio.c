@@ -65,7 +65,7 @@ again:
 	}
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "Error: hdr fread=%d %s\n", sts, osstrerror(oserror()));
+	    fprintf(stderr, "Error: hdr fread=%d %s\n", sts, osstrerror());
 #endif
 	if (sts > 0)
 	    return PM_ERR_LOGREC;
@@ -77,7 +77,7 @@ again:
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "Error: __pmFindPDUBuf(%d) %s\n",
-		(int)ntohl(head), osstrerror(oserror()));
+		(int)ntohl(head), osstrerror());
 #endif
 	fseek(f, offset, SEEK_SET);
 	return -oserror();
@@ -87,7 +87,7 @@ again:
     if ((sts = (int)fread(&lpb[1], 1, ntohl(head) - sizeof(head), f)) != ntohl(head) - sizeof(head)) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "Error: data fread=%d %s\n", sts, osstrerror(oserror()));
+	    fprintf(stderr, "Error: data fread=%d %s\n", sts, osstrerror());
 #endif
 	if (sts == 0) {
 	    fseek(f, offset, SEEK_SET);
@@ -176,7 +176,7 @@ _pmLogPut(FILE *f, __pmPDU *pb)
     if ((sts = (int)fwrite(pb, 1, rlen, f)) != rlen) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "_pmLogPut: fwrite=%d %s\n", sts, osstrerror(oserror()));
+	    fprintf(stderr, "_pmLogPut: fwrite=%d %s\n", sts, osstrerror());
 #endif
 	return -oserror();
     }

@@ -146,7 +146,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
     if (nf == -1 && oserror() == ENOENT)
 	nf = 0;
     else if (nf == -1) {
-	pmprintf("__pmLogFindLocalPorts: scandir: %s\n", osstrerror(oserror()));
+	pmprintf("__pmLogFindLocalPorts: scandir: %s\n", osstrerror());
 	pmflush();
 	return -oserror();
     }
@@ -206,7 +206,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	strcpy(p, fname);
 	if ((pfile = fopen(namebuf, "r")) == NULL) {
 	    pmprintf("__pmLogFindLocalPorts: pmlogger port file %s: %s\n",
-		    namebuf, osstrerror(oserror()));
+		    namebuf, osstrerror());
 	    free(files[i]);
 	    pmflush();
 	    continue;
@@ -219,7 +219,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	    }
 	    else
 		pmprintf("__pmLogFindLocalPorts: pmlogger port file %s: %s\n",
-			namebuf, osstrerror(oserror()));
+			namebuf, osstrerror());
 	    err = 1;
 	}
 	else {

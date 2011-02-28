@@ -459,7 +459,7 @@ main(int argc, char *argv[])
 		    fclose (hl);
 		} else {
 		    fprintf (stderr, "%s: cannot open %s - %s\n",
-			     pmProgname, optarg, osstrerror(oserror()));
+			     pmProgname, optarg, osstrerror());
 		    errflag++;
 		}
 	    }

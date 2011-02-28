@@ -185,14 +185,14 @@ map_stats(void)
 
 	if ((fd = open(statsfile, O_RDONLY)) < 0) {
 	    __pmNotifyErr(LOG_WARNING, "%s: map_stats: cannot open(\"%s\",...): %s",
-			pmProgname, statsfile, osstrerror(oserror()));
+			pmProgname, statsfile, osstrerror());
 	    return;
 	}
 	ptr = __pmMemoryMap(fd, statbuf.st_size, 0);
 	if (ptr == NULL) {
 	    if (!(notified & MAPSTATS_MAPFAIL)) {
 		__pmNotifyErr(LOG_ERR, "%s: map_stats: memmap of %s failed: %s",
-			    pmProgname, statsfile, osstrerror(oserror()));
+			    pmProgname, statsfile, osstrerror());
     	    }
 	    close(fd);
 	    ptr = NULL;

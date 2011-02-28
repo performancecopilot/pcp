@@ -54,7 +54,7 @@ sysinfo_init(int first)
 	if (ksp == NULL) break;
 	if ((ctl = (ctl_t *)realloc(ctl, (ncpu+1) * sizeof(ctl_t))) == NULL) {
 	    fprintf(stderr, "sysinfo_init: ctl realloc[%d] @ cpu=%d failed: %s\n",
-		(int)((ncpu+1) * sizeof(ctl_t)), ncpu, osstrerror(oserror()));
+		(int)((ncpu+1) * sizeof(ctl_t)), ncpu, osstrerror());
 	    exit(1);
 	}
 	ctl[ncpu].info = kstat_lookup(kc, "cpu_info", ncpu, NULL);
@@ -303,7 +303,7 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    if (kstat_read(kc, ctl[i].ksp, &ctl[i].cpustat) == -1) {
 		if (ctl[i].err == 0) {
 		    fprintf(stderr, "Error: sysinfo_fetch(pmid=%s cpu=%d ...)\n", pmIDStr(mdesc->m_desc.pmid), i);
-		    fprintf(stderr, "kstat_read(kc=%p, ksp=%p, ...) failed: %s\n", kc, ctl[i].ksp, osstrerror(oserror()));
+		    fprintf(stderr, "kstat_read(kc=%p, ksp=%p, ...) failed: %s\n", kc, ctl[i].ksp, osstrerror());
 		}
 		ctl[i].err++;
 		ctl[i].fetched = -1;

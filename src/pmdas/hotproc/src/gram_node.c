@@ -55,7 +55,7 @@ create_tag_node(N_tag tag)
 
     new_node = (bool_node*)malloc(sizeof(bool_node));
     if (new_node == NULL) {
-	fprintf(stderr, "hotproc: malloc failed in config: %s", osstrerror(oserror()));
+	fprintf(stderr, "hotproc: malloc failed in config: %s", osstrerror());
 	exit(1);
     }
     new_node->tag = tag;

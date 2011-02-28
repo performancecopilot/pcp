@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <sys/types.h>
@@ -40,22 +36,21 @@ conn_cisco(cisco_t * cp)
 
     fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0) {
-	fprintf(stderr, "conn_cisco(%s) socket: %s\n",
-	    cp->host, netstrerror(neterror()));
+	fprintf(stderr, "conn_cisco(%s) socket: %s\n", cp->host, netstrerror());
 	return -1;
     }
 
     i = 1;
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i, (mysocklen_t)sizeof(i)) < 0) {
 	fprintf(stderr, "conn_cisco(%s): setsockopt: %s\n",
-	    cp->host, netstrerror(neterror()));
+		cp->host, netstrerror());
 	close(fd);
 	return -1;
     }
 
     if (connect(fd, (struct sockaddr *)&cp->ipaddr, sizeof(cp->ipaddr)) < 0) {
 	fprintf(stderr, "conn_cisco(%s): connect: %s\n",
-	    cp->host, netstrerror(neterror()));
+	    cp->host, netstrerror());
 	close(fd);
 	return -1;
     }
@@ -421,7 +416,7 @@ grab_cisco(intf_t *ip)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
 		fprintf(stderr, "grab_cisco(%s:%s): connect failed: %s\n",
-			cp->host, ip->interface, netstrerror(neterror()));
+			cp->host, ip->interface, netstrerror());
 #endif
 	    return -1;
 	}

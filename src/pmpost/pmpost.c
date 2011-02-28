@@ -81,14 +81,14 @@ main(int argc, char **argv)
     dir = dirname(strdup(notices));
     if (mkdir_r(dir) < 0) {
 	fprintf(stderr, "pmpost: cannot create directory \"%s\": %s\n",
-	    dir, osstrerror(oserror()));
+	    dir, osstrerror());
 	exit(1);
     }
 
     if ((fd = open(notices, O_WRONLY|O_APPEND, 0)) < 0) {
 	if ((fd = open(notices, O_WRONLY|O_CREAT|O_APPEND, 0644)) < 0) {
 	    fprintf(stderr, "pmpost: cannot create file \"%s\": %s\n",
-		notices, osstrerror(oserror()));
+		notices, osstrerror());
 	    exit(1);
 	}
 	lastday = LAST_NEWFILE;
@@ -119,7 +119,7 @@ main(int argc, char **argv)
     if (sts == -1) {
 	fprintf(stderr, "pmpost: warning, cannot lock file \"%s\"", notices);
 	if (oserror() != EINTR)
-	    fprintf(stderr, ": %s", osstrerror(oserror()));
+	    fprintf(stderr, ": %s", osstrerror());
 	fputc('\n', stderr);
     }
     sts = 0;
@@ -139,7 +139,7 @@ main(int argc, char **argv)
     }
 
     if ((np = fdopen(fd, "a")) == NULL) {
-	fprintf(stderr, "pmpost: fdopen: %s\n", osstrerror(oserror()));
+	fprintf(stderr, "pmpost: fdopen: %s\n", osstrerror());
 	exit(1);
     }
 
@@ -166,7 +166,7 @@ main(int argc, char **argv)
 	sts = oserror();
 
     if (sts < 0) {
-	fprintf(stderr, "pmpost: write failed: %s\n", osstrerror(oserror()));
+	fprintf(stderr, "pmpost: write failed: %s\n", osstrerror());
 	fprintf(stderr, "Lost message ...");
 	for (i = 1; i < argc; i++) {
 	    fprintf(stderr, " %s", argv[i]);
