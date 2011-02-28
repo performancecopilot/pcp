@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -232,7 +228,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
     }
 
     if ((res = (__pmInResult *)malloc(sizeof(*res))) == NULL)
-        return -errno;
+        return -oserror();
     res->indom = indom;
 
     if (name == NULL && inst == PM_IN_NULL)
@@ -243,7 +239,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
     if (inst == PM_IN_NULL) {
 	if ((res->instlist = (int *)malloc(res->numinst * sizeof(res->instlist[0]))) == NULL) {
 	    free(res);
-	    return -errno;
+	    return -oserror();
 	}
     }
     else
@@ -252,7 +248,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
     if (name == NULL) {
 	if ((res->namelist = (char **)malloc(res->numinst * sizeof(res->namelist[0]))) == NULL) {
 	    __pmFreeInResult(res);
-	    return -errno;
+	    return -oserror();
 	}
 	for (i = 0; i < res->numinst; i++)
 	    res->namelist[0] = NULL;
@@ -272,7 +268,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
 		res->instlist[i] = myinst;
 		if ((res->namelist[i++] = strdup(np)) == NULL) {
 		    __pmFreeInResult(res);
-		    return -errno;
+		    return -oserror();
 		}
 	    }
 	}
@@ -281,7 +277,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
 		res->instlist[i] = idp->it_set[i].i_inst;
 		if ((res->namelist[i] = strdup(idp->it_set[i].i_name)) == NULL) {
 		    __pmFreeInResult(res);
-		    return -errno;
+		    return -oserror();
 		}
 	    }
 	}
@@ -292,7 +288,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
 	    if (pmdaCacheLookup(indom, inst, &np, NULL) == PMDA_CACHE_ACTIVE) {
 		if ((res->namelist[0] = strdup(np)) == NULL) {
 		    __pmFreeInResult(res);
-		    return -errno;
+		    return -oserror();
 		}
 	    }
 	    else
@@ -303,7 +299,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
 		if (inst == idp->it_set[i].i_inst) {
 		    if ((res->namelist[0] = strdup(idp->it_set[i].i_name)) == NULL) {
 			__pmFreeInResult(res);
-			return -errno;
+			return -oserror();
 		    }
 		    break;
 		}
@@ -410,7 +406,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	/* (numpmid - 1) because there's room for one valueSet in a pmResult */
 	need = (int)sizeof(pmResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
 	if ((extp->res = (pmResult *) malloc(need)) == NULL)
-	    return -errno;
+	    return -oserror();
 	extp->maxnpmids = numpmid;
     }
 
@@ -487,7 +483,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    extp->res->vset[i] = vset = (pmValueSet *)malloc(sizeof(pmValueSet) -
 					    sizeof(pmValue));
 	if (vset == NULL) {
-	    sts = -errno;
+	    sts = -oserror();
 	    goto error;
 	}
 	vset->pmid = pmidlist[i];
@@ -511,7 +507,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		extp->res->vset[i] = vset = (pmValueSet *)realloc(vset,
 			    sizeof(pmValueSet) + (numval - 1)*sizeof(pmValue));
 		if (vset == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    goto error;
 		}
 	    }

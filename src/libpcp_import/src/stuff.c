@@ -1,3 +1,17 @@
+/*
+ * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+ * 
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
+ */
+
 #include "pmapi.h"
 #include "impl.h"
 #include "import.h"
@@ -23,11 +37,10 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
     mp = &current->metric[hp->midx];
 
     if (current->result == NULL) {
-	// first time
+	/* first time */
 	current->result = (pmResult *)malloc(sizeof(pmResult));
 	if (current->result == NULL) {
 	    __pmNoMem("_pmi_stuff_value: result malloc:", sizeof(pmResult), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	current->result->numpmid = 0;
 	current->result->timestamp.tv_sec = 0;
@@ -39,7 +52,7 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
     for (i = 0; i < rp->numpmid; i++) {
 	if (pmid == rp->vset[i]->pmid) {
 	    if (mp->desc.indom == PM_INDOM_NULL)
-		// singular metric, cannot have more than one value
+		/* singular metric, cannot have more than one value */
 		return PMI_ERR_DUPVALUE;
 	    break;
 	}
@@ -49,12 +62,10 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 	rp = current->result = (pmResult *)realloc(current->result, sizeof(pmResult) + (rp->numpmid - 1)*sizeof(pmValueSet *));
 	if (current->result == NULL) {
 	    __pmNoMem("_pmi_stuff_value: result realloc:", sizeof(pmResult) + (rp->numpmid - 1)*sizeof(pmValueSet *), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	rp->vset[rp->numpmid-1] = (pmValueSet *)malloc(sizeof(pmValueSet));
 	if (rp->vset[rp->numpmid-1] == NULL) {
 	    __pmNoMem("_pmi_stuff_value: vset alloc:", sizeof(pmValueSet), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	vsp = rp->vset[rp->numpmid-1];
 	vsp->pmid = pmid;
@@ -64,14 +75,13 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 	int		j;
 	for (j = 0; j < rp->vset[i]->numval; j++) {
 	    if (rp->vset[i]->vlist[j].inst == hp->inst)
-		// each metric-instance can appear at most once per pmResult
+		/* each metric-instance can appear at most once per pmResult */
 		return PMI_ERR_DUPVALUE;
 	}
 	rp->vset[i]->numval++;
 	vsp = rp->vset[i] = (pmValueSet *)realloc(rp->vset[i], sizeof(pmValueSet) + (rp->vset[i]->numval-1)*sizeof(pmValue));
 	if (rp->vset[i] == NULL) {
 	    __pmNoMem("_pmi_stuff_value: vset realloc:", sizeof(pmValueSet) + (rp->vset[i]->numval-1)*sizeof(pmValue), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
     }
     vp = &vsp->vlist[vsp->numval-1];
@@ -152,8 +162,7 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
     }
 
     if (dsize != -1) {
-	// logic copied from stuffvalue.c in libpcp
-	//
+	/* logic copied from stuffvalue.c in libpcp */
 	int	need = dsize + PM_VAL_HDR_SIZE;
 
 	if (dsize == sizeof(__int64_t))
@@ -162,7 +171,6 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 	    vp->value.pval = (pmValueBlock *)malloc(need < sizeof(pmValueBlock) ? sizeof(pmValueBlock) : need);
 	if (vp->value.pval == NULL) {
 	    __pmNoMem("_pmi_stuff_value: pmValueBlock:", need < sizeof(pmValueBlock) ? sizeof(pmValueBlock) : need, PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	vp->value.pval->vlen = (int)need;
 	vp->value.pval->vtype = mp->desc.type;

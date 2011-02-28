@@ -44,7 +44,7 @@ check_buf(bufctl_t *bp, int need)
 	else
 	    bp->blen *= 2;
 	if ((bp->baddr = (char *)realloc(bp->baddr, bp->blen)) == NULL)
-	    return -errno;
+	    return -oserror();
 	bp->bptr = &bp->baddr[offset];
     }
     return 0;
@@ -65,7 +65,7 @@ pmdaEventNewArray(void)
 	bufs = (bufctl_t *)realloc(bufs, nbuf*sizeof(bufs[0]));
 	if (bufs == NULL) {
 	    nbuf = 0;
-	    return -errno;
+	    return -oserror();
 	}
     }
 
