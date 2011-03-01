@@ -16,7 +16,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES = pcp-eventlog.c
-TARGETS = pcp-eventlog.exe
+CMDTARGET = pcp-eventlog.exe
 LLDLIBS = -lpcp
 LSRCFILES = $(WRAPPERS)
 
@@ -25,16 +25,13 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "mingw"
-build-me:	$(TARGETS)
+build-me:	$(CMDTARGET)
 install:	default
-	$(INSTALL) -m 755 $(TARGETS) $(PCP_BIN_DIR)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 else
 build-me:
 install:
 endif
-
-pcp-eventlog.exe:	pcp-eventlog.o
-	$(CCF) -o $@ $(LDFLAGS) $< $(LDLIBS)
 
 default_pcp:	default
 

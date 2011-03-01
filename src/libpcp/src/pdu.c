@@ -118,7 +118,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		return status;
 	    else if (status != have - (int)sizeof(__pmPDU)) {
 		/* short read, bad error! */
-		setoserror(ENODATA);
+		setoserror(EMSGSIZE);
 		return PM_ERR_IPC;
 	    }
 	    break;

@@ -16,7 +16,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES = pcp-setevent.c
-TARGETS = pcp-setevent.exe
+CMDTARGET = pcp-setevent.exe
 LLDLIBS = -lpcp
 LSRCFILES = $(WRAPPERS)
 
@@ -25,16 +25,13 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "mingw"
-build-me:	$(TARGETS)
+build-me:	$(CMDTARGET)
 install:	default
-	$(INSTALL) -m 755 $(TARGETS) $(PCP_BIN_DIR)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 else
 build-me:
 install:
 endif
-
-pcp-setevent.exe:	pcp-setevent.o
-	$(CCF) -o $@ $(LDFLAGS) $< $(LDLIBS)
 
 default_pcp:	default
 
