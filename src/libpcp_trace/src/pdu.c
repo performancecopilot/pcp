@@ -170,7 +170,7 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 		return status;
 	    }
 	}
-	status = (int)recv(fd, buf, len, 0);
+	status = (int)read(fd, buf, len);
 	if (status <= 0) {	/* EOF or error */
 	    setoserror(neterror());
 	    return status;
@@ -241,7 +241,7 @@ __pmtracexmitPDU(int fd, __pmTracePDU *pdubuf)
     php->len = htonl(php->len);
     php->from = htonl(php->from);
     php->type = htonl(php->type);
-    n = (int)send(fd, pdubuf, len, 0);
+    n = (int)write(fd, pdubuf, len);
     php->len = ntohl(php->len);
     php->from = ntohl(php->from);
     php->type = ntohl(php->type);
