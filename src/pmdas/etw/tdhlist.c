@@ -14,6 +14,7 @@
  * for more details.
  */
 
+#include <inttypes.h>
 #include <windows.h>
 #include <wmistr.h>
 #include <stdio.h>
@@ -38,7 +39,7 @@ PrintFieldInfo(PBYTE buffer,
 {
     PWCHAR stringBuffer;
 
-    printf("\tValue: %lu\n", fieldInfo->Value);
+    printf("\tValue: %" PRIi64 "\n", fieldInfo->Value);
     if (fieldInfo->NameOffset) {
 	stringBuffer = (PWCHAR)(buffer + fieldInfo->NameOffset);
 	printf("\tField: %ls\n", stringBuffer);
