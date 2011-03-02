@@ -22,6 +22,7 @@ fi
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
+rm -f $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -51,12 +52,18 @@ delta = 1;
 // note have to quote hostname
 2 * pmcd.control.sighup :'$host' - pmcd.control.sighup :'$host';
 End-of-File
+cat $tmp.config >$seq.full
 pmie -T 2sec -v <$tmp.config >$tmp.out 2>$tmp.err
-cat $tmp.out $tmp.err | sed -e 's/expr_1:  */expr_1: /' | _show_pmie_errors
+cat $tmp.out $tmp.err \
+| tee -a $seq.full \
+| sed -e 's/expr_1:  */expr_1: /' \
+| _show_pmie_errors
 
 echo
 echo "pmval [metric spec on command line]"
-pmval -t0.5 -s 1 $host:pmcd.control.sighup | _filter
+pmval -t0.5 -s 1 $host:pmcd.control.sighup \
+| tee -a $seq.full \
+| _filter
 
 echo
 echo "pmlc [several uses]"
@@ -66,6 +73,7 @@ echo "pmlc [several uses]"
   echo "status" \
 ) \
 | pmlc -h $host -P \
+| tee -a $seq.full \
 | _filter_pmlc
 
 # success, all done
