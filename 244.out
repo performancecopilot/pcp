@@ -2,10 +2,10 @@ QA output created by 244
 Waiting for PMCD to terminate ...
 $PCP_PMCDCONF_PATH contains:
 <BEGIN>
-fake_irix 1 pipe binary dumb_pmda -d 1 000000660066
-fake_sampledso 30 pipe binary sleep 000000660066
-fake_cisco 5 pipe binary sed /000000660066/p
-fake_linux 60 pipe binary sleep 000000660066
+fake_irix 1 pipe binary dumb_pmda -d 1 fake_irix
+fake_sampledso 30 pipe binary dumb_pmda -d 30 fake_sampledso
+fake_cisco 5 pipe binary dumb_pmda -d 5 fake_cisco
+fake_linux 60 pipe binary dumb_pmda -d 60 fake_linux
 pmcd 2 dso pmcd_init ...pmda_pmcd.so
 [access]
 allow localhost : all;
@@ -15,10 +15,10 @@ Expect "IPC protocol failure" ...
 hinv.ncpu: pmLookupDesc: IPC protocol failure
 $PCP_PMCDCONF_PATH now contains:
 <BEGIN>
-fake_irix 1 pipe binary dumb_pmda -d 1 000000660066
+fake_irix 1 pipe binary dumb_pmda -d 1 fake_irix
 sample 29 pipe binary ...pmdasample -d 29
-fake_cisco 5 pipe binary sed /000000660066/p
-fake_linux 60 pipe binary sleep 000000660066
+fake_cisco 5 pipe binary dumb_pmda -d 5 fake_cisco
+fake_linux 60 pipe binary dumb_pmda -d 60 fake_linux
 pmcd 2 dso pmcd_init ...pmda_pmcd.so
 [access]
 allow localhost : all;
@@ -42,11 +42,11 @@ Log for pmcd on HOST started DATE
 
 active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========
-fake_irix 1 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 1 000000660066
+fake_irix 1 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 1 fake_irix
 pmcd 2 A_PID dso i:5 lib=...pmda_pmcd.so entry=pmcd_init
-fake_cisco 5 A_PID FD FD 1 bin pipe cmd=sed /000000660066/p
-fake_sampledso 30 A_PID FD FD 1 bin pipe cmd=sleep 000000660066
-fake_linux 60 A_PID FD FD 1 bin pipe cmd=sleep 000000660066
+fake_cisco 5 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 5 fake_cisco
+fake_sampledso 30 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 30 fake_sampledso
+fake_linux 60 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 60 fake_linux
 
 Host access list:
 00 01 Cur/MaxCons host-spec host-mask lvl host-name
@@ -75,11 +75,11 @@ Cleanup "fake_sampledso" agent (dom 30): unconfigured, exit(0)
 
 active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========
-fake_irix 1 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 1 000000660066
+fake_irix 1 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 1 fake_irix
 pmcd 2 A_PID dso i:5 lib=...pmda_pmcd.so entry=pmcd_init
-fake_cisco 5 A_PID FD FD 1 bin pipe cmd=sed /000000660066/p
+fake_cisco 5 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 5 fake_cisco
 sample 29 A_PID FD FD 2 bin pipe cmd=...pmdasample -d 29
-fake_linux 60 A_PID FD FD 1 bin pipe cmd=sleep 000000660066
+fake_linux 60 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 60 fake_linux
 
 Host access list:
 00 01 Cur/MaxCons host-spec host-mask lvl host-name
@@ -99,7 +99,7 @@ Current PMCD clients ...
      fd  client connection from                    ipc ver  operations denied
      ==  ========================================  =======  =================
 
-Cleanup "fake_cisco" agent (dom 5): unconfigured, exit(4)
+Cleanup "fake_cisco" agent (dom 5): unconfigured, exit(0)
 Cleanup "fake_linux" agent (dom 60): unconfigured, exit(0)
 
 ...

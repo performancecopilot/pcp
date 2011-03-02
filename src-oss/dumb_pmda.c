@@ -12,7 +12,7 @@
 static void
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
+    fprintf(stderr, "Usage: %s [options] controlwords\n\n", pmProgname);
     fputs("Options:\n"
 	  "  -D N       set pmDebug debugging flag to N\n"
 	  "  -d domain  use domain (numeric) for metrics domain of PMDA\n"
@@ -33,6 +33,7 @@ main(int argc, char **argv)
     int			sts;
     pmdaInterface	desc;
     char		c;
+    int			exit_action = 0;
 
     __pmSetProgname(argv[0]);
 
@@ -47,16 +48,24 @@ main(int argc, char **argv)
     if (err)
     	usage();
 
+    /*
+     * scan cmd line args for action keywords ...
+     */
+    for (; optind < argc; optind++) {
+	if (strcmp(argv[optind], "exit") == 0) exit_action = 1;
+    }
+
     pmdaOpenLog(&desc);
     pmdaConnect(&desc);
 
     /*
      * We have connection to pmcd ... consume PDUs from pmcd,
-     * ignore them, and exit on end of file
+     * ignore them, optionally execute an action and exit on end of file
      */
 
-    while ((sts = read(desc.version.two.ext->e_infd, &c, 1)) == 1)
-	;
+    while ((sts = read(desc.version.two.ext->e_infd, &c, 1)) == 1) {
+	if (exit_action) exit(1);
+    }
 
     if (sts < 0) {
 	fprintf(stderr, "dumb_pmda: Error on read from pmcd?: %s\n", strerror(errno));

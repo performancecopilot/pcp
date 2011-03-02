@@ -8,13 +8,6 @@
 seq=`basename $0`
 
 . ./localconfig
-rm -f $seq.out
-if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
-then
-    ln $seq.out.2 $seq.out
-else
-    ln $seq.out.1 $seq.out
-fi
 
 echo "QA output created by $seq"
 
@@ -127,7 +120,7 @@ cleanup()
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	pmprobe pmcd.control.debug
-	sleepers=`ps $PCP_PS_ALL_FLAGS | grep $TAG | $PCP_AWK_PROG '$3 == 1 { print $2 }'`
+	sleepers=`ps $PCP_PS_ALL_FLAGS | grep '[d]umb_pmda' | $PCP_AWK_PROG '$3 == 1 { print $2 }'`
 	[ ! -z "$sleepers" ] && $sudo $signal -s KILL $sleepers
     fi
     rm -rf $tmp $tmp.*
@@ -142,23 +135,16 @@ $sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
 _disable_loggers
 $sudo $signal -a -s TERM pmie >/dev/null 2>&1
 
-# This value is passed to processes this script creates on the command line.
-# It's unlikely to occur anywhere in a ps output and is used as a tag for
-# termination or check for the existence of the processes later.
-#
-TAG=000000660066
-
 # Make our own version of pmcd.conf with dummy agents that will time out.
 # Copy the pmcd PMDA from the original pmcd.conf so that we can check pmcd's
 # timeouts by storing into pmcd.control.timeout
-# The TAG parameter is used as a tag for a search of ps output later.
 # NOTE: none of the domains should clash with the pmcd PMDA (domain 2) or the
 # sample agent (domain 254).  These agents will be appended to the file.
 #
-echo "fake_irix 1 pipe binary dumb_pmda -d 1 $TAG" >$NEWCONFIG
-echo "fake_sampledso 30 pipe binary sleep $TAG" >>$NEWCONFIG
-echo "fake_cisco 5 pipe binary sed /$TAG/p" >>$NEWCONFIG
-echo "fake_linux 60 pipe binary sleep $TAG" >>$NEWCONFIG
+echo "fake_irix 1 pipe binary $here/src-oss/dumb_pmda -d 1 fake_irix" >$NEWCONFIG
+echo "fake_sampledso 30 pipe binary $here/src-oss/dumb_pmda -d 30 fake_sampledso" >>$NEWCONFIG
+echo "fake_cisco 5 pipe binary $here/src-oss/dumb_pmda -d 5 fake_cisco" >>$NEWCONFIG
+echo "fake_linux 60 pipe binary $here/src-oss/dumb_pmda -d 60 fake_linux" >>$NEWCONFIG
 grep pmda_pmcd $CONFIGSAVE | sed -e 's/[ 	][ 	]*/ /g' -e 's/[ 	]*$//' >>$NEWCONFIG
 echo "[access]" >>$NEWCONFIG
 echo "allow localhost : all;" >>$NEWCONFIG
@@ -167,7 +153,9 @@ $sudo cp $NEWCONFIG $CONFIG
 
 echo '$PCP_PMCDCONF_PATH contains:'
 echo '<BEGIN>'
-sed <$CONFIG -e '/^pmcd/s; [^ ]*pmda_pmcd.so; ...pmda_pmcd.so;'
+sed <$CONFIG \
+    -e '/^pmcd/s; [^ ]*pmda_pmcd.so; ...pmda_pmcd.so;' \
+    -e "s;$here/src-oss/;;"
 echo '<END>'
 
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
@@ -204,7 +192,8 @@ echo '$PCP_PMCDCONF_PATH now contains:'
 echo '<BEGIN>'
 sed <$CONFIG \
     -e '/^pmcd/s; [^ ]*pmda_pmcd.so; ...pmda_pmcd.so;' \
-    -e '/^sample/s; [^ ]*pmdasample; ...pmdasample;'
+    -e '/^sample/s; [^ ]*pmdasample; ...pmdasample;' \
+    -e "s;$here/src-oss/;;"
 echo '<END>'
 
 $signal -s HUP $pmcd
@@ -230,14 +219,14 @@ sample=`pminfo $NAMESPACE -f sample.daemon_pid | $PCP_AWK_PROG '
 $1 == "value"	{ print $2 }
 '`
 sleep 1
-ps -edf | grep $TAG | grep sed >/dev/null || echo "Error: phony fake_cisco agent died prematurely"
+ps -edf | grep dumb_pmda | grep fake_cisco >/dev/null || echo "Error: phony fake_cisco agent died prematurely"
 
 $sudo cp $CONFIGSAVE $CONFIG
 
 $signal -s HUP $pmcd
 _wait_for_pmcd
 
-ps -edf | grep $TAG | grep sed >/dev/null && echo "Error: sed agent still lives!"
+ps -edf | grep dumb_pmda | grep fake_cisco >/dev/null && echo "Error: phony fake_cisco agent still lives!"
 
 # Generate a PDU into the domain where the fake_sampledso agent used to be (#30 is
 # assumed to be the sampledso PMDA)
@@ -256,6 +245,8 @@ then
 fi
 
 _filter_log \
-| sed -e '/Cleanup "fake_linux" agent (dom 60): unconfigured/q'
+| sed \
+    -e "s;$here/src-oss/;;" \
+    -e '/Cleanup "fake_linux" agent (dom 60): unconfigured/q'
 echo
 echo "..."
