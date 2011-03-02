@@ -280,6 +280,28 @@ main(int argc, char **argv)
 	    goto cleanup;
 	}
 
+	if ((orp = rewrite(irp)) == NULL) {
+	    /* reporting done in rewrite() */
+	    goto cleanup;
+	}
+#if PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL2) {
+	    fprintf(stderr, "output record ...\n");
+	    __pmDumpResult(stderr, orp);
+	}
+#endif
+
+	/*
+	 * convert log record to a PDU, and enforce V2 encoding semantics,
+	 * then write it out
+	 */
+	sts = __pmEncodeResult(PDU_OVERRIDE2, orp, &pb);
+	if (sts < 0) {
+	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
+		    pmProgname, pmErrStr(sts));
+	    goto cleanup;
+	}
+
 	/* switch volumes if required */
 	if (varg > 0) {
 	    if (written > 0 && (written % varg) == 0) {
@@ -302,31 +324,11 @@ main(int argc, char **argv)
 	    newvolume(oname, &next_stamp);
 	}
 
-	if ((orp = rewrite(irp)) == NULL) {
-	    /* reporting done in rewrite() */
-	    goto cleanup;
-	}
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
-	    fprintf(stderr, "output record ...\n");
-	    __pmDumpResult(stderr, orp);
-	}
-#endif
 	current.tv_sec = orp->timestamp.tv_sec;
 	current.tv_usec = orp->timestamp.tv_usec;
 
 	doindom(orp);
 
-	/*
-	 * convert log record to a PDU, and enforce V2 encoding semantics,
-	 * then write it out
-	 */
-	sts = __pmEncodeResult(PDU_OVERRIDE2, orp, &pb);
-	if (sts < 0) {
-	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
-		    pmProgname, pmErrStr(sts));
-	    goto cleanup;
-	}
 	/* write out log record */
 	if ((sts = __pmLogPutResult(&logctl, pb)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
