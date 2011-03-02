@@ -12,6 +12,7 @@
  * License for more details.
  */
 
+#include <inttypes.h>
 #include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
@@ -2150,8 +2151,8 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 	if (sizeof(off_t) > sizeof(__pm_off_t)) {
 	    if (physend != sbuf.st_size) {
 		__pmNotifyErr(LOG_ERR, "pmGetArchiveEnd: PCP archive file"
-			" (meta) too big (%lld bytes)\n",
-			(long long)sbuf.st_size);
+			" (meta) too big (%"PRIi64" bytes)\n",
+			(uint64_t)sbuf.st_size);
 		exit(1);
 	    }
 	}

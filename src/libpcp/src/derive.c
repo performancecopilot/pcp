@@ -33,6 +33,7 @@
  * 	metric persists for the life of the application.
  */
 
+#include <inttypes.h>
 #include "derive.h"
 
 static int	need_init = 1;
@@ -827,11 +828,11 @@ dump_value(int type, pmAtomValue *avp)
 	    break;
 
 	case PM_TYPE_64:
-	    fprintf(stderr, "%lli", (long long)avp->ll);
+	    fprintf(stderr, "%" PRId64, avp->ll);
 	    break;
 
 	case PM_TYPE_U64:
-	    fprintf(stderr, "%llu", (unsigned long long)avp->ull);
+	    fprintf(stderr, "%" PRIu64, avp->ull);
 	    break;
 
 	case PM_TYPE_FLOAT:
