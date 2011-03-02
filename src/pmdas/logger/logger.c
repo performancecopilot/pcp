@@ -68,7 +68,6 @@ logger_end_contextCallBack(int ctx)
 {
     __pmNotifyErr(LOG_INFO, "%s: saw context %d\n", __FUNCTION__, ctx);
     ctx_end(ctx);
-    event_cleanup();
 }
 
 static int

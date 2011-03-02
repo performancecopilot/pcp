@@ -22,7 +22,6 @@
 #define _EVENT_H
 
 extern void event_init(int domain);
-extern int event_create(int fd);
 extern int event_fetch(pmValueBlock **vbpp);
 extern void event_cleanup(void);
 

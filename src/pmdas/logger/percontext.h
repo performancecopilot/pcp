@@ -28,7 +28,7 @@ extern int ctx_get_num(void);
  * ctxStartContextCallBack
  * 	Called the first time a new client context is seen.  Returns a
  * 	'void *' to user-created data that can be retrieved later with
- * 	???.
+ * 	ctx_get_user_data().
  *
  * ctxEndContextCallBack
  * 	Called when a client context is closed.  Can be used to clean

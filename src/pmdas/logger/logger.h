@@ -21,4 +21,6 @@ extern char *monitor_path;
 
 extern void loggerMain(pmdaInterface *dispatch);
 
+extern int get_monitor_fd(void);
+
 #endif /* _LOGGER_H */

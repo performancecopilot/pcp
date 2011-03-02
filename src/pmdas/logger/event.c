@@ -29,6 +29,7 @@
 #include <pcp/pmda.h>
 #include "event.h"
 #include "percontext.h"
+#include "logger.h"
 
 #define BUF_SIZE 1024
 
@@ -44,6 +45,38 @@ static int eventarray;
 /* This has to match the values in the metric table. */
 static pmID pmid_string = PMDA_PMID(0,1); /* event.param_string */
 
+struct ctx_client_data {
+    struct event **last;	       /* addr of last next element */
+};
+
+static void *
+ctx_start_callback(int ctx)
+{
+    struct ctx_client_data *c = ctx_get_user_data();
+
+    if (c == NULL) {
+	c = malloc(sizeof(struct ctx_client_data));
+	if (c == NULL) {
+	    __pmNotifyErr(LOG_ERR, "allocation failure");
+	    return NULL;
+	}
+	c->last = head.tqh_last;
+	__pmNotifyErr(LOG_INFO, "Setting last.");
+    }
+    return c;
+}
+
+static void
+ctx_end_callback(int ctx, void *user_data)
+{
+    struct ctx_client_data *c = user_data;
+    
+    event_cleanup();
+    if (c != NULL)
+	free(c);
+    return;
+}
+
 void
 event_init(int domain)
 {
@@ -57,9 +90,11 @@ event_init(int domain)
      * desctab[] and this cannot easily be done automatically
      */
     ((__pmID_int *)&pmid_string)->domain = domain;
+
+    ctx_register_callbacks(ctx_start_callback, ctx_end_callback);
 }
 
-int
+static int
 event_create(int fd)
 {
     ssize_t c;
@@ -86,6 +121,7 @@ event_create(int fd)
     e->clients = ctx_get_num();
     e->buffer[c] = '\0';
     TAILQ_INSERT_TAIL(&head, e, events);
+    __pmNotifyErr(LOG_INFO, "Inserted item, clients = %d.", e->clients);
     return 0;
 }
 
@@ -97,7 +133,12 @@ event_fetch(pmValueBlock **vbpp)
     pmAtomValue atom;
     int rc;
     int records = 0;
+    struct ctx_client_data *c = ctx_get_user_data();
     
+    /* Update the event queue with new data (if any). */
+    if ((rc = event_create(get_monitor_fd())) < 0)
+	return rc;
+
     if (vbpp == NULL)
 	return -1;
     *vbpp = NULL;
@@ -107,7 +148,7 @@ event_fetch(pmValueBlock **vbpp)
     if ((rc = pmdaEventAddRecord(eventarray, &stamp, PM_EVENT_FLAG_POINT)) < 0)
 	return rc;
 
-    e = head.tqh_first;
+    e = *c->last;
     while (e != NULL) {
 	/* Add the string parameter.  Note that pmdaEventAddParam()
 	 * copies the string, so we can free it soon after. */
@@ -131,6 +172,9 @@ event_fetch(pmValueBlock **vbpp)
 	e = next;
     }
 
+    /* Update queue pointer. */
+    c->last = head.tqh_last;
+
     if (records > 0)
 	*vbpp = (pmValueBlock *)pmdaEventGetAddr(eventarray);
     else
@@ -142,9 +186,10 @@ void
 event_cleanup(void)
 {
     struct event *e, *next;
+    struct ctx_client_data *c = ctx_get_user_data();
 
     /* We've lost a client.  Cleanup. */
-    e = head.tqh_first;
+    e = *c->last;
     while (e != NULL) {
 	/* Get the next event. */
 	next = e->events.tqe_next;

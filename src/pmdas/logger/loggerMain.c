@@ -24,6 +24,14 @@
 #include "logger.h"
 #include "event.h"
 
+static int monitorfd = 0;
+
+int
+get_monitor_fd(void)
+{
+    return monitorfd;
+}
+
 void
 loggerMain(pmdaInterface *dispatch)
 {
@@ -32,12 +40,11 @@ loggerMain(pmdaInterface *dispatch)
     fd_set fds;
     fd_set readyfds;
     int nready;
-    int monitorfd;
 
     event_init(dispatch->domain);
 
     /* Try to open logfile to monitor */
-    monitorfd = open(monitor_path, O_RDONLY);
+    monitorfd = open(monitor_path, O_RDONLY|O_NONBLOCK);
     if (monitorfd < 0) {
 	__pmNotifyErr(LOG_ERR, "open failure on %s", monitor_path);
 	exit(1);
@@ -46,10 +53,13 @@ loggerMain(pmdaInterface *dispatch)
     /* Skip to the end. */
     //(void)lseek(monitorfd, 0, SEEK_END);
 
-    /* We can't really select on the logfile.  Why?  If the logfile
-     * is a normal file, select will (continually) return EOF after
-     * we've read all the data.  So, instead, we'll try to read data
-     * before handling any message we get on the control channel. */
+    /* We can't really select on the logfile.  Why?  If the logfile is
+     * a normal file, select will (continually) return EOF after we've
+     * read all the data.  Next we tried to read data before handling
+     * any message we get on the control channel.  That didn't work
+     * either, since the client context wasn't set up yet (since that
+     * is the 1st control message).  So, we read data inside the
+     * event fetch routine. */
     FD_ZERO(&fds);
     FD_SET(pmcdfd, &fds);
     maxfd = pmcdfd;
@@ -69,8 +79,6 @@ loggerMain(pmdaInterface *dispatch)
 	}
 
 	if (FD_ISSET(pmcdfd, &readyfds)) {
-	    if (event_create(monitorfd) < 0)
-		exit(1);
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
 		__pmNotifyErr(LOG_DEBUG, "processing pmcd request [fd=%d]", pmcdfd);
