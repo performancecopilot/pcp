@@ -95,7 +95,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		status = recv(fd, buf, (int)sizeof(__pmPDU), 0);
 		setoserror(neterror());
 	    } else {
-		read(fd, buf, (int)sizeof(__pmPDU));
+		status = read(fd, buf, (int)sizeof(__pmPDU));
 	    }
 	    __pmOverrideLastFd(fd);
 	    if (status <= 0)
@@ -111,7 +111,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		status = recv(fd, &buf[sizeof(__pmPDU)], size, 0);
 		setoserror(neterror());
 	    } else {
-		read(fd, &buf[sizeof(__pmPDU)], size);
+		status = read(fd, &buf[sizeof(__pmPDU)], size);
 	    }
 	    if (status <= 0)
 		/* EOF or error */
@@ -467,9 +467,9 @@ check_read_len:
 	    if (len > 0)
 		have += len;
 	    if (have >= (int)(sizeof(php->len)+sizeof(php->type)+sizeof(php->from)))
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x from=0x%x", php->len, ntohl(php->type), ntohl(php->from));
+		__pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x from=0x%x", php->len, (unsigned)ntohl(php->type), (unsigned)ntohl(php->from));
 	    else if (have >= (int)(sizeof(php->len)+sizeof(php->type)))
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x", php->len, ntohl(php->type));
+		__pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x", php->len, (unsigned)ntohl(php->type));
 	    return PM_ERR_IPC;
 	}
     }
