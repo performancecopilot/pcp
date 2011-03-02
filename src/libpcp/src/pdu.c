@@ -95,7 +95,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		status = recv(fd, buf, (int)sizeof(__pmPDU), 0);
 		setoserror(neterror());
 	    } else {
-		read(fd, buf, (int)sizeof(__pmPDU));
+		status = read(fd, buf, (int)sizeof(__pmPDU));
 	    }
 	    __pmOverrideLastFd(fd);
 	    if (status <= 0)
@@ -111,7 +111,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		status = recv(fd, &buf[sizeof(__pmPDU)], size, 0);
 		setoserror(neterror());
 	    } else {
-		read(fd, &buf[sizeof(__pmPDU)], size);
+		status = read(fd, &buf[sizeof(__pmPDU)], size);
 	    }
 	    if (status <= 0)
 		/* EOF or error */
