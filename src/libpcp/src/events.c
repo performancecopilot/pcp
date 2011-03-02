@@ -15,6 +15,7 @@
  * License for more details.
  */
 
+#include <inttypes.h>
 #include "pmapi.h"
 #include "impl.h"
 
@@ -117,11 +118,11 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp)
 		    break;
 		case PM_TYPE_64:
 		    memcpy((void *)&atom.ll, (void *)vbuf, sizeof(atom.ll));
-		    fprintf(f, " = %lli", (long long)atom.ll);
+		    fprintf(f, " = %"PRIi64, atom.ll);
 		    break;
 		case PM_TYPE_U64:
 		    memcpy((void *)&atom.ull, (void *)vbuf, sizeof(atom.ull));
-		    fprintf(f, " = %llu", (unsigned long long)atom.ull);
+		    fprintf(f, " = %"PRIu64, atom.ull);
 		    break;
 		case PM_TYPE_FLOAT:
 		    memcpy((void *)&atom.f, (void *)vbuf, sizeof(atom.f));

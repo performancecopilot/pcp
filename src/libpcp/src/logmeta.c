@@ -717,9 +717,9 @@ __pmLogPutInDom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp,
     wlen += fwrite(&h.len, 1, sizeof(h.len), lcp->l_mdfp);
     free(stridx);
 
-    if (wlen != ntohl(h.len)) {
+    if (wlen != (int)ntohl(h.len)) {
 	pmprintf("__pmLogPutInDom: wrote %d, expected %d: %s\n",
-	    wlen, ntohl(h.len), osstrerror());
+	    wlen, (int)ntohl(h.len), osstrerror());
 	pmflush();
 	return -oserror();
     }

@@ -17,8 +17,9 @@
 
 #include <stdarg.h>
 #include <sys/stat.h> 
-#include <ctype.h>
+#include <inttypes.h>
 #include <limits.h>
+#include <ctype.h>
 #include <math.h>
 
 #include "pmapi.h"
@@ -527,11 +528,11 @@ pmPrintValue(FILE *f,			/* output stream */
         break;
 
     case PM_TYPE_64:
-        fprintf(f, "%*lli", minwidth, (long long)a.ll);
+        fprintf(f, "%*"PRIi64, minwidth, a.ll);
         break;
 
     case PM_TYPE_U64:
-        fprintf(f, "%*llu", minwidth, (unsigned long long)a.ull);
+        fprintf(f, "%*"PRIu64, minwidth, a.ull);
         break;
 
     case PM_TYPE_FLOAT:
@@ -572,7 +573,7 @@ pmPrintValue(FILE *f,			/* output stream */
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(__uint64_t)) {
 		__uint64_t	i;
 		memcpy((void *)&i, (void *)&val->value.pval->vbuf, sizeof(__uint64_t));
-		fprintf(f, "%*llu", minwidth, (unsigned long long)i);
+		fprintf(f, "%*"PRIu64, minwidth, i);
 		done = 1;
 	    }
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(double)) {

@@ -468,9 +468,9 @@ check_read_len:
 	    if (len > 0)
 		have += len;
 	    if (have >= (int)(sizeof(php->len)+sizeof(php->type)+sizeof(php->from)))
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x from=0x%x", php->len, ntohl(php->type), ntohl(php->from));
+		__pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x from=0x%x", php->len, (unsigned)ntohl(php->type), (unsigned)ntohl(php->from));
 	    else if (have >= (int)(sizeof(php->len)+sizeof(php->type)))
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x", php->len, ntohl(php->type));
+		__pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x", php->len, (unsigned)ntohl(php->type));
 	    return PM_ERR_IPC;
 	}
     }
