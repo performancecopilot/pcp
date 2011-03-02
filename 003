@@ -36,90 +36,83 @@ nyi="pmFetch: Functionality not yet implemented"
 
 pmie_filter()
 {
-    sed -e "/pmcd.pmie.actions: $unavailable/d" \
-    	-e "/pmcd.pmie.configfile: $unavailable/d" \
-    	-e "/pmcd.pmie.eval.actual: $unavailable/d" \
-    	-e "/pmcd.pmie.eval.expected: $unavailable/d" \
-    	-e "/pmcd.pmie.eval.false: $unavailable/d" \
-    	-e "/pmcd.pmie.eval.true: $unavailable/d" \
-    	-e "/pmcd.pmie.eval.unknown: $unavailable/d" \
-    	-e "/pmcd.pmie.logfile: $unavailable/d" \
-    	-e "/pmcd.pmie.numrules: $unavailable/d" \
-    	-e "/pmcd.pmie.pmcd_host: $unavailable/d" \
-    	-e "/pmcd.pmie.host: $unavailable/d"
+    sed -e "/pmcd\.pmie\.actions: $unavailable/d" \
+    	-e "/pmcd\.pmie\.configfile: $unavailable/d" \
+    	-e "/pmcd\.pmie\.eval\.actual: $unavailable/d" \
+    	-e "/pmcd\.pmie\.eval\.expected: $unavailable/d" \
+    	-e "/pmcd\.pmie\.eval\.false: $unavailable/d" \
+    	-e "/pmcd\.pmie\.eval\.true: $unavailable/d" \
+    	-e "/pmcd\.pmie\.eval\.unknown: $unavailable/d" \
+    	-e "/pmcd\.pmie\.logfile: $unavailable/d" \
+    	-e "/pmcd\.pmie\.numrules: $unavailable/d" \
+    	-e "/pmcd\.pmie\.pmcd_host: $unavailable/d" \
+    	-e "/pmcd\.pmie\.host: $unavailable/d"
 }
 
 linux_filter()
 {
     sed \
-	-e "/filesys.readonly: $unknown/d" \
-	-e "/kernel.pernode..*: $unavailable/d" \
-	-e "/mem.util.active_anon: $unavailable/d" \
-	-e "/mem.util.active_file: $unavailable/d" \
-	-e "/mem.util.anonhugepages: $unavailable/d" \
-	-e "/mem.util.corrupthardware: $unavailable/d" \
-	-e "/mem.util.directMap2M: $unavailable/d" \
-	-e "/mem.util.directMap4k: $unavailable/d" \
-	-e "/mem.util.highFree: $unavailable/d" \
-	-e "/mem.util.highTotal: $unavailable/d" \
-	-e "/mem.util.hugepagesFree: $unavailable/d" \
-	-e "/mem.util.hugepagesRsvd: $unavailable/d" \
-	-e "/mem.util.hugepagesSurp: $unavailable/d" \
-	-e "/mem.util.hugepagesTotal: $unavailable/d" \
-	-e "/mem.util.inactive_anon: $unavailable/d" \
-	-e "/mem.util.inactive_file: $unavailable/d" \
-	-e "/mem.util.kernelStack: $unavailable/d" \
-	-e "/mem.util.lowFree: $unavailable/d" \
-	-e "/mem.util.lowTotal: $unavailable/d" \
-	-e "/mem.util.mlocked: $unavailable/d" \
-	-e "/mem.util.mmap_copy: $unavailable/d" \
-	-e "/mem.util.quicklists: $unavailable/d" \
-	-e "/mem.util.shmem: $unavailable/d" \
-	-e "/mem.util.slabReclaimable: $unavailable/d" \
-	-e "/mem.util.slabUnreclaimable: $unavailable/d" \
-	-e "/mem.util.unevictable: $unavailable/d" \
-	-e "/mem.vmstat.nr_slab_reclaimable: $unavailable/d" \
-	-e "/mem.vmstat.nr_slab_unreclaimable: $unavailable/d" \
-	-e "/mem.vmstat.nr_vmscan_write: $unavailable/d" \
-	-e "/mem.vmstat.pgalloc_high: $unavailable/d" \
-	-e "/mem.vmstat.pgrefill_high: $unavailable/d" \
-	-e "/mem.vmstat.pgscan_direct_high: $unavailable/d" \
-	-e "/mem.vmstat.pgscan_kswapd_high: $unavailable/d" \
-	-e "/mem.vmstat.pgsteal_high: $unavailable/d" \
-	-e "/swapdev.free: $unavailable/d" \
-	-e "/swapdev.length: $unavailable/d" \
-	-e "/swapdev.maxswap: $unavailable/d" \
-	-e "/swapdev.priority: $unavailable/d" \
-	-e "/swapdev.vlength: $unavailable/d" \
-	-e "/swap.in: $nosupport/d" \
-	-e "/swap.out: $nosupport/d"
+	-e "/filesys\.readonly: $unknown/d" \
+	-e "/kernel\.pernode..*: $unavailable/d" \
+	-e "/mem\.util\.active_anon: $unavailable/d" \
+	-e "/mem\.util\.active_file: $unavailable/d" \
+	-e "/mem\.util\.anonhugepages: $unavailable/d" \
+	-e "/mem\.util\.corrupthardware: $unavailable/d" \
+	-e "/mem\.util\.directMap2M: $unavailable/d" \
+	-e "/mem\.util\.directMap4k: $unavailable/d" \
+	-e "/mem\.util\.highFree: $unavailable/d" \
+	-e "/mem\.util\.highTotal: $unavailable/d" \
+	-e "/mem\.util\.hugepagesFree: $unavailable/d" \
+	-e "/mem\.util\.hugepagesRsvd: $unavailable/d" \
+	-e "/mem\.util\.hugepagesSurp: $unavailable/d" \
+	-e "/mem\.util\.hugepagesTotal: $unavailable/d" \
+	-e "/mem\.util\.inactive_anon: $unavailable/d" \
+	-e "/mem\.util\.inactive_file: $unavailable/d" \
+	-e "/mem\.util\.kernelStack: $unavailable/d" \
+	-e "/mem\.util\.lowFree: $unavailable/d" \
+	-e "/mem\.util\.lowTotal: $unavailable/d" \
+	-e "/mem\.util\.mlocked: $unavailable/d" \
+	-e "/mem\.util\.mmap_copy: $unavailable/d" \
+	-e "/mem\.util\.quicklists: $unavailable/d" \
+	-e "/mem\.util\.shmem: $unavailable/d" \
+	-e "/mem\.util\.slabReclaimable: $unavailable/d" \
+	-e "/mem\.util\.slabUnreclaimable: $unavailable/d" \
+	-e "/mem\.util\.unevictable: $unavailable/d" \
+	-e "/mem\.vmstat\..*: $unavailable/d" \
+	-e "/swapdev\.free: $unavailable/d" \
+	-e "/swapdev\.length: $unavailable/d" \
+	-e "/swapdev\.maxswap: $unavailable/d" \
+	-e "/swapdev\.priority: $unavailable/d" \
+	-e "/swapdev\.vlength: $unavailable/d" \
+	-e "/swap\.in: $nosupport/d" \
+	-e "/swap\.out: $nosupport/d"
 
 }
 
 sample_filter()
 {
-    sed -e "/sample.bad.nosupport: $nosupport/d" \
-	-e "/sample.bad.unknown: $unknown/d" \
-	-e "/sample.needprofile: $explicit/d" \
-	-e "/sample.noinst: $unavailable/d" \
-	-e "/sample.dynamic.counter: $unavailable/d" \
-	-e "/sample.dynamic.discrete: $unavailable/d" \
-	-e "/sample.dynamic.instant: $unavailable/d" \
-	-e "/sample.darkness: $unavailable/d" \
-	-e "/sample.secret: $unknown/d" \
-	-e "/sample.event.type: $unavailable/d" \
-	-e "/sample.event.param_.*: $unavailable/d" \
-	-e "/sampledso.bad.nosupport: $nosupport/d" \
-	-e "/sampledso.bad.unknown: $unknown/d" \
-	-e "/sampledso.needprofile: $explicit/d" \
-	-e "/sampledso.noinst: $unavailable/d" \
-	-e "/sampledso.dynamic.counter: $unavailable/d" \
-	-e "/sampledso.dynamic.discrete: $unavailable/d" \
-	-e "/sampledso.dynamic.instant: $unavailable/d" \
-	-e "/sampledso.darkness: $unavailable/d" \
-	-e "/sampledso.secret: $unknown/d" \
-	-e "/sampledso.event.type: $unavailable/d" \
-	-e "/sampledso.event.param_.*: $unavailable/d" \
+    sed -e "/sample\.bad\.nosupport: $nosupport/d" \
+	-e "/sample\.bad\.unknown: $unknown/d" \
+	-e "/sample\.needprofile: $explicit/d" \
+	-e "/sample\.noinst: $unavailable/d" \
+	-e "/sample\.dynamic\.counter: $unavailable/d" \
+	-e "/sample\.dynamic\.discrete: $unavailable/d" \
+	-e "/sample\.dynamic\.instant: $unavailable/d" \
+	-e "/sample\.darkness: $unavailable/d" \
+	-e "/sample\.secret: $unknown/d" \
+	-e "/sample\.event\.type: $unavailable/d" \
+	-e "/sample\.event\.param_.*: $unavailable/d" \
+	-e "/sampledso\.bad\.nosupport: $nosupport/d" \
+	-e "/sampledso\.bad\.unknown: $unknown/d" \
+	-e "/sampledso\.needprofile: $explicit/d" \
+	-e "/sampledso\.noinst: $unavailable/d" \
+	-e "/sampledso\.dynamic\.counter: $unavailable/d" \
+	-e "/sampledso\.dynamic\.discrete: $unavailable/d" \
+	-e "/sampledso\.dynamic\.instant: $unavailable/d" \
+	-e "/sampledso\.darkness: $unavailable/d" \
+	-e "/sampledso\.secret: $unknown/d" \
+	-e "/sampledso\.event\.type: $unavailable/d" \
+	-e "/sampledso\.event\.param_.*: $unavailable/d" \
 
 }
 
