@@ -28,7 +28,7 @@ LIBTARGET = pmda_logger.$(DSOSUFFIX)
 TARGETS = $(CMDTARGET) $(LIBTARGET)
 
 DFILES 	= README
-CFILES	= logger.c percontext.c loggerMain.c event.c
+CFILES	= logger.c percontext.c event.c
 HFILES = percontext.h logger.h event.h
 LLDLIBS = -lpcp -lpcp_pmda
 LCFLAGS = -I.
@@ -45,8 +45,7 @@ LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so
 default_pcp default:	domain.h $(TARGETS)
 
 logger.o percontext.o event.o: percontext.h
-logger.o loggerMain.o: logger.h
-event.o logger.o loggerMain.o: event.h
+event.o logger.o: event.h
 
 include $(BUILDRULES)
 

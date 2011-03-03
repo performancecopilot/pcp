@@ -29,7 +29,6 @@
 #include <pcp/pmda.h>
 #include "event.h"
 #include "percontext.h"
-#include "logger.h"
 
 #define BUF_SIZE 1024
 
@@ -48,6 +47,8 @@ static pmID pmid_string = PMDA_PMID(0,1); /* event.param_string */
 struct ctx_client_data {
     struct event **last;	       /* addr of last next element */
 };
+
+static int monitorfd = 0;
 
 static void *
 ctx_start_callback(int ctx)
@@ -78,7 +79,7 @@ ctx_end_callback(int ctx, void *user_data)
 }
 
 void
-event_init(int domain)
+event_init(pmdaInterface *dispatch, const char *monitor_path)
 {
     /* initialize queue */
     TAILQ_INIT(&head);
@@ -89,9 +90,27 @@ event_init(int domain)
      * note these PMIDs must match the corresponding metrics in
      * desctab[] and this cannot easily be done automatically
      */
-    ((__pmID_int *)&pmid_string)->domain = domain;
+    ((__pmID_int *)&pmid_string)->domain = dispatch->domain;
 
     ctx_register_callbacks(ctx_start_callback, ctx_end_callback);
+
+    /* We can't really select on the logfile.  Why?  If the logfile is
+     * a normal file, select will (continually) return EOF after we've
+     * read all the data.  Then we tried a custom main that that read
+     * data before handling any message we get on the control channel.
+     * That didn't work either, since the client context wasn't set up
+     * yet (since that is the 1st control message).  So, now we read
+     * data inside the event fetch routine. */
+
+    /* Try to open logfile to monitor */
+    monitorfd = open(monitor_path, O_RDONLY|O_NONBLOCK);
+    if (monitorfd < 0) {
+	__pmNotifyErr(LOG_ERR, "open failure on %s", monitor_path);
+	exit(1);
+    }
+
+    /* Skip to the end. */
+    //(void)lseek(monitorfd, 0, SEEK_END);
 }
 
 static int
@@ -136,7 +155,7 @@ event_fetch(pmValueBlock **vbpp)
     struct ctx_client_data *c = ctx_get_user_data();
     
     /* Update the event queue with new data (if any). */
-    if ((rc = event_create(get_monitor_fd())) < 0)
+    if ((rc = event_create(monitorfd)) < 0)
 	return rc;
 
     if (vbpp == NULL)

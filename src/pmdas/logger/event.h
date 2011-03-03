@@ -21,7 +21,7 @@
 #ifndef _EVENT_H
 #define _EVENT_H
 
-extern void event_init(int domain);
+extern void event_init(pmdaInterface *dispatch, const char *monitor_path);
 extern int event_fetch(pmValueBlock **vbpp);
 extern void event_cleanup(void);
 

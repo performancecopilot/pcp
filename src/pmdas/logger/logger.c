@@ -23,7 +23,6 @@
 #include <pcp/impl.h>
 #include <pcp/pmda.h>
 #include "domain.h"
-#include "logger.h"
 #include "percontext.h"
 #include "event.h"
 
@@ -159,6 +158,8 @@ logger_init(pmdaInterface *dp)
 
     pmdaInit(dp, NULL, 0, 
 	     metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
+
+    event_init(dp, monitor_path);
 }
 
 static void
@@ -217,8 +218,7 @@ main(int argc, char **argv)
     signal(SIGHUP, SIG_IGN);
 #endif
 
-    // We use our custom main.
-    loggerMain(&desc);
+    pmdaMain(&desc);
 
     exit(0);
 }
