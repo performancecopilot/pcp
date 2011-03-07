@@ -19,182 +19,85 @@
  *
  * TODO
  *   +	-g and -p - nothing has been checked
- *   +	>1 metricname in command line and associated semantic checks, esp
- *   +	over same indom on PM_INDOM_NULL
- *   +	add -L for explicit local context
- *   +	semantic checks between -a, -h, -L and pmParseMetricSpec results
  *   +	semantic checks between -i and pmParseMetricSpec results
- *   +	split into multiple source files, add pmevent.h, ...
- *   +	drop -x (this is the default and only beahviour)
- *   +	check type is PM_TYPE_EVENT for all cmd line args
  *   +	conditional pmGetInDomArchive() in lookup()
  *   +	add proper cache for metrics found _within_ event records, to
  *   	avoid calls to pmNameID and pmLookupDesc in mydump()
  */
 
-#include <math.h>
-#include "pmapi.h"
-#include "impl.h"
-#include "pmtime.h"
+#include "pmevent.h"
 
-/***************************************************************************
- * constants
- ***************************************************************************/
-
-#define ALL_SAMPLES	-1
-
-static char *options = "A:a:D:gh:i:K:n:O:p:s:S:t:T:U:w:xzZ:?";
-static char usage[] =
-    "Usage: %s [options] metricname ...\n\n"
-    "Options:\n"
-    "  -A align      align sample times on natural boundaries\n"
-    "  -a archive    metrics source is a PCP archive\n"
-    "  -g            start in GUI mode with new time control\n"
-    "  -h host       metrics source is PMCD on host\n"
-    "  -i instance   metric instance or list of instances - elements in a\n"
-    "                list are separated by commas or whitespace\n"
-    "  -K spec       optional additional PMDA spec for local connection\n"
-    "                spec is of the form op,domain,dso-path,init-routine\n"
-    "  -O offset     initial offset into the reporting time window\n"
-    "  -p port       port number for connection to existing time control\n"
-    "  -S starttime  start of the reporting time window\n"
-    "  -s samples    terminate after this many samples\n"
-    "  -T endtime    end of the reporting time window\n"
-    "  -t interval   sample interval [default 1 second]\n"
-    "  -x            expand event records\n"
-    "  -Z timezone   set reporting timezone\n"
-    "  -z            set reporting timezone to local timezone of metrics source\n";
-
-/* performance metric control */
-typedef struct {
-    char	*pmname;	/* name of metric */
-    pmID	pmid;		/* metric identifier */
-    int		iall;		/* all instances */
-    int		inum;		/* number of instances */
-    char	**inames;	/* list of instance names */
-    int		*iids;		/* list of instance ids */
-    pmDesc	desc;		/* metric description */
-} Control;
-
-
-/***************************************************************************
- * Globals
- ***************************************************************************/
-
-static char		*host;				/* original host */
-static char		*archive = NULL;		/* archive source */
-static pmLogLabel	label;
-static char		*rpt_tz;
-static int		ahtype = PM_CONTEXT_HOST;	/* archive or host? */
 static int		amode = PM_MODE_FORW;		/* archive scan mode */
-static char		local[] = "localhost";
-static int		gui;
-static int		port = -1;
-static long		samples;			/* number of samples */
 static pmTime		*pmtime;
-static pmTimeControls	controls;
-static struct timeval	last = {INT_MAX, 999999};	/* end time for log */
-static int		xflag;				/* for -x */
 
-/* Initialize API and fill in internal description for given Control. */
-static void
-initapi(Control *cp)
-{
-    int e;
+char		*host;				/* original host */
+char		*archive = NULL;		/* archive source */
+int		ahtype = -1;			/* archive or host or local context */
+struct timeval	now;				/* current reporting time */
+struct timeval	first;				/* start reporting time */
+struct timeval	last = {INT_MAX, 999999};	/* end reporting time */
+struct timeval	delta;				/* sample interval */
+long		samples;			/* number of samples */
+int		gui;				/* set if -g */
+int		port = -1;			/* pmtime port number from -p */
+char		*rpt_tz;			/* timezone for pmtime */
+pmTimeControls	controls;
 
-    if ((e = pmLookupName(1, &(cp->pmname), &(cp->pmid))) < 0) {
-        fprintf(stderr, "%s: pmLookupName(%s): %s\n", pmProgname, cp->pmname, pmErrStr(e));
-        exit(EXIT_FAILURE);
-    }
-
-    if ((e = pmLookupDesc(cp->pmid, &(cp->desc))) < 0) {
-        fprintf(stderr, "%s: pmLookupDesc: %s\n", pmProgname, pmErrStr(e));
-        exit(EXIT_FAILURE);
-    }
-}
+metric_t	*metrictab = NULL;		/* metrics from cmd line */
+int		nmetric = 0;
+pmID		*pmidlist;
 
 /* Fetch metric values. */
 static int
-getvals(Control *cp,		/* in - full pm description */
-        pmResult **vs)		/* alloc - pm values */
+getvals(pmResult **result)
 {
-    pmResult	*r;
-    int		e;
+    pmResult	*rp;
+    int		sts;
     int		i;
+    int		m;
 
     if (archive != NULL) {
 	/*
-	 * for archives read until we find a pmResult with a
-	 * pmid we are after
+	 * for archives read until we find a pmResult with at least
+	 * one of the pmids we are after
 	 */
 	for ( ; ; ) {
-	    e = pmFetchArchive(&r);
-	    if (e < 0)
+	    sts = pmFetchArchive(&rp);
+	    if (sts < 0)
 		break;
 
-	    if (r->numpmid == 0)
+	    if (rp->numpmid == 0)
 		/* skip mark records */
 		continue;
 
-	    for (i = 0; i < r->numpmid; i++) {
-		if (r->vset[i]->pmid == cp->pmid)
+	    for (i = 0; i < rp->numpmid; i++) {
+		for (m = 0; m < nmetric; m++) {
+		    if (rp->vset[i]->pmid == metrictab[m].pmid)
+			break;
+		}
+		if (m < nmetric)
 		    break;
 	    }
-	    if (i != r->numpmid)
-		break;
-	    pmFreeResult(r);
+	    if (i == rp->numpmid) {
+		pmFreeResult(rp);
+		continue;
+	    }
 	}
     }
-    else {
-	e = pmFetch(1, &(cp->pmid), &r);
-	i = 0;
-    }
+    else
+	sts = pmFetch(nmetric, pmidlist, &rp);
 
-    if (e < 0) {
-	if (e == PM_ERR_EOL && gui) {
-	    pmTimeStateBounds(&controls, pmtime);
-	    return -1;
-	}
-	if (archive == NULL)
-	    fprintf(stderr, "\n%s: pmFetch: %s\n", pmProgname, pmErrStr(e));
-	else
-	    fprintf(stderr, "\n%s: pmFetchArchive: %s\n", pmProgname, pmErrStr(e));
-        exit(EXIT_FAILURE);
-    }
+    if (sts >= 0)
+	*result = rp;
 
-    if (gui)
-	pmTimeStateAck(&controls, pmtime);
-
-    if ((double)r->timestamp.tv_sec + (double)r->timestamp.tv_usec/1000000 >
-	(double)last.tv_sec + (double)last.tv_usec/1000000) {
-	return -2;
-    }
-
-    if (r->vset[i]->numval == 0) {
-	if (gui || archive != NULL) {
-	    __pmPrintStamp(stdout, &r->timestamp);
-	    printf("  ");
-	}
-	printf("No values available\n");
-	return -1;
-    }
-    else if (r->vset[i]->numval < 0) {
-	if (archive == NULL)
-	    fprintf(stderr, "\n%s: pmFetch: %s\n", pmProgname, pmErrStr(r->vset[i]->numval));
-	else
-	    fprintf(stderr, "\n%s: pmFetchArchive: %s\n", pmProgname, pmErrStr(r->vset[i]->numval));
-	return -1;
-    }
-
-    *vs = r;
-
-    return i;
+    return sts;
 }
 
 static void
-timestep(struct timeval delta)
+timestep(struct timeval newdelta)
 {
     /* time moved, may need to wait for previous value again */
+    // TODO ?
 }
 
 
@@ -204,7 +107,7 @@ timestep(struct timeval delta)
 
 /* Print parameter values as output header. */
 static void
-printhdr(Control *cp, struct timeval delta, struct timeval first)
+printhdr(void)
 {
     char		timebuf[26];
 
@@ -212,7 +115,7 @@ printhdr(Control *cp, struct timeval delta, struct timeval first)
 	printf("host:      %s\n", host);
     else {
 	printf("archive:   %s\n", archive);
-	printf("host:      %s\n", label.ll_hostname);
+	printf("host:      %s\n", host);
 	printf("start:     %s", pmCtime(&first.tv_sec, timebuf));
 	if (last.tv_sec != INT_MAX)
 	    printf("end:       %s", pmCtime(&last.tv_sec, timebuf));
@@ -288,7 +191,7 @@ mydump(pmDesc *dp, pmValueSet *vsp, char *indent)
 	printf(" value ");
 	pmPrintValue(stdout, vsp->valfmt, dp->type, vp, 1);
 	putchar('\n');
-	if (dp->type == PM_TYPE_EVENT && xflag)
+	if (dp->type == PM_TYPE_EVENT)
 	    myeventdump(vsp);
     }
 }
@@ -399,459 +302,42 @@ myeventdump(pmValueSet *vsp)
 
 
 /***************************************************************************
- * command line processing
+ * main
  ***************************************************************************/
-
-#define WHITESPACE ", \t\n"
-
-static int
-isany(char *p, char *set)
+int
+main(int argc, char **argv)
 {
-    if (p != NULL && *p) {
-	while (*set) {
-	    if (*p == *set)
-		return 1;
-	    set++;
-	}
-    }
-    return 0;
-}
-
-/*
- * like strtok, but smarter
- */
-static char *
-getinstance(char *p)
-{
-    static char	*save;
-    char	quot;
-    char	*q;
-    char	*start;
-
-    if (p == NULL)
-	q = save;
-    else
-	q = p;
-    
-    while (isany(q, WHITESPACE))
-	q++;
-
-    if (*q == '\0')
-	return NULL;
-    else if (*q == '"' || *q == '\'') {
-	quot = *q;
-	start = ++q;
-
-	while (*q && *q != quot)
-	    q++;
-	if (*q == quot)
-	    *q++ = '\0';
-    }
-    else {
-	start = q;
-	while (*q && !isany(q, WHITESPACE))
-	    q++;
-    }
-    if (*q)
-	*q++ = '\0';
-    save = q;
-
-    return start;
-}
-
-/* extract command line arguments - exits on error */
-static void
-getargs(int		argc,		/* in - command line argument count */
-        char		*argv[],	/* in - argument strings */
-        Control		*cp,		/* out - full pm description */
-        struct timeval	*posn,		/* out - first sample time */
-        struct timeval	*delta)
-{
-    int			c;
-    char		*subopt;
-    long		d;
-    int			errflag = 0;
-    int			i;
-    int			src = 0;
+    pmResult		*rp;		/* current values */
+    int			forever;
     int			sts;
-    char		*endnum;
-    char		*errmsg;
-    char		*Sflag = NULL;		/* argument of -S flag */
-    char		*Tflag = NULL;		/* argument of -T flag */
-    char		*Aflag = NULL;		/* argument of -A flag */
-    char		*Oflag = NULL;		/* argument of -O flag */
-    int			zflag = 0;		/* for -z */
-    char 		*tz = NULL;		/* for -Z timezone */
-    int			tzh;			/* initial timezone handle */
-    struct timeval	logStart;
-    struct timeval	first;
-    pmMetricSpec	*msp;
-    char		*msg;
+    int			j;
+    int			m;
 
-    /* fill in default values */
-    cp->iall = 1;
-    cp->inum = 0;
-    cp->inames = NULL;
-    delta->tv_sec = 1;
-    delta->tv_usec = 0;
-    samples = ALL_SAMPLES;
-    host = local;
+    __pmSetProgname(argv[0]);
+    setlinebuf(stdout);
 
-    /* extract command-line arguments */
-    while ((c = getopt(argc, argv, options)) != EOF) {
-	switch (c) {
+    doargs(argc, argv);
 
-	case 'A':		/* sample alignment */
-	    Aflag = optarg;
-	    break;
-
-	case 'a':		/* interpolate archive */
-	    if (++src > 1) {
-	    	fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmProgname);
-	    	errflag++;
-	    }
-	    ahtype = PM_CONTEXT_ARCHIVE;
-	    archive = optarg;
-	    break;
-
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
-	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, optarg);
-		errflag++;
-	    }
-	    else
-		pmDebug |= sts;
-	    break;
-
-	case 'g':
-	    gui = 1;
-	    break;
-
-	case 'h':		/* host name */
-	    if (++src > 1) {
-		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmProgname);
-		errflag++;
-	    }
-	    host = optarg;
-	    break;
-
-	case 'i':		/* instance names */
-	    cp->iall = 0;
-	    i = cp->inum;
-	    subopt = getinstance(optarg);
-	    while (subopt != NULL) {
-		i++;
-		cp->inames =
-		    (char **)realloc(cp->inames, i * (sizeof (char *)));
-		if (cp->inames == NULL) {
-		    __pmNoMem("pmval.ip", i * sizeof(char *), PM_FATAL_ERR);
-		}
-		*(cp->inames + i - 1) = subopt;
-		subopt = getinstance(NULL);
-	    }
-	    cp->inum = i;
-	    break;
-
-	case 'K':	/* update local PMDA table */
-	    if ((errmsg = __pmSpecLocalPMDA(optarg)) != NULL) {
-		fprintf(stderr, "%s: __pmSpecLocalPMDA failed\n%s\n", pmProgname, errmsg);
-		errflag++;
-	    }
-	    break;
-
-	case 'O':		/* sample offset */
-	    Oflag = optarg;
-	    break;
-
-	case 'p':		/* port for slave of existing time control */
-	    port = (int)strtol(optarg, &endnum, 10);
-	    if (*endnum != '\0' || port < 0) {
-		fprintf(stderr, "%s: Error: invalid pmtime port \"%s\": %s\n",
-			pmProgname, optarg, pmErrStr(-oserror()));
-		errflag++;
-	    }
-	    break;
-
-	case 's':		/* sample count */
-	    d = (int)strtol(optarg, &endnum, 10);
-	    if (Tflag) {
-		fprintf(stderr, "%s: at most one of -E and -T allowed\n", pmProgname);
-		errflag++;
-	    }
-	    else if (*endnum != '\0' || d < 0) {
-		fprintf(stderr, "%s: -s requires +ve numeric argument\n", pmProgname);
-		errflag++;
-	   }
-	   else samples = d;
-	   break;
-
-	case 'S':		/* start run time */
-	    Sflag = optarg;
-	    break;
-
-	case 't':		/* sampling interval */
-	    if (pmParseInterval(optarg, delta, &msg) < 0) {
-		fputs(msg, stderr);
-		free(msg);
-		errflag++;
-	    }
-	    break;
-
-	case 'T':		/* run time */
-	    if (samples != ALL_SAMPLES) {
-		fprintf(stderr, "%s: at most one of -T and -s allowed\n", pmProgname);
-		errflag++;
-	    }
-	    Tflag = optarg;
-	    break;
-
-	case 'x':
-	    xflag = 1;
-	    break;
-
-	case 'z':	/* timezone from host */
-	    if (tz != NULL) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
-		errflag++;
-	    }
-	    zflag++;
-	    break;
-
-	case 'Z':	/* $TZ timezone */
-	    if (zflag) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
-		errflag++;
-	    }
-	    tz = optarg;
-	    break;
-
-	case '?':
-	    fprintf(stderr, usage, pmProgname);
-	    exit(EXIT_FAILURE);
-
-	default:
-	    errflag++;
-	}
+    if ((pmidlist = (pmID *)malloc(nmetric*sizeof(pmidlist[0]))) == NULL) {
+	__pmNoMem("metrictab", nmetric*sizeof(pmidlist[0]), PM_FATAL_ERR);
+	/*NOTREACHED*/
     }
-
-    /* parse uniform metric spec */
-    if (optind >= argc) {
-	fprintf(stderr, "Error: no metricname specified\n\n");
-	errflag++;
-    }
-    else if (optind < argc-1) {
-	fprintf(stderr, "Error: pmval can only process one metricname at a time\n\n");
-	errflag++;
-    }
-    else {
-	if (ahtype == PM_CONTEXT_HOST) {
-	    if (pmParseMetricSpec(argv[optind], 0, host, &msp, &msg) < 0) {
-		fputs(msg, stderr);
-		free(msg);
-		errflag++;
-	    }
-	}
-	else {		/* must be archive */
-	    if (pmParseMetricSpec(argv[optind], 1, archive, &msp, &msg) < 0) {
-		fputs(msg, stderr);
-		free(msg);
-		errflag++;
-	    }
-	}
-    }
-
-    if (errflag) {
-	fprintf(stderr, usage, pmProgname);
-	exit(EXIT_FAILURE);
-    }
-
-    if (msp->isarch == 1) {
-	archive = msp->source;
-	ahtype = PM_CONTEXT_ARCHIVE;
-    }
-    else if (msp->isarch == 2) {
-	ahtype = PM_CONTEXT_LOCAL;
-    }
-
-    if (gui == 1 && port != -1) {
-	fprintf(stderr, "%s: -g cannot be used with -p\n", pmProgname);
-	errflag++;
-    }
-
-    if (errflag) {
-	fprintf(stderr, usage, pmProgname);
-	exit(EXIT_FAILURE);
-    }
-
-    cp->pmname = msp->metric;
-    if (msp->ninst > 0) {
-	cp->inum = msp->ninst;
-	cp->iall = (cp->inum == 0);
-	cp->inames = &msp->inst[0];
-    }
-
-    if (msp->isarch == 1) {
-	/* open connection to archive */
-	if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, msp->source)) < 0) {
-	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		pmProgname, msp->source, pmErrStr(sts));
-	    exit(EXIT_FAILURE);
-	}
-	if ((sts = pmGetArchiveLabel(&label)) < 0) {
-	    fprintf(stderr, "%s: Cannot get archive label record: %s\n",
-		pmProgname, pmErrStr(sts));
-	    exit(EXIT_FAILURE);
-	}
-	logStart = label.ll_start;
-	host = label.ll_hostname;
-	if ((sts = pmGetArchiveEnd(&last)) < 0) {
-	    fprintf(stderr, "%s: Cannot determine end of archive: %s",
-		pmProgname, pmErrStr(sts));
-	    exit(EXIT_FAILURE);
-	}
-    }
-    else {
-	/* open connection to host or local context */
-	if ((sts = pmNewContext(ahtype, msp->source)) < 0) {
-	    if (ahtype == PM_CONTEXT_HOST)
-		fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		    pmProgname, msp->source, pmErrStr(sts));
-	    else
-		fprintf(stderr, "%s: Cannot establish local context: %s\n",
-		    pmProgname, pmErrStr(sts));
-	    exit(EXIT_FAILURE);
-	}
-	host = msp->source;
-	__pmtimevalNow(&logStart);
-    }
-
-    if (zflag) {
-	if ((tzh = pmNewContextZone()) < 0) {
-	    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
-		pmProgname, pmErrStr(tzh));
-	    exit(EXIT_FAILURE);
-	}
-	if (ahtype == PM_CONTEXT_ARCHIVE) {
-	    printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n",
-		host);
-	}
-	else {
-	    printf("Note: timezone set to local timezone of host \"%s\"\n\n", host);
-	}
-    }
-    else if (tz != NULL) {
-	if ((tzh = pmNewZone(tz)) < 0) {
-	    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
-		pmProgname, tz, pmErrStr(tzh));
-	    exit(EXIT_FAILURE);
-	}
-	printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
-    }
-    else printf("\n");
-
-    pmWhichZone(&rpt_tz);
-
-    if (pmParseTimeWindow(Sflag, Tflag, Aflag, Oflag,
-			   &logStart, &last,
-			   &first, &last, posn, &msg) < 0) {
-	fprintf(stderr, "%s", msg);
-	exit(EXIT_FAILURE);
-    }
-
-    initapi(cp);
-
-    if (!(gui || port != -1) &&
-	samples == ALL_SAMPLES &&
-	last.tv_sec != INT_MAX &&
-	amode != PM_MODE_FORW) {
-
-	samples = (long)((__pmtimevalToReal(&last) - __pmtimevalToReal(posn)) /
-		__pmtimevalToReal(delta));
-	if (samples < 0) 
-	    /* if end is before start, no samples thanks */
-	    samples = 0;
-	else {
-	    /*
-	     * p stands for posn
-	     * + p         + p+delta   + p+2*delta + p+3*delta        + last
-	     * |           |           |           |              |   |
-	     * +-----------+-----------+-----------+-- ...... ----+---+---> time
-	     *             1           2           3              samples
-	     *
-	     * So we will perform samples+1 fetches ... the number of reported
-	     * values cannot be determined as it is usually (but not always
-	     * thanks to interpolation mode in archives) one less for
-	     * PM_SEM_COUNTER metrics.
-	     *
-	     * samples: as reported in the header output is the number
-	     * of fetches to be attempted.
-	     */
-	    samples++;
-	}
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0) {
-	    char		timebuf[26];
-	    char		*tp;
-	    fprintf(stderr, "getargs: first=%.6f", __pmtimevalToReal(&first));
-	    tp = pmCtime(&first.tv_sec, timebuf);
-	    /*
-	     * tp -> Ddd Mmm DD HH:MM:SS YYYY\n
-	     *       0   4   8  1      1 2  2 2
-	     *                  1      8 0  3 4
-	     */
-	    fprintf(stderr, "[%8.8s]\n", &tp[11]);
-	    fprintf(stderr, "getargs: posn=%.6f", __pmtimevalToReal(posn));
-	    tp = pmCtime(&posn->tv_sec, timebuf);
-	    fprintf(stderr, "[%8.8s]\n", &tp[11]);
-	    fprintf(stderr, "getargs: last=%.6f", __pmtimevalToReal(&last));
-	    tp = pmCtime(&last.tv_sec, timebuf);
-	    fprintf(stderr, "[%8.8s]\n", &tp[11]);
-	    fprintf(stderr, "getargs: delta=%.6f samples=%ld\n",
-	    __pmtimevalToReal(delta), samples);
-	}
-#endif
-    }
+    for (m = 0 ; m < nmetric; m++)
+	pmidlist[m] = metrictab[m].pmid;
 
     if (gui || port != -1) {
 	/* set up pmtime control */
-	pmtime = pmTimeStateSetup(&controls, ahtype, port, *delta, *posn,
+	pmtime = pmTimeStateSetup(&controls, ahtype, port, delta, now,
 				    first, last, rpt_tz, host);
 	controls.stepped = timestep;
 	gui = 1;	/* we're using pmtime control from here on */
     }
     else if (ahtype == PM_CONTEXT_ARCHIVE) /* no time control, go it alone */
-	pmTimeStateMode(amode, *delta, posn);
-}
-
-/***************************************************************************
- * main
- ***************************************************************************/
-int
-main(int argc, char *argv[])
-{
-    struct timeval  delta;		/* sample interval */
-    struct timeval  now;		/* current task start time */
-    Control	    cntrl;		/* global control structure */
-    pmResult	    *rslt1;		/* current values */
-    int		    forever;
-    int		    idx1;
-
-    __pmSetProgname(argv[0]);
-    setlinebuf(stdout);
-
-    getargs(argc, argv, &cntrl, &now, &delta);
-
-    if (cntrl.desc.type == PM_TYPE_EVENT && xflag == 0) {
-	fprintf(stderr, "%s: Cannot display values for PM_TYPE_EVENT metrics without -x\n",
-		pmProgname);
-	exit(EXIT_FAILURE);
-    }
+	pmTimeStateMode(amode, delta, &now);
 
     forever = (samples == ALL_SAMPLES || gui);
 
-    printhdr(&cntrl, delta, now);
+    printhdr();
 
     /* wait till time for first sample */
     if (archive == NULL)
@@ -867,28 +353,59 @@ main(int argc, char *argv[])
 	    __pmtimevalSleep(delta);
 
 	/* next sample */
-	if ((idx1 = getvals(&cntrl, &rslt1)) == -2)
-	    /* out the end of the window */
+	sts = getvals(&rp);
+	if (gui)
+	    pmTimeStateAck(&controls, pmtime);
+
+	if (sts < 0) {
+	    if (sts == PM_ERR_EOL && gui) {
+		pmTimeStateBounds(&controls, pmtime);
+		continue;
+	    }
+	    if (sts == PM_ERR_EOL)
+		break;
+	    if (archive == NULL)
+		fprintf(stderr, "\n%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+	    else
+		fprintf(stderr, "\n%s: pmFetchArchive: %s\n", pmProgname, pmErrStr(sts));
+	    exit(EXIT_FAILURE);
+	}
+
+	if ((double)rp->timestamp.tv_sec + (double)rp->timestamp.tv_usec/1000000 >
+	    (double)last.tv_sec + (double)last.tv_usec/1000000)
 	    break;
-	else if (idx1 < 0) {
-	    /* nothing to report this time */
-	    continue;
+
+	for (j = 0; j < rp->numpmid; j++) {
+	    int		first = 1;
+	    for (m = 0; m < nmetric; m++) {
+		metric_t	*mp = &metrictab[m];
+		if (rp->vset[j]->pmid == mp->pmid) {
+		    if (rp->vset[j]->numval == 0)
+			printf("No values available\n");
+		    else if (rp->vset[j]->numval < 0)
+			printf("Error: %s\n", pmErrStr(rp->vset[i]->numval));
+		    else {
+			int		v;
+			int		i;
+			for (v = 0; v < rp->vset[j]->numval; v++) {
+			    for (i = 0; i < mp->ninst; i++) {
+				if (rp->vset[j]->
+			    if (mp->ninst == 0
+		    // TODO instance filtering and one-trip timestamp +
+		    // metric header reporting
+		    if (gui || archive != NULL) {
+			__pmPrintStamp(stdout, &rp->timestamp);
+			printf("  ");
+		    }
+		    printf("%s: ", metrictab[m].name);
+			// TODO need instance stuff here also
+			myeventdump(rp->vset[j]);
+		    break;
+		}
+	    }
 	}
-
-	if (gui || archive != NULL) {
-	    __pmPrintStamp(stdout, &rslt1->timestamp);
-	    printf("  ");
-	}
-	printf("%s: ", cntrl.pmname);
-
-	myeventdump(rslt1->vset[idx1]);
-
-	pmFreeResult(rslt1);
+	pmFreeResult(rp);
     }
 
-    /*
-     * All serious error conditions have explicit exit() calls, so
-     * if we get this far, all has gone well.
-     */
     return 0;
 }

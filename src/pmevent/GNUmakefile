@@ -20,7 +20,8 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES = pmevent.c
+CFILES = pmevent.c doargs.c
+HFILES = pmevent.h
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
 LLDLIBS = -lpcp_gui -lpcp -lm
 
