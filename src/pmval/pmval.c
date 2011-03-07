@@ -917,7 +917,7 @@ getargs(int		argc,		/* in - command line argument count */
 	case 's':		/* sample count */
 	    d = (int)strtol(optarg, &endnum, 10);
 	    if (Tflag) {
-		fprintf(stderr, "%s: at most one of -E and -T allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -s and -T allowed\n", pmProgname);
 		errflag++;
 	    }
 	    else if (*endnum != '\0' || d < 0) {
