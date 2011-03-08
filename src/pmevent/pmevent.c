@@ -19,7 +19,6 @@
  *
  * TODO
  *   +	-g and -p - nothing has been checked
- *   +	semantic checks between -i and pmParseMetricSpec results
  *   +	conditional pmGetInDomArchive() in lookup()
  *   +	add proper cache for metrics found _within_ event records, to
  *   	avoid calls to pmNameID and pmLookupDesc in mydump()
@@ -40,7 +39,6 @@ struct timeval	delta;				/* sample interval */
 long		samples;			/* number of samples */
 int		gui;				/* set if -g */
 int		port = -1;			/* pmtime port number from -p */
-char		*rpt_tz;			/* timezone for pmtime */
 pmTimeControls	controls;
 
 metric_t	*metrictab = NULL;		/* metrics from cmd line */
@@ -70,26 +68,27 @@ getvals(pmResult **result)
 		/* skip mark records */
 		continue;
 
+	    /*
+	     * scan for any of the metrics of interest ... keep skipping
+	     * archive records until one found
+	     */
 	    for (i = 0; i < rp->numpmid; i++) {
 		for (m = 0; m < nmetric; m++) {
-		    if (rp->vset[i]->pmid == metrictab[m].pmid)
-			break;
+		    if (rp->vset[i]->pmid == metrictab[m].pmid) {
+			/* match */
+			goto done;
+		    }
 		}
-		if (m < nmetric)
-		    break;
 	    }
-	    if (i == rp->numpmid) {
-		pmFreeResult(rp);
-		continue;
-	    }
+	    pmFreeResult(rp);
 	}
     }
     else
 	sts = pmFetch(nmetric, pmidlist, &rp);
 
+done:
     if (sts >= 0)
 	*result = rp;
-
     return sts;
 }
 
@@ -162,34 +161,47 @@ lookup(pmInDom indom, int inst)
 static void myeventdump(pmValueSet *vsp);
 
 static void
-mydump(pmDesc *dp, pmValueSet *vsp, char *indent)
+mydump(pmDesc *dp, pmValueSet *vsp)
 {
     int		j;
     char	*p;
 
-    if (indent != NULL)
-	printf("%s", indent);
     if (vsp->numval == 0) {
-	printf("No value(s) available!\n");
+	printf(": No value(s) available!\n");
 	return;
     }
     else if (vsp->numval < 0) {
-	printf("Error: %s\n", pmErrStr(vsp->numval));
+	printf(": Error: %s\n", pmErrStr(vsp->numval));
 	return;
     }
 
     for (j = 0; j < vsp->numval; j++) {
 	pmValue	*vp = &vsp->vlist[j];
 	if (dp->indom != PM_INDOM_NULL) {
+	    if (vsp->numval > 1)
+		printf("\n        ");
 	    if ((p = lookup(dp->indom, vp->inst)) == NULL)
-		printf("    inst [%d]", vp->inst);
+		printf("[%d]", vp->inst);
 	    else
-		printf("    inst [%d or \"%s\"]", vp->inst, p);
+		printf("[%s]", p);
+	}
+	putchar(' ');
+	if (dp->type == PM_TYPE_AGGREGATE ||
+	    dp->type == PM_TYPE_AGGREGATE_STATIC) {
+	    /*
+	     * pinched from pmPrintValue, just without the preamble of
+	     * floating point values
+	     */
+	    char	*p;
+	    int		i;
+	    putchar('[');
+	    p = &vp->value.pval->vbuf[0];
+	    for (i = 0; i < vp->value.pval->vlen - PM_VAL_HDR_SIZE; i++, p++)
+		printf("%02x", *p & 0xff);
+	    putchar(']');
 	}
 	else
-	    printf("   ");
-	printf(" value ");
-	pmPrintValue(stdout, vsp->valfmt, dp->type, vp, 1);
+	    pmPrintValue(stdout, vsp->valfmt, dp->type, vp, 1);
 	putchar('\n');
 	if (dp->type == PM_TYPE_EVENT)
 	    myeventdump(vsp);
@@ -244,11 +256,12 @@ myeventdump(pmValueSet *vsp)
     }
 
     for (r = 0; r < nrecords; r++) {
+	printf("  ");
 	__pmPrintStamp(stdout, &res[r]->timestamp);
-	printf(" --- event record [%d] ", r);
+	printf(" --- event record [%d]", r);
 	if (res[r]->numpmid == 0) {
 	    printf(" ---\n");
-	    printf("	No parameters\n");
+	    printf("    ==> No parameters\n");
 	    continue;
 	}
 	if (res[r]->numpmid < 0) {
@@ -284,7 +297,7 @@ myeventdump(pmValueSet *vsp)
 		    free(name);
 		    continue;
 		}
-		printf("    %s\n", name);
+		printf("    %s", name);
 		free(name);
 	    }
 	    else
@@ -293,7 +306,7 @@ myeventdump(pmValueSet *vsp)
 		printf("	pmLookupDesc: %s\n", pmErrStr(sts));
 		continue;
 	    }
-	    mydump(&desc, xvsp, "    ");
+	    mydump(&desc, xvsp);
 	}
     }
     if (nrecords >= 0)
@@ -326,7 +339,9 @@ main(int argc, char **argv)
 	pmidlist[m] = metrictab[m].pmid;
 
     if (gui || port != -1) {
+	char	*rpt_tz;
 	/* set up pmtime control */
+	pmWhichZone(&rpt_tz);
 	pmtime = pmTimeStateSetup(&controls, ahtype, port, delta, now,
 				    first, last, rpt_tz, host);
 	controls.stepped = timestep;
@@ -376,29 +391,22 @@ main(int argc, char **argv)
 	    break;
 
 	for (j = 0; j < rp->numpmid; j++) {
-	    int		first = 1;
 	    for (m = 0; m < nmetric; m++) {
-		metric_t	*mp = &metrictab[m];
-		if (rp->vset[j]->pmid == mp->pmid) {
-		    if (rp->vset[j]->numval == 0)
-			printf("No values available\n");
-		    else if (rp->vset[j]->numval < 0)
-			printf("Error: %s\n", pmErrStr(rp->vset[i]->numval));
-		    else {
-			int		v;
-			int		i;
-			for (v = 0; v < rp->vset[j]->numval; v++) {
-			    for (i = 0; i < mp->ninst; i++) {
-				if (rp->vset[j]->
-			    if (mp->ninst == 0
-		    // TODO instance filtering and one-trip timestamp +
-		    // metric header reporting
+		if (rp->vset[j]->pmid == metrictab[m].pmid) {
 		    if (gui || archive != NULL) {
 			__pmPrintStamp(stdout, &rp->timestamp);
 			printf("  ");
 		    }
 		    printf("%s: ", metrictab[m].name);
-			// TODO need instance stuff here also
+		    if (rp->vset[j]->numval == 0)
+			printf("No values available\n");
+		    else if (rp->vset[j]->numval < 0)
+			printf("Error: %s\n", pmErrStr(rp->vset[j]->numval));
+		    else if (rp->vset[j]->numval > 1) {
+			printf("Error: expecting one value, found %d\n", rp->vset[j]->numval);
+			exit(EXIT_FAILURE);
+		    }
+		    else
 			myeventdump(rp->vset[j]);
 		    break;
 		}
