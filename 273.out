@@ -137,6 +137,7 @@ sampledso.percontext.control.active [Number of active PMAPI contexts]
 sampledso.percontext.control.start [Number of new PMAPI contexts seen]
 sampledso.percontext.control.end [Number of PMAPI contexts closed]
 sampledso.event.records [Dummy event records]
+sampledso.event.no_indom_records [More dummy event records]
 sampledso.event.reset [reset event record state]
 sampledso.event.type [event type parameter for event records]
 sampledso.event.param_32 [32 parameter for event records]
@@ -906,6 +907,10 @@ Once all setups have been returned, the cycle is repeated.
 
 See event.reset to exert explicit control over the next batch of event
 records to be returned.
+
+sampledso.event.no_indom_records
+Help:
+Like sampledso.event.records but without the instance domain.
 
 sampledso.event.reset
 Help:

@@ -119,7 +119,8 @@ sample.percontext.control.ctx 1
 sample.percontext.control.active 1
 sample.percontext.control.start 1
 sample.percontext.control.end 1
-sample.event.records 1
+sample.event.records 2
+sample.event.no_indom_records 1
 sample.event.reset 1
 sample.event.type 0
 sample.event.param_32 0
@@ -280,7 +281,8 @@ sample.percontext.control.ctx 1 PM_IN_NULL
 sample.percontext.control.active 1 PM_IN_NULL
 sample.percontext.control.start 1 PM_IN_NULL
 sample.percontext.control.end 1 PM_IN_NULL
-sample.event.records 1 PM_IN_NULL
+sample.event.records 2 ?0 ?1
+sample.event.no_indom_records 1 PM_IN_NULL
 sample.event.reset 1 PM_IN_NULL
 sample.event.type 0
 sample.event.param_32 0
@@ -447,7 +449,8 @@ sample.percontext.control.ctx 1 PM_IN_NULL
 sample.percontext.control.active 1 PM_IN_NULL
 sample.percontext.control.start 1 PM_IN_NULL
 sample.percontext.control.end 1 PM_IN_NULL
-sample.event.records 1 PM_IN_NULL
+sample.event.records 2 "fungus" "bogus"
+sample.event.no_indom_records 1 PM_IN_NULL
 sample.event.reset 1 PM_IN_NULL
 sample.event.type 0
 sample.event.param_32 0
@@ -600,7 +603,8 @@ sample.percontext.control.ctx 1 NUMBER
 sample.percontext.control.active 1 NUMBER
 sample.percontext.control.start 1 NUMBER
 sample.percontext.control.end 1 NUMBER
-sample.event.records 1 [RECORDS]
+sample.event.records 2 [RECORDS]
+sample.event.no_indom_records 1 [RECORDS]
 sample.event.reset 1 NUMBER
 sample.event.type 0
 sample.event.param_32 0
@@ -798,7 +802,8 @@ sample.percontext.control.ctx 1 PM_IN_NULL PM_IN_NULL
 sample.percontext.control.active 1 PM_IN_NULL PM_IN_NULL
 sample.percontext.control.start 1 PM_IN_NULL PM_IN_NULL
 sample.percontext.control.end 1 PM_IN_NULL PM_IN_NULL
-sample.event.records 1 PM_IN_NULL PM_IN_NULL
+sample.event.records 2 ?0 "fungus" ?1 "bogus"
+sample.event.no_indom_records 1 PM_IN_NULL PM_IN_NULL
 sample.event.reset 1 PM_IN_NULL PM_IN_NULL
 sample.event.type 0
 sample.event.param_32 0
