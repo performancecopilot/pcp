@@ -26,6 +26,10 @@ typedef struct {
     char	*name;		/* name of metric */
     pmID	pmid;		/* metric identifier */
     pmDesc	desc;		/* metric description */
+    int		ninst;		/* number of instances, 0 for all instances */
+    char	**iname;	/* instance names */
+    int		*inst;		/* instance ids */
+    __pmHashCtl	ihash;		/* mapping when all instances requested */
 } metric_t;
 
 void doargs(int, char **);

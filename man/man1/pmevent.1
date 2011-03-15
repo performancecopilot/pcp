@@ -84,9 +84,8 @@ described in
 where the source and metric name may all be included in the
 .IR metricname ,
 e.g. thathost:someagent.event.records
-but note that no instance specification is allowed as event records
-within PCP are always associated with a metric that has a singular
-value (which is a packed array of event records).
+or
+myarchive/someagent.event.records['foo-instance','bar-instance'].
 When this format is used, any of the
 .B \-h
 or
