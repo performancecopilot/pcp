@@ -37,9 +37,9 @@ TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
 
 TIMESTAMP  2.4.1 (sample.secret.foo.bar.max.redirect):
                 <some values>
@@ -103,9 +103,9 @@ TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
 
 TIMESTAMP  2.4.1 (pmcd.agent.status):
                 <some values>
@@ -169,9 +169,9 @@ TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
 
 TIMESTAMP  2.4.1 (pmcd.agent.status):
                 <some values>

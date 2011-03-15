@@ -39,9 +39,9 @@ Temporal Index
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
 
 TIMESTAMP  30.0.49 (sampledso.needprofile): Explicit instance identifier(s) required
               29.0.9 (sample.noinst): No values returned!
@@ -96,9 +96,9 @@ TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
 
 TIMESTAMP  30.0.49 (sampledso.needprofile):
                 inst [1 or "terry"] value 12.05

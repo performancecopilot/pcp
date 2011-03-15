@@ -39,11 +39,11 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
-TIMESTAMP  29.0.5 (sample.colour):  inst [2 or "blue"] value NUMBER
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
 
 mandatory on once -> mandatory maybe
 sample.colour
@@ -84,9 +84,9 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
 mandatory on once -> mandatory off
 sample.colour
@@ -127,9 +127,9 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
 mandatory on once -> advisory on once
 sample.colour
@@ -173,11 +173,11 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
-TIMESTAMP  29.0.5 (sample.colour):  inst [2 or "blue"] value NUMBER
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
 
 mandatory on once -> advisory off
 sample.colour
@@ -221,11 +221,11 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
-TIMESTAMP  29.0.5 (sample.colour):  inst [2 or "blue"] value NUMBER
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
 
 mandatory maybe -> mandatory on once
 sample.colour
@@ -266,11 +266,11 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
-TIMESTAMP  29.0.5 (sample.colour):  inst [2 or "blue"] value NUMBER
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
 
 mandatory maybe -> mandatory maybe
 sample.colour
@@ -310,9 +310,9 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
 mandatory maybe -> mandatory off
 sample.colour
@@ -352,9 +352,9 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
 mandatory maybe -> advisory on once
 sample.colour
@@ -395,11 +395,11 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
-TIMESTAMP  29.0.5 (sample.colour):  inst [2 or "blue"] value NUMBER
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
 
 mandatory maybe -> advisory off
 sample.colour
@@ -439,9 +439,9 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
 mandatory off -> mandatory on once
 sample.colour
@@ -482,11 +482,11 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
-TIMESTAMP  29.0.5 (sample.colour):  inst [2 or "blue"] value NUMBER
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
 
 mandatory off -> mandatory maybe
 sample.colour
@@ -526,9 +526,9 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
 mandatory off -> mandatory off
 sample.colour
@@ -568,9 +568,9 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
 mandatory off -> advisory on once
 sample.colour
@@ -613,9 +613,9 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
 mandatory off -> advisory off
 sample.colour
@@ -658,9 +658,9 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
 advisory on once -> mandatory on once
 sample.colour
@@ -701,11 +701,11 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
-TIMESTAMP  29.0.5 (sample.colour):  inst [2 or "blue"] value NUMBER
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
 
 advisory on once -> mandatory maybe
 sample.colour
@@ -746,9 +746,9 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
 advisory on once -> mandatory off
 sample.colour
@@ -789,9 +789,9 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
 advisory on once -> advisory on once
 sample.colour
@@ -832,11 +832,11 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
-TIMESTAMP  29.0.5 (sample.colour):  inst [2 or "blue"] value NUMBER
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
 
 advisory on once -> advisory off
 sample.colour
@@ -877,9 +877,9 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
 advisory off -> mandatory on once
 sample.colour
@@ -920,11 +920,11 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
-TIMESTAMP  29.0.5 (sample.colour):  inst [2 or "blue"] value NUMBER
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
 
 advisory off -> mandatory maybe
 sample.colour
@@ -964,9 +964,9 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
 advisory off -> mandatory off
 sample.colour
@@ -1006,9 +1006,9 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
 advisory off -> advisory on once
 sample.colour
@@ -1049,11 +1049,11 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 
-TIMESTAMP  29.0.5 (sample.colour):  inst [2 or "blue"] value NUMBER
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
 
 advisory off -> advisory off
 sample.colour
@@ -1093,6 +1093,6 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
 
 Log finished DATE
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port):  inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive):  inst [LOGGER_PID or "LOGGER_PID"] value STRING
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
