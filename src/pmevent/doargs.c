@@ -229,11 +229,6 @@ doargs(int argc, char **argv)
 	    exit(EXIT_FAILURE);
 	}
 
-	if (msp->ninst > 0) {
-	    fprintf(stderr, "%s: %s: event record metrics do not have instances\n", pmProgname, argv[optind]);
-		exit(EXIT_FAILURE);
-	}
-
 	if (msp->isarch == 0) {
 	    if (ahtype == -1) {
 		ahtype = PM_CONTEXT_HOST;
@@ -320,7 +315,8 @@ doargs(int argc, char **argv)
 	    mp = &metrictab[m];
 	else {
 	    nmetric++;
-	    if ((metrictab = (metric_t *)realloc(metrictab, nmetric*sizeof(metrictab[0]))) == NULL) {
+	    metrictab = (metric_t *)realloc(metrictab, nmetric*sizeof(metrictab[0]));
+	    if (metrictab == NULL) {
 		__pmNoMem("metrictab", nmetric*sizeof(metrictab[0]), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
@@ -337,6 +333,45 @@ doargs(int argc, char **argv)
 	    if (mp->desc.type != PM_TYPE_EVENT) {
 		fprintf(stderr, "%s: %s: metrics must be of type PM_TYPE_EVENT\n", pmProgname, mp->name);
 		exit(EXIT_FAILURE);
+	    }
+	    mp->ninst = 0;
+	    mp->iname = NULL;
+	    mp->inst = NULL;
+	    mp->ihash.nodes = 0;
+	    mp->ihash.hsize = 0;
+	    mp->ihash.hash = NULL;
+	}
+
+	if (msp->ninst > 0) {
+	    int		i;
+	    int		j;
+	    if (mp->desc.indom == PM_INDOM_NULL) {
+		fprintf(stderr, "%s: %s: singular metrics do not have instances\n", pmProgname, argv[optind]);
+		exit(EXIT_FAILURE);
+	    }
+	    i = mp->ninst;
+	    mp->ninst += msp->ninst;
+	    mp->iname = (char **)realloc(mp->iname, mp->ninst*sizeof(mp->iname[0]));
+	    if (mp->iname == NULL) {
+		__pmNoMem("iname[]", mp->ninst*sizeof(mp->iname[0]), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    mp->inst = (int *)realloc(mp->inst, mp->ninst*sizeof(mp->inst[0]));
+	    if (mp->inst == NULL) {
+		__pmNoMem("inst[]", mp->ninst*sizeof(mp->inst[0]), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    for (j = 0; j < msp->ninst; j++, i++) {
+		mp->iname[i] = msp->inst[j];
+		if (ahtype == PM_CONTEXT_ARCHIVE)
+		    sts = pmLookupInDomArchive(mp->desc.indom, mp->iname[i]);
+		else
+		    sts = pmLookupInDom(mp->desc.indom, mp->iname[i]);
+		if (sts < 0) {
+		    fprintf(stderr, "%s: pmLookupInDom: %s[%s]: %s\n", pmProgname, mp->name, mp->iname[i], pmErrStr(sts));
+		    exit(EXIT_FAILURE);
+		}
+		mp->inst[i] = sts;
 	    }
 	}
 
@@ -378,6 +413,7 @@ doargs(int argc, char **argv)
     if (pmDebug & DBG_TRACE_APPL0) {
 	char		timebuf[26];
 	char		*tp;
+	int		i;
 	fprintf(stderr, "first=%.6f", __pmtimevalToReal(&first));
 	tp = pmCtime(&first.tv_sec, timebuf);
 	/*
@@ -395,8 +431,20 @@ doargs(int argc, char **argv)
 	fprintf(stderr, "delta=%.6f\n", __pmtimevalToReal(&delta));
 	if (samples != ALL_SAMPLES)
 	    fprintf(stderr, "samples=%ld\n", samples);
-	for (m = 0; m < nmetric; m++)
-	    fprintf(stderr, "[%d] metric: %s\n", m, metrictab[m].name);
+	for (m = 0; m < nmetric; m++) {
+	    fprintf(stderr, "[%d] metric: %s", m, metrictab[m].name);
+	    if (metrictab[m].ninst > 0) {
+		fprintf(stderr, " instance:");
+		for (i = 0; i < metrictab[m].ninst; i++) {
+		    if (i == 0)
+			fputc(' ', stderr);
+		    else
+			fprintf(stderr, ", ");
+		    fprintf(stderr, "%s (%d)", metrictab[m].iname[i], metrictab[m].inst[i]);
+		}
+		fputc('\n', stderr);
+	    }
+	}
     }
 
 }
