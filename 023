@@ -6,21 +6,12 @@
 #
 
 seq=`basename $0`
-
 echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
-
-rm -f $seq.out
-if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
-then
-    ln $seq.out.2 $seq.out
-else
-    ln $seq.out.1 $seq.out
-fi
 
 if which pmobjstyle >/dev/null 2>&1
 then
@@ -67,6 +58,7 @@ s/value [0-9][0-9]*/value INTEGER/
 	-e '/endclient client.* No permission/d' \
 	-e 's/ while attempting to read 12 bytes out of 12 in .*on fd/ on fd/' \
 	-e 's/fd=[0-9][0-9]*/fd=FD/g' \
+	-e "s;$here/src-oss/;;" \
     | $PCP_AWK_PROG '
 $3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
 $1 == "y" && $2 = "y" && $8 == "localhost"	{ $5 = "IP-addr-in-hex" }
@@ -120,7 +112,7 @@ cleanup()
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	pmprobe pmcd.control.debug
-	sleepers=`ps $PCP_PS_ALL_FLAGS | grep $TAG | $PCP_AWK_PROG '$3 == 1 { print $2 }'`
+	sleepers=`ps $PCP_PS_ALL_FLAGS | grep '[d]umb_pmda' | $PCP_AWK_PROG '$3 == 1 { print $2 }'`
 	[ ! -z "$sleepers" ] && $sudo $signal -s TERM $sleepers
     fi
     rm -rf $tmp
@@ -155,25 +147,18 @@ FAKE_NS=$tmp/$seq.fake_ns
 echo 'root { hinv } ' > $FAKE_NS
 echo 'hinv { ncpu 1:0:1 }' >> $FAKE_NS
 
-# This value is passed to processes this script creates on the command line.
-# It's unlikely to occur anywhere in a ps output and is used as a tag to
-# terminate or check for the existence of the processes later.
-#
-TAG=000000660066
-
 # Make our own version of pmcd.conf with dummy agents that will time out.
 # Copy the pmcd PMDA from the original pmcd.conf so that we can check pmcd's
 # timeouts by storing into pmcd.control.timeout
-# The TAG parameter is used as a tag for a search of ps output later.
 # NOTE: none of the domains should clash with the pmcd PMDA (domain 2) or the
 # sample agent (domain 254).  These agents will be appended to the file.
 #
 cat <<EOF >$TMP_CONFIG
 # Created by QA $seq
-fake_irix 1 pipe binary dumb_pmda -d 1 -l dumb_pmda.log  $TAG
-fake_proc 3 pipe binary sed /$TAG/p
-fake_cisco 5 pipe binary sleep $TAG
-fake_six 6 pipe binary sleep $TAG
+fake_irix 1 pipe binary $here/src-oss/dumb_pmda -d 1 fake_irix
+fake_proc 3 pipe binary $here/src-oss/dumb_pmda -d 3 fake_proc
+fake_cisco 5 pipe binary $here/src-oss/dumb_pmda -d 5 fake_cisco
+fake_six 6 pipe binary $here/src-oss/dumb_pmda -d 6 fake_six
 EOF
 sed -n <$CONFIG >>$TMP_CONFIG \
     -e '/^#/d' \
@@ -195,7 +180,9 @@ sync
 
 echo '$PCP_PMCDCONF_PATH contains:' | sed -e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;"
 echo '<BEGIN>'
-sed -e '/^pmcd 2 /s/2 .*/2 .../' $CONFIG
+sed <$CONFIG \
+    -e '/^pmcd 2 /s/2 .*/2 .../' \
+    -e "s;$here/src-oss/;;"
 echo '<END>'
 
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
