@@ -557,6 +557,9 @@ Once all setups have been returned, the cycle is repeated.
 See event.reset to exert explicit control over the next batch of event
 records to be returned.
 
+@ sample.event.no_indom_records More dummy event records
+Like sample.event.records but without the instance domain.
+
 @ sample.event.reset reset event record state
 Used for QA, should take one of the values 0, 1, 2 or 3
 to determine which of the dummy event record setups will

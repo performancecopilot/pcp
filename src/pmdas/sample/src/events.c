@@ -21,7 +21,8 @@
 #include "events.h"
 
 static int		nfetch;
-static int		myarray;
+static int		xnfetch;
+static int		myarray[2];
 static int		mydomain;
 
 void
@@ -39,11 +40,11 @@ event_get_fetch_count(void)
 void
 event_set_fetch_count(int c)
 {
-    nfetch = c;
+    xnfetch = nfetch = c;
 }
 
 int
-sample_fetch_events(pmValueBlock **vbpp)
+sample_fetch_events(pmValueBlock **vbpp, int inst)
 {
     int			c;
     int			sts;
@@ -72,11 +73,14 @@ sample_fetch_events(pmValueBlock **vbpp)
     }
 
     if (first) {
+	int	i;
 	first = 0;
-	myarray = pmdaEventNewArray();
-	if (myarray < 0) {
-	    fprintf(stderr, "pmdaEventNewArray failed: %s\n", pmErrStr(myarray));
-	    exit(1);
+	for (i = 0; i < 2; i++) {
+	    myarray[i] = pmdaEventNewArray();
+	    if (myarray[i] < 0) {
+		fprintf(stderr, "pmdaEventNewArray failed: %s\n", pmErrStr(myarray[i]));
+		exit(1);
+	    }
 	}
 	/*
 	 * fix the domain field in the event parameter PMIDs ...
@@ -99,143 +103,174 @@ sample_fetch_events(pmValueBlock **vbpp)
 	memcpy(aggr->vbuf, (void *)aggrval, sizeof(aggrval));
     }
 
-    pmdaEventResetArray(myarray);
+    if (inst == PM_IN_NULL)
+	inst = 1;
+
+    pmdaEventResetArray(myarray[inst]);
     gettimeofday(&stamp, NULL);
-    /* rebase event records 10 secs in past, add 1 sec for each new record */
-    stamp.tv_sec -= 10;
 
-    switch (c) {
-	case 0:
-	    /*
-	     * 1st fetch
-	     * No events
-	     */
-	     break;
-	case 1:
-	    /*
-	     * 2nd fetch
-	     * 1 event with NO parameters
-	     */
-	    flags = PM_EVENT_FLAG_POINT;
-	    if ((sts = pmdaEventAddRecord(myarray, &stamp, flags)) < 0)
-		return sts;
-	    stamp.tv_sec++;
-	    break;
-	case 2:
-	    /*
-	     * 3rd fetch
-	     * 1 event with one U32 parameter
-	     * 1 event with 2 parameters(U32 and 64 types)
-	     */
-	    flags = PM_EVENT_FLAG_POINT;
-	    if ((sts = pmdaEventAddRecord(myarray, &stamp, flags)) < 0)
-		return sts;
-	    stamp.tv_sec++;
-	    atom.ul = 1;
-	    if ((sts = pmdaEventAddParam(myarray, pmid_type, PM_TYPE_U32, &atom)) < 0)
-		return sts;
-	    if ((sts = pmdaEventAddRecord(myarray, &stamp, flags)) < 0)
-		return sts;
-	    stamp.tv_sec++;
-	    atom.ul = 2;
-	    if ((sts = pmdaEventAddParam(myarray, pmid_type, PM_TYPE_U32, &atom)) < 0)
-		return sts;
-	    atom.ll = -3;
-	    if ((sts = pmdaEventAddParam(myarray, pmid_64, PM_TYPE_64, &atom)) < 0)
-		return sts;
-	    break;
-	case 3:
-	    /*
-	     * 4th fetch
-	     * 1 event start with 3 parameters (U32, U64 and STRING types)
-	     * 1 event with 3 parameters (U32 and 2 DOUBLE types)
-	     * 1 event end with 6 (U32, U64, STRING, STRING, 32 and U32 types)
-	     * 7 "missed" events
-	     * 1 event with 3 parameters (U32, FLOAT and AGGREGATE types)
-	     */
-	    flags = PM_EVENT_FLAG_START|PM_EVENT_FLAG_ID|PM_EVENT_FLAG_PARENT;
-	    if ((sts = pmdaEventAddRecord(myarray, &stamp, flags)) < 0)
-		return sts;
-	    stamp.tv_sec++;
-	    atom.ul = 4;
-	    if ((sts = pmdaEventAddParam(myarray, pmid_type, PM_TYPE_U32, &atom)) < 0)
-		return sts;
-	    atom.ull = 5;
-	    if ((sts = pmdaEventAddParam(myarray, pmid_u64, PM_TYPE_U64, &atom)) < 0)
-		return sts;
-	    atom.cp = "6";
-	    if ((sts = pmdaEventAddParam(myarray, pmid_string, PM_TYPE_STRING, &atom)) < 0)
-		return sts;
-	    flags = PM_EVENT_FLAG_POINT;
-	    if ((sts = pmdaEventAddRecord(myarray, &stamp, flags)) < 0)
-		return sts;
-	    stamp.tv_sec++;
-	    atom.ul = 7;
-	    if ((sts = pmdaEventAddParam(myarray, pmid_type, PM_TYPE_U32, &atom)) < 0)
-		return sts;
-	    atom.d = 8;
-	    if ((sts = pmdaEventAddParam(myarray, pmid_double, PM_TYPE_DOUBLE, &atom)) < 0)
-		return sts;
-	    atom.d = -9;
-	    if ((sts = pmdaEventAddParam(myarray, pmid_double, PM_TYPE_DOUBLE, &atom)) < 0)
-		return sts;
-	    flags = PM_EVENT_FLAG_END;
-	    if ((sts = pmdaEventAddRecord(myarray, &stamp, flags)) < 0)
-		return sts;
-	    stamp.tv_sec++;
-	    atom.ul = 10;
-	    if ((sts = pmdaEventAddParam(myarray, pmid_type, PM_TYPE_U32, &atom)) < 0)
-		return sts;
-	    atom.ull = 11;
-	    if ((sts = pmdaEventAddParam(myarray, pmid_u64, PM_TYPE_U64, &atom)) < 0)
-		return sts;
-	    atom.cp = "twelve";
-	    if ((sts = pmdaEventAddParam(myarray, pmid_string, PM_TYPE_STRING, &atom)) < 0)
-		return sts;
-	    atom.cp = "thirteen";
-	    if ((sts = pmdaEventAddParam(myarray, pmid_string, PM_TYPE_STRING, &atom)) < 0)
-		return sts;
-	    atom.l = -14;
-	    if ((sts = pmdaEventAddParam(myarray, pmid_32, PM_TYPE_32, &atom)) < 0)
-		return sts;
-	    atom.ul = 15;
-	    if ((sts = pmdaEventAddParam(myarray, pmid_u32, PM_TYPE_U32, &atom)) < 0)
-		return sts;
-	    /* "missed" 7 records */
-	    if ((sts = pmdaEventAddMissedRecord(myarray, &stamp, 7)) < 0)
-		return sts;
-	    stamp.tv_sec++;
-	    flags = PM_EVENT_FLAG_POINT;
-	    if ((sts = pmdaEventAddRecord(myarray, &stamp, flags)) < 0)
-		return sts;
-	    stamp.tv_sec++;
-	    atom.ul = 16;
-	    if ((sts = pmdaEventAddParam(myarray, pmid_type, PM_TYPE_U32, &atom)) < 0)
-		return sts;
-	    atom.f = -17;
-	    if ((sts = pmdaEventAddParam(myarray, pmid_float, PM_TYPE_FLOAT, &atom)) < 0)
-		return sts;
-	    atom.vbp = aggr;
-	    if ((sts = pmdaEventAddParam(myarray, pmid_aggregate, PM_TYPE_AGGREGATE, &atom)) < 0)
-		return sts;
-	    break;
-	case -1:
-	    /* error injection */
-	    flags = PM_EVENT_FLAG_POINT;
-	    if ((sts = pmdaEventAddRecord(myarray, &stamp, flags)) < 0)
-		return sts;
-	    stamp.tv_sec++;
-	    atom.ul = c;
-	    if ((sts = pmdaEventAddParam(myarray, pmid_type, PM_TYPE_U32, &atom)) < 0)
-		return sts;
-	    /* pmid that is not in PMNS and not known to the PMDA */
-	    if ((sts = pmdaEventAddParam(myarray, PMDA_PMID(100,200), PM_TYPE_U32, &atom)) < 0)
-		return sts;
-	    break;
+    if (inst == 0) {
+	/* original instance ... */
+	/* rebase event records 10 secs in past, add 1 sec for each new record */
+	stamp.tv_sec -= 10;
+
+	switch (c) {
+	    case 0:
+		/*
+		 * 1st fetch
+		 * No events
+		 */
+		 break;
+	    case 1:
+		/*
+		 * 2nd fetch
+		 * 1 event with NO parameters
+		 */
+		flags = PM_EVENT_FLAG_POINT;
+		if ((sts = pmdaEventAddRecord(myarray[inst], &stamp, flags)) < 0)
+		    return sts;
+		stamp.tv_sec++;
+		break;
+	    case 2:
+		/*
+		 * 3rd fetch
+		 * 1 event with one U32 parameter
+		 * 1 event with 2 parameters(U32 and 64 types)
+		 */
+		flags = PM_EVENT_FLAG_POINT;
+		if ((sts = pmdaEventAddRecord(myarray[inst], &stamp, flags)) < 0)
+		    return sts;
+		stamp.tv_sec++;
+		atom.ul = 1;
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
+		    return sts;
+		if ((sts = pmdaEventAddRecord(myarray[inst], &stamp, flags)) < 0)
+		    return sts;
+		stamp.tv_sec++;
+		atom.ul = 2;
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
+		    return sts;
+		atom.ll = -3;
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_64, PM_TYPE_64, &atom)) < 0)
+		    return sts;
+		break;
+	    case 3:
+		/*
+		 * 4th fetch
+		 * 1 event start with 3 parameters (U32, U64 and STRING types)
+		 * 1 event with 3 parameters (U32 and 2 DOUBLE types)
+		 * 1 event end with 6 (U32, U64, STRING, STRING, 32 and U32 types)
+		 * 7 "missed" events
+		 * 1 event with 3 parameters (U32, FLOAT and AGGREGATE types)
+		 */
+		flags = PM_EVENT_FLAG_START|PM_EVENT_FLAG_ID|PM_EVENT_FLAG_PARENT;
+		if ((sts = pmdaEventAddRecord(myarray[inst], &stamp, flags)) < 0)
+		    return sts;
+		stamp.tv_sec++;
+		atom.ul = 4;
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
+		    return sts;
+		atom.ull = 5;
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_u64, PM_TYPE_U64, &atom)) < 0)
+		    return sts;
+		atom.cp = "6";
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_string, PM_TYPE_STRING, &atom)) < 0)
+		    return sts;
+		flags = PM_EVENT_FLAG_POINT;
+		if ((sts = pmdaEventAddRecord(myarray[inst], &stamp, flags)) < 0)
+		    return sts;
+		stamp.tv_sec++;
+		atom.ul = 7;
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
+		    return sts;
+		atom.d = 8;
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_double, PM_TYPE_DOUBLE, &atom)) < 0)
+		    return sts;
+		atom.d = -9;
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_double, PM_TYPE_DOUBLE, &atom)) < 0)
+		    return sts;
+		flags = PM_EVENT_FLAG_END;
+		if ((sts = pmdaEventAddRecord(myarray[inst], &stamp, flags)) < 0)
+		    return sts;
+		stamp.tv_sec++;
+		atom.ul = 10;
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
+		    return sts;
+		atom.ull = 11;
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_u64, PM_TYPE_U64, &atom)) < 0)
+		    return sts;
+		atom.cp = "twelve";
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_string, PM_TYPE_STRING, &atom)) < 0)
+		    return sts;
+		atom.cp = "thirteen";
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_string, PM_TYPE_STRING, &atom)) < 0)
+		    return sts;
+		atom.l = -14;
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_32, PM_TYPE_32, &atom)) < 0)
+		    return sts;
+		atom.ul = 15;
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_u32, PM_TYPE_U32, &atom)) < 0)
+		    return sts;
+		/* "missed" 7 records */
+		if ((sts = pmdaEventAddMissedRecord(myarray[inst], &stamp, 7)) < 0)
+		    return sts;
+		stamp.tv_sec++;
+		flags = PM_EVENT_FLAG_POINT;
+		if ((sts = pmdaEventAddRecord(myarray[inst], &stamp, flags)) < 0)
+		    return sts;
+		stamp.tv_sec++;
+		atom.ul = 16;
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
+		    return sts;
+		atom.f = -17;
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_float, PM_TYPE_FLOAT, &atom)) < 0)
+		    return sts;
+		atom.vbp = aggr;
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_aggregate, PM_TYPE_AGGREGATE, &atom)) < 0)
+		    return sts;
+		break;
+	    case -1:
+		/* error injection */
+		flags = PM_EVENT_FLAG_POINT;
+		if ((sts = pmdaEventAddRecord(myarray[inst], &stamp, flags)) < 0)
+		    return sts;
+		stamp.tv_sec++;
+		atom.ul = c;
+		if ((sts = pmdaEventAddParam(myarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
+		    return sts;
+		/* pmid that is not in PMNS and not known to the PMDA */
+		if ((sts = pmdaEventAddParam(myarray[inst], PMDA_PMID(100,200), PM_TYPE_U32, &atom)) < 0)
+		    return sts;
+		break;
+	}
+	nfetch++;
     }
-    nfetch++;
+    else {
+	/*
+	 * new, boring instance ..., either instance ["bogus"] for
+	 * sample.events.rrecord or singular instance for
+	 * sample.events.no_indom_records
+	 */
+	static char record1[20];
+	static char record2[] = "bingo!";
+	flags = PM_EVENT_FLAG_POINT;
+	if ((sts = pmdaEventAddRecord(myarray[inst], &stamp, flags)) < 0)
+	    return sts;
+	snprintf(record1, sizeof(record1), "fetch #%d", xnfetch);
+	atom.cp = record1;
+	if ((sts = pmdaEventAddParam(myarray[inst], pmid_string, PM_TYPE_STRING, &atom)) < 0)
+	    return sts;
+	if ((xnfetch % 3) == 0) {
+	    if ((sts = pmdaEventAddRecord(myarray[inst], &stamp, flags)) < 0)
+		return sts;
+	    atom.cp = record2;
+	    if ((sts = pmdaEventAddParam(myarray[inst], pmid_string, PM_TYPE_STRING, &atom)) < 0)
+		return sts;
+	}
+	xnfetch++;
+    }
 
-    *vbpp = (pmValueBlock *)pmdaEventGetAddr(myarray);
+    *vbpp = (pmValueBlock *)pmdaEventGetAddr(myarray[inst]);
 
     return 0;
 }
