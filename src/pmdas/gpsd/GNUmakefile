@@ -27,7 +27,7 @@ MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 endif
 
-default: $(MAN_PAGES)
+default: check_domain $(MAN_PAGES)
 
 pmda$(IAM).1: pmda$(IAM).pl
 	$(POD_MAKERULE)
@@ -43,3 +43,6 @@ install: default
 default_pcp : default
 
 install_pcp : install
+
+check_domain:	../../pmns/stdpmid
+	$(DOMAIN_PERLRULE)

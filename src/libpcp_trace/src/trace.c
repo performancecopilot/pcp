@@ -14,6 +14,7 @@
  * License for more details.
  */
 
+#include <inttypes.h>
 #include "pmapi.h"
 #include "impl.h"
 
@@ -161,8 +162,8 @@ pmtracebegin(const char *tag)
     if ((hptr = __pmhashlookup(&_pmtable, tag, &hash)) == NULL) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_API)
-	    fprintf(stderr, "pmtracebegin: new transaction '%s' (id=0x%llx)\n",
-		    tag, (unsigned long long)hash.id);
+	    fprintf(stderr, "pmtracebegin: new transaction '%s' "
+			    "(id=0x%" PRIx64 ")\n", tag, hash.id);
 #endif
 	hash.pad = 0;
 	if ((hash.tag = strdup(tag)) == NULL)
@@ -182,8 +183,8 @@ pmtracebegin(const char *tag)
     else {
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_API)
-	fprintf(stderr, "pmtracebegin: updating transaction '%s' (id=0x%llx)\n",
-		tag, (unsigned long long)hash.id);
+	fprintf(stderr, "pmtracebegin: updating transaction '%s' "
+			"(id=0x%" PRIx64 ")\n", tag, hash.id);
 #endif
 	__pmtimevalNow(&hptr->start);
 	hptr->inprogress = 1;
@@ -197,7 +198,6 @@ pmtracebegin(const char *tag)
 	return a_sts;
     return b_sts;
 }
-
 
 int
 pmtraceend(const char *tag)
@@ -232,8 +232,8 @@ pmtraceend(const char *tag)
     else {
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_API)
-	fprintf(stderr, "pmtraceend: sending transaction data '%s' (id=0x%llx)\n",
-		tag, (unsigned long long)hash.id);
+	fprintf(stderr, "pmtraceend: sending transaction data '%s' "
+			"(id=0x%" PRIx64 ")\n", tag, hash.id);
 #endif
 	hptr->inprogress = 0;
 	hptr->data = __pmtracetvsub(&now, &hptr->start);
@@ -294,8 +294,8 @@ pmtraceabort(const char *tag)
     else {
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_API)
-	fprintf(stderr, "pmtraceabort: aborting transaction '%s' (id=0x%llx)\n",
-		tag, (unsigned long long)hash.id);
+	fprintf(stderr, "pmtraceabort: aborting transaction '%s' "
+			"(id=0x%" PRIx64 ")\n", tag, hash.id);
 #endif
 	hptr->inprogress = 0;
     }

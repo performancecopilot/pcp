@@ -10,21 +10,18 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
+#include <inttypes.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmlc.h"
 
 /* for the pmlogger/PMCD we currently have a connection to */
-static int	logger_fd = -1;			/* file desc pmlogger */
-static char	*lasthost = NULL;		/* host that logger_ctx is for */
+static int	logger_fd = -1;		/* file desc pmlogger */
+static char	*lasthost;		/* host that logger_ctx is for */
 static int	src_ctx = -1;		/* context for logged host's PMCD*/
-static char	*srchost = NULL;	/* host that logged_ctx is for */
+static char	*srchost;		/* host that logged_ctx is for */
 
 static time_t	tmp;		/* for pmCtime */
 
@@ -651,7 +648,7 @@ void Status(int pid, int primary)
 	   "last log entry   %s\n"
 	   "current time     %s\n"
 	   "log volume       %d\n"
-	   "log size         %lld\n",
+	   "log size         %" PRIi64 "\n",
 	   startbuf, zonename, lastbuf, timenowbuf, vol, size);
 
 done:
