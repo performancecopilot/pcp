@@ -1215,8 +1215,8 @@ extern char *__pmSpecLocalPMDA(const char *);
 /*
  * helper methods for packed arrays of event records (PM_TYPE_EVENT)
  */
-extern int __pmCheckEventRecords(pmValueSet *);
-extern void __pmDumpEventRecords(FILE *, pmValueSet *);
+extern int __pmCheckEventRecords(pmValueSet *, int);
+extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
 
 /* anonymous metric registration (uses derived metrics support) */
 int __pmRegisterAnon(char *, int);

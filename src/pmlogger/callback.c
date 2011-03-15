@@ -546,7 +546,6 @@ log_callback(int afid, void *data)
 		    fprintf(stderr, "Failed to process event records: %s\n", pmErrStr(sts));
 		    exit(1);
 		}
-		continue;
 	    }
 	    if (desc.indom != PM_INDOM_NULL && vsp->numval > 0) {
 		/*
