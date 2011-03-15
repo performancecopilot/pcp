@@ -2,7 +2,14 @@ QA output created by 400
 === std out ===
 
 sampledso.event.records
-    value [0 event records]
+    inst [0 or "fungus"] value [0 event records]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    sampledso.event.param_string (30.0.134)
+        value "fetch #0"
+    --- event record [1] timestamp TIMESTAMP flags 0x1 (point) ---
+    sampledso.event.param_string (30.0.134)
+        value "bingo!"
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
@@ -14,12 +21,20 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 
 sampledso.event.records
-    value [1 event record timestamp TIMESTAMP]
+    inst [0 or "fungus"] value [1 event record timestamp TIMESTAMP]
     --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    sampledso.event.param_string (30.0.134)
+        value "fetch #1"
 
 sampledso.event.records
-    value [1 event record timestamp TIMESTAMP]
+    inst [0 or "fungus"] value [1 event record timestamp TIMESTAMP]
     --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    sampledso.event.param_string (30.0.134)
+        value "fetch #1"
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
@@ -31,7 +46,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 
 sampledso.event.records
-    value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    inst [0 or "fungus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
     --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
     sampledso.event.type (30.0.127)
         value 1
@@ -40,9 +55,13 @@ sampledso.event.records
         value 2
     sampledso.event.param_64 (30.0.130)
         value -3
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    sampledso.event.param_string (30.0.134)
+        value "fetch #2"
 
 sampledso.event.records
-    value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    inst [0 or "fungus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
     --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
     sampledso.event.type (30.0.127)
         value 1
@@ -51,9 +70,13 @@ sampledso.event.records
         value 2
     sampledso.event.param_64 (30.0.130)
         value -3
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    sampledso.event.param_string (30.0.134)
+        value "fetch #2"
 
 sampledso.event.records
-    value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    inst [0 or "fungus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
     --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
     sampledso.event.type (30.0.127)
         value 1
@@ -62,6 +85,10 @@ sampledso.event.records
         value 2
     sampledso.event.param_64 (30.0.130)
         value -3
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    sampledso.event.param_string (30.0.134)
+        value "fetch #2"
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
@@ -73,7 +100,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 
 sampledso.event.records
-    value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    inst [0 or "fungus"] value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
     --- event record [0] timestamp TIMESTAMP flags 0x1a (start,id,parent) ---
     sampledso.event.type (30.0.127)
         value 4
@@ -110,9 +137,16 @@ sampledso.event.records
         value -17
     sampledso.event.param_aggregate (30.0.135)
         value [blob]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    sampledso.event.param_string (30.0.134)
+        value "fetch #3"
+    --- event record [1] timestamp TIMESTAMP flags 0x1 (point) ---
+    sampledso.event.param_string (30.0.134)
+        value "bingo!"
 
 sampledso.event.records
-    value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    inst [0 or "fungus"] value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
     --- event record [0] timestamp TIMESTAMP flags 0x1a (start,id,parent) ---
     sampledso.event.type (30.0.127)
         value 4
@@ -149,9 +183,16 @@ sampledso.event.records
         value -17
     sampledso.event.param_aggregate (30.0.135)
         value [blob]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    sampledso.event.param_string (30.0.134)
+        value "fetch #3"
+    --- event record [1] timestamp TIMESTAMP flags 0x1 (point) ---
+    sampledso.event.param_string (30.0.134)
+        value "bingo!"
 
 sampledso.event.records
-    value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    inst [0 or "fungus"] value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
     --- event record [0] timestamp TIMESTAMP flags 0x1a (start,id,parent) ---
     sampledso.event.type (30.0.127)
         value 4
@@ -188,9 +229,16 @@ sampledso.event.records
         value -17
     sampledso.event.param_aggregate (30.0.135)
         value [blob]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    sampledso.event.param_string (30.0.134)
+        value "fetch #3"
+    --- event record [1] timestamp TIMESTAMP flags 0x1 (point) ---
+    sampledso.event.param_string (30.0.134)
+        value "bingo!"
 
 sampledso.event.records
-    value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    inst [0 or "fungus"] value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
     --- event record [0] timestamp TIMESTAMP flags 0x1a (start,id,parent) ---
     sampledso.event.type (30.0.127)
         value 4
@@ -227,6 +275,13 @@ sampledso.event.records
         value -17
     sampledso.event.param_aggregate (30.0.135)
         value [blob]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    sampledso.event.param_string (30.0.134)
+        value "fetch #3"
+    --- event record [1] timestamp TIMESTAMP flags 0x1 (point) ---
+    sampledso.event.param_string (30.0.134)
+        value "bingo!"
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector

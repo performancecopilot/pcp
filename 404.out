@@ -1,18 +1,18 @@
 QA output created by 404
 Expecting ... Unknown or illegal metric type
 Event Records Dump ...
-PMID: 29.4095.0 numval: 1 valfmt: 1 inst: -1 vtype: 32 vlen: 0
+PMID: 29.4095.0 numval: 1 valfmt: 1 vtype: 32 vlen: 0
 Error: bad vtype
 pmUnpackEventRecords: Unknown or illegal metric type
 Expecting ... Error - ea_nrecords < 0
 Event Records Dump ...
-PMID: 29.4095.0 numval: 1 valfmt: 1 inst: -1 vtype: EVENT vlen: 8
+PMID: 29.4095.0 numval: 1 valfmt: 1 vtype: EVENT vlen: 8
 nrecords: -1
 Error: bad nrecords
 pmUnpackEventRecords: Insufficient elements in list
 Expecting ... Error - vlen way too small
 Event Records Dump ...
-PMID: 29.4095.0 numval: 1 valfmt: 1 inst: -1 vtype: EVENT vlen: 4
+PMID: 29.4095.0 numval: 1 valfmt: 1 vtype: EVENT vlen: 4
 Error: bad len (smaller than minimum size 8)
 pmUnpackEventRecords: Insufficient elements in list
 Expecting ... No records
@@ -39,7 +39,7 @@ pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 3
    value -3
 Expecting ... Error - buffer overrun @ parameter
 Event Records Dump ...
-PMID: 29.4095.0 numval: 1 valfmt: 1 inst: -1 vtype: EVENT vlen: 51
+PMID: 29.4095.0 numval: 1 valfmt: 1 vtype: EVENT vlen: 51
 nrecords: 1
 Event Record [0] flags=1 with 2 parameters
     Parameter [0]: 29.0.127 = 2
@@ -101,7 +101,7 @@ pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 3
    value [blob]
 Expecting ... Error - buffer overrun @ record
 Event Records Dump ...
-PMID: 29.4095.0 numval: 1 valfmt: 1 inst: -1 vtype: EVENT vlen: 256
+PMID: 29.4095.0 numval: 1 valfmt: 1 vtype: EVENT vlen: 256
 nrecords: 6
 Event Record [0] flags=80000000
     ==> 3 missed records

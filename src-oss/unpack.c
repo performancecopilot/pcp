@@ -124,63 +124,68 @@ dump(char *xpect)
     int		nmissed;
     int		nrecords;
     int		r;
+    int		k;
     static pmID	pmid_flags = 0;
     static pmID	pmid_missed;
 
     fprintf(stderr, "Expecting ... %s\n", xpect);
 
-    nrecords = pmUnpackEventRecords(&vs, &res);
+    for (k = 0; k < vs.numval; k++) {
+	if (vs.vlist[k].inst != PM_IN_NULL)
+	    fprintf(stderr, "[instance %d]\n", vs.vlist[k].inst);
+	nrecords = pmUnpackEventRecords(&vs, k, &res);
 
-    if (nrecords < 0) {
-	fprintf(stderr, "pmUnpackEventRecords: %s\n", pmErrStr(nrecords));
-	return;
-    }
-
-    /* lifted from pminfo.c */
-    if (pmid_flags == 0) {
-	/*
-	 * get PMID for event.flags and event.missed
-	 * note that pmUnpackEventRecords() will have called
-	 * __pmRegisterAnon(), so the anon metrics
-	 * should now be in the PMNS
-	 */
-	char	*name_flags = "event.flags";
-	char	*name_missed = "event.missed";
-	int	sts;
-	sts = pmLookupName(1, &name_flags, &pmid_flags);
-	if (sts < 0) {
-	    /* should not happen! */
-	    fprintf(stderr, "Warning: cannot get PMID for %s: %s\n", name_flags, pmErrStr(sts));
-	    /* avoid subsequent warnings ... */
-	    __pmid_int(&pmid_flags)->item = 1;
+	if (nrecords < 0) {
+	    fprintf(stderr, "pmUnpackEventRecords: %s\n", pmErrStr(nrecords));
+	    return;
 	}
-	sts = pmLookupName(1, &name_missed, &pmid_missed);
-	if (sts < 0) {
-	    /* should not happen! */
-	    fprintf(stderr, "Warning: cannot get PMID for %s: %s\n", name_missed, pmErrStr(sts));
-	    /* avoid subsequent warnings ... */
-	    __pmid_int(&pmid_missed)->item = 1;
+
+	/* lifted from pminfo.c */
+	if (pmid_flags == 0) {
+	    /*
+	     * get PMID for event.flags and event.missed
+	     * note that pmUnpackEventRecords() will have called
+	     * __pmRegisterAnon(), so the anon metrics
+	     * should now be in the PMNS
+	     */
+	    char	*name_flags = "event.flags";
+	    char	*name_missed = "event.missed";
+	    int	sts;
+	    sts = pmLookupName(1, &name_flags, &pmid_flags);
+	    if (sts < 0) {
+		/* should not happen! */
+		fprintf(stderr, "Warning: cannot get PMID for %s: %s\n", name_flags, pmErrStr(sts));
+		/* avoid subsequent warnings ... */
+		__pmid_int(&pmid_flags)->item = 1;
+	    }
+	    sts = pmLookupName(1, &name_missed, &pmid_missed);
+	    if (sts < 0) {
+		/* should not happen! */
+		fprintf(stderr, "Warning: cannot get PMID for %s: %s\n", name_missed, pmErrStr(sts));
+		/* avoid subsequent warnings ... */
+		__pmid_int(&pmid_missed)->item = 1;
+	    }
 	}
-    }
 
-    nmissed = 0;
-    for (r = 0; r < nrecords; r++) {
-	if (res[r]->numpmid == 2 && res[r]->vset[0]->pmid == pmid_flags &&
-	    (res[r]->vset[0]->vlist[0].value.lval & PM_EVENT_FLAG_MISSED) &&
-	    res[r]->vset[1]->pmid == pmid_missed) {
-	    nmissed += res[r]->vset[1]->vlist[0].value.lval;
+	nmissed = 0;
+	for (r = 0; r < nrecords; r++) {
+	    if (res[r]->numpmid == 2 && res[r]->vset[0]->pmid == pmid_flags &&
+		(res[r]->vset[0]->vlist[0].value.lval & PM_EVENT_FLAG_MISSED) &&
+		res[r]->vset[1]->pmid == pmid_missed) {
+		nmissed += res[r]->vset[1]->vlist[0].value.lval;
+	    }
 	}
-    }
 
-    fprintf(stderr, "Array contains %d records and %d missed records\n", nrecords, nmissed);
-    if (nrecords == 0)
-	return;
+	fprintf(stderr, "Array contains %d records and %d missed records\n", nrecords, nmissed);
+	if (nrecords == 0)
+	    continue;
 
-    for (r = 0; r < nrecords; r++) {
-	fprintf(stderr, "pmResult[%d]\n", r);
-	__pmDumpResult(stderr, res[r]);
+	for (r = 0; r < nrecords; r++) {
+	    fprintf(stderr, "pmResult[%d]\n", r);
+	    __pmDumpResult(stderr, res[r]);
+	}
+	pmFreeEventResult(res);
     }
-    pmFreeEventResult(res);
 }
 
 int

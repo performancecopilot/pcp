@@ -2,16 +2,20 @@ QA output created by 407
 === This should work ===
 
 myevents
-    value [0 event records]
+    inst [0 or "fungus"] value [0 event records]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
 
 myevents
-    value [1 event record timestamp TIMESTAMP]
+    inst [0 or "fungus"] value [1 event record timestamp TIMESTAMP]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
 
 myevents
-    value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    inst [0 or "fungus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
 
 myevents
-    value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    inst [0 or "fungus"] value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
 
 === These should NOT work ===
 Semantic error: derived metric my.bad_1: sample.event.records - sample.event.records: Non-arithmetic type for left operand
