@@ -1,0 +1,50 @@
+#!/bin/sh
+# PCP QA Test No. 447
+# instances for event records
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which pmevent >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun pmevent executable not found
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+}
+
+_run()
+{
+    echo
+    echo "=== $* ==="
+    pmstore sample.event.reset 0 >/dev/null 2>&1
+    pmstore sampledso.event.reset 0 >/dev/null 2>&1
+    pmevent $* 2>&1 | _filter
+}
+
+# real QA test starts here
+_run -t 0.1 -s 4 sampledso.event.records
+_run -t 0.1 -s 4 'sampledso.event.records[fungus,bogus]'
+_run -t 0.1 -s 4 'sampledso.event.records[fungus]' 'sampledso.event.records[bogus]'
+_run -t 0.1 -s 4 sampledso.event.no_indom_records
+
+# success, all done
+exit
