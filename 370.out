@@ -230,13 +230,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0
               245.0.8 (kernel.all.cpu.idle): value 0.96789998
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.02
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.012
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0.96789998
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.02
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.012
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0.96789998
               245.0.16 (kernel.all.pswitch): value 0
               245.0.17 (kernel.all.intr): value 230.46001
               245.0.18 (swap.pagesin): value 0
@@ -334,13 +334,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0060000001
               245.0.8 (kernel.all.cpu.idle): value 0.28799999
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.16
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0.0020000001
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.108
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.43599999
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0060000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0.28799999
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.16
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0.0020000001
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.108
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.43599999
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0060000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0.28799999
               245.0.16 (kernel.all.pswitch): value 73.800003
               245.0.17 (kernel.all.intr): value 546.59998
               245.0.18 (swap.pagesin): value 0
@@ -438,13 +438,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0020000001
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.1796
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.1357
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.68260002
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0020000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.1796
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.1357
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.68260002
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0020000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 154.69
               245.0.17 (kernel.all.intr): value 517.56
               245.0.18 (swap.pagesin): value 0
@@ -542,13 +542,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0080000004
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.18960001
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.1557
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.64670002
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0080000004
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.18960001
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.1557
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.64670002
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0080000004
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 163.47
               245.0.17 (kernel.all.intr): value 645.31
               245.0.18 (swap.pagesin): value 0
@@ -646,13 +646,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0060000001
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.4048
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.2705
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.3186
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0060000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.4048
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.2705
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.3186
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0060000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 272.95001
               245.0.17 (kernel.all.intr): value 730.65997
               245.0.18 (swap.pagesin): value 0
@@ -750,13 +750,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.1323
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.044100001
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.82359999
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.1323
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.044100001
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.82359999
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 29.66
               245.0.17 (kernel.all.intr): value 464.73001
               245.0.18 (swap.pagesin): value 0
@@ -854,13 +854,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0020000001
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.1018
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.037900001
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.85829997
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0020000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.1018
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.037900001
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.85829997
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0020000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 0.2
               245.0.17 (kernel.all.intr): value 496.60999
               245.0.18 (swap.pagesin): value 0
@@ -958,13 +958,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0020000001
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.1603
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.066100001
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.77149999
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0020000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.1603
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.066100001
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.77149999
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0020000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 0
               245.0.17 (kernel.all.intr): value 595.98999
               245.0.18 (swap.pagesin): value 0
@@ -1062,13 +1062,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0080000004
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.4531
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.029899999
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.509
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0080000004
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.4531
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.029899999
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.509
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0080000004
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 0.2
               245.0.17 (kernel.all.intr): value 560.28003
               245.0.18 (swap.pagesin): value 0
@@ -1166,13 +1166,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0020000001
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.1383
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.0341
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.82569999
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0020000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.1383
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.0341
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.82569999
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0020000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 0
               245.0.17 (kernel.all.intr): value 500.39999
               245.0.18 (swap.pagesin): value 0
@@ -1270,13 +1270,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0020000001
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.075999998
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.066
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.85600001
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0020000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.075999998
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.066
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.85600001
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0020000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 0
               245.0.17 (kernel.all.intr): value 614.59998
               245.0.18 (swap.pagesin): value 0
@@ -1374,13 +1374,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0099999998
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.057999998
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.041999999
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.88999999
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0099999998
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.057999998
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.041999999
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.88999999
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0099999998
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 0
               245.0.17 (kernel.all.intr): value 627
               245.0.18 (swap.pagesin): value 0
@@ -1478,13 +1478,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0040000002
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.0319
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.02
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.94410002
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0040000002
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.0319
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.02
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.94410002
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0040000002
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 0
               245.0.17 (kernel.all.intr): value 449.10001
               245.0.18 (swap.pagesin): value 0
@@ -1582,13 +1582,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.012
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.36469999
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.080200002
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.5431
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.012
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.36469999
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.080200002
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.5431
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.012
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 7.6199999
               245.0.17 (kernel.all.intr): value 1047.7
               245.0.18 (swap.pagesin): value 0
@@ -1686,13 +1686,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.028000001
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.60680002
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.1936
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.1717
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.028000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.60680002
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.1936
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.1717
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.028000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 118.56
               245.0.17 (kernel.all.intr): value 1296.61
               245.0.18 (swap.pagesin): value 0
@@ -1790,13 +1790,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.048
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.68000001
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.214
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.057999998
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.048
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.68000001
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.214
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.057999998
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.048
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 141.2
               245.0.17 (kernel.all.intr): value 2438.8
               245.0.18 (swap.pagesin): value 0
@@ -1894,13 +1894,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0381
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.5431
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.1743
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.2445
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0381
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.5431
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.1743
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.2445
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0381
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 65.330002
               245.0.17 (kernel.all.intr): value 2425.6499
               245.0.18 (swap.pagesin): value 0
@@ -1998,13 +1998,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.028000001
               245.0.8 (kernel.all.cpu.idle): value 0.0579
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.5449
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.2395
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.12970001
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.028000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0.0579
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.5449
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.2395
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.12970001
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.028000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0.0579
               245.0.16 (kernel.all.pswitch): value 99.400002
               245.0.17 (kernel.all.intr): value 1781.4399
               245.0.18 (swap.pagesin): value 0
@@ -2102,13 +2102,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.028000001
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.69999999
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.266
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.0060000001
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.028000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.69999999
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.266
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.0060000001
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.028000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 124.4
               245.0.17 (kernel.all.intr): value 1616.2
               245.0.18 (swap.pagesin): value 0
@@ -2206,13 +2206,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.014
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.72399998
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.198
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.064000003
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.014
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.72399998
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.198
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.064000003
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.014
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 114.4
               245.0.17 (kernel.all.intr): value 1335.8
               245.0.18 (swap.pagesin): value 0
@@ -2310,13 +2310,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.86000001
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.134
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.0060000001
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.86000001
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.134
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.0060000001
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 19.200001
               245.0.17 (kernel.all.intr): value 448.79999
               245.0.18 (swap.pagesin): value 0
@@ -2414,13 +2414,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0020000001
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.83999997
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.152
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.0060000001
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0020000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.83999997
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.152
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.0060000001
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0020000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 32.799999
               245.0.17 (kernel.all.intr): value 444.79999
               245.0.18 (swap.pagesin): value 0
@@ -2518,13 +2518,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0040000002
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.85600001
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.126
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.014
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0040000002
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.85600001
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.126
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.014
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0040000002
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 37
               245.0.17 (kernel.all.intr): value 470.20001
               245.0.18 (swap.pagesin): value 0
@@ -2622,13 +2622,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0040000002
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.83200002
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.162
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.0020000001
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0040000002
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.83200002
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.162
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.0020000001
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0040000002
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 87
               245.0.17 (kernel.all.intr): value 462.60001
               245.0.18 (swap.pagesin): value 0
@@ -2726,13 +2726,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0020000001
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.81999999
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.124
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.054000001
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0020000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.81999999
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.124
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.054000001
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0020000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 32.200001
               245.0.17 (kernel.all.intr): value 470.60001
               245.0.18 (swap.pagesin): value 0
@@ -2830,13 +2830,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.014
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.84200001
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.13
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.014
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.014
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.84200001
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.13
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.014
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.014
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 37.799999
               245.0.17 (kernel.all.intr): value 470
               245.0.18 (swap.pagesin): value 0
@@ -2934,13 +2934,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0040000002
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.7924
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.1996
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.0040000002
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0040000002
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.7924
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.1996
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.0040000002
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0040000002
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 29.940001
               245.0.17 (kernel.all.intr): value 511.98001
               245.0.18 (swap.pagesin): value 0
@@ -3038,13 +3038,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0020000001
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.83329999
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.15260001
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.012
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0020000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.83329999
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.15260001
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.012
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0020000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 43.57
               245.0.17 (kernel.all.intr): value 478.92001
               245.0.18 (swap.pagesin): value 0
@@ -3142,13 +3142,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0020000001
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.87050003
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.1235
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.0040000002
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0020000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.87050003
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.1235
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.0040000002
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0020000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 52.790001
               245.0.17 (kernel.all.intr): value 440.84
               245.0.18 (swap.pagesin): value 0
@@ -3246,13 +3246,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0020000001
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.85170001
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.1042
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.042100001
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0020000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.85170001
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.1042
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.042100001
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0020000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 34.07
               245.0.17 (kernel.all.intr): value 468.94
               245.0.18 (swap.pagesin): value 0
@@ -3350,13 +3350,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.89999998
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.093999997
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.0060000001
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.89999998
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.093999997
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.0060000001
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 51.599998
               245.0.17 (kernel.all.intr): value 447.20001
               245.0.18 (swap.pagesin): value 0
@@ -3454,13 +3454,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0020000001
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.80800003
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.186
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.0040000002
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0020000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.80800003
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.186
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.0040000002
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0020000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 162
               245.0.17 (kernel.all.intr): value 445
               245.0.18 (swap.pagesin): value 0
@@ -3558,13 +3558,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0020000001
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.78240001
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.2076
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.0080000004
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0020000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.78240001
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.2076
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.0080000004
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0020000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 178.24001
               245.0.17 (kernel.all.intr): value 442.91
               245.0.18 (swap.pagesin): value 0
@@ -3662,13 +3662,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0020000001
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.50300002
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.493
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.0020000001
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0020000001
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.50300002
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.493
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.0020000001
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0020000001
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 545.89001
               245.0.17 (kernel.all.intr): value 480.16
               245.0.18 (swap.pagesin): value 0
@@ -3766,13 +3766,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0.0040000002
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.477
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.51899999
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0.0040000002
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.477
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.51899999
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0.0040000002
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 573.04999
               245.0.17 (kernel.all.intr): value 513.57001
               245.0.18 (swap.pagesin): value 0
@@ -3870,13 +3870,13 @@ Temporal Index
               245.0.6 (kernel.all.cpu.steal): value 0
               245.0.7 (kernel.all.cpu.intr): value 0
               245.0.8 (kernel.all.cpu.idle): value 0
-              245.0.9 (kernel.percpu.cpu.user):  inst [0 or "cpu0"] value 0.4188
-              245.0.10 (kernel.percpu.cpu.nice):  inst [0 or "cpu0"] value 0
-              245.0.11 (kernel.percpu.cpu.sys):  inst [0 or "cpu0"] value 0.52710003
-              245.0.12 (kernel.percpu.cpu.wait.total):  inst [0 or "cpu0"] value 0.054099999
-              245.0.13 (kernel.percpu.cpu.steal):  inst [0 or "cpu0"] value 0
-              245.0.14 (kernel.percpu.cpu.intr):  inst [0 or "cpu0"] value 0
-              245.0.15 (kernel.percpu.cpu.idle):  inst [0 or "cpu0"] value 0
+              245.0.9 (kernel.percpu.cpu.user): inst [0 or "cpu0"] value 0.4188
+              245.0.10 (kernel.percpu.cpu.nice): inst [0 or "cpu0"] value 0
+              245.0.11 (kernel.percpu.cpu.sys): inst [0 or "cpu0"] value 0.52710003
+              245.0.12 (kernel.percpu.cpu.wait.total): inst [0 or "cpu0"] value 0.054099999
+              245.0.13 (kernel.percpu.cpu.steal): inst [0 or "cpu0"] value 0
+              245.0.14 (kernel.percpu.cpu.intr): inst [0 or "cpu0"] value 0
+              245.0.15 (kernel.percpu.cpu.idle): inst [0 or "cpu0"] value 0
               245.0.16 (kernel.all.pswitch): value 590.17999
               245.0.17 (kernel.all.intr): value 452.70999
               245.0.18 (swap.pagesin): value 0

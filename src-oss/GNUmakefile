@@ -49,7 +49,8 @@ SRCARCH	= mirage.0 moomba.client.0 \
 	uwrap.0 20041125.0 ac15.0 conn20070309.0 logsummary-bug.0 \
 	mirage-1.0 mirage-2.0 \
 	tzchange-10-a.0 tzchange-10-b.0 tzchange-11-a.0 tzchange-11-b.0 \
-	tzchange-12-a.0 tzchange-12-b.0 sample_expr.0 eventrec.0 \
+	tzchange-12-a.0 tzchange-12-b.0 sample_expr.0 \
+	eventrec-old.0 eventrec.0 \
 	badlen-0.0 badlen-1.0 badlen-2.0 badlen-3.0 badlen-4.0 \
 	badlen-5.0 badlen-6.0 badlen-7.0 badlen-8.0 \
 	540117-short.0 \
