@@ -32,9 +32,9 @@ Temporal Index
 14:46:48.146       0          350          288
 14:46:52.145       0          414          488
 
-14:46:47.148  2.3.3 (pmcd.pmlogger.host):  inst [4530 or "4530"] value "ha2.melbourne.sgi.com"
-              2.3.0 (pmcd.pmlogger.port):  inst [4530 or "4530"] value 4331
-              2.3.2 (pmcd.pmlogger.archive):  inst [4530 or "4530"] value "/usr/people/pcpqa/isms/pcp2.0/qa/src/arch_a"
+14:46:47.148  2.3.3 (pmcd.pmlogger.host): inst [4530 or "4530"] value "ha2.melbourne.sgi.com"
+              2.3.0 (pmcd.pmlogger.port): inst [4530 or "4530"] value 4331
+              2.3.2 (pmcd.pmlogger.archive): inst [4530 or "4530"] value "/usr/people/pcpqa/isms/pcp2.0/qa/src/arch_a"
 
 14:46:48.146  1.10.7 (irix.kernel.all.cpu.idle): value 2163518020
 
@@ -79,9 +79,9 @@ Temporal Index
 14:46:48.706       0          350          288
 14:46:50.715       0          414          488
 
-14:46:48.210  2.3.3 (pmcd.pmlogger.host):  inst [4534 or "4534"] value "ha2.melbourne.sgi.com"
-              2.3.0 (pmcd.pmlogger.port):  inst [4534 or "4534"] value 4332
-              2.3.2 (pmcd.pmlogger.archive):  inst [4534 or "4534"] value "/usr/people/pcpqa/isms/pcp2.0/qa/src/arch_b"
+14:46:48.210  2.3.3 (pmcd.pmlogger.host): inst [4534 or "4534"] value "ha2.melbourne.sgi.com"
+              2.3.0 (pmcd.pmlogger.port): inst [4534 or "4534"] value 4332
+              2.3.2 (pmcd.pmlogger.archive): inst [4534 or "4534"] value "/usr/people/pcpqa/isms/pcp2.0/qa/src/arch_b"
 
 14:46:48.706  1.10.7 (irix.kernel.all.cpu.idle): value 2163518490
 
@@ -130,15 +130,15 @@ Temporal Index
 14:46:48.210       0          414          328
 14:46:52.145       0          455          864
 
-14:46:47.148  2.3.3 (pmcd.pmlogger.host):  inst [4530 or "4530"] value "ha2.melbourne.sgi.com"
-              2.3.0 (pmcd.pmlogger.port):  inst [4530 or "4530"] value 4331
-              2.3.2 (pmcd.pmlogger.archive):  inst [4530 or "4530"] value "/usr/people/pcpqa/isms/pcp2.0/qa/src/arch_a"
+14:46:47.148  2.3.3 (pmcd.pmlogger.host): inst [4530 or "4530"] value "ha2.melbourne.sgi.com"
+              2.3.0 (pmcd.pmlogger.port): inst [4530 or "4530"] value 4331
+              2.3.2 (pmcd.pmlogger.archive): inst [4530 or "4530"] value "/usr/people/pcpqa/isms/pcp2.0/qa/src/arch_a"
 
 14:46:48.146  1.10.7 (irix.kernel.all.cpu.idle): value 2163518020
 
-14:46:48.210  2.3.3 (pmcd.pmlogger.host):  inst [4534 or "4534"] value "ha2.melbourne.sgi.com"
-              2.3.0 (pmcd.pmlogger.port):  inst [4534 or "4534"] value 4332
-              2.3.2 (pmcd.pmlogger.archive):  inst [4534 or "4534"] value "/usr/people/pcpqa/isms/pcp2.0/qa/src/arch_b"
+14:46:48.210  2.3.3 (pmcd.pmlogger.host): inst [4534 or "4534"] value "ha2.melbourne.sgi.com"
+              2.3.0 (pmcd.pmlogger.port): inst [4534 or "4534"] value 4332
+              2.3.2 (pmcd.pmlogger.archive): inst [4534 or "4534"] value "/usr/people/pcpqa/isms/pcp2.0/qa/src/arch_b"
 
 14:46:48.706  1.10.7 (irix.kernel.all.cpu.idle): value 2163518490
 

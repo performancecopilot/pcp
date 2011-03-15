@@ -90,9 +90,9 @@ InDom: 2.1
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 
-13:33:44.278  2.3.3 (pmcd.pmlogger.host):  inst [32221 or "32221"] value "ken.engr.acx"
-              2.3.0 (pmcd.pmlogger.port):  inst [32221 or "32221"] value 4330
-              2.3.2 (pmcd.pmlogger.archive):  inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
+13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
+              2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
+              2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
 
 13:33:47.240  29.0.80 (sample.many.int):
                 inst [0 or "i-0"] value 0
@@ -689,9 +689,9 @@ InDom: 2.1
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 
-13:33:49.623  2.3.3 (pmcd.pmlogger.host):  inst [32224 or "32224"] value "ken.engr.acx"
-              2.3.0 (pmcd.pmlogger.port):  inst [32224 or "32224"] value 4331
-              2.3.2 (pmcd.pmlogger.archive):  inst [32224 or "32224"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-2"
+13:33:49.623  2.3.3 (pmcd.pmlogger.host): inst [32224 or "32224"] value "ken.engr.acx"
+              2.3.0 (pmcd.pmlogger.port): inst [32224 or "32224"] value 4331
+              2.3.2 (pmcd.pmlogger.archive): inst [32224 or "32224"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-2"
 
 13:33:50.622  29.0.80 (sample.many.int):
                 inst [0 or "i-0"] value 0
@@ -1188,9 +1188,9 @@ InDom: 2.1
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 
-13:33:44.278  2.3.3 (pmcd.pmlogger.host):  inst [32221 or "32221"] value "ken.engr.acx"
-              2.3.0 (pmcd.pmlogger.port):  inst [32221 or "32221"] value 4330
-              2.3.2 (pmcd.pmlogger.archive):  inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
+13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
+              2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
+              2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
 
 13:33:47.240  29.0.80 (sample.many.int):
                 inst [0 or "i-0"] value 0
@@ -1215,9 +1215,9 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
                 inst [800 or "bin-800"] value 800
                 inst [900 or "bin-900"] value 900
 
-13:33:49.623  2.3.3 (pmcd.pmlogger.host):  inst [32224 or "32224"] value "ken.engr.acx"
-              2.3.0 (pmcd.pmlogger.port):  inst [32224 or "32224"] value 4331
-              2.3.2 (pmcd.pmlogger.archive):  inst [32224 or "32224"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-2"
+13:33:49.623  2.3.3 (pmcd.pmlogger.host): inst [32224 or "32224"] value "ken.engr.acx"
+              2.3.0 (pmcd.pmlogger.port): inst [32224 or "32224"] value 4331
+              2.3.2 (pmcd.pmlogger.archive): inst [32224 or "32224"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-2"
 
 13:33:50.240  29.0.80 (sample.many.int):
                 inst [0 or "i-0"] value 0
