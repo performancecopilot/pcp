@@ -669,11 +669,7 @@ extern int pmRequestTraversePMNS(int, const char *);
 
 /*
  * Event Record support
- *
- * PM_CLUSTER_EVENT is reserved value for cluster field of a PMID
  */
-#define PM_CLUSTER_EVENT	4095
-
 typedef struct {
     pmID		ep_pmid;
     /* vtype and vlen fields the format same as for pmValueBlock */
