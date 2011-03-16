@@ -247,7 +247,7 @@ DOMAIN_PERLRULE = \
 	    BEGIN {\
 		domain = toupper("$(IAM)") \
 	    }\
-	    $$1=="#define" && $$2 == domain { \
+	    $$1=="\#define" && $$2 == domain { \
 		pmd=$$3; found++ \
 	    }\
 	    END {\
