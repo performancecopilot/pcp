@@ -387,7 +387,7 @@ __pmtracegetPDU(int fd, int timeout, __pmTracePDU **result)
 	    if (len == PMTRACE_ERR_TIMEOUT)
 		return PMTRACE_ERR_TIMEOUT;
 	    if (len < 0)
-		fprintf(stderr, "__pmtracegetPDU: error (%d) fd=%d: %s\n", oserror(), fd, osstrerror());
+		fprintf(stderr, "__pmtracegetPDU: error (%d) fd=%d: %s\n", (int)oserror(), fd, osstrerror());
 	    else
 		fprintf(stderr, "__pmtracegetPDU: len=%d, not %d? (fd=%d)\n", len, need, fd);
 	    fprintf(stderr, "hdr: len=0x%08x type=0x%08x from=0x%08x\n",

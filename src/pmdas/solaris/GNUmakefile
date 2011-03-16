@@ -71,13 +71,4 @@ root_solaris: ../../pmns/stdpmid $(PMNS) root
 	$(CPP_SIMPLE) -I../../pmns < root | sed -e '/^#/d' > root_solaris
 
 domain.h: ../../pmns/stdpmid
-	rm -f domain.h
-	@echo "/*" >domain.h
-	@echo " * built from $<" >>domain.h
-	@echo " */" >>domain.h
-	@$(PCP_AWK_PROG) <$< '\
-$$1=="#define" && $$2 == "$(DOMAIN)" { print "#define $(DOMAIN) " $$3 >>"$@"; found++ }\
-END	{ if (found == 0) { print "Botch: no #define for domain $(DOMAIN) in $<";  exit(1) }\
-          if (found > 1) { print "Botch: multiple #defines for domain $(DOMAIN) in $<"; print "... see $@ for details"; exit(1) }\
-	  exit(0)\
-	}'
+	$(DOMAIN_MAKERULE)

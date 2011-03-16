@@ -17,6 +17,7 @@
  */
 
 #include <ctype.h>
+#include <inttypes.h>
 #include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
@@ -520,7 +521,7 @@ Options:\n\
 		    printf("htab64[%3d]", j);
 		}
 		__ntohll((char *)&k64);	
-		printf(" %5lld", (long long)k64); 
+		printf(" %5" PRIi64, k64); 
 	    }
 	    printf("\n\n64-bit Node Table\n");
 	    for (j = 0; j < nodecnt; j++) {
@@ -535,9 +536,10 @@ Options:\n\
 	        __ntohll ((char *)&t.next);
 	        __ntohll ((char *)&t.hash);
 
-		printf("node64[%4d] %6lld %6lld %6lld %6lld %-16.16s",
-		    j, (long long)t.parent, (long long)t.next,
-		    (long long)t.first, (long long)t.hash, _symbol+t.name);
+		printf("node64[%4d] "
+		       "%6" PRIi64 " %6" PRIi64 " %6" PRIi64 " %6" PRIi64
+		       " %-16.16s",
+		    j, t.parent, t.next, t.first, t.hash, _symbol+t.name);
 		if (t.first == -1) {
 		    printf(" %s", pmIDStr(__htonpmID(_nodetab64[j].pmid)));
 		}	

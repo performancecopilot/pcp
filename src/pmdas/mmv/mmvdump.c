@@ -17,6 +17,7 @@
 #include "mmv_stats.h"
 #include "mmv_dev.h"
 #include "impl.h"
+#include <inttypes.h>
 #include <sys/stat.h>
 
 void
@@ -27,14 +28,13 @@ dump_indoms(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
     mmv_disk_indom_t * indom = (mmv_disk_indom_t *)
 			((char *)addr + offset);
 
-    printf("\nTOC[%d]: offset %ld, indoms offset %lld (%d entries)\n",
-		idx, base, (long long)offset, count);
+    printf("\nTOC[%d]: offset %ld, indoms offset %" PRIu64 " (%d entries)\n",
+		idx, base, offset, count);
 
     for (i = 0; i < count; i++) {
 	__uint64_t off = offset + i * sizeof(mmv_disk_indom_t);
-	printf("  [%u/%lld] %d instances, starting at offset %lld\n",
-		indom[i].serial, (long long)off,
-		indom[i].count, (long long)indom[i].offset);
+	printf("  [%u/%"PRIi64"] %d instances, starting at offset %"PRIi64"\n",
+		indom[i].serial, off, indom[i].count, indom[i].offset);
 	if (indom[i].shorttext) {
 	    string = (mmv_disk_string_t *)
 			((char *)addr + indom[i].shorttext);
@@ -59,15 +59,15 @@ dump_insts(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
     mmv_disk_instance_t * inst = (mmv_disk_instance_t *)
 			((char *)addr + offset);
 
-    printf("\nTOC[%d]: offset %ld, instances offset %lld (%d entries)\n",
-		idx, base, (long long)offset, count);
+    printf("\nTOC[%d]: offset %ld, instances offset %"PRIi64" (%d entries)\n",
+		idx, base, offset, count);
 
     for (i = 0; i < count; i++) {
 	mmv_disk_indom_t * indom = (mmv_disk_indom_t *)
 			((char *)addr + inst[i].indom);
-	printf("  [%u/%lld] instance = [%d or \"%s\"]\n",
+	printf("  [%u/%"PRIi64"] instance = [%d or \"%s\"]\n",
 		indom->serial,
-		(long long)(offset + i * sizeof(mmv_disk_instance_t)),
+		(offset + i * sizeof(mmv_disk_instance_t)),
 		inst[i].internal, inst[i].external);
     }
 }
@@ -139,12 +139,12 @@ dump_metrics(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
     mmv_disk_metric_t * m = (mmv_disk_metric_t *)
 				((char *)addr + offset);
 
-    printf("\nTOC[%d]: toc offset %ld, metrics offset %lld (%d entries)\n",
-		idx, base, (long long)offset, count);
+    printf("\nTOC[%d]: toc offset %ld, metrics offset %"PRIi64" (%d entries)\n",
+		idx, base, offset, count);
 
     for (i = 0; i < count; i++) {
 	__uint64_t off = offset + i * sizeof(mmv_disk_metric_t);
-	printf("  [%u/%lld] %s\n", m[i].item, (long long)off, m[i].name);
+	printf("  [%u/%"PRIi64"] %s\n", m[i].item, off, m[i].name);
 	printf("       type=%s (0x%x), sem=%s (0x%x), pad=0x%x\n",
 		metrictype(m[i].type), m[i].type,
 		metricsem(m[i].semantics), m[i].semantics,
@@ -178,8 +178,8 @@ dump_values(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
     mmv_disk_value_t * vals = (mmv_disk_value_t *)
 			((char *)addr + offset);
 
-    printf("\nTOC[%d]: offset %ld, values offset %lld (%d entries)\n",
-		idx, base, (long long)offset, count);
+    printf("\nTOC[%d]: offset %ld, values offset %"PRIu64" (%d entries)\n",
+		idx, base, offset, count);
 
     for (i = 0; i < count; i++) {
 	mmv_disk_string_t * string;
@@ -187,7 +187,7 @@ dump_values(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
 				((char *)addr + vals[i].metric);
 	__uint64_t off = offset + i * sizeof(mmv_disk_value_t);
 
-	printf("  [%u/%lld] %s", m->item, (long long)off, m->name);
+	printf("  [%u/%"PRIu64"] %s", m->item, off, m->name);
 	if (m->indom && m->indom != PM_IN_NULL) {
 	    mmv_disk_instance_t *indom = (mmv_disk_instance_t *)
 				((char *)addr + vals[i].instance);
@@ -203,10 +203,10 @@ dump_values(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
 	    printf(" = %u", vals[i].value.ul);
 	    break;
 	case MMV_TYPE_I64:
-	    printf(" = %lld", (long long)vals[i].value.ll);
+	    printf(" = %" PRIi64, vals[i].value.ll);
 	    break;
 	case MMV_TYPE_U64:
-	    printf(" = %llu", (unsigned long long)vals[i].value.ull);
+	    printf(" = %" PRIu64, vals[i].value.ull);
 	    break;
 	case MMV_TYPE_FLOAT:
 	    printf(" = %f", vals[i].value.f);
@@ -226,8 +226,8 @@ dump_values(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
 	    t = vals[i].value.ll;
 	    if (vals[i].extra < 0)
 		t += ((tv.tv_sec*1e6 + tv.tv_usec) + vals[i].extra);
-	    printf(" = %lld (value=%lld/extra=%lld)", t,
-		    (long long)vals[i].value.ll, (long long)vals[i].extra);
+	    printf(" = %"PRIi64" (value=%"PRIi64"/extra=%"PRIi64")",
+			t, vals[i].value.ll, vals[i].extra);
 	    if (vals[i].extra > 0)
 		printf("Bad ELAPSED 'extra' value found!");
 	    break;
@@ -246,12 +246,12 @@ dump_strings(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
     mmv_disk_string_t * string = (mmv_disk_string_t *)
 			((char *)addr + offset);
 
-    printf("\nTOC[%d]: offset %ld, string offset %lld (%d entries)\n",
-		idx, base, (long long)offset, count);
+    printf("\nTOC[%d]: offset %ld, string offset %"PRIu64" (%d entries)\n",
+		idx, base, offset, count);
 
     for (i = 0; i < count; i++) {
-	printf("  [%u/%lld] %s\n",
-		i+1, (long long)offset + i * sizeof(mmv_disk_string_t), 
+	printf("  [%u/%"PRIu64"] %s\n",
+		i+1, offset + i * sizeof(mmv_disk_string_t), 
 		string[i].payload);
     }
 }
@@ -276,9 +276,9 @@ dump(const char *file, void *addr)
 
     printf("MMV file   = %s\n", file);
     printf("Version    = %d\n", hdr->version);
-    printf("Generated  = %llu\n", (unsigned long long)hdr->g1);
+    printf("Generated  = %"PRIu64"\n", hdr->g1);
     if (hdr->g1 != hdr->g2) {
-	printf("Generated2 = %llu\n", (unsigned long long)hdr->g2);
+	printf("Generated2 = %"PRIu64"\n", hdr->g2);
 	printf("Mismatched generation numbers\n");
 	return 1;
     }

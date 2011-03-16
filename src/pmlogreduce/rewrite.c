@@ -1,7 +1,8 @@
 #include "pmlogreduce.h"
+#include <inttypes.h>
 #include <assert.h>
 
-static pmResult	*orp = NULL;
+static pmResult	*orp;
 
 /*
  * Must either re-write the pmResult, or report a fatal error and
@@ -40,10 +41,10 @@ rewrite(pmResult *rp)
 	ovsp = (pmValueSet *)malloc(sizeof(pmValueSet) +
 				need*sizeof(pmValue));
 	if (ovsp == NULL) {
+	    __uint64_t bytes = (sizeof(pmValueSet) + need * sizeof(pmValue));
 	    fprintf(stderr,
-		"%s: rewrite: Arrgh, cannot malloc %lld bytes for ovsp\n",
-		    pmProgname,
-		    (long long)(sizeof(pmValueSet) + need * sizeof(pmValue)));
+		"%s: rewrite: Arrgh, cannot malloc %"PRIi64" bytes for ovsp\n",
+		    pmProgname, bytes);
 	    exit(1);
 	}
 	ovsp->pmid = vsp->pmid;
