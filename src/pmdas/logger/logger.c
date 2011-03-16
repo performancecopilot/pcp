@@ -22,6 +22,7 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include <pcp/pmda.h>
+#include <ctype.h>
 #include "domain.h"
 #include "percontext.h"
 #include "event.h"
@@ -38,6 +39,19 @@
  * Metrics
  *	logger.clients		- number of attached clients
  */
+
+struct LogfileData {
+    char pathname[MAXPATHLEN];
+    int  numclients;
+    /* current client list - allocated? */
+    /* char       *pathname;  - stored in pmdaInstid */
+    /* int		fd; */
+    /* head of event queue */
+    /* perhaps a 'void *' for event.c to store stuff in? */
+};
+
+static struct LogfileData *logfiles = NULL;
+static int numlogfiles = 0;
 
 /*
  * all metrics supported in this PMDA - one table entry for each
@@ -60,7 +74,7 @@ static pmdaMetric metrictab[] = {
 
 static char	mypath[MAXPATHLEN];
 static int	isDSO = 1;		/* ==0 if I am a daemon */
-char	       *monitor_path = NULL;
+char	       *configfile = NULL;
 
 void
 logger_end_contextCallBack(int ctx)
@@ -159,7 +173,94 @@ logger_init(pmdaInterface *dp)
     pmdaInit(dp, NULL, 0, 
 	     metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
 
-    event_init(dp, monitor_path);
+    /* For now, only handle the 1st logfile. */
+    event_init(dp, logfiles[0].pathname);
+}
+
+static int
+read_config(const char *filename)
+{
+    FILE	       *configFile;
+    struct LogfileData *data;
+    int			rc = 0;
+    size_t		len;
+    char		tmp[MAXPATHLEN];
+    char	       *endptr;
+
+    configFile = fopen(filename, "r");
+    if (configFile == NULL) {
+	fprintf(stderr, "%s: %s: %s\n", __FUNCTION__, filename,
+		strerror(errno));
+	return -1;
+    }
+
+    while (! feof(configFile)) {
+	if (fgets(tmp, sizeof(tmp), configFile) == NULL) {
+	    if (feof(configFile)) {
+		break;
+	    }
+	    else {
+		fprintf(stderr, "%s: fgets failed: %s\n", __FUNCTION__,
+			strerror(errno));
+		rc = -1;
+		break;
+	    }
+	}
+
+	/* fgets() puts the '\n' at the end of the buffer.  Remove
+	 * it.  If it isn't there, that must mean that the pathname
+	 * is longer than MAXPATHLEN. */
+	len = strlen(tmp);
+	if (len == 0) {			/* Ignore empty string. */
+	    continue;
+	}
+	else if (tmp[len - 1] != '\n') { /* String must be too long */
+	    fprintf(stderr, "%s: pathname too long: %s\n", __FUNCTION__,
+		    tmp);
+	    rc = -1;
+	    break;
+	}
+	tmp[len - 1] = '\0';		/* Remove the '\n'. */
+
+	/* Remove all trailing whitespace.  Set endptr to last char of
+	 * string. */
+	endptr = tmp + strlen(tmp) - 1;
+	/* While trailing whitespace, move back. */
+	while (endptr >= tmp && isspace(*endptr)) {
+	    --endptr;
+	}
+	*(endptr+1) = '\0';	  /* Now set '\0' as terminal byte. */
+
+	/* If the string is now empty, just ignore the line. */
+	len = strlen(tmp);
+	if (len == 0) {
+	    continue;
+	}
+	
+	/* Now we've got a reasonable logfile pathname.  Save it. */
+	numlogfiles++;
+	logfiles = realloc(logfiles, numlogfiles * sizeof(struct LogfileData));
+	if (logfiles == NULL) {
+	    fprintf(stderr, "%s: realloc failed: %s\n", __FUNCTION__,
+		    strerror(errno));
+	    rc = -1;
+	    break;
+	}
+	data = &logfiles[numlogfiles - 1];
+	data->numclients = 0;
+	strcpy(data->pathname, tmp);
+
+	__pmNotifyErr(LOG_INFO, "%s: saw logfile %s\n", __FUNCTION__,
+		      data->pathname);
+    }
+    if (rc != 0) {
+	free(logfiles);
+	logfiles = NULL;
+	numlogfiles = 0;
+    }
+
+    fclose(configFile);
+    return rc;
 }
 
 static void
@@ -193,20 +294,33 @@ main(int argc, char **argv)
     pmdaDaemon(&desc, PMDA_INTERFACE_5, pmProgname, LOGGER,
 		"logger.log", mypath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:m:?", &desc, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:?", &desc, &err)) != EOF) {
 	switch (c) {
-	  case 'm':
-	    monitor_path = optarg;
-	    break;
 	  default:
 	    err++;
 	    break;
 	}
     }
-    if (err || monitor_path == NULL)
+    if (err || optind != argc -1) {
     	usage();
+    }
+
+    configfile = argv[optind];
 
     pmdaOpenLog(&desc);
+    if (read_config(configfile) != 0) {
+	exit(1);
+    }
+
+    /* For now, only allow 1 logfile. */
+    if (numlogfiles == 0) {
+	usage();
+    }
+    if (numlogfiles > 1) {
+	__pmNotifyErr(LOG_INFO, "%s: Only handling first logfile\n",
+		      __FUNCTION__);
+    }
+
     logger_init(&desc);
     pmdaConnect(&desc);
 

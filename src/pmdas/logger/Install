@@ -39,25 +39,110 @@ pmda_interface=4
 #
 pmdaSetup
 
-# Get logfile to monitor
+# be careful that mortals cannot write any configuration files, as
+# these would present a security problem
+#
+umask 022
+
+
+# PMDA variables
+#
+configfile=""
+
+_parsedefaults()
+{
+    echo "Extracting options from current installation ..."
+    while getopts D:d:l c
+    do
+    	case $c in
+	    \?)		echo "Warning: Unrecognized option in $PCP_PMCDCONF_PATH"
+			echo "	       Remove line for the $iam PMDA in $PCP_PMCDCONF_PATH and re-run ./Install"
+	    		exit 2;;
+	    * )		;;
+	esac
+    done
+    eval configfile='$'$OPTIND
+    echo "_parsedefaults found $configfile"
+}
+
+# Get logfile(s) to monitor
 if $do_pmda
 then
-    args=""
-
-    $PCP_ECHO_PROG $PCP_ECHO_N "Logfile path to monintor? ""$PCP_ECHO_C"
-    read value
-
-    if [ -z "$value" ]
+    # set options from $PCP_PMCDCONF_PATH, if possible
+    #
+    ans=`$PCP_AWK_PROG <$PCP_PMCDCONF_PATH '
+$1 == "'$iam'"	{ printf "%s",$6
+		  for (i=7;i<=NF;i++) printf " %s",$i
+		  print ""
+	        }'`
+    if [ ! -z "$ans" ]
     then
-	echo "Error: logfile path must be specifed." >&2
-	exit 1
-    else
-	if [ ! -e $value ]
-	then
-	    echo "Warning: logfile $value doesn't exist!  Reinstall to change."
-	fi
-	args="$args -m $value"
+	_parsedefaults $ans
     fi
+
+    # go figure out which configuration file to use ...
+    #
+    #default_configfile=./sample.conf
+    default_configfile=''
+    pmdaChooseConfigFile
+    if [ ! -f "$configfile" ]
+    then
+	$PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to enter logfile names manually? [y] ""$PCP_ECHO_C"
+	read ans
+	if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o -z "$ans" ]
+	then
+	    configfile="$configdir/$iam.conf"
+	    if [ -f $configfile ]
+	    then
+		    echo "Removing old configuration file \"$configfile\""
+		    rm -f $configfile
+		    if [ -f $configfile ]
+		    then
+			    echo "Cannot remove \"$configfile\""
+			    _quit 1
+		    fi
+	    fi
+
+	    echo
+	    echo \
+'Enter one logfile name per line.  An empty line terminates the
+logfile selection process and there must be at least one logfile specified.
+'
+
+	    args=""
+	    touch $configfile
+	    if [ ! -f $configfile ]
+	    then
+		echo "Installation aborted."
+		_quit 1
+	    fi
+
+	    while [ ! -s "$configfile" ]
+	    do
+		while true
+		do
+		    $PCP_ECHO_PROG $PCP_ECHO_N "Logfile name: ""$PCP_ECHO_C"
+		    read logfile
+		    [ -z "$logfile" ] && break
+		    if grep "^$logfile$" $configfile >/dev/null
+		    then
+			echo "Sorry, logfile \"$logfile\" already specified.  Please try again."
+			continue
+		    fi
+		    if [ ! -e "$logfile" ]; then
+			echo "Error: logfile $value doesn't exist!  Reinstall to change."
+		    fi
+		    echo "$logfile" >>$configfile
+		done
+	    done
+	else
+	    echo ""
+	    echo "Error: Abandoning installation as no configuration file was specified."
+	    _quit 1
+	fi
+    fi
+
+    args="$configfile"
 fi
 
 pmdaInstall
