@@ -145,7 +145,7 @@ typedef struct {
 #define PM_ERR_TEXT		(-PM_ERR_BASE-4)    /* Oneline or help text is not available */
 #define PM_ERR_APPVERSION	(-PM_ERR_BASE-5)    /* Metric not supported by this version of monitored application */
 #define PM_ERR_VALUE		(-PM_ERR_BASE-6)    /* Missing metric value(s) */
-#define PM_ERR_LICENSE		(-PM_ERR_BASE-7)    /* Current PCP license does not permit this operation */
+/* retired PM_ERR_LICENSE (-PM_ERR_BASE-7) Current PCP license does not permit this operation */
 #define PM_ERR_TIMEOUT		(-PM_ERR_BASE-8)    /* Timeout waiting for a response from PMCD */
 #define PM_ERR_NODATA		(-PM_ERR_BASE-9)    /* Empty archive log file */
 #define PM_ERR_RESET		(-PM_ERR_BASE-10)   /* pmcd reset or configuration changed */
@@ -190,7 +190,7 @@ typedef struct {
 #endif /* ASYNC_API */
 #define PM_ERR_NONLEAF		(-PM_ERR_BASE-49)   /* PMNS node is not a leaf node */
 #define PM_ERR_OBJSTYLE		(-PM_ERR_BASE-50)   /* user/kernel object style mismatch */
-#define PM_ERR_PMCDLICENSE	(-PM_ERR_BASE-51)   /* PMCD is not licensed to accept connections */
+/* retired PM_ERR_PMCDLICENSE (-PM_ERR_BASE-51) PMCD is not licensed to accept connections */
 #define PM_ERR_TYPE		(-PM_ERR_BASE-52)   /* Unknown or illegal metric type */
 
 #define PM_ERR_CTXBUSY		(-PM_ERR_BASE-97)   /* Context is busy */

@@ -91,17 +91,6 @@ This error is used in results from
 .BR pmFetch (3)
 to indicate these situations.
 .TP
-.B PM_ERR_LICENSE
-.I "Current PCP license does not permit this operation"
-.br
-Some
-.BR pmcd (1)
-services require a valid PCP Collector license, and some
-PCP client applications require a valid PCP Monitor license.
-The open source version of 
-.BR pmcd (1)
-does not require any licenses at all.
-.TP
 .B PM_ERR_IPC
 .I "IPC protocol failure"
 .br
@@ -389,20 +378,6 @@ the PMDA responsible for delivering the information is temporarily
 unavailable.
 See also
 .BR PM_ERR_PMDANOTREADY .
-.TP
-.B PM_ERR_PMCDLICENSE
-.I "PMCD is not licensed to accept client connections"
-.br
-If
-.BR pmcd (1)
-is running without a valid PCP Collector License, then it will
-only accept connections from ``authorized'' PCP clients like
-.BR pminfo (1)
-or
-.BR pmlogger (1).
-This error occurs when an unauthorized PCP
-client attempts to connect to an unlicensed
-.BR pmcd (1).
 .TP
 .B PM_ERR_NOPROFILE
 .I "Missing profile - protocol botch"

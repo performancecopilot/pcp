@@ -89,7 +89,6 @@ defines(void)
     printf("PM_ERR_TEXT=%d\n", PM_ERR_TEXT);
     printf("PM_ERR_APPVERSION=%d\n", PM_ERR_APPVERSION);
     printf("PM_ERR_VALUE=%d\n", PM_ERR_VALUE);
-    printf("PM_ERR_LICENSE=%d\n", PM_ERR_LICENSE);
     printf("PM_ERR_TIMEOUT=%d\n", PM_ERR_TIMEOUT);
     printf("PM_ERR_NODATA=%d\n", PM_ERR_NODATA);
     printf("PM_ERR_RESET=%d\n", PM_ERR_RESET);
@@ -129,7 +128,6 @@ defines(void)
     printf("PM_ERR_WANTACK=%d\n", PM_ERR_WANTACK);
     printf("PM_ERR_NONLEAF=%d\n", PM_ERR_NONLEAF);
     printf("PM_ERR_OBJSTYLE=%d\n", PM_ERR_OBJSTYLE);
-    printf("PM_ERR_PMCDLICENSE=%d\n", PM_ERR_PMCDLICENSE);
     printf("PM_ERR_TYPE=%d\n", PM_ERR_TYPE);
     printf("PM_ERR_CTXBUSY=%d\n", PM_ERR_CTXBUSY);
     printf("PM_ERR_TOOSMALL=%d\n", PM_ERR_TOOSMALL);
