@@ -1,0 +1,671 @@
+/*
+ * Event Trace Consumer for Windows events on the current platform.
+ *
+ * Copyright (c) 2011, Nathan Scott.  All Rights Reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+#define INITGUID
+#include <pmapi.h>
+#include <impl.h>
+#include <tdh.h>
+#include <tdhmsg.h>
+#include <evntrace.h>
+#include "util.h"
+
+USHORT globalPointerSize;	/* TODO: make local & on-stack */
+
+/* Get the event metadata */
+static DWORD
+GetEventInformation(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo)
+{
+    DWORD sts = ERROR_SUCCESS;
+    DWORD size = 0;
+
+    sts = TdhGetEventInformation(pEvent, 0, NULL, pInfo, &size);
+    if (sts == ERROR_INSUFFICIENT_BUFFER) {
+	pInfo = (TRACE_EVENT_INFO *)malloc(size);
+	if (pInfo == NULL) {
+	    fprintf(stderr,
+		"Failed to allocate memory for event info (size=%lu).\n", size);
+	    sts = ERROR_OUTOFMEMORY;
+	} else {
+	    /* Retrieve event metadata */
+	    sts = TdhGetEventInformation(pEvent, 0, NULL, pInfo, &size);
+	}
+    } else if (sts != ERROR_SUCCESS) {
+	fprintf(stderr, "TdhGetEventInformation failed: %s (%lu)\n",
+		tdherror(sts), sts);
+    }
+    return sts;
+}
+
+static void
+PrintMapString(PEVENT_MAP_INFO pMapInfo, PBYTE pData)
+{
+    BOOL MatchFound = FALSE;
+    DWORD i;
+
+    if ((pMapInfo->Flag & EVENTMAP_INFO_FLAG_MANIFEST_VALUEMAP) ==
+		EVENTMAP_INFO_FLAG_MANIFEST_VALUEMAP ||
+	((pMapInfo->Flag & EVENTMAP_INFO_FLAG_WBEM_VALUEMAP) ==
+		EVENTMAP_INFO_FLAG_WBEM_VALUEMAP &&
+	(pMapInfo->Flag & (~EVENTMAP_INFO_FLAG_WBEM_VALUEMAP)) !=
+		EVENTMAP_INFO_FLAG_WBEM_FLAG)) {
+	if ((pMapInfo->Flag & EVENTMAP_INFO_FLAG_WBEM_NO_MAP) ==
+		EVENTMAP_INFO_FLAG_WBEM_NO_MAP) {
+	    printf("%s\n", ((PBYTE)pMapInfo +
+			pMapInfo->MapEntryArray[*(PULONG)pData].OutputOffset));
+	} else {
+	    for (i = 0; i < pMapInfo->EntryCount; i++) {
+		if (pMapInfo->MapEntryArray[i].Value == *(PULONG)pData) {
+		    printf("%s\n", ((PBYTE)pMapInfo +
+		   		 pMapInfo->MapEntryArray[i].OutputOffset));
+		    MatchFound = TRUE;
+		    break;
+		}
+	    }
+
+	    if (MatchFound == FALSE)
+		printf("%lu\n", *(PULONG)pData);
+	}
+    }
+    else if ((pMapInfo->Flag & EVENTMAP_INFO_FLAG_MANIFEST_BITMAP) ==
+		EVENTMAP_INFO_FLAG_MANIFEST_BITMAP ||
+	(pMapInfo->Flag & EVENTMAP_INFO_FLAG_WBEM_BITMAP) ==
+		EVENTMAP_INFO_FLAG_WBEM_BITMAP ||
+	((pMapInfo->Flag & EVENTMAP_INFO_FLAG_WBEM_VALUEMAP) ==
+		EVENTMAP_INFO_FLAG_WBEM_VALUEMAP &&
+	(pMapInfo->Flag & (~EVENTMAP_INFO_FLAG_WBEM_VALUEMAP)) ==
+		EVENTMAP_INFO_FLAG_WBEM_FLAG)) {
+	if ((pMapInfo->Flag & EVENTMAP_INFO_FLAG_WBEM_NO_MAP) ==
+		EVENTMAP_INFO_FLAG_WBEM_NO_MAP) {
+	    DWORD BitPosition = 0;
+
+	    for (i = 0; i < pMapInfo->EntryCount; i++) {
+		BitPosition = (1 << i);
+		if ((*(PULONG)pData & BitPosition) == BitPosition) {
+		    printf("%s%s", (MatchFound) ? " | " : "", 
+			((PBYTE)pMapInfo +
+				pMapInfo->MapEntryArray[i].OutputOffset));
+		    MatchFound = TRUE;
+		}
+	    }
+	} else {
+	    for (i = 0; i < pMapInfo->EntryCount; i++) {
+		if ((pMapInfo->MapEntryArray[i].Value & *(PULONG)pData) ==
+			pMapInfo->MapEntryArray[i].Value) {
+		    printf("%s%s", (MatchFound) ? " | " : "", 
+			((PBYTE)pMapInfo +
+				pMapInfo->MapEntryArray[i].OutputOffset));
+		    MatchFound = TRUE;
+		}
+	    }
+	}
+
+	if (MatchFound) {
+	    printf("\n");
+	} else {
+	    printf("%lu\n", *(PULONG)pData);
+	}
+    }
+}
+
+static DWORD
+FormatAndPrintData(PEVENT_RECORD pEvent, USHORT InType, USHORT OutType,
+		   PBYTE pData, DWORD DataSize, PEVENT_MAP_INFO pMapInfo)
+{
+    DWORD i, sts = ERROR_SUCCESS;
+    size_t StringLength = 0;
+
+    switch (InType) {
+	case TDH_INTYPE_UNICODESTRING:
+	case TDH_INTYPE_COUNTEDSTRING:
+	case TDH_INTYPE_REVERSEDCOUNTEDSTRING:
+	case TDH_INTYPE_NONNULLTERMINATEDSTRING:
+	    if (TDH_INTYPE_COUNTEDSTRING == InType)
+		StringLength = *(PUSHORT)pData;
+	    else if (TDH_INTYPE_REVERSEDCOUNTEDSTRING == InType)
+		StringLength = MAKEWORD(
+			HIBYTE((PUSHORT)pData), LOBYTE((PUSHORT)pData));
+	    else if (TDH_INTYPE_NONNULLTERMINATEDSTRING == InType)
+		StringLength = DataSize;
+	    else
+		StringLength = wcslen((LPWSTR)pData);
+	    printf("%.*s\n", StringLength, pData);
+	    break;
+
+	case TDH_INTYPE_ANSISTRING:
+	case TDH_INTYPE_COUNTEDANSISTRING:
+	case TDH_INTYPE_REVERSEDCOUNTEDANSISTRING:
+	case TDH_INTYPE_NONNULLTERMINATEDANSISTRING:
+	    if (TDH_INTYPE_COUNTEDANSISTRING == InType)
+		StringLength = *(PUSHORT)pData;
+	    else if (TDH_INTYPE_REVERSEDCOUNTEDANSISTRING == InType)
+		StringLength = MAKEWORD(
+			HIBYTE((PUSHORT)pData), LOBYTE((PUSHORT)pData));
+	    else if (TDH_INTYPE_NONNULLTERMINATEDANSISTRING == InType)
+		StringLength = DataSize;
+	    else
+		StringLength = strlen((LPSTR)pData);
+	    printf("%.*s\n", StringLength, pData);
+	    break;
+
+	case TDH_INTYPE_INT8:
+	    printf("%hd\n", *(PCHAR)pData);
+	    break;
+
+	case TDH_INTYPE_UINT8:
+	    if (TDH_OUTTYPE_HEXINT8 == OutType)
+		printf("0x%x\n", *(PBYTE)pData);
+	    else
+		printf("%hu\n", *(PBYTE)pData);
+	    break;
+
+	case TDH_INTYPE_INT16:
+	    printf("%hd\n", *(PSHORT)pData);
+	    break;
+
+	case TDH_INTYPE_UINT16:
+	    if (TDH_OUTTYPE_HEXINT16 == OutType)
+		printf("0x%x\n", *(PUSHORT)pData);
+	    else if (TDH_OUTTYPE_PORT == OutType)
+		printf("%hu\n", ntohs(*(PUSHORT)pData));
+	    else
+		printf("%hu\n", *(PUSHORT)pData);
+	    break;
+
+	case TDH_INTYPE_INT32:
+	    if (TDH_OUTTYPE_HRESULT == OutType)
+		printf("0x%lx\n", *(PLONG)pData);
+	    else
+		printf("%ld\n", *(PLONG)pData);
+	    break;
+
+	case TDH_INTYPE_UINT32:
+	    if (TDH_OUTTYPE_HRESULT == OutType ||
+		TDH_OUTTYPE_WIN32ERROR == OutType ||
+		TDH_OUTTYPE_NTSTATUS == OutType ||
+		TDH_OUTTYPE_HEXINT32 == OutType)
+		printf("0x%lx\n", *(PULONG)pData);
+	    else if (TDH_OUTTYPE_IPV4 == OutType)
+		printf("%ld.%ld.%ld.%ld\n", (*(PLONG)pData >>  0) & 0xff,
+					(*(PLONG)pData >>  8) & 0xff,
+					(*(PLONG)pData >>  16) & 0xff,
+					(*(PLONG)pData >>  24) & 0xff);
+	    else if (pMapInfo)
+		PrintMapString(pMapInfo, pData);
+	    else
+		printf("%lu\n", *(PULONG)pData);
+	    break;
+
+	case TDH_INTYPE_INT64:
+	    printf("%I64d\n", *(PLONGLONG)pData);
+	    break;
+
+	case TDH_INTYPE_UINT64:
+	    if (TDH_OUTTYPE_HEXINT64 == OutType)
+		printf("0x%I64x\n", *(PULONGLONG)pData);
+	    else
+		printf("%I64u\n", *(PULONGLONG)pData);
+	    break;
+
+	case TDH_INTYPE_FLOAT:
+	    printf("%f\n", *(PFLOAT)pData);
+	    break;
+
+	case TDH_INTYPE_DOUBLE:
+	    printf("%f\n", *(double*)pData);
+	    break;
+
+	case TDH_INTYPE_BOOLEAN:
+	    printf("%s\n", ((PBOOL)pData == 0) ? "false" : "true");
+	    break;
+
+	case TDH_INTYPE_BINARY:
+	    if (TDH_OUTTYPE_IPV6 == OutType)
+		break;
+	    else {
+		for (i = 0; i < DataSize; i++)
+		    printf("%.2x", pData[i]);
+		printf("\n");
+	    }
+	    break;
+
+	case TDH_INTYPE_GUID:
+	    printf("%s\n", strguid((GUID *)pData));
+	    break;
+
+	case TDH_INTYPE_POINTER:
+	case TDH_INTYPE_SIZET:
+	    if (globalPointerSize == 4)
+		printf("0x%I32x\n", *(PULONG)pData);
+	    else
+		printf("0x%I64x\n", *(PULONGLONG)pData);
+
+	case TDH_INTYPE_FILETIME:
+	    break;
+
+	case TDH_INTYPE_SYSTEMTIME:
+	    break;
+
+	case TDH_INTYPE_SID:
+	    break;
+
+	case TDH_INTYPE_HEXINT32:
+	    printf("0x%I32x\n", *(PULONG)pData);
+	    break;
+
+	case TDH_INTYPE_HEXINT64:
+	    printf("0x%I64x\n", *(PULONGLONG)pData);
+	    break;
+
+	case TDH_INTYPE_UNICODECHAR:
+	    printf("%c\n", *(PWCHAR)pData);
+	    break;
+
+	case TDH_INTYPE_ANSICHAR:
+	    printf("%C\n", *(PCHAR)pData);
+	    break;
+
+	case TDH_INTYPE_WBEMSID:
+	    break;
+
+    default:
+	sts = ERROR_NOT_FOUND;
+    }
+
+    return sts;
+}
+
+/*
+ * Get the size of the array.
+ * For MOF-based events, the size is specified in the declaration or using 
+ * the MAX qualifier.  For manifest-based events, the property can specify
+ * the size of the array using the count attribute.
+ * The count attribue can specify the size directly or specify the name 
+ * of another property in the event data that contains the size.
+ */
+static DWORD
+GetArraySize(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo,
+		USHORT i, PUSHORT ArraySize)
+{
+    PROPERTY_DATA_DESCRIPTOR DataDescriptor;
+    DWORD size = 0, sts = ERROR_SUCCESS;
+
+    if ((pInfo->EventPropertyInfoArray[i].Flags & PropertyParamCount) ==
+	PropertyParamCount) {
+	DWORD Count = 0;  /* Expects count to be defined as UINT16 or UINT32 */
+	DWORD j = pInfo->EventPropertyInfoArray[i].countPropertyIndex;
+
+	ZeroMemory(&DataDescriptor, sizeof(PROPERTY_DATA_DESCRIPTOR));
+	DataDescriptor.PropertyName =
+				(ULONGLONG)((PBYTE)(pInfo) +
+				pInfo->EventPropertyInfoArray[j].NameOffset);
+	DataDescriptor.ArrayIndex = ULONG_MAX;
+	sts = TdhGetPropertySize(pEvent, 0, NULL, 1, &DataDescriptor, &size);
+	/* TODO: error handling? */
+	sts = TdhGetProperty(pEvent, 0, NULL, 1, &DataDescriptor, size, (PBYTE)&Count);
+	*ArraySize = (USHORT)Count;
+    } else {
+	*ArraySize = pInfo->EventPropertyInfoArray[i].count;
+    }
+    return sts;
+}
+
+
+/*
+ * Mapped string values defined in a manifest will contain a trailing space
+ * in the EVENT_MAP_ENTRY structure. Replace the trailing space with a null-
+ * terminating character, so that bit mapped strings are correctly formatted.
+ */
+static void
+RemoveTrailingSpace(PEVENT_MAP_INFO pMapInfo)
+{
+    SIZE_T ByteLength = 0;
+    DWORD i;
+
+    for (i = 0; i < pMapInfo->EntryCount; i++) {
+	ByteLength = (wcslen((LPWSTR)((PBYTE)pMapInfo +
+			pMapInfo->MapEntryArray[i].OutputOffset)) - 1) * 2;
+	*((LPWSTR)((PBYTE)pMapInfo +
+		(pMapInfo->MapEntryArray[i].OutputOffset +
+		ByteLength))) = L'\0';
+    }
+}
+
+/*
+ * Both MOF-based events and manifest-based events can specify name/value maps.
+ * The map values can be integer values or bit values.
+ * If the property specifies a value map, get the map.
+ */
+static DWORD
+GetMapInfo(PEVENT_RECORD pEvent, LPWSTR pMapName, DWORD DecodingSource,
+	   PEVENT_MAP_INFO pMapInfo)
+{
+    DWORD sts = ERROR_SUCCESS;
+    DWORD size = 0;
+
+    /* Retrieve required buffer size for map info */
+    sts = TdhGetEventMapInformation(pEvent, pMapName, pMapInfo, &size);
+    if (sts == ERROR_INSUFFICIENT_BUFFER) {
+	pMapInfo = (PEVENT_MAP_INFO)malloc(size);
+	if (pMapInfo == NULL) {
+	    fprintf(stderr, "Failed to allocate map info memory (size=%lu).\n",
+			size);
+	    return ERROR_OUTOFMEMORY;
+	}
+
+	/* Retrieve the map info */
+	sts = TdhGetEventMapInformation(pEvent, pMapName, pMapInfo, &size);
+    }
+
+    if (sts == ERROR_SUCCESS) {
+	if (DecodingSourceXMLFile == DecodingSource)
+	    RemoveTrailingSpace(pMapInfo);
+    } else if (sts == ERROR_NOT_FOUND) {
+	sts = ERROR_SUCCESS;
+    } else {
+	fprintf(stderr, "TdhGetEventMapInformation failed: %s (%ld)\n",
+		tdherror(sts), sts);
+    }
+    return sts;
+}
+
+
+static DWORD
+PrintProperties(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo,
+		USHORT i, LPWSTR pStructureName, USHORT StructIndex)
+{
+    DWORD sts = ERROR_SUCCESS;
+    DWORD LastMember = 0;
+    USHORT ArraySize = 0;
+    PEVENT_MAP_INFO pMapInfo = NULL;
+    PROPERTY_DATA_DESCRIPTOR DataDescriptors[2];
+    ULONG DescriptorsCount = 0;
+    DWORD size = 0;
+    PBYTE pData = NULL;
+    USHORT k, j;
+
+    /* Get the size of the array (if the property is an array) */
+    sts = GetArraySize(pEvent, pInfo, i, &ArraySize);
+
+    for (k = 0; k < ArraySize; k++) {
+	printf("%*s%s: ", (pStructureName) ? 4 : 0, "",
+		((PBYTE)(pInfo) + pInfo->EventPropertyInfoArray[i].NameOffset));
+
+	/* If the property is a structure, print the members of the structure */
+	if ((pInfo->EventPropertyInfoArray[i].Flags & PropertyStruct) == PropertyStruct) {
+	    printf("\n");
+
+	    LastMember =
+		pInfo->EventPropertyInfoArray[i].structType.StructStartIndex + 
+		pInfo->EventPropertyInfoArray[i].structType.NumOfStructMembers;
+
+	    for (j = pInfo->EventPropertyInfoArray[i].structType.StructStartIndex; j < LastMember; j++) {
+		sts = PrintProperties(pEvent, pInfo, j, (LPWSTR)((PBYTE)(pInfo) + pInfo->EventPropertyInfoArray[i].NameOffset), k);
+		if (sts != ERROR_SUCCESS) {
+		    printf("Printing the members of the structure failed\n");
+		    goto cleanup;
+		}
+	    }
+	} else {
+	    ZeroMemory(&DataDescriptors, sizeof(DataDescriptors));
+
+	    /*
+	     * To retrieve a member of a structure, you need to specify
+	     * an array of descriptors.  The first descriptor in the array
+	     * identifies the name of the structure and the second 
+	     * descriptor defines the member of the structure whose data
+	     * you want to retrieve. 
+	     */
+	    if (pStructureName) {
+		DataDescriptors[0].PropertyName = (ULONGLONG)pStructureName;
+		DataDescriptors[0].ArrayIndex = StructIndex;
+		DataDescriptors[1].PropertyName = (ULONGLONG)
+		((PBYTE)(pInfo) + pInfo->EventPropertyInfoArray[i].NameOffset);
+		DataDescriptors[1].ArrayIndex = k;
+		DescriptorsCount = 2;
+	    } else {
+		DataDescriptors[0].PropertyName = (ULONGLONG)
+		((PBYTE)(pInfo) + pInfo->EventPropertyInfoArray[i].NameOffset);
+		DataDescriptors[0].ArrayIndex = k;
+		DescriptorsCount = 1;
+	    }
+
+	    /*
+	     * TDH API does not support IPv6 addresses.
+	     * If the output type is TDH_OUTTYPE_IPV6, you will be unable
+	     * to consume the rest of the event.
+	     * If you try to consume the remainder of the event, you will
+	     * get ERROR_EVT_INVALID_EVENT_DATA.
+	     */
+	    if (TDH_INTYPE_BINARY ==
+		pInfo->EventPropertyInfoArray[i].nonStructType.InType &&
+		TDH_OUTTYPE_IPV6 ==
+		pInfo->EventPropertyInfoArray[i].nonStructType.OutType) {
+		fprintf(stderr, "Event contains an IPv6 address. Skipping.\n");
+		sts = ERROR_EVT_INVALID_EVENT_DATA;
+		break;
+	    } else {
+		sts = TdhGetPropertySize(pEvent, 0, NULL,
+			DescriptorsCount, &DataDescriptors[0], &size);
+		if (sts != ERROR_SUCCESS) {
+		    fprintf(stderr, "TdhGetPropertySize failed: %s (%lu)\n",
+				tdherror(sts), sts);
+		    goto cleanup;
+		}
+
+		pData = malloc(size);
+		if (pData == NULL) {
+		    fprintf(stderr,
+			"Failed to allocate property data memory (%ld)\n", size);
+		    sts = ERROR_OUTOFMEMORY;
+		    goto cleanup;
+		}
+
+		sts = TdhGetProperty(pEvent, 0, NULL,
+			DescriptorsCount, &DataDescriptors[0], size, pData);
+
+		/*
+		 * Get the name/value map if the property specifies a value map.
+		 */
+		sts = GetMapInfo(pEvent, (PWCHAR) ((PBYTE)(pInfo) +
+		    pInfo->EventPropertyInfoArray[i].nonStructType.MapNameOffset),
+		    pInfo->DecodingSource,
+		    pMapInfo);
+		if (sts != ERROR_SUCCESS) {
+		    fprintf(stderr, "GetMapInfo failed\n");
+		    goto cleanup;
+		}
+
+		sts = FormatAndPrintData(pEvent, 
+		    pInfo->EventPropertyInfoArray[i].nonStructType.InType,
+		    pInfo->EventPropertyInfoArray[i].nonStructType.OutType,
+		    pData, size, pMapInfo);
+		if (sts != ERROR_SUCCESS) {
+		    fprintf(stderr, "FormatAndPrintData failed\n");
+		    goto cleanup;
+		}
+
+		if (pData) {
+		    free(pData);
+		    pData = NULL;
+		}
+		if (pMapInfo) {
+		    free(pMapInfo);
+		    pMapInfo = NULL;
+		}
+	    }
+	}
+    }
+
+cleanup:
+
+    if (pData) {
+	free(pData);
+	pData = NULL;
+    }
+
+    if (pMapInfo) {
+	free(pMapInfo);
+	pMapInfo = NULL;
+    }
+
+    return sts;
+}
+
+/* Callback that receives the events */
+VOID WINAPI
+ProcessEvent(PEVENT_RECORD pEvent)
+{
+    DWORD sts = ERROR_SUCCESS;
+    PTRACE_EVENT_INFO pInfo = NULL;
+    ULONGLONG TimeStamp = 0;
+    ULONGLONG Nanoseconds = 0;
+    SYSTEMTIME st;
+    SYSTEMTIME stLocal;
+    FILETIME ft;
+    USHORT i;
+
+    /*
+     * Process the event.
+     * The pEvent->UserData member is a pointer to the event specific data,
+     * if any exists.
+     */
+    sts = GetEventInformation(pEvent, pInfo);
+    if (sts != ERROR_SUCCESS) {
+	fprintf(stderr, "GetEventInformation failed: %s (%lu)\n",
+			tdherror(sts), sts);
+	goto cleanup;
+    }
+
+    /*
+     * Determine whether the event is defined by a MOF class, in an
+     * instrumentation manifest, or a WPP template; to use TDH to decode
+     * the event, it must be defined by one of these three sources.
+     */
+    if (DecodingSourceWbem == pInfo->DecodingSource) {  /* MOF class */
+	printf("Event GUID: %s\n", strguid(&pInfo->EventGuid));
+	printf("Event version: %d\n", pEvent->EventHeader.EventDescriptor.Version);
+	printf("Event type: %d\n", pEvent->EventHeader.EventDescriptor.Opcode);
+    }
+    else if (DecodingSourceXMLFile == pInfo->DecodingSource)
+	/* Instrumentation manifest */
+	printf("Event ID: %d\n", pInfo->EventDescriptor.Id);
+    else /* Not handling the WPP case */
+	goto cleanup;
+
+    /* Print the time stamp for when the event occurred */
+    ft.dwHighDateTime = pEvent->EventHeader.TimeStamp.HighPart;
+    ft.dwLowDateTime = pEvent->EventHeader.TimeStamp.LowPart;
+
+    FileTimeToSystemTime(&ft, &st);
+    SystemTimeToTzSpecificLocalTime(NULL, &st, &stLocal);
+    TimeStamp = pEvent->EventHeader.TimeStamp.QuadPart;
+    Nanoseconds = (TimeStamp % 10000000) * 100;
+
+    printf("%02d/%02d/%02d %02d:%02d:%02d.%I64u\n", 
+	    stLocal.wMonth, stLocal.wDay, stLocal.wYear, stLocal.wHour,
+	    stLocal.wMinute, stLocal.wSecond, Nanoseconds);
+
+    if (EVENT_HEADER_FLAG_32_BIT_HEADER ==
+	(pEvent->EventHeader.Flags & EVENT_HEADER_FLAG_32_BIT_HEADER))
+	globalPointerSize = 4;
+    else
+	globalPointerSize = 8;
+
+    /*
+     * Print the event data for all the top-level properties.
+     * Metadata for all the top-level properties come before structure
+     * member properties in the property information array.
+     * If the EVENT_HEADER_FLAG_STRING_ONLY flag is set, the event data
+     * is a null-terminated string, so just print it.
+     */
+    if (EVENT_HEADER_FLAG_STRING_ONLY ==
+	(pEvent->EventHeader.Flags & EVENT_HEADER_FLAG_STRING_ONLY)) {
+	printf("%s\n", (char *)pEvent->UserData);
+    } else {
+	for (i = 0; i < pInfo->TopLevelPropertyCount; i++) {
+	    sts = PrintProperties(pEvent, pInfo, i, NULL, 0);
+	    if (sts != ERROR_SUCCESS) {
+		printf("Printing top level properties failed.\n");
+		goto cleanup;
+	    }
+	}
+    }
+
+cleanup:
+
+    if (pInfo)
+	free(pInfo);
+}
+
+int
+main(int argc, char **argv)
+{
+    EVENT_TRACE_PROPERTIES *traceKernel;
+    EVENT_TRACE_LOGFILE traceMode;
+    TRACEHANDLE traceHandle;  
+    ULONG size, sts = ERROR_SUCCESS;
+
+    size = sizeof(EVENT_TRACE_PROPERTIES) + sizeof(KERNEL_LOGGER_NAME);
+    traceKernel = malloc(size);
+    if (traceKernel == NULL) {
+	fprintf(stderr, "Insufficient memory: %lu bytes\n", size);
+	exit(1);
+    }
+    ZeroMemory(traceKernel, size);
+    traceKernel->Wnode.BufferSize = size;
+    traceKernel->Wnode.Flags = WNODE_FLAG_TRACED_GUID;
+    traceKernel->Wnode.ClientContext = 1;
+    traceKernel->Wnode.Guid = SystemTraceControlGuid;
+    traceKernel->EnableFlags = EVENT_TRACE_FLAG_NETWORK_TCPIP;	/* TODO */
+    traceKernel->LogFileMode = EVENT_TRACE_REAL_TIME_MODE;
+    /* traceKernel->LogFileMode |= EVENT_TRACE_USE_GLOBAL_SEQUENCE; ??? */
+    traceKernel->LoggerNameOffset = sizeof(EVENT_TRACE_PROPERTIES);
+
+    sts = StartTrace(&traceHandle, KERNEL_LOGGER_NAME, traceKernel);
+    if (sts != ERROR_SUCCESS) {
+    	if (sts == ERROR_ALREADY_EXISTS)
+	    fprintf(stderr, "Kernel Logger session is already in use\n");
+	else
+	    fprintf(stderr, "StartTrace failed: %s\n", tdherror(sts));
+	exit(1);
+    }
+
+    ZeroMemory(&traceMode, sizeof(EVENT_TRACE_LOGFILE));
+    traceMode.LoggerName = KERNEL_LOGGER_NAME;
+    traceMode.EventRecordCallback = (PEVENT_RECORD_CALLBACK) ProcessEvent;
+    traceMode.ProcessTraceMode = PROCESS_TRACE_MODE_REAL_TIME;
+
+    // put this earlier?  (before starttrace?)
+    traceHandle = OpenTrace(&traceMode);
+    if (!traceHandle) {
+	sts = GetLastError();
+	fprintf(stderr, "OpenTrace failed: %s (%lu)\n",
+		    tdherror(sts), sts);
+	CloseTrace(traceHandle);
+	exit(1);
+    }
+
+    sts = ProcessTrace(&traceHandle, 1, NULL, NULL);
+    if (sts != ERROR_SUCCESS && sts != ERROR_CANCELLED) {
+	fprintf(stderr, "ProcessTrace failed: %s (%lu)\n", tdherror(sts), sts);
+    } else {
+	sts = ControlTrace(traceHandle,
+		KERNEL_LOGGER_NAME, traceKernel, EVENT_TRACE_CONTROL_STOP);
+	if (sts != ERROR_SUCCESS)
+	    fprintf(stderr, "ControlTrace failed: %s\n", tdherror(sts));
+	CloseTrace(traceHandle);
+    }
+    return 0;
+}
