@@ -208,9 +208,9 @@ free_ivlist(node_t *np)
 static pmAtomValue
 bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomValue b, int rtype, int rmul, int rdiv)
 {
-    static pmAtomValue	res;
-    pmAtomValue		l;
-    pmAtomValue		r;
+    pmAtomValue	res;
+    pmAtomValue	l;
+    pmAtomValue	r;
 
     l = a;	/* struct assignments */
     r = b;

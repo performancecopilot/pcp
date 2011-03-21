@@ -551,7 +551,7 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
     int		sts = 0;
     int		len;
     const char	*vp;
-    static char	buf[80];
+    char	buf[80];
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_VALUE) {

@@ -256,6 +256,7 @@ EXTERN int	pmDebug;
 extern int __pmParseDebug(const char *);
 extern void __pmDumpResult(FILE *, const pmResult *);
 extern void __pmPrintStamp(FILE *, const struct timeval *);
+extern void __pmPrintTimeval(FILE *, const __pmTimeval *);
 extern void __pmPrintDesc(FILE *, const pmDesc *);
 extern void __pmFreeResultValues(pmResult *);
 extern const char *__pmPDUTypeStr(int);

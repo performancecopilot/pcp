@@ -59,18 +59,6 @@ typedef struct pmidcntl {		/* metric control */
     struct instcntl	*first;		/* first metric-instace control */
 } pmidcntl_t;
 
-#ifdef PCP_DEBUG
-static void
-printstamp(__pmTimeval *tp)
-{
-    static struct tm	*tmp;
-    time_t t = (time_t)tp->tv_sec;
-
-    tmp = localtime(&t);
-    fprintf(stderr, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, tp->tv_usec/1000);
-}
-#endif
-
 typedef struct {
     pmResult	*rp;		/* cached pmResult from __pmLogRead */
     int		sts;		/* from __pmLogRead */
@@ -518,7 +506,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_INTERP) {
 	fprintf(stderr, "__pmLogFetchInterp @ ");
-	printstamp(&ctxp->c_origin);
+	__pmPrintTimeval(stderr, &ctxp->c_origin);
 	fprintf(stderr, " t_req=%.6f curvol=%d posn=%ld (vol=%d) serial=%d\n",
 	    t_req, ctxp->c_archctl->ac_log->l_curvol,
 	    (long)ctxp->c_archctl->ac_offset, ctxp->c_archctl->ac_vol,

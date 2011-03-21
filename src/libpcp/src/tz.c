@@ -390,7 +390,7 @@ char *
 pmCtime(const time_t *clock, char *buf)
 {
 #if !defined(IS_SOLARIS) && !defined(IS_MINGW)
-    static struct tm	tbuf;
+    struct tm	tbuf;
 #endif
     if (curzone >= 0) {
 	_pushTZ();

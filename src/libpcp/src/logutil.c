@@ -61,27 +61,6 @@ static __pmHashCtl	pc_hc;		/* hash control for requested metrics */
 
 #ifdef PCP_DEBUG
 static void
-printstamp(struct timeval *tp)
-{
-    static struct tm	*tmp;
-    time_t t = (time_t)tp->tv_sec;
-
-    tmp = localtime(&t);
-    fprintf(stderr, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)(tp->tv_usec/1000));
-}
-
-static void
-printstamp32(__pmTimeval *tp)
-{
-    static struct tm	*tmp;
-    time_t		time;
-
-    time = tp->tv_sec;			/* let compiler sort out alignment */
-    tmp = localtime(&time);
-    fprintf(stderr, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, tp->tv_usec/1000);
-}
-
-static void
 dumpbuf(int nch, __pmPDU *pb)
 {
     int		i, j;
@@ -1498,7 +1477,7 @@ again:
 	head -= sizeof(head) + sizeof(trail);
 	fprintf(stderr, "@");
 	if (sts >= 0)
-	    printstamp(&(*result)->timestamp);
+	    __pmPrintStamp(stderr, &(*result)->timestamp);
 	else
 	    fprintf(stderr, "unknown time");
 	fprintf(stderr, " len=header+%d+trailer\n", head);
@@ -1515,7 +1494,7 @@ again:
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU) {
 	fprintf(stderr, "__pmLogRead timestamp=");
-	printstamp(&(*result)->timestamp);
+	__pmPrintStamp(stderr, &(*result)->timestamp);
 	fprintf(stderr, " " PRINTF_P_PFX "%p ... " PRINTF_P_PFX "%p", &pb[3], &pb[head/sizeof(__pmPDU)+3]);
 	fputc('\n', stderr);
 	dumpbuf(rlen, &pb[3]);		/* see above to explain "3" */
@@ -1620,7 +1599,7 @@ more:
 		    fprintf(stderr, "__pmLogFetch: ctx=%d skip reverse %d to ",
 			pmWhichContext(), nskip);
 		    if (*result  != NULL)
-			printstamp(&(*result)->timestamp);
+			__pmPrintStamp(stderr, &(*result)->timestamp);
 		    else
 			fprintf(stderr, "unknown time");
 		    fprintf(stderr, ", found=%d\n", found);
@@ -1654,7 +1633,7 @@ more:
 	    if (nskip) {
 		fprintf(stderr, "__pmLogFetch: ctx=%d skip %d to ",
 		    pmWhichContext(), nskip);
-		    printstamp(&(*result)->timestamp);
+		    __pmPrintStamp(stderr, &(*result)->timestamp);
 		    fputc('\n', stderr);
 		}
 #ifdef DESPERATE
@@ -1869,7 +1848,7 @@ __pmLogSetTime(__pmContext *ctxp)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
 	fprintf(stderr, "__pmLogSetTime(%d) ", pmWhichContext());
-	printstamp32(&ctxp->c_origin);
+	__pmPrintTimeval(stderr, &ctxp->c_origin);
 	fprintf(stderr, " delta=%d", ctxp->c_delta);
     }
 #endif
@@ -1935,7 +1914,7 @@ __pmLogSetTime(__pmContext *ctxp)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG) {
 		fprintf(stderr, " at ti[%d]@", j);
-		printstamp32(&lcp->l_ti[j].ti_stamp);
+		__pmPrintTimeval(stderr, &lcp->l_ti[j].ti_stamp);
 	    }
 #endif
 	}
@@ -1947,7 +1926,7 @@ __pmLogSetTime(__pmContext *ctxp)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG) {
 		fprintf(stderr, " before start ti@");
-		printstamp32(&lcp->l_ti[j].ti_stamp);
+		__pmPrintTimeval(stderr, &lcp->l_ti[j].ti_stamp);
 	    }
 #endif
 	}
@@ -1961,7 +1940,7 @@ __pmLogSetTime(__pmContext *ctxp)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG) {
 		fprintf(stderr, " after end ti@");
-		printstamp32(&lcp->l_ti[j].ti_stamp);
+		__pmPrintTimeval(stderr, &lcp->l_ti[j].ti_stamp);
 	    }
 #endif
 	}
@@ -1985,7 +1964,7 @@ __pmLogSetTime(__pmContext *ctxp)
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOG) {
 		    fprintf(stderr, " before ti[%d]@", j);
-		    printstamp32(&lcp->l_ti[j].ti_stamp);
+		    __pmPrintTimeval(stderr, &lcp->l_ti[j].ti_stamp);
 		}
 #endif
 	    }
@@ -1999,7 +1978,7 @@ __pmLogSetTime(__pmContext *ctxp)
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOG) {
 		    fprintf(stderr, " after ti[%d]@", j);
-		    printstamp32(&lcp->l_ti[j].ti_stamp);
+		    __pmPrintTimeval(stderr, &lcp->l_ti[j].ti_stamp);
 		}
 #endif
 	    }
@@ -2196,7 +2175,7 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 		    fprintf(stderr, "pmGetArchiveEnd: "
                             "Error reading record ending at posn=%d ti[%d]@",
 			    logend, i);
-		    printstamp32(&lcp->l_ti[i].ti_stamp);
+		    __pmPrintTimeval(stderr, &lcp->l_ti[i].ti_stamp);
 		    fputc('\n', stderr);
 		}
 #endif

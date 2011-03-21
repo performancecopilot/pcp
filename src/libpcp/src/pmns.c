@@ -1397,7 +1397,7 @@ getfname(const char *filename)
 int
 __pmHasPMNSFileChanged(const char *filename)
 {
-    static const char *f;
+    const char *f;
 
     f = getfname(filename);
     if (f == NULL)

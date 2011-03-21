@@ -20,22 +20,13 @@
 #define LENSIZE	4
 
 #ifdef PCP_DEBUG
-static char *
+static void
 StrTimeval(__pmTimeval *tp)
 {
-    if (tp == NULL) {
-	static char *null_timeval = "<null timeval>";
-	return null_timeval;
-    }
-    else {
-	static char		sbuf[13];
-	static struct tm	*tmp;
-	time_t 			t = tp->tv_sec;
-	tmp = localtime(&t);
-	sprintf(sbuf, "%02d:%02d:%02d.%03d",	/* safe */
-	    tmp->tm_hour, tmp->tm_min, tmp->tm_sec, tp->tv_usec/1000);
-	return sbuf;
-    }
+    if (tp == NULL)
+	fprintf(stderr, "<null timeval>");
+    else
+	__pmPrintTimeval(stderr, tp);
 }
 #endif
 
@@ -152,9 +143,11 @@ addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp, int numinst,
     idp->allinbuf = allinbuf;
 
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOGMETA)
-	fprintf(stderr, "addindom( ..., %s, %s, numinst=%d)\n",
-	    pmInDomStr(indom), StrTimeval((__pmTimeval *)tp), numinst);
+    if (pmDebug & DBG_TRACE_LOGMETA) {
+	fprintf(stderr, "addindom( ..., %s, ", pmInDomStr(indom));
+	StrTimeval((__pmTimeval *)tp);
+	fprintf(stderr, ", numinst=%d)\n", numinst);
+    }
 #endif
 
 
@@ -543,9 +536,11 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp)
     __pmLogInDom	*idp;
 
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOGMETA)
-	fprintf(stderr, "searchindom( ..., %s, %s)\n",
-	    pmInDomStr(indom), StrTimeval(tp));
+    if (pmDebug & DBG_TRACE_LOGMETA) {
+	fprintf(stderr, "searchindom( ..., %s, ", pmInDomStr(indom));
+	StrTimeval(tp);
+	fprintf(stderr, ")\n");
+    }
 #endif
 
     if ((hp = __pmHashSearch((unsigned int)indom, &lcp->l_hashindom)) == NULL)
@@ -560,9 +555,11 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp)
 	    if (__pmTimevalSub(&idp->stamp, tp) <= 0)
 		break;
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LOGMETA)
-		fprintf(stderr, "too early for indom @ %s\n",
-		    StrTimeval(&idp->stamp));
+	    if (pmDebug & DBG_TRACE_LOGMETA) {
+		fprintf(stderr, "too early for indom @ ");
+		StrTimeval(&idp->stamp);
+		fputc('\n', stderr);
+	    }
 #endif
 	}
 	if (idp == NULL)
@@ -570,9 +567,11 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp)
     }
 
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOGMETA)
-	fprintf(stderr, "success for indom @ %s\n",
-	    StrTimeval(&idp->stamp));
+    if (pmDebug & DBG_TRACE_LOGMETA) {
+	fprintf(stderr, "success for indom @ ");
+	StrTimeval(&idp->stamp);
+	fputc('\n', stderr);
+    }
 #endif
     return idp;
 }

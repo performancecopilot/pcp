@@ -687,17 +687,32 @@ __pmTimevalSub(const __pmTimeval *ap, const __pmTimeval *bp)
 }
 
 /*
- * timestamp, e.g. from a log in HH:MM:SS.XXX format
+ * print timeval timestamp in HH:MM:SS.XXX format
  */
 void
 __pmPrintStamp(FILE *f, const struct timeval *tp)
 {
-    static struct tm	tmp;
-    time_t		now;
+    struct tm	tmp;
+    time_t	now;
 
     now = (time_t)tp->tv_sec;
     pmLocaltime(&now, &tmp);
     fprintf(f, "%02d:%02d:%02d.%03d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)(tp->tv_usec/1000));
+}
+
+/*
+ * print __pmTimeval timestamp in HH:MM:SS.XXX format
+ * (__pmTimeval variant used in PDUs, archives and internally)
+ */
+void
+__pmPrintTimeval(FILE *f, const __pmTimeval *tp)
+{
+    struct tm	tmp;
+    time_t	now;
+
+    now = (time_t)tp->tv_sec;
+    pmLocaltime(&now, &tmp);
+    fprintf(f, "%02d:%02d:%02d.%03d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tp->tv_usec/1000);
 }
 
 /*
@@ -893,7 +908,6 @@ __pmSetInternalState(int state)
 
 #define MSGBUFLEN	256
 static FILE	*fptr = NULL;
-static char	outbuf[MSGBUFLEN];
 static int	msgsize = 0;
 static char	*fname;		/* temporary file name for buffering errors */
 static char	*ferr;		/* error output filename from PCP_STDERR */
@@ -981,6 +995,7 @@ pmflush(void)
     int		len;
     int		state;
     FILE	*eptr = NULL;
+    char	outbuf[MSGBUFLEN];
 
     if (fptr != NULL && msgsize > 0) {
 	fflush(fptr);
