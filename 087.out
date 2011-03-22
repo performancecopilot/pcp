@@ -3,7 +3,7 @@ QA output created by 087
 === src-oss/interp ===
 
 interpolate 50, 1 seconds appart
-Warning: pmLookupDesc(29.0.7): Metric not defined in the PCP archive log
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
 
 sample 1, delta time=1.000 secs
 sample.seconds: value OK
@@ -253,7 +253,7 @@ sample.milliseconds: delta: 1000 +/- 20
 50 samples required 35-50 log reads
 
 interpolate 20, 4 seconds appart
-Warning: pmLookupDesc(29.0.7): Metric not defined in the PCP archive log
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
 
 sample 1, delta time=4.000 secs
 sample.seconds: value OK
@@ -339,7 +339,7 @@ sample[17] pmFetch: End of PCP archive log
 17 samples required 35-45 log reads
 
 interpolate 16, 5 seconds appart
-Warning: pmLookupDesc(29.0.7): Metric not defined in the PCP archive log
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
 
 sample 1, delta time=5.000 secs
 sample.seconds: value OK
@@ -410,7 +410,7 @@ sample[14] pmFetch: End of PCP archive log
 14 samples required 35-45 log reads
 
 interpolate 10, 8 seconds appart
-Warning: pmLookupDesc(29.0.7): Metric not defined in the PCP archive log
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
 
 sample 1, delta time=8.000 secs
 sample.seconds: value OK
@@ -456,7 +456,7 @@ sample[9] pmFetch: End of PCP archive log
 9 samples required 34-40 log reads
 
 interpolate 8, 10 seconds appart
-Warning: pmLookupDesc(29.0.7): Metric not defined in the PCP archive log
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
 
 sample 1, delta time=10.000 secs
 sample.seconds: value OK
@@ -494,7 +494,7 @@ sample[7] pmFetch: End of PCP archive log
 === src-oss/mv-interp ===
 
 interpolate 50, 1 seconds appart
-Warning: pmLookupDesc(29.0.7): Metric not defined in the PCP archive log
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
 
 sample 1, delta time=1.000 secs
 sample.seconds: value OK
@@ -744,7 +744,7 @@ sample.milliseconds: delta: 1000 +/- 20
 50 samples required 35-50 log reads
 
 interpolate 20, 4 seconds appart
-Warning: pmLookupDesc(29.0.7): Metric not defined in the PCP archive log
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
 
 sample 1, delta time=4.000 secs
 sample.seconds: value OK
@@ -830,7 +830,7 @@ sample[17] pmFetch: End of PCP archive log
 17 samples required 35-45 log reads
 
 interpolate 16, 5 seconds appart
-Warning: pmLookupDesc(29.0.7): Metric not defined in the PCP archive log
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
 
 sample 1, delta time=5.000 secs
 sample.seconds: value OK
@@ -901,7 +901,7 @@ sample[14] pmFetch: End of PCP archive log
 14 samples required 35-45 log reads
 
 interpolate 10, 8 seconds appart
-Warning: pmLookupDesc(29.0.7): Metric not defined in the PCP archive log
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
 
 sample 1, delta time=8.000 secs
 sample.seconds: value OK
@@ -947,7 +947,7 @@ sample[9] pmFetch: End of PCP archive log
 9 samples required 34-40 log reads
 
 interpolate 8, 10 seconds appart
-Warning: pmLookupDesc(29.0.7): Metric not defined in the PCP archive log
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
 
 sample 1, delta time=10.000 secs
 sample.seconds: value OK
@@ -985,7 +985,7 @@ sample[7] pmFetch: End of PCP archive log
 === src-oss/noti-interp ===
 
 interpolate 50, 1 seconds appart
-Warning: pmLookupDesc(29.0.7): Metric not defined in the PCP archive log
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
 
 sample 1, delta time=1.000 secs
 sample.seconds: value OK
@@ -1235,7 +1235,7 @@ sample.milliseconds: delta: 1000 +/- 20
 50 samples required 35-50 log reads
 
 interpolate 20, 4 seconds appart
-Warning: pmLookupDesc(29.0.7): Metric not defined in the PCP archive log
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
 
 sample 1, delta time=4.000 secs
 sample.seconds: value OK
@@ -1321,7 +1321,7 @@ sample[17] pmFetch: End of PCP archive log
 17 samples required 35-45 log reads
 
 interpolate 16, 5 seconds appart
-Warning: pmLookupDesc(29.0.7): Metric not defined in the PCP archive log
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
 
 sample 1, delta time=5.000 secs
 sample.seconds: value OK
@@ -1392,7 +1392,7 @@ sample[14] pmFetch: End of PCP archive log
 14 samples required 35-45 log reads
 
 interpolate 10, 8 seconds appart
-Warning: pmLookupDesc(29.0.7): Metric not defined in the PCP archive log
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
 
 sample 1, delta time=8.000 secs
 sample.seconds: value OK
@@ -1438,7 +1438,7 @@ sample[9] pmFetch: End of PCP archive log
 9 samples required 34-40 log reads
 
 interpolate 8, 10 seconds appart
-Warning: pmLookupDesc(29.0.7): Metric not defined in the PCP archive log
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
 
 sample 1, delta time=10.000 secs
 sample.seconds: value OK

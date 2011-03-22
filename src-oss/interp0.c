@@ -168,7 +168,7 @@ Options\n\
     for (i = 0; i < numpmid; i++) {
 	sts = pmLookupDesc(pmid[i], &desc);
 	if (sts < 0) {
-	    printf("Warning: pmLookupDesc(%s): %s\n", pmIDStr(pmid[i]), pmErrStr(sts));
+	    printf("Warning: pmLookupDesc(%s): %s\n", name[i], pmErrStr(sts));
 	    type[i] = -1;
 	}
 	else

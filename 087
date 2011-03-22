@@ -67,6 +67,6 @@ do
 	[ $samples -gt 50 ] && samples=50
 	echo ""
 	echo "interpolate $samples, $delta seconds appart"
-	src-oss/interp0 -a $arch -t $delta -s $samples | _filter $samples
+	src-oss/interp0 -n src-oss/root_irix -a $arch -t $delta -s $samples | _filter $samples
     done
 done
