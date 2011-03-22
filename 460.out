@@ -61,9 +61,9 @@ InDom: 2.1
 Note: timezone set to local timezone of host "mazur" from archive
 
 
-10:42:23.802  2.3.3 (pmcd.pmlogger.host):  inst [174009 or "174009"] value "mazur.melbourne.sgi.com"
-              2.3.0 (pmcd.pmlogger.port):  inst [174009 or "174009"] value 4333
-              2.3.2 (pmcd.pmlogger.archive):  inst [174009 or "174009"] value "/hosts/grunt/usr/people/ania/isms/pcp/qa/src/xbug1"
+10:42:23.802  2.3.3 (pmcd.pmlogger.host): inst [174009 or "174009"] value "mazur.melbourne.sgi.com"
+              2.3.0 (pmcd.pmlogger.port): inst [174009 or "174009"] value 4333
+              2.3.2 (pmcd.pmlogger.archive): inst [174009 or "174009"] value "/hosts/grunt/usr/people/ania/isms/pcp/qa/src/xbug1"
 
 10:42:23.933  1.80.13 (hinv.map.disk):
                 inst [256 or "dks0d1"] value "/hw/rdisk/dks0d1vol"

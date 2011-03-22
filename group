@@ -664,7 +664,7 @@ event
 446 trace local oss
 450 pmlogextract local #584487 pmval oss
 456 logutil local #591459 folio oss
-460 pmlogextract local #598265 oss
+460 pmlogextract local #598265 oss pmdumplog
 462 pmcd_wait local #589006 #581025 oss
 465 pmdumplog local #625913 folio oss
 466 pmlogger local #625913 oss
