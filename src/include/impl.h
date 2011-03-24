@@ -39,6 +39,9 @@
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
+#ifdef HAVE_PTHREAD_H
+#include <pthread.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -1084,8 +1087,8 @@ extern int __pmSetSignalHandler(int, __pmSignalHandler);
  * platform independent environment and filesystem path access
  */
 typedef void (*__pmConfigCallback)(char *, char *, char *);
-EXTERN __pmConfigCallback __pmNativeConfig;
-extern void __pmConfig(const char *, __pmConfigCallback);
+EXTERN const __pmConfigCallback __pmNativeConfig;
+extern void __pmConfig(__pmConfigCallback);
 extern char *__pmNativePath(char *);
 extern int __pmAbsolutePath(char *);
 extern int __pmPathSeparator();
@@ -1221,6 +1224,17 @@ extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
 
 /* anonymous metric registration (uses derived metrics support) */
 int __pmRegisterAnon(char *, int);
+
+/* critical section locking */
+#ifdef HAVE_PTHREAD_MUTEX_T
+#define PM_LOCK_DECL(lock) pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER
+#define PM_LOCK(lock) pthread_mutex_lock(&lock)
+#define PM_UNLOCK(lock) pthread_mutex_unlock(&lock)
+
+/* the big libpcp lock */
+extern pthread_mutex_t	__pmLock_libpcp;
+#endif
+
 
 #ifdef __cplusplus
 }

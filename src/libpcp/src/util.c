@@ -1151,10 +1151,9 @@ char *
 dirname(char *name)
 {
     char	*p = strrchr(name, '/');
-    static char	*dot = ".";
 
     if (p == NULL)
-	return(dot);
+	return(".");
     else {
 	*p = '\0';
 	return(name);

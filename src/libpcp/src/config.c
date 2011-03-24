@@ -112,7 +112,7 @@ dos_formatter(char *var, char *prefix, char *val)
     putenv(strdup(envbuf));
 }
 
-INTERN __pmConfigCallback __pmNativeConfig = dos_formatter;
+INTERN const __pmConfigCallback __pmNativeConfig = dos_formatter;
 char *__pmNativePath(char *path) { return dos_native_path(path); }
 int __pmPathSeparator() { return posix_style() ? '/' : '\\'; }
 int __pmAbsolutePath(char *path) { return posix_style() ? path[0] == '/' : dos_absolute_path(path); }
@@ -131,11 +131,11 @@ posix_formatter(char *var, char *prefix, char *val)
     (void)prefix;
 }
 
-INTERN __pmConfigCallback __pmNativeConfig = posix_formatter;
+INTERN const __pmConfigCallback __pmNativeConfig = posix_formatter;
 #endif
 
 void
-__pmConfig(const char *name, __pmConfigCallback formatter)
+__pmConfig(__pmConfigCallback formatter)
 {
     /*
      * Scan ${PCP_CONF-$PCP_DIR/etc/pcp.conf} and put all PCP config
@@ -191,18 +191,34 @@ __pmConfig(const char *name, __pmConfigCallback formatter)
 char *
 pmGetConfig(const char *name)
 {
-    static char *empty = "";
-    static int first = 1;
-    char *val;
+    /*
+     * state controls one-trip initialization, and recursion guard
+     * for pathological failures in initialization
+     */
+    static int		state = 0;
+    char		*val;
 
-    if (first) {
-	__pmConfig(name, __pmNativeConfig);
-	first = 0;
+    PM_LOCK(__pmLock_libpcp);
+    if (state == 0) {
+	state = 1;
+	PM_UNLOCK(__pmLock_libpcp);
+	__pmConfig(__pmNativeConfig);
+	PM_LOCK(__pmLock_libpcp);
+	state = 2;
     }
+    else if (state == 1) {
+	/* recursion from error in __pmConfig() ... no value is possible */
+	PM_UNLOCK(__pmLock_libpcp);
+	if (pmDebug & DBG_TRACE_CONFIG)
+	    fprintf(stderr, "pmGetConfig: %s= ... recursion error\n", name);
+	val = "";
+	return val;
+    }
+    PM_UNLOCK(__pmLock_libpcp);
 
     if ((val = getenv(name)) == NULL) {
 	pmprintf("Error: \"%s\" is not set in the environment\n", name);
-	val = empty;
+	val = "";
     }
 
     if (pmDebug & DBG_TRACE_CONFIG)

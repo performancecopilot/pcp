@@ -116,7 +116,7 @@ pmAtomStr(const pmAtomValue *avp, int type)
 /*
  * must be in agreement with ordinal values for PM_TYPE_* #defines
  */
-static char *typename[] = {
+static const char *typename[] = {
     "32", "U32", "64", "U64", "FLOAT", "DOUBLE", "STRING", "AGGREGATE", "AGGREGATE_STATIC", "EVENT"
 };
 

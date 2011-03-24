@@ -47,11 +47,11 @@ static int	lexpeek = 0;
 static char	*string;
 static char	*errmsg;
 
-static char *type_dbg[] = { "ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "PLUS", "MINUS", "STAR", "SLASH", "LPAREN", "RPAREN", "AVG", "COUNT", "DELTA", "MAX", "MIN", "SUM", "ANON" };
-static char type_c[] = { '\0', '\0', '\0', '\0', '\0', '+', '-', '*', '/', '(', ')', '\0' };
+static const char *type_dbg[] = { "ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "PLUS", "MINUS", "STAR", "SLASH", "LPAREN", "RPAREN", "AVG", "COUNT", "DELTA", "MAX", "MIN", "SUM", "ANON" };
+static const char type_c[] = { '\0', '\0', '\0', '\0', '\0', '+', '-', '*', '/', '(', ')', '\0' };
 
 /* function table for lexer */
-static struct {
+static const struct {
     int		f_type;
     char	*f_name;
 } func[] = {
@@ -74,7 +74,7 @@ static struct {
 #define P_FUNC_END	5
 #define P_END		99
 
-static char *state_dbg[] = { "INIT", "LEAF", "LEAF_PAREN", "BINOP", "FUNC_OP", "FUNC_END" };
+static const char *state_dbg[] = { "INIT", "LEAF", "LEAF_PAREN", "BINOP", "FUNC_OP", "FUNC_END" };
 
 /* Register an anonymous metric */
 int
@@ -428,7 +428,7 @@ void report_sem_error(char *name, node_t *np)
 }
 
 /* type promotion */
-static int promote[6][6] = {
+static const int promote[6][6] = {
     { PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE },
     { PM_TYPE_U32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE },
     { PM_TYPE_64, PM_TYPE_64, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE },
@@ -438,7 +438,7 @@ static int promote[6][6] = {
 };
 
 /* time scale conversion factors */
-static int timefactor[] = {
+static const int timefactor[] = {
     1000,		/* NSEC -> USEC */
     1000,		/* USEC -> MSEC */
     1000,		/* MSEC -> SEC */

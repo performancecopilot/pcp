@@ -1717,15 +1717,15 @@ dnl Check which library provide pthread stuff
 	],  AC_MSG_RESULT(lib${cand:-c})
 	    if test -z "$cand"
 	    then
-		ac_cv_pthread_lib="$cand"
+		lib_for_pthreads="$cand"
 	    else
-		ac_cv_pthread_lib="-l$cand"
+		lib_for_pthreads="-l$cand"
 	    fi
 	    LIBS=$savedLIBS
 	    break )
 	LIBS=$savedLIBS
     done
-    AC_SUBST(ac_cv_pthread_lib)
+    AC_SUBST(lib_for_pthreads)
 fi
 
 dnl check for array sessions

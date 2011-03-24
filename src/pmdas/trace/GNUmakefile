@@ -82,7 +82,7 @@ app2$(EXECSUFFIX):	app2.o
 	$(CCF) -o $@ $(LDFLAGS) app2.o $(LDLIBS)
 
 app3$(EXECSUFFIX):	app3.o
-	$(CCF) -o $@ $(LDFLAGS) app3.o $(LDLIBS) $(PTHREAD_LIB)
+	$(CCF) -o $@ $(LDFLAGS) app3.o $(LDLIBS) $(LIB_FOR_PTHREADS)
 
 tmpcp:
 	$(LN_S) -s $(TOPDIR)/src/include pcp

@@ -29,7 +29,7 @@ DFILES	= README
 LSRCFILES=Install Remove root pmns Cisco.pmchart help Samples Tested $(DFILES) \
 	cisco.in_util.pmie cisco.out_util.pmie probe.c
 
-LLDLIBS	= -lpcp_pmda -lpcp $(PTHREAD_LIB)
+LLDLIBS	= -lpcp_pmda -lpcp $(LIB_FOR_PTHREADS)
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 PMCHART	= $(PCP_VAR_DIR)/config/pmchart

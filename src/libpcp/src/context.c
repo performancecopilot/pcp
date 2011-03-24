@@ -636,7 +636,7 @@ pmDestroyContext(int handle)
     return 0;
 }
 
-static char *_mode[] = { "LIVE", "INTERP", "FORW", "BACK" };
+static const char *_mode[] = { "LIVE", "INTERP", "FORW", "BACK" };
 
 /*
  * dump context(s); context == -1 for all contexts, indom == PM_INDOM_NULL

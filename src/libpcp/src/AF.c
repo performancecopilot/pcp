@@ -98,6 +98,7 @@ static void AFsetitimer(struct timeval *interval)
     struct itimerval val;
 
     val.it_value = *interval;
+    val.it_interval.tv_sec = val.it_interval.tv_usec = 0;
     setitimer(ITIMER_REAL, &val, NULL);
 }
 
@@ -151,6 +152,17 @@ static void AFrearm(void) { signal(SIGALRM, onalarm); }
  * Platform independent code follows
  */
 
+#ifdef PCP_DEBUG
+static void
+printdelta(FILE *f, struct timeval *tp)
+{
+    struct tm	*tmp;
+    time_t	tt =  (time_t)tp->tv_sec;
+
+    tmp = gmtime(&tt);
+    fprintf(stderr, "%02d:%02d:%02d.%03ld", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (long)tp->tv_usec);
+}
+#endif
 /*
  * a := a + b for struct timevals
  */
@@ -349,7 +361,7 @@ onalarm(int dummy)
 	    if (pmDebug & DBG_TRACE_AF) {
 		__pmPrintStamp(stderr, &now);
 		fprintf(stderr, " AFsetitimer for delta ");
-		__pmPrintStamp(stderr, &interval);
+		printdelta(stderr, &interval);
 		fputc('\n', stderr);
 	    }
 #endif
@@ -398,7 +410,7 @@ __pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *
 	if (pmDebug & DBG_TRACE_AF) {
 	    __pmPrintStamp(stderr, &now);
 	    fprintf(stderr, " AFsetitimer for delta ");
-	    __pmPrintStamp(stderr, &interval);
+	    printdelta(stderr, &interval);
 	    fputc('\n', stderr);
 	}
 #endif
@@ -446,7 +458,7 @@ __pmAFunregister(int afid)
 	    if (pmDebug & DBG_TRACE_AF) {
 		__pmPrintStamp(stderr, &now);
 		fprintf(stderr, " AFsetitimer for delta ");
-		__pmPrintStamp(stderr, &interval);
+		printdelta(stderr, &interval);
 		fputc('\n', stderr);
 	    }
 #endif

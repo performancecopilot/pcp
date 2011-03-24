@@ -25,7 +25,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	checksum.c rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
         stuffvalue.c endian.c config.c access.c authcookie.c auxconnect.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
-	connectlocal.c derive.c derive_fetch.c events.c
+	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c
 
 HFILES = derive.h oldpmapi.h
 
@@ -43,7 +43,7 @@ ifeq "$(LIB_FOR_BASENAME)" "-lpcp"
 LIB_FOR_BASENAME =
 endif
 
-LLDLIBS	+= $(LIB_FOR_MATH)
+LLDLIBS	+= $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS)
 
 LCFLAGS += -DLIBPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
 	'-DDSO_SUFFIX="$(DSOSUFFIX)"' \

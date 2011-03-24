@@ -138,7 +138,7 @@ __pmSquashTZ(char *tzbuffer)
 #define is_upper(c) ((unsigned)(c) - 'A' <= 26)
 
     TIME_ZONE_INFORMATION tz;
-    static char wildabbr[] = "GMT";
+    static const char wildabbr[] = "GMT";
     char tzbuf[256], tzoff[64];
     char *cp, *dst, *off;
     wchar_t *src;
