@@ -28,19 +28,9 @@ my $cached = 0;
 my %vals = ();
 my %vals_rec_answers = ();
 
-sub pdns_fetch_callback
+sub pdns_fetch
 {
-    my ($cluster, $item, $inst) = @_;
-    my $metric_name = pmda_pmid_name($cluster, $item);
-    my ($path, $value, $fh);
-
     my $now = time;
-
-    # $pmda->log("pdns_fetch_callback $metric_name $cluster:$item ($inst)\n");
-
-    if (!defined($metric_name))    { return (PM_ERR_PMID, 0); }
-
-    $metric_name =~ s/^pdns\.//;
 
     if ($now - $cached > 1.0) {
         # $pmda->log("pdns_fetch_callback update now:$now cached:$cached\n");
@@ -56,7 +46,7 @@ sub pdns_fetch_callback
             $_ =~ s/-/_/g;
             $_ =~ s/,$//;
             for my $kv (split(/,/, $_)) {
-                if ("$kv" eq "") {
+                if ("$kv" eq '') {
                     last;
                 }
     
@@ -73,15 +63,15 @@ sub pdns_fetch_callback
                 $_ =~ s/-/_/g;
                 my ($k, $v) = split(/\t/, $_);
 
-                if ($k eq "answers0_1") {
+                if ($k eq 'answers0_1') {
 			$vals_rec_answers{0} = $v;
-		} elsif ($k eq "answers1_10") {
+		} elsif ($k eq 'answers1_10') {
 			$vals_rec_answers{1} = $v;
-		} elsif ($k eq "answers10_100") {
+		} elsif ($k eq 'answers10_100') {
 			$vals_rec_answers{2} = $v;
-		} elsif ($k eq "answers100_1000") {
+		} elsif ($k eq 'answers100_1000') {
 			$vals_rec_answers{3} = $v;
-		} elsif ($k eq "answers_slow") {
+		} elsif ($k eq 'answers_slow') {
 			$vals_rec_answers{4} = $v;
 		} else {
 	                $vals{"recursor.$k"} = $v;
@@ -94,8 +84,20 @@ sub pdns_fetch_callback
 
         $cached = $now;
     }
+}
 
-    if ($metric_name eq "recursor.answers") {
+sub pdns_fetch_callback
+{
+    my ($cluster, $item, $inst) = @_;
+    my $metric_name = pmda_pmid_name($cluster, $item);
+
+    # $pmda->log("pdns_fetch_callback $metric_name $cluster:$item ($inst)\n");
+
+    if (!defined($metric_name))    { return (PM_ERR_PMID, 0); }
+
+    $metric_name =~ s/^pdns\.//;
+
+    if ($metric_name eq 'recursor.answers') {
         if ($inst == PM_IN_NULL)    { return (PM_ERR_INST, 0); }
         return ($vals_rec_answers{$inst}, 1) if (defined($vals_rec_answers{$inst}));
     } else {
@@ -338,6 +340,7 @@ $pmda->add_metric(pmda_pmid(1,37),PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 
 $pmda->add_indom($recursor_answers_indom, \@recursor_answers_dom, '', '');
 $pmda->set_fetch_callback(\&pdns_fetch_callback);
+$pmda->set_fetch(\&pdns_fetch);
 $pmda->run;
 
 =pod
