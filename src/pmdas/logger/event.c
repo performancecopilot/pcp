@@ -38,17 +38,27 @@ struct event {
     char buffer[BUF_SIZE];
 };
 
-static TAILQ_HEAD(tailhead, event) head;
-static int eventarray;
+TAILQ_HEAD(tailhead, event);
 
-/* This has to match the values in the metric table. */
-static pmID pmid_string = PMDA_PMID(0,1); /* event.param_string */
+struct EventFileData {
+    struct LogfileData *logfile;
+    int			fd;
+    int			numclients;
+    struct tailhead	head;
+    
+    /* current client list - allocated? */
+};
+static struct EventFileData *file_data_tab = NULL;
+
+static int eventarray;
+static int numlogfiles;
 
 struct ctx_client_data {
-    struct event **last;	       /* addr of last next element */
+    unsigned int	active_logfile;
+    struct event      **last;
 };
 
-static int monitorfd = 0;
+static void event_cleanup(void);
 
 static void *
 ctx_start_callback(int ctx)
@@ -56,13 +66,11 @@ ctx_start_callback(int ctx)
     struct ctx_client_data *c = ctx_get_user_data();
 
     if (c == NULL) {
-	c = malloc(sizeof(struct ctx_client_data));
+	c = calloc(numlogfiles, sizeof(struct ctx_client_data));
 	if (c == NULL) {
 	    __pmNotifyErr(LOG_ERR, "allocation failure");
 	    return NULL;
 	}
-	c->last = head.tqh_last;
-	__pmNotifyErr(LOG_INFO, "Setting last.");
     }
     return c;
 }
@@ -79,42 +87,60 @@ ctx_end_callback(int ctx, void *user_data)
 }
 
 void
-event_init(pmdaInterface *dispatch, const char *monitor_path)
+event_init(pmdaInterface *dispatch, struct LogfileData *logfiles,
+	   int nlogfiles)
 {
-    /* initialize queue */
-    TAILQ_INIT(&head);
-    eventarray = pmdaEventNewArray();
+    int i;
 
-    /*
-     * fix the domain field in the event parameter PMIDs ...
-     * note these PMIDs must match the corresponding metrics in
-     * desctab[] and this cannot easily be done automatically
-     */
-    ((__pmID_int *)&pmid_string)->domain = dispatch->domain;
-
-    ctx_register_callbacks(ctx_start_callback, ctx_end_callback);
-
-    /* We can't really select on the logfile.  Why?  If the logfile is
-     * a normal file, select will (continually) return EOF after we've
-     * read all the data.  Then we tried a custom main that that read
-     * data before handling any message we get on the control channel.
-     * That didn't work either, since the client context wasn't set up
-     * yet (since that is the 1st control message).  So, now we read
-     * data inside the event fetch routine. */
-
-    /* Try to open logfile to monitor */
-    monitorfd = open(monitor_path, O_RDONLY|O_NONBLOCK);
-    if (monitorfd < 0) {
-	__pmNotifyErr(LOG_ERR, "open failure on %s", monitor_path);
+    numlogfiles = nlogfiles;
+    if (numlogfiles <= 0 || logfiles == NULL) {
+	__pmNotifyErr(LOG_ERR, "no logfiles");
 	exit(1);
     }
 
-    /* Skip to the end. */
-    //(void)lseek(monitorfd, 0, SEEK_END);
+    eventarray = pmdaEventNewArray();
+
+    ctx_register_callbacks(ctx_start_callback, ctx_end_callback);
+
+    /* Allocate our EventFileData table. */
+    file_data_tab = malloc(sizeof(struct EventFileData) * numlogfiles);
+    if (file_data_tab == NULL) {
+	fprintf(stderr, "%s: allocation error: %s\n", __FUNCTION__,
+		strerror(errno));
+	return;
+    }
+
+    /* Fill it the table. */
+    for (i = 0; i < numlogfiles; i++) {
+	file_data_tab[i].logfile = &logfiles[i];
+	file_data_tab[i].numclients = 0;
+	TAILQ_INIT(&file_data_tab[i].head); /* initialize queue */
+    }
+
+    /* We can't really use select() on the logfiles.  Why?  If the
+     * logfile is a normal file, select will (continually) return EOF
+     * after we've read all the data.  Then we tried a custom main
+     * that that read data before handling any message we get on the
+     * control channel.  That didn't work either, since the client
+     * context wasn't set up yet (since that is the 1st control
+     * message).  So, now we read data inside the event fetch
+     * routine. */
+
+    /* Try to open all the logfiles to monitor */
+    for (i = 0; i < numlogfiles; i++) {
+	file_data_tab[i].fd = open(logfiles[i].pathname, O_RDONLY|O_NONBLOCK);
+	if (file_data_tab[i].fd < 0) {
+	    __pmNotifyErr(LOG_ERR, "open failure on %s", logfiles[i].pathname);
+	    exit(1);
+	}
+
+	/* Skip to the end. */
+	//(void)lseek(file_data_tab[i].fd, 0, SEEK_END);
+    }
 }
 
 static int
-event_create(int fd)
+event_create(int logfile)
 {
     ssize_t c;
 
@@ -126,8 +152,11 @@ event_create(int fd)
     }
 
     /* Read up to BUF_SIZE bytes at a time. */
-    if ((c = read(fd, e->buffer, sizeof(e->buffer) - 1)) < 0) {
-	__pmNotifyErr(LOG_ERR, "read failure: %s", strerror(errno));
+    if ((c = read(file_data_tab[logfile].fd, e->buffer,
+		  sizeof(e->buffer) - 1)) < 0) {
+	__pmNotifyErr(LOG_ERR, "read failure on %s: %s",
+		      file_data_tab[logfile].logfile->pathname,
+		      strerror(errno));
 	free(e);
 	return -1;
     }
@@ -137,15 +166,21 @@ event_create(int fd)
     }
 
     /* Store event in queue. */
-    e->clients = ctx_get_num();
+    e->clients = file_data_tab[logfile].numclients;
     e->buffer[c] = '\0';
-    TAILQ_INSERT_TAIL(&head, e, events);
+    TAILQ_INSERT_TAIL(&file_data_tab[logfile].head, e, events);
     __pmNotifyErr(LOG_INFO, "Inserted item, clients = %d.", e->clients);
     return 0;
 }
 
 int
-event_fetch(pmValueBlock **vbpp)
+event_get_clients_per_logfile(unsigned int logfile)
+{
+    return file_data_tab[logfile].numclients;
+}
+
+int
+event_fetch(pmValueBlock **vbpp, unsigned int logfile)
 {
     struct event *e, *next;
     struct timeval stamp;
@@ -154,8 +189,16 @@ event_fetch(pmValueBlock **vbpp)
     int records = 0;
     struct ctx_client_data *c = ctx_get_user_data();
     
+    /* Make sure the we keep track of which clients are interested in
+     * which logfiles is up to date. */
+    if (c[logfile].active_logfile == 0) {
+	c[logfile].active_logfile = 1;
+	c[logfile].last = file_data_tab[logfile].head.tqh_last;
+	file_data_tab[logfile].numclients++;
+    }
+
     /* Update the event queue with new data (if any). */
-    if ((rc = event_create(monitorfd)) < 0)
+    if ((rc = event_create(logfile)) < 0)
 	return rc;
 
     if (vbpp == NULL)
@@ -167,14 +210,16 @@ event_fetch(pmValueBlock **vbpp)
     if ((rc = pmdaEventAddRecord(eventarray, &stamp, PM_EVENT_FLAG_POINT)) < 0)
 	return rc;
 
-    e = *c->last;
+    e = *c[logfile].last;
     while (e != NULL) {
 	/* Add the string parameter.  Note that pmdaEventAddParam()
 	 * copies the string, so we can free it soon after. */
 	atom.cp = e->buffer;
 	__pmNotifyErr(LOG_INFO, "Adding param: %s", e->buffer);
-	if ((rc = pmdaEventAddParam(eventarray, pmid_string, PM_TYPE_STRING,
-				    &atom)) < 0)
+	rc = pmdaEventAddParam(eventarray,
+			       file_data_tab[logfile].logfile->pmid_string,
+			       PM_TYPE_STRING, &atom);
+	if (rc < 0)
 	    return rc;
 	records++;
 
@@ -183,7 +228,7 @@ event_fetch(pmValueBlock **vbpp)
 
 	/* Remove the current one (if its use count is at 0). */
 	if (--e->clients <= 0) {
-	    TAILQ_REMOVE(&head, e, events);
+	    TAILQ_REMOVE(&file_data_tab[logfile].head, e, events);
 	    free(e);
 	}
 
@@ -192,7 +237,7 @@ event_fetch(pmValueBlock **vbpp)
     }
 
     /* Update queue pointer. */
-    c->last = head.tqh_last;
+    c[logfile].last = file_data_tab[logfile].head.tqh_last;
 
     if (records > 0)
 	*vbpp = (pmValueBlock *)pmdaEventGetAddr(eventarray);
@@ -201,25 +246,32 @@ event_fetch(pmValueBlock **vbpp)
     return 0;
 }
 
-void
+static void
 event_cleanup(void)
 {
     struct event *e, *next;
     struct ctx_client_data *c = ctx_get_user_data();
+    int logfile;
 
     /* We've lost a client.  Cleanup. */
-    e = *c->last;
-    while (e != NULL) {
-	/* Get the next event. */
-	next = e->events.tqe_next;
+    for (logfile = 0; logfile < numlogfiles; logfile++) {
+	if (c[logfile].active_logfile == 0)
+	    continue;
 
-	/* Remove the current one (if its use count is at 0). */
-	if (--e->clients <= 0) {
-	    TAILQ_REMOVE(&head, e, events);
-	    free(e);
+	file_data_tab[logfile].numclients--;
+	e = *c[logfile].last;
+	while (e != NULL) {
+	    /* Get the next event. */
+	    next = e->events.tqe_next;
+
+	    /* Remove the current one (if its use count is at 0). */
+	    if (--e->clients <= 0) {
+		TAILQ_REMOVE(&file_data_tab[logfile].head, e, events);
+		free(e);
+	    }
+
+	    /* Go on to the next event. */
+	    e = next;
 	}
-
-	/* Go on to the next event. */
-	e = next;
     }
 }

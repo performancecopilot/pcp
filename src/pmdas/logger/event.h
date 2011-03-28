@@ -21,8 +21,15 @@
 #ifndef _EVENT_H
 #define _EVENT_H
 
-extern void event_init(pmdaInterface *dispatch, const char *monitor_path);
-extern int event_fetch(pmValueBlock **vbpp);
-extern void event_cleanup(void);
+struct LogfileData {
+    char	pathname[MAXPATHLEN];
+    char	pmns_name[MAXPATHLEN];
+    pmID	pmid_string;
+};
+
+extern void event_init(pmdaInterface *dispatch, struct LogfileData *logfiles,
+		       int numlogfiles);
+extern int event_fetch(pmValueBlock **vbpp, unsigned int logfile);
+extern int event_get_clients_per_logfile(unsigned int logfile);
 
 #endif /* _EVENT_H */

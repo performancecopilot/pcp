@@ -31,9 +31,13 @@
 # blank lines before the @ line are ignored
 #
 
-@ logger.clients The number of attached clients
+@ logger.numclients The number of attached clients
 The number of attached clients.
-@ logger.event.records Logfile event records
-Logfile event records.
-@ logger.event.param_string String event data
+@ logger.numlogfiles The number of monitored logfiles
+The number of monitored logfiles.
+@ logger.param_string String event data
 String event data.
+#@ logger.perfile.numclients The number of attached clients/logfile
+#The number of attached clients/logfile
+#@ logger.perfile.records Event records/logfile
+#Event records/logfile.

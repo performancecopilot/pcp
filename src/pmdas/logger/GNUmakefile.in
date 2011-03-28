@@ -44,6 +44,7 @@ LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so
 
 default_pcp default:	domain.h $(TARGETS)
 
+logger.o: domain.h
 logger.o percontext.o event.o: percontext.h
 event.o logger.o: event.h
 
