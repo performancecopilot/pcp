@@ -181,6 +181,21 @@ logger_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     return status;
 }
 
+/* Ensure potential PMNS name can be used as a PCP namespace entry. */
+static int
+valid_pmns_name(char *name)
+{
+    if (!isalpha(name[0]))
+	return 0;
+    for (; *name != '\0'; name++)
+	if (!isalnum(*name) && *name != '_')
+	    return 0;
+    return 1;
+}
+
+/*
+ * Handle the config file.
+ */
 static int
 read_config(const char *filename)
 {
@@ -188,8 +203,8 @@ read_config(const char *filename)
     struct LogfileData *data;
     int			rc = 0;
     size_t		len;
-    char		tmp[MAXPATHLEN];
-    char	       *ptr;
+    char		line[MAXPATHLEN * 2];
+    char	       *ptr, *name;
 
     configFile = fopen(filename, "r");
     if (configFile == NULL) {
@@ -199,7 +214,7 @@ read_config(const char *filename)
     }
 
     while (! feof(configFile)) {
-	if (fgets(tmp, sizeof(tmp), configFile) == NULL) {
+	if (fgets(line, sizeof(line), configFile) == NULL) {
 	    if (feof(configFile)) {
 		break;
 	    }
@@ -212,36 +227,92 @@ read_config(const char *filename)
 	}
 
 	/* fgets() puts the '\n' at the end of the buffer.  Remove
-	 * it.  If it isn't there, that must mean that the pathname
-	 * is longer than MAXPATHLEN. */
-	len = strlen(tmp);
+	 * it.  If it isn't there, that must mean that the line is
+	 * longer than our buffer. */
+	len = strlen(line);
 	if (len == 0) {			/* Ignore empty string. */
 	    continue;
 	}
-	else if (tmp[len - 1] != '\n') { /* String must be too long */
-	    fprintf(stderr, "%s: pathname too long: %s\n", __FUNCTION__,
-		    tmp);
+	else if (line[len - 1] != '\n') { /* String must be too long */
+	    fprintf(stderr, "%s: config file line too long: %s\n",
+		    __FUNCTION__, line);
 	    rc = -1;
 	    break;
 	}
-	tmp[len - 1] = '\0';		/* Remove the '\n'. */
+	line[len - 1] = '\0';		/* Remove the '\n'. */
 
 	/* Remove all trailing whitespace.  Set ptr to last char of
 	 * string. */
-	ptr = tmp + strlen(tmp) - 1;
+	ptr = line + strlen(line) - 1;
 	/* While trailing whitespace, move back. */
-	while (ptr >= tmp && isspace(*ptr)) {
+	while (ptr >= line && isspace(*ptr)) {
 	    --ptr;
 	}
 	*(ptr+1) = '\0';	  /* Now set '\0' as terminal byte. */
 
 	/* If the string is now empty, just ignore the line. */
-	len = strlen(tmp);
+	len = strlen(line);
 	if (len == 0) {
 	    continue;
 	}
 	
-	/* Now we've got a reasonable logfile pathname.  Save it. */
+	/* Skip past all leading whitespace.  Note that the string
+	 * can't be completely blank here, our earlier check would
+	 * have caught that, so we don't have to worry about hitting
+	 * the end of the string. */
+	name = line;
+	while (isspace(*name)) {
+	    name++;
+	}
+
+	/* Now we need to split the line into 2 parts: NAME and
+	 * PATHNAME.  NAME can't have whitespace in it, so look for
+	 * the first non-whitespace. */
+	ptr = name;
+	while (*ptr != '\0' && ! isspace(*ptr)) {
+	    ptr++;
+	}
+	/* If we're at the end, we never found any whitespace, so
+	 * we've only got a NAME, with no PATHNAME. */
+	if (*ptr == '\0') {
+	    fprintf(stderr, "%s: badly formatted config file line: %s\n",
+		    __FUNCTION__, line);
+	    rc = -1;
+	    break;
+	}
+	/* Terminate NAME at the 1st whitespace. */
+	*ptr++ = '\0';
+
+	/* Make sure NAME isn't too long. */
+	if (strlen(name) > MAXPATHLEN) {
+	    fprintf(stderr, "%s: NAME is too long: %s\n",
+		    __FUNCTION__, name);
+	    rc = -1;
+	    break;
+	}
+
+	/* Make sure NAME is valid. */
+	if (valid_pmns_name(name) == 0) {
+	    fprintf(stderr, "%s: NAME isn't a valid PMNS name: %s\n",
+		    __FUNCTION__, name);
+	    rc = -1;
+	    break;
+	}
+
+	/* Skip past any extra whitespace between NAME and PATHNAME */
+	while (*ptr != '\0' && isspace(*ptr)) {
+	    ptr++;
+	}
+
+	/* Make sure PATHNAME (the rest of the line) isn't too long. */
+	if (strlen(ptr) > MAXPATHLEN) {
+	    fprintf(stderr, "%s: PATHNAME is too long: %s\n",
+		    __FUNCTION__, ptr);
+	    rc = -1;
+	    break;
+	}
+
+	/* Now we've got a reasonable NAME and PATHNAME.  Save them. */
 	numlogfiles++;
 	logfiles = realloc(logfiles, numlogfiles * sizeof(struct LogfileData));
 	if (logfiles == NULL) {
@@ -251,37 +322,11 @@ read_config(const char *filename)
 	    break;
 	}
 	data = &logfiles[numlogfiles - 1];
-	strncpy(data->pathname, tmp, sizeof(data->pathname));
+	strncpy(data->pmns_name, name, sizeof(data->pmns_name));
+	strncpy(data->pathname, ptr, sizeof(data->pathname));
 	/* data->pmid_string gets filled in after pmdaInit() is called. */
 
-	/* Now we've got to munge the pathname and turn it into a
-	 * pmns name.  For example, "/var/log/messages" would end up
-	 * as "var.log.messages".  First, skip past any leading '/'
-	 * chars. */
-	ptr = tmp;
-	while (*ptr == '/') {
-	    ptr++;
-	    if (*ptr == '\0')
-		break;
-	}
-	/* Copy the string, then replace all the '.' characters with
-	 * '_', then replace all the '/' characters with '.'. */
-
-	/* DRS:  FIXME - Is '_' a valid char?  I also think the 1st
-	 * char must be alphabetic.  See valid_pmns_name() in
-	 * pmdas/linux/cgroups.c.*/
-
-	strncpy(data->pmns_name, ptr, sizeof(data->pmns_name));
-	ptr = data->pmns_name;
-	while ((ptr = strchr(ptr, '.')) != NULL) {
-	    *ptr = '_';
-	}
-	ptr = data->pmns_name;
-	while ((ptr = strchr(ptr, '/')) != NULL) {
-	    *ptr = '.';
-	}
-
-	__pmNotifyErr(LOG_INFO, "%s: saw logfile %s (%s)\n", __FUNCTION__,
+	__pmNotifyErr(LOG_INFO, "%s: sa wlogfile %s (%s)\n", __FUNCTION__,
 		      data->pathname, data->pmns_name);
     }
     if (rc != 0) {

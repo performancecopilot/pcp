@@ -22,8 +22,8 @@
 #define _EVENT_H
 
 struct LogfileData {
-    char	pathname[MAXPATHLEN];
     char	pmns_name[MAXPATHLEN];
+    char	pathname[MAXPATHLEN];
     pmID	pmid_string;
 };
 

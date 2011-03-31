@@ -87,7 +87,7 @@ $1 == "'$iam'"	{ printf "%s",$6
     pmdaChooseConfigFile
     if [ ! -f "$configfile" ]
     then
-	$PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to enter logfile names manually? [y] ""$PCP_ECHO_C"
+	$PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to enter logfile names and paths manually? [y] ""$PCP_ECHO_C"
 	read ans
 	if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o -z "$ans" ]
 	then
@@ -105,7 +105,7 @@ $1 == "'$iam'"	{ printf "%s",$6
 
 	    echo
 	    echo \
-'Enter one logfile name per line.  An empty line terminates the
+'Enter the PMNS name and logfile path.  An empty line terminates the
 logfile selection process and there must be at least one logfile specified.
 '
 
@@ -121,18 +121,27 @@ logfile selection process and there must be at least one logfile specified.
 	    do
 		while true
 		do
-		    $PCP_ECHO_PROG $PCP_ECHO_N "Logfile name: ""$PCP_ECHO_C"
-		    read logfile
-		    [ -z "$logfile" ] && break
-		    if grep "^$logfile$" $configfile >/dev/null
+		    $PCP_ECHO_PROG $PCP_ECHO_N "Logfile PMNS name: ""$PCP_ECHO_C"
+		    read name
+		    [ -z "$name" ] && break
+		    if grep "^${name}[ \t]" $configfile >/dev/null
 		    then
-			echo "Sorry, logfile \"$logfile\" already specified.  Please try again."
+			echo "Sorry, logfile PMNS name \"$name\" already specified.  Please try again."
 			continue
 		    fi
-		    if [ ! -e "$logfile" ]; then
-			echo "Error: logfile $value doesn't exist!  Reinstall to change."
+
+		    $PCP_ECHO_PROG $PCP_ECHO_N "Logfile pathname: ""$PCP_ECHO_C"
+		    read pathname
+		    [ -z "$pathname" ] && break
+		    if grep "[ \t]${pathname}$" $configfile >/dev/null
+		    then
+			echo "Sorry, pathname \"$pathname\" already specified.  Please try again."
+			continue
 		    fi
-		    echo "$logfile" >>$configfile
+		    if [ ! -e "$pathname" ]; then
+			echo "Error: pathname $value doesn't exist!  Reinstall to change."
+		    fi
+		    echo "$name $pathname" >>$configfile
 		done
 	    done
 	else
