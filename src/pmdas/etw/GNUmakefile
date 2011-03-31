@@ -19,10 +19,10 @@ WINDIR = $(TOPDIR)/src/win32ctl
 
 IAM		= etw
 DOMAIN		= ETW
-CFILES		= 
-HFILES		= 
-LSRCFILES	= tdhlist.c tdhconsume.exe util.c util.h
-LCFLAGS		= -I$(WINDIR)/include -D_WIN32_WINNT=0x0600
+CFILES		= util.c
+HFILES		= util.h
+LSRCFILES	= tdhlist.c tdhconsume.c
+LCFLAGS		= -I$(WINDIR)/include -D_WIN32_WINNT=0x0600 -DINITGUID
 LLDFLAGS	= -L$(WINDIR)/lib
 LLDLIBS		= -lpcp_tdh
 
@@ -30,7 +30,7 @@ PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 #CMDTARGET	= pmdaetw.exe
 #LIBTARGET	= pmda_etw.dll
 EXTRATARGETS	= tdhlist.exe tdhconsume.exe
-LDIRT		= $(EXTRATARGETS) *.o
+LDIRT		= $(EXTRATARGETS) domain.h *.o
 
 default:	build-me
 
@@ -49,6 +49,11 @@ endif
 default_pcp:	default
 
 install_pcp:	install
+
+domain.h: ../../pmns/stdpmid
+	$(DOMAIN_MAKERULE)
+
+$(OBJECTS):	domain.h util.h
 
 tdhlist.exe:	tdhlist.o util.o
 	$(CCF) -o tdhlist.exe tdhlist.o util.o $(LLDFLAGS) -lpcp_tdh
