@@ -109,9 +109,11 @@ pmStore(const pmResult *result)
     }
 
     if ((sts = pmWhichContext()) >= 0) {
-	int	ctx = n;
+	int	ctx = sts;
 	ctxp = __pmHandleToPtr(sts);
-	if (ctxp->c_type == PM_CONTEXT_HOST) {
+	if (ctxp == NULL)
+	    sts = PM_ERR_NOCONTEXT;
+	else if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((sts = sendstore (ctxp, result)) >= 0) {
 		sts = store_check (ctxp);
 	    }
@@ -123,25 +125,30 @@ pmStore(const pmResult *result)
 	     */
 	    pmResult	tmp;
 	    pmValueSet	tmpvset;
-	    sts = 0;
-	    for (n = 0; sts == 0 && n < result->numpmid; n++) {
-		if ((dp = __pmLookupDSO(((__pmID_int *)&result->vset[n]->pmid)->domain)) == NULL)
-		    sts = PM_ERR_NOAGENT;
-		else {
-		    tmp.numpmid = 1;
-		    tmp.vset[0] = &tmpvset;
-		    tmpvset.numval = 1;
-		    tmpvset.pmid = result->vset[n]->pmid;
-		    tmpvset.valfmt = result->vset[n]->valfmt;
-		    tmpvset.vlist[0] = result->vset[n]->vlist[0];
-		    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
-			dp->dispatch.version.four.ext->e_context = ctx;
-		    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-			sts = dp->dispatch.version.four.store(&tmp,
-						dp->dispatch.version.four.ext);
-		    else
-			sts = dp->dispatch.version.two.store(&tmp,
-						dp->dispatch.version.two.ext);
+	    if (PM_MULTIPLE_THREADS())
+		/* Local context requires single-threaded applications */
+		sts = PM_ERR_THREAD;
+	    else {
+		sts = 0;
+		for (n = 0; sts == 0 && n < result->numpmid; n++) {
+		    if ((dp = __pmLookupDSO(((__pmID_int *)&result->vset[n]->pmid)->domain)) == NULL)
+			sts = PM_ERR_NOAGENT;
+		    else {
+			tmp.numpmid = 1;
+			tmp.vset[0] = &tmpvset;
+			tmpvset.numval = 1;
+			tmpvset.pmid = result->vset[n]->pmid;
+			tmpvset.valfmt = result->vset[n]->valfmt;
+			tmpvset.vlist[0] = result->vset[n]->vlist[0];
+			if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+			    dp->dispatch.version.four.ext->e_context = ctx;
+			if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
+			    sts = dp->dispatch.version.four.store(&tmp,
+						    dp->dispatch.version.four.ext);
+			else
+			    sts = dp->dispatch.version.two.store(&tmp,
+						    dp->dispatch.version.two.ext);
+		    }
 		}
 	    }
 	}

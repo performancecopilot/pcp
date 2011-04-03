@@ -92,45 +92,53 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 {
     int		n;
     __pmContext	*ctxp;
-    __pmDSO	*dp;
 
-    if ((n = pmWhichContext()) >= 0) {
-	int	ctx = n;
-	ctxp = __pmHandleToPtr(ctx);
-	if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    if ((n = request_desc(ctxp, pmid)) >= 0) {
-		n = receive_desc(ctxp, desc);
-	    }
-	}
-	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
-	    if ((dp = __pmLookupDSO(((__pmID_int *)&pmid)->domain)) == NULL)
-		n = PM_ERR_NOAGENT;
-	    else {
-		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
-		    dp->dispatch.version.four.ext->e_context = ctx;
-		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		    n = dp->dispatch.version.four.desc(pmid, desc, dp->dispatch.version.four.ext);
-		else
-		    n = dp->dispatch.version.two.desc(pmid, desc, dp->dispatch.version.two.ext);
-	    }
-	}
-	else {
-	    /* assume PM_CONTEXT_ARCHIVE */
-	    n = __pmLogLookupDesc(ctxp->c_archctl->ac_log, pmid, desc);
-	}
-
-	if (n == PM_ERR_PMID || n == PM_ERR_PMID_LOG || n == PM_ERR_NOAGENT) {
-	    int		sts;
-	    /*
-	     * check for derived metric ... keep error status from above
-	     * unless we have success with the derived metrics
-	     */
-	    sts = __dmdesc(ctxp, pmid, desc);
-	    if (sts >= 0)
-		n = sts;
-	}
+    if ((n = pmWhichContext()) < 0)
+	goto done;
+    if ((ctxp = __pmHandleToPtr(n)) == NULL) {
+	n = PM_ERR_NOCONTEXT;
+	goto done;
     }
 
+    if (ctxp->c_type == PM_CONTEXT_HOST) {
+	if ((n = request_desc(ctxp, pmid)) >= 0) {
+	    n = receive_desc(ctxp, desc);
+	}
+    }
+    else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
+	int		ctx = n;
+	__pmDSO		*dp;
+	if (PM_MULTIPLE_THREADS())
+	    /* Local context requires single-threaded applications */
+	    n = PM_ERR_THREAD;
+	else if ((dp = __pmLookupDSO(((__pmID_int *)&pmid)->domain)) == NULL)
+	    n = PM_ERR_NOAGENT;
+	else {
+	    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		dp->dispatch.version.four.ext->e_context = ctx;
+	    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
+		n = dp->dispatch.version.four.desc(pmid, desc, dp->dispatch.version.four.ext);
+	    else
+		n = dp->dispatch.version.two.desc(pmid, desc, dp->dispatch.version.two.ext);
+	}
+    }
+    else {
+	/* assume PM_CONTEXT_ARCHIVE */
+	n = __pmLogLookupDesc(ctxp->c_archctl->ac_log, pmid, desc);
+    }
+
+    if (n == PM_ERR_PMID || n == PM_ERR_PMID_LOG || n == PM_ERR_NOAGENT) {
+	int		sts;
+	/*
+	 * check for derived metric ... keep error status from above
+	 * unless we have success with the derived metrics
+	 */
+	sts = __dmdesc(ctxp, pmid, desc);
+	if (sts >= 0)
+	    n = sts;
+    }
+
+done:
     return n;
 }
 

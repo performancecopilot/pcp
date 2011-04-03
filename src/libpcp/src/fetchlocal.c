@@ -41,6 +41,8 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
     if ((ctx = pmWhichContext()) < 0)
 	return ctx;
     ctxp = __pmHandleToPtr(ctx);
+    if (ctxp == NULL)
+	return PM_ERR_NOCONTEXT;
 
     /*
      * this is very ugly ... the DSOs have a high-water mark

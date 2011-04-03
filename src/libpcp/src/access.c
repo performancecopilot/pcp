@@ -19,15 +19,15 @@
 /* Host access control list */
 
 typedef struct {
-    char		*hostSpec;	/* Host specification */
-    struct in_addr	hostId;		/* Partial host-id to match */
-    struct in_addr	hostMask;	/* Mask for wildcarding */
+    char		*hostspec;	/* Host specification */
+    struct in_addr	hostid;		/* Partial host-id to match */
+    struct in_addr	hostmask;	/* Mask for wildcarding */
     int			level;		/* Level of wildcarding */
     unsigned int	specOps;	/* Mask of specified operations */
     unsigned int	denyOps;	/* Mask of disallowed operations */
-    int			maxCons;	/* Max connections permitted (0 => no limit) */
-    int			curCons;	/* Current # connections from matching clients */
-} HostInfo;
+    int			maxcons;	/* Max connections permitted (0 => no limit) */
+    int			curcons;	/* Current # connections from matching clients */
+} hostinfo;
 
 /* Mask of the operations defined by the user of the routines */
 
@@ -66,41 +66,45 @@ __pmAccAddOp(unsigned int op)
  * checking for incoming connections from localhost.
  */
 
-static int		gotMyHostId;
-static struct in_addr	myHostId;
-static char		myHostName[MAXHOSTNAMELEN+1];
+static int		gotmyhostid;
+static struct in_addr	myhostid;
+static char		myhostname[MAXHOSTNAMELEN+1];
 
+/*
+ * Always called with __pmLock_libpcp already held, so accessing
+ * gotmyhostid, myhostname, myhostid and gethostname() call are all 
+ * thread-safe.
+ */
 static int
-GetMyHostId(void)
+getmyhostid(void)
 {
     struct hostent	*hep;
 
-    gotMyHostId = -1;
-    (void)gethostname(myHostName, MAXHOSTNAMELEN);
-    myHostName[MAXHOSTNAMELEN-1] = '\0';
+    (void)gethostname(myhostname, MAXHOSTNAMELEN);
+    myhostname[MAXHOSTNAMELEN-1] = '\0';
 
-    if ((hep = gethostbyname(myHostName)) == NULL) {
+    if ((hep = gethostbyname(myhostname)) == NULL) {
 	__pmNotifyErr(LOG_ERR, "gethostbyname(%s), %s\n",
-		     myHostName, hoststrerror());
+		     myhostname, hoststrerror());
 	return -1;
     }
-    myHostId.s_addr = ((struct in_addr *)hep->h_addr_list[0])->s_addr;
-    gotMyHostId = 1;
+    myhostid.s_addr = ((struct in_addr *)hep->h_addr_list[0])->s_addr;
+    gotmyhostid = 1;
     return 0;
 }
 
 /* This is the host access list */
 
-static HostInfo	*hostList;
-static int	nHosts;
-static int	szHostList;
+static hostinfo	*hostlist;
+static int	nhosts;
+static int	szhostlist;
 
 /* Used for saving the current state of the host access list */
 
 static int	saved;
-static HostInfo	*oldHostList;
-static int	oldNHosts;
-static int	oldSzHostList;
+static hostinfo	*oldhostlist;
+static int	oldnhosts;
+static int	oldszhostlist;
 
 /* Save the current host access list.
  * Returns 0 for success, -1 for error.
@@ -111,12 +115,12 @@ __pmAccSaveHosts(void)
     if (saved)
 	return -1;
     saved = 1;
-    oldHostList = hostList;
-    oldNHosts = nHosts;
-    oldSzHostList = szHostList;
-    hostList = NULL;
-    nHosts = 0;
-    szHostList = 0;
+    oldhostlist = hostlist;
+    oldnhosts = nhosts;
+    oldszhostlist = szhostlist;
+    hostlist = NULL;
+    nhosts = 0;
+    szhostlist = 0;
     return 0;
 }
 
@@ -126,20 +130,20 @@ __pmAccSaveHosts(void)
  * once it has been built.
  */
 static void
-_pmAccFreeHosts(void)
+accfreehosts(void)
 {
     int		i;
     char	*p;
 
-    if (szHostList) {
-	for (i = 0; i < nHosts; i++)
-	    if ((p = hostList[i].hostSpec) != NULL)
+    if (szhostlist) {
+	for (i = 0; i < nhosts; i++)
+	    if ((p = hostlist[i].hostspec) != NULL)
 		free(p);
-	free(hostList);
+	free(hostlist);
     }
-    hostList = NULL;
-    nHosts = 0;
-    szHostList = 0;
+    hostlist = NULL;
+    nhosts = 0;
+    szhostlist = 0;
 }
 
 /* Restore the previously saved host list.  Any current host list is freed.
@@ -150,11 +154,11 @@ __pmAccRestoreHosts(void)
 {
     if (!saved)
 	return -1;
-    _pmAccFreeHosts();
+    accfreehosts();
     saved = 0;
-    hostList = oldHostList;
-    nHosts = oldNHosts;
-    szHostList = oldSzHostList;
+    hostlist = oldhostlist;
+    nhosts = oldnhosts;
+    szhostlist = oldszhostlist;
     return 0;
 }
 
@@ -171,11 +175,11 @@ __pmAccFreeSavedHosts(void)
 
     if (!saved)
 	return;
-    if (oldSzHostList) {
-	for (i = 0; i < oldNHosts; i++)
-	    if ((p = oldHostList[i].hostSpec) != NULL)
+    if (oldszhostlist) {
+	for (i = 0; i < oldnhosts; i++)
+	    if ((p = oldhostlist[i].hostspec) != NULL)
 		free(p);
-	free(oldHostList);
+	free(oldhostlist);
     }
     saved = 0;
 }
@@ -188,35 +192,35 @@ __pmAccFreeSavedHosts(void)
  *	specOps means the corresponding bit in denyOps should be ignored.
  * denyOps is a mask where a 1 bit indicates that permission to perform the
  *	corresponding operation should be denied.
- * maxCons is a maximum connection limit for clients on hosts matching the host
+ * maxcons is a maximum connection limit for clients on hosts matching the host
  *	id.  Zero means unspecified, which will allow unlimited connections or
- *	a subsequent __pmAccAddHost call with the same host to override maxCons.
+ *	a subsequent __pmAccAddHost call with the same host to override maxcons.
  *
  * Returns a negated system error code on failure.
  */
 
 int
-__pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int maxCons)
+__pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int maxcons)
 {
     size_t		need;
     int			i, n, sts;
     struct hostent	*hep;
     int			level = 0;	/* Wildcarding level */
-    struct in_addr	hostId, hostMask;
+    struct in_addr	hostid, hostmask;
     const char		*p;
-    HostInfo		*hp;
+    hostinfo		*hp;
 
     if (specOps & ~all_ops)
 	return -EINVAL;
-    if (maxCons < 0)
+    if (maxcons < 0)
 	return -EINVAL;
 
     /* Make the host access list larger if required */
-    if (nHosts == szHostList) {
-	szHostList += 8;
-	need = szHostList * sizeof(HostInfo);
-	hostList = (HostInfo *)realloc(hostList, need);
-	if (hostList == NULL) {
+    if (nhosts == szhostlist) {
+	szhostlist += 8;
+	need = szhostlist * sizeof(hostinfo);
+	hostlist = (hostinfo *)realloc(hostlist, need);
+	if (hostlist == NULL) {
 	    __pmNoMem("AddHost enlarge", need, PM_FATAL_ERR);
 	}
     }
@@ -241,7 +245,7 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	}
 
 	/* i is used to shift the IP address components as they are scanned */
-	hostId.s_addr = hostMask.s_addr = 0;
+	hostid.s_addr = hostmask.s_addr = 0;
 	for (p = name, i = 24; *p && *p != '*' ; p++, i -= 8) {
 	    n = (int)strtol(p, (char **)&p, 10);
 	    if ((*p != '.' && *p != '*') || n < 0 || n > 255) {
@@ -250,13 +254,13 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 			     name);
 		return -EINVAL;
 	    }
-	    hostId.s_addr += n << i;
-	    hostMask.s_addr += 0xff << i;
+	    hostid.s_addr += n << i;
+	    hostmask.s_addr += 0xff << i;
 	}
 	/* IP addresses are kept in the Network Byte Order, so translate 'em
 	 * here */
-	hostId.s_addr = htonl (hostId.s_addr);
-	hostMask.s_addr = htonl (hostMask.s_addr);
+	hostid.s_addr = htonl (hostid.s_addr);
+	hostmask.s_addr = htonl (hostmask.s_addr);
 	
     }
     /* No asterisk: must be a specific host.
@@ -264,79 +268,85 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
      * statements with wildcarding work with it.
      */
     else {
-	const char	*realName;
+	const char	*realname;
 
 	if (strcasecmp(name, "localhost") == 0) {
 	    /* Map "localhost" to full host name & get IP address */
-	    if (!gotMyHostId)
-		if (GetMyHostId() < 0) {
+	    PM_LOCK(__pmLock_libpcp);
+	    if (!gotmyhostid)
+		if (getmyhostid() < 0) {
 		    __pmNotifyErr(LOG_ERR, "Can't get host name/IP address, giving up\n");
+		    PM_UNLOCK(__pmLock_libpcp);
 		    return -EHOSTDOWN;	/* should never happen! */
 		}
-	    realName = myHostName;
+	    realname = myhostname;
+	    PM_UNLOCK(__pmLock_libpcp);
 	}
 	else
-	    realName = name;
-	if ((hep = gethostbyname(realName)) == NULL) {
+	    realname = name;
+	PM_LOCK(__pmLock_libpcp);
+	if ((hep = gethostbyname(realname)) == NULL) {
 	    __pmNotifyErr(LOG_ERR, "gethostbyname(%s), %s\n",
-			 realName, hoststrerror());
+			 realname, hoststrerror());
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return -EHOSTUNREACH;	/* host error unsuitable to return */
 	}
-	hostId.s_addr = ((struct in_addr *)hep->h_addr_list[0])->s_addr;
-	hostMask.s_addr = 0xffffffff;
+	PM_UNLOCK(__pmLock_libpcp);
+	hostid.s_addr = ((struct in_addr *)hep->h_addr_list[0])->s_addr;
+	hostmask.s_addr = 0xffffffff;
 	level = 0;
     }
 
     sts = 0;
-    for (i = 0; i < nHosts; i++) {
-	if (hostList[i].level > level)
+    for (i = 0; i < nhosts; i++) {
+	if (hostlist[i].level > level)
 	    break;
-	/* hostId AND level must match.  Wildcarded IP addresses have zero in
+	/* hostid AND level must match.  Wildcarded IP addresses have zero in
 	 * the unspecified components.  Distinguish between 155.23.6.0 and
 	 * 155.23.6.* or 155.23.0.0 and 155.23.* by wildcard level.  IP
 	 * addresses shouldn't have zero in last position but to deal with
 	 * them just in case.
 	 */
-	if (hostId.s_addr == hostList[i].hostId.s_addr &&
-	    level == hostList[i].level) {
+	if (hostid.s_addr == hostlist[i].hostid.s_addr &&
+	    level == hostlist[i].level) {
 	    sts = 1;
 	    break;
 	}
     }
-    hp = &hostList[i];
+    hp = &hostlist[i];
 
     /* Check and augment existing host access list entry for this host id if a
      * match was found (sts == 1) otherwise insert a new entry in list.
      */
     if (sts == 1) {
 	/* If the specified operations overlap, they must agree */
-	if ((hp->maxCons && maxCons && hp->maxCons != maxCons) ||
+	if ((hp->maxcons && maxcons && hp->maxcons != maxcons) ||
 	    ((hp->specOps & specOps) &&
 	     ((hp->specOps & hp->denyOps) ^ (specOps & denyOps)))) {
 	    __pmNotifyErr(LOG_ERR,
 			 "Permission clash for %s with earlier statement for %s\n",
-			 name, hp->hostSpec);
+			 name, hp->hostspec);
 	    return -EINVAL;
 	}
 	hp->specOps |= specOps;
 	hp->denyOps |= (specOps & denyOps);
-	if (maxCons)
-	    hp->maxCons = maxCons;
+	if (maxcons)
+	    hp->maxcons = maxcons;
     }
     else {
 	/* Move any subsequent hosts down to make room for the new entry*/
-	if (i < nHosts)
-	    memmove(&hostList[i+1], &hostList[i],
-		    (nHosts - i) * sizeof(HostInfo));
-	hp->hostSpec = strdup(name);
-	hp->hostId.s_addr = hostId.s_addr;
-	hp->hostMask.s_addr = hostMask.s_addr;
+	if (i < nhosts)
+	    memmove(&hostlist[i+1], &hostlist[i],
+		    (nhosts - i) * sizeof(hostinfo));
+	hp->hostspec = strdup(name);
+	hp->hostid.s_addr = hostid.s_addr;
+	hp->hostmask.s_addr = hostmask.s_addr;
 	hp->level = level;
 	hp->specOps = specOps;
 	hp->denyOps = specOps & denyOps;
-	hp->maxCons = maxCons;
-	hp->curCons = 0;
-	nHosts++;
+	hp->maxcons = maxcons;
+	hp->curcons = 0;
+	nhosts++;
     }
 
     return 0;
@@ -345,56 +355,61 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 /* Called after accepting new client's connection to check that another
  * connection from its host is permitted and to find which operations the
  * client is permitted to perform.
- * hostId is the IP address of the host that the client is running on
+ * hostid is the IP address of the host that the client is running on
  * denyOpsResult is a pointer to return the capability vector
  */
 int
-__pmAccAddClient(const struct in_addr *hostId, unsigned int *denyOpsResult)
+__pmAccAddClient(const struct in_addr *hostid, unsigned int *denyOpsResult)
 {
     int			i;
-    HostInfo		*hp;
-    HostInfo		*lastMatch = NULL;
-    struct in_addr	clientId;
+    hostinfo		*hp;
+    hostinfo		*lastmatch = NULL;
+    struct in_addr	clientid;
 
-    clientId.s_addr = hostId->s_addr;
+    clientid.s_addr = hostid->s_addr;
 
     /* Map "localhost" to the real IP address.  Host access statements for
      * localhost are mapped to the "real" IP address so that wildcarding works
      * consistently.
      */
-    if (clientId.s_addr == htonl(INADDR_LOOPBACK)) {
-	if (!gotMyHostId)
-	    GetMyHostId();
+    if (clientid.s_addr == htonl(INADDR_LOOPBACK)) {
+	PM_LOCK(__pmLock_libpcp);
+	if (!gotmyhostid)
+	    getmyhostid();
 
-	if (gotMyHostId > 0)
-	    clientId.s_addr = myHostId.s_addr;
-	else
+	if (gotmyhostid > 0) {
+	    clientid.s_addr = myhostid.s_addr;
+	    PM_UNLOCK(__pmLock_libpcp);
+	}
+	else {
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return PM_ERR_PERMISSION;
+	}
     }
 
 
     *denyOpsResult = 0;			/* deny nothing == allow all */
-    if (nHosts == 0)			/* No access controls => allow all */
+    if (nhosts == 0)			/* No access controls => allow all */
 	return 0;
 
-    for (i = nHosts - 1; i >= 0; i--) {
-	hp = &hostList[i];
-	if ((hp->hostMask.s_addr & clientId.s_addr) == hp->hostId.s_addr) {
+    for (i = nhosts - 1; i >= 0; i--) {
+	hp = &hostlist[i];
+	if ((hp->hostmask.s_addr & clientid.s_addr) == hp->hostid.s_addr) {
 	    /* Clobber specified ops then set. Leave unspecified ops alone. */
 	    *denyOpsResult &= ~hp->specOps;
 	    *denyOpsResult |= hp->denyOps;
-	    lastMatch = hp;
+	    lastmatch = hp;
 	}
     }
-    /* no matching entry in hostList => allow all */
+    /* no matching entry in hostlist => allow all */
 
     /* If no operations are allowed, disallow connection */
     if (*denyOpsResult == all_ops)
 	return PM_ERR_PERMISSION;
 
     /* Check for connection limit */
-    if (lastMatch != NULL && lastMatch->maxCons &&
-	lastMatch->curCons >= lastMatch->maxCons) {
+    if (lastmatch != NULL && lastmatch->maxcons &&
+	lastmatch->curcons >= lastmatch->maxcons) {
 
 	*denyOpsResult = all_ops;
 	return PM_ERR_CONNLIMIT;
@@ -404,31 +419,31 @@ __pmAccAddClient(const struct in_addr *hostId, unsigned int *denyOpsResult)
      * host access list that match the client's IP address.  A client may
      * contribute to several connection counts because of wildcarding.
      */
-    for (i = 0; i < nHosts; i++) {
-	hp = &hostList[i];
-	if ((hp->hostMask.s_addr & clientId.s_addr) == hp->hostId.s_addr)
-	    if (hp->maxCons)
-		hp->curCons++;
+    for (i = 0; i < nhosts; i++) {
+	hp = &hostlist[i];
+	if ((hp->hostmask.s_addr & clientid.s_addr) == hp->hostid.s_addr)
+	    if (hp->maxcons)
+		hp->curcons++;
     }
 
     return 0;
 }
 
 void
-__pmAccDelClient(const struct in_addr *hostId)
+__pmAccDelClient(const struct in_addr *hostid)
 {
     int		i;
-    HostInfo	*hp;
+    hostinfo	*hp;
 
     /* Increment the count of current connections for ALL host specs in the
      * host access list that match the client's IP address.  A client may
      * contribute to several connection counts because of wildcarding.
      */
-    for (i = 0; i < nHosts; i++) {
-	hp = &hostList[i];
-	if ((hp->hostMask.s_addr & hostId->s_addr) == hp->hostId.s_addr)
- 	    if (hp->maxCons)
-		hp->curCons--;
+    for (i = 0; i < nhosts; i++) {
+	hp = &hostlist[i];
+	if ((hp->hostmask.s_addr & hostid->s_addr) == hp->hostid.s_addr)
+ 	    if (hp->maxcons)
+		hp->curcons--;
     }
 }
 
@@ -438,7 +453,7 @@ __pmAccDumpHosts(FILE *stream)
     int			h, i;
     int			minbit = -1, maxbit;
     unsigned int	mask;
-    HostInfo		*hp;
+    hostinfo		*hp;
 
     mask = all_ops;
     for (i = 0; mask; i++) {
@@ -449,7 +464,7 @@ __pmAccDumpHosts(FILE *stream)
     }
     maxbit = i - 1;
 
-    if (nHosts == 0) {
+    if (nhosts == 0) {
 	fprintf(stream, "\nHost access list empty: access control turned off\n\n");
 	return;
     }
@@ -463,8 +478,8 @@ __pmAccDumpHosts(FILE *stream)
 	if (all_ops & (1 << i))
 	    fputs("== ", stream);
     fprintf(stream, "=========== ========= ========= === ==============\n");
-    for (h = 0; h < nHosts; h++) {
-	hp = &hostList[h];
+    for (h = 0; h < nhosts; h++) {
+	hp = &hostlist[h];
 
 	for (i = minbit; i <= maxbit; i++) {
 	    if (all_ops & (mask = 1 << i)) {
@@ -476,8 +491,8 @@ __pmAccDumpHosts(FILE *stream)
 		}
 	    }
 	}
-	fprintf(stream, "%5d %5d  %08x  %08x %3d %s\n", hp->curCons, hp->maxCons,
-		(int)hp->hostId.s_addr, (int)hp->hostMask.s_addr, hp->level, hp->hostSpec);
+	fprintf(stream, "%5d %5d  %08x  %08x %3d %s\n", hp->curcons, hp->maxcons,
+		(int)hp->hostid.s_addr, (int)hp->hostmask.s_addr, hp->level, hp->hostspec);
     }
     putc('\n', stream);
 }

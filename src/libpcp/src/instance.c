@@ -114,14 +114,18 @@ pmLookupInDom(pmInDom indom, const char *name)
     if ((n = pmWhichContext()) >= 0) {
 	int	ctx = n;
 	ctxp = __pmHandleToPtr(ctx);
-
-	if (ctxp->c_type == PM_CONTEXT_HOST) {
+	if (ctxp == NULL)
+	    n = PM_ERR_NOCONTEXT;
+	else if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((n = request_instance (ctxp, indom, PM_IN_NULL, name)) >= 0) {
 		n = receive_instance_id (ctxp);
 	    }
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
-	    if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
+	    if (PM_MULTIPLE_THREADS())
+		/* Local context requires single-threaded applications */
+		n = PM_ERR_THREAD;
+	    else if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
 		n = PM_ERR_NOAGENT;
 	    else {
 		/* We can safely cast away const here */
@@ -215,13 +219,18 @@ pmNameInDom(pmInDom indom, int inst, char **name)
     if ((n = pmWhichContext()) >= 0) {
 	int	ctx = n;
 	ctxp = __pmHandleToPtr(ctx);
-	if (ctxp->c_type == PM_CONTEXT_HOST) {
+	if (ctxp == NULL)
+	    n = PM_ERR_NOCONTEXT;
+	else if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((n = request_instance(ctxp, indom, inst, NULL)) >= 0) {
 		n = receive_instance_name (ctxp, name);
 	    }
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
-	    if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
+	    if (PM_MULTIPLE_THREADS())
+		/* Local context requires single-threaded applications */
+		n = PM_ERR_THREAD;
+	    else if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
 		n = PM_ERR_NOAGENT;
 	    else {
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
@@ -355,22 +364,24 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
     char		**nlist;
     __pmDSO		*dp;
 
-    /* avoid ambiguity when no instances or errors */
-    *instlist = NULL;
-    *namelist = NULL;
     if (indom == PM_INDOM_NULL)
 	return PM_ERR_INDOM;
 
     if ((n = pmWhichContext()) >= 0) {
 	int	ctx = n;
 	ctxp = __pmHandleToPtr(ctx);
-	if (ctxp->c_type == PM_CONTEXT_HOST) {
+	if (ctxp == NULL)
+	    n = PM_ERR_NOCONTEXT;
+	else if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((n = request_instance (ctxp, indom, PM_IN_NULL, NULL)) >= 0) {
 		n = receive_indom (ctxp, instlist, namelist);
 	    }
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
-	    if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
+	    if (PM_MULTIPLE_THREADS())
+		/* Local context requires single-threaded applications */
+		n = PM_ERR_THREAD;
+	    else if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
 		n = PM_ERR_NOAGENT;
 	    else {
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
@@ -415,6 +426,12 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 		}
 	    }
 	}
+    }
+
+    if (n == 0) {
+	/* avoid ambiguity when no instances or errors */
+	*instlist = NULL;
+	*namelist = NULL;
     }
 
     return n;

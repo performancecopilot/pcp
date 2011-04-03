@@ -647,6 +647,8 @@ pmLookupInDomArchive(pmInDom indom, const char *name)
 
     if ((n = pmWhichContext()) >= 0) {
 	ctxp = __pmHandleToPtr(n);
+	if (ctxp == NULL)
+	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type != PM_CONTEXT_ARCHIVE)
 	    return PM_ERR_NOTARCHIVE;
 
@@ -691,6 +693,8 @@ pmNameInDomArchive(pmInDom indom, int inst, char **name)
 
     if ((n = pmWhichContext()) >= 0) {
 	ctxp = __pmHandleToPtr(n);
+	if (ctxp == NULL)
+	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type != PM_CONTEXT_ARCHIVE)
 	    return PM_ERR_NOTARCHIVE;
 
@@ -738,6 +742,8 @@ pmGetInDomArchive(pmInDom indom, int **instlist, char ***namelist)
 
     if ((n = pmWhichContext()) >= 0) {
 	ctxp = __pmHandleToPtr(n);
+	if (ctxp == NULL)
+	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type != PM_CONTEXT_ARCHIVE)
 	    return PM_ERR_NOTARCHIVE;
 

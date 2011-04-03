@@ -67,7 +67,9 @@ lookuptext(int ident, int type, char **buffer)
     if ((n = pmWhichContext()) >= 0) {
 	int	ctx = n;
 	ctxp = __pmHandleToPtr(ctx);
-	if (ctxp->c_type == PM_CONTEXT_HOST) {
+	if (ctxp == NULL)
+	    n = PM_ERR_NOCONTEXT;
+	else if (ctxp->c_type == PM_CONTEXT_HOST) {
 again:
 	    if ((n = requesttext (ctxp, ident, type)) >= 0) {
 		n = receivetext (ctxp, buffer);
@@ -87,7 +89,10 @@ again:
 	    }
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
-	    if ((dp = __pmLookupDSO(((__pmID_int *)&ident)->domain)) == NULL)
+	    if (PM_MULTIPLE_THREADS())
+		/* Local context requires single-threaded applications */
+		n = PM_ERR_THREAD;
+	    else if ((dp = __pmLookupDSO(((__pmID_int *)&ident)->domain)) == NULL)
 		n = PM_ERR_NOAGENT;
 	    else {
 again_local:

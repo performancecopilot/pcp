@@ -165,8 +165,7 @@ pmGetPMNSLocation(void)
      * Load PMNS if necessary.
      */
     if (!havePmLoadCall) {
-	if ((n = pmWhichContext()) >= 0) {
-	    ctxp = __pmHandleToPtr(n);
+	if ((n = pmWhichContext()) >= 0 && (ctxp = __pmHandleToPtr(n)) != NULL) {
 	    switch(ctxp->c_type) {
 		case PM_CONTEXT_HOST:
 		    if (ctxp->c_pmcd->pc_fd == -1)
@@ -191,7 +190,11 @@ pmGetPMNSLocation(void)
 		    break;
 
 		case PM_CONTEXT_LOCAL:
-		    pmns_location = LoadDefault("local");
+		    if (PM_MULTIPLE_THREADS())
+			/* Local context requires single-threaded applications */
+			pmns_location = PM_ERR_THREAD;
+		    else
+			pmns_location = LoadDefault("local");
 		    break;
 
 		case PM_CONTEXT_ARCHIVE:
@@ -1565,6 +1568,8 @@ locate(const char *name, __pmnsNode *root)
 int
 pmLoadNameSpace(const char *filename)
 {
+    PM_INIT_LOCKS();
+
     havePmLoadCall = 1;
     return load(filename, 1, 0);
 }
@@ -1732,6 +1737,9 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	ctxp = __pmHandleToPtr(lsts);
     else
 	ctxp = NULL;
+    if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS())
+	/* Local context requires single-threaded applications */
+	return PM_ERR_THREAD;
 
     pmns_location = GetLocation();
     
@@ -2501,10 +2509,8 @@ pmNameID(pmID pmid, char **name)
 	__pmContext  *ctxp;
 
 	/* As we have PMNS_REMOTE there must be a current host context */
-	n = pmWhichContext();
-	assert(n >= 0);
-	ctxp = __pmHandleToPtr(n);
-
+	if ((n = pmWhichContext() < 0) || (ctxp = __pmHandleToPtr(n)) == NULL)
+	    return PM_ERR_NOCONTEXT;
 	if ((n = request_namebypmid(ctxp, pmid)) >= 0) {
 	    n = receive_a_name(ctxp, name);
 	}
@@ -2578,10 +2584,8 @@ pmNameAll(pmID pmid, char ***namelist)
 	__pmContext  *ctxp;
 
 	/* As we have PMNS_REMOTE there must be a current host context */
-	n = pmWhichContext();
-	assert(n >= 0);
-	ctxp = __pmHandleToPtr(n);
-
+	if ((n = pmWhichContext() < 0) || (ctxp = __pmHandleToPtr(n)) == NULL)
+	    return PM_ERR_NOCONTEXT;
 	if ((n = request_namebypmid (ctxp, pmid)) >= 0) {
 	    n = receive_namesbyid (ctxp, namelist);
 	}
@@ -2757,9 +2761,8 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 	__pmContext  *ctxp;
 
 	/* As we have PMNS_REMOTE there must be a current host context */
-	sts = pmWhichContext();
-	assert(sts >= 0);
-	ctxp = __pmHandleToPtr(sts);
+	if ((sts = pmWhichContext() < 0) || (ctxp = __pmHandleToPtr(sts)) == NULL)
+	    return PM_ERR_NOCONTEXT;
 	if ((sts = request_traverse_pmns (ctxp, name)) < 0) {
 	    return sts;
 	} else {

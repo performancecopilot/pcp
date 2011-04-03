@@ -162,6 +162,12 @@ pmNewContext(int type, const char *name)
     int		old_curcontext = curcontext;
     int		old_contexts_len = contexts_len;
 
+    PM_INIT_LOCKS();
+
+    if (type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS())
+	/* Local context requires single-threaded applications */
+	return PM_ERR_THREAD;
+
     /* See if we can reuse a free context */
     for (i = 0; i < contexts_len; i++) {
 	if (contexts[i].c_type == PM_CONTEXT_FREE) {
@@ -238,7 +244,6 @@ INIT_CONTEXT:
 		    strcmp(contexts[i].c_pmcd->pc_hosts[0].name,
 			    hosts[0].name) == 0) {
 		    new->c_pmcd = contexts[i].c_pmcd;
-		    /*new->c_pduinfo = contexts[i].c_pduinfo;*/
 		}
 	    }
 	}

@@ -178,6 +178,13 @@ EndLocalContext(void)
     __pmDSO	*dp;
     int		ctx = pmWhichContext();
 
+    if (PM_MULTIPLE_THREADS())
+	/*
+	 * Local context requires single-threaded applications
+	 * ... should not really get here, so do nothing!
+	 */
+	return;
+
     for (i = 0; i < numdso; i++) {
 	dp = &dsotab[i];
 	if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5 &&

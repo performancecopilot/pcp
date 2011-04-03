@@ -182,7 +182,17 @@ from the kernel, which means that the
 .B pmNewContext
 caller should be an
 executable program compiled for the same object code format
-as the booted IRIX kernel.
+as the booted kernel.
+.P
+In addition, applications using a
+.B PM_CONTEXT_LOCAL
+context
+must be single-threaded because the various DSO PMDAs may not be
+thread-safe.  This restriction is enforced at the
+.BR PMAPI (4),
+where routines may return the error code
+.B PM_ERR_THREAD
+if the library detects calls from more than one thread.
 .P
 Applications that use
 .BR gethostbyname (3N)

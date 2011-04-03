@@ -135,6 +135,8 @@ static const struct {
     { PM_ERR_CTXBUSY,		"PM_ERR_CTXBUSY",
         "Current context is used by asynchronous operation" },
 #endif /*ASYNC_API*/
+    { PM_ERR_THREAD,		"PM_ERR_THREAD",
+        "Operation not supported for multi-threaded applications" },
     { 0,			"",
 	"" }
 };

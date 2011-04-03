@@ -39,8 +39,17 @@
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
+
+/*
+ * Thread-safe support ... #define to enable thread-safe protection of
+ * global data structures and mutual exclusion when required
+ */
+#define PM_MULTI_THREAD 1
+
+#ifdef PM_MULTI_THREAD
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
 #endif
 
 #ifdef __cplusplus
@@ -1223,18 +1232,33 @@ extern int __pmCheckEventRecords(pmValueSet *, int);
 extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
 
 /* anonymous metric registration (uses derived metrics support) */
-int __pmRegisterAnon(char *, int);
+extern int __pmRegisterAnon(char *, int);
 
-/* critical section locking */
+/* Multi-thread support */
+extern int __pmMultiThreaded(void);
+extern void __pmInitLocks(void);
+#ifdef PM_MULTI_THREAD
+#define PM_MULTIPLE_THREADS() __pmMultiThreaded()
+#define PM_INIT_LOCKS() __pmInitLocks()
 #ifdef HAVE_PTHREAD_MUTEX_T
-#define PM_LOCK_DECL(lock) pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER
-#define PM_LOCK(lock) pthread_mutex_lock(&lock)
-#define PM_UNLOCK(lock) pthread_mutex_unlock(&lock)
+#define PM_LOCK(lock) { int sts; if ((sts = pthread_mutex_lock(&lock)) != 0) { fprintf(stderr, "%s:%d: lock failed: %s\n", __FILE__, __LINE__, pmErrStr(-sts)); exit(1); } }
+#define PM_UNLOCK(lock) { int sts; if ((sts = pthread_mutex_unlock(&lock)) != 0) { fprintf(stderr, "%s:%d: unlock failed: %s\n", __FILE__, __LINE__, pmErrStr(-sts)); exit(1); } }
 
 /* the big libpcp lock */
 extern pthread_mutex_t	__pmLock_libpcp;
+#else
+bozo - need pthreads to support multi-thread capabilities !!!
 #endif
-
+#else
+/*
+ * No multi-thread support, code still works correctly for single-threaded
+ * applications.
+ */
+#define PM_MULTIPLE_THREADS() (0)
+#define PM_INIT_LOCKS()
+#define PM_LOCK(x)
+#define PM_UNLOCK(x)
+#endif
 
 #ifdef __cplusplus
 }

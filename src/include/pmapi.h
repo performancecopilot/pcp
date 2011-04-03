@@ -179,7 +179,6 @@ typedef struct {
 #define PM_ERR_PERMISSION	(-PM_ERR_BASE-42)   /* No permission to perform requested operation */
 #define PM_ERR_CONNLIMIT	(-PM_ERR_BASE-43)   /* PMCD connection limit for this host exceeded */
 #define PM_ERR_AGAIN		(-PM_ERR_BASE-44)   /* try again. Info not currently available */
-
 #ifdef ASYNC_API
 #define PM_ERR_ISCONN		(-PM_ERR_BASE-45)   /* already connected */
 #endif /* ASYNC_API */
@@ -192,6 +191,7 @@ typedef struct {
 #define PM_ERR_OBJSTYLE		(-PM_ERR_BASE-50)   /* user/kernel object style mismatch */
 /* retired PM_ERR_PMCDLICENSE (-PM_ERR_BASE-51) PMCD is not licensed to accept connections */
 #define PM_ERR_TYPE		(-PM_ERR_BASE-52)   /* Unknown or illegal metric type */
+#define PM_ERR_THREAD		(-PM_ERR_BASE-53)   /* Operation not supported for multi-threaded applications */
 
 #define PM_ERR_CTXBUSY		(-PM_ERR_BASE-97)   /* Context is busy */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */
@@ -611,20 +611,20 @@ extern char *pmGetConfig(const char *);
  */
 struct rusage;
 
-int pmLoopRegisterInput(int, int, int (*)(int, int, void *), void *, int);
-int pmLoopRegisterSignal(int, int (*)(int, void *), void *);
-int pmLoopRegisterTimeout(int, int (*)(void *), void *);
-int pmLoopRegisterChild(pid_t, int (*)(pid_t, int, const struct rusage *, void *), void *);
-int pmLoopRegisterIdle(int (*)(void *), void *);
+extern int pmLoopRegisterInput(int, int, int (*)(int, int, void *), void *, int);
+extern int pmLoopRegisterSignal(int, int (*)(int, void *), void *);
+extern int pmLoopRegisterTimeout(int, int (*)(void *), void *);
+extern int pmLoopRegisterChild(pid_t, int (*)(pid_t, int, const struct rusage *, void *), void *);
+extern int pmLoopRegisterIdle(int (*)(void *), void *);
 
-void pmLoopUnregisterInput(int);
-void pmLoopUnregisterSignal(int);
-void pmLoopUnregisterTimeout(int);
-void pmLoopUnregisterChild(int);
-void pmLoopUnregisterIdle(int);
+extern void pmLoopUnregisterInput(int);
+extern void pmLoopUnregisterSignal(int);
+extern void pmLoopUnregisterTimeout(int);
+extern void pmLoopUnregisterChild(int);
+extern void pmLoopUnregisterIdle(int);
 
-void pmLoopStop(void);
-int pmLoopMain(void);
+extern void pmLoopStop(void);
+extern int pmLoopMain(void);
 
 extern int pmLoopDebug;
 #endif /*ASYNC_API*/
@@ -632,9 +632,9 @@ extern int pmLoopDebug;
 /*
  * Derived Metrics support
  */
-int pmLoadDerivedConfig(char *);
-char *pmRegisterDerived(char *, char *);
-char *pmDerivedErrStr(void);
+extern int pmLoadDerivedConfig(char *);
+extern char *pmRegisterDerived(char *, char *);
+extern char *pmDerivedErrStr(void);
 
 #ifdef ASYNC_API
 /*

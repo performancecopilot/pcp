@@ -118,14 +118,26 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 {
     int		n;
 
-    if (numpmid < 1)
-	return PM_ERR_TOOSMALL;
+    if (numpmid < 1) {
+	n = PM_ERR_TOOSMALL;
+	goto done;
+    }
 
     if ((n = pmWhichContext()) >= 0) {
 	__pmContext	*ctxp = __pmHandleToPtr(n);
 	int		newcnt;
 	pmID		*newlist;
 	int		have_dm;
+
+	if (ctxp == NULL) {
+	    n = PM_ERR_NOCONTEXT;
+	    goto done;
+	}
+	if (ctxp->c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS()) {
+	    /* Local context requires single-threaded applications */
+	    n = PM_ERR_THREAD;
+	    goto done;
+	}
 
 	/* for derived metrics, may need to rewrite the pmidlist */
 	have_dm = newcnt = __dmprefetch(ctxp, numpmid, pmidlist, &newlist);
@@ -172,6 +184,7 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 	}
     }
 
+done:
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_FETCH) {
 	fprintf(stderr, "pmFetch returns ...\n");
@@ -201,18 +214,22 @@ pmFetchArchive(pmResult **result)
 
     if ((n = pmWhichContext()) >= 0) {
 	ctxp = __pmHandleToPtr(n);
-	ctxp_mode = (ctxp->c_mode & __PM_MODE_MASK);
-	if (ctxp->c_type != PM_CONTEXT_ARCHIVE)
-	    n = PM_ERR_NOTARCHIVE;
-	else if (ctxp_mode == PM_MODE_INTERP)
-	    /* makes no sense! */
-	    n = PM_ERR_MODE;
+	if (ctxp == NULL)
+	    n = PM_ERR_NOCONTEXT;
 	else {
-	    /* assume PM_CONTEXT_ARCHIVE and BACK or FORW */
-	    n = __pmLogFetch(ctxp, 0, NULL, result);
-	    if (n >= 0) {
-		ctxp->c_origin.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
-		ctxp->c_origin.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
+	    ctxp_mode = (ctxp->c_mode & __PM_MODE_MASK);
+	    if (ctxp->c_type != PM_CONTEXT_ARCHIVE)
+		n = PM_ERR_NOTARCHIVE;
+	    else if (ctxp_mode == PM_MODE_INTERP)
+		/* makes no sense! */
+		n = PM_ERR_MODE;
+	    else {
+		/* assume PM_CONTEXT_ARCHIVE and BACK or FORW */
+		n = __pmLogFetch(ctxp, 0, NULL, result);
+		if (n >= 0) {
+		    ctxp->c_origin.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
+		    ctxp->c_origin.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
+		}
 	    }
 	}
     }
@@ -229,7 +246,9 @@ pmSetMode(int mode, const struct timeval *when, int delta)
 
     if ((n = pmWhichContext()) >= 0) {
 	ctxp = __pmHandleToPtr(n);
-	if (ctxp->c_type == PM_CONTEXT_HOST) {
+	if (ctxp == NULL)
+	    n = PM_ERR_NOCONTEXT;
+	else if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if (l_mode != PM_MODE_LIVE)
 		return PM_ERR_MODE;
 
@@ -263,6 +282,5 @@ pmSetMode(int mode, const struct timeval *when, int delta)
 		return PM_ERR_MODE;
 	}
     }
-    else
-	return n;
+    return n;
 }
