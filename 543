@@ -2,6 +2,9 @@
 # PCP QA Test No. 543
 # exercises the -m option to pmlogger_daily
 #
+# Note: this test will fail in the few days after a daylight savings
+#       change as the sample NOTICES file is not quite right
+#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -36,6 +39,7 @@ _filter()
 
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
+rm -f $seq.full
 
 # create a fake NOTICES file containing time-boundary entries
 # 
@@ -69,12 +73,14 @@ $sudo mv $NOTICES $tmp.notices
 [ -f $FORWARD ] && $sudo mv $FORWARD $tmp.forward
 cp /dev/null $tmp.noconf
 $sudo cp $tmp.new $NOTICES
+cp $NOTICES $seq.full
+echo >>$seq.full
 $sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.noconf -m pcpqa@$host
 
 sleep 2	# let mail arrive (shouldn't take long)
 
 # see what we got ...
-cat $PCP_LOG_DIR/NOTICES.daily | _filter
+cat $PCP_LOG_DIR/NOTICES.daily | tee -a $seq.full | _filter
 
 # success, all done
 status=0
