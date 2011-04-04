@@ -29,6 +29,7 @@
 #include <pcp/pmda.h>
 #include "event.h"
 #include "percontext.h"
+#include "util.h"
 
 #define BUF_SIZE 1024
 
@@ -43,10 +44,9 @@ TAILQ_HEAD(tailhead, event);
 struct EventFileData {
     struct LogfileData *logfile;
     int			fd;
+    pid_t	        pid;
     int			numclients;
     struct tailhead	head;
-    
-    /* current client list - allocated? */
 };
 static struct EventFileData *file_data_tab = NULL;
 
@@ -103,7 +103,7 @@ event_init(pmdaInterface *dispatch, struct LogfileData *logfiles,
     ctx_register_callbacks(ctx_start_callback, ctx_end_callback);
 
     /* Allocate our EventFileData table. */
-    file_data_tab = malloc(sizeof(struct EventFileData) * numlogfiles);
+    file_data_tab = calloc(numlogfiles, sizeof(struct EventFileData));
     if (file_data_tab == NULL) {
 	fprintf(stderr, "%s: allocation error: %s\n", __FUNCTION__,
 		strerror(errno));
@@ -113,7 +113,6 @@ event_init(pmdaInterface *dispatch, struct LogfileData *logfiles,
     /* Fill it the table. */
     for (i = 0; i < numlogfiles; i++) {
 	file_data_tab[i].logfile = &logfiles[i];
-	file_data_tab[i].numclients = 0;
 	TAILQ_INIT(&file_data_tab[i].head); /* initialize queue */
     }
 
@@ -128,9 +127,38 @@ event_init(pmdaInterface *dispatch, struct LogfileData *logfiles,
 
     /* Try to open all the logfiles to monitor */
     for (i = 0; i < numlogfiles; i++) {
-	file_data_tab[i].fd = open(logfiles[i].pathname, O_RDONLY|O_NONBLOCK);
+	size_t pathlen = strlen(logfiles[i].pathname);
+
+	/* We support 2 kinds of PATHNAMEs:
+	 *
+	 * (1) Regular paths.  These paths are opened normally.
+	 *
+	 * (2) Pipes.  If the path ends in '|', the filename is
+	 * interpreted as a command which pipes input to us.
+	 *
+	 * Handle both.
+	 */
+
+	if (logfiles[i].pathname[pathlen - 1] != '|') {
+	    file_data_tab[i].fd = open(logfiles[i].pathname,
+				       O_RDONLY|O_NONBLOCK);
+	}
+	else {
+	    char cmd[MAXPATHLEN];
+
+	    strncpy(cmd, logfiles[i].pathname, sizeof(cmd));
+	    cmd[pathlen - 1] = '\0';	/* get rid of the '|' */
+	    /* Remove all trailing whitespace. */
+	    rstrip(cmd);
+
+	    /* Start the command. */
+	    file_data_tab[i].fd = start_cmd(cmd, &file_data_tab[i].pid);
+	}
+
 	if (file_data_tab[i].fd < 0) {
 	    __pmNotifyErr(LOG_ERR, "open failure on %s", logfiles[i].pathname);
+	    /* Cleanup. */
+	    event_shutdown();
 	    exit(1);
 	}
 
@@ -152,17 +180,20 @@ event_create(int logfile)
     }
 
     /* Read up to BUF_SIZE bytes at a time. */
-    if ((c = read(file_data_tab[logfile].fd, e->buffer,
-		  sizeof(e->buffer) - 1)) < 0) {
+    c = read(file_data_tab[logfile].fd, e->buffer, sizeof(e->buffer) - 1);
+
+    /* If we've got EOF (0 bytes read) or EBADF (fd isn't valid - most
+     * likely a closed pipe), just ignore the error. */
+    if (c == 0 || (c < 0 && errno == EBADF)) {
+	free(e);
+	return 0;
+    }
+    if (c < 0) {
 	__pmNotifyErr(LOG_ERR, "read failure on %s: %s",
 		      file_data_tab[logfile].logfile->pathname,
 		      strerror(errno));
 	free(e);
 	return -1;
-    }
-    else if (c == 0) {	     /* EOF */
-	free(e);
-	return 0;
     }
 
     /* Store event in queue. */
@@ -272,6 +303,24 @@ event_cleanup(void)
 
 	    /* Go on to the next event. */
 	    e = next;
+	}
+    }
+}
+
+void
+event_shutdown(void)
+{
+    int i;
+
+    __pmNotifyErr(LOG_INFO, "%s: Shutting down...", __FUNCTION__);
+    for (i = 0; i < numlogfiles; i++) {
+	if (file_data_tab[i].pid != 0) {
+	    (void) stop_cmd(file_data_tab[i].pid);
+	    file_data_tab[i].pid = 0;
+	}
+	if (file_data_tab[i].fd > 0) {
+	    close(file_data_tab[i].fd);
+	    file_data_tab[i].fd = 0;
 	}
     }
 }

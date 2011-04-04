@@ -27,6 +27,7 @@
 #include "domain.h"
 #include "percontext.h"
 #include "event.h"
+#include "util.h"
 
 /*
  * Logger PMDA
@@ -63,11 +64,11 @@ static struct dynamic_metric_info *dynamic_metric_infotab = NULL;
 
 static pmdaMetric dynamic_metrictab[] = {
 /* perfile.{LOGFILE}.numclients */
-    { (void *)0,
+    { NULL, 				/* m_user gets filled in later */
       { 0 /* pmid gets filled in later */, PM_TYPE_U32, PM_INDOM_NULL,
 	PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* perfile.{LOGFILE}.records */
-    { (void *)1,
+    { NULL, 				/* m_user gets filled in later */
       { 0 /* pmid gets filled in later */, PM_TYPE_EVENT, PM_INDOM_NULL,
 	PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
@@ -241,14 +242,8 @@ read_config(const char *filename)
 	}
 	line[len - 1] = '\0';		/* Remove the '\n'. */
 
-	/* Remove all trailing whitespace.  Set ptr to last char of
-	 * string. */
-	ptr = line + strlen(line) - 1;
-	/* While trailing whitespace, move back. */
-	while (ptr >= line && isspace(*ptr)) {
-	    --ptr;
-	}
-	*(ptr+1) = '\0';	  /* Now set '\0' as terminal byte. */
+	/* Strip all trailing whitespace. */
+	rstrip(line);
 
 	/* If the string is now empty, just ignore the line. */
 	len = strlen(line);
@@ -256,14 +251,9 @@ read_config(const char *filename)
 	    continue;
 	}
 	
-	/* Skip past all leading whitespace.  Note that the string
-	 * can't be completely blank here, our earlier check would
-	 * have caught that, so we don't have to worry about hitting
-	 * the end of the string. */
-	name = line;
-	while (isspace(*name)) {
-	    name++;
-	}
+	/* Skip past all leading whitespace to find the start of
+	 * NAME. */
+	name = lstrip(line);
 
 	/* Now we need to split the line into 2 parts: NAME and
 	 * PATHNAME.  NAME can't have whitespace in it, so look for
@@ -300,9 +290,7 @@ read_config(const char *filename)
 	}
 
 	/* Skip past any extra whitespace between NAME and PATHNAME */
-	while (*ptr != '\0' && isspace(*ptr)) {
-	    ptr++;
-	}
+	ptr = lstrip(ptr);
 
 	/* Make sure PATHNAME (the rest of the line) isn't too long. */
 	if (strlen(ptr) > MAXPATHLEN) {
@@ -326,7 +314,7 @@ read_config(const char *filename)
 	strncpy(data->pathname, ptr, sizeof(data->pathname));
 	/* data->pmid_string gets filled in after pmdaInit() is called. */
 
-	__pmNotifyErr(LOG_INFO, "%s: sa wlogfile %s (%s)\n", __FUNCTION__,
+	__pmNotifyErr(LOG_INFO, "%s: saw logfile %s (%s)\n", __FUNCTION__,
 		      data->pathname, data->pmns_name);
     }
     if (rc != 0) {
@@ -454,8 +442,8 @@ logger_init(pmdaInterface *dp)
     dp->version.four.pmid = logger_pmid;
     dp->version.four.name = logger_name;
     dp->version.four.children = logger_children;
-    /* DRS: if we want to generate help text for the dynamic metrics,
-     * we'll have to override 'four.text'. */
+    /* FIXME: if we want to generate help text for the dynamic
+     * metrics, we'll have to override 'four.text'. */
 
     pmdaSetFetchCallBack(dp, logger_fetchCallBack);
     pmdaSetEndContextCallBack(dp, logger_end_contextCallBack);
@@ -535,5 +523,6 @@ main(int argc, char **argv)
 
     pmdaMain(&desc);
 
+    event_shutdown();
     exit(0);
 }

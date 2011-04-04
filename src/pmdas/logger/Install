@@ -62,7 +62,6 @@ _parsedefaults()
 	esac
     done
     eval configfile='$'$OPTIND
-    echo "_parsedefaults found $configfile"
 }
 
 # Get logfile(s) to monitor
@@ -105,9 +104,11 @@ $1 == "'$iam'"	{ printf "%s",$6
 
 	    echo
 	    echo \
-'Enter the PMNS name and logfile path.  An empty line terminates the
-logfile selection process and there must be at least one logfile specified.
-'
+'Enter the PMNS name and logfile path.  If the  path ends in "|", the
+filename is interpreted as a command which will output data.
+
+An empty line terminates the logfile selection process and there must
+be at least one logfile specified.  '
 
 	    args=""
 	    touch $configfile
@@ -138,8 +139,12 @@ logfile selection process and there must be at least one logfile specified.
 			echo "Sorry, pathname \"$pathname\" already specified.  Please try again."
 			continue
 		    fi
-		    if [ ! -e "$pathname" ]; then
-			echo "Error: pathname $value doesn't exist!  Reinstall to change."
+		    if echo $pathname | grep "|[ \t]*$" > /dev/null; then
+			# Accept pipe "paths" as is
+			true
+		    elif [ ! -e "$pathname" ]; then
+			echo "Error: pathname $pathname doesn't exist!."
+			continue
 		    fi
 		    echo "$name $pathname" >>$configfile
 		done

@@ -1,5 +1,5 @@
 /*
- * event support for the Logger PMDA
+ * Utility routines.
  *
  * Copyright (c) 2011 Red Hat Inc.
  * 
@@ -18,19 +18,12 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#ifndef _EVENT_H
-#define _EVENT_H
+#ifndef _UTIL_H
+#define _UTIL_H
 
-struct LogfileData {
-    char	pmns_name[MAXPATHLEN];
-    char	pathname[MAXPATHLEN];
-    pmID	pmid_string;
-};
+extern char *lstrip(char *str);
+extern void rstrip(char *str);
+extern int start_cmd(const char *cmd, pid_t *ppid);
+extern int stop_cmd(pid_t pid);
 
-extern void event_init(pmdaInterface *dispatch, struct LogfileData *logfiles,
-		       int numlogfiles);
-extern int event_fetch(pmValueBlock **vbpp, unsigned int logfile);
-extern int event_get_clients_per_logfile(unsigned int logfile);
-extern void event_shutdown(void);
-
-#endif /* _EVENT_H */
+#endif /* _UTIL_H */
