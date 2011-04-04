@@ -86,7 +86,8 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c mmv_nostats.c \
 	record.c record-setarg.c clientid.c killparent.c grind_ctx.c \
 	pmdacache.c check_import.c unpack.c aggrstore.c atomstr.c \
-	grind_conv.c
+	grind_conv.c getconfig.c multithread0.c multithread1.c \
+	exerlock.c
 
 POSIXFILES = \
 	ipc.c proc_test.c context_fd_leak.c arch_maxfd.c torture_trace.c \
@@ -404,6 +405,21 @@ tabort:	tabort.c
 check_import:	check_import.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_import $(LDLIBS)
+
+# --- need lib for pthreads
+#
+
+multithread0:	multithread0.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+multithread1:	multithread1.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+exerlock:	exerlock.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
 
 # --- binary format dependencies
 #

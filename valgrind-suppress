@@ -34,4 +34,34 @@
    fun:*
 }
 
+{
+   pthreads initialization from pmLoadNameSpace
+   Memcheck:Cond
+   fun:pthread_mutex_init
+   fun:pthread_mutex_init
+   fun:__pmInitLocks
+   fun:pmLoadNameSpace
+   fun:main
+}
+
+{
+   pthreads initialization from pmNewContext
+   Memcheck:Cond
+   fun:pthread_mutex_init
+   fun:pthread_mutex_init
+   fun:__pmInitLocks
+   fun:pmNewContext
+   fun:main
+}
+
+{
+   pthreads initialization from pmNewContext with PM_CONTEXT_LOCAL
+   Memcheck:Cond
+   fun:pthread_mutex_init
+   fun:pthread_mutex_init
+   fun:__pmInitLocks
+   fun:pmNewContext
+   obj:*
+   fun:(below main)
+}
 

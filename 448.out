@@ -1,0 +1,17 @@
+QA output created by 448
+error cases ...
+bad variable
+NO_SUCH_VAR -> 
+exit status=0
+
+bad $PCP_CONF
+FATAL PCP ERROR: could not open config file "/no/such/file" : No such file or directory
+You may need to set PCP_CONF or PCP_DIR in your environment.
+PCP_BIN_DIR -> exit status=1
+
+bad $PCP_DIR
+FATAL PCP ERROR: could not open config file "/no/such/directory/etc/pcp.conf" : No such file or directory
+You may need to set PCP_CONF or PCP_DIR in your environment.
+PCP_BIN_DIR -> exit status=1
+
+all vars in pcp.conf ... report only errors

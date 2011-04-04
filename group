@@ -219,6 +219,9 @@ derive
 # event records and pmevent
 event
 
+# multi-threading and thread-safe exercises
+threads
+
 # test-group association ... one line per test
 # ... use sort -n from here on down to tidy up this mess
 #
@@ -957,3 +960,6 @@ event
 1234 pmchart local sgi
 1236 #935639 pmchart local sgi
 447 event local oss
+448 libpcp local oss
+449 threads local oss
+451 threads local oss

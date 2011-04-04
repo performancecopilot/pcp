@@ -1,0 +1,33 @@
+QA output created by 449
+=== __pmMultiThreaded ===
+func: is multithreaded
+func: is multithreaded
+main0: is NOT multithreaded
+main1: is NOT multithreaded
+main2: is NOT multithreaded
+
+=== PM_CONTEXT_LOCAL ===
+pmDupContext: -> 1
+pmDupContext: Operation not supported for multi-threaded applications
+pmFetch: -> OK
+pmFetch: Operation not supported for multi-threaded applications
+pmGetChildrenStatus: -> 0
+pmGetChildrenStatus: Operation not supported for multi-threaded applications
+pmGetInDom: -> 3
+pmGetInDom: 30.1: Operation not supported for multi-threaded applications
+pmGetPMNSLocation: -> 1
+pmGetPMNSLocation: Operation not supported for multi-threaded applications
+pmLookupDesc: -> 30.0.5 type=32 indom=30.1
+pmLookupDesc: Operation not supported for multi-threaded applications
+pmLookupInDom: Operation not supported for multi-threaded applications
+pmLookupInDom: red -> 0
+pmLookupName: -> 30.0.5
+pmLookupName: Operation not supported for multi-threaded applications
+pmLookupText: -> Metrics with a "saw-tooth" trend over time
+pmLookupText: Operation not supported for multi-threaded applications
+pmNameInDom: 0 -> red
+pmNameInDom: Operation not supported for multi-threaded applications
+pmNewContext: -> 0
+pmNewContext: Operation not supported for multi-threaded applications
+pmStore: Operation not supported for multi-threaded applications
+pmStore: Permission denied

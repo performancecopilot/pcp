@@ -1,0 +1,37 @@
+#!/bin/sh
+# PCP QA Test No. 449
+# basic multi-threaded checkout
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if grep '^#define PM_MULTI_THREAD 1' /usr/include/pcp/impl.h >/dev/null
+then
+    rm -f .notrun
+else
+    _notrun PM_MULTI_THREAD not defined in impl.h
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== __pmMultiThreaded ==="
+src-oss/multithread0 | LC_COLLATE=POSIX sort
+
+echo
+echo "=== PM_CONTEXT_LOCAL ==="
+src-oss/multithread1 | LC_COLLATE=POSIX sort
+
+# success, all done
+exit

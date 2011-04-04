@@ -51,6 +51,7 @@ endian
 eofarch
 eol
 exercise
+exerlock
 exertz
 fetchpdu
 fetchrate
@@ -65,6 +66,7 @@ gap2.index
 gap2.meta
 gap.index
 gap.meta
+getconfig
 grind_conv
 grind_ctx
 hex2nbo
@@ -92,6 +94,8 @@ mmv_noinit
 mmv_nostats
 mmv_poke
 multifetch
+multithread0
+multithread1
 mv-bar.0
 mv-bar.1
 mv-bar.2
