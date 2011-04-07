@@ -28,6 +28,7 @@ __pmInitLocks(void)
     static int			done = 0;
     pthread_mutex_lock(&init);
     if (!done) {
+	/* one-trip initialization */
 	pthread_mutexattr_t    attr;
 	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
 	pthread_mutex_init(&__pmLock_libpcp, &attr);

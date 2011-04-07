@@ -223,6 +223,17 @@ Some conversion requests to
 cannot be performed based on the metric types and values involved,
 in this case converting a negative value to an unsigned value.
 .TP
+.B PM_ERR_TYPE
+.I "Unknown or illegal metric type"
+.br
+The metric type is held in the metric descriptor and sometimes
+encoded in the metric values returned from a call to
+.BR pmFetch (3).
+Legal values for the metric type are defined by the
+.B PM_TYPE_*
+macros in
+.BR <pcp/pmapi.h> .
+.TP
 .B PM_ERR_UNIT
 .I "Illegal pmUnits specification"
 .br
@@ -249,6 +260,18 @@ See also the
 .B \-F
 option to
 .BR pminfo (1).
+.TP
+.B PM_ERR_INST
+.I "Unknown or illegal instance identifier"
+.br
+A request to a PMDA nominates an instance that is unknown.
+May occur as a consequence of the profile established prior
+to a
+.BR pmFetch (3)
+call, or an explicit instance name or identifier to
+.BR pmLookupInDom (3)
+or
+.BR pmNameInDom (3).
 .TP
 .B PM_ERR_MODE
 .I "Illegal mode specification"
@@ -285,6 +308,15 @@ one element to
 .BR pmLookupName (3)
 or
 .BR pmStore (3).
+.TP
+.B PM_ERR_THREAD
+.I "Operation not supported for multi-threaded applications"
+.br
+As documented in
+.BR PMAPI (3)
+and elsewhere, some
+.B libpcp
+routines are intended soley for use from single-threaded applications.
 .TP
 .B PM_ERR_TOOBIG
 .I "Result size exceeded"
@@ -337,18 +369,6 @@ These errors may occur in the interactions between a PCP client and
 .BR pmcd (1)
 providing real-time performance data.
 .TP
-.B PM_ERR_INST
-.I "Unknown or illegal instance identifier"
-.br
-A request to a PMDA nominates an instance that is unknown.
-May occur as a consequence of the profile established prior
-to a
-.BR pmFetch (3)
-call, or an explicit instance name or identifier to
-.BR pmLookupInDom (3)
-or
-.BR pmNameInDom (3).
-.TP
 .B PM_ERR_NOAGENT
 .I "No PMCD agent for domain of request"
 .br
@@ -391,6 +411,15 @@ These errors may occur in the interactions between a PCP client and
 the library routines that provide historical
 performance data from PCP archives created by
 .BR pmlogger (1).
+.TP
+.B PM_ERR_LOGFILE
+.I "Missing archive file"
+.br
+Each PCP archive consists of multiple physical files as described
+in
+.BR pmlogger (1).
+This error occurs when one of the physical files is missing or
+cannot be opened for reading.
 .TP
 .B PM_ERR_EOL
 .I "End of PCP archive log"

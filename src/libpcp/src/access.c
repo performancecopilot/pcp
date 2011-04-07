@@ -10,6 +10,9 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * None of these routines are thread-safe ... they are intended for use
+ * only from single-threaded applications.
  */
 
 #include <limits.h>
@@ -40,6 +43,9 @@ int
 __pmAccAddOp(unsigned int op)
 {
     unsigned int	i, mask;
+
+    if (PM_MULTIPLE_THREADS())
+	return PM_ERR_THREAD;
 
     /* op must not be zero or clash with existing ops */
     if (op == 0 || (op & all_ops))
@@ -112,8 +118,11 @@ static int	oldszhostlist;
 int
 __pmAccSaveHosts(void)
 {
+    if (PM_MULTIPLE_THREADS())
+	return PM_ERR_THREAD;
     if (saved)
 	return -1;
+
     saved = 1;
     oldhostlist = hostlist;
     oldnhosts = nhosts;
@@ -152,8 +161,11 @@ accfreehosts(void)
 int
 __pmAccRestoreHosts(void)
 {
+    if (PM_MULTIPLE_THREADS())
+	return PM_ERR_THREAD;
     if (!saved)
 	return -1;
+
     accfreehosts();
     saved = 0;
     hostlist = oldhostlist;
@@ -173,8 +185,11 @@ __pmAccFreeSavedHosts(void)
     int		i;
     char	*p;
 
+    if (PM_MULTIPLE_THREADS())
+	return;
     if (!saved)
 	return;
+
     if (oldszhostlist) {
 	for (i = 0; i < oldnhosts; i++)
 	    if ((p = oldhostlist[i].hostspec) != NULL)
@@ -210,6 +225,8 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
     const char		*p;
     hostinfo		*hp;
 
+    if (PM_MULTIPLE_THREADS())
+	return PM_ERR_THREAD;
     if (specOps & ~all_ops)
 	return -EINVAL;
     if (maxcons < 0)
@@ -366,6 +383,9 @@ __pmAccAddClient(const struct in_addr *hostid, unsigned int *denyOpsResult)
     hostinfo		*lastmatch = NULL;
     struct in_addr	clientid;
 
+    if (PM_MULTIPLE_THREADS())
+	return PM_ERR_THREAD;
+
     clientid.s_addr = hostid->s_addr;
 
     /* Map "localhost" to the real IP address.  Host access statements for
@@ -435,6 +455,9 @@ __pmAccDelClient(const struct in_addr *hostid)
     int		i;
     hostinfo	*hp;
 
+    if (PM_MULTIPLE_THREADS())
+	return;
+
     /* Increment the count of current connections for ALL host specs in the
      * host access list that match the client's IP address.  A client may
      * contribute to several connection counts because of wildcarding.
@@ -454,6 +477,9 @@ __pmAccDumpHosts(FILE *stream)
     int			minbit = -1, maxbit;
     unsigned int	mask;
     hostinfo		*hp;
+
+    if (PM_MULTIPLE_THREADS())
+	return;
 
     mask = all_ops;
     for (i = 0; mask; i++) {

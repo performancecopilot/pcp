@@ -35,6 +35,9 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
     static pmID * splitlist=NULL;
     static int	splitmax=0;
 
+    if (PM_MULTIPLE_THREADS()) {
+	/* Local context requires single-threaded applications */
+	return PM_ERR_THREAD;
     if (numpmid < 1)
 	return PM_ERR_TOOSMALL;
 
