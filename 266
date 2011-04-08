@@ -20,10 +20,12 @@ then
     # V1 archives supported
     ln $seq.out.1 $seq.out
     arch=src-oss/960624.08.17
+    pmns="-n src-oss/root_irix"
 else
     # no support for V1 archives
     ln $seq.out.2 $seq.out
     arch=src-oss/960624.08.17_v2
+    pmns=''
 fi
 
 _merge_filter()
@@ -97,19 +99,19 @@ echo
 echo "=== window in archive, local TZ=$TZ ==="
 rm -f $tmp.*
 pmlogextract -S@08:35:00 -T@08:36:00 $arch $tmp 2>&1 | _merge_filter
-pmdumplog -lm $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+pmdumplog -lm $pmns $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
 
 echo
 echo "=== window in archive, timezone of archive ==="
 rm -f $tmp.*
 pmlogextract -z -S@15:35:00 -T@15:36:00 $arch $tmp 2>&1 | _merge_filter
-pmdumplog -lm $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+pmdumplog -lm $pmns $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
 
 echo
 echo "=== window in archive, UTC timezone ==="
 rm -f $tmp.*
 pmlogextract -Z UTC -S@22:35:00 -T@22:36:00 $arch $tmp 2>&1 | _merge_filter
-pmdumplog -lm $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+pmdumplog -lm $pmns $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
 
 echo
 echo "=== window after archive end, local TZ=$TZ ==="
