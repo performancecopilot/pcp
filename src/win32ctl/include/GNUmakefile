@@ -18,7 +18,8 @@ include $(TOPDIR)/src/include/builddefs
 HFILES = _mingw_unicode.h pshpack8.h \
 	evntcons.h evntprov.h evntrace.h \
 	pdh.h pdhmsg.h \
-	tdh.h winevt.h winmeta.h winperf.h
+	tdh.h tdhmsg.h \
+	winevt.h winmeta.h winperf.h
 
 default :: default_pcp
 

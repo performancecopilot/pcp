@@ -223,9 +223,9 @@ fopen_compress(const char *fname)
 	return NULL;
     }
     if (compress_ctl[i].appl == USE_BZIP2)
-	cmd = "bzcat";
+	cmd = "bzip2 -dc";
     else if (compress_ctl[i].appl == USE_GZIP)
-	cmd = "gunzip -c";
+	cmd = "gzip -dc";
     else {
 	/* botch in compress_ctl[] ... should not happen */
 	return NULL;
