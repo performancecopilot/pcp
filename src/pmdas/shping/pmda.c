@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <ctype.h>
@@ -25,7 +21,7 @@
 __uint32_t	cycletime = 120;	/* default cycle time, 2 minutes */
 __uint32_t	timeout = 20;		/* response timeout in seconds */
 
-cmd_t		*cmdlist = NULL;
+cmd_t		*cmdlist;
 
 #ifdef HAVE_SPROC
 
@@ -161,7 +157,7 @@ main(int argc, char **argv)
     configfile = argv[optind];
     if ((conf = fopen(configfile, "r")) == NULL) {
 	fprintf(stderr, "%s: Unable to open config file \"%s\": %s\n",
-	    pmProgname, configfile, strerror(errno));
+	    pmProgname, configfile, osstrerror());
 	exit(1);
     }
     line = 0;

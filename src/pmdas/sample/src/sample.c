@@ -656,18 +656,18 @@ redo_dynamic(void)
 			break;
 		    numinst++;
 		    if ((idp->it_set = (instid_t *)realloc(idp->it_set, numinst * sizeof(instid_t))) == NULL)
-			return -errno;
+			return -oserror();
 		    idp->it_set[numinst-1].i_inst = newinst;
 		    if ((idp->it_set[numinst-1].i_name = strdup(newname)) == NULL) {
 			free(idp->it_set);
 			idp->it_set = NULL;
-			return -errno;
+			return -oserror();
 		    }
 		    if (newinst > _dyn_max) {
 			if ((_dyn_ctr = (int *)realloc(_dyn_ctr, (newinst+1)*sizeof(_dyn_ctr[0]))) == NULL) {
 			    free(idp->it_set);
 			    idp->it_set = NULL;
-			    return -errno;
+			    return -oserror();
 			}
 			for (i = _dyn_max+1; i <= newinst; i++)
 			    _dyn_ctr[i] = 0;
@@ -744,7 +744,7 @@ redo_many(void)
     if (!idp->it_set) {
 	idp->it_numinst=0;
 	many_count=0;
-	return -errno;
+	return -oserror();
     }
 
     /* realloc string buffer */
@@ -753,7 +753,7 @@ redo_many(void)
     if (!idp->it_set) {
 	idp->it_numinst=0;
 	many_count=0;
-	return -errno;
+	return -oserror();
     }
 
     /* set number of instances */
@@ -790,10 +790,10 @@ redo_mirage(void)
     if (idp->it_set == NULL) {
 	/* first time */
 	if ((idp->it_set = (instid_t *)malloc(sizeof(instid_t))) == NULL)
-	    return -errno;
+	    return -oserror();
 	if ((idp->it_set[0].i_name = (char *)malloc(5)) == NULL) {
 	    idp->it_set = NULL;
-	    return -errno;
+	    return -oserror();
 	}
 	idp->it_numinst = 1;
 	idp->it_set[0].i_inst = 0;
@@ -817,7 +817,7 @@ redo_mirage(void)
 	    if ((idp->it_set = (instid_t *)realloc(idp->it_set, numinst * sizeof(instid_t))) == NULL) {
 		idp->it_set = NULL;
 		idp->it_numinst = 0;
-		return -errno;
+		return -oserror();
 	    }
 	    idp->it_numinst = numinst;
 	}
@@ -828,11 +828,11 @@ redo_mirage(void)
 		if ((idp->it_set = (instid_t *)realloc(idp->it_set, numinst * sizeof(instid_t))) == NULL) {
 		    idp->it_set = NULL;
 		    idp->it_numinst = 0;
-		    return -errno;
+		    return -oserror();
 		}
 		if ((idp->it_set[numinst-1].i_name = (char *)malloc(5)) == NULL) {
 		    idp->it_set = NULL;
-		    return -errno;
+		    return -oserror();
 		}
 		for ( ; ; ) {
 		    newinst = (newinst + 1) % 50;
@@ -1202,7 +1202,7 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
 	return PM_ERR_INDOM;
 
     if ((res = (__pmInResult *)malloc(sizeof(*res))) == NULL)
-        return -errno;
+        return -oserror();
     res->indom = indom;
 
     if (name == NULL && inst == PM_IN_NULL)
@@ -1213,7 +1213,7 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
     if (inst == PM_IN_NULL) {
 	if ((res->instlist = (int *)malloc(res->numinst * sizeof(res->instlist[0]))) == NULL) {
 	    free(res);
-	    return -errno;
+	    return -oserror();
 	}
     }
     else
@@ -1222,7 +1222,7 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
     if (name == NULL) {
 	if ((res->namelist = (char **)malloc(res->numinst * sizeof(res->namelist[0]))) == NULL) {
 	    __pmFreeInResult(res);
-	    return -errno;
+	    return -oserror();
 	}
 	for (i = 0; i < res->numinst; i++)
 	    res->namelist[0] = NULL;
@@ -1236,7 +1236,7 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
 	    res->instlist[i] = idp->it_set[i].i_inst;
 	    if ((res->namelist[i] = strdup(idp->it_set[i].i_name)) == NULL) {
 		__pmFreeInResult(res);
-		return -errno;
+		return -oserror();
 	    }
 	}
     }
@@ -1247,7 +1247,7 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
 	    if (inst == idp->it_set[i].i_inst) {
 		if ((res->namelist[0] = strdup(idp->it_set[i].i_name)) == NULL) {
 		    __pmFreeInResult(res);
-		    return -errno;
+		    return -oserror();
 		}
 		for (p = res->namelist[0]; *p; p++) {
 		    if (*p == ' ') {
@@ -1342,7 +1342,7 @@ sample_name(pmID pmid, char ***nameset, pmdaExt *pmda)
     len += nmatch*sizeof(char *);	/* pointers to names */
 
     if ((list = (char **)malloc(len)) == NULL)
-	return -errno;
+	return -oserror();
 
     p = (char *)&list[nmatch];
     nmatch = 0;
@@ -1421,11 +1421,11 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
 	if (j == nmatch) {
 	    nmatch++;
 	    if ((chn = (char **)realloc(chn, nmatch*sizeof(chn[0]))) == NULL) {
-		j = -errno;
+		j = -oserror();
 		goto fail;
 	    }
 	    if ((sts = (int *)realloc(sts, nmatch*sizeof(sts[0]))) == NULL) { 
-		j = -errno;
+		j = -oserror();
 		goto fail;
 	    }
 	    if (traverse == 0) {
@@ -1434,7 +1434,7 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
 		 * PMNS name
 		 */
 		if ((chn[nmatch-1] = (char *)malloc(tlen+1)) == NULL) {
-		    j = -errno;
+		    j = -oserror();
 		    goto fail;
 		}
 		strncpy(chn[nmatch-1], &q[namelen+1], tlen);
@@ -1451,7 +1451,7 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
 		 */
 		tlen = pfxlen + strlen(dynamic_ones[i].name) + 2;
 		if ((chn[nmatch-1] = malloc(tlen)) == NULL) {
-		    j = -errno;
+		    j = -oserror();
 		    goto fail;
 		}
 		strncpy(chn[nmatch-1], name, pfxlen);
@@ -1469,7 +1469,7 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
     }
     else {
 	if ((chn = (char **)realloc(chn, nmatch*sizeof(chn[0])+len)) == NULL) {
-	    j = -errno;
+	    j = -oserror();
 	    goto fail;
 	}
 	q = (char *)&chn[nmatch];
@@ -1486,7 +1486,7 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
 
 fail:
     /*
-     * come here with j as -errno, and some allocation failure for
+     * come here with j as negative error code, and some allocation failure for
      * sts[] or chn[] or chn[nmatch-1][]
      */
      if (sts != NULL) free(sts);
@@ -1560,7 +1560,7 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
 	/* (numpmid - 1) because there's room for one valueSet in a pmResult */
 	need = (int)sizeof(pmResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
 	if ((res = (pmResult *)malloc(need)) == NULL)
-	    return -errno;
+	    return -oserror();
 	maxnpmids = numpmid;
     }
     res->timestamp.tv_sec = 0;
@@ -1684,7 +1684,7 @@ doit:
 		res->numpmid = i;
 		__pmFreeResultValues(res);
 	    }
-	    return -errno;
+	    return -oserror();
 	}
 	vset->pmid = pmidlist[i];
 	vset->numval = numval;
@@ -1715,7 +1715,7 @@ doit:
 			res->numpmid = i;
 			__pmFreeResultValues(res);
 		    }
-		    return -errno;
+		    return -oserror();
 		}
 	    }
 	    vset->vlist[j].inst = inst;

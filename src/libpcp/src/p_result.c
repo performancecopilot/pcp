@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include <ctype.h>
@@ -73,7 +69,7 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 	    need += sizeof(int);
     }
     if ((_pdubuf = __pmFindPDUBuf((int)(need+vneed))) == NULL)
-	return -errno;
+	return -oserror();
     pp = (result_t *)_pdubuf;
     pp->hdr.len = (int)(need+vneed);
     pp->hdr.type = PDU_RESULT;
@@ -183,7 +179,7 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
     numpmid = ntohl(pp->numpmid);
     if ((pr = (pmResult *)malloc(sizeof(pmResult) +
 			     (numpmid - 1) * sizeof(pmValueSet *))) == NULL) {
-	sts = -errno;
+	sts = -oserror();
 	goto badsts;
     }
     pr->numpmid = numpmid;
@@ -237,7 +233,7 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
     if ((newbuf = (char *)__pmFindPDUBuf((int)nvsize + vbsize)) == NULL) {
 	free(pr);
 	__pmUnpinPDUBuf(pdubuf);
-	return -errno;
+	return -oserror();
     }
 
     /*

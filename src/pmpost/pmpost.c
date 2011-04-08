@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -85,14 +81,14 @@ main(int argc, char **argv)
     dir = dirname(strdup(notices));
     if (mkdir_r(dir) < 0) {
 	fprintf(stderr, "pmpost: cannot create directory \"%s\": %s\n",
-	    dir, strerror(errno));
+	    dir, osstrerror());
 	exit(1);
     }
 
     if ((fd = open(notices, O_WRONLY|O_APPEND, 0)) < 0) {
 	if ((fd = open(notices, O_WRONLY|O_CREAT|O_APPEND, 0644)) < 0) {
 	    fprintf(stderr, "pmpost: cannot create file \"%s\": %s\n",
-		notices, strerror(errno));
+		notices, osstrerror());
 	    exit(1);
 	}
 	lastday = LAST_NEWFILE;
@@ -122,8 +118,8 @@ main(int argc, char **argv)
     
     if (sts == -1) {
 	fprintf(stderr, "pmpost: warning, cannot lock file \"%s\"", notices);
-	if (errno != EINTR)
-	    fprintf(stderr, ": %s", strerror(errno));
+	if (oserror() != EINTR)
+	    fprintf(stderr, ": %s", osstrerror());
 	fputc('\n', stderr);
     }
     sts = 0;
@@ -143,7 +139,7 @@ main(int argc, char **argv)
     }
 
     if ((np = fdopen(fd, "a")) == NULL) {
-	fprintf(stderr, "pmpost: fdopen: %s\n", strerror(errno));
+	fprintf(stderr, "pmpost: fdopen: %s\n", osstrerror());
 	exit(1);
     }
 
@@ -152,25 +148,25 @@ main(int argc, char **argv)
 
     if (lastday != tmp->tm_yday) {
 	if (fprintf(np, "\nDATE: %s", ctime(&now)) < 0)
-	    sts = errno;
+	    sts = oserror();
     }
 
     if (fprintf(np, "%02d:%02d", tmp->tm_hour, tmp->tm_min) < 0)
-	sts = errno;
+	sts = oserror();
 
     for (i = 1; i < argc; i++) {
 	if (fprintf(np, " %s", argv[i]) < 0)
-	    sts = errno;
+	    sts = oserror();
     }
 
     if (fputc('\n', np) < 0)
-	sts = errno;
+	sts = oserror();
 
     if (fclose(np) < 0)
-	sts = errno;
+	sts = oserror();
 
     if (sts < 0) {
-	fprintf(stderr, "pmpost: write failed: %s\n", strerror(errno));
+	fprintf(stderr, "pmpost: write failed: %s\n", osstrerror());
 	fprintf(stderr, "Lost message ...");
 	for (i = 1; i < argc; i++) {
 	    fprintf(stderr, " %s", argv[i]);

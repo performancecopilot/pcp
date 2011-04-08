@@ -279,7 +279,7 @@ sleepTight(Task *t, int type)
 		    break;
 		}
 		sts = nanosleep(&ts, &tleft);
-		if (sts == 0 || (sts < 0 && errno != EINTR))
+		if (sts == 0 || (sts < 0 && oserror() != EINTR))
 		    break;
 		ts = tleft;
 	    }

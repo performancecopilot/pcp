@@ -197,7 +197,6 @@ extern "C" {
 #undef HAVE_UNSETENV
 
 #undef HAVE_GETHOSTNAME
-#undef HAVE_HSTRERROR
 #undef HAVE_SELECT
 #undef HAVE_SOCKET
 
@@ -237,7 +236,6 @@ extern "C" {
 #undef HAVE_REGEXEC
 #undef HAVE_REGCOMP
 
-#undef HAVE_STRERROR
 #undef HAVE_STRTOD
 #undef HAVE_STRTOL
 #undef HAVE_STRTOLL
@@ -377,14 +375,6 @@ bozo! need to find where MAXPATHLEN is defined for this platform
 bozo! need to find where MAXHOSTNAMELEN is defined for this platform
 #endif
 
-#ifndef HAVE_OSERROR
-#define oserror() errno
-#endif
-
-#ifndef HAVE_SETOSERROR
-#define setoserror(e) errno = e
-#endif
-
 #ifndef HAVE_FLOG10
 #if !defined(flog10)
 #define flog10(x) (float)log10((double)x)
@@ -418,6 +408,10 @@ typedef void (*SIG_PF) (int);
 #undef HAVE_PR_TERMCHILD
 #undef HAVE_PR_SET_PDEATHSIG
 
+#ifdef HAVE_LIBGEN_H
+#include <libgen.h>
+#endif
+
 #undef HAVE_PTHREAD_MUTEX_T
 
 #undef HAVE_FNDELAY
@@ -443,6 +437,12 @@ typedef void (*SIG_PF) (int);
 
 /* Determine if we are on a Solaris box */
 #undef IS_SOLARIS
+
+/* Determine if we are on an AIX box */
+#undef IS_AIX
+
+/* Determine if we are on an FreeBSD box */
+#undef IS_FREEBSD
 
 /* Determine if we are on a Mac OS X box */
 #undef IS_DARWIN
@@ -475,13 +475,13 @@ typedef void (*SIG_PF) (int);
 #define EPROTO		WSAEPROTONOSUPPORT
 #define EMSGSIZE	WSAEMSGSIZE
 #define ENODATA		WSANO_DATA
+extern char *wsastrerror(int);
 
 #define HAVE_PIPE1
 #define HAVE_MKDIR2
 #define HAVE_RENAME2
 #define HAVE_DLOPEN
 #define HAVE_FNDELAY
-#define HAVE_HSTRERROR
 
 #define MAP_FAILED	NULL
 #define O_NDELAY	0
@@ -501,7 +501,6 @@ typedef void (*SIG_PF) (int);
 #define pipe1(fds) _pipe(fds, 4096, O_BINARY)
 
 extern void setlinebuf(FILE *);
-extern const char *hstrerror(int);
 extern char *index(const char *, int);
 extern char *rindex(const char *, int);
 extern long int lrand48(void);
@@ -523,6 +522,7 @@ extern void closelog(void);
 enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
        LOG_WARNING, LOG_NOTICE, LOG_INFO, LOG_DEBUG,
        LOG_PID, LOG_CONS, LOG_DAEMON };
+
 #ifdef LIBPCP_INTERNAL
 #define INTERN __declspec(dllexport)
 #define EXTERN
@@ -530,20 +530,28 @@ enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
 #define INTERN
 #define EXTERN __declspec(dllimport)
 #endif
+
+#define setoserror(n)	(errno = (n))	/* not SetLastError() */
+#define oserror()	errno		/* not GetLastError() */
+#define neterror()	WSAGetLastError()
+#define hosterror()	WSAGetLastError()
+#define osstrerror()	strerror(GetLastError())
+#define netstrerror()	strerror(WSAGetLastError())
+#define hoststrerror()	strerror(WSAGetLastError())
+
 #else /*!MINGW*/
 #define INTERN
 #define EXTERN extern
+
+#define setoserror(n)	(errno = (n))
+#define oserror()	errno
+#define neterror()	errno
+#define hosterror()	h_errno
+#define osstrerror()	strerror(errno)
+#define netstrerror()	strerror(errno)
+#define hoststrerror()	hstrerror(h_errno)
 #endif
 
-/* Determine if we are on an AIX box */
-#undef IS_AIX
-
-/* Determine if we are on an FreeBSD box */
-#undef IS_FREEBSD
-
-#ifdef HAVE_LIBGEN_H
-#include <libgen.h>
-#endif
 
 /*
  * run-time environment that is in libc for most platforms, but for some

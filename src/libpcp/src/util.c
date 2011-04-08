@@ -17,8 +17,9 @@
 
 #include <stdarg.h>
 #include <sys/stat.h> 
-#include <ctype.h>
+#include <inttypes.h>
 #include <limits.h>
+#include <ctype.h>
 #include <math.h>
 
 #include "pmapi.h"
@@ -196,7 +197,8 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 
     oldstream = freopen(logname, "w", oldstream);
     if (oldstream == NULL) {
-	int	save_errno = errno;	/* need for error message */
+	int	save_error = oserror();	/* need for error message */
+
 	close(oldfd);
 	if (dup(dupoldfd) != oldfd)
 	    /* fd juggling failed! */
@@ -213,7 +215,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 	}
 	*status = 0;
 	pmprintf("%s: cannot open log \"%s\" for writing : %s\n",
-		progname, logname, strerror(save_errno));
+		progname, logname, strerror(save_error));
 	pmflush();
     }
     else {
@@ -526,11 +528,11 @@ pmPrintValue(FILE *f,			/* output stream */
         break;
 
     case PM_TYPE_64:
-        fprintf(f, "%*lli", minwidth, (long long)a.ll);
+        fprintf(f, "%*"PRIi64, minwidth, a.ll);
         break;
 
     case PM_TYPE_U64:
-        fprintf(f, "%*llu", minwidth, (unsigned long long)a.ull);
+        fprintf(f, "%*"PRIu64, minwidth, a.ull);
         break;
 
     case PM_TYPE_FLOAT:
@@ -571,7 +573,7 @@ pmPrintValue(FILE *f,			/* output stream */
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(__uint64_t)) {
 		__uint64_t	i;
 		memcpy((void *)&i, (void *)&val->value.pval->vbuf, sizeof(__uint64_t));
-		fprintf(f, "%*llu", minwidth, (unsigned long long)i);
+		fprintf(f, "%*"PRIu64, minwidth, i);
 		done = 1;
 	    }
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(double)) {
@@ -654,7 +656,7 @@ __pmNoMem(const char *where, size_t size, int fatal)
 {
     __pmNotifyErr(fatal ? LOG_ERR : LOG_WARNING,
 			"%s: malloc(%d) failed: %s",
-			where, (int)size, strerror(errno));
+			where, (int)size, osstrerror());
     if (fatal)
 	exit(1);
 }
@@ -916,7 +918,7 @@ pmfstate(int state)
 		char * xconfirm = pmGetConfig("PCP_XCONFIRM_PROG");
 		if (access(__pmNativePath(xconfirm), X_OK) < 0) {
 		    fprintf(stderr, "%s: using stderr - cannot access %s: %s\n",
-			    pmProgname, xconfirm, strerror(errno));
+			    pmProgname, xconfirm, osstrerror());
 		}
 		else
 		    errtype = PM_USEDIALOG;
@@ -941,7 +943,7 @@ vpmprintf(const char *msg, va_list arg)
 	    (fd = open(fname, O_RDWR|O_APPEND|O_CREAT|O_EXCL, 0600)) < 0 ||
 	    (fptr = fdopen(fd, "a")) == NULL) {
 	    fprintf(stderr, "%s: vpmprintf: failed to create \"%s\": %s\n",
-		pmProgname, fname, strerror(errno));
+		pmProgname, fname, osstrerror());
 	    fprintf(stderr, "vpmprintf msg:\n");
 	    if (fd != -1)
 		close(fd);
@@ -986,7 +988,7 @@ pmflush(void)
 	if (state == PM_USEFILE) {
 	    if ((eptr = fopen(ferr, "a")) == NULL) {
 		fprintf(stderr, "pmflush: cannot append to file '%s' (from "
-			"$PCP_STDERR): %s\n", ferr, strerror(errno));
+			"$PCP_STDERR): %s\n", ferr, osstrerror());
 		state = PM_USESTDERR;
 	    }
 	}
@@ -997,7 +999,7 @@ pmflush(void)
 		sts = write(fileno(stderr), outbuf, len);
 		if (sts != len) {
 		    fprintf(stderr, "pmflush: write() failed: %s\n", 
-			strerror(errno));
+			osstrerror());
 		}
 		sts = 0;
 	    }
@@ -1010,8 +1012,8 @@ pmflush(void)
 		    (msgsize > 80 ? "-useslider" : ""));
 	    if (system(outbuf) < 0) {
 		fprintf(stderr, "%s: system failed: %s\n", pmProgname,
-			strerror(errno));
-		sts = -errno;
+			osstrerror());
+		sts = -oserror();
 	    }
 	    break;
 	case PM_USEFILE:
@@ -1020,7 +1022,7 @@ pmflush(void)
 		sts = write(fileno(eptr), outbuf, len);
 		if (sts != len) {
 		    fprintf(stderr, "pmflush: write() failed: %s\n", 
-			strerror(errno));
+			osstrerror());
 		}
 		sts = 0;
 	    }
@@ -1308,9 +1310,9 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
     pid_t	pid;
 
     if (pipe1(in) < 0)
-	return -errno;
+	return -oserror();
     if (pipe1(out) < 0)
-	return -errno;
+	return -oserror();
 
     pid = fork();
     if (pid < 0) {
@@ -1338,7 +1340,7 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	    close(out[1]);
 	}
 	execvp(argv[0], argv);
-	fprintf(stderr, "execvp: %s\n", strerror(errno));
+	fprintf(stderr, "execvp: %s\n", osstrerror());
 	exit(1);
     }
     return 0;

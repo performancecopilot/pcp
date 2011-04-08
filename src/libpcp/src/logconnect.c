@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -127,7 +123,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
-		    hstrerror(h_errno));
+		    hoststrerror());
 #endif
 	return -ECONNREFUSED;
     }
@@ -143,7 +139,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 
     sts = connect(fd, (struct sockaddr*) &myAddr, sizeof(myAddr));
     if (sts < 0) {
-	sts = -errno;
+	sts = -neterror();
 	__pmCloseSocket(fd);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)

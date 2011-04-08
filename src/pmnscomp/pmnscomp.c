@@ -14,13 +14,10 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <ctype.h>
+#include <inttypes.h>
 #include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
@@ -282,9 +279,9 @@ Options:\n\
     if (force) {
 	struct stat	sbuf;
 	if (stat(argv[optind], &sbuf) == -1) {
-	    if (errno != ENOENT) {
+	    if (oserror() != ENOENT) {
 		fprintf(stderr, "%s: cannot stat \"%s\": %s\n",
-		    pmProgname, argv[optind], strerror(errno));
+		    pmProgname, argv[optind], osstrerror());
 		exit(1);
 	    }
 	}
@@ -297,7 +294,7 @@ Options:\n\
 	    }
 	    if (unlink(argv[optind]) == -1) {
 		fprintf(stderr, "%s: cannot unlink \"%s\": %s\n",
-		    pmProgname, argv[optind], strerror(errno));
+		    pmProgname, argv[optind], osstrerror());
 		exit(1);
 	    }
 	}
@@ -375,7 +372,7 @@ Options:\n\
     __pmSetSignalHandler(SIGTERM, SIG_IGN);
 
     if ((outf = fopen(argv[optind], "w+")) == NULL) {
-	fprintf(stderr, "%s: cannot create \"%s\": %s\n", pmProgname, argv[optind], strerror(errno));
+	fprintf(stderr, "%s: cannot create \"%s\": %s\n", pmProgname, argv[optind], osstrerror());
 	exit(1);
     }
 
@@ -524,7 +521,7 @@ Options:\n\
 		    printf("htab64[%3d]", j);
 		}
 		__ntohll((char *)&k64);	
-		printf(" %5lld", (long long)k64); 
+		printf(" %5" PRIi64, k64); 
 	    }
 	    printf("\n\n64-bit Node Table\n");
 	    for (j = 0; j < nodecnt; j++) {
@@ -539,9 +536,10 @@ Options:\n\
 	        __ntohll ((char *)&t.next);
 	        __ntohll ((char *)&t.hash);
 
-		printf("node64[%4d] %6lld %6lld %6lld %6lld %-16.16s",
-		    j, (long long)t.parent, (long long)t.next,
-		    (long long)t.first, (long long)t.hash, _symbol+t.name);
+		printf("node64[%4d] "
+		       "%6" PRIi64 " %6" PRIi64 " %6" PRIi64 " %6" PRIi64
+		       " %-16.16s",
+		    j, t.parent, t.next, t.first, t.hash, _symbol+t.name);
 		if (t.first == -1) {
 		    printf(" %s", pmIDStr(__htonpmID(_nodetab64[j].pmid)));
 		}	

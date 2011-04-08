@@ -15,6 +15,7 @@
  * License for more details.
  */
 
+#include <inttypes.h>
 #include "pmapi.h"
 #include "impl.h"
 
@@ -120,11 +121,11 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp, int idx)
 		    break;
 		case PM_TYPE_64:
 		    memcpy((void *)&atom.ll, (void *)vbuf, sizeof(atom.ll));
-		    fprintf(f, " = %lli", (long long)atom.ll);
+		    fprintf(f, " = %"PRIi64, atom.ll);
 		    break;
 		case PM_TYPE_U64:
 		    memcpy((void *)&atom.ull, (void *)vbuf, sizeof(atom.ull));
-		    fprintf(f, " = %llu", (unsigned long long)atom.ull);
+		    fprintf(f, " = %"PRIu64, atom.ull);
 		    break;
 		case PM_TYPE_FLOAT:
 		    memcpy((void *)&atom.f, (void *)vbuf, sizeof(atom.f));
@@ -268,7 +269,7 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
      */
     *rap = (pmResult **)malloc((eap->ea_nrecords+1) * sizeof(pmResult *));
     if (*rap == NULL) {
-	return -errno;
+	return -oserror();
     }
 
     base = (char *)&eap->ea_record[0];
@@ -291,7 +292,7 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 	need = sizeof(pmResult) + (numpmid-1)*sizeof(pmValueSet *);
 	rp = (pmResult *)malloc(need); 
 	if (rp == NULL) {
-	    sts = -errno;
+	    sts = -oserror();
 	    r--;
 	    goto bail;
 	}
@@ -305,7 +306,7 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 	    rp->vset[p] = (pmValueSet *)__pmPoolAlloc(sizeof(pmValueSet));
 	    if (rp->vset[p] == NULL) {
 		rp->numpmid = p;
-		sts = -errno;
+		sts = -oserror();
 		goto bail;
 	    }
 	    if (p == 0 && erp->er_flags != 0) {
@@ -389,7 +390,7 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 		rp->vset[p]->vlist[0].value.pval = (pmValueBlock *)malloc(want);
 	    }
 	    if (rp->vset[p]->vlist[0].value.pval == NULL) {
-		sts = -errno;
+		sts = -oserror();
 		rp->vset[p]->valfmt = PM_VAL_INSITU;
 		goto bail;
 	    }

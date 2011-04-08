@@ -131,7 +131,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom,
     pmdaCacheOp(cgroups_indom, PMDA_CACHE_INACTIVE);
 
     if ((fp = fopen("/proc/mounts", "r")) == (FILE *)NULL)
-	return -errno;
+	return -oserror();
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if ((device = strtok(buf, " ")) == 0)

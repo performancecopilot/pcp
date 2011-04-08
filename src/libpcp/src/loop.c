@@ -293,9 +293,8 @@ pmLoopRegisterSignal(
     if (sig < 0 || sig >= SIGMAX)
 	return -EINVAL;
 
-    if ((ss = (loop_signal_t *)malloc(sizeof(loop_signal_t))) != NULL) {
-	return (-ENOMEM);
-    }
+    if ((ss = (loop_signal_t *)malloc(sizeof(loop_signal_t))) != NULL)
+	return -ENOMEM;
 
     ss->tag = next_tag++;
     ss->callback = callback;
@@ -305,19 +304,18 @@ pmLoopRegisterSignal(
     ss->next = signals[sig];
     signals[sig] = ss;
 
-    if (doinstall)
-    {
+    if (doinstall) {
 	struct sigaction sa;
 
 	memset(&sa, 0, sizeof(sa));
 	sa.sa_flags = 0;
 	sa.sa_handler = loop_sig_handler;
 	if (sigaction(sig, &sa, NULL) < 0) {
-	    int ee = errno;
+	    int ee = oserror();
 
 	    __pmNotifyErr(LOG_WARNING, 
-			  "sigaction failed - %s", strerror(ee));
-	    return (-ee);
+			  "sigaction failed - %s", osstrerror());
+	    return -ee;
 	}
     }
 
@@ -357,7 +355,7 @@ pmLoopUnregisterSignal(int tag)
 	    sa.sa_handler = SIG_DFL;
 	    if (sigaction(sig, &sa, NULL) < 0) {
 		__pmNotifyErr(LOG_WARNING, 
-			      "sigaction failed - %s", strerror(errno));
+			      "sigaction failed - %s", osstrerror());
 		return;
 	    }
 	}
@@ -829,44 +827,34 @@ pmLoopMain(void)
     main_stack = &lmain;
 
     lmain.running = 1;
-    while (lmain.running)
-    {
+    while (lmain.running) {
 	int ee;
 
-	if ((ee = loop_setup_inputs()) < 0) { 
-		return (ee);
-	}
+	if ((ee = loop_setup_inputs()) < 0)
+	    return ee;
 	timeout = loop_setup_timeouts();
 	loop_dispatch_idle();
 
-	if ((ee == 0) && (timeout == -1) && (idle_list == NULL)) {
-	    return (0);
-	}
+	if ((ee == 0) && (timeout == -1) && (idle_list == NULL))
+	    return 0;
 
 	r = poll(pfd, num_inputs, timeout);
-
-	if (r < 0)
-	{
-	    if (errno == EINTR)
-	    {
+	if (r < 0) {
+	    if (oserror() == EINTR) {
 		loop_dispatch_signals();
 		if (child_pending)
 		    loop_dispatch_children();
 	    	continue;
 	    }
-	    __pmNotifyErr(LOG_ERR,
-			  "pmLoopMain: poll failed - %s", strerror(errno));
+	    __pmNotifyErr(LOG_ERR, "pmLoopMain: poll failed - %s",
+			  osstrerror());
 	    break;
-	}
-	else if (r == 0)
-	{
+	} else if (r == 0) {
 	    if (timeout > 0)
 		loop_dispatch_timeouts();
 	    else
 		loop_adjust_timeout();
-	}
-	else
-	{
+	} else {
 	    loop_dispatch_inputs();
 	    loop_adjust_timeout();
 	}
@@ -876,7 +864,7 @@ pmLoopMain(void)
     assert(lmain.current_child == NULL);
     assert(lmain.current_timeout == NULL);
     main_stack = lmain.next;
-    return (0);
+    return 0;
 }
 
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/

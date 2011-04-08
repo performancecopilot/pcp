@@ -87,19 +87,19 @@ process_config_file_check(void) {
    */
 
   struct stat statbuf;
-  static int last_errno;
+  static int last_error;
   int sep = __pmPathSeparator();
 
   snprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "process.conf",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
   if (stat(mypath, &statbuf) == -1) {
-    if (errno != last_errno) {
+    if (oserror() != last_error) {
+      last_error = oserror();
       __pmNotifyErr(LOG_WARNING, "stat failed on %s: %s\n", 
-          mypath, pmErrStr(-errno));
-      last_errno = errno;
+          mypath, pmErrStr(-oserror()));
     }
   } else {
-    last_errno = 0;
+    last_error = 0;
 #if defined(HAVE_ST_MTIME_WITH_E)
     if (memcmp(&statbuf.st_mtime, &file_change.st_mtime, sizeof(statbuf.st_mtime)) != 0)
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
@@ -170,7 +170,7 @@ void process_grab_config_info() {
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
   if ((fp = fopen(mypath, "r")) == NULL) {
     __pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
-        mypath, pmErrStr(-errno));
+        mypath, pmErrStr(-oserror()));
   }
   while (fgets(process_name, sizeof(process_name), fp) != NULL) {
     if (process_name[0] == '#')
@@ -294,7 +294,7 @@ process_refresh_pidlist()
   struct dirent *dp;
 
   if (dirp == NULL) {
-    return -errno;
+    return -oserror();
   }
 
   npidlist = 0;

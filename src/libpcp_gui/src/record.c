@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 #include "pmapi.h"
 #include "pmafm.h"
@@ -79,12 +75,12 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
 
     if (state != PM_REC_OFF) {
 	/* already begun w/out end */
-	errno = EINVAL;
+	setoserror(EINVAL);
 	return NULL;
     }
 
     if (access(folio, F_OK) == 0) {
-	errno  = EEXIST;
+	setoserror(EEXIST);
 	return NULL;
     }
 
@@ -213,7 +209,7 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
     return f_replay;
 
 failed:
-    sts = errno;
+    sts = oserror();
     if (dir != NULL)
 	free(dir);
     if (base != NULL)
@@ -223,7 +219,7 @@ failed:
     f_folio = NULL;
     if (fd >= 0)
 	close(fd);
-    errno = sts;
+    setoserror(sts);
     return NULL;
 }
 
@@ -257,7 +253,7 @@ pmRecordAddHost(const char *host, int isdefault, pmRecordHost **rhp)
     if (rp == NULL) {
 	/* need another one */
 	if ((rp = (record_t *)malloc(sizeof(record_t))) == NULL)
-	    return -errno;
+	    return -oserror();
 	rp->next = record;
 	record = rp;
 	rp->isdefault = 0;
@@ -300,7 +296,7 @@ pmRecordAddHost(const char *host, int isdefault, pmRecordHost **rhp)
 	    p[0]++;
 	}
 	if (c == '\0') {
-	    errno = EEXIST;
+	    setoserror(EEXIST);
 	    goto failed;
 	}
     }
@@ -360,7 +356,7 @@ pmRecordAddHost(const char *host, int isdefault, pmRecordHost **rhp)
     return 0;
 
 failed:
-    sts = -errno;
+    sts = -oserror();
     if (rp->public.f_config != NULL) {
 	unlink(tbuf);
 	fclose(rp->public.f_config);
@@ -427,10 +423,10 @@ xmit_to_logger(int fd, char tag, const char *msg)
     return 0;
 
 fail:
-    if (errno == EPIPE)
+    if (oserror() == EPIPE)
 	sts = PM_ERR_IPC;
     else
-	sts = -errno;
+	sts = -oserror();
 #ifdef HAVE_SIGPIPE
     signal(SIGPIPE, user_onpipe);
 #endif
@@ -503,7 +499,7 @@ pmRecordControl(pmRecordHost *rhp, int request, const char *msg)
 		fclose(rp->public.f_config);
 		rp->public.f_config = NULL;
 		if (pipe1(mypipe) < 0) {
-		    sts = -errno;
+		    sts = -oserror();
 		    break;
 		}
 		if (mypipe[1] > maxseenfd)
@@ -582,7 +578,7 @@ fputc('\n', stderr);
 		    exit(1);
 		}
 		else if (rp->public.pid < 0) {
-		    sts = -errno;
+		    sts = -oserror();
 		    break;
 		}
 		else {
@@ -710,13 +706,13 @@ broadcast:
 		    continue;
 		rp->argv = (char **)realloc(rp->argv, (rp->argc+1)*sizeof(rp->argv[0]));
 		if (rp->argv == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    rp->argc = 0;
 		}
 		else {
 		    rp->argv[rp->argc] = strdup(msg);
 		    if (rp->argv[rp->argc] == NULL)
-			sts = -errno;
+			sts = -oserror();
 		    else
 			rp->argc++;
 		}

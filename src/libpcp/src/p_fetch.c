@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -39,7 +35,7 @@ __pmSendFetch(int fd, int from, int ctxnum, __pmTimeval *when, int numpmid, pmID
 
     need = sizeof(fetch_t) + (numpmid-1) * sizeof(pmID);
     if ((pp = (fetch_t *)__pmFindPDUBuf((int)need)) == NULL)
-	return -errno;
+	return -oserror();
     pp->hdr.len = (int)need;
     pp->hdr.type = PDU_FETCH;
     /* 

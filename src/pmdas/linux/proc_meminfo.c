@@ -19,7 +19,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <fcntl.h>
-#include <errno.h>
 #include <stdio.h>
 
 #include "pmapi.h"
@@ -109,7 +108,7 @@ refresh_proc_meminfo(proc_meminfo_t *proc_meminfo)
     }
 
     if ((fp = fopen("/proc/meminfo", "r")) == (FILE *)0)
-	return -errno;
+	return -oserror();
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if ((bufp = strchr(buf, ':')) == NULL)

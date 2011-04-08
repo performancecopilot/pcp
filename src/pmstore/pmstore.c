@@ -13,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -112,7 +108,7 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
     switch (type) {
 	case PM_TYPE_32:
 		temp_l = strtol(buf, &endbuf, base);
-		if (errno != ERANGE) {
+		if (oserror() != ERANGE) {
 		    /*
 		     * ugliness here is for cases where pmstore is compiled
 		     * 64-bit (e.g. on ia64) and then strtol() may return
@@ -123,7 +119,7 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
 		     */
 #ifdef HAVE_64BIT_LONG
 		    if (temp_l > 0x7fffffffLL || temp_l < (-0x7fffffffLL - 1))
-			errno = ERANGE;
+			setoserror(ERANGE);
 		    else 
 #endif
 		    {
@@ -134,10 +130,10 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
 
 	case PM_TYPE_U32:
 		temp_ul = strtoul(buf, &endbuf, base);
-		if (errno != ERANGE) {
+		if (oserror() != ERANGE) {
 #ifdef HAVE_64BIT_LONG
 		    if (temp_ul > 0xffffffffLL)
-			errno = ERANGE;
+			setoserror(ERANGE);
 		    else 
 #endif
 		    {
@@ -148,11 +144,11 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
 
 	case PM_TYPE_64:
 		avp->ll = strtoll(buf, &endbuf, base);
-		/* trust the library to set errno to ERANGE as appropriate * */
+		/* trust library to set error code to ERANGE as appropriate */
 		break;
 
 	case PM_TYPE_U64:
-		/* trust the library to set errno to ERANGE as appropriate * */
+		/* trust library to set error code to ERANGE as appropriate */
 		avp->ull = strtoull(buf, &endbuf, base);
 		break;
 
@@ -165,7 +161,7 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
 		else {
 		    d = strtod(buf, &endbuf);
 		    if (d < FLT_MIN || d > FLT_MAX)
-			errno = ERANGE;
+			setoserror(ERANGE);
 		    else {
 			avp->f = (float)d;
 		    }
@@ -198,7 +194,7 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
 			buf, pmTypeStr(type));
 	exit(1);
     }
-    if (errno == ERANGE) {
+    if (oserror() == ERANGE) {
 	fprintf(stderr, 
 			"The value \"%s\" is out of range for the data "
 			"type (PM_TYPE_%s)\n",

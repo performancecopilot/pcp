@@ -12,6 +12,7 @@
  * License for more details.
  */
 
+#include <inttypes.h>
 #include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
@@ -150,7 +151,7 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 #endif
 	    if (ferror(f)) {
 		clearerr(f);
-		return -errno;
+		return -oserror();
 	    }
 	    else
 		return PM_ERR_LABEL;
@@ -165,7 +166,7 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 #endif
 	if (ferror(f)) {
 	    clearerr(f);
-	    return -errno;
+	    return -oserror();
 	}
 	else
 	    return PM_ERR_LABEL;
@@ -189,7 +190,7 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 #endif
 	if (ferror(f)) {
 	    clearerr(f);
-	    return -errno;
+	    return -oserror();
 	}
 	else
 	    return PM_ERR_LABEL;
@@ -207,7 +208,7 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
     }
     else {
 	if (__pmSetVersionIPC(fileno(f), version) < 0)
-	    return -errno;
+	    return -oserror();
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, " [magic=%8x version=%d vol=%d pid=%d host=%s]\n",
@@ -244,9 +245,9 @@ fopen_compress(const char *fname)
 	return NULL;
     }
     if (compress_ctl[i].appl == USE_BZIP2)
-	cmd = "bzcat";
+	cmd = "bzip2 -dc";
     else if (compress_ctl[i].appl == USE_GZIP)
-	cmd = "gunzip -c";
+	cmd = "gzip -dc";
     else {
 	/* botch in compress_ctl[] ... should not happen */
 	return NULL;
@@ -269,15 +270,14 @@ fopen_compress(const char *fname)
 #endif
     sts = system(shellcmd);
     if (sts == -1) {
-	/* trust that errno will explain why ... */
-	sts = errno;
+	sts = oserror();
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "__pmLogOpen: uncompress command failed: %s\n", strerror(sts));
+	    fprintf(stderr, "__pmLogOpen: uncompress command failed: %s\n", osstrerror());
 #endif
 	close(fd);
 	unlink(msg);
-	errno = sts;
+	setoserror(sts);
 	return NULL;
     }
     if (sts != 0) {
@@ -296,15 +296,14 @@ fopen_compress(const char *fname)
 	close(fd);
 	unlink(msg);
 	/* not a great error code, but the best we can do */
-	errno = -PM_ERR_LOGREC;
+	setoserror(-PM_ERR_LOGREC);
 	return NULL;
     }
     if ((fp = fdopen(fd, "r")) == NULL) {
-	/* trust that errno will explain why ... */
-	sts = errno;
+	sts = oserror();
 	close(fd);
 	unlink(msg);
-	errno = sts;
+	setoserror(sts);
 	return NULL;
     }
     /*
@@ -339,7 +338,7 @@ _logpeek(__pmLogCtl *lcp, int vol)
 
     if ((sts = __pmLogChkLabel(lcp, f, &label, vol)) < 0) {
 	fclose(f);
-	errno = sts;
+	setoserror(sts);
 	return NULL;
     }
     
@@ -363,7 +362,7 @@ __pmLogChangeVol(__pmLogCtl *lcp, int vol)
     if ((lcp->l_mfp = fopen(name, "r")) == NULL) {
 	/* try for a compressed file */
 	if ((lcp->l_mfp = fopen_compress(name)) == NULL)
-	    return -errno;
+	    return -oserror();
     }
 
     if ((sts = __pmLogChkLabel(lcp, lcp->l_mfp, &lcp->l_label, vol)) < 0)
@@ -393,7 +392,7 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
 	for ( ; ; ) {
 	    lcp->l_ti = (__pmLogTI *)realloc(lcp->l_ti, (1 + lcp->l_numti) * sizeof(__pmLogTI));
 	    if (lcp->l_ti == NULL) {
-		sts = -errno;
+		sts = -oserror();
 		break;
 	    }
 	    tip = &lcp->l_ti[lcp->l_numti];
@@ -412,7 +411,7 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
 #endif
 		if (ferror(f)) {
 		    clearerr(f);
-		    sts = -errno;
+		    sts = -oserror();
 		    break;
 		}
 		else {
@@ -476,7 +475,7 @@ __pmLogNewFile(const char *base, int vol)
 {
     const char	*fname;
     FILE	*f;
-    int		save_errno;
+    int		save_error;
 
     fname = __pmLogName(base, vol);
 
@@ -489,18 +488,18 @@ __pmLogNewFile(const char *base, int vol)
     }
 
     if ((f = fopen(fname, "w")) == NULL) {
-	save_errno = oserror();
-	pmprintf("__pmLogNewFile: failed to create \"%s\": %s\n", fname, strerror(save_errno));
+	save_error = oserror();
+	pmprintf("__pmLogNewFile: failed to create \"%s\": %s\n", fname, osstrerror());
 
 	pmflush();
-	setoserror(save_errno);
+	setoserror(save_error);
 	return NULL;
     }
 
-    if ((save_errno = __pmSetVersionIPC(fileno(f), PDU_VERSION)) < 0) {
-	pmprintf("__pmLogNewFile: failed to setup \"%s\": %s\n", fname, strerror(save_errno));
+    if ((save_error = __pmSetVersionIPC(fileno(f), PDU_VERSION)) < 0) {
+	pmprintf("__pmLogNewFile: failed to setup \"%s\": %s\n", fname, osstrerror());
 	pmflush();
-	setoserror(save_errno);
+	setoserror(save_error);
 	return NULL;
     }
 
@@ -527,8 +526,8 @@ __pmLogWriteLabel(FILE *f, const __pmLogLabel *lp)
     if ((int)fwrite(&len, 1, sizeof(len), f) != sizeof(len) ||
 	(int)fwrite(&outll, 1, sizeof(outll), f) != sizeof(outll) ||
         (int)fwrite(&len, 1, sizeof(len), f) != sizeof(len)) {
-	    sts = -errno;
-	    pmprintf("__pmLogWriteLabel: %s\n", strerror(errno));
+	    sts = -oserror();
+	    pmprintf("__pmLogWriteLabel: %s\n", osstrerror());
 	    pmflush();
 	    fclose(f);
     }
@@ -540,7 +539,7 @@ int
 __pmLogCreate(const char *host, const char *base, int log_version,
 	      __pmLogCtl *lcp)
 {
-    int		save_errno = 0;
+    int		save_error = 0;
 
     lcp->l_minvol = lcp->l_maxvol = lcp->l_curvol = 0;
     lcp->l_hashpmid.nodes = lcp->l_hashpmid.hsize = 0;
@@ -581,16 +580,16 @@ __pmLogCreate(const char *host, const char *base, int log_version,
 		return sts;
 	    }
 	    else {
-		save_errno = oserror();
+		save_error = oserror();
 		unlink(__pmLogName(base, PM_LOG_VOL_TI));
 		unlink(__pmLogName(base, PM_LOG_VOL_META));
-		setoserror(save_errno);
+		setoserror(save_error);
 	    }
 	}
 	else {
-	    save_errno = oserror();
+	    save_error = oserror();
 	    unlink(__pmLogName(base, PM_LOG_VOL_TI));
-	    setoserror(save_errno);
+	    setoserror(save_error);
 	}
     }
 
@@ -820,7 +819,7 @@ done:
 		exists = 1;
 		snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		if ((lcp->l_tifp = fopen(filename, "r")) == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    goto cleanup;
 		}
 	    }
@@ -828,7 +827,7 @@ done:
 		exists = 1;
 		snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		if ((lcp->l_mdfp = fopen(filename, "r")) == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    goto cleanup;
 		}
 	    }
@@ -1082,10 +1081,10 @@ __pmLogPutResult(__pmLogCtl *lcp, __pmPDU *pb)
     php->from = htonl(php->from);
 
     if ((int)fwrite(&php->from, 1, sz, lcp->l_mfp) != sz)
-	sts = -errno;
+	sts = -oserror();
     else
     if ((int)fwrite(&php->from, 1, sizeof(int), lcp->l_mfp) != sizeof(int))
-	sts = -errno;
+	sts = -oserror();
 
     /* unswab */
     php->len = ntohl(php->len);
@@ -1375,7 +1374,7 @@ again:
 	if (ferror(f)) {
 	    /* I/O error */
 	    clearerr(f);
-	    return -errno;
+	    return -oserror();
 	}
 	else
 	    /* corrupted archive */
@@ -1423,10 +1422,10 @@ again:
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "\nError: __pmFindPDUBuf(%d) %s\n",
 		(int)(rlen + sizeof(__pmPDUHdr)),
-		strerror(errno));
+		osstrerror());
 #endif
 	fseek(f, offset, SEEK_SET);
-	return -errno;
+	return -oserror();
     }
 
     if (mode == PM_MODE_BACK)
@@ -1442,7 +1441,7 @@ again:
 	if (ferror(f)) {
 	    /* I/O error */
 	    clearerr(f);
-	    return -errno;
+	    return -oserror();
 	}
 	clearerr(f);
 
@@ -1465,7 +1464,7 @@ again:
 	if (ferror(f)) {
 	    /* I/O error */
 	    clearerr(f);
-	    return -errno;
+	    return -oserror();
 	}
 	clearerr(f);
 
@@ -2122,12 +2121,12 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 	    save = ftell(f);
 	}
 	else if ((f = _logpeek(lcp, vol)) == NULL) {
-	    sts = -errno;
+	    sts = -oserror();
 	    break;
 	}
 
 	if (fstat(fileno(f), &sbuf) < 0) {
-	    sts = -errno;
+	    sts = -oserror();
 	    break;
 	}
 
@@ -2152,8 +2151,8 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 	if (sizeof(off_t) > sizeof(__pm_off_t)) {
 	    if (physend != sbuf.st_size) {
 		__pmNotifyErr(LOG_ERR, "pmGetArchiveEnd: PCP archive file"
-			" (meta) too big (%lld bytes)\n",
-			(long long)sbuf.st_size);
+			" (meta) too big (%"PRIi64" bytes)\n",
+			(uint64_t)sbuf.st_size);
 		exit(1);
 	    }
 	}

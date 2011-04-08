@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -143,21 +139,25 @@ static const struct {
 	"" }
 };
 
-
 #define BADCODE "No such PMAPI error code (%d)"
 static char	barf[45];
 
 const char *
 pmErrStr(int code)
 {
+    int		i;
+    char	*msg;
+#ifndef IS_MINGW
     static int	first = 1;
     static char	*unknown;
-    char	*msg;
-    int		i;
+#else
+    static char	unknown[] = "Unknown error";
+#endif
 
     if (code == 0)
 	return "No error";
 
+#ifndef IS_MINGW
     if (first) {
 	/*
 	 * reference message for an unrecognized error code.
@@ -188,16 +188,24 @@ pmErrStr(int code)
 	msg = strerror(-code);
 	if (unknown == NULL) {
 	    if (msg != NULL)
-		return(msg);
+		return msg;
 	}
 	else {
-	    /* The intention here is to catch invariants of "Unknown
+	    /* The intention here is to catch variants of "Unknown
 	     * error XXX" - in this case we're going to return pcp
 	     * error message and not the system one */
 	    if (msg != NULL && strncmp(msg, unknown, strlen(unknown)) != 0)
-		return(msg);
+		return msg;
 	}
     }
+#else	/* WIN32 */
+    if (code > -PM_ERR_BASE || code < -PM_ERR_NYI) {
+	if ((msg = wsastrerror(-code)) == NULL)
+	    msg = strerror(-code);
+	if (msg != NULL && strncmp(msg, unknown, strlen(unknown)) != 0)
+	    return msg;
+    }
+#endif
 
     for (i = 0; errtab[i].err; i++)
 	if (errtab[i].err == code)

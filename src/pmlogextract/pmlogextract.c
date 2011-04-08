@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <math.h>
@@ -266,7 +262,7 @@ _report(FILE *fp)
     fprintf(stderr, "%s: Error occurred at byte offset %ld into a file of",
 	    pmProgname, (long int)here);
     if (fstat(fileno(fp), &sbuf) < 0)
-	fprintf(stderr, ": stat: %s\n", strerror(errno));
+	fprintf(stderr, ": stat: %s\n", osstrerror());
     else
 	fprintf(stderr, " %ld bytes.\n", (long int)sbuf.st_size);
     fprintf(stderr, "The last record, and the remainder of this file will not be extracted.\n");
@@ -298,7 +294,7 @@ newvolume(char *base, __pmTimeval *tvp)
     }
     else {
 	fprintf(stderr, "%s: Error: volume %d: %s\n",
-		pmProgname, nextvol, pmErrStr(-errno));
+		pmProgname, nextvol, pmErrStr(-oserror()));
 	abandon();
     }
     flushsize = 100000;
@@ -871,7 +867,7 @@ _createmark(void)
     markp = (mark_t *)malloc(sizeof(mark_t));
     if (markp == NULL) {
 	fprintf(stderr, "%s: Error: mark_t malloc: %s\n",
-		pmProgname, strerror(errno));
+		pmProgname, osstrerror());
 	abandon();
     }
 #ifdef PCP_DEBUG
@@ -1293,7 +1289,7 @@ parseconfig(void)
 
     if ((yyin = fopen(configfile, "r")) == NULL) {
 	fprintf(stderr, "%s: Cannot open config file \"%s\": %s\n",
-		pmProgname, configfile, strerror(errno));
+		pmProgname, configfile, osstrerror());
 	exit(1);
     }
 
@@ -1655,7 +1651,7 @@ main(int argc, char **argv)
     inarch = (inarch_t *) malloc(inarchnum * sizeof(inarch_t));
     if (inarch == NULL) {
 	fprintf(stderr, "%s: Error: mallco inarch: %s\n",
-		pmProgname, strerror(errno));
+		pmProgname, osstrerror());
 	exit(1);
     }
 #ifdef PCP_DEBUG

@@ -70,7 +70,7 @@ __pmtimevalSleep(struct timeval interval)
 
     for (;;) {		/* loop to catch early wakeup by nanosleep */
 	sts = nanosleep(&delay, &left);
-	if (sts == 0 || (sts < 0 && errno != EINTR))
+	if (sts == 0 || (sts < 0 && oserror() != EINTR))
 	    break;
 	delay = left;
     }
@@ -119,7 +119,7 @@ __pmtimevalPause(struct timeval sched)
     tospec(tsub(sched, curr), &delay);
     for (;;) {		/* loop to catch early wakeup by nanosleep */
 	sts = nanosleep(&delay, &left);
-	if (sts == 0 || (sts < 0 && errno != EINTR))
+	if (sts == 0 || (sts < 0 && oserror() != EINTR))
 	    break;
 	delay = left;
     }

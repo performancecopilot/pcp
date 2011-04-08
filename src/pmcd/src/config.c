@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
  * PMCD routines for reading config file, creating children and
  * attaching to DSOs.
@@ -167,7 +163,7 @@ GetNextLine(void)
 	if (fgets(end, still_to_read, inputStream) == NULL) {
 	    if (!feof(inputStream)) {
 		fprintf(stderr, "pmcd config: line %d, %s\n",
-			     nLines, strerror(errno));
+			     nLines, osstrerror());
 		scanError = 1;
 		return;
 	    }
@@ -726,8 +722,8 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
 	    port = service->s_port;
 	else {
 	    fprintf(stderr,
-			 "pmcd: line %d, Error getting port number for port %s: %s\n",
-			 nLines, socketName, strerror(errno));
+		"pmcd: line %d, Error getting port number for port %s: %s\n",
+		nLines, socketName, netstrerror());
 	    free(pmDomainLabel);
 	    free(socketName);
 	    return -1;
@@ -1340,7 +1336,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	if (fd < 0) {
 	    fprintf(stderr,
 		     "pmcd: Error creating socket for \"%s\" agent : %s\n",
-		     aPtr->pmDomainLabel, strerror(errno));
+		     aPtr->pmDomainLabel, netstrerror());
 	    return -1;
 	}
 	hostInfo = gethostbyname("localhost");
@@ -1363,7 +1359,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	if (fd < 0) {
 	    fprintf(stderr,
 		     "pmcd: Error creating socket for \"%s\" agent : %s\n",
-		     aPtr->pmDomainLabel, strerror(errno));
+		     aPtr->pmDomainLabel, netstrerror());
 	    return -1;
 	}
 	memset(&addr, 0, sizeof(addr));
@@ -1379,7 +1375,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
     }
     if (sts < 0) {
 	fprintf(stderr, "pmcd: Error connecting to \"%s\" agent : %s\n",
-		     aPtr->pmDomainLabel, strerror(errno));
+		     aPtr->pmDomainLabel, netstrerror());
 	goto error;
     }
     aPtr->outFd = aPtr->inFd = fd;	/* Sockets are bi-directional */
@@ -1415,15 +1411,15 @@ CreateAgentPOSIX(AgentInfo *aPtr)
 	argv = aPtr->ipc.pipe.argv;
 	if (pipe1(inPipe) < 0) {
 	    fprintf(stderr,
-			 "pmcd: input pipe create failed for \"%s\" agent: %s\n",
-			 aPtr->pmDomainLabel, strerror(errno));
+		    "pmcd: input pipe create failed for \"%s\" agent: %s\n",
+		    aPtr->pmDomainLabel, osstrerror());
 	    return -1;
 	}
 
 	if (pipe1(outPipe) < 0) {
 	    fprintf(stderr,
-			 "pmcd: output pipe create failed for \"%s\" agent: %s\n",
-			 aPtr->pmDomainLabel, strerror(errno));
+		    "pmcd: output pipe create failed for \"%s\" agent: %s\n",
+		    aPtr->pmDomainLabel, osstrerror());
 	    close(inPipe[0]);
 	    close(inPipe[1]);
 	    return -1;
@@ -1432,7 +1428,6 @@ CreateAgentPOSIX(AgentInfo *aPtr)
 	    max_seen_fd = outPipe[1];
 	
 	PMCD_OPENFDS_SETHI(outPipe[1]);
-
     }
     else if (aPtr->ipcType == AGENT_SOCKET)
 	argv = aPtr->ipc.socket.argv;
@@ -1441,7 +1436,7 @@ CreateAgentPOSIX(AgentInfo *aPtr)
 	childPid = fork();
 	if (childPid == (pid_t)-1) {
 	    fprintf(stderr, "pmcd: creating child for \"%s\" agent: %s\n",
-			 aPtr->pmDomainLabel, strerror(errno));
+			 aPtr->pmDomainLabel, osstrerror());
 	    if (aPtr->ipcType == AGENT_PIPE) {
 		close(inPipe[0]);
 		close(inPipe[1]);
@@ -1492,7 +1487,7 @@ CreateAgentPOSIX(AgentInfo *aPtr)
 	    execvp(argv[0], argv);
 	    /* botch if reach here */
 	    fprintf(stderr, "pmcd: error starting %s: %s\n",
-			 argv[0], strerror(errno));
+			 argv[0], osstrerror());
 	    /* avoid atexit() processing, so _exit not exit */
 	    _exit(1);
 	}
@@ -1525,26 +1520,26 @@ CreateAgentWin32(AgentInfo *aPtr)
     // Create a pipe for the child process's STDOUT.
     if (!CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0)) {
 	fprintf(stderr, "pmcd: stdout CreatePipe failed, \"%s\" agent: %s\n",
-			aPtr->pmDomainLabel, strerror(errno));
+			aPtr->pmDomainLabel, osstrerror());
 	return -1;
     }
     // Ensure the read handle to the pipe for STDOUT is not inherited.
     if (!SetHandleInformation(hChildStdoutRd, HANDLE_FLAG_INHERIT, 0)) {
 	fprintf(stderr, "pmcd: stdout SetHandleInformation, \"%s\" agent: %s\n",
-			aPtr->pmDomainLabel, strerror(errno));
+			aPtr->pmDomainLabel, osstrerror());
 	return -1;
     }
 
     // Create a pipe for the child process's STDIN.
     if (!CreatePipe(&hChildStdinRd, &hChildStdinWr, &saAttr, 0)) {
 	fprintf(stderr, "pmcd: stdin CreatePipe failed, \"%s\" agent: %s\n",
-			aPtr->pmDomainLabel, strerror(errno));
+			aPtr->pmDomainLabel, osstrerror());
 	return -1;
     }
     // Ensure the write handle to the pipe for STDIN is not inherited.
     if (!SetHandleInformation(hChildStdinWr, HANDLE_FLAG_INHERIT, 0)) {
 	fprintf(stderr, "pmcd: stdin SetHandleInformation, \"%s\" agent: %s\n",
-			aPtr->pmDomainLabel, strerror(errno));
+			aPtr->pmDomainLabel, osstrerror());
 	return -1;
     }
 
@@ -1569,7 +1564,7 @@ CreateAgentWin32(AgentInfo *aPtr)
 			&piProcInfo);  // receives PROCESS_INFORMATION
     if (!bSuccess) {
 	fprintf(stderr, "pmcd: CreateProcess for \"%s\" agent: %s: %s\n",
-			aPtr->pmDomainLabel, command, strerror(errno));
+			aPtr->pmDomainLabel, command, osstrerror());
 	return -1;
     }
 
@@ -1750,7 +1745,7 @@ GetAgentDso(AgentInfo *aPtr)
 #if defined(HAVE_DLOPEN)
 	fprintf(stderr, "%s\n\n", dlerror());
 #else
-	fprintf(stderr, "%s\n\n", strerror(errno));
+	fprintf(stderr, "%s\n\n", osstrerror());
 #endif
 	return -1;
     }
@@ -1940,12 +1935,10 @@ ParseInitAgents(char *fileName)
     memset(&configFileTime, 0, sizeof(configFileTime));
     configFile = fopen(fileName, "r");
     if (configFile == NULL)
-	fprintf(stderr,
-		     "ParseInitAgents: %s: %s\n", fileName,
-		     strerror(errno));
+	fprintf(stderr, "ParseInitAgents: %s: %s\n", fileName, osstrerror());
     else if (stat(fileName, &statBuf) == -1)
 	fprintf(stderr, "ParseInitAgents: stat(%s): %s\n",
-		     fileName, strerror(errno));
+		     fileName, osstrerror());
     else {
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
 	configFileTime = statBuf.st_mtime;
@@ -2159,7 +2152,7 @@ ParseRestartAgents(char *fileName)
 	}
 	else if (sts < 0)
 	    fprintf(stderr, "pmcd: deceased agents select: %s\n",
-			 strerror(errno));
+			 netstrerror());
     }
 
     /* gather any deceased children */
@@ -2167,7 +2160,7 @@ ParseRestartAgents(char *fileName)
 
     if (stat(fileName, &statBuf) == -1) {
 	fprintf(stderr, "ParseRestartAgents: stat(%s): %s\n",
-		     fileName, strerror(errno));
+		     fileName, osstrerror());
 	fprintf(stderr, "Configuration left unchanged\n");
 	return;
     }

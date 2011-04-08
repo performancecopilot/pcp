@@ -23,7 +23,7 @@ CFILES		= pmda.c error.c open.c instance.c fetch.c helptext.c
 HFILES		= hypnotoad.h
 LCFLAGS		= -DWIN32_LEAN_AND_MEAN -D_WIN32_WINNT=0x0500 \
 		  -I$(WINDIR)/include
-LLDFLAGS	= -L$(WINDOR)/lib
+LLDFLAGS	= -L$(WINDIR)/lib
 LLDLIBS		= -lpcp -lpcp_pmda -lpcp_pdh
 PMNS		= pmns.disk pmns.kernel pmns.mem pmns.network \
 		  pmns.sqlserver pmns.filesys pmns.hinv pmns.pmda \
@@ -72,16 +72,7 @@ root_windows:	../../pmns/stdpmid $(PMNS)
 	cpp -I../../pmns -fno-show-column < root | sed -e '/^#/d' > root_windows
 
 domain.h: ../../pmns/stdpmid
-	rm -f domain.h
-	@echo "/*" >domain.h
-	@echo " * built from $<" >>domain.h
-	@echo " */" >>domain.h
-	@$(PCP_AWK_PROG) <$< '\
-$$1=="#define" && $$2 == "$(DOMAIN)" { print "#define $(DOMAIN) " $$3 >>"$@"; found++ }\
-END	{ if (found == 0) { print "Botch: no #define for domain $(DOMAIN) in $<";  exit(1) }\
-          if (found > 1) { print "Botch: multiple #defines for domain $(DOMAIN) in $<"; print "... see $@ for details"; exit(1) }\
-	  exit(0)\
-	}'
+	$(DOMAIN_MAKERULE)
 
 $(OBJECTS):	hypnotoad.h domain.h
 

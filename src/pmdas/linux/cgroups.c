@@ -146,11 +146,11 @@ read_values(char *buffer, int size, const char *path, const char *subsys,
 
     snprintf(buffer, size, "%s/%s.%s", path, subsys, metric);
     if ((fd = open(buffer, O_RDONLY)) < 0)
-	return -errno;
+	return -oserror();
     count = read(fd, buffer, size);
     close(fd);
     if (count < 0)
-	return -errno;
+	return -oserror();
     buffer[count-1] = '\0';
     return 0;
 }
@@ -167,7 +167,7 @@ process_prepare(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
 
     snprintf(taskpath, sizeof(taskpath), "%s/tasks", path);
     if ((fp = fopen(taskpath, "r")) == NULL)
-	return -errno;
+	return -oserror();
     while (fgets(process, sizeof(process), fp) != NULL)
 	pidlist_append(list, process);
     fclose(fp);
@@ -206,12 +206,12 @@ prepare_ull(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
     pmAtomValue *atoms = groups->metric_values[metric].atoms;
 
     if (read_values(p, sizeof(buffer), path, subsys->name, metrics->suffix) < 0)
-	return -errno;
+	return -oserror();
 
     while (p && *p) {
 	value = strtoull(p, &endp, 0);
 	if ((atoms = realloc(atoms, (count + 1) * sizeof(pmAtomValue))) == NULL)
-	    return -errno;
+	    return -oserror();
 	atoms[count++].ull = value;
 	if (endp == '\0' || endp == p)
 	    break;
@@ -250,7 +250,7 @@ prepare_named_ull(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
     filename[count] = '\0';
 
     if (read_values(p, sizeof(buffer), path, subsys->name, filename) < 0)
-	return -errno;
+	return -oserror();
 
     /* buffer contains <name <value> pairs */
     while (p && *p) {
@@ -274,7 +274,7 @@ prepare_named_ull(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
 	    if (strcmp(field, metrics->suffix + count + 1) != 0)
 		continue;
 	    if ((atoms = calloc(1, sizeof(pmAtomValue))) == NULL)
-		return -errno;
+		return -oserror();
 	    atoms[0].ull = value;
 
 	    groups->metric_values[i].item = i;
@@ -299,12 +299,12 @@ prepare_string(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
     char *p = &buffer[0];
 
     if (read_values(p, sizeof(buffer), path, subsys->name, metrics->suffix) < 0)
-	return -errno;
+	return -oserror();
 
     if ((atoms = malloc(sizeof(pmAtomValue))) == NULL)
-	return -errno;
+	return -oserror();
     if ((atoms[0].cp = strdup(buffer)) == NULL)
-	return -errno;
+	return -oserror();
     groups->metric_values[metric].item = metric;
     groups->metric_values[metric].atoms = atoms;
     groups->metric_values[metric].atom_count = 1;
@@ -340,11 +340,11 @@ namespace(__pmnsTree *pmns, cgroup_subsys_t *subsys,
     sts = (subsys->group_count + 1) * sizeof(cgroup_group_t);
     subsys->groups = (cgroup_group_t *)realloc(subsys->groups, sts);
     if (subsys->groups == NULL)
-	return -errno;
+	return -oserror();
     /* allocate space for all values up-front */
     sts = subsys->metric_count * sizeof(cgroup_values_t);
     if ((cvp = (cgroup_values_t *)calloc(1, sts)) == NULL)
-	return -errno;
+	return -oserror();
     id = subsys->group_count++;
     memset(&subsys->groups[id], 0, sizeof(cgroup_group_t));
     subsys->groups[id].id = id;
@@ -475,7 +475,7 @@ cgroup_scan(const char *mnt, const char *path, const char *options,
 	snprintf(cgrouppath, sizeof(cgrouppath), "%s/%s", mnt, path);
 
     if ((dirp = opendir(cgrouppath)) == NULL)
-	return -errno;
+	return -oserror();
 
     length = strlen(cgrouppath);
     cgroupname = &cgrouppath[length];

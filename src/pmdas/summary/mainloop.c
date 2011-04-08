@@ -80,7 +80,6 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
     if (configfd >= maxfd)
 	maxfd = configfd+1;
 
-
     for ( ;; ) {
 	FD_ZERO(&readFds);
 	FD_SET(infd, &readFds);

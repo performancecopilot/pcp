@@ -1,6 +1,5 @@
 /*
- * Copyright 1998, Silicon Graphics, Inc.
- * ALL RIGHTS RESERVED
+ * Copyright 1998, Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,22 +10,9 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * UNPUBLISHED -- Rights reserved under the copyright laws of the United
- * States.   Use of a copyright notice is precautionary only and does not
- * imply publication or disclosure.
  */
 
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
 #include <stdarg.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <signal.h>
 #include "pmapi.h"
 #include "impl.h"
 #ifdef HAVE_SYS_IOCTL_H
@@ -87,7 +73,7 @@ promptformore(void)
     if (first) {
 	if (ioctl(0, TCGETA, &otty) < 0) {
 	    fprintf(stderr, "%s: TCGETA ioctl failed: %s\n", pmProgname,
-		    strerror(errno));
+		    osstrerror());
 	    exit(1);
 	}
 	first = 0;
@@ -100,7 +86,7 @@ promptformore(void)
     ntty.c_lflag &= ~(ICANON | ECHO);
     if (ioctl(0, TCSETAW, &ntty) < 0) {
 	fprintf(stderr, "%s: TCSETAW ioctl failed: %s\n", pmProgname,
-		strerror(errno));
+		osstrerror());
 	exit(1);
     }
 #endif
@@ -143,7 +129,7 @@ reset_tty:
 #ifdef HAVE_TERMIO_H
     if (ioctl(0, TCSETAW, &otty) < 0) {
 	fprintf(stderr, "%s: reset TCSETAW ioctl failed: %s\n", pmProgname,
-		strerror(errno));
+		osstrerror());
 	exit(1);
     }
 #endif

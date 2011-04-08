@@ -12,12 +12,9 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
+#include <inttypes.h>
 #include "pmapi.h"
 #include "impl.h"
 
@@ -101,7 +98,6 @@ static pthread_mutex_t	_pmtracelock;
 #define TRACE_LOCK_INIT	pthread_mutex_init(&_pmtracelock, NULL)
 #define TRACE_LOCK	pthread_mutex_lock(&_pmtracelock)
 #define TRACE_UNLOCK	pthread_mutex_unlock(&_pmtracelock)
-#define TRACE_ERRNO	errno
 
 #elif defined(HAVE_ABI_MUTEX_H)
 /* use an SGI spinlock for mutex */
@@ -109,7 +105,6 @@ static abilock_t        _pmtracelock;
 #define TRACE_LOCK_INIT	init_lock(&_pmtracelock)
 #define TRACE_LOCK	spin_lock(&_pmtracelock)
 #define TRACE_UNLOCK	release_lock(&_pmtracelock)
-#define TRACE_ERRNO	oserror()
 
 #elif defined(IS_MINGW)
 /* use native Win32 primitives */
@@ -117,7 +112,6 @@ static HANDLE _pmtracelock;
 #define TRACE_LOCK_INIT (_pmtracelock = CreateMutex(NULL, FALSE, NULL), 0)
 #define TRACE_LOCK	WaitForSingleObject(_pmtracelock, INFINITE)
 #define TRACE_UNLOCK	ReleaseMutex(_pmtracelock)
-#define TRACE_ERRNO	GetLastError()
 
 #else
 #error !bozo!
@@ -168,12 +162,12 @@ pmtracebegin(const char *tag)
     if ((hptr = __pmhashlookup(&_pmtable, tag, &hash)) == NULL) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_API)
-	    fprintf(stderr, "pmtracebegin: new transaction '%s' (id=0x%llx)\n",
-		    tag, (unsigned long long)hash.id);
+	    fprintf(stderr, "pmtracebegin: new transaction '%s' "
+			    "(id=0x%" PRIx64 ")\n", tag, hash.id);
 #endif
 	hash.pad = 0;
 	if ((hash.tag = strdup(tag)) == NULL)
-	    b_sts = -TRACE_ERRNO;
+	    b_sts = -oserror();
 	__pmtimevalNow(&hash.start);
 	if (b_sts >= 0) {
 	    hash.inprogress = 1;
@@ -189,8 +183,8 @@ pmtracebegin(const char *tag)
     else {
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_API)
-	fprintf(stderr, "pmtracebegin: updating transaction '%s' (id=0x%llx)\n",
-		tag, (unsigned long long)hash.id);
+	fprintf(stderr, "pmtracebegin: updating transaction '%s' "
+			"(id=0x%" PRIx64 ")\n", tag, hash.id);
 #endif
 	__pmtimevalNow(&hptr->start);
 	hptr->inprogress = 1;
@@ -198,13 +192,12 @@ pmtracebegin(const char *tag)
 
     /* unlock hash table */
     if (TRACE_UNLOCK != 0)
-	b_sts = -TRACE_ERRNO;
+	b_sts = -oserror();
 
     if (a_sts < 0)
 	return a_sts;
     return b_sts;
 }
-
 
 int
 pmtraceend(const char *tag)
@@ -239,8 +232,8 @@ pmtraceend(const char *tag)
     else {
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_API)
-	fprintf(stderr, "pmtraceend: sending transaction data '%s' (id=0x%llx)\n",
-		tag, (unsigned long long)hash.id);
+	fprintf(stderr, "pmtraceend: sending transaction data '%s' "
+			"(id=0x%" PRIx64 ")\n", tag, hash.id);
 #endif
 	hptr->inprogress = 0;
 	hptr->data = __pmtracetvsub(&now, &hptr->start);
@@ -268,7 +261,7 @@ pmtraceend(const char *tag)
     }
 
     if (TRACE_UNLOCK != 0)
-	return -TRACE_ERRNO;
+	return -oserror();
 
     return sts;
 }
@@ -301,14 +294,14 @@ pmtraceabort(const char *tag)
     else {
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_API)
-	fprintf(stderr, "pmtraceabort: aborting transaction '%s' (id=0x%llx)\n",
-		tag, (unsigned long long)hash.id);
+	fprintf(stderr, "pmtraceabort: aborting transaction '%s' "
+			"(id=0x%" PRIx64 ")\n", tag, hash.id);
 #endif
 	hptr->inprogress = 0;
     }
 
     if (TRACE_UNLOCK != 0)
-	return -TRACE_ERRNO;
+	return -oserror();
 
     return sts;
 }
@@ -373,7 +366,7 @@ _pmtracecommon(const char *label, double value, int type)
     }
 
     if (TRACE_UNLOCK != 0)
-	return -TRACE_ERRNO;
+	return -oserror();
 
     return sts;
 }
@@ -643,7 +636,6 @@ static void _pmtraceinit(void)
     WSAStartup(wVersionRequested, &wsaData);
     _fmode = O_BINARY;
 }
-const char *hstrerror(int error) { return strerror(error); }
 #endif
 
 static int
@@ -657,13 +649,13 @@ _pmtraceconnect(int doit)
     else if (first) {	/* once-off, not to be done on reconnect */
 	_pmtraceinit();
 	if (TRACE_LOCK_INIT < 0)
-	    return -TRACE_ERRNO;
+	    return -oserror();
 	first = 0;
 	TRACE_LOCK;
 	sts = __pmhashinit(&_pmtable, 0, sizeof(_pmTraceLibdata),
 						_pmlibcmp, _pmlibdel);
     if (TRACE_UNLOCK != 0)
-	return -TRACE_ERRNO;
+	return -oserror();
     }
     else if (__pmtraceprotocol(TRACE_PROTOCOL_QUERY) == TRACE_PROTOCOL_ASYNC)
 	return PMTRACE_ERR_IPC;
@@ -737,7 +729,8 @@ _pmauxtraceconnect(void)
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
 	    fprintf(stderr, "_pmtraceconnect(gethostbyname(hostname=%s): "
-		    "h_errno=%d, ``%s''\n", hostname, h_errno, hstrerror(h_errno));
+		    "hosterror=%d, ``%s''\n", hostname, hosterror(),
+		    hoststrerror());
 #endif
 	return -EHOSTUNREACH;
     }
@@ -747,31 +740,31 @@ _pmauxtraceconnect(void)
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
 	    fprintf(stderr, "_pmtraceconnect(socket failed): %s\n",
-		    strerror(TRACE_ERRNO));
+		    netstrerror());
 #endif
-	return -TRACE_ERRNO;
+	return -neterror();
     }
 
     /* avoid 200 ms delay */
     if (setsockopt(__pmfd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
-					    (mysocklen_t)sizeof(nodelay)) < 0) {
+				    (mysocklen_t)sizeof(nodelay)) < 0) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
 	    fprintf(stderr, "_pmtraceconnect(setsockopt1 failed): %s\n",
-		    strerror(TRACE_ERRNO));
+		    netstrerror());
 #endif
-	return -TRACE_ERRNO;
+	return -neterror();
     }
 
     /* don't linger on close */
     if (setsockopt(__pmfd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
-					    (mysocklen_t)sizeof(nolinger)) < 0) {
+				    (mysocklen_t)sizeof(nolinger)) < 0) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
 	    fprintf(stderr, "_pmtraceconnect(setsockopt2 failed): %s\n",
-		    strerror(TRACE_ERRNO));
+		    netstrerror());
 #endif
-	return -TRACE_ERRNO;
+	return -neterror();
     }
 
     memset(&myaddr, 0, sizeof(myaddr));
@@ -797,7 +790,7 @@ _pmauxtraceconnect(void)
 #endif
 
     if ((rc = connect(__pmfd, (struct sockaddr*) &myaddr, sizeof(myaddr))) < 0)
-	return -TRACE_ERRNO;
+	return -neterror();
 
 #ifndef IS_MINGW
     /* re-arm interval timer */
@@ -839,7 +832,7 @@ _pmauxtraceconnect(void)
     else
 	sts = -1;
     if (sts == -1)
-	return -TRACE_ERRNO;
+	return -oserror();
 
     if (__pmtraceprotocol(TRACE_PROTOCOL_QUERY) == TRACE_PROTOCOL_ASYNC) {
 	/* in the asynchronoous protocol - ensure no delay after close */
@@ -848,7 +841,7 @@ _pmauxtraceconnect(void)
 	else
 	    sts = -1;
 	if (sts == -1)
-	    return -TRACE_ERRNO;
+	    return -oserror();
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
 	    fprintf(stderr, "_pmtraceconnect: async protocol setup complete\n");

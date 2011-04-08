@@ -13,17 +13,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <time.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmnsmap.h"
@@ -50,11 +41,11 @@ get_sample(void)
 
 	numpmid = sizeof(metrics) / sizeof(char *);
 	if ((pmidlist = (pmID *)malloc(numpmid * sizeof(pmidlist[0]))) == NULL) {
-	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmProgname, strerror(errno));
+	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmProgname, osstrerror());
 	    exit(1);
 	}
 	if ((desclist = (pmDesc *)malloc(numpmid * sizeof(desclist[0]))) == NULL) {
-	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmProgname, strerror(errno));
+	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmProgname, osstrerror());
 	    exit(1);
 	}
 	if ((sts = pmLookupName(numpmid, metrics, pmidlist)) < 0) {

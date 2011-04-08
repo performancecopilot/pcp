@@ -1,3 +1,17 @@
+/*
+ * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+ * 
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
+ */
+
 #include "pmapi.h"
 #include "impl.h"
 #include "import.h"
@@ -161,7 +175,6 @@ pmiStart(const char *archive, int inherit)
     context_tab = (pmi_context *)realloc(context_tab, ncontext*sizeof(context_tab[0]));
     if (context_tab == NULL) {
 	__pmNoMem("pmiStart: context_tab", ncontext*sizeof(context_tab[0]), PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     old_current = &context_tab[c];
     current = &context_tab[ncontext-1];
@@ -170,7 +183,6 @@ pmiStart(const char *archive, int inherit)
     current->archive = strdup(archive);
     if (current->archive == NULL) {
 	__pmNoMem("pmiStart", strlen(archive)+1, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     current->hostname = NULL;
     current->timezone = NULL;
@@ -183,7 +195,6 @@ pmiStart(const char *archive, int inherit)
 	    current->metric = (pmi_metric *)malloc(current->nmetric*sizeof(pmi_metric));
 	    if (current->metric == NULL) {
 		__pmNoMem("pmiStart: pmi_metric", current->nmetric*sizeof(pmi_metric), PM_FATAL_ERR);
-		/*NOTREACHED*/
 	    }
 	    for (m = 0; m < current->nmetric; m++) {
 		current->metric[m].name = old_current->metric[m].name;
@@ -200,7 +211,6 @@ pmiStart(const char *archive, int inherit)
 	    current->indom = (pmi_indom *)malloc(current->nindom*sizeof(pmi_indom));
 	    if (current->indom == NULL) {
 		__pmNoMem("pmiStart: pmi_indom", current->nindom*sizeof(pmi_indom), PM_FATAL_ERR);
-		/*NOTREACHED*/
 	    }
 	    for (i = 0; i < current->nindom; i++) {
 		int		j;
@@ -211,18 +221,15 @@ pmiStart(const char *archive, int inherit)
 		    current->indom[i].name = (char **)malloc(current->indom[i].ninstance*sizeof(char *));
 		    if (current->indom[i].name == NULL) {
 			__pmNoMem("pmiStart: name", current->indom[i].ninstance*sizeof(char *), PM_FATAL_ERR);
-			/*NOTREACHED*/
 		    }
 		    current->indom[i].inst = (int *)malloc(current->indom[i].ninstance*sizeof(int));
 		    if (current->indom[i].inst == NULL) {
 			__pmNoMem("pmiStart: inst", current->indom[i].ninstance*sizeof(int), PM_FATAL_ERR);
-			/*NOTREACHED*/
 		    }
 		    current->indom[i].namebuflen = old_current->indom[i].namebuflen;
 		    current->indom[i].namebuf = (char *)malloc(old_current->indom[i].namebuflen);
 		    if (current->indom[i].namebuf == NULL) {
 			__pmNoMem("pmiStart: namebuf", old_current->indom[i].namebuflen, PM_FATAL_ERR);
-			/*NOTREACHED*/
 		    }
 		    np = current->indom[i].namebuf;
 		    for (j = 0; j < current->indom[i].ninstance; j++) {
@@ -248,7 +255,6 @@ pmiStart(const char *archive, int inherit)
 	    current->handle = (pmi_handle *)malloc(current->nhandle*sizeof(pmi_handle));
 	    if (current->handle == NULL) {
 		__pmNoMem("pmiStart: pmi_handle", current->nhandle*sizeof(pmi_handle), PM_FATAL_ERR);
-		/*NOTREACHED*/
 	    }
 	    for (h = 0; h < current->nhandle; h++) {
 		current->handle[h].midx = old_current->handle[h].midx;
@@ -297,7 +303,6 @@ pmiSetHostname(const char *value)
     current->hostname = strdup(value);
     if (current->hostname == NULL) {
 	__pmNoMem("pmiSetHostname", strlen(value)+1, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     return current->last_sts = 0;
 }
@@ -310,7 +315,6 @@ pmiSetTimezone(const char *value)
     current->timezone = strdup(value);
     if (current->timezone == NULL) {
 	__pmNoMem("pmiSetTimezone", strlen(value)+1, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     return current->last_sts = 0;
 }
@@ -326,18 +330,18 @@ pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUn
 
     for (m = 0; m < current->nmetric; m++) {
 	if (strcmp(name, current->metric[m].name) == 0) {
-	    // duplicate metric name is not good
+	    /* duplicate metric name is not good */
 	    return current->last_sts = PMI_ERR_DUPMETRICNAME;
 	}
 	if (pmid == current->metric[m].pmid) {
-	    // duplicate metric pmID is not good
+	    /* duplicate metric pmID is not good */
 	    return current->last_sts = PMI_ERR_DUPMETRICID;
 	}
     }
 
-    // basic sanity check of metadata ... we do not check later so this
-    // needs to be robust
-    //
+    /* basic sanity check of metadata ... we do not check later so this
+     * needs to be robust
+     */
     switch (type) {
 	case PM_TYPE_32:
 	case PM_TYPE_U32:
@@ -363,13 +367,11 @@ pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUn
     current->metric = (pmi_metric *)realloc(current->metric, current->nmetric*sizeof(pmi_metric));
     if (current->metric == NULL) {
 	__pmNoMem("pmiAddMetric: pmi_metric", current->nmetric*sizeof(pmi_metric), PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     mp = &current->metric[current->nmetric-1];
     mp->name = strdup(name);
     if (mp->name == NULL) {
 	__pmNoMem("pmiAddMetric: name", strlen(name)+1, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     if (pmid == PM_ID_NULL)
 	mp->pmid = pmid_build(PMI_DOMAIN, 0, current->nmetric);
@@ -403,12 +405,11 @@ pmiAddInstance(pmInDom indom, const char *instance, int inst)
 	    break;
     }
     if (i == current->nindom) {
-	// extend indom table
+	/* extend indom table */
 	current->nindom++;
 	current->indom = (pmi_indom *)realloc(current->indom, current->nindom*sizeof(pmi_indom));
 	if (current->indom == NULL) {
 	    __pmNoMem("pmiAddInstance: pmi_indom", current->nindom*sizeof(pmi_indom), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	current->indom[i].indom = indom;
 	current->indom[i].ninstance = 0;
@@ -418,9 +419,11 @@ pmiAddInstance(pmInDom indom, const char *instance, int inst)
 	current->indom[i].namebuf = NULL;
     }
     idp = &current->indom[i];
-    // duplicate external instance identifier would be bad, but need
-    // to honour unique to first space rule ...
-    // duplicate instance internal identifier is also not allowed
+    /*
+     * duplicate external instance identifier would be bad, but need
+     * to honour unique to first space rule ...
+     * duplicate instance internal identifier is also not allowed
+     */
     for (p = instance; *p && *p != ' '; p++)
 	;
     ilen = p - instance;
@@ -432,28 +435,25 @@ pmiAddInstance(pmInDom indom, const char *instance, int inst)
 	    return current->last_sts = PMI_ERR_DUPINSTID;
 	}
     }
-    idp->meta_done = 0;	// add instance marks whole indom as needing to be written
+    /* add instance marks whole indom as needing to be written */
+    idp->meta_done = 0;
     idp->ninstance++;
     idp->name = (char **)realloc(idp->name, idp->ninstance*sizeof(char *));
     if (idp->name == NULL) {
 	__pmNoMem("pmiAddInstance: name", idp->ninstance*sizeof(char *), PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     idp->inst = (int *)realloc(idp->inst, idp->ninstance*sizeof(int));
     if (idp->inst == NULL) {
 	__pmNoMem("pmiAddInstance: inst", idp->ninstance*sizeof(int), PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     idp->namebuf = (char *)realloc(idp->namebuf, idp->namebuflen+strlen(instance)+1);
     if (idp->namebuf == NULL) {
 	__pmNoMem("pmiAddInstance: namebuf", idp->namebuflen+strlen(instance)+1, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     strcpy(&idp->namebuf[idp->namebuflen], instance);
     idp->namebuflen += strlen(instance)+1;
     idp->inst[idp->ninstance-1] = inst;
-    // in case namebuf moves, need to redo name[] pointers
-    //
+    /* in case namebuf moves, need to redo name[] pointers */
     np = idp->namebuf;
     for (j = 0; j < current->indom[i].ninstance; j++) {
 	idp->name[j] = np;
@@ -474,7 +474,7 @@ make_handle(const char *name, const char *instance, pmi_handle *hp)
     pmi_indom	*idp;
 
     if (instance != NULL && instance[0] == '\0')
-	// map "" to NULL to help Perl callers
+	/* map "" to NULL to help Perl callers */
 	instance = NULL;
 
     for (m = 0; m < current->nmetric; m++) {
@@ -487,14 +487,14 @@ make_handle(const char *name, const char *instance, pmi_handle *hp)
 
     if (current->metric[hp->midx].desc.indom == PM_INDOM_NULL) {
 	if (instance != NULL) {
-	    // expect "instance" to be NULL
+	    /* expect "instance" to be NULL */
 	    return current->last_sts = PMI_ERR_INSTNOTNULL;
 	}
 	hp->inst = PM_IN_NULL;
     }
     else {
 	if (instance == NULL)
-	    // don't expect "instance" to be NULL
+	    /* don't expect "instance" to be NULL */
 	    return current->last_sts = PMI_ERR_INSTNULL;
 	for (i = 0; i < current->nindom; i++) {
 	    if (current->metric[hp->midx].desc.indom == current->indom[i].indom)
@@ -504,7 +504,8 @@ make_handle(const char *name, const char *instance, pmi_handle *hp)
 	    return current->last_sts = PM_ERR_INDOM;
 	idp = &current->indom[i];
 
-	// match to first space rule
+	/* match to first space rule */
+
 	for (p = instance; *p && *p != ' '; p++)
 	    ;
 	ilen = p - instance;
@@ -554,7 +555,6 @@ pmiGetHandle(const char *name, const char *instance)
     current->handle = (pmi_handle *)realloc(current->handle, current->nhandle*sizeof(pmi_handle));
     if (current->handle == NULL) {
 	__pmNoMem("pmiGetHandle: pmi_handle", current->nhandle*sizeof(pmi_handle), PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     hp = &current->handle[current->nhandle-1];
     hp->midx = tmp.midx;

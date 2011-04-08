@@ -42,7 +42,7 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
     int j;
 
     if ((fd = open("/proc/stat", O_RDONLY)) < 0)
-	return -errno;
+	return -oserror();
 
     for (n=0;;) {
 	if (n >= maxstatbuf) {

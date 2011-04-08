@@ -60,11 +60,7 @@ $(IAM)$(EXECSUFFIX):	$(OBJECTS)
 comms.o trace.o pmda.o:	domain.h
 
 domain.h:	../../../pmns/stdpmid
-	rm -f $@
-	echo "/*" >$@
-	echo " * built from $<" >>$@
-	echo " */" >>$@
-	$(PCP_AWK_PROG) <$< >>$@ '$$1=="#define" && $$2=="$(DOMAIN)" { print "#define $(DOMAIN) " $$3 }'
+	$(DOMAIN_MAKERULE)
 
 default_pcp:	default
 

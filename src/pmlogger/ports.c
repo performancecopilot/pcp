@@ -10,11 +10,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
+
 #define _WIN32_WINNT	0x0500	/* for CreateHardLink */
 #include <math.h>
 #include <ctype.h>
@@ -189,7 +186,7 @@ GetPort(char *file)
 
     fd = __pmCreateSocket();
     if (fd < 0) {
-	perror("socket");
+	fprintf(stderr, "GetPort: socket failed: %s\n", netstrerror());
 	exit(1);
     }
 
@@ -224,8 +221,8 @@ GetPort(char *file)
 	myAddr.sin_port = htons(ctlport);
 	sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
 	if (sts < 0) {
-	    if (errno != EADDRINUSE) {
-		fprintf(stderr, "bind(%d): %s\n", ctlport, strerror(errno));
+	    if (neterror() != EADDRINUSE) {
+		fprintf(stderr, "bind(%d): %s\n", ctlport, netstrerror());
 		exit(1);
 	    }
 	}
@@ -234,7 +231,7 @@ GetPort(char *file)
     }
     sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	perror("listen");
+	fprintf(stderr, "listen: %s\n", netstrerror());
 	exit(1);
     }
 
@@ -244,7 +241,7 @@ GetPort(char *file)
 		 S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (mapfd == -1) {
 	fprintf(stderr, "%s: error creating port map file %s: %s.  Exiting.\n",
-		pmProgname, file, strerror(errno));
+		pmProgname, file, osstrerror());
 	exit(1);
     }
     /* write the port number to the port map file */
@@ -265,6 +262,7 @@ GetPort(char *file)
 	fprintf(mapstream, "%s\n", archBase);
     else {
 	char		path[MAXPATHLEN];
+
 	if (getcwd(path, MAXPATHLEN) == NULL)
 	    fprintf(mapstream, "\n");
 	else
@@ -340,9 +338,9 @@ init_ports(void)
 
     /* try to create the port file directory. OK if it already exists */
     sts = mkdir2(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO);
-    if (sts < 0 && errno != EEXIST) {
+    if (sts < 0 && oserror() != EEXIST) {
 	fprintf(stderr, "%s: error creating port file dir %s: %s\n",
-		pmProgname, ctlfile, strerror(errno));
+		pmProgname, ctlfile, osstrerror());
 	exit(1);
     }
     chmod(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
@@ -350,9 +348,9 @@ init_ports(void)
     /* remove any existing port file with my name (it's old) */
     snprintf(ctlfile + (baselen-1), n, "%c%d", sep, (int)mypid);
     sts = unlink(ctlfile);
-    if (sts == -1 && errno != ENOENT) {
+    if (sts == -1 && oserror() != ENOENT) {
 	fprintf(stderr, "%s: error removing %s: %s.  Exiting.\n",
-		pmProgname, ctlfile, strerror(errno));
+		pmProgname, ctlfile, osstrerror());
 	exit(1);
     }
 
@@ -377,11 +375,11 @@ init_ports(void)
 	sts = (CreateHardLink(linkfile, ctlfile, NULL) == 0);
 #endif
 	if (sts != 0) {
-	    if (errno == EEXIST)
+	    if (oserror() == EEXIST)
 		fprintf(stderr, "%s: there is already a primary pmlogger running\n", pmProgname);
 	    else
 		fprintf(stderr, "%s: error creating primary logger link %s: %s\n",
-			pmProgname, linkfile, strerror(errno));
+			pmProgname, linkfile, osstrerror());
 	    exit(1);
 	}
     }
@@ -407,7 +405,7 @@ control_req(void)
     addrlen = sizeof(addr);
     fd = accept(ctlfd, (struct sockaddr *)&addr, &addrlen);
     if (fd == -1) {
-	perror("error accepting client");
+	fprintf(stderr, "error accepting client: %s\n", netstrerror());
 	return 0;
     }
     __pmSetSocketIPC(fd);
