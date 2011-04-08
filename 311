@@ -46,7 +46,8 @@ NF == 0		{ next }
 _filter()
 {
     sed \
-	-e '/^\[[0-9]* bytes]/d'
+	-e '/^\[[0-9]* bytes]/d' \
+	-e 's/): inst/):  inst/'
 }
 
 # deal with an annoying libc error ... using TZ=:Australia/Melbourne
