@@ -475,6 +475,7 @@ typedef void (*SIG_PF) (int);
 #define EPROTO		WSAEPROTONOSUPPORT
 #define EMSGSIZE	WSAEMSGSIZE
 #define ENODATA		WSANO_DATA
+extern char *wsastrerror(int);
 
 #define HAVE_PIPE1
 #define HAVE_MKDIR2
@@ -530,8 +531,8 @@ enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
 #define EXTERN __declspec(dllimport)
 #endif
 
-#define setoserror(n)	SetLastError(n)
-#define oserror()	GetLastError()
+#define setoserror(n)	(errno = (n))	/* not SetLastError() */
+#define oserror()	errno		/* not GetLastError() */
 #define neterror()	WSAGetLastError()
 #define hosterror()	WSAGetLastError()
 #define osstrerror()	strerror(GetLastError())

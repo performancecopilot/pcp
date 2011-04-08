@@ -643,7 +643,8 @@ mmv_reload_maybe(pmdaExt *pmda)
 	pmda->e_nmetrics = mcnt;
 	pmda->e_direct = 0;
 
-	__pmNotifyErr(LOG_INFO, 
+	if (pmDebug & DBG_TRACE_APPL0)
+	    __pmNotifyErr(LOG_DEBUG, 
 		      "MMV: %s: %d metrics and %d indoms after reload", 
 		      pmProgname, mcnt, incnt);
     }

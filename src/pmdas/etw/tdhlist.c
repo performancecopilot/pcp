@@ -19,6 +19,7 @@
 #include <wmistr.h>
 #include <stdio.h>
 #include <tdh.h>
+#include "util.h"
 
 void *
 BufferAllocate(ULONG size)
@@ -87,8 +88,8 @@ EnumerateProviderFieldInformation(LPGUID guidPointer, EVENT_FIELD_TYPE eventFiel
 	    break;
 	}
 	else {
-	    printf("TdhEnumerateProviderFieldInformation failed: code=%lu\n",
-			sts);
+	    fprintf(stderr, "TdhEnumerateProviderFieldInformation: %s (%lu)\n",
+			tdherror(sts), sts);
 	    break;
 	}
     } while (1);
@@ -108,12 +109,7 @@ PrintTraceProviderInfo(PBYTE buffer, PTRACE_PROVIDER_INFO traceProviderInfo)
 	printf("Name: %ls\n", stringBuffer);
     }
 
-    printf("Guid: {%08lx-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}\n",
-	       guidPointer->Data1, guidPointer->Data2, guidPointer->Data3,
-	       guidPointer->Data4[0], guidPointer->Data4[1],
-	       guidPointer->Data4[2], guidPointer->Data4[3],
-	       guidPointer->Data4[4], guidPointer->Data4[5],
-	       guidPointer->Data4[6], guidPointer->Data4[7]);
+    printf("Guid: %s\n", strguid(guidPointer));
 
     /* SchemaSource: MOF/XML */
     /* printf("SchemaSource: %lu\n", traceProviderInfo->SchemaSource); */
@@ -159,7 +155,8 @@ EnumerateProviders(void)
 	    break;
 	}
 	else {
-	    printf("TdhEnumerateProviders failed: error=%lu\n", sts);
+	    fprintf(stderr, "TdhEnumerateProviders failed: %s (=%lu)\n",
+		    tdherror(sts), sts);
 	    break;
 	}
     } while (1);
@@ -176,6 +173,6 @@ main(int argc, char *argv[])
 {
     ULONG sts = EnumerateProviders();
     if (sts != ERROR_SUCCESS)
-	printf("Error enumerating providers: error=%lu\n", sts);
+	fprintf(stderr, "EnumerateProviders: %s (%lu)\n", tdherror(sts), sts);
     return sts;
 }
