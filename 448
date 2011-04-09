@@ -12,6 +12,13 @@
 
 seq=`basename $0`
 
+if [ $PCP_VER -lt 4000 ]
+then
+    _notrun Fix for __pmConfig is in PCP 4.0
+else
+    rm -f $seq.notrun
+fi
+
 echo "QA output created by $seq"
 
 status=0	# success is the default!
