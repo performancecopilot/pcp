@@ -1,8 +1,24 @@
-pcp-git (under development)
-    - Rearrange the per-CPU interrupt metrics on Linux to use dynamic
-      namespace.
-    - Update PDH Win32 headers to use those from current mingw-m64 tree.
+pcp-3.5.1 (under development)
+    - Rearrange the per-CPU intr metrics on Linux to use dynamic namespace
+    - Update PDH Win32 headers to use those from current mingw-m64 tree
     - Add perl modules into Mac OS X installations.
+    - Fix pmieconf after syscall metrics went away on Linux
+    - pmevent - new util to report event records, with instance domain support
+    - sample PMDA - instance domain for event records metric
+    - pmval, pminfo - man page typo corrections
+    - pmval - fix typo in error message
+    - pmlogextract, pmlogreduce - auto volume switch at 2^31 bytes
+    - pmnscomp - defaults to Version 2 of the compiled PMNS
+    - Remove unconditional diagnostic in MMV agent, log spam
+    - Windows etw pmda - allow multiple tracers operating at once
+    - Rework the code that uncompresses archives for Win32
+    - Improve robustness of Win32 trace consumer exercising tool
+    - Updates to Win32 makefiles to get a clean package build
+    - Enable compressed log processing for Windows as well
+    - Sample consumer code for Windows ETW
+    - Win32 socket error messages are reporting correctly
+    - Use errno directly on Windows, for oserror implementation
+    - 
 
 pcp-3.5.0 (31 January 2011)
     - Infrastucture support for doing distributed event tracing with PCP.
