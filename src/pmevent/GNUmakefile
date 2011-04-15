@@ -1,3 +1,4 @@
+#!gmake
 #
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -16,33 +17,24 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
 
-TOPDIR = ..
+TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
--include ./GNUlocaldefs
 
-SUBDIRS = include \
-	  libpcp libpcp_pmda libpcp_trace libpcp_http libpcp_pmcd libpcp_gui \
-	  libpcp_mmv \
-	  pmconfig pmns newhelp pminfo pmnscomp \
-	  libpcp_import \
-	  pmcd pmerr pmdbg \
-	  pmcdctl pmlogctl win32ctl \
-	  pmdate pmie pmieconf pmpost pmprobe pmlock pmval pmlogger \
-	  pmdumplog pmlogextract pmstore pmhostname pmgenmap \
-	  pmlogconf pmloglabel pmlogsummary pmclient pcp pmlc dbpmda \
-	  pmtrace pmstat pmsocks pmdas pmafm procmemstat pmimport \
-	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
-	  autofsd-probe telnet-probe cpan bashrc pmiestatus \
-	  pmevent
+CFILES = pmevent.c doargs.c
+HFILES = pmevent.h
+LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
+LLDLIBS = -lpcp_gui -lpcp -lm
 
-default :: default_pcp
+CMDTARGET = pmevent$(EXECSUFFIX)
 
-default_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-
-install :: default_pcp install_pcp
-
-install_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+default:	$(CMDTARGET)
 
 include $(BUILDRULES)
+
+install:	$(CMDTARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
+
+default_pcp:	default
+
+install_pcp:	install
+

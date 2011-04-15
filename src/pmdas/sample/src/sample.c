@@ -296,8 +296,6 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,124), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /* percontext.control.end */
     { PMDA_PMID(0,125), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* event.records */
-    { PMDA_PMID(PM_CLUSTER_EVENT,0), PM_TYPE_EVENT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* event.reset */
     { PMDA_PMID(0,126), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* event.type */
@@ -318,6 +316,10 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,134), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* event.param_aggregate */
     { PMDA_PMID(0,135), PM_TYPE_AGGREGATE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.records */
+    { PMDA_PMID(0,136), PM_TYPE_EVENT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.no_indom_records */
+    { PMDA_PMID(0,137), PM_TYPE_EVENT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /*
  * dynamic PMNS ones
@@ -491,7 +493,11 @@ static instid_t _hordes[] = {
     {495, "495" }, {496, "496" }, {497, "497" }, {498, "498" }, {499, "499" }
 };
 
-/* all domains supported in this PMD - one entry each */
+static instid_t	_events[] = {
+    { 0, "fungus" }, { 1, "bogus" }
+};
+
+/* all domains supported in this PMDA - one entry each */
 static indom_t	indomtab[] = {
 #define COLOUR_INDOM	0
     { 0, 3, _colour },
@@ -511,6 +517,8 @@ static indom_t	indomtab[] = {
     { 0, 5, NULL },
 #define SCRAMBLE_INDOM	8
     { 0, 9, _scramble },
+#define EVENT_INDOM	9
+    { 0, 2, _events },
 
     { PM_INDOM_NULL, 0, 0 }
 };
@@ -1057,7 +1065,11 @@ init_tables(int dom)
     b_indom.serial++;
     indomp = (__pmInDom_int *)&indomtab[SCRAMBLE_INDOM].it_indom;
     *indomp = b_indom;
+    b_indom.serial++;
+    indomp = (__pmInDom_int *)&indomtab[EVENT_INDOM].it_indom;
+    *indomp = b_indom;
 
+    /* rewrite indom in desctab[] */
     for (dp = desctab; dp->pmid != PM_ID_NULL; dp++) {
 	switch (dp->pmid) {
 	    case PMDA_PMID(0,5):	/* colour */
@@ -1108,6 +1120,9 @@ init_tables(int dom)
 		break;
 	    case PMDA_PMID(0,121):	/* scramble.bin */
 		dp->indom = indomtab[SCRAMBLE_INDOM].it_indom;
+		break;
+	    case PMDA_PMID(0,136):		/* event.records */
+		dp->indom = indomtab[EVENT_INDOM].it_indom;
 		break;
 	}
     }
@@ -2271,6 +2286,12 @@ doit:
 		    case 126:	/* event.reset */
 			atom.l = event_get_fetch_count();
 			break;
+		    case 136:	/* event.records */
+		    case 137:	/* event.no_indom_records */
+			sts = sample_fetch_events(&atom.vbp, inst);
+			if (sts < 0)
+			    return sts;
+			break;
 		    case 1000:	/* secret.bar */
 			atom.cp = "foo";
 			break;
@@ -2299,12 +2320,6 @@ doit:
 			atom.l = 4194303;
 			break;
 		}
-	    }
-	    else if (pmidp->cluster == PM_CLUSTER_EVENT) {
-		/* only one sort of event record metric */
-		sts = sample_fetch_events(&atom.vbp);
-		if (sts < 0)
-		    return sts;
 	    }
 	    if ((sts = __pmStuffValue(&atom, &vset->vlist[j], type)) < 0) {
 		__pmFreeResultValues(res);

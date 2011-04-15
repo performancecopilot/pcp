@@ -20,7 +20,7 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-void pmUnpackEventRecords(pmValueSet *\fIvsp\fP, pmResult ***\fIrap\fP);
+void pmUnpackEventRecords(pmValueSet *\fIvsp\fP, int \fIidx\fP, pmResult ***\fIrap\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -37,7 +37,14 @@ using a container metric with a value of type
 .B pmUnpackEventRecords
 may be used to unpack event records from a metric value
 identified by
-.IR vsp .
+.I vsp
+and
+.IR idx .
+If the metric has a singular value,
+.I idx
+should be 0, else the ordinal instance value identified by
+.I idx
+will be unpacked, i.e. vsp->vlist[idx].
 The unpacked records are turned into
 .I pmResult
 structures, one per event record and one metic per event parameter, and

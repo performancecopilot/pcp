@@ -78,9 +78,8 @@ from the file
 By default,
 .B pmnscomp
 writes a version
-.B 0
-compiled namespace, which is compatible with 
-versions of PCP before PCP2.0.
+.B 2
+compiled namespace.
 If
 .I version
 is
@@ -89,11 +88,14 @@ then
 .B pmnscomp
 will write a version
 .B 1
-namespace which is compatible with PCP2.0 or later.
+namespace which is similar to version
+.BR 2 ,
+without the extra integrity afforded by checksums.
 Note that PCP version 2.0 or later can handle both versions
-but PCP versions prior to PCP 2.0 can only handle version
-.B 0
-compiled namespaces.
+.B 1
+and
+.B 2
+of the binary PMNS format.
 .PP
 The default input PMNS is found in the file
 .I $PCP_VAR_DIR/pmns/root

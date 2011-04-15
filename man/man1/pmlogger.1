@@ -200,7 +200,7 @@ is an integer then
 records will be written to the log.
 If 
 .IR endsize
-is suffixed by  
+is an integer suffixed by  
 .B b 
 or
 .B bytes
@@ -212,24 +212,32 @@ so this limit may be slightly surpassed).
 Other viable file size units include:
 .BR K ,
 .BR Kb ,
+.BR Kbyte ,
 .BR Kilobyte
 for kilobytes and
 .BR M ,
 .BR Mb ,
+.BR Mbyte ,
 .BR Megabyte
-for megabytes.
+for megabytes and
+.BR G ,
+.BR Gb ,
+.BR Gbyte ,
+.BR Gigabyte
+for gigabytes.
 These units may be optionally suffixed by an 
 .B s 
 and may be of mixed case.
 Alternatively
 .IR endsize
-may be suffixed using a time unit
+may be an integer or a floating point number suffixed using a time unit
 as described in
 .BR PCPIntro (1) 
 for the
 .I interval
-argument (to the standard PCP tool option
-.BR \-t ).
+argument (to the standard PCP
+.BR \-t
+command line option).
 .nf
 Some examples of different formats:
 .in 1i
@@ -237,8 +245,9 @@ Some examples of different formats:
 .B \-s 100bytes
 .B \-s 100K 
 .B \-s 100Mb
+.B \-s 10Gbyte
 .B \-s 10mins
-.B \-s 10hours
+.B \-s 1.5hours
 .in
 .fi
 The default is for
@@ -278,6 +287,14 @@ switch is in operation due to the
 .B \-v
 option, then its counters will be reset after an 
 asynchronous switch.  
+.PP
+Independent of any
+.B \-v
+option, each volume of an archive is limited to no more than
+2^31 bytes, so
+.I pmlogger
+will automatically create a new volume for the archive before
+this limit is reached.
 .PP
 Normally
 .B pmlogger

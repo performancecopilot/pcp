@@ -42,7 +42,7 @@ static int	zflag;		/* for -z */
 static char 	*tz;		/* for -Z timezone */
 static struct timeval 	start;	/* start of time window */
 
-static void myeventdump(pmValueSet *vsp);
+static void myeventdump(pmValueSet *, int);
 
 /*
  * stolen from pmprobe.c ... cache all of the most recently requested
@@ -119,12 +119,12 @@ mydump(pmDesc *dp, pmValueSet *vsp, char *indent)
 	pmPrintValue(stdout, vsp->valfmt, dp->type, vp, 1);
 	putchar('\n');
 	if (dp->type == PM_TYPE_EVENT && xflag)
-	    myeventdump(vsp);
+	    myeventdump(vsp, j);
     }
 }
 
 static void
-myeventdump(pmValueSet *vsp)
+myeventdump(pmValueSet *vsp, int inst)
 {
     int		r;		/* event records */
     int		p;		/* event parameters */
@@ -134,7 +134,7 @@ myeventdump(pmValueSet *vsp)
     static pmID	pmid_flags;
     static pmID	pmid_missed;
 
-    nrecords = pmUnpackEventRecords(vsp, &res);
+    nrecords = pmUnpackEventRecords(vsp, inst, &res);
     if (nrecords < 0) {
 	fprintf(stderr, "pmUnpackEventRecords: %s\n", pmErrStr(nrecords));
 	return;
