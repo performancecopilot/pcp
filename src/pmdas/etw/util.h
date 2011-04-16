@@ -16,6 +16,12 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+extern void dumpKernelTraceFlags(FILE *);
+extern ULONG kernelTraceFlag(const char *);
+
+extern const char *eventHeaderFlags(USHORT);
+extern const char *eventPropertyFlags(USHORT);
+
 extern const char *strguid(LPGUID);
 extern const char *tdherror(ULONG);
 

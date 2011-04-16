@@ -22,10 +22,11 @@
 /*
  * Dump a packed array of event records ... need to be paranoid
  * with checking here, because typically called after
- * __pmCheckEventRecords() finds an error
+ * __pmCheckEventRecords() finds an error.
+ * Process the idx'th instance.
  */
 void
-__pmDumpEventRecords(FILE *f, pmValueSet *vsp)
+__pmDumpEventRecords(FILE *f, pmValueSet *vsp, int idx)
 {
     pmEventArray	*eap;
     char		*base;
@@ -43,12 +44,14 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp)
 	fprintf(f, "\nError: bad numval\n");
 	return;
     }
-    fprintf(f, " valfmt: %d inst: %d", vsp->valfmt, vsp->vlist[0].inst);
+    fprintf(f, " valfmt: %d", vsp->valfmt);
     if (vsp->valfmt != PM_VAL_DPTR && vsp->valfmt != PM_VAL_SPTR) {
 	fprintf(f, "\nError: bad valfmt\n");
 	return;
     }
-    eap = (pmEventArray *)vsp->vlist[0].value.pval;
+    if (vsp->vlist[idx].inst != PM_IN_NULL)
+	fprintf(f, " inst: %d", vsp->vlist[idx].inst);
+    eap = (pmEventArray *)vsp->vlist[idx].value.pval;
     fprintf(f, " vtype: %s vlen: %d\n", pmTypeStr(eap->ea_type), eap->ea_len);
     if (eap->ea_type != PM_TYPE_EVENT) {
 	fprintf(f, "Error: bad vtype\n");
@@ -146,14 +149,16 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp)
 	    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);
 	}
     }
+
     return;
 }
 
 /*
- * Integrity checker for a packed array of event records
+ * Integrity checker for a packed array of event records, check
+ * the idx'th instance.
  */
 int
-__pmCheckEventRecords(pmValueSet *vsp)
+__pmCheckEventRecords(pmValueSet *vsp, int idx)
 {
     pmEventArray	*eap;
     char		*base;
@@ -166,11 +171,9 @@ __pmCheckEventRecords(pmValueSet *vsp)
 
     if (vsp->numval < 1)
 	return vsp->numval;
-    if (vsp->numval > 1)
-	return PM_ERR_TOOBIG;
     if (vsp->valfmt != PM_VAL_DPTR && vsp->valfmt != PM_VAL_SPTR)
 	return PM_ERR_CONV;
-    eap = (pmEventArray *)vsp->vlist[0].value.pval;
+    eap = (pmEventArray *)vsp->vlist[idx].value.pval;
     if (eap->ea_type != PM_TYPE_EVENT)
 	return PM_ERR_TYPE;
     if (eap->ea_len < PM_VAL_HDR_SIZE + sizeof(eap->ea_nrecords))
@@ -210,8 +213,12 @@ __pmCheckEventRecords(pmValueSet *vsp)
     return 0;
 }
 
+/*
+ * Process the idx'th instance of an event record metric value
+ * and unpack the array of event records into a pmResult.
+ */
 int
-pmUnpackEventRecords(pmValueSet *vsp, pmResult ***rap)
+pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 {
     pmEventArray	*eap;
     pmEventRecord	*erp;
@@ -244,13 +251,13 @@ pmUnpackEventRecords(pmValueSet *vsp, pmResult ***rap)
 	first = 0;
     }
 
-    sts = __pmCheckEventRecords(vsp);
+    sts = __pmCheckEventRecords(vsp, idx);
     if (sts < 0) {
-	__pmDumpEventRecords(stderr, vsp);
+	__pmDumpEventRecords(stderr, vsp, idx);
 	return sts;
     }
 
-    eap = (pmEventArray *)vsp->vlist[0].value.pval;
+    eap = (pmEventArray *)vsp->vlist[idx].value.pval;
     if (eap->ea_nrecords == 0) {
 	*rap = NULL;
 	return 0;

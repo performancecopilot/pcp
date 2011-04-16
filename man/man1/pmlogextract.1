@@ -175,6 +175,16 @@ option causes
 to start a new volume after
 .I volsamples
 log records have been written to the archive log.
+.RS 7
+.PP
+Independent of any
+.B \-v
+option, each volume of an archive is limited to no more than
+2^31 bytes, so
+.I pmlogextract
+will automatically create a new volume for the archive before
+this limit is reached.
+.RE
 .PP
 .TP 7
 .B \-w

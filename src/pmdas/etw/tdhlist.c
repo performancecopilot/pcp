@@ -1,5 +1,5 @@
 /*
- * List Event Trace for Windows events on the current platform.
+ * List Event Traces for Windows events on the current platform.
  *
  * Copyright (c) 2011, Nathan Scott.  All Rights Reserved.
  *
