@@ -13,13 +13,15 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#define INITGUID
 #include <pmapi.h>
 #include <impl.h>
 #include <tdh.h>
 #include <tdhmsg.h>
 #include <evntrace.h>
+#include <inttypes.h>
 #include "util.h"
+
+#define MAX_SESSIONS	64
 
 USHORT globalPointerSize;	/* TODO: make local & on-stack */
 
@@ -523,6 +525,25 @@ cleanup:
     return sts;
 }
 
+void
+DecodeHeader(PEVENT_RECORD pEvent)
+{
+    printf("Event HEADER (size=%u) flags=%s type=%s\npid=%lu tid=%lu eid=%u\n",
+		pEvent->EventHeader.Size,
+		eventHeaderFlags(pEvent->EventHeader.Flags),
+		eventPropertyFlags(pEvent->EventHeader.EventProperty),
+		pEvent->EventHeader.ThreadId, pEvent->EventHeader.ProcessId,
+		pEvent->EventHeader.EventDescriptor.Id);
+    if (pEvent->EventHeader.Flags & EVENT_HEADER_FLAG_PRIVATE_SESSION) {
+	printf("Time processor=%"PRIu64"\n", pEvent->EventHeader.ProcessorTime);
+    } else {
+	printf("Time: sys=%lu usr=%lu\n",
+		pEvent->EventHeader.KernelTime, pEvent->EventHeader.UserTime);
+    }
+    printf("Event PROVIDER %s\n", strguid(&pEvent->EventHeader.ProviderId));
+    printf("Event ACTIVITY %s\n", strguid(&pEvent->EventHeader.ActivityId));
+}
+
 /* Callback that receives the events */
 VOID WINAPI
 ProcessEvent(PEVENT_RECORD pEvent)
@@ -535,6 +556,8 @@ ProcessEvent(PEVENT_RECORD pEvent)
     SYSTEMTIME stLocal;
     FILETIME ft;
     USHORT i;
+
+    DecodeHeader(pEvent);
 
     /*
      * Process the event.
@@ -609,59 +632,84 @@ cleanup:
 	free(pInfo);
 }
 
-static TRACEHANDLE kernelTrace;
-static TRACEHANDLE kernelSession = INVALID_PROCESSTRACE_HANDLE;
-static EVENT_TRACE_PROPERTIES *kernelProperties;
+static struct {
+    EVENT_TRACE_PROPERTIES *properties;
+    TRACEHANDLE session;
+    LPTSTR name;
+} sessions[MAX_SESSIONS];
+static int sCount;
 
-static void __attribute__((destructor)) stopTracing()
+static void
+stopSession(TRACEHANDLE session, LPTSTR name,
+	    PEVENT_TRACE_PROPERTIES properties)
 {
-    int	sts;
-
-    if (kernelSession != INVALID_PROCESSTRACE_HANDLE) {
-	sts = ControlTrace(kernelSession, KERNEL_LOGGER_NAME,
-			    kernelProperties, EVENT_TRACE_CONTROL_STOP);
+    if (session != INVALID_PROCESSTRACE_HANDLE) {
+	    ULONG sts = ControlTrace(session, name, properties,
+				EVENT_TRACE_CONTROL_STOP);
 	if (sts != ERROR_SUCCESS)
-	    fprintf(stderr, "ControlTrace failed: %s\n", tdherror(sts));
-	fprintf(stderr, "Stopped kernel event tracing session\n");
-    } else {
-	fprintf(stderr, "No kernel event tracing session to stop\n");
+	    fprintf(stderr, "ControlTrace failed (%s): %s\n", name,
+		    tdherror(sts));
+	else
+	    fprintf(stderr, "Stopped %s event tracing session\n", name);
     }
 }
 
-int
-main(int argc, char **argv)
+static void __attribute__((constructor)) initTracing()
 {
-    EVENT_TRACE_LOGFILE kernelMode;
+    int	i;
+
+    for (i = 0; i < sizeof(sessions) / sizeof(sessions[0]); i++)
+	sessions[i].session = INVALID_PROCESSTRACE_HANDLE;
+}
+
+static void __attribute__((destructor)) stopTracing()
+{
+    int	i;
+
+    for (i = 0; i < sCount; i++)
+	stopSession(sessions[i].session, sessions[i].name, sessions[i].properties);
+}
+
+void
+enableEventTrace(LPTSTR name, ULONG namelen, const GUID *guid,
+		 ULONG enableFlags, BOOL useGlobalSequence)
+{
+    TRACEHANDLE session;
+    EVENT_TRACE_PROPERTIES *properties;
     ULONG size, sts = ERROR_SUCCESS;
     int retryStartTrace = 0;
 
-    size = sizeof(EVENT_TRACE_PROPERTIES) + sizeof(KERNEL_LOGGER_NAME);
-    kernelProperties = malloc(size);
-    if (kernelProperties == NULL) {
+    size = sizeof(EVENT_TRACE_PROPERTIES) + namelen;
+    properties = malloc(size);
+    if (properties == NULL) {
 	fprintf(stderr, "Insufficient memory: %lu bytes\n", size);
 	exit(1);
     }
-retrySession:
-    ZeroMemory(kernelProperties, size);
-    kernelProperties->Wnode.BufferSize = size;
-    kernelProperties->Wnode.Flags = WNODE_FLAG_TRACED_GUID;
-    kernelProperties->Wnode.ClientContext = 1;
-    kernelProperties->Wnode.Guid = SystemTraceControlGuid;
-    kernelProperties->EnableFlags = \
-		EVENT_TRACE_FLAG_NETWORK_TCPIP | \
-		EVENT_TRACE_FLAG_CSWITCH | \
-		EVENT_TRACE_FLAG_SYSTEMCALL | \
-		0;
-    kernelProperties->LogFileMode = EVENT_TRACE_REAL_TIME_MODE;
-    /* kernelProperties->LogFileMode |= EVENT_TRACE_USE_GLOBAL_SEQUENCE; ??? */
-    kernelProperties->LoggerNameOffset = sizeof(EVENT_TRACE_PROPERTIES);
 
-    sts = StartTrace(&kernelSession, KERNEL_LOGGER_NAME, kernelProperties);
+    sessions[sCount].properties = properties;
+    sessions[sCount].session = session;
+    sessions[sCount].name = name;
+    sCount++;
+
+retrySession:
+    ZeroMemory(properties, size);
+    properties->Wnode.BufferSize = size;
+    properties->Wnode.Flags = WNODE_FLAG_TRACED_GUID;
+    properties->Wnode.ClientContext = 1;
+    if (guid != NULL)
+	properties->Wnode.Guid = *(guid);
+    properties->EnableFlags = enableFlags;
+    properties->LogFileMode = EVENT_TRACE_REAL_TIME_MODE;
+    if (useGlobalSequence == TRUE)
+	properties->LogFileMode |= EVENT_TRACE_USE_GLOBAL_SEQUENCE;
+    properties->LoggerNameOffset = sizeof(EVENT_TRACE_PROPERTIES);
+
+    sts = StartTrace(&session, name, properties);
     if (sts != ERROR_SUCCESS) {
 	if (retryStartTrace == 1) {
-	    fprintf(stderr, "Cannot start Kernel Logger session (in use)\n");
+	    fprintf(stderr, "Cannot start %s session (in use)\n", name);
 	} else if (sts == ERROR_ALREADY_EXISTS) {
-	    fprintf(stderr, "Kernel Logger session is in use - retry ...\n");
+	    fprintf(stderr, "%s session is in use - retry ...\n", name);
 	    stopTracing();
 	    retryStartTrace = 1;
 	    goto retrySession;
@@ -671,21 +719,92 @@ retrySession:
 	}
 	exit(1);
     }
+}
 
-    ZeroMemory(&kernelMode, sizeof(EVENT_TRACE_LOGFILE));
-    kernelMode.LoggerName = KERNEL_LOGGER_NAME;
-    kernelMode.EventRecordCallback = (PEVENT_RECORD_CALLBACK) ProcessEvent;
-    kernelMode.ProcessTraceMode = PROCESS_TRACE_MODE_REAL_TIME;
+ULONG bufferCount, buffersRead, bufferTotal, bufferBytes, eventsLost, sysCount;
 
-    kernelTrace = OpenTrace(&kernelMode);
-    if (!kernelTrace) {
-	sts = GetLastError();
+ULONG WINAPI
+BufferCallback(PEVENT_TRACE_LOGFILE mode)
+{
+    buffersRead += mode->BuffersRead;
+    bufferTotal += mode->BufferSize;
+    bufferBytes += mode->Filled;
+    eventsLost += mode->EventsLost;
+    sysCount += mode->IsKernelTrace;
+    bufferCount++;
+    printf("Event BUFFER (size=%lu) all reads=%lu bytes=%lu lost=%lu sys=%lu\n",
+		mode->Filled, buffersRead, bufferBytes, eventsLost, sysCount);
+    return TRUE;
+}
+
+TRACEHANDLE
+openTraceHandle(LPTSTR name)
+{
+    TRACEHANDLE handle;
+    EVENT_TRACE_LOGFILE traceMode;
+
+    ZeroMemory(&traceMode, sizeof(EVENT_TRACE_LOGFILE));
+    traceMode.LoggerName = name;
+    traceMode.BufferCallback = (PEVENT_TRACE_BUFFER_CALLBACK)BufferCallback;
+    traceMode.EventRecordCallback = (PEVENT_RECORD_CALLBACK)ProcessEvent;
+    traceMode.ProcessTraceMode = PROCESS_TRACE_MODE_REAL_TIME;
+
+    handle = OpenTrace(&traceMode);
+    if (handle == INVALID_PROCESSTRACE_HANDLE) {
+	ULONG sts = GetLastError();
 	fprintf(stderr, "OpenTrace: %s (%lu)\n", tdherror(sts), sts);
-	CloseTrace(kernelTrace);
+	CloseTrace(handle);
 	exit(1);
     }
+    return handle;
+}
 
-    sts = ProcessTrace(&kernelTrace, 1, NULL, NULL);
+static char *options = "k:?";
+static char usage[] =
+    "Usage: %s [options] tracename\n\n"
+    "Options:\n"
+    "  -k subsys     kernel subsystem to trace\n"
+    "  -g            use global sequence numbers\n";
+
+int
+main(int argc, LPTSTR *argv)
+{
+    BOOL useGlobalSequence = FALSE;
+    TRACEHANDLE handles[MAX_SESSIONS];
+    ULONG sts, hCount = 0, sysFlags = 0;
+    int c;
+
+    while ((c = getopt(argc, argv, options)) != EOF) {
+	switch (c) {
+	case 'g':
+	    useGlobalSequence = TRUE;
+	    break;
+	case 'k':
+	    sysFlags |= kernelTraceFlag(optarg);
+	    break;
+	case '?':
+	default:
+	    fprintf(stderr, usage, argv[0]);
+	    exit(1);
+	}
+    }
+
+    if (sysFlags) {
+	enableEventTrace(KERNEL_LOGGER_NAME, sizeof(KERNEL_LOGGER_NAME),
+			 &SystemTraceControlGuid, sysFlags, useGlobalSequence);
+	handles[hCount++] = openTraceHandle(KERNEL_LOGGER_NAME);
+    } else if (optind == argc) {
+	fprintf(stderr, "No traces requested, exiting\n");
+	exit(0);
+    }
+
+    while (optind < argc) {
+	LPTSTR name = argv[optind++];
+	enableEventTrace(name, strlen(name)+1, NULL, 0, useGlobalSequence);
+	handles[hCount++] = openTraceHandle(name);
+    }
+
+    sts = ProcessTrace(handles, hCount, NULL, NULL);
     if (sts != ERROR_SUCCESS && sts != ERROR_CANCELLED) {
 	fprintf(stderr, "ProcessTrace: %s (%lu)\n", tdherror(sts), sts);
     }

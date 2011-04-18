@@ -200,6 +200,37 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
     return version;
 }
 
+static int
+popen_uncompress(const char *cmd, const char *fname, const char *suffix, int fd)
+{
+    char	pipecmd[2*MAXPATHLEN+2];
+    char	buffer[4096];
+    FILE	*finp;
+    ssize_t	bytes;
+    int		sts, infd;
+
+    snprintf(pipecmd, sizeof(pipecmd), "%s %s%s", cmd, fname, suffix);
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_LOG)
+	fprintf(stderr, "__pmLogOpen: uncompress using: %s\n", pipecmd);
+#endif
+
+    if ((finp = popen(pipecmd, "r")) == NULL)
+	return -1;
+    infd = fileno(finp);
+
+    while ((bytes = read(infd, buffer, sizeof(buffer))) > 0) {
+	if (write(fd, buffer, bytes) != bytes) {
+	    bytes = -1;
+	    break;
+	}
+    }
+
+    if ((sts = pclose(finp)) != 0)
+	return sts;
+    return (bytes == 0) ? 0 : -1;
+}
+
 static FILE *
 fopen_compress(const char *fname)
 {
@@ -210,7 +241,6 @@ fopen_compress(const char *fname)
     char	*msg;
     FILE	*fp;
     static char	tmpname[MAXPATHLEN];
-    static char	shellcmd[2*MAXPATHLEN];	/* assuming fname is not that long */
 
     for (i = 0; i < ncompress; i++) {
 	snprintf(tmpname, sizeof(tmpname), "%s%s", fname, compress_ctl[i].suff);
@@ -238,15 +268,10 @@ fopen_compress(const char *fname)
 #else
     if ((msg = tmpnam(NULL)) == NULL)
 	return NULL;
-    fd = open(msg, O_RDONLY|O_CREAT|O_EXCL, 0600);
+    fd = open(msg, O_RDWR|O_CREAT|O_EXCL, 0600);
 #endif
 
-    snprintf(shellcmd, sizeof(shellcmd), "%s %s%s >%s", cmd, fname, compress_ctl[i].suff, msg);
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOG)
-	fprintf(stderr, "__pmLogOpen: uncompress using: %s\n", shellcmd);
-#endif
-    sts = system(shellcmd);
+    sts = popen_uncompress(cmd, fname, compress_ctl[i].suff, fd);
     if (sts == -1) {
 	sts = oserror();
 #ifdef PCP_DEBUG

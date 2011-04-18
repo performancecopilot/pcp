@@ -1,5 +1,5 @@
 /*
- * Trace Data Helper utility routines.
+ * Event Trace for Windows utility routines.
  *
  * Copyright (c) 2011, Nathan Scott.  All Rights Reserved.
  *
@@ -16,9 +16,107 @@
 
 #include <pmapi.h>
 #include <impl.h>
+#include <tdh.h>
+#include <evntrace.h>
 #include "util.h"
 
-const char *tdherror(ULONG code)
+struct {
+    ULONG flag;
+    char  *name;
+} kernelFlags[] = {
+    { EVENT_TRACE_FLAG_PROCESS, "process" },
+    { EVENT_TRACE_FLAG_THREAD, "thread" },
+    { EVENT_TRACE_FLAG_IMAGE_LOAD, "image_load" },
+    { EVENT_TRACE_FLAG_DISK_IO, "disk_io"  },
+    { EVENT_TRACE_FLAG_DISK_FILE_IO, "disk_file_io" },
+    { EVENT_TRACE_FLAG_MEMORY_PAGE_FAULTS, "memory_page_faults" },
+    { EVENT_TRACE_FLAG_MEMORY_HARD_FAULTS, "memory_hard_faults" },
+    { EVENT_TRACE_FLAG_NETWORK_TCPIP, "network_tcpip" },
+    { EVENT_TRACE_FLAG_REGISTRY, "registry" },
+    { EVENT_TRACE_FLAG_DBGPRINT, "dgbprint" },
+    { EVENT_TRACE_FLAG_PROCESS_COUNTERS, "process_counters" },
+    { EVENT_TRACE_FLAG_CSWITCH, "cswitch" },
+    { EVENT_TRACE_FLAG_DPC, "dpc" },
+    { EVENT_TRACE_FLAG_INTERRUPT, "interrupt" },
+    { EVENT_TRACE_FLAG_SYSTEMCALL, "syscall" },
+    { EVENT_TRACE_FLAG_DISK_IO_INIT, "disk_io_init" },
+    { EVENT_TRACE_FLAG_ALPC, "alpc" },
+    { EVENT_TRACE_FLAG_SPLIT_IO, "split_io" },
+    { EVENT_TRACE_FLAG_DRIVER, "driver" },
+    { EVENT_TRACE_FLAG_PROFILE, "profile" },
+    { EVENT_TRACE_FLAG_FILE_IO, "file_io" },
+    { EVENT_TRACE_FLAG_FILE_IO_INIT, "file_io_init" },
+    { EVENT_TRACE_FLAG_DISPATCHER, "dispatcher" },
+    { EVENT_TRACE_FLAG_VIRTUAL_ALLOC, "virtual_alloc" },
+    { EVENT_TRACE_FLAG_EXTENSION, "extension" },
+    { EVENT_TRACE_FLAG_FORWARD_WMI, "forward_wmi" },
+    { EVENT_TRACE_FLAG_ENABLE_RESERVE, "enable_reserve" },
+};
+
+void
+dumpKernelTraceFlags(FILE *output)
+{
+    int i;
+
+    for (i = 0; i < sizeof(kernelFlags)/sizeof(kernelFlags[0]); i++)
+	fprintf(output, "\t%s\n", kernelFlags[i].name);
+}
+
+ULONG
+kernelTraceFlag(const char *name)
+{
+    int i;
+
+    for (i = 0; i < sizeof(kernelFlags)/sizeof(kernelFlags[0]); i++)
+	if (strcmp(kernelFlags[i].name, name) == 0)
+	    return kernelFlags[i].flag;
+    fprintf(stderr, "Unrecognised kernel trace flag: %s\n", name);
+    fprintf(stderr, "List of all known options:\n");
+    dumpKernelTraceFlags(stderr);
+    exit(1);
+}
+
+const char *
+eventPropertyFlags(USHORT flags)
+{
+    if (flags & EVENT_HEADER_PROPERTY_XML)
+	return "XML";
+    if (flags & EVENT_HEADER_PROPERTY_FORWARDED_XML)
+	return "forwarded XML";
+    if (flags & EVENT_HEADER_PROPERTY_LEGACY_EVENTLOG)
+	return "legacy WMI MOF";
+    return "none";
+}
+
+const char *
+eventHeaderFlags(USHORT flags)
+{
+    static char buffer[128];
+    char *p = &buffer[0];
+
+    *p = '\0';
+    if (flags & EVENT_HEADER_FLAG_EXTENDED_INFO)
+	strcat(p, "extended info,");
+    if (flags & EVENT_HEADER_FLAG_PRIVATE_SESSION)
+	strcat(p, "private session,");
+    if (flags & EVENT_HEADER_FLAG_STRING_ONLY)
+	strcat(p, "string,");
+    if (flags & EVENT_HEADER_FLAG_TRACE_MESSAGE)
+	strcat(p, "TraceMessage,");
+    if (flags & EVENT_HEADER_FLAG_NO_CPUTIME)
+	strcat(p, "no cputime,");
+    if (flags & EVENT_HEADER_FLAG_32_BIT_HEADER)
+	strcat(p, "32bit,");
+    if (flags & EVENT_HEADER_FLAG_64_BIT_HEADER)
+	strcat(p, "64bit,");
+    if (flags & EVENT_HEADER_FLAG_CLASSIC_HEADER)
+	strcat(p, "classic,");
+    buffer[strlen(buffer)] = '\0';
+    return buffer;
+}
+
+const char *
+tdherror(ULONG code)
 {
     switch (code){
     case ERROR_ACCESS_DENIED:
@@ -59,8 +157,8 @@ const char *tdherror(ULONG code)
     return "Unknown error";
 }
 
-
-const char *strguid(LPGUID guidPointer)
+const char *
+strguid(LPGUID guidPointer)
 {
     static char stringBuffer[64];
 

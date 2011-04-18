@@ -67,7 +67,7 @@ BEGIN {
 	$PKGNAME = 'pcp-glider';
 	$PKGURLS = 'file://D|/packages/',
 	$PKGCPAN = 'file://D|/minicpan/',
-	$VERSION = '0.9.11';
+	$VERSION = '0.9.12';
 	@ISA     = 'Perl::Dist::Strawberry';
 }
 
@@ -132,12 +132,13 @@ sub output_base_filename {
 my %PKG = (
 	'gdb'		=> 'PCP-gdb-6.8-mingw-3.tar.gz',
 	'msys'		=> 'PCP-msysCORE-1.0.11-20080826.tar.gz',
-	'bison'		=> 'PCP-bison-2.3-MSYS-1.0.11-1.tar.gz',
+	'bison'		=> 'PCP-bison-2.4.1-MSYS-1.0.11-1.tar.gz',
 	'coreutils'	=> 'PCP-coreutils-5.97-MSYS-1.0.11-1.tar.gz',
 	'flex'		=> 'PCP-flex-2.5.33-MSYS-1.0.11-1.tar.gz',
 	'minires'	=> 'PCP-minires-1.01-1-MSYS-1.0.11-1.tar.gz',
 	'openssh'	=> 'PCP-openssh-4.7p1-MSYS-1.0.11-1-bin.tar.gz',
 	'openssl'	=> 'PCP-openssl-0.9.8g-1-MSYS-1.0.11-2-dll098.tar.gz',
+	'pthreads'	=> 'PCP-pthread-w32-2.8.0-3.tar.gz',
 	'regex'		=> 'PCP-regex-0.12-MSYS-1.0.11-1.tar.gz',
 	'tar'		=> 'PCP-tar-1.19.90-MSYS-1.0.11-1-bin.tar.gz',
 	'vim'		=> 'PCP-vim-7.1-MSYS-1.0.11-1-bin.tar.gz',
@@ -343,6 +344,7 @@ sub install_glider_toolchain
     $self->custom_binary('flex', '.');
     $self->custom_binary('openssh', '.');
     $self->custom_binary('openssl', '.');
+    $self->custom_binary('pthreads', '.');
     $self->custom_binary('regex', '.');
     $self->custom_binary('zlib', '.');
     $self->custom_binary('minires', '.');
