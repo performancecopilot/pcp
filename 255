@@ -41,7 +41,6 @@ ls -l $PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH >>$seq.full
 
 unset ROOT
 
-localhost=`_get_fqdn`
 simple_domain=253
 broken_domain=249
 num_warn=0
