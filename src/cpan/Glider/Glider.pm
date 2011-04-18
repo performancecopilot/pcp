@@ -132,7 +132,7 @@ sub output_base_filename {
 my %PKG = (
 	'gdb'		=> 'PCP-gdb-6.8-mingw-3.tar.gz',
 	'msys'		=> 'PCP-msysCORE-1.0.11-20080826.tar.gz',
-	'bison'		=> 'PCP-bison-2.3-MSYS-1.0.11-1.tar.gz',
+	'bison'		=> 'PCP-bison-2.4.1-MSYS-1.0.11-1.tar.gz',
 	'coreutils'	=> 'PCP-coreutils-5.97-MSYS-1.0.11-1.tar.gz',
 	'flex'		=> 'PCP-flex-2.5.33-MSYS-1.0.11-1.tar.gz',
 	'minires'	=> 'PCP-minires-1.01-1-MSYS-1.0.11-1.tar.gz',

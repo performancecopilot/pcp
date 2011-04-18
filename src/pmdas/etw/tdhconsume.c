@@ -744,7 +744,7 @@ openTraceHandle(LPTSTR name)
     EVENT_TRACE_LOGFILE traceMode;
 
     ZeroMemory(&traceMode, sizeof(EVENT_TRACE_LOGFILE));
-    traceMode.LoggerName = KERNEL_LOGGER_NAME;
+    traceMode.LoggerName = name;
     traceMode.BufferCallback = (PEVENT_TRACE_BUFFER_CALLBACK)BufferCallback;
     traceMode.EventRecordCallback = (PEVENT_RECORD_CALLBACK)ProcessEvent;
     traceMode.ProcessTraceMode = PROCESS_TRACE_MODE_REAL_TIME;
