@@ -1042,10 +1042,12 @@ _install()
 	#
 	if [ -f $help_source ]
 	then
-	    help_version=1
 	    case $pmda_interface
 	    in
-		2|3|4)	# PMDA_INTERFACE_2 or PMDA_INTERFACE_3 or PMDA_INTERFACE_4
+		1)
+			help_version=1
+			;;
+		*)	# PMDA_INTERFACE_2 or PMDA_INTERFACE_3 or PMDA_INTERFACE_4
 			help_version=2
 			;;
 	    esac
