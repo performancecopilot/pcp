@@ -86,8 +86,9 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c mmv_nostats.c \
 	record.c record-setarg.c clientid.c killparent.c grind_ctx.c \
 	pmdacache.c check_import.c unpack.c aggrstore.c atomstr.c \
-	grind_conv.c getconfig.c multithread0.c multithread1.c \
-	exerlock.c
+	grind_conv.c getconfig.c
+
+# CFILES += multithread0.c multithread1.c exerlock.c
 
 POSIXFILES = \
 	ipc.c proc_test.c context_fd_leak.c arch_maxfd.c torture_trace.c \
