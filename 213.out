@@ -144,7 +144,6 @@ Type 'help' for a list of commands.
 dbpmda> close
 dbpmda> open dso $PCP_PMDAS_DIR/mmv/pmda_mmv.so mmv_init 70
 dbpmda> desc mmv.test.strings
-[DATE] dbpmda(PID) Info: MMV: dbpmda: 8 metrics and 2 indoms after reload
 PMID: 70.1.6
     Data Type: string  InDom: 70.2049 0x11800801
     Semantics: instant  Units: none
