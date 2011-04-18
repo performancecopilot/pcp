@@ -1047,7 +1047,7 @@ _install()
 		1)
 			help_version=1
 			;;
-		*)	# PMDA_INTERFACE_2 or PMDA_INTERFACE_3 or PMDA_INTERFACE_4
+		*)	# PMDA_INTERFACE_2 or later
 			help_version=2
 			;;
 	    esac
