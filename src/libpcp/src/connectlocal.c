@@ -178,7 +178,7 @@ EndLocalContext(void)
     __pmDSO	*dp;
     int		ctx = pmWhichContext();
 
-    if (PM_MULTIPLE_THREADS())
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 	/*
 	 * Local context requires single-threaded applications
 	 * ... should not really get here, so do nothing!

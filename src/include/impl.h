@@ -1235,10 +1235,13 @@ extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
 extern int __pmRegisterAnon(char *, int);
 
 /* Multi-thread support */
-extern int __pmMultiThreaded(void);
+#define PM_SCOPE_DSO_PMDA	0
+#define PM_SCOPE_ACC		1
+#define PM_SCOPE_MAX		1
+extern int __pmMultiThreaded(int);
 extern void __pmInitLocks(void);
 #ifdef PM_MULTI_THREAD
-#define PM_MULTIPLE_THREADS() __pmMultiThreaded()
+#define PM_MULTIPLE_THREADS(x) __pmMultiThreaded(x)
 #define PM_INIT_LOCKS() __pmInitLocks()
 #ifdef HAVE_PTHREAD_MUTEX_T
 #define PM_LOCK(lock) { int sts; if ((sts = pthread_mutex_lock(&lock)) != 0) { fprintf(stderr, "%s:%d: lock failed: %s\n", __FILE__, __LINE__, pmErrStr(-sts)); exit(1); } }
@@ -1254,7 +1257,7 @@ bozo - need pthreads to support multi-thread capabilities !!!
  * No multi-thread support, code still works correctly for single-threaded
  * applications.
  */
-#define PM_MULTIPLE_THREADS() (0)
+#define PM_MULTIPLE_THREADS(x) (0)
 #define PM_INIT_LOCKS()
 #define PM_LOCK(x)
 #define PM_UNLOCK(x)

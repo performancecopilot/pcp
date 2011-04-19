@@ -190,7 +190,7 @@ pmGetPMNSLocation(void)
 		    break;
 
 		case PM_CONTEXT_LOCAL:
-		    if (PM_MULTIPLE_THREADS())
+		    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 			/* Local context requires single-threaded applications */
 			pmns_location = PM_ERR_THREAD;
 		    else
@@ -1737,7 +1737,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	ctxp = __pmHandleToPtr(lsts);
     else
 	ctxp = NULL;
-    if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS())
+    if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 	/* Local context requires single-threaded applications */
 	return PM_ERR_THREAD;
 

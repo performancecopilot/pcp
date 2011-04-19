@@ -164,7 +164,7 @@ pmNewContext(int type, const char *name)
 
     PM_INIT_LOCKS();
 
-    if (type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS())
+    if (type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 	/* Local context requires single-threaded applications */
 	return PM_ERR_THREAD;
 

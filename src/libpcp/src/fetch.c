@@ -133,7 +133,7 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 	    n = PM_ERR_NOCONTEXT;
 	    goto done;
 	}
-	if (ctxp->c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS()) {
+	if (ctxp->c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
 	    /* Local context requires single-threaded applications */
 	    n = PM_ERR_THREAD;
 	    goto done;

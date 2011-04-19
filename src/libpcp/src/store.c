@@ -125,7 +125,7 @@ pmStore(const pmResult *result)
 	     */
 	    pmResult	tmp;
 	    pmValueSet	tmpvset;
-	    if (PM_MULTIPLE_THREADS())
+	    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 		/* Local context requires single-threaded applications */
 		sts = PM_ERR_THREAD;
 	    else {

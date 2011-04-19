@@ -108,7 +108,7 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
     else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
 	int		ctx = n;
 	__pmDSO		*dp;
-	if (PM_MULTIPLE_THREADS())
+	if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 	    /* Local context requires single-threaded applications */
 	    n = PM_ERR_THREAD;
 	else if ((dp = __pmLookupDSO(((__pmID_int *)&pmid)->domain)) == NULL)

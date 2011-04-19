@@ -38,21 +38,21 @@ __pmInitLocks(void)
 #endif
 }
 
+static int		multi_init[PM_SCOPE_MAX+1];
+static pthread_t	multi_seen[PM_SCOPE_MAX+1];
 int
-__pmMultiThreaded(void)
+__pmMultiThreaded(int scope)
 {
 #ifdef PM_MULTI_THREAD
-    static int		first = 1;
     int			sts = 0;
-    static pthread_t	seen;
 
     PM_LOCK(__pmLock_libpcp);
-    if (first) {
-	first = 0;
-	seen = pthread_self();
+    if (!multi_init[scope]) {
+	multi_init[scope] = 1;
+	multi_seen[scope] = pthread_self();
     }
     else {
-	if (!pthread_equal(seen, pthread_self()))
+	if (!pthread_equal(multi_seen[scope], pthread_self()))
 	    sts = 1;
     }
     PM_UNLOCK(__pmLock_libpcp);

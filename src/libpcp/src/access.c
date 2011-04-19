@@ -44,7 +44,7 @@ __pmAccAddOp(unsigned int op)
 {
     unsigned int	i, mask;
 
-    if (PM_MULTIPLE_THREADS())
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_ACC))
 	return PM_ERR_THREAD;
 
     /* op must not be zero or clash with existing ops */
@@ -118,7 +118,7 @@ static int	oldszhostlist;
 int
 __pmAccSaveHosts(void)
 {
-    if (PM_MULTIPLE_THREADS())
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_ACC))
 	return PM_ERR_THREAD;
     if (saved)
 	return -1;
@@ -161,7 +161,7 @@ accfreehosts(void)
 int
 __pmAccRestoreHosts(void)
 {
-    if (PM_MULTIPLE_THREADS())
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_ACC))
 	return PM_ERR_THREAD;
     if (!saved)
 	return -1;
@@ -185,7 +185,7 @@ __pmAccFreeSavedHosts(void)
     int		i;
     char	*p;
 
-    if (PM_MULTIPLE_THREADS())
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_ACC))
 	return;
     if (!saved)
 	return;
@@ -225,7 +225,7 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
     const char		*p;
     hostinfo		*hp;
 
-    if (PM_MULTIPLE_THREADS())
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_ACC))
 	return PM_ERR_THREAD;
     if (specOps & ~all_ops)
 	return -EINVAL;
@@ -383,7 +383,7 @@ __pmAccAddClient(const struct in_addr *hostid, unsigned int *denyOpsResult)
     hostinfo		*lastmatch = NULL;
     struct in_addr	clientid;
 
-    if (PM_MULTIPLE_THREADS())
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_ACC))
 	return PM_ERR_THREAD;
 
     clientid.s_addr = hostid->s_addr;
@@ -455,7 +455,7 @@ __pmAccDelClient(const struct in_addr *hostid)
     int		i;
     hostinfo	*hp;
 
-    if (PM_MULTIPLE_THREADS())
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_ACC))
 	return;
 
     /* Increment the count of current connections for ALL host specs in the
@@ -478,7 +478,7 @@ __pmAccDumpHosts(FILE *stream)
     unsigned int	mask;
     hostinfo		*hp;
 
-    if (PM_MULTIPLE_THREADS())
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_ACC))
 	return;
 
     mask = all_ops;
