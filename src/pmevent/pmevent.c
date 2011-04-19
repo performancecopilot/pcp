@@ -350,7 +350,7 @@ myeventdump(pmValueSet *vsp, int idx)
 int
 main(int argc, char **argv)
 {
-    pmResult		*rp;		/* current values */
+    pmResult		*rp = NULL;	/* current values */
     int			forever;
     int			sts;
     int			j;
