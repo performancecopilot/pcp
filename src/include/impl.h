@@ -1067,7 +1067,7 @@ extern unsigned int __pmMakeAuthCookie(unsigned int, pid_t);
  */
 extern int __pmProcessExists(pid_t);
 extern int __pmProcessTerminate(pid_t, int);
-extern int __pmProcessCreate(char **, int *, int *);
+extern pid_t __pmProcessCreate(char **, int *, int *);
 extern int __pmProcessDataSize(unsigned long *);
 extern int __pmProcessRunTimes(double *, double *);
 
