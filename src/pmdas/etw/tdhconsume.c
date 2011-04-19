@@ -22,6 +22,7 @@
 #include "util.h"
 
 #define MAX_SESSIONS	64
+#define PCP_SESSION	"PCP Collector Set"
 
 USHORT globalPointerSize;	/* TODO: make local & on-stack */
 
@@ -666,8 +667,10 @@ static void __attribute__((destructor)) stopTracing()
 {
     int	i;
 
-    for (i = 0; i < sCount; i++)
+    for (i = 0; i < sCount; i++) {
+	sessions[i].properties->EnableFlags = 0;
 	stopSession(sessions[i].session, sessions[i].name, sessions[i].properties);
+    }
 }
 
 void
@@ -696,8 +699,7 @@ retrySession:
     properties->Wnode.BufferSize = size;
     properties->Wnode.Flags = WNODE_FLAG_TRACED_GUID;
     properties->Wnode.ClientContext = 1;
-    if (guid != NULL)
-	properties->Wnode.Guid = *(guid);
+    properties->Wnode.Guid = *guid;
     properties->EnableFlags = enableFlags;
     properties->LogFileMode = EVENT_TRACE_REAL_TIME_MODE;
     if (useGlobalSequence == TRUE)
@@ -709,7 +711,8 @@ retrySession:
 	if (retryStartTrace == 1) {
 	    fprintf(stderr, "Cannot start %s session (in use)\n", name);
 	} else if (sts == ERROR_ALREADY_EXISTS) {
-	    fprintf(stderr, "%s session is in use - retry ...\n", name);
+	    fprintf(stderr, "%s session is in use - retry ... (flags=%lx)\n",
+			name, enableFlags);
 	    stopTracing();
 	    retryStartTrace = 1;
 	    goto retrySession;
@@ -718,6 +721,16 @@ retrySession:
 	    fprintf(stderr, "StartTrace: %s\n", tdherror(sts));
 	}
 	exit(1);
+    }
+
+    if (enableFlags == 0) {		/* non-kernel traces... */
+	sts = EnableTrace(TRUE, 0, /* provider flags */
+			     TRACE_LEVEL_INFORMATION, /* TRACE_LEVEL_VERBOSE */
+			     guid, session);
+	if (sts != ERROR_SUCCESS) {
+	    fprintf(stderr, "EnableTrace: %s\n", tdherror(sts));
+	    exit(1);
+	}
     }
 }
 
@@ -735,6 +748,66 @@ BufferCallback(PEVENT_TRACE_LOGFILE mode)
     printf("Event BUFFER (size=%lu) all reads=%lu bytes=%lu lost=%lu sys=%lu\n",
 		mode->Filled, buffersRead, bufferBytes, eventsLost, sysCount);
     return TRUE;
+}
+
+LPGUID
+LookupGuidInBuffer(LPTSTR name, PPROVIDER_ENUMERATION_INFO buffer)
+{
+    PTRACE_PROVIDER_INFO traceProviderInfo;
+    PWCHAR stringPointer;
+    char s[1024];
+    LPGUID guidPointer;
+    PBYTE bufferPointer = (PBYTE)buffer;
+    ULONG i;
+
+    for (i = 0; i < buffer->NumberOfProviders; i++) {
+	traceProviderInfo = &buffer->TraceProviderInfoArray[i];
+	if (traceProviderInfo->ProviderNameOffset == 0)
+	    continue;
+	guidPointer = &traceProviderInfo->ProviderGuid;
+	stringPointer = (PWCHAR)
+		(bufferPointer + traceProviderInfo->ProviderNameOffset);
+	WideCharToMultiByte(CP_ACP, 0, stringPointer, -1, s, 1024, NULL, NULL);
+  	if (strcmp(s, name) == 0)
+  	    return guidPointer;
+    }
+    return NULL;
+}
+
+ULONG
+ProviderGuid(LPTSTR name, LPGUID guidPointer)
+{
+    PROVIDER_ENUMERATION_INFO providerEnumerationInfo;
+    PPROVIDER_ENUMERATION_INFO buffer;
+    ULONG size, sts;
+
+    buffer = &providerEnumerationInfo;
+    size = sizeof(providerEnumerationInfo);
+    sts = TdhEnumerateProviders(buffer, &size);
+    do {
+	if (sts == ERROR_INSUFFICIENT_BUFFER) {
+	    if (buffer != &providerEnumerationInfo)
+		BufferFree(buffer);
+	    buffer = (PPROVIDER_ENUMERATION_INFO)BufferAllocate(size);
+	    if (!buffer)
+		return ERROR_NOT_ENOUGH_MEMORY;
+	    sts = TdhEnumerateProviders(buffer, &size);
+	}
+	else if (sts == ERROR_SUCCESS) {
+	    guidPointer = LookupGuidInBuffer(name, buffer);
+	    break;
+	}
+	else {
+	    fprintf(stderr, "TdhEnumerateProviders failed: %s (=%lu)\n",
+		    tdherror(sts), sts);
+	    break;
+	}
+    } while (1);
+
+    if (buffer != &providerEnumerationInfo)
+	BufferFree(buffer);
+
+    return sts;
 }
 
 TRACEHANDLE
@@ -793,17 +866,26 @@ main(int argc, LPTSTR *argv)
 	enableEventTrace(KERNEL_LOGGER_NAME, sizeof(KERNEL_LOGGER_NAME),
 			 &SystemTraceControlGuid, sysFlags, useGlobalSequence);
 	handles[hCount++] = openTraceHandle(KERNEL_LOGGER_NAME);
-    } else if (optind == argc) {
-	fprintf(stderr, "No traces requested, exiting\n");
-	exit(0);
     }
 
     while (optind < argc) {
 	LPTSTR name = argv[optind++];
-	enableEventTrace(name, strlen(name)+1, NULL, 0, useGlobalSequence);
+	GUID guid;
+
+	if (ProviderGuid(name, &guid) != ERROR_SUCCESS) {
+	    fprintf(stderr, "Cannot map provider name %s to a GUID\n", name);
+	    continue;
+	}
+	enableEventTrace(name, strlen(name)+1, &guid, 0, useGlobalSequence);
 	handles[hCount++] = openTraceHandle(name);
     }
 
+    if (hCount == 0) {
+	fprintf(stderr, "No traces requested, exiting\n");
+	exit(0);
+    }
+
+    fprintf(stderr, "Processing traces ...\n");
     sts = ProcessTrace(handles, hCount, NULL, NULL);
     if (sts != ERROR_SUCCESS && sts != ERROR_CANCELLED) {
 	fprintf(stderr, "ProcessTrace: %s (%lu)\n", tdherror(sts), sts);
