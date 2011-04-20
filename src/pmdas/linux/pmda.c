@@ -6582,11 +6582,14 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
 	if (idp->cluster >= 0 && idp->cluster < NUM_CLUSTERS) {
 	    need_refresh[idp->cluster]++;
+
 	    if (idp->cluster == CLUSTER_STAT && 
 		need_refresh[CLUSTER_PARTITIONS] == 0 &&
 		is_partitions_metric(pmidlist[i]))
 		need_refresh[CLUSTER_PARTITIONS]++;
-	    if (idp->cluster == CLUSTER_CPUACCT_GROUPS ||
+
+	    if (idp->cluster == CLUSTER_CPUINFO ||
+	    	idp->cluster == CLUSTER_CPUACCT_GROUPS ||
 		idp->cluster == CLUSTER_INTERRUPT_LINES ||
 		idp->cluster == CLUSTER_INTERRUPT_OTHER ||
 		idp->cluster == CLUSTER_INTERRUPTS)
