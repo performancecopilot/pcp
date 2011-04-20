@@ -54,12 +54,14 @@ struct {
 };
 
 void
-dumpKernelTraceFlags(FILE *output)
+dumpKernelTraceFlags(FILE *output, const char *prefix, const char *suffix)
 {
     int i;
 
     for (i = 0; i < sizeof(kernelFlags)/sizeof(kernelFlags[0]); i++)
-	fprintf(output, "\t%s\n", kernelFlags[i].name);
+	fprintf(output, "%s%s%s", prefix, kernelFlags[i].name,
+		(i+1 == sizeof(kernelFlags)/sizeof(kernelFlags[0])) ?
+		"\0" : suffix);
 }
 
 ULONG
@@ -72,7 +74,8 @@ kernelTraceFlag(const char *name)
 	    return kernelFlags[i].flag;
     fprintf(stderr, "Unrecognised kernel trace flag: %s\n", name);
     fprintf(stderr, "List of all known options:\n");
-    dumpKernelTraceFlags(stderr);
+    dumpKernelTraceFlags(stderr, "\t", "\n");
+    fprintf(stderr, "\n\n");
     exit(1);
 }
 
@@ -170,4 +173,17 @@ strguid(LPGUID guidPointer)
 	       guidPointer->Data4[4], guidPointer->Data4[5],
 	       guidPointer->Data4[6], guidPointer->Data4[7]);
     return stringBuffer;
+}
+
+void *
+BufferAllocate(ULONG size)
+{
+    return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);
+}
+
+void
+BufferFree(void *buffer)
+{
+    if (buffer)
+	HeapFree(GetProcessHeap(), 0, buffer);
 }

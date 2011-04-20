@@ -199,7 +199,7 @@ __pmProcessTerminate(pid_t pid, int force)
     return -ESRCH;
 }
 
-int
+pid_t
 __pmProcessCreate(char **argv, int *infd, int *outfd)
 {
     HANDLE hChildStdinRd, hChildStdinWr, hChildStdoutRd, hChildStdoutWr;
@@ -278,7 +278,7 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 
     *infd = _open_osfhandle((intptr_t)hChildStdoutRd, _O_RDONLY);
     *outfd = _open_osfhandle((intptr_t)hChildStdinWr, _O_WRONLY);
-    return 0;
+    return piProcInfo.dwProcessId;
 }
 
 pid_t

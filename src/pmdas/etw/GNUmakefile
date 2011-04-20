@@ -21,7 +21,7 @@ IAM		= etw
 DOMAIN		= ETW
 CFILES		= util.c
 HFILES		= util.h
-LSRCFILES	= tdhlist.c tdhconsume.c
+LSRCFILES	= tdhlist.c tdhconsume.c pcp.xml
 LCFLAGS		= -I$(WINDIR)/include -D_WIN32_WINNT=0x0600 -DINITGUID -DFORCEINLINE="static inline"
 LLDFLAGS	= -L$(WINDIR)/lib
 LLDLIBS		= -lpcp_tdh

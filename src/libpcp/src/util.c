@@ -1316,7 +1316,7 @@ __pmProcessRunTimes(double *usr, double *sys)
 #endif
 
 #if !defined(IS_MINGW)
-int
+pid_t
 __pmProcessCreate(char **argv, int *infd, int *outfd)
 {
     int		in[2];
@@ -1357,7 +1357,7 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	fprintf(stderr, "execvp: %s\n", osstrerror());
 	exit(1);
     }
-    return 0;
+    return pid;
 }
 
 int
