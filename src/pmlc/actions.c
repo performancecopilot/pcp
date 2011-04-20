@@ -540,7 +540,7 @@ void Status(int pid, int primary)
     char		*hostname;
     int			state;
     int			vol;
-    long long		size;
+    __int64_t		size;
     char		startbuf[TZBUFSZ];
     char		lastbuf[TZBUFSZ];
     char		timenowbuf[TZBUFSZ];

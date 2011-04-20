@@ -220,7 +220,7 @@ dump_values(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
 	    break;
 	case MMV_TYPE_ELAPSED: {
 	    struct timeval tv;
-	    long long t;
+	    __int64_t t;
 
 	    __pmtimevalNow(&tv);
 	    t = vals[i].value.ll;

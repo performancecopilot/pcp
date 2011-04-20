@@ -100,9 +100,9 @@ struct {
     unsigned int	timeout;	/* There was a timeout (a bool) */
     time_t		timestamp;	/* Time of last attempted fetch */
 
-    unsigned long long	uptime;
-    unsigned long long	total_accesses;
-    unsigned long long	total_kbytes;
+    __uint64_t		uptime;
+    __uint64_t		total_accesses;
+    __uint64_t		total_kbytes;
     double		requests_per_sec;
     double		bytes_per_sec;
     unsigned int	bytes_per_request;
