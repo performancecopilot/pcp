@@ -1,4 +1,5 @@
 pcp-3.5.1 (under development)
+    - bugfix: fetching hinv.cpu.* aborts if cpu indom is not initialized
     - Rearrange the per-CPU intr metrics on Linux to use dynamic namespace
     - Add perl modules into Mac OS X installations
     - Additional vmstat metrics added to Linux kernel PMDA
