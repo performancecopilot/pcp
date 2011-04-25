@@ -98,7 +98,7 @@ $1 == "'$iam'"	{ printf "%s",$6
 		    if [ -f $configfile ]
 		    then
 			    echo "Cannot remove \"$configfile\""
-			    _quit 1
+			    exit 1
 		    fi
 	    fi
 
@@ -115,7 +115,7 @@ be at least one logfile specified.  '
 	    if [ ! -f $configfile ]
 	    then
 		echo "Installation aborted."
-		_quit 1
+		exit 1
 	    fi
 
 	    while [ ! -s "$configfile" ]
@@ -125,6 +125,19 @@ be at least one logfile specified.  '
 		    $PCP_ECHO_PROG $PCP_ECHO_N "Logfile PMNS name: ""$PCP_ECHO_C"
 		    read name
 		    [ -z "$name" ] && break
+
+		    # Check name for invalid chars.
+		    if ! echo $name | grep "^[A-Za-z][_A-Za-z0-9]*$" > /dev/null
+		    then
+			echo \
+"Invalid characters in PMNS name: \"$name\".
+Names must start with an alphabetic character ([a-zA-Z]).  The rest of
+the characters in the name must be alphanumeric ([a-zA-Z0-9]) or an
+underscore ('_')."
+			continue
+		    fi
+
+		    # Make sure name isn't already in the logfile.
 		    if grep "^${name}[ \t]" $configfile >/dev/null
 		    then
 			echo "Sorry, logfile PMNS name \"$name\" already specified.  Please try again."
@@ -152,7 +165,7 @@ be at least one logfile specified.  '
 	else
 	    echo ""
 	    echo "Error: Abandoning installation as no configuration file was specified."
-	    _quit 1
+	    exit 1
 	fi
     fi
 
