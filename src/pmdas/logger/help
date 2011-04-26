@@ -37,7 +37,3 @@ The number of attached clients.
 The number of monitored logfiles.
 @ logger.param_string String event data
 String event data.
-#@ logger.perfile.numclients The number of attached clients/logfile
-#The number of attached clients/logfile
-#@ logger.perfile.records Event records/logfile
-#Event records/logfile.

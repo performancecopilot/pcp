@@ -55,6 +55,7 @@ static __pmnsTree *pmns;
 struct dynamic_metric_info {
     int logfile;
     int pmid_index;
+    const char *help_text;
 };
 static struct dynamic_metric_info *dynamic_metric_infotab = NULL;
 
@@ -78,6 +79,13 @@ static char *dynamic_nametab[] = {
     "numclients",
 /* perfile.records */
     "records",
+};
+
+static const char *dynamic_helptab[] = {
+/* perfile.numclients */
+    "The number of attached clients for this logfile.",
+/* perfile.records */
+    "Event records for this logfile.",
 };
 
 static pmdaMetric static_metrictab[] = {
@@ -363,6 +371,31 @@ logger_children(const char *name, int traverse, char ***kids, int **sts,
     return pmdaTreeChildren(pmns, name, traverse, kids, sts);
 }
 
+static int
+logger_text(int ident, int type, char **buffer, pmdaExt *pmda)
+{
+    int numstatics = sizeof(static_metrictab)/sizeof(static_metrictab[0]);
+
+    if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
+	/* Lookup pmid in the metric table. */
+	int item = pmid_item(ident);
+
+	/* If the PMID item was for a dynamic metric... */
+	if (item >= numstatics && item < nummetrics
+	    /* and the PMID matches... */
+	    && metrictab[item].m_desc.pmid == (pmID)ident
+	    /* and we've got user data... */
+	    && metrictab[item].m_user != NULL) {
+	    struct dynamic_metric_info *pinfo = metrictab[item].m_user;
+
+	    /* Return the correct help text. */
+	    *buffer = (char *)pinfo->help_text;
+	    return 0;
+	}
+    }
+    return pmdaText(ident, type, buffer, pmda);
+}
+
 /*
  * Initialise the agent (both daemon and DSO).
  */
@@ -406,6 +439,7 @@ logger_init(pmdaInterface *dp)
 	for (j = 0; j < numdynamics; j++) {
 	    pinfo->logfile = i;
 	    pinfo->pmid_index = j;
+	    pinfo->help_text = dynamic_helptab[j];
 	    pinfo++;
 	}
     }
@@ -442,8 +476,7 @@ logger_init(pmdaInterface *dp)
     dp->version.four.pmid = logger_pmid;
     dp->version.four.name = logger_name;
     dp->version.four.children = logger_children;
-    /* FIXME: if we want to generate help text for the dynamic
-     * metrics, we'll have to override 'four.text'. */
+    dp->version.four.text = logger_text;
 
     pmdaSetFetchCallBack(dp, logger_fetchCallBack);
     pmdaSetEndContextCallBack(dp, logger_end_contextCallBack);
