@@ -17,6 +17,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ *
+ * Debug options
+ * APPL0	configfile processing and PMNS setup
+ * APPL1	loading event data from the log files
+ * APPL2	interaction with PMCD
  */
 
 #include <pcp/pmapi.h>
@@ -115,13 +120,15 @@ static pmdaMetric static_metrictab[] = {
 static pmdaMetric *metrictab = NULL;
 
 static char	mypath[MAXPATHLEN];
-static int	isDSO = 1;		/* ==0 if I am a daemon */
 char	       *configfile = NULL;
 
 void
 logger_end_contextCallBack(int ctx)
 {
-    __pmNotifyErr(LOG_INFO, "%s: saw context %d\n", __FUNCTION__, ctx);
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2)
+	__pmNotifyErr(LOG_INFO, "%s: saw context %d\n", __FUNCTION__, ctx);
+#endif
     ctx_end(ctx);
 }
 
@@ -129,7 +136,10 @@ static int
 logger_profile(__pmProfile *prof, pmdaExt *ep)
 {
 //    (ep->e_context)
-    __pmNotifyErr(LOG_INFO, "%s: saw context %d\n", __FUNCTION__, ep->e_context);
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2)
+	__pmNotifyErr(LOG_INFO, "%s: saw context %d\n", __FUNCTION__, ep->e_context);
+#endif
     ctx_start(ep->e_context);
     return 0;
 }
@@ -144,7 +154,10 @@ logger_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int		rc;
     int		status = PMDA_FETCH_STATIC;
 
-    __pmNotifyErr(LOG_INFO, "%s called\n", __FUNCTION__);
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2)
+	__pmNotifyErr(LOG_INFO, "%s called\n", __FUNCTION__);
+#endif
     if (idp->cluster != 0 || (idp->item < 0 || idp->item > nummetrics)) {
 	__pmNotifyErr(LOG_ERR, "%s: PM_ERR_PMID (cluster = %d, item = %d)\n",
 		      __FUNCTION__, idp->cluster, idp->item);
@@ -334,8 +347,11 @@ read_config(const char *filename)
 	strncpy(data->pathname, ptr, sizeof(data->pathname));
 	/* data->pmid_string gets filled in after pmdaInit() is called. */
 
-	__pmNotifyErr(LOG_INFO, "%s: saw logfile %s (%s)\n", __FUNCTION__,
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL0)
+	    __pmNotifyErr(LOG_INFO, "%s: saw logfile %s (%s)\n", __FUNCTION__,
 		      data->pathname, data->pmns_name);
+#endif
     }
     if (rc != 0) {
 	free(logfiles);
@@ -350,11 +366,10 @@ read_config(const char *filename)
 static void
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
+    fprintf(stderr, "Usage: %s [options] configfile\n\n", pmProgname);
     fputs("Options:\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile   write log into logfile rather than using default log name\n"
-	  "  -m logfile   logfile to monitor (required)\n",
+	  "  -l logfile   write log into logfile rather than using default log name\n",
 	      stderr);		
     exit(1);
 }
@@ -362,15 +377,21 @@ usage(void)
 static int
 logger_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
-    __pmNotifyErr(LOG_INFO, "%s: name %s\n", __FUNCTION__,
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_INFO, "%s: name %s\n", __FUNCTION__,
 		  (name == NULL) ? "NULL" : name);
+#endif
     return pmdaTreePMID(pmns, name, pmid);
 }
 
 static int
 logger_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 {
-    __pmNotifyErr(LOG_INFO, "%s: pmid 0x%x\n", __FUNCTION__, pmid);
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_INFO, "%s: pmid 0x%x\n", __FUNCTION__, pmid);
+#endif
     return pmdaTreeName(pmns, pmid, nameset);
 }
 
@@ -378,8 +399,11 @@ static int
 logger_children(const char *name, int traverse, char ***kids, int **sts,
 		pmdaExt *pmda)
 {
-    __pmNotifyErr(LOG_INFO, "%s: name %s\n", __FUNCTION__,
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_INFO, "%s: name %s\n", __FUNCTION__,
 		  (name == NULL) ? "NULL" : name);
+#endif
     return pmdaTreeChildren(pmns, name, traverse, kids, sts);
 }
 
@@ -409,7 +433,7 @@ logger_text(int ident, int type, char **buffer, pmdaExt *pmda)
 }
 
 /*
- * Initialise the agent (both daemon and DSO).
+ * Initialise the agent (daemon only).
  */
 void 
 logger_init(pmdaInterface *dp)
@@ -421,13 +445,6 @@ logger_init(pmdaInterface *dp)
     int pmid_num;
     char name[MAXPATHLEN * 2];
     struct dynamic_metric_info *pinfo;
-
-    if (isDSO) {
-	int sep = __pmPathSeparator();
-	snprintf(mypath, sizeof(mypath), "%s%c" "logger" "%c" "help",
-		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_5, "logger DSO", mypath);
-    }
 
     /* Read and parse config file. */
     if (read_config(configfile) != 0) {
@@ -533,7 +550,6 @@ main(int argc, char **argv)
     int			sep = __pmPathSeparator();
     pmdaInterface	desc;
 
-    isDSO = 0;
     __pmSetProgname(argv[0]);
 
     snprintf(mypath, sizeof(mypath), "%s%c" "logger" "%c" "help",
@@ -557,14 +573,6 @@ main(int argc, char **argv)
     pmdaOpenLog(&desc);
     logger_init(&desc);
     pmdaConnect(&desc);
-
-#ifdef HAVE_SIGHUP
-    /*
-     * Non-DSO agents should ignore gratuitous SIGHUPs, e.g. from xwsh
-     * when launched by the PCP Tutorial!
-     */
-    signal(SIGHUP, SIG_IGN);
-#endif
 
     pmdaMain(&desc);
 

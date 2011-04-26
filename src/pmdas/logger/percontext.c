@@ -70,8 +70,11 @@ ctx_start(int ctx)
 	if (ctx_start_cb) {
 	    ctxtab[ctx].user_data = ctx_start_cb(ctx);
 	}
-	__pmNotifyErr(LOG_INFO, "%s: saw new context %d (num_ctx=%d)\n",
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL2)
+	    __pmNotifyErr(LOG_INFO, "%s: saw new context %d (num_ctx=%d)\n",
 		      __FUNCTION__, ctx, num_ctx);
+#endif
     }
     return 0;
 }
@@ -80,7 +83,7 @@ void
 ctx_end(int ctx)
 {
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1) {
+    if (pmDebug & DBG_TRACE_APPL2) {
 	fprintf(stderr, "sample_ctx_end(%d) [context is ", ctx);
 	if (ctx < 0 || ctx >= num_ctx_allocated)
 	    fprintf(stderr, "unknown, num_ctx=%d", num_ctx);

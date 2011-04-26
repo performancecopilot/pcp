@@ -200,7 +200,10 @@ event_create(int logfile)
     e->clients = file_data_tab[logfile].numclients;
     e->buffer[c] = '\0';
     TAILQ_INSERT_TAIL(&file_data_tab[logfile].head, e, events);
-    __pmNotifyErr(LOG_INFO, "Inserted item, clients = %d.", e->clients);
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL1)
+	__pmNotifyErr(LOG_INFO, "Inserted item, clients = %d.", e->clients);
+#endif
     return 0;
 }
 
@@ -246,7 +249,10 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
 	/* Add the string parameter.  Note that pmdaEventAddParam()
 	 * copies the string, so we can free it soon after. */
 	atom.cp = e->buffer;
-	__pmNotifyErr(LOG_INFO, "Adding param: %s", e->buffer);
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL1)
+	    __pmNotifyErr(LOG_INFO, "Adding param: %s", e->buffer);
+#endif
 	rc = pmdaEventAddParam(eventarray,
 			       file_data_tab[logfile].logfile->pmid_string,
 			       PM_TYPE_STRING, &atom);

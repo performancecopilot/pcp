@@ -75,8 +75,11 @@ start_cmd(const char *cmd, pid_t *ppid)
      * the exec()?  Remove things like IFS, CDPATH, ENV, and BASH_ENV.
      */
 
-    __pmNotifyErr(LOG_INFO, "%s: Trying to run command: %s", __FUNCTION__,
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_INFO, "%s: Trying to run command: %s", __FUNCTION__,
 		  cmd);
+#endif
 
     /* Create the pipes. */
     rc = pipe2(pipe_fds, O_CLOEXEC|O_NONBLOCK);

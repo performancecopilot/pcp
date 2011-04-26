@@ -3,6 +3,7 @@
  */
 
 #include <stdpmid>
+#include "domain.h"
 
 root { logger }
 
