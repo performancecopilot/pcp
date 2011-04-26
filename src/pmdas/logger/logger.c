@@ -42,6 +42,7 @@
  *	logger.numclients			- number of attached clients
  *	logger.numlogfiles			- number of monitored logfiles
  *	logger.param_string			- string event data
+ *	logger.perfile.{LOGFILE}.path		- logfile path
  *	logger.perfile.{LOGFILE}.numclients	- number of attached
  *						  clients/logfile
  *	logger.perfile.{LOGFILE}.records	- event records/logfile
@@ -64,6 +65,10 @@ static struct dynamic_metric_info *dynamic_metric_infotab = NULL;
  */
 
 static pmdaMetric dynamic_metrictab[] = {
+/* perfile.{LOGFILE}.path */
+    { NULL, 				/* m_user gets filled in later */
+      { 0 /* pmid gets filled in later */, PM_TYPE_STRING, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* perfile.{LOGFILE}.numclients */
     { NULL, 				/* m_user gets filled in later */
       { 0 /* pmid gets filled in later */, PM_TYPE_U32, PM_INDOM_NULL,
@@ -75,16 +80,20 @@ static pmdaMetric dynamic_metrictab[] = {
 };
 
 static char *dynamic_nametab[] = {
-/* perfile.numclients */
+/* perfile.{LOGFILE}.path */
+    "path",
+/* perfile.{LOGFILE}.numclients */
     "numclients",
-/* perfile.records */
+/* perfile.{LOGFILE}.records */
     "records",
 };
 
 static const char *dynamic_helptab[] = {
-/* perfile.numclients */
+/* perfile.{LOGFILE}.path */
+    "The path for this logfile.",
+/* perfile.{LOGFILE}.numclients */
     "The number of attached clients for this logfile.",
-/* perfile.records */
+/* perfile.{LOGFILE}.records */
     "Event records for this logfile.",
 };
 
@@ -171,10 +180,13 @@ logger_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 
 	switch(pinfo->pmid_index) {
-	  case 0:	     /* logger.perfile.{LOGFILE}.numclients */
+	  case 0:			/* perfile.{LOGFILE}.path */
+	    atom->cp = logfiles[pinfo->logfile].pathname;
+	    break;
+	  case 1:			/* perfile.{LOGFILE}.numclients */
 	    atom->ul = event_get_clients_per_logfile(pinfo->logfile);
 	    break;
-	  case 1:		/* logger.perfile.{LOGFILE}.records */
+	  case 2:			/* perfile.{LOGFILE}.records */
 	    if ((rc = event_fetch(&atom->vbp, pinfo->logfile)) != 0)
 		return rc;
 	    if (atom->vbp == NULL)
