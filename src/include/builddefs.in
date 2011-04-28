@@ -222,7 +222,7 @@ DOMAIN_MAKERULE = \
 	echo "/*" >domain.h; \
 	echo " * built from $<" >>domain.h; \
 	echo " */" >>domain.h; \
-	$(PCP_AWK_PROG) <$< '\
+	$(AWK) <$< '\
 	    $$1=="\#define" && $$2 == "$(DOMAIN)" {\
 		print "\#define $(DOMAIN) " $$3 >>"$@"; found++ \
 	    }\
@@ -243,7 +243,7 @@ DOMAIN_PERLRULE = \
 	@export perldomain=`sed -n \
 		-e '/PCP::PMDA->new/s/[^0-9]*$$//' \
 		-e '/PCP::PMDA->new/s/^[^0-9]*//p' pmda$(IAM).pl`; \
-	$(PCP_AWK_PROG) <$< '\
+	$(AWK) <$< '\
 	    BEGIN {\
 		domain = toupper("$(IAM)") \
 	    }\

@@ -83,19 +83,10 @@ include $(BUILDRULES)
 #$(IAM):	$(OBJECTS)
 #
 #domain.h: ../../pmns/stdpmid
-#	rm -f domain.h
-#	@echo "/*" >domain.h
-#	@echo " * built from $<" >>domain.h
-#	@echo " */" >>domain.h
-#	@$(PCP_AWK_PROG) <$< '\
-#$$1=="#define" && $$2 == "$(DOMAIN)" { print "#define $(DOMAIN) " $$3 >>"$@"; found++ }\
-#END	{ if (found == 0) { print "Botch: no #define for domain $(DOMAIN) in $<";  exit(1) }\
-#          if (found > 1) { print "Botch: multiple #defines for domain $(DOMAIN) in $<"; print "... see $@ for details"; exit(1) }\
-#	  exit(0)\
-#	}'
+#	$(DOMAIN_MAKERULE)
 #
 #help: $(PROC_DIR)/help help.hotproc pmns
-#	$(PCP_AWK_PROG) <$(PROC_DIR)/help '\
+#	$(AWK) <$(PROC_DIR)/help '\
 #$1 == "@"			{ want=0 }\
 #$1 == "@" && $2 ~ /^proc/	{ want=1 }\
 #want == 1	{ print }' \
@@ -105,7 +96,7 @@ include $(BUILDRULES)
 #	| ./help.fmt >$@ 
 #
 #pmns: $(PROC_DIR)/root_linux pmns.hotproc fixpmns.awk
-#	$(PCP_AWK_PROG) < $(PROC_DIR)/root_linux -f fixpmns.awk \
+#	$(AWK) < $(PROC_DIR)/root_linux -f fixpmns.awk \
 #	| sed -e '/nprocs/d' -e 's/60:/HOTPROC:/g' -e 's/^proc/hotproc/g' \
 #	| cat - pmns.hotproc >$@
 #
