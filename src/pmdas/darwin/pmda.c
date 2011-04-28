@@ -41,7 +41,7 @@ static pmdaInterface		dispatch;
 static int			_isDSO = 1;	/* =0 I am a daemon */
 
 mach_port_t		mach_host = 0;
-unsigned int		mach_page_size = 0;
+vm_size_t		mach_page_size = 0;
 unsigned int		mach_page_shift = 0;
 
 unsigned int		mach_hertz = 0;
@@ -154,7 +154,7 @@ static pmdaMetric metrictab[] = {
 
 /* hinv.pagesize */
   { &mach_page_size, 
-    { PMDA_PMID(CLUSTER_INIT,0), PM_TYPE_U32, PM_INDOM_NULL,
+    { PMDA_PMID(CLUSTER_INIT,0), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_DISCRETE, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 /* kernel.all.hz */
   { &mach_hertz,

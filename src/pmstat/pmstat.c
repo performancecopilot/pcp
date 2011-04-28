@@ -18,7 +18,7 @@
 #include "pmda.h"
 
 #include <ctype.h>
-#ifdef GWINSZ_IN_SYS_IOCTL_H
+#ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
 #ifdef HAVE_SYS_TERMIOS_H
