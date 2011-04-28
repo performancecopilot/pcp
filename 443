@@ -31,7 +31,11 @@ _filter_usage()
 	-e '/^first=/s/=.*/=.../' \
 	-e '/^now=/s/=.*/=.../' \
 	-e '/^last=/s/=.*/=.../' \
-	-e '/Usage/q'
+	-e '/Usage/q' \
+	-e '/illegal option/{
+s/illegal/invalid/
+s/.$/'"'&'"'/
+}'
 }
 
 _filter()
