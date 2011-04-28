@@ -42,6 +42,7 @@ MMV.o: Makefile MMV.xs
 
 Makefile: COPYING Makefile.PL
 	PCP_TOPDIR=`pwd`/$(TOPDIR); export PCP_TOPDIR; \
+	TARGET_OS="$(TARGET_OS)" \
 	CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_OPTIONS)
 
 COPYING:

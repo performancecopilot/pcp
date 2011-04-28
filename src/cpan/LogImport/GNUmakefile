@@ -27,7 +27,7 @@ TESTCODE  =
 PERLDOCS  = Changes MANIFEST
 LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLMOD) $(INTERFACE) $(TESTCODE)
 
-LPKGDIRT = PCP-LogImport-*
+LPKGDIRT = PCP-LogImport-* tmp
 LDIRT = Makefile COPYING LogImport.bs LogImport.c LogImport.o cvalue pm_to_blib blib \
 	Makefile.old $(LPKGDIRT)
 
@@ -48,6 +48,7 @@ LogImport.o: Makefile LogImport.xs typemap
 
 Makefile: COPYING Makefile.PL
 	PCP_TOPDIR=`pwd`/$(TOPDIR); export PCP_TOPDIR; \
+	TARGET_OS="$(TARGET_OS)" \
 	CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_OPTIONS)
 
 COPYING:

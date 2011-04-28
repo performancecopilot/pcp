@@ -1,6 +1,27 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
+my $ldfrom;
+my $inc;
+my $libs;
+
+if ($ENV{TARGET_OS} eq "mingw") {
+    $ldfrom = "-L$ENV{PCP_TOPDIR}/src/libpcp/src -L$ENV{PCP_TOPDIR}/src/libpcp_mmv/src -L$ENV{PCP_DIR}\\local\\bin -lpcp_mmv -lpcp MMV.o";
+    $inc = "-I$ENV{PCP_TOPDIR}/src/include -I/usr/include/pcp -I$ENV{PCP_DIR}\\include\\pcp -I$ENV{PCP_DIR}\\c\\include";
+    $libs = ["-L$ENV{PCP_DIR}\\local\\bin", '-lpcp_mmv', '-lpcp'];
+}
+else {
+    $ldfrom = "-L$ENV{PCP_TOPDIR}/src/libpcp/src -L$ENV{PCP_TOPDIR}/src/libpcp_mmv/src -lpcp_mmv -lpcp MMV.o";
+    $inc = "-I$ENV{PCP_TOPDIR}/src/include -I/usr/include/pcp";
+    $libs = ['-lpcp_mmv', '-lpcp'];
+}
+if ($ENV{TARGET_OS} eq "darwin") {
+    # standard ones, minus -arch ppc
+    $lddlflags = "-arch x86_64 -arch i386 -bundle -undefined dynamic_lookup -L/usr/local/lib";
+}
+else {
+    $lddlflags = "-shared \$(OPTIMIZE) \$(LDFLAGS)";
+}
 WriteMakefile(
     NAME		=> 'PCP::MMV',
     AUTHOR		=> 'Nathan Scott <nathans@debian.org>',
@@ -11,9 +32,10 @@ WriteMakefile(
     XSPROTOARG		=> '-noprototypes',
     OBJECT		=> 'MMV.o',
     DEFINE		=> '-DPERLIO_NOT_STDIO=0 -DPCP_VERSION -DPCP_DEBUG',
-    LDFROM		=> "-L$ENV{PCP_TOPDIR}/src/libpcp/src -L$ENV{PCP_TOPDIR}/src/libpcp_mmv/src -L$ENV{PCP_DIR}\\local\\bin -lpcp_mmv -lpcp MMV.o",
-    INC			=> "-I$ENV{PCP_TOPDIR}/src/include -I/usr/include/pcp -I$ENV{PCP_DIR}\\include\\pcp -I$ENV{PCP_DIR}\\c\\include",
-    LIBS		=> ["-L$ENV{PCP_DIR}\\local\\bin", '-lpcp_mmv', '-lpcp'],
+    LDFROM		=> $ldfrom,
+    LDDLFLAGS		=> $lddlflags,
+    INC			=> $inc,
+    LIBS		=> $libs,
     CC			=> $ENV{"CC"},
     LD			=> $ENV{"CC"},
 );
