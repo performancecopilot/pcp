@@ -64,8 +64,8 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
     int		seendot = 0;
     int		base;
     double	d;
-    long	temp_l;
-    unsigned long	temp_ul;
+    int64_t	temp_l;
+    uint64_t	temp_ul;
 	
 
     /*
