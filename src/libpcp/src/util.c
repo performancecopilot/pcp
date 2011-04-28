@@ -455,6 +455,7 @@ print_event_summary(FILE *f, const pmValue *val)
     pmEventArray	*eap = (pmEventArray *)val->value.pval;
     char		*base;
     struct timeval	stamp;
+    __pmTimeval		*tvp;
     int			nrecords;
     int			nmissed = 0;
     int			r;	/* records */
@@ -464,7 +465,9 @@ print_event_summary(FILE *f, const pmValue *val)
 
     nrecords = eap->ea_nrecords;
     base = (char *)&eap->ea_record[0];
-    memcpy((void *)&stamp, base, sizeof(stamp));
+    tvp = (__pmTimeval *)base;
+    stamp.tv_sec = tvp->tv_sec;
+    stamp.tv_usec = tvp->tv_usec;
     /* walk packed event record array */
     for (r = 0; r < eap->ea_nrecords-1; r++) {
 	erp = (pmEventRecord *)base;
@@ -491,7 +494,9 @@ print_event_summary(FILE *f, const pmValue *val)
 	__pmPrintStamp(f, &stamp);
 	if (eap->ea_nrecords > 1) {
 	    fprintf(f, "...");
-	    memcpy((void *)&stamp, base, sizeof(stamp));
+	    tvp = (__pmTimeval *)base;
+	    stamp.tv_sec = tvp->tv_sec;
+	    stamp.tv_usec = tvp->tv_usec;
 	    __pmPrintStamp(f, &stamp);
 	}
     }
