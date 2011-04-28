@@ -1235,10 +1235,19 @@ extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
 extern int __pmRegisterAnon(char *, int);
 
 /* Multi-thread support */
+
+/*
+ * Each of these scopes defines one or more PMAPI routines that will
+ * not allow calls from more than one thread.
+ */
 #define PM_SCOPE_DSO_PMDA	0
-#define PM_SCOPE_ACC		1
-#define PM_SCOPE_MAX		1
+#define PM_SCOPE_ACL		1
+#define PM_SCOPE_AF		2
+#define PM_SCOPE_LOGPORT	3
+#define PM_SCOPE_PMNS		4
+#define PM_SCOPE_MAX		4
 extern int __pmMultiThreaded(int);
+
 extern void __pmInitLocks(void);
 #ifdef PM_MULTI_THREAD
 #define PM_MULTIPLE_THREADS(x) __pmMultiThreaded(x)

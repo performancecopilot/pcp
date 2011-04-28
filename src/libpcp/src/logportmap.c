@@ -106,6 +106,9 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
     FILE		*pfile;
     char		buf[MAXPATHLEN];
 
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_LOGPORT))
+	return PM_ERR_THREAD;
+
     if (result == NULL)
 	return -EINVAL;
 
@@ -372,6 +375,9 @@ __pmLogFindPort(const char *host, int pid, __pmLogPort **lpp)
     pmResult		*res;
     char		*namelist[] = {"pmcd.pmlogger.port"};
     pmID		pmid;
+
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_LOGPORT))
+	return PM_ERR_THREAD;
 
     *lpp = NULL;		/* pass null back in event of error */
     localcon = __pmIsLocalhost(host);

@@ -381,6 +381,9 @@ __pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *
     struct timeval	now;
     struct timeval	interval;
 
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_AF))
+	return PM_ERR_THREAD;
+
     if (!block)
 	AFhold();
     if (afid == 0x8000 && !block)	/* first time */
@@ -430,6 +433,9 @@ __pmAFunregister(int afid)
     struct timeval	now;
     struct timeval	interval;
 
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_AF))
+	return PM_ERR_THREAD;
+
     if (!block)
 	AFhold();
     for (qp = root, priorp = NULL; qp != NULL && qp->q_afid != afid; qp = qp->q_next)
@@ -478,6 +484,8 @@ __pmAFunregister(int afid)
 void
 __pmAFblock(void)
 {
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_AF))
+	return;
     block = 1;
     AFhold();
 }
@@ -485,6 +493,8 @@ __pmAFblock(void)
 void
 __pmAFunblock(void)
 {
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_AF))
+	return;
     block = 0;
     AFrearm();
     AFrelse();
