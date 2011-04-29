@@ -28,7 +28,7 @@ ifeq ($(TARGET_OS),darwin)
 		bn=`basename $$f .gz`; \
 		dn=`dirname $$f`; \
 		$(INSTALL) -d $$dn || exit 1; \
-		src=`find $$PWD/*/blib -name $$bn`; \
+		src=`find */blib -name $$bn`; \
 		if [ -x $$src ] ; then mode=0755; else mode=0644; fi; \
 		$(INSTALL) -m $$mode $$src $$dn/$$bn || exit 1; \
 	    done; \
