@@ -1086,6 +1086,45 @@ _get_config()
 	    #
 	    echo unknown
 	fi
+    elif [ $PCP_PLATFORM = darwin ]
+    then
+	case $1 
+	in
+	    pmcd)	pat=""
+			;;
+	    pmlogger)	pat=PCP
+			;;
+	    pmie)	pat=pmie-TODO
+			;;
+	    verbose)	pat=""
+			;;
+	    *)		pat=$1
+			;;
+	esac
+	if [ -n "$pat" ]
+	then
+	    state=`sed -n -e "/^$pat=/{"'
+s/.*=//
+s/-//g
+p
+}' /etc/hostconfig`
+	    if [ -z "$state" ]
+	    then
+		echo "_change_config: Error: No $pat control line in /etc/hostconfig" >&2
+		echo "You need to add a $pat=-YES- line to this file" >&2
+		exit 1
+	    fi
+	    if [ "$state" = "YES" ]
+	    then
+		echo on
+	    elif [ "$state" = "NO" ]
+	    then
+		echo off
+	    else
+		echo "_change_config: Error: bad state ($state) should be YES or NO" >&2
+		exit 1
+	    fi
+	fi
    else
 	# Try the IRIX way
 	#
