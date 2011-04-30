@@ -13,7 +13,7 @@
 static void *
 func(void *arg)
 {
-    if (__pmMultiThreaded())
+    if (__pmMultiThreaded(PM_SCOPE_DSO_PMDA))
 	printf("func: is multithreaded\n");
     else
 	printf("func: is NOT multithreaded\n");
@@ -28,7 +28,7 @@ main()
     int		sts;
     char	*msg;
 
-    if (__pmMultiThreaded())
+    if (__pmMultiThreaded(PM_SCOPE_DSO_PMDA))
 	printf("main0: is multithreaded\n");
     else
 	printf("main0: is NOT multithreaded\n");
@@ -39,7 +39,7 @@ main()
 	exit(1);
     }
 
-    if (__pmMultiThreaded())
+    if (__pmMultiThreaded(PM_SCOPE_DSO_PMDA))
 	printf("main1: is multithreaded\n");
     else
 	printf("main1: is NOT multithreaded\n");
@@ -50,7 +50,7 @@ main()
 	exit(1);
     }
 
-    if (__pmMultiThreaded())
+    if (__pmMultiThreaded(PM_SCOPE_DSO_PMDA))
 	printf("main2: is multithreaded\n");
     else
 	printf("main2: is NOT multithreaded\n");

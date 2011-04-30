@@ -10,8 +10,9 @@
 #include <pcp/impl.h>
 #include <pthread.h>
 
+static pthread_barrier_t barrier;
+
 static int		ctx = -1;
-static struct timeval	delay = { 0, 1000 };
 static char		*namelist[] = { "sampledso.colour" };
 static pmID		pmidlist[] = { 0 };
 static pmDesc		desc;
@@ -19,33 +20,23 @@ static char		**instname;
 static int		*instance;
 static pmResult		*rp;
 
-#define NTRY 100
-
 static void *
 func(void *arg)
 {
     int			sts;
-    int			try;
     char		**children;
     char		*p;
 
-    if ((sts = pmNewContext(PM_CONTEXT_LOCAL, NULL)) < 0) {
+    if ((sts = pmNewContext(PM_CONTEXT_LOCAL, NULL)) < 0)
 	printf("pmNewContext: %s\n", pmErrStr(sts));
-	for (try = 0; try < NTRY; try++) {
-	    __pmtimevalSleep(delay);
-	    if (ctx >= 0)
-		break;
-	}
-	if (ctx == -1)
-	    pthread_exit("Loser failed to get context!");
-	if ((sts = pmUseContext(ctx)) < 0) {
-	    printf("pmUseContext: %s\n", pmErrStr(sts));
-	    pthread_exit(NULL);
-	}
-    }
     else {
 	ctx = sts;
 	printf("pmNewContext: -> %d\n", ctx);
+    }
+    pthread_barrier_wait(&barrier);
+    if ((sts = pmUseContext(ctx)) < 0) {
+	printf("pmUseContext: %s\n", pmErrStr(sts));
+	pthread_exit(NULL);
     }
 
     if ((sts = pmDupContext()) < 0)
@@ -55,18 +46,13 @@ func(void *arg)
 	pmUseContext(ctx);
     }
 
-    if ((sts = pmLookupName(1, namelist, pmidlist)) < 0) {
+    if ((sts = pmLookupName(1, namelist, pmidlist)) < 0)
 	printf("pmLookupName: %s\n", pmErrStr(sts));
-	for (try = 0; try < NTRY; try++) {
-	    __pmtimevalSleep(delay);
-	    if (pmidlist[0] != 0)
-		break;
-	}
-	if (pmidlist[0] == 0)
-	    pthread_exit("Loser failed to get pmid!");
-    }
     else
 	printf("pmLookupName: -> %s\n", pmIDStr(pmidlist[0]));
+    pthread_barrier_wait(&barrier);
+    if (pmidlist[0] == 0)
+	pthread_exit("Loser failed to get pmid!");
 
     if ((sts = pmGetPMNSLocation()) < 0)
 	printf("pmGetPMNSLocation: %s\n", pmErrStr(sts));
@@ -79,36 +65,26 @@ func(void *arg)
     else
 	printf("pmGetChildrenStatus: -> %d\n", sts);
 
-    if ((sts = pmLookupDesc(pmidlist[0], &desc)) < 0) {
+    if ((sts = pmLookupDesc(pmidlist[0], &desc)) < 0)
 	printf("pmLookupDesc: %s\n", pmErrStr(sts));
-	for (try = 0; try < NTRY; try++) {
-	    __pmtimevalSleep(delay);
-	    if (desc.pmid != 0)
-		break;
-	}
-	if (desc.pmid == 0)
-	    pthread_exit("Loser failed to get pmDesc!");
-    }
     else
 	printf("pmLookupDesc: -> %s type=%s indom=%s\n", pmIDStr(desc.pmid), pmTypeStr(desc.type), pmInDomStr(desc.indom));
+    pthread_barrier_wait(&barrier);
+    if (desc.pmid == 0)
+	pthread_exit("Loser failed to get pmDesc!");
 
     if ((sts = pmLookupText(pmidlist[0], PM_TEXT_ONELINE, &p)) < 0)
 	printf("pmLookupText: %s\n", pmErrStr(sts));
     else
 	printf("pmLookupText: -> %s\n", p);
 
-    if ((sts = pmGetInDom(desc.indom, &instance, &instname)) < 0) {
+    if ((sts = pmGetInDom(desc.indom, &instance, &instname)) < 0)
 	printf("pmGetInDom: %s: %s\n", pmInDomStr(desc.indom), pmErrStr(sts));
-	for (try = 0; try < NTRY; try++) {
-	    __pmtimevalSleep(delay);
-	    if (instance != NULL)
-		break;
-	}
-	if (instance == NULL)
-	    pthread_exit("Loser failed to get indom!");
-    }
     else
 	printf("pmGetInDom: -> %d\n", sts);
+    pthread_barrier_wait(&barrier);
+    if (instance == NULL)
+	pthread_exit("Loser failed to get indom!");
 
     if ((sts = pmNameInDom(desc.indom, instance[0], &p)) < 0)
 	printf("pmNameInDom: %s\n", pmErrStr(sts));
@@ -120,18 +96,13 @@ func(void *arg)
     else
 	printf("pmLookupInDom: %s -> %d\n", instname[0], sts);
 
-    if ((sts = pmFetch(1, pmidlist, &rp)) < 0) {
+    if ((sts = pmFetch(1, pmidlist, &rp)) < 0)
 	printf("pmFetch: %s\n", pmErrStr(sts));
-	for (try = 0; try < NTRY; try++) {
-	    __pmtimevalSleep(delay);
-	    if (rp != NULL)
-		break;
-	}
-	if (rp == NULL)
-	    pthread_exit("Loser failed to get pmResult!");
-    }
     else
 	printf("pmFetch: -> OK\n");
+    pthread_barrier_wait(&barrier);
+    if (rp == NULL)
+	pthread_exit("Loser failed to get pmResult!");
 
     if ((sts = pmStore(rp)) < 0)
 	printf("pmStore: %s\n", pmErrStr(sts));
@@ -149,14 +120,20 @@ main()
     int		sts;
     char	*msg;
 
+    sts = pthread_barrier_init(&barrier, NULL, 2);
+    if (sts != 0) {
+	printf("pthread_barrier_init: sts=%d\n", sts);
+	exit(1);
+    }
+
     sts = pthread_create(&tid1, NULL, func, NULL);
     if (sts != 0) {
-	printf("thread_create: tid1: sts=%d\n", sts);
+	printf("pthread_create: tid1: sts=%d\n", sts);
 	exit(1);
     }
     sts = pthread_create(&tid2, NULL, func, NULL);
     if (sts != 0) {
-	printf("thread_create: tid2: sts=%d\n", sts);
+	printf("pthread_create: tid2: sts=%d\n", sts);
 	exit(1);
     }
 

@@ -25,6 +25,23 @@ status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+_filter2()
+{
+    $PCP_AWK_PROG '
+$7 == "localhost"	{ sub(/[0-9a-f]{8}/,"HEXNUMBR",$4) }
+			{ print }'
+}
+
+_filter3()
+{
+    #     b                4194304 1.0.0 0x00400000
+    sed \
+	-e '/0x[0-9a-f][0-9a-f]*$/{
+s/ 0x[0-9a-f][0-9a-f]*$//
+s/ [0-9][0-9]* / /
+}'
+}
+
 # real QA test starts here
 echo "=== __pmMultiThreaded ==="
 src-oss/multithread0 | LC_COLLATE=POSIX sort
@@ -32,6 +49,14 @@ src-oss/multithread0 | LC_COLLATE=POSIX sort
 echo
 echo "=== PM_CONTEXT_LOCAL ==="
 src-oss/multithread1 | LC_COLLATE=POSIX sort
+
+echo
+echo "=== PM_SCOPE_AF and PM_SCOPE_ACL ==="
+src-oss/multithread2 | _filter2
+
+echo
+echo "=== PMNS concurrency ==="
+src-oss/multithread3 $tmp.pmns | tee -a $seq.full | _filter3
 
 # success, all done
 exit

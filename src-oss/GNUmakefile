@@ -12,6 +12,13 @@ endif
 PATH	= $(shell . /etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
+ifeq ($(shell test -f ../localconfig && echo 1), 1)
+include ../localconfig
+else
+$(warning Warning: ../localconfig does not exist, assuming PCP 3.0)
+PCP_VER=3000
+endif
+
 PMLOGGER	= $(PCP_BINADM_DIR)/pmlogger
 PMLOGEXTRACT	= $(PCP_BINADM_DIR)/pmlogextract
 
@@ -88,7 +95,10 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	pmdacache.c check_import.c unpack.c aggrstore.c atomstr.c \
 	grind_conv.c getconfig.c
 
-# CFILES += multithread0.c multithread1.c exerlock.c
+ifeq ($(shell test $(PCP_VER) -ge 4000 && echo 1), 1)
+CFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
+	exerlock.c
+endif
 
 POSIXFILES = \
 	ipc.c proc_test.c context_fd_leak.c arch_maxfd.c torture_trace.c \
@@ -415,6 +425,14 @@ multithread0:	multithread0.c
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
 
 multithread1:	multithread1.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+multithread2:	multithread2.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+multithread3:	multithread3.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
 
