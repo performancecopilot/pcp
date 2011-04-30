@@ -7,12 +7,20 @@
 
 seq=`basename $0`
 
-echo "QA output created by $seq"
-
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+
+rm -f $seq.out $seq.full
+if [ $PCP_PLATFORM = "darwin" ]
+then
+    ln $seq.out.2 $seq.out
+else
+    ln $seq.out.1 $seq.out
+fi
+
+echo "QA output created by $seq"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
@@ -24,7 +32,7 @@ loadav = kernel.all.load #'1 minute';
 '%sys' = kernel.all.cpu.sys;
 '%wio' = kernel.all.cpu.wait.total;
 '%idle' = kernel.all.cpu.idle;
-'max-iops' = max_inst(disk.dev.total);
+'maxiops' = max_inst(disk.dev.total);
 End-of-File
 
 _filter()
@@ -34,22 +42,55 @@ _filter()
 	-e 's/  *[0-9][0-9.]*/ N/g'
 }
 
+_filter_err()
+{
+    sed \
+	-e '/not in namespace/s/for host .*/for host LOCALHOST/'
+}
+
 # real QA test starts here
-echo "=== live ==="
-pmie -v -t 1 -T 3 <$tmp.config 2>&1 \
+echo "=== live ===" | tee -a $seq.full
+pmie -v -t 1 -T 3 <$tmp.config >$tmp.out 2>$tmp.tmp
+cat $tmp.out >>$seq.full
+sed -e '/Info: evaluator exiting/d' <$tmp.tmp >$tmp.err
+if [ -s $tmp.err ]
+then
+    echo "pmie errors ..."
+    _filter_err <$tmp.err
+fi
+cat $tmp.out \
 | pmie2col \
+| tee -a $seq.full \
 | _filter
 
-echo
-echo "=== live, pmie -e ==="
-pmie -v -e -t 1 -T 3 <$tmp.config 2>&1 \
+echo | tee -a $seq.full
+echo "=== live, pmie -e ===" | tee -a $seq.full
+pmie -v -e -t 1 -T 3 <$tmp.config >$tmp.out 2>$tmp.tmp
+cat $tmp.out >>$seq.full
+sed -e '/Info: evaluator exiting/d' <$tmp.tmp >$tmp.err
+if [ -s $tmp.err ]
+then
+    echo "pmie errors ..."
+    _filter_err <$tmp.err
+fi
+cat $tmp.out \
 | pmie2col \
+| tee -a $seq.full \
 | _filter
 
-echo
-echo "=== archive and pmie2col -w ==="
-pmie -v -z -A 30m -t 30m -a src-oss/kenj-pc-1 <$tmp.config 2>/dev/null \
-| pmie2col -w 8
+echo | tee -a $seq.full
+echo "=== archive and pmie2col -w ===" | tee -a $seq.full
+pmie -v -z -A 30m -t 30m -a src-oss/kenj-pc-1 <$tmp.config >$tmp.out 2>$tmp.tmp
+cat $tmp.out >>$seq.full
+sed -e '/Info: evaluator exiting/d' <$tmp.tmp >$tmp.err
+if [ -s $tmp.err ]
+then
+    echo "pmie errors ..."
+    _filter_err <$tmp.err
+fi
+cat $tmp.out \
+| pmie2col -w 8 \
+| tee -a $seq.full
 
 # success, all done
 exit
