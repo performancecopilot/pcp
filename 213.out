@@ -1,6 +1,6 @@
 QA output created by 213
 === DSO PMDA test ===
-dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.so sample_init 30
+dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.DSO_SUFFIX sample_init 30
 dbpmda> name 30.0.1001
 PMID: 30.0.1001
    sampledso.secret.foo.one
@@ -142,7 +142,7 @@ dbpmda> desc mmv.no.such.metric
 Error: Unknown metric name
 Type 'help' for a list of commands.
 dbpmda> close
-dbpmda> open dso $PCP_PMDAS_DIR/mmv/pmda_mmv.so mmv_init 70
+dbpmda> open dso $PCP_PMDAS_DIR/mmv/pmda_mmv.DSO_SUFFIX mmv_init 70
 dbpmda> desc mmv.test.strings
 PMID: 70.1.6
     Data Type: string  InDom: 70.2049 0x11800801

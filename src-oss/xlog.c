@@ -169,26 +169,25 @@ main(int argc, char **argv)
 	printf("%s: pmGetArchiveLabel(%d): %s\n", pmProgname, ctx[1], pmErrStr(sts));
 	exit(1);
     }
-    {
-	char *p	= (char *)&loglabel;
-	char *q	= (char *)&duplabel;
-	for (i = 0; i < sizeof(pmLogLabel); i++) {
-	    if (*p++ != *q++) {
-		printf("Error: pmLogLabel mismatch\n");
-		printf("First context: magic=0x%x pid=%d start=%ld.%06ld\n",
-			loglabel.ll_magic, loglabel.ll_pid,
-			(long)loglabel.ll_start.tv_sec,
-			(long)loglabel.ll_start.tv_usec);
-		printf("host=%s TZ=%s\n", loglabel.ll_hostname, loglabel.ll_tz);
-		printf("Error: pmLogLabel mismatch\n");
-		printf("Dup context: magic=0x%x pid=%d start=%ld.%06ld\n",
-			duplabel.ll_magic, duplabel.ll_pid,
-			(long)duplabel.ll_start.tv_sec,
-			(long)duplabel.ll_start.tv_usec);
-		printf("host=%s TZ=%s\n", duplabel.ll_hostname, duplabel.ll_tz);
-		break;
-	    }
-	}
+    if (loglabel.ll_magic != duplabel.ll_magic ||
+	loglabel.ll_pid != duplabel.ll_pid ||
+ 	loglabel.ll_start.tv_sec != duplabel.ll_start.tv_sec ||
+	loglabel.ll_start.tv_usec != duplabel.ll_start.tv_usec ||
+	strcmp(loglabel.ll_hostname, duplabel.ll_hostname) != 0 ||
+	strcmp(loglabel.ll_tz, duplabel.ll_tz) != 0) {
+	printf("Error: pmLogLabel mismatch\n");
+	printf("First context: magic=0x%x pid=%d start=%ld.%06ld\n",
+		loglabel.ll_magic, loglabel.ll_pid,
+		(long)loglabel.ll_start.tv_sec,
+		(long)loglabel.ll_start.tv_usec);
+	printf("host=%s TZ=%s\n", loglabel.ll_hostname, loglabel.ll_tz);
+	printf("Error: pmLogLabel mismatch\n");
+	printf("Dup context: magic=0x%x pid=%d start=%ld.%06ld\n",
+		duplabel.ll_magic, duplabel.ll_pid,
+		(long)duplabel.ll_start.tv_sec,
+		(long)duplabel.ll_start.tv_usec);
+	printf("host=%s TZ=%s\n", duplabel.ll_hostname, duplabel.ll_tz);
+	exit(1);
     }
 
     /*

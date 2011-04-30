@@ -21,6 +21,7 @@ _filter()
 	-e 's/ -t [0-9][0-9]* / /' \
 	-e '/UID/d' \
 	-e '/UNAME/d' \
+	-e '/USER/d' \
 	-e '/host/s/host "[^"]*"/host SOMEHOST/' \
 	-e 's/ *root[^/]*\//    root ... \//' \
 	-e 's/pmcd -.*/pmcd/' \

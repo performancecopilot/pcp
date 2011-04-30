@@ -17,18 +17,21 @@ if which sar >/dev/null 2>&1
 then
     :
 else
-    echo "sar not installed" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun "sar not installed"
+fi
+
+if which sadf >/dev/null 2>&1
+then
+    :
+else
+    _notrun "sadf not installed"
 fi
 
 if which sar2pcp >/dev/null 2>&1
 then
     :
 else
-    echo "sar2pcp not installed" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun "sar2pcp not installed"
 fi
 
 echo "QA output created by $seq"

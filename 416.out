@@ -1,8 +1,6 @@
 QA output created by 416
 dbpmda> open pipe PERL PCP_PMDAS_DIR/news/pmdanews.pl
 Start perl PMDA: PERL PCP_PMDAS_DIR/news/pmdanews.pl
-Log for pmdanews on ...
-
 dbpmda> traverse news
 Metric: news
    news.articles.total
@@ -60,5 +58,9 @@ pmResult dump from ADDR timestamp: 0.000000 TIMESTAMP numpmid: 1
     inst [4 or ???] value 700
 dbpmda> close
 dbpmda> quit
+
+=== news.log ===
+Log for pmdanews on ...
+
 
 Log finished ...

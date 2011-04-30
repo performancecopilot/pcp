@@ -35,6 +35,7 @@ _filter()
 	-e "s;$PCP_TMP_DIR;\$PCP_TMP_DIR;" \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
 	-e 's/dbpmda([0-9][0-9]*)/dbpmda(PID)/' \
+	-e "s/\.$DSO_SUFFIX/.DSO_SUFFIX/g" \
     | _filter_dumpresult
 }
 
@@ -42,7 +43,7 @@ _filter()
 # real QA test starts here
 echo "=== DSO PMDA test ==="
 cat <<End-of-File | dbpmda -ei 2>&1 | _filter
-open dso $PCP_PMDAS_DIR/sample/pmda_sample.so sample_init 30
+open dso $PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX sample_init 30
 name 30.0.1001
 name 30.0.1007
 name 2.4.1
@@ -94,7 +95,7 @@ text mmv.test.strings
 store mmv.reload "1"
 desc mmv.no.such.metric
 close
-open dso $PCP_PMDAS_DIR/mmv/pmda_mmv.so mmv_init 70
+open dso $PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX mmv_init 70
 desc mmv.test.strings
 fetch mmv.test.strings mmv.test.counter
 text mmv.test.strings

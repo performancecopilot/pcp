@@ -6,11 +6,16 @@
 #
 
 seq=`basename $0`
-echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
+
+if [ $PCP_PLATFORM = darwin ]
+then
+    _notrun No proc metrics for Mac OS X
+fi
 
 rm -f $seq.out $seq.full
 if [ $PCP_PLATFORM = linux -a $PCP_EOE_VER -ge 2704 ]
@@ -31,6 +36,8 @@ then
 else
     echo "Warning: no validated output for $PCP_PLATFORM"
 fi
+
+echo "QA output created by $seq"
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 

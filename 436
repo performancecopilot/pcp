@@ -27,6 +27,13 @@ trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 mkdir $tmp
 cp src-oss/mv-bigbin* $tmp
 
+_filter()
+{
+    # Mac OS X strangeness
+    sed \
+	-e '/: Undefined error: 0/s/Undefined error: 0/Success/'
+}
+
 _do()
 {
     base=`echo $1 | sed -e 's/\..*//'`
@@ -53,40 +60,40 @@ echo "expect only a few lines of diff output ..."
 
 echo
 echo "--- bzip2 first volume ---" | tee -a $here/$seq.full
-bzip2 mv-bigbin.0
+bzip2 mv-bigbin.0 | _filter
 ls -l >>$here/$seq.full
 _do mv-bigbin | tee -a $here/$seq.full >$tmp.new
 diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
-bunzip2 mv-bigbin.0.bz2
+bunzip2 mv-bigbin.0.bz2 | _filter
 
 echo
 echo "--- bzip2 last volume and use existing .9.bz2 in -a arg ---" | tee -a $here/$seq.full
-bzip2 mv-bigbin.9
+bzip2 mv-bigbin.9 | _filter
 ls -l >>$here/$seq.full
 _do mv-bigbin.9.bz2 | tee -a $here/$seq.full >$tmp.new
 diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
-bunzip2 mv-bigbin.9.bz2
+bunzip2 mv-bigbin.9.bz2 | _filter
 
 echo
 echo "--- bzip2 middle volume and used existing .1 in -a arg ---" | tee -a $here/$seq.full
-bzip2 mv-bigbin.5
+bzip2 mv-bigbin.5 | _filter
 ls -l >>$here/$seq.full
 _do mv-bigbin.1 | tee -a $here/$seq.full >$tmp.new
 diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
 
 echo
 echo "--- bzip2 first, middle and last volume and use .meta in -a arg ---" | tee -a $here/$seq.full
-bzip2 mv-bigbin.0
-bzip2 mv-bigbin.9
+bzip2 mv-bigbin.0 | _filter
+bzip2 mv-bigbin.9 | _filter
 ls -l >>$here/$seq.full
 _do mv-bigbin.meta | tee -a $here/$seq.full >$tmp.new
 diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
 
 echo
 echo "--- bzip2 first few, middle and last few volumes and use existing .7.bz2 in -a arg ---" | tee -a $here/$seq.full
-bzip2 mv-bigbin.1
-bzip2 mv-bigbin.7
-bzip2 mv-bigbin.8
+bzip2 mv-bigbin.1 | _filter
+bzip2 mv-bigbin.7 | _filter
+bzip2 mv-bigbin.8 | _filter
 ls -l >>$here/$seq.full
 _do mv-bigbin.7.bz2 | tee -a $here/$seq.full >$tmp.new
 diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
@@ -102,7 +109,7 @@ do
 done
 touch null.0.bz2 null.meta null.index
 pminfo -a null 2>&1 \
-| sed -e '/bzcat: Undefined error: 0/s/Undefined.*/Success/'
+| _filter
 
 # success, all done
 exit

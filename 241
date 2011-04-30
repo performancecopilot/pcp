@@ -105,7 +105,7 @@ do
    echo "new value: $value"
    value=`expr $value + 1`
    sleep 1
-   [ "$i" = 1 ] && pmval mmv.mymmv.export_value -t 0.5sec -s 20 >$tmp.out 2>&1 &
+   [ "$i" = 1 ] && pmval -t 0.5sec -s 20 mmv.mymmv.export_value >$tmp.out 2>&1 &
    sleep 1
 done \
 | perl $tmp.perl
