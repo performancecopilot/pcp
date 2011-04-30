@@ -6,4 +6,10 @@
 
 list=`echo *.out.bad | sed -e 's/.out.bad//g'`
 
+if [ "$list" = "*" ]
+then
+    echo "Nothing failed, bozo!"
+    exit 1
+fi
+
 ./check $* $list

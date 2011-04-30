@@ -83,7 +83,7 @@ END	{ if (NR > 0) {
 	echo "" >>check.log
 	date >>check.log
 	echo $list | fmt | sed -e 's/^/    /' >>check.log
-	$interrupt && echo "Interrupted!" >>check.log
+	$interrupt && echo "Interrupted! [running $seq]" >>check.log
 
 	if [ ! -z "$notrun" ]
 	then
