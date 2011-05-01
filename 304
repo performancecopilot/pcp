@@ -61,9 +61,16 @@ _do()
     | _filter_pmlogger_log
 
 }
-# no xconfim(1), please
+
+# NOT the default pmconfirm(1), please
 #
-unset DISPLAY
+cat <<'End-of-File' >$tmp.xconfirm
+#!/bin/sh
+# generate no output so pmlogger will report the message
+exit 0
+End-of-File
+chmod 755 $tmp.xconfirm
+export PCP_XCONFIRM_PROG=$tmp.xconfirm
 
 # real QA test starts here
 
