@@ -222,6 +222,9 @@ event
 # multi-threading and thread-safe exercises
 threads
 
+# perl bits
+perl
+
 # test-group association ... one line per test
 # ... use sort -n from here on down to tidy up this mess
 #
@@ -964,3 +967,4 @@ threads
 449 threads local oss
 451 threads local oss
 452 pmda.linux local oss
+453 perl local oss sanity
