@@ -68,7 +68,7 @@ install install_pcp:	default
 # is either in ../../pmns or in $(PCP_VAR_DIR)/pmns).
 #
 # The following line would be added to stdpmid.local:
-#   LOGGER 255
+#   LOGGER 106
 #
 # Then $(PCP_VAR_DIR)/pmns/Make.stdpmid would be run to generate
 # stdpmid from stdpmid.pcp/stdpmid.local.
