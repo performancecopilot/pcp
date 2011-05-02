@@ -163,7 +163,7 @@ event_init(pmdaInterface *dispatch, struct LogfileData *logfiles,
 	}
 
 	/* Skip to the end. */
-	//(void)lseek(file_data_tab[i].fd, 0, SEEK_END);
+	(void)lseek(file_data_tab[i].fd, 0, SEEK_END);
     }
 }
 
