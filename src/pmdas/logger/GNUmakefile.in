@@ -24,8 +24,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 CMDTARGET = pmdalogger$(EXECSUFFIX)
-LIBTARGET = pmda_logger.$(DSOSUFFIX)
-TARGETS = $(CMDTARGET) $(LIBTARGET)
+TARGETS = $(CMDTARGET)
 
 DFILES 	= README
 CFILES	= logger.c percontext.c event.c util.c
@@ -40,7 +39,7 @@ IAM	= logger
 DOMAIN	= LOGGER
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
-LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so
+LDIRT	= domain.h *.o $(IAM).log $(CMDTARGET)
 
 default_pcp default:	domain.h $(TARGETS)
 
@@ -56,7 +55,7 @@ install install_pcp:	default
 	cd $(srcdir) && $(INSTALL) -m 755 Install Remove $(PMDADIR)
 	cd $(srcdir) && $(INSTALL) -m 644 $(DFILES) root help pmns $(PMDADIR)
 	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
-	$(INSTALL) -m 755 $(CMDTARGET) $(LIBTARGET) $(PMDADIR)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
 
 .NOTPARALLEL:
 .ORDER:	domain.h $(OBJECTS)
