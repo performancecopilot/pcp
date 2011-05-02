@@ -361,7 +361,9 @@ s/ .*//p
 	[ ! -s $tmp.list ] && sed -n -e '/^[0-9]/s/[ 	].*//p' <group >$tmp.list
 
 	# arg after -x
-	group_list=`sed -n -e "/^[0-9].* $r /s/[ 	].*//p" <group`
+	group_list=`sed -n <group \
+	    -e "/^[0-9].* $r /s/[ 	].*//p" \
+	    -e "/^[0-9].* $r\$/s/[ 	].*//p"`
 	if [ -z "$group_list" ]
 	then
 	    echo "Group \"$r\" is empty or not defined; ignored"
