@@ -22,9 +22,12 @@
 #define _EVENT_H
 
 struct LogfileData {
+    pmID	pmid;
+    __uint32_t	count;
+    __uint64_t	bytes;
     char	pmns_name[MAXPATHLEN];
     char	pathname[MAXPATHLEN];
-    pmID	pmid_string;
+    struct stat	pathstat;
 };
 
 extern void event_init(pmdaInterface *dispatch, struct LogfileData *logfiles,

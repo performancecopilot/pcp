@@ -48,7 +48,7 @@ struct EventFileData {
     int			numclients;
     struct tailhead	head;
 };
-static struct EventFileData *file_data_tab = NULL;
+static struct EventFileData *file_data_tab;
 
 static int eventarray;
 static int numlogfiles;
@@ -163,7 +163,7 @@ event_init(pmdaInterface *dispatch, struct LogfileData *logfiles,
 	}
 
 	/* Skip to the end. */
-	(void)lseek(file_data_tab[i].fd, 0, SEEK_END);
+	lseek(file_data_tab[i].fd, 0, SEEK_END);
     }
 }
 
@@ -195,6 +195,10 @@ event_create(int logfile)
 	free(e);
 	return -1;
     }
+
+    /* Update logfile event stats. */
+    file_data_tab[logfile].logfile->count++;
+    file_data_tab[logfile].logfile->bytes += c;
 
     /* Store event in queue. */
     e->clients = file_data_tab[logfile].numclients;
@@ -254,7 +258,7 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
 	    __pmNotifyErr(LOG_INFO, "Adding param: %s", e->buffer);
 #endif
 	rc = pmdaEventAddParam(eventarray,
-			       file_data_tab[logfile].logfile->pmid_string,
+			       file_data_tab[logfile].logfile->pmid,
 			       PM_TYPE_STRING, &atom);
 	if (rc < 0)
 	    return rc;
