@@ -17,7 +17,7 @@
 
 #include "pmevent.h"
 
-static char *options = "a:D:gh:K:LO:p:S:s:T:t:zZ:?";
+static char *options = "a:D:gh:K:LO:p:S:s:T:t:vzZ:?";
 static char usage[] =
     "Usage: %s [options] metricname ...\n\n"
     "Options:\n"
@@ -33,6 +33,7 @@ static char usage[] =
     "  -s samples    terminate after this many samples\n"
     "  -T endtime    end of the reporting time window\n"
     "  -t interval   sample interval [default 1 second]\n"
+    "  -v            increase diagnostic output\n"
     "  -Z timezone   set reporting timezone\n"
     "  -z            set reporting timezone to local timezone of metrics source\n";
 
@@ -174,6 +175,10 @@ doargs(int argc, char **argv)
 		errflag++;
 	    }
 	    Tflag = optarg;
+	    break;
+
+	case 'v':
+	    verbose++;
 	    break;
 
 	case 'z':		/* timezone from metrics source */
@@ -446,5 +451,4 @@ doargs(int argc, char **argv)
 	    }
 	}
     }
-
 }

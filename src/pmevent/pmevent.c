@@ -29,6 +29,7 @@ static pmTime		*pmtime;
 char		*host;				/* original host */
 char		*archive = NULL;		/* archive source */
 int		ahtype = -1;			/* archive or host or local context */
+int		verbose;			/* verbose diagnostic output */
 struct timeval	now;				/* current reporting time */
 struct timeval	first;				/* start reporting time */
 struct timeval	last = {INT_MAX, 999999};	/* end reporting time */
@@ -166,20 +167,22 @@ lookup(pmInDom indom, int inst)
 static void myeventdump(pmValueSet *, int);
 
 static void
-mydump(pmDesc *dp, pmValueSet *vsp)
+mydump(const char *name, pmDesc *dp, pmValueSet *vsp)
 {
     int		j;
     char	*p;
 
     if (vsp->numval == 0) {
-	printf(": No value(s) available!\n");
+	if (verbose)
+	    printf("%s: No value(s) available!\n", name);
 	return;
     }
     else if (vsp->numval < 0) {
-	printf(": Error: %s\n", pmErrStr(vsp->numval));
+	printf("%s: Error: %s\n", name, pmErrStr(vsp->numval));
 	return;
     }
 
+    printf("    %s", name);
     for (j = 0; j < vsp->numval; j++) {
 	pmValue	*vp = &vsp->vlist[j];
 	if (dp->indom != PM_INDOM_NULL) {
@@ -335,8 +338,7 @@ myeventdump(pmValueSet *vsp, int idx)
 			    xvsp->vlist[0].value.lval);
 		continue;
 	    }
-	    printf("    %s", hp->name);
-	    mydump(&hp->desc, xvsp);
+	    mydump(hp->name, &hp->desc, xvsp);
 	}
     }
     if (nrecords >= 0)
@@ -429,11 +431,12 @@ main(int argc, char **argv)
 			__pmPrintStamp(stdout, &rp->timestamp);
 			printf("  ");
 		    }
-		    if (rp->vset[j]->numval == 0)
-			printf("%s: No values available\n", mp->name);
-		    else if (rp->vset[j]->numval < 0)
+		    if (rp->vset[j]->numval == 0) {
+			if (verbose)
+			    printf("%s: No values available\n", mp->name);
+		    } else if (rp->vset[j]->numval < 0) {
 			printf("%s: Error: %s\n", mp->name, pmErrStr(rp->vset[j]->numval));
-		    else {
+		    } else {
 			int	i;
 			for (i = 0; i < rp->vset[j]->numval; i++) {
 			    if (rp->vset[j]->vlist[i].inst == PM_IN_NULL)
