@@ -144,6 +144,12 @@ _warn()
     dump_mesg=true
 }
 
+_debug()
+{
+    sed -e "s/^/$prog: Debug: /" | $TEE -a $mesg
+    dump_mesg=true
+}
+
 _mesg_head()
 {
     _echo "$*" | $TEE -a $mesg
@@ -328,7 +334,11 @@ _install_file()
 	then
 	    if [ ! -f $source ]
 	    then
-		_error "Unable to find file for $target"
+		echo "cwd=`pwd`" >$tmp.debug
+		echo "source dir=`dirname $source`" >>$tmp.debug
+		ls -l `dirname $source` >>$tmp.debug
+		_debug <$tmp.debug
+		_error "Unable to find file ($source) for $target"
 	    fi
 	    if [ -f $target ]
 	    then
