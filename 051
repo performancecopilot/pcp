@@ -136,8 +136,8 @@ do
     $sudo cp $t $config
     rm -f pmcd.log
     echo
-    echo -n "$t================"
-    echo "$t================" >>$here/$seq.full
+    $PCP_ECHO_PROG $PCP_ECHO_N "$t================""$PCP_ECHO_C"
+    $PCP_ECHO_PROG "$t================" >>$here/$seq.full
     cat $t >>$here/$seq.full
     case $t
     in
