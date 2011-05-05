@@ -1371,7 +1371,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	memset(&addr, 0, sizeof(addr));
 	addr.sun_family = AF_UNIX;
 	strcpy(addr.sun_path, aPtr->ipc.socket.name);
-	len = (int)sizeof(addr.sun_family) + (int)strlen(addr.sun_path);
+	len = (int)offsetof(struct sockaddr_un, sun_path) + (int)strlen(addr.sun_path);
 	sts = connect(fd, (struct sockaddr *) &addr, len);
 #else
 	fprintf(stderr, "pmcd: UNIX sockets are not supported : \"%s\" agent\n",
