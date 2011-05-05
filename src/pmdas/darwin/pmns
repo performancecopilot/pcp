@@ -86,6 +86,7 @@ filesys {
     capacity		DARWIN:5:32
     used		DARWIN:5:33
     free		DARWIN:5:34
+    maxfiles		DARWIN:5:123
     usedfiles		DARWIN:5:35
     freefiles		DARWIN:5:36
     mountdir		DARWIN:5:37
