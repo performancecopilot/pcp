@@ -21,17 +21,39 @@
 #ifndef _EVENT_H
 #define _EVENT_H
 
-struct LogfileData {
-    pmID	pmid;
-    __uint32_t	count;
-    __uint64_t	bytes;
-    char	pmns_name[MAXPATHLEN];
-    char	pathname[MAXPATHLEN];
-    struct stat	pathstat;
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
+#include <pcp/pmda.h>
+#include <sys/queue.h>
+
+#define BUF_SIZE 1024
+
+struct event {
+    TAILQ_ENTRY(event) events;
+    int clients;
+    char buffer[BUF_SIZE];
 };
 
-extern void event_init(pmdaInterface *dispatch, struct LogfileData *logfiles,
-		       int numlogfiles);
+TAILQ_HEAD(tailhead, event);
+
+struct EventFileData {
+    int			fd;
+    pid_t	        pid;
+    int			numclients;
+    pmID		pmid;
+    __uint32_t		count;
+    __uint32_t		pad;
+    __uint64_t		bytes;
+    struct stat		pathstat;
+    char		pmnsname[MAXPATHLEN];
+    char		pathname[MAXPATHLEN];
+    struct tailhead	head;
+};
+
+extern struct EventFileData *logfiles;
+extern int numlogfiles;
+
+extern void event_init(void);
 extern int event_fetch(pmValueBlock **vbpp, unsigned int logfile);
 extern int event_get_clients_per_logfile(unsigned int logfile);
 extern void event_shutdown(void);

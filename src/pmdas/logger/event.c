@@ -18,47 +18,20 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/queue.h>
-#include <sys/time.h>
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
-#include <pcp/pmda.h>
 #include "event.h"
 #include "percontext.h"
 #include "util.h"
 
-#define BUF_SIZE 1024
-
-struct event {
-    TAILQ_ENTRY(event) events;
-    int clients;
-    char buffer[BUF_SIZE];
-};
-
-TAILQ_HEAD(tailhead, event);
-
-struct EventFileData {
-    struct LogfileData *logfile;
-    int			fd;
-    pid_t	        pid;
-    int			numclients;
-    struct tailhead	head;
-};
-static struct EventFileData *file_data_tab;
-
+static void event_cleanup(void);
 static int eventarray;
-static int numlogfiles;
+
+int numlogfiles;
+struct EventFileData *logfiles;
 
 struct ctx_client_data {
     unsigned int	active_logfile;
     struct event      **last;
 };
-
-static void event_cleanup(void);
 
 static void *
 ctx_start_callback(int ctx)
@@ -87,83 +60,48 @@ ctx_end_callback(int ctx, void *user_data)
 }
 
 void
-event_init(pmdaInterface *dispatch, struct LogfileData *logfiles,
-	   int nlogfiles)
+event_init(void)
 {
-    int i;
-
-    numlogfiles = nlogfiles;
-    if (numlogfiles <= 0 || logfiles == NULL) {
-	__pmNotifyErr(LOG_ERR, "no logfiles");
-	exit(1);
-    }
+    char cmd[MAXPATHLEN];
+    int	i, fd;
 
     eventarray = pmdaEventNewArray();
 
     ctx_register_callbacks(ctx_start_callback, ctx_end_callback);
 
-    /* Allocate our EventFileData table. */
-    file_data_tab = calloc(numlogfiles, sizeof(struct EventFileData));
-    if (file_data_tab == NULL) {
-	fprintf(stderr, "%s: allocation error: %s\n", __FUNCTION__,
-		strerror(errno));
-	return;
-    }
-
-    /* Fill it the table. */
-    for (i = 0; i < numlogfiles; i++) {
-	file_data_tab[i].logfile = &logfiles[i];
-	TAILQ_INIT(&file_data_tab[i].head); /* initialize queue */
-    }
-
-    /* We can't really use select() on the logfiles.  Why?  If the
-     * logfile is a normal file, select will (continually) return EOF
-     * after we've read all the data.  Then we tried a custom main
-     * that that read data before handling any message we get on the
-     * control channel.  That didn't work either, since the client
-     * context wasn't set up yet (since that is the 1st control
-     * message).  So, now we read data inside the event fetch
-     * routine. */
-
-    /* Try to open all the logfiles to monitor */
     for (i = 0; i < numlogfiles; i++) {
 	size_t pathlen = strlen(logfiles[i].pathname);
 
-	/* We support 2 kinds of PATHNAMEs:
-	 *
+	/*
+	 * We support 2 kinds of PATHNAMEs:
 	 * (1) Regular paths.  These paths are opened normally.
-	 *
 	 * (2) Pipes.  If the path ends in '|', the filename is
-	 * interpreted as a command which pipes input to us.
-	 *
-	 * Handle both.
+	 *     interpreted as a command which pipes input to us.
 	 */
-
 	if (logfiles[i].pathname[pathlen - 1] != '|') {
-	    file_data_tab[i].fd = open(logfiles[i].pathname,
-				       O_RDONLY|O_NONBLOCK);
+	    fd = open(logfiles[i].pathname, O_RDONLY|O_NONBLOCK);
+	    if (fd < 0) {
+		if (logfiles[i].fd >= 0)	/* log once only */
+		    __pmNotifyErr(LOG_ERR, "open: %s: %s",
+				logfiles[i].pathname, strerror(errno));
+	    } else {
+		lseek(fd, 0, SEEK_END);
+	    }
 	}
 	else {
-	    char cmd[MAXPATHLEN];
-
 	    strncpy(cmd, logfiles[i].pathname, sizeof(cmd));
 	    cmd[pathlen - 1] = '\0';	/* get rid of the '|' */
-	    /* Remove all trailing whitespace. */
-	    rstrip(cmd);
-
-	    /* Start the command. */
-	    file_data_tab[i].fd = start_cmd(cmd, &file_data_tab[i].pid);
+	    rstrip(cmd);	/* Remove all trailing whitespace. */
+	    fd = start_cmd(cmd, &logfiles[i].pid);
+	    if (fd < 0) {
+		if (logfiles[i].fd >= 0)	/* log once only */
+		    __pmNotifyErr(LOG_ERR, "pipe: %s: %s",
+					logfiles[i].pathname, strerror(errno));
+	    }
 	}
 
-	if (file_data_tab[i].fd < 0) {
-	    __pmNotifyErr(LOG_ERR, "open failure on %s", logfiles[i].pathname);
-	    /* Cleanup. */
-	    event_shutdown();
-	    exit(1);
-	}
-
-	/* Skip to the end. */
-	lseek(file_data_tab[i].fd, 0, SEEK_END);
+	logfiles[i].fd = fd;		/* keep file descriptor (or error) */
+	TAILQ_INIT(&logfiles[i].head);	/* initialize our queue */
     }
 }
 
@@ -180,7 +118,7 @@ event_create(int logfile)
     }
 
     /* Read up to BUF_SIZE bytes at a time. */
-    c = read(file_data_tab[logfile].fd, e->buffer, sizeof(e->buffer) - 1);
+    c = read(logfiles[logfile].fd, e->buffer, sizeof(e->buffer) - 1);
 
     /* If we've got EOF (0 bytes read) or EBADF (fd isn't valid - most
      * likely a closed pipe), just ignore the error. */
@@ -190,31 +128,30 @@ event_create(int logfile)
     }
     if (c < 0) {
 	__pmNotifyErr(LOG_ERR, "read failure on %s: %s",
-		      file_data_tab[logfile].logfile->pathname,
-		      strerror(errno));
+		      logfiles[logfile].pathname, strerror(errno));
 	free(e);
 	return -1;
     }
 
-    /* Update logfile event stats. */
-    file_data_tab[logfile].logfile->count++;
-    file_data_tab[logfile].logfile->bytes += c;
+    /* Update logfile event tracking stats. */
+    logfiles[logfile].count++;
+    logfiles[logfile].bytes += c;
 
     /* Store event in queue. */
-    e->clients = file_data_tab[logfile].numclients;
+    e->clients = logfiles[logfile].numclients;
     e->buffer[c] = '\0';
-    TAILQ_INSERT_TAIL(&file_data_tab[logfile].head, e, events);
-#ifdef PCP_DEBUG
+    TAILQ_INSERT_TAIL(&logfiles[logfile].head, e, events);
+
     if (pmDebug & DBG_TRACE_APPL1)
 	__pmNotifyErr(LOG_INFO, "Inserted item, clients = %d.", e->clients);
-#endif
+
     return 0;
 }
 
 int
 event_get_clients_per_logfile(unsigned int logfile)
 {
-    return file_data_tab[logfile].numclients;
+    return logfiles[logfile].numclients;
 }
 
 int
@@ -231,8 +168,8 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
      * which logfiles is up to date. */
     if (c[logfile].active_logfile == 0) {
 	c[logfile].active_logfile = 1;
-	c[logfile].last = file_data_tab[logfile].head.tqh_last;
-	file_data_tab[logfile].numclients++;
+	c[logfile].last = logfiles[logfile].head.tqh_last;
+	logfiles[logfile].numclients++;
     }
 
     /* Update the event queue with new data (if any). */
@@ -253,13 +190,12 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
 	/* Add the string parameter.  Note that pmdaEventAddParam()
 	 * copies the string, so we can free it soon after. */
 	atom.cp = e->buffer;
-#ifdef PCP_DEBUG
+
 	if (pmDebug & DBG_TRACE_APPL1)
 	    __pmNotifyErr(LOG_INFO, "Adding param: %s", e->buffer);
-#endif
+
 	rc = pmdaEventAddParam(eventarray,
-			       file_data_tab[logfile].logfile->pmid,
-			       PM_TYPE_STRING, &atom);
+			       logfiles[logfile].pmid, PM_TYPE_STRING, &atom);
 	if (rc < 0)
 	    return rc;
 	records++;
@@ -269,7 +205,7 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
 
 	/* Remove the current one (if its use count is at 0). */
 	if (--e->clients <= 0) {
-	    TAILQ_REMOVE(&file_data_tab[logfile].head, e, events);
+	    TAILQ_REMOVE(&logfiles[logfile].head, e, events);
 	    free(e);
 	}
 
@@ -278,7 +214,7 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
     }
 
     /* Update queue pointer. */
-    c[logfile].last = file_data_tab[logfile].head.tqh_last;
+    c[logfile].last = logfiles[logfile].head.tqh_last;
 
     if (records > 0)
 	*vbpp = (pmValueBlock *)pmdaEventGetAddr(eventarray);
@@ -299,7 +235,7 @@ event_cleanup(void)
 	if (c[logfile].active_logfile == 0)
 	    continue;
 
-	file_data_tab[logfile].numclients--;
+	logfiles[logfile].numclients--;
 	e = *c[logfile].last;
 	while (e != NULL) {
 	    /* Get the next event. */
@@ -307,7 +243,7 @@ event_cleanup(void)
 
 	    /* Remove the current one (if its use count is at 0). */
 	    if (--e->clients <= 0) {
-		TAILQ_REMOVE(&file_data_tab[logfile].head, e, events);
+		TAILQ_REMOVE(&logfiles[logfile].head, e, events);
 		free(e);
 	    }
 
@@ -323,14 +259,15 @@ event_shutdown(void)
     int i;
 
     __pmNotifyErr(LOG_INFO, "%s: Shutting down...", __FUNCTION__);
+
     for (i = 0; i < numlogfiles; i++) {
-	if (file_data_tab[i].pid != 0) {
-	    (void) stop_cmd(file_data_tab[i].pid);
-	    file_data_tab[i].pid = 0;
+	if (logfiles[i].pid != 0) {
+	    stop_cmd(logfiles[i].pid);
+	    logfiles[i].pid = 0;
 	}
-	if (file_data_tab[i].fd > 0) {
-	    close(file_data_tab[i].fd);
-	    file_data_tab[i].fd = 0;
+	if (logfiles[i].fd > 0) {
+	    close(logfiles[i].fd);
+	    logfiles[i].fd = 0;
 	}
     }
 }
