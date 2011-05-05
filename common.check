@@ -1205,3 +1205,63 @@ _check_core()
 	status=1
     fi
 }
+
+# prepare for a save-able pmcd and pmda configuration.
+#
+_prepare_pmda_install()
+{
+    [ -z "$1" ] && echo "Error: bad _prepare_pmda_install call"
+    iam=$1
+
+    # copy the pmcd config file to restore state later.
+    cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+    cd $PCP_PMDAS_DIR/$iam
+    if [ -f Makefile -o -f GNUmakefile ] ; then
+	if $sudo make clobber >$tmp.out 2>&1 ; then
+	    :
+	else
+	    cat $tmp.out
+	    echo "Arrgh, make clobber failed"
+	    exit
+	fi
+    fi
+
+    # start from a known starting point
+    $sudo ./Remove >/dev/null 2>&1
+    [ -f $PCP_VAR_DIR/config/$iam/$iam.conf ] && \
+	$sudo mv $PCP_VAR_DIR/config/$iam/$iam.conf $tmp.$iam.conf
+}
+
+# restore a saved pmcd configuration and ensure pmda back in place.
+#
+_restore_pmda_install()
+{
+    [ -z "$1" ] && echo "Error: bad _restore_pmda_install call"
+    iam=$1
+    signal=$PCP_BINADM_DIR/pmsignal
+
+    [ -f $tmp.$iam.conf ] && \
+	$sudo mv $tmp.$iam.conf $PCP_VAR_DIR/config/$iam/$iam.conf
+
+    if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+    then
+        :
+    else
+# do a default install which ensures the pmns and any views are installed
+
+	cd $PCP_PMDAS_DIR/$iam
+        $sudo ./Install < /dev/null > /dev/null 2>&1
+
+# PMDA may have been installed differently to default. As everything is
+# installed we can use the old pmcd.conf file to restore state.
+
+        if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+        then
+            :
+        else
+            [ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+            $sudo $signal -a -s HUP pmcd
+        fi
+    fi
+}
