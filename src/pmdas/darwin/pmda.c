@@ -283,7 +283,7 @@ static pmdaMetric metrictab[] = {
 /* hinv.nfilesys */
   { NULL,
     { PMDA_PMID(CLUSTER_FILESYS,31), PM_TYPE_U32, PM_INDOM_NULL,
-      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* filesys.capacity */ 
   { NULL,
     { PMDA_PMID(CLUSTER_FILESYS,32), PM_TYPE_U64, FILESYS_INDOM,
@@ -349,7 +349,7 @@ static pmdaMetric metrictab[] = {
 /* hinv.ndisk */
   { NULL,
     { PMDA_PMID(CLUSTER_DISK,46), PM_TYPE_U32, PM_INDOM_NULL,
-      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* disk.dev.read */
   { NULL,
     { PMDA_PMID(CLUSTER_DISK,47), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
@@ -450,7 +450,7 @@ static pmdaMetric metrictab[] = {
 /* hinv.ncpu */
   { NULL,
     { PMDA_PMID(CLUSTER_CPU,71), PM_TYPE_U32, PM_INDOM_NULL,
-      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* kernel.percpu.cpu.user */
   { NULL,
     { PMDA_PMID(CLUSTER_CPU,72), PM_TYPE_U32, CPU_INDOM,
