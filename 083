@@ -12,14 +12,6 @@
 
 seq=`basename $0`
 
-rm -f $seq.out
-if [ $PCP_PLATFORM = "linux" ]
-then
-    ln $seq.out.linux $seq.out
-else
-    ln $seq.out.irix $seq.out
-fi
-
 echo "QA output created by $seq"
 
 trap "rm -rf $tmp $tmp.*; exit" 0 1 2 3 15
