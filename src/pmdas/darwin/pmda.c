@@ -296,10 +296,6 @@ static pmdaMetric metrictab[] = {
   { NULL,
      { PMDA_PMID(CLUSTER_FILESYS,34), PM_TYPE_U64, FILESYS_INDOM,
        PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
-/* filesys.maxfiles */
-  { NULL,
-     { PMDA_PMID(CLUSTER_FILESYS,123), PM_TYPE_U32, FILESYS_INDOM,
-       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* filesys.usedfiles */
   { NULL,
      { PMDA_PMID(CLUSTER_FILESYS,35), PM_TYPE_U32, FILESYS_INDOM,
@@ -683,6 +679,11 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NFS,128), PM_TYPE_32, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+/* filesys.maxfiles */
+  { NULL,
+     { PMDA_PMID(CLUSTER_FILESYS,129), PM_TYPE_U32, FILESYS_INDOM,
+       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 };
 
 static void
@@ -847,7 +848,7 @@ fetch_filesys(unsigned int item, unsigned int inst, pmAtomValue *atom)
 	ull = (__uint64_t)mach_fs[inst].f_bfree;
 	atom->ull = ull * mach_fs[inst].f_bsize >> 10;
 	return 1;
-    case 123: /* filesys.maxfiles */
+    case 129: /* filesys.maxfiles */
 	atom->ul = mach_fs[inst].f_files;
 	return 1;
     case 35: /* filesys.usedfiles */
