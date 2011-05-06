@@ -164,21 +164,22 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
     int records = 0;
     struct ctx_client_data *c = ctx_get_user_data();
     
-    /* Make sure the we keep track of which clients are interested in
-     * which logfiles is up to date. */
+    /*
+     * Make sure the way we keep track of which clients are interested in
+     * which logfiles is up to date.
+     */
     if (c[logfile].active_logfile == 0) {
 	c[logfile].active_logfile = 1;
 	c[logfile].last = logfiles[logfile].head.tqh_last;
 	logfiles[logfile].numclients++;
     }
 
+    if (logfiles[logfile].fd < 0)
+	return 0;
+
     /* Update the event queue with new data (if any). */
     if ((rc = event_create(logfile)) < 0)
 	return rc;
-
-    if (vbpp == NULL)
-	return -1;
-    *vbpp = NULL;
 
     pmdaEventResetArray(eventarray);
     gettimeofday(&stamp, NULL);

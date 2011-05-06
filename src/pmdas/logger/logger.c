@@ -164,19 +164,32 @@ logger_profile(__pmProfile *prof, pmdaExt *ep)
 static void
 logger_reload(void)
 {
-    struct stat statbuffer;
-    int i;
+    struct stat pathstat;
+    int i, fd;
 
     for (i = 0; i < numlogfiles; i++) {
-	if (stat(logfiles[i].pathname, &statbuffer) < 0) {
-	    ;	/* TODO: log file has gone away (temporarily?) */
+	if (logfiles[i].pid > 0)	/* process pipe */
+	    continue;
+	if (stat(logfiles[i].pathname, &pathstat) < 0) {
+	    if (logfiles[i].fd >= 0) {
+		close(logfiles[i].fd);
+		logfiles[i].fd = -1;
+	    }
+	    memset(&logfiles[i].pathstat, 0, sizeof(logfiles[i].pathstat));
 	} else {
-	    /*
-	     * TODO: check if this is the same file we had open
-	     * if not, log rotation may have occurred - need to
-	     * rethink our world view.
-	     */
-	    logfiles[i].pathstat = statbuffer;
+	    /* reopen if no descriptor before, or log rotated (new file) */
+	    if (logfiles[i].fd < 0 ||
+	        logfiles[i].pathstat.st_ino != pathstat.st_ino ||
+		logfiles[i].pathstat.st_dev != pathstat.st_dev) {
+		logfiles[i].pathstat = pathstat;
+		if (logfiles[i].fd < 0)
+		    close(logfiles[i].fd);
+		fd = open(logfiles[i].pathname, O_RDONLY|O_NONBLOCK);
+		if (fd < 0 && logfiles[i].fd >= 0)
+		    __pmNotifyErr(LOG_ERR, "open: %s: %s",
+				logfiles[i].pathname, strerror(errno));
+		logfiles[i].fd = fd;
+	    }
 	}
     }
 }
@@ -575,7 +588,8 @@ logger_init(pmdaInterface *dp)
 	}
 	pmetric += numdynamics;
     }
-    pmdaTreeRebuildHash(pmns, (numlogfiles * numdynamics)); /* for reverse (pmid->name) lookups */
+    /* for reverse (pmid->name) lookups */
+    pmdaTreeRebuildHash(pmns, (numlogfiles * numdynamics));
 
     /* metric table is ready, update each logfile with the proper pmid */
     for (i = 0; i < numlogfiles; i++)
