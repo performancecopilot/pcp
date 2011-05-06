@@ -162,7 +162,7 @@ GetNextLine(void)
 	 */
 	if (fgets(end, still_to_read, inputStream) == NULL) {
 	    if (!feof(inputStream)) {
-		fprintf(stderr, "pmcd config: line %d, %s\n",
+		fprintf(stderr, "pmcd config[line %d]: Error: fgets failed: %s\n",
 			     nLines, osstrerror());
 		scanError = 1;
 		return;
@@ -200,8 +200,8 @@ GetNextLine(void)
 	if (more) {
 	    if (szLineBuf > 10 * LINEBUF_SIZE) {
 		fprintf(stderr,
-			     "pmcd config: line %d ridiculously long\n",
-			     nLines+1);
+			     "pmcd config[line %d]: Error: ridiculously long line (%d characters)\n",
+			     nLines+1, szLineBuf);
 		linebuf[0] = '\0';
 		scanError = 1;
 		return;
@@ -386,7 +386,7 @@ FindNextToken(void)
 				*token = '\0';
 				tokenend = token;
 				fprintf(stderr,
-					     "pmcd config: line %d, quoted string must have whitespace either side\n",
+					     "pmcd config[line %d]: Error: quoted string must have whitespace either side\n",
 					     nLines);
 				return;
 			    }
@@ -411,7 +411,7 @@ FindNextToken(void)
 	    *token = 0;
 	    tokenend = token;
 	    fprintf(stderr,
-			 "pmcd config: line %d, unterminated quoted string\n",
+			 "pmcd config[line %d]: Error: unterminated quoted string\n",
 			 nLines);
 	    return;
 	}
@@ -482,7 +482,7 @@ BuildCmdLine(char **argv)
     }
 
     if ((cmdLine = (char *)malloc(cmdLen)) == NULL) {
-	fprintf(stderr, "pmcd config: line %d, error building command line\n",
+	fprintf(stderr, "pmcd config[line %d]: Error: failed to build command line\n",
 		nLines);
 	__pmNoMem("pmcd config: BuildCmdLine", cmdLen, PM_RECOV_ERR);
 	return NULL;
@@ -529,7 +529,7 @@ BuildArgv(void)
 		__pmNativePath(result[nArgs]);
 	}
 	if (result == NULL || result[nArgs] == NULL) {
-	    fprintf(stderr, "pmcd config: line %d, error building argument list\n",
+	    fprintf(stderr, "pmcd config[line %d]: Error: failed to build argument list\n",
 		    nLines);
 	    __pmNoMem("pmcd config: build argv", nArgs * sizeof(char *),
 		     PM_RECOV_ERR);
@@ -624,27 +624,29 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 
     FindNextToken();
     if (*token == '\n') {
-	fprintf(stderr, "pmcd: line %d, expected DSO entry point\n", nLines);
+	fprintf(stderr, "pmcd config[line %d]: Error: expected DSO entry point\n", nLines);
 	return -1;
     }
     if ((entryPoint = CopyToken()) == NULL) {
-	fprintf(stderr, "pmcd config: line %d, couldn't copy DSO entry point\n",
+	fprintf(stderr, "pmcd config[line %d]: Error: couldn't copy DSO entry point\n",
 			 nLines);
 	__pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
     }
 
     FindNextToken();
     if (*token == '\n') {
-	fprintf(stderr, "pmcd: line %d, expected DSO pathname\n", nLines);
+	fprintf(stderr, "pmcd config[line %d]: Error: expected DSO pathname\n", nLines);
 	return -1;
     }
     if (*token != '/') {
-	fprintf(stderr, "pmcd: line %d IGNORED : path \"%s\" to PMDA is not absolute\n", nLines, token);
+	if (token[strlen(token)-1] == '\n')
+	    token[strlen(token)-1] = '\0';
+	fprintf(stderr, "pmcd config[line %d]: Error: path \"%s\" to PMDA is not absolute\n", nLines, token);
 	return -1;
     }
 
     if ((pathName = CopyPathToken(getenv("PCP_DIR"))) == NULL) {
-	fprintf(stderr, "pmcd config: line %d, couldn't copy DSO pathname\n",
+	fprintf(stderr, "pmcd config[line %d]: Error: couldn't copy DSO pathname\n",
 			nLines);
 	__pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
     }
@@ -652,7 +654,7 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 
     FindNextToken();
     if (*token != '\n') {
-	fprintf(stderr, "pmcd: line %d, Too many parameters for DSO\n",
+	fprintf(stderr, "pmcd config[line %d]: Error: too many parameters for DSO\n",
 		     nLines);
 	return -1;
     }
@@ -690,14 +692,14 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
 	addrDomain = AF_UNIX;
     else {
 	fprintf(stderr,
-		     "pmcd: line %d, expected socket address domain (`inet' or `unix')\n",
+		     "pmcd config[line %d]: Error: expected socket address domain (`inet' or `unix')\n",
 		     nLines);
 	return -1;
     }
 
     FindNextToken();
     if (*token == '\n') {
-	fprintf(stderr, "pmcd: line %d, expected socket port name or number\n",
+	fprintf(stderr, "pmcd config[line %d]: Error: expected socket port name or number\n",
 		     nLines);
 	return -1;
     }
@@ -705,7 +707,7 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
 	port = TokenNumVal();
     else
 	if ((socketName = CopyToken()) == NULL) {
-	    fprintf(stderr, "pmcd: line %d, couldn't copy port name\n",
+	    fprintf(stderr, "pmcd config[line %d]: Error: couldn't copy port name\n",
 			 nLines);
 	    __pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
 	}
@@ -722,8 +724,8 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
 	    port = service->s_port;
 	else {
 	    fprintf(stderr,
-		"pmcd: line %d, Error getting port number for port %s: %s\n",
-		nLines, socketName, netstrerror());
+		"pmcd config[line %d]: Error: failed to get port number for port name %s\n",
+		nLines, socketName);
 	    free(pmDomainLabel);
 	    free(socketName);
 	    return -1;
@@ -745,8 +747,10 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
     if (*token != '\n') {
 	newAgent->ipc.socket.argv = BuildArgv();
 	if (newAgent->ipc.socket.argv == NULL) {
-	    fprintf(stderr, "pmcd: line %d, error building argv for \"%s\" agent.\n",
+	    fprintf(stderr, "pmcd config[line %d]: Error: building argv for \"%s\" agent.\n",
 			 nLines, newAgent->pmDomainLabel);
+	    FreeAgent(newAgent);
+	    nAgents--;
 	    return -1;
 	}
 	newAgent->ipc.socket.commandLine = BuildCmdLine(newAgent->ipc.socket.argv);
@@ -769,7 +773,7 @@ ParsePipe(char *pmDomainLabel, int pmDomainId)
     FindNextToken();
     if (!TokenIs("binary")) {
 	fprintf(stderr,
-		     "pmcd: line %d, pipe PDU type expected (`binary')\n",
+		     "pmcd config[line %d]: Error: pipe PDU type expected (`binary')\n",
 		     nLines);
 	return -1;
     }
@@ -779,7 +783,7 @@ ParsePipe(char *pmDomainLabel, int pmDomainId)
 	FindNextToken();
 	if (*token == '\n') {
 	    fprintf(stderr,
-		     "pmcd: line %d, command to create pipe agent expected.\n",
+		     "pmcd config[line %d]: Error: command to create pipe agent expected.\n",
 		     nLines);
 	    return -1;
 	} else if ((i = TokenIs ("notready"))) {
@@ -799,8 +803,10 @@ ParsePipe(char *pmDomainLabel, int pmDomainId)
     newAgent->ipc.pipe.argv = BuildArgv();
 
     if (newAgent->ipc.pipe.argv == NULL) {
-	fprintf(stderr, "pmcd: line %d, error building argv for \"%s\" agent.\n",
+	fprintf(stderr, "pmcd config[line %d]: Error: building argv for \"%s\" agent.\n",
 		     nLines, newAgent->pmDomainLabel);
+	FreeAgent(newAgent);
+	nAgents--;
 	return -1;
     }
     newAgent->ipc.pipe.commandLine = BuildCmdLine(newAgent->ipc.pipe.argv);
@@ -817,7 +823,7 @@ ParseAccessSpec(int allow, int *specOps, int *denyOps, int *maxCons, int recursi
 
     if (*token == ';') {
 	fprintf(stderr,
-		     "pmcd: line %d, Empty or incomplete permissions list\n",
+		     "pmcd config[line %d]: Error: empty or incomplete permissions list\n",
 		     nLines);
 	return -1;
     }
@@ -833,14 +839,14 @@ ParseAccessSpec(int allow, int *specOps, int *denyOps, int *maxCons, int recursi
 	else if (TokenIs("all")) {
 	    if (haveOps) {
 		fprintf(stderr,
-			     "pmcd: line %d, Can't have \"all\" mixed with specific permissions\n",
+			     "pmcd config[line %d]: Error: can't have \"all\" mixed with specific permissions\n",
 			     nLines);
 		return -1;
 	    }
 	    haveAll = 1;
 	    if (recursion) {
 		fprintf(stderr,
-			     "pmcd: line %d, Can't have \"all\" within an \"all except\"\n",
+			     "pmcd config[line %d]: Error: can't have \"all\" within an \"all except\"\n",
 			     nLines);
 		return -1;
 	    }
@@ -866,13 +872,13 @@ ParseAccessSpec(int allow, int *specOps, int *denyOps, int *maxCons, int recursi
 
 	    if (*maxCons) {
 		fprintf(stderr,
-			     "pmcd: line %d, Connection limit already specified\n",
+			     "pmcd config[line %d]: Error: connection limit already specified\n",
 			     nLines);
 		return -1;
 	    }
 	    if (recursion && !haveOps) {
 		fprintf(stderr,
-			     "pmcd: line %d, Connection limit may not immediately follow\"all except\"\n",
+			     "pmcd config[line %d]: Error: connection limit may not immediately follow \"all except\"\n",
 			     nLines);
 		return -1;
 	    }
@@ -888,7 +894,7 @@ ParseAccessSpec(int allow, int *specOps, int *denyOps, int *maxCons, int recursi
 	     */
 	    if (!(recursion ^ allow)) { /* disallow statement */
 		fprintf(stderr,
-			     "pmcd: line %d, Can't specify connection limit in a disallow statement\n",
+			     "pmcd config[line %d]: Error: can't specify connection limit in a disallow statement\n",
 			     nLines);
 		return -1;
 	    }
@@ -898,7 +904,7 @@ ParseAccessSpec(int allow, int *specOps, int *denyOps, int *maxCons, int recursi
 		FindNextToken();
 		if (!TokenIsNumber() || TokenNumVal() <= 0) {
 		    fprintf(stderr,
-				 "pmcd: line %d, Maximum connection limit must be a positive number\n",
+				 "pmcd config[line %d]: Error: maximum connection limit must be a positive number\n",
 				 nLines);
 		    return -1;
 		}
@@ -907,14 +913,14 @@ ParseAccessSpec(int allow, int *specOps, int *denyOps, int *maxCons, int recursi
 	    }
 	    if (!TokenIs("connections")) {
 		fprintf(stderr,
-			     "pmcd: line %d, \"connections\" expected\n",
+			     "pmcd config[line %d]: Error: \"connections\" expected\n",
 			     nLines);
 		return -1;
 	    }
 	    FindNextToken();
 	}
 	else {
-	    fprintf(stderr, "pmcd: line %d, bad access specifier\n",
+	    fprintf(stderr, "pmcd config[line %d]: Error: bad access specifier\n",
 			 nLines);
 	    return -1;
 	}
@@ -923,7 +929,7 @@ ParseAccessSpec(int allow, int *specOps, int *denyOps, int *maxCons, int recursi
 	if (op) {
 	    if (haveAll) {
 		fprintf(stderr,
-			     "pmcd: line %d, Can't have \"all\" mixed with specific permissions\n",
+			     "pmcd config[line %d]: Error: can't have \"all\" mixed with specific permissions\n",
 			     nLines);
 		return -1;
 	    }
@@ -937,7 +943,7 @@ ParseAccessSpec(int allow, int *specOps, int *denyOps, int *maxCons, int recursi
 	}
 	if (*token != ',' && *token != ';') {
 	    fprintf(stderr,
-			 "pmcd: line %d, ',' or ';' expected in permission list\n",
+			 "pmcd config[line %d]: Error: ',' or ';' expected in permission list\n",
 			 nLines);
 	    return -1;
 	}
@@ -950,7 +956,7 @@ ParseAccessSpec(int allow, int *specOps, int *denyOps, int *maxCons, int recursi
     }
     if (haveComma) {
 	fprintf(stderr,
-		     "pmcd: line %d, Misplaced (trailing) ',' in permission list\n",
+		     "pmcd config[line %d]: Error: misplaced (trailing) ',' in permission list\n",
 		     nLines);
 	return -1;
     }
@@ -985,7 +991,7 @@ ParseHosts(int allow)
 	FindNextToken();
 	if (*token != ',' && *token != ':') {
 	    fprintf(stderr,
-			 "pmcd: line %d, ',' or ':' expected after \"%s\"\n",
+			 "pmcd config[line %d]: Error: ',' or ':' expected after \"%s\"\n",
 			 nLines, name[i]);
 	    goto error;
 	}
@@ -999,17 +1005,17 @@ ParseHosts(int allow)
     }
     if (i == 0) {
 	fprintf(stderr,
-		     "pmcd: line %d, No hosts in allow/disallow statement\n",
+		     "pmcd config[line %d]: Error: no hosts in allow/disallow statement\n",
 		     nLines);
 	goto error;
     }
     if (another) {
-	fprintf(stderr, "pmcd: line %d, host expected after ','\n",
+	fprintf(stderr, "pmcd config[line %d]: Error: host expected after ','\n",
 		     nLines);
 	goto error;
     }
     if (*token != ':') {
-	fprintf(stderr, "pmcd: line %d, ':' expected after \"%s\"\n",
+	fprintf(stderr, "pmcd config[line %d]: Error: ':' expected after \"%s\"\n",
 		nLines, name[i]);
 	goto error;
     }
@@ -1032,7 +1038,7 @@ ParseHosts(int allow)
 	    if (sts == -EHOSTUNREACH || -EHOSTDOWN)
 		fprintf(stderr, "Warning: the following access control specification will be ignored\n");
 	    fprintf(stderr,
-			 "pmcd: line %d, access control error for host '%s': %s\n",
+			 "pmcd config[line %d]: Warning: access control error for host '%s': %s\n",
 			 nLines, name[j], pmErrStr(sts));
 	    if (sts == -EHOSTUNREACH || -EHOSTDOWN)
 		;
@@ -1071,20 +1077,20 @@ ParseAccessControls(void)
 	    FindNextToken();
 	    if (!TokenIs("access")) {
 		fprintf(stderr,
-			     "pmcd: line %d, \"access\" keyword expected\n",
+			     "pmcd config[line %d]: Error: \"access\" keyword expected\n",
 			     nLines);
 		return -1;
 	    }
 	}
 	else if (!TokenIs("[access")) {
 	    fprintf(stderr,
-			 "pmcd: line %d, \"access\" keyword expected\n",
+			 "pmcd config[line %d]: Error: \"access\" keyword expected\n",
 			 nLines);
 	    return -1;
 	}
 	FindNextToken();
 	if (*token != ']') {
-	    fprintf(stderr, "pmcd: line %d, ']' expected\n", nLines);
+	    fprintf(stderr, "pmcd config[line %d]: Error: ']' expected\n", nLines);
 	    return -1;
 	}
 	FindNextToken();
@@ -1096,7 +1102,7 @@ ParseAccessControls(void)
 	    allow = 0;
 	else {
 	    fprintf(stderr,
-			 "pmcd: line %d, allow or disallow statement expected\n",
+			 "pmcd config[line %d]: Error: allow or disallow statement expected\n",
 			 nLines);
 	    sts = -1;
 	    while (*token && !scanError && *token != ';')
@@ -1123,7 +1129,7 @@ ParseAccessControls(void)
 
     if (nHosts == 0) {
 	fprintf(stderr,
-		     "pmcd: line %d, No valid statements in [access] section\n",
+		     "pmcd config[line %d]: Error: no valid statements in [access] section\n",
 		     nLines);
 	return -1;
     }
@@ -1142,7 +1148,7 @@ ReadConfigFile(FILE *configFile)
 {
     char	*pmDomainLabel;
     int		i, pmDomainId;
-    int		s, sts = 0;
+    int		sts = 0;
 
     inputStream = configFile;
     scanInit = 0;
@@ -1167,14 +1173,14 @@ ReadConfigFile(FILE *configFile)
 	}
 	else {
 	    fprintf(stderr,
-			 "pmcd: line %d, Expected domain number for \"%s\" agent\n",
+			 "pmcd config[line %d]: Error: expected domain number for \"%s\" agent\n",
 			 nLines, pmDomainLabel);
 	    sts = -1;
 	    goto doneLine;
 	}
 	if (pmDomainId < 0 || pmDomainId > MAXDOMID) {
 	    fprintf(stderr,
-			 "pmcd: line %d, Illegal domain number (%d) for \"%s\" agent\n",
+			 "pmcd config[line %d]: Error: Illegal domain number (%d) for \"%s\" agent\n",
 			 nLines, pmDomainId, pmDomainLabel);
 	    sts = -1;
 	    goto doneLine;
@@ -1186,28 +1192,28 @@ ReadConfigFile(FILE *configFile)
 	for (i = 0; i < nAgents; i++)
 	    if (pmDomainId == agent[i].pmDomainId) {
 		fprintf(stderr,
-			     "pmcd: line %d, PM domain identifier for \"%s\" agent clashes with \"%s\" agent\n",
+			     "pmcd config[line %d]: Error: domain number for \"%s\" agent clashes with \"%s\" agent\n",
 			     nLines, pmDomainLabel, agent[i].pmDomainLabel);
 		sts = -1;
 		goto doneLine;
 	    }
 
-	s = 0;
+	/*
+	 * ParseXXX routines must return
+	 * -1 for failure and ensure a NewAgent structure has NOT been
+	 *    allocated
+	 *  0 for success with a NewAgent structure allocated
+	 */
 	if (TokenIs("dso"))
-	    s = ParseDso(pmDomainLabel, pmDomainId);
+	    sts = ParseDso(pmDomainLabel, pmDomainId);
 	else if (TokenIs("socket"))
-	    s = ParseSocket(pmDomainLabel, pmDomainId);
+	    sts = ParseSocket(pmDomainLabel, pmDomainId);
 	else if (TokenIs("pipe"))
-	    s = ParsePipe(pmDomainLabel, pmDomainId);
+	    sts = ParsePipe(pmDomainLabel, pmDomainId);
 	else {
 	    fprintf(stderr,
-			 "pmcd: line %d, Expected `dso', `socket' or `pipe'.  Line ignored\n",
+			 "pmcd config[line %d]: Error: expected `dso', `socket' or `pipe'\n",
 			 nLines);
-	    sts = -1;
-	}
-	if (s < 0) {
-	    FreeAgent(&agent[nAgents-1]);
-	    nAgents--;
 	    sts = -1;
 	}
 doneLine:
@@ -1365,7 +1371,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	memset(&addr, 0, sizeof(addr));
 	addr.sun_family = AF_UNIX;
 	strcpy(addr.sun_path, aPtr->ipc.socket.name);
-	len = (int)sizeof(addr.sun_family) + (int)strlen(addr.sun_path);
+	len = (int)offsetof(struct sockaddr_un, sun_path) + (int)strlen(addr.sun_path);
 	sts = connect(fd, (struct sockaddr *) &addr, len);
 #else
 	fprintf(stderr, "pmcd: UNIX sockets are not supported : \"%s\" agent\n",
