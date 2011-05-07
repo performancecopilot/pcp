@@ -1297,7 +1297,7 @@ pmdaMetric linux_metrictab[] = {
 /* hinv.nmounts */
   { NULL,
     { PMDA_PMID(CLUSTER_FILESYS,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
-    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* filesys.capacity */
   { NULL,

@@ -621,11 +621,11 @@ pdh_metric_t metricdesc[] = {
     },
 /* hinv.ncpu */
     { { PMDA_PMID(0,107), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_NONE, 0, 0, 0, NULL, ""
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_NONE, 0, 0, 0, NULL, ""
     },
 /* hinv.ndisk */
     { { PMDA_PMID(0,108), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_NONE, 0, 0, 0, NULL, ""
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_NONE, 0, 0, 0, NULL, ""
     },
 /* kernel.uname.distro */
     { { PMDA_PMID(0,109), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
@@ -1257,7 +1257,7 @@ pdh_metric_t metricdesc[] = {
 
 /* hinv.nfilesys */
     { { PMDA_PMID(0,232), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_NONE, 0, 0, 0, NULL, ""
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_NONE, 0, 0, 0, NULL, ""
     },
 /* hinv.pagesize */
     { { PMDA_PMID(0,233), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,

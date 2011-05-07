@@ -245,7 +245,7 @@ metricdesc_t metricdesc[] = {
 
 /* hinv.ncpu_cfg */
     { { PMDA_PMID(0,38), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
       }, M_CPU_TOTAL, CPU_TOTAL_OFF(ncpus_cfg) },
 
 /* kernel.percpu.sysexec */
@@ -335,17 +335,17 @@ metricdesc_t metricdesc[] = {
 
 /* hinv.ncpu */
     { { PMDA_PMID(0,56), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
       }, M_CPU_TOTAL, CPU_TOTAL_OFF(ncpus) },
 
 /* hinv.ndisk */
     { { PMDA_PMID(0,57), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
       }, M_DISK_TOTAL, DISK_TOTAL_OFF(number) },
 
 /* hinv.nnetif */
     { { PMDA_PMID(0,58), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
       }, M_NETIF, OFF_DERIVED },
 
 /* network.interface.in.packets */
