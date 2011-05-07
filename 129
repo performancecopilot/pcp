@@ -63,7 +63,7 @@ _fix_e_fmt()
 
 _do()
 {
-    echo -n "$1"
+    $PCP_ECHO_PROG $PCP_ECHO_N "$1""$PCP_ECHO_C"
     echo >>$seq.full
     echo "=== $1 orig ===" >>$seq.full
     pmval -z -O 1m -A 15m -t 15m -a src-oss/kenj-pc-1 $1 2>$tmp.orig.err \
@@ -100,14 +100,14 @@ $3 == "?"	{ print; next }
 
     if [ -s $tmp.chk ]
     then
-	echo " mismatches ..."
+	$PCP_ECHO_PROG " mismatches ..."
 	echo "--- chk ---" >>$seq.full
 	cat $tmp.chk >>$seq.full
 	cat $tmp.orig.err
 	cat $tmp.reduce.err
 	diff -u $tmp.orig $tmp.reduce
     else
-	echo " OK"
+	$PCP_ECHO_PROG " OK"
     fi
 }
 

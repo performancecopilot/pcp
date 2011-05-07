@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 # need fix for pv 877570
-if [ $PCP_PLATFORM = linux -a $PCP_VER -ge 2300 ]
+if [ $PCP_PLATFORM != irix -a $PCP_VER -ge 2300 ]
 then
     # fix is in pcp-2.3.0-11
     :

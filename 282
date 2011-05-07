@@ -31,6 +31,9 @@ elif [ $PCP_PLATFORM = mingw ]
 then
     echo "Cannot send STOP signal to Win32 process" > $seq.notrun
     exit 0
+elif [ $PCP_PLATFORM = darwin ]
+then
+	ln $seq.out.3 $seq.out
 else
     echo "No clue what to do with PCP_PLATFORM=$PCP_PLATFORM!"
     exit 1
@@ -70,6 +73,7 @@ _poke_pmcd()
     | sed \
 	-e '/ root .* .usr.etc.pmcd /s/.*/-- ps output line --/' \
 	-e '/UID .* PID /d' \
+	-e '/USER .* PID /d' \
 	-e "s/$LOCALHOST/HOST/g" \
     | _filter_pcp_start \
     | _filter_pmcd_log \
@@ -99,13 +103,13 @@ _poke_pmcd()
 	i=`expr $i + 1`
     done
     
-    echo -n "=== probe pmcd: "
+    $PCP_ECHO_PROG $PCP_ECHO_N "=== probe pmcd: ""$PCP_ECHO_C"
     x=`pmprobe pmcd.control.debug 2>&1 | sed -e "s/$LOCALHOST/HOST/g"`
     if [ "$x" = "pmcd.control.debug 1" ]
     then
-	echo OK
+	$PCP_ECHO_PROG OK
     else
-	echo "$x"
+	$PCP_ECHO_PROG "$x"
     fi
 }
 
@@ -128,14 +132,14 @@ _poke_pmcd_n_logger()
 	i=`expr $i + 1`
     done
 
-    echo -n "=== probe pmlogger: "
+    $PCP_ECHO_PROG $PCP_ECHO_N "=== probe pmlogger: ""$PCP_ECHO_C"
     x=`echo connect primary | pmlc 2>&1 | sed -e "s/$LOCALHOST/HOST/g"`
     sleep 2
     if [ -z "$x" ]
     then
-	echo OK
+	$PCP_ECHO_PROG OK
     else
-	echo "$x"
+	$PCP_ECHO_PROG "$x"
         if $sleepy 
         then
             echo go check the logs while I wait a couple of minutes
@@ -222,12 +226,23 @@ irix	1	dso	irix_init	libirixpmda.so
 pmcd	2	dso	pmcd_init	pmda_pmcd.so
 proc	3	dso	proc_init	pmda_proc.so
 End-of-File
-    else
+    elif [ $PCP_PLATFORM = linux ]
+    then
 	cat <<End-of-File >$tmp.out
 # from qa/$seq
 linux	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 End-of-File
+    elif [ $PCP_PLATFORM = darwin ]
+    then
+	cat <<End-of-File >$tmp.out
+# from qa/$seq
+darwin	78	dso	darwin_init	$PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+End-of-File
+    else
+	echo "Arrgh ... need pmcd.conf for $PCP_PLATFORM"
+	exit 1
     fi
 
     $sudo cp $tmp.out $PCP_PMCDCONF_PATH

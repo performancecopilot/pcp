@@ -18,18 +18,22 @@ echo "QA output created by $seq"
 
 . ./localconfig
 
+rm -f $seq.out
 if [ $PCP_PLATFORM = irix -a \( $PCP_EOE_VER -ge 6512 -o \
                                 $PCP_EOE_VER = 6200 \) ]
 then
-    rm -f $seq.out; ln $seq.62_6512plus $seq.out
+    ln $seq.62_6512plus $seq.out
 elif [ $PCP_PLATFORM = irix ]
 then
-    rm -f $seq.out; ln $seq.6511minus $seq.out
+    ln $seq.6511minus $seq.out
 elif [ $PCP_PLATFORM = linux ]
 then
-    rm -f $seq.out; ln $seq.62_6512plus $seq.out
+    ln $seq.62_6512plus $seq.out
+elif [ $PCP_PLATFORM = darwin ]
+then
+    ln $seq.62_6512plus $seq.out
 else
-    echo bozo!
+    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
     exit 1
 fi
 

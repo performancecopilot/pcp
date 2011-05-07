@@ -16,16 +16,17 @@ _filter()
 {
     sed \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
-	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;"
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+	-e "s/\\.$DSO_SUFFIX/.\$DSO_SUFFIX/"
 }
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
 
-if [ $PCP_PLATFORM = "linux" ]
+if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin ]
 then
-    dsopmda=$PCP_PMDAS_DIR/sample/pmda_sample.so
+    dsopmda=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX
     pipepmda=$PCP_PMDAS_DIR/sample/pmdasample
 else
     dsopmda=/var/pcp/lib/`pmobjstyle`.pmda_sample.so

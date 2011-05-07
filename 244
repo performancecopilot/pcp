@@ -154,7 +154,7 @@ $sudo cp $NEWCONFIG $CONFIG
 echo '$PCP_PMCDCONF_PATH contains:'
 echo '<BEGIN>'
 sed <$CONFIG \
-    -e '/^pmcd/s; [^ ]*pmda_pmcd.so; ...pmda_pmcd.so;' \
+    -e '/^pmcd/s; [^ ]*pmda_pmcd.'$DSO_SUFFIX'; ...pmda_pmcd.$DSO_SUFFIX;' \
     -e "s;$here/src-oss/;;"
 echo '<END>'
 
@@ -191,7 +191,7 @@ $sudo cp $NEWCONFIG $CONFIG
 echo '$PCP_PMCDCONF_PATH now contains:'
 echo '<BEGIN>'
 sed <$CONFIG \
-    -e '/^pmcd/s; [^ ]*pmda_pmcd.so; ...pmda_pmcd.so;' \
+    -e '/^pmcd/s; [^ ]*pmda_pmcd.'$DSO_SUFFIX'; ...pmda_pmcd.$DSO_SUFFIX;' \
     -e '/^sample/s; [^ ]*pmdasample; ...pmdasample;' \
     -e "s;$here/src-oss/;;"
 echo '<END>'

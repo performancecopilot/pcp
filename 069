@@ -82,7 +82,7 @@ d
 	-e "s/$other2_xip/OTHER2_HEXIP/" \
 	-e 's/fd [0-9-][0-9]*/fd <n>/g' \
 	-e '/client\[[0-9][0-9]*\]/s//client[N]/' \
-	-e '/lib=.*\.so/s/[0-9] dso/N dso/' \
+	-e '/lib=.*\.'"$DSO_SUFFIX"'/s/[0-9] dso/N dso/' \
     | $PCP_AWK_PROG '
 BEGIN				{ skip = 0 }
 /client connection from/	{ print; print "..."; skip=1; next }
@@ -107,6 +107,7 @@ cleanup()
 	if [ -f $oconfig ]
 	then
 	    $sudo cp $oconfig $config
+	    $sudo rm -f $oconfig
 	fi
 	unset PMCD_PORT # don't worry about preserving just get rid of it
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
@@ -181,7 +182,7 @@ echo "host1: ip=$other1_ip hex_ip=$other1_xip" >>$seq.full
 echo "host2: ip=$other2_ip hex_ip=$other2_xip" >>$seq.full
 
 echo "# from qa/$seq" >$nconfig
-egrep '^(linux|irix)' $config >>$nconfig
+egrep '^(linux|irix|darwin)' $config >>$nconfig
 grep '^pmcd' $config >>$nconfig
 
 $sudo cp $config $oconfig

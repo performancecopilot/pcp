@@ -16,11 +16,19 @@ echo "QA output created by $seq"
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 rm -f $seq.out
-if [ $PCP_PLATFORM = "irix" ]
+if [ $PCP_PLATFORM = irix ]
 then
     ln $seq.out.irix $seq.out
-else
+elif [ $PCP_PLATFORM = linux ]
+then
     ln $seq.out.linux $seq.out
+elif [ $PCP_PLATFORM = darwin ]
+then
+    # darwin output is the same as linux
+    ln $seq.out.linux $seq.out
+else
+    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+    exit 1
 fi
 
 # real QA test starts here

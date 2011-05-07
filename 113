@@ -18,8 +18,18 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 rm -f $seq.full
 
 filesystems=`mount \
+	     | sed -e 's/[(,)]//g' \
              | $PCP_AWK_PROG '
-$5 == "efs" || $5 == "xfs" || $5 == "ext2" || $5 == "ext3"	{ print $1 }'`
+$4 == "type" && ($5 == "efs" || $5 == "xfs" || $5 == "ext2" || $5 == "ext3") { print $1 }
+$4 == "hfs" { print $1 }'`
+
+if [ -z "$filesystems" ]
+then
+    echo "Botch: cannot extract filesystems list from mount(1) output ..."
+    mount
+    sts=1
+    exit
+fi
 
 rootdev=`mount | $PCP_AWK_PROG '$3 == "/" { print $1 }'`
 
@@ -95,13 +105,17 @@ pminfo -f \
     filesys.freefiles \
     filesys.mountdir \
     filesys.full \
-| sed -e "s/$free/filesys.free/" -e 's/\[//g' -e 's/\]//g' -e 's/\"//g' \
+| sed \
+    -e '/"devfs"/d' \
+    -e '/"map -hosts"/d' \
+    -e '/"map auto_home"/d' \
+    -e "s/$free/filesys.free/" \
+    -e 's/\[//g' -e 's/\]//g' \
+    -e 's/\"//g' \
 | $PCP_AWK_PROG '
-    /^[ \t]*$/ {next}
-    /^filesys/ {metric=$1}
-    $1 == "inst" {
-	printf "%s_%s %s\n", metric, $4, $6
-    }' \
+/^[ \t]*$/	{next}
+/^filesys/	{metric=$1}
+$1 == "inst" { printf "%s_%s %s\n", metric, $4, $6 }' \
 | LC_COLLATE=POSIX sort > $tmp.1
 
 echo "-- pcp-filtered-1 --" >>$seq.full
@@ -132,13 +146,12 @@ do
 		  printf "%s_%s %d\n", "filesys.freefiles", dev, $8
 		  printf "%s_%s %d\n", "filesys.mountdir", dev, $10
 		}' 
-    elif [ $PCP_PLATFORM = linux ]
+    elif [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin ]
     then
-	$sudo df -lk $f \
+	$sudo df -lk \
+	| grep $f \
 	| $PCP_AWK_PROG '
-/^Filesystem/	{ dev="'$f'"
-		  next
-		}
+BEGIN		{ dev="'$f'" }
 NF == 1		{ next }
 NF == 6		{ printf "%s_%s %d\n", "filesys.capacity",  dev, $2
 		  printf "%s_%s %d\n", "filesys.used", dev, $3
@@ -150,11 +163,10 @@ NF == 5		{ printf "%s_%s %d\n", "filesys.capacity",  dev, $1
 		  printf "%s_%s %d\n", "filesys.free", dev, $3
 		  printf "%s_%s %d\n", "filesys.mountdir", dev, $5
 		}'
-	$sudo df -li $f \
+	$sudo df -li \
+	| grep $f \
 	| $PCP_AWK_PROG '
-/^Filesystem/	{ dev="'$f'"
-		  next
-		}
+BEGIN		{ dev="'$f'" }
 NF == 1		{ next }
 NF == 6		{ printf "%s_%s %d\n", "filesys.maxfiles",  dev, $2
 		  printf "%s_%s %d\n", "filesys.usedfiles", dev, $3
@@ -163,9 +175,13 @@ NF == 6		{ printf "%s_%s %d\n", "filesys.maxfiles",  dev, $2
 NF == 5		{ printf "%s_%s %d\n", "filesys.maxfiles",  dev, $1
 		  printf "%s_%s %d\n", "filesys.usedfiles", dev, $2
 		  printf "%s_%s %d\n", "filesys.freefiles", dev, $3
+		}
+NF == 9		{ printf "%s_%s %d\n", "filesys.maxfiles",  dev, $6+$7
+		  printf "%s_%s %d\n", "filesys.usedfiles", dev, $6
+		  printf "%s_%s %d\n", "filesys.freefiles", dev, $7
 		}'
     else
-	echo "Blah, what sort df magic is needed for a \"$PCP_PLATFORM\" system?"
+	echo "Blah, what sort df magic is needed for a \"$PCP_PLATFORM\" system?" >&2
 	status=1
 	exit
     fi

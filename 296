@@ -66,6 +66,15 @@ pmcd	2	dso	pmcd_init	pmda_pmcd.so
 End-of-File
     ;;
 
+darwin)
+    cat <<End-of-File >$tmp.minconf
+# temporary pmcd.conf for qa/$seq
+#
+# Name	Id	IPC	IPC Params 	File/Cmd
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+End-of-File
+    ;;
+
 *)
     echo "Unknown platfrom $PCP_PLATFORM"
     exit 1

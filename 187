@@ -20,6 +20,8 @@ echo "QA output created by $seq"
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 signal=$PCP_BINADM_DIR/pmsignal
 
+rm -f $seq.full
+
 _burn_pids()
 {
     # burn off 1024 pids
@@ -46,17 +48,18 @@ _check()
       echo "other-fqdn" $otherfqdn_pid; ) \
     | while read tag pid
     do
-	echo -n "map file for $tag host"
+	$PCP_ECHO_PROG $PCP_ECHO_N "map file for $tag host""$PCP_ECHO_C"
 	if [ -f $PCP_TMP_DIR/pmlogger/$pid ]
 	then
-	    echo " present"
+	    $PCP_ECHO_PROG " present"
 	else
-	    echo -n " missing ... "
+	    $PCP_ECHO_PROG $PCP_ECHO_N " missing ... ""$PCP_ECHO_C"
+
 	    if [ "$tag" = this ]
 	    then
-		echo "expected for this host when PMCD killed"
+		$PCP_ECHO_PROG "expected for this host when PMCD killed"
 	    else
-		echo "NOT EXPECTED"
+		$PCP_ECHO_PROG "NOT EXPECTED"
 		echo "pid=$pid, $PCP_TMP_DIR/pmlogger contains"
 		ls -l $PCP_TMP_DIR/pmlogger
 		echo "pmlogger processes ..."
@@ -71,6 +74,7 @@ _check()
 # real QA test starts here
 pmlogger -L -c /dev/null -l $tmp.log1 -s1 $tmp.this >/dev/null 2>&1 &
 this_pid=$!
+echo "this logger pid=$this_pid" >$seq.full
 _wait_for_pmlogger $this_pid $tmp.log1
 mv $tmp.log1 $tmp.$this_pid
 
@@ -88,6 +92,7 @@ otherip=`_host_to_ipaddr $otherhost`
 
 pmlogger -h $otherhost -L -c /dev/null -l $tmp.log2 -s1 $tmp.other >/dev/null 2>&1 &
 other_pid=$!
+echo "other host=$otherhost logger pid=$other_pid" >>$seq.full
 _wait_for_pmlogger $other_pid $tmp.log2
 mv $tmp.log2 $tmp.$other_pid
 
@@ -95,6 +100,7 @@ _burn_pids
 
 pmlogger -h $otherip -L -c /dev/null -l $tmp.log3 -s1 $tmp.other.fqdn >/dev/null 2>&1 &
 otherfqdn_pid=$!
+echo "other fqdnhost=$otherip logger pid=$otherfqdn_pid" >>$seq.full
 _wait_for_pmlogger $otherfqdn_pid $tmp.log3
 mv $tmp.log3 $tmp.$otherfqdn_pid
 
@@ -107,4 +113,18 @@ _wait_for_pmlogger
 
 # check again
 _check
+
+echo >>$seq.full
+echo "=== this log ===" >>$seq.full
+cat $tmp.$this_pid >>$seq.full
+
+
+echo >>$seq.full
+echo "=== other log ===" >>$seq.full
+cat $tmp.$other_pid >>$seq.full
+
+
+echo >>$seq.full
+echo "=== otherfqdn log ===" >>$seq.full
+cat $tmp.$otherfqdn_pid >>$seq.full
 

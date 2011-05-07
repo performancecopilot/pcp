@@ -126,6 +126,11 @@ then
 	    exit
 	    ;;
     esac
+elif [ $PCP_PLATFORM = darwin ]
+then
+    $sudo make -f Makefile.stub lib/libpcp_trace.dylib >/dev/null 2>&1
+    LD_PRELOAD=$PCP_DEMOS_DIR/trace/lib/libpcp_trace.dylib
+    export LD_PRELOAD
 else
     echo "=== Unknown platform ($PCP_PLATFORM) ==="
     exit

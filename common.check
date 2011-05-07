@@ -926,7 +926,7 @@ _change_config()
 			;;
 	    pmlogger)	pat=PCP
 			;;
-	    pmie)	pat=pmie-TODO
+	    pmie)	pat=PMIE
 			;;
 	    verbose)	pat=""
 			;;
@@ -1094,7 +1094,7 @@ _get_config()
 			;;
 	    pmlogger)	pat=PCP
 			;;
-	    pmie)	pat=pmie-TODO
+	    pmie)	pat=PMIE
 			;;
 	    verbose)	pat=""
 			;;

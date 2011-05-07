@@ -31,7 +31,8 @@ DBUGLVL=${DBUGLVL:-1}	#  normally set to 1
 
 #  Requires common.product:
 AMTIME1970PROG="/usr/etc/amtime1970"
-[ "$PCP_PLATFORM" = linux ] && AMTIME1970PROG="date +%s"
+[ $PCP_PLATFORM = linux ] && AMTIME1970PROG="date +%s"
+[ $PCP_PLATFORM = darwin ] && AMTIME1970PROG="date +%s"
 
 dbugEcho () {
     if [ $# -gt 1 -a "$DBUG" != FALSE -a "$DBUG" = "$CMND" -a "$DBUGLVL" -ge "$1" ]
@@ -48,14 +49,6 @@ dbugEcho () {
 
 
 waitTilDead () {
-    if [ "$PCP_PLATFORM" != linux ]
-    then
-    	if [ ! -x /usr/etc/amtime1970 ]
-    	then
-    	    return 1
-    	fi
-    fi
-    
     NUMPROC=1
     DEADSTART=`$AMTIME1970PROG`
     DEADTIME=0

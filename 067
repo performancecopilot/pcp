@@ -106,12 +106,23 @@ linux	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 test	3	socket	inet 2222
 End-of-file
-else
+elif [ $PCP_PLATFORM = linux ]
+then
 cat >$tmp  <<End-of-file
 irix	1	dso	irix_init	libirixpmda.so
 pmcd	2	dso	pmcd_init	pmda_pmcd.so
 test	3	socket	inet 2222
 End-of-file
+elif [ $PCP_PLATFORM = darwin ]
+then
+cat >$tmp  <<End-of-file
+darwin	78	dso	darwin_init	$PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+test	3	socket	inet 2222
+End-of-file
+else
+    echo "Error - need pmcd.conf setup for $PCP_PLATFORM"
+    exit 1
 fi
 
 # netstat -an formats
@@ -121,6 +132,9 @@ fi
 #
 # Redhat 7.3 and 9
 # tcp        0      0 0.0.0.0:2222            0.0.0.0:*               LISTEN
+#
+# Mac OS X 10.6
+# tcp4       0      0  *.4330                 *.*                    LISTEN
 #
 
 $sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
@@ -137,7 +151,8 @@ netstat -an \
     -e 's/0\.0\.0\.0/*/g' \
     -e 's/  */ /g' \
     -e 's/ *$//' \
-    -e 's/:/./g'
+    -e 's/:/./g' \
+    -e 's/tcp4/tcp/'
 echo
 
 cp $config $oconfig

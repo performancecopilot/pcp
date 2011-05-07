@@ -95,4 +95,5 @@ netstat -an \
     -e 's/  */ /g' \
     -e 's/ *$//' \
     -e 's/:/./g' \
+    -e 's/tcp4/tcp/' \
 | sort

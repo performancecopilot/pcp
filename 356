@@ -45,7 +45,7 @@ echo "bad_in_pkts;" | pmie -t 1 -T+12 -v >$tmp.out 2>&1 &
 sleep 3
 
 unset PCP_DERIVED_CONFIG
-$sudo /etc/init.d/pcp start \
+$sudo $PCP_RC_DIR/pcp start \
 | _filter_pcp_start
 
 wait
