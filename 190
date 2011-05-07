@@ -13,16 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-#  Requires common.product:
-if [ "$PCP_PLATFORM" = linux ]
-then
-    echo "[test configuration for Linux]"
-    rm -f $seq.out ; ln $seq-linux.out $seq.out
-else
-    echo "[test configuration for IRIX]"
-    rm -f $seq.out ; ln $seq-irix.out $seq.out
-fi
-
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
