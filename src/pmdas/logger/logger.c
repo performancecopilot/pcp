@@ -185,8 +185,8 @@ logger_reload(void)
 		if (logfiles[i].fd < 0)
 		    close(logfiles[i].fd);
 		fd = open(logfiles[i].pathname, O_RDONLY|O_NONBLOCK);
-		if (fd < 0 && logfiles[i].fd >= 0)
-		    __pmNotifyErr(LOG_ERR, "open: %s: %s",
+		if (fd < 0 && logfiles[i].fd >= 0)	/* log once */
+		    __pmNotifyErr(LOG_ERR, "open: %s - %s",
 				logfiles[i].pathname, strerror(errno));
 		logfiles[i].fd = fd;
 	    }

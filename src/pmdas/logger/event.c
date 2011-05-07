@@ -82,7 +82,7 @@ event_init(void)
 	    fd = open(logfiles[i].pathname, O_RDONLY|O_NONBLOCK);
 	    if (fd < 0) {
 		if (logfiles[i].fd >= 0)	/* log once only */
-		    __pmNotifyErr(LOG_ERR, "open: %s: %s",
+		    __pmNotifyErr(LOG_ERR, "open: %s - %s",
 				logfiles[i].pathname, strerror(errno));
 	    } else {
 		lseek(fd, 0, SEEK_END);
@@ -95,7 +95,7 @@ event_init(void)
 	    fd = start_cmd(cmd, &logfiles[i].pid);
 	    if (fd < 0) {
 		if (logfiles[i].fd >= 0)	/* log once only */
-		    __pmNotifyErr(LOG_ERR, "pipe: %s: %s",
+		    __pmNotifyErr(LOG_ERR, "pipe: %s - %s",
 					logfiles[i].pathname, strerror(errno));
 	    }
 	}
@@ -122,7 +122,7 @@ event_create(int logfile)
 
     /* If we've got EOF (0 bytes read) or EBADF (fd isn't valid - most
      * likely a closed pipe), just ignore the error. */
-    if (c == 0 || (c < 0 && errno == EBADF)) {
+    if (c == 0 || (c < 0 && (errno == EBADF || errno == EISDIR))) {
 	free(e);
 	return 0;
     }
@@ -163,7 +163,9 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
     int rc;
     int records = 0;
     struct ctx_client_data *c = ctx_get_user_data();
-    
+
+    *vbpp = NULL;
+
     /*
      * Make sure the way we keep track of which clients are interested in
      * which logfiles is up to date.
@@ -175,7 +177,7 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
     }
 
     if (logfiles[logfile].fd < 0)
-	return 0;
+	return PM_ERR_AGAIN;
 
     /* Update the event queue with new data (if any). */
     if ((rc = event_create(logfile)) < 0)
@@ -219,8 +221,6 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
 
     if (records > 0)
 	*vbpp = (pmValueBlock *)pmdaEventGetAddr(eventarray);
-    else
-	*vbpp = NULL;
     return 0;
 }
 
