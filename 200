@@ -8,14 +8,6 @@
 seq=`basename $0`
 
 . ./localconfig
-if [ $PCP_PLATFORM = "irix" ]
-then
-	echo "[irix output]"
-	rm -f $seq.out; ln $seq.out.1 $seq.out
-else
-	echo "[linux output]"
-	rm -f $seq.out; ln $seq.out.2 $seq.out
-fi
 
 echo "QA output created by $seq"
 
@@ -127,7 +119,7 @@ do
     echo "end stop pmcd `date`" >>$seq.full
     sleep 4
     echo "begin start pmcd `date`" >>$seq.full
-    $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+    $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start | sed -e '/starting archive loggers/d'
     echo "end start pmcd `date`" >>$seq.full
 
     wait
