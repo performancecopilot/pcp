@@ -23,7 +23,7 @@ rm -f $seq.full
 
 # stolen from getpmcdhosts
 #
-check=`echo a | od -x 2>&1 | sed -e 's/^0[^ ]* *//' -e '/^$/d'`
+check=`echo a | od -x 2>&1 | sed -e 's/^0[^ ]* *//' -e 's/ //g' -e '/^$/d'`
 case "$check"
 in
     0a61)
@@ -39,7 +39,7 @@ in
 	echo "I am big endian, looking for pmtrace PMDA on a little endian platform" >>$seq.full
 	;;
     *)
-	echo "Arrgh ... od -x returned something odd!"
+	echo "Arrgh ... od -x returned something odd ($check)"
 	echo a | od -x
 	status=1
 	exit

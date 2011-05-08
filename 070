@@ -39,6 +39,7 @@ _myprog()
 	-e '/Broken pipe/d' \
 	-e 's;src-oss/template: option;Option;' \
 	-e 's;src-oss/template: invalid;Illegal;' \
+	-e 's;src-oss/template: illegal;Illegal;' \
 	-e "s/$remote/REMOTEHOST/"
 }
 

@@ -24,6 +24,10 @@ if [ $PCP_PLATFORM = linux -a $PCP_VER -gt 2400 ]
 then
     # fix is in pcp-2.4.1-1
     ln $seq.out.2 $seq.out
+elif [ $PCP_PLATFORM = darwin -a $PCP_VER -gt 2400 ]
+then
+    # fix is in pcp-2.4.1-1
+    ln $seq.out.2 $seq.out
 elif [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -gt 2400 ]
 then
     # after PCP 2.4 

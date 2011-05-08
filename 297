@@ -5,32 +5,28 @@
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
 seq=`basename $0`
 
 if which pmdumptext >/dev/null 2>&1
 then
     :
 else
-    echo "No pmdumptext binary installed" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun "No pmdumptext binary installed"
 fi
 
 if which pmproxy >/dev/null 2>&1
 then
     :
 else
-    echo "No pmproxy binary installed" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun "No pmproxy binary installed"
 fi
 
 echo "QA output created by $seq"
-
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
 
 PMCDLOG=$PCP_LOG_DIR/pmcd/pmcd.log
 
@@ -44,7 +40,7 @@ _cleanup()
 {
     [ -n "$killpid" ] && $signal $killpid
     $sudo $signal -a pmproxy >/dev/null 2>&1
-    $sudo /etc/init.d/pmproxy start >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmproxy start >/dev/null 2>&1
 }
 
 fqdn=`pmhostname`
@@ -93,7 +89,7 @@ _filter_pmproxy()
 	-e '/^__pmSetVersionIPC: fd=/d'
 }
 
-$sudo /etc/init.d/pmproxy stop >/dev/null 2>&1
+$sudo $PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
 $sudo $signal -a pmproxy >/dev/null 2>&1
 
 PMCD_RECONNECT_TIMEOUT=1
@@ -124,14 +120,14 @@ pmproxy -Dcontext -l $tmp.log 2>&1 | _filter_pmproxy
 
 sleep 4
 echo "killing pmcd ..."
-$sudo /etc/init.d/pcp stop >/dev/null 2>&1
+$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
 sleep 2
 echo >>$seq.full
 echo "1st pmcd log" >>$seq.full
 cat $PMCDLOG >>$seq.full
 
 echo "re-starting pmcd ..."
-$sudo /etc/init.d/pcp start >/dev/null 2>&1
+$sudo $PCP_RC_DIR/pcp start >/dev/null 2>&1
 
 sleep 4
 echo >>$seq.full

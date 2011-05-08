@@ -16,6 +16,7 @@ echo "QA output created by $seq"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
+rm -f $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()
@@ -30,8 +31,10 @@ _cleanup()
 
 _check()
 {
+    echo "_check $1" >>$seq.full
     sleep 2
     pidlist=`_get_pids_by_name "pmlc"`
+    echo "pidlist=$pidlist" >>$seq.full
     for pid in $pidlist
     do
 	if [ "$pid" = "$1" ]
@@ -46,7 +49,10 @@ _check()
 
 _filter()
 {
-    sed $tmp.out \
+    echo >>$seq.full
+    echo "=== $tmp.out ===">>$seq.full
+    cat $tmp.out >>$seq.full
+    sed <$tmp.out \
 	-e 's/^\[.*]/[DATE]/' \
 	-e 's/pmlc([0-9][0-9]*)/pmlc(PID)/' \
 	-e "s/`hostname`/MYHOST/g" \
@@ -67,12 +73,38 @@ then
     #NOTREACHED#
 fi
 
-# Note - use port 25 (SMTP) is this is likely to be enabled and listening
+# Note - use a port that is this is likely to be enabled and listening
 #        and is used as a surrogate for a bad pmlogger that accepts
 #        connections from pmlc, but does not send the handshake PDU nor
 #        respond to requests
+#	 Likely options are:
+#	 	25 SMTP
+#	 	22 ssh
+#	 	631 ipp
 #
-port=25
+port=''
+netstat -an -p tcp 2>&1 \
+| tee -a $seq.full \
+| sed -n \
+    -e 's/[ 	][ 	]*/ /g' \
+    -e 's/0\.0\.0\.0:/*./' \
+    -e 's/$/ /' \
+    -e '/^tcp[ 4].* LISTEN /p' >$tmp.ports
+for try in 22 25 631
+do
+    if grep "\\*\\.$try " $tmp.ports >/dev/null
+    then
+	port=$try
+	echo "port=$port" >>$seq.full
+	break
+    fi
+done
+if [ -z "$port" ]
+then
+    echo "Argh ... no likely port to use from this lot ..."
+    cat $tmp.ports
+    exit 1
+fi
 $sudo sed -e "1s/.*/$port/" $PCP_TMP_DIR/pmlogger/primary >$tmp.primary
 $sudo cp $PCP_TMP_DIR/pmlogger/primary $PCP_TMP_DIR/pmlogger/primary.qa.$seq
 $sudo cp $tmp.primary $PCP_TMP_DIR/pmlogger/primary

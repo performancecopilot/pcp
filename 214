@@ -37,7 +37,7 @@ infiles=`echo src-oss/tzchange*.0 | sed -e 's/\.0//g'`
 for file in $infiles
 do
     echo "=== $file ==="
-    pmdumplog -L $file -z | _filter
+    pmdumplog -L -z $file | _filter
     echo
 done
 
@@ -68,7 +68,7 @@ do
 	echo "=== pmlogextract $arg $files ==="
 	rm -f $tmp.*
 	pmlogextract -z $arg $files $tmp
-	pmdumplog -L $tmp -z | _filter
+	pmdumplog -L -z $tmp | _filter
     done
 done
 

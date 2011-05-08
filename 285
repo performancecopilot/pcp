@@ -30,7 +30,7 @@ then
    BINFMT=`/usr/pcp/bin/pmobjstyle`
    sampledso=/var/pcp/lib/$BINFMT.pmda_sample.so
 else
-   sampledso=$PCP_PMDAS_DIR/sample/pmda_sample.so
+   sampledso=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX
 fi
 
 status=1	# failure is the default!

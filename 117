@@ -6,24 +6,27 @@
 #
 
 seq=`basename $0`
-echo "QA output created by $seq"
 
 # real QA test starts here
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
+
+if [ $PCP_PLATFORM = linux ]
+then
+    _notrun "network.ip checks for linux done in test 216"
+elif [ $PCP_PLATFORM = darwin ]
+then
+    _notrun "no network.ip metrics for darwin"
+fi
+
+echo "QA output created by $seq"
 
 compare=`pwd`/src-oss/compare
 rm -rf $tmp.*
 
 trap "rm -rf $tmp.*" 0 1 2 3 15
-
-if [ $PCP_PLATFORM = linux ]
-then
-    echo "network.ip checks for linux done in test 216" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
 
 if [ ! -x $compare ]
 then

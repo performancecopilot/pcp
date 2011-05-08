@@ -35,10 +35,17 @@ _filter_pmcd_log()
 s/linux/[OS] /
 s/60/??/
 s/ i:[0-9] / i:? /
-s/lib=[^ ]*/lib=[OS]pmda.so/
+s/lib=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX/
 s/entry=[^ ]*/entry=[OS]_init/
 }' \
-	-e '/^pmcd.*pmda_pmcd/s/lib=.*pmda_pmcd.so/lib=...pmda_pmcd.so/' \
+	-e '/^darwin.*pmda_darwin/{
+s/darwin/[OS]  /
+s/78/??/
+s/ i:[0-9] / i:? /
+s/lib=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX/
+s/entry=[^ ]*/entry=[OS]_init/
+}' \
+	-e "/^pmcd.*pmda_pmcd/s/lib=.*pmda_pmcd.$DSO_SUFFIX/lib=...pmda_pmcd.\$DSO_SUFFIX/" \
 	-e '/Warning:.* linux .* Direct mapping/d' \
 	-e '/NOTICE: using \/proc\/partitions for disk I\/O stats/d' \
 	-e '/NOTICE: using \/proc\/diskstats for disk I\/O stats/d' \

@@ -44,16 +44,24 @@ pmstore simple.numfetch 0 >/dev/null
 
 # fire em all up
 echo "Starting pmie process"
-$sudo $PCP_BINADM_DIR/pmie_check -c $tmp.control
+echo "=== pmie_check ===" >>$seq.full
+$sudo $PCP_BINADM_DIR/pmie_check -c $tmp.control -VV >>$seq.full
+ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq.full
 sleep 6		# fill original log a bit
+cat /tmp/$seq/1.good.log >>$seq.full
+ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq.full
 
 echo "Rotate, rotate..."
 previous=`pmdate -1d %Y%m%d`
-$sudo $PCP_BINADM_DIR/pmie_daily -c $tmp.control
+echo "=== pmie_daily ===" >>$seq.full
+$sudo $PCP_BINADM_DIR/pmie_daily -c $tmp.control -VV >>$seq.full
+ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq.full
 sleep 3		# fill rotated log a bit
 
 echo "Shutdown pmie process"
-$sudo $PCP_BINADM_DIR/pmie_check -c $tmp.control -s
+echo "=== pmie_check ===" >>$seq.full
+$sudo $PCP_BINADM_DIR/pmie_check -c $tmp.control -s -VV >>$seq.full
+ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq.full
 
 grep rotated /tmp/$seq/1.good.log >/dev/null \
 	|| echo "First log not rotated?"

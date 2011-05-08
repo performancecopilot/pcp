@@ -9,7 +9,7 @@ seq=`basename $0`
 
 . ./localconfig
 rm -f $seq.out
-if [ $PCP_PLATFORM = "linux" ]
+if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin ]
 then
     ln $seq.out.linux $seq.out
 else

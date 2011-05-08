@@ -34,16 +34,19 @@ signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+if [ $PCP_PLATFORM = darwin ]
+then
+    _notrun "No proc metrics for darwin"
+fi
+
 eval `./getpmcdhosts -L -n 2 -m 'proc.psinfo.ppid>=0' | sed -e 's/ / host2=/' -e 's/^/host1=/'`
 if [ -z "$host1" ]
 then
-    echo "Cannot get first remote pmcd host with proc.psinfo.ppid metrics" >$seq.notrun
-    exit
+    _notrun "Cannot get first remote pmcd host with proc.psinfo.ppid metrics"
 fi
 if [ -z "$host2" ]
 then
-    echo "Cannot get second remote pmcd host with proc.psinfo.ppid metrics" >$seq.notrun
-    exit
+    _notrun "Cannot get second remote pmcd host with proc.psinfo.ppid metrics"
 fi
 
 echo "QA output created by $seq"

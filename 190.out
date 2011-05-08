@@ -1,5 +1,4 @@
 QA output created by 190
-[test configuration for Linux]
 === the dimension is NONE case ===
 scaleCount=1 old:   123456??.? "" new:    123456?.? "x 10"
 scaleCount=2 old:    123456?.? "x 10" new:     123456.? "x 10^2"

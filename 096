@@ -6,11 +6,17 @@
 #
 
 seq=`basename $0`
-echo "QA output created by $seq"
 
 . ./common.product
 . ./common.check
 . ./common.filter
+
+if [ $PCP_PLATFORM = darwin ]
+then
+    _notrun "No proc metrics for darwin"
+fi
+
+echo "QA output created by $seq"
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
@@ -53,9 +59,8 @@ then
 	/<defunct>/ { print $1, "?" }
         {print}' >$tmp.ps  
 else
-    echo "Need to know host for tty filtering" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    echo "Arrgh ... Need to know how to do tty filtering for $PCP_PLATFORM"
+    exit 1
 fi
 
 echo "=====================" >>$seq.full

@@ -42,7 +42,7 @@ pmResult ... numpmid: 1
     inst [400 or ???] value 400
     inst [600 or ???] value 600
     inst [800 or ???] value 800
-dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.so sample_init 30
+dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX sample_init 30
 dbpmda> fetch 30.0.6
 PMID(s): 30.0.6
 pmResult ... numpmid: 1

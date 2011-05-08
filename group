@@ -968,3 +968,4 @@ perl
 451 threads local oss
 452 pmda.linux local oss
 453 perl local oss sanity
+454 pmcd local oss

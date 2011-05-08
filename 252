@@ -118,12 +118,20 @@ _test_file_size()
 
 _time_me ()
 {
+    # return time in seconds
+    #
     # /usr/bin/time IS bloody important - dont port-sh it. EVER!
     /usr/bin/time $* 2>&1 >/dev/null | \
-	if [ "$PCP_PLATFORM" = "linux" ] ; then
+	if [ $PCP_PLATFORM = linux ]
+	then
+	    # 0.00user 0.00system 0:00.00elapsed 0%CPU (0avgtext+0avgdata 2752maxresident)k
 	    tr ' ' "\n" | $PCP_AWK_PROG '/elapsed$/ { sub("elapsed", "", $1); 
 			                               split ($1,tt,"[:.]");
 			                               print (tt[1]*60)+tt[2];}'
+	elif [ $PCP_PLATFORM = darwin ]
+	then
+	    #         0.00 real         0.00 user         0.00 sys
+	    $PCP_AWK_PROG '{print $1}' | sed -e 's/\..*//'
 	else 
 	    $PCP_AWK_PROG '/^real/ {print $2}' | sed -e 's/\..*//'
 	fi

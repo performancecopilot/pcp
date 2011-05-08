@@ -41,6 +41,7 @@ $1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++
     cat $tmp.sed >>$seq.full
     sed -f $tmp.sed <$tmp.out \
     | sed \
+	-e 's/=0x0 /=(nil) /g' \
 	-e 's/ref=0x[0-9a-f]*/ref=<addr>/' \
 	-e "s;$tmp;TMP;"
 }
