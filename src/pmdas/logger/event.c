@@ -85,6 +85,7 @@ event_init(void)
 		    __pmNotifyErr(LOG_ERR, "open: %s - %s",
 				logfiles[i].pathname, strerror(errno));
 	    } else {
+		fstat(fd, &logfiles[i].pathstat);
 		lseek(fd, 0, SEEK_END);
 	    }
 	}

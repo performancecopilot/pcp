@@ -181,7 +181,6 @@ logger_reload(void)
 	    if (logfiles[i].fd < 0 ||
 	        logfiles[i].pathstat.st_ino != pathstat.st_ino ||
 		logfiles[i].pathstat.st_dev != pathstat.st_dev) {
-		logfiles[i].pathstat = pathstat;
 		if (logfiles[i].fd < 0)
 		    close(logfiles[i].fd);
 		fd = open(logfiles[i].pathname, O_RDONLY|O_NONBLOCK);
@@ -190,6 +189,7 @@ logger_reload(void)
 				logfiles[i].pathname, strerror(errno));
 		logfiles[i].fd = fd;
 	    }
+	    logfiles[i].pathstat = pathstat;
 	}
     }
 }
