@@ -30,6 +30,7 @@ LDIRT = rules local $(CMDTARGET) rate-syscalls \
 	pmlogger.tmp pmlogger.config \
 	cpu/GNUmakefile filesys/GNUmakefile memory/GNUmakefile \
 	percpu/GNUmakefile pernetif/GNUmakefile
+LDIRDIRT = .pcp
 
 default_pcp: $(CMDTARGET) makefiles rules pmlogger.config
 
