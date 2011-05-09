@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "logger.h"
@@ -373,6 +369,7 @@ log_callback(int afid, void *data)
     char		**namelist;
     __pmTimeval		tmp;
     __pmTimeval		resp_tval;
+    unsigned long	peek_offset;
 
     if (!parse_done)
 	/* ignore callbacks until all of the config file has been parsed */
@@ -480,6 +477,20 @@ log_callback(int afid, void *data)
 	}
 
 	/*
+	 * Even without a -v option, we may need to switch volumes
+	 * if the data file exceeds 2^31-1 bytes
+	 */
+	peek_offset = ftell(logctl.l_mfp);
+	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
+	if (peek_offset > 0x7fffffff) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2)
+		fprintf(stderr, "callback: new volume based on max size, currently %ld\n", ftell(logctl.l_mfp));
+#endif
+	    (void)newvolume(VOL_SW_MAX);
+	}
+
+	/*
 	 * would prefer to save this up until after any meta data and/or
 	 * temporal index writes, but __pmDecodeResult changes the pointers
 	 * in the pdu buffer for the non INSITU values ... sigh
@@ -491,7 +502,7 @@ log_callback(int afid, void *data)
 	}
 
 	__pmOverrideLastFd(fileno(logctl.l_mfp));
-	if ((sts = __pmDecodeResult(pb, PDU_BINARY, &resp)) < 0) {
+	if ((sts = __pmDecodeResult(pb, &resp)) < 0) {
 	    fprintf(stderr, "__pmDecodeResult: %s\n", pmErrStr(sts));
 	    exit(1);
 	}
@@ -526,6 +537,15 @@ log_callback(int afid, void *data)
 		}
 		if (numnames) {
 		    free(names);
+		}
+	    }
+	    if (desc.type == PM_TYPE_EVENT) {
+		/*
+		 * Event records need some special handling ...
+		 */
+		if ((sts = do_events(vsp)) < 0) {
+		    fprintf(stderr, "Failed to process event records: %s\n", pmErrStr(sts));
+		    exit(1);
 		}
 	    }
 	    if (desc.indom != PM_INDOM_NULL && vsp->numval > 0) {
@@ -757,7 +777,7 @@ putmark(void)
     mark.numpmid = htonl(0);
 
     if (fwrite(&mark, 1, sizeof(mark), logctl.l_mfp) != sizeof(mark))
-	return -errno;
+	return -oserror();
     else
 	return 0;
 }

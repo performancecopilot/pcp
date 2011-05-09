@@ -95,26 +95,12 @@ Per-CPU time when the CPU had a runnable process, but the hypervisor
 @ kernel.percpu.cpu.guest percpu guest CPU time
 Per-CPU time spent running (virtual) guest operating systems.
 
-@ kernel.percpu.interrupts per-CPU interrupt counters from /proc/interrupts
-This provides one counter (normally converted to a count/second)
-for each type of interrupt, for each CPU in the system.
-
-@ kernel.all.syscall total system calls counter from /proc/interrupts
-This provides a counter (normally converted to a count/second)
-of the total number of system calls executed across all CPUs.
-
-A kernel patch is required for the instrumentation to use this metric
-(contact markgw@sgi.com).
-
-@ kernel.percpu.syscall per-CPU system call counters from /proc/interrupts
-This provides a counter (normally converted to a count/second)
-of the total number of system calls executed per-CPU.
-
-A kernel patch is required for the instrumentation to use this metric
-(contact markgw@sgi.com).
+@ kernel.all.interrupts.errors interrupt error count from /proc/interrupts
+This is a global counter (normally converted to a count/second)
+for any and all errors that occur while handling interrupts.
 
 @ disk.dev.read per-disk read operations
-Cummulative number of disk read operations since system boot time (subject
+Cumulative number of disk read operations since system boot time (subject
 to counter wrap).
 
 If the "sard" patch has been applied, the values are obtained from
@@ -128,7 +114,7 @@ installed in the system, and is the unfortunate end result of a
 limitation in the kernel's I/O accounting.
 
 @ disk.dev.write per-disk write operations
-Cummulative number of disk write operations since system boot time (subject
+Cumulative number of disk write operations since system boot time (subject
 to counter wrap).
 
 If the "sard" patch has been applied, the values are obtained from
@@ -142,7 +128,7 @@ installed in the system, and is the unfortunate end result of a
 limitation in the kernel's I/O accounting.
 
 @ disk.dev.total per-disk total (read+write) operations
-Cummulative number of disk read and write operations since system boot
+Cumulative number of disk read and write operations since system boot
 time (subject to counter wrap).
 
 If the "sard" patch has been applied, the values are obtained from
@@ -156,7 +142,7 @@ installed in the system, and is the unfortunate end result of a
 limitation in the kernel's I/O accounting.
 
 @ disk.dev.blkread per-disk block read operations
-Cummulative number of disk block read operations since system boot time
+Cumulative number of disk block read operations since system boot time
 (subject to counter wrap).
 
 If the "sard" patch has been applied, the values are obtained from
@@ -170,7 +156,7 @@ installed in the system, and is the unfortunate end result of a
 limitation in the kernel's I/O accounting.
 
 @ disk.dev.blkwrite per-disk block write operations
-Cummulative number of disk block write operations since system boot time
+Cumulative number of disk block write operations since system boot time
 (subject to counter wrap).
 
 If the "sard" patch has been applied, the values are obtained from
@@ -184,7 +170,7 @@ installed in the system, and is the unfortunate end result of a
 limitation in the kernel's I/O accounting.
 
 @ disk.dev.blktotal per-disk total (read+write) block operations
-Cummulative number of disk block read and write operations since system
+Cumulative number of disk block read and write operations since system
 boot time (subject to counter wrap).
 
 If the "sard" patch has been applied, the values are obtained from
@@ -251,31 +237,31 @@ value of 1.5 (or 150%) suggests that (on average) each all disk experienced a
 time averaged queue length of 1.5 requests during the sampling interval.
 
 @ disk.all.read total read operations, summed for all disks
-Cummulative number of disk read operations since system boot time
+Cumulative number of disk read operations since system boot time
 (subject to counter wrap), summed over all disk devices.
 
 @ disk.all.write total write operations, summed for all disks
-Cummulative number of disk read operations since system boot time
+Cumulative number of disk read operations since system boot time
 (subject to counter wrap), summed over all disk devices.
 
 @ disk.all.total total (read+write) operations, summed for all disks
-Cummulative number of disk read and write operations since system boot
+Cumulative number of disk read and write operations since system boot
 time (subject to counter wrap), summed over all disk devices.
 
 @ disk.all.blkread block read operations, summed for all disks
-Cummulative number of disk block read operations since system boot time
+Cumulative number of disk block read operations since system boot time
 (subject to counter wrap), summed over all disk devices.
 
 @ disk.all.blkwrite block write operations, summed for all disks
-Cummulative number of disk block write operations since system boot time
+Cumulative number of disk block write operations since system boot time
 (subject to counter wrap), summed over all disk devices.
 
 @ disk.all.blktotal total (read+write) block operations, summed for all disks
-Cummulative number of disk block read and write operations since system
+Cumulative number of disk block read and write operations since system
 boot time (subject to counter wrap), summed over all disk devices.
 
 @ disk.partitions.read read operations metric from /proc/partitions
-Cummulative number of disk read operations since system boot time
+Cumulative number of disk read operations since system boot time
 (subject to counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
@@ -294,56 +280,56 @@ This metric is not available if the "sard" patch has not been applied.
 See disk.all.total for further details.
 
 @ disk.partitions.write write operations metric from /proc/partitions
-Cummulative number of disk write operations since system boot time
+Cumulative number of disk write operations since system boot time
 (subject to counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
 are unavailable.
 
 @ disk.partitions.total total (read+write) I/O operations metric from /proc/partitions
-Cummulative number of disk read and write operations since system boot
+Cumulative number of disk read and write operations since system boot
 time (subject to counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
 are unavailable.
 
 @ disk.partitions.blkread block read operations metric from /proc/partitions
-Cummulative number of disk block read operations since system boot time
+Cumulative number of disk block read operations since system boot time
 (subject to counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
 are unavailable.
 
 @ disk.partitions.blkwrite block write operations metric from /proc/partitions
-Cummulative number of disk block write operations since system boot time
+Cumulative number of disk block write operations since system boot time
 (subject to counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
 are unavailable.
 
 @ disk.partitions.blktotal total (read+write) block operations metric from /proc/partitions
-Cummulative number of disk block read and write operations since system
+Cumulative number of disk block read and write operations since system
 boot time (subject to counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
 are unavailable.
 
 @ disk.partitions.read_bytes number of bytes read, from /proc/partitions
-Cummulative number of bytes read since system boot time (subject to
+Cumulative number of bytes read since system boot time (subject to
 counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
 are unavailable.
 
 @ disk.partitions.write_bytes number of bytes written, from /proc/partitions
-Cummulative number of bytes written since system boot time (subject to
+Cumulative number of bytes written since system boot time (subject to
 counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
 are unavailable.
 
 @ disk.partitions.total_bytes total number of bytes read and written, from /proc/partitions
-Cummulative number of bytes read and written since system boot time
+Cumulative number of bytes read and written since system boot time
 (subject to counter wrap) for individual disk partitions.
 
 If the "sard" patch has not been applied, the values for this metric
@@ -509,6 +495,8 @@ User memory (Kbytes) in pages not backed by files, e.g. from malloc()
 @ mem.numa.alloc.other_node count of times a process ran on this node and got memory from another node
 @ mem.vmstat.nr_dirty number of pages in dirty state
 Instantaneous number of pages in dirty state, from /proc/vmstat
+@ mem.vmstat.nr_dirtied count of pages dirtied
+Count of pages entering dirty state, from /proc/vmstat
 @ mem.vmstat.nr_writeback number of pages in writeback state
 Instantaneous number of pages in writeback state, from /proc/vmstat
 @ mem.vmstat.nr_unstable number of pages in unstable state
@@ -520,8 +508,16 @@ Instantaneous number of mapped pagecache pages, from /proc/vmstat
 See also mem.vmstat.nr_anon for anonymous mapped pages.
 @ mem.vmstat.nr_slab number of slab pages
 Instantaneous number of slab pages, from /proc/vmstat
-This counter was retired in 2.6.18 kernels, and replaced by
+This counter was retired in 2.6.18 kernels, and is now the sum of
 mem.vmstat.nr_slab_reclaimable and mem.vmstat.nr_slab_unreclaimable.
+@ mem.vmstat.nr_written count of pages written out
+Count of pages written out, from /proc/vmstat
+@ mem.vmstat.numa_foreign count of foreign NUMA zone allocations
+@ mem.vmstat.numa_hit count of successful allocations from preferred NUMA zone
+@ mem.vmstat.numa_interleave count of interleaved NUMA allocations
+@ mem.vmstat.numa_local count of successful allocations from local NUMA zone
+@ mem.vmstat.numa_miss count of unsuccessful allocations from preferred NUMA zona
+@ mem.vmstat.numa_other count of unsuccessful allocations from local NUMA zone
 @ mem.vmstat.pgpgin page in operations
 Count of page in operations since boot, from /proc/vmstat
 @ mem.vmstat.pgpgout page out operations
@@ -536,6 +532,10 @@ Count of high mem page allocations since boot, from /proc/vmstat
 Count of normal mem page allocations since boot, from /proc/vmstat
 @ mem.vmstat.pgalloc_dma dma mem page allocations
 Count of dma mem page allocations since boot, from /proc/vmstat
+@ mem.vmstat.pgalloc_dma32 dma32 mem page allocations
+Count of dma32 mem page allocations since boot, from /proc/vmstat
+@ mem.vmstat.pgalloc_movable movable mem page allocations
+Count of movable mem page allocations since boot, from /proc/vmstat
 @ mem.vmstat.pgfree page free operations
 Count of page free operations since boot, from /proc/vmstat
 @ mem.vmstat.pgactivate pages moved from inactive to active
@@ -555,30 +555,55 @@ from /proc/vmstat
 @ mem.vmstat.pgrefill_dma dma mem pages inspected in refill_inactive_zone
 Count of dma mem pages inspected in refill_inactive_zone since boot,
 from /proc/vmstat
+@ mem.vmstat.pgrefill_dma32 dma32 mem pages inspected in refill_inactive_zone
+Count of dma32 mem pages inspected in refill_inactive_zone since boot,
+from /proc/vmstat
+@ mem.vmstat.pgrefill_movable movable mem pages inspected in refill_inactive_zone
+Count of movable mem pages inspected in refill_inactive_zone since boot,
+from /proc/vmstat
 @ mem.vmstat.pgsteal_high high mem pages reclaimed
 Count of high mem pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_normal normal mem pages reclaimed
 Count of normal mem pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_dma dma mem pages reclaimed
 Count of dma mem pages reclaimed since boot, from /proc/vmstat
+@ mem.vmstat.pgsteal_dma32 dma32 mem pages reclaimed
+Count of dma32 mem pages reclaimed since boot, from /proc/vmstat
+@ mem.vmstat.pgsteal_movable movable mem pages reclaimed
+Count of movable mem pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_kswapd_high high mem pages scanned by kswapd
 Count of high mem pages scanned by kswapd since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_kswapd_normal normal mem pages scanned by kswapd
 Count of normal mem pages scanned by kswapd since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_kswapd_dma dma mem pages scanned by kswapd
 Count of dma mem pages scanned by kswapd since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_kswapd_dma32 dma32 mem pages scanned by kswapd
+Count of dma32 mem pages scanned by kswapd since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_kswapd_movable movable mem pages scanned by kswapd
+Count of movable mem pages scanned by kswapd since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_direct_high high mem pages scanned
 Count of high mem pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_direct_normal normal mem pages scanned
 Count of normal mem pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_direct_dma dma mem pages scanned
 Count of dma mem pages scanned since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_direct_dma32 dma32 mem pages scanned
+Count of dma32 mem pages scanned since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_direct_movable 
+Count of movable mem pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.pginodesteal pages reclaimed via inode freeing
 Count of pages reclaimed via inode freeing since boot, from /proc/vmstat
 @ mem.vmstat.slabs_scanned slab pages scanned
 Count of slab pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.kswapd_steal pages reclaimed by kswapd
 Count of pages reclaimed by kswapd since boot, from /proc/vmstat
+@ mem.vmstat.kswapd_low_wmark_hit_quickly count of times low watermark reached quickly
+Count of times kswapd reached low watermark quickly, from /proc/vmstat
+@ mem.vmstat.kswapd_high_wmark_hit_quickly count of times high watermark reached quickly
+Count of times kswapd reached high watermark quickly, from /proc/vmstat
+@ mem.vmstat.kswapd_skip_congestion_wait count of times kswapd skipped waiting on device congestion
+Count of times kswapd skipped waiting due to device congestion as a
+result of being under the low watermark, from /proc/vmstat
 @ mem.vmstat.kswapd_inodesteal pages reclaimed via kswapd inode freeing
 Count of pages reclaimed via kswapd inode freeing since boot, from
 /proc/vmstat
@@ -591,19 +616,56 @@ Count of pages rotated to tail of the LRU since boot, from /proc/vmstat
 @mem.vmstat.nr_anon_pages number of anonymous mapped pagecache pages
 Instantaneous number of anonymous mapped pagecache pages, from /proc/vmstat
 See also mem.vmstat.mapped for other mapped pages.
+@mem.vmstat.nr_anon_transparent_hugepages number of anonymous transparent huge pages
+Instantaneous number of anonymous transparent huge pages, from /proc/vmstat
 @mem.vmstat.nr_bounce number of bounce buffer pages
 Instantaneous number of bounce buffer pages, from /proc/vmstat
 @mem.vmstat.nr_slab_reclaimable reclaimable slab pages
 Instantaneous number of reclaimable slab pages, from /proc/vmstat.
-Added in 2.6.18 kernels.
 @mem.vmstat.nr_slab_unreclaimable unreclaimable slab pages
 Instantaneous number of unreclaimable slab pages, from /proc/vmstat.
-Added in 2.6.18 kernels.
 @mem.vmstat.nr_vmscan_write pages written by VM scanner from LRU
 Count of pages written from the LRU by the VM scanner, from /proc/vmstat.
 The VM is supposed to minimise the number of pages which get written
 from the LRU (for IO scheduling efficiency, and for high reclaim-success
 rates).
+@ mem.vmstat.htlb_buddy_alloc_fail huge TLB page buddy allocation failures
+Count of huge TLB page buddy allocation failures, from /proc/vmstat
+@ mem.vmstat.htlb_buddy_alloc_success huge TLB page buddy allocation successes
+Count of huge TLB page buddy allocation successes, from /proc/vmstat
+@ mem.vmstat.nr_active_anon number of active anonymous memory pages
+@ mem.vmstat.nr_active_file number of active file memory memory pages
+@ mem.vmstat.nr_free_pages number of free pages
+@ mem.vmstat.nr_inactive_anon number of inactive anonymous memory pages
+@ mem.vmstat.nr_inactive_file number of inactive file memory pages
+@ mem.vmstat.nr_isolated_anon number of isolated anonymous memory pages
+@ mem.vmstat.nr_isolated_file number of isolated file memory pages
+@ mem.vmstat.nr_kernel_stack number of pages of kernel stack
+@ mem.vmstat.nr_mlock number of pages under mlock
+@ mem.vmstat.nr_shmem number of shared memory pages
+@ mem.vmstat.nr_unevictable number of unevictable pages
+@ mem.vmstat.nr_writeback_temp number of temporary writeback pages
+@ mem.vmstat.compact_blocks_moved count of compact blocks moved
+@ mem.vmstat.compact_fail count of unsuccessful compactions for high order allocations
+@ mem.vmstat.compact_pagemigrate_failed count of pages unsuccessfully compacted
+@ mem.vmstat.compact_pages_moved count of pages successfully moved for compaction
+@ mem.vmstat.compact_stall count of failures to even start compacting
+@ mem.vmstat.compact_success count of successful compactions for high order allocations
+@ mem.vmstat.thp_fault_alloc transparent huge page fault allocations
+@ mem.vmstat.thp_fault_fallback transparent huge page fault fallbacks
+@ mem.vmstat.thp_collapse_alloc transparent huge page collapse allocations
+@ mem.vmstat.thp_collapse_alloc_failed transparent huge page collapse failures
+@ mem.vmstat.thp_split count of transparent huge page splits
+@ mem.vmstat.unevictable_pgs_cleared count of unevictable pages cleared
+@ mem.vmstat.unevictable_pgs_culled count of unevictable pages culled
+@ mem.vmstat.unevictable_pgs_mlocked count of mlocked unevictable pages
+@ mem.vmstat.unevictable_pgs_mlockfreed count of unevictable pages mlock freed
+@ mem.vmstat.unevictable_pgs_munlocked count of unevictable pages munlocked
+@ mem.vmstat.unevictable_pgs_rescued count of unevictable pages rescued
+@ mem.vmstat.unevictable_pgs_scanned count of unevictable pages scanned
+@ mem.vmstat.unevictable_pgs_stranded count of unevictable pages stranded
+@ mem.vmstat.zone_reclaim_failed number of zone reclaim failures
+
 
 @ swap.length total swap available metric from /proc/meminfo
 @ swap.used swap used metric from /proc/meminfo

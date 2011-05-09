@@ -15,10 +15,7 @@
  * for more details.
  */
 
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-
+#include "pmapi.h"
 #include "proc_fs_xfs.h"
 
 int
@@ -30,7 +27,7 @@ refresh_proc_fs_xfs(proc_fs_xfs_t *proc_fs_xfs)
     memset(proc_fs_xfs, 0, sizeof(proc_fs_xfs_t));
 
     if ((fp = fopen("/proc/fs/xfs/stat", "r")) == (FILE *)NULL) {
-    	proc_fs_xfs->errcode = -errno;
+    	proc_fs_xfs->errcode = -oserror();
     }
     else {
     	proc_fs_xfs->errcode = 0;

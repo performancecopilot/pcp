@@ -25,6 +25,57 @@ static int	clientSize = 0;
 
 extern void	Shutdown(void);
 
+/*
+ * For PMDA_INTERFACE_5 or later PMDAs, post a notification that
+ * a context has been closed.
+ */
+static void
+NotifyEndContext(int ctx)
+{
+    int i;
+
+    for (i = 0; i < nAgents; i++) {
+	if (!agent[i].status.connected ||
+	    agent[i].status.busy || agent[i].status.notReady)
+	    continue;
+	if (agent[i].ipcType == AGENT_DSO) {
+	    pmdaInterface	*dp = &agent[i].ipc.dso.dispatch;
+	    if (dp->comm.pmda_interface >= PMDA_INTERFACE_5) {
+		if (dp->version.four.ext->e_endCallBack != NULL) {
+#ifdef PCP_DEBUG
+		    if (pmDebug & DBG_TRACE_CONTEXT) {
+			fprintf(stderr, "NotifyEndContext: DSO PMDA %s (%d) notified of context %d close\n",
+			    agent[i].pmDomainLabel, agent[i].pmDomainId,
+			    ctx);
+		    }
+#endif
+		    (*(dp->version.four.ext->e_endCallBack))(ctx);
+		}
+	    }
+	}
+	else {
+	    /*
+	     * Daemon PMDA case ... we don't know the PMDA_INTERFACE
+	     * version, so send the notification PDU anyway, and rely on
+	     * __pmdaMainPDU() doing the right thing.
+	     * Do not expect a response.
+	     * Agent may have decided to spontaneously die so don't
+	     * bother about any return status from the __pmSendError
+	     * either.
+	     */
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_CONTEXT) {
+		fprintf(stderr, "NotifyEndContext: daemon PMDA %s (%d) notified of context %d close\n",
+		    agent[i].pmDomainLabel, agent[i].pmDomainId, ctx);
+	    }
+#endif
+	    if (_pmcd_trace_mask)
+		pmcd_trace(TR_XMIT_PDU, agent[i].inFd, PDU_ERROR, PM_ERR_NOTCONN);
+	    __pmSendError(agent[i].inFd, ctx, PM_ERR_NOTCONN);
+	}
+    }
+}
+
 /* Establish a new socket connection to a client */
 ClientInfo *
 AcceptNewClient(int reqfd)
@@ -38,7 +89,7 @@ AcceptNewClient(int reqfd)
     addrlen = sizeof(client[i].addr);
     fd = accept(reqfd, (struct sockaddr *)&client[i].addr, &addrlen);
     if (fd == -1) {
-    	if (errno == EPERM) {
+    	if (neterror() == EPERM) {
 	    __pmNotifyErr(LOG_NOTICE, "AcceptNewClient(%d): "
 	 	          "Permission Denied\n", reqfd);
 	    client[i].fd = -1;
@@ -47,7 +98,7 @@ AcceptNewClient(int reqfd)
 	}
 	else {
 	    __pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) accept: %s\n",
-	    reqfd, strerror(errno));
+	    reqfd, netstrerror());
 	    Shutdown();
 	    exit(1);
 	}
@@ -155,6 +206,8 @@ DeleteClient(ClientInfo *cp)
     }
     cp->status.connected = 0;
     cp->fd = -1;
+
+    NotifyEndContext(cp-client);
 }
 
 void

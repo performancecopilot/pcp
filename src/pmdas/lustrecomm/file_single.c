@@ -41,13 +41,7 @@ int file_single (char *filename, int type, int *base, void **vpp)
     int fd;
     int n;
     /* overlarge */
-    char b[80];
-    /* this is bad - FIX */
-    struct stat sb = {
-    	.st_size = 0
-    };
-
-    memset (b, 0, 80);
+    char b[80] = { 0 };
 
     /* Read in the file into the buffer b */
     if (( fd = open (filename, O_RDONLY)) < 0) {
@@ -73,32 +67,9 @@ int file_single (char *filename, int type, int *base, void **vpp)
 	}
 	close(fd);
 	break;
-    case PM_TYPE_STRING:
-    case PM_TYPE_AGGREGATE:
-	/* Here we take whatever's in the file and hand it out */
-	if (*base < sb.st_size) {
-	    /* Check! vp is no longer valid */
-	    if ((*vpp = realloc(*vpp, sb.st_size)) == NULL){
-		free(*vpp);
-		perror("file_single: realloc");
-		return -1;
-	    }
-	    /* this doesn't get used... for now */
-	    /* FIXME to prevent future accidents */
-	}
-	/* Absolutely not necessary!:
-	 * I'm just going to overwrite it with the read
-	 * but it makes disasters easy to identify
-	 */
-	memset ( *vpp, 0, *base);
-	if (( n= read( fd, *vpp, *base)) < 0){
-	    perror("file_single: read");
-	    return -1;
-	}
-	break;
-    case PM_TYPE_NOSUPPORT:
     default:
-	break;
+	fprintf(stderr,"file_single: type %s not supported\n", pmTypeStr(type));
+	return -1;
 	
     }
     /* One would eventually write a configure script to make
@@ -123,14 +94,6 @@ int file_single (char *filename, int type, int *base, void **vpp)
 	break;
     case PM_TYPE_DOUBLE:
 	*((double *)(*vpp)) = strtod(b,0);
-	break;
-    case PM_TYPE_STRING:
-    case PM_TYPE_AGGREGATE:
-	/* the work is already done */
-	break;
-    case PM_TYPE_NOSUPPORT:
-    default:
-	fprintf(stderr,"file_single: type %d not supported\n", type);
 	break;
     }
     return 0;

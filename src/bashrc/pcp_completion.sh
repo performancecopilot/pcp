@@ -46,6 +46,11 @@ _pminfo_complete ()
         curpos_expand=1
         ;;
 
+        pmevent) 
+        opt_regex="-[ahKOpSsTtZ]"
+        curpos_expand=1
+        ;;
+
     esac    # --- end of case ---
 
     # We expand either straight from the cursor if it is at the position to
@@ -60,4 +65,4 @@ _pminfo_complete ()
 
 }    # ----------  end of function _pminfo_complete  ----------
 
-complete -F _pminfo_complete -o default pminfo pmprobe pmdumptext pmdumplog pmlogsummary pmstore pmval
+complete -F _pminfo_complete -o default pminfo pmprobe pmdumptext pmdumplog pmlogsummary pmstore pmval pmevent

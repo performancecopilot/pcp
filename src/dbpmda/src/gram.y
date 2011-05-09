@@ -54,25 +54,25 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
     extern pmdaInterface	dispatch;
 
     if (((__pmID_int *)pmidp)->domain == DYNAMIC_PMID) {
-	if (connmode == PDU_DSO) {
-	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+	if (connmode == CONN_DSO) {
+	    if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
 		sts = dispatch.version.four.pmid(name, pmidp, dispatch.version.four.ext);
 		if (sts < 0) return sts;
 	    }
 	}
-	else if (connmode == PDU_BINARY) {
-	    sts = __pmSendNameList(outfd, PDU_BINARY, 1, &name, NULL);
+	else if (connmode == CONN_DAEMON) {
+	    sts = __pmSendNameList(outfd, FROM_ANON, 1, &name, NULL);
 	    if (sts < 0) return sts;
-	    sts = __pmGetPDU(infd, PDU_BINARY, TIMEOUT_NEVER, &pb);
+	    sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb);
 	    if (sts < 0) return sts;
 	    if (sts == PDU_PMNS_IDS) {
 		int	xsts;
-		sts = __pmDecodeIDList(pb, PDU_BINARY, 1, pmidp, &xsts);
+		sts = __pmDecodeIDList(pb, 1, pmidp, &xsts);
 		if (sts < 0) return sts;
 		return xsts;
 	    }
 	    else if (sts == PDU_ERROR) {
-		__pmDecodeError(pb, PDU_BINARY, &sts);
+		__pmDecodeError(pb, &sts);
 		return sts;
 	    }
 	}
@@ -137,7 +137,7 @@ stmt	: OPEN EOL				{
 		opendso($3, $4, $5);
 		stmt_type = OPEN; YYACCEPT;
 	    }
-	| OPEN PIPE fname arglist EOL		{
+	| OPEN PIPE fname arglist {
 		openpmda($3);
 		stmt_type = OPEN; YYACCEPT;
 	    }

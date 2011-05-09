@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include <limits.h>
@@ -396,7 +392,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		    }
 #ifdef PCP_DEBUG
 		    if ((pmDebug & DBG_TRACE_INTERP) && changed) {
-			fprintf(stderr, "update%s pmid %s inst %d prior: t==%.3f",
+			fprintf(stderr, "update%s pmid %s inst %d prior: t=%.3f",
 			    changed & 2 ? "+search" : "",
 			    pmIDStr(logrp->vset[k]->pmid), icp->inst, icp->t_prior);
 			if (icp->m_prior)
@@ -559,7 +555,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     }
 
     if ((rp = (pmResult *) malloc(sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *))) == NULL)
-	return -errno;
+	return -oserror();
 
     rp->timestamp.tv_sec = ctxp->c_origin.tv_sec;
     rp->timestamp.tv_usec = ctxp->c_origin.tv_usec;
@@ -651,6 +647,9 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	pcp->numval = 0;
 	if (pcp->desc.type == -1) {
 	    pcp->numval = PM_ERR_PMID_LOG;
+	}
+	else if (pcp->desc.type == PM_TYPE_EVENT) {
+	    pcp->numval = PM_ERR_TYPE;
 	}
 	else if (pcp->desc.indom != PM_INDOM_NULL) {
 	    /* use the profile to filter the instances to be returned */
@@ -987,7 +986,7 @@ retry_forw:
 			pcp->desc.type != PM_TYPE_U64 &&
 			pcp->desc.type != PM_TYPE_FLOAT &&
 			pcp->desc.type != PM_TYPE_DOUBLE)
-			    pcp->numval = PM_ERR_VALUE;
+			    pcp->numval = PM_ERR_TYPE;
 		}
 	    }
 	}
@@ -1152,7 +1151,7 @@ retry_forw:
 
 		    need = PM_VAL_HDR_SIZE + sizeof(float);
 		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
-			sts = -errno;
+			sts = -oserror();
 			goto bad_alloc;
 		    }
 		    vp->vlen = need;
@@ -1209,7 +1208,7 @@ retry_forw:
 
 		    need = PM_VAL_HDR_SIZE + sizeof(__int64_t);
 		    if ((vp = (pmValueBlock *)__pmPoolAlloc(need)) == NULL) {
-			sts = -errno;
+			sts = -oserror();
 			goto bad_alloc;
 		    }
 		    vp->vlen = need;
@@ -1348,7 +1347,7 @@ retry_forw:
 
 		    need = PM_VAL_HDR_SIZE + sizeof(double);
 		    if ((vp = (pmValueBlock *)__pmPoolAlloc(need)) == NULL) {
-			sts = -errno;
+			sts = -oserror();
 			goto bad_alloc;
 		    }
 		    vp->vlen = need;
@@ -1411,7 +1410,7 @@ retry_forw:
 		    else
 			vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {
-			sts = -errno;
+			sts = -oserror();
 			goto bad_alloc;
 		    }
 		    rp->vset[j]->valfmt = PM_VAL_DPTR;

@@ -74,7 +74,7 @@ agent_creds(__pmPDU *pb)
     int			vflag = 0;
     __pmCred		*credlist = NULL;
 
-    if ((sts = __pmDecodeCreds(pb, PDU_BINARY, &sender, &credcount, &credlist)) < 0)
+    if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0)
 	return sts;
 
     for (i = 0; i < credcount; i++) {
@@ -108,7 +108,7 @@ agent_creds(__pmPDU *pb)
 	handshake[0].c_vala = PDU_VERSION;
 	handshake[0].c_valb = 0;
 	handshake[0].c_valc = 0;
-	if ((sts = __pmSendCreds(outfd, PDU_BINARY, 1, handshake)) < 0)
+	if ((sts = __pmSendCreds(outfd, getpid(), 1, handshake)) < 0)
 	    return sts;
     }
 
@@ -121,7 +121,7 @@ pmdaversion(void)
     int		sts;
     __pmPDU	*ack;
 
-    sts = __pmGetPDU(infd, PDU_BINARY, _creds_timeout, &ack);
+    sts = __pmGetPDU(infd, ANY_SIZE, _creds_timeout, &ack);
     if (sts == PDU_CREDS) {
 	if ((sts = agent_creds(ack)) < 0) {
 	    fprintf(stderr, "Warning: version exchange failed "
@@ -146,7 +146,7 @@ openpmda(char *fname)
     struct stat	buf;
 
     if (stat(fname, &buf) < 0) {
-	fprintf(stderr, "openpmda: %s: %s\n", fname, strerror(errno));
+	fprintf(stderr, "openpmda: %s: %s\n", fname, osstrerror());
 	return;
     }
 
@@ -160,10 +160,10 @@ openpmda(char *fname)
     putchar('\n');
 
     if (__pmProcessCreate(param.argv, &infd, &outfd) < 0) {
-	fprintf(stderr, "openpmda: create process: %s\n", strerror(errno));
+	fprintf(stderr, "openpmda: create process: %s\n", osstrerror());
     }
     else {
-	connmode = PDU_BINARY;
+	connmode = CONN_DAEMON;
 	reset_profile();
 	if (myPmdaName != NULL)
 	    free(myPmdaName);
@@ -182,25 +182,25 @@ opensocket(char *fname)
     int 		len;
 
     if (stat(fname, &buf) < 0) {
-	fprintf(stderr, "opensocket: %s: %s\n", fname, strerror(errno));
+	fprintf(stderr, "opensocket: %s: %s\n", fname, osstrerror());
 	return;
     }
 
     fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (fd < 0) {
-	fprintf(stderr, "opensocket: socket: %s\n", strerror(errno));
+	fprintf(stderr, "opensocket: socket: %s\n", netstrerror());
 	return;
     }
 
     memset(&s_un, 0, sizeof(s_un));
     s_un.sun_family = AF_UNIX;
     strncpy(s_un.sun_path, fname, strlen(fname));
-    len = sizeof(s_un.sun_family) + strlen(fname);
+    len = (int)offsetof(struct sockaddr_un, sun_path) + (int)strlen(s_un.sun_path);
 
     closepmda();
 
     if (connect(fd, (struct sockaddr *)&s_un, len) < 0) {
-	fprintf(stderr, "opensocket: connect: %s\n", strerror(errno));
+	fprintf(stderr, "opensocket: connect: %s\n", netstrerror());
 	close(fd);
 	return;
     }
@@ -210,7 +210,7 @@ opensocket(char *fname)
 
     printf("Connect to PMDA on socket %s\n", fname);
 
-    connmode = PDU_BINARY;
+    connmode = CONN_DAEMON;
     reset_profile();
     if (myPmdaName != NULL)
 	free(myPmdaName);
@@ -228,11 +228,13 @@ opensocket(char *fname)
 void
 closepmda(void)
 {
-    if (connmode != PDU_NOT) {
+    if (connmode != NO_CONN) {
+	/* End of context logic mimics PMCD, no error checking is needed. */
+	__pmSendError(outfd, FROM_ANON, PM_ERR_NOTCONN);
 	close(outfd);
 	close(infd);
 	__pmResetIPC(infd);
-	connmode = PDU_NOT;
+	connmode = NO_CONN;
 	if (myPmdaName != NULL) {
 	    free(myPmdaName);
 	    myPmdaName = NULL;
@@ -248,9 +250,9 @@ dopmda_desc(pmID pmid, pmDesc *desc, int print)
     __pmPDU *pb;
     int i;
 
-    if ((sts = __pmSendDescReq(outfd, connmode, pmid)) >= 0) {
-	if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_DESC) {
-	    if ((sts = __pmDecodeDesc(pb, connmode, desc)) >= 0) {
+    if ((sts = __pmSendDescReq(outfd, FROM_ANON, pmid)) >= 0) {
+	if ((sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_DESC) {
+	    if ((sts = __pmDecodeDesc(pb, desc)) >= 0) {
 		if (print)
 		    __pmPrintDesc(stdout, desc);
 #ifdef PCP_DEBUG
@@ -262,7 +264,7 @@ dopmda_desc(pmID pmid, pmDesc *desc, int print)
 		printf("Error: __pmDecodeDesc() failed: %s\n", pmErrStr(sts));
 	}
 	else if (sts == PDU_ERROR) {
-	    if ((i = __pmDecodeError(pb, connmode, &sts)) >= 0)
+	    if ((i = __pmDecodeError(pb, &sts)) >= 0)
 		printf("Error PDU: %s\n", pmErrStr(sts));
 	    else
 		printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
@@ -330,15 +332,15 @@ dopmda(int pdu)
 
 	    sts = 0;
 	    if (profile_changed) {
-		if ((sts = __pmSendProfile(outfd, connmode, 0, profile)) < 0)
+		if ((sts = __pmSendProfile(outfd, FROM_ANON, 0, profile)) < 0)
 		    printf("Error: __pmSendProfile() failed: %s\n", pmErrStr(sts));
 		else
 		    profile_changed = 0;
 	    }
 	    if (sts >= 0) {
-		if ((sts = __pmSendFetch(outfd, connmode, 0, NULL, param.numpmid, param.pmidlist)) >= 0) {
-		    if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_RESULT) {
-			if ((sts = __pmDecodeResult(pb, connmode, &result)) >= 0) {
+		if ((sts = __pmSendFetch(outfd, FROM_ANON, 0, NULL, param.numpmid, param.pmidlist)) >= 0) {
+		    if ((sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_RESULT) {
+			if ((sts = __pmDecodeResult(pb, &result)) >= 0) {
 			    if (get_desc) 
 				_dbDumpResult(stdout, result, desc_list);
 			    else
@@ -349,7 +351,7 @@ dopmda(int pdu)
 			    printf("Error: __pmDecodeResult() failed: %s\n", pmErrStr(sts));
 		    }
 		    else if (sts == PDU_ERROR) {
-			if ((i = __pmDecodeError(pb, connmode, &sts)) >= 0)
+			if ((i = __pmDecodeError(pb, &sts)) >= 0)
 			    printf("Error PDU: %s\n", pmErrStr(sts));
 			else
 			    printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
@@ -366,15 +368,15 @@ dopmda(int pdu)
 
 	case PDU_INSTANCE_REQ:
 	    printf("pmInDom: %s\n", pmInDomStr(param.indom));
-	    if ((sts = __pmSendInstanceReq(outfd, connmode, &now, param.indom, param.number, param.name)) >= 0) {
-		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_INSTANCE) {
-		    if ((sts = __pmDecodeInstance(pb, connmode, &inresult)) >= 0)
+	    if ((sts = __pmSendInstanceReq(outfd, FROM_ANON, &now, param.indom, param.number, param.name)) >= 0) {
+		if ((sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_INSTANCE) {
+		    if ((sts = __pmDecodeInstance(pb, &inresult)) >= 0)
 			printindom(stdout, inresult);
 		    else
 			printf("Error: __pmDecodeInstance() failed: %s\n", pmErrStr(sts));
 		}
 		else if (sts == PDU_ERROR) {
-		    if ((i = __pmDecodeError(pb, connmode, &sts)) >= 0)
+		    if ((i = __pmDecodeError(pb, &sts)) >= 0)
 			printf("Error PDU: %s\n", pmErrStr(sts));
 		    else
 			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
@@ -396,7 +398,7 @@ dopmda(int pdu)
 
     	    if (profile_changed) {
 		printf("Sending Profile...\n");
-		if ((sts = __pmSendProfile(outfd, connmode, 0, profile)) < 0) {
+		if ((sts = __pmSendProfile(outfd, FROM_ANON, 0, profile)) < 0) {
 		    printf("Error: __pmSendProfile() failed: %s\n", pmErrStr(sts));
 		    return;
 		}
@@ -405,11 +407,11 @@ dopmda(int pdu)
 	    }
 
 	    printf("Getting Result Structure...\n");
-	    if ((sts = __pmSendFetch(outfd, connmode, 0, NULL, 
+	    if ((sts = __pmSendFetch(outfd, FROM_ANON, 0, NULL, 
 				    1, &(desc.pmid))) >= 0) {
-		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, 
+		if ((sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, 
 				     &pb)) == PDU_RESULT) {
-		    if ((sts = __pmDecodeResult(pb, connmode, &result)) < 0)
+		    if ((sts = __pmDecodeResult(pb, &result)) < 0)
 			printf("Error: __pmDecodeResult() failed: %s\n", 
 			       pmErrStr(sts));
 #ifdef PCP_DEBUG
@@ -418,7 +420,7 @@ dopmda(int pdu)
 #endif
 		}
 		else if (sts == PDU_ERROR) {
-		    if ((i = __pmDecodeError(pb, connmode, &sts)) >= 0)
+		    if ((i = __pmDecodeError(pb, &sts)) >= 0)
 			printf("Error PDU: %s\n", pmErrStr(sts));
 		    else
 			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
@@ -440,10 +442,10 @@ dopmda(int pdu)
 	    }
 
 	    printf("Sending Result...\n");
-	    if ((sts = __pmSendResult(outfd, connmode, result)) >= 0) {
-		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, 
+	    if ((sts = __pmSendResult(outfd, FROM_ANON, result)) >= 0) {
+		if ((sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, 
 				     &pb)) == PDU_ERROR) {
-		    if ((i = __pmDecodeError(pb, connmode, &sts)) >= 0) {
+		    if ((i = __pmDecodeError(pb, &sts)) >= 0) {
 			if (sts < 0)
 			    printf("Error PDU: %s\n", pmErrStr(sts));
 		    }
@@ -478,9 +480,9 @@ dopmda(int pdu)
 		    param.number |= PM_TEXT_HELP;
 		}
 
-		if ((sts = __pmSendTextReq(outfd, connmode, ident, param.number)) >= 0) {
-		    if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_TEXT) {
-			if ((sts = __pmDecodeText(pb, connmode, &i, &buffer)) >= 0) {
+		if ((sts = __pmSendTextReq(outfd, FROM_ANON, ident, param.number)) >= 0) {
+		    if ((sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_TEXT) {
+			if ((sts = __pmDecodeText(pb, &i, &buffer)) >= 0) {
 			    if (j == 0) {
 				if (*buffer != '\0')
 				    printf("[%s]\n", buffer);
@@ -497,7 +499,7 @@ dopmda(int pdu)
 			    printf("Error: __pmDecodeText() failed: %s\n", pmErrStr(sts));
 		    }
 		    else if (sts == PDU_ERROR) {
-			if ((i = __pmDecodeError(pb, connmode, &sts)) >= 0)
+			if ((i = __pmDecodeError(pb, &sts)) >= 0)
 			    printf("Error PDU: %s\n", pmErrStr(sts));
 			else
 			    printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
@@ -513,9 +515,9 @@ dopmda(int pdu)
 
 	case PDU_PMNS_IDS:
             printf("PMID: %s\n", pmIDStr(param.pmid));
-	    if ((sts = __pmSendIDList(outfd, connmode, 1, &param.pmid, 0)) >= 0) {
-		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_PMNS_NAMES) {
-		    if ((sts = __pmDecodeNameList(pb, connmode, &numnames, &namelist, NULL)) >= 0) {
+	    if ((sts = __pmSendIDList(outfd, FROM_ANON, 1, &param.pmid, 0)) >= 0) {
+		if ((sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_PMNS_NAMES) {
+		    if ((sts = __pmDecodeNameList(pb, &numnames, &namelist, NULL)) >= 0) {
 			for (i = 0; i < sts; i++) {
 			    printf("   %s\n", namelist[i]);
 			}
@@ -525,7 +527,7 @@ dopmda(int pdu)
 			printf("Error: __pmDecodeNameList() failed: %s\n", pmErrStr(sts));
 		}
 		else if (sts == PDU_ERROR) {
-		    if ((i = __pmDecodeError(pb, connmode, &sts)) >= 0)
+		    if ((i = __pmDecodeError(pb, &sts)) >= 0)
 			printf("Error PDU: %s\n", pmErrStr(sts));
 		    else
 			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
@@ -539,17 +541,17 @@ dopmda(int pdu)
 
 	case PDU_PMNS_NAMES:
             printf("Metric: %s\n", param.name);
-	    if ((sts = __pmSendNameList(outfd, connmode, 1, &param.name, NULL)) >= 0) {
-		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_PMNS_IDS) {
+	    if ((sts = __pmSendNameList(outfd, FROM_ANON, 1, &param.name, NULL)) >= 0) {
+		if ((sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_PMNS_IDS) {
 		    int		xsts;
-		    if ((sts = __pmDecodeIDList(pb, connmode, 1, &pmid, &xsts)) >= 0) {
+		    if ((sts = __pmDecodeIDList(pb, 1, &pmid, &xsts)) >= 0) {
 			printf("   %s\n", pmIDStr(pmid));
 		    }
 		    else
 			printf("Error: __pmDecodeIDList() failed: %s\n", pmErrStr(sts));
 		}
 		else if (sts == PDU_ERROR) {
-		    if ((i = __pmDecodeError(pb, connmode, &sts)) >= 0)
+		    if ((i = __pmDecodeError(pb, &sts)) >= 0)
 			printf("Error PDU: %s\n", pmErrStr(sts));
 		    else
 			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
@@ -563,9 +565,9 @@ dopmda(int pdu)
 
 	case PDU_PMNS_CHILD:
             printf("Metric: %s\n", param.name);
-	    if ((sts = __pmSendChildReq(outfd, connmode, param.name, 1)) >= 0) {
-		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_PMNS_NAMES) {
-		    if ((sts = __pmDecodeNameList(pb, connmode, &numnames, &namelist, &statuslist)) >= 0) {
+	    if ((sts = __pmSendChildReq(outfd, FROM_ANON, param.name, 1)) >= 0) {
+		if ((sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_PMNS_NAMES) {
+		    if ((sts = __pmDecodeNameList(pb, &numnames, &namelist, &statuslist)) >= 0) {
 			for (i = 0; i < numnames; i++) {
 			    printf("   %8.8s %s\n", statuslist[i] == 1 ? "non-leaf" : "leaf", namelist[i]);
 			}
@@ -576,7 +578,7 @@ dopmda(int pdu)
 			printf("Error: __pmDecodeNameList() failed: %s\n", pmErrStr(sts));
 		}
 		else if (sts == PDU_ERROR) {
-		    if ((i = __pmDecodeError(pb, connmode, &sts)) >= 0)
+		    if ((i = __pmDecodeError(pb, &sts)) >= 0)
 			printf("Error PDU: %s\n", pmErrStr(sts));
 		    else
 			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
@@ -590,9 +592,9 @@ dopmda(int pdu)
 
 	case PDU_PMNS_TRAVERSE:
             printf("Metric: %s\n", param.name);
-	    if ((sts = __pmSendTraversePMNSReq(outfd, connmode, param.name)) >= 0) {
-		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_PMNS_NAMES) {
-		    if ((sts = __pmDecodeNameList(pb, connmode, &numnames, &namelist, &statuslist)) >= 0) {
+	    if ((sts = __pmSendTraversePMNSReq(outfd, FROM_ANON, param.name)) >= 0) {
+		if ((sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_PMNS_NAMES) {
+		    if ((sts = __pmDecodeNameList(pb, &numnames, &namelist, &statuslist)) >= 0) {
 			for (i = 0; i < numnames; i++) {
 			    printf("   %s\n", namelist[i]);
 			}
@@ -602,7 +604,7 @@ dopmda(int pdu)
 			printf("Error: __pmDecodeNameList() failed: %s\n", pmErrStr(sts));
 		}
 		else if (sts == PDU_ERROR) {
-		    if ((i = __pmDecodeError(pb, connmode, &sts)) >= 0)
+		    if ((i = __pmDecodeError(pb, &sts)) >= 0)
 			printf("Error PDU: %s\n", pmErrStr(sts));
 		    else
 			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
@@ -631,7 +633,6 @@ fillResult(pmResult *result, int type)
 {
     int		i;
     int		sts = 0;
-    int		nbyte = 0;	/* initialize to pander to gcc */
     pmAtomValue	atom;
     pmValueSet	*vsp;
     char	*endbuf = NULL;
@@ -639,19 +640,15 @@ fillResult(pmResult *result, int type)
     switch(type) {
     case PM_TYPE_32:
 	atom.l = (int)strtol(param.name, &endbuf, 10);
-	nbyte = sizeof(atom.l);
 	break;
     case PM_TYPE_U32:
 	atom.ul = (unsigned int)strtoul(param.name, &endbuf, 10);
-	nbyte = sizeof(atom.ul);
 	break;
     case PM_TYPE_64:
 	atom.ll = strtoll(param.name, &endbuf, 10);
-	nbyte = sizeof(atom.ll);
 	break;
     case PM_TYPE_U64:
 	atom.ull = strtoull(param.name, &endbuf, 10);
-	nbyte = sizeof(atom.ull);
 	break;
     case PM_TYPE_FLOAT:
 	atom.d = strtod(param.name, &endbuf);
@@ -659,16 +656,13 @@ fillResult(pmResult *result, int type)
 	    sts = ERANGE;
 	else {
 	    atom.f = atom.d;
-	    nbyte = sizeof(atom.f);
 	}
 	break;
     case PM_TYPE_DOUBLE:
 	atom.d = strtod(param.name, &endbuf);
-	nbyte = sizeof(atom.d);
 	break;
     case PM_TYPE_STRING:
-	nbyte = (int)strlen(param.name);
-	atom.cp = (char *)malloc(nbyte * sizeof(char));
+	atom.cp = (char *)malloc(strlen(param.name));
 	if (atom.cp == NULL)
 	    sts = ENOMEM;
 	else {
@@ -677,14 +671,15 @@ fillResult(pmResult *result, int type)
 	}
 	break;
     default:
-	printf("Error: dbpmda does not support storing into aggregate metrics");
-	sts = PM_ERR_VALUE;
+	printf("Error: dbpmda does not support storing into %s metrics\n", pmTypeStr(type));
+	sts = PM_ERR_TYPE;
     }
     
-    if (sts < 0)
-	printf("Error: Decoding value: %s\n", pmErrStr(sts));
-    
-    if (*endbuf != '\0') {
+    if (sts < 0) {
+	if (sts != PM_ERR_TYPE)
+	    printf("Error: Decoding value: %s\n", pmErrStr(sts));
+    }
+    else if (*endbuf != '\0') {
 	printf("Error: Value \"%s\" is incompatible with metric type (PM_TYPE_%s)\n",
 	       param.name, pmTypeStr(type));
 	sts = PM_ERR_VALUE;
@@ -710,7 +705,7 @@ fillResult(pmResult *result, int type)
 		printf("%s: ", pmIDStr(param.pmid));
 	    
 	    pmPrintValue(stdout, vsp->valfmt, type, &vsp->vlist[i], 1);
-	    vsp->valfmt = __pmStuffValue(&atom, nbyte, &vsp->vlist[i], type); 
+	    vsp->valfmt = __pmStuffValue(&atom, &vsp->vlist[i], type); 
 	    printf(" -> ");
 	    pmPrintValue(stdout, vsp->valfmt, type, &vsp->vlist[i], 1);
 	    putchar('\n');

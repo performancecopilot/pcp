@@ -10,20 +10,10 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-
+#include "pmapi.h"
 #include "proc_net_snmp.h"
-
-static int started = 0;
 
 static void
 get_fields(unsigned int *fields, char *buf, int n)
@@ -42,6 +32,7 @@ get_fields(unsigned int *fields, char *buf, int n)
 int
 refresh_proc_net_snmp(proc_net_snmp_t *proc_net_snmp)
 {
+    static int started;
     char buf[1024];
     FILE *fp;
 
@@ -51,7 +42,7 @@ refresh_proc_net_snmp(proc_net_snmp_t *proc_net_snmp)
     }
 
     if ((fp = fopen("/proc/net/snmp", "r")) == NULL)
-	return -errno;
+	return -oserror();
 
     /*
     * This is really bogus.
@@ -92,10 +83,7 @@ refresh_proc_net_snmp(proc_net_snmp_t *proc_net_snmp)
 			buf);
 	}
     }
-
     fclose(fp);
-
-    /* success */
     return 0;
 }
 

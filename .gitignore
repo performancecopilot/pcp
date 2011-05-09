@@ -2,6 +2,7 @@
 *.o
 *.exe
 Logs
+.DS_Store
 autom4te.cache
 config.log
 config.status
@@ -19,4 +20,5 @@ devel_files.rpm
 libs_files
 libs_files.rpm
 gram*.tab.c
+pcp-[0-9].[0-9].[0-9]
 perl-pcp-*.list*

@@ -25,8 +25,15 @@
 .br
 #include <pcp/pmda.h>
 .sp
-int pmdaChildren(char *name, int traverse, char ***offspring, int **status, pmdaExt *pmda)
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmdaChildren(char *\fIname\fP, int \fItraverse\fP, char\ ***\fIoffspring\fP, int\ **\fIstatus\fP, pmdaExt\ *\fIpmda\fP);
 .sp
+.in
+.hy
+.ad
 cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .SH DESCRIPTION

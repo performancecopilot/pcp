@@ -65,7 +65,6 @@ struct {
 static char pcpdir[MAXPATHLEN+16];	/* PCP_DIR environment variable */
 static char pcpconf[MAXPATHLEN+16];	/* PCP_CONF string for putenv */
 static char pcpdirenv[MAXPATHLEN+16];	/* PCP_DIR string for putenv */
-static char pcpconfig[MAXPATHLEN+16];	/* PCP_CONFIG string for putenv */
 
 int
 pcpScript(const char *name, const char *action)
@@ -131,9 +130,6 @@ pcpServiceMain(DWORD argc, LPTSTR *argv, PCPSERVICE s)
     snprintf(pcpdir, sizeof(pcpdir), "%s", basedir);
     snprintf(pcpconf, sizeof(pcpconf), "PCP_CONF=%s\\etc\\pcp.conf", pcpdir);
     snprintf(pcpdirenv, sizeof(pcpdirenv), "PCP_DIR=%s", pcpdir);
-    snprintf(pcpconfig, sizeof(pcpconfig),
-			"PCP_CONFIG=%s\\local\\bin\\pmconfig.exe", pcpdir);
-    putenv(pcpconfig);
     putenv(pcpconf);
     putenv(pcpdirenv);
 
@@ -236,7 +232,7 @@ main(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    /* setup dispatch table and sentinal */
+    /* setup dispatch table and sentinel */
     dispatchTable[0].lpServiceName = services[0].name;
     dispatchTable[0].lpServiceProc = services[0].setup;
     dispatchTable[1].lpServiceName = NULL;

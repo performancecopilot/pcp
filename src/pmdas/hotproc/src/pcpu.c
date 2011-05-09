@@ -10,18 +10,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <unistd.h>
 #include <stdio.h>
 #include <syslog.h>
-#include <errno.h>
 #include <fcntl.h>
-#include <errno.h>
 #include <ctype.h>
 #include <pwd.h>
 
@@ -81,7 +75,7 @@ pcpu_getinfo(pid_t pid, int j)
     }
     proc_pid_to_path(pid, NULL, &path, PINFO_PATH);
     if (access(path, R_OK) < 0)
-	return -errno; 
+	return -oserror(); 
 		
     cpuburn_buf[j] = node->r_cpuburn;
     return 0;
@@ -97,7 +91,7 @@ pcpu_allocbuf(int size)
     if (size > max_size) {
 	cpub = realloc(cpuburn_buf, size * sizeof(float));  
 	if (cpub == NULL)
-	    return -errno;
+	    return -oserror();
 	cpuburn_buf = cpub;
 	max_size = size;
     }

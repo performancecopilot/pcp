@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
+# Copyright (c) 2008-2011 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,35 +15,22 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES = pcp-services.c pcp-setevent.c pcp-eventlog.c
-TARGETS = pcp-services.exe pcp-setevent.exe pcp-eventlog.exe
-WRAPPERS = pcp.bat pmafm.bat mkaf.bat pmsignal.bat
-LLDLIBS = -lpcp
-LSRCFILES = $(WRAPPERS)
+SUBDIRS	= include lib \
+	  eventlog services setevent
+BATCHES	= pcp.bat pmafm.bat mkaf.bat pmsignal.bat
+LSRCFILES = $(BATCHES)
 
-default:	build-me
+default :: default_pcp
 
-include $(BUILDRULES)
+default_pcp : $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 
+install :: default_pcp install_pcp
+
+install_pcp : $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 ifeq "$(TARGET_OS)" "mingw"
-build-me:	$(TARGETS)
-install:	default
-	$(INSTALL) -m 755 $(TARGETS) $(PCP_BIN_DIR)
-	$(INSTALL) -m 755 $(WRAPPERS) $(PCP_BIN_DIR)
-else
-build-me:
-install:
+	$(INSTALL) -m 755 $(BATCHES) $(PCP_BIN_DIR)
 endif
 
-pcp-eventlog.exe:	pcp-eventlog.o
-	$(CCF) -o $@ $(LDFLAGS) pcp-eventlog.o $(LDLIBS)
-
-pcp-setevent.exe:	pcp-setevent.o
-	$(CCF) -o $@ $(LDFLAGS) pcp-setevent.o $(LDLIBS)
-
-pcp-services.exe:	pcp-services.o
-	$(CCF) -o $@ $(LDFLAGS) pcp-services.o $(LDLIBS)
-
-default_pcp:	default
-
-install_pcp:	install
+include $(BUILDRULES)

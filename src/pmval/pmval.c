@@ -97,7 +97,8 @@ static char		*rpt_tz_label;
 static int		pauseFlag;
 static int		raw;
 static int		ahtype = PM_CONTEXT_HOST;	/* archive or host? */
-static int		firstSample = 1;		/* need first sample */
+		/* have previous sample, so could compute rate if required */
+static int		havePrev = 0;
 static int		amode = PM_MODE_INTERP;		/* archive scan mode */
 static char		local[] = "localhost";
 static int		gui;
@@ -347,7 +348,8 @@ getvals(Context *x,		/* in - full pm description */
 static void
 timestep(struct timeval delta)
 {
-    firstSample = 1;
+    /* time moved, may need to wait for previous value again */
+    havePrev = 0;
 }
 
 
@@ -360,16 +362,16 @@ static int
 howide(int type)
 {
     switch (type) {
-    case PM_TYPE_32: return(11);
-    case PM_TYPE_U32: return(11);
-    case PM_TYPE_64: return(21);
-    case PM_TYPE_U64: return(21);
-    case PM_TYPE_FLOAT: return(13);
-    case PM_TYPE_DOUBLE: return(21);
-    case PM_TYPE_STRING: return(21);
-    case PM_TYPE_AGGREGATE: return(21);
+    case PM_TYPE_32: return 11;
+    case PM_TYPE_U32: return 11;
+    case PM_TYPE_64: return 21;
+    case PM_TYPE_U64: return 21;
+    case PM_TYPE_FLOAT: return 13;
+    case PM_TYPE_DOUBLE: return 21;
+    case PM_TYPE_STRING: return 21;
+    case PM_TYPE_AGGREGATE: return 21;
     default:
-	fprintf(stderr, "pmval: unknown performance metric value type\n");
+	fprintf(stderr, "pmval: unknown performance metric value type %s\n", pmTypeStr(type));
 	exit(EXIT_FAILURE);
     }
 }
@@ -903,7 +905,7 @@ getargs(int		argc,		/* in - command line argument count */
 	    port = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0' || port < 0) {
 		fprintf(stderr, "%s: Error: invalid pmtime port \"%s\": %s\n",
-			pmProgname, optarg, pmErrStr(-errno));
+			pmProgname, optarg, pmErrStr(-oserror()));
 		errflag++;
 	    }
 	    break;
@@ -915,7 +917,7 @@ getargs(int		argc,		/* in - command line argument count */
 	case 's':		/* sample count */
 	    d = (int)strtol(optarg, &endnum, 10);
 	    if (Tflag) {
-		fprintf(stderr, "%s: at most one of -E and -T allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -s and -T allowed\n", pmProgname);
 		errflag++;
 	    }
 	    else if (*endnum != '\0' || d < 0) {
@@ -957,9 +959,9 @@ getargs(int		argc,		/* in - command line argument count */
 	    break;
 
 	case 'w':		/* output column width */
-	    errno = 0;
+	    setoserror(0);
 	    d = atol(optarg);
-	    if (errno || d < 1) errflag++;
+	    if (oserror() || d < 1) errflag++;
 	    else *cols = d;
 	    break;
 
@@ -1215,6 +1217,13 @@ main(int argc, char *argv[])
     setlinebuf(stdout);
 
     getargs(argc, argv, &cntxt, &now, &delta, &smpls, &cols);
+
+    if (cntxt.desc.type == PM_TYPE_EVENT) {
+	fprintf(stderr, "%s: Cannot display values for PM_TYPE_EVENT metrics\n",
+		pmProgname);
+	exit(EXIT_FAILURE);
+    }
+
     forever = (smpls == ALL_SAMPLES || gui);
 
     if (cols <= 0) cols = howide(cntxt.desc.type);
@@ -1235,13 +1244,20 @@ main(int argc, char *argv[])
     while (forever || (smpls-- > 0)) {
 	if (gui)
 	    pmTimeStateVector(&controls, pmtime);
-	if (firstSample) {
+	if (havePrev == 0) {
+	    /*
+	     * We don't yet have a value at the previous time point ...
+	     * save this value so we can use it to compute the rate if
+	     * the metric has counter semantics and we're doing rate
+	     * conversion.
+	     */
 	    if ((idx2 = getvals(&cntxt, &rslt2)) >= 0) {
-		/* first-time success */
-		firstSample = 0;
+		/* previous value success */
+		havePrev = 1;
 		if (cntxt.desc.indom != PM_INDOM_NULL)
 		    printlabels(&cntxt, cols);
 		if (raw || (cntxt.desc.sem != PM_SEM_COUNTER)) {
+		    /* not doing rate conversion, report this value immediately */
 		    if (gui || archive != NULL)
 			__pmPrintStamp(stdout, &rslt2->timestamp);
 		    printvals(&cntxt, rslt2->vset[idx2], cols);
@@ -1270,15 +1286,20 @@ main(int argc, char *argv[])
 	if (!gui && (pauseFlag || archive == NULL))
 	    __pmtimevalSleep(delta);
 
-	if (firstSample)
-	    continue;	/* keep trying */
+	if (havePrev == 0)
+	    continue;	/* keep trying to get the previous sample */
 
 	/* next sample */
 	if ((idx1 = getvals(&cntxt, &rslt1)) == -2)
 		/* out the end of the window */
 		break;
 	else if (idx1 < 0) {
-	    firstSample = 1;
+	    /*
+	     * Fall back to trying to get an initial sample because
+	     * although we got the previous sample, we failed to get the
+	     * next sample.
+	     */
+	    havePrev = 0;
 	    continue;
 	}
 
@@ -1301,11 +1322,18 @@ main(int argc, char *argv[])
 	    printrates(&cntxt, rslt1->vset[idx1], rslt1->timestamp,
 		       rslt2->vset[idx2], rslt2->timestamp, cols);
 
-	/* discard previous and save current result */
+	/*
+	 * discard previous and save current result, so this value
+	 * becomes the previous value at the next iteration
+	 */
 	pmFreeResult(rslt2);
 	rslt2 = rslt1;
 	idx2 = idx1;
     }
 
-    exit(firstSample == 0);
+    /*
+     * All serious error conditions have explicit exit() calls, so
+     * if we get this far, all has gone well.
+     */
+    return 0;
 }

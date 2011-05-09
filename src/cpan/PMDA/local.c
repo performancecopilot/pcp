@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "local.h"
@@ -25,9 +21,6 @@ static timers_t *timers;
 static int ntimers;
 static files_t *files;
 static int nfiles;
-
-extern void timer_callback(int, void *);
-extern void input_callback(scalar_t *, int, char *);
 
 char *
 local_strdup_suffix(const char *string, const char *suffix)
@@ -117,7 +110,7 @@ local_pipe(char *pipe, scalar_t *callback, int cookie)
     signal(SIGPIPE, SIG_IGN);
 #endif
     if (!fp) {
-	__pmNotifyErr(LOG_ERR, "popen failed (%s): %s", pipe, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "popen failed (%s): %s", pipe, osstrerror());
 	exit(1);
     }
     me = local_file(FILE_PIPE, fileno(fp), callback, cookie);
@@ -133,11 +126,11 @@ local_tail(char *file, scalar_t *callback, int cookie)
     int me;
 
     if (fd < 0) {
-	__pmNotifyErr(LOG_ERR, "open failed (%s): %s", file, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "open failed (%s): %s", file, osstrerror());
 	exit(1);
     }
     if (fstat(fd, &stats) < 0) {
-	__pmNotifyErr(LOG_ERR, "fstat failed (%s): %s", file, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "fstat failed (%s): %s", file, osstrerror());
 	exit(1);
     }
     lseek(fd, 0L, SEEK_END);
@@ -156,11 +149,11 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
     int me, fd;
 
     if ((servinfo = gethostbyname(host)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "gethostbyname (%s): %s", host, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "gethostbyname (%s): %s", host, netstrerror());
 	exit(1);
     }
     if ((fd = __pmCreateSocket()) < 0) {
-	__pmNotifyErr(LOG_ERR, "socket (%s): %s", host, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "socket (%s): %s", host, netstrerror());
 	exit(1);
     }
     memset(&myaddr, 0, sizeof(myaddr));
@@ -168,7 +161,7 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
     memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
     myaddr.sin_port = htons(port);
     if (connect(fd, (struct sockaddr *)&myaddr, sizeof(myaddr)) < 0) {
-	__pmNotifyErr(LOG_ERR, "connect (%s): %s", host, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "connect (%s): %s", host, netstrerror());
 	exit(1);
     }
     me = local_file(FILE_SOCK, fd, callback, cookie);
@@ -250,7 +243,7 @@ local_log_rotated(files_t *file)
     file->fd = open(file->me.tail.path, O_RDONLY);
     if (file->fd < 0) {
 	__pmNotifyErr(LOG_ERR, "fopen failed after log rotate (%s): %s",
-			file->me.tail.path, strerror(errno));
+			file->me.tail.path, osstrerror());
 	return;
     }
     files->me.tail.dev = stats.st_dev;
@@ -325,8 +318,9 @@ local_pmdaMain(pmdaInterface *self)
 	memcpy(&readyfds, &fds, sizeof(readyfds));
 	nready = select(nfds, &readyfds, NULL, NULL, &timeout);
 	if (nready < 0) {
-	    if (errno != EINTR) {
-		__pmNotifyErr(LOG_ERR, "select failed: %s\n", strerror(errno));
+	    if (neterror() != EINTR) {
+		__pmNotifyErr(LOG_ERR, "select failed: %s\n",
+				netstrerror());
 		exit(1);
 	    }
 	    continue;
@@ -358,7 +352,7 @@ multiread:
 		    continue;
 		}
 		__pmNotifyErr(LOG_ERR, "Data read error on %s: %s\n",
-				local_filetype(files[i].type), strerror(errno));
+				local_filetype(files[i].type), osstrerror());
 		exit(1);
 	    }
 	    if (bytes == 0) {
@@ -393,44 +387,4 @@ multiread:
 
 	__pmAFunblock();
     }
-}
-
-static void
-local_pmns_path(__pmnsNode *base, FILE *f)
-{
-    if (base && base->parent) {
-	local_pmns_path(base->parent, f);
-	fprintf(f, "%s.", base->name);
-    }
-}
-
-/*
- * Print out all entries at the current level, including leaf nodes
- * (with PMIDs) then recursively descend into subtrees.
- */
-void
-local_pmns_write(__pmnsNode *base, FILE *f)
-{
-    __pmnsNode *np;
-
-    /* Print out full path to this part of the tree */
-    local_pmns_path(base->parent, f);
-    fprintf(f, "%s {\n", base->name);
-
-    /* Print out nodes at this level of the tree */
-    for (np = base->first; np != NULL; np = np->next) {
-	if (np->pmid == PM_ID_NULL)
-	    fprintf(f, "\t%s\n", np->name);
-	else
-	    fprintf(f, "\t%s\t\t%u:%u:%u\n", np->name,
-			pmid_domain(np->pmid),
-			pmid_cluster(np->pmid),
-			pmid_item(np->pmid));
-    }
-    fprintf(f, "}\n\n");
-
-    /* Print out all the children of this subtree */
-    for (np = base->first; np != NULL; np = np->next)
-	if (np->pmid == PM_ID_NULL)
-	    local_pmns_write(np, f);
 }

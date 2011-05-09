@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "common.h"
@@ -36,12 +32,12 @@ cpu_init(int first)
     ncpu =  perfstat_cpu(NULL, NULL, sizeof(perfstat_cpu_t), 0);
     if ((fetched = (int *)malloc(ncpu * sizeof(int))) == NULL) {
 	fprintf(stderr, "cpu_init: fetched malloc[%d] failed: %s\n",
-	    ncpu * sizeof(int), strerror(errno));
+	    ncpu * sizeof(int), osstrerror());
 	exit(1);
     }
     if ((cpustat = (perfstat_cpu_t *)malloc(ncpu * sizeof(perfstat_cpu_t))) == NULL) {
 	fprintf(stderr, "cpu_init: cpustat malloc[%d] failed: %s\n",
-	    ncpu * sizeof(perfstat_cpu_t), strerror(errno));
+	    ncpu * sizeof(perfstat_cpu_t), osstrerror());
 	exit(1);
     }
     ncpu_alloc = ncpu;
@@ -56,7 +52,7 @@ cpu_init(int first)
     indomtab[CPU_INDOM].it_set = (pmdaInstid *)malloc(ncpu * sizeof(pmdaInstid));
     if (indomtab[CPU_INDOM].it_set == NULL) {
 	fprintf(stderr, "cpu_init: indomtab malloc[%d] failed: %s\n",
-	    ncpu * sizeof(pmdaInstid), strerror(errno));
+	    ncpu * sizeof(pmdaInstid), osstrerror());
 	exit(1);
     }
     for (i = 0; i < ncpu; i++) {

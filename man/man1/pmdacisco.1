@@ -22,6 +22,7 @@
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-P\f1 \f2password\f1]
 [\f3\-r\f1 \f2refresh\f1]
+[\f3\-s\f1 \f2prompt\f1]
 [\f3\-U\f1 \f2username\f1]
 [\f3\-x\f1 \f2port\f1]
 \f2host:interface-spec\f1 [...]
@@ -32,7 +33,9 @@
 .br
 \f3$PCP_PMDAS_DIR/cisco/probe\f1
 [\f3\-P\f1 \f2password\f1]
+[\f3\-s\f1 \f2prompt\f1]
 [\f3\-U\f1 \f2username\f1]
+[\f3\-x\f1 \f2port\f1]
 \f2host\f1
 .SH DESCRIPTION
 .B pmdacisco
@@ -87,6 +90,18 @@ seconds.
 The default
 .I refresh
 is 120 seconds.
+.TP 5
+.B \-s
+The Cisco command prompt ends with the string
+.IR prompt .
+The default value is ``>''.
+The only way
+.B pmdacisco
+can synchronize the sending of commands and the parsing of output is by
+recognizing
+.I prompt
+as a unique string that comes at the end of all output, i.e. as the
+command prompt when waiting for the next command.
 .TP 5
 .B \-U
 By default, it is assumed that no username login is
@@ -163,6 +178,7 @@ identification in one of a variety of syntactic forms, e.g.\&
 .B G0/0/1
 or
 .BR s4/2.1 .
+.RS
 .P
 To discover the valid interfaces on a particular Cisco,
 connect to the telnet port (using
@@ -173,6 +189,15 @@ identifiers following the keywords ``Ethernet'', ``Fddi'', ``Serial'', etc.
 Alternatively run the
 .BR probe
 command.
+.RE
+.TP
+username
+If there is a username login, and it is different to the
+default (see
+.B \-U
+above), it may be optionally specified here by appending
+\&``@'' and the username to the end of
+.IR interface-spec .
 .TP
 password
 If there is a user-level password, and it is different to the
@@ -182,12 +207,12 @@ above), it may be optionally specified here by appending
 a question mark (``?'') and the password to the end of
 .IR interface-spec .
 .TP
-username
-If there is a username login, and it is different to the
+prompt
+If the Cisco command prompt is different to the
 default (see
-.B \-U
+.B \-s
 above), it may be optionally specified here by appending
-\&``@'' and the username to the end of
+an exclamation mark (``!'') and the prompt to the end of
 .IR interface-spec .
 .PP
 The following are examples of valid
@@ -198,9 +223,11 @@ arguments.
 my-router:e1/2
 123.456.789.0:s0
 wancisco:f2/3?trust_me
+somecisco:G1/0!myprompt
 cisco34.foo.bar.com:e2?way2cool
 mycisco:s2/2.1@mylogin
-yourcisco:E0/0?yourpassword@youlogin
+yourcisco:E0/0@yourlogin?yourpassword
+mycisco:E0/0@mylogin?mypassword!myprompt
 .fi
 .in
 .SH HELPER UTILITIES
@@ -222,9 +249,17 @@ but executes outside the control of any
 .BR pmcd (1)
 and so may be used to diagnose problems with handling a particular
 Cisco router and/or one of its interfaces.
+.PP
 Additional diagnostic verbosity may be produced using the
 .B "\-D appl0,appl1,appl2"
 command line option.
+.B appl0
+logs connect and disconnect events, login progress, high-level
+flow of control and extracted statistics.
+.B appl1
+traces all commands sent to the Cisco device.
+.B appl2
+logs tokenizing and parsing of the output from the Cisco device.
 Diagnostics are generated on standard error as each sample is fetched
 and parsed.
 .SH INSTALLATION

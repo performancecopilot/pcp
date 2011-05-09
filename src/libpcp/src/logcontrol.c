@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -34,12 +30,12 @@ __pmControlLog(int fd, const pmResult *request, int control, int state, int delt
 	n = __pmMapErrno(n);
     else {
 	/* get the reply */
-	n = __pmGetPDU(fd, PDU_BINARY, __pmLoggerTimeout(), &pb);
+	n = __pmGetPDU(fd, ANY_SIZE, __pmLoggerTimeout(), &pb);
 	if (n == PDU_RESULT) {
-	    n = __pmDecodeResult(pb, PDU_BINARY, status);
+	    n = __pmDecodeResult(pb, status);
 	}
 	else if (n == PDU_ERROR)
-	    __pmDecodeError(pb, PDU_BINARY, &n);
+	    __pmDecodeError(pb, &n);
 	else if (n != PM_ERR_TIMEOUT)
 	    n = PM_ERR_IPC; /* unknown reply type */
     }

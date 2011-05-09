@@ -23,9 +23,9 @@
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmNameInDom(pmInDom indom, int inst, char **name)
-int pmRequestInDomName(int ctx, pmInDom indom, int inst)
-int pmReceiveInDomName(int ctx, char **name)
+int pmNameInDom(pmInDom \fIindom\fP, int \fIinst\fP, char **\fIname\fP);
+int pmRequestInDomName(int \fIctx\fP, pmInDom \fIindom\fP, int \fIinst\fP);
+int pmReceiveInDomName(int \fIctx\fP, char **\fIname\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -81,6 +81,7 @@ sure the data are ready before calling \f3pmReceiveInDomName\f1.
 .BR pmGetConfig (3),
 .BR pmGetInDom (3),
 .BR pmLookupInDom (3),
+.BR pmNameInDomArchive (3),
 .BR pcp.conf (4)
 and
 .BR pcp.env (4).

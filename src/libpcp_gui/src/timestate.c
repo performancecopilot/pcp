@@ -151,7 +151,7 @@ pmTimeStateSetup(
     pmtime->length += tzlen + strlen(tz_label) + 1;
     pmtime = realloc(pmtime, pmtime->length);
     if (!pmtime) {
-	fprintf(stderr, "%s: realloc: %s\n", pmProgname, strerror(errno));
+	fprintf(stderr, "%s: realloc: %s\n", pmProgname, osstrerror());
 	exit(EXIT_FAILURE);
     }
     strcpy(pmtime->data, tz);

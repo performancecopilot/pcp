@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -639,7 +635,7 @@ load_cache(hdr_t *h)
     snprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
 		vdp, sep, sep, sep, pmInDomStr(h->indom));
     if ((fp = fopen(filename, "r")) == NULL)
-	return -errno;
+	return -oserror();
     if (fgets(buf, sizeof(buf), fp) == NULL) {
 	__pmNotifyErr(LOG_ERR, 
 	     "pmdaCacheOp: %s: empty file?", filename);
@@ -730,7 +726,7 @@ save_cache(hdr_t *h, int hstate)
     snprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
 		vdp, sep, sep, sep, pmInDomStr(h->indom));
     if ((fp = fopen(filename, "w")) == NULL)
-	return -errno;
+	return -oserror();
     fprintf(fp, "%d %d\n", VERSION, h->ins_mode);
 
     now = time(NULL);

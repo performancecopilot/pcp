@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -67,7 +63,7 @@ __pmResizeIPC(int fd)
 	}
 	if ((__pmIPCTablePtr = (__pmIPC *)realloc(__pmIPCTablePtr,
 				sizeof(__pmIPC)*ipctablesize)) == NULL)
-	    return -errno;
+	    return -oserror();
 	if (oldsize == 0)
 	    memset(__pmIPCTablePtr, 0, sizeof(__pmIPC)*ipctablesize);
 	memset((__pmIPCTablePtr+fd), 0, sizeof(__pmIPC)*(ipctablesize-fd));
@@ -116,6 +112,10 @@ __pmSetSocketIPC(int fd)
 int
 __pmVersionIPC(int fd)
 {
+    if (fd == PDU_OVERRIDE2)
+	return PDU_VERSION2;
+    if (fd == PDU_OVERRIDE1)
+	return PDU_VERSION1;
     if (__pmIPCTablePtr == NULL || fd < 0 || fd >= ipctablesize) {
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr,

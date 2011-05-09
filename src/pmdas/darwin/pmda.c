@@ -41,7 +41,7 @@ static pmdaInterface		dispatch;
 static int			_isDSO = 1;	/* =0 I am a daemon */
 
 mach_port_t		mach_host = 0;
-unsigned int		mach_page_size = 0;
+vm_size_t		mach_page_size = 0;
 unsigned int		mach_page_shift = 0;
 
 unsigned int		mach_hertz = 0;
@@ -154,7 +154,7 @@ static pmdaMetric metrictab[] = {
 
 /* hinv.pagesize */
   { &mach_page_size, 
-    { PMDA_PMID(CLUSTER_INIT,0), PM_TYPE_U32, PM_INDOM_NULL,
+    { PMDA_PMID(CLUSTER_INIT,0), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_DISCRETE, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 /* kernel.all.hz */
   { &mach_hertz,
@@ -778,7 +778,7 @@ fetch_vmstat(unsigned int item, unsigned int inst, pmAtomValue *atom)
 	atom->ull = page_count_to_kb(mach_vmstat.inactive_count);
 	return 1;
     case 19: /* mem.util.wired */
-	atom->ull = page_count_to_kb(mach_vmstat.free_count);
+	atom->ull = page_count_to_kb(mach_vmstat.wire_count);
 	return 1;
     case 20: /* mem.util.active */
 	atom->ull = page_count_to_kb(mach_vmstat.active_count);
@@ -1123,13 +1123,10 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case PM_TYPE_FLOAT:	atom->f = *(float *)mdesc->m_user; break;
 	case PM_TYPE_DOUBLE:	atom->d = *(double *)mdesc->m_user; break;
 	case PM_TYPE_STRING:	atom->cp = (char *)mdesc->m_user; break;
-	case PM_TYPE_AGGREGATE_STATIC:
-	case PM_TYPE_AGGREGATE:	atom->vp = (void *)mdesc->m_user; break;
 	case PM_TYPE_NOSUPPORT: return 0;
-	case PM_TYPE_UNKNOWN:
 	default:		fprintf(stderr,
-			"Error in fetchCallBack: unknown metric type %d\n",
-					mdesc->m_desc.type);
+			"Error in fetchCallBack: unsupported metric type %s\n",
+					pmTypeStr(mdesc->m_desc.type));
 				return 0;
 	}
 	return 1;

@@ -20,6 +20,7 @@
 #include "pmda.h"
 #include "domain.h"
 #include "http_fetcher.h"
+#include <inttypes.h>
 
 static char url[256];
 static char uptime_s[64];
@@ -99,9 +100,9 @@ struct {
     unsigned int	timeout;	/* There was a timeout (a bool) */
     time_t		timestamp;	/* Time of last attempted fetch */
 
-    unsigned long long	uptime;
-    unsigned long long	total_accesses;
-    unsigned long long	total_kbytes;
+    __uint64_t		uptime;
+    __uint64_t		total_accesses;
+    __uint64_t		total_kbytes;
     double		requests_per_sec;
     double		bytes_per_sec;
     unsigned int	bytes_per_request;
@@ -163,8 +164,9 @@ static void dumpData(void)
 	    http_server, http_port, http_path);
     fprintf(stderr, "  flags=0x%x timeout=%d timestamp=%lu\n",
 	    data.flags, data.timeout, (unsigned long)data.timestamp);
-    fprintf(stderr, "  uptime=%llu (%s)\n", data.uptime, uptime_s);
-    fprintf(stderr, "  accesses=%llu  kbytes=%llu  req/sec=%.2f  b/sec=%.2f\n",
+    fprintf(stderr, "  uptime=%" PRIu64 " (%s)\n", data.uptime, uptime_s);
+    fprintf(stderr, "  accesses=%" PRIu64 "  kbytes=%" PRIu64
+		    "  req/sec=%.2f  b/sec=%.2f\n",
 	    data.total_accesses, data.total_kbytes,
 	    data.requests_per_sec, data.bytes_per_sec);
     fprintf(stderr, "  b/req=%u  busyserv=%u  idleserv=%u\n",

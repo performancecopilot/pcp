@@ -24,9 +24,15 @@
 .br
 #include <pcp/pmda.h>
 .sp
-void pmdaDaemon(pmdaInterface *dispatch, int interface, char *name, int domain,
-char *logfile, char *helptext);
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+void pmdaDaemon(pmdaInterface *\fIdispatch\fP, int \fIinterface\fP, char\ *\fIname\fP, int\ \fIdomain\fP, char\ *\fIlogfile\fP, char\ *\fIhelptext\fP);
 .sp
+.in
+.hy
+.ad
 cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .SH DESCRIPTION

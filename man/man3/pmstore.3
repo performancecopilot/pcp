@@ -23,9 +23,9 @@
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmStore(const pmResult *result)
-int pmRequestStore(int ctx, const pmResult *result)
-int pmReceiveStore(int ctx)
+int pmStore(const pmResult *\fIresult\fP);
+int pmRequestStore(int \fIctx\fP, const pmResult *\fIresult\fP);
+int pmReceiveStore(int \fIctx\fP);
 .fi
 .sp
 cc ... \-lpcp

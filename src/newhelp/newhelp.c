@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 /*
@@ -364,7 +360,7 @@ Options:\n\
 	    sprintf(pathname, "%s.pag", fname);
 	    if ((f = fopen(pathname, "w")) == NULL) {
 		fprintf(stderr, "%s: fopen(\"%s\", ...) failed: %s\n",
-		    pmProgname, pathname, strerror(errno));
+		    pmProgname, pathname, osstrerror());
 		exit(2);
 	    }
 	    /* header: 2 => pag cf 1 => dir */
@@ -449,7 +445,7 @@ Options:\n\
 	sprintf(pathname, "%s.dir", fname);
 	if ((f = fopen(pathname, "w")) == NULL) {
 	    fprintf(stderr, "%s: fopen(\"%s\", ...) failed: %s\n",
-		pmProgname, pathname, strerror(errno));
+		pmProgname, pathname, osstrerror());
 	    exit(2);
 	}
 
@@ -461,7 +457,7 @@ Options:\n\
 	fwrite(&hdr, sizeof(hdr), 1, f);
 	if (ferror(f)) {
 	     fprintf(stderr, "%s: fwrite index failed: %s\n",
-		     pmProgname, strerror(errno));
+		     pmProgname, osstrerror());
 	     exit(2);
 	}
 
@@ -471,7 +467,7 @@ Options:\n\
 	    fwrite(&hindex[i], sizeof(hindex[0]), 1, f);
 	    if (ferror(f)) {
 		 fprintf(stderr, "%s: fwrite index failed: %s\n",
-			 pmProgname, strerror(errno));
+			 pmProgname, osstrerror());
 		 exit(2);
 	    }
 	}

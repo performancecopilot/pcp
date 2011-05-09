@@ -503,3 +503,14 @@ to provide more useful information about the client.
 @ pmcd.client.start_date date and time client connected to pmcd
 The date and time in ctime(2) format on which the client connected
 to pmcd.
+
+@ pmcd.cputime.total CPU time used by pmcd and DSO PMDAs
+Sum of user and system time since pmcd started.
+
+@ pmcd.cputime.per_pdu_in average CPU time per PDU received by pmcd
+When first requested it is the average since pmcd started, so
+pmcd.cputime.total divided by pmcd.pdu_in.total.
+
+Subsequent fetches by a PMAPI client will return the average CPU
+time per PDU received by pmcd (for all clients) since the last time
+the PMAPI client fetched this metric.

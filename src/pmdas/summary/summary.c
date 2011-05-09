@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <ctype.h>
@@ -74,7 +70,7 @@ service_client(__pmPDU *pb)
     switch (ph->type) {
 
     case PDU_DESC:
-	if ((n = __pmDecodeDesc(pb, PDU_BINARY, &desc)) < 0) {
+	if ((n = __pmDecodeDesc(pb, &desc)) < 0) {
 	    fprintf(stderr, "service_client: __pmDecodeDesc failed: %s\n",
                     pmErrStr(n));
 	    exit(1);
@@ -102,7 +98,7 @@ service_client(__pmPDU *pb)
 	break;
 
     case PDU_RESULT:
-	if ((n = __pmDecodeResult(pb, PDU_BINARY, &resp)) < 0) {
+	if ((n = __pmDecodeResult(pb, &resp)) < 0) {
 	    fprintf(stderr, "service_client: __pmDecodeResult failed: %s\n", pmErrStr(n));
 	    exit(1);
 	}
@@ -157,7 +153,7 @@ service_client(__pmPDU *pb)
 	break;
 	    
     case PDU_ERROR:
-	if ((n = __pmDecodeError(pb, PDU_BINARY, &i)) < 0) {
+	if ((n = __pmDecodeError(pb, &i)) < 0) {
 	    fprintf(stderr, "service_client: __pmDecodeError failed: %s\n", pmErrStr(n));
 	    exit(1);
 	}
@@ -184,12 +180,12 @@ service_config(__pmPDU *pb)
     case PDU_RESULT:
 	if (cachedConfigResult != NULL)
 	    pmFreeResult(cachedConfigResult);
-	n = __pmDecodeResult(pb, PDU_BINARY, &cachedConfigResult);
+	n = __pmDecodeResult(pb, &cachedConfigResult);
 	__pmPinPDUBuf(pb);
 	break;
 	    
     case PDU_ERROR:
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
 	break;
     
     default:
@@ -254,12 +250,12 @@ summary_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt * ex)
 	/* (numpmid - 1) because there's room for one valueSet in a pmResult */
 	need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
 	if ((res = (pmResult *)malloc(need)) == NULL)
-	    return -errno;
+	    return -oserror();
 
 	if (freeList != NULL)
 	    free(freeList);
 	if ((freeList = (int *)malloc(numpmid * sizeof(int))) == NULL)
-	    return -errno;
+	    return -oserror();
     }
     res->timestamp.tv_sec = 0;
     res->timestamp.tv_usec = 0;
@@ -303,7 +299,7 @@ summary_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt * ex)
 	if (!validpmid || res->vset[i] == NULL) {
 	    /* no values available or the metric has no descriptor */
 	    if ((res->vset[i] = (pmValueSet *)malloc(sizeof(pmValueSet))) == NULL)
-		return -errno;
+		return -oserror();
 	    res->vset[i]->pmid = pmid;
 	    res->vset[i]->valfmt = PM_VAL_INSITU;
 	    res->vset[i]->numval = validpmid ? PM_ERR_VALUE : sts;

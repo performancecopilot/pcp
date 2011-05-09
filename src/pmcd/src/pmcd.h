@@ -75,7 +75,6 @@ typedef struct {
 typedef struct {
     int        pmDomainId;		/* PMD identifier */
     int        ipcType;			/* DSO, socket or pipe */
-    int        pduProtocol;		/* Agent expects binary/ascii PDUs */
     int        pduVersion;		/* PDU_VERSION for this agent */
     int        inFd, outFd;		/* For input to/output from agent */
     int	       done;			/* Set when processed for this Fetch */

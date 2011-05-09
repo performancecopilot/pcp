@@ -40,22 +40,36 @@ dometric(const char *name)
 	exit(1);
     }
     mp->odesc = mp->idesc;	/* struct assignment */
+    mp->mode = MODE_NORMAL;
+    mp->idp = NULL;
+
+    /*
+     * some metrics cannot sensibly be processed ... skip these ones
+     */
+    if (mp->idesc.type == PM_TYPE_AGGREGATE ||
+        mp->idesc.type == PM_TYPE_AGGREGATE_STATIC ||
+        mp->idesc.type == PM_TYPE_EVENT) {
+	fprintf(stderr,
+	    "%s: %s: Warning: skipping %s metric\n",
+		pmProgname, name, pmTypeStr(mp->idesc.type));
+	mp->mode = MODE_SKIP;
+	goto done;
+    }
 
     /*
      * input -> output descriptor mapping ... has to be the same
      * logic as we apply to the pmResults later on.
      */
-    mp->rewrite = 0;
     switch (mp->idesc.sem) {
 	case PM_SEM_COUNTER:
 	    switch (mp->idesc.type) {
 		case PM_TYPE_32:
 		    mp->odesc.type = PM_TYPE_64;
-		    mp->rewrite = 1;
+		    mp->mode = MODE_REWRITE;
 		    break;
 		case PM_TYPE_U32:
 		    mp->odesc.type = PM_TYPE_U64;
-		    mp->rewrite = 1;
+		    mp->mode = MODE_REWRITE;
 		    break;
 	    }
 #if 0
@@ -99,7 +113,6 @@ dometric(const char *name)
     /*
      * instance domain initialization
      */
-    mp->idp = NULL;
     if (mp->idesc.indom != PM_INDOM_NULL) {
 	/*
 	 * has an instance domain, check to see if it has already been seen
@@ -135,6 +148,8 @@ dometric(const char *name)
 	    fprintf(stderr, "    indom %s -> (%p)\n", pmInDomStr(mp->idp->indom), mp->idp);
     }
 #endif
+
+done:
 
     numpmid++;
 }

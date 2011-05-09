@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -232,7 +228,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
     }
 
     if ((res = (__pmInResult *)malloc(sizeof(*res))) == NULL)
-        return -errno;
+        return -oserror();
     res->indom = indom;
 
     if (name == NULL && inst == PM_IN_NULL)
@@ -243,7 +239,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
     if (inst == PM_IN_NULL) {
 	if ((res->instlist = (int *)malloc(res->numinst * sizeof(res->instlist[0]))) == NULL) {
 	    free(res);
-	    return -errno;
+	    return -oserror();
 	}
     }
     else
@@ -252,7 +248,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
     if (name == NULL) {
 	if ((res->namelist = (char **)malloc(res->numinst * sizeof(res->namelist[0]))) == NULL) {
 	    __pmFreeInResult(res);
-	    return -errno;
+	    return -oserror();
 	}
 	for (i = 0; i < res->numinst; i++)
 	    res->namelist[0] = NULL;
@@ -272,7 +268,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
 		res->instlist[i] = myinst;
 		if ((res->namelist[i++] = strdup(np)) == NULL) {
 		    __pmFreeInResult(res);
-		    return -errno;
+		    return -oserror();
 		}
 	    }
 	}
@@ -281,7 +277,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
 		res->instlist[i] = idp->it_set[i].i_inst;
 		if ((res->namelist[i] = strdup(idp->it_set[i].i_name)) == NULL) {
 		    __pmFreeInResult(res);
-		    return -errno;
+		    return -oserror();
 		}
 	    }
 	}
@@ -292,7 +288,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
 	    if (pmdaCacheLookup(indom, inst, &np, NULL) == PMDA_CACHE_ACTIVE) {
 		if ((res->namelist[0] = strdup(np)) == NULL) {
 		    __pmFreeInResult(res);
-		    return -errno;
+		    return -oserror();
 		}
 	    }
 	    else
@@ -303,7 +299,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
 		if (inst == idp->it_set[i].i_inst) {
 		    if ((res->namelist[0] = strdup(idp->it_set[i].i_name)) == NULL) {
 			__pmFreeInResult(res);
-			return -errno;
+			return -oserror();
 		    }
 		    break;
 		}
@@ -401,13 +397,16 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int			type;
     e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
 
+    if (extp->pmda_interface >= PMDA_INTERFACE_5)
+	__pmdaSetContext(pmda->e_context);
+
     if (numpmid > extp->maxnpmids) {
 	if (extp->res != NULL)
 	    free(extp->res);
 	/* (numpmid - 1) because there's room for one valueSet in a pmResult */
 	need = (int)sizeof(pmResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
 	if ((extp->res = (pmResult *) malloc(need)) == NULL)
-	    return -errno;
+	    return -oserror();
 	extp->maxnpmids = numpmid;
     }
 
@@ -484,7 +483,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    extp->res->vset[i] = vset = (pmValueSet *)malloc(sizeof(pmValueSet) -
 					    sizeof(pmValue));
 	if (vset == NULL) {
-	    sts = -errno;
+	    sts = -oserror();
 	    goto error;
 	}
 	vset->pmid = pmidlist[i];
@@ -508,7 +507,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		extp->res->vset[i] = vset = (pmValueSet *)realloc(vset,
 			    sizeof(pmValueSet) + (numval - 1)*sizeof(pmValue));
 		if (vset == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    goto error;
 		}
 	    }
@@ -559,21 +558,38 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		 * PMDA_INTERFACE_3 or PMDA_INTERFACE_4
 		 *	== 0 => no values
 		 *	> 0  => OK
+		 * PMDA_INTERFACE_5 or later
+		 *	== 0 (PMDA_FETCH_NOVALUES) => no values
+		 *	== 1 (PMDA_FETCH_STATIC) or > 2 => OK
+		 *	== 2 (PMDA_FETCH_DYNAMIC) => OK and free(atom.vp)
+		 *	     after __pmStuffValue() called
 		 */
 		if (extp->pmda_interface == PMDA_INTERFACE_2 ||
-		    (extp->pmda_interface == PMDA_INTERFACE_3 && sts > 0) ||
-		    (extp->pmda_interface == PMDA_INTERFACE_4 && sts > 0)) {
+		    (extp->pmda_interface >= PMDA_INTERFACE_3 && sts > 0)) {
+		    int		lsts;
 
-		    if ((sts = __pmStuffValue(&atom, 0, &vset->vlist[j], 
-					     type)) == PM_ERR_GENERIC) {
+		    if ((lsts = __pmStuffValue(&atom, &vset->vlist[j], type)) == PM_ERR_TYPE) {
 			__pmNotifyErr(LOG_ERR, 
 				     "pmdaFetch: Descriptor type (%s) for metric %s is bad",
-				     pmTypeStr(dp->type), pmIDStr(dp->pmid));
+				     pmTypeStr(type), pmIDStr(dp->pmid));
 		    }
-		    else if (sts >= 0) {
-			vset->valfmt = sts;
+		    else if (lsts >= 0) {
+			vset->valfmt = lsts;
 			j++;
 		    }
+		    if (extp->pmda_interface >= PMDA_INTERFACE_5 && sts == PMDA_FETCH_DYNAMIC) {
+			if (type == PM_TYPE_STRING)
+			    free(atom.cp);
+			else if (type == PM_TYPE_AGGREGATE)
+			    free(atom.vbp);
+			else {
+			    __pmNotifyErr(LOG_WARNING,
+					  "pmdaFetch: Attempt to free value for metric %s of wrong type %s\n",
+					  pmIDStr(dp->pmid), pmTypeStr(type));
+			}
+		    }
+		    if (lsts < 0)
+			sts = lsts;
 		}
 	    }
 	} while (dp->indom != PM_INDOM_NULL && __pmdaNextInst(&inst, pmda));
@@ -605,6 +621,10 @@ pmdaDesc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 {
     int			j;
     int			sts = 0;
+    e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
+
+    if (extp->pmda_interface >= PMDA_INTERFACE_5)
+	__pmdaSetContext(pmda->e_context);
 
     if (pmda->e_direct) {
 	__pmID_int	*pmidp = (__pmID_int *)&pmid;
@@ -648,6 +668,11 @@ pmdaDesc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 int
 pmdaText(int ident, int type, char **buffer, pmdaExt *pmda)
 {
+    e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
+
+    if (extp->pmda_interface >= PMDA_INTERFACE_5)
+	__pmdaSetContext(pmda->e_context);
+
     if (pmda->e_help >= 0) {
 	if ((type & PM_TEXT_PMID) == PM_TEXT_PMID)
 	    *buffer = pmdaGetHelp(pmda->e_help, (pmID)ident, type);
@@ -676,7 +701,7 @@ pmdaStore(pmResult *result, pmdaExt *pmda)
  *	pmdaName()
  *	pmdaChildren()
  * to be overridden with real routines for any PMDA that is
- * using PMDA_INTERFACE_4 and supporting dynamic metrics.
+ * using PMDA_INTERFACE_4 or later and supporting dynamic metrics.
  *
  * These implementations are stubs that return appropriate errors
  * if they are ever called.

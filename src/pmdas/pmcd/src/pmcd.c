@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -81,78 +77,78 @@ static pmDesc	desctab[] = {
 /* build -- pcp build number */
     { PMDA_PMID(0,20), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 
-/* pdu-in.error */
+/* pdu_in.error */
     { PMDA_PMID(1,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.result */
+/* pdu_in.result */
     { PMDA_PMID(1,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.profile */
+/* pdu_in.profile */
     { PMDA_PMID(1,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.fetch */
+/* pdu_in.fetch */
     { PMDA_PMID(1,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.desc-req */
+/* pdu_in.desc-req */
     { PMDA_PMID(1,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.desc */
+/* pdu_in.desc */
     { PMDA_PMID(1,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.instance-req */
+/* pdu_in.instance-req */
     { PMDA_PMID(1,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.instance */
+/* pdu_in.instance */
     { PMDA_PMID(1,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.text-req */
+/* pdu_in.text-req */
     { PMDA_PMID(1,8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.text */
+/* pdu_in.text */
     { PMDA_PMID(1,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.control-req */
+/* pdu_in.control-req */
     { PMDA_PMID(1,10), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.datax */
+/* pdu_in.datax */
     { PMDA_PMID(1,11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.creds */
+/* pdu_in.creds */
     { PMDA_PMID(1,12), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.pmns-ids */
+/* pdu_in.pmns-ids */
     { PMDA_PMID(1,13), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.pmns-names */
+/* pdu_in.pmns-names */
     { PMDA_PMID(1,14), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.pmns-child */
+/* pdu_in.pmns-child */
     { PMDA_PMID(1,15), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.total */
+/* pdu_in.total */
     { PMDA_PMID(1,_TOTAL), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-in.pmns-traverse */
+/* pdu_in.pmns-traverse */
     { PMDA_PMID(1,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 
-/* pdu-out.error */
+/* pdu_out.error */
     { PMDA_PMID(2,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.result */
+/* pdu_out.result */
     { PMDA_PMID(2,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.profile */
+/* pdu_out.profile */
     { PMDA_PMID(2,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.fetch */
+/* pdu_out.fetch */
     { PMDA_PMID(2,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.desc-req */
+/* pdu_out.desc-req */
     { PMDA_PMID(2,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.desc */
+/* pdu_out.desc */
     { PMDA_PMID(2,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.instance-req */
+/* pdu_out.instance-req */
     { PMDA_PMID(2,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.instance */
+/* pdu_out.instance */
     { PMDA_PMID(2,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.text-req */
+/* pdu_out.text-req */
     { PMDA_PMID(2,8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.text */
+/* pdu_out.text */
     { PMDA_PMID(2,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.control-req */
+/* pdu_out.control-req */
     { PMDA_PMID(2,10), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.datax */
+/* pdu_out.datax */
     { PMDA_PMID(2,11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.creds */
+/* pdu_out.creds */
     { PMDA_PMID(2,12), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.pmns-ids */
+/* pdu_out.pmns-ids */
     { PMDA_PMID(2,13), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.pmns-names */
+/* pdu_out.pmns-names */
     { PMDA_PMID(2,14), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.pmns-child */
+/* pdu_out.pmns-child */
     { PMDA_PMID(2,15), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.total */
+/* pdu_out.total */
     { PMDA_PMID(2,_TOTAL), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu-out.pmns-traverse */
+/* pdu_out.pmns-traverse */
     { PMDA_PMID(2,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 
 /* pmlogger.port */
@@ -194,6 +190,11 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(6,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* client.start_date */
     { PMDA_PMID(6,1), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+
+/* pmcd.cputime.total */
+    { PMDA_PMID(7,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) },
+/* pmcd.cputime.per_pdu_in */
+    { PMDA_PMID(7,1), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,-1,0,PM_TIME_USEC,PM_COUNT_ONE) },
 
 /* End-of-List */
     { PM_ID_NULL, 0, 0, 0, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }
@@ -249,6 +250,37 @@ typedef struct {
 } whoami_t;
 static whoami_t		*whoamis;
 static unsigned int	nwhoamis;
+
+typedef struct {
+    int			state;
+    double		last_cputime;
+    __uint64_t		last_pdu_in;
+} perctx_t;
+
+/* values for per context state */
+#define CTX_INACTIVE    0
+#define CTX_ACTIVE      1
+
+static perctx_t *ctxtab = NULL;
+static int      num_ctx = 0;
+
+/*
+ * expand and initialize the per client context table
+ */
+static void
+grow_ctxtab(int ctx)
+{
+    ctxtab = (perctx_t *)realloc(ctxtab, (ctx+1)*sizeof(ctxtab[0]));
+    if (ctxtab == NULL) {
+        __pmNoMem("grow_ctxtab", (ctx+1)*sizeof(ctxtab[0]), PM_FATAL_ERR);
+        /*NOTREACHED*/
+    }
+    while (num_ctx <= ctx) {
+        ctxtab[num_ctx].state = CTX_INACTIVE;
+        num_ctx++;
+    }
+    ctxtab[ctx].state = CTX_INACTIVE;
+}
 
 /*
  * this routine is called at initialization to patch up any parts of the
@@ -368,7 +400,7 @@ refresh_pmie_indom(void)
 	    /* open the directory iterate through mmaping as we go */
 	    if ((pmiedir = opendir(PMIE_DIR)) == NULL) {
 		__pmNotifyErr(LOG_ERR, "pmcd pmda cannot open %s: %s",
-				PMIE_DIR, strerror(errno));
+				PMIE_DIR, osstrerror());
 		return 0;
 	    }
 	    /* NOTE:  all valid files are already mmapped by pmie */
@@ -382,7 +414,7 @@ refresh_pmie_indom(void)
 		snprintf(fullpath, sizeof(fullpath), "%s%c%s", PMIE_DIR, sep, dp->d_name);
 		if (stat(fullpath, &statbuf) < 0) {
 		    __pmNotifyErr(LOG_WARNING, "pmcd pmda cannot stat %s: %s",
-				fullpath, strerror(errno));
+				fullpath, osstrerror());
 		    continue;
 		}
 		if (statbuf.st_size != sizeof(pmiestats_t))
@@ -398,7 +430,7 @@ refresh_pmie_indom(void)
 		}
 		if ((fd = open(fullpath, O_RDONLY)) < 0) {
 		    __pmNotifyErr(LOG_WARNING, "pmcd pmda cannot open %s: %s",
-				fullpath, strerror(errno));
+				fullpath, osstrerror());
 		    free(endp);
 		    continue;
 		}
@@ -406,7 +438,7 @@ refresh_pmie_indom(void)
 		close(fd);
 		if (ptr == NULL) {
 		    __pmNotifyErr(LOG_ERR, "pmcd pmda memmap of %s failed: %s",
-				fullpath, strerror(errno));
+				fullpath, osstrerror());
 		    free(endp);
 		    continue;
 		}
@@ -442,7 +474,7 @@ pmcd_instance_reg(int inst, char *name, __pmInResult **result)
 
     res = (__pmInResult *)malloc(sizeof(__pmInResult));
     if (res == NULL)
-        return -errno;
+        return -oserror();
 
     if (name == NULL && inst == PM_IN_NULL)
 	res->numinst = NUMREG;
@@ -452,7 +484,7 @@ pmcd_instance_reg(int inst, char *name, __pmInResult **result)
     if (inst == PM_IN_NULL) {
 	if ((res->instlist = (int *)malloc(res->numinst * sizeof(res->instlist[0]))) == NULL) {
 	    free(res);
-	    return -errno;
+	    return -oserror();
 	}
     }
     else
@@ -461,7 +493,7 @@ pmcd_instance_reg(int inst, char *name, __pmInResult **result)
     if (name == NULL) {
 	if ((res->namelist = (char **)malloc(res->numinst * sizeof(res->namelist[0]))) == NULL) {
 	    __pmFreeInResult(res);
-	    return -errno;
+	    return -oserror();
 	}
 	for (i = 0; i < res->numinst; i++)
 	    res->namelist[0] = NULL;
@@ -476,7 +508,7 @@ pmcd_instance_reg(int inst, char *name, __pmInResult **result)
 	    snprintf(idx, sizeof(idx), "%d", i);
 	    if ((res->namelist[i] = strdup(idx)) == NULL) {
 		__pmFreeInResult(res);
-		return -errno;
+		return -oserror();
 	    }
 	}
     }
@@ -486,7 +518,7 @@ pmcd_instance_reg(int inst, char *name, __pmInResult **result)
 	    snprintf(idx, sizeof(idx), "%d", inst);
 	    if ((res->namelist[0] = strdup(idx)) == NULL) {
 		__pmFreeInResult(res);
-		return -errno;
+		return -oserror();
 	    }
 	}
 	else {
@@ -518,7 +550,7 @@ pmcd_instance_pool(int inst, char *name, __pmInResult **result)
 
     res = (__pmInResult *)malloc(sizeof(__pmInResult));
     if (res == NULL)
-        return -errno;
+        return -oserror();
 
     if (name == NULL && inst == PM_IN_NULL)
 	res->numinst = nbufsz;
@@ -528,7 +560,7 @@ pmcd_instance_pool(int inst, char *name, __pmInResult **result)
     if (inst == PM_IN_NULL) {
 	if ((res->instlist = (int *)malloc(res->numinst * sizeof(res->instlist[0]))) == NULL) {
 	    free(res);
-	    return -errno;
+	    return -oserror();
 	}
     }
     else
@@ -537,7 +569,7 @@ pmcd_instance_pool(int inst, char *name, __pmInResult **result)
     if (name == NULL) {
 	if ((res->namelist = (char **)malloc(res->numinst * sizeof(res->namelist[0]))) == NULL) {
 	    __pmFreeInResult(res);
-	    return -errno;
+	    return -oserror();
 	}
 	for (i = 0; i < res->numinst; i++)
 	    res->namelist[0] = NULL;
@@ -551,7 +583,7 @@ pmcd_instance_pool(int inst, char *name, __pmInResult **result)
 	    res->instlist[i] = bufinst[i].inst;
 	    if ((res->namelist[i] = strdup(bufinst[i].iname)) == NULL) {
 		__pmFreeInResult(res);
-		return -errno;
+		return -oserror();
 	    }
 	}
     }
@@ -561,7 +593,7 @@ pmcd_instance_pool(int inst, char *name, __pmInResult **result)
 	    if (inst == bufinst[i].inst) {
 		if ((res->namelist[0] = strdup(bufinst[i].iname)) == NULL) {
 		    __pmFreeInResult(res);
-		    return -errno;
+		    return -oserror();
 		}
 		break;
 	    }
@@ -608,7 +640,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     else if (indom == logindom || indom == pmdaindom || indom == pmieindom || indom == clientindom) {
 	res = (__pmInResult *)malloc(sizeof(__pmInResult));
 	if (res == NULL)
-	    return -errno;
+	    return -oserror();
 	res->instlist = NULL;
 	res->namelist = NULL;
 
@@ -650,7 +682,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 
 	if (getall || !getname) {
 	    if ((res->instlist = (int *)malloc(res->numinst * sizeof(int))) == NULL) {
-		sts = -errno;
+		sts = -oserror();
 		__pmNoMem("pmcd_instance instlist", res->numinst * sizeof(int), PM_RECOV_ERR);
 		__pmFreeInResult(res);
 		return sts;
@@ -658,7 +690,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 	}
 	if (getall || getname) {
 	    if ((res->namelist = (char **)malloc(res->numinst * sizeof(char *))) == NULL) {
-		sts = -errno;
+		sts = -oserror();
 		__pmNoMem("pmcd_instance namelist", res->numinst * sizeof(char *), PM_RECOV_ERR);
 		free(res->instlist);
 		__pmFreeInResult(res);
@@ -677,7 +709,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		res->instlist[i] = ports[i].pid;
 		res->namelist[i] = strdup(ports[i].name);
 		if (res->namelist[i] == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    __pmNoMem("pmcd_instance pmGetInDom",
 			     strlen(ports[i].name), PM_RECOV_ERR);
 		    /* ensure pmFreeInResult only gets valid pointers */
@@ -700,7 +732,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		if (res->namelist[0] == NULL) {
 		    __pmNoMem("pmcd_instance pmNameInDom",
 			     strlen(ports[i].name), PM_RECOV_ERR);
-		    sts = -errno;
+		    sts = -oserror();
 		}
 	    }
 	}
@@ -723,7 +755,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		res->instlist[i] = pmies[i].pid;
 		res->namelist[i] = strdup(pmies[i].name);
 		if (res->namelist[i] == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    __pmNoMem("pmie_instance pmGetInDom",
 			     strlen(pmies[i].name), PM_RECOV_ERR);
 		    /* ensure pmFreeInResult only gets valid pointers */
@@ -744,7 +776,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 	    else {
 		res->namelist[0] = strdup(pmies[i].name);
 		if (res->namelist[0] == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    __pmNoMem("pmcd_instance pmNameInDom",
 			     strlen(pmies[i].name), PM_RECOV_ERR);
 		}
@@ -769,7 +801,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		res->instlist[i] = agent[i].pmDomainId;
 		res->namelist[i] = strdup(agent[i].pmDomainLabel);
 		if (res->namelist[i] == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    __pmNoMem("pmcd_instance pmGetInDom",
 			     strlen(agent[i].pmDomainLabel), PM_RECOV_ERR);
 		    /* ensure pmFreeInResult only gets valid pointers */
@@ -790,7 +822,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 	    else {
 		res->namelist[0] = strdup(agent[i].pmDomainLabel);
 		if (res->namelist[0] == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    __pmNoMem("pmcd_instance pmNameInDom",
 			     strlen(agent[i].pmDomainLabel), PM_RECOV_ERR);
 		}
@@ -820,7 +852,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		snprintf(buf, sizeof(buf), "%u", client[i].seq);
 		res->namelist[k] = strdup(buf);
 		if (res->namelist[k] == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    __pmNoMem("pmcd_instance pmGetInDom",
 			     strlen(buf), PM_RECOV_ERR);
 		    /* ensure pmFreeInResult only gets valid pointers */
@@ -844,7 +876,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		snprintf(buf, sizeof(buf), "%u", (unsigned int)inst);
 		res->namelist[0] = strdup(buf);
 		if (res->namelist[0] == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    __pmNoMem("pmcd_instance pmNameInDom",
 			     strlen(buf), PM_RECOV_ERR);
 		}
@@ -956,6 +988,58 @@ tzinfo(void)
     putenv("TZ=");
 #endif
     return __pmTimezone();
+}
+
+static int
+fetch_cputime(int item, int ctx, pmAtomValue *avp)
+{
+    double	usr, sys;
+    double	cputime;
+
+    if (item < 0 || item > 1) {
+	return PM_ERR_PMID;
+    }
+    if (ctx < 0) {
+	/* should not happen */
+	return PM_ERR_NOTCONN;
+    }
+    __pmProcessRunTimes(&usr, &sys);
+    cputime = (usr+sys)*1000;
+    if (ctx >= num_ctx)
+	grow_ctxtab(ctx);
+    if (item == 0) {	/* pmcd.cputime.total */
+	avp->ull = (__uint64_t)cputime;
+    }
+    else if (item == 1) {	/* pmcd.cputime.per_pdu_in */
+	int	j;
+	int	pdu_in;
+	for (pdu_in = j = 0; j <= PDU_MAX; j++)
+	    pdu_in += __pmPDUCntIn[j];
+	if (ctxtab[ctx].state == CTX_INACTIVE) {
+	    /* first call for this context */
+	    ctxtab[ctx].state = CTX_ACTIVE;
+	    avp->d = cputime*1000/pdu_in;
+	}
+	else {
+	    if (pdu_in > ctxtab[ctx].last_pdu_in)
+		avp->d = 1000*(cputime-ctxtab[ctx].last_cputime)/(pdu_in-ctxtab[ctx].last_pdu_in);
+	    else {
+		/* should not happen, as you need another pdu to get here */
+		avp->d = 0;
+	    }
+	}
+	ctxtab[ctx].last_cputime = cputime;
+	ctxtab[ctx].last_pdu_in = pdu_in;
+    }
+    return 0;
+}
+
+static void
+end_context(int ctx)
+{
+    if (ctx >= 0 && ctx < num_ctx && ctxtab[ctx].state == CTX_ACTIVE) {
+	ctxtab[ctx].state = CTX_INACTIVE;
+    }
 }
 
 static int
@@ -1074,8 +1158,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 					continue;
 				    vset->vlist[numval].inst = j;
 				    atom.l = reg[j];
-				    sts = __pmStuffValue(&atom, 0,
-							&vset->vlist[numval], dp->type);
+				    sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
 				    if (sts < 0)
 					break;
 				    valfmt = sts;
@@ -1151,8 +1234,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 					atom.l = alloced;
 				    else
 					atom.l = free;
-				    sts = __pmStuffValue(&atom, 0,
-							&vset->vlist[numval], dp->type);
+				    sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
 				    if (sts < 0)
 					break;
 				    valfmt = sts;
@@ -1219,16 +1301,11 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.ul = lpp[j].port;
 				break;
 			    case 1:		/* pmlogger.pmcd_host */
-				if (lpp[j].pmcd_host != NULL)
-				    atom.cp = lpp[j].pmcd_host;
-				else
-				    atom.cp = strdup("");
+				atom.cp = lpp[j].pmcd_host ?
+						lpp[j].pmcd_host : "";
 				break;
 			    case 2:		/* pmlogger.archive */
-				if (lpp[j].archive != NULL)
-				    atom.cp = lpp[j].archive;
-				else
-				    atom.cp = strdup("");
+				atom.cp = lpp[j].archive ? lpp[j].archive : "";
 				break;
 			    case 3:		/* pmlogger.host */
 				if (hostname == NULL) {
@@ -1240,14 +1317,10 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				    if (hep != NULL)
 					hostname = strdup(hep->h_name);
 				}
-				if (hostname != NULL)
-				    atom.cp = strdup(hostname);
-				else
-				    atom.cp = strdup("");
+				atom.cp = (hostname != NULL) ? hostname : "";
 				break;
 			}
-			sts = __pmStuffValue(&atom, 0,
-				    &vset->vlist[numval], dp->type);
+			sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
 			if (sts < 0)
 			    break;
 			valfmt = sts;
@@ -1284,8 +1357,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.l = agent[j].reason;
 			    break;
 		    }
-		    sts = __pmStuffValue(&atom, 0,
-					&vset->vlist[numval], dp->type);
+		    sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
 		    if (sts < 0)
 			break;
 		    valfmt = sts;
@@ -1320,13 +1392,13 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    pmie = (pmiestats_t *)pmies[j].mmap;
 		    switch (pmidp->item) {
 			case 0:		/* pmie.configfile */
-			    atom.cp = strdup(pmie->config);
+			    atom.cp = pmie->config;
 			    break;
 			case 1:		/* pmie.logfile */
-			    atom.cp = strdup(pmie->logfile);
+			    atom.cp = pmie->logfile;
 			    break;
 			case 2:		/* pmie.pmcd_host */
-			    atom.cp = strdup(pmie->defaultfqdn);
+			    atom.cp = pmie->defaultfqdn;
 			    break;
 			case 3:		/* pmie.numrules */
 			    atom.ul = pmie->numrules;
@@ -1350,8 +1422,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			    atom.ul = pmie->eval_actual;
 			    break;
 		    }
-		    if ((sts = __pmStuffValue(&atom, 0,
-				&vset->vlist[numval], dp->type)) < 0)
+		    if ((sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type)) < 0)
 			break;
 		    valfmt = sts;
 		    numval++;
@@ -1380,6 +1451,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		}
 		for (j = numval = 0; j < nClients; ++j) {
 		    int		k;
+		    char	ctim[sizeof("Thu Nov 24 18:22:48 1986\n")];
 		    if (!client[j].status.connected)
 			continue;
 		    if (!__pmInProfile(clientindom, _profile, client[j].seq))
@@ -1389,23 +1461,22 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			case 0:		/* client.whoami */
 			    for (k = 0; k < nwhoamis; k++) {
 				if (whoamis[k].seq == client[j].seq) {
-				    atom.cp = strdup(whoamis[k].value);
+				    atom.cp = whoamis[k].value;
 				    break;
 				}
 			    }
 			    if (k == nwhoamis)
 				/* no id registered, so no value */
-				atom.cp = strdup("");
+				atom.cp = "";
 			    break;
 			case 1:		/* client.start_date */
-			    atom.cp = strdup(ctime(&client[j].start));
+			    atom.cp = strcpy(ctim, ctime(&client[j].start));
 			    /* trim trailing \n */
 			    k = strlen(atom.cp);
 			    atom.cp[k-1] = '\0';
 			    break;
 		    }
-		    if ((sts = __pmStuffValue(&atom, 0,
-				&vset->vlist[numval], dp->type)) < 0)
+		    if ((sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type)) < 0)
 			break;
 		    valfmt = sts;
 		    numval++;
@@ -1417,10 +1488,14 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    pmSortInstances(&sortme);
 		}
 		break;
+
+	    case 7:	/* cputime metrics */
+		sts = fetch_cputime(pmidp->item, pmda->e_context, &atom);
+		break;
 	}
 
 	if (sts == 0 && valfmt == -1 && vset->numval == 1)
-	    sts = valfmt = __pmStuffValue(&atom, 0, &vset->vlist[0], dp->type);
+	    sts = valfmt = __pmStuffValue(&atom, &vset->vlist[0], dp->type);
 
 	if (sts < 0) {
 	    /* failure, encode status in numval, need a different vset size */
@@ -1627,13 +1702,14 @@ pmcd_init(pmdaInterface *dp)
  
     snprintf(helppath, sizeof(helppath), "%s%c" "pmcd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDSO(dp, PMDA_INTERFACE_2, "pmcd", helppath);
+    pmdaDSO(dp, PMDA_INTERFACE_5, "pmcd", helppath);
 
-    dp->version.two.profile = pmcd_profile;
-    dp->version.two.fetch = pmcd_fetch;
-    dp->version.two.desc = pmcd_desc;
-    dp->version.two.instance = pmcd_instance;
-    dp->version.two.store = pmcd_store;
+    dp->version.four.profile = pmcd_profile;
+    dp->version.four.fetch = pmcd_fetch;
+    dp->version.four.desc = pmcd_desc;
+    dp->version.four.instance = pmcd_instance;
+    dp->version.four.store = pmcd_store;
+    dp->version.four.ext->e_endCallBack = end_context;
 
     init_tables(dp->domain);
 

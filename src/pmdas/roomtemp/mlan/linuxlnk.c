@@ -105,7 +105,6 @@
 #include <sys/ioctl.h>
 #include <time.h>
 #include <termios.h> 
-#include <errno.h>  
 #include <sys/time.h>
 
 #include "mlan.h"
@@ -293,9 +292,9 @@ int OpenCOM(char *port_zstr)
    if (rc < 0)
    {
       int tmp;
-      tmp = errno;
+      tmp = oserror();
       close(fd);
-      errno = tmp;
+      setoserror(tmp);
       return rc;
    }
    if (MLanDebug) {
@@ -344,9 +343,9 @@ int OpenCOM(char *port_zstr)
    if (rc < 0)
    {
       int tmp;
-      tmp = errno;
+      tmp = oserror();
       close(fd);
-      errno = tmp;
+      setoserror(tmp);
       return rc;
    }
 

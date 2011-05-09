@@ -20,8 +20,15 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-int pmConvScale(int type, const pmAtomValue *ival, const pmUnits *iunit, pmAtomValue *oval, const pmUnits *ounit)
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmConvScale(int \fItype\fP, const pmAtomValue *\fIival\fP, const\ pmUnits\ *\fIiunit\fP, pmAtomValue\ *\fIoval\fP, const\ pmUnits\ *\fIounit\fP);
 .sp
+.in
+.hy
+.ad
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
@@ -44,7 +51,7 @@ typedef union {
     float        f;     /* 32-bit floating point */
     double       d;     /* 64-bit floating point */
     char         *cp;   /* char ptr */
-    void         *vp;   /* void ptr */
+    pmValueBlock *vbp;  /* pmValueBlock ptr */
 } pmAtomValue;
 .in
 .fi

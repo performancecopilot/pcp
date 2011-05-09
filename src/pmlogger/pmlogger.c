@@ -20,11 +20,11 @@
 char		*configfile;
 __pmLogCtl	logctl;
 int		exit_samples = -1;       /* number of samples 'til exit */
-long		exit_bytes = -1;         /* number of bytes 'til exit */
-long		vol_bytes;		 /* total in earlier volumes */
+__int64_t	exit_bytes = -1;         /* number of bytes 'til exit */
+__int64_t	vol_bytes;		 /* total in earlier volumes */
 struct timeval  exit_time;               /* time interval 'til exit */
 int		vol_switch_samples = -1; /* number of samples 'til vol switch */
-long		vol_switch_bytes = -1;   /* number of bytes 'til vol switch */
+__int64_t	vol_switch_bytes = -1;   /* number of bytes 'til vol switch */
 struct timeval	vol_switch_time;         /* time interval 'til vol switch */
 int		vol_samples_counter;     /* Counts samples - reset for new vol*/
 int		vol_switch_afid = -1;    /* afid of event for vol switch */
@@ -63,11 +63,11 @@ do_flush(void)
 
     sts = 0;
     if (fflush(logctl.l_mdfp) != 0)
-	sts = errno;
+	sts = oserror();
     if (fflush(logctl.l_mfp) != 0 && sts == 0)
-	sts = errno;
+	sts = oserror();
     if (fflush(logctl.l_tifp) != 0 && sts == 0)
-	sts = errno;
+	sts = oserror();
 
     return sts;
 }
@@ -143,10 +143,10 @@ tolower_str(char *str)
  *
  */
 static int
-ParseSize(char *size_arg, int *sample_counter, long *byte_size, 
+ParseSize(char *size_arg, int *sample_counter, __int64_t *byte_size, 
           struct timeval *time_delta)
 {
-  double x = 0; /* the size number */
+  long x = 0; /* the size number */
   char *ptr = NULL;
 
   *sample_counter = -1;
@@ -154,7 +154,7 @@ ParseSize(char *size_arg, int *sample_counter, long *byte_size,
   time_delta->tv_sec = -1;
   time_delta->tv_usec = -1;
   
-  x = strtod(size_arg, &ptr);
+  x = strtol(size_arg, &ptr, 10);
 
   /* must be positive */
   if (x <= 0) {
@@ -183,25 +183,37 @@ ParseSize(char *size_arg, int *sample_counter, long *byte_size,
     /* if bytes */
     if (strcmp(ptr, "b") == 0 ||
         strcmp(ptr, "byte") == 0) {
-      *byte_size = (long)x;
+      *byte_size = x;
       return 1;
     }  
 
     /* if kilobytes */
     if (strcmp(ptr, "k") == 0 ||
         strcmp(ptr, "kb") == 0 ||
+        strcmp(ptr, "kbyte") == 0 ||
         strcmp(ptr, "kilobyte") == 0) {
-      *byte_size = (long)(x*1024);
+      *byte_size = x*1024;
       return 1;
     }
 
     /* if megabytes */
     if (strcmp(ptr, "m") == 0 ||
         strcmp(ptr, "mb") == 0 ||
+        strcmp(ptr, "mbyte") == 0 ||
         strcmp(ptr, "megabyte") == 0) {
-      *byte_size = (long)(x*1024*1024);
+      *byte_size = x*1024*1024;
       return 1;
     }
+
+    /* if gigabytes */
+    if (strcmp(ptr, "g") == 0 ||
+        strcmp(ptr, "gb") == 0 ||
+        strcmp(ptr, "gbyte") == 0 ||
+        strcmp(ptr, "gigabyte") == 0) {
+      *byte_size = ((__int64_t)x)*1024*1024*1024;
+      return 1;
+    }
+
   }
   
   /* Doesn't fit pattern above, try a time interval */
@@ -392,7 +404,7 @@ do_dialog(char cmd)
 	    msgf = fdopen(fd, "w");
 	if (msgf == NULL) {
 	    fprintf(stderr, "\nError: failed create temporary message file for recording session dialog\n");
-	    fprintf(stderr, "Reason? %s\n", strerror(errno));
+	    fprintf(stderr, "Reason? %s\n", osstrerror());
 	    if (fd != -1)
 		close(fd);
 	    goto failed;
@@ -437,7 +449,7 @@ failed:
     }
     else {
 	fprintf(stderr, "Error: failed to create recording session dialog message!\n");
-	fprintf(stderr, "Reason? %s\n", strerror(errno));
+	fprintf(stderr, "Reason? %s\n", osstrerror());
 	strcpy(lbuf, "Yes");
     }
 
@@ -702,7 +714,7 @@ Options:\n\
     if (configfile != NULL) {
 	if ((yyin = fopen(configfile, "r")) == NULL) {
 	    fprintf(stderr, "%s: Cannot open config file \"%s\": %s\n",
-		pmProgname, configfile, strerror(errno));
+		pmProgname, configfile, osstrerror());
 	    exit(1);
 	}
     }
@@ -837,7 +849,9 @@ Options:\n\
     init_ports();
     FD_ZERO(&fds);
     FD_SET(ctlfd, &fds);
+#ifndef IS_MINGW
     FD_SET(pmcdfd, &fds);
+#endif
     if (rsc_fd != -1)
 	FD_SET(rsc_fd, &fds);
     numfds = maxfd() + 1;
@@ -891,14 +905,19 @@ Options:\n\
 		    qa_case = 0;
 		}
 	    }
+#ifndef IS_MINGW
 	    if (pmcdfd >= 0 && FD_ISSET(pmcdfd, &readyfds)) {
 		/*
 		 * do not expect this, given synchronous commumication with the
-		 * pmcd ... either pmcd has terminated, or bogus PDU ...
+		 * pmcd ... either pmcd has terminated, or bogus PDU ... or its
+		 * Win32 and we are operating under the different conditions of
+		 * our AF.c implementation there, which has to deal with a lack
+		 * of signal support on Windows - race condition exists between
+		 * this check and the async event timer callback.
 		 */
 		__pmPDU		*pb;
 		__pmPDUHdr	*php;
-		sts = __pmGetPDU(pmcdfd, PDU_BINARY, TIMEOUT_NEVER, &pb);
+		sts = __pmGetPDU(pmcdfd, ANY_SIZE, TIMEOUT_NEVER, &pb);
 		if (sts <= 0) {
 		    if (sts < 0)
 			fprintf(stderr, "Error: __pmGetPDU: %s\n", pmErrStr(sts));
@@ -911,6 +930,7 @@ Options:\n\
 		    disconnect(PM_ERR_IPC);
 		}
 	    }
+#endif
 	    if (rsc_fd >= 0 && FD_ISSET(rsc_fd, &readyfds)) {
 		/*
 		 * some action on the recording session control fd
@@ -987,8 +1007,8 @@ Options:\n\
 
 	    __pmAFunblock();
 	}
-	else if (nready < 0 && errno != EINTR)
-	    perror("select");
+	else if (nready < 0 && neterror() != EINTR)
+	    fprintf(stderr, "Error: select: %s\n", netstrerror());
     }
 
 }
@@ -1002,7 +1022,7 @@ newvolume(int vol_switch_type)
     time_t	now;
     static char *vol_sw_strs[] = {
        "SIGHUP", "pmlc request", "sample counter",
-       "sample byte size", "sample time"
+       "sample byte size", "sample time", "max data volume size"
     };
 
     vol_samples_counter = 0;
@@ -1060,7 +1080,7 @@ newvolume(int vol_switch_type)
 	return nextvol;
     }
     else
-	return -errno;
+	return -oserror();
 }
 
 

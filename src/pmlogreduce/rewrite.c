@@ -1,7 +1,8 @@
 #include "pmlogreduce.h"
+#include <inttypes.h>
 #include <assert.h>
 
-static pmResult	*orp = NULL;
+static pmResult	*orp;
 
 /*
  * Must either re-write the pmResult, or report a fatal error and
@@ -40,10 +41,10 @@ rewrite(pmResult *rp)
 	ovsp = (pmValueSet *)malloc(sizeof(pmValueSet) +
 				need*sizeof(pmValue));
 	if (ovsp == NULL) {
+	    __uint64_t bytes = (sizeof(pmValueSet) + need * sizeof(pmValue));
 	    fprintf(stderr,
-		"%s: rewrite: Arrgh, cannot malloc %lld bytes for osvp\n",
-		    pmProgname,
-		    (long long)(sizeof(pmValueSet) + need * sizeof(pmValue)));
+		"%s: rewrite: Arrgh, cannot malloc %"PRIi64" bytes for ovsp\n",
+		    pmProgname, bytes);
 	    exit(1);
 	}
 	ovsp->pmid = vsp->pmid;
@@ -56,53 +57,61 @@ rewrite(pmResult *rp)
 	else {
 	    ovsp->numval = 0;
 	    mp = &metriclist[i];
-	    for (j = 0; j < vsp->numval; j++) {
-		for (vp = mp->first; vp != NULL; vp = vp->next) {
-		    if (vp->inst == vsp->vlist[j].inst)
-			break;
-		}
-		if (vp == NULL) {
-		    fprintf(stderr,
-			"%s: rewrite: Arrgh: cannot find inst %d in value_t list for %s (%s)\n",
-			    pmProgname, vsp->vlist[j].inst, namelist[i], pmIDStr(vsp->pmid));
-		    exit(1);
-		}
-		if ((vp->control & (V_SEEN|V_INIT)) == 0)
-		    continue;
+	    if (mp->mode == MODE_SKIP) {
 		/*
-		 * we've seen this metric-instance pair in the last
-		 * interval, or it is the first time for this one
+		 * serious work to be done ...
 		 */
-		if (mp->rewrite) {
-		    pmAtomValue	av;
-		    int		k;
-		    sts = pmExtractValue(vsp->valfmt, &vsp->vlist[j], mp->idesc.type, &av, mp->odesc.type);
-		    if (sts < 0) {
+		ovsp->numval = 0;
+	    }
+	    else {
+		for (j = 0; j < vsp->numval; j++) {
+		    for (vp = mp->first; vp != NULL; vp = vp->next) {
+			if (vp->inst == vsp->vlist[j].inst)
+			    break;
+		    }
+		    if (vp == NULL) {
 			fprintf(stderr,
-			    "%s: rewrite: pmExtractValue failed for pmid %s value %d: %s\n",
-				pmProgname, pmIDStr(vsp->pmid), j, pmErrStr(sts));
+			    "%s: rewrite: Arrgh: cannot find inst %d in value_t list for %s (%s)\n",
+				pmProgname, vsp->vlist[j].inst, namelist[i], pmIDStr(vsp->pmid));
 			exit(1);
 		    }
-		    ovsp->pmid = vsp->pmid;
-		    ovsp->vlist[ovsp->numval].inst = vsp->vlist[j].inst;
-		    k = __pmStuffValue(&av, 0, &ovsp->vlist[ovsp->numval], mp->odesc.type);
-		    if (k < 0) {
-			fprintf(stderr,
-			    "%s: rewrite: __pmStuffValue failed for pmid %s value %d: %s\n",
-				pmProgname, pmIDStr(vsp->pmid), j, pmErrStr(sts));
-			exit(1);
+		    if ((vp->control & (V_SEEN|V_INIT)) == 0)
+			continue;
+		    /*
+		     * we've seen this metric-instance pair in the last
+		     * interval, or it is the first time for this one
+		     */
+		    if (mp->mode == MODE_REWRITE) {
+			pmAtomValue	av;
+			int		k;
+			sts = pmExtractValue(vsp->valfmt, &vsp->vlist[j], mp->idesc.type, &av, mp->odesc.type);
+			if (sts < 0) {
+			    fprintf(stderr,
+				"%s: rewrite: pmExtractValue failed for pmid %s value %d: %s\n",
+				    pmProgname, pmIDStr(vsp->pmid), j, pmErrStr(sts));
+			    exit(1);
+			}
+			ovsp->pmid = vsp->pmid;
+			ovsp->vlist[ovsp->numval].inst = vsp->vlist[j].inst;
+			k = __pmStuffValue(&av, &ovsp->vlist[ovsp->numval], mp->odesc.type);
+			if (k < 0) {
+			    fprintf(stderr,
+				"%s: rewrite: __pmStuffValue failed for pmid %s value %d: %s\n",
+				    pmProgname, pmIDStr(vsp->pmid), j, pmErrStr(sts));
+			    exit(1);
+			}
+			if (ovsp->numval == 0)
+			    ovsp->valfmt = k;
+			ovsp->numval++;
+			vp->timestamp = rp->timestamp;
+			vp->value = av;
 		    }
-		    if (ovsp->numval == 0)
-			ovsp->valfmt = k;
-		    ovsp->numval++;
-		    vp->timestamp = rp->timestamp;
-		    vp->value = av;
+		    else {
+			ovsp->vlist[ovsp->numval] = vsp->vlist[j];
+			ovsp->numval++;
+		    }
+		    vp->control &= ~V_INIT;
 		}
-		else {
-		    ovsp->vlist[ovsp->numval] = vsp->vlist[j];
-		    ovsp->numval++;
-		}
-		vp->control &= ~V_INIT;
 	    }
 	    if (ovsp->numval > 0) {
 		orp->vset[orp->numpmid] = ovsp;
@@ -129,11 +138,24 @@ rewrite_free(void)
     for (i = 0; i < orp->numpmid; i++) {
 	pmValueSet	*vsp = orp->vset[i];
 	int		j;
+	metric_t	*mp;
 
 	if (vsp->numval <= 0)
 	    continue;
 
-	if (metriclist[i].rewrite) {
+	for (j = 0; j < numpmid; j++) {
+	    if (vsp->pmid == pmidlist[j])
+		break;
+	}
+	if (j == numpmid) {
+	    fprintf(stderr,
+		"%s: rewrite_free: Arrgh, cannot find pmid %s in pmidlist[]\n",
+		    pmProgname, pmIDStr(vsp->pmid));
+	    exit(1);
+	}
+	mp = &metriclist[j];
+
+	if (mp->mode == MODE_REWRITE) {
 	    for (j = 0; j < vsp->numval; j++) {
 		free(vsp->vlist[j].value.pval);
 	    }

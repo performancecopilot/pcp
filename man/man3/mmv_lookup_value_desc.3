@@ -23,11 +23,15 @@
 .br
 #include <pcp/mmv_stats.h>
 .sp
-.nf
-pmAtomValue * 
-mmv_lookup_value_desc(void *addr, const char *metric, const char *inst);
-.fi
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+pmAtomValue *mmv_lookup_value_desc(void *\fIaddr\fP, const char *\fImetric\fP, const\ char\ *\fIinst\fP);
 .sp
+.in
+.hy
+.ad
 cc ... \-lpcp_mmv \-lpcp
 .ft 1
 .SH DESCRIPTION
@@ -49,7 +53,7 @@ defined as follows:
         float       f;      /* 32-bit floating point */
         double      d;      /* 64-bit floating point */
         char         *cp;   /* char ptr */
-        void         *vp;   /* void ptr */
+	pmValueBlock *vbp;  /* pmValueBlock ptr */
     } pmAtomValue;
 .fi
 .P

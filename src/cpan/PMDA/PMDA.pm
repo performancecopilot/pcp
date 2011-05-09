@@ -164,7 +164,7 @@ Further details can be found at http://oss.sgi.com/projects/pcp
 
 Nathan Scott, E<lt>nathans@debian.orgE<gt>
 
-Copyright (C) 2008-2009 by Aconex.
+Copyright (C) 2008-2010 by Aconex.
 Copyright (C) 2004 by Silicon Graphics, Inc.
 
 This library is free software; you can redistribute it and/or modify

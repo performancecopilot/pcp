@@ -23,9 +23,9 @@
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmGetChildren(const char *name, char ***offspring)
-int pmRequestNamesOfChildren(int ctx, const char *name, int wantstatus)
-int pmReceiveNamesOfChildren(int ctx, char ***offspring, int **status)
+int pmGetChildren(const char *\fIname\fP, char ***\fIoffspring\fP);
+int pmRequestNamesOfChildren(int \fIctx\fP, const char *\fIname\fP, int \fIwantstatus\fP);
+int pmReceiveNamesOfChildren(int \fIctx\fP, char ***\fIoffspring\fP, int **\fIstatus\fP);
 .fi
 .sp
 cc ... \-lpcp

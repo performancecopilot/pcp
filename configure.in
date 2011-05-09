@@ -734,9 +734,6 @@ AC_HEADER_TIME
 AC_STRUCT_TM
 AC_C_INLINE
 
-dnl check if hstrerror is available in libresolve
-AC_CHECK_LIB(resolv, hstrerror)
-
 dnl check if regex functions come from libregex (mingw)
 AC_CHECK_LIB(regex, regcomp)
 lib_for_regex=""
@@ -751,14 +748,14 @@ AC_TYPE_SIGNAL
 AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(mktime nanosleep unsetenv)
-AC_CHECK_FUNCS(gethostname hstrerror select socket)
+AC_CHECK_FUNCS(gethostname select socket)
 AC_CHECK_FUNCS(uname syslog __clone fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
 AC_CHECK_FUNCS(chown getcwd scandir mkstemp getpwnam)
 AC_CHECK_FUNCS(brk sbrk memalign valloc)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
-AC_CHECK_FUNCS(strerror strtod strtol strtoll strtoull)
+AC_CHECK_FUNCS(strtod strtol strtoll strtoull)
 AC_CHECK_FUNCS(sysinfo)
 
 dnl only define readdir64 on non-linux platforms that support it

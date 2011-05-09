@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -29,59 +29,6 @@ static struct {
     HANDLE		waithandle;
     __pmSignalHandler	callback;
 } signals[MAX_SIGNALS];
-
-static HMODULE	kernel32;
-
-static void
-LoadKernel32(void)
-{
-    if (!kernel32 &&
-	(kernel32 = LoadLibraryEx("kernel32.dll", NULL, 0)) == NULL)
-	fprintf(stderr, "LoadKernel32 failed (%ld)\n", GetLastError());
-}
-
-
-typedef void(CALLBACK *WAITORTIMERCALLBACK)(PVOID,BOOLEAN);
-typedef BOOL (WINAPI * __RegisterWaitForSingleObject)
-    (PHANDLE, HANDLE, WAITORTIMERCALLBACK, PVOID, ULONG, ULONG);
-typedef BOOL (WINAPI * __UnregisterWait)(HANDLE);
-__RegisterWaitForSingleObject _RegisterWaitForSingleObject;
-__UnregisterWait _UnregisterWait;
-
-BOOL WINAPI
-RegisterWaitForSingleObject(PHANDLE phNewWaitObject, HANDLE hObject,
-			    WAITORTIMERCALLBACK Callback, PVOID Context,
-			    ULONG dwMilliseconds, ULONG dwFlags)
-{
-    if (_RegisterWaitForSingleObject == NULL) {
-	LoadKernel32();
-	_RegisterWaitForSingleObject = (__RegisterWaitForSingleObject)
-	    GetProcAddress(kernel32, "RegisterWaitForSingleObject");
-	if (_RegisterWaitForSingleObject == NULL) {
-	    fprintf(stderr, "Cannot locate RegisterWaitForSingleObject "
-			    "in kernel32.dll (%ld)\n", GetLastError());
-	    return FALSE;
-	}
-    }
-    return (_RegisterWaitForSingleObject)
-	(phNewWaitObject, hObject, Callback, Context, dwMilliseconds, dwFlags);
-}
-
-BOOL WINAPI
-UnregisterWait(HANDLE hWaitObject)
-{
-    if (_UnregisterWait == NULL) {
-	LoadKernel32();
-	_UnregisterWait = (__UnregisterWait)
-	    GetProcAddress(kernel32, "UnregisterWait");
-	if (_UnregisterWait == NULL) {
-	    fprintf(stderr, "Cannot locate UnregisterWait "
-			    "in kernel32.dll (%ld)\n", GetLastError());
-	    return FALSE;
-	}
-    }
-    return (_UnregisterWait)(hWaitObject);
-}
 
 VOID CALLBACK
 SignalCallback(PVOID param, BOOLEAN timerorwait)
@@ -176,7 +123,7 @@ __pmSetProgname(const char *program)
     if (program)
 	pmProgname = (char *)program;
     for (p = pmProgname; pmProgname && *p; p++) {
-	if (*p == '\\')
+	if (*p == '\\' || *p == '/')
 	    pmProgname = p + 1;
 	if (*p == '.')
 	    suffix = p;
@@ -252,7 +199,7 @@ __pmProcessTerminate(pid_t pid, int force)
     return -ESRCH;
 }
 
-int
+pid_t
 __pmProcessCreate(char **argv, int *infd, int *outfd)
 {
     HANDLE hChildStdinRd, hChildStdinWr, hChildStdoutRd, hChildStdoutWr;
@@ -331,7 +278,7 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 
     *infd = _open_osfhandle((intptr_t)hChildStdoutRd, _O_RDONLY);
     *outfd = _open_osfhandle((intptr_t)hChildStdinWr, _O_WRONLY);
-    return 0;
+    return piProcInfo.dwProcessId;
 }
 
 pid_t
@@ -428,7 +375,7 @@ nanosleep(const struct timespec *req, struct timespec *rem)
     DWORD milliseconds;
 
     if (req->tv_sec < 0 || req->tv_nsec < 0 || req->tv_nsec > NANOSEC_BOUND) {
-	errno = EINVAL;
+	SetLastError(EINVAL);
 	return -1;
     }
     milliseconds = req->tv_sec * MILLISEC_PER_SEC
@@ -449,12 +396,6 @@ sleep(unsigned int seconds)
 void setlinebuf(FILE *stream)
 {
     setvbuf(stream, NULL, _IONBF, 0);	/* no line buffering in Win32 */
-}
-
-const char *
-hstrerror(int error)
-{
-    return strerror(error);
 }
 
 long int
@@ -485,6 +426,8 @@ rindex(const char *string, int marker)
     char *p;
     for (p = (char *)string; *p != '\0'; p++)
 	;
+    if (p == string)
+	return NULL;
     for (--p; p != string; p--)
 	if (*p == marker)
 	    return p;
@@ -664,4 +607,82 @@ int
 pmLoopMain(void)
 {
     return -1;
+}
+
+/* Windows socket error codes - what a nightmare! */
+static const struct {
+    int  	err;
+    char	*errmess;
+} wsatab[] = {
+/*10004*/ { WSAEINTR, "Interrupted function call" },
+/*10009*/ { WSAEBADF, "File handle is not valid" },
+/*10013*/ { WSAEACCES, "Permission denied" },
+/*10014*/ { WSAEFAULT, "Bad address" },
+/*10022*/ { WSAEINVAL, "Invalid argument" },
+/*10024*/ { WSAEMFILE, "Too many open files" },
+/*10035*/ { WSAEWOULDBLOCK, "Resource temporarily unavailable" },
+/*10036*/ { WSAEINPROGRESS, "Operation now in progress" },
+/*10037*/ { WSAEALREADY, "Operation already in progress" },
+/*10038*/ { WSAENOTSOCK, "Socket operation on nonsocket" },
+/*10039*/ { WSAEDESTADDRREQ, "Destination address required" },
+/*10040*/ { WSAEMSGSIZE, "Message too long" },
+/*10041*/ { WSAEPROTOTYPE, "Protocol wrong type for socket" },
+/*10042*/ { WSAENOPROTOOPT, "Bad protocol option" },
+/*10043*/ { WSAEPROTONOSUPPORT, "Protocol not supported" },
+/*10044*/ { WSAESOCKTNOSUPPORT, "Socket type not supported" },
+/*10045*/ { WSAEOPNOTSUPP, "Operation not supported" },
+/*10046*/ { WSAEPFNOSUPPORT, "Protocol family not supported" },
+/*10047*/ { WSAEAFNOSUPPORT, "Address family not supported by protocol family"},
+/*10048*/ { WSAEADDRINUSE, "Address already in use" },
+/*10049*/ { WSAEADDRNOTAVAIL, "Cannot assign requested address" },
+/*10050*/ { WSAENETDOWN, "Network is down" },
+/*10051*/ { WSAENETUNREACH, "Network is unreachable" },
+/*10052*/ { WSAENETRESET, "Network dropped connection on reset" },
+/*10053*/ { WSAECONNABORTED, "Software caused connection abort" },
+/*10054*/ { WSAECONNRESET, "Connection reset by peer" },
+/*10055*/ { WSAENOBUFS, "No buffer space available" },
+/*10056*/ { WSAEISCONN, "Socket is already connected" },
+/*10057*/ { WSAENOTCONN, "Socket is not connected" },
+/*10058*/ { WSAESHUTDOWN, "Cannot send after socket shutdown" },
+/*10059*/ { WSAETOOMANYREFS, "Too many references" },
+/*10060*/ { WSAETIMEDOUT, "Connection timed out" },
+/*10061*/ { WSAECONNREFUSED, "Connection refused" },
+/*10062*/ { WSAELOOP, "Cannot translate name" },
+/*10063*/ { WSAENAMETOOLONG, "Name too long" },
+/*10064*/ { WSAEHOSTDOWN, "Host is down" },
+/*10065*/ { WSAEHOSTUNREACH, "No route to host" },
+/*10066*/ { WSAENOTEMPTY, "Directory not empty" },
+/*10067*/ { WSAEPROCLIM, "Too many processes" },
+/*10070*/ { WSAESTALE, "Stale file handle reference" },
+/*10091*/ { WSASYSNOTREADY, "Network subsystem is unavailable" },
+/*10092*/ { WSAVERNOTSUPPORTED, "Winsock.dll version out of range" },
+/*10093*/ { WSANOTINITIALISED, "Successful WSAStartup not yet performed" },
+/*10101*/ { WSAEDISCON, "Graceful shutdown in progress" },
+/*10102*/ { WSAENOMORE, "No more results" },
+/*10103*/ { WSAECANCELLED, "Call has been canceled" },
+/*10104*/ { WSAEINVALIDPROCTABLE, "Procedure call table is invalid" },
+/*10105*/ { WSAEINVALIDPROVIDER, "Service provider is invalid" },
+/*10106*/ { WSAEPROVIDERFAILEDINIT, "Service provider failed to initialize" },
+/*10107*/ { WSASYSCALLFAILURE, "System call failure" },
+/*10108*/ { WSASERVICE_NOT_FOUND, "Service not found" },
+/*10109*/ { WSATYPE_NOT_FOUND, "Class type not found" },
+/*10110*/ { WSA_E_NO_MORE, "No more results" },
+/*10111*/ { WSA_E_CANCELLED, "Call was canceled" },
+/*10112*/ { WSAEREFUSED, "Database query was refused" },
+/*11001*/ { WSAHOST_NOT_FOUND, "Host not found" },
+/*11002*/ { WSATRY_AGAIN, "Nonauthoritative host not found" },
+/*11003*/ { WSANO_RECOVERY, "This is a nonrecoverable error" },
+/*11004*/ { WSANO_DATA, "Valid name, no data record of requested type" },
+          { 0,"" }
+};
+
+char *
+wsastrerror(int code)
+{
+    int i;
+
+    for (i = 0; wsatab[i].err; i++)
+	if (wsatab[i].err == code)
+	    return wsatab[i].errmess;
+    return NULL;
 }

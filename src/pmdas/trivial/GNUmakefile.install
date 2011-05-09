@@ -22,6 +22,12 @@ include $(PCP_DIR)/etc/pcp.conf
 endif
 include $(PCP_INC_DIR)/builddefs
 
+# remove -Lpath and -Ipath options from builddefs CFLAGS value
+#
+PCP_LIBS        =
+TMP             := $(CFLAGS:-I%=)
+CFLAGS          = $(TMP)
+
 IAM	= trivial
 CFILES	= $(IAM).c
 

@@ -1,4 +1,62 @@
-pcp-3.4.0 (25 September 2010)
+pcp-3.5.1 (under development)
+    - bugfix: fetching hinv.cpu.* aborts if cpu indom is not initialized
+    - Rearrange the per-CPU intr metrics on Linux to use dynamic namespace
+    - Add perl modules into Mac OS X installations
+    - Additional vmstat metrics added to Linux kernel PMDA
+    - Fix pmieconf after syscall metrics went away on Linux
+    - pmevent - new util to report event records, with instance domain support
+    - sample PMDA - instance domain for event records metric
+    - pmval, pminfo - man page typo corrections
+    - pmval - fix typo in error message
+    - pmlogextract, pmlogreduce - auto volume switch at 2^31 bytes
+    - pmnscomp - defaults to Version 2 of the compiled PMNS
+    - Remove unconditional diagnostic in MMV agent, log spam
+    - Rework the code that uncompresses archives for Win32
+    - Updates to Win32 makefiles to get a clean package build
+    - Enable compressed log processing for Windows as well
+    - Sample event consumer code for Windows ETW
+    - Update PDH Win32 headers to use those from current mingw-m64 tree
+    - Win32 socket error messages are reporting correctly
+    - Great strides in getting error reporting correct on Windows
+    - Add Win32 pthread wrapper for threading work on Windows
+    - Add PowerDNS recursor stats to the pdns PMDA
+
+pcp-3.5.0 (31 January 2011)
+    - Infrastucture support for doing distributed event tracing with PCP.
+      This includes a new metric type (PM_TYPE_EVENT), cunning mechanisms
+      for encoding event records in pmResults, and providing PMDAs with
+      per-client context connection information allowing agents to track
+      which clients have seen which parts of a trace stream so far.  Some
+      reference uses of these extensions can be seen in pmdasample and in
+      the pmcd PMDA as well.
+    - Transparent support for archive de-compression by clients.
+    - Manual page formatting errors corrected.
+    - Fix a pmDupContext memory corruption issue seen with derived metrics.
+    - Added a one-trip optimisation/guard to pcp.env
+    - Improved pmdaFetch and pmdaFetchCallback man pages with respect to
+      return codes and value memory allocation models.
+    - Fix for Windows unintentionally allowing multiple pmcd processes
+      to startup and bind to the same port, with "undefined" results.
+    - Fix Windows services interaction, preventing pmcd service stop.
+    - Fix Mac OS X scandir memory leak on empty directories.
+    - Fix Mac OS X mem.util.wired metric, was exporting the wrong value.
+    - Correct the handling of SLES11 distro identification (lsb-release
+      file not used again, on SuSE Linux distributions).
+    - Fix postfix PMDA log file path handling for Redhat Linux distros.
+    - Extend Perl PMDA interfaces to allow additional metrics to be
+      added at runtime (now makes use of dynamic namespace support).
+    - Set KEEPALIVE option on pmproxy client sockets, mirroring pmcd
+      behaviour and reducing open file descriptor pressure.
+    - Improvements to the native Windows version of pmlogger, preventing
+      it from exiting prematurely thanks to a socket read race condition.
+    - Fix /proc/interrupts parser in Linux PMDA, thanks to Arthur Kepner.
+
+pcp-3.4.1 (9 October 2010)
+    - Remove bogus (expected) errors/warnings from Win32 install/remove.
+    - Remove couple of no longer needed local Win32 API wrappers.
+    - Fix rindex code for Win32 so it handles empty strings.
+
+pcp-3.4.0 (29 September 2010)
     - Add new libpcp_import C API library to pcp-libs.
     - Add perl-PCP-LogImport RPM sub-package for libpcp_import perl binding.
     - Add pcp-import-* RPM sub-packages containing front-end tools for

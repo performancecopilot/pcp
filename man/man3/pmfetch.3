@@ -24,9 +24,9 @@
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmFetch(int numpmid, pmID *pmidlist, pmResult **result)
-int pmRequestFetch(int cxt, int numpmid, pmID *pmidlist)
-int pmReceiveFetch(int cxt, pmResult **result)
+int pmFetch(int \fInumpmid\fP, pmID *\fIpmidlist\fP, pmResult **\fIresult\fP);
+int pmRequestFetch(int \fIcxt\fP, int \fInumpmid\fP, pmID *\fIpmidlist\fP);
+int pmReceiveFetch(int \fIcxt\fP, pmResult **\fIresult\fP);
 .fi
 .sp
 cc ... \-lpcp

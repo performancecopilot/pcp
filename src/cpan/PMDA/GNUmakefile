@@ -1,6 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2008 Aconex.  All Rights Reserved.
+# Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -12,10 +12,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 # 
 
 TOPDIR = ../../..
@@ -48,6 +44,7 @@ PMDA.o: Makefile PMDA.xs
 
 Makefile: COPYING Makefile.PL
 	PCP_TOPDIR=`pwd`/$(TOPDIR); export PCP_TOPDIR;  \
+	TARGET_OS="$(TARGET_OS)" \
 	CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_OPTIONS)
 
 COPYING:
@@ -63,7 +60,7 @@ install: default
 ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
 	$(PERLMAKE) -f Makefile install DESTDIR=$$DIST_ROOT
 	find $$DIST_ROOT -name .packlist -exec mv '{}' $(TOPDIR)/perl-pcp-pmda.list ';'
-	sed -e s@$$DIST_ROOT@@ -e 's/\.[0-9]pm$$/&.gz/' -e '/\.bs$$/d' -i.tmp $(TOPDIR)/perl-pcp-pmda.list
+	sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&.gz/' -e "s@^$$DIST_ROOT@@p" -i.tmp $(TOPDIR)/perl-pcp-pmda.list
 	find $$DIST_ROOT -name perllocal.pod -exec rm -f '{}' ';'
 	find $$DIST_ROOT -name \*.bs  -exec rm -f '{}' ';'
 	find $$DIST_ROOT -name PMDA.so -exec chmod 755 '{}' ';'

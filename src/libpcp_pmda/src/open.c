@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -49,7 +45,7 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 	service = getservbyname(sockname, NULL);
 	if (service == NULL) {
 	    __pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: getservbyname(%s): %s\n", 
-		    sockname, strerror(errno));
+		    sockname, netstrerror());
 	    exit(1);
 	}
 	myport = service->s_port;
@@ -57,36 +53,53 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 
     sfd = __pmCreateSocket();
     if (sfd < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet socket: %s\n", strerror(errno));
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet socket: %s\n",
+			netstrerror());
 	exit(1);
     }
+#ifndef IS_MINGW
     /*
      * allow port to be quickly re-used, e.g. when Install and PMDA already
      * installed, this becomes terminate and restart in a hurry ...
      */
-    if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, (char *) &one, (mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: setsockopt(reuseaddr): %s\n", strerror(errno));
+    if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
+		(mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: setsockopt(reuseaddr): %s\n",
+			netstrerror());
 	exit(1);
     }
+#else
+    /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
+    if (setsockopt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
+		(mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: setsockopt(excladdruse): %s\n",
+			netstrerror());
+	exit(1);
+    }
+#endif
+
     memset(&myaddr, 0, sizeof(myaddr));
     myaddr.sin_family = AF_INET;
     myaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     myaddr.sin_port = htons(myport);
     sts = bind(sfd, (struct sockaddr*) &myaddr, sizeof(myaddr));
     if (sts < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet bind: %s\n", strerror(errno));
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet bind: %s\n",
+			netstrerror());
 	exit(1);
     }
 
     sts = listen(sfd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet listen: %s\n", strerror(errno));
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet listen: %s\n",
+			netstrerror());
 	exit(1);
     }
     addrlen = sizeof(from);
     /* block here, waiting for a connection */
     if ((*infd = accept(sfd, (struct sockaddr *)&from, &addrlen)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet accept: %s\n", strerror(errno));
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet accept: %s\n",
+			netstrerror());
 	exit(1);
     }
     __pmCloseSocket(sfd);
@@ -112,7 +125,7 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
     sfd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sfd < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: Unix domain socket: %s",
-		     strerror(errno));
+		     netstrerror());
 	exit(1);
     }
     /* Sockets in the Unix domain are named pipes in the file system.
@@ -123,33 +136,36 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
     if ((sts = unlink(sockname)) == 0)
     	__pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: Unix domain socket '%s' existed, unlinked it\n",
 		     sockname);
-    else if (sts < 0 && errno != ENOENT) {
+    else if (sts < 0 && oserror() != ENOENT) {
 	/* If can't unlink socket, give up.  We might end up with an
 	 * unwanted connection to some other socket (from outer space)
 	 */
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: Unlinking Unix domain socket '%s': %s\n",
-		     sockname, strerror(errno));
+		     sockname, osstrerror());
 	exit(1);
     }
     memset(&myaddr, 0, sizeof(myaddr));
     myaddr.sun_family = AF_UNIX;
     strcpy(myaddr.sun_path, sockname);
-    len = (int)strlen(myaddr.sun_path) + (int)sizeof(myaddr.sun_family);
+    len = (int)offsetof(struct sockaddr_un, sun_path) + (int)strlen(myaddr.sun_path);
     sts = bind(sfd, (struct sockaddr*) &myaddr, len);
     if (sts < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix bind: %s\n", strerror(errno));
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix bind: %s\n",
+			netstrerror());
 	exit(1);
     }
 
     sts = listen(sfd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix listen: %s\n", strerror(errno));
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix listen: %s\n",
+			netstrerror());
 	exit(1);
     }
     addrlen = sizeof(from);
     /* block here, waiting for a connection */
     if ((*infd = accept(sfd, (struct sockaddr *)&from, &addrlen)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix accept: %s\n", strerror(errno));
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix accept: %s\n",
+			netstrerror());
 	exit(1);
     }
     close(sfd);
@@ -464,18 +480,18 @@ __pmdaSetupPDU(int infd, int outfd, char *agentname)
     handshake[0].c_vala = PDU_VERSION;
     handshake[0].c_valb = 0;
     handshake[0].c_valc = 0;
-    if ((sts = __pmSendCreds(outfd, PDU_BINARY, 1, handshake)) < 0) {
+    if ((sts = __pmSendCreds(outfd, getpid(), 1, handshake)) < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s send creds: %s\n", agentname, pmErrStr(sts));
 	return -1;
     }
 
-    if ((sts = __pmGetPDU(infd, PDU_BINARY, TIMEOUT_DEFAULT, &pb)) < 0) {
+    if ((sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_DEFAULT, &pb)) < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s getting creds: %s\n", agentname, pmErrStr(sts));
 	return -1;
     }
 
     if (sts == PDU_CREDS) {
-	if ((sts = __pmDecodeCreds(pb, PDU_BINARY, &sender, &credcount, &credlist)) < 0) {
+	if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0) {
 	    __pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s decode creds: %s\n", agentname, pmErrStr(sts));
 	    return -1;
 	}
@@ -677,6 +693,7 @@ __pmdaSetup(pmdaInterface *dispatch, int version, char *name)
     pmdaSetFetchCallBack(dispatch, (pmdaFetchCallBack)0);
     pmdaSetCheckCallBack(dispatch, (pmdaCheckCallBack)0);
     pmdaSetDoneCallBack(dispatch, (pmdaDoneCallBack)0);
+    pmdaSetEndContextCallBack(dispatch, (pmdaEndContextCallBack)0);
 }
 
 /*

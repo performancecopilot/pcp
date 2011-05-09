@@ -87,13 +87,15 @@ If the metric has a \fBstring\fR type, then
 .I value
 is interpreted as a literal string of ASCII characters.
 .IP 4. 4
-If the metric has an \fBaggregate\fR type, then an attempt
-is made to interpret
+If the metric has any other type (i.e.
+.B PM_TYPE_EVENT
+or
+.BR PM_TYPE_AGGREGATE )
+then no encoding of
 .I value
-as an integer, else a floating point number, else a string.
-In the first two cases, the minimal word length encoding is used, e.g.
-``123'' would be interpreted as a 4-byte aggregate, ``0x100000000''
-would be interpreted as an 8-byte aggregate.
+from the command line makes sense, and the values of these metrics cannot
+be modified with
+.BR pmStore .
 .PP
 The output reports the old value and the new value for each updated
 instance of the requested metric.

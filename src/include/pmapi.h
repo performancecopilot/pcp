@@ -125,6 +125,7 @@ typedef struct {
 #define PM_TYPE_STRING		6	/* array of char */
 #define PM_TYPE_AGGREGATE	7	/* arbitrary binary data (aggregate) */
 #define PM_TYPE_AGGREGATE_STATIC 8	/* static pointer to aggregate */
+#define PM_TYPE_EVENT		9	/* packed pmEventArray */
 #define PM_TYPE_UNKNOWN		255	/* used in pmValueBlock, not pmDesc */
 
 /* pmDesc.sem -- semantics/interpretation of metric values */
@@ -132,19 +133,6 @@ typedef struct {
 				/* was PM_SEM_RATE, no longer used now */
 #define PM_SEM_INSTANT	3	/* instantaneous value, continuous domain */
 #define PM_SEM_DISCRETE	4	/* instantaneous value, discrete domain */
-
-/* Generic Union for Value-Type conversions */
-typedef union {
-    __int32_t	l;	/* 32-bit signed */
-    __uint32_t	ul;	/* 32-bit unsigned */
-    __int64_t	ll;	/* 64-bit signed */
-    __uint64_t	ull;	/* 64-bit unsigned */
-    float	f;	/* 32-bit floating point */
-    double	d;	/* 64-bit floating point */
-    char	*cp;	/* char ptr */
-    void	*vp;	/* void ptr */
-} pmAtomValue;
-
 
 /*
  * for PCP 1.x PMDAs and PMCDs, need to map errors unconditionally sometimes
@@ -213,6 +201,7 @@ typedef union {
 #define PM_ERR_NONLEAF		(-PM_ERR_BASE-49)   /* PMNS node is not a leaf node */
 #define PM_ERR_OBJSTYLE		(-PM_ERR_BASE-50)   /* user/kernel object style mismatch */
 #define PM_ERR_PMCDLICENSE	(-PM_ERR_BASE-51)   /* PMCD is not licensed to accept connections */
+#define PM_ERR_TYPE		(-PM_ERR_BASE-52)   /* Unknown or illegal metric type */
 
 #define PM_ERR_CTXBUSY		(-PM_ERR_BASE-97)   /* Context is busy */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */
@@ -449,6 +438,17 @@ typedef struct {
     pmValueSet	*vset[1];		/* set of value sets, one per PMID */
 } pmResult;
 
+/* Generic Union for Value-Type conversions */
+typedef union {
+    __int32_t		l;	/* 32-bit signed */
+    __uint32_t		ul;	/* 32-bit unsigned */
+    __int64_t		ll;	/* 64-bit signed */
+    __uint64_t		ull;	/* 64-bit unsigned */
+    float		f;	/* 32-bit floating point */
+    double		d;	/* 64-bit floating point */
+    char		*cp;	/* char ptr */
+    pmValueBlock	*vbp;	/* pmValueBlock ptr */
+} pmAtomValue;
 
 /*
  * Fetch metrics. Value/instances returned depends on current instance profile.
@@ -476,13 +476,22 @@ extern int pmFetch(int, pmID *, pmResult **);
 extern int pmFetchArchive(pmResult **);
 
 /*
+ * struct timeval is sometimes 2 x 64-bit ... we use a 2 x 32-bit format for
+ * PDUs, internally within libpcp and for (external) archive logs
+ */
+typedef struct {
+    __int32_t	tv_sec;		/* seconds since Jan. 1, 1970 */
+    __int32_t	tv_usec;	/* and microseconds */
+} __pmTimeval;
+
+/*
  * Label Record at the start of every log file - as exported above
  * the PMAPI ...
  * NOTE MAXHOSTNAMELEN is a bad choice here for ll_hostname[], as
  *	it may vary on different hosts ... we use PM_LOG_MAXHOSTLEN instead, and
  *	size this to be the same as MAXHOSTNAMELEN in IRIX 5.3
- * NOTE	that the struct timeval means we have another struct (__pmLogLabel32)
- *	for internal use that has a timeval_32 in place of the struct timeval.
+ * NOTE	that the struct timeval means we have another struct (__pmLogLabel)
+ *	for internal use that has a __pmTimeval in place of the struct timeval.
  */
 #define PM_TZ_MAXLEN	40
 #define PM_LOG_MAXHOSTLEN		64
@@ -547,6 +556,7 @@ extern const char *pmTypeStr(int);
 extern const char *pmUnitsStr(const pmUnits *);
 extern const char *pmAtomStr(const pmAtomValue *, int);
 extern const char *pmNumberStr(double);
+extern const char *pmEventFlagsStr(int);
 
 /* Extended time base definitions and macros */
 #define PM_XTB_FLAG	0x1000000
@@ -571,11 +581,11 @@ extern struct tm *pmLocaltime(const time_t *, struct tm *);
 
 /* Parse host:metric[instances] or archive/metric[instances] */
 typedef struct {
-    int         isarch;         /* source type: 0 -> live host, 1 -> archive, 2 -> local context */
-    char        *source;        /* name of source host or archive */
-    char        *metric;        /* name of metric */
-    int         ninst;          /* number of instances, 0 -> all */
-    char        *inst[1];       /* array of instance names */
+    int		isarch;         /* source type: 0 -> live host, 1 -> archive, 2 -> local context */
+    char	*source;        /* name of source host or archive */
+    char	*metric;        /* name of metric */
+    int		ninst;          /* number of instances, 0 -> all */
+    char	*inst[1];       /* array of instance names */
 } pmMetricSpec;
 
 /* parsing of host:metric[instances] or archive/metric[instances] */
@@ -659,6 +669,57 @@ extern int pmRequestNamesOfChildren(int, const char *, int);
 extern int pmRequestStore(int, const pmResult *);
 extern int pmRequestText(int, pmID, int);
 extern int pmRequestTraversePMNS(int, const char *);
+
+/*
+ * Event Record support
+ */
+typedef struct {
+    pmID		ep_pmid;
+    /* vtype and vlen fields the format same as for pmValueBlock */
+#ifdef HAVE_BITFIELDS_LTOR
+    unsigned int	ep_type : 8;	/* value type */
+    unsigned int	ep_len : 24;	/* bytes for type/len + vbuf */
+#else
+    unsigned int	ep_len : 24;	/* bytes for type/len + vbuf */
+    unsigned int	ep_type : 8;	/* value type */
+#endif
+    /* actual value (vbuf) goes here ... */
+} pmEventParameter;
+
+typedef struct {
+    __pmTimeval		er_timestamp;	/* must be 2 x 32-bit format */
+    int			er_flags;	/* event record characteristics */
+    int			er_nparams;	/* number of er_param[] entries */
+    pmEventParameter	er_param[1];
+} pmEventRecord;
+
+/* potential flags bits set in er_flags (above) */
+#define PM_EVENT_FLAG_POINT	(1<<0)	/* an observation, default type */
+#define PM_EVENT_FLAG_START	(1<<1)	/* marking start of a new event */
+#define PM_EVENT_FLAG_END	(1<<2)	/* completion of a traced event */
+#define PM_EVENT_FLAG_ID	(1<<3)	/* 1st parameter is a trace ID */
+#define PM_EVENT_FLAG_PARENT	(1<<4)	/* 2nd parameter is parents ID */
+#define PM_EVENT_FLAG_MISSED	(1<<31)	/* nparams shows #missed events */
+
+typedef struct {
+		/* align initial declarations with start of pmValueBlock */
+#ifdef HAVE_BITFIELDS_LTOR
+    unsigned int	ea_type : 8;	/* value type */
+    unsigned int	ea_len : 24;	/* bytes for type/len + vbuf */
+#else
+    unsigned int	ea_len : 24;	/* bytes for type/len + vbuf */
+    unsigned int	ea_type : 8;	/* value type */
+#endif
+		/* real event records start here */
+    int			ea_nrecords;    /* number of ea_record[] entries */
+    pmEventRecord	ea_record[1];
+} pmEventArray;
+
+/* unpack a PM_TYPE_EVENT value into a set on pmResults */
+extern int pmUnpackEventRecords(pmValueSet *, int, pmResult ***);
+
+/* Free set of pmResults from pmUnpackEventRecords */
+extern void pmFreeEventResult(pmResult **);
 
 #ifdef __cplusplus
 }

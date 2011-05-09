@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "common.h"
@@ -36,12 +32,12 @@ netif_init(int first)
     nnetif =  perfstat_netinterface(NULL, NULL, sizeof(perfstat_netinterface_t), 0);
     if ((fetched = (int *)malloc(nnetif * sizeof(int))) == NULL) {
 	fprintf(stderr, "netif_init: fetched malloc[%d] failed: %s\n",
-	    nnetif * sizeof(int), strerror(errno));
+	    nnetif * sizeof(int), osstrerror());
 	exit(1);
     }
     if ((netifstat = (perfstat_netinterface_t *)malloc(nnetif * sizeof(perfstat_netinterface_t))) == NULL) {
 	fprintf(stderr, "netif_init: netifstat malloc[%d] failed: %s\n",
-	    nnetif * sizeof(perfstat_netinterface_t), strerror(errno));
+	    nnetif * sizeof(perfstat_netinterface_t), osstrerror());
 	exit(1);
     }
     nnetif_alloc = nnetif;
@@ -56,7 +52,7 @@ netif_init(int first)
     indomtab[NETIF_INDOM].it_set = (pmdaInstid *)malloc(nnetif * sizeof(pmdaInstid));
     if (indomtab[NETIF_INDOM].it_set == NULL) {
 	fprintf(stderr, "netif_init: indomtab malloc[%d] failed: %s\n",
-	    nnetif * sizeof(pmdaInstid), strerror(errno));
+	    nnetif * sizeof(pmdaInstid), osstrerror());
 	exit(1);
     }
     for (i = 0; i < nnetif; i++) {

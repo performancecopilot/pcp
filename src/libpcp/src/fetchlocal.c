@@ -56,7 +56,7 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
      */
     need = (int)sizeof(pmResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
     if ((ans = (pmResult *)malloc(need)) == NULL)
-	return -errno;
+	return -oserror();
 
     /*
      * Check if we have enough space to accomodate "best" case scenario -
@@ -67,7 +67,7 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 	if ((splitlist = (pmID *)realloc (splitlist,
 					  sizeof (pmID)*splitmax)) == NULL) {
 	    splitmax = 0;
-	    return -errno;
+	    return -oserror();
 	}
     }
 
@@ -102,7 +102,9 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 			    "__pmFetchLocal: calling ???_profile(domain: %d), "
 			    "context: %d\n", dp->domain, ctx);
 #endif
-		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    dp->dispatch.version.four.ext->e_context = ctx;
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    sts = dp->dispatch.version.four.profile(ctxp->c_instprof,
 							   dp->dispatch.version.four.ext);
 		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
@@ -125,7 +127,9 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 	}
 
 	if (sts >= 0) {
-	    if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		dp->dispatch.version.four.ext->e_context = ctx;
+	    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		sts = dp->dispatch.version.four.fetch(cnt, splitlist, &tmp_ans,
 						     dp->dispatch.version.four.ext);
 	    else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
@@ -146,7 +150,7 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 		if (sts < 0) {
 		    ans->vset[k] = (pmValueSet *)malloc(sizeof(pmValueSet));
 		    if (ans->vset[k] == NULL)
-			return -errno;
+			return -oserror();
 		    ans->vset[k]->numval = sts;
 		    ans->vset[k]->pmid = pmidlist[k];
 		}

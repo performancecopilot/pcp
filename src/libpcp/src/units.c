@@ -10,14 +10,16 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
 #include "impl.h"
+#include <math.h>
+#include <inttypes.h>
+
+#ifndef ABS
+#define    ABS(a)          ((a) < 0 ? -(a) : (a))
+#endif
 
 #if defined(HAVE_CONST_LONGLONG)
 #define SIGN_64_MASK 0x8000000000000000LL
@@ -30,9 +32,9 @@ const char *
 pmAtomStr(const pmAtomValue *avp, int type)
 {
     int		i;
-    __int32_t	*lp;
-    static char	buf[60];
+    static char	buf[80];
     pmAtomValue	av;
+    int		vlen;
 
     /* avoid alignment problems ... avp may be unaligned! */
     memcpy((void *)&av, (void *)avp, sizeof(av));
@@ -45,10 +47,10 @@ pmAtomStr(const pmAtomValue *avp, int type)
 	    snprintf(buf, sizeof(buf), "%u", av.ul);
 	    break;
 	case PM_TYPE_64:
-	    snprintf(buf, sizeof(buf), "%lld", (long long)av.ll);
+	    snprintf(buf, sizeof(buf), "%"PRIi64, av.ll);
 	    break;
 	case PM_TYPE_U64:
-	    snprintf(buf, sizeof(buf), "%llu", (unsigned long long)av.ull);
+	    snprintf(buf, sizeof(buf), "%"PRIu64, av.ull);
 	    break;
 	case PM_TYPE_FLOAT:
 	    snprintf(buf, sizeof(buf), "%e", (double)av.f);
@@ -68,17 +70,45 @@ pmAtomStr(const pmAtomValue *avp, int type)
 	    }
 	    break;
 	case PM_TYPE_AGGREGATE:
-	    lp = av.vp;
-	    if (lp == NULL)
+	case PM_TYPE_AGGREGATE_STATIC:
+	    if (av.vbp == NULL) {
 		snprintf(buf, sizeof(buf), "<null>");
-	    else
-		snprintf(buf, sizeof(buf), "%08x %08x %08x...", lp[0], lp[1], lp[2]);
+		break;
+	    }
+	    vlen = av.vbp->vlen - PM_VAL_HDR_SIZE;
+	    if (vlen == 0)
+		snprintf(buf, sizeof(buf), "[type=%s len=%d]", pmTypeStr(av.vbp->vtype), vlen);
+	    else {
+		char	*cp;
+		char	*bp;
+		snprintf(buf, sizeof(buf), "[type=%s len=%d]", pmTypeStr(av.vbp->vtype), vlen);
+		cp = (char *)av.vbp->vbuf;
+		for (i = 0; i < vlen && i < 12; i++) {
+		    bp = &buf[strlen(buf)];
+		    if ((i % 4) == 0)
+			snprintf(bp, sizeof(buf) - (bp-buf), " %02x", *cp & 0xff);
+		    else
+			snprintf(bp, sizeof(buf) - (bp-buf), "%02x", *cp & 0xff);
+		    cp++;
+		}
+		if (vlen > 12) {
+		    bp = &buf[strlen(buf)];
+		    snprintf(bp, sizeof(buf) - (bp-buf), " ...");
+		}
+	    }
 	    break;
-	case PM_TYPE_NOSUPPORT:
-	    snprintf(buf, sizeof(buf), "bogus value, metric Not Supported");
+	case PM_TYPE_EVENT:
+	    {
+		/* have to assume alignment is OK in this case */
+		pmEventArray	*eap = (pmEventArray *)avp->vbp;
+		if (eap->ea_nrecords == 1)
+		    snprintf(buf, sizeof(buf), "[1 event record]");
+		else
+		    snprintf(buf, sizeof(buf), "[%d event records]", eap->ea_nrecords);
+	    }
 	    break;
 	default:
-	    snprintf(buf, sizeof(buf), "botched type=%d", type);
+	    snprintf(buf, sizeof(buf), "Error: unexpected type: %s", pmTypeStr(type));
     }
     return buf;
 }
@@ -87,7 +117,7 @@ pmAtomStr(const pmAtomValue *avp, int type)
  * must be in agreement with ordinal values for PM_TYPE_* #defines
  */
 static char *typename[] = {
-    "32", "U32", "64", "U64", "FLOAT", "DOUBLE", "STRING", "AGGREGATE"
+    "32", "U32", "64", "U64", "FLOAT", "DOUBLE", "STRING", "AGGREGATE", "AGGREGATE_STATIC", "EVENT"
 };
 
 /* PM_TYPE_* -> string, max length is 20 bytes */
@@ -99,8 +129,10 @@ pmTypeStr(int type)
 	snprintf(buf, sizeof(buf), "%s", typename[type]);
     else if (type == PM_TYPE_NOSUPPORT)
 	strcpy(buf, "Not Supported");
+    else if (type == PM_TYPE_UNKNOWN)
+	strcpy(buf, "Unknown");
     else
-	snprintf(buf, sizeof(buf), "botched type=%d", type);
+	snprintf(buf, sizeof(buf), "Illegal type=%d", type);
 
     return buf;
 }
@@ -247,6 +279,12 @@ pmUnitsStr(const pmUnits *pu)
     }
 
     if (buf[0] == '\0') {
+	/*
+	 * dimension is all 0, but scale maybe specified ... small
+	 * anomaly here as we would expect dimCount to be 1 not
+	 * 0 for these cases, but support maintained for historical
+	 * behaviour
+	 */
 	if (pu->scaleCount == 1)
 	    snprintf(buf, sizeof(buf), "x 10");
 	else if (pu->scaleCount != 0)
@@ -513,7 +551,7 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
     int		sts = 0;
     int		len;
     const char	*vp;
-    static char	buf[60];
+    static char	buf[80];
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_VALUE) {
@@ -591,16 +629,22 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		}
 		break;
 
+	    /*
+	     * Notes on conversion to FLOAT ... because of the limited
+	     * precision of the mantissa, more than one integer value
+	     * maps to the same floating point value ... hence the
+	     * >= (float)max-int-value style of tests
+	     */
 	    case PM_TYPE_FLOAT:		/* old style insitu encoding */
 		switch (otype) {
 		    case PM_TYPE_32:
-			if (av.f > 0x7fffffff)
+			if ((float)ABS(av.f) >= (float)0x7fffffff)
 			    sts = PM_ERR_TRUNC;
 			else
 			    oval->l = (__int32_t)av.f;
 			break;
 		    case PM_TYPE_U32:
-			if (av.f > (unsigned)0xffffffff)
+			if (av.f >= (float)((unsigned)0xffffffff))
 			    sts = PM_ERR_TRUNC;
 			else if (av.f < 0)
 			    sts = PM_ERR_SIGN;
@@ -609,10 +653,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 			break;
 		    case PM_TYPE_64:
 #if defined(HAVE_CONST_LONGLONG)
-			if (av.f > (__int64_t)0x7fffffffffffffffLL)
+			if (av.f >= (float)0x7fffffffffffffffLL)
 			    sts = PM_ERR_TRUNC;
 #else
-			if (av.f > (__int64_t)0x7fffffffffffffff)
+			if (av.f >= (float)0x7fffffffffffffff)
 			    sts = PM_ERR_TRUNC;
 #endif
 			else
@@ -620,10 +664,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 			break;
 		    case PM_TYPE_U64:
 #if defined(HAVE_CONST_LONGLONG)
-			if (av.f > (__uint64_t)0xffffffffffffffffLL)
+			if (av.f >= (float)((__uint64_t)0xffffffffffffffffLL))
 			    sts = PM_ERR_TRUNC;
 #else
-			if (av.f > (__uint64_t)0xffffffffffffffff)
+			if (av.f >= (float)((__uint64_t)0xffffffffffffffff))
 			    sts = PM_ERR_TRUNC;
 #endif
 			else if (av.f < 0)
@@ -647,6 +691,7 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 	    case PM_TYPE_DOUBLE:
 	    case PM_TYPE_STRING:
 	    case PM_TYPE_AGGREGATE:
+	    case PM_TYPE_EVENT:
 	    default:
 		sts = PM_ERR_CONV;
 	}
@@ -786,13 +831,13 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		memcpy((void *)&dsrc, (void *)ap, sizeof(dsrc));
 		switch (otype) {
 		    case PM_TYPE_32:
-			if (dsrc > 0x7fffffff)
+			if (ABS(dsrc) >= (double)0x7fffffff)
 			    sts = PM_ERR_TRUNC;
 			else
 			    oval->l = (__int32_t)dsrc;
 			break;
 		    case PM_TYPE_U32:
-			if (dsrc > (unsigned)0xffffffff)
+			if (dsrc >= (double)((unsigned)0xffffffff))
 			    sts = PM_ERR_TRUNC;
 			else if (dsrc < 0)
 			    sts = PM_ERR_SIGN;
@@ -801,10 +846,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 			break;
 		    case PM_TYPE_64:
 #if defined(HAVE_CONST_LONGLONG)
-			if (av.f > (__int64_t)0x7fffffffffffffffLL)
+			if (dsrc >= (double)0x7fffffffffffffffLL)
 			    sts = PM_ERR_TRUNC;
 #else
-			if (av.f > (__int64_t)0x7fffffffffffffff)
+			if (dsrc >= (double)0x7fffffffffffffff)
 			    sts = PM_ERR_TRUNC;
 #endif
 			else
@@ -812,10 +857,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 			break;
 		    case PM_TYPE_U64:
 #if defined(HAVE_CONST_LONGLONG)
-			if (av.f > (__uint64_t)0xffffffffffffffffLL)
+			if (dsrc >= (double)((__uint64_t)0xffffffffffffffffLL))
 			    sts = PM_ERR_TRUNC;
 #else
-			if (av.f > (__uint64_t)0xffffffffffffffff)
+			if (dsrc >= (double)((__uint64_t)0xffffffffffffffff))
 			    sts = PM_ERR_TRUNC;
 #endif
 			else if (dsrc < 0)
@@ -849,13 +894,13 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		memcpy((void *)&fsrc, (void *)ap, sizeof(fsrc));
 		switch (otype) {
 		    case PM_TYPE_32:
-			if (fsrc > 0x7fffffff)
+			if ((float)ABS(fsrc) >= (float)0x7fffffff)
 			    sts = PM_ERR_TRUNC;
 			else
 			    oval->l = (__int32_t)fsrc;
 			break;
 		    case PM_TYPE_U32:
-			if (fsrc > (unsigned)0xffffffff)
+			if (fsrc >= (float)((unsigned)0xffffffff))
 			    sts = PM_ERR_TRUNC;
 			else if (fsrc < 0)
 			    sts = PM_ERR_SIGN;
@@ -864,10 +909,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 			break;
 		    case PM_TYPE_64:
 #if defined(HAVE_CONST_LONGLONG)
-			if (av.f > (__int64_t)0x7fffffffffffffffLL)
+			if (fsrc >= (float)0x7fffffffffffffffLL)
 			    sts = PM_ERR_TRUNC;
 #else
-			if (av.f > (__int64_t)0x7fffffffffffffff)
+			if (fsrc >= (float)0x7fffffffffffffff)
 			    sts = PM_ERR_TRUNC;
 #endif
 			else
@@ -875,10 +920,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 			break;
 		    case PM_TYPE_U64:
 #if defined(HAVE_CONST_LONGLONG)
-			if (av.f > (__uint64_t)0xffffffffffffffffLL)
+			if (fsrc >= (float)((__uint64_t)0xffffffffffffffffLL))
 			    sts = PM_ERR_TRUNC;
 #else
-			if (av.f > (__uint64_t)0xffffffffffffffff)
+			if (fsrc >= (float)((__uint64_t)0xffffffffffffffff))
 			    sts = PM_ERR_TRUNC;
 #endif
 			else if (fsrc < 0)
@@ -924,7 +969,7 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		    break;
 		}
 		if ((oval->cp = (char *)malloc(len + 1)) == NULL) {
-		    __pmNoMem("pmConvValue.string", len + 1, PM_FATAL_ERR);
+		    __pmNoMem("pmExtractValue.string", len + 1, PM_FATAL_ERR);
 		}
 		memcpy(oval->cp, ival->value.pval->vbuf, len);
 		oval->cp[len] = '\0';
@@ -936,31 +981,48 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		    sts = PM_ERR_CONV;
 		    break;
 		}
-		len = ival->value.pval->vlen - PM_VAL_HDR_SIZE;
+		len = ival->value.pval->vlen;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_VALUE) {
-		    __int32_t	*lp;
-		    lp = (__int32_t *)ival->value.pval->vbuf;
-		    if (lp == NULL)
-			vp = "<null>";
+		    int		vlen;
+		    int		i;
+		    vlen = ival->value.pval->vlen - PM_VAL_HDR_SIZE;
+		    if (vlen == 0)
+			snprintf(buf, sizeof(buf), "[len=%d]", vlen);
 		    else {
-			snprintf(buf, sizeof(buf), "%08x %08x %08x...", lp[0], lp[1], lp[2]);
-			vp = buf;
+			char	*cp;
+			char	*bp;
+			snprintf(buf, sizeof(buf), "[len=%d]", vlen);
+			cp = (char *)ival->value.pval->vbuf;
+			for (i = 0; i < vlen && i < 12; i++) {
+			    bp = &buf[strlen(buf)];
+			    if ((i % 4) == 0)
+				snprintf(bp, sizeof(buf) - (bp-buf), " %02x", *cp & 0xff);
+			    else
+				snprintf(bp, sizeof(buf) - (bp-buf), "%02x", *cp & 0xff);
+			    cp++;
+			}
+			if (vlen > 12) {
+			    bp = &buf[strlen(buf)];
+			    snprintf(bp, sizeof(buf) - (bp-buf), " ...");
+			}
 		    }
+		    vp = buf;
 		}
 #endif
 		if (otype != PM_TYPE_AGGREGATE) {
 		    sts = PM_ERR_CONV;
 		    break;
 		}
-		if ((oval->vp = (void *)malloc(len)) == NULL) {
-		    __pmNoMem("pmConvValue.aggr", len, PM_FATAL_ERR);
+		if ((oval->vbp = (pmValueBlock *)malloc(len)) == NULL) {
+		    __pmNoMem("pmExtractValue.aggr", len, PM_FATAL_ERR);
 		}
-		memcpy(oval->vp, ival->value.pval->vbuf, len);
+		memcpy(oval->vbp, ival->value.pval, len);
 		break;
 
 	    case PM_TYPE_32:
 	    case PM_TYPE_U32:
+	    case PM_TYPE_EVENT:
 	    default:
 		sts = PM_ERR_CONV;
 	}

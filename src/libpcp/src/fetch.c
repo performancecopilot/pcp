@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -26,9 +22,11 @@ request_fetch (int ctxid, __pmContext *ctxp,  int numpmid, pmID pmidlist[])
 {
     int n;
 
+#ifdef ASYNC_API
     if (ctxp->c_pmcd->pc_curpdu != 0) {
 	return (PM_ERR_CTXBUSY);
     }
+#endif /*ASYNC_API*/
 
     if (ctxp->c_sent == 0) {
 	/*
@@ -42,14 +40,14 @@ request_fetch (int ctxid, __pmContext *ctxp,  int numpmid, pmID pmidlist[])
 	    __pmDumpProfile(stderr, PM_INDOM_NULL, ctxp->c_instprof);
 	}
 #endif
-	if ((n = __pmSendProfile(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
-				 ctxid, ctxp->c_instprof)) < 0)
+	if ((n = __pmSendProfile(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+			ctxid, ctxp->c_instprof)) < 0)
 	    return (__pmMapErrno(n));
 	else
 	    ctxp->c_sent = 1;
     }
 
-    n = __pmSendFetch(ctxp->c_pmcd->pc_fd, PDU_BINARY, ctxid, 
+    n = __pmSendFetch(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), ctxid, 
 		      &ctxp->c_origin, numpmid, pmidlist);
     if (n < 0) {
 	    n = __pmMapErrno(n);
@@ -57,6 +55,7 @@ request_fetch (int ctxid, __pmContext *ctxp,  int numpmid, pmID pmidlist[])
     return (n);
 }
 
+#ifdef ASYNC_API
 int 
 pmRequestFetch(int ctxid, int numpmid, pmID pmidlist[])
 {
@@ -71,7 +70,7 @@ pmRequestFetch(int ctxid, int numpmid, pmID pmidlist[])
     }
     return (n);
 }
-
+#endif /*ASYNC_API*/
 
 static int
 receive_fetch (__pmContext *ctxp, pmResult **result)
@@ -79,13 +78,13 @@ receive_fetch (__pmContext *ctxp, pmResult **result)
     int n;
     __pmPDU	*pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY,
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_RESULT) {
-	n = __pmDecodeResult(pb, PDU_BINARY, result);
+	n = __pmDecodeResult(pb, result);
     }
     else if (n == PDU_ERROR) {
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     }
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
@@ -93,6 +92,7 @@ receive_fetch (__pmContext *ctxp, pmResult **result)
     return (n);
 }
 
+#ifdef ASYNC_API
 int
 pmReceiveFetch (int ctxid, pmResult **result)
 {
@@ -111,6 +111,7 @@ pmReceiveFetch (int ctxid, pmResult **result)
     }
     return (n);
 }
+#endif /*ASYNC_API*/
 
 int
 pmFetch(int numpmid, pmID pmidlist[], pmResult **result)

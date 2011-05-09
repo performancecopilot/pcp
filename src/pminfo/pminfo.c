@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -41,9 +37,12 @@ static int	batchsize = 20;
 static int	batchidx;
 
 static char	*Oflag;		/* argument of -O flag */
+static int	xflag;		/* for -x */
 static int	zflag;		/* for -z */
 static char 	*tz;		/* for -Z timezone */
 static struct timeval 	start;	/* start of time window */
+
+static void myeventdump(pmValueSet *, int);
 
 /*
  * stolen from pmprobe.c ... cache all of the most recently requested
@@ -78,12 +77,14 @@ lookup(pmInDom indom, int inst)
 /* 
  * we only ever have one metric
  */
-void
-mydump(pmDesc *dp, pmValueSet *vsp)
+static void
+mydump(pmDesc *dp, pmValueSet *vsp, char *indent)
 {
     int		j;
     char	*p;
 
+    if (indent != NULL)
+	printf("%s", indent);
     if (vsp->numval == 0) {
 	printf("No value(s) available!\n");
 	return;
@@ -117,7 +118,112 @@ mydump(pmDesc *dp, pmValueSet *vsp)
 	printf(" value ");
 	pmPrintValue(stdout, vsp->valfmt, dp->type, vp, 1);
 	putchar('\n');
+	if (dp->type == PM_TYPE_EVENT && xflag)
+	    myeventdump(vsp, j);
     }
+}
+
+static void
+myeventdump(pmValueSet *vsp, int inst)
+{
+    int		r;		/* event records */
+    int		p;		/* event parameters */
+    int		nrecords;
+    int		flags;
+    pmResult	**res;
+    static pmID	pmid_flags;
+    static pmID	pmid_missed;
+
+    nrecords = pmUnpackEventRecords(vsp, inst, &res);
+    if (nrecords < 0) {
+	fprintf(stderr, "pmUnpackEventRecords: %s\n", pmErrStr(nrecords));
+	return;
+    }
+
+    if (pmid_flags == 0) {
+	/*
+	 * get PMID for event.flags and event.missed
+	 * note that pmUnpackEventRecords() will have called
+	 * __pmRegisterAnon(), so the anonymous metrics
+	 * should now be in the PMNS
+	 */
+	char	*name_flags = "event.flags";
+	char	*name_missed = "event.missed";
+	int	sts;
+
+	sts = pmLookupName(1, &name_flags, &pmid_flags);
+	if (sts < 0) {
+	    /* should not happen! */
+	    fprintf(stderr, "Warning: cannot get PMID for %s: %s\n",
+			name_flags, pmErrStr(sts));
+	    /* avoid subsequent warnings ... */
+	    __pmid_int(&pmid_flags)->item = 1;
+	}
+	sts = pmLookupName(1, &name_missed, &pmid_missed);
+	if (sts < 0) {
+	    /* should not happen! */
+	    fprintf(stderr, "Warning: cannot get PMID for %s: %s\n",
+			name_missed, pmErrStr(sts));
+	    /* avoid subsequent warnings ... */
+	    __pmid_int(&pmid_missed)->item = 1;
+	}
+    }
+
+    for (r = 0; r < nrecords; r++) {
+	printf("    --- event record [%d] timestamp ", r);
+	__pmPrintStamp(stdout, &res[r]->timestamp);
+	if (res[r]->numpmid == 0) {
+	    printf(" ---\n");
+	    printf("	No parameters\n");
+	    continue;
+	}
+	if (res[r]->numpmid < 0) {
+	    printf(" ---\n");
+	    printf("	Error: illegal number of parameters (%d)\n",
+			res[r]->numpmid);
+	    continue;
+	}
+	flags = 0;
+	for (p = 0; p < res[r]->numpmid; p++) {
+	    pmValueSet	*xvsp = res[r]->vset[p];
+	    int		sts;
+	    pmDesc	desc;
+	    char	*name;
+
+	    if (pmNameID(xvsp->pmid, &name) >= 0) {
+		if (p == 0) {
+		    if (xvsp->pmid == pmid_flags) {
+			flags = xvsp->vlist[0].value.lval;
+			printf(" flags 0x%x", flags);
+			printf(" (%s) ---\n", pmEventFlagsStr(flags));
+			free(name);
+			continue;
+		    }
+		    else
+			printf(" ---\n");
+		}
+		if ((flags & PM_EVENT_FLAG_MISSED) &&
+		    (p == 1) &&
+		    (xvsp->pmid == pmid_missed)) {
+		    printf("        ==> %d missed event records\n",
+				xvsp->vlist[0].value.lval);
+		    free(name);
+		    continue;
+		}
+		printf("    %s (%s)\n", name, pmIDStr(xvsp->pmid));
+		free(name);
+	    }
+	    else
+		printf("	PMID: %s\n", pmIDStr(xvsp->pmid));
+	    if ((sts = pmLookupDesc(xvsp->pmid, &desc)) < 0) {
+		printf("	pmLookupDesc: %s\n", pmErrStr(sts));
+		continue;
+	    }
+	    mydump(&desc, xvsp, "    ");
+	}
+    }
+    if (nrecords >= 0)
+	pmFreeEventResult(res);
 }
 
 static void
@@ -287,7 +393,7 @@ report(void)
 	}
 
 	if (p_value) {
-	    mydump(&desc, vsp);
+	    mydump(&desc, vsp, NULL);
 	}
     }
 
@@ -316,7 +422,7 @@ dometric(const char *name)
 
     namelist[batchidx]= strdup(name);
     if (namelist[batchidx] == NULL) {
-	fprintf(stderr, "%s: namelist string malloc: %s\n", pmProgname, strerror(errno));
+	fprintf(stderr, "%s: namelist string malloc: %s\n", pmProgname, osstrerror());
 	exit(1);
     }
 
@@ -350,6 +456,7 @@ Options:\n\
   -T		get and display (verbose) help text\n\
   -v		verify mode, be quiet and only report errors\n\
 		(forces other output control options off)\n\
+  -x		like -f and expand event records\n\
   -Z timezone   set timezone for -O\n\
   -z            set timezone for -O to local time for host from -a\n",
 		pmProgname);
@@ -363,7 +470,7 @@ ParseOptions(int argc, char *argv[])
     int		errflag = 0;
     char	*endnum;
     char	*errmsg;
-    char	*opts = "a:b:c:dD:Ffn:h:K:LMmO:tTvzZ:?";
+    char	*opts = "a:b:c:dD:Ffn:h:K:LMmO:tTvxzZ:?";
 
     while ((c = getopt(argc, argv, opts)) != EOF) {
 	switch (c) {
@@ -487,6 +594,12 @@ ParseOptions(int argc, char *argv[])
 		need_pmid = 1;
 		break;
 
+	    case 'x':
+		xflag = p_value = 1;
+		need_context = 1;
+		need_pmid = 1;
+		break;
+
 	    case 'z':	/* timezone from host */
 		if (tz != NULL) {
 		    fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
@@ -557,12 +670,12 @@ main(int argc, char **argv)
     ParseOptions(argc, argv);
 
     if ((namelist = (char **)malloc(batchsize * sizeof(char *))) == NULL) {
-	fprintf(stderr, "%s: namelist malloc: %s\n", pmProgname, strerror(errno));
+	fprintf(stderr, "%s: namelist malloc: %s\n", pmProgname, osstrerror());
 	exit(1);
     }
 
     if ((pmidlist = (pmID *)malloc(batchsize * sizeof(pmID))) == NULL) {
-	fprintf(stderr, "%s: pmidlist malloc: %s\n", pmProgname, strerror(errno));
+	fprintf(stderr, "%s: pmidlist malloc: %s\n", pmProgname, osstrerror());
 	exit(1);
     }
 

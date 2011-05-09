@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  *
  * Debug Flags
  *	DERIVE - high-level diagnostics
@@ -22,6 +18,7 @@
  *	DERIVE & APPL2 - fetch handling
  */
 
+#include <inttypes.h>
 #include "derive.h"
 
 static void
@@ -151,8 +148,8 @@ __dmprefetch(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmID **newlist)
 
 /*
  * Free the old ivlist[] (if any) ... may need to walk the list because
- * the pmAtomValues may have buffers attached in the type STRING and
- * type AGGREGATE* cases.
+ * the pmAtomValues may have buffers attached in the type STRING,
+ * type AGGREGATE* and type EVENT cases.
  * Includes logic to save one history sample (for delta()).
  */
 static void
@@ -164,7 +161,10 @@ free_ivlist(node_t *np)
 
     if (np->save_last) {
 	if (np->info->last_ivlist != NULL) {
-	    /* no STRING or AGGREGATE types for delta(), so simple free() */
+	    /*
+	     * no STRING, AGGREGATE or EVENT types for delta(),
+	     * so simple free()
+	     */
 	    free(np->info->last_ivlist);
 	}
 	np->info->last_numval = np->info->numval;
@@ -173,12 +173,18 @@ free_ivlist(node_t *np)
     else {
 	/* no history */
 	if (np->info->ivlist != NULL) {
-	    if (np->desc.type == PM_TYPE_STRING ||
-		np->desc.type == PM_TYPE_AGGREGATE ||
-		np->desc.type == PM_TYPE_AGGREGATE_STATIC) {
+	    if (np->desc.type == PM_TYPE_STRING) {
 		for (i = 0; i < np->info->numval; i++) {
-		    if (np->info->ivlist[i].value.vp != NULL)
-			free(np->info->ivlist[i].value.vp);
+		    if (np->info->ivlist[i].value.cp != NULL)
+			free(np->info->ivlist[i].value.cp);
+		}
+	    }
+	    else if (np->desc.type == PM_TYPE_AGGREGATE ||
+		     np->desc.type == PM_TYPE_AGGREGATE_STATIC ||
+		     np->desc.type == PM_TYPE_EVENT) {
+		for (i = 0; i < np->info->numval; i++) {
+		    if (np->info->ivlist[i].value.vbp != NULL)
+			free(np->info->ivlist[i].value.vbp);
 		}
 	    }
 	}
@@ -817,12 +823,13 @@ eval_expr(node_t *np, pmResult *rp, int level)
 
 			    case PM_TYPE_AGGREGATE:
 			    case PM_TYPE_AGGREGATE_STATIC:
-				if ((np->info->ivlist[i].value.vp = (void *)malloc(rp->vset[j]->vlist[i].value.pval->vlen)) == NULL) {
+			    case PM_TYPE_EVENT:
+				if ((np->info->ivlist[i].value.vbp = (pmValueBlock *)malloc(rp->vset[j]->vlist[i].value.pval->vlen)) == NULL) {
 				    __pmNoMem("eval_expr: aggregate value", rp->vset[j]->vlist[i].value.pval->vlen, PM_FATAL_ERR);
 				    /*NOTREACHED*/
 				}
-				memcpy(np->info->ivlist[i].value.vp, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, rp->vset[j]->vlist[i].value.pval->vlen-PM_VAL_HDR_SIZE);
-				np->info->ivlist[i].vlen = rp->vset[j]->vlist[i].value.pval->vlen-PM_VAL_HDR_SIZE;
+				memcpy(np->info->ivlist[i].value.vbp, (void *)rp->vset[j]->vlist[i].value.pval, rp->vset[j]->vlist[i].value.pval->vlen);
+				np->info->ivlist[i].vlen = rp->vset[j]->vlist[i].value.pval->vlen;
 				break;
 
 			    default:
@@ -830,7 +837,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 				 * really only PM_TYPE_NOSUPPORT should
 				 * end up here
 				 */
-				return PM_ERR_APPVERSION;
+				return PM_ERR_TYPE;
 			}
 		    }
 		    return np->info->numval;
@@ -843,6 +850,10 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    }
 #endif
 	    return PM_ERR_PMID;
+
+	case L_ANON:
+	    /* no values available for anonymous metrics */
+	    return 0;
 
 	default:
 	    /*
@@ -1054,9 +1065,9 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_U32)
 		fprintf(stderr, " u=%u", cp->mlist[m].expr->info->ivlist[k].value.ul);
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_64)
-		fprintf(stderr, " ll=%lld", (long long)cp->mlist[m].expr->info->ivlist[k].value.ll);
+		fprintf(stderr, " ll=%"PRIi64, cp->mlist[m].expr->info->ivlist[k].value.ll);
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_U64)
-		fprintf(stderr, " ul=%llu", (unsigned long long)cp->mlist[m].expr->info->ivlist[k].value.ull);
+		fprintf(stderr, " ul=%"PRIu64, cp->mlist[m].expr->info->ivlist[k].value.ull);
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_FLOAT)
 		fprintf(stderr, " f=%f", (double)cp->mlist[m].expr->info->ivlist[k].value.f);
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_DOUBLE)
@@ -1065,7 +1076,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		fprintf(stderr, " cp=%s (len=%d)", cp->mlist[m].expr->info->ivlist[k].value.cp, cp->mlist[m].expr->info->ivlist[k].vlen);
 	    }
 	    else {
-		fprintf(stderr, " vp=%p (len=%d)", cp->mlist[m].expr->info->ivlist[k].value.vp, cp->mlist[m].expr->info->ivlist[k].vlen);
+		fprintf(stderr, " vbp=%p (len=%d)", cp->mlist[m].expr->info->ivlist[k].value.vbp, cp->mlist[m].expr->info->ivlist[k].vlen);
 	    }
 	}
 	fputc('\n', stderr);
@@ -1176,20 +1187,34 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		    break;
 
 		case PM_TYPE_STRING:
-		case PM_TYPE_AGGREGATE:
-		case PM_TYPE_AGGREGATE_STATIC:
 		    need = PM_VAL_HDR_SIZE + cp->mlist[m].expr->info->ivlist[i].vlen;
 		    if (need == PM_VAL_HDR_SIZE + sizeof(__int64_t))
 			vp = (pmValueBlock *)__pmPoolAlloc(need);
 		    else
 			vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {
-			__pmNoMem("__dmpostfetch: string or aggregate value", need, PM_FATAL_ERR);
+			__pmNoMem("__dmpostfetch: string value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
 		    vp->vlen = need;
 		    vp->vtype = cp->mlist[m].expr->desc.type;
-		    memcpy((void *)vp->vbuf, cp->mlist[m].expr->info->ivlist[i].value.vp, cp->mlist[m].expr->info->ivlist[i].vlen);
+		    memcpy((void *)vp->vbuf, cp->mlist[m].expr->info->ivlist[i].value.cp, cp->mlist[m].expr->info->ivlist[i].vlen);
+		    newrp->vset[j]->vlist[i].value.pval = vp;
+		    break;
+
+		case PM_TYPE_AGGREGATE:
+		case PM_TYPE_AGGREGATE_STATIC:
+		case PM_TYPE_EVENT:
+		    need = cp->mlist[m].expr->info->ivlist[i].vlen;
+		    if (need == PM_VAL_HDR_SIZE + sizeof(__int64_t))
+			vp = (pmValueBlock *)__pmPoolAlloc(need);
+		    else
+			vp = (pmValueBlock *)malloc(need);
+		    if (vp == NULL) {
+			__pmNoMem("__dmpostfetch: aggregate or event value", need, PM_FATAL_ERR);
+			/*NOTREACHED*/
+		    }
+		    memcpy((void *)vp, cp->mlist[m].expr->info->ivlist[i].value.vbp, cp->mlist[m].expr->info->ivlist[i].vlen);
 		    newrp->vset[j]->vlist[i].value.pval = vp;
 		    break;
 

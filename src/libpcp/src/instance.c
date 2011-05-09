@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -25,11 +21,13 @@ request_instance (__pmContext *ctxp, pmInDom indom, int inst, const char *name)
 {
     int n;
 
+#ifdef ASYNC_API
     if (ctxp->c_pmcd->pc_curpdu != 0) {
 	return (PM_ERR_CTXBUSY);
     }
+#endif /*ASYNC_API*/
     
-    n = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
+    n = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 				&ctxp->c_origin, indom, inst, name);
     if (n < 0) {
 	n = __pmMapErrno(n);
@@ -38,6 +36,7 @@ request_instance (__pmContext *ctxp, pmInDom indom, int inst, const char *name)
     return (n);
 }
 
+#ifdef ASYNC_API
 static int
 ctxid_request_instance (int ctx,  pmInDom indom, int inst, const char *name)
 {
@@ -59,6 +58,7 @@ pmRequestInDomInst (int ctx, pmInDom indom, const char *name)
 {
     return (ctxid_request_instance(ctx, indom, PM_IN_NULL, name));
 }
+#endif /*ASYNC_API*/
 
 static int
 receive_instance_id (__pmContext *ctxp)
@@ -66,24 +66,25 @@ receive_instance_id (__pmContext *ctxp)
     int n;
     __pmPDU	*pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_INSTANCE) {
 	__pmInResult	*result;
 	
-	if ((n = __pmDecodeInstance(pb, PDU_BINARY, &result)) >= 0) {
+	if ((n = __pmDecodeInstance(pb, &result)) >= 0) {
 	    n = result->instlist[0];
 	    __pmFreeInResult(result);
 	}
     }
     else if (n == PDU_ERROR)
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
 
     return (n);
 }
 
+#ifdef ASYNC_API
 int 
 pmReceiveInDomInst (int ctx)
 {
@@ -98,6 +99,7 @@ pmReceiveInDomInst (int ctx)
     }
     return (n);
 }
+#endif /*ASYNC_API*/
 
 int
 pmLookupInDom(pmInDom indom, const char *name)
@@ -110,7 +112,8 @@ pmLookupInDom(pmInDom indom, const char *name)
     if (indom == PM_INDOM_NULL)
 	return PM_ERR_INDOM;
     if ((n = pmWhichContext()) >= 0) {
-	ctxp = __pmHandleToPtr(n);
+	int	ctx = n;
+	ctxp = __pmHandleToPtr(ctx);
 
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((n = request_instance (ctxp, indom, PM_IN_NULL, name)) >= 0) {
@@ -122,7 +125,9 @@ pmLookupInDom(pmInDom indom, const char *name)
 		n = PM_ERR_NOAGENT;
 	    else {
 		/* We can safely cast away const here */
-		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    dp->dispatch.version.four.ext->e_context = ctx;
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    n = dp->dispatch.version.four.instance(indom, PM_IN_NULL, 
 							  (char *)name, 
 							  &result, 
@@ -154,39 +159,42 @@ pmLookupInDom(pmInDom indom, const char *name)
     return n;
 }
 
+#ifdef ASYNC_API
 int
-pmRequestInDomName (int ctx, pmInDom indom, int inst)
+pmRequestInDomName(int ctx, pmInDom indom, int inst)
 {
     return (ctxid_request_instance (ctx, indom, inst, NULL));
 }
+#endif /*ASYNC_API*/
 
 static int
-receive_instance_name (__pmContext *ctxp, char **name)
+receive_instance_name(__pmContext *ctxp, char **name)
 {
     int n;
     __pmPDU *pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY,
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_INSTANCE) {
 	__pmInResult *result;
-	
-	if ((n = __pmDecodeInstance(pb, PDU_BINARY, &result)) >= 0) {
-	    if ((*name = strdup(result->namelist[0]))== NULL)
-		n = (errno) ? -errno : -ENOMEM;
+
+	if ((n = __pmDecodeInstance(pb, &result)) >= 0) {
+	    if ((*name = strdup(result->namelist[0])) == NULL)
+		n = -oserror();
 	    __pmFreeInResult(result);
 	}
     }
     else if (n == PDU_ERROR)
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
 
-    return (n);
+    return n;
 }
 
+#ifdef ASYNC_API
 int
-pmReceiveInDomName (int ctx, char **name)
+pmReceiveInDomName(int ctx, char **name)
 {
     int n;
     __pmContext	*ctxp;
@@ -199,6 +207,7 @@ pmReceiveInDomName (int ctx, char **name)
     }
     return (n);
 }
+#endif /*ASYNC_API*/
 
 int
 pmNameInDom(pmInDom indom, int inst, char **name)
@@ -211,7 +220,8 @@ pmNameInDom(pmInDom indom, int inst, char **name)
     if (indom == PM_INDOM_NULL)
 	return PM_ERR_INDOM;
     if ((n = pmWhichContext()) >= 0) {
-	ctxp = __pmHandleToPtr(n);
+	int	ctx = n;
+	ctxp = __pmHandleToPtr(ctx);
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((n = request_instance(ctxp, indom, inst, NULL)) >= 0) {
 		n = receive_instance_name (ctxp, name);
@@ -221,7 +231,9 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 	    if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
 		n = PM_ERR_NOAGENT;
 	    else {
-		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    dp->dispatch.version.four.ext->e_context = ctx;
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    n = dp->dispatch.version.four.instance(indom, inst, NULL, &result, dp->dispatch.version.four.ext);
 		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
@@ -234,7 +246,7 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 	    }
 	    if (n >= 0) {
 		if ((*name = strdup(result->namelist[0])) == NULL)
-		    n = -errno;
+		    n = -oserror();
 		__pmFreeInResult(result);
 	    }
 	}
@@ -243,7 +255,7 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 	    char	*tmp;
 	    if ((n = __pmLogNameInDom(ctxp->c_archctl->ac_log, indom, &ctxp->c_origin, inst, &tmp)) >= 0) {
 		if ((*name = strdup(tmp)) == NULL)
-		    n = -errno;
+		    n = -oserror();
 	    }
 	}
     }
@@ -251,16 +263,18 @@ pmNameInDom(pmInDom indom, int inst, char **name)
     return n;
 }
 
+#ifdef ASYNC_API
 int
 pmRequestInDom (int ctx, pmInDom indom)
 {
     return (ctxid_request_instance (ctx, indom, PM_IN_NULL, NULL));
 }
+#endif /*ASYNC_API*/
 
 static int
 inresult_to_lists (__pmInResult *result, int **instlist, char ***namelist)
 {
-    int n, i, need;
+    int n, i, sts, need;
     char *p;
     int *ilist;
     char **nlist;
@@ -273,14 +287,17 @@ inresult_to_lists (__pmInResult *result, int **instlist, char ***namelist)
     for (i = 0; i < result->numinst; i++) {
 	need += sizeof(**namelist) + strlen(result->namelist[i]) + 1;
     }
-    if ((ilist = (int *)malloc(result->numinst * sizeof(result->instlist[0]))) == NULL) {
+    ilist = (int *)malloc(result->numinst * sizeof(result->instlist[0]));
+    if (ilist == NULL) {
+	sts = -oserror();
 	__pmFreeInResult(result);
-	return ((errno) ? -errno : -ENOMEM);
+	return sts;
     }
     if ((nlist = (char **)malloc(need)) == NULL) {
+	sts = -oserror();
 	free(ilist);
 	__pmFreeInResult(result);
-	return ((errno) ? -errno : -ENOMEM);
+	return sts;
     }
 
     *instlist = ilist;
@@ -294,7 +311,7 @@ inresult_to_lists (__pmInResult *result, int **instlist, char ***namelist)
     }
     n = result->numinst;
     __pmFreeInResult(result);
-    return (n);
+    return n;
 }
 
 int
@@ -303,24 +320,25 @@ receive_indom (__pmContext *ctxp,  int **instlist, char ***namelist)
     int n;
     __pmPDU	*pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY,
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_INSTANCE) {
 	__pmInResult	*result;
 	    
-	if ((n = __pmDecodeInstance(pb, PDU_BINARY, &result)) < 0)
+	if ((n = __pmDecodeInstance(pb, &result)) < 0)
 	    return n;
 
 	n = inresult_to_lists (result, instlist, namelist);
     }
     else if (n == PDU_ERROR)
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
 
     return (n);
 }
 
+#ifdef ASYNC_API
 int
 pmReceiveInDom (int ctx,  int **instlist, char ***namelist)
 {
@@ -335,6 +353,7 @@ pmReceiveInDom (int ctx,  int **instlist, char ***namelist)
     }
     return (n);
 }
+#endif /*ASYNC_API*/
 
 int
 pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
@@ -356,7 +375,8 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 	return PM_ERR_INDOM;
 
     if ((n = pmWhichContext()) >= 0) {
-	ctxp = __pmHandleToPtr(n);
+	int	ctx = n;
+	ctxp = __pmHandleToPtr(ctx);
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((n = request_instance (ctxp, indom, PM_IN_NULL, NULL)) >= 0) {
 		n = receive_indom (ctxp, instlist, namelist);
@@ -366,7 +386,9 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 	    if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
 		n = PM_ERR_NOAGENT;
 	    else {
-		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    dp->dispatch.version.four.ext->e_context = ctx;
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    n = dp->dispatch.version.four.instance(indom, PM_IN_NULL, NULL,
 					       &result,
 					       dp->dispatch.version.four.ext);
@@ -396,11 +418,11 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 		    need += sizeof(char *) + strlen(nametmp[i]) + 1;
 		}
 		if ((ilist = (int *)malloc(n * sizeof(insttmp[0]))) == NULL) {
-		    return -errno;
+		    return -oserror();
 		}
 		if ((nlist = (char **)malloc(need)) == NULL) {
 		    free(ilist);
-		    return -errno;
+		    return -oserror();
 		}
 		*instlist = ilist;
 		*namelist = nlist;

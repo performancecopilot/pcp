@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -41,23 +37,23 @@ verify_label(FILE *f, const char *file)
     len = ntohl(len);
     if (n != sizeof(len)) {
 	if (feof(f)) {
-	    fprintf(stderr, "Bad prefix sentinal read for %s: file too short\n",
+	    fprintf(stderr, "Bad prefix sentinel read for %s: file too short\n",
 			file);
 	    status = 2;
 	}
 	else if (ferror(f)) {
-	    fprintf(stderr, "Prefix sentinal read error for %s: %s\n",
-			file, strerror(errno));
+	    fprintf(stderr, "Prefix sentinel read error for %s: %s\n",
+			file, osstrerror());
 	    status = 2;
 	}
 	else {
-	    fprintf(stderr, "Prefix sentinal read error for %s: read only %d\n",
+	    fprintf(stderr, "Prefix sentinel read error for %s: read only %d\n",
 			file, n);
 	    status = 2;
 	}
     }
     if (len != xpectlen) {
-	fprintf(stderr, "Bad prefix sentinal value for %s: %d (%d expected)\n",
+	fprintf(stderr, "Bad prefix sentinel value for %s: %d (%d expected)\n",
 			file, len, xpectlen);
 	status = 2;
     }
@@ -68,23 +64,23 @@ verify_label(FILE *f, const char *file)
     len = ntohl(len);
     if (n != sizeof(len)) {
 	if (feof(f)) {
-	    fprintf(stderr, "Bad suffix sentinal read for %s: file too short\n",
+	    fprintf(stderr, "Bad suffix sentinel read for %s: file too short\n",
 			file);
 	    status = 2;
 	}
 	else if (ferror(f)) {
-	    fprintf(stderr, "Suffix sentinal read error for %s: %s\n",
-			file, strerror(errno));
+	    fprintf(stderr, "Suffix sentinel read error for %s: %s\n",
+			file, osstrerror());
 	    status = 2;
 	}
 	else {
-	    fprintf(stderr, "Suffix sentinal read error for %s: read only %d\n",
+	    fprintf(stderr, "Suffix sentinel read error for %s: read only %d\n",
 			file, n);
 	    status = 2;
 	}
     }
     if (len != xpectlen) {
-	fprintf(stderr, "Bad suffix sentinal value for %s: %d (%d expected)\n",
+	fprintf(stderr, "Bad suffix sentinel value for %s: %d (%d expected)\n",
 			file, len, xpectlen);
 	status = 2;
     }
@@ -199,7 +195,7 @@ main(int argc, char *argv[])
 	    readonly = 0;
 	    break;
 
-	case 's':	/* rewrite sentinals */
+	case 's':	/* rewrite sentinels */
 	    sflag = 1;
 	    readonly = 0;
 	    break;
@@ -239,7 +235,7 @@ main(int argc, char *argv[])
 "  -l           dump the archive label\n"
 "  -L           more verbose form of -l\n"
 "  -p pid       set the logger process ID field for all files in archive\n"
-"  -s           write the label sentinal values for all files in archive\n"
+"  -s           write the label sentinel values for all files in archive\n"
 "  -v           run in verbose mode, reporting on each stage of checking\n"
 "  -V version   write magic and version numbers for all files in archive\n"
 "  -Z timezone  set the timezone for all files in archive\n",
@@ -326,7 +322,7 @@ main(int argc, char *argv[])
 	    snprintf(buffer, sizeof(buffer), "%s.%d", logctl.l_name, c);
 	    if ((logctl.l_mfp = fopen(buffer, "r+")) == NULL) {
 		fprintf(stderr, "Failed data volume %d open: %s\n",
-				c, strerror(errno));
+				c, osstrerror());
 		status = 3;
 	    }
 	    else if ((sts = __pmLogWriteLabel(logctl.l_mfp, &golden)) < 0) {
@@ -350,7 +346,7 @@ main(int argc, char *argv[])
 	    snprintf(buffer, sizeof(buffer), "%s.index", logctl.l_name);
 	    if ((logctl.l_tifp = fopen(buffer, "r+")) == NULL) {
 		fprintf(stderr, "Failed temporal index open: %s\n",
-				strerror(errno));
+				osstrerror());
 		status = 3;
 	    }
 	    else if ((sts = __pmLogWriteLabel(logctl.l_tifp, &golden)) < 0) {
@@ -367,7 +363,7 @@ main(int argc, char *argv[])
 	snprintf(buffer, sizeof(buffer), "%s.meta", logctl.l_name);
 	if ((logctl.l_mdfp = fopen(buffer, "r+")) == NULL) {
 	    fprintf(stderr, "Failed metadata volume open: %s\n",
-			    strerror(errno));
+			    osstrerror());
 	    status = 3;
 	}
 	else if ((sts = __pmLogWriteLabel(logctl.l_mdfp, &golden)) < 0) {

@@ -14,16 +14,12 @@
 #include "pmapi.h"
 #include "impl.h"
 
-#ifdef IS_MINGW
-const char *hstrerror(int error) { return strerror(error); }
-#endif
-
 int
 main(int argc, char *argv[])
 {
     struct hostent	*servInfo;
     char		*endnum;
-    int			port;
+    int			port = 0;
     int			s;
     int			nodelay = 1;
     struct linger	nolinger = {1, 0};
@@ -68,12 +64,12 @@ main(int argc, char *argv[])
 
     if ((servInfo = gethostbyname(argv[optind])) == NULL) {
 	if (vflag)
-	    fprintf(stderr, "gethostbyname: %s\n", hstrerror(h_errno));
+	    fprintf(stderr, "gethostbyname: %s\n", hoststrerror());
 	goto done;
     }
     if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 	if (vflag)
-	    fprintf(stderr, "socket: %s\n", strerror(errno));
+	    fprintf(stderr, "socket: %s\n", netstrerror());
 	goto done;
     }
     setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char *) &nodelay, (mysocklen_t)sizeof(nodelay));
@@ -84,7 +80,7 @@ main(int argc, char *argv[])
     myAddr.sin_port = htons(port);
     if (connect(s, (struct sockaddr*) &myAddr, sizeof(myAddr)) < 0) {
 	if (vflag)
-	    fprintf(stderr, "connect: %s\n", strerror(errno));
+	    fprintf(stderr, "connect: %s\n", netstrerror());
 	goto done;
     }
 
@@ -105,7 +101,7 @@ main(int argc, char *argv[])
 	fputc(c, fp);
 	if (ferror(fp)) {
 	    if (vflag)
-		fprintf(stderr, "telnet write: %s\n", strerror(errno));
+		fprintf(stderr, "telnet write: %s\n", osstrerror());
 	    goto done;
 	}
 	fflush(fp);
@@ -121,7 +117,7 @@ main(int argc, char *argv[])
     }
     if (ferror(fp)) {
 	if (vflag)
-	    fprintf(stderr, "telnet read: %s\n", strerror(errno));
+	    fprintf(stderr, "telnet read: %s\n", osstrerror());
 	goto done;
     }
 

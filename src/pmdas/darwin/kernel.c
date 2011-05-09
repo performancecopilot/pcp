@@ -11,7 +11,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <errno.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/resource.h>
@@ -33,7 +32,7 @@ refresh_vmstat(struct vm_statistics *vmstat)
     natural_t count = HOST_VM_INFO_COUNT;
 
     error = host_statistics(mach_host, info, (host_info_t)vmstat, &count);
-    return (error != KERN_SUCCESS) ? -errno : 0;
+    return (error != KERN_SUCCESS) ? -oserror() : 0;
 }
 
 int
@@ -43,13 +42,13 @@ refresh_cpuload(struct host_cpu_load_info *cpuload)
     natural_t count = HOST_CPU_LOAD_INFO_COUNT;
 
     error = host_statistics(mach_host, info, (host_info_t)cpuload, &count);
-    return (error != KERN_SUCCESS) ? -errno : 0;
+    return (error != KERN_SUCCESS) ? -oserror() : 0;
 }
 
 int
 refresh_uname(struct utsname *utsname)
 {
-    return (uname(utsname) == -1) ? -errno : 0;
+    return (uname(utsname) == -1) ? -oserror() : 0;
 }
 
 int
@@ -60,7 +59,7 @@ refresh_hertz(unsigned int *hertz)
     struct clockinfo	clockrate;
 
     if (sysctl(mib, 2, &clockrate, &size, NULL, 0) == -1)
-	return -errno;
+	return -oserror();
     *hertz = clockrate.hz;
     return 0;
 }
@@ -73,7 +72,7 @@ refresh_loadavg(float *loadavg)
     struct loadavg	loadavgs;
 
     if (sysctl(mib, 2, &loadavgs, &size, NULL, 0) == -1)
-	return -errno;
+	return -oserror();
     loadavg[0] = (float)loadavgs.ldavg[0] / (float)loadavgs.fscale;
     loadavg[1] = (float)loadavgs.ldavg[1] / (float)loadavgs.fscale;
     loadavg[2] = (float)loadavgs.ldavg[2] / (float)loadavgs.fscale;
@@ -91,7 +90,7 @@ refresh_uptime(unsigned int *uptime)
 	size_t	size = sizeof(struct timeval);
 
 	if (sysctl(mib, 2, &boottime, &size, NULL, 0) == -1)
-	    return -errno;
+	    return -oserror();
     }
 
     __pmtimevalNow(&timediff);
@@ -116,7 +115,7 @@ refresh_cpus(struct processor_cpu_load_info **cpuload, pmdaIndom *indom)
 
     error = host_processor_info(mach_host, info, &ncpu, &iarray, &icount);
     if (error != KERN_SUCCESS)
-	return -errno;
+	return -oserror();
 
     cpuinfo = (struct processor_cpu_load_info *)iarray;
     if (ncpu != indom->it_numinst) {
@@ -161,7 +160,7 @@ refresh_filesys(struct statfs **filesys, pmdaIndom *indom)
     if (count < 0) {
 	indom->it_numinst = 0;
 	indom->it_set = NULL;
-	return -errno;
+	return -oserror();
     }
     if (count > 0 && count != indom->it_numinst) {
 	i = sizeof(pmdaInstid) * count;

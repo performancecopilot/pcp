@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  *
  * Assumptions:
  *	1. "double" is 64-bits
@@ -25,25 +21,6 @@
 #include "impl.h"
 #include "trace.h"
 #include "trace_dev.h"
-
-/*
- * But we don't want to force linking with libpcp, so this is a direct
- * copy of the only implementation in libpcp from src/endian.c there
- */
-#ifndef __htonll
-void
-__htonll(char *p)
-{
-    char 	c;
-    int		i;
-
-    for (i = 0; i < 4; i++) {
-	c = p[i];
-	p[i] = p[7-i];
-	p[7-i] = c;
-    }
-}
-#endif
 
 /*
  * PDU for all trace data updates (TRACE_PDU_DATA)

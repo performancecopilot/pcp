@@ -22,8 +22,15 @@
 .br
 #include <pcp/pmapi.h>
 .sp
-void pmPrintValue(FILE *f, int valfmt, int type, const pmValue *val, int minwidth)
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+void pmPrintValue(FILE *\fIf\fP, int \fIvalfmt\fP, int \fItype\fP, const\ pmValue\ *\fIval\fP, int\ \fIminwidth\fP);
 .sp
+.in
+.hy
+.ad
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION

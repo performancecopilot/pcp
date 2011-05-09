@@ -15,6 +15,8 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "percontext.h"
+#include "events.h"
 #include <limits.h>
 #include <sys/stat.h>
 #include "../domain.h"
@@ -31,9 +33,8 @@ static struct sysinfo {
 } };
 #endif
 
-int	sample_done=0;	/* pending request to terminate, see sample_store() */
-int	need_mirage=0;	/* only do mirage glop is someone asks for it */
-int	need_dynamic=0;	/* only do dynamic glop is someone asks for it */
+static int need_mirage;	/* only do mirage glop is someone asks for it */
+static int need_dynamic;/* only do dynamic glop is someone asks for it */
 
 /* from pmda.c: simulate PMDA busy */
 extern int	limbo(void);
@@ -129,12 +130,12 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,41), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /* xmit-pdu */
     { PMDA_PMID(0,42), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* UNUSED  */
-    { PMDA_PMID(0,43), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* UNUSED */
-    { PMDA_PMID(0,44), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* UNUSED */
-    { PMDA_PMID(0,45), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* percontext.pdu */
+    { PMDA_PMID(0,43), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* percontext.recv-pdu */
+    { PMDA_PMID(0,44), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* percontext.xmit-pdu */
+    { PMDA_PMID(0,45), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /* lights */
     { PMDA_PMID(0,46), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* magnitude */
@@ -287,9 +288,39 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,120), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* scramble.bin */
     { PMDA_PMID(0,121), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* percontext.control.ctx */
+    { PMDA_PMID(0,122), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* percontext.control.active */
+    { PMDA_PMID(0,123), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* percontext.control.start */
+    { PMDA_PMID(0,124), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* percontext.control.end */
+    { PMDA_PMID(0,125), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* event.reset */
+    { PMDA_PMID(0,126), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.type */
+    { PMDA_PMID(0,127), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.param_32 */
+    { PMDA_PMID(0,128), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.param_u32 */
+    { PMDA_PMID(0,129), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.param_64 */
+    { PMDA_PMID(0,130), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.param_u64 */
+    { PMDA_PMID(0,131), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.param_float */
+    { PMDA_PMID(0,132), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.param_double */
+    { PMDA_PMID(0,133), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.param_string */
+    { PMDA_PMID(0,134), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.param_aggregate */
+    { PMDA_PMID(0,135), PM_TYPE_AGGREGATE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.records */
+    { PMDA_PMID(0,136), PM_TYPE_EVENT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.no_indom_records */
+    { PMDA_PMID(0,137), PM_TYPE_EVENT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
-/* bigid */
-    { PMDA_PMID(0,1023), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /*
  * dynamic PMNS ones
  * secret.bar
@@ -309,6 +340,9 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,1006), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /*  secret.foo.bar.grunt.snort.seven */
     { PMDA_PMID(0,1007), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+
+/* bigid */
+    { PMDA_PMID(0,1023), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 
 /* End-of-List */
     { PM_ID_NULL, 0, 0, 0, { 0, 0, 0, 0, 0, 0 } }
@@ -459,7 +493,11 @@ static instid_t _hordes[] = {
     {495, "495" }, {496, "496" }, {497, "497" }, {498, "498" }, {499, "499" }
 };
 
-/* all domains supported in this PMD - one entry each */
+static instid_t	_events[] = {
+    { 0, "fungus" }, { 1, "bogus" }
+};
+
+/* all domains supported in this PMDA - one entry each */
 static indom_t	indomtab[] = {
 #define COLOUR_INDOM	0
     { 0, 3, _colour },
@@ -479,6 +517,8 @@ static indom_t	indomtab[] = {
     { 0, 5, NULL },
 #define SCRAMBLE_INDOM	8
     { 0, 9, _scramble },
+#define EVENT_INDOM	9
+    { 0, 2, _events },
 
     { PM_INDOM_NULL, 0, 0 }
 };
@@ -503,14 +543,9 @@ static __uint64_t	_ulonglong = 13;/* ulonglong.write_me */
 static float		_float = 13;	/* float.write_me */
 static double		_double = 13;	/* double.write_me */
 static char		*_string;	/* string.write_me */
-static void		*_aggr33;	/* aggregate.null */
-static int		_len33;
-static void		*_aggr34;	/* aggregate.hullo */
-static int		_len34;
-static void		*_aggr35;	/* aggregate.write_me */
-static int		_len35;
-static long		_recv_pdu;	/* # pdus recv */
-static long		_xmit_pdu;	/* # pdus out */
+static pmValueBlock	*_aggr33;	/* aggregate.null */
+static pmValueBlock	*_aggr34;	/* aggregate.hullo */
+static pmValueBlock	*_aggr35;	/* aggregate.write_me */
 static long		_col46;		/* lights */
 static int		_n46;		/* sample count for lights */
 static long		_mag47;		/* magnitude */
@@ -548,6 +583,7 @@ static struct timeval	const_rate_timestamp = {0,0};
 
 /* this needs to be visible in pmda.c */
 int			not_ready = 0;	/* sleep interval in seconds */
+int			sample_done = 0;/* pending request to terminate, see sample_store() */
 
 int			_isDSO = 1;	/* =0 I am a daemon */
 
@@ -620,18 +656,18 @@ redo_dynamic(void)
 			break;
 		    numinst++;
 		    if ((idp->it_set = (instid_t *)realloc(idp->it_set, numinst * sizeof(instid_t))) == NULL)
-			return -errno;
+			return -oserror();
 		    idp->it_set[numinst-1].i_inst = newinst;
 		    if ((idp->it_set[numinst-1].i_name = strdup(newname)) == NULL) {
 			free(idp->it_set);
 			idp->it_set = NULL;
-			return -errno;
+			return -oserror();
 		    }
 		    if (newinst > _dyn_max) {
 			if ((_dyn_ctr = (int *)realloc(_dyn_ctr, (newinst+1)*sizeof(_dyn_ctr[0]))) == NULL) {
 			    free(idp->it_set);
 			    idp->it_set = NULL;
-			    return -errno;
+			    return -oserror();
 			}
 			for (i = _dyn_max+1; i <= newinst; i++)
 			    _dyn_ctr[i] = 0;
@@ -708,7 +744,7 @@ redo_many(void)
     if (!idp->it_set) {
 	idp->it_numinst=0;
 	many_count=0;
-	return -errno;
+	return -oserror();
     }
 
     /* realloc string buffer */
@@ -717,7 +753,7 @@ redo_many(void)
     if (!idp->it_set) {
 	idp->it_numinst=0;
 	many_count=0;
-	return -errno;
+	return -oserror();
     }
 
     /* set number of instances */
@@ -754,10 +790,10 @@ redo_mirage(void)
     if (idp->it_set == NULL) {
 	/* first time */
 	if ((idp->it_set = (instid_t *)malloc(sizeof(instid_t))) == NULL)
-	    return -errno;
+	    return -oserror();
 	if ((idp->it_set[0].i_name = (char *)malloc(5)) == NULL) {
 	    idp->it_set = NULL;
-	    return -errno;
+	    return -oserror();
 	}
 	idp->it_numinst = 1;
 	idp->it_set[0].i_inst = 0;
@@ -781,7 +817,7 @@ redo_mirage(void)
 	    if ((idp->it_set = (instid_t *)realloc(idp->it_set, numinst * sizeof(instid_t))) == NULL) {
 		idp->it_set = NULL;
 		idp->it_numinst = 0;
-		return -errno;
+		return -oserror();
 	    }
 	    idp->it_numinst = numinst;
 	}
@@ -792,11 +828,11 @@ redo_mirage(void)
 		if ((idp->it_set = (instid_t *)realloc(idp->it_set, numinst * sizeof(instid_t))) == NULL) {
 		    idp->it_set = NULL;
 		    idp->it_numinst = 0;
-		    return -errno;
+		    return -oserror();
 		}
 		if ((idp->it_set[numinst-1].i_name = (char *)malloc(5)) == NULL) {
 		    idp->it_set = NULL;
-		    return -errno;
+		    return -oserror();
 		}
 		for ( ; ; ) {
 		    newinst = (newinst + 1) % 50;
@@ -1029,7 +1065,11 @@ init_tables(int dom)
     b_indom.serial++;
     indomp = (__pmInDom_int *)&indomtab[SCRAMBLE_INDOM].it_indom;
     *indomp = b_indom;
+    b_indom.serial++;
+    indomp = (__pmInDom_int *)&indomtab[EVENT_INDOM].it_indom;
+    *indomp = b_indom;
 
+    /* rewrite indom in desctab[] */
     for (dp = desctab; dp->pmid != PM_ID_NULL; dp++) {
 	switch (dp->pmid) {
 	    case PMDA_PMID(0,5):	/* colour */
@@ -1081,6 +1121,9 @@ init_tables(int dom)
 	    case PMDA_PMID(0,121):	/* scramble.bin */
 		dp->indom = indomtab[SCRAMBLE_INDOM].it_indom;
 		break;
+	    case PMDA_PMID(0,136):		/* event.records */
+		dp->indom = indomtab[EVENT_INDOM].it_indom;
+		break;
 	}
     }
 
@@ -1104,14 +1147,17 @@ init_tables(int dom)
     /* local hacks */
     _string = (char *)malloc(3);
     strcpy(_string, "13");
-    _len33 = 0;
-    _aggr33 = "";
-    _len34 = 12;
-    _aggr34 = (char *)malloc(_len34);
-    memcpy(_aggr34, "hullo world!", _len34);
-    _len35 = 2;
-    _aggr35 = (char *)malloc(_len35);
-    memcpy(_aggr35, "13", _len35);
+    _aggr33 = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE);
+    _aggr33->vlen = PM_VAL_HDR_SIZE + 0;
+    _aggr33->vtype = PM_TYPE_AGGREGATE;
+    _aggr34 = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE+strlen("hullo world!"));
+    _aggr34->vlen = PM_VAL_HDR_SIZE + strlen("hullo world!");
+    _aggr34->vtype = PM_TYPE_AGGREGATE;
+    memcpy(_aggr34->vbuf, "hullo world!", strlen("hullo world!"));
+    _aggr35 = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE+strlen("13"));
+    _aggr35->vlen = PM_VAL_HDR_SIZE + strlen("13");
+    _aggr35->vtype = PM_TYPE_AGGREGATE;
+    memcpy(_aggr35->vbuf, "13", strlen("13"));
 
     (void)redo_many();
 }
@@ -1119,7 +1165,7 @@ init_tables(int dom)
 static int
 sample_profile(__pmProfile *prof, pmdaExt *ep)
 {
-    _recv_pdu++;
+    sample_inc_recv(ep->e_context);
     _profile = prof;	
     return 0;
 }
@@ -1132,11 +1178,10 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
     indom_t	*idp;
     int		err = 0;
 
-    _recv_pdu++;
-    _xmit_pdu++;
+    sample_inc_recv(ep->e_context);
+    sample_inc_xmit(ep->e_context);
 
     if (not_ready > 0) {
-	_xmit_pdu++;
 	return limbo();
     }
 
@@ -1157,7 +1202,7 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
 	return PM_ERR_INDOM;
 
     if ((res = (__pmInResult *)malloc(sizeof(*res))) == NULL)
-        return -errno;
+        return -oserror();
     res->indom = indom;
 
     if (name == NULL && inst == PM_IN_NULL)
@@ -1168,7 +1213,7 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
     if (inst == PM_IN_NULL) {
 	if ((res->instlist = (int *)malloc(res->numinst * sizeof(res->instlist[0]))) == NULL) {
 	    free(res);
-	    return -errno;
+	    return -oserror();
 	}
     }
     else
@@ -1177,7 +1222,7 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
     if (name == NULL) {
 	if ((res->namelist = (char **)malloc(res->numinst * sizeof(res->namelist[0]))) == NULL) {
 	    __pmFreeInResult(res);
-	    return -errno;
+	    return -oserror();
 	}
 	for (i = 0; i < res->numinst; i++)
 	    res->namelist[0] = NULL;
@@ -1191,7 +1236,7 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
 	    res->instlist[i] = idp->it_set[i].i_inst;
 	    if ((res->namelist[i] = strdup(idp->it_set[i].i_name)) == NULL) {
 		__pmFreeInResult(res);
-		return -errno;
+		return -oserror();
 	    }
 	}
     }
@@ -1202,7 +1247,7 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
 	    if (inst == idp->it_set[i].i_inst) {
 		if ((res->namelist[0] = strdup(idp->it_set[i].i_name)) == NULL) {
 		    __pmFreeInResult(res);
-		    return -errno;
+		    return -oserror();
 		}
 		for (p = res->namelist[0]; *p; p++) {
 		    if (*p == ' ') {
@@ -1297,7 +1342,7 @@ sample_name(pmID pmid, char ***nameset, pmdaExt *pmda)
     len += nmatch*sizeof(char *);	/* pointers to names */
 
     if ((list = (char **)malloc(len)) == NULL)
-	return -errno;
+	return -oserror();
 
     p = (char *)&list[nmatch];
     nmatch = 0;
@@ -1376,11 +1421,11 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
 	if (j == nmatch) {
 	    nmatch++;
 	    if ((chn = (char **)realloc(chn, nmatch*sizeof(chn[0]))) == NULL) {
-		j = -errno;
+		j = -oserror();
 		goto fail;
 	    }
 	    if ((sts = (int *)realloc(sts, nmatch*sizeof(sts[0]))) == NULL) { 
-		j = -errno;
+		j = -oserror();
 		goto fail;
 	    }
 	    if (traverse == 0) {
@@ -1389,7 +1434,7 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
 		 * PMNS name
 		 */
 		if ((chn[nmatch-1] = (char *)malloc(tlen+1)) == NULL) {
-		    j = -errno;
+		    j = -oserror();
 		    goto fail;
 		}
 		strncpy(chn[nmatch-1], &q[namelen+1], tlen);
@@ -1406,7 +1451,7 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
 		 */
 		tlen = pfxlen + strlen(dynamic_ones[i].name) + 2;
 		if ((chn[nmatch-1] = malloc(tlen)) == NULL) {
-		    j = -errno;
+		    j = -oserror();
 		    goto fail;
 		}
 		strncpy(chn[nmatch-1], name, pfxlen);
@@ -1424,7 +1469,7 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
     }
     else {
 	if ((chn = (char **)realloc(chn, nmatch*sizeof(chn[0])+len)) == NULL) {
-	    j = -errno;
+	    j = -oserror();
 	    goto fail;
 	}
 	q = (char *)&chn[nmatch];
@@ -1441,7 +1486,7 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
 
 fail:
     /*
-     * come here with j as -errno, and some allocation failure for
+     * come here with j as negative error code, and some allocation failure for
      * sts[] or chn[] or chn[nmatch-1][]
      */
      if (sts != NULL) free(sts);
@@ -1490,7 +1535,6 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
     int		need;
     int		inst;
     int		numval;
-    int		aggregate_len = 0;
     static pmResult	*res;
     static int		maxnpmids;
     static int		nbyte;
@@ -1503,11 +1547,10 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
     pmAtomValue	atom;
     int		type;
 
-    _recv_pdu++;
-    _xmit_pdu++;
+    sample_inc_recv(ep->e_context);
+    sample_inc_xmit(ep->e_context);
 
     if (not_ready > 0) {
-	_xmit_pdu++;
 	return limbo();
     }
 
@@ -1517,7 +1560,7 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
 	/* (numpmid - 1) because there's room for one valueSet in a pmResult */
 	need = (int)sizeof(pmResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
 	if ((res = (pmResult *)malloc(need)) == NULL)
-	    return -errno;
+	    return -oserror();
 	maxnpmids = numpmid;
     }
     res->timestamp.tv_sec = 0;
@@ -1536,7 +1579,6 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
 	pmidp = (__pmID_int *)&pmidlist[i];
 
 	if (direct_map) {
-	    __pmID_int	*pmidp = (__pmID_int *)&pmidlist[i];
 	    j = pmidp->item;
 	    if (j < ndesc && desctab[j].pmid == pmidlist[i]) {
 		dp = &desctab[j];
@@ -1551,13 +1593,24 @@ doit:
 
 	if (dp->pmid != PM_ID_NULL) {
 	    /* the special cases */
-	    if (pmidp->item == 86) {
+	    if (pmidp->cluster == 0 && pmidp->item == 86) {
 		dp = &magic;
 		numval = 1;
 	    }
-	    else if (pmidp->item == 54)
+	    else if (pmidp->cluster == 0 && pmidp->item == 54)
 		numval = PM_ERR_PMID;
-	    else if (pmidp->item == 92)	/* darkness */
+	    else if (pmidp->cluster == 0 && pmidp->item == 92)	/* darkness */
+		numval = 0;
+	    else if (pmidp->cluster == 0 &&
+	             (pmidp->item == 127 ||	/* event.type */
+		      pmidp->item == 128 ||	/* event.param_32 */
+		      pmidp->item == 129 ||	/* event.param_u32 */
+		      pmidp->item == 130 ||	/* event.param_64 */
+		      pmidp->item == 131 ||	/* event.param_u64 */
+		      pmidp->item == 132 ||	/* event.param_float */
+		      pmidp->item == 133 ||	/* event.param_double */
+		      pmidp->item == 134 ||	/* event.param_string */
+		      pmidp->item == 135))	/* event.param_aggregate */
 		numval = 0;
 	    else if (dp->type == PM_TYPE_NOSUPPORT)
 		numval = PM_ERR_APPVERSION;
@@ -1565,7 +1618,7 @@ doit:
 		/* count instances in the profile */
 		numval = 0;
 		/* special case(s) */
-		if (pmidp->item == 49) {
+		if (pmidp->cluster == 0 && pmidp->item == 49) {
 		    int		kp;
 		    /* needprofile - explict instances required */
 
@@ -1579,7 +1632,7 @@ doit:
 			break;
 		    }
 		}
-		else if (pmidp->item == 76 || pmidp->item == 77 || pmidp->item == 78) {
+		else if (pmidp->cluster == 0 && (pmidp->item == 76 || pmidp->item == 77 || pmidp->item == 78)) {
 		    /*
 		     * if $(PCP_VAR_DIR)/pmdas/sample/dynamic.indom is not present,
 		     * then numinst will be zero after the redo_dynamic() call
@@ -1598,7 +1651,7 @@ doit:
 		    startinst(dp->indom, 1);
 		    while (nextinst(&inst)) {
 			/* special case ... not all here for part_bin */
-			if (pmidp->item == 50 && inst % 200 == 0)
+			if (pmidp->cluster == 0 && pmidp->item == 50 && (inst % 200) == 0)
 			    continue;
 			numval++;
 		    }
@@ -1606,7 +1659,7 @@ doit:
 	    }
 	    else {
 		/* special case(s) for singular instance domains */
-		if (pmidp->item == 9) {
+		if (pmidp->cluster == 0 && pmidp->item == 9) {
 		    /* surprise! no value available */
 		    numval = 0;
 		}
@@ -1631,7 +1684,7 @@ doit:
 		res->numpmid = i;
 		__pmFreeResultValues(res);
 	    }
-	    return -errno;
+	    return -oserror();
 	}
 	vset->pmid = pmidlist[i];
 	vset->numval = numval;
@@ -1648,9 +1701,9 @@ doit:
 	type = dp->type;
 	j = 0;
 	do {
-	    if (pmidp->item == 50 && inst % 200 == 0)
+	    if (pmidp->cluster == 0 && pmidp->item == 50 && inst % 200 == 0)
 		goto skip;
-	    if (pmidp->item == 51 && inst % 200 == 0)
+	    if (pmidp->cluster == 0 && pmidp->item == 51 && inst % 200 == 0)
 		inst += 50;
 	    if (j == numval) {
 		/* more instances than expected! */
@@ -1662,590 +1715,613 @@ doit:
 			res->numpmid = i;
 			__pmFreeResultValues(res);
 		    }
-		    return -errno;
+		    return -oserror();
 		}
 	    }
 	    vset->vlist[j].inst = inst;
 	    /*
-	     * we only have cluster 0, metric already found in desctab[],
-	     * so no checking needed nor outer case on pmidp->cluster
+	     * we mostly have cluster 0, metric already found in desctab[]
+	     * so no checking needed
 	     */
-	    switch (pmidp->item) {
-		case 0:
-		    atom.l = _control;
-		    break;
-		case 1:
-		    if (_mypid == 0) _mypid = getpid();
-		    atom.ul = _mypid;
-		    break;
-		case 2:
-		    atom.ul = time(NULL) - _start;
-		    break;
-		case 3:
-		    __pmtimevalNow(&now);
-		    atom.d = 1000 * __pmtimevalSub(&now, &_then);
-		    break;
-		case 4:
-		    atom.l = 42;
-		    break;
-		case 5:
-		    switch (inst) {
-			case 0:		/* "red" */
-			    _x = (_x + 1) % 100;
-			    atom.l = _x + 100;
-			    break;
-			case 1:		/* "green" */
-			    _x = (_x + 1) % 100;
-			    atom.l = _x + 200;
-			    break;
-			case 2:		/* "blue" */
-			    _x = (_x + 1) % 100;
-			    atom.l = _x + 300;
-			    break;
-		    }
-		    break;
-		case 6:
-		case 48:
-		case 50:
-		case 51:
-		case 103:		/* long.bin & long.bin_ctr */
-		case 104:
-		case 121:		/* scramble.bin */
-		    /* the value is the instance identifier (sic) */
-		    atom.l = inst;
-		    break;
-		    /* and ditto for all the other type variants of "bin" */
-		case 105:		/* ulong.bin & ulong.bin_ctr */
-		case 106:
-		    atom.ul = inst;
-		    break;
-		case 107:		/* float.bin & float.bin_ctr */
-		case 108:
-		    atom.f = inst;
-		    break;
-		case 109:		/* longlong.bin & longlong.bin_ctr */
-		case 110:
-		    atom.ll = inst;
-		    break;
-		case 111:		/* ulonglong.bin & ulonglong.bin_ctr */
-		case 112:
-		    atom.ull = inst;
-		    break;
-		case 113:		/* double.bin & double.bin_ctr */
-		case 114:
-		    atom.d = inst;
-		    break;
-		case 7:
-		    /* drift */
-		    _drift = _drift + _sign * (int)(lrand48() % 50);
-		    if (_drift < 0) _drift = 0;
-		    atom.l = _drift;
-		    if ((lrand48() % 100) < 20) {
-			if (_sign == 1)
-			    _sign = -1;
-			else
-			    _sign = 1;
-		    }
-		    break;
-		case 63:	/* step_counter */
-		case 8:		/* step every 30 seconds */
-		    atom.l = (1 + (time(NULL) - _start) / 30) * _step;
-		    break;
-		case 40:
-		    /* total pdu count */
-		    atom.ll = (__int64_t)_recv_pdu + (__int64_t)_xmit_pdu;
-		    break;
-		case 41:
-		    /* recv pdu count */
-		    atom.l = (__int32_t)_recv_pdu;
-		    break;
-		case 42:
-		    /* xmit pdu count */
-		    atom.l = (__int32_t)_xmit_pdu;
-		    break;
-		case 37:
-		    /* mirage */
-		    _x = (_x + 1) % 100;
-		    atom.l = (inst + 1) * 100 - _x;
-		    need_mirage = 1;
-		    break;
-		case 36:
-		    /* write_me */
-		    atom.l = _write_me;
-		    break;
-		case 39:
-		    /* sysinfo */
-		    if (!sivb) {
-			/* malloc and init the pmValueBlock for
-                         * sysinfo first type around */
+	    if (pmidp->cluster == 0) {
+		switch (pmidp->item) {
+		    case 0:
+			atom.l = _control;
+			break;
+		    case 1:
+			if (_mypid == 0) _mypid = getpid();
+			atom.ul = _mypid;
+			break;
+		    case 2:
+			atom.ul = time(NULL) - _start;
+			break;
+		    case 3:
+			__pmtimevalNow(&now);
+			atom.d = 1000 * __pmtimevalSub(&now, &_then);
+			break;
+		    case 4:
+			atom.l = 42;
+			break;
+		    case 5:
+			switch (inst) {
+			    case 0:		/* "red" */
+				_x = (_x + 1) % 100;
+				atom.l = _x + 100;
+				break;
+			    case 1:		/* "green" */
+				_x = (_x + 1) % 100;
+				atom.l = _x + 200;
+				break;
+			    case 2:		/* "blue" */
+				_x = (_x + 1) % 100;
+				atom.l = _x + 300;
+				break;
+			}
+			break;
+		    case 6:
+		    case 48:
+		    case 50:
+		    case 51:
+		    case 103:		/* long.bin & long.bin_ctr */
+		    case 104:
+		    case 121:		/* scramble.bin */
+			/* the value is the instance identifier (sic) */
+			atom.l = inst;
+			break;
+			/* and ditto for all the other type variants of "bin" */
+		    case 105:		/* ulong.bin & ulong.bin_ctr */
+		    case 106:
+			atom.ul = inst;
+			break;
+		    case 107:		/* float.bin & float.bin_ctr */
+		    case 108:
+			atom.f = inst;
+			break;
+		    case 109:		/* longlong.bin & longlong.bin_ctr */
+		    case 110:
+			atom.ll = inst;
+			break;
+		    case 111:		/* ulonglong.bin & ulonglong.bin_ctr */
+		    case 112:
+			atom.ull = inst;
+			break;
+		    case 113:		/* double.bin & double.bin_ctr */
+		    case 114:
+			atom.d = inst;
+			break;
+		    case 7:
+			/* drift */
+			_drift = _drift + _sign * (int)(lrand48() % 50);
+			if (_drift < 0) _drift = 0;
+			atom.l = _drift;
+			if ((lrand48() % 100) < 20) {
+			    if (_sign == 1)
+				_sign = -1;
+			    else
+				_sign = 1;
+			}
+			break;
+		    case 63:	/* step_counter */
+		    case 8:		/* step every 30 seconds */
+			atom.l = (1 + (time(NULL) - _start) / 30) * _step;
+			break;
+		    case 40:
+			/* total pdu count for all contexts */
+			atom.ll = (__int64_t)sample_get_recv(CTX_ALL) + (__int64_t)sample_get_xmit(CTX_ALL);
+			break;
+		    case 41:
+			/* recv pdu count for all contexts */
+			atom.l = sample_get_recv(CTX_ALL);
+			break;
+		    case 42:
+			/* xmit pdu count for all contexts */
+			atom.l = sample_get_xmit(CTX_ALL);
+			break;
+		    case 43:
+		    case 44:
+		    case 45:
+		    case 122:
+		    case 123:
+		    case 124:
+		    case 125:
+			/* percontext.pdu */
+			/* percontext.recv-pdu */
+			/* percontext.xmit-pdu */
+			/* percontext.control.ctx */
+			/* percontext.control.active */
+			/* percontext.control.start */
+			/* percontext.control.end */
+			atom.l = sample_ctx_fetch(ep->e_context, pmidp->item);
+			break;
+		    case 37:
+			/* mirage */
+			_x = (_x + 1) % 100;
+			atom.l = (inst + 1) * 100 - _x;
+			need_mirage = 1;
+			break;
+		    case 36:
+			/* write_me */
+			atom.l = _write_me;
+			break;
+		    case 39:
+			/* sysinfo */
+			if (!sivb) {
+			    /* malloc and init the pmValueBlock for
+			     * sysinfo first type around */
 
-			int size = sizeof(pmValueBlock) - sizeof(int) + 
-			    sizeof (struct sysinfo);
+			    int size = sizeof(pmValueBlock) - sizeof(int) + 
+				sizeof (struct sysinfo);
 
-			if ((sivb = calloc(1, size)) == NULL ) 
-			    return PM_ERR_GENERIC;
+			    if ((sivb = calloc(1, size)) == NULL ) 
+				return PM_ERR_GENERIC;
 
-			sivb->vlen = size;
-			sivb->vtype = PM_TYPE_AGGREGATE;
-		    }
+			    sivb->vlen = size;
+			    sivb->vtype = PM_TYPE_AGGREGATE;
+			}
 
 #ifdef HAVE_SYSINFO
-		    sysinfo((struct sysinfo *)sivb->vbuf);
+			sysinfo((struct sysinfo *)sivb->vbuf);
 #else
-		    strncpy((char *)sivb->vbuf, si.dummy, sizeof(struct sysinfo));
+			strncpy((char *)sivb->vbuf, si.dummy, sizeof(struct sysinfo));
 #endif
-		    atom.vp = (void *)sivb;
+			atom.vbp = sivb;
 
-		    /*
-		     * pv:782029 The actual type must be PM_TYPE_AGGREGATE, 
-		     *           but we have to tell pmStuffValue it's a
-		     *           PM_TYPE_AGGREGATE_STATIC
-		     */
-		    type = PM_TYPE_AGGREGATE_STATIC;
-		    break;
-		case 46:
-		    if (_n46 == 0) {
-			_col46 = lrand48() % 3;
-			_n46 = 1 + (int)(lrand48() % 10);
-		    }
-		    _n46--;
-		    switch (_col46) {
-			case 0:
-			    atom.cp = "red";
-			    break;
-			case 1:
-			    atom.cp = "yellow";
-			    break;
-			case 2:
-			    atom.cp = "green";
-			    break;
-		    }
-		    break;
-		case 47:
-		    if (_n47 == 0) {
-			_mag47 = 1 << (1 + (int)(lrand48() % 6));
-			_n47 = 1 + (int)(lrand48() % 5);
-		    }
-		    _n47--;
-		    atom.l = (__int32_t)_mag47;
-		    break;
-		case 38:
-		    /* mirage-longlong */
-		    _x = (_x + 1) % 100;
-		    atom.ll = (inst + 1) * 100 - _x;
-		    atom.ll *= 1000000;
-		    need_mirage = 1;
-		    break;
-		case 49:
-		    /* need profile */
-		    switch (inst) {
-			case 0:		/* "colleen" */
-			    atom.f = 3.05;
-			    break;
-			case 1:		/* "terry" */
-			    atom.f = 12.05;
-			    break;
-			case 2:		/* "emma" */
-			case 3:		/* "cathy" */
-			    atom.f = 11.09;
-			    break;
-			case 4:		/* "alexi" */
-			    atom.f = 5.26;
-			    break;
-		    }
-		    break;
-		case 10:		/* long.* group */
-		    atom.l = 1;
-		    break;
-		case 11:
-		    atom.l = 10;
-		    break;
-		case 12:
-		    atom.l = 100;
-		    break;
-		case 13:
-		    atom.l = 1000000;
-		    break;
-		case 14:
-		    atom.l = (__int32_t)_long;
-		    break;
-		case 20:		/* longlong.* group */
+			/*
+			 * pv:782029 The actual type must be PM_TYPE_AGGREGATE, 
+			 *           but we have to tell pmStuffValue it's a
+			 *           PM_TYPE_AGGREGATE_STATIC
+			 */
+			type = PM_TYPE_AGGREGATE_STATIC;
+			break;
+		    case 46:
+			if (_n46 == 0) {
+			    _col46 = lrand48() % 3;
+			    _n46 = 1 + (int)(lrand48() % 10);
+			}
+			_n46--;
+			switch (_col46) {
+			    case 0:
+				atom.cp = "red";
+				break;
+			    case 1:
+				atom.cp = "yellow";
+				break;
+			    case 2:
+				atom.cp = "green";
+				break;
+			}
+			break;
+		    case 47:
+			if (_n47 == 0) {
+			    _mag47 = 1 << (1 + (int)(lrand48() % 6));
+			    _n47 = 1 + (int)(lrand48() % 5);
+			}
+			_n47--;
+			atom.l = (__int32_t)_mag47;
+			break;
+		    case 38:
+			/* mirage-longlong */
+			_x = (_x + 1) % 100;
+			atom.ll = (inst + 1) * 100 - _x;
+			atom.ll *= 1000000;
+			need_mirage = 1;
+			break;
+		    case 49:
+			/* need profile */
+			switch (inst) {
+			    case 0:		/* "colleen" */
+				atom.f = 3.05;
+				break;
+			    case 1:		/* "terry" */
+				atom.f = 12.05;
+				break;
+			    case 2:		/* "emma" */
+			    case 3:		/* "cathy" */
+				atom.f = 11.09;
+				break;
+			    case 4:		/* "alexi" */
+				atom.f = 5.26;
+				break;
+			}
+			break;
+		    case 10:		/* long.* group */
+			atom.l = 1;
+			break;
+		    case 11:
+			atom.l = 10;
+			break;
+		    case 12:
+			atom.l = 100;
+			break;
+		    case 13:
+			atom.l = 1000000;
+			break;
+		    case 14:
+			atom.l = (__int32_t)_long;
+			break;
+		    case 20:		/* longlong.* group */
 #if !defined(HAVE_CONST_LONGLONG)
-		    atom.ll = 1;
+			atom.ll = 1;
 #else
-		    atom.ll = 1LL;
+			atom.ll = 1LL;
 #endif
-		    break;
-		case 21:
+			break;
+		    case 21:
 #if !defined(HAVE_CONST_LONGLONG)
-		    atom.ll = 10;
+			atom.ll = 10;
 #else
-		    atom.ll = 10LL;
+			atom.ll = 10LL;
 #endif
-		    break;
-		case 22:
+			break;
+		    case 22:
 #if !defined(HAVE_CONST_LONGLONG)
-		    atom.ll = 100;
+			atom.ll = 100;
 #else
-		    atom.ll = 100LL;
+			atom.ll = 100LL;
 #endif
-		    break;
-		case 23:
+			break;
+		    case 23:
 #if !defined(HAVE_CONST_LONGLONG)
-		    atom.ll = 1000000;
+			atom.ll = 1000000;
 #else
-		    atom.ll = 1000000LL;
+			atom.ll = 1000000LL;
 #endif
-		    break;
-		case 24:
-		    atom.ll = _longlong;
-		    break;
-		case 15:		/* float.* group */
-		    atom.f = 1;
-		    break;
-		case 16:
-		    atom.f = 10;
-		    break;
-		case 17:
-		    atom.f = 100;
-		    break;
-		case 18:
-		    atom.f = 1000000;
-		    break;
-		case 19:
-		    atom.f = _float;
-		    break;
-		case 25:		/* double.* group */
-		    atom.d = 1;
-		    break;
-		case 26:
-		    atom.d = 10;
-		    break;
-		case 27:
-		    atom.d = 100;
-		    break;
-		case 28:
-		    atom.d = 1000000;
-		    break;
-		case 29:
-		    atom.d = _double;
-		    break;
-		case 30:
-		    atom.cp = "";
-		    break;
-		case 31:
-		    atom.cp = "hullo world!";
-		    break;
-		case 32:
-		    atom.cp = _string;
-		    break;
-		case 33:
-		    atom.vp = _aggr33;
-		    aggregate_len = _len33;
-		    break;
-		case 34:
-		    atom.vp = _aggr34;
-		    aggregate_len = _len34;
-		    break;
-		case 35:
-		    atom.vp = _aggr35;
-		    aggregate_len = _len35;
-		    break;
-		case 52:
-		    atom.l = inst;
-		    break;
-		case 53:
-		    atom.l = 499 - inst;
-		    break;
-		case 56:
-		    atom.l = not_ready;
-		    break;
-		case 57:
-		    _wrap += INT_MAX / 2 - 1;
-		    atom.l = _wrap;
-		    break;
-		case 58:
-		    _u_wrap += UINT_MAX / 2 - 1;
-		    atom.ul = _u_wrap;
-		    break;
-		case 59:
-		    _ll_wrap += LONGLONG_MAX / 2 - 1;
-		    atom.ll = _ll_wrap;
-		    break;
-		case 60:
-		    _ull_wrap += ULONGLONG_MAX / 2 - 1;
-		    atom.ull = _ull_wrap;
-		    break;
-		case 61:
-		    atom.l = dodgey;
-		    break;
-		case 62:
-		    if (dodgey > 5 && j == 0)
-			new_dodgey--;
-		    if (tmp_dodgey <= 0) {
-			j = tmp_dodgey;
-			goto done;
-		    }
-		    else if (tmp_dodgey <= 5) {
-			if (inst > tmp_dodgey)
-			    goto skip;
-		    }
-		    atom.l = (int)(lrand48() % 101);
-		    break;
-		case 64:
-		    _rapid += 80000000;
-		    _pmHPCincr(&rapid_ctr, _rapid);
-		    atom.ul = (__uint32_t)(rapid_ctr.full * 10);
-		    break;
-		case 65: /* scale_step.bytes_up */
-		    atom.d = scale_step_bytes_up;
-		    if (++scale_step_number[0] % 5 == 0) {
-			if (scale_step_bytes_up < 1024.0*1024.0*1024.0*1024.0)
-			    scale_step_bytes_up *= 2;
-			else
-			    scale_step_bytes_up = 1;
-		    }
-		    break;
-		case 66: /* scale_step.bytes_down */
-		    atom.d = scale_step_bytes_down;
-		    if (++scale_step_number[1] % 5 == 0) {
-			if (scale_step_bytes_down > 1)
-			    scale_step_bytes_down /= 2;
-			else
-			    scale_step_bytes_down = 1024.0*1024.0*1024.0*1024.0;
-		    }
-		    break;
-		case 67: /* scale_step.count_up */
-		    atom.d = scale_step_count_up;
-		    if (++scale_step_number[2] % 5 == 0) {
-			if (scale_step_count_up < 1.0e12)
-			    scale_step_count_up *= 10;
-			else
-			    scale_step_count_up = 1;
-		    }
-		    break;
-		case 68: /* scale_step.count_down */
-		    atom.d = scale_step_count_down;
-		    if (++scale_step_number[3] % 5 == 0) {
-			if (scale_step_count_down > 1)
-			    scale_step_count_down /= 10;
-			else
-			    scale_step_count_down = 1.0e12;
-		    }
-		    break;
-		case 69: /* scale_step.time_up_secs */
-		    atom.d = scale_step_time_up_secs;
-		    if (++scale_step_number[4] % 5 == 0) {
-			if (scale_step_time_up_secs < 60*60*24)
-			    scale_step_time_up_secs *= 10;
-			else
-			    scale_step_time_up_secs = 1;
-		    }
-		    break;
-		case 70: /* scale_step.time_up_nanosecs */
-		    atom.d = scale_step_time_up_nanosecs;
-		    if (++scale_step_number[5] % 5 == 0) {
-			if (scale_step_time_up_nanosecs < 1e9*60*60*24)
-			    scale_step_time_up_nanosecs *= 10;
-			else
-			    scale_step_time_up_nanosecs = 1;
-		    }
-		    break;
-		case 71: /* scale_step.none_up */
-		    atom.d = scale_step_none_up;
-		    if (++scale_step_number[6] % 5 == 0) {
-			if (scale_step_none_up < 10000000)
-			    scale_step_none_up *= 10;
-			else
-			    scale_step_none_up = 1;
-		    }
-		    break;
-		case 72: /* const_rate.value */
-		    __pmtimevalNow(&now);
-		    atom.ul = const_rate_value + const_rate_gradient * __pmtimevalSub(&now, &const_rate_timestamp);
-		    const_rate_timestamp = now;
-		    const_rate_value = atom.ul;
-		    break;
-		case 73: /* const_rate.gradient */
-		    atom.ul = const_rate_gradient;
-		    break;
-		case 74: /* error_code */
-		    atom.l = _error_code;
-		    break;
-		case 75: /* error_check */
-		    if (_error_code < 0)
-			return _error_code;
-		    atom.l = 0;
-		    break;
-		case 76:	/* dynamic.counter */
-		case 77: 	/* dynamic.discrete */
-		case 78:	/* dynamic.instant */
-		    if (inst > _dyn_max) {
-			/* bad instance! */
-			goto done;
-		    }
-		    atom.l = _dyn_ctr[inst];
-		    break;
-		case 79:	/* many.count */
-		    atom.l=many_count;
-		    break;
-		case 80:	/* many.int */
-		    atom.l = inst;
-		    break;
-		case 81:	/* byte_ctr */
-		    nbyte += lrand48() % 1024;
-		    atom.l = nbyte;
-		    break;
-		case 82:	/* byte_rate */
-		    atom.l = (int)(lrand48() % 1024);
-		    break;
-		case 83:	/* kbyte_ctr */
-		    nbyte += lrand48() % 1024;
-		    atom.l = nbyte;
-		    break;
-		case 84:	/* kbyte_rate */
-		    atom.l = (int)(lrand48() % 1024);
-		    break;
-		case 85:	/* byte_rate_per_hour */
-		    atom.l = (int)(lrand48() % 1024);
-		    break;
-		case 86:	/* dynamic.meta.metric */
-		    switch (magic.type) {
-			case PM_TYPE_32:
-			    atom.l = 42;
-			    break;
-			case PM_TYPE_U32:
-			    atom.ul = 42;
-			    break;
-			case PM_TYPE_64:
-			    atom.ll = 42;
-			    break;
-			case PM_TYPE_U64:
-			    atom.ull = 42;
-			    break;
-			case PM_TYPE_FLOAT:
-			    atom.f = 42;
-			    break;
-			case PM_TYPE_DOUBLE:
-			    atom.d = 42;
-			    break;
-			default:
-			    /* do nothing in other cases ... return garbage */
-			    break;
-		    }
-		    break;
-		case 87:	/* dynamic.meta.pmdesc.type */
-		    atom.ul = magic.type;
-		    break;
-		case 88:	/* dynamic.meta.pmdesc.indom */
-		    atom.ul = magic.indom;
-		    break;
-		case 89:	/* dynamic.meta.pmdesc.sem */
-		    atom.ul = magic.sem;
-		    break;
-		case 90:	/* dynamic.meta.pmdesc.units */
-		    ulp = (__uint32_t *)&magic.units;
-		    atom.ul = *ulp;
-		    break;
-		case 91:	/* datasize */
-		    __pmProcessDataSize(&ul);
-		    atom.ul = ul;
-		    break;
-		/* no case 92 for darkeness, handled above */
-		case 93:		/* ulong.* group */
-		    atom.ul = 1;
-		    break;
-		case 94:
-		    atom.ul = 10;
-		    break;
-		case 95:
-		    atom.ul = 100;
-		    break;
-		case 96:
-		    atom.ul = 1000000;
-		    break;
-		case 97:
-		    atom.ul = (__int32_t)_ulong;
-		    break;
-		case 98:		/* ulonglong.* group */
+			break;
+		    case 24:
+			atom.ll = _longlong;
+			break;
+		    case 15:		/* float.* group */
+			atom.f = 1;
+			break;
+		    case 16:
+			atom.f = 10;
+			break;
+		    case 17:
+			atom.f = 100;
+			break;
+		    case 18:
+			atom.f = 1000000;
+			break;
+		    case 19:
+			atom.f = _float;
+			break;
+		    case 25:		/* double.* group */
+			atom.d = 1;
+			break;
+		    case 26:
+			atom.d = 10;
+			break;
+		    case 27:
+			atom.d = 100;
+			break;
+		    case 28:
+			atom.d = 1000000;
+			break;
+		    case 29:
+			atom.d = _double;
+			break;
+		    case 30:
+			atom.cp = "";
+			break;
+		    case 31:
+			atom.cp = "hullo world!";
+			break;
+		    case 32:
+			atom.cp = _string;
+			break;
+		    case 33:
+			atom.vbp = _aggr33;
+			break;
+		    case 34:
+			atom.vbp = _aggr34;
+			break;
+		    case 35:
+			atom.vbp = _aggr35;
+			break;
+		    case 52:
+			atom.l = inst;
+			break;
+		    case 53:
+			atom.l = 499 - inst;
+			break;
+		    case 56:
+			atom.l = not_ready;
+			break;
+		    case 57:
+			_wrap += INT_MAX / 2 - 1;
+			atom.l = _wrap;
+			break;
+		    case 58:
+			_u_wrap += UINT_MAX / 2 - 1;
+			atom.ul = _u_wrap;
+			break;
+		    case 59:
+			_ll_wrap += LONGLONG_MAX / 2 - 1;
+			atom.ll = _ll_wrap;
+			break;
+		    case 60:
+			_ull_wrap += ULONGLONG_MAX / 2 - 1;
+			atom.ull = _ull_wrap;
+			break;
+		    case 61:
+			atom.l = dodgey;
+			break;
+		    case 62:
+			if (dodgey > 5 && j == 0)
+			    new_dodgey--;
+			if (tmp_dodgey <= 0) {
+			    j = tmp_dodgey;
+			    goto done;
+			}
+			else if (tmp_dodgey <= 5) {
+			    if (inst > tmp_dodgey)
+				goto skip;
+			}
+			atom.l = (int)(lrand48() % 101);
+			break;
+		    case 64:
+			_rapid += 80000000;
+			_pmHPCincr(&rapid_ctr, _rapid);
+			atom.ul = (__uint32_t)(rapid_ctr.full * 10);
+			break;
+		    case 65: /* scale_step.bytes_up */
+			atom.d = scale_step_bytes_up;
+			if (++scale_step_number[0] % 5 == 0) {
+			    if (scale_step_bytes_up < 1024.0*1024.0*1024.0*1024.0)
+				scale_step_bytes_up *= 2;
+			    else
+				scale_step_bytes_up = 1;
+			}
+			break;
+		    case 66: /* scale_step.bytes_down */
+			atom.d = scale_step_bytes_down;
+			if (++scale_step_number[1] % 5 == 0) {
+			    if (scale_step_bytes_down > 1)
+				scale_step_bytes_down /= 2;
+			    else
+				scale_step_bytes_down = 1024.0*1024.0*1024.0*1024.0;
+			}
+			break;
+		    case 67: /* scale_step.count_up */
+			atom.d = scale_step_count_up;
+			if (++scale_step_number[2] % 5 == 0) {
+			    if (scale_step_count_up < 1.0e12)
+				scale_step_count_up *= 10;
+			    else
+				scale_step_count_up = 1;
+			}
+			break;
+		    case 68: /* scale_step.count_down */
+			atom.d = scale_step_count_down;
+			if (++scale_step_number[3] % 5 == 0) {
+			    if (scale_step_count_down > 1)
+				scale_step_count_down /= 10;
+			    else
+				scale_step_count_down = 1.0e12;
+			}
+			break;
+		    case 69: /* scale_step.time_up_secs */
+			atom.d = scale_step_time_up_secs;
+			if (++scale_step_number[4] % 5 == 0) {
+			    if (scale_step_time_up_secs < 60*60*24)
+				scale_step_time_up_secs *= 10;
+			    else
+				scale_step_time_up_secs = 1;
+			}
+			break;
+		    case 70: /* scale_step.time_up_nanosecs */
+			atom.d = scale_step_time_up_nanosecs;
+			if (++scale_step_number[5] % 5 == 0) {
+			    if (scale_step_time_up_nanosecs < 1e9*60*60*24)
+				scale_step_time_up_nanosecs *= 10;
+			    else
+				scale_step_time_up_nanosecs = 1;
+			}
+			break;
+		    case 71: /* scale_step.none_up */
+			atom.d = scale_step_none_up;
+			if (++scale_step_number[6] % 5 == 0) {
+			    if (scale_step_none_up < 10000000)
+				scale_step_none_up *= 10;
+			    else
+				scale_step_none_up = 1;
+			}
+			break;
+		    case 72: /* const_rate.value */
+			__pmtimevalNow(&now);
+			atom.ul = const_rate_value + const_rate_gradient * __pmtimevalSub(&now, &const_rate_timestamp);
+			const_rate_timestamp = now;
+			const_rate_value = atom.ul;
+			break;
+		    case 73: /* const_rate.gradient */
+			atom.ul = const_rate_gradient;
+			break;
+		    case 74: /* error_code */
+			atom.l = _error_code;
+			break;
+		    case 75: /* error_check */
+			if (_error_code < 0)
+			    return _error_code;
+			atom.l = 0;
+			break;
+		    case 76:	/* dynamic.counter */
+		    case 77: 	/* dynamic.discrete */
+		    case 78:	/* dynamic.instant */
+			if (inst > _dyn_max) {
+			    /* bad instance! */
+			    goto done;
+			}
+			atom.l = _dyn_ctr[inst];
+			break;
+		    case 79:	/* many.count */
+			atom.l=many_count;
+			break;
+		    case 80:	/* many.int */
+			atom.l = inst;
+			break;
+		    case 81:	/* byte_ctr */
+			nbyte += lrand48() % 1024;
+			atom.l = nbyte;
+			break;
+		    case 82:	/* byte_rate */
+			atom.l = (int)(lrand48() % 1024);
+			break;
+		    case 83:	/* kbyte_ctr */
+			nbyte += lrand48() % 1024;
+			atom.l = nbyte;
+			break;
+		    case 84:	/* kbyte_rate */
+			atom.l = (int)(lrand48() % 1024);
+			break;
+		    case 85:	/* byte_rate_per_hour */
+			atom.l = (int)(lrand48() % 1024);
+			break;
+		    case 86:	/* dynamic.meta.metric */
+			switch (magic.type) {
+			    case PM_TYPE_32:
+				atom.l = 42;
+				break;
+			    case PM_TYPE_U32:
+				atom.ul = 42;
+				break;
+			    case PM_TYPE_64:
+				atom.ll = 42;
+				break;
+			    case PM_TYPE_U64:
+				atom.ull = 42;
+				break;
+			    case PM_TYPE_FLOAT:
+				atom.f = 42;
+				break;
+			    case PM_TYPE_DOUBLE:
+				atom.d = 42;
+				break;
+			    default:
+				/* do nothing in other cases ... return garbage */
+				break;
+			}
+			break;
+		    case 87:	/* dynamic.meta.pmdesc.type */
+			atom.ul = magic.type;
+			break;
+		    case 88:	/* dynamic.meta.pmdesc.indom */
+			atom.ul = magic.indom;
+			break;
+		    case 89:	/* dynamic.meta.pmdesc.sem */
+			atom.ul = magic.sem;
+			break;
+		    case 90:	/* dynamic.meta.pmdesc.units */
+			ulp = (__uint32_t *)&magic.units;
+			atom.ul = *ulp;
+			break;
+		    case 91:	/* datasize */
+			__pmProcessDataSize(&ul);
+			atom.ul = ul;
+			break;
+		    /* no case 92 for darkeness, handled above */
+		    case 93:		/* ulong.* group */
+			atom.ul = 1;
+			break;
+		    case 94:
+			atom.ul = 10;
+			break;
+		    case 95:
+			atom.ul = 100;
+			break;
+		    case 96:
+			atom.ul = 1000000;
+			break;
+		    case 97:
+			atom.ul = (__int32_t)_ulong;
+			break;
+		    case 98:		/* ulonglong.* group */
 #if !defined(HAVE_CONST_LONGLONG)
-		    atom.ull = 1;
+			atom.ull = 1;
 #else
-		    atom.ull = 1ULL;
+			atom.ull = 1ULL;
 #endif
-		    break;
-		case 99:
+			break;
+		    case 99:
 #if !defined(HAVE_CONST_LONGLONG)
-		    atom.ull = 10;
+			atom.ull = 10;
 #else
-		    atom.ull = 10ULL;
+			atom.ull = 10ULL;
 #endif
-		    break;
-		case 100:
+			break;
+		    case 100:
 #if !defined(HAVE_CONST_LONGLONG)
-		    atom.ull = 100;
+			atom.ull = 100;
 #else
-		    atom.ull = 100ULL;
+			atom.ull = 100ULL;
 #endif
-		    break;
-		case 101:
+			break;
+		    case 101:
 #if !defined(HAVE_CONST_LONGLONG)
-		    atom.ull = 1000000;
+			atom.ull = 1000000;
 #else
-		    atom.ull = 1000000ULL;
+			atom.ull = 1000000ULL;
 #endif
-		    break;
-		case 102:
-		    atom.ull = _ulonglong;
-		    break;
-		case 115:	/* ulong.count.base */
-		    atom.ul = 42000000;
-		    break;
-		case 116:	/* ulong.count.deca */
-		    atom.ul = 4200000;
-		    break;
-		case 117:	/* ulong.count.hecto */
-		    atom.ul = 420000;
-		    break;
-		case 118:	/* ulong.count.kilo */
-		    atom.ul = 42000;
-		    break;
-		case 119:	/* ulong.count.mega */
-		    atom.ul = 42;
-		    break;
-		case 120:	/* scramble.version */
-		    atom.ll = scramble_ver;
-		    break;
-		case 1000:	/* secret.bar */
-		    atom.cp = "foo";
-		    break;
-		case 1001:	/* secret.foo.one */
-		    atom.l = 1;
-		    break;
-		case 1002:	/* secret.foo.two */
-		    atom.l = 2;
-		    break;
-		case 1003:	/* secret.foo.bar.three */
-		    atom.l = 3;
-		    break;
-		case 1004:	/* secret.foo.bar.four */
-		    atom.l = 4;
-		    break;
-		case 1005:	/* secret.foo.bar.grunt.five */
-		    atom.l = 5;
-		    break;
-		case 1006:	/* secret.foo.bar.grunt.snort.six */
-		    atom.l = 6;
-		    break;
-		case 1007:	/* secret.foo.bar.grunt.snort.seven */
-		    atom.l = 7;
-		    break;
-		case 1023: /* bigid */
-		    atom.l = 4194303;
-		    break;
+			break;
+		    case 102:
+			atom.ull = _ulonglong;
+			break;
+		    case 115:	/* ulong.count.base */
+			atom.ul = 42000000;
+			break;
+		    case 116:	/* ulong.count.deca */
+			atom.ul = 4200000;
+			break;
+		    case 117:	/* ulong.count.hecto */
+			atom.ul = 420000;
+			break;
+		    case 118:	/* ulong.count.kilo */
+			atom.ul = 42000;
+			break;
+		    case 119:	/* ulong.count.mega */
+			atom.ul = 42;
+			break;
+		    case 120:	/* scramble.version */
+			atom.ll = scramble_ver;
+			break;
+		    case 126:	/* event.reset */
+			atom.l = event_get_fetch_count();
+			break;
+		    case 136:	/* event.records */
+		    case 137:	/* event.no_indom_records */
+			sts = sample_fetch_events(&atom.vbp, inst);
+			if (sts < 0)
+			    return sts;
+			break;
+		    case 1000:	/* secret.bar */
+			atom.cp = "foo";
+			break;
+		    case 1001:	/* secret.foo.one */
+			atom.l = 1;
+			break;
+		    case 1002:	/* secret.foo.two */
+			atom.l = 2;
+			break;
+		    case 1003:	/* secret.foo.bar.three */
+			atom.l = 3;
+			break;
+		    case 1004:	/* secret.foo.bar.four */
+			atom.l = 4;
+			break;
+		    case 1005:	/* secret.foo.bar.grunt.five */
+			atom.l = 5;
+			break;
+		    case 1006:	/* secret.foo.bar.grunt.snort.six */
+			atom.l = 6;
+			break;
+		    case 1007:	/* secret.foo.bar.grunt.snort.seven */
+			atom.l = 7;
+			break;
+		    case 1023: /* bigid */
+			atom.l = 4194303;
+			break;
+		}
 	    }
-
-	    if ((sts = __pmStuffValue(&atom, aggregate_len, &vset->vlist[j], type)) < 0) {
+	    if ((sts = __pmStuffValue(&atom, &vset->vlist[j], type)) < 0) {
 		__pmFreeResultValues(res);
 		return sts;
 	    }
@@ -2268,11 +2344,10 @@ sample_desc(pmID pmid, pmDesc *desc, pmdaExt *ep)
     int		i;
     __pmID_int	*pmidp = (__pmID_int *)&pmid;
 
-    _recv_pdu++;
-    _xmit_pdu++;
+    sample_inc_recv(ep->e_context);
+    sample_inc_xmit(ep->e_context);
 
     if (not_ready > 0) {
-	_xmit_pdu++;
 	return limbo();
     }
 
@@ -2305,11 +2380,10 @@ sample_text(int ident, int type, char **buffer, pmdaExt *ep)
 {
     int sts;
 
-    _recv_pdu++;
-    _xmit_pdu++;
+    sample_inc_recv(ep->e_context);
+    sample_inc_xmit(ep->e_context);
 
     if (not_ready > 0) {
-	_xmit_pdu++;
 	return limbo();
     }
 
@@ -2350,11 +2424,10 @@ sample_store(pmResult *result, pmdaExt *ep)
     __int32_t	*lp;
     pmAtomValue	av;
 
-    _recv_pdu++;
-    _xmit_pdu++;
+    sample_inc_recv(ep->e_context);
+    sample_inc_xmit(ep->e_context);
 
     if (not_ready > 0) {
-	_xmit_pdu++;
 	return limbo();
     }
 
@@ -2370,6 +2443,11 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    break;
 	}
 	pmidp = (__pmID_int *)&vsp->pmid;
+
+	if (pmidp->cluster != 0) {
+	    sts = PM_ERR_PMID;
+	    break;
+	}
 
 	/*
 	 * for this PMD, the metrics that support modification
@@ -2394,7 +2472,6 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 36:
 	    case 42:
 	    case 41:
-	    case 40:	/* pdu */
 	    case 14:	/* long.write_me */
 	    case 8:	/* step */
 	    case 7:	/* drift */
@@ -2405,6 +2482,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 89:	/* dynamic.meta.pmdesc.sem */
 	    case 90:	/* dynamic.meta.pmdesc.units */
 	    case 97:	/* ulong.write_me */
+	    case 126:	/* event.reset */
 		if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
 		    sts = PM_ERR_CONV;
 		break;
@@ -2413,6 +2491,12 @@ sample_store(pmResult *result, pmdaExt *ep)
 		if (vsp->numval != 1)
 		    sts = PM_ERR_CONV;
 		/* accommodate both old and new encoding styles for floats */
+		break;
+
+	    case 40:	/* pdu */
+		/* value is ignored, so valfmt does not matter */
+		if (vsp->numval != 1)
+		    sts = PM_ERR_CONV;
 		break;
 
 	    default:
@@ -2463,13 +2547,14 @@ sample_store(pmResult *result, pmdaExt *ep)
 		 * for the pdu group, the value is ignored, and the only
 		 * operation is to reset the counter(s)
 		 */
-		_xmit_pdu = _recv_pdu = 0;
+		sample_clr_recv(CTX_ALL);
+		sample_clr_xmit(CTX_ALL);
 		break;
 	    case 41:
-		_recv_pdu = 0;
+		sample_clr_recv(CTX_ALL);
 		break;
 	    case 42:
-		_xmit_pdu = 0;
+		sample_clr_xmit(CTX_ALL);
 		break;
 	    case 36:
 		_write_me = av.l;
@@ -2482,9 +2567,8 @@ sample_store(pmResult *result, pmdaExt *ep)
 		_string = av.cp;
 		break;
 	    case 35:	/* aggregate.write_me */
-		_len35 = vsp->vlist[0].value.pval->vlen - PM_VAL_HDR_SIZE;
 		free(_aggr35);
-		_aggr35 = av.vp;
+		_aggr35 = av.vbp;
 		break;
 	    case 56:	/* not_ready */
 		not_ready = av.l;
@@ -2530,6 +2614,9 @@ sample_store(pmResult *result, pmdaExt *ep)
 		}
 		indomtab[SCRAMBLE_INDOM].it_numinst = indomtab[BIN_INDOM].it_numinst;
 		break;
+	    case 126:	/* event.reset */
+		event_set_fetch_count(av.l);
+		break;
 	    default:
 		sts = -EACCES;
 		break;
@@ -2548,7 +2635,7 @@ void sample_init(pmdaInterface *dp)
 	int sep = __pmPathSeparator();
 	snprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "dsohelp",
 			pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_4, "sample DSO", helppath);
+	pmdaDSO(dp, PMDA_INTERFACE_LATEST, "sample DSO", helppath);
     }
     else {
 	__pmProcessDataSize(NULL);
@@ -2566,12 +2653,14 @@ void sample_init(pmdaInterface *dp)
     dp->version.four.pmid = sample_pmid;
     dp->version.four.name = sample_name;
     dp->version.four.children = sample_children;
+    pmdaSetEndContextCallBack(dp, sample_ctx_end);
 
     pmdaInit(dp, NULL, 0, NULL, 0);	/* don't use indomtab or metrictab */
 
     __pmtimevalNow(&_then);
     _start = time(NULL);
     init_tables(dp->domain);
+    init_events(dp->domain);
     redo_mirage();
     redo_dynamic();
 

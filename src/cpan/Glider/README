@@ -117,7 +117,6 @@ DOS> set QTDIR=C:\Qt
 DOS> set PCP_DIR=C:\MSYS
 DOS> set COIN3DDIR=C:\Coin3D
 DOS> set PCP_CONF=C:\MSYS\etc\pcp.conf
-DOS> set PCP_CONFIG=C:\MSYS\local\bin\pmconfig.exe
 DOS> cd D:\source\git\pcp-gui
 DOS> make
 DOS> sh ./Makepkgs -verbose pcp-gui
@@ -169,8 +168,8 @@ Troubleshooting -- Known Problems
 
     In the System variables pane, click [New...] and repeat for
     Variable		Value
-    PCP_CONFIG		C:\MSYS\local\bin\pmconfig.exe
     PCP_DIR		C:\MSYS
+    PCP_CONF		C:\MSYS\etc\pcp.conf
 
     Click [OK] to close the Environment Variables window.
 

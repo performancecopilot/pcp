@@ -11,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -87,6 +83,12 @@ __pmHandleToPtr(int handle)
 	return &contexts[handle];
 }
 
+int
+__pmPtrToHandle(__pmContext *ctxp)
+{
+    return ctxp - contexts;
+}
+
 const char * 
 pmGetContextHostName (int ctxid)
 {
@@ -125,7 +127,6 @@ pmWhichContext(void)
 #endif
     return sts;
 }
-
 
 static int
 __pmConvertTimeout (int timeo)
@@ -178,7 +179,7 @@ pmNewContext(int type, const char *name)
 
     if (list == NULL) {
 	/* fail : nothing changed */
-	sts = -errno;
+	sts = -oserror();
 	goto FAILED;
     }
 
@@ -197,7 +198,7 @@ INIT_CONTEXT:
 	 * fail : nothing changed -- actually list is changed, but restoring
 	 * contexts_len should make it ok next time through
 	 */
-	sts = -errno;
+	sts = -oserror();
 	goto FAILED;
     }
     memset(new->c_instprof, 0, sizeof(__pmProfile));
@@ -206,13 +207,17 @@ INIT_CONTEXT:
     new->c_origin.tv_sec = new->c_origin.tv_usec = 0;	/* default time */
 
     if (new->c_type == PM_CONTEXT_HOST) {
-	pmHostSpec *hosts;
-	int nhosts;
+	pmHostSpec	*hosts;
+	int		nhosts;
+	char		*errmsg;
 
 	/* deconstruct a host[:port@proxy:port] specification */
-	sts = __pmParseHostSpec(name, &hosts, &nhosts, NULL);
-	if (sts < 0)
+	sts = __pmParseHostSpec(name, &hosts, &nhosts, &errmsg);
+	if (sts < 0) {
+	    pmprintf("pmNewContext: bad host specification\n%s", errmsg);
+	    pmflush();
 	    goto FAILED;
+	}
 
 	if ((type & PM_CTXFLAG_EXCLUSIVE) == 0 && nhosts == 1) {
 	    for (i = 0; i < contexts_len; i++) {
@@ -249,7 +254,7 @@ INIT_CONTEXT:
 
 	    new->c_pmcd = (__pmPMCDCtl *)calloc(1,sizeof(__pmPMCDCtl));
 	    if (new->c_pmcd == NULL) {
-		sts = -errno;
+		sts = -oserror();
 		__pmCloseSocket(sts);
 		__pmFreeHostSpec(hosts, nhosts);
 		goto FAILED;
@@ -272,7 +277,7 @@ INIT_CONTEXT:
     }
     else if (new->c_type == PM_CONTEXT_ARCHIVE) {
 	if ((new->c_archctl = (__pmArchCtl *)malloc(sizeof(__pmArchCtl))) == NULL) {
-	    sts = -errno;
+	    sts = -oserror();
 	    goto FAILED;
 	}
 	new->c_archctl->ac_log = NULL;
@@ -287,7 +292,7 @@ INIT_CONTEXT:
 	if (new->c_archctl->ac_log == NULL) {
 	    if ((new->c_archctl->ac_log = (__pmLogCtl *)malloc(sizeof(__pmLogCtl))) == NULL) {
 		free(new->c_archctl);
-		sts = -errno;
+		sts = -oserror();
 		goto FAILED;
 	    }
 	    if ((sts = __pmLogOpen(name, new)) < 0) {
@@ -449,6 +454,7 @@ pmDupContext(void)
     __pmContext		*newcon, *oldcon;
     __pmInDomProfile	*q, *p, *p_end;
     __pmProfile		*save;
+    void		*save_dm;
 
     if ((old = pmWhichContext()) < 0) {
 	sts = old;
@@ -474,15 +480,19 @@ pmDupContext(void)
     oldcon = &contexts[old];	/* contexts[] may have been relocated */
     newcon = &contexts[new];
     save = newcon->c_instprof;	/* need this later */
+    save_dm = newcon->c_dm;	/* need this later */
+    if (newcon->c_archctl != NULL)
+	free(newcon->c_archctl);	/* will allocate a new one below */
     *newcon = *oldcon;		/* struct copy */
     newcon->c_instprof = save;	/* restore saved instprof from pmNewContext */
+    newcon->c_dm = save_dm;	/* restore saved derived metrics control also */
 
     /* clone the per-domain profiles (if any) */
     if (oldcon->c_instprof->profile_len > 0) {
 	newcon->c_instprof->profile = (__pmInDomProfile *)malloc(
 	    oldcon->c_instprof->profile_len * sizeof(__pmInDomProfile));
 	if (newcon->c_instprof->profile == NULL) {
-	    sts = -errno;
+	    sts = -oserror();
 	    goto done;
 	}
 	memcpy(newcon->c_instprof->profile, oldcon->c_instprof->profile,
@@ -494,7 +504,7 @@ pmDupContext(void)
 	    if (p->instances) {
 		q->instances = (int *)malloc(p->instances_len * sizeof(int));
 		if (q->instances == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    goto done;
 		}
 		memcpy(q->instances, p->instances,
@@ -512,7 +522,7 @@ pmDupContext(void)
     /* clone the archive control struct, if any */
     if (oldcon->c_archctl != NULL) {
 	if ((newcon->c_archctl = (__pmArchCtl *)malloc(sizeof(__pmArchCtl))) == NULL) {
-	    sts = -errno;
+	    sts = -oserror();
 	    goto done;
 	}
 	*newcon->c_archctl = *oldcon->c_archctl;	/* struct assignment */
@@ -687,6 +697,7 @@ __pmGetHostContextByID (int ctxid, __pmContext **cp)
     return (0);
 }
 
+#ifdef ASYNC_API
 int
 __pmGetBusyHostContextByID (int ctxid, __pmContext **cp, int pdu)
 {
@@ -810,7 +821,7 @@ pmContextConnectChangeState (int ctxid)
 			__pmSetSocketIPC(pc->pc_fd);
 			__pmCloseSocket(fd);
 		    } else {
-			fd = -errno;
+			fd = -oserror();
 		    }
 		}
 
@@ -867,9 +878,8 @@ pmContextConnectChangeState (int ctxid)
 
 
 void
-pmContextUndef()
+pmContextUndef(void)
 {
     curcontext = PM_CONTEXT_UNDEF;
 }
-
-
+#endif /*ASYNC_API*/

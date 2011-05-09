@@ -396,7 +396,7 @@ __pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *
     if (afid == 0x8000 && !block)	/* first time */
 	AFrearm();
     if ((qp = (qelt *)malloc(sizeof(qelt))) == NULL) {
-	return -errno;
+	return -oserror();
     }
     qp->q_afid = ++afid;
     qp->q_data = data;

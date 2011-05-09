@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -38,7 +34,7 @@ typedef struct {
 } profile_t;
 
 int
-__pmSendProfile(int fd, int mode, int ctxnum, __pmProfile *instprof)
+__pmSendProfile(int fd, int from, int ctxnum, __pmProfile *instprof)
 {
     __pmInDomProfile	*prof, *p_end;
     profile_t		*pduProfile;
@@ -46,9 +42,6 @@ __pmSendProfile(int fd, int mode, int ctxnum, __pmProfile *instprof)
     __pmPDU		*p;
     size_t		need;
     __pmPDU		*pdubuf;
-
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     /* work out how much space we need and then alloc a pdu buf */
     need = sizeof(profile_t) + instprof->profile_len * sizeof(instprof_t);
@@ -58,7 +51,7 @@ __pmSendProfile(int fd, int mode, int ctxnum, __pmProfile *instprof)
 	need += prof->instances_len * sizeof(int);
 
     if ((pdubuf = __pmFindPDUBuf((int)need)) == NULL)
-	return -errno;
+	return -oserror();
 
     p = (__pmPDU *)pdubuf;
 
@@ -66,6 +59,11 @@ __pmSendProfile(int fd, int mode, int ctxnum, __pmProfile *instprof)
     pduProfile = (profile_t *)p;
     pduProfile->hdr.len = (int)need;
     pduProfile->hdr.type = PDU_PROFILE;
+    /* 
+     * note: context id may be sent twice due to protocol evolution and
+     * backwards compatibility issues
+     */
+    pduProfile->hdr.from = from;
     pduProfile->ctxnum = htonl(ctxnum);
     pduProfile->g_state = htonl(instprof->state);
     pduProfile->numprof = htonl(instprof->profile_len);
@@ -101,7 +99,7 @@ __pmSendProfile(int fd, int mode, int ctxnum, __pmProfile *instprof)
 }
 
 int
-__pmDecodeProfile(__pmPDU *pdubuf, int mode, int *ctxnum, __pmProfile **result)
+__pmDecodeProfile(__pmPDU *pdubuf, int *ctxnum, __pmProfile **result)
 {
     __pmProfile		*instprof = NULL;
     __pmInDomProfile	*prof, *p_end;
@@ -110,16 +108,13 @@ __pmDecodeProfile(__pmPDU *pdubuf, int mode, int *ctxnum, __pmProfile **result)
     __pmPDU		*p;
     int			sts = 0;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
-
     p = (__pmPDU *)pdubuf;
 
     /* First the profile */
     pduProfile = (profile_t *)p;
     *ctxnum = ntohl(pduProfile->ctxnum);
     if ((instprof = (__pmProfile *)malloc(sizeof(__pmProfile))) == NULL)
-	return -errno;
+	return -oserror();
     instprof->state = ntohl(pduProfile->g_state);
     instprof->profile = NULL;
     instprof->profile_len = ntohl(pduProfile->numprof);
@@ -128,7 +123,7 @@ __pmDecodeProfile(__pmPDU *pdubuf, int mode, int *ctxnum, __pmProfile **result)
     if (instprof->profile_len > 0) {
 	if ((instprof->profile = (__pmInDomProfile *)malloc(
 	     instprof->profile_len * sizeof(__pmInDomProfile))) == NULL) {
-	    sts = -errno;
+	    sts = -oserror();
 	    goto fail;
 	}
 
@@ -153,7 +148,7 @@ __pmDecodeProfile(__pmPDU *pdubuf, int mode, int *ctxnum, __pmProfile **result)
 	    if (prof->instances_len > 0) {
 		prof->instances = (int *)malloc(prof->instances_len * sizeof(int));
 		if (prof->instances == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    goto fail;
 		}
 		for (j = 0; j < prof->instances_len; j++, p++)

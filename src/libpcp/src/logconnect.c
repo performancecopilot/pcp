@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -127,7 +123,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
-		    hstrerror(h_errno));
+		    hoststrerror());
 #endif
 	return -ECONNREFUSED;
     }
@@ -143,7 +139,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 
     sts = connect(fd, (struct sockaddr*) &myAddr, sizeof(myAddr));
     if (sts < 0) {
-	sts = -errno;
+	sts = -neterror();
 	__pmCloseSocket(fd);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
@@ -153,10 +149,10 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     }
 
     /* Expect an error PDU back: ACK/NACK for connection */
-    sts = __pmGetPDU(fd, PDU_BINARY, __pmLoggerTimeout(), &pb);
+    sts = __pmGetPDU(fd, ANY_SIZE, __pmLoggerTimeout(), &pb);
     if (sts == PDU_ERROR) {
 	__pmOverrideLastFd(PDU_OVERRIDE2);	/* don't dink with the value */
-	__pmDecodeError(pb, PDU_BINARY, &sts);
+	__pmDecodeError(pb, &sts);
 	if (sts == 0)
 	    sts = LOG_PDU_VERSION1;
 	else if (sts == PM_ERR_V1(PM_ERR_CONNLIMIT) ||
@@ -213,7 +209,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	    handshake[0].c_vala = LOG_PDU_VERSION;
 	    handshake[0].c_valb = 0;
 	    handshake[0].c_valc = 0;
-	    sts = __pmSendCreds(fd, PDU_BINARY, 1, handshake);
+	    sts = __pmSendCreds(fd, getpid(), 1, handshake);
 	}
 	if (sts >= 0) {
 #ifdef PCP_DEBUG

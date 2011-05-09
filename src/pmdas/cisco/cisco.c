@@ -50,10 +50,10 @@ static pmdaMetric	metrictab[] = {
     /* 0,0 ... for direct map, sigh */
     { NULL, { PMDA_PMID(0,0), 0, 0, 0, PMDA_PMUNITS(0,0,0,0,0,0) } },
     /* bytes-in */
-    { NULL, { PMDA_PMID(0,1), PM_TYPE_U32, CISCO_INDOM, PM_SEM_COUNTER, 
+    { NULL, { PMDA_PMID(0,1), PM_TYPE_U64, CISCO_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
     /* bytes-out */
-    { NULL, { PMDA_PMID(0,2), PM_TYPE_U32, CISCO_INDOM, PM_SEM_COUNTER, 
+    { NULL, { PMDA_PMID(0,2), PM_TYPE_U64, CISCO_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
     /* rate-in */
     { NULL, { PMDA_PMID(0,3), PM_TYPE_U32, CISCO_INDOM, PM_SEM_INSTANT, 
@@ -65,7 +65,7 @@ static pmdaMetric	metrictab[] = {
     { NULL, { PMDA_PMID(0,5), PM_TYPE_U32, CISCO_INDOM, PM_SEM_DISCRETE, 
 	PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_SEC,0) } },
     /* bytes_out_bcast */
-    { NULL, { PMDA_PMID(0,6), PM_TYPE_U32, CISCO_INDOM, PM_SEM_COUNTER, 
+    { NULL, { PMDA_PMID(0,6), PM_TYPE_U64, CISCO_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
     };
@@ -109,8 +109,8 @@ refresh(void *dummy)
 	for (i = 0; i < n_cisco; i++) {
 	    int	j;
 
-	    fprintf(stderr, "cisco[%d] host: %s passwd: %s intf:",
-		    i, cisco[i].host, cisco[i].passwd);
+	    fprintf(stderr, "cisco[%d] host: %s username: %s passwd: %s prompt: %s intf:",
+		    i, cisco[i].host, cisco[i].username, cisco[i].passwd, cisco[i].prompt);
 
 	    for (j = 0; j < n_intf; j++) {
 	        if (intf[j].cp == (cisco+i))
@@ -130,19 +130,30 @@ refresh(void *dummy)
 		intf[i].fetched = 0;
 	}
 
+	if (parse_only)
+	    exit(0);
+
 	for (i = 0; i < n_cisco; i++) {
 	    if (cisco[i].fout != NULL) {
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_APPL0)
-		    fprintf(stderr, "... %s voluntary disconnect\n", cisco[i].host);
+		    fprintf(stderr, "... %s voluntary disconnect fout=%d\n", cisco[i].host, fileno(cisco[i].fout));
 #endif
-
 		/* close CISCO telnet session */
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_APPL1) {
+		    fprintf(stderr, "Send: exit\n");
+		}
+#endif
 		fprintf(cisco[i].fout, "exit\n");
 		fclose(cisco[i].fout);
 		cisco[i].fout = NULL;
 	    }
 	    if (cisco[i].fin != NULL) {
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_APPL0)
+		    fprintf(stderr, "... %s close fin=%d\n", cisco[i].host, fileno(cisco[i].fin));
+#endif
 		fclose(cisco[i].fin);
 		cisco[i].fin = NULL;
 	    }
@@ -173,12 +184,12 @@ cisco_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
 
 	case 1:		/* bytes_in */
 		if (intf[inst].bytes_in == -1) return 0;
-		avp->ul = intf[inst].bytes_in;
+		avp->ull = intf[inst].bytes_in;
 		break;
 
 	case 2:		/* bytes_out */
 		if (intf[inst].bytes_out == -1) return 0;
-		avp->ul = intf[inst].bytes_out;
+		avp->ull = intf[inst].bytes_out;
 		break;
 
 	case 3:		/* rate_in */
@@ -198,7 +209,7 @@ cisco_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
 
 	case 6:		/* bytes_out_bcast */
 		if (intf[inst].bytes_out_bcast == -1) return 0;
-		avp->ul = intf[inst].bytes_out_bcast;
+		avp->ull = intf[inst].bytes_out_bcast;
 		break;
 
 	default:

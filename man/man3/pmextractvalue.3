@@ -20,9 +20,15 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-int pmExtractValue(int valfmt, const pmValue *ival, int itype, pmAtomValue 
-*oval, int otype)
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmExtractValue(int \fIvalfmt\fP, const pmValue *\fIival\fP, int\ \fIitype\fP, pmAtomValue\ *\fIoval\fP, int\ \fIotype\fP);
 .sp
+.in
+.hy
+.ad
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
@@ -53,7 +59,7 @@ typedef union {
     float        f;     /* 32-bit floating point */
     double       d;     /* 64-bit floating point */
     char         *cp;   /* char ptr */
-    void         *vp;   /* void ptr */
+    pmValueBlock *vbp;  /* pmValueBlock ptr */
 } pmAtomValue;
 .in
 .fi
@@ -120,9 +126,10 @@ values are
 .BR PM_TYPE_64 ,
 .BR PM_TYPE_U64 ,
 .BR PM_TYPE_DOUBLE ,
-.B PM_TYPE_STRING
-and
+.BR PM_TYPE_STRING ,
 .B PM_TYPE_AGGREGATE
+and
+.B PM_TYPE_EVENT
 respectively).
 If
 .I valfmt
@@ -165,6 +172,7 @@ If an error occurs, the value represented by
 .I oval
 will be zero (or
 .BR NULL ).
+.PP
 Note that although some of the conversions involving the types
 .B PM_TYPE_STRING
 and
@@ -178,18 +186,23 @@ already available in the C library via
 and
 .BR sprintf (3S).
 .PP
+No conversion involving the type
+.B PM_TYPE_EVENT
+is supported.
+.PP
 .ft CW
 .nf
-       | 32  |  U32  | 64  |  U64  | FLOAT | DBLE | STRING | AGGR |
-=======|=====|=======|=====|=======|=======|======|========|======|
-32     |  Y  |   S   |  Y  |   S   |   P   |  P   |   N    |  N   |
-U32    |  T  |   Y   |  Y  |   Y   |   P   |  P   |   N    |  N   |
-64     |  T  |  T,S  |  Y  |   S   |   P   |  P   |   N    |  N   |
-U64    |  T  |   T   |  T  |   Y   |   P   |  P   |   N    |  N   |
-FLOAT  | P,T | P,T,S | P,T | P,T,S |   Y   |  Y   |   N    |  N   |
-DBLE   | P,T | P,T,S | P,T | P,T,S |   P   |  Y   |   N    |  N   |
-STRING |  N  |   N   |  N  |   N   |   N   |  N   |   Y    |  N   |
-AGGR   |  N  |   N   |  N  |   N   |   N   |  N   |   N    |  Y   |
+      | 32  |  U32  | 64  |  U64  | FLOAT | DBLE | STRNG | AGGR | EVENT
+======|=====|=======|=====|=======|=======|======|=======|======|=======
+32    |  Y  |   S   |  Y  |   S   |   P   |  P   |   N   |  N   |   N
+U32   |  T  |   Y   |  Y  |   Y   |   P   |  P   |   N   |  N   |   N
+64    |  T  |  T,S  |  Y  |   S   |   P   |  P   |   N   |  N   |   N
+U64   |  T  |   T   |  T  |   Y   |   P   |  P   |   N   |  N   |   N
+FLOAT | P,T | P,T,S | P,T | P,T,S |   Y   |  Y   |   N   |  N   |   N
+DBLE  | P,T | P,T,S | P,T | P,T,S |   P   |  Y   |   N   |  N   |   N
+STRNG |  N  |   N   |  N  |   N   |   N   |  N   |   Y   |  N   |   N
+AGGR  |  N  |   N   |  N  |   N   |   N   |  N   |   N   |  Y   |   N
+EVENT |  N  |   N   |  N  |   N   |   N   |  N   |   N   |  N   |   N
 .fi
 .ft 1
 .PP
@@ -223,9 +236,10 @@ structure, into a canonical type for local processing.
 .BR pmFetch (3),
 .BR pmLookupDesc (3),
 .BR pmPrintValue (3),
-.BR pmTypeStr (3)
+.BR pmTypeStr (3),
+.BR pmUnitsStr (3)
 and
-.BR pmUnitsStr (3).
+.BR pmUnpackEventRecords (3).
 .SH DIAGNOSTICS
 .P
 .B PM_ERR_CONV

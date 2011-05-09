@@ -120,27 +120,27 @@ boot time (subject to counter wrap).
 @ disk.all.total_time i dunno either
 
 @ disk.all.read total read operations, summed for all disks
-Cummulative number of disk read operations since system boot time
+Cumulative number of disk read operations since system boot time
 (subject to counter wrap), summed over all disk devices.
 
 @ disk.all.write total write operations, summed for all disks
-Cummulative number of disk read operations since system boot time
+Cumulative number of disk read operations since system boot time
 (subject to counter wrap), summed over all disk devices.
 
 @ disk.all.total total read and write operations, summed for all disks
-Cummulative number of disk read and write operations since system boot
+Cumulative number of disk read and write operations since system boot
 time (subject to counter wrap), summed over all disk devices.
 
 @ disk.all.blkread block read operations, summed for all disks
-Cummulative number of disk block read operations since system boot time
+Cumulative number of disk block read operations since system boot time
 (subject to counter wrap), summed over all disk devices.
 
 @ disk.all.blkwrite block write operations, summed for all disks
-Cummulative number of disk block write operations since system boot time
+Cumulative number of disk block write operations since system boot time
 (subject to counter wrap), summed over all disk devices.
 
 @ disk.all.blktotal total (read+write) block operations, summed for all disks
-Cummulative number of disk block read and write operations since system
+Cumulative number of disk block read and write operations since system
 boot time (subject to counter wrap), summed over all disk devices.
 
 @ disk.all.read_bytes count of bytes read for all disk devices

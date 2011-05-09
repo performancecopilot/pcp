@@ -10,16 +10,18 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- *
+ */
+
+/*
  * Cisco PMDA, based on generic driver for a daemon-based PMDA
  *  - cisco interfaces to monitor are named in the command line as
- *         hostname:tX[?passwd]
  *         hostname:tX[@username]
+ *         hostname:tX[?passwd]
  *         hostname:tX[@username?passwd]
+ *         hostname:tX[!prompt]
+ *         hostname:tX[@username!prompt]
+ *         hostname:tX[?passwd!prompt]
+ *         hostname:tX[@username?passwd!prompt]
  *
  *    where t identifies an interface type as defined by intf_tab[] in
  *    interface.c
@@ -32,8 +34,9 @@
  *        b9u-cisco1-81.engr.sgi.com:f2/0
  *        wanbris.brisbane:B0 (BRI ISDN)
  *    If specified the username (after the @ delimiter) and/or the
- *    user-level password (after the ? delimiter) over-rides the global
- *    username and/or user-level password, as specified via -U and/or -P
+ *    user-level password (after the ? delimiter) and/or the prompt (after
+ *    the ! delimiter) over-rides the global username and/or user-level
+ *    password and/or prompt, as specified via -U and/or -P and/or -s
  *    options and applies for all occurrences of the hostname.
  */
 
@@ -45,7 +48,6 @@
 #include <sys/un.h>
 #include <netdb.h>
 #include <string.h>
-#include <errno.h>
 #include "./cisco.h"
 
 pmdaInstid	*_router;
@@ -56,10 +58,13 @@ int		n_intf = 0;
 int		refreshdelay = 120;	/* default poll every two minutes */
 char		*username = NULL;	/* username */
 char		*passwd = NULL;		/* user-level password */
+char		*prompt = ">";		/* command prompt */
 int		port = 23;
 
 extern void	cisco_init(pmdaInterface *);
 extern void	cisco_done(void);
+
+int		parse_only = 0;
 
 int
 main(int argc, char **argv)
@@ -76,7 +81,8 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
 
 #ifdef PARSE_ONLY
-    pmDebug = DBG_TRACE_APPL0 | DBG_TRACE_APPL1;
+    pmDebug = DBG_TRACE_APPL0;
+    parse_only = 1;
 #endif
 
     snprintf(helptext, sizeof(helptext), "%s%c" "cisco" "%c" "help",
@@ -84,7 +90,7 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, CISCO,
 		"cisco.log", helptext);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:h:i:l:pu:" "P:r:U:x:?", 
+    while ((c = pmdaGetOpt(argc, argv, "D:d:h:i:l:pu:" "P:r:s:U:x:?", 
 			   &dispatch, &err)) != EOF) {
 	switch (c) {
 
@@ -99,6 +105,10 @@ main(int argc, char **argv)
 			    pmProgname);
 		    err++;
 		}
+		break;
+
+	    case 's':		/* command prompt */
+		prompt = optarg;
 		break;
 
 	    case 'U':		/* username */
@@ -129,6 +139,7 @@ main(int argc, char **argv)
 	      "  -l logfile   redirect diagnostics and trace output to logfile\n"
 	      "  -P password  default user-level Cisco password\n"
 	      "  -r refresh   update metrics every refresh seconds\n"
+	      "  -s prompt    Cisco command prompt [default >]\n"
 	      "  -U username  Cisco username\n"
 	      "  -x port      telnet port [default 23]\n",
 	      stderr);		
@@ -164,7 +175,15 @@ main(int argc, char **argv)
 	char	*q;
 	char	*myusername;
 	char	*mypasswd;
+	char	*myprompt;
 
+	myprompt = strchr(p, '!');
+	if (myprompt) {
+	    /* save prompt for later */
+	    *myprompt++ = '\0';
+	}
+	else
+	    myprompt = NULL;
 	mypasswd = strchr(p, '?');
 	if (mypasswd) {
 	    /* save user-level password for later */
@@ -195,14 +214,14 @@ main(int argc, char **argv)
 	if (strcmp(intf_tab[i].type, "E") == 0) {
 	    /*
 	     * Cisco parser is case insensitive, so 'E' means "Ethernet"
-	     * and 'F' means "Fddi", need to use "Fast" here
+	     * and 'F' means "Fddi", need to use "FastEthernet" here
 	     */
 	    q++;
-	    intf[n].interface = (char *)malloc(strlen("Fast")+strlen(q)+1);
-	    if ((intf[n].interface = (char *)malloc(strlen("Fast")+strlen(q)+1)) == NULL) {
-		__pmNoMem("main.cisco", strlen("Fast")+strlen(q)+1, PM_FATAL_ERR);
+	    intf[n].interface = (char *)malloc(strlen("FastEthernet")+strlen(q)+1);
+	    if ((intf[n].interface = (char *)malloc(strlen("FastEthernet")+strlen(q)+1)) == NULL) {
+		__pmNoMem("main.cisco", strlen("FastEthernet")+strlen(q)+1, PM_FATAL_ERR);
 	    }
-	    strcpy(intf[n].interface, "Fast");
+	    strcpy(intf[n].interface, "FastEthernet");
 	    strcat(intf[n].interface, q);
 	}
 	else
@@ -216,10 +235,35 @@ main(int argc, char **argv)
 	    struct hostent *hostInfo;
 
 	    if ((hostInfo = gethostbyname(p)) == NULL) {
+#ifdef PARSE_ONLY
+		/*
+		 * for debugging, "host" may be a file ...
+		 */
+		FILE	*f;
+		if ((f = fopen(p, "r")) == NULL) {
+		    fprintf(stderr, "%s: unknown hostname or filename %s: %s\n",
+			pmProgname, argv[optind], hoststrerror());
+		    /* abandon this host (cisco) */
+		    continue;
+		}
+		else {
+		    fprintf(stderr, "%s: assuming file %s contains output from \"show int\" command\n",
+			pmProgname, p);
+
+		    cisco[i].host = p;
+		    cisco[i].username = myusername != NULL ? myusername : username;
+		    cisco[i].passwd = mypasswd != NULL ? mypasswd : passwd;
+		    cisco[i].prompt = myprompt != NULL ? myprompt : prompt;
+		    cisco[i].fin = f;
+		    cisco[i].fout = stdout;
+		    n_cisco++;
+		}
+#else
 		fprintf(stderr, "%s: unknown hostname %s: %s\n",
-			pmProgname, p, hstrerror(h_errno));
+			pmProgname, p, hoststrerror());
 		/* abandon this host (cisco) */
 		continue;
+#endif
 	    }
 	    else {
 		struct sockaddr_in *sinp = & cisco[i].ipaddr;
@@ -227,6 +271,7 @@ main(int argc, char **argv)
 		cisco[i].host = p;
 		cisco[i].username = myusername != NULL ? myusername : username;
 		cisco[i].passwd = mypasswd != NULL ? mypasswd : passwd;
+		cisco[i].prompt = myprompt != NULL ? myprompt : prompt;
 		cisco[i].fin = NULL;
 		cisco[i].fout = NULL;
 
@@ -250,7 +295,7 @@ main(int argc, char **argv)
 		if (myusername != NULL) {
 		    if (strcmp(cisco[i].username, myusername) != 0) {
 			fprintf(stderr, 
-				"%s: conflicting usernames\n(\"%s\" "
+				"%s: conflicting usernames (\"%s\" "
 				"and \"%s\") for cisco \"%s\"\n",
 				pmProgname, cisco[i].username, myusername, 
 				cisco[i].host);
@@ -267,9 +312,26 @@ main(int argc, char **argv)
 		if (mypasswd != NULL) {
 		    if (strcmp(cisco[i].passwd, mypasswd) != 0) {
 			fprintf(stderr, 
-				"%s: conflicting user-level passwords\n(\"%s\" "
+				"%s: conflicting user-level passwords (\"%s\" "
 				"and \"%s\") for cisco \"%s\"\n",
 				pmProgname, cisco[i].passwd, mypasswd, 
+				cisco[i].host);
+			exit(1);
+		    }
+		}
+	    }
+	    if (cisco[i].prompt == NULL) {
+		if (myprompt != NULL)
+		    /* prompt on 2nd or later interface ... applies to all */
+		    cisco[i].prompt = myprompt;
+	    }
+	    else {
+		if (myprompt != NULL) {
+		    if (strcmp(cisco[i].prompt, myprompt) != 0) {
+			fprintf(stderr, 
+				"%s: conflicting user-level prompts (\"%s\" "
+				"and \"%s\") for cisco \"%s\"\n",
+				pmProgname, cisco[i].prompt, myprompt, 
 				cisco[i].host);
 			exit(1);
 		    }

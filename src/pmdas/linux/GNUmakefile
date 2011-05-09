@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.
-# All Rights Reserved.
+# Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -11,10 +11,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
 
 TOPDIR = ../../..
@@ -28,9 +24,9 @@ PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "linux	60	dso	linux_init	$(PMDADIR)/$(LIBTARGET)"
 
 CFILES		= pmda.c proc_stat.c proc_meminfo.c proc_loadavg.c \
-		  proc_net_dev.c proc_interrupts.c filesys.c \
+		  proc_net_dev.c interrupts.c filesys.c \
 		  swapdev.c proc_net_rpc.c proc_pid.c proc_partitions.c \
-		  ttyname.c proc_net_sockstat.c proc_runq.c \
+		  getinfo.c proc_net_sockstat.c proc_runq.c \
 		  proc_net_snmp.c proc_scsi.c proc_fs_xfs.c \
 		  proc_cpuinfo.c proc_net_tcp.c \
 		  proc_slabinfo.c sem_limits.c msg_limits.c shm_limits.c \
@@ -39,8 +35,8 @@ CFILES		= pmda.c proc_stat.c proc_meminfo.c proc_loadavg.c \
 		  dynamic.c cgroups.c
 
 HFILES		= proc_stat.h proc_meminfo.h proc_loadavg.h \
-		  proc_net_dev.h proc_interrupts.h filesys.h swapdev.h \
-		  proc_net_rpc.h proc_pid.h proc_partitions.h \
+		  proc_net_dev.h interrupts.h filesys.h swapdev.h \
+		  proc_net_rpc.h proc_pid.h proc_partitions.h getinfo.h \
 		  proc_net_sockstat.h proc_runq.h proc_net_snmp.h \
 		  proc_scsi.h proc_fs_xfs.h \
 		  proc_cpuinfo.h proc_net_tcp.h proc_slabinfo.h \
@@ -86,13 +82,4 @@ default_pcp : default
 install_pcp : install
 
 domain.h: ../../pmns/stdpmid
-	rm -f domain.h
-	@echo "/*" >domain.h
-	@echo " * built from $<" >>domain.h
-	@echo " */" >>domain.h
-	@$(PCP_AWK_PROG) <$< '\
-$$1=="#define" && $$2 == "$(DOMAIN)" { print "#define $(DOMAIN) " $$3 >>"$@"; found++ }\
-END	{ if (found == 0) { print "Botch: no #define for domain $(DOMAIN) in $<";  exit(1) }\
-          if (found > 1) { print "Botch: multiple #defines for domain $(DOMAIN) in $<"; print "... see $@ for details"; exit(1) }\
-	  exit(0)\
-	}'
+	$(DOMAIN_MAKERULE)

@@ -17,8 +17,9 @@
 
 #include <stdarg.h>
 #include <sys/stat.h> 
-#include <ctype.h>
+#include <inttypes.h>
 #include <limits.h>
+#include <ctype.h>
 #include <math.h>
 
 #include "pmapi.h"
@@ -196,7 +197,8 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 
     oldstream = freopen(logname, "w", oldstream);
     if (oldstream == NULL) {
-	int	save_errno = errno;	/* need for error message */
+	int	save_error = oserror();	/* need for error message */
+
 	close(oldfd);
 	if (dup(dupoldfd) != oldfd)
 	    /* fd juggling failed! */
@@ -213,7 +215,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 	}
 	*status = 0;
 	pmprintf("%s: cannot open log \"%s\" for writing : %s\n",
-		progname, logname, strerror(save_errno));
+		progname, logname, strerror(save_error));
 	pmflush();
     }
     else {
@@ -332,6 +334,45 @@ pmNumberStr(double value)
     return buf;
 }
 
+const char *
+pmEventFlagsStr(int flags)
+{
+    /*
+     * buffer needs to be long enough to hold each flag name
+     * (excluding missed) plus the separation commas, so
+     * point,start,end,id,parent (even though it is unlikely that
+     * both start and end would be set for the one event record)
+     */
+    static char buffer[64];
+    int started = 0;
+
+    if (flags & PM_EVENT_FLAG_MISSED)
+	return strcpy(buffer, "missed");
+
+    buffer[0] = '\0';
+    if (flags & PM_EVENT_FLAG_POINT) {
+	if (started++) strcat(buffer, ",");
+	strcat(buffer, "point");
+    }
+    if (flags & PM_EVENT_FLAG_START) {
+	if (started++) strcat(buffer, ",");
+	strcat(buffer, "start");
+    }
+    if (flags & PM_EVENT_FLAG_END) {
+	if (started++) strcat(buffer, ",");
+	strcat(buffer, "end");
+    }
+    if (flags & PM_EVENT_FLAG_ID) {
+	if (started++) strcat(buffer, ",");
+	strcat(buffer, "id");
+    }
+    if (flags & PM_EVENT_FLAG_PARENT) {
+	if (started++) strcat(buffer, ",");
+	strcat(buffer, "parent");
+    }
+    return buffer;
+}
+
 void
 __pmDumpResult(FILE *f, const pmResult *resp)
 {
@@ -408,6 +449,59 @@ __pmDumpResult(FILE *f, const pmResult *resp)
     pmDebug = saveDebug;
 }
 
+static void
+print_event_summary(FILE *f, const pmValue *val)
+{
+    pmEventArray	*eap = (pmEventArray *)val->value.pval;
+    char		*base;
+    struct timeval	stamp;
+    __pmTimeval		*tvp;
+    int			nrecords;
+    int			nmissed = 0;
+    int			r;	/* records */
+    int			p;	/* parameters in a record ... */
+    pmEventRecord	*erp;
+    pmEventParameter	*epp;
+
+    nrecords = eap->ea_nrecords;
+    base = (char *)&eap->ea_record[0];
+    tvp = (__pmTimeval *)base;
+    stamp.tv_sec = tvp->tv_sec;
+    stamp.tv_usec = tvp->tv_usec;
+    /* walk packed event record array */
+    for (r = 0; r < eap->ea_nrecords-1; r++) {
+	erp = (pmEventRecord *)base;
+	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
+	if (erp->er_flags & PM_EVENT_FLAG_MISSED) {
+	    nmissed += erp->er_nparams;
+	    continue;
+	}
+	for (p = 0; p < erp->er_nparams; p++) {
+	    epp = (pmEventParameter *)base;
+	    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);
+	}
+    }
+    fprintf(f, "[%d event record", nrecords);
+    if (nrecords != 1)
+	fputc('s', f);
+    if (nmissed > 0)
+	fprintf(f, " (%d missed)", nmissed);
+    if (nrecords > 0) {
+	fprintf(f, " timestamp");
+	if (nrecords > 1)
+	    fputc('s', f);
+	fputc(' ', f);
+	__pmPrintStamp(f, &stamp);
+	if (eap->ea_nrecords > 1) {
+	    fprintf(f, "...");
+	    tvp = (__pmTimeval *)base;
+	    stamp.tv_sec = tvp->tv_sec;
+	    stamp.tv_usec = tvp->tv_usec;
+	    __pmPrintStamp(f, &stamp);
+	}
+    }
+    fputc(']', f);
+}
 
 /* Print single pmValue. */
 void
@@ -423,7 +517,7 @@ pmPrintValue(FILE *f,			/* output stream */
     char        *p;
     int		sts;
 
-    if (type != PM_TYPE_UNKNOWN) {
+    if (type != PM_TYPE_UNKNOWN && type != PM_TYPE_EVENT) {
 	sts = pmExtractValue(valfmt, val, type, &a, type);
 	if (sts < 0)
 	    type = PM_TYPE_UNKNOWN;
@@ -439,11 +533,11 @@ pmPrintValue(FILE *f,			/* output stream */
         break;
 
     case PM_TYPE_64:
-        fprintf(f, "%*lli", minwidth, (long long)a.ll);
+        fprintf(f, "%*"PRIi64, minwidth, a.ll);
         break;
 
     case PM_TYPE_U64:
-        fprintf(f, "%*llu", minwidth, (unsigned long long)a.ull);
+        fprintf(f, "%*"PRIu64, minwidth, a.ull);
         break;
 
     case PM_TYPE_FLOAT:
@@ -484,7 +578,7 @@ pmPrintValue(FILE *f,			/* output stream */
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(__uint64_t)) {
 		__uint64_t	i;
 		memcpy((void *)&i, (void *)&val->value.pval->vbuf, sizeof(__uint64_t));
-		fprintf(f, "%*llu", minwidth, (unsigned long long)i);
+		fprintf(f, "%*"PRIu64, minwidth, i);
 		done = 1;
 	    }
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(double)) {
@@ -546,12 +640,17 @@ pmPrintValue(FILE *f,			/* output stream */
 	    }
 	}
 	if (type != PM_TYPE_UNKNOWN)
-	    free(a.vp);
+	    free(a.vbp);
+	break;
+
+    case PM_TYPE_EVENT:		/* not much we can do about minwidth */
+	print_event_summary(f, val);
 	break;
 
     case PM_TYPE_NOSUPPORT:
         fprintf(f, "pmPrintValue: bogus value, metric Not Supported\n");
 	break;
+
     default:
         fprintf(f, "pmPrintValue: unknown value type=%d\n", type);
     }
@@ -562,7 +661,7 @@ __pmNoMem(const char *where, size_t size, int fatal)
 {
     __pmNotifyErr(fatal ? LOG_ERR : LOG_WARNING,
 			"%s: malloc(%d) failed: %s",
-			where, (int)size, strerror(errno));
+			where, (int)size, osstrerror());
     if (fatal)
 	exit(1);
 }
@@ -646,6 +745,12 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
 	    break;
 	case PM_TYPE_AGGREGATE:
 	    type = "aggregate";
+	    break;
+	case PM_TYPE_AGGREGATE_STATIC:
+	    type = "static aggregate";
+	    break;
+	case PM_TYPE_EVENT:
+	    type = "event record array";
 	    break;
 	default:
 	    type = unknownVal;
@@ -818,7 +923,7 @@ pmfstate(int state)
 		char * xconfirm = pmGetConfig("PCP_XCONFIRM_PROG");
 		if (access(__pmNativePath(xconfirm), X_OK) < 0) {
 		    fprintf(stderr, "%s: using stderr - cannot access %s: %s\n",
-			    pmProgname, xconfirm, strerror(errno));
+			    pmProgname, xconfirm, osstrerror());
 		}
 		else
 		    errtype = PM_USEDIALOG;
@@ -843,7 +948,7 @@ vpmprintf(const char *msg, va_list arg)
 	    (fd = open(fname, O_RDWR|O_APPEND|O_CREAT|O_EXCL, 0600)) < 0 ||
 	    (fptr = fdopen(fd, "a")) == NULL) {
 	    fprintf(stderr, "%s: vpmprintf: failed to create \"%s\": %s\n",
-		pmProgname, fname, strerror(errno));
+		pmProgname, fname, osstrerror());
 	    fprintf(stderr, "vpmprintf msg:\n");
 	    if (fd != -1)
 		close(fd);
@@ -888,7 +993,7 @@ pmflush(void)
 	if (state == PM_USEFILE) {
 	    if ((eptr = fopen(ferr, "a")) == NULL) {
 		fprintf(stderr, "pmflush: cannot append to file '%s' (from "
-			"$PCP_STDERR): %s\n", ferr, strerror(errno));
+			"$PCP_STDERR): %s\n", ferr, osstrerror());
 		state = PM_USESTDERR;
 	    }
 	}
@@ -899,7 +1004,7 @@ pmflush(void)
 		sts = write(fileno(stderr), outbuf, len);
 		if (sts != len) {
 		    fprintf(stderr, "pmflush: write() failed: %s\n", 
-			strerror(errno));
+			osstrerror());
 		}
 		sts = 0;
 	    }
@@ -912,8 +1017,8 @@ pmflush(void)
 		    (msgsize > 80 ? "-useslider" : ""));
 	    if (system(outbuf) < 0) {
 		fprintf(stderr, "%s: system failed: %s\n", pmProgname,
-			strerror(errno));
-		sts = -errno;
+			osstrerror());
+		sts = -oserror();
 	    }
 	    break;
 	case PM_USEFILE:
@@ -922,7 +1027,7 @@ pmflush(void)
 		sts = write(fileno(eptr), outbuf, len);
 		if (sts != len) {
 		    fprintf(stderr, "pmflush: write() failed: %s\n", 
-			strerror(errno));
+			osstrerror());
 		}
 		sts = 0;
 	    }
@@ -1202,7 +1307,7 @@ __pmProcessRunTimes(double *usr, double *sys)
 #endif
 
 #if !defined(IS_MINGW)
-int
+pid_t
 __pmProcessCreate(char **argv, int *infd, int *outfd)
 {
     int		in[2];
@@ -1210,9 +1315,9 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
     pid_t	pid;
 
     if (pipe1(in) < 0)
-	return -errno;
+	return -oserror();
     if (pipe1(out) < 0)
-	return -errno;
+	return -oserror();
 
     pid = fork();
     if (pid < 0) {
@@ -1240,10 +1345,10 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	    close(out[1]);
 	}
 	execvp(argv[0], argv);
-	fprintf(stderr, "execvp: %s\n", strerror(errno));
+	fprintf(stderr, "execvp: %s\n", osstrerror());
 	exit(1);
     }
-    return 0;
+    return pid;
 }
 
 int

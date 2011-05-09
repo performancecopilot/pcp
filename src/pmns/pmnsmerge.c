@@ -14,10 +14,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <ctype.h>
@@ -107,7 +103,7 @@ addpmns(__pmnsNode *base, char *name, __pmnsNode *p)
     char	*tail;
     ptrdiff_t	nch;
     __pmnsNode	*np;
-    __pmnsNode	*lastp;
+    __pmnsNode	*lastp = NULL;
 
     for (tail = name; *tail && *tail != '.'; tail++)
 	;
@@ -268,7 +264,7 @@ Options:\n\
     __pmSetSignalHandler(SIGTERM, SIG_IGN);
 
     if ((outf = fopen(argv[argc-1], "w+")) == NULL) {
-	fprintf(stderr, "%s: Error: cannot create output PMNS file \"%s\": %s\n", pmProgname, argv[argc-1], strerror(oserror()));
+	fprintf(stderr, "%s: Error: cannot create output PMNS file \"%s\": %s\n", pmProgname, argv[argc-1], osstrerror());
 	exit(1);
     }
 

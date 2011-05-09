@@ -10,16 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 #include "pmapi.h"
 #include "impl.h"
 
@@ -148,7 +143,7 @@ main(int argc, char **argv)
     if (sts < 0) {
 	if (verbose) {
 	    fprintf(stderr, "%s: Failed to create env string: %s\n",
-		pmProgname, strerror(errno));
+		pmProgname, osstrerror());
         }
 	exit(EXIT_STS_UNIXERR);
     }
@@ -156,7 +151,7 @@ main(int argc, char **argv)
     if (sts != 0) {
 	if (verbose) {
 	    fprintf(stderr, "%s: Failed to set PMCD_CONNECT_TIMEOUT: %s\n",
-		pmProgname, strerror(errno));
+		pmProgname, osstrerror());
         }
 	exit(EXIT_STS_UNIXERR);
     }

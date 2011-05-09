@@ -40,15 +40,16 @@ _is_archive()
     case "$PCP_PLATFORM" in 
     irix)
 	dd ibs=1 count=7 if="$1" 2>/dev/null | od -X | $PCP_AWK_PROG '
-NR == 1 && $2 == "00000084" && $3 == "50052600" { exit 0 }
-					    { exit 1 }'
+BEGIN						{ sts = 1 }
+NR == 1 && $2 == "00000084" && $3 == "50052600" { sts = 0 }
+END						{ exit sts }'
 	;;
-    linux)
+    linux|darwin)
 	dd ibs=1 count=7 if="$1" 2>/dev/null | od -x | $PCP_AWK_PROG '
-NR == 1 && NF == 5 && $2 == "0000" && $3 == "0084" && $4 == "5005" && $5 == "2600" { exit 0 }
-NR == 1 && NF == 5 && $2 == "0000" && $3 == "8400" && $4 == "0550" && $5 == "0026" { exit 0 }
-
-						{ exit 1 }'
+BEGIN						{ sts = 1 }
+NR == 1 && NF == 5 && $2 == "0000" && $3 == "0084" && $4 == "5005" && $5 == "2600" { sts = 0 }
+NR == 1 && NF == 5 && $2 == "0000" && $3 == "8400" && $4 == "0550" && $5 == "0026" { sts = 0 }
+END						{ exit sts }'
 	;;
     esac
     return $?

@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -23,11 +19,10 @@
 #include "pmda.h"
 #include "proc_sys_fs.h"
 
-static int err_reported = 0;
-
 int
 refresh_proc_sys_fs(proc_sys_fs_t *proc_sys_fs)
 {
+    static int err_reported;
     FILE *filesp = NULL;
     FILE *inodep = NULL;
     FILE *dentryp = NULL;
@@ -37,10 +32,10 @@ refresh_proc_sys_fs(proc_sys_fs_t *proc_sys_fs)
     if ( (filesp  = fopen("/proc/sys/fs/file-nr", "r")) == (FILE *)NULL ||
 	 (inodep  = fopen("/proc/sys/fs/inode-state", "r")) == (FILE *)NULL ||
 	 (dentryp = fopen("/proc/sys/fs/dentry-state", "r")) == (FILE *)NULL) {
-	proc_sys_fs->errcode = -errno;
+	proc_sys_fs->errcode = -oserror();
 	if (err_reported == 0)
 	    fprintf(stderr, "Warning: vfs metrics are not available : %s\n",
-		    strerror(errno));
+		    osstrerror());
     }
     else {
 	proc_sys_fs->errcode = 0;
@@ -73,7 +68,7 @@ refresh_proc_sys_fs(proc_sys_fs_t *proc_sys_fs)
     if (dentryp)
 	fclose(dentryp);
 
-    if (err_reported == 0)
+    if (!err_reported)
 	err_reported = 1;
 
     if (proc_sys_fs->errcode == 0)

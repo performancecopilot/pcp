@@ -35,7 +35,7 @@ PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 PMCHART	= $(PCP_VAR_DIR)/config/pmchart
 PMIE	= $(PCP_VAR_DIR)/config/pmie/$(IAM)
 
-LDIRT	= domain.h *.log *.dir *.pag so_locations a.out parse.? probe.o \
+LDIRT	= domain.h cisco.log *.dir *.pag so_locations a.out parse.? probe.o \
 	$(TARGETS)
 
 default:	build-me
@@ -76,16 +76,7 @@ probe$(EXECSUFFIX):	probe.o interface.o telnet.o
 cisco.o:	domain.h
 
 domain.h:	../../pmns/stdpmid
-	rm -f domain.h
-	@echo "/*" >domain.h
-	@echo " * built from $<" >>domain.h
-	@echo " */" >>domain.h
-	@$(PCP_AWK_PROG) <$< '\
-$$1=="#define" && $$2 == "$(DOMAIN)" { print "#define $(DOMAIN) " $$3 >>"$@"; found++ }\
-END	{ if (found == 0) { print "Botch: no #define for domain $(DOMAIN) in $<";  exit(1) }\
-          if (found > 1) { print "Botch: multiple #defines for domain $(DOMAIN) in $<"; print "... see $@ for details"; exit(1) }\
-	  exit(0)\
-	}'
+	$(DOMAIN_MAKERULE)
 
 default_pcp:	default
 

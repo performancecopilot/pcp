@@ -14,10 +14,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <ctype.h>
@@ -36,7 +32,7 @@ delpmns(__pmnsNode *base, char *name)
     char	*tail;
     ptrdiff_t	nch;
     __pmnsNode	*np;
-    __pmnsNode	*lastp;
+    __pmnsNode	*lastp = NULL;
 
     for (tail = name; *tail && *tail != '.'; tail++)
 	;
@@ -180,7 +176,7 @@ main(int argc, char **argv)
     snprintf(outfname, sizeof(outfname), "%s.new", pmnsfile);
     if ((outf = fopen(outfname, "w")) == NULL) {
 	fprintf(stderr, "%s: Error: cannot open PMNS file \"%s\" for writing: %s\n",
-	    pmProgname, outfname, strerror(errno));
+	    pmProgname, outfname, osstrerror());
 	exit(1);
     }
     if (stat(pmnsfile, &sbuf) == 0) {
@@ -191,7 +187,7 @@ main(int argc, char **argv)
 #if defined(HAVE_CHOWN)
 	if (chown(outfname, sbuf.st_uid, sbuf.st_gid) < 0)
 		fprintf(stderr, "%s: chown(%s, ...) failed: %s\n",
-		    pmProgname, outfname, strerror(errno));
+		    pmProgname, outfname, osstrerror());
 #endif
     }
 
@@ -205,7 +201,7 @@ main(int argc, char **argv)
     if (sts == 0) {
 	/* rename the ascii PMNS */
 	if (rename2(outfname, pmnsfile) == -1) {
-	    fprintf(stderr, "%s: cannot rename \"%s\" to \"%s\": %s\n", pmProgname, outfname, pmnsfile, strerror(errno));
+	    fprintf(stderr, "%s: cannot rename \"%s\" to \"%s\": %s\n", pmProgname, outfname, pmnsfile, osstrerror());
 	    /* remove _both_ the ascii and binary versions of the new PMNS */
 	    unlink(outfname);
 	    strcat(outfname, ".bin");
@@ -223,11 +219,11 @@ main(int argc, char **argv)
 #if defined(HAVE_CHOWN)
 	    if (chown(outfname, sbuf.st_uid, sbuf.st_gid) < 0)
 		fprintf(stderr, "%s: chown(%s, ...) failed: %s\n",
-		    pmProgname, outfname, strerror(errno));
+		    pmProgname, outfname, osstrerror());
 #endif
 	}
 	if (rename2(outfname, pmnsfile) == -1) {
-	    fprintf(stderr, "%s: cannot rename \"%s\" to \"%s\": %s\n", pmProgname, outfname, pmnsfile, strerror(errno));
+	    fprintf(stderr, "%s: cannot rename \"%s\" to \"%s\": %s\n", pmProgname, outfname, pmnsfile, osstrerror());
 	    /*
 	     * ascii file has been updated, remove the old binary file
 	     * to avoid inconsistency between the ascii and binary PMNS

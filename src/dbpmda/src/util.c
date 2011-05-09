@@ -10,16 +10,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <string.h>
 #include "./dbpmda.h"
 #include "./lex.h"
 #include "./gram.h"
@@ -90,7 +82,7 @@ strcons(char *s1, char *s2)
 
     buf = (char *)malloc(i);
     if (buf == NULL) {
-	fprintf(stderr, "strcons: malloc failed: %s\n", strerror(errno));
+	fprintf(stderr, "strcons: malloc failed: %s\n", osstrerror());
 	exit(1);
     }
 
@@ -107,7 +99,7 @@ strnum(int n)
 
     buf = (char *)malloc(13);
     if (buf == NULL) {
-	fprintf(stderr, "strnum: malloc failed: %s\n", strerror(errno));
+	fprintf(stderr, "strnum: malloc failed: %s\n", osstrerror());
 	exit(1);
     }
     sprintf(buf, "%d", n);
@@ -130,7 +122,7 @@ addmetriclist(pmID pmid)
         numpmid = param.numpmid;
 	pmidlist = (pmID *)realloc(pmidlist, numpmid * sizeof(pmidlist[0]));
 	if (pmidlist == NULL) {
-	    fprintf(stderr, "addmetriclist: realloc failed: %s\n", strerror(errno));
+	    fprintf(stderr, "addmetriclist: realloc failed: %s\n", osstrerror());
 	    exit(1);
 	}
     }
@@ -161,7 +153,7 @@ addarglist(char *arg)
         argc = param.argc;
 	argv = (char **)realloc(argv, argc * sizeof(pmProgname));
 	if (argv == NULL) {
-	    fprintf(stderr, "addarglist: realloc failed: %s\n", strerror(errno));
+	    fprintf(stderr, "addarglist: realloc failed: %s\n", osstrerror());
 	    exit(1);
 	}
     }
@@ -182,7 +174,7 @@ watch(char *fname)
 	fname, fname);
     
     if (system(cmd) != 0)
-	fprintf(stderr, "watch cmd: %s failed: %s\n", cmd, pmErrStr(-errno));
+	fprintf(stderr, "watch cmd: %s failed: %s\n", cmd, pmErrStr(-oserror()));
 }
 
 void
@@ -438,18 +430,18 @@ dostatus(void)
             printf("%s\n", pmnsfile);
     }
 
-    if (myPmdaName == NULL || connmode == PDU_NOT)
+    if (myPmdaName == NULL || connmode == NO_CONN)
 	printf("PMDA:                   none\n");
     else {
 	printf("PMDA:                   %s\n", myPmdaName);
 	printf("Connection:             ");
 	switch (connmode) {
-	case PDU_DSO:
+	case CONN_DSO:
 	    printf("dso\n");
 	    printf("DSO Interface Version:  %d\n", dispatch.comm.pmda_interface);
 	    printf("PMDA PMAPI Version:     %d\n", dispatch.comm.pmapi_version);
 	    break;
-	case PDU_BINARY:
+	case CONN_DAEMON:
 	    printf("daemon\n");
 	    printf("PMDA PMAPI Version:     ");
 	    i = __pmVersionIPC(infd);
@@ -515,7 +507,7 @@ _dbDumpResult(FILE *f, pmResult *resp, pmDesc *desc_list)
     int		n;
     char	*p;
 
-    fprintf(f,"pmResult dump from 0x%p timestamp: %d.%06d ",
+    fprintf(f,"pmResult dump from " PRINTF_P_PFX "%p timestamp: %d.%06d ",
         resp, (int)resp->timestamp.tv_sec, (int)resp->timestamp.tv_usec);
     __pmPrintStamp(f, &resp->timestamp);
     fprintf(f, " numpmid: %d\n", resp->numpmid);

@@ -87,7 +87,7 @@ An inference engine that can evaluate predicate-action rules to perform
 alarms and automate system management tasks.
 .TP
 .B pminfo
-Interrogate specific performance metrics and the meta data that
+Interrogate specific performance metrics and the metadata that
 describes them.
 .TP
 .B pmlogger
@@ -128,6 +128,43 @@ The
 and
 .B \-h
 options are mutually exclusive.
+.RS
+.PP
+.I archive
+is either the base name common to all of the physical files created
+by an instance of
+.BR pmlogger (1),
+or any one of the physical files, e.g.
+.I myarchive
+(base name) or
+.IB myarchive .meta
+(the metadata file) or
+.IB myarchive .index
+(the temporal index) or
+.IB myarchive .0
+(the first data volume of
+.IR archive )
+or
+.IB myarchive .0.bz2
+or
+.IB myarchive .0.bz
+(the first data volume compressed with
+.BR bzip2 (1))
+or
+.IB myarchive .0.gz
+or
+.IB myarchive .0.Z
+or
+.IB myarchive .0.z
+(the first data volume compressed with
+.BR gzip (1)),
+.IB myarchive .1
+or
+.IB myarchive .3.bz2
+or
+.IB myarchive .42.gz
+etc.
+.RE
 .TP
 .BI "\-a " archive\f1[ , archive , \f1...]
 An alternate form of

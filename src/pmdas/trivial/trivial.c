@@ -48,6 +48,7 @@ static pmdaMetric metrictab[] = {
 };
 
 static char	mypath[MAXPATHLEN];
+static int	isDSO = 1;		/* ==0 if I am a daemon */
 
 /*
  * callback provided to pmdaFetch
@@ -72,6 +73,16 @@ trivial_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 void 
 trivial_init(pmdaInterface *dp)
 {
+    if (isDSO) {
+	int sep = __pmPathSeparator();
+	snprintf(mypath, sizeof(mypath), "%s%c" "trivial" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+	pmdaDSO(dp, PMDA_INTERFACE_2, "trivial DSO", mypath);
+    }
+
+    if (dp->status != 0)
+	return;
+
     pmdaSetFetchCallBack(dp, trivial_fetchCallBack);
 
     pmdaInit(dp, NULL, 0, 
@@ -99,6 +110,7 @@ main(int argc, char **argv)
     int			sep = __pmPathSeparator();
     pmdaInterface	desc;
 
+    isDSO = 0;
     __pmSetProgname(argv[0]);
 
     snprintf(mypath, sizeof(mypath), "%s%c" "trivial" "%c" "help",

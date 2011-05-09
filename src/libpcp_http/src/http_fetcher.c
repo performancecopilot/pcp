@@ -406,6 +406,7 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 			}
 		else if(selectRet == -1)
 			{
+			setoserror(neterror());
 			close(sock);
 			free(pageBuf);
 			errorSource = ERRNO;
@@ -415,6 +416,7 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 		ret = recv(sock, pageBuf + bytesRead, contentLength, 0);
 		if(ret == -1)
 			{
+			setoserror(neterror());
 			close(sock);
 			free(pageBuf);
 			errorSource = ERRNO;
@@ -597,9 +599,9 @@ int http_parseFilename(const char *url, char **filename)
 void http_perror(const char *string)
 	{
 	if(errorSource == ERRNO)
-		fprintf(stderr, "%s: %s\n", string, strerror(errno));
+		fprintf(stderr, "%s: %s\n", string, osstrerror());
 	else if(errorSource == H_ERRNO)
-		fprintf(stderr, "%s: %s\n", string, hstrerror(h_errno));
+		fprintf(stderr, "%s: %s\n", string, hoststrerror());
 	else if(errorSource == FETCHER_ERROR)
 		{
 		const char *stringIndex;
@@ -653,13 +655,9 @@ int http_getTimeoutError()
 const char *http_strerror()
 	{
 	if(errorSource == ERRNO)
-		return strerror(errno);
+		return osstrerror();
 	else if(errorSource == H_ERRNO)
-#ifdef HAVE_HSTRERROR
-		return hstrerror(h_errno);
-#else
-		return http_errlist[HF_HERROR];
-#endif
+		return hoststrerror();
 	else if(errorSource == FETCHER_ERROR)
 		{
 		if(strstr(http_errlist[http_errno], "%d") == NULL)
@@ -720,10 +718,20 @@ int _http_read_header(int sock, char *headerPtr)
 			errorInt = timeout;
 			return -1;
 			}
-		else if(selectRet == -1) { errorSource = ERRNO; return -1; }
+		else if(selectRet == -1)
+			{
+			setoserror(neterror());
+			errorSource = ERRNO;
+			return -1;
+			}
 
 		ret = recv(sock, headerPtr, 1, 0);
-		if(ret == -1) { errorSource = ERRNO; return -1; }
+		if(ret == -1)
+			{
+			setoserror(neterror());
+			errorSource = ERRNO;
+			return -1;
+			}
 		bytesRead++;
 
 		if(*headerPtr == '\r')			/* Ignore CR */

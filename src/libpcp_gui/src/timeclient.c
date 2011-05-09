@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 #include "pmapi.h"
 #include "impl.h"
@@ -31,7 +27,7 @@ pmServerExec(int fd, int livemode)
     else
 	argv[1] = "-a";	/* -a for archives */
 
-    if (__pmProcessCreate(argv, &in, &out) == (pid_t)-1) {
+    if (__pmProcessCreate(argv, &in, &out) < 0) {
 	__pmCloseSocket(fd);
 	return -1;
     }
@@ -39,7 +35,7 @@ pmServerExec(int fd, int livemode)
     if (read(in, &portname, sizeof(portname)) < 0)
 	port = -1;
     else if (sscanf(portname, "port=%d", &port) != 1) {
-	errno = EPROTO;
+	setoserror(EPROTO);
 	port = -1;
     }
     close(in);
@@ -65,31 +61,35 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
     myaddr.sin_family = AF_INET;
     myaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     myaddr.sin_port = htons(port);
-    if ((sts = connect(fd, (struct sockaddr *)&myaddr, sizeof(myaddr))) < 0)
+    if ((sts = connect(fd, (struct sockaddr *)&myaddr, sizeof(myaddr))) < 0) {
+	setoserror(neterror());
 	goto error;
+    }
 
     /*
      * Write the packet, then wait for an ACK.
      */
     sts = send(fd, (const void *)pkt, pkt->length, 0);
     if (sts < 0) {
+	setoserror(neterror());
 	goto error;
     } else if (sts != pkt->length) {
-	errno = EMSGSIZE;
+	setoserror(EMSGSIZE);
 	goto error;
     }
     ack = (pmTime *)buffer;
     sts = recv(fd, buffer, sizeof(buffer), 0);
     if (sts < 0) {
+	setoserror(neterror());
 	goto error;
     } else if (sts != ack->length) {
-	errno = EMSGSIZE;
+	setoserror(EMSGSIZE);
 	goto error;
     } else if (ack->command != PM_TCTL_ACK) {
-	errno = EPROTO;
+	setoserror(EPROTO);
 	goto error;
     } else if (ack->source != pkt->source) {
-	errno = ENOSYS;
+	setoserror(ENOSYS);
 	goto error;
     }
     return 0;
@@ -122,7 +122,7 @@ int
 pmTimeDisconnect(int fd)
 {
     if (fd < 0) {
-	errno = EINVAL;
+	setoserror(EINVAL);
 	return -1;
     }
     __pmCloseSocket(fd);
@@ -133,13 +133,17 @@ int
 pmTimeSendAck(int fd, struct timeval *tv)
 {
     pmTime data;
+    int sts;
 
     memset(&data, 0, sizeof(data));
     data.magic = PMTIME_MAGIC;
     data.length = sizeof(data);
     data.command = PM_TCTL_ACK;
     data.position = *tv;
-    return send(fd, (const void *)&data, sizeof(data), 0);
+    sts = send(fd, (const void *)&data, sizeof(data), 0);
+    if (sts < 0)
+	setoserror(neterror());
+    return sts;
 }
 
 int
@@ -154,9 +158,10 @@ pmTimeShowDialog(int fd, int show)
     data.command = show ? PM_TCTL_GUISHOW : PM_TCTL_GUIHIDE;
     sts = send(fd, (const void *)&data, sizeof(data), 0);
     if (sts >= 0 && sts != sizeof(data)) {
-	errno = EMSGSIZE;
+	setoserror(EMSGSIZE);
 	sts = -1;
-    }
+    } else if (sts < 0)
+	setoserror(neterror());
     return sts;
 }
 
@@ -169,15 +174,19 @@ pmTimeRecv(int fd, pmTime **datap)
     memset(k, 0, sizeof(pmTime));
     sts = recv(fd, (void *)k, sizeof(pmTime), 0);
     if (sts >= 0 && sts != sizeof(pmTime)) {
-	errno = EMSGSIZE;
+	setoserror(EMSGSIZE);
 	sts = -1;
+    } else if (sts < 0) {
+	setoserror(neterror());
     } else if (k->length > sizeof(pmTime)) {	/* double dipping */
 	remains = k->length - sizeof(pmTime);
 	*datap = k = realloc(k, k->length);
 	sts = recv(fd, (char *)k + sizeof(pmTime), remains, 0);
 	if (sts >= 0 && sts != remains) {
-	    errno = E2BIG;
+	    setoserror(E2BIG);
 	    sts = -1;
+	} else if (sts < 0) {
+	    setoserror(neterror());
 	}
     }
     if (sts < 0)

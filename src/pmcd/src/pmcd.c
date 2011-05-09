@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmcd.h"
@@ -360,7 +356,8 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 
     fd = __pmCreateSocket();
     if (fd < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) socket: %s\n", port, ipAddr, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) socket: %s\n",
+		port, ipAddr, netstrerror());
 	return -1;
     }
     if (fd > maxClientFd)
@@ -369,13 +366,31 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 
     /* Ignore dead client connections */
     one = 1;
-    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&one, (mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) setsockopt(SO_REUSEADDR): %s\n", port, ipAddr, strerror(errno));
+#ifndef IS_MINGW
+    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
+		(mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_ERR,
+		"OpenRequestSocket(%d, 0x%x) setsockopt(SO_REUSEADDR): %s\n",
+		port, ipAddr, netstrerror());
+	goto fail;
     }
+#else
+    if (setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
+		(mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_ERR,
+		"OpenRequestSocket(%d,0x%x) setsockopt(EXCLUSIVEADDRUSE): %s\n",
+		port, ipAddr, netstrerror());
+	goto fail;
+    }
+#endif
 
     /* and keep alive please - pv 916354 bad networks eat fds */
-    if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one, (mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) setsockopt(SO_KEEPALIVE): %s\n", port, ipAddr, strerror(errno));
+    if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one,
+		(mysocklen_t)sizeof(one)) < 0) {
+	__pmNotifyErr(LOG_ERR,
+		"OpenRequestSocket(%d, 0x%x) setsockopt(SO_KEEPALIVE): %s\n",
+		port, ipAddr, netstrerror());
+	goto fail;
     }
 
     memset(&myAddr, 0, sizeof(myAddr));
@@ -383,21 +398,26 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     myAddr.sin_addr.s_addr = ipAddr;
     myAddr.sin_port = htons(port);
     sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
-    if (sts < 0){
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) bind: %s\n", port, ipAddr, strerror(errno));
-	if (errno == EADDRINUSE)
+    if (sts < 0) {
+	sts = neterror();
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) bind: %s\n",
+		port, ipAddr, netstrerror());
+	if (sts == EADDRINUSE)
 	    __pmNotifyErr(LOG_ERR, "pmcd may already be running\n");
-	__pmCloseSocket(fd);
-	return -1;
+	goto fail;
     }
 
     sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) listen: %s\n", port, ipAddr, strerror(errno));
-	__pmCloseSocket(fd);
-	return -1;
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) listen: %s\n",
+		port, ipAddr, netstrerror());
+	goto fail;
     }
     return fd;
+
+fail:
+    __pmCloseSocket(fd);
+    return -1;
 }
 
 extern int DoFetch(ClientInfo *, __pmPDU *);
@@ -432,7 +452,7 @@ HandleClientInput(fd_set *fdsPtr)
 	cp = &client[i];
 	this_client_id = i;
 
-	sts = __pmGetPDU(cp->fd, PDU_CLIENT, _pmcd_timeout, &pb);
+	sts = __pmGetPDU(cp->fd, LIMIT_SIZE, _pmcd_timeout, &pb);
 	if (sts > 0 && _pmcd_trace_mask)
 	    pmcd_trace(TR_RECV_PDU, cp->fd, sts, (int)((__psint_t)pb & 0xffffffff));
 	if (sts <= 0) {
@@ -524,7 +544,7 @@ HandleClientInput(fd_set *fdsPtr)
 	    if (cp->status.connected) {
 		if (_pmcd_trace_mask)
 		    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
-		sts = __pmSendError(cp->fd, PDU_BINARY, sts);
+		sts = __pmSendError(cp->fd, FROM_ANON, sts);
 		if (sts < 0)
 		    __pmNotifyErr(LOG_ERR, "HandleClientInput: "
 			"error sending Error PDU to client[%d] %s\n", i, pmErrStr(sts));
@@ -675,11 +695,11 @@ HandleReadyAgents(fd_set *readyFds)
 
 		/* Expect an error PDU containing PM_ERR_PMDAREADY */
 		reason = AT_COMM;	/* most errors are protocol failures */
-		sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+		sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 		if (sts > 0 && _pmcd_trace_mask)
 		    pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		if (sts == PDU_ERROR) {
-		    s = __pmDecodeError(pb, ap->pduProtocol, &sts);
+		    s = __pmDecodeError(pb, &sts);
 		    if (s < 0) {
 			sts = s;
 			pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_ERROR, sts);
@@ -740,8 +760,8 @@ ClientLoop(void)
 
     for (;;) {
 	if (_pmcd_done) {
-	    /* from pmcd pmda */
-	    __pmNotifyErr(LOG_INFO, "pmcd terminated via pmcd pmda and pmcd.control.debug");
+	    __pmNotifyErr(LOG_INFO,
+		"pmcd terminated via pmcd pmda and pmcd.control.debug");
 	    break;
 	}
 
@@ -826,7 +846,7 @@ ClientLoop(void)
 		     */
 		    xchallenge = *(__pmPDUInfo *)&challenge;
 		    xchallenge = __htonpmPDUInfo(xchallenge);
-		    s = __pmSendXtendError(cp->fd, PDU_BINARY, sts, *(unsigned int *)&xchallenge);
+		    s = __pmSendXtendError(cp->fd, FROM_ANON, sts, *(unsigned int *)&xchallenge);
 		    if (s < 0) {
 			__pmNotifyErr(LOG_ERR,
 				"ClientLoop: error sending Conn ACK PDU to new client %s\n",
@@ -848,8 +868,8 @@ ClientLoop(void)
 		reload_ns = HandleReadyAgents(&readableFds);
 	    HandleClientInput(&readableFds);
 	}
-	else if (sts == -1 && errno != EINTR) {
-	    __pmNotifyErr(LOG_ERR, "ClientLoop select: %s\n", strerror(errno));
+	else if (sts == -1 && neterror() != EINTR) {
+	    __pmNotifyErr(LOG_ERR, "ClientLoop select: %s\n", netstrerror());
 	    break;
 	}
 	if (restart) {

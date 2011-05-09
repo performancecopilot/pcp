@@ -59,20 +59,20 @@ build_dsotab(void)
     }
 #endif
     if (stat(configFileName, &sbuf) < 0) {
-	return -errno;
+	return -oserror();
     }
     configFile = fopen(configFileName, "r");
     if (configFile == NULL) {
-	return -errno;
+	return -oserror();
     }
     if ((config = malloc(sbuf.st_size+1)) == NULL) {
 	__pmNoMem("build_dsotbl:", sbuf.st_size+1, PM_RECOV_ERR);
 	fclose(configFile);
-	return -errno;
+	return -oserror();
     }
     if (fread(config, 1, sbuf.st_size, configFile) != sbuf.st_size) {
 	fclose(configFile);
-	return -errno;
+	return -oserror();
     }
     config[sbuf.st_size] = '\0';
 
@@ -170,6 +170,30 @@ __pmLookupDSO(int domain)
     return NULL;
 }
 
+#ifdef HAVE_ATEXIT
+static void
+EndLocalContext(void)
+{
+    int		i;
+    __pmDSO	*dp;
+    int		ctx = pmWhichContext();
+
+    for (i = 0; i < numdso; i++) {
+	dp = &dsotab[i];
+	if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5 &&
+	    dp->dispatch.version.four.ext->e_endCallBack != NULL) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_CONTEXT) {
+		fprintf(stderr, "NotifyEndLocalContext: DSO PMDA %s (%d) notified of context %d close\n", 
+		    dp->name, dp->domain, ctx);
+	    }
+#endif
+	    (*(dp->dispatch.version.four.ext->e_endCallBack))(ctx);
+	}
+    }
+}
+#endif
+
 int
 __pmConnectLocal(void)
 {
@@ -180,6 +204,9 @@ __pmConnectLocal(void)
 #if defined(HAVE_DLOPEN)
     unsigned int	challenge;
     void		(*initp)(pmdaInterface *);
+#ifdef HAVE_ATEXIT
+    static int		atexit_installed = 0;
+#endif
 #endif
 
     if (numdso == -1) {
@@ -326,6 +353,14 @@ __pmConnectLocal(void)
 		dp->domain = -1;
 	    }
 	}
+#ifdef HAVE_ATEXIT
+	if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5 &&
+	    atexit_installed == 0) {
+	    /* install end of local context handler */
+	    atexit(EndLocalContext);
+	    atexit_installed = 1;
+	}
+#endif
 #endif	/* HAVE_DLOPEN */
     }
 
@@ -367,7 +402,7 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
 	    }
 	    else {
 		if ((dsotab[numdso].name = strdup(name)) == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    __pmNoMem("__pmLocalPMDA name", strlen(name)+1, PM_RECOV_ERR);
 		    return sts;
 		}
@@ -378,7 +413,7 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
 	    }
 	    else {
 		if ((dsotab[numdso].init = strdup(init)) == NULL) {
-		    sts = -errno;
+		    sts = -oserror();
 		    __pmNoMem("__pmLocalPMDA init", strlen(init)+1, PM_RECOV_ERR);
 		    return sts;
 		}
@@ -460,7 +495,7 @@ __pmSpecLocalPMDA(const char *spec)
     char	*ap;
 
     if ((arg = sbuf = strdup(spec)) == NULL) {
-	sts = -errno;
+	sts = -oserror();
 	__pmNoMem("__pmSpecLocalPMDA dup spec", strlen(spec)+1, PM_RECOV_ERR);
 	return "strdup failed";
     }

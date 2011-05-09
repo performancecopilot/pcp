@@ -13,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -60,7 +56,7 @@ strtoull(char *p, char **endp, int base)
 
 
 static void
-mkAtom(pmAtomValue *avp, int *nbyte, int type, char *buf)
+mkAtom(pmAtomValue *avp, int type, char *buf)
 {
     char	*p = buf;
     char	*endbuf;
@@ -68,9 +64,8 @@ mkAtom(pmAtomValue *avp, int *nbyte, int type, char *buf)
     int		seendot = 0;
     int		base;
     double	d;
-    void	*vp;
-    long	temp_l;
-    unsigned long	temp_ul;
+    int64_t	temp_l;
+    uint64_t	temp_ul;
 	
 
     /*
@@ -113,7 +108,7 @@ mkAtom(pmAtomValue *avp, int *nbyte, int type, char *buf)
     switch (type) {
 	case PM_TYPE_32:
 		temp_l = strtol(buf, &endbuf, base);
-		if (errno != ERANGE) {
+		if (oserror() != ERANGE) {
 		    /*
 		     * ugliness here is for cases where pmstore is compiled
 		     * 64-bit (e.g. on ia64) and then strtol() may return
@@ -124,41 +119,37 @@ mkAtom(pmAtomValue *avp, int *nbyte, int type, char *buf)
 		     */
 #ifdef HAVE_64BIT_LONG
 		    if (temp_l > 0x7fffffffLL || temp_l < (-0x7fffffffLL - 1))
-			errno = ERANGE;
+			setoserror(ERANGE);
 		    else 
 #endif
 		    {
 			avp->l = (__int32_t)temp_l;
-			*nbyte = sizeof(avp->l);
 		    }
 		}
 		break;
 
 	case PM_TYPE_U32:
 		temp_ul = strtoul(buf, &endbuf, base);
-		if (errno != ERANGE) {
+		if (oserror() != ERANGE) {
 #ifdef HAVE_64BIT_LONG
 		    if (temp_ul > 0xffffffffLL)
-			errno = ERANGE;
+			setoserror(ERANGE);
 		    else 
 #endif
 		    {
 			avp->ul = (__uint32_t)temp_ul;
-			*nbyte = sizeof(avp->ul);
 		    }
 		}
 		break;
 
 	case PM_TYPE_64:
 		avp->ll = strtoll(buf, &endbuf, base);
-		/* trust the library to set errno to ERANGE as appropriate * */
-		*nbyte = sizeof(avp->ll);
+		/* trust library to set error code to ERANGE as appropriate */
 		break;
 
 	case PM_TYPE_U64:
-		/* trust the library to set errno to ERANGE as appropriate * */
+		/* trust library to set error code to ERANGE as appropriate */
 		avp->ull = strtoull(buf, &endbuf, base);
-		*nbyte = sizeof(avp->ull);
 		break;
 
 	case PM_TYPE_FLOAT:
@@ -170,10 +161,9 @@ mkAtom(pmAtomValue *avp, int *nbyte, int type, char *buf)
 		else {
 		    d = strtod(buf, &endbuf);
 		    if (d < FLT_MIN || d > FLT_MAX)
-			errno = ERANGE;
+			setoserror(ERANGE);
 		    else {
 			avp->f = (float)d;
-			*nbyte = sizeof(avp->f);
 		    }
 		}
 		break;
@@ -186,66 +176,16 @@ mkAtom(pmAtomValue *avp, int *nbyte, int type, char *buf)
 		}
 		else {
 		    avp->d = strtod(buf, &endbuf);
-		    *nbyte = sizeof(avp->d);
 		}
 		break;
 
 	case PM_TYPE_STRING:
-		*nbyte = strlen(buf) + 1;
 		if ((avp->cp = strdup (buf)) == NULL) {
-		    __pmNoMem("pmstore", *nbyte, PM_FATAL_ERR);
+		    __pmNoMem("pmstore", strlen(buf)+1, PM_FATAL_ERR);
 		}
 		endbuf = "";
 		break;
 
-	case PM_TYPE_AGGREGATE:
-		/* assume the worst, and scale back later */
-		if ((vtype & IS_HEX) || (vtype & IS_INTEGER))
-		    *nbyte = sizeof(__int64_t);
-		else if (vtype & IS_FLOAT)
-		    *nbyte = sizeof(double);
-		else
-		    *nbyte = strlen(buf);
-		vp = (void *)malloc(*nbyte);
-		if (vp == NULL) {
-		    __pmNoMem("pmstore", *nbyte, PM_FATAL_ERR);
-		}
-		if (vtype & (IS_HEX | IS_INTEGER) ) {
-		    /* Try short one first */
-		    temp_ul = strtoul(buf, &endbuf, base);
-		    if (errno == ERANGE ||
-			(sizeof(temp_ul) > sizeof(avp->ul) && (temp_ul & 0xffffffff00000000LL) != 0)) {
-			errno = 0;
-			avp->ull = strtoull(buf, &endbuf, base);
-			if (errno != ERANGE) {
-			    *nbyte = sizeof(avp->ull);
-			    memcpy(vp, &avp->ull, *nbyte);
-			}
-		    }
-		    else {
-			avp->ul = (__uint32_t)temp_ul;
-			*nbyte = sizeof(avp->ul);
-			memcpy(vp, &avp->ul, *nbyte);
-		    }
-		}
-		else if (vtype & IS_FLOAT) {
-		    d = strtod(buf, &endbuf);
-		    if (errno != ERANGE) {
-			if (FLT_MIN <= d && d <= FLT_MAX) {
-			    *nbyte = sizeof(float);
-			    avp->f = (float)d;
-			    memcpy(vp, &avp->f, *nbyte);
-			}
-			else
-			    memcpy(vp, &d, *nbyte);
-		    }
-		}
-		else
-		    strncpy(vp, buf, *nbyte);
-
-		avp->vp = vp;
-		endbuf = "";
-		break;
     }
     if (*endbuf != '\0') {
 	fprintf(stderr,
@@ -254,7 +194,7 @@ mkAtom(pmAtomValue *avp, int *nbyte, int type, char *buf)
 			buf, pmTypeStr(type));
 	exit(1);
     }
-    if (errno == ERANGE) {
+    if (oserror() == ERANGE) {
 	fprintf(stderr, 
 			"The value \"%s\" is out of range for the data "
 			"type (PM_TYPE_%s)\n",
@@ -285,7 +225,6 @@ main(int argc, char **argv)
     int		numinst = 0;
     pmDesc	desc;
     pmAtomValue	nav;
-    int		aggr_len;
     pmValueSet	*vsp;
     char        *subopt;
 
@@ -401,6 +340,16 @@ main(int argc, char **argv)
 	printf("%s: pmLookupDesc: %s\n", namelist[0], pmErrStr(n));
 	exit(1);
     }
+    if (desc.type == PM_TYPE_AGGREGATE || desc.type == PM_TYPE_AGGREGATE_STATIC) {
+	fprintf(stderr, "%s: Cannot modify values for PM_TYPE_AGGREGATE metrics\n",
+	    pmProgname);
+	exit(1);
+    }
+    if (desc.type == PM_TYPE_EVENT) {
+	fprintf(stderr, "%s: Cannot modify values for PM_TYPE_EVENT metrics\n",
+	    pmProgname);
+	exit(1);
+    }
     if (instnames != NULL) {
 	pmDelProfile(desc.indom, 0, NULL);
 	for (i = 0; i < numinst; i++) {
@@ -422,7 +371,7 @@ main(int argc, char **argv)
     }
 
     /* value is argv[optind] */
-    mkAtom(&nav, &aggr_len, desc.type, argv[optind]);
+    mkAtom(&nav, desc.type, argv[optind]);
 
     vsp = result->vset[0];
     if (vsp->numval < 0) {
@@ -437,12 +386,11 @@ main(int argc, char **argv)
         }
         else {
             pmAtomValue tmpav;
-            int tmplen;
 
-            mkAtom(&tmpav, &tmplen, PM_TYPE_STRING, "(none)");
+            mkAtom(&tmpav, PM_TYPE_STRING, "(none)");
 
             vsp->numval = 1;
-            vsp->valfmt = __pmStuffValue(&tmpav, tmplen, &vsp->vlist[0], PM_TYPE_STRING);
+            vsp->valfmt = __pmStuffValue(&tmpav, &vsp->vlist[0], PM_TYPE_STRING);
         }
     }
 
@@ -459,7 +407,7 @@ main(int argc, char **argv)
 	}
 	printf(" old value=");
 	pmPrintValue(stdout, vsp->valfmt, desc.type, vp, 1);
-	vsp->valfmt = __pmStuffValue(&nav, aggr_len, &vsp->vlist[j], desc.type);
+	vsp->valfmt = __pmStuffValue(&nav, &vsp->vlist[j], desc.type);
 	printf(" new value=");
 	pmPrintValue(stdout, vsp->valfmt, desc.type, vp, 1);
 	putchar('\n');

@@ -18,7 +18,8 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "libpdh.h"
+#include "pdh.h"
+#include "pdhmsg.h"
 #include "domain.h"
 
 #define MAX_M_PATH_LEN	80	/* pattern passed to PdhExpandCounterPath */

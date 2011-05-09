@@ -512,3 +512,73 @@ for PCP clients.
 @ sample.scramble.version Current state version and reset for sample.scramble.bin
 To make the order of instances seen from sample.scramble.bin
 deterministic, use pmstore(1) to trigger a reset.
+
+@ sample.percontext.control.ctx Number of PMAPI contexts seen
+One more than the highest PMAPI context number from PMCD.
+
+@ sample.percontext.control.active Number of active PMAPI contexts
+
+@ sample.percontext.control.start Number of new PMAPI contexts seen
+Incremented each time a new PMAPI context is seen from PMCD.
+
+sample.percontext.control.start - sample.percontext.control.end
+should equal sample.percontext.control.active.
+
+@ sample.percontext.control.end Number of PMAPI contexts closed
+Incremented each time PMCD closes a PMAPI context.
+
+sample.percontext.control.start - sample.percontext.control.end
+should equal sample.percontext.control.active.
+
+@ sample.percontext.pdu Total PDU count for the client context
+Count of PDUs received from or transmitted to the current PMAPI client
+context.
+
+Use pmStore() to reset the counter to 0, independent of the value passed
+to pmStore().
+
+@ sample.percontext.recv_pdu Count of PDUs received from the client context
+Count of PDUs received from the current PMAPI client context.
+
+Use pmStore() to reset the counter to 0, independent of the value passed
+to pmStore().
+
+@ sample.percontext.xmit_pdu Count of PDUs transmitted
+Count of PDUs transmitted to the current PMAPI client context.
+
+Use pmStore() to reset the counter to 0, independent of the value passed
+to pmStore().
+
+@ sample.event.records Dummy event records
+Dummy event records are generated in a fixed pattern to help QA.
+
+Once all setups have been returned, the cycle is repeated.
+
+See event.reset to exert explicit control over the next batch of event
+records to be returned.
+
+@ sample.event.no_indom_records More dummy event records
+Like sample.event.records but without the instance domain.
+
+@ sample.event.reset reset event record state
+Used for QA, should take one of the values 0, 1, 2 or 3
+to determine which of the dummy event record setups will
+be returned for the next fetch of event.records.
+
+@ sample.event.type event type parameter for event records
+
+@ sample.event.param_32 32 parameter for event records
+
+@ sample.event.param_u32 U32 parameter for event records
+
+@ sample.event.param_64 64 parameter for event records
+
+@ sample.event.param_u64 U64 parameter for event records
+
+@ sample.event.param_float FLOAT parameter for event records
+
+@ sample.event.param_double DOUBLE parameter for event records
+
+@ sample.event.param_string STRING parameter for event records
+
+@ sample.event.param_aggregate AGGREGATE parameter for event records

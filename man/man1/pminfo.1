@@ -18,7 +18,7 @@
 \f3pminfo\f1 \- display information about performance metrics
 .SH SYNOPSIS
 \f3pminfo\f1
-[\f3\-dfFLmMtTvz\f1]
+[\f3\-dfFLmMtTvxz\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-b\f1 \f2batchsize\f1]
 [\f3\-c\f1 \f2dmfile\f1]
@@ -70,9 +70,9 @@ The
 option causes
 .B pminfo
 to use the specified archive rather than connecting to a PMCD.  The
-.B \-a
+.B \-a , \-h
 and
-.B \-h
+.B \-L
 options are mutually exclusive.
 .PP
 The
@@ -222,6 +222,13 @@ output from the options
 .B \-t
 and
 .BR \-T .
+.TP
+.B \-x
+Like the
+.B \-f
+option, but with the additonal functionality that if a value is
+processed that is of type PM_TYPE_EVENT, then the event records
+will be unpacked and the details of each event record reported.
 .SH FILES
 .PD 0
 .TP 10

@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -29,7 +25,7 @@ typedef struct {
 } creds_t;
 
 int
-__pmSendCreds(int fd, int mode, int credcount, const __pmCred *credlist)
+__pmSendCreds(int fd, int from, int credcount, const __pmCred *credlist)
 {
     size_t	need = 0;
     creds_t	*pp = NULL;
@@ -37,14 +33,13 @@ __pmSendCreds(int fd, int mode, int credcount, const __pmCred *credlist)
 
     if (credcount <= 0 || credlist == NULL)
 	return PM_ERR_IPC;
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
 
     need = sizeof(creds_t) + ((credcount-1) * sizeof(__pmCred));
     if ((pp = (creds_t *)__pmFindPDUBuf((int)need)) == NULL)
-	return -errno;
+	return -oserror();
     pp->hdr.len = (int)need;
     pp->hdr.type = PDU_CREDS;
+    pp->hdr.from = from;
     pp->numcreds = htonl(credcount);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
@@ -58,22 +53,19 @@ __pmSendCreds(int fd, int mode, int credcount, const __pmCred *credlist)
 }
 
 int
-__pmDecodeCreds(__pmPDU *pdubuf, int mode, int *sender, int *credcount, __pmCred **credlist)
+__pmDecodeCreds(__pmPDU *pdubuf, int *sender, int *credcount, __pmCred **credlist)
 {
     creds_t	*pp;
     int		i;
     int		numcred;
     __pmCred	*list;
 
-    if (mode == PDU_ASCII)
-	return PM_ERR_NOASCII;
-
     pp = (creds_t *)pdubuf;
     numcred = ntohl(pp->numcreds);
     if (pp == NULL || numcred < 0) return PM_ERR_IPC;
     *sender = pp->hdr.from;	/* ntohl() converted already in __pmGetPDU() */
     if ((list = (__pmCred *)malloc(sizeof(__pmCred) * numcred)) == NULL)
-	return -errno;
+	return -oserror();
 
     /* swab and fix bitfield order */
     for (i = 0; i < numcred; i++) {

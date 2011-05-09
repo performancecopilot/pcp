@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -70,9 +66,10 @@ __pmSendLogControl(int fd, const pmResult *request, int control, int state, int 
 	    need += sizeof(vlist_t) - sizeof(__pmValue_PDU);
     }
     if ((pp = (control_req_t *)__pmFindPDUBuf(need)) == NULL)
-	return -errno;
+	return -oserror();
     pp->c_hdr.len = need;
     pp->c_hdr.type = PDU_LOG_CONTROL;
+    pp->c_hdr.from = FROM_ANON;		/* context does not matter here */
     pp->c_control = htonl(control);
     pp->c_state = htonl(state);
     pp->c_delta = htonl(delta);
@@ -124,7 +121,7 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
     if ((req = (pmResult *)malloc(need)) == NULL) {
 	__pmNoMem("__pmDecodeLogControl.req", need, PM_RECOV_ERR);
 	pmFreeResult(req);
-	return -errno;
+	return -oserror();
     }
     req->numpmid = numpmid;
 
@@ -136,7 +133,7 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
 	    need = sizeof(pmValueSet) - sizeof(pmValue);
 	if ((vsp = (pmValueSet *)malloc(need)) == NULL) {
 	    __pmNoMem("__pmDecodeLogControl.vsp", need, PM_RECOV_ERR);
-	    sts = -errno;
+	    sts = -oserror();
 	    i--;
 	    while (i)
 		free(req->vset[i--]);

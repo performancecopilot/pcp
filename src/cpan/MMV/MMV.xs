@@ -211,7 +211,7 @@ mmv_stats_init(name,cl,fl,metrics,indoms)
 	else {
 	    RETVAL = mmv_stats_init(name, cl, fl, mlist, mcount, ilist, icount);
 	    if (RETVAL == NULL)
-		warn("mmv_stats_init failed: %s\n", strerror(errno));
+		warn("mmv_stats_init failed: %s\n", osstrerror());
 	}
 
 	for (i = 0; i < icount; i++) {

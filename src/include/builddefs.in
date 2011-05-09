@@ -94,7 +94,7 @@ PCFLAGS = -fPIC
 ifeq "@cc_is_gcc@" "yes"
 PCFLAGS += -fno-strict-aliasing
 else
-# Assume that is's the Sun compiler which does not grok -Wall
+# Assume that this is the Sun compiler which does not grok -Wall
 WARN_OFF =
 endif
 PLDLAGS = -fPIC
@@ -118,7 +118,7 @@ endif
 
 CFLAGS_ABI = @cflags_abi@
 CFLAGS += $(CFLAGS_ABI) $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -g -DPCP_DEBUG \
-	-DPCP_VERSION=\"$(PCP_VERSION)\" -I$(TOPDIR)/src/include
+	-DPCP_VERSION=\"$(PCP_VERSION)\" -DASYNC_API -I$(TOPDIR)/src/include
 
 LDFLAGS += $(CFLAGS_ABI) $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
@@ -198,15 +198,15 @@ DIST_DIR = $(TOPDIR)/dist
 #
 # default, then special case for different platforms
 #
-RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf LD_LIBRARY_PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$LD_LIBRARY_PATH
+RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf LD_LIBRARY_PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$LD_LIBRARY_PATH HOME=`pwd`
 ifeq "$(TARGET_OS)" "darwin"
-RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf DYLD_LIBRARY_PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$DYLD_LIBRARY_PATH
+RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf DYLD_LIBRARY_PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$DYLD_LIBRARY_PATH HOME=`pwd`
 endif
 ifeq "$(TARGET_OS)" "aix"
-RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf LIBPATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$LIBPATH
+RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf LIBPATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$LIBPATH HOME=`pwd`
 endif
 ifeq "$(TARGET_OS)" "mingw"
-RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf PCP_CONFIG=$(TOPDIR)/src/pmconfig/pmconfig.exe PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$PATH
+RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$PATH USERPROFILE=`pwd`
 endif
 
 SUBDIRS_MAKERULE = \
@@ -216,6 +216,55 @@ SUBDIRS_MAKERULE = \
 		$(MAKEF) -C $$d $@ || exit $$?; \
 	    fi; \
 	done
+
+DOMAIN_MAKERULE = \
+	@rm -f domain.h; \
+	echo "/*" >domain.h; \
+	echo " * built from $<" >>domain.h; \
+	echo " */" >>domain.h; \
+	$(PCP_AWK_PROG) <$< '\
+	    $$1=="\#define" && $$2 == "$(DOMAIN)" {\
+		print "\#define $(DOMAIN) " $$3 >>"$@"; found++ \
+	    }\
+	    END {\
+		if (found == 0) { \
+		    print "Botch: no define for domain $(DOMAIN) in $<"; \
+		    exit(1) \
+		}\
+		if (found > 1) { \
+		    print "Botch: multiple defines for domain $(DOMAIN) in $<";\
+		    print "... see $@ for details"; \
+		    exit(1) \
+		}\
+        	exit(0) \
+            }'
+
+DOMAIN_PERLRULE = \
+	@export perldomain=`sed -n \
+		-e '/PCP::PMDA->new/s/[^0-9]*$$//' \
+		-e '/PCP::PMDA->new/s/^[^0-9]*//p' pmda$(IAM).pl`; \
+	$(PCP_AWK_PROG) <$< '\
+	    BEGIN {\
+		domain = toupper("$(IAM)") \
+	    }\
+	    $$1=="\#define" && $$2 == domain { \
+		pmd=$$3; found++ \
+	    }\
+	    END {\
+		if (found == 0) {\
+		    print "Botch: no define for domain " domain " in $<"; \
+		    exit(1) \
+		}\
+	        if (found > 1) {\
+		    print "Botch: multiple defines of domain " domain " in $<";\
+		    exit(1) \
+		}\
+		if (pmd != "'"$$perldomain"'") {\
+		    print "Botch: domain number in ../../pmns/stdpmid (" pmd ") does not match domain number in Perl source ("'"$$perldomain"'")"; \
+		    exit(1) \
+		}\
+		exit(0) \
+	    }'
 
 POD_OPTIONS = --section=$(MAN_SECTION) --release=$(PCP_VERSION) \
 		--center="Performance Co-Pilot" --date="Performance Co-Pilot"

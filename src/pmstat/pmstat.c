@@ -18,7 +18,7 @@
 #include "pmda.h"
 
 #include <ctype.h>
-#ifdef GWINSZ_IN_SYS_IOCTL_H
+#ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
 #ifdef HAVE_SYS_TERMIOS_H
@@ -172,8 +172,8 @@ getNewContext (int type, char * host, int quiet)
 		return (NULL);
 	    }
 
-	    if ((sts = pmLookupName(nummetrics, metrics, s->pmids)) < 0) {
-		if (sts == PM_ERR_NAME || sts == PM_ERR_NONLEAF) {
+	    if ((sts = pmLookupName(nummetrics, metrics, s->pmids)) != nummetrics) {
+		if (sts >= 0) {
 		    for (i = 0; i < nummetrics; i++) {
 			if (s->pmids[i] != PM_ID_NULL) {
 			    continue;
@@ -188,7 +188,7 @@ getNewContext (int type, char * host, int quiet)
 				    pmErrStr(sts));
 			} else {
 			    int e2 = pmLookupName(1,metricSubst+i, s->pmids+i);
-			    if ( e2 < 0 ) {
+			    if (e2 != 1) {
 				fprintf (stderr,
 					 "%s: %s: no metric \"%s\" nor \"%s\": %s\n",
 					 pmProgname, host, metrics[i], 
@@ -204,7 +204,10 @@ getNewContext (int type, char * host, int quiet)
 			    }
 			}
 		    }
-		} else {
+		}
+		else {
+		    fprintf(stderr, "%s: pmLookupName: %s\n",
+			pmProgname, pmErrStr(sts));
 		    free (s->pmids);
 		    free (s);
 		    return (NULL);
@@ -456,7 +459,7 @@ main(int argc, char *argv[])
 		    fclose (hl);
 		} else {
 		    fprintf (stderr, "%s: cannot open %s - %s\n",
-			     pmProgname, optarg, strerror (errno));
+			     pmProgname, optarg, osstrerror());
 		    errflag++;
 		}
 	    }

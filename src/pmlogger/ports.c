@@ -10,11 +10,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
+
 #define _WIN32_WINNT	0x0500	/* for CreateHardLink */
 #include <math.h>
 #include <ctype.h>
@@ -189,7 +186,7 @@ GetPort(char *file)
 
     fd = __pmCreateSocket();
     if (fd < 0) {
-	perror("socket");
+	fprintf(stderr, "GetPort: socket failed: %s\n", netstrerror());
 	exit(1);
     }
 
@@ -224,8 +221,8 @@ GetPort(char *file)
 	myAddr.sin_port = htons(ctlport);
 	sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
 	if (sts < 0) {
-	    if (errno != EADDRINUSE) {
-		fprintf(stderr, "bind(%d): %s\n", ctlport, strerror(errno));
+	    if (neterror() != EADDRINUSE) {
+		fprintf(stderr, "bind(%d): %s\n", ctlport, netstrerror());
 		exit(1);
 	    }
 	}
@@ -234,7 +231,7 @@ GetPort(char *file)
     }
     sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	perror("listen");
+	fprintf(stderr, "listen: %s\n", netstrerror());
 	exit(1);
     }
 
@@ -244,7 +241,7 @@ GetPort(char *file)
 		 S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (mapfd == -1) {
 	fprintf(stderr, "%s: error creating port map file %s: %s.  Exiting.\n",
-		pmProgname, file, strerror(errno));
+		pmProgname, file, osstrerror());
 	exit(1);
     }
     /* write the port number to the port map file */
@@ -265,6 +262,7 @@ GetPort(char *file)
 	fprintf(mapstream, "%s\n", archBase);
     else {
 	char		path[MAXPATHLEN];
+
 	if (getcwd(path, MAXPATHLEN) == NULL)
 	    fprintf(mapstream, "\n");
 	else
@@ -340,9 +338,9 @@ init_ports(void)
 
     /* try to create the port file directory. OK if it already exists */
     sts = mkdir2(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO);
-    if (sts < 0 && errno != EEXIST) {
+    if (sts < 0 && oserror() != EEXIST) {
 	fprintf(stderr, "%s: error creating port file dir %s: %s\n",
-		pmProgname, ctlfile, strerror(errno));
+		pmProgname, ctlfile, osstrerror());
 	exit(1);
     }
     chmod(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
@@ -350,9 +348,9 @@ init_ports(void)
     /* remove any existing port file with my name (it's old) */
     snprintf(ctlfile + (baselen-1), n, "%c%d", sep, (int)mypid);
     sts = unlink(ctlfile);
-    if (sts == -1 && errno != ENOENT) {
+    if (sts == -1 && oserror() != ENOENT) {
 	fprintf(stderr, "%s: error removing %s: %s.  Exiting.\n",
-		pmProgname, ctlfile, strerror(errno));
+		pmProgname, ctlfile, osstrerror());
 	exit(1);
     }
 
@@ -377,11 +375,11 @@ init_ports(void)
 	sts = (CreateHardLink(linkfile, ctlfile, NULL) == 0);
 #endif
 	if (sts != 0) {
-	    if (errno == EEXIST)
+	    if (oserror() == EEXIST)
 		fprintf(stderr, "%s: there is already a primary pmlogger running\n", pmProgname);
 	    else
 		fprintf(stderr, "%s: error creating primary logger link %s: %s\n",
-			pmProgname, linkfile, strerror(errno));
+			pmProgname, linkfile, osstrerror());
 	    exit(1);
 	}
     }
@@ -407,11 +405,16 @@ control_req(void)
     addrlen = sizeof(addr);
     fd = accept(ctlfd, (struct sockaddr *)&addr, &addrlen);
     if (fd == -1) {
-	perror("error accepting client");
+	fprintf(stderr, "error accepting client: %s\n", netstrerror());
 	return 0;
     }
+    __pmSetSocketIPC(fd);
     if (clientfd != -1) {
-	sts = __pmSendError(fd, PDU_BINARY, -EADDRINUSE);
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_CONTEXT)
+	    fprintf(stderr, "control_req: send EADDRINUSE on fd=%d (client already on fd=%d)\n", fd, clientfd);
+#endif
+	sts = __pmSendError(fd, FROM_ANON, -EADDRINUSE);
 	if (sts < 0)
 	    fprintf(stderr, "error sending connection NACK to client: %s\n",
 			 pmErrStr(sts));
@@ -420,9 +423,8 @@ control_req(void)
     }
 
     sts = __pmSetVersionIPC(fd, UNKNOWN_VERSION);
-    __pmSetSocketIPC(fd);
     if (sts < 0) {
-	__pmSendError(fd, PDU_BINARY, sts);
+	__pmSendError(fd, FROM_ANON, sts);
 	fprintf(stderr, "error connecting to client: %s\n", pmErrStr(sts));
 	__pmCloseSocket(fd);
 	return 0;
@@ -440,18 +442,30 @@ control_req(void)
 	strcpy(pmlc_host, hp->h_name);
 
     if ((sts = __pmAccAddClient(&addr.sin_addr, &clientops)) < 0) {
-	if (sts == PM_ERR_CONNLIMIT || sts == PM_ERR_PERMISSION)
-	    sts = XLATE_ERR_2TO1(sts);	/* connect - send these as down-rev */
-	sts = __pmSendError(fd, PDU_BINARY, sts);
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_CONTEXT) {
+	    char	*p = (char *)&addr.sin_addr.s_addr;
+	    fprintf(stderr, "client addr: %d.%d.%d.%d\n",
+		p[0] & 0xff, p[1] & 0xff, p[2] & 0xff, p[3] & 0xff);
+	    __pmAccDumpHosts(stderr);
+	    fprintf(stderr, "control_req: connection rejected on fd=%d from %s: %s\n", fd, pmlc_host, pmErrStr(sts));
+	}
+#endif
+	sts = __pmSendError(fd, FROM_ANON, sts);
 	if (sts < 0)
 	    fprintf(stderr, "error sending connection access NACK to client: %s\n",
 			 pmErrStr(sts));
+	sleep(1);	/* QA 083 seems like there is a race w/out this delay */
 	__pmCloseSocket(fd);
 	return 0;
     }
 
-    /* encode pdu version in the acknowledgement */
-    sts = __pmSendError(fd, PDU_BINARY, LOG_PDU_VERSION);
+    /*
+     * encode pdu version in the acknowledgement
+     * also need "from" to be pmlogger's pid as this is checked at
+     * the other end
+     */
+    sts = __pmSendError(fd, getpid(), LOG_PDU_VERSION);
     if (sts < 0) {
 	fprintf(stderr, "error sending connection ACK to client: %s\n",
 		     pmErrStr(sts));
@@ -459,5 +473,11 @@ control_req(void)
 	return 0;
     }
     clientfd = fd;
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_CONTEXT)
+	fprintf(stderr, "control_req: connection accepted on fd=%d from %s\n", fd, pmlc_host);
+#endif
+
     return 1;
 }

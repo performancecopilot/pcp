@@ -24,8 +24,11 @@
 #include "impl.h"
 #include "pmda.h"
 #include "../domain.h"
+#include "percontext.h"
 
 extern void sample_init(pmdaInterface *);
+extern int sample_done;
+extern int not_ready;
 
 static pmdaInterface	dispatch;
 
@@ -35,9 +38,7 @@ static pmdaInterface	dispatch;
 int
 limbo(void)
 {
-    extern int not_ready;
-
-    __pmSendError(dispatch.version.two.ext->e_outfd, PDU_BINARY, PM_ERR_PMDANOTREADY);
+    __pmSendError(dispatch.version.two.ext->e_outfd, FROM_ANON, PM_ERR_PMDANOTREADY);
     while (not_ready > 0)
 	not_ready = sleep(not_ready);
     return PM_ERR_PMDAREADY;
@@ -60,8 +61,6 @@ check(void)
 static void
 done(void)
 {
-    extern int	sample_done;
-
     if (sample_done)
 	exit(0);
 }
@@ -94,7 +93,7 @@ main(int argc, char **argv)
 
     snprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, SAMPLE,
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmProgname, SAMPLE,
 		"sample.log", helppath);
 
     if (pmdaGetOpt(argc, argv, "D:d:i:l:pu:?", &dispatch, &errflag) != EOF)

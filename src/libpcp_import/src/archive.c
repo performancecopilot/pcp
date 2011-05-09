@@ -1,3 +1,17 @@
+/*
+ * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+ * 
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
+ */
+
 #include "pmapi.h"
 #include "impl.h"
 #include "import.h"
@@ -29,7 +43,6 @@ _pmi_put_result(pmi_context *current, pmResult *result)
     stamp.tv_usec = result->timestamp.tv_usec;
 
     if (current->state == CONTEXT_START) {
-	// TODO
 	if (current->hostname == NULL) {
 	    (void)gethostname(myname, MAXHOSTNAMELEN);
 	    myname[MAXHOSTNAMELEN-1] = '\0';
@@ -49,10 +62,11 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 	pmNewZone(lcp->l_label.ill_tz);
 	current->state = CONTEXT_ACTIVE;
 
-	// do the label records (it is too late when __pmLogPutResult
-	// is called as we've already output some metadata) ... this
-	// code is stolen from __pmLogPutResult
-	//
+	/*
+	 * do the label records (it is too late when __pmLogPutResult
+	 * is called as we've already output some metadata) ... this
+	 * code is stolen from __pmLogPutResult
+	 */
 	lcp->l_label.ill_start.tv_sec = stamp.tv_sec;
 	lcp->l_label.ill_start.tv_usec = stamp.tv_usec;
 	lcp->l_label.ill_vol = PM_LOG_VOL_TI;
@@ -110,7 +124,9 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 int
 _pmi_end(pmi_context *current)
 {
-    // TODO flushing and end label processing
+    /* Final temporal index update to finish the archive
+     * ... same logic here as in run_done() for pmlogger
+     */
     __pmLogPutIndex(&current->logctl, &stamp);
 
     current->state = CONTEXT_END;

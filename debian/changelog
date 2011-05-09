@@ -1,10 +1,28 @@
+pcp (3.5.1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Sat, 16 Apr 2011 15:51:55 +1000
+
+pcp (3.5.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 31 Jan 2011 21:01:35 +1100
+
+pcp (3.4.1) unstable; urgency=low
+
+  * New release (Win32 specific changes only).
+
+ -- Nathan Scott <nathans@debian.org>  Sat, 09 Oct 2010 06:22:42 +1100
+
 pcp (3.4.0) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
   * Several Debian packaging updates to get lintian happier.
   * New packages for PCP archive importing - libs, dev, perl tools.
 
- -- Nathan Scott <nathans@debian.org>  Tue, 03 Aug 2010 12:02:51 +1000
+ -- Nathan Scott <nathans@debian.org>  Wed, 29 Sep 2010 16:23:05 +1000
 
 pcp (3.3.3) unstable; urgency=low
 

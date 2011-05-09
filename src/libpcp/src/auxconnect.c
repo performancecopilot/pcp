@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -26,21 +22,6 @@
 /* default connect timeout is 5 seconds */
 static struct timeval	canwait = { 5, 000000 };
 
-#if !defined(HAVE_HSTRERROR)
-static char *
-hstrerror(int h_errno)
-{
-    switch (h_errno) {
-	case 0: return "";
-	case 1: return "Host not found";
-	case 2: return "Try again";
-	case 3: return "Non-recoverable error";
-	case 4: return "No address";
-	default: return "Unknown error";
-    }
-}
-#endif /* HAVE_HSTRERROR */
-
 int
 __pmCreateSocket(void)
 {
@@ -50,7 +31,7 @@ __pmCreateSocket(void)
     struct linger	nolinger = {1, 0};
 
     if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-	return -errno;
+	return -neterror();
 
     if ((sts = __pmSetSocketIPC(fd)) < 0) {
 	__pmCloseSocket(fd);
@@ -62,7 +43,7 @@ __pmCreateSocket(void)
 		   (mysocklen_t)sizeof(nodelay)) < 0) {
 	__pmNotifyErr(LOG_ERR, 
 		      "__pmCreateSocket(%d): setsockopt TCP_NODELAY: %s\n",
-		      fd, strerror(errno));
+		      fd, netstrerror());
     }
 
     /* don't linger on close */
@@ -70,7 +51,7 @@ __pmCreateSocket(void)
 		   (mysocklen_t)sizeof(nolinger)) < 0) {
 	__pmNotifyErr(LOG_ERR, 
 		      "__pmCreateSocket(%d): setsockopt SO_LINGER: %s\n",
-		      fd, strerror(errno));
+		      fd, netstrerror());
     }
 
     return fd;
@@ -91,54 +72,53 @@ __pmCloseSocket(int fd)
 int
 __pmConnectTo(int fd, const struct sockaddr *addr, int port)
 {
-    int fdFlags = fcntl(fd, F_GETFL);
+    int sts, fdFlags = fcntl(fd, F_GETFL);
     struct sockaddr_in myAddr;
 
     memcpy(&myAddr, addr, sizeof (struct sockaddr_in));
     myAddr.sin_port = htons(port);
 
-    if (fcntl (fd, F_SETFL, fdFlags | FNDELAY) < 0) {
+    if (fcntl(fd, F_SETFL, fdFlags | FNDELAY) < 0) {
         __pmNotifyErr(LOG_ERR, "__pmConnectTo: cannot set FNDELAY - "
 		      "fcntl(%d,F_SETFL,0x%x) failed: %s\n",
-		      fd, fdFlags|FNDELAY , strerror(errno));
+		      fd, fdFlags|FNDELAY , osstrerror());
     }
     
     if (connect(fd, (struct sockaddr*)&myAddr, sizeof(myAddr)) < 0) {
-	if (errno != EINPROGRESS) {
-	    close (fd);
-	    return -errno;
+	sts = neterror();
+	if (sts != EINPROGRESS) {
+	    close(fd);
+	    return -sts;
 	}
     }
 
-    return (fdFlags);
+    return fdFlags;
 }
 
 int
-__pmConnectCheckError (int fd)
+__pmConnectCheckError(int fd)
 {
     int	so_err;
     mysocklen_t	olen = sizeof(int);
 
     if (getsockopt(fd, SOL_SOCKET, SO_ERROR, (void *)&so_err, &olen) < 0) {
-	so_err = errno;
+	so_err = neterror();
 	__pmNotifyErr(LOG_ERR, 
-		      "__pmConnectCheckError: getsockopt(SO_ERROR) failed: %s\n",
-		      strerror(so_err));
-
+		"__pmConnectCheckError: getsockopt(SO_ERROR) failed: %s\n",
+		netstrerror());
     }
-
-    return (so_err);
+    return so_err;
 }
 
 int
-__pmConnectRestoreFlags (int fd, int fdFlags)
+__pmConnectRestoreFlags(int fd, int fdFlags)
 {
     int sts;
 
     if (fcntl(fd, F_SETFL, fdFlags) < 0) {
 	__pmNotifyErr(LOG_WARNING,"__pmConnectRestoreFlags: cannot restore "
 		      "flags fcntl(%d,F_SETFL,0x%x) failed: %s\n",
-		      fd, fdFlags, strerror(errno));
+		      fd, fdFlags, osstrerror());
     }
 
     if ((fdFlags = fcntl(fd, F_GETFD)) >= 0)
@@ -149,12 +129,12 @@ __pmConnectRestoreFlags (int fd, int fdFlags)
     if (sts == -1) {
         __pmNotifyErr(LOG_WARNING, "__pmConnectRestoreFlags: "
 		      "fcntl(%d) get/set flags failed: %s\n",
-		      fd, strerror(errno));
+		      fd, osstrerror());
 	close(fd);
 	return sts;
     }
 
-    return (fd);
+    return fd;
 }
 
 const struct timeval *
@@ -226,21 +206,20 @@ __pmAuxConnectPMCD(const char *hostname)
     return __pmAuxConnectPMCDPort(hostname, pmcd_port);
 }
 
-
 int
 __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 {
-    int			sts;
     struct sockaddr_in	myAddr;
     struct hostent*	servInfo;
     int			fd;	/* Fd for socket connection to pmcd */
+    int			sts;
     int			fdFlags;
 
     if ((servInfo = gethostbyname(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
-	    fprintf(stderr, "__pmAuxConnectPMCDPort(%s, %d) : h_errno=%d, ``%s''\n",
-		    hostname, pmcd_port, h_errno, hstrerror(h_errno));
+	    fprintf(stderr, "__pmAuxConnectPMCDPort(%s, %d) : hosterror=%d, ``%s''\n",
+		    hostname, pmcd_port, hosterror(), hoststrerror());
 	}
 #endif
 	return -EHOSTUNREACH;
@@ -274,7 +253,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	    sts = ETIMEDOUT;
 	}
 	else {
-	    sts = (rc < 0) ? errno : EINVAL;
+	    sts = (rc < 0) ? neterror() : EINVAL;
 	}
 	
 	if (sts) {

@@ -81,6 +81,13 @@ then
 		exit 1
 	    fi
 	fi
+	# as of Ubuntu 10.10, build flags are hidden and extracted using
+	# dpkg-buildflags which fortunately honours some environment
+	# settings
+	#
+	export DEB_CFLAGS_SET=''
+	export DEB_CXXFLAGS_SET=''
+	export DEB_LDFLAGS_SET=''
     fi
 fi
 

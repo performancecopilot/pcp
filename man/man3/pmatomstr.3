@@ -20,7 +20,7 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-const char *pmAtomStr(const pmAtomValue *avp, int type)
+const char *pmAtomStr(const pmAtomValue *\fIavp\fP, int \fItype\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -44,7 +44,7 @@ typedef union {
     float        f;     /* 32-bit floating point */
     double       d;     /* 64-bit floating point */
     char         *cp;   /* char ptr */
-    void         *vp;   /* void ptr */
+    pmValueBlock *vbp;  /* pmValueBlock ptr */
 } pmAtomValue;
 .in
 .fi
@@ -76,9 +76,18 @@ If the
 .I type
 is
 .B PM_TYPE_AGGREGATE
-only the first three 32-bit words are displayed as hexadecimal values.
+then up to the first three 32-bit words are displayed as hexadecimal values.
 .PP
-The string value is held in a single static buffer, so
+If the
+.I type
+is
+.B PM_TYPE_EVENT
+then a summary of the number of event records found in the value
+is generated.
+.PP
+The return value from
+.B pmAtomStr
+is held in a single static buffer, so
 the returned value is only valid until the next call
 to
 .BR pmAtomStr .

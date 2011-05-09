@@ -24,9 +24,15 @@
 .br
 #include <pcp/pmda.h>
 .sp
-void pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric
-*metrics, int nmetrics)
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+void pmdaInit(pmdaInterface *\fIdispatch\fP, pmdaIndom *\fIindoms\fP, int\ \fInindoms\fP, pmdaMetric\ *\fImetrics\fP, int\ \fInmetrics\fP);
 .sp
+.in
+.hy
+.ad
 cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .SH DESCRIPTION

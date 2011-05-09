@@ -56,10 +56,11 @@ extern void watch(char *);
 extern void opensocket(char *);
 
 /*
- * make sure these are different to PDU_BINARY or PDU_ASCII
+ * connection states
  */
-#define PDU_NOT	-2
-#define PDU_DSO	-1
+#define NO_CONN		-1
+#define CONN_DSO	0
+#define CONN_DAEMON	1
 extern int	connmode;
 
 /* parameters for action routines ... */

@@ -12,10 +12,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-#
 
 prog=`basename $0`
 
@@ -157,7 +153,6 @@ cat <<EOFEOF >$oflag/pmda.c
  */
 #include <stdio.h>
 #include <limits.h>
-#include <errno.h>
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -301,7 +296,6 @@ BEGIN {
 
     printf "#include <stdio.h>\n" >>init_c
     printf "#include <limits.h>\n" >>init_c
-    printf "#include <errno.h>\n" >>init_c
     printf "#include <ctype.h>\n" >>init_c
     printf "#include <sys/types.h>\n" >>init_c
     printf "#include <sys/stat.h>\n" >>init_c
@@ -612,7 +606,6 @@ END {
 	printf " */\n" >>fetch_c
 	printf "#include <stdio.h>\n" >>fetch_c
 	printf "#include <limits.h>\n" >>fetch_c
-	printf "#include <errno.h>\n" >>fetch_c
 	printf "#include <ctype.h>\n" >>fetch_c
 	printf "#include <sys/types.h>\n" >>fetch_c
 	printf "#include <sys/stat.h>\n" >>fetch_c
@@ -740,9 +733,11 @@ END {
 	    else if (type[metric] == "PM_TYPE_STRING")
 		printf "\t\tatom->cp = \"string value\"; /* ADD CODE HERE */\n" >>fetch_c
 	    else if (type[metric] == "PM_TYPE_AGGREGATE")
-		printf "\t\tatom->cp = NULL; /* ADD CODE HERE */\n" >>fetch_c
+		printf "\t\tatom->vp = NULL; /* ADD CODE HERE */\n" >>fetch_c
 	    else if (type[metric] == "PM_TYPE_AGGREGATE_STATIC")
-		printf "\t\tatom->cp = NULL; /* ADD CODE HERE */\n" >>fetch_c
+		printf "\t\tatom->vp = NULL; /* ADD CODE HERE */\n" >>fetch_c
+	    else if (type[metric] == "PM_TYPE_EVENT")
+		printf "\t\tatom->vp = NULL; /* ADD CODE HERE */\n" >>fetch_c
 
 	    printf "\t\tbreak;\n\n" >>fetch_c
 	}

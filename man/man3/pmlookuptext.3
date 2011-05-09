@@ -23,9 +23,9 @@
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmLookupText(pmID pmid, int level, char **buffer)
-int pmRequestText(int ctx, pmID pmid, int level)
-int pmReceiveText(int ctx, char **buffer)
+int pmLookupText(pmID \fIpmid\fP, int \fIlevel\fP, char **\fIbuffer\fP);
+int pmRequestText(int \fIctx\fP, pmID \fIpmid\fP, int \fIlevel\fP);
+int pmReceiveText(int \fIctx\fP, char **\fIbuffer\fP);
 .fi
 .sp
 cc ... \-lpcp

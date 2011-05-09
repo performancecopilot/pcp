@@ -13,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -116,6 +112,7 @@ defines(void)
     printf("PM_ERR_LABEL=%d\n", PM_ERR_LABEL);
     printf("PM_ERR_LOGREC=%d\n", PM_ERR_LOGREC);
     printf("PM_ERR_NOTARCHIVE=%d\n", PM_ERR_NOTARCHIVE);
+    printf("PM_ERR_LOGFILE=%d\n", PM_ERR_LOGFILE);
     printf("PM_ERR_NOCONTEXT=%d\n", PM_ERR_NOCONTEXT);
     printf("PM_ERR_PROFILESPEC=%d\n", PM_ERR_PROFILESPEC);
     printf("PM_ERR_PMID_LOG=%d\n", PM_ERR_PMID_LOG);
@@ -131,12 +128,14 @@ defines(void)
     printf("PM_ERR_NEEDPORT=%d\n", PM_ERR_NEEDPORT);
     printf("PM_ERR_WANTACK=%d\n", PM_ERR_WANTACK);
     printf("PM_ERR_NONLEAF=%d\n", PM_ERR_NONLEAF);
-    printf("PM_ERR_PMDANOTREADY=%d\n", PM_ERR_PMDANOTREADY);
-    printf("PM_ERR_PMDAREADY=%d\n", PM_ERR_PMDAREADY);
     printf("PM_ERR_OBJSTYLE=%d\n", PM_ERR_OBJSTYLE);
     printf("PM_ERR_PMCDLICENSE=%d\n", PM_ERR_PMCDLICENSE);
+    printf("PM_ERR_TYPE=%d\n", PM_ERR_TYPE);
+    printf("PM_ERR_CTXBUSY=%d\n", PM_ERR_CTXBUSY);
     printf("PM_ERR_TOOSMALL=%d\n", PM_ERR_TOOSMALL);
     printf("PM_ERR_TOOBIG=%d\n", PM_ERR_TOOBIG);
+    printf("PM_ERR_PMDAREADY=%d\n", PM_ERR_PMDAREADY);
+    printf("PM_ERR_PMDANOTREADY=%d\n", PM_ERR_PMDANOTREADY);
     printf("PM_ERR_NYI=%d\n", PM_ERR_NYI);
 }
 

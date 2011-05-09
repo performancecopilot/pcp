@@ -46,10 +46,10 @@ mmv_mapping_init(const char *fname, size_t size)
     if (ftruncate(fd, size) != -1)
 	addr = __pmMemoryMap(fd, size, 1);
     else
-	sts = errno;
+	sts = oserror();
 
     close(fd);
-    errno = sts;
+    setoserror(sts);
     return addr;
 }
 
@@ -120,7 +120,7 @@ mmv_stats_init(const char *fname,
 
     for (i = 0; i < nindoms; i++) {
 	if (mmv_singular(in[i].serial)) {
-	    errno = ESRCH;
+	    setoserror(ESRCH);
 	    return NULL;
 	}
 	ninstances += in[i].count;
@@ -133,7 +133,7 @@ mmv_stats_init(const char *fname,
     for (i = 0; i < nmetrics; i++) {
 	if ((st[i].type < MMV_TYPE_NOSUPPORT) || 
 	    (st[i].type > MMV_TYPE_ELAPSED) || strlen(st[i].name) == 0) {
-	    errno = EINVAL;
+	    setoserror(EINVAL);
 	    return NULL;
 	}
 
@@ -146,7 +146,7 @@ mmv_stats_init(const char *fname,
 	    const mmv_indom_t * mi;
 
 	    if ((mi = mmv_lookup_indom(st[i].indom, in, nindoms)) == NULL) {
-		errno = ESRCH;
+		setoserror(ESRCH);
 		return NULL;
 	    }
 	    if (st[i].type == MMV_TYPE_STRING)
@@ -157,11 +157,6 @@ mmv_stats_init(const char *fname,
 		nstrings++;
 	    nvalues++;
 	}
-    }
-
-    if (nvalues == 0) {
-	errno = ERANGE;
-	return NULL;
     }
 
     /* TOC follows header, with enough entries to hold */

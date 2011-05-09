@@ -146,11 +146,11 @@ read_values(char *buffer, int size, const char *path, const char *subsys,
 
     snprintf(buffer, size, "%s/%s.%s", path, subsys, metric);
     if ((fd = open(buffer, O_RDONLY)) < 0)
-	return -errno;
+	return -oserror();
     count = read(fd, buffer, size);
     close(fd);
     if (count < 0)
-	return -errno;
+	return -oserror();
     buffer[count-1] = '\0';
     return 0;
 }
@@ -167,7 +167,7 @@ process_prepare(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
 
     snprintf(taskpath, sizeof(taskpath), "%s/tasks", path);
     if ((fp = fopen(taskpath, "r")) == NULL)
-	return -errno;
+	return -oserror();
     while (fgets(process, sizeof(process), fp) != NULL)
 	pidlist_append(list, process);
     fclose(fp);
@@ -206,12 +206,12 @@ prepare_ull(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
     pmAtomValue *atoms = groups->metric_values[metric].atoms;
 
     if (read_values(p, sizeof(buffer), path, subsys->name, metrics->suffix) < 0)
-	return -errno;
+	return -oserror();
 
     while (p && *p) {
 	value = strtoull(p, &endp, 0);
 	if ((atoms = realloc(atoms, (count + 1) * sizeof(pmAtomValue))) == NULL)
-	    return -errno;
+	    return -oserror();
 	atoms[count++].ull = value;
 	if (endp == '\0' || endp == p)
 	    break;
@@ -250,7 +250,7 @@ prepare_named_ull(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
     filename[count] = '\0';
 
     if (read_values(p, sizeof(buffer), path, subsys->name, filename) < 0)
-	return -errno;
+	return -oserror();
 
     /* buffer contains <name <value> pairs */
     while (p && *p) {
@@ -274,7 +274,7 @@ prepare_named_ull(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
 	    if (strcmp(field, metrics->suffix + count + 1) != 0)
 		continue;
 	    if ((atoms = calloc(1, sizeof(pmAtomValue))) == NULL)
-		return -errno;
+		return -oserror();
 	    atoms[0].ull = value;
 
 	    groups->metric_values[i].item = i;
@@ -299,12 +299,12 @@ prepare_string(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
     char *p = &buffer[0];
 
     if (read_values(p, sizeof(buffer), path, subsys->name, metrics->suffix) < 0)
-	return -errno;
+	return -oserror();
 
     if ((atoms = malloc(sizeof(pmAtomValue))) == NULL)
-	return -errno;
+	return -oserror();
     if ((atoms[0].cp = strdup(buffer)) == NULL)
-	return -errno;
+	return -oserror();
     groups->metric_values[metric].item = metric;
     groups->metric_values[metric].atoms = atoms;
     groups->metric_values[metric].atom_count = 1;
@@ -340,11 +340,11 @@ namespace(__pmnsTree *pmns, cgroup_subsys_t *subsys,
     sts = (subsys->group_count + 1) * sizeof(cgroup_group_t);
     subsys->groups = (cgroup_group_t *)realloc(subsys->groups, sts);
     if (subsys->groups == NULL)
-	return -errno;
+	return -oserror();
     /* allocate space for all values up-front */
     sts = subsys->metric_count * sizeof(cgroup_values_t);
     if ((cvp = (cgroup_values_t *)calloc(1, sts)) == NULL)
-	return -errno;
+	return -oserror();
     id = subsys->group_count++;
     memset(&subsys->groups[id], 0, sizeof(cgroup_group_t));
     subsys->groups[id].id = id;
@@ -355,7 +355,7 @@ namespace(__pmnsTree *pmns, cgroup_subsys_t *subsys,
 	metrics->prepare(pmns, cgrouppath, subsys, group, i, id, domain);
     }
     process_prepare(pmns, cgrouppath, subsys, group, id, domain);
-    return id;
+    return 1;
 }
 
 int
@@ -447,10 +447,13 @@ cgroup_namespace(__pmnsTree *pmns, const char *options,
 
     /* use options to tell which cgroup controller(s) are active here */
     for (i = 0; i < sizeof(controllers)/sizeof(controllers[0]); i++) {
+	int	lsts;
 	cgroup_subsys_t *subsys = &controllers[i];
 	if (scan_filesys_options(options, subsys->name) == NULL)
 	    continue;
-	sts |= namespace(pmns, subsys, cgrouppath, cgroupname, domain);
+	lsts = namespace(pmns, subsys, cgrouppath, cgroupname, domain);
+	if (lsts > 0)
+	    sts = 1;
     }
     return sts;
 }
@@ -472,7 +475,7 @@ cgroup_scan(const char *mnt, const char *path, const char *options,
 	snprintf(cgrouppath, sizeof(cgrouppath), "%s/%s", mnt, path);
 
     if ((dirp = opendir(cgrouppath)) == NULL)
-	return -errno;
+	return -oserror();
 
     length = strlen(cgrouppath);
     cgroupname = &cgrouppath[length];
@@ -484,6 +487,7 @@ cgroup_scan(const char *mnt, const char *path, const char *options,
      * populate namespace with <controller>[.<groupname>].<metrics>
      */
     while ((dp = readdir(dirp)) != NULL) {
+	int	lsts;
 	if (!valid_pmns_name(dp->d_name))
 	    continue;
 	if (path[0] == '\0')
@@ -498,10 +502,17 @@ cgroup_scan(const char *mnt, const char *path, const char *options,
 	if (!(S_ISDIR(sbuf.st_mode)))
 	    continue;
 
-	sts |= cgroup_namespace(pmns, options, cgrouppath, cgroupname, domain);
+	lsts = cgroup_namespace(pmns, options, cgrouppath, cgroupname, domain);
+	if (lsts > 0)
+	    sts = 1;
 
-	/* also scan for any child cgroups */
-        sts |= cgroup_scan(mnt, cgrouppath, options, domain, pmns, 0);
+	/*
+	 * also scan for any child cgroups, but cgroup_scan() may return
+	 * an error
+	 */
+	lsts = cgroup_scan(mnt, cgrouppath, options, domain, pmns, 0);
+	if (lsts > 0)
+	    sts = 1;
     }
     closedir(dirp);
     return sts;
@@ -528,7 +539,7 @@ cgroup_regulars(__pmnsTree *pmns, int domain)
     }
 }
 
-void
+int
 refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **pmns)
 {
     int i, j, k, a;
@@ -544,7 +555,7 @@ refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **pmns)
 			pmProgname, pmErrStr(sts));
 	if (pmns)
 	    *pmns = NULL;
-	return;
+	return 0;
     }
 
     cgroup_regulars(tree, domain);
@@ -571,19 +582,21 @@ refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **pmns)
 
     pmdaCacheOp(mounts, PMDA_CACHE_WALK_REWIND);
     while ((sts = pmdaCacheOp(mounts, PMDA_CACHE_WALK_NEXT)) != -1) {
+	int	lsts;
 	if (!pmdaCacheLookup(mounts, sts, NULL, (void **)&fs))
 	    continue;
 	/* walk this cgroup mount finding groups (subdirs) */
-	mtab |= cgroup_scan(fs->path, "", fs->options, domain, tree, 1);
+	lsts = cgroup_scan(fs->path, "", fs->options, domain, tree, 1);
+	if (lsts > 0)
+	    mtab = 1;
     }
-
-    if (mtab)
-	linux_dynamic_metrictable(pmda);
 
     if (pmns)
 	*pmns = tree;
     else
 	__pmFreePMNS(tree);
+
+    return mtab;
 }
 
 int
@@ -672,6 +685,10 @@ size_metrictable(int *total, int *trees)
 
     *total = count;
     *trees = maxid;
+
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+	fprintf(stderr, "cgroups size_metrictable: %d total x %d trees\n",
+		*total, *trees);
 }
 
 /*
@@ -688,13 +705,20 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
     dest->m_desc.pmid = cgroup_pmid_build(domain, cluster, id, item);
 
     if (pmDebug & DBG_TRACE_LIBPMDA)
-	fprintf(stderr, "cgroup refresh_metrictable: "
+	fprintf(stderr, "cgroup refresh_metrictable: (%p -> %p) "
 			"metric ID dup: %d.%d.%d.%d -> %d.%d.%d.%d\n",
-		domain, cluster, cgroup_pmid_group(source->m_desc.pmid),
+		source, dest, domain, cluster,
+		cgroup_pmid_group(source->m_desc.pmid),
 		cgroup_pmid_metric(source->m_desc.pmid),
 		pmid_domain(dest->m_desc.pmid), pmid_cluster(dest->m_desc.pmid),
 		cgroup_pmid_group(dest->m_desc.pmid),
 		cgroup_pmid_metric(dest->m_desc.pmid));
+}
+
+static int
+cgroup_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
+{
+    return PM_ERR_TEXT;
 }
 
 void
@@ -708,5 +732,6 @@ cgroup_init(void)
 		};
 
     linux_dynamic_pmns("cgroup", set, sizeof(set)/sizeof(int),
-		refresh_cgroups, refresh_metrictable, size_metrictable);
+			refresh_cgroups, cgroup_text,
+			refresh_metrictable, size_metrictable);
 }

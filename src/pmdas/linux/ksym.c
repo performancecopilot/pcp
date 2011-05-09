@@ -11,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 /*
@@ -32,7 +28,6 @@
 
 static struct ksym *ksym_a;
 static size_t ksym_a_sz;
-static int ksym_mismatch_count;
 
 static int
 find_index(__psint_t addr, int lo, int hi)
@@ -175,7 +170,7 @@ read_ksyms(__psint_t *end_addr)
 
     *end_addr = 0;
     if ((fp = fopen(ksyms_path, "r")) == NULL)
-	return -errno;
+	return -oserror();
 
     while (fgets(inbuf, sizeof(inbuf), fp) != NULL) {
 	l++;
@@ -205,7 +200,7 @@ read_ksyms(__psint_t *end_addr)
 		ksym_a_sz = INIT_KSIZE;
 	    ksym_a = (struct ksym *)realloc(ksym_a, ksym_a_sz * sizeof(struct ksym));
 	    if (ksym_a == NULL)
-		return -errno;
+		return -oserror();
 	}
 
 	ip = inbuf;
@@ -266,7 +261,7 @@ read_ksyms(__psint_t *end_addr)
 
 	ksym_a[ix].name = strndup(sp, len);
 	if (ksym_a[ix].name == NULL)
-	    return -errno;
+	    return -oserror();
 	ksym_a[ix].name[len-1] = '\0';
 
 	if (*end_addr == 0 && strcmp(ksym_a[ix].name, "_end") == 0)
@@ -305,7 +300,7 @@ read_ksyms(__psint_t *end_addr)
 	ksym_a[ix].module = strndup(sp, ip - sp + 1);
 	if (ksym_a[ix].module == NULL) {
 	    free(ksym_a[ix].name);
-	    return -errno;
+	    return -oserror();
 	}
 	ksym_a[ix].module[ip - sp] = '\0';
 
@@ -317,7 +312,7 @@ next:
     if (ix) {
 	ksym_a = (struct ksym *)realloc(ksym_a, ix * sizeof(struct ksym));
 	if (ksym_a == NULL)
-	    return -errno;
+	    return -oserror();
     }
 
     ksym_a_sz = ix;
@@ -340,9 +335,8 @@ next:
     return ksym_a_sz;
 }
 
-
-int
-read_sysmap(__psint_t end_addr)
+static int
+read_sysmap(const char *release, __psint_t end_addr)
 {
     char	inbuf[256], path[MAXPATHLEN], **fmt;
     __psint_t	addr;
@@ -352,8 +346,8 @@ read_sysmap(__psint_t end_addr)
     char	*sp;
     int		major, minor, patch;
     FILE	*fp;
-    struct utsname uts;
     char	*bestpath = NULL;
+    int		ksym_mismatch_count;
     char *sysmap_paths[] = {	/* Paths to check for System.map file */
 	"/boot/System.map-%s",
 	"/boot/System.map",
@@ -363,10 +357,8 @@ read_sysmap(__psint_t end_addr)
 	NULL
     };
 
-    uname(&uts);
-
     /* Create version symbol name to look for in System.map */
-    if (sscanf(uts.release, "%d.%d.%d", &major, &minor, &patch) < 3 )
+    if (sscanf(release, "%d.%d.%d", &major, &minor, &patch) < 3 )
 	return -1;
     sprintf(inbuf, "Version_%u", KERNEL_VERSION(major, minor, patch));
 
@@ -375,7 +367,7 @@ read_sysmap(__psint_t end_addr)
      * either _end from /proc/ksyms or the uts version.
      */
     for (fmt = sysmap_paths; *fmt; fmt++) {
-	snprintf(path, MAXPATHLEN, *fmt, uts.release);
+	snprintf(path, MAXPATHLEN, *fmt, release);
 	if ((fp = fopen(path, "r"))) {
 	    if ((e = validate_sysmap(fp, inbuf, end_addr)) != 0) {
 		if (e == 2) {
@@ -418,7 +410,7 @@ read_sysmap(__psint_t end_addr)
 
     /* scan the System map */
     if ((fp = fopen(bestpath, "r")) == NULL)
-    	return -errno;
+    	return -oserror();
 
     ix = ksym_a_sz;
 
@@ -534,18 +526,17 @@ read_sysmap(__psint_t end_addr)
     return ksym_a_sz;
 
 fail:
-    e = -errno;
+    e = -oserror();
     if (fp)
 	fclose(fp);
     return e;
 }
 
-
 void
-read_ksym_sources() 
+read_ksym_sources(const char *release) 
 {
     __psint_t end_addr;
 
     if (read_ksyms(&end_addr) > 0)	/* read /proc/ksyms first */
-	read_sysmap(end_addr);	/* then System.map  */
+	read_sysmap(release, end_addr);	/* then System.map  */
 }

@@ -29,7 +29,9 @@ ifeq "$(TARGET_OS)" "darwin"
 # __htonll() is in libpcp and libpcp_trace ... ld on Mac OS X has a
 # fit over this, sigh ... thanks to Nick Blievers for finding the
 # magic spell needed to workaround this.
-LLDFLAGS += -Wl,-m -Wl,-bind_at_load
+#LLDFLAGS += -Wl,-m -Wl,-bind_at_load
+# Update: -Wl,-m is apparently now obsolete
+LLDFLAGS += -Wl,-bind_at_load
 endif
 LLDLIBS	= -lpcp_pmda -lpcp -lpcp_trace
 
@@ -60,11 +62,7 @@ $(IAM)$(EXECSUFFIX):	$(OBJECTS)
 comms.o trace.o pmda.o:	domain.h
 
 domain.h:	../../../pmns/stdpmid
-	rm -f $@
-	echo "/*" >$@
-	echo " * built from $<" >>$@
-	echo " */" >>$@
-	$(PCP_AWK_PROG) <$< >>$@ '$$1=="#define" && $$2=="$(DOMAIN)" { print "#define $(DOMAIN) " $$3 }'
+	$(DOMAIN_MAKERULE)
 
 default_pcp:	default
 

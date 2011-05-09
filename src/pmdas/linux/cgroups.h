@@ -41,9 +41,9 @@ cgroup_pmid_metric(pmID id)
 extern void cgroup_init();
 extern char *cgroup_find_subsys(pmInDom, const char *);
 
-extern void refresh_cgroups(pmdaExt *, __pmnsTree **);
+extern int refresh_cgroups(pmdaExt *, __pmnsTree **);
 extern int refresh_cgroup_subsys(pmInDom);
-extern void refresh_cgroup_groups(pmdaExt *, pmInDom, __pmnsTree **);
+extern int refresh_cgroup_groups(pmdaExt *, pmInDom, __pmnsTree **);
 
 extern int cgroup_group_fetch(int, int, unsigned int, pmAtomValue *);
 extern int cgroup_procs_fetch(int, int, unsigned int, pmAtomValue *);

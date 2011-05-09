@@ -1,0 +1,75 @@
+#
+# Copyright (c) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2010 Aconex.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# This file is sourced by PCP scripts to set the environment
+# variables defined in the file named $PCP_CONF (or /etc/pcp.conf
+# if $PCP_CONF is not defined). Any variable already defined in
+# the environment is not changed. 
+#
+# Note: any variables NOT starting with PCP_ will be ignored.
+# This is a security issue so don't change it.
+# Note also, this variant of pcp.env is *only* used on Windows.
+#
+if [ -z "$PCP_ENV_DONE" ]
+then
+    __CONF=${PCP_CONF-/etc/pcp.conf}
+    if [ ! -f "$__CONF" ]
+    then
+	echo "pcp.env: Fatal Error: \"$__CONF\" not found" >&2
+	exit 1
+    fi
+    export PCP_DIR=/c/Glider
+    export PCP_CONF=$PCP_DIR/etc/pcp.conf
+    eval export `$PCP_DIR/local/bin/pmconfig.exe -s`
+    export PATH="/usr/sbin:/sbin:/bin:/usr/bin:/etc:${PCP_BIN_DIR}:${PCP_BINADM_DIR}:${PCP_SHARE_DIR}/bin:${PCP_SHARE_DIR}/lib:${PCP_PLATFORM_PATHS}"
+    export PCP_ENV_DONE=y
+fi
+
+mkaf() {
+    mkaf.sh $@
+}
+pmafm() {
+    pmafm.sh $@
+}
+pmsignal() {
+    pmsignal.sh $@
+}
+
+_get_pids_by_name()
+{
+    if [ $# -ne 1 ]
+    then
+	echo "Usage: _get_pids_by_name process-name" >&2
+	exit 1
+    fi
+
+    # Algorithm ... all ps(1) variants have a time of the form MM:SS
+    # or HH:MM:SS or HH:MM.SS before the psargs field, so we're using
+    # this as the search anchor.
+    #
+    # Matches with $1 (process-name) occur if the first psarg is $1
+    # or ends in /$1 ... the matching uses sed's regular expressions,
+    # so passing a regex into $1 will work.
+
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+    | sed -n \
+	-e 's/$/ /' \
+	-e 's/[ 	][ 	]*/ /g' \
+	-e 's/^ //' \
+	-e 's/^[^ ]* //' \
+	-e "/[0-9][:\.][0-9][0-9]  *[^ ]*\\$1\.exe /s/ .*//p" \
+	-e "/[0-9][:\.][0-9][0-9]  *[^ ]*\/$1 /s/ .*//p" \
+	-e "/[0-9][:\.][0-9][0-9]  *$1\.exe /s/ .*//p" \
+	-e "/[0-9][:\.][0-9][0-9]  *$1 /s/ .*//p"
+}

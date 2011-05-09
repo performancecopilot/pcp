@@ -4,7 +4,6 @@ if NOT "%COMSPEC%" == "%SystemRoot%\system32\cmd.exe" goto endofpcp
 
 set PCP_DIR=C:\Glider
 set PCP_CONF=%PCP_DIR%\etc\pcp.conf
-set PCP_CONFIG=%PCP_DIR%\local\bin\pmconfig.exe
 set PATH=%PCP_DIR%\bin;%PCP_DIR%\local\bin;%PATH%
 
 sc stop pcp > nul
@@ -15,13 +14,12 @@ sc stop pmproxy > nul
 ping -n 1 localhost > nul
 @rem then use a bigger hammer:
 
-taskkill /F /IM pmcd.exe /T > nul
-taskkill /F /IM pmie.exe /T > nul
-taskkill /F /IM pmproxy.exe /T > nul
-@rem and pick up a few of our friends:
-taskkill /F /IM pmlogger.exe /T > nul
-taskkill /F /IM pmchart.exe /T > nul
-taskkill /F /IM pmtime.exe /T > nul
+taskkill /F /IM pmcd.exe /T 2> nul
+taskkill /F /IM pmie.exe /T 2> nul
+taskkill /F /IM pmproxy.exe /T 2> nul
+taskkill /F /IM pmlogger.exe /T 2> nul
+taskkill /F /IM pmchart.exe /T 2> nul
+taskkill /F /IM pmtime.exe /T 2> nul
 
 sc delete pcp > nul
 sc delete pmie > nul

@@ -108,19 +108,19 @@ mounts_config_file_check(void) {
    */
 
   struct stat statbuf;
-  static int  last_errno;
+  static int  last_error;
   int sep = __pmPathSeparator();
 
   snprintf(mypath, sizeof(mypath), "%s%c" "mounts" "%c" "mounts.conf",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
   if (stat(mypath, &statbuf) == -1) {
-    if (errno != last_errno) {
+    if (oserror() != last_error) {
+      last_error = oserror();
       __pmNotifyErr(LOG_WARNING, "stat failed on %s: %s\n",
-		    mypath, pmErrStr(-errno));
-      last_errno = errno;
+		    mypath, pmErrStr(last_error));
     }
   } else {
-    last_errno = 0;
+    last_error = 0;
 #if defined(HAVE_ST_MTIME_WITH_E)
     if (statbuf.st_mtime != file_change.st_mtime) {
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
@@ -189,7 +189,7 @@ void mounts_grab_config_info() {
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
   if ((fp = fopen(mypath, "r")) == NULL) {
     __pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
-		  mypath, pmErrStr(-errno));
+		  mypath, pmErrStr(-oserror()));
   }
 
   while (fgets(mount_name, sizeof(mount_name), fp) != NULL) {

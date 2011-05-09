@@ -10,21 +10,18 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
+#include <inttypes.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmlc.h"
 
 /* for the pmlogger/PMCD we currently have a connection to */
-static int	logger_fd = -1;			/* file desc pmlogger */
-static char	*lasthost = NULL;		/* host that logger_ctx is for */
+static int	logger_fd = -1;		/* file desc pmlogger */
+static char	*lasthost;		/* host that logger_ctx is for */
 static int	src_ctx = -1;		/* context for logged host's PMCD*/
-static char	*srchost = NULL;	/* host that logged_ctx is for */
+static char	*srchost;		/* host that logged_ctx is for */
 
 static time_t	tmp;		/* for pmCtime */
 
@@ -63,7 +60,7 @@ ConnectPMCD(void)
 	    fprintf(stderr, "%s\n", pmErrStr(sts));
 	    return sts;
 	}
-	if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, __pmLoggerTimeout(), &pb)) <= 0) {
+	if ((sts = __pmGetPDU(logger_fd, ANY_SIZE, __pmLoggerTimeout(), &pb)) <= 0) {
 	    if (sts == 0)
 		/* end of file! */
 		sts = PM_ERR_IPC;
@@ -543,7 +540,7 @@ void Status(int pid, int primary)
     char		*hostname;
     int			state;
     int			vol;
-    long long		size;
+    __int64_t		size;
     char		startbuf[TZBUFSZ];
     char		lastbuf[TZBUFSZ];
     char		timenowbuf[TZBUFSZ];
@@ -564,7 +561,7 @@ void Status(int pid, int primary)
 		fprintf(stderr, "%s\n", pmErrStr(sts));
 	    return;
 	}
-	if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, __pmLoggerTimeout(), &pb)) <= 0) {
+	if ((sts = __pmGetPDU(logger_fd, ANY_SIZE, __pmLoggerTimeout(), &pb)) <= 0) {
 	    if (sts == 0)
 		/* end of file! */
 		sts = PM_ERR_IPC;
@@ -651,7 +648,7 @@ void Status(int pid, int primary)
 	   "last log entry   %s\n"
 	   "current time     %s\n"
 	   "log volume       %d\n"
-	   "log size         %lld\n",
+	   "log size         %" PRIi64 "\n",
 	   startbuf, zonename, lastbuf, timenowbuf, vol, size);
 
 done:
@@ -682,7 +679,7 @@ Sync(void)
 	}
     }
 
-    if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, __pmLoggerTimeout(), &pb)) != PDU_ERROR) {
+    if ((sts = __pmGetPDU(logger_fd, ANY_SIZE, __pmLoggerTimeout(), &pb)) != PDU_ERROR) {
 	if (sts == 0)
 	    /* end of file! */
 	    sts = PM_ERR_IPC;
@@ -691,7 +688,7 @@ Sync(void)
 	    fprintf(stderr, "%s\n", pmErrStr(sts));
 	return;
     }
-    __pmDecodeError(pb, PDU_BINARY, &sts);
+    __pmDecodeError(pb, &sts);
     if (sts < 0) {
 	fprintf(stderr, "Error decoding response from pmlogger: ");
 	if (still_connected(sts))
@@ -725,7 +722,7 @@ Qa(void)
 	}
     }
 
-    if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, __pmLoggerTimeout(), &pb)) != PDU_ERROR) {
+    if ((sts = __pmGetPDU(logger_fd, ANY_SIZE, __pmLoggerTimeout(), &pb)) != PDU_ERROR) {
 	if (sts == 0)
 	    /* end of file! */
 	    sts = PM_ERR_IPC;
@@ -734,7 +731,7 @@ Qa(void)
 	    fprintf(stderr, "%s\n", pmErrStr(sts));
 	return;
     }
-    __pmDecodeError(pb, PDU_BINARY, &sts);
+    __pmDecodeError(pb, &sts);
     if (sts < 0) {
 	fprintf(stderr, "Error decoding response from pmlogger: ");
 	if (still_connected(sts))
@@ -768,7 +765,7 @@ NewVolume(void)
 	}
     }
 
-    if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, __pmLoggerTimeout(), &pb)) != PDU_ERROR) {
+    if ((sts = __pmGetPDU(logger_fd, ANY_SIZE, __pmLoggerTimeout(), &pb)) != PDU_ERROR) {
 	if (sts == 0)
 	    /* end of file! */
 	    sts = PM_ERR_IPC;
@@ -777,7 +774,7 @@ NewVolume(void)
 	    fprintf(stderr, "%s\n", pmErrStr(sts));
 	return;
     }
-    __pmDecodeError(pb, PDU_BINARY, &sts);
+    __pmDecodeError(pb, &sts);
     if (sts < 0) {
 	fprintf(stderr, "Error decoding response from pmlogger: ");
 	if (still_connected(sts))

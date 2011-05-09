@@ -248,7 +248,7 @@ dbpmdaGetc (char * inbuf)
 done:
 #endif
 #ifdef DESPERATE
-    fprintf(stderr, "dbpmdaGetc: yyin=%p (%d) using_readline=%d inch=%x \"%c\"\n", yyin, fileno(yyin), using_readline, inch & 0xff, inch);
+    fprintf(stderr, "dbpmdaGetc: yyin=%p (%d) using_readline=%d lastc=%x \"%c\" inch=%x \"%c\"\n", yyin, fileno(yyin), using_readline, lastc & 0xff, lastc, inch & 0xff, inch);
 #endif
     return inch;
 }
@@ -532,12 +532,11 @@ doargs(void)
 		p = buf;
 	    }
 	    if (c == '\n' || c == '\0') {
-#ifdef FLEX_SCANNER
-		ungetc (c, yyin);
-#else
-		unput('\n');
-	       
-#endif
+		/*
+		 * EOL removed from grammar after arglist, so no
+		 * need push \n or \0 back into the input stream
+		 * (which was not working well!)
+		 */
 		addarglist(NULL);
 		return;
 	    }

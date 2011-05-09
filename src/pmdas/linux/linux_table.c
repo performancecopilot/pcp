@@ -17,7 +17,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdint.h>
-#include <errno.h>
 
 #include "linux_table.h"
 

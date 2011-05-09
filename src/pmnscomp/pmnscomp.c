@@ -1,5 +1,5 @@
 /*
- * pmnscomp [-n pmnsfile ] [-d debug] outfile
+ * pmnscomp [-d debug] outfile
  *
  * Construct a compiled PMNS suitable for "fast" loading in pmLoadNameSpace
  *
@@ -14,13 +14,10 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <ctype.h>
+#include <inttypes.h>
 #include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
@@ -35,7 +32,7 @@ static char	*symp;		/* pointer into same */
 static __pmnsNode	**_map;		/* point-to-ordinal map */
 static int	i;		/* node counter for traversal */
 
-static int	version = 1;	/* default output format version */
+static int	version = 2;	/* default output format version */
 
 /*
  * 32-bit pointer version of __pmnsNode
@@ -253,8 +250,8 @@ main(int argc, char **argv)
 		fprintf(stderr, "%s: -v requires numeric argument\n", pmProgname);
 		errflag++;
 	    }
-	    if (version < 0 || version > 2) {
-		fprintf(stderr, "%s: version must be 0, 1 or 2\n", pmProgname);
+	    if (version < 1 || version > 2) {
+		fprintf(stderr, "%s: output format version %d not supported\n", pmProgname, version);
 		errflag++;
 	    }
 	    break;
@@ -274,7 +271,7 @@ Options:\n\
   -d		duplicate PMIDs are allowed\n\
   -f		force overwriting of an existing output file if it exists\n\
   -n pmnsfile 	use an alternative PMNS\n\
-  -v version	alternate output format version\n",
+  -v version	alternate output format version [default 2]\n",
 			pmProgname);	
 	exit(1);
     }
@@ -282,9 +279,9 @@ Options:\n\
     if (force) {
 	struct stat	sbuf;
 	if (stat(argv[optind], &sbuf) == -1) {
-	    if (errno != ENOENT) {
+	    if (oserror() != ENOENT) {
 		fprintf(stderr, "%s: cannot stat \"%s\": %s\n",
-		    pmProgname, argv[optind], strerror(errno));
+		    pmProgname, argv[optind], osstrerror());
 		exit(1);
 	    }
 	}
@@ -297,7 +294,7 @@ Options:\n\
 	    }
 	    if (unlink(argv[optind]) == -1) {
 		fprintf(stderr, "%s: cannot unlink \"%s\": %s\n",
-		    pmProgname, argv[optind], strerror(errno));
+		    pmProgname, argv[optind], osstrerror());
 		exit(1);
 	    }
 	}
@@ -375,7 +372,7 @@ Options:\n\
     __pmSetSignalHandler(SIGTERM, SIG_IGN);
 
     if ((outf = fopen(argv[optind], "w+")) == NULL) {
-	fprintf(stderr, "%s: cannot create \"%s\": %s\n", pmProgname, argv[optind], strerror(errno));
+	fprintf(stderr, "%s: cannot create \"%s\": %s\n", pmProgname, argv[optind], osstrerror());
 	exit(1);
     }
 
@@ -401,44 +398,7 @@ Options:\n\
 	startsum = ftell(outf);
     }
 
-    if (version == 0) {
-	/* don't bother doing endian conversion */
-	fwrite(&htabcnt, sizeof(int), 1, outf);
-	fwrite(&nodecnt, sizeof(int), 1, outf);
-	fwrite(&symbsize, sizeof(int), 1, outf);
-
-	fwrite(_htab, sizeof(_htab[0]), htabcnt, outf);
-	fwrite(_nodetab, sizeof(_nodetab[0]), nodecnt, outf);
-	fwrite(_symbol, sizeof(_symbol[0]), symbsize, outf);
-
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0) {
-	    __psint_t	k;
-	    printf("Hash Table\n");
-	    for (j = 0; j < htabcnt; j++) {
-		if (j % 10 == 0) {
-		    if (j)
-			putchar('\n');
-		    printf("htab[%3d]", j);
-		}
-		printf(" %5ld", (long)_htab[j]);
-	    }
-	    printf("\n\nNode Table\n");
-	    for (j = 0; j < nodecnt; j++) {
-		if (j % 20 == 0)
-		    printf("           Parent   Next  First   Hash Symbol           PMID\n");
-		k = (__psint_t)_nodetab[j].name;
-		printf("node[%4d] %6ld %6ld %6ld %6ld %-16.16s",
-		    j, (long)_nodetab[j].parent, (long)_nodetab[j].next, (long)_nodetab[j].first,
-		    (long)_nodetab[j].hash, &_symbol[k]);
-		if (_nodetab[j].first == (__pmnsNode *)-1)
-		    printf(" %s", pmIDStr(_nodetab[j].pmid));
-		putchar('\n');
-	    }
-	}
-#endif
-    }
-    else if(version == 1 || version == 2) {
+    if(version == 1 || version == 2) {
 	/*
 	 * Version 1, after label, comes repetitions of, one for each "style"
 	 *
@@ -561,7 +521,7 @@ Options:\n\
 		    printf("htab64[%3d]", j);
 		}
 		__ntohll((char *)&k64);	
-		printf(" %5lld", (long long)k64); 
+		printf(" %5" PRIi64, k64); 
 	    }
 	    printf("\n\n64-bit Node Table\n");
 	    for (j = 0; j < nodecnt; j++) {
@@ -576,9 +536,10 @@ Options:\n\
 	        __ntohll ((char *)&t.next);
 	        __ntohll ((char *)&t.hash);
 
-		printf("node64[%4d] %6lld %6lld %6lld %6lld %-16.16s",
-		    j, (long long)t.parent, (long long)t.next,
-		    (long long)t.first, (long long)t.hash, _symbol+t.name);
+		printf("node64[%4d] "
+		       "%6" PRIi64 " %6" PRIi64 " %6" PRIi64 " %6" PRIi64
+		       " %-16.16s",
+		    j, t.parent, t.next, t.first, t.hash, _symbol+t.name);
 		if (t.first == -1) {
 		    printf(" %s", pmIDStr(__htonpmID(_nodetab64[j].pmid)));
 		}	

@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -25,17 +21,20 @@ request_desc (__pmContext *ctxp, pmID pmid)
 {
     int n;
 
+#ifdef ASYNC_API
     if (ctxp->c_pmcd->pc_curpdu != 0) {
 	return (PM_ERR_CTXBUSY);
     }
+#endif /*ASYNC_API*/
 
-    if ((n = __pmSendDescReq(ctxp->c_pmcd->pc_fd, PDU_BINARY, pmid)) < 0) {
+    if ((n = __pmSendDescReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), pmid)) < 0) {
 	n = __pmMapErrno(n);
     }
 
     return (n);
 }
 
+#ifdef ASYNC_API
 int
 pmRequestDesc (int ctx, pmID pmid)
 {
@@ -50,6 +49,7 @@ pmRequestDesc (int ctx, pmID pmid)
     }
     return (n);
 }
+#endif /*ASYNC_API*/
 
 static int
 receive_desc (__pmContext *ctxp, pmDesc *desc)
@@ -57,18 +57,19 @@ receive_desc (__pmContext *ctxp, pmDesc *desc)
     int n;
     __pmPDU	*pb;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY,
+    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_DESC)
-	n = __pmDecodeDesc(pb, PDU_BINARY, desc);
+	n = __pmDecodeDesc(pb, desc);
     else if (n == PDU_ERROR)
-	__pmDecodeError(pb, PDU_BINARY, &n);
+	__pmDecodeError(pb, &n);
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
 
     return (n);
 }
 
+#ifdef ASYNC_API
 int
 pmReceiveDesc(int ctx, pmDesc *desc)
 {
@@ -84,6 +85,7 @@ pmReceiveDesc(int ctx, pmDesc *desc)
 
     return (n);
 }
+#endif /*ASYNC_API*/
 
 int
 pmLookupDesc(pmID pmid, pmDesc *desc)
@@ -93,7 +95,8 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
     __pmDSO	*dp;
 
     if ((n = pmWhichContext()) >= 0) {
-	ctxp = __pmHandleToPtr(n);
+	int	ctx = n;
+	ctxp = __pmHandleToPtr(ctx);
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((n = request_desc(ctxp, pmid)) >= 0) {
 		n = receive_desc(ctxp, desc);
@@ -103,7 +106,9 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 	    if ((dp = __pmLookupDSO(((__pmID_int *)&pmid)->domain)) == NULL)
 		n = PM_ERR_NOAGENT;
 	    else {
-		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    dp->dispatch.version.four.ext->e_context = ctx;
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    n = dp->dispatch.version.four.desc(pmid, desc, dp->dispatch.version.four.ext);
 		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)

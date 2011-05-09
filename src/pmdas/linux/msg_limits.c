@@ -1,5 +1,6 @@
 /*
  * Copyright (c) International Business Machines Corp., 2002
+ * This code contributed by Mike Mason <mmlnx@us.ibm.com>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -10,30 +11,20 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-/*
- * This code contributed by Mike Mason <mmlnx@us.ibm.com>
- */
-
-#include <errno.h>
-#include <string.h>
 #define __USE_GNU 1  /* required for IPC_INFO define */
 #include <sys/ipc.h>
 #include <sys/msg.h>
 
+#include "pmapi.h"
 #include "msg_limits.h"
-
-static int started = 0;
 
 int
 refresh_msg_limits(msg_limits_t *msg_limits)
 {
 	static struct msginfo msginfo;
+	static int started;
 
 	if (!started) {
 		started = 1;
@@ -41,7 +32,7 @@ refresh_msg_limits(msg_limits_t *msg_limits)
 	}
 
 	if (msgctl(0, IPC_INFO, (struct msqid_ds *) &msginfo) < 0) {
-		return -errno;
+		return -oserror();
 	}
 
 	msg_limits->msgpool = msginfo.msgpool;
@@ -56,4 +47,3 @@ refresh_msg_limits(msg_limits_t *msg_limits)
 	/* success */
 	return 0;
 }
-

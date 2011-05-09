@@ -1299,25 +1299,20 @@ openLogFile(FileInfo *theFile)
 
     if (theFile->filePtr == -1) {
     	if (theFile->filePtr != diff) {
-	    logmessage(LOG_ERR,
-		       "openLogFile: open %s: %s\n", 
-		       theFile->fileName,
-		       strerror(errno));
+	    logmessage(LOG_ERR, "openLogFile: open %s: %s\n", 
+		       theFile->fileName, osstrerror());
 	}
 	return -1;
     }
 
     if (fstat(theFile->filePtr, &(theFile->fileStat)) < 0) {
-    	logmessage(LOG_ERR,
-		   "openLogFile: stat for %s: %s\n", 
-		   theFile->fileName,
-		   strerror(errno));
+    	logmessage(LOG_ERR, "openLogFile: stat for %s: %s\n", 
+		   theFile->fileName, osstrerror());
     	wl_close(theFile->filePtr);
 	return -1;
     }
 
-    logmessage(LOG_INFO, 
-	       "%s opened (fd=%d, inode=%d)\n",
+    logmessage(LOG_INFO, "%s opened (fd=%d, inode=%d)\n",
 	       theFile->fileName,
 	       theFile->filePtr, 
 	       theFile->fileStat.st_ino);
@@ -1329,11 +1324,8 @@ openLogFile(FileInfo *theFile)
     }
 
     if (fstat(theFile->filePtr, &(theFile->fileStat)) < 0) {
-
-    	logmessage(LOG_ERR,
-		   "openLogFile: update stat for %s: %s\n", 
-		   theFile->fileName,
-		   strerror(errno));
+    	logmessage(LOG_ERR, "openLogFile: update stat for %s: %s\n", 
+		   theFile->fileName, osstrerror());
 	wl_close(theFile->filePtr);
 	return -1;	
     }
@@ -1394,12 +1386,9 @@ checkLogFile(FileInfo *theFile,
 /*  Get the file stat info on the open file */
 
     if (theFile->filePtr >= 0) {
-
     	if (fstat(theFile->filePtr, tmpStat) < 0) {
-	    logmessage(LOG_ERR,
-		       "checkLogFile: stat on open %s: %s\n",
-		       theFile->fileName,
-		       strerror(errno));
+	    logmessage(LOG_ERR, "checkLogFile: stat on open %s: %s\n",
+		       theFile->fileName, osstrerror());
 	    wl_close(theFile->filePtr);
 	    result = wl_unableToStat;
 
@@ -1462,7 +1451,7 @@ checkLogFile(FileInfo *theFile,
 	    logmessage(LOG_ERR, 
 		       "checkLogFile: 2nd open to %s: %s\n",
 		       theFile->fileName,
-		       strerror(errno));
+		       osstrerror());
 	    wl_close(theFile->filePtr);
 
 #ifdef PCP_DEBUG
@@ -1478,7 +1467,7 @@ checkLogFile(FileInfo *theFile,
 	    logmessage(LOG_ERR,
 		       "checkLogFile: stat on inactive %s: %s\n",
 		       theFile->fileName,
-		       strerror(errno));
+		       osstrerror());
 	    wl_close(theFile->filePtr);
 	    result = wl_unableToStat;
 
@@ -1535,7 +1524,7 @@ checkLogFile(FileInfo *theFile,
 	    logmessage(LOG_ERR,
 		       "checkLogFile - stat on reopened %s: %s\n",
 		       theFile->fileName,
-		       strerror(errno));
+		       osstrerror());
 	    wl_close(theFile->filePtr);
 	    result = wl_unableToStat;
 	}
@@ -1590,28 +1579,22 @@ sprocMain(void *sprocNum)
 /* close channel to pmcd */
     if(close(extp->e_infd) < 0) {
     	logmessage(LOG_ERR, "sprocMain: pmcd ch. close(fd=%d) failed: %s\n",
-		   extp->e_infd,
-		   strerror(errno));
+		   extp->e_infd, osstrerror());
     }
     if(close(extp->e_outfd) < 0) {
     	logmessage(LOG_ERR, "sprocMain: pmcd ch. close(fd=%d) failed: %s\n",
-		   extp->e_outfd,
-		   strerror(errno));
+		   extp->e_outfd, osstrerror());
     }
 
 /* close pipes to main process which are not to be used */
     
     if(close(sprocData->inFD[1]) < 0) {
     	logmessage(LOG_ERR, "sprocMain[%d]: pipe close(fd=%d) failed: %s\n",
-		   mySprocNum,
-		   sprocData->inFD[1],
-		   strerror(errno));
+		   mySprocNum, sprocData->inFD[1], osstrerror());
     }
     if(close(sprocData->outFD[0]) < 0) {
     	logmessage(LOG_ERR, "sprocMain[%d]: pipe close(fd=%d) failed: %s\n",
-		   mySprocNum,
-		   sprocData->outFD[0],
-		   strerror(errno));
+		   mySprocNum, sprocData->outFD[0], osstrerror());
     }
     
 /* open up all file descriptors */
@@ -1639,18 +1622,14 @@ sprocMain(void *sprocNum)
     	sts = read(sprocData->inFD[0], &i, sizeof(i));
 	if (sts <= 0) {
 	    logmessage(LOG_ERR, "Sproc[%d] read(fd=%d) failed: %s\n",
-		       mySprocNum,
-		       sprocData->inFD[0],
-		       strerror(errno));
+		       mySprocNum, sprocData->inFD[0], osstrerror());
 	    exit(1);
 	}
 	refresh(sprocData);
 	sts = write(sprocData->outFD[1], &i, sizeof(i));
 	if (sts <= 0) {
 	    logmessage(LOG_ERR, "Sproc[%d] write(fd=%d) failed: %s\n",
-		       sprocData->outFD[1],
-		       mySprocNum,
-		       strerror(errno));
+		       sprocData->outFD[1], mySprocNum, osstrerror());
 	    exit(1);
 	}
     }
@@ -1741,8 +1720,7 @@ refresh(WebSproc* proc)
 			}
 			else {
 			    logmessage(LOG_ERR, "refresh %s: %s\n",
-				       accessFile->fileName,
-				       strerror(errno));
+				       accessFile->fileName, osstrerror());
 			}
 
 			wl_close(accessFile->filePtr);
@@ -2206,8 +2184,7 @@ refresh(WebSproc* proc)
 
                     if (sts < 0) {
                         logmessage(LOG_ERR, "refresh %s: %s\n",
-                               errorFile->fileName,
-                               strerror(errno));
+                               errorFile->fileName, osstrerror());
                     }
                     else {
                         logmessage(LOG_WARNING, 
@@ -2364,8 +2341,7 @@ probe(void)
     	sts = write(sprocData->inFD[1], &dummy, sizeof(dummy));
 	if (sts < 0) {
 	    logmessage(LOG_ERR, "Error on fetch write(fd=%d): %s", 
-		       sprocData->inFD[1],
-		       strerror(errno));
+		       sprocData->inFD[1], osstrerror());
 	    exit(1);
 	}
 
@@ -2420,7 +2396,7 @@ probe(void)
 	sts = select(nfds, &tmprfds, (fd_set*)0, (fd_set*)0, 
 		     (struct timeval*)0);
 	if (sts < 0) {
-	    logmessage(LOG_ERR, "Error on fetch select: %s", strerror(errno));
+	    logmessage(LOG_ERR, "Error on fetch select: %s", netstrerror());
 	    exit(1);
 	}
 	else if (sts == 0)
@@ -2434,10 +2410,9 @@ probe(void)
 	    if (FD_ISSET(thisFD, &tmprfds)) {
 	    	FD_CLR(sprocData->outFD[0], &rfds);
 		sts = read(thisFD, &dummy, sizeof(dummy));
-
 		if (sts < 0) {
 		    logmessage(LOG_ERR, "Error on fetch read: %s",
-			       strerror(errno));
+			       osstrerror());
 		    exit(1);
 		}
 	    }
@@ -2555,7 +2530,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 
 	need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
 	if ((res = (pmResult *) malloc(need)) == (pmResult *)0)
-	    return -errno;
+	    return -oserror();
 	maxnpmids = numpmid;
     }
 
@@ -2631,7 +2606,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
                 res->numpmid = i;
                 __pmFreeResultValues(res);
             }
-            return -errno;
+            return -oserror();
         }
 
         vset->pmid = pmidlist[i];
@@ -2664,7 +2639,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
                     res->numpmid = i;
                     __pmFreeResultValues(res);
                 }
-                return -errno;
+                return -oserror();
             }
             }
 
@@ -3022,7 +2997,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
             }
             
             if (haveValue) {
-                sts = __pmStuffValue(&atom, 0, &vset->vlist[j], type);
+                sts = __pmStuffValue(&atom, &vset->vlist[j], type);
                 if (sts < 0) {
                     __pmFreeResultValues(res);
                     return sts;
