@@ -47,7 +47,7 @@ then
 
     while true
     do
-	echo -n "Interval between summary expression evaluation (seconds)? [10] "
+	$PCP_ECHO_PROG $PCP_ECHO_N "Interval between summary expression evaluation (seconds)? [10] ""$PCP_ECHO_C"
 	read delta
 	[ -z "$delta" ] && delta=10
 	[ -z "`echo $delta | tr -d '[0-9]'`" ] && break

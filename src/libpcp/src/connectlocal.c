@@ -180,7 +180,8 @@ EndLocalContext(void)
 
     for (i = 0; i < numdso; i++) {
 	dp = &dsotab[i];
-	if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5 &&
+	if (dp->domain != -1 &&
+	    dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5 &&
 	    dp->dispatch.version.four.ext->e_endCallBack != NULL) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT) {
@@ -510,45 +511,87 @@ __pmSpecLocalPMDA(const char *spec)
     else if (strncmp(arg, "clear", 5) == 0) {
 	op = PM_LOCAL_CLEAR;
 	ap = &arg[5];
+	if (*ap == '\0')
+	    goto doit;
+	else {
+	    free(sbuf);
+	    return "unexpected text after clear op in spec";
+	}
     }
     else {
 	free(sbuf);
 	return "bad op in spec";
     }
-    if (op == PM_LOCAL_CLEAR && *ap == '\0')
-	goto doit;
 
     if (*ap != ',') {
 	free(sbuf);
-	return "bad spec";
+	return "expected , after op in spec";
     }
+    /* ap-> , after add or del */
     arg = ++ap;
-    if (*ap != ',' && *ap != '\0') {
+    if (*ap == '\0') {
+	free(sbuf);
+	return "missing domain in spec";
+    }
+    else if (*ap != ',') {
+	/* ap-> domain */
 	domain = (int)strtol(arg, &ap, 10);
 	if ((*ap != ',' && *ap != '\0') || domain < 0 || domain > 510) {
 	    free(sbuf);
 	    return "bad domain in spec";
 	}
     }
+    else {
+	if (op != PM_LOCAL_DEL) {
+	    /* found ,, where ,domain, expected */
+	    free(sbuf);
+	    return "missing domain in spec";
+	}
+    }
+    ap++;
+    /* ap -> char after , following domain */
     if (*ap == ',') {
+	/* no path, could have init (not useful but possible!) */
 	ap++;
-	if (*ap == ',') {
-	    /* no name, could have init (not useful but possible!) */
+	if (*ap != '\0')
+	    init = ap;
+    }
+    else if (*ap != '\0') {
+	/* have path and possibly init */
+	name = ap;
+	while (*ap != ',' && *ap != '\0')
 	    ap++;
+	if (*ap == ',') {
+	    *ap++ = '\0';
 	    if (*ap != '\0')
 		init = ap;
-	}
-	else if (*ap != '\0') {
-	    /* have name and possibly init */
-	    name = ap;
-	    while (*ap != ',' && *ap != '\0')
-		ap++;
-	    if (*ap == ',') {
-		*ap++ = '\0';
-		if (*ap != '\0')
-		    init = ap;
+	    else {
+		if (op != PM_LOCAL_DEL) {
+		    /* found end of string where init-routine expected */
+		    free(sbuf);
+		    return "missing init-routine in spec";
+		}
 	    }
 	}
+	else {
+	    if (op != PM_LOCAL_DEL) {
+		/* found end of string where init-routine expected */
+		free(sbuf);
+		return "missing init-routine in spec";
+	    }
+	}
+    }
+    else {
+	if (op != PM_LOCAL_DEL) {
+	    /* found end of string where path expected */
+	    free(sbuf);
+	    return "missing dso-path in spec";
+	}
+    }
+
+    if (domain == -1 && name == NULL) {
+	free(sbuf);
+	return "missing domain and dso-path in spec";
     }
 
 doit:
