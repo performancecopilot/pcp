@@ -6,28 +6,29 @@
 #
 
 seq=`basename $0`
-echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
 . ./common.check
 . ./common.filter
 
-status=1
-done_clean=false
-kvm_stats_path=/sys/kernel/debug/kvm
 
 if [ $PCP_PLATFORM != linux ]
 then
-    echo "KVM only exists on Linux" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-elif [ ! -d $kvm_stats_path ]
-then
-    echo "KVM sysfs interface not available" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun "KVM only exists on Linux"
 fi
+
+kvm_stats_path=/sys/kernel/debug/kvm
+
+if [ ! -d $kvm_stats_path ]
+then
+    _notrun "KVM sysfs interface not available"
+fi
+
+echo "QA output created by $seq"
+
+status=1
+done_clean=false
 
 _cleanup()
 {

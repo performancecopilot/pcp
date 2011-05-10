@@ -8,13 +8,26 @@
 
 seq=`basename $0`
 
-. ./localconfig
-rm -f $seq.out && ln $seq.${PCP_PLATFORM} $seq.out || exit 1
-
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./localconfig
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux)
+	ln $seq.$PCP_PLATFORM $seq.out || exit 1
+	;;
+    darwin)
+	ln $seq.linux $seq.out || exit 1
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
 
 _filter()
 {
@@ -36,12 +49,11 @@ export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
 eval `./getpmcdhosts -n 2 -L | sed -e 's/ / other2=/' -e 's/^/other1=/'`
 if [ -z "$other1" ]
 then
-    echo "Cannot find first remote host running pmcd" >$seq.notrun
-    exit
+    _notrun "Cannot find first remote host running pmcd"
 fi
 if [ -z "$other2" ]
 then
-    echo "Cannot find second remote host running pmcd" >$seq.notrun
+    _notrun "Cannot find second remote host running pmcd"
     exit
 fi
 
@@ -78,7 +90,7 @@ _filter <$tmp.err
 echo
 echo "SYSLOG ..."
 SYSLOG=''
-for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages
+for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages /var/log/system.log
 do
     if [ -f $f ]
     then

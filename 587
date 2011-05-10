@@ -9,12 +9,25 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-rm -f $seq.out && ln $seq.${PCP_PLATFORM} $seq.out || exit 1
-
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux)
+	ln $seq.$PCP_PLATFORM $seq.out || exit 1
+	;;
+    darwin)
+	ln $seq.linux $seq.out || exit 1
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
@@ -62,8 +75,18 @@ pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 linux   60      dso     linux_init      $PCP_PMDAS_DIR/linux/pmda_linux.so
 EOF
     ;;
+
+darwin)
+    PMCDLOG=$PCP_LOG_DIR/pmcd/pmcd.log
+    cat >> $tmp.conf << EOF
+# Name  Id      IPC     IPC Params      File/Cmd
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+darwin  78      dso     darwin_init     $PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
+EOF
+    ;;
+
 *)
-    echo "Unknown platfrom $PCP_PLATFORM"
+    echo "Arrgh ... need pmcd.conf for $PCP_PLATFORM"
     exit 1
 esac
 

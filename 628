@@ -9,7 +9,7 @@
 seq=`basename $0`
 
 . ./localconfig
-if [ $PCP_PLATFORM = linux -a $PCP_VER -ge 2200 ]
+if [ $PCP_PLATFORM != irix -a $PCP_VER -ge 2200 ]
 then
     : PCP 2.2 or later
 elif [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -ge 6512 ]
@@ -19,9 +19,7 @@ elif [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -lt 6500 -a $PCP_EOE_VER -ge 2200 ]
 then
     : IRIX 6.2 and PCP 2.2
 else
-    echo "need fix for pv #809111 and multiple DSO PMDAs" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun "need fix for pv #809111 and multiple DSO PMDAs"
 fi
 
 echo "QA output created by $seq"

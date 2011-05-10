@@ -19,8 +19,12 @@ rm -f $seq.out
 if [ $PCP_PLATFORM = linux ]
 then
     ln $seq.linux $seq.out
+elif [ $PCP_PLATFORM = darwin ]
+then
+    ln $seq.darwin $seq.out
 else
-    echo "Warning: no validated output for $PCP_PLATFORM"
+    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+    exit 1
 fi
 
 status=0	# success is the default!

@@ -7,15 +7,30 @@
 #
 
 seq=`basename $0`
-. ./localconfig
-rm -f $seq.out && ln $seq.${PCP_PLATFORM} $seq.out || exit 1
-rm -f $seq.full
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./localconfig
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux)
+	ln $seq.$PCP_PLATFORM $seq.out || exit 1
+	;;
+    darwin)
+	ln $seq.linux $seq.out || exit 1
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
+
+rm -f $seq.full
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
@@ -49,9 +64,7 @@ then
     daemon=syslogd
     config=/etc/syslog.conf
 else
-    echo "No /etc/*syslog.conf -- probably using a different syslog package" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun "No /etc/*syslog.conf -- probably using a different syslog package"
 fi
 
 cleanup()

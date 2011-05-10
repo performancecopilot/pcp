@@ -1,35 +1,33 @@
-QA output created by 344
-
-qa.colour
-    inst [0 or "red"] value 101
-    inst [1 or "green"] value 202
-    inst [2 or "blue"] value 303
-
-PID check passes
-
-=== expect no sample metrics ===
-
-qa.colour PMID: 400.0.5
-    inst [0 or "red"] value 101
-    inst [1 or "green"] value 202
-    inst [2 or "blue"] value 303
-sample.colour: pmLookupDesc: No PMCD agent for domain of request
-
-=== sample metrics this time ===
-
-qa.colour PMID: 400.0.5
-    inst [0 or "red"] value 101
-    inst [1 or "green"] value 202
-    inst [2 or "blue"] value 303
-
-sample.colour PMID: 30.0.5
-    inst [0 or "red"] value 101
-    inst [1 or "green"] value 202
-    inst [2 or "blue"] value 303
-
-=== -K spec parsing in pminfo ===
 +++ -K clear +++
-build_dsotab: parsing $PCP_PMCDCONF_PATH
+__pmLocalPMDA(op=CLEAR, domain=-1, name=(null), init=(null))
+build_dsotab: parsing /etc/pmcd/pmcd.conf
+[6] domain=60, name=/var/lib/pcp/pmdas/linux/pmda_linux.so, init=linux_init
+__pmLocalPMDA(op=ADD, domain=60, name=/var/lib/pcp/pmdas/linux/pmda_linux.so, init=linux_init)
+Local Context PMDA Table
+0x82d94b8 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+[7] domain=70, name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so, init=mmv_init
+__pmLocalPMDA(op=ADD, domain=70, name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so, init=mmv_init)
+Local Context PMDA Table
+0x82d9540 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x82d9584 [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+[11] domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init
+__pmLocalPMDA(op=ADD, domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init)
+Local Context PMDA Table
+0x82d9540 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x82d9584 [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+0x82d95c8 [2] domain=30 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+Local Context PMDA Table ... empty
+pmNewContext(3, (null)) -> 0
+Dump Contexts: current context = 0
+Context[0] standalone: profile=NOT_SENT
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
 sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K clear, +++
@@ -110,7 +108,7 @@ Options:
   -x		like -f and expand event records
   -Z timezone   set timezone for -O
   -z            set timezone for -O to local time for host from -a
-+++ -K clear,400,TMP.$DSO_SUFFIX +++
++++ -K clear,400,/tmp/313.so +++
 pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
 Usage: pminfo [options] [metricname ...]
 
@@ -136,7 +134,7 @@ Options:
   -x		like -f and expand event records
   -Z timezone   set timezone for -O
   -z            set timezone for -O to local time for host from -a
-+++ -K clear,400,TMP.$DSO_SUFFIX, +++
++++ -K clear,400,/tmp/313.so, +++
 pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
 Usage: pminfo [options] [metricname ...]
 
@@ -162,7 +160,7 @@ Options:
   -x		like -f and expand event records
   -Z timezone   set timezone for -O
   -z            set timezone for -O to local time for host from -a
-+++ -K clear,400,TMP.$DSO_SUFFIX,sample_init +++
++++ -K clear,400,/tmp/313.so,sample_init +++
 pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
 Usage: pminfo [options] [metricname ...]
 
@@ -188,7 +186,7 @@ Options:
   -x		like -f and expand event records
   -Z timezone   set timezone for -O
   -z            set timezone for -O to local time for host from -a
-+++ -K clear,,TMP.$DSO_SUFFIX,sample_init +++
++++ -K clear,,/tmp/313.so,sample_init +++
 pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
 Usage: pminfo [options] [metricname ...]
 
@@ -240,7 +238,7 @@ Options:
   -x		like -f and expand event records
   -Z timezone   set timezone for -O
   -z            set timezone for -O to local time for host from -a
-+++ -K clear,,TMP.$DSO_SUFFIX,sample_init +++
++++ -K clear,,/tmp/313.so,sample_init +++
 pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
 Usage: pminfo [options] [metricname ...]
 
@@ -396,7 +394,7 @@ Options:
   -x		like -f and expand event records
   -Z timezone   set timezone for -O
   -z            set timezone for -O to local time for host from -a
-+++ -K add,400,TMP.$DSO_SUFFIX +++
++++ -K add,400,/tmp/313.so +++
 pminfo: __pmSpecLocalPMDA failed: missing init-routine in spec
 Usage: pminfo [options] [metricname ...]
 
@@ -422,7 +420,7 @@ Options:
   -x		like -f and expand event records
   -Z timezone   set timezone for -O
   -z            set timezone for -O to local time for host from -a
-+++ -K add,400,TMP.$DSO_SUFFIX, +++
++++ -K add,400,/tmp/313.so, +++
 pminfo: __pmSpecLocalPMDA failed: missing init-routine in spec
 Usage: pminfo [options] [metricname ...]
 
@@ -448,10 +446,43 @@ Options:
   -x		like -f and expand event records
   -Z timezone   set timezone for -O
   -z            set timezone for -O to local time for host from -a
-+++ -K add,400,TMP.$DSO_SUFFIX,sample_init +++
-build_dsotab: parsing $PCP_PMCDCONF_PATH
-NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX (30) notified of context 0 close
-NotifyEndLocalContext: DSO PMDA TMP.$DSO_SUFFIX (400) notified of context 0 close
++++ -K add,400,/tmp/313.so,sample_init +++
+__pmLocalPMDA(op=ADD, domain=400, name=/tmp/313.so, init=sample_init)
+build_dsotab: parsing /etc/pmcd/pmcd.conf
+[6] domain=60, name=/var/lib/pcp/pmdas/linux/pmda_linux.so, init=linux_init
+__pmLocalPMDA(op=ADD, domain=60, name=/var/lib/pcp/pmdas/linux/pmda_linux.so, init=linux_init)
+Local Context PMDA Table
+0x97844d0 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+[7] domain=70, name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so, init=mmv_init
+__pmLocalPMDA(op=ADD, domain=70, name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so, init=mmv_init)
+Local Context PMDA Table
+0x9784558 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x978459c [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+[11] domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init
+__pmLocalPMDA(op=ADD, domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init)
+Local Context PMDA Table
+0x9784558 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x978459c [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+0x97845e0 [2] domain=30 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+Local Context PMDA Table
+0x9784030 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x9784074 [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+0x97840b8 [2] domain=30 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+0x97840fc [3] domain=400 name=/tmp/313.so init=sample_init handle=(nil)
+pmNewContext(3, (null)) -> 0
+Dump Contexts: current context = 0
+Context[0] standalone: profile=NOT_SENT
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+NotifyEndLocalContext: DSO PMDA /var/lib/pcp/pmdas/sample/pmda_sample.so (30) notified of context 0 close
+NotifyEndLocalContext: DSO PMDA /tmp/313.so (400) notified of context 0 close
 
 sample.string.write_me PMID: 30.0.29
     value 13
@@ -511,16 +542,98 @@ Options:
   -Z timezone   set timezone for -O
   -z            set timezone for -O to local time for host from -a
 +++ -K del,30 +++
-build_dsotab: parsing $PCP_PMCDCONF_PATH
+__pmLocalPMDA(op=DEL, domain=30, name=(null), init=(null))
+build_dsotab: parsing /etc/pmcd/pmcd.conf
+[6] domain=60, name=/var/lib/pcp/pmdas/linux/pmda_linux.so, init=linux_init
+__pmLocalPMDA(op=ADD, domain=60, name=/var/lib/pcp/pmdas/linux/pmda_linux.so, init=linux_init)
+Local Context PMDA Table
+0x99154b8 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+[7] domain=70, name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so, init=mmv_init
+__pmLocalPMDA(op=ADD, domain=70, name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so, init=mmv_init)
+Local Context PMDA Table
+0x9915540 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x9915584 [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+[11] domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init
+__pmLocalPMDA(op=ADD, domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init)
+Local Context PMDA Table
+0x9915540 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x9915584 [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+0x99155c8 [2] domain=30 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+Local Context PMDA Table
+0x9915540 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x9915584 [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+0x99155c8 [2] domain=-1 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+pmNewContext(3, (null)) -> 0
+Dump Contexts: current context = 0
+Context[0] standalone: profile=NOT_SENT
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
 sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K del,30, +++
-build_dsotab: parsing $PCP_PMCDCONF_PATH
+__pmLocalPMDA(op=DEL, domain=30, name=(null), init=(null))
+build_dsotab: parsing /etc/pmcd/pmcd.conf
+[6] domain=60, name=/var/lib/pcp/pmdas/linux/pmda_linux.so, init=linux_init
+__pmLocalPMDA(op=ADD, domain=60, name=/var/lib/pcp/pmdas/linux/pmda_linux.so, init=linux_init)
+Local Context PMDA Table
+0x98324b8 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+[7] domain=70, name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so, init=mmv_init
+__pmLocalPMDA(op=ADD, domain=70, name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so, init=mmv_init)
+Local Context PMDA Table
+0x9832540 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x9832584 [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+[11] domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init
+__pmLocalPMDA(op=ADD, domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init)
+Local Context PMDA Table
+0x9832540 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x9832584 [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+0x98325c8 [2] domain=30 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+Local Context PMDA Table
+0x9832540 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x9832584 [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+0x98325c8 [2] domain=-1 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+pmNewContext(3, (null)) -> 0
+Dump Contexts: current context = 0
+Context[0] standalone: profile=NOT_SENT
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
 sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
-+++ -K del,,sample/pmda_sample.$DSO_SUFFIX +++
-build_dsotab: parsing $PCP_PMCDCONF_PATH
++++ -K del,,sample/pmda_sample.so +++
+__pmLocalPMDA(op=DEL, domain=-1, name=sample/pmda_sample.so, init=(null))
+build_dsotab: parsing /etc/pmcd/pmcd.conf
+[6] domain=60, name=/var/lib/pcp/pmdas/linux/pmda_linux.so, init=linux_init
+__pmLocalPMDA(op=ADD, domain=60, name=/var/lib/pcp/pmdas/linux/pmda_linux.so, init=linux_init)
+Local Context PMDA Table
+0x85004c8 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+[7] domain=70, name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so, init=mmv_init
+__pmLocalPMDA(op=ADD, domain=70, name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so, init=mmv_init)
+Local Context PMDA Table
+0x8500550 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x8500594 [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+[11] domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init
+__pmLocalPMDA(op=ADD, domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init)
+Local Context PMDA Table
+0x8500550 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x8500594 [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+0x85005d8 [2] domain=30 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
 __pmLocalPMDA -> Unknown or illegal instance domain identifier
+Local Context PMDA Table
+0x8500550 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x8500594 [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+0x85005d8 [2] domain=30 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
 pminfo: __pmSpecLocalPMDA failed: __pmLocalPMDA: Unknown or illegal instance domain identifier
 Usage: pminfo [options] [metricname ...]
 
@@ -546,12 +659,74 @@ Options:
   -x		like -f and expand event records
   -Z timezone   set timezone for -O
   -z            set timezone for -O to local time for host from -a
-+++ -K del,30,sample/pmda_sample.$DSO_SUFFIX, +++
-build_dsotab: parsing $PCP_PMCDCONF_PATH
++++ -K del,30,sample/pmda_sample.so, +++
+__pmLocalPMDA(op=DEL, domain=30, name=sample/pmda_sample.so, init=(null))
+build_dsotab: parsing /etc/pmcd/pmcd.conf
+[6] domain=60, name=/var/lib/pcp/pmdas/linux/pmda_linux.so, init=linux_init
+__pmLocalPMDA(op=ADD, domain=60, name=/var/lib/pcp/pmdas/linux/pmda_linux.so, init=linux_init)
+Local Context PMDA Table
+0x94f34d0 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+[7] domain=70, name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so, init=mmv_init
+__pmLocalPMDA(op=ADD, domain=70, name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so, init=mmv_init)
+Local Context PMDA Table
+0x94f3558 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x94f359c [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+[11] domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init
+__pmLocalPMDA(op=ADD, domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init)
+Local Context PMDA Table
+0x94f3558 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x94f359c [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+0x94f35e0 [2] domain=30 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+Local Context PMDA Table
+0x94f3558 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x94f359c [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+0x94f35e0 [2] domain=-1 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+pmNewContext(3, (null)) -> 0
+Dump Contexts: current context = 0
+Context[0] standalone: profile=NOT_SENT
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
 sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
-+++ -K del,30,sample/pmda_sample.$DSO_SUFFIX,sample_init +++
-build_dsotab: parsing $PCP_PMCDCONF_PATH
++++ -K del,30,sample/pmda_sample.so,sample_init +++
+__pmLocalPMDA(op=DEL, domain=30, name=sample/pmda_sample.so, init=sample_init)
+build_dsotab: parsing /etc/pmcd/pmcd.conf
+[6] domain=60, name=/var/lib/pcp/pmdas/linux/pmda_linux.so, init=linux_init
+__pmLocalPMDA(op=ADD, domain=60, name=/var/lib/pcp/pmdas/linux/pmda_linux.so, init=linux_init)
+Local Context PMDA Table
+0x9f7d4d8 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+[7] domain=70, name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so, init=mmv_init
+__pmLocalPMDA(op=ADD, domain=70, name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so, init=mmv_init)
+Local Context PMDA Table
+0x9f7d560 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x9f7d5a4 [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+[11] domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init
+__pmLocalPMDA(op=ADD, domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init)
+Local Context PMDA Table
+0x9f7d560 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x9f7d5a4 [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+0x9f7d5e8 [2] domain=30 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+Local Context PMDA Table
+0x9f7d560 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x9f7d5a4 [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+0x9f7d5e8 [2] domain=-1 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+pmNewContext(3, (null)) -> 0
+Dump Contexts: current context = 0
+Context[0] standalone: profile=NOT_SENT
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
 sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K del,, +++
@@ -632,11 +807,203 @@ Options:
   -x		like -f and expand event records
   -Z timezone   set timezone for -O
   -z            set timezone for -O to local time for host from -a
-
-=== some __pmLocalPMDA() exercises ===
-build_dsotab: parsing $PCP_PMCDCONF_PATH
-NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX (130) notified of context 0 close
-NotifyEndLocalContext: DSO PMDA TMP.$DSO_SUFFIX (400) notified of context 0 close
+__pmLocalPMDA(op=CLEAR, domain=-1, name=(null), init=(null))
+pmGetConfig: (init) PCP_RC_DIR=/etc/init.d
+pmGetConfig: (init) PCP_SYSCONFIG_DIR=
+pmGetConfig: (init) PCP_BIN_DIR=/usr/bin
+pmGetConfig: (init) PCP_BINADM_DIR=/usr/lib/pcp/bin
+pmGetConfig: (init) PCP_LIB_DIR=/usr/lib
+pmGetConfig: (init) PCP_LIB32_DIR=/usr/lib
+pmGetConfig: (init) PCP_SHARE_DIR=/usr/share/pcp
+pmGetConfig: (init) PCP_INC_DIR=/usr/include/pcp
+pmGetConfig: (init) PCP_MAN_DIR=/usr/share/man
+pmGetConfig: (init) PCP_VAR_DIR=/var/lib/pcp
+pmGetConfig: (init) PCP_PMCDCONF_PATH=/etc/pmcd/pmcd.conf
+pmGetConfig: (init) PCP_PMCDOPTIONS_PATH=/etc/pmcd/pmcd.options
+pmGetConfig: (init) PCP_PMCDRCLOCAL_PATH=/etc/pmcd/rc.local
+pmGetConfig: (init) PCP_PMPROXYOPTIONS_PATH=/etc/pmproxy/pmproxy.options
+pmGetConfig: (init) PCP_PMIECONTROL_PATH=/etc/pmie/control
+pmGetConfig: (init) PCP_PMSNAPCONTROL_PATH=/etc/pmsnap/control
+pmGetConfig: (init) PCP_PMLOGGERCONTROL_PATH=/etc/pmlogger/control
+pmGetConfig: (init) PCP_PMDAS_DIR=/var/lib/pcp/pmdas
+pmGetConfig: (init) PCP_RUN_DIR=/var/run/pcp
+pmGetConfig: (init) PCP_LOG_DIR=/var/log/pcp
+pmGetConfig: (init) PCP_TMP_DIR=/var/tmp
+pmGetConfig: (init) PCP_DOC_DIR=/usr/share/doc/pcp-3.5.1
+pmGetConfig: (init) PCP_DEMOS_DIR=/usr/share/pcp/demos
+pmGetConfig: (init) PCP_AWK_PROG=gawk
+pmGetConfig: (init) PCP_MAKE_PROG=/usr/bin/gmake
+pmGetConfig: (init) PCP_CC_PROG=gcc 
+pmGetConfig: (init) PCP_ECHO_PROG=/bin/echo
+pmGetConfig: (init) PCP_ECHO_N=-n
+pmGetConfig: (init) PCP_ECHO_C=
+pmGetConfig: (init) PCP_SYSLOG_PROG=logger
+pmGetConfig: (init) PCP_PS_PROG=ps
+pmGetConfig: (init) PCP_PS_HAVE_BSD=false
+pmGetConfig: (init) PCP_PS_ALL_FLAGS=-efw
+pmGetConfig: (init) PCP_WHICH_PROG=which
+pmGetConfig: (init) PCP_PLATFORM=linux
+pmGetConfig: (init) PCP_PLATFORM_PATHS=/usr/bin/X11:/usr/local/bin
+pmGetConfig: (init) PCP_VERSION=3.5.1
+pmGetConfig: (init) PCP_XCONFIRM_PROG=/usr/bin/pmconfirm
+pmGetConfig: (init) PCP_MPI_DIRS=
+pmGetConfig: PCP_PMCDCONF_PATH=/etc/pmcd/pmcd.conf
+build_dsotab: parsing /etc/pmcd/pmcd.conf
+[6] domain=60, name=/var/lib/pcp/pmdas/linux/pmda_linux.so, init=linux_init
+__pmLocalPMDA(op=ADD, domain=60, name=/var/lib/pcp/pmdas/linux/pmda_linux.so, init=linux_init)
+Local Context PMDA Table
+0x97524b8 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+[7] domain=70, name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so, init=mmv_init
+__pmLocalPMDA(op=ADD, domain=70, name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so, init=mmv_init)
+Local Context PMDA Table
+0x9752540 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x9752584 [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+[11] domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init
+__pmLocalPMDA(op=ADD, domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init)
+Local Context PMDA Table
+0x9752540 [0] domain=60 name=/var/lib/pcp/pmdas/linux/pmda_linux.so init=linux_init handle=(nil)
+0x9752584 [1] domain=70 name=/var/lib/pcp/pmdas/mmv/pmda_mmv.so init=mmv_init handle=(nil)
+0x97525c8 [2] domain=30 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+Local Context PMDA Table ... empty
+__pmLocalPMDA(op=ADD, domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init)
+Local Context PMDA Table
+0x9752580 [0] domain=30 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+__pmLocalPMDA(op=ADD, domain=400, name=/tmp/313.so, init=sample_init)
+Local Context PMDA Table
+0x9752580 [0] domain=30 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+0x97525c4 [1] domain=400 name=/tmp/313.so init=sample_init handle=(nil)
+__pmLocalPMDA(op=DEL, domain=30, name=0, init=0)
+Local Context PMDA Table
+0x9752580 [0] domain=-1 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+0x97525c4 [1] domain=400 name=/tmp/313.so init=sample_init handle=(nil)
+__pmLocalPMDA(op=CLEAR, domain=-1, name=(null), init=(null))
+Local Context PMDA Table ... empty
+__pmLocalPMDA(op=ADD, domain=30, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init)
+Local Context PMDA Table
+0x9752580 [0] domain=30 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+__pmLocalPMDA(op=DEL, domain=0, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=0)
+Local Context PMDA Table
+0x9752580 [0] domain=-1 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+__pmLocalPMDA(op=ADD, domain=130, name=/var/lib/pcp/pmdas/sample/pmda_sample.so, init=sample_init)
+Local Context PMDA Table
+0x9752060 [0] domain=-1 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+0x97520a4 [1] domain=130 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+__pmLocalPMDA(op=ADD, domain=400, name=/tmp/313.so, init=sample_init)
+Local Context PMDA Table
+0x9752060 [0] domain=-1 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+0x97520a4 [1] domain=130 name=/var/lib/pcp/pmdas/sample/pmda_sample.so init=sample_init handle=(nil)
+0x97520e8 [2] domain=400 name=/tmp/313.so init=sample_init handle=(nil)
+load(name=/tmp/313.pmns, binok=1, dupok=0) lic case=0 fname=/tmp/313.pmns
+loadbinary(file=/tmp/313.pmns.bin)
+loadbinary(file=/tmp/313.pmns)
+pmGetConfig: PCP_VAR_DIR=/var/lib/pcp
+pmGetConfig: PCP_SHARE_DIR=/usr/share/pcp
+pmLoadNameSpace: pid -> 0x64000001
+pmLoadNameSpace: colour -> 0x64000005
+pmLoadNameSpace: bin -> 0x64000006
+pmLoadNameSpace: write_me -> 0x6400001d
+pmLoadNameSpace: colour -> 0x7800005
+pmLoadNameSpace: bin -> 0x7800006
+pmLoadNameSpace: write_me -> 0x780001d
+pmLoadNameSpace: colour -> 0x20800005
+pmLoadNameSpace: bin -> 0x20800006
+pmLoadNameSpace: write_me -> 0x2080001d
+Loaded ASCII PMNS
+pmGetConfig: PCP_PMDAS_DIR=/var/lib/pcp/pmdas
+pmGetConfig: PCP_PMDAS_DIR=/var/lib/pcp/pmdas
+pmGetConfig: PCP_PMDAS_DIR=/var/lib/pcp/pmdas
+pmGetConfig: PCP_TMP_DIR=/var/tmp
+[Sun May  8 21:35:47] pminfo(588) Debug: pmdaInit: PMDA sample DSO: help file /var/lib/pcp/pmdas/sample/dsohelp opened
+pmGetConfig: PCP_TMP_DIR=/var/tmp
+[Sun May  8 21:35:47] pminfo(588) Info: name        = sample DSO
+pmGetConfig: PCP_TMP_DIR=/var/tmp
+[Sun May  8 21:35:47] pminfo(588) Info: domain      = 130
+pmGetConfig: PCP_TMP_DIR=/var/tmp
+[Sun May  8 21:35:47] pminfo(588) Info: num metrics = 0
+pmGetConfig: PCP_TMP_DIR=/var/tmp
+[Sun May  8 21:35:47] pminfo(588) Info: num indom   = 0
+pmGetConfig: PCP_TMP_DIR=/var/tmp
+[Sun May  8 21:35:47] pminfo(588) Info: direct map  = 1
+pmGetConfig: PCP_TMP_DIR=/var/tmp
+[Sun May  8 21:35:47] pminfo(588) Warning: sample_init: direct map disabled @ desctab[138]
+redo instance domain for mirage: numinst: 1
+ 0 "m-00"
+pmGetConfig: PCP_PMDAS_DIR=/var/lib/pcp/pmdas
+redo instance domain for dynamic: numinst: 2
+ 1 "one" 2 "two"
+pmGetConfig: PCP_PMDAS_DIR=/var/lib/pcp/pmdas
+pmGetConfig: PCP_PMDAS_DIR=/var/lib/pcp/pmdas
+pmGetConfig: PCP_PMDAS_DIR=/var/lib/pcp/pmdas
+pmGetConfig: PCP_TMP_DIR=/var/tmp
+[Sun May  8 21:35:47] pminfo(588) Debug: pmdaInit: PMDA sample DSO: help file /var/lib/pcp/pmdas/sample/dsohelp opened
+pmGetConfig: PCP_TMP_DIR=/var/tmp
+[Sun May  8 21:35:47] pminfo(588) Info: name        = sample DSO
+pmGetConfig: PCP_TMP_DIR=/var/tmp
+[Sun May  8 21:35:47] pminfo(588) Info: domain      = 400
+pmGetConfig: PCP_TMP_DIR=/var/tmp
+[Sun May  8 21:35:47] pminfo(588) Info: num metrics = 0
+pmGetConfig: PCP_TMP_DIR=/var/tmp
+[Sun May  8 21:35:47] pminfo(588) Info: num indom   = 0
+pmGetConfig: PCP_TMP_DIR=/var/tmp
+[Sun May  8 21:35:47] pminfo(588) Info: direct map  = 1
+pmGetConfig: PCP_TMP_DIR=/var/tmp
+[Sun May  8 21:35:47] pminfo(588) Warning: sample_init: direct map disabled @ desctab[138]
+redo instance domain for mirage: numinst: 1
+ 0 "m-00"
+pmGetConfig: PCP_PMDAS_DIR=/var/lib/pcp/pmdas
+redo instance domain for dynamic: numinst: 2
+ 1 "one" 2 "two"
+__dmopencontext(->ctx 0) called
+pmNewContext(3, (null)) -> 0
+Dump Contexts: current context = 0
+Context[0] standalone: profile=NOT_SENT
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmGetPMNSLocation() -> Local
+pmWhichContext() -> 0, cur=0
+pmGetChildren(name="tmpsample.bin") [local]
+pmGetChildren(name="tmpsample.bin") 0 regular children, no derived children (Unknown metric name)
+pmGetChildren(name="tmpsample.bin") -> leaf
+pmWhichContext() -> 0, cur=0
+pmLookupName(1, ...) using local PMNS returns 1 and ...
+  name[0]: "tmpsample.bin" PMID: 0x20800006 130.0.6
+pmLookupName(1, ...) -> 1
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+__pmFetchLocal: calling ???_profile(domain: 130), context: 0
+sample_inc_recv(0) [new context, num_ctx=1]
+__pmFetchLocal: [0] PMID=130.0.6 nval=9
+pmFetch returns ...
+pmResult dump from 0x97537c8 timestamp: 1304854547.133576 21:35:47.133 numpmid: 1
+  130.0.6 (tmpsample.bin): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmExtractValue:  100 [32] -> 100 [32]
+pmExtractValue:  200 [32] -> 200 [32]
+pmExtractValue:  300 [32] -> 300 [32]
+pmExtractValue:  400 [32] -> 400 [32]
+pmExtractValue:  500 [32] -> 500 [32]
+pmExtractValue:  600 [32] -> 600 [32]
+pmExtractValue:  700 [32] -> 700 [32]
+pmExtractValue:  800 [32] -> 800 [32]
+pmExtractValue:  900 [32] -> 900 [32]
+pmFreeResult(0x97537c8)
+__pmFreeResultValues(0x97537c8) numpmid=1
+__pmUnpinPDUBuf(0x9753818) -> fails
+free(0x9753818) vset pmid=130.0.6
+pmWhichContext() -> 0, cur=0
+NotifyEndLocalContext: DSO PMDA /var/lib/pcp/pmdas/sample/pmda_sample.so (130) notified of context 0 close
+sample_ctx_end(0) [context is active]
+NotifyEndLocalContext: DSO PMDA /tmp/313.so (400) notified of context 0 close
+sample_ctx_end(0) [context is unknown, num_ctx=0]
 
 tmpsample.bin PMID: 130.0.6
     inst [100 or "bin-100"] value 100
@@ -648,19 +1015,3 @@ tmpsample.bin PMID: 130.0.6
     inst [700 or "bin-700"] value 700
     inst [800 or "bin-800"] value 800
     inst [900 or "bin-900"] value 900
-
-=== other tools than know about -K ...
-
-metric:    sampledso.bin
-host:      @
-semantics: instantaneous value
-units:     none
-samples:   3
-interval:  0.10 sec
-
-    bin-100     bin-900 
-        100         900 
-        100         900 
-        100         900 
-
-sampledso.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"

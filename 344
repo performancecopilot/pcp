@@ -79,7 +79,7 @@ _filter()
 	-e "s;$tmp;TMP;g" \
 	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;" \
 	-e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;" \
-	-e "s/\.$DSO_SUFFIX/\$DSO_SUFFIX/g" \
+	-e "s/\.$DSO_SUFFIX/.\$DSO_SUFFIX/g" \
 	-e '/^0*x*[0-9a-f][0-9a-f]* /d' \
 	-e '/^\[[0-9][0-9]*]/d' \
 	-e '/^__pmLocalPMDA(/d'
@@ -95,7 +95,7 @@ echo
 pminfo -fL -n $tmp.pmns -K clear -K add,400,$PCP_VAR_DIR/pmdas/sample/pmda_sample,sample_init qa.pid >$tmp.out &
 expect=$!
 wait
-got=`sed -n $tmp.out -e '/value/s/.*value //p'`
+got=`sed -n -e '/value/s/.*value //p' $tmp.out`
 if [ "$got" != "$expect" ]
 then
     echo "Error: expecting pid $expect, got $got from"
@@ -118,14 +118,15 @@ pminfo -fmL -n $tmp.pmns -K add,400,$tmp.$DSO_SUFFIX,sample_init qa.colour sampl
 echo
 echo "=== -K spec parsing in pminfo ==="
 for spec in \
-	    clear clear, clear,400 clear,400, clear,400,$tmp clear,400,$tmp, \
-	    clear,400,$tmp,sample_init clear,,$tmp,sample_init clear,,,sample_init \
-	    clear,,$tmp,sample_init clear,400,,sample_init \
-	    add add, add,400 add,400, add,400,$tmp add,400,$tmp, \
-	    add,400,$tmp,sample_init \
+	    clear clear, clear,400 clear,400, clear,400,$tmp.$DSO_SUFFIX clear,400,$tmp.$DSO_SUFFIX, \
+	    clear,400,$tmp.$DSO_SUFFIX,sample_init clear,,$tmp.$DSO_SUFFIX,sample_init clear,,,sample_init \
+	    clear,,$tmp.$DSO_SUFFIX,sample_init clear,400,,sample_init \
+	    add add, add,400 add,400, add,400,$tmp.$DSO_SUFFIX add,400,$tmp.$DSO_SUFFIX, \
+	    add,400,$tmp.$DSO_SUFFIX,sample_init \
 	    del del, del,30 del,30, del,,sample/pmda_sample.$DSO_SUFFIX \
 	    del,30,sample/pmda_sample.$DSO_SUFFIX, \
-	    del,30,sample/pmda_sample.$DSO_SUFFIX,sample_init
+	    del,30,sample/pmda_sample.$DSO_SUFFIX,sample_init \
+	    del,, del,,, del,,,sample_init
 do
     echo "+++ -K $spec +++" | _filter
     pminfo -Dcontext -fmL -n $tmp.pmns -K $spec \
@@ -143,15 +144,15 @@ pminfo -Dcontext -fmL -n $tmp.pmns -K clear \
     -K add,30,$PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX,sample_init \
     -K del,0,$PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX,0 \
     -K add,130,$PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX,sample_init \
-    -K add,400,$tmp,sample_init \
+    -K add,400,$tmp.$DSO_SUFFIX,sample_init \
     tmpsample.bin 2>&1 \
 | _filter
 
 echo
 echo "=== other tools than know about -K ..."
-pmval -s 3 -t 0.1 -K clear -K add,30,sample/pmda_sample.so,sample_init '@:sampledso.bin["bin-100","bin-900"]'
+pmval -s 3 -t 0.1 -K clear -K add,30,$PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX,sample_init '@:sampledso.bin["bin-100","bin-900"]'
 echo
-pmprobe -K clear -K add,30,sample/pmda_sample.so,sample_init -I sampledso.bin
+pmprobe -K clear -K add,30,$PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX,sample_init -I sampledso.bin
 
 # success, all done
 exit

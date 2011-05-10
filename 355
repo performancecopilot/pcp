@@ -6,20 +6,29 @@
 #
 
 seq=`basename $0`
-
-. ./localconfig
-if [ $PCP_VER -ge 2200 ]
-then
-    rm -f $seq.out && ln $seq.${PCP_PLATFORM}.2 $seq.out || exit 1
-else
-    rm -f $seq.out && ln $seq.${PCP_PLATFORM}.1 $seq.out || exit 1
-fi
-
 echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
 . ./common.check
+. ./localconfig
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux|darwin)
+	if [ $PCP_VER -ge 2200 ]
+	then
+	    ln $seq.$PCP_PLATFORM.2 $seq.out || exit 1
+	else
+	    ln $seq.$PCP_PLATFORM.1 $seq.out || exit 1
+	fi
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
 
 _cleanup()
 {

@@ -7,21 +7,19 @@
 
 seq=`basename $0`
 
-if [ "`pmsocks echo ok 2>&1`" != ok ]
-then
-    echo "pmsocks is not installed and/or not configured" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
-echo "QA output created by $seq"
-
 # get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
 . ./common.config
 . ./localconfig
+
+if [ "`pmsocks echo ok 2>&1`" != ok ]
+then
+    _notrun "pmsocks is not installed and/or not configured"
+fi
+
+echo "QA output created by $seq"
 
 _filter_number()
 {
@@ -55,7 +53,8 @@ then
     PROG=pmstat
     cp $seq.linux $seq.out
 else
-    dodo!
+    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+    exit 1
 fi
 
 export SOCKS_SERVER PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT PROG

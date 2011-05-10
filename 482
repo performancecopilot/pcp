@@ -97,10 +97,10 @@ nbins=3
 _xtract sample.scale_step.time_up_nanosecs | _noncounter_values > $tmp.noncount
 eval `fgrep COUNT $tmp.noncount`
 #echo count=$COUNT maximum=$MAX minimum=$MIN
-echo -n "QA calculates: "
+$PCP_ECHO_PROG $PCP_ECHO_N "QA calculates: ""$PCP_ECHO_C"
 fgrep -v COUNT $tmp.noncount | _dobinning $nbins $MIN $MAX
 
-echo -n "pmlogsummary calculates: "
+$PCP_ECHO_PROG $PCP_ECHO_N "pmlogsummary calculates: ""$PCP_ECHO_C"
 pmlogsummary -ymMB $nbins src-oss/binning sample.scale_step.time_up_nanosecs \
 	| _filterbins $nbins
 
@@ -110,10 +110,10 @@ nbins=4
 _xtract sample.milliseconds | _counter_values > $tmp.count
 eval `fgrep COUNT $tmp.count`
 #echo count=$COUNT maximum=$MAX minimum=$MIN
-echo -n "QA calculates: "
+$PCP_ECHO_PROG $PCP_ECHO_N "QA calculates: ""$PCP_ECHO_C"
 fgrep -v COUNT $tmp.count | _dobinning $nbins $MIN $MAX
 
-echo -n "pmlogsummary calculates: "
+$PCP_ECHO_PROG $PCP_ECHO_N "pmlogsummary calculates: ""$PCP_ECHO_C"
 pmlogsummary -ymMB $nbins src-oss/binning | fgrep sample.milliseconds \
 	| _filterbins $nbins
 

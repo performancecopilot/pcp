@@ -52,6 +52,18 @@ trace	10	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 10
 trace	99	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 99
 EOF
     ;;
+
+darwin)
+    TRACELOG=$PCP_LOG_DIR/pmcd/trace.log
+    cat >> $tmp.conf << EOF
+# Name	Id	IPC	IPC Params 	File/Cmd
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+darwin  78      dso     darwin_init     $PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
+trace	10	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 10
+trace	99	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 99
+EOF
+    ;;
+
 *)
     echo "Unknown platfrom $PCP_PLATFORM"
     exit 1

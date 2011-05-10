@@ -6,23 +6,34 @@
 #
 
 seq=`basename $0`
-echo "QA output created by $seq"
-
-. ./localconfig
-if [ $PCP_EOE_VER -eq 2000 -o \
-    \( $PCP_EOE_VER -ge 6500 -a $PCP_EOE_VER -le 6504 \) ] ; then
-    echo "This test is applicable on PCP 2.0 or Irix 6.5[0-4]" > $seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
-rm -f $seq.out && ln $seq.${PCP_PLATFORM} $seq.out || exit 1
-
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./localconfig
+
+if [ $PCP_EOE_VER -eq 2000 -o \
+    \( $PCP_EOE_VER -ge 6500 -a $PCP_EOE_VER -le 6504 \) ] ; then
+    _notrun "This test is not applicable on PCP 2.0 or Irix 6.5[0-4]"
+fi
+
+echo "QA output created by $seq"
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux)
+	ln $seq.$PCP_PLATFORM $seq.out || exit 1
+	;;
+    darwin)
+	ln $seq.linux $seq.out || exit 1
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -63,6 +74,17 @@ echo "in \$PCP_PMCDCONF_PATH ..."
 sed -n "/^simple/s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;p" <$PCP_PMCDCONF_PATH
 
 $sudo ./Remove
+
+echo
+if $sudo make >$tmp.tmp
+then
+    :
+else
+    cat $tmp.tmp
+    echo "make prior to Install failed!"
+fi
+$sudo ./Install </dev/null \
+| grep 'Check'
 
 # success, all done
 status=0

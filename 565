@@ -6,14 +6,28 @@
 #
 
 seq=`basename $0`
-echo "QA output created by $seq"
-
-rm -f $seq.out && ln $seq.${PCP_PLATFORM} $seq.out || exit 1
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux)
+	ln $seq.$PCP_PLATFORM $seq.out || exit 1
+	;;
+    darwin)
+	ln $seq.linux $seq.out || exit 1
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
+
+echo "QA output created by $seq"
 
 status=1	# failure is the default!
 done_clean=false

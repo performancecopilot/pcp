@@ -104,7 +104,7 @@ do
     for metric in configfile logfile pmcd_host numrules actions \
 		eval.true eval.false eval.unknown eval.expected eval.actual
     do
-	echo -n "$metric	"
+	$PCP_ECHO_PROG $PCP_ECHO_N "$metric	""$PCP_ECHO_C"
 	echo "$metric ..." >>$seq.full
 	pmdumplog $tmp pmcd.pmie.$metric \
 	| tee -a $seq.full \

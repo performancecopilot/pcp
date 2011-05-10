@@ -58,7 +58,7 @@ then
     exit
 fi
 
-echo -n "Checking trace stub library builds ... "
+echo "Checking trace stub library builds ... "
 cd $PCP_DEMOS_DIR/trace
 $sudo make -f Makefile.stub clobber >/dev/null 2>&1
 if [ $PCP_PLATFORM = irix ]

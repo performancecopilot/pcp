@@ -13,7 +13,21 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./localconfig
-rm -f $seq.out && ln $seq.out.${PCP_PLATFORM} $seq.out
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux)
+	ln $seq.$PCP_PLATFORM $seq.out || exit 1
+	;;
+    darwin)
+	ln $seq.linux $seq.out || exit 1
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

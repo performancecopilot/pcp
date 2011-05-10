@@ -11,12 +11,19 @@ host=`hostname`
 echo "QA output created by $seq"
 
 rm -f $seq.out
-if [ $PCP_PLATFORM = linux ]
-then
-    ln $seq-linux.out $seq.out
-else
-    ln $seq-irix.out $seq.out
-fi
+case $PCP_PLATFORM
+in
+    irix)
+	ln $seq-irix.out $seq.out || exit 1
+	;;
+    linux|darwin)
+	ln $seq-linux.out $seq.out || exit 1
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
 
 # get standard filters
 . ./common.product

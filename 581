@@ -182,6 +182,9 @@ _filter_pmie_log <$tmp.out \
     -e '/^FILESYS \/dev\//d' \
     -e '/^FILESYS \/dev$/d' \
     -e '/^FILESYS none$/d' \
+    -e '/^FILESYS devfs$/d' \
+    -e '/^FILESYS map -hosts$/d' \
+    -e '/^FILESYS map auto_home$/d' \
     -e '/^MIRAGE m-[0-9][0-9]*$/d' \
     -e '/^DISK dks[0-9][0-9]*d[0-9][0-9]*/d' \
     -e '/^DISK [a-f0-9][a-f0-9]*\/lun[0-9][0-9]*\/c[0-9][0-9]*p[0-9][0-9]*/d' \
@@ -191,6 +194,7 @@ _filter_pmie_log <$tmp.out \
     -e '/^DISK scsi\/host/d' \
     -e '/^DISK xscsi\/pci/d' \
     -e '/^DISK xvm\//d' \
+    -e '/^DISK disk[0-9][0-9]*$/d' \
     -e '/^CPU cpu[0-9][0-9]*$/d' \
     -e '/^CPU cpu:[0-9][0-9]*\.[0-9][0-9]*\.[ab]$/d' \
     -e '/^CPU cpu:[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[a-d]$/d' \
@@ -208,6 +212,10 @@ _filter_pmie_log <$tmp.out \
     -e '/^NETWORK wmaster[0-9][0-9]*$/d' \
     -e '/^NETWORK tun[0-9][0-9]*$/d' \
     -e '/^NETWORK virbr[0-9][0-9]*$/d' \
+    -e '/^NETWORK gif[0-9][0-9]*$/d' \
+    -e '/^NETWORK stf[0-9][0-9]*$/d' \
+    -e '/^NETWORK en[0-9][0-9]*$/d' \
+    -e '/^NETWORK fw[0-9][0-9]*$/d' \
 | $PCP_AWK_PROG '
 BEGIN		{ last["DYN_DISCRETE"] = last["DYN_INSTANT"] = "" }
 $2 ~ /DYN_/	{ if (last[$2] != $0) {

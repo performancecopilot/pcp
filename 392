@@ -95,7 +95,7 @@ echo "=== Rebuild ==="
 echo "(expect Duplicate PMID failure)"
 rm -f root root.bin
 cp root.start root
-$sudo ./Rebuild 2>&1 | sed -e "s;`pwd`;.;" | _filter
+$sudo ./Rebuild 2>&1 | sed -e "s;`pwd -P`;.;" | _filter
 [ -f root.bin ] && echo "root.bin created"
 pminfo -m -n root
 

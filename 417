@@ -18,13 +18,36 @@ if [ $PCP_VER -lt 4000 ]
 then
     # V1 archives supported
     arch=src-oss/bigace
-    ln $seq.${PCP_PLATFORM}.1 $seq.out
+    case $PCP_PLATFORM
+    in
+	irix|linux)
+	    ln $seq.$PCP_PLATFORM.1 $seq.out || exit 1
+	    ;;
+	darwin)
+	    ln $seq.linux.1 $seq.out || exit 1
+	    ;;
+	*)
+	    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	    exit 1
+	    ;;
+    esac
 else
     # no support for V1 archives
     arch=src-oss/bigace_v2
-    ln $seq.${PCP_PLATFORM}.2 $seq.out
+    case $PCP_PLATFORM
+    in
+	irix|linux)
+	    ln $seq.$PCP_PLATFORM.2 $seq.out || exit 1
+	    ;;
+	darwin)
+	    ln $seq.linux.2 $seq.out || exit 1
+	    ;;
+	*)
+	    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	    exit 1
+	    ;;
+    esac
 fi
-
 
 status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15

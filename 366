@@ -16,9 +16,7 @@ if [ -f $PCP_BINADM_DIR/pmlogconf-setup ]
 then
     :
 else
-    echo "pmlogconf version 2.0 not installed" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun "pmlogconf version 2.0 not installed"
 fi
 
 echo "QA output created by $seq"
@@ -28,8 +26,12 @@ rm -f $seq.out
 if [ $PCP_PLATFORM = linux ]
 then
     ln $seq.linux $seq.out
+elif [ $PCP_PLATFORM = darwin ]
+then
+    ln $seq.darwin $seq.out
 else
-    echo "Warning: no validated output for $PCP_PLATFORM"
+    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+    exit 1
 fi
 
 status=0	# success is the default!

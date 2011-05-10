@@ -17,7 +17,17 @@ PMCD_CONNECT_TIMEOUT=30
 PMCD_REQUEST_TIMEOUT=30
 export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
 
-rm -f $seq.out && ln $seq.${PCP_PLATFORM} $seq.out || exit 1
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux|darwin)
+	ln $seq.$PCP_PLATFORM $seq.out || exit 1
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
 
 _filter()
 {
@@ -125,8 +135,7 @@ do
     host=`./getpmcdhosts -L -n 1 $type`
     if [ -z "$host" ]
     then
-	echo "Cannot find a 64-bit host running PCP" >$seq.notrun
-	exit
+	_notrun "Cannot find a 64-bit host running PCP"
     else
 	# echo $host
 	_speak_to_me $host

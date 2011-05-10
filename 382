@@ -31,7 +31,7 @@ _filter()
 {
     sed \
 	-e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;g" \
-	-e "s;$DSO_SUFFIX;\$DSO_SUFFIX;g" \
+	-e 's/\.'"$DSO_SUFFIX"'/.$DSO_SUFFIX/g' \
 	-e "s;$tmp;\$tmp;g" \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \
 	-e "s/`hostname`/LOCALHOST/" \

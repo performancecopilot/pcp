@@ -18,12 +18,25 @@ echo "QA output created by $seq"
 # "Installing files..." fluff. On Linux we don't get that. In PCP 2.2. we
 # changed procpmda.sh to be less verbose and added some extra trace
 # metrics, so more stuff to change.
-if [ $PCP_VER -ge 2200 ]
-then
-    rm -f $seq.out && ln $seq.${PCP_PLATFORM}.2 $seq.out
-else
-    rm -f $seq.out && ln $seq.${PCP_PLATFORM}.1 $seq.out
-fi
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux)
+	if [ $PCP_VER -ge 2200 ]
+	then
+	    ln $seq.$PCP_PLATFORM.2 $seq.out || exit 1
+	else
+	    ln $seq.$PCP_PLATFORM.1 $seq.out || exit 1
+	fi
+	;;
+    darwin)
+	ln $seq.linux.2 $seq.out || exit 1
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
 
 _cleanup()
 {

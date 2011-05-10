@@ -32,6 +32,18 @@ _filter_date()
     sed -e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z] *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]/[DATE]/g'
 }
 
+_filter_pmie()
+{
+    if [ $PCP_PLATFORM = darwin ]
+    then
+	sed \
+	    -e '/metric swap.pagesout not in namespace/d' \
+	    -e '/pmLookupName failed: Unknown metric name/d'
+    else
+	cat
+    fi
+}
+
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -77,8 +89,10 @@ echo
 echo "=== check that unneeded changes for unsupported versions are dumped"
 pmieconf -r ./pconf -f $tmp.pmie1 m filesys.buffer_cache sss_action no >/dev/null
 echo status=$?
-pmie -C $tmp.pmie1
-echo status=$?
+pmie -C $tmp.pmie1 >$tmp.out 2>&1
+sts=$?
+_filter_pmie <$tmp.out
+echo status=$sts
 _filter_date < $tmp.pmie1
 
 # APPEND this to the above file
@@ -94,8 +108,10 @@ echo
 echo "=== check that changes for unsupported versions are moved to end"
 pmieconf -r ./pconf -f $tmp.pmie2 m network.interface_bytes holdoff 40 >/dev/null
 echo status=$?
-pmie -C $tmp.pmie2
-echo status=$?
+pmie -C $tmp.pmie2 >$tmp.out 2>&1
+sts=$?
+_filter_pmie <$tmp.out
+echo status=$sts
 _filter_date < $tmp.pmie2
 
 cp $tmp.pmie $tmp.pmie3
@@ -105,8 +121,10 @@ echo "=== check that changes for unsupported rules are moved to end"
 pmieconf -r ./pconf -f $tmp.pmie3 m filesys.buffer_cache holdoff 120 >/dev/null
 $sudo mv $tmp.load ./pconf/cpu/load_average
 echo status=$?
-pmie -C $tmp.pmie3
-echo status=$?
+pmie -C $tmp.pmie3 >$tmp.out 2>&1
+sts=$?
+_filter_pmie <$tmp.out
+echo status=$sts
 _filter_date < $tmp.pmie3
 
 # success, all done

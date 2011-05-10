@@ -13,7 +13,17 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out && ln $seq.${PCP_PLATFORM} $seq.out || exit 1
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux|darwin)
+	ln $seq.$PCP_PLATFORM $seq.out || exit 1
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -37,7 +47,7 @@ $sudo rm -f $tmp.0 $tmp.index $tmp.meta
 
 if [ $PCP_PLATFORM = irix ]
 then
-cat > $tmp.pmlogger.in <<End-of-File 
+    cat > $tmp.pmlogger.in <<End-of-File 
 log mandatory on default {
 	kernel.all.load
 	kernel.all.pswitch
@@ -63,7 +73,7 @@ log mandatory on default {
 End-of-File
 elif [ $PCP_PLATFORM = linux ]
 then
-cat > $tmp.pmlogger.in <<End-of-File
+    cat > $tmp.pmlogger.in <<End-of-File
 log mandatory on default {
 	kernel.all.load
 	kernel.all.pswitch
@@ -79,6 +89,24 @@ log mandatory on default {
 	network.interface.out.bytes
 }
 End-of-File
+elif [ $PCP_PLATFORM = darwin ]
+then
+    cat > $tmp.pmlogger.in <<End-of-File
+log mandatory on default {
+	kernel.all.load
+	kernel.all.cpu.idle
+	kernel.all.cpu.sys
+	kernel.all.cpu.user
+	disk.dev.read
+	disk.dev.write
+	disk.dev.total
+	network.interface.in.bytes
+	network.interface.out.bytes
+}
+End-of-File
+else
+    echo "Arrgh ... need pmlogger config for $PCP_PLATFORM"
+    exit 1
 fi
 
 pmlogger -t 2sec -T 5sec -l $tmp.log $tmp < $tmp.pmlogger.in
@@ -112,6 +140,21 @@ then
 			cat $tmp.tmp
 			diff $tmp.ref $tmp.tmp
 		done
+elif [ $PCP_PLATFORM = darwin ]
+then
+		for args in "kernel.all disk.dev network.interface.in network.interface.out" "kernel disk network" "kernel.all.load kernel.all.cpu.idle kernel.all.cpu.sys kernel.all.cpu.user disk.dev.read disk.dev.write disk.dev.total network.interface.in.bytes network.interface.out.bytes"
+		do
+			echo
+			echo "=== $args ==="
+			eval pmdumplog $tmp \
+			pmcd.pmlogger.host pmcd.pmlogger.port pmcd.pmlogger.archive $args \
+			| _filter >$tmp.tmp
+			cat $tmp.tmp
+			diff $tmp.ref $tmp.tmp
+		done
+else
+    echo "Arrgh ... need pmdumplog args for $PCP_PLATFORM"
+    exit 1
 fi
 
 status=0

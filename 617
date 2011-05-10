@@ -16,17 +16,22 @@ echo "QA output created by $seq"
 
 if [ $PCP_VER -lt 2200 ]
 then
-    echo "dbpmda interface test, requires more recent dbpmda" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun "dbpmda interface test, requires more recent dbpmda"
 fi
 
 if [ $PCP_PLATFORM = irix ]
 then
    BINFMT=`/usr/pcp/bin/pmobjstyle`
    PMDADSO=/var/pcp/lib/$BINFMT.pmda_sample.so
-else
+elif [ $PCP_PLATFORM = linux ]
+then
    PMDADSO=$PCP_PMDAS_DIR/sample/pmda_sample.so
+elif [ $PCP_PLATFORM = darwin ]
+then
+   PMDADSO=$PCP_PMDAS_DIR/sample/pmda_sample.dylib
+else
+    echo "Arrgh ... need customization for $PCP_PLATFORM"
+    exit 1
 fi
 export PMDADSO
 

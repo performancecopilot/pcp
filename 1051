@@ -7,31 +7,32 @@
 
 seq=`basename $0`
 
-if which pmieconf >/dev/null 2>&1
-then
-    :
-else
-    echo "No pmieconf binary installed" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
-. ./localconfig
-
-rm -f $seq.out
-if [ $PCP_PLATFORM = "linux" ]
-then
-    ln $seq.out.linux $seq.out
-else
-    ln $seq.out.irix $seq.out
-fi
-
-echo "QA output created by $seq"
-
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./localconfig
+
+if which pmieconf >/dev/null 2>&1
+then
+    :
+else
+    _notrun "No pmieconf binary installed"
+fi
+
+echo "QA output created by $seq"
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux|darwin)
+	ln $seq.out.$PCP_PLATFORM $seq.out || exit 1
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
 
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
