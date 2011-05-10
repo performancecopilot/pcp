@@ -58,7 +58,7 @@ then
     exit
 fi
 
-echo "Checking trace stub library builds ... "
+echo "Checking trace stub library builds ..."
 cd $PCP_DEMOS_DIR/trace
 $sudo make -f Makefile.stub clobber >/dev/null 2>&1
 if [ $PCP_PLATFORM = irix ]
@@ -129,8 +129,9 @@ then
 elif [ $PCP_PLATFORM = darwin ]
 then
     $sudo make -f Makefile.stub lib/libpcp_trace.dylib >/dev/null 2>&1
-    LD_PRELOAD=$PCP_DEMOS_DIR/trace/lib/libpcp_trace.dylib
-    export LD_PRELOAD
+    DYLD_INSERT_LIBRARIES=$PCP_DEMOS_DIR/trace/lib/libpcp_trace.dylib
+    DYLD_FORCE_FLAT_NAMESPACE=yes
+    export DYLD_INSERT_LIBRARIES DYLD_FORCE_FLAT_NAMESPACE
 else
     echo "=== Unknown platform ($PCP_PLATFORM) ==="
     exit

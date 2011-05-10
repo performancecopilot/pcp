@@ -1,4 +1,5 @@
-Checking trace stub library builds ... make succeeded.
+Checking trace stub library builds ...
+make succeeded.
 app1: start: No error (state=0x7)
 pmtracebegin: start of transaction 'simple'
 pmtraceend: end of transaction 'simple'
