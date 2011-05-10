@@ -41,6 +41,7 @@ _filter()
 	-e 's/.*value //' \
 	-e "s,/var$tmp,TMP,g" \
 	-e "s,$tmp,TMP,g" \
+	-e "s;/privateTMP;TMP;g" \
 	-e "s/$host/HOST/g"
 }
 
