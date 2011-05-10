@@ -63,7 +63,7 @@ install_pcp : install
 help.dir help.pag: help root_darwin
 	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_darwin -v 2 -o help < help
 
-root_darwin: ../../pmns/stdpmid
+root_darwin: ../../pmns/stdpmid root pmns
 	rm -f root_darwin
 	cpp -I../../pmns -fno-show-column < root | sed -e '/^#/d' > root_darwin
 

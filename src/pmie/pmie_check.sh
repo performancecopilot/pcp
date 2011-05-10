@@ -160,7 +160,7 @@ _message()
     case $1
     in
 	'restart')
-	    $PCP_ECHO_PROG $PCP_ECHO_N "Restarting pmie for host \"$host\" ..."
+	    $PCP_ECHO_PROG $PCP_ECHO_N "Restarting pmie for host \"$host\" ...""$PCP_ECHO_C"
 	    ;;
     esac
 }
