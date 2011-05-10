@@ -22,8 +22,8 @@ QA output created by 366
 < ## [osvis, pmstat, pmchart:Disk, pmchart:Overview]
 ---
 > #+ disk/summary:y:default:
-> ## summary disk activity (IOPs and bytes for both reads and writes over all
-> ## disks).
+> ## summary disk activity (IOPs and bytes for both reads and writes
+> ## over all disks).
 > log advisory on default {
 > 	disk.all.read
 > 	disk.all.write
