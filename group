@@ -155,6 +155,10 @@ pmda.sendmail
 pmda.txmon
 # mmv PMDA
 pmda.mmv
+# logger PMDA
+pmda.logger
+# rsyslog PMDA
+pmda.rsyslog
 
 # libirixpmda
 libirixpmda
@@ -676,10 +680,11 @@ perl
 452 pmda.linux local oss
 453 perl local oss sanity
 454 pmcd local oss
-# NEXT FREE SLOT
+455 pmda.rsyslog pmda.install local oss
 456 logutil local #591459 folio oss
-457 pmda.logger event local oss
-458 pmda.logger event local oss
+457 pmda.logger pmda.install event local oss
+458 pmda.logger pmda.install event local oss
+# NEXT FREE SLOT
 460 pmlogextract local #598265 oss pmdumplog
 462 pmcd_wait local #589006 #581025 oss
 465 pmdumplog local #625913 folio oss
