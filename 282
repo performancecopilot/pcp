@@ -25,15 +25,27 @@ then
 	# $seq.out.3 is the old Linux one
 	ln $seq.out.3 $seq.out
     fi
-    PCP_PMLOGGEROPTIONS_PATH=$PCP_VAR_DIR/config/pmcd/pmlogger.options
-    SYSPMDA=$PCP_PMDAS_DIR/linux/pmda_linux.so
+elif [ $PCP_PLATFORM = irix ]
+then
+    # Note - only need to set these two for the IRIX version, as
+    # not used for other platforms
+    PCP_PMLOGGEROPTIONS_PATH=/etc/config/pmlogger.options
+    SYSPMDA=/usr/pcp/lib/`pmobjstyle`.libirixpmda.so 
+    if [ $PCP_EOE_VER -lt 2100 -o \( $PCP_EOE_VER -ge 6500 -a \
+         $PCP_EOE_VER -le 6501 \) ]
+    then
+        # old version for PCP_EOE 2.0 or PCP_EOE from Irix 6.5 and 6.5.1
+        ln $seq.out.pre-2.1 $seq.out
+    else
+        ln $seq.out.2.1 $seq.out
+    fi
+elif [ $PCP_PLATFORM = darwin ]
+then
+    ln $seq.out.3 $seq.out
 elif [ $PCP_PLATFORM = mingw ]
 then
     echo "Cannot send STOP signal to Win32 process" > $seq.notrun
     exit 0
-elif [ $PCP_PLATFORM = darwin ]
-then
-	ln $seq.out.3 $seq.out
 else
     echo "No clue what to do with PCP_PLATFORM=$PCP_PLATFORM!"
     exit 1
@@ -331,7 +343,7 @@ End-of-File
 
     # no chkconfig verbose for Linux
     #
-    [ $PCP_PLATFORM = linux ] && break
+    [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin ] && break
 
 done
 
