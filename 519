@@ -19,9 +19,11 @@ case $PCP_PLATFORM
 in
     irix|linux)
 	ln $seq.$PCP_PLATFORM $seq.out || exit 1
+	SYSLOG_OPT='"-p daemon.info"'
 	;;
     darwin)
 	ln $seq.linux $seq.out || exit 1
+	SYSLOG_OPT=''
 	;;
     *)
 	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
@@ -72,7 +74,7 @@ some_host (
   some_inst (
     ( 100 * filesys.used \$hosts / filesys.capacity \$hosts ) > 0 ) )
 -> shell 15 "src-oss/show-args -c SYSMON -t PERF_INFO_SYSTEM -m 'file system over half-full" "\n%h:[%i] %v% " "'"
- & syslog 15 "-p daemon.info" "PCP QA - please ignore - ..." " %h:[%i] %v% ";
+ & syslog 15 $SYSLOG_OPT "PCP QA $seq - please ignore - ..." " %h:[%i] %v% ";
 
 End-of-File
 
@@ -105,7 +107,7 @@ then
 fi
  
 $sudo tail -100 $SYSLOG \
-| sed -n '/PCP QA - please ignore/s/\.\.\..*/.../p' \
+| sed -n '/PCP QA '"$seq"' - please ignore/s/\.\.\..*/.../p' \
 | _filter \
 | sort -u
 

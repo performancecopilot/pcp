@@ -8,6 +8,11 @@
 
 seq=`basename $0`
 
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
 eval `./getpmcdhosts -n 2 -L | sed -e 's/ / other2=/' -e 's/^/other1=/'`
 if [ -z "$other1" ]
 then
@@ -22,10 +27,19 @@ fi
 
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+case $PCP_PLATFORM
+in
+    irix|linux)
+	SYSLOG_OPT='"-p daemon.info"'
+	;;
+    darwin)
+	SYSLOG_OPT=''
+	;;
+    *)
+	echo "Arrgh ... need syslog option for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
 
 _filter()
 {
@@ -47,7 +61,7 @@ PMCD_RECONNECT_TIMEOUT=1,2
 export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT PMCD_RECONNECT_TIMEOUT
 
 SYSLOG=''
-for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages
+for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages /var/log/system.log
 do
     if [ -f $f ]
     then
@@ -79,7 +93,7 @@ some_host (
   some_inst (
     ( 100 * filesys.used \$hosts / filesys.capacity \$hosts ) > 0 ) )
 -> print 5sec "full" " %h:[%i] %v% "
- & syslog 5sec "-p daemon.info" "PCP QA - please ignore - ..." " %h:[%i] %v% ";
+ & syslog 5sec $SYSLOG_OPT "PCP QA $seq - please ignore - ..." " %h:[%i] %v% ";
 
 EOF
 
@@ -122,7 +136,7 @@ cat $tmp.err >>$seq.full
 echo
 echo "SYSLOG ..."
 $sudo tail -100 $SYSLOG \
-| sed -n '/PCP QA - please ignore/s/\.\.\..*/.../p' \
+| sed -n '/PCP QA '"$seq"' - please ignore/s/\.\.\..*/.../p' \
 | _filter \
 | LC_COLLATE=POSIX sort -u
 
