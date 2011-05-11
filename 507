@@ -27,7 +27,20 @@ echo "QA output created by $seq"
 
 _filter()
 {
-    sed \
+    if [ $PCP_PLATFORM = darwin ]
+    then
+	# this is bizarre, but the amount of RAM is not constant
+	# ... has been observed to randomly be 2046 or 2047 on
+	# the one system ... scale up RAM to next 128MB boundary
+	#
+	sed -e 's/MB RAM/ RAM/' \
+	| $PCP_AWK_PROG '
+$NF == "RAM"	{ x = $(NF-1); x = ((int)(x/128)+1)*128; $(NF-1) = x }
+		{ print }'
+    else
+	cat
+    fi \
+    | sed \
 	-e "/^ licenses:.*/d" \
 	-e "s/$qahost/HOST/g" \
 	-e "s/$local/HOST/g" \
