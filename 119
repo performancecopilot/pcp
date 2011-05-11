@@ -113,9 +113,15 @@ cat $tmp.out >$seq.full
 $sudo mkdir -p $LOGGING_DIR/${myhost}-one >/dev/null 2>&1
 $sudo mkdir -p $LOGGING_DIR/${myhost}-two >/dev/null 2>&1
 $sudo mkdir -p $LOGGING_DIR/no.such.host >/dev/null 2>&1
+echo "+++ before pmcd start ..." >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full
+echo "+++" >>$seq.full
 $sudo $PCP_RC_DIR/pcp start >$tmp.out 2>&1
 cat $tmp.out >>$seq.full
 _wait_for_pmcd
+echo "+++ after pmcd start ..." >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full
+echo "+++" >>$seq.full
 
 # avoid race with pmloggers not being started before pmlogger_check
 # is run below
@@ -144,9 +150,15 @@ fi
 
 echo
 echo "=== pmlogger_check ==="
+echo "+++ before pmlogger_check ..." >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full
+echo "+++" >>$seq.full
 echo >>$seq.full
 echo "=== pmlogger_check ===" >>$seq.full
 $sudo $PCP_BINADM_DIR/pmlogger_check >$tmp.out 2>&1
+echo "+++ after pmlogger_check ..." >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full
+echo "+++" >>$seq.full
 _filter <$tmp.out
 cat $tmp.out >>$seq.full
 
