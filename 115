@@ -42,14 +42,16 @@ _filter()
 	-e "s/$$/PID/g" \
 	-e "s/$remote/REMOTEHOST/g" \
 	-e "s/$host/LOCALHOST/g" \
-	-e "s/$lhost/LOCALHOST/g"
+	-e "s/$lhost/LOCALHOST/g" \
+	-e "s;/private/tmp;/tmp;g"
 }
 
 _filter_pmie_start()
 {
     sed \
 	-e '/^Waiting for pmie process(es) to terminate/d' \
-	-e '/^\/etc.*\/init\.d\/pmie:/d' \
+	-e "s;$PCP_RC_DIR/pmie:;RC_SCRIPT;" \
+	-e '/RC_SCRIPT/d' \
 	-e '/(pmie) is disabled/d' \
 	-e '/To enable/d' \
 	-e '/\/sbin\/chkconfig pmie on/d' \
@@ -57,7 +59,8 @@ _filter_pmie_start()
 	-e '/ln -sf \.\.\/init.d\/pmie \/etc\/rc\.d\//d' \
 	-e "s;$PCP_PMIECONTROL_PATH;\$PCP_PMIECONTROL_PATH;" \
         -e '/^\.\.*done$/d' \
-        -e '/^\.\.*failed$/d'
+        -e '/^\.\.*failed$/d' \
+	-e "s;/private/tmp;/tmp;g"
 }
 
 _count_pmies()
