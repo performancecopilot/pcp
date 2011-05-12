@@ -53,6 +53,10 @@
  *	logger.perfile.{LOGFILE}.records	- event records/logfile
  */
 
+int maxfd;
+fd_set fds;
+static int alarmed;
+
 static int nummetrics;
 static __pmnsTree *pmns;
 
@@ -141,9 +145,6 @@ static pmdaMetric static_metrictab[] = {
 
 static pmdaMetric *metrictab;
 
-static char	mypath[MAXPATHLEN];
-char	       *configfile;
-
 void
 logger_end_contextCallBack(int ctx)
 {
@@ -165,11 +166,11 @@ static void
 logger_reload(void)
 {
     struct stat pathstat;
-    int i, fd;
+    int i, fd, sts;
 
     for (i = 0; i < numlogfiles; i++) {
 	if (logfiles[i].pid > 0)	/* process pipe */
-	    continue;
+	    goto events;
 	if (stat(logfiles[i].pathname, &pathstat) < 0) {
 	    if (logfiles[i].fd >= 0) {
 		close(logfiles[i].fd);
@@ -187,9 +188,22 @@ logger_reload(void)
 		if (fd < 0 && logfiles[i].fd >= 0)	/* log once */
 		    __pmNotifyErr(LOG_ERR, "open: %s - %s",
 				logfiles[i].pathname, strerror(errno));
+		else {
+		    if (fd > maxfd)
+			maxfd = fd;
+		    FD_SET(fd, &fds);
+		}
 		logfiles[i].fd = fd;
+	    } else {
+		if ((memcmp(&logfiles[i].pathstat.st_mtime, &pathstat.st_mtime,
+			    sizeof(pathstat.st_mtime))) == 0)
+		    continue;
 	    }
 	    logfiles[i].pathstat = pathstat;
+events:
+	    do {
+		sts = event_create(i);
+	    } while (sts != 0);
 	}
     }
 }
@@ -197,7 +211,6 @@ logger_reload(void)
 static int
 logger_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    logger_reload();
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
@@ -496,7 +509,7 @@ logger_text(int ident, int type, char **buffer, pmdaExt *pmda)
  * Initialise the agent (daemon only).
  */
 void 
-logger_init(pmdaInterface *dp)
+logger_init(pmdaInterface *dp, const char *configfile)
 {
     int i, j, rc;
     int numstatics = sizeof(static_metrictab)/sizeof(static_metrictab[0]);
@@ -599,39 +612,90 @@ logger_init(pmdaInterface *dp)
     event_init();
 }
 
+static void
+alarming(int sig, void *ptr)
+{
+    alarmed = 1;
+}
+
+void
+loggerMain(pmdaInterface *dispatch)
+{
+    fd_set		readyfds;
+    int			nready, pmcdfd;
+    struct timeval	interval = { 2, 0 };
+
+    pmcdfd = __pmdaInFd(dispatch);
+    if (pmcdfd > maxfd)
+	maxfd = pmcdfd;
+
+    FD_ZERO(&fds);
+    FD_SET(pmcdfd, &fds);
+
+    /* arm interval timer */
+    if (__pmAFregister(&interval, NULL, alarming) < 0) {
+	__pmNotifyErr(LOG_ERR, "error registering asynchronous event handler");
+	exit(1);
+    }
+
+    for (;;) {
+	memcpy(&readyfds, &fds, sizeof(readyfds));
+	nready = select(maxfd+1, &readyfds, NULL, NULL, NULL);
+	if (nready == 0)
+	    continue;
+	else if (nready < 0) {
+	    if (neterror() != EINTR) {
+		__pmNotifyErr(LOG_ERR, "select failure: %s", netstrerror());
+		exit(1);
+	    }
+	    continue;
+	}
+
+	__pmAFblock();
+	if (FD_ISSET(pmcdfd, &readyfds)) {
+	    if (pmDebug & DBG_TRACE_APPL0)
+		__pmNotifyErr(LOG_DEBUG, "processing pmcd PDU [fd=%d]", pmcdfd);
+	    if (__pmdaMainPDU(dispatch) < 0) {
+		__pmAFunblock();
+		exit(1);	/* fatal if we lose pmcd */
+	    }
+	}
+	if (alarmed) {
+	    logger_reload();
+	    alarmed = 0;
+	}
+	__pmAFunblock();
+    }
+}
+
 int
 main(int argc, char **argv)
 {
-    int			c;
-    int			err = 0;
-    int			sep = __pmPathSeparator();
+    static char		helppath[MAXPATHLEN];
     pmdaInterface	desc;
+    int			c, err = 0, sep = __pmPathSeparator();
 
     __pmSetProgname(argv[0]);
-    snprintf(mypath, sizeof(mypath), "%s%c" "logger" "%c" "help",
+    snprintf(helppath, sizeof(helppath), "%s%c" "logger" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_5, pmProgname, LOGGER,
-		"logger.log", mypath);
+		"logger.log", helppath);
 
     while ((c = pmdaGetOpt(argc, argv, "D:d:l:?", &desc, &err)) != EOF) {
 	switch (c) {
-	  default:
-	    err++;
-	    break;
+	    default:
+		err++;
+		break;
 	}
     }
-    if (err || optind != argc -1) {
-    	usage();
-    }
 
-    configfile = argv[optind];
+    if (err || optind != argc -1)
+    	usage();
 
     pmdaOpenLog(&desc);
-    logger_init(&desc);
+    logger_init(&desc, argv[optind]);
     pmdaConnect(&desc);
-
-    pmdaMain(&desc);
-
+    loggerMain(&desc);
     event_shutdown();
     exit(0);
 }

@@ -53,7 +53,11 @@ struct EventFileData {
 extern struct EventFileData *logfiles;
 extern int numlogfiles;
 
+extern int maxfd;
+extern fd_set fds;
+
 extern void event_init(void);
+extern int event_create(unsigned int logfile);
 extern int event_fetch(pmValueBlock **vbpp, unsigned int logfile);
 extern int event_get_clients_per_logfile(unsigned int logfile);
 extern void event_shutdown(void);

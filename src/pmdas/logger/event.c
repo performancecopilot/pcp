@@ -101,13 +101,18 @@ event_init(void)
 	    }
 	}
 
+	if (fd >= 0) {
+	    if (fd > maxfd)
+		maxfd = fd;
+	    FD_SET(fd, &fds);
+	}
 	logfiles[i].fd = fd;		/* keep file descriptor (or error) */
 	TAILQ_INIT(&logfiles[i].head);	/* initialize our queue */
     }
 }
 
-static int
-event_create(int logfile)
+int
+event_create(unsigned int logfile)
 {
     ssize_t c;
 
@@ -146,7 +151,7 @@ event_create(int logfile)
     if (pmDebug & DBG_TRACE_APPL1)
 	__pmNotifyErr(LOG_INFO, "Inserted item, clients = %d.", e->clients);
 
-    return 0;
+    return 1;
 }
 
 int
@@ -177,13 +182,6 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
 	logfiles[logfile].numclients++;
     }
 
-    if (logfiles[logfile].fd < 0)
-	return PM_ERR_AGAIN;
-
-    /* Update the event queue with new data (if any). */
-    if ((rc = event_create(logfile)) < 0)
-	return rc;
-
     pmdaEventResetArray(eventarray);
     gettimeofday(&stamp, NULL);
     if ((rc = pmdaEventAddRecord(eventarray, &stamp, PM_EVENT_FLAG_POINT)) < 0)
@@ -191,8 +189,10 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
 
     e = *c[logfile].last;
     while (e != NULL) {
-	/* Add the string parameter.  Note that pmdaEventAddParam()
-	 * copies the string, so we can free it soon after. */
+	/*
+	 * Add the string parameter.  Note that pmdaEventAddParam()
+	 * copies the string, so we can free it soon after.
+	 */
 	atom.cp = e->buffer;
 
 	if (pmDebug & DBG_TRACE_APPL1)
@@ -222,6 +222,9 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
 
     if (records > 0)
 	*vbpp = (pmValueBlock *)pmdaEventGetAddr(eventarray);
+    else if (logfiles[logfile].fd < 0)
+	return PM_ERR_AGAIN;
+
     return 0;
 }
 
