@@ -112,7 +112,7 @@ $3 == "?"	{ print; next }
 }
 
 # real QA test starts here
-pmlogreduce src-oss/kenj-pc-1 -A 15m -t 15m $tmp
+pmlogreduce -A 15m -t 15m -D appl0,appl1,appl2 src-oss/kenj-pc-1 $tmp 2>>$seq.full
 
 for m in \
     disk.all.total kernel.all.cpu.idle \
