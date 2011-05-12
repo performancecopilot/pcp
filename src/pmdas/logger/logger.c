@@ -56,6 +56,7 @@
 int maxfd;
 fd_set fds;
 static int alarmed;
+static struct timeval interval = { 2, 0 };
 
 static int nummetrics;
 static __pmnsTree *pmns;
@@ -445,11 +446,13 @@ read_config(const char *filename)
 static void
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [options] configfile\n\n", pmProgname);
-    fputs("Options:\n"
-	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile   write log into logfile rather than using default log name\n",
-	      stderr);		
+    fprintf(stderr,
+	"Usage: %s [options] configfile\n\n"
+	"Options:\n"
+	"  -d domain    use domain (numeric) for metrics domain of PMDA\n"
+	"  -l logfile   write log into logfile rather than the default\n"
+	"  -s interval  default delay between iterations (default %d sec)\n",
+		pmProgname, (int)interval.tv_sec);
     exit(1);
 }
 
@@ -623,7 +626,6 @@ loggerMain(pmdaInterface *dispatch)
 {
     fd_set		readyfds;
     int			nready, pmcdfd;
-    struct timeval	interval = { 2, 0 };
 
     pmcdfd = __pmdaInFd(dispatch);
     if (pmcdfd > maxfd)
@@ -672,6 +674,7 @@ int
 main(int argc, char **argv)
 {
     static char		helppath[MAXPATHLEN];
+    char		*endnum;
     pmdaInterface	desc;
     int			c, err = 0, sep = __pmPathSeparator();
 
@@ -681,8 +684,17 @@ main(int argc, char **argv)
     pmdaDaemon(&desc, PMDA_INTERFACE_5, pmProgname, LOGGER,
 		"logger.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:?", &desc, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:s:?", &desc, &err)) != EOF) {
 	switch (c) {
+	    case 's':
+		if (pmParseInterval(optarg, &interval, &endnum) < 0) {
+		    fprintf(stderr, "%s: -s requires a time interval: %s\n",
+			    pmProgname, endnum);
+		    free(endnum);
+		    err++;
+		}
+		break;
+
 	    default:
 		err++;
 		break;
