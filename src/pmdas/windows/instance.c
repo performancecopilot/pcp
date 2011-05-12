@@ -110,10 +110,13 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 	    }
 	    /*
 	     * expecting something like ...\PhysicalDisk(N name)...
-	     * don't know what to do with this one!
+	     * we will just have to ignore this one!  (might be due
+	     * to: http://support.microsoft.com/kb/974878 - fail as
+	     * entries like "17" and "17#1" are not useable anyway)
 	     */
 	    if (!ok) {
-		__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+		if (pmDebug & DBG_TRACE_LIBPMDA)
+		    __pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"unrecognized disk instance: %s\n", path);
 		return -1;
 	    }
