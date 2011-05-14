@@ -41,7 +41,7 @@ static pmdaInterface		dispatch;
 static int			_isDSO = 1;	/* =0 I am a daemon */
 
 mach_port_t		mach_host = 0;
-unsigned int		mach_page_size = 0;
+vm_size_t		mach_page_size = 0;
 unsigned int		mach_page_shift = 0;
 
 unsigned int		mach_hertz = 0;
@@ -154,7 +154,7 @@ static pmdaMetric metrictab[] = {
 
 /* hinv.pagesize */
   { &mach_page_size, 
-    { PMDA_PMID(CLUSTER_INIT,0), PM_TYPE_U32, PM_INDOM_NULL,
+    { PMDA_PMID(CLUSTER_INIT,0), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_DISCRETE, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 /* kernel.all.hz */
   { &mach_hertz,
@@ -679,6 +679,11 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NFS,128), PM_TYPE_32, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+/* filesys.maxfiles */
+  { NULL,
+     { PMDA_PMID(CLUSTER_FILESYS,129), PM_TYPE_U32, FILESYS_INDOM,
+       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 };
 
 static void
@@ -843,8 +848,11 @@ fetch_filesys(unsigned int item, unsigned int inst, pmAtomValue *atom)
 	ull = (__uint64_t)mach_fs[inst].f_bfree;
 	atom->ull = ull * mach_fs[inst].f_bsize >> 10;
 	return 1;
-    case 35: /* filesys.usedfiles */
+    case 129: /* filesys.maxfiles */
 	atom->ul = mach_fs[inst].f_files;
+	return 1;
+    case 35: /* filesys.usedfiles */
+	atom->ul = mach_fs[inst].f_files - mach_fs[inst].f_ffree;
 	return 1;
     case 36: /* filesys.freefiles */
 	atom->ul = mach_fs[inst].f_ffree;

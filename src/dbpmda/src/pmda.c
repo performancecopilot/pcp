@@ -195,7 +195,7 @@ opensocket(char *fname)
     memset(&s_un, 0, sizeof(s_un));
     s_un.sun_family = AF_UNIX;
     strncpy(s_un.sun_path, fname, strlen(fname));
-    len = sizeof(s_un.sun_family) + strlen(fname);
+    len = (int)offsetof(struct sockaddr_un, sun_path) + (int)strlen(s_un.sun_path);
 
     closepmda();
 

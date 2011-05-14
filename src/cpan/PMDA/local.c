@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2011 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -121,7 +121,7 @@ local_pipe(char *pipe, scalar_t *callback, int cookie)
 int
 local_tail(char *file, scalar_t *callback, int cookie)
 {
-    int fd = open(file, O_RDONLY);
+    int fd = open(file, O_RDONLY | O_NDELAY);
     struct stat stats;
     int me;
 
@@ -240,9 +240,9 @@ local_log_rotated(files_t *file)
 	return;
 
     close(file->fd);
-    file->fd = open(file->me.tail.path, O_RDONLY);
+    file->fd = open(file->me.tail.path, O_RDONLY | O_NDELAY);
     if (file->fd < 0) {
-	__pmNotifyErr(LOG_ERR, "fopen failed after log rotate (%s): %s",
+	__pmNotifyErr(LOG_ERR, "open failed after log rotate (%s): %s",
 			file->me.tail.path, osstrerror());
 	return;
     }
@@ -289,7 +289,8 @@ local_pmdaMain(pmdaInterface *self)
     static char buffer[4096];
     int pmcdfd, nready, nfds, i, j, count, fd, maxfd = -1;
     fd_set fds, readyfds;
-    size_t bytes, offset;
+    ssize_t bytes;
+    size_t offset;
     char *s, *p;
 
     if ((pmcdfd = __pmdaInFd(self)) < 0)
@@ -346,6 +347,9 @@ local_pmdaMain(pmdaInterface *self)
 multiread:
 	    bytes = read(fd, buffer + offset, sizeof(buffer)-1 - offset);
 	    if (bytes < 0) {
+		if (files[i].type == FILE_TAIL &&
+		    (oserror() == EINTR || oserror() == EAGAIN))
+		    continue;
 		if (files[i].type == FILE_SOCK) {
 		    close(files[i].fd);
 		    files[i].fd = -1;

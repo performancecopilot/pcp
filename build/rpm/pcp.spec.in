@@ -118,6 +118,24 @@ importing data in various 3rd party formats into PCP archives so
 they can be replayed with standard PCP monitoring tools.
 
 #
+# perl-PCP-LogSummary
+#
+%package -n perl-PCP-LogSummary
+License: GPLv2
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) Perl bindings for post-processing output of pmlogsummary
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp >= @package_version@
+
+%description -n perl-PCP-LogSummary
+The PCP::LogSummary module provides a Perl module for using the
+statistical summary data produced by the Performance Co-Pilot
+pmlogsummary utility.  This utility produces various averages,
+minima, maxima, and other calculations based on the performance
+data stored in a PCP archive.  The Perl interface is ideal for
+exporting this data into third-party tools (e.g. spreadsheets).
+
+#
 # pcp-import-sar2pcp
 #
 %package import-sar2pcp
@@ -334,6 +352,9 @@ fi
 %defattr(-,root,root)
 
 %files -n perl-PCP-LogImport -f perl-pcp-logimport.list
+%defattr(-,root,root)
+
+%files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
 %defattr(-,root,root)
 
 %changelog

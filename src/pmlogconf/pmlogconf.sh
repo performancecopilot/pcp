@@ -130,8 +130,8 @@ _update()
     $PCP_AWK_PROG <$tmp.in >$tmp.ctl '
 /DO NOT UPDATE THE FILE ABOVE/	{ tail = 1 }
 tail == 1			{ print; next }
-/^[#][+] [^:]*:[ynx]:/		{ sub(/[+]/, "?", $1); print; skip = 1; next }
-skip == 1 && /^[#]----/		{ skip = 0; next }
+/^\#\+ [^:]*:[ynx]:/		{ sub(/\+/, "?", $1); print; skip = 1; next }
+skip == 1 && /^\#----/		{ skip = 0; next }
 skip == 1			{ next }
 				{ print }'
 

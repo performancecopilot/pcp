@@ -26,7 +26,7 @@ _unsymlink_path()
 {
     [ -z "$1" ] && return
     __d=`dirname $1`
-    __real_d=`cd $__d 2>/dev/null && /bin/pwd`
+    __real_d=`cd $__d 2>/dev/null && /bin/pwd -P`
     if [ -z "$__real_d" ]
     then
 	echo $1
@@ -310,12 +310,12 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	continue
     fi
 
+    dir=`dirname $logfile`
     if $VERY_VERBOSE
     then
 	echo "Check pmie -h $host ... in $dir ..."
     fi
 
-    dir=`dirname $logfile`
     if [ ! -d "$dir" ]
     then
 	_error "logfile directory ($dir) does not exist"
@@ -384,6 +384,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     # match $logfile and $fqdn from control file to running pmies
     pid=""
     fqdn=`pmhostname $host`
+    $VERY_VERBOSE && echo "Looking for logfile=$logfile fqdn=$fqdn"
     for file in `ls $PCP_TMP_DIR/pmie`
     do
 	p_id=$file
@@ -391,30 +392,27 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	p_logfile=""
 	p_pmcd_host=""
 
-	case "$PCP_PLATFORM"
-	in
-	    irix)
-		test -f /proc/pinfo/$p_id
-		;;
-	    *)
-		test -e /proc/$p_id
-		;;
-	esac
-	if [ $? -eq 0 ]
+	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "Check p_id=$p_id ... ""$PCP_ECHO_C"
+	if ps -p "$p_id" >/dev/null 2>&1
 	then
 	    eval `$PCP_BINADM_DIR/pmiestatus $file | $PCP_AWK_PROG '
 NR == 2	{ printf "p_logfile=\"%s\"\n", $0; next }
 NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	{ next }'`
+	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "p_pmcd_host=$p_pmcd_host p_logfile=$p_logfile""$PCP_ECHO_C"
 	    p_logfile=`_unsymlink_path $p_logfile`
+	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "->$p_logfile ... ""$PCP_ECHO_C"
 	    if [ "$p_logfile" = $logfile -a "$p_pmcd_host" = "$fqdn" ]
 	    then
 		pid=$p_id
+		$VERY_VERBOSE && $PCP_ECHO_PROG match
 		break
 	    fi
+	    $VERY_VERBOSE && $PCP_ECHO_PROG "no match"
 	else
 	    # ignore, its not a running process
 	    eval $RM -f $file
+	    $VERY_VERBOSE && $PCP_ECHO_PROG "process has vanished"
 	fi
     done
 

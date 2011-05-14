@@ -7,8 +7,9 @@ pcp (4.0.0) unstable; urgency=low
 pcp (3.5.1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * Fix build when $HOME not set (closes: #625961)
 
- -- Nathan Scott <nathans@debian.org>  Sat, 16 Apr 2011 15:51:55 +1000
+ -- Nathan Scott <nathans@debian.org>  Thu, 12 May 2011 20:00:28 +1000
 
 pcp (3.5.0) unstable; urgency=low
 

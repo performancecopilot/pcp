@@ -27,7 +27,7 @@ TESTCODE  =
 PERLDOCS  = Changes MANIFEST
 LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLMOD) $(INTERFACE) $(TESTCODE)
 
-LPKGDIRT = PCP-LogImport-*
+LPKGDIRT = PCP-LogImport-* tmp
 LDIRT = Makefile COPYING LogImport.bs LogImport.c LogImport.o cvalue pm_to_blib blib \
 	Makefile.old $(LPKGDIRT)
 
@@ -48,6 +48,7 @@ LogImport.o: Makefile LogImport.xs typemap
 
 Makefile: COPYING Makefile.PL
 	PCP_TOPDIR=`pwd`/$(TOPDIR); export PCP_TOPDIR; \
+	TARGET_OS="$(TARGET_OS)" \
 	CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_OPTIONS)
 
 COPYING:
@@ -63,7 +64,7 @@ install: default
 ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
 	$(PERLMAKE) -f Makefile install DESTDIR=$$DIST_ROOT
 	find $$DIST_ROOT -name .packlist -exec mv '{}' $(TOPDIR)/perl-pcp-logimport.list ';'
-	sed -e s@$$DIST_ROOT@@ -e 's/\.[0-9]pm$$/&.gz/' -e '/\.bs$$/d' -i.tmp $(TOPDIR)/perl-pcp-logimport.list
+	sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&.gz/' -e "s@^$$DIST_ROOT@@p" -i.tmp $(TOPDIR)/perl-pcp-logimport.list
 	find $$DIST_ROOT -name perllocal.pod -exec rm -f '{}' ';'
 	find $$DIST_ROOT -name \*.bs  -exec rm -f '{}' ';'
 	find $$DIST_ROOT -name LogImport.so -exec chmod 755 '{}' ';'

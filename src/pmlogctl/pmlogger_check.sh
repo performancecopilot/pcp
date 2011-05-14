@@ -183,7 +183,7 @@ _check_logfile()
 	    :
 	else
 	    logdir=`dirname $logfile`
-	    echo "Directory (`cd $logdir; $PWDCMND`) contents:"
+	    echo "Directory (`cd $logdir; $PWDCMND -P`) contents:"
 	    LC_TIME=POSIX ls -la $logdir
 	fi
     else
@@ -380,7 +380,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     fi
 
     cd $dir
-    dir=`$PWDCMND`
+    dir=`$PWDCMND -P`
     $SHOWME && echo "+ cd $dir"
 
     if [ ! -w $dir ]
@@ -611,10 +611,10 @@ END							{ print m }'`
 	    logdir=`dirname $LOGNAME`
 	    if $TERSE
 	    then
-		echo "$prog: Error: archive file `cd $logdir; $PWDCMND`/$LOGNAME.0 missing"
+		echo "$prog: Error: archive file `cd $logdir; $PWDCMND -P`/$LOGNAME.0 missing"
 	    else
 		echo "$prog: Error: archive file $LOGNAME.0 missing"
-		echo "Directory (`cd $logdir; $PWDCMND`) contents:"
+		echo "Directory (`cd $logdir; $PWDCMND -P`) contents:"
 		LC_TIME=POSIX ls -la $logdir
 	    fi
 	fi
