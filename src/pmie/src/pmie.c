@@ -53,7 +53,7 @@
 static char *prompt = "pmie> ";
 static char *intro  = "Performance Co-Pilot Inference Engine (pmie), "
 		      "Version %s\n\n%s%s";
-char	*clientid = NULL;
+char	*clientid;
 
 static FILE *logfp;
 static char logfile[MAXPATHLEN+1];
@@ -384,7 +384,6 @@ sigbye(int sig)
     exit(0);
 }
 
-
 static void
 remap_stdout_stderr(void)
 {
@@ -439,7 +438,6 @@ dotraceback(void)
 #endif
     return;
 }
-
 
 static void
 sigbadproc(int sig)
@@ -767,25 +765,9 @@ getargs(int argc, char *argv[])
 	exit(1);
     }
 
-    if (!agent) {
-	/*
-	 * not secret agent mode, so build string to register client id
-	 * with pmcd
-	 */
-	int	need = 0;
-	int	a;
-	for (a = 0; a < argc; a++)
-	    need += strlen(argv[a])+1;
-	clientid = (char *)malloc(need);
-	if (clientid != NULL) {
-	    clientid[0] = '\0';
-	    for (a = 0; a < argc; a++) {
-		strcat(clientid, argv[a]);
-		if (a < argc-1)
-		    strcat(clientid, " ");
-	    }
-	}
-    }
+    /* when not in secret agent mode, register client id with pmcd */
+    if (!agent)
+	clientid = __pmGetClientId(argc, argv);
 
     if (!interactive && optind == argc) {	/* stdin or config file */
 	load(configfile);

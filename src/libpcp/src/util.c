@@ -1050,18 +1050,18 @@ pmflush(void)
 /*
  * Set the pmcd client identity as exported by pmcd.client.whoami
  *
- * Itentity is of the form
+ * Identity is of the form
  *	hostname (ipaddr) <id>
  *
  * Assumes you already have a current host context.
  */
 int
-__pmSetClientId(char *id)
+__pmSetClientId(const char *id)
 {
     char		*name = "pmcd.client.whoami";
     pmID		pmid;
     int			sts;
-    pmResult		res;
+    pmResult		store = { .numpmid = 1 };
     pmValueSet		pmvs;
     pmValueBlock	*pmvb;
     char        	host[MAXHOSTNAMELEN];
@@ -1075,7 +1075,7 @@ __pmSetClientId(char *id)
     (void)gethostname(host, MAXHOSTNAMELEN);
     hep = gethostbyname(host);
     if (hep != NULL) {
-        strcpy(host, hep->h_name);
+	strcpy(host, hep->h_name);
 	if (hep->h_addrtype == AF_INET) {
 	    strcpy(ipaddr, inet_ntoa(*((struct in_addr *)hep->h_addr_list[0])));
 	}
@@ -1107,15 +1107,45 @@ __pmSetClientId(char *id)
     pmvs.vlist[0].value.pval = pmvb;
     pmvs.vlist[0].inst = PM_IN_NULL;
 
-    res.numpmid = 1;
-    res.vset[0] = &pmvs;
-
-    sts = pmStore(&res);
+    store.vset[0] = &pmvs;
+    sts = pmStore(&store);
     free(pmvb);
-
-    return 0;
+    return sts;
 }
 
+char *
+__pmGetClientId(int argc, char **argv)
+{
+    char	*clientID;
+    int		a, need = 0;
+
+    for (a = 0; a < argc; a++)
+	need += strlen(argv[a]) + 1;
+    clientID = (char *)malloc(need);
+    if (clientID) {
+	clientID[0] = '\0';
+	for (a = 0; a < argc; a++) {
+	    strcat(clientID, argv[a]);
+	    if (a < argc - 1)
+		strcat(clientID, " ");
+	}
+    }
+    return clientID;
+}
+
+int
+__pmSetClientIdArgv(int argc, char **argv)
+{
+    char	*id = __pmGetClientId(argc, argv);
+    int		sts;
+
+    if (id) {
+	sts = __pmSetClientId(id);
+	free(id);
+	return sts;
+    }
+    return -ENOMEM;
+}
 
 /*
  * Support for C environments that have lame libc implementations.
