@@ -43,4 +43,8 @@ extern void ctx_register_callbacks(ctxStartContextCallBack start,
 /* Returns the user data associated with the current client context. */
 extern void *ctx_get_user_data(void);
 
+/* Get and set access level for current client context event streams */
+extern int ctx_get_user_access(void);
+extern void ctx_set_user_access(int enable);
+
 #endif /* _PERCONTEXT_H */

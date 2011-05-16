@@ -107,7 +107,7 @@ event_init(void)
 	    FD_SET(fd, &fds);
 	}
 	logfiles[i].fd = fd;		/* keep file descriptor (or error) */
-	TAILQ_INIT(&logfiles[i].head);	/* initialize our queue */
+	TAILQ_INIT(&logfiles[i].queue);	/* initialize our queue */
     }
 }
 
@@ -146,7 +146,7 @@ event_create(unsigned int logfile)
     /* Store event in queue. */
     e->clients = logfiles[logfile].numclients;
     e->buffer[c] = '\0';
-    TAILQ_INSERT_TAIL(&logfiles[logfile].head, e, events);
+    TAILQ_INSERT_TAIL(&logfiles[logfile].queue, e, events);
 
     if (pmDebug & DBG_TRACE_APPL1)
 	__pmNotifyErr(LOG_INFO, "Inserted item, clients = %d.", e->clients);
@@ -166,11 +166,16 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
     struct event *e, *next;
     struct timeval stamp;
     pmAtomValue atom;
-    int rc;
-    int records = 0;
     struct ctx_client_data *c = ctx_get_user_data();
+    int records = 0;
+    int sts = ctx_get_user_access() || !logfiles[logfile].restricted;
 
+    if (pmDebug & DBG_TRACE_APPL2)
+	__pmNotifyErr(LOG_INFO, "%s called, ctx access=%d\n",
+				__FUNCTION__, sts);
     *vbpp = NULL;
+    if (sts != 1)
+	return PM_ERR_PERMISSION;
 
     /*
      * Make sure the way we keep track of which clients are interested in
@@ -178,16 +183,19 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
      */
     if (c[logfile].active_logfile == 0) {
 	c[logfile].active_logfile = 1;
-	c[logfile].last = logfiles[logfile].head.tqh_last;
+	c[logfile].last = logfiles[logfile].queue.tqh_last;	// tqh_first?
 	logfiles[logfile].numclients++;
     }
 
-    pmdaEventResetArray(eventarray);
     gettimeofday(&stamp, NULL);
-    if ((rc = pmdaEventAddRecord(eventarray, &stamp, PM_EVENT_FLAG_POINT)) < 0)
-	return rc;
+    pmdaEventResetArray(eventarray);
+    if ((sts = pmdaEventAddRecord(eventarray, &stamp, PM_EVENT_FLAG_POINT)) < 0)
+	return sts;
 
     e = *c[logfile].last;
+    if (pmDebug & DBG_TRACE_APPL2)
+	__pmNotifyErr(LOG_INFO, "%s phase2 e=%p\n", __FUNCTION__, e);
+
     while (e != NULL) {
 	/*
 	 * Add the string parameter.  Note that pmdaEventAddParam()
@@ -198,18 +206,19 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
 	if (pmDebug & DBG_TRACE_APPL1)
 	    __pmNotifyErr(LOG_INFO, "Adding param: %s", e->buffer);
 
-	rc = pmdaEventAddParam(eventarray,
-			       logfiles[logfile].pmid, PM_TYPE_STRING, &atom);
-	if (rc < 0)
-	    return rc;
+	sts = pmdaEventAddParam(eventarray,
+				logfiles[logfile].pmid, PM_TYPE_STRING, &atom);
+	if (sts < 0)
+	    return sts;
 	records++;
 
-	/* Get the next event. */
-	next = e->events.tqe_next;
+	next = TAILQ_NEXT(e, events);
 
 	/* Remove the current one (if its use count is at 0). */
 	if (--e->clients <= 0) {
-	    TAILQ_REMOVE(&logfiles[logfile].head, e, events);
+	    __pmNotifyErr(LOG_INFO, "Removing %s event %p in fetch",
+				  logfiles[logfile].pmnsname, e);
+	    TAILQ_REMOVE(&logfiles[logfile].queue, e, events);
 	    free(e);
 	}
 
@@ -218,7 +227,7 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
     }
 
     /* Update queue pointer. */
-    c[logfile].last = logfiles[logfile].head.tqh_last;
+    c[logfile].last = logfiles[logfile].queue.tqh_last;
 
     if (records > 0)
 	*vbpp = (pmValueBlock *)pmdaEventGetAddr(eventarray);
@@ -243,12 +252,14 @@ event_cleanup(void)
 	logfiles[logfile].numclients--;
 	e = *c[logfile].last;
 	while (e != NULL) {
-	    /* Get the next event. */
-	    next = e->events.tqe_next;
+	    next = TAILQ_NEXT(e, events);
 
-	    /* Remove the current one (if its use count is at 0). */
+	    /* Remove the current one (if use count is at 0). */
 	    if (--e->clients <= 0) {
-		TAILQ_REMOVE(&logfiles[logfile].head, e, events);
+		if (pmDebug & DBG_TRACE_APPL1)
+		    __pmNotifyErr(LOG_INFO, "Removing %s event %p",
+				  logfiles[logfile].pmnsname, e);
+		TAILQ_REMOVE(&logfiles[logfile].queue, e, events);
 		free(e);
 	    }
 

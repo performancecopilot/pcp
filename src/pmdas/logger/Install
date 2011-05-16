@@ -91,11 +91,11 @@ $1 == "'$iam'"	{ printf "%s",$6
 	if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o -z "$ans" ]
 	then
 	    configfile="$configdir/$iam.conf"
-	    if [ -f $configfile ]
+	    if [ -f "$configfile" ]
 	    then
 		    echo "Removing old configuration file \"$configfile\""
-		    rm -f $configfile
-		    if [ -f $configfile ]
+		    rm -f "$configfile"
+		    if [ -f "$configfile" ]
 		    then
 			    echo "Cannot remove \"$configfile\""
 			    exit 1
@@ -111,8 +111,8 @@ An empty line terminates the logfile selection process and there must
 be at least one logfile specified.  '
 
 	    args=""
-	    touch $configfile
-	    if [ ! -f $configfile ]
+	    touch "$configfile"
+	    if [ ! -f "$configfile" ]
 	    then
 		echo "Installation aborted."
 		exit 1
@@ -138,7 +138,7 @@ underscore ('_')."
 		    fi
 
 		    # Make sure name isn't already in the logfile.
-		    if grep "^${name}[ \t]" $configfile >/dev/null
+		    if grep "^${name}[ \t]" "$configfile" >/dev/null
 		    then
 			echo "Sorry, logfile PMNS name \"$name\" already specified.  Please try again."
 			continue
@@ -147,19 +147,21 @@ underscore ('_')."
 		    $PCP_ECHO_PROG $PCP_ECHO_N "Logfile pathname: ""$PCP_ECHO_C"
 		    read pathname
 		    [ -z "$pathname" ] && break
-		    if grep "[ \t]${pathname}$" $configfile >/dev/null
+		    if grep "[ \t]${pathname}$" "$configfile" >/dev/null
 		    then
 			echo "Sorry, pathname \"$pathname\" already specified.  Please try again."
 			continue
 		    fi
-		    if echo $pathname | grep "|[ \t]*$" > /dev/null; then
-			# Accept pipe "paths" as is
-			true
-		    elif [ ! -e "$pathname" ]; then
-			echo "Error: pathname $pathname doesn't exist!."
-			continue
+
+		    $PCP_ECHO_PROG $PCP_ECHO_N "Restricted access [n]: ""$PCP_ECHO_C"
+		    read restrict
+		    if [ "$restrict" = "y" -o "$restrict" = "yes" ]; then
+			restrict="y"
+		    else
+			restrict="n"
 		    fi
-		    echo "$name $pathname" >>$configfile
+
+		    echo "$name $restrict $pathname" >>"$configfile"
 		done
 	    done
 	else

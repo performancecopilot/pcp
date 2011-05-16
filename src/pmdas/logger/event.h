@@ -34,20 +34,20 @@ struct event {
     char buffer[BUF_SIZE];
 };
 
-TAILQ_HEAD(tailhead, event);
+TAILQ_HEAD(tailqueue, event);
 
 struct EventFileData {
     int			fd;
     pid_t	        pid;
     int			numclients;
     pmID		pmid;
+    int			restricted;
     __uint32_t		count;
-    __uint32_t		pad;
     __uint64_t		bytes;
     struct stat		pathstat;
     char		pmnsname[MAXPATHLEN];
     char		pathname[MAXPATHLEN];
-    struct tailhead	head;
+    struct tailqueue	queue;
 };
 
 extern struct EventFileData *logfiles;

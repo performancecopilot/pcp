@@ -22,21 +22,22 @@
 #include "percontext.h"
 
 typedef struct {
-    int		state;		/* active or inactive context */
-    void       *user_data;	/* user data */
+    unsigned int	state;		/* active|inactive|access context */
+    void		*user_data;	/* user data */
 } perctx_t;
 
 /* values for state */
 #define CTX_INACTIVE	0
-#define CTX_ACTIVE	1
+#define CTX_ACTIVE	0x1
+#define CTX_ACCESS	0x2
 
-static perctx_t	*ctxtab = NULL;
-static int	num_ctx = 0;	       /* number of active contexts */
-static int	num_ctx_allocated = 0; /* number of allocated contexts */
+static perctx_t	*ctxtab;
+static int	num_ctx;		/* number of active contexts */
+static int	num_ctx_allocated;	/* number of allocated contexts */
 static int	last_ctx = -1;
 
-static ctxStartContextCallBack ctx_start_cb = NULL;
-static ctxEndContextCallBack ctx_end_cb = NULL;
+static ctxStartContextCallBack ctx_start_cb;
+static ctxEndContextCallBack ctx_end_cb;
 
 static void
 growtab(int ctx)
@@ -64,17 +65,15 @@ ctx_start(int ctx)
     if (ctx >= num_ctx_allocated)
 	growtab(ctx);
     last_ctx = ctx;
-    if (ctxtab[ctx].state == CTX_INACTIVE) {
+    if (ctxtab[ctx].state == 0) {
 	num_ctx++;
 	ctxtab[ctx].state = CTX_ACTIVE;
 	if (ctx_start_cb) {
 	    ctxtab[ctx].user_data = ctx_start_cb(ctx);
 	}
-#ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL2)
 	    __pmNotifyErr(LOG_INFO, "%s: saw new context %d (num_ctx=%d)\n",
 		      __FUNCTION__, ctx, num_ctx);
-#endif
     }
     return 0;
 }
@@ -82,21 +81,22 @@ ctx_start(int ctx)
 void
 ctx_end(int ctx)
 {
-#ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL2) {
 	fprintf(stderr, "sample_ctx_end(%d) [context is ", ctx);
 	if (ctx < 0 || ctx >= num_ctx_allocated)
 	    fprintf(stderr, "unknown, num_ctx=%d", num_ctx);
-	else if (ctxtab[ctx].state == CTX_ACTIVE)
-	    fprintf(stderr, "active");
-	else if (ctxtab[ctx].state == CTX_INACTIVE)
-	    fprintf(stderr, "inactive");
-	else
-	    fprintf(stderr, "botched state, %d", ctxtab[ctx].state);
+	else {
+	    if (ctxtab[ctx].state & CTX_ACCESS)
+		fprintf(stderr, "accessible+");
+	    if (ctxtab[ctx].state & CTX_ACTIVE)
+		fprintf(stderr, "active");
+	    if (ctxtab[ctx].state == 0)
+		fprintf(stderr, "inactive");
+	}
 	fprintf(stderr, "]\n");
     }
-#endif
-    if (ctx < 0 || ctx >= num_ctx_allocated || ctxtab[ctx].state == CTX_INACTIVE) {
+
+    if (ctx < 0 || ctx >= num_ctx_allocated || ctxtab[ctx].state == 0) {
 	/*
 	 * This is expected ... when a context is closed in pmcd
 	 * (or for a local context or for dbpmda or ...) all the
@@ -133,9 +133,33 @@ void *
 ctx_get_user_data(void)
 {
     if (last_ctx < 0 || last_ctx >= num_ctx_allocated
-	|| ctxtab[last_ctx].state == CTX_INACTIVE)
+	|| ctxtab[last_ctx].state == 0)
 	return NULL;
 
     return ctxtab[last_ctx].user_data;
 }
 
+/* Returns true/false access for the current client context. */
+int
+ctx_get_user_access(void)
+{
+    if (last_ctx < 0 || last_ctx >= num_ctx_allocated)
+	return 0;
+    if (ctxtab[last_ctx].state == 0)	/* inactive */
+	return 0;
+    return ((ctxtab[last_ctx].state & CTX_ACCESS) == CTX_ACCESS);
+}
+
+/* Sets the access level associated with the current client context. */
+void
+ctx_set_user_access(int enable)
+{
+    if (last_ctx < 0 || last_ctx >= num_ctx_allocated)
+	return;
+    if (ctxtab[last_ctx].state == 0)	/* inactive */
+	return;
+    if (enable)
+	ctxtab[last_ctx].state &= CTX_ACCESS;
+    else
+	ctxtab[last_ctx].state |= ~CTX_ACCESS;
+}

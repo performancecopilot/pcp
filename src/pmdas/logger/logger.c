@@ -55,7 +55,7 @@
 
 int maxfd;
 fd_set fds;
-static int alarmed;
+static int interval_expired;
 static struct timeval interval = { 2, 0 };
 
 static int nummetrics;
@@ -215,6 +215,18 @@ logger_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
+static int
+valid_pmid(unsigned int cluster, unsigned int item)
+{
+    if (cluster != 0 || (item < 0 || item > nummetrics)) {
+	if (pmDebug & DBG_TRACE_APPL0)
+	    __pmNotifyErr(LOG_ERR, "%s: PM_ERR_PMID (cluster %u, item %u)\n",
+		      __FUNCTION__, cluster, item);
+	return PM_ERR_PMID;
+    }
+    return 0;
+}
+
 /*
  * callback provided to pmdaFetch
  */
@@ -222,20 +234,17 @@ static int
 logger_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
-    int		rc;
-    int		status = PMDA_FETCH_STATIC;
+    int		sts;
 
     if (pmDebug & DBG_TRACE_APPL2)
 	__pmNotifyErr(LOG_INFO, "%s called\n", __FUNCTION__);
 
-    if (idp->cluster != 0 || (idp->item < 0 || idp->item > nummetrics)) {
-	__pmNotifyErr(LOG_ERR, "%s: PM_ERR_PMID (cluster = %d, item = %d)\n",
-		      __FUNCTION__, idp->cluster, idp->item);
-	return PM_ERR_PMID;
-    }
+    if ((sts = valid_pmid(idp->cluster, idp->item)) < 0)
+	return sts;
 
+    sts = PMDA_FETCH_STATIC;
     if (idp->item < 3) {
-	switch(idp->item) {
+	switch (idp->item) {
 	  case 0:			/* logger.numclients */
 	    atom->ul = ctx_get_num();
 	    break;
@@ -243,26 +252,19 @@ logger_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = numlogfiles;
 	    break;
 	  case 2:			/* logger.param_string */
-	    status = PMDA_FETCH_NOVALUES;
+	    sts = PMDA_FETCH_NOVALUES;
 	    break;
 	  default:
-	    __pmNotifyErr(LOG_ERR,
-			  "%s: PM_ERR_PMID (inst = %d, cluster = %d, item = %d)\n",
-			  __FUNCTION__, inst, idp->cluster, idp->item);
 	    return PM_ERR_PMID;
 	}
     }
     else {
-	struct dynamic_metric_info *pinfo = ((mdesc != NULL) ? mdesc->m_user
-					     : NULL);
-	if (pinfo == NULL) {
-	    __pmNotifyErr(LOG_ERR,
-			  "%s: PM_ERR_PMID - bad pinfo (item = %d)\n",
-			  __FUNCTION__, idp->item);
-	    return PM_ERR_PMID;
-	}
+	struct dynamic_metric_info *pinfo;
 
-	switch(pinfo->pmid_index) {
+	if ((pinfo = ((mdesc != NULL) ? mdesc->m_user : NULL)) == NULL)
+	    return PM_ERR_PMID;
+
+	switch (pinfo->pmid_index) {
 	  case 0:			/* perfile.{LOGFILE}.count */
 	    atom->ul = logfiles[pinfo->logfile].count;
 	    break;
@@ -279,19 +281,56 @@ logger_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = event_get_clients_per_logfile(pinfo->logfile);
 	    break;
 	  case 5:			/* perfile.{LOGFILE}.records */
-	    if ((rc = event_fetch(&atom->vbp, pinfo->logfile)) != 0)
-		return rc;
-	    if (atom->vbp == NULL)
-		status = PMDA_FETCH_NOVALUES;
+	    if ((sts = event_fetch(&atom->vbp, pinfo->logfile)) != 0)
+		return sts;
+	    sts = atom->vbp == NULL ? PMDA_FETCH_NOVALUES : PMDA_FETCH_STATIC;
 	    break;
 	  default:
-	    __pmNotifyErr(LOG_ERR,
-			  "%s: PM_ERR_PMID (item = %d)\n", __FUNCTION__,
-			  idp->item);
 	    return PM_ERR_PMID;
 	}
     }
-    return status;
+    return sts;
+}
+
+static int
+logger_store(pmResult *result, pmdaExt *pmda)
+{
+    int		i, j, sts;
+    pmValueSet	*vsp;
+    __pmID_int	*idp;
+    pmAtomValue	av;
+
+    if (pmDebug & DBG_TRACE_APPL2)
+	__pmNotifyErr(LOG_INFO, "%s called\n", __FUNCTION__);
+
+    for (i = 0; i < result->numpmid; i++) {
+	vsp = result->vset[i];
+	idp = (__pmID_int *)&vsp->pmid;
+
+	if ((sts = valid_pmid(idp->cluster, idp->item)) < 0)
+	    return sts;
+	else {
+	    struct dynamic_metric_info *pinfo = NULL;
+
+	    for (j = 0; j < pmda->e_nmetrics; j++) {
+		if (vsp->pmid == pmda->e_metrics[j].m_desc.pmid) {
+		    pinfo = pmda->e_metrics[j].m_user;
+		    break;
+		}
+	    }
+	    if (pinfo == NULL)
+		return PM_ERR_PMID;
+	    if (pinfo->pmid_index != 5)
+		return PM_ERR_PERMISSION;
+	    if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
+		return PM_ERR_CONV;
+	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				      PM_TYPE_32, &av, PM_TYPE_32)) < 0)
+		return sts;
+	    ctx_set_user_access(av.l);
+	}
+    }
+    return 0;
 }
 
 /* Ensure potential PMNS name can be used as a PCP namespace entry. */
@@ -314,10 +353,10 @@ read_config(const char *filename)
 {
     FILE	       *configFile;
     struct EventFileData *data;
-    int			rc = 0;
+    int			sts = 0;
     size_t		len;
     char		line[MAXPATHLEN * 2];
-    char	       *ptr, *name;
+    char	       *ptr, *name, *restrict;
 
     configFile = fopen(filename, "r");
     if (configFile == NULL) {
@@ -326,7 +365,7 @@ read_config(const char *filename)
 	return -1;
     }
 
-    while (! feof(configFile)) {
+    while (!feof(configFile)) {
 	if (fgets(line, sizeof(line), configFile) == NULL) {
 	    if (feof(configFile)) {
 		break;
@@ -334,7 +373,7 @@ read_config(const char *filename)
 	    else {
 		fprintf(stderr, "%s: fgets failed: %s\n", __FUNCTION__,
 			strerror(errno));
-		rc = -1;
+		sts = -1;
 		break;
 	    }
 	}
@@ -349,7 +388,7 @@ read_config(const char *filename)
 	else if (line[len - 1] != '\n') { /* String must be too long */
 	    fprintf(stderr, "%s: config file line too long: %s\n",
 		    __FUNCTION__, line);
-	    rc = -1;
+	    sts = -1;
 	    break;
 	}
 	line[len - 1] = '\0';		/* Remove the '\n'. */
@@ -367,21 +406,20 @@ read_config(const char *filename)
 
 	/* Skip past all leading whitespace to find the start of
 	 * NAME. */
-	name = lstrip(line);
+	ptr = name = lstrip(line);
 
-	/* Now we need to split the line into 2 parts: NAME and
-	 * PATHNAME.  NAME can't have whitespace in it, so look for
-	 * the first non-whitespace. */
-	ptr = name;
+	/* Now we need to split the line into 3 parts: NAME, ACCESS
+	 * and PATHNAME.  NAME can't have whitespace in it, so look
+	 * for the first non-whitespace. */
 	while (*ptr != '\0' && ! isspace(*ptr)) {
 	    ptr++;
 	}
 	/* If we're at the end, we didn't find any whitespace, so
-	 * we've only got a NAME, with no PATHNAME. */
+	 * we've only got a NAME, with no ACCESS/PATHNAME. */
 	if (*ptr == '\0') {
 	    fprintf(stderr, "%s: badly formatted config file line: %s\n",
 		    __FUNCTION__, line);
-	    rc = -1;
+	    sts = -1;
 	    break;
 	}
 	/* Terminate NAME at the 1st whitespace. */
@@ -391,7 +429,7 @@ read_config(const char *filename)
 	if (strlen(name) > MAXPATHLEN) {
 	    fprintf(stderr, "%s: NAME is too long: %s\n",
 		    __FUNCTION__, name);
-	    rc = -1;
+	    sts = -1;
 	    break;
 	}
 
@@ -399,32 +437,52 @@ read_config(const char *filename)
 	if (valid_pmns_name(name) == 0) {
 	    fprintf(stderr, "%s: NAME isn't a valid PMNS name: %s\n",
 		    __FUNCTION__, name);
-	    rc = -1;
+	    sts = -1;
 	    break;
 	}
 
-	/* Skip past any extra whitespace between NAME and PATHNAME */
+	/* Skip past any extra whitespace between NAME and ACCESS */
+	ptr = restrict = lstrip(ptr);
+
+	/* Look for the next whitespace, and that terminate ACCESS */
+	while (*ptr != '\0' && ! isspace(*ptr)) {
+	    ptr++;
+	}
+
+	/* If we're at the end, we didn't find any whitespace, so
+	 * we've only got NAME and ACCESS with no/PATHNAME. */
+	if (*ptr == '\0') {
+	    fprintf(stderr, "%s: badly formatted config file line: %s\n",
+		    __FUNCTION__, line);
+	    sts = -1;
+	    break;
+	}
+	/* Terminate ACCESS at the 1st whitespace. */
+	*ptr++ = '\0';
+
+	/* Skip past any extra whitespace between ACCESS and PATHNAME */
 	ptr = lstrip(ptr);
 
 	/* Make sure PATHNAME (the rest of the line) isn't too long. */
 	if (strlen(ptr) > MAXPATHLEN) {
 	    fprintf(stderr, "%s: PATHNAME is too long: %s\n",
 		    __FUNCTION__, ptr);
-	    rc = -1;
+	    sts = -1;
 	    break;
 	}
 
-	/* Now we've got a reasonable NAME and PATHNAME.  Save them. */
+	/* Now we've got a reasonable NAME/ACCESS/PATHNAME.  Save them. */
 	numlogfiles++;
 	logfiles = realloc(logfiles, numlogfiles*sizeof(struct EventFileData));
 	if (logfiles == NULL) {
 	    fprintf(stderr, "%s: realloc failed: %s\n", __FUNCTION__,
 		    strerror(errno));
-	    rc = -1;
+	    sts = -1;
 	    break;
 	}
 	data = &logfiles[numlogfiles - 1];
 	memset(data, 0, sizeof(*data));
+	data->restricted = (restrict[0] == 'y' || restrict[0] == 'Y');
 	strncpy(data->pmnsname, name, sizeof(data->pmnsname));
 	strncpy(data->pathname, ptr, sizeof(data->pathname));
 	/* remaining fields filled in after pmdaInit() is called. */
@@ -433,14 +491,14 @@ read_config(const char *filename)
 	    __pmNotifyErr(LOG_INFO, "%s: saw logfile %s (%s)\n", __FUNCTION__,
 		      data->pathname, data->pmnsname);
     }
-    if (rc != 0) {
+    if (sts != 0) {
 	free(logfiles);
 	logfiles = NULL;
 	numlogfiles = 0;
     }
 
     fclose(configFile);
-    return rc;
+    return sts;
 }
 
 static void
@@ -514,7 +572,7 @@ logger_text(int ident, int type, char **buffer, pmdaExt *pmda)
 void 
 logger_init(pmdaInterface *dp, const char *configfile)
 {
-    int i, j, rc;
+    int i, j, sts;
     int numstatics = sizeof(static_metrictab)/sizeof(static_metrictab[0]);
     int numdynamics = sizeof(dynamic_metrictab)/sizeof(dynamic_metrictab[0]);
     pmdaMetric *pmetric;
@@ -577,6 +635,7 @@ logger_init(pmdaInterface *dp, const char *configfile)
 	return;
 
     dp->version.four.fetch = logger_fetch;
+    dp->version.four.store = logger_store;
     dp->version.four.profile = logger_profile;
     dp->version.four.pmid = logger_pmid;
     dp->version.four.name = logger_name;
@@ -589,9 +648,9 @@ logger_init(pmdaInterface *dp, const char *configfile)
     pmdaInit(dp, NULL, 0, metrictab, nummetrics);
 
     /* Create the dynamic PMNS tree and populate it. */
-    if ((rc = __pmNewPMNS(&pmns)) < 0) {
+    if ((sts = __pmNewPMNS(&pmns)) < 0) {
 	__pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n",
-			pmProgname, pmErrStr(rc));
+			pmProgname, pmErrStr(sts));
 	pmns = NULL;
 	return;
     }
@@ -616,9 +675,9 @@ logger_init(pmdaInterface *dp, const char *configfile)
 }
 
 static void
-alarming(int sig, void *ptr)
+interval_timer(int sig, void *ptr)
 {
-    alarmed = 1;
+    interval_expired = 1;
 }
 
 void
@@ -635,36 +694,42 @@ loggerMain(pmdaInterface *dispatch)
     FD_SET(pmcdfd, &fds);
 
     /* arm interval timer */
-    if (__pmAFregister(&interval, NULL, alarming) < 0) {
-	__pmNotifyErr(LOG_ERR, "error registering asynchronous event handler");
+    if (__pmAFregister(&interval, NULL, interval_timer) < 0) {
+	__pmNotifyErr(LOG_ERR, "registering event interval handler");
 	exit(1);
     }
 
     for (;;) {
 	memcpy(&readyfds, &fds, sizeof(readyfds));
 	nready = select(maxfd+1, &readyfds, NULL, NULL, NULL);
+	if (pmDebug & DBG_TRACE_APPL2)
+	    __pmNotifyErr(LOG_DEBUG, "select: nready=%d interval=%d",
+			  nready, interval_expired);
 	if (nready == 0)
 	    continue;
 	else if (nready < 0) {
 	    if (neterror() != EINTR) {
 		__pmNotifyErr(LOG_ERR, "select failure: %s", netstrerror());
 		exit(1);
+	    } else if (!interval_expired) {
+		continue;
 	    }
-	    continue;
 	}
 
 	__pmAFblock();
-	if (FD_ISSET(pmcdfd, &readyfds)) {
+	if (nready > 0 && FD_ISSET(pmcdfd, &readyfds)) {
 	    if (pmDebug & DBG_TRACE_APPL0)
 		__pmNotifyErr(LOG_DEBUG, "processing pmcd PDU [fd=%d]", pmcdfd);
 	    if (__pmdaMainPDU(dispatch) < 0) {
 		__pmAFunblock();
 		exit(1);	/* fatal if we lose pmcd */
 	    }
+	    if (pmDebug & DBG_TRACE_APPL0)
+		__pmNotifyErr(LOG_DEBUG, "completed pmcd PDU [fd=%d]", pmcdfd);
 	}
-	if (alarmed) {
+	if (interval_expired) {
+	    interval_expired = 0;
 	    logger_reload();
-	    alarmed = 0;
 	}
 	__pmAFunblock();
     }
