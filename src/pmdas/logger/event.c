@@ -126,9 +126,15 @@ event_create(unsigned int logfile)
     /* Read up to BUF_SIZE bytes at a time. */
     c = read(logfiles[logfile].fd, e->buffer, sizeof(e->buffer) - 1);
 
-    /* If we've got EOF (0 bytes read) or EBADF (fd isn't valid - most
-     * likely a closed pipe), just ignore the error. */
-    if (c == 0 || (c < 0 && (errno == EBADF || errno == EISDIR))) {
+    /*
+     * Ignore the error if:
+     * - we've got EOF (0 bytes read)
+     * - EBADF (fd isn't valid - most likely a closed pipe)
+     * - EAGAIN/EWOULDBLOCK (fd is marked nonblocking and read would
+     *   block)
+     */
+    if (c == 0 || (c < 0 && (errno == EBADF || errno == EAGAIN
+			     || errno == EWOULDBLOCK))) {
 	free(e);
 	return 0;
     }

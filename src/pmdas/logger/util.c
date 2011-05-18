@@ -97,10 +97,12 @@ start_cmd(const char *cmd, pid_t *ppid)
 	/* Duplicate our pipe fd onto stdout of the child. Note that
 	 * this clears O_CLOEXEC, so the new stdout should stay open
 	 * when we call exec(). */
-	if (dup2(pipe_fds[CHILD_END], STDOUT_FD) < 0) {
-	    __pmNotifyErr(LOG_ERR, "%s: dup2() returned %s", __FUNCTION__,
-		      strerror(errno));
-	    _exit(127);
+	if (pipe_fds[CHILD_END] != STDOUT_FD) {
+	    if (dup2(pipe_fds[CHILD_END], STDOUT_FD) < 0) {
+		__pmNotifyErr(LOG_ERR, "%s: dup2() returned %s", __FUNCTION__,
+			      strerror(errno));
+		_exit(127);
+	    }
 	}
 
 	/* Close all other fds. */
@@ -116,7 +118,7 @@ start_cmd(const char *cmd, pid_t *ppid)
 
     }
     else if (child_pid > 0) {		/* parent process */
-	close (pipe_fds[PARENT_END]);
+	close (pipe_fds[CHILD_END]);
 	if (ppid != NULL) {
 	    *ppid = child_pid;
 	}
@@ -132,7 +134,7 @@ start_cmd(const char *cmd, pid_t *ppid)
 	return -errno_save;
     }
     
-    return pipe_fds[CHILD_END];
+    return pipe_fds[PARENT_END];
 }
 
 int
