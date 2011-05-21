@@ -27,8 +27,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <signal.h>
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
+#include "pmapi.h"
+#include "impl.h"
 #include "util.h"
 
 void

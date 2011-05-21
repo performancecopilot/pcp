@@ -16,9 +16,9 @@
  * for more details.
  */
 
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
-#include <pcp/pmda.h>
+#include "pmapi.h"
+#include "impl.h"
+#include "pmda.h"
 #include "percontext.h"
 
 typedef struct {
