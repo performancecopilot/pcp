@@ -55,5 +55,9 @@ util.o event.o logger.o: util.h
 .NOTPARALLEL:
 .ORDER:	domain.h $(OBJECTS)
 
+default_pcp : default
+
+install_pcp : install
+
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
