@@ -50,12 +50,7 @@ include $(BUILDRULES)
 
 install: default
 ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
-	$(PERLMAKE) -f Makefile install DESTDIR=$$DIST_ROOT
-	find $$DIST_ROOT -name .packlist -exec mv '{}' $(TOPDIR)/perl-pcp-logsummary.list ';'
-	sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&.gz/' -e "s@^$$DIST_ROOT@@p" -i.tmp $(TOPDIR)/perl-pcp-logsummary.list
-	find $$DIST_ROOT -name perllocal.pod -exec rm -f '{}' ';'
-	find $$DIST_ROOT -name \*.bs  -exec rm -f '{}' ';'
-	find $$DIST_ROOT -name LogSummary.so -exec chmod 755 '{}' ';'
+	$(call PERL_GET_FILELIST,$(TOPDIR)/perl-pcp-logsummary.list,LogSummary)
 endif
 
 install_perl:
