@@ -29,21 +29,28 @@ PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
 LDIRT	= domain.h *.o $(IAM).log $(CMDTARGET)
 
-default_pcp default:	domain.h $(CMDTARGET)
-
-logger.o: domain.h
-logger.o percontext.o event.o: percontext.h
-event.o logger.o: event.h
-util.o event.o logger.o: util.h
+default:	build-me
 
 include $(BUILDRULES)
 
-install install_pcp:	default
+ifeq "$(TARGET_OS)" "linux"
+build-me: domain.h $(CMDTARGET)
+
+install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root help pmns $(PMDADIR)
 	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
 	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
+else
+build-me:
+install:
+endif
+
+logger.o: domain.h
+logger.o percontext.o event.o: percontext.h
+event.o logger.o: event.h
+util.o event.o logger.o: util.h
 
 .NOTPARALLEL:
 .ORDER:	domain.h $(OBJECTS)
