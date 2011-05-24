@@ -124,9 +124,26 @@ int __pmPathSeparator() { return '/'; }
 static void
 posix_formatter(char *var, char *prefix, char *val)
 {
-    char envbuf[MAXPATHLEN];
+    /* +40 bytes for max PCP env variable name */
+    char	envbuf[MAXPATHLEN+40];
+    char	*vp;
+    char	*vend;
 
-    snprintf(envbuf, sizeof(envbuf), "%s=%s", var, val);
+    snprintf(envbuf, sizeof(envbuf), "%s=", var);
+    vend = &val[strlen(val)-1];
+    if (val[0] == *vend && (val[0] == '\'' || val[0] == '"')) {
+	/*
+	 * have quoted value like "gawk --posix" for $PCP_AWK_PROG ...
+	 * strip quotes
+	 */
+	vp = &val[1];
+	vend--;
+    }
+    else
+	vp = val;
+    strncat(envbuf, vp, vend-vp+1);
+    envbuf[strlen(var)+1+vend-vp+1+1] = '\0';
+
     putenv(strdup(envbuf));
     (void)prefix;
 }
