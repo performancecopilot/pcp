@@ -325,7 +325,7 @@ INSTALL_MAN = \
 endif
 
 PERL_MAKE_MAKEFILE = \
-	PCP_TOPDIR=`pwd`/$(TOPDIR); export PCP_TOPDIR;  \
+	PCP_TOPDIR=$(TOPDIR); export PCP_TOPDIR;  \
 	TARGET_OS="$(TARGET_OS)" \
 	CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_OPTIONS)
 
