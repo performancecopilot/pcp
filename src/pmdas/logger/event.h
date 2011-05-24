@@ -21,9 +21,9 @@
 #ifndef _EVENT_H
 #define _EVENT_H
 
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
-#include <pcp/pmda.h>
+#include "pmapi.h"
+#include "impl.h"
+#include "pmda.h"
 #include <sys/queue.h>
 
 #define BUF_SIZE 1024
