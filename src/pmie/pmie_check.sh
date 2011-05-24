@@ -32,7 +32,7 @@ _unsymlink_path()
 {
     [ -z "$1" ] && return
     __d=`dirname $1`
-    __real_d=`cd $__d 2>/dev/null && $PWDCMND`
+    __real_d=`cd $__d 2>/dev/null && $PWDCMND -P`
     if [ -z "$__real_d" ]
     then
 	echo $1
@@ -225,7 +225,7 @@ _check_logfile()
 	    :
 	else
 	    logdir=`dirname $logfile`
-	    echo "Directory (`cd $logdir; $PWDCMND`) contents:"
+	    echo "Directory (`cd $logdir; $PWDCMND -P`) contents:"
 	    LC_TIME=POSIX ls -la $logdir
 	fi
     else
@@ -440,7 +440,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     [ ! -d $dir ] && continue
 
     cd $dir
-    dir=`$PWDCMND`
+    dir=`$PWDCMND -P`
     $SHOWME && echo "+ cd $dir"
 
     if [ ! -w $dir ]

@@ -143,10 +143,21 @@ is_chkconfig_on()
 	_ret=0
     elif [ "$PCP_PLATFORM" = "darwin" ]
     then
-	if [ "`. /etc/hostconfig; echo $PCP`" = "-YES-" ]
-	then
-	    _ret=0
-	fi
+	case "$1"
+	in
+	    pcp|pmlogger)
+		if [ "`. /etc/hostconfig; echo $PCP`" = "-YES-" ]
+		then
+		    _ret=0
+		fi
+		;;
+	    pmie)
+		if [ "`. /etc/hostconfig; echo $PMIE`" = "-YES-" ]
+		then
+		    _ret=0
+		fi
+		;;
+	esac
     elif $_have_chkconfig
     then
 	if chkconfig --list "$_flag" 2>&1 | grep $_rl":on" >/dev/null 2>&1
@@ -200,7 +211,15 @@ chkconfig_on()
     elif [ "$PCP_PLATFORM" = "darwin" ] 
     then
 	echo "To enable $_flag, add the following line to /etc/hostconfig:"
-	echo "$_flag=-YES-"
+	case "$_flag"
+	in
+	    pcp|pmlogger)
+		echo "PCP=-YES-"
+		;;
+	    pmie)
+		echo "PMIE=-YES-"
+		;;
+	esac
     elif $_have_chkconfig
     then
 	# enable default run levels
