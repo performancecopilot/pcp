@@ -324,6 +324,11 @@ INSTALL_MAN = \
     done
 endif
 
+PERL_MAKE_MAKEFILE = \
+	PCP_TOPDIR=`pwd`/$(TOPDIR); export PCP_TOPDIR;  \
+	TARGET_OS="$(TARGET_OS)" \
+	CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_OPTIONS)
+
 #
 # For targets that should always be rebuilt,
 # define a target that is never up-to-date.

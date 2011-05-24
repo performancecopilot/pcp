@@ -36,10 +36,8 @@ else
 PERLMAKE = $(MAKE)
 endif
 
-Makefile: COPYING
-	PCP_TOPDIR=`pwd`/$(TOPDIR); export PCP_TOPDIR; \
-	TARGET_OS="$(TARGET_OS)" \
-	CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_OPTIONS)
+Makefile: COPYING Makefile.PL
+	$(call PERL_MAKE_MAKEFILE)
 
 COPYING:
 	$(LN_S) $(TOPDIR)/COPYING COPYING

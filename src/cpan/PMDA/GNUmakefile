@@ -43,9 +43,7 @@ PMDA.o: Makefile PMDA.xs
 	$(PERLMAKE) -f Makefile
 
 Makefile: COPYING Makefile.PL
-	PCP_TOPDIR=`pwd`/$(TOPDIR); export PCP_TOPDIR;  \
-	TARGET_OS="$(TARGET_OS)" \
-	CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_OPTIONS)
+	$(call PERL_MAKE_MAKEFILE)
 
 COPYING:
 	$(LN_S) $(TOPDIR)/COPYING COPYING
