@@ -41,9 +41,7 @@ MMV.o: Makefile MMV.xs
 	$(PERLMAKE) -f Makefile
 
 Makefile: COPYING Makefile.PL
-	PCP_TOPDIR=`pwd`/$(TOPDIR); export PCP_TOPDIR; \
-	TARGET_OS="$(TARGET_OS)" \
-	CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_OPTIONS)
+	$(call PERL_MAKE_MAKEFILE)
 
 COPYING:
 	$(LN_S) $(TOPDIR)/COPYING COPYING
@@ -56,12 +54,8 @@ include $(BUILDRULES)
 
 install: default
 ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
-	$(PERLMAKE) -f Makefile pure_install PERL_INSTALL_ROOT=$$DIST_ROOT
-	find $$DIST_ROOT -name .packlist -exec mv '{}' $(TOPDIR)/perl-pcp-mmv.list ';'
-	sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&.gz/' -e "s@^$$DIST_ROOT@@p" -i.tmp $(TOPDIR)/perl-pcp-mmv.list
-	find $$DIST_ROOT -name perllocal.pod -exec rm -f '{}' ';'
-	find $$DIST_ROOT -name \*.bs  -exec rm -f '{}' ';'
-	find $$DIST_ROOT \( -name server.pl -o -name MMV.so \) -exec chmod 755 '{}' ';'
+	$(call PERL_GET_FILELIST,$(TOPDIR)/perl-pcp-mmv.list,MMV)
+	find $$DIST_ROOT -name server.pl -exec chmod 755 '{}' ';'
 endif
 
 install_perl:
