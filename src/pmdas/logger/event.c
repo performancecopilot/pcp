@@ -132,9 +132,12 @@ event_create(unsigned int logfile)
      * - EBADF (fd isn't valid - most likely a closed pipe)
      * - EAGAIN/EWOULDBLOCK (fd is marked nonblocking and read would
      *   block)
+     * - EISDIR (fd is a directory - (possibly temporary) config file
+     *   botch)
      */
-    if (c == 0 || (c < 0 && (errno == EBADF || errno == EAGAIN
-			     || errno == EWOULDBLOCK))) {
+    if ((c == 0) ||
+	(c < 0 && (errno == EBADF || errno == EAGAIN ||
+		   errno == EISDIR || errno == EWOULDBLOCK))) {
 	free(e);
 	return 0;
     }
