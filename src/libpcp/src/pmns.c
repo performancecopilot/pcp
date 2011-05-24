@@ -2826,8 +2826,14 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
     if (name == NULL) 
 	return PM_ERR_NAME;
 
-    if (pmns_location == PMNS_LOCAL)
-	return TraversePMNS_local(name, func);
+    if (pmns_location == PMNS_LOCAL) {
+	int	sts;
+
+	PM_LOCK(__pmLock_libpcp);
+	sts = TraversePMNS_local(name, func);
+	PM_UNLOCK(__pmLock_libpcp);
+	return sts;
+    }
     else { 
 	int         sts;
 	__pmPDU      *pb;
