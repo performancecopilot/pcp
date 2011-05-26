@@ -525,20 +525,13 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    }
 #endif
 		}
-		else if (sts == PM_ERR_APPVERSION) {
+		else if (sts == PM_ERR_APPVERSION ||
+			(sts == PM_ERR_AGAIN) ||
+			(sts == PM_ERR_PERMISSION)) {
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_LIBPMDA) {
 			__pmNotifyErr(LOG_ERR,
-				 "pmdaFetch: Unsupported metric PMID %s\n",
-				 pmIDStr(dp->pmid));
-		    }
-#endif
-		}
-		else if (sts == PM_ERR_AGAIN) {
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_LIBPMDA) {
-			__pmNotifyErr(LOG_ERR,
-				 "pmdaFetch: Value unavailable for PMID %s\n",
+				 "pmdaFetch: Unavailable metric PMID %s\n",
 				 pmIDStr(dp->pmid));
 		    }
 #endif
