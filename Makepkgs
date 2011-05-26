@@ -60,34 +60,44 @@ if [ -f /etc/lsb-release -a "$ARCH" = "ia32" ]
 then
     if grep -q 'DISTRIB_ID=Ubuntu' /etc/lsb-release
     then
-	if [ -f /usr/bin/dpkg-buildpackage ]
+	eval `grep DISTRIB_RELEASE= /etc/lsb-release`
+	XDISTRIB_RELEASE=`echo $DISTRIB_RELEASE | sed -e 's/\.//'`
+	[ -z "$XDISTRIB_RELEASE" ] && XDISTRIB_RELEASE=0000
+	if [ $XDISTRIB_RELEASE -ge 1110 ]
 	then
-	    ok=true
-	    if grep -q '^my $default_flags .*O2' /usr/bin/dpkg-buildpackage
+	    # Hope the problem is fixed in Ubuntu 11.10
+	    :
+	else
+	    echo "Building without optimization for Ubuntu $DISTRIB_RELEASE"
+	    if [ -f /usr/bin/dpkg-buildpackage ]
 	    then
-		echo '/usr/bin/dpkg-buildpackage: need to remove O2 from $default_flags'
-		ok=false
+		ok=true
+		if grep -q '^my $default_flags .*O2' /usr/bin/dpkg-buildpackage
+		then
+		    echo '/usr/bin/dpkg-buildpackage: need to remove O2 from $default_flags'
+		    ok=false
+		fi
+		if grep -q '^[ 	]*LDFLAGS.*-Bsymbolic-functions' /usr/bin/dpkg-buildpackage
+		then
+		    echo '/usr/bin/dpkg-buildpackage: need to remove -Bsymbolic-function from LDFLAGS'
+		    ok=false
+		fi
+		if $ok
+		then
+		    :
+		else
+		    echo "Refer to Ubuntu notes in PCP's ./INSTALL"
+		    exit 1
+		fi
 	    fi
-	    if grep -q '^[ 	]*LDFLAGS.*-Bsymbolic-functions' /usr/bin/dpkg-buildpackage
-	    then
-		echo '/usr/bin/dpkg-buildpackage: need to remove -Bsymbolic-function from LDFLAGS'
-		ok=false
-	    fi
-	    if $ok
-	    then
-		:
-	    else
-		echo "Refer to Ubuntu notes in PCP's ./INSTALL"
-		exit 1
-	    fi
+	    # as of Ubuntu 10.10, build flags are hidden and extracted using
+	    # dpkg-buildflags which fortunately honours some environment
+	    # settings
+	    #
+	    export DEB_CFLAGS_SET=''
+	    export DEB_CXXFLAGS_SET=''
+	    export DEB_LDFLAGS_SET=''
 	fi
-	# as of Ubuntu 10.10, build flags are hidden and extracted using
-	# dpkg-buildflags which fortunately honours some environment
-	# settings
-	#
-	export DEB_CFLAGS_SET=''
-	export DEB_CXXFLAGS_SET=''
-	export DEB_LDFLAGS_SET=''
     fi
 fi
 
