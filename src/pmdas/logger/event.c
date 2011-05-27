@@ -21,6 +21,9 @@
 #include "event.h"
 #include "percontext.h"
 #include "util.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 static void event_cleanup(void);
 static int eventarray;
