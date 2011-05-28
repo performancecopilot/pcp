@@ -92,21 +92,27 @@ then
     # file if possible
     #
     # if you need to modify this, make consistent changes in
-    #	src/pmdas/pmcd/src/objstyle
-    #	qa/605
+    #       src/pmdas/pmcd/src/objstyle
+    #       qa/605
     #
-    if [ -f /usr/share/misc/magic ]
+    magic=''
+    for file in /usr/share/misc/magic /usr/share/file/magic /usr/share/magic \
+	/etc/magic
+    do
+	if [ -f "$file" ]
+	then
+	    # found a file, check it contains some definitions ...
+	    nl=`sed -e '/^#/d' -e '/^[      ]*$/d' <"$file" | wc -l | sed -e 's/ //g'`
+	    if [ "$nl" -gt 0 ]
+	    then
+		magic=$file
+		break
+	    fi
+	fi
+    done
+    if [ -n "$magic" ]
     then
-	appstyle=`file -m /usr/share/misc/magic $PCP_DEMOS_DIR/trace/app1`
-    elif [ -f /usr/share/file/magic ]
-    then
-	appstyle=`file -m /usr/share/file/magic $PCP_DEMOS_DIR/trace/app1`
-    elif [ -f /usr/share/magic ]
-    then
-	appstyle=`file -m /usr/share/magic $PCP_DEMOS_DIR/trace/app1`
-    elif [ -f /etc/magic]
-    then
-	appstyle=`file -m /etc/magic $PCP_DEMOS_DIR/trace/app1`
+	appstyle=`file -m $magic $PCP_DEMOS_DIR/trace/app1`
     else
 	appstyle=`file $PCP_DEMOS_DIR/trace/app1`
     fi
