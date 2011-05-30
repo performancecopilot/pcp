@@ -29,30 +29,55 @@ cc -c dummy.c
 #	src/pmdas/pmcd/src/objstyle
 #	qa/605
 #
-if [ -f /usr/share/misc/magic ]
-then
-    appstyle=`file -m /usr/share/misc/magic dummy.o`
-elif [ -f /usr/share/file/magic ]
-then
-    appstyle=`file -m /usr/share/file/magic dummy.o`
-elif [ -f /usr/share/magic ]
-then
-    appstyle=`file -m /usr/share/magic dummy.o`
-elif [ -f /etc/magic ]
-then
-    appstyle=`file -m /etc/magic dummy.o`
-else
-    appstyle=`file dummy.o`
-fi
+magic=''
+for file in /usr/share/misc/magic /usr/share/file/magic /usr/share/magic \
+	/etc/magic
+do
+    if [ -f "$file" ]
+    then
+	# found a file, check it contains some definitions ...
+	nl=`sed -e '/^#/d' -e '/^[ 	]*$/d' <"$file" | wc -l | sed -e 's/ //g'`
+	if [ "$nl" -gt 0 ]
+	then
+	    magic=$file
+	    break
+	fi
+    fi
+done
 
-# sample appstyle
+# sample file output
 #
 # ia32 laptop
 # dummy.o: ELF 32-bit LSB relocatable, Intel 80386, version 1 (SYSV), not stripped
 #
+# Mac OS X
+# pmcd.o: Mach-O universal binary with 2 architectures
+# pmcd.o (for architecture i386):	Mach-O object i386
+# pmcd.o (for architecture x86_64):	Mach-O 64-bit object x86_64
+#
+# dummy.o: Mach-O 64-bit object x86_64
+#
 
-echo "$appstyle" \
-| awk -F, '{print $2}' \
-| sed -e 's/[ ,]//g' -e 's/(.*$//'
+if [ -n "$magic" ]
+then
+    file -m $magic dummy.o
+else
+    file dummy.o
+fi \
+| ( sed -n \
+    -e '/ ELF /{
+s/^[^,]*, //
+s/, .*//
+s/ //
+p
+}' \
+    -e '/object/{
+s/[ 	]*$//
+s/.*[ 	]//
+p
+}' \
+| tr '[\012]' '[+]' \
+; echo ) \
+| sed -e 's/+$//'
 
 rm -f dummy.[co]
