@@ -554,7 +554,16 @@ while (defined(my $token = $parser->get_token())) {
 	       $token->tag eq "network" ||
 	       $token->tag eq "power-management" ||
 	       $token->tag eq "cpu-frequency" ||
-	       $token->tag eq "cpu") {
+	       $token->tag eq "cpu-weighted-frequency" ||
+	       $token->tag eq "cpufreq" ||
+	       $token->tag eq "cpuwfreq" ||
+	       $token->tag eq "cpu" ||
+	       $token->tag eq "hugepages" ||
+	       $token->tag eq "hugfree" ||
+	       $token->tag eq "hugused" ||
+	       $token->tag eq "hugused-percent" ||
+	       $token->tag eq "active" ||
+	       $token->tag eq "inactive") {
 	    # ones we know about, but don't care about
 	    next;
 	}
