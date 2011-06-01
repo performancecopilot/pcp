@@ -280,16 +280,19 @@ main(int argc, char **argv)
 	    goto cleanup;
 	}
 
-	if ((orp = rewrite(irp)) == NULL) {
-	    /* reporting done in rewrite() */
-	    goto cleanup;
-	}
+	orp = rewrite(irp);
 #if PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL2) {
-	    fprintf(stderr, "output record ...\n");
-	    __pmDumpResult(stderr, orp);
+	    if (orp == NULL)
+		fprintf(stderr, "output record ... none!\n");
+	    else {
+		fprintf(stderr, "output record ...\n");
+		__pmDumpResult(stderr, orp);
+	    }
 	}
 #endif
+	if (orp == NULL)
+	    goto next;
 
 	/*
 	 * convert log record to a PDU, and enforce V2 encoding semantics,
@@ -339,6 +342,7 @@ main(int argc, char **argv)
 
 	rewrite_free();
 
+next:
 	pmFreeResult(irp);
     }
 
