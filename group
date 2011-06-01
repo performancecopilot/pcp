@@ -81,10 +81,13 @@ archive
 # cron.*, pm*log* apps (except pmlogger)
 logutil
 
-# log processing apps
+# log extraction app
 pmlogextract
+# log reduction app
 pmlogreduce
+# log summary app
 pmlogsummary
+# pmlogger configuration tool
 pmlogconf
 
 # general context manipulations, includes profile cacheing
@@ -140,7 +143,6 @@ pmda.pmcd
 pmda.proc
 # sample PMDA
 pmda.sample
-pmda.sampledso
 # shping PMDA
 pmda.shping
 # simple PMDA
@@ -333,7 +335,7 @@ perl
 105 pmlc pmlogger local oss pmdumplog
 106 pmlc pmlogger local oss pmdumplog
 107 pmlc pmlogger local oss sanity
-108 pmda.cisco pmda.sample pmda.sampledso local oss
+108 pmda.cisco pmda.sample local oss
 109 other local pmprobe oss
 110 pmda.simple pmda.proc local pmda.install oss
 111 pmda.proc pmval local oss
@@ -605,9 +607,9 @@ perl
 377 other local oss
 378 pmie local oss
 379 pmda.cisco local oss
-380 libpcp pmda pmda.sample pmda.sampledso local oss
+380 libpcp pmda pmda.sample local oss
 381 logutil pmlc remote oss
-382 dbpmda pmda pmda.sample pmda.sampledso local oss
+382 dbpmda pmda pmda.sample local oss
 383 pmda.cisco local oss
 384 pmda.pmcd local oss
 385 libpcp pmda.sample pminfo pmprobe local oss event sanity
@@ -977,3 +979,4 @@ perl
 1233 pmsnap local sgi
 1234 pmchart local sgi
 1236 #935639 pmchart local sgi
+459 pmlogreduce local oss

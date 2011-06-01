@@ -62,7 +62,7 @@ SRCARCH	= mirage.0 moomba.client.0 \
 	badlen-5.0 badlen-6.0 badlen-7.0 badlen-8.0 \
 	540117-short.0 \
 	541380.0 541380_v2.0 \
-	573184.0
+	573184.0 20101004-trunc.0
 
 MKARCH	= foo.0 mv-foo.0 noti-foo.0 bar.0 mv-bar.0 noti-bar.0 \
 	bigbin.0 mv-bigbin.0 noti-bigbin.0 truncbin.0 null.0 \
