@@ -27,6 +27,26 @@ else
     _notrun "sadf not installed"
 fi
 
+version=`sar -V 2>&1 | sed -n -e '/sysstat version /s/.* //p'`
+if [ ! -f src-oss/sa-sysstat-$version ]
+then
+    _notrun "no data file for sysstat version $version"
+fi
+
+rm -f $seq.out
+case "$version"
+in
+    9.0.6)
+	ln $seq.out.1 $seq.out || exit 1
+	;;
+    9.1.7)
+	ln $seq.out.2 $seq.out || exit 1
+	;;
+    *)
+	_notrun "no qualified output for sysstat version $version"
+	;;
+esac
+
 if which sar2pcp >/dev/null 2>&1
 then
     :
@@ -42,9 +62,9 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
-sar2pcp src-oss/sa-sysstat-9.0.6 $tmp
+sar2pcp src-oss/sa-sysstat-$version $tmp
 
-sar -f src-oss/sa-sysstat-9.0.6 -u \
+sar -f src-oss/sa-sysstat-$version -u \
 | tee -a $seq.full \
 | sed -n '/^[0-2][0-9]:/p' \
 | $PCP_AWK_PROG >$tmp.sar '
@@ -91,7 +111,7 @@ $PCP_AWK_PROG <$tmp.both '
 { if ($5-$NF > 0.0001 || $5-$NF < -0.0001) print "[",NR,"] mismatch:",$1,$5,$NF }'
 
 echo >>$seq.full
-sar -f src-oss/sa-sysstat-9.0.6 -b \
+sar -f src-oss/sa-sysstat-$version -b \
 | tee -a $seq.full \
 | sed -n '/^[0-2][0-9]:/p' \
 | $PCP_AWK_PROG >$tmp.sar '
