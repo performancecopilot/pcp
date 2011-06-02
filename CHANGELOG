@@ -1,5 +1,25 @@
-pcp-3.5.1 (under development)
-    - bugfix: fetching hinv.cpu.* aborts if cpu indom is not initialized
+pcp-3.5.1 (2 June 2011)
+    - pmlogreduce - fix 2 problems (memory leak, additional mark records)
+    - Initial version of pmdalogger, from David Smith, a log monitoring
+      PMDA exporting event metrics.
+    - Make Windows drive instance domain code less chatty.
+    - RC scripts and pmie_check - Mac OS X porting
+    - pmlogger_check - symbolic link issue fixed
+    - Add in the rsyslog PMDA (http://www.rsyslog.com)
+    - Extend PCP::PMDA so that the log tail mode can be used on named papes.
+    - Numerous updates to the Perl packaging infrastructure
+    - Fix build when $HOME is not set.
+    - pmlogconf - another non-posix awk issue fixed
+    - Darwin pmda - filesys.maxfiles metric
+    - pmie_daily - assorted minor fixups
+    - Unix domain socket issue found on Mac OS X
+    - pmcd config parsing error handling cleanup
+    - Quieten pmevent output in the absence of new events.
+    - Pass process ID out on success of __pmProcessCreate.
+    - pmdaproc.sh - add PMDA_INTERFACE_5 support
+    - pcp_completion.sh - add pmevent for bash metic completion
+    - pmevent - add instance domain support
+    - Bugfix: fetching hinv.cpu.* aborts if cpu indom is not initialized
     - Rearrange the per-CPU intr metrics on Linux to use dynamic namespace
     - Add perl modules into Mac OS X installations
     - Additional vmstat metrics added to Linux kernel PMDA
