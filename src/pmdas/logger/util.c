@@ -82,7 +82,7 @@ start_cmd(const char *cmd, pid_t *ppid)
 #endif
 
     /* Create the pipes. */
-#if defined(__linux__)
+#if defined(HAVE_PIPE2)
     rc = pipe2(pipe_fds, O_CLOEXEC|O_NONBLOCK);
     if (rc < 0) {
 	__pmNotifyErr(LOG_ERR, "%s: pipe2() returned %s", __FUNCTION__,
@@ -98,8 +98,8 @@ start_cmd(const char *cmd, pid_t *ppid)
     }
 
     /* Set the right flags on the pipes. */
-    if (fcntl(pipe_fds[PARENT_END], F_SETFL, O_NONBLOCK) < 0
-	|| fcntl(pipe_fds[CHILD_END], F_SETFL, O_NONBLOCK) < 0) {
+    if (fcntl(pipe_fds[PARENT_END], F_SETFL, O_NDELAY) < 0
+	|| fcntl(pipe_fds[CHILD_END], F_SETFL, O_NDELAY) < 0) {
 	__pmNotifyErr(LOG_ERR, "%s: fcntl() returned %s", __FUNCTION__,
 		      strerror(-rc));
 	return rc;
