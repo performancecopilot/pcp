@@ -1187,15 +1187,16 @@ extern int __pmControlLog(int, const pmResult *, int, int, int, pmResult **);
 #define PMLC_GET_DELTA(val) \
         (((val & ~0xf) >> 4) & PMLC_MAX_DELTA)
 
-
 /*
- * helper function to register client identity with pmcd for export
+ * helper functions to register client identity with pmcd for export
  * via pmcd.client.whoami
  */
-extern int __pmSetClientId(char *);
+extern char *__pmGetClientId(int, char **);
+extern int __pmSetClientIdArgv(int, char **);
+extern int __pmSetClientId(const char *);
 
 /*
- * internal methods to support callbacks for derved metrics
+ * internal methods to support callbacks for derived metrics
  */
 extern int __dmtraverse(const char *, char ***);
 extern int __dmchildren(const char *, char ***, int **);

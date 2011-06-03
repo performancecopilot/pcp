@@ -15,9 +15,19 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
 
+include /etc/pcp.conf
+DSO_SUFFIX	= $(shell echo $(PCP_LIB_DIR)/libpcp_trace.* | sed -e 's/$$/ /' -e 's/[^ ]*\.a //' -e 's/[^ ]*[0-9][^ ]* //' -e 's/.*\.//')
+ifeq "$(DSO_SUFFIX)" ""
+$(error cannot set DSO_SUFFIX on this platform)
+endif
+DSO_VERSION	= $(shell echo $(PCP_LIB_DIR)/libpcp_trace.* | sed -e 's/.*trace\.\([^ ]*[0-9][^ ]*\).*/\1/')
+ifeq "$(DSO_VERSION)" ""
+$(error cannot set DSO_VERSION on this platform)
+endif
+
 SHELL	= /bin/sh
 CC	= cc
-TARGETS	= lib/libpcp_trace.so.2 lib/libpcp_trace.so 
+TARGETS	= lib/libpcp_trace.$(DSO_VERSION) lib/libpcp_trace.$(DSO_SUFFIX) 
 CFILES	= stub.c
 CFLAGS += -DPMTRACE_DEBUG
 CFLAGS += -fPIC -fno-strict-aliasing
@@ -25,14 +35,14 @@ LDIRT	= lib lib32 lib64
 
 default: $(TARGETS)
 
-lib/libpcp_trace.so.2: stub.c
+lib/libpcp_trace.$(DSO_VERSION): stub.c
 	-[ ! -d lib ] && mkdir lib
 	rm -f $@
 	cd lib; $(CC) $(CFLAGS) -shared ../stub.c -o $(@F)
 
-lib/libpcp_trace.so:	lib/libpcp_trace.so.2
+lib/libpcp_trace.$(DSO_SUFFIX):	lib/libpcp_trace.$(DSO_VERSION)
 	rm -f $@
-	cd lib; ln -s libpcp_trace.so.2 libpcp_trace.so
+	cd lib; ln -s libpcp_trace.$(DSO_VERSION) libpcp_trace.$(DSO_SUFFIX)
 
 clean:
 	rm -rf $(LDIRT)

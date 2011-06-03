@@ -18,11 +18,13 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = pmcd linux solaris aix darwin windows etw \
 	sample simple trivial sendmail mailq txmon \
-	news cisco trace apache shping mounts weblog \
+	cisco trace apache shping mounts weblog \
 	lmsensors process roomtemp summary hotproc \
+	logger \
 	dbping memcache systemtap mysql vmware kvm \
 	bonding lustrecomm mmv netfilter zimbra \
-	named pdns samba dtsrun postfix gpsd
+	named news pdns samba dtsrun postfix gpsd \
+	rsyslog
 
 LDIRT = pmcd.conf
 

@@ -28,8 +28,9 @@ USHORT globalPointerSize;	/* TODO: make local & on-stack */
 
 /* Get the event metadata */
 static DWORD
-GetEventInformation(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo)
+GetEventInformation(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO *pInfoPointer)
 {
+    PTRACE_EVENT_INFO pInfo = NULL;
     DWORD sts = ERROR_SUCCESS;
     DWORD size = 0;
 
@@ -48,6 +49,7 @@ GetEventInformation(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo)
 	fprintf(stderr, "TdhGetEventInformation failed: %s (%lu)\n",
 		tdherror(sts), sts);
     }
+    *pInfoPointer = pInfo;
     return sts;
 }
 
@@ -529,7 +531,7 @@ cleanup:
 void
 DecodeHeader(PEVENT_RECORD pEvent)
 {
-    printf("Event HEADER (size=%u) flags=%s type=%s\npid=%lu tid=%lu eid=%u\n",
+    printf("Event HEADER (size=%u) flags=%s type=%s\npid=%ld tid=%ld eid=%u\n",
 		pEvent->EventHeader.Size,
 		eventHeaderFlags(pEvent->EventHeader.Flags),
 		eventPropertyFlags(pEvent->EventHeader.EventProperty),
@@ -543,6 +545,10 @@ DecodeHeader(PEVENT_RECORD pEvent)
     }
     printf("Event PROVIDER %s\n", strguid(&pEvent->EventHeader.ProviderId));
     printf("Event ACTIVITY %s\n", strguid(&pEvent->EventHeader.ActivityId));
+
+    if (pEvent->EventHeader.Flags & EVENT_HEADER_FLAG_STRING_ONLY) {
+	printf("String: %ls\n\n", (wchar_t *)pEvent->UserData);
+    }
 }
 
 /* Callback that receives the events */
@@ -565,7 +571,7 @@ ProcessEvent(PEVENT_RECORD pEvent)
      * The pEvent->UserData member is a pointer to the event specific data,
      * if any exists.
      */
-    sts = GetEventInformation(pEvent, pInfo);
+    sts = GetEventInformation(pEvent, &pInfo);
     if (sts != ERROR_SUCCESS)
 	goto cleanup;
 
@@ -621,8 +627,9 @@ ProcessEvent(PEVENT_RECORD pEvent)
 	for (i = 0; i < pInfo->TopLevelPropertyCount; i++) {
 	    sts = PrintProperties(pEvent, pInfo, i, NULL, 0);
 	    if (sts != ERROR_SUCCESS) {
-		printf("Printing top level properties failed.\n");
-		goto cleanup;
+		fprintf(stderr,
+			"Printing top level properties failed, property %u.\n",
+			i);
 	    }
 	}
     }
@@ -721,16 +728,6 @@ retrySession:
 	    fprintf(stderr, "StartTrace: %s\n", tdherror(sts));
 	}
 	exit(1);
-    }
-
-    if (enableFlags == 0) {		/* non-kernel traces... */
-	sts = EnableTrace(TRUE, 0, /* provider flags */
-			     TRACE_LEVEL_INFORMATION, /* TRACE_LEVEL_VERBOSE */
-			     guid, session);
-	if (sts != ERROR_SUCCESS) {
-	    fprintf(stderr, "EnableTrace: %s\n", tdherror(sts));
-	    exit(1);
-	}
     }
 }
 
@@ -843,8 +840,8 @@ int
 main(int argc, LPTSTR *argv)
 {
     BOOL useGlobalSequence = FALSE;
-    TRACEHANDLE handles[MAX_SESSIONS];
-    ULONG sts, hCount = 0, sysFlags = 0;
+    TRACEHANDLE session;
+    ULONG sts, sysFlags = 0;
     int c;
 
     while ((c = getopt(argc, argv, options)) != EOF) {
@@ -865,30 +862,15 @@ main(int argc, LPTSTR *argv)
     if (sysFlags) {
 	enableEventTrace(KERNEL_LOGGER_NAME, sizeof(KERNEL_LOGGER_NAME),
 			 &SystemTraceControlGuid, sysFlags, useGlobalSequence);
-	handles[hCount++] = openTraceHandle(KERNEL_LOGGER_NAME);
+	session = openTraceHandle(KERNEL_LOGGER_NAME);
+    } else {
+	session = openTraceHandle(PCP_SESSION);
     }
 
-    while (optind < argc) {
-	LPTSTR name = argv[optind++];
-	GUID guid;
-
-	if (ProviderGuid(name, &guid) != ERROR_SUCCESS) {
-	    fprintf(stderr, "Cannot map provider name %s to a GUID\n", name);
-	    continue;
-	}
-	enableEventTrace(name, strlen(name)+1, &guid, 0, useGlobalSequence);
-	handles[hCount++] = openTraceHandle(name);
-    }
-
-    if (hCount == 0) {
-	fprintf(stderr, "No traces requested, exiting\n");
-	exit(0);
-    }
-
-    fprintf(stderr, "Processing traces ...\n");
-    sts = ProcessTrace(handles, hCount, NULL, NULL);
-    if (sts != ERROR_SUCCESS && sts != ERROR_CANCELLED) {
+    sts = ProcessTrace(&session, 1, NULL, NULL);
+    if (sts == ERROR_CANCELLED)
+	sts = ERROR_SUCCESS;
+    if (sts != ERROR_SUCCESS)
 	fprintf(stderr, "ProcessTrace: %s (%lu)\n", tdherror(sts), sts);
-    }
-    return 0;
+    return sts;
 }

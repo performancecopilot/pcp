@@ -1,5 +1,9 @@
 Revision history for Perl extension PCP::PMDA.
 
+1.11  Wed May 11 21:04:09 EST 2011
+	- Make file tail non-blocking so it can be used for
+	  named pipes as well as regular files.
+
 1.10  Thu Nov 25 03:30:18 EST 2010
 	- Convert to using dynamic namespace interfaces.
 	- Added metric and indom table clearing interfaces.

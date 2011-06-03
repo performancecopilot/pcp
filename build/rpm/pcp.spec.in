@@ -358,6 +358,9 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Thu Jun 20 2011 Nathan Scott <nathans@aconex.com> - 3.5.1-1
+- Update to latest PCP sources.
+
 * Mon Aug 30 2010 Mark Goodwin <mgoodwin@redhat.com>
 - bump to 3.4.0-1, split out individual pcp-import-* packages
 

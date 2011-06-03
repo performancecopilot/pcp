@@ -324,6 +324,21 @@ INSTALL_MAN = \
     done
 endif
 
+PERL_MAKE_MAKEFILE = \
+	PCP_TOPDIR=$(TOPDIR); export PCP_TOPDIR;  \
+	TARGET_OS="$(TARGET_OS)" \
+	CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_OPTIONS)
+
+PERL_GET_FILELIST = \
+	$(PERLMAKE) -f Makefile install DESTDIR=$$DIST_ROOT; \
+	find $$DIST_ROOT -name .packlist -exec mv '{}' $(1) ';' ; \
+	if [ -r $(1) ] ; then \
+	    sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&.gz/' -e "s@^$$DIST_ROOT@@p" -i.tmp $(1) || exit 1; \
+	fi; \
+	find $$DIST_ROOT -name perllocal.pod -exec rm -f '{}' ';' ; \
+	find $$DIST_ROOT -name \*.bs  -exec rm -f '{}' ';' ; \
+	find $$DIST_ROOT -name $(2).so -exec chmod 755 '{}' ';'
+
 #
 # For targets that should always be rebuilt,
 # define a target that is never up-to-date.

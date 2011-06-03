@@ -686,22 +686,7 @@ Options:\n\
 
     if (rsc_fd == -1) {
 	/* no -x, so register client id with pmcd */
-	int	need = 0;
-	int	a;
-	char	*ip;
-	for (a = 0; a < argc; a++)
-	    need += strlen(argv[a])+1;
-	ip = (char *)malloc(need);
-	if (ip != NULL) {
-	    ip[0] = '\0';
-	    for (a = 0; a < argc; a++) {
-		strcat(ip, argv[a]);
-		if (a < argc-1)
-		    strcat(ip, " ");
-	    }
-	    __pmSetClientId(ip);
-	    free(ip);
-	}
+	__pmSetClientIdArgv(argc, argv);
     }
 
     /*
