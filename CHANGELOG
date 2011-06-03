@@ -1,4 +1,4 @@
-pcp-3.5.1 (2 June 2011)
+pcp-3.5.2 (3 June 2011)
     - pmlogreduce - fix 2 problems (memory leak, additional mark records)
     - Initial version of pmdalogger, from David Smith, a log monitoring
       PMDA exporting event metrics.

@@ -749,7 +749,7 @@ AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(mktime nanosleep unsetenv)
 AC_CHECK_FUNCS(gethostname select socket)
-AC_CHECK_FUNCS(uname syslog __clone fcntl ioctl)
+AC_CHECK_FUNCS(uname syslog __clone pipe2 fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
 AC_CHECK_FUNCS(chown getcwd scandir mkstemp getpwnam)
 AC_CHECK_FUNCS(brk sbrk memalign valloc)
