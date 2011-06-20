@@ -149,17 +149,13 @@ static pmdaMetric *metrictab;
 void
 logger_end_contextCallBack(int ctx)
 {
-    if (pmDebug & DBG_TRACE_APPL2)
-	__pmNotifyErr(LOG_INFO, "%s: saw context %d\n", __FUNCTION__, ctx);
     ctx_end(ctx);
 }
 
 static int
-logger_profile(__pmProfile *prof, pmdaExt *ep)
+logger_profile(__pmProfile *prof, pmdaExt *pmda)
 {
-    if (pmDebug & DBG_TRACE_APPL2)
-	__pmNotifyErr(LOG_INFO, "%s: saw context %d\n", __FUNCTION__, ep->e_context);
-    ctx_start(ep->e_context);
+    ctx_active(pmda->e_context);
     return 0;
 }
 
@@ -212,6 +208,7 @@ events:
 static int
 logger_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
+    ctx_active(pmda->e_context);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
@@ -235,9 +232,6 @@ logger_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
     int		sts;
-
-    if (pmDebug & DBG_TRACE_APPL2)
-	__pmNotifyErr(LOG_INFO, "%s called\n", __FUNCTION__);
 
     if ((sts = valid_pmid(idp->cluster, idp->item)) < 0)
 	return sts;
@@ -300,8 +294,7 @@ logger_store(pmResult *result, pmdaExt *pmda)
     __pmID_int	*idp;
     pmAtomValue	av;
 
-    if (pmDebug & DBG_TRACE_APPL2)
-	__pmNotifyErr(LOG_INFO, "%s called\n", __FUNCTION__);
+    ctx_active(pmda->e_context);
 
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
@@ -517,6 +510,7 @@ usage(void)
 static int
 logger_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
+    ctx_active(pmda->e_context);
     if (pmDebug & DBG_TRACE_APPL0)
 	__pmNotifyErr(LOG_INFO, "%s: name %s\n", __FUNCTION__,
 		  (name == NULL) ? "NULL" : name);
@@ -526,6 +520,7 @@ logger_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 static int
 logger_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 {
+    ctx_active(pmda->e_context);
     if (pmDebug & DBG_TRACE_APPL0)
 	__pmNotifyErr(LOG_INFO, "%s: pmid 0x%x\n", __FUNCTION__, pmid);
     return pmdaTreeName(pmns, pmid, nameset);
@@ -535,6 +530,7 @@ static int
 logger_children(const char *name, int traverse, char ***kids, int **sts,
 		pmdaExt *pmda)
 {
+    ctx_active(pmda->e_context);
     if (pmDebug & DBG_TRACE_APPL0)
 	__pmNotifyErr(LOG_INFO, "%s: name %s\n", __FUNCTION__,
 		  (name == NULL) ? "NULL" : name);
@@ -545,6 +541,8 @@ static int
 logger_text(int ident, int type, char **buffer, pmdaExt *pmda)
 {
     int numstatics = sizeof(static_metrictab)/sizeof(static_metrictab[0]);
+
+    ctx_active(pmda->e_context);
 
     if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
 	/* Lookup pmid in the metric table. */
@@ -705,9 +703,7 @@ loggerMain(pmdaInterface *dispatch)
 	if (pmDebug & DBG_TRACE_APPL2)
 	    __pmNotifyErr(LOG_DEBUG, "select: nready=%d interval=%d",
 			  nready, interval_expired);
-	if (nready == 0)
-	    continue;
-	else if (nready < 0) {
+	if (nready < 0) {
 	    if (neterror() != EINTR) {
 		__pmNotifyErr(LOG_ERR, "select failure: %s", netstrerror());
 		exit(1);

@@ -57,11 +57,10 @@ growtab(int ctx)
 }
 
 int
-ctx_start(int ctx)
+ctx_active(int ctx)
 {
-    if (ctx < 0) {
+    if (ctx < 0)
 	return -1;
-    }
     if (ctx >= num_ctx_allocated)
 	growtab(ctx);
     last_ctx = ctx;
@@ -159,7 +158,7 @@ ctx_set_user_access(int enable)
     if (ctxtab[last_ctx].state == 0)	/* inactive */
 	return;
     if (enable)
-	ctxtab[last_ctx].state &= CTX_ACCESS;
+	ctxtab[last_ctx].state |= CTX_ACCESS;
     else
-	ctxtab[last_ctx].state |= ~CTX_ACCESS;
+	ctxtab[last_ctx].state &= ~CTX_ACCESS;
 }

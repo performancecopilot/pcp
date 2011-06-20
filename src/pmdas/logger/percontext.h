@@ -18,7 +18,7 @@
 #ifndef _PERCONTEXT_H
 #define _PERCONTEXT_H
 
-extern int ctx_start(int ctx);
+extern int ctx_active(int ctx);
 extern void ctx_end(int ctx);
 extern int ctx_get_num(void);
 

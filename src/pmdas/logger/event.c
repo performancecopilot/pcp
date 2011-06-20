@@ -59,7 +59,6 @@ ctx_end_callback(int ctx, void *user_data)
     event_cleanup();
     if (c != NULL)
 	free(c);
-    return;
 }
 
 void
