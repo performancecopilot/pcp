@@ -686,9 +686,11 @@ perl
 456 logutil local #591459 folio oss
 457 pmda.logger pmda.install event local oss
 458 pmda.logger pmda.install event local oss
-# NEXT FREE SLOT
+459 pmlogreduce local oss
 460 pmlogextract local #598265 oss pmdumplog
+461 pmda.logger pmda.install event local oss
 462 pmcd_wait local #589006 #581025 oss
+# NEXT FREE SLOT
 465 pmdumplog local #625913 folio oss
 466 pmlogger local #625913 oss
 469 help local #626853 oss
@@ -979,4 +981,3 @@ perl
 1233 pmsnap local sgi
 1234 pmchart local sgi
 1236 #935639 pmchart local sgi
-459 pmlogreduce local oss
