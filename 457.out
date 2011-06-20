@@ -14,12 +14,12 @@ Which configuration file do you want to use ? [1]
 Contents of the selected configuration file:
 --------------- start PCP_VAR_DIR/config/logger/logger.conf ---------------
 
-reg	TMPFILE.reg
-fifo	TMPFILE.fifo
-none	TMPFILE.none
-empty	TMPFILE.empty
-dir	TMPFILE.dir
-pipe	TMPFILE.pipe|
+reg	n	TMPFILE.reg
+fifo	n	TMPFILE.fifo
+none	n	TMPFILE.none
+empty	n	TMPFILE.empty
+dir	n	TMPFILE.dir
+pipe	n	TMPFILE.pipe|
 
 --------------- end PCP_VAR_DIR/config/logger/logger.conf ---------------
 

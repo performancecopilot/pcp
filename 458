@@ -50,8 +50,8 @@ touch  $tmp.reg
 mkfifo $tmp.fifo
 
 echo "
-reg	$tmp.reg
-fifo	$tmp.fifo
+reg	n	$tmp.reg
+fifo	n	$tmp.fifo
 " > $tmp.conf
 $sudo cp $tmp.conf $PCP_VAR_DIR/config/logger/logger.conf
 

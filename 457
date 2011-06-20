@@ -62,12 +62,12 @@ chmod 755 $tmp.pipe
 
 # setup pmdalogger configuration file
 echo "
-reg	$tmp.reg
-fifo	$tmp.fifo
-none	$tmp.none
-empty	$tmp.empty
-dir	$tmp.dir
-pipe	$tmp.pipe|
+reg	n	$tmp.reg
+fifo	n	$tmp.fifo
+none	n	$tmp.none
+empty	n	$tmp.empty
+dir	n	$tmp.dir
+pipe	n	$tmp.pipe|
 " > $tmp.conf
 $sudo cp $tmp.conf $PCP_VAR_DIR/config/logger/logger.conf
 
