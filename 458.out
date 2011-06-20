@@ -14,8 +14,8 @@ Which configuration file do you want to use ? [1]
 Contents of the selected configuration file:
 --------------- start PCP_VAR_DIR/config/logger/logger.conf ---------------
 
-reg	TMPFILE.reg
-fifo	TMPFILE.fifo
+reg	n	TMPFILE.reg
+fifo	n	TMPFILE.fifo
 
 --------------- end PCP_VAR_DIR/config/logger/logger.conf ---------------
 
