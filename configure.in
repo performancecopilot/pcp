@@ -591,6 +591,8 @@ $2 == 1 && / init/	{ print "OK"; exit }
 $2 == 1 && / \/etc\/init/ { print "OK"; exit }
 # Fedora 9
 $2 == 1 && / \/sbin\/init/ { print "OK"; exit }'`
+# Fedora 15
+$2 == 1 && / \/sbin\/systemd/ { print "OK"; exit }'`
     if test "$ans" = OK
     then
 	pcp_ps_have_bsd=false
