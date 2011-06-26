@@ -400,7 +400,7 @@ obs:	obs.c
 
 torture_trace:	torture_trace.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ torture_trace.c $(TRACELIB) 
+	$(CCF) $(CDEFS) -o $@ torture_trace.c $(LIB_FOR_PTHREADS) $(TRACELIB) 
 
 tstate:	tstate.c
 	rm -f $@

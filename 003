@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 case "$PCP_PLATFORM"
 in
-    linux|darwin)
+    linux|darwin|solaris)
 	;;
     *)
 	echo "Need to hand-craft the exceptions list in ./003 for this platform"

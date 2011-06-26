@@ -873,12 +873,32 @@ _change_config()
 	then
 	    # Try the RedHat and SuSE way ..
 	    #
-	    [ ! -z "$pat" ] && $sudo chkconfig $pat $2
+	    [ -n "$pat" ] && $sudo chkconfig $pat $2
 	elif [ -x /usr/sbin/sysv-rc-conf ]
 	then
 	    # Try the Debian and Ubuntu way ..
 	    #
-	    [ ! -z "$pat" ] && $sudo /usr/sbin/sysv-rc-conf $pat $2
+	    [ -n "$pat" ] && $sudo /usr/sbin/sysv-rc-conf $pat $2
+	elif which rc-update >/dev/null 2>&1
+	then
+	    # Try the Gentoo way ..
+	    #
+	    if [ -n "$pat" ]
+	    then
+		case $2
+		in
+		    on)
+			$sudo rc-update add $pat
+			;;
+		    off)
+			$sudo rc-update delete $pat
+			;;
+		    *)
+			echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
+			exit 1
+			;;
+		esac
+	    fi
 	else
 	    # I have no clue!
 	    #
@@ -907,10 +927,10 @@ _change_config()
 	    if [ $2 = on ]
 	    then
 		. $PCP_SHARE_DIR/lib/rc-proc.sh -x
-	    	[ ! -z "$pat" ] && $sudo chkconfig_on $pat
+	    	[ -n "$pat" ] && $sudo chkconfig_on $pat
 	    elif [ $2 != on ]
    	    then
-		[ ! -z "$pat" ] && $sudo chkconfig_off $pat
+		[ -n "$pat" ] && $sudo chkconfig_off $pat
 	    else
 	    	# I have no clue!
 	    	#
@@ -1040,6 +1060,23 @@ _get_config()
 		echo on
 	    else
 		if $sudo /usr/sbin/sysv-rc-conf $pat
+		then
+		    echo on
+		else
+		    echo off
+		fi
+	    fi
+	elif which rc-update >/dev/null 2>&1
+	then
+	    # Try the Gentoo way ..
+	    #
+	    if [ -z "$pat" ]
+	    then
+		# unconditionally "on", or no such option
+		#
+		echo on
+	    else
+		if rc-update show | grep $pat >/dev/null
 		then
 		    echo on
 		else

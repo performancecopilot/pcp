@@ -58,55 +58,61 @@ _wrapup()
     	[ "$checkpid" = "$mypid" -a -f "$CHECKPID" ] && rm -f "$CHECKPID"
     fi
 
-    # release the lock and remove backup files
-    _release_lock
-    [ -d $tmp ] && ( rm -rf $tmp/checksums ; rmdir $tmp )
-
-    if $showme
+    if [ -z "$tmp" ]
     then
+	# did not get very far into the intialization!
 	:
-    elif $needwrap
-    then
-	if [ -f check.time -a -f $tmp.time ]
+    else
+	# release the lock and remove backup files
+	_release_lock
+	[ -d $tmp ] && ( rm -rf $tmp/checksums ; rmdir $tmp )
+
+	if $showme
 	then
-	    cat check.time $tmp.time \
-	    | $PCP_AWK_PROG '
+	    :
+	elif $needwrap
+	then
+	    if [ -f check.time -a -f $tmp.time ]
+	    then
+		cat check.time $tmp.time \
+		| $PCP_AWK_PROG '
 	{ t[$1] = $2 }
 END	{ if (NR > 0) {
 	    for (i in t) print i " " t[i]
 	  }
 	}' \
-	    | sort -n >$tmp.out
-	    mv $tmp.out check.time
-	fi
-
-	echo "" >>check.log
-	date >>check.log
-	echo $list | fmt | sed -e 's/^/    /' >>check.log
-	$interrupt && echo "Interrupted! [running $seq]" >>check.log
-
-	if [ ! -z "$notrun" ]
-	then
-	    echo "Not run:$notrun"
-	    echo "Not run:$notrun" | fmt >>check.log
-	fi
-        if [ ! -z "$n_bad" -a "$n_bad" != 0 ]
-	then
-	    echo "Failures:$bad"
-	    echo "Failed $n_bad of $try tests"
-	    echo "Failures:$bad" | fmt >>check.log
-	    echo "Failed $n_bad of $try tests" >>check.log
-	else
-	    if [ $try != 0 ]
-	    then
-		echo "Passed all $try tests"
-		echo "Passed all $try tests" >>check.log
+		| sort -n >$tmp.out
+		mv $tmp.out check.time
 	    fi
-	fi
-	needwrap=false
-    fi
 
-    rm -f $tmp.*
+	    echo "" >>check.log
+	    date >>check.log
+	    echo $list | fmt | sed -e 's/^/    /' >>check.log
+	    $interrupt && echo "Interrupted! [running $seq]" >>check.log
+
+	    if [ ! -z "$notrun" ]
+	    then
+		echo "Not run:$notrun"
+		echo "Not run:$notrun" | fmt >>check.log
+	    fi
+	    if [ ! -z "$n_bad" -a "$n_bad" != 0 ]
+	    then
+		echo "Failures:$bad"
+		echo "Failed $n_bad of $try tests"
+		echo "Failures:$bad" | fmt >>check.log
+		echo "Failed $n_bad of $try tests" >>check.log
+	    else
+		if [ $try != 0 ]
+		then
+		    echo "Passed all $try tests"
+		    echo "Passed all $try tests" >>check.log
+		fi
+	    fi
+	    needwrap=false
+	fi
+
+	rm -f $tmp.*
+    fi
 }
 
 _addfiles ()
