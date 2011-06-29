@@ -348,6 +348,7 @@ Options:\n\
 	numpmid = j;
     }
 
+    fetch_sts = 0;
     for (i = 0; i < numpmid; i++) {
 	printf("%s ", namelist[i]);
 
@@ -388,7 +389,6 @@ Options:\n\
 	    continue;
 	}
 
-	fetch_sts = 0;
 	if (type == PM_CONTEXT_ARCHIVE) {
 	    /*
 	     * merics from archives are fetched one at a time, otherwise
