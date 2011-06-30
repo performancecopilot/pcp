@@ -340,12 +340,20 @@ lex(int reset)
     }
 
     if (first) {
-	int	sep = __pmPathSeparator();
-	char	*bin_dir = pmGetConfig("PCP_BINADM_DIR");
+	char	*alt;
 	char	cmd[80+MAXPATHLEN];
 
 	first = 0;
-	snprintf(cmd, sizeof(cmd), "%s%c%s %s", bin_dir, sep, "pmcpp" EXEC_SUFFIX, fname);
+	if ((alt = getenv("PCP_ALT_CPP")) != NULL) {
+	    /* $PCP_ALT_CPP used in the build before pmcpp installed */
+	    snprintf(cmd, sizeof(cmd), "%s %s", alt, fname);
+	}
+	else {
+	    /* the normal case ... */
+	    int		sep = __pmPathSeparator();
+	    char	*bin_dir = pmGetConfig("PCP_BINADM_DIR");
+	    snprintf(cmd, sizeof(cmd), "%s%c%s %s", bin_dir, sep, "pmcpp" EXEC_SUFFIX, fname);
+	}
 
 	fin = popen(cmd, "r");
 	if (fin == NULL)

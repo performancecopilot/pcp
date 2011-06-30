@@ -236,16 +236,20 @@ directive(void)
 	    /*NOTREACHED*/
 	}
 	macro[nmacro].len = namelen;
-	macro[nmacro].name = strndup(name, namelen);
+	macro[nmacro].name = (char *)malloc(namelen+1);
 	if (macro[nmacro].name == NULL) {
 	    __pmNoMem("pmcpp: name", namelen+1, PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
-	macro[nmacro].value = strndup(value, valuelen);
+	strncpy(macro[nmacro].name, name, namelen);
+	macro[nmacro].name[namelen] = '\0';
+	macro[nmacro].value = (char *)malloc(valuelen+1);
 	if (macro[nmacro].value == NULL) {
 	    __pmNoMem("pmcpp: value", valuelen+1, PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
+	strncpy(macro[nmacro].value, value, valuelen);
+	macro[nmacro].value[valuelen] = '\0';
 	nmacro++;
 	return 0;
     }
