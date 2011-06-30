@@ -162,3 +162,16 @@ ctx_set_user_access(int enable)
     else
 	ctxtab[last_ctx].state &= ~CTX_ACCESS;
 }
+
+/* Visit each active context and run a supplied callback routine */
+void
+ctx_iterate(ctxVisitContextCallBack visit, int id, void *call_data)
+{
+    int ctx;
+
+    for (ctx = 0; ctx < num_ctx_allocated; ctx++) {
+	if (ctxtab[ctx].state == CTX_INACTIVE)
+	    continue;
+	visit(ctx, id, ctxtab[ctx].user_data, call_data);
+    }
+}

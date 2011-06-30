@@ -2,6 +2,7 @@
  * Logger, configurable PMDA
  *
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2011 Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2011 Red Hat Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -53,6 +54,10 @@
  *	logger.perfile.{LOGFILE}.records	- event records/logfile
  */
 
+#define DEFAULT_MAXMEM	(2 * 1024 * 1024)	/* 2 megabytes */
+#define max(a,b)	((a > b) ? a : b)
+long maxmem;
+
 int maxfd;
 fd_set fds;
 static int interval_expired;
@@ -62,8 +67,8 @@ static int nummetrics;
 static __pmnsTree *pmns;
 
 struct dynamic_metric_info {
-    int logfile;
-    int pmid_index;
+    int		logfile;
+    int		pmid_index;
     const char *help_text;
 };
 static struct dynamic_metric_info *dynamic_metric_infotab;
@@ -97,6 +102,10 @@ static pmdaMetric dynamic_metrictab[] = {
     { NULL, 				/* m_user gets filled in later */
       { 0 /* pmid gets filled in later */, PM_TYPE_EVENT, PM_INDOM_NULL,
 	PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* perfile.{LOGFILE}.queuemem */
+    { NULL, 				/* m_user gets filled in later */
+      { 0 /* pmid gets filled in later */, PM_TYPE_U64, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 };
 
 static char *dynamic_nametab[] = {
@@ -112,6 +121,8 @@ static char *dynamic_nametab[] = {
     "numclients",
 /* perfile.{LOGFILE}.records */
     "records",
+/* perfile.{LOGFILE}.queuemem */
+    "queuemem",
 };
 
 static const char *dynamic_helptab[] = {
@@ -127,6 +138,8 @@ static const char *dynamic_helptab[] = {
     "The number of attached clients for this logfile.",
 /* perfile.{LOGFILE}.records */
     "Event records for this logfile.",
+/* perfile.{LOGFILE}.queuemem */
+    "Amount of memory used for event data.",
 };
 
 static pmdaMetric static_metrictab[] = {
@@ -142,6 +155,10 @@ static pmdaMetric static_metrictab[] = {
     { NULL,
       { PMDA_PMID(0,2), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* perfile.maxmem */
+    { NULL, 				/* m_user gets filled in later */
+      { PMDA_PMID(0,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 };
 
 static pmdaMetric *metrictab;
@@ -237,7 +254,7 @@ logger_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return sts;
 
     sts = PMDA_FETCH_STATIC;
-    if (idp->item < 3) {
+    if (idp->item < 4) {
 	switch (idp->item) {
 	  case 0:			/* logger.numclients */
 	    atom->ul = ctx_get_num();
@@ -247,6 +264,9 @@ logger_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	  case 2:			/* logger.param_string */
 	    sts = PMDA_FETCH_NOVALUES;
+	    break;
+	  case 3:			/* logger.maxmem */
+	    atom->ull = (unsigned long long)maxmem;
 	    break;
 	  default:
 	    return PM_ERR_PMID;
@@ -278,6 +298,9 @@ logger_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if ((sts = event_fetch(&atom->vbp, pinfo->logfile)) != 0)
 		return sts;
 	    sts = atom->vbp == NULL ? PMDA_FETCH_NOVALUES : PMDA_FETCH_STATIC;
+	    break;
+	  case 6:			/* perfile.{LOGFILE}.queuemem */
+	    atom->ull = logfiles[pinfo->logfile].queuesize;
 	    break;
 	  default:
 	    return PM_ERR_PMID;
@@ -502,8 +525,9 @@ usage(void)
 	"Options:\n"
 	"  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	"  -l logfile   write log into logfile rather than the default\n"
+	"  -m memory    maximum memory used per logfile (default %ld bytes)\n"
 	"  -s interval  default delay between iterations (default %d sec)\n",
-		pmProgname, (int)interval.tv_sec);
+		pmProgname, maxmem, (int)interval.tv_sec);
     exit(1);
 }
 
@@ -731,22 +755,59 @@ loggerMain(pmdaInterface *dispatch)
     }
 }
 
+static void
+convertUnits(char **endnum, long *maxmem)
+{
+    switch ((int) **endnum) {
+	case 'b':
+	case 'B':
+		break;
+	case 'k':
+	case 'K':
+		*maxmem *= 1024;
+		break;
+	case 'm':
+	case 'M':
+		*maxmem *= 1024 * 1024;
+		break;
+	case 'g':
+	case 'G':
+		*maxmem *= 1024 * 1024 * 1024;
+		break;
+    }
+    (*endnum)++;
+}
+
 int
 main(int argc, char **argv)
 {
     static char		helppath[MAXPATHLEN];
     char		*endnum;
     pmdaInterface	desc;
+    long		minmem;
     int			c, err = 0, sep = __pmPathSeparator();
 
+    minmem = getpagesize();
+    maxmem = max(minmem, DEFAULT_MAXMEM);
     __pmSetProgname(argv[0]);
     snprintf(helppath, sizeof(helppath), "%s%c" "logger" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_5, pmProgname, LOGGER,
 		"logger.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:s:?", &desc, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:m:s:?", &desc, &err)) != EOF) {
 	switch (c) {
+	    case 'm':
+		maxmem = strtol(optarg, &endnum, 10);
+		if (*endnum != '\0')
+		    convertUnits(&endnum, &maxmem);
+		if (*endnum != '\0' || maxmem < minmem) {
+		    fprintf(stderr, "%s: invalid max memory '%s' (min=%ld)\n",
+			    pmProgname, optarg, minmem);
+		    err++;
+		}
+		break;
+
 	    case 's':
 		if (pmParseInterval(optarg, &interval, &endnum) < 0) {
 		    fprintf(stderr, "%s: -s requires a time interval: %s\n",

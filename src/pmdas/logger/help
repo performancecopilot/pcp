@@ -37,3 +37,5 @@ The number of attached clients.
 The number of monitored logfiles.
 @ logger.param_string String event data
 String event data.
+@ logger.maxmem Maximum number of queued event bytes
+Maximum number of queued event bytes for each log file.

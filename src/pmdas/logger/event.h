@@ -26,12 +26,11 @@
 #include "pmda.h"
 #include <sys/queue.h>
 
-#define BUF_SIZE 1024
-
 struct event {
-    TAILQ_ENTRY(event) events;
-    int clients;
-    char buffer[BUF_SIZE];
+    TAILQ_ENTRY(event)	events;
+    int			clients;
+    int			size;		/* buffer size in bytes */
+    char		buffer[];
 };
 
 TAILQ_HEAD(tailqueue, event);
@@ -39,15 +38,16 @@ TAILQ_HEAD(tailqueue, event);
 struct EventFileData {
     int			fd;
     pid_t	        pid;
-    int			numclients;
     pmID		pmid;
-    int			restricted;
-    __uint32_t		count;
-    __uint64_t		bytes;
+    int			numclients;
+    int			restricted;	/* access controlled via pmstore */
+    __uint32_t		count;		/* exported metric: event counter */
+    __uint64_t		bytes;		/* exported metric: data throughput */
     struct stat		pathstat;
     char		pmnsname[MAXPATHLEN];
     char		pathname[MAXPATHLEN];
-    struct tailqueue	queue;
+    struct tailqueue	queue;		/* queue of events for clients */
+    long		queuesize;	/* total data in the queue (< maxmem) */
 };
 
 extern struct EventFileData *logfiles;
@@ -55,6 +55,7 @@ extern int numlogfiles;
 
 extern int maxfd;
 extern fd_set fds;
+extern long maxmem;
 
 extern void event_init(void);
 extern int event_create(unsigned int logfile);
