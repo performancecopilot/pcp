@@ -8,7 +8,7 @@ Build-Depends: autoconf, bison, flex, gawk, procps, debhelper (>= 5), perl (>= 5
 Standards-Version: 3.9.1
 
 Package: pcp
-Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, sysv-rc-conf, cpp
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, sysv-rc-conf
 Suggests: tsocks
 Conflicts: pgpool2
 Recommends: libpcp-pmda-perl, pcp-gui, libpcp-import-perl

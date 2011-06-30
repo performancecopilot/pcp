@@ -177,8 +177,6 @@ MD5SUM	= @md5sum@
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
 HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
 NEED_OLD_TBL_HEADER = @need_old_tbl_header@
-CPP_SIMPLE = @cpp_simple@
-CPP_SIMPLE_ARGS = @cpp_simple_args@
 RDYNAMIC_FLAG = @rdynamic_flag@
 
 # additional libraries needed for particular functions

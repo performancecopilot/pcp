@@ -31,15 +31,12 @@
 # runs them through cpp which allows you to use macros and includes in them. The
 # resulting file has the .made suffix. Dependencies are handled attomatically.
 
-CPP := cpp
 RM-F := rm -f
 SOURCE := $(wildcard *.src)
 DEST := $(patsubst %.src,%.made,$(SOURCE))
 DEPS := $(patsubst %.src,%.d,$(SOURCE))
 MISSING_DEPS := $(filter-out $(wildcard $(DEPS)),$(DEPS))
 MISSING_DEPS_SOURCES := $(wildcard $(patsubst %.d,%.src,$(MISSING_DEPS)))
-
-CPPFLAGS += -MD
 
 .PHONY: deps clean
 
@@ -59,7 +56,6 @@ endif
 -include $(DEPS)
 
 %.made : %.src
-	$(CPP) $(CPPFLAGS) $(patsubst %.src,%.d2,$<) $< >$@
-	@sed -e "s/\.src\.o/\.made/g" $(patsubst %.src,%.d2,$<) >$(patsubst %.src,%.d,$<)
-	@rm $(patsubst %.src,%.d2,$<)
+	<CPP> $< \
+	| sed -e '/^# [1-9][0-9]* "/d' >$@
 

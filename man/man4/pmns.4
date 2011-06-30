@@ -118,7 +118,7 @@ their information.
 .el \fI\\$1\f1\\$2
 ..
 The PMNS specification is initially passed through
-.BR cpp (1).
+.BR pmcpp (1).
 This means the following facilities may be used in the specification
 .IP + 3n
 C-style comments
@@ -130,13 +130,13 @@ directives
 directives and macro substitution
 .IP + 3n 
 conditional processing via 
-.CW #if
+.CW #ifdef
 \&...
 .CW #endif ,
 etc.
 .PP
 When
-.BR cpp (1)
+.BR pmcpp (1)
 is executed, the ``standard'' include directories are the current directory and
 .IR $PCP_VAR_DIR/pmns .
 .SH SYNTAX
@@ -188,7 +188,7 @@ performance metric domain, metrics cluster (data structure or
 operational similarity) and individual metric.  In practice, the
 two leading components are likely to be macros in the PMNS specification
 source, and
-.BR cpp (1)
+.BR pmcpp (1)
 will convert the macros to integers.  These macros for
 the initial components of the
 .CW pmid
@@ -278,9 +278,9 @@ cpu.util {
 .fi
 .ft R
 .SH SEE ALSO
-.BR cpp (1),
 .BR PCPIntro (1),
 .BR pmcd (1),
+.BR pmcpp (1),
 .BR pmnscomp (1),
 .BR PCPIntro (3),
 .BR PMAPI (3),
