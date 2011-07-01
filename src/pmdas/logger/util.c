@@ -82,12 +82,35 @@ start_cmd(const char *cmd, pid_t *ppid)
 #endif
 
     /* Create the pipes. */
+#if defined(HAVE_PIPE2)
     rc = pipe2(pipe_fds, O_CLOEXEC|O_NONBLOCK);
     if (rc < 0) {
 	__pmNotifyErr(LOG_ERR, "%s: pipe2() returned %s", __FUNCTION__,
 		      strerror(-rc));
 	return rc;
     }
+#else
+    rc = pipe(pipe_fds);
+    if (rc < 0) {
+	__pmNotifyErr(LOG_ERR, "%s: pipe() returned %s", __FUNCTION__,
+		      strerror(-rc));
+	return rc;
+    }
+
+    /* Set the right flags on the pipes. */
+    if (fcntl(pipe_fds[PARENT_END], F_SETFL, O_NDELAY) < 0
+	|| fcntl(pipe_fds[CHILD_END], F_SETFL, O_NDELAY) < 0) {
+	__pmNotifyErr(LOG_ERR, "%s: fcntl() returned %s", __FUNCTION__,
+		      strerror(-rc));
+	return rc;
+    }
+    if (fcntl(pipe_fds[PARENT_END], F_SETFD, O_CLOEXEC) < 0
+	|| fcntl(pipe_fds[CHILD_END], F_SETFD, O_CLOEXEC) < 0) {
+	__pmNotifyErr(LOG_ERR, "%s: fcntl() returned %s", __FUNCTION__,
+		      strerror(-rc));
+	return rc;
+    }
+#endif
 
     /* Create the new process. */
     child_pid = fork();

@@ -1,5 +1,6 @@
+#!gmake
 #
-# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -16,24 +17,20 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
 
-CFILES	= procmemstat.c
-CFLAGS	= -I/usr/include/pcp -DPCP_DEBUG=1
-TARGETS	= procmemstat
-LDOPTS	=
-LDLIBS	= -lpcp
+TOPDIR = ../..
+include $(TOPDIR)/src/include/builddefs
 
-default: $(TARGETS)
+CFILES	= pmcpp.c
+LLDLIBS = -lpcp
+CMDTARGET = pmcpp$(EXECSUFFIX)
 
-install:
+default:	$(CMDTARGET)
 
-clobber:
-	rm -f $(TARGETS) *.o core a.out pmnsmap.h mylog.* pmnsmap.i
+include $(BUILDRULES)
 
-procmemstat:	procmemstat.c pmnsmap.h
-	rm -f $@
-	$(CC) $(CFLAGS) procmemstat.c -o $@ $(LDOPTS) $(LDLIBS)
+install:	$(CMDTARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
 
-pmnsmap.h:	pmnsmap.spec
-	<CPP> <pmnsmap.spec \
-	| sed -e '/^#/d' -e '/^$$/d' >pmnsmap.i
-	pmgenmap pmnsmap.i >pmnsmap.h
+default_pcp:	default
+
+install_pcp:	install

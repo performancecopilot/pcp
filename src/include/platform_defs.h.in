@@ -203,6 +203,7 @@ extern "C" {
 #undef HAVE_UNAME
 #undef HAVE_SYSLOG
 #undef HAVE___CLONE
+#undef HAVE_PIPE2
 #undef HAVE_FCNTL
 
 #undef HAVE_PRCTL
@@ -433,6 +434,9 @@ typedef void (*SIG_PF) (int);
 #undef IS_LINUX
 #ifdef IS_LINUX
 #define isnand(d) isnan(d)	/* isnan is a type-independent macro (isnanf is defined though) */
+#ifndef O_CLOEXEC
+#define O_CLOEXEC 02000000	/* set close_on_exec */
+#endif
 #endif
 
 /* Determine if we are on a Solaris box */

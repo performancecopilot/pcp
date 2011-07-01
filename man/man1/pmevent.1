@@ -20,7 +20,7 @@
 \f3pmevent\f1 \- report event record details
 .SH SYNOPSIS
 \f3pmevent\f1
-[\f3\-gLz\f1]
+[\f3\-gLxz\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-K\f1 \f2spec\f1]
@@ -240,6 +240,14 @@ of the event records for the
 .I metricname
 metrics within the requested time window, so the value of the
 sampling interval will have no effect in this case.
+.RE
+.TP
+.B \-x
+Some performance metrics domain agents use the PMCD store mechanism
+to provide a simple security model (for sensitive log files, only a
+client host with
+.BR pmStore (3)
+access will be able to access the event stream).
 .RE
 .TP
 .B \-Z

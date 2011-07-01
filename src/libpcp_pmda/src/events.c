@@ -36,6 +36,7 @@ static int
 check_buf(bufctl_t *bp, int need)
 {
     int		offset = bp->bptr - bp->baddr;
+    int		er_offset = (char *)bp->berp - bp->baddr;
 
     while (bp->blen == 0 || &bp->bptr[need] >= &bp->baddr[bp->blen-1]) {
 	if (bp->blen == 0)
@@ -46,6 +47,7 @@ check_buf(bufctl_t *bp, int need)
 	if ((bp->baddr = (char *)realloc(bp->baddr, bp->blen)) == NULL)
 	    return -oserror();
 	bp->bptr = &bp->baddr[offset];
+	bp->berp = (pmEventRecord *)&bp->baddr[er_offset];
     }
     return 0;
 }

@@ -20,26 +20,6 @@
 #include "impl.h"
 #include "pmda.h"
 
-/*
- *  %s fields in CPP_FMT
- *
- *  cpp-cmd from cpp_path[]
- *  cpp_simple_args (assumed to apply for all, eg. -U... -U... -P -undef -...)
- *  /var/pcp or similar
- *  /usr/pcp or similar
- *  input pmns file name
- */
-#define CPP_FMT "%s %s -I. -I%s%cpmns -I%s%cpmns %s"
-
-static const char	*cpp_path[] = {
-    CPP_SIMPLE EXEC_SUFFIX,
-    "/lib/cpp" EXEC_SUFFIX,
-    "/usr/lib/cpp" EXEC_SUFFIX,
-    "/usr/bin/cpp" EXEC_SUFFIX,
-    NULL
-};
-
-
 /* token types */
 #define NAME	1
 #define PATH	2
@@ -368,38 +348,24 @@ lex(int reset)
     }
 
     if (first) {
-	int	i, sep = __pmPathSeparator();
-	char	*var_dir = pmGetConfig("PCP_VAR_DIR");
-	char	*share_dir = pmGetConfig("PCP_SHARE_DIR");
+	char	*alt;
+	char	cmd[80+MAXPATHLEN];
 
 	first = 0;
-	for (i = 0; cpp_path[i] != NULL; i++) {
-	    if (i != 0 && access(cpp_path[i], X_OK) != 0)
-		continue;
-	    if ((lp = (char *)malloc(1 + strlen(CPP_FMT)
-		+ strlen(cpp_path[i]) + strlen(CPP_SIMPLE_ARGS)
-		+ strlen(var_dir) + strlen(share_dir) 
-		+ strlen(fname))) == NULL) {
-		return -oserror();
-	    }
-
-/* safe */  sprintf(lp, CPP_FMT, cpp_path[i], CPP_SIMPLE_ARGS, var_dir, 
-		    sep, share_dir, sep, fname);
-
-	    fin = popen(lp, "r");
-	    free(lp);
-	    if (fin == NULL)
-		return -oserror();
-	    break;
+	if ((alt = getenv("PCP_ALT_CPP")) != NULL) {
+	    /* $PCP_ALT_CPP used in the build before pmcpp installed */
+	    snprintf(cmd, sizeof(cmd), "%s %s", alt, fname);
 	}
-	if (cpp_path[i] == NULL) {
-	    pmprintf("pmLoadNameSpace: Unable to find an executable cpp at any of ...\n");
-	    for (i = 0; cpp_path[i] != NULL; i++)
-		pmprintf("    %s\n", cpp_path[i]);
-	    pmprintf("Sorry, but this is fatal\n");
-	    pmflush();
-	    exit(1);
+	else {
+	    /* the normal case ... */
+	    int		sep = __pmPathSeparator();
+	    char	*bin_dir = pmGetConfig("PCP_BINADM_DIR");
+	    snprintf(cmd, sizeof(cmd), "%s%c%s %s", bin_dir, sep, "pmcpp" EXEC_SUFFIX, fname);
 	}
+
+	fin = popen(cmd, "r");
+	if (fin == NULL)
+	    return -oserror();
 
 	lp = linebuf;
 	*lp = '\0';
@@ -414,9 +380,9 @@ lex(int reset)
 	    int		inspace = 0;
 
 	    if (fgets(linebuf, sizeof(linebuf), fin) == NULL) {
-		if ( pclose(fin) != 0 ) {
+		if (pclose(fin) != 0) {
 		    lineno = -1; /* We're outside of line counting range now */
-		    err("cpp returned non-zero exit status");
+		    err("pmcpp returned non-zero exit status");
 		    return PM_ERR_PMNS;
 		} else {
 		    return 0;
@@ -444,23 +410,16 @@ lex(int reset)
 	    }
 	    if (p[-1] != '\n') {
 		err("Absurdly long line, cannot recover");
-		pclose(fin);	/* wait for cpp to finish */
+		pclose(fin);	/* wait for pmcpp to finish */
 		exit(1);
 	    }
 	    *q = '\0';
 	    if (linebuf[0] == '#') {
-#if defined(IS_DARWIN)
-		if (sscanf(linebuf, "#pragma GCC set_debug_pwd \"%s", fname) == 1)
-			goto skipline;
-#endif
-		/* cpp control line */
-		if ( sscanf(linebuf, "# %d \"%s", &lineno, fname) != 2 ) {
-		    err ("Illegal cpp construction");
+		/* pmcpp line number control line */
+		if (sscanf(linebuf, "# %d \"%s", &lineno, fname) != 2) {
+		    err ("Illegal line number control number");
 		    return PM_ERR_PMNS;
 		}
-#if defined(IS_DARWIN)
-skipline:
-#endif
 		--lineno;
 		for (p = fname; *p; p++)
 		    ;
@@ -744,7 +703,7 @@ pass2(int dupok)
     }
 
     /* Build up main tree from subtrees in seen-list */
-    if ( (status = attach("", main_pmns->root)) )
+    if ((status = attach("", main_pmns->root)))
 	return status;
 
     /* Make sure all subtrees have been used in the main tree */
@@ -1258,7 +1217,12 @@ loadascii(int dupok)
 {
     int		state = 0;
     int		type;
-    __pmnsNode	*np;
+    __pmnsNode	*np = NULL;	/* pander to gcc */
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMNS)
+	fprintf(stderr, "loadascii(file=%s)\n", fname);
+#endif
 
 
     /* do some resets */
@@ -1315,8 +1279,8 @@ loadascii(int dupok)
 		state = 2;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_PMNS) {
-		    fprintf(stderr, "pmLoadNameSpace: %s -> 0x%0x\n",
-					np->name, (int)np->pmid);
+		    fprintf(stderr, "pmLoadNameSpace: %s -> %s\n",
+					np->name, pmIDStr(np->pmid));
 		}
 #endif
 	    }
@@ -2165,7 +2129,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
     int		ctx;
     __pmContext	*ctxp;
 
-    if (pmns_location < 0 )
+    if (pmns_location < 0)
 	return pmns_location;
 
     if (name == NULL) 

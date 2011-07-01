@@ -251,50 +251,6 @@ fi
 cpp=$CPP
 AC_SUBST(cpp)
 
-dnl check for simple cpp usage
-dnl use -P during the configure test but don't use it for real stuff...
-dnl (note: special override for Mac OS X and MinGW where cpp is gcc -E)
-AC_MSG_CHECKING([for simple cpp args])
-if test "$CPP" = "gcc -E"; then
-    CPP_SIMPLE=cpp
-    CPP_SIMPLE_ARGS=""
-else
-    test -z "$CPP_SIMPLE" && CPP_SIMPLE=/lib/cpp
-    test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=/bin/cpp
-    test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=/usr/bin/cpp
-    test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=$CPP
-fi
-cpp_simple="$CPP_SIMPLE"
-cpp_simple_args="$CPP_SIMPLE_ARGS"
-for arg in -traditional -undef
-do
-    if $cpp_simple -P $cpp_simple_args $arg /dev/null >conftest.out 2>&1 && test ! -s conftest.out
-    then
-	cpp_simple_args="$cpp_simple_args $arg"
-    fi 
-done
-rm -f conftest.out
-dnl always use -P option on AIX (for reasons lost in the mists of time)
-if test $target_os = aix
-then
-    cpp_simple_args="$cpp_simple_args -P"
-fi
-dnl add to this list for evil words that you don't want cpp to re-write
-for word in unix linux mips intel
-do
-    echo $word >conftest.c
-    $cpp_simple $cpp_simple_args conftest.c >conftest.out
-    if test "`grep $word <conftest.out`" != "$word"
-    then
-	cpp_simple_args="$cpp_simple_args -U$word"
-    fi
-done
-rm -f conftest.c conftest.out
-
-AC_SUBST(cpp_simple)
-AC_SUBST(cpp_simple_args)
-AC_MSG_RESULT($cpp_simple $cpp_simple_args)
-
 dnl check if users wants their own linker
 if test -z "$LD"; then
     AC_PATH_PROG(LD, ld, /usr/bin/ld)
@@ -598,7 +554,9 @@ NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
 $2 == 1 && / init/	{ print "OK"; exit }
 $2 == 1 && / \/etc\/init/ { print "OK"; exit }
 # Fedora 9
-$2 == 1 && / \/sbin\/init/ { print "OK"; exit }'`
+$2 == 1 && / \/sbin\/init/ { print "OK"; exit }
+# Fedora 15
+$2 == 1 && / \/bin\/systemd/ { print "OK"; exit }'`
     if test "$ans" = OK
     then
 	pcp_ps_have_bsd=false
@@ -757,7 +715,7 @@ AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(mktime nanosleep unsetenv)
 AC_CHECK_FUNCS(gethostname select socket)
-AC_CHECK_FUNCS(uname syslog __clone fcntl ioctl)
+AC_CHECK_FUNCS(uname syslog __clone pipe2 fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
 AC_CHECK_FUNCS(chown getcwd scandir mkstemp getpwnam)
 AC_CHECK_FUNCS(brk sbrk memalign valloc)

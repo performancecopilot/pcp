@@ -1,10 +1,11 @@
 metrics {
-#if linux
+#ifdef linux
     proc.memory.rss	RSS_TOTAL
     proc.memory.textrss	RSS_TEXT
     proc.memory.librss	RSS_LIB
     proc.memory.datrss	RSS_DATA
-#elif sgi
+#endif
+#ifdef sgi
     /* IRIX */
     proc.memory.virtual.txt	V_TXT
     proc.memory.virtual.dat	V_DAT
@@ -16,7 +17,5 @@ metrics {
     proc.memory.physical.bss	P_BSS
     proc.memory.physical.stack	P_STK
     proc.memory.physical.shm	P_SHM
-#else
-    bozo!
 #endif
 }

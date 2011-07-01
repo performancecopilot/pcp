@@ -5,8 +5,8 @@
 static pmResult	*orp;
 
 /*
- * Must either re-write the pmResult, or report a fatal error and
- * return NULL
+ * Must either re-write the pmResult, or return NULL for non-fatal
+ * errors, else report and exit for catastrophic errors ...
  */
 pmResult *
 rewrite(pmResult *rp)
@@ -19,7 +19,7 @@ rewrite(pmResult *rp)
 	fprintf(stderr,
 		"%s: rewrite: cannot malloc pmResult for %d metrics\n",
 		    pmProgname, rp->numpmid);
-	    return NULL;
+	    exit(1);
     }
     orp->numpmid = 0;
     orp->timestamp = rp->timestamp;	/* struct assignment */
@@ -57,13 +57,7 @@ rewrite(pmResult *rp)
 	else {
 	    ovsp->numval = 0;
 	    mp = &metriclist[i];
-	    if (mp->mode == MODE_SKIP) {
-		/*
-		 * serious work to be done ...
-		 */
-		ovsp->numval = 0;
-	    }
-	    else {
+	    if (mp->mode != MODE_SKIP) {
 		for (j = 0; j < vsp->numval; j++) {
 		    for (vp = mp->first; vp != NULL; vp = vp->next) {
 			if (vp->inst == vsp->vlist[j].inst)
@@ -122,7 +116,16 @@ rewrite(pmResult *rp)
 	}
     }
 
-    /* TODO ... orp->numpmid == 0? */
+    if (orp->numpmid == 0) {
+	/*
+	 * very unlikely that all metrics are either skipped or have
+	 * no values, but it might happen ... do not allow this record
+	 * to be written because it looks like a "mark" record with
+	 * numpmid == 0
+	 */
+	free(orp);
+	orp = NULL;
+    }
 
     return orp;
 }
@@ -140,9 +143,6 @@ rewrite_free(void)
 	int		j;
 	metric_t	*mp;
 
-	if (vsp->numval <= 0)
-	    continue;
-
 	for (j = 0; j < numpmid; j++) {
 	    if (vsp->pmid == pmidlist[j])
 		break;
@@ -155,13 +155,18 @@ rewrite_free(void)
 	}
 	mp = &metriclist[j];
 
-	if (mp->mode == MODE_REWRITE) {
+	if (vsp->numval > 0 && mp->mode == MODE_REWRITE) {
+	    /*
+	     * MODE_REWRITE implies the value was promoted to 64-bit
+	     * and the pval in the pmResult came from the __pmStuffValue()
+	     * call above, so free it here
+	     */
 	    for (j = 0; j < vsp->numval; j++) {
 		free(vsp->vlist[j].value.pval);
 	    }
 	}
 
-	free(orp->vset[i]);
+	free(vsp);
     }
 
     free(orp);

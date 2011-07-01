@@ -1287,6 +1287,12 @@ pdh_metric_t metricdesc[] = {
       }, M_REDO, 0, 0, 0, NULL, ""
     },
 
+/* sqlserver.user_settable.query */
+    { { PMDA_PMID(0,238), PM_TYPE_U32, SQL_USER_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, M_AUTO64, 0, 0, 0, NULL,
+      "\\SQLServer:User Settable(*)\\Query"
+    },
+
 /* mem.physmem */
     { { PMDA_PMID(1,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,

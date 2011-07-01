@@ -176,8 +176,6 @@ MD5SUM	= @md5sum@
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
 HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
 NEED_OLD_TBL_HEADER = @need_old_tbl_header@
-CPP_SIMPLE = @cpp_simple@
-CPP_SIMPLE_ARGS = @cpp_simple_args@
 RDYNAMIC_FLAG = @rdynamic_flag@
 
 # additional libraries needed for particular functions
@@ -198,15 +196,15 @@ DIST_DIR = $(TOPDIR)/dist
 #
 # default, then special case for different platforms
 #
-RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf LD_LIBRARY_PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$LD_LIBRARY_PATH HOME=`pwd`
+RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf LD_LIBRARY_PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$LD_LIBRARY_PATH HOME=`pwd` PCP_ALT_CPP=$(TOPDIR)/src/pmcpp/pmcpp
 ifeq "$(TARGET_OS)" "darwin"
-RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf DYLD_LIBRARY_PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$DYLD_LIBRARY_PATH HOME=`pwd`
+RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf DYLD_LIBRARY_PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$DYLD_LIBRARY_PATH HOME=`pwd` PCP_ALT_CPP=$(TOPDIR)/src/pmcpp/pmcpp
 endif
 ifeq "$(TARGET_OS)" "aix"
-RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf LIBPATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$LIBPATH HOME=`pwd`
+RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf LIBPATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$LIBPATH HOME=`pwd` PCP_ALT_CPP=$(TOPDIR)/src/pmcpp/pmcpp
 endif
 ifeq "$(TARGET_OS)" "mingw"
-RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$PATH USERPROFILE=`pwd`
+RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$PATH USERPROFILE=`pwd` PCP_ALT_CPP=$(TOPDIR)/src/pmcpp/pmcpp
 endif
 
 SUBDIRS_MAKERULE = \

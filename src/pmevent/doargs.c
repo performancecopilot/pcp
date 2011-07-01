@@ -17,7 +17,8 @@
 
 #include "pmevent.h"
 
-static char *options = "a:D:gh:K:LO:p:S:s:T:t:vzZ:?";
+static int setupEventTrace(int, char **, int, int);
+static char *options = "a:D:gh:K:LO:p:S:s:T:t:vxzZ:?";
 static char usage[] =
     "Usage: %s [options] metricname ...\n\n"
     "Options:\n"
@@ -34,6 +35,7 @@ static char usage[] =
     "  -T endtime    end of the reporting time window\n"
     "  -t interval   sample interval [default 1 second]\n"
     "  -v            increase diagnostic output\n"
+    "  -x            enable the event stream via pmstore\n"
     "  -Z timezone   set reporting timezone\n"
     "  -z            set reporting timezone to local timezone of metrics source\n";
 
@@ -53,6 +55,7 @@ doargs(int argc, char **argv)
     char		*Sflag = NULL;		/* argument of -S flag */
     char		*Tflag = NULL;		/* argument of -T flag */
     char		*Oflag = NULL;		/* argument of -O flag */
+    int			xflag = 0;		/* for -x */
     int			zflag = 0;		/* for -z */
     char 		*tz = NULL;		/* for -Z timezone */
     int			tzh;			/* initial timezone handle */
@@ -181,6 +184,10 @@ doargs(int argc, char **argv)
 	    verbose++;
 	    break;
 
+	case 'x':
+	    xflag++;
+	    break;
+
 	case 'z':		/* timezone from metrics source */
 	    if (tz != NULL) {
 		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
@@ -221,10 +228,10 @@ doargs(int argc, char **argv)
 	host = local;
     }
 
-    /* parse uniform metric spec ... note instances are not expected */
+    /* parse uniform metric spec */
     for ( ; optind < argc; optind++) {
 	if (ahtype == PM_CONTEXT_ARCHIVE)
-	    sts =  pmParseMetricSpec(argv[optind], 1, archive, &msp, &msg);
+	    sts = pmParseMetricSpec(argv[optind], 1, archive, &msp, &msg);
 	else
 	    sts = pmParseMetricSpec(argv[optind], 0, host, &msp, &msg);
 	if (sts < 0) {
@@ -415,6 +422,9 @@ doargs(int argc, char **argv)
 	exit(EXIT_FAILURE);
     }
 
+    if (setupEventTrace(argc, argv, ahtype, xflag) < 0)
+	exit(EXIT_FAILURE);
+
     if (pmDebug & DBG_TRACE_APPL0) {
 	char		timebuf[26];
 	char		*tp;
@@ -451,4 +461,44 @@ doargs(int argc, char **argv)
 	    }
 	}
     }
+}
+
+int
+setupEventTrace(int argc, char **argv, int ahtype, int xflag)
+{
+    pmValueSet	*pmvsp;
+    pmResult	store = { .numpmid = 1 };
+    int		i, m;
+
+    if (ahtype == PM_CONTEXT_ARCHIVE)
+	return 0;	/* nothing to do at this stage */
+
+    if (ahtype == PM_CONTEXT_HOST)
+	__pmSetClientIdArgv(argc, argv);
+
+    /* build pmResult for pmStore call if we're explicitly enabling events */
+    if (xflag) {
+	for (m = 0; m < nmetric; m++) {
+	    int sz = sizeof(pmValueSet) + sizeof(pmValue) * metrictab[m].ninst;
+	    store.vset[0] = pmvsp = (pmValueSet *)malloc(sz);
+	    if (!pmvsp)
+		__pmNoMem("store", sz, PM_FATAL_ERR);
+	    pmvsp->pmid = metrictab[m].pmid;
+	    pmvsp->valfmt = PM_VAL_INSITU;
+	    if (metrictab[m].ninst > 0) {
+		pmvsp->numval = metrictab[m].ninst;
+		for (i = 0; i < metrictab[m].ninst; i++) {
+		    pmvsp->vlist[i].inst = metrictab[m].inst[i];
+		    pmvsp->vlist[i].value.lval = 1;
+		}
+	    } else {
+		pmvsp->numval = 1;
+		pmvsp->vlist[0].inst = PM_IN_NULL;
+		pmvsp->vlist[0].value.lval = 1;
+	    }
+	    pmStore(&store);
+	    free(pmvsp);
+	}
+    }
+    return 0;
 }
