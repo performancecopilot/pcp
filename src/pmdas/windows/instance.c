@@ -255,6 +255,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 	case SQL_LOCK_INDOM:
 	case SQL_CACHE_INDOM:
 	case SQL_DB_INDOM:
+	case SQL_USER_INDOM:
 	    p = strchr(path, '(');	// skip hostname and metric name
 	    if (p != NULL) {
 		p++;
@@ -278,6 +279,16 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 				"malloc[%d] failed, SQL_INDOM path=%s\n",
 				q - p + 1, path);
 			return -1;
+		    }
+
+		    /*
+		     * The user counter names have many spaces and are
+		     * not unique up to the first space by any means.  So,
+		     * replace ' 's to play by the PCP instance name rules.
+		     */
+		    if (ip->serial == SQL_USER_INDOM) {
+			for (p = name; *p; p++)
+			    if (*p == ' ') *p = '_';
 		    }
 		}
 	    }

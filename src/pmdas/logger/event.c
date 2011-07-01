@@ -2,6 +2,7 @@
  * event support for the Logger PMDA
  *
  * Copyright (c) 2011 Red Hat Inc.
+ * Copyright (c) 2011 Nathan Scott.  All rights reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,6 +26,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#define BUF_SIZE (64*1024)
+
 static void event_cleanup(void);
 static int eventarray;
 
@@ -33,7 +36,8 @@ struct EventFileData *logfiles;
 
 struct ctx_client_data {
     unsigned int	active_logfile;
-    struct event      **last;
+    unsigned int	missed_count;
+    struct event	**last;
 };
 
 static void *
@@ -59,7 +63,6 @@ ctx_end_callback(int ctx, void *user_data)
     event_cleanup();
     if (c != NULL)
 	free(c);
-    return;
 }
 
 void
@@ -114,54 +117,120 @@ event_init(void)
     }
 }
 
+void
+event_missed(int ctx, int logfile, void *user_data, void *call_data)
+{
+    struct ctx_client_data *c = (struct ctx_client_data *)user_data;
+    struct event *e = (struct event *)call_data;
+
+    if (pmDebug & DBG_TRACE_APPL1)
+	__pmNotifyErr(LOG_INFO, "Visited ctx=%d event %p (ctx last=%p)",
+			ctx, e, c[logfile].last);
+
+    if (c[logfile].last == NULL || *c[logfile].last != e) {
+	return;
+    }
+    c[logfile].last = &TAILQ_NEXT(e, events);
+    c[logfile].missed_count++;
+
+    if (pmDebug & DBG_TRACE_APPL1)
+	__pmNotifyErr(LOG_INFO, "Missed %s event %p for context %d",
+			logfiles[logfile].pathname, e, ctx);
+}
+
 int
 event_create(unsigned int logfile)
 {
     ssize_t c;
+    struct event *e, *next;
+    static char *buffer;
 
-    /* Allocate a new event. */
-    struct event *e = malloc(sizeof(struct event));
-    if (e == NULL) {
-	__pmNotifyErr(LOG_ERR, "allocation failure");
-	return -1;
+    /* Allocate a new event buffer. */
+    if (!buffer) {
+	buffer = malloc(BUF_SIZE);
+	if (buffer == NULL) {
+	    __pmNotifyErr(LOG_ERR, "event buffer allocation failure");
+	    return -1;
+	}
     }
 
     /* Read up to BUF_SIZE bytes at a time. */
-    c = read(logfiles[logfile].fd, e->buffer, sizeof(e->buffer) - 1);
+    c = read(logfiles[logfile].fd, buffer, BUF_SIZE - 1);
 
     /*
      * Ignore the error if:
      * - we've got EOF (0 bytes read)
      * - EBADF (fd isn't valid - most likely a closed pipe)
-     * - EAGAIN/EWOULDBLOCK (fd is marked nonblocking and read would
-     *   block)
-     * - EISDIR (fd is a directory - (possibly temporary) config file
-     *   botch)
+     * - EAGAIN/EWOULDBLOCK (fd is marked nonblocking and read would block)
+     * - EISDIR (fd is a directory - (possibly temporary) config file botch)
      */
     if ((c == 0) ||
 	(c < 0 && (errno == EBADF || errno == EAGAIN ||
 		   errno == EISDIR || errno == EWOULDBLOCK))) {
-	free(e);
 	return 0;
-    }
-    if (c < 0) {
+    } else if (c > maxmem) {
+	return 0;
+    } else if (c < 0) {
 	__pmNotifyErr(LOG_ERR, "read failure on %s: %s",
 		      logfiles[logfile].pathname, strerror(errno));
-	free(e);
 	return -1;
     }
 
-    /* Update logfile event tracking stats. */
+    /*
+     * We may need to make room in the event queue.  If so, start at the head
+     * and madly drop events until sufficient space exists or all are freed.
+     * Bump the missed counter for each client who missed an event we had to
+     * throw away.
+     */
+
+    e = TAILQ_FIRST(&logfiles[logfile].queue);
+    while (e) {
+	if (c <= maxmem - logfiles[logfile].queuesize)
+	    break;
+
+	next = TAILQ_NEXT(e, events);
+
+	if (pmDebug & DBG_TRACE_APPL1)
+	    __pmNotifyErr(LOG_INFO, "Dropping %s: e=%p sz=%d max=%ld qsz=%ld",
+			  logfiles[logfile].pmnsname, e, e->size, maxmem,
+			  logfiles[logfile].queuesize);
+
+	/* Walk clients - if event last seen, drop it and bump missed count */
+	ctx_iterate(event_missed, logfile, e);
+
+	if (pmDebug & DBG_TRACE_APPL1)
+	    __pmNotifyErr(LOG_INFO, "Removing %s event %p (%d bytes)",
+			  logfiles[logfile].pmnsname, e, e->size);
+
+	TAILQ_REMOVE(&logfiles[logfile].queue, e, events);
+	logfiles[logfile].queuesize -= e->size;
+	free(e);
+	e = next;
+    }
+
+    e = malloc(sizeof(struct event) + c + 1);
+    if (e == NULL) {
+	__pmNotifyErr(LOG_ERR, "event dup allocation failure: %d bytes", c + 1);
+	return -1;
+    }
+
+    /* Track event data */
+    e->clients = logfiles[logfile].numclients;
+    memcpy(e->buffer, buffer, c);
+    e->buffer[c] = '\0';
+    e->size = c;
+
+    /* Update logfile event tracking stats */
     logfiles[logfile].count++;
     logfiles[logfile].bytes += c;
 
-    /* Store event in queue. */
-    e->clients = logfiles[logfile].numclients;
-    e->buffer[c] = '\0';
+    /* Store event in queue */
     TAILQ_INSERT_TAIL(&logfiles[logfile].queue, e, events);
+    logfiles[logfile].queuesize += c;
 
     if (pmDebug & DBG_TRACE_APPL1)
-	__pmNotifyErr(LOG_INFO, "Inserted item, clients = %d.", e->clients);
+	__pmNotifyErr(LOG_INFO, "Inserted %s event %p (%d bytes) clients = %d.",
+			logfiles[logfile].pmnsname, e, e->size, e->clients);
 
     return 1;
 }
@@ -231,11 +300,26 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
 	    __pmNotifyErr(LOG_INFO, "Removing %s event %p in fetch",
 				  logfiles[logfile].pmnsname, e);
 	    TAILQ_REMOVE(&logfiles[logfile].queue, e, events);
+	    logfiles[logfile].queuesize -= e->size;
 	    free(e);
 	}
 
 	/* Go on to the next event. */
 	e = next;
+    }
+
+    /*
+     * Did this client miss any events?  The "extra" one is the last previously
+     * observed event (pointed at by per-context last pointer) - so, event only
+     * missed once we move past *more* than just that last observed event.
+     */
+    sts = c[logfile].missed_count - 1;
+    c[logfile].missed_count = 0;
+    if (sts > 0) {
+	sts = pmdaEventAddMissedRecord(eventarray, &stamp, sts);
+	if (sts < 0)
+	    return sts;
+	records++;
     }
 
     /* Update queue pointer. */
@@ -272,6 +356,7 @@ event_cleanup(void)
 		    __pmNotifyErr(LOG_INFO, "Removing %s event %p",
 				  logfiles[logfile].pmnsname, e);
 		TAILQ_REMOVE(&logfiles[logfile].queue, e, events);
+		logfiles[logfile].queuesize -= e->size;
 		free(e);
 	    }
 

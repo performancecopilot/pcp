@@ -8,6 +8,7 @@ sqlserver {
     sql
     connections			WINDOWS:0:83
     mem_mgr
+    user_settable
 }
 
 sqlserver.buf_mgr {
@@ -139,4 +140,8 @@ sqlserver.mem_mgr {
     sql_cache_memory		WINDOWS:0:164
     target_server_memory	WINDOWS:0:165
     total_server_memory		WINDOWS:0:166
+}
+
+sqlserver.user_settable {
+    query			WINDOWS:0:238
 }

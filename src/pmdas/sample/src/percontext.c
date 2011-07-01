@@ -70,7 +70,7 @@ sample_clr_xmit(int ctx)
 	num_xmit_pdu = 0;
     }
     else if (ctx < 0 || ctx >= num_ctx || ctxtab[ctx].state == CTX_INACTIVE) {
-	fprintf(stderr, "Botch: sample_clr_recv(%d) num_ctx=%d", ctx, num_ctx);
+	fprintf(stderr, "Botch: sample_clr_xmit(%d) num_ctx=%d", ctx, num_ctx);
 	if (ctx >= 0 && ctx < num_ctx)
 	    fprintf(stderr, " ctxtab[] is inactive");
 	fputc('\n', stderr);

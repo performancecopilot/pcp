@@ -27,7 +27,7 @@ static int		amode = PM_MODE_FORW;		/* archive scan mode */
 static pmTime		*pmtime;
 
 char		*host;				/* original host */
-char		*archive = NULL;		/* archive source */
+char		*archive;			/* archive source */
 int		ahtype = -1;			/* archive or host or local context */
 int		verbose;			/* verbose diagnostic output */
 struct timeval	now;				/* current reporting time */
@@ -39,8 +39,8 @@ int		gui;				/* set if -g */
 int		port = -1;			/* pmtime port number from -p */
 pmTimeControls	controls;
 
-metric_t	*metrictab = NULL;		/* metrics from cmd line */
-int		nmetric = 0;
+metric_t	*metrictab;			/* metrics from cmd line */
+int		nmetric;
 pmID		*pmidlist;
 
 /* performance metrics in the hash list */
