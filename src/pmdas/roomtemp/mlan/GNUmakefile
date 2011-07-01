@@ -23,6 +23,7 @@ include $(TOPDIR)/src/include/builddefs
 CFILES=mlannetu.c mlansesu.c mlanllu.c linuxlnk.c ds2480ut.c mlantrnu.c
 HFILES=mlan.h ds2480.h
 STATICLIBTARGET = libmlan.a
+LDIRT = libmlan.a
 LCFLAGS = -g
 
 default : $(STATICLIBTARGET)
