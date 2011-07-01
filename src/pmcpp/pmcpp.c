@@ -12,7 +12,8 @@
  * - standard C-style comment stripping
  * - #include "file" or #include <file>
  *   up to a depth of 5 levels, for either syntax the directory search
- *   is hard-wired to . and then $PCP_VAR_DIR/pmns
+ *   is hard-wired to <file>, the directory of command line file (if any)
+ *   and then $PCP_VAR_DIR/pmns
  * - #ifdef ... #endif and #ifndef ... #endif
  *
  * Does NOT support ...
@@ -412,10 +413,11 @@ main(int argc, char **argv)
 	if (ibuf[0] == '#') {
 	    /* cpp control line */
 	    if (strncmp(ibuf, "#include", strlen("#include")) == 0) {
-		char	*p;
-		char	*pend;
-		char	c;
-		FILE	*f;
+		char		*p;
+		char		*pend;
+		char		c;
+		FILE		*f;
+		static char	tmpbuf[MAXPATHLEN];
 
 		if (skip_if_false) {
 		    printf("\n");
@@ -450,14 +452,42 @@ main(int argc, char **argv)
 		c = *pend;
 		*pend = '\0';
 		f = fopen(p, "r");
+		if (f == NULL && file_ctl[0].fin != stdin) {
+		    /* check in directory of file from command line */
+		    static int	sep;
+		    static char	*dir = NULL;
+		    if (dir == NULL) {
+			/*
+			 * some versions of dirname() clobber the input
+			 * argument, some do not ... hence the obscurity
+			 * here
+			 */
+			static char	*dirbuf;
+			dirbuf = strdup(file_ctl[0].fname);
+			if (dirbuf == NULL) {
+			    __pmNoMem("pmcpp: dir name alloc", strlen(file_ctl[0].fname)+1, PM_FATAL_ERR);
+			    /*NOTREACHED*/
+			}
+			dir = dirname(dirbuf);
+			sep = __pmPathSeparator();
+		    }
+		    snprintf(tmpbuf, sizeof(tmpbuf), "%s%c%s", dir, sep, p);
+		    f = fopen(tmpbuf, "r");
+		    if (f != NULL)
+			p = tmpbuf;
+		}
 		if (f == NULL) {
-		    // check in $PCP_VAR_DIR/pmns
-		    int	sep = __pmPathSeparator();
-		    char	*var_dir = pmGetConfig("PCP_VAR_DIR");
-		    static char	tmpbuf[MAXPATHLEN];
+		    /* check in $PCP_VAR_DIR/pmns */
+		    static int	sep;
+		    static char	*var_dir = NULL;
+		    if (var_dir == NULL) {
+			var_dir = pmGetConfig("PCP_VAR_DIR");
+			sep = __pmPathSeparator();
+		    }
 		    snprintf(tmpbuf, sizeof(tmpbuf), "%s%cpmns%c%s", var_dir, sep, sep, p);
-		    p = tmpbuf;
-		    f = fopen(p, "r");
+		    f = fopen(tmpbuf, "r");
+		    if (f != NULL)
+			p = tmpbuf;
 		}
 		if (f == NULL) {
 		    *pend = c;
@@ -468,6 +498,7 @@ main(int argc, char **argv)
 		currfile->lineno = 0;
 		currfile->fin = f;
 		currfile->fname = strdup(p);
+		*pend = c;
 		if (currfile->fname == NULL) {
 		    __pmNoMem("pmcpp: file name alloc", strlen(p)+1, PM_FATAL_ERR);
 		    /*NOTREACHED*/

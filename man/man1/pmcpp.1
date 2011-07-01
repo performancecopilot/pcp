@@ -64,7 +64,12 @@ or
 .br
 In either case the directory search path for
 .I filename
-is the current directory followed by the
+tries
+.I filename
+first, then the directory for the command line
+.I infile
+(if any),
+followed by the
 .B $PCP_VAR_DIR/pmns
 directory.
 .B #include
