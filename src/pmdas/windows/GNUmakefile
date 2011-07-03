@@ -69,7 +69,9 @@ install_pcp:	install
 
 root_windows:	../../pmns/stdpmid $(PMNS)
 	rm -f root_windows
-	cpp -I../../pmns -fno-show-column < root | sed -e '/^#/d' > root_windows
+	sed -e 's;<stdpmid>;"../../pmns/stdpmid";' <root \
+	| $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp \
+	| sed -e '/^#/d' -e '/^$$/d' >root_windows
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

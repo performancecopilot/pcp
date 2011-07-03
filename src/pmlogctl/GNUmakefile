@@ -30,7 +30,7 @@ LDIRT	= crontab control.install
 _confdir = $(PCP_VAR_DIR)/config/pmlogger
 _bindir  = $(PCP_BINADM_DIR)
 
-default: $(OTHERS) crontab control.install
+default: $(OTHERS) crontab control.install GNUmakefile.install.xxx
 
 crontab : crontab.IN
 	$(SED) -e '/\# .*/b' -e 's;PCP_BINADM_DIR;$(PCP_BINADM_DIR);g' < $< > $@
@@ -45,7 +45,7 @@ install: default crontab
 	$(INSTALL) -m 644 control.install $(PCP_PMLOGGERCONTROL_PATH)
 	$(INSTALL) -m 644 config.sar config.base crontab $(_confdir)
 	$(INSTALL) -m 644 pmlogger.config $(_confdir)/config.default
-	$(INSTALL) -m 644 GNUmakefile.install $(_confdir)/Makefile
+	$(INSTALL) -m 644 GNUmakefile.install.xxx $(_confdir)/Makefile
 	$(INSTALL) -m 755 pmnewlog.sh $(_bindir)/pmnewlog
 	$(INSTALL) -m 755 pmlogger_daily.sh $(_bindir)/pmlogger_daily
 	$(INSTALL) -m 755 pmlogger_check.sh $(_bindir)/pmlogger_check
@@ -54,3 +54,6 @@ install: default crontab
 default_pcp : default
 
 install_pcp : install
+
+GNUmakefile.install.xxx:	GNUmakefile.install
+	sed -e "s;<CPP>;$(PCP_BINADM_DIR)/pmcpp -D$(TARGET_OS);" <GNUmakefile.install >GNUmakefile.install.xxx

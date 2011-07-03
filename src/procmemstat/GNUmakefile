@@ -43,11 +43,12 @@ pmnsmap.h:	pmnsmap.spec
 	PCP_CONF=$(TOPDIR)/src/include/pcp.conf; export PCP_CONF; \
 	sed -e "s;^\. \$PCP_DIR/etc/pcp.env;. $(TOPDIR)/src/include/pcp.env;" \
 	../pmgenmap/pmgenmap.sh >runme.sh; \
-	$(CPP) <pmnsmap.spec >pmnsmap.i
+	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp -D$(TARGET_OS) pmnsmap.spec \
+	| sed -e '/^#/d' -e '/^$$/d' >pmnsmap.i
 	sh ./runme.sh pmnsmap.i >pmnsmap.h
 
 GNUmakefile.install.xxx:	GNUmakefile.install
-	sed -e "s;<CPP>;$(CPP_SIMPLE);" <GNUmakefile.install >GNUmakefile.install.xxx
+	sed -e "s;<CPP>;$(PCP_BINADM_DIR)/pmcpp -D$(TARGET_OS);" <GNUmakefile.install >GNUmakefile.install.xxx
 
 default_pcp : default
 

@@ -4,6 +4,8 @@ use ExtUtils::MakeMaker;
 my $ldfrom;
 my $inc;
 my $libs;
+my $lddlflags;
+my $cccdlflags;
 
 if ($ENV{TARGET_OS} eq "mingw") {
     $ldfrom = "-L$ENV{PCP_TOPDIR}/src/libpcp/src -L$ENV{PCP_TOPDIR}/src/libpcp_import/src -L$ENV{PCP_DIR}\\local\\bin -lpcp_import -lpcp LogImport.o",
@@ -22,6 +24,11 @@ if ($ENV{TARGET_OS} eq "darwin") {
 else {
     $lddlflags = "-shared \$(OPTIMIZE) \$(LDFLAGS)";
 }
+if ($ENV{TARGET_OS} eq "solaris") {
+    # for OpenSolaris Makefile ends up with -KPIC instead of -fPIC otherwise
+    $cccdlflags = "-fPIC"
+} 
+
 WriteMakefile(
     NAME		=> 'PCP::LogImport',
     AUTHOR		=> 'Ken McDonell <kenj@internode.on.net>',
@@ -34,6 +41,7 @@ WriteMakefile(
     DEFINE		=> '-DPERLIO_NOT_STDIO=0 -DPCP_VERSION -DPCP_DEBUG',
     LDFROM		=> $ldfrom,
     LDDLFLAGS		=> $lddlflags,
+    CCCDLFLAGS		=> $cccdlflags,
     INC			=> $inc,
     LIBS		=> $libs,
     CC			=> $ENV{"CC"},

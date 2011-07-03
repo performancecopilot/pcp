@@ -68,7 +68,9 @@ help.dir help.pag: help root_solaris
 
 root_solaris: ../../pmns/stdpmid $(PMNS) root
 	rm -f root_solaris
-	$(CPP_SIMPLE) -I../../pmns < root | sed -e '/^#/d' > root_solaris
+	sed -e 's;<stdpmid>;"../../pmns/stdpmid";' <root \
+	| $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp \
+	| sed -e '/^#/d' -e '/^$$/d' >root_solaris
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

@@ -66,7 +66,9 @@ help.dir help.pag: help root_aix
 
 root_aix:	../../pmns/stdpmid
 	rm -f root_aix
-	cpp -I../../pmns -fno-show-column < root | sed -e '/^#/d' > root_aix
+	sed -e 's;<stdpmid>;"../../pmns/stdpmid";' <root \
+	| $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp \
+	| sed -e '/^#/d' -e '/^$$/d' >root_aix
 
 domain.h:	../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
