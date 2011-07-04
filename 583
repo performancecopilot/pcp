@@ -61,7 +61,7 @@ PMCD_RECONNECT_TIMEOUT=1,2
 export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT PMCD_RECONNECT_TIMEOUT
 
 SYSLOG=''
-for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages /var/log/system.log
+for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages /var/log/syslog /var/log/system.log
 do
     if [ -f $f ]
     then
