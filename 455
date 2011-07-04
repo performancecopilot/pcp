@@ -31,6 +31,11 @@ _cleanup()
     exit $status
 }
 
+_filter()
+{
+    sed -e '/Creating rsyslog statistics file/d'
+}
+
 trap "_cleanup" 0 1 2 3 15
 
 # real QA test starts here
@@ -47,7 +52,8 @@ $sudo rm -f pmns domain.h
 echo
 echo "=== $iam agent installation ==="
 $sudo ./Install </dev/null >$tmp.out 2>&1
-_filter_pmda_install <$tmp.out
+_filter_pmda_install <$tmp.out \
+| _filter
 
 echo
 echo "=== validate values ==="
