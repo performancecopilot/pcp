@@ -226,18 +226,18 @@ _date_filter()
     # the PCP pmie log file management scripts ... this list may be
     # reduced by the sed filtering later on
     #
-    ls | sed -n >$tmp.in -e '/[-.][12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]$/p'
+    ls | sed -n >$tmp.in -e '/[-.][12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]/p'
 
     i=0
     while [ $i -le $1 ]
     do
 	dmax=`expr $i + 200`
 	[ $dmax -gt $1 ] && dmax=$1
-	echo "/[-.][12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]$/{" >$tmp.sed1
+	echo "/[-.][12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]/{" >$tmp.sed1
 	while [ $i -le $dmax ]
 	do
 	    x=`pmdate -${i}d %Y%m%d`
-	    echo "/[-.]$x\$/d" >>$tmp.sed1
+	    echo "/[-.]$x/d" >>$tmp.sed1
 	    i=`expr $i + 1`
 	done
 	echo "p" >>$tmp.sed1
