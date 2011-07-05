@@ -180,7 +180,7 @@ _checkpmcdhost()
     then
 	$VERBOSE && echo "+ ssh -q $SSH_USER@$HOST $BRAND -l"
 	license=`ssh -q $SSH_USER@$HOST "$BRAND -l" 2>&1`
-	$VERBOSE && echo "-> $license"
+	$VERBOSE && echo "-> |$license|"
 	if [ "$LICENSE" = "full" ]
 	then
 	    if echo "$license" | grep "PCP Collector" > /dev/null 2>&1
@@ -227,7 +227,7 @@ _checkpmcdhost()
 	ncpu=`pmprobe -h $HOST -v hinv.ncpu 2>/dev/null \
 		| sed -e 's/\"//g' \
 		| $PCP_AWK_PROG 'NF == 3 && $3 ~ /^[0-9][0-9]*$/ { print $3 }'`
-	$VERBOSE && echo "-> $ncpu"
+	$VERBOSE && echo "-> |$ncpu|"
 
 	if [ -z "$ncpu" -o "$ncpu" = 0 ]
 	then
@@ -253,8 +253,8 @@ _checkpmcdhost()
     if [ "$ENDIAN" != "_" ]
     then
 	$VERBOSE && echo "+ echo a | ssh -q $SSH_USER@$HOST od -x"
-	check=`echo a | ssh -q $SSH_USER@$HOST "od -x" 2>&1 | sed -e 's/^0[^ ]* *//' -e '/^$/d'`
-	$VERBOSE && echo "-> $check"
+	check=`echo a | ssh -q $SSH_USER@$HOST "od -x" 2>&1 | sed -e 's/^0[^ ]* *//' -e 's/[ 	]*$//' -e '/^$/d'`
+	$VERBOSE && echo "-> |$check|"
 	case "$check"
 	in
 	    0a61)
@@ -270,6 +270,10 @@ _checkpmcdhost()
 		    $MSG && echo "$HOST: big endian" >&2
 		    return 1
 		fi
+		;;
+	    *)
+		echo "$0: INTERNAL BOTCH: expecting 0a61 or 610a, got \"$check\"" >&2
+		exit 1
 		;;
 	esac
     fi
@@ -292,7 +296,7 @@ _checkpmcdhost()
 		    fi
 		    ;;
 		*)
-		    echo "$0: INTERNAL BOTCH item=$item not expected here!"
+		    echo "$0: INTERNAL BOTCH item=\"$item\" not expected here!"
 		    exit 1
 		    ;;
 	    esac
