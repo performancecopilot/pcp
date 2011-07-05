@@ -86,13 +86,13 @@ BEGIN		{ min = 31; max = 31 }
 }
 
 # real QA test starts here
-rm -f $tmp.*
+rm -f $tmp.* $seq.full
 pmlogger -s 30 -L -c /dev/null -l $tmp.log $tmp &
 pid=$!
 sleep 1
 
 echo
-echo "=== log sample.bin[bin-100] ==="
+echo "=== log sample.bin[bin-100] ===" | tee -a $seq.full
 pmlc <<End-of-File
 connect $pid
 log mandatory on 200 msec sample.bin ["bin-100"]
@@ -100,7 +100,7 @@ End-of-File
 sleep 4
 
 echo
-echo "=== log sample.bin[bin-200] ==="
+echo "=== log sample.bin[bin-200] ===" | tee -a $seq.full
 pmlc <<End-of-File
 connect $pid
 log mandatory on 200 msec sample.bin ["bin-200"]
@@ -108,20 +108,24 @@ End-of-File
 
 wait
 _filter_pmlogger_log <$tmp.log
+cat $tmp.log >>$seq.full
 
 echo
-echo "=== pmdumplog ==="
-pmdumplog -m $tmp | _filter_dump
+echo "=== pmdumplog ===" | tee -a $seq.full
+pmdumplog -m $tmp | tee -a $seq.full | _filter_dump
 
 offset=`_arch_start $tmp 0.05`
+echo "offset=$offset" >>$seq.full
 
 for delta in 0.1 0.2 0.4
 do
     echo
-    echo "=== pmval -t $delta ==="
-    pmval -O $offset -D386 -i "bin-100,bin-200" -t $delta -a $tmp sample.bin 2>$tmp.err \
+    echo "=== pmval -t $delta ===" | tee -a $seq.full
+    pmval -O $offset -Dlog,logmeta -i "bin-100,bin-200" -t $delta -a $tmp sample.bin 2>$tmp.err \
+    | tee -a $seq.full \
     | _filter $delta
     _filter_err $delta <$tmp.err
+    cat $tmp.err >>$seq.full
 done
 
 exit 0

@@ -27,7 +27,7 @@ Compiled PMNS contains
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check logger metrics have appeared ... 2 warnings, 9 metrics and 7 values
+Check logger metrics have appeared ... 2 warnings, 11 metrics and 9 values
 === 1. store access control enabled ===
 Starting initial event watcher:
 done.

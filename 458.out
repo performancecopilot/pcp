@@ -28,7 +28,7 @@ Compiled PMNS contains
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check logger metrics have appeared ... 3 warnings, 15 metrics and 12 values
+Check logger metrics have appeared ... 3 warnings, 18 metrics and 15 values
 === 1. regular file case ===
 Starting initial event watcher:
 done.

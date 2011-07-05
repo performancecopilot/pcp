@@ -5,6 +5,13 @@ pmXmitPDU: PMNS_NAMES fd=3 len=48
 pmGetPDU: PMNS_IDS fd=3 len=24 from=0
 pmXmitPDU: DESC_REQ fd=3 len=16
 pmGetPDU: DESC fd=3 len=32 from=0
+pmXmitPDU: PMNS_NAMES fd=3 len=48
+pmGetPDU: PMNS_IDS fd=3 len=24 from=0
+pmResult ... numpmid: 1
+  2.6.0 (pmcd.client.whoami): numval: 1 valfmt: 2 vlist[]:
+blah blah ...
+blah blah ...
+pmGetPDU: ERROR fd=3 len=16 from=0
 host:      localhost
 samples:   20
 interval:  0.01 sec

@@ -157,6 +157,7 @@ install: default
 #
 clean-exec:
 	rm -f $(TARGETS)
+	rm -f pv64
 
 # remave just the archives, not the binaries
 #
@@ -400,7 +401,7 @@ obs:	obs.c
 
 torture_trace:	torture_trace.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ torture_trace.c $(LIB_FOR_PTHREADS) $(TRACELIB) 
+	$(CCF) $(CDEFS) -o $@ torture_trace.c $(TRACELIB) 
 
 tstate:	tstate.c
 	rm -f $@
