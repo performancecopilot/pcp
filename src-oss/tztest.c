@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
 
 char * __pmTimezone(void);
 
-int main ()
+int main()
 {
     time_t sept = (30*365.25+244)*24*3600; /* 1 Septemnber 2000 */
     time_t march = (30*365.25+60)*24*3600; /* 1 March 2000 */
@@ -34,43 +36,43 @@ int main ()
 	":Someplace/Somewhere",
 	NULL
     }};
-    char * tz = getenv ("TZ");
+    char * tz = getenv("TZ");
 
-    if ( tz == NULL ) {
-	puts ("Timezone is not set, abort the test");
+    if (tz == NULL) {
+	puts("Timezone is not set, abort the test");
     } else {
 	int i;
 	time_t now = time(NULL);
-	struct tm * today = localtime (&now);
+	struct tm * today = localtime(&now);
 	int which = today->tm_mon / 6;
 	char tb[256];
-	char * newtz = __pmTimezone ();
+	char * newtz = __pmTimezone();
 
-	printf ("%s -> %s\n", tz, newtz);
+	printf("%s -> %s\n", tz, newtz);
 
-	for ( i=0; zones[which][i] != NULL; i++ ) {
+	for (i=0; zones[which][i] != NULL; i++) {
 	    char * tz;
 	    struct tm  *tmp;
 	    char tstr[64];
 	    int dst;
 
-	    sprintf (tb, "TZ=%s", zones[which][i]);
-	    putenv (tb);
+	    sprintf(tb, "TZ=%s", zones[which][i]);
+	    putenv(tb);
 	    tzset();
-	    tz = getenv ("TZ");
-            newtz = __pmTimezone ();
+	    tz = getenv("TZ");
+            newtz = __pmTimezone();
 
-            printf ("%s -> %s\n", tz, newtz);
+            printf("%s -> %s\n", tz, newtz);
 	    tmp = localtime(&march);
 	    dst = tmp->tm_isdst;
 
-            strftime (tstr, 64, "%d %B %Y %H:%M %Z", tmp);
-	    printf ("In March daylight saving is %s, and the time is %s\n",
+            strftime(tstr, 64, "%d %B %Y %H:%M %Z", tmp);
+	    printf("In March daylight saving is %s, and the time is %s\n",
 		(dst ? "on" : "off"), tstr);
 	    tmp = localtime(&sept);
 	    dst = tmp->tm_isdst;
-            strftime (tstr, 64, "%d %B %Y %H:%M %Z", tmp);
-	    printf ("In September daylight saving is %s, and the time is %s\n\n",
+            strftime(tstr, 64, "%d %B %Y %H:%M %Z", tmp);
+	    printf("In September daylight saving is %s, and the time is %s\n\n",
 		(dst ? "on" : "off"), tstr);
 	}
     }
