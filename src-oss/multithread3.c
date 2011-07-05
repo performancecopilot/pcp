@@ -13,12 +13,12 @@
 static pthread_barrier_t barrier;
 
 static char *pmnsfile;
-static char pmns[] = "#define EXTRA 0\n\
+static char pmns[] = "#undef  EXTRA\n\
 root {\n\
         a\n\
 	b       1:0:0\n\
 	c       2:0:0\n\
-#if EXTRA\n\
+#ifdef EXTRA\n\
 	d\n\
 	e	4:0:0\n\
 #endif\n\
@@ -32,7 +32,7 @@ a.three {\n\
 	foo     0:2:0\n\
 	bar     0:2:1\n\
 }\n\
-#if EXTRA\n\
+#ifdef EXTRA\n\
 d {\n\
 	mumble	3:0:0\n\
 	f\n\
@@ -130,8 +130,13 @@ func2(void *arg)
     /* iter 3 */
     pmUnloadNameSpace();
     for (p = pmns; *p; p++) {
-	if (*p == '0') {
-	    *p = '1';
+	if (*p == 'u') {
+	    *p++ = 'd';
+	    *p++ = 'e';
+	    *p++ = 'f';
+	    *p++ = 'i';
+	    *p++ = 'n';
+	    *p++ = 'e';
 	    break;
 	}
     }
