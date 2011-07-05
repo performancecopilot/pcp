@@ -22,8 +22,6 @@
 
 INTERN int	__pmLogReads = 0;
 
-static char	*logfilename;
-static int	logfilenamelen;
 static int	seeking_end;
 
 /*
@@ -320,22 +318,14 @@ fopen_compress(const char *fname)
 static FILE *
 _logpeek(__pmLogCtl *lcp, int vol)
 {
-    int		sts;
-    FILE	*f;
+    int			sts;
+    FILE		*f;
     __pmLogLabel	label;
+    char		fname[MAXPATHLEN];
 
-    sts = (int)strlen(lcp->l_name) + 6; /* name.XXXX\0 */
-    if (sts > logfilenamelen) {
-	if ((logfilename = (char *)realloc(logfilename, sts)) == NULL) {
-	    logfilenamelen = 0;
-	    return NULL;
-	}
-	logfilenamelen = sts;
-    }
-
-    snprintf(logfilename, sts, "%s.%d", lcp->l_name, vol);
-    if ((f = fopen(logfilename, "r")) == NULL) {
-	if ((f = fopen_compress(logfilename)) == NULL)
+    snprintf(fname, sizeof(fname), "%s.%d", lcp->l_name, vol);
+    if ((f = fopen(fname, "r")) == NULL) {
+	if ((f = fopen_compress(fname)) == NULL)
 	    return f;
     }
 
@@ -438,49 +428,42 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
     return sts;
 }
 
+const char *
+__pmLogName_r(const char *base, int vol, char *buf, int buflen)
+{
+    switch (vol) {
+	case PM_LOG_VOL_TI:
+	    snprintf(buf, buflen, "%s.index", base);
+	    break;
+
+	case PM_LOG_VOL_META:
+	    snprintf(buf, buflen, "%s.meta", base);
+	    break;
+
+	default:
+	    snprintf(buf, buflen, "%s.%d", base, vol);
+	    break;
+    }
+
+    return buf;
+}
 
 const char *
 __pmLogName(const char *base, int vol)
 {
-    static char		*tbuf;
-    static int		tlen = 0;
-    int			len;
+    static char		tbuf[MAXPATHLEN];
 
-    len = (int)strlen(base) + 8;
-    if (len > tlen) {
-	if (tlen)
-	    free(tbuf);
-	if ((tbuf = (char *)malloc(len)) == NULL) {
-	    __pmNoMem("__pmLogName", len, PM_FATAL_ERR);
-	}
-	tlen = len;
-    }
-
-    switch (vol) {
-	case PM_LOG_VOL_TI:
-	    sprintf(tbuf, "%s.index", base);	/* safe */
-	    break;
-	
-	case PM_LOG_VOL_META:
-	    sprintf(tbuf, "%s.meta", base);	/* safe */
-	    break;
-
-	default:
-	    sprintf(tbuf, "%s.%d", base, vol);	/* safe */
-	    break;
-    }
-
-    return tbuf;
+    return __pmLogName_r(base, vol, tbuf, sizeof(tbuf));
 }
 
 FILE *
 __pmLogNewFile(const char *base, int vol)
 {
-    const char	*fname;
+    char	fname[MAXPATHLEN];
     FILE	*f;
     int		save_error;
 
-    fname = __pmLogName(base, vol);
+    __pmLogName_r(base, vol, fname, sizeof(fname));
 
     if (access(fname, R_OK) != -1) {
 	/* exists and readable ... */
@@ -543,6 +526,7 @@ __pmLogCreate(const char *host, const char *base, int log_version,
 	      __pmLogCtl *lcp)
 {
     int		save_error = 0;
+    char	fname[MAXPATHLEN];
 
     lcp->l_minvol = lcp->l_maxvol = lcp->l_curvol = 0;
     lcp->l_hashpmid.nodes = lcp->l_hashpmid.hsize = 0;
@@ -552,8 +536,11 @@ __pmLogCreate(const char *host, const char *base, int log_version,
     if ((lcp->l_tifp = __pmLogNewFile(base, PM_LOG_VOL_TI)) != NULL) {
 	if ((lcp->l_mdfp = __pmLogNewFile(base, PM_LOG_VOL_META)) != NULL) {
 	    if ((lcp->l_mfp = __pmLogNewFile(base, 0)) != NULL) {
-		char *tz = __pmTimezone();
-                int             sts;
+		char	tzbuf[PM_TZ_MAXLEN];
+		char	*tz;
+                int	sts;
+
+		tz = __pmTimezone_r(tzbuf, sizeof(tzbuf));
 
 		lcp->l_label.ill_magic = PM_LOG_MAGIC | log_version;
 		/*
@@ -584,14 +571,14 @@ __pmLogCreate(const char *host, const char *base, int log_version,
 	    }
 	    else {
 		save_error = oserror();
-		unlink(__pmLogName(base, PM_LOG_VOL_TI));
-		unlink(__pmLogName(base, PM_LOG_VOL_META));
+		unlink(__pmLogName_r(base, PM_LOG_VOL_TI, fname, sizeof(fname)));
+		unlink(__pmLogName_r(base, PM_LOG_VOL_META, fname, sizeof(fname)));
 		setoserror(save_error);
 	    }
 	}
 	else {
 	    save_error = oserror();
-	    unlink(__pmLogName(base, PM_LOG_VOL_TI));
+	    unlink(__pmLogName_r(base, PM_LOG_VOL_TI, fname, sizeof(fname)));
 	    setoserror(save_error);
 	}
     }
@@ -1213,10 +1200,13 @@ paranoidCheck(int len, __pmPDU *pb)
 		return -1;
 	    }
 #ifdef DESPERATE
-	    if (i == 0) fputc('\n', stderr);
-	    pmid = __ntohpmID(vlp->pmid);
-	    fprintf(stderr, "vlist[%d] pmid: %s numval: %d valfmt: %d\n",
-				i, pmIDStr(pmid), numval, valfmt);
+	    {
+		char	strbuf[20];
+		if (i == 0) fputc('\n', stderr);
+		pmid = __ntohpmID(vlp->pmid);
+		fprintf(stderr, "vlist[%d] pmid: %s numval: %d valfmt: %d\n",
+		    i, pmIDStr_r(pmid, strbuf, sizeof(strbuf)), numval, valfmt);
+	    }
 #endif
 	    vsize += sizeof(vlp->valfmt) + numval * sizeof(__pmValue_PDU);
 	    if (valfmt != PM_VAL_INSITU) {
@@ -1780,8 +1770,9 @@ more:
 	    }
 	    sts = __pmLogLookupDesc(ctxp->c_archctl->ac_log, newres->vset[i]->pmid, &desc);
 	    if (sts < 0) {
+		char	strbuf[20];
 		__pmNotifyErr(LOG_WARNING, "__pmLogFetch: missing pmDesc for pmID %s: %s",
-			    pmIDStr(desc.pmid), pmErrStr(sts));
+			    pmIDStr_r(desc.pmid, strbuf, sizeof(strbuf)), pmErrStr(sts));
 		pmFreeResult(newres);
 		break;
 	    }

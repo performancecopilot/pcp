@@ -158,8 +158,9 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 		}
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_FETCH) {
+		    char	strbuf[20];
 		    fprintf(stderr, "__pmFetchLocal: [%d] PMID=%s nval=",
-			    k, pmIDStr(pmidlist[k]));
+			    k, pmIDStr_r(pmidlist[k], strbuf, sizeof(strbuf)));
 		    if (ans->vset[k]->numval < 0)
 			fprintf(stderr, "%s\n",
 				pmErrStr(ans->vset[k]->numval));

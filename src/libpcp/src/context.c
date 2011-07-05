@@ -658,8 +658,9 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 	return;
 
     if (indom != PM_INDOM_NULL) {
+	char	strbuf[20];
 	fprintf(f, "Dump restricted to indom=%d [%s]\n", 
-	        indom, pmInDomStr(indom));
+	        indom, pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
     }
 
     for (con=contexts, i=0; i < contexts_len; i++, con++) {

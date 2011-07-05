@@ -55,8 +55,10 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 	if (sts < 0)
 	    return sts;
 
-	if (current->timezone == NULL)
-	    strcpy(lcp->l_label.ill_tz, __pmTimezone());
+	if (current->timezone == NULL) {
+	    char	tzbuf[PM_TZ_MAXLEN];
+	    strcpy(lcp->l_label.ill_tz, __pmTimezone_r(tzbuf, sizeof(tzbuf)));
+	}
 	else
 	    strcpy(lcp->l_label.ill_tz, current->timezone);
 	pmNewZone(lcp->l_label.ill_tz);

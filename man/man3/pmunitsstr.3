@@ -15,12 +15,14 @@
 .\"
 .TH PMUNITSSTR 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmUnitsStr\f1 \- convert a performance metric's units into a string
+\f3pmUnitsStr\f1, \f3pmUnitsStr_r \- convert a performance metric's units into a string
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 const char *pmUnitsStr(const pmUnits *\fIpu\fP);
+.br
+char *pmUnitsStr_r(const pmUnits *\fIpu\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -41,6 +43,13 @@ will take a dimension and scale specification as per
 .IR pu ,
 and return the
 corresponding text string.
+The
+.B pmUnitsStr_r
+function does the same, but stores the result in a user-supplied buffer
+.I buf
+of length
+.IR buflen ,
+which should have room for at least 60 bytes.
 .PP
 For example
 .CW "{1, -2, 0, PM_SPACE_MBYTE, PM_TIME_SEC, 0}" , 
@@ -49,7 +58,9 @@ as the value of
 gives the result string
 .CW "Mbyte / sec^2" .
 .PP
-The string value is held in a single static buffer, so the returned value is
+The string value result from
+.B pmUnitsStr
+is held in a single static buffer, so the returned value is
 only valid until the next call to
 .BR pmUnitsStr .
 .PP
@@ -62,6 +73,12 @@ As a special case, if all components of the dimension are zero, then the
 ``count'' scale is used to produce the text.  If this scale is zero the
 result is an empty string, otherwise the result is of the form
 .CW "x1 0^2" .
+.SH NOTES
+.B pmUnitsStr
+returns a pointer to a static buffer and hence is not thread-safe.
+Multi-threaded applications should use
+.B pmUnitsStr_r
+instead.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmAtomStr (3),

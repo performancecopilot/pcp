@@ -30,11 +30,12 @@ typedef struct {
 void
 __pmDumpIDList(FILE *f, int numids, const pmID idlist[])
 {
-    int i;
+    int		i;
+    char	strbuf[20];
 
     fprintf(f, "IDlist dump: numids = %d\n", numids);
     for (i = 0; i < numids; i++)
-	fprintf(f, "  PMID[%d]: 0x%08x %s\n", i, idlist[i], pmIDStr(idlist[i]));
+	fprintf(f, "  PMID[%d]: 0x%08x %s\n", i, idlist[i], pmIDStr_r(idlist[i], strbuf, sizeof(strbuf)));
 }
 #endif
 
@@ -391,9 +392,11 @@ SendNameReq(int fd, int from, const char *name, int pdu_type, int subtype)
     int		alloc_len; /* length allocated for name */
 
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMNS)
+    if (pmDebug & DBG_TRACE_PMNS) {
+	char	strbuf[20];
 	fprintf(stderr, "SendNameReq: from=%d name=\"%s\" pdu=%s subtype=%d\n",
-		from, name, __pmPDUTypeStr(pdu_type), subtype);
+		from, name, __pmPDUTypeStr_r(pdu_type, strbuf, sizeof(strbuf)), subtype);
+    }
 #endif
 
     namelen = (int)strlen(name);

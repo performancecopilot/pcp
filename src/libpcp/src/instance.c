@@ -442,8 +442,9 @@ void
 __pmDumpInResult(FILE *f, const __pmInResult *irp)
 {
     int		i;
+    char	strbuf[20];
     fprintf(f,"pmInResult dump from " PRINTF_P_PFX "%p for InDom %s (0x%x), numinst=%d\n",
-		irp, pmInDomStr(irp->indom), irp->indom, irp->numinst);
+		irp, pmInDomStr_r(irp->indom, strbuf, sizeof(strbuf)), irp->indom, irp->numinst);
     for (i = 0; i < irp->numinst; i++) {
 	fprintf(f, "  [%d]", i);
 	if (irp->instlist != NULL)

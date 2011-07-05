@@ -371,7 +371,8 @@ bind_expr(int n, node_t *np)
 	if (sts < 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
-		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr(new->info->pmid), pmErrStr(sts));
+		char	strbuf[20];
+		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->info->pmid, strbuf, sizeof(strbuf)), pmErrStr(sts));
 	    }
 #endif
 	    free(new->info);
@@ -866,6 +867,8 @@ dump_value(int type, pmAtomValue *avp)
 void
 __dmdumpexpr(node_t *np, int level)
 {
+    char	strbuf[20];
+
     if (level == 0) fprintf(stderr, "Derived metric expr dump from %p...\n", np);
     if (np == NULL) return;
     fprintf(stderr, "expr node %p type=%s left=%p right=%p save_last=%d", np, type_dbg[np->type+2], np->left, np->right, np->save_last);
@@ -873,7 +876,8 @@ __dmdumpexpr(node_t *np, int level)
 	fprintf(stderr, " [%s] master=%d", np->value, np->info == NULL ? 1 : 0);
     fputc('\n', stderr);
     if (np->info) {
-	fprintf(stderr, "    PMID: %s (%s from pmDesc) numval: %d", pmIDStr(np->info->pmid), pmIDStr(np->desc.pmid), np->info->numval);
+	fprintf(stderr, "    PMID: %s ", pmIDStr_r(np->info->pmid, strbuf, sizeof(strbuf)));
+	fprintf(stderr, "(%s from pmDesc) numval: %d", pmIDStr_r(np->desc.pmid, strbuf, sizeof(strbuf)), np->info->numval);
 	if (np->info->div_scale != 1)
 	    fprintf(stderr, " div_scale: %d", np->info->div_scale);
 	if (np->info->mul_scale != 1)

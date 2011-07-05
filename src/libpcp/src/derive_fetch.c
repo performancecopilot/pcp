@@ -124,9 +124,10 @@ __dmprefetch(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmID **newlist)
 
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+	char	strbuf[20];
 	fprintf(stderr, "derived metrics prefetch added %d metrics:", xtracnt);
 	for (i = 0; i < xtracnt; i++)
-	    fprintf(stderr, " %s", pmIDStr(xtralist[i]));
+	    fprintf(stderr, " %s", pmIDStr_r(xtralist[i], strbuf, sizeof(strbuf)));
 	fputc('\n', stderr);
     }
 #endif
@@ -845,7 +846,8 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    }
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
-		fprintf(stderr, "eval_expr: botch: operand %s not in the extended pmResult\n", pmIDStr(np->info->pmid));
+		char	strbuf[20];
+		fprintf(stderr, "eval_expr: botch: operand %s not in the extended pmResult\n", pmIDStr_r(np->info->pmid, strbuf, sizeof(strbuf)));
 		__pmDumpResult(stderr, rp);
 	    }
 #endif
@@ -1053,8 +1055,9 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
 	int	k;
+	char	strbuf[20];
 
-	fprintf(stderr, "__dmpostfetch: [%d] root node %s: numval=%d", j, pmIDStr(rp->vset[j]->pmid), numval);
+	fprintf(stderr, "__dmpostfetch: [%d] root node %s: numval=%d", j, pmIDStr_r(rp->vset[j]->pmid, strbuf, sizeof(strbuf)), numval);
 	for (k = 0; k < numval; k++) {
 	    fprintf(stderr, " vset[%d]: inst=%d", k, cp->mlist[m].expr->info->ivlist[k].inst);
 	    if (cp->mlist[m].expr->desc.type == PM_TYPE_32)
@@ -1208,7 +1211,8 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		     */
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_DERIVE) {
-			fprintf(stderr, "__dmpostfetch: botch: drived metric[%d]: operand %s has odd type (%d)\n", m, pmIDStr(rp->vset[j]->pmid), cp->mlist[m].expr->desc.type);
+			char	strbuf[20];
+			fprintf(stderr, "__dmpostfetch: botch: drived metric[%d]: operand %s has odd type (%d)\n", m, pmIDStr_r(rp->vset[j]->pmid, strbuf, sizeof(strbuf)), cp->mlist[m].expr->desc.type);
 		    }
 #endif
 		    break;

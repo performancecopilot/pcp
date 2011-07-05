@@ -15,12 +15,14 @@
 .\" 
 .TH PMATOMSTR 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmAtomStr\f1 \- convert a performance metric value into a string
+\f3pmAtomStr\f1, \f3pmAtomStr_r\f1 \- convert a performance metric value into a string
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 const char *pmAtomStr(const pmAtomValue *\fIavp\fP, int \fItype\fP);
+.br
+char *pmAtomStr_r(const pmAtomValue *\fIavp\fP, int \fItype\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -54,8 +56,16 @@ Given the performance metric value pointed to by
 .IR avp ,
 and a performance metric type defined by
 .IR type ,
-generate the corresponding metric value as a string,
+.B pmAtomStr
+will generate the corresponding metric value as a string,
 suitable for diagnostic or report output.
+The
+.B pmAtomStr_r
+function does the same, but stores the result in a user-supplied buffer
+.I buf
+of length
+.IR buflen ,
+which should have room for at least 80 bytes.
 .PP
 The value for
 .I type
@@ -91,6 +101,12 @@ is held in a single static buffer, so
 the returned value is only valid until the next call
 to
 .BR pmAtomStr .
+.SH NOTES
+.B pmAtomStr
+returns a pointer to a static buffer and hence is not thread-safe.
+Multi-threaded applications should use
+.B pmAtomStr_r
+instead.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmConvScale (3),

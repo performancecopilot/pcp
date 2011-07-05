@@ -51,8 +51,9 @@ __pmFreeResultValues(pmResult *result)
 	    for (j = 0; j < pvs->numval; j++) {
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_PDUBUF) {
+		    char	strbuf[20];
 		    fprintf(stderr, "free(" PRINTF_P_PFX "%p) pmValueBlock pmid=%s inst=%d\n",
-			pvs->vlist[j].value.pval, pmIDStr(pvs->pmid),
+			pvs->vlist[j].value.pval, pmIDStr_r(pvs->pmid, strbuf, sizeof(strbuf)),
 			pvs->vlist[j].inst);
 		}
 #endif
@@ -61,8 +62,9 @@ __pmFreeResultValues(pmResult *result)
 	}
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PDUBUF) {
+	    char	strbuf[20];
 	    fprintf(stderr, "free(" PRINTF_P_PFX "%p) vset pmid=%s\n",
-		pvs, pmIDStr(pvs->pmid));
+		pvs, pmIDStr_r(pvs->pmid, strbuf, sizeof(strbuf)));
 	}
 #endif
 	free(pvs);

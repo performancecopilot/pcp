@@ -107,6 +107,7 @@ pmcd_dump_trace(FILE *f)
     struct tm		*this;
     struct in_addr	addr;	/* internet address */
     struct hostent	*hp;
+    char		strbuf[20];
 
     if ((_pmcd_trace_mask & TR_MASK_NOBUF) == 0)
 	fprintf(f, "\n->PMCD event trace: ");
@@ -184,25 +185,25 @@ pmcd_dump_trace(FILE *f)
 
 		case TR_EOF:
 		    fprintf(f, "Premature EOF: expecting %s PDU, fd=%d\n",
-			trace[p].t_p1 == -1 ? "NO" : __pmPDUTypeStr(trace[p].t_p1),
+			trace[p].t_p1 == -1 ? "NO" : __pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)),
 			trace[p].t_who);
 		    break;
 
 		case TR_WRONG_PDU:
 		    if (trace[p].t_p2 > 0) {
 			fprintf(f, "Wrong PDU type: expecting %s PDU, fd=%d, got %s PDU\n",
-			    trace[p].t_p1 == -1 ? "NO" : __pmPDUTypeStr(trace[p].t_p1),
+			    trace[p].t_p1 == -1 ? "NO" : __pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)),
 			    trace[p].t_who,
-			    trace[p].t_p2 == -1 ? "NO" : __pmPDUTypeStr(trace[p].t_p2));
+			    trace[p].t_p2 == -1 ? "NO" : __pmPDUTypeStr_r(trace[p].t_p2, strbuf, sizeof(strbuf)));
 		    }
 		    else if (trace[p].t_p2 == 0) {
 			fprintf(f, "Wrong PDU type: expecting %s PDU, fd=%d, got EOF\n",
-			    trace[p].t_p1 == -1 ? "NO" : __pmPDUTypeStr(trace[p].t_p1),
+			    trace[p].t_p1 == -1 ? "NO" : __pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)),
 			    trace[p].t_who);
 		    }
 		    else {
 			fprintf(f, "Wrong PDU type: expecting %s PDU, fd=%d, got err=%d: %s\n",
-			    trace[p].t_p1 == -1 ? "NO" : __pmPDUTypeStr(trace[p].t_p1),
+			    trace[p].t_p1 == -1 ? "NO" : __pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)),
 			    trace[p].t_who,
 			    trace[p].t_p2, pmErrStr(trace[p].t_p2));
 
@@ -211,24 +212,24 @@ pmcd_dump_trace(FILE *f)
 
 		case TR_XMIT_ERR:
 		    fprintf(f, "Send %s PDU failed: fd=%d, err=%d: %s\n",
-			__pmPDUTypeStr(trace[p].t_p1), trace[p].t_who,
+			__pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)), trace[p].t_who,
 			trace[p].t_p2, pmErrStr(trace[p].t_p2));
 		    break;
 
 		case TR_RECV_TIMEOUT:
 		    fprintf(f, "Recv timeout: expecting %s PDU, fd=%d\n",
-			__pmPDUTypeStr(trace[p].t_p1), trace[p].t_who);
+			__pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)), trace[p].t_who);
 		    break;
 
 		case TR_RECV_ERR:
 		    fprintf(f, "Recv error: expecting %s PDU, fd=%d, err=%d: %s\n",
-			__pmPDUTypeStr(trace[p].t_p1), trace[p].t_who,
+			__pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)), trace[p].t_who,
 			trace[p].t_p2, pmErrStr(trace[p].t_p2));
 		    break;
 
 		case TR_XMIT_PDU:
 		    fprintf(f, "Xmit: %s PDU, fd=%d",
-			__pmPDUTypeStr(trace[p].t_p1), trace[p].t_who);
+			__pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)), trace[p].t_who);
 		    if (trace[p].t_p1 == PDU_ERROR)
 			fprintf(f, ", err=%d: %s",
 			    trace[p].t_p2, pmErrStr(trace[p].t_p2));
@@ -239,10 +240,10 @@ pmcd_dump_trace(FILE *f)
 			fprintf(f, ", id=0x%x", trace[p].t_p2);
 		    else if (trace[p].t_p1 == PDU_DESC_REQ ||
 			     trace[p].t_p1 == PDU_DESC)
-			fprintf(f, ", pmid=%s", pmIDStr((pmID)trace[p].t_p2));
+			fprintf(f, ", pmid=%s", pmIDStr_r((pmID)trace[p].t_p2, strbuf, sizeof(strbuf)));
 		    else if (trace[p].t_p1 == PDU_INSTANCE_REQ ||
 			     trace[p].t_p1 == PDU_INSTANCE)
-			fprintf(f, ", indom=%s", pmInDomStr((pmInDom)trace[p].t_p2));
+			fprintf(f, ", indom=%s", pmInDomStr_r((pmInDom)trace[p].t_p2, strbuf, sizeof(strbuf)));
 		    else if (trace[p].t_p1 == PDU_PMNS_NAMES)
 			fprintf(f, ", numpmid=%d", trace[p].t_p2);
 		    else if (trace[p].t_p1 == PDU_PMNS_IDS)
@@ -254,7 +255,7 @@ pmcd_dump_trace(FILE *f)
 
 		case TR_RECV_PDU:
 		    fprintf(f, "Recv: %s PDU, fd=%d, pdubuf=0x",
-			__pmPDUTypeStr(trace[p].t_p1), trace[p].t_who);
+			__pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)), trace[p].t_who);
 		    /* This will only work if sizeof (int) == sizeof (ptr).
 		     * On MIPS int is always 32 bits regardless the ABI,
 		     * and on Linux we're checking in configure if an int is

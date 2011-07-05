@@ -261,7 +261,8 @@ SUCCESS:
     ctxp->c_sent = 0;
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PROFILE) {
-	fprintf(stderr, "pmAddProfile() indom: %s\n", pmInDomStr(indom));
+	char	strbuf[20];
+	fprintf(stderr, "pmAddProfile() indom: %s\n", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	__pmDumpProfile(stderr, indom, ctxp->c_instprof);
     }
 #endif
@@ -338,7 +339,8 @@ SUCCESS:
     ctxp->c_sent = 0;
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PROFILE) {
-	fprintf(stderr, "pmDelProfile() indom: %s\n", pmInDomStr(indom));
+	char	strbuf[20];
+	fprintf(stderr, "pmDelProfile() indom: %s\n", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	__pmDumpProfile(stderr, indom, ctxp->c_instprof);
     }
 #endif
@@ -351,20 +353,21 @@ __pmDumpProfile(FILE *f, int indom, const __pmProfile *pp)
     int			j;
     int			k;
     __pmInDomProfile	*prof;
+    char		strbuf[20];
 
     fprintf(f, "Dump Instance Profile state=%s, %d profiles",
 	pp->state == PM_PROFILE_INCLUDE ? "INCLUDE" : "EXCLUDE",
 	pp->profile_len);
     if (indom != PM_INDOM_NULL)
 	fprintf(f, ", dump restricted to indom=%d [%s]", 
-	        indom, pmInDomStr(indom));
+	        indom, pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
     fprintf(f, "\n");
 
     for (prof=pp->profile, j=0; j < pp->profile_len; j++, prof++) {
 	if (indom != PM_INDOM_NULL && indom != prof->indom)
 	    continue;
 	fprintf(f, "\tProfile [%d] indom=%d [%s] state=%s %d instances\n",
-	    j, prof->indom, pmInDomStr(prof->indom),
+	    j, prof->indom, pmInDomStr_r(prof->indom, strbuf, sizeof(strbuf)),
 	    (prof->state == PM_PROFILE_INCLUDE) ? "INCLUDE" : "EXCLUDE",
 	    prof->instances_len);
 

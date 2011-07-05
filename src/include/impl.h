@@ -271,7 +271,8 @@ extern void __pmPrintStamp(FILE *, const struct timeval *);
 extern void __pmPrintTimeval(FILE *, const __pmTimeval *);
 extern void __pmPrintDesc(FILE *, const pmDesc *);
 extern void __pmFreeResultValues(pmResult *);
-extern const char *__pmPDUTypeStr(int);
+extern char *__pmPDUTypeStr_r(int, char *, int);
+extern const char *__pmPDUTypeStr(int);			/* NOT thread-safe */
 extern void __pmDumpNameSpace(FILE *, int);
 EXTERN int __pmLogReads;
 
@@ -805,7 +806,8 @@ typedef struct {
 
 extern void __pmLogPutIndex(const __pmLogCtl *, const __pmTimeval *);
 
-extern const char *__pmLogName(const char *, int);
+extern const char *__pmLogName_r(const char *, int, char *, int);
+extern const char *__pmLogName(const char *, int);	/* NOT thread-safe */
 extern FILE *__pmLogNewFile(const char *, int);
 extern int __pmLogCreate(const char *, const char *, int, __pmLogCtl *);
 extern int __pmLogRead(__pmLogCtl *, int, FILE *, pmResult **);
@@ -993,7 +995,8 @@ extern int __pmOptFetchGetParams(optcost_t *);
 extern int __pmOptFetchPutParams(optcost_t *);
 
 /* work out local timezone */
-extern char * __pmTimezone(void);
+extern char *__pmTimezone(void);			/* NOT thread-safe */
+extern char *__pmTimezone_r(char *, int);
 
 #ifdef HAVE_NETWORK_BYTEORDER
 /*

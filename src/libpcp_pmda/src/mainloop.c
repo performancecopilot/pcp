@@ -116,6 +116,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 
     switch (sts) {
 	int	endsts;
+	char	strbuf[20];
 
     case PDU_ERROR:
 	/*
@@ -444,7 +445,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     default:
 	__pmNotifyErr(LOG_ERR,
 		      "%s: Unrecognised pdu type: %s?\n",
-		      pmda->e_name, __pmPDUTypeStr(sts));
+		      pmda->e_name, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
 	break;
     }
 

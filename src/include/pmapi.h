@@ -543,13 +543,20 @@ extern int pmLookupInDomText(pmInDom, int, char **);
 /*
  * some handy formatting routines for messages, and other output
  */
-extern const char *pmIDStr(pmID);
-extern const char *pmInDomStr(pmInDom);
-extern const char *pmTypeStr(int);
-extern const char *pmUnitsStr(const pmUnits *);
-extern const char *pmAtomStr(const pmAtomValue *, int);
-extern const char *pmNumberStr(double);
-extern const char *pmEventFlagsStr(int);
+extern const char *pmIDStr(pmID);			/* NOT thread-safe */
+extern char *pmIDStr_r(pmID, char *, int);
+extern const char *pmInDomStr(pmInDom);			/* NOT thread-safe */
+extern char *pmInDomStr_r(pmInDom, char *, int);
+extern const char *pmTypeStr(int);			/* NOT thread-safe */
+extern char *pmTypeStr_r(int, char *, int);
+extern const char *pmUnitsStr(const pmUnits *);		/* NOT thread-safe */
+extern char *pmUnitsStr_r(const pmUnits *, char *, int);
+extern const char *pmAtomStr(const pmAtomValue *, int);	/* NOT thread-safe */
+extern char *pmAtomStr_r(const pmAtomValue *, int, char *, int);
+extern const char *pmNumberStr(double);			/* NOT thread-safe */
+extern char *pmNumberStr_r(double, char *, int);
+extern const char *pmEventFlagsStr(int);		/* NOT thread-safe */
+extern char *pmEventFlagsStr_r(int, char *, int);
 
 /* Extended time base definitions and macros */
 #define PM_XTB_FLAG	0x1000000

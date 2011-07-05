@@ -206,33 +206,43 @@ pduread(int fd, char *buf, int len, int part, int timeout)
     return have;
 }
 
+char *
+__pmPDUTypeStr_r(int type, char *buf, int buflen)
+{
+    char	*res = NULL;
+    if (type == PDU_ERROR) res = "ERROR";
+    else if (type == PDU_RESULT) res = "RESULT";
+    else if (type == PDU_PROFILE) res = "PROFILE";
+    else if (type == PDU_FETCH) res = "FETCH";
+    else if (type == PDU_DESC_REQ) res = "DESC_REQ";
+    else if (type == PDU_DESC) res = "DESC";
+    else if (type == PDU_INSTANCE_REQ) res = "INSTANCE_REQ";
+    else if (type == PDU_INSTANCE) res = "INSTANCE";
+    else if (type == PDU_TEXT_REQ) res = "TEXT_REQ";
+    else if (type == PDU_TEXT) res = "TEXT";
+    else if (type == PDU_CONTROL_REQ) res = "CONTROL_REQ";
+    else if (type == PDU_CREDS) res = "CREDS";
+    else if (type == PDU_PMNS_IDS) res = "PMNS_IDS";
+    else if (type == PDU_PMNS_NAMES) res = "PMNS_NAMES";
+    else if (type == PDU_PMNS_CHILD) res = "PMNS_CHILD";
+    else if (type == PDU_PMNS_TRAVERSE) res = "PMNS_TRAVERSE";
+    else if (type == PDU_LOG_CONTROL) res = "LOG_CONTROL";
+    else if (type == PDU_LOG_STATUS) res = "LOG_STATUS";
+    else if (type == PDU_LOG_REQUEST) res = "LOG_REQUEST";
+    if (res == NULL)
+	snprintf(buf, buflen, "TYPE-%d?", type);
+    else
+	snprintf(buf, buflen, "%s", res);
+
+    return buf;
+}
+
 const char *
 __pmPDUTypeStr(int type)
 {
-    if (type == PDU_ERROR) return "ERROR";
-    else if (type == PDU_RESULT) return "RESULT";
-    else if (type == PDU_PROFILE) return "PROFILE";
-    else if (type == PDU_FETCH) return "FETCH";
-    else if (type == PDU_DESC_REQ) return "DESC_REQ";
-    else if (type == PDU_DESC) return "DESC";
-    else if (type == PDU_INSTANCE_REQ) return "INSTANCE_REQ";
-    else if (type == PDU_INSTANCE) return "INSTANCE";
-    else if (type == PDU_TEXT_REQ) return "TEXT_REQ";
-    else if (type == PDU_TEXT) return "TEXT";
-    else if (type == PDU_CONTROL_REQ) return "CONTROL_REQ";
-    else if (type == PDU_CREDS) return "CREDS";
-    else if (type == PDU_PMNS_IDS) return "PMNS_IDS";
-    else if (type == PDU_PMNS_NAMES) return "PMNS_NAMES";
-    else if (type == PDU_PMNS_CHILD) return "PMNS_CHILD";
-    else if (type == PDU_PMNS_TRAVERSE) return "PMNS_TRAVERSE";
-    else if (type == PDU_LOG_CONTROL) return "LOG_CONTROL";
-    else if (type == PDU_LOG_STATUS) return "LOG_STATUS";
-    else if (type == PDU_LOG_REQUEST) return "LOG_REQUEST";
-    else {
-	static char	buf[20];
-	snprintf(buf, sizeof(buf), "TYPE-%d?", type);
-	return buf;
-    }
+    static char	tbuf[20];
+    __pmPDUTypeStr_r(type, tbuf, sizeof(tbuf));
+    return tbuf;
 }
 
 #if defined(HAVE_SIGPIPE)
@@ -277,6 +287,7 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 	int	j;
 	char	*p;
 	int	jend = PM_PDU_SIZE(php->len);
+	char	strbuf[20];
 
 	/* for Purify ... */
 	p = (char *)pdubuf + php->len;
@@ -286,7 +297,7 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 	if (mypid == -1)
 	    mypid = getpid();
 	fprintf(stderr, "[%d]pmXmitPDU: %s fd=%d len=%d",
-		mypid, __pmPDUTypeStr(php->type), fd, php->len);
+		mypid, __pmPDUTypeStr_r(php->type, strbuf, sizeof(strbuf)), fd, php->len);
 	for (j = 0; j < jend; j++) {
 	    if ((j % 8) == 0)
 		fprintf(stderr, "\n%03d: ", j);
@@ -482,6 +493,7 @@ check_read_len:
 	int	j;
 	char	*p;
 	int	jend = PM_PDU_SIZE(php->len);
+	char	strbuf[20];
 
 	/* for Purify ... */
 	p = (char *)*result + php->len;
@@ -491,7 +503,7 @@ check_read_len:
 	if (mypid == -1)
 	    mypid = getpid();
 	fprintf(stderr, "[%d]pmGetPDU: %s fd=%d len=%d from=%d",
-		mypid, __pmPDUTypeStr(php->type), fd, php->len, php->from);
+		mypid, __pmPDUTypeStr_r(php->type, strbuf, sizeof(strbuf)), fd, php->len, php->from);
 	for (j = 0; j < jend; j++) {
 	    if ((j % 8) == 0)
 		fprintf(stderr, "\n%03d: ", j);

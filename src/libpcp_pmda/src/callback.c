@@ -39,13 +39,16 @@ __pmdaCntInst(pmInDom indom, pmdaExt *pmda)
 		break;
 	    }
 	}
-	if (i == pmda->e_nindoms)
-	    __pmNotifyErr(LOG_WARNING, "cntinst: unknown indom %s", pmInDomStr(indom));
+	if (i == pmda->e_nindoms) {
+	    char	strbuf[20];
+	    __pmNotifyErr(LOG_WARNING, "cntinst: unknown indom %s", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
+	}
     }
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_INDOM) {
-	fprintf(stderr, "__pmdaCntInst(indom=%s) -> %d\n", pmInDomStr(indom), sts);
+	char	strbuf[20];
+	fprintf(stderr, "__pmdaCntInst(indom=%s) -> %d\n", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), sts);
     }
 #endif
 
@@ -111,8 +114,9 @@ __pmdaStartInst(pmInDom indom, pmdaExt *pmda)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_INDOM) {
+	char	strbuf[20];
 	fprintf(stderr, "__pmdaStartInst(indom=%s) e_ordinal=%d\n",
-	    pmInDomStr(indom), pmda->e_ordinal);
+	    pmInDomStr_r(indom, strbuf, sizeof(strbuf)), pmda->e_ordinal);
     }
 #endif
     return;
@@ -144,8 +148,9 @@ __pmdaNextInst(int *inst, pmdaExt *pmda)
 		    *inst = myinst;
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_INDOM) {
+			char	strbuf[20];
 			fprintf(stderr, "__pmdaNextInst(indom=%s) -> %d e_ordinal=%d (cache)\n",
-			    pmInDomStr(pmda->e_idp->it_indom), myinst, pmda->e_ordinal);
+			    pmInDomStr_r(pmda->e_idp->it_indom, strbuf, sizeof(strbuf)), myinst, pmda->e_ordinal);
 		    }
 #endif
 		    return 1;
@@ -162,8 +167,9 @@ __pmdaNextInst(int *inst, pmdaExt *pmda)
 		    pmda->e_ordinal = j+1;
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_INDOM) {
+			char	strbuf[20];
 			fprintf(stderr, "__pmdaNextInst(indom=%s) -> %d e_ordinal=%d\n",
-			    pmInDomStr(pmda->e_idp->it_indom), *inst, pmda->e_ordinal);
+			    pmInDomStr_r(pmda->e_idp->it_indom, strbuf, sizeof(strbuf)), *inst, pmda->e_ordinal);
 		    }
 #endif
 		    return 1;
@@ -449,10 +455,12 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	
 	if (dp == NULL) {
 	    /* dynamic name metrics may often vanish, avoid log spam */
-	    if (extp->pmda_interface < PMDA_INTERFACE_4)
+	    if (extp->pmda_interface < PMDA_INTERFACE_4) {
+		char	strbuf[20];
 		__pmNotifyErr(LOG_ERR,
 			"pmdaFetch: Requested metric %s is not defined",
-			 pmIDStr(pmidlist[i]));
+			 pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)));
+	    }
 	    numval = PM_ERR_PMID;
 	}
 	else {
@@ -512,16 +520,19 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
 	    if ((sts = (*(pmda->e_fetchCallBack))(metap, inst, &atom)) < 0) {
 
-		if (sts == PM_ERR_PMID)
+		if (sts == PM_ERR_PMID) {
+		    char	strbuf[20];
 		    __pmNotifyErr(LOG_ERR, 
 		        "pmdaFetch: PMID %s not handled by fetch callback\n",
-				 pmIDStr(dp->pmid));
+				 pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf)));
+		}
 		else if (sts == PM_ERR_INST) {
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_LIBPMDA) {
+			char	strbuf[20];
 			__pmNotifyErr(LOG_ERR,
 			    "pmdaFetch: Instance %d of PMID %s not handled by fetch callback\n",
-				     inst, pmIDStr(dp->pmid));
+				     inst, pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf)));
 		    }
 #endif
 		}
@@ -530,9 +541,10 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			(sts == PM_ERR_PERMISSION)) {
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_LIBPMDA) {
+			char	strbuf[20];
 			__pmNotifyErr(LOG_ERR,
 				 "pmdaFetch: Unavailable metric PMID %s\n",
-				 pmIDStr(dp->pmid));
+				 pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf)));
 		    }
 #endif
 		}
@@ -559,9 +571,12 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    int		lsts;
 
 		    if ((lsts = __pmStuffValue(&atom, &vset->vlist[j], type)) == PM_ERR_TYPE) {
+			char	strbuf[20];
+			char	st2buf[20];
 			__pmNotifyErr(LOG_ERR, 
 				     "pmdaFetch: Descriptor type (%s) for metric %s is bad",
-				     pmTypeStr(type), pmIDStr(dp->pmid));
+				     pmTypeStr_r(type, strbuf, sizeof(strbuf)),
+				     pmIDStr_r(dp->pmid, st2buf, sizeof(st2buf)));
 		    }
 		    else if (lsts >= 0) {
 			vset->valfmt = lsts;
@@ -573,9 +588,12 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			else if (type == PM_TYPE_AGGREGATE)
 			    free(atom.vbp);
 			else {
+			    char	strbuf[20];
+			    char	st2buf[20];
 			    __pmNotifyErr(LOG_WARNING,
 					  "pmdaFetch: Attempt to free value for metric %s of wrong type %s\n",
-					  pmIDStr(dp->pmid), pmTypeStr(type));
+					  pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf)),
+					  pmTypeStr_r(type, st2buf, sizeof(st2buf)));
 			}
 		    }
 		    if (lsts < 0)
@@ -629,8 +647,9 @@ pmdaDesc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 	    *desc = pmda->e_metrics[pmidp->item].m_desc;
 	}
 	else {
+	    char	strbuf[20];
 	    __pmNotifyErr(LOG_ERR, "Requested metric %s is not defined",
-			 pmIDStr(pmid));
+			 pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
 	    sts = PM_ERR_PMID;
 	}
     }
@@ -643,8 +662,9 @@ pmdaDesc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 	    }
 	}
 	if (j == pmda->e_nmetrics) {
+	    char	strbuf[20];
 	    __pmNotifyErr(LOG_ERR, "Requested metric %s is not defined",
-			 pmIDStr(pmid));
+			 pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
 	    sts = PM_ERR_PMID;
 	}
     }

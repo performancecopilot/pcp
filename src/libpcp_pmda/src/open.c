@@ -388,21 +388,24 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
 		    if (indomp->serial == mindomp->serial) {
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_LIBPMDA) {
+			    char	strbuf[20];
+			    char	st2buf[20];
 			    __pmNotifyErr(LOG_DEBUG, 
 				    "pmdaInit: PMDA %s: Metric %s(%d) matched to indom %s(%d)\n",
 				    pmda->e_name,
-				    pmIDStr(pmda->e_metrics[m].m_desc.pmid), m,
-				    pmInDomStr(pmda->e_indoms[i].it_indom), i);
+				    pmIDStr_r(pmda->e_metrics[m].m_desc.pmid, strbuf, sizeof(strbuf)), m,
+				    pmInDomStr_r(pmda->e_indoms[i].it_indom, st2buf, sizeof(st2buf)), i);
 			}
 #endif
 			break;
 		    }
 		}
 		if (i == pmda->e_nindoms) {
+		    char	strbuf[20];
 		    __pmNotifyErr(LOG_CRIT, 
 				 "pmdaInit: PMDA %s: Undefined instance domain serial (%d) specified in metric %s(%d)\n",
 				 pmda->e_name, mindomp->serial, 
-				 pmIDStr(pmda->e_metrics[m].m_desc.pmid), m);
+				 pmIDStr_r(pmda->e_metrics[m].m_desc.pmid, strbuf, sizeof(strbuf)), m);
 		    dispatch->status = PM_ERR_GENERIC;
 		    return;
 		}
@@ -443,8 +446,10 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
 	if (pmda->e_direct && pmidp->item != m) {
 	    pmda->e_direct = 0;
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LIBPMDA)
-		__pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: Direct mapping for metrics disabled @ metrics[%d] %s\n", pmda->e_name, m, pmIDStr(pmda->e_metrics[m].m_desc.pmid));
+	    if (pmDebug & DBG_TRACE_LIBPMDA) {
+		char	strbuf[20];
+		__pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: Direct mapping for metrics disabled @ metrics[%d] %s\n", pmda->e_name, m, pmIDStr_r(pmda->e_metrics[m].m_desc.pmid, strbuf, sizeof(strbuf)));
+	    }
 #endif
 	}
     }

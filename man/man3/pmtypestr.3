@@ -15,12 +15,14 @@
 .\"
 .TH PMTYPESTR 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmTypeStr\f1 \- convert a performance metric type into a string
+\f3pmTypeStr\f1, \f3pmTypeStr_r\f1 \- convert a performance metric type into a string
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 const char *pmTypeStr(int \fItype\fP);
+.br
+char *pmTypeStr_r(int \fItype\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -31,8 +33,16 @@ cc ... \-lpcp
 ..
 Given a performance metric
 .IR type ,
-produce a terse ASCII equivalent, appropriate for use in error and diagnostic
-messages
+.B pmTypeStr
+produces a terse ASCII equivalent, appropriate for use in error and diagnostic
+messages.
+The
+.B pmTypeStr_r
+function does the same, but stores the result in a user-supplied buffer
+.I buf
+of length
+.IR buflen ,
+which should have room for at least 20 bytes.
 .PP
 The value for
 .I type
@@ -60,9 +70,17 @@ equals
 .BR PM_TYPE_AGGREGATE ),
 etc.
 .PP
-The string value is held in a single static buffer, so the returned value is
+The string value result for
+.B pmTypeStr
+is held in a single static buffer, so the returned value is
 only valid until the next call to
 .BR pmTypeStr .
+.SH NOTES
+.B pmTypeStr
+returns a pointer to a static buffer and hence is not thread-safe.
+Multi-threaded applications should use
+.B pmTypeStr_r
+instead.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmAtomStr (3),

@@ -15,12 +15,14 @@
 .\"
 .TH PMINDOMSTR 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmInDomStr\f1 \- convert a performance metric instance domain identifier into a string
+\f3pmInDomStr\f1, \f3pmInDomStr_r\f1 \- convert a performance metric instance domain identifier into a string
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 const char *pmInDomStr(pmInDom \fIindom\fP);
+.br
+char *pmInDomStr_r(pmInDom \fIindom\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -29,8 +31,17 @@ cc ... \-lpcp
 .ie t \f(CW\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
-For use in error and diagnostic messages, return a 'human readable' version of
+For use in error and diagnostic messages,
+.B pmInDomStr
+return a 'human readable' version of
 the specified instance domain identifier.
+The
+.B pmInDomStr_r
+function does the same, but stores the result in a user-supplied buffer
+.I buf
+of length
+.IR buflen ,
+which should have room for at least 20 bytes.
 .PP
 The value for the instance domain
 .I indom
@@ -62,9 +73,17 @@ and
 .CW serial
 subfields appearing as decimal numbers, separated by periods.
 .PP
-The string value is held in a single static buffer, so the returned value is
+The string value returned by
+.B pmInDomStr
+is held in a single static buffer, so the returned value is
 only valid until the next call to
 .BR pmInDomStr .
+.SH NOTES
+.B pmInDomStr
+returns a pointer to a static buffer and hence is not thread-safe.
+Multi-threaded applications should use
+.B pmInDomStr_r
+instead.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_

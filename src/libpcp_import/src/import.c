@@ -59,10 +59,11 @@ pmiDump(void)
 	fprintf(f, "  No metrics.\n");
     else {
 	int	m;
+	char	strbuf[20];
 	for (m = 0; m < current->nmetric; m++) {
 	    fprintf(f, "  metric[%d] name=%s pmid=%s\n",
 		m, current->metric[m].name,
-		pmIDStr(current->metric[m].pmid));
+		pmIDStr_r(current->metric[m].pmid, strbuf, sizeof(strbuf)));
 	    __pmPrintDesc(f, &current->metric[m].desc);
 	}
     }
@@ -70,9 +71,10 @@ pmiDump(void)
 	fprintf(f, "  No indoms.\n");
     else {
 	int	i;
+	char	strbuf[20];
 	for (i = 0; i < current->nindom; i++) {
 	    fprintf(f, "  indom[%d] indom=%s",
-		i, pmInDomStr(current->indom[i].indom));
+		i, pmInDomStr_r(current->indom[i].indom, strbuf, sizeof(strbuf)));
 	    if (current->indom[i].ninstance == 0) {
 		fprintf(f, "   No instances.\n");
 	    }
@@ -91,10 +93,11 @@ pmiDump(void)
 	fprintf(f, "  No handles.\n");
     else {
 	int	h;
+	char	strbuf[20];
 	for (h = 0; h < current->nhandle; h++) {
 	    fprintf(f, "  handle[%d] metric=%s (%s) instance=%d\n",
 		h, current->metric[current->handle[h].midx].name,
-		pmIDStr(current->metric[current->handle[h].midx].pmid),
+		pmIDStr_r(current->metric[current->handle[h].midx].pmid, strbuf, sizeof(strbuf)),
 		current->handle[h].inst);
 	}
     }

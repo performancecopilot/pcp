@@ -37,9 +37,10 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp, int idx)
     int			r;	/* records */
     int			p;	/* parameters in a record ... */
     pmAtomValue		atom;
+    char		strbuf[20];
 
     fprintf(f, "Event Records Dump ...\n");
-    fprintf(f, "PMID: %s numval: %d", pmIDStr(vsp->pmid), vsp->numval);
+    fprintf(f, "PMID: %s numval: %d", pmIDStr_r(vsp->pmid, strbuf, sizeof(strbuf)), vsp->numval);
     if (vsp->numval <= 0) {
 	fprintf(f, "\nError: bad numval\n");
 	return;
@@ -52,7 +53,7 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp, int idx)
     if (vsp->vlist[idx].inst != PM_IN_NULL)
 	fprintf(f, " inst: %d", vsp->vlist[idx].inst);
     eap = (pmEventArray *)vsp->vlist[idx].value.pval;
-    fprintf(f, " vtype: %s vlen: %d\n", pmTypeStr(eap->ea_type), eap->ea_len);
+    fprintf(f, " vtype: %s vlen: %d\n", pmTypeStr_r(eap->ea_type, strbuf, sizeof(strbuf)), eap->ea_len);
     if (eap->ea_type != PM_TYPE_EVENT) {
 	fprintf(f, "Error: bad vtype\n");
 	return;
@@ -110,7 +111,7 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp, int idx)
 		free(name);
 	    }
 	    else
-		fprintf(f, " %s", pmIDStr(epp->ep_pmid));
+		fprintf(f, " %s", pmIDStr_r(epp->ep_pmid, strbuf, sizeof(strbuf)));
 	    vbuf = (char *)epp + sizeof(epp->ep_pmid) + sizeof(int);
 	    switch (epp->ep_type) {
 		case PM_TYPE_32:
@@ -143,7 +144,7 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp, int idx)
 		    fprintf(f, " = [%08x...]", ((__uint32_t *)vbuf)[0]);
 		    break;
 		default:
-		    fprintf(f, " : bad type %s", pmTypeStr(epp->ep_type));
+		    fprintf(f, " : bad type %s", pmTypeStr_r(epp->ep_type, strbuf, sizeof(strbuf)));
 	    }
 	    fputc('\n', f);
 	    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);

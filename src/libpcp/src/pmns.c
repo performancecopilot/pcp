@@ -652,11 +652,12 @@ backlink(__pmnsTree *tree, __pmnsNode *root, int dupok)
 	    for (xp = tree->htab[i]; xp != NULL; xp = xp->hash) {
 		if (xp->pmid == np->pmid && !dupok &&
 		    pmid_domain(np->pmid) != DYNAMIC_PMID) {
-		    char *nn, *xn;
+		    char	*nn, *xn;
+		    char	strbuf[20];
 		    backname(np, &nn);
 		    backname(xp, &xn);
 		    snprintf(linebuf, sizeof(linebuf), "Duplicate metric id (%s) in name space for metrics \"%s\" and \"%s\"\n",
-		        pmIDStr(np->pmid), nn, xn);
+		        pmIDStr_r(np->pmid, strbuf, sizeof(strbuf)), nn, xn);
 		    err(linebuf);
 		    free(nn);
 		    free(xn);
@@ -1279,8 +1280,9 @@ loadascii(int dupok)
 		state = 2;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_PMNS) {
+		    char	strbuf[20];
 		    fprintf(stderr, "pmLoadNameSpace: %s -> %s\n",
-					np->name, pmIDStr(np->pmid));
+			np->name, pmIDStr_r(np->pmid, strbuf, sizeof(strbuf)));
 		}
 #endif
 	    }
@@ -1845,14 +1847,15 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PMNS) {
-	    int	i;
+	    int		i;
+	    char	strbuf[20];
 	    fprintf(stderr, "pmLookupName(%d, ...) using local PMNS returns %d and ...\n",
 		numpmid, sts);
 	    for (i = 0; i < numpmid; i++) {
 		fprintf(stderr, "  name[%d]: \"%s\"", i, namelist[i]);
 		if (sts >= 0)
 		    fprintf(stderr, " PMID: 0x%x %s",
-			pmidlist[i], pmIDStr(pmidlist[i]));
+			pmidlist[i], pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)));
 		fputc('\n', stderr);
 	    }
 	}
@@ -1877,10 +1880,11 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 		nfail = numpmid - sts;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_PMNS) {
+		char	strbuf[20];
 		fprintf(stderr, "pmLookupName: receive_names <-");
 		if (sts >= 0) {
 		    for (i = 0; i < numpmid; i++)
-			fprintf(stderr, " [%d] %s", i, pmIDStr(pmidlist[i]));
+			fprintf(stderr, " [%d] %s", i, pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)));
 		    fputc('\n', stderr);
 		}
 	    else
@@ -1907,11 +1911,12 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 		}
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_DERIVE) {
+		    char	strbuf[20];
 		    fprintf(stderr, "__dmgetpmid: metric \"%s\" -> ", namelist[i]);
 		    if (lsts < 0)
 			fprintf(stderr, "%s\n", pmErrStr(lsts));
 		    else
-			fprintf(stderr, "PMID %s\n", pmIDStr(pmidlist[i]));
+			fprintf(stderr, "PMID %s\n", pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)));
 		}
 #endif
 	    }

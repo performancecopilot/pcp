@@ -10,18 +10,26 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Multi-threading note
+ *
+ * These routines manipulate the environment and call lots of routines
+ * like localtime(), asctime(), gmtime(), getenv(), putenv() ... all of
+ * which are not thread-safe.
+ *
+ * We use the big lock to prevent concurrent execution.
  */
 
 #include "pmapi.h"
 #include "impl.h"
 
-static char	*envtz;		/* buffer in env */
+static char	*envtz;			/* buffer in env */
 static int	envtzlen;
 
 static char	*savetz;		/* real $TZ from env */
 static char	**savetzp;
 
-static int	nzone;				/* table of zones */
+static int	nzone;			/* table of zones */
 static int	curzone = -1;
 static char	**zone;
 
@@ -72,9 +80,10 @@ __pmSquashTZ(char *tzbuffer)
     time_t	now = time(NULL);
     struct tm	*t;
     char	*tzn;
-
 #ifndef IS_MINGW
     time_t	offset; 
+
+    PM_LOCK(__pmLock_libpcp);
 
     tzset();
     t = localtime(&now);
@@ -120,6 +129,8 @@ __pmSquashTZ(char *tzbuffer)
 	tzbuffer[PM_TZ_MAXLEN+4-1] = '\0';
     }
     putenv(tzbuffer);
+
+    PM_UNLOCK(__pmLock_libpcp);
     return;
 
 #else	/* IS_MINGW */
@@ -143,6 +154,8 @@ __pmSquashTZ(char *tzbuffer)
     char *cp, *dst, *off;
     wchar_t *src;
     div_t d;
+
+    PM_LOCK(__pmLock_libpcp);
 
     GetTimeZoneInformation(&tz);
     dst = cp = tzbuf;
@@ -207,16 +220,17 @@ __pmSquashTZ(char *tzbuffer)
 	fprintf(stderr, "Win32 TZ=%s\n", tzbuf);
 #endif
 
-    snprintf(tzbuffer+3, PM_TZ_MAXLEN+4, "%s", tzbuf);
+    snprintf(tzbuffer+3, PM_TZ_MAXLEN, "%s", tzbuf);
     putenv(tzbuffer);
 
     tzset();
     t = localtime(&now);
     tzn = tzname[(t->tm_isdst > 0)];
 
-    snprintf(tzbuffer+3, PM_TZ_MAXLEN+4, "%s%s", tzn, tzoff);
+    snprintf(tzbuffer+3, PM_TZ_MAXLEN, "%s%s", tzn, tzoff);
     putenv(tzbuffer);
 
+    PM_UNLOCK(__pmLock_libpcp);
     return;
 #endif
 }
@@ -228,7 +242,12 @@ char *
 __pmTimezone(void)
 {
     static char *tzbuffer = NULL;
-    char *tz = getenv("TZ");
+    char *tz;
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+
+    tz = getenv("TZ");
 
     if (tzbuffer == NULL) {
 	/*
@@ -237,6 +256,7 @@ __pmTimezone(void)
 	tzbuffer = (char *)malloc(PM_TZ_MAXLEN+4);
 	if (tzbuffer == NULL) {
 	    /* not much we can do here ... */
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return NULL;
 	}
 	strcpy(tzbuffer, "TZ=");
@@ -284,15 +304,34 @@ __pmTimezone(void)
 	}
     }
 
+    PM_UNLOCK(__pmLock_libpcp);
     return tz;
+}
+
+/*
+ * buffer should be at least PM_TZ_MAXLEN bytes long
+ */
+char *
+__pmTimezone_r(char *buf, int buflen)
+{
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    strcpy(buf, __pmTimezone());
+    PM_UNLOCK(__pmLock_libpcp);
+    return buf;
 }
 
 int
 pmUseZone(const int tz_handle)
 {
-    if (tz_handle < 0 || tz_handle >= nzone)
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+
+    if (tz_handle < 0 || tz_handle >= nzone) {
+	PM_UNLOCK(__pmLock_libpcp);
 	return -1;
-    
+    }
+
     curzone = tz_handle;
     strcpy(&envtz[3], zone[curzone]);
 
@@ -301,6 +340,7 @@ pmUseZone(const int tz_handle)
 	fprintf(stderr, "pmUseZone(%d) tz=%s\n", curzone, zone[curzone]);
 #endif
 
+    PM_UNLOCK(__pmLock_libpcp);
     return 0;
 }
 
@@ -309,6 +349,10 @@ pmNewZone(const char *tz)
 {
     int		len;
     int		hack = 0;
+    int		sts;
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
 
     len = (int)strlen(tz);
     if (len == 3) {
@@ -346,8 +390,10 @@ pmNewZone(const char *tz)
     if (pmDebug & DBG_TRACE_CONTEXT)
 	fprintf(stderr, "pmNewZone(%s) -> %d\n", zone[curzone], curzone);
 #endif
+    sts = curzone;
 
-    return curzone;
+    PM_UNLOCK(__pmLock_libpcp);
+    return sts;
 }
 
 int
@@ -355,24 +401,25 @@ pmNewContextZone(void)
 {
     __pmContext	*ctxp;
     int		sts;
-    static pmID	pmid = 0;
-    pmResult	*rp;
 
     if ((ctxp = __pmHandleToPtr(pmWhichContext())) == NULL)
 	return PM_ERR_NOCONTEXT;
 
     if (ctxp->c_type == PM_CONTEXT_ARCHIVE)
 	sts = pmNewZone(ctxp->c_archctl->ac_log->l_label.ill_tz);
-    else if (ctxp->c_type == PM_CONTEXT_LOCAL)
+    else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
+	char	tzbuf[PM_TZ_MAXLEN];
 	/* from env, not PMCD */
-	sts = pmNewZone(__pmTimezone());
+	__pmTimezone_r(tzbuf, sizeof(tzbuf));
+	sts = pmNewZone(tzbuf);
+    }
     else {
 	/* assume PM_CONTEXT_HOST */
-	if (pmid == 0) {
-	    char	*name = "pmcd.timezone";
-	    if ((sts = pmLookupName(1, &name, &pmid)) < 0)
-		return sts;
-	}
+	char		*name = "pmcd.timezone";
+	pmID		pmid;
+	pmResult	*rp;
+	if ((sts = pmLookupName(1, &name, &pmid)) < 0)
+	    return sts;
 	if ((sts = pmFetch(1, &pmid, &rp)) >= 0) {
 	    if (rp->vset[0]->numval == 1 && 
 		(rp->vset[0]->valfmt == PM_VAL_DPTR || rp->vset[0]->valfmt == PM_VAL_SPTR))
@@ -392,6 +439,9 @@ pmCtime(const time_t *clock, char *buf)
 #if !defined(IS_SOLARIS) && !defined(IS_MINGW)
     struct tm	tbuf;
 #endif
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+
     if (curzone >= 0) {
 	_pushTZ();
 #if defined(IS_SOLARIS) || defined(IS_MINGW)
@@ -409,6 +459,7 @@ pmCtime(const time_t *clock, char *buf)
 #endif
     }
 
+    PM_UNLOCK(__pmLock_libpcp);
     return buf;
 }
 
@@ -418,6 +469,10 @@ pmLocaltime(const time_t *clock, struct tm *result)
 #if defined(IS_SOLARIS) || defined(IS_MINGW)
     struct tm	*tmp;
 #endif
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+
     if (curzone >= 0) {
 	_pushTZ();
 #if defined(IS_SOLARIS) || defined(IS_MINGW)
@@ -437,6 +492,7 @@ pmLocaltime(const time_t *clock, struct tm *result)
 #endif
     }
 
+    PM_UNLOCK(__pmLock_libpcp);
     return result;
 }
 
@@ -444,6 +500,9 @@ time_t
 __pmMktime(struct tm *timeptr)
 {
     time_t	ans;
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
 
     if (curzone >= 0) {
 	_pushTZ();
@@ -453,14 +512,19 @@ __pmMktime(struct tm *timeptr)
     else
 	ans = mktime(timeptr);
 
+    PM_UNLOCK(__pmLock_libpcp);
     return ans;
 }
 
 int
 pmWhichZone(char **tz)
 {
+    int		sts;
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     if (curzone >= 0)
 	*tz = zone[curzone];
-
-    return curzone;
+    sts = curzone;
+    PM_UNLOCK(__pmLock_libpcp);
+    return sts;
 }

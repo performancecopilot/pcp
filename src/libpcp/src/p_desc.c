@@ -36,7 +36,10 @@ __pmSendDescReq(int fd, int from, pmID pmid)
     pp->pmid = __htonpmID(pmid);
 
 #ifdef DESPERATE
-    fprintf(stderr, "__pmSendDescReq: converted 0x%08x (%s) to 0x%08x\n", pmid, pmIDStr(pmid), pp->pmid);
+    {
+	char	strbuf[20];
+	fprintf(stderr, "__pmSendDescReq: converted 0x%08x (%s) to 0x%08x\n", pmid, pmIDStr_r(pmid, strbuf, sizeof(strbuf)), pp->pmid);
+    }
 #endif
 
     return __pmXmitPDU(fd, (__pmPDU *)pp);

@@ -49,7 +49,8 @@ addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp, int numinst,
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOGMETA) {
-	fprintf(stderr, "addindom( ..., %s, ", pmInDomStr(indom));
+	char	strbuf[20];
+	fprintf(stderr, "addindom( ..., %s, ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	StrTimeval((__pmTimeval *)tp);
 	fprintf(stderr, ", numinst=%d)\n", numinst);
     }
@@ -224,8 +225,9 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
                     name[len] = '\0';
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_LOGMETA) {
+			char	strbuf[20];
 			fprintf(stderr, "__pmLogLoadMeta: PMID: %s name: %s\n",
-				pmIDStr(dp->pmid), name);
+				pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf)), name);
 		    }
 #endif
 
@@ -442,7 +444,8 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOGMETA) {
-	fprintf(stderr, "searchindom( ..., %s, ", pmInDomStr(indom));
+	char	strbuf[20];
+	fprintf(stderr, "searchindom( ..., %s, ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	StrTimeval(tp);
 	fprintf(stderr, ")\n");
     }

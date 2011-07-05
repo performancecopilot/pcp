@@ -268,9 +268,8 @@ optCost(fetchctl_t *fp)
 
 #ifdef PCP_DEBUG
 static char *
-statestr(int state)
+statestr(int state, char *sbuf)
 {
-    static char		sbuf[100];
     sbuf[0] = '\0';
     if (state & OPT_STATE_NEW) strcat(sbuf, "NEW ");
     if (state & OPT_STATE_PMID) strcat(sbuf, "PMID ");
@@ -287,6 +286,8 @@ statestr(int state)
 static void
 dumplist(FILE *f, int style, char *tag, int numi, int *ilist)
 {
+    char	strbuf[20];
+
     fprintf(f, "%s: [%d]", tag, numi);
     if (ilist == NULL)
 	fprintf(f, " (nil)\n");
@@ -294,7 +295,7 @@ dumplist(FILE *f, int style, char *tag, int numi, int *ilist)
 	int		i;
 	for (i = 0; i < numi; i++) {
 	    if (style == 1)
-		fprintf(f, " %s", pmIDStr((pmID)ilist[i]));
+		fprintf(f, " %s", pmIDStr_r((pmID)ilist[i], strbuf, sizeof(strbuf)));
 	    else
 		fprintf(f, " %d", ilist[i]);
 	}
@@ -308,17 +309,18 @@ ___pmOptFetchDump(FILE *f, const fetchctl_t *fp)
     indomctl_t		*idp;
     pmidctl_t		*pmp;
     optreq_t		*rqp;
+    char		strbuf[100];
 
     fflush(stderr);
     fflush(stdout);
     fprintf(f, "Dump optfetch structures from " PRINTF_P_PFX "%p next=" PRINTF_P_PFX "%p\n", fp, fp->f_next);
-    fprintf(f, "Fetch Control @ " PRINTF_P_PFX "%p: cost=%d state=%s\n", fp, fp->f_cost, statestr(fp->f_state));
+    fprintf(f, "Fetch Control @ " PRINTF_P_PFX "%p: cost=%d state=%s\n", fp, fp->f_cost, statestr(fp->f_state, strbuf));
     dumplist(f, 1, "PMIDs", fp->f_numpmid, (int *)fp->f_pmidlist);
     for (idp = fp->f_idp; idp != NULL; idp = idp->i_next) {
-	fprintf(f, "  InDom %s Control @ " PRINTF_P_PFX "%p:\n", pmInDomStr(idp->i_indom), idp);
+	fprintf(f, "  InDom %s Control @ " PRINTF_P_PFX "%p:\n", pmInDomStr_r(idp->i_indom, strbuf, sizeof(strbuf)), idp);
 	dumplist(f, 0, "  instances", idp->i_numinst, idp->i_instlist);
 	for (pmp = idp->i_pmp; pmp != NULL; pmp = pmp->p_next) {
-	    fprintf(f, "    PMID %s Control @ " PRINTF_P_PFX "%p:\n", pmIDStr(pmp->p_pmid), pmp);
+	    fprintf(f, "    PMID %s Control @ " PRINTF_P_PFX "%p:\n", pmIDStr_r(pmp->p_pmid, strbuf, sizeof(strbuf)), pmp);
 	    dumplist(f, 0, "    instances", pmp->p_numinst, pmp->p_instlist);
 	    for (rqp = pmp->p_rqp; rqp != NULL; rqp = rqp->r_next) {
 		fprintf(f, "      Request @ " PRINTF_P_PFX "%p:\n", rqp);
@@ -409,6 +411,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 	    fp->f_newcost += optcost.c_fetch;
 #ifdef DESPERATE
 	if (pmDebug & DBG_TRACE_OPTFETCH) {
+	    char	strbuf[100];
 	    fprintf(stderr, "optFetch: cost=");
 	    if (fp->f_cost == OPT_COST_INFINITY)
 		fprintf(stderr, "INFINITY");
@@ -419,8 +422,10 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 		fprintf(stderr, "INFINITY");
 	    else
 		fprintf(stderr, "%d", fp->f_newcost);
-	    fprintf(stderr, ", for %s @ grp 0x%x, state %s\n",
-		pmIDStr(pmid), fp, statestr(fp->f_state));
+	    fprintf(stderr, ", for %s @ grp 0x%x,",
+		pmIDStr_r(pmid, strbuf, sizeof(strbuf)), fp);
+	    fprintf(stderr, " state %s\n",
+		statestr(fp->f_state, strbuf));
 	}
 #endif
     }
@@ -442,9 +447,11 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
     }
 #ifdef DESPERATE
     if (pmDebug & DBG_TRACE_OPTFETCH) {
-	fprintf(stderr, "optFetch: chose %s cost=%d for %s @ grp 0x%x, change %s\n",
+	char	strbuf[100];
+	fprintf(stderr, "optFetch: chose %s cost=%d for %s @ grp 0x%x,",
 		optcost.c_scope ? "global" : "incremental",
-		mincost, pmIDStr(pmid), tfp, statestr(tfp->f_state));
+		mincost, pmIDStr_r(pmid, strbuf, sizeof(strbuf)), tfp);
+	fprintf(stderr, " change %s\n", statestr(tfp->f_state, strbuf));
     }
 #endif
 

@@ -195,8 +195,11 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	valfmt = ntohl(vlp->valfmt);
 	pmid = __ntohpmID(vlp->pmid);
 #ifdef DESPERATE
-	fprintf(stderr, "vlist[%d] pmid: %s numval: %d",
-			i, pmIDStr(pmid), numval);
+	{
+	    char	strbuf[20];
+	    fprintf(stderr, "vlist[%d] pmid: %s numval: %d",
+			i, pmIDStr_r(pmid, strbuf, sizeof(strbuf)), numval);
+	}
 #endif
 	nvsize += sizeof(pmValueSet);
 	if (numval > 0) {
@@ -275,8 +278,11 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	nvsp->pmid = __ntohpmID(vlp->pmid);
 	nvsp->numval = ntohl(vlp->numval);
 #ifdef DESPERATE
-	fprintf(stderr, "new vlist[%d] pmid: %s numval: %d",
-			i, pmIDStr(nvsp->pmid), nvsp->numval);
+	{
+	    char	strbuf[20];
+	    fprintf(stderr, "new vlist[%d] pmid: %s numval: %d",
+			i, pmIDStr_r(nvsp->pmid, strbuf, sizeof(strbuf)), nvsp->numval);
+	}
 #endif
 
 	vsize += sizeof(nvsp->pmid) + sizeof(nvsp->numval);

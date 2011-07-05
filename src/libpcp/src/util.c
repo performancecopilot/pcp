@@ -262,14 +262,14 @@ __pmRotateLog(const char *progname, const char *logname, FILE *oldstream,
     return oldstream;
 }
 
-const char *
-pmIDStr(pmID pmid)
+/* pmID -> string, max length is 20 bytes */
+char *
+pmIDStr_r(pmID pmid, char *buf, int buflen)
 {
-    static char	pbuf[20];
     __pmID_int*	p = (__pmID_int*)&pmid;
     if (pmid == PM_ID_NULL)
-	return "PM_ID_NULL";
-    if (p->domain == DYNAMIC_PMID && p->item == 0)
+	snprintf(buf, buflen, "%s", "PM_ID_NULL");
+    else if (p->domain == DYNAMIC_PMID && p->item == 0)
 	/*
 	 * this PMID represents the base of a dynamic subtree in the PMNS
 	 * ... identified by setting the domain field to the reserved
@@ -277,65 +277,90 @@ pmIDStr(pmID pmid)
 	 * that can enumerate the subtree in the cluster field, while
 	 * the item field is not used
 	 */
-	snprintf(pbuf, sizeof(pbuf), "%d.*.*", p->cluster);
+	snprintf(buf, buflen, "%d.*.*", p->cluster);
     else
-	snprintf(pbuf, sizeof(pbuf), "%d.%d.%d", p->domain, p->cluster, p->item);
-    return pbuf;
+	snprintf(buf, buflen, "%d.%d.%d", p->domain, p->cluster, p->item);
+    return buf;
+}
+
+const char *
+pmIDStr(pmID pmid)
+{
+    static char	idbuf[20];
+    pmIDStr_r(pmid, idbuf, sizeof(idbuf));
+    return idbuf;
+}
+
+/* pmInDom -> string, max length is 20 bytes */
+char *
+pmInDomStr_r(pmInDom indom, char *buf, int buflen)
+{
+    __pmInDom_int*	p = (__pmInDom_int*)&indom;
+    if (indom == PM_INDOM_NULL)
+	snprintf(buf, buflen, "%s", "PM_INDOM_NULL");
+    else
+	snprintf(buf, buflen, "%d.%d", p->domain, p->serial);
+    return buf;
 }
 
 const char *
 pmInDomStr(pmInDom indom)
 {
-    static char	pbuf[20];
-    __pmInDom_int*	p = (__pmInDom_int*)&indom;
-    if (indom == PM_INDOM_NULL)
-	return "PM_INDOM_NULL";
-    snprintf(pbuf, sizeof(pbuf), "%d.%d", p->domain, p->serial);
-    return pbuf;
+    static char	indombuf[20];
+    pmInDomStr_r(indom, indombuf, sizeof(indombuf));
+    return indombuf;
 }
 
-const char *
-pmNumberStr(double value)
+/* double -> string, max length is 8 bytes */
+char *
+pmNumberStr_r(double value, char *buf, int buflen)
 {
-    static char buf[8];
-
     if (value >= 0.0) {
 	if (value >= 999995000000000.0)
-	    strncpy(buf, " inf? ", sizeof(buf));
+	    snprintf(buf, buflen, " inf?  ");
 	else if (value >= 999995000000.0)
-	    snprintf(buf, sizeof(buf), "%6.2fT", value / 1000000000000.0);
+	    snprintf(buf, buflen, "%6.2fT", value / 1000000000000.0);
 	else if (value >= 999995000.0)
-	    snprintf(buf, sizeof(buf), "%6.2fG", value / 1000000000.0);
+	    snprintf(buf, buflen, "%6.2fG", value / 1000000000.0);
 	else if (value >= 999995.0)
-	    snprintf(buf, sizeof(buf), "%6.2fM", value / 1000000.0);
+	    snprintf(buf, buflen, "%6.2fM", value / 1000000.0);
 	else if (value >= 999.995)
-	    snprintf(buf, sizeof(buf), "%6.2fK", value / 1000.0);
+	    snprintf(buf, buflen, "%6.2fK", value / 1000.0);
 	else if (value >= 0.005)
-	    snprintf(buf, sizeof(buf), "%6.2f ", value);
+	    snprintf(buf, buflen, "%6.2f ", value);
 	else
-	    snprintf(buf, sizeof(buf), "%6.2f ", 0.0);
+	    snprintf(buf, buflen, "%6.2f ", 0.0);
     }
     else {
 	if (value <= -99995000000000.0)
-	    strncpy(buf, "-inf?  ", sizeof(buf));
+	    snprintf(buf, buflen, "-inf?  ");
 	else if (value <= -99995000000.0)
-	    snprintf(buf, sizeof(buf), "%6.2fT", value / 1000000000000.0);
+	    snprintf(buf, buflen, "%6.2fT", value / 1000000000000.0);
 	else if (value <= -99995000.0)
-	    snprintf(buf, sizeof(buf), "%6.2fG", value / 1000000000.0);
+	    snprintf(buf, buflen, "%6.2fG", value / 1000000000.0);
 	else if (value <= -99995.0)
-	    snprintf(buf, sizeof(buf), "%6.2fM", value / 1000000.0);
+	    snprintf(buf, buflen, "%6.2fM", value / 1000000.0);
 	else if (value <= -99.995)
-	    snprintf(buf, sizeof(buf), "%6.2fK", value / 1000.0);
+	    snprintf(buf, buflen, "%6.2fK", value / 1000.0);
 	else if (value <= -0.005)
-	    snprintf(buf, sizeof(buf), "%6.2f ", value);
+	    snprintf(buf, buflen, "%6.2f ", value);
 	else
-	    snprintf(buf, sizeof(buf), "%6.2f ", 0.0);
+	    snprintf(buf, buflen, "%6.2f ", 0.0);
     }
     return buf;
 }
 
 const char *
-pmEventFlagsStr(int flags)
+pmNumberStr(double value)
+{
+    static char nbuf[8];
+    pmNumberStr_r(value, nbuf, sizeof(nbuf));
+    return nbuf;
+}
+
+/* flags -> string, max length is 64 bytes */
+char *
+pmEventFlagsStr_r(int flags, char *buf, int buflen)
 {
     /*
      * buffer needs to be long enough to hold each flag name
@@ -343,34 +368,41 @@ pmEventFlagsStr(int flags)
      * point,start,end,id,parent (even though it is unlikely that
      * both start and end would be set for the one event record)
      */
-    static char buffer[64];
     int started = 0;
 
     if (flags & PM_EVENT_FLAG_MISSED)
-	return strcpy(buffer, "missed");
+	return strcpy(buf, "missed");
 
-    buffer[0] = '\0';
+    buf[0] = '\0';
     if (flags & PM_EVENT_FLAG_POINT) {
-	if (started++) strcat(buffer, ",");
-	strcat(buffer, "point");
+	if (started++) strcat(buf, ",");
+	strcat(buf, "point");
     }
     if (flags & PM_EVENT_FLAG_START) {
-	if (started++) strcat(buffer, ",");
-	strcat(buffer, "start");
+	if (started++) strcat(buf, ",");
+	strcat(buf, "start");
     }
     if (flags & PM_EVENT_FLAG_END) {
-	if (started++) strcat(buffer, ",");
-	strcat(buffer, "end");
+	if (started++) strcat(buf, ",");
+	strcat(buf, "end");
     }
     if (flags & PM_EVENT_FLAG_ID) {
-	if (started++) strcat(buffer, ",");
-	strcat(buffer, "id");
+	if (started++) strcat(buf, ",");
+	strcat(buf, "id");
     }
     if (flags & PM_EVENT_FLAG_PARENT) {
-	if (started++) strcat(buffer, ",");
-	strcat(buffer, "parent");
+	if (started++) strcat(buf, ",");
+	strcat(buf, "parent");
     }
-    return buffer;
+    return buf;
+}
+
+const char *
+pmEventFlagsStr(int flags)
+{
+    static char ebuf[64];
+    pmEventFlagsStr_r(flags, ebuf, sizeof(ebuf));
+    return ebuf;
 }
 
 void
@@ -394,11 +426,12 @@ __pmDumpResult(FILE *f, const pmResult *resp)
     fprintf(f, " numpmid: %d\n", resp->numpmid);
     for (i = 0; i < resp->numpmid; i++) {
 	pmValueSet	*vsp = resp->vset[i];
+	char		strbuf[20];
 	n = pmNameID(vsp->pmid, &p);
 	if (n < 0)
-	    fprintf(f,"  %s (%s):", pmIDStr(vsp->pmid), "<noname>");
+	    fprintf(f,"  %s (%s):", pmIDStr_r(vsp->pmid, strbuf, sizeof(strbuf)), "<noname>");
 	else {
-	    fprintf(f,"  %s (%s):", pmIDStr(vsp->pmid), p);
+	    fprintf(f,"  %s (%s):", pmIDStr_r(vsp->pmid, strbuf, sizeof(strbuf)), p);
 	    free(p);
 	}
 	if (vsp->numval == 0) {
@@ -730,6 +763,7 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
     char	*sem;
     static char	*unknownVal = "???";
     const char	*units;
+    char	strbuf[60];
 
     if (desc->type == PM_TYPE_NOSUPPORT) {
 	fprintf(f, "    Data Type: Not Supported\n");
@@ -775,7 +809,7 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
     if (type == unknownVal)
 	fprintf(f, " (%d)", desc->type);
 
-    fprintf(f,"  InDom: %s 0x%x\n", pmInDomStr(desc->indom), desc->indom);
+    fprintf(f,"  InDom: %s 0x%x\n", pmInDomStr_r(desc->indom, strbuf, sizeof(strbuf)), desc->indom);
 
     switch (desc->sem) {
 	case PM_SEM_COUNTER:
@@ -797,7 +831,7 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
 	fprintf(f, " (%d)", desc->sem);
 
     fprintf(f, "  Units: ");
-    units = pmUnitsStr(&desc->units);
+    units = pmUnitsStr_r(&desc->units, strbuf, sizeof(strbuf));
     if (*units == '\0')
 	fprintf(f, "none\n");
     else
