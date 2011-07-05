@@ -204,7 +204,7 @@ ifeq "$(TARGET_OS)" "aix"
 RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf LIBPATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$LIBPATH HOME=`pwd` PCP_ALT_CPP=$(TOPDIR)/src/pmcpp/pmcpp
 endif
 ifeq "$(TARGET_OS)" "mingw"
-RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$PATH USERPROFILE=`pwd` PCP_ALT_CPP=$(TOPDIR)/src/pmcpp/pmcpp
+RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$PATH USERPROFILE=`pwd` PCP_ALT_CPP=`pwd`/$(TOPDIR)/src/pmcpp/pmcpp
 endif
 
 SUBDIRS_MAKERULE = \

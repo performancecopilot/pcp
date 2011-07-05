@@ -14,10 +14,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
  * Debug options
  * APPL0	configfile processing and PMNS setup
@@ -315,7 +311,6 @@ logger_store(pmResult *result, pmdaExt *pmda)
     int		i, j, sts;
     pmValueSet	*vsp;
     __pmID_int	*idp;
-    pmAtomValue	av;
 
     ctx_active(pmda->e_context);
 
@@ -338,12 +333,11 @@ logger_store(pmResult *result, pmdaExt *pmda)
 		return PM_ERR_PMID;
 	    if (pinfo->pmid_index != 5)
 		return PM_ERR_PERMISSION;
-	    if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
+	    if (vsp->numval != 1 || vsp->valfmt != PM_VAL_SPTR)
 		return PM_ERR_CONV;
-	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				      PM_TYPE_32, &av, PM_TYPE_32)) < 0)
-		return sts;
-	    ctx_set_user_access(av.l);
+	    /* Filter currently ignored (vsp->vlist[0].value.pval->vbuf); */
+	    /* could use this to control data flowing back (e.g. a regex) */
+	    ctx_set_user_access(1);
 	}
     }
     return 0;
@@ -594,24 +588,20 @@ logger_text(int ident, int type, char **buffer, pmdaExt *pmda)
 void 
 logger_init(pmdaInterface *dp, const char *configfile)
 {
-    int i, j, sts;
+    int i, j, sts, pmid_num;
     int numstatics = sizeof(static_metrictab)/sizeof(static_metrictab[0]);
     int numdynamics = sizeof(dynamic_metrictab)/sizeof(dynamic_metrictab[0]);
     pmdaMetric *pmetric;
-    int pmid_num;
     char name[MAXPATHLEN * 2];
     struct dynamic_metric_info *pinfo;
 
     /* Read and parse config file. */
-    if (read_config(configfile) != 0) {
+    if (read_config(configfile) != 0)
 	exit(1);
-    }
-    if (numlogfiles == 0) {
+    if (numlogfiles == 0)
 	usage();
-    }
 
-    /* Create the dynamic metric info table based on the logfile
-     * table. */
+    /* Create the dynamic metric info table based on the logfile table */
     dynamic_metric_infotab = malloc(sizeof(struct dynamic_metric_info)
 				    * numdynamics * numlogfiles);
     if (dynamic_metric_infotab == NULL) {
@@ -629,8 +619,7 @@ logger_init(pmdaInterface *dp, const char *configfile)
 	}
     }
 
-    /* Create the metric table based on the static and dynamic metric
-     * tables. */
+    /* Create the metric table based on the static and dynamic metric tables */
     nummetrics = numstatics + (numlogfiles * numdynamics);
     metrictab = malloc(sizeof(pmdaMetric) * nummetrics);
     if (metrictab == NULL) {

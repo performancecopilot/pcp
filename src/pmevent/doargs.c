@@ -17,8 +17,8 @@
 
 #include "pmevent.h"
 
-static int setupEventTrace(int, char **, int, int);
-static char *options = "a:D:gh:K:LO:p:S:s:T:t:vxzZ:?";
+static int setupEventTrace(int, char **, int, char *);
+static char *options = "a:D:gh:K:LO:p:S:s:T:t:vx:zZ:?";
 static char usage[] =
     "Usage: %s [options] metricname ...\n\n"
     "Options:\n"
@@ -35,7 +35,7 @@ static char usage[] =
     "  -T endtime    end of the reporting time window\n"
     "  -t interval   sample interval [default 1 second]\n"
     "  -v            increase diagnostic output\n"
-    "  -x            enable the event stream via pmstore\n"
+    "  -x filter     optionally enable and filter the event stream\n"
     "  -Z timezone   set reporting timezone\n"
     "  -z            set reporting timezone to local timezone of metrics source\n";
 
@@ -55,7 +55,7 @@ doargs(int argc, char **argv)
     char		*Sflag = NULL;		/* argument of -S flag */
     char		*Tflag = NULL;		/* argument of -T flag */
     char		*Oflag = NULL;		/* argument of -O flag */
-    int			xflag = 0;		/* for -x */
+    char		*xflag = NULL;		/* argument of -x flag */
     int			zflag = 0;		/* for -z */
     char 		*tz = NULL;		/* for -Z timezone */
     int			tzh;			/* initial timezone handle */
@@ -185,7 +185,7 @@ doargs(int argc, char **argv)
 	    break;
 
 	case 'x':
-	    xflag++;
+	    xflag = optarg;
 	    break;
 
 	case 'z':		/* timezone from metrics source */
@@ -464,11 +464,12 @@ doargs(int argc, char **argv)
 }
 
 int
-setupEventTrace(int argc, char **argv, int ahtype, int xflag)
+setupEventTrace(int argc, char **argv, int ahtype, char *xflag)
 {
-    pmValueSet	*pmvsp;
-    pmResult	store = { .numpmid = 1 };
-    int		i, m;
+    pmValueSet		pmvs;
+    pmValueBlock	*pmvbp;
+    pmResult		store = { .numpmid = 1 };
+    int			m, vlen;
 
     if (ahtype == PM_CONTEXT_ARCHIVE)
 	return 0;	/* nothing to do at this stage */
@@ -477,28 +478,27 @@ setupEventTrace(int argc, char **argv, int ahtype, int xflag)
 	__pmSetClientIdArgv(argc, argv);
 
     /* build pmResult for pmStore call if we're explicitly enabling events */
-    if (xflag) {
+    if (xflag != NULL) {
+	vlen = PM_VAL_HDR_SIZE + strlen(xflag) + 1;
+	pmvbp = (pmValueBlock *)malloc(vlen);
+	if (!pmvbp)
+	    __pmNoMem("store", vlen, PM_FATAL_ERR);
+	pmvbp->vtype = PM_TYPE_STRING;
+	pmvbp->vlen = vlen;
+	strcpy(pmvbp->vbuf, xflag);
+
+	store.vset[0] = &pmvs;
 	for (m = 0; m < nmetric; m++) {
-	    int sz = sizeof(pmValueSet) + sizeof(pmValue) * metrictab[m].ninst;
-	    store.vset[0] = pmvsp = (pmValueSet *)malloc(sz);
-	    if (!pmvsp)
-		__pmNoMem("store", sz, PM_FATAL_ERR);
-	    pmvsp->pmid = metrictab[m].pmid;
-	    pmvsp->valfmt = PM_VAL_INSITU;
-	    if (metrictab[m].ninst > 0) {
-		pmvsp->numval = metrictab[m].ninst;
-		for (i = 0; i < metrictab[m].ninst; i++) {
-		    pmvsp->vlist[i].inst = metrictab[m].inst[i];
-		    pmvsp->vlist[i].value.lval = 1;
-		}
-	    } else {
-		pmvsp->numval = 1;
-		pmvsp->vlist[0].inst = PM_IN_NULL;
-		pmvsp->vlist[0].value.lval = 1;
-	    }
+	    pmvs.pmid = metrictab[m].pmid;
+	    pmvs.numval = 1;
+	    pmvs.valfmt = PM_VAL_SPTR;
+	    pmvs.vlist[0].inst = PM_IN_NULL;
+	    pmvs.vlist[0].value.pval = pmvbp;
+
 	    pmStore(&store);
-	    free(pmvsp);
 	}
+
+	free(pmvbp);
     }
     return 0;
 }
