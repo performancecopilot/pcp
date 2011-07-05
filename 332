@@ -1,3 +1,4 @@
+#!/bin/sh
 # PCP QA Test No. 332
 # Interp mode (similar to qa/095, but with purify) (see also 394)
 #
