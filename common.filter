@@ -262,6 +262,7 @@ _filter_top_pmns()
 	-e '/^    jstat /d' \
 	-e '/^    lab /d' \
 	-e '/^    lmsensors /d' \
+	-e '/^    logger /d' \
 	-e '/^    lsf /d' \
 	-e '/^    mailq /d' \
 	-e '/^    memcache /d' \
