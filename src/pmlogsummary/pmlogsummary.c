@@ -693,7 +693,7 @@ calcaverage(pmResult *result)
     aveData		*avedata = NULL;
     instData		*instdata;
     double		diff;
-    double		rate;
+    double		rate = 0;
     struct timeval	timediff;
 
     if (result->numpmid == 0)	/* mark record */
