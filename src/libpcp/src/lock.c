@@ -17,24 +17,30 @@
 
 /* the big libpcp lock */
 #ifdef PM_MULTI_THREAD
+#ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+pthread_mutex_t		__pmLock_libpcp = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+#else
 pthread_mutex_t		__pmLock_libpcp;
+#endif
 #endif
 
 void
 __pmInitLocks(void)
 {
 #ifdef PM_MULTI_THREAD
+#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
     static pthread_mutex_t	init = PTHREAD_MUTEX_INITIALIZER;
     static int			done = 0;
     pthread_mutex_lock(&init);
     if (!done) {
 	/* one-trip initialization */
 	pthread_mutexattr_t    attr;
-	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
 	pthread_mutex_init(&__pmLock_libpcp, &attr);
 	done = 1;
     }
     pthread_mutex_unlock(&init);
+#endif
 #endif
 }
 
