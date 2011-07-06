@@ -32,7 +32,7 @@ _unsymlink_path()
 {
     [ -z "$1" ] && return
     __d=`dirname $1`
-    __real_d=`cd $__d 2>/dev/null && $PWDCMND -P`
+    __real_d=`cd $__d 2>/dev/null && $PWDCMND`
     if [ -z "$__real_d" ]
     then
 	echo $1
@@ -83,6 +83,8 @@ then
     #  force it to a known IRIX location
     PWDCMND=/bin/pwd
 fi
+eval $PWDCMND -P >/dev/null 2>&1
+[ $? -eq 0 ] && PWDCMND="$PWDCMND -P"
 
 # determine whether SGI Embedded Support Partner events need to be used
 CONFARGS="-F"
@@ -225,7 +227,7 @@ _check_logfile()
 	    :
 	else
 	    logdir=`dirname $logfile`
-	    echo "Directory (`cd $logdir; $PWDCMND -P`) contents:"
+	    echo "Directory (`cd $logdir; $PWDCMND`) contents:"
 	    LC_TIME=POSIX ls -la $logdir
 	fi
     else
@@ -440,7 +442,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     [ ! -d $dir ] && continue
 
     cd $dir
-    dir=`$PWDCMND -P`
+    dir=`$PWDCMND`
     $SHOWME && echo "+ cd $dir"
 
     if [ ! -w $dir ]

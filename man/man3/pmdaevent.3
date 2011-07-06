@@ -182,7 +182,7 @@ method should return.
 The following skeletal code shows how these routines might be used.
 .PP
 .ft CW
-.sz -1
+.ps -1
 .nf
 int             sts;
 int             myarray;
@@ -199,7 +199,7 @@ if (first) {
 pmdaEventResetArray(myarray);
 
 // loop over all event records to be exported
-... {
+ ... {
    struct timeval   stamp;
    int              flags;
 
@@ -210,7 +210,7 @@ pmdaEventResetArray(myarray);
       // report error and fail
    }
 
-   // loop over all paramters for this event record
+   // loop over all parameters for this event record
    ... {
       pmID          pmid;
       int           type;
@@ -239,7 +239,7 @@ pmdaEventResetArray(myarray);
 // finish up
 eap = pmdaEventGetAddr(myarray);
 .fi
-.sz
+.ps
 .ft
 .SH SEE ALSO
 .BR PMAPI (3)
