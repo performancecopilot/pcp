@@ -3,6 +3,7 @@
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+.\" Copyright (c) 2011 Nathan Scott.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -30,6 +31,7 @@
 [\f3\-s\f1 \f2samples\f1]
 [\f3\-T\f1 \f2endtime\f1]
 [\f3\-t\f1 \f2interval\f1]
+[\f3\-x\f1 \f2pattern\f1]
 [\f3\-Z\f1 \f2timezone\f1]
 \f2metricname\f1 ...
 .SH DESCRIPTION
@@ -240,6 +242,22 @@ of the event records for the
 .I metricname
 metrics within the requested time window, so the value of the
 sampling interval will have no effect in this case.
+.RE
+.TP
+.B \-x
+The given
+.I filter
+is sent to the performance metric domain agent for the requested
+.I metricname
+before any values are requested.
+This serves two purposes.
+Firstly, it provides a mechanism for server-side event filtering
+that is customisable for individual event streams.
+In addition, some performance metrics domain agents also use the
+PMCD store mechanism to provide a basic security model (e.g. for
+sensitive log files, only a client host with
+.BR pmStore (3)
+access would be able to access the event stream).
 .RE
 .TP
 .B \-Z

@@ -22,5 +22,6 @@ logger {
     numclients		LOGGER:0:0
     numlogfiles		LOGGER:0:1
     param_string	LOGGER:0:2
+    maxmem		LOGGER:0:3
     perfile		LOGGER:*:*
 }

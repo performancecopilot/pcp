@@ -36,6 +36,7 @@ enum {
     SQL_DB_INDOM,
     PROCESS_INDOM,
     THREAD_INDOM,
+    SQL_USER_INDOM,
     NUMINDOMS
 };
 

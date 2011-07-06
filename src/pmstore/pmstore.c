@@ -64,9 +64,8 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
     int		seendot = 0;
     int		base;
     double	d;
-    int64_t	temp_l;
-    uint64_t	temp_ul;
-	
+    __int64_t	temp_l;
+    __uint64_t	temp_ul;
 
     /*
      * for strtol() et al, start with optional white space, then

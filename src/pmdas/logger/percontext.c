@@ -57,11 +57,10 @@ growtab(int ctx)
 }
 
 int
-ctx_start(int ctx)
+ctx_active(int ctx)
 {
-    if (ctx < 0) {
+    if (ctx < 0)
 	return -1;
-    }
     if (ctx >= num_ctx_allocated)
 	growtab(ctx);
     last_ctx = ctx;
@@ -159,7 +158,20 @@ ctx_set_user_access(int enable)
     if (ctxtab[last_ctx].state == 0)	/* inactive */
 	return;
     if (enable)
-	ctxtab[last_ctx].state &= CTX_ACCESS;
+	ctxtab[last_ctx].state |= CTX_ACCESS;
     else
-	ctxtab[last_ctx].state |= ~CTX_ACCESS;
+	ctxtab[last_ctx].state &= ~CTX_ACCESS;
+}
+
+/* Visit each active context and run a supplied callback routine */
+void
+ctx_iterate(ctxVisitContextCallBack visit, int id, void *call_data)
+{
+    int ctx;
+
+    for (ctx = 0; ctx < num_ctx_allocated; ctx++) {
+	if (ctxtab[ctx].state == CTX_INACTIVE)
+	    continue;
+	visit(ctx, id, ctxtab[ctx].user_data, call_data);
+    }
 }

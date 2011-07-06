@@ -65,7 +65,9 @@ help.dir help.pag: help root_darwin
 
 root_darwin: ../../pmns/stdpmid root pmns
 	rm -f root_darwin
-	cpp -I../../pmns -fno-show-column < root | sed -e '/^#/d' > root_darwin
+	sed -e 's;<stdpmid>;"../../pmns/stdpmid";' <root \
+	| $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp \
+	| sed -e '/^#/d' -e '/^$$/d' >root_darwin
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
