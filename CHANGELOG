@@ -1,3 +1,6 @@
+pcp-3.5.4 (6 July 2011)
+    - Fix warnings from pmlogger_check with some /bin/pwd versions.
+
 pcp-3.5.3 (6 July 2011)
     - Remove reliance on a cpp binary being installed locally.
     - Ensure compressed pmie log files are also cleaned up daily.
