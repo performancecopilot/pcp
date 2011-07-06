@@ -210,7 +210,8 @@ event_create(unsigned int logfile)
 
     e = malloc(sizeof(struct event) + c + 1);
     if (e == NULL) {
-	__pmNotifyErr(LOG_ERR, "event dup allocation failure: %d bytes", c + 1);
+	__pmNotifyErr(LOG_ERR, "event dup allocation failure: %d bytes",
+			(int)(c + 1));
 	return -1;
     }
 

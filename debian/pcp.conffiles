@@ -1,0 +1,3 @@
+/var/lib/pcp/config/pmie/config.default
+/var/lib/pcp/config/pmlogger/config.default
+/var/lib/pcp/config/pmlogger/crontab

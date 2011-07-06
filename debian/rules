@@ -98,11 +98,6 @@ clean:
 
 binary-indep:
 
-# note dh_installdeb builds the debian/$(pcp)/DEBIAN/conffiles from
-# every file installed in /etc by the package ... the tweaking below
-# is to cull the init.d scripts as they are not config files and
-# add the files below $(PCP_VAR_LIB)/config that are config files
-
 binary-arch: checkroot built
 	@echo "== dpkg-buildpackage: binary-arch" 1>&2
 	$(checkdir)
@@ -151,10 +146,6 @@ binary-arch: checkroot built
 	dh_shlibdeps 2>/dev/null	# squash bogus and harmless warnings
 	dh_gencontrol
 	dh_md5sums
-
-	mv debian/$(pcp)/DEBIAN/conffiles debian/$(pcp)/DEBIAN/conffiles.tmp
-	sed -e '/\/init.d\//d' <debian/$(pcp)/DEBIAN/conffiles.tmp >debian/$(pcp)/DEBIAN/conffiles
-	for conf in pmlogger/config.default pmlogger/crontab pmie/config.default pmie/crontab; do grep $$conf debian/$(pcp)/DEBIAN/md5sums | sed -e 's/.* /\//' >>debian/$(pcp)/DEBIAN/conffiles; done
 
 	dh_builddeb
 
