@@ -25,6 +25,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #define BUF_SIZE (64*1024)
 
@@ -37,7 +38,7 @@ struct EventFileData *logfiles;
 struct ctx_client_data {
     unsigned int	active_logfile;
     unsigned int	missed_count;
-    struct event	**last;
+    struct event	*last;
 };
 
 static void *
@@ -117,7 +118,7 @@ event_init(void)
     }
 }
 
-void
+static void
 event_missed(int ctx, int logfile, void *user_data, void *call_data)
 {
     struct ctx_client_data *c = (struct ctx_client_data *)user_data;
@@ -127,10 +128,9 @@ event_missed(int ctx, int logfile, void *user_data, void *call_data)
 	__pmNotifyErr(LOG_INFO, "Visited ctx=%d event %p (ctx last=%p)",
 			ctx, e, c[logfile].last);
 
-    if (c[logfile].last == NULL || *c[logfile].last != e) {
+    if (c[logfile].last == NULL || c[logfile].last != e)
 	return;
-    }
-    c[logfile].last = &TAILQ_NEXT(e, events);
+    c[logfile].last = TAILQ_NEXT(e, events);
     c[logfile].missed_count++;
 
     if (pmDebug & DBG_TRACE_APPL1)
@@ -241,6 +241,25 @@ event_get_clients_per_logfile(unsigned int logfile)
     return logfiles[logfile].numclients;
 }
 
+static char *
+event_print(struct event *e)
+{
+    static char msg[16];
+    int i;
+
+    strncpy(msg, e->buffer, sizeof(msg)-4);
+    msg[sizeof(msg)-4] = '\0';
+    for (i = 0; i < sizeof(msg-4); i++) {
+	if (isspace(msg[i]))
+	    msg[i] = ' ';
+	else if (!isprint(msg[i]))
+	    msg[i] = '.';
+    }
+    if (e->size > sizeof(msg)-4)
+	strcat(msg, "...");
+    return msg;
+}
+
 int
 event_fetch(pmValueBlock **vbpp, unsigned int logfile)
 {
@@ -264,7 +283,7 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
      */
     if (c[logfile].active_logfile == 0) {
 	c[logfile].active_logfile = 1;
-	c[logfile].last = logfiles[logfile].queue.tqh_last;	// tqh_first?
+	c[logfile].last = TAILQ_LAST(&logfiles[logfile].queue, tailqueue);
 	logfiles[logfile].numclients++;
     }
 
@@ -273,7 +292,7 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
     if ((sts = pmdaEventAddRecord(eventarray, &stamp, PM_EVENT_FLAG_POINT)) < 0)
 	return sts;
 
-    e = *c[logfile].last;
+    e = c[logfile].last;
     if (pmDebug & DBG_TRACE_APPL2)
 	__pmNotifyErr(LOG_INFO, "%s phase2 e=%p\n", __FUNCTION__, e);
 
@@ -285,7 +304,7 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
 	atom.cp = e->buffer;
 
 	if (pmDebug & DBG_TRACE_APPL1)
-	    __pmNotifyErr(LOG_INFO, "Adding param: %s", e->buffer);
+	    __pmNotifyErr(LOG_INFO, "Adding param: \"%s\"", event_print(e));
 
 	sts = pmdaEventAddParam(eventarray,
 				logfiles[logfile].pmid, PM_TYPE_STRING, &atom);
@@ -297,8 +316,9 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
 
 	/* Remove the current one (if its use count is at 0). */
 	if (--e->clients <= 0) {
-	    __pmNotifyErr(LOG_INFO, "Removing %s event %p in fetch",
-				  logfiles[logfile].pmnsname, e);
+	    if (pmDebug & DBG_TRACE_APPL1)
+		__pmNotifyErr(LOG_INFO, "Removing %s event %p in fetch",
+					logfiles[logfile].pmnsname, e);
 	    TAILQ_REMOVE(&logfiles[logfile].queue, e, events);
 	    logfiles[logfile].queuesize -= e->size;
 	    free(e);
@@ -323,7 +343,7 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
     }
 
     /* Update queue pointer. */
-    c[logfile].last = logfiles[logfile].queue.tqh_last;
+    c[logfile].last = TAILQ_LAST(&logfiles[logfile].queue, tailqueue);
 
     if (records > 0)
 	*vbpp = (pmValueBlock *)pmdaEventGetAddr(eventarray);
@@ -346,7 +366,7 @@ event_cleanup(void)
 	    continue;
 
 	logfiles[logfile].numclients--;
-	e = *c[logfile].last;
+	e = c[logfile].last;
 	while (e != NULL) {
 	    next = TAILQ_NEXT(e, events);
 
