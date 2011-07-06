@@ -1,7 +1,11 @@
 TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
-PCP_FILES = pcp.prerm pcp.postinst pcp.postrm
+LINTIAN = source.lintian-overrides
+LINTDIR = $(PCP_SHARE_DIR)/../lintian/overrides
+
+PCP_FILES = pcp.prerm pcp.postinst pcp.postrm pcp.conffiles
+PCP_LINT = pcp.lintian 
 
 PCPIMPORTSAR = pcp-import-sar2pcp
 PCPIMPORTSAR_FILES = pcp-import-sar2pcp.install
@@ -61,7 +65,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files $(LIBPCPPCP) $(LIBPCPPCP)-dev \
 	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev \
 	$(LIBIMPORTPCP) $(LIBIMPORTPCP)-dev \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT)
-LSRCFILES = changelog compat control copyright rules \
+LSRCFILES = changelog compat control copyright rules $(LINTIAN) $(PCP_LINT) \
 		$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) shlibs.local \
 		$(LIBGUI_FILES) $(DEVGUI_FILES) \
 		$(LIBMMV_FILES) $(DEVMMV_FILES) \
@@ -79,6 +83,8 @@ install: default
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(PCP_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(PCP_DOC_DIR)/changelog.Debian
+	$(INSTALL) -m 755 -d $(LINTDIR)
+	$(INSTALL) -m 644 $(PCP_LINT) $(LINTDIR)/pcp
 endif
 
 default_pcp : default
