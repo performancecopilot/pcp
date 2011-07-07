@@ -1,6 +1,7 @@
 #! /bin/sh
 # PCP QA Test No. 211
 # Check dynamic metrics work with PMAPI clients - DAEMON PMDA version
+# See also 468 for the related tests using pmdumptext
 #
 # Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
 #
@@ -41,31 +42,11 @@ _filter_probe()
 					{ print }'
 }
 
-_filter_dumptext()
-{
-    _filter_pmdumptext \
-    | sed -e '/^Time[ 	]/s/[ 	][^:]*:/ HOST:/g' \
-    | $PCP_AWK_PROG '
-NR == 1		{ for (i = 1; i <= NF; i++) {
-		    if ($i ~ /\.max\.redirect/)
-			state[i] = 0
-		    else
-			state[i] = 1
-		  }
-		}
-		{ for (i = 1; i <= NF; i++) {
-		    if (state[i]) printf "%s ",$i
-		  }
-		  print ""
-		}'
-}
-
 _do() {
     echo
     echo "== $* =="
     pminfo $* | LC_COLLATE=POSIX sort
     pmprobe -v $* | _filter_probe | LC_COLLATE=POSIX sort 
-    pmdumptext -H -s 3 $* | _filter_dumptext
 }
 
 # real QA test starts here

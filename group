@@ -690,9 +690,11 @@ perl
 460 pmlogextract local #598265 oss pmdumplog
 461 pmda.logger pmda.install event local oss
 462 pmcd_wait local #589006 #581025 oss
-# NEXT FREE SLOT
+463 pmns local oss
+464 pmns local oss
 465 pmdumplog local #625913 folio oss
 466 pmlogger local #625913 oss
+467 pmns pmdumptext local oss
 469 help local #626853 oss
 471 pmda local #621699 oss
 482 pmlogsummary local oss pmdumplog
@@ -778,3 +780,4 @@ perl
 1050 pmieconf local sgi
 1051 pmieconf #696008 local sgi
 1108 logutil local folio sgi
+468 pmns pmdumptext local oss

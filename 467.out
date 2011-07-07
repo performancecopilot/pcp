@@ -1,0 +1,35 @@
+QA output created by 467
+PMNS traversal tests ...
+sampledso.secret.bar
+sampledso.secret.foo.bar.four
+sampledso.secret.foo.bar.grunt.five
+sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
+sampledso.secret.foo.bar.grunt.snort.six
+sampledso.secret.foo.bar.max.redirect
+sampledso.secret.foo.bar.three
+sampledso.secret.foo.one
+sampledso.secret.foo.two
+
+== sampledso.secret ==
+Time HOST:sampledso.secret.bar HOST:sampledso.secret.foo.one HOST:sampledso.secret.foo.two HOST:sampledso.secret.foo.bar.three HOST:sampledso.secret.foo.bar.four HOST:sampledso.secret.foo.bar.grunt.five HOST:sampledso.secret.foo.bar.grunt.snort.six HOST:sampledso.secret.foo.bar.grunt.snort.huff.puff.seven 
+? 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 
+none none count count count count count count count 
+DATE "foo" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
+DATE "foo" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
+DATE "foo" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
+
+== sampledso.secret.bar sampledso.secret.foo ==
+Time HOST:sampledso.secret.bar HOST:sampledso.secret.foo.one HOST:sampledso.secret.foo.two HOST:sampledso.secret.foo.bar.three HOST:sampledso.secret.foo.bar.four HOST:sampledso.secret.foo.bar.grunt.five HOST:sampledso.secret.foo.bar.grunt.snort.six HOST:sampledso.secret.foo.bar.grunt.snort.huff.puff.seven 
+? 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 
+none none count count count count count count count 
+DATE "foo" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
+DATE "foo" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
+DATE "foo" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
+
+== sampledso.secret.foo.bar.grunt ==
+Time HOST:sampledso.secret.foo.bar.grunt.five HOST:sampledso.secret.foo.bar.grunt.snort.six HOST:sampledso.secret.foo.bar.grunt.snort.huff.puff.seven 
+? 0.000 0.000 0.000 
+none count count count 
+DATE 5.000 6.000 7.000 
+DATE 5.000 6.000 7.000 
+DATE 5.000 6.000 7.000 
