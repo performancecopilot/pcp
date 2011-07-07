@@ -1,0 +1,35 @@
+QA output created by 468
+PMNS traversal tests ...
+sample.secret.bar
+sample.secret.foo.bar.four
+sample.secret.foo.bar.grunt.five
+sample.secret.foo.bar.grunt.snort.huff.puff.seven
+sample.secret.foo.bar.grunt.snort.six
+sample.secret.foo.bar.max.redirect
+sample.secret.foo.bar.three
+sample.secret.foo.one
+sample.secret.foo.two
+
+== sample.secret ==
+Time HOST:sample.secret.bar HOST:sample.secret.foo.one HOST:sample.secret.foo.two HOST:sample.secret.foo.bar.three HOST:sample.secret.foo.bar.four HOST:sample.secret.foo.bar.grunt.five HOST:sample.secret.foo.bar.grunt.snort.six HOST:sample.secret.foo.bar.grunt.snort.huff.puff.seven 
+? 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 
+none none count count count count count count count 
+DATE "foo" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
+DATE "foo" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
+DATE "foo" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
+
+== sample.secret.bar sample.secret.foo ==
+Time HOST:sample.secret.bar HOST:sample.secret.foo.one HOST:sample.secret.foo.two HOST:sample.secret.foo.bar.three HOST:sample.secret.foo.bar.four HOST:sample.secret.foo.bar.grunt.five HOST:sample.secret.foo.bar.grunt.snort.six HOST:sample.secret.foo.bar.grunt.snort.huff.puff.seven 
+? 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 
+none none count count count count count count count 
+DATE "foo" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
+DATE "foo" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
+DATE "foo" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
+
+== sample.secret.foo.bar.grunt ==
+Time HOST:sample.secret.foo.bar.grunt.five HOST:sample.secret.foo.bar.grunt.snort.six HOST:sample.secret.foo.bar.grunt.snort.huff.puff.seven 
+? 0.000 0.000 0.000 
+none count count count 
+DATE 5.000 6.000 7.000 
+DATE 5.000 6.000 7.000 
+DATE 5.000 6.000 7.000 
