@@ -92,6 +92,8 @@ then
     #  force it to a known IRIX location
     PWDCMND=/bin/pwd
 fi
+eval $PWDCMND -P >/dev/null 2>&1
+[ $? -eq 0 ] && PWDCMND="$PWDCMND -P"
 
 _usage()
 {

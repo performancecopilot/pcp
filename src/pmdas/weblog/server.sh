@@ -131,10 +131,10 @@ _getLogFiles()
 {
     $PCP_ECHO_PROG $PCP_ECHO_N "Full path to access log [$access] ""$PCP_ECHO_C"
     read ans
-    if [ "X$ans" != "X" ]
+    if [ -n "$ans" ]
     then
-	access=$ans
-	if [ ! -f $access ]
+	access="$ans"
+	if [ ! -f "$access" ]
 	then
 	    echo "Warning: $access does not exist at this time."
 	fi
@@ -142,10 +142,10 @@ _getLogFiles()
 
     $PCP_ECHO_PROG $PCP_ECHO_N "Full path to error log [$errors] ""$PCP_ECHO_C"
     read ans
-    if [ "X$ans" != "X" ]
+    if [ -n "$ans" ]
     then
-	errors=$ans
-	if [ ! -f $errors ]
+	errors="$ans"
+	if [ ! -f "$errors" ]
 	then
 	    echo "Warning: $errors does not exist at this time."
 	fi
@@ -167,7 +167,7 @@ _addServer_check()
 	else
 	    $PCP_ECHO_PROG $PCP_ECHO_N "New name for server (or return to skip this server): ""$PCP_ECHO_C"
 	    read ans
-	    if [ "X$ans" != "X" ]
+	    if [ -n "$ans" ]
 	    then
 		if grep "$ans" $tmp.dup > /dev/null 2>&1
 		then
@@ -197,7 +197,7 @@ _addServer()
     if [ \( -f "$access" -o -c "$access" \) -a \( -f "$errors" -o -c "$errors" \) ]
     then
 	found="true"
-	if [ "X$serverPort" = X ]
+	if [ -z "$serverPort" ]
 	then
 	    echo "${pfx}identified as $serverName"
 	    _addServer_check "$serverName" "on $accessRegex $access $errorRegex $errors" "$serverDesc"
@@ -218,10 +218,10 @@ _addServer()
 	    echo "Do you want to specify an alternate location for the log files"
 	    $PCP_ECHO_PROG $PCP_ECHO_N "(otherwise this server will be ignored) [y] ""$PCP_ECHO_C"
 	    read ans
-	    if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o "X$ans" = "X" ]
+	    if [ -z "$ans" -o "$ans" = "y" -o "$ans" = "Y" ]
 	    then
 		_getLogFiles
-		if [ "X$serverPort" = X ]
+		if [ -z "$serverPort" ]
 		then
 		    _addServer_check "$serverName" "on $accessRegex $access $errorRegex $errors" "$serverDesc"
 		else
@@ -247,16 +247,17 @@ _installFiles()
 	    echo "${pfx}Error: unable to determine document root"
 	    if $do_auto
 	    then
+		docs=$unknownDocs
 	        echo "$skipping"
 	    else
 		echo
 		$PCP_ECHO_PROG $PCP_ECHO_N "Path to document root (return to skip HTML link for this server): ""$PCP_ECHO_C"
 		read ans
-		if [ "X$ans" != "X" ]
+		if [ -n "$ans" ]
 		then
-		    if [ -d $ans ]
+		    if [ -d "$ans" ]
 		    then
-			docs=$ans
+			docs="$ans"
 		    else
 			echo "\"$ans\" is not a directory."
 		        echo "No link to HTML files will be created for this server."
@@ -276,7 +277,7 @@ _installFiles()
 		echo "Path to document root (return to skip HTML link for this server)"
 		$PCP_ECHO_PROG $PCP_ECHO_N "$docs: ""$PCP_ECHO_C"
 		read ans
-		if [ "X$ans" != "X" ]
+		if [ -n "$ans" ]
 		then
 		    if [ -d $ans ]
 		    then
@@ -308,7 +309,7 @@ _installFiles()
 		fi
 
 		read ans
-		if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o "X$ans" = "X" ]
+		if [ -z "$ans" -o "$ans" = "y" -o "$ans" = "Y" ]
 		then
 		    if [ "$files" = "link" ]
 		    then
@@ -324,16 +325,16 @@ _installFiles()
 		    then
                         if [ ! -f $docs/$link -o -d $docs/$link ]
                         then 
-		    	    install -v -F $docs/$link -m 444 -src $docsDir/$file1 $file1
-		    	    install -v -F $docs/$link -m 444 -src $docsDir/$file2 $file2
-		    	    install -v -F $docs/$link -m 444 -src $docsDir/$file3 $file3
+			    cp $docsDir/$file1 $docs/$link/$file1
+			    cp $docsDir/$file2 $docs/$link/$file2
+			    cp $docsDir/$file3 $docs/$link/$file3
                         else
 	                    echo "${pfx}Error: $docs/$link is not a directory."
 	                    echo "$skipping"
                         fi
 		    fi
 
-		    if [ "X$http" != X ]
+		    if [ -z "$http" ]
 		    then
 			echo "$http/$link/$file1" >> $logFile
 			echo "$http/$link/$file2" >> $logFile
@@ -342,7 +343,7 @@ _installFiles()
 		fi
 	    else
 	    	echo "${pfx}Note: the link to the sample HTML files already exists."
-		if [ "X$http" != X ]
+		if [ -n "$http" ]
 		then
 		    echo "$http/$link/$file1" >> $logFile
 		    echo "$http/$link/$file2" >> $logFile
@@ -482,7 +483,7 @@ _netscape_extract()
 		    # fix server name as Netscape often adds a trailing '.'
 		    serverName=`echo $serverName | sed -e 's/\.$//'`
 
-		    if [ "X$serverName" = X -o "X$serverPort" = X ]
+		    if [ -z "$serverName" -o -z "$serverPort" ]
 		    then
 			echo "Found Netscape $type Server at $dir"
 			echo "${pfx}Error: unable to determine server name or port from:"
@@ -492,7 +493,7 @@ _netscape_extract()
 			continue
 		    fi
 
-		    if [ "X$access" = X ]
+		    if [ -z "$access" ]
 		    then
 			access=$dir/logs/access
 			echo "Found Netscape $type Server at $dir"
@@ -501,7 +502,7 @@ _netscape_extract()
 			echo
 		    fi
 
-		    if [ "X$errors" = X ]
+		    if [ -z "$errors" ]
 		    then
 			errors=$dir/logs/errors
 			echo "Found Netscape $type Server at $dir"
@@ -606,7 +607,7 @@ END			{ if (mode == 2)
 	    	accessRegex=CERN
 		errorRegex=CERN_err
 		serverPath=$ZEUSPATH
-		files=link
+		files="link"
 		lines=`wc -l $tmp.zeus | $PCP_AWK_PROG '{ print $1 }'`
 		count=1
 		while [ $count -le $lines ]
@@ -618,7 +619,7 @@ NR == line 	{ printf("serverName=%s\naccess=%s\nerrors=%s\nserverPort=%d\nhttp=%
 		    serverName="zeus-$serverName"
 		    http="GET http://$http:$serverPort"
 
-		    if [ "X$access" = "X???" ]
+		    if [ "$access" = "???" ]
 		    then
 		    	access=$ZEUSPATH/log/transfer
 		    	echo "Found $serverDesc at $serverPath"
@@ -626,7 +627,7 @@ NR == line 	{ printf("serverName=%s\naccess=%s\nerrors=%s\nserverPort=%d\nhttp=%
 			echo "${pfx}	$access"
 			echo
 		    fi
-		    if [ "X$errors" = "X???" ]
+		    if [ "$errors" = "???" ]
 		    then
 		    	errors=$ZEUSPATH/log/errors
 		    	echo "Found $serverDesc at $serverPath"
@@ -634,7 +635,7 @@ NR == line 	{ printf("serverName=%s\naccess=%s\nerrors=%s\nserverPort=%d\nhttp=%
 			echo "${pfx}	$errors"
 			echo
 		    fi
-		    if [ "X$docs" = "X???" ]
+		    if [ "$docs" = "???" ]
 		    then
 		    	docs=$ZEUSPATH/docroot
 		    	echo "Found $serverDesc at $serverPath"
@@ -704,7 +705,7 @@ END			  { if (mode == 0)
 		fi
 		errorRegex=CERN_err
 		serverPath=$SQUIDPATH
-		files=skip
+		files="skip"
 		eval `$PCP_AWK_PROG < $tmp.squid '
 { printf("serverName=%s\naccess=%s\nerrors=%s\nserverPort=%d\nhttp=%s\n", $2, $3, $4, $5, $6); exit }'`
 
@@ -713,7 +714,7 @@ END			  { if (mode == 0)
 		    http="GET http://$http:$serverPort"
     		    docs=$noDocs
 
-		    if [ "X$access" = "X???" ]
+		    if [ "$access" = "???" ]
 		    then
 		    	access=$SQUIDPATH/log/transfer
 		    	echo "Found $serverDesc at $serverPath"
@@ -721,7 +722,7 @@ END			  { if (mode == 0)
 			echo "${pfx}	$access"
 			echo
 		    fi
-		    if [ "X$errors" = "X???" ]
+		    if [ "$errors" = "???" ]
 		    then
 		    	errors=$SQUIDPATH/log/errors
 		    	echo "Found $serverDesc at $serverPath"
@@ -808,31 +809,39 @@ _apache_extract()
 		$1 == "Port" { ports[curnam] = $2; }
 		$1 == "</VirtualHost>" { curnam=def; }
 		$1 == "ErrorLog" { 
-		    if ( match ($2, "/") != 1 ) {
-			erlog[curnam] = sprintf ("%s/%s", "'$apchroot'", $2);
+		    path = $2
+		    sub (/\${APACHE_LOG_DIR}/, "/var/log/apache2", path)
+		    if ( match (path, "/") != 1 ) {
+			erlog[curnam] = sprintf ("%s/%s", "'$apchroot'", path);
 		    } else {
-			erlog[curnam] = $2;
+			erlog[curnam] = path;
 		    }
 		}
 		$1 == "DocumentRoot" {
-		    if ( match ($2, "/") != 1 ) {
-			docs[curnam] = sprintf ("%s/%s", "'$apchroot'", $2);
+		    path = $2
+		    sub (/\${APACHE_LOG_DIR}/, "/var/log/apache2", path)
+		    if ( match (path, "/") != 1 ) {
+			docs[curnam] = sprintf ("%s/%s", "'$apchroot'", path);
 		    } else {
-			docs[curnam] = $2;
+			docs[curnam] = path;
 		    }
 		}
 		$1 == "TransferLog" {
-		    if ( match ($2, "/") != 1 ) {
-			tlog[curnam] = sprintf ("%s/%s", "'$apchroot'", $2);
+		    path = $2
+		    sub (/\${APACHE_LOG_DIR}/, "/var/log/apache2", path)
+		    if ( match (path, "/") != 1 ) {
+			tlog[curnam] = sprintf ("%s/%s", "'$apchroot'", path);
 		    } else {
-			tlog[curnam] = $2;
+			tlog[curnam] = path;
 		    }
 		}
 		$1 == "CustomLog" && ($3 == "common" || $3 == "combined") { 
-		    if ( match ($2, "/") != 1 ) {
-			tlog[curnam] = sprintf ("%s/%s", "'$apchroot'", $2);
+		    path = $2
+		    sub (/\${APACHE_LOG_DIR}/, "/var/log/apache2", path)
+		    if ( match (path, "/") != 1 ) {
+			tlog[curnam] = sprintf ("%s/%s", "'$apchroot'", path);
 		    } else {
-			tlog[curnam] = $2;
+			tlog[curnam] = path;
 		    }
 		}
 		END {
@@ -847,6 +856,7 @@ _apache_extract()
 		errorRegex=CERN_err
 		serverPath="$apchroot"
 		serverDesc="Apache Server"
+		files="copy"
 
 		_switchAction
 	    done
@@ -903,13 +913,13 @@ do
     shift
 done
 
-if [ "X$do_logs" = "Xtrue" -a "X$do_files" = "Xtrue" ]
+if [ "$do_logs" = "true" -a "$do_files" = "true" ]
 then
     echo "May only perform one of the two options at any one time"
     exit 1
 fi
 
-if [ "X$do_files" = "Xtrue" ]
+if $do_files
 then
     if [ ! -f $docsDir/$file1 -o ! -f $docsDir/$file2 -o ! -f $docsDir/$file3 ]
     then
@@ -979,7 +989,7 @@ then
 	echo
 	$PCP_ECHO_PROG $PCP_ECHO_N "Would you like to log SOCKS ftp transactions [y] ""$PCP_ECHO_C"
 	read ans
-	if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o "X$ans" = "X" ]
+	if [ -z "$ans" -o "$ans" = "y" -o "$ans" = "Y" ]
 	then
 	    access=$NSROOTPATH/proxy-server/logs/sockd
 	    accessRegex="NS_FTP"
@@ -1017,7 +1027,7 @@ then
 	echo
 	$PCP_ECHO_PROG $PCP_ECHO_N "Would you like to log SOCKS ftp transactions [y] ""$PCP_ECHO_C"
 	read ans
-	if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o "X$ans" = "X" ]
+	if [ -z "$ans" -o "$ans" = "y" -o "$ans" = "Y" ]
 	then
 	    access=$NSPROXYPATH/logs/sockd
 	    accessRegex="NS_FTP"
@@ -1067,7 +1077,7 @@ _apache_extract
 
 # Oracle Webserver
 
-if [ "X$ORACLE_HOME" != X ]
+if [ -n "$ORACLE_HOME" ]
 then
     if [ -d $ORACLE_HOME/ows ]
     then
@@ -1091,7 +1101,7 @@ fi
 
 # Harvest Cache
 
-if [ "X$HARVEST_HOME" != X ]
+if [ -n "$HARVEST_HOME" ]
 then
     serverPath=$HARVEST_HOME
     serverPort=80
@@ -1135,7 +1145,7 @@ else
     read ans
 fi
 
-if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o "X$ans" = "X" ]
+if [ -z "$ans" -o "$ans" = "y" -o "$ans" = "Y" ]
 then
     echo
     if [ -f $PASSWDPATH ]
@@ -1147,7 +1157,7 @@ then
 	    read ans
             echo
 	fi
-	if [ "X$ans" = "Xy" -o "X$ans" = "XY" ]
+	if [ "$ans" = "y" -o "$ans" = "Y" ]
 	then
 	    wulog="$WUFTPLOG"
 	    if [ -f "$WUFTPLOG" ]
@@ -1190,7 +1200,7 @@ then
 	then
 	    docs=""
 	    docs=`$PCP_AWK_PROG -F: '$1 == "ftp" { print $6 "/pub"; exit }' < ${PASSWDPATH}`
-	    if [ "X$docs" = X ]
+	    if [ -z "$docs" ]
 	    then
 		echo "Found FTP Server at $FTPPATH"
 		echo "${pfx}Error: user ftp is not listed in the password file:"

@@ -1,3 +1,23 @@
+pcp-3.5.5 (6 July 2011)
+    - Resolve Debian packaging issues preventing new uploads.
+    - Fix warnings from pmie_check with some /bin/pwd versions.
+
+pcp-3.5.4 (6 July 2011)
+    - Fix warnings from pmlogger_check with some /bin/pwd versions.
+
+pcp-3.5.3 (6 July 2011)
+    - Remove reliance on a cpp binary being installed locally.
+    - Ensure compressed pmie log files are also cleaned up daily.
+    - Extend the event store mechanism to be more generally useful.
+    - Add memory limiting functionality to pmdalogger.
+    - Add SQLServer metric for user settable queries.
+    - Fix potential sigsegv in pmprobe fetching multiple live values.
+    - Perl changes for Solaris.
+    - Fix Fedora15 build relating to handling of systemd.
+    - Solaris pmda zpool_vdev_name() api change.
+    - Update sar2pcp for sysstat version 9.1.7.
+    - Resolve realloc issue in event metric handling in libpcp_pmda.
+
 pcp-3.5.2 (3 June 2011)
     - pmlogreduce - fix 2 problems (memory leak, additional mark records)
     - Initial version of pmdalogger, from David Smith, a log monitoring
