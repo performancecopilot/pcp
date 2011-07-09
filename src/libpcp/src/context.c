@@ -22,9 +22,9 @@ static __pmContext	*contexts;		/* array of contexts */
 static int		contexts_len;		/* number of contexts */
 static int		curcontext = PM_CONTEXT_UNDEF;	/* current context */
 
-static int	n_backoff;
-static int	def_backoff[] = {5, 10, 20, 40, 80};
-static int	*backoff;
+static int		n_backoff;
+static int		def_backoff[] = {5, 10, 20, 40, 80};
+static int		*backoff;
 
 static void
 waitawhile(__pmPMCDCtl *ctl)
@@ -32,6 +32,7 @@ waitawhile(__pmPMCDCtl *ctl)
     /*
      * after failure, compute delay before trying again ...
      */
+    PM_LOCK(__pmLock_libpcp);
     if (n_backoff == 0) {
 	char	*q;
 	/* first time ... try for PMCD_RECONNECT_TIMEOUT from env */
@@ -66,6 +67,7 @@ waitawhile(__pmPMCDCtl *ctl)
 	    backoff = def_backoff;
 	}
     }
+    PM_UNLOCK(__pmLock_libpcp);
     if (ctl->pc_timeout == 0)
 	ctl->pc_timeout = 1;
     else if (ctl->pc_timeout < n_backoff)

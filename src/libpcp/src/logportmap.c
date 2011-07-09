@@ -92,16 +92,14 @@ is_match(const_dirent *dep)
 int
 __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 {
-    static char		dir[MAXPATHLEN];
-    static int		lendir;
+    char		dir[MAXPATHLEN];
+    int			lendir;
     int			i, j, n;
     int			nf;		/* number of port files found */
     struct dirent	**files = NULL;	/* array of port file dirents */
     char		*p;
     int			len;
-    static char		*namebuf = NULL;
-					/* for building file names */
-    static int		sznamebuf = 0;	/* current size of namebuf */
+    char		namebuf[MAXPATHLEN];
     int			(*scanfn)(const_dirent *dep);
     FILE		*pfile;
     char		buf[MAXPATHLEN];
@@ -112,8 +110,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
     if (result == NULL)
 	return -EINVAL;
 
-    if (lendir == 0)
-	lendir = snprintf(dir, sizeof(dir), "%s%cpmlogger",
+    lendir = snprintf(dir, sizeof(dir), "%s%cpmlogger",
 		pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator());
 
     /* Set up the appropriate function to select files from the control port
@@ -178,18 +175,6 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	    len = j;
     /* +1 for trailing path separator, +1 for null termination */
     len += lendir + 2;
-    if (len > sznamebuf) {
-	if (namebuf != NULL)
-	    free(namebuf);
-	if ((namebuf = (char *)malloc(len)) == NULL) {
-	    __pmNoMem("__pmLogFindLocalPorts.namebuf", len, PM_RECOV_ERR);
-	    for (i=0; i < nf; i++)
-		free(files[i]);
-	    free(files);
-	    return -oserror();
-	}
-	sznamebuf = len;
-    }
 
     /* namebuf is the complete pathname, p points to the trailing filename
      * within namebuf.
@@ -319,11 +304,12 @@ __pmIsLocalhost(const char *hostname)
 	return 1;
     else {
 	char lhost[MAXHOSTNAMELEN+1];
-	struct hostent * he;
+	struct hostent *he;
 
 	if (gethostname(lhost, MAXHOSTNAMELEN) < 0)
 	   return -oserror();
 
+	PM_LOCK(__pmLock_libpcp);
         if ((he = gethostbyname(lhost)) != NULL ) {
 	    int i;
 	    unsigned int * laddrs;
@@ -336,14 +322,17 @@ __pmIsLocalhost(const char *hostname)
 		    laddrs[k] = ((struct in_addr *)he->h_addr_list[k])->s_addr;
 		}
 
-		if ((he = gethostbyname(hostname)) == NULL)
+		if ((he = gethostbyname(hostname)) == NULL) {
+		    PM_UNLOCK(__pmLock_libpcp);
 		    return -EHOSTUNREACH;
+		}
 
 		for ( i--; i >= 0; i-- ) {
 		    for (k = 0; he->h_addr_list[k] != NULL; k++) {
 			struct in_addr *s=(struct in_addr *)he->h_addr_list[k];
 			if (s->s_addr == laddrs[i]) {
 			    free (laddrs);
+			    PM_UNLOCK(__pmLock_libpcp);
 			    return (1);
 			}
 		    }
@@ -352,6 +341,7 @@ __pmIsLocalhost(const char *hostname)
 		free (laddrs);
 	    }
 	}
+	PM_UNLOCK(__pmLock_libpcp);
     }
 
     return sts;

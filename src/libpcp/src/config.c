@@ -92,8 +92,13 @@ dos_rewrite_path(char *var, char *val, int msys)
  */
 static int posix_style(void)
 {
-    char *s = getenv("SHELL");
-    return (s && strncmp(s, "/bin/", 5) == 0);
+    char	*s;
+    int		sts;
+    PM_LOCK(__pmLock_libpcp);
+    s = getenv("SHELL");
+    sts = (s && strncmp(s, "/bin/", 5) == 0);
+    PM_UNLOCK(__pmLock_libpcp);
+    return sts;
 }
 
 static void
@@ -109,7 +114,9 @@ dos_formatter(char *var, char *prefix, char *val)
     else {
 	snprintf(envbuf, sizeof(envbuf), "%s=%s", var, val);
     }
+    PM_LOCK(__pmLock_libpcp);
     putenv(strdup(envbuf));
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 INTERN const __pmConfigCallback __pmNativeConfig = dos_formatter;
@@ -144,7 +151,9 @@ posix_formatter(char *var, char *prefix, char *val)
     strncat(envbuf, vp, vend-vp+1);
     envbuf[strlen(var)+1+vend-vp+1+1] = '\0';
 
+    PM_LOCK(__pmLock_libpcp);
     putenv(strdup(envbuf));
+    PM_UNLOCK(__pmLock_libpcp);
     (void)prefix;
 }
 
@@ -162,11 +171,13 @@ __pmConfig(__pmConfigCallback formatter)
     char confpath[32];
     char dir[MAXPATHLEN];
     char var[MAXPATHLEN];
-    char *prefix = getenv("PCP_DIR");
+    char *prefix;
     char *conf;
     char *val;
     char *p;
 
+    PM_LOCK(__pmLock_libpcp);
+    prefix = getenv("PCP_DIR");
     if ((conf = getenv("PCP_CONF")) == NULL) {
 	strncpy(confpath, "/etc/pcp.conf", sizeof(confpath));
 	if (prefix == NULL)
@@ -184,6 +195,7 @@ __pmConfig(__pmConfigCallback formatter)
 		conf, osstrerror());
 	pmprintf("You may need to set PCP_CONF or PCP_DIR in your environment.\n");
 	pmflush();
+	PM_UNLOCK(__pmLock_libpcp);
 	exit(1);
     }
 
@@ -203,6 +215,7 @@ __pmConfig(__pmConfigCallback formatter)
 	    fprintf(stderr, "pmGetConfig: (init) %s=%s\n", var, val);
     }
     fclose(fp);
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 char *
@@ -231,7 +244,6 @@ pmGetConfig(const char *name)
 	val = "";
 	return val;
     }
-    PM_UNLOCK(__pmLock_libpcp);
 
     if ((val = getenv(name)) == NULL) {
 	pmprintf("Error: \"%s\" is not set in the environment\n", name);
@@ -241,5 +253,6 @@ pmGetConfig(const char *name)
     if (pmDebug & DBG_TRACE_CONFIG)
 	fprintf(stderr, "pmGetConfig: %s=%s\n", name, val);
 
+    PM_UNLOCK(__pmLock_libpcp);
     return val;
 }

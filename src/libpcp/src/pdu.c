@@ -44,6 +44,7 @@ __pmDefaultRequestTimeout(void)
 {
     static int		done_default = 0;
 
+    PM_LOCK(__pmLock_libpcp);
     if (!done_default) {
 	char	*timeout_str;
 	char	*end_ptr;
@@ -64,6 +65,7 @@ __pmDefaultRequestTimeout(void)
 	}
 	done_default = 1;
     }
+    PM_UNLOCK(__pmLock_libpcp);
     return (&def_wait);
 }
 

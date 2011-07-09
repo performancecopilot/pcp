@@ -966,6 +966,7 @@ pmfstate(int state)
 
     if (errtype == PM_QUERYERR) {
 	errtype = PM_USESTDERR;
+	PM_LOCK(__pmLock_libpcp);
 	if ((ferr = getenv("PCP_STDERR")) != NULL) {
 	    if (strcasecmp(ferr, "DISPLAY") == 0) {
 		char * xconfirm = pmGetConfig("PCP_XCONFIRM_PROG");
@@ -979,6 +980,7 @@ pmfstate(int state)
 	    else if (strcmp(ferr, "") != 0)
 		errtype = PM_USEFILE;
 	}
+	PM_UNLOCK(__pmLock_libpcp);
     }
     return errtype;
 }
@@ -1122,6 +1124,7 @@ __pmSetClientId(const char *id)
 	return sts;
 
     (void)gethostname(host, MAXHOSTNAMELEN);
+    PM_LOCK(__pmLock_libpcp);
     hep = gethostbyname(host);
     if (hep != NULL) {
 	strcpy(host, hep->h_name);
@@ -1132,6 +1135,7 @@ __pmSetClientId(const char *id)
     }
     else
 	vblen = strlen(host) + strlen(id) + 2;
+    PM_UNLOCK(__pmLock_libpcp);
 
     /* build pmResult for pmStore() */
     pmvb = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE+vblen);

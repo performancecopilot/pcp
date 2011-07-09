@@ -140,6 +140,7 @@ load_pmcd_ports(void)
 {
     static int	first_time = 1;
 
+    PM_LOCK(__pmLock_libpcp);
     if (first_time) {
 	char	*envstr;
 	char	*endptr;
@@ -177,12 +178,14 @@ load_pmcd_ports(void)
 	    global_nports = sizeof(default_portlist) / sizeof(default_portlist[0]);
 	}
     }
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 void
 __pmConnectGetPorts(pmHostSpec *host)
 {
     load_pmcd_ports();
+    PM_LOCK(__pmLock_libpcp);
     if (__pmAddHostPorts(host, global_portlist, global_nports) < 0) {
 	__pmNotifyErr(LOG_WARNING,
 		"__pmConnectGetPorts: portlist dup failed, "
@@ -190,6 +193,7 @@ __pmConnectGetPorts(pmHostSpec *host)
 	host->ports[0] = SERVER_PORT;
 	host->nports = 1;
     }
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 int
@@ -207,6 +211,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
     static int first_time = 1;
     static pmHostSpec proxy;
 
+    PM_LOCK(__pmLock_libpcp);
     if (first_time) {
 	/*
 	 * One-trip check for use of pmproxy(1) in lieu of pmcd(1),
@@ -256,6 +261,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	/*
 	 * no proxy, connecting directly to pmcd
 	 */
+	PM_UNLOCK(__pmLock_libpcp);
 	for (i = 0; i < nports; i++) {
 	    if ((fd = __pmAuxConnectPMCDPort(hosts[0].name, ports[i])) >= 0) {
 		if ((sts = __pmConnectHandshake(fd)) < 0) {
@@ -311,6 +317,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 			hosts[0].name, proxyhost->name, proxyport, pmErrStr(-neterror()));
 	    }
 #endif
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return fd;
 	}
 	if ((sts = version = negotiate_proxy(fd, hosts[0].name, ports[i])) < 0)
@@ -334,6 +341,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	    fprintf(stderr, " failed: %s\n", pmErrStr(sts));
 	}
 #endif
+	PM_UNLOCK(__pmLock_libpcp);
 	return sts;
     }
 
@@ -343,5 +351,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	    hosts[0].name, proxyhost->name, ports[i], fd, version);
     }
 #endif
+
+    PM_UNLOCK(__pmLock_libpcp);
     return fd;
 }

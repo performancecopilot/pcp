@@ -497,6 +497,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     __pmTimeval	tmp;
     struct timeval delta_tv;
 
+    PM_LOCK(__pmLock_libpcp);
     if (dowrap == -1) {
 	/* PCP_COUNTER_WRAP in environment enables "counter wrap" logic */
 	if (getenv("PCP_COUNTER_WRAP") == NULL)
@@ -504,6 +505,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	else
 	    dowrap = 1;
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     t_req = __pmTimevalSub(&ctxp->c_origin, &ctxp->c_archctl->ac_log->l_label.ill_start);
 

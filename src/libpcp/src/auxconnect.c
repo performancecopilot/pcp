@@ -147,6 +147,7 @@ __pmConnectTimeout(void)
      * 	PMCD_CONNECT_TIMEOUT
      *	PMCD_PORT
      */
+    PM_LOCK(__pmLock_libpcp);
     if (first_time) {
 	char	*env_str;
 	first_time = 0;
@@ -166,6 +167,7 @@ __pmConnectTimeout(void)
 	}
 
     }
+    PM_UNLOCK(__pmLock_libpcp);
     return (&canwait);
 }
  
@@ -183,6 +185,7 @@ __pmAuxConnectPMCD(const char *hostname)
     static int		pmcd_port;
     static int		first_time = 1;
 
+    PM_LOCK(__pmLock_libpcp);
     if (first_time) {
 	char	*env_str;
 	char	*end_ptr;
@@ -202,6 +205,7 @@ __pmAuxConnectPMCD(const char *hostname)
 	else
 	    pmcd_port = SERVER_PORT;
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     return __pmAuxConnectPMCDPort(hostname, pmcd_port);
 }
@@ -215,6 +219,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     int			sts;
     int			fdFlags;
 
+    PM_LOCK(__pmLock_libpcp);
     if ((servInfo = gethostbyname(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
@@ -222,17 +227,21 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 		    hostname, pmcd_port, hosterror(), hoststrerror());
 	}
 #endif
+	PM_UNLOCK(__pmLock_libpcp);
 	return -EHOSTUNREACH;
     }
 
     __pmConnectTimeout();
 
-    if ((fd = __pmCreateSocket()) < 0)
+    if ((fd = __pmCreateSocket()) < 0) {
+	PM_UNLOCK(__pmLock_libpcp);
 	return fd;
+    }
 
     memset(&myAddr, 0, sizeof(myAddr));	/* Arrgh! &myAddr, not myAddr */
     myAddr.sin_family = AF_INET;
     memcpy(&myAddr.sin_addr, servInfo->h_addr, servInfo->h_length);
+    PM_UNLOCK(__pmLock_libpcp);
 
     if ((fdFlags = __pmConnectTo(fd, (const struct sockaddr *)&myAddr,
 				 pmcd_port)) < 0) {
@@ -240,6 +249,9 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     } else { /* FNDELAY and we're in progress - wait on select */
 	int	rc;
 	fd_set wfds;
+	// TODO hope this goes away with ASYNC API stuff else need lock
+	// and more tricky logic to make sure canwait has indeed been
+	// initialized
 	struct timeval stv = canwait;
 	struct timeval *pstv = (stv.tv_sec || stv.tv_usec) ? &stv : NULL;
 

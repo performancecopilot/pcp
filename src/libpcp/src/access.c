@@ -89,12 +89,15 @@ getmyhostid(void)
     (void)gethostname(myhostname, MAXHOSTNAMELEN);
     myhostname[MAXHOSTNAMELEN-1] = '\0';
 
+    PM_LOCK(__pmLock_libpcp);
     if ((hep = gethostbyname(myhostname)) == NULL) {
 	__pmNotifyErr(LOG_ERR, "gethostbyname(%s), %s\n",
 		     myhostname, hoststrerror());
+	PM_UNLOCK(__pmLock_libpcp);
 	return -1;
     }
     myhostid.s_addr = ((struct in_addr *)hep->h_addr_list[0])->s_addr;
+    PM_UNLOCK(__pmLock_libpcp);
     gotmyhostid = 1;
     return 0;
 }
@@ -308,8 +311,8 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	    PM_UNLOCK(__pmLock_libpcp);
 	    return -EHOSTUNREACH;	/* host error unsuitable to return */
 	}
-	PM_UNLOCK(__pmLock_libpcp);
 	hostid.s_addr = ((struct in_addr *)hep->h_addr_list[0])->s_addr;
+	PM_UNLOCK(__pmLock_libpcp);
 	hostmask.s_addr = 0xffffffff;
 	level = 0;
     }

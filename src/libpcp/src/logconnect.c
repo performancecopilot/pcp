@@ -34,6 +34,7 @@ __pmLoggerTimeout(void)
     static int		timeout = TIMEOUT_NEVER;
     static int		done_default = 0;
 
+    PM_LOCK(__pmLock_libpcp);
     if (!done_default) {
 	char	*timeout_str;
 	char	*end_ptr;
@@ -51,6 +52,7 @@ __pmLoggerTimeout(void)
 	}
 	done_default = 1;
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     return timeout;
 }
@@ -119,22 +121,27 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 #endif
     }
 
+    PM_LOCK(__pmLock_libpcp);
     if ((servInfo = gethostbyname(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
 		    hoststrerror());
 #endif
+	PM_UNLOCK(__pmLock_libpcp);
 	return -ECONNREFUSED;
     }
 
     /* Create socket and attempt to connect to the pmlogger control port */
-    if ((fd = __pmCreateSocket()) < 0)
+    if ((fd = __pmCreateSocket()) < 0) {
+	PM_UNLOCK(__pmLock_libpcp);
 	return fd;
+    }
 
     memset(&myAddr, 0, sizeof(myAddr));	/* Arrgh! &myAddr, not myAddr */
     myAddr.sin_family = AF_INET;
     memcpy(&myAddr.sin_addr, servInfo->h_addr, servInfo->h_length);
+    PM_UNLOCK(__pmLock_libpcp);
     myAddr.sin_port = htons(*port);
 
     sts = connect(fd, (struct sockaddr*) &myAddr, sizeof(myAddr));
