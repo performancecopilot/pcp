@@ -13,6 +13,23 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes
+ *
+ * pmState - no side-effects, don't bother locking
+ *
+ * pmProgname - most likely set in main(), not worth protecting here
+ * 	and impossible to capture all the read uses in other places
+ *
+ * base (in __pmProcessDataSize) - no real side-effects, don't bother
+ *	locking
+ *
+ * TODO - __pmEventTrace contains static state in last, sum and first
+ * 	... not sure where to move this too as yet, can't really be
+ * 	global, probably belongs in context, or passed in from caller
+ * 	in a foo_r variant
+ *
+ * TODO - audit oserror(), strerror() and osstrerror() for thread-safeness
  */
 
 #include <stdarg.h>
@@ -53,11 +70,13 @@ static int vpmprintf(const char *, va_list);
 void
 __pmSyslog(int onoff)
 {
+    PM_LOCK(__pmLock_libpcp);
     dosyslog = onoff;
     if (dosyslog)
 	openlog("pcp", LOG_PID, LOG_DAEMON);
     else
 	closelog();
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 /*
@@ -76,12 +95,14 @@ __pmNotifyErr(int priority, const char *message, ...)
 
     time(&now);
 
+    PM_LOCK(__pmLock_libpcp);
     if (dosyslog) {
 	char	syslogmsg[2048];
 
 	snprintf(syslogmsg, sizeof(syslogmsg), message, arg);
 	syslog(priority, "%s", syslogmsg);
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     /*
      * do the stderr equivalent
@@ -117,7 +138,9 @@ __pmNotifyErr(int priority, const char *message, ...)
 	    break;
     }
 
+    PM_LOCK(__pmLock_libpcp);
     pmprintf("[%.19s] %s(%d) %s: ", ctime(&now), pmProgname, getpid(), level);
+    PM_UNLOCK(__pmLock_libpcp);
     vpmprintf(message, arg);
     va_end(arg);
     /* trailing \n if needed */
@@ -138,7 +161,9 @@ logheader(const char *progname, FILE *log, const char *act)
     gethostname(host, MAXHOSTNAMELEN);
     host[MAXHOSTNAMELEN-1] = '\0';
     time(&now);
+    PM_LOCK(__pmLock_libpcp);
     fprintf(log, "Log for %s on %s %s %s\n", progname, host, act, ctime(&now));
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 static void
@@ -147,7 +172,9 @@ logfooter(FILE *log, const char *act)
     time_t	now;
 
     time(&now);
+    PM_LOCK(__pmLock_libpcp);
     fprintf(log, "\nLog %s %s", act, ctime(&now));
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 static void
@@ -155,16 +182,16 @@ logonexit(void)
 {
     int		i;
 
-    /*
-     * there is a race condition here ... but the worse that can happen
-     * is (a) no "Log finished" message, or (b) _two_ "Log finished"
-     * messages ... neither case is serious enough to warrant a mutex guard
-     */
-    if (++done_exit != 1)
+    PM_LOCK(__pmLock_libpcp);
+    if (++done_exit != 1) {
+	PM_UNLOCK(__pmLock_libpcp);
 	return;
+    }
 
     for (i = 0; i < nfilelog; i++)
 	logfooter(filelog[i], "finished");
+
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 /* common code shared by __pmRotateLog and __pmOpenLog */
@@ -232,6 +259,7 @@ __pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
     oldstream = logreopen(progname, logname, oldstream, status);
     logheader(progname, oldstream, "started");
 
+    PM_LOCK(__pmLock_libpcp);
     nfilelog++;
     if (nfilelog == 1)
 	atexit(logonexit);
@@ -241,6 +269,8 @@ __pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
 	__pmNoMem("__pmOpenLog", nfilelog * sizeof(FILE *), PM_FATAL_ERR);
     }
     filelog[nfilelog-1] = oldstream;
+
+    PM_UNLOCK(__pmLock_libpcp);
     return oldstream;
 }
 
@@ -250,6 +280,7 @@ __pmRotateLog(const char *progname, const char *logname, FILE *oldstream,
 {
     int		i;
 
+    PM_LOCK(__pmLock_libpcp);
     for (i = 0; i < nfilelog; i++) {
 	if (oldstream == filelog[i]) {
 	    logfooter(oldstream, "rotated");	/* old */
@@ -259,6 +290,7 @@ __pmRotateLog(const char *progname, const char *logname, FILE *oldstream,
 	    break;
 	}
     }
+    PM_UNLOCK(__pmLock_libpcp);
     return oldstream;
 }
 
@@ -759,11 +791,11 @@ __pmPrintTimeval(FILE *f, const __pmTimeval *tp)
 void
 __pmPrintDesc(FILE *f, const pmDesc *desc)
 {
-    char	*type;
-    char	*sem;
-    static char	*unknownVal = "???";
-    const char	*units;
-    char	strbuf[60];
+    const char		*type;
+    const char		*sem;
+    static const char	*unknownVal = "???";
+    const char		*units;
+    char		strbuf[60];
 
     if (desc->type == PM_TYPE_NOSUPPORT) {
 	fprintf(f, "    Data Type: Not Supported\n");
@@ -964,9 +996,9 @@ pmfstate(int state)
     if (state > PM_QUERYERR)
 	errtype = state;
 
+    PM_LOCK(__pmLock_libpcp);
     if (errtype == PM_QUERYERR) {
 	errtype = PM_USESTDERR;
-	PM_LOCK(__pmLock_libpcp);
 	if ((ferr = getenv("PCP_STDERR")) != NULL) {
 	    if (strcasecmp(ferr, "DISPLAY") == 0) {
 		char * xconfirm = pmGetConfig("PCP_XCONFIRM_PROG");
@@ -980,8 +1012,8 @@ pmfstate(int state)
 	    else if (strcmp(ferr, "") != 0)
 		errtype = PM_USEFILE;
 	}
-	PM_UNLOCK(__pmLock_libpcp);
     }
+    PM_UNLOCK(__pmLock_libpcp);
     return errtype;
 }
 
@@ -990,6 +1022,7 @@ vpmprintf(const char *msg, va_list arg)
 {
     int		lsize = 0;
 
+    PM_LOCK(__pmLock_libpcp);
     if (fptr == NULL && msgsize == 0) {		/* create scratch file */
 	int	fd = -1;
 
@@ -1014,6 +1047,7 @@ vpmprintf(const char *msg, va_list arg)
     else
 	msgsize += (lsize = vfprintf(fptr, msg, arg));
 
+    PM_UNLOCK(__pmLock_libpcp);
     return lsize;
 }
 
@@ -1038,6 +1072,7 @@ pmflush(void)
     FILE	*eptr = NULL;
     char	outbuf[MSGBUFLEN];
 
+    PM_LOCK(__pmLock_libpcp);
     if (fptr != NULL && msgsize > 0) {
 	fflush(fptr);
 	state = pmfstate(PM_QUERYERR);
@@ -1095,6 +1130,7 @@ pmflush(void)
 
     msgsize = 0;
 
+    PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
 
@@ -1266,6 +1302,7 @@ scandir(const char *dirname, struct dirent ***namelist,
     struct dirent	*dp;
     struct dirent	*tp;
 
+    PM_LOCK(__pmLock_libpcp);
     if ((dirp = opendir(dirname)) == NULL)
 	return -1;
 
@@ -1290,6 +1327,7 @@ scandir(const char *dirname, struct dirent ***namelist,
 	memcpy(tp->d_name, dp->d_name, strlen(dp->d_name)+1);
     }
     closedir(dirp);
+    PM_UNLOCK(__pmLock_libpcp);
     *namelist = names;
 
     if (n && compare)

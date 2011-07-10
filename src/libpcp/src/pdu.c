@@ -10,6 +10,16 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes:
+ *
+ * maxsize - monotonic increasing and rarely changes, so use global
+ * 	mutex to protect updates, but allow reads without locking
+ * 	as seeing an unexpected newly updated value is benign
+ *
+ * TODO - __pmPDUCntIn[] and __pmPDUCntOut[] are diagnostic counters ...
+ *	decide if these need atomic updates and check the initialization
+ *	case in __pmSetPDUCntBuf()
  */
 
 #include <signal.h>
@@ -444,11 +454,14 @@ check_read_len:
 	int		tmpsize;
 	int		have = len;
 
+	PM_LOCK(__pmLock_libpcp);
 	if (php->len > maxsize) {
 	    tmpsize = PDU_CHUNK * ( 1 + php->len / PDU_CHUNK);
-	} else {
-	    tmpsize = maxsize;
+	    maxsize = tmpsize;
 	}
+	else
+	    tmpsize = maxsize;
+	PM_UNLOCK(__pmLock_libpcp);
 
 	__pmPinPDUBuf(pdubuf);
 	pdubuf_prev = pdubuf;
@@ -456,8 +469,6 @@ check_read_len:
 	    __pmUnpinPDUBuf(pdubuf_prev);
 	    return -oserror();
 	}
-
-	maxsize = tmpsize;
 
 	memmove((void *)pdubuf, (void *)php, len);
 	__pmUnpinPDUBuf(pdubuf_prev);

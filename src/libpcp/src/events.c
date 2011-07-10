@@ -13,6 +13,13 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes
+ *
+ * The initialization of pmid_flags and pmid_missed both have a potential
+ * race, but there are no side-effects and the end result will be the
+ * same, so no locking is required.
+ *
  */
 
 #include <inttypes.h>
@@ -239,19 +246,23 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
     static char		*name_flags = "event.flags";
     static char		*name_missed = "event.missed";
 
+    PM_LOCK(__pmLock_libpcp);
     if (first) {
 	sts = __pmRegisterAnon(name_flags, PM_TYPE_U32);
 	if (sts < 0) {
 	    fprintf(stderr, "pmUnpackEventRecords: Warning: failed to register %s: %s\n", name_flags, pmErrStr(sts));
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return sts;
 	}
 	sts = __pmRegisterAnon(name_missed, PM_TYPE_U32);
 	if (sts < 0) {
 	    fprintf(stderr, "pmUnpackEventRecords: Warning: failed to register %s: %s\n", name_missed, pmErrStr(sts));
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return sts;
 	}
 	first = 0;
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     sts = __pmCheckEventRecords(vsp, idx);
     if (sts < 0) {

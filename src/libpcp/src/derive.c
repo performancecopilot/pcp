@@ -31,20 +31,55 @@
  * 	call pmNewContext().
  * 4.	There is no pmUnregisterDerived(), so once registered a derived
  * 	metric persists for the life of the application.
+ *
+ * Thread-safe notes
+ *
+ * Need to call PM_INIT_LOCKS() in pmRegisterDerived() because we may
+ * be called before a context has been created, and missed the
+ * lock initialization in pmNewContext().
+ *
+ * registered.mutex is held throughout pmRegisterDerived() and this
+ * protects all of the lexical scanner and parser state, i.e. tokbuf,
+ * tokbuflen, string, lexpeek, this and eof.  Same applies to pmid
+ * within pmRegisterDerived().
+ *
+ * The return value from pmRegisterDerived is either a NULL or a pointer
+ * back into the expr argument, so use of "this" to carry the return
+ * value in the error case is OK.
+ *
+ * All access to registered is controlled by the registered.mutex.
+ *
+ * No locking needed in init() to protect need_init and the getenv()
+ * call, as we always host the registered.mutex before calling init().
+ *
+ * TODO context locking is not yet implemented, but we're assuming that
+ * when called with a __pmContext * argument, the associated context is
+ * ALREADY locked
+ *
+ * TODO errmsg and pmDerivedErrStr
  */
 
 #include <inttypes.h>
 #include "derive.h"
 
 static int	need_init = 1;
-static ctl_t	registered;
+static ctl_t	registered = {
+#ifdef PM_MULTI_THREAD
+#ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+    PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
+#else
+bozo! the registered mutex must allow recursive locking
+#endif
+#endif
+    0, NULL, 0, 0
+};
 
 /* parser and lexer variables */
 static char	*tokbuf = NULL;
 static int	tokbuflen;
-static char	*this;		/* start of current lexicon */
+static const char	*this;		/* start of current lexicon */
 static int	lexpeek = 0;
-static char	*string;
+static const char	*string;
 static char	*errmsg;
 
 static const char *type_dbg[] = { "ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "PLUS", "MINUS", "STAR", "SLASH", "LPAREN", "RPAREN", "AVG", "COUNT", "DELTA", "MAX", "MIN", "SUM", "ANON" };
@@ -78,7 +113,7 @@ static const char *state_dbg[] = { "INIT", "LEAF", "LEAF_PAREN", "BINOP", "FUNC_
 
 /* Register an anonymous metric */
 int
-__pmRegisterAnon(char *name, int type)
+__pmRegisterAnon(const char *name, int type)
 {
     char	*msg;
     char	buf[21];	/* anon(PM_TYPE_XXXXXX) */
@@ -116,24 +151,25 @@ __pmRegisterAnon(char *name, int type)
 static void
 init(void)
 {
-    char	*configpath;
+    if (need_init) {
+	char	*configpath;
 
-    if ((configpath = getenv("PCP_DERIVED_CONFIG")) != NULL) {
-	int	sts;
+	if ((configpath = getenv("PCP_DERIVED_CONFIG")) != NULL) {
+	    int	sts;
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_DERIVE) {
-	    fprintf(stderr, "Derived metric initialization from $PCP_DERIVED_CONFIG\n");
-	}
+	    if (pmDebug & DBG_TRACE_DERIVE) {
+		fprintf(stderr, "Derived metric initialization from $PCP_DERIVED_CONFIG\n");
+	    }
 #endif
-	sts = pmLoadDerivedConfig(configpath);
+	    sts = pmLoadDerivedConfig(configpath);
 #ifdef PCP_DEBUG
-	if (sts < 0 && (pmDebug & DBG_TRACE_DERIVE)) {
-	    fprintf(stderr, "pmLoadDerivedConfig -> %s\n", pmErrStr(sts));
-	}
+	    if (sts < 0 && (pmDebug & DBG_TRACE_DERIVE)) {
+		fprintf(stderr, "pmLoadDerivedConfig -> %s\n", pmErrStr(sts));
+	    }
 #endif
+	}
+	need_init = 0;
     }
-
-    need_init = 0;
 }
 
 static void
@@ -1167,11 +1203,14 @@ checkname(char *p)
 }
 
 char *
-pmRegisterDerived(char *name, char *expr)
+pmRegisterDerived(const char *name, const char *expr)
 {
     node_t		*np;
     static __pmID_int	pmid;
     int			i;
+
+    PM_INIT_LOCKS();
+    PM_LOCK(registered.mutex);
 
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL0)) {
@@ -1183,7 +1222,8 @@ pmRegisterDerived(char *name, char *expr)
 	if (strcmp(name, registered.mlist[i].name) == 0) {
 	    /* oops, duplicate name ... */
 	    errmsg = "Duplicate derived metric name";
-	    return expr;
+	    PM_UNLOCK(registered.mutex);
+	    return (char *)expr;
 	}
     }
 
@@ -1192,7 +1232,9 @@ pmRegisterDerived(char *name, char *expr)
     np = parse(1);
     if (np == NULL) {
 	/* parser error */
-	return this;
+	char	*sts = (char *)this;
+	PM_UNLOCK(registered.mutex);
+	return sts;
     }
 
     registered.nmetric++;
@@ -1219,11 +1261,12 @@ pmRegisterDerived(char *name, char *expr)
     }
 #endif
 
+    PM_UNLOCK(registered.mutex);
     return NULL;
 }
 
 int
-pmLoadDerivedConfig(char *fname)
+pmLoadDerivedConfig(const char *fname)
 {
     FILE	*fp;
     int		buflen;
@@ -1366,7 +1409,8 @@ __dmtraverse(const char *name, char ***namelist)
     char	**list = NULL;
     int		matchlen = strlen(name);
 
-    if (need_init) init();
+    PM_LOCK(registered.mutex);
+    init();
 
     for (i = 0; i < registered.nmetric; i++) {
 	/*
@@ -1386,6 +1430,7 @@ __dmtraverse(const char *name, char ***namelist)
     }
     *namelist = list;
 
+    PM_UNLOCK(registered.mutex);
     return sts;
 }
 
@@ -1401,7 +1446,8 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
     int		start;
     int		len;
 
-    if (need_init) init();
+    PM_LOCK(registered.mutex);
+    init();
 
     for (i = 0; i < registered.nmetric; i++) {
 	/*
@@ -1413,6 +1459,7 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
 	      registered.mlist[i].name[matchlen] == '\0'))) {
 	    if (registered.mlist[i].name[matchlen] == '\0') {
 		/* leaf node */
+		PM_UNLOCK(registered.mutex);
 		return 0;
 	    }
 	    start = matchlen > 0 ? matchlen + 1 : 0;
@@ -1464,13 +1511,16 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
 	}
     }
 
-    if (sts == 0)
+    if (sts == 0) {
+	PM_UNLOCK(registered.mutex);
 	return PM_ERR_NAME;
+    }
 
     *offspring = children;
     if (statuslist != NULL)
 	*statuslist = status;
 
+    PM_UNLOCK(registered.mutex);
     return sts;
 }
 
@@ -1479,14 +1529,17 @@ __dmgetpmid(const char *name, pmID *dp)
 {
     int		i;
 
-    if (need_init) init();
+    PM_LOCK(registered.mutex);
+    init();
 
     for (i = 0; i < registered.nmetric; i++) {
 	if (strcmp(name, registered.mlist[i].name) == 0) {
 	    *dp = registered.mlist[i].pmid;
+	    PM_UNLOCK(registered.mutex);
 	    return 0;
 	}
     }
+    PM_UNLOCK(registered.mutex);
     return PM_ERR_NAME;
 }
 
@@ -1495,17 +1548,23 @@ __dmgetname(pmID pmid, char ** name)
 {
     int		i;
 
-    if (need_init) init();
+    PM_LOCK(registered.mutex);
+    init();
 
     for (i = 0; i < registered.nmetric; i++) {
 	if (pmid == registered.mlist[i].pmid) {
 	    *name = strdup(registered.mlist[i].name);
-	    if (*name == NULL)
+	    if (*name == NULL) {
+		PM_UNLOCK(registered.mutex);
 		return -oserror();
-	    else
+	    }
+	    else {
+		PM_UNLOCK(registered.mutex);
 		return 0;
+	    }
 	}
     }
+    PM_UNLOCK(registered.mutex);
     return PM_ERR_PMID;
 }
 
@@ -1516,7 +1575,8 @@ __dmopencontext(__pmContext *ctxp)
     int		sts;
     ctl_t	*cp;
 
-    if (need_init) init();
+    PM_LOCK(registered.mutex);
+    init();
 
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
@@ -1525,6 +1585,7 @@ __dmopencontext(__pmContext *ctxp)
 #endif
     if (registered.nmetric == 0) {
 	ctxp->c_dm = NULL;
+	PM_UNLOCK(registered.mutex);
 	return;
     }
     if ((cp = (void *)malloc(sizeof(ctl_t))) == NULL) {
@@ -1563,6 +1624,7 @@ __dmopencontext(__pmContext *ctxp)
 	}
 #endif
     }
+    PM_UNLOCK(registered.mutex);
 }
 
 void

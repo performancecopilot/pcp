@@ -83,6 +83,8 @@ derive.o derive_fetch.o: derive.h
 
 p_error.o p_result.o: oldpmapi.h
 
+util.o:	$(TOPDIR)/src/include/pmdbg.h
+
 ifeq "$(TARGET_OS)" "mingw"
 kernel_pmda_dso	= windows
 else

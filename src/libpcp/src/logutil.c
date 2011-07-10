@@ -10,6 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes:
+ *
+ * TODO - __pmLogReads is a diagnostic counter ... decide if this
+ * 	needs atomic updates
  */
 
 #include <inttypes.h>
@@ -22,8 +27,6 @@
 
 INTERN int	__pmLogReads = 0;
 
-static int	seeking_end;
-
 /*
  * Suffixes and associated compresssion application for compressed filenames.
  * These can appear _after_ the volume number in the name of a file for an
@@ -32,9 +35,9 @@ static int	seeking_end;
 #define	USE_NONE	0
 #define	USE_BZIP2	1
 #define USE_GZIP	2
-static struct {
+static const struct {
     const char	*suff;
-    int		appl;
+    const int	appl;
 } compress_ctl[] = {
     { ".bz2",	USE_BZIP2 },
     { ".bz",	USE_BZIP2 },
@@ -42,7 +45,7 @@ static struct {
     { ".Z",	USE_GZIP },
     { ".z",	USE_GZIP }
 };
-static int	ncompress = sizeof(compress_ctl) / sizeof(compress_ctl[0]);
+static const int	ncompress = sizeof(compress_ctl) / sizeof(compress_ctl[0]);
 
 /*
  * first two fields are made to look like a pmValueSet when no values are
@@ -55,7 +58,14 @@ typedef struct {
     				/* value control for interpolation */
 } pmid_ctl;
 
-static __pmHashCtl	pc_hc;		/* hash control for requested metrics */
+/*
+ * Hash control for requested metrics, used to construct 'No values'
+ * result when the corresponding metric is requested but there is
+ * no values available in the pmResult
+ *
+ * Note, this hash table is global across all contexts.
+ */
+static __pmHashCtl	pc_hc;
 
 #ifdef PCP_DEBUG
 static void
@@ -238,7 +248,7 @@ fopen_compress(const char *fname)
     char	*cmd;
     char	*msg;
     FILE	*fp;
-    static char	tmpname[MAXPATHLEN];
+    char	tmpname[MAXPATHLEN];
 
     for (i = 0; i < ncompress; i++) {
 	snprintf(tmpname, sizeof(tmpname), "%s%s", fname, compress_ctl[i].suff);
@@ -291,7 +301,7 @@ fopen_compress(const char *fname)
 		fprintf(stderr, "__pmLogOpen: uncompress failed, signal: %d\n", WTERMSIG(sts));
 	    else
 #endif
-		fprintf(stderr, "__pmLogOpen: uncompress failed, system() returns: %d\n", sts);
+		fprintf(stderr, "__pmLogOpen: uncompress failed, popen() returns: %d\n", sts);
 	}
 #endif
 	close(fd);
@@ -709,6 +719,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
      */
     if ((tbuf = strdup(name)) == NULL)
 	return -oserror();
+    PM_LOCK(__pmLock_libpcp);
     dir = dirname(tbuf);
 
     /*
@@ -718,8 +729,10 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
     if ((base = strdup(basename(filename))) == NULL) {
 	sts = -oserror();
 	free(tbuf);
+	PM_UNLOCK(__pmLock_libpcp);
 	return sts;
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     if (access(name, R_OK) == 0) {
 	/*
@@ -787,6 +800,7 @@ done:
     lcp->l_pmns = NULL;
 
     blen = (int)strlen(base);
+    PM_LOCK(__pmLock_libpcp);
     if ((dirp = opendir(dir)) != NULL) {
 #if defined(HAVE_READDIR64)
 	while ((direntp = readdir64(dirp)) != NULL)
@@ -810,6 +824,7 @@ done:
 		snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		if ((lcp->l_tifp = fopen(filename, "r")) == NULL) {
 		    sts = -oserror();
+		    PM_UNLOCK(__pmLock_libpcp);
 		    goto cleanup;
 		}
 	    }
@@ -818,6 +833,7 @@ done:
 		snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		if ((lcp->l_mdfp = fopen(filename, "r")) == NULL) {
 		    sts = -oserror();
+		    PM_UNLOCK(__pmLock_libpcp);
 		    goto cleanup;
 		}
 	    }
@@ -859,10 +875,12 @@ done:
 	sts = -oserror();
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "__pmLogOpen: cannot scan directory \"%s\": %s\n", dir, pmErrStr(sts));
+	PM_UNLOCK(__pmLock_libpcp);
 	goto cleanup;
 	
 #endif
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     if (lcp->l_minvol == -1 || lcp->l_mdfp == NULL) {
 #ifdef PCP_DEBUG
@@ -962,8 +980,8 @@ cleanup:
 void
 __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
 {
-    static __pmLogTI	ti;
-    __pmLogTI		oti;
+    __pmLogTI	ti;
+    __pmLogTI	oti;
 
     if (lcp->l_tifp == NULL || lcp->l_mdfp == NULL || lcp->l_mfp == NULL) {
 	/*
@@ -1252,9 +1270,7 @@ static int
 paranoidLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result)
 {
     int		sts;
-    seeking_end = 1;
-    sts = __pmLogRead(lcp, mode, peekf, result);
-    seeking_end = 0;
+    sts = __pmLogRead(lcp, mode, peekf, result, PMLOGREAD_TO_EOF);
     return sts;
 }
 
@@ -1267,7 +1283,7 @@ paranoidLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result)
  * if peekf != NULL, use this stream, and do not roll volume
  */
 int
-__pmLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result)
+__pmLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result, int option)
 {
     int		head;
     int		rlen;
@@ -1477,7 +1493,7 @@ again:
 	return PM_ERR_LOGREC;
     }
 
-    if (seeking_end && paranoidCheck(head, pb) == -1)
+    if (option == PMLOGREAD_TO_EOF && paranoidCheck(head, pb) == -1)
 	return PM_ERR_LOGREC;
 
     if (mode == PM_MODE_BACK)
@@ -1588,7 +1604,7 @@ more:
 		tmp_mode = PM_MODE_BACK;
 	    else
 		tmp_mode = PM_MODE_FORW;
-	    while (__pmLogRead(ctxp->c_archctl->ac_log, tmp_mode, NULL, result) >= 0) {
+	    while (__pmLogRead(ctxp->c_archctl->ac_log, tmp_mode, NULL, result, PMLOGREAD_NEXT) >= 0) {
 		nskip++;
 		tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
 		tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
@@ -1630,7 +1646,7 @@ more:
 	}
 	if (found)
 	    break;
-	if ((sts = __pmLogRead(ctxp->c_archctl->ac_log, ctxp->c_mode, NULL, result)) < 0)
+	if ((sts = __pmLogRead(ctxp->c_archctl->ac_log, ctxp->c_mode, NULL, result, PMLOGREAD_NEXT)) < 0)
 	    break;
 	tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
 	tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
@@ -1702,6 +1718,7 @@ more:
 	    newres->numpmid = numpmid;
 	    newres->timestamp = (*result)->timestamp;
 	    u = 0;
+	    PM_LOCK(__pmLock_libpcp);
 	    for (j = 0; j < numpmid; j++) {
 		hp = __pmHashSearch((int)pmidlist[j], &pc_hc);
 		if (hp == NULL) {
@@ -1712,8 +1729,10 @@ more:
 		    pcp->pc_pmid = pmidlist[j];
 		    pcp->pc_numval = 0;
 		    sts = __pmHashAdd((int)pmidlist[j], (void *)pcp, &pc_hc);
-		    if (sts < 0)
+		    if (sts < 0) {
+			PM_UNLOCK(__pmLock_libpcp);
 			return sts;
+		    }
 		}
 		else
 		    pcp = (pmid_ctl *)hp->data;
@@ -1733,6 +1752,7 @@ more:
 		    newres->vset[j] = (pmValueSet *)pcp;
 		}
 	    }
+	    PM_UNLOCK(__pmLock_libpcp);
 	    if (u == 0 && !all_derived) {
 		/*
 		 * not one of our pmids was in the log record, try
@@ -2008,7 +2028,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		if (pmDebug & DBG_TRACE_LOG)
 		    fprintf(stderr, " back up ...");
 #endif
-		if (__pmLogRead(lcp, PM_MODE_BACK, NULL, &result) >= 0)
+		if (__pmLogRead(lcp, PM_MODE_BACK, NULL, &result, PMLOGREAD_NEXT) >= 0)
 		    pmFreeResult(result);
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOG)

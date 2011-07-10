@@ -341,7 +341,9 @@ INIT_CONTEXT:
 	new->c_archctl->ac_serial = 0;		/* not serial access, yet */
 	new->c_archctl->ac_pmid_hc.nodes = 0;	/* empty hash list */
 	new->c_archctl->ac_pmid_hc.hsize = 0;
-
+	new->c_archctl->ac_end = 0.0;
+	new->c_archctl->ac_want = NULL;
+	new->c_archctl->ac_unbound = NULL;
 	new->c_archctl->ac_log->l_refcnt++;
     }
     else {

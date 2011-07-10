@@ -1079,7 +1079,7 @@ againlog:
 	ctxp = __pmHandleToPtr(iap->ctx);
 	lcp = ctxp->c_archctl->ac_log;
 
-	if ((sts=__pmLogRead(lcp,PM_MODE_FORW,NULL,&iap->_result)) < 0) {
+	if ((sts=__pmLogRead(lcp, PM_MODE_FORW, NULL, &iap->_result, PMLOGREAD_NEXT)) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: Error: __pmLogRead[log %s]: %s\n",
 			pmProgname, iap->name, pmErrStr(sts));

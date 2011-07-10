@@ -11,13 +11,17 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  *
- * Multi-threading note
+ * Thread-safe notes
  *
  * These routines manipulate the environment and call lots of routines
  * like localtime(), asctime(), gmtime(), getenv(), putenv() ... all of
  * which are not thread-safe.
  *
  * We use the big lock to prevent concurrent execution.
+ *
+ * Need to call PM_INIT_LOCKS() in all the exposed routines because we
+ * may be called before a context has been created, and missed the
+ * lock initialization in pmNewContext().
  */
 
 #include "pmapi.h"

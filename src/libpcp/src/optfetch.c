@@ -10,12 +10,14 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- */
-
-/*
+ *
  * Generic routines to provide the "optimized" pmFetch bundling
  * services ... the optimization is driven by the crude heuristics
  * weights defined in optcost below.
+ *
+ * Thread-safe notes
+ *
+ * lrand48() is not thread-safe, but we don't really care here.
  */
 
 /* if DESPERATE, we need DEBUG */
@@ -136,6 +138,7 @@ missinst(int numa, int *lista, int numb, int *listb)
     int		i;
     int		j;
 
+    PM_LOCK(__pmLock_libpcp);
     /* count in lista[] but _not_ in listb[] */
     if (numa == 0) {
 	/* special case for all instances in lista[] */
@@ -163,6 +166,7 @@ missinst(int numa, int *lista, int numb, int *listb)
 	xtra += (numa - i) + (numb - j);
     }
 
+    PM_UNLOCK(__pmLock_libpcp);
     return xtra;
 }
 
@@ -212,6 +216,7 @@ optCost(fetchctl_t *fp)
     int			cost = 0;
     int			done;
 
+    PM_LOCK(__pmLock_libpcp);
     /*
      * cost per PMD for the pmids in this fetch
      */
@@ -263,6 +268,7 @@ optCost(fetchctl_t *fp)
 	}
     }
 
+    PM_UNLOCK(__pmLock_libpcp);
     return cost;
 }
 
@@ -357,6 +363,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
     pmInDom		indom = new->r_desc->indom;
     pmID		pmid = new->r_desc->pmid;
 
+    PM_LOCK(__pmLock_libpcp);
     /* add new fetch as first option ... will be reclaimed later if not used */
     if ((fp = (fetchctl_t *)calloc(1, sizeof(fetchctl_t))) == NULL) {
 	__pmNoMem("optAddFetch.fetch", sizeof(fetchctl_t), PM_FATAL_ERR);
@@ -514,6 +521,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 	}
     }
 
+    PM_UNLOCK(__pmLock_libpcp);
     return 0;
 }
 
@@ -679,13 +687,17 @@ __pmOptFetchRedo(fetchctl_t **root)
 int
 __pmOptFetchGetParams(optcost_t *ocp)
 {
+    PM_LOCK(__pmLock_libpcp);
     *ocp = optcost;
+    PM_UNLOCK(__pmLock_libpcp);
     return 0;
 }
 
 int
 __pmOptFetchPutParams(optcost_t *ocp)
 {
+    PM_LOCK(__pmLock_libpcp);
     optcost = *ocp;
+    PM_UNLOCK(__pmLock_libpcp);
     return 0;
 }

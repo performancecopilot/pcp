@@ -10,6 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes:
+ *
+ * TODO - nr[] and nr_cache[] are diagnostic counters ... decide if these
+ * 	need atomic updates (and check the re-set to zero case)
  */
 
 #include <limits.h>
@@ -49,9 +54,6 @@ typedef struct instcntl {		/* metric-instance control */
     struct pmidcntl	*metric;	/* back to metric control */
 } instcntl_t;
 
-static instcntl_t	*want_head;
-static instcntl_t	*unbound_head;
-
 typedef struct pmidcntl {		/* metric control */
     pmDesc		desc;
     int			valfmt;		/* used to build result */
@@ -77,8 +79,8 @@ static cache_t		cache[NUMCACHE];
  * diagnostic counters ... indexed by PM_MODE_FORW (2) and
  * PM_MODE_BACK	(3), hence 4 elts for cached and non-cached reads
  */
-static long	nr_cache[4];
-static long	nr[4];
+static long	nr_cache[PM_MODE_BACK+1];
+static long	nr[PM_MODE_BACK+1];
 
 static int
 cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
@@ -88,6 +90,8 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
     cache_t	*lfup;
     int		save_curvol;
     static int	round_robin = -1;
+
+    PM_LOCK(__pmLock_libpcp);
 
     if (acp->ac_vol == acp->ac_log->l_curvol)
 	posn = ftell(acp->ac_log->l_mfp);
@@ -121,6 +125,7 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 	    ((mode == PM_MODE_FORW && cp->head_posn == posn) ||
 	     (mode == PM_MODE_BACK && cp->tail_posn == posn)) &&
 	    cp->rp != NULL) {
+	    int		sts;
 	    *rp = cp->rp;
 	    cp->used++;
 	    if (mode == PM_MODE_FORW)
@@ -139,7 +144,9 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 		nr_cache[mode]++;
 	    }
 #endif
-	    return cp->sts;
+	    sts = cp->sts;
+	    PM_UNLOCK(__pmLock_libpcp);
+	    return sts;
 	}
     }
 
@@ -154,7 +161,7 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 
     save_curvol = acp->ac_log->l_curvol;
 
-    lfup->sts = __pmLogRead(acp->ac_log, mode, NULL, &lfup->rp);
+    lfup->sts = __pmLogRead(acp->ac_log, mode, NULL, &lfup->rp, PMLOGREAD_NEXT);
     if (lfup->sts < 0)
 	lfup->rp = NULL;
     *rp = lfup->rp;
@@ -198,6 +205,7 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 #endif
     }
 
+    PM_UNLOCK(__pmLock_libpcp);
     return lfup->sts;
 }
 
@@ -206,6 +214,7 @@ __pmLogCacheClear(FILE *mfp)
 {
     cache_t	*cp;
 
+    PM_LOCK(__pmLock_libpcp);
     for (cp = cache; cp < &cache[NUMCACHE]; cp++) {
 	if (cp->mfp == mfp) {
 	    if (cp->rp != NULL)
@@ -215,6 +224,7 @@ __pmLogCacheClear(FILE *mfp)
 	    cp->used = 0;
 	}
     }
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 static void
@@ -242,7 +252,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 
     if (logrp->numpmid == 0 && do_mark != UPD_MARK_NONE) {
 	/* mark record, discontinuity in log */
-	for (icp = want_head; icp != NULL; icp = icp->want) {
+	for (icp = (instcntl_t *)ctxp->c_archctl->ac_want; icp != NULL; icp = icp->want) {
 	    if (t_this <= t_req &&
 		(t_this >= icp->t_prior || icp->t_prior > t_req)) {
 		/* <mark> is closer than best lower bound to date */
@@ -492,7 +502,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     int		forw = 0;
     int		done;
     int		done_roll;
-    static double	t_end = 0;
     static int	dowrap = -1;
     __pmTimeval	tmp;
     struct timeval delta_tv;
@@ -531,7 +540,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	goto all_done;
     }
 
-    if (t_req > t_end + 0.001) {
+    if (t_req > ctxp->c_archctl->ac_end + 0.001) {
 	struct timeval	end;
 	__pmTimeval	tmp;
 
@@ -541,8 +550,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	if (pmGetArchiveEnd(&end) >= 0)
 	    tmp.tv_sec = (__int32_t)end.tv_sec;
 	    tmp.tv_usec = (__int32_t)end.tv_usec;
-	    t_end = __pmTimevalSub(&tmp, &ctxp->c_archctl->ac_log->l_label.ill_start);
-	if (t_req > t_end) {
+	    ctxp->c_archctl->ac_end = __pmTimevalSub(&tmp, &ctxp->c_archctl->ac_log->l_label.ill_start);
+	if (t_req > ctxp->c_archctl->ac_end) {
 	    sts = PM_ERR_EOL;
 	    goto all_done;
 	}
@@ -571,7 +580,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
      * the log, and which instances are being requested ... also build
      * the skeletal pmResult
      */
-    want_head = NULL;
+    ctxp->c_archctl->ac_want = NULL;
     for (j = 0; j < numpmid; j++) {
 	if (pmidlist[j] == PM_ID_NULL)
 	    continue;
@@ -650,8 +659,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    for (icp = pcp->first; icp != NULL; icp = icp->next) {
 		if (__pmInProfile(pcp->desc.indom, ctxp->c_instprof, icp->inst)) {
 		    icp->inresult = 1;
-		    icp->want = want_head;
-		    want_head = icp;
+		    icp->want = (instcntl_t *)ctxp->c_archctl->ac_want;
+		    ctxp->c_archctl->ac_want = icp;
 		    pcp->numval++;
 		}
 		else
@@ -660,8 +669,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	}
 	else {
 	    pcp->first->inresult = 1;
-	    pcp->first->want = want_head;
-	    want_head = pcp->first;
+	    pcp->first->want = (instcntl_t *)ctxp->c_archctl->ac_want;
+	    ctxp->c_archctl->ac_want = pcp->first;
 	    pcp->numval = 1;
 	}
     }
@@ -722,7 +731,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     /*
      * second pass ... see which metrics are not currently bounded below
      */
-    unbound_head = NULL;
+    ctxp->c_archctl->ac_unbound = NULL;
     for (j = 0; j < numpmid; j++) {
 	if (pmidlist[j] == PM_ID_NULL)
 	    continue;
@@ -758,8 +767,8 @@ retry_back:
 		    }
 		    back++;
 		    icp->search = 1;
-		    icp->unbound = unbound_head;
-		    unbound_head = icp;
+		    icp->unbound = (instcntl_t *)ctxp->c_archctl->ac_unbound;
+		    ctxp->c_archctl->ac_unbound = icp;
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_INTERP) {
 			char	strbuf[20];
@@ -809,7 +818,7 @@ retry_back:
 	     * forget about those that can never be found from here
 	     * in this direction
 	     */
-	    for (icp = unbound_head; icp != NULL; icp = icp->unbound) {
+	    for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
 		if (icp->search && t_this <= icp->t_first) {
 		    icp->search = 0;
 		    done++;
@@ -817,7 +826,7 @@ retry_back:
 	    }
 	}
 	/* end of search, trim t_first as required */
-	for (icp = unbound_head; icp != NULL; icp = icp->unbound) {
+	for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
 	    if ((icp->t_prior == -1 || icp->t_prior > t_req) &&
 		icp->t_first < t_req) {
 		icp->t_first = t_req;
@@ -836,7 +845,7 @@ retry_back:
     /*
      * third pass ... see which metrics are not currently bounded above
      */
-    unbound_head = NULL;
+    ctxp->c_archctl->ac_unbound = NULL;
     for (j = 0; j < numpmid; j++) {
 	if (pmidlist[j] == PM_ID_NULL)
 	    continue;
@@ -872,8 +881,8 @@ retry_forw:
 		    }
 		    forw++;
 		    icp->search = 1;
-		    icp->unbound = unbound_head;
-		    unbound_head = icp;
+		    icp->unbound = (instcntl_t *)ctxp->c_archctl->ac_unbound;
+		    ctxp->c_archctl->ac_unbound = icp;
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_INTERP) {
 			char	strbuf[20];
@@ -923,7 +932,7 @@ retry_forw:
 	     * forget about those that can never be found from here
 	     * in this direction
 	     */
-	    for (icp = unbound_head; icp != NULL; icp = icp->unbound) {
+	    for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
 		if (icp->search && icp->t_last >= 0 && t_this >= icp->t_last) {
 		    icp->search = 0;
 		    done++;
@@ -931,7 +940,7 @@ retry_forw:
 	    }
 	}
 	/* end of search, trim t_last as required */
-	for (icp = unbound_head; icp != NULL; icp = icp->unbound) {
+	for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
 	    if (icp->t_next < t_req &&
 		(icp->t_last < 0 || t_req < icp->t_last)) {
 		icp->t_last = t_req;

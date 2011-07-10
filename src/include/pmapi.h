@@ -639,8 +639,8 @@ extern int pmLoopDebug;
 /*
  * Derived Metrics support
  */
-extern int pmLoadDerivedConfig(char *);
-extern char *pmRegisterDerived(char *, char *);
+extern int pmLoadDerivedConfig(const char *);
+extern char *pmRegisterDerived(const char *, const char *);
 extern char *pmDerivedErrStr(void);
 
 #ifdef ASYNC_API

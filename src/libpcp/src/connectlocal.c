@@ -11,6 +11,34 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes
+ *
+ * atexit_installed is protected by the __pmLock_libpcp mutex.
+ *
+ * __pmSpecLocalPMDA() uses buffer[], but this routine is only called
+ * from main() in single-threaded apps like pminfo, pmprobe, pmval
+ * and pmevent ... so we can ignore any multi-threading issues,
+ * especially as buffer[] is only used on an error handling code path.
+ *
+ * dsotab[] and numdso are obviously of interest via calls to
+ * __pmLookupDSO(), EndLocalContext(), __pmConnectLocal() or
+ * __pmLocalPMDA().
+ *
+ * Within libpcp, __pmLookupDSO() is called _only_ for PM_CONTEXT_LOCAL
+ * and it is not called from outside libpcp.  Local contexts are only
+ * supported for single-threaded applications in the scope
+ * PM_SCOPE_DSO_PMDA that is enforced in pmNewContext.  Multi-threaded
+ * applications are not supported for local contexts, so we do not need
+ * additional concurrency control for __pmLookupDSO().
+ *
+ * The same arguments apply to EndLocalContext() and __pmConnectLocal().
+ *
+ * __pmLocalPMDA() is a mixed bag, sharing some of the justifcation from
+ * __pmSpecLocalPMDA() and some from __pmConnectLocal().
+ *
+ * Because __pmConnectLocal() is not going to be used in a mult-threaded
+ * environment, the call to the thread-unsafe dlerror() is OK.
  */
 
 #include "pmapi.h"
@@ -125,7 +153,7 @@ build_dsotab(void)
 	}
 #endif
 	/*
-	 * a little be recursive if we got here via __pmLocalPMDA(),
+	 * a little bit recursive if we got here via __pmLocalPMDA(),
 	 * but numdso has been set correctly, so this is OK
 	 */
 	__pmLocalPMDA(PM_LOCAL_ADD, domain, name, init);
@@ -339,12 +367,14 @@ __pmConnectLocal(void)
 	    }
 	}
 #ifdef HAVE_ATEXIT
+	PM_LOCK(__pmLock_libpcp);
 	if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5 &&
 	    atexit_installed == 0) {
 	    /* install end of local context handler */
 	    atexit(EndLocalContext);
 	    atexit_installed = 1;
 	}
+	PM_UNLOCK(__pmLock_libpcp);
 #endif
 #endif	/* HAVE_DLOPEN */
     }
@@ -581,6 +611,7 @@ __pmSpecLocalPMDA(const char *spec)
 doit:
     sts = __pmLocalPMDA(op, domain, name, init);
     if (sts < 0) {
+	/* see thread-safe note at the head of this file */
 	static char buffer[256];
 	snprintf(buffer, sizeof(buffer), "__pmLocalPMDA: %s", pmErrStr(sts));
 	free(sbuf);

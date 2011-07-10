@@ -512,7 +512,6 @@ extern int __pmConnectCheckError(int);
 extern int __pmConnectRestoreFlags (int, int);
 extern int __pmConnectHandshake(int);
 
-
 /*
  * per context controls for archives and logs
  */
@@ -522,6 +521,9 @@ typedef struct {
     int			ac_vol;		/* volume for ac_offset */
     int			ac_serial;	/* serial access pattern for archives */
     __pmHashCtl		ac_pmid_hc;	/* per PMID controls for INTERP */
+    double		ac_end;		/* time at end of archive */
+    void		*ac_want;	/* used in interp.c */
+    void		*ac_unbound;	/* used in interp.c */
 } __pmArchCtl;
 
 /*
@@ -810,7 +812,9 @@ extern const char *__pmLogName_r(const char *, int, char *, int);
 extern const char *__pmLogName(const char *, int);	/* NOT thread-safe */
 extern FILE *__pmLogNewFile(const char *, int);
 extern int __pmLogCreate(const char *, const char *, int, __pmLogCtl *);
-extern int __pmLogRead(__pmLogCtl *, int, FILE *, pmResult **);
+#define PMLOGREAD_NEXT		0
+#define PMLOGREAD_TO_EOF	1
+extern int __pmLogRead(__pmLogCtl *, int, FILE *, pmResult **, int);
 extern int __pmLogWriteLabel(FILE *, const __pmLogLabel *);
 extern int __pmLogOpen(const char *, __pmContext *);
 extern int __pmLogLoadLabel(__pmLogCtl *, const char *);
@@ -1236,7 +1240,7 @@ extern int __pmCheckEventRecords(pmValueSet *, int);
 extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
 
 /* anonymous metric registration (uses derived metrics support) */
-extern int __pmRegisterAnon(char *, int);
+extern int __pmRegisterAnon(const char *, int);
 
 /* Multi-thread support */
 
