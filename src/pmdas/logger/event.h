@@ -26,6 +26,10 @@
 #include "pmda.h"
 #include <sys/queue.h>
 
+#ifndef TAILQ_NEXT	/* macro missing on RHEL4 */
+#define	TAILQ_NEXT(elm, field)	((elm)->field.tqe_next)
+#endif
+
 struct event {
     TAILQ_ENTRY(event)	events;
     int			clients;
