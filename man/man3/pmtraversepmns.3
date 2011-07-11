@@ -73,8 +73,8 @@ returns the number of children of
 which may be zero.
 .PP
 \f3pmRequestTraversePMNS\fP and \f3pmReceiveTraversePMNS\fP are used
-by applications which must  communicate with the PMCD asynchronously.
-These functions take explict context handle \f2ctx\fP which must refer
+by applications which must communicate with the PMCD asynchronously.
+These functions take explicit context handle \f2ctx\fP which must refer
 to a host context (i.e. created by passing \f3PM_CONTEXT_HOST\fP
 to \f3pmNewContext\fP). \f3pmRequestTraversePMNS\fP sends request
 to PMCD to return sub-tree of PMNS and returns without waiting for the response,

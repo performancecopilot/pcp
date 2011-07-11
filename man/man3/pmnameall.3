@@ -73,8 +73,8 @@ provides a slightly simpler interface in the absence of duplicate
 names for a particular PMID.
 .PP
 \f3pmRequestNameAll\fP and \f3pmReceiveNameAll\fP are used by
-applications which must  communicate with the PMCD asynchronously.
-These functions take explict context handle \f2ctx\fP which must refer
+applications which must communicate with the PMCD asynchronously.
+These functions take explicit context handle \f2ctx\fP which must refer
 to a host context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
 \f3pmNewContext\fP). \f3pmRequestNameAll\fP sends request to PMCD to
 return names of all metrics matching a PMID and returns without waiting

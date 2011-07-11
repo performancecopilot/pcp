@@ -227,8 +227,8 @@ using the services provided by the PMAPI will continue
 to function correctly.
 .PP 
 \f3pmRequestDesc\fP and \f3pmReceiveDesc\fP are used by applications
-which must  communicate with PMCD asynchronously. These functions
-take explict context handle \f2ctx\fP which must refer to a host
+which must communicate with PMCD asynchronously. These functions
+take explicit context handle \f2ctx\fP which must refer to a host
 context (i.e. a context created by passing \f3PM_CONTEXT_HOST\fP to
 \f3pmNewContext\fP). \f3pmRequestDesc\fP sends request to
 PMCD and returns  without waiting for the response, \f3pmReceiveDesc\fP

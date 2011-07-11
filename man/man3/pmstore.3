@@ -73,8 +73,8 @@ The return code from
 is zero for success.
 .PP
 \f3pmRequestStore\fP and \f3pmReceiveStore\fP are used by
-applications which must  communicate with the PMCD asynchronously.
-These functions take explict context handle \f2ctx\fP which must refer
+applications which must communicate with the PMCD asynchronously.
+These functions take explicit context handle \f2ctx\fP which must refer
 to a host context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
 \f3pmNewContext\fP). \f3pmRequestStore\fP sends request to store data in
 \f2result\f1 in the metrics and returns without waiting for the response,

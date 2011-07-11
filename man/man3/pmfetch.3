@@ -300,8 +300,8 @@ has the same interpretation independent of the return value being
 zero or greater than zero.
 .PP
 \f3pmRequestFetch\fP and \f3pmReceiveFetch\fP are used by applications
-which must  communicate with the PMCD asynchronously.  These functions
-take explict context handle \f2ctx\fP which must refer to a host
+which must communicate with the PMCD asynchronously.  These functions
+take explicit context handle \f2ctx\fP which must refer to a host
 context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
 \f3pmNewContext\fP). \f3pmRequestFetch\fP sends a fetch request to
 PMCD and returns without waiting for the response, \f3pmReceiveFetch\fP 
