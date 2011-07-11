@@ -1,3 +1,8 @@
+pcp-3.5.6 (11 July 2011)
+    - Fix warning from pmie_daily with some /bin/pwd versions.
+    - Numerous Debian packaging updates for lintian cleanliness.
+    - Fixed typos in several man pages.
+
 pcp-3.5.5 (6 July 2011)
     - Resolve Debian packaging issues preventing new uploads.
     - Fix warnings from pmie_check with some /bin/pwd versions.

@@ -26,7 +26,7 @@ _unsymlink_path()
 {
     [ -z "$1" ] && return
     __d=`dirname $1`
-    __real_d=`cd $__d 2>/dev/null && /bin/pwd -P`
+    __real_d=`cd $__d 2>/dev/null && $PWDCMND`
     if [ -z "$__real_d" ]
     then
 	echo $1
