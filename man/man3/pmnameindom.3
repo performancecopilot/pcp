@@ -15,17 +15,13 @@
 .\"
 .TH PMNAMEINDOM 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmNameInDom\f1,
-\f3pmRequestInDomName\f1,
-\f3pmReceiveInDomName\f1 \- translate an instance identifier into an instance name
+\f3pmNameInDom\f1 \- translate an instance identifier into an instance name
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 .nf
 int pmNameInDom(pmInDom \fIindom\fP, int \fIinst\fP, char **\fIname\fP);
-int pmRequestInDomName(int \fIctx\fP, pmInDom \fIindom\fP, int \fIinst\fP);
-int pmReceiveInDomName(int \fIctx\fP, char **\fIname\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -66,16 +62,6 @@ the space when it is no longer required.
 .PP
 .B pmNameInDom
 returns zero on success.
-.PP
-\f3pmRequestInDomName\fP and \f3pmReceiveInDomName\fP are used by
-applications which must  communicate with the PMCD asynchornously.
-These functions take explict context handle \f2ctx\fP which must refer
-to a host context (i.e. creared by passing \f3PM_CONTEXT_HOST\fP to
-\f3pmNewContext\fP). \f3pmRequestInDomName\fP sends request to translate
-internal instance identifier to external instance name to PMCD and
-returns immediately, \f3pmReceiveInDomName\fP reads reply from PMCD
-without waiting, it is the responsibility of the application to make
-sure the data are ready before calling \f3pmReceiveInDomName\f1.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmGetConfig (3),
@@ -95,5 +81,3 @@ The instance identifier
 is not known for the instance domain
 .I indom
 in the current PMAPI context
-.IP \f3PM_ERR_CTXBUSY\f1
-Context is currently in use by another asynchronous call

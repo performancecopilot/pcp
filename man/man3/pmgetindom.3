@@ -15,17 +15,13 @@
 .\"
 .TH PMGETINDOM 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmGetInDom\f1,
-\f3pmRequestInDom\f1,
-\f3pmReceiveIndom\f1 \- get instance identifiers for a performance metrics instance domain
+\f3pmGetInDom\f1 \- get instance identifiers for a performance metrics instance domain
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 .nf
 int pmGetInDom(pmInDom \fIindom\fP, int **\fIinstlist\fP, char ***\fInamelist\fP);
-int pmRequestInDom(int \fIctx\fP, pmInDom \fIindom\fP);
-int pmReceiveInDom(int \fIctx\fP, int **\fIinstlist\fP, char ***\fInamelist\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -83,17 +79,6 @@ are undefined (no space will have been allocated,
 and so calling 
 .BR free (3C)
 is a singularly bad idea).
-.PP
-\f3pmRequestInDom\fP and \f3pmReceiveInDom\fP are used by applications
-which must  communicate with the PMCD asynchronously.  These functions
-take explict context handle \f2ctx\fP which must refer to a host
-context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
-\f3pmNewContext\fP). \f3pmRequestInDom\fP sends request to enumerate all
-instances in the particular instance domain to
-PMCD and returns  without waiting for the response, \f3pmReceiveInDom\fP
-reads reply from PMCD. It is the responsibility of the application
-to make sure the data are ready before calling \f3pmReceiveInDom\f1 to avoid
-blocking.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -126,5 +111,3 @@ and
 .IP \f3PM_ERR_INDOM\f1
 .I indom
 is not a valid instance domain identifier
-.IP \f3PM_ERR_CTXBUSY\f1
-Context is currently in use by another asynchronous call.

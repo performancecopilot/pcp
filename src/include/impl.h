@@ -455,15 +455,6 @@ typedef struct {
 #endif
 } __pmPDUInfo;
 
-#ifdef ASYNC_API
-typedef enum {
-    PC_FETAL = 0,
-    PC_CONN_INPROGRESS,
-    PC_WAIT_FOR_PMCD,
-    PC_READY
-} pmcd_ctl_state_t;
-#endif /*ASYNC_API*/
-
 /*
  * Host specification allowing one or more pmproxy host, and port numbers
  * within the one string, i.e. pmcd host specifications of the form:
@@ -482,20 +473,15 @@ extern void __pmFreeHostSpec(pmHostSpec *, int);
  * Control for connection to a PMCD
  */
 typedef struct {
-    int		pc_refcnt;		/* number of contexts using this socket */
-    int		pc_fd;			/* socket for comm with pmcd */
+    int			pc_refcnt;	/* number of contexts using this socket */
+    int			pc_fd;		/* socket for comm with pmcd */
 					/* ... -1 means no connection */
-    pmHostSpec	*pc_hosts;		/* pmcd and proxy host specifications */
-    int		pc_nhosts;		/* number of pmHostSpec entries */
-    int		pc_timeout;		/* set if connect times out */
-    int		pc_tout_sec;		/* timeout for __pmGetPDU */
-    time_t	pc_again;		/* time to try again */
-#ifdef ASYNC_API
-    int		pc_curpdu; 		/* current pdu in flight */
-    pmcd_ctl_state_t pc_state;		/* current state of this context */
-    int		pc_fdflags;		/* fcntl(2) flags for pc_fd */
-#endif /*ASYNC_API*/
-    struct sockaddr pc_addr;		/* server address */
+    pmHostSpec		*pc_hosts;	/* pmcd and proxy host specifications */
+    int			pc_nhosts;	/* number of pmHostSpec entries */
+    int			pc_timeout;	/* set if connect times out */
+    int			pc_tout_sec;	/* timeout for __pmGetPDU */
+    time_t		pc_again;	/* time to try again */
+    struct sockaddr	pc_addr;	/* server address */
 } __pmPMCDCtl;
 
 extern int __pmConnectPMCD(pmHostSpec *, int);
@@ -549,10 +535,6 @@ typedef struct {
 /* handle to __pmContext pointer */
 extern __pmContext *__pmHandleToPtr(int);
 extern int __pmPtrToHandle(__pmContext *);
-#ifdef ASYNC_API
-extern int __pmGetHostContextByID(int, __pmContext **);
-extern int __pmGetBusyHostContextByID(int, __pmContext **, int);
-#endif /*ASYNC_API*/
 
 /* timeout helper functions */
 extern const struct timeval * __pmDefaultRequestTimeout(void);

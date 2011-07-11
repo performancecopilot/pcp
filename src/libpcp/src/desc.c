@@ -21,35 +21,12 @@ request_desc (__pmContext *ctxp, pmID pmid)
 {
     int n;
 
-#ifdef ASYNC_API
-    if (ctxp->c_pmcd->pc_curpdu != 0) {
-	return (PM_ERR_CTXBUSY);
-    }
-#endif /*ASYNC_API*/
-
     if ((n = __pmSendDescReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), pmid)) < 0) {
 	n = __pmMapErrno(n);
     }
 
     return (n);
 }
-
-#ifdef ASYNC_API
-int
-pmRequestDesc (int ctx, pmID pmid)
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetHostContextByID(ctx, &ctxp)) >= 0) {
-	if ((n = request_desc (ctxp, pmid)) >= 0) {
-	    ctxp->c_pmcd->pc_curpdu = PDU_DESC_REQ;
-	    ctxp->c_pmcd->pc_tout_sec = TIMEOUT_DEFAULT;
-	}
-    }
-    return (n);
-}
-#endif /*ASYNC_API*/
 
 static int
 receive_desc (__pmContext *ctxp, pmDesc *desc)
@@ -68,24 +45,6 @@ receive_desc (__pmContext *ctxp, pmDesc *desc)
 
     return (n);
 }
-
-#ifdef ASYNC_API
-int
-pmReceiveDesc(int ctx, pmDesc *desc)
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetBusyHostContextByID(ctx, &ctxp, PDU_DESC_REQ)) >= 0) {
-	n = receive_desc (ctxp, desc);
-
-	ctxp->c_pmcd->pc_curpdu = 0;
-	ctxp->c_pmcd->pc_tout_sec = 0;
-    }
-
-    return (n);
-}
-#endif /*ASYNC_API*/
 
 int
 pmLookupDesc(pmID pmid, pmDesc *desc)

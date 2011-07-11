@@ -14,19 +14,12 @@
 
 #include "pmapi.h"
 #include "impl.h"
-
-extern int __pmFetchLocal(int, pmID *, pmResult **);
+#include "internal.h"
 
 static int
 request_fetch (int ctxid, __pmContext *ctxp,  int numpmid, pmID pmidlist[])
 {
     int n;
-
-#ifdef ASYNC_API
-    if (ctxp->c_pmcd->pc_curpdu != 0) {
-	return (PM_ERR_CTXBUSY);
-    }
-#endif /*ASYNC_API*/
 
     if (ctxp->c_sent == 0) {
 	/*
@@ -55,23 +48,6 @@ request_fetch (int ctxid, __pmContext *ctxp,  int numpmid, pmID pmidlist[])
     return (n);
 }
 
-#ifdef ASYNC_API
-int 
-pmRequestFetch(int ctxid, int numpmid, pmID pmidlist[])
-{
-    int n = 0;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetHostContextByID(ctxid, &ctxp)) >= 0) {
-	if ((n = request_fetch (ctxid, ctxp, numpmid, pmidlist)) >= 0) {
-	    ctxp->c_pmcd->pc_curpdu = PDU_FETCH;
-	    ctxp->c_pmcd->pc_tout_sec = TIMEOUT_DEFAULT;
-	}
-    }
-    return (n);
-}
-#endif /*ASYNC_API*/
-
 static int
 receive_fetch (__pmContext *ctxp, pmResult **result)
 {
@@ -91,27 +67,6 @@ receive_fetch (__pmContext *ctxp, pmResult **result)
 
     return (n);
 }
-
-#ifdef ASYNC_API
-int
-pmReceiveFetch (int ctxid, pmResult **result)
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetBusyHostContextByID (ctxid, &ctxp, PDU_FETCH)) >= 0) {
-	if ((n = receive_fetch (ctxp, result)) <= 0) {
-	    /* pmcd may return state change in error PDU before
-	     * returning results for fetch - if we get one of those,
-	     * keep the state in the context for the second call to
-	     * receive_fetch */
-	    ctxp->c_pmcd->pc_curpdu = 0;
-	    ctxp->c_pmcd->pc_tout_sec = 0;
-	}
-    }
-    return (n);
-}
-#endif /*ASYNC_API*/
 
 int
 pmFetch(int numpmid, pmID pmidlist[], pmResult **result)

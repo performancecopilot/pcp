@@ -62,11 +62,7 @@ setup_context(void)
 {
     int sts;
 
-    if ((sts = pmNewContext(PM_CONTEXT_LOCAL
-#ifdef ASYNC_API
-    | PM_CTXFLAG_SHALLOW
-#endif /*ASYNC_API*/
-    , NULL)) < 0) {
+    if ((sts = pmNewContext(PM_CONTEXT_LOCAL, NULL)) < 0) {
 	fprintf(stderr, "setup_context: creation failed: %s\n", pmErrStr(sts));
 	exit(1);
     }

@@ -21,44 +21,14 @@ request_instance (__pmContext *ctxp, pmInDom indom, int inst, const char *name)
 {
     int n;
 
-#ifdef ASYNC_API
-    if (ctxp->c_pmcd->pc_curpdu != 0) {
-	return (PM_ERR_CTXBUSY);
-    }
-#endif /*ASYNC_API*/
-    
     n = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 				&ctxp->c_origin, indom, inst, name);
     if (n < 0) {
 	n = __pmMapErrno(n);
     }
 
-    return (n);
+    return n;
 }
-
-#ifdef ASYNC_API
-static int
-ctxid_request_instance (int ctx,  pmInDom indom, int inst, const char *name)
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetHostContextByID(ctx, &ctxp)) >= 0) {
-	if ((n = request_instance (ctxp, indom, inst, name)) >= 0) {
-	    ctxp->c_pmcd->pc_curpdu = PDU_INSTANCE_REQ;
-	    ctxp->c_pmcd->pc_tout_sec = TIMEOUT_DEFAULT;
-	}
-    }
-
-    return (n);
-}
-
-int
-pmRequestInDomInst (int ctx, pmInDom indom, const char *name)
-{
-    return (ctxid_request_instance(ctx, indom, PM_IN_NULL, name));
-}
-#endif /*ASYNC_API*/
 
 static int
 receive_instance_id (__pmContext *ctxp)
@@ -83,23 +53,6 @@ receive_instance_id (__pmContext *ctxp)
 
     return (n);
 }
-
-#ifdef ASYNC_API
-int 
-pmReceiveInDomInst (int ctx)
-{
-    int n;
-    __pmContext	*ctxp;
-
-    if ((n = __pmGetBusyHostContextByID(ctx, &ctxp, PDU_INSTANCE_REQ)) >= 0) {
-	n = receive_instance_id(ctxp);
-
-	ctxp->c_pmcd->pc_curpdu = 0;
-	ctxp->c_pmcd->pc_tout_sec = 0;
-    }
-    return (n);
-}
-#endif /*ASYNC_API*/
 
 int
 pmLookupInDom(pmInDom indom, const char *name)
@@ -156,14 +109,6 @@ pmLookupInDom(pmInDom indom, const char *name)
     return n;
 }
 
-#ifdef ASYNC_API
-int
-pmRequestInDomName(int ctx, pmInDom indom, int inst)
-{
-    return (ctxid_request_instance (ctx, indom, inst, NULL));
-}
-#endif /*ASYNC_API*/
-
 static int
 receive_instance_name(__pmContext *ctxp, char **name)
 {
@@ -188,23 +133,6 @@ receive_instance_name(__pmContext *ctxp, char **name)
 
     return n;
 }
-
-#ifdef ASYNC_API
-int
-pmReceiveInDomName(int ctx, char **name)
-{
-    int n;
-    __pmContext	*ctxp;
-
-    if ((n = __pmGetBusyHostContextByID(ctx, &ctxp, PDU_INSTANCE_REQ)) >= 0) {
-	n = receive_instance_name (ctxp, name);
-
-	ctxp->c_pmcd->pc_curpdu = 0;
-	ctxp->c_pmcd->pc_tout_sec = 0;
-    }
-    return (n);
-}
-#endif /*ASYNC_API*/
 
 int
 pmNameInDom(pmInDom indom, int inst, char **name)
@@ -258,14 +186,6 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 
     return n;
 }
-
-#ifdef ASYNC_API
-int
-pmRequestInDom (int ctx, pmInDom indom)
-{
-    return (ctxid_request_instance (ctx, indom, PM_IN_NULL, NULL));
-}
-#endif /*ASYNC_API*/
 
 static int
 inresult_to_lists (__pmInResult *result, int **instlist, char ***namelist)
@@ -333,23 +253,6 @@ receive_indom (__pmContext *ctxp,  int **instlist, char ***namelist)
 
     return (n);
 }
-
-#ifdef ASYNC_API
-int
-pmReceiveInDom (int ctx,  int **instlist, char ***namelist)
-{
-    int n;
-    __pmContext	*ctxp;
-
-    if ((n = __pmGetBusyHostContextByID(ctx, &ctxp,  PDU_INSTANCE_REQ)) >= 0) {
-	n = receive_indom (ctxp, instlist, namelist);
-
-	ctxp->c_pmcd->pc_curpdu = 0;
-	ctxp->c_pmcd->pc_tout_sec = 0;
-    }
-    return (n);
-}
-#endif /*ASYNC_API*/
 
 int
 pmGetInDom(pmInDom indom, int **instlist, char ***namelist)

@@ -134,11 +134,6 @@ data structure passed to
 .BR pmStore (3).
 .RE
 .TP
-.B PM_ERR_FILE
-.I "Cannot locate a file"
-.br
-Generic error when a named file is expected to already exist.
-.TP
 .B PM_ERR_NAME
 .I "Unknown metric name"
 .br
@@ -287,18 +282,6 @@ argument to
 Bad arguments passed from a PCP client to
 .BR pmAddProfile (3).
 .TP
-.B PM_ERR_OBJSTYLE
-.I "Caller does not match object style of running kernel"
-.br
-In some cases, a PCP application must be build with the same object code
-style as the booted kernel because direct access to kernel data
-structures may be required.  These cases are a client using
-.BR PM_CONTEXT_LOCAL ,
-or
-.BR pmcd (1),
-or a DSO-style PMDA to be used by
-.BR pmcd .
-.TP
 .B PM_ERR_TOOSMALL
 .I "Insufficient elements in list"
 .br
@@ -344,14 +327,6 @@ and/or changes to the PMDAs under
 .BR pmcd 's
 control.
 .RE
-.TP
-.B PM_ERR_NOASCII
-.I "ASCII format not supported for this PDU"
-.br
-The ASCII mode PDU support is intended for use only between
-.B pmcd
-and a PMDA.  Consequently not all of the possible PDU types
-include encode and decode support for ASCII PDUs.
 .TP
 .B PM_ERR_NYI
 .I "Functionality not yet implemented"
@@ -563,15 +538,6 @@ the
 argument to
 .BR pmTimeConnect (3)
 must not be invalid.
-.TP
-.B PM_ERR_WANTACK
-.I "Cannot send due to pending acknowledgements"
-.br
-Some client of
-.BR pmtime (1)
-is not acknowledging messages from
-.BR pmtime ,
-and this is causing other clients to be blocked.
 .SH "NAMESPACE ERRORS"
 These errors may occur in the processing of PCP namespace operations.
 A PCP namespace, see

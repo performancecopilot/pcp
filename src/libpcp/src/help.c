@@ -21,12 +21,6 @@ requesttext (__pmContext *ctxp, int ident, int type)
 {
     int n;
 
-#ifdef ASYNC_API
-    if (ctxp->c_pmcd->pc_curpdu != 0) {
-	return (PM_ERR_CTXBUSY);
-    }
-#endif /*ASYNC_API*/
-
     n = __pmSendTextReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), ident, type);
     if (n < 0) {
 	n = __pmMapErrno(n);
@@ -125,50 +119,6 @@ again_local:
 
     return n;
 }
-
-#ifdef ASYNC_API
-static int
-ctxidRequestText (int ctx, int id, int level)
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetHostContextByID(ctx, &ctxp)) >= 0) {
-	if ((n = requesttext (ctxp, id, level)) >= 0) {
-	    ctxp->c_pmcd->pc_curpdu = PDU_TEXT_REQ;
-	    ctxp->c_pmcd->pc_tout_sec = TIMEOUT_DEFAULT;
-	}
-    }
-    return (n);
-}
-
-int
-pmReceiveText (int ctx, char **buffer)
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetBusyHostContextByID(ctx, &ctxp, PDU_TEXT_REQ)) >= 0) {
-	n = receivetext (ctxp, buffer);
-
-	ctxp->c_pmcd->pc_curpdu = 0;
-	ctxp->c_pmcd->pc_tout_sec = 0;
-    }
-    return (n);
-}
-
-int
-pmRequestText (int ctx, pmID pmid, int level)
-{
-    return (ctxidRequestText (ctx, (int)pmid, level | PM_TEXT_PMID));
-}
-
-int
-pmRequestInDomText (int ctx, pmID pmid, int level)
-{
-    return (ctxidRequestText (ctx, (int)pmid, level | PM_TEXT_INDOM));
-}
-#endif /*ASYNC_API*/
 
 int
 pmLookupText(pmID pmid, int level, char **buffer)

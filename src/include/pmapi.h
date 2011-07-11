@@ -149,7 +149,7 @@ typedef struct {
 #define PM_ERR_TIMEOUT		(-PM_ERR_BASE-8)    /* Timeout waiting for a response from PMCD */
 #define PM_ERR_NODATA		(-PM_ERR_BASE-9)    /* Empty archive log file */
 #define PM_ERR_RESET		(-PM_ERR_BASE-10)   /* pmcd reset or configuration changed */
-#define PM_ERR_FILE		(-PM_ERR_BASE-11)   /* Cannot locate a file */
+/* retired PM_ERR_FILE (-PM_ERR_BASE-11) Cannot locate a file */
 #define PM_ERR_NAME		(-PM_ERR_BASE-12)   /* Unknown metric name */
 #define PM_ERR_PMID		(-PM_ERR_BASE-13)   /* Unknown or illegal metric identifier */
 #define PM_ERR_INDOM		(-PM_ERR_BASE-14)   /* Unknown or illegal instance domain identifier */
@@ -160,7 +160,7 @@ typedef struct {
 #define PM_ERR_SIGN		(-PM_ERR_BASE-19)   /* Negative value in conversion to unsigned */
 #define PM_ERR_PROFILE		(-PM_ERR_BASE-20)   /* Explicit instance identifier(s) required */
 #define PM_ERR_IPC		(-PM_ERR_BASE-21)   /* IPC protocol failure */
-#define PM_ERR_NOASCII		(-PM_ERR_BASE-22)   /* ASCII format not supported for this PDU */
+/* retired PM_ERR_NOASCII (-PM_ERR_BASE-22) ASCII format not supported for this PDU */
 #define PM_ERR_EOF		(-PM_ERR_BASE-23)   /* IPC channel closed */
 #define PM_ERR_NOTHOST		(-PM_ERR_BASE-24)   /* Operation requires context with host source of metrics */
 #define PM_ERR_EOL		(-PM_ERR_BASE-25)   /* End of PCP archive log */
@@ -179,21 +179,17 @@ typedef struct {
 #define PM_ERR_PERMISSION	(-PM_ERR_BASE-42)   /* No permission to perform requested operation */
 #define PM_ERR_CONNLIMIT	(-PM_ERR_BASE-43)   /* PMCD connection limit for this host exceeded */
 #define PM_ERR_AGAIN		(-PM_ERR_BASE-44)   /* try again. Info not currently available */
-#ifdef ASYNC_API
 #define PM_ERR_ISCONN		(-PM_ERR_BASE-45)   /* already connected */
-#endif /* ASYNC_API */
 #define PM_ERR_NOTCONN		(-PM_ERR_BASE-46)   /* not connected */
-#ifdef ASYNC_API
 #define PM_ERR_NEEDPORT		(-PM_ERR_BASE-47)   /* port name required */
-#define PM_ERR_WANTACK		(-PM_ERR_BASE-48)   /* can not send due to pending acks */
-#endif /* ASYNC_API */
+/* retired PM_ERR_WANTACK (-PM_ERR_BASE-48) can not send due to pending acks */
 #define PM_ERR_NONLEAF		(-PM_ERR_BASE-49)   /* PMNS node is not a leaf node */
-#define PM_ERR_OBJSTYLE		(-PM_ERR_BASE-50)   /* user/kernel object style mismatch */
+/* retired PM_ERR_OBJSTYLE (-PM_ERR_BASE-50) user/kernel object style mismatch */
 /* retired PM_ERR_PMCDLICENSE (-PM_ERR_BASE-51) PMCD is not licensed to accept connections */
 #define PM_ERR_TYPE		(-PM_ERR_BASE-52)   /* Unknown or illegal metric type */
 #define PM_ERR_THREAD		(-PM_ERR_BASE-53)   /* Operation not supported for multi-threaded applications */
 
-#define PM_ERR_CTXBUSY		(-PM_ERR_BASE-97)   /* Context is busy */
+/* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */
 #define PM_ERR_TOOBIG		(-PM_ERR_BASE-99)   /* Result size exceeded */
 
@@ -310,12 +306,6 @@ extern int pmNewContext(int, const char *);
 #define PM_CONTEXT_HOST		1	/* context types */
 #define PM_CONTEXT_ARCHIVE	2
 #define PM_CONTEXT_LOCAL	3	/* local host, no pmcd connection */
-#ifdef ASYNC_API
-#define PM_CONTEXT_TYPEMASK	0xff	/* Mask to separate types from flags */
-
-#define PM_CTXFLAG_SHALLOW	(1<<8)  /* Shallow host context - don't connect */
-#define PM_CTXFLAG_EXCLUSIVE	(1<<9)  /* Exclusive host context - don't share socket */
-#endif /*ASYNC_API*/
 
 /*
  * Duplicate current context -- returns handle to new one for pmUseContext()
@@ -332,17 +322,6 @@ extern int pmUseContext(int);
  * settings are preserved and the previous context settings are restored.
  */
 extern int pmReconnectContext(int);
-
-#ifdef ASYNC_API
-extern int pmGetContextFD(int);
-extern int pmGetContextTimeout(int, int*);
-
-struct sockaddr;
-extern int pmContextConnectTo(int, const struct sockaddr *);
-extern int pmContextConnectChangeState(int);
-
-extern void pmContextUndef(void);
-#endif /*ASYNC_API*/
 
 /*
  * Add to instance profile.
@@ -612,67 +591,12 @@ extern int pmflush(void);
  */
 extern char *pmGetConfig(const char *);
 
-#ifdef ASYNC_API
-/*
- * Mainloop implementation.
- */
-struct rusage;
-
-extern int pmLoopRegisterInput(int, int, int (*)(int, int, void *), void *, int);
-extern int pmLoopRegisterSignal(int, int (*)(int, void *), void *);
-extern int pmLoopRegisterTimeout(int, int (*)(void *), void *);
-extern int pmLoopRegisterChild(pid_t, int (*)(pid_t, int, const struct rusage *, void *), void *);
-extern int pmLoopRegisterIdle(int (*)(void *), void *);
-
-extern void pmLoopUnregisterInput(int);
-extern void pmLoopUnregisterSignal(int);
-extern void pmLoopUnregisterTimeout(int);
-extern void pmLoopUnregisterChild(int);
-extern void pmLoopUnregisterIdle(int);
-
-extern void pmLoopStop(void);
-extern int pmLoopMain(void);
-
-extern int pmLoopDebug;
-#endif /*ASYNC_API*/
-
 /*
  * Derived Metrics support
  */
 extern int pmLoadDerivedConfig(const char *);
 extern char *pmRegisterDerived(const char *, const char *);
 extern char *pmDerivedErrStr(void);
-
-#ifdef ASYNC_API
-/*
- * Asynchronous versions of main pmapi client routines - each one
- * either sends or receives a PDU.
- */ 
-extern int pmReceiveDesc(int, pmDesc *);
-extern int pmReceiveFetch(int, pmResult **);
-extern int pmReceiveInDom(int,  int **, char ***);
-extern int pmReceiveInDomInst(int);
-extern int pmReceiveInDomName(int, char **);
-extern int pmReceiveNameID(int, char **);
-extern int pmReceiveNames(int, int, pmID []);
-extern int pmReceiveNamesAll(int, char ***);
-extern int pmReceiveNamesOfChildren(int, char ***, int **);
-extern int pmReceiveStore(int);
-extern int pmReceiveText(int, char **);
-extern int pmReceiveTraversePMNS(int, void (*)(const char *));
-extern int pmRequestDesc(int, pmID);
-extern int pmRequestFetch(int, int, pmID *);
-extern int pmRequestInDom(int, pmInDom);
-extern int pmRequestInDomInst(int, pmInDom, const char *);
-extern int pmRequestInDomName(int, pmInDom, int);
-extern int pmRequestInDomText(int, pmID, int);
-extern int pmRequestNameID(int, pmID);
-extern int pmRequestNames(int, int, char *[]);
-extern int pmRequestNamesOfChildren(int, const char *, int);
-extern int pmRequestStore(int, const pmResult *);
-extern int pmRequestText(int, pmID, int);
-extern int pmRequestTraversePMNS(int, const char *);
-#endif /*ASYNC_API*/
 
 /*
  * Event Record support

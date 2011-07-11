@@ -27,14 +27,12 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c
 
-HFILES = derive.h oldpmapi.h
+HFILES = derive.h oldpmapi.h internal.h
 
 ifneq "$(TARGET_OS)" "mingw"
-CFILES += loop.c
 LSRCFILES = win32.c
 else
 CFILES += win32.c
-LSRCFILES = loop.c
 LLDLIBS	+= -lpsapi
 endif
 

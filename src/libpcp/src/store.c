@@ -21,12 +21,6 @@ sendstore (__pmContext *ctxp, const pmResult *result)
 {
     int sts;
 
-#ifdef ASYNC_API
-    if (ctxp->c_pmcd->pc_curpdu != 0) {
-	return (PM_ERR_CTXBUSY);
-    }
-#endif /*ASYNC_API*/
-
     sts = __pmSendResult(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), result);
     if (sts < 0) {
 	sts = __pmMapErrno(sts);
@@ -34,24 +28,6 @@ sendstore (__pmContext *ctxp, const pmResult *result)
 
     return (sts);
 }
-
-#ifdef ASYNC_API
-int
-pmStoreSend (int ctx, const pmResult *result)
-{
-    int sts;
-    __pmContext *ctxp;
-
-    if ((sts = __pmGetHostContextByID(ctx, &ctxp)) >= 0) {
-	if ((sts = sendstore (ctxp, result)) >= 0) {
-	    ctxp->c_pmcd->pc_curpdu = PDU_RESULT;
-	    ctxp->c_pmcd->pc_tout_sec = TIMEOUT_DEFAULT;
-	}
-    }
-
-    return (sts);
-}
-#endif /*ASYNC_API*/
 
 static int
 store_check (__pmContext *ctxp)
@@ -68,28 +44,6 @@ store_check (__pmContext *ctxp)
 
     return (sts);
 }
-
-#ifdef ASYNC_API
-int 
-pmStoreCheck (int ctx)
-{
-    int sts;
-    __pmContext	*ctxp;
-
-    if ((sts = __pmGetHostContextByID(ctx, &ctxp)) >= 0) {
-	if (ctxp->c_pmcd->pc_curpdu != PDU_RESULT) {
-	    return (PM_ERR_CTXBUSY);
-	}
-
-	sts = store_check (ctxp);
-
-	ctxp->c_pmcd->pc_curpdu = 0;
-	ctxp->c_pmcd->pc_tout_sec = 0;
-    }
-
-    return (sts);
-}
-#endif /*ASYNC_API*/
 
 int
 pmStore(const pmResult *result)

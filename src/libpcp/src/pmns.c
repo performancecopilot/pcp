@@ -1651,11 +1651,6 @@ request_names(__pmContext *ctxp, int numpmid, char *namelist[])
 {
     int n;
 
-#ifdef ASYNC_API
-    if (ctxp->c_pmcd->pc_curpdu != 0)
-	return PM_ERR_CTXBUSY;
-#endif /*ASYNC_API*/
-
     n = __pmSendNameList(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 		numpmid, namelist, NULL);
     if (n < 0)
@@ -1663,24 +1658,6 @@ request_names(__pmContext *ctxp, int numpmid, char *namelist[])
 
     return n;
 }
-
-#ifdef ASYNC_API
-int
-pmRequestNames(int ctxid, int numpmid, char *namelist[])
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n =__pmGetHostContextByID(ctxid, &ctxp)) >= 0) {
-	if ((n = request_names(ctxp, numpmid, namelist)) >= 0) {
-	    ctxp->c_pmcd->pc_curpdu = PDU_PMNS_NAMES;
-	    ctxp->c_pmcd->pc_tout_sec = TIMEOUT_DEFAULT;
-	}
-    }
-
-    return n;
-}
-#endif /*ASYNC_API*/
 
 static int
 receive_names(__pmContext *ctxp, int numpmid, pmID pmidlist[])
@@ -1710,23 +1687,6 @@ receive_names(__pmContext *ctxp, int numpmid, pmID pmidlist[])
 
     return n;
 }
-
-#ifdef ASYNC_API
-int
-pmReceiveNames(int ctxid, int numpmid, pmID pmidlist[])
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n =__pmGetBusyHostContextByID(ctxid, &ctxp, PDU_PMNS_NAMES)) >= 0) {
-	n = receive_names(ctxp, numpmid, pmidlist);
-	ctxp->c_pmcd->pc_curpdu = 0;
-	ctxp->c_pmcd->pc_tout_sec = 0;
-    }
-
-    return n;
-}
-#endif /*ASYNC_API*/
 
 int
 pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
@@ -1950,35 +1910,12 @@ request_names_of_children(__pmContext *ctxp, const char *name, int wantstatus)
 {
     int n;
 
-#ifdef ASYNC_API
-    if (ctxp->c_pmcd->pc_curpdu != 0)
-	return PM_ERR_CTXBUSY;
-#endif /*ASYNC_API*/
-
     n = __pmSendChildReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 		name, wantstatus);
     if (n < 0)
 	n =  __pmMapErrno(n);
     return n;
 }
-
-#ifdef ASYNC_API
-int
-pmRequestNamesOfChildren(int ctxid, const char *name, int wantstatus)
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetHostContextByID(ctxid, &ctxp)) >= 0) {
-	if ((n = request_names_of_children(ctxp, name, wantstatus)) >= 0) {
-	    ctxp->c_pmcd->pc_curpdu = PDU_PMNS_CHILD;
-	    ctxp->c_pmcd->pc_tout_sec = TIMEOUT_DEFAULT;
-	}
-    }
-
-    return n;
-}
-#endif /*ASYNC_API*/
 
 static int
 receive_names_of_children(__pmContext *ctxp, char ***offspring,
@@ -2002,24 +1939,6 @@ receive_names_of_children(__pmContext *ctxp, char ***offspring,
 	n = PM_ERR_IPC;
     return n;
 }
-
-#ifdef ASYNC_API
-int
-pmReceiveNamesOfChildren(int ctxid, char ***offsprings, int **status)
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetBusyHostContextByID (ctxid, &ctxp, PDU_PMNS_CHILD)) >= 0) {
-	n = receive_names_of_children (ctxp, offsprings, status);
-
-	ctxp->c_pmcd->pc_curpdu = 0;
-	ctxp->c_pmcd->pc_tout_sec = 0;
-    }
-
-    return n;
-}
-#endif /*ASYNC_API*/
 
 static int
 GetChildrenStatusRemote(__pmContext *ctxp, const char *name,
@@ -2404,34 +2323,11 @@ request_namebypmid(__pmContext *ctxp, pmID pmid)
 {
     int n;
 
-#ifdef ASYNC_API
-    if (ctxp->c_pmcd->pc_curpdu != 0)
-	return PM_ERR_CTXBUSY;
-#endif /*ASYNC_API*/
-
     n = __pmSendIDList(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), 1, &pmid, 0);
     if (n < 0)
 	n = __pmMapErrno(n);
     return n;
 }
-
-#ifdef ASYNC_API
-int
-pmRequestNameID(int ctxid, pmID pmid)
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetHostContextByID(ctxid, &ctxp)) >= 0) {
-	if ((n = request_namebypmid(ctxp, pmid)) >= 0) {
-	    ctxp->c_pmcd->pc_curpdu = PDU_PMNS_IDS;
-	    ctxp->c_pmcd->pc_tout_sec = TIMEOUT_DEFAULT;
-	}
-    }
-
-    return n;
-}
-#endif /*ASYNC_API*/
 
 static int
 receive_namesbyid(__pmContext *ctxp, char ***namelist)
@@ -2476,40 +2372,6 @@ receive_a_name(__pmContext *ctxp, char **name)
 
     return n;
 }
-
-#ifdef ASYNC_API
-int
-pmReceiveNameID(int ctxid, char **name)
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetBusyHostContextByID(ctxid, &ctxp, PDU_PMNS_IDS)) >= 0) {
-	n = receive_a_name(ctxp, name);
-
-	ctxp->c_pmcd->pc_curpdu = 0;
-	ctxp->c_pmcd->pc_tout_sec = 0;
-    }
-
-    return n;
-}
-
-int
-pmReceiveNamesAll(int ctxid, char ***namelist)
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetBusyHostContextByID(ctxid, &ctxp, PDU_PMNS_IDS)) >= 0) {
-	n = receive_namesbyid(ctxp, namelist);
-
-	ctxp->c_pmcd->pc_curpdu = 0;
-	ctxp->c_pmcd->pc_tout_sec = 0;
-    }
-
-    return n;
-}
-#endif /*ASYNC_API*/
 
 int
 pmNameID(pmID pmid, char **name)
@@ -2706,83 +2568,12 @@ request_traverse_pmns(__pmContext *ctxp, const char *name)
 {
     int n;
 
-#ifdef ASYNC_API
-    if (ctxp->c_pmcd->pc_curpdu != 0)
-	return PM_ERR_CTXBUSY;
-#endif /*ASYNC_API*/
-
     n = __pmSendTraversePMNSReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
     		name);
     if (n < 0)
 	n = __pmMapErrno(n);
     return n;
 }
-
-#ifdef ASYNC_API
-/*
- * Note: derived metrics will not work with pmRequestTraversePMNS() and
- * pmReceiveTraversePMNS() because the by the time the list of names
- * is received, the original name at the root of the search is no
- * longer available.
- *
- * Probably not an issue as no application or library in the open source
- * PCP tree uses this pair of routines.
- */
-
-int
-pmRequestTraversePMNS(int ctx, const char *name)
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetHostContextByID(ctx, &ctxp)) >= 0) {
-	if ((n = request_traverse_pmns(ctxp, name)) >= 0) {
-	    ctxp->c_pmcd->pc_curpdu = PDU_PMNS_TRAVERSE;
-	    ctxp->c_pmcd->pc_tout_sec = TIMEOUT_DEFAULT;
-	}
-    }
-    return n;
-}
-
-int
-pmReceiveTraversePMNS(int ctxid, void(*func)(const char *name))
-{
-    int n;
-    __pmContext *ctxp;
-    __pmPDU *pb;
-
-    if ((n = __pmGetBusyHostContextByID(ctxid, &ctxp, PDU_PMNS_TRAVERSE)) < 0)
-	return n;
-
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
-		   ctxp->c_pmcd->pc_tout_sec, &pb);
-    if (n == PDU_PMNS_NAMES) {
-	int numnames;
-	int i;
-	char **namelist;
-
-	n = __pmDecodeNameList(pb, &numnames, &namelist, NULL);
-	if (n >= 0) {
-	    for (i = 0; i < numnames; i++) {
-		func(namelist[i]);
-	    }
-	
-	    free(namelist);
-	}
-    }
-    else if (n == PDU_ERROR) {
-	__pmDecodeError(pb, &n);
-    }
-    else if (n != PM_ERR_TIMEOUT) {
-	n = PM_ERR_IPC;
-    }
-
-    ctxp->c_pmcd->pc_curpdu = 0;
-    ctxp->c_pmcd->pc_tout_sec = 0;
-
-    return n;
-}
-#endif /*ASYNC_API*/
 
 int
 pmTraversePMNS(const char *name, void(*func)(const char *name))

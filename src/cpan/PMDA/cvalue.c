@@ -92,7 +92,6 @@ defines(void)
     printf("PM_ERR_TIMEOUT=%d\n", PM_ERR_TIMEOUT);
     printf("PM_ERR_NODATA=%d\n", PM_ERR_NODATA);
     printf("PM_ERR_RESET=%d\n", PM_ERR_RESET);
-    printf("PM_ERR_FILE=%d\n", PM_ERR_FILE);
     printf("PM_ERR_NAME=%d\n", PM_ERR_NAME);
     printf("PM_ERR_PMID=%d\n", PM_ERR_PMID);
     printf("PM_ERR_INDOM=%d\n", PM_ERR_INDOM);
@@ -103,7 +102,6 @@ defines(void)
     printf("PM_ERR_SIGN=%d\n", PM_ERR_SIGN);
     printf("PM_ERR_PROFILE=%d\n", PM_ERR_PROFILE);
     printf("PM_ERR_IPC=%d\n", PM_ERR_IPC);
-    printf("PM_ERR_NOASCII=%d\n", PM_ERR_NOASCII);
     printf("PM_ERR_EOF=%d\n", PM_ERR_EOF);
     printf("PM_ERR_NOTHOST=%d\n", PM_ERR_NOTHOST);
     printf("PM_ERR_EOL=%d\n", PM_ERR_EOL);
@@ -125,11 +123,8 @@ defines(void)
     printf("PM_ERR_ISCONN=%d\n", PM_ERR_ISCONN);
     printf("PM_ERR_NOTCONN=%d\n", PM_ERR_NOTCONN);
     printf("PM_ERR_NEEDPORT=%d\n", PM_ERR_NEEDPORT);
-    printf("PM_ERR_WANTACK=%d\n", PM_ERR_WANTACK);
     printf("PM_ERR_NONLEAF=%d\n", PM_ERR_NONLEAF);
-    printf("PM_ERR_OBJSTYLE=%d\n", PM_ERR_OBJSTYLE);
     printf("PM_ERR_TYPE=%d\n", PM_ERR_TYPE);
-    printf("PM_ERR_CTXBUSY=%d\n", PM_ERR_CTXBUSY);
     printf("PM_ERR_TOOSMALL=%d\n", PM_ERR_TOOSMALL);
     printf("PM_ERR_TOOBIG=%d\n", PM_ERR_TOOBIG);
     printf("PM_ERR_PMDAREADY=%d\n", PM_ERR_PMDAREADY);

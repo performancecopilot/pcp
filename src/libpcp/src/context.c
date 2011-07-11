@@ -200,11 +200,7 @@ INIT_CONTEXT:
      * Set up the default state
      */
     memset(new, 0, sizeof(__pmContext));
-#ifdef ASYNC_API
-    new->c_type = (type & PM_CONTEXT_TYPEMASK);
-#else
     new->c_type = type;
-#endif /*ASYNC_API*/
     if ((new->c_instprof = (__pmProfile *)malloc(sizeof(__pmProfile))) == NULL) {
 	/*
 	 * fail : nothing changed -- actually list is changed, but restoring
@@ -231,18 +227,11 @@ INIT_CONTEXT:
 	    goto FAILED;
 	}
 
-	if (
-#ifdef ASYNC_API
-	    (type & PM_CTXFLAG_EXCLUSIVE) == 0 &&
-#endif
-	    nhosts == 1) {
+	if (nhosts == 1) {
 	    for (i = 0; i < contexts_len; i++) {
 		if (i == curcontext)
 		    continue;
 		if (contexts[i].c_type == PM_CONTEXT_HOST &&
-#ifdef ASYNC_API
-		    (contexts[i].c_pmcd->pc_curpdu == 0) &&
-#endif
 		    strcmp(contexts[i].c_pmcd->pc_hosts[0].name,
 			    hosts[0].name) == 0) {
 		    new->c_pmcd = contexts[i].c_pmcd;
@@ -255,18 +244,7 @@ INIT_CONTEXT:
 	     * If this fails, restore the original current context
 	     * and return an error.
 	     */
-#ifdef ASYNC_API
-	    pmcd_ctl_state_t inistate;
-	    if (type & PM_CTXFLAG_SHALLOW) {
-		sts = __pmCreateSocket();
-		inistate = PC_FETAL;
-	    } else {
-		sts = __pmConnectPMCD(hosts, nhosts);
-		inistate = PC_READY;
-	    }
-#else
 	    sts = __pmConnectPMCD(hosts, nhosts);
-#endif /*ASYNC_API*/
 
 	    if (sts < 0) {
 		__pmFreeHostSpec(hosts, nhosts);
@@ -281,9 +259,6 @@ INIT_CONTEXT:
 		goto FAILED;
 	    }
 	    new->c_pmcd->pc_fd = sts;
-#ifdef ASYNC_API
-	    new->c_pmcd->pc_state = inistate;
-#endif /*ASYNC_API*/
 	    new->c_pmcd->pc_hosts = hosts;
 	    new->c_pmcd->pc_nhosts = nhosts;
 	    new->c_pmcd->pc_tout_sec = __pmConvertTimeout(TIMEOUT_DEFAULT) / 1000;
@@ -295,11 +270,7 @@ INIT_CONTEXT:
 	new->c_pmcd->pc_refcnt++;
     }
     else if (new->c_type == PM_CONTEXT_LOCAL) {
-	if (
-#ifdef ASYNC_API
-	    !(type & PM_CTXFLAG_SHALLOW) &&
-#endif /*ASYNC_API*/
-	    (sts = __pmConnectLocal()) != 0)
+	if ((sts = __pmConnectLocal()) != 0)
 	    goto FAILED;
     }
     else if (new->c_type == PM_CONTEXT_ARCHIVE) {
@@ -707,209 +678,3 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 	}
     }
 }
-
-#ifdef ASYNC_API
-int
-__pmGetHostContextByID (int ctxid, __pmContext **cp)
-{
-    __pmContext *ctxp = __pmHandleToPtr(ctxid);
-
-    if (ctxp == NULL) {
-	return (PM_ERR_NOCONTEXT);
-    } else if (ctxp->c_type != PM_CONTEXT_HOST) {
-	return (PM_ERR_NOTHOST);
-    } else if ((ctxp->c_pmcd->pc_fd < 0) ||
-	       (ctxp->c_pmcd->pc_state != PC_READY)) {
-	return (PM_ERR_NOTCONN);
-    }
-    
-    *cp = ctxp;
-
-    return (0);
-}
-
-int
-__pmGetBusyHostContextByID (int ctxid, __pmContext **cp, int pdu)
-{
-    int n;
-
-    if ((n = __pmGetHostContextByID (ctxid, cp)) >= 0) {
-	if ((*cp)->c_pmcd->pc_curpdu != pdu) {
-	    *cp = NULL;
-	    n = PM_ERR_CTXBUSY;
-	}
-    }
-    return (n);
-}
-
-int
-pmGetContextFD (int ctxid)
-{
-    __pmContext *ctxp = __pmHandleToPtr(ctxid);
-
-    if (ctxp == NULL) {
-	return (PM_ERR_NOCONTEXT);
-    } else if (ctxp->c_type != PM_CONTEXT_HOST) {
-	return (PM_ERR_NOTHOST);
-    } else if (ctxp->c_pmcd->pc_fd < 0) {
-	return (PM_ERR_NOTCONN);
-    }
-    return (ctxp->c_pmcd->pc_fd);
-}
-
-int 
-pmGetContextTimeout (int ctxid, int *tout_msec)
-{
-    __pmContext *ctxp = __pmHandleToPtr(ctxid);
-
-    if (ctxp == NULL) {
-	return (PM_ERR_NOCONTEXT);
-    } else if (ctxp->c_type != PM_CONTEXT_HOST) {
-	return (PM_ERR_NOTHOST);
-    } else if (tout_msec == NULL) {
-	return (-EINVAL);
-    }
-
-    *tout_msec = __pmConvertTimeout(ctxp->c_pmcd->pc_tout_sec);
-
-    return (0);
-}
-
-int
-pmContextConnectTo (int ctxid, const struct sockaddr *addr)
-{
-    int f;
-    pmHostSpec *pmcd;
-    __pmPMCDCtl *pc;
-    __pmContext *ctxp = __pmHandleToPtr(ctxid);
-
-    if (ctxp == NULL) {
-	return (PM_ERR_NOCONTEXT);
-    } else if (ctxp->c_type != PM_CONTEXT_HOST) {
-	return (PM_ERR_NOTHOST);
-    } else if (ctxp->c_pmcd->pc_fd < 0) {
-	return (PM_ERR_NOTCONN);
-    } else if (ctxp->c_pmcd->pc_state != PC_FETAL) {
-	return (PM_ERR_ISCONN);
-    }
-
-    pc = ctxp->c_pmcd;
-    pmcd = &pc->pc_hosts[0];
-    memcpy(&pc->pc_addr, addr, sizeof (pc->pc_addr));
-    if (pmcd->nports < 1)
-	__pmConnectGetPorts(pmcd);
-
-    if ((f =__pmConnectTo(pc->pc_fd, addr, pmcd->ports[0])) >= 0) {
-	const struct timeval *tv = __pmConnectTimeout();
-
-	pc->pc_fdflags = f;
-	pc->pc_state = PC_CONN_INPROGRESS;
-	pc->pc_tout_sec = tv->tv_sec;
-        return (0);
-    }
-
-    __pmCloseSocket(pc->pc_fd);
-    pc->pc_fd = -1;
-    
-    return (f);
-}
-
-int
-pmContextConnectChangeState (int ctxid)
-{
-    int f;
-    __pmContext *ctxp = __pmHandleToPtr(ctxid);
-    __pmPMCDCtl *pc;
-
-    if (ctxp == NULL) {
-	return (PM_ERR_NOCONTEXT);
-    } else if (ctxp->c_type != PM_CONTEXT_HOST) {
-	return (PM_ERR_NOTHOST);
-    } else if (ctxp->c_pmcd->pc_fd < 0) {
-	return (PM_ERR_NOTCONN);
-    }
-
-    /* The assumption is that if pc_fd is less then 0 then state does
-     * not matter */
-    pc = ctxp->c_pmcd;
-    switch (pc->pc_state) {
-    case PC_CONN_INPROGRESS:
-	if (((f = __pmConnectCheckError (pc->pc_fd)) == 0) &&
-	    ((f = __pmConnectRestoreFlags (pc->pc_fd,
-					   pc->pc_fdflags)) == pc->pc_fd)) {
-	    pc->pc_tout_sec = TIMEOUT_DEFAULT;
-	    pc->pc_state = PC_WAIT_FOR_PMCD;
-	    f = 0;
-	} else if (pc->pc_hosts[0].nports > 1) {
-	    int fd;
-	    __pmCloseSocket(pc->pc_fd);
-
-	    if ((fd = __pmCreateSocket()) >= 0) {
-		if (fd != pc->pc_fd) {
-		    if ((f = dup2(fd, pc->pc_fd)) == pc->pc_fd) {
-			__pmSetVersionIPC(pc->pc_fd, __pmVersionIPC(fd));
-			__pmSetSocketIPC(pc->pc_fd);
-			__pmCloseSocket(fd);
-		    } else {
-			fd = -oserror();
-		    }
-		}
-
-		if (fd > 0) {
-		    __pmDropHostPort(pc->pc_hosts);
-		    pc->pc_state = PC_FETAL;
-
-		    if ((f = __pmConnectTo(pc->pc_fd, &pc->pc_addr,
-				   pc->pc_hosts[0].ports[0])) >= 0) {
-			pc->pc_fdflags = f;
-			pc->pc_state = PC_CONN_INPROGRESS;
-			f = 0;
-		    }
-		} else {
-		    f = fd;
-		}
-	    } else {
-		f = fd;
-	    }
-	} else if (f > 0) {
-	    f = __pmMapErrno(-f);
-	}
-	break;
-
-    case PC_WAIT_FOR_PMCD:
-	if ((f = __pmConnectHandshake(pc->pc_fd)) >= 0) {
-	    pc->pc_state = PC_READY;
-	    f = 0;
-	}
-	break;
-
-    case PC_READY:
-	f = PM_ERR_ISCONN;
-	break;
-
-    case PC_FETAL:
-	f = PM_ERR_NOTCONN;
-	break;
-
-    default:
-	f = -EINVAL;
-	break;
-    }
-
-    if (f) {
-	__pmCloseSocket(pc->pc_fd);
-	pc->pc_fd = -1;
-    } else if (pc->pc_state != PC_READY) {
-	f = PM_ERR_AGAIN;
-    }
-
-    return (f);
-}
-
-
-void
-pmContextUndef(void)
-{
-    curcontext = PM_CONTEXT_UNDEF;
-}
-#endif /*ASYNC_API*/

@@ -15,17 +15,13 @@
 .\"
 .TH PMLOOKUPNAME 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmLookupName\f1,
-\f3pmRequestNames\f1,
-\f3pmReceiveNames\f1 \- translate performance metric names into PMIDs
+\f3pmLookupName\f1 \- translate performance metric names into PMIDs
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 .nf
 int pmLookupName(int \fInumpmid\fP, char **\fInamelist\fP, pmID *\fIpmidlist\fP);
-int pmRequestNames(int \fIctx\fP, int \fInumpmid\fP, char **\fInamelist\fP);
-int pmReceiveNames(int \fIctx\fP, pmID *\fIpmidlist\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -62,16 +58,6 @@ elements.
 For this reason, the caller is expected to have pre-allocated a suitably
 sized array for
 .IR pmidlist .
-.PP
-\f3pmRequestNames\fP and \f3pmReceiveNames\fP are used by applications
-which must  communicate with the PMCD asynchronously.  These functions
-take explict context handle \f2ctx\fP which must refer to a host
-context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
-\f3pmNewContext\fP). \f3pmRequestNames\fP sends request to translate names
-to PMIDs to PMCD and returns without waiting for the response,
-\f3pmReceiveNames\fP reads reply from PMCD. It is the responsibility of 
-the application to make sure the data are ready before calling 
-\f3pmReceiveNames\f1 to avoid blocking.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmGetChildren (3),
@@ -105,5 +91,3 @@ not a leaf node.
 .IP \f3PM_ERR_*\f1
 Other diagnostics are for protocol failures when
 accessing the distributed PMNS.
-.IP \f3PM_ERR_CTXBUSY\f1
-Context is currently in use by another asynchronous call.
