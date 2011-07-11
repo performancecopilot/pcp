@@ -3,4 +3,4 @@ pcp: FSSTND-dir-in-manual-page
 
 # some configuration files live in /var/lib/pcp/config
 # too many and too intrusive to migrate to /etc really
-pcp: non-etc-file-marked-as-conffile /var/lib/pcp/config/*
+pcp: non-etc-file-marked-as-conffile var/lib/pcp/config/*
