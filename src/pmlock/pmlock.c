@@ -35,7 +35,7 @@ main(int argc, char **argv)
 	    if (oserror() == EACCES) {
 		char	*p = dirname(argv[1]);
 		if (access(p, W_OK) == -1)
-		    printf("%s: Directory not writeable\n", p);
+		    printf("%s: Directory not writable\n", p);
 		else
 		    printf("%s: %s\n", argv[1], strerror(EACCES));
 	    }
