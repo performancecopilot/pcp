@@ -936,7 +936,10 @@ nextmeta(void)
 	    fprintf(stderr, "    iap->pb[META] is not NULL\n");
 	    abandon();
 	}
-	ctxp = __pmHandleToPtr(iap->ctx);
+	if ((ctxp = __pmHandleToPtr(iap->ctx)) == NULL) {
+	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, iap->ctx);
+	    abandon();
+	}
 	lcp = ctxp->c_archctl->ac_log;
 
 againmeta:
@@ -1076,7 +1079,10 @@ nextlog(void)
 	}
 
 againlog:
-	ctxp = __pmHandleToPtr(iap->ctx);
+	if ((ctxp = __pmHandleToPtr(iap->ctx)) == NULL) {
+	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, iap->ctx);
+	    abandon();
+	}
 	lcp = ctxp->c_archctl->ac_log;
 
 	if ((sts=__pmLogRead(lcp, PM_MODE_FORW, NULL, &iap->_result, PMLOGREAD_NEXT)) < 0) {

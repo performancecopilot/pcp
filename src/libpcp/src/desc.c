@@ -17,7 +17,7 @@
 #include "pmda.h"
 
 static int
-request_desc (__pmContext *ctxp, pmID pmid)
+request_desc(__pmContext *ctxp, pmID pmid)
 {
     int n;
 
@@ -29,7 +29,7 @@ request_desc (__pmContext *ctxp, pmID pmid)
 }
 
 static int
-receive_desc (__pmContext *ctxp, pmDesc *desc)
+receive_desc(__pmContext *ctxp, pmDesc *desc)
 {
     int n;
     __pmPDU	*pb;
@@ -96,6 +96,7 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 	if (sts >= 0)
 	    n = sts;
     }
+    PM_UNLOCK(ctxp->c_lock);
 
 done:
     return n;

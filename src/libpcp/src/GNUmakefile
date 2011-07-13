@@ -83,6 +83,8 @@ p_error.o p_result.o: oldpmapi.h
 
 util.o:	$(TOPDIR)/src/include/pmdbg.h
 
+fetch.c: internal.h
+
 ifeq "$(TARGET_OS)" "mingw"
 kernel_pmda_dso	= windows
 else

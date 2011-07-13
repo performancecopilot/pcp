@@ -31,6 +31,8 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 
     if ((ctx = pmWhichContext()) >= 0) {
 	ctxp = __pmHandleToPtr(ctx);
+	if (ctxp == NULL)
+	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type != PM_CONTEXT_HOST)
 	    return PM_ERR_NOTHOST;
     }

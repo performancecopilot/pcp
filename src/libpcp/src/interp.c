@@ -545,12 +545,13 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	__pmTimeval	tmp;
 
 	/*
-	 * past end of archive ... see if it has grown since we last looked
+	 * Past end of archive ... see if it has grown since we last looked.
 	 */
-	if (pmGetArchiveEnd(&end) >= 0)
+	if (pmGetArchiveEnd(&end) >= 0) {
 	    tmp.tv_sec = (__int32_t)end.tv_sec;
 	    tmp.tv_usec = (__int32_t)end.tv_usec;
 	    ctxp->c_archctl->ac_end = __pmTimevalSub(&tmp, &ctxp->c_archctl->ac_log->l_label.ill_start);
+	}
 	if (t_req > ctxp->c_archctl->ac_end) {
 	    sts = PM_ERR_EOL;
 	    goto all_done;

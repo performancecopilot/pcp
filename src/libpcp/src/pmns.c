@@ -136,8 +136,6 @@ pmGetPMNSLocation(void)
     int pmns_location = PM_ERR_NOPMNS;
     int n;
     int sts;
-    int version;
-    __pmContext  *ctxp;
 
     PM_LOCK(__pmLock_libpcp);
 
@@ -151,6 +149,9 @@ pmGetPMNSLocation(void)
      * Load PMNS if necessary.
      */
     if (!havePmLoadCall) {
+	__pmContext  	*ctxp;
+	int		version;
+
 	if ((n = pmWhichContext()) >= 0 && (ctxp = __pmHandleToPtr(n)) != NULL) {
 	    switch(ctxp->c_type) {
 		case PM_CONTEXT_HOST:
@@ -205,6 +206,7 @@ pmGetPMNSLocation(void)
 		    pmns_location = PM_ERR_NOPMNS;
 		    break;
 	    }
+	    PM_UNLOCK(ctxp->c_lock);
 	}
 	else {
 	    pmns_location = PM_ERR_NOPMNS; /* no context for client */
@@ -1710,15 +1712,16 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 
     ctx = lsts = pmWhichContext();
     if (lsts >= 0)
-	ctxp = __pmHandleToPtr(lsts);
+	ctxp = __pmHandleToPtr(ctx);
     else
 	ctxp = NULL;
-    if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
+    if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
 	/* Local context requires single-threaded applications */
+	PM_UNLOCK(ctxp->c_lock);
 	return PM_ERR_THREAD;
+    }
 
     pmns_location = GetLocation();
-    
     if (pmns_location < 0) {
 	sts = pmns_location;
 	/* only hope is derived metrics ... set up for this */
@@ -1834,7 +1837,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	    fputc('\n', stderr);
 	}
 #endif
-	if ((sts = request_names (ctxp, numpmid, namelist)) >= 0) {
+	if ((sts = request_names(ctxp, numpmid, namelist)) >= 0) {
 	    sts = receive_names(ctxp, numpmid, pmidlist);
 	    if (sts >= 0)
 		nfail = numpmid - sts;
@@ -1853,6 +1856,8 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 #endif
 	}
     }
+    if (ctxp != NULL)
+	PM_UNLOCK(ctxp->c_lock);
 
     if (sts < 0 || nfail > 0) {
 	/*
@@ -2264,6 +2269,8 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
     }
 
 check:
+    if (ctxp != NULL)
+	PM_UNLOCK(ctxp->c_lock);
     /*
      * see if there are derived metrics that qualify
      */
@@ -2412,6 +2419,7 @@ pmNameID(pmID pmid, char **name)
 	if ((n = request_namebypmid(ctxp, pmid)) >= 0) {
 	    n = receive_a_name(ctxp, name);
 	}
+	PM_UNLOCK(ctxp->c_lock);
 	if (n >= 0) return n;
     	return __dmgetname(pmid, name);
     }
@@ -2493,6 +2501,7 @@ pmNameAll(pmID pmid, char ***namelist)
 	if ((n = request_namebypmid (ctxp, pmid)) >= 0) {
 	    n = receive_namesbyid (ctxp, namelist);
 	}
+	PM_UNLOCK(ctxp->c_lock);
 	if (n == 0)
 	    goto try_derive;
 	return n;
@@ -2602,9 +2611,11 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 	/* As we have PMNS_REMOTE there must be a current host context */
 	if ((sts = pmWhichContext() < 0) || (ctxp = __pmHandleToPtr(sts)) == NULL)
 	    return PM_ERR_NOCONTEXT;
-	if ((sts = request_traverse_pmns (ctxp, name)) < 0) {
+	if ((sts = request_traverse_pmns(ctxp, name)) < 0) {
+	    PM_UNLOCK(ctxp->c_lock);
 	    return sts;
-	} else {
+	}
+	else {
 	    int		numnames;
 	    int		i;
 	    int		xtra;
@@ -2612,6 +2623,7 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 
 	    sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 				TIMEOUT_DEFAULT, &pb);
+	    PM_UNLOCK(ctxp->c_lock);
 	    if (sts == PDU_PMNS_NAMES) {
 		sts = __pmDecodeNameList(pb, &numnames, 
 		                      &namelist, NULL);
@@ -2683,6 +2695,7 @@ pmTrimNameSpace(void)
 	PM_LOCK(__pmLock_libpcp);
 	mark_all(curr_pmns, 0);
 	PM_UNLOCK(__pmLock_libpcp);
+	PM_UNLOCK(ctxp->c_lock);
 	return 0;
     }
 
@@ -2707,6 +2720,7 @@ pmTrimNameSpace(void)
 	}
     }
     PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(ctxp->c_lock);
 
     return 0;
 }

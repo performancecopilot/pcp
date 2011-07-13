@@ -29,8 +29,8 @@ static pmID		*pmidlist;
 static int		numpmid;
 static __pmContext	*ctxp;
 
-static char	**argv;
-static int	argc;
+static char		**argv;
+static int		argc;
 
 /*
  * Warning: order of these strings _must_ match bit field sequence defined
@@ -61,13 +61,27 @@ void
 setup_context(void)
 {
     int sts;
+#ifdef PM_MULTI_THREAD
+    pthread_mutex_t	save_c_lock;
+#endif
 
     if ((sts = pmNewContext(PM_CONTEXT_LOCAL, NULL)) < 0) {
 	fprintf(stderr, "setup_context: creation failed: %s\n", pmErrStr(sts));
 	exit(1);
     }
     ctxp = __pmHandleToPtr(sts);
+    if (ctxp == NULL) {
+	fprintf(stderr, "botch: setup_context: __pmHandleToPtr(%d) returns NULL!\n", sts);
+	exit(1);
+    }
+#ifdef PM_MULTI_THREAD
+    /* need to be careful about the initialized lock */
+    save_c_lock = ctxp->c_lock;
+#endif
     memset(ctxp, 0, sizeof(__pmContext));
+#ifdef PM_MULTI_THREAD
+    ctxp->c_lock = save_c_lock;
+#endif
     ctxp->c_type = PM_CONTEXT_HOST;
     reset_profile();
 }

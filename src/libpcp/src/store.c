@@ -17,7 +17,7 @@
 #include "pmda.h"
 
 static int
-sendstore (__pmContext *ctxp, const pmResult *result)
+sendstore(__pmContext *ctxp, const pmResult *result)
 {
     int sts;
 
@@ -26,11 +26,11 @@ sendstore (__pmContext *ctxp, const pmResult *result)
 	sts = __pmMapErrno(sts);
     }
 
-    return (sts);
+    return sts;
 }
 
 static int
-store_check (__pmContext *ctxp)
+store_check(__pmContext *ctxp)
 {
     int sts;
     __pmPDU	*pb;
@@ -42,7 +42,7 @@ store_check (__pmContext *ctxp)
     else if (sts != PM_ERR_TIMEOUT)
 	sts = PM_ERR_IPC;
 
-    return (sts);
+    return sts;
 }
 
 int
@@ -66,10 +66,10 @@ pmStore(const pmResult *result)
 	int	ctx = sts;
 	ctxp = __pmHandleToPtr(sts);
 	if (ctxp == NULL)
-	    sts = PM_ERR_NOCONTEXT;
-	else if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    if ((sts = sendstore (ctxp, result)) >= 0) {
-		sts = store_check (ctxp);
+	    return PM_ERR_NOCONTEXT;
+	if (ctxp->c_type == PM_CONTEXT_HOST) {
+	    if ((sts = sendstore(ctxp, result)) >= 0) {
+		sts = store_check(ctxp);
 	    }
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
@@ -108,8 +108,10 @@ pmStore(const pmResult *result)
 	}
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE -- this is an error */
+	    PM_UNLOCK(ctxp->c_lock);
 	    return PM_ERR_NOTHOST;
 	}
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     return sts;

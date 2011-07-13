@@ -11,6 +11,19 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes
+ *
+ * curcontext needs to be thread-private
+ *
+ * contexts[] et al and def_backoff[] et al are protected from changes
+ * using the libpcp lock
+ *
+ * The actual contexts (__pmContext) are protected by the (recursive)
+ * c_lock mutex which is intialized in pmNewContext() and pmDupContext(),
+ * then locked in __pmHandleToPtr() ... it is the responsibility of all
+ * __pmHandleToPtr() callers to call PM_UNLOCK(ctxp->c_lock) when they
+ * are finished with the context.
  */
 
 #include "pmapi.h"
@@ -18,9 +31,15 @@
 
 #define PM_CONTEXT_UNDEF	-1	/* current context is undefined */
 
-static __pmContext	*contexts;		/* array of contexts */
+static __pmContext	**contexts;		/* array of context ptrs */
 static int		contexts_len;		/* number of contexts */
+
+#ifdef PM_MULTI_THREAD
+/* using a gcc construct here to make curcontext thread-private */
+static __thread int	curcontext = PM_CONTEXT_UNDEF;	/* current context */
+#else
 static int		curcontext = PM_CONTEXT_UNDEF;	/* current context */
+#endif
 
 static int		n_backoff;
 static int		def_backoff[] = {5, 10, 20, 40, 80};
@@ -75,38 +94,63 @@ waitawhile(__pmPMCDCtl *ctl)
     ctl->pc_again = time(NULL) + backoff[ctl->pc_timeout-1];
 }
 
+/*
+ * On success, context is locked and caller should unlock it
+ */
 __pmContext *
 __pmHandleToPtr(int handle)
 {
+    PM_LOCK(__pmLock_libpcp);
     if (handle < 0 || handle >= contexts_len ||
-	contexts[handle].c_type == PM_CONTEXT_FREE)
+	contexts[handle]->c_type == PM_CONTEXT_FREE) {
+	PM_UNLOCK(__pmLock_libpcp);
 	return NULL;
-    else
-	return &contexts[handle];
+    }
+    else {
+	__pmContext	*sts;
+	sts = contexts[handle];
+	PM_UNLOCK(__pmLock_libpcp);
+	PM_LOCK((sts->c_lock));
+	return sts;
+    }
 }
 
 int
 __pmPtrToHandle(__pmContext *ctxp)
 {
-    return ctxp - contexts;
+    int		i;
+    PM_LOCK(__pmLock_libpcp);
+    for (i = 0; i < contexts_len; i++) {
+	if (ctxp == contexts[i]) {
+	    PM_UNLOCK(__pmLock_libpcp);
+	    return i;
+	}
+    }
+    PM_UNLOCK(__pmLock_libpcp);
+    return PM_CONTEXT_UNDEF;
 }
 
 const char * 
 pmGetContextHostName (int ctxid)
 {
-    __pmContext * ctx;
+    __pmContext *ctxp;
+    const char	*sts;
 
-    if ( (ctx = __pmHandleToPtr(ctxid)) != NULL) {
-	switch (ctx->c_type) {
+    sts = "";
+    if ( (ctxp = __pmHandleToPtr(ctxid)) != NULL) {
+	switch (ctxp->c_type) {
 	case PM_CONTEXT_HOST:
-	    return (ctx->c_pmcd->pc_hosts[0].name);
+	    sts = ctxp->c_pmcd->pc_hosts[0].name;
+	    break;
 
 	case PM_CONTEXT_ARCHIVE:
-	    return (ctx->c_archctl->ac_log->l_label.ill_hostname);
+	    sts = ctxp->c_archctl->ac_log->l_label.ill_hostname;
+	    break;
 	}
+	PM_UNLOCK(ctxp->c_lock);
     }
 
-    return ("");
+    return sts;
 }
 
 int
@@ -117,6 +161,7 @@ pmWhichContext(void)
      */
     int		sts;
 
+    PM_LOCK(__pmLock_libpcp);
     if (curcontext > PM_CONTEXT_UNDEF)
 	sts = curcontext;
     else
@@ -127,6 +172,7 @@ pmWhichContext(void)
 	fprintf(stderr, "pmWhichContext() -> %d, cur=%d\n",
 	    sts, curcontext);
 #endif
+    PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
 
@@ -158,11 +204,11 @@ int
 pmNewContext(int type, const char *name)
 {
     __pmContext	*new = NULL;
-    __pmContext	*list;
+    __pmContext	**list;
     int		i;
     int		sts;
-    int		old_curcontext = curcontext;
-    int		old_contexts_len = contexts_len;
+    int		old_curcontext;
+    int		old_contexts_len;
 
     PM_INIT_LOCKS();
 
@@ -170,36 +216,56 @@ pmNewContext(int type, const char *name)
 	/* Local context requires single-threaded applications */
 	return PM_ERR_THREAD;
 
+    PM_LOCK(__pmLock_libpcp);
+
+    old_curcontext = curcontext;
+    old_contexts_len = contexts_len;
+
     /* See if we can reuse a free context */
     for (i = 0; i < contexts_len; i++) {
-	if (contexts[i].c_type == PM_CONTEXT_FREE) {
+	if (contexts[i]->c_type == PM_CONTEXT_FREE) {
 	    curcontext = i;
-	    new = &contexts[curcontext];
+	    new = contexts[curcontext];
 	    goto INIT_CONTEXT;
 	}
     }
 
     /* Create a new one */
     if (contexts == NULL)
-	list = (__pmContext *)malloc(sizeof(__pmContext));
+	list = (__pmContext **)malloc(sizeof(__pmContext *));
     else
-	list = (__pmContext *)realloc((void *)contexts, (1+contexts_len) * sizeof(__pmContext));
-
-    if (list == NULL) {
+	list = (__pmContext **)realloc((void *)contexts, (1+contexts_len) * sizeof(__pmContext *));
+    new = (__pmContext *)malloc(sizeof(__pmContext));
+    if (list == NULL || new == NULL) {
 	/* fail : nothing changed */
 	sts = -oserror();
 	goto FAILED;
     }
 
     contexts = list;
-    curcontext = contexts_len++;
-    new = &contexts[curcontext];
+    curcontext = contexts_len;
+    contexts[curcontext] = new;
+    contexts_len++;
 
 INIT_CONTEXT:
     /*
      * Set up the default state
      */
     memset(new, 0, sizeof(__pmContext));
+#ifdef PM_MULTI_THREAD
+    {
+	/*
+	 * Need context lock to be recursive as we sometimes call
+	 * __pmHandleToPtr() while the current context is already
+	 * locked
+	 */
+	pthread_mutexattr_t    attr;
+
+	pthread_mutexattr_init(&attr);
+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
+	pthread_mutex_init(&new->c_lock, &attr);
+    }
+#endif
     new->c_type = type;
     if ((new->c_instprof = (__pmProfile *)malloc(sizeof(__pmProfile))) == NULL) {
 	/*
@@ -231,10 +297,10 @@ INIT_CONTEXT:
 	    for (i = 0; i < contexts_len; i++) {
 		if (i == curcontext)
 		    continue;
-		if (contexts[i].c_type == PM_CONTEXT_HOST &&
-		    strcmp(contexts[i].c_pmcd->pc_hosts[0].name,
+		if (contexts[i]->c_type == PM_CONTEXT_HOST &&
+		    strcmp(contexts[i]->c_pmcd->pc_hosts[0].name,
 			    hosts[0].name) == 0) {
-		    new->c_pmcd = contexts[i].c_pmcd;
+		    new->c_pmcd = contexts[i]->c_pmcd;
 		}
 	    }
 	}
@@ -282,9 +348,9 @@ INIT_CONTEXT:
 	for (i = 0; i < contexts_len; i++) {
 	    if (i == curcontext)
 		continue;
-	    if (contexts[i].c_type == PM_CONTEXT_ARCHIVE &&
-		strcmp(name, contexts[i].c_archctl->ac_log->l_name) == 0) {
-		new->c_archctl->ac_log = contexts[i].c_archctl->ac_log;
+	    if (contexts[i]->c_type == PM_CONTEXT_ARCHIVE &&
+		strcmp(name, contexts[i]->c_archctl->ac_log->l_name) == 0) {
+		new->c_archctl->ac_log = contexts[i]->c_archctl->ac_log;
 	    }
 	}
 	if (new->c_archctl->ac_log == NULL) {
@@ -325,6 +391,7 @@ INIT_CONTEXT:
 		    type, name);
 	}
 #endif
+	PM_UNLOCK(__pmLock_libpcp);
 	return PM_ERR_NOCONTEXT;
     }
 
@@ -338,7 +405,10 @@ INIT_CONTEXT:
 	__pmDumpContext(stderr, curcontext, PM_INDOM_NULL);
     }
 #endif
-    return curcontext;
+    sts = curcontext;
+
+    PM_UNLOCK(__pmLock_libpcp);
+    return sts;
 
 FAILED:
     if (new != NULL) {
@@ -353,6 +423,7 @@ FAILED:
 	fprintf(stderr, "pmNewContext(%d, %s) -> %d, curcontext=%d\n",
 	    type, name, sts, curcontext);
 #endif
+    PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
 
@@ -364,16 +435,18 @@ pmReconnectContext(int handle)
     __pmPMCDCtl	*ctl;
     int		sts;
 
+    PM_LOCK(__pmLock_libpcp);
     if (handle < 0 || handle >= contexts_len ||
-	contexts[handle].c_type == PM_CONTEXT_FREE) {
+	contexts[handle]->c_type == PM_CONTEXT_FREE) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)
 		fprintf(stderr, "pmReconnectContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
 #endif
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return PM_ERR_NOCONTEXT;
     }
 
-    ctxp = &contexts[handle];
+    ctxp = contexts[handle];
     ctl = ctxp->c_pmcd;
     if (ctxp->c_type == PM_CONTEXT_HOST) {
 	if (ctl->pc_timeout && time(NULL) < ctl->pc_again) {
@@ -383,6 +456,7 @@ pmReconnectContext(int handle)
 	    fprintf(stderr, "pmReconnectContext(%d) -> %d, too soon (need wait another %d secs)\n",
 		handle, (int)-ETIMEDOUT, (int)(ctl->pc_again - time(NULL)));
 #endif
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return -ETIMEDOUT;
 	}
 
@@ -404,6 +478,7 @@ pmReconnectContext(int handle)
 		fprintf(stderr, "pmReconnectContext(%d), failed (wait %d secs before next attempt)\n",
 		    handle, (int)(ctl->pc_again - time(NULL)));
 #endif
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return -ETIMEDOUT;
 	}
 	else {
@@ -413,8 +488,8 @@ pmReconnectContext(int handle)
 	     * socket
 	     */
 	    for (i = 0; i < contexts_len; i++) {
-		if (contexts[i].c_type != PM_CONTEXT_FREE && contexts[i].c_pmcd == ctl) {
-		    contexts[i].c_sent = 0;
+		if (contexts[i]->c_type != PM_CONTEXT_FREE && contexts[i]->c_pmcd == ctl) {
+		    contexts[i]->c_sent = 0;
 		}
 	    }
 #ifdef PCP_DEBUG
@@ -442,6 +517,8 @@ pmReconnectContext(int handle)
     if (pmDebug & DBG_TRACE_CONTEXT)
 	fprintf(stderr, "pmReconnectContext(%d) -> %d\n", handle, handle);
 #endif
+
+    PM_UNLOCK(__pmLock_libpcp);
     return handle;
 }
 
@@ -455,12 +532,17 @@ pmDupContext(void)
     __pmInDomProfile	*q, *p, *p_end;
     __pmProfile		*save;
     void		*save_dm;
+#ifdef PM_MULTI_THREAD
+    pthread_mutex_t	save_lock;
+#endif
 
+
+    PM_LOCK(__pmLock_libpcp);
     if ((old = pmWhichContext()) < 0) {
 	sts = old;
 	goto done;
     }
-    oldcon = &contexts[old];
+    oldcon = contexts[old];
     if (oldcon->c_type == PM_CONTEXT_HOST) {
 	h = &hostspec[0];
 	__pmUnparseHostSpec(oldcon->c_pmcd->pc_hosts,
@@ -477,15 +559,21 @@ pmDupContext(void)
 	sts = new;
 	goto done;
     }
-    oldcon = &contexts[old];	/* contexts[] may have been relocated */
-    newcon = &contexts[new];
+    oldcon = contexts[old];	/* contexts[] may have been relocated */
+    newcon = contexts[new];
     save = newcon->c_instprof;	/* need this later */
     save_dm = newcon->c_dm;	/* need this later */
+#ifdef PM_MULTI_THREAD
+    save_lock = newcon->c_lock;	/* need this later */
+#endif
     if (newcon->c_archctl != NULL)
 	free(newcon->c_archctl);	/* will allocate a new one below */
     *newcon = *oldcon;		/* struct copy */
     newcon->c_instprof = save;	/* restore saved instprof from pmNewContext */
     newcon->c_dm = save_dm;	/* restore saved derived metrics control also */
+#ifdef PM_MULTI_THREAD
+    newcon->c_lock = save_lock;	/* restore saved lock with initialized state also */
+#endif
 
     /* clone the per-domain profiles (if any) */
     if (oldcon->c_instprof->profile_len > 0) {
@@ -533,7 +621,7 @@ pmDupContext(void)
 done:
     /* return an error code, or the handle for the new context */
     if (sts < 0 && new >= 0)
-	contexts[new].c_type = PM_CONTEXT_FREE;
+	contexts[new]->c_type = PM_CONTEXT_FREE;
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT) {
 	fprintf(stderr, "pmDupContext() -> %d\n", sts);
@@ -541,18 +629,22 @@ done:
 	    __pmDumpContext(stderr, sts, PM_INDOM_NULL);
     }
 #endif
+
+    PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
 
 int
 pmUseContext(int handle)
 {
+    PM_LOCK(__pmLock_libpcp);
     if (handle < 0 || handle >= contexts_len ||
-	contexts[handle].c_type == PM_CONTEXT_FREE) {
+	contexts[handle]->c_type == PM_CONTEXT_FREE) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)
 		fprintf(stderr, "pmUseContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
 #endif
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return PM_ERR_NOCONTEXT;
     }
 
@@ -561,6 +653,8 @@ pmUseContext(int handle)
 	fprintf(stderr, "pmUseContext(%d) -> 0\n", handle);
 #endif
     curcontext = handle;
+
+    PM_UNLOCK(__pmLock_libpcp);
     return 0;
 }
 
@@ -570,16 +664,19 @@ pmDestroyContext(int handle)
     __pmContext		*ctxp;
     struct linger       dolinger = {0, 1};
 
+    PM_LOCK(__pmLock_libpcp);
     if (handle < 0 || handle >= contexts_len ||
-	contexts[handle].c_type == PM_CONTEXT_FREE) {
+	contexts[handle]->c_type == PM_CONTEXT_FREE) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)
 		fprintf(stderr, "pmDestroyContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
 #endif
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return PM_ERR_NOCONTEXT;
     }
 
-    ctxp = &contexts[handle];
+    ctxp = contexts[handle];
+    PM_LOCK(ctxp->c_lock);
     if (ctxp->c_pmcd != NULL) {
 	if (--ctxp->c_pmcd->pc_refcnt == 0) {
 	    if (ctxp->c_pmcd->pc_fd >= 0) {
@@ -613,6 +710,13 @@ pmDestroyContext(int handle)
 		handle, curcontext);
 #endif
 
+
+    PM_UNLOCK(ctxp->c_lock);
+#ifdef PM_MULTI_THREAD
+    pthread_mutex_destroy(&ctxp->c_lock);
+#endif
+
+    PM_UNLOCK(__pmLock_libpcp);
     return 0;
 }
 
@@ -628,9 +732,12 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
     int			i;
     __pmContext		*con;
 
+    PM_LOCK(__pmLock_libpcp);
     fprintf(f, "Dump Contexts: current context = %d\n", curcontext);
-    if (curcontext < 0)
+    if (curcontext < 0) {
+	PM_UNLOCK(__pmLock_libpcp);
 	return;
+    }
 
     if (indom != PM_INDOM_NULL) {
 	char	strbuf[20];
@@ -638,7 +745,8 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 	        indom, pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
     }
 
-    for (con=contexts, i=0; i < contexts_len; i++, con++) {
+    for (i = 0; i < contexts_len; i++) {
+	con = contexts[i];
 	if (context == -1 || context == i) {
 	    fprintf(f, "Context[%d]", i);
 	    if (con->c_type == PM_CONTEXT_HOST) {
@@ -677,4 +785,6 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 	    __pmDumpProfile(f, indom, con->c_instprof);
 	}
     }
+
+    PM_UNLOCK(__pmLock_libpcp);
 }

@@ -216,6 +216,7 @@ pmAddProfile(pmInDom indom, int instlist_len, int instlist[])
     if ((prof = __pmFindProfile(indom, ctxp->c_instprof)) == NULL) {
 	if ((prof = _newprof(indom, ctxp)) == NULL) {
 	    /* fail */
+	    PM_UNLOCK(ctxp->c_lock);
 	    return -oserror();
 	}
 	else {
@@ -266,6 +267,7 @@ SUCCESS:
 	__pmDumpProfile(stderr, indom, ctxp->c_instprof);
     }
 #endif
+    PM_UNLOCK(ctxp->c_lock);
     return 0;
 }
 
@@ -294,6 +296,7 @@ pmDelProfile(pmInDom indom, int instlist_len, int instlist[])
     if ((prof = __pmFindProfile(indom, ctxp->c_instprof)) == NULL) {
 	if ((prof = _newprof(indom, ctxp)) == NULL) {
 	    /* fail */
+	    PM_UNLOCK(ctxp->c_lock);
 	    return -oserror();
 	}
 	else {
@@ -344,6 +347,7 @@ SUCCESS:
 	__pmDumpProfile(stderr, indom, ctxp->c_instprof);
     }
 #endif
+    PM_UNLOCK(ctxp->c_lock);
     return 0;
 }
 

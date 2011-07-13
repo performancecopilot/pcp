@@ -517,6 +517,9 @@ typedef struct {
  * one for each context created by the application.
  */
 typedef struct {
+#ifdef PM_MULTI_THREAD
+    pthread_mutex_t	c_lock;		/* mutex for multi-thread access */
+#endif
     int			c_type;		/* PM_CONTEXT_HOST, _ARCHIVE or _FREE */
     int			c_mode;		/* current mode PM_MODE_* */
     __pmPMCDCtl		*c_pmcd;	/* pmcd control for HOST contexts */
@@ -1243,8 +1246,8 @@ extern void __pmInitLocks(void);
 #define PM_MULTIPLE_THREADS(x) __pmMultiThreaded(x)
 #define PM_INIT_LOCKS() __pmInitLocks()
 #ifdef HAVE_PTHREAD_MUTEX_T
-#define PM_LOCK(lock) { int sts; if ((sts = pthread_mutex_lock(&lock)) != 0) { fprintf(stderr, "%s:%d: lock failed: %s\n", __FILE__, __LINE__, pmErrStr(-sts)); exit(1); } }
-#define PM_UNLOCK(lock) { int sts; if ((sts = pthread_mutex_unlock(&lock)) != 0) { fprintf(stderr, "%s:%d: unlock failed: %s\n", __FILE__, __LINE__, pmErrStr(-sts)); exit(1); } }
+#define PM_LOCK(lock) { int __sts__; if ((__sts__ = pthread_mutex_lock(&lock)) != 0) { fprintf(stderr, "%s:%d: lock failed: %s\n", __FILE__, __LINE__, pmErrStr(-__sts__)); exit(1); } }
+#define PM_UNLOCK(lock) { int __sts__; if ((__sts__ = pthread_mutex_unlock(&lock)) != 0) { fprintf(stderr, "%s:%d: unlock failed: %s\n", __FILE__, __LINE__, pmErrStr(-__sts__)); exit(1); } }
 
 /* the big libpcp lock */
 extern pthread_mutex_t	__pmLock_libpcp;

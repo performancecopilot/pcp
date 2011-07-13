@@ -652,16 +652,21 @@ pmLookupInDomArchive(pmInDom indom, const char *name)
 	ctxp = __pmHandleToPtr(n);
 	if (ctxp == NULL)
 	    return PM_ERR_NOCONTEXT;
-	if (ctxp->c_type != PM_CONTEXT_ARCHIVE)
+	if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
+	    PM_UNLOCK(ctxp->c_lock);
 	    return PM_ERR_NOTARCHIVE;
+	}
 
-	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->l_hashindom)) == NULL)
+	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->l_hashindom)) == NULL) {
+	    PM_UNLOCK(ctxp->c_lock);
 	    return PM_ERR_INDOM_LOG;
+	}
 
 	for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp = idp->next) {
 	    /* full match */
 	    for (j = 0; j < idp->numinst; j++) {
 		if (strcmp(name, idp->namelist[j]) == 0) {
+		    PM_UNLOCK(ctxp->c_lock);
 		    return idp->instlist[j];
 		}
 	    }
@@ -671,12 +676,15 @@ pmLookupInDomArchive(pmInDom indom, const char *name)
 		while (*p && *p != ' ')
 		    p++;
 		if (*p == ' ') {
-		    if (strncmp(name, idp->namelist[j], p - idp->namelist[j]) == 0)
+		    if (strncmp(name, idp->namelist[j], p - idp->namelist[j]) == 0) {
+			PM_UNLOCK(ctxp->c_lock);
 			return idp->instlist[j];
+		    }
 		}
 	    }
 	}
 	n = PM_ERR_INST_LOG;
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     return n;
@@ -698,11 +706,15 @@ pmNameInDomArchive(pmInDom indom, int inst, char **name)
 	ctxp = __pmHandleToPtr(n);
 	if (ctxp == NULL)
 	    return PM_ERR_NOCONTEXT;
-	if (ctxp->c_type != PM_CONTEXT_ARCHIVE)
+	if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
+	    PM_UNLOCK(ctxp->c_lock);
 	    return PM_ERR_NOTARCHIVE;
+	}
 
-	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->l_hashindom)) == NULL)
+	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->l_hashindom)) == NULL) {
+	    PM_UNLOCK(ctxp->c_lock);
 	    return PM_ERR_INDOM_LOG;
+	}
 
 	for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp = idp->next) {
 	    for (j = 0; j < idp->numinst; j++) {
@@ -711,11 +723,13 @@ pmNameInDomArchive(pmInDom indom, int inst, char **name)
 			n = -oserror();
 		    else
 			n = 0;
+		    PM_UNLOCK(ctxp->c_lock);
 		    return n;
 		}
 	    }
 	}
 	n = PM_ERR_INST_LOG;
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     return n;
@@ -747,11 +761,15 @@ pmGetInDomArchive(pmInDom indom, int **instlist, char ***namelist)
 	ctxp = __pmHandleToPtr(n);
 	if (ctxp == NULL)
 	    return PM_ERR_NOCONTEXT;
-	if (ctxp->c_type != PM_CONTEXT_ARCHIVE)
+	if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
+	    PM_UNLOCK(ctxp->c_lock);
 	    return PM_ERR_NOTARCHIVE;
+	}
 
-	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->l_hashindom)) == NULL)
+	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->l_hashindom)) == NULL) {
+	    PM_UNLOCK(ctxp->c_lock);
 	    return PM_ERR_INDOM_LOG;
+	}
 
 	for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp = idp->next) {
 	    for (j = 0; j < idp->numinst; j++) {
@@ -787,6 +805,7 @@ pmGetInDomArchive(pmInDom indom, int **instlist, char ***namelist)
 	*instlist = ilist;
 	*namelist = olist;
 	n = numinst;
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     return n;

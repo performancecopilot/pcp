@@ -29,12 +29,18 @@ __pmInitLocks(void)
 {
 #ifdef PM_MULTI_THREAD
 #ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+    /*
+     * Unable to initialize at compile time, need to do it here in
+     * a one trip run-time initialization.
+     */
     static pthread_mutex_t	init = PTHREAD_MUTEX_INITIALIZER;
     static int			done = 0;
     pthread_mutex_lock(&init);
     if (!done) {
 	/* one-trip initialization */
 	pthread_mutexattr_t    attr;
+
+	pthread_mutexattr_init(&attr);
 	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
 	pthread_mutex_init(&__pmLock_libpcp, &attr);
 	done = 1;

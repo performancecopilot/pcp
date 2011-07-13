@@ -691,7 +691,10 @@ Options:\n\
     /*
      * discover fd for comms channel to PMCD ... 
      */
-    ctxp = __pmHandleToPtr(ctx);
+    if ((ctxp = __pmHandleToPtr(ctx)) == NULL) {
+	fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, ctx);
+	exit(1);
+    }
     pmcdfd = ctxp->c_pmcd->pc_fd;
     pmcd_host = ctxp->c_pmcd->pc_hosts[0].name;
 

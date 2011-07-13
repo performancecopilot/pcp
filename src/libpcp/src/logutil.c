@@ -2085,6 +2085,7 @@ pmGetArchiveLabel(pmLogLabel *lp)
 	lp->ll_start.tv_usec = rlp->ill_start.tv_usec;
 	memcpy(lp->ll_hostname, rlp->ill_hostname, PM_LOG_MAXHOSTLEN);
 	memcpy(lp->ll_tz, rlp->ill_tz, sizeof(lp->ll_tz));
+	PM_UNLOCK(ctxp->c_lock);
 	return 0;
     }
 }
@@ -2097,11 +2098,14 @@ pmGetArchiveEnd(struct timeval *tp)
      * at the end of ... ctxp->c_archctl->ac_log
      */
     __pmContext	*ctxp;
+    int		sts;
 
     ctxp = __pmHandleToPtr(pmWhichContext());
     if (ctxp == NULL || ctxp->c_type != PM_CONTEXT_ARCHIVE)
 	return PM_ERR_NOCONTEXT;
-    return __pmGetArchiveEnd(ctxp->c_archctl->ac_log, tp);
+    sts = __pmGetArchiveEnd(ctxp->c_archctl->ac_log, tp);
+    PM_UNLOCK(ctxp->c_lock);
+    return sts;
 }
 
 int

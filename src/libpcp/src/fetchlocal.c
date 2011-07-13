@@ -18,15 +18,17 @@
 #include "impl.h"
 #include "pmda.h"
 
+/*
+ * Called with valid context locked ...
+ */
 int
-__pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
+__pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
 {
     int		sts;
     int		ctx;
     int		j;
     int		k;
     int		n;
-    __pmContext	*ctxp;
     pmResult	*ans;
     pmResult	*tmp_ans;
     __pmDSO	*dp;
@@ -41,11 +43,7 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
     if (numpmid < 1)
 	return PM_ERR_TOOSMALL;
 
-    if ((ctx = pmWhichContext()) < 0)
-	return ctx;
-    ctxp = __pmHandleToPtr(ctx);
-    if (ctxp == NULL)
-	return PM_ERR_NOCONTEXT;
+    ctx = __pmPtrToHandle(ctxp);
 
     /*
      * this is very ugly ... the DSOs have a high-water mark

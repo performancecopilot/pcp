@@ -68,8 +68,8 @@ pmLookupInDom(pmInDom indom, const char *name)
 	int	ctx = n;
 	ctxp = __pmHandleToPtr(ctx);
 	if (ctxp == NULL)
-	    n = PM_ERR_NOCONTEXT;
-	else if (ctxp->c_type == PM_CONTEXT_HOST) {
+	    return PM_ERR_NOCONTEXT;
+	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((n = request_instance (ctxp, indom, PM_IN_NULL, name)) >= 0) {
 		n = receive_instance_id (ctxp);
 	    }
@@ -104,6 +104,7 @@ pmLookupInDom(pmInDom indom, const char *name)
 	    /* assume PM_CONTEXT_ARCHIVE */
 	    n = __pmLogLookupInDom(ctxp->c_archctl->ac_log, indom, &ctxp->c_origin, name);
 	}
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     return n;
@@ -148,8 +149,8 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 	int	ctx = n;
 	ctxp = __pmHandleToPtr(ctx);
 	if (ctxp == NULL)
-	    n = PM_ERR_NOCONTEXT;
-	else if (ctxp->c_type == PM_CONTEXT_HOST) {
+	    return PM_ERR_NOCONTEXT;
+	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((n = request_instance(ctxp, indom, inst, NULL)) >= 0) {
 		n = receive_instance_name (ctxp, name);
 	    }
@@ -182,6 +183,7 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 		    n = -oserror();
 	    }
 	}
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     return n;
@@ -274,8 +276,8 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 	int	ctx = n;
 	ctxp = __pmHandleToPtr(ctx);
 	if (ctxp == NULL)
-	    n = PM_ERR_NOCONTEXT;
-	else if (ctxp->c_type == PM_CONTEXT_HOST) {
+	    return PM_ERR_NOCONTEXT;
+	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((n = request_instance (ctxp, indom, PM_IN_NULL, NULL)) >= 0) {
 		n = receive_indom (ctxp, instlist, namelist);
 	    }
@@ -312,10 +314,12 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 		    need += sizeof(char *) + strlen(nametmp[i]) + 1;
 		}
 		if ((ilist = (int *)malloc(n * sizeof(insttmp[0]))) == NULL) {
+		    PM_UNLOCK(ctxp->c_lock);
 		    return -oserror();
 		}
 		if ((nlist = (char **)malloc(need)) == NULL) {
 		    free(ilist);
+		    PM_UNLOCK(ctxp->c_lock);
 		    return -oserror();
 		}
 		*instlist = ilist;
@@ -329,6 +333,7 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 		}
 	    }
 	}
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     if (n == 0) {

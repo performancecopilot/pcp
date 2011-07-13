@@ -409,11 +409,14 @@ pmNewContextZone(void)
     if ((ctxp = __pmHandleToPtr(pmWhichContext())) == NULL)
 	return PM_ERR_NOCONTEXT;
 
-    if (ctxp->c_type == PM_CONTEXT_ARCHIVE)
+    if (ctxp->c_type == PM_CONTEXT_ARCHIVE) {
 	sts = pmNewZone(ctxp->c_archctl->ac_log->l_label.ill_tz);
+	PM_UNLOCK(ctxp->c_lock);
+    }
     else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
 	char	tzbuf[PM_TZ_MAXLEN];
 	/* from env, not PMCD */
+	PM_UNLOCK(ctxp->c_lock);
 	__pmTimezone_r(tzbuf, sizeof(tzbuf));
 	sts = pmNewZone(tzbuf);
     }
@@ -422,6 +425,8 @@ pmNewContextZone(void)
 	char		*name = "pmcd.timezone";
 	pmID		pmid;
 	pmResult	*rp;
+
+	PM_UNLOCK(ctxp->c_lock);
 	if ((sts = pmLookupName(1, &name, &pmid)) < 0)
 	    return sts;
 	if ((sts = pmFetch(1, &pmid, &rp)) >= 0) {

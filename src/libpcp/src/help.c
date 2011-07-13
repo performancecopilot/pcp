@@ -62,8 +62,8 @@ lookuptext(int ident, int type, char **buffer)
 	int	ctx = n;
 	ctxp = __pmHandleToPtr(ctx);
 	if (ctxp == NULL)
-	    n = PM_ERR_NOCONTEXT;
-	else if (ctxp->c_type == PM_CONTEXT_HOST) {
+	    return PM_ERR_NOCONTEXT;
+	if (ctxp->c_type == PM_CONTEXT_HOST) {
 again:
 	    if ((n = requesttext (ctxp, ident, type)) >= 0) {
 		n = receivetext (ctxp, buffer);
@@ -113,8 +113,9 @@ again_local:
 	}
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE -- this is an error */
-	    return PM_ERR_NOTHOST;
+	    n = PM_ERR_NOTHOST;
 	}
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     return n;

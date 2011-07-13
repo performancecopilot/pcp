@@ -22,7 +22,7 @@ extern "C" {
 /*
  * routines used across libpcp source files, but not exposed in impl.h
  */
-extern int __pmFetchLocal(int, pmID *, pmResult **);
+extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **);
 
 #ifdef __cplusplus
 }

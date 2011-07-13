@@ -682,8 +682,12 @@ main(int argc, char *argv[])
 	}
     }
 
-    if ((n = pmWhichContext()) >= 0)
-	ctxp = __pmHandleToPtr(n);
+    if ((n = pmWhichContext()) >= 0) {
+	if ((ctxp = __pmHandleToPtr(n)) == NULL) {
+	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, n);
+	    exit(1);
+	}
+    }
     else {
 	fprintf(stderr, "%s: %s!\n", pmProgname, pmErrStr(PM_ERR_NOCONTEXT));
 	exit(1);
