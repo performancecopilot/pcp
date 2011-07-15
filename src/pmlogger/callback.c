@@ -660,6 +660,8 @@ log_callback(int afid, void *data)
 	    pmFreeResult(lfp->lf_resp);
 	}
 	lfp->lf_resp = resp;
+	if (lfp->lf_pb != NULL)
+	    __pmUnpinPDUBuf(lfp->lf_pb);
 	lfp->lf_pb = pb;
     }
 

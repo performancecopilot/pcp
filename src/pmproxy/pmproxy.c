@@ -342,6 +342,7 @@ HandleInput(fd_set *fdsPtr)
 	}
 
 	osts = __pmXmitPDU(cp->pmcd_fd, pb);
+	__pmUnpinPDUBuf(pb);
 	if (osts <= 0) {
 	    CleanupClient(cp, osts);
 	    continue;
@@ -373,6 +374,7 @@ HandleInput(fd_set *fdsPtr)
 	}
 
 	osts = __pmXmitPDU(cp->fd, pb);
+	__pmUnpinPDUBuf(pb);
 	if (osts <= 0) {
 	    CleanupClient(cp, osts);
 	    continue;

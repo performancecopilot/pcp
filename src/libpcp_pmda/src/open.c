@@ -480,6 +480,7 @@ __pmdaSetupPDU(int infd, int outfd, char *agentname)
     __pmPDU	*pb;
     int		i, sts, vflag = 0;
     int		version = UNKNOWN_VERSION, credcount = 0, sender = 0;
+    int		pinpdu;
 
     handshake[0].c_type = CVERSION;
     handshake[0].c_vala = PDU_VERSION;
@@ -490,7 +491,7 @@ __pmdaSetupPDU(int infd, int outfd, char *agentname)
 	return -1;
     }
 
-    if ((sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_DEFAULT, &pb)) < 0) {
+    if ((pinpdu = sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_DEFAULT, &pb)) < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s getting creds: %s\n", agentname, pmErrStr(sts));
 	return -1;
     }
@@ -498,6 +499,7 @@ __pmdaSetupPDU(int infd, int outfd, char *agentname)
     if (sts == PDU_CREDS) {
 	if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0) {
 	    __pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s decode creds: %s\n", agentname, pmErrStr(sts));
+	    __pmUnpinPDUBuf(pb);
 	    return -1;
 	}
 
@@ -520,6 +522,9 @@ __pmdaSetupPDU(int infd, int outfd, char *agentname)
     }
     else
 	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s: version exchange failure\n", agentname);
+
+    if (pinpdu > 0)
+	__pmUnpinPDUBuf(pb);
 
     return version;
 }

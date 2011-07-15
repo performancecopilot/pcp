@@ -107,16 +107,17 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 	     * Service the config
 	     */
 	    sts = __pmGetPDU(configfd, ANY_SIZE, TIMEOUT_NEVER, &pb_config);
-	    if (sts < 0) {
+	    if (sts < 0)
 		__pmNotifyErr(LOG_ERR, "config __pmGetPDU: %s\n", pmErrStr(sts));
-	    }
 	    if (sts <= 0) {
 		/* End of File or error. Just close the file or pipe */
 		close(configfd);
 		configfd = -1;
 	    }
-	    else
+	    else {
 		service_config(pb_config);
+		__pmUnpinPDUBuf(pb_config);
+	    }
 	} 
 
 	if (clientReady) {
@@ -126,11 +127,12 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 	    sts = __pmGetPDU(clientfd, ANY_SIZE, TIMEOUT_NEVER, &pb_client);
 	    if (sts < 0)
 		__pmNotifyErr(LOG_ERR, "client __pmGetPDU: %s\n", pmErrStr(sts));
-	    if (sts <= 0) {
+	    if (sts <= 0)
 		/* End of File or error */
 		goto done;
-	    }
+
 	    service_client(pb_client);
+	    __pmUnpinPDUBuf(pb_client);
 	}
 
 	if (pmcdReady) {
@@ -139,10 +141,9 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 
 	    if (sts < 0)
 		__pmNotifyErr(LOG_ERR, "__pmGetPDU: %s\n", pmErrStr(sts));
-	    if (sts <= 0) {
+	    if (sts <= 0)
 		/* End of File or error */
 		goto done;
-	    }
 
 	    switch (sts) {
 
@@ -253,6 +254,7 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 		    __pmSendError(outfd, FROM_ANON, PM_ERR_NYI);
 		    break;
 	    }
+	    __pmUnpinPDUBuf(pb_pmcd);
 	}
     }
 

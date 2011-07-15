@@ -14,6 +14,12 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ *
+ * Thread-safe note
+ *
+ * myFetch() returns a PDU buffer that is pinned from _pmGetPDU() ...
+ * this needs to be unpinned by the myFetch() caller when safe to do
+ * so.
  */
 
 #include "logger.h"
@@ -109,12 +115,10 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			}
 			else {
 			    __dmpostfetch(ctxp, &result);
-			    __pmPinPDUBuf(pb);
 			    if ((sts = __pmEncodeResult(ctxp->c_pmcd->pc_fd, result, &npb)) < 0)
 				n = sts;
 			    else
 				*pdup = npb;
-			    __pmUnpinPDUBuf(pb);
 			}
 		    }
 		    else

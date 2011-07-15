@@ -1664,11 +1664,12 @@ request_names(__pmContext *ctxp, int numpmid, char *namelist[])
 static int
 receive_names(__pmContext *ctxp, int numpmid, pmID pmidlist[])
 {
-    int n;
-    __pmPDU      *pb;
+    int		n;
+    __pmPDU	*pb;
+    int		pinpdu;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
-		   ctxp->c_pmcd->pc_tout_sec, &pb);
+    pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
+			    ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_PMNS_IDS) {
 	/* Note:
 	 * pmLookupName may return an error even though
@@ -1686,6 +1687,9 @@ receive_names(__pmContext *ctxp, int numpmid, pmID pmidlist[])
     else if (n != PM_ERR_TIMEOUT) {
 	n = PM_ERR_IPC;
     }
+
+    if (pinpdu > 0)
+	__pmUnpinPDUBuf(pb);
 
     return n;
 }
@@ -1926,11 +1930,12 @@ static int
 receive_names_of_children(__pmContext *ctxp, char ***offspring,
 			  int **statuslist)
 {
-    int n;
-    __pmPDU      *pb;
+    int		n;
+    __pmPDU	*pb;
+    int		pinpdu;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
-		   ctxp->c_pmcd->pc_tout_sec, &pb);
+    pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
+			    ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_PMNS_NAMES) {
 	int numnames;
 
@@ -1942,6 +1947,10 @@ receive_names_of_children(__pmContext *ctxp, char ***offspring,
 	__pmDecodeError(pb, &n);
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
+
+    if (pinpdu > 0)
+	__pmUnpinPDUBuf(pb);
+
     return n;
 }
 
@@ -2340,10 +2349,11 @@ static int
 receive_namesbyid(__pmContext *ctxp, char ***namelist)
 {
     int         n;
-    __pmPDU      *pb;
+    __pmPDU	*pb;
+    int		pinpdu;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
-                   ctxp->c_pmcd->pc_tout_sec, &pb);
+    pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
+			    ctxp->c_pmcd->pc_tout_sec, &pb);
     
     if (n == PDU_PMNS_NAMES) {
 	int numnames;
@@ -2356,6 +2366,9 @@ receive_namesbyid(__pmContext *ctxp, char ***namelist)
 	__pmDecodeError(pb, &n);
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
+
+    if (pinpdu > 0)
+	__pmUnpinPDUBuf(pb);
 
     return n;
 }
@@ -2620,9 +2633,10 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 	    int		i;
 	    int		xtra;
 	    char	**namelist;
+	    int		pinpdu;
 
-	    sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
-				TIMEOUT_DEFAULT, &pb);
+	    pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
+				      TIMEOUT_DEFAULT, &pb);
 	    PM_UNLOCK(ctxp->c_lock);
 	    if (sts == PDU_PMNS_NAMES) {
 		sts = __pmDecodeNameList(pb, &numnames, 
@@ -2639,17 +2653,26 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 		    numnames = sts;
 		    free(namelist);
 		}
-		else
+		else {
+		    __pmUnpinPDUBuf(pb);
 		    return sts;
+		}
 	    }
 	    else if (sts == PDU_ERROR) {
 		__pmDecodeError(pb, &sts);
-		if (sts != PM_ERR_NAME)
+		if (sts != PM_ERR_NAME) {
+		    __pmUnpinPDUBuf(pb);
 		    return sts;
+		}
 		numnames = 0;
 	    }
-	    else if (sts != PM_ERR_TIMEOUT)
+	    else if (sts != PM_ERR_TIMEOUT) {
+		__pmUnpinPDUBuf(pb);
 		return PM_ERR_IPC;
+	    }
+
+	    if (pinpdu > 0)
+		__pmUnpinPDUBuf(pb);
 
 	    /*
 	     * add any derived metrics that have "name" as

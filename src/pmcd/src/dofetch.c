@@ -463,13 +463,14 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 
 	/* Read results from agents that have them ready */
 	for (i = 0; i < nAgents; i++) {
-	    AgentInfo *ap = &agent[i];
+	    AgentInfo	*ap = &agent[i];
+	    int		pinpdu;
 	    if (!ap->status.busy || !FD_ISSET(ap->outFd, &readyFds))
 		continue;
 	    ap->status.busy = 0;
 	    FD_CLR(ap->outFd, &waitFds);
 	    nWait--;
-	    sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 	    if (sts > 0 && _pmcd_trace_mask)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 	    if (sts == PDU_RESULT) {
@@ -498,6 +499,8 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 		    sts = PM_ERR_IPC;
 		}
 	    }
+	    if (pinpdu > 0)
+		__pmUnpinPDUBuf(pb);
 
 	    if (sts < 0) {
 		/* Find entry in dList for this agent */

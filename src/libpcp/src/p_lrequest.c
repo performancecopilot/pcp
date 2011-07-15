@@ -28,6 +28,7 @@ int
 __pmSendLogRequest(int fd, int type)
 {
     notify_t	*pp;
+    int		sts;
 
     if ((pp = (notify_t *)__pmFindPDUBuf(sizeof(notify_t))) == NULL)
 	return -oserror();
@@ -42,7 +43,10 @@ __pmSendLogRequest(int fd, int type)
 		pp->type, version==UNKNOWN_VERSION? LOG_PDU_VERSION : version);
     }
 #endif
-    return __pmXmitPDU(fd, (__pmPDU *)pp);
+
+    sts = __pmXmitPDU(fd, (__pmPDU *)pp);
+    __pmUnpinPDUBuf(pp);
+    return sts;
 }
 
 int

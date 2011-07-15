@@ -17,6 +17,11 @@
  * 	mutex to protect updates, but allow reads without locking
  * 	as seeing an unexpected newly updated value is benign
  *
+ * On success, the result parameter from __pmGetPDU() points into a PDU
+ * buffer that is pinned from the call to __pmFindPDUBuf().  It is the
+ * responsibility of the __pmGetPDU() caller to unpin the buffer when
+ * it is safe to do so.
+ *
  * TODO - __pmPDUCntIn[] and __pmPDUCntOut[] are diagnostic counters ...
  *	decide if these need atomic updates and check the initialization
  *	case in __pmSetPDUCntBuf()
@@ -351,6 +356,7 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
     return off;
 }
 
+/* result is pinned on successful return */
 int
 __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 {
@@ -408,20 +414,25 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 	     */
 	    goto check_read_len;	/* continue, do not return */
 	}
-	else if (len == PM_ERR_TIMEOUT)
+	else if (len == PM_ERR_TIMEOUT) {
+	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_TIMEOUT;
+	}
 	else if (len < 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr(len));
+	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_IPC;
 	}
 	else if (len > 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: bad len=%d", fd, len);
+	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_IPC;
 	}
 
 	/*
 	 * end-of-file with no data
 	 */
+	__pmUnpinPDUBuf(pdubuf);
 	return 0;
     }
 
@@ -433,8 +444,10 @@ check_read_len:
 	 * ... looks like DOS attack like PV 935490
 	 */
 	__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d illegal PDU len=%d in hdr", fd, php->len);
+	__pmUnpinPDUBuf(pdubuf);
 	return PM_ERR_IPC;
-    } else if (mode == LIMIT_SIZE && php->len > ceiling) {
+    }
+    else if (mode == LIMIT_SIZE && php->len > ceiling) {
 	/*
 	 * Guard against denial of service attack ... don't accept PDUs
 	 * from clients that are larger than 64 Kbytes (ceiling)
@@ -444,6 +457,7 @@ check_read_len:
 	__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d bad PDU len=%d in hdr exceeds maximum client PDU size (%d)",
 		      fd, php->len, ceiling);
 
+	__pmUnpinPDUBuf(pdubuf);
 	return PM_ERR_TOOBIG;
     }
 
@@ -463,7 +477,6 @@ check_read_len:
 	    tmpsize = maxsize;
 	PM_UNLOCK(__pmLock_libpcp);
 
-	__pmPinPDUBuf(pdubuf);
 	pdubuf_prev = pdubuf;
 	if ((pdubuf = __pmFindPDUBuf(tmpsize)) == NULL) {
 	    __pmUnpinPDUBuf(pdubuf_prev);
@@ -479,8 +492,10 @@ check_read_len:
 	/* block until all of the PDU is received this time */
 	len = pduread(fd, (void *)&handle[len], need, BODY, timeout);
 	if (len != need) {
-	    if (len == PM_ERR_TIMEOUT)
+	    if (len == PM_ERR_TIMEOUT) {
+		__pmUnpinPDUBuf(pdubuf);
 		return PM_ERR_TIMEOUT;
+	    }
 	    else if (len < 0)
 		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: len=%d: %s", fd, len, pmErrStr(-oserror()));
 	    else
@@ -494,6 +509,7 @@ check_read_len:
 		__pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x from=0x%x", php->len, (unsigned)ntohl(php->type), (unsigned)ntohl(php->from));
 	    else if (have >= (int)(sizeof(php->len)+sizeof(php->type)))
 		__pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x", php->len, (unsigned)ntohl(php->type));
+	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_IPC;
 	}
     }
@@ -528,6 +544,11 @@ check_read_len:
     if (php->type >= PDU_START && php->type <= PDU_FINISH)
 	__pmPDUCntIn[php->type-PDU_START]++;
 
+    /*
+     * Note php points into the PDU buffer pdubuf that remains pinned
+     * and php is returned via the result parameter ... see the
+     * thread-safe comments above
+     */
     return php->type;
 }
 

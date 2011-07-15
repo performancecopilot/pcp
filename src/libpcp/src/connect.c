@@ -85,9 +85,10 @@ __pmConnectHandshake(int fd)
     int		version;
     int		challenge;
     int		sts;
+    int		pinpdu;
 
     /* Expect an error PDU back from PMCD: ACK/NACK for connection */
-    sts = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
+    pinpdu = sts = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
     if (sts == PDU_ERROR) {
 	/*
 	 * See comments in pmcd ... we actually get an extended error PDU
@@ -102,10 +103,14 @@ __pmConnectHandshake(int fd)
 	 *   challenge was used for old PCP versions and can be ignored.
 	 */
 	version = __pmDecodeXtendError(pb, &sts, &challenge);
-	if (version < 0)
+	if (version < 0) {
+	    __pmUnpinPDUBuf(pb);
 	    return version;
-	if (sts < 0)
+	}
+	if (sts < 0) {
+	    __pmUnpinPDUBuf(pb);
 	    return sts;
+	}
 
 	if (version == PDU_VERSION2) {
 	    /*
@@ -113,8 +118,10 @@ __pmConnectHandshake(int fd)
 	     */
 	    __pmCred	handshake[2];
 
-	    if ((ok = __pmSetVersionIPC(fd, version)) < 0)
+	    if ((ok = __pmSetVersionIPC(fd, version)) < 0) {
+		__pmUnpinPDUBuf(pb);
 		return ok;
+	    }
 
 	    handshake[0].c_type = CVERSION;
 	    handshake[0].c_vala = PDU_VERSION;
@@ -127,6 +134,9 @@ __pmConnectHandshake(int fd)
     }
     else
 	sts = PM_ERR_IPC;
+
+    if (pinpdu > 0)
+	__pmUnpinPDUBuf(pb);
 
     return sts;
 }

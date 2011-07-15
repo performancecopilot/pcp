@@ -71,6 +71,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     int			fd;	/* Fd for socket connection to pmcd */
     __pmPDU		*pb;
     __pmPDUHdr		*php;
+    int			pinpdu;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
@@ -156,7 +157,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     }
 
     /* Expect an error PDU back: ACK/NACK for connection */
-    sts = __pmGetPDU(fd, ANY_SIZE, __pmLoggerTimeout(), &pb);
+    pinpdu = sts = __pmGetPDU(fd, ANY_SIZE, __pmLoggerTimeout(), &pb);
     if (sts == PDU_ERROR) {
 	__pmOverrideLastFd(PDU_OVERRIDE2);	/* don't dink with the value */
 	__pmDecodeError(pb, &sts);
@@ -190,6 +191,9 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 #endif
 	sts = PM_ERR_IPC;
     }
+
+    if (pinpdu)
+	__pmUnpinPDUBuf(pb);
 
     if (sts >= 0) {
 	if (sts == LOG_PDU_VERSION2) {

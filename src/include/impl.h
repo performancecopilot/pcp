@@ -473,6 +473,9 @@ extern void __pmFreeHostSpec(pmHostSpec *, int);
  * Control for connection to a PMCD
  */
 typedef struct {
+#ifdef PM_MULTI_THREAD
+    pthread_mutex_t	pc_lock;	/* mutex pmcd ipc */
+#endif
     int			pc_refcnt;	/* number of contexts using this socket */
     int			pc_fd;		/* socket for comm with pmcd */
 					/* ... -1 means no connection */
@@ -887,7 +890,8 @@ typedef struct {
 /*
  * event tracing for monitoring time between events
  */
-extern void __pmEventTrace(const char *);
+extern void __pmEventTrace(const char *);		/* NOT thread-safe */
+extern void __pmEventTrace_r(const char *, int *, double *, double *);
 
 /*
  * More IPC protocol stuff

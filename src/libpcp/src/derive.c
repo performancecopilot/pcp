@@ -52,11 +52,13 @@
  * No locking needed in init() to protect need_init and the getenv()
  * call, as we always host the registered.mutex before calling init().
  *
- * TODO context locking is not yet implemented, but we're assuming that
- * when called with a __pmContext * argument, the associated context is
- * ALREADY locked
+ * Tne context locking protocol ensures that when any of the routines
+ * below are called with a __pmContext * argument, that argument is
+ * not NULL and is associated with a context that is ALREADY locked
+ * via ctxp->c_lock.  We should not unlock the context, that is the
+ * responsibility of our callers.
  *
- * TODO errmsg and pmDerivedErrStr
+ * TODO errmsg and pmDerivedErrStr are not thread-safe.
  */
 
 #include <inttypes.h>

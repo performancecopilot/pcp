@@ -63,6 +63,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     static __pmProfile	*profile = NULL;
     static int		first_time = 1;
     static pmdaExt	*pmda = NULL;
+    int			pinpdu;
 
     /* Initial version checks */
     if (first_time) {
@@ -84,7 +85,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	first_time = 0;
     }
 
-    sts = __pmGetPDU(pmda->e_infd, ANY_SIZE, TIMEOUT_NEVER, &pb);
+    pinpdu = sts = __pmGetPDU(pmda->e_infd, ANY_SIZE, TIMEOUT_NEVER, &pb);
     if (sts == 0)
 	/* End of File */
 	return PM_ERR_EOF;
@@ -110,6 +111,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    if (sts != PDU_PROFILE)
 		/* all other PDUs expect an ACK */
 		__pmSendError(pmda->e_outfd, FROM_ANON, i);
+	    __pmUnpinPDUBuf(pb);
 	    return 0;
 	}
     }
@@ -448,6 +450,9 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 		      pmda->e_name, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
 	break;
     }
+
+    if (pinpdu > 0)
+	__pmUnpinPDUBuf(pb);
 
     /*
      * if defined, callback once per PDU to do termination checks,

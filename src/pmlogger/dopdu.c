@@ -1430,8 +1430,9 @@ client_req(void)
     int		sts;
     __pmPDU	*pb;
     __pmPDUHdr	*php;
+    int		pinpdu;
 
-    if ((sts = __pmGetPDU(clientfd, ANY_SIZE, TIMEOUT_DEFAULT, &pb)) <= 0) {
+    if ((pinpdu = sts = __pmGetPDU(clientfd, ANY_SIZE, TIMEOUT_DEFAULT, &pb)) <= 0) {
 	if (sts != 0)
 	    fprintf(stderr, "client_req: %s\n", pmErrStr(sts));
 	__pmResetIPC(clientfd);
@@ -1461,6 +1462,8 @@ client_req(void)
 	    sts = PM_ERR_IPC;
 	    break;
     }
+    if (pinpdu > 0)
+	__pmUnpinPDUBuf(pb);
     
     if (sts >= 0)
 	return 0;

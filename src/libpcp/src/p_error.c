@@ -38,6 +38,7 @@ int
 __pmSendError(int fd, int from, int code)
 {
     p_error_t	*pp;
+    int		sts;
 
     if ((pp = (p_error_t *)__pmFindPDUBuf(sizeof(p_error_t))) == NULL)
 	return -oserror();
@@ -56,13 +57,16 @@ __pmSendError(int fd, int from, int code)
 
     pp->code = htonl(pp->code);
 
-    return __pmXmitPDU(fd, (__pmPDU *)pp);
+    sts = __pmXmitPDU(fd, (__pmPDU *)pp);
+    __pmUnpinPDUBuf(pp);
+    return sts;
 }
 
 int
 __pmSendXtendError(int fd, int from, int code, int datum)
 {
     x_error_t	*pp;
+    int		sts;
 
     if ((pp = (x_error_t *)__pmFindPDUBuf(sizeof(x_error_t))) == NULL)
 	return -oserror();
@@ -84,7 +88,9 @@ __pmSendXtendError(int fd, int from, int code, int datum)
 
     pp->datum = datum; /* NOTE: caller must swab this */
 
-    return __pmXmitPDU(fd, (__pmPDU *)pp);
+    sts = __pmXmitPDU(fd, (__pmPDU *)pp);
+    __pmUnpinPDUBuf(pp);
+    return sts;
 }
 
 int

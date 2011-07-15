@@ -1442,6 +1442,7 @@ again:
 
     if ((n = (int)fread(&pb[3], 1, rlen, f)) != rlen) {
 	/* data read failed */
+	__pmUnpinPDUBuf(pb);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "\nError: data fread got %d expected %d\n", n, rlen);
@@ -1465,6 +1466,7 @@ again:
 	fseek(f, -(long)(rlen + sizeof(head)), SEEK_CUR);
 
     if ((n = (int)fread(&trail, 1, sizeof(trail), f)) != sizeof(trail)) {
+	__pmUnpinPDUBuf(pb);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "\nError: trailer fread got %d expected %d\n", n, (int)sizeof(trail));
@@ -1490,18 +1492,20 @@ again:
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "\nError: record length mismatch: header (%d) != trailer (%d)\n", head, trail);
 #endif
+	__pmUnpinPDUBuf(pb);
 	return PM_ERR_LOGREC;
     }
 
-    if (option == PMLOGREAD_TO_EOF && paranoidCheck(head, pb) == -1)
+    if (option == PMLOGREAD_TO_EOF && paranoidCheck(head, pb) == -1) {
+	__pmUnpinPDUBuf(pb);
 	return PM_ERR_LOGREC;
+    }
 
     if (mode == PM_MODE_BACK)
 	fseek(f, -(long)sizeof(trail), SEEK_CUR);
 
     __pmOverrideLastFd(fileno(f));
     sts = __pmDecodeResult(pb, result); /* also swabs the result */
-    /* note, PDU buffer (pb) is now pinned */
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {

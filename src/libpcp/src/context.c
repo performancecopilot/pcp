@@ -328,6 +328,9 @@ INIT_CONTEXT:
 	    new->c_pmcd->pc_hosts = hosts;
 	    new->c_pmcd->pc_nhosts = nhosts;
 	    new->c_pmcd->pc_tout_sec = __pmConvertTimeout(TIMEOUT_DEFAULT) / 1000;
+#ifdef PM_MULTI_THREAD
+	    pthread_mutex_init(&new->c_pmcd->pc_lock, NULL);
+#endif
 	}
 	else {
 	    /* duplicate of an existing context, don't need the __pmHostSpec */

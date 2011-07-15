@@ -10,6 +10,19 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe note
+ *
+ * Because __pmFindPDUBuf() returns with a pinned pdu buffer, the
+ * buffer passed back from __pmEncodeResult() must also remain pinned
+ * (otherwise another thread could clobber the buffer after returning
+ * from __pmEncodeResult()) ... it is the caller of __pmEncodeResult()
+ * who is responsible for (a) not pinning the buffer again, and (b)
+ * ensuring _someone_ will unpin the buffer when it is safe to do so.
+ *
+ * Similarly, __pmDecodeResult() accepts a pinned buffer and returns
+ * a pmResult that may countain pointers into a second underlying
+ * pinned buffer.
  */
 
 #include <ctype.h>
@@ -120,6 +133,8 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 	    vlp = (vlist_t *)((__psint_t)vlp + sizeof(vlp->pmid) + sizeof(vlp->numval));
     }
     *pdubuf = _pdubuf;
+
+    /* Note _pdubuf remains pinned ... see thread-safe comments above */
     return 0;
 }
 
@@ -138,9 +153,15 @@ __pmSendResult(int fd, int from, const pmResult *result)
 	return sts;
     pp = (result_t *)pdubuf;
     pp->hdr.from = from;
-    return __pmXmitPDU(fd, pdubuf);
+    sts = __pmXmitPDU(fd, pdubuf);
+    __pmUnpinPDUBuf(pdubuf);
+    return sts;
 }
 
+/*
+ * enter here with pdubuf already pinned ... result may point into
+ * _another_ pdu buffer that is pinned on exit
+ */
 int
 __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 {
@@ -231,11 +252,9 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
     fprintf(stderr, "vsize: %d nvsize: %d vbsize: %d\n", vsize, nvsize, vbsize);
 #endif
 
-    /* pin the original pdubuf so we don't just allocate that again */
-    __pmPinPDUBuf(pdubuf);
+    /* the original pdubuf is already pinned so we won't just allocate that again */
     if ((newbuf = (char *)__pmFindPDUBuf((int)nvsize + vbsize)) == NULL) {
 	free(pr);
-	__pmUnpinPDUBuf(pdubuf);
 	return -oserror();
     }
 
@@ -330,10 +349,6 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 #endif
     }
 
-    __pmUnpinPDUBuf(pdubuf);	/* release it now that data copied */
-    if (numpmid)
-	__pmPinPDUBuf(newbuf);	/* pin the new buffer containing data */
-
 #elif defined(HAVE_32BIT_PTR)
 
     pr->timestamp.tv_sec = ntohl(pp->timestamp.tv_sec);
@@ -370,8 +385,6 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	else
 	    vlp = (vlist_t *)((__psint_t)vlp + sizeof(vlp->pmid) + sizeof(vlp->numval));
     }
-    if (numpmid)
-	__pmPinPDUBuf(pdubuf);
 #endif
 
 #ifdef PCP_DEBUG
@@ -379,6 +392,12 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	__pmDumpResult(stderr, pr);
 #endif
     *result = pr;
+
+    /*
+     * Note we return with the input buffer (pdubuf) still pinned and the
+     * new buffer (newbuf) also pineed - see the thread-safe comments
+     * above
+     */
     return 0;
 
 badsts:

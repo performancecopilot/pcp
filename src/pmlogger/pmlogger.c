@@ -916,6 +916,8 @@ Options:\n\
 			__pmPDUTypeStr(php->type));
 		    disconnect(PM_ERR_IPC);
 		}
+		if (sts > 0)
+		    __pmUnpinPDUBuf(pb);
 	    }
 #endif
 	    if (rsc_fd >= 0 && FD_ISSET(rsc_fd, &readyfds)) {

@@ -234,13 +234,14 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	}
 
 	for (i = 0; i < nAgents; i++) {
+	    int		pinpdu;
 	    ap = &agent[i];
 	    if (!ap->status.busy || !FD_ISSET(ap->outFd, &readyFds))
 		continue;
 	    ap->status.busy = 0;
 	    FD_CLR(ap->outFd, &waitFds);
 	    nWait--;
-	    s = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+	    pinpdu = s = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 	    if (s > 0 && _pmcd_trace_mask)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, s, (int)((__psint_t)pb & 0xffffffff));
 	    if (s == PDU_ERROR) {
@@ -264,6 +265,9 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 		    pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_ERROR, s);
 		sts = PM_ERR_IPC;
 	    }
+
+	    if (pinpdu > 0)
+		__pmUnpinPDUBuf(pb);
 
 	    if (ap->ipcType != AGENT_DSO &&
 		(sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT))

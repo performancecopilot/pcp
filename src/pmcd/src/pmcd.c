@@ -446,13 +446,14 @@ HandleClientInput(fd_set *fdsPtr)
     ClientInfo	*cp;
 
     for (i = 0; i < nClients; i++) {
+	int		pinpdu;
 	if (!client[i].status.connected || !FD_ISSET(client[i].fd, fdsPtr))
 	    continue;
 
 	cp = &client[i];
 	this_client_id = i;
 
-	sts = __pmGetPDU(cp->fd, LIMIT_SIZE, _pmcd_timeout, &pb);
+	pinpdu = sts = __pmGetPDU(cp->fd, LIMIT_SIZE, _pmcd_timeout, &pb);
 	if (sts > 0 && _pmcd_trace_mask)
 	    pmcd_trace(TR_RECV_PDU, cp->fd, sts, (int)((__psint_t)pb & 0xffffffff));
 	if (sts <= 0) {
@@ -465,6 +466,7 @@ HandleClientInput(fd_set *fdsPtr)
 	    /* old V1 client protocol, no longer supported */
 	    sts = PM_ERR_IPC;
 	    CleanupClient(cp, sts);
+	    __pmUnpinPDUBuf(pb);
 	    continue;
 	}
 
@@ -547,6 +549,8 @@ HandleClientInput(fd_set *fdsPtr)
 			"error sending Error PDU to client[%d] %s\n", i, pmErrStr(sts));
 	    }
 	}
+	if (pinpdu > 0)
+	    __pmUnpinPDUBuf(pb);
     }
 }
 
@@ -689,10 +693,10 @@ HandleReadyAgents(fd_set *readyFds)
 	if (ap->status.notReady) {
 	    fd = ap->outFd;
 	    if (FD_ISSET(fd, readyFds)) {
-
+		int		pinpdu;
 		/* Expect an error PDU containing PM_ERR_PMDAREADY */
 		reason = AT_COMM;	/* most errors are protocol failures */
-		sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+		pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 		if (sts > 0 && _pmcd_trace_mask)
 		    pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		if (sts == PDU_ERROR) {
@@ -729,6 +733,8 @@ HandleReadyAgents(fd_set *readyFds)
 			pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_ERROR, sts);
 		    sts = PM_ERR_IPC; /* Wrong PDU type */
 		}
+		if (pinpdu > 0)
+		    __pmUnpinPDUBuf(pb);
 
 		if (ap->ipcType != AGENT_DSO && sts <= 0)
 		    CleanupAgent(ap, reason, fd);

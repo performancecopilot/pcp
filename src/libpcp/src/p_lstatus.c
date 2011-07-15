@@ -29,6 +29,7 @@ int
 __pmSendLogStatus(int fd, __pmLoggerStatus *status)
 {
     logstatus_t	*pp;
+    int		sts;
 
     if ((pp = (logstatus_t *)__pmFindPDUBuf(sizeof(logstatus_t))) == NULL)
 	return -oserror();
@@ -57,7 +58,10 @@ __pmSendLogStatus(int fd, __pmLoggerStatus *status)
 		version == UNKNOWN_VERSION ? LOG_PDU_VERSION : version);
     }
 #endif
-    return __pmXmitPDU(fd, (__pmPDU *)pp);
+
+    sts = __pmXmitPDU(fd, (__pmPDU *)pp);
+    __pmUnpinPDUBuf(pp);
+    return sts;
 }
 
 int

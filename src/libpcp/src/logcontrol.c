@@ -29,8 +29,9 @@ __pmControlLog(int fd, const pmResult *request, int control, int state, int delt
     if (n < 0)
 	n = __pmMapErrno(n);
     else {
+	int		pinpdu;
 	/* get the reply */
-	n = __pmGetPDU(fd, ANY_SIZE, __pmLoggerTimeout(), &pb);
+	pinpdu = n = __pmGetPDU(fd, ANY_SIZE, __pmLoggerTimeout(), &pb);
 	if (n == PDU_RESULT) {
 	    n = __pmDecodeResult(pb, status);
 	}
@@ -38,6 +39,8 @@ __pmControlLog(int fd, const pmResult *request, int control, int state, int delt
 	    __pmDecodeError(pb, &n);
 	else if (n != PM_ERR_TIMEOUT)
 	    n = PM_ERR_IPC; /* unknown reply type */
+	if (pinpdu > 0)
+	    __pmUnpinPDUBuf(pb);
     }
 
     return n;

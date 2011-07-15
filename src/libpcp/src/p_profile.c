@@ -42,6 +42,7 @@ __pmSendProfile(int fd, int from, int ctxnum, __pmProfile *instprof)
     __pmPDU		*p;
     size_t		need;
     __pmPDU		*pdubuf;
+    int			sts;
 
     /* work out how much space we need and then alloc a pdu buf */
     need = sizeof(profile_t) + instprof->profile_len * sizeof(instprof_t);
@@ -95,7 +96,9 @@ __pmSendProfile(int fd, int from, int ctxnum, __pmProfile *instprof)
 		*p = htonl(prof->instances[j]);
 	}
     }
-    return __pmXmitPDU(fd, pdubuf);
+    sts = __pmXmitPDU(fd, pdubuf);
+    __pmUnpinPDUBuf(pdubuf);
+    return sts;
 }
 
 int

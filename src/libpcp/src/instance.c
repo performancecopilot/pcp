@@ -33,10 +33,11 @@ request_instance (__pmContext *ctxp, pmInDom indom, int inst, const char *name)
 static int
 receive_instance_id (__pmContext *ctxp)
 {
-    int n;
+    int		n;
     __pmPDU	*pb;
+    int		pinpdu;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
+    pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_INSTANCE) {
 	__pmInResult	*result;
@@ -51,7 +52,10 @@ receive_instance_id (__pmContext *ctxp)
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
 
-    return (n);
+    if (pinpdu > 0)
+	__pmUnpinPDUBuf(pb);
+
+    return n;
 }
 
 int
@@ -113,11 +117,12 @@ pmLookupInDom(pmInDom indom, const char *name)
 static int
 receive_instance_name(__pmContext *ctxp, char **name)
 {
-    int n;
-    __pmPDU *pb;
+    int		n;
+    __pmPDU	*pb;
+    int		pinpdu;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
-		   ctxp->c_pmcd->pc_tout_sec, &pb);
+    pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
+			    ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_INSTANCE) {
 	__pmInResult *result;
 
@@ -131,6 +136,9 @@ receive_instance_name(__pmContext *ctxp, char **name)
 	__pmDecodeError(pb, &n);
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
+
+    if (pinpdu > 0)
+	__pmUnpinPDUBuf(pb);
 
     return n;
 }
@@ -235,16 +243,20 @@ inresult_to_lists (__pmInResult *result, int **instlist, char ***namelist)
 int
 receive_indom (__pmContext *ctxp,  int **instlist, char ***namelist)
 {
-    int n;
+    int		n;
     __pmPDU	*pb;
+    int		pinpdu;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
-		   ctxp->c_pmcd->pc_tout_sec, &pb);
+    pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
+			    ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_INSTANCE) {
 	__pmInResult	*result;
 	    
-	if ((n = __pmDecodeInstance(pb, &result)) < 0)
+	if ((n = __pmDecodeInstance(pb, &result)) < 0) {
+	    if (pinpdu > 0)
+		__pmUnpinPDUBuf(pb);
 	    return n;
+	}
 
 	n = inresult_to_lists (result, instlist, namelist);
     }
@@ -253,7 +265,10 @@ receive_indom (__pmContext *ctxp,  int **instlist, char ***namelist)
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
 
-    return (n);
+    if (pinpdu > 0)
+	__pmUnpinPDUBuf(pb);
+
+    return n;
 }
 
 int

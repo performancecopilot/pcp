@@ -48,6 +48,7 @@ __pmSendIDList(int fd, int from, int numids, const pmID idlist[], int sts)
     idlist_t	*ip;
     int		need;
     int		j;
+    int		lsts;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {
@@ -69,7 +70,9 @@ __pmSendIDList(int fd, int from, int numids, const pmID idlist[], int sts)
 	ip->idlist[j] = __htonpmID(idlist[j]);
     }
 
-    return __pmXmitPDU(fd, (__pmPDU *)ip);
+    lsts = __pmXmitPDU(fd, (__pmPDU *)ip);
+    __pmUnpinPDUBuf(ip);
+    return lsts;
 }
 
 /*
@@ -190,12 +193,13 @@ int
 __pmSendNameList(int fd, int from, int numnames, char *namelist[],
 		 const int statuslist[])
 {
-    namelist_t	*nlistp;
-    int		need;
-    int 	nstrbytes=0;
-    int 	i;
-    name_t	*nt; 
-    name_status_t *nst; 
+    namelist_t		*nlistp;
+    int			need;
+    int 		nstrbytes=0;
+    int 		i;
+    name_t		*nt; 
+    name_status_t	*nst; 
+    int			sts;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {
@@ -270,7 +274,9 @@ __pmSendNameList(int fd, int from, int numnames, char *namelist[],
 	}
     }
 
-    return __pmXmitPDU(fd, (__pmPDU *)nlistp);
+    sts = __pmXmitPDU(fd, (__pmPDU *)nlistp);
+    __pmUnpinPDUBuf(nlistp);
+    return sts;
 }
 
 /*
@@ -390,6 +396,7 @@ SendNameReq(int fd, int from, const char *name, int pdu_type, int subtype)
     int		need;
     int		namelen;
     int		alloc_len; /* length allocated for name */
+    int		sts;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {
@@ -412,7 +419,9 @@ SendNameReq(int fd, int from, const char *name, int pdu_type, int subtype)
     nreq->namelen = htonl(namelen);
     memcpy(&nreq->name[0], name, namelen);
 
-    return __pmXmitPDU(fd, (__pmPDU *)nreq);
+    sts = __pmXmitPDU(fd, (__pmPDU *)nreq);
+    __pmUnpinPDUBuf(nreq);
+    return sts;
 }
 
 /*

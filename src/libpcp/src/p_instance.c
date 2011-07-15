@@ -34,6 +34,7 @@ __pmSendInstanceReq(int fd, int from, const __pmTimeval *when, pmInDom indom,
 {
     instance_req_t	*pp;
     int			need;
+    int			sts;
 
     need = sizeof(instance_req_t) - sizeof(int);
     if (name != NULL)
@@ -65,7 +66,9 @@ __pmSendInstanceReq(int fd, int from, const __pmTimeval *when, pmInDom indom,
 	pp->namelen = htonl(pp->namelen);
     }
 
-    return __pmXmitPDU(fd, (__pmPDU *)pp);
+    sts = __pmXmitPDU(fd, (__pmPDU *)pp);
+    __pmUnpinPDUBuf(pp);
+    return sts;
 }
 
 int
@@ -115,6 +118,7 @@ __pmSendInstance(int fd, int from, __pmInResult *result)
     int			need;
     int			i;
     int			j;
+    int			sts;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_INDOM)
@@ -165,7 +169,9 @@ __pmSendInstance(int fd, int from, __pmInResult *result)
 	}
     }
 
-    return __pmXmitPDU(fd, (__pmPDU *)rp);
+    sts = __pmXmitPDU(fd, (__pmPDU *)rp);
+    __pmUnpinPDUBuf(rp);
+    return sts;
 }
 
 int

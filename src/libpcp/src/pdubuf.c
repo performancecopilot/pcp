@@ -10,6 +10,15 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes
+ *
+ * To avoid buffer trampling, on success __pmFindPDUBuf() now returns
+ * a pinned PDU buffer.  It is the caller's responsibility to unpin the
+ * PDU buffer when safe to do so.
+ *
+ * TODO now that buffers always pinned on return, we can do away
+ * with buf_pin and buf_pin_tail and maintain one list?
  */
 
 #include "pmapi.h"
@@ -85,6 +94,7 @@ __pmFindPDUBuf(int need)
     }
 #endif
 
+    __pmPinPDUBuf(pcp->bc_buf);
     sts = (__pmPDU *)pcp->bc_buf;
     PM_UNLOCK(__pmLock_libpcp);
     return sts;

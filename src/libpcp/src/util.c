@@ -24,11 +24,6 @@
  * base (in __pmProcessDataSize) - no real side-effects, don't bother
  *	locking
  *
- * TODO - __pmEventTrace contains static state in last, sum and first
- * 	... not sure where to move this too as yet, can't really be
- * 	global, probably belongs in context, or passed in from caller
- * 	in a foo_r variant
- *
  * TODO - audit oserror(), strerror() and osstrerror() for thread-safeness
  */
 
@@ -874,23 +869,35 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
  * print times between events
  */
 void
-__pmEventTrace(const char *event)
+__pmEventTrace_r(const char *event, int *first, double *sum, double *last)
 {
 #ifdef PCP_DEBUG
-    static double last = 0;
-    static double sum = 0;
-    static int first = 1;
     struct timeval tv;
     double now;
 
     __pmtimevalNow(&tv);
     now = (double)tv.tv_sec + (double)tv.tv_usec / 1000000.0;
-    if (!first)
-        sum += now - last;
+    if (*first) {
+	*first = 0;
+	*sum = 0;
+	*last = now;
+    }
+    *sum += now - *last;
     fprintf(stderr, "%s: +%4.2f = %4.2f -> %s\n",
-			pmProgname, first ? 0 : (now-last), sum, event);
-    last = now;
-    first = 0;
+			pmProgname, now-*last, *sum, event);
+    *last = now;
+#endif
+}
+
+void
+__pmEventTrace(const char *event)
+{
+#ifdef PCP_DEBUG
+    static double last;
+    static double sum;
+    static int first = 1;
+
+    __pmEventTrace_r(event, &first, &sum, &last);
 #endif
 }
 

@@ -26,17 +26,18 @@ requesttext (__pmContext *ctxp, int ident, int type)
 	n = __pmMapErrno(n);
     }
 
-    return (n);
+    return n;
 }
 
 static int
 receivetext (__pmContext *ctxp, char **buffer)
 {
-    int n;
-    __pmPDU *pb;
+    int		n;
+    __pmPDU	*pb;
+    int		pinpdu;
 
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
-		   ctxp->c_pmcd->pc_tout_sec, &pb);
+    pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
+			    ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_TEXT) {
 	int x_ident;
 
@@ -47,7 +48,10 @@ receivetext (__pmContext *ctxp, char **buffer)
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
 
-    return (n);
+    if (pinpdu > 0)
+	__pmUnpinPDUBuf(pb);
+
+    return n;
 }
 
 static int

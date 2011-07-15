@@ -277,5 +277,5 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     /* If we're here, it means we have valid connection, restore the
      * flags and make sure this file descriptor is closed if exec() is
      * called */
-    return (__pmConnectRestoreFlags (fd, fdFlags));
+    return __pmConnectRestoreFlags (fd, fdFlags);
 }

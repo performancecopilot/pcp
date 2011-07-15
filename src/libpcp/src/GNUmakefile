@@ -85,6 +85,8 @@ util.o:	$(TOPDIR)/src/include/pmdbg.h
 
 fetch.c: internal.h
 
+$(OBJECTS):	$(TOPDIR)/src/include/pmapi.h $(TOPDIR)/src/include/impl.h
+
 ifeq "$(TARGET_OS)" "mingw"
 kernel_pmda_dso	= windows
 else

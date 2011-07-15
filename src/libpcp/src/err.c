@@ -10,6 +10,16 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes
+ *
+ * barf[] needs to be thread-private
+ *
+ * TODO - pmErrStr is inherently not thread-safe ... needs a lot of
+ * 	work to fix this with pmErrStr_r() and then replacing the
+ * 	thread-unsafe calls to strerror() et al by their thread-safe
+ * 	equivalents ... this may allow barf[] to go back to being
+ * 	global, but only for the (already) unsafe pmErrStr version
  */
 
 #include "pmapi.h"
@@ -126,7 +136,8 @@ static const struct {
 };
 
 #define BADCODE "No such PMAPI error code (%d)"
-static char	barf[45];
+/* using a gcc construct here to make barf thread-private */
+static __thread char	barf[45];
 
 const char *
 pmErrStr(int code)

@@ -16,41 +16,12 @@
 #include "impl.h"
 #include "pmda.h"
 
-static int
-request_desc(__pmContext *ctxp, pmID pmid)
-{
-    int n;
-
-    if ((n = __pmSendDescReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), pmid)) < 0) {
-	n = __pmMapErrno(n);
-    }
-
-    return (n);
-}
-
-static int
-receive_desc(__pmContext *ctxp, pmDesc *desc)
-{
-    int n;
-    __pmPDU	*pb;
-
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
-		   ctxp->c_pmcd->pc_tout_sec, &pb);
-    if (n == PDU_DESC)
-	n = __pmDecodeDesc(pb, desc);
-    else if (n == PDU_ERROR)
-	__pmDecodeError(pb, &n);
-    else if (n != PM_ERR_TIMEOUT)
-	n = PM_ERR_IPC;
-
-    return (n);
-}
-
 int
 pmLookupDesc(pmID pmid, pmDesc *desc)
 {
     int		n;
     __pmContext	*ctxp;
+    __pmPDU	*pb;
 
     if ((n = pmWhichContext()) < 0)
 	goto done;
@@ -60,9 +31,23 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
     }
 
     if (ctxp->c_type == PM_CONTEXT_HOST) {
-	if ((n = request_desc(ctxp, pmid)) >= 0) {
-	    n = receive_desc(ctxp, desc);
+	PM_LOCK(ctxp->c_pmcd->pc_lock);
+	if ((n = __pmSendDescReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), pmid)) < 0)
+	    n = __pmMapErrno(n);
+	else {
+	    int		pinpdu;
+	    pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
+				    ctxp->c_pmcd->pc_tout_sec, &pb);
+	    if (n == PDU_DESC)
+		n = __pmDecodeDesc(pb, desc);
+	    else if (n == PDU_ERROR)
+		__pmDecodeError(pb, &n);
+	    else if (n != PM_ERR_TIMEOUT)
+		n = PM_ERR_IPC;
+	    if (pinpdu > 0)
+		__pmUnpinPDUBuf(pb);
 	}
+	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
     }
     else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
 	int		ctx = n;

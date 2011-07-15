@@ -1298,6 +1298,7 @@ AgentNegotiate(AgentInfo *aPtr)
 	}
 	return 0;
     }
+    __pmUnpinPDUBuf(ack);
 
     if (sts > 0)
 	fprintf(stderr, "pmcd: unexpected PDU type (0x%x) at initial "
@@ -2110,7 +2111,8 @@ ParseRestartAgents(char *fileName)
 			pmcd_trace(TR_EOF, ap->outFd, -1, -1);
 		    else
 			pmcd_trace(TR_WRONG_PDU, ap->outFd, -1, sts);
-		    
+
+		    __pmUnpinPDUBuf(pb);
 
 		    CleanupAgent(ap, AT_COMM, ap->outFd);
 		}
