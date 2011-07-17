@@ -197,7 +197,7 @@ _wait_for_pmlogger()
     _maxdelay=20
 
     case $# in
-	"0")
+	0)
 	    _pid="-P"
 	    # logic copied exactly from pmlogger_check
 	    #
@@ -205,11 +205,11 @@ _wait_for_pmlogger()
 	    [ -z "$LOCALHOSTNAME" ] && LOCALHOSTNAME=localhost
 	    _logfile="$PCP_LOG_DIR/pmlogger/$LOCALHOSTNAME/pmlogger.log" 
 	    ;;
-	"2")
+	2)
 	    _pid=$1
 	    _logfile=$2
 	    ;;
-	"3")
+	3)
 	    _pid=$1
 	    _logfile=$2
 	    _maxdelay=$3

@@ -151,6 +151,11 @@ then
     exit
 fi
 
+# if this fails, /hosts/$host1 may not help to diagnose the failure
+# if $host1 is not exporting filesystems via NFS and/or the local
+# host is not mounting them via NFS ... only matters if the remote
+# pmlogger does not start ...
+#
 _wait_for_pmlogger "-h $host1 $rem_pid" /hosts/$host1/tmp/$rem_tmp.log
 
 ( echo "connect $rem_pid@$host1"; cat $tmp.conf ) | pmlc
@@ -211,6 +216,8 @@ then
     exit
 fi
 
+# see note above about /hosts/$host1
+#
 _wait_for_pmlogger "-h $host1 $rem_pid" /hosts/$host1/tmp/$rem_tmp.log
 
 ( echo "connect $rem_pid@$host1"; cat $tmp.conf ) | pmlc
