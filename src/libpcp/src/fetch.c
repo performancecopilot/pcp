@@ -63,8 +63,9 @@ receive_fetch(__pmContext *ctxp, pmResult **result)
     else if (n == PDU_ERROR) {
 	__pmDecodeError(pb, &n);
     }
-    else if (n != PM_ERR_TIMEOUT)
+    else if (n != PM_ERR_TIMEOUT) {
 	n = PM_ERR_IPC;
+    }
 
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);

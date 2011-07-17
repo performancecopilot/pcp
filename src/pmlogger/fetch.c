@@ -17,9 +17,9 @@
  *
  * Thread-safe note
  *
- * myFetch() returns a PDU buffer that is pinned from _pmGetPDU() ...
- * this needs to be unpinned by the myFetch() caller when safe to do
- * so.
+ * myFetch() returns a PDU buffer that is pinned from _pmGetPDU() or
+ * __pmEncodeResult() and this needs to be unpinned by the myFetch()
+ * caller when safe to do so.
  */
 
 #include "logger.h"
@@ -117,8 +117,11 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			    __dmpostfetch(ctxp, &result);
 			    if ((sts = __pmEncodeResult(ctxp->c_pmcd->pc_fd, result, &npb)) < 0)
 				n = sts;
-			    else
+			    else {
+				/* using PDU with derived metrics */
+				__pmUnpinPDUBuf(pb);
 				*pdup = npb;
+			    }
 			}
 		    }
 		    else
@@ -135,6 +138,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			fprintf(stderr, "myFetch: ERROR PDU: %s\n", pmErrStr(n));
 			disconnect(PM_ERR_IPC);
 		    }
+		    __pmUnpinPDUBuf(pb);
 		}
 		else if (n == 0) {
 		    fprintf(stderr, "myFetch: End of File: PMCD exited?\n");
@@ -147,6 +151,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		else {
 		    fprintf(stderr, "myFetch: Unexpected %s PDU from PMCD\n", __pmPDUTypeStr(n));
 		    disconnect(PM_ERR_IPC);
+		    __pmUnpinPDUBuf(pb);
 		}
 	    } while (n == 0);
 

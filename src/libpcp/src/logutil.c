@@ -1526,6 +1526,7 @@ again:
 	__pmUnpinPDUBuf(pb);
 	return PM_ERR_LOGREC;
     }
+
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU) {
 	fprintf(stderr, "__pmLogRead timestamp=");
@@ -1535,6 +1536,8 @@ again:
 	dumpbuf(rlen, &pb[3]);		/* see above to explain "3" */
     }
 #endif
+
+    __pmUnpinPDUBuf(pb);
 
     return 0;
 }

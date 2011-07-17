@@ -1442,10 +1442,6 @@ writerlist(rlist_t **rlready, double mintime)
 	    abandon();
 	}
 
-	/* __pmEncodeResult doesn't pin the PDU buffer, so we have to
-	 */
-	__pmPinPDUBuf(pb);
-
         /* switch volumes if required */
         if (varg > 0) {
             if (written > 0 && (written % varg) == 0) {
@@ -1515,7 +1511,7 @@ writerlist(rlist_t **rlready, double mintime)
             flushsize = ftell(logctl.l_mfp) + 100000;
         }
 
-	/* LOG: free PDU buffer */
+	/* free PDU buffer */
 	__pmUnpinPDUBuf(pb);
 	pb = NULL;
 

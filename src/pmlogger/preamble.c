@@ -127,7 +127,9 @@ do_preamble(void)
 
     __pmOverrideLastFd(fileno(logctl.l_mfp));	/* force use of log version */
     /* and start some writing to the archive log files ... */
-    if ((sts = __pmLogPutResult(&logctl, pb)) < 0)
+    sts = __pmLogPutResult(&logctl, pb);
+    __pmUnpinPDUBuf(pb);
+    if (sts < 0)
 	return sts;
 
     for (i = 0; i < n_metric; i++) {

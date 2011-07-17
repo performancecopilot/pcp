@@ -420,6 +420,7 @@ dopmda(int pdu)
 	    }
 
 	    printf("Getting Result Structure...\n");
+	    pinpdu = 0;
 	    if ((sts = __pmSendFetch(outfd, FROM_ANON, 0, NULL, 
 				    1, &(desc.pmid))) >= 0) {
 		if ((pinpdu = sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, 
@@ -440,25 +441,35 @@ dopmda(int pdu)
 		}
 		else
 		    printf("Error: __pmGetPDU() failed: %s\n", pmErrStr(sts));
-
-		if (pinpdu > 0)
-		    __pmUnpinPDUBuf(pb);
 	    }
 	    else
 		printf("Error: __pmSendFetch() failed: %s\n", pmErrStr(sts));
+	    /*
+	     * pb is still pinned, and result may contain pointers into
+	     * a second PDU buffer from __pmDecodeResult() ... need to
+	     * ensure all PDU buffers are unpinned once we're done with
+	     * result or giving up
+	     */
 
-	    if (sts < 0)
+	    if (sts < 0) {
+		if (pinpdu > 0)
+		    __pmUnpinPDUBuf(pb);
 		return;
+	    }
 
 	    sts = fillResult(result, desc.type);
 
 	    if (sts < 0) {
 		pmFreeResult(result);
+		__pmUnpinPDUBuf(pb);
 		return;
 	    }
 
 	    printf("Sending Result...\n");
-	    if ((sts = __pmSendResult(outfd, FROM_ANON, result)) >= 0) {
+	    sts = __pmSendResult(outfd, FROM_ANON, result);
+	    pmFreeResult(result);	
+	    __pmUnpinPDUBuf(pb);
+	    if (sts >= 0) {
 		if ((pinpdu = sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, 
 				     &pb)) == PDU_ERROR) {
 		    if ((i = __pmDecodeError(pb, &sts)) >= 0) {
@@ -477,7 +488,6 @@ dopmda(int pdu)
 	    else
 		printf("Error: __pmSendResult() failed: %s\n", pmErrStr(sts));
 
-	    pmFreeResult(result);	
 	    break;
 
 	case PDU_TEXT_REQ:

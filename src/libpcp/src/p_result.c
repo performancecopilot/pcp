@@ -21,8 +21,14 @@
  * ensuring _someone_ will unpin the buffer when it is safe to do so.
  *
  * Similarly, __pmDecodeResult() accepts a pinned buffer and returns
- * a pmResult that may countain pointers into a second underlying
- * pinned buffer.
+ * a pmResult that (on 64-bit pointer platforms) may contain pointers
+ * into a second underlying pinned buffer.  The input buffer remains
+ * pinned, the second buffer will be pinned if it is used.  The caller
+ * will typically call pmFreeResult(), but also needs to call
+ * __pmUnpinPDUBuf() for the input PDU buffer.  When the result contains
+ * pointers back into the input PDU buffer, this will be pinned _twice_
+ * so the pmFreeResult() and __pmUnpinPDUBuf() calls will still be
+ * required.
  */
 
 #include <ctype.h>
@@ -348,6 +354,8 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	fputc('\n', stderr);
 #endif
     }
+    if (numpmid == 0)
+	__pmUnpinPDUBuf(newbuf);
 
 #elif defined(HAVE_32BIT_PTR)
 
@@ -385,6 +393,13 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	else
 	    vlp = (vlist_t *)((__psint_t)vlp + sizeof(vlp->pmid) + sizeof(vlp->numval));
     }
+    if (numpmid > 0)
+	/*
+	 * PDU buffer already pinned on entry, pin again so that
+	 * the caller can safely call _both_ pmFreeResult() and
+	 * __pmUnpinPDUBuf() ... refer to thread-safe notes above.
+	 */
+	__pmPinPDUBuf(pdubuf);
 #endif
 
 #ifdef PCP_DEBUG
@@ -394,9 +409,9 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
     *result = pr;
 
     /*
-     * Note we return with the input buffer (pdubuf) still pinned and the
-     * new buffer (newbuf) also pineed - see the thread-safe comments
-     * above
+     * Note we return with the input buffer (pdubuf) still pinned and
+     * for the 64-bit pointer case the new buffer (newbuf) also pinned -
+     * if numpmid != 0 see the thread-safe comments above
      */
     return 0;
 
