@@ -27,30 +27,47 @@ func(void *arg)
     char		**children;
     char		*p;
 
+    /*
+     * expect this to fail for the second thread through when
+     * using PM_CONTEXT_LOCAL
+     */
     if ((sts = pmNewContext(PM_CONTEXT_LOCAL, NULL)) < 0)
 	printf("pmNewContext: %s\n", pmErrStr(sts));
     else {
 	ctx = sts;
 	printf("pmNewContext: -> %d\n", ctx);
     }
+
     pthread_barrier_wait(&barrier);
+
     if ((sts = pmUseContext(ctx)) < 0) {
-	printf("pmUseContext: %s\n", pmErrStr(sts));
+	printf("pmUseContext(%d): %s\n", ctx, pmErrStr(sts));
 	pthread_exit(NULL);
     }
 
+    /*
+     * expect this to fail for the second thread through when
+     * using PM_CONTEXT_LOCAL
+     */
     if ((sts = pmDupContext()) < 0)
 	printf("pmDupContext: %s\n", pmErrStr(sts));
-    else {
+    else
 	printf("pmDupContext: -> %d\n", sts);
-	pmUseContext(ctx);
+
+    if ((sts = pmUseContext(ctx)) < 0) {
+	printf("pmUseContext(%d): %s\n", ctx, pmErrStr(sts));
+	pthread_exit(NULL);
     }
+    else
+	printf("pmUseContext(%d) -> %d\n", ctx, sts);
 
     if ((sts = pmLookupName(1, namelist, pmidlist)) < 0)
 	printf("pmLookupName: %s\n", pmErrStr(sts));
     else
 	printf("pmLookupName: -> %s\n", pmIDStr(pmidlist[0]));
+
     pthread_barrier_wait(&barrier);
+
     if (pmidlist[0] == 0)
 	pthread_exit("Loser failed to get pmid!");
 
@@ -69,7 +86,9 @@ func(void *arg)
 	printf("pmLookupDesc: %s\n", pmErrStr(sts));
     else
 	printf("pmLookupDesc: -> %s type=%s indom=%s\n", pmIDStr(desc.pmid), pmTypeStr(desc.type), pmInDomStr(desc.indom));
+
     pthread_barrier_wait(&barrier);
+
     if (desc.pmid == 0)
 	pthread_exit("Loser failed to get pmDesc!");
 
@@ -82,7 +101,9 @@ func(void *arg)
 	printf("pmGetInDom: %s: %s\n", pmInDomStr(desc.indom), pmErrStr(sts));
     else
 	printf("pmGetInDom: -> %d\n", sts);
+
     pthread_barrier_wait(&barrier);
+
     if (instance == NULL)
 	pthread_exit("Loser failed to get indom!");
 
@@ -100,7 +121,9 @@ func(void *arg)
 	printf("pmFetch: %s\n", pmErrStr(sts));
     else
 	printf("pmFetch: -> OK\n");
+
     pthread_barrier_wait(&barrier);
+
     if (rp == NULL)
 	pthread_exit("Loser failed to get pmResult!");
 
