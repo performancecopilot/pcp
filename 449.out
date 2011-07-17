@@ -31,6 +31,8 @@ pmNewContext: -> 0
 pmNewContext: Operation not supported for multi-threaded applications
 pmStore: Operation not supported for multi-threaded applications
 pmStore: Permission denied
+pmUseContext(0) -> 0
+pmUseContext(0) -> 0
 
 === PM_SCOPE_AF and PM_SCOPE_ACL ===
 func1: __pmAFregister -> OK
