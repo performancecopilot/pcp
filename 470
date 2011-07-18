@@ -36,5 +36,20 @@ echo "Two contexts, same host, different fd's ..."
 src-oss/multithread5 `hostname` localhost
 cat /tmp/func?.out | sort | uniq -c
 
+echo
+echo "Two contexts, same host, same fd's ..."
+src-oss/multithread5 `hostname` `hostname`
+cat /tmp/func?.out | sort | uniq -c
+
+echo
+echo "Three contexts, same host, different fd's ..."
+src-oss/multithread5 `hostname` localhost 127.0.0.1
+cat /tmp/func?.out | sort | uniq -c
+
+echo
+echo "Three contexts, same host, same fd's ..."
+src-oss/multithread5 `hostname` `hostname` `hostname`
+cat /tmp/func?.out | sort | uniq -c
+
 # success, all done
 exit

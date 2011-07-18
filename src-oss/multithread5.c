@@ -17,8 +17,8 @@ static char	*namelist[NMETRIC] = {
     "sample.seconds",
     "sampledso.milliseconds",
     "sample.ulonglong.bin_ctr",
-    "disk.dev.total",
-    "hinv.ncpu"
+    "pmcd.cputime.total",
+    "pmcd.buf.alloc",
 };
 static pmID	pmidlist[NMETRIC];
 
@@ -26,6 +26,7 @@ static pthread_barrier_t barrier;
 
 static int ctx1;
 static int ctx2;
+static int ctx3;
 
 static void
 foo(FILE *f, char *fn, int i)
@@ -75,9 +76,8 @@ func1(void *arg)
     pthread_barrier_wait(&barrier);
 
     for (j = 0; j < 100; j++) {
-	for (i = 0; i < NMETRIC; i++) {
+	for (i = 0; i < NMETRIC; i++)
 	    foo(f, fn, i);
-	}
     }
 
     pthread_exit(NULL);
@@ -102,9 +102,36 @@ func2(void *arg)
     pthread_barrier_wait(&barrier);
 
     for (j = 0; j < 100; j++) {
-	for (i = NMETRIC-1; i >= 0; i--) {
+	for (i = NMETRIC-1; i >= 0; i--)
 	    foo(f, fn, i);
-	}
+    }
+
+    pthread_exit(NULL);
+}
+
+static void *
+func3(void *arg)
+{
+    char	*fn = "func3";
+    int		i;
+    int		j;
+    FILE	*f;
+
+    f = fopen("/tmp/func3.out", "w");
+
+    j = pmUseContext(ctx3);
+    if ( j < 0) {
+	fprintf(f, "Error: %s: pmUseContext(%d) -> %s\n", fn, ctx3, pmErrStr(j));
+	pthread_exit("botch");
+    }
+
+    pthread_barrier_wait(&barrier);
+
+    for (j = 0; j < 100; j++) {
+	for (i = 0; i < NMETRIC; i += 2)
+	    foo(f, fn, i);
+	for (i = 1; i < NMETRIC; i += 2)
+	    foo(f, fn, i);
     }
 
     pthread_exit(NULL);
@@ -115,6 +142,7 @@ main(int argc, char **argv)
 {
     pthread_t	tid1;
     pthread_t	tid2;
+    pthread_t	tid3;
     int		sts;
     char	*msg;
     int		errflag = 0;
@@ -145,8 +173,8 @@ main(int argc, char **argv)
 	}
     }
 
-    if (errflag || optind == argc || argc-optind > 2) {
-	fprintf(stderr, "Usage: %s [-D...] host1 [host2]\n", pmProgname);
+    if (errflag || optind == argc || argc-optind > 3) {
+	fprintf(stderr, "Usage: %s [-D...] host1 [host2 [host3]]\n", pmProgname);
 	exit(1);
     }
 
@@ -163,9 +191,21 @@ main(int argc, char **argv)
 	    printf("Error: pmNewContext(%s) -> %s\n", argv[optind], pmErrStr(ctx2));
 	    exit(1);
 	}
+	optind++;
     }
     else
 	ctx2 = ctx1;
+
+    if (optind < argc) {
+	ctx3 = pmNewContext(PM_CONTEXT_HOST, argv[optind]);
+	if (ctx3 < 0) {
+	    printf("Error: pmNewContext(%s) -> %s\n", argv[optind], pmErrStr(ctx2));
+	    exit(1);
+	}
+	optind++;
+    }
+    else
+	ctx3 = ctx2;
 
     sts = pmLookupName(NMETRIC, namelist, pmidlist);
     if (sts != NMETRIC) {
@@ -177,7 +217,7 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    sts = pthread_barrier_init(&barrier, NULL, 2);
+    sts = pthread_barrier_init(&barrier, NULL, 3);
     if (sts != 0) {
 	printf("pthread_barrier_init: sts=%d\n", sts);
 	exit(1);
@@ -193,11 +233,18 @@ main(int argc, char **argv)
 	printf("thread_create: tid2: sts=%d\n", sts);
 	exit(1);
     }
+    sts = pthread_create(&tid3, NULL, func3, NULL);
+    if (sts != 0) {
+	printf("thread_create: tid3: sts=%d\n", sts);
+	exit(1);
+    }
 
     pthread_join(tid1, (void *)&msg);
     if (msg != NULL) printf("tid1: %s\n", msg);
     pthread_join(tid2, (void *)&msg); 
     if (msg != NULL) printf("tid2: %s\n", msg);
+    pthread_join(tid3, (void *)&msg); 
+    if (msg != NULL) printf("tid3: %s\n", msg);
 
     exit(0);
 }
