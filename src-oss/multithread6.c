@@ -245,6 +245,7 @@ main(int argc, char **argv)
     for (i = 0; i < NMETRIC; i++) {
 	if ((sts = pmLookupDesc(pmidlist[i], &desclist[i])) < 0) {
 	    printf("Error: pmLookupDesc(%s) -> %s\n", namelist[i], pmErrStr(sts));
+	    exit(1);
 	}
     }
 
