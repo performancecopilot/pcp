@@ -98,6 +98,7 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 ifeq ($(shell test $(PCP_VER) -ge 4000 && echo 1), 1)
 CFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
 	multithread4.c multithread5.c multithread6.c multithread7.c \
+	multithread8.c multithread9.c \
 	exerlock.c
 endif
 
@@ -451,6 +452,10 @@ multithread6:	multithread6.c
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
 
 multithread7:	multithread7.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+multithread8:	multithread8.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
 
