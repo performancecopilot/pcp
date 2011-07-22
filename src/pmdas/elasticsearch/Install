@@ -12,10 +12,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
 # Install the ElasticSearch PMDA
 #
 
@@ -26,14 +22,14 @@ iam=elasticsearch
 perl_opt=true
 daemon_opt=false
 
-# Check if JSON is installed
-
-for module in JSON LWP::Simple Switch; do
-	perl -e "use $module" 2>/dev/null 
-
-	if ! test $? -eq 0; then
-	    echo "$module Perl module is required" && exit 1
-	fi
+for module in JSON LWP::Simple Switch
+do
+    perl -e "use $module" 2>/dev/null 
+    if test $? -ne 0
+    then
+        echo "$module perl module is not installed"
+	exit 1
+    fi
 done
 
 pmdaSetup
