@@ -32,7 +32,7 @@ my @nodes_instance_ids;
 my @cluster_cache = ( 0, 0, 0 );	# time of last refresh for each cluster
 
 # Configuration files for overriding the above settings
-for my $file (  pmda_config('PCP_PMDAS_DIR') . '/elasticsearch/es.conf', './es.conf' ) {
+for my $file (pmda_config('PCP_PMDAS_DIR') . '/elasticsearch/es.conf', 'es.conf') {
     eval `cat $file` unless ! -f $file;
 }
 my $baseurl = "http://$es_instance:$es_port/";
@@ -271,13 +271,16 @@ $pmda->add_metric(pmda_pmid(0,10), PM_TYPE_32, PM_INDOM_NULL,
 # node stats
 $pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		'elasticsearch.nodes.indices.size', '', '');
+		'elasticsearch.nodes.indices.size',
+		'Size of indices on each elasticsearch node', '');
 $pmda->add_metric(pmda_pmid(1,1), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		'elasticsearch.nodes.docs.count', '', '');
+		'elasticsearch.nodes.docs.count',
+		'Cumulative counter of documents indexed by elasticsearch', '');
 $pmda->add_metric(pmda_pmid(1,2), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		'elasticsearch.nodes.docs.num_docs', '', '');
+		'elasticsearch.nodes.docs.num_docs',
+		'Raw number of documents indexed by elasticsearch', '');
 $pmda->add_metric(pmda_pmid(1,3), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		'elasticsearch.nodes.cache.field_evictions', '', '');
@@ -304,34 +307,44 @@ $pmda->add_metric(pmda_pmid(1,10), PM_TYPE_U64, $nodes_indom,
 		'elasticsearch.nodes.merges.total_time', '', '');
 $pmda->add_metric(pmda_pmid(1,11), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
-		'elasticsearch.nodes.jvm.uptime', '', '');
+		'elasticsearch.nodes.jvm.uptime',
+		'Number of milliseconds each elasticsearch node has been running', '');
 $pmda->add_metric(pmda_pmid(1,12), PM_TYPE_STRING, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		'elasticsearch.nodes.jvm.uptime_s', '', '');
+		'elasticsearch.nodes.jvm.uptime_s',
+		'Time (as a string) that each elasticsearch node has been up', '');
 $pmda->add_metric(pmda_pmid(1,13), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.jvm.mem.heap_used', '', '');
+		'elasticsearch.nodes.jvm.mem.heap_used',
+		'Actual amount of memory in use for the Java heap', '');
 $pmda->add_metric(pmda_pmid(1,14), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.jvm.mem.heap_committed', '', '');
+		'elasticsearch.nodes.jvm.mem.heap_committed',
+		'Virtual memory size', '');
 $pmda->add_metric(pmda_pmid(1,15), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.jvm.mem.non_heap_used', '', '');
+		'elasticsearch.nodes.jvm.mem.non_heap_used',
+		'Actual memory in use by Java excluding heap space', '');
 $pmda->add_metric(pmda_pmid(1,16), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.jvm.mem.non_heap_committed', '', '');
+		'elasticsearch.nodes.jvm.mem.non_heap_committed',
+		'Virtual memory size excluding heap', '');
 $pmda->add_metric(pmda_pmid(1,17), PM_TYPE_U32, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		'elasticsearch.nodes.jvm.threads.count', '', '');
+		'elasticsearch.nodes.jvm.threads.count',
+		'Number of Java threads currently in use on each node', '');
 $pmda->add_metric(pmda_pmid(1,18), PM_TYPE_U32, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		'elasticsearch.nodes.jvm.threads.peak_count', '', '');
+		'elasticsearch.nodes.jvm.threads.peak_count',
+		'Maximum observed Java threads in use on each node', '');
 $pmda->add_metric(pmda_pmid(1,19), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		'elasticsearch.nodes.jvm.gc.count', '', '');
+		'elasticsearch.nodes.jvm.gc.count',
+		'Count of Java garbage collections', '');
 $pmda->add_metric(pmda_pmid(1,20), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
-		'elasticsearch.nodes.jvm.gc.time', '', '');
+		'elasticsearch.nodes.jvm.gc.time',
+		'Time spent performing garbage collections in Java', '');
 $pmda->add_metric(pmda_pmid(1,21), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		'elasticsearch.nodes.jvm.gc.collectors.Copy.count', '', '');
@@ -354,28 +367,36 @@ $pmda->add_metric(pmda_pmid(1,26), PM_TYPE_U64, $nodes_indom,
 # node info stats
 $pmda->add_metric(pmda_pmid(2,0), PM_TYPE_U32, $nodes_indom,
 		PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
-		'elasticsearch.nodes.jvm.pid', '', '');
+		'elasticsearch.nodes.jvm.pid',
+		'Process identifier for elasticsearch on each node', '');
 $pmda->add_metric(pmda_pmid(2,1), PM_TYPE_STRING, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		'elasticsearch.nodes.jvm.version', '', '');
+		'elasticsearch.nodes.jvm.version',
+		'Java Runtime environment version', '');
 $pmda->add_metric(pmda_pmid(2,2), PM_TYPE_STRING, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		'elasticsearch.nodes.jvm.vm_name', '', '');
+		'elasticsearch.nodes.jvm.vm_name',
+		'Name of the Java Virtual Machine running on each node', '');
 $pmda->add_metric(pmda_pmid(2,3), PM_TYPE_STRING, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		'elasticsearch.nodes.jvm.vm_version', '', '');
+		'elasticsearch.nodes.jvm.vm_version',
+		'Java Virtual Machine version on each node', '');
 $pmda->add_metric(pmda_pmid(2,4), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.jvm.mem.heap_init', '', '');
+		'elasticsearch.nodes.jvm.mem.heap_init',
+		'Initial Java heap memory configuration size', '');
 $pmda->add_metric(pmda_pmid(2,5), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.jvm.mem.heap_max', '', '');
+		'elasticsearch.nodes.jvm.mem.heap_max',
+		'Maximum Java memory size', '');
 $pmda->add_metric(pmda_pmid(2,6), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.jvm.mem.non_heap_init', '', '');
+		'elasticsearch.nodes.jvm.mem.non_heap_init',
+		'Initial Java memory configuration size excluding heap space', '');
 $pmda->add_metric(pmda_pmid(2,7), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.jvm.mem.non_heap_max', '', '');
+		'elasticsearch.nodes.jvm.mem.non_heap_max',
+		'Maximum Java memory size excluding heap space', '');
 
 $pmda->add_indom($nodes_indom, \@nodes_instances,
                  'Instance domain exporting each elasticsearch node', '');
@@ -420,7 +441,9 @@ the agent is installed or removed.
 
 =over
 
-=item $PCP_PMDAS_DIR/elasticsearch/pmdaelasticsearch.pl
+=item $PCP_PMDAS_DIR/elasticsearch/es.conf
+
+optional configuration file for B<pmdaelasticsearch>
 
 elasticsearch PMDA for PCP
 
@@ -431,6 +454,10 @@ installation script for the B<pmdaelasticsearch> agent
 =item $PCP_PMDAS_DIR/elasticsearch/Remove
 
 undo installation script for the B<pmdaelasticsearch> agent
+
+=item $PCP_LOG_DIR/pmcd/elasticsearch.log
+
+default log file for error messages from B<pmdaelasticsearch>
 
 =back
 
