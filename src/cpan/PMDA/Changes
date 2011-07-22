@@ -1,5 +1,11 @@
 Revision history for Perl extension PCP::PMDA.
 
+1.12  Fri Jul 22 11:15:41 EST 2011
+	- Ensure local fetch and instance wrapper routines
+	  are always called.  Otherwise refresh interface
+	  doesn't work, and pmns_refresh may not be called
+	  in all situations where it should be.
+
 1.11  Wed May 11 21:04:09 EST 2011
 	- Make file tail non-blocking so it can be used for
 	  named pipes as well as regular files.

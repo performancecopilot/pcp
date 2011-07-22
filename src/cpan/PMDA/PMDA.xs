@@ -229,7 +229,8 @@ fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
 
     if (need_refresh)
 	pmns_refresh();
-    prefetch(numpmid, pmidlist, rp, pmda);
+    if (fetch_func)
+	prefetch(numpmid, pmidlist, rp, pmda);
     if (refresh_func)
 	refresh(numpmid, pmidlist);
     sts = pmdaFetch(numpmid, pmidlist, rp, pmda);
@@ -259,7 +260,8 @@ instance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
 {
     if (need_refresh)
 	pmns_refresh();
-    preinstance(indom, a, b, rp, pmda);
+    if (instance_func)
+	preinstance(indom, a, b, rp, pmda);
     return pmdaInstance(indom, a, b, rp, pmda);
 }
 
@@ -550,6 +552,8 @@ new(CLASS,name,domain)
 	    pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmdaname, domain,
 			logfile, helpfile);
 	}
+	dispatch.version.four.fetch = fetch;
+	dispatch.version.four.instance = instance;
 	dispatch.version.four.desc = pmns_desc;
 	dispatch.version.four.pmid = pmns_pmid;
 	dispatch.version.four.name = pmns_name;
@@ -727,7 +731,6 @@ set_fetch(self,function)
     CODE:
 	if (function != (SV *)NULL) {
 	    fetch_func = newSVsv(function);
-	    self->version.four.fetch = fetch;
 	}
 
 void
@@ -746,7 +749,6 @@ set_instance(self,function)
     CODE:
 	if (function != (SV *)NULL) {
 	    instance_func = newSVsv(function);
-	    self->version.four.instance = instance;
 	}
 
 void
