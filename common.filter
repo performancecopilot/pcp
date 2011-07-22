@@ -183,6 +183,7 @@ _filter_optional_pmdas()
 	-e '/pmdadbping/d' \
 	-e '/pmdadmf/d' \
 	-e '/pmda_environ/d' \
+	-e '/pmdaelasticsearch/d' \
 	-e '/pmdaespping/d' \
 	-e '/pmdahippi/d' \
 	-e '/pmdahotproc/d' \
@@ -212,6 +213,7 @@ _filter_optional_pmdas()
 	-e '/pmdapdns/d' \
 	-e '/pmdapmcd/d' \
 	-e '/pmdaprocess/d' \
+	-e '/pmdarsyslog/d' \
 	-e '/pmdaroomtemp/d' \
 	-e '/pmdasamba/d' \
 	-e '/pmdasendmail/d' \
@@ -254,6 +256,7 @@ _filter_top_pmns()
 	-e '/^    datatape /d' \
 	-e '/^    dbping /d' \
 	-e '/^    dmf /d' \
+	-e '/^    elasticsearch /d' \
 	-e '/^    environ /d' \
 	-e '/^    hippi /d' \
 	-e '/^    hotproc /d' \
@@ -277,6 +280,7 @@ _filter_top_pmns()
 	-e '/^    oracle /d' \
 	-e '/^    oraping /d' \
 	-e '/^    pdns /d' \
+	-e '/^    rsyslog /d' \
 	-e '/^    samba /d' \
 	-e '/^    sendmail /d' \
 	-e '/^    shping /d' \
@@ -544,6 +548,7 @@ _filter_torture_api()
 	-e '/^    cms /d' \
 	-e '/^    cxfs /d' \
 	-e '/^    dynamic /d' \
+	-e '/^    elasticsearch /d' \
 	-e '/^    engr /d' \
 	-e '/^    idiot /d' \
 	-e '/^    idl /d' \
@@ -564,6 +569,7 @@ _filter_torture_api()
 	-e '/^    p76 /d' \
 	-e '/^    process /d' \
 	-e '/^    roomtemp /d' \
+	-e '/^    rsyslog /d' \
 	-e '/^    samba /d' \
 	-e '/^    softtemp /d' \
 	-e '/^    stream /d' \
