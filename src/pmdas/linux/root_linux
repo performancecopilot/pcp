@@ -677,9 +677,10 @@ proc {
     psinfo
     memory
     runq
-    id 
+    id
     io
     schedstat
+    fd
 }
 
 proc.psinfo {
@@ -793,6 +794,10 @@ proc.schedstat {
     cpu_time		60:31:0
     run_delay		60:31:1
     pcount		60:31:2
+}
+
+proc.fd {
+    count		60:51:0
 }
 
 xfs {
