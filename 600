@@ -65,7 +65,7 @@ then
 	    then
 		eval `dpkg -l $pkg \
 		| $PCP_AWK_PROG '$2 == "'$pkg'" { print $3 }' \
-		| sed -e 's/^/a=/' -e 's/\./ b=/' -e 's/-.*//'`
+		| sed -e 's/^/a=/' -e 's/\./ b=/' -e 's/[-.].*//'`
 	    fi
 	fi
     fi
