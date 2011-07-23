@@ -29,7 +29,7 @@ LSRCFILES = objstyle
 LCFLAGS = -I$(TOPDIR)/src
 ifeq "$(TARGET_OS)" "linux"
 ABI = $(shell ./objstyle)
-LCFLAGS += -DSIM_ABI=\"$(ABI)\"
+LCFLAGS += -DSIM_ABI=\""$(ABI)"\"
 endif
 ifdef PACKAGE_BUILD
 BUILD = $(PACKAGE_BUILD)
