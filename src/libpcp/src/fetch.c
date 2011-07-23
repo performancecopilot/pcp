@@ -48,31 +48,6 @@ request_fetch(int ctxid, __pmContext *ctxp,  int numpmid, pmID pmidlist[])
     return n;
 }
 
-static int
-receive_fetch(__pmContext *ctxp, pmResult **result)
-{
-    int		n;
-    __pmPDU	*pb;
-    int		pinpdu;
-
-    pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
-			    ctxp->c_pmcd->pc_tout_sec, &pb);
-    if (n == PDU_RESULT) {
-	n = __pmDecodeResult(pb, result);
-    }
-    else if (n == PDU_ERROR) {
-	__pmDecodeError(pb, &n);
-    }
-    else if (n != PM_ERR_TIMEOUT) {
-	n = PM_ERR_IPC;
-    }
-
-    if (pinpdu > 0)
-	__pmUnpinPDUBuf(pb);
-
-    return n;
-}
-
 int
 pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 {
@@ -111,18 +86,50 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 	    newlist = NULL;
 
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
+	    /*
+	     * Thread-safe note
+	     *
+	     * Need to be careful here, because the PMCD changed protocol
+	     * may mean several PDUs are returned, but __pmDecodeResult()
+	     * may request more info from PMCD if pmDebug is set.
+	     *
+	     * So unlock ctxp->c_pmcd->pc_lock as soon as possible.
+	     */
+	    PM_LOCK(ctxp->c_pmcd->pc_lock);
 	    if ((n = request_fetch(n, ctxp, numpmid, pmidlist)) >= 0) {
 		int changed = 0;
 		do {
-		    if ((n = receive_fetch(ctxp, result)) > 0) {
-			/* PMCD state change protocol */
-			changed = n;
+		    __pmPDU	*pb;
+		    int		pinpdu;
+
+		    pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
+					    ctxp->c_pmcd->pc_tout_sec, &pb);
+		    if (n == PDU_RESULT) {
+			PM_UNLOCK(ctxp->c_pmcd->pc_lock);
+			n = __pmDecodeResult(pb, result);
 		    }
+		    else if (n == PDU_ERROR) {
+			__pmDecodeError(pb, &n);
+			if (n > 0)
+			    /* PMCD state change protocol */
+			    changed = n;
+			else
+			    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
+		    }
+		    else {
+			PM_UNLOCK(ctxp->c_pmcd->pc_lock);
+			if (n != PM_ERR_TIMEOUT)
+			    n = PM_ERR_IPC;
+		    }
+		    if (pinpdu > 0)
+			__pmUnpinPDUBuf(pb);
 		} while (n > 0);
 
 		if (n == 0)
 		    n |= changed;
 	    }
+	    else
+		PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
 	    n = __pmFetchLocal(ctxp, numpmid, pmidlist, result);

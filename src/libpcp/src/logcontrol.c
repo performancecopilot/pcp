@@ -10,6 +10,13 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe note
+ *
+ * This routine is not thread-safe as there is no serialization on the
+ * use of the fd between the __pmSendLogControl() and the reading of
+ * the reply PDU.  It is assumed that the caller is single-threaded,
+ * which is true for the only current user of this routine, pmlc(1).
  */
 
 #include "pmapi.h"

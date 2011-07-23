@@ -10,6 +10,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes
+ *
+ * Do not need ctxp->c_pmcd->pc_lock lock around __pmSendCreds() call,
+ * as the context has not been created, so no-one else could be using
+ * the context's fd.
  */
 
 #include "pmapi.h"

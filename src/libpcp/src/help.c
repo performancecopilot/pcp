@@ -17,44 +17,6 @@
 #include "pmda.h"
 
 static int
-requesttext (__pmContext *ctxp, int ident, int type) 
-{
-    int n;
-
-    n = __pmSendTextReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), ident, type);
-    if (n < 0) {
-	n = __pmMapErrno(n);
-    }
-
-    return n;
-}
-
-static int
-receivetext (__pmContext *ctxp, char **buffer)
-{
-    int		n;
-    __pmPDU	*pb;
-    int		pinpdu;
-
-    pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
-			    ctxp->c_pmcd->pc_tout_sec, &pb);
-    if (n == PDU_TEXT) {
-	int x_ident;
-
-	n = __pmDecodeText(pb, &x_ident, buffer);
-    }
-    else if (n == PDU_ERROR)
-	__pmDecodeError(pb, &n);
-    else if (n != PM_ERR_TIMEOUT)
-	n = PM_ERR_IPC;
-
-    if (pinpdu > 0)
-	__pmUnpinPDUBuf(pb);
-
-    return n;
-}
-
-static int
 lookuptext(int ident, int type, char **buffer)
 {
     int		n;
@@ -68,23 +30,40 @@ lookuptext(int ident, int type, char **buffer)
 	if (ctxp == NULL)
 	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
+	    PM_LOCK(ctxp->c_pmcd->pc_lock);
 again:
-	    if ((n = requesttext (ctxp, ident, type)) >= 0) {
-		n = receivetext (ctxp, buffer);
-
+	    n = __pmSendTextReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), ident, type);
+	    if (n < 0)
+		n = __pmMapErrno(n);
+	    else {
+		__pmPDU	*pb;
+		int		pinpdu;
+		pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
+					ctxp->c_pmcd->pc_tout_sec, &pb);
+		if (n == PDU_TEXT) {
+		    int x_ident;
+		    n = __pmDecodeText(pb, &x_ident, buffer);
+		}
+		else if (n == PDU_ERROR)
+		    __pmDecodeError(pb, &n);
+		else if (n != PM_ERR_TIMEOUT)
+		    n = PM_ERR_IPC;
+		if (pinpdu > 0)
+		    __pmUnpinPDUBuf(pb);
 		/*
 		 * Note: __pmDecodeText does not swab ident because it
 		 * does not know whether it's a pmID or a pmInDom.
 		 */
 
 		if (n == 0 && (*buffer)[0] == '\0' && (type & PM_TEXT_HELP)) {
-		    /* fall back to oneline, if possible */
+		    /* fall back to one-line, if possible */
 		    free(*buffer);
 		    type &= ~PM_TEXT_HELP;
 		    type |= PM_TEXT_ONELINE;
 		    goto again;
 		}
 	    }
+	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
 	    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
@@ -101,7 +80,7 @@ again_local:
 		else
 		    n = dp->dispatch.version.two.text(ident, type, buffer, dp->dispatch.version.two.ext);
 		if (n == 0 && (*buffer)[0] == '\0' && (type & PM_TEXT_HELP)) {
-		    /* fall back to oneline, if possible */
+		    /* fall back to one-line, if possible */
 		    type &= ~PM_TEXT_HELP;
 		    type |= PM_TEXT_ONELINE;
 		    goto again_local;

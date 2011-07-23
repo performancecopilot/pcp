@@ -138,11 +138,12 @@ pmGetPMNSLocation(void)
     int sts;
 
     PM_LOCK(__pmLock_libpcp);
-
     if (useExtPMNS) {
+	PM_UNLOCK(__pmLock_libpcp);
 	pmns_location = PMNS_LOCAL;
 	goto done;
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     /* 
      * Determine if we are to use PDUs or local PMNS file.
@@ -219,6 +220,7 @@ pmGetPMNSLocation(void)
 	    pmns_location = PMNS_LOCAL;
     }
 
+    PM_LOCK(__pmLock_libpcp);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {
 	static int last_pmns_location = -1;
@@ -236,9 +238,9 @@ pmGetPMNSLocation(void)
 	curr_pmns = main_pmns;
     else if (pmns_location != PMNS_ARCHIVE)
 	curr_pmns = NULL;
+    PM_UNLOCK(__pmLock_libpcp);
 
 done:
-    PM_UNLOCK(__pmLock_libpcp);
     return pmns_location;
 }
 
@@ -1648,58 +1650,13 @@ pmUnloadNameSpace(void)
     PM_UNLOCK(__pmLock_libpcp);
 }
 
-static int
-request_names(__pmContext *ctxp, int numpmid, char *namelist[])
-{
-    int n;
-
-    n = __pmSendNameList(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
-		numpmid, namelist, NULL);
-    if (n < 0)
-	n = __pmMapErrno(n);
-
-    return n;
-}
-
-static int
-receive_names(__pmContext *ctxp, int numpmid, pmID pmidlist[])
-{
-    int		n;
-    __pmPDU	*pb;
-    int		pinpdu;
-
-    pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
-			    ctxp->c_pmcd->pc_tout_sec, &pb);
-    if (n == PDU_PMNS_IDS) {
-	/* Note:
-	 * pmLookupName may return an error even though
-	 * it has a valid list of ids.
-	 * This is why we need op_status.
-	 */
-	int op_status; 
-	n = __pmDecodeIDList(pb, numpmid, pmidlist, &op_status);
-	if (n >= 0)
-	    n = op_status;
-    }
-    else if (n == PDU_ERROR) {
-	__pmDecodeError(pb, &n);
-    }
-    else if (n != PM_ERR_TIMEOUT) {
-	n = PM_ERR_IPC;
-    }
-
-    if (pinpdu > 0)
-	__pmUnpinPDUBuf(pb);
-
-    return n;
-}
-
 int
 pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 {
-    int pmns_location;
+    int pmns_location = GetLocation();
     int	sts = 0;
     __pmContext	*ctxp;
+    int		c_type;
     int		lsts;
     int		ctx;
     int		i;
@@ -1715,18 +1672,27 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
     }
 
     ctx = lsts = pmWhichContext();
-    if (lsts >= 0)
+    if (lsts >= 0) {
 	ctxp = __pmHandleToPtr(ctx);
-    else
+	c_type = ctxp->c_type;
+    }
+    else {
 	ctxp = NULL;
-    if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
+	/*
+	 * set c_type to be NONE of PM_CONTEXT_HOST, PM_CONTEXT_ARCHIVE
+	 * nor PM_CONTEXT_LOCAL
+	 */
+	c_type = 0;
+    }
+    if (ctxp != NULL && c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
 	/* Local context requires single-threaded applications */
 	PM_UNLOCK(ctxp->c_lock);
 	return PM_ERR_THREAD;
     }
 
-    pmns_location = GetLocation();
     if (pmns_location < 0) {
+	if (ctxp != NULL)
+	    PM_UNLOCK(ctxp->c_lock);
 	sts = pmns_location;
 	/* only hope is derived metrics ... set up for this */
 	for (i = 0; i < numpmid; i++) {
@@ -1739,6 +1705,8 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	char		*xp;
 	__pmnsNode	*np;
 
+	if (ctxp != NULL)
+	    PM_UNLOCK(ctxp->c_lock);
 	for (i = 0; i < numpmid; i++) {
 	    /*
 	     * if we locate the name and it is a leaf in the PMNS
@@ -1781,7 +1749,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 		    pmid_domain(np->pmid) == DYNAMIC_PMID &&
 		    pmid_item(np->pmid) == 0) {
 		    /* root of dynamic subtree */
-		    if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_LOCAL) {
+		    if (c_type == PM_CONTEXT_LOCAL) {
 			/* have PM_CONTEXT_LOCAL ... ship request to PMDA */
 			int	domain = ((__pmID_int *)&np->pmid)->cluster;
 			__pmDSO	*dp;
@@ -1832,7 +1800,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	/*
 	 * PMNS_REMOTE so there must be a current host context
 	 */
-	assert(ctxp != NULL && ctxp->c_type == PM_CONTEXT_HOST);
+	assert(c_type == PM_CONTEXT_HOST);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PMNS) {
 	    fprintf(stderr, "pmLookupName: request_names ->");
@@ -1841,8 +1809,36 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	    fputc('\n', stderr);
 	}
 #endif
-	if ((sts = request_names(ctxp, numpmid, namelist)) >= 0) {
-	    sts = receive_names(ctxp, numpmid, pmidlist);
+	PM_LOCK(ctxp->c_pmcd->pc_lock);
+	sts = __pmSendNameList(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+		numpmid, namelist, NULL);
+	if (sts < 0)
+	    sts = __pmMapErrno(sts);
+	else {
+	    __pmPDU	*pb;
+	    int		pinpdu;
+
+	    pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
+				    ctxp->c_pmcd->pc_tout_sec, &pb);
+	    if (sts == PDU_PMNS_IDS) {
+		/* Note:
+		 * pmLookupName may return an error even though
+		 * it has a valid list of ids.
+		 * This is why we need op_status.
+		 */
+		int op_status; 
+		sts = __pmDecodeIDList(pb, numpmid, pmidlist, &op_status);
+		if (sts >= 0)
+		    sts = op_status;
+	    }
+	    else if (sts == PDU_ERROR) {
+		__pmDecodeError(pb, &sts);
+	    }
+	    else if (sts != PM_ERR_TIMEOUT) {
+		sts = PM_ERR_IPC;
+	    }
+	    if (pinpdu > 0)
+		__pmUnpinPDUBuf(pb);
 	    if (sts >= 0)
 		nfail = numpmid - sts;
 #ifdef PCP_DEBUG
@@ -1859,9 +1855,10 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	    }
 #endif
 	}
+	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
+	if (ctxp != NULL)
+	    PM_UNLOCK(ctxp->c_lock);
     }
-    if (ctxp != NULL)
-	PM_UNLOCK(ctxp->c_lock);
 
     if (sts < 0 || nfail > 0) {
 	/*
@@ -1915,55 +1912,37 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 }
 
 static int
-request_names_of_children(__pmContext *ctxp, const char *name, int wantstatus)
-{
-    int n;
-
-    n = __pmSendChildReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
-		name, wantstatus);
-    if (n < 0)
-	n =  __pmMapErrno(n);
-    return n;
-}
-
-static int
-receive_names_of_children(__pmContext *ctxp, char ***offspring,
-			  int **statuslist)
-{
-    int		n;
-    __pmPDU	*pb;
-    int		pinpdu;
-
-    pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
-			    ctxp->c_pmcd->pc_tout_sec, &pb);
-    if (n == PDU_PMNS_NAMES) {
-	int numnames;
-
-	n = __pmDecodeNameList(pb, &numnames, offspring, statuslist);
-	if (n >= 0)
-	    n = numnames;
-    }
-    else if (n == PDU_ERROR)
-	__pmDecodeError(pb, &n);
-    else if (n != PM_ERR_TIMEOUT)
-	n = PM_ERR_IPC;
-
-    if (pinpdu > 0)
-	__pmUnpinPDUBuf(pb);
-
-    return n;
-}
-
-static int
 GetChildrenStatusRemote(__pmContext *ctxp, const char *name,
 			char ***offspring, int **statuslist)
 {
     int n;
 
-    if ((n = request_names_of_children(ctxp, name,
-				       (statuslist==NULL) ? 0 : 1)) >= 0) {
-	n = receive_names_of_children(ctxp, offspring, statuslist);
+    PM_LOCK(ctxp->c_pmcd->pc_lock);
+    n = __pmSendChildReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+		name, statuslist == NULL ? 0 : 1);
+    if (n < 0)
+	n =  __pmMapErrno(n);
+    else {
+	__pmPDU		*pb;
+	int		pinpdu;
+
+	pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
+				ctxp->c_pmcd->pc_tout_sec, &pb);
+	if (n == PDU_PMNS_NAMES) {
+	    int numnames;
+	    n = __pmDecodeNameList(pb, &numnames, offspring, statuslist);
+	    if (n >= 0)
+		n = numnames;
+	}
+	else if (n == PDU_ERROR)
+	    __pmDecodeError(pb, &n);
+	else if (n != PM_ERR_TIMEOUT)
+	    n = PM_ERR_IPC;
+	if (pinpdu > 0)
+	    __pmUnpinPDUBuf(pb);
     }
+    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
+
     return n;
 }
 
@@ -2429,9 +2408,11 @@ pmNameID(pmID pmid, char **name)
 	/* As we have PMNS_REMOTE there must be a current host context */
 	if ((n = pmWhichContext() < 0) || (ctxp = __pmHandleToPtr(n)) == NULL)
 	    return PM_ERR_NOCONTEXT;
+	PM_LOCK(ctxp->c_pmcd->pc_lock);
 	if ((n = request_namebypmid(ctxp, pmid)) >= 0) {
 	    n = receive_a_name(ctxp, name);
 	}
+	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	PM_UNLOCK(ctxp->c_lock);
 	if (n >= 0) return n;
     	return __dmgetname(pmid, name);
@@ -2511,9 +2492,11 @@ pmNameAll(pmID pmid, char ***namelist)
 	/* As we have PMNS_REMOTE there must be a current host context */
 	if ((n = pmWhichContext() < 0) || (ctxp = __pmHandleToPtr(n)) == NULL)
 	    return PM_ERR_NOCONTEXT;
+	PM_LOCK(ctxp->c_pmcd->pc_lock);
 	if ((n = request_namebypmid (ctxp, pmid)) >= 0) {
 	    n = receive_namesbyid (ctxp, namelist);
 	}
+	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	PM_UNLOCK(ctxp->c_lock);
 	if (n == 0)
 	    goto try_derive;
@@ -2544,7 +2527,7 @@ try_derive:
  * generic depth-first recursive descent of the PMNS
  */
 static int
-TraversePMNS_local(const char *name, void(*func)(const char *name))
+TraversePMNS_local(const char *name, void(*func)(const char *), void(*func_r)(const char *, void *), void *closure)
 {
     int		sts;
     char	**enfants;
@@ -2570,7 +2553,7 @@ TraversePMNS_local(const char *name, void(*func)(const char *name))
 		strcat(newname, ".");
 		strcat(newname, enfants[j]);
 	    }
-	    n = TraversePMNS_local(newname, func);
+	    n = TraversePMNS_local(newname, func, func_r, closure);
 	    free(newname);
 	    if (sts == 0)
 		sts = n;
@@ -2579,26 +2562,17 @@ TraversePMNS_local(const char *name, void(*func)(const char *name))
     }
     else if (sts == 0) {
 	/* leaf node, name is full name of a metric */
-	(*func)(name);
+	if (func_r == NULL)
+	    (*func)(name);
+	else
+	    (*func_r)(name, closure);
     }
 
     return sts;
 }
 
-static int
-request_traverse_pmns(__pmContext *ctxp, const char *name)
-{
-    int n;
-
-    n = __pmSendTraversePMNSReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
-    		name);
-    if (n < 0)
-	n = __pmMapErrno(n);
-    return n;
-}
-
 int
-pmTraversePMNS(const char *name, void(*func)(const char *name))
+TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const char *, void *), void *closure)
 {
     int pmns_location = GetLocation();
 
@@ -2612,7 +2586,7 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 	int	sts;
 
 	PM_LOCK(__pmLock_libpcp);
-	sts = TraversePMNS_local(name, func);
+	sts = TraversePMNS_local(name, func, func_r, closure);
 	PM_UNLOCK(__pmLock_libpcp);
 	return sts;
     }
@@ -2624,7 +2598,11 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 	/* As we have PMNS_REMOTE there must be a current host context */
 	if ((sts = pmWhichContext() < 0) || (ctxp = __pmHandleToPtr(sts)) == NULL)
 	    return PM_ERR_NOCONTEXT;
-	if ((sts = request_traverse_pmns(ctxp, name)) < 0) {
+	PM_LOCK(ctxp->c_pmcd->pc_lock);
+	sts = __pmSendTraversePMNSReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), name);
+	if (sts < 0) {
+	    sts = __pmMapErrno(sts);
+	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	    PM_UNLOCK(ctxp->c_lock);
 	    return sts;
 	}
@@ -2637,6 +2615,7 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 
 	    pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 				      TIMEOUT_DEFAULT, &pb);
+	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	    PM_UNLOCK(ctxp->c_lock);
 	    if (sts == PDU_PMNS_NAMES) {
 		sts = __pmDecodeNameList(pb, &numnames, 
@@ -2647,8 +2626,12 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 			 * Do not process anonymous metrics here, we'll
 			 * pick them up with the derived metrics later on
 			 */
-			if (strncmp(namelist[i], "anon.", 5) != 0)
-			    func(namelist[i]);
+			if (strncmp(namelist[i], "anon.", 5) != 0) {
+			    if (func_r == NULL)
+				(*func)(namelist[i]);
+			    else
+				(*func_r)(namelist[i], closure);
+			}
 		    }
 		    numnames = sts;
 		    free(namelist);
@@ -2682,7 +2665,10 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 	    if (xtra > 0) {
 		sts = 0;
 		for (i=0; i<xtra; i++) {
-		    func(namelist[i]);
+		    if (func_r == NULL)
+			(*func)(namelist[i]);
+		    else
+			(*func_r)(namelist[i], closure);
 		}
 		numnames += xtra;
 		free(namelist);
@@ -2691,6 +2677,18 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 	    return sts > 0 ? numnames : sts;
 	}
     }
+}
+
+int
+pmTraversePMNS(const char *name, void(*func)(const char *))
+{
+    return TraversePMNS(name, func, NULL, NULL);
+}
+
+int
+pmTraversePMNS_r(const char *name, void(*func)(const char *, void *), void *closure)
+{
+    return TraversePMNS(name, NULL, func, closure);
 }
 
 int

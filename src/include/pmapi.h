@@ -247,6 +247,7 @@ extern int pmNameAll(pmID, char ***);		/* all */
  * Handy recursive descent of the PMNS
  */
 extern int pmTraversePMNS(const char *, void(*)(const char *));
+extern int pmTraversePMNS_r(const char *, void(*)(const char *, void *), void *);
 
 /*
  * Given a metric, find it's descriptor (caller supplies buffer for desc),
