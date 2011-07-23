@@ -26,8 +26,29 @@
 #include "pmda.h"
 #include <sys/queue.h>
 
-#ifndef TAILQ_NEXT	/* macro missing on RHEL4 */
+/*
+ * Queue access methods that are missing on glibc <= 2.3, e.g. RHEL4
+ */ 
+#ifndef TAILQ_NEXT	
 #define	TAILQ_NEXT(elm, field)	((elm)->field.tqe_next)
+#endif
+
+#ifndef TAILQ_FIRST
+#define TAILQ_FIRST(head)	((head)->tqh_first)
+#endif
+
+#ifndef TAILQ_EMPTY
+#define TAILQ_EMPTY(head)               ((head)->tqh_first == NULL)
+#endif
+
+#ifndef TAILQ_LAST
+#define TAILQ_LAST(head, headname) \
+        (*(((struct headname *)((head)->tqh_last))->tqh_last))
+#endif
+
+#ifndef TAILQ_PREV
+#define TAILQ_PREV(elm, headname, field) \
+        (*(((struct headname *)((elm)->field.tqe_prev))->tqh_last))
 #endif
 
 struct event {

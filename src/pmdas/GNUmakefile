@@ -24,7 +24,7 @@ SUBDIRS = pmcd linux solaris aix darwin windows etw \
 	dbping memcache systemtap mysql vmware kvm \
 	bonding lustrecomm mmv netfilter zimbra \
 	named news pdns samba dtsrun postfix gpsd \
-	rsyslog
+	rsyslog elasticsearch
 
 LDIRT = pmcd.conf
 
