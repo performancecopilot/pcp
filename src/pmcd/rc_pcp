@@ -28,7 +28,7 @@
 # Provides:       pcp
 # Required-Start: $network $remote_fs $syslog
 # Required-Stop:  $remote_fs $syslog
-# Default-Start:  3 5
+# Default-Start:  2 3 4 5
 # Default-Stop:   0 1 6
 # Short-Description:   Control pmcd and pmlogger daemons
 # Description:    Configure the Performance Co-Pilot and starts logging.
