@@ -1,6 +1,6 @@
 #!/bin/sh
-# PCP QA Test No. 470
-# multi-thread - basic context contention
+# PCP QA Test No. 473
+# multi-thread - fetch and profile services for contented contexts
 #
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
 #
@@ -28,27 +28,27 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 $sudo rm -f /tmp/func?.out
 echo "Only one context ..."
-src-oss/multithread5 localhost
+src-oss/multithread7 localhost
 cat /tmp/func?.out | sort | uniq -c
 
 echo
 echo "Two contexts, same host, different fd's ..."
-src-oss/multithread5 `hostname` localhost
+src-oss/multithread7 `hostname` localhost
 cat /tmp/func?.out | sort | uniq -c
 
 echo
 echo "Two contexts, same host, same fd's ..."
-src-oss/multithread5 `hostname` `hostname`
+src-oss/multithread7 `hostname` `hostname`
 cat /tmp/func?.out | sort | uniq -c
 
 echo
 echo "Three contexts, same host, different fd's ..."
-src-oss/multithread5 `hostname` localhost 127.0.0.1
+src-oss/multithread7 `hostname` localhost 127.0.0.1
 cat /tmp/func?.out | sort | uniq -c
 
 echo
 echo "Three contexts, same host, same fd's ..."
-src-oss/multithread5 `hostname` `hostname` `hostname`
+src-oss/multithread7 `hostname` `hostname` `hostname`
 cat /tmp/func?.out | sort | uniq -c
 
 # success, all done

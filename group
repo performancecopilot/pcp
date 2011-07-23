@@ -782,3 +782,7 @@ perl
 1108 logutil local folio sgi
 468 pmns pmdumptext local oss
 470 threads local oss
+472 threads local oss
+473 threads local oss
+474 threads local oss
+475 threads local oss

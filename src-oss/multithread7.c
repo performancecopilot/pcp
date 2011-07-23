@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
  *
- * exercise multi-threaded multiple host contexts with pmLookupDesc()
- * as the simplest possible case
+ * exercise multi-threaded multiple host contexts with profile and
+ * fetch functions
  */
 
 #include <stdio.h>
@@ -14,13 +14,14 @@
 #define NMETRIC 5
 
 static char	*namelist[NMETRIC] = {
-    "sample.seconds",
-    "sampledso.milliseconds",
-    "sample.ulonglong.bin_ctr",
-    "pmcd.cputime.total",
+    "sample.colour",
+    "pmcd.control.register",
+    "sampledso.bin",
+    "sample.ulonglong.ten",
     "pmcd.buf.alloc",
 };
 static pmID	pmidlist[NMETRIC];
+static pmDesc	desclist[NMETRIC];
 
 static pthread_barrier_t barrier;
 
@@ -28,33 +29,36 @@ static int ctx1;
 static int ctx2;
 static int ctx3;
 
+static pthread_mutex_t	mymutex = PTHREAD_MUTEX_INITIALIZER;
+
+/*
+ * context use ...
+ *
+ * args		tid1	tid2	tid3
+ *   1		  0	  0	  0
+ *   2		  0	  1	  1	<- needs app-level locking
+ *   3		  0	  1	  2
+ */
+
+/*
+ * fetch pmidlist[i] ... pmidlist[NMETRIC-1]
+ */
 static void
 foo(FILE *f, char *fn, int i)
 {
-    pmDesc	desc;
-    char	strbuf[60];
     int		sts;
+    int		j;
+    pmResult	*rp;
 
-    sts = pmLookupDesc(pmidlist[i], &desc);
-    if (sts < 0) {
-	fprintf(f, "%s: pmLookupDesc[%s] -> %s\n", fn, pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)), pmErrStr(sts));
+    if ((sts = pmFetch(NMETRIC-i, &pmidlist[i], &rp)) < 0) {
+	fprintf(f, "%s: %s ...: pmFetch Error: %s\n", fn, namelist[i], pmErrStr(sts));
 	pthread_exit("botch");
     }
-    else if (pmidlist[i] != desc.pmid) {
-	fprintf(f, "%s: pmLookupDesc: Expecting PMID: %s", fn, pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)));
-	fprintf(f, " got: %s\n", pmIDStr_r(desc.pmid, strbuf, sizeof(strbuf)));
-	pthread_exit("botch");
-    }
-    else {
-	fprintf(f, "%s: %s (%s) ->", fn, namelist[i], pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)));
-	fprintf(f, " %s", pmTypeStr_r(desc.type, strbuf, sizeof(strbuf)));
-	fprintf(f, " %s", pmInDomStr_r(desc.indom, strbuf, sizeof(strbuf)));
-	if (desc.sem == PM_SEM_COUNTER) fprintf(f, " counter");
-	else if (desc.sem == PM_SEM_INSTANT) fprintf(f, " instant");
-	else if (desc.sem == PM_SEM_DISCRETE) fprintf(f, " discrete");
-	else fprintf(f, " sem-%d", desc.sem);
-	fprintf(f, " %s\n", pmUnitsStr_r(&desc.units, strbuf, sizeof(strbuf)));
-    }
+    fprintf(f, "%s:", fn);
+    for (j = 0; j < rp->numpmid; j++)
+	fprintf(f, " %s: %d values", namelist[i+j], rp->vset[j]->numval);
+    fputc('\n', f);
+    pmFreeResult(rp);
 }
 
 static void *
@@ -76,8 +80,9 @@ func1(void *arg)
     pthread_barrier_wait(&barrier);
 
     for (j = 0; j < 100; j++) {
-	for (i = 0; i < NMETRIC; i++)
+	for (i = 0; i < NMETRIC; i++) {
 	    foo(f, fn, i);
+	}
     }
 
     pthread_exit(NULL);
@@ -89,6 +94,7 @@ func2(void *arg)
     char	*fn = "func2";
     int		i;
     int		j;
+    int		sts;
     FILE	*f;
 
     f = fopen("/tmp/func2.out", "w");
@@ -102,8 +108,27 @@ func2(void *arg)
     pthread_barrier_wait(&barrier);
 
     for (j = 0; j < 100; j++) {
-	for (i = NMETRIC-1; i >= 0; i--)
+	for (i = NMETRIC-1; i >= 0; i--) {
+	    if (ctx2 != ctx1) {
+		/*
+		 * limit pmcd.control.register [1] in context 2
+		 * - select 5 instances below
+		 */
+		int	instlist[] = { 0, 1, 2, 4, 8 };
+		pthread_mutex_lock(&mymutex);
+		if ((sts = pmDelProfile(desclist[1].indom, 0, NULL)) < 0) {
+		    fprintf(f, "Error: pmDelProfile(%s) -> %s\n", namelist[1], pmErrStr(sts));
+		    pthread_exit("botch");
+		}
+		if ((sts = pmAddProfile(desclist[1].indom, sizeof(instlist)/sizeof(instlist[0]), instlist)) < 0) {
+		    fprintf(f, "Error: pmAddProfile(%s) -> %s\n", namelist[1], pmErrStr(sts));
+		    pthread_exit("botch");
+		}
+	    }
 	    foo(f, fn, i);
+	    if (ctx2 != ctx1)
+		pthread_mutex_unlock(&mymutex);
+	}
     }
 
     pthread_exit(NULL);
@@ -115,6 +140,7 @@ func3(void *arg)
     char	*fn = "func3";
     int		i;
     int		j;
+    int		sts;
     FILE	*f;
 
     f = fopen("/tmp/func3.out", "w");
@@ -128,10 +154,46 @@ func3(void *arg)
     pthread_barrier_wait(&barrier);
 
     for (j = 0; j < 100; j++) {
-	for (i = 0; i < NMETRIC; i += 2)
+	for (i = 0; i < NMETRIC; i += 2) {
+	    if (ctx3 != ctx2) {
+		/*
+		 * limit sampledso.bin [2] in context 3
+		 * - exclude instances below, leaving 7 instances 200, ... 800
+		 */
+		int	instlist[] = { 100, 900 };
+		if ((sts = pmAddProfile(desclist[2].indom, 0, NULL)) < 0) {
+		    fprintf(f, "Error: pmAddProfile(%s) -> %s\n", namelist[2], pmErrStr(sts));
+		    pthread_exit("botch");
+		}
+		if ((sts = pmDelProfile(desclist[2].indom, sizeof(instlist)/sizeof(instlist[0]), instlist)) < 0) {
+		    fprintf(f, "Error: pmDelProfile(%s) -> %s\n", namelist[2], pmErrStr(sts));
+		    pthread_exit("botch");
+		}
+	    }
+	    else {
+		pthread_mutex_lock(&mymutex);
+		if ((sts = pmAddProfile(desclist[1].indom, 0, NULL)) < 0) {
+		    fprintf(f, "Error: pmAddProfile(%s) -> %s\n", namelist[1], pmErrStr(sts));
+		    pthread_exit("botch");
+		}
+	    }
 	    foo(f, fn, i);
-	for (i = 1; i < NMETRIC; i += 2)
+	    if (ctx3 == ctx2)
+		pthread_mutex_unlock(&mymutex);
+	}
+	for (i = 1; i < NMETRIC; i += 2) {
+	    /* inherit instance profile from loop above */
+	    if (ctx3 == ctx2) {
+		pthread_mutex_lock(&mymutex);
+		if ((sts = pmAddProfile(desclist[1].indom, 0, NULL)) < 0) {
+		    fprintf(f, "Error: pmAddProfile(%s) -> %s\n", namelist[1], pmErrStr(sts));
+		    pthread_exit("botch");
+		}
+	    }
 	    foo(f, fn, i);
+	    if (ctx3 == ctx2)
+		pthread_mutex_unlock(&mymutex);
+	}
     }
 
     pthread_exit(NULL);
@@ -147,6 +209,7 @@ main(int argc, char **argv)
     char	*msg;
     int		errflag = 0;
     int		c;
+    int		i;
 
     __pmSetProgname(argv[0]);
 
@@ -209,12 +272,18 @@ main(int argc, char **argv)
 
     sts = pmLookupName(NMETRIC, namelist, pmidlist);
     if (sts != NMETRIC) {
-	int	i;
 	printf("Error: pmLookupName -> %s\n", pmErrStr(sts));
 	for (i = 0; i < NMETRIC; i++) {
 	    printf("    %s -> %s\n", namelist[i], pmIDStr(pmidlist[i]));
 	}
 	exit(1);
+    }
+
+    for (i = 0; i < NMETRIC; i++) {
+	if ((sts = pmLookupDesc(pmidlist[i], &desclist[i])) < 0) {
+	    printf("Error: pmLookupDesc(%s) -> %s\n", namelist[i], pmErrStr(sts));
+	    exit(1);
+	}
     }
 
     sts = pthread_barrier_init(&barrier, NULL, 3);

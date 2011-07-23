@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
  *
- * exercise multi-threaded multiple host contexts with pmLookupDesc()
- * as the simplest possible case
+ * exercise multi-threaded multiple host contexts with instance domain
+ * functions
  */
 
 #include <stdio.h>
@@ -14,13 +14,14 @@
 #define NMETRIC 5
 
 static char	*namelist[NMETRIC] = {
-    "sample.seconds",
-    "sampledso.milliseconds",
-    "sample.ulonglong.bin_ctr",
-    "pmcd.cputime.total",
+    "sample.colour",
+    "pmcd.control.register",
+    "sampledso.bin",
+    "sample.ulonglong.ten",
     "pmcd.buf.alloc",
 };
 static pmID	pmidlist[NMETRIC];
+static pmDesc	desclist[NMETRIC];
 
 static pthread_barrier_t barrier;
 
@@ -31,30 +32,52 @@ static int ctx3;
 static void
 foo(FILE *f, char *fn, int i)
 {
-    pmDesc	desc;
-    char	strbuf[60];
     int		sts;
+    int		j;
+    int		numinst;
+    int		*inst;
+    char	**name;
+    char	*tmp;
 
-    sts = pmLookupDesc(pmidlist[i], &desc);
-    if (sts < 0) {
-	fprintf(f, "%s: pmLookupDesc[%s] -> %s\n", fn, pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)), pmErrStr(sts));
+
+    if (desclist[i].indom == PM_INDOM_NULL) {
+	fprintf(f, "%s: %s: singular\n", fn, namelist[i]);
+	return;
+    }
+    if ((sts = pmGetInDom(desclist[i].indom, &inst, &name)) < 0) {
+	fprintf(f, "%s: %s: pmGetInDom Error: %s\n", fn, namelist[i], pmErrStr(sts));
 	pthread_exit("botch");
     }
-    else if (pmidlist[i] != desc.pmid) {
-	fprintf(f, "%s: pmLookupDesc: Expecting PMID: %s", fn, pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)));
-	fprintf(f, " got: %s\n", pmIDStr_r(desc.pmid, strbuf, sizeof(strbuf)));
-	pthread_exit("botch");
+    numinst = sts;
+    fprintf(f, "%s: %s: indom contains %d instances: ", fn, namelist[i], numinst);
+    for (j = 0; j < numinst; j++) {
+	if ((sts = pmNameInDom(desclist[i].indom, inst[j], &tmp)) < 0) {
+	    fprintf(f, "\n%s: inst %d: pmNameInDom Error: %s\n", fn, inst[j], pmErrStr(sts));
+	    pthread_exit("botch");
+	}
+	if (strcmp(tmp, name[j]) != 0) {
+	    fprintf(f, "\n%s: inst %d: expecting \"%s\", got \"%s\"\n",  fn, inst[j], name[j], tmp);
+	    pthread_exit("botch");
+	}
+	fputc('i', f);
+	free(tmp);
     }
-    else {
-	fprintf(f, "%s: %s (%s) ->", fn, namelist[i], pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)));
-	fprintf(f, " %s", pmTypeStr_r(desc.type, strbuf, sizeof(strbuf)));
-	fprintf(f, " %s", pmInDomStr_r(desc.indom, strbuf, sizeof(strbuf)));
-	if (desc.sem == PM_SEM_COUNTER) fprintf(f, " counter");
-	else if (desc.sem == PM_SEM_INSTANT) fprintf(f, " instant");
-	else if (desc.sem == PM_SEM_DISCRETE) fprintf(f, " discrete");
-	else fprintf(f, " sem-%d", desc.sem);
-	fprintf(f, " %s\n", pmUnitsStr_r(&desc.units, strbuf, sizeof(strbuf)));
+    fputc(' ', f);
+    for (j = 0; j < numinst; j++) {
+	if ((sts = pmLookupInDom(desclist[i].indom, name[j])) < 0) {
+	    fprintf(f, "\n%s: inst \"%s\": pmLookupInDom Error: %s\n", fn, name[j], pmErrStr(sts));
+	    pthread_exit("botch");
+	}
+	if (sts != inst[j]) {
+	    fprintf(f, "\n%s: inst \"%s\": expecting %d, got %d\n",  fn, name[j], inst[j], sts);
+	    pthread_exit("botch");
+	}
+	fputc('n', f);
     }
+    fputc('\n', f);
+
+    free(inst);
+    free(name);
 }
 
 static void *
@@ -76,8 +99,9 @@ func1(void *arg)
     pthread_barrier_wait(&barrier);
 
     for (j = 0; j < 100; j++) {
-	for (i = 0; i < NMETRIC; i++)
+	for (i = 0; i < NMETRIC; i++) {
 	    foo(f, fn, i);
+	}
     }
 
     pthread_exit(NULL);
@@ -102,8 +126,9 @@ func2(void *arg)
     pthread_barrier_wait(&barrier);
 
     for (j = 0; j < 100; j++) {
-	for (i = NMETRIC-1; i >= 0; i--)
+	for (i = NMETRIC-1; i >= 0; i--) {
 	    foo(f, fn, i);
+	}
     }
 
     pthread_exit(NULL);
@@ -147,6 +172,7 @@ main(int argc, char **argv)
     char	*msg;
     int		errflag = 0;
     int		c;
+    int		i;
 
     __pmSetProgname(argv[0]);
 
@@ -209,12 +235,18 @@ main(int argc, char **argv)
 
     sts = pmLookupName(NMETRIC, namelist, pmidlist);
     if (sts != NMETRIC) {
-	int	i;
 	printf("Error: pmLookupName -> %s\n", pmErrStr(sts));
 	for (i = 0; i < NMETRIC; i++) {
 	    printf("    %s -> %s\n", namelist[i], pmIDStr(pmidlist[i]));
 	}
 	exit(1);
+    }
+
+    for (i = 0; i < NMETRIC; i++) {
+	if ((sts = pmLookupDesc(pmidlist[i], &desclist[i])) < 0) {
+	    printf("Error: pmLookupDesc(%s) -> %s\n", namelist[i], pmErrStr(sts));
+	    exit(1);
+	}
     }
 
     sts = pthread_barrier_init(&barrier, NULL, 3);
