@@ -25,6 +25,8 @@ _filter()
 	-e '/^PMCD host/d' \
 	-e '/^TIMESTAMP started/d' \
     | $PCP_AWK_PROG '
+/datax/				{ skip = 3 }
+skip > 0			{ skip--; next }
 $1 == "log" && $2 == "size"	{ if ($3 > 100 && $3 <= 200) $3 = "more than 100"
 				  else if ($3 > 200 && $3 <= 300) $3 = "more than 200"
 				}
