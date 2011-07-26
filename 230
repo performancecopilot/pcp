@@ -78,19 +78,20 @@ fi
 #        connections from pmlc, but does not send the handshake PDU nor
 #        respond to requests
 #	 Likely options are:
-#	 	25 SMTP
+#		111 sunrpc
 #	 	22 ssh
+#	 	25 smtp
 #	 	631 ipp
 #
 port=''
-netstat -an -p tcp 2>&1 \
+$sudo netstat -an -p tcp 2>&1 \
 | tee -a $seq.full \
 | sed -n \
     -e 's/[ 	][ 	]*/ /g' \
     -e 's/0\.0\.0\.0:/*./' \
     -e 's/$/ /' \
     -e '/^tcp[ 4].* LISTEN /p' >$tmp.ports
-for try in 22 25 631
+for try in 111 22 25 631
 do
     if grep "\\*\\.$try " $tmp.ports >/dev/null
     then
