@@ -176,6 +176,9 @@ End-of-File
 pmcpp $tmp.root 2>&1 | _filter
 rm -f $tmp.?
 
+# note ... strip blank lines here because number of lines in
+# <stdpmid> may vary over time
+#
 echo
 i=`expr $i + 1`
 echo "---------------- $i -----------------"
@@ -186,7 +189,7 @@ root {
     sampledso	SAMPLEDSO:*:*
 }
 End-of-File
-pmcpp $tmp.root 2>&1 | _filter
+pmcpp $tmp.root 2>&1 | _filter | sed -e '/^[ 	]*$/d'
 
 echo
 i=`expr $i + 1`
