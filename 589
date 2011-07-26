@@ -29,6 +29,12 @@ _filter()
     sed -e 's;/[^ ]*/telnet-probe\([: ]\);.../telnet-probe\1;'
 }
 
+_filter2()
+{
+    sed \
+	-e '/gethostbyname:/s/ Resolver Error 0 (no error)/ Unknown host/'
+}
+
 # real QA test starts here
 
 # simple error test
@@ -55,8 +61,10 @@ echo quit | $PCP_BINADM_DIR/telnet-probe -v localhost 26
 echo "exit status is $? (should be 1 with verbosity)"
 echo quit | $PCP_BINADM_DIR/telnet-probe -v $host 26
 echo "exit status is $? (should be 1 with verbosity)"
-echo quit | $PCP_BINADM_DIR/telnet-probe -v no.such.host 26
-echo "exit status is $? (should be 1 with verbosity)"
+echo quit | $PCP_BINADM_DIR/telnet-probe -v no.such.host 26 >$tmp.out 2>&1
+sts=$?
+cat <$tmp.out | _filter2
+echo "exit status is $sts (should be 1 with verbosity)"
 
 # success, all done
 status=0
