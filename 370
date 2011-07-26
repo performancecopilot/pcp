@@ -27,7 +27,13 @@ else
     _notrun "sadf not installed"
 fi
 
-version=`sar -V 2>&1 | sed -n -e '/sysstat version /s/.* //p'`
+# assume 9.0.6.anything is really the same as 9.0.6, etc
+#
+version=`sar -V 2>&1 | sed -n -e '/sysstat version /{
+s/.* //
+s/\([^.]*\.[^.]*\.[^.]*\)\..*/\1/
+p
+}'`
 if [ ! -f src-oss/sa-sysstat-$version ]
 then
     _notrun "no data file for sysstat version $version"
