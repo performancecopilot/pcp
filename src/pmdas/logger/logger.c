@@ -198,14 +198,10 @@ logger_reload(void)
 		if (fd < 0 && logfiles[i].fd >= 0)	/* log once */
 		    __pmNotifyErr(LOG_ERR, "open: %s - %s",
 				logfiles[i].pathname, strerror(errno));
-		else {
-		    if (fd > maxfd)
-			maxfd = fd;
-		    FD_SET(fd, &fds);
-		}
 		logfiles[i].fd = fd;
 	    } else {
-		if ((memcmp(&logfiles[i].pathstat.st_mtime, &pathstat.st_mtime,
+		if ((S_ISREG(pathstat.st_mode)) &&
+		    (memcmp(&logfiles[i].pathstat.st_mtime, &pathstat.st_mtime,
 			    sizeof(pathstat.st_mtime))) == 0)
 		    continue;
 	    }
