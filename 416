@@ -91,6 +91,10 @@ End-of-File
 cat $tmp.out >>$here/$seq.full
 _filter <$tmp.out
 
+# ensure news pmda is all done ...
+#
+sleep 3
+
 echo
 echo "=== news.log ==="
 _filter <news.log
