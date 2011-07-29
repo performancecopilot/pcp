@@ -22,18 +22,18 @@ default: $(SUBDIRS)
 
 install: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
-ifeq ($(TARGET_OS),darwin)
-	if [ -n "$(DIST_MANIFEST)" ] ; then \
-	    cat $(TOPDIR)/perl-pcp-*.list | while read f; do \
-		bn=`basename $$f .gz`; \
-		dn=`dirname $$f`; \
-		$(INSTALL) -d $$dn || exit 1; \
-		src=`find */blib -name $$bn`; \
-		if [ -x $$src ] ; then mode=0755; else mode=0644; fi; \
-		$(INSTALL) -m $$mode $$src $$dn/$$bn || exit 1; \
-	    done; \
+	if [ -n "$(DIST_MANIFEST)" ]; then \
+	    if [ "`echo $(TOPDIR)/perl-pcp-*.list`" != "$(TOPDIR)/perl-pcp-*.list" ]; then \
+		cat $(TOPDIR)/perl-pcp-*.list | while read f; do \
+		    bn=`basename $$f .gz`; \
+		    dn=`dirname $$f`; \
+		    $(INSTALL) -d $$dn || exit 1; \
+		    src=`find */blib -name $$bn`; \
+		    if [ -x $$src ] ; then mode=0755; else mode=0644; fi; \
+		    $(INSTALL) -m $$mode $$src $$dn/$$bn || exit 1; \
+		done; \
+	    fi; \
 	fi
-endif
 
 include $(BUILDRULES)
 

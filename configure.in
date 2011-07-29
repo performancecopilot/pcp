@@ -71,6 +71,7 @@ then
     test -f /etc/redhat-release && target_distro=redhat
     test -f /etc/debian_version && target_distro=debian
     test -f /etc/slackware-version && target_distro=slackware
+    test -f /etc/gentoo-release && target_distro=gentoo
 elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS)
