@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <regex.h>
 
 static void event_cleanup(void);
 static int eventarray;
@@ -300,7 +301,8 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
     struct timeval stamp;
     pmAtomValue atom;
     struct ctx_client_data *c = ctx_get_user_data();
-    int records = 0;
+    regex_t *filter = ctx_get_filter_data();
+    int filtered, records = 0;
     int sts = ctx_get_user_access() || !logfiles[logfile].restricted;
 
     if (pmDebug & DBG_TRACE_APPL2)
@@ -331,21 +333,28 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
 
     while (e != NULL) {
 	/*
-	 * Add the string parameter.  Note that pmdaEventAddParam()
-	 * copies the string, so we can free it soon after.
+	 * Add the string parameter provided it matches on any regex filtering.
+	 * Note pmdaEventAddParam copies the string, we can free it soon after.
 	 */
-	atom.cp = e->buffer;
+	filtered = (filter == NULL) ? 0 :
+		 (regexec(filter, e->buffer, 0, NULL, 0) == REG_NOMATCH);
 
 	if (pmDebug & DBG_TRACE_APPL1)
-	    __pmNotifyErr(LOG_INFO, "Adding param: \"%s\"", 
+	    __pmNotifyErr(LOG_INFO, "%s parameter: \"%s\"", 
+				    filter ? "Filtering" : "Adding",
+				    event_print(e->buffer, e->size));
+	if (filtered == 0) {
+	    if (pmDebug & DBG_TRACE_APPL1)
+		__pmNotifyErr(LOG_INFO, "Adding param: \"%s\"", 
 				    event_print(e->buffer, e->size));
 
-	sts = pmdaEventAddParam(eventarray,
-				logfiles[logfile].pmid, PM_TYPE_STRING, &atom);
-	if (sts < 0)
-	    return sts;
-	records++;
+	    atom.cp = e->buffer;
 
+	    if ((sts = pmdaEventAddParam(eventarray, logfiles[logfile].pmid,
+					 PM_TYPE_STRING, &atom)) < 0)
+		return sts;
+	    records++;
+	}
 	next = TAILQ_NEXT(e, events);
 
 	/* Remove the current one (if its use count is at 0). */
@@ -418,6 +427,32 @@ event_cleanup(void)
 	    e = next;
 	}
     }
+}
+
+int
+event_regex(const char *string)
+{
+    regex_t *exist = ctx_get_filter_data();
+    regex_t *regex = malloc(sizeof(regex_t));
+
+    if (regex == NULL)
+	return -ENOMEM;
+    if (exist) {	/* throw away existing filter */
+	ctx_set_filter_data(NULL);
+	regfree(exist);
+	free(exist);
+    }
+    if (string[0] == '\0') {
+	ctx_set_filter_data(NULL);
+	free(regex);
+	return 0;
+    }
+    if (regcomp(regex, string, REG_EXTENDED|REG_NOSUB) != 0) {
+	free(regex);
+	return PM_ERR_CONV;
+    }
+    ctx_set_filter_data(regex);
+    return 0;
 }
 
 void

@@ -318,6 +318,7 @@ logger_store(pmResult *result, pmdaExt *pmda)
 	    return sts;
 	else {
 	    struct dynamic_metric_info *pinfo = NULL;
+	    const char *filter;
 
 	    for (j = 0; j < pmda->e_nmetrics; j++) {
 		if (vsp->pmid == pmda->e_metrics[j].m_desc.pmid) {
@@ -331,9 +332,10 @@ logger_store(pmResult *result, pmdaExt *pmda)
 		return PM_ERR_PERMISSION;
 	    if (vsp->numval != 1 || vsp->valfmt != PM_VAL_SPTR)
 		return PM_ERR_CONV;
-	    /* Filter currently ignored (vsp->vlist[0].value.pval->vbuf); */
-	    /* could use this to control data flowing back (e.g. a regex) */
-	    ctx_set_user_access(1);
+
+	    filter = vsp->vlist[0].value.pval->vbuf;
+	    if ((sts = event_regex(filter)) < 0)
+		return sts;
 	}
     }
     return 0;

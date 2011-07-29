@@ -44,9 +44,12 @@ extern void ctx_register_callbacks(ctxStartContextCallBack start,
 /* Returns the user data associated with the current client context. */
 extern void *ctx_get_user_data(void);
 
+/* Get and set filtering associated with the current client context. */
+extern void ctx_set_filter_data(void *);
+extern void *ctx_get_filter_data();
+
 /* Get and set access level for current client context event stream */
 extern int ctx_get_user_access(void);
-extern void ctx_set_user_access(int enable);
 
 /* Visit each active context and run a supplied callback routine */
 typedef void (*ctxVisitContextCallBack)(int ctx, int id, void *user_data, void *call_data);
