@@ -20,10 +20,12 @@
 #include "impl.h"
 #include "pmda.h"
 #include "percontext.h"
+#include <regex.h>
 
 typedef struct {
     unsigned int	state;		/* active|inactive|access context */
     void		*user_data;	/* user data */
+    void		*filter_data;
 } perctx_t;
 
 /* values for state */
@@ -50,10 +52,12 @@ growtab(int ctx)
     while (num_ctx_allocated <= ctx) {
 	ctxtab[num_ctx_allocated].state = CTX_INACTIVE;
 	ctxtab[num_ctx_allocated].user_data = NULL;
+	ctxtab[num_ctx_allocated].filter_data = NULL;
 	num_ctx_allocated++;
     }
     ctxtab[ctx].state = CTX_INACTIVE;
     ctxtab[ctx].user_data = NULL;
+    ctxtab[ctx].filter_data = NULL;
 }
 
 int
@@ -69,6 +73,7 @@ ctx_active(int ctx)
 	ctxtab[ctx].state = CTX_ACTIVE;
 	if (ctx_start_cb) {
 	    ctxtab[ctx].user_data = ctx_start_cb(ctx);
+	    ctxtab[ctx].filter_data = NULL;
 	}
 	if (pmDebug & DBG_TRACE_APPL2)
 	    __pmNotifyErr(LOG_INFO, "%s: saw new context %d (num_ctx=%d)\n",
@@ -111,6 +116,7 @@ ctx_end(int ctx)
     num_ctx--;
     ctxtab[ctx].state = CTX_INACTIVE;
     ctxtab[ctx].user_data = NULL;
+    ctxtab[ctx].filter_data = NULL;
 }
 
 int
@@ -134,8 +140,32 @@ ctx_get_user_data(void)
     if (last_ctx < 0 || last_ctx >= num_ctx_allocated
 	|| ctxtab[last_ctx].state == 0)
 	return NULL;
-
     return ctxtab[last_ctx].user_data;
+}
+
+/*
+ * Marks context as having been pmStore'd into (access allowed),
+ * adds optional filtering data for the current client context.
+ */
+void
+ctx_set_filter_data(void *filter)
+{
+    if (last_ctx < 0 || last_ctx >= num_ctx_allocated)
+	return;
+    if (ctxtab[last_ctx].state == 0)	/* inactive */
+	return;
+    ctxtab[last_ctx].state |= CTX_ACCESS;
+    ctxtab[last_ctx].filter_data = filter;
+}
+
+/* Returns any filtering data for the current client context. */
+void *
+ctx_get_filter_data(void)
+{
+    if (last_ctx < 0 || last_ctx >= num_ctx_allocated
+	|| ctxtab[last_ctx].state == 0)
+	return NULL;
+    return ctxtab[last_ctx].filter_data;
 }
 
 /* Returns true/false access for the current client context. */
@@ -147,20 +177,6 @@ ctx_get_user_access(void)
     if (ctxtab[last_ctx].state == 0)	/* inactive */
 	return 0;
     return ((ctxtab[last_ctx].state & CTX_ACCESS) == CTX_ACCESS);
-}
-
-/* Sets the access level associated with the current client context. */
-void
-ctx_set_user_access(int enable)
-{
-    if (last_ctx < 0 || last_ctx >= num_ctx_allocated)
-	return;
-    if (ctxtab[last_ctx].state == 0)	/* inactive */
-	return;
-    if (enable)
-	ctxtab[last_ctx].state |= CTX_ACCESS;
-    else
-	ctxtab[last_ctx].state &= ~CTX_ACCESS;
 }
 
 /* Visit each active context and run a supplied callback routine */
