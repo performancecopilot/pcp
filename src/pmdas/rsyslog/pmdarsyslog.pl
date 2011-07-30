@@ -15,16 +15,22 @@
 use strict;
 use warnings;
 use PCP::PMDA;
+use Switch;
 
 my $pmda = PCP::PMDA->new('rsyslog', 107);
 my $statsfile = '/var/log/pcp/rsyslog/stats';
-my ($submitted, $discarded, $ratelimiters, $qsize, $enqueued, $qfull, $maxqsize)
-	= (0,0,0,0,0,0,0);
+my ($es_connfail, $es_submits, $es_failed, $es_success) = (0,0,0);
+my ($ux_submitted, $ux_discarded, $ux_ratelimiters) = (0,0,0);
 my ($interval, $lasttime) = (0,0);
+
+my $queue_indom = 0;
+my @queue_insts = ();
+use vars qw(%queue_ids %queue_values);
 
 # .* rsyslogd-pstats:
 # imuxsock: submitted=37 ratelimit.discarded=0 ratelimit.numratelimiters=22 
-# rsyslogd-pstats: main Q: size=1 enqueued=1436 full=0 maxqsize=3 
+# elasticsearch: connfail=0 submits=0 failed=0 success=0 
+# [main Q]: size=1 enqueued=1436 full=0 maxqsize=3 
 
 sub rsyslog_parser
 {
@@ -43,10 +49,21 @@ sub rsyslog_parser
 	}
     }
     if (m|imuxsock: submitted=(\d+) ratelimit.discarded=(\d+) ratelimit.numratelimiters=(\d+)|) {
-	( $submitted, $discarded, $ratelimiters ) = ( $1, $2, $3 );
+	($ux_submitted, $ux_discarded, $ux_ratelimiters) = ($1,$2,$3);
     }
-    elsif (m|main Q: size=(\d+) enqueued=(\d+) full=(\d+) maxqsize=(\d+)|) {
-	( $qsize, $enqueued, $qfull, $maxqsize ) = ( $1, $2, $3, $4 );
+    elsif (m|elasticsearch: connfail=(\d+) submits=(\d+) failed=(\d+) success=(\d+)|) {
+	($es_connfail, $es_submits, $es_failed, $es_success) = ($1,$2,$3,$4);
+    }
+    elsif (m|stats: (.+): size=(\d+) enqueued=(\d+) full=(\d+) maxqsize=(\d+)|) {
+	my ($qname, $qid) = ($1, undef);
+
+	if (!defined($queue_ids{$qname})) {
+	    $qid = @queue_insts / 2;
+	    $queue_ids{$qname} = $qid;
+	    push @queue_insts, ($qid, $qname);
+	    $pmda->replace_indom($queue_indom, \@queue_insts);
+	}
+	$queue_values{$qname} = [ $2, $3, $4, $5 ];
     }
 }
 
@@ -55,48 +72,85 @@ sub rsyslog_fetch_callback
     my ($cluster, $item, $inst) = @_;
 
     #$pmda->log("rsyslog_fetch_callback for PMID: $cluster.$item ($inst)");
-    if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
-    if ($cluster != 0)		{ return (PM_ERR_PMID, 0); }
 
     return (PM_ERR_AGAIN,0) unless ($interval != 0);
 
-    if ($item == 0)	{ return ($interval, 1); }
-    elsif ($item == 1)	{ return ($submitted, 1); }
-    elsif ($item == 2)	{ return ($discarded, 1); }
-    elsif ($item == 3)	{ return ($ratelimiters, 1); }
-    elsif ($item == 4)	{ return ($qsize, 1); }
-    elsif ($item == 5)	{ return ($enqueued, 1); }
-    elsif ($item == 6)	{ return ($qfull, 1); }
-    elsif ($item == 7)	{ return ($maxqsize, 1); }
+    if ($cluster == 0) {
+	return (PM_ERR_INST, 0) unless ($inst == PM_IN_NULL);
+	switch ($item) {
+	case 0	{ return ($interval, 1); }
+	case 1	{ return ($ux_submitted, 1); }
+	case 2	{ return ($ux_discarded, 1); }
+	case 3	{ return ($ux_ratelimiters, 1); }
+	case 8	{ return ($es_connfail, 1); }
+	case 9	{ return ($es_submits, 1); }
+	case 10	{ return ($es_failed, 1); }
+	case 11	{ return ($es_success, 1); }
+	}
+    }
+    elsif ($cluster == 1) {	# queues
+	return (PM_ERR_INST, 0) unless ($inst != PM_IN_NULL);
+	return (PM_ERR_INST, 0) unless ($inst <= @queue_insts);
+	my $qname = $queue_insts[$inst * 2 + 1];
+	my $qvref = $queue_values{$qname};
+	my @qvals;
+
+	return (PM_ERR_INST, 0) unless defined ($qvref);
+	@qvals = @$qvref;
+
+	switch ($item) {
+	case 0	{ return ($qvals[0], 1); }
+	case 1	{ return ($qvals[1], 1); }
+	case 2	{ return ($qvals[2], 1); }
+	case 3	{ return ($qvals[3], 1); }
+	}
+    }
     return (PM_ERR_PMID, 0);
 }
 
 die "Cannot find a valid rsyslog statistics named pipe\n" unless -p $statsfile;
 
-$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,1,0,0,PM_TIME_SEC,0), 'rsyslog.interval',
 	'Time interval observed between samples', '');
-$pmda->add_metric(pmda_pmid(0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+$pmda->add_metric(pmda_pmid(0,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.imuxsock.submitted',
 	'', '');
-$pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+$pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.imuxsock.discarded',
 	'', '');
-$pmda->add_metric(pmda_pmid(0,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(0,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	pmda_units(0,0,0,0,0,0), 'rsyslog.imuxsock.numratelimiters',
 	'', '');
-$pmda->add_metric(pmda_pmid(0,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,0,0,0,0), 'rsyslog.mainqueue.size',
-	'', '');
-$pmda->add_metric(pmda_pmid(0,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.mainqueue.enqueued',
-	'', '');
-$pmda->add_metric(pmda_pmid(0,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.mainqueue.full',
-	'', '');
-$pmda->add_metric(pmda_pmid(0,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.mainqueue.maxsize',
-	'', '');
+$pmda->add_metric(pmda_pmid(0,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.connfail',
+	'Count of failed connections while attempting to send events', '');
+$pmda->add_metric(pmda_pmid(0,9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.submits',
+	'Count of valid submissions of events to elasticsearch indexer', '');
+$pmda->add_metric(pmda_pmid(0,10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.failed',
+	'Count of failed attempts to send events to elasticsearch',
+	'This count is often a good indicator of malformed JSON messages');
+$pmda->add_metric(pmda_pmid(0,11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.success',
+	'Count of successfully acknowledged events from elasticsearch', '');
+
+$pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U64, $queue_indom, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'rsyslog.queues.size',
+	'Current queue depth for each rsyslog queue', '');
+$pmda->add_metric(pmda_pmid(1,1), PM_TYPE_U64, $queue_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.queues.enqueued',
+	'Cumumlative count of entries enqueued to individual queues', '');
+$pmda->add_metric(pmda_pmid(1,2), PM_TYPE_U64, $queue_indom, PM_SEM_INSTANT,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.queues.full',
+	'Cumulative count of occassions where a queue has been full', '');
+$pmda->add_metric(pmda_pmid(1,3), PM_TYPE_U64, $queue_indom, PM_SEM_INSTANT,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.queues.maxsize',
+	'Maximum depth reached by an individual queue', '');
+
+$pmda->add_indom($queue_indom, \@queue_insts,
+	'Instance domain exporting each rsyslog queue', '');
 
 $pmda->add_tail($statsfile, \&rsyslog_parser, 0);
 $pmda->set_fetch_callback(\&rsyslog_fetch_callback);
@@ -139,6 +193,9 @@ This is done by adding the lines:
 	syslog.info		|/var/log/pcp/rsyslog/stats
 
 to your rsyslog.conf(5) configuration file after installing the PMDA.
+Take care to ensure the syslog.info messages do not get logged in any
+other file, as this could unexpectedly fill your filesystem.  Syntax
+useful for this is syslog.!=info for explicitly excluding these.
 
 =head1 FILES
 

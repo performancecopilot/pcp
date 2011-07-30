@@ -4390,6 +4390,13 @@ pmdaMetric linux_metrictab[] = {
     { NULL, {PMDA_PMID(CLUSTER_NET_CLS_GROUPS,0), PM_TYPE_U64,
     PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
+/*
+ * proc/<pid>/fd cluster
+ */
+
+    /* proc.fd.count */
+    { NULL, {PMDA_PMID(CLUSTER_PID_FD,0), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 };
 
 int
@@ -4484,7 +4491,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
 
     if (need_refresh[CLUSTER_PID_STAT] || need_refresh[CLUSTER_PID_STATM] || 
 	need_refresh[CLUSTER_PID_STATUS] || need_refresh[CLUSTER_PID_IO] ||
-	need_refresh[CLUSTER_PID_SCHEDSTAT])
+	need_refresh[CLUSTER_PID_SCHEDSTAT] || need_refresh[CLUSTER_PID_FD])
 	refresh_proc_pid(&proc_pid);
 
     if (need_refresh[CLUSTER_KERNEL_UNAME])
@@ -4582,6 +4589,7 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
         need_refresh[CLUSTER_PID_STATUS]++;
         need_refresh[CLUSTER_PID_SCHEDSTAT]++;
         need_refresh[CLUSTER_PID_IO]++;
+        need_refresh[CLUSTER_PID_FD]++;
 	break;
     case SCSI_INDOM:
     	need_refresh[CLUSTER_SCSI]++;
@@ -6562,6 +6570,15 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (inst >= indomtab[CPU_INDOM].it_numinst)
 	    return PM_ERR_INST;
 	return interrupts_fetch(idp->cluster, idp->item, inst, atom);
+
+    case CLUSTER_PID_FD:
+	if ((entry = fetch_proc_pid_fd(inst, &proc_pid)) == NULL)
+		return PM_ERR_INST;
+	if (idp->item != PROC_PID_FD_COUNT)
+		return PM_ERR_INST;
+
+	atom->ul = entry->fd_count;
+	break;
 
     default: /* unknown cluster */
 	return PM_ERR_PMID;

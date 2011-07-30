@@ -108,6 +108,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pidlist)
 	    ep->maps_fetched = 0;
 	    ep->io_fetched = 0;
 	    ep->wchan_fetched = 0;
+	    ep->fd_fetched = 0;
 	}
     }
 
@@ -635,6 +636,43 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid)
     ep->io_fetched = 1;
 
     return (sts < 0) ? NULL : ep;
+}
+
+/*
+ * fetch a proc/<pid>/fd entry for pid
+ */
+proc_pid_entry_t *
+fetch_proc_pid_fd(int id, proc_pid_t *proc_pid)
+{
+    __pmHashNode *node = __pmHashSearch(id, &proc_pid->pidhash);
+    proc_pid_entry_t *ep;
+
+    if (node == NULL)
+	return NULL;
+    ep = (proc_pid_entry_t *)node->data;
+
+    if (ep->fd_fetched == 0) {
+	char	buf[PATH_MAX];
+	uint32_t de_count = 0;
+	DIR	*dir;
+	struct dirent *de;
+
+	sprintf(buf, "/proc/%d/fd", ep->id);
+	dir = opendir(buf);
+	if (dir == NULL) {
+	    __pmNotifyErr(LOG_ERR, "failed to open pid fd path %s\n",
+			  buf);
+	    return NULL;
+	}
+	while ((de = readdir(dir)) != NULL) {
+	    de_count++;
+	}
+	closedir(dir);
+	ep->fd_count = de_count - 2; /* subtract cwd and parent entries */
+    }
+    ep->fd_fetched = 1;
+
+    return ep;
 }
 
 /*
