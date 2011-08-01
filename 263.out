@@ -42,6 +42,166 @@ aggr.count_err = count(sample.needprofile)
 aggr.sum_err = sum(sample.needprofile)
 aggr.countblob = count(sample.sysinfo)
 
+
+aggr.max32
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.min32
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.maxu32_minu32
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.max64_min64
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.maxu64_minu64
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.maxuf_minuf
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.maxud_minud
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.count32
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.avg32
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.max32_x
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.min32_x
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.sum32
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.avgu32
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.countu32
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.maxu32
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.minu32
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.sumu32
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.avgf
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.countf
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.maxf
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.minf
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.sumf
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.avg64
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.count64
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.max64
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.min64
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.sum64
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.avgu64
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.countu64
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.maxu64
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.minu64
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.sumu64
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.avgd
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.countd
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.maxd
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.mind
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.sumd
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.count_err
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.sum_err
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.countblob
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="aggr.max32" expr="max(sample.bin)"
@@ -941,166 +1101,6 @@ __dmgetpmid: metric "aggr.count_err" -> PMID 511.0.38
 __dmgetpmid: metric "aggr.sum_err" -> PMID 511.0.39
 __dmgetpmid: metric "aggr.countblob" -> PMID 511.0.40
 
-aggr.max32
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.min32
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.maxu32_minu32
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-
-aggr.max64_min64
-    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.maxu64_minu64
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-
-aggr.maxuf_minuf
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.maxud_minud
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.count32
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-
-aggr.avg32
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.max32_x
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.min32_x
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.sum32
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.avgu32
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
-
-aggr.countu32
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-
-aggr.maxu32
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
-
-aggr.minu32
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
-
-aggr.sumu32
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
-
-aggr.avgf
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.countf
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-
-aggr.maxf
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.minf
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.sumf
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.avg64
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
-
-aggr.count64
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-
-aggr.max64
-    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
-
-aggr.min64
-    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
-
-aggr.sum64
-    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
-
-aggr.avgu64
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
-
-aggr.countu64
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-
-aggr.maxu64
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
-
-aggr.minu64
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
-
-aggr.sumu64
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
-
-aggr.avgd
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.countd
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-
-aggr.maxd
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.mind
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.sumd
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.count_err
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-
-aggr.sum_err
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-aggr.countblob
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-
 === fetch values exercises ===
 
 
@@ -1228,6 +1228,7 @@ aggr.countblob
 
 aggr.non_arith = max(sample.lights)
 
+aggr.non_arith: pmLookupDesc: Unknown or illegal metric identifier
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="aggr.non_arith" expr="max(sample.lights)"
@@ -1242,4 +1243,3 @@ expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.lights] 
 __dmopencontext(->ctx 0) called
 Semantic error: derived metric aggr.non_arith: MAX(sample.lights): Non-arithmetic operand for function
 __dmgetpmid: metric "aggr.non_arith" -> PMID 511.0.1
-aggr.non_arith: pmLookupDesc: Unknown or illegal metric identifier

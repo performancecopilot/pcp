@@ -119,13 +119,15 @@ echo
 cat $tmp.config
 
 echo
-pminfo -Dderive,appl0,appl1 -d aggr >$tmp.out 2>&1
+pminfo -Dderive,appl0,appl1 -d aggr >$tmp.out 2>$tmp.err
+cat $tmp.err >>$tmp.out
 _filter
 
 echo
 echo "=== fetch values exercises ==="
 echo
-pminfo -f aggr >$tmp.out 2>&1
+pminfo -f aggr >$tmp.out 2>$tmp.err
+cat $tmp.err >>$tmp.out
 _filter | _filter2 \
 | $PCP_AWK_PROG '
 $1 == "value" && $2 ~ /^[0-9.]+$/	{ if ($2 >= 499.99997 && $2 <= 500.00003) {
@@ -144,7 +146,8 @@ echo
 cat $tmp.config
 
 echo
-pminfo -Dderive,appl0,appl1 -d aggr >$tmp.out 2>&1
+pminfo -Dderive,appl0,appl1 -d aggr >$tmp.out 2>$tmp.err
+cat $tmp.err >>$tmp.out
 _filter
 
 # success, all done
