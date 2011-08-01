@@ -128,7 +128,7 @@ SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(MFILES) \
 LDLIBS = $(LLDLIBS) $(PLDLIBS)
 MAKEOPTS = --no-print-directory
 DIRT = $(LDIRT) dep dep.bak $(OBJECTS) $(CMDTARGET) $(LIBTARGET) \
-	$(STATICLIBTARGET) *.[1-9].gz *.[1-9].tmp
+	$(STATICLIBTARGET) *.[1-9].gz *.[1-9].bz2 *.[1-9].tmp
 DIRDIRT = $(LDIRDIRT)
 
 OBJECTS = $(ASFILES:.s=.o) \
@@ -328,11 +328,10 @@ PERL_MAKE_MAKEFILE = \
 	CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_OPTIONS)
 
 PERL_GET_FILELIST = \
-	$(PERLMAKE) -f Makefile install DESTDIR=$$DIST_ROOT \
-	| tee pack.list; \
-	sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&.gz/' -e "s@^Installing $$DIST_ROOT@@p" <pack.list >$(1) || exit 1; \
-	if [ -s $(1) ]; then rm -f pack.list; \
-	else echo "Arrgh ... no files to include in package via $(1), see pack.list"; exit 1; \
+	$(PERLMAKE) -f Makefile install DESTDIR=$$DIST_ROOT; \
+	find $$DIST_ROOT -name .packlist -exec mv '{}' $(1) ';' ; \
+	if [ -r $(1) ] ; then \
+	    sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&.gz/' -e "s@^$$DIST_ROOT@@p" -i.tmp $(1) || exit 1; \
 	fi; \
 	find $$DIST_ROOT -name perllocal.pod -exec rm -f '{}' ';' ; \
 	find $$DIST_ROOT -name \*.bs  -exec rm -f '{}' ';' ; \
