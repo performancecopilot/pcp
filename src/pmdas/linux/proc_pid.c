@@ -577,6 +577,12 @@ fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid)
 
 /*
  * fetch a proc/<pid>/io entry for pid
+ *
+ * Depends on kernel built with CONFIG_TASK_IO_ACCOUNTING=y
+ * which means the following must also be set:
+ * CONFIG_TASKSTATS=y
+ * CONFIG_TASK_DELAY_ACCT=y
+ * CONFIG_TASK_XACCT=y
  */
 proc_pid_entry_t *
 fetch_proc_pid_io(int id, proc_pid_t *proc_pid)
@@ -628,12 +634,11 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid)
 	    ep->io_lines.readb = strsep(&curline, "\n");
 	    ep->io_lines.writeb = strsep(&curline, "\n");
 	    ep->io_lines.cancel = strsep(&curline, "\n");
+	    ep->io_fetched = 1;
 	}
 	if (fd >= 0)
 	    close(fd);
     }
-
-    ep->io_fetched = 1;
 
     return (sts < 0) ? NULL : ep;
 }
