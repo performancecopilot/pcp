@@ -1241,8 +1241,7 @@ extern int __pmRegisterAnon(const char *, int);
 #define PM_SCOPE_ACL		1
 #define PM_SCOPE_AF		2
 #define PM_SCOPE_LOGPORT	3
-#define PM_SCOPE_PMNS		4
-#define PM_SCOPE_MAX		4
+#define PM_SCOPE_MAX		3
 extern int __pmMultiThreaded(int);
 
 extern void __pmInitLocks(void);
