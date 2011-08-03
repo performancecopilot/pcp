@@ -125,8 +125,8 @@ then
 fi
 
 LOGF=$LOGDIR/pcp
-echo
-echo "== Building pcp, log is in $LOGF"
+echo | tee -a $LOGF
+echo "== Building pcp, log is in $LOGF" | tee -a $LOGF
 
 . ./VERSION.pcp
 
@@ -186,7 +186,7 @@ if [ $st -ne 0 ] ; then
 fi
 
 rm -f files.rpm
-echo
+echo | tee -a $LOGF
 echo "== Packaging pcp, log is in $LOGF" | tee -a $LOGF
 if $verbose ; then
     ($MAKE -j 1 -C build pack_pcp 2>&1 || touch $tmp.failed) | tee -a $LOGF
