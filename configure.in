@@ -62,7 +62,7 @@ echo Building on $build for $target
 echo "Build: os=$build_os cpu=$build_cpu"
 echo "Target: os=$target_os cpu=$target_cpu"
 
-target_distro=unknown
+target_distro=$target_os
 if test $target_os = linux
 then
     AC_DEFINE(IS_LINUX)
