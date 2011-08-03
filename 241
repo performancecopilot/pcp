@@ -18,6 +18,8 @@ echo "QA output created by $seq"
 status=0	# success is the default!
 done_clean=false
 MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
+SAVE_MMV_STATS_DIR="$PCP_TMP_DIR/mmv.$seq"
+
 $sudo rm -rf $tmp.*
 
 _cleanup()
@@ -27,8 +29,8 @@ _cleanup()
 	:
     else
 	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-	[ -d $tmp.mmv.dir ] && rm -fr "$MMV_STATS_DIR"
-	[ -d $tmp.mmv.dir ] && $sudo mv $tmp.mmv.dir $MMV_STATS_DIR
+	[ -d $SAVE_MMV_STATS_DIR ] && rm -fr "$MMV_STATS_DIR"
+	[ -d $SAVE_MMV_STATS_DIR ] && $sudo mv $SAVE_MMV_STATS_DIR $MMV_STATS_DIR
 	rm -f $tmp.*
 	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
@@ -53,7 +55,7 @@ unset ROOT
 # copy the pmcd config file to restore state later.
 cp $PCP_PMCDCONF_PATH "$tmp.pmcd.conf"
 # move the MMV directory to restore contents later.
-[ -d $MMV_STATS_DIR ] && $sudo mv -f $MMV_STATS_DIR $tmp.mmv.dir
+[ -d $MMV_STATS_DIR ] && $sudo mv -f $MMV_STATS_DIR $SAVE_MMV_STATS_DIR
 
 # start from a known starting point
 $sudo ./Remove >/dev/null 2>&1
