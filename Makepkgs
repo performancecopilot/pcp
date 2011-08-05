@@ -64,7 +64,7 @@ then
 	if grep -q 'DISTRIB_ID=Ubuntu' /etc/lsb-release
 	then
 	    eval `grep DISTRIB_RELEASE= /etc/lsb-release`
-	    XDISTRIB_RELEASE=`echo $DISTRIB_RELEASE | sed -e 's/\.//g'`
+	    XDISTRIB_RELEASE=`echo $DISTRIB_RELEASE | sed -e 's/[^0-9]//g'`
 	    [ -z "$XDISTRIB_RELEASE" ] && XDISTRIB_RELEASE=0000
 	    if [ $XDISTRIB_RELEASE -ge 1110 ]
 	    then
@@ -76,7 +76,7 @@ then
     elif [ -f /etc/debian_version ]
     then
 	DISTRIB_RELEASE=`cat /etc/debian_version`
-	XDISTRIB_RELEASE=`echo $DISTRIB_RELEASE | sed -e 's/\.//g'`
+	XDISTRIB_RELEASE=`echo $DISTRIB_RELEASE | sed -e 's/[^0-9]//g'`
 	[ -z "$XDISTRIB_RELEASE" ] && XDISTRIB_RELEASE=0000
 	if [ $XDISTRIB_RELEASE -ge 700 ]
 	then
