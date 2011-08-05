@@ -1,4 +1,4 @@
-pcp-3.5.7 (30 July 2011)
+pcp-3.5.7 (05 August 2011)
     - Fix build issue on SLES11 SP1 IA64 systems.
     - Improved rsyslog PMDA handling of queue metrics.
     - Add open file-descriptor count metric to the Linux PMDA.
