@@ -972,6 +972,9 @@ Number of times a process has been scheduled to run on a CPU (this is
 incremented when a task actually reaches a CPU to run on, not simply
 when it is added to the run queue).
 
+@ proc.fd.count
+Number of file descriptors this process has open.
+
 @ network.ip.forwarding count of ip forwarding
 @ network.ip.defaultttl count of ip defaultttl
 @ network.ip.inreceives count of ip inreceives

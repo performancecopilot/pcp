@@ -63,8 +63,8 @@ returns zero.
 .PP
 \f3pmRequestNameID\fP and \f3pmReceiveNameID\fP are used by
 applications which must  communicate with the PMCD asynchronously.
-These functions take explict context handle \f2ctx\fP which must
-refer to a host context (i.e. creared by passing \f3PM_CONTEXT_HOST\fP
+These functions take explicit context handle \f2ctx\fP which must
+refer to a host context (i.e. created by passing \f3PM_CONTEXT_HOST\fP
 to \f3pmNewContext\fP). \f3pmRequestNameID\fP sends request to PMCD
 to translate PMID to a metric name and returns without waiting for
 the response, \f3pmReceiveNameID\fP reads reply from PMCD. It is the

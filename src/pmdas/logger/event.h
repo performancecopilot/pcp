@@ -26,6 +26,31 @@
 #include "pmda.h"
 #include <sys/queue.h>
 
+/*
+ * Queue access methods that are missing on glibc <= 2.3, e.g. RHEL4
+ */ 
+#ifndef TAILQ_NEXT	
+#define	TAILQ_NEXT(elm, field)	((elm)->field.tqe_next)
+#endif
+
+#ifndef TAILQ_FIRST
+#define TAILQ_FIRST(head)	((head)->tqh_first)
+#endif
+
+#ifndef TAILQ_EMPTY
+#define TAILQ_EMPTY(head)               ((head)->tqh_first == NULL)
+#endif
+
+#ifndef TAILQ_LAST
+#define TAILQ_LAST(head, headname) \
+        (*(((struct headname *)((head)->tqh_last))->tqh_last))
+#endif
+
+#ifndef TAILQ_PREV
+#define TAILQ_PREV(elm, headname, field) \
+        (*(((struct headname *)((elm)->field.tqe_prev))->tqh_last))
+#endif
+
 struct event {
     TAILQ_ENTRY(event)	events;
     int			clients;
@@ -61,6 +86,8 @@ extern void event_init(void);
 extern int event_create(unsigned int logfile);
 extern int event_fetch(pmValueBlock **vbpp, unsigned int logfile);
 extern int event_get_clients_per_logfile(unsigned int logfile);
+extern int event_regex(const char *string);
+
 extern void event_shutdown(void);
 
 #endif /* _EVENT_H */

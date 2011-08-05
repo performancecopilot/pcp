@@ -75,7 +75,9 @@ checkdir = test -f debian/rules
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
 uninstalld = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include
 
-build: built
+build: build-arch build-indep
+build-arch: built
+build-indep: built
 built: config
 	@echo "== dpkg-buildpackage: build" 1>&2
 	$(MAKE) default

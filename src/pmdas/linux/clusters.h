@@ -70,6 +70,7 @@ enum {
 	CLUSTER_NET_CLS_PROCS,	/* 48 network classification group processes */
 	CLUSTER_INTERRUPT_LINES,/* 49 /proc/interrupts percpu interrupts */
 	CLUSTER_INTERRUPT_OTHER,/* 50 /proc/interrupts percpu interrupts */
+	CLUSTER_PID_FD,		/* 51 /proc/<pid>/fd */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

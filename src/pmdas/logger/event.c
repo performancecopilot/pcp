@@ -26,8 +26,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <ctype.h>
-
-#define BUF_SIZE (64*1024)
+#include <regex.h>
 
 static void event_cleanup(void);
 static int eventarray;
@@ -105,14 +104,13 @@ event_init(void)
 		if (logfiles[i].fd >= 0)	/* log once only */
 		    __pmNotifyErr(LOG_ERR, "pipe: %s - %s",
 					logfiles[i].pathname, strerror(errno));
+	    } else {
+		if (fd > maxfd)
+		    maxfd = fd;
+		FD_SET(fd, &fds);
 	    }
 	}
 
-	if (fd >= 0) {
-	    if (fd > maxfd)
-		maxfd = fd;
-	    FD_SET(fd, &fds);
-	}
 	logfiles[i].fd = fd;		/* keep file descriptor (or error) */
 	TAILQ_INIT(&logfiles[i].queue);	/* initialize our queue */
     }
@@ -138,43 +136,33 @@ event_missed(int ctx, int logfile, void *user_data, void *call_data)
 			logfiles[logfile].pathname, e, ctx);
 }
 
-int
-event_create(unsigned int logfile)
+static char *
+event_print(char *buffer, int size)
 {
-    ssize_t c;
+    static char msg[64];
+    int i;
+
+    strncpy(msg, buffer, sizeof(msg)-4);
+    msg[sizeof(msg)-4] = '\0';
+    for (i = 0; i < sizeof(msg-4) && i < size; i++) {
+	if (isspace(msg[i]))
+	    msg[i] = ' ';
+	else if (!isprint(msg[i]))
+	    msg[i] = '.';
+    }
+    if (size > sizeof(msg)-4)
+	strcat(msg, "...");
+    return msg;
+}
+
+void
+event_enqueue(unsigned int logfile, char *buffer, int length)
+{
     struct event *e, *next;
-    static char *buffer;
 
-    /* Allocate a new event buffer. */
-    if (!buffer) {
-	buffer = malloc(BUF_SIZE);
-	if (buffer == NULL) {
-	    __pmNotifyErr(LOG_ERR, "event buffer allocation failure");
-	    return -1;
-	}
-    }
-
-    /* Read up to BUF_SIZE bytes at a time. */
-    c = read(logfiles[logfile].fd, buffer, BUF_SIZE - 1);
-
-    /*
-     * Ignore the error if:
-     * - we've got EOF (0 bytes read)
-     * - EBADF (fd isn't valid - most likely a closed pipe)
-     * - EAGAIN/EWOULDBLOCK (fd is marked nonblocking and read would block)
-     * - EISDIR (fd is a directory - (possibly temporary) config file botch)
-     */
-    if ((c == 0) ||
-	(c < 0 && (errno == EBADF || errno == EAGAIN ||
-		   errno == EISDIR || errno == EWOULDBLOCK))) {
-	return 0;
-    } else if (c > maxmem) {
-	return 0;
-    } else if (c < 0) {
-	__pmNotifyErr(LOG_ERR, "read failure on %s: %s",
-		      logfiles[logfile].pathname, strerror(errno));
-	return -1;
-    }
+    if (pmDebug & DBG_TRACE_APPL1)
+	__pmNotifyErr(LOG_INFO, "Event enqueue, logfile %d (%d bytes)",
+			logfile, length);
 
     /*
      * We may need to make room in the event queue.  If so, start at the head
@@ -182,10 +170,9 @@ event_create(unsigned int logfile)
      * Bump the missed counter for each client who missed an event we had to
      * throw away.
      */
-
     e = TAILQ_FIRST(&logfiles[logfile].queue);
     while (e) {
-	if (c <= maxmem - logfiles[logfile].queuesize)
+	if (length <= maxmem - logfiles[logfile].queuesize)
 	    break;
 
 	next = TAILQ_NEXT(e, events);
@@ -208,31 +195,96 @@ event_create(unsigned int logfile)
 	e = next;
     }
 
-    e = malloc(sizeof(struct event) + c + 1);
+    e = malloc(sizeof(struct event) + length + 1);
     if (e == NULL) {
 	__pmNotifyErr(LOG_ERR, "event dup allocation failure: %d bytes",
-			(int)(c + 1));
-	return -1;
+			(int)(length + 1));
+	return;
     }
 
     /* Track event data */
     e->clients = logfiles[logfile].numclients;
-    memcpy(e->buffer, buffer, c);
-    e->buffer[c] = '\0';
-    e->size = c;
+    memcpy(e->buffer, buffer, length);
+    e->size = length;
 
     /* Update logfile event tracking stats */
     logfiles[logfile].count++;
-    logfiles[logfile].bytes += c;
+    logfiles[logfile].bytes += length;
 
     /* Store event in queue */
     TAILQ_INSERT_TAIL(&logfiles[logfile].queue, e, events);
-    logfiles[logfile].queuesize += c;
+    logfiles[logfile].queuesize += length;
 
     if (pmDebug & DBG_TRACE_APPL1)
 	__pmNotifyErr(LOG_INFO, "Inserted %s event %p (%d bytes) clients = %d.",
 			logfiles[logfile].pmnsname, e, e->size, e->clients);
+}
 
+int
+event_create(unsigned int logfile)
+{
+    int j;
+    char *s, *p;
+    size_t offset;
+    ssize_t bytes;
+    static char *buffer;
+    static int bufsize;
+
+    if (pmDebug & DBG_TRACE_APPL1)
+	__pmNotifyErr(LOG_INFO, "Event create: logfile %d", logfile);
+
+    /* Allocate a new event buffer to hold the initial read. */
+    if (!buffer) {
+	bufsize = 16 * getpagesize();
+	buffer = memalign(getpagesize(), bufsize);
+	if (!buffer) {
+	    __pmNotifyErr(LOG_ERR, "event buffer allocation failure");
+	    return -1;
+	}
+    }
+
+    offset = 0;
+multiread:
+    bytes = read(logfiles[logfile].fd, buffer + offset, bufsize - 1 - offset);
+    /*
+     * Ignore the error if:
+     * - we've got EOF (0 bytes read)
+     * - EBADF (fd isn't valid - most likely a closed pipe)
+     * - EAGAIN/EWOULDBLOCK (fd is marked nonblocking and read would block)
+     * - EISDIR (fd is a directory - (possibly temporary) config file botch)
+     */
+    if (bytes == 0)
+	return 0;
+    if (bytes < 0 && (errno == EBADF || errno == EISDIR))
+	return 0;
+    if (bytes < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
+	return 0;
+    if (bytes > maxmem)
+	return 0;
+    if (bytes < 0) {
+	__pmNotifyErr(LOG_ERR, "read failure on %s: %s",
+		      logfiles[logfile].pathname, strerror(errno));
+	return -1;
+    }
+
+    buffer[bufsize-1] = '\0';
+    for (s = p = buffer, j = 0; *s != '\0' && j < bufsize-1; s++, j++) {
+	if (*s != '\n')
+	    continue;
+	*s = '\0';
+	bytes = (s+1) - p;
+	event_enqueue(logfile, p, bytes);
+	p = s + 1;
+    }
+    /* did we just do a full buffer read? */
+    if (p == buffer) {
+	__pmNotifyErr(LOG_ERR, "Ignoring long (%d bytes) line: \"%s\"",
+				(int)bytes, event_print(p, bytes));
+    } else if (j == bufsize - 1) {
+	offset = bufsize-1 - (p - buffer);
+	memmove(buffer, p, offset);
+	goto multiread;	/* read rest of line */
+    }
     return 1;
 }
 
@@ -242,25 +294,6 @@ event_get_clients_per_logfile(unsigned int logfile)
     return logfiles[logfile].numclients;
 }
 
-static char *
-event_print(struct event *e)
-{
-    static char msg[16];
-    int i;
-
-    strncpy(msg, e->buffer, sizeof(msg)-4);
-    msg[sizeof(msg)-4] = '\0';
-    for (i = 0; i < sizeof(msg-4); i++) {
-	if (isspace(msg[i]))
-	    msg[i] = ' ';
-	else if (!isprint(msg[i]))
-	    msg[i] = '.';
-    }
-    if (e->size > sizeof(msg)-4)
-	strcat(msg, "...");
-    return msg;
-}
-
 int
 event_fetch(pmValueBlock **vbpp, unsigned int logfile)
 {
@@ -268,7 +301,8 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
     struct timeval stamp;
     pmAtomValue atom;
     struct ctx_client_data *c = ctx_get_user_data();
-    int records = 0;
+    regex_t *filter = ctx_get_filter_data();
+    int filtered, records = 0;
     int sts = ctx_get_user_access() || !logfiles[logfile].restricted;
 
     if (pmDebug & DBG_TRACE_APPL2)
@@ -299,20 +333,28 @@ event_fetch(pmValueBlock **vbpp, unsigned int logfile)
 
     while (e != NULL) {
 	/*
-	 * Add the string parameter.  Note that pmdaEventAddParam()
-	 * copies the string, so we can free it soon after.
+	 * Add the string parameter provided it matches on any regex filtering.
+	 * Note pmdaEventAddParam copies the string, we can free it soon after.
 	 */
-	atom.cp = e->buffer;
+	filtered = (filter == NULL) ? 0 :
+		 (regexec(filter, e->buffer, 0, NULL, 0) == REG_NOMATCH);
 
 	if (pmDebug & DBG_TRACE_APPL1)
-	    __pmNotifyErr(LOG_INFO, "Adding param: \"%s\"", event_print(e));
+	    __pmNotifyErr(LOG_INFO, "%s parameter: \"%s\"", 
+				    filter ? "Filtering" : "Adding",
+				    event_print(e->buffer, e->size));
+	if (filtered == 0) {
+	    if (pmDebug & DBG_TRACE_APPL1)
+		__pmNotifyErr(LOG_INFO, "Adding param: \"%s\"", 
+				    event_print(e->buffer, e->size));
 
-	sts = pmdaEventAddParam(eventarray,
-				logfiles[logfile].pmid, PM_TYPE_STRING, &atom);
-	if (sts < 0)
-	    return sts;
-	records++;
+	    atom.cp = e->buffer;
 
+	    if ((sts = pmdaEventAddParam(eventarray, logfiles[logfile].pmid,
+					 PM_TYPE_STRING, &atom)) < 0)
+		return sts;
+	    records++;
+	}
 	next = TAILQ_NEXT(e, events);
 
 	/* Remove the current one (if its use count is at 0). */
@@ -385,6 +427,32 @@ event_cleanup(void)
 	    e = next;
 	}
     }
+}
+
+int
+event_regex(const char *string)
+{
+    regex_t *exist = ctx_get_filter_data();
+    regex_t *regex = malloc(sizeof(regex_t));
+
+    if (regex == NULL)
+	return -ENOMEM;
+    if (exist) {	/* throw away existing filter */
+	ctx_set_filter_data(NULL);
+	regfree(exist);
+	free(exist);
+    }
+    if (string[0] == '\0') {
+	ctx_set_filter_data(NULL);
+	free(regex);
+	return 0;
+    }
+    if (regcomp(regex, string, REG_EXTENDED|REG_NOSUB) != 0) {
+	free(regex);
+	return PM_ERR_CONV;
+    }
+    ctx_set_filter_data(regex);
+    return 0;
 }
 
 void

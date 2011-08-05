@@ -139,6 +139,11 @@
 #define PROC_PID_IO_WRITE_BYTES		5
 #define PROC_PID_IO_CANCELLED_BYTES	6
 
+/*
+ * metrics in /proc/<pid>/fd
+ */
+#define PROC_PID_FD_COUNT		0
+
 typedef struct {	/* /proc/<pid>/status */
     char *uid;
     char *gid;
@@ -204,6 +209,12 @@ typedef struct {
     int			wchan_fetched;
     int			wchan_buflen;
     char		*wchan_buf;
+
+    /* /proc/<pid>/fd cluster */
+    int			fd_fetched;
+    int			fd_buflen;
+    char		*fd_buf;
+    uint32_t		fd_count;
 } proc_pid_entry_t;
 
 typedef struct {
@@ -246,6 +257,9 @@ extern proc_pid_entry_t *fetch_proc_pid_schedstat(int, proc_pid_t *);
 
 /* fetch a proc/<pid>/io entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_io(int, proc_pid_t *);
+
+/* fetch a proc/<pid>/fd entry for pid */
+extern proc_pid_entry_t *fetch_proc_pid_fd(int, proc_pid_t *);
 
 extern int _pm_pid_io_fields;	/* count of fields in proc/<pid>/io */
 

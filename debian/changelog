@@ -1,8 +1,17 @@
-pcp (3.5.5) unstable; urgency=low
+pcp (3.5.7) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
 
- -- Nathan Scott <nathans@debian.org>  Wed, 06 Jul 2011 21:26:58 +1000
+ -- Nathan Scott <nathans@debian.org>  Fri, 05 Aug 2011 11:20:31 +1000
+
+pcp (3.5.6) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Number of new lintian warnings resolved.
+  * Updated standards version.
+  * Resolve readline build dependency (closes: #634448)
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 21 Jul 2011 11:25:11 +1000
 
 pcp (3.5.2) unstable; urgency=low
 

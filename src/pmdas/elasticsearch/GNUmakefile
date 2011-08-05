@@ -1,6 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2011 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,43 +15,40 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-#
+# 
 
-TOPDIR = ../../../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-LIBTARGET = pmda_pmcd.$(DSOSUFFIX)
+IAM	= elasticsearch
+DOMAIN	= ELASTICSEARCH
+PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+LSRCFILES = Install Remove pmda$(IAM).pl
 
-CFILES	= pmcd.c
-LSRCFILES = objstyle
-
-# Add to CFLAGS to find files in pmcd/src...
-LCFLAGS = -I$(TOPDIR)/src
-ifeq "$(TARGET_OS)" "linux"
-ABI = $(shell ./objstyle)
-LCFLAGS += -DSIM_ABI=\""$(ABI)"\"
-endif
-ifdef PACKAGE_BUILD
-BUILD = $(PACKAGE_BUILD)
-else
-BUILD = unknown
+ifneq ($(POD2MAN),)
+MAN_SECTION = 1
+MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 endif
 
-LCFLAGS += -DBUILD=\"$(BUILD)\"
-LLDLIBS = -lpcp_pmda -lpcp
-ifeq "$(TARGET_OS)" "mingw"
-LLDLIBS += -lpcp_pmcd
-PCP_LIBS += -L$(TOPDIR)/src/libpcp_pmcd/src
-endif
+LDIRT = domain.h root pmns *.log $(MAN_PAGES)
 
-default: $(LIBTARGET)
+default: check_domain $(MAN_PAGES)
 
-install: default
-	$(INSTALL) -m 755 -d $(PCP_PMDAS_DIR)/pmcd
-	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_PMDAS_DIR)/pmcd/$(LIBTARGET)
+pmda$(IAM).1: pmda$(IAM).pl
+	$(POD_MAKERULE)
 
 include $(BUILDRULES)
+
+install: default
+	$(INSTALL) -m 755 -d $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(PMDADIR)
+	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
+	@$(INSTALL_MAN)
 
 default_pcp : default
 
 install_pcp : install
+
+check_domain:	../../pmns/stdpmid
+	$(DOMAIN_PERLRULE)

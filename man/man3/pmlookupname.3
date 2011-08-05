@@ -64,8 +64,8 @@ sized array for
 .IR pmidlist .
 .PP
 \f3pmRequestNames\fP and \f3pmReceiveNames\fP are used by applications
-which must  communicate with the PMCD asynchronously.  These functions
-take explict context handle \f2ctx\fP which must refer to a host
+which must communicate with the PMCD asynchronously.  These functions
+take explicit context handle \f2ctx\fP which must refer to a host
 context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
 \f3pmNewContext\fP). \f3pmRequestNames\fP sends request to translate names
 to PMIDs to PMCD and returns without waiting for the response,
