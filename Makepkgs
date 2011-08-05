@@ -52,52 +52,72 @@ ARCH=`uname -m | sed -e 's/i.86/ia32/'`
 VERS=`uname -s | cut -c-5`
 
 # Sanity checks ... this is sick, but I'm really tired of QA failing
-# because of bad binaries being built from the Ubuntu toolchain for
-# i?86 platforms
+# because of bad binaries being built from the Debian/Ubuntu toolchain
+# for # i?86 platforms
 # - Ken McDonell Apr 2010
 #
-if [ -f /etc/lsb-release -a "$ARCH" = "ia32" ]
+if [ "$ARCH" = "ia32" -a -f /usr/bin/dpkg-buildpackage ]
 then
-    if grep -q 'DISTRIB_ID=Ubuntu' /etc/lsb-release
+    OPT=false
+    if [ -f /etc/lsb-release ]
     then
-	eval `grep DISTRIB_RELEASE= /etc/lsb-release`
-	XDISTRIB_RELEASE=`echo $DISTRIB_RELEASE | sed -e 's/\.//'`
-	[ -z "$XDISTRIB_RELEASE" ] && XDISTRIB_RELEASE=0000
-	if [ $XDISTRIB_RELEASE -ge 1110 ]
+	if grep -q 'DISTRIB_ID=Ubuntu' /etc/lsb-release
 	then
-	    # Hope the problem is fixed in Ubuntu 11.10
-	    :
-	else
-	    echo "Building without optimization for Ubuntu $DISTRIB_RELEASE"
-	    if [ -f /usr/bin/dpkg-buildpackage ]
+	    eval `grep DISTRIB_RELEASE= /etc/lsb-release`
+	    XDISTRIB_RELEASE=`echo $DISTRIB_RELEASE | sed -e 's/[^0-9]//g'`
+	    [ -z "$XDISTRIB_RELEASE" ] && XDISTRIB_RELEASE=0000
+	    if [ $XDISTRIB_RELEASE -ge 1110 ]
 	    then
-		ok=true
-		if grep -q '^my $default_flags .*O2' /usr/bin/dpkg-buildpackage
-		then
-		    echo '/usr/bin/dpkg-buildpackage: need to remove O2 from $default_flags'
-		    ok=false
-		fi
-		if grep -q '^[ 	]*LDFLAGS.*-Bsymbolic-functions' /usr/bin/dpkg-buildpackage
-		then
-		    echo '/usr/bin/dpkg-buildpackage: need to remove -Bsymbolic-function from LDFLAGS'
-		    ok=false
-		fi
-		if $ok
-		then
-		    :
-		else
-		    echo "Refer to Ubuntu notes in PCP's ./INSTALL"
-		    exit 1
-		fi
+		# Hope the problem is fixed in Ubuntu 11.10
+		OPT=true
 	    fi
-	    # as of Ubuntu 10.10, build flags are hidden and extracted using
-	    # dpkg-buildflags which fortunately honours some environment
-	    # settings
-	    #
-	    export DEB_CFLAGS_SET=''
-	    export DEB_CXXFLAGS_SET=''
-	    export DEB_LDFLAGS_SET=''
 	fi
+	$OPT || echo "Building without optimization for Ubuntu $DISTRIB_RELEASE"
+    elif [ -f /etc/debian_version ]
+    then
+	DISTRIB_RELEASE=`cat /etc/debian_version`
+	XDISTRIB_RELEASE=`echo $DISTRIB_RELEASE | sed -e 's/[^0-9]//g'`
+	[ -z "$XDISTRIB_RELEASE" ] && XDISTRIB_RELEASE=0000
+	if [ $XDISTRIB_RELEASE -ge 700 ]
+	then
+	    # Hope the problem is fixed in Debian 7.0.0
+	    OPT=true
+	fi
+	$OPT || echo "Building without optimization for Debian $DISTRIB_RELEASE"
+    fi
+
+    if $OPT
+    then
+	:
+    else
+	if [ -f /usr/bin/dpkg-buildpackage ]
+	then
+	    ok=true
+	    if grep -q '^my $default_flags .*O2' /usr/bin/dpkg-buildpackage
+	    then
+		echo '/usr/bin/dpkg-buildpackage: need to remove O2 from $default_flags'
+		ok=false
+	    fi
+	    if grep -q '^[ 	]*LDFLAGS.*-Bsymbolic-functions' /usr/bin/dpkg-buildpackage
+	    then
+		echo '/usr/bin/dpkg-buildpackage: need to remove -Bsymbolic-function from LDFLAGS'
+		ok=false
+	    fi
+	    if $ok
+	    then
+		:
+	    else
+		echo "Refer to Debian/Ubuntu notes in PCP's ./INSTALL"
+		exit 1
+	    fi
+	fi
+	# as of Debian 6.0.1 and Ubuntu 10.10, build flags are hidden and
+	# extracted using dpkg-buildflags which fortunately honours some
+	# environment variable settings
+	#
+	export DEB_CFLAGS_SET=''
+	export DEB_CXXFLAGS_SET=''
+	export DEB_LDFLAGS_SET=''
     fi
 fi
 

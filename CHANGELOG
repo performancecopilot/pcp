@@ -1,3 +1,13 @@
+pcp-3.5.7 (05 August 2011)
+    - Fix build issue on SLES11 SP1 IA64 systems.
+    - Improved rsyslog PMDA handling of queue metrics.
+    - Add open file-descriptor count metric to the Linux PMDA.
+    - Implement logger PMDA line-oriented event mode.
+    - Add regular expression based event filtering in logger PMDA.
+    - The default pmcd.conf now has an access control section, and
+      all remote store operations are blocked by default.
+    - Improve packaging of Perl components.
+
 pcp-3.5.6 (21 July 2011)
     - Fix warning from pmie_daily with some /bin/pwd versions.
     - Numerous Debian packaging updates for lintian cleanliness.
@@ -13,7 +23,8 @@ pcp-3.5.4 (6 July 2011)
     - Fix warnings from pmlogger_check with some /bin/pwd versions.
 
 pcp-3.5.3 (6 July 2011)
-    - Remove reliance on a cpp binary being installed locally.
+    - Remove reliance on a cpp binary being installed locally with
+      new pmcpp applicaton.
     - Ensure compressed pmie log files are also cleaned up daily.
     - Extend the event store mechanism to be more generally useful.
     - Add memory limiting functionality to pmdalogger.

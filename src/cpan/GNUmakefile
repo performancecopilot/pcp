@@ -22,6 +22,12 @@ default: $(SUBDIRS)
 
 install: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
+ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
+                -o '$(PACKAGE_DISTRIBUTION)' = macosx \
+                -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
+                -o '$(PACKAGE_DISTRIBUTION)' = solaris \
+	      ] && echo 1)" "1"
+	# Gather installed Perl files before packaging
 	if [ -n "$(DIST_MANIFEST)" ]; then \
 	    if [ "`echo $(TOPDIR)/perl-pcp-*.list`" != "$(TOPDIR)/perl-pcp-*.list" ]; then \
 		cat $(TOPDIR)/perl-pcp-*.list | while read f; do \
@@ -34,6 +40,7 @@ install: $(SUBDIRS)
 		done; \
 	    fi; \
 	fi
+endif
 
 include $(BUILDRULES)
 
