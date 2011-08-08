@@ -31,6 +31,10 @@ ifeq "$(TARGET_OS)" "linux"
 ABI = $(shell ./objstyle)
 LCFLAGS += -DSIM_ABI=\""$(ABI)"\"
 endif
+ifeq "$(TARGET_OS)" "darwin"
+ABI = $(shell ./objstyle)
+LCFLAGS += -DSIM_ABI=\"$(ABI)\"
+endif
 ifdef PACKAGE_BUILD
 BUILD = $(PACKAGE_BUILD)
 else
