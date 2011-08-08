@@ -403,7 +403,7 @@ obs:	obs.c
 
 torture_trace:	torture_trace.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ torture_trace.c $(TRACELIB) 
+	$(CCF) $(CDEFS) -o $@ torture_trace.c $(LIB_FOR_PTHREADS) $(TRACELIB) 
 
 tstate:	tstate.c
 	rm -f $@
@@ -456,6 +456,10 @@ multithread7:	multithread7.c
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
 
 multithread8:	multithread8.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+multithread9:	multithread9.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
 
