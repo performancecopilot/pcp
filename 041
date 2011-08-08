@@ -28,7 +28,7 @@ _filter()
 	-e '/__pmGetPDU:.*illegal PDU len=0/d' \
     | _filter_pcp_start \
     | sed \
-	-e '/Waiting for PMCD to terminate/s/ \..*/ [dots]/'
+	-e '/Waiting for pmcd to terminate/s/ \..*/ [dots]/'
 
 }
 
@@ -94,7 +94,8 @@ $sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 # after 040 sometimes produces garbled messages unless
 # this is done!
 $sudo $PCP_RC_DIR/pcp stop >$tmp.out 2>$tmp.err
-_filter_pcp_stop <$tmp.out
+_filter_pcp_stop <$tmp.out \
+| sed -e '/Stopping pmlogger .../d'
 cat $tmp.err
 rm -f $tmp.out $tmp.err
 _expect "connection refused"

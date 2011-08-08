@@ -351,21 +351,29 @@ _filter_pcp_start()
     sed \
 	-e "s;$PCP_LOG_DIR/pmcd/pmcd.log;\$PCP_LOG_DIR/pmcd.log;" \
 	-e "s;$PCP_LOG_DIR/pmcd.log;\$PCP_LOG_DIR/pmcd.log;" \
-	-e "s;$PCP_RC_DIR/pcp;\$PCP_RC_DIR/pcp;" \
+	-e "s;$PCP_RC_DIR/pmcd;\$PCP_RC_DIR/pmcd;" \
+	-e "s;$PCP_RC_DIR/pcp;\$PCP_RC_DIR/pmcd;" \
 	-e "s;$PCP_BINADM_DIR/pmcd;\$PCP_BINADM_DIR/pmcd;" \
 	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;" \
 	-e "s;$PCP_PMLOGGERCONTROL_PATH;\$PCP_PMLOGGERCONTROL_PATH;" \
 	-e "s;$PCP_VAR_DIR/;\$PCP_VAR_DIR/;" \
 	-e "s;/usr/etc/pmcd;\$PCP_BINADM_DIR/pmcd;" \
         -e '/^Starting PCP$/d' \
-        -e '/^Performance Co-Pilot starting/s/\.\.\.[. ]*done/.../' \
-        -e '/^Performance Co-Pilot starting/s/\.\.\.[. ]*failed/.../' \
-	-e '/^Performance Co-Pilot/s/\.\.\. *$/.../' \
-        -e '/^\.[. ]*done$/d' \
-        -e '/^\.[. ]*failed$/d' \
 	-e 's/^\(Performance Co-Pilot starting .*\.\.\.\) *\(\$PCP_RC_DIR\)/\1\
 \2/' \
-	-e '/^Waiting for PMCD/s/\.\.\.[. ]*done/.../' \
+	-e '/^Performance Co-Pilot/s/\.\.\. *$/.../' \
+        -e '/^Performance Co-Pilot starting/{
+s/\.\.\.[. ]*done/.../
+s/\.\.\.[. ]*failed/.../
+s/Performance Co-Pilot starting PMCD (logfile is [^)]*) .../Starting pmcd ... /
+s/Performance Co-Pilot starting archive loggers .../Starting pmlogger ... /
+}' \
+        -e '/^\.[. ]*done$/d' \
+        -e '/^\.[. ]*failed$/d' \
+	-e '/^Waiting for PMCD/{
+s/PMCD/pmcd/
+s/\.\.\.[. ]*done/.../
+}' \
 	-e 's/^\(Waiting .*\.\.\.\)\(\$PCP_RC_DIR\)/\1\
 \2/' \
 	-e '/^[ 	]*$/d'
@@ -376,7 +384,10 @@ _filter_pcp_stop()
     # Note: to handle /etc/init.d strangeness in SuSE SLES9
     sed \
 	-e '/^Waiting for pmie/s/\.\.\.[. ]*done/.../' \
-	-e '/^Waiting for PMCD/s/\.\.\.[. ]*done/.../' \
+	-e '/^Waiting for PMCD/{
+s/\.\.\.[. ]*done/.../
+s/PMCD/pmcd/
+}' \
 	-e '/^Waiting for pmie/s/\.\.\. *$/.../' \
 	-e '/^Performance Co-Pilot/s/\.\.\. *$/.../' \
         -e '/^\.[. ]*done$/d'

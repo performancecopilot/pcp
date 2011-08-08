@@ -21,4 +21,5 @@ $sudo src-oss/pmcdgone 2>&1 \
     -e '/__pmGetPDU: fd=3 BINARY hdr: Broken pipe/d' \
     -e '/pmLookupDesc:/s/Connection reset by peer/IPC protocol failure/' \
     -e '/pmReconnectContext:/s/Operation/Connection/' \
+    -e '/Stopping pmlogger .../d' \
 | _filter_pcp_start
