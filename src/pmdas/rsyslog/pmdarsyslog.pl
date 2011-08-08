@@ -15,7 +15,6 @@
 use strict;
 use warnings;
 use PCP::PMDA;
-use Switch;
 
 my $pmda = PCP::PMDA->new('rsyslog', 107);
 my $statsfile = '/var/log/pcp/rsyslog/stats';
@@ -77,16 +76,14 @@ sub rsyslog_fetch_callback
 
     if ($cluster == 0) {
 	return (PM_ERR_INST, 0) unless ($inst == PM_IN_NULL);
-	switch ($item) {
-	case 0	{ return ($interval, 1); }
-	case 1	{ return ($ux_submitted, 1); }
-	case 2	{ return ($ux_discarded, 1); }
-	case 3	{ return ($ux_ratelimiters, 1); }
-	case 8	{ return ($es_connfail, 1); }
-	case 9	{ return ($es_submits, 1); }
-	case 10	{ return ($es_failed, 1); }
-	case 11	{ return ($es_success, 1); }
-	}
+	if ($item == 0) { return ($interval, 1); }
+	if ($item == 1) { return ($ux_submitted, 1); }
+	if ($item == 2)	{ return ($ux_discarded, 1); }
+	if ($item == 3)	{ return ($ux_ratelimiters, 1); }
+	if ($item == 8)	{ return ($es_connfail, 1); }
+	if ($item == 9)	{ return ($es_submits, 1); }
+	if ($item == 10){ return ($es_failed, 1); }
+	if ($item == 11){ return ($es_success, 1); }
     }
     elsif ($cluster == 1) {	# queues
 	return (PM_ERR_INST, 0) unless ($inst != PM_IN_NULL);
@@ -98,12 +95,10 @@ sub rsyslog_fetch_callback
 	return (PM_ERR_INST, 0) unless defined ($qvref);
 	@qvals = @$qvref;
 
-	switch ($item) {
-	case 0	{ return ($qvals[0], 1); }
-	case 1	{ return ($qvals[1], 1); }
-	case 2	{ return ($qvals[2], 1); }
-	case 3	{ return ($qvals[3], 1); }
-	}
+	if ($item == 0) { return ($qvals[0], 1); }
+	if ($item == 1)	{ return ($qvals[1], 1); }
+	if ($item == 2)	{ return ($qvals[2], 1); }
+	if ($item == 3) { return ($qvals[3], 1); }
     }
     return (PM_ERR_PMID, 0);
 }
