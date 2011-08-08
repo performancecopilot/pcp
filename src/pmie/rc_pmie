@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 #
 # Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -13,21 +13,21 @@
 # for more details.
 # 
 # The following is for chkconfig on RedHat based systems
-# chkconfig: 2345 95 05
-# description: pmie is a performance monitoring inference engine
+# chkconfig: 2345 94 06
+# description: pmie is a performance inference engine for the Performance Co-Pilot (PCP)
 #
 # The following is for insserv(1) based systems,
 # e.g. SuSE, where chkconfig is a perl script.
 ### BEGIN INIT INFO
-# Provides:       pmie
+# Provides:          pmie
 # Required-Start:
-# Should-Start: $local_fs $network $remote_fs $syslog $time
+# Should-Start:      $local_fs $network $remote_fs $syslog $time $pmcd
 # Required-Stop:
-# Should-Stop:  $local_fs $network $remote_fs $syslog
-# Default-Start:  2 3 4 5
-# Default-Stop:   0 1 6
-# Short-Description:   Control PCP inference engines
-# Description:   Configures the performance monitoring inference engine
+# Should-Stop:       $local_fs $network $remote_fs $syslog $pmcd
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Control pmie (performance inference engine for PCP)
+# Description:       Configure and control pmie (the performance inference engine for the Performance Co-Pilot)
 ### END INIT INFO
 
 . $PCP_DIR/etc/pcp.env

@@ -588,6 +588,7 @@ END							{ print m }'`
 	    $VERBOSE && $SHOWME && echo
 	    eval $MV -f $logfile $logfile.prior
 	fi
+	args="$args -m pmlogger_check"
 	if $SHOWME
 	then
 	    echo

@@ -39,6 +39,7 @@ int		rflag;			/* report sizes */
 struct timeval	delta = { 60, 0 };	/* default logging interval */
 int		unbuffered;		/* is -u specified? */
 int		qa_case;		/* QA error injection state */
+char		*note = NULL;		/* note for port map file */
 
 static int 	    pmcdfd;		/* comms to pmcd */
 static int	    ctx;		/* handle correspondong to ctxp below */
@@ -495,7 +496,7 @@ main(int argc, char **argv)
      *		corresponding changes are made to pmnewlog when pmlogger
      *		options are passed through from the control file
      */
-    while ((c = getopt(argc, argv, "c:D:h:l:Ln:Prs:T:t:uv:V:x:?")) != EOF) {
+    while ((c = getopt(argc, argv, "c:D:h:l:Lm:n:Prs:T:t:uv:V:x:?")) != EOF) {
 	switch (c) {
 
 	case 'c':		/* config file */
@@ -540,6 +541,10 @@ main(int argc, char **argv)
 
 	case 'L':		/* linger if not primary logger */
 	    linger = 1;
+	    break;
+
+	case 'm':		/* note for port map file */
+	    note = optarg;
 	    break;
 
 	case 'n':		/* alternative name space file */
@@ -632,6 +637,7 @@ Options:\n\
   -h host	metrics source is PMCD on host\n\
   -l logfile	redirect diagnostics and trace output\n\
   -L		linger, even if not primary logger instance and nothing to log\n\
+  -m note       note to be added to the port map file\n\
   -n pmnsfile   use an alternative PMNS\n\
   -P		execute as primary logger instance\n\
   -r		report record sizes and archive growth rate\n\
@@ -650,6 +656,13 @@ Options:\n\
     if (primary && pmcd_host != NULL) {
 	fprintf(stderr, "%s: -P and -h are mutually exclusive ... use -P only when running\n%s on the same (local) host as the PMCD to which it connects.\n", pmProgname, pmProgname);
 	exit(1);
+    }
+
+    if (rsc_fd != -1 && note == NULL) {
+	/* add default note to indicate running with -x */
+	static char	xnote[10];
+	snprintf(xnote, sizeof(xnote), "-x %d", rsc_fd);
+	note = xnote;
     }
 
     __pmOpenLog("pmlogger", logfile, stderr, &sts);

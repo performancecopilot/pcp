@@ -106,7 +106,7 @@ CreatePIDfile(void)
 	fprintf(stderr, "Error: Cant open PID file %s\n", pidpath);
 	return -1;
     }
-    fprintf(pidfile, "%d", getpid());
+    fprintf(pidfile, "%d\n", getpid());
     fflush(pidfile);
     fclose(pidfile);
     return 0;

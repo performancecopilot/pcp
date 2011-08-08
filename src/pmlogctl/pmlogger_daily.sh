@@ -557,6 +557,7 @@ END							{ print m }'`
 	#
 	[ X"$primary" != Xy ] && args="-p $pid $args"
 	[ X"$socks" = Xy ] && args="-s $args"
+	args="$args -m pmlogger_daily"
 	$SHOWME && echo "+ pmnewlog$MYARGS $args $LOGNAME"
 	if pmnewlog$MYARGS $args $LOGNAME
 	then
