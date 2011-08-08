@@ -26,8 +26,10 @@
 # e.g. SuSE, where chkconfig is a perl script.
 ### BEGIN INIT INFO
 # Provides:       pcp
-# Required-Start: $network $remote_fs $syslog
-# Required-Stop:  $remote_fs $syslog
+# Required-Start:
+# Should-Start: $local_fs $network $remote_fs $syslog $time
+# Required-Stop:
+# Should-Stop:  $local_fs $network $remote_fs $syslog
 # Default-Start:  2 3 4 5
 # Default-Stop:   0 1 6
 # Short-Description:   Control pmcd and pmlogger daemons
@@ -134,7 +136,7 @@ _reboot_setup()
 	here=`pwd`
 	cd "$PCP_TMP_DIR/pmlogger"
 	rm -f primary vcr
-	_get_pids_by_name pmlogger >$tmp.pid
+	_get_pids_by_name pmlogger | sort >$tmp.pid
 	ls [0-9]* 2>&1 | sed -e '/\[0-9]\*/d' \
 	| sed -e 's/[ 	][ 	]*//g' | sort >$tmp.ent
 	# remove entries without a pmlogger process

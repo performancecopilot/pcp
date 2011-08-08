@@ -62,7 +62,7 @@ echo Building on $build for $target
 echo "Build: os=$build_os cpu=$build_cpu"
 echo "Target: os=$target_os cpu=$target_cpu"
 
-target_distro=unknown
+target_distro=$target_os
 if test $target_os = linux
 then
     AC_DEFINE(IS_LINUX)
@@ -71,6 +71,7 @@ then
     test -f /etc/redhat-release && target_distro=redhat
     test -f /etc/debian_version && target_distro=debian
     test -f /etc/slackware-version && target_distro=slackware
+    test -f /etc/gentoo-release && target_distro=gentoo
 elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS)

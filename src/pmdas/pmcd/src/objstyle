@@ -57,6 +57,9 @@ done
 #
 # dummy.o: Mach-O 64-bit object x86_64
 #
+# SLES10
+# dummy.o: ELF 64-bit LSB relocatable, IA-64 (Intel 64 bit architecture), version 1 (SYSV), not stripped
+#
 
 if [ -n "$magic" ]
 then
@@ -68,7 +71,9 @@ fi \
     -e '/ ELF /{
 s/^[^,]*, //
 s/, .*//
+s/ *([^)]*)//
 s/ //
+s/x86-64/x86_64/
 p
 }' \
     -e '/object/{

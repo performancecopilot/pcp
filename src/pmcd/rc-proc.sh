@@ -41,6 +41,7 @@ _cmds_exist()
     _have_runlevel=false
     _have_chkconfig=false
     _have_sysvrcconf=false
+    _have_rcupdate=false
 
     [ -f $PCP_RC_DIR/$1 ] && _have_flag=true
 
@@ -88,6 +89,22 @@ _cmds_exist()
 	    _have_sysvrcconf=true
 	fi
     fi
+
+    if which rc-update >/dev/null 2>&1
+    then
+	if [ "$PCP_PLATFORM" = solaris -o "$PCP_PLATFORM" = darwin ]
+	then
+	    if which rc-update | grep "no rc-update" >/dev/null
+	    then
+		:
+	    else
+		_have_rcupdate=true
+	    fi
+	else
+	    _have_rcupdate=true
+	fi
+    fi
+
 }
 
 #
@@ -167,6 +184,13 @@ is_chkconfig_on()
     elif $_have_sysvrcconf
     then
 	if sysv-rc-conf --list "$_flag" 2>&1 | grep $_rl":on" >/dev/null 2>&1
+	then
+	    _ret=0 # on
+	fi
+    elif $_have_rcupdate
+    then
+	# the Gentoo way ...
+	if rc-update show 2>&1 | grep "$_flag" >/dev/null 2>&1
 	then
 	    _ret=0 # on
 	fi

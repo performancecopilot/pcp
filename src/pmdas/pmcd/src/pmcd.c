@@ -964,7 +964,7 @@ simabi()
 #elif defined(IS_FREEBSD)
     return "elf";
 #elif defined(IS_DARWIN)
-    return "Mach-O";
+    return "Mach-O " SIM_ABI;
 #elif defined(IS_MINGW)
     return "i386";	// TODO: need to handle x86_64 too
 #elif defined(IS_AIX)

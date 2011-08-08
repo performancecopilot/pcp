@@ -21,6 +21,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM	= summary
+DOMAIN	= SYSSUMMARY
 TARGETS	= $(IAM)$(EXECSUFFIX)
 
 HFILES	= summary.h
@@ -31,7 +32,6 @@ LLDFLAGS= -L$(TOPDIR)/src/libpcp/src -L$(TOPDIR)/src/libpcp_pmda/src
 LLDLIBS	= -lpcp_pmda -lpcp
 LDIRT	= domain.h *.log *.dir *.pag  $(TARGETS)
 
-IAM	= summary
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
 default:	build-me
@@ -58,14 +58,7 @@ mainloop.o summary.o pmda.o:	summary.h
 summary.o pmda.o:	domain.h
 
 domain.h:	../../pmns/stdpmid
-	rm -f $@
-	echo "/*" >$@
-	echo " * Default domain for $(IAM) PMDA." >>$@
-	echo " * Change as required, but avoid clashes (duplicate usage) with" >>$@
-	echo " * other PMDA domains in $(PCP_PMCDCONF_PATH) and" >> $@
-	echo " * $(PCP_VAR_DIR)/pmns/stdpmid" >>$@
-	echo " */" >> $@
-	grep SYSSUMMARY  $< >> $@
+	$(DOMAIN_MAKERULE)
 
 default_%:	default
 	@true
