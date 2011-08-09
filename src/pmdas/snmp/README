@@ -25,8 +25,9 @@ dotted names and dotted numbers.
 
 PCP uses a 64bit value to uniquely identify each available metric.  This is
 divided into:
-	8 bits - "domain" number (./src/pmns/Make.stdpmid gives 56-58 to SNMP)
-	24 bits - "cluster/item" number identifying the metric
+	9 bits - "domain" number (./src/pmns/Make.stdpmid gives 56-58 to SNMP)
+	12 bits - "cluster" number
+	10 bits - "item" number (cluster+item identify the metric)
 	32 bits - "instance" of the metric
 PCP uses an open ended dotted text name to translate to this fixed 64bit value.
 The PCP agent sends the text to number mapping to the PCP client as needed.
