@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use FileHandle;
 use PCP::PMDA;
+use Net::SNMP;
 
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
@@ -61,7 +62,25 @@ sub load_config {
                 my $val = $2;
 
                 $option->{$key}=$val;
+            } elsif (m/^host\s+(\S+)\s+(.*)$/) {
+		my $e = {};
+		$e->{id}=$1;
+		$e->{community}=$2;
+
+                my ($session,$error) = Net::SNMP->session(
+                    -hostname =>$e->{id},
+                    -community=>$e->{community},
+                );
+                if (!$session) {
+                    warn("SNMP session to $e->{id}: $error");
+                    $e->{error}=$error;
+                } else {
+                    $e->{snmp}=$session;
+		    $e->{snmp}->translate([-timeticks=>0]);
+                }
+                $db->{hosts}{$1} = $e;
             }
+            # TODO - add map, mib, maxstatic
         }
     }
     return $db;

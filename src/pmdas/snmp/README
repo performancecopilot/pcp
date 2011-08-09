@@ -1,6 +1,8 @@
 The snmp2pcp gateway is a PCP agent plugin that allows PCP clients to query
 for data from SNMP agents.
 
+NOTE: does not and will not support setting snmp values
+
 Depends on perl modules:
 PCP::PMDA	libpcp-pmda-perl
 Net::SNMP	libnet-snmp-perl
