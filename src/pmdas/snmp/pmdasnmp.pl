@@ -22,12 +22,12 @@ use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Quotekeys = 0;
+$Data::Dumper::Useqq = 1;	# PMDA log doesnt like binary :-(
 
 our $VERSION='0.1';
 my $db = {};
 my $option = {};
 
-my $snmp_indom = 0;
 my @snmp_dom = ();
 
 my $pmda = PCP::PMDA->new('snmp', 56);
@@ -86,6 +86,20 @@ sub load_config {
     return $db;
 }
 
+# Using the hosts data, create a list of instance domains
+#
+sub hosts_indom {
+	my ($db) = @_;
+
+	my @dom;
+	my $i=0;
+
+	for my $host (keys %{$db->{hosts}}) {
+		push @dom,$i++,$host;
+	}
+	return \@dom;
+}
+
 # debug when fetch is called
 #
 sub fetch {
@@ -130,17 +144,18 @@ load_config($db,
 	'snmp.conf'
 );
 
+#add_indom(self,indom,list,help,longhelp)
+$pmda->add_indom(0,hosts_indom($db),'SNMP hosts','');
+
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
 		pmda_units(0,0,0,0,0,0), "snmp.version", '', '');
-$pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U32, $snmp_indom, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U32, 0, PM_SEM_INSTANT,
 		pmda_units(0,0,0,0,0,0), "snmp.testu32", '', '');
 
 # fake up a 'dom'
 push @snmp_dom,1,'test1';
 push @snmp_dom,10,'test10';
 
-#add_indom(self,indom,list,help,longhelp)
-$pmda->add_indom($snmp_indom, \@snmp_dom, 'help', 'long help');
 
 $pmda->set_fetch(\&fetch);
 $pmda->set_instance(\&instance);
