@@ -12,7 +12,7 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.filter
 
-status=1
+status=0
 
 _cleanup()
 {
@@ -30,10 +30,19 @@ trap _cleanup 0 1 2 3 15
 
 rm -rf $tmp.*
 echo "First, the standard logfile:"
+$sudo $PCP_RC_DIR/pcp stop >/dev/null
+$sudo rm -f $PCP_LOG_DIR/pmcd/pmcd.log
 $sudo $PCP_RC_DIR/pcp start >$tmp.out
 _wait_for_pmcd
 _wait_for_pmlogger
-grep 'logfile is' $tmp.out | _filter_pcp_start
+grep -i '^starting pmcd' $tmp.out | _filter_pcp_start
+if [ -f $PCP_LOG_DIR/pmcd/pmcd.log ]
+then
+    echo '$PCP_LOG_DIR/pmcd/pmcd.log created'
+else
+    echo 'Error: $PCP_LOG_DIR/pmcd/pmcd.log not created'
+    status=1
+fi
 echo ""
 
 cp $PCP_PMCDOPTIONS_PATH $tmp.save
@@ -50,8 +59,20 @@ echo "The logfile from the hacked \$PCP_PMCDOPTIONS_PATH (pmcd.options):"
 $sudo $PCP_RC_DIR/pcp start >$tmp.out
 _wait_for_pmcd
 _wait_for_pmlogger
-grep 'logfile is' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start
-[ ! -f $tmp.2.pmcd.log ] && echo "$PCP_PMCDOPTIONS_PATH log file ignored!"
+grep -i 'starting pmcd' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start
+if [ -f $tmp.1.pmcd.log ]
+then
+    echo 'Error: $tmp.1.pmcd.log created unexpectedly'
+    ls -l $tmp.1.pmcd.log
+    cat $tmp.1.pmcd.log
+    status=1
+fi
+if [ -f $tmp.2.pmcd.log ]
+then
+    echo '$tmp.2.pmcd.log created'
+else
+    echo 'Error: $tmp.2.pmcd.log not created'
+    status=1
+fi
 
-status=0
 exit
