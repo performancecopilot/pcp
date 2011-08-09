@@ -1,0 +1,7 @@
+
+# these two files are created by the PMDA install process
+domain.h
+pmns
+
+# this log file is created when hand running the module to test it
+snmp.log
