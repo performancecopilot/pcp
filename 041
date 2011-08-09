@@ -94,8 +94,7 @@ $sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 # after 040 sometimes produces garbled messages unless
 # this is done!
 $sudo $PCP_RC_DIR/pcp stop >$tmp.out 2>$tmp.err
-_filter_pcp_stop <$tmp.out \
-| sed -e '/Stopping pmlogger .../d'
+_filter_pcp_stop <$tmp.out
 cat $tmp.err
 rm -f $tmp.out $tmp.err
 _expect "connection refused"

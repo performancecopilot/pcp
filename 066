@@ -116,7 +116,7 @@ trap "interrupt; cleanup; exit" 1 2 3 15
 trap "cleanup; exit" 0
 
 cat >$tmp  <<End-of-File
-# it has to be pmcd so that $PCP_RC_DIR/pcp restart can start pmlogger
+# need the pmcd PMDA so that "init" restart can start pmlogger
 # the OS PMDA has to be there so that the default logging config works
 # created by QA 066
 #

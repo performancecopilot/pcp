@@ -108,7 +108,7 @@ cleanup()
 	$sudo $PCP_RC_DIR/pcp start \
 	| tee -a $here/$seq.full \
 	| _filterall_pcp_start \
-	| sed -e '/Waiting for PMCD to terminate/d'
+	| sed -e '/Waiting for pmcd to terminate/d'
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	pmprobe pmcd.control.debug

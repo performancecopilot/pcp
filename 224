@@ -26,7 +26,7 @@ _reset()
 	_restore_loggers
 	$sudo $PCP_RC_DIR/pcp start \
 	| _filter_pcp_start \
-	| sed -e 's/\.\.\.*/[dots]/'
+	| sed -e '/Waiting/s/\.\.\.*/[dots]/'
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	done_reset=true
@@ -52,7 +52,7 @@ trap "_reset; exit \$status" 0 1 2 3 15
 _disable_loggers
 $sudo $PCP_RC_DIR/pcp start \
 | _filter_pcp_start \
-| sed -e 's/\.\.\.*/[dots]/'
+| sed -e '/Waiting/s/\.\.\.*/[dots]/'
 _wait_for_pmcd
 pminfo -f pmcd.numclients pmcd.pmlogger.host \
 | _filter

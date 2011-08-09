@@ -43,7 +43,7 @@ _filter()
 {
     _filter_pcp_start \
     | _filter_pcp_stop \
-    | sed -e 's/\.\.\.*/[dots]/'
+    | sed -e 's/\.\.\.\.\.*/[dots]/'
 }
 
 _wait_filter()
@@ -110,7 +110,8 @@ then
 else
    _wait_filter < $tmp.err
 fi
-_filter <$tmp.stop.out
+_filter <$tmp.stop.out \
+| sed -e '/pmlogger not running/d'
 _filter <$tmp.start.out
 
 echo "*** test 5 ***"

@@ -3,27 +3,27 @@ QA output created by 462
 
 pmcd_wait succeeded as expected for running pmcd
 
-Waiting for PMCD to terminate [dots]
-Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) [dots]
-Performance Co-Pilot starting archive loggers [dots]
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
 *** test 2 ***
 pmcd_wait: Failed to connect to PMCD on host "LOCALHOST" in 10 seconds
 
 pmcd_wait failed as expected for dead pmcd
 
-Waiting for PMCD to terminate [dots]
+Waiting for pmcd to terminate ...
 *** test 4 ***
 
 pmcd_wait succeeded as expected for sleeping pmcd - under timeout
 
-$PCP_RC_DIR/pcp: PMCD not running
-Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) [dots]
-Performance Co-Pilot starting archive loggers [dots]
+$PCP_RC_DIR/pmcd: pmcd not running
+Starting pmcd ... 
+Starting pmlogger ... 
 *** test 5 ***
 pmcd_wait: Failed to connect to PMCD on host "LOCALHOST" in 10 seconds
 
 pmcd_wait failed as expected for sleeping pmcd - over timeout
 
-Waiting for PMCD to terminate [dots]
-Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) [dots]
-Performance Co-Pilot starting archive loggers [dots]
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

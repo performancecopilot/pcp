@@ -119,7 +119,9 @@ do
     echo "end stop pmcd `date`" >>$seq.full
     sleep 4
     echo "begin start pmcd `date`" >>$seq.full
-    $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start | sed -e '/starting archive loggers/d'
+    $sudo $PCP_RC_DIR/pcp start \
+    | _filter_pcp_start \
+    | sed -e '/starting archive loggers/d' -e '/Starting pmlogger/d'
     echo "end start pmcd `date`" >>$seq.full
 
     wait

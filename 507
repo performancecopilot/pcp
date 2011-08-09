@@ -97,7 +97,7 @@ echo === Comparing noargs and args
 if [ -s $tmp.noargslocalnoh ] ; then cat $tmp.noargslocalnoh ; fi
 
 echo === Checking for missing archive metrics
-fgrep -i unknown $tmp.arch
+egrep '(Unknown)|( unknown)' $tmp.arch
 
 echo === Checking bug 640234
 echo 'pminfo(1) output:'
