@@ -31,6 +31,8 @@ This gateway will be configured with a config file:
 * define each snmp hostname and credentials
 * define a list of MIB namespaces to load (future)
 * define a list of static oid -> PCP mappings (including room for tables..)
+* a static mapping of a tree (and the max static size of that tree?) (future)
+* a static "table" mapping for special use of the "instance" value (future)
 * define a "high water mark" for static mappings
 
 If a query comes in for a static mapping, then the PCP value from the
