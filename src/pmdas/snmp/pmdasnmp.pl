@@ -17,7 +17,13 @@ use warnings;
 use FileHandle;
 use PCP::PMDA;
 
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
+$Data::Dumper::Sortkeys = 1;
+$Data::Dumper::Quotekeys = 0;
+
 our $VERSION='0.1';
+my $db = {};
 my $option = {};
 
 my $snmp_indom = 0;
@@ -61,17 +67,24 @@ sub load_config {
     return $db;
 }
 
+# debug when fetch is called
+#
 sub fetch {
     if ($option->{debug}) {
 	$pmda->log("fetch\n");
     }
 }
+
+# debug when instance is called
+#
 sub instance {
     if ($option->{debug}) {
 	$pmda->log("instance\n");
     }
 }
 
+# actually fetch a metric
+#
 sub fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
@@ -113,8 +126,10 @@ $pmda->add_indom($snmp_indom, \@snmp_dom, 'help', 'long help');
 $pmda->set_fetch(\&fetch);
 $pmda->set_instance(\&instance);
 $pmda->set_fetch_callback(\&fetch_callback);
+
 if ($option->{debug}) {
-    $pmda->log("starting\n");
+    $pmda->log("db=".Dumper($db)."\n");
+    $pmda->log("option=".Dumper($option)."\n");
 }
 $pmda->run;
 
