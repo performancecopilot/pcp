@@ -17,13 +17,19 @@ echo "QA output created by $seq"
 $sudo rm -f $seq.out
 if [ $PCP_PLATFORM = linux ]
 then
-    if [ -f /etc/fedora-release ]
+    if [ $PCP_VER -ge 4000 ]
     then
-	# $seq.out.4 works for Fedora2
-	ln $seq.out.4 $seq.out
+	# /etc/init.d/pmcd and /etc/init.d/pmlogger
+	ln $seq.out.5 $seq.out || exit 1
     else
-	# $seq.out.3 is the old Linux one
-	ln $seq.out.3 $seq.out
+	if [ -f /etc/fedora-release ]
+	then
+	    # $seq.out.4 works for Fedora2
+	    ln $seq.out.4 $seq.out || exit 1
+	else
+	    # $seq.out.3 is the old Linux one
+	    ln $seq.out.3 $seq.out || exit 1
+	fi
     fi
 elif [ $PCP_PLATFORM = irix ]
 then
