@@ -16,13 +16,13 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 # 
-# Remove the bonding PMDA
+# Remove the SNMP PMDA
 #
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-iam=bonding
+iam=snmp
 
 pmdaSetup
 pmdaRemove
