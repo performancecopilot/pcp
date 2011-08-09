@@ -116,7 +116,7 @@ sub db_add_metrics {
 
     # add our version
     $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_STRING,
-        PM_INDOM_NULL, PM_SEM_INSTANT,
+        PM_INDOM_NULL, PM_SEM_DISCRETE,
         pmda_units(0,0,0,0,0,0), "snmp.version", '', '');
 
     for my $e (@{$db->{map}{static}}) {
@@ -180,11 +180,11 @@ sub fetch_callback
 
     my $host = @{$db->{map}{hosts}}[$inst];
     if (!defined $host) {
-        return (PM_ERR_INST, 0);
+        return (PM_ERR_NOTHOST, 0);
     }
     if (!defined $host->{snmp}) {
         # FIXME - a better errno?
-        return (PM_ERR_INST, 0);
+        return (PM_ERR_EOF, 0);
     }
     my $snmp = $host->{snmp};
 
@@ -196,7 +196,7 @@ sub fetch_callback
 
     if (!$result) {
         # FIXME - a better errno?
-        return (PM_ERR_INST, 0);
+        return (PM_ERR_IPC, 0);
     }
     return ($result->{$oid},1);
 }
