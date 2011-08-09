@@ -25,16 +25,26 @@ my @snmp_dom = ();
 
 my $pmda = PCP::PMDA->new('snmp', 56);
 
+sub fetch {
+    if ($option->{debug}) {
+	$pmda->log("fetch\n");
+    }
+}
+sub instance {
+    if ($option->{debug}) {
+	$pmda->log("instance\n");
+    }
+}
+
 sub fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
     my $metric_name = pmda_pmid_name($cluster, $item);
-    my ($path, $name, $value, $fh, @vals);
 
     if ($option->{debug}) {
 	$pmda->log("fetch_callback $metric_name $cluster:$item ($inst)\n");
     }
-    if ($item == 1) {
+    if ($item == 0) {
         return ($VERSION,1);
     } elsif ($item == 2) {
         return (1,1);
@@ -47,14 +57,20 @@ sub fetch_callback
     return (PM_ERR_PMID, 0);
 }
 
-$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_STRING, $snmp_indom, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
 		pmda_units(0,0,0,0,0,0), "snmp.version", '', '');
 $pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U32, $snmp_indom, PM_SEM_INSTANT,
 		pmda_units(0,0,0,0,0,0), "snmp.testu32", '', '');
 
+# fake up a 'dom'
+push @snmp_dom,1,'test1';
+push @snmp_dom,10,'test10';
+
 #add_indom(self,indom,list,help,longhelp)
 $pmda->add_indom($snmp_indom, \@snmp_dom, 'help', 'long help');
 
+$pmda->set_fetch(\&fetch);
+$pmda->set_instance(\&instance);
 $pmda->set_fetch_callback(\&fetch_callback);
 if ($option->{debug}) {
     $pmda->log("starting\n");
