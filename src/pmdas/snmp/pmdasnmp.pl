@@ -14,16 +14,52 @@
 
 use strict;
 use warnings;
+use FileHandle;
 use PCP::PMDA;
 
 our $VERSION='0.1';
 my $option = {};
-$option->{debug}=1;
 
 my $snmp_indom = 0;
 my @snmp_dom = ();
 
 my $pmda = PCP::PMDA->new('snmp', 56);
+
+# Read in the config file(s)
+#
+sub load_config {
+    my $db = shift;
+
+    for my $filename (@_) {
+        my $fh = FileHandle->new($filename) or warn "opening $filename $!";
+
+        while(<$fh>) {
+            chomp; s/\r//g;
+
+            # strip whitespace at the beginning and end of the line
+            s/^\s+//;
+            s/\s+$//;
+
+            # strip comments
+            s/^#.*//;       # line starts with a comment char
+            s/[^\\]#.*//;   # non quoted comment char
+
+            if (m/^$/) {
+                # empty lines, or lines that were all comment
+                next;
+            }
+
+            if (m/^set\s+(\w+)\s+(.*)$/) {
+                # set an option
+                my $key = $1;
+                my $val = $2;
+
+                $option->{$key}=$val;
+            }
+        }
+    }
+    return $db;
+}
 
 sub fetch {
     if ($option->{debug}) {
@@ -56,6 +92,11 @@ sub fetch_callback
 
     return (PM_ERR_PMID, 0);
 }
+
+load_config($db,
+	pmda_config('PCP_PMDAS_DIR').'/snmp/snmp.conf',
+	'snmp.conf'
+);
 
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
 		pmda_units(0,0,0,0,0,0), "snmp.version", '', '');
