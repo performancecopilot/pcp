@@ -120,11 +120,14 @@ sub db_add_metrics {
         pmda_units(0,0,0,0,0,0), "snmp.version", '', '');
 
     for my $e (@{$db->{map}{static}}) {
+        if (!defined $e) {
+            next;
+        }
 	# hack around the too transparent opaque datatype
 	my $cluster = $e->{id} /1024;
 	my $item = $e->{id} %1024;
         $pmda->add_metric(pmda_pmid($cluster,$item),
-            PM_TYPE_STRING,	# FIXME - bound to be wrong!
+            PM_TYPE_U32,	# FIXME - bound to be wrong!
             0, PM_SEM_INSTANT,
             pmda_units(0,0,0,0,0,0),
             'snmp.oid.'.$e->{oid}, $e->{text}, ''
