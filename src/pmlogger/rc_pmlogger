@@ -120,7 +120,6 @@ _start_pmlogger()
     then
 	# pmlogger_check uses $PMLOGCTRL to start everything that is needed
 	#
-	$ECHO $PCP_ECHO_N "Starting pmlogger ..." "$PCP_ECHO_C"
 	if [ ! -f $PMLOGCTRL ]
 	then
 	    echo "$prog:"'
@@ -133,6 +132,7 @@ Error: PCP archive logger control file '$PMLOGCTRL'
 	    # done in the background to avoid delaying the init script,
 	    # failures are notified by mail
 	    #
+	    $ECHO $PCP_ECHO_N "Starting pmlogger ..." "$PCP_ECHO_C"
 	    _start_pmcheck &
 	    # success
 	    true
