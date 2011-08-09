@@ -20,7 +20,40 @@ Updating the PMCD control file, and notifying PMCD ...
 Check kvm metrics have appeared ... X metrics and Y values
 
 === validate values ===
-All good.
+
+=== check values ===
+kvm.efer_reload is in range
+kvm.exits is in range
+kvm.fpu_reload is in range
+kvm.halt_exits is in range
+kvm.halt_wakeup is in range
+kvm.host_state_reload is in range
+kvm.hypercalls is in range
+kvm.insn_emulation is in range
+kvm.insn_emulation_fail is in range
+kvm.invlpg is in range
+kvm.io_exits is in range
+kvm.irq_exits is in range
+kvm.irq_injections is in range
+kvm.irq_window is in range
+kvm.largepages is in range
+kvm.mmio_exits is in range
+kvm.mmu_cache_miss is in range
+kvm.mmu_flooded is in range
+kvm.mmu_pde_zapped is in range
+kvm.mmu_pte_updated is in range
+kvm.mmu_pte_write is in range
+kvm.mmu_recycled is in range
+kvm.mmu_shadow_zapped is in range
+kvm.mmu_unsync is in range
+kvm.nmi_injections is in range
+kvm.nmi_window is in range
+kvm.pf_fixed is in range
+kvm.pf_guest is in range
+kvm.remote_tlb_flush is in range
+kvm.request_irq is in range
+kvm.signal_exits is in range
+kvm.tlb_flush is in range
 
 === remove kvm agent ===
 Culling the Performance Metrics Name Space ...
@@ -28,6 +61,6 @@ kvm ... done
 Updating the PMCD control file, and notifying PMCD ...
 [...removing files...]
 Check kvm metrics have gone away ... OK
-Waiting for PMCD to terminate ...
-Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) ...
-Performance Co-Pilot starting archive loggers ...
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

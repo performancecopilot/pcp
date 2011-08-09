@@ -20,7 +20,7 @@ fi
 
 kvm_stats_path=/sys/kernel/debug/kvm
 
-if [ ! -d $kvm_stats_path ]
+if $sudo [ ! -d $kvm_stats_path ]
 then
     _notrun "KVM sysfs interface not available"
 fi
@@ -29,6 +29,7 @@ echo "QA output created by $seq"
 
 status=1
 done_clean=false
+rm -f $seq.full
 
 _cleanup()
 {
@@ -89,21 +90,32 @@ echo
 echo "=== validate values ==="
 rm -f $tmp.stats $tmp.values $tmp.probe $tmp.diff
 pmprobe -v $iam | LC_COLLATE=POSIX sort > $tmp.probe
-for stat in `find $kvm_stats_path -mindepth 1`
+echo "from pmprobe ..." >>$here/$seq.full
+cat $tmp.probe >>$here/$seq.full
+for stat in `$sudo find $kvm_stats_path -mindepth 1`
 do
-    value=`cat $stat`
+    value=`$sudo cat $stat`
     echo $stat 1 $value | sed -e "s,$kvm_stats_path/,kvm.,g" >> $tmp.stats
 done
 LC_COLLATE=POSIX sort $tmp.stats > $tmp.values
-diff $tmp.values $tmp.probe > $tmp.diff
-if [ $? -ne 0 ]
-then
-    echo "Kernel stats and KVM PMDA exported values differ!"
-    cat $tmp.diff
-    exit
-else
-    echo "All good."
-fi
+echo "from /sys/kernel/debug/kvm ..." >>$here/$seq.full
+cat $tmp.values >>$here/$seq.full
+join $tmp.probe $tmp.values >$tmp.all
+echo >>$here/$seq.full
+cat $tmp.all >>$here/$seq.full
+
+echo
+echo "=== check values ==="
+cat $tmp.all \
+| while read metric n1 vpcp n2 vsys
+do
+    if [ "$n1" = 1 -a "$n2" = 1 ]
+    then
+	_within_tolerance $metric $vpcp $vsys 2% -v
+    else
+	echo "$metric: number of values not 1 as expected: pcp $n1 /sys $n2"
+    fi
+done | tee -a $here/$seq.full
 
 echo
 echo "=== remove $iam agent ==="
