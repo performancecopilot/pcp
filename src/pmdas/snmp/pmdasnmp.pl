@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use FileHandle;
 use PCP::PMDA;
-use Net::SNMP;
+use Net::SNMP qw(:asn1);
 
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
@@ -27,6 +27,39 @@ $Data::Dumper::Useqq = 1;	# PMDA log doesnt like binary :-(
 our $VERSION='0.2';
 my $db = {};
 my $option = {};
+
+# SNMP string type name to numeric type number
+#
+my $snmptype2val = {
+    INTEGER => INTEGER32,
+    INTEGER32 => INTEGER32,
+    OCTET_STRING => OCTET_STRING,
+    OBJECT_IDENTIFIER => OBJECT_IDENTIFIER,
+    IPADDRESS => IPADDRESS,
+    COUNTER => COUNTER32,
+    COUNTER32 => COUNTER32,
+    GAUGE => GAUGE32,
+    GAUGE32 => GAUGE32,
+    UNSIGNED32 => UNSIGNED32,
+    TIMETICKS => TIMETICKS,
+    OPAQUE => OPAQUE,
+    COUNTER64 => COUNTER64,
+};
+
+# SNMP numeric type number to PCP type number
+#
+my $snmptype2pcp = {
+    0x02 => PM_TYPE_32,		# INTEGER32
+    0x04 => PM_TYPE_STRING,	# OCTET_STRING
+    0x06 => PM_TYPE_STRING,	# OBJECT_IDENTIFIER
+    0x40 => PM_TYPE_STRING,	# IPADDRESS
+    0x41 => PM_TYPE_32,		# COUNTER32
+    0x42 => PM_TYPE_32,		# GAUGE32
+    0x42 => PM_TYPE_U32,	# UNSIGNED32
+    0x43 => PM_TYPE_64,		# TIMETICKS
+    0x44 => PM_TYPE_STRING,	# OPAQUE
+    0x46 => PM_TYPE_64,		# COUNTER64
+};
 
 my $pmda = PCP::PMDA->new('snmp', 56);
 
@@ -77,10 +110,14 @@ sub load_config {
 		    $e->{snmp}->translate([-timeticks=>0]);
                 }
                 $db->{hosts}{$1} = $e;
-            } elsif (m/^map\s+(one)\s+(\S+)\s+(\S)\s+(.*)$/) {
+            } elsif (m/^map\s+(\S+)\s+(\S+)\s+(\S)\s+(.*)$/) {
+                if (!defined $snmptype2val->{$2}) {
+                    warn("Invalid SNMP type '$2' on oid '$1'\n");
+                    next;
+                }
                 my $e = {};
-		$e->{type}=$1;
-		$e->{oid}=$2;
+		$e->{oid}=$1;
+		$e->{type}=$snmptype2val->{$2};
 		$e->{id}=$3;
 		$e->{text}=$4;
 		@{$db->{map}{static}}[$3]=$e;
@@ -127,7 +164,7 @@ sub db_add_metrics {
 	my $cluster = $e->{id} /1024;
 	my $item = $e->{id} %1024;
         $pmda->add_metric(pmda_pmid($cluster,$item),
-            PM_TYPE_U32,	# FIXME - bound to be wrong!
+            $snmptype2pcp->{$e->{type}},
             0, PM_SEM_INSTANT,
             pmda_units(0,0,0,0,0,0),
             'snmp.oid.'.$e->{oid}, $e->{text}, ''
@@ -172,11 +209,11 @@ sub fetch_callback
 
     if ($inst == PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
 
-    my $e = @{$db->{map}{static}}[$id];
-    if (!defined $e) {
+    my $map = @{$db->{map}{static}}[$id];
+    if (!defined $map) {
         return (PM_ERR_PMID, 0);
     }
-    my $oid = $e->{oid};
+    my $oid = $map->{oid};
 
     my $host = @{$db->{map}{hosts}}[$inst];
     if (!defined $host) {
@@ -197,6 +234,11 @@ sub fetch_callback
     if (!$result) {
         # FIXME - a better errno?
         return (PM_ERR_IPC, 0);
+    }
+
+    my $types = $snmp->var_bind_types();
+    if ($map->{type} != $types->{$oid}) {
+        return (PM_ERR_CONV, 0);
     }
     return ($result->{$oid},1);
 }
