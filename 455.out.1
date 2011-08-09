@@ -17,36 +17,24 @@ Compiled PMNS contains
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check rsyslog metrics have appeared ... 12 warnings, 12 metrics and 0 values
+Check rsyslog metrics have appeared ... 8 warnings, 8 metrics and 0 values
 
 === validate values ===
 
+rsyslog.mainqueue.size
+    value 1
+
+rsyslog.mainqueue.maxsize
+    value 1182
+
+rsyslog.mainqueue.full
+    value 0
+
+rsyslog.mainqueue.enqueued
+    value 1183
+
 rsyslog.interval
     value 2
-
-rsyslog.elasticsearch.failed
-    value 0
-
-rsyslog.elasticsearch.connfail
-    value 0
-
-rsyslog.elasticsearch.success
-    value 0
-
-rsyslog.elasticsearch.submits
-    value 0
-
-rsyslog.queues.enqueued
-    inst [0 or "main Q"] value 1183
-
-rsyslog.queues.size
-    inst [0 or "main Q"] value 1
-
-rsyslog.queues.maxsize
-    inst [0 or "main Q"] value 1182
-
-rsyslog.queues.full
-    inst [0 or "main Q"] value 0
 
 rsyslog.imuxsock.submitted
     value 85

@@ -38,6 +38,14 @@ _filter()
 
 trap "_cleanup" 0 1 2 3 15
 
+rm -f $seq.out
+if grep rsyslog.elasticsearch.submits $PCP_PMDAS_DIR/rsyslog/pmdarsyslog.pl >/dev/null
+then
+    ln $seq.out.2 $seq.out || exit
+else
+    ln $seq.out.1 $seq.out || exit
+fi
+
 # real QA test starts here
 iam=rsyslog
 cd $PCP_PMDAS_DIR/$iam
