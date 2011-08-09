@@ -16,106 +16,66 @@ use strict;
 use warnings;
 use PCP::PMDA;
 
-my $pmda = PCP::PMDA->new('bonding', 96);
-my $sysfs = '/sys/class/net/';
+our $VERSION='0.1';
+my $option = {};
+$option->{debug}=1;
 
-sub bonding_interface_check
-{
-    my @interfaces = ();
-    my $instanceid = 0;
+my $snmp_indom = 0;
+my @snmp_dom = ();
 
-    if (open(BONDS, $sysfs . 'bonding_masters')) {
-	my @bonds = split / /, <BONDS>;
-	foreach my $bond (@bonds) {
-	    chomp $bond;
-	    push @interfaces, $instanceid++, $bond;
-	}
-	close BONDS;
-    }
-    $pmda->replace_indom(0, \@interfaces);
-}
+my $pmda = PCP::PMDA->new('snmp', 56);
 
-sub bonding_fetch_callback
+sub fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
     my $metric_name = pmda_pmid_name($cluster, $item);
     my ($path, $name, $value, $fh, @vals);
 
-    #$pmda->log("bonding_fetch_callback $metric_name $cluster:$item ($inst)\n");
+    if ($option->{debug}) {
+	$pmda->log("fetch_callback $metric_name $cluster:$item ($inst)\n");
+    }
+    if ($item == 1) {
+        return ($VERSION,1);
+    } elsif ($item == 2) {
+        return (1,1);
+    }
 
     if ($inst == PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
     if (!defined($metric_name))	{ return (PM_ERR_PMID, 0); }
 
-    # special case: failures count from /proc (no sysfs equivalent)
-    if ($item == 7) {
-	$value = 0;
-	$name = '/proc/net/bonding/' . 'bond' . $inst;
-	open($fh, $name) || 	return (PM_ERR_APPVERSION, 0);
-	while (<$fh>) {
-	    if (m/^Link Failure Count: (\d+)$/) { $value += $1; }
-	}
-	close $fh;
-    } else {
-	$name = $metric_name;
-	$path = $sysfs . 'bond' . $inst . '/bonding/';
-	$name =~ s/^bonding\./$path/;
 
-	# special case: mode contains two values (name and type)
-	if ($item == 5) { $name =~ s/\.type$//; }
-	if ($item == 6) { $name =~ s/\.name$//; }
-
-	open($fh, $name) || 	return (PM_ERR_APPVERSION, 0);
-	$value = <$fh>;
-	close $fh;
-
-	if (!defined($value))	{ return (PM_ERR_APPVERSION, 0); }
-	if ($item == 5) { @vals = split / /, $value; $value = $vals[1]; }
-	if ($item == 6) { @vals = split / /, $value; $value = $vals[0]; }
-	chomp $value;
-    }
-
-    return ($value, 1);
+    return (PM_ERR_PMID, 0);
 }
 
-$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_STRING, 0, PM_SEM_INSTANT,
-		pmda_units(0,0,0,0,0,0), "bonding.slaves", '', '');
-$pmda->add_metric(pmda_pmid(0,1), PM_TYPE_STRING, 0, PM_SEM_INSTANT,
-		pmda_units(0,0,0,0,0,0), "bonding.active_slave", '', '');
-$pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U32, 0, PM_SEM_INSTANT,
-		pmda_units(0,0,0,0,0,0), "bonding.use_carrier", '', '');
-$pmda->add_metric(pmda_pmid(0,3), PM_TYPE_U32, 0, PM_SEM_INSTANT,
-		pmda_units(0,1,0,0,PM_TIME_MSEC,0), "bonding.updelay", '', '');
-$pmda->add_metric(pmda_pmid(0,4), PM_TYPE_U32, 0, PM_SEM_INSTANT,
-		pmda_units(0,1,0,0,PM_TIME_MSEC,0), "bonding.downdelay", '', '');
-$pmda->add_metric(pmda_pmid(0,5), PM_TYPE_U32, 0, PM_SEM_INSTANT,
-		pmda_units(0,0,0,0,0,0), "bonding.mode.type", '', '');
-$pmda->add_metric(pmda_pmid(0,6), PM_TYPE_STRING, 0, PM_SEM_INSTANT,
-		pmda_units(0,0,0,0,0,0), "bonding.mode.name", '', '');
-$pmda->add_metric(pmda_pmid(0,7), PM_TYPE_U32, 0, PM_SEM_COUNTER,
-		pmda_units(0,0,1,0,0,PM_COUNT_ONE), "bonding.failures", '', '');
+$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_STRING, $snmp_indom, PM_SEM_INSTANT,
+		pmda_units(0,0,0,0,0,0), "snmp.version", '', '');
+$pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U32, $snmp_indom, PM_SEM_INSTANT,
+		pmda_units(0,0,0,0,0,0), "snmp.testu32", '', '');
 
-$pmda->add_indom(0, [], '', '');
+#add_indom(self,indom,list,help,longhelp)
+$pmda->add_indom($snmp_indom, \@snmp_dom, 'help', 'long help');
 
-$pmda->set_fetch(\&bonding_interface_check);
-$pmda->set_instance(\&bonding_interface_check);
-$pmda->set_fetch_callback(\&bonding_fetch_callback);
+$pmda->set_fetch_callback(\&fetch_callback);
+if ($option->{debug}) {
+    $pmda->log("starting\n");
+}
 $pmda->run;
 
 =pod
 
 =head1 NAME
 
-pmdabonding - Linux bonded interface performance metrics domain agent (PMDA)
+pmdasnmp - Gateway from SNMP to PCP (PMDA)
 
 =head1 DESCRIPTION
 
-B<pmdabonding> is a Performance Metrics Domain Agent (PMDA) which
-exports metric values from bonded network interfaces in the Linux
-kernel.
+B<pmdasnmp> is a Performance Metrics Domain Agent (PMDA) which
+provides a generic gateway from PCP queries from a PCP client to SNMP queries
+to one or more SNMP agents.
 
 =head1 INSTALLATION
 
-If you want access to the names and values for the bonding performance
+If you want access to the SNMP gateway performance
 metrics, do the following as root:
 
 	# cd $PCP_PMDAS_DIR/bonding
@@ -126,7 +86,7 @@ If you want to undo the installation, do the following as root:
 	# cd $PCP_PMDAS_DIR/bonding
 	# ./Remove
 
-B<pmdabonding> is launched by pmcd(1) and should never be executed
+B<pmdasnmp> is launched by pmcd(1) and should never be executed
 directly.  The Install and Remove scripts notify pmcd(1) when
 the agent is installed or removed.
 
@@ -134,20 +94,28 @@ the agent is installed or removed.
 
 =over
 
-=item $PCP_PMDAS_DIR/bonding/Install
+=item $PCP_PMDAS_DIR/snmp/snmp2pcp.conf
 
-installation script for the B<pmdabonding> agent
+optional configuration file for B<pmdasnmp>
 
-=item $PCP_PMDAS_DIR/bonding/Remove
+snmp PMDA for PCP
 
-undo installation script for the B<pmdabonding> agent
+=over
 
-=item $PCP_LOG_DIR/pmcd/bonding.log
+=item $PCP_PMDAS_DIR/snmp/Install
 
-default log file for error messages from B<pmdabonding>
+installation script for the B<pmdasnmp> agent
+
+=item $PCP_PMDAS_DIR/snmp/Remove
+
+undo installation script for the B<pmdasnmp> agent
+
+=item $PCP_LOG_DIR/pmcd/snmp.log
+
+default log file for error messages from B<pmdasnmp>
 
 =back
 
 =head1 SEE ALSO
 
-pmcd(1) and ifenslave(8).
+pmcd(1) and snmp
