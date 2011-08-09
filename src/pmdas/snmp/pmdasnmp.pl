@@ -24,7 +24,7 @@ $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Quotekeys = 0;
 $Data::Dumper::Useqq = 1;	# PMDA log doesnt like binary :-(
 
-our $VERSION='0.1';
+our $VERSION='0.2';
 my $db = {};
 my $option = {};
 
@@ -77,8 +77,15 @@ sub load_config {
 		    $e->{snmp}->translate([-timeticks=>0]);
                 }
                 $db->{hosts}{$1} = $e;
+            } elsif (m/^map\s+(one)\s+(\S+)\s+(\S)\s+(.*)$/) {
+                my $e = {};
+		$e->{type}=$1;
+		$e->{oid}=$2;
+		$e->{id}=$3;
+		$e->{text}=$4;
+		@{$db->{map}{static}}[$3]=$e;
             }
-            # TODO - add map, mib, maxstatic
+            # TODO - add map tree, mib load, maxstatic
         }
     }
     return $db;
@@ -92,10 +99,37 @@ sub hosts_indom {
 	my @dom;
 	my $i=0;
 
-	for my $host (keys %{$db->{hosts}}) {
-		push @dom,$i++,$host;
+	for my $e (values %{$db->{hosts}}) {
+		push @dom,$i,$e->{id};
+		@{$db->{map}{hosts}}[$i] = $e;
+		$i++;
 	}
 	return \@dom;
+}
+
+# Using the mappings, define all the metrics
+#
+sub db_add_metrics {
+    my ($db) = @_;
+
+    #$pmda->clear_metrics();
+
+    # add our version
+    $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_STRING,
+        PM_INDOM_NULL, PM_SEM_INSTANT,
+        pmda_units(0,0,0,0,0,0), "snmp.version", '', '');
+
+    for my $e (@{$db->{map}{static}}) {
+	# hack around the too transparent opaque datatype
+	my $cluster = $e->{id} /1024;
+	my $item = $e->{id} %1024;
+        $pmda->add_metric(pmda_pmid($cluster,$item),
+            PM_TYPE_STRING,	# FIXME - bound to be wrong!
+            0, PM_SEM_INSTANT,
+            pmda_units(0,0,0,0,0,0),
+            'snmp.oid.'.$e->{oid}, $e->{text}, ''
+        );
+    }
 }
 
 # debug when fetch is called
@@ -119,22 +153,49 @@ sub instance {
 sub fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
-    my $metric_name = pmda_pmid_name($cluster, $item);
+    my $id = $cluster*1024 + $item;
 
     if ($option->{debug}) {
+        my $metric_name = pmda_pmid_name($cluster, $item);
 	$pmda->log("fetch_callback $metric_name $cluster:$item ($inst)\n");
     }
-    if ($item == 0) {
+
+    if ($id == 0) {
         return ($VERSION,1);
-    } elsif ($item == 2) {
+    }
+    if ($id == 2) {
         return (1,1);
     }
 
     if ($inst == PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
-    if (!defined($metric_name))	{ return (PM_ERR_PMID, 0); }
 
+    my $e = @{$db->{map}{static}}[$id];
+    if (!defined $e) {
+        return (PM_ERR_PMID, 0);
+    }
+    my $oid = $e->{oid};
 
-    return (PM_ERR_PMID, 0);
+    my $host = @{$db->{map}{hosts}}[$inst];
+    if (!defined $host) {
+        return (PM_ERR_INST, 0);
+    }
+    if (!defined $host->{snmp}) {
+        # FIXME - a better errno?
+        return (PM_ERR_INST, 0);
+    }
+    my $snmp = $host->{snmp};
+
+    my $result = $snmp->get_request(
+        -varbindlist=>[
+            $oid,
+        ]
+    );
+
+    if (!$result) {
+        # FIXME - a better errno?
+        return (PM_ERR_INST, 0);
+    }
+    return ($result->{$oid},1);
 }
 
 load_config($db,
@@ -145,10 +206,7 @@ load_config($db,
 #add_indom(self,indom,list,help,longhelp)
 $pmda->add_indom(0,hosts_indom($db),'SNMP hosts','');
 
-$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
-		pmda_units(0,0,0,0,0,0), "snmp.version", '', '');
-$pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U32, 0, PM_SEM_INSTANT,
-		pmda_units(0,0,0,0,0,0), "snmp.testu32", '', '');
+db_add_metrics($db);
 
 $pmda->set_fetch(\&fetch);
 $pmda->set_instance(\&instance);
