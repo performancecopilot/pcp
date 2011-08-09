@@ -173,6 +173,8 @@ sub db_add_metrics {
 }
 
 # debug when fetch is called
+# fetch_func is called with no params during a "fetch", after refreshing the
+# PMNS befure calling refresh_func
 #
 sub fetch {
     if ($option->{debug}) {
@@ -181,15 +183,27 @@ sub fetch {
 }
 
 # debug when instance is called
+# instance_func is called with "indom" param during a "instance", after
+# refreshing the PMNS befure calling pmdaInstance
 #
 sub instance {
+    my ($indom) = @_;
     if ($option->{debug}) {
-	$pmda->log("instance\n");
+	$pmda->log("instance $indom\n");
     }
 }
 
+# refresh_func is called with "clustertab[index]"
+# in "refresh", "fetch",
+
+# input_cb_func is called with "data", "string"
+# in ?
+
+# store_cb_func is called with params
+# in "store_callback"
+
 # actually fetch a metric
-#
+# fetch_cb_func is called with "cluster", "item", "inst" in "fetch_callback"
 sub fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
