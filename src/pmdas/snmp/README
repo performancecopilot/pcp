@@ -1,0 +1,43 @@
+The snmp2pcp gateway is a PCP agent plugin that allows PCP clients to query
+for data from SNMP agents.
+
+The PCP names that are exported are (currently)
+
+	snmp.$snmphostname.oid.$oid
+
+In the future I hope to propose an extension to the PCP agent protocol to all
+the use of virtual hostnames, which would change the names exported.
+
+I also hope in the future to load in full MIB names, which would also
+change the exported names to make them more readable.
+
+As oids are queried for by the PCP client, this gateway will dynamically
+create mappings between the PCP internal ID and the SNMP OID.
+This creates limitations on the total number of mappings available.
+
+SNMP uses a open ended hierachical namespace with a potentially unlimited
+number of values.  MIB files on the SNMP client are used to map between
+dotted names and dotted numbers.
+
+PCP uses a 64bit value to uniquely identify each available metric.  This is
+divided into:
+	8 bits - "domain" number (./src/pmns/Make.stdpmid gives 56-58 to SNMP)
+	24 bits - "cluster/item" number identifying the metric
+	32 bits - "instance" of the metric
+PCP uses an open ended dotted text name to translate to this fixed 64bit value.
+The PCP agent sends the text to number mapping to the PCP client as needed.
+
+This gateway will be configured with a config file:
+* define each snmp hostname and credentials
+* define a list of MIB namespaces to load (future)
+* define a list of static oid -> PCP mappings (including room for tables..)
+* define a "high water mark" for static mappings
+
+If a query comes in for a static mapping, then the PCP value from the
+config is used every time.  If a query for a new mapping is received
+then the gateway dynamically allocates the next free ID (starting from
+MAXINT working downwards).  This dynamic mapping might change on gateway
+restarts or on idle timeouts.
+
+TODO: define config file format here
+
