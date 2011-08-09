@@ -28,8 +28,6 @@ our $VERSION='0.1';
 my $db = {};
 my $option = {};
 
-my @snmp_dom = ();
-
 my $pmda = PCP::PMDA->new('snmp', 56);
 
 # Read in the config file(s)
@@ -151,11 +149,6 @@ $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
 		pmda_units(0,0,0,0,0,0), "snmp.version", '', '');
 $pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U32, 0, PM_SEM_INSTANT,
 		pmda_units(0,0,0,0,0,0), "snmp.testu32", '', '');
-
-# fake up a 'dom'
-push @snmp_dom,1,'test1';
-push @snmp_dom,10,'test10';
-
 
 $pmda->set_fetch(\&fetch);
 $pmda->set_instance(\&instance);
