@@ -1267,7 +1267,7 @@ hotproc_store(pmResult *result, pmdaExt *pmda)
     pmAtomValue av;
 
     if (!allow_stores) {
-	return -EACCES;
+	return PM_ERR_PERMISSION;
     }
 
     for (i = 0; i < result->numpmid; i++) {
@@ -1289,12 +1289,12 @@ hotproc_store(pmResult *result, pmdaExt *pmda)
 		    }
 		    break;
 		default:
-		    sts = -EACCES;
+		    sts = PM_ERR_PERMISSION;
 		    break;
 	    }
 	}
 	else {
-	    sts = -EACCES;
+	    sts = PM_ERR_PERMISSION;
 	}
 
 	if (sts < 0)

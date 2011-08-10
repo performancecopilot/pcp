@@ -755,12 +755,12 @@ mmv_store(pmResult *result, pmdaExt *ep)
 		    else if (id->item == 1)
 		    	pmDebug = atom.l;
 		    else
-			return -EACCES;
+			return PM_ERR_PERMISSION;
 		}
 	    }
 	}
 	else
-	    return -EACCES;
+	    return PM_ERR_PERMISSION;
     }
     return 0;
 }

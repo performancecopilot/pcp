@@ -2500,7 +2500,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 		break;
 
 	    default:
-		sts = -EACCES;
+		sts = PM_ERR_PERMISSION;
 		break;
 
 	}
@@ -2618,7 +2618,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 		event_set_fetch_count(av.l);
 		break;
 	    default:
-		sts = -EACCES;
+		sts = PM_ERR_PERMISSION;
 		break;
 	}
     }

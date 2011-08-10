@@ -6665,7 +6665,7 @@ linux_store(pmResult *result, pmdaExt *pmda)
 	    sts = PM_ERR_APPVERSION;
 	} 
 	else {
-	    sts = -EACCES;
+	    sts = PM_ERR_PERMISSION;
 	}
     }
     return sts;
