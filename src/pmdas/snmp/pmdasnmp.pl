@@ -50,16 +50,16 @@ my $snmptype2val = {
 # SNMP numeric type number to PCP type number
 #
 my $snmptype2pcp = {
-    0x02 => PM_TYPE_32,		# INTEGER32
-    0x04 => PM_TYPE_STRING,	# OCTET_STRING
-    0x06 => PM_TYPE_STRING,	# OBJECT_IDENTIFIER
-    0x40 => PM_TYPE_STRING,	# IPADDRESS
-    0x41 => PM_TYPE_32,		# COUNTER32
-    0x42 => PM_TYPE_32,		# GAUGE32
-    0x42 => PM_TYPE_U32,	# UNSIGNED32
-    0x43 => PM_TYPE_64,		# TIMETICKS
-    0x44 => PM_TYPE_STRING,	# OPAQUE
-    0x46 => PM_TYPE_64,		# COUNTER64
+    0x02 => { type=> PM_TYPE_32, sem=> PM_SEM_INSTANT },	# INTEGER32
+    0x04 => { type=> PM_TYPE_STRING, sem=> PM_SEM_DISCRETE },	# OCTET_STRING
+    0x06 => { type=> PM_TYPE_STRING, sem=> PM_SEM_DISCRETE },	# OBJECT_IDENTIFIER
+    0x40 => { type=> PM_TYPE_STRING, sem=> PM_SEM_DISCRETE },	# IPADDRESS
+    0x41 => { type=> PM_TYPE_32, sem=> PM_SEM_COUNTER },	# COUNTER32
+    0x42 => { type=> PM_TYPE_32, sem=> PM_SEM_INSTANT },	# GAUGE32
+    0x42 => { type=> PM_TYPE_U32, sem=> PM_SEM_INSTANT },	# UNSIGNED32
+    0x43 => { type=> PM_TYPE_64, sem=> PM_SEM_COUNTER },	# TIMETICKS
+    0x44 => { type=> PM_TYPE_STRING, sem=> PM_SEM_DISCRETE },	# OPAQUE
+    0x46 => { type=> PM_TYPE_64, sem=> PM_SEM_COUNTER },	# COUNTER64
 };
 
 my $pmda = PCP::PMDA->new('snmp', 56);
@@ -177,8 +177,8 @@ sub db_add_metrics {
             next;
         }
         $pmda->add_metric(pmda_pmid($cluster,$item),
-            $type,
-            0, PM_SEM_INSTANT,
+            $type->{type},
+            0, $type->{sem},
             pmda_units(0,0,0,0,0,0),
             'snmp.oid.'.$e->{oid}, $e->{text}, ''
         );
