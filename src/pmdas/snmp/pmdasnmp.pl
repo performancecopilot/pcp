@@ -237,7 +237,7 @@ sub db_add_metrics {
 #
 sub fetch {
     if ($option->{debug}) {
-	$pmda->log("fetch\n");
+	$pmda->log("fetch");
     }
 }
 
@@ -248,7 +248,7 @@ sub fetch {
 sub instance {
     my ($indom) = @_;
     if ($option->{debug}) {
-	$pmda->log("instance $indom\n");
+	$pmda->log("instance $indom");
     }
 }
 
@@ -270,7 +270,7 @@ sub fetch_callback
 
     if ($option->{debug}) {
         my $metric_name = pmda_pmid_name($cluster, $item);
-	$pmda->log("fetch_callback $metric_name $cluster:$item ($inst)\n");
+	$pmda->log("fetch_callback $metric_name $cluster:$item ($inst)");
     }
 
     if ($id == 0) {
