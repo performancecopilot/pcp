@@ -161,6 +161,24 @@ sub hosts_indom {
 	return \@dom;
 }
 
+# Create both the hosts and hostrows indom
+sub db_create_indom {
+    my ($db) = @_;
+
+    #add_indom(self,indom,list,help,longhelp)
+    $pmda->add_indom($dom_hosts,hosts_indom($db),'SNMP hosts','');
+
+    my @dom;
+    for my $host (values %{$db->{hosts}}) {
+        for my $row (0..$db->{max}{rows}) {
+            my $domid = $host->{id} * $db->{max}{hosts} + $row;
+            my $domname = $host->{hostname}.'/'.$row;
+            push @dom,$domid,$domname;
+        }
+    }
+    $pmda->add_indom($dom_hostrows,\@dom,'SNMP host rows','');
+}
+
 # Using the mappings, define all the metrics
 #
 sub db_add_metrics {
@@ -284,8 +302,7 @@ load_config($db,
 #	'snmp.conf'
 );
 
-#add_indom(self,indom,list,help,longhelp)
-$pmda->add_indom(0,hosts_indom($db),'SNMP hosts','');
+db_create_indom($db);
 
 db_add_metrics($db);
 
