@@ -117,11 +117,18 @@ sub load_config {
                     next;
                 }
                 my $e = {};
+                my $id = $3;
+                if ($id eq '+') {
+                    # select the next available number
+                    $id = scalar @{$db->{map}{static}};
+                }
 		$e->{oid}=$1;
 		$e->{type}=$snmptype2val->{$2};
-		$e->{id}=$3;
+		$e->{id}=$id;
 		$e->{text}=$4;
-		@{$db->{map}{static}}[$3]=$e;
+		@{$db->{map}{static}}[$id]=$e;
+            } else {
+                warn("Unrecognised config line: $_\n");
             }
             # TODO - add map tree, mib load, maxstatic
         }
