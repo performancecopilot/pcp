@@ -289,12 +289,17 @@ sub fetch_callback
     my $oid = $map->{oid};
 
     my $hostnr;
+    my $rownr = -1;
     if ($map->{indom} == $dom_hostrows) {
         $hostnr = $inst % $db->{max}{hosts};
-        my $rownr = int($inst / $db->{max}{hosts});
+        $rownr = int($inst / $db->{max}{hosts});
         $oid.='.'.$rownr;
     } else {
         $hostnr = $inst;
+    }
+
+    if ($option->{debug}) {
+	$pmda->log("fetch_callback hostnr=$hostnr rownr=$rownr");
     }
 
     my $host = @{$db->{map}{hosts}}[$hostnr];
