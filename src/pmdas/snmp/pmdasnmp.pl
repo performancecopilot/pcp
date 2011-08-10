@@ -121,21 +121,23 @@ sub load_config {
 		    $e->{snmp}->translate([-timeticks=>0]);
                 }
                 $db->{hosts}{$1} = $e;
-            } elsif (m/^map\s+(\S+)\s+(\S+)\s+(\S+)\s+(.*)$/) {
-                if (!defined $snmptype2val->{$2}) {
-                    warn("Invalid SNMP type '$2' on oid '$1'\n");
+            } elsif (m/^map\s+(single|column)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.*)$/) {
+                my $snmptype = $snmptype2val->{$3};
+                if (!defined $snmptype) {
+                    warn("Invalid SNMP type '$3' on oid '$2'\n");
                     next;
                 }
                 my $e = {};
-                my $id = $3;
+                my $id = $4;
                 if ($id eq '+') {
                     # select the next available number
                     $id = scalar @{$db->{map}{static}};
                 }
-		$e->{oid}=$1;
-		$e->{type}=$snmptype2val->{$2};
+                $e->{type}=$1;
+		$e->{oid}=$2;
+		$e->{snmptype}=$snmptype;
 		$e->{id}=$id;
-		$e->{text}=$4;
+		$e->{text}=$5;
 		@{$db->{map}{static}}[$id]=$e;
             } else {
                 warn("Unrecognised config line: $_\n");
@@ -203,16 +205,26 @@ sub db_add_metrics {
             next;
         }
         # hack around the too transparent opaque datatype
-        my $cluster = $e->{id} /1024;
+        my $cluster = int($e->{id} /1024);
         my $item = $e->{id} %1024;
-        my $type = $snmptype2pcp->{$e->{type}};
+        my $type = $snmptype2pcp->{$e->{snmptype}};
         if (!defined $type) {
             warn("Unknown type=$type for id=$e->{id}\n");
             next;
         }
+        my $indom;
+        if ($e->{type} eq 'single') {
+            $indom = $dom_hosts;
+        } elsif ($e->{type} eq 'column') {
+            $indom = $dom_hostrows;
+        } else {
+            warn("Unknown map type = $e->{type}\n");
+            next;
+        }
+        $e->{indom} = $indom;
         $pmda->add_metric(pmda_pmid($cluster,$item),
             $type->{type},
-            $dom_hosts, $type->{sem},
+            $indom, $type->{sem},
             pmda_units(0,0,0,0,0,0),
             'snmp.oid.'.$e->{oid}, $e->{text}, ''
         );
@@ -276,7 +288,16 @@ sub fetch_callback
     }
     my $oid = $map->{oid};
 
-    my $host = @{$db->{map}{hosts}}[$inst];
+    my $hostnr;
+    if ($map->{indom} == $dom_hostrows) {
+        $hostnr = $inst % $db->{max}{hosts};
+        my $rownr = int($inst / $db->{max}{hosts});
+        $oid.='.'.$rownr;
+    } else {
+        $hostnr = $inst;
+    }
+
+    my $host = @{$db->{map}{hosts}}[$hostnr];
     if (!defined $host) {
         return (PM_ERR_NOTHOST, 0);
     }
@@ -298,7 +319,7 @@ sub fetch_callback
     }
 
     my $types = $snmp->var_bind_types();
-    if ($map->{type} != $types->{$oid}) {
+    if ($map->{snmptype} != $types->{$oid}) {
         return (PM_ERR_CONV, 0);
     }
     return ($result->{$oid},1);
