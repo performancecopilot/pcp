@@ -313,7 +313,7 @@ summary_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt * ex)
 static int
 summary_store(pmResult *result, pmdaExt * ex)
 {
-    return -EACCES;
+    return PM_ERR_PERMISSION;
 }
 
 void
