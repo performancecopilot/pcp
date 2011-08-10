@@ -54,7 +54,7 @@ my $snmptype2pcp = {
     0x04 => { type=> PM_TYPE_STRING, sem=> PM_SEM_DISCRETE },	# OCTET_STRING
     0x06 => { type=> PM_TYPE_STRING, sem=> PM_SEM_DISCRETE },	# OBJECT_IDENTIFIER
     0x40 => { type=> PM_TYPE_STRING, sem=> PM_SEM_DISCRETE },	# IPADDRESS
-    0x41 => { type=> PM_TYPE_32, sem=> PM_SEM_COUNTER },	# COUNTER32
+    0x41 => { type=> PM_TYPE_U32, sem=> PM_SEM_COUNTER },	# COUNTER32
     0x42 => { type=> PM_TYPE_32, sem=> PM_SEM_INSTANT },	# GAUGE32
     0x42 => { type=> PM_TYPE_U32, sem=> PM_SEM_INSTANT },	# UNSIGNED32
     0x43 => { type=> PM_TYPE_64, sem=> PM_SEM_COUNTER },	# TIMETICKS
