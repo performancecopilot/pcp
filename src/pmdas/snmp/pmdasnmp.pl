@@ -272,7 +272,7 @@ sub fetch_callback
 
 load_config($db,
 	pmda_config('PCP_PMDAS_DIR').'/snmp/snmp.conf',
-	'snmp.conf'
+#	'snmp.conf'
 );
 
 #add_indom(self,indom,list,help,longhelp)
