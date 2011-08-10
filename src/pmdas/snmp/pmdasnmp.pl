@@ -99,15 +99,15 @@ sub load_config {
                 $option->{$key}=$val;
             } elsif (m/^host\s+(\S+)\s+(.*)$/) {
 		my $e = {};
-		$e->{id}=$1;
+		$e->{hostname}=$1;
 		$e->{community}=$2;
 
                 my ($session,$error) = Net::SNMP->session(
-                    -hostname =>$e->{id},
+                    -hostname =>$e->{hostname},
                     -community=>$e->{community},
                 );
                 if (!$session) {
-                    warn("SNMP session to $e->{id}: $error");
+                    warn("SNMP session to $e->{hostname}: $error");
                     $e->{error}=$error;
                 } else {
                     $e->{snmp}=$session;
