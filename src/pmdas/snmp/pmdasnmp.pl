@@ -136,6 +136,11 @@ sub load_config {
             # TODO - add map tree, mib load, maxstatic
         }
     }
+
+    $db->{max}{hosts} = scalar keys %{$db->{hosts}};
+    $db->{max}{static} = scalar @{$db->{map}{static}};
+    $db->{max}{rows} = 100; # FIXME - load from config
+
     return $db;
 }
 
@@ -148,8 +153,9 @@ sub hosts_indom {
 	my $i=0;
 
 	for my $e (values %{$db->{hosts}}) {
-		push @dom,$i,$e->{id};
+		push @dom,$i,$e->{hostname};
 		@{$db->{map}{hosts}}[$i] = $e;
+		$e->{id} = $i;
 		$i++;
 	}
 	return \@dom;
