@@ -72,6 +72,13 @@ my $pmda = PCP::PMDA->new('snmp', 56);
 sub load_config {
     my $db = shift;
 
+    if (!defined $db->{hosts}) {
+        $db->{hosts} = {};
+    }
+    if (!defined $db->{map}) {
+        $db->{map} = {};
+    }
+
     for my $filename (@_) {
         my $fh = FileHandle->new($filename) or warn "opening $filename $!";
 
