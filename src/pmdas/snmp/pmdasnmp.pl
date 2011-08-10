@@ -168,11 +168,16 @@ sub db_add_metrics {
         if (!defined $e) {
             next;
         }
-	# hack around the too transparent opaque datatype
-	my $cluster = $e->{id} /1024;
-	my $item = $e->{id} %1024;
+        # hack around the too transparent opaque datatype
+        my $cluster = $e->{id} /1024;
+        my $item = $e->{id} %1024;
+        my $type = $snmptype2pcp->{$e->{type}};
+        if (!defined $type) {
+            warn("Unknown type=$type for id=$e->{id}\n");
+            next;
+        }
         $pmda->add_metric(pmda_pmid($cluster,$item),
-            $snmptype2pcp->{$e->{type}},
+            $type,
             0, PM_SEM_INSTANT,
             pmda_units(0,0,0,0,0,0),
             'snmp.oid.'.$e->{oid}, $e->{text}, ''
