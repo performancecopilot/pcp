@@ -62,6 +62,9 @@ my $snmptype2pcp = {
     0x46 => { type=> PM_TYPE_64, sem=> PM_SEM_COUNTER },	# COUNTER64
 };
 
+my $dom_hosts = 0;	# this indom nr used for a list of known hosts
+my $dom_hostrows = 1;	# this indom nr used for known hosts and row nrs
+
 my $pmda = PCP::PMDA->new('snmp', 56);
 
 # Read in the config file(s)
@@ -178,7 +181,7 @@ sub db_add_metrics {
         }
         $pmda->add_metric(pmda_pmid($cluster,$item),
             $type->{type},
-            0, $type->{sem},
+            $dom_hosts, $type->{sem},
             pmda_units(0,0,0,0,0,0),
             'snmp.oid.'.$e->{oid}, $e->{text}, ''
         );
