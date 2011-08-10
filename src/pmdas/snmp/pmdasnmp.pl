@@ -180,7 +180,7 @@ sub db_create_indom {
     my @dom;
     for my $host (values %{$db->{hosts}}) {
         for my $row (0..$db->{max}{rows}) {
-            my $domid = $host->{id} * $db->{max}{hosts} + $row;
+            my $domid = $row * $db->{max}{hosts} + $host->{id};
             my $domname = $host->{hostname}.'/'.$row;
             push @dom,$domid,$domname;
         }
