@@ -111,7 +111,7 @@ sub load_config {
 		    $e->{snmp}->translate([-timeticks=>0]);
                 }
                 $db->{hosts}{$1} = $e;
-            } elsif (m/^map\s+(\S+)\s+(\S+)\s+(\S)\s+(.*)$/) {
+            } elsif (m/^map\s+(\S+)\s+(\S+)\s+(\S+)\s+(.*)$/) {
                 if (!defined $snmptype2val->{$2}) {
                     warn("Invalid SNMP type '$2' on oid '$1'\n");
                     next;
