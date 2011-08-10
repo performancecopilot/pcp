@@ -45,7 +45,8 @@ _filter2()
 	-e '/IPC table fd/s/:.*/: .../' \
 	-e '/__pmSendCreds/s/:.*/: .../' \
 	-e '/NotifyEndLocalContext: /s/:.*/: .../' \
-	-e '/value /s/ [0-9].*/ NUMBER/'
+	-e '/value /s/ [0-9].*/ NUMBER/' \
+	-e 's/Permission denied/No permission to perform requested operation/'
 }
 
 # simple PMDA is using PMDA_INTERFACE_2

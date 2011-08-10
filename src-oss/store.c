@@ -200,8 +200,8 @@ main(int argc, char **argv)
 
     old->numpmid++;	/* cannot change sampledso.long.one */
     n = pmStore(old);
-    if (n != -EACCES) {
-	printf("ERROR: expected EACCES error\n");
+    if (n != -EACCES && n != PM_ERR_PERMISSION) {
+	printf("ERROR: expected EACCES or PM_ERR_PERMISSION error\n");
 	printf("pmStore all 3: %s\n", pmErrStr(n));
 	exit(1);
     }

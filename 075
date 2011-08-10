@@ -46,7 +46,8 @@ _cmd()
 	    echo "Snarf! $* ($# args)"
 	    exit 1
 	    ;;
-    esac
+    esac \
+    | sed -e 's/Permission denied/No permission to perform requested operation/'
 }
 
 rm -f $seq.out

@@ -49,6 +49,7 @@ _filter()
 	-e '/^dbpmda> $/d' \
 	-e '/pmResult/s/0x[^ ]*/ADDR/g' \
 	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9]/TIMEZONE/g' \
+	-e 's/Permission denied/No permission to perform requested operation/' \
         -e '/Error PDU/s/One-line/Oneline/'
 
 # last sed substitution thanks to pv:937345 which changed the wording
