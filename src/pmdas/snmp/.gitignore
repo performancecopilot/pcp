@@ -5,3 +5,6 @@ pmns
 
 # this log file is created when hand running the module to test it
 snmp.log
+
+# This is the exported PDF version of the presentation
+snmp2pcp.pdf
