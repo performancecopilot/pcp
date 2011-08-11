@@ -1,7 +1,5 @@
-The snmp2pcp gateway is a PCP agent plugin that allows PCP clients to query
+The PCP SNMP gateway PMDA is a plugin that allows PCP clients to query
 for data from SNMP agents.
-
-NOTE: does not and will not support setting snmp values
 
 Depends on perl modules:
 PCP::PMDA	libpcp-pmda-perl
@@ -10,6 +8,7 @@ Net::SNMP	libnet-snmp-perl
 The PCP names that are exported are (currently)
 
 	snmp.oid.$oid[$hostname]
+	snmp.oid.$oid[$hostname/$rownr]
 
 In the future I hope to propose an extension to the PCP agent protocol to all
 the use of virtual hostnames, which would change the names exported.
@@ -17,13 +16,15 @@ the use of virtual hostnames, which would change the names exported.
 I also hope in the future to load in full MIB names, which would also
 change the exported names to make them more readable.
 
-As oids are queried for by the PCP client, this gateway will dynamically
-create mappings between the PCP internal ID and the SNMP OID.
-This creates limitations on the total number of mappings available.
+Also as a future target, As oids are queried for by the PCP client,
+this gateway will dynamically create mappings between the PCP internal
+ID and the SNMP OID.  This creates limitations on the total number of
+mappings available.
 
 SNMP uses a open ended hierachical namespace with a potentially unlimited
 number of values.  MIB files on the SNMP client are used to map between
-dotted names and dotted numbers.
+dotted names and dotted numbers.  These MIB files also provide type
+information and help text for each OID
 
 PCP uses a 64bit value to uniquely identify each available metric.  This is
 divided into:
