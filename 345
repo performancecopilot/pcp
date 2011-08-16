@@ -79,7 +79,7 @@ do
 		_filter <$tmp.raw \
 		| LC_COLLATE=POSIX sort >$tmp.base
 	    else
-		pminfo -c $tmp.derive $args $metric_args >$tmp.raw
+		$sudo pminfo -c $tmp.derive $args $metric_args >$tmp.raw
 		echo "=== $args $metric_args" >>$seq.full
 		cat $tmp.raw >>$seq.full
 		_filter <$tmp.raw \

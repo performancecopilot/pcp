@@ -156,10 +156,10 @@ for args in sampledso.suba.subb.subc.subd.six sampledso.suba.subb sampledso \
 do
     echo | tee -a $seq.full
     echo "=== -L $args ===" | tee -a $seq.full
-    pminfo -L -c $tmp.config $args >$tmp.out 2>&1
+    $sudo pminfo -L -c $tmp.config $args >$tmp.out 2>&1
     _filter
     echo "=== -L -f $args ===" | tee -a $seq.full
-    pminfo -L -c $tmp.config -f $args >$tmp.out 2>&1
+    $sudo pminfo -L -c $tmp.config -f $args >$tmp.out 2>&1
     _filter \
     | $PCP_AWK_PROG '
 NF == 0	{ want = 0; next }
@@ -167,7 +167,7 @@ $1 == "sampledso.one"	{ print ""; want = 1 }
 $1 ~ /^sampledso\.suba\./	{ print ""; want = 1 }
 want == 1		{ print }'
     echo "=== -n .../root -L ===" | tee -a $seq.full
-    pminfo -L -c $tmp.config -n $PCP_VAR_DIR/pmns/root $args >$tmp.out 2>&1
+    $sudo pminfo -L -c $tmp.config -n $PCP_VAR_DIR/pmns/root $args >$tmp.out 2>&1
     _filter
     echo "=== -n .../root ===" | tee -a $seq.full
     export PCP_DERIVED_CONFIG=$tmp.config

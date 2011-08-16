@@ -16,7 +16,7 @@ in
     irix)
 	ln $seq-irix.out $seq.out || exit 1
 	;;
-    linux|darwin)
+    linux|darwin|solaris)
 	ln $seq-linux.out $seq.out || exit 1
 	;;
     *)

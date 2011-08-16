@@ -21,7 +21,7 @@ in
     irix|linux)
 	ln $seq.$PCP_PLATFORM $seq.out || exit 1
 	;;
-    darwin)
+    darwin|solaris)
 	ln $seq.linux $seq.out || exit 1
 	;;
     *)

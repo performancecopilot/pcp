@@ -47,6 +47,17 @@ iops = $delta * ($dsk.total@0 - $dsk.total@1);
 resp = $delta * 1000 * ($dsk.avactive@0 - $dsk.avactive@1);
 End-of-File
 
+elif [ $PCP_PLATFORM = solaris ]
+then
+
+cat >$tmp.conf <<'End-of-File'
+dsk = "disk.dev";
+total0 = $delta * $dsk.total@0;
+total1 = $delta * $dsk.total@1;
+iops = $delta * ($dsk.total@0 - $dsk.total@1);
+resp = $delta * 1000 * ($dsk.run.time@0 - $dsk.run.time@1);
+End-of-File
+
 else
     bozo!
 fi
@@ -81,6 +92,18 @@ total1 = $delta * $dsk.total@1;
 iops = $delta * ($dsk.total@0 - $dsk.total@1);
 resp = $delta * 1000 * ($dsk.avactive@0 - $dsk.avactive@1);
 avg = $delta * 1000 * ($dsk.avactive@0 - $dsk.avactive@1) / ($dsk.total@0 - $dsk.total@1);
+End-of-File
+
+elif [ $PCP_PLATFORM = solaris ]
+then
+
+cat >$tmp.conf <<'End-of-File'
+dsk = "disk.dev";
+total0 = $delta * $dsk.total@0;
+total1 = $delta * $dsk.total@1;
+iops = $delta * ($dsk.total@0 - $dsk.total@1);
+resp = $delta * 1000 * ($dsk.run.time@0 - $dsk.run.time@1);
+avg = $delta * 1000 * ($dsk.run.time@0 - $dsk.run.time@1) / ($dsk.total@0 - $dsk.total@1);
 End-of-File
 
 else

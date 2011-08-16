@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 
 rm -f $seq.out
-if [ $PCP_PLATFORM = "darwin" ]
+if [ $PCP_PLATFORM = "darwin" -o $PCP_PLATFORM = "solaris" ]
 then
     ln $seq.out.darwin $seq.out
 else

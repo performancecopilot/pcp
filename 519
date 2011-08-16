@@ -21,7 +21,7 @@ in
 	ln $seq.$PCP_PLATFORM $seq.out || exit 1
 	SYSLOG_OPT='"-p daemon.info"'
 	;;
-    darwin)
+    darwin|solaris)
 	ln $seq.linux $seq.out || exit 1
 	SYSLOG_OPT=''
 	;;
