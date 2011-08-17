@@ -6,7 +6,7 @@
 
 <service_bundle type='manifest' name='pcp'>
 
-<service name='application/pcp/pmcd' type='service' version='1'>
+<service name='application/pcp/pcp' type='service' version='1'>
 	<create_default_instance enabled='false' />
 	<single_instance />
 	<dependency name='root' grouping='require_all' restart_on='none'
