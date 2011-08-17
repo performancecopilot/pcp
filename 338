@@ -14,8 +14,9 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # check for new version ... may need -o to force "old style" behaviour
+# -+ is trying to force the Usage message on all platforms
 #
-if pmlogger_daily -\? 2>&1 | grep '^.*-o.*(old style)' >/dev/null
+if pmlogger_daily -+ 2>&1 | grep '^.*-o.*(old style)' >/dev/null
 then
     oflag='-o'
 else
@@ -111,7 +112,6 @@ do
 	    touch -t $stampb $tmp/$nameb.$ext
 	done
     done
-    ls -lt $tmp >>$seq.full
     echo "s/NOW-0/TODAY/g" >>$tmp/sed
     echo "s/NOW-1/YESTERDAY/g" >>$tmp/sed
     echo "s/`pmdate %Y%m%d`/TODAY/g" >>$tmp/sed
@@ -120,12 +120,16 @@ do
     echo >$tmp/control '$version=1.1
 LOCALHOSTNAME	n   n	'"$tmp"'	./config'
 
+    cat $tmp/sed >>$seq.full
+    echo >>$seq.full
+
     echo
     echo "=== [${verbose+verbose}] regular show ==="
     echo "=== [${verbose+verbose}] regular show ===" >>$seq.full
     pmlogger_daily $oflag -c $tmp/control -k 3 $verbose 2>&1 \
     | _filter
-    ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort
+    ls -lt $tmp >>$seq.full
+    ls $tmp | sed -f $tmp/sed | tee -a $seq.full | LC_COLLATE=POSIX sort
 
     echo
     echo "=== [${verbose+verbose}] nothing to do but cull some more ==="
@@ -136,7 +140,8 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
     done
     pmlogger_daily $oflag -c $tmp/control -k 2 $verbose 2>&1 \
     | _filter
-    ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort
+    ls -lt $tmp >>$seq.full
+    ls $tmp | sed -f $tmp/sed | tee -a $seq.full | LC_COLLATE=POSIX sort
 
     echo
     echo "=== [${verbose+verbose}] error, output already exists ==="
@@ -148,7 +153,8 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
     done
     pmlogger_daily $oflag -c $tmp/control -k 2 $verbose 2>&1 \
     | _filter
-    ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort
+    ls -lt $tmp >>$seq.full
+    ls $tmp | sed -f $tmp/sed | tee -a $seq.full | LC_COLLATE=POSIX sort
 
     verbose=-V
     rm -f $tmp/*
