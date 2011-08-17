@@ -31,3 +31,15 @@ endif
 ifeq ($(TARGET_OS), darwin)
 LOCAL_RULES = system
 endif
+
+# Metrics missing from Solaris
+#
+# rule: many_util
+#   kernel.percpu.cpu.intr -12357 Unknown metric name
+#
+# rule: some_util
+#   kernel.percpu.cpu.intr -12357 Unknown metric name
+#
+ifeq ($(TARGET_OS), solaris)
+LOCAL_RULES = syscall context_switch system
+endif
