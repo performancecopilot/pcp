@@ -21,7 +21,9 @@
 #include "interrupts.h"
 #include "proc_pid.h"
 #include <sys/stat.h>
+#ifdef HAVE_STRINGS_H
 #include <strings.h>
+#endif
 #include <ctype.h>
 
 typedef struct {

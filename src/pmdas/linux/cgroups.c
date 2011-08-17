@@ -21,7 +21,9 @@
 #include "clusters.h"
 #include "proc_pid.h"
 #include <sys/stat.h>
+#ifdef HAVE_STRINGS_H
 #include <strings.h>
+#endif
 #include <ctype.h>
 
 /* Add namespace entries and prepare values for one cgroupfs directory entry */

@@ -20,6 +20,9 @@
 #include <ctype.h>
 #include "pmapi.h"
 #include "impl.h"
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
 #include "http_fetcher.h"
 
 /* Globals */
