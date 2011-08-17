@@ -1254,7 +1254,10 @@ dumpTask(Task *t)
     fprintf(stderr, "  retry time: ");
     showFullTime(stderr, t->retry);
     fputc('\n', stderr);
-    fprintf(stderr, "  host=%s (%s)\n", symName(t->hosts->name), t->hosts->down ? "down" : "up");
+    if (t->hosts == NULL)
+	fprintf(stderr, "  host=<null>\n");
+    else
+	fprintf(stderr, "  host=%s (%s)\n", symName(t->hosts->name), t->hosts->down ? "down" : "up");
     fprintf(stderr, "  rules:\n");
     for (i = 0; i < t->nrules; i++) {
 	fprintf(stderr, "    %s\n", symName(t->rules[i]));
