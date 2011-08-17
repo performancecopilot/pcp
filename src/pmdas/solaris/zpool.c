@@ -75,8 +75,14 @@ zp_cache_pool(zpool_handle_t *zp, void *arg)
 			  zpname, rv, oserror());
 	    zps->vdev_stats_fresh = 0;
 	} else {
+	    /* accommodate zpool api changes ... */
+#ifdef ZPOOL_CONFIG_VDEV_STATS
+	    rv = nvlist_lookup_uint64_array(vdt, ZPOOL_CONFIG_VDEV_STATS,
+					    (uint64_t **)&vds, &cnt);
+#else
 	    rv = nvlist_lookup_uint64_array(vdt, ZPOOL_CONFIG_STATS,
 					    (uint64_t **)&vds, &cnt);
+#endif
 	    if (rv == 0) {
 		memcpy(&zps->vds, vds, sizeof(zps->vds));
 		zps->vdev_stats_fresh = 1;
