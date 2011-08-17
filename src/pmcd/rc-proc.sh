@@ -35,76 +35,47 @@
 #
 # private functions
 #
+_which()
+{
+    # some versions of which(1) have historically not reflected the
+    # correct exit status ... but it appears that all modern platforms
+    # get this correct
+    #
+    # keeping the old logic structure, just in case
+    #
+
+    if $PCP_WHICH_PROG $1 >/dev/null 2>&1
+    then
+	if [ "$PCP_PLATFORM" = broken ]
+	then
+	    if $PCP_WHICH_PROG $1 | grep "no $1" >/dev/null
+	    then
+		:
+	    else
+		return 0
+	    fi
+	else
+	    return 0
+	fi
+    fi
+    return 1
+}
+
 _cmds_exist()
 {
     _have_flag=false
-    _have_runlevel=false
-    _have_chkconfig=false
-    _have_sysvrcconf=false
-    _have_rcupdate=false
-
     [ -f $PCP_RC_DIR/$1 ] && _have_flag=true
 
-    if $PCP_WHICH_PROG runlevel >/dev/null 2>&1
-    then
-	if [ "$PCP_PLATFORM" = solaris -o "$PCP_PLATFORM" = darwin ]
-	then
-	    if $PCP_WHICH_PROG runlevel | grep "no runlevel" >/dev/null
-	    then
-		:
-	    else
-		_have_runlevel=true
-	    fi
-	else
-	    _have_runlevel=true
-	fi
-    fi
-
-    if $PCP_WHICH_PROG chkconfig >/dev/null 2>&1
-    then
-	if [ "$PCP_PLATFORM" = solaris -o "$PCP_PLATFORM" = darwin ]
-	then
-	    if $PCP_WHICH_PROG chkconfig | grep "no chkconfig" >/dev/null
-	    then
-		:
-	    else
-		_have_chkconfig=true
-	    fi
-	else
-	    _have_chkconfig=true
-	fi
-    fi
-
-    if which sysv-rc-conf >/dev/null 2>&1
-    then
-	if [ "$PCP_PLATFORM" = solaris -o "$PCP_PLATFORM" = darwin ]
-	then
-	    if which sysv-rc-conf | grep "no sysv-rc-conf" >/dev/null
-	    then
-		:
-	    else
-		_have_sysvrcconf=true
-	    fi
-	else
-	    _have_sysvrcconf=true
-	fi
-    fi
-
-    if which rc-update >/dev/null 2>&1
-    then
-	if [ "$PCP_PLATFORM" = solaris -o "$PCP_PLATFORM" = darwin ]
-	then
-	    if which rc-update | grep "no rc-update" >/dev/null
-	    then
-		:
-	    else
-		_have_rcupdate=true
-	    fi
-	else
-	    _have_rcupdate=true
-	fi
-    fi
-
+    _have_runlevel=false
+    _which runlevel && _have_runlevel=true
+    _have_chkconfig=false
+    _which chkconfig && _have_chkconfig=true
+    _have_sysvrcconf=false
+    _which sysvrcconf && _have_sysvrcconf=true
+    _have_rcupdate=false
+    _which rcupdate && _have_rcupdate=true
+    _have_svcadm=false
+    _which svcadm && _have_svcadm=true
 }
 
 #
@@ -153,7 +124,7 @@ is_chkconfig_on()
     _cmds_exist $_flag
     $_have_runlevel && _rl=`runlevel | $PCP_AWK_PROG '{print $2}'`
 
-    if [ "$PCP_PLATFORM" = mingw -o "$PCP_PLATFORM" = solaris ]
+    if [ "$PCP_PLATFORM" = mingw ]
     then
 	# no chkconfig, just do it
 	#
@@ -170,6 +141,12 @@ is_chkconfig_on()
 		;;
 	    pmie)
 		if [ "`. /etc/hostconfig; echo $PMIE`" = "-YES-" ]
+		then
+		    _ret=0
+		fi
+		;;
+	    pmproxy)
+		if [ "`. /etc/hostconfig; echo $PMPROXY`" = "-YES-" ]
 		then
 		    _ret=0
 		fi
@@ -194,11 +171,18 @@ is_chkconfig_on()
 	then
 	    _ret=0 # on
 	fi
+    elif $_have_svcadm
+    then
+	# the Solaris way ...
+	if svcs -l pcp/$_flag | grep "enabled  *true" >/dev/null 2>&1
+	then
+	    _ret=0 # on
+	fi
     else
 	#
 	# don't have chkconfig, so use the existence of the symlink
 	#
-	if [ -f /etc/debian_version -o "$PCP_PLATFORM" = solaris ]; then
+	if [ -f /etc/debian_version ]; then
 	   if ls /etc/rc$_rl.d/S[0-9]*$_flag >/dev/null 2>&1
 	   then
 	      _ret=0 # on
@@ -252,17 +236,19 @@ chkconfig_on()
     then
 	# enable default run levels
 	sysv-rc-conf "$_flag" on >/dev/null 2>&1
+    elif $_have_rcupdate
+    then
+	# the Gentoo way ...
+	: TODO
+    elif $_have_svcadm
+    then
+	# the Solaris way ...
+	svcadm enable pcp/$_flag >/dev/null 2>&1
     else
 	_start=`_runlevel_start $_flag`
 	_stop=`_runlevel_stop $_flag`
 	if [ -f /etc/debian_version ]; then
 	   update-rc.d -f $_flag defaults s$_start k$_stop
-        elif [ "$PCP_PLATFORM" = solaris ]; then
-	   for _r in `_runlevels $_flag`
-	   do
-	       ln -sf /etc/init.d/$_flag /etc/rc$_r.d/S$_start""$_flag >/dev/null 2>&1
-	       ln -sf /etc/init.d/$_flag /etc/rc$_r.d/K$_stop""$_flag >/dev/null 2>&1
-	   done
 	else
 	   for _r in `_runlevels $_flag`
 	   do
@@ -299,12 +285,18 @@ chkconfig_off()
     elif $_have_sysvrcconf
     then
 	sysv-rc-conf --level 2345 "$_flag" off >/dev/null 2>&1
+    elif $_have_rcupdate
+    then
+	# the Gentoo way ...
+	: TODO
+    elif $_have_svcadm
+    then
+	# the Solaris way ...
+	svcadm disable pcp/$_flag >/dev/null 2>&1
     else
 	# remove the symlinks
 	if [ -f /etc/debian_version ]; then
 	   update-rc.d -f $_flag remove
-        elif [ "$PCP_PLATFORM" = solaris ]; then
-	  rm -f /etc/rc[0-9].d/[SK][0-9]*$_flag >/dev/null 2>&1
 	else
 	  rm -f /etc/rc.d/rc[0-9].d/[SK][0-9]*$_flag >/dev/null 2>&1
 	fi
@@ -341,14 +333,6 @@ chkconfig_on_msg()
 	else
 	    if [ -f /etc/debian_version ]; then
 	      echo "         update-rc.d -f $_flag defaults s$_start k$_stop"
-	    elif [ "$PCP_PLATFORM" = solaris ]; then 
-	      _start=`_runlevel_start $_flag`
-	      _stop=`_runlevel_stop $_flag`
-	      for _r in `_runlevels $_flag`
-	      do
-		  echo "    # ln -sf /etc/init.d/$_flag /etc/rc$_r.d/S$_start""$_flag"
-		  echo "    # ln -sf /etc/init.d/$_flag /etc/rc$_r.d/K$_stop""$_flag"
-	      done
 	    else
 	      _start=`_runlevel_start $_flag`
 	      _stop=`_runlevel_stop $_flag`
