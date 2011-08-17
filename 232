@@ -41,7 +41,7 @@ for metric in \
     nfs3.server.reqs \
     sampledso.hordes.one
 do
-    if [ $PCP_PLATFORM = "darwin" ]
+    if [ $PCP_PLATFORM = darwin ]
     then
 	# some of the metrics just aren't there on Mac OS X
 	case $metric
@@ -50,9 +50,29 @@ do
 		continue
 		;;
 	esac
+    elif [ $PCP_PLATFORM = solaris ]
+    then
+	# some of the metrics just aren't there on Solaris, or have
+	# equivalents with different names
+	case $metric
+	in
+	    swapdev.length|nfs.*|nfs3.*)
+		continue
+		;;
+	    filesys.used)
+		metric=zfs.used.total
+		;;
+	esac
     fi
-    $here/src-oss/torture_indom $metric >$tmp.out 2>&1
-    status=$?
+    if [ $PCP_PLATFORM = solaris ]
+    then
+	# need to be root to open /dev/kmem
+	$sudo $here/src-oss/torture_indom $metric >$tmp.out 2>&1
+	status=$?
+    else
+	$here/src-oss/torture_indom $metric >$tmp.out 2>&1
+	status=$?
+    fi
     sed -e '/using .* kmem interface/d' $tmp.out \
     | _filter_pmcd_log \
     | _filter_dodgey_nfs_indom

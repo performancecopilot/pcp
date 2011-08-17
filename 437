@@ -24,9 +24,10 @@ touch null.0.bz2 null.index null.meta
 
 _filter()
 {
-    # Mac OS X strangeness
+    # Mac OS X and Solaris strangeness
     sed \
-	-e '/bzip2: Undefined error: 0/s/Undefined error: 0/Success/'
+	-e '/: Undefined error: 0/s/Undefined error: 0/Success/' \
+	-e '/: Error 0/s/Error 0/Success/'
 }
 
 # real QA test starts here

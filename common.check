@@ -907,37 +907,27 @@ _change_config()
 	fi
     elif [ $PCP_PLATFORM = solaris ]
     then
-	# if which chkconfig >/dev/null 2>&1
-	# then
 	# Try the Solaris way ..
 	#
-	    case $1 
-	    in
-		pmlogger)	pat=pcp
-				;;
-		pmcd)		pat=pcp
-				;;
-		pmie)		pat=pmie
-				;;
-		verbose)	pat=""
-				;;
-		*)		pat=$1
-				;;
-	    esac
-	    if [ $2 = on ]
-	    then
-		. $PCP_SHARE_DIR/lib/rc-proc.sh -x
-	    	[ -n "$pat" ] && $sudo chkconfig_on $pat
-	    elif [ $2 != on ]
-   	    then
-		[ -n "$pat" ] && $sudo chkconfig_off $pat
-	    else
-	    	# I have no clue!
-	    	#
-	    	echo "_change_config: Error: cannot change config \"$1 $2\""
-	    	exit 1
-	    fi
-      
+	case $1 
+	in
+	    pmlogger)	pat=pcp
+			    ;;
+	    pmcd)		pat=pcp
+			    ;;
+	    pmie)		pat=pmie
+			    ;;
+	    verbose)	pat=""
+			    ;;
+	    *)		pat=$1
+			    ;;
+	esac
+	if [ $2 = on ]
+	then
+	    [ -n "$pat" ] && $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; chkconfig_on $pat"
+	else
+	    [ -n "$pat" ] && $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; chkconfig_off $pat"
+	fi
     elif [ $PCP_PLATFORM = darwin ]
     then
 	case $1 

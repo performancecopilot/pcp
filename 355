@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 rm -f $seq.out
 case $PCP_PLATFORM
 in
-    irix|linux|darwin)
+    irix|linux|darwin|solaris)
 	if [ $PCP_VER -ge 2200 ]
 	then
 	    ln $seq.$PCP_PLATFORM.2 $seq.out || exit 1

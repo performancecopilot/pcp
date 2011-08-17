@@ -27,6 +27,9 @@ then
 elif [ $PCP_PLATFORM = darwin ]
 then
     ln $seq.linux.x86 $seq.out
+elif [ $PCP_PLATFORM = solaris ]
+then
+    ln $seq.linux.x86 $seq.out
 else
     echo "Warning: no validated output for $PCP_PLATFORM"
 fi

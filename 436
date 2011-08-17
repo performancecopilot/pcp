@@ -29,9 +29,10 @@ cp src-oss/mv-bigbin* $tmp
 
 _filter()
 {
-    # Mac OS X strangeness
+    # Mac OS X and Solaris strangeness
     sed \
-	-e '/: Undefined error: 0/s/Undefined error: 0/Success/'
+	-e '/: Undefined error: 0/s/Undefined error: 0/Success/' \
+	-e '/: Error 0/s/Error 0/Success/'
 }
 
 _do()

@@ -26,12 +26,21 @@ some_inst disk.dev.total >= 0 -> print "\nDISK %i";
 
 // cpu indom
 some_inst kernel.percpu.cpu.user >= 0 -> print "\nCPU %i";
+End-of-File
+
+if [ $PCP_PLATFORM != solaris ]
+then
+    cat <<End-of-File >>$tmp.pmie
 
 // network interface indom
 some_inst network.interface.total.packets >= 0 -> print "\nNETWORK %i";
 
 // filesys indom
 some_inst filesys.capacity >= 0 -> print "\nFILESYS %i";
+End-of-File
+fi
+
+cat <<End-of-File >>$tmp.pmie
 
 // sample.mirage
 some_inst sample.mirage >= 0 -> print "\nMIRAGE %i";
@@ -189,7 +198,8 @@ _filter_pmie_log <$tmp.out \
     -e '/^DISK dks[0-9][0-9]*d[0-9][0-9]*/d' \
     -e '/^DISK [a-f0-9][a-f0-9]*\/lun[0-9][0-9]*\/c[0-9][0-9]*p[0-9][0-9]*/d' \
     -e '/^DISK hd[a-z]/d' \
-    -e '/^DISK sd[a-z]/d' \
+    -e '/^DISK sd[a-z0-9]/d' \
+    -e '/^DISK cmdk[0-9]/d' \
     -e '/^DISK rd\//d' \
     -e '/^DISK scsi\/host/d' \
     -e '/^DISK xscsi\/pci/d' \
