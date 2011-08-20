@@ -24,10 +24,11 @@ HFILES = pmapi.h impl.h pmda.h pmtime.h pmafm.h pmiestats.h \
 	 trace.h trace_dev.h trace_hash.h mmv_stats.h mmv_dev.h \
 	 import.h
 GENERATED_HFILES = pmdbg.h platform_defs.h
-CONFFILES = platform_defs.h builddefs pcp.conf
+CONFFILES = platform_header.h platform_trailer builddefs pcp.conf
 
-LSRCFILES = platform_defs.h.in builddefs.in buildrules pcp.conf.in \
-	    pcp.env pcp.mingw mk_pmdbg
+LSRCFILES = platform_header.h.in platform_trailer.in \
+	    builddefs.in buildrules \
+	    pcp.conf.in pcp.env pcp.mingw mk_pmdbg
 
 LDIRT = builddefs.install
 
@@ -48,6 +49,9 @@ else
 endif
 	$(INSTALL) -m 644 $(HFILES) $(GENERATED_HFILES) buildrules $(PCP_INC_DIR)
 	$(INSTALL) -m 644 builddefs.install $(PCP_INC_DIR)/builddefs
+
+platform_defs.h:	platform_header.h platform_trailer
+	cat platform_header.h platform_trailer >platform_defs.h
 
 pmdbg.h : pmapi.h impl.h
 	./mk_pmdbg

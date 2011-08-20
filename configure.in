@@ -172,7 +172,8 @@ fi
 AC_SUBST(package_builder)
 
 dnl output header with cpp defs HAVE_*, etc
-AC_CONFIG_HEADER(src/include/platform_defs.h)
+AC_CONFIG_HEADER(src/include/platform_header.h)
+AC_OUTPUT(src/include/platform_trailer)
 
 dnl check if user wants their own C compiler
 cflags_abi=
@@ -943,6 +944,95 @@ in
 esac
 rm -rf conftest conftest.*
 
+_do_type()
+{
+    # need to deal with this sort of cpp output ...
+    #   typedef long pid_t;
+    #   typedef unsigned int pid_t;
+    #   typedef unsigned int pid_t __attribute__ ((__mode__ (__SI__)));
+    #   __extension__ typedef int __pid_t;
+    # and chaining of the form
+    #   typedef long __pid_t;
+    #   typedef __pid_t pid_t;
+    #
+    _raw=`$CPP conftest.c \
+    | egrep "bozo|typedef.*;" \
+    | $SED \
+	-e 's/^/ /' \
+	-e 's/[[ 	]]__attribute__ ((.*));/;/' \
+	-e 's/[[ 	]]__extension__[[ 	]][[ 	]]*/ /' \
+	-e 's/^[[ 	]]*//' \
+	-e 's/;$//' \
+    | $AWK '
+$1 == "typedef"	{ map[[$NF]] = ""
+		  for (i = 2; i < NF; i++) {
+		    if (i == 2)
+			map[[$NF]] = $i
+		    else
+			map[[$NF]] = map[[$NF]] " " $i
+		  }
+		  print $NF " -> " map[[$NF]] >"conftest.debug"
+		  next
+		}
+$2 == "bozo"	{ t = $1
+		  printf "best guess: %s",t >"conftest.debug"
+		  while (map[[t]] != "") {
+		    t = map[[t]]
+		    printf " -> %s",t >"conftest.debug"
+		  }
+		  print "" >"conftest.debug"
+		  print t
+		  exit
+		}'`
+    case "$_raw"
+    in
+    int)
+    	_fmt='"d"'
+	;;
+    unsigned|'unsigned int')
+    	_fmt='"u"'
+	;;
+    long|'long int')
+	_fmt='"ld"'
+	;;
+    'unsigned long'|'unsigned long int'|'long unsigned int')
+	_fmt='"lu"'
+	;;
+    *)
+	echo
+	echo "FATAL ERROR: don't know what to do with type \"$_raw\""
+	echo "... typedef mapping ..."
+	cat conftest.debug
+	exit 1
+	;;
+    esac
+}
+
+dnl printf type for pid_t
+AC_MSG_CHECKING([printf type for pid_t])
+cat <<End-of-File >conftest.c
+#include <sys/types.h>
+#include <unistd.h>
+pid_t bozo;
+End-of-File
+_do_type
+fmt_pid="$_fmt"
+AC_MSG_RESULT($fmt_pid)
+AC_SUBST(fmt_pid)
+rm -rf conftest.c conftest.debug
+
+dnl printf type for pthread_t
+AC_MSG_CHECKING([printf type for pthread_t])
+cat <<End-of-File >conftest.c
+#include <pthread.h>
+pthread_t bozo;
+End-of-File
+_do_type
+fmt_pthread="$_fmt"
+AC_MSG_RESULT($fmt_pthread)
+AC_SUBST(fmt_pthread)
+rm -rf conftest.c conftest.debug
+
 dnl check sizeof long
 AC_MSG_CHECKING([sizeof long])
 cat <<End-of-File >conftest.c
@@ -1226,12 +1316,12 @@ else
 fi
 AC_SUBST(pcp_etc_dir)
 
-test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
+test -z "$exec_prefix" && exec_prefix=${prefix}
 
 dnl shared PCP files (shareable for diskless)
 pcp_share_dir=`eval echo $datadir`
 pcp_share_dir=`eval echo $pcp_share_dir`
-if test "`echo $pcp_share_dir | sed 's;/.*\$;;'`" = NONE
+if test -z "`echo $pcp_share_dir | sed 's;/.*\$;;'`"
 then
     if test $target_os = mingw
     then
@@ -1251,7 +1341,7 @@ AC_SUBST(pcp_share_dir)
 dnl private PCP executables
 pcp_binadm_dir=`eval echo $libexecdir`
 pcp_binadm_dir=`eval echo $pcp_binadm_dir`
-if test "`echo $pcp_binadm_dir | sed 's;/.*\$;;'`" = NONE
+if test -z "`echo $pcp_binadm_dir | sed 's;/.*\$;;'`"
 then
     if test $target_distro = debian
     then
@@ -1273,7 +1363,7 @@ AC_SUBST(pcp_binadm_dir)
 dnl non-shared (i.e. system local) PCP files
 pcp_var_dir=`eval echo $localstatedir`
 pcp_var_dir=`eval echo $pcp_var_dir`
-if test "`echo $pcp_var_dir | sed 's;/.*\$;;'`" = NONE
+if test -z "`echo $pcp_var_dir | sed 's;/.*\$;;'`"
 then
     if test $target_os = mingw
     then
@@ -1346,7 +1436,7 @@ then
 else
     pcp_lib_dir=`eval echo $libdir`
     pcp_lib_dir=`eval echo $pcp_lib_dir`
-    if test "`echo $pcp_lib_dir | sed 's;/.*\$;;'`" = NONE
+    if test -z "`echo $pcp_lib_dir | sed 's;/.*\$;;'`"
     then
        if test -d /usr/lib
        then
@@ -1406,7 +1496,7 @@ need_old_tbl_header=false
 man_header=
 pcp_man_dir=`eval echo $mandir`
 pcp_man_dir=`eval echo $pcp_man_dir`
-if test "`echo $pcp_man_dir | sed 's;/.*\$;;'`" = NONE
+if test -z "`echo $pcp_man_dir | sed 's;/.*\$;;'`"
 then
     dnl some low risk defaults
     if test $target_os = mingw
@@ -1488,7 +1578,7 @@ AC_SUBST(need_old_tbl_header)
 dnl public binaries
 pcp_bin_dir=`eval echo $bindir`
 pcp_bin_dir=`eval echo $pcp_bin_dir`
-if test "`echo $pcp_bin_dir | sed 's;/.*\$;;'`" = NONE
+if test -z "`echo $pcp_bin_dir | sed 's;/.*\$;;'`"
 then
     if test $target_os = mingw
     then
@@ -1505,7 +1595,7 @@ AC_SUBST(pcp_bin_dir)
 dnl include files
 pcp_inc_dir=`eval echo $includedir`
 pcp_inc_dir=`eval echo $pcp_inc_dir`
-if test "`echo $pcp_inc_dir | sed 's;/.*\$;;'`" = NONE
+if test -z "`echo $pcp_inc_dir | sed 's;/.*\$;;'`"
 then
     if test $target_os = mingw
     then
@@ -1584,7 +1674,7 @@ fi
 AC_SUBST(pcp_tmp_dir)
 
 dnl doc directory
-if test "`eval echo $prefix | sed 's;/.*\$;;'`" = NONE
+if test -z "`eval echo $prefix | sed 's;/.*\$;;'`"
 then
     if test $target_os = mingw
     then
@@ -1608,7 +1698,7 @@ fi
 AC_SUBST(pcp_doc_dir)
 
 dnl demos directory
-if test "`eval echo $prefix | sed 's;/.*\$;;'`" = NONE
+if test -z "`eval echo $prefix | sed 's;/.*\$;;'`"
 then
     if test $target_os = mingw
     then

@@ -158,7 +158,7 @@ logmessage(int priority, const char *format, ...)
     vsnprintf (buffer, sizeof(buffer), format, arglist);
     for (p = buffer; *p; p++);
     if (*(--p) == '\n') *p = '\0';
-    fprintf (stderr, "[%.19s] %s(%d) %s: %s\n", ctime(&now), pmProgname, (int)getpid(), level, buffer) ;
+    fprintf (stderr, "[%.19s] %s(%" FMT_PID ") %s: %s\n", ctime(&now), pmProgname, getpid(), level, buffer) ;
     va_end (arglist) ;
 }
 
@@ -1136,7 +1136,7 @@ main(int argc, char **argv)
 #ifdef PCP_DEBUG
 	    if(pmDebug & DBG_TRACE_APPL0) {
 		logmessage(LOG_INFO,
-			   "main: created sproc %d: pid %d\n",
+			   "main: created sproc %d: pid %" FMT_PID "\n",
 			   n,
 			   proc->pid);
 	    }

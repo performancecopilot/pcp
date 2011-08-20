@@ -628,10 +628,10 @@ pmLoopRegisterChild(
     int doinstall;
 
     if (pmLoopDebug)
-	__pmNotifyErr(LOG_DEBUG,"loop_register_child: pid=%d callback=%p closure=%p",
-		(int)pid, callback, closure);
+	__pmNotifyErr(LOG_DEBUG,"loop_register_child: pid=%" FMT_PID " callback=%p closure=%p",
+		pid, callback, closure);
 
-    if (pid <= 0)
+    if (pid <= (pid_t)0)
 	return -1;
     if ((cc = (loop_child_t *)malloc(sizeof(loop_child_t))) == NULL) {
 	return (-ENOMEM);
@@ -714,7 +714,7 @@ loop_dispatch_children(void)
 	{
 	    nextcc = cc->next;
 
-	    if (r == cc->pid) {
+	    if (r == (int)cc->pid) {
 		loop_main_t *lm = main_stack;
 		int isdone;
 

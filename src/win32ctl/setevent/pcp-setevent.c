@@ -48,7 +48,7 @@ main(int argc, char **argv)
 	error++;
     else if ((sig = atosig(argv[1])) < 1)
 	error++;
-    else if ((pid = atoi(argv[2])) < 1)
+    else if ((pid = (pid_t)atoi(argv[2])) < 1)
 	error++;
 
     if (error) {
@@ -62,20 +62,20 @@ main(int argc, char **argv)
     }
 
     if (!__pmProcessExists(pid)) {
-	fprintf(stderr, "%s: OpenEvent(%s) failed on PID %d (%ld)\n",
+	fprintf(stderr, "%s: OpenEvent(%s) failed on PID %" FMT_PID " (%ld)\n",
 			pmProgname, name, pid, GetLastError());
 	return 1;
     }
 
-    snprintf(name, sizeof(name), "PCP/%d/SIG%s", pid, argv[1]);
+    snprintf(name, sizeof(name), "PCP/%" FMT_PID "/SIG%s", pid, argv[1]);
     HANDLE h = OpenEvent(EVENT_MODIFY_STATE, FALSE, TEXT(name));
     if (!h) {
-	fprintf(stderr, "%s: OpenEvent(%s) failed on PID %d (%ld)\n",
+	fprintf(stderr, "%s: OpenEvent(%s) failed on PID %" FMT_PID " (%ld)\n",
 			pmProgname, name, pid, GetLastError());
 	return 1;
     }
     if (!SetEvent(h)) {
-	fprintf(stderr, "%s: SetEvent(%s) failed on PID %d (%ld)\n",
+	fprintf(stderr, "%s: SetEvent(%s) failed on PID %" FMT_PID " (%ld)\n",
 			pmProgname, name, pid, GetLastError());
 	return 1;
     }

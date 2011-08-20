@@ -597,12 +597,3 @@ extern int alphasort(const_dirent **, const_dirent **);
 #define pipe1(fds) pipe(fds)
 #endif
 
-#ifndef __cplusplus      
-#undef inline
-#endif
-
-#ifdef __cplusplus      
-}
-#endif
-
-#endif /* _PLATFORM_DEFS_H */

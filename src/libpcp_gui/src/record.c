@@ -199,7 +199,7 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
 	    free(rp->public.logfile);
 	    rp->public.logfile = NULL;
 	}
-	rp->public.pid = 0;
+	rp->public.pid = (pid_t)0;
 	rp->public.status = -1;
     }
 
@@ -266,7 +266,7 @@ pmRecordAddHost(const char *host, int isdefault, pmRecordHost **rhp)
 	rp->public.f_config = NULL;
 	rp->public.fd_ipc = -1;
 	rp->public.logfile = NULL;
-	rp->public.pid = 0;
+	rp->public.pid = (pid_t)0;
 	rp->public.status = -1;
     }
 
@@ -577,7 +577,7 @@ fputc('\n', stderr);
 		    /* this is really bad! */
 		    exit(1);
 		}
-		else if (rp->public.pid < 0) {
+		else if (rp->public.pid < (pid_t)0) {
 		    sts = -oserror();
 		    break;
 		}

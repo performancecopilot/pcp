@@ -124,7 +124,7 @@ compare_golden(FILE *f, const char *file, int sts, int warnings)
 	    status = 2;
 	}
 	if (label->ill_pid != golden.ill_pid) {
-	    fprintf(stderr, "Mismatched PID (%u/%u) between %s and %s\n",
+	    fprintf(stderr, "Mismatched PID (%d/%d) between %s and %s\n",
 			    label->ill_pid, golden.ill_pid, file, goldfile);
 	    status = 2;
 	}
@@ -407,7 +407,7 @@ main(int argc, char *argv[])
 	}
 	if (Lflag) {
 	    printf("Archive timezone: %s\n", golden.ill_tz);
-	    printf("PID for pmlogger: %d\n", (int)golden.ill_pid);
+	    printf("PID for pmlogger: %d\n", golden.ill_pid);
 	}
     }
 

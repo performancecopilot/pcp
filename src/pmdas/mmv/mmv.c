@@ -56,7 +56,7 @@ typedef struct {
     mmv_disk_metric_t *	metrics;	/* metric descs in mmap */
     int		vcnt;			/* number of values */
     int		mcnt;			/* number of metrics */
-    int		pid;			/* process identifier */
+    pid_t	pid;			/* process identifier */
     int		cluster;		/* cluster identifier */
     __int64_t	len;			/* mmap region len */
     __uint64_t	gen;			/* generation number on open */
@@ -135,7 +135,7 @@ create_client_stat(const char *client, const char *path, size_t size)
 
 	    /* optionally verify the creator PID is running */
 	    if (hdr->process && (hdr->flags & MMV_FLAG_PROCESS) &&
-		!__pmProcessExists(hdr->process)) {
+		!__pmProcessExists((pid_t)hdr->process)) {
 		__pmMemoryUnmap(m, size);
 		return -ESRCH;
 	    }
@@ -150,7 +150,7 @@ create_client_stat(const char *client, const char *path, size_t size)
 	    if (slist != NULL) {
 		slist[scnt].name = strdup(client);
 		slist[scnt].addr = m;
-		slist[scnt].pid = (hdr->flags & MMV_FLAG_PROCESS)? hdr->process : 0;
+		slist[scnt].pid = (pid_t)((hdr->flags & MMV_FLAG_PROCESS)? hdr->process : 0);
 		slist[scnt].cluster = cluster;
 		slist[scnt].mcnt = 0;
 		slist[scnt].gen = hdr->g1;

@@ -89,7 +89,7 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
 	    exit_status = -1;
 	}
 	if (aPtr->status.isChild == 1) {
-	    pid_t	pid = -1;
+	    pid_t	pid = (pid_t)-1;
 	    pid_t	done;
 	    int 	wait_status;
 	    int 	slept = 0;

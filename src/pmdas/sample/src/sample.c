@@ -1729,7 +1729,7 @@ doit:
 			atom.l = _control;
 			break;
 		    case 1:
-			if (_mypid == 0) _mypid = getpid();
+			if (_mypid == 0) _mypid = (int)getpid();
 			atom.ul = _mypid;
 			break;
 		    case 2:

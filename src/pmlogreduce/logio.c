@@ -200,7 +200,7 @@ newlabel(void)
 
     /* copy magic number, pid, host and timezone */
     lp->ill_magic = ilabel.ll_magic;
-    lp->ill_pid = getpid();
+    lp->ill_pid = (__int32_t)getpid();
     strncpy(lp->ill_hostname, ilabel.ll_hostname, PM_LOG_MAXHOSTLEN);
     strcpy(lp->ill_tz, ilabel.ll_tz);
 }

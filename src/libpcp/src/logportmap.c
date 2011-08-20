@@ -62,10 +62,10 @@ static int
 is_portfile(const_dirent *dep)
 {
     char	*endp;
-    int		pid;
+    pid_t	pid;
 
-    pid = (int)strtol(dep->d_name, &endp, 10);
-    if (pid > 1)
+    pid = (pid_t)strtol(dep->d_name, &endp, 10);
+    if (pid > (pid_t)1)
 	return __pmProcessExists(pid);
     return strcmp(dep->d_name, "primary") == 0;
 }
@@ -128,7 +128,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	    break;
 
 	default:			/* a specific pid (single) */
-	    if (!__pmProcessExists(pid)) {
+	    if (!__pmProcessExists((pid_t)pid)) {
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOG) {
 		    fprintf(stderr, "__pmLogFindLocalPorts() -> 0, "

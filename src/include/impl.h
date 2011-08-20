@@ -301,7 +301,7 @@ extern int __pmHashDel(unsigned int, void *, __pmHashCtl *);
  */
 typedef struct {
     int		ill_magic;	/* PM_LOG_MAGIC | log format version no. */
-    pid_t	ill_pid;			/* PID of logger */
+    __int32_t	ill_pid;			/* PID of logger */
     __pmTimeval	ill_start;			/* start of this log */
     int		ill_vol;			/* current log volume no. */
     char	ill_hostname[PM_LOG_MAXHOSTLEN];/* name of collection host */
