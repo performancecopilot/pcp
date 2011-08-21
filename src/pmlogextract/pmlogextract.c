@@ -327,7 +327,7 @@ newlabel(void)
 
     /* copy magic number, pid, host and timezone */
     lp->ill_magic = iap->label.ll_magic;
-    lp->ill_pid = (__int32_t)getpid();
+    lp->ill_pid = (int)getpid();
     strncpy(lp->ill_hostname, iap->label.ll_hostname, PM_LOG_MAXHOSTLEN);
     if (farg) {
 	/*

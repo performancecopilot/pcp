@@ -584,7 +584,7 @@ __pmLogCreate(const char *host, const char *base, int log_version,
 		 */
 		strncpy(lcp->l_label.ill_hostname, host, PM_LOG_MAXHOSTLEN-1);
 		lcp->l_label.ill_hostname[PM_LOG_MAXHOSTLEN-1] = '\0';
-		lcp->l_label.ill_pid = (__int32_t)getpid();
+		lcp->l_label.ill_pid = (int)getpid();
 		/*
 		 * hack - how do you get the TZ for a remote host?
 		 */

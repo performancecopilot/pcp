@@ -1088,6 +1088,8 @@ if test $ans -ne 4
 then
     echo
     echo "FATAL ERROR: sizeof(int) is not 32 bits, cannot proceed."
+    echo "Note: 32-bit ints are assumed in the PCP external file formats and"
+    echo "      the over-the-wire PDU formats"
     exit 1
 fi
 rm -rf conftest conftest.*

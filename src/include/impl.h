@@ -298,10 +298,11 @@ extern int __pmHashDel(unsigned int, void *, __pmHashCtl *);
 
 /*
  * External file and internal (below PMAPI) format for an archive label
+ * Note: int is OK here, because configure ensures int is a 32-bit integer
  */
 typedef struct {
     int		ill_magic;	/* PM_LOG_MAGIC | log format version no. */
-    __int32_t	ill_pid;			/* PID of logger */
+    int		ill_pid;			/* PID of logger */
     __pmTimeval	ill_start;			/* start of this log */
     int		ill_vol;			/* current log volume no. */
     char	ill_hostname[PM_LOG_MAXHOSTLEN];/* name of collection host */
@@ -316,6 +317,7 @@ typedef __uint32_t	__pm_off_t;
 
 /*
  * Temporal Index Record
+ * Note: int is OK here, because configure ensures int is a 32-bit integer
  */
 typedef struct {
     __pmTimeval	ti_stamp;	/* now */
@@ -541,11 +543,12 @@ extern int __pmLoggerTimeout(void);
 
 /*
  * Protocol data unit support
+ * Note: int is OK here, because configure ensures int is a 32-bit integer
  */
 typedef struct {
-    int	len;		/* length of pdu_header + PDU */
-    int	type;		/* PDU type */
-    int	from;		/* pid of PDU originator */
+    int		len;		/* length of pdu_header + PDU */
+    int		type;		/* PDU type */
+    int		from;		/* pid of PDU originator */
 } __pmPDUHdr;
 
 typedef __uint32_t	__pmPDU;
