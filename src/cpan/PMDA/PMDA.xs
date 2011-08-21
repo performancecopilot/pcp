@@ -374,7 +374,7 @@ store_callback(__pmID_int *pmid, unsigned int inst, pmAtomValue av, int type)
     switch (type) {
 	case PM_TYPE_32:     XPUSHs(sv_2mortal(newSViv(av.l))); break;
 	case PM_TYPE_U32:    XPUSHs(sv_2mortal(newSVuv(av.ul))); break;
-	case PM_TYPE_64:     XPUSHs(sv_2mortal(newSVuv(av.ul))); break;
+	case PM_TYPE_64:     XPUSHs(sv_2mortal(newSVuv(av.ll))); break;
 	case PM_TYPE_U64:    XPUSHs(sv_2mortal(newSVuv(av.ull))); break;
 	case PM_TYPE_FLOAT:  XPUSHs(sv_2mortal(newSVnv(av.f))); break;
 	case PM_TYPE_DOUBLE: XPUSHs(sv_2mortal(newSVnv(av.d))); break;
