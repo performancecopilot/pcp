@@ -416,11 +416,19 @@ string_token(char **scan, char *token)
 char *
 validate(int type, char *name, char *value)
 {
-    int	    x;
-    long    l;
-    unsigned long ul;
-    char    *s;
-    double  d;
+    int	    		x;
+    char    		*s;
+    double  		d;
+    /*
+     * Below we don't care about the value from strtol() and strtoul()
+     * we're interested in updating the pointer "s".  The messiness is
+     * thanks to gcc and glibc ... strtol() amd strtoul() are marked
+     * __attribute__((warn_unused_result)) ... to avoid warnings on all
+     * platforms, assign to dummy variables that are explicitly marked
+     * unused.
+     */
+    long    		l __attribute__((unused));
+    unsigned long	ul __attribute__((unused));
 
     switch (type) {
     case TYPE_RULE:
