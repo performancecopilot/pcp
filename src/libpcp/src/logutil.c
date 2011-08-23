@@ -794,7 +794,15 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 	    }
 	    if (q[1] != '\0') {
 		char	*end;
-		long	tmpl;	/* NOTUSED, pander to gcc */
+		/*
+		 * Below we don't care about the value from strtol(),
+		 * we're interested in updating the pointer "end".
+		 * The messiness is thanks to gcc and glibc ... strtol()
+		 * is marked __attribute__((warn_unused_result)) ...
+		 * to avoid warnings on all platforms, assign to a
+		 * a dummy variable that is explicitly marked unused.
+		 */
+		long	tmpl __attribute__((unused));
 		tmpl = strtol(q+1, &end, 10);
 		if (*end == '\0') strip = 1;
 	    }
