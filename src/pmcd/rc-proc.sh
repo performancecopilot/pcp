@@ -73,7 +73,7 @@ _cmds_exist()
     _have_sysvrcconf=false
     _which sysvrcconf && _have_sysvrcconf=true
     _have_rcupdate=false
-    _which rcupdate && _have_rcupdate=true
+    _which rc-update && _have_rcupdate=true
     _have_svcadm=false
     _which svcadm && _have_svcadm=true
 }
@@ -239,7 +239,7 @@ chkconfig_on()
     elif $_have_rcupdate
     then
 	# the Gentoo way ...
-	: TODO
+	rc-update add "$_flag" >/dev/null 2>&1
     elif $_have_svcadm
     then
 	# the Solaris way ...
@@ -288,7 +288,7 @@ chkconfig_off()
     elif $_have_rcupdate
     then
 	# the Gentoo way ...
-	: TODO
+	rc-update delete "$_flag" >/dev/null 2>&1
     elif $_have_svcadm
     then
 	# the Solaris way ...
