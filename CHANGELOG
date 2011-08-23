@@ -1,3 +1,8 @@
+pcp-3.5.8 (08 August 2011)
+    - Rework rsyslog PMDA to remove Switch use, very odd behaviour
+      observed on RHEL5.2 (mysteriously failing to compile).
+    - Add in Kens scripting defenses against dodgey toolchains.
+
 pcp-3.5.7 (05 August 2011)
     - Fix build issue on SLES11 SP1 IA64 systems.
     - Improved rsyslog PMDA handling of queue metrics.
