@@ -294,66 +294,65 @@ static pmdaMetric metrictab[] = {
 
 w83781d get_w83781d()
 {
-	int i;
 	float f;
 	w83781d sensor= {0,0,0,0,00.01,00.01,00.01,0,0,00.01,00.01,00.01,00.01,00.01,00.01,00.01,00.01};
 	
 	if (schips.n_w83781d > 0) {
 
 /* fan1 */
-		i = get_file(schips.s_w83781d[0],"/fan1");
+		get_file(schips.s_w83781d[0],"/fan1");
 		sensor.fan1 = get_int(buf,2);
 /* fan2 */
-		i = get_file(schips.s_w83781d[0],"/fan2");
+		get_file(schips.s_w83781d[0],"/fan2");
 		sensor.fan2 = get_int(buf,2);
 /* fan3 */
-		i = get_file(schips.s_w83781d[0],"/fan3");
+		get_file(schips.s_w83781d[0],"/fan3");
 		sensor.fan3 = get_int(buf,2);
 /* fan_div */
-		i = get_file(schips.s_w83781d[0],"/fan_div");
+		get_file(schips.s_w83781d[0],"/fan_div");
 		sensor.fan_div = get_int(buf,1);
 /* temp1 */
-		i = get_file(schips.s_w83781d[0],"/temp1");
+		get_file(schips.s_w83781d[0],"/temp1");
 		sensor.temp1 = get_float(buf,3);
 /* temp2 */
-		i = get_file(schips.s_w83781d[0],"/temp2");
+		get_file(schips.s_w83781d[0],"/temp2");
 		sensor.temp2 = get_float(buf,3);
 /* temp3 */
-		i = get_file(schips.s_w83781d[0],"/temp3");
+		get_file(schips.s_w83781d[0],"/temp3");
 		sensor.temp3 = get_float(buf,3);
 /* alarms */
-		i = get_file(schips.s_w83781d[0],"/alarms");
+		get_file(schips.s_w83781d[0],"/alarms");
 		sensor.alarms = get_int(buf,1);
 /* beep */
-		i = get_file(schips.s_w83781d[0],"/beep");
+		get_file(schips.s_w83781d[0],"/beep");
 		sensor.beep = get_int(buf,1);
 /* VCore1 */
-		i = get_file(schips.s_w83781d[0],"/in0");
+		get_file(schips.s_w83781d[0],"/in0");
 		sensor.VCore1 = get_float(buf,3);
 /* VCore2 */
-		i = get_file(schips.s_w83781d[0],"/in1");
+		get_file(schips.s_w83781d[0],"/in1");
 		sensor.VCore2 = get_float(buf,3);
 /* p33V */
-		i = get_file(schips.s_w83781d[0],"/in2");
+		get_file(schips.s_w83781d[0],"/in2");
 		sensor.p33V = get_float(buf,3);
 /* p5V */
-		i = get_file(schips.s_w83781d[0],"/in3");
+		get_file(schips.s_w83781d[0],"/in3");
 		f = get_float(buf,3);
 		sensor.p5V = f * ((6.80/10)+1);
 /* p12V */
-		i = get_file(schips.s_w83781d[0],"/in4");
+		get_file(schips.s_w83781d[0],"/in4");
 		f = get_float(buf,3);
 		sensor.p12V = f * ((28.00/10)+1);
 /* n12V */
-		i = get_file(schips.s_w83781d[0],"/in5");
+		get_file(schips.s_w83781d[0],"/in5");
 		f = get_float(buf,3);
 		sensor.n12V = -1 * f * (210/60.40);
 /* n5V */
-		i = get_file(schips.s_w83781d[0],"/in6");
+		get_file(schips.s_w83781d[0],"/in6");
 		f = get_float(buf,3);
 		sensor.n5V = -1 * f * (90.9/60.40);
 /* vid */
-		i = get_file(schips.s_w83781d[0],"/vid");
+		get_file(schips.s_w83781d[0],"/vid");
 		sensor.vid = get_float(buf,1);
 	}	
  	return sensor;
@@ -361,49 +360,48 @@ w83781d get_w83781d()
 
 mtp008 get_mtp008()
 {
-	int i;
 	float f;
 	mtp008 sensor= {0,0,0,00.01,00.01,00.01,00.01,00.01,00.01,00.01,00.01,00.01};
 	
 	if (schips.n_mtp008 > 0) {
 
 /* fan1 */
-		i = get_file(schips.s_mtp008[0],"/fan1");
+		get_file(schips.s_mtp008[0],"/fan1");
 		sensor.fan1 = get_int(buf,2);
 /* fan2 */
-		i = get_file(schips.s_mtp008[0],"/fan2");
+		get_file(schips.s_mtp008[0],"/fan2");
 		sensor.fan2 = get_int(buf,2);
 /* fan3 */
-		i = get_file(schips.s_mtp008[0],"/fan3");
+		get_file(schips.s_mtp008[0],"/fan3");
 		sensor.fan3 = get_int(buf,2);
 /* temp1 */
-		i = get_file(schips.s_mtp008[0],"/temp1");
+		get_file(schips.s_mtp008[0],"/temp1");
 		sensor.temp1 = get_float(buf,3);
 /* temp2 */
-		i = get_file(schips.s_mtp008[0],"/temp2");
+		get_file(schips.s_mtp008[0],"/temp2");
 		sensor.temp2 = get_float(buf,3);
 /* VCore1 */
-		i = get_file(schips.s_mtp008[0],"/in0");
+		get_file(schips.s_mtp008[0],"/in0");
 		sensor.VCore1 = get_float(buf,3);
 /* VCore2 */
-		i = get_file(schips.s_mtp008[0],"/in3");
+		get_file(schips.s_mtp008[0],"/in3");
 		sensor.VCore2 = get_float(buf,3);
 /* p33V */
-		i = get_file(schips.s_mtp008[0],"/in1");
+		get_file(schips.s_mtp008[0],"/in1");
 		sensor.p33V = get_float(buf,3);
 /* p12V */
-		i = get_file(schips.s_mtp008[0],"/in2");
+		get_file(schips.s_mtp008[0],"/in2");
 		f = get_float(buf,3);
 		sensor.p12V = f * ((38.00/10)+1);
 /* n12V */
-		i = get_file(schips.s_mtp008[0],"/in5");
+		get_file(schips.s_mtp008[0],"/in5");
 		f = get_float(buf,3);
 		sensor.n12V = ( f * 36 - 118.61 ) / 7;
 /* vid */
-		i = get_file(schips.s_mtp008[0],"/vid");
+		get_file(schips.s_mtp008[0],"/vid");
 		sensor.vid = get_float(buf,1);
 /* vtt */
-		i = get_file(schips.s_mtp008[0],"/in6");
+		get_file(schips.s_mtp008[0],"/in6");
 		sensor.vid = get_float(buf,3);
 	}	
  	return sensor;
@@ -411,56 +409,55 @@ mtp008 get_mtp008()
 
 lm79 get_lm79()
 {
-	int i;
 	float f;
 	lm79 sensor= {0,0,0,00.01,0,00.01,00.01,00.01,00.01,00.01,00.01,00.01,00.01,00.01};
 	
 	if (schips.n_lm79 > 0) {
 /* fan1 */
-		i = get_file(schips.s_lm79[0],"/fan1");
+		get_file(schips.s_lm79[0],"/fan1");
 		sensor.fan1 = get_int(buf,2);
 /* fan2 */
-		i = get_file(schips.s_lm79[0],"/fan2");
+		get_file(schips.s_lm79[0],"/fan2");
 		sensor.fan2 = get_int(buf,2);
 /* fan3 */
-		i = get_file(schips.s_lm79[0],"/fan3");
+		get_file(schips.s_lm79[0],"/fan3");
 		sensor.fan3 = get_int(buf,2);
 /* fan_div */
-		i = get_file(schips.s_lm79[0],"/fan_div");
+		get_file(schips.s_lm79[0],"/fan_div");
 		sensor.fan_div = get_int(buf,1);
 /* temp */
-		i = get_file(schips.s_lm79[0],"/temp");
+		get_file(schips.s_lm79[0],"/temp");
 		sensor.temp = get_float(buf,3);
 /* alarms */
-		i = get_file(schips.s_lm79[0],"/alarms");
+		get_file(schips.s_lm79[0],"/alarms");
 		sensor.alarms = get_int(buf,1);
 /* VCore1 */
-		i = get_file(schips.s_lm79[0],"/in0");
+		get_file(schips.s_lm79[0],"/in0");
 		sensor.VCore1 = get_float(buf,3);
 /* VCore2 */
-		i = get_file(schips.s_lm79[0],"/in1");
+		get_file(schips.s_lm79[0],"/in1");
 		sensor.VCore2 = get_float(buf,3);
 /* p33V */
-		i = get_file(schips.s_lm79[0],"/in2");
+		get_file(schips.s_lm79[0],"/in2");
 		sensor.p33V = get_float(buf,3);
 /* p5V */
-		i = get_file(schips.s_lm79[0],"/in3");
+		get_file(schips.s_lm79[0],"/in3");
 		f = get_float(buf,3);
 		sensor.p5V = f * ((6.80/10)+1);
 /* p12V */
-		i = get_file(schips.s_lm79[0],"/in4");
+		get_file(schips.s_lm79[0],"/in4");
 		f = get_float(buf,3);
 		sensor.p12V = f * ((28.00/10)+1);
 /* n12V */
-		i = get_file(schips.s_lm79[0],"/in5");
+		get_file(schips.s_lm79[0],"/in5");
 		f = get_float(buf,3);
 		sensor.n12V = -1 * f * (210/60.40);
 /* n5V */
-		i = get_file(schips.s_lm79[0],"/in6");
+		get_file(schips.s_lm79[0],"/in6");
 		f = get_float(buf,3);
 		sensor.n5V = -1 * f * (90.9/60.40);
 /* vid */
-		i = get_file(schips.s_lm79[0],"/vid");
+		get_file(schips.s_lm79[0],"/vid");
 		sensor.vid = get_float(buf,1);
 	}
 		
@@ -469,42 +466,41 @@ lm79 get_lm79()
 
 lm87 get_lm87()
 {
-	int i;
 	lm87 sensor= {0,0,00.01,00.01,00.01,00.01,00.01,00.01,00.01,00.01,00.01};
 	
 	if (schips.n_lm87 > 0) {
 /* fan1 */
-		i = get_file(schips.s_lm87[0],"/fan");
+		get_file(schips.s_lm87[0],"/fan");
 		sensor.fan1 = get_int(buf,2);
 /* fan2 */
-		i = get_file(schips.s_lm87[0],"/fan2");
+		get_file(schips.s_lm87[0],"/fan2");
 		sensor.fan2 = get_int(buf,2);
 /* temp1 */
-		i = get_file(schips.s_lm87[0],"/temp1");
+		get_file(schips.s_lm87[0],"/temp1");
 		sensor.temp1 = get_float(buf,3);
 /* CPUtemp */
-		i = get_file(schips.s_lm87[0],"/temp2");
+		get_file(schips.s_lm87[0],"/temp2");
 		sensor.CPUtemp = get_float(buf,3);
 /* Vccp1 */
-		i = get_file(schips.s_lm87[0],"/in1");
+		get_file(schips.s_lm87[0],"/in1");
 		sensor.Vccp1 = get_float(buf,3);
 /* Vccp2 */
-		i = get_file(schips.s_lm87[0],"/in5");
+		get_file(schips.s_lm87[0],"/in5");
 		sensor.Vccp2 = get_float(buf,3);
 /* p25V */
-		i = get_file(schips.s_lm87[0],"/in0");
+		get_file(schips.s_lm87[0],"/in0");
 		sensor.p25V = get_float(buf,3);
 /* p33V */
-		i = get_file(schips.s_lm87[0],"/in2");
+		get_file(schips.s_lm87[0],"/in2");
 		sensor.p33V = get_float(buf,3);
 /* p5V */
-		i = get_file(schips.s_lm87[0],"/in3");
+		get_file(schips.s_lm87[0],"/in3");
 		sensor.p5V = get_float(buf,3);
 /* p12V */
-		i = get_file(schips.s_lm87[0],"/in4");
+		get_file(schips.s_lm87[0],"/in4");
 		sensor.p12V = get_float(buf,3);
 /* vid */
-		i = get_file(schips.s_lm87[0],"/vid");
+		get_file(schips.s_lm87[0],"/vid");
 		sensor.vid = get_float(buf,1);
 	}
 		
@@ -513,11 +509,10 @@ lm87 get_lm87()
 
 lm75 get_lm75()
 {
-	int i;
 	lm75 sensor= {00.01};
 	
 	if (schips.n_lm75 > 0) {
-		i = get_file(schips.s_lm75[0],"/temp");
+		get_file(schips.s_lm75[0],"/temp");
 		sensor.temp = get_float(buf,3);
 	}
  	return sensor;
