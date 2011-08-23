@@ -800,7 +800,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 		 * The messiness is thanks to gcc and glibc ... strtol()
 		 * is marked __attribute__((warn_unused_result)) ...
 		 * to avoid warnings on all platforms, assign to a
-		 * a dummy variable that is explicitly marked unused.
+		 * dummy variable that is explicitly marked unused.
 		 */
 		long	tmpl __attribute__((unused));
 		tmpl = strtol(q+1, &end, 10);
