@@ -21,7 +21,16 @@
 #include <sys/stat.h>
 #include "../domain.h"
 #ifdef HAVE_SYSINFO
+/*
+ * On Solaris, need <sys/systeminfo.h> and sysinfo() is different.
+ * Other platforms need <sys/sysinfo.h>
+ */
+#ifdef IS_SOLARIS
+#include <sys/systeminfo.h>
+#define MAX_SYSNAME	257
+#else
 #include <sys/sysinfo.h>
+#endif
 #else
 static struct sysinfo {
     char	dummy[64];
@@ -1849,8 +1858,13 @@ doit:
 			    /* malloc and init the pmValueBlock for
 			     * sysinfo first type around */
 
-			    int size = sizeof(pmValueBlock) - sizeof(int) + 
-				sizeof (struct sysinfo);
+			    int size = sizeof(pmValueBlock) - sizeof(int);
+
+#ifdef IS_SOLARIS
+			    size += MAX_SYSNAME;
+#else
+			    size += sizeof (struct sysinfo);
+#endif
 
 			    if ((sivb = calloc(1, size)) == NULL ) 
 				return PM_ERR_GENERIC;
@@ -1860,7 +1874,11 @@ doit:
 			}
 
 #ifdef HAVE_SYSINFO
+#ifdef IS_SOLARIS
+			sysinfo(SI_SYSNAME, sivb->vbuf, MAX_SYSNAME);
+#else
 			sysinfo((struct sysinfo *)sivb->vbuf);
+#endif
 #else
 			strncpy((char *)sivb->vbuf, si.dummy, sizeof(struct sysinfo));
 #endif
