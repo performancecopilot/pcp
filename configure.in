@@ -951,7 +951,7 @@ _do_type()
     #   typedef long pid_t;
     #   typedef unsigned int pid_t;
     #   typedef unsigned int pid_t __attribute__ ((__mode__ (__SI__)));
-    #   __extension__ typedef int __pid_t;
+    #   __extension__ typedef int pid_t;
     #   typedef foo_t
     #                  pid_t;
     #   typedef struct {
@@ -963,6 +963,9 @@ _do_type()
     #   typedef __pid_t pid_t;
     #
     _raw=`$CPP conftest.c \
+    | $SED \
+	-e 's/[[ 	]]__attribute__ ((.*));/;/' \
+	-e 's/__extension__[[ 	]][[ 	]]*//' \
     | $AWK '
 /bozo/		{ print; next }
 $1 == "typedef"	{ printf "%s",$0
@@ -975,9 +978,10 @@ $1 == "typedef"	{ printf "%s",$0
 		  next
 		}
 wantsemi == 1	{ printf " %s",$0
+		  if ($0 ~ /{/) depth++
 		  if (depth) {
-		      if ($0 ~ /}/) depth--;
-		      if (depth > 0) next;
+		      if ($0 ~ /}/) depth--
+		      if (depth > 0) next
 		  }
 		  if ($NF ~ /;$/) {
 		      print ""
@@ -986,10 +990,7 @@ wantsemi == 1	{ printf " %s",$0
 		  }
 		}' \
     | $SED \
-	-e 's/^/ /' \
 	-e 's/\*/* /g' \
-	-e 's/[[ 	]]__attribute__ ((.*));/;/' \
-	-e 's/[[ 	]]__extension__[[ 	]][[ 	]]*/ /' \
 	-e 's/^[[ 	]]*//' \
         -e 's/;[[ 	]]*$//' \
     | $AWK '
