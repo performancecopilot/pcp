@@ -1,3 +1,7 @@
+pcp-3.5.9 (26 August 2011)
+    - Add rc script support for condrestart, and condrestart the pcp,
+      pmie and pmproxy services after an RPM install or upgrade.
+
 pcp-3.5.8 (08 August 2011)
     - Rework rsyslog PMDA to remove Switch use, very odd behaviour
       observed on RHEL5.2 (mysteriously failing to compile).
