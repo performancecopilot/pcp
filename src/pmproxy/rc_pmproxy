@@ -141,7 +141,7 @@ _shutdown()
 
 _usage()
 {
-    echo "Usage: $pmprog [-v] {start|restart|stop|status|reload|force-reload}"
+    echo "Usage: $pmprog [-v] {start|restart|condrestart|stop|status|reload|force-reload}"
 }
 
 while getopts v c
@@ -192,7 +192,13 @@ $RC_RESET
 # considered a success.
 case "$1" in
 
-  'start'|'restart'|'reload'|'force-reload')
+  'start'|'restart'|'condrestart'|'reload'|'force-reload')
+	if [ "$1" = "condrestart" ] && ! is_chkconfig_on pmproxy
+	then
+	    status=0
+	    exit
+	fi
+
 	_shutdown quietly
 
 	# PMPROXY messages should go to stderr, not the GUI notifiers
