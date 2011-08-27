@@ -106,7 +106,7 @@ CreatePIDfile(void)
 	fprintf(stderr, "Error: Cant open PID file %s\n", pidpath);
 	return -1;
     }
-    fprintf(pidfile, "%d\n", getpid());
+    fprintf(pidfile, "%" FMT_PID, getpid());
     fflush(pidfile);
     fclose(pidfile);
     return 0;
@@ -613,11 +613,11 @@ SignalShutdown(void)
     char	buf[256];
 #endif
     if (killer_pid != 0) {
-	__pmNotifyErr(LOG_INFO, "pmcd caught %s from pid=%d uid=%d\n",
+	__pmNotifyErr(LOG_INFO, "pmcd caught %s from pid=%" FMT_PID " uid=%d\n",
 	    killer_sig == SIGINT ? "SIGINT" : "SIGTERM", killer_pid, killer_uid);
 #if DESPERATE
 	__pmNotifyErr(LOG_INFO, "Try to find process in ps output ...\n");
-	sprintf(buf, "sh -c \". \\$PCP_DIR/etc/pcp.env; ( \\$PCP_PS_PROG \\$PCP_PS_ALL_FLAGS | \\$PCP_AWK_PROG 'NR==1 {print} \\$2==%d {print}' )\"", killer_pid);
+	sprintf(buf, "sh -c \". \\$PCP_DIR/etc/pcp.env; ( \\$PCP_PS_PROG \\$PCP_PS_ALL_FLAGS | \\$PCP_AWK_PROG 'NR==1 {print} \\$2==%" FMT_PID " {print}' )\"", killer_pid);
 	system(buf);
 #endif
     }
@@ -1134,7 +1134,7 @@ main(int argc, char *argv[])
 
     PrintAgentInfo(stderr);
     __pmAccDumpHosts(stderr);
-    fprintf(stderr, "\npmcd: PID = %u", (int)getpid());
+    fprintf(stderr, "\npmcd: PID = %" FMT_PID, getpid());
     fprintf(stderr, ", PDU version = %u", PDU_VERSION);
     fputc('\n', stderr);
     fputs("pmcd request port(s):\n"

@@ -33,12 +33,12 @@ prog=$PCP_RC_DIR/pcp
 
 _usage()
 {
-    echo "Usage: $prog [-v] {start|restart|stop|status|reload|force-reload}"
+    echo "Usage: $pmprog [-v] {start|restart|condrestart|stop|status|reload|force-reload}"
 }
 
 case "$1" in
 
-  'start'|'restart'|'reload'|'force-reload')
+  'start'|'restart'|'condrestart'|'reload'|'force-reload')
 	$PCP_RC_DIR/pmcd $*
 	$PCP_RC_DIR/pmlogger $*
         ;;

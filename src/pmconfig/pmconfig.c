@@ -33,7 +33,6 @@ main(int argc, char **argv)
 {
     int		c;
     int		errflag = 0;
-    int		aflag = 1;
     int		sflag = 0;
 
     __pmSetProgname(argv[0]);
@@ -42,11 +41,9 @@ main(int argc, char **argv)
         switch (c) {
         case 'a':       /* show all, defualt (unmodified) dump format */
 	case 'l':
-	    aflag = 1;
 	    sflag = 0;
 	    break;
         case 's':       /* show all, guarded format for shell expansion */
-	    aflag = 0;
 	    sflag = 1;
 	    break;
 	case '?':

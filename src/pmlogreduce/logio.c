@@ -198,9 +198,9 @@ newlabel(void)
 	exit(1);
     }
 
-    /* copy magic number, pid, host and timezone */
+    /* copy magic number, host and timezone, use our pid */
     lp->ill_magic = ilabel.ll_magic;
-    lp->ill_pid = getpid();
+    lp->ill_pid = (int)getpid();
     strncpy(lp->ill_hostname, ilabel.ll_hostname, PM_LOG_MAXHOSTLEN);
     strcpy(lp->ill_tz, ilabel.ll_tz);
 }

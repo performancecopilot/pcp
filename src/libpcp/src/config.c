@@ -17,6 +17,9 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
 
 #ifdef IS_MINGW
 /*

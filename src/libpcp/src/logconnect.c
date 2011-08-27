@@ -210,7 +210,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	    handshake[0].c_vala = LOG_PDU_VERSION;
 	    handshake[0].c_valb = 0;
 	    handshake[0].c_valc = 0;
-	    sts = __pmSendCreds(fd, getpid(), 1, handshake);
+	    sts = __pmSendCreds(fd, (int)getpid(), 1, handshake);
 	}
 	else
 	    sts = PM_ERR_IPC;

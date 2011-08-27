@@ -478,7 +478,7 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
 	    fprintf(stderr, " ... empty");
 	fputc('\n', stderr);
 	for (i = 0; i < numdso; i++) {
-	    fprintf(stderr, "%p [%d] domain=%d name=%s init=%s handle=%p\n",
+	    fprintf(stderr, PRINTF_P_PFX "%p [%d] domain=%d name=%s init=%s handle=" PRINTF_P_PFX "%p\n",
 		&dsotab[i], i, dsotab[i].domain, dsotab[i].name, dsotab[i].init, dsotab[i].handle);
 	}
     }

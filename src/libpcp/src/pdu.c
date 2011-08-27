@@ -312,7 +312,7 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 	    *p++ = '~';	/* buffer end */
 
 	if (mypid == -1)
-	    mypid = getpid();
+	    mypid = (int)getpid();
 	fprintf(stderr, "[%d]pmXmitPDU: %s fd=%d len=%d",
 		mypid, __pmPDUTypeStr_r(php->type, strbuf, sizeof(strbuf)), fd, php->len);
 	for (j = 0; j < jend; j++) {
@@ -530,7 +530,7 @@ check_read_len:
 	    *p++ = '~';	/* buffer end */
 
 	if (mypid == -1)
-	    mypid = getpid();
+	    mypid = (int)getpid();
 	fprintf(stderr, "[%d]pmGetPDU: %s fd=%d len=%d from=%d",
 		mypid, __pmPDUTypeStr_r(php->type, strbuf, sizeof(strbuf)), fd, php->len, php->from);
 	for (j = 0; j < jend; j++) {

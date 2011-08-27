@@ -351,7 +351,7 @@ init_ports(void)
     chmod(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
 
     /* remove any existing port file with my name (it's old) */
-    snprintf(ctlfile + (baselen-1), n, "%c%d", sep, (int)mypid);
+    snprintf(ctlfile + (baselen-1), n, "%c%" FMT_PID, sep, mypid);
     sts = unlink(ctlfile);
     if (sts == -1 && oserror() != ENOENT) {
 	fprintf(stderr, "%s: error removing %s: %s.  Exiting.\n",
@@ -470,7 +470,7 @@ control_req(void)
      * also need "from" to be pmlogger's pid as this is checked at
      * the other end
      */
-    sts = __pmSendError(fd, getpid(), LOG_PDU_VERSION);
+    sts = __pmSendError(fd, (int)getpid(), LOG_PDU_VERSION);
     if (sts < 0) {
 	fprintf(stderr, "error sending connection ACK to client: %s\n",
 		     pmErrStr(sts));

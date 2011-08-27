@@ -108,7 +108,7 @@ agent_creds(__pmPDU *pb)
 	handshake[0].c_vala = PDU_VERSION;
 	handshake[0].c_valb = 0;
 	handshake[0].c_valc = 0;
-	if ((sts = __pmSendCreds(outfd, getpid(), 1, handshake)) < 0)
+	if ((sts = __pmSendCreds(outfd, (int)getpid(), 1, handshake)) < 0)
 	    return sts;
     }
 
@@ -161,7 +161,7 @@ openpmda(char *fname)
 	printf(" %s", param.argv[i]);
     putchar('\n');
 
-    if (__pmProcessCreate(param.argv, &infd, &outfd) < 0) {
+    if (__pmProcessCreate(param.argv, &infd, &outfd) < (pid_t)0) {
 	fprintf(stderr, "openpmda: create process: %s\n", osstrerror());
     }
     else {

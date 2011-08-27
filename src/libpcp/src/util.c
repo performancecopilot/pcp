@@ -134,7 +134,7 @@ __pmNotifyErr(int priority, const char *message, ...)
     }
 
     PM_LOCK(__pmLock_libpcp);
-    pmprintf("[%.19s] %s(%d) %s: ", ctime(&now), pmProgname, getpid(), level);
+    pmprintf("[%.19s] %s(%" FMT_PID ") %s: ", ctime(&now), pmProgname, getpid(), level);
     PM_UNLOCK(__pmLock_libpcp);
     vpmprintf(message, arg);
     va_end(arg);
@@ -1379,7 +1379,7 @@ int
 __pmProcessExists(pid_t pid)
 {
     char proc_buf[PROCFS_PATH_SIZE];
-    snprintf(proc_buf, sizeof(proc_buf), "%s/%d", PROCFS, (int)pid);
+    snprintf(proc_buf, sizeof(proc_buf), "%s/%" FMT_PID, PROCFS, pid);
     return (access(proc_buf, F_OK) == 0);
 }
 #elif !defined(IS_MINGW)

@@ -907,9 +907,9 @@ __dmdumpexpr(node_t *np, int level)
 {
     char	strbuf[20];
 
-    if (level == 0) fprintf(stderr, "Derived metric expr dump from %p...\n", np);
+    if (level == 0) fprintf(stderr, "Derived metric expr dump from " PRINTF_P_PFX "%p...\n", np);
     if (np == NULL) return;
-    fprintf(stderr, "expr node %p type=%s left=%p right=%p save_last=%d", np, type_dbg[np->type+2], np->left, np->right, np->save_last);
+    fprintf(stderr, "expr node " PRINTF_P_PFX "%p type=%s left=" PRINTF_P_PFX "%p right=" PRINTF_P_PFX "%p save_last=%d", np, type_dbg[np->type+2], np->left, np->right, np->save_last);
     if (np->type == L_NAME || np->type == L_NUMBER)
 	fprintf(stderr, " [%s] master=%d", np->value, np->info == NULL ? 1 : 0);
     fputc('\n', stderr);
@@ -1639,7 +1639,7 @@ __dmclosecontext(__pmContext *ctxp)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DERIVE) {
-	fprintf(stderr, "__dmclosecontext(->ctx %d) called dm->%p %d metrics\n", __pmPtrToHandle(ctxp), cp, cp == NULL ? -1 : cp->nmetric);
+	fprintf(stderr, "__dmclosecontext(->ctx %d) called dm->" PRINTF_P_PFX "%p %d metrics\n", __pmPtrToHandle(ctxp), cp, cp == NULL ? -1 : cp->nmetric);
     }
 #endif
     if (cp == NULL) return;

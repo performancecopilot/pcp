@@ -35,3 +35,15 @@ endif
 ifeq ($(TARGET_OS), darwin)
 LOCAL_RULES = system load_average
 endif
+
+# Metrics missing from Solaris
+#
+# rule: low_util
+#   kernel.all.cpu.intr -12357 Unknown metric name
+#
+# rule: util
+#   kernel.all.cpu.intr -12357 Unknown metric name
+#
+ifeq ($(TARGET_OS), solaris)
+LOCAL_RULES = syscall context_switch system load_average excess_fpe
+endif

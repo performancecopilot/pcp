@@ -118,7 +118,7 @@ do_preamble(void)
 	sts = __pmStuffValue(&atom, &res->vset[i]->vlist[0], desc[i].type);
 	if (sts < 0)
 	    return sts;
-	res->vset[i]->vlist[0].inst = mypid;
+	res->vset[i]->vlist[0].inst = (int)mypid;
 	res->vset[i]->valfmt = sts;
     }
 
@@ -148,8 +148,8 @@ do_preamble(void)
 
 	    if ((instid = (int *)malloc(sizeof(*instid))) == NULL)
 		return -oserror();
-	    *instid = mypid;
-	    sprintf(path, "%d", (int)mypid);
+	    *instid = (int)mypid;
+	    sprintf(path, "%" FMT_PID, mypid);
 	    if ((instname = (char **)malloc(sizeof(char *)+strlen(path)+1)) == NULL)
 		return -oserror();
 	    /*

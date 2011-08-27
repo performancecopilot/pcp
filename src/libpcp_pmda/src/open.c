@@ -486,7 +486,7 @@ __pmdaSetupPDU(int infd, int outfd, char *agentname)
     handshake[0].c_vala = PDU_VERSION;
     handshake[0].c_valb = 0;
     handshake[0].c_valc = 0;
-    if ((sts = __pmSendCreds(outfd, getpid(), 1, handshake)) < 0) {
+    if ((sts = __pmSendCreds(outfd, (int)getpid(), 1, handshake)) < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s send creds: %s\n", agentname, pmErrStr(sts));
 	return -1;
     }

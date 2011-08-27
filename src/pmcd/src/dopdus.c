@@ -1068,7 +1068,7 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 		cookie <<= 8;
 		cookie |= credlist[i].c_vala;
 
-		if ((sts = __pmMakeAuthCookie(cp->pduInfo.authorize, sender)) != cookie) {
+		if ((sts = __pmMakeAuthCookie(cp->pduInfo.authorize, (pid_t)sender)) != cookie) {
 		    sts = PM_ERR_PERMISSION;
 		}
 #ifdef PCP_DEBUG

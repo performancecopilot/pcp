@@ -1,8 +1,15 @@
 #!/bin/sh
+#
 # Import PCP services into SMF but do not start them - let admin do it
 # when she's ready.
+#
+
+export PATH=/usr/sbin:$PATH
 
 svccfg import /var/svc/manifest/application/pcp.xml
 
-. /etc/pcp.env
-rm -f $PCP_VAR_DIR/pmns/root $PCP_VAR_DIR/pmns/root.bin
+# only needed if you're making changes to the namespace for the
+# pre-installed PMDAs like solaris
+#
+#. /etc/pcp.env
+#rm -f $PCP_VAR_DIR/pmns/root $PCP_VAR_DIR/pmns/root.bin

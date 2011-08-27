@@ -1076,7 +1076,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		fprintf(stderr, " cp=%s (len=%d)", cp->mlist[m].expr->info->ivlist[k].value.cp, cp->mlist[m].expr->info->ivlist[k].vlen);
 	    }
 	    else {
-		fprintf(stderr, " vbp=%p (len=%d)", cp->mlist[m].expr->info->ivlist[k].value.vbp, cp->mlist[m].expr->info->ivlist[k].vlen);
+		fprintf(stderr, " vbp=" PRINTF_P_PFX "%p (len=%d)", cp->mlist[m].expr->info->ivlist[k].value.vbp, cp->mlist[m].expr->info->ivlist[k].vlen);
 	    }
 	}
 	fputc('\n', stderr);

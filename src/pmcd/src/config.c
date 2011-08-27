@@ -755,7 +755,7 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
 	}
 	newAgent->ipc.socket.commandLine = BuildCmdLine(newAgent->ipc.socket.argv);
     }
-    newAgent->ipc.socket.agentPid = (pid_t) -1;
+    newAgent->ipc.socket.agentPid = (pid_t)-1;
 
     return 0;
 }
@@ -1273,7 +1273,7 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
 	handshake[0].c_vala = PDU_VERSION;
 	handshake[0].c_valb = 0;
 	handshake[0].c_valc = 0;
-	if ((sts = __pmSendCreds(aPtr->inFd, getpid(), 1, handshake)) < 0)
+	if ((sts = __pmSendCreds(aPtr->inFd, (int)getpid(), 1, handshake)) < 0)
 	    return sts;
 	else if (_pmcd_trace_mask)
 	    pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_CREDS, credcount);
@@ -1389,7 +1389,7 @@ error:
 }
 
 #ifndef IS_MINGW
-static int
+static pid_t
 CreateAgentPOSIX(AgentInfo *aPtr)
 {
     int		i;
@@ -1404,7 +1404,7 @@ CreateAgentPOSIX(AgentInfo *aPtr)
 	    fprintf(stderr,
 		    "pmcd: input pipe create failed for \"%s\" agent: %s\n",
 		    aPtr->pmDomainLabel, osstrerror());
-	    return -1;
+	    return (pid_t)-1;
 	}
 
 	if (pipe1(outPipe) < 0) {
@@ -1413,7 +1413,7 @@ CreateAgentPOSIX(AgentInfo *aPtr)
 		    aPtr->pmDomainLabel, osstrerror());
 	    close(inPipe[0]);
 	    close(inPipe[1]);
-	    return -1;
+	    return (pid_t)-1;
 	}
 	if (outPipe[1] > max_seen_fd)
 	    max_seen_fd = outPipe[1];
@@ -1434,7 +1434,7 @@ CreateAgentPOSIX(AgentInfo *aPtr)
 		close(outPipe[0]);
 		close(outPipe[1]);
 	    }
-	    return -1;
+	    return (pid_t)-1;
 	}
 
 	if (childPid) {
@@ -1488,7 +1488,7 @@ CreateAgentPOSIX(AgentInfo *aPtr)
 
 #else
 
-static int
+static pid_t
 CreateAgentWin32(AgentInfo *aPtr)
 {
     SECURITY_ATTRIBUTES saAttr;
@@ -1512,26 +1512,26 @@ CreateAgentWin32(AgentInfo *aPtr)
     if (!CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0)) {
 	fprintf(stderr, "pmcd: stdout CreatePipe failed, \"%s\" agent: %s\n",
 			aPtr->pmDomainLabel, osstrerror());
-	return -1;
+	return (pid_t)-1;
     }
     // Ensure the read handle to the pipe for STDOUT is not inherited.
     if (!SetHandleInformation(hChildStdoutRd, HANDLE_FLAG_INHERIT, 0)) {
 	fprintf(stderr, "pmcd: stdout SetHandleInformation, \"%s\" agent: %s\n",
 			aPtr->pmDomainLabel, osstrerror());
-	return -1;
+	return (pid_t)-1;
     }
 
     // Create a pipe for the child process's STDIN.
     if (!CreatePipe(&hChildStdinRd, &hChildStdinWr, &saAttr, 0)) {
 	fprintf(stderr, "pmcd: stdin CreatePipe failed, \"%s\" agent: %s\n",
 			aPtr->pmDomainLabel, osstrerror());
-	return -1;
+	return (pid_t)-1;
     }
     // Ensure the write handle to the pipe for STDIN is not inherited.
     if (!SetHandleInformation(hChildStdinWr, HANDLE_FLAG_INHERIT, 0)) {
 	fprintf(stderr, "pmcd: stdin SetHandleInformation, \"%s\" agent: %s\n",
 			aPtr->pmDomainLabel, osstrerror());
-	return -1;
+	return (pid_t)-1;
     }
 
     // Create the child process.
@@ -1556,7 +1556,7 @@ CreateAgentWin32(AgentInfo *aPtr)
     if (!bSuccess) {
 	fprintf(stderr, "pmcd: CreateProcess for \"%s\" agent: %s: %s\n",
 			aPtr->pmDomainLabel, command, osstrerror());
-	return -1;
+	return (pid_t)-1;
     }
 
     aPtr->inFd = _open_osfhandle((intptr_t)hChildStdinRd, _O_WRONLY);
@@ -1590,7 +1590,7 @@ CreateAgent(AgentInfo *aPtr)
     childPid = CreateAgentPOSIX(aPtr);
 #endif
     if (childPid < 0)
-	return childPid;
+	return (int)childPid;
 
     aPtr->status.isChild = 1;
     if (aPtr->ipcType == AGENT_PIPE) {
@@ -1607,8 +1607,8 @@ CreateAgent(AgentInfo *aPtr)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)
-	fprintf(stderr, "pmcd: started PMDA %s (%d), pid=%d\n",
-	        aPtr->pmDomainLabel, aPtr->pmDomainId, (int)childPid);
+	fprintf(stderr, "pmcd: started PMDA %s (%d), pid=%" FMT_PID "\n",
+	        aPtr->pmDomainLabel, aPtr->pmDomainId, childPid);
 #endif
     return 0;
 }
@@ -1641,8 +1641,8 @@ PrintAgentInfo(FILE *stream)
 
 	case AGENT_SOCKET:
 	    version = __pmVersionIPC(aPtr->inFd);
-	    fprintf(stream, " %3d %5d %3d %3d %3d ",
-		aPtr->pmDomainId, (int)aPtr->ipc.socket.agentPid, aPtr->inFd, aPtr->outFd, version);
+	    fprintf(stream, " %3d %5" FMT_PID " %3d %3d %3d ",
+		aPtr->pmDomainId, aPtr->ipc.socket.agentPid, aPtr->inFd, aPtr->outFd, version);
 	    fputs("bin ", stream);
 	    fputs("sock ", stream);
 	    if (aPtr->ipc.socket.addrDomain == AF_UNIX)
@@ -1666,8 +1666,8 @@ PrintAgentInfo(FILE *stream)
 
 	case AGENT_PIPE:
 	    version = __pmVersionIPC(aPtr->inFd);
-	    fprintf(stream, " %3d %5d %3d %3d %3d ",
-		aPtr->pmDomainId, (int)aPtr->ipc.pipe.agentPid, aPtr->inFd, aPtr->outFd, version);
+	    fprintf(stream, " %3d %5" FMT_PID " %3d %3d %3d ",
+		aPtr->pmDomainId, aPtr->ipc.pipe.agentPid, aPtr->inFd, aPtr->outFd, version);
 	    fputs("bin ", stream);
 	    if (aPtr->ipc.pipe.commandLine) {
 		fputs("pipe cmd=", stream);
@@ -1880,7 +1880,7 @@ ContactAgents(void)
 	for (i = 0; i < nAgents; i++) {
 	    aPtr = &agent[i];
 	    if (aPtr->ipcType == AGENT_SOCKET &&
-	        aPtr->ipc.socket.agentPid != (pid_t) -1) {
+	        aPtr->ipc.socket.agentPid != (pid_t)-1) {
 		sts = ConnectSocketAgent(aPtr);
 		aPtr->status.connected = sts == 0;
 		if (!aPtr->status.connected)
