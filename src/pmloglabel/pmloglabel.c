@@ -149,7 +149,6 @@ main(int argc, char *argv[])
     int			sts;
     int			lflag = 0;
     int			Lflag = 0;
-    int			sflag = 0;
     int			errflag = 0;
     int			verbose = 0;
     int			version = 0;
@@ -196,7 +195,6 @@ main(int argc, char *argv[])
 	    break;
 
 	case 's':	/* rewrite sentinels */
-	    sflag = 1;
 	    readonly = 0;
 	    break;
 
