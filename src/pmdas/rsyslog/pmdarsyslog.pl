@@ -18,7 +18,7 @@ use PCP::PMDA;
 
 my $pmda = PCP::PMDA->new('rsyslog', 107);
 my $statsfile = '/var/log/pcp/rsyslog/stats';
-my ($es_connfail, $es_submits, $es_failed, $es_success) = (0,0,0);
+my ($es_connfail, $es_submits, $es_failed, $es_success) = (0,0,0,0);
 my ($ux_submitted, $ux_discarded, $ux_ratelimiters) = (0,0,0);
 my ($interval, $lasttime) = (0,0);
 
