@@ -160,7 +160,7 @@ printdelta(FILE *f, struct timeval *tp)
     time_t	tt =  (time_t)tp->tv_sec;
 
     tmp = gmtime(&tt);
-    fprintf(stderr, "%02d:%02d:%02d.%03ld", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (long)tp->tv_usec);
+    fprintf(stderr, "%02d:%02d:%02d.%06ld", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (long)tp->tv_usec);
 }
 #endif
 /*
@@ -457,9 +457,9 @@ __pmAFunregister(int afid)
 	    interval = root->q_when;
 	    __pmtimevalNow(&now);
 	    tsub(&interval, &now);
-	    if (interval.tv_sec == 0 && interval.tv_usec == 0)
-		/* arbitrary 0.1 msec as minimal delay */
-		interval.tv_usec = 100;
+	    if (interval.tv_sec == 0 && interval.tv_usec < MIN_ITIMER_USEC)
+		/* use minimal delay (platform dependent) */
+		interval.tv_usec = MIN_ITIMER_USEC;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_AF) {
 		__pmPrintStamp(stderr, &now);
