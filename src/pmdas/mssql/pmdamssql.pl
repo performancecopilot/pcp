@@ -116,7 +116,7 @@ sub mssql_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
 
-    $pmda->log("mssql_fetch_callback $metric_name $cluster:$item ($inst)\n");
+    $pmda->log("mssql_fetch_callback $cluster:$item ($inst)\n");
 
     if ($inst != PM_IN_NULL)		{ return (PM_ERR_INST, 0); }
     if ($cluster == 0) {
