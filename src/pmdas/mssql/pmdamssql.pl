@@ -60,8 +60,8 @@ sub mssql_connection_setup
 	             "('MEMORYCLERK_SQLBUFFERPOOL', 'MEMORYCLERK_SQLQUERYCOMPILE'," .
 	             " 'MEMORYCLERK_SQLQUERYPLAN', 'MEMORYCLERK_SQLQUERYEXEC')");
 	        $sth_total_running_user_processes = $dbh->prepare(
-	             "SELECT count(*) as total_running_user_processes FROM sys.dm_exec_requests " .
-	             "WHERE session_id >= 51 AND status = 'running')";
+	             "SELECT count(*) FROM sys.dm_exec_requests " .
+	             "WHERE session_id >= 51 AND status = 'running'");
 	    }
     }
 }
