@@ -267,14 +267,14 @@ __pmFault_strdup(const char *s)
 
 #else
 void
-__pmFaultInject(char *ident)
+__pmFaultInject(char *ident, int class)
 {
     fprintf(stderr, "__pmFaultInject() called but library not compiled with -DPM_FAULT_INJECTION\n");
     exit(1);
 }
 
 void
-__pmFaultSummary(FILE *f)
+__pmFaultSummary(void)
 {
     fprintf(stderr, "__pmFaultSummary() called but library not compiled with -DPM_FAULT_INJECTION\n");
     exit(1);
