@@ -25,7 +25,6 @@ my $server = 'localhost';
 my $database = 'PCP';
 my $username = 'dbmonitor';
 my $password = 'dbmonitor';
-# my $bufferpoolused = "MEMORYCLERK_SQLBUFFERPOOL";
 
 # Configuration files for overriding the above settings
 for my $file (	'/etc/pcpdbi.conf',	# system defaults (lowest priority)
@@ -47,12 +46,14 @@ sub mssql_connection_setup
     $pmda->log("mssql_connection_setup\n");
 
     if (!defined($dbh)) {
-    	$dbh = DBI->connect("DBI:ODBC:Driver={SQL Server};Server=$server;Database=$database;UID=$username;PWD=$password");
+    	$dbh = DBI->connect("DBI:Sybase:server=$server", $username, $password);
     	if (defined($dbh)) {
 	        $pmda->log("MSSQL connection established\n");
 	        $sth_virtual_file_stats = $dbh->prepare(
-        	    "select num_of_reads, num_of_bytes_read, io_stall_read_ms, num_of_writes, " .
-        	    "num_of_bytes_written, io_stall_write_ms, size_on_disk_bytes " .
+        	    "select cast(num_of_reads as numeric), cast(num_of_bytes_read as numeric)," .
+        	    " cast(io_stall_read_ms as numeric), cast(num_of_writes as numeric), " .
+        	    " cast(num_of_bytes_written as numeric), cast(io_stall_write_ms as numeric), " .
+        	    " "cast(size_on_disk_bytes as numeric) " .
         	    "from sys.dm_io_virtual_file_stats(DB_ID('$database'),1)");
 	        $sth_os_memory_clerks = $dbh->prepare(
 	             "SELECT SUM(multi_pages_kb + virtual_memory_committed_kb + shared_memory_committed_kb + awe_allocated_kb)" .
