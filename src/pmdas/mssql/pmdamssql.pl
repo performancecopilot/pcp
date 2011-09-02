@@ -43,7 +43,7 @@ my @database_instances;
 
 sub mssql_connection_setup
 {
-    $pmda->log("mssql_connection_setup\n");
+    #$pmda->log("mssql_connection_setup\n");
 
     if (!defined($dbh)) {
     	$dbh = DBI->connect("DBI:Sybase:server=$server", $username, $password);
@@ -59,7 +59,7 @@ sub mssql_connection_setup
 	             "SELECT SUM(multi_pages_kb + virtual_memory_committed_kb + shared_memory_committed_kb + awe_allocated_kb)" .
 	             " from sys.dm_os_memory_clerks WHERE type IN " .
 	             "('MEMORYCLERK_SQLBUFFERPOOL', 'MEMORYCLERK_SQLQUERYCOMPILE'," .
-	             " 'MEMORYCLERK_SQLQUERYEXEC, 'MEMORYCLERK_SQLQUERYPLAN'')" .
+	             " 'MEMORYCLERK_SQLQUERYEXEC', 'MEMORYCLERK_SQLQUERYPLAN')" .
 	             " group by type order by type");
 	        $sth_total_running_user_processes = $dbh->prepare(
 	             "SELECT count(*) FROM sys.dm_exec_requests " .
@@ -70,7 +70,7 @@ sub mssql_connection_setup
 
 sub mssql_os_memory_clerks_refresh
 {
-    $pmda->log("mssql_os_memory_clerks_refresh\n");
+    #$pmda->log("mssql_os_memory_clerks_refresh\n");
 
     @os_memory_clerks = ();	# clear any previous contents
     if (defined($dbh)) {
@@ -84,7 +84,7 @@ sub mssql_os_memory_clerks_refresh
 
 sub mssql_virtual_file_stats_refresh
 {
-    $pmda->log("mssql_virtual_file_stats_refresh\n");
+    #$pmda->log("mssql_virtual_file_stats_refresh\n");
 
     @virtual_file_stats = ();	# clear any previous contents
     if (defined($dbh)) {
@@ -95,7 +95,7 @@ sub mssql_virtual_file_stats_refresh
 
 sub mssql_total_running_user_processes
 {
-    $pmda->log("mssql_total_running_user_processes\n");
+    #$pmda->log("mssql_total_running_user_processes\n");
 
     @total_running_user_processes = ();	# clear any previous contents
     if (defined($dbh)) {
@@ -108,7 +108,8 @@ sub mssql_refresh
 {
     my ($cluster) = @_;
 
-    $pmda->log("mssql_refresh $cluster\n");
+    #$pmda->log("mssql_refresh $cluster\n");
+
     if ($cluster == 0)		{ mssql_virtual_file_stats_refresh; }
     elsif ($cluster == 1)	{ mssql_os_memory_clerks_refresh; }
     elsif ($cluster == 2)	{ mssql_total_running_user_processes; }
@@ -118,7 +119,7 @@ sub mssql_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
 
-    $pmda->log("mssql_fetch_callback $cluster:$item ($inst)\n");
+    #$pmda->log("mssql_fetch_callback $cluster:$item ($inst)\n");
 
     if ($inst != PM_IN_NULL)		{ return (PM_ERR_INST, 0); }
     if ($cluster == 0) {
