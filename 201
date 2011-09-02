@@ -19,13 +19,16 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
+    # Note pmdaCacheDump: indom PM_INDOM_NULL lines come from QA
+    # fault injection
     sed \
 	-e "s;$PCP_VAR_DIR/;\$PCP_VAR_DIR/;" \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
 	-e 's/^\([0-9][0-9]*\) [0-9][0-9]* /\1 timestamp /' \
 	-e 's/torture_cache([0-9][0-9]*)/torture_cache(PID)/' \
 	-e '/active /s/ 0x0 / (nil) /' \
-	-e 's/^Cannot open /cat: /'
+	-e 's/^Cannot open /cat: /' \
+	-e '/pmdaCacheDump: indom PM_INDOM_NULL/d'
 }
 
 _filter2()
