@@ -51,9 +51,9 @@ sub mssql_connection_setup
 	        $pmda->log("MSSQL connection established\n");
 	        $sth_virtual_file_stats = $dbh->prepare(
         	    "select cast(num_of_reads as numeric), cast(num_of_bytes_read as numeric)," .
-        	    " cast(io_stall_read_ms as numeric), cast(num_of_writes as numeric), " .
-        	    " cast(num_of_bytes_written as numeric), cast(io_stall_write_ms as numeric), " .
-        	    " "cast(size_on_disk_bytes as numeric) " .
+        	    " cast(io_stall_read_ms as numeric), cast(num_of_writes as numeric)," .
+        	    " cast(num_of_bytes_written as numeric), cast(io_stall_write_ms as numeric)," .
+        	    " cast(size_on_disk_bytes as numeric) " .
         	    "from sys.dm_io_virtual_file_stats(DB_ID('$database'),1)");
 	        $sth_os_memory_clerks = $dbh->prepare(
 	             "SELECT SUM(multi_pages_kb + virtual_memory_committed_kb + shared_memory_committed_kb + awe_allocated_kb)" .
@@ -107,7 +107,7 @@ sub mssql_refresh
 {
     my ($cluster) = @_;
 
-    $pmda->log("mysql_refresh $cluster\n");
+    $pmda->log("mssql_refresh $cluster\n");
     if ($cluster == 0)		{ mssql_virtual_file_stats_refresh; }
     elsif ($cluster == 1)	{ mssql_os_memory_clerks_refresh; }
     elsif ($cluster == 2)	{ mssql_total_running_user_processes; }
