@@ -25,7 +25,8 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	checksum.c rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
         stuffvalue.c endian.c config.c access.c authcookie.c auxconnect.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
-	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c
+	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c \
+	fault.c
 
 HFILES = derive.h oldpmapi.h internal.h
 

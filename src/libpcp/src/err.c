@@ -24,6 +24,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "fault.h"
 
 /*
  * if you modify this table at all, be sure to remake qa/006
@@ -127,6 +128,8 @@ static const struct {
 	"Insufficient elements in list" },
     { PM_ERR_TOOBIG,		"PM_ERR_TOOBIG",
 	"Result size exceeded" },
+    { PM_ERR_FAULT,		"PM_ERR_FAULT",
+	"QA fault injected" },
     { PM_ERR_NYI,		"PM_ERR_NYI",
 	"Functionality not yet implemented" },
     { PM_ERR_THREAD,		"PM_ERR_THREAD",
@@ -168,11 +171,12 @@ pmErrStr(int code)
 	     */
 	    char *sp = strrchr(msg, ' ');
 	    char *endp = NULL;
-            long long ec = strtoll(sp+1, &endp, 0);
+            unsigned long long ec = strtoull(sp+1, &endp, 0);
 
             if ((endp != NULL) && (*endp == '\0') && (endp != sp+1)) {
-		if ((ec == -1LL) || (ec == (unsigned long long)-1LL)) {
-		    if ((unknown = strdup (msg)) != NULL) {
+		if (ec == (unsigned long long)-1LL) {
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
+		    if ((unknown = strdup(msg)) != NULL) {
 			unknown[sp - msg] = '\0';
 		    }
                 }

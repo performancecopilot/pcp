@@ -63,6 +63,7 @@
 
 #include <inttypes.h>
 #include "derive.h"
+#include "fault.h"
 
 static int	need_init = 1;
 static ctl_t	registered = {
@@ -120,6 +121,7 @@ __pmRegisterAnon(const char *name, int type)
     char	*msg;
     char	buf[21];	/* anon(PM_TYPE_XXXXXX) */
 
+PM_FAULT_CHECK(PM_FAULT_PMAPI);
     switch (type) {
 	case PM_TYPE_32:
 	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_32)");

@@ -192,6 +192,7 @@ typedef struct {
 /* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */
 #define PM_ERR_TOOBIG		(-PM_ERR_BASE-99)   /* Result size exceeded */
+#define PM_ERR_FAULT		(-PM_ERR_BASE-100)  /* QA fault injected */
 
 #define PM_ERR_PMDAREADY	(-PM_ERR_BASE-1048) /* now ready to respond */
 #define PM_ERR_PMDANOTREADY	(-PM_ERR_BASE-1049) /* not yet ready to respond */

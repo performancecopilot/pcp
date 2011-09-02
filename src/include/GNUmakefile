@@ -28,7 +28,7 @@ CONFFILES = platform_header.h platform_trailer builddefs pcp.conf
 
 LSRCFILES = platform_header.h.in platform_trailer.in \
 	    builddefs.in buildrules \
-	    pcp.conf.in pcp.env pcp.mingw mk_pmdbg
+	    pcp.conf.in pcp.env pcp.mingw mk_pmdbg fault.h
 
 LDIRT = builddefs.install
 

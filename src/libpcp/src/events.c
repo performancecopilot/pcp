@@ -21,10 +21,10 @@
  * same, so no locking is required.
  *
  */
-
 #include <inttypes.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "fault.h"
 
 /*
  * Dump a packed array of event records ... need to be paranoid
@@ -247,12 +247,17 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 
     PM_LOCK(__pmLock_libpcp);
     if (first) {
-	sts = __pmRegisterAnon(name_flags, PM_TYPE_U32);
-	if (sts < 0) {
-	    fprintf(stderr, "pmUnpackEventRecords: Warning: failed to register %s: %s\n", name_flags, pmErrStr(sts));
-	    PM_UNLOCK(__pmLock_libpcp);
-	    return sts;
+PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_PMAPI);
+	if (first == 1) {
+	    sts = __pmRegisterAnon(name_flags, PM_TYPE_U32);
+	    if (sts < 0) {
+		fprintf(stderr, "pmUnpackEventRecords: Warning: failed to register %s: %s\n", name_flags, pmErrStr(sts));
+		PM_UNLOCK(__pmLock_libpcp);
+		return sts;
+	    }
+	    first = 2;
 	}
+PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_PMAPI);
 	sts = __pmRegisterAnon(name_missed, PM_TYPE_U32);
 	if (sts < 0) {
 	    fprintf(stderr, "pmUnpackEventRecords: Warning: failed to register %s: %s\n", name_missed, pmErrStr(sts));
@@ -279,6 +284,7 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
      * allocate one more than needed as a NULL sentinel to be used
      * in pmFreeEventResult
      */
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     *rap = (pmResult **)malloc((eap->ea_nrecords+1) * sizeof(pmResult *));
     if (*rap == NULL) {
 	return -oserror();
@@ -301,6 +307,7 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 	else
 	    numpmid = erp->er_nparams + 1;
 	need = sizeof(pmResult) + (numpmid-1)*sizeof(pmValueSet *);
+PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	rp = (pmResult *)malloc(need); 
 	if (rp == NULL) {
 	    sts = -oserror();
@@ -314,6 +321,7 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
 	for (p = 0; p < numpmid; p++) {
 	    /* always have numval == 1 */
+PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	    rp->vset[p] = (pmValueSet *)malloc(sizeof(pmValueSet));
 	    if (rp->vset[p] == NULL) {
 		rp->numpmid = p;
@@ -384,16 +392,25 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 		    break;
 		case PM_TYPE_EVENT:	/* no nesting! */
 		default:
-		    while (p-- >= 0)
+		    while (p >= 0) {
 			free(rp->vset[p]);
-		    while (r-- >= 0)
-			pmFreeResult((*rap)[r]);
+			p--;
+		    }
+		    free(rp);
+		    r--;
+		    while (r >= 0) {
+			if ((*rap)[r] != NULL)
+			    pmFreeResult((*rap)[r]);
+			r--;
+		    }
+		    free(*rap);
 		    return PM_ERR_TYPE;
 	    }
 	    need = vsize + PM_VAL_HDR_SIZE;
 	    want = need;
 	    if (want < sizeof(pmValueBlock))
 		want = sizeof(pmValueBlock);
+PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	    rp->vset[p]->vlist[0].value.pval = (pmValueBlock *)malloc(want);
 	    if (rp->vset[p]->vlist[0].value.pval == NULL) {
 		sts = -oserror();

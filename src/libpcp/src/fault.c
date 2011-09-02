@@ -1,0 +1,283 @@
+/*
+ * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+ * 
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
+ */
+
+#include "pmapi.h"
+#include "impl.h"
+#include "fault.h"
+/* need pmda.h and libpcp_pmda for the pmdaCache* routines */
+#include "pmda.h"
+
+#include <ctype.h>
+
+/*
+ * Fault Injection - run-time control structure
+ */
+typedef struct {
+    int		ntrip;
+    int		op;
+    int		thres;
+    int		nfault;
+} control_t;
+
+#define PM_FAULT_LT	0
+#define PM_FAULT_LE	1
+#define PM_FAULT_EQ	2
+#define PM_FAULT_GE	3
+#define PM_FAULT_GT	4
+#define PM_FAULT_NE	5
+#define PM_FAULT_MOD	6
+
+#ifdef PM_FAULT_INJECTION
+
+int	__pmFault_arm;
+
+void
+__pmFaultInject(char *ident, int class)
+{
+    static int first = 1;
+    int		sts;
+    control_t	*cp;
+
+    if (first) {
+	char	*fname = getenv("PM_FAULT_CONTROL");
+	if (fname != NULL) {
+	    FILE	*f;
+	    if ((f = fopen(fname, "r")) == NULL) {
+		fprintf(stderr, "__pmFaultInject: cannot open \"%s\": %s\n", fname, strerror(errno));
+	    }
+	    else {
+		char	line[128];
+		int	lineno = 0;
+		/*
+		 * control line format
+		 * ident	- start of line to first white space
+		 * guard	- optional, consists of <op> and threshold
+		 * 		  <op> is one of <, <=, ==, >=, >=, != or %
+		 *		  threshold is an integer value ...
+		 *		  fault will be injected when
+		 *		  tripcount <op> threshold == 1
+		 * default guard is ">0", i.e. fault on every trip
+		 * leading # => comment
+		 */
+		pmdaCacheOp(PM_INDOM_NULL, PMDA_CACHE_CULL);
+		while (fgets(line, sizeof(line), f) != NULL) {
+		    char	*lp = line;
+		    char	*sp;
+		    char	*ep;
+		    int		op;
+		    int		thres;
+		    lineno++;
+		    while (*lp) {
+			if (*lp == '\n') {
+			    *lp = '\0';
+			    break;
+			}
+			lp++;
+		    }
+		    lp = line;
+		    while (*lp && isspace(*lp)) lp++;
+		    /* comment? */
+		    if (*lp == '#')
+			continue;
+		    sp = lp;
+		    while (*lp && !isspace(*lp)) lp++;
+		    /* empty line? */
+		    if (lp == sp)
+			continue;
+		    ep = lp;
+		    while (*lp && isspace(*lp)) lp++;
+		    if (*lp == '\0') {
+			op = PM_FAULT_GT;
+			thres = 0;
+		    }
+		    else {
+			if (strncmp(lp, "<=", 2) == 0) {
+			    op = PM_FAULT_LE;
+			    lp +=2;
+			}
+			else if (strncmp(lp, ">=", 2) == 0) {
+			    op = PM_FAULT_GE;
+			    lp +=2;
+			}
+			else if (strncmp(lp, "!=", 2) == 0) {
+			    op = PM_FAULT_NE;
+			    lp +=2;
+			}
+			else if (strncmp(lp, "==", 2) == 0) {
+			    op = PM_FAULT_EQ;
+			    lp +=2;
+			}
+			else if (*lp == '<') {
+			    op = PM_FAULT_LT;
+			    lp++;
+			}
+			else if (*lp == '>') {
+			    op = PM_FAULT_GT;
+			    lp++;
+			}
+			else if (*lp == '%') {
+			    op = PM_FAULT_MOD;
+			    lp++;
+			}
+			else {
+			    fprintf(stderr, "Ignoring: %s[%d]: illegal operator: %s\n", fname, lineno, line);
+			    continue;
+			}
+		    }
+		    while (*lp && isspace(*lp)) lp++;
+		    thres = (int)strtol(lp, &lp, 10);
+		    while (*lp && isspace(*lp)) lp++;
+		    if (*lp != '\0') {
+			fprintf(stderr, "Ignoring: %s[%d]: non-numeric threshold: %s\n", fname, lineno, line);
+			continue;
+		    }
+		    cp = (control_t *)malloc(sizeof(control_t));
+		    if (cp == NULL) {
+			fprintf(stderr, "__pmFaultInject: malloc failed: %s\n", strerror(errno));
+			break;
+		    }
+		    *ep = '\0';
+		    cp->ntrip = cp->nfault = 0;
+		    cp->op = op;
+		    cp->thres = thres;
+		    sts = pmdaCacheStore(PM_INDOM_NULL, PMDA_CACHE_ADD, sp, cp);
+		    if (sts < 0) {
+			fprintf(stderr, "%s[%d]: %s\n", fname, lineno, pmErrStr(sts));
+		    }
+		}
+	    }
+	}
+#ifdef HAVE_ATEXIT
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_FAULT)
+	    atexit(__pmFaultSummary);
+#endif
+#endif
+	first = 0;
+    }
+
+    sts = pmdaCacheLookupName(PM_INDOM_NULL, ident, NULL, (void **)&cp);
+    if (sts == PMDA_CACHE_ACTIVE) {
+	cp->ntrip++;
+	__pmFault_arm = 0;
+	switch (cp->op) {
+	    case PM_FAULT_LT:
+	    	__pmFault_arm = (cp->ntrip < cp->thres) ? class : 0;
+		break;
+	    case PM_FAULT_LE:
+	    	__pmFault_arm = (cp->ntrip <= cp->thres) ? class : 0;
+		break;
+	    case PM_FAULT_EQ:
+	    	__pmFault_arm = (cp->ntrip == cp->thres) ? class : 0;
+		break;
+	    case PM_FAULT_GE:
+	    	__pmFault_arm = (cp->ntrip >= cp->thres) ? class : 0;
+		break;
+	    case PM_FAULT_GT:
+	    	__pmFault_arm = (cp->ntrip > cp->thres) ? class : 0;
+		break;
+	    case PM_FAULT_NE:
+	    	__pmFault_arm = (cp->ntrip != cp->thres) ? class : 0;
+		break;
+	    case PM_FAULT_MOD:
+	    	__pmFault_arm = ((cp->ntrip % cp->thres) == 1) ? class : 0;
+		break;
+	}
+	if (__pmFault_arm != 0)
+	    cp->nfault++;
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_FAULT)
+	    fprintf(stderr, "__pmFaultInject(%s) ntrip=%d %s\n", ident, cp->ntrip, __pmFault_arm == 0 ? "SKIP" : "INJECT");
+#endif
+    }
+    else if (sts == PM_ERR_INST) {
+	/*
+	 * expected for injection points that are compiled in the code
+	 * but not registered via the control file
+	 */
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_FAULT)
+	    fprintf(stderr, "__pmFaultInject(%s) not registered\n", ident);
+#endif
+	 ;
+    }
+    else {
+	/* oops, this is serious */
+	fprintf(stderr, "__pmFaultInject(%s): %s\n", ident, pmErrStr(sts));
+    }
+
+}
+
+void
+__pmFaultSummary(void)
+{
+    int		inst;
+    int		sts;
+    char	*ident;
+    control_t	*cp;
+    static char	*opstr[] = { "<", "<=", "==", ">=", ">", "!=", "%" };
+
+    pmdaCacheOp(PM_INDOM_NULL, PMDA_CACHE_WALK_REWIND);
+
+    fprintf(stderr, "=== Fault Injection Summary Report ===\n");
+    while ((inst = pmdaCacheOp(PM_INDOM_NULL, PMDA_CACHE_WALK_NEXT)) != -1) {
+	sts = pmdaCacheLookup(PM_INDOM_NULL, inst, &ident, (void **)&cp);
+	// TODO sts error?
+	fprintf(stderr, "%s: guard trip%s%d, %d trips, %d faults\n", ident, opstr[cp->op], cp->thres, cp->ntrip, cp->nfault);
+
+    }
+}
+
+void
+*__pmFault_malloc(size_t size)
+{
+    if (__pmFault_arm == PM_FAULT_ALLOC) {
+	__pmFault_arm = 0;
+	errno = ENOMEM;
+	return NULL;
+    }
+    else 
+#undef malloc
+	return malloc(size);
+}
+
+char *
+__pmFault_strdup(const char *s)
+{
+    if (__pmFault_arm == PM_FAULT_ALLOC) {
+	__pmFault_arm = 0;
+	errno = ENOMEM;
+	return NULL;
+    }
+    else
+#undef strdup
+	return strdup(s);
+}
+
+#else
+void
+__pmFaultInject(char *ident)
+{
+    fprintf(stderr, "__pmFaultInject() called but library not compiled with -DPM_FAULT_INJECTION\n");
+    exit(1);
+}
+
+void
+__pmFaultSummary(FILE *f)
+{
+    fprintf(stderr, "__pmFaultSummary() called but library not compiled with -DPM_FAULT_INJECTION\n");
+    exit(1);
+
+}
+#endif

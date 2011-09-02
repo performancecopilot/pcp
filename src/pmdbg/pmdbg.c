@@ -75,6 +75,8 @@ static struct {
 		"Trace config initialization from pmGetConfig" },
     { DBG_TRACE_LOOP,		"LOOP",
 		"Diags for pmLoop* services" },
+    { DBG_TRACE_FAULT,		"FAULT",
+    		"Trace fault injection (if enabled)" },
 };
 
 static int	nfoo = sizeof(foo) / sizeof(foo[0]);
