@@ -100,11 +100,6 @@ metricname(pmID pmid)
 #define MARK_FOR_WRITE		1
 #define WRITTEN			2
 
-#define BREAK_EOF		1
-#define BREAK_LOGEND		2
-#define BREAK_WINEND		3
-
-
 /*
  *  reclist_t is in logger.h
  *	(list of pdu's to write out at start of time window)
@@ -327,7 +322,7 @@ newlabel(void)
 
     /* copy magic number, pid, host and timezone */
     lp->ill_magic = iap->label.ll_magic;
-    lp->ill_pid = getpid();
+    lp->ill_pid = (int)getpid();
     strncpy(lp->ill_hostname, iap->label.ll_hostname, PM_LOG_MAXHOSTLEN);
     if (farg) {
 	/*
@@ -1611,7 +1606,6 @@ main(int argc, char **argv)
     int		sts;
     int		stslog;			/* sts from nextlog() */
     int		stsmeta;		/* sts from nextmeta() */
-    int		breakflag;		/* reason for breaking out of while */
 
     char	*msg;
 
@@ -1823,7 +1817,6 @@ main(int argc, char **argv)
     current.tv_usec = 0;
     first_datarec = 1;
     pre_startwin = 1;
-    breakflag = 0;
 
     /* get all meta data first
      * nextmeta() should return 0 (will return -1 when all meta is eof)
@@ -1849,10 +1842,8 @@ main(int argc, char **argv)
 	 */
 	stslog = nextlog();
 
-	if (stslog < 0) {
-	    breakflag = BREAK_EOF;
+	if (stslog < 0)
 	    break;
-	}
 
 	/* find the _Nresult (or mark pdu) with the earliest timestamp;
 	 * set ilog
@@ -1894,16 +1885,12 @@ main(int argc, char **argv)
 	/* note - mark (after last archive) will be created, but this
 	 * break, will prevent it from being written out
 	 */
-	if (now > logend_time) {
-	    breakflag = BREAK_LOGEND;
+	if (now > logend_time)
 	    break;
-	}
 
 	sts = checkwinend(now);
-	if (sts < 0) {
-	    breakflag = BREAK_WINEND;
+	if (sts < 0)
 	    break;
-	}
 	if (sts > 0)
 	    continue;
 

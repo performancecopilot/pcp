@@ -144,7 +144,7 @@ main(int argc, char **argv)
 	exit(oserror());
     }
 
-    fprintf(stderr, "clientPID = %d\n", clientPID);
+    fprintf(stderr, "clientPID = %" FMT_PID "\n", clientPID);
 
     close(clientPipe[1]);
     cmdpipe = clientPipe[0]; /* parent/agent reads from here */

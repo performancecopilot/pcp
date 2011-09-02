@@ -764,7 +764,7 @@ main(int argc, char *argv[])
 
 	if (Lflag) {
 	    printf("Archive timezone: %s\n", label.ll_tz);
-	    printf("PID for pmlogger: %d\n", (int)label.ll_pid);
+	    printf("PID for pmlogger: %" FMT_PID "\n", label.ll_pid);
 	}
     }
 

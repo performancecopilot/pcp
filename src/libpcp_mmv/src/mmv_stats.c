@@ -214,7 +214,7 @@ mmv_stats_init(const char *fname,
 	hdr->tocs += 1;
     hdr->flags = fl;
     hdr->cluster = cluster;
-    hdr->process = getpid();
+    hdr->process = (__int32_t)getpid();
 
     toc = (mmv_disk_toc_t *)((char *)addr + sizeof(mmv_disk_header_t));
     tocidx = 0;

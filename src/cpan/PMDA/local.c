@@ -226,7 +226,7 @@ local_atexit(void)
 #ifdef HAVE_SIGNAL
     signal(SIGTERM, SIG_IGN);
 #endif
-    __pmProcessTerminate(0, 0);
+    __pmProcessTerminate((pid_t)0, 0);
 }
 
 static void

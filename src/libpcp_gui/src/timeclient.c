@@ -27,7 +27,7 @@ pmServerExec(int fd, int livemode)
     else
 	argv[1] = "-a";	/* -a for archives */
 
-    if (__pmProcessCreate(argv, &in, &out) < 0) {
+    if (__pmProcessCreate(argv, &in, &out) < (pid_t)0) {
 	__pmCloseSocket(fd);
 	return -1;
     }

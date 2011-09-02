@@ -124,7 +124,7 @@ compare_golden(FILE *f, const char *file, int sts, int warnings)
 	    status = 2;
 	}
 	if (label->ill_pid != golden.ill_pid) {
-	    fprintf(stderr, "Mismatched PID (%u/%u) between %s and %s\n",
+	    fprintf(stderr, "Mismatched PID (%d/%d) between %s and %s\n",
 			    label->ill_pid, golden.ill_pid, file, goldfile);
 	    status = 2;
 	}
@@ -149,7 +149,6 @@ main(int argc, char *argv[])
     int			sts;
     int			lflag = 0;
     int			Lflag = 0;
-    int			sflag = 0;
     int			errflag = 0;
     int			verbose = 0;
     int			version = 0;
@@ -163,7 +162,7 @@ main(int argc, char *argv[])
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "D:h:lLp:svV:Z:?")) != EOF) {
+    while ((c = getopt(argc, argv, "D:h:lLp:vV:Z:?")) != EOF) {
 	switch (c) {
 	case 'D':	/* debug flag */
 	    sts = __pmParseDebug(optarg);
@@ -192,11 +191,6 @@ main(int argc, char *argv[])
 
 	case 'p':	/* rewrite pid */
 	    pid = atoi(optarg);
-	    readonly = 0;
-	    break;
-
-	case 's':	/* rewrite sentinels */
-	    sflag = 1;
 	    readonly = 0;
 	    break;
 
@@ -235,7 +229,6 @@ main(int argc, char *argv[])
 "  -l           dump the archive label\n"
 "  -L           more verbose form of -l\n"
 "  -p pid       set the logger process ID field for all files in archive\n"
-"  -s           write the label sentinel values for all files in archive\n"
 "  -v           run in verbose mode, reporting on each stage of checking\n"
 "  -V version   write magic and version numbers for all files in archive\n"
 "  -Z timezone  set the timezone for all files in archive\n",
@@ -407,7 +400,7 @@ main(int argc, char *argv[])
 	}
 	if (Lflag) {
 	    printf("Archive timezone: %s\n", golden.ill_tz);
-	    printf("PID for pmlogger: %d\n", (int)golden.ill_pid);
+	    printf("PID for pmlogger: %d\n", golden.ill_pid);
 	}
     }
 

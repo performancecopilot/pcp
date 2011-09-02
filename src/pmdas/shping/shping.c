@@ -161,7 +161,7 @@ logmessage(int priority, const char *format, ...)
     for (p = buffer; *p; p++);
     if (*(--p) == '\n') *p = '\0';
 
-    fprintf (stderr, "[%.19s] %s(%d) %s: %s\n", ctime(&now), pmProgname, (int)getpid(), level, buffer) ;
+    fprintf (stderr, "[%.19s] %s(%" FMT_PID ") %s: %s\n", ctime(&now), pmProgname, getpid(), level, buffer) ;
     va_end (arglist) ;
 }
 
@@ -653,7 +653,7 @@ shping_init(pmdaInterface *dp)
     }
     else {
 	dp->status = 0;
-        logmessage(LOG_INFO, "Started sproc (spid=%d)\n", sprocpid);
+        logmessage(LOG_INFO, "Started sproc (spid=%" FMT_PID ")\n", sprocpid);
     }
 #elif defined (HAVE_PTHREAD_H)
     {
@@ -664,7 +664,7 @@ shping_init(pmdaInterface *dp)
 	    dp->status = err;
 	} else {
 	    dp->status = 0;
-	    logmessage (LOG_INFO, "Started thread %d\n", sprocpid);
+	    logmessage (LOG_INFO, "Started thread " FMT_PTHREAD "\n", sprocpid);
 	}
     }
 #else

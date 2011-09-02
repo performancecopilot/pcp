@@ -313,7 +313,7 @@ summary_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt * ex)
 static int
 summary_store(pmResult *result, pmdaExt * ex)
 {
-    return -EACCES;
+    return PM_ERR_PERMISSION;
 }
 
 void
@@ -337,7 +337,7 @@ summary_done(void)
 {
     int st;
 
-    fprintf(stderr, "summary agent pid=%d done\n", getpid());
+    fprintf(stderr, "summary agent pid=%" FMT_PID " done\n", getpid());
     kill(clientPID, SIGINT);
     waitpid(clientPID, &st, 0);
 }

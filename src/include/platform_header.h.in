@@ -102,6 +102,8 @@ extern "C" {
 #undef HAVE_SYS_TIME_H
 #undef HAVE_SYS_TIMEB_H
 #undef HAVE_SYS_TIMES_H
+#undef HAVE_SYS_SYSINFO_H
+#undef HAVE_SYS_SYSTEMINFO_H
 #undef HAVE_SYS_RESOURCE_H
 #undef HAVE_SYS_PRCTL_H
 #undef HAVE_ENDIAN_H
@@ -597,12 +599,3 @@ extern int alphasort(const_dirent **, const_dirent **);
 #define pipe1(fds) pipe(fds)
 #endif
 
-#ifndef __cplusplus      
-#undef inline
-#endif
-
-#ifdef __cplusplus      
-}
-#endif
-
-#endif /* _PLATFORM_DEFS_H */

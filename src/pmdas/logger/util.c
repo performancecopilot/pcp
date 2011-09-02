@@ -167,7 +167,7 @@ stop_cmd(pid_t pid)
     pid_t wait_pid;
     int wstatus;
 
-    __pmNotifyErr(LOG_INFO, "%s: killing pid %d", __FUNCTION__, (int)pid);
+    __pmNotifyErr(LOG_INFO, "%s: killing pid %" FMT_PID, __FUNCTION__, pid);
 
     /* Send the TERM signal. */
     rc = kill(pid, SIGTERM);

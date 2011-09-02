@@ -20,7 +20,9 @@
 #include <ctype.h>
 #include "pmapi.h"
 #include "impl.h"
-
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
 
 static void *
 parseAlloc(const char *func, size_t need)
@@ -90,7 +92,6 @@ pmParseMetricSpec(
     const char	    *pull;
     int		    length;
     int		    i;
-    int             type = 0;
     int		    inquote = 0;	/* true if within quotes */
 
     scan = spec;
@@ -110,7 +111,6 @@ pmParseMetricSpec(
     if (mark == NULL) mark = &scan[strlen(scan)-1];
     while (mark >= scan) {
 	if (*mark == ':') {
-	    type = PM_CONTEXT_HOST;
 	    h_start = scan;
 	    h_end = mark-1;
 	    while (h_end >= scan && isspace((int)*h_end)) h_end--;
@@ -123,7 +123,6 @@ pmParseMetricSpec(
 	    break;
 	}
 	else if (*mark == '/') {
-	    type = PM_CONTEXT_ARCHIVE;
 	    a_start = scan;
 	    a_end = mark-1;
 	    while (a_end >= scan && isspace((int)*a_end)) a_end--;

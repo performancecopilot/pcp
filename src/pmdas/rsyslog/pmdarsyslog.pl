@@ -18,7 +18,7 @@ use PCP::PMDA;
 
 my $pmda = PCP::PMDA->new('rsyslog', 107);
 my $statsfile = '/var/log/pcp/rsyslog/stats';
-my ($es_connfail, $es_submits, $es_failed, $es_success) = (0,0,0);
+my ($es_connfail, $es_submits, $es_failed, $es_success) = (0,0,0,0);
 my ($ux_submitted, $ux_discarded, $ux_ratelimiters) = (0,0,0);
 my ($interval, $lasttime) = (0,0);
 
@@ -110,13 +110,23 @@ $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
 	'Time interval observed between samples', '');
 $pmda->add_metric(pmda_pmid(0,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.imuxsock.submitted',
-	'', '');
+	'Cumulative count of unix domain socket input messages queued',
+	'Cumulative count of messages successfully queued to the rsyslog ' .
+	'main message queueing core that arrived on unix domain sockets.');
 $pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.imuxsock.discarded',
-	'', '');
+	'Count of unix domain socket messages discarded due to rate limiting',
+	'Cumulative count of messages that are were discarded due to their ' .
+	'priority being at or below rate-limit-severity and their sending ' .
+	'process being deemed to be sending messages too quickly (refer to ' .
+	'parameters ratelimitburst, ratelimitinterval and ratelimitseverity');
 $pmda->add_metric(pmda_pmid(0,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	pmda_units(0,0,0,0,0,0), 'rsyslog.imuxsock.numratelimiters',
-	'', '');
+	'Count of messages received that could be subject to rate limiting',
+	'Cumulative count of messages that rsyslog received and performed a ' .
+	'credentials (PID) lookup for subsequent rate limiting decisions. ' .
+	'The message would have to be at rate-limit-severity or lower, with ' .
+	'rate limiting enabled, in order for this count to be incremented.');
 $pmda->add_metric(pmda_pmid(0,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.connfail',
 	'Count of failed connections while attempting to send events', '');
@@ -133,16 +143,31 @@ $pmda->add_metric(pmda_pmid(0,11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 
 $pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U64, $queue_indom, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'rsyslog.queues.size',
-	'Current queue depth for each rsyslog queue', '');
+	'Current queue depth for each rsyslog queue',
+	'As messages arrive they are enqueued to the main message queue ' .
+	'(for example) - this counter is incremented for each such message.');
 $pmda->add_metric(pmda_pmid(1,1), PM_TYPE_U64, $queue_indom, PM_SEM_COUNTER,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.queues.enqueued',
-	'Cumumlative count of entries enqueued to individual queues', '');
-$pmda->add_metric(pmda_pmid(1,2), PM_TYPE_U64, $queue_indom, PM_SEM_INSTANT,
+	'Cumulative count of nessages enqueued to individual queues',
+	'As messages arrive they are added to the main message processing ' .
+	'queue, either individually or in batches in the case of messages ' .
+	'arriving on the network.');
+$pmda->add_metric(pmda_pmid(1,2), PM_TYPE_U64, $queue_indom, PM_SEM_COUNTER,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.queues.full',
-	'Cumulative count of occassions where a queue has been full', '');
+	'Cumulative count of message arrivals with a full queue',
+	'When messages are enqueued, a check is first made to ensure the ' .
+	'queue is not full.  If it is, this counter is incremented.  The ' .
+	'full-queue-handling logic will wait for a configurable time for ' .
+	'the queue congestion to ease, failing which the message will be ' .
+	'discarded.  Worth keeping an eye on this metric, as it indicates ' .
+	'rsyslog is not able to process messages quickly enough given the ' .
+	'current arrival rate.');
 $pmda->add_metric(pmda_pmid(1,3), PM_TYPE_U64, $queue_indom, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.queues.maxsize',
-	'Maximum depth reached by an individual queue', '');
+	'Maximum depth reached by an individual queue',
+	'When messages arrive (for example) they are enqueued to the main ' .
+	'message queue - if the queue length on arrival is now greater than ' .
+	'ever before observed, we set this value to the current queue size');
 
 $pmda->add_indom($queue_indom, \@queue_insts,
 	'Instance domain exporting each rsyslog queue', '');

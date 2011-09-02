@@ -685,7 +685,7 @@ pmdaText(int ident, int type, char **buffer, pmdaExt *pmda)
 int
 pmdaStore(pmResult *result, pmdaExt *pmda)
 {
-    return -EACCES;
+    return PM_ERR_PERMISSION;
 }
 
 /*

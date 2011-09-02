@@ -21,7 +21,9 @@
 #include "clusters.h"
 #include "proc_pid.h"
 #include <sys/stat.h>
+#ifdef HAVE_STRINGS_H
 #include <strings.h>
+#endif
 #include <ctype.h>
 
 /* Add namespace entries and prepare values for one cgroupfs directory entry */
@@ -406,6 +408,7 @@ cgroup_find_subsys(pmInDom indom, const char *options)
     char buffer[128];
     char *s, *out = NULL;
 
+    memset(opts, 0, sizeof(opts));
     strncpy(buffer, options, sizeof(buffer));
 
     s = strtok(buffer, ",");

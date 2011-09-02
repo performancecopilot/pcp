@@ -201,7 +201,7 @@ dump_active_list(void)
 
    (void)fprintf(stderr, "--- active list ---\n");
    for(i = 0; i < numactive; i++) {
-       (void)fprintf(stderr, "[%d] = %ld\n", i, (long)active_list[i]);
+       (void)fprintf(stderr, "[%d] = %" FMT_PID "\n", i, active_list[i]);
    }/*for*/
    (void)fprintf(stderr, "--- end active list ---\n");
 }
@@ -216,7 +216,7 @@ dump_proc_list(void)
    (void)fprintf(stderr, "--- proc list ---\n");
    for (i = 0; i < numprocs[current]; i++) {
        node = &proc_list[current][i]; 
-       (void)fprintf(stderr, "[%d] = %ld ", i, (long)node->pid);
+       (void)fprintf(stderr, "[%d] = %" FMT_PID " ", i, node->pid);
        (void)fprintf(stderr, "(syscalls = %ld) ", node->r_syscalls); 
        (void)fputc('\n', stderr);
    }/*for*/
@@ -614,7 +614,7 @@ refresh_proc_list(void)
 	    if (pmDebug & DBG_TRACE_APPL2) {
 		static char cmd[80];
 		if (cputime_delta > timestamp_delta) {
-		    sprintf(cmd, "(date ; ps -lp %d )>> %s.refresh", pid, log);
+		    sprintf(cmd, "(date ; ps -lp %" FMT_PID " )>> %s.refresh", pid, log);
 		    fprintf(stderr, "refresh: cmd = %s\n", cmd);
 		    system(cmd);
 		}
@@ -1162,7 +1162,7 @@ hotproc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 #ifdef PCP_DEBUG
 			    if (pmDebug & DBG_TRACE_APPL0) {
 				fprintf(stderr, "hotproc_fetch: getinfo succeeded: "
-					"pid=%d, j=%d\n", pid, j);
+					"pid=%" FMT_PID ", j=%d\n", pid, j);
 			    }
 #endif
 			    fetched[ctl_i][j] = 1;
@@ -1173,7 +1173,7 @@ hotproc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 #ifdef PCP_DEBUG
 			    if (pmDebug & DBG_TRACE_APPL0) {
 				fprintf(stderr, "hotproc_fetch: "
-					"getinfo failed: pid=%d, j=%d\n", pid, j);
+					"getinfo failed: pid=%" FMT_PID ", j=%d\n", pid, j);
 			    }
 #endif
 			    /* remove from active list */
@@ -1267,7 +1267,7 @@ hotproc_store(pmResult *result, pmdaExt *pmda)
     pmAtomValue av;
 
     if (!allow_stores) {
-	return -EACCES;
+	return PM_ERR_PERMISSION;
     }
 
     for (i = 0; i < result->numpmid; i++) {
@@ -1289,12 +1289,12 @@ hotproc_store(pmResult *result, pmdaExt *pmda)
 		    }
 		    break;
 		default:
-		    sts = -EACCES;
+		    sts = PM_ERR_PERMISSION;
 		    break;
 	    }
 	}
 	else {
-	    sts = -EACCES;
+	    sts = PM_ERR_PERMISSION;
 	}
 
 	if (sts < 0)

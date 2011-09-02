@@ -111,7 +111,7 @@ main(int argc, char **argv)
      * Construct the message from all contributing components.
      */
     if (iflag) {
-	snprintf(buffer, sizeof(buffer), "[%u]", getpid());
+	snprintf(buffer, sizeof(buffer), "[%" FMT_PID "]", getpid());
 	append(msg, sizeof(msg), buffer);
     }
     if (tag) {

@@ -604,7 +604,7 @@ main(int argc, char *argv[])
 	fprintf(stderr, "Warning: dup() failed: %s\n", pmErrStr(-oserror()));
     }
 
-    fprintf(stderr, "pmproxy: PID = %u", getpid());
+    fprintf(stderr, "pmproxy: PID = %" FMT_PID, getpid());
     fprintf(stderr, ", PDU version = %u\n", PDU_VERSION);
     fputs("pmproxy request port(s):\n"
 	  "  sts fd  IP addr\n"
