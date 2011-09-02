@@ -88,8 +88,12 @@ sub mssql_virtual_file_stats_refresh
 
     @virtual_file_stats = ();	# clear any previous contents
     if (defined($dbh)) {
-    	$sth_virtual_file_stats->execute();
-	    @virtual_file_stats = $sth_virtual_file_stats->fetchrow_array();
+	$sth_virtual_file_stats->execute();
+	my $result = $sth_virtual_file_stats->fetchall_arrayref();
+	@virtual_file_stats = ( $result->[0][0], $result->[0][1],
+				$result->[0][2], $result->[0][3],
+				$result->[0][4], $result->[0][5],
+				$result->[0][6] );
     }
 }
 
@@ -100,7 +104,8 @@ sub mssql_total_running_user_processes
     @total_running_user_processes = ();	# clear any previous contents
     if (defined($dbh)) {
     	$sth_total_running_user_processes->execute();
-	    @total_running_user_processes = $sth_total_running_user_processes->fetchrow_array();
+	my $result = $sth_total_running_user_processes->fetchall_arrayref();
+	@total_running_user_processes = ( $result->[0][0] );
     }
 }
 
