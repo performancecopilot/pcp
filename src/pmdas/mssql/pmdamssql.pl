@@ -59,7 +59,8 @@ sub mssql_connection_setup
 	             "SELECT SUM(multi_pages_kb + virtual_memory_committed_kb + shared_memory_committed_kb + awe_allocated_kb)" .
 	             " from sys.dm_os_memory_clerks WHERE type IN " .
 	             "('MEMORYCLERK_SQLBUFFERPOOL', 'MEMORYCLERK_SQLQUERYCOMPILE'," .
-	             " 'MEMORYCLERK_SQLQUERYPLAN', 'MEMORYCLERK_SQLQUERYEXEC')");
+	             " 'MEMORYCLERK_SQLQUERYEXEC, 'MEMORYCLERK_SQLQUERYPLAN'')" .
+	             " group by type order by type");
 	        $sth_total_running_user_processes = $dbh->prepare(
 	             "SELECT count(*) FROM sys.dm_exec_requests " .
 	             "WHERE session_id >= 51 AND status = 'running'");
@@ -75,7 +76,7 @@ sub mssql_os_memory_clerks_refresh
     if (defined($dbh)) {
     	$sth_os_memory_clerks->execute();
         my $result = $sth_os_memory_clerks->fetchall_arrayref();
-	    for my $i (0 .. $#{$result}) {
+	    for my $i (0 .. $#{$result}) {	    
 	        $os_memory_clerks[$i] = $result->[$i][0];
 	    }
 	}
@@ -126,12 +127,12 @@ sub mssql_fetch_callback
         return ($virtual_file_stats[$item], 1);
     }
     if ($cluster == 1) {
-        if ($item > 4)              { return (PM_ERR_PMID, 0); }
+        if ($item > 3)              { return (PM_ERR_PMID, 0); }
         if (!defined($os_memory_clerks[$item])) { return (PM_ERR_AGAIN, 0); }
         return ($os_memory_clerks[$item], 1);
     }
     if ($cluster == 2) {
-        if ($item > 1)              { return (PM_ERR_PMID, 0); }
+        if ($item > 0)              { return (PM_ERR_PMID, 0); }
         if (!defined($total_running_user_processes[$item])) { return (PM_ERR_AGAIN, 0); }
         return ($total_running_user_processes[$item], 1);
     }
@@ -172,10 +173,10 @@ $pmda->add_metric(pmda_pmid(1,1), PM_TYPE_U32, PM_INDOM_NULL,
 		  'mssql.os_memory_clerks.querycompile', '', '');
 $pmda->add_metric(pmda_pmid(1,2), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_KBYTE,0,0),
-		  'mssql.os_memory_clerks.queryplan', '', '');
+		  'mssql.os_memory_clerks.queryexec', '', '');
 $pmda->add_metric(pmda_pmid(1,3), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_KBYTE,0,0),
-		  'mssql.os_memory_clerks.queryexec', '', '');
+		  'mssql.os_memory_clerks.queryplan', '', '');
 
 $pmda->add_metric(pmda_pmid(2,0), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
