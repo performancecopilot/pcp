@@ -331,11 +331,11 @@ chkconfig_on_msg()
 	    _cmd=`which sysv-rc-conf`
 	    echo "    # $_cmd $_flag on"
 	else
+	    _start=`_runlevel_start $_flag`
+	    _stop=`_runlevel_stop $_flag`
 	    if [ -f /etc/debian_version ]; then
 	      echo "         update-rc.d -f $_flag defaults s$_start k$_stop"
 	    else
-	      _start=`_runlevel_start $_flag`
-	      _stop=`_runlevel_stop $_flag`
 	      for _r in `_runlevels $_flag`
 	      do
 		  echo "    # ln -sf ../init.d/$_flag /etc/rc.d/rc$_r.d/S$_start""$_flag"
