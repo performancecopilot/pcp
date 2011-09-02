@@ -522,7 +522,8 @@ cleanup:
 void
 PrintHeader(PEVENT_RECORD pEvent)
 {
-    printf("Event HEADER (size=%u) flags=%s type=%s\npid=%ld tid=%ld eid=%u\n",
+    /* Note: EventHeader.ProcessId is defined as ULONG */
+    printf("Event HEADER (size=%u) flags=%s type=%s\npid=%lu tid=%ld eid=%u\n",
 		pEvent->EventHeader.Size,
 		eventHeaderFlags(pEvent->EventHeader.Flags),
 		eventPropertyFlags(pEvent->EventHeader.EventProperty),

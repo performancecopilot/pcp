@@ -422,7 +422,7 @@ simple_store(pmResult *result, pmdaExt *pmda)
 	else if ((pmidp->cluster == 1 && 
 		 (pmidp->item == 2 || pmidp->item == 3)) ||
 		 (pmidp->cluster == 2 && pmidp->item == 4)) {
-	    sts = -EACCES;
+	    sts = PM_ERR_PERMISSION;
 	    break;
 	}
 	else {

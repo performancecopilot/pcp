@@ -212,7 +212,7 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, " [magic=%8x version=%d vol=%d pid=%d host=%s]\n",
-		lp->ill_magic, version, lp->ill_vol, (int)lp->ill_pid, lp->ill_hostname);
+		lp->ill_magic, version, lp->ill_vol, lp->ill_pid, lp->ill_hostname);
 #endif
     }
 
@@ -584,7 +584,7 @@ __pmLogCreate(const char *host, const char *base, int log_version,
 		 */
 		strncpy(lcp->l_label.ill_hostname, host, PM_LOG_MAXHOSTLEN-1);
 		lcp->l_label.ill_hostname[PM_LOG_MAXHOSTLEN-1] = '\0';
-		lcp->l_label.ill_pid = getpid();
+		lcp->l_label.ill_pid = (int)getpid();
 		/*
 		 * hack - how do you get the TZ for a remote host?
 		 */
@@ -794,7 +794,15 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 	    }
 	    if (q[1] != '\0') {
 		char	*end;
-		long	tmpl;	/* NOTUSED, pander to gcc */
+		/*
+		 * Below we don't care about the value from strtol(),
+		 * we're interested in updating the pointer "end".
+		 * The messiness is thanks to gcc and glibc ... strtol()
+		 * is marked __attribute__((warn_unused_result)) ...
+		 * to avoid warnings on all platforms, assign to a
+		 * dummy variable that is explicitly marked unused.
+		 */
+		long	tmpl __attribute__((unused));
 		tmpl = strtol(q+1, &end, 10);
 		if (*end == '\0') strip = 1;
 	    }
@@ -2091,7 +2099,7 @@ pmGetArchiveLabel(pmLogLabel *lp)
 	 */
 	rlp = &ctxp->c_archctl->ac_log->l_label;
 	lp->ll_magic = rlp->ill_magic;
-	lp->ll_pid = rlp->ill_pid;
+	lp->ll_pid = (pid_t)rlp->ill_pid;
 	lp->ll_start.tv_sec = rlp->ill_start.tv_sec;
 	lp->ll_start.tv_usec = rlp->ill_start.tv_usec;
 	memcpy(lp->ll_hostname, rlp->ill_hostname, PM_LOG_MAXHOSTLEN);

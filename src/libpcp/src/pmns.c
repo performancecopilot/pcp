@@ -19,6 +19,9 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
 
 /* token types */
 #define NAME	1

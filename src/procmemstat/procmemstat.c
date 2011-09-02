@@ -80,7 +80,7 @@ get_sample(void)
 	exit(1);
     }
 
-    printf("memory metrics for pid %d (sizes in Kbytes)\n", (int)pid);
+    printf("memory metrics for pid %" FMT_PID " (sizes in Kbytes)\n", pid);
     for (i = 0; i < numpmid; i++) {
 	/* process metrics in turn */
 	pmExtractValue(rp->vset[i]->valfmt, rp->vset[i]->vlist,

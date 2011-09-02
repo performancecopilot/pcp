@@ -214,7 +214,7 @@ __pmtracexmitPDU(int fd, __pmTracePDU *pdubuf)
     if (__pmfd == -1)
 	return PMTRACE_ERR_IPC;
 
-    php->from = getpid();
+    php->from = (__int32_t)getpid();
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_PDU) {
 	int	j;
@@ -410,8 +410,8 @@ __pmtracegetPDU(int fd, int timeout, __pmTracePDU **result)
 	while (p < (char *)*result + jend*sizeof(__pmTracePDU))
 	    *p++ = '~';	/* buffer end */
 
-	fprintf(stderr, "[%d]__pmtracegetPDU: %s fd=%d len=%d from=%d",
-		(int)getpid(), pdutypestr(php->type), fd, php->len, php->from);
+	fprintf(stderr, "[%" FMT_PID "]__pmtracegetPDU: %s fd=%d len=%d from=%d",
+		getpid(), pdutypestr(php->type), fd, php->len, php->from);
 
 	for (j = 0; j < jend; j++) {
 	    if ((j % 8) == 0)

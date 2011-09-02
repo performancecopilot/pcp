@@ -83,8 +83,14 @@ zp_get_vdevs(zpool_handle_t *zp, char *zpname, nvlist_t *vdt,
 	/* we've found disk, look no further */
 	if (rv == 0 && strcmp(vdev_type, "disk") == 0) {
 
+	    /* accommodate zpool api changes ... */
+#ifdef ZPOOL_CONFIG_VDEV_STATS
+	    rv = nvlist_lookup_uint64_array(vdt, ZPOOL_CONFIG_VDEV_STATS,
+		    (uint64_t **)&stats, &cnt);
+#else
 	    rv = nvlist_lookup_uint64_array(vdt, ZPOOL_CONFIG_STATS,
 		    (uint64_t **)&stats, &cnt);
+#endif
 	    if (rv != 0) {
 		__pmNotifyErr(LOG_WARNING, "Cannot get the stats of %s\'s "
 			"child\n", zpname);

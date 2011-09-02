@@ -101,13 +101,13 @@ actShell(Expr *x)
 	    /* parent, wait for child to exit to catch status */
 #if PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL2) {
-		fprintf(stderr, "actShell: fork: pid=%d\n", (int)pid);
+		fprintf(stderr, "actShell: fork: pid=%" FMT_PID "\n", pid);
 	    }
 #endif
 	    sts = waitpid(pid, &x->valid, 0);
 #if PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL2) {
-		fprintf(stderr, "actShell: wait: pid=%d status=0x%x", (int)pid, x->valid);
+		fprintf(stderr, "actShell: wait: pid=%" FMT_PID " status=0x%x", pid, x->valid);
 		if (WIFEXITED(x->valid))
 		    fprintf(stderr, " exit=%d", WEXITSTATUS(x->valid));
 		if (WIFSIGNALED(x->valid))
@@ -176,7 +176,7 @@ actAlarm(Expr *x)
 	if (pid <= 0) {
 #if PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL2) {
-		fprintf(stderr, "actAlarm: wait: pid=%d not done (wait returns %d)\n", x->valid, (int)pid);
+		fprintf(stderr, "actAlarm: wait: pid=%d not done (wait returns %" FMT_PID ")\n", x->valid, pid);
 	    }
 #endif
 	    return;
@@ -188,7 +188,7 @@ actAlarm(Expr *x)
 		fprintf(stderr, " exit=%d", WEXITSTATUS(sts));
 	    if (WIFSIGNALED(sts))
 		fprintf(stderr, " signal=%d", WTERMSIG(sts));
-	    fprintf(stderr, " (wait returns %d)\n", (int)pid);
+	    fprintf(stderr, " (wait returns %" FMT_PID ")\n", pid);
 	}
 #endif
 	x->valid = 0;

@@ -177,7 +177,7 @@ txmon_store(pmResult *result, pmdaExt *pmda)
 		case 1:
 		case 2:
 		case 3:
-		    sts = -EACCES;
+		    sts = PM_ERR_PERMISSION;
 		    break;
 
 	    	case 4:				/* txmon.control.level */

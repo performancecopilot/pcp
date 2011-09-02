@@ -64,7 +64,7 @@ StartDaemon(int argc, char **argv)
 void
 StartDaemon(int argc, char **argv)
 {
-    int childpid;
+    pid_t childpid;
 
     (void)argc; (void)argv;
 

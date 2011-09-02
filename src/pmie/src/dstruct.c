@@ -209,7 +209,7 @@ sleepTight(Task *t, int type)
 	while ((pid = waitpid(-1, &sts, WNOHANG)) > (pid_t)0) {
 #if PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL2) {
-		fprintf(stderr, "sleepTight: wait: pid=%d done status=0x%x", (int)pid, sts);
+		fprintf(stderr, "sleepTight: wait: pid=%" FMT_PID " done status=0x%x", pid, sts);
 		if (WIFEXITED(sts))
 		    fprintf(stderr, " exit=%d", WEXITSTATUS(sts));
 		if (WIFSIGNALED(sts))
@@ -1254,7 +1254,10 @@ dumpTask(Task *t)
     fprintf(stderr, "  retry time: ");
     showFullTime(stderr, t->retry);
     fputc('\n', stderr);
-    fprintf(stderr, "  host=%s (%s)\n", symName(t->hosts->name), t->hosts->down ? "down" : "up");
+    if (t->hosts == NULL)
+	fprintf(stderr, "  host=<null>\n");
+    else
+	fprintf(stderr, "  host=%s (%s)\n", symName(t->hosts->name), t->hosts->down ? "down" : "up");
     fprintf(stderr, "  rules:\n");
     for (i = 0; i < t->nrules; i++) {
 	fprintf(stderr, "    %s\n", symName(t->rules[i]));

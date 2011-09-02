@@ -284,7 +284,7 @@ dump(const char *file, void *addr)
     }
     printf("TOC count  = %u\n", hdr->tocs);
     printf("Cluster    = %u\n", hdr->cluster);
-    printf("Process    = %u\n", hdr->process);
+    printf("Process    = %d\n", hdr->process);
     printf("Flags      = 0x%x\n", hdr->flags);
 
     for (i = 0; i < hdr->tocs; i++) {

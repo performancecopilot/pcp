@@ -205,7 +205,6 @@ fetch_disk_data(kstat_ctl_t *kc, const pmdaMetric *mdesc, ctl_t *ctl,
 
     if ((kstat_read(kc, ctl->ksp, &ctl->iostat) == -1)) {
 	if (ctl->err == 0) {
-	    int e = oserror();
 	    __pmNotifyErr(LOG_WARNING,
 			  "Error: disk_fetch(pmid=%s disk=%s ...) - "
 			   "kstat_read(kc=%p, ksp=%p, ...) failed: %s\n",

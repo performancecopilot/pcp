@@ -226,7 +226,6 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
     pmResult		*rp;
     char		*base;
     char		*vbuf;
-    char		*valend;	/* end of the value */
     int			r;		/* records */
     int			p;		/* parameters in a record ... */
     int			numpmid;	/* metrics in a pmResult */
@@ -273,7 +272,6 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
     }
 
     base = (char *)&eap->ea_record[0];
-    valend = &((char *)eap)[eap->ea_len];
     /* walk packed event record array */
     for (r = 0; r < eap->ea_nrecords; r++) {
 	rp = NULL;

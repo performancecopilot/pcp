@@ -1,3 +1,7 @@
+pcp-3.5.9 (26 August 2011)
+    - Add rc script support for condrestart, and condrestart the pcp,
+      pmie and pmproxy services after an RPM install or upgrade.
+
 pcp-3.5.8 (08 August 2011)
     - Rework rsyslog PMDA to remove Switch use, very odd behaviour
       observed on RHEL5.2 (mysteriously failing to compile).
@@ -11,6 +15,7 @@ pcp-3.5.7 (05 August 2011)
     - Add regular expression based event filtering in logger PMDA.
     - The default pmcd.conf now has an access control section, and
       all remote store operations are blocked by default.
+    - Improve packaging of Perl components.
 
 pcp-3.5.6 (21 July 2011)
     - Fix warning from pmie_daily with some /bin/pwd versions.
@@ -27,7 +32,8 @@ pcp-3.5.4 (6 July 2011)
     - Fix warnings from pmlogger_check with some /bin/pwd versions.
 
 pcp-3.5.3 (6 July 2011)
-    - Remove reliance on a cpp binary being installed locally.
+    - Remove reliance on a cpp binary being installed locally with
+      new pmcpp applicaton.
     - Ensure compressed pmie log files are also cleaned up daily.
     - Extend the event store mechanism to be more generally useful.
     - Add memory limiting functionality to pmdalogger.

@@ -156,7 +156,9 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
     char	*newbuf;
     int		valfmt;
     int		numval;
+#ifdef DESPERATE
     pmID	pmid;
+#endif
 /*
  * Note: all sizes are in units of bytes ... beware that pp->data is in
  *	 units of __pmPDU
@@ -193,8 +195,8 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	vsize += sizeof(vlp->pmid) + sizeof(vlp->numval);
 	numval = ntohl(vlp->numval);
 	valfmt = ntohl(vlp->valfmt);
-	pmid = __ntohpmID(vlp->pmid);
 #ifdef DESPERATE
+	pmid = __ntohpmID(vlp->pmid);
 	fprintf(stderr, "vlist[%d] pmid: %s numval: %d",
 			i, pmIDStr(pmid), numval);
 #endif

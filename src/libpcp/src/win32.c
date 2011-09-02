@@ -86,7 +86,7 @@ __pmSetSignalHandler(int sig, __pmSignalHandler func)
 	return 0;
 
     sts = 0;
-    snprintf(evname, sizeof(evname), "PCP/%d/%s", getpid(), signame);
+    snprintf(evname, sizeof(evname), "PCP/%" FMT_PID "/%s", getpid(), signame);
     if (!(eventhdl = CreateEvent(NULL, FALSE, FALSE, TEXT(evname)))) {
 	sts = GetLastError();
 	fprintf(stderr, "CreateEvent::%s failed (%d)\n", signame, sts);
