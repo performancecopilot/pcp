@@ -1,9 +1,9 @@
+*.o
 779246
 agenttimeout
 aggrstore
 archinst
 arch_maxfd
-arch_maxfd.o
 atomstr
 badloglabel
 badpmcdpmid
@@ -157,9 +157,7 @@ parseinterval
 parsemetricspec
 pcp_lite_crash
 pducheck
-pducheck.o
 pdu-server
-pdu-server.o
 permfetch
 pmcdgone
 pmconvscale
@@ -184,7 +182,6 @@ reduce-gap.0
 reduce-gap.index
 reduce-gap.meta
 scale
-scale.o
 slow_af
 store
 storepast
@@ -195,7 +192,6 @@ template
 t_fetch
 torture_api
 torture_cache
-torture_cache.o
 torture-eol
 torture_indom
 torture_logmeta
