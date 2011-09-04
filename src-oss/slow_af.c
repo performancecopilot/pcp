@@ -7,6 +7,8 @@ static struct timeval	start;
 void pause(void) { SleepEx(INFINITE, TRUE); }
 #endif
 
+static int	reg[4];
+
 static void
 printstamp(struct timeval *tp)
 {
@@ -14,7 +16,7 @@ printstamp(struct timeval *tp)
     time_t		tt =  (time_t)tp->tv_sec;
 
     tmp = localtime(&tt);
-    fprintf(stderr, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)(tp->tv_usec/1000));
+    fprintf(stderr, "%02d:%02d:%02d.%06d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)tp->tv_usec);
 }
 
 void
@@ -29,28 +31,39 @@ onevent(int afid, void *data)
     gettimeofday(&now, NULL);
 
     if (pmDebug & DBG_TRACE_AF) {
-	fprintf(stderr, "onevent(0x%x, 0x%lx) called: ", afid, (unsigned long)data);
+	fprintf(stderr, "onevent(%d, " PRINTF_P_PFX "%p) called: ", afid, data);
 	printstamp(&now);
 	fputc('\n', stderr);
     }
 
     elapsed = now.tv_sec - start.tv_sec + (double)(now.tv_usec - start.tv_usec) / 1000000.0;
 
-    if (afid == 0x8003)
-	printf("event 0x%x callback\n", afid);
+    if (afid == reg[2])
+	printf("event %d callback\n", afid);
     else {
-	if (afid == 0x8001)
+	if (afid == reg[0])
 	    evnum = (int)(elapsed / 2.5);
 	else
 	    evnum = (int)(elapsed / 1.5);
 	/* evnum not reliable for small elapsed intervals */
 	if (evnum >= 3)
-	    printf("event 0x%x callback #%d\n", afid, evnum);
+	    printf("event %d callback #%d\n", afid, evnum);
 	else
-	    printf("event 0x%x callback #?\n", afid);
+	    printf("event %d callback #?\n", afid);
     }
 
-    if (delay > 6) exit(0);
+    if (delay > 6) {
+	/* only report the unexpected */
+	if (__pmAFunregister(reg[0]) < 0)
+	    printf("unregister %d failed\n", reg[0]);
+	if (__pmAFunregister(reg[1]) == 0)
+	    printf("unregister %d success\n", reg[1]);
+	if (__pmAFunregister(reg[2]) == 0)
+	    printf("unregister %d success\n", reg[2]);
+	if (__pmAFunregister(reg[3]) < 0)
+	    printf("unregister %d failed\n", reg[0]);
+	exit(0);
+    }
     if (delay > 0) {
 	/*
 	 * was sginap(delay * CLK_TCK) ... usleep() for
@@ -116,12 +129,14 @@ Options\n\
 
     __pmAFblock();
     gettimeofday(&start, NULL);
-    __pmAFregister(&delta, NULL, onevent);
+    reg[0] = __pmAFregister(&delta, NULL, onevent);
     delta.tv_sec = 1;
-    __pmAFregister(&delta, NULL, onevent);
+    reg[1] = __pmAFregister(&delta, NULL, onevent);
     delta.tv_sec = 0;
     delta.tv_usec = 0;
-    __pmAFregister(&delta, NULL, onevent);
+    reg[2] = __pmAFregister(&delta, NULL, onevent);
+    delta.tv_sec = 60;	/* will never fire */
+    reg[3] = __pmAFregister(&delta, NULL, onevent);
     __pmAFunblock();
 
     for ( ; ; ) {
