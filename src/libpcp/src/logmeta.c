@@ -14,6 +14,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "fault.h"
 #include <stddef.h>
 
 /* bytes for a length field in a header/trailer, or a string length field */
@@ -38,6 +39,7 @@ addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp, int numinst,
     __pmHashNode	*hp;
     int		sts;
 
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     if ((idp = (__pmLogInDom *)malloc(sizeof(__pmLogInDom))) == NULL)
 	return -oserror();
     idp->stamp = *tp;		/* struct assignment */
@@ -126,6 +128,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 	rlen = h.len - (int)sizeof(__pmLogHdr) - (int)sizeof(int);
 	if (h.type == TYPE_DESC) {
             numpmid++;
+PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	    if ((dp = (pmDesc *)malloc(sizeof(pmDesc))) == NULL) {
 		sts = -oserror();
 		goto end;
@@ -259,6 +262,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 	    int			k;
 	    int			allinbuf;
 
+PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	    if ((tbuf = (int *)malloc(rlen)) == NULL) {
 		sts = -oserror();
 		goto end;
@@ -296,6 +300,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 #else
 		allinbuf = 0; /* allocation for namelist + tbuf */
 		/* need to allocate to hold the pointers */
+PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 		namelist = (char **)malloc(numinst*sizeof(char*));
 		if (namelist == NULL) {
 		    sts = -oserror();
@@ -439,6 +444,7 @@ __pmLogPutDesc(__pmLogCtl *lcp, const pmDesc *dp, int numnames, char **names)
      * need to make a copy of the pmDesc, and add this, since caller
      * may re-use *dp
      */
+PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_ALLOC);
     if ((tdp = (pmDesc *)malloc(sizeof(pmDesc))) == NULL)
 	return -oserror();
     *tdp = *dp;		/* struct assignment */
@@ -590,6 +596,7 @@ __pmLogPutInDom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp,
      */
 
     real_numinst = numinst > 0 ? numinst : 0;
+PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
     if ((stridx = (int *)malloc(real_numinst * sizeof(stridx[0]))) == NULL)
 	return -oserror();
 
@@ -788,9 +795,11 @@ pmGetInDomArchive(pmInDom indom, int **instlist, char ***namelist)
 		}
 		if (i == numinst) {
 		    numinst++;
+PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
 		    if ((ilist = (int *)realloc(ilist, numinst*sizeof(ilist[0]))) == NULL) {
 			__pmNoMem("pmGetInDomArchive: ilist", numinst*sizeof(ilist[0]), PM_FATAL_ERR);
 		    }
+PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_ALLOC);
 		    if ((nlist = (char **)realloc(nlist, numinst*sizeof(nlist[0]))) == NULL) {
 			__pmNoMem("pmGetInDomArchive: nlist", numinst*sizeof(nlist[0]), PM_FATAL_ERR);
 		    }
@@ -800,6 +809,7 @@ pmGetInDomArchive(pmInDom indom, int **instlist, char ***namelist)
 		}
 	    }
 	}
+PM_FAULT_POINT("libpcp/" __FILE__ ":9", PM_FAULT_ALLOC);
 	if ((olist = (char **)malloc(numinst*sizeof(olist[0]) + strsize)) == NULL) {
 	    __pmNoMem("pmGetInDomArchive: olist", numinst*sizeof(olist[0]) + strsize, PM_FATAL_ERR);
 	}
