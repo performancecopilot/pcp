@@ -105,8 +105,8 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
             }
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOGMETA) {
-		fprintf(stderr, "__pmLogLoadMeta: header read -> %d: expected: %d\n",
-			n, (int)sizeof(__pmLogHdr));
+		fprintf(stderr, "__pmLogLoadMeta: header read -> %d: expected: %d or len=%d\n",
+			n, (int)sizeof(__pmLogHdr), h.len);
 	    }
 #endif
 	    if (ferror(f)) {
@@ -342,7 +342,16 @@ end:
     fseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
 
     if (sts == 0) {
-        __pmFixPMNSHashTab(lcp->l_pmns, numpmid, 1);
+	if (numpmid == 0) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_LOGMETA) {
+		fprintf(stderr, "__pmLogLoadMeta: no metrics found?\n");
+	    }
+#endif
+	    sts = PM_ERR_LOGREC;
+	}
+	else
+	    __pmFixPMNSHashTab(lcp->l_pmns, numpmid, 1);
     }
     return sts;
 }
