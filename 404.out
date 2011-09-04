@@ -82,7 +82,7 @@ pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 7
   29.0.134 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value "thirteen"
   29.0.128 (<noname>): numval: 1 valfmt: 0 vlist[]:
-   value 4294967282 0xfffffff2
+   value 14 1.9618179e-44 0xe
   29.0.129 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 15 2.1019477e-44 0xf
 pmResult[4]
@@ -118,9 +118,93 @@ Event Record [3] flags=2 with 6 parameters
     Parameter [1]: 29.0.131 = 11
     Parameter [2]: 29.0.134 = "twelve"
     Parameter [3]: 29.0.134 = "thirteen"
-    Parameter [4]: 29.0.128 = -14
+    Parameter [4]: 29.0.128 = 14
     Parameter [5]: 29.0.129 = 15
 Event Record [4] flags=80000000
     ==> 4 missed records
 Event Record [5] Error: buffer overflow
 pmUnpackEventRecords: Result size exceeded
+Expecting ... bad numval
+Event Records Dump ...
+PMID: 29.4095.0 numval: -12345
+Error: bad numval
+pmUnpackEventRecords: Generic error, already reported above
+Expecting ... bad valfmt
+Event Records Dump ...
+PMID: 29.4095.0 numval: 1 valfmt: 42
+Error: bad valfmt
+pmUnpackEventRecords: Impossible value or scale conversion
+Expecting ... odd instance
+[instance 42]
+Array contains 1 records and 0 missed records
+pmResult[0]
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 1
+  29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 1 1.4012985e-45 0x1
+Expecting ... 1 record, nested event type @ 1st parameter
+pmUnpackEventRecords: Unknown or illegal metric type
+Expecting ... 3 records, nested event type @ 2nd parameter of 2nd record
+pmUnpackEventRecords: Unknown or illegal metric type
+Expecting ... all good
+pmUnpackEventRecords returns ...
+pmResult[0]
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 10
+  29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 22 3.0828566e-44 0x16
+  29.0.129 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 23 3.2229865e-44 0x17
+  29.0.130 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value -24
+  29.0.131 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 25
+  29.0.132 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value -26
+  29.0.133 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 27
+  29.0.134 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value "minus twenty-eight"
+  29.0.135 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value [blob]
+  29.0.135 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value [blob]
+  29.0.128 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 29 4.0637655e-44 0x1d
+Array contains 1 records and 0 missed records
+pmResult[0]
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 10
+  29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 22 3.0828566e-44 0x16
+  29.0.129 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 23 3.2229865e-44 0x17
+  29.0.130 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value -24
+  29.0.131 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 25
+  29.0.132 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value -26
+  29.0.133 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 27
+  29.0.134 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value "minus twenty-eight"
+  29.0.135 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value [blob]
+  29.0.135 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value [blob]
+  29.0.128 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 29 4.0637655e-44 0x1d
+
+__pmDumpEventRecords coverage test ...
+Event Records Dump ...
+PMID: 29.4095.0 numval: 1 valfmt: 1 vtype: EVENT vlen: 180
+nrecords: 1
+Event Record [0] with 10 parameters
+    Parameter [0]: 29.0.127 = 22
+    Parameter [1]: 29.0.129 = 23
+    Parameter [2]: 29.0.130 = -24
+    Parameter [3]: 29.0.131 = 25
+    Parameter [4]: 29.0.132 = -26
+    Parameter [5]: 29.0.133 = 27
+    Parameter [6]: 29.0.134 = "minus twenty-eight"
+    Parameter [7]: 29.0.135 = [0f070301...]
+    Parameter [8]: 29.0.135 = [0f070301...]
+    Parameter [9]: 29.0.128 : bad type Unknown

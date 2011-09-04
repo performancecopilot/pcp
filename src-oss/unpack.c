@@ -69,6 +69,7 @@ add_param(pmID pmid, int type, pmAtomValue *avp)
 	    src = avp->cp;
 	    break;
 	case PM_TYPE_AGGREGATE:
+	case PM_TYPE_AGGREGATE_STATIC:
 	    vlen = avp->vbp->vlen - PM_VAL_HDR_SIZE;
 	    need += PM_PDU_SIZE_BYTES(vlen);
 	    src = avp->vbp->vbuf;
@@ -95,6 +96,9 @@ reset(void)
     eap = (pmEventArray *)eptr;
     eap->ea_nrecords = 0;
     eptr += sizeof(pmEventArray) - sizeof(pmEventRecord);
+    vs.numval = 1;
+    vs.valfmt = PM_VAL_DPTR;
+    vs.vlist[0].inst = PM_IN_NULL;
 }
 
 static int
@@ -130,7 +134,7 @@ dump(char *xpect)
 
     fprintf(stderr, "Expecting ... %s\n", xpect);
 
-    for (k = 0; k < vs.numval; k++) {
+    for (k = 0; k < vs.numval || vs.numval == PM_ERR_GENERIC; k++) {
 	if (vs.vlist[k].inst != PM_IN_NULL)
 	    fprintf(stderr, "[instance %d]\n", vs.vlist[k].inst);
 	nrecords = pmUnpackEventRecords(&vs, k, &res);
@@ -197,6 +201,7 @@ main(int argc, char **argv)
     struct timeval	stamp;
     pmAtomValue		atom;
     int			savelen;
+    pmEventParameter	*epp;
 /* === begin largely copied from samplepmda events.c === */
     static pmValueBlock	*aggr;
     static char		aggrval[] = { '\01', '\03', '\07', '\017', '\037', '\077', '\177', '\377' };
@@ -355,7 +360,7 @@ main(int argc, char **argv)
     add_param(pmid_string, PM_TYPE_STRING, &atom);
     atom.cp = "thirteen";
     add_param(pmid_string, PM_TYPE_STRING, &atom);
-    atom.l = -14;
+    atom.l = 14;
     add_param(pmid_32, PM_TYPE_32, &atom);
     atom.ul = 15;
     add_param(pmid_u32, PM_TYPE_U32, &atom);
@@ -376,6 +381,96 @@ main(int argc, char **argv)
 
     eap->ea_len = savelen;
     dump("Error - buffer overrun @ record");
+
+    reset();
+    add_record(&stamp, 0);
+    stamp.tv_sec++;
+    atom.ul = 1;
+    add_param(pmid_type, PM_TYPE_U32, &atom);
+    eap->ea_len = eptr - ebuf;
+    vs.numval = PM_ERR_GENERIC;
+    dump("bad numval");
+
+    reset();
+    add_record(&stamp, 0);
+    stamp.tv_sec++;
+    atom.ul = 1;
+    add_param(pmid_type, PM_TYPE_U32, &atom);
+    eap->ea_len = eptr - ebuf;
+    vs.valfmt = 42;
+    dump("bad valfmt");
+
+    reset();
+    add_record(&stamp, 0);
+    stamp.tv_sec++;
+    atom.ul = 1;
+    add_param(pmid_type, PM_TYPE_U32, &atom);
+    eap->ea_len = eptr - ebuf;
+    vs.vlist[0].inst = 42;
+    dump("odd instance");
+
+    reset();
+    add_record(&stamp, 0);
+    stamp.tv_sec++;
+    atom.vbp = aggr;
+    epp = (pmEventParameter *)eptr;
+    add_param(pmid_aggregate, PM_TYPE_AGGREGATE, &atom);
+    epp->ep_type = PM_TYPE_EVENT;
+    eap->ea_len = eptr - ebuf;
+    dump("1 record, nested event type @ 1st parameter");
+
+    reset();
+    add_record(&stamp, 0);
+    stamp.tv_sec++;
+    atom.ul = 18;
+    add_param(pmid_type, PM_TYPE_U32, &atom);
+    add_record(&stamp, 0);
+    stamp.tv_sec++;
+    atom.ul = 19;
+    add_param(pmid_type, PM_TYPE_U32, &atom);
+    atom.vbp = aggr;
+    epp = (pmEventParameter *)eptr;
+    add_param(pmid_aggregate, PM_TYPE_AGGREGATE, &atom);
+    epp->ep_type = PM_TYPE_EVENT;
+    atom.ul = 20;
+    add_param(pmid_type, PM_TYPE_U32, &atom);
+    add_record(&stamp, 0);
+    stamp.tv_sec++;
+    atom.ul = 21;
+    add_param(pmid_type, PM_TYPE_U32, &atom);
+    eap->ea_len = eptr - ebuf;
+    dump("3 records, nested event type @ 2nd parameter of 2nd record");
+
+    printf("\n");
+    printf("__pmDumpEventRecords coverage test ...\n");
+    reset();
+    add_record(&stamp, 0);
+    stamp.tv_sec++;
+    atom.l = 22;
+    add_param(pmid_type, PM_TYPE_32, &atom);
+    atom.ul = 23;
+    add_param(pmid_u32, PM_TYPE_U32, &atom);
+    atom.ll = -24;
+    add_param(pmid_64, PM_TYPE_64, &atom);
+    atom.ull = 25;
+    add_param(pmid_u64, PM_TYPE_U64, &atom);
+    atom.f = -26;
+    add_param(pmid_float, PM_TYPE_FLOAT, &atom);
+    atom.d = 27;
+    add_param(pmid_double, PM_TYPE_DOUBLE, &atom);
+    atom.cp = "minus twenty-eight";
+    add_param(pmid_string, PM_TYPE_STRING, &atom);
+    atom.vbp = aggr;
+    add_param(pmid_aggregate, PM_TYPE_AGGREGATE, &atom);
+    add_param(pmid_aggregate, PM_TYPE_AGGREGATE_STATIC, &atom);
+    epp = (pmEventParameter *)eptr;
+    atom.l = 29;
+    add_param(pmid_32, PM_TYPE_32, &atom);
+    eap->ea_len = eptr - ebuf;
+    pmDebug |= DBG_TRACE_FETCH;
+    dump("all good");
+    epp->ep_type = PM_TYPE_UNKNOWN;
+    __pmDumpEventRecords(stdout, &vs, 0);
 
     return 0;
 }
