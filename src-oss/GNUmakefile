@@ -93,7 +93,8 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c mmv_nostats.c \
 	record.c record-setarg.c clientid.c killparent.c grind_ctx.c \
 	pmdacache.c check_import.c unpack.c aggrstore.c atomstr.c \
-	grind_conv.c getconfig.c
+	grind_conv.c getconfig.c check_fault_injection.c exercise_fault.c \
+	err.c torture_logmeta.c
 
 ifeq ($(shell test $(PCP_VER) -ge 4000 && echo 1), 1)
 CFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
@@ -141,7 +142,7 @@ TRACELIB	= -lpcp_trace
 LDIRT	= *.log domain.h help.pag help.dir mv-foo.? mv-bar.? mv-bigbin.? \
 	$(subst .c,.o,$(CFILES)) \
 	chkctx2_lite.c mv-interp.? fetchrate_lite.c \
-	localconfig.h gmon.out pmtimzone.so pmtimezone.o
+	localconfig.h gmon.out pmtimzone.so pmtimezone.o fault.h
 
 .ORDER:	torture_api \
 	chkctx2 fetchrate
@@ -161,7 +162,7 @@ clean-exec:
 	rm -f $(TARGETS)
 	rm -f pv64
 
-# remave just the archives, not the binaries
+# remake just the archives, not the binaries
 #
 clean-arch:
 	rm -f $(MKARCH) $(subst 0,meta,$(MKARCH)) $(subst 0,index,$(MKARCH))
@@ -171,6 +172,11 @@ OBJECTS = $(shell echo $(CFILES) | sed -e 's/\.c/.o/g')
 # make just the archives, not the binaries
 #
 arch:	$(ARCH)
+
+fault.h:	../../pcp/src/include/fault.h
+	cp ../../pcp/src/include/fault.h fault.h
+
+check_fault_injection.o exercise_fault.o: fault.h
 
 # --- do NOT need libpcp
 #

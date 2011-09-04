@@ -13,6 +13,7 @@ bar.meta
 bigbin.0
 bigbin.index
 bigbin.meta
+check_fault_injection
 check_import
 chkacc1
 chkacc2
@@ -50,9 +51,12 @@ dumb_pmda
 endian
 eofarch
 eol
+err
 exercise
+exercise_fault
 exerlock
 exertz
+fault.h
 fetchpdu
 fetchrate
 fetchrate_lite
@@ -194,6 +198,7 @@ torture_cache
 torture_cache.o
 torture-eol
 torture_indom
+torture_logmeta
 torture_pmns
 torture_trace
 truncbin.0
