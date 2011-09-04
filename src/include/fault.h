@@ -32,6 +32,8 @@ extern int __pmFault_arm;
 #define PM_FAULT_POINT(ident, class) __pmFaultInject(ident, class)
 #define malloc(x) __pmFault_malloc(x)
 extern void *__pmFault_malloc(size_t);
+#define realloc(x,y) __pmFault_realloc(x,y)
+extern void *__pmFault_realloc(void *, size_t);
 #define strdup(x) __pmFault_strdup(x)
 extern char *__pmFault_strdup(const char *);
 #define PM_FAULT_CHECK(class) if (__pmFault_arm == class) { __pmFault_arm = 0; return PM_ERR_FAULT; }

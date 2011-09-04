@@ -252,6 +252,19 @@ void
 	return malloc(size);
 }
 
+void
+*__pmFault_realloc(void *ptr, size_t size)
+{
+    if (__pmFault_arm == PM_FAULT_ALLOC) {
+	__pmFault_arm = 0;
+	errno = ENOMEM;
+	return NULL;
+    }
+    else 
+#undef realloc
+	return realloc(ptr, size);
+}
+
 char *
 __pmFault_strdup(const char *s)
 {
