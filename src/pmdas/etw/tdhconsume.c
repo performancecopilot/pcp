@@ -21,10 +21,11 @@
 #include <inttypes.h>
 #include "util.h"
 
+#define PROPERTY_BUFFER	1024
 #define MAX_SESSIONS	64
 #define PCP_SESSION	"PCP Collector Set"
 
-USHORT globalPointerSize;	/* TODO: make local & on-stack */
+static int verbose;
 
 /* Get the event metadata */
 static DWORD
@@ -45,7 +46,7 @@ GetEventInformation(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO *pInfoPointer)
 	    /* Retrieve event metadata */
 	    sts = TdhGetEventInformation(pEvent, 0, NULL, pInfo, &size);
 	}
-    } else if (sts != ERROR_SUCCESS) {
+    } else if (sts != ERROR_SUCCESS && verbose) {
 	fprintf(stderr, "TdhGetEventInformation failed: %s (%lu)\n",
 		tdherror(sts), sts);
     }
@@ -251,7 +252,8 @@ FormatAndPrintData(PEVENT_RECORD pEvent, USHORT InType, USHORT OutType,
 
 	case TDH_INTYPE_POINTER:
 	case TDH_INTYPE_SIZET:
-	    if (globalPointerSize == 4)
+	    if (EVENT_HEADER_FLAG_32_BIT_HEADER ==
+		(pEvent->EventHeader.Flags & EVENT_HEADER_FLAG_32_BIT_HEADER))
 		printf("0x%I32x\n", *(PULONG)pData);
 	    else
 		printf("0x%I64x\n", *(PULONGLONG)pData);
@@ -299,16 +301,16 @@ FormatAndPrintData(PEVENT_RECORD pEvent, USHORT InType, USHORT OutType,
  * The count attribue can specify the size directly or specify the name 
  * of another property in the event data that contains the size.
  */
-static DWORD
+static void
 GetArraySize(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo,
 		USHORT i, PUSHORT ArraySize)
 {
     PROPERTY_DATA_DESCRIPTOR DataDescriptor;
-    DWORD size = 0, sts = ERROR_SUCCESS;
+    DWORD size = 0;
 
     if ((pInfo->EventPropertyInfoArray[i].Flags & PropertyParamCount) ==
 	PropertyParamCount) {
-	DWORD Count = 0;  /* Expects count to be defined as UINT16 or UINT32 */
+	DWORD cnt = 0;  /* expecting count to be defined as uint16 or uint32 */
 	DWORD j = pInfo->EventPropertyInfoArray[i].countPropertyIndex;
 
 	ZeroMemory(&DataDescriptor, sizeof(PROPERTY_DATA_DESCRIPTOR));
@@ -316,16 +318,13 @@ GetArraySize(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo,
 				(ULONGLONG)((PBYTE)(pInfo) +
 				pInfo->EventPropertyInfoArray[j].NameOffset);
 	DataDescriptor.ArrayIndex = ULONG_MAX;
-	sts = TdhGetPropertySize(pEvent, 0, NULL, 1, &DataDescriptor, &size);
-	/* TODO: error handling? */
-	sts = TdhGetProperty(pEvent, 0, NULL, 1, &DataDescriptor, size, (PBYTE)&Count);
-	*ArraySize = (USHORT)Count;
+	TdhGetPropertySize(pEvent, 0, NULL, 1, &DataDescriptor, &size);
+	TdhGetProperty(pEvent, 0, NULL, 1, &DataDescriptor, size, (PBYTE)&cnt);
+	*ArraySize = (USHORT)cnt;
     } else {
 	*ArraySize = pInfo->EventPropertyInfoArray[i].count;
     }
-    return sts;
 }
-
 
 /*
  * Mapped string values defined in a manifest will contain a trailing space
@@ -385,7 +384,6 @@ GetMapInfo(PEVENT_RECORD pEvent, LPWSTR pMapName, DWORD DecodingSource,
     return sts;
 }
 
-
 static DWORD
 PrintProperties(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo,
 		USHORT i, LPWSTR pStructureName, USHORT StructIndex)
@@ -396,15 +394,21 @@ PrintProperties(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo,
     PEVENT_MAP_INFO pMapInfo = NULL;
     PROPERTY_DATA_DESCRIPTOR DataDescriptors[2];
     ULONG DescriptorsCount = 0;
-    DWORD size = 0;
-    PBYTE pData = NULL;
     USHORT k, j;
 
+    static DWORD size;
+    static PBYTE pData;
+
+    if (pData == NULL) {
+	if ((pData = malloc(PROPERTY_BUFFER)) != NULL)
+	    size = PROPERTY_BUFFER;
+    }
+
     /* Get the size of the array (if the property is an array) */
-    sts = GetArraySize(pEvent, pInfo, i, &ArraySize);
+    GetArraySize(pEvent, pInfo, i, &ArraySize);
 
     for (k = 0; k < ArraySize; k++) {
-	printf("%*s%s: ", (pStructureName) ? 4 : 0, "",
+	wprintf(L"%*s%s: ", (pStructureName) ? 4 : 0, L"", (LPWSTR)
 		((PBYTE)(pInfo) + pInfo->EventPropertyInfoArray[i].NameOffset));
 
 	/* If the property is a structure, print the members of the structure */
@@ -416,9 +420,11 @@ PrintProperties(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo,
 		pInfo->EventPropertyInfoArray[i].structType.NumOfStructMembers;
 
 	    for (j = pInfo->EventPropertyInfoArray[i].structType.StructStartIndex; j < LastMember; j++) {
-		sts = PrintProperties(pEvent, pInfo, j, (LPWSTR)((PBYTE)(pInfo) + pInfo->EventPropertyInfoArray[i].NameOffset), k);
+		sts = PrintProperties(pEvent, pInfo, j,
+(LPWSTR)((PBYTE)(pInfo) + pInfo->EventPropertyInfoArray[i].NameOffset), k);
 		if (sts != ERROR_SUCCESS) {
-		    printf("Printing the members of the structure failed\n");
+		    fprintf(stderr,
+			    "Printing the members of the structure failed\n");
 		    goto cleanup;
 		}
 	    }
@@ -461,24 +467,18 @@ PrintProperties(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo,
 		sts = ERROR_EVT_INVALID_EVENT_DATA;
 		break;
 	    } else {
-		sts = TdhGetPropertySize(pEvent, 0, NULL,
-			DescriptorsCount, &DataDescriptors[0], &size);
-		if (sts != ERROR_SUCCESS) {
-		    fprintf(stderr, "TdhGetPropertySize failed: %s (%lu)\n",
+retry:
+		sts = TdhGetProperty(pEvent, 0, NULL,
+			DescriptorsCount, &DataDescriptors[0], size, pData);
+		if (sts == ERROR_INSUFFICIENT_BUFFER) {
+		    /* TdhGetPropertySize failing on Win2008, so do this: */
+		    pData = realloc(pData, size *= 2);
+		    goto retry;
+		} else if (sts != ERROR_SUCCESS) {
+		    fprintf(stderr, "TdhGetProperty failed: %s (%ld)\n",
 				tdherror(sts), sts);
 		    goto cleanup;
 		}
-
-		pData = malloc(size);
-		if (pData == NULL) {
-		    fprintf(stderr,
-			"Failed to allocate property data memory (%ld)\n", size);
-		    sts = ERROR_OUTOFMEMORY;
-		    goto cleanup;
-		}
-
-		sts = TdhGetProperty(pEvent, 0, NULL,
-			DescriptorsCount, &DataDescriptors[0], size, pData);
 
 		/*
 		 * Get the name/value map if the property specifies a value map.
@@ -501,10 +501,6 @@ PrintProperties(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo,
 		    goto cleanup;
 		}
 
-		if (pData) {
-		    free(pData);
-		    pData = NULL;
-		}
 		if (pMapInfo) {
 		    free(pMapInfo);
 		    pMapInfo = NULL;
@@ -515,11 +511,6 @@ PrintProperties(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo,
 
 cleanup:
 
-    if (pData) {
-	free(pData);
-	pData = NULL;
-    }
-
     if (pMapInfo) {
 	free(pMapInfo);
 	pMapInfo = NULL;
@@ -529,7 +520,7 @@ cleanup:
 }
 
 void
-DecodeHeader(PEVENT_RECORD pEvent)
+PrintHeader(PEVENT_RECORD pEvent)
 {
     /* Note: EventHeader.ProcessId is defined as ULONG */
     printf("Event HEADER (size=%u) flags=%s type=%s\npid=%lu tid=%ld eid=%u\n",
@@ -538,7 +529,8 @@ DecodeHeader(PEVENT_RECORD pEvent)
 		eventPropertyFlags(pEvent->EventHeader.EventProperty),
 		pEvent->EventHeader.ThreadId, pEvent->EventHeader.ProcessId,
 		pEvent->EventHeader.EventDescriptor.Id);
-    if (pEvent->EventHeader.Flags & EVENT_HEADER_FLAG_PRIVATE_SESSION) {
+    if (pEvent->EventHeader.Flags &
+	(EVENT_HEADER_FLAG_PRIVATE_SESSION|EVENT_HEADER_FLAG_NO_CPUTIME)) {
 	printf("Time processor=%"PRIu64"\n", pEvent->EventHeader.ProcessorTime);
     } else {
 	printf("Time: sys=%lu usr=%lu\n",
@@ -546,54 +538,16 @@ DecodeHeader(PEVENT_RECORD pEvent)
     }
     printf("Event PROVIDER %s\n", strguid(&pEvent->EventHeader.ProviderId));
     printf("Event ACTIVITY %s\n", strguid(&pEvent->EventHeader.ActivityId));
-
-    if (pEvent->EventHeader.Flags & EVENT_HEADER_FLAG_STRING_ONLY) {
-	printf("String: %ls\n\n", (wchar_t *)pEvent->UserData);
-    }
 }
 
-/* Callback that receives the events */
-VOID WINAPI
-ProcessEvent(PEVENT_RECORD pEvent)
+void
+PrintTimestamp(PEVENT_RECORD pEvent)
 {
-    DWORD sts = ERROR_SUCCESS;
-    PTRACE_EVENT_INFO pInfo = NULL;
     ULONGLONG TimeStamp = 0;
     ULONGLONG Nanoseconds = 0;
     SYSTEMTIME st;
     SYSTEMTIME stLocal;
     FILETIME ft;
-    USHORT i;
-
-    DecodeHeader(pEvent);
-
-    /*
-     * Process the event.
-     * The pEvent->UserData member is a pointer to the event specific data,
-     * if any exists.
-     */
-    sts = GetEventInformation(pEvent, &pInfo);
-    if (sts != ERROR_SUCCESS)
-	goto cleanup;
-
-    /*
-     * Determine whether the event is defined by a MOF class, in an
-     * instrumentation manifest, or a WPP template; to use TDH to decode
-     * the event, it must be defined by one of these three sources.
-     */
-    if (DecodingSourceWbem == pInfo->DecodingSource) {  /* MOF class */
-	printf("ProcessEvent: MOF class event\n");
-	printf("Event GUID: %s\n", strguid(&pInfo->EventGuid));
-	printf("Event version: %d\n", pEvent->EventHeader.EventDescriptor.Version);
-	printf("Event type: %d\n", pEvent->EventHeader.EventDescriptor.Opcode);
-    } else if (DecodingSourceXMLFile == pInfo->DecodingSource) {
-	printf("ProcessEvent: XML instrumentation manifest event\n");
-	printf("Event ID: %d\n", pInfo->EventDescriptor.Id);
-    } else {
-	/* Not handling the WPP case */
-	printf("ProcessEvent: WPP event\n");
-	goto cleanup;
-    }
 
     /* Print the time stamp for when the event occurred */
     ft.dwHighDateTime = pEvent->EventHeader.TimeStamp.HighPart;
@@ -604,26 +558,114 @@ ProcessEvent(PEVENT_RECORD pEvent)
     TimeStamp = pEvent->EventHeader.TimeStamp.QuadPart;
     Nanoseconds = (TimeStamp % 10000000) * 100;
 
-    printf("%02d/%02d/%02d %02d:%02d:%02d.%I64u\n", 
+    printf("Event TIMESTAMP: %02d/%02d/%02d %02d:%02d:%02d.%I64u\n", 
 	    stLocal.wMonth, stLocal.wDay, stLocal.wYear, stLocal.wHour,
 	    stLocal.wMinute, stLocal.wSecond, Nanoseconds);
+}
 
-    if (EVENT_HEADER_FLAG_32_BIT_HEADER ==
-	(pEvent->EventHeader.Flags & EVENT_HEADER_FLAG_32_BIT_HEADER))
-	globalPointerSize = 4;
+void
+PrintEventInfo(PTRACE_EVENT_INFO pInfo)
+{
+    if (DecodingSourceWbem == pInfo->DecodingSource)
+	printf("EventInfo: MOF class event\n");
+    else if (DecodingSourceXMLFile == pInfo->DecodingSource)
+	printf("EventInfo: XML manifest event\n");
+    else if (DecodingSourceWPP == pInfo->DecodingSource)
+	printf("EventInfo: WPP event\n");
+
+    printf("Event GUID: %s\n", strguid(&pInfo->EventGuid));
+
+    if (pInfo->ProviderNameOffset > 0)
+	wprintf(L"Provider name: %s\n",
+		(LPWSTR)((PBYTE)(pInfo) + pInfo->ProviderNameOffset));
+
+    if (DecodingSourceXMLFile == pInfo->DecodingSource)
+	wprintf(L"Event ID: %hu\n", pInfo->EventDescriptor.Id);
+
+    wprintf(L"Version: %d\n", pInfo->EventDescriptor.Version);
+
+    if (pInfo->ChannelNameOffset > 0)
+	wprintf(L"Channel name: %s\n",
+		(LPWSTR)((PBYTE)(pInfo) + pInfo->ChannelNameOffset));
+
+    if (pInfo->LevelNameOffset > 0)
+	wprintf(L"Level name: %s\n",
+		(LPWSTR)((PBYTE)(pInfo) + pInfo->LevelNameOffset));
     else
-	globalPointerSize = 8;
+	wprintf(L"Level: %hu\n", pInfo->EventDescriptor.Level);
+
+    if (DecodingSourceXMLFile == pInfo->DecodingSource) {
+	if (pInfo->OpcodeNameOffset > 0)
+	    wprintf(L"Opcode name: %s\n",
+		    (LPWSTR)((PBYTE)(pInfo) + pInfo->OpcodeNameOffset));
+    } else
+	wprintf(L"Type: %hu\n", pInfo->EventDescriptor.Opcode);
+
+    if (DecodingSourceXMLFile == pInfo->DecodingSource) {
+	if (pInfo->TaskNameOffset > 0)
+	    wprintf(L"Task name: %s\n",
+		    (LPWSTR)((PBYTE)(pInfo) + pInfo->TaskNameOffset));
+    } else
+	wprintf(L"Task: %hu\n", pInfo->EventDescriptor.Task);
+
+    wprintf(L"Keyword mask: 0x%x\n", pInfo->EventDescriptor.Keyword);
+    if (pInfo->KeywordsNameOffset) {
+	LPWSTR pKeyword = (LPWSTR)((PBYTE)(pInfo) + pInfo->KeywordsNameOffset);
+
+	for (; *pKeyword != 0; pKeyword += (wcslen(pKeyword) + 1))
+	    wprintf(L"  Keyword name: %s\n", pKeyword);
+    }
+
+    if (pInfo->EventMessageOffset > 0)
+	wprintf(L"Event message: %s\n",
+		(LPWSTR)((PBYTE)(pInfo) + pInfo->EventMessageOffset));
+
+    if (pInfo->ActivityIDNameOffset > 0)
+	wprintf(L"Activity ID name: %s\n",
+		(LPWSTR)((PBYTE)(pInfo) + pInfo->ActivityIDNameOffset));
+
+    if (pInfo->RelatedActivityIDNameOffset > 0)
+	wprintf(L"Related activity ID name: %s\n",
+		(LPWSTR)((PBYTE)(pInfo) + pInfo->RelatedActivityIDNameOffset));
+}
+
+/* Callback that receives the events */
+VOID WINAPI
+ProcessEvent(PEVENT_RECORD pEvent)
+{
+    DWORD sts = ERROR_SUCCESS;
+    PTRACE_EVENT_INFO pInfo = NULL;
+    USHORT i;
+
+    PrintHeader(pEvent);
+    PrintTimestamp(pEvent);
+
+    /*
+     * Process the event.
+     * The pEvent->UserData member is a pointer to the event specific data,
+     * if any exists.
+     */
+    sts = GetEventInformation(pEvent, &pInfo);
+    if (sts != ERROR_SUCCESS)
+	goto cleanup;
+
+    PrintEventInfo(pInfo);
+
+    if (DecodingSourceWPP == pInfo->DecodingSource)
+	/* Not handling the WPP case, unless just an inline string */
+	if (!(pEvent->EventHeader.Flags & EVENT_HEADER_FLAG_STRING_ONLY))
+	    goto cleanup;
 
     /*
      * Print the event data for all the top-level properties.
-     * Metadata for all the top-level properties come before structure
+     * Metadata for all the top-level properties comes before structure
      * member properties in the property information array.
      * If the EVENT_HEADER_FLAG_STRING_ONLY flag is set, the event data
      * is a null-terminated string, so just print it.
      */
     if (EVENT_HEADER_FLAG_STRING_ONLY ==
 	(pEvent->EventHeader.Flags & EVENT_HEADER_FLAG_STRING_ONLY)) {
-	printf("%s\n", (char *)pEvent->UserData);
+	printf("Embedded: %s\n", (char *)pEvent->UserData);
     } else {
 	for (i = 0; i < pInfo->TopLevelPropertyCount; i++) {
 	    sts = PrintProperties(pEvent, pInfo, i, NULL, 0);
@@ -830,12 +872,13 @@ openTraceHandle(LPTSTR name)
     return handle;
 }
 
-static char *options = "k:?";
+static char *options = "k:v?";
 static char usage[] =
     "Usage: %s [options] tracename\n\n"
     "Options:\n"
     "  -k subsys     kernel subsystem to trace\n"
-    "  -g            use global sequence numbers\n";
+    "  -g            use global sequence numbers\n"
+    "  -v            verbose diagnostics (errors)\n";
 
 int
 main(int argc, LPTSTR *argv)
@@ -852,6 +895,9 @@ main(int argc, LPTSTR *argv)
 	    break;
 	case 'k':
 	    sysFlags |= kernelTraceFlag(optarg);
+	    break;
+	case 'v':
+	    verbose++;
 	    break;
 	case '?':
 	default:

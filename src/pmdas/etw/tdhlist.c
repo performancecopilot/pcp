@@ -28,18 +28,38 @@
 
 void
 PrintFieldInfo(PBYTE buffer,
-	PPROVIDER_FIELD_INFO fieldInfo, EVENT_FIELD_TYPE eventFieldType)
+	PPROVIDER_FIELD_INFO fieldInfo, int id, EVENT_FIELD_TYPE eventFieldType)
 {
     PWCHAR stringBuffer;
 
-    printf("\tValue: %" PRIi64 "\n", fieldInfo->Value);
+    printf("\tField %u\n", id);
+    switch (eventFieldType) {
+	case EventKeywordInformation:
+	    printf("\t\tType: KeywordInformation\n");
+	    break;
+	case EventLevelInformation:
+	    printf("\t\tType: LevelInformation\n");
+	    break;
+	case EventChannelInformation:
+	    printf("\t\tType: ChannelInformation\n");
+	    break;
+	case EventTaskInformation:
+	    printf("\t\tType: TaskInformation\n");
+	    break;
+	case EventOpcodeInformation:
+	    printf("\t\tType: OpcodeInformation\n");
+	    break;
+	default:
+	    break;
+    }
+    printf("\t\tValue: %" PRIu64 "\n", fieldInfo->Value);
     if (fieldInfo->NameOffset) {
 	stringBuffer = (PWCHAR)(buffer + fieldInfo->NameOffset);
-	printf("\tField: %ls\n", stringBuffer);
+	printf("\t\tField: %ls\n", stringBuffer);
     }
     if (fieldInfo->DescriptionOffset) {
 	stringBuffer = (PWCHAR)(buffer + fieldInfo->DescriptionOffset);
-	printf("\tDescription: %ls\n", stringBuffer);
+	printf("\t\tDescription: %ls\n", stringBuffer);
     }
 }
 
@@ -51,7 +71,7 @@ PrintFieldElements(PPROVIDER_FIELD_INFOARRAY buffer, EVENT_FIELD_TYPE eventField
 
     for (i = 0; i < buffer->NumberOfElements; i++) {
 	traceFieldInfo = &buffer->FieldInfoArray[i];
-	PrintFieldInfo((PBYTE)buffer, traceFieldInfo, eventFieldType);
+	PrintFieldInfo((PBYTE)buffer, traceFieldInfo, i, eventFieldType);
     }
 }
 
