@@ -38,6 +38,7 @@ use vars qw( $sth_os_memory_clerks  );
 use vars qw( $sth_virtual_file_stats @virtual_file_stats );
 use vars qw( $sth_total_running_user_processes @total_running_user_processes );
 use vars qw( $sth_os_memory_clerks @os_memory_clerks );
+use vars qw( $sth_os_workers_waiting_cpu @os_workers_waiting_cpu );
 my $database_indom = 0;
 my @database_instances;
 
@@ -64,6 +65,11 @@ sub mssql_connection_setup
 	        $sth_total_running_user_processes = $dbh->prepare(
 	             "SELECT count(*) FROM sys.dm_exec_requests " .
 	             "WHERE session_id >= 51 AND status = 'running'");
+            $sth_os_workers_waiting_cpu = $dbh->prepare(
+	             "SELECT ISNULL(COUNT(*),0) FROM sys.dm_os_workers AS workers " .
+	             "INNER JOIN sys.dm_os_schedulers AS schedulers " .
+	             "ON workers.scheduler_address = schedulers.scheduler_address " .
+	             "WHERE workers.state = 'RUNNABLE' AND schedulers.scheduler_id < 255"); 
 	    }
     }
 }
@@ -109,6 +115,18 @@ sub mssql_total_running_user_processes
     }
 }
 
+sub mssql_os_workers_waiting_cpu_refresh
+{
+    #$pmda->log("mssql_os_workers_refresh\n");
+
+    @os_workers_waiting_cpu = ();	# clear any previous contents
+    if (defined($dbh)) {
+    	$sth_os_workers_waiting_cpu->execute();
+        my $result = $sth_os_workers_waiting_cpu->fetchall_arrayref();
+        @os_workers_waiting_cpu = ( $result->[0][0] );
+	}
+}
+
 sub mssql_refresh
 {
     my ($cluster) = @_;
@@ -118,6 +136,7 @@ sub mssql_refresh
     if ($cluster == 0)		{ mssql_virtual_file_stats_refresh; }
     elsif ($cluster == 1)	{ mssql_os_memory_clerks_refresh; }
     elsif ($cluster == 2)	{ mssql_total_running_user_processes; }
+    elsif ($cluster == 3)	{ mssql_os_workers_waiting_cpu_refresh; }
 }
 
 sub mssql_fetch_callback
@@ -141,6 +160,11 @@ sub mssql_fetch_callback
         if ($item > 0)              { return (PM_ERR_PMID, 0); }
         if (!defined($total_running_user_processes[$item])) { return (PM_ERR_AGAIN, 0); }
         return ($total_running_user_processes[$item], 1);
+    }
+    if ($cluster == 3) {
+        if ($item > 0)              { return (PM_ERR_PMID, 0); }
+        if (!defined($os_workers_waiting_cpu[$item])) { return (PM_ERR_AGAIN, 0); }
+        return ($os_workers_waiting_cpu[$item], 1);
     }
     return (PM_ERR_PMID, 0);
 #	if ($inst < 0)		{ return (PM_ERR_INST, 0); }
@@ -187,7 +211,11 @@ $pmda->add_metric(pmda_pmid(1,3), PM_TYPE_U32, PM_INDOM_NULL,
 $pmda->add_metric(pmda_pmid(2,0), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mssql.running_user_process.total', '', '');
-		  
+
+$pmda->add_metric(pmda_pmid(3,0), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'mssql.os_workers_waiting_cpu.count', '', '');
+
 #$pmda->add_indom($process_indom, \@process_instances,
 #	 'Instance domain exporting each MySQL process', '');
 
