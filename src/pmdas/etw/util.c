@@ -114,7 +114,7 @@ eventHeaderFlags(USHORT flags)
 	strcat(p, "64bit,");
     if (flags & EVENT_HEADER_FLAG_CLASSIC_HEADER)
 	strcat(p, "classic,");
-    buffer[strlen(buffer)] = '\0';
+    buffer[strlen(buffer)-1] = '\0';
     return buffer;
 }
 
@@ -157,7 +157,7 @@ tdherror(ULONG code)
     case ERROR_SUCCESS:
     	return "Success";
     }
-    return "Unknown error";
+    return strerror(code);
 }
 
 const char *
