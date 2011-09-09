@@ -51,11 +51,11 @@ sub mssql_connection_setup
     	if (defined($dbh)) {
 	        $pmda->log("MSSQL connection established\n");
 	        $sth_virtual_file_stats = $dbh->prepare(
-        	    "select cast(num_of_reads as numeric), cast(num_of_bytes_read as numeric)," .
+        	    "select db_name(database_id), cast(num_of_reads as numeric), cast(num_of_bytes_read as numeric)," .
         	    " cast(io_stall_read_ms as numeric), cast(num_of_writes as numeric)," .
         	    " cast(num_of_bytes_written as numeric), cast(io_stall_write_ms as numeric)," .
         	    " cast(size_on_disk_bytes as numeric) " .
-        	    "from sys.dm_io_virtual_file_stats(DB_ID('$database'),1)");
+        	    "from sys.dm_io_virtual_file_stats(DB_ID(''),1)");
 	        $sth_os_memory_clerks = $dbh->prepare(
 	             "SELECT SUM(multi_pages_kb + virtual_memory_committed_kb + shared_memory_committed_kb + awe_allocated_kb)" .
 	             " from sys.dm_os_memory_clerks WHERE type IN " .
@@ -93,13 +93,17 @@ sub mssql_virtual_file_stats_refresh
     #$pmda->log("mssql_virtual_file_stats_refresh\n");
 
     @virtual_file_stats = ();	# clear any previous contents
+    @databases = ();
+
     if (defined($dbh)) {
-	$sth_virtual_file_stats->execute();
-	my $result = $sth_virtual_file_stats->fetchall_arrayref();
-	@virtual_file_stats = ( $result->[0][0], $result->[0][1],
-				$result->[0][2], $result->[0][3],
-				$result->[0][4], $result->[0][5],
-				$result->[0][6] );
+    	$sth_virtual_file_stats->execute();
+	    my $result = $sth_virtual_file_stats->fetchall_arrayref();
+
+	    for my $i (0 .. $#{$result}) {
+	        $database_instances[($i*2)] = $i;
+	        $database_instances[($i*2)+1] = "$result->[$i][0]";
+	        $virtual_file_stats[$i] = $result->[$i];
+	    }
     }
 }
 
@@ -142,15 +146,21 @@ sub mssql_refresh
 sub mssql_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
+    my ($value, @vfstats);
 
     #$pmda->log("mssql_fetch_callback $cluster:$item ($inst)\n");
 
-    if ($inst != PM_IN_NULL)		{ return (PM_ERR_INST, 0); }
     if ($cluster == 0) {
         if ($item > 6)              { return (PM_ERR_PMID, 0); }
-        if (!defined($virtual_file_stats[$item])) { return (PM_ERR_AGAIN, 0); }
-        return ($virtual_file_stats[$item], 1);
+    	if ($inst < 0)		        { return (PM_ERR_INST, 0); }
+    	if ($inst > @database_instances)	{ return (PM_ERR_INST, 0); }
+       	$value = $virtual_file_stats[$inst];
+       	if (!defined($value))	    { return (PM_ERR_INST, 0); }
+       	@vfstats = @$value;
+        if (!defined($vfstats[$item])) { return (PM_ERR_AGAIN, 0); }
+        return ($vfstats[$item], 1);
     }
+    if ($inst != PM_IN_NULL)		{ return (PM_ERR_INST, 0); }
     if ($cluster == 1) {
         if ($item > 3)              { return (PM_ERR_PMID, 0); }
         if (!defined($os_memory_clerks[$item])) { return (PM_ERR_AGAIN, 0); }
@@ -167,31 +177,29 @@ sub mssql_fetch_callback
         return ($os_workers_waiting_cpu[$item], 1);
     }
     return (PM_ERR_PMID, 0);
-#	if ($inst < 0)		{ return (PM_ERR_INST, 0); }
-#	if ($inst > @process_instances)	{ return (PM_ERR_INST, 0); }
 }
 
 $pmda = PCP::PMDA->new('mssql', 109);
 
-$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, $database_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'mssql.virtual_file.read', '', '');
-$pmda->add_metric(pmda_pmid(0,1), PM_TYPE_U32, PM_INDOM_NULL,
+		  'mssql.virtual_file.read', 'Number of bytes reads issued on data file', '');
+$pmda->add_metric(pmda_pmid(0,1), PM_TYPE_U32, $database_indom,
 		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'mssql.virtual_file.read_bytes', '', '');
-$pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U32, $database_indom,
 		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
 		  'mssql.virtual_file.read_io_stall_time', '', '');
-$pmda->add_metric(pmda_pmid(0,3), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,3), PM_TYPE_U32, $database_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mssql.virtual_file.write', '', '');
-$pmda->add_metric(pmda_pmid(0,4), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,4), PM_TYPE_U32, $database_indom,
 		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'mssql.virtual_file.write_bytes', '', '');
-$pmda->add_metric(pmda_pmid(0,5), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,5), PM_TYPE_U32, $database_indom,
 		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
 		  'mssql.virtual_file.write_io_stall_time', '', '');
-$pmda->add_metric(pmda_pmid(0,6), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,6), PM_TYPE_U32, $database_indom,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'mssql.virtual_file.size', '', '');
 
@@ -216,8 +224,8 @@ $pmda->add_metric(pmda_pmid(3,0), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mssql.os_workers_waiting_cpu.count', '', '');
 
-#$pmda->add_indom($process_indom, \@process_instances,
-#	 'Instance domain exporting each MySQL process', '');
+$pmda->add_indom($database_indom, \@database_instances,
+    	 'Instance domain exporting each MSSQL database', '');
 
 $pmda->set_fetch_callback(\&mssql_fetch_callback);
 $pmda->set_fetch(\&mssql_connection_setup);
