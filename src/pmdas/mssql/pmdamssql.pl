@@ -203,7 +203,7 @@ $pmda->add_metric(pmda_pmid(0,5), PM_TYPE_U64, $database_indom,
 		  'mssql.virtual_file.write_io_stall_time', 'Total time in ms that users waited for writes to be completed o the file', '');
 $pmda->add_metric(pmda_pmid(0,6), PM_TYPE_U64, $database_indom,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		  'mssql.virtual_file.size', Number of bytes used on the disk from the data file'', '');
+		  'mssql.virtual_file.size', 'Number of bytes used on the disk from the data file', '');
 
 $pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_KBYTE,0,0),
