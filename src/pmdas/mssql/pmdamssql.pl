@@ -93,7 +93,7 @@ sub mssql_virtual_file_stats_refresh
     #$pmda->log("mssql_virtual_file_stats_refresh\n");
 
     @virtual_file_stats = ();	# clear any previous contents
-    @databases_instances = ();
+    @database_instances = ();
 
     if (defined($dbh)) {
     	$sth_virtual_file_stats->execute();
