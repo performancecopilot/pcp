@@ -104,6 +104,8 @@ sub mssql_virtual_file_stats_refresh
 	        $database_instances[($i*2)+1] = "$result->[$i][0]";
 	        $virtual_file_stats[$i] = $result->[$i];
 	    }
+
+	    $pmda->replace_indom( $database_indom, \@database_instances );
     }
 }
 
@@ -157,8 +159,8 @@ sub mssql_fetch_callback
        	$value = $virtual_file_stats[$inst];
        	if (!defined($value))	    { return (PM_ERR_INST, 0); }
        	@vfstats = @$value;
-        if (!defined($vfstats[$item])) { return (PM_ERR_AGAIN, 0); }
-        return ($vfstats[$item], 1);
+        if (!defined($vfstats[$item+1])) { return (PM_ERR_AGAIN, 0); }
+        return ($vfstats[$item+1], 1);
     }
     if ($inst != PM_IN_NULL)		{ return (PM_ERR_INST, 0); }
     if ($cluster == 1) {
@@ -181,27 +183,27 @@ sub mssql_fetch_callback
 
 $pmda = PCP::PMDA->new('mssql', 109);
 
-$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, $database_indom,
+$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U64, $database_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mssql.virtual_file.read', 'Number of bytes reads issued on data file', '');
-$pmda->add_metric(pmda_pmid(0,1), PM_TYPE_U32, $database_indom,
+$pmda->add_metric(pmda_pmid(0,1), PM_TYPE_U64, $database_indom,
 		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		  'mssql.virtual_file.read_bytes', '', '');
-$pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U32, $database_indom,
+		  'mssql.virtual_file.read_bytes', 'Total number of bytes read on the data file', '');
+$pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U64, $database_indom,
 		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
-		  'mssql.virtual_file.read_io_stall_time', '', '');
-$pmda->add_metric(pmda_pmid(0,3), PM_TYPE_U32, $database_indom,
+		  'mssql.virtual_file.read_io_stall_time', 'Total time in ms that the users waited for reads issued on the file', '');
+$pmda->add_metric(pmda_pmid(0,3), PM_TYPE_U64, $database_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'mssql.virtual_file.write', '', '');
-$pmda->add_metric(pmda_pmid(0,4), PM_TYPE_U32, $database_indom,
+		  'mssql.virtual_file.write', 'Number of writes made on the data file', '');
+$pmda->add_metric(pmda_pmid(0,4), PM_TYPE_U64, $database_indom,
 		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		  'mssql.virtual_file.write_bytes', '', '');
-$pmda->add_metric(pmda_pmid(0,5), PM_TYPE_U32, $database_indom,
+		  'mssql.virtual_file.write_bytes', 'Total number of bytes written to the data file', '');
+$pmda->add_metric(pmda_pmid(0,5), PM_TYPE_U64, $database_indom,
 		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
-		  'mssql.virtual_file.write_io_stall_time', '', '');
-$pmda->add_metric(pmda_pmid(0,6), PM_TYPE_U32, $database_indom,
+		  'mssql.virtual_file.write_io_stall_time', 'Total time in ms that users waited for writes to be completed o the file', '');
+$pmda->add_metric(pmda_pmid(0,6), PM_TYPE_U64, $database_indom,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		  'mssql.virtual_file.size', '', '');
+		  'mssql.virtual_file.size', Number of bytes used on the disk from the data file'', '');
 
 $pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_KBYTE,0,0),
@@ -218,11 +220,11 @@ $pmda->add_metric(pmda_pmid(1,3), PM_TYPE_U32, PM_INDOM_NULL,
 
 $pmda->add_metric(pmda_pmid(2,0), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'mssql.running_user_process.total', '', '');
+		  'mssql.running_user_process.total', 'Total number of running user process belonging to aconexsq', '');
 
 $pmda->add_metric(pmda_pmid(3,0), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'mssql.os_workers_waiting_cpu.count', '', '');
+		  'mssql.os_workers_waiting_cpu.count', 'Total number of queries waiting for cpu', '');
 
 $pmda->add_indom($database_indom, \@database_instances,
     	 'Instance domain exporting each MSSQL database', '');
