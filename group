@@ -234,6 +234,9 @@ perl
 # fault injection (in libpcp)
 fault
 
+# log rewriting app
+pmlogrewrite
+
 # test-group association ... one line per test
 # ... use sort -n from here on down to tidy up this mess
 #
@@ -711,6 +714,7 @@ fault
 478 fault local oss
 479 archive pmdumplog local oss
 480 archive fault local oss
+481 pmlogrewrite local oss
 482 pmlogsummary local oss pmdumplog
 500 logutil local #636417 folio oss
 501 pmie remote oss
