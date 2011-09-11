@@ -94,14 +94,20 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c mmv_nostats.c \
 	record.c record-setarg.c clientid.c killparent.c grind_ctx.c \
 	pmdacache.c check_import.c unpack.c aggrstore.c atomstr.c \
-	grind_conv.c getconfig.c check_fault_injection.c exercise_fault.c \
-	err.c torture_logmeta.c
+	grind_conv.c getconfig.c err.c torture_logmeta.c
 
 ifeq ($(shell test $(PCP_VER) -ge 4000 && echo 1), 1)
 CFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
 	multithread4.c multithread5.c multithread6.c multithread7.c \
 	multithread8.c multithread9.c \
 	exerlock.c
+endif
+
+ifeq ($(shell test -f ../../pcp/src/include/fault.h && echo 1), 1)
+# only include these ones if we can suck fault.h out of the PCP source
+# (assumes PCP >= 4.0 is installed alongside the QA)
+#
+CFILES += check_fault_injection.c exercise_fault.c
 endif
 
 POSIXFILES = \
