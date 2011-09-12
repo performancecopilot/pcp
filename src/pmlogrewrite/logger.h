@@ -37,12 +37,12 @@ extern global_t global;
 
 typedef struct indomspec {
     struct indomspec	*i_next;
+    int			*flags;		/* INST_* flags * */
     pmInDom		old_indom;
     pmInDom		new_indom;	/* PM_INDOM_NULL if no change */
     int			numinst;
     int			*old_inst;	/* filled from pmGetInDomArchive() */
     char		**old_iname;	/* filled from pmGetInDomArchive() */
-    int			*flags;		/* INST_* flags * */
     int			*new_inst;
     char		**new_iname;
 } indomspec_t;
@@ -53,6 +53,26 @@ typedef struct indomspec {
 #define INST_DELETE		64
 
 extern indomspec_t	*indom_root;
+
+typedef struct metricspec {
+    struct metricspec	*m_next;
+    int			flags;		/* METRIC_* flags * */
+    char		*old_name;
+    char		*new_name;
+    pmDesc		old_desc;
+    pmDesc		new_desc;
+} metricspec_t;
+
+/* values for metricspec_t flags[] */
+#define METRIC_CHANGE_PMID	 1
+#define METRIC_CHANGE_NAME	 2
+#define METRIC_CHANGE_TYPE	 4
+#define METRIC_CHANGE_INDOM	 8
+#define METRIC_CHANGE_SEM	16
+#define METRIC_CHANGE_UNITS	32
+#define METRIC_DELETE		64
+
+extern metricspec_t	*metric_root;
 
 /*
  *  list of pdu's to write out at start of time window
@@ -129,7 +149,6 @@ typedef struct {
     instlist_t	*instlist;	/* instance id [see above] list */
 } mlist_t;
 
-
 /*
  *  pmResult list
  */
@@ -137,7 +156,6 @@ typedef struct __rlist_t {
     pmResult		*res;		/* ptr to pmResult */
     struct __rlist_t	*next;		/* ptr to next element in list */
 } rlist_t;
-
 
 extern int	ml_numpmid;		/* num pmid in ml list */
 extern int	ml_size;		/* actual size of ml array */
@@ -154,6 +172,5 @@ extern void	yyerror(char *);
 extern void	yywarn(char *);
 extern int	yylex(void);
 extern int	yyparse(void);
-extern void	dometric(const char *);
 
 #endif /* _LOGGER_H */

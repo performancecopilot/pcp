@@ -23,6 +23,7 @@
 
 global_t	global;
 indomspec_t	*indom_root = NULL;
+metricspec_t	*metric_root = NULL;
 
 #ifdef PCP_DEBUG
 long totalmalloc = 0;
@@ -1052,6 +1053,19 @@ writemark(void)
     inarch.pb[LOG] = NULL;
 }
 
+static char *
+SemStr(int sem)
+{
+    static char	buf[20];
+
+    if (sem == PM_SEM_COUNTER) snprintf(buf, sizeof(buf), "counter");
+    else if (sem == PM_SEM_INSTANT) snprintf(buf, sizeof(buf), "instant");
+    else if (sem == PM_SEM_DISCRETE) snprintf(buf, sizeof(buf), "discrete");
+    else snprintf(buf, sizeof(buf), "bad sem? %d", sem);
+
+    return buf;
+}
+
 /*--- END FUNCTIONS ---------------------------------------------------------*/
 /*
  * cni == currently not implemented
@@ -1124,8 +1138,19 @@ main(int argc, char **argv)
 	}
     }
 
+    /*
+     * TODO - semantic checks
+     * non-change modifications => warnings, e.g. pmid -> same pmid
+     * (do this one in parser?)
+     * metric indom modified _and_ indom in archive => error
+     * metric indom modified _and_ domain(indom) != domain(pmid) => warning
+     * re-written indom - no duplicate instances or instance names to first
+     * space
+     */
+
     if (Carg) {
 	indomspec_t	*ip;
+	metricspec_t	*mp;
 	printf("PCP Archive Log Rewrite Specifications Summary\n");
 	if (global.flags == 0)
 	    printf("No global changes\n");
@@ -1153,12 +1178,9 @@ main(int argc, char **argv)
 	    }
 	}
 	for (ip = indom_root; ip != NULL; ip = ip->i_next) {
-	    // TODO handle serial is * case
 	    printf("\nInstance Domain: %s\n", pmInDomStr(ip->old_indom));
-	    if (ip->new_indom != PM_INDOM_NULL) {
-		// TODO handle serial is * case
+	    if (ip->new_indom != PM_INDOM_NULL)
 		printf("pmInDom:\t-> %s\n", pmInDomStr(ip->new_indom));
-	    }
 	    for (i = 0; i < ip->numinst; i++) {
 		if (ip->flags[i]) {
 		    printf("Instance:\t\[%d] \"%s\" -> ", ip->old_inst[i], ip->old_iname[i]);
@@ -1176,6 +1198,33 @@ main(int argc, char **argv)
 		    }
 		}
 	    }
+	}
+	for (mp = metric_root; mp != NULL; mp = mp->m_next) {
+	    printf("\nMetric: %s (%s)\n", mp->old_name, pmIDStr(mp->old_desc.pmid));
+	    if (mp->flags & METRIC_CHANGE_PMID) {
+		printf("pmID:\t\t%s ->", pmIDStr(mp->old_desc.pmid));
+		printf(" %s\n", pmIDStr(mp->new_desc.pmid));
+	    }
+	    if (mp->flags & METRIC_CHANGE_NAME)
+		printf("Name:\t\t%s -> %s\n", mp->old_name, mp->new_name);
+	    if (mp->flags & METRIC_CHANGE_TYPE) {
+		printf("Type:\t\t%s ->", pmTypeStr(mp->old_desc.type));
+		printf(" %s\n", pmTypeStr(mp->new_desc.type));
+	    }
+	    if (mp->flags & METRIC_CHANGE_INDOM) {
+		printf("InDom:\t\t%s ->", pmInDomStr(mp->old_desc.indom));
+		printf(" %s\n", pmInDomStr(mp->new_desc.indom));
+	    }
+	    if (mp->flags & METRIC_CHANGE_SEM) {
+		printf("Semantics:\t%s ->", SemStr(mp->old_desc.sem));
+		printf(" %s\n", SemStr(mp->new_desc.sem));
+	    }
+	    if (mp->flags & METRIC_CHANGE_UNITS) {
+		printf("Units:\t\t%s ->", pmUnitsStr(&mp->old_desc.units));
+		printf(" %s\n", pmUnitsStr(&mp->new_desc.units));
+	    }
+	    if (mp->flags & METRIC_DELETE)
+		printf("DELETE\n");
 	}
 	exit(0);
     }

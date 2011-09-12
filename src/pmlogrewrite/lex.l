@@ -36,6 +36,8 @@ char	mess[256];
 
 int mystate = LEX_NONE;
 
+static int	comma_count;
+
 #include "gram.tab.h"
 
 #ifdef FLEX_SCANNER
@@ -70,21 +72,81 @@ dupstr(char *s, int strip_quotes)
 
 %}
 
-%s none inglob inindom inmetric
+%s none glob host indom metric type sem units space time count
 
 %%
 
-<INITIAL>"global"		{ mystate= LEX_GLOBAL; return GLOBAL; }
-<INITIAL>"metric"		{ mystate = LEX_METRIC; return METRIC; }
-<INITIAL>"indom"		{ mystate = LEX_INDOM; return INDOM; }
+<INITIAL>"global"	{ mystate= LEX_GLOBAL; return GLOBAL; }
+<INITIAL>"metric"	{ mystate = LEX_METRIC; return METRIC; }
+<INITIAL>"indom"	{ mystate = LEX_INDOM; return INDOM; }
 
-<inglob>"hostname"		{ return HOSTNAME; }
-<inglob>"time"			{ return TIME; }
-<inglob>"tz"			{ return TZ; }
+<glob>"hostname"	{ BEGIN(host); return HOSTNAME; }
+<glob>"time"		{ return TIME; }
+<glob>"tz"		{ return TZ; }
+	/* Hostname */
+<host>[A-Za-z0-9][A-Za-z0-9.-]*	{ yylval.str = dupstr(yytext, 0); BEGIN(glob); return HNAME; }
 
-<inindom>"indom"		{ return INDOM; }
-<inindom>"name"			{ return NAME; }
-<inindom>"inst"			{ return INST; }
+<indom,metric>"delete"	{ return DELETE; }
+<indom,metric>"indom"	{ return INDOM; }
+<indom,metric>"name"	{ return NAME; }
+<indom>"inst"		{ return INST; }
+
+<metric>"pmid"		{ return PMID; }
+<metric>"type"		{ BEGIN(type); return TYPE; }
+<metric>"NULL"		{ return NULL_INT; }
+<metric>"sem"		{ BEGIN(sem); return SEM; }
+<metric>"units"		{ BEGIN(units); comma_count = 0; return UNITS; }
+
+<type>"32"		{ yylval.ival = PM_TYPE_32; BEGIN(metric); return TYPE_NAME; }
+<type>"U32"		{ yylval.ival = PM_TYPE_U32; BEGIN(metric); return TYPE_NAME; }
+<type>"64"		{ yylval.ival = PM_TYPE_64; BEGIN(metric); return TYPE_NAME; }
+<type>"U64"		{ yylval.ival = PM_TYPE_U64; BEGIN(metric); return TYPE_NAME; }
+<type>"FLOAT"		{ yylval.ival = PM_TYPE_FLOAT; BEGIN(metric); return TYPE_NAME; }
+<type>"DOUBLE"		{ yylval.ival = PM_TYPE_DOUBLE; BEGIN(metric); return TYPE_NAME; }
+<type>"STRING"		{ yylval.ival = PM_TYPE_STRING; BEGIN(metric); return TYPE_NAME; }
+
+<sem>"COUNTER"		{ yylval.ival = PM_SEM_COUNTER; BEGIN(metric); return SEM_NAME; }
+<sem>"INSTANT"		{ yylval.ival = PM_SEM_INSTANT; BEGIN(metric); return SEM_NAME; }
+<sem>"DISCRETE"		{ yylval.ival = PM_SEM_DISCRETE; BEGIN(metric); return SEM_NAME; }
+
+<units>","		{
+			    ++comma_count;
+			    switch (comma_count) {
+				case 1:
+				case 2:
+				    break;
+				case 3:
+				    BEGIN(space);
+				    break;
+				case 4:
+				    BEGIN(time);
+				    break;
+				case 5:
+				    BEGIN(count);
+				    break;
+			    }
+			    return COMMA;
+			}
+
+<space>"BYTE"		{ yylval.ival = PM_SPACE_BYTE; BEGIN(units); return SPACE_NAME; }
+<space>"KBYTE"		{ yylval.ival = PM_SPACE_KBYTE; BEGIN(units); return SPACE_NAME; }
+<space>"MBYTE"		{ yylval.ival = PM_SPACE_MBYTE; BEGIN(units); return SPACE_NAME; }
+<space>"GBYTE"		{ yylval.ival = PM_SPACE_GBYTE; BEGIN(units); return SPACE_NAME; }
+<space>"TBYTE"		{ yylval.ival = PM_SPACE_TBYTE; BEGIN(units); return SPACE_NAME; }
+<space>"PBYTE"		{ yylval.ival = PM_SPACE_PBYTE; BEGIN(units); return SPACE_NAME; }
+<space>"EBYTE"		{ yylval.ival = PM_SPACE_EBYTE; BEGIN(units); return SPACE_NAME; }
+<space>"0"		{ yylval.ival = 0; BEGIN(units); return SPACE_NAME; }
+
+<time>"NSEC"		{ yylval.ival = PM_TIME_NSEC; BEGIN(units); return TIME_NAME; }
+<time>"USEC"		{ yylval.ival = PM_TIME_USEC; BEGIN(units); return TIME_NAME; }
+<time>"MSEC"		{ yylval.ival = PM_TIME_MSEC; BEGIN(units); return TIME_NAME; }
+<time>"SEC"		{ yylval.ival = PM_TIME_SEC; BEGIN(units); return TIME_NAME; }
+<time>"MIN"		{ yylval.ival = PM_TIME_MIN; BEGIN(units); return TIME_NAME; }
+<time>"HOUR"		{ yylval.ival = PM_TIME_HOUR; BEGIN(units); return TIME_NAME; }
+<time>"0"		{ yylval.ival = 0; BEGIN(units); return TIME_NAME; }
+
+<count>"ONE"		{ yylval.ival = PM_COUNT_ONE; BEGIN(metric); return COUNT_NAME; }
+<count>[0-9]+		{ yylval.ival = atoi(yytext); BEGIN(metric); return COUNT_NAME; }
 
 \"[^\"\n][^\"\n]*\"	{ yylval.str = dupstr(yytext, 1); return STRING; }
 
@@ -94,11 +156,13 @@ dupstr(char *s, int strip_quotes)
 
 [0-9]+\.\*		{ yylval.str = dupstr(yytext, 0); return INDOM_STAR; }
 
+[0-9]+\.[0-9]+\.[0-9]+	{ yylval.str = dupstr(yytext, 0); return PMID_INT; }
+
+[0-9]+\.[0-9]+\.\*	{ yylval.str = dupstr(yytext, 0); return PMID_STAR; }
+[0-9]+\.\*\.\*		{ yylval.str = dupstr(yytext, 0); return PMID_STAR; }
+
 	/* Generic name, e.g. for identifier or metric or hostname */
 [A-Za-z][A-Za-z0-9_.]*	{ yylval.str = dupstr(yytext, 0); return GNAME; }
-
-	/* Hostname */
-[A-Za-z0-9][A-Za-z0-9.-]*	{ yylval.str = dupstr(yytext, 0); return HNAME; }
 
 \#.*			{ }
 
@@ -106,9 +170,9 @@ dupstr(char *s, int strip_quotes)
 
 "->"			{ return ASSIGN; }
 "{"			{
-			    if (mystate == LEX_GLOBAL) BEGIN(inglob);
-			    if (mystate == LEX_INDOM) BEGIN(inindom);
-			    if (mystate == LEX_METRIC) BEGIN(inmetric);
+			    if (mystate == LEX_GLOBAL) BEGIN(glob);
+			    if (mystate == LEX_INDOM) BEGIN(indom);
+			    if (mystate == LEX_METRIC) BEGIN(metric);
 			    return LBRACE;
 			}
 "}"			{ BEGIN(INITIAL); return RBRACE; }
