@@ -185,11 +185,11 @@ pmInDom:	-> 1.5
 
 === indom  { } ===
 Specification error in configuration file (TMP.conf)
-[line 1] syntax error
+[line 1] Expecting <d>.<s> or <d>.* in indom clause
 
 === indom 1.5 { indom ->  } ===
 Specification error in configuration file (TMP.conf)
-[line 1] syntax error
+[line 1] Expecting <d>.<s> or <d>.* in indom clause
 
 === indom 1.6 { } ===
 Instance domain 1.6: Instance domain identifier not defined in the PCP archive log
@@ -203,19 +203,19 @@ pmInDom:	-> 1.6
 
 === indom 1.2.3 { } ===
 Specification error in configuration file (TMP.conf)
-[line 1] syntax error
+[line 1] Expecting <d>.<s> or <d>.* in indom clause
 
 === indom 1.5 { indom -> 1.2.3 } ===
 Specification error in configuration file (TMP.conf)
-[line 1] syntax error
+[line 1] Expecting <d>.<s> or <d>.* in indom clause
 
 === indom foo { } ===
 Specification error in configuration file (TMP.conf)
-[line 1] syntax error
+[line 1] Expecting <d>.<s> or <d>.* in indom clause
 
 === indom 1.5 { indom -> foo } ===
 Specification error in configuration file (TMP.conf)
-[line 1] syntax error
+[line 1] Expecting <d>.<s> or <d>.* in indom clause
 
 === indom 1.4194304 { } ===
 Specification error in configuration file (TMP.conf)
@@ -268,14 +268,14 @@ No global changes
 Instance Domain: 1.5
 Instance:	[1] "1 minute" -> [3] "1 minute"
 
-=== indom 1.5 { inst 5 -> } ===
+=== indom 1.5 { inst 5 -> delete } ===
 PCP Archive Log Rewrite Specifications Summary
 No global changes
 
 Instance Domain: 1.5
 Instance:	[5] "5 minute" -> DELETE
 
-=== indom 1.5 { name "5" -> } ===
+=== indom 1.5 { name "5" -> delete } ===
 PCP Archive Log Rewrite Specifications Summary
 No global changes
 
@@ -289,35 +289,47 @@ No global changes
 Instance Domain: 1.5
 Instance:	[1] "1 minute" -> [3] "3 minute"
 
-=== indom 1.5 { name "15" -> "16" name "5" -> "6" name "15" -> } (expect error) ===
+=== indom 1.5 { name "15" -> } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Expecting new external instance name string or DELETE in name clause
+
+=== indom 1.5 { name "15" - } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Expecting -> in name clause
+
+=== indom 1.5 { name "15" } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Expecting -> in name clause
+
+=== indom 1.5 { name "15" -> "16" name "5" -> "6" name "15" -> delete } (expect error) ===
 Specification error in configuration file (TMP.conf)
 [line 1] Duplicate or conflicting clauses for instance [15] "15 minute" of indom 1.5
 
-=== indom 1.5 { name "15" -> name "5" -> "6" name "15" -> "deleted" } (expect error) ===
+=== indom 1.5 { name "15" -> delete name "5" -> "6" name "15" -> "deleted" } (expect error) ===
 Specification error in configuration file (TMP.conf)
 [line 1] Duplicate or conflicting clauses for instance [15] "15 minute" of indom 1.5
 
-=== indom 1.5 { inst 5 -> 6 inst 1 -> 2 inst 5 -> } (expect error) ===
+=== indom 1.5 { inst 5 -> 6 inst 1 -> 2 inst 5 -> delete } (expect error) ===
 Specification error in configuration file (TMP.conf)
 [line 1] Duplicate or conflicting clauses for instance [5] "5 minute" of indom 1.5
 
-=== indom 1.5 { inst 5 -> inst 1 -> 2 inst 5 -> 123 } (expect error) ===
+=== indom 1.5 { inst 5 -> delete inst 1 -> 2 inst 5 -> 123 } (expect error) ===
 Specification error in configuration file (TMP.conf)
 [line 1] Duplicate or conflicting clauses for instance [5] "5 minute" of indom 1.5
 
-=== indom 1.5 { name "15" -> "16" inst 15 -> } (expect error) ===
+=== indom 1.5 { name "15" -> "16" inst 15 -> delete } (expect error) ===
 Specification error in configuration file (TMP.conf)
 [line 1] Duplicate or conflicting clauses for instance [15] "15 minute" of indom 1.5
 
-=== indom 1.5 { inst 15 -> name "15" -> "16" } (expect error) ===
+=== indom 1.5 { inst 15 -> delete name "15" -> "16" } (expect error) ===
 Specification error in configuration file (TMP.conf)
 [line 1] Duplicate or conflicting clauses for instance [15] "15 minute" of indom 1.5
 
-=== indom 1.5 { inst 15 -> 16 name "15" -> } (expect error) ===
+=== indom 1.5 { inst 15 -> 16 name "15" -> delete } (expect error) ===
 Specification error in configuration file (TMP.conf)
 [line 1] Duplicate or conflicting clauses for instance [15] "15 minute" of indom 1.5
 
-=== indom 1.5 { name "15" -> inst 15 -> 16 } (expect error) ===
+=== indom 1.5 { name "15" -> delete inst 15 -> 16 } (expect error) ===
 Specification error in configuration file (TMP.conf)
 [line 1] Duplicate or conflicting clauses for instance [15] "15 minute" of indom 1.5
 
@@ -386,9 +398,18 @@ PCP Archive Log Rewrite Specifications Summary
 Hostname:	rattle -> global
 PCP Archive Log Rewrite Specifications Summary
 Hostname:	rattle -> inst
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	rattle -> hostname
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	rattle -> tz
+PCP Archive Log Rewrite Specifications Summary
+No global changes
+
+Metric: irix.kernel.all.load (1.18.3)
+Name:		irix.kernel.all.load -> hostname
 
 === context sensitive lexical scanning ... expect fail ===
 Specification error in configuration file (TMP.conf)
-[line 2] syntax error
+[line 2] Expecting metric name in name clause
 Specification error in configuration file (TMP.conf)
-[line 2] syntax error
+[line 2] Expecting metric name in name clause
