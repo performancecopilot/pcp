@@ -56,33 +56,54 @@ End-of-File
 rm -f $tmp.new.*
 pmlogrewrite -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
 
-for m in 1.18.3 '1.18.*' '1.*.*' '2.*.*' hinv.ndisk foo.bar
+for m in 1.18.3 '1.18.*' '1.*.*' '2.*.*' hinv.ndisk 42.42.42 foo.bar
 do
     echo
-    echo "=== metric $m {} ==="
-    echo "metric $m {}" >$tmp.conf
+    echo "=== metric $m { type->U32 } ==="
+    echo "metric $m { type->U32 }" >$tmp.conf
     rm -f $tmp.new.*
-    pmlogrewrite -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
+    pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
+done
+
+# pmid exercises
+for p in 42.42.42 1.18.2 2.3.2 foo '1.*.*' '2.*.*'
+do
+    echo
+    echo "=== metric ... { pmid -> $p } ==="
+    echo "metric hinv.ncpu { pmid -> $p }" >$tmp.conf
+    rm -f $tmp.new.*
+    pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
+done
+
+# name exercises
+for n in foo.bar.mumble.fratz "blah blah blah" 'hinv.*' hinv.ndisk
+do
+    echo
+    echo "=== metric ... { name -> $n } ==="
+    echo "metric hinv.ndisk { name -> $n }" >$tmp.conf
+    rm -f $tmp.new.*
+    pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
 done
 
 # type exercises
-for t in 32 U32 64 U64 FLOAT DOUBLE STRING 123 foo.bar 'U32 type -> STRING'
+for t in 32 U32 64 U64 FLOAT DOUBLE STRING 123 foo.bar \
+    'U32 type -> STRING' 'U64 type -> STRING'
 do
     echo
     echo "=== metric ... { type -> $t } ==="
     echo "metric hinv.ncpu { type -> $t }" >$tmp.conf
     rm -f $tmp.new.*
-    pmlogrewrite -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
+    pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
 done
 
 # indom exercises
-for i in 1.3 '42.*' foo '5.6 indom -> 7.8'
+for i in 1.3 '42.*' foo 1.5 '1.*' '5.6 indom -> 7.8'
 do
     echo
     echo "=== metric ... { indom -> $i } ==="
     echo "metric irix.kernel.all.load { indom -> $i }" >$tmp.conf
     rm -f $tmp.new.*
-    pmlogrewrite -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
+    pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
 done
 
 # sem exercises
@@ -92,7 +113,7 @@ do
     echo "=== metric ... { sem -> $s } ==="
     echo "metric 2.3.2 { sem -> $s }" >$tmp.conf
     rm -f $tmp.new.*
-    pmlogrewrite -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
+    pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
 done
 
 # units exercises
@@ -100,13 +121,14 @@ for u in '1,0,0,BYTE,0,0' '0,1,0,0,SEC,0' '0,0,1,0,0,ONE' \
 	'1,-1,0,EBYTE,HOUR,0' '1,-1,0,PBYTE,MIN,0' '1,-1,0,TBYTE,SEC,0' \
 	'1,-1,0,GBYTE,MSEC,0' '1,-1,0,MBYTE,USEC,0' '1,-1,0,KBYTE,NSEC,0' \
 	'1,0,-1,KBYTE,0,ONE' '0,-1,1,0,MSEC,2' \
-	'1,0,0,BYTE,0,0 units -> 0,1,0,0,SEC,0'
+	'1,0,0,BYTE,0,0 units -> 0,1,0,0,SEC,0' \
+	'0,0,0,0,0,0'
 do
     echo
     echo "=== metric ... { units -> $u } ==="
     echo "metric hinv.ncpu { units -> $u }" >$tmp.conf
     rm -f $tmp.new.*
-    pmlogrewrite -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
+    pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
 done
 
 # delete exercises
@@ -124,13 +146,14 @@ for o in 'delete pmid->1.2.3' 'pmid->1.2.3 delete' \
 	'delete name -> foo.bar' 'name -> foo.bar delete' \
 	'delete type -> U64' 'type -> U64 delete' \
 	'delete indom -> NULL' 'indom -> NULL delete' \
-	'delete sem -> INSTANT' 'sem -> INSTANT delete'
+	'delete sem -> INSTANT' 'sem -> INSTANT delete' \
+	'delete sem -> COUNTER' 'sem -> COUNTER delete'
 do
     echo
     echo "=== metric 1.18.3 { $o } ==="
     echo "metric 1.18.3 { $o }" >$tmp.conf
     rm -f $tmp.new.*
-    pmlogrewrite -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
+    pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
 done
 
 # multi-clause examples
@@ -150,7 +173,7 @@ metric 1.18.3 {
 }
 End-of-File
 rm -f $tmp.new.*
-pmlogrewrite -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
 
 # metric walk and star exercises
 for m in 1.*.*  1.18.* 2.3.2

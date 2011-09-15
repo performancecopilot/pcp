@@ -14,94 +14,162 @@ pmID:		1.18.3 -> 4.5.6
 Metric: hinv.ndisk (1.26.7)
 pmID:		1.26.7 -> 1.2.3
 
-=== metric 1.18.3 {} ===
+=== metric 1.18.3 { type->U32 } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: irix.kernel.all.load (1.18.3)
+Type:		FLOAT -> U32
 
-=== metric 1.18.* {} ===
+=== metric 1.18.* { type->U32 } ===
+Warning [TMP.conf, line 1]
+Metric: hinv.ncpu (1.18.2): type: U32: No change
+
 PCP Archive Log Rewrite Specifications Summary
-No global changes
-
-Metric: hinv.ncpu (1.18.2)
 
 Metric: irix.kernel.all.load (1.18.3)
+Type:		FLOAT -> U32
 
-=== metric 1.*.* {} ===
+=== metric 1.*.* { type->U32 } ===
+Warning [TMP.conf, line 1]
+Metric: hinv.ndisk (1.26.7): type: U32: No change
+
+Warning [TMP.conf, line 1]
+Metric: hinv.ncpu (1.18.2): type: U32: No change
+
 PCP Archive Log Rewrite Specifications Summary
-No global changes
-
-Metric: hinv.ndisk (1.26.7)
-
-Metric: hinv.ncpu (1.18.2)
 
 Metric: irix.kernel.all.load (1.18.3)
+Type:		FLOAT -> U32
 
-=== metric 2.*.* {} ===
+=== metric 2.*.* { type->U32 } ===
+Warning [TMP.conf, line 1]
+Metric: pmcd.pmlogger.port (2.3.0): type: U32: No change
+
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: pmcd.pmlogger.host (2.3.3)
-
-Metric: pmcd.pmlogger.port (2.3.0)
+Type:		STRING -> U32
 
 Metric: pmcd.pmlogger.archive (2.3.2)
+Type:		STRING -> U32
 
-=== metric hinv.ndisk {} ===
+=== metric hinv.ndisk { type->U32 } ===
+Warning [TMP.conf, line 1]
+Metric: hinv.ndisk (1.26.7): type: U32: No change
+
 PCP Archive Log Rewrite Specifications Summary
-No global changes
+No changes
+
+=== metric 42.42.42 { type->U32 } ===
+Warning [TMP.conf, line 1]
+Metric 42.42.42 pmNameID: Unknown or illegal metric identifier
+
+PCP Archive Log Rewrite Specifications Summary
+No changes
+
+=== metric foo.bar { type->U32 } ===
+Warning [TMP.conf, line 1]
+Metric: foo.bar: Unknown metric name
+
+PCP Archive Log Rewrite Specifications Summary
+No changes
+
+=== metric ... { pmid -> 42.42.42 } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Metric: hinv.ncpu (1.18.2)
+pmID:		1.18.2 -> 42.42.42
+
+=== metric ... { pmid -> 1.18.2 } ===
+Warning [TMP.conf, line 1]
+Metric: hinv.ncpu (1.18.2): pmid: No change
+
+PCP Archive Log Rewrite Specifications Summary
+No changes
+
+=== metric ... { pmid -> 2.3.2 } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Metric: hinv.ncpu (1.18.2)
+pmID:		1.18.2 -> 2.3.2
+
+=== metric ... { pmid -> foo } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Expecting <d>.<c>.<i> or <d>.<c>.* or <d>.*.* in pmid clause
+
+=== metric ... { pmid -> 1.*.* } ===
+Warning [TMP.conf, line 1]
+Metric: hinv.ncpu (1.18.2): pmid: No change
+
+PCP Archive Log Rewrite Specifications Summary
+No changes
+
+=== metric ... { pmid -> 2.*.* } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Metric: hinv.ncpu (1.18.2)
+pmID:		1.18.2 -> 2.18.2
+
+=== metric ... { name -> foo.bar.mumble.fratz } ===
+PCP Archive Log Rewrite Specifications Summary
 
 Metric: hinv.ndisk (1.26.7)
+Name:		hinv.ndisk -> foo.bar.mumble.fratz
 
-=== metric foo.bar {} ===
-Metric foo.bar: Unknown metric name
+=== metric ... { name -> blah blah blah } ===
+Specification error in configuration file (TMP.conf)
+[line 1] syntax error
+
+=== metric ... { name -> hinv.* } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Unexpected character '*'
+
+=== metric ... { name -> hinv.ndisk } ===
+Warning [TMP.conf, line 1]
+Metric: hinv.ndisk (1.26.7): name: No change
+
+PCP Archive Log Rewrite Specifications Summary
+No changes
 
 === metric ... { type -> 32 } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 Type:		U32 -> 32
 
 === metric ... { type -> U32 } ===
-PCP Archive Log Rewrite Specifications Summary
-No global changes
+Warning [TMP.conf, line 1]
+Metric: hinv.ncpu (1.18.2): type: U32: No change
 
-Metric: hinv.ncpu (1.18.2)
-Type:		U32 -> U32
+PCP Archive Log Rewrite Specifications Summary
+No changes
 
 === metric ... { type -> 64 } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 Type:		U32 -> 64
 
 === metric ... { type -> U64 } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 Type:		U32 -> U64
 
 === metric ... { type -> FLOAT } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 Type:		U32 -> FLOAT
 
 === metric ... { type -> DOUBLE } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 Type:		U32 -> DOUBLE
 
 === metric ... { type -> STRING } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 Type:		U32 -> STRING
@@ -115,19 +183,26 @@ Specification error in configuration file (TMP.conf)
 [line 1] Expecting XXX (from PM_TYPE_XXX) in type clause
 
 === metric ... { type -> U32 type -> STRING } ===
+Warning [TMP.conf, line 1]
+Metric: hinv.ncpu (1.18.2): type: U32: No change
+
+PCP Archive Log Rewrite Specifications Summary
+
+Metric: hinv.ncpu (1.18.2)
+Type:		U32 -> STRING
+
+=== metric ... { type -> U64 type -> STRING } ===
 Specification error in configuration file (TMP.conf)
 [line 1] Duplicate type clause for metric hinv.ncpu
 
 === metric ... { indom -> 1.3 } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: irix.kernel.all.load (1.18.3)
 InDom:		1.5 -> 1.3
 
 === metric ... { indom -> 42.* } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: irix.kernel.all.load (1.18.3)
 InDom:		1.5 -> 42.5
@@ -136,30 +211,42 @@ InDom:		1.5 -> 42.5
 Specification error in configuration file (TMP.conf)
 [line 1] Expecting <d>.<s> or <d>.* or NULL in indom clause
 
+=== metric ... { indom -> 1.5 } ===
+Warning [TMP.conf, line 1]
+Metric: irix.kernel.all.load (1.18.3): indom: 1.5: No change
+
+PCP Archive Log Rewrite Specifications Summary
+No changes
+
+=== metric ... { indom -> 1.* } ===
+Warning [TMP.conf, line 1]
+Metric: irix.kernel.all.load (1.18.3): indom: 1.5: No change
+
+PCP Archive Log Rewrite Specifications Summary
+No changes
+
 === metric ... { indom -> 5.6 indom -> 7.8 } ===
 Specification error in configuration file (TMP.conf)
 [line 1] Duplicate indom clause for metric irix.kernel.all.load
 
 === metric ... { sem -> DISCRETE } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: pmcd.pmlogger.archive (2.3.2)
 Semantics:	instant -> discrete
 
 === metric ... { sem -> COUNTER } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: pmcd.pmlogger.archive (2.3.2)
 Semantics:	instant -> counter
 
 === metric ... { sem -> INSTANT } ===
-PCP Archive Log Rewrite Specifications Summary
-No global changes
+Warning [TMP.conf, line 1]
+Metric: pmcd.pmlogger.archive (2.3.2): sem: instant: No change
 
-Metric: pmcd.pmlogger.archive (2.3.2)
-Semantics:	instant -> instant
+PCP Archive Log Rewrite Specifications Summary
+No changes
 
 === metric ... { sem -> instant } ===
 Specification error in configuration file (TMP.conf)
@@ -175,77 +262,66 @@ Specification error in configuration file (TMP.conf)
 
 === metric ... { units -> 1,0,0,BYTE,0,0 } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> byte
 
 === metric ... { units -> 0,1,0,0,SEC,0 } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> sec
 
 === metric ... { units -> 0,0,1,0,0,ONE } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> count
 
 === metric ... { units -> 1,-1,0,EBYTE,HOUR,0 } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> Ebyte / hour
 
 === metric ... { units -> 1,-1,0,PBYTE,MIN,0 } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> Pbyte / min
 
 === metric ... { units -> 1,-1,0,TBYTE,SEC,0 } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> Tbyte / sec
 
 === metric ... { units -> 1,-1,0,GBYTE,MSEC,0 } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> Gbyte / millisec
 
 === metric ... { units -> 1,-1,0,MBYTE,USEC,0 } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> Mbyte / microsec
 
 === metric ... { units -> 1,-1,0,KBYTE,NSEC,0 } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> Kbyte / nanosec
 
 === metric ... { units -> 1,0,-1,KBYTE,0,ONE } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> Kbyte / count
 
 === metric ... { units -> 0,-1,1,0,MSEC,2 } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> count x 10^2 / millisec
@@ -254,23 +330,27 @@ Units:		 -> count x 10^2 / millisec
 Specification error in configuration file (TMP.conf)
 [line 1] Duplicate units clause for metric hinv.ncpu
 
+=== metric ... { units -> 0,0,0,0,0,0 } ===
+Warning [TMP.conf, line 1]
+Metric: hinv.ncpu (1.18.2): units: : No change
+
+PCP Archive Log Rewrite Specifications Summary
+No changes
+
 === metric hinv.ncpu { delete } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 DELETE
 
 === metric 2.3.2 { delete } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: pmcd.pmlogger.archive (2.3.2)
 DELETE
 
 === metric 2.3.* { delete } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: pmcd.pmlogger.host (2.3.3)
 DELETE
@@ -283,7 +363,6 @@ DELETE
 
 === metric 1.*.* { delete } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ndisk (1.26.7)
 DELETE
@@ -331,10 +410,25 @@ Specification error in configuration file (TMP.conf)
 [line 1] Conflicting sem clause for deleted metric irix.kernel.all.load
 
 === metric 1.18.3 { sem -> INSTANT delete } ===
+Warning [TMP.conf, line 1]
+Metric: irix.kernel.all.load (1.18.3): sem: instant: No change
+
+PCP Archive Log Rewrite Specifications Summary
+
+Metric: irix.kernel.all.load (1.18.3)
+DELETE
+
+=== metric 1.18.3 { delete sem -> COUNTER } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Conflicting sem clause for deleted metric irix.kernel.all.load
+
+=== metric 1.18.3 { sem -> COUNTER delete } ===
 Specification error in configuration file (TMP.conf)
 [line 1] Conflicting delete and other clauses for metric irix.kernel.all.load
+Warning [TMP.conf, line 12]
+Metric: irix.kernel.all.load (1.18.3): units: : No change
+
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Instance Domain: 1.5
 pmInDom:	-> 42.5
@@ -351,11 +445,9 @@ Name:		irix.kernel.all.load -> foo.bar
 Type:		FLOAT -> 64
 InDom:		1.5 -> 42.42
 Semantics:	instant -> discrete
-Units:		 -> 
 
 === metric 1.*.* { pmid -> 7.*.* } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ndisk (1.26.7)
 pmID:		1.26.7 -> 7.26.7
@@ -368,7 +460,6 @@ pmID:		1.18.3 -> 7.18.3
 
 === metric 1.*.* { pmid -> 8.9.* } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ndisk (1.26.7)
 pmID:		1.26.7 -> 8.9.7
@@ -381,7 +472,6 @@ pmID:		1.18.3 -> 8.9.3
 
 === metric 1.*.* { pmid -> 10.11.12 } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ndisk (1.26.7)
 pmID:		1.26.7 -> 10.11.12
@@ -394,7 +484,6 @@ pmID:		1.18.3 -> 10.11.12
 
 === metric 1.18.* { pmid -> 7.*.* } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 pmID:		1.18.2 -> 7.18.2
@@ -404,7 +493,6 @@ pmID:		1.18.3 -> 7.18.3
 
 === metric 1.18.* { pmid -> 8.9.* } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 pmID:		1.18.2 -> 8.9.2
@@ -414,7 +502,6 @@ pmID:		1.18.3 -> 8.9.3
 
 === metric 1.18.* { pmid -> 10.11.12 } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: hinv.ncpu (1.18.2)
 pmID:		1.18.2 -> 10.11.12
@@ -424,21 +511,18 @@ pmID:		1.18.3 -> 10.11.12
 
 === metric 2.3.2 { pmid -> 7.*.* } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: pmcd.pmlogger.archive (2.3.2)
 pmID:		2.3.2 -> 7.3.2
 
 === metric 2.3.2 { pmid -> 8.9.* } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: pmcd.pmlogger.archive (2.3.2)
 pmID:		2.3.2 -> 8.9.2
 
 === metric 2.3.2 { pmid -> 10.11.12 } ===
 PCP Archive Log Rewrite Specifications Summary
-No global changes
 
 Metric: pmcd.pmlogger.archive (2.3.2)
 pmID:		2.3.2 -> 10.11.12
