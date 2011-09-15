@@ -40,13 +40,25 @@ start_indom(pmInDom indom)
 {
     indomspec_t	*ip;
     int		i;
-    int		sts;
 
     for (ip = indom_root; ip != NULL; ip = ip->i_next) {
 	if (indom == ip->old_indom)
 	    break;
     }
     if (ip == NULL) {
+	int	numinst;
+	int	*instlist;
+	char	**namelist;
+
+	numinst = pmGetInDomArchive(indom, &instlist, &namelist);
+	if (numinst < 0) {
+	    if (wflag) {
+		snprintf(mess, sizeof(mess), "Instance domain %s: %s\n", pmInDomStr(indom), pmErrStr(numinst));
+		yywarn(mess);
+	    }
+	    return;
+	}
+
 	ip = (indomspec_t *)malloc(sizeof(indomspec_t));
 	if (ip == NULL) {
 	    fprintf(stderr, "indomspec malloc(%d) failed: %s\n", (int)sizeof(indomspec_t), strerror(errno));
@@ -54,32 +66,28 @@ start_indom(pmInDom indom)
 	}
 	ip->i_next = indom_root;
 	indom_root = ip;
+	ip->flags = (int *)malloc(numinst*sizeof(int));
+	if (ip->flags == NULL) {
+	    fprintf(stderr, "indomspec flags malloc(%d) failed: %s\n", numinst*(int)sizeof(int), strerror(errno));
+	    exit(1);
+	}
+	for (i = 0; i < numinst; i++)
+	    ip->flags[i] = 0;
 	ip->old_indom = indom;
 	ip->new_indom = PM_INDOM_NULL;
-	sts = pmGetInDomArchive(indom, &ip->old_inst, &ip->old_iname);
-	if (sts < 0) {
-	    /* no need to clean up, this is fatal */
-	    fprintf(stderr, "Instance domain %s: %s\n", pmInDomStr(indom), pmErrStr(sts));
-	    exit(1);
-	}
-	ip->numinst = sts;
-	ip->flags = (int *)malloc(ip->numinst*sizeof(int));
-	if (ip->flags == NULL) {
-	    fprintf(stderr, "indomspec flags malloc(%d) failed: %s\n", ip->numinst*(int)sizeof(int), strerror(errno));
-	    exit(1);
-	}
-	ip->new_inst = (int *)malloc(ip->numinst*sizeof(int));
+	ip->numinst = numinst;
+	ip->old_inst = instlist;
+	ip->new_inst = (int *)malloc(numinst*sizeof(int));
 	if (ip->new_inst == NULL) {
-	    fprintf(stderr, "new_inst malloc(%d) failed: %s\n", ip->numinst*(int)sizeof(int), strerror(errno));
+	    fprintf(stderr, "new_inst malloc(%d) failed: %s\n", numinst*(int)sizeof(int), strerror(errno));
 	    exit(1);
 	}
-	ip->new_iname = (char **)malloc(ip->numinst*sizeof(char *));
+	ip->old_iname = namelist;
+	ip->new_iname = (char **)malloc(numinst*sizeof(char *));
 	if (ip->new_iname == NULL) {
-	    fprintf(stderr, "new_iname malloc(%d) failed: %s\n", ip->numinst*(int)sizeof(char *), strerror(errno));
+	    fprintf(stderr, "new_iname malloc(%d) failed: %s\n", numinst*(int)sizeof(char *), strerror(errno));
 	    exit(1);
 	}
-	for (i = 0; i < ip->numinst; i++)
-	    ip->flags[i] = 0;
     }
     current_indomspec = ip;
 }
@@ -95,6 +103,26 @@ start_metric(pmID pmid)
 	    break;
     }
     if (mp == NULL) {
+	char	*name;
+	pmDesc	desc;
+
+	sts = pmNameID(pmid, &name);
+	if (sts < 0) {
+	    if (wflag) {
+		snprintf(mess, sizeof(mess), "Metric %s pmNameID: %s\n", pmIDStr(pmid), pmErrStr(sts));
+		yywarn(mess);
+	    }
+	    return;
+	}
+	sts = pmLookupDesc(pmid, &desc);
+	if (sts < 0) {
+	    if (wflag) {
+		snprintf(mess, sizeof(mess), "Metric %s: pmLookupDesc: %s\n", mp->old_name, pmErrStr(sts));
+		yywarn(mess);
+	    }
+	    return;
+	}
+
 	mp = (metricspec_t *)malloc(sizeof(metricspec_t));
 	if (mp == NULL) {
 	    fprintf(stderr, "metricspec malloc(%d) failed: %s\n", (int)sizeof(metricspec_t), strerror(errno));
@@ -102,18 +130,8 @@ start_metric(pmID pmid)
 	}
 	mp->m_next = metric_root;
 	metric_root = mp;
-	sts = pmNameID(pmid, &mp->old_name);
-	if (sts < 0) {
-	    /* no need to clean up, this is fatal */
-	    fprintf(stderr, "Metric %s: pmNameID failed: %s\n", pmIDStr(pmid), pmErrStr(sts));
-	    exit(1);
-	}
-	sts = pmLookupDesc(pmid, &mp->old_desc);
-	if (sts < 0) {
-	    /* no need to clean up, this is fatal */
-	    fprintf(stderr, "Metric %s: pmLookupDesc failed: %s\n", mp->old_name, pmErrStr(sts));
-	    exit(1);
-	}
+	mp->old_name = name;
+	mp->old_desc = desc;
 	mp->new_desc = mp->old_desc;
 	mp->flags = 0;
     }
@@ -167,11 +185,21 @@ change_inst_by_name(pmInDom indom, char *old, char *new)
 
     if (new == NULL) {
 	ip->flags[i] |= INST_DELETE;
+	ip->new_iname[i] = NULL;
+	return 0;
+    }
+
+    if (strcmp(ip->old_iname[i], new) == 0) {
+	/* no change ... */
+	if (wflag) {
+	    snprintf(mess, sizeof(mess), "Instance domain %s: Instance: \"%s\": No change\n", pmInDomStr(indom), ip->old_iname[i]);
+	    yywarn(mess);
+	}
     }
     else {
 	ip->flags[i] |= INST_CHANGE_INAME;
+	ip->new_iname[i] = new;
     }
-    ip->new_iname[i] = new;
 
     return 0;
 }
@@ -206,11 +234,21 @@ change_inst_by_inst(pmInDom indom, int old, int new)
 
     if (new == PM_IN_NULL) {
 	ip->flags[i] |= INST_DELETE;
+	ip->new_inst[i] = PM_IN_NULL;
+	return 0;
+    }
+    
+    if (ip->old_inst[i] == new) {
+	/* no change ... */
+	if (wflag) {
+	    snprintf(mess, sizeof(mess), "Instance domain %s: Instance: %d: No change\n", pmInDomStr(indom), ip->old_inst[i]);
+	    yywarn(mess);
+	}
     }
     else {
+	ip->new_inst[i] = new;
 	ip->flags[i] |= INST_CHANGE_INST;
     }
-    ip->new_inst[i] = new;
 
     return 0;
 }
@@ -350,7 +388,7 @@ walk_metric(int mode, int flag, char *which)
 
 %type<str>	hname
 %type<indom>	indom_int null_or_indom
-%type<pmid>	pmid_int
+%type<pmid>	pmid_int pmid_or_name
 %type<ival>	signnumber number
 %type<dval>	float
 
@@ -631,14 +669,24 @@ indomopt	: INDOM ASSIGN indom_int
 		    {
 			indomspec_t	*ip;
 			for (ip = walk_indom(W_START); ip != NULL; ip = walk_indom(W_NEXT)) {
+			    pmInDom	indom;
 			    if (indom_root->new_indom != PM_INDOM_NULL) {
 				snprintf(mess, sizeof(mess), "Duplicate indom clause for indom %s", pmInDomStr(indom_root->old_indom));
 				yyerror(mess);
 			    }
 			    if (current_star_indom)
-				ip->new_indom = pmInDom_build(pmInDom_domain($3), pmInDom_serial(ip->old_indom));
+				indom = pmInDom_build(pmInDom_domain($3), pmInDom_serial(ip->old_indom));
 			    else
-				ip->new_indom = $3;
+				indom = $3;
+			    if (indom != ip->old_indom)
+				ip->new_indom = indom;
+			    else {
+				/* no change ... */
+				if (wflag) {
+				    snprintf(mess, sizeof(mess), "Instance domain %s: indom: No change\n", pmInDomStr(ip->old_indom));
+				    yywarn(mess);
+				}
+			    }
 			}
 		    }
 		| NAME STRING ASSIGN STRING
@@ -718,7 +766,7 @@ indomopt	: INDOM ASSIGN indom_int
 		    }
 		;
 
-metricspec	: METRIC pmid_int 
+metricspec	: METRIC pmid_or_name
 		    {
 			if (current_star_metric) {
 			    __pmContext		*ctxp;
@@ -741,7 +789,8 @@ metricspec	: METRIC pmid_int
 			    do_walk_metric = 1;
 			}
 			else {
-			    start_metric($2);
+			    if ($2 != PM_ID_NULL)
+				start_metric($2);
 			    do_walk_metric = 0;
 			}
 		    }
@@ -753,21 +802,26 @@ metricspec	: METRIC pmid_int
 		    }
 		;
 
-pmid_int	: GNAME
+pmid_or_name	: pmid_int
+		|  GNAME
 		    {
 			int	sts;
 			pmID	pmid;
 			sts = pmLookupName(1, &$1, &pmid);
 			if (sts < 0) {
-			    /* no need to clean up, this is fatal */
-			    fprintf(stderr, "Metric %s: %s\n", $1, pmErrStr(sts));
-			    exit(1);
+			    if (wflag) {
+				snprintf(mess, sizeof(mess), "Metric: %s: %s\n", $1, pmErrStr(sts));
+				yywarn(mess);
+			    }
+			    pmid = PM_ID_NULL;
 			}
 			current_star_metric = 0;
 			free($1);
 			$$ = pmid;
 		    }
-		| PMID_INT
+		;
+
+pmid_int	: PMID_INT
 		    {
 			int	domain;
 			int	cluster;
@@ -828,62 +882,125 @@ metricoptlist	: metricopt
 metricopt	: PMID ASSIGN pmid_int
 		    {
 			metricspec_t	*mp;
+			pmID		pmid;
 			for (mp = walk_metric(W_START, METRIC_CHANGE_PMID, "pmid"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_PMID, "pmid")) {
 			    if (current_star_metric == 1)
-				mp->new_desc.pmid = pmid_build(pmid_domain($3), pmid_cluster($3), pmid_item(mp->old_desc.pmid));
+				pmid = pmid_build(pmid_domain($3), pmid_cluster($3), pmid_item(mp->old_desc.pmid));
 			    else if (current_star_metric == 2)
-				mp->new_desc.pmid = pmid_build(pmid_domain($3), pmid_cluster(mp->old_desc.pmid), pmid_item(mp->old_desc.pmid));
+				pmid = pmid_build(pmid_domain($3), pmid_cluster(mp->old_desc.pmid), pmid_item(mp->old_desc.pmid));
 			    else
-				mp->new_desc.pmid = $3;
-			    mp->flags |= METRIC_CHANGE_PMID;
+				pmid = $3;
+			    if (pmid == mp->old_desc.pmid) {
+				/* no change ... */
+				if (wflag) {
+				    snprintf(mess, sizeof(mess), "Metric: %s (%s): pmid: No change\n", mp->old_name, pmIDStr(mp->old_desc.pmid));
+				    yywarn(mess);
+				}
+			    }
+			    else {
+				mp->new_desc.pmid = pmid;
+				mp->flags |= METRIC_CHANGE_PMID;
+			    }
 			}
 		    }
 		| NAME ASSIGN GNAME
 		    {
 			metricspec_t	*mp;
 			for (mp = walk_metric(W_START, METRIC_CHANGE_NAME, "name"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_NAME, "name")) {
-			    mp->new_name = $3;
-			    mp->flags |= METRIC_CHANGE_NAME;
+			    if (strcmp($3, mp->old_name) == 0) {
+				/* no change ... */
+				if (wflag) {
+				    snprintf(mess, sizeof(mess), "Metric: %s (%s): name: No change\n", mp->old_name, pmIDStr(mp->old_desc.pmid));
+				    yywarn(mess);
+				}
+			    }
+			    else {
+				mp->new_name = $3;
+				mp->flags |= METRIC_CHANGE_NAME;
+			    }
 			}
 		    }
 		| TYPE ASSIGN TYPE_NAME
 		    {
 			metricspec_t	*mp;
 			for (mp = walk_metric(W_START, METRIC_CHANGE_TYPE, "type"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_TYPE, "type")) {
-			    mp->new_desc.type = $3;
-			    mp->flags |= METRIC_CHANGE_TYPE;
+			    if ($3 == mp->old_desc.type) {
+				/* no change ... */
+				if (wflag) {
+				    snprintf(mess, sizeof(mess), "Metric: %s (%s): type: %s: No change\n", mp->old_name, pmIDStr(mp->old_desc.pmid), pmTypeStr(mp->old_desc.type));
+				    yywarn(mess);
+				}
+			    }
+			    else {
+				mp->new_desc.type = $3;
+				mp->flags |= METRIC_CHANGE_TYPE;
+			    }
 			}
 		    }
 		| INDOM ASSIGN null_or_indom
 		    {
 			metricspec_t	*mp;
+			pmInDom		indom;
 			for (mp = walk_metric(W_START, METRIC_CHANGE_INDOM, "indom"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_INDOM, "indom")) {
 			    if (current_star_indom)
-				mp->new_desc.indom = pmInDom_build(pmInDom_domain($3), pmInDom_serial(mp->old_desc.indom));
+				indom = pmInDom_build(pmInDom_domain($3), pmInDom_serial(mp->old_desc.indom));
 			    else
-				mp->new_desc.indom = $3;
-			    mp->flags |= METRIC_CHANGE_INDOM;
+				indom = $3;
+			    if (indom == mp->old_desc.indom) {
+				/* no change ... */
+				if (wflag) {
+				    snprintf(mess, sizeof(mess), "Metric: %s (%s): indom: %s: No change\n", mp->old_name, pmIDStr(mp->old_desc.pmid), pmInDomStr(mp->old_desc.indom));
+				    yywarn(mess);
+				}
+			    }
+			    else {
+				mp->new_desc.indom = indom;
+				mp->flags |= METRIC_CHANGE_INDOM;
+			    }
 			}
 		    }
 		| SEM ASSIGN SEM_NAME
 		    {
 			metricspec_t	*mp;
 			for (mp = walk_metric(W_START, METRIC_CHANGE_SEM, "sem"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_SEM, "sem")) {
-			    mp->new_desc.sem = $3;
-			    mp->flags |= METRIC_CHANGE_SEM;
+			    if ($3 == mp->old_desc.sem) {
+				/* no change ... */
+				if (wflag) {
+				    snprintf(mess, sizeof(mess), "Metric: %s (%s): sem: %s: No change\n", mp->old_name, pmIDStr(mp->old_desc.pmid), SemStr(mp->old_desc.sem));
+				    yywarn(mess);
+				}
+			    }
+			    else {
+				mp->new_desc.sem = $3;
+				mp->flags |= METRIC_CHANGE_SEM;
+			    }
 			}
 		    }
 		| UNITS ASSIGN signnumber COMMA signnumber COMMA signnumber COMMA SPACE_NAME COMMA TIME_NAME COMMA COUNT_NAME
 		    {
 			metricspec_t	*mp;
 			for (mp = walk_metric(W_START, METRIC_CHANGE_UNITS, "units"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_UNITS, "units")) {
-			    mp->new_desc.units.dimSpace = $3;
-			    mp->new_desc.units.dimTime = $5;
-			    mp->new_desc.units.dimCount = $7;
-			    mp->new_desc.units.scaleSpace = $9;
-			    mp->new_desc.units.scaleTime = $11;
-			    mp->new_desc.units.scaleCount = $13;
-			    mp->flags |= METRIC_CHANGE_UNITS;
+			    if ($3 == mp->old_desc.units.dimSpace &&
+			        $5 == mp->old_desc.units.dimTime &&
+			        $7 == mp->old_desc.units.dimCount &&
+			        $9 == mp->old_desc.units.scaleSpace &&
+			        $11 == mp->old_desc.units.scaleTime &&
+			        $13 == mp->old_desc.units.scaleCount) {
+				/* no change ... */
+				if (wflag) {
+				    snprintf(mess, sizeof(mess), "Metric: %s (%s): units: %s: No change\n", mp->old_name, pmIDStr(mp->old_desc.pmid), pmUnitsStr(&mp->old_desc.units));
+				    yywarn(mess);
+				}
+			    }
+			    else {
+				mp->new_desc.units.dimSpace = $3;
+				mp->new_desc.units.dimTime = $5;
+				mp->new_desc.units.dimCount = $7;
+				mp->new_desc.units.scaleSpace = $9;
+				mp->new_desc.units.scaleTime = $11;
+				mp->new_desc.units.scaleCount = $13;
+				mp->flags |= METRIC_CHANGE_UNITS;
+			    }
 			}
 		    }
 		| DELETE
@@ -948,3 +1065,21 @@ null_or_indom	: NULL_INT
 		;
 
 %%
+
+/*
+ * TODO
+ *
+ * detect no change cases and turn into warnings (if -w) and do not
+ * update the metricspec or indomspec -- applies to _every_ change it
+ * would seem
+ *
+ * indom clause in indom section => find/create metricspec's for each
+ * metric defined over the (old) indom and make the indom change there as
+ * well.
+ *
+ * indom clause in metric section with new value != NULL => find/create
+ * indomspec for matching (old) indom, and make change there as well.
+ *
+ * metric type clause - detect translations that are not supported
+ * during the rewriting and reject in parser
+ */

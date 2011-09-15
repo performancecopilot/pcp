@@ -21,6 +21,12 @@
 #ifndef _LOGGER_H
 #define _LOGGER_H
 
+extern int	wflag;		/* -w from command line */
+extern int	vflag;		/* -v from command line */
+
+/*
+ * Global rewrite specifications
+ */
 typedef struct {
     int			flags;		/* GLOBAL_* flags */
     struct timeval	time;		/* timestamp shift */
@@ -35,6 +41,9 @@ typedef struct {
 
 extern global_t global;
 
+/*
+ * Rewrite specifications for an instance domain
+ */
 typedef struct indomspec {
     struct indomspec	*i_next;
     int			*flags;		/* INST_* flags * */
@@ -54,6 +63,9 @@ typedef struct indomspec {
 
 extern indomspec_t	*indom_root;
 
+/*
+ * Rewrite specifications for a metric
+ */
 typedef struct metricspec {
     struct metricspec	*m_next;
     int			flags;		/* METRIC_* flags * */
@@ -75,92 +87,31 @@ typedef struct metricspec {
 extern metricspec_t	*metric_root;
 
 /*
- *  list of pdu's to write out at start of time window
- */
-typedef struct _reclist_t {
-    __pmPDU		*pdu;		/* PDU ptr */
-    pmDesc		desc;
-    int			written;	/* written status */
-    struct _reclist_t	*ptr;		/* ptr to record in another reclist */
-    struct _reclist_t	*next;		/* ptr to next reclist_t record */
-} reclist_t;
-
-/*
  *  Input archive control
  */
 typedef struct {
     int		ctx;
+    __pmContext	*ctxp;
     char	*name;
     pmLogLabel	label;
-    __pmPDU	*pb[2];
-    pmResult	*_result;
-    pmResult	*_Nresult;
-    int		eof[2];
+    __pmPDU	*metarec;
+    __pmPDU	*logrec;
+    pmResult	*rp;
     int		mark;		/* need EOL marker */
 } inarch_t;
 
-extern inarch_t	inarch;	/* input archive control(s) */
+extern inarch_t	inarch;	/* input archive */
 
 /*
- *  instance list
+ *  Mark record
  */
 typedef struct {
-    int		id;		/* instance id */
-    int		ready;		/* if (ready == 1) then write out this inst */
-    /*
-     * timestamp is used to determine when to write out the next record
-     */
-    double	lasttstamp;	/* time of last write (0 == b4 first) */
-    double	nexttstamp;	/* time of next write (0 == b4 first) */
-    /*
-     * lasttime and lastval are used to calculate the time and value for
-     * this interval
-     */
-    double	lasttime;	/* time of last record (0 == b4 first) */
-    double	lastval;	/* value of last record */
-    /*
-     * value, deltat and numsamples, are used to calculate the final value
-     * to be written out; 
-     *		time average       = value / deltat
-     *		stochastic average = value / numsamples
-     */
-    double	value;		/* value so far (0 == b4 first value) */
-    double	deltat;		/* elapsed time since last write */
-    int		numsamples;	/* number of samples since last write */
-    /*
-     * the final average value to be written out
-     */
-    double	average;
-} instlist_t;
-    
-/*
- *  metric [instance] list
- */
-typedef struct {
-    char	*name;		/* metric name */
-    /* normally idesc and odesc will point to the same descriptor ...
-     * however, if the "-t" flag is specified, then in the case of
-     * counters and instantaneous values, odesc will be different
-     */
-    pmDesc	*idesc;		/* input  metric descriptor - pmid, pmindom */
-    pmDesc	*odesc;		/* output metric descriptor - pmid, pmindom */
-    double	scale;		/* scale multiplier for counter metrics */
-    int		numinst;	/* number of instances (0 means all) */
-    instlist_t	*instlist;	/* instance id [see above] list */
-} mlist_t;
-
-/*
- *  pmResult list
- */
-typedef struct __rlist_t {
-    pmResult		*res;		/* ptr to pmResult */
-    struct __rlist_t	*next;		/* ptr to next element in list */
-} rlist_t;
-
-extern int	ml_numpmid;		/* num pmid in ml list */
-extern int	ml_size;		/* actual size of ml array */
-extern mlist_t	*ml;			/* list of pmids with indoms */
-extern rlist_t	*rl;			/* list of pmResults */
+    __pmPDU		len;
+    __pmPDU		type;
+    __pmPDU		from;
+    __pmTimeval		timestamp;	/* when returned */
+    int			numpmid;	/* zero PMIDs to follow */
+} mark_t;
 
 /* generic error message buffer */
 extern char	mess[256];
@@ -172,5 +123,9 @@ extern void	yyerror(char *);
 extern void	yywarn(char *);
 extern int	yylex(void);
 extern int	yyparse(void);
+
+extern char	*SemStr(int);
+extern int	_pmLogGet(__pmLogCtl *, int, __pmPDU **);
+extern int	_pmLogPut(FILE *, __pmPDU *);
 
 #endif /* _LOGGER_H */

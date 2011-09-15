@@ -21,7 +21,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES	= pmlogrewrite.c error.c logio.c metriclist.c
+CFILES	= pmlogrewrite.c error.c logio.c
 HFILES	= logger.h
 LFILES  = lex.l
 YFILES	= gram.y
