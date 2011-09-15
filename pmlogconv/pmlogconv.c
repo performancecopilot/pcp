@@ -170,8 +170,10 @@ main(int argc, char **argv)
     char	*output;
     char	*pmnsfile = NULL;
     int		needti = 0;
-    off_t	old_offset;
-    off_t	new_offset;
+    off_t	old_log_offset;
+    off_t	new_log_offset;
+    off_t	old_meta_offset;
+    off_t	new_meta_offset;
     extern char	*optarg;
     extern int	optind;
     extern int	pmDebug;
@@ -264,13 +266,14 @@ Options\n\
 	    break;
 
 	if (inarch.pick[LOG]) {
-	    old_offset = ftell(logctl.l_mfp);
-	    if (old_offset == 0) {
+	    old_log_offset = ftell(logctl.l_mfp);
+	    old_meta_offset = ftell(logctl.l_mdfp);
+	    if (old_log_offset == 0) {
 		/* write label record for data file */
 		logctl.l_label.ill_start.tv_sec = current.tv_sec;
 		logctl.l_label.ill_start.tv_usec = current.tv_usec;
 		writelabel_data();
-		old_offset = ftell(logctl.l_mfp);
+		old_log_offset = ftell(logctl.l_mfp);
 		needti = 1;
 	    }
 
@@ -298,11 +301,15 @@ Options\n\
 	    inarch.pick[LOG] = 0;
 
 	    if (needti) {
+		fflush(logctl.l_mfp);
 		fflush(logctl.l_mdfp);
-		new_offset = ftell(logctl.l_mfp);
-		fseek(logctl.l_mfp, old_offset, SEEK_SET);
+		new_log_offset = ftell(logctl.l_mfp);
+		new_meta_offset = ftell(logctl.l_mdfp);
+		fseek(logctl.l_mfp, old_log_offset, SEEK_SET);
+		fseek(logctl.l_mdfp, old_meta_offset, SEEK_SET);
 		__pmLogPutIndex(&logctl, &current);
-		fseek(logctl.l_mfp, new_offset, SEEK_SET);
+		fseek(logctl.l_mfp, new_log_offset, SEEK_SET);
+		fseek(logctl.l_mdfp, new_log_offset, SEEK_SET);
 		needti = 0;
 	    }
 	}
