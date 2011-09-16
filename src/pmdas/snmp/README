@@ -16,7 +16,7 @@ the use of virtual hostnames, which would change the names exported.
 I also hope in the future to load in full MIB names, which would also
 change the exported names to make them more readable.
 
-Also as a future target, As oids are queried for by the PCP client,
+Also as a future target, as OIDs are queried for by the PCP client,
 this gateway will dynamically create mappings between the PCP internal
 ID and the SNMP OID.  This creates limitations on the total number of
 mappings available.
@@ -36,9 +36,9 @@ PCP uses an open ended dotted text name to translate to this fixed 64bit value.
 The PCP agent sends the text to number mapping to the PCP client as needed.
 
 This gateway will be configured with a config file:
-* define each snmp hostname and credentials
+* define each SNMP hostname and credentials
 * define a list of MIB namespaces to load (future)
-* define a list of static oid -> PCP mappings (including room for tables..)
+* define a list of static OID -> PCP mappings (including room for tables..)
 * a static mapping of a tree (and the max static size of that tree?) (future)
 * a static "table" mapping for special use of the "instance" value (future)
 * define a "high water mark" for static mappings
@@ -49,7 +49,7 @@ then the gateway dynamically allocates the next free ID (starting from
 MAXINT working downwards).  This dynamic mapping might change on gateway
 restarts or on idle timeouts.
 
-The instance ID is currently used to specify the snmp host for this oid
+The instance ID is currently used to specify the SNMP host for this OID
 mapping.
 
 TODO: define config file format here
