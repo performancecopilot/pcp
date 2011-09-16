@@ -366,12 +366,12 @@ to one or more SNMP agents.
 If you want access to the SNMP gateway performance
 metrics, do the following as root:
 
-	# cd $PCP_PMDAS_DIR/bonding
+	# cd $PCP_PMDAS_DIR/snmp
 	# ./Install
 
 If you want to undo the installation, do the following as root:
 
-	# cd $PCP_PMDAS_DIR/bonding
+	# cd $PCP_PMDAS_DIR/snmp
 	# ./Remove
 
 B<pmdasnmp> is launched by pmcd(1) and should never be executed
