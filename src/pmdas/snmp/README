@@ -10,8 +10,9 @@ The PCP names that are exported are (currently)
 	snmp.oid.$oid[$hostname]
 	snmp.oid.$oid[$hostname/$rownr]
 
-In the future I hope to propose an extension to the PCP agent protocol to all
-the use of virtual hostnames, which would change the names exported.
+In the future I hope to propose an extension to the PCP agent protocol
+to allow the use of virtual hostnames, which would change the names
+exported.
 
 I also hope in the future to load in full MIB names, which would also
 change the exported names to make them more readable.
@@ -21,12 +22,12 @@ this gateway will dynamically create mappings between the PCP internal
 ID and the SNMP OID.  This creates limitations on the total number of
 mappings available.
 
-SNMP uses a open ended hierachical namespace with a potentially unlimited
+SNMP uses an open ended hierachical namespace with a potentially unlimited
 number of values.  MIB files on the SNMP client are used to map between
 dotted names and dotted numbers.  These MIB files also provide type
 information and help text for each OID
 
-PCP uses a 64bit value to uniquely identify each available metric.  This is
+PCP uses a 64bit value to uniquely identify each available value.  This is
 divided into:
 	9 bits - "domain" number (./src/pmns/Make.stdpmid gives 56-58 to SNMP)
 	12 bits - "cluster" number
