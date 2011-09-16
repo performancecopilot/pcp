@@ -36,13 +36,13 @@ divided into:
 PCP uses an open ended dotted text name to translate to this fixed 64bit value.
 The PCP agent sends the text to number mapping to the PCP client as needed.
 
-This gateway will be configured with a config file:
+This gateway is configured with a config file:
 * define each SNMP hostname and credentials
 * define a list of MIB namespaces to load (future)
 * define a list of static OID -> PCP mappings (including room for tables..)
 * a static mapping of a tree (and the max static size of that tree?) (future)
-* a static "table" mapping for special use of the "instance" value (future)
-* define a "high water mark" for static mappings
+* a static "table" mapping for special use of the "instance" value
+* define a "high water mark" for static mappings (future)
 
 If a query comes in for a static mapping, then the PCP value from the
 config is used every time.  If a query for a new mapping is received
