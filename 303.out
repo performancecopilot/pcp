@@ -128,7 +128,7 @@ Temporal Index
              Log Vol    end(meta)     end(log)
 14:46:47.148       0          132          132
 14:46:48.210       0          414          328
-14:46:52.145       0          455          864
+14:46:52.145       0          455          824
 
 14:46:47.148  2.3.3 (pmcd.pmlogger.host): inst [4530 or "4530"] value "ha2.melbourne.sgi.com"
               2.3.0 (pmcd.pmlogger.port): inst [4530 or "4530"] value 4331
