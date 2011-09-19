@@ -2,6 +2,9 @@
 #
 # find metrics in the QA archives
 #
+# command line args are alternate patterns matched in the output
+# from pminfo -d ... so metric names and metric descriptors
+#
 
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
@@ -17,9 +20,24 @@ do
     fi
 done
 
+rm -f /tmp/eek
+
 for arch in src-oss/*.0
 do
-    pminfo -a $arch 2>&1 | egrep "$pat" >$tmp.out
+    pminfo -a $arch 2>&1 -d \
+    | sed -e '/^[a-z]/{
+s/$/|/
+N
+s/$/|/
+N
+s/|./|/g
+s/  */ /g
+s/| Data Type: /|/
+s/ InDom: /|/
+s/ Semantics: /|/
+s/ Units: /|/
+}' \
+| egrep "$pat" >$tmp.out
 
     if [ -s $tmp.out ]
     then
