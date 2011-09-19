@@ -8,6 +8,8 @@ Instance Domain: 1.5
 pmInDom:	-> 1.10
 Instance:	[15] "15 minute" -> [9999] "forever"
 
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
 === global time -> +3 ===
 PCP Archive Log Rewrite Specifications Summary
 Delta:		-> 00:00:03.000000
@@ -259,30 +261,40 @@ PCP Archive Log Rewrite Specifications Summary
 Instance Domain: 1.5
 Instance:	[15] "15 minute" -> [15] "15 mid range"
 
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
 === indom 1.5 { inst 1 -> 3 } ===
 PCP Archive Log Rewrite Specifications Summary
 
 Instance Domain: 1.5
 Instance:	[1] "1 minute" -> [3] "1 minute"
 
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
 === indom 1.5 { inst 5 -> delete } ===
 PCP Archive Log Rewrite Specifications Summary
 
 Instance Domain: 1.5
 Instance:	[5] "5 minute" -> DELETE
 
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
 === indom 1.5 { name "5" -> delete } ===
 PCP Archive Log Rewrite Specifications Summary
 
 Instance Domain: 1.5
 Instance:	[5] "5 minute" -> DELETE
 
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
 === indom 1.5 { inst 1 -> 3 name "1" -> "3 minute" } ===
 PCP Archive Log Rewrite Specifications Summary
 
 Instance Domain: 1.5
 Instance:	[1] "1 minute" -> [3] "3 minute"
 
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
 === indom 1.5 { name "15" -> } ===
 Specification error in configuration file (TMP.conf)
 [line 1] Expecting new external instance name string or DELETE in name clause
@@ -347,48 +359,72 @@ PCP Archive Log Rewrite Specifications Summary
 Instance Domain: 1.5
 Instance:	[5] "5 minute" -> [5] "yippee"
 
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
 === indom 1.5 { name "1" -> "yippee" } ===
 PCP Archive Log Rewrite Specifications Summary
 
 Instance Domain: 1.5
 Instance:	[1] "1 minute" -> [1] "yippee"
 
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
 === indom 1.5 { name "5" -> "yippee" } ===
 PCP Archive Log Rewrite Specifications Summary
 
 Instance Domain: 1.5
 Instance:	[5] "5 minute" -> [5] "yippee"
 
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
 === indom 1.5 { name "15" -> "yippee" } ===
 PCP Archive Log Rewrite Specifications Summary
 
 Instance Domain: 1.5
 Instance:	[15] "15 minute" -> [15] "yippee"
 
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
 === indom 1.5 { name "1 does not matter" -> "yippee" } ===
 PCP Archive Log Rewrite Specifications Summary
 
 Instance Domain: 1.5
 Instance:	[1] "1 minute" -> [1] "yippee"
 
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
 === indom 1.5 { name "15 eek" -> "yippee" } ===
 PCP Archive Log Rewrite Specifications Summary
 
 Instance Domain: 1.5
 Instance:	[15] "15 minute" -> [15] "yippee"
 
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
 === indom 2.1 { name "19856" -> "19856 bozo" } ===
 PCP Archive Log Rewrite Specifications Summary
 
 Instance Domain: 2.1
 Instance:	[19856] "19856" -> [19856] "19856 bozo"
 
+Metric: pmcd.pmlogger.host (2.3.3)
+Inst Changes:	<- InDom 2.1
+Metric: pmcd.pmlogger.port (2.3.0)
+Inst Changes:	<- InDom 2.1
+Metric: pmcd.pmlogger.archive (2.3.2)
+Inst Changes:	<- InDom 2.1
 === indom 2.1 { name "19856 does not matter" -> "19856 bozo" } ===
 PCP Archive Log Rewrite Specifications Summary
 
 Instance Domain: 2.1
 Instance:	[19856] "19856" -> [19856] "19856 bozo"
 
+Metric: pmcd.pmlogger.host (2.3.3)
+Inst Changes:	<- InDom 2.1
+Metric: pmcd.pmlogger.port (2.3.0)
+Inst Changes:	<- InDom 2.1
+Metric: pmcd.pmlogger.archive (2.3.2)
+Inst Changes:	<- InDom 2.1
 === indom 2.1 { name "19857" -> "19856 bozo" } ===
 Specification error in configuration file (TMP.conf)
 [line 1] Unknown instance "19857" in name clause for indom 2.1

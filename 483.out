@@ -10,7 +10,7 @@ Instance:	[15] "15 minute" -> [9999] "forever"
 
 Metric: irix.kernel.all.load (1.18.3)
 pmID:		1.18.3 -> 4.5.6
-
+Inst Changes:	<- InDom 1.5
 Metric: hinv.ndisk (1.26.7)
 pmID:		1.26.7 -> 1.2.3
 
