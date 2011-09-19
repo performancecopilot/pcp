@@ -716,9 +716,10 @@ pmlogrewrite
 480 archive fault local oss
 481 pmlogrewrite local oss
 482 pmlogsummary local oss pmdumplog
-483 pmlogrewrite local oss
-484 pmlogrewrite local oss
-485 pmlogrewrite local oss
+483 pmlogrewrite local oss pmdumplog
+484 pmlogrewrite local oss pmdumplog
+485 pmlogrewrite local oss pmdumplog
+486 pmlogrewrite local oss pmdumplog
 500 logutil local #636417 folio oss
 501 pmie remote oss
 504 pmie remote pmsocks oss

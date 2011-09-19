@@ -1,0 +1,1809 @@
+QA output created by 486
+
+=== metric sample.bin { pmid->42.42.42 } ===
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -6,7 +6,7 @@
+   ending     Tue Feb 25 11:05:07.411 1997
+ 
+ Descriptions for Metrics in the Log ...
+-PMID: 29.0.6 (sample.bin)
++PMID: 42.42.42 (sample.bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.7 (sample.drift)
+@@ -214,7 +214,7 @@
+                 inst [14 or "m-14"] value 1429
+                 inst [15 or "m-15"] value 1528
+               29.0.7 (sample.drift): value 111
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -233,7 +233,7 @@
+                 inst [15 or "m-15"] value 1524
+                 inst [16 or "m-16"] value 1623
+               29.0.7 (sample.drift): value 88
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -254,7 +254,7 @@
+                 inst [17 or "m-17"] value 1717
+                 inst [18 or "m-18"] value 1816
+               29.0.7 (sample.drift): value 83
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -276,7 +276,7 @@
+                 inst [19 or "m-19"] value 1909
+                 inst [20 or "m-20"] value 2008
+               29.0.7 (sample.drift): value 58
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -298,7 +298,7 @@
+                 inst [20 or "m-20"] value 2001
+                 inst [21 or "m-21"] value 2200
+               29.0.7 (sample.drift): value 26
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -318,7 +318,7 @@
+                 inst [19 or "m-19"] value 1995
+                 inst [21 or "m-21"] value 2194
+               29.0.7 (sample.drift): value 74
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -338,7 +338,7 @@
+                 inst [19 or "m-19"] value 1989
+                 inst [21 or "m-21"] value 2188
+               29.0.7 (sample.drift): value 75
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -359,7 +359,7 @@
+                 inst [21 or "m-21"] value 2182
+                 inst [22 or "m-22"] value 2281
+               29.0.7 (sample.drift): value 86
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -381,7 +381,7 @@
+                 inst [22 or "m-22"] value 2274
+                 inst [23 or "m-23"] value 2373
+               29.0.7 (sample.drift): value 119
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -402,7 +402,7 @@
+                 inst [23 or "m-23"] value 2367
+                 inst [24 or "m-24"] value 2466
+               29.0.7 (sample.drift): value 150
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -422,7 +422,7 @@
+                 inst [24 or "m-24"] value 2461
+                 inst [25 or "m-25"] value 2560
+               29.0.7 (sample.drift): value 153
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -441,7 +441,7 @@
+                 inst [24 or "m-24"] value 2456
+                 inst [25 or "m-25"] value 2555
+               29.0.7 (sample.drift): value 189
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -460,7 +460,7 @@
+                 inst [24 or "m-24"] value 2451
+                 inst [26 or "m-26"] value 2650
+               29.0.7 (sample.drift): value 234
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -481,7 +481,7 @@
+                 inst [27 or "m-27"] value 2744
+                 inst [28 or "m-28"] value 2843
+               29.0.7 (sample.drift): value 282
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -501,7 +501,7 @@
+                 inst [28 or "m-28"] value 2838
+                 inst [29 or "m-29"] value 2937
+               29.0.7 (sample.drift): value 303
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -520,7 +520,7 @@
+                 inst [27 or "m-27"] value 2733
+                 inst [28 or "m-28"] value 2832
+               29.0.7 (sample.drift): value 271
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -539,7 +539,7 @@
+                 inst [28 or "m-28"] value 2828
+                 inst [30 or "m-30"] value 3027
+               29.0.7 (sample.drift): value 267
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -559,7 +559,7 @@
+                 inst [30 or "m-30"] value 3022
+                 inst [31 or "m-31"] value 3121
+               29.0.7 (sample.drift): value 249
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -579,7 +579,7 @@
+                 inst [32 or "m-32"] value 3216
+                 inst [33 or "m-33"] value 3315
+               29.0.7 (sample.drift): value 242
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -598,7 +598,7 @@
+                 inst [30 or "m-30"] value 3011
+                 inst [33 or "m-33"] value 3310
+               29.0.7 (sample.drift): value 208
+-              29.0.6 (sample.bin):
++              42.42.42 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+
+=== metric sample.bin { name -> sam.bin } ===
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -6,7 +6,7 @@
+   ending     Tue Feb 25 11:05:07.411 1997
+ 
+ Descriptions for Metrics in the Log ...
+-PMID: 29.0.6 (sample.bin)
++PMID: 29.0.6 (sam.bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.7 (sample.drift)
+@@ -182,24 +182,24 @@
+              Log Vol    end(meta)     end(log)
+ 10:45:08.440       0          132          132
+ 10:46:07.406       0          351          288
+-10:47:07.419       0          771          464
+-10:48:07.406       0          864          640
+-10:49:07.407       0          983          832
+-10:50:07.407       0         1115         1032
+-10:51:07.407       0         1247         1232
+-10:53:07.408       0         1353         1600
+-10:54:07.408       0         1472         1792
+-10:55:07.409       0         1604         1992
+-10:56:07.409       0         1723         2184
+-10:57:07.409       0         1829         2368
+-10:58:07.409       0         1922         2544
+-10:59:07.410       0         2015         2720
+-11:00:07.410       0         2134         2912
+-11:01:07.410       0         2240         3096
+-11:02:07.411       0         2333         3272
+-11:03:07.411       0         2426         3448
+-11:04:07.411       0         2532         3632
+-11:05:07.411       0         2638         3816
++10:47:07.419       0          768          464
++10:48:07.406       0          861          640
++10:49:07.407       0          980          832
++10:50:07.407       0         1112         1032
++10:51:07.407       0         1244         1232
++10:53:07.408       0         1350         1600
++10:54:07.408       0         1469         1792
++10:55:07.409       0         1601         1992
++10:56:07.409       0         1720         2184
++10:57:07.409       0         1826         2368
++10:58:07.409       0         1919         2544
++10:59:07.410       0         2012         2720
++11:00:07.410       0         2131         2912
++11:01:07.410       0         2237         3096
++11:02:07.411       0         2330         3272
++11:03:07.411       0         2423         3448
++11:04:07.411       0         2529         3632
++11:05:07.411       0         2635         3816
+ 
+ [156 bytes]
+ 10:45:08.440  2.3.3 (pmcd.pmlogger.host): inst [24763 or "24763"] value "gonzo.melbourne.sgi.com"
+@@ -214,7 +214,7 @@
+                 inst [14 or "m-14"] value 1429
+                 inst [15 or "m-15"] value 1528
+               29.0.7 (sample.drift): value 111
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -233,7 +233,7 @@
+                 inst [15 or "m-15"] value 1524
+                 inst [16 or "m-16"] value 1623
+               29.0.7 (sample.drift): value 88
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -254,7 +254,7 @@
+                 inst [17 or "m-17"] value 1717
+                 inst [18 or "m-18"] value 1816
+               29.0.7 (sample.drift): value 83
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -276,7 +276,7 @@
+                 inst [19 or "m-19"] value 1909
+                 inst [20 or "m-20"] value 2008
+               29.0.7 (sample.drift): value 58
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -298,7 +298,7 @@
+                 inst [20 or "m-20"] value 2001
+                 inst [21 or "m-21"] value 2200
+               29.0.7 (sample.drift): value 26
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -318,7 +318,7 @@
+                 inst [19 or "m-19"] value 1995
+                 inst [21 or "m-21"] value 2194
+               29.0.7 (sample.drift): value 74
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -338,7 +338,7 @@
+                 inst [19 or "m-19"] value 1989
+                 inst [21 or "m-21"] value 2188
+               29.0.7 (sample.drift): value 75
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -359,7 +359,7 @@
+                 inst [21 or "m-21"] value 2182
+                 inst [22 or "m-22"] value 2281
+               29.0.7 (sample.drift): value 86
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -381,7 +381,7 @@
+                 inst [22 or "m-22"] value 2274
+                 inst [23 or "m-23"] value 2373
+               29.0.7 (sample.drift): value 119
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -402,7 +402,7 @@
+                 inst [23 or "m-23"] value 2367
+                 inst [24 or "m-24"] value 2466
+               29.0.7 (sample.drift): value 150
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -422,7 +422,7 @@
+                 inst [24 or "m-24"] value 2461
+                 inst [25 or "m-25"] value 2560
+               29.0.7 (sample.drift): value 153
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -441,7 +441,7 @@
+                 inst [24 or "m-24"] value 2456
+                 inst [25 or "m-25"] value 2555
+               29.0.7 (sample.drift): value 189
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -460,7 +460,7 @@
+                 inst [24 or "m-24"] value 2451
+                 inst [26 or "m-26"] value 2650
+               29.0.7 (sample.drift): value 234
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -481,7 +481,7 @@
+                 inst [27 or "m-27"] value 2744
+                 inst [28 or "m-28"] value 2843
+               29.0.7 (sample.drift): value 282
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -501,7 +501,7 @@
+                 inst [28 or "m-28"] value 2838
+                 inst [29 or "m-29"] value 2937
+               29.0.7 (sample.drift): value 303
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -520,7 +520,7 @@
+                 inst [27 or "m-27"] value 2733
+                 inst [28 or "m-28"] value 2832
+               29.0.7 (sample.drift): value 271
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -539,7 +539,7 @@
+                 inst [28 or "m-28"] value 2828
+                 inst [30 or "m-30"] value 3027
+               29.0.7 (sample.drift): value 267
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -559,7 +559,7 @@
+                 inst [30 or "m-30"] value 3022
+                 inst [31 or "m-31"] value 3121
+               29.0.7 (sample.drift): value 249
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -579,7 +579,7 @@
+                 inst [32 or "m-32"] value 3216
+                 inst [33 or "m-33"] value 3315
+               29.0.7 (sample.drift): value 242
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -598,7 +598,7 @@
+                 inst [30 or "m-30"] value 3011
+                 inst [33 or "m-33"] value 3310
+               29.0.7 (sample.drift): value 208
+-              29.0.6 (sample.bin):
++              29.0.6 (sam.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+
+=== metric sample.bin { name -> x23456789.sample.bin } ===
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -6,7 +6,7 @@
+   ending     Tue Feb 25 11:05:07.411 1997
+ 
+ Descriptions for Metrics in the Log ...
+-PMID: 29.0.6 (sample.bin)
++PMID: 29.0.6 (x23456789.sample.bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.7 (sample.drift)
+@@ -182,24 +182,24 @@
+              Log Vol    end(meta)     end(log)
+ 10:45:08.440       0          132          132
+ 10:46:07.406       0          351          288
+-10:47:07.419       0          771          464
+-10:48:07.406       0          864          640
+-10:49:07.407       0          983          832
+-10:50:07.407       0         1115         1032
+-10:51:07.407       0         1247         1232
+-10:53:07.408       0         1353         1600
+-10:54:07.408       0         1472         1792
+-10:55:07.409       0         1604         1992
+-10:56:07.409       0         1723         2184
+-10:57:07.409       0         1829         2368
+-10:58:07.409       0         1922         2544
+-10:59:07.410       0         2015         2720
+-11:00:07.410       0         2134         2912
+-11:01:07.410       0         2240         3096
+-11:02:07.411       0         2333         3272
+-11:03:07.411       0         2426         3448
+-11:04:07.411       0         2532         3632
+-11:05:07.411       0         2638         3816
++10:47:07.419       0          781          464
++10:48:07.406       0          874          640
++10:49:07.407       0          993          832
++10:50:07.407       0         1125         1032
++10:51:07.407       0         1257         1232
++10:53:07.408       0         1363         1600
++10:54:07.408       0         1482         1792
++10:55:07.409       0         1614         1992
++10:56:07.409       0         1733         2184
++10:57:07.409       0         1839         2368
++10:58:07.409       0         1932         2544
++10:59:07.410       0         2025         2720
++11:00:07.410       0         2144         2912
++11:01:07.410       0         2250         3096
++11:02:07.411       0         2343         3272
++11:03:07.411       0         2436         3448
++11:04:07.411       0         2542         3632
++11:05:07.411       0         2648         3816
+ 
+ [156 bytes]
+ 10:45:08.440  2.3.3 (pmcd.pmlogger.host): inst [24763 or "24763"] value "gonzo.melbourne.sgi.com"
+@@ -214,7 +214,7 @@
+                 inst [14 or "m-14"] value 1429
+                 inst [15 or "m-15"] value 1528
+               29.0.7 (sample.drift): value 111
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -233,7 +233,7 @@
+                 inst [15 or "m-15"] value 1524
+                 inst [16 or "m-16"] value 1623
+               29.0.7 (sample.drift): value 88
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -254,7 +254,7 @@
+                 inst [17 or "m-17"] value 1717
+                 inst [18 or "m-18"] value 1816
+               29.0.7 (sample.drift): value 83
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -276,7 +276,7 @@
+                 inst [19 or "m-19"] value 1909
+                 inst [20 or "m-20"] value 2008
+               29.0.7 (sample.drift): value 58
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -298,7 +298,7 @@
+                 inst [20 or "m-20"] value 2001
+                 inst [21 or "m-21"] value 2200
+               29.0.7 (sample.drift): value 26
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -318,7 +318,7 @@
+                 inst [19 or "m-19"] value 1995
+                 inst [21 or "m-21"] value 2194
+               29.0.7 (sample.drift): value 74
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -338,7 +338,7 @@
+                 inst [19 or "m-19"] value 1989
+                 inst [21 or "m-21"] value 2188
+               29.0.7 (sample.drift): value 75
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -359,7 +359,7 @@
+                 inst [21 or "m-21"] value 2182
+                 inst [22 or "m-22"] value 2281
+               29.0.7 (sample.drift): value 86
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -381,7 +381,7 @@
+                 inst [22 or "m-22"] value 2274
+                 inst [23 or "m-23"] value 2373
+               29.0.7 (sample.drift): value 119
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -402,7 +402,7 @@
+                 inst [23 or "m-23"] value 2367
+                 inst [24 or "m-24"] value 2466
+               29.0.7 (sample.drift): value 150
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -422,7 +422,7 @@
+                 inst [24 or "m-24"] value 2461
+                 inst [25 or "m-25"] value 2560
+               29.0.7 (sample.drift): value 153
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -441,7 +441,7 @@
+                 inst [24 or "m-24"] value 2456
+                 inst [25 or "m-25"] value 2555
+               29.0.7 (sample.drift): value 189
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -460,7 +460,7 @@
+                 inst [24 or "m-24"] value 2451
+                 inst [26 or "m-26"] value 2650
+               29.0.7 (sample.drift): value 234
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -481,7 +481,7 @@
+                 inst [27 or "m-27"] value 2744
+                 inst [28 or "m-28"] value 2843
+               29.0.7 (sample.drift): value 282
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -501,7 +501,7 @@
+                 inst [28 or "m-28"] value 2838
+                 inst [29 or "m-29"] value 2937
+               29.0.7 (sample.drift): value 303
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -520,7 +520,7 @@
+                 inst [27 or "m-27"] value 2733
+                 inst [28 or "m-28"] value 2832
+               29.0.7 (sample.drift): value 271
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -539,7 +539,7 @@
+                 inst [28 or "m-28"] value 2828
+                 inst [30 or "m-30"] value 3027
+               29.0.7 (sample.drift): value 267
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -559,7 +559,7 @@
+                 inst [30 or "m-30"] value 3022
+                 inst [31 or "m-31"] value 3121
+               29.0.7 (sample.drift): value 249
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -579,7 +579,7 @@
+                 inst [32 or "m-32"] value 3216
+                 inst [33 or "m-33"] value 3315
+               29.0.7 (sample.drift): value 242
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -598,7 +598,7 @@
+                 inst [30 or "m-30"] value 3011
+                 inst [33 or "m-33"] value 3310
+               29.0.7 (sample.drift): value 208
+-              29.0.6 (sample.bin):
++              29.0.6 (x23456789.sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+
+=== indom 29.2 { inst 300 -> 42 } ===
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -30,7 +30,7 @@
+ 10:46:07.406 9 instances
+                  100 or "bin-100"
+                  200 or "bin-200"
+-                 300 or "bin-300"
++                 42 or "bin-300"
+                  400 or "bin-400"
+                  500 or "bin-500"
+                  600 or "bin-600"
+@@ -217,7 +217,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -236,7 +236,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -257,7 +257,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -279,7 +279,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -301,7 +301,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -321,7 +321,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -341,7 +341,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -362,7 +362,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -384,7 +384,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -405,7 +405,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -425,7 +425,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -444,7 +444,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -463,7 +463,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -484,7 +484,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -504,7 +504,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -523,7 +523,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -542,7 +542,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -562,7 +562,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -582,7 +582,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+@@ -601,7 +601,7 @@
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+-                inst [300 or "bin-300"] value 300
++                inst [42 or "bin-300"] value 300
+                 inst [400 or "bin-400"] value 400
+                 inst [500 or "bin-500"] value 500
+                 inst [600 or "bin-600"] value 600
+
+=== metric 29.*.* { sem->DISCRETE } metric pmcd.pmlogger.port { sem->COUNTER } ===
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -8,19 +8,19 @@
+ Descriptions for Metrics in the Log ...
+ PMID: 29.0.6 (sample.bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+-    Semantics: instant  Units: none
++    Semantics: discrete  Units: none
+ PMID: 29.0.7 (sample.drift)
+     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: instant  Units: none
++    Semantics: discrete  Units: none
+ PMID: 29.0.37 (sample.mirage)
+     Data Type: 32-bit int  InDom: 29.3 0x7400003
+-    Semantics: instant  Units: Kbyte / sec
++    Semantics: discrete  Units: Kbyte / sec
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: instant  Units: none
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+-    Semantics: instant  Units: none
++    Semantics: counter  Units: none
+ PMID: 2.3.3 (pmcd.pmlogger.host)
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: instant  Units: none
+
+=== metric disk.dev.bytes { units->1,0,0,MBYTE,0,0 } ===
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -20,7 +20,7 @@
+     Semantics: discrete  Units: none
+ PMID: 1.80.15 (disk.dev.bytes)
+     Data Type: 32-bit unsigned int  InDom: 1.2 0x400002
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: Mbyte
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+
+=== metric disk.dev.bytes { units->1,0,0,MBYTE,0,0 } ===
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -20,7 +20,7 @@
+     Semantics: discrete  Units: none
+ PMID: 1.80.15 (disk.dev.bytes)
+     Data Type: 32-bit unsigned int  InDom: 1.2 0x400002
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: Mbyte
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+@@ -101,21 +101,21 @@
+                 inst [464 or "dks1d4"] value 0
+                 inst [477 or "dks1d5"] value 109667459
+               1.80.15 (disk.dev.bytes):
+-                inst [339 or "dks9d1"] value 183325216
+-                inst [350 or "dks9d2"] value 5
+-                inst [379 or "dks9d3"] value 172788759
+-                inst [414 or "dks9d4"] value 179712834
+-                inst [488 or "dks9d6"] value 555
+-                inst [328 or "dks0d1"] value 1325
+-                inst [361 or "dks0d2"] value 246668695
+-                inst [392 or "dks0d3"] value 193827319
+-                inst [365 or "dks1d1"] value 246640939
+-                inst [425 or "dks0d4"] value 0
+-                inst [405 or "dks1d2"] value 172791122
+-                inst [436 or "dks0d5"] value 179726640
+-                inst [447 or "dks1d3"] value 28154512
++                inst [339 or "dks9d1"] value 179029
++                inst [350 or "dks9d2"] value 0
++                inst [379 or "dks9d3"] value 168739
++                inst [414 or "dks9d4"] value 175501
++                inst [488 or "dks9d6"] value 1
++                inst [328 or "dks0d1"] value 1
++                inst [361 or "dks0d2"] value 240887
++                inst [392 or "dks0d3"] value 189284
++                inst [365 or "dks1d1"] value 240860
++                inst [425 or "dks0d4"] value 0
++                inst [405 or "dks1d2"] value 168741
++                inst [436 or "dks0d5"] value 175514
++                inst [447 or "dks1d3"] value 27495
+                 inst [464 or "dks1d4"] value 0
+-                inst [477 or "dks1d5"] value 193874276
++                inst [477 or "dks1d5"] value 189330
+               1.80.7 (disk.dev.total):
+                 inst [339 or "dks9d1"] value 7085123
+                 inst [350 or "dks9d2"] value 2
+@@ -199,21 +199,21 @@
+                 inst [464 or "dks1d4"] value 0
+                 inst [477 or "dks1d5"] value 109667459
+               1.80.15 (disk.dev.bytes):
+-                inst [339 or "dks9d1"] value 183325304
+-                inst [350 or "dks9d2"] value 5
+-                inst [379 or "dks9d3"] value 172788759
+-                inst [414 or "dks9d4"] value 179712834
+-                inst [488 or "dks9d6"] value 555
+-                inst [328 or "dks0d1"] value 1325
+-                inst [361 or "dks0d2"] value 246669272
+-                inst [392 or "dks0d3"] value 193827359
+-                inst [365 or "dks1d1"] value 246641515
+-                inst [425 or "dks0d4"] value 0
+-                inst [405 or "dks1d2"] value 172791122
+-                inst [436 or "dks0d5"] value 179726640
+-                inst [447 or "dks1d3"] value 28154576
++                inst [339 or "dks9d1"] value 179029
++                inst [350 or "dks9d2"] value 0
++                inst [379 or "dks9d3"] value 168739
++                inst [414 or "dks9d4"] value 175501
++                inst [488 or "dks9d6"] value 1
++                inst [328 or "dks0d1"] value 1
++                inst [361 or "dks0d2"] value 240888
++                inst [392 or "dks0d3"] value 189285
++                inst [365 or "dks1d1"] value 240861
++                inst [425 or "dks0d4"] value 0
++                inst [405 or "dks1d2"] value 168741
++                inst [436 or "dks0d5"] value 175514
++                inst [447 or "dks1d3"] value 27495
+                 inst [464 or "dks1d4"] value 0
+-                inst [477 or "dks1d5"] value 193874316
++                inst [477 or "dks1d5"] value 189330
+               1.80.7 (disk.dev.total):
+                 inst [339 or "dks9d1"] value 7085127
+                 inst [350 or "dks9d2"] value 2
+@@ -297,21 +297,21 @@
+                 inst [464 or "dks1d4"] value 0
+                 inst [477 or "dks1d5"] value 109667459
+               1.80.15 (disk.dev.bytes):
+-                inst [339 or "dks9d1"] value 183325448
+-                inst [350 or "dks9d2"] value 5
+-                inst [379 or "dks9d3"] value 172788759
+-                inst [414 or "dks9d4"] value 179712834
+-                inst [488 or "dks9d6"] value 555
+-                inst [328 or "dks0d1"] value 1325
+-                inst [361 or "dks0d2"] value 246669368
+-                inst [392 or "dks0d3"] value 193827359
+-                inst [365 or "dks1d1"] value 246641627
+-                inst [425 or "dks0d4"] value 0
+-                inst [405 or "dks1d2"] value 172791122
+-                inst [436 or "dks0d5"] value 179726640
+-                inst [447 or "dks1d3"] value 28154576
++                inst [339 or "dks9d1"] value 179029
++                inst [350 or "dks9d2"] value 0
++                inst [379 or "dks9d3"] value 168739
++                inst [414 or "dks9d4"] value 175501
++                inst [488 or "dks9d6"] value 1
++                inst [328 or "dks0d1"] value 1
++                inst [361 or "dks0d2"] value 240888
++                inst [392 or "dks0d3"] value 189285
++                inst [365 or "dks1d1"] value 240861
++                inst [425 or "dks0d4"] value 0
++                inst [405 or "dks1d2"] value 168741
++                inst [436 or "dks0d5"] value 175514
++                inst [447 or "dks1d3"] value 27495
+                 inst [464 or "dks1d4"] value 0
+-                inst [477 or "dks1d5"] value 193874317
++                inst [477 or "dks1d5"] value 189330
+               1.80.7 (disk.dev.total):
+                 inst [339 or "dks9d1"] value 7085134
+                 inst [350 or "dks9d2"] value 2
+@@ -395,21 +395,21 @@
+                 inst [464 or "dks1d4"] value 0
+                 inst [477 or "dks1d5"] value 109667459
+               1.80.15 (disk.dev.bytes):
+-                inst [339 or "dks9d1"] value 183325548
+-                inst [350 or "dks9d2"] value 5
+-                inst [379 or "dks9d3"] value 172788759
+-                inst [414 or "dks9d4"] value 179712839
+-                inst [488 or "dks9d6"] value 555
+-                inst [328 or "dks0d1"] value 1325
+-                inst [361 or "dks0d2"] value 246669513
+-                inst [392 or "dks0d3"] value 193827359
+-                inst [365 or "dks1d1"] value 246641768
+-                inst [425 or "dks0d4"] value 0
+-                inst [405 or "dks1d2"] value 172791122
+-                inst [436 or "dks0d5"] value 179726644
+-                inst [447 or "dks1d3"] value 28154580
++                inst [339 or "dks9d1"] value 179029
++                inst [350 or "dks9d2"] value 0
++                inst [379 or "dks9d3"] value 168739
++                inst [414 or "dks9d4"] value 175501
++                inst [488 or "dks9d6"] value 1
++                inst [328 or "dks0d1"] value 1
++                inst [361 or "dks0d2"] value 240888
++                inst [392 or "dks0d3"] value 189285
++                inst [365 or "dks1d1"] value 240861
++                inst [425 or "dks0d4"] value 0
++                inst [405 or "dks1d2"] value 168741
++                inst [436 or "dks0d5"] value 175514
++                inst [447 or "dks1d3"] value 27495
+                 inst [464 or "dks1d4"] value 0
+-                inst [477 or "dks1d5"] value 193874317
++                inst [477 or "dks1d5"] value 189330
+               1.80.7 (disk.dev.total):
+                 inst [339 or "dks9d1"] value 7085138
+                 inst [350 or "dks9d2"] value 2
+@@ -493,21 +493,21 @@
+                 inst [464 or "dks1d4"] value 0
+                 inst [477 or "dks1d5"] value 109667507
+               1.80.15 (disk.dev.bytes):
+-                inst [339 or "dks9d1"] value 183325744
+-                inst [350 or "dks9d2"] value 5
+-                inst [379 or "dks9d3"] value 172789147
+-                inst [414 or "dks9d4"] value 179712903
+-                inst [488 or "dks9d6"] value 555
+-                inst [328 or "dks0d1"] value 1325
+-                inst [361 or "dks0d2"] value 246669681
+-                inst [392 or "dks0d3"] value 193827403
+-                inst [365 or "dks1d1"] value 246641928
+-                inst [425 or "dks0d4"] value 0
+-                inst [405 or "dks1d2"] value 172791606
+-                inst [436 or "dks0d5"] value 179726708
+-                inst [447 or "dks1d3"] value 28154668
++                inst [339 or "dks9d1"] value 179029
++                inst [350 or "dks9d2"] value 0
++                inst [379 or "dks9d3"] value 168739
++                inst [414 or "dks9d4"] value 175501
++                inst [488 or "dks9d6"] value 1
++                inst [328 or "dks0d1"] value 1
++                inst [361 or "dks0d2"] value 240888
++                inst [392 or "dks0d3"] value 189285
++                inst [365 or "dks1d1"] value 240861
++                inst [425 or "dks0d4"] value 0
++                inst [405 or "dks1d2"] value 168742
++                inst [436 or "dks0d5"] value 175514
++                inst [447 or "dks1d3"] value 27495
+                 inst [464 or "dks1d4"] value 0
+-                inst [477 or "dks1d5"] value 193874365
++                inst [477 or "dks1d5"] value 189330
+               1.80.7 (disk.dev.total):
+                 inst [339 or "dks9d1"] value 7085145
+                 inst [350 or "dks9d2"] value 2
+@@ -591,21 +591,21 @@
+                 inst [464 or "dks1d4"] value 0
+                 inst [477 or "dks1d5"] value 109667515
+               1.80.15 (disk.dev.bytes):
+-                inst [339 or "dks9d1"] value 183326121
+-                inst [350 or "dks9d2"] value 5
+-                inst [379 or "dks9d3"] value 172789527
+-                inst [414 or "dks9d4"] value 179712927
+-                inst [488 or "dks9d6"] value 555
+-                inst [328 or "dks0d1"] value 1325
+-                inst [361 or "dks0d2"] value 246669701
+-                inst [392 or "dks0d3"] value 193827428
+-                inst [365 or "dks1d1"] value 246641948
+-                inst [425 or "dks0d4"] value 0
+-                inst [405 or "dks1d2"] value 172792102
+-                inst [436 or "dks0d5"] value 179726772
+-                inst [447 or "dks1d3"] value 28155064
++                inst [339 or "dks9d1"] value 179029
++                inst [350 or "dks9d2"] value 0
++                inst [379 or "dks9d3"] value 168740
++                inst [414 or "dks9d4"] value 175501
++                inst [488 or "dks9d6"] value 1
++                inst [328 or "dks0d1"] value 1
++                inst [361 or "dks0d2"] value 240888
++                inst [392 or "dks0d3"] value 189285
++                inst [365 or "dks1d1"] value 240861
++                inst [425 or "dks0d4"] value 0
++                inst [405 or "dks1d2"] value 168742
++                inst [436 or "dks0d5"] value 175514
++                inst [447 or "dks1d3"] value 27495
+                 inst [464 or "dks1d4"] value 0
+-                inst [477 or "dks1d5"] value 193874381
++                inst [477 or "dks1d5"] value 189330
+               1.80.7 (disk.dev.total):
+                 inst [339 or "dks9d1"] value 7085159
+                 inst [350 or "dks9d2"] value 2
+@@ -689,21 +689,21 @@
+                 inst [464 or "dks1d4"] value 0
+                 inst [477 or "dks1d5"] value 109667555
+               1.80.15 (disk.dev.bytes):
+-                inst [339 or "dks9d1"] value 183326483
+-                inst [350 or "dks9d2"] value 5
+-                inst [379 or "dks9d3"] value 172789527
+-                inst [414 or "dks9d4"] value 179713327
+-                inst [488 or "dks9d6"] value 555
+-                inst [328 or "dks0d1"] value 1325
+-                inst [361 or "dks0d2"] value 246669735
+-                inst [392 or "dks0d3"] value 193827464
+-                inst [365 or "dks1d1"] value 246641982
+-                inst [425 or "dks0d4"] value 0
+-                inst [405 or "dks1d2"] value 172792110
+-                inst [436 or "dks0d5"] value 179727056
+-                inst [447 or "dks1d3"] value 28155075
++                inst [339 or "dks9d1"] value 179030
++                inst [350 or "dks9d2"] value 0
++                inst [379 or "dks9d3"] value 168740
++                inst [414 or "dks9d4"] value 175501
++                inst [488 or "dks9d6"] value 1
++                inst [328 or "dks0d1"] value 1
++                inst [361 or "dks0d2"] value 240888
++                inst [392 or "dks0d3"] value 189285
++                inst [365 or "dks1d1"] value 240861
++                inst [425 or "dks0d4"] value 0
++                inst [405 or "dks1d2"] value 168742
++                inst [436 or "dks0d5"] value 175515
++                inst [447 or "dks1d3"] value 27495
+                 inst [464 or "dks1d4"] value 0
+-                inst [477 or "dks1d5"] value 193874421
++                inst [477 or "dks1d5"] value 189330
+               1.80.7 (disk.dev.total):
+                 inst [339 or "dks9d1"] value 7085175
+                 inst [350 or "dks9d2"] value 2
+@@ -787,21 +787,21 @@
+                 inst [464 or "dks1d4"] value 0
+                 inst [477 or "dks1d5"] value 109667559
+               1.80.15 (disk.dev.bytes):
+-                inst [339 or "dks9d1"] value 183326964
+-                inst [350 or "dks9d2"] value 5
+-                inst [379 or "dks9d3"] value 172789543
+-                inst [414 or "dks9d4"] value 179713379
+-                inst [488 or "dks9d6"] value 555
+-                inst [328 or "dks0d1"] value 1325
+-                inst [361 or "dks0d2"] value 246670254
+-                inst [392 or "dks0d3"] value 193827464
+-                inst [365 or "dks1d1"] value 246642381
+-                inst [425 or "dks0d4"] value 0
+-                inst [405 or "dks1d2"] value 172792114
+-                inst [436 or "dks0d5"] value 179727120
+-                inst [447 or "dks1d3"] value 28155075
++                inst [339 or "dks9d1"] value 179030
++                inst [350 or "dks9d2"] value 0
++                inst [379 or "dks9d3"] value 168740
++                inst [414 or "dks9d4"] value 175501
++                inst [488 or "dks9d6"] value 1
++                inst [328 or "dks0d1"] value 1
++                inst [361 or "dks0d2"] value 240889
++                inst [392 or "dks0d3"] value 189285
++                inst [365 or "dks1d1"] value 240862
++                inst [425 or "dks0d4"] value 0
++                inst [405 or "dks1d2"] value 168742
++                inst [436 or "dks0d5"] value 175515
++                inst [447 or "dks1d3"] value 27495
+                 inst [464 or "dks1d4"] value 0
+-                inst [477 or "dks1d5"] value 193874425
++                inst [477 or "dks1d5"] value 189330
+               1.80.7 (disk.dev.total):
+                 inst [339 or "dks9d1"] value 7085191
+                 inst [350 or "dks9d2"] value 2
+@@ -885,21 +885,21 @@
+                 inst [464 or "dks1d4"] value 0
+                 inst [477 or "dks1d5"] value 109667635
+               1.80.15 (disk.dev.bytes):
+-                inst [339 or "dks9d1"] value 183327504
+-                inst [350 or "dks9d2"] value 5
+-                inst [379 or "dks9d3"] value 172789563
+-                inst [414 or "dks9d4"] value 179713391
+-                inst [488 or "dks9d6"] value 555
+-                inst [328 or "dks0d1"] value 1325
+-                inst [361 or "dks0d2"] value 246670518
+-                inst [392 or "dks0d3"] value 193827524
+-                inst [365 or "dks1d1"] value 246642541
+-                inst [425 or "dks0d4"] value 0
+-                inst [405 or "dks1d2"] value 172792134
+-                inst [436 or "dks0d5"] value 179727133
+-                inst [447 or "dks1d3"] value 28155819
++                inst [339 or "dks9d1"] value 179031
++                inst [350 or "dks9d2"] value 0
++                inst [379 or "dks9d3"] value 168740
++                inst [414 or "dks9d4"] value 175501
++                inst [488 or "dks9d6"] value 1
++                inst [328 or "dks0d1"] value 1
++                inst [361 or "dks0d2"] value 240889
++                inst [392 or "dks0d3"] value 189285
++                inst [365 or "dks1d1"] value 240862
++                inst [425 or "dks0d4"] value 0
++                inst [405 or "dks1d2"] value 168742
++                inst [436 or "dks0d5"] value 175515
++                inst [447 or "dks1d3"] value 27496
+                 inst [464 or "dks1d4"] value 0
+-                inst [477 or "dks1d5"] value 193874501
++                inst [477 or "dks1d5"] value 189331
+               1.80.7 (disk.dev.total):
+                 inst [339 or "dks9d1"] value 7085213
+                 inst [350 or "dks9d2"] value 2
+@@ -983,21 +983,21 @@
+                 inst [464 or "dks1d4"] value 0
+                 inst [477 or "dks1d5"] value 109667735
+               1.80.15 (disk.dev.bytes):
+-                inst [339 or "dks9d1"] value 183327819
+-                inst [350 or "dks9d2"] value 5
+-                inst [379 or "dks9d3"] value 172789603
+-                inst [414 or "dks9d4"] value 179713611
+-                inst [488 or "dks9d6"] value 555
+-                inst [328 or "dks0d1"] value 1325
+-                inst [361 or "dks0d2"] value 246670715
+-                inst [392 or "dks0d3"] value 193827632
+-                inst [365 or "dks1d1"] value 246642754
+-                inst [425 or "dks0d4"] value 0
+-                inst [405 or "dks1d2"] value 172792190
+-                inst [436 or "dks0d5"] value 179727353
+-                inst [447 or "dks1d3"] value 28155819
++                inst [339 or "dks9d1"] value 179031
++                inst [350 or "dks9d2"] value 0
++                inst [379 or "dks9d3"] value 168740
++                inst [414 or "dks9d4"] value 175502
++                inst [488 or "dks9d6"] value 1
++                inst [328 or "dks0d1"] value 1
++                inst [361 or "dks0d2"] value 240889
++                inst [392 or "dks0d3"] value 189285
++                inst [365 or "dks1d1"] value 240862
++                inst [425 or "dks0d4"] value 0
++                inst [405 or "dks1d2"] value 168742
++                inst [436 or "dks0d5"] value 175515
++                inst [447 or "dks1d3"] value 27496
+                 inst [464 or "dks1d4"] value 0
+-                inst [477 or "dks1d5"] value 193874601
++                inst [477 or "dks1d5"] value 189331
+               1.80.7 (disk.dev.total):
+                 inst [339 or "dks9d1"] value 7085224
+                 inst [350 or "dks9d2"] value 2
+
+FILTERED pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -20,7 +20,7 @@
+     Semantics: discrete  Units: none
+ PMID: 1.80.15 (disk.dev.bytes)
+     Data Type: 32-bit unsigned int  InDom: 1.2 0x400002
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: Mbyte
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+
+=== metric disk.dev.bytes { units->1,-1,0,KBYTE,SEC,0 } ===
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -20,7 +20,7 @@
+     Semantics: discrete  Units: none
+ PMID: 1.80.15 (disk.dev.bytes)
+     Data Type: 32-bit unsigned int  InDom: 1.2 0x400002
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: Kbyte / sec
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+
+=== metric disk.dev.bytes { units->1,-1,0,KBYTE,SEC,0 } ===
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -20,7 +20,7 @@
+     Semantics: discrete  Units: none
+ PMID: 1.80.15 (disk.dev.bytes)
+     Data Type: 32-bit unsigned int  InDom: 1.2 0x400002
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: Kbyte / sec
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+
+=== metric sample.scale_step.time_up_secs { units->0,1,0,0,MSEC,0 } ===
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -47,7 +47,7 @@
+     Semantics: discrete  Units: none
+ PMID: 29.0.69 (sample.scale_step.time_up_secs)
+     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: instant  Units: sec
++    Semantics: instant  Units: millisec
+ PMID: 2.3.3 (pmcd.pmlogger.host)
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+
+=== metric sample.drift { type -> U32 } ===
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.7 (sample.drift)
+-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 29.0.37 (sample.mirage)
+     Data Type: 32-bit int  InDom: 29.3 0x7400003
+
+=== metric sample.drift { type -> 64 } ===
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.7 (sample.drift)
+-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 29.0.37 (sample.mirage)
+     Data Type: 32-bit int  InDom: 29.3 0x7400003
+@@ -182,31 +182,31 @@
+              Log Vol    end(meta)     end(log)
+ 10:45:08.440       0          132          132
+ 10:46:07.406       0          351          288
+-10:47:07.419       0          771          464
+-10:48:07.406       0          864          640
+-10:49:07.407       0          983          832
+-10:50:07.407       0         1115         1032
+-10:51:07.407       0         1247         1232
+-10:53:07.408       0         1353         1600
+-10:54:07.408       0         1472         1792
+-10:55:07.409       0         1604         1992
+-10:56:07.409       0         1723         2184
+-10:57:07.409       0         1829         2368
+-10:58:07.409       0         1922         2544
+-10:59:07.410       0         2015         2720
+-11:00:07.410       0         2134         2912
+-11:01:07.410       0         2240         3096
+-11:02:07.411       0         2333         3272
+-11:03:07.411       0         2426         3448
+-11:04:07.411       0         2532         3632
+-11:05:07.411       0         2638         3816
++10:47:07.419       0          771          476
++10:48:07.406       0          864          664
++10:49:07.407       0          983          868
++10:50:07.407       0         1115         1080
++10:51:07.407       0         1247         1292
++10:53:07.408       0         1353         1684
++10:54:07.408       0         1472         1888
++10:55:07.409       0         1604         2100
++10:56:07.409       0         1723         2304
++10:57:07.409       0         1829         2500
++10:58:07.409       0         1922         2688
++10:59:07.410       0         2015         2876
++11:00:07.410       0         2134         3080
++11:01:07.410       0         2240         3276
++11:02:07.411       0         2333         3464
++11:03:07.411       0         2426         3652
++11:04:07.411       0         2532         3848
++11:05:07.411       0         2638         4044
+ 
+ [156 bytes]
+ 10:45:08.440  2.3.3 (pmcd.pmlogger.host): inst [24763 or "24763"] value "gonzo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [24763 or "24763"] value 4332
+               2.3.2 (pmcd.pmlogger.archive): inst [24763 or "24763"] value "/usr/people/kenmcd/isms/pcp/qa/src/mirage"
+ 
+-[176 bytes]
++[188 bytes]
+ 10:46:07.406  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 32
+                 inst [12 or "m-12"] value 1231
+@@ -225,7 +225,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[176 bytes]
++[188 bytes]
+ 10:47:07.419  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 27
+                 inst [12 or "m-12"] value 1226
+@@ -244,7 +244,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[192 bytes]
++[204 bytes]
+ 10:48:07.406  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 22
+                 inst [12 or "m-12"] value 1221
+@@ -265,7 +265,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[200 bytes]
++[212 bytes]
+ 10:49:07.407  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 15
+                 inst [12 or "m-12"] value 1214
+@@ -287,7 +287,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[200 bytes]
++[212 bytes]
+ 10:50:07.407  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 7
+                 inst [12 or "m-12"] value 1206
+@@ -309,7 +309,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[184 bytes]
++[196 bytes]
+ 10:51:07.407  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 99
+                 inst [15 or "m-15"] value 1598
+@@ -329,7 +329,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[184 bytes]
++[196 bytes]
+ 10:52:07.407  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 93
+                 inst [15 or "m-15"] value 1592
+@@ -349,7 +349,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[192 bytes]
++[204 bytes]
+ 10:53:07.408  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 87
+                 inst [15 or "m-15"] value 1586
+@@ -370,7 +370,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[200 bytes]
++[212 bytes]
+ 10:54:07.408  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 80
+                 inst [15 or "m-15"] value 1579
+@@ -392,7 +392,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[192 bytes]
++[204 bytes]
+ 10:55:07.409  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 72
+                 inst [15 or "m-15"] value 1571
+@@ -413,7 +413,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[184 bytes]
++[196 bytes]
+ 10:56:07.409  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 65
+                 inst [17 or "m-17"] value 1764
+@@ -433,7 +433,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[176 bytes]
++[188 bytes]
+ 10:57:07.409  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 59
+                 inst [22 or "m-22"] value 2258
+@@ -452,7 +452,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[176 bytes]
++[188 bytes]
+ 10:58:07.409  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 54
+                 inst [22 or "m-22"] value 2253
+@@ -471,7 +471,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[192 bytes]
++[204 bytes]
+ 10:59:07.410  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 49
+                 inst [22 or "m-22"] value 2248
+@@ -492,7 +492,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[184 bytes]
++[196 bytes]
+ 11:00:07.410  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 42
+                 inst [24 or "m-24"] value 2441
+@@ -512,7 +512,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[176 bytes]
++[188 bytes]
+ 11:01:07.410  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 36
+                 inst [24 or "m-24"] value 2435
+@@ -531,7 +531,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[176 bytes]
++[188 bytes]
+ 11:02:07.411  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 31
+                 inst [24 or "m-24"] value 2430
+@@ -550,7 +550,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[184 bytes]
++[196 bytes]
+ 11:03:07.411  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 26
+                 inst [24 or "m-24"] value 2425
+@@ -570,7 +570,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[184 bytes]
++[196 bytes]
+ 11:04:07.411  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 20
+                 inst [24 or "m-24"] value 2419
+@@ -590,7 +590,7 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+-[176 bytes]
++[188 bytes]
+ 11:05:07.411  29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 14
+                 inst [24 or "m-24"] value 2413
+
+=== metric sample.scale_step.time_up_secs { type -> FLOAT } ===
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -46,7 +46,7 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+ PMID: 29.0.69 (sample.scale_step.time_up_secs)
+-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: sec
+ PMID: 2.3.3 (pmcd.pmlogger.host)
+     Data Type: string  InDom: 2.1 0x800001
+@@ -74,14 +74,14 @@
+              Log Vol    end(meta)     end(log)
+ 21:58:59.005       0          132          132
+ 21:58:59.505       0          350          284
+-21:59:04.005       0         1305         5432
++21:59:04.005       0         1305         5396
+ 
+ [152 bytes]
+ 21:58:59.005  2.3.3 (pmcd.pmlogger.host): inst [3931 or "3931"] value "bozo.localdomain"
+               2.3.0 (pmcd.pmlogger.port): inst [3931 or "3931"] value 4331
+               2.3.2 (pmcd.pmlogger.archive): inst [3931 or "3931"] value "/home/kenj/src/pcpqa/src-oss/sample_expr"
+ 
+-[572 bytes]
++[568 bytes]
+ 21:58:59.505  29.0.85 (sample.byte_rate_perhour): value 770
+               29.0.83 (sample.kbyte_ctr): value 23132
+               29.0.82 (sample.byte_rate): value 767
+@@ -112,7 +112,7 @@
+                 inst [17 or "m-17"] value 1720
+                 inst [18 or "m-18"] value 1819
+ 
+-[572 bytes]
++[568 bytes]
+ 21:59:00.005  29.0.85 (sample.byte_rate_perhour): value 726
+               29.0.83 (sample.kbyte_ctr): value 23979
+               29.0.82 (sample.byte_rate): value 626
+@@ -143,7 +143,7 @@
+                 inst [17 or "m-17"] value 1704
+                 inst [18 or "m-18"] value 1803
+ 
+-[572 bytes]
++[568 bytes]
+ 21:59:00.505  29.0.85 (sample.byte_rate_perhour): value 414
+               29.0.83 (sample.kbyte_ctr): value 24629
+               29.0.82 (sample.byte_rate): value 875
+@@ -174,7 +174,7 @@
+                 inst [17 or "m-17"] value 1788
+                 inst [18 or "m-18"] value 1887
+ 
+-[572 bytes]
++[568 bytes]
+ 21:59:01.005  29.0.85 (sample.byte_rate_perhour): value 1019
+               29.0.83 (sample.kbyte_ctr): value 26082
+               29.0.82 (sample.byte_rate): value 78
+@@ -205,7 +205,7 @@
+                 inst [17 or "m-17"] value 1772
+                 inst [18 or "m-18"] value 1871
+ 
+-[572 bytes]
++[568 bytes]
+ 21:59:01.505  29.0.85 (sample.byte_rate_perhour): value 294
+               29.0.83 (sample.kbyte_ctr): value 26857
+               29.0.82 (sample.byte_rate): value 196
+@@ -236,7 +236,7 @@
+                 inst [17 or "m-17"] value 1756
+                 inst [18 or "m-18"] value 1855
+ 
+-[572 bytes]
++[568 bytes]
+ 21:59:02.005  29.0.85 (sample.byte_rate_perhour): value 752
+               29.0.83 (sample.kbyte_ctr): value 27023
+               29.0.82 (sample.byte_rate): value 832
+@@ -267,7 +267,7 @@
+                 inst [17 or "m-17"] value 1740
+                 inst [18 or "m-18"] value 1839
+ 
+-[572 bytes]
++[568 bytes]
+ 21:59:02.505  29.0.85 (sample.byte_rate_perhour): value 851
+               29.0.83 (sample.kbyte_ctr): value 27691
+               29.0.82 (sample.byte_rate): value 301
+@@ -298,7 +298,7 @@
+                 inst [17 or "m-17"] value 1724
+                 inst [18 or "m-18"] value 1823
+ 
+-[572 bytes]
++[568 bytes]
+ 21:59:03.005  29.0.85 (sample.byte_rate_perhour): value 435
+               29.0.83 (sample.kbyte_ctr): value 28370
+               29.0.82 (sample.byte_rate): value 950
+@@ -329,7 +329,7 @@
+                 inst [17 or "m-17"] value 1708
+                 inst [18 or "m-18"] value 1807
+ 
+-[572 bytes]
++[568 bytes]
+ 21:59:03.505  29.0.85 (sample.byte_rate_perhour): value 439
+               29.0.83 (sample.kbyte_ctr): value 29635
+               29.0.82 (sample.byte_rate): value 817
+@@ -360,7 +360,7 @@
+                 inst [17 or "m-17"] value 1792
+                 inst [18 or "m-18"] value 1891
+ 
+-[572 bytes]
++[568 bytes]
+ 21:59:04.005  29.0.85 (sample.byte_rate_perhour): value 447
+               29.0.83 (sample.kbyte_ctr): value 30198
+               29.0.82 (sample.byte_rate): value 809
+
+=== metric sample.scale_step.time_up_secs { type -> U32 } ===
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -46,7 +46,7 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+ PMID: 29.0.69 (sample.scale_step.time_up_secs)
+-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: sec
+ PMID: 2.3.3 (pmcd.pmlogger.host)
+     Data Type: string  InDom: 2.1 0x800001
+@@ -74,14 +74,14 @@
+              Log Vol    end(meta)     end(log)
+ 21:58:59.005       0          132          132
+ 21:58:59.505       0          350          284
+-21:59:04.005       0         1305         5432
++21:59:04.005       0         1305         5324
+ 
+ [152 bytes]
+ 21:58:59.005  2.3.3 (pmcd.pmlogger.host): inst [3931 or "3931"] value "bozo.localdomain"
+               2.3.0 (pmcd.pmlogger.port): inst [3931 or "3931"] value 4331
+               2.3.2 (pmcd.pmlogger.archive): inst [3931 or "3931"] value "/home/kenj/src/pcpqa/src-oss/sample_expr"
+ 
+-[572 bytes]
++[560 bytes]
+ 21:58:59.505  29.0.85 (sample.byte_rate_perhour): value 770
+               29.0.83 (sample.kbyte_ctr): value 23132
+               29.0.82 (sample.byte_rate): value 767
+@@ -112,7 +112,7 @@
+                 inst [17 or "m-17"] value 1720
+                 inst [18 or "m-18"] value 1819
+ 
+-[572 bytes]
++[560 bytes]
+ 21:59:00.005  29.0.85 (sample.byte_rate_perhour): value 726
+               29.0.83 (sample.kbyte_ctr): value 23979
+               29.0.82 (sample.byte_rate): value 626
+@@ -143,7 +143,7 @@
+                 inst [17 or "m-17"] value 1704
+                 inst [18 or "m-18"] value 1803
+ 
+-[572 bytes]
++[560 bytes]
+ 21:59:00.505  29.0.85 (sample.byte_rate_perhour): value 414
+               29.0.83 (sample.kbyte_ctr): value 24629
+               29.0.82 (sample.byte_rate): value 875
+@@ -174,7 +174,7 @@
+                 inst [17 or "m-17"] value 1788
+                 inst [18 or "m-18"] value 1887
+ 
+-[572 bytes]
++[560 bytes]
+ 21:59:01.005  29.0.85 (sample.byte_rate_perhour): value 1019
+               29.0.83 (sample.kbyte_ctr): value 26082
+               29.0.82 (sample.byte_rate): value 78
+@@ -205,7 +205,7 @@
+                 inst [17 or "m-17"] value 1772
+                 inst [18 or "m-18"] value 1871
+ 
+-[572 bytes]
++[560 bytes]
+ 21:59:01.505  29.0.85 (sample.byte_rate_perhour): value 294
+               29.0.83 (sample.kbyte_ctr): value 26857
+               29.0.82 (sample.byte_rate): value 196
+@@ -236,7 +236,7 @@
+                 inst [17 or "m-17"] value 1756
+                 inst [18 or "m-18"] value 1855
+ 
+-[572 bytes]
++[560 bytes]
+ 21:59:02.005  29.0.85 (sample.byte_rate_perhour): value 752
+               29.0.83 (sample.kbyte_ctr): value 27023
+               29.0.82 (sample.byte_rate): value 832
+@@ -267,7 +267,7 @@
+                 inst [17 or "m-17"] value 1740
+                 inst [18 or "m-18"] value 1839
+ 
+-[572 bytes]
++[560 bytes]
+ 21:59:02.505  29.0.85 (sample.byte_rate_perhour): value 851
+               29.0.83 (sample.kbyte_ctr): value 27691
+               29.0.82 (sample.byte_rate): value 301
+@@ -298,7 +298,7 @@
+                 inst [17 or "m-17"] value 1724
+                 inst [18 or "m-18"] value 1823
+ 
+-[572 bytes]
++[560 bytes]
+ 21:59:03.005  29.0.85 (sample.byte_rate_perhour): value 435
+               29.0.83 (sample.kbyte_ctr): value 28370
+               29.0.82 (sample.byte_rate): value 950
+@@ -329,7 +329,7 @@
+                 inst [17 or "m-17"] value 1708
+                 inst [18 or "m-18"] value 1807
+ 
+-[572 bytes]
++[560 bytes]
+ 21:59:03.505  29.0.85 (sample.byte_rate_perhour): value 439
+               29.0.83 (sample.kbyte_ctr): value 29635
+               29.0.82 (sample.byte_rate): value 817
+@@ -360,7 +360,7 @@
+                 inst [17 or "m-17"] value 1792
+                 inst [18 or "m-18"] value 1891
+ 
+-[572 bytes]
++[560 bytes]
+ 21:59:04.005  29.0.85 (sample.byte_rate_perhour): value 447
+               29.0.83 (sample.kbyte_ctr): value 30198
+               29.0.82 (sample.byte_rate): value 809
