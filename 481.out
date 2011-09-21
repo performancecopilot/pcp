@@ -9,6 +9,7 @@ pmInDom:	-> 1.10
 Instance:	[15] "15 minute" -> [9999] "forever"
 
 Metric: irix.kernel.all.load (1.18.3)
+InDom:		1.5 -> 1.10
 Inst Changes:	<- InDom 1.5
 === global time -> +3 ===
 PCP Archive Log Rewrite Specifications Summary
@@ -179,7 +180,6 @@ No changes
 === indom 1.5 { indom -> 1.5 } ===
 Warning [TMP.conf, line 1]
 Instance domain 1.5: indom: No change
-
 PCP Archive Log Rewrite Specifications Summary
 No changes
 
@@ -203,6 +203,9 @@ PCP Archive Log Rewrite Specifications Summary
 
 Instance Domain: 1.5
 pmInDom:	-> 1.6
+
+Metric: irix.kernel.all.load (1.18.3)
+InDom:		1.5 -> 1.6
 
 === indom 1.2.3 { } ===
 Specification error in configuration file (TMP.conf)
@@ -251,7 +254,6 @@ No changes
 === indom 1.5 { indom -> 1.* } ===
 Warning [TMP.conf, line 1]
 Instance domain 1.5: indom: No change
-
 PCP Archive Log Rewrite Specifications Summary
 No changes
 

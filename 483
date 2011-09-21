@@ -56,7 +56,7 @@ End-of-File
 rm -f $tmp.new.*
 pmlogrewrite -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
 
-for m in 1.18.3 '1.18.*' '1.*.*' '2.*.*' hinv.ndisk 42.42.42 foo.bar
+for m in 1.18.3 '1.18.*' '1.*.*' hinv.ndisk 42.42.42 foo.bar
 do
     echo
     echo "=== metric $m { type->U32 } ==="
@@ -65,11 +65,20 @@ do
     pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
 done
 
+for m in '60.*.*'
+do
+    echo
+    echo "=== metric $m { type->U32 } ==="
+    echo "metric $m { type->U32 }" >$tmp.conf
+    rm -f $tmp.new.*
+    pmlogrewrite -w -C -c $tmp.conf src-oss/ac15 $tmp.new 2>&1 | _filter
+done
+
 # pmid exercises
 for p in 42.42.42 1.18.2 2.3.2 foo '1.*.*' '2.*.*'
 do
     echo
-    echo "=== metric ... { pmid -> $p } ==="
+    echo "=== metric hinv.ncpu { pmid -> $p } ==="
     echo "metric hinv.ncpu { pmid -> $p }" >$tmp.conf
     rm -f $tmp.new.*
     pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
@@ -79,38 +88,57 @@ done
 for n in foo.bar.mumble.fratz "blah blah blah" 'hinv.*' hinv.ndisk
 do
     echo
-    echo "=== metric ... { name -> $n } ==="
+    echo "=== metric hinv.ndisk { name -> $n } ==="
     echo "metric hinv.ndisk { name -> $n }" >$tmp.conf
     rm -f $tmp.new.*
     pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
 done
 
 # type exercises
-for t in 32 U32 64 U64 FLOAT DOUBLE STRING 123 foo.bar \
-    'U32 type -> STRING' 'U64 type -> STRING'
+for t in 32 U32 64 u64 Float double STRING 123 foo.bar \
+    'U32 type -> float' 'U64 type -> DOUBLE'
 do
     echo
-    echo "=== metric ... { type -> $t } ==="
+    echo "=== metric hinv.ncpu { type -> $t } ==="
     echo "metric hinv.ncpu { type -> $t }" >$tmp.conf
     rm -f $tmp.new.*
     pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
 done
 
 # indom exercises
-for i in 1.3 '42.*' foo 1.5 '1.*' '5.6 indom -> 7.8'
+for i in 2.1 1.3 '42.*' foo 1.5 '1.*' '5.6 indom -> 7.8' \
+    NULL 'NULL output first' 'NULL output last' 'NULL output inst 5' \
+    'NULL output min' 'NULL output max' 'NULL output avg' \
+    '2.1 output inst 123' \
+    '42.42 } indom 1.5 { indom -> 33.33 '
 do
     echo
-    echo "=== metric ... { indom -> $i } ==="
+    echo "=== metric irix.kernel.all.load { indom -> $i } ==="
     echo "metric irix.kernel.all.load { indom -> $i }" >$tmp.conf
     rm -f $tmp.new.*
     pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
 done
+echo
+echo "=== metric pmcd.pmlogger.port { indom -> 60.* } ==="
+echo "metric pmcd.pmlogger.port { indom -> 60.* }" >$tmp.conf
+rm -f $tmp.new.*
+pmlogrewrite -w -C -c $tmp.conf src-oss/20041125 $tmp.new 2>&1 | _filter
+echo
+echo "=== metric hinv.ndisk { indom -> 1.5 } ==="
+echo "metric hinv.ndisk { indom -> 1.5 }" >$tmp.conf
+rm -f $tmp.new.*
+pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
+echo
+echo "=== metric hinv.ndisk { indom -> 1.5 output inst 15 } ==="
+echo "metric hinv.ndisk { indom -> 1.5 output inst 15 }" >$tmp.conf
+rm -f $tmp.new.*
+pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
 
 # sem exercises
-for s in DISCRETE COUNTER INSTANT instant NULL 'COUNTER sem -> INSTANT'
+for s in Discrete COUNTER INSTANT instanty NULL 'COUNTER sem -> INSTANT'
 do
     echo
-    echo "=== metric ... { sem -> $s } ==="
+    echo "=== metric 2.3.2 { sem -> $s } ==="
     echo "metric 2.3.2 { sem -> $s }" >$tmp.conf
     rm -f $tmp.new.*
     pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
@@ -125,7 +153,7 @@ for u in '1,0,0,BYTE,0,0' '0,1,0,0,SEC,0' '0,0,1,0,0,ONE' \
 	'0,0,0,0,0,0'
 do
     echo
-    echo "=== metric ... { units -> $u } ==="
+    echo "=== metric hinv.ncpu { units -> $u } ==="
     echo "metric hinv.ncpu { units -> $u }" >$tmp.conf
     rm -f $tmp.new.*
     pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
@@ -167,7 +195,7 @@ metric 1.*.* {
 metric 1.18.3 {
     name -> foo.bar
     type -> 64
-    indom -> 42.42
+    indom -> 42.5
     sem -> DISCRETE
     units -> 0,0,0,0,0,0
 }

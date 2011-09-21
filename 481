@@ -35,8 +35,8 @@ _filter()
 cat <<End-of-File >$tmp.conf
 global {
     hostname -> whizz-bang.engr.sgi.com
-    tz -> "GMT+10"
-    time -> 10
+    TZ -> "GMT+10"
+    Time -> 10
 }
 
 indom 1.5 {
