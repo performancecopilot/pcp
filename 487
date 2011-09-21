@@ -1,0 +1,100 @@
+#!/bin/sh
+# PCP QA Test No. 487
+# pmlogrewrite - error cases
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which pmlogrewrite >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun pmlogrewrite not installed
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/" \
+	-e '/pmResult dump/s/from .* numpmid/... numpmid/'
+}
+
+_cmp()
+{
+    pmdumplog -z -a $1 | tee -a $seq.full >$tmp.in
+    pmdumplog -z -a $2 | tee -a $seq.full >$tmp.out
+    echo "pmdumplog diffs ..."
+    diff -u $tmp.in $tmp.out | _filter
+}
+
+_cmp2()
+{
+    if [ ! -f $1.0 ]
+    then
+	echo "Arrgh ... cannot find $1.0"
+	return
+    fi
+    if [ ! -f $2.0 ]
+    then
+	echo "Arrgh ... cannot find $2.0"
+	return
+    fi
+    pmval -z -U $1 $3 2>$tmp.err | tee -a $seq.full | sed -e 's/  */ /g' >$tmp.in
+    cat $tmp.err >>$seq.full
+    cat $tmp.err >>$tmp.in
+    pmval -z -U $2 $3 2>$tmp.err | tee -a $seq.full | sed -e 's/  */ /g' >$tmp.out
+    cat $tmp.err >>$seq.full
+    cat $tmp.err >>$tmp.out
+    echo "pmval diffs ..."
+    diff -u $tmp.in $tmp.out | _filter
+}
+
+# real QA test starts here
+sed -e '/^#/d' <<End-of-File | while read arch_args spec
+# archive[|arg1[|arg2[|...]]]	spec
+# double -> 
+src-oss/sample_expr	metric sample.scale_step.time_up_secs { type -> string }
+src-oss/sample_expr	metric pmcd.pmlogger.host { type -> U32 }
+src-oss/kenj-pc-2	metric sample.wrap.longlong { type -> U32 }
+src-oss/kenj-pc-2	metric sample.wrap.ulonglong { type -> 64 }
+End-of-File
+do
+    echo | tee -a $seq.full
+    echo "$spec" >$tmp.config
+    echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+    rm -f $tmp.new.*
+    pmlogrewrite -w -c $tmp.config `echo $arch_args | sed -e 's/|/ /g'` $tmp.new 2>&1 | _filter
+    if [ -f $tmp.new.0 ]
+    then
+	_cmp `echo $arch_args | sed -e 's/|.*//'` $tmp.new
+    fi
+done
+
+echo
+echo "=== overflow in type conversion - step 1 (no errors) ==="
+echo "metric sample.drift { units->1,0,-1,MBYTE,0,0 type->U64 }" >$tmp.config
+rm -f $tmp.tmp.*
+pmlogrewrite -w -c $tmp.config src-oss/mirage $tmp.tmp 2>&1 | _filter
+_cmp2 src-oss/mirage $tmp.tmp sample.drift 
+echo "=== overflow in type conversion - step 2 (expect error) ==="
+echo "metric sample.drift { units->1,0,-1,BYTE,0,1 type->32 }" >$tmp.config
+rm -f $tmp.new.*
+pmlogrewrite -Dvalue -dsw -c $tmp.config $tmp.tmp $tmp.new 2>&1 | _filter
+_cmp2 $tmp.tmp $tmp.new sample.drift 
+
+# success, all done
+exit
