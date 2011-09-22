@@ -108,11 +108,13 @@ _pmUnpackDesc(__pmPDU *pdubuf, pmDesc *desc, int *numnames, char ***names)
 	memcpy(&slen, p, LENSIZE);
 	slen = ntohl(slen);
 	p += LENSIZE;
-	(*names)[i] = strndup(p, slen);
+	(*names)[i] = malloc(slen+1);
 	if ((*names)[i] == NULL) {
-	    fprintf(stderr, "_pmUnpackDesc strndup(...,%d) failed: %s\n", slen, strerror(errno));
+	    fprintf(stderr, "_pmUnpackDesc malloc(%d) failed: %s\n", slen+1, strerror(errno));
 	    exit(1);
 	}
+	strncpy((*names)[i], p, slen);
+	(*names)[i][slen] = '\0';
 	p += slen;
     }
 
