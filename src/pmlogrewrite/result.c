@@ -19,9 +19,6 @@
 #include "logger.h"
 #include <assert.h>
 
-/* for __pmPool* alloc */
-#define MAGIC PM_VAL_HDR_SIZE + sizeof(__int64_t)
-
 /*
  * pick/calculate one value from multiple values for the ith vset[] ...
  */
@@ -208,13 +205,9 @@ rescale(int i, metricspec_t *mp)
 	    abandon();
 	    exit(1);
 	}
-	if (old_valfmt == PM_VAL_DPTR) {
+	if (old_valfmt == PM_VAL_DPTR)
 	    /* free current pval */
-	    if (inarch.rp->vset[i]->vlist[j].value.pval->vlen == MAGIC)
-		__pmPoolFree(inarch.rp->vset[i]->vlist[j].value.pval, MAGIC);
-	    else
-		free(inarch.rp->vset[i]->vlist[j].value.pval);
-	}
+	    free(inarch.rp->vset[i]->vlist[j].value.pval);
 	sts = __pmStuffValue(&oval, &inarch.rp->vset[i]->vlist[j], mp->old_desc.type);
 	if (sts < 0) {
 	    /*
@@ -256,13 +249,9 @@ retype(int i, metricspec_t *mp)
 	    abandon();
 	    exit(1);
 	}
-	if (old_valfmt == PM_VAL_DPTR) {
+	if (old_valfmt == PM_VAL_DPTR)
 	    /* free current pval */
-	    if (inarch.rp->vset[i]->vlist[j].value.pval->vlen == MAGIC)
-		__pmPoolFree(inarch.rp->vset[i]->vlist[j].value.pval, MAGIC);
-	    else
-		free(inarch.rp->vset[i]->vlist[j].value.pval);
-	}
+	    free(inarch.rp->vset[i]->vlist[j].value.pval);
 	sts = __pmStuffValue(&val, &inarch.rp->vset[i]->vlist[j], mp->new_desc.type);
 	if (sts < 0) {
 	    /*

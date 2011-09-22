@@ -207,7 +207,7 @@ nextlog(void)
     lcp = inarch.ctxp->c_archctl->ac_log;
     old_vol = inarch.ctxp->c_archctl->ac_log->l_curvol;
 
-    if ((sts = __pmLogRead(lcp, PM_MODE_FORW, NULL, &inarch.rp)) < 0) {
+    if ((sts = __pmLogRead(lcp, PM_MODE_FORW, NULL, &inarch.rp, PMLOGREAD_NEXT)) < 0) {
 	if (sts != PM_ERR_EOL) {
 	    fprintf(stderr, "%s: Error: __pmLogRead[log %s]: %s\n",
 		    pmProgname, inarch.name, pmErrStr(sts));

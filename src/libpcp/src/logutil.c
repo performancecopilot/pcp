@@ -190,7 +190,7 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 	if (pmDebug & DBG_TRACE_LOG) {
 	    if ((lp->ill_magic & 0xffffff00) != PM_LOG_MAGIC)
 		fprintf(stderr, " label magic 0x%x not 0x%x as expected", (lp->ill_magic & 0xffffff00), PM_LOG_MAGIC);
-	    if (version != PM_LOG_VERS01 && version != PM_LOG_VERS02)
+	    if (version != PM_LOG_VERS02)
 		fprintf(stderr, " label version %d not supported", version);
 	    if (lp->ill_vol != vol)
 		fprintf(stderr, " label volume %d not %d as expected", lp->ill_vol, vol);
