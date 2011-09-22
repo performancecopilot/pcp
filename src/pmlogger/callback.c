@@ -14,6 +14,8 @@
 
 #include "logger.h"
 
+int	last_log_offset;
+
 /*
  * pro tem, we have a single context with the pmcd providing the
  * results, hence need to send the profile each time
@@ -356,7 +358,6 @@ log_callback(int afid, void *data)
     int			needindom;
     int			needti;
     static int		flushsize = 100000;
-    long		old_offset;
     long		old_meta_offset;
     long		new_offset;
     long		new_meta_offset;
@@ -496,7 +497,7 @@ log_callback(int afid, void *data)
 	 * temporal index writes, but __pmDecodeResult changes the pointers
 	 * in the pdu buffer for the non INSITU values ... sigh
 	 */
-	old_offset = ftell(logctl.l_mfp);
+	last_log_offset = ftell(logctl.l_mfp);
 	if ((sts = __pmLogPutResult(&logctl, pb)) < 0) {
 	    fprintf(stderr, "__pmLogPutResult: %s\n", pmErrStr(sts));
 	    exit(1);
@@ -616,7 +617,7 @@ log_callback(int afid, void *data)
 #endif
 	}
 
-	if (old_offset == 0 || old_offset == sizeof(__pmLogLabel)+2*sizeof(int)) {
+	if (last_log_offset == 0 || last_log_offset == sizeof(__pmLogLabel)+2*sizeof(int)) {
 	    /* first result in this volume */
 	    needti = 1;
 #ifdef PCP_DEBUG
@@ -634,11 +635,9 @@ log_callback(int afid, void *data)
 	     * result (but if this is the first one, skip the label
 	     * record, what a crock), ... ditto for the meta data
 	     */
-	    if (old_offset == 0)
-		old_offset = sizeof(__pmLogLabel)+2*sizeof(int);
 	    new_offset = ftell(logctl.l_mfp);
 	    new_meta_offset = ftell(logctl.l_mdfp);
-	    fseek(logctl.l_mfp, old_offset, SEEK_SET);
+	    fseek(logctl.l_mfp, last_log_offset, SEEK_SET);
 	    fseek(logctl.l_mdfp, old_meta_offset, SEEK_SET);
 	    tmp.tv_sec = (__int32_t)resp->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)resp->timestamp.tv_usec;

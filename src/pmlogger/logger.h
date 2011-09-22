@@ -103,6 +103,9 @@ extern int	unbuffered;
 /* initial time of day from remote PMCD */
 extern struct timeval	epoch;
 
+/* offset to start of last written pmResult */
+extern int	last_log_offset;
+
 /* yylex() gets input from here ... */
 extern FILE		*fconfig;
 extern FILE		*yyin;
