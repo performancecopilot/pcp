@@ -21,8 +21,9 @@
 #ifndef _LOGGER_H
 #define _LOGGER_H
 
-extern int	wflag;		/* -w from command line */
+extern int	sflag;		/* -s from command line */
 extern int	vflag;		/* -v from command line */
+extern int	wflag;		/* -w from command line */
 
 /*
  * Global rewrite specifications
@@ -46,9 +47,9 @@ extern global_t global;
  */
 typedef struct indomspec {
     struct indomspec	*i_next;
-    int			*flags;		/* INST_* flags * */
+    int			*flags;		/* INST_* flags */
     pmInDom		old_indom;
-    pmInDom		new_indom;	/* PM_INDOM_NULL if no change */
+    pmInDom		new_indom;	/* old_indom if no change */
     int			numinst;
     int			*old_inst;	/* filled from pmGetInDomArchive() */
     char		**old_iname;	/* filled from pmGetInDomArchive() */
@@ -68,21 +69,34 @@ extern indomspec_t	*indom_root;
  */
 typedef struct metricspec {
     struct metricspec	*m_next;
-    int			flags;		/* METRIC_* flags * */
+    int			flags;		/* METRIC_* flags */
+    int			output;		/* OUTPUT_* values */
+    int			one_inst;	/* for OUTPUT_ONE */
     char		*old_name;
     char		*new_name;
     pmDesc		old_desc;
     pmDesc		new_desc;
+    indomspec_t		*ip;		/* for instance id changes */
 } metricspec_t;
 
 /* values for metricspec_t flags[] */
-#define METRIC_CHANGE_PMID	 1
-#define METRIC_CHANGE_NAME	 2
-#define METRIC_CHANGE_TYPE	 4
-#define METRIC_CHANGE_INDOM	 8
-#define METRIC_CHANGE_SEM	16
-#define METRIC_CHANGE_UNITS	32
-#define METRIC_DELETE		64
+#define METRIC_CHANGE_PMID	  1
+#define METRIC_CHANGE_NAME	  2
+#define METRIC_CHANGE_TYPE	  4
+#define METRIC_CHANGE_INDOM	  8
+#define METRIC_CHANGE_SEM	 16
+#define METRIC_CHANGE_UNITS	 32
+#define METRIC_DELETE		 64
+
+/* values for output when indom (numval >= 1) => PM_INDOM_NULL (numval = 1) */
+#define OUTPUT_ALL	0
+#define OUTPUT_FIRST	1
+#define OUTPUT_LAST	2
+#define OUTPUT_ONE	3
+#define OUTPUT_MIN	4
+#define OUTPUT_MAX	5
+#define OUTPUT_SUM	6
+#define OUTPUT_AVG	7
 
 extern metricspec_t	*metric_root;
 
@@ -100,32 +114,54 @@ typedef struct {
     int		mark;		/* need EOL marker */
 } inarch_t;
 
-extern inarch_t	inarch;	/* input archive */
+extern inarch_t		inarch;		/* input archive */
 
 /*
- *  Mark record
+ * Output archive control
  */
 typedef struct {
-    __pmPDU		len;
-    __pmPDU		type;
-    __pmPDU		from;
-    __pmTimeval		timestamp;	/* when returned */
-    int			numpmid;	/* zero PMIDs to follow */
-} mark_t;
+    char	*name;		/* base name of output archive */
+    __pmLogCtl	logctl;		/* libpcp control */
+} outarch_t;
+
+extern outarch_t	outarch;	/* output archive */
+
+/* size of a string length field */
+#define LENSIZE 4
 
 /* generic error message buffer */
 extern char	mess[256];
 
 /* yylex() gets intput from here ... */
+extern char	*configfile;
 extern FILE	*fconfig;
+extern int	lineno;
 
 extern void	yyerror(char *);
 extern void	yywarn(char *);
+extern void	yysemantic(char *);
 extern int	yylex(void);
 extern int	yyparse(void);
+
+#define W_START	1
+#define W_NEXT	2
+#define W_NONE	3
+
+extern __pmHashNode	*__pmHashWalk(__pmHashCtl *, int);
+
+extern metricspec_t	*start_metric(pmID);
+extern indomspec_t	*start_indom(pmInDom);
+extern int		change_inst_by_inst(pmInDom, int, int);
+extern int		change_inst_by_name(pmInDom, char *, char *);
 
 extern char	*SemStr(int);
 extern int	_pmLogGet(__pmLogCtl *, int, __pmPDU **);
 extern int	_pmLogPut(FILE *, __pmPDU *);
+
+extern void	do_desc(void);
+extern void	do_indom(void);
+extern void	do_result(void);
+
+extern void	abandon(void);
 
 #endif /* _LOGGER_H */

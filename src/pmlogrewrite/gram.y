@@ -32,256 +32,10 @@ static metricspec_t	*current_metricspec;
 static int		current_star_metric;
 static int		star_cluster;
 static int		do_walk_metric;
+static int		output = OUTPUT_ALL;
+static int		one_inst;
 
-extern int	lineno;
-
-static void
-start_indom(pmInDom indom)
-{
-    indomspec_t	*ip;
-    int		i;
-
-    for (ip = indom_root; ip != NULL; ip = ip->i_next) {
-	if (indom == ip->old_indom)
-	    break;
-    }
-    if (ip == NULL) {
-	int	numinst;
-	int	*instlist;
-	char	**namelist;
-
-	numinst = pmGetInDomArchive(indom, &instlist, &namelist);
-	if (numinst < 0) {
-	    if (wflag) {
-		snprintf(mess, sizeof(mess), "Instance domain %s: %s\n", pmInDomStr(indom), pmErrStr(numinst));
-		yywarn(mess);
-	    }
-	    return;
-	}
-
-	ip = (indomspec_t *)malloc(sizeof(indomspec_t));
-	if (ip == NULL) {
-	    fprintf(stderr, "indomspec malloc(%d) failed: %s\n", (int)sizeof(indomspec_t), strerror(errno));
-	    exit(1);
-	}
-	ip->i_next = indom_root;
-	indom_root = ip;
-	ip->flags = (int *)malloc(numinst*sizeof(int));
-	if (ip->flags == NULL) {
-	    fprintf(stderr, "indomspec flags malloc(%d) failed: %s\n", numinst*(int)sizeof(int), strerror(errno));
-	    exit(1);
-	}
-	for (i = 0; i < numinst; i++)
-	    ip->flags[i] = 0;
-	ip->old_indom = indom;
-	ip->new_indom = PM_INDOM_NULL;
-	ip->numinst = numinst;
-	ip->old_inst = instlist;
-	ip->new_inst = (int *)malloc(numinst*sizeof(int));
-	if (ip->new_inst == NULL) {
-	    fprintf(stderr, "new_inst malloc(%d) failed: %s\n", numinst*(int)sizeof(int), strerror(errno));
-	    exit(1);
-	}
-	ip->old_iname = namelist;
-	ip->new_iname = (char **)malloc(numinst*sizeof(char *));
-	if (ip->new_iname == NULL) {
-	    fprintf(stderr, "new_iname malloc(%d) failed: %s\n", numinst*(int)sizeof(char *), strerror(errno));
-	    exit(1);
-	}
-    }
-    current_indomspec = ip;
-}
-
-static void
-start_metric(pmID pmid)
-{
-    metricspec_t	*mp;
-    int			sts;
-
-    for (mp = metric_root; mp != NULL; mp = mp->m_next) {
-	if (pmid == mp->old_desc.pmid)
-	    break;
-    }
-    if (mp == NULL) {
-	char	*name;
-	pmDesc	desc;
-
-	sts = pmNameID(pmid, &name);
-	if (sts < 0) {
-	    if (wflag) {
-		snprintf(mess, sizeof(mess), "Metric %s pmNameID: %s\n", pmIDStr(pmid), pmErrStr(sts));
-		yywarn(mess);
-	    }
-	    return;
-	}
-	sts = pmLookupDesc(pmid, &desc);
-	if (sts < 0) {
-	    if (wflag) {
-		snprintf(mess, sizeof(mess), "Metric %s: pmLookupDesc: %s\n", mp->old_name, pmErrStr(sts));
-		yywarn(mess);
-	    }
-	    return;
-	}
-
-	mp = (metricspec_t *)malloc(sizeof(metricspec_t));
-	if (mp == NULL) {
-	    fprintf(stderr, "metricspec malloc(%d) failed: %s\n", (int)sizeof(metricspec_t), strerror(errno));
-	    exit(1);
-	}
-	mp->m_next = metric_root;
-	metric_root = mp;
-	mp->old_name = name;
-	mp->old_desc = desc;
-	mp->new_desc = mp->old_desc;
-	mp->flags = 0;
-    }
-    current_metricspec = mp;
-}
-
-static int
-change_inst_by_name(pmInDom indom, char *old, char *new)
-{
-    int		i;
-    indomspec_t	*ip;
-
-    for (ip = indom_root; ip != NULL; ip = ip->i_next) {
-	if (indom == ip->old_indom)
-	    break;
-    }
-    assert(ip != NULL);
-
-    for (i = 0; i < ip->numinst; i++) {
-	char	*p;
-	char	*q;
-	int	match = 0;
-	for (p = ip->old_iname[i], q = old; ; p++, q++) {
-	    if (*p == '\0' || *p == ' ') {
-		if (*q == '\0' || *q == ' ')
-		    match = 1;
-		break;
-	    }
-	    if (*q == '\0' || *q == ' ') {
-		if (*p == '\0' || *p == ' ')
-		    match = 1;
-		break;
-	    }
-	    if (*p != *q)
-		break;
-	}
-	if (match) {
-	    if ((new == NULL && ip->flags[i]) ||
-	        (ip->flags[i] & (INST_CHANGE_INAME|INST_DELETE))) {
-		sprintf(mess, "Duplicate or conflicting clauses for instance [%d] \"%s\" of indom %s",
-		    ip->old_inst[i], ip->old_iname[i], pmInDomStr(indom));
-		return -1;
-	    }
-	    break;
-	}
-    }
-    if (i == ip->numinst) {
-	sprintf(mess, "Unknown instance \"%s\" in name clause for indom %s", old, pmInDomStr(indom));
-	return -1;
-    }
-
-    if (new == NULL) {
-	ip->flags[i] |= INST_DELETE;
-	ip->new_iname[i] = NULL;
-	return 0;
-    }
-
-    if (strcmp(ip->old_iname[i], new) == 0) {
-	/* no change ... */
-	if (wflag) {
-	    snprintf(mess, sizeof(mess), "Instance domain %s: Instance: \"%s\": No change\n", pmInDomStr(indom), ip->old_iname[i]);
-	    yywarn(mess);
-	}
-    }
-    else {
-	ip->flags[i] |= INST_CHANGE_INAME;
-	ip->new_iname[i] = new;
-    }
-
-    return 0;
-}
-
-static int
-change_inst_by_inst(pmInDom indom, int old, int new)
-{
-    int		i;
-    indomspec_t	*ip;
-
-    for (ip = indom_root; ip != NULL; ip = ip->i_next) {
-	if (indom == ip->old_indom)
-	    break;
-    }
-    assert(ip != NULL);
-
-    for (i = 0; i < ip->numinst; i++) {
-	if (ip->old_inst[i] == old) {
-	    if ((new == PM_IN_NULL && ip->flags[i]) ||
-	        (ip->flags[i] & (INST_CHANGE_INST|INST_DELETE))) {
-		sprintf(mess, "Duplicate or conflicting clauses for instance [%d] \"%s\" of indom %s",
-		    ip->old_inst[i], ip->old_iname[i], pmInDomStr(indom));
-		return -1;
-	    }
-	    break;
-	}
-    }
-    if (i == ip->numinst) {
-	sprintf(mess, "Unknown instance %d in inst clause for indom %s", old, pmInDomStr(indom));
-	return -1;
-    }
-
-    if (new == PM_IN_NULL) {
-	ip->flags[i] |= INST_DELETE;
-	ip->new_inst[i] = PM_IN_NULL;
-	return 0;
-    }
-    
-    if (ip->old_inst[i] == new) {
-	/* no change ... */
-	if (wflag) {
-	    snprintf(mess, sizeof(mess), "Instance domain %s: Instance: %d: No change\n", pmInDomStr(indom), ip->old_inst[i]);
-	    yywarn(mess);
-	}
-    }
-    else {
-	ip->new_inst[i] = new;
-	ip->flags[i] |= INST_CHANGE_INST;
-    }
-
-    return 0;
-}
-
-#define W_START	1
-#define W_NEXT	2
-
-__pmHashNode *
-__pmHashWalk(__pmHashCtl *hcp, int mode)
-{
-    static int		hash_idx;
-    static __pmHashNode	*next;
-    __pmHashNode	*this;
-
-    if (mode == W_START) {
-	hash_idx = 0;
-	next = hcp->hash[0];
-    }
-
-    while (next == NULL) {
-	hash_idx++;
-	if (hash_idx >= hcp->hsize)
-	    return NULL;
-	next = hcp->hash[hash_idx];
-    }
-
-    this = next;
-    next = next->next;
-
-    return this;
-}
-
-static indomspec_t *
+indomspec_t *
 walk_indom(int mode)
 {
     static indomspec_t	*ip;
@@ -304,7 +58,7 @@ walk_indom(int mode)
     return ip;
 }
 
-static metricspec_t *
+metricspec_t *
 walk_metric(int mode, int flag, char *which)
 {
     static metricspec_t	*mp;
@@ -382,9 +136,10 @@ walk_metric(int mode, int flag, char *which)
 	TYPE
 	SEM
 	UNITS
+	OUTPUT
 
 %token<str>	GNAME NUMBER STRING HNAME FLOAT INDOM_STAR PMID_INT PMID_STAR
-%token<ival>	TYPE_NAME SEM_NAME SPACE_NAME TIME_NAME COUNT_NAME
+%token<ival>	TYPE_NAME SEM_NAME SPACE_NAME TIME_NAME COUNT_NAME OUTPUT_TYPE
 
 %type<str>	hname
 %type<indom>	indom_int null_or_indom
@@ -604,12 +359,12 @@ indomspec	: INDOM indom_int
 			    star_domain = pmInDom_domain($2);
 			    for (this = __pmHashWalk(hcp, W_START); this != NULL; this = __pmHashWalk(hcp, W_NEXT)) {
 				if (pmInDom_domain((pmInDom)(this->key)) == star_domain)
-				    start_indom((pmInDom)(this->key));
+				    current_indomspec = start_indom((pmInDom)(this->key));
 			    }
 			    do_walk_indom = 1;
 			}
 			else {
-			    start_indom($2);
+			    current_indomspec = start_indom($2);
 			    do_walk_indom = 0;
 			}
 		    }
@@ -670,7 +425,7 @@ indomopt	: INDOM ASSIGN indom_int
 			indomspec_t	*ip;
 			for (ip = walk_indom(W_START); ip != NULL; ip = walk_indom(W_NEXT)) {
 			    pmInDom	indom;
-			    if (indom_root->new_indom != PM_INDOM_NULL) {
+			    if (indom_root->new_indom != indom_root->old_indom) {
 				snprintf(mess, sizeof(mess), "Duplicate indom clause for indom %s", pmInDomStr(indom_root->old_indom));
 				yyerror(mess);
 			    }
@@ -683,7 +438,7 @@ indomopt	: INDOM ASSIGN indom_int
 			    else {
 				/* no change ... */
 				if (wflag) {
-				    snprintf(mess, sizeof(mess), "Instance domain %s: indom: No change\n", pmInDomStr(ip->old_indom));
+				    snprintf(mess, sizeof(mess), "Instance domain %s: indom: No change", pmInDomStr(ip->old_indom));
 				    yywarn(mess);
 				}
 			    }
@@ -784,13 +539,13 @@ metricspec	: METRIC pmid_or_name
 				if (pmid_domain((pmID)(this->key)) == star_domain &&
 				    (star_cluster == PM_ID_NULL ||
 				     star_cluster == pmid_cluster((pmID)(this->key))))
-				    start_metric((pmID)(this->key));
+				    current_metricspec = start_metric((pmID)(this->key));
 			    }
 			    do_walk_metric = 1;
 			}
 			else {
 			    if ($2 != PM_ID_NULL)
-				start_metric($2);
+				current_metricspec = start_metric($2);
 			    do_walk_metric = 0;
 			}
 		    }
@@ -810,7 +565,7 @@ pmid_or_name	: pmid_int
 			sts = pmLookupName(1, &$1, &pmid);
 			if (sts < 0) {
 			    if (wflag) {
-				snprintf(mess, sizeof(mess), "Metric: %s: %s\n", $1, pmErrStr(sts));
+				snprintf(mess, sizeof(mess), "Metric: %s: %s", $1, pmErrStr(sts));
 				yywarn(mess);
 			    }
 			    pmid = PM_ID_NULL;
@@ -893,7 +648,7 @@ metricopt	: PMID ASSIGN pmid_int
 			    if (pmid == mp->old_desc.pmid) {
 				/* no change ... */
 				if (wflag) {
-				    snprintf(mess, sizeof(mess), "Metric: %s (%s): pmid: No change\n", mp->old_name, pmIDStr(mp->old_desc.pmid));
+				    snprintf(mess, sizeof(mess), "Metric: %s (%s): pmid: No change", mp->old_name, pmIDStr(mp->old_desc.pmid));
 				    yywarn(mess);
 				}
 			    }
@@ -910,7 +665,7 @@ metricopt	: PMID ASSIGN pmid_int
 			    if (strcmp($3, mp->old_name) == 0) {
 				/* no change ... */
 				if (wflag) {
-				    snprintf(mess, sizeof(mess), "Metric: %s (%s): name: No change\n", mp->old_name, pmIDStr(mp->old_desc.pmid));
+				    snprintf(mess, sizeof(mess), "Metric: %s (%s): name: No change", mp->old_name, pmIDStr(mp->old_desc.pmid));
 				    yywarn(mess);
 				}
 			    }
@@ -927,13 +682,24 @@ metricopt	: PMID ASSIGN pmid_int
 			    if ($3 == mp->old_desc.type) {
 				/* no change ... */
 				if (wflag) {
-				    snprintf(mess, sizeof(mess), "Metric: %s (%s): type: %s: No change\n", mp->old_name, pmIDStr(mp->old_desc.pmid), pmTypeStr(mp->old_desc.type));
+				    snprintf(mess, sizeof(mess), "Metric: %s (%s): type: PM_TYPE_%s: No change", mp->old_name, pmIDStr(mp->old_desc.pmid), pmTypeStr(mp->old_desc.type));
 				    yywarn(mess);
 				}
 			    }
 			    else {
-				mp->new_desc.type = $3;
-				mp->flags |= METRIC_CHANGE_TYPE;
+				if (mp->old_desc.type == PM_TYPE_32 ||
+				    mp->old_desc.type == PM_TYPE_U32 ||
+				    mp->old_desc.type == PM_TYPE_64 ||
+				    mp->old_desc.type == PM_TYPE_U64 ||
+				    mp->old_desc.type == PM_TYPE_FLOAT ||
+				    mp->old_desc.type == PM_TYPE_DOUBLE) {
+				    mp->new_desc.type = $3;
+				    mp->flags |= METRIC_CHANGE_TYPE;
+				}
+				else {
+				    snprintf(mess, sizeof(mess), "Old type (PM_TYPE_%s) must be numeric", pmTypeStr(mp->old_desc.type));
+				    yyerror(mess);
+				}
 			    }
 			}
 		    }
@@ -949,15 +715,56 @@ metricopt	: PMID ASSIGN pmid_int
 			    if (indom == mp->old_desc.indom) {
 				/* no change ... */
 				if (wflag) {
-				    snprintf(mess, sizeof(mess), "Metric: %s (%s): indom: %s: No change\n", mp->old_name, pmIDStr(mp->old_desc.pmid), pmInDomStr(mp->old_desc.indom));
+				    snprintf(mess, sizeof(mess), "Metric: %s (%s): indom: %s: No change", mp->old_name, pmIDStr(mp->old_desc.pmid), pmInDomStr(mp->old_desc.indom));
 				    yywarn(mess);
 				}
 			    }
 			    else {
 				mp->new_desc.indom = indom;
 				mp->flags |= METRIC_CHANGE_INDOM;
+				mp->output = output;
+				if (mp->old_desc.indom == PM_INDOM_NULL) {
+				    if (output == OUTPUT_ONE) {
+					mp->output = OUTPUT_FIRST;
+					mp->one_inst = one_inst;
+				    }
+				    else if (output == OUTPUT_ALL) {
+					/* default */
+					mp->output = OUTPUT_FIRST;
+					mp->one_inst = 0;
+				    }
+				    else {
+					snprintf(mess, sizeof(mess), "OUTPUT option requires metric to be singular, not indom %s", pmInDomStr(mp->old_desc.indom));
+					yyerror(mess);
+				    }
+				}
+				if (mp->new_desc.indom == PM_INDOM_NULL) {
+				    if (output == OUTPUT_ALL)
+					mp->output = OUTPUT_FIRST;
+				    else if (output == OUTPUT_ONE)
+					mp->one_inst = one_inst;
+				    else if ((output == OUTPUT_MIN ||
+					      output == OUTPUT_MAX ||
+					      output == OUTPUT_AVG) &&
+					     mp->old_desc.type != PM_TYPE_32 &&
+					     mp->old_desc.type != PM_TYPE_U32 &&
+					     mp->old_desc.type != PM_TYPE_64 &&
+					     mp->old_desc.type != PM_TYPE_U64 &&
+					     mp->old_desc.type != PM_TYPE_FLOAT &&
+					     mp->old_desc.type != PM_TYPE_DOUBLE) {
+					snprintf(mess, sizeof(mess), "OUTPUT option MIN, MAX or AVG requires type to be numeric, not PM_TYPE_%s", pmTypeStr(mp->old_desc.type));
+					yyerror(mess);
+				    }
+				}
+				if (mp->old_desc.indom != PM_INDOM_NULL &&
+				    mp->new_desc.indom != PM_INDOM_NULL &&
+				    output != OUTPUT_ALL) {
+				    snprintf(mess, sizeof(mess), "OUTPUT option requires input or output metric to be singular");
+				    yyerror(mess);
+				}
 			    }
 			}
+			output = OUTPUT_ALL;	/* for next time */
 		    }
 		| SEM ASSIGN SEM_NAME
 		    {
@@ -966,7 +773,7 @@ metricopt	: PMID ASSIGN pmid_int
 			    if ($3 == mp->old_desc.sem) {
 				/* no change ... */
 				if (wflag) {
-				    snprintf(mess, sizeof(mess), "Metric: %s (%s): sem: %s: No change\n", mp->old_name, pmIDStr(mp->old_desc.pmid), SemStr(mp->old_desc.sem));
+				    snprintf(mess, sizeof(mess), "Metric: %s (%s): sem: %s: No change", mp->old_name, pmIDStr(mp->old_desc.pmid), SemStr(mp->old_desc.sem));
 				    yywarn(mess);
 				}
 			    }
@@ -988,7 +795,7 @@ metricopt	: PMID ASSIGN pmid_int
 			        $13 == mp->old_desc.units.scaleCount) {
 				/* no change ... */
 				if (wflag) {
-				    snprintf(mess, sizeof(mess), "Metric: %s (%s): units: %s: No change\n", mp->old_name, pmIDStr(mp->old_desc.pmid), pmUnitsStr(&mp->old_desc.units));
+				    snprintf(mess, sizeof(mess), "Metric: %s (%s): units: %s: No change", mp->old_name, pmIDStr(mp->old_desc.pmid), pmUnitsStr(&mp->old_desc.units));
 				    yywarn(mess);
 				}
 			    }
@@ -1061,25 +868,33 @@ null_or_indom	: NULL_INT
 		    {
 			$$ = PM_INDOM_NULL;
 		    }
+		| NULL_INT OUTPUT INST number
+		    {
+			output = OUTPUT_ONE;
+			one_inst = $4;
+			$$ = PM_INDOM_NULL;
+		    }
+		| NULL_INT OUTPUT OUTPUT_TYPE
+		    {
+			output = $3;
+			$$ = PM_INDOM_NULL;
+		    }
+		| NULL_INT OUTPUT
+		    {
+			snprintf(mess, sizeof(mess), "Expecting FIRST or LAST or INST or MIN or MAX or AVG for OUTPUT instance option");
+			yyerror(mess);
+		    }
 		| indom_int
+		| indom_int OUTPUT INST number
+		    {
+			output = OUTPUT_ONE;
+			one_inst = $4;
+		    }
+		| indom_int OUTPUT
+		    {
+			snprintf(mess, sizeof(mess), "Expecting INST for OUTPUT instance option");
+			yyerror(mess);
+		    }
 		;
 
 %%
-
-/*
- * TODO
- *
- * detect no change cases and turn into warnings (if -w) and do not
- * update the metricspec or indomspec -- applies to _every_ change it
- * would seem
- *
- * indom clause in indom section => find/create metricspec's for each
- * metric defined over the (old) indom and make the indom change there as
- * well.
- *
- * indom clause in metric section with new value != NULL => find/create
- * indomspec for matching (old) indom, and make change there as well.
- *
- * metric type clause - detect translations that are not supported
- * during the rewriting and reject in parser
- */

@@ -1,7 +1,8 @@
 /*
- * pmlogextract - extract desired metrics from PCP archive logs
+ * pmlogrewrite - config-driven stream editor for PCP archives
  *
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,10 +27,6 @@ global_t	global;
 indomspec_t	*indom_root = NULL;
 metricspec_t	*metric_root = NULL;
 
-#ifdef PCP_DEBUG
-long totalmalloc = 0;
-#endif
-
 /*
  *  Usage
  */
@@ -42,6 +39,8 @@ usage(void)
 Options:\n\
   -c configfile  file to load config from\n\
   -C             parse config file(s) and quit\n\
+  -d             desperate, save output archive even after error\n\
+  -s             do scale conversion\n\
   -v             verbose\n\
   -w             emit warnings [default is silence]\n",
 	pmProgname);
@@ -54,20 +53,19 @@ static int	first_datarec = 1;		/* first record flag */
 
 off_t		new_log_offset;			/* new log offset */
 off_t		new_meta_offset;		/* new meta offset */
-off_t		old_log_offset;			/* old log offset */
-off_t		old_meta_offset;		/* old meta offset */
 
 
 /* archive control stuff */
-char			*outarchname = NULL;	/* name of output archive */
-static __pmLogCtl	logctl;		/* output archive control */
 inarch_t		inarch;		/* input archive control */
+outarch_t		outarch;	/* output archive control */
 
 /* command line args */
 char	*configfile = NULL;		/* -c name of config file */
 int	Cflag = 0;			/* -C parse config and quit */
-int	wflag = 0;			/* -w emit warnings */
+int	dflag = 0;			/* -d desperate */
+int	sflag = 0;			/* -s scale values */
 int	vflag = 0;			/* -v verbosity */
+int	wflag = 0;			/* -w emit warnings */
 
 /*
  *  report that archive is corrupted
@@ -97,16 +95,16 @@ newvolume(int vol)
 {
     FILE		*newfp;
 
-    if ((newfp = __pmLogNewFile(outarchname, vol)) != NULL) {
-	fclose(logctl.l_mfp);
-	logctl.l_mfp = newfp;
-	logctl.l_label.ill_vol = logctl.l_curvol = vol;
-	__pmLogWriteLabel(logctl.l_mfp, &logctl.l_label);
-	fflush(logctl.l_mfp);
+    if ((newfp = __pmLogNewFile(outarch.name, vol)) != NULL) {
+	fclose(outarch.logctl.l_mfp);
+	outarch.logctl.l_mfp = newfp;
+	outarch.logctl.l_label.ill_vol = outarch.logctl.l_curvol = vol;
+	__pmLogWriteLabel(outarch.logctl.l_mfp, &outarch.logctl.l_label);
+	fflush(outarch.logctl.l_mfp);
     }
     else {
 	fprintf(stderr, "%s: __pmLogNewFile(%s,%d) Error: %s\n",
-		pmProgname, outarchname, vol, pmErrStr(-oserror()));
+		pmProgname, outarch.name, vol, pmErrStr(-oserror()));
 	exit(1);
     }
 }
@@ -115,7 +113,7 @@ newvolume(int vol)
 static void
 newlabel(void)
 {
-    __pmLogLabel	*lp = &logctl.l_label;
+    __pmLogLabel	*lp = &outarch.logctl.l_label;
 
     /* copy magic number, pid, host and timezone */
     lp->ill_magic = inarch.label.ll_magic;
@@ -139,65 +137,31 @@ writelabel(int do_rewind)
     off_t	old_offset;
 
     if (do_rewind) {
-	old_offset = ftell(logctl.l_tifp);
-	rewind(logctl.l_tifp);
+	old_offset = ftell(outarch.logctl.l_tifp);
+	rewind(outarch.logctl.l_tifp);
     }
-    logctl.l_label.ill_vol = PM_LOG_VOL_TI;
-    __pmLogWriteLabel(logctl.l_tifp, &logctl.l_label);
+    outarch.logctl.l_label.ill_vol = PM_LOG_VOL_TI;
+    __pmLogWriteLabel(outarch.logctl.l_tifp, &outarch.logctl.l_label);
     if (do_rewind)
-	fseek(logctl.l_tifp, (long)old_offset, SEEK_SET);
+	fseek(outarch.logctl.l_tifp, (long)old_offset, SEEK_SET);
 
     if (do_rewind) {
-	old_offset = ftell(logctl.l_mdfp);
-	rewind(logctl.l_mdfp);
+	old_offset = ftell(outarch.logctl.l_mdfp);
+	rewind(outarch.logctl.l_mdfp);
     }
-    logctl.l_label.ill_vol = PM_LOG_VOL_META;
-    __pmLogWriteLabel(logctl.l_mdfp, &logctl.l_label);
+    outarch.logctl.l_label.ill_vol = PM_LOG_VOL_META;
+    __pmLogWriteLabel(outarch.logctl.l_mdfp, &outarch.logctl.l_label);
     if (do_rewind)
-	fseek(logctl.l_mdfp, (long)old_offset, SEEK_SET);
+	fseek(outarch.logctl.l_mdfp, (long)old_offset, SEEK_SET);
 
     if (do_rewind) {
-	old_offset = ftell(logctl.l_mfp);
-	rewind(logctl.l_mfp);
+	old_offset = ftell(outarch.logctl.l_mfp);
+	rewind(outarch.logctl.l_mfp);
     }
-    logctl.l_label.ill_vol = 0;
-    __pmLogWriteLabel(logctl.l_mfp, &logctl.l_label);
+    outarch.logctl.l_label.ill_vol = 0;
+    __pmLogWriteLabel(outarch.logctl.l_mfp, &outarch.logctl.l_label);
     if (do_rewind)
-	fseek(logctl.l_mfp, (long)old_offset, SEEK_SET);
-}
-
-/*
- *  create a mark record
- */
-__pmPDU *
-_createmark(void)
-{
-    mark_t	*markp;
-
-    markp = (mark_t *)malloc(sizeof(mark_t));
-    if (markp == NULL) {
-	fprintf(stderr, "%s: Error: mark_t malloc: %s\n",
-		pmProgname, osstrerror());
-	exit(1);
-    }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
-        totalmalloc += sizeof(mark_t);
-        printf ("_createmark : allocated %d\n", (int)sizeof(mark_t));
-    }
-#endif
-
-    markp->len = (int)sizeof(mark_t);
-    markp->type = markp->from = 0;
-    markp->timestamp.tv_sec = 0;		// TODO, was current
-    markp->timestamp.tv_usec = 0;		// TODO, was current
-    markp->timestamp.tv_usec += 1000;	/* + 1msec */
-    if (markp->timestamp.tv_usec > 1000000) {
-	markp->timestamp.tv_usec -= 1000000;
-	markp->timestamp.tv_sec++;
-    }
-    markp->numpmid = 0;
-    return((__pmPDU *)markp);
+	fseek(outarch.logctl.l_mfp, (long)old_offset, SEEK_SET);
 }
 
 /*
@@ -266,7 +230,7 @@ parseargs(int argc, char *argv[])
     int			errflag = 0;
     struct stat		sbuf;
 
-    while ((c = getopt(argc, argv, "c:CD:vw?")) != EOF) {
+    while ((c = getopt(argc, argv, "c:CdD:svw?")) != EOF) {
 	switch (c) {
 
 	case 'c':	/* config file */
@@ -278,6 +242,14 @@ parseargs(int argc, char *argv[])
 	    }
 	    break;
 
+	case 'C':	/* parse configs and quit */
+	    Cflag = 1;
+	    vflag = 1;
+	    break;
+
+	case 'd':	/* desperate */
+	    dflag = 1;
+	    break;
 
 	case 'D':	/* debug flag */
 	    sts = __pmParseDebug(optarg);
@@ -290,17 +262,16 @@ parseargs(int argc, char *argv[])
 		pmDebug |= sts;
 	    break;
 
-	case 'C':	/* parse configs and quit */
-	    Cflag = 1;
-	    vflag = 1;
-	    break;
-
-	case 'w':	/* print warnings */
-	    wflag = 1;
+	case 's':	/* do scale conversions */
+	    sflag = 1;
 	    break;
 
 	case 'v':	/* verbosity */
 	    vflag++;
+	    break;
+
+	case 'w':	/* print warnings */
+	    wflag = 1;
 	    break;
 
 	case '?':
@@ -336,113 +307,6 @@ parseconfig(void)
 
     return(-errflag);
 }
-
-#if 0
-void
-writerlist(rlist_t **rlready, double mintime)
-{
-    int		needti;		/* need to flush/update */
-    double	titime;		/* time of last temporal index write */
-    double	restime;	/* time of result */
-    rlist_t	*elm;		/* element of rlready to be written out */
-    __pmPDU	*pb;		/* pdu buffer */
-    __pmTimeval	this;		/* timeval of this record */
-    unsigned long	peek_offset;
-
-    needti = 0;
-    titime = 0.0;
-
-    while (*rlready != NULL) {
-
-
-	/*
-	 * Even without a -v option, we may need to switch volumes
-	 * if the data file exceeds 2^31-1 bytes
-	 */
-	peek_offset = ftell(logctl.l_mfp);
-	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
-	if (peek_offset > 0x7fffffff) {
-	    newvolume(outarchname, (__pmTimeval *)&pb[3]);
-	}
-
-	/* make sure that we do not write out the temporal index more
-	 * than once for the same timestamp
-	 */
-	if (needti && titime >= restime)
-	    needti = 0;
-
-	/* flush/update */
-	if (needti) {
-	    titime = restime;
-
-	    fflush(logctl.l_mfp);
-	    fflush(logctl.l_mdfp);
-
-	    if (old_log_offset == 0)
-		old_log_offset = sizeof(__pmLogLabel)+2*sizeof(int);
-
-            new_log_offset = ftell(logctl.l_mfp);
-            new_meta_offset = ftell(logctl.l_mdfp);
-
-            fseek(logctl.l_mfp, (long)old_log_offset, SEEK_SET);
-            fseek(logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
-
-            __pmLogPutIndex(&logctl, &this);
-
-            fseek(logctl.l_mfp, (long)new_log_offset, SEEK_SET);
-            fseek(logctl.l_mdfp, (long)new_meta_offset, SEEK_SET);
-
-            old_log_offset = ftell(logctl.l_mfp);
-            old_meta_offset = ftell(logctl.l_mdfp);
-
-        }
-
-	/* LOG: free PDU buffer */
-	__pmUnpinPDUBuf(pb);
-	pb = NULL;
-
-	elm->res = NULL;
-	elm->next = NULL;
-	free(elm);
-
-    } /*while(*rlready)*/
-}
-
-
-/*
- *  mark record has been created and assigned to inarch.logrec
- *  write it out
- */
-void
-writemark(void)
-{
-    int		sts;
-    mark_t      *p = (mark_t *)inarch.logrec;
-
-    if (!inarch.mark) {
-	fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
-	fprintf(stderr, "    writemark called, but mark not set\n");
-	exit(1);
-    }
-
-    if (p == NULL) {
-	fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
-	fprintf(stderr, "    writemark called, but no pdu\n");
-	exit(1);
-    }
-
-    p->timestamp.tv_sec = htonl(p->timestamp.tv_sec);
-    p->timestamp.tv_usec = htonl(p->timestamp.tv_usec);
-
-    if ((sts = __pmLogPutResult(&logctl, inarch.logrec)) < 0) {
-	fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
-		pmProgname, pmErrStr(sts));
-	exit(1);
-    }
-    free(inarch.logrec);
-    inarch.logrec = NULL;
-}
-#endif
 
 char *
 SemStr(int sem)
@@ -490,7 +354,7 @@ reportconfig(void)
     }
     for (ip = indom_root; ip != NULL; ip = ip->i_next) {
 	int		hdr_done = 0;
-	if (ip->new_indom != PM_INDOM_NULL) {
+	if (ip->new_indom != ip->old_indom) {
 	    printf("\nInstance Domain: %s\n", pmInDomStr(ip->old_indom));
 	    hdr_done = 1;
 	    printf("pmInDom:\t-> %s\n", pmInDomStr(ip->new_indom));
@@ -520,7 +384,7 @@ reportconfig(void)
 	}
     }
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {
-	if (mp->flags != 0) {
+	if (mp->flags != 0 || mp->ip != NULL) {
 	    change |= 1;
 	    printf("\nMetric: %s (%s)\n", mp->old_name, pmIDStr(mp->old_desc.pmid));
 	}
@@ -537,7 +401,35 @@ reportconfig(void)
 	if (mp->flags & METRIC_CHANGE_INDOM) {
 	    printf("InDom:\t\t%s ->", pmInDomStr(mp->old_desc.indom));
 	    printf(" %s\n", pmInDomStr(mp->new_desc.indom));
+	    if (mp->output != OUTPUT_ALL) {
+		printf("Output:\t\t");
+		switch (mp->output) {
+		    case OUTPUT_ONE:
+			printf("value for instance id %d\n", mp->one_inst);
+			break;
+		    case OUTPUT_FIRST:
+			if (mp->old_desc.indom == PM_INDOM_NULL)
+			    printf("singular value (with instance id %d)\n", mp->one_inst);
+			else
+			    printf("first value\n");
+			break;
+		    case OUTPUT_LAST:
+			printf("last value\n");
+			break;
+		    case OUTPUT_MIN:
+			printf("smallest value\n");
+			break;
+		    case OUTPUT_MAX:
+			printf("largest value\n");
+			break;
+		    case OUTPUT_AVG:
+			printf("average value\n");
+			break;
+		}
+	    }
 	}
+	if (mp->ip != NULL)
+	    printf("Inst Changes:\t<- InDom %s", pmInDomStr(mp->ip->old_indom));
 	if (mp->flags & METRIC_CHANGE_SEM) {
 	    printf("Semantics:\t%s ->", SemStr(mp->old_desc.sem));
 	    printf(" %s\n", SemStr(mp->new_desc.sem));
@@ -580,6 +472,158 @@ fixstamp(struct timeval *tvp)
     return 0;
 }
 
+/*
+ * Link metricspec_t entries to corresponding indom_t entry if there
+ * are changes to instance identifiers or instance names (includes
+ * instance deletion)
+ */
+static void
+link_entries(void)
+{
+    indomspec_t		*ip;
+    metricspec_t	*mp;
+    __pmHashCtl		*hcp;
+    __pmHashNode	*this;
+    int			i;
+    int			change;
+
+    hcp = &inarch.ctxp->c_archctl->ac_log->l_hashpmid;
+    for (ip = indom_root; ip != NULL; ip = ip->i_next) {
+	change = 0;
+	for (i = 0; i < ip->numinst; i++)
+	    change |= (ip->flags[i] != 0);
+	if (change == 0 && ip->new_indom == ip->old_indom)
+	    continue;
+
+	for (this = __pmHashWalk(hcp, W_START); this != NULL; this = __pmHashWalk(hcp, W_NEXT)) {
+	    mp = start_metric((pmID)(this->key));
+	    if (mp->old_desc.indom == ip->old_indom) {
+		if (change)
+		    mp->ip = ip;
+		if (ip->new_indom != ip->old_indom) {
+		    if (mp->flags & METRIC_CHANGE_INDOM) {
+			/* indom already changed via metric clause */
+			if (mp->new_desc.indom != ip->new_indom) {
+			    char	strbuf[80];
+			    snprintf(strbuf, sizeof(strbuf), "%s", pmInDomStr(mp->new_desc.indom));
+			    snprintf(mess, sizeof(mess), "Conflicting indom change for metric %s (%s from metric clause, %s from indom clause)", mp->old_name, strbuf, pmInDomStr(ip->new_indom));
+			    yysemantic(mess);
+			}
+		    }
+		    else {
+			mp->flags |= METRIC_CHANGE_INDOM;
+			mp->new_desc.indom = ip->new_indom;
+		    }
+		}
+	    }
+	}
+    }
+}
+
+static void
+check_indoms()
+{
+    /*
+     * For each metric, make sure the output instance domain will be in
+     * the output archive.
+     * Called after link_entries(), so if an input metric is associated
+     * with an instance domain that has any instance rewriting, we're OK.
+     * The case to be checked here is a rewritten metric with an indom
+     * clause and no associated indomspec_t (so no instance domain changes,
+     * but the new indom may not match any indom in the archive.
+     */
+    metricspec_t	*mp;
+    indomspec_t		*ip;
+    __pmHashCtl		*hcp;
+    __pmHashNode	*this;
+
+
+    hcp = &inarch.ctxp->c_archctl->ac_log->l_hashindom;
+
+    for (mp = metric_root; mp != NULL; mp = mp->m_next) {
+	if (mp->ip != NULL)
+	    /* associated indom has instance changes, we're OK */
+	    continue;
+	if ((mp->flags & METRIC_CHANGE_INDOM) && mp->new_desc.indom != PM_INDOM_NULL) {
+	    for (this = __pmHashWalk(hcp, W_START); this != NULL; this = __pmHashWalk(hcp, W_NEXT)) {
+		/*
+		 * if this indom has an indomspec_t, check that, else
+		 * this indom will go to the archive without change
+		 */
+		for (ip = indom_root; ip != NULL; ip = ip->i_next) {
+		    if (ip->old_indom == mp->old_desc.indom)
+			break;
+		}
+		if (ip == NULL) {
+		    if ((pmInDom)(this->key) == mp->new_desc.indom)
+			/* we're OK */
+			break;
+		}
+		else {
+		    if (ip->new_indom != ip->old_indom &&
+		        ip->new_indom == mp->new_desc.indom)
+			/* we're OK */
+			break;
+		}
+	    }
+	    if (this == NULL) {
+		snprintf(mess, sizeof(mess), "New indom (%s) for metric %s is not in the output archive", pmInDomStr(mp->new_desc.indom), mp->old_name);
+		yysemantic(mess);
+	    }
+	}
+    }
+
+    /*
+     * For each modified instance domain, make sure instances are
+     * still unique and instance names are unique to the first
+     * space.
+     */
+    for (ip = indom_root; ip != NULL; ip = ip->i_next) {
+	int	i;
+	for (i = 0; i < ip->numinst; i++) {
+	    int		insti;
+	    char	*namei;
+	    int		namelen;
+	    int		j;
+	    if (ip->flags[i] & INST_CHANGE_INST)
+		insti = ip->new_inst[i];
+	    else
+		insti = ip->old_inst[i];
+	    if (ip->flags[i] & INST_CHANGE_INAME)
+		namei = ip->new_iname[i];
+	    else
+		namei = ip->old_iname[i];
+	    for (namelen = 0; namei[namelen] != '\0' && namei[namelen] != ' '; namelen++)
+		;
+	    for (j = 0; j < ip->numinst; j++) {
+		int	instj;
+		char	*namej;
+		if (i == j)
+		    continue;
+		if (ip->flags[j] & INST_CHANGE_INST)
+		    instj = ip->new_inst[j];
+		else
+		    instj = ip->old_inst[j];
+		if (ip->flags[j] & INST_CHANGE_INAME)
+		    namej = ip->new_iname[j];
+		else
+		    namej = ip->old_iname[j];
+		if (insti == instj) {
+		    snprintf(mess, sizeof(mess), "Duplicate instance id %d (\"%s\" and \"%s\") for indom %s", insti, namei, namej, pmInDomStr(ip->old_indom));
+		    yysemantic(mess);
+		}
+		if (strlen(namej) < namelen)
+		    continue;
+		if (strncmp(namei, namej, namelen) == 0 &&
+		    (namej[namelen] == '\0' || namej[namelen] == ' ')) {
+		    snprintf(mess, sizeof(mess), "Duplicate instance name \"%s\" (%d) and \"%s\" (%d) for indom %s", namei, insti, namej, instj, pmInDomStr(ip->old_indom));
+		    yysemantic(mess);
+		}
+	    }
+	}
+    }
+}
+
 int
 main(int argc, char **argv)
 {
@@ -588,6 +632,10 @@ main(int argc, char **argv)
     int		stsmeta = 0;		/* sts from nextmeta() */
     int		ti_idx;			/* next slot for input temporal index */
     int		needti = 0;
+    int		doneti = 0;
+    __pmTimeval	tstamp;			/* for last log record */
+    off_t	old_log_offset = 0;	/* log offset before last log record */
+    off_t	old_meta_offset;
 
     __pmSetProgname(argv[0]);
 
@@ -623,7 +671,7 @@ main(int argc, char **argv)
     }
 
     /* output archive */
-    outarchname = argv[argc-1];
+    outarch.name = argv[argc-1];
 
     /*
      * process config file
@@ -638,12 +686,11 @@ main(int argc, char **argv)
     }
 
     /*
-     * TODO - semantic checks
-     * metric indom modified _and_ indom in archive => error
-     * metric indom modified _and_ domain(indom) != domain(pmid) => warning
-     * re-written indom - no duplicate instances or instance names to first
-     * space
+     * cross-specification dependencies and semantic checks once all
+     * config files have been processed
      */
+    link_entries();
+    check_indoms();
 
     if (vflag)
 	reportconfig();
@@ -652,15 +699,15 @@ main(int argc, char **argv)
 	exit(0);
 
     /* create output log - must be done before writing label */
-    if ((sts = __pmLogCreate("", outarchname, PM_LOG_VERS02, &logctl)) < 0) {
+    if ((sts = __pmLogCreate("", outarch.name, PM_LOG_VERS02, &outarch.logctl)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate(%s): %s\n",
-		pmProgname, outarchname, pmErrStr(sts));
+		pmProgname, outarch.name, pmErrStr(sts));
 	exit(1);
     }
 
     /* initialize and write label records */
     newlabel();
-    logctl.l_state = PM_LOG_STATE_INIT;
+    outarch.logctl.l_state = PM_LOG_STATE_INIT;
     writelabel(0);
 
     first_datarec = 1;
@@ -675,10 +722,9 @@ main(int argc, char **argv)
      */
     while (1) {
 	static long	in_offset;		/* for -Dappl0 */
-	static long	out_offset;		/* for -Dappl0 */
 
-	fflush(logctl.l_mdfp);
-	old_meta_offset = ftell(logctl.l_mdfp);
+	fflush(outarch.logctl.l_mdfp);
+	old_meta_offset = ftell(outarch.logctl.l_mdfp);
 
 	in_offset = ftell(inarch.ctxp->c_archctl->ac_log->l_mfp);
 	stslog = nextlog();
@@ -761,7 +807,10 @@ main(int argc, char **argv)
 		}
 		if (i == inarch.rp->numpmid)
 		    break;
-		// TODO rewrite pmDesc meta data? yes unpack, rewrite, pack
+		/*
+		 * rewrite if needed, delete if needed else output
+		 */
+		do_desc();
 	    }
 	    else if (stsmeta == TYPE_INDOM) {
 		struct timeval	stamp;
@@ -771,8 +820,6 @@ main(int argc, char **argv)
 		if (pmDebug & DBG_TRACE_APPL0)
 		    fprintf(stderr, "Metadata: read InDom %s @ offset=%ld\n", pmInDomStr(indom), in_offset);
 #endif
-		// TODO rewrite? yes unpack, pack
-		/* if time of indom > next pmResult stop processing metadata */
 		stamp.tv_sec = ntohl(tvp->tv_sec);
 		stamp.tv_usec = ntohl(tvp->tv_usec);
 		if (fixstamp(&stamp)) {
@@ -780,158 +827,85 @@ main(int argc, char **argv)
 		    tvp->tv_sec = htonl(stamp.tv_sec);
 		    tvp->tv_usec = htonl(stamp.tv_usec);
 		}
+		/* if time of indom > next pmResult stop processing metadata */
 		if (stamp.tv_sec > inarch.rp->timestamp.tv_sec)
 		    break;
 		if (stamp.tv_sec == inarch.rp->timestamp.tv_sec &&
 		    stamp.tv_usec > inarch.rp->timestamp.tv_usec)
 		    break;
 		needti = 1;
+		do_indom();
 	    }
 	    else {
 		fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",
 		    pmProgname, stsmeta);
 		exit(1);
 	    }
-	    out_offset = ftell(logctl.l_mdfp);
-	    if ((sts = _pmLogPut(logctl.l_mdfp, inarch.metarec)) < 0) {
-		fprintf(stderr, "%s: Error: _pmLogPut: meta data : %s\n",
-			pmProgname, pmErrStr(sts));
-		exit(1);
-	    }
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
-		if (stsmeta == TYPE_DESC)
-		    fprintf(stderr, "Metadata: write PMID %s @ offset=%ld\n", pmIDStr(pmid), out_offset);
-		else
-		    fprintf(stderr, "Metadata: write InDom %s @ offset=%ld\n", pmInDomStr(indom), out_offset);
-	    }
-#endif
+	    free(inarch.metarec);
 	    stsmeta = 0;
 	}
 
 	if (first_datarec) {
 	    first_datarec = 0;
 	    /* any global time adjustment done after nextlog() above */
-	    logctl.l_label.ill_start.tv_sec = inarch.rp->timestamp.tv_sec;
-	    logctl.l_label.ill_start.tv_usec = inarch.rp->timestamp.tv_usec;
+	    outarch.logctl.l_label.ill_start.tv_sec = inarch.rp->timestamp.tv_sec;
+	    outarch.logctl.l_label.ill_start.tv_usec = inarch.rp->timestamp.tv_usec;
 	    /* need to fix start-time in label records */
 	    writelabel(1);
 	    needti = 1;
 	}
 
+	tstamp.tv_sec = inarch.rp->timestamp.tv_sec;
+	tstamp.tv_usec = inarch.rp->timestamp.tv_usec;
+
 	if (needti) {
-	    __pmTimeval	tstamp;
-
-	    fflush(logctl.l_mdfp);
-	    fflush(logctl.l_mfp);
-	    new_meta_offset = ftell(logctl.l_mdfp);
-            fseek(logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
-	    tstamp.tv_sec = inarch.rp->timestamp.tv_sec;
-	    tstamp.tv_usec = inarch.rp->timestamp.tv_usec;
-            __pmLogPutIndex(&logctl, &tstamp);
-            fseek(logctl.l_mdfp, (long)new_meta_offset, SEEK_SET);
+	    fflush(outarch.logctl.l_mdfp);
+	    fflush(outarch.logctl.l_mfp);
+	    new_meta_offset = ftell(outarch.logctl.l_mdfp);
+            fseek(outarch.logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
+            __pmLogPutIndex(&outarch.logctl, &tstamp);
+            fseek(outarch.logctl.l_mdfp, (long)new_meta_offset, SEEK_SET);
 	    needti = 0;
+	    doneti = 1;
         }
+	else
+	    doneti = 0;
 
-	sts = __pmEncodeResult(PDU_OVERRIDE2, inarch.rp, &inarch.logrec);
-	if (sts < 0) {
-	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
-		    pmProgname, pmErrStr(sts));
-	    exit(1);
-	}
-
-	out_offset = ftell(logctl.l_mfp);
-	if ((sts = __pmLogPutResult(&logctl, inarch.logrec)) < 0) {
-	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
-		    pmProgname, pmErrStr(sts));
-	    exit(1);
-	}
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0) {
-	    struct timeval	stamp;
-	    fprintf(stderr, "Log: write ");
-	    stamp.tv_sec = inarch.rp->timestamp.tv_sec;
-	    stamp.tv_usec = inarch.rp->timestamp.tv_usec;
-	    __pmPrintStamp(stderr, &stamp);
-	    fprintf(stderr, " numpmid=%d @ offset=%ld\n", inarch.rp->numpmid, out_offset);
-	}
-#endif
+	old_log_offset = ftell(outarch.logctl.l_mfp);
 
 	if (inarch.rp->numpmid == 0)
-	    /* mark record */
+	    /* mark record, need index entry @ next log record */
 	    needti = 1;
 
-	pmFreeResult(inarch.rp);
-
+	do_result();
     }
 
-#if 0
-
-	/* prepare to write out log record
-	 */
-	if (ilog != 0) {
-	    fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
-	    fprintf(stderr, "    log file index = %d\n", ilog);
-	    exit(1);
-	}
-
-	if (inarch.mark)
-	    writemark();
-	else {
-	    /* result is to be written out, but there is no _Nresult
-	     */
-	    if (inarch._Nresult == NULL) {
-		fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
-		fprintf(stderr, "    pick == LOG and _Nresult = NULL\n");
-		exit(1);
-	    }
-	    insertresult(&rlready, inarch._Nresult);
-	    writerlist(&rlready, now);
-
-	    /* writerlist frees elm (elements of rlready) but does not
-	     * free rp & _Nresult
-	     */
-
-	    /* free rp & _Nresult
-	     *	_Nresult may contain space that was allocated
-	     *	in __pmStuffValue this space has PM_VAL_SPTR format,
-	     *	and has to be freed first
-	     *	(in order to avoid memory leaks)
-	     */
-	    if (inarch.rp != inarch._Nresult && inarch._Nresult != NULL) {
-		pmValueSet	*vsetp;
-		for (i=0; i<inarch._Nresult->numpmid; i++) {
-		    vsetp = inarch._Nresult->vset[i];
-		    if (vsetp->valfmt == PM_VAL_SPTR) {
-			for (j=0; j<vsetp->numval; j++) {
-			    free(vsetp->vlist[j].value.pval);
-			}
-		    }
-		}
-		free(inarch._Nresult);
-	    }
-	    if (inarch.rp != NULL)
-		pmFreeResult(inarch.rp);
-	    inarch.rp = NULL;
-	    inarch._Nresult = NULL;
-	}
-    } /*while()*/
-
-	fflush(logctl.l_mfp);
-	fflush(logctl.l_mdfp);
-
-	if (old_log_offset == 0)
-	    old_log_offset = sizeof(__pmLogLabel)+2*sizeof(int);
-
-	new_log_offset = ftell(logctl.l_mfp);
-	new_meta_offset = ftell(logctl.l_mdfp);
-
-	__pmLogPutIndex(&logctl, &current);
-
-
+    if (!doneti) {
+	/* Final temporal index entry */
+	fflush(outarch.logctl.l_mfp);
+	fseek(outarch.logctl.l_mfp, (long)old_log_offset, SEEK_SET);
+	__pmLogPutIndex(&outarch.logctl, &tstamp);
     }
-
-#endif
 
     exit(0);
+}
+
+void
+abandon(void)
+{
+    char    fname[MAXNAMELEN];
+    if (dflag == 0) {
+	fprintf(stderr, "Archive \"%s\" not created.\n", outarch.name);
+	while (outarch.logctl.l_curvol >= 0) {
+	    snprintf(fname, sizeof(fname), "%s.%d", outarch.name, outarch.logctl.l_curvol);
+	    unlink(fname);
+	    outarch.logctl.l_curvol--;
+	}
+	snprintf(fname, sizeof(fname), "%s.meta", outarch.name);
+	unlink(fname);
+	snprintf(fname, sizeof(fname), "%s.index", outarch.name);
+	unlink(fname);
+    }
+    else
+	fprintf(stderr, "Archive \"%s\" creation aborted.\n", outarch.name);
 }

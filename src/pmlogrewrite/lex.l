@@ -72,7 +72,10 @@ dupstr(char *s, int strip_quotes)
 
 %}
 
-%s none glob host indom metric type sem units space time count
+%s none glob host indom metric type sem units space time count output
+%option case-insensitive
+%option noinput
+%option nounput
 
 %%
 
@@ -87,13 +90,15 @@ dupstr(char *s, int strip_quotes)
 <host>[A-Za-z0-9][A-Za-z0-9.-]*	{ yylval.str = dupstr(yytext, 0); BEGIN(glob); return HNAME; }
 
 <indom,metric>"delete"	{ return DELETE; }
-<indom,metric>"indom"	{ return INDOM; }
+<indom>"indom"		{ return INDOM; }
 <indom,metric>"name"	{ return NAME; }
-<indom>"inst"		{ return INST; }
+<indom,metric>"inst"	{ return INST; }
 
 <metric>"pmid"		{ return PMID; }
 <metric>"type"		{ BEGIN(type); return TYPE; }
+<metric>"indom"		{ return INDOM; }
 <metric>"NULL"		{ return NULL_INT; }
+<metric>"output"	{ BEGIN(output); return OUTPUT; }
 <metric>"sem"		{ BEGIN(sem); return SEM; }
 <metric>"units"		{ BEGIN(units); comma_count = 0; return UNITS; }
 
@@ -103,7 +108,14 @@ dupstr(char *s, int strip_quotes)
 <type>"U64"		{ yylval.ival = PM_TYPE_U64; BEGIN(metric); return TYPE_NAME; }
 <type>"FLOAT"		{ yylval.ival = PM_TYPE_FLOAT; BEGIN(metric); return TYPE_NAME; }
 <type>"DOUBLE"		{ yylval.ival = PM_TYPE_DOUBLE; BEGIN(metric); return TYPE_NAME; }
-<type>"STRING"		{ yylval.ival = PM_TYPE_STRING; BEGIN(metric); return TYPE_NAME; }
+
+<output>"first"		{ yylval.ival = OUTPUT_FIRST; BEGIN(metric); return OUTPUT_TYPE; }
+<output>"last"		{ yylval.ival = OUTPUT_LAST; BEGIN(metric); return OUTPUT_TYPE; }
+<output>"min"		{ yylval.ival = OUTPUT_MIN; BEGIN(metric); return OUTPUT_TYPE; }
+<output>"max"		{ yylval.ival = OUTPUT_MAX; BEGIN(metric); return OUTPUT_TYPE; }
+<output>"sum"		{ yylval.ival = OUTPUT_SUM; BEGIN(metric); return OUTPUT_TYPE; }
+<output>"avg"		{ yylval.ival = OUTPUT_AVG; BEGIN(metric); return OUTPUT_TYPE; }
+<output>"inst"		{ BEGIN(metric); return INST; }
 
 <sem>"COUNTER"		{ yylval.ival = PM_SEM_COUNTER; BEGIN(metric); return SEM_NAME; }
 <sem>"INSTANT"		{ yylval.ival = PM_SEM_INSTANT; BEGIN(metric); return SEM_NAME; }
