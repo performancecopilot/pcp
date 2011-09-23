@@ -1,6 +1,8 @@
 pcp-3.5.9 (26 August 2011)
     - Add rc script support for condrestart, and condrestart the pcp,
       pmie and pmproxy services after an RPM install or upgrade.
+    - fix a bug where hinv.ndisk is incorrect if CLUSTER_PARTITIONS
+      hasn't yet been refreshed immediately following a restart
 
 pcp-3.5.8 (08 August 2011)
     - Rework rsyslog PMDA to remove Switch use, very odd behaviour
