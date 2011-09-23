@@ -1,0 +1,65 @@
+#!/bin/sh
+# PCP QA Test No. 489
+# exercise pmdaCacheStoreInst()
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+src-oss/biginst >$seq.full
+
+echo "Duplicate instance ids ... expect none"
+sed -n -e '/ -> /s/ -> .*//p' <$seq.full \
+| sort \
+| uniq -c \
+| grep -v ' 1 '
+
+echo
+echo "Check distribution ..."
+$PCP_AWK_PROG <$seq.full '
+/Instances distribution across/	{ want=1
+				  nb = $4
+				  if ($4 <= 8) {
+				      minp = 0.95 * (1 / nb)
+				      maxp = 1.05 * (1 / nb)
+				  }
+				  else if ($4 <= 16) {
+				      minp = 0.90 * (1 / nb)
+				      maxp = 1.10 * (1 / nb)
+				  }
+				  else if ($4 <= 64) {
+				      minp = 0.80 * (1 / nb)
+				      maxp = 1.20 * (1 / nb)
+				  }
+				  else {
+				      minp = 0.75 * (1 / nb)
+				      maxp = 1.25 * (1 / nb)
+				  }
+				  print
+				  next
+				}
+want == 1 && NF == 0		{ want = 0 }
+want == 1			{ for (i = 1; i <= NF; i++) {
+				    if (minp <= $i && $i <= maxp)
+					printf "OK "
+				    else
+					printf "%s not in (%.4f,%.4f) ",$i,minp,maxp
+				  }
+				  print ""
+				}'
+
+# success, all done
+exit

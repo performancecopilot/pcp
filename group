@@ -804,3 +804,4 @@ pmlogrewrite
 1108 logutil local folio sgi
 487 pmlogrewrite pmdumplog local oss
 488 pmlogrewrite pmdumplog local oss
+489 pmda local oss

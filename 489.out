@@ -1,0 +1,40 @@
+QA output created by 489
+Duplicate instance ids ... expect none
+
+Check distribution ...
+Instances distribution across 128 bins
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK 
+Instances distribution across 64 bins
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK 
+Instances distribution across 32 bins
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK OK OK OK OK 
+OK OK 
+Instances distribution across 16 bins
+OK OK OK OK OK OK OK OK OK OK 
+OK OK OK OK OK OK 
+Instances distribution across 8 bins
+OK OK OK OK OK OK OK OK 
+Instances distribution across 4 bins
+OK OK OK OK 
+Instances distribution across 2 bins
+OK OK 
