@@ -19,17 +19,27 @@ $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-src-oss/biginst >$seq.full
+for arg in -k ''
+do
+    echo | tee -a $seq.full
+    echo "=== biginst $arg ===" | tee -a $seq.full
 
-echo "Duplicate instance ids ... expect none"
-sed -n -e '/ -> /s/ -> .*//p' <$seq.full \
-| sort \
-| uniq -c \
-| grep -v ' 1 '
+    src-oss/biginst $arg >$tmp.out
+    cat $tmp.out >>$seq.full
 
-echo
-echo "Check distribution ..."
-$PCP_AWK_PROG <$seq.full '
+    echo "First few instances ..."
+    head -20 $tmp.out
+
+    echo
+    echo "Duplicate instance ids ... expect none"
+    sed -n -e '/ -> /s/ -> .*//p' <$tmp.out \
+    | sort \
+    | uniq -c \
+    | grep -v ' 1 '
+
+    echo
+    echo "Check distribution ..."
+    $PCP_AWK_PROG <$tmp.out '
 /Instances distribution across/	{ want=1
 				  nb = $4
 				  if ($4 <= 8) {
@@ -53,13 +63,15 @@ $PCP_AWK_PROG <$seq.full '
 				}
 want == 1 && NF == 0		{ want = 0 }
 want == 1			{ for (i = 1; i <= NF; i++) {
-				    if (minp <= $i && $i <= maxp)
-					printf "OK "
-				    else
-					printf "%s not in (%.4f,%.4f) ",$i,minp,maxp
-				  }
-				  print ""
-				}'
+					if (minp <= $i && $i <= maxp)
+					    printf "OK "
+					else
+					    printf "%s not in (%.4f,%.4f) ",$i,minp,maxp
+				      }
+				      print ""
+				    }'
+
+    done
 
 # success, all done
 exit
