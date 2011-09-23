@@ -40,6 +40,9 @@ int lineno = 1;
 
 %}
 
+%option noinput
+%option nounput
+
 %%
 "["			{ return LSQB; }
 "]"			{ return RSQB; }

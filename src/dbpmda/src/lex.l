@@ -51,6 +51,9 @@ static int dbpmdaFlexInput (char *, int);
 %s FNAME
 %a 2200
 
+%option noinput
+%option nounput
+
 %%
 
 add		{ return ADD; }
