@@ -9,7 +9,7 @@ pmdaCacheDump: indom 0.123: nentry=2 ins_mode=0 hstate=0 hsize=16
           1    active (nil) urk
 save() -> 2
 
-store one, load, store another couple ...
+store one, load, store another couple and save ...
 store(eek) -> 0
 After PMDA_CACHE_LOAD
 pmdaCacheDump: indom 0.123: nentry=2 ins_mode=0 hstate=3 hsize=16
@@ -18,7 +18,13 @@ pmdaCacheDump: indom 0.123: nentry=2 ins_mode=0 hstate=3 hsize=16
 load() -> 2
 store(urk) -> 1
 store(foo) -> 2
-pmdaCacheDump: indom 0.123: nentry=3 ins_mode=0 hstate=3 hsize=16
+After cache_save hstate={DIRTY_INSTANCE}
+pmdaCacheDump: indom 0.123: nentry=3 ins_mode=0 hstate=0 hsize=16
+          0    active (nil) eek
+          1    active (nil) urk
+          2    active (nil) foo
+save() -> 3
+pmdaCacheDump: indom 0.123: nentry=3 ins_mode=0 hstate=0 hsize=16
           0    active (nil) eek
           1    active (nil) urk
           2    active (nil) foo
@@ -61,27 +67,30 @@ store some, hide some, load ...
 store(eek) -> 0
 store(urk) -> 1
 store(foo) -> 2
+store(fumble mumble) -> 3
 hide(eek) -> 0
 hide(foo) -> 2
-store(bar) -> 3
+store(bar) -> 4
 After PMDA_CACHE_LOAD
-pmdaCacheDump: indom 0.123: nentry=4 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 0.123: nentry=5 ins_mode=0 hstate=3 hsize=16
           0  inactive (nil) eek
           1    active (nil) urk
           2  inactive (nil) foo
-          3    active (nil) bar
-load() -> 2
-pmdaCacheDump: indom 0.123: nentry=4 ins_mode=0 hstate=3 hsize=16
+          3    active (nil) fumble mumble [match len=6]
+          4    active (nil) bar
+load() -> 3
+pmdaCacheDump: indom 0.123: nentry=5 ins_mode=0 hstate=3 hsize=16
           0  inactive (nil) eek
           1    active (nil) urk
           2  inactive (nil) foo
-          3    active (nil) bar
+          3    active (nil) fumble mumble [match len=6]
+          4    active (nil) bar
 inst hash
  [000] -> 0I
  [001] -> 1
  [002] -> 2I
  [003] -> 3
- [004]
+ [004] -> 4
  [005]
  [006]
  [007]
@@ -99,13 +108,13 @@ name hash
  [002]
  [003]
  [004]
- [005]
+ [005] -> 3
  [006] -> 2I
  [007] -> 1
  [008] -> 0I
  [009]
  [010]
- [011] -> 3
+ [011] -> 4
  [012]
  [013]
  [014]
@@ -113,17 +122,18 @@ name hash
 
 error case ...
 store(urk a bit tricky) -> 0
-store(eek) -> 1
+store(foo) -> 1
 [DATE] pmdacache(PID) Warning: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/0.123: loading instance 0 ("eek") ignored, already in cache as 0 ("urk a bit tricky")
-[DATE] pmdacache(PID) Warning: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/0.123: loading instance 1 ("urk") ignored, already in cache as 0 ("urk a bit tricky")
+[DATE] pmdacache(PID) Warning: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/0.123: loading instance 1 ("urk") ignored, already in cache as 1 ("foo")
+[DATE] pmdacache(PID) Warning: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/0.123: loading instance 2 ("foo") ignored, already in cache as 1 ("foo")
 After PMDA_CACHE_LOAD
 pmdaCacheDump: indom 0.123: nentry=2 ins_mode=0 hstate=3 hsize=16
           0    active (nil) urk a bit tricky [match len=3]
-          1    active (nil) eek
-load() -> 2
+          1    active (nil) foo
+load() -> 3
 pmdaCacheDump: indom 0.123: nentry=2 ins_mode=0 hstate=3 hsize=16
           0    active (nil) urk a bit tricky [match len=3]
-          1    active (nil) eek
+          1    active (nil) foo
 inst hash
  [000] -> 0
  [001] -> 1
@@ -148,9 +158,9 @@ name hash
  [003]
  [004]
  [005]
- [006]
+ [006] -> 1
  [007] -> 0
- [008] -> 1
+ [008]
  [009]
  [010]
  [011]
