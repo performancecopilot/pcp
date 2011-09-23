@@ -256,7 +256,7 @@ find_inst(hdr_t *h, int inst)
     entry_t	*e;
 
     for (e = h->first; e != NULL; e = e->next) {
-	if (e->state != PMDA_CACHE_EMPTY && e->inst == inst)
+	if (e->inst == inst && e->state != PMDA_CACHE_EMPTY)
 	    break;
     }
     return e;
@@ -281,7 +281,7 @@ find_entry(hdr_t *h, const char *name, int inst, int *sts)
 	    /* no hash, use linear search */
 	    return find_inst(h, inst);
 	for (e = h->ctl_inst[inst & h->hbits]; e != NULL; e = e->h_inst) {
-	    if (e->state != PMDA_CACHE_EMPTY && e->inst == inst)
+	    if (e->inst == inst && e->state != PMDA_CACHE_EMPTY)
 		return e;
 	}
     }
@@ -474,7 +474,8 @@ reorder:
  * unused inst value.
  *
  * If inst is _not_ PM_IN_NULL, we're being called from load_cache
- * and there is no choice, but to walk the list.
+ * or pmdaCacheStoreInst() and the inst is known ... so we need to
+ * check for possible duplicate entries.
  */
 static entry_t *
 insert_cache(hdr_t *h, const char *name, int inst, int *sts)
@@ -488,26 +489,34 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
     *sts = 0;
 
     if (inst != PM_IN_NULL) {
-	/* load_cache case, inst is known */
-	for (e = h->first; e != NULL; e = e->next) {
-	    /*
-	     * check if instance id or instance name already in cache
-	     * ... if id and name are the the same, keep the existing
-	     * one and ignore the one from load_cache (in particular
-	     * state is not reset to inactive), otherwise do nothing
-	     * and return an error indication
-	     */
-	    if (e->inst == inst) {
-		if (name_eq(e, name, hashlen) != 1)
-		    *sts = PM_ERR_INST;
-		return e;
-	    }
-	    if (name_eq(e, name, hashlen) == 1) {
+	/*
+	 * Check if instance id or instance name already in cache
+	 * ... if id and name are the the same, keep the existing one
+	 * and ignore the new one (in particular state is not reset to
+	 * inactive).
+	 * If one matches but the other is different, keep the
+	 * matching entry, but return an error as a warning.
+	 * If both fail to match, we're OK to insert the new entry,
+	 * although we need to run down the list quickly to find the
+	 * correct place to insert the new one.
+	 */
+	e = find_entry(h, NULL, inst, sts);
+	if (e != NULL) {
+	    if (name_eq(e, name, hashlen) != 1)
+		/* instance id the same, different name */
 		*sts = PM_ERR_INST;
-		return e;
-	    }
+	    return e;
+	}
+	e = find_entry(h, name, PM_IN_NULL, sts);
+	if (e != NULL) {
+	    *sts = PM_ERR_INST;
+	    return e;
+	}
+	for (e = h->first; e != NULL; e = e->next) {
 	    if (e->inst < inst)
 		last_e = e;
+	    else if (e->inst > inst)
+		break;
 	}
     }
 
@@ -777,22 +786,25 @@ __pmdaCacheDump(FILE *fp, pmInDom indom, int do_hash)
     }
 }
 
-int
-pmdaCacheStore(pmInDom indom, int flags, const char *name, void *private)
+static int
+store(pmInDom indom, int flags, const char *name, pmInDom inst, void *private)
 {
     hdr_t	*h;
     entry_t	*e;
     int		sts;
 
+    if (indom == PM_INDOM_NULL)
+	return PM_ERR_INDOM;
+
     if ((h = find_cache(indom, &sts)) == NULL)
 	return sts;
 
-    if ((e = find_entry(h, name, PM_IN_NULL, &sts)) == NULL) {
+    if ((e = find_entry(h, name, inst, &sts)) == NULL) {
 
 	if (flags != PMDA_CACHE_ADD)
 	    return PM_ERR_INST;
 
-	if ((e = insert_cache(h, name, PM_IN_NULL, &sts)) == NULL)
+	if ((e = insert_cache(h, name, inst, &sts)) == NULL)
 	    return sts;
 	h->hstate |= DIRTY_INSTANCE;	/* added a new entry */
     }
@@ -836,11 +848,94 @@ pmdaCacheStore(pmInDom indom, int flags, const char *name, void *private)
     return e->inst;
 }
 
+int
+pmdaCacheStore(pmInDom indom, int flags, const char *name, void *private)
+{
+    if (indom == PM_INDOM_NULL)
+	return PM_ERR_INDOM;
+
+    return store(indom, flags, name, PM_IN_NULL, private);
+}
+
+/*
+ * generate a new 31-bit (positive) instance number from a one or more
+ * 32-bit components ... useful for compressing natural 64-bit or larger
+ * instance identifiers into the 31-bits required for the PCP APIs
+ * and PDUs.
+ */
+#ifdef DESPERATE
+static int	hash_cnt[10];
+#endif
+int
+pmdaCacheStoreInst(pmInDom indom, int flags, const char *name, int numkey, int *keybuf, void *private)
+{
+    int		inst;
+    int		sts;
+    int		i;
+    __uint32_t	try = 0;
+    hdr_t	*h;
+    entry_t	*e;
+    char	*key;
+    int		keylen;
+
+#ifdef DESPERATE
+    if (indom == PM_INDOM_NULL && numkey == 0 && keybuf == NULL) {
+	printf("pmdaCacheStoreInst hash stats ...\n");
+	for (i = 0; i < 10; i++) {
+	    if (hash_cnt[i] != 0) {
+		if (i == 0)
+		    printf("hash once: %d times\n", hash_cnt[i]);
+		else
+		    printf("%d hash attempts: %d times\n", i+1, hash_cnt[i]);
+	    }
+	}
+	return PM_ERR_GENERIC;
+    }
+#endif
+
+    if (indom == PM_INDOM_NULL)
+	return PM_ERR_INDOM;
+
+    if ((h = find_cache(indom, &sts)) == NULL)
+	return sts;
+
+    if (numkey < 1 || keybuf == NULL) {
+	/* use name[] instead of keybuf[] */
+	key = (char *)name;
+	keylen = strlen(name);
+    }
+    else {
+	key = (char *)keybuf;
+	keylen = (int)(numkey*sizeof(int));
+    }
+
+    for (i = 0; i < 10; i++) {
+	try = hash(key, keylen, try);
+	/* strip top bit ... instance id must be positive */
+	inst = try & ~(1 << (8*sizeof(__uint32_t)-1));
+	e = find_entry(h, NULL, inst, &sts);
+	if (e == NULL) {
+#ifdef DESPERATE
+	    hash_cnt[i]++;
+#endif
+	    break;
+	}
+    }
+    if (i == 10)
+	/* failed after 10 rehash attempts ... */
+	return PM_ERR_INST;
+
+    return store(indom, flags, name, inst, private);
+}
+
 int pmdaCacheOp(pmInDom indom, int op)
 {
     hdr_t	*h;
     entry_t	*e;
     int		sts;
+
+    if (indom == PM_INDOM_NULL)
+	return PM_ERR_INDOM;
 
     if (op == PMDA_CACHE_CHECK) {
 	/* is there a cache for this one? */
@@ -951,6 +1046,9 @@ int pmdaCacheLookupName(pmInDom indom, const char *name, int *inst, void **priva
     entry_t	*e;
     int		sts;
 
+    if (indom == PM_INDOM_NULL)
+	return PM_ERR_INDOM;
+
     if ((h = find_cache(indom, &sts)) == NULL)
 	return sts;
 
@@ -973,6 +1071,9 @@ int pmdaCacheLookup(pmInDom indom, int inst, char **name, void **private)
     hdr_t	*h;
     entry_t	*e;
     int		sts;
+
+    if (indom == PM_INDOM_NULL)
+	return PM_ERR_INDOM;
 
     if ((h = find_cache(indom, &sts)) == NULL)
 	return sts;
@@ -997,6 +1098,9 @@ int pmdaCachePurge(pmInDom indom, time_t recent)
     time_t	epoch = time(NULL) - recent;
     int		cnt;
     int		sts;
+
+    if (indom == PM_INDOM_NULL)
+	return PM_ERR_INDOM;
 
     if ((h = find_cache(indom, &sts)) == NULL)
 	return sts;

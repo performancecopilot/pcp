@@ -412,6 +412,10 @@ extern int pmdaTreeSize(__pmnsTree *);
  * 	add entry into the cache, or change state, assigns internal
  * 	instance identifier
  *
+ * pmdaCacheStoreInst
+ * 	add entry into the cache, or change state, caller provides "hint"
+ * 	for internal instance identifier
+ *
  * pmdaCacheLookup
  *	fetch entry based on internal instance identifier
  *
@@ -426,6 +430,7 @@ extern int pmdaTreeSize(__pmnsTree *);
  *	cull inactive entries
  */
 extern int pmdaCacheStore(pmInDom, int, const char *, void *);
+extern int pmdaCacheStoreInst(pmInDom, int, const char *, int, int *, void *);
 extern int pmdaCacheLookup(pmInDom, int, char **, void **);
 extern int pmdaCacheLookupName(pmInDom, const char *, int *, void **);
 extern int pmdaCacheOp(pmInDom, int);

@@ -17,6 +17,7 @@
 .TH PMDACACHE 3 "SGI" "Performance Co-Pilot"
 .SH NAME
 \f3pmdaCacheStore\f1,
+\f3pmdaCacheStoreInst\f1,
 \f3pmdaCacheLookup\f1,
 \f3pmdaCacheLookupName\f1,
 \f3pmdaCacheOp\f1,
@@ -34,6 +35,9 @@
 .in +8n
 .ti -8n
 int pmdaCacheStore(pmInDom \fIindom\fP, int \fIflags\fP, const\ char\ *\fIname\fP, void\ *\fIprivate\fP);
+.br
+.ti -8n
+int pmdaCacheStoreInst(pmInDom \fIindom\fP, int \fIflags\fP, const\ char\ *\fIname\fP, int\ \fInkey\fP, int\ *\fIkeybuf\fP, void\ *\fIprivate\fP);
 .br
 .ti -8n
 int pmdaCacheLookup(pmInDom \fIindom\fP, int \fIinst\fP, char **\fIname\fP, void\ **\fIprivate\fP);
@@ -80,7 +84,9 @@ domain, and for each instance the cache maintains:
 external instance name (supplied by the PMDA)
 .IP \- 2m
 internal instance identifier (assigned by
-.BR pmdaCacheStore )
+.B pmdaCacheStore
+or calculated from a ``hint'' by
+.BR pmdaCacheStoreInst )
 .IP \- 2m
 state, where
 .B active
@@ -89,6 +95,8 @@ instance domain, and
 .B inactive
 instances are hidden, but not forgotten;
 .B pmdaCacheStore
+or
+.B pmdaCacheStoreInst
 may be used to change the state of an instance
 .IP \- 2m
 an opaque pointer to data that is associated with the instance,
@@ -142,6 +150,8 @@ Instances are updated in the cache for instance domain
 .I indom
 by calling
 .B pmdaCacheStore
+or
+.B pmdaCacheStoreInst
 with the external name of the instance passed via
 .I name.
 The opaque pointer
@@ -155,6 +165,35 @@ freeing) is the responsibility of the PMDA caller, as the cache simply
 maintains the pointer to the data
 (passed via
 .IR private ).
+.PP
+For cases where the PMDA developer wishes to influence the allocation
+of internal instance identifiers, e.g. for instance domains with more
+than one natural dimension, or where there is a desire to allocate the same
+instance identifier each time the PMDA is started, even on different
+hosts,
+.B pmdaCacheStoreInst
+may be used.
+In this case, an initial ``hint'' for the instance identifier is provided
+by the
+.I nkey
+integer values in
+.IR keybuf ,
+else if
+.I nkey
+is 0 or
+.I keybuf
+is
+.B NULL
+then
+.I name
+is used as the ``hint''.
+The ``hint'' is hashed to produce an initial instance identifier in the range
+0 to 2^31\0-\01.  If this instance identifier is already allocated, then the
+value is rehashed.  This procedure is repeated until an unallocated
+instance identifier is found, or
+.B pmdaCacheStoreInst
+give up and returns
+.BR PM_ERR_INST .
 .PP
 The
 .I flags
@@ -188,6 +227,8 @@ Remove the entry from the cache.
 .PP
 On success
 .B pmdaCacheStore
+or
+.B pmdaCacheStoreInst
 will return the internal instance identifier of the associated cache
 entry.
 Valid instance identifiers are guaranteed to be unique and non-negative.
@@ -217,7 +258,9 @@ state of the cache entry),
 (if not NULL)
 will be set to the external instance name and the associate additional data
 area as provided when the instance was last activated via
-.BR pmdaCacheStore .
+.B pmdaCacheStore 
+or
+.BR pmdaCacheStoreInst .
 .PP
 .B pmdaCacheLookup
 failure is indicated by a negative return value
@@ -266,7 +309,9 @@ state of the cache entry),
 (if not NULL)
 will be set to the internal instance identifier and the associate additional data
 area as provided when the instance was last activated via
-.BR pmdaCacheStore .
+.B pmdaCacheStore
+or
+.BR pmdaCacheStoreInst .
 .PP
 .B pmdaCacheLookupName
 failure is indicated by a negative return value
