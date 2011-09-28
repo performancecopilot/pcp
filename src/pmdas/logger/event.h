@@ -1,7 +1,8 @@
 /*
- * event support for the Logger PMDA
+ * Event support for the Logger PMDA
  *
  * Copyright (c) 2011 Red Hat Inc.
+ * Copyright (c) 2011 Nathan Scott.  All rights reversed.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,82 +13,43 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
-
 #ifndef _EVENT_H
 #define _EVENT_H
 
 #include "pmapi.h"
 #include "impl.h"
-#include "pmda.h"
-#include <sys/queue.h>
 
-/*
- * Queue access methods that are missing on glibc <= 2.3, e.g. RHEL4
- */ 
-#ifndef TAILQ_NEXT	
-#define	TAILQ_NEXT(elm, field)	((elm)->field.tqe_next)
-#endif
-
-#ifndef TAILQ_FIRST
-#define TAILQ_FIRST(head)	((head)->tqh_first)
-#endif
-
-#ifndef TAILQ_EMPTY
-#define TAILQ_EMPTY(head)               ((head)->tqh_first == NULL)
-#endif
-
-#ifndef TAILQ_LAST
-#define TAILQ_LAST(head, headname) \
-        (*(((struct headname *)((head)->tqh_last))->tqh_last))
-#endif
-
-#ifndef TAILQ_PREV
-#define TAILQ_PREV(elm, headname, field) \
-        (*(((struct headname *)((elm)->field.tqe_prev))->tqh_last))
-#endif
-
-struct event {
-    TAILQ_ENTRY(event)	events;
-    int			clients;
-    int			size;		/* buffer size in bytes */
-    char		buffer[];
-};
-
-TAILQ_HEAD(tailqueue, event);
-
-struct EventFileData {
+typedef struct event_logfile {
+    pmID		pmid;
     int			fd;
     pid_t	        pid;
-    pmID		pmid;
-    int			numclients;
-    int			restricted;	/* access controlled via pmstore */
-    __uint32_t		count;		/* exported metric: event counter */
-    __uint64_t		bytes;		/* exported metric: data throughput */
+    int			queueid;
+    int			restrict;
     struct stat		pathstat;
     char		pmnsname[MAXPATHLEN];
     char		pathname[MAXPATHLEN];
-    struct tailqueue	queue;		/* queue of events for clients */
-    long		queuesize;	/* total data in the queue (< maxmem) */
-};
-
-extern struct EventFileData *logfiles;
-extern int numlogfiles;
+} event_logfile_t;
 
 extern int maxfd;
 extern fd_set fds;
 extern long maxmem;
 
-extern void event_init(void);
-extern int event_create(unsigned int logfile);
-extern int event_fetch(pmValueBlock **vbpp, unsigned int logfile);
-extern int event_get_clients_per_logfile(unsigned int logfile);
-extern int event_regex(const char *string);
-
+extern void event_init(pmID pmid);
 extern void event_shutdown(void);
+extern void event_refresh(void);
+extern int event_config(const char *filename);
+
+extern int event_logcount(void);
+extern pmID event_pmid(int handle);
+extern int event_queueid(int handle);
+extern __uint64_t event_pathsize(int handle);
+extern const char *event_pathname(int handle);
+extern const char *event_pmnsname(int handle);
+extern int event_decoder(int eventarray, void *buffer, int size, void *data);
+
+extern int event_regex_alloc(int context, const char *string, void **filter);
+extern int event_regex_apply(int context, void *rp, void *data, int size);
+extern void event_regex_release(int context, void *rp);
 
 #endif /* _EVENT_H */

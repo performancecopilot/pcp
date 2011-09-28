@@ -528,16 +528,35 @@ extern int pmdaEventAddParam(int, pmID, int, pmAtomValue *);
 extern pmEventArray *pmdaEventGetAddr(int);
 
 /*
- * Outdated routines
- *
- * pmdaMainLoopFreeResultCallback
- *      Was provided for setting the callback in pmdaMainLoop for cleaning
- *	the pmResult structure.
- *	Do not use this function as this is now supported by 
- *      pmdaSetResultCallBack().
- *
- * extern void pmdaMainLoopFreeResultCallback(void (*)(pmResult *));
+ * Event Queue support
  */
+extern int pmdaEventNewQueue(const char *, int);
+extern int pmdaEventQueueAppend(int, void *, int, struct timeval *);
+extern int pmdaEventQueueClients(int, pmAtomValue *);
+extern int pmdaEventQueueCounter(int, pmAtomValue *);
+extern int pmdaEventQueueBytes(int, pmAtomValue *);
+extern int pmdaEventQueueMemory(int, pmAtomValue *);
+
+extern int pmdaEventNewClient(int);
+extern int pmdaEventEndClient(int);
+extern int pmdaEventClients(pmAtomValue *);
+
+typedef int (*pmdaEventDecodeCallBack)(int, void *, int, void *);
+extern int pmdaEventQueueRecords(int, pmAtomValue *, int,
+		pmdaEventDecodeCallBack, void *);
+
+typedef int (*pmdaEventApplyFilterCallBack)(int, void *, void *, int);
+typedef void (*pmdaEventReleaseFilterCallBack)(int, void *);
+extern int pmdaEventFilter(int, void *, int);
+extern int pmdaEventGetFilter(int, void **);
+extern int pmdaEventSetFilter(int, void *,
+		pmdaEventApplyFilterCallBack, pmdaEventReleaseFilterCallBack);
+extern int pmdaEventSetAccess(int, int);
+
+typedef int (*pmdaEventTimeStampCallBack)(void *, int);
+extern int pmdaEventSetTimeStampCallBack(int, pmdaEventTimeStampCallBack);
+
+extern char *__pmdaEventPrint(const char *, int, char *, int);
 
 #ifdef __cplusplus
 }

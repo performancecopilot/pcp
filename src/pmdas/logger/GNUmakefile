@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2011 Nathan Scott.  All Rights Reversed.
 # Copyright (c) 2011 Red Hat Inc.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -18,8 +19,10 @@ include $(TOPDIR)/src/include/builddefs
 
 CMDTARGET = pmdalogger$(EXECSUFFIX)
 DFILES 	= README
-CFILES	= percontext.c event.c util.c logger.c
-HFILES	= percontext.h event.h util.h
+CFILES	= event.c util.c logger.c
+HFILES	= event.h util.h
+CFILES += queues.c
+HFILES += queues.h
 LLDLIBS = -lpcp -lpcp_pmda
 LSRCFILES = Install Remove pmns help $(DFILES) root
 
@@ -48,7 +51,6 @@ install:
 endif
 
 logger.o: domain.h
-logger.o percontext.o event.o: percontext.h
 event.o logger.o: event.h
 util.o event.o logger.o: util.h
 
