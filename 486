@@ -53,6 +53,16 @@ xlate == 1 && NF != 6		{ xlate = 0 }'
 
 _cmp()
 {
+    if [ ! -f "$1.0" ]
+    then
+	echo "Arrgh ... $1.0 missing" | _filter
+	return
+    fi
+    if [ ! -f "$2.0" ]
+    then
+	echo "Arrgh ... $2.0 missing" | _filter
+	return
+    fi
     pmdumplog -z -a $1 | tee -a $seq.full >$tmp.in
     pmdumplog -z -a $2 | tee -a $seq.full >$tmp.out
     echo "pmdumplog diffs ..."
@@ -90,6 +100,12 @@ src-oss/mirage	metric sample.bin { name -> sam.bin }
 src-oss/mirage	metric sample.bin { name -> x23456789.sample.bin }
 # inst renumbering
 src-oss/mirage	indom 29.2 { inst 300 -> 42 }
+src-oss/mirage	indom 29.2 { inst 300 -> 400 }
+src-oss/mirage	indom 29.2 { name "bin-700" -> "bin-900" }
+src-oss/mirage	indom 29.2 { name "bin-700" -> "bin-900 and some" }
+src-oss/mirage	indom 29.2 { name "bin-300" -> "bin-100" inst 300 -> 100 }
+src-oss/rattle	indom 1.5 { name "1 minute" -> "5" }
+src-oss/rattle	indom 1.5 { name "5 minute" -> "15 doo dah" }
 # all metric semantics
 src-oss/mirage	metric 29.*.* { sem->DISCRETE } metric pmcd.pmlogger.port { sem->COUNTER }
 # scale conversion

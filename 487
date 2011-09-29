@@ -93,7 +93,9 @@ _cmp2 src-oss/mirage $tmp.tmp sample.drift
 echo "=== overflow in type conversion - step 2 (expect error) ==="
 echo "metric sample.drift { units->1,0,-1,BYTE,0,1 type->32 }" >$tmp.config
 rm -f $tmp.new.*
-pmlogrewrite -Dvalue -dsw -c $tmp.config $tmp.tmp $tmp.new 2>&1 | _filter
+echo pmlogrewrite -Dvalue -dsw -c $tmp.config $tmp.tmp $tmp.new
+# pmlogrewrite -Dvalue -dsw -c $tmp.config $tmp.tmp $tmp.new 2>&1 | _filter
+gdb `which pmlogrewrite` </dev/tty
 _cmp2 $tmp.tmp $tmp.new sample.drift 
 
 # success, all done

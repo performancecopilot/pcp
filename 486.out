@@ -862,6 +862,36 @@ pmdumplog diffs ...
                  inst [500 or "bin-500"] value 500
                  inst [600 or "bin-600"] value 600
 
+=== indom 29.2 { inst 300 -> 400 } ===
+Semantic error in configuration file (TMP.config)
+Duplicate instance id 400 ("bin-300" and "bin-400") for indom 29.2
+Arrgh ... TMP.new.0 missing
+
+=== indom 29.2 { name "bin-700" -> "bin-900" } ===
+Semantic error in configuration file (TMP.config)
+Duplicate instance name "bin-900" (700) and "bin-900" (900) for indom 29.2
+Arrgh ... TMP.new.0 missing
+
+=== indom 29.2 { name "bin-700" -> "bin-900 and some" } ===
+Semantic error in configuration file (TMP.config)
+Duplicate instance name "bin-900 and some" (700) and "bin-900" (900) for indom 29.2
+Arrgh ... TMP.new.0 missing
+
+=== indom 29.2 { name "bin-300" -> "bin-100" inst 300 -> 100 } ===
+Semantic error in configuration file (TMP.config)
+Duplicate instance id 100 ("bin-100" and "bin-100") for indom 29.2
+Arrgh ... TMP.new.0 missing
+
+=== indom 1.5 { name "1 minute" -> "5" } ===
+Semantic error in configuration file (TMP.config)
+Duplicate instance name "5" (1) and "5 minute" (5) for indom 1.5
+Arrgh ... TMP.new.0 missing
+
+=== indom 1.5 { name "5 minute" -> "15 doo dah" } ===
+Semantic error in configuration file (TMP.config)
+Duplicate instance name "15 doo dah" (5) and "15 minute" (15) for indom 1.5
+Arrgh ... TMP.new.0 missing
+
 === metric 29.*.* { sem->DISCRETE } metric pmcd.pmlogger.port { sem->COUNTER } ===
 pmdumplog diffs ...
 --- TMP.in
