@@ -7,6 +7,7 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include <pcp/pmda.h>
+#include <arpa/inet.h>
 
 static int histo[128];
 
@@ -76,8 +77,14 @@ load_n_go(pmInDom indom)
 		    else
 			name[13] = '\0';
 
-		    if (kflag)
-			inst = pmdaCacheStoreKey(indom, PMDA_CACHE_ADD, name, keylen, (const char *)key, NULL);
+		    if (kflag) {
+			int		c;
+			for (c = 0; c < keylen/sizeof(int); c++)
+			    key[c] = htonl(key[c]);
+			inst = pmdaCacheStoreKey(indom, PMDA_CACHE_ADD, name, keylen, (const void *)key, NULL);
+			for (c = 0; c < keylen/sizeof(int); c++)
+			    key[c] = ntohl(key[c]);
+		    }
 		    else
 			inst = pmdaCacheStoreKey(indom, PMDA_CACHE_ADD, name, 0, NULL, NULL);
 		    if (kflag) {
@@ -193,8 +200,14 @@ main(int argc, char **argv)
 			name[13] = '\0';
 		}
 
-		if (kflag)
-		    inst = pmdaCacheStoreKey(indom, PMDA_CACHE_ADD, name, keylen, (const char *)key, NULL);
+		if (kflag) {
+		    int		c;
+		    for (c = 0; c < keylen/sizeof(int); c++)
+			key[c] = htonl(key[c]);
+		    inst = pmdaCacheStoreKey(indom, PMDA_CACHE_ADD, name, keylen, (const void *)key, NULL);
+		    for (c = 0; c < keylen/sizeof(int); c++)
+			key[c] = ntohl(key[c]);
+		}
 		else
 		    inst = pmdaCacheStoreKey(indom, PMDA_CACHE_ADD, name, 0, NULL, NULL);
 		if (kflag) {
