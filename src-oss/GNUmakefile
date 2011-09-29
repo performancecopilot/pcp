@@ -94,7 +94,7 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c mmv_nostats.c \
 	record.c record-setarg.c clientid.c killparent.c grind_ctx.c \
 	pmdacache.c check_import.c unpack.c aggrstore.c atomstr.c \
-	grind_conv.c getconfig.c err.c torture_logmeta.c biginst.c
+	grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c
 
 ifeq ($(shell test $(PCP_VER) -ge 4000 && echo 1), 1)
 CFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
@@ -351,7 +351,7 @@ pmdacache: pmdacache.c
 atomstr: atomstr.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
 
-biginst: biginst.c
+keycache: keycache.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
 
 # --- need libpcp_gui

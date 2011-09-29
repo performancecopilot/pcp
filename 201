@@ -40,7 +40,7 @@ _filter2()
 
 # real QA test starts here
 echo "basic operation tests ..."
-src-oss/torture_cache a 2>&1 | _filter
+src-oss/torture_cache -Dindom a 2>&1 | _filter
 
 echo
 echo "save tests ..."

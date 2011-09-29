@@ -13,7 +13,6 @@ bar.meta
 bigbin.0
 bigbin.index
 bigbin.meta
-biginst
 check_fault_injection
 check_import
 chkacc1
@@ -88,6 +87,7 @@ interp_bug2
 interp.index
 interp.meta
 ipc
+keycache
 killparent
 logcontrol
 mark-bug

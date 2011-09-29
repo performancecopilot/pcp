@@ -41,7 +41,11 @@ main(int argc, char **argv)
 	    break;
 
 	case 'd':
+#ifdef PMDA_CACHE_DUMP_ALL
+	    sts = pmdaCacheOp(indom, PMDA_CACHE_DUMP_ALL);
+#else
 	    sts = pmdaCacheOp(indom, PMDA_CACHE_DUMP);
+#endif
 	    break;
 
 	case 'h':

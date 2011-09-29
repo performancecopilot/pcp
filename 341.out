@@ -123,8 +123,11 @@ name hash
 error case ...
 store(urk a bit tricky) -> 0
 store(foo) -> 1
+pmdaCache: store: indom 0.123: instance 0  in cache, name "urk a bit tricky" does not match new entry "eek"
 [DATE] pmdacache(PID) Warning: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/0.123: loading instance 0 ("eek") ignored, already in cache as 0 ("urk a bit tricky")
+pmdaCache: store: indom 0.123: instance 1  in cache, name "foo" does not match new entry "urk"
 [DATE] pmdacache(PID) Warning: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/0.123: loading instance 1 ("urk") ignored, already in cache as 1 ("foo")
+pmdaCacheStoreKey: indom 0.123: instance "foo" in cache, id 1 does not match new entry 2
 [DATE] pmdacache(PID) Warning: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/0.123: loading instance 2 ("foo") ignored, already in cache as 1 ("foo")
 After PMDA_CACHE_LOAD
 pmdaCacheDump: indom 0.123: nentry=2 ins_mode=0 hstate=3 hsize=16

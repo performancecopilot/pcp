@@ -43,6 +43,7 @@ pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
           3  inactive (nil) another one [match len=7]
 
 Cull foo again, should fail ...
+pmdaCache store: indom 123.7: instance "foo" not in cache: flags=4 not allowed
 return -> -12360: Unknown or illegal instance identifier
 pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 (         0)    empty
@@ -459,6 +460,7 @@ Cull foo ...
 return -> 2147483646
 
 Cull foo again, should fail ...
+pmdaCache store: indom 123.7: instance "foo" not in cache: flags=4 not allowed
 return -> -12360: Unknown or illegal instance identifier
 
 Count instances ...
