@@ -31,12 +31,15 @@ typedef struct entry {
     int			inst;
     char		*name;
     int			hashlen;	/* smaller of strlen(name) and chars to first space */
+    int			keylen;		/* > 0 if have key from pmdaCacheStoreKey() */
+    void		*key;		/* != NULL if have key from pmdaCacheStoreKey() */
     int			state;
     void		*private;
     time_t		stamp;
 } entry_t;
 
 #define VERSION 1	/* version of external file format */
+#define MAX_HASH_TRY	10
 
 /*
  * linked list of cache headers
@@ -54,6 +57,7 @@ typedef struct hdr {
     int			nentry;		/* number of entries */
     int			ins_mode;	/* see insert_cache() */
     int			hstate;		/* dirty/clean state for save_cache() */
+    int			keyhash_cnt[MAX_HASH_TRY];
 } hdr_t;
 
 /* bitfields for hstate */
@@ -85,6 +89,20 @@ hash_str(const char *str, int len)
     return hash(str, len, 0);
 }
 
+static void
+KeyStr(FILE *f, int keylen, const char *key)
+{
+    int		i;
+    if (keylen > 0) {
+	fprintf(f, "[key=0x");
+	for (i = 0; i < keylen; i++, key++)
+	    fprintf(f, "%02x", (*key & 0xff));
+	fputc(']', f);
+    }
+    else
+	fprintf(f, "[no key]");
+}
+
 /*
  * The magic "match up to a space" instance name matching ...
  *
@@ -114,10 +132,33 @@ name_eq(entry_t *e, const char *name, int hashlen)
     return -1;
 }
 
+static int
+key_eq(entry_t *e, int keylen, const char *key)
+{
+    const char	*ekp;
+    const char	*kp;
+    int		i;
+
+    if (e->keylen != keylen)
+	return 0;
+
+    ekp = (const char *)e->key;
+    kp = (const char *)key;
+    for (i = 0; i < keylen; i++) {
+	if (*ekp != *kp)
+	    return 0;
+	ekp++;
+	kp++;
+    }
+
+    return 1;
+}
+
 static hdr_t *
 find_cache(pmInDom indom, int *sts)
 {
     hdr_t	*h;
+    int		i;
 
     for (h = base; h != NULL; h = h->next) {
 	if (h->indom == indom)
@@ -143,6 +184,8 @@ find_cache(pmInDom indom, int *sts)
     h->nentry = 0;
     h->ins_mode = 0;
     h->hstate = 0;
+    for (i = 0; i < MAX_HASH_TRY; i++)
+	h->keyhash_cnt[i] = 0;
     return h;
 }
 
@@ -199,6 +242,7 @@ static void
 dump(FILE *fp, hdr_t *h, int do_hash)
 {
     entry_t	*e;
+    int		i;
 
     fprintf(fp, "pmdaCacheDump: indom %s: nentry=%d ins_mode=%d hstate=%d hsize=%d\n",
 	pmInDomStr(h->indom), h->nentry, h->ins_mode, h->hstate, h->hsize);
@@ -212,11 +256,33 @@ dump(FILE *fp, hdr_t *h, int do_hash)
 		e->private, e->name);
 	    if (strlen(e->name) > e->hashlen)
 		fprintf(fp, " [match len=%d]", e->hashlen);
+	    if (e->keylen > 0) {
+		fputc(' ', fp);
+		KeyStr(fp, e->keylen, (const char *)e->key);
+	    }
 	    fputc('\n', fp);
 	}
     }
+
     if (do_hash == 0)
 	return;
+
+    for (i = 0; i < MAX_HASH_TRY; i++) {
+	if (h->keyhash_cnt[i])
+	    break;
+    }
+
+    if (i < MAX_HASH_TRY) {
+	fprintf(fp, "pmdaCacheStoreKey hash stats ...\n");
+	for (i = 0; i < MAX_HASH_TRY; i++) {
+	    if (h->keyhash_cnt[i] != 0) {
+		if (i == 0)
+		    fprintf(fp, "hash once: %d times\n", h->keyhash_cnt[i]);
+		else
+		    fprintf(fp, "%d hash attempts: %d times\n", i+1, h->keyhash_cnt[i]);
+	    }
+	}
+    }
 
     if (h->ctl_inst != NULL) {
 	int	i;
@@ -474,7 +540,7 @@ reorder:
  * unused inst value.
  *
  * If inst is _not_ PM_IN_NULL, we're being called from load_cache
- * or pmdaCacheStoreInst() and the inst is known ... so we need to
+ * or pmdaCacheStoreKey() and the inst is known ... so we need to
  * check for possible duplicate entries.
  */
 static entry_t *
@@ -502,13 +568,26 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
 	 */
 	e = find_entry(h, NULL, inst, sts);
 	if (e != NULL) {
-	    if (name_eq(e, name, hashlen) != 1)
+	    if (name_eq(e, name, hashlen) != 1) {
 		/* instance id the same, different name */
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_INDOM) {
+		    fprintf(stderr, "pmdaCache: store: indom %s: instance %d ", pmInDomStr(h->indom), e->inst);
+		    fprintf(stderr, " in cache, name \"%s\" does not match new entry \"%s\"\n", e->name, name);
+		}
+#endif
 		*sts = PM_ERR_INST;
+	    }
 	    return e;
 	}
 	e = find_entry(h, name, PM_IN_NULL, sts);
 	if (e != NULL) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_INDOM) {
+		fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance \"%s\"", pmInDomStr(h->indom), e->name);
+		fprintf(stderr, " in cache, id %d does not match new entry %d\n", e->inst, inst);
+	    }
+#endif
 	    *sts = PM_ERR_INST;
 	    return e;
 	}
@@ -589,6 +668,7 @@ retry:
     e->inst = inst;
     e->name = dup;
     e->hashlen = get_hashlen(dup);
+    e->key = NULL;
     e->state = PMDA_CACHE_INACTIVE;
     e->private = NULL;
     e->stamp = 0;
@@ -628,6 +708,8 @@ load_cache(hdr_t *h)
     int		cnt;
     int		x;
     int		inst;
+    int		keylen;
+    void	*key;
     int		s;
     char	buf[1024];	/* input line buffer, is this big enough? */
     char	*p;
@@ -682,6 +764,41 @@ load_cache(hdr_t *h)
 	}
 	while (*p && isascii((int)*p) && isspace((int)*p))
 	    p++;
+	if (*p == '[') {
+	    char	*pend;
+	    char	*q;
+	    int		i;
+	    int		tmp;
+	    p++;
+	    pend = p;
+	    while (*pend && *pend != ']')
+		pend++;
+	    if (*pend != ']')
+		goto bad;
+	    /*
+	     * convert key in place ...
+	     */
+	    keylen = (pend - p) / 2;
+	    if ((key = malloc(keylen)) == NULL) {
+		__pmNotifyErr(LOG_ERR, 
+		     "load_cache: indom %s: unable to allocate memory for keylen=%d",
+		     pmInDomStr(h->indom), keylen);
+		return PM_ERR_GENERIC;
+	    }
+	    q = key;
+	    for (i = 0; i < keylen; i++) {
+		sscanf(p, "%2x", &tmp);
+		*q++ = (tmp & 0xff);
+		p += 2;
+	    }
+	    p += 2;
+	    while (*p && isascii((int)*p) && isspace((int)*p))
+		p++;
+	}
+	else {
+	    keylen = 0;
+	    key = NULL;
+	}
 	if (*p == '\0') {
 bad:
 	    __pmNotifyErr(LOG_ERR, 
@@ -697,6 +814,8 @@ bad:
 		"pmdaCacheOp: %s: loading instance %d (\"%s\") ignored, already in cache as %d (\"%s\")",
 		filename, inst, p, e->inst, e->name);
 	}
+	e->keylen = keylen;
+	e->key = key;
 	e->stamp = x;
     }
     fclose(fp);
@@ -745,7 +864,16 @@ save_cache(hdr_t *h, int hstate)
 	    continue;
 	if (e->stamp == 0)
 	    e->stamp = now;
-	fprintf(fp, "%d %d %s\n", e->inst, (int)e->stamp, e->name);
+	fprintf(fp, "%d %d", e->inst, (int)e->stamp);
+	if (e->keylen > 0) {
+	    char	*p = (char *)e->key;
+	    int		i;
+	    fprintf(fp, " [");
+	    for (i = 0; i < e->keylen; i++, p++)
+		fprintf(fp, "%02x", (*p & 0xff));
+	    fputc(']', fp);
+	}
+	fprintf(fp, " %s\n", e->name);
 	cnt++;
     }
     fclose(fp);
@@ -787,22 +915,28 @@ __pmdaCacheDump(FILE *fp, pmInDom indom, int do_hash)
 }
 
 static int
-store(pmInDom indom, int flags, const char *name, pmInDom inst, void *private)
+store(pmInDom indom, int flags, const char *name, pmInDom inst, int keylen, const char *key, void *private)
 {
     hdr_t	*h;
     entry_t	*e;
     int		sts;
-
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
 
     if ((h = find_cache(indom, &sts)) == NULL)
 	return sts;
 
     if ((e = find_entry(h, name, inst, &sts)) == NULL) {
 
-	if (flags != PMDA_CACHE_ADD)
+	if (flags != PMDA_CACHE_ADD) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_INDOM) {
+		fprintf(stderr, "pmdaCache store: indom %s: instance \"%s\"", pmInDomStr(indom), name);
+		if (inst != PM_IN_NULL)
+		    fprintf(stderr, " (%d)", inst);
+		fprintf(stderr, " not in cache: flags=%d not allowed\n", flags);
+	    }
+#endif
 	    return PM_ERR_INST;
+	}
 
 	if ((e = insert_cache(h, name, inst, &sts)) == NULL)
 	    return sts;
@@ -821,6 +955,18 @@ store(pmInDom indom, int flags, const char *name, pmInDom inst, void *private)
 
     switch (flags) {
 	case PMDA_CACHE_ADD:
+	    e->keylen = keylen;
+	    if (keylen > 0) {
+		if ((e->key = malloc(keylen)) == NULL) {
+		    __pmNotifyErr(LOG_ERR, 
+			 "store: indom %s: unable to allocate memory for keylen=%d",
+			 pmInDomStr(indom), keylen);
+		    return PM_ERR_GENERIC;
+		}
+		memcpy(e->key, key, keylen);
+	    }
+	    else
+		e->key = NULL;
 	    e->state = PMDA_CACHE_ACTIVE;
 	    e->private = private;
 	    e->stamp = 0;		/* flag, updated at next cache_save() */
@@ -854,20 +1000,18 @@ pmdaCacheStore(pmInDom indom, int flags, const char *name, void *private)
     if (indom == PM_INDOM_NULL)
 	return PM_ERR_INDOM;
 
-    return store(indom, flags, name, PM_IN_NULL, private);
+    return store(indom, flags, name, PM_IN_NULL, 0, NULL, private);
 }
 
 /*
- * generate a new 31-bit (positive) instance number from a one or more
- * 32-bit components ... useful for compressing natural 64-bit or larger
+ * Generate a new 31-bit (positive) instance number from a key provided
+ * as a ``hint'' via key[] (first keylen bytes) or name[] if keylen < 1
+ * or key == NULL ... useful for compressing natural 64-bit or larger
  * instance identifiers into the 31-bits required for the PCP APIs
  * and PDUs.
  */
-#ifdef DESPERATE
-static int	hash_cnt[10];
-#endif
 int
-pmdaCacheStoreInst(pmInDom indom, int flags, const char *name, int numkey, int *keybuf, void *private)
+pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const void *key, void *private)
 {
     int		inst;
     int		sts;
@@ -875,57 +1019,119 @@ pmdaCacheStoreInst(pmInDom indom, int flags, const char *name, int numkey, int *
     __uint32_t	try = 0;
     hdr_t	*h;
     entry_t	*e;
-    char	*key;
-    int		keylen;
-
-#ifdef DESPERATE
-    if (indom == PM_INDOM_NULL && numkey == 0 && keybuf == NULL) {
-	printf("pmdaCacheStoreInst hash stats ...\n");
-	for (i = 0; i < 10; i++) {
-	    if (hash_cnt[i] != 0) {
-		if (i == 0)
-		    printf("hash once: %d times\n", hash_cnt[i]);
-		else
-		    printf("%d hash attempts: %d times\n", i+1, hash_cnt[i]);
-	    }
-	}
-	return PM_ERR_GENERIC;
-    }
-#endif
+    const char	*mykey;
+    int		mykeylen;
 
     if (indom == PM_INDOM_NULL)
 	return PM_ERR_INDOM;
 
+    if (flags != PMDA_CACHE_ADD)
+	return store(indom, flags, name, PM_IN_NULL, 0, NULL, private);
+
+    /*
+     * This is the PMDA_CACHE_ADD case, so need to find an instance id
+     */
     if ((h = find_cache(indom, &sts)) == NULL)
 	return sts;
 
-    if (numkey < 1 || keybuf == NULL) {
+    if (keylen < 1 || key == NULL) {
 	/* use name[] instead of keybuf[] */
-	key = (char *)name;
-	keylen = strlen(name);
+	mykey = (const char *)name;
+	mykeylen = strlen(name);
     }
     else {
-	key = (char *)keybuf;
-	keylen = (int)(numkey*sizeof(int));
+	mykey = key;
+	mykeylen = keylen;
     }
 
-    for (i = 0; i < 10; i++) {
-	try = hash(key, keylen, try);
-	/* strip top bit ... instance id must be positive */
-	inst = try & ~(1 << (8*sizeof(__uint32_t)-1));
-	e = find_entry(h, NULL, inst, &sts);
-	if (e == NULL) {
-#ifdef DESPERATE
-	    hash_cnt[i]++;
+    if ((e = find_entry(h, name, PM_IN_NULL, &sts)) != NULL) {
+	/*
+	 * cache entry already exists for this name ...
+	 * if keys are not equal => failure
+	 */
+	if (key_eq(e, mykeylen, mykey) == 0) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_INDOM) {
+		fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance \"%s\" (%d) in cache ", pmInDomStr(indom), e->name, e->inst);
+		KeyStr(stderr, e->keylen, (const char *)e->key);
+		fprintf(stderr, " does not match new entry ");
+		KeyStr(stderr, mykeylen, mykey);
+		fputc('\n', stderr);
+	    }
 #endif
-	    break;
+	    return PM_ERR_INST;
 	}
+	/* keys the same, use inst from existing entry */
+	inst = e->inst;
     }
-    if (i == 10)
-	/* failed after 10 rehash attempts ... */
-	return PM_ERR_INST;
+    else {
+	/* we're in the inst guessing game ... */
+	for (i = 0; i < MAX_HASH_TRY; i++) {
+	    try = hash(mykey, mykeylen, try);
+	    /* strip top bit ... instance id must be positive */
+	    inst = try & ~(1 << (8*sizeof(__uint32_t)-1));
+	    e = find_entry(h, NULL, inst, &sts);
+	    if (e == NULL) {
+		h->keyhash_cnt[i]++;
+		break;
+	    }
+	    /*
+	     * Found matching entry using the guessed inst ...
+	     *
+	     * If the key[]s are the same and the name[]s are the same
+	     * then the matching entry is already in the cache, so use
+	     * this instance identifier.
+	     *
+	     * If the key[]s match, but the name[]s are different, this
+	     * is an error (duplicate instance name).
+	     *
+	     * If the names[] match, but the key[]s are different, this
+	     * is an error (duplicate key).
+	     *
+	     * Otherwise instance id is in use for another instance, so
+	     * keep trying by rehashing.
+	     */
+	    if (strcmp(e->name, name) == 0) {
+		if (key_eq(e, mykeylen, mykey) == 1)
+		    break;
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_INDOM) {
+		    fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance \"%s\" (%d) in cache, ", pmInDomStr(indom), e->name, e->inst);
+		    KeyStr(stderr, e->keylen, (const char *)e->key);
+		    fprintf(stderr, " does not match new entry ");
+		    KeyStr(stderr, mykeylen, mykey);
+		    fputc('\n', stderr);
+		}
+#endif
+		return PM_ERR_INST;
+	    }
+	    else if (key_eq(e, mykeylen, mykey) == 1) {
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_INDOM) {
+		    fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance %d ", pmInDomStr(indom), e->inst);
+		    KeyStr(stderr, e->keylen, (const char *)e->key);
+		    fprintf(stderr, " in cache, name \"%s\" does not match new entry \"%s\"\n", e->name, name);
+		}
+#endif
+		return PM_ERR_INST;
+	    }
+	}
+	if (i == MAX_HASH_TRY) {
+	    /* failed after MAX_HASH_TRY rehash attempts ... */
+	    __pmNotifyErr(LOG_ERR, 
+		 "pmdaCacheStoreKey: indom %s: unable allocate a new id for instance \"%s\" based on a key of %d bytes\n",
+		 pmInDomStr(h->indom), name, keylen);
+	    return PM_ERR_GENERIC;
+	}
 
-    return store(indom, flags, name, inst, private);
+	/*
+	 * when using key[] or name[] as a hint, we permanently change
+	 * to PMDA_CACHE_REUSE mode
+	 */
+	h->ins_mode = 1;
+    }
+
+    return store(indom, flags, name, inst, mykeylen, mykey, private);
 }
 
 int pmdaCacheOp(pmInDom indom, int op)
@@ -1032,6 +1238,10 @@ int pmdaCacheOp(pmInDom indom, int op)
 	    return -1;
 
 	case PMDA_CACHE_DUMP:
+	    dump(stderr, h, 0);
+	    return 0;
+
+	case PMDA_CACHE_DUMP_ALL:
 	    dump(stderr, h, 1);
 	    return 0;
 
@@ -1089,6 +1299,60 @@ int pmdaCacheLookup(pmInDom indom, int inst, char **name, void **private)
 	*private = e->private;
 
     return e->state;
+}
+
+int pmdaCacheLookupKey(pmInDom indom, const char *name, int keylen, const void *key, char **oname, int *inst, void **private)
+{
+    hdr_t	*h;
+    entry_t	*e;
+    int		sts;
+    const char	*mykey;
+    int		mykeylen;
+
+    if (indom == PM_INDOM_NULL)
+	return PM_ERR_INDOM;
+
+    if ((h = find_cache(indom, &sts)) == NULL)
+	return sts;
+
+    if (keylen < 1 || key == NULL) {
+	/* use name[] instead of keybuf[] */
+	mykey = (const char *)name;
+	mykeylen = strlen(name);
+    }
+    else {
+	mykey = key;
+	mykeylen = keylen;
+    }
+
+    /*
+     * No hash list for key[]s ... have to walk the cache.
+     * pmdaCacheStoreKey() ensures the key[]s are unique, so first match
+     * wins.
+     */
+    walk_cache(h, PMDA_CACHE_WALK_REWIND);
+    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+	if (e->state == PMDA_CACHE_EMPTY)
+	    continue;
+	if (key_eq(e, mykeylen, mykey) == 1) {
+	    if (oname != NULL)
+		*oname = e->name;
+	    if (inst != NULL)
+		*inst = e->inst;
+	    if (private != NULL)
+		*private = e->private;
+	    return e->state;
+	}
+    }
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_INDOM) {
+	    fprintf(stderr, "pmdaCacheLookupKey: indom %s: ", pmInDomStr(h->indom));
+	    KeyStr(stderr, mykeylen, mykey);
+	    fprintf(stderr, ": no matching key in cache\n");
+	}
+#endif
+    return PM_ERR_INST;
 }
 
 int pmdaCachePurge(pmInDom indom, time_t recent)
