@@ -265,6 +265,7 @@ do_indom(void)
     int		sts;
     int		i;
     int		j;
+    int		need_alloc = 0;
 
     out_offset = ftell(outarch.logctl.l_mdfp);
     _pmUnpackInDom(inarch.metarec, &indom, &stamp, &numinst, &instlist, &inamelist);
@@ -296,18 +297,47 @@ do_indom(void)
 		    inamelist[j-1] = inamelist[j];
 		    j++;
 		}
+		need_alloc = 1;
 		numinst--;
 	    }
 	    else {
 		if (ip->flags[i] & INST_CHANGE_INST)
 		    instlist[j] = ip->new_inst[i];
-		if (ip->flags[i] & INST_CHANGE_INAME)
+		if (ip->flags[i] & INST_CHANGE_INAME) {
 		    inamelist[j] = ip->new_iname[i];
+		    need_alloc = 1;
+		}
 #if PCP_DEBUG
 		if ((ip->flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) && (pmDebug & DBG_TRACE_APPL1))
 		    fprintf(stderr, "Rewrite: instance %s (%d) -> %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], ip->new_iname[i], ip->new_inst[i], pmInDomStr(ip->old_indom));
 #endif
 	    }
+	}
+    }
+
+    if (need_alloc) {
+	/*
+	 * __pmLogPutInDom assumes the elements of inamelist[] point into
+	 * of a contiguous allocation starting at inamelist[0] ... if we've
+	 * changed an instance name or moved instance names about, then we
+	 * need to reallocate the strings for inamelist[]
+	 */
+	int	need = 0;
+	char	*new;
+	char	*p;
+
+	for (j = 0; j < numinst; j++)
+	    need += strlen(inamelist[j]) + 1;
+	new = (char *)malloc(need);
+	if (new == NULL) {
+	    fprintf(stderr, "inamelist[] malloc(%d) failed: %s\n", need, strerror(errno));
+	    exit(1);
+	}
+	p = new;
+	for (j = 0; j < numinst; j++) {
+	    strcpy(p, inamelist[j]);
+	    inamelist[j] = p;
+	    p += strlen(p) + 1;
 	}
     }
 
@@ -323,5 +353,7 @@ do_indom(void)
 #endif
 
     free(instlist);
+    if (need_alloc)
+	free(inamelist[0]);
     free(inamelist);
 }

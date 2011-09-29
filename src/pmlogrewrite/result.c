@@ -23,6 +23,45 @@
 #define MAGIC PM_VAL_HDR_SIZE + sizeof(__int64_t)
 
 /*
+ * Keep track of pmValueBlocks allocated from __pmStuffValue() during
+ * rewriting.
+ */
+static pmValueBlock	**new_pvb = NULL;
+static int		num_new_pvb = 0;
+static int		next_new_pvb = 0;
+
+static void
+add_pvb(pmValueBlock *pvb)
+{
+    if (next_new_pvb == num_new_pvb) {
+	if (num_new_pvb == 0)
+	    num_new_pvb = 64;
+	else
+	    num_new_pvb *= 2;
+	new_pvb = (pmValueBlock **)realloc(new_pvb, num_new_pvb * sizeof(new_pvb[0]));
+	if (new_pvb == NULL) {
+	    fprintf(stderr, "new_pvb realloc(...,%d) failed: %s\n", (int)(num_new_pvb * sizeof(new_pvb[0])), strerror(errno));
+	    exit(1);
+	}
+    }
+    new_pvb[next_new_pvb++] = pvb;
+}
+
+static void
+clean_pvb(void)
+{
+    if (next_new_pvb > 0) {
+	while (--next_new_pvb >= 0) {
+	    if (new_pvb[next_new_pvb]->vlen == MAGIC)
+		__pmPoolFree(new_pvb[next_new_pvb], MAGIC);
+	    else
+		free(new_pvb[next_new_pvb]);
+	}
+	next_new_pvb = 0;
+    }
+}
+
+/*
  * pick/calculate one value from multiple values for the ith vset[] ...
  */
 static int
@@ -182,6 +221,7 @@ rescale(int i, metricspec_t *mp)
     pmAtomValue	oval;
     int		old_valfmt = inarch.rp->vset[i]->valfmt;
 
+    sts = old_valfmt;
     for (j = 0; j < inarch.rp->vset[i]->numval; j++) {
 	sts = pmExtractValue(old_valfmt, &inarch.rp->vset[i]->vlist[j], mp->old_desc.type, &ival, mp->old_desc.type);
 	if (sts < 0) {
@@ -228,9 +268,12 @@ rescale(int i, metricspec_t *mp)
 	    abandon();
 	    exit(1);
 	}
-	if (j == 0)
-	    inarch.rp->vset[i]->valfmt = sts;
+	if (sts == PM_VAL_DPTR) {
+// TODO printf("rescale stuff -> %p (%d) %d %d \n", inarch.rp->vset[i]->vlist[j].value.pval, inarch.rp->vset[i]->vlist[j].value.pval->vtype, inarch.rp->vset[i]->vlist[j].value.pval->vlen, sts);
+	    add_pvb(inarch.rp->vset[i]->vlist[j].value.pval);
+	}
     }
+    inarch.rp->vset[i]->valfmt = sts;
 }
 
 /*
@@ -246,6 +289,7 @@ retype(int i, metricspec_t *mp)
     pmAtomValue	val;
     int		old_valfmt = inarch.rp->vset[i]->valfmt;
 
+    sts = old_valfmt;
     for (j = 0; j < inarch.rp->vset[i]->numval; j++) {
 	sts = pmExtractValue(old_valfmt, &inarch.rp->vset[i]->vlist[j], mp->old_desc.type, &val, mp->new_desc.type);
 	if (sts < 0) {
@@ -276,9 +320,12 @@ retype(int i, metricspec_t *mp)
 	    abandon();
 	    exit(1);
 	}
-	if (j == 0)
-	    inarch.rp->vset[i]->valfmt = sts;
+	if (sts == PM_VAL_DPTR) {
+// TODO printf("retype stuff -> %p (%d) %d %d \n", inarch.rp->vset[i]->vlist[j].value.pval, inarch.rp->vset[i]->vlist[j].value.pval->vtype, inarch.rp->vset[i]->vlist[j].value.pval->vlen, sts);
+	    add_pvb(inarch.rp->vset[i]->vlist[j].value.pval);
+	}
     }
+    inarch.rp->vset[i]->valfmt = sts;
 }
 
 void
@@ -454,5 +501,12 @@ do_result(void)
 	    inarch.rp->vset[j]->numval = orig_numval[j];
 	free(orig_numval);
     }
+
+    /*
+     * inarch.rp contains pmValueBlock pointers into underlying PDU
+     * buffer ... new_pvb[] keeps track of any new ones created by
+     * rewriting
+     */
+    clean_pvb();
     pmFreeResult(inarch.rp);
 }

@@ -149,7 +149,7 @@ again:
 		fprintf(stderr, "\n%03d: ", j);
 		i = 0;
 	    }
-	    fprintf(stderr, "0x%x ", lpb[j]);
+	    fprintf(stderr, "%08x ", lpb[j]);
 	    i++;
 	}
 	fputc('\n', stderr);
