@@ -55,6 +55,8 @@ do
     echo "$cmds" | tr ';' '\012' >>$tmp.cmd
     rm -f $tmp.log
     dbpmda -ei <$tmp.cmd 2>&1 | _filter
+    # let daemon PMDA exit and flush stdio buffer to $tmp.log
+    sleep 2
     _filter <$tmp.log \
     | _filter_dumpresult
 
