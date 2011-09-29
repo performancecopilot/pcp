@@ -1,0 +1,1047 @@
+QA output created by 490
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -c TMP.conf src-oss/rattle TMP.new
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -1,18 +1,18 @@
+-Note: timezone set to local timezone of host "rattle" from archive
++Note: timezone set to local timezone of host "whizz-bang.engr.sgi.com" from archive
+ 
+ Log Label (Log Format Version 2)
+-Performance metrics from host rattle
+-  commencing Sat May 17 22:22:42.025 1997
+-  ending     Mon May 19 11:22:42.021 1997
++Performance metrics from host whizz-bang.engr.sgi.com
++  commencing Sat May 17 01:23:12.025 1997
++  ending     Sun May 18 14:23:12.021 1997
+ 
+ Descriptions for Metrics in the Log ...
+-PMID: 1.18.3 (irix.kernel.all.load)
+-    Data Type: float  InDom: 1.5 0x400005
++PMID: 42.18.3 (load)
++    Data Type: double  InDom: 42.10 0xa80000a
+     Semantics: instant  Units: none
+-PMID: 1.18.2 (hinv.ncpu)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++PMID: 42.18.2 (hinv.number_of_cpus)
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+-PMID: 1.26.7 (hinv.ndisk)
++PMID: 42.26.7 (hinv.ndisk)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+@@ -26,98 +26,99 @@
+     Semantics: instant  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 1.5
+-23:22:42.011 3 instances
+-                 1 or "1 minute"
++InDom: 42.10
++02:23:12.011 3 instances
++                 1 or "1 minute is not very long unlike this string"
+                  5 or "5 minute"
+-                 15 or "15 minute"
++                 9999 or "forever"
+ InDom: 2.1
+-22:22:42.025 1 instances
++01:23:12.025 1 instances
+                  19856 or "19856"
+ 
+ Temporal Index
+              Log Vol    end(meta)     end(log)
+-22:22:42.025       0          132          132
+-22:22:42.060       0          351          284
+-23:22:42.011       0          450          344
++01:23:12.025       0          132          132
++01:23:12.060       0          351          284
++02:23:12.011       0          460          356
++14:23:12.021       0          618         2228
+ 
+-22:22:42.025  2.3.3 (pmcd.pmlogger.host): inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
++01:23:12.025  2.3.3 (pmcd.pmlogger.host): inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [19856 or "19856"] value 4331
+               2.3.2 (pmcd.pmlogger.archive): inst [19856 or "19856"] value "/var/adm/pcplog/rattle/970517.22.22"
+ 
+-22:22:42.060  1.26.7 (hinv.ndisk): value 2
+-              1.18.2 (hinv.ncpu): value 1
++01:23:12.060  42.26.7 (hinv.ndisk): value 2
++              42.18.2 (hinv.number_of_cpus): value 1
+ 
+-23:22:42.011  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++02:23:12.011  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-00:22:42.011  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++03:23:12.011  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-01:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++04:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-02:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++05:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-03:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.013671875
++06:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0.013671875
+ 
+-04:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.01953125
++07:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0.01953125
+ 
+-05:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
++08:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 1
+ 
+-06:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2
++09:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 2
+ 
+-07:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++10:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-08:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++11:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-09:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.043945312
++12:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0.0439453125
+ 
+-10:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.015625
++13:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0.015625
+ 
+-11:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++14:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-12:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++15:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-13:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++16:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-14:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++17:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-15:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++18:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-16:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
++19:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 1
+ 
+-17:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++20:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-18:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++21:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-19:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++22:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-20:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.025390625
++23:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0.025390625
+ 
+-21:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2.0019531
++00:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 2.001953125
+ 
+-22:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
++01:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 1
+ 
+-23:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
++02:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 1
+ 
+-00:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2
++03:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 2
+ 
+-01:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.01171875
++04:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0.01171875
+ 
+-02:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.0087890625
++05:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0.0087890625
+ 
+-03:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++06:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-04:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2
++07:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 2
+ 
+-05:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++08:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-06:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2.9785156
++09:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 2.978515625
+ 
+-07:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++10:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-08:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++11:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-09:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++12:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-10:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
++13:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
+ 
+-11:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.032226562
++14:23:12.021  42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0.0322265625
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -c TMP.conf src-oss/sample_expr TMP.new
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -37,7 +37,7 @@
+     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: byte / hour
+ PMID: 29.0.38 (sample.mirage_longlong)
+-    Data Type: 64-bit int  InDom: 29.3 0x7400003
++    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: byte / millisec
+ PMID: 29.0.68 (sample.scale_step.count_down)
+     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+@@ -46,8 +46,8 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+ PMID: 29.0.69 (sample.scale_step.time_up_secs)
+-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: instant  Units: sec
++    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
++    Semantics: instant  Units: millisec
+ PMID: 2.3.3 (pmcd.pmlogger.host)
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+@@ -74,7 +74,7 @@
+              Log Vol    end(meta)     end(log)
+ 21:58:59.005       0          132          132
+ 21:58:59.505       0          350          284
+-21:59:04.005       0         1305         5432
++21:59:04.005       0         1305         4028
+ 
+ 21:58:59.005  2.3.3 (pmcd.pmlogger.host): inst [3931 or "3931"] value "bozo.localdomain"
+               2.3.0 (pmcd.pmlogger.port): inst [3931 or "3931"] value 4331
+@@ -91,15 +91,7 @@
+               29.0.67 (sample.scale_step.count_up): value 1
+               29.0.66 (sample.scale_step.bytes_down): value 1
+               29.0.65 (sample.scale_step.bytes_up): value 1
+-              29.0.38 (sample.mirage_longlong):
+-                inst [0 or "m-00"] value 34000000
+-                inst [46 or "m-46"] value 4633000000
+-                inst [47 or "m-47"] value 4732000000
+-                inst [10 or "m-10"] value 1031000000
+-                inst [15 or "m-15"] value 1530000000
+-                inst [16 or "m-16"] value 1629000000
+-                inst [17 or "m-17"] value 1728000000
+-                inst [18 or "m-18"] value 1827000000
++              29.0.38 (sample.mirage_longlong): value 34000000
+               29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 26
+                 inst [46 or "m-46"] value 4625
+@@ -121,15 +113,7 @@
+               29.0.67 (sample.scale_step.count_up): value 1
+               29.0.66 (sample.scale_step.bytes_down): value 1
+               29.0.65 (sample.scale_step.bytes_up): value 1
+-              29.0.38 (sample.mirage_longlong):
+-                inst [0 or "m-00"] value 18000000
+-                inst [46 or "m-46"] value 4617000000
+-                inst [47 or "m-47"] value 4716000000
+-                inst [10 or "m-10"] value 1015000000
+-                inst [15 or "m-15"] value 1514000000
+-                inst [16 or "m-16"] value 1613000000
+-                inst [17 or "m-17"] value 1712000000
+-                inst [18 or "m-18"] value 1811000000
++              29.0.38 (sample.mirage_longlong): value 18000000
+               29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 10
+                 inst [46 or "m-46"] value 4609
+@@ -151,15 +135,7 @@
+               29.0.67 (sample.scale_step.count_up): value 1
+               29.0.66 (sample.scale_step.bytes_down): value 1
+               29.0.65 (sample.scale_step.bytes_up): value 1
+-              29.0.38 (sample.mirage_longlong):
+-                inst [0 or "m-00"] value 2000000
+-                inst [46 or "m-46"] value 4601000000
+-                inst [47 or "m-47"] value 4800000000
+-                inst [10 or "m-10"] value 1099000000
+-                inst [15 or "m-15"] value 1598000000
+-                inst [16 or "m-16"] value 1697000000
+-                inst [17 or "m-17"] value 1796000000
+-                inst [18 or "m-18"] value 1895000000
++              29.0.38 (sample.mirage_longlong): value 2000000
+               29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 94
+                 inst [46 or "m-46"] value 4693
+@@ -181,15 +157,7 @@
+               29.0.67 (sample.scale_step.count_up): value 1
+               29.0.66 (sample.scale_step.bytes_down): value 1
+               29.0.65 (sample.scale_step.bytes_up): value 1
+-              29.0.38 (sample.mirage_longlong):
+-                inst [0 or "m-00"] value 86000000
+-                inst [46 or "m-46"] value 4685000000
+-                inst [47 or "m-47"] value 4784000000
+-                inst [10 or "m-10"] value 1083000000
+-                inst [15 or "m-15"] value 1582000000
+-                inst [16 or "m-16"] value 1681000000
+-                inst [17 or "m-17"] value 1780000000
+-                inst [18 or "m-18"] value 1879000000
++              29.0.38 (sample.mirage_longlong): value 86000000
+               29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 78
+                 inst [46 or "m-46"] value 4677
+@@ -211,15 +179,7 @@
+               29.0.67 (sample.scale_step.count_up): value 10
+               29.0.66 (sample.scale_step.bytes_down): value 1099511627776
+               29.0.65 (sample.scale_step.bytes_up): value 2
+-              29.0.38 (sample.mirage_longlong):
+-                inst [0 or "m-00"] value 70000000
+-                inst [46 or "m-46"] value 4669000000
+-                inst [47 or "m-47"] value 4768000000
+-                inst [10 or "m-10"] value 1067000000
+-                inst [15 or "m-15"] value 1566000000
+-                inst [16 or "m-16"] value 1665000000
+-                inst [17 or "m-17"] value 1764000000
+-                inst [18 or "m-18"] value 1863000000
++              29.0.38 (sample.mirage_longlong): value 70000000
+               29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 62
+                 inst [46 or "m-46"] value 4661
+@@ -241,15 +201,7 @@
+               29.0.67 (sample.scale_step.count_up): value 10
+               29.0.66 (sample.scale_step.bytes_down): value 1099511627776
+               29.0.65 (sample.scale_step.bytes_up): value 2
+-              29.0.38 (sample.mirage_longlong):
+-                inst [0 or "m-00"] value 54000000
+-                inst [46 or "m-46"] value 4653000000
+-                inst [47 or "m-47"] value 4752000000
+-                inst [10 or "m-10"] value 1051000000
+-                inst [15 or "m-15"] value 1550000000
+-                inst [16 or "m-16"] value 1649000000
+-                inst [17 or "m-17"] value 1748000000
+-                inst [18 or "m-18"] value 1847000000
++              29.0.38 (sample.mirage_longlong): value 54000000
+               29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 46
+                 inst [46 or "m-46"] value 4645
+@@ -271,15 +223,7 @@
+               29.0.67 (sample.scale_step.count_up): value 10
+               29.0.66 (sample.scale_step.bytes_down): value 1099511627776
+               29.0.65 (sample.scale_step.bytes_up): value 2
+-              29.0.38 (sample.mirage_longlong):
+-                inst [0 or "m-00"] value 38000000
+-                inst [46 or "m-46"] value 4637000000
+-                inst [47 or "m-47"] value 4736000000
+-                inst [10 or "m-10"] value 1035000000
+-                inst [15 or "m-15"] value 1534000000
+-                inst [16 or "m-16"] value 1633000000
+-                inst [17 or "m-17"] value 1732000000
+-                inst [18 or "m-18"] value 1831000000
++              29.0.38 (sample.mirage_longlong): value 38000000
+               29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 30
+                 inst [46 or "m-46"] value 4629
+@@ -301,15 +245,7 @@
+               29.0.67 (sample.scale_step.count_up): value 10
+               29.0.66 (sample.scale_step.bytes_down): value 1099511627776
+               29.0.65 (sample.scale_step.bytes_up): value 2
+-              29.0.38 (sample.mirage_longlong):
+-                inst [0 or "m-00"] value 22000000
+-                inst [46 or "m-46"] value 4621000000
+-                inst [47 or "m-47"] value 4720000000
+-                inst [10 or "m-10"] value 1019000000
+-                inst [15 or "m-15"] value 1518000000
+-                inst [16 or "m-16"] value 1617000000
+-                inst [17 or "m-17"] value 1716000000
+-                inst [18 or "m-18"] value 1815000000
++              29.0.38 (sample.mirage_longlong): value 22000000
+               29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 14
+                 inst [46 or "m-46"] value 4613
+@@ -331,15 +267,7 @@
+               29.0.67 (sample.scale_step.count_up): value 10
+               29.0.66 (sample.scale_step.bytes_down): value 1099511627776
+               29.0.65 (sample.scale_step.bytes_up): value 2
+-              29.0.38 (sample.mirage_longlong):
+-                inst [0 or "m-00"] value 6000000
+-                inst [46 or "m-46"] value 4605000000
+-                inst [47 or "m-47"] value 4704000000
+-                inst [10 or "m-10"] value 1003000000
+-                inst [15 or "m-15"] value 1502000000
+-                inst [16 or "m-16"] value 1601000000
+-                inst [17 or "m-17"] value 1800000000
+-                inst [18 or "m-18"] value 1899000000
++              29.0.38 (sample.mirage_longlong): value 6000000
+               29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 98
+                 inst [46 or "m-46"] value 4697
+@@ -361,15 +289,7 @@
+               29.0.67 (sample.scale_step.count_up): value 100
+               29.0.66 (sample.scale_step.bytes_down): value 549755813888
+               29.0.65 (sample.scale_step.bytes_up): value 4
+-              29.0.38 (sample.mirage_longlong):
+-                inst [0 or "m-00"] value 90000000
+-                inst [46 or "m-46"] value 4689000000
+-                inst [47 or "m-47"] value 4788000000
+-                inst [10 or "m-10"] value 1087000000
+-                inst [15 or "m-15"] value 1586000000
+-                inst [16 or "m-16"] value 1685000000
+-                inst [17 or "m-17"] value 1784000000
+-                inst [18 or "m-18"] value 1883000000
++              29.0.38 (sample.mirage_longlong): value 90000000
+               29.0.37 (sample.mirage):
+                 inst [0 or "m-00"] value 82
+                 inst [46 or "m-46"] value 4681
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -c TMP.conf src-oss/mirage TMP.new
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -6,12 +6,9 @@
+   ending     Tue Feb 25 11:05:07.411 1997
+ 
+ Descriptions for Metrics in the Log ...
+-PMID: 29.0.6 (sample.bin)
++PMID: 29.0.6 (x23456789.sample.bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+-PMID: 29.0.7 (sample.drift)
+-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: instant  Units: none
+ PMID: 29.0.37 (sample.mirage)
+     Data Type: 32-bit int  InDom: 29.3 0x7400003
+     Semantics: instant  Units: Kbyte / sec
+@@ -27,39 +24,30 @@
+ 
+ Instance Domains in the Log ...
+ InDom: 29.2
+-10:46:07.406 9 instances
+-                 100 or "bin-100"
++10:46:07.406 4 instances
+                  200 or "bin-200"
+                  300 or "bin-300"
+-                 400 or "bin-400"
+-                 500 or "bin-500"
+-                 600 or "bin-600"
+                  700 or "bin-700"
+                  800 or "bin-800"
+-                 900 or "bin-900"
+ InDom: 29.3
+-10:46:07.406 5 instances
+-                 0 or "m-00"
++10:46:07.406 4 instances
+                  12 or "m-12"
+                  13 or "m-13"
+                  14 or "m-14"
+                  15 or "m-15"
+-10:47:07.419 5 instances
+-                 0 or "m-00"
++10:47:07.419 4 instances
+                  12 or "m-12"
+                  13 or "m-13"
+                  15 or "m-15"
+                  16 or "m-16"
+-10:48:07.406 7 instances
+-                 0 or "m-00"
++10:48:07.406 6 instances
+                  12 or "m-12"
+                  13 or "m-13"
+                  15 or "m-15"
+                  16 or "m-16"
+                  17 or "m-17"
+                  18 or "m-18"
+-10:49:07.407 8 instances
+-                 0 or "m-00"
++10:49:07.407 7 instances
+                  12 or "m-12"
+                  13 or "m-13"
+                  15 or "m-15"
+@@ -67,8 +55,7 @@
+                  18 or "m-18"
+                  19 or "m-19"
+                  20 or "m-20"
+-10:50:07.407 8 instances
+-                 0 or "m-00"
++10:50:07.407 7 instances
+                  12 or "m-12"
+                  15 or "m-15"
+                  17 or "m-17"
+@@ -76,23 +63,20 @@
+                  19 or "m-19"
+                  20 or "m-20"
+                  21 or "m-21"
+-10:51:07.407 6 instances
+-                 0 or "m-00"
++10:51:07.407 5 instances
+                  15 or "m-15"
+                  17 or "m-17"
+                  18 or "m-18"
+                  19 or "m-19"
+                  21 or "m-21"
+-10:53:07.408 7 instances
+-                 0 or "m-00"
++10:53:07.408 6 instances
+                  15 or "m-15"
+                  17 or "m-17"
+                  18 or "m-18"
+                  19 or "m-19"
+                  21 or "m-21"
+                  22 or "m-22"
+-10:54:07.408 8 instances
+-                 0 or "m-00"
++10:54:07.408 7 instances
+                  15 or "m-15"
+                  17 or "m-17"
+                  18 or "m-18"
+@@ -100,80 +84,67 @@
+                  21 or "m-21"
+                  22 or "m-22"
+                  23 or "m-23"
+-10:55:07.409 7 instances
+-                 0 or "m-00"
++10:55:07.409 6 instances
+                  15 or "m-15"
+                  17 or "m-17"
+                  19 or "m-19"
+                  22 or "m-22"
+                  23 or "m-23"
+                  24 or "m-24"
+-10:56:07.409 6 instances
+-                 0 or "m-00"
++10:56:07.409 5 instances
+                  17 or "m-17"
+                  22 or "m-22"
+                  23 or "m-23"
+                  24 or "m-24"
+                  25 or "m-25"
+-10:57:07.409 5 instances
+-                 0 or "m-00"
++10:57:07.409 4 instances
+                  22 or "m-22"
+                  23 or "m-23"
+                  24 or "m-24"
+                  25 or "m-25"
+-10:58:07.409 5 instances
+-                 0 or "m-00"
++10:58:07.409 4 instances
+                  22 or "m-22"
+                  23 or "m-23"
+                  24 or "m-24"
+                  26 or "m-26"
+-10:59:07.410 7 instances
+-                 0 or "m-00"
++10:59:07.410 6 instances
+                  22 or "m-22"
+                  23 or "m-23"
+                  24 or "m-24"
+                  26 or "m-26"
+                  27 or "m-27"
+                  28 or "m-28"
+-11:00:07.410 6 instances
+-                 0 or "m-00"
++11:00:07.410 5 instances
+                  24 or "m-24"
+                  26 or "m-26"
+                  27 or "m-27"
+                  28 or "m-28"
+                  29 or "m-29"
+-11:01:07.410 5 instances
+-                 0 or "m-00"
++11:01:07.410 4 instances
+                  24 or "m-24"
+                  26 or "m-26"
+                  27 or "m-27"
+                  28 or "m-28"
+-11:02:07.411 5 instances
+-                 0 or "m-00"
++11:02:07.411 4 instances
+                  24 or "m-24"
+                  27 or "m-27"
+                  28 or "m-28"
+                  30 or "m-30"
+-11:03:07.411 6 instances
+-                 0 or "m-00"
++11:03:07.411 5 instances
+                  24 or "m-24"
+                  27 or "m-27"
+                  28 or "m-28"
+                  30 or "m-30"
+                  31 or "m-31"
+-11:04:07.411 6 instances
+-                 0 or "m-00"
++11:04:07.411 4 instances
+                  24 or "m-24"
+                  27 or "m-27"
+                  30 or "m-30"
+                  32 or "m-32"
+-                 33 or "m-33"
+-11:05:07.411 5 instances
+-                 0 or "m-00"
++11:05:07.411 3 instances
+                  24 or "m-24"
+                  27 or "m-27"
+                  30 or "m-30"
+-                 33 or "m-33"
+ InDom: 2.1
+ 10:45:08.440 1 instances
+                  24763 or "24763"
+@@ -182,87 +153,65 @@
+              Log Vol    end(meta)     end(log)
+ 10:45:08.440       0          132          132
+ 10:46:07.406       0          351          288
+-10:47:07.419       0          771          464
+-10:48:07.406       0          864          640
+-10:49:07.407       0          983          832
+-10:50:07.407       0         1115         1032
+-10:51:07.407       0         1247         1232
+-10:53:07.408       0         1353         1600
+-10:54:07.408       0         1472         1792
+-10:55:07.409       0         1604         1992
+-10:56:07.409       0         1723         2184
+-10:57:07.409       0         1829         2368
+-10:58:07.409       0         1922         2544
+-10:59:07.410       0         2015         2720
+-11:00:07.410       0         2134         2912
+-11:01:07.410       0         2240         3096
+-11:02:07.411       0         2333         3272
+-11:03:07.411       0         2426         3448
+-11:04:07.411       0         2532         3632
+-11:05:07.411       0         2638         3816
++10:47:07.419       0          636          396
++10:48:07.406       0          716          504
++10:49:07.407       0          822          628
++10:50:07.407       0          941          760
++10:51:07.407       0         1060          892
++10:53:07.408       0         1153         1124
++10:54:07.408       0         1259         1248
++10:55:07.409       0         1378         1380
++10:56:07.409       0         1484         1504
++10:57:07.409       0         1577         1620
++10:58:07.409       0         1657         1728
++10:59:07.410       0         1737         1836
++11:00:07.410       0         1843         1960
++11:01:07.410       0         1936         2076
++11:02:07.411       0         2016         2184
++11:03:07.411       0         2096         2292
++11:04:07.411       0         2189         2408
++11:05:07.411       0         2269         2516
+ 
+ 10:45:08.440  2.3.3 (pmcd.pmlogger.host): inst [24763 or "24763"] value "gonzo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [24763 or "24763"] value 4332
+               2.3.2 (pmcd.pmlogger.archive): inst [24763 or "24763"] value "/usr/people/kenmcd/isms/pcp/qa/src/mirage"
+ 
+ 10:46:07.406  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 32
+                 inst [12 or "m-12"] value 1231
+                 inst [13 or "m-13"] value 1330
+                 inst [14 or "m-14"] value 1429
+                 inst [15 or "m-15"] value 1528
+-              29.0.7 (sample.drift): value 111
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 10:47:07.419  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 27
+                 inst [12 or "m-12"] value 1226
+                 inst [13 or "m-13"] value 1325
+                 inst [15 or "m-15"] value 1524
+                 inst [16 or "m-16"] value 1623
+-              29.0.7 (sample.drift): value 88
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 10:48:07.406  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 22
+                 inst [12 or "m-12"] value 1221
+                 inst [13 or "m-13"] value 1320
+                 inst [15 or "m-15"] value 1519
+                 inst [16 or "m-16"] value 1618
+                 inst [17 or "m-17"] value 1717
+                 inst [18 or "m-18"] value 1816
+-              29.0.7 (sample.drift): value 83
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 10:49:07.407  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 15
+                 inst [12 or "m-12"] value 1214
+                 inst [13 or "m-13"] value 1313
+                 inst [15 or "m-15"] value 1512
+@@ -270,20 +219,13 @@
+                 inst [18 or "m-18"] value 1810
+                 inst [19 or "m-19"] value 1909
+                 inst [20 or "m-20"] value 2008
+-              29.0.7 (sample.drift): value 58
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 10:50:07.407  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 7
+                 inst [12 or "m-12"] value 1206
+                 inst [15 or "m-15"] value 1505
+                 inst [17 or "m-17"] value 1704
+@@ -291,78 +233,50 @@
+                 inst [19 or "m-19"] value 1902
+                 inst [20 or "m-20"] value 2001
+                 inst [21 or "m-21"] value 2200
+-              29.0.7 (sample.drift): value 26
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 10:51:07.407  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 99
+                 inst [15 or "m-15"] value 1598
+                 inst [17 or "m-17"] value 1797
+                 inst [18 or "m-18"] value 1896
+                 inst [19 or "m-19"] value 1995
+                 inst [21 or "m-21"] value 2194
+-              29.0.7 (sample.drift): value 74
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 10:52:07.407  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 93
+                 inst [15 or "m-15"] value 1592
+                 inst [17 or "m-17"] value 1791
+                 inst [18 or "m-18"] value 1890
+                 inst [19 or "m-19"] value 1989
+                 inst [21 or "m-21"] value 2188
+-              29.0.7 (sample.drift): value 75
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 10:53:07.408  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 87
+                 inst [15 or "m-15"] value 1586
+                 inst [17 or "m-17"] value 1785
+                 inst [18 or "m-18"] value 1884
+                 inst [19 or "m-19"] value 1983
+                 inst [21 or "m-21"] value 2182
+                 inst [22 or "m-22"] value 2281
+-              29.0.7 (sample.drift): value 86
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 10:54:07.408  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 80
+                 inst [15 or "m-15"] value 1579
+                 inst [17 or "m-17"] value 1778
+                 inst [18 or "m-18"] value 1877
+@@ -370,220 +284,135 @@
+                 inst [21 or "m-21"] value 2175
+                 inst [22 or "m-22"] value 2274
+                 inst [23 or "m-23"] value 2373
+-              29.0.7 (sample.drift): value 119
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 10:55:07.409  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 72
+                 inst [15 or "m-15"] value 1571
+                 inst [17 or "m-17"] value 1770
+                 inst [19 or "m-19"] value 1969
+                 inst [22 or "m-22"] value 2268
+                 inst [23 or "m-23"] value 2367
+                 inst [24 or "m-24"] value 2466
+-              29.0.7 (sample.drift): value 150
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 10:56:07.409  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 65
+                 inst [17 or "m-17"] value 1764
+                 inst [22 or "m-22"] value 2263
+                 inst [23 or "m-23"] value 2362
+                 inst [24 or "m-24"] value 2461
+                 inst [25 or "m-25"] value 2560
+-              29.0.7 (sample.drift): value 153
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 10:57:07.409  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 59
+                 inst [22 or "m-22"] value 2258
+                 inst [23 or "m-23"] value 2357
+                 inst [24 or "m-24"] value 2456
+                 inst [25 or "m-25"] value 2555
+-              29.0.7 (sample.drift): value 189
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 10:58:07.409  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 54
+                 inst [22 or "m-22"] value 2253
+                 inst [23 or "m-23"] value 2352
+                 inst [24 or "m-24"] value 2451
+                 inst [26 or "m-26"] value 2650
+-              29.0.7 (sample.drift): value 234
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 10:59:07.410  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 49
+                 inst [22 or "m-22"] value 2248
+                 inst [23 or "m-23"] value 2347
+                 inst [24 or "m-24"] value 2446
+                 inst [26 or "m-26"] value 2645
+                 inst [27 or "m-27"] value 2744
+                 inst [28 or "m-28"] value 2843
+-              29.0.7 (sample.drift): value 282
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 11:00:07.410  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 42
+                 inst [24 or "m-24"] value 2441
+                 inst [26 or "m-26"] value 2640
+                 inst [27 or "m-27"] value 2739
+                 inst [28 or "m-28"] value 2838
+                 inst [29 or "m-29"] value 2937
+-              29.0.7 (sample.drift): value 303
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 11:01:07.410  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 36
+                 inst [24 or "m-24"] value 2435
+                 inst [26 or "m-26"] value 2634
+                 inst [27 or "m-27"] value 2733
+                 inst [28 or "m-28"] value 2832
+-              29.0.7 (sample.drift): value 271
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 11:02:07.411  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 31
+                 inst [24 or "m-24"] value 2430
+                 inst [27 or "m-27"] value 2729
+                 inst [28 or "m-28"] value 2828
+                 inst [30 or "m-30"] value 3027
+-              29.0.7 (sample.drift): value 267
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 11:03:07.411  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 26
+                 inst [24 or "m-24"] value 2425
+                 inst [27 or "m-27"] value 2724
+                 inst [28 or "m-28"] value 2823
+                 inst [30 or "m-30"] value 3022
+                 inst [31 or "m-31"] value 3121
+-              29.0.7 (sample.drift): value 249
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 11:04:07.411  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 20
+                 inst [24 or "m-24"] value 2419
+                 inst [27 or "m-27"] value 2718
+                 inst [30 or "m-30"] value 3017
+                 inst [32 or "m-32"] value 3216
+-                inst [33 or "m-33"] value 3315
+-              29.0.7 (sample.drift): value 242
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900
+ 
+ 11:05:07.411  29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 14
+                 inst [24 or "m-24"] value 2413
+                 inst [27 or "m-27"] value 2712
+                 inst [30 or "m-30"] value 3011
+-                inst [33 or "m-33"] value 3310
+-              29.0.7 (sample.drift): value 208
+-              29.0.6 (sample.bin):
+-                inst [100 or "bin-100"] value 100
++              29.0.6 (x23456789.sample.bin):
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+-                inst [400 or "bin-400"] value 400
+-                inst [500 or "bin-500"] value 500
+-                inst [600 or "bin-600"] value 600
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+-                inst [900 or "bin-900"] value 900

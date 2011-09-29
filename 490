@@ -1,0 +1,107 @@
+#!/bin/sh
+# PCP QA Test No. 490
+# check for mem leaks in pmlogrewrite
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which pmlogrewrite >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun pmlogrewrite not installed
+fi
+
+_check_valgrind
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/"
+}
+
+_cmp()
+{
+    if [ ! -f "$1.0" ]
+    then
+	echo "Arrgh ... $1.0 missing" | _filter
+	return
+    fi
+    if [ ! -f "$2.0" ]
+    then
+	echo "Arrgh ... $2.0 missing" | _filter
+	return
+    fi
+    pmdumplog -z -a $1 | tee -a $seq.full | sed -e '/\[[0-9][0-9]* bytes]/d' >$tmp.in
+    pmdumplog -z -a $2 | tee -a $seq.full | sed -e '/\[[0-9][0-9]* bytes]/d' >$tmp.out
+    echo "pmdumplog diffs ..."
+    diff -u $tmp.in $tmp.out | _filter
+}
+
+# real QA test starts here
+
+cat <<End-of-File >$tmp.conf
+global {
+    hostname -> whizz-bang.engr.sgi.com
+    TZ -> "GMT+10"
+    Time -> +30
+}
+indom 1.5 {
+    indom -> 42.10
+    name "15 minute" -> "forever"
+    name "1 minute" -> "1 minute is not very long unlike this string"
+    inst 15 -> 9999
+}
+metric 1.*.* { pmid -> 42.*.* }
+metric irix.kernel.all.load { name->load type->double }
+metric hinv.ncpu { name->hinv.number_of_cpus type->U64 }
+End-of-File
+rm -f $tmp.new.*
+cat $tmp.conf >>$seq.full
+_run_valgrind pmlogrewrite -c $tmp.conf src-oss/rattle $tmp.new 2>$tmp.err | _filter
+cat $tmp.err >>$seq.full
+_cmp src-oss/rattle $tmp.new
+
+cat <<End-of-File >$tmp.conf
+metric sample.mirage_longlong { type->U32 indom->NULL }
+metric sample.scale_step.time_up_secs { type->FLOAT units->0,1,0,0,MSEC,0 }
+End-of-File
+rm -f $tmp.new.*
+cat $tmp.conf >>$seq.full
+_run_valgrind pmlogrewrite -c $tmp.conf src-oss/sample_expr $tmp.new 2>$tmp.err | _filter
+cat $tmp.err >>$seq.full
+_cmp src-oss/sample_expr $tmp.new
+
+cat <<End-of-File >$tmp.conf
+metric sample.bin { name -> x23456789.sample.bin }
+metric sample.drift { delete }
+indom 29.2 {
+    name "bin-100" -> delete
+    name "bin-400" -> delete
+    name "bin-500" -> delete
+    name "bin-600" -> delete
+    inst 900 -> delete }
+indom 29.3 { name "m-00" -> delete inst 33 -> delete }
+End-of-File
+rm -f $tmp.new.*
+cat $tmp.conf >>$seq.full
+_run_valgrind pmlogrewrite -c $tmp.conf src-oss/mirage $tmp.new 2>$tmp.err | _filter
+cat $tmp.err >>$seq.full
+_cmp src-oss/mirage $tmp.new
+
+# success, all done
+exit
