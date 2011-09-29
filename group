@@ -806,3 +806,4 @@ pmlogrewrite
 488 pmlogrewrite pmdumplog local oss
 489 pmda local oss
 490 pmlogrewrite valgrind local oss
+491 pmda local oss
