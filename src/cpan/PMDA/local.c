@@ -16,6 +16,9 @@
 #include <dirent.h>
 #include <search.h>
 #include <sys/stat.h>
+#ifdef HAVE_PWD_H
+#include <pwd.h>
+#endif
 
 static timers_t *timers;
 static int ntimers;
@@ -44,6 +47,30 @@ local_strdup_prefix(const char *prefix, const char *string)
 	return result;
     sprintf(result, "%s%s", prefix, string);
     return result;
+}
+
+int
+local_user(const char *username)
+{
+#ifdef HAVE_GETPWNAM
+    /* lose root privileges if we have them */
+    struct passwd *pw;
+
+    if ((pw = getpwnam(username)) == 0) {
+	__pmNotifyErr(LOG_WARNING,
+			"cannot find the user %s to switch to\n", username);
+	return -1;
+    }
+    if (setgid(pw->pw_gid) < 0 || setuid(pw->pw_uid) < 0) {
+	__pmNotifyErr(LOG_WARNING,
+			"cannot switch to uid/gid of user %s\n", username);
+	return -1;
+    }
+    return 0;
+#else
+    __pmNotifyErr(LOG_WARNING, "cannot switch to user %s\n", username);
+    return -1;
+#endif
 }
 
 int
