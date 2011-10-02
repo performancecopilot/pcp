@@ -64,6 +64,12 @@ in
 	echo '7s\\.\\FF\\' >$tmp.ex
 	;;
 
+    9)  # Truncated metadata file
+	cp foo.0 badlen-$X.0
+	cp foo.index badlen-$X.index
+	rm -f badlen-$X.meta
+	dd if=foo.meta of=badlen-$X.meta bs=1 count=840
+
 esac
 
 if [ -f $tmp.ex ]

@@ -1,0 +1,51 @@
+QA output created by 492
+=== usage cases ===
+pmlogrewrite: invalid option -- 'x'
+Usage: pmlogrewrite [options] input-archive output-archive
+
+Options:
+  -c configfile  file to load config from
+  -C             parse config file(s) and quit
+  -d             desperate, save output archive even after error
+  -s             do scale conversion
+  -v             verbose
+  -w             emit warnings [default is silence]
+
+Usage: pmlogrewrite [options] input-archive output-archive
+
+Options:
+  -c configfile  file to load config from
+  -C             parse config file(s) and quit
+  -d             desperate, save output archive even after error
+  -s             do scale conversion
+  -v             verbose
+  -w             emit warnings [default is silence]
+
+=== truncated archive ===
+pmlogrewrite: Error: __pmLogRead[log src-oss/truncbin]: Corrupted record in a PCP archive log
+pmlogrewrite: Error occurred at byte offset 204460 into a file of 204800 bytes.
+The last record, and the remainder of this file will not be extracted.
+input records: 416
+output records: 416
+
+=== truncated archive -d ===
+pmlogrewrite: Error: __pmLogRead[log src-oss/truncbin]: Corrupted record in a PCP archive log
+pmlogrewrite: Error occurred at byte offset 204460 into a file of 204800 bytes.
+The last record, and the remainder of this file will not be extracted.
+input records: 416
+output records: 416
+
+===  bad label ===
+pmlogrewrite: Error: cannot open archive "src-oss/badlen-8": Illegal label record at start of a PCP archive log file
+input records: 0
+output records: no file
+
+=== truncated metadata ===
+pmlogrewrite: Error: cannot open archive "src-oss/badlen-9": Corrupted record in a PCP archive log
+input records: 0
+output records: no file
+
+===  bad version ===
+pmlogrewrite: Error: illegal version number 1 in archive (src-oss/err_v1)
+input records: 6
+output records: no file

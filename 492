@@ -1,0 +1,81 @@
+#!/bin/sh
+# PCP QA Test No. 492
+# pmlogrewrite error cases
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which pmlogrewrite >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun pmlogrewrite not installed
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_cnt_logrecs()
+{
+    if [ ! -f $1.0 ]
+    then
+	echo no file
+    else
+	pmdumplog $1 2>/dev/null | grep '^[0-9]' | wc -l
+    fi
+}
+
+# real QA test starts here
+echo "=== usage cases ==="
+pmlogrewrite -x in out
+echo
+pmlogrewrite in out foo
+
+echo
+echo "=== truncated archive ==="
+pmlogrewrite src-oss/truncbin $tmp.new
+echo "input records: `_cnt_logrecs src-oss/truncbin`"
+echo "output records: `_cnt_logrecs $tmp.new`"
+
+echo
+echo "=== truncated archive -d ==="
+rm -f $tmp.new.*
+pmlogrewrite -d src-oss/truncbin $tmp.new
+echo "input records: `_cnt_logrecs src-oss/truncbin`"
+echo "output records: `_cnt_logrecs $tmp.new`"
+
+echo
+echo "===  bad label ==="
+rm -f $tmp.new.*
+pmlogrewrite -d src-oss/badlen-8 $tmp.new
+echo "input records: `_cnt_logrecs src-oss/badlen-8`"
+echo "output records: `_cnt_logrecs $tmp.new`"
+
+echo
+echo "=== truncated metadata ==="
+rm -f $tmp.new.*
+pmlogrewrite -d src-oss/badlen-9 $tmp.new
+echo "input records: `_cnt_logrecs src-oss/badlen-9`"
+echo "output records: `_cnt_logrecs $tmp.new`"
+
+echo
+echo "===  bad version ==="
+rm -f $tmp.new.*
+pmlogrewrite -d src-oss/err_v1 $tmp.new
+echo "input records: `_cnt_logrecs src-oss/err_v1`"
+echo "output records: `_cnt_logrecs $tmp.new`"
+
+rm -f $tmp.new.*
+
+# success, all done
+exit
