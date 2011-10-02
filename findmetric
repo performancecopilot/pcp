@@ -6,8 +6,43 @@
 # from pminfo -d ... so metric names and metric descriptors
 #
 
-tmp=/tmp/$$
-trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+tmp=/var/tmp/$$
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+_usage()
+{
+    echo >&2 "Usage: `basename $0` [options] pat ..."
+    echo >&2 "   -a         search archives [default]"
+    echo >&2 "   -h         search localhost live metrics"
+}
+
+arch=true
+while getopts "ah?" c
+do
+    case $c
+    in
+	a)
+	    arch=true
+	    ;;
+	h)
+	    arch=false
+	    ;;
+	?)
+	    _usage
+	    sts=1
+	    exit
+	    ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $# -eq 0 ]
+then
+    _usage
+    sts=1
+    exit
+fi
 
 pat=""
 for arg
@@ -20,11 +55,21 @@ do
     fi
 done
 
-rm -f /tmp/eek
+if $arch
+then
+    srclist="`echo src-oss/*.0`"
+else
+    srclist='ignoreme'
+fi
 
-for arch in src-oss/*.0
+for src in $srclist
 do
-    pminfo -a $arch 2>&1 -d \
+    if $arch
+    then
+	pminfo -d -a $src 2>&1
+    else
+	pminfo -d 2>&1
+    fi \
     | sed -e '/^[a-z]/{
 s/$/|/
 N
@@ -37,23 +82,29 @@ s/ InDom: /|/
 s/ Semantics: /|/
 s/ Units: /|/
 }' \
-| egrep "$pat" >$tmp.out
+    | egrep "$pat" >$tmp.out
 
     if [ -s $tmp.out ]
     then
-	pmdumplog -l $arch >$tmp.info
-	vers=`sed -n <$tmp.info -e '/Log Format Version/{
+	if $arch
+	then
+	    pmdumplog -l $src >$tmp.info
+	    vers=`sed -n <$tmp.info -e '/Log Format Version/{
 s/.*Version //
 s/)//
 p
 }'`
-	host=`sed -n <$tmp.info -e '/ from host /{
+	    host=`sed -n <$tmp.info -e '/ from host /{
 s/.* from host //
 p
 }'`
-	echo "`basename $arch .0` (V.$vers) host: $host"
-	grep commencing $tmp.info
-	grep ending $tmp.info
-	sed -e 's/^/    /' <$tmp.out
+	    echo "=== `basename $src .0` (V.$vers) host: $host ==="
+	    grep commencing $tmp.info
+	    grep ending $tmp.info
+	    sed <$tmp.out -e "s/^/    /"
+	else
+	    echo "=== `hostname` ==="
+	    sed <$tmp.out -e "s/^/    /"
+	fi
     fi
 done
