@@ -31,9 +31,10 @@ for my $file (	'/etc/pcpdbi.conf',	# system defaults (lowest priority)
 use vars qw( $pmda $dbh );
 my $pm_in_null = PM_IN_NULL;
 my $rel_indom = 0; my @rel_instances;
-my $func_indom = 1; my @func_instances;
-my $database_indom = 2; my @database_instances;
-my $index_rel_indom = 3; my @index_rel_instances;
+my $process_indom = 1; my @process_instances;
+my $function_indom = 2; my @function_instances;
+my $database_indom = 3; my @database_instances;
+my $index_rel_indom = 4; my @index_rel_instances;
 
 # TODO:
 # "does not exist"? pg_stat_database_conflicts, pg_stat_replication,
@@ -110,7 +111,7 @@ my %tables_by_cluster = (
 	name	=> 'pg_stat_user_indexes',
 	setup	=> \&setup_stat_indexes,
 	params	=> 'user_indexes',
-	refresh => \&postgresql_user_indexes },
+	refresh => \&refresh_user_indexes },
     '30' => {
 	name	=> 'pg_statio_all_tables',
 	setup	=> \&setup_statio_tables,
@@ -161,7 +162,8 @@ my %tables_by_cluster = (
 sub postgresql_connection_setup
 {
     if (!defined($dbh)) {
-	$dbh = DBI->connect($database, $username, $password, {AutoCommit => 0});
+	$dbh = DBI->connect($database, $username, $password,
+			    {AutoCommit => 0, pg_bool_tf => 0});
 	if (defined($dbh)) {
 	    $pmda->log("PostgreSQL connection established");
 	    foreach my $key (keys %tables_by_name) {
@@ -170,6 +172,24 @@ sub postgresql_connection_setup
 	    }
 	}
     }
+}
+
+sub postgresql_indoms_setup()
+{
+    my $t = 'Instance domain exporting each PostgreSQL relation';
+    $rel_indom = $pmda->add_indom($rel_indom, \@rel_instances, $t, $t);
+	
+    $t = 'Instance domain exporting PostgreSQL user functions';
+    $function_indom = $pmda->add_indom($function_indom, \@function_instances, $t, $t);
+
+    $t = 'Instance domain exporting each PostgreSQL client process';
+    $process_indom = $pmda->add_indom($process_indom, \@process_instances, $t, $t);
+
+    $t = 'Instance domain exporting each PostgreSQL database';
+    $database_indom = $pmda->add_indom($database_indom, \@database_instances, $t, $t);
+
+    $t = 'Instance domain exporting each PostgreSQL indexes';
+    $index_rel_indom = $pmda->add_indom($index_rel_indom, \@index_rel_instances,$t,$t);
 }
 
 sub postgresql_metrics_setup
@@ -215,7 +235,34 @@ sub postgresql_fetch_callback
 # Refresh routines - one per table (cluster) - format database query
 # result set for later use by the generic fetch callback routine.
 # 
-sub refresh_activity { }
+sub refresh_activity
+{
+    my $tableref = shift;
+    my %table = %$tableref;
+    my ( $handle, $valuesref ) = ( $table{handle}, $table{values} );
+    my %values = %$valuesref;
+
+    %values = ();	# clear any previous values
+    @process_instances = ();	# refresh indom too
+
+    if (defined($dbh) && defined($handle)) {
+	$handle->execute();
+	my $result = $handle->fetchall_arrayref();
+	if (defined($result)) {
+	    for my $i (0 .. $#{$result}) {	# for each row (instance) returned
+		my $instid = "$result->[$i][2]";
+		my $instname = "$result->[$i][2] $result->[$i][5]";
+		$process_instances[($i*2)] = $instid;
+		$process_instances[($i*2)+1] = $instname;
+		if (!defined($result->[$i][6])) {	# client_addr
+		    $result->[$i][6] = '';
+		}
+		$table{values}{$instid} = $result->[$i];
+	    }
+	}
+    }
+    $pmda->replace_indom($process_indom, \@process_instances);
+}
 
 sub refresh_bgwriter
 {
@@ -260,7 +307,31 @@ sub refresh_database
     $pmda->replace_indom($database_indom, \@database_instances);
 }
 
-sub refresh_user_functions { }
+sub refresh_user_functions
+{
+    my $tableref = shift;
+    my %table = %$tableref;
+    my ( $handle, $valuesref ) = ( $table{handle}, $table{values} );
+    my %values = %$valuesref;
+
+    %values = ();	# clear any previous values
+    @function_instances = ();	# refresh indom too
+
+    if (defined($dbh) && defined($handle)) {
+	$handle->execute();
+	my $result = $handle->fetchall_arrayref();
+	if (defined($result)) {
+	    for my $i (0 .. $#{$result}) {	# for each row (instance) returned
+		my $instid = $result->[$i][0];
+		my $instname = $result->[$i][2];
+		$function_instances[($i*2)] = $instid;
+		$function_instances[($i*2)+1] = $instname;
+	        $table{values}{$instid} = $result->[$i];
+	    }
+	}
+    }
+    $pmda->replace_indom($function_indom, \@function_instances);
+}
 sub refresh_all_tables { }
 sub refresh_sys_tables { }
 sub refresh_user_tables { }
@@ -284,34 +355,40 @@ sub setup_activity
 {
     my ($cluster) = @_;
 
-    $pmda->add_metric(pmda_pmid($cluster,0), PM_TYPE_U32, $database_indom,
+    $pmda->add_metric(pmda_pmid($cluster,0), PM_TYPE_U32, $process_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.activity.procpid', '', '');
-    $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_U32, $database_indom,
+		  'postgresql.stat.activity.datid', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_STRING, $process_indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.activity.datname', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U32, $process_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.activity.usesysid', '', '');
-    $pmda->add_metric(pmda_pmid($cluster,2), PM_TYPE_STRING, $database_indom,
+    $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_STRING, $process_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.activity.usename', '', '');
-    $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_STRING, $database_indom,
+    $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_STRING, $process_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.activity.application_name', '', '');
-    $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_32, $database_indom,
+    $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_STRING, $process_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.activity.client_addr', '', '');
-    $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_STRING, $database_indom,
+    $pmda->add_metric(pmda_pmid($cluster,7), PM_TYPE_U32, $process_indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.activity.client_port', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,8), PM_TYPE_STRING, $process_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.activity.backend_start', '', '');
-    $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_STRING, $database_indom,
+    $pmda->add_metric(pmda_pmid($cluster,9), PM_TYPE_STRING, $process_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.activity.xact_start', '', '');
-    $pmda->add_metric(pmda_pmid($cluster,7), PM_TYPE_STRING, $database_indom,
+    $pmda->add_metric(pmda_pmid($cluster,10), PM_TYPE_STRING, $process_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.activity.query_start', '', '');
-    $pmda->add_metric(pmda_pmid($cluster,8), PM_TYPE_STRING, $database_indom,
+    $pmda->add_metric(pmda_pmid($cluster,11), PM_TYPE_32, $process_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.activity.waiting', '', '');
-    $pmda->add_metric(pmda_pmid($cluster,9), PM_TYPE_STRING, $database_indom,
+    $pmda->add_metric(pmda_pmid($cluster,12), PM_TYPE_STRING, $process_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.activity.current_query', '', '');
 }
@@ -533,16 +610,16 @@ sub setup_user_functions
     my ($cluster) = @_;
 
     # indom: funcid + funcname
-    $pmda->add_metric(pmda_pmid($cluster,0), PM_TYPE_STRING, $func_indom,
+    $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_STRING, $function_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.user_functions.schemaname', '', '');
-    $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_U64, $rel_indom,
+    $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U64, $function_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.user_functions.calls', '', '');
-    $pmda->add_metric(pmda_pmid($cluster,2), PM_TYPE_U64, $rel_indom,
+    $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U64, $function_indom,
 		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
 		  'postgresql.stat.user_functions.total_time', '', '');
-    $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U64, $rel_indom,
+    $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U64, $function_indom,
 		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
 		  'postgresql.stat.user_functions.self_time', '', '');
 }
@@ -553,15 +630,7 @@ sub setup_user_functions
 #
 $pmda = PCP::PMDA->new('postgresql', 110);
 postgresql_metrics_setup();
-
-$pmda->add_indom($rel_indom, \@rel_instances,
-		 'Instance domain exporting each PostgreSQL relation', '');
-$pmda->add_indom($func_indom, \@func_instances,
-		 'Instance domain exporting PostgreSQL user functions', '');
-$pmda->add_indom($database_indom, \@database_instances,
-		 'Instance domain exporting each PostgreSQL database', '');
-$pmda->add_indom($index_rel_indom, \@index_rel_instances,
-		 'Instance domain exporting each PostgreSQL indexes', '');
+postgresql_indoms_setup();
 
 $pmda->set_fetch_callback(\&postgresql_fetch_callback);
 $pmda->set_fetch(\&postgresql_connection_setup);
