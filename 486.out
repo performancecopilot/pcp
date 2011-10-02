@@ -892,6 +892,28 @@ Semantic error in configuration file (TMP.config)
 Duplicate instance name "15 doo dah" (5) and "15 minute" (15) for indom 1.5
 Arrgh ... TMP.new.0 missing
 
+=== indom 1.5 { name "5" -> "5 hours" } ===
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -29,7 +29,7 @@
+ InDom: 1.5
+ 23:22:42.011 3 instances
+                  1 or "1 minute"
+-                 5 or "5 minute"
++                 5 or "5 hours"
+                  15 or "15 minute"
+ InDom: 2.1
+ 22:22:42.025 1 instances
+@@ -40,6 +40,7 @@
+ 22:22:42.025       0          132          132
+ 22:22:42.060       0          351          284
+ 23:22:42.011       0          450          344
++11:22:42.021       0          589         1784
+ 
+ [152 bytes]
+ 22:22:42.025  2.3.3 (pmcd.pmlogger.host): inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
+
 === metric 29.*.* { sem->DISCRETE } metric pmcd.pmlogger.port { sem->COUNTER } ===
 pmdumplog diffs ...
 --- TMP.in
@@ -1837,6 +1859,45 @@ pmdumplog diffs ...
  21:59:04.005  29.0.85 (sample.byte_rate_perhour): value 447
                29.0.83 (sample.kbyte_ctr): value 30198
                29.0.82 (sample.byte_rate): value 809
+
+=== metric pmcd.pmlogger.archive { indom -> 2.99 } indom 2.1 { indom -> 2.99 } ===
+pmdumplog diffs ...
+--- TMP.in
++++ TMP.out
+@@ -16,13 +16,13 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+-    Data Type: string  InDom: 2.1 0x800001
++    Data Type: string  InDom: 2.99 0x800063
+     Semantics: instant  Units: none
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+-    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
++    Data Type: 32-bit unsigned int  InDom: 2.99 0x800063
+     Semantics: instant  Units: none
+ PMID: 2.3.3 (pmcd.pmlogger.host)
+-    Data Type: string  InDom: 2.1 0x800001
++    Data Type: string  InDom: 2.99 0x800063
+     Semantics: instant  Units: none
+ 
+ Instance Domains in the Log ...
+@@ -31,7 +31,7 @@
+                  1 or "1 minute"
+                  5 or "5 minute"
+                  15 or "15 minute"
+-InDom: 2.1
++InDom: 2.99
+ 22:22:42.025 1 instances
+                  19856 or "19856"
+ 
+@@ -40,6 +40,7 @@
+ 22:22:42.025       0          132          132
+ 22:22:42.060       0          351          284
+ 23:22:42.011       0          450          344
++11:22:42.021       0          590         1784
+ 
+ [152 bytes]
+ 22:22:42.025  2.3.3 (pmcd.pmlogger.host): inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
 
 === metric hinv.ndisk { indom -> 1.5 } ===
 pmdumplog diffs ...

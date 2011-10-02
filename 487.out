@@ -26,8 +26,7 @@ pmResult dump ... numpmid: 18
    value 5
   29.0.60 (sample.wrap.ulonglong): numval: 1 valfmt: 1 vlist[]:
    value 9223372036854775802
-  29.0.59 (sample.wrap.longlong): numval: 1 valfmt: 1 vlist[]:
-   value -4611686018427387910
+  29.0.59 (sample.wrap.longlong): No values returned!
   29.0.58 (sample.wrap.ulong): numval: 1 valfmt: 0 vlist[]:
    value 2147483642
   29.0.57 (sample.wrap.long): numval: 1 valfmt: 0 vlist[]:
@@ -68,8 +67,7 @@ pmResult dump ... numpmid: 18
     inst [5 or ???] value 62
   29.0.61 (sample.dodgey.control): numval: 1 valfmt: 0 vlist[]:
    value 5
-  29.0.60 (sample.wrap.ulonglong): numval: 1 valfmt: 1 vlist[]:
-   value 18446744073709551608
+  29.0.60 (sample.wrap.ulonglong): No values returned!
   29.0.59 (sample.wrap.longlong): numval: 1 valfmt: 1 vlist[]:
    value -8
   29.0.58 (sample.wrap.ulong): numval: 1 valfmt: 0 vlist[]:
@@ -163,8 +161,7 @@ pmResult dump ... numpmid: 3
     inst [23 or ???] value 2352
     inst [24 or ???] value 2451
     inst [26 or ???] value 2650
-  29.0.7 (sample.drift): numval: 1 valfmt: 1 vlist[]:
-   value 2453667840
+  29.0.7 (sample.drift): No values returned!
   29.0.6 (sample.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [200 or ???] value 200

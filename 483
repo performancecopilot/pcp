@@ -56,7 +56,9 @@ End-of-File
 rm -f $tmp.new.*
 pmlogrewrite -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
 
-for m in 1.18.3 '1.18.*' '1.*.*' hinv.ndisk 42.42.42 foo.bar
+for m in 1.18.3 '1.18.*' '1.*.*' hinv.ndisk 42.42.42 foo.bar \
+    'hinv.ndisk { type->64 } metric no.such.metric' \
+    'no.such.metric { type->64 } metric no.such.other.metric { type->64 } metric 1.18.3'
 do
     echo
     echo "=== metric $m { type->U32 } ==="

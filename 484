@@ -52,13 +52,15 @@ _cmp()
 #
 for arch in src-oss/ok-foo src-oss/541380_v2 src-oss/mirage src-oss/bigbin \
 	src-oss/ok-mv-foo src-oss/mirage-1 src-oss/mirage-2 src-oss/gap \
-	src-oss/gap2
+	src-oss/gap2 '-Dall src-oss/ok-foo'
 do
     echo | tee -a $seq.full
     echo "=== $arch ===" | tee -a $seq.full
     rm -f $tmp.new.*
     pmlogrewrite -w -Dappl0 $arch $tmp.new 2>$tmp.err | _filter
     cat $tmp.err >>$seq.full
+    # strip any command line options preceding the archive basename
+    arch=`echo $arch | sed -e 's/.* //'`
     _cmp $arch $tmp.new
 done
 

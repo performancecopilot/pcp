@@ -402,7 +402,7 @@ pmdumplog diffs ...
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmlogrewrite -c TMP.conf src-oss/mirage TMP.new
+Command: pmlogrewrite -s -c TMP.conf src-oss/mirage TMP.new
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -410,20 +410,26 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
-@@ -6,12 +6,9 @@
+@@ -6,15 +6,12 @@
    ending     Tue Feb 25 11:05:07.411 1997
  
  Descriptions for Metrics in the Log ...
 -PMID: 29.0.6 (sample.bin)
-+PMID: 29.0.6 (x23456789.sample.bin)
-     Data Type: 32-bit int  InDom: 29.2 0x7400002
-     Semantics: instant  Units: none
+-    Data Type: 32-bit int  InDom: 29.2 0x7400002
+-    Semantics: instant  Units: none
 -PMID: 29.0.7 (sample.drift)
 -    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
--    Semantics: instant  Units: none
++PMID: 29.0.6 (x23456789.sample.bin)
++    Data Type: 64-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
  PMID: 29.0.37 (sample.mirage)
-     Data Type: 32-bit int  InDom: 29.3 0x7400003
-     Semantics: instant  Units: Kbyte / sec
+-    Data Type: 32-bit int  InDom: 29.3 0x7400003
+-    Semantics: instant  Units: Kbyte / sec
++    Data Type: float  InDom: 29.3 0x7400003
++    Semantics: instant  Units: Mbyte / hour
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: instant  Units: none
 @@ -27,39 +24,30 @@
  
  Instance Domains in the Log ...
@@ -620,35 +626,35 @@ pmdumplog diffs ...
 -11:03:07.411       0         2426         3448
 -11:04:07.411       0         2532         3632
 -11:05:07.411       0         2638         3816
-+10:47:07.419       0          636          396
-+10:48:07.406       0          716          504
-+10:49:07.407       0          822          628
-+10:50:07.407       0          941          760
-+10:51:07.407       0         1060          892
-+10:53:07.408       0         1153         1124
-+10:54:07.408       0         1259         1248
-+10:55:07.409       0         1378         1380
-+10:56:07.409       0         1484         1504
-+10:57:07.409       0         1577         1620
-+10:58:07.409       0         1657         1728
-+10:59:07.410       0         1737         1836
-+11:00:07.410       0         1843         1960
-+11:01:07.410       0         1936         2076
-+11:02:07.411       0         2016         2184
-+11:03:07.411       0         2096         2292
-+11:04:07.411       0         2189         2408
-+11:05:07.411       0         2269         2516
++10:47:07.419       0          636          476
++10:48:07.406       0          716          664
++10:49:07.407       0          822          884
++10:50:07.407       0          941         1120
++10:51:07.407       0         1060         1356
++10:53:07.408       0         1153         1764
++10:54:07.408       0         1259         1984
++10:55:07.409       0         1378         2220
++10:56:07.409       0         1484         2440
++10:57:07.409       0         1577         2644
++10:58:07.409       0         1657         2832
++10:59:07.410       0         1737         3020
++11:00:07.410       0         1843         3240
++11:01:07.410       0         1936         3444
++11:02:07.411       0         2016         3632
++11:03:07.411       0         2096         3820
++11:04:07.411       0         2189         4024
++11:05:07.411       0         2269         4212
  
  10:45:08.440  2.3.3 (pmcd.pmlogger.host): inst [24763 or "24763"] value "gonzo.melbourne.sgi.com"
                2.3.0 (pmcd.pmlogger.port): inst [24763 or "24763"] value 4332
                2.3.2 (pmcd.pmlogger.archive): inst [24763 or "24763"] value "/usr/people/kenmcd/isms/pcp/qa/src/mirage"
  
  10:46:07.406  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 32
-                 inst [12 or "m-12"] value 1231
-                 inst [13 or "m-13"] value 1330
-                 inst [14 or "m-14"] value 1429
-                 inst [15 or "m-15"] value 1528
+-inst [0 or "m-00"] value 113
+ inst [12 or "m-12"] value 4328
+ inst [13 or "m-13"] value 4676
+ inst [14 or "m-14"] value 5024
+ inst [15 or "m-15"] value 5372
 -              29.0.7 (sample.drift): value 111
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -663,11 +669,11 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  10:47:07.419  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 27
-                 inst [12 or "m-12"] value 1226
-                 inst [13 or "m-13"] value 1325
-                 inst [15 or "m-15"] value 1524
-                 inst [16 or "m-16"] value 1623
+-inst [0 or "m-00"] value 95
+ inst [12 or "m-12"] value 4310
+ inst [13 or "m-13"] value 4658
+ inst [15 or "m-15"] value 5358
+ inst [16 or "m-16"] value 5706
 -              29.0.7 (sample.drift): value 88
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -682,13 +688,13 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  10:48:07.406  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 22
-                 inst [12 or "m-12"] value 1221
-                 inst [13 or "m-13"] value 1320
-                 inst [15 or "m-15"] value 1519
-                 inst [16 or "m-16"] value 1618
-                 inst [17 or "m-17"] value 1717
-                 inst [18 or "m-18"] value 1816
+-inst [0 or "m-00"] value 77
+ inst [12 or "m-12"] value 4293
+ inst [13 or "m-13"] value 4641
+ inst [15 or "m-15"] value 5340
+ inst [16 or "m-16"] value 5688
+ inst [17 or "m-17"] value 6036
+ inst [18 or "m-18"] value 6384
 -              29.0.7 (sample.drift): value 83
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -703,14 +709,14 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  10:49:07.407  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 15
-                 inst [12 or "m-12"] value 1214
-                 inst [13 or "m-13"] value 1313
-                 inst [15 or "m-15"] value 1512
+-inst [0 or "m-00"] value 53
+ inst [12 or "m-12"] value 4268
+ inst [13 or "m-13"] value 4616
+ inst [15 or "m-15"] value 5316
 @@ -270,20 +219,13 @@
-                 inst [18 or "m-18"] value 1810
-                 inst [19 or "m-19"] value 1909
-                 inst [20 or "m-20"] value 2008
+ inst [18 or "m-18"] value 6363
+ inst [19 or "m-19"] value 6711
+ inst [20 or "m-20"] value 7059
 -              29.0.7 (sample.drift): value 58
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -725,14 +731,14 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  10:50:07.407  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 7
-                 inst [12 or "m-12"] value 1206
-                 inst [15 or "m-15"] value 1505
-                 inst [17 or "m-17"] value 1704
+-inst [0 or "m-00"] value 25
+ inst [12 or "m-12"] value 4240
+ inst [15 or "m-15"] value 5291
+ inst [17 or "m-17"] value 5991
 @@ -291,78 +233,50 @@
-                 inst [19 or "m-19"] value 1902
-                 inst [20 or "m-20"] value 2001
-                 inst [21 or "m-21"] value 2200
+ inst [19 or "m-19"] value 6687
+ inst [20 or "m-20"] value 7035
+ inst [21 or "m-21"] value 7734
 -              29.0.7 (sample.drift): value 26
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -747,12 +753,12 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  10:51:07.407  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 99
-                 inst [15 or "m-15"] value 1598
-                 inst [17 or "m-17"] value 1797
-                 inst [18 or "m-18"] value 1896
-                 inst [19 or "m-19"] value 1995
-                 inst [21 or "m-21"] value 2194
+-inst [0 or "m-00"] value 348
+ inst [15 or "m-15"] value 5618
+ inst [17 or "m-17"] value 6318
+ inst [18 or "m-18"] value 6666
+ inst [19 or "m-19"] value 7014
+ inst [21 or "m-21"] value 7713
 -              29.0.7 (sample.drift): value 74
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -767,12 +773,12 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  10:52:07.407  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 93
-                 inst [15 or "m-15"] value 1592
-                 inst [17 or "m-17"] value 1791
-                 inst [18 or "m-18"] value 1890
-                 inst [19 or "m-19"] value 1989
-                 inst [21 or "m-21"] value 2188
+-inst [0 or "m-00"] value 327
+ inst [15 or "m-15"] value 5597
+ inst [17 or "m-17"] value 6296
+ inst [18 or "m-18"] value 6645
+ inst [19 or "m-19"] value 6993
+ inst [21 or "m-21"] value 7692
 -              29.0.7 (sample.drift): value 75
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -787,13 +793,13 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  10:53:07.408  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 87
-                 inst [15 or "m-15"] value 1586
-                 inst [17 or "m-17"] value 1785
-                 inst [18 or "m-18"] value 1884
-                 inst [19 or "m-19"] value 1983
-                 inst [21 or "m-21"] value 2182
-                 inst [22 or "m-22"] value 2281
+-inst [0 or "m-00"] value 306
+ inst [15 or "m-15"] value 5576
+ inst [17 or "m-17"] value 6275
+ inst [18 or "m-18"] value 6623
+ inst [19 or "m-19"] value 6971
+ inst [21 or "m-21"] value 7671
+ inst [22 or "m-22"] value 8019
 -              29.0.7 (sample.drift): value 86
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -808,14 +814,14 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  10:54:07.408  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 80
-                 inst [15 or "m-15"] value 1579
-                 inst [17 or "m-17"] value 1778
-                 inst [18 or "m-18"] value 1877
+-inst [0 or "m-00"] value 281
+ inst [15 or "m-15"] value 5551
+ inst [17 or "m-17"] value 6251
+ inst [18 or "m-18"] value 6599
 @@ -370,220 +284,135 @@
-                 inst [21 or "m-21"] value 2175
-                 inst [22 or "m-22"] value 2274
-                 inst [23 or "m-23"] value 2373
+ inst [21 or "m-21"] value 7646
+ inst [22 or "m-22"] value 7995
+ inst [23 or "m-23"] value 8343
 -              29.0.7 (sample.drift): value 119
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -830,13 +836,13 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  10:55:07.409  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 72
-                 inst [15 or "m-15"] value 1571
-                 inst [17 or "m-17"] value 1770
-                 inst [19 or "m-19"] value 1969
-                 inst [22 or "m-22"] value 2268
-                 inst [23 or "m-23"] value 2367
-                 inst [24 or "m-24"] value 2466
+-inst [0 or "m-00"] value 253
+ inst [15 or "m-15"] value 5523
+ inst [17 or "m-17"] value 6223
+ inst [19 or "m-19"] value 6922
+ inst [22 or "m-22"] value 7973
+ inst [23 or "m-23"] value 8321
+ inst [24 or "m-24"] value 8670
 -              29.0.7 (sample.drift): value 150
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -851,12 +857,12 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  10:56:07.409  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 65
-                 inst [17 or "m-17"] value 1764
-                 inst [22 or "m-22"] value 2263
-                 inst [23 or "m-23"] value 2362
-                 inst [24 or "m-24"] value 2461
-                 inst [25 or "m-25"] value 2560
+-inst [0 or "m-00"] value 229
+ inst [17 or "m-17"] value 6202
+ inst [22 or "m-22"] value 7956
+ inst [23 or "m-23"] value 8304
+ inst [24 or "m-24"] value 8652
+ inst [25 or "m-25"] value 9000
 -              29.0.7 (sample.drift): value 153
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -871,11 +877,11 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  10:57:07.409  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 59
-                 inst [22 or "m-22"] value 2258
-                 inst [23 or "m-23"] value 2357
-                 inst [24 or "m-24"] value 2456
-                 inst [25 or "m-25"] value 2555
+-inst [0 or "m-00"] value 207
+ inst [22 or "m-22"] value 7938
+ inst [23 or "m-23"] value 8286
+ inst [24 or "m-24"] value 8634
+ inst [25 or "m-25"] value 8982
 -              29.0.7 (sample.drift): value 189
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -890,11 +896,11 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  10:58:07.409  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 54
-                 inst [22 or "m-22"] value 2253
-                 inst [23 or "m-23"] value 2352
-                 inst [24 or "m-24"] value 2451
-                 inst [26 or "m-26"] value 2650
+-inst [0 or "m-00"] value 190
+ inst [22 or "m-22"] value 7921
+ inst [23 or "m-23"] value 8269
+ inst [24 or "m-24"] value 8617
+ inst [26 or "m-26"] value 9316
 -              29.0.7 (sample.drift): value 234
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -909,13 +915,13 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  10:59:07.410  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 49
-                 inst [22 or "m-22"] value 2248
-                 inst [23 or "m-23"] value 2347
-                 inst [24 or "m-24"] value 2446
-                 inst [26 or "m-26"] value 2645
-                 inst [27 or "m-27"] value 2744
-                 inst [28 or "m-28"] value 2843
+-inst [0 or "m-00"] value 172
+ inst [22 or "m-22"] value 7903
+ inst [23 or "m-23"] value 8251
+ inst [24 or "m-24"] value 8599
+ inst [26 or "m-26"] value 9299
+ inst [27 or "m-27"] value 9647
+ inst [28 or "m-28"] value 9995
 -              29.0.7 (sample.drift): value 282
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -930,12 +936,12 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  11:00:07.410  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 42
-                 inst [24 or "m-24"] value 2441
-                 inst [26 or "m-26"] value 2640
-                 inst [27 or "m-27"] value 2739
-                 inst [28 or "m-28"] value 2838
-                 inst [29 or "m-29"] value 2937
+-inst [0 or "m-00"] value 148
+ inst [24 or "m-24"] value 8582
+ inst [26 or "m-26"] value 9281
+ inst [27 or "m-27"] value 9629
+ inst [28 or "m-28"] value 9977
+ inst [29 or "m-29"] value 10325
 -              29.0.7 (sample.drift): value 303
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -950,11 +956,11 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  11:01:07.410  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 36
-                 inst [24 or "m-24"] value 2435
-                 inst [26 or "m-26"] value 2634
-                 inst [27 or "m-27"] value 2733
-                 inst [28 or "m-28"] value 2832
+-inst [0 or "m-00"] value 127
+ inst [24 or "m-24"] value 8561
+ inst [26 or "m-26"] value 9260
+ inst [27 or "m-27"] value 9608
+ inst [28 or "m-28"] value 9956
 -              29.0.7 (sample.drift): value 271
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -969,11 +975,11 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  11:02:07.411  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 31
-                 inst [24 or "m-24"] value 2430
-                 inst [27 or "m-27"] value 2729
-                 inst [28 or "m-28"] value 2828
-                 inst [30 or "m-30"] value 3027
+-inst [0 or "m-00"] value 109
+ inst [24 or "m-24"] value 8543
+ inst [27 or "m-27"] value 9594
+ inst [28 or "m-28"] value 9942
+ inst [30 or "m-30"] value 10642
 -              29.0.7 (sample.drift): value 267
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -988,12 +994,12 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  11:03:07.411  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 26
-                 inst [24 or "m-24"] value 2425
-                 inst [27 or "m-27"] value 2724
-                 inst [28 or "m-28"] value 2823
-                 inst [30 or "m-30"] value 3022
-                 inst [31 or "m-31"] value 3121
+-inst [0 or "m-00"] value 91
+ inst [24 or "m-24"] value 8525
+ inst [27 or "m-27"] value 9577
+ inst [28 or "m-28"] value 9925
+ inst [30 or "m-30"] value 10624
+ inst [31 or "m-31"] value 10972
 -              29.0.7 (sample.drift): value 249
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -1008,12 +1014,12 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  11:04:07.411  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 20
-                 inst [24 or "m-24"] value 2419
-                 inst [27 or "m-27"] value 2718
-                 inst [30 or "m-30"] value 3017
-                 inst [32 or "m-32"] value 3216
--                inst [33 or "m-33"] value 3315
+-inst [0 or "m-00"] value 70
+ inst [24 or "m-24"] value 8504
+ inst [27 or "m-27"] value 9555
+ inst [30 or "m-30"] value 10607
+ inst [32 or "m-32"] value 11306
+-inst [33 or "m-33"] value 11654
 -              29.0.7 (sample.drift): value 242
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -1028,11 +1034,11 @@ pmdumplog diffs ...
 -                inst [900 or "bin-900"] value 900
  
  11:05:07.411  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 14
-                 inst [24 or "m-24"] value 2413
-                 inst [27 or "m-27"] value 2712
-                 inst [30 or "m-30"] value 3011
--                inst [33 or "m-33"] value 3310
+-inst [0 or "m-00"] value 49
+ inst [24 or "m-24"] value 8483
+ inst [27 or "m-27"] value 9534
+ inst [30 or "m-30"] value 10586
+-inst [33 or "m-33"] value 11637
 -              29.0.7 (sample.drift): value 208
 -              29.0.6 (sample.bin):
 -                inst [100 or "bin-100"] value 100
@@ -1045,3 +1051,14 @@ pmdumplog diffs ...
                  inst [700 or "bin-700"] value 700
                  inst [800 or "bin-800"] value 800
 -                inst [900 or "bin-900"] value 900
+
+=== correctness checked in QA 493 ... only care about valgrind here ===
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -s -c TMP.conf src-oss/mirage TMP.new
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

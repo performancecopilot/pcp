@@ -58,6 +58,24 @@ Metric: foo.bar: Unknown metric name
 PCP Archive Log Rewrite Specifications Summary
 No changes
 
+=== metric hinv.ndisk { type->64 } metric no.such.metric { type->U32 } ===
+Warning [TMP.conf, line 1]
+Metric: no.such.metric: Unknown metric name
+PCP Archive Log Rewrite Specifications Summary
+
+Metric: hinv.ndisk (1.26.7)
+Type:		U32 -> 64
+
+=== metric no.such.metric { type->64 } metric no.such.other.metric { type->64 } metric 1.18.3 { type->U32 } ===
+Warning [TMP.conf, line 1]
+Metric: no.such.metric: Unknown metric name
+Warning [TMP.conf, line 1]
+Metric: no.such.other.metric: Unknown metric name
+PCP Archive Log Rewrite Specifications Summary
+
+Metric: irix.kernel.all.load (1.18.3)
+Type:		FLOAT -> U32
+
 === metric 60.*.* { type->U32 } ===
 Warning [TMP.conf, line 1]
 Metric: swap.out (60.0.11): type: PM_TYPE_U32: No change
