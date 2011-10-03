@@ -200,7 +200,7 @@ sub postgresql_connection_setup
     }
 }
 
-sub postgresql_indoms_setup()
+sub postgresql_indoms_setup
 {
     $all_rel_indom = $pmda->add_indom($all_rel_indom, \@all_rel_instances,
 		'Instance domain for PostgreSQL relations, all tables', '');
@@ -301,20 +301,16 @@ sub refresh_results
 sub refresh_activity
 {
     my $tableref = shift;
-    my %table = %$tableref;
     my $result = refresh_results($tableref);
-    
+    my %table = %$tableref;
+
     @process_instances = ();		# refresh indom too
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
-	    my $instid = "$result->[$i][2]";
-	    my $instname = "$result->[$i][2] $result->[$i][5]";
-
-	    $process_instances[($i*2)] = $instid;
-	    $process_instances[($i*2)+1] = $instname;
-	    if (!defined($result->[$i][6])) {	# client_addr
-		$result->[$i][6] = '';
-	    }
+	    my $instid = $process_instances[($i*2)] = "$result->[$i][2]";
+	    $process_instances[($i*2)+1] = "$result->[$i][2] $result->[$i][5]";
+	    # special case needed for 'client_addr' table column (column #6)
+	    $result->[$i][6] = '' unless (defined($result->[$i][6]));
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
@@ -324,8 +320,8 @@ sub refresh_activity
 sub refresh_bgwriter
 {
     my $tableref = shift;
-    my %table = %$tableref;
     my $result = refresh_results($tableref);
+    my %table = %$tableref;
 
     $table{values}{"$pm_in_null"} = \@{$result->[0]} unless (!defined($result));
 }
@@ -333,16 +329,14 @@ sub refresh_bgwriter
 sub refresh_database
 {
     my $tableref = shift;
-    my %table = %$tableref;
     my $result = refresh_results($tableref);
+    my %table = %$tableref;
 
     @database_instances = ();		# refresh indom too
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
-	    my $instid = $result->[$i][0];
-	    my $instname = $result->[$i][1];
-	    $database_instances[($i*2)] = $instid;
-	    $database_instances[($i*2)+1] = $instname;
+	    my $instid = $database_instances[($i*2)] = $result->[$i][0];
+	    $database_instances[($i*2)+1] = $result->[$i][1];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
@@ -352,16 +346,14 @@ sub refresh_database
 sub refresh_user_functions
 {
     my $tableref = shift;
-    my %table = %$tableref;
     my $result = refresh_results($tableref);
+    my %table = %$tableref;
 
     @function_instances = ();		# refresh indom too
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
-	    my $instid = $result->[$i][0];
-	    my $instname = $result->[$i][2];
-	    $function_instances[($i*2)] = $instid;
-	    $function_instances[($i*2)+1] = $instname;
+	    my $instid = $function_instances[($i*2)] = $result->[$i][0];
+	    $function_instances[($i*2)+1] = $result->[$i][2];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
@@ -371,16 +363,18 @@ sub refresh_user_functions
 sub refresh_all_tables
 {
     my $tableref = shift;
-    my %table = %$tableref;
     my $result = refresh_results($tableref);
+    my %table = %$tableref;
 
     @all_rel_instances = ();		# refresh indom too
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
-	    my $instid = $result->[$i][0];
-	    my $instname = $result->[$i][2];
-	    $all_rel_instances[($i*2)] = $instid;
-	    $all_rel_instances[($i*2)+1] = $instname;
+	    my $instid = $all_rel_instances[($i*2)] = $result->[$i][0];
+	    $all_rel_instances[($i*2)+1] = $result->[$i][2];
+	    # special case needed for 'last_*' columns (13 -> 16)
+	    for my $j (13 .. 16) {	# for each special case column
+		$result->[$i][$j] = '' unless (defined($result->[$i][$j]));
+	    }
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
@@ -390,16 +384,18 @@ sub refresh_all_tables
 sub refresh_sys_tables
 {
     my $tableref = shift;
-    my %table = %$tableref;
     my $result = refresh_results($tableref);
+    my %table = %$tableref;
 
     @sys_rel_instances = ();		# refresh indom too
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
-	    my $instid = $result->[$i][0];
-	    my $instname = $result->[$i][2];
-	    $sys_rel_instances[($i*2)] = $instid;
-	    $sys_rel_instances[($i*2)+1] = $instname;
+	    my $instid = $sys_rel_instances[($i*2)] = $result->[$i][0];
+	    $sys_rel_instances[($i*2)+1] = $result->[$i][2];
+	    # special case needed for 'last_*' columns (13 -> 16)
+	    for my $j (13 .. 16) {	# for each special case column
+		$result->[$i][$j] = '' unless (defined($result->[$i][$j]));
+	    }
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
@@ -409,16 +405,18 @@ sub refresh_sys_tables
 sub refresh_user_tables
 {
     my $tableref = shift;
-    my %table = %$tableref;
     my $result = refresh_results($tableref);
+    my %table = %$tableref;
 
     @user_rel_instances = ();		# refresh indom too
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
-	    my $instid = $result->[$i][0];
-	    my $instname = $result->[$i][2];
-	    $user_rel_instances[($i*2)] = $instid;
-	    $user_rel_instances[($i*2)+1] = $instname;
+	    my $instid = $user_rel_instances[($i*2)] = $result->[$i][0];
+	    $user_rel_instances[($i*2)+1] = $result->[$i][2];
+	    # special case needed for 'last_*' columns (13 -> 16)
+	    for my $j (13 .. 16) {	# for each special case column
+		$result->[$i][$j] = '' unless (defined($result->[$i][$j]));
+	    }
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
@@ -428,16 +426,14 @@ sub refresh_user_tables
 sub refresh_all_indexes
 {
     my $tableref = shift;
-    my %table = %$tableref;
     my $result = refresh_results($tableref);
+    my %table = %$tableref;
 
     @all_index_instances = ();		# refresh indom too
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
-	    my $instid = $result->[$i][0];
-	    my $instname = $result->[$i][2];
-	    $all_index_instances[($i*2)] = $instid;
-	    $all_index_instances[($i*2)+1] = $instname;
+	    my $instid = $all_index_instances[($i*2)] = $result->[$i][1];
+	    $all_index_instances[($i*2)+1] = $result->[$i][4];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
@@ -447,16 +443,14 @@ sub refresh_all_indexes
 sub refresh_sys_indexes
 {
     my $tableref = shift;
-    my %table = %$tableref;
     my $result = refresh_results($tableref);
+    my %table = %$tableref;
 
     @sys_index_instances = ();		# refresh indom too
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
-	    my $instid = $result->[$i][0];
-	    my $instname = $result->[$i][2];
-	    $sys_index_instances[($i*2)] = $instid;
-	    $sys_index_instances[($i*2)+1] = $instname;
+	    my $instid = $sys_index_instances[($i*2)] = $result->[$i][1];
+	    $sys_index_instances[($i*2)+1] = $result->[$i][4];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
@@ -466,31 +460,172 @@ sub refresh_sys_indexes
 sub refresh_user_indexes
 {
     my $tableref = shift;
-    my %table = %$tableref;
     my $result = refresh_results($tableref);
+    my %table = %$tableref;
 
     @user_index_instances = ();		# refresh indom too
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
-	    my $instid = $result->[$i][0];
-	    my $instname = $result->[$i][2];
-	    $user_index_instances[($i*2)] = $instid;
-	    $user_index_instances[($i*2)+1] = $instname;
+	    my $instid = $user_index_instances[($i*2)] = $result->[$i][1];
+	    $user_index_instances[($i*2)+1] = $result->[$i][4];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
     $pmda->replace_indom($user_index_indom, \@user_index_instances);
 }
 
-sub refresh_io_all_tables { }
-sub refresh_io_sys_tables { }
-sub refresh_io_user_tables { }
-sub refresh_io_all_indexes { }
-sub refresh_io_sys_indexes { }
-sub refresh_io_user_indexes { }
-sub refresh_io_all_sequences { }
-sub refresh_io_sys_sequences { }
-sub refresh_io_user_sequences { }
+sub refresh_io_all_tables
+{
+    my $tableref = shift;
+    my $result = refresh_results($tableref);
+    my %table = %$tableref;
+
+    @all_rel_instances = ();		# refresh indom too
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
+	    my $instid = $all_rel_instances[($i*2)] = $result->[$i][0];
+	    $all_rel_instances[($i*2)+1] = $result->[$i][2];
+	    $table{values}{$instid} = $result->[$i];
+	}
+    }
+    $pmda->replace_indom($all_rel_indom, \@all_rel_instances);
+}
+
+sub refresh_io_sys_tables
+{
+    my $tableref = shift;
+    my $result = refresh_results($tableref);
+    my %table = %$tableref;
+
+    @sys_rel_instances = ();		# refresh indom too
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
+	    my $instid = $sys_rel_instances[($i*2)] = $result->[$i][0];
+	    $sys_rel_instances[($i*2)+1] = $result->[$i][2];
+	    $table{values}{$instid} = $result->[$i];
+	}
+    }
+    $pmda->replace_indom($sys_rel_indom, \@sys_rel_instances);
+}
+
+sub refresh_io_user_tables
+{
+    my $tableref = shift;
+    my $result = refresh_results($tableref);
+    my %table = %$tableref;
+
+    @user_rel_instances = ();		# refresh indom too
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
+	    my $instid = $user_rel_instances[($i*2)] = $result->[$i][0];
+	    $user_rel_instances[($i*2)+1] = $result->[$i][2];
+	    $table{values}{$instid} = $result->[$i];
+	}
+    }
+    $pmda->replace_indom($user_rel_indom, \@user_rel_instances);
+}
+
+sub refresh_io_all_indexes
+{
+    my $tableref = shift;
+    my $result = refresh_results($tableref);
+    my %table = %$tableref;
+
+    @all_index_instances = ();		# refresh indom too
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
+	    my $instid = $all_index_instances[($i*2)] = $result->[$i][1];
+	    $all_index_instances[($i*2)+1] = $result->[$i][4];
+	    $table{values}{$instid} = $result->[$i];
+	}
+    }
+    $pmda->replace_indom($all_index_indom, \@all_index_instances);
+}
+
+sub refresh_io_sys_indexes
+{
+    my $tableref = shift;
+    my $result = refresh_results($tableref);
+    my %table = %$tableref;
+
+    @sys_index_instances = ();		# refresh indom too
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
+	    my $instid = $sys_index_instances[($i*2)] = $result->[$i][1];
+	    $sys_index_instances[($i*2)+1] = $result->[$i][4];
+	    $table{values}{$instid} = $result->[$i];
+	}
+    }
+    $pmda->replace_indom($sys_index_indom, \@sys_index_instances);
+}
+
+sub refresh_io_user_indexes
+{
+    my $tableref = shift;
+    my $result = refresh_results($tableref);
+    my %table = %$tableref;
+
+    @user_index_instances = ();		# refresh indom too
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
+	    my $instid = $user_index_instances[($i*2)] = $result->[$i][1];
+	    $user_index_instances[($i*2)+1] = $result->[$i][4];
+	    $table{values}{$instid} = $result->[$i];
+	}
+    }
+    $pmda->replace_indom($user_index_indom, \@user_index_instances);
+}
+
+sub refresh_io_all_sequences
+{
+    my $tableref = shift;
+    my $result = refresh_results($tableref);
+    my %table = %$tableref;
+
+    @all_seq_instances = ();		# refresh indom too
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
+	    my $instid = $all_seq_instances[($i*2)] = $result->[$i][0];
+	    $all_seq_instances[($i*2)+1] = $result->[$i][2];
+	    $table{values}{$instid} = $result->[$i];
+	}
+    }
+    $pmda->replace_indom($all_seq_indom, \@all_seq_instances);
+}
+
+sub refresh_io_sys_sequences
+{
+    my $tableref = shift;
+    my $result = refresh_results($tableref);
+    my %table = %$tableref;
+
+    @sys_seq_instances = ();		# refresh indom too
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
+	    my $instid = $sys_seq_instances[($i*2)] = $result->[$i][0];
+	    $sys_seq_instances[($i*2)+1] = $result->[$i][2];
+	    $table{values}{$instid} = $result->[$i];
+	}
+    }
+    $pmda->replace_indom($sys_seq_indom, \@sys_seq_instances);
+}
+
+sub refresh_io_user_sequences
+{
+    my $tableref = shift;
+    my $result = refresh_results($tableref);
+    my %table = %$tableref;
+
+    @user_seq_instances = ();		# refresh indom too
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
+	    my $instid = $user_seq_instances[($i*2)] = $result->[$i][0];
+	    $user_seq_instances[($i*2)+1] = $result->[$i][2];
+	    $table{values}{$instid} = $result->[$i];
+	}
+    }
+    $pmda->replace_indom($user_seq_indom, \@user_seq_instances);
+}
 
 #
 # Setup routines - one per cluster, add metrics to PMDA
@@ -660,19 +795,19 @@ sub setup_stat_indexes
     $pmda->add_metric(pmda_pmid($cluster,0), PM_TYPE_32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  "postgresql.stat.$indexes.relid", '', '');
-    $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_STRING, $indom,
-		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$indexes.schemaname", '', '');
     $pmda->add_metric(pmda_pmid($cluster,2), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  "postgresql.stat.$indexes.schemaname", '', '');
+    $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  "postgresql.stat.$indexes.relname", '', '');
-    $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U32, $indom,
+    $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  "postgresql.stat.$indexes.idx_scan", '', '');
-    $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U32, $indom,
+    $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  "postgresql.stat.$indexes.idx_tup_read", '', '');
-    $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U32, $indom,
+    $pmda->add_metric(pmda_pmid($cluster,7), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  "postgresql.stat.$indexes.idx_tup_fetch", '', '');
 }
@@ -681,31 +816,31 @@ sub setup_statio_tables
 {
     my ($cluster, $indom, $tables) = @_;
 
-    $pmda->add_metric(pmda_pmid($cluster,0), PM_TYPE_STRING, $indom,
+    $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  "postgresql.statio.$tables.schemaname", '', '');
-    $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_U32, $indom,
-		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$tables.heap_blks_read", '', '');
-    $pmda->add_metric(pmda_pmid($cluster,2), PM_TYPE_U32, $indom,
-		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$tables.heap_blks_hit", '', '');
     $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$tables.idx_blks_read", '', '');
+		  "postgresql.statio.$tables.heap_blks_read", '', '');
     $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$tables.idx_blks_hit", '', '');
+		  "postgresql.statio.$tables.heap_blks_hit", '', '');
     $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$tables.toast_blks_read", '', '');
+		  "postgresql.statio.$tables.idx_blks_read", '', '');
     $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$tables.toast_blks_hit", '', '');
+		  "postgresql.statio.$tables.idx_blks_hit", '', '');
     $pmda->add_metric(pmda_pmid($cluster,7), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$tables.tidx_blks_read", '', '');
+		  "postgresql.statio.$tables.toast_blks_read", '', '');
     $pmda->add_metric(pmda_pmid($cluster,8), PM_TYPE_U32, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  "postgresql.statio.$tables.toast_blks_hit", '', '');
+    $pmda->add_metric(pmda_pmid($cluster,9), PM_TYPE_U32, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  "postgresql.statio.$tables.tidx_blks_read", '', '');
+    $pmda->add_metric(pmda_pmid($cluster,10), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  "postgresql.statio.$tables.tidx_blks_hit", '', '');
 }
@@ -718,16 +853,16 @@ sub setup_statio_indexes
     $pmda->add_metric(pmda_pmid($cluster,0), PM_TYPE_32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  "postgresql.statio.$indexes.relid", '', '');
-    $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_STRING, $indom,
-		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  "postgresql.statio.$indexes.schemaname", '', '');
     $pmda->add_metric(pmda_pmid($cluster,2), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  "postgresql.statio.$indexes.schemaname", '', '');
+    $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  "postgresql.statio.$indexes.relname", '', '');
-    $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U32, $indom,
+    $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  "postgresql.statio.$indexes.idx_blks_read", '', '');
-    $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U32, $indom,
+    $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  "postgresql.statio.$indexes.idx_blks_hit", '', '');
 }
@@ -737,13 +872,13 @@ sub setup_statio_sequences
     my ($cluster, $indom, $sequences) = @_;
 
     # indom: relid + relname
-    $pmda->add_metric(pmda_pmid($cluster,0), PM_TYPE_STRING, $indom,
+    $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  "postgresql.statio.$sequences.schemaname", '', '');
-    $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_U32, $indom,
+    $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  "postgresql.statio.$sequences.blks_read", '', '');
-    $pmda->add_metric(pmda_pmid($cluster,2), PM_TYPE_U32, $indom,
+    $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  "postgresql.statio.$sequences.blks_hit", '', '');
 }
