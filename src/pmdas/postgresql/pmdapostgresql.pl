@@ -42,9 +42,8 @@ my $user_index_indom = 8; my @user_index_instances;
 my $all_seq_indom = 9; my @all_seq_instances;
 my $sys_seq_indom = 10; my @sys_seq_instances;
 my $user_seq_indom = 11; my @user_seq_instances;
+my $replicant_indom = 12; my @replicant_instances;
 
-# TODO:
-# "does not exist"? pg_stat_database_conflicts, pg_stat_replication,
 #		    pg_stat_xact_all_tables, pg_stat_xact_sys_tables,
 #		    pg_stat_xact_user_tables, pg_stat_xact_user_functions
 
@@ -53,6 +52,8 @@ my %tables_by_name = (
     pg_stat_activity		=> { handle => undef, values => {} },
     pg_stat_bgwriter		=> { handle => undef, values => {} },
     pg_stat_database		=> { handle => undef, values => {} },
+    pg_stat_database_conflicts	=> { handle => undef, values => {} },
+    pg_stat_replication		=> { handle => undef, values => {} },
     pg_stat_all_tables		=> { handle => undef, values => {} },
     pg_stat_sys_tables		=> { handle => undef, values => {} },
     pg_stat_user_tables		=> { handle => undef, values => {} },
@@ -93,6 +94,16 @@ my %tables_by_cluster = (
 	setup	=> \&setup_user_functions,
 	indom	=> $function_indom,
 	refresh => \&refresh_user_functions },
+    '4'	 => {
+	name	=> 'pg_stat_database_conflicts',
+	setup	=> \&setup_database_conflicts,
+	indom	=> $database_indom,
+	refresh => \&refresh_database }, # identical refresh routine
+    '5'	 => {
+	name	=> 'pg_stat_replication',
+	setup	=> \&setup_replication,
+	indom	=> $replicant_indom,
+	refresh => \&refresh_replication },
     '10' => {
 	name	=> 'pg_stat_all_tables',
 	setup	=> \&setup_stat_tables,
@@ -218,6 +229,9 @@ sub postgresql_indoms_setup
     $database_indom = $pmda->add_indom($database_indom, \@database_instances,
 		'Instance domain exporting each PostgreSQL database', '');
 
+    $replicant_indom = $pmda->add_indom($replicant_indom, \@replicant_instances,
+		'Instance domain exporting PostgreSQL replication processes', '');
+
     $all_index_indom = $pmda->add_indom($all_index_indom, \@all_index_instances,
 		'Instance domain for PostgreSQL indexes, all tables', '');
     $sys_index_indom = $pmda->add_indom($sys_index_indom, \@sys_index_instances,
@@ -317,6 +331,25 @@ sub refresh_activity
 	}
     }
     $pmda->replace_indom($process_indom, \@process_instances);
+}
+
+sub refresh_replication
+{
+    my $tableref = shift;
+    my $result = refresh_results($tableref);
+    my %table = %$tableref;
+
+    @replicant_instances = ();		# refresh indom too
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
+	    my $instid = $replicant_instances[($i*2)] = "$result->[$i][2]";
+	    $replicant_instances[($i*2)+1] = "$result->[$i][2] $result->[$i][5]";
+	    # special case needed for 'client_addr' table column (column #4)
+	    $result->[$i][4] = '' unless (defined($result->[$i][4]));
+	    $table{values}{$instid} = $result->[$i];
+	}
+    }
+    $pmda->replace_indom($replicant_indom, \@replicant_instances);
 }
 
 sub refresh_bgwriter
@@ -636,6 +669,7 @@ sub setup_activity
 {
     my ($cluster, $indom) = @_;
 
+    # indom: procpid + application_name
     $pmda->add_metric(pmda_pmid($cluster,0), PM_TYPE_U32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.activity.datid', '', '');
@@ -672,6 +706,55 @@ sub setup_activity
     $pmda->add_metric(pmda_pmid($cluster,12), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.activity.current_query', '', '');
+}
+
+sub setup_replication
+{
+    my ($cluster, $indom) = @_;
+
+    # indom: procpid + application_name
+    $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_U32, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.replication.usesysid', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,2), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.replication.usename', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.replication.application_name', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.replication.client_addr', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.replication.client_hostname', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U32, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.replication.client_port', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,7), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.replication.backend_start', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,8), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.replication.state', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,9), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.replication.sent_location', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,10), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.replication.write_location', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,11), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.replication.flush_location', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,12), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.replication.replay_location', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,13), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.replication.sync_priority', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,14), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.replication.sync_state', '', '');
 }
 
 sub setup_stat_tables
@@ -753,6 +836,28 @@ sub setup_bgwriter
 		  'postgresql.stat.bgwriter.buffers_alloc', '', '');
 }
 
+sub setup_database_conflicts
+{
+    my ($cluster, $indom) = @_;
+
+    # indom: datid + datname
+    $pmda->add_metric(pmda_pmid($cluster,2), PM_TYPE_U32, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'postgresql.stat.database_conflicts.tablespace', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U32, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'postgresql.stat.database_conflicts.lock', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U32, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'postgresql.stat.database_conflicts.snapshot', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U32, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'postgresql.stat.database_conflicts.bufferpin', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U32, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'postgresql.stat.database_conflicts.deadlock', '', '');
+
+}
 sub setup_database
 {
     my ($cluster, $indom) = @_;
@@ -788,6 +893,12 @@ sub setup_database
     $pmda->add_metric(pmda_pmid($cluster,11), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'postgresql.stat.database.tup_deleted', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,12), PM_TYPE_U32, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'postgresql.stat.database.conflicts', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,13), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.database.stats_reset', '', '');
 }
 
 sub setup_stat_indexes
