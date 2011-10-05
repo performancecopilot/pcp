@@ -43,7 +43,6 @@
  */
 
 #define DEFAULT_MAXMEM	(2 * 1024 * 1024)	/* 2 megabytes */
-#define max(a,b)	((a > b) ? a : b)
 long maxmem;
 
 int maxfd;
@@ -531,7 +530,7 @@ main(int argc, char **argv)
     int			c, err = 0, sep = __pmPathSeparator();
 
     minmem = getpagesize();
-    maxmem = max(minmem, DEFAULT_MAXMEM);
+    maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
     __pmSetProgname(argv[0]);
     snprintf(helppath, sizeof(helppath), "%s%c" "logger" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
