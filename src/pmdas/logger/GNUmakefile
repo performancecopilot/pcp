@@ -21,8 +21,6 @@ CMDTARGET = pmdalogger$(EXECSUFFIX)
 DFILES 	= README
 CFILES	= event.c util.c logger.c
 HFILES	= event.h util.h
-CFILES += queues.c
-HFILES += queues.h
 LLDLIBS = -lpcp -lpcp_pmda
 LSRCFILES = Install Remove pmns help $(DFILES) root
 
