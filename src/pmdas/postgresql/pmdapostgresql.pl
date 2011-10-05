@@ -348,14 +348,15 @@ sub refresh_activity
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $process_instances[($i*2)] = "$result->[$i][2]";
-	    $process_instances[($i*2)+1] = "$result->[$i][2] $result->[$i][5]";
-	    # TODO: 9.0 does not have client_hostname, deal (combine host:port?)
-	    #       13 columns vs 12 ... combine and shift result seems OK.
-	    # special case needed for 'client_*' columns (6 -> 7)
-	    for my $j (6 .. 7) {	# for each special case column
-		$result->[$i][$j] = '' unless (defined($result->[$i][$j]));
+	    $tableref = $result->[$i];
+	    $process_instances[($i*2)+1] = "$tableref->[2] $tableref->[5]";
+	    # 9.0 does not have client_hostname, deal with that first
+	    splice @$tableref, 7, 0, (undef) unless (@$tableref > 13);
+	    # special case needed for 'client_*' columns (6 -> 8), may be null
+	    for my $j (6 .. 8) {	# for each special case column
+		$tableref->[$j] = '' unless (defined($tableref->[$j]));
 	    }
-	    $table{values}{$instid} = $result->[$i];
+	    $table{values}{$instid} = $tableref;
 	}
     }
     $pmda->replace_indom($process_indom, \@process_instances);
@@ -372,8 +373,6 @@ sub refresh_replication
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $replicant_instances[($i*2)] = "$result->[$i][2]";
 	    $replicant_instances[($i*2)+1] = "$result->[$i][2] $result->[$i][5]";
-	    # TODO: 9.0 does not have client_hostname, deal (combine host:port?)
-	    #      (9.0 does not have this table at all, remember)
 	    # special case needed for 'client_*' columns (4 -> 5)
 	    for my $j (4 .. 5) {	# for each special case column
 		$result->[$i][$j] = '' unless (defined($result->[$i][$j]));
