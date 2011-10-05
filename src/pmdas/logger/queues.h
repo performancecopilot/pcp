@@ -83,4 +83,4 @@ typedef struct event_client {
     pmdaEventReleaseFilterCallBack release;
 } event_client_t;
 
-#endif /* _EVENT_H */
+#endif /* _QUEUES_H */
