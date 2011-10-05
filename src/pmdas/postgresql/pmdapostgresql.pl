@@ -44,9 +44,6 @@ my $sys_seq_indom = 10; my @sys_seq_instances;
 my $user_seq_indom = 11; my @user_seq_instances;
 my $replicant_indom = 12; my @replicant_instances;
 
-#		    pg_stat_xact_all_tables, pg_stat_xact_sys_tables,
-#		    pg_stat_xact_user_tables, pg_stat_xact_user_functions
-
 # hash of hashes holding DB handle and last values, indexed by table name
 my %tables_by_name = (
     pg_stat_activity		=> { handle => undef, values => {} },
@@ -70,6 +67,10 @@ my %tables_by_name = (
     pg_statio_sys_sequences	=> { handle => undef, values => {} },
     pg_statio_user_sequences	=> { handle => undef, values => {} },
     pg_stat_user_functions	=> { handle => undef, values => {} },
+    pg_stat_xact_user_functions	=> { handle => undef, values => {} },
+    pg_stat_xact_all_tables	=> { handle => undef, values => {} },
+    pg_stat_xact_sys_tables	=> { handle => undef, values => {} },
+    pg_stat_xact_user_tables	=> { handle => undef, values => {} },
 );
 
 # hash of hashes holding setup and refresh function, indexed by PMID cluster
@@ -95,11 +96,16 @@ my %tables_by_cluster = (
 	indom	=> $function_indom,
 	refresh => \&refresh_user_functions },
     '4'	 => {
+	name	=> 'pg_stat_xact_user_functions',
+	setup	=> \&setup_xact_user_functions,
+	indom	=> $function_indom,
+	refresh => \&refresh_user_functions }, # identical refresh routine
+    '5'	 => {
 	name	=> 'pg_stat_database_conflicts',
 	setup	=> \&setup_database_conflicts,
 	indom	=> $database_indom,
 	refresh => \&refresh_database }, # identical refresh routine
-    '5'	 => {
+    '6'	 => {
 	name	=> 'pg_stat_replication',
 	setup	=> \&setup_replication,
 	indom	=> $replicant_indom,
@@ -140,6 +146,24 @@ my %tables_by_cluster = (
 	indom	=> $user_index_indom,
 	params	=> 'user_indexes',
 	refresh => \&refresh_user_indexes },
+    '16' => {
+	name	=> 'pg_stat_xact_all_tables',
+	setup	=> \&setup_stat_xact_tables,
+	indom	=> $all_rel_indom,
+	params	=> 'all_tables',
+	refresh => \&refresh_xact_all_tables },
+    '17' => {
+	name	=> 'pg_stat_xact_sys_tables',
+	setup	=> \&setup_stat_xact_tables,
+	indom	=> $sys_rel_indom,
+	params	=> 'sys_tables',
+	refresh => \&refresh_xact_sys_tables },
+    '18' => {
+	name	=> 'pg_stat_xact_user_tables',
+	setup	=> \&setup_stat_xact_tables,
+	indom	=> $user_rel_indom,
+	params	=> 'user_tables',
+	refresh => \&refresh_xact_user_tables },
     '30' => {
 	name	=> 'pg_statio_all_tables',
 	setup	=> \&setup_statio_tables,
@@ -325,8 +349,12 @@ sub refresh_activity
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $process_instances[($i*2)] = "$result->[$i][2]";
 	    $process_instances[($i*2)+1] = "$result->[$i][2] $result->[$i][5]";
-	    # special case needed for 'client_addr' table column (column #6)
-	    $result->[$i][6] = '' unless (defined($result->[$i][6]));
+	    # TODO: 9.0 does not have client_hostname, deal (combine host:port?)
+	    #       13 columns vs 12 ... combine and shift result seems OK.
+	    # special case needed for 'client_*' columns (6 -> 7)
+	    for my $j (6 .. 7) {	# for each special case column
+		$result->[$i][$j] = '' unless (defined($result->[$i][$j]));
+	    }
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
@@ -344,8 +372,12 @@ sub refresh_replication
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $replicant_instances[($i*2)] = "$result->[$i][2]";
 	    $replicant_instances[($i*2)+1] = "$result->[$i][2] $result->[$i][5]";
-	    # special case needed for 'client_addr' table column (column #4)
-	    $result->[$i][4] = '' unless (defined($result->[$i][4]));
+	    # TODO: 9.0 does not have client_hostname, deal (combine host:port?)
+	    #      (9.0 does not have this table at all, remember)
+	    # special case needed for 'client_*' columns (4 -> 5)
+	    for my $j (4 .. 5) {	# for each special case column
+		$result->[$i][$j] = '' unless (defined($result->[$i][$j]));
+	    }
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
@@ -452,6 +484,57 @@ sub refresh_user_tables
 	    for my $j (13 .. 16) {	# for each special case column
 		$result->[$i][$j] = '' unless (defined($result->[$i][$j]));
 	    }
+	    $table{values}{$instid} = $result->[$i];
+	}
+    }
+    $pmda->replace_indom($user_rel_indom, \@user_rel_instances);
+}
+
+sub refresh_xact_all_tables
+{
+    my $tableref = shift;
+    my $result = refresh_results($tableref);
+    my %table = %$tableref;
+
+    @all_rel_instances = ();		# refresh indom too
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
+	    my $instid = $all_rel_instances[($i*2)] = $result->[$i][0];
+	    $all_rel_instances[($i*2)+1] = $result->[$i][2];
+	    $table{values}{$instid} = $result->[$i];
+	}
+    }
+    $pmda->replace_indom($all_rel_indom, \@all_rel_instances);
+}
+
+sub refresh_xact_sys_tables
+{
+    my $tableref = shift;
+    my $result = refresh_results($tableref);
+    my %table = %$tableref;
+
+    @sys_rel_instances = ();		# refresh indom too
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
+	    my $instid = $sys_rel_instances[($i*2)] = $result->[$i][0];
+	    $sys_rel_instances[($i*2)+1] = $result->[$i][2];
+	    $table{values}{$instid} = $result->[$i];
+	}
+    }
+    $pmda->replace_indom($sys_rel_indom, \@sys_rel_instances);
+}
+
+sub refresh_xact_user_tables
+{
+    my $tableref = shift;
+    my $result = refresh_results($tableref);
+    my %table = %$tableref;
+
+    @user_rel_instances = ();		# refresh indom too
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
+	    my $instid = $user_rel_instances[($i*2)] = $result->[$i][0];
+	    $user_rel_instances[($i*2)+1] = $result->[$i][2];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
@@ -688,22 +771,25 @@ sub setup_activity
     $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.activity.client_addr', '', '');
-    $pmda->add_metric(pmda_pmid($cluster,7), PM_TYPE_U32, $indom,
+    $pmda->add_metric(pmda_pmid($cluster,7), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.activity.client_hostname', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,8), PM_TYPE_U32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.activity.client_port', '', '');
-    $pmda->add_metric(pmda_pmid($cluster,8), PM_TYPE_STRING, $indom,
-		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.activity.backend_start', '', '');
     $pmda->add_metric(pmda_pmid($cluster,9), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.activity.xact_start', '', '');
+		  'postgresql.stat.activity.backend_start', '', '');
     $pmda->add_metric(pmda_pmid($cluster,10), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.activity.xact_start', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,11), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.activity.query_start', '', '');
-    $pmda->add_metric(pmda_pmid($cluster,11), PM_TYPE_32, $indom,
+    $pmda->add_metric(pmda_pmid($cluster,12), PM_TYPE_32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.activity.waiting', '', '');
-    $pmda->add_metric(pmda_pmid($cluster,12), PM_TYPE_STRING, $indom,
+    $pmda->add_metric(pmda_pmid($cluster,13), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.activity.current_query', '', '');
 }
@@ -755,6 +841,40 @@ sub setup_replication
     $pmda->add_metric(pmda_pmid($cluster,14), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.replication.sync_state', '', '');
+}
+
+sub setup_stat_xact_tables
+{
+    my ($cluster, $indom, $tables) = @_;
+
+    # indom: relid + relname
+    $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  "postgresql.stat.xact.$tables.schemaname", '', '');
+    $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U32, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
+		  "postgresql.stat.xact.$tables.seq_scan", '', '');
+    $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U32, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
+		  "postgresql.stat.xact.$tables.seq_tup_read", '', '');
+    $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U32, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
+		  "postgresql.stat.xact.$tables.idx_scan", '', '');
+    $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U32, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
+		  "postgresql.stat.xact.$tables.idx_tup_fetch", '', '');
+    $pmda->add_metric(pmda_pmid($cluster,7), PM_TYPE_U32, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
+		  "postgresql.stat.xact.$tables.n_tup_ins", '', '');
+    $pmda->add_metric(pmda_pmid($cluster,8), PM_TYPE_U32, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
+		  "postgresql.stat.xact.$tables.n_tup_upd", '', '');
+    $pmda->add_metric(pmda_pmid($cluster,9), PM_TYPE_U32, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
+		  "postgresql.stat.xact.$tables.n_tup_del", '', '');
+    $pmda->add_metric(pmda_pmid($cluster,10), PM_TYPE_U32, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
+		  "postgresql.stat.xact.$tables.n_tup_hot_upd", '', '');
 }
 
 sub setup_stat_tables
@@ -994,6 +1114,25 @@ sub setup_statio_sequences
     $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  "postgresql.statio.$sequences.blks_hit", '', '');
+}
+
+sub setup_xact_user_functions
+{
+    my ($cluster, $indom) = @_;
+
+    # indom: funcid + funcname
+    $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_STRING, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.xact.user_functions.schemaname', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U64, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
+		  'postgresql.stat.xact.user_functions.calls', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U64, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		  'postgresql.stat.xact.user_functions.total_time', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U64, $indom,
+		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		  'postgresql.stat.xact.user_functions.self_time', '', '');
 }
 
 sub setup_user_functions
