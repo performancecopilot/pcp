@@ -43,15 +43,15 @@ pmlogrewrite in out foo
 
 echo
 echo "=== truncated archive ==="
-pmlogrewrite src-oss/truncbin $tmp.new
-echo "input records: `_cnt_logrecs src-oss/truncbin`"
+pmlogrewrite src-oss/ok-truncbin $tmp.new
+echo "input records: `_cnt_logrecs src-oss/ok-truncbin`"
 echo "output records: `_cnt_logrecs $tmp.new`"
 
 echo
 echo "=== truncated archive -d ==="
 rm -f $tmp.new.*
-pmlogrewrite -d src-oss/truncbin $tmp.new
-echo "input records: `_cnt_logrecs src-oss/truncbin`"
+pmlogrewrite -d src-oss/ok-truncbin $tmp.new
+echo "input records: `_cnt_logrecs src-oss/ok-truncbin`"
 echo "output records: `_cnt_logrecs $tmp.new`"
 
 echo

@@ -101,12 +101,12 @@ src-oss/mirage	metric sample.bin { name -> x23456789.sample.bin }
 # inst renumbering
 src-oss/mirage	indom 29.2 { inst 300 -> 42 }
 src-oss/mirage	indom 29.2 { inst 300 -> 400 }
-src-oss/mirage	indom 29.2 { name "bin-700" -> "bin-900" }
-src-oss/mirage	indom 29.2 { name "bin-700" -> "bin-900 and some" }
-src-oss/mirage	indom 29.2 { name "bin-300" -> "bin-100" inst 300 -> 100 }
-src-oss/rattle	indom 1.5 { name "1 minute" -> "5" }
-src-oss/rattle	indom 1.5 { name "5 minute" -> "15 doo dah" }
-src-oss/rattle	indom 1.5 { name "5" -> "5 hours" }
+src-oss/mirage	indom 29.2 { iname "bin-700" -> "bin-900" }
+src-oss/mirage	indom 29.2 { iname "bin-700" -> "bin-900 and some" }
+src-oss/mirage	indom 29.2 { iname "bin-300" -> "bin-100" inst 300 -> 100 }
+src-oss/rattle	indom 1.5 { iname "1 minute" -> "5" }
+src-oss/rattle	indom 1.5 { iname "5 minute" -> "15 doo dah" }
+src-oss/rattle	indom 1.5 { iname "5" -> "5 hours" }
 # all metric semantics
 src-oss/mirage	metric 29.*.* { sem->DISCRETE } metric pmcd.pmlogger.port { sem->COUNTER }
 # scale conversion

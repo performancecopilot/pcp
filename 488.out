@@ -638,7 +638,7 @@ QA output created by 488
                  inst [1 or "1 minute"] value 0.46972656
                  inst [5 or "5 minute"] value 0.19921875
 
-=== indom 29.3 { name "m-00" -> delete inst 33 -> delete } ===
+=== indom 29.3 { iname "m-00" -> delete inst 33 -> delete } ===
 --- pmns diffs ---
 --- pmdumplog diffs ---
 --- TMP.in

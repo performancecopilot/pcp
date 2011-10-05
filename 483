@@ -41,7 +41,7 @@ global {
 
 indom 1.5 {
     indom -> 1.10
-    name "15 minute" -> "forever"
+    iname "15 minute" -> "forever"
     inst 15 -> 9999
 }
 
@@ -87,7 +87,7 @@ do
 done
 
 # name exercises
-for n in foo.bar.mumble.fratz "blah blah blah" 'hinv.*' hinv.ndisk
+for n in foo.bar.mumble.fratz "blah blah blah" 'hinv.*' hinv.ndisk hinv.ncpu
 do
     echo
     echo "=== metric hinv.ndisk { name -> $n } ==="

@@ -48,7 +48,6 @@ No changes
 === metric 42.42.42 { type->U32 } ===
 Warning [TMP.conf, line 1]
 Metric 42.42.42 pmNameID: Unknown or illegal metric identifier
-
 PCP Archive Log Rewrite Specifications Summary
 No changes
 
@@ -138,7 +137,7 @@ pmID:		1.18.2 -> 2.3.2
 
 === metric hinv.ncpu { pmid -> foo } ===
 Specification error in configuration file (TMP.conf)
-[line 1] Expecting <d>.<c>.<i> or <d>.<c>.* or <d>.*.* in pmid clause
+[line 1] Expecting <domain>.<cluster>.<item> or <domain>.<cluster>.* or <domain>.*.* in pmid clause
 
 === metric hinv.ncpu { pmid -> 1.*.* } ===
 Warning [TMP.conf, line 1]
@@ -171,6 +170,10 @@ Warning [TMP.conf, line 1]
 Metric: hinv.ndisk (1.26.7): name: No change
 PCP Archive Log Rewrite Specifications Summary
 No changes
+
+=== metric hinv.ndisk { name -> hinv.ncpu } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Metric name hinv.ncpu already assigned for PMID 1.18.2
 
 === metric hinv.ncpu { type -> 32 } ===
 PCP Archive Log Rewrite Specifications Summary
@@ -248,7 +251,7 @@ New indom (42.5) for metric irix.kernel.all.load is not in the output archive
 
 === metric irix.kernel.all.load { indom -> foo } ===
 Specification error in configuration file (TMP.conf)
-[line 1] Expecting <d>.<s> or <d>.* or NULL in indom clause
+[line 1] Expecting <domain>.<serial> or NULL in indom clause
 
 === metric irix.kernel.all.load { indom -> 1.5 } ===
 Warning [TMP.conf, line 1]
@@ -292,7 +295,7 @@ PCP Archive Log Rewrite Specifications Summary
 
 Metric: irix.kernel.all.load (1.18.3)
 InDom:		1.5 -> PM_INDOM_NULL
-Output:		value for instance id 5
+Output:		value for instance 5
 
 === metric irix.kernel.all.load { indom -> NULL output min } ===
 PCP Archive Log Rewrite Specifications Summary
@@ -313,11 +316,18 @@ PCP Archive Log Rewrite Specifications Summary
 
 Metric: irix.kernel.all.load (1.18.3)
 InDom:		1.5 -> PM_INDOM_NULL
-Output:		average value
+Output:		average value (output instance 0)
 
 === metric irix.kernel.all.load { indom -> 2.1 output inst 123 } ===
-Specification error in configuration file (TMP.conf)
-[line 1] OUTPUT option requires input or output metric to be singular
+Warning [TMP.conf, line 2]
+Instance 123 from OUTPUT clause not found in old indom 1.5
+Warning [TMP.conf, line 2]
+Instance 123 from OUTPUT clause not found in new indom 2.1
+PCP Archive Log Rewrite Specifications Summary
+
+Metric: irix.kernel.all.load (1.18.3)
+InDom:		1.5 -> 2.1
+Output:		value for instance 123
 
 === metric irix.kernel.all.load { indom -> 42.42 } indom 1.5 { indom -> 33.33  } ===
 Semantic error in configuration file (TMP.conf)
@@ -330,18 +340,20 @@ Metric: pmcd.pmlogger.port (2.3.0)
 InDom:		2.1 -> 60.1
 
 === metric hinv.ndisk { indom -> 1.5 } ===
+Warning [TMP.conf, line 2]
+Instance 0 from OUTPUT clause not found in new indom 1.5
 PCP Archive Log Rewrite Specifications Summary
 
 Metric: hinv.ndisk (1.26.7)
 InDom:		PM_INDOM_NULL -> 1.5
-Output:		singular value (with instance id 0)
+Output:		first and only value (output instance 0)
 
 === metric hinv.ndisk { indom -> 1.5 output inst 15 } ===
 PCP Archive Log Rewrite Specifications Summary
 
 Metric: hinv.ndisk (1.26.7)
 InDom:		PM_INDOM_NULL -> 1.5
-Output:		singular value (with instance id 15)
+Output:		first and only value (output instance 15)
 
 === metric 2.3.2 { sem -> Discrete } ===
 PCP Archive Log Rewrite Specifications Summary

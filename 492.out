@@ -22,15 +22,15 @@ Options:
   -w             emit warnings [default is silence]
 
 === truncated archive ===
-pmlogrewrite: Error: __pmLogRead[log src-oss/truncbin]: Corrupted record in a PCP archive log
-pmlogrewrite: Error occurred at byte offset 204460 into a file of 204800 bytes.
+pmlogrewrite: Error: __pmLogRead[log src-oss/ok-truncbin]: Corrupted record in a PCP archive log
+pmlogrewrite: Error occurred at byte offset 204456 into a file of 204800 bytes.
 The last record, and the remainder of this file will not be extracted.
 input records: 416
 output records: 416
 
 === truncated archive -d ===
-pmlogrewrite: Error: __pmLogRead[log src-oss/truncbin]: Corrupted record in a PCP archive log
-pmlogrewrite: Error occurred at byte offset 204460 into a file of 204800 bytes.
+pmlogrewrite: Error: __pmLogRead[log src-oss/ok-truncbin]: Corrupted record in a PCP archive log
+pmlogrewrite: Error occurred at byte offset 204456 into a file of 204800 bytes.
 The last record, and the remainder of this file will not be extracted.
 input records: 416
 output records: 416

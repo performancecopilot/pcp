@@ -39,7 +39,7 @@ SRCARCH	= mirage.0 moomba.client.0 \
 	babylon.percpu.0 babylon.percpu_v2.0 \
 	omen.client.0 \
 	bozo.client.0 bozo.client_v2.0 \
-	late.0 ok-bigbin.0 ok-mv-bigbin.0 ok-noti-bigbin.0 \
+	late.0 ok-bigbin.0 ok-mv-bigbin.0 ok-noti-bigbin.0 ok-truncbin.0 \
 	babylon.pmview.0 babylon.pmview_v2.0 \
 	ok-foo.0 ok-mv-foo.0 \
 	bug.0 bug_v2.0 \
@@ -64,7 +64,7 @@ SRCARCH	= mirage.0 moomba.client.0 \
 	541380.0 541380_v2.0 \
 	573184.0 20101004-trunc.0 \
 	bozo.client_v2.meta.bad.1 bozo.client_v2.meta.bad.2 \
-	rewrite.0
+	rewrite.0 proc.0
 
 MKARCH	= foo.0 mv-foo.0 noti-foo.0 bar.0 mv-bar.0 noti-bar.0 \
 	bigbin.0 mv-bigbin.0 noti-bigbin.0 truncbin.0 null.0 \
