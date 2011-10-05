@@ -41,7 +41,7 @@ pmdaEventNewQueue(const char *name, int maxmemory)
     }
     if (i == numqueues) {
 	/* no free slots, extend the available set */
-	size = numqueues * sizeof(event_queue_t);
+	size = (numqueues + 1) * sizeof(event_queue_t);
 	queues = realloc(queues, size);
 	if (!queues)
 	    __pmNoMem("pmdaEventNewQueue", size, PM_FATAL_ERR);
@@ -388,7 +388,7 @@ pmdaEventNewClient(int context)
     }
     if (i == numclients) {
 	/* no free slots, extend the available set */
-	size = numclients * sizeof(event_client_t);
+	size = (numclients + 1) * sizeof(event_client_t);
 	clients = realloc(clients, size);
 	if (!clients)
 	    __pmNoMem("pmdaEventNewClient", size, PM_FATAL_ERR);
