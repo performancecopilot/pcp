@@ -292,8 +292,10 @@ sub refresh_results
     %values = ();	# clear any previous values
 
     if (defined($dbh) && defined($handle)) {
-	$handle->execute();
-	return $handle->fetchall_arrayref();
+	if (defined($handle->execute())) {
+	    return $handle->fetchall_arrayref();
+	}
+	$dbh = undef;	# force a reconnect
     }
     return undef;
 }
