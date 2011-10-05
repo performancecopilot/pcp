@@ -746,7 +746,7 @@ Options:\n\
 		PMLC_GET_AVAIL(tp->t_state) ? "" : "un",
 		PMLC_GET_MAND(tp->t_state) ? "mand" : "adv",
 		PMLC_GET_ON(tp->t_state) ? "on" : "off");
-	    fprintf(stderr, " delta: %ld msec", 
+	    fprintf(stderr, " delta: %ld usec", 
 			(long)1000 * tp->t_delta.tv_sec + tp->t_delta.tv_usec);
 	    fprintf(stderr, " numpmid: %d\n", tp->t_numpmid);
 	    for (i = 0; i < tp->t_numpmid; i++) {
