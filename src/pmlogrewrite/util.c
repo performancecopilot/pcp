@@ -76,3 +76,37 @@ __pmHashWalk(__pmHashCtl *hcp, int mode)
 
     return this;
 }
+
+/*
+ * instance name matching ... return
+ *  0 for no match
+ *  1 for match to first space
+ *  2 for complete match
+ * -1 if either name is empty or NULL
+ */
+int
+inst_name_eq(const char *p, const char *q)
+{
+    if (p == NULL || *p == '\0')
+	return -1;
+    if (q == NULL || *q == '\0')
+	return -1;
+
+    for ( ; ; p++, q++) {
+	if (*p == '\0' && *q == '\0')
+	    return 2;
+	if (*p == '\0' || *p == ' ') {
+	    if (*q == '\0' || *q == ' ')
+		return 1;
+	    break;
+	}
+	if (*q == '\0' || *q == ' ') {
+	    if (*p == '\0' || *p == ' ')
+		return 1;
+	    break;
+	}
+	if (*p != *q)
+	    break;
+    }
+    return 0;
+}

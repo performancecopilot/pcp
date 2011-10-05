@@ -91,9 +91,10 @@ dupstr(char *s, int strip_quotes)
 
 <indom,metric>"delete"	{ return DELETE; }
 <indom>"indom"		{ return INDOM; }
-<indom,metric>"name"	{ return NAME; }
-<indom,metric>"inst"	{ return INST; }
+<indom>"iname"		{ return INAME; }
+<indom>"inst"		{ return INST; }
 
+<metric>"name"		{ return NAME; }
 <metric>"pmid"		{ return PMID; }
 <metric>"type"		{ BEGIN(type); return TYPE; }
 <metric>"indom"		{ return INDOM; }
@@ -116,6 +117,7 @@ dupstr(char *s, int strip_quotes)
 <output>"sum"		{ yylval.ival = OUTPUT_SUM; BEGIN(metric); return OUTPUT_TYPE; }
 <output>"avg"		{ yylval.ival = OUTPUT_AVG; BEGIN(metric); return OUTPUT_TYPE; }
 <output>"inst"		{ BEGIN(metric); return INST; }
+<output>"iname"		{ BEGIN(metric); return INAME; }
 
 <sem>"COUNTER"		{ yylval.ival = PM_SEM_COUNTER; BEGIN(metric); return SEM_NAME; }
 <sem>"INSTANT"		{ yylval.ival = PM_SEM_INSTANT; BEGIN(metric); return SEM_NAME; }
@@ -185,12 +187,22 @@ dupstr(char *s, int strip_quotes)
 			    if (mystate == LEX_GLOBAL) BEGIN(glob);
 			    if (mystate == LEX_INDOM) BEGIN(indom);
 			    if (mystate == LEX_METRIC) BEGIN(metric);
+#if PCP_DEBUG
+    if ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1)) == (DBG_TRACE_APPL0 | DBG_TRACE_APPL1))
+	fprintf(stderr, "lex: [%d] { begin state=%d\n", lineno, mystate);
+#endif
 			    return LBRACE;
 			}
-"}"			{ BEGIN(INITIAL); return RBRACE; }
+"}"			{
+#if PCP_DEBUG
+    if ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1)) == (DBG_TRACE_APPL0 | DBG_TRACE_APPL1))
+	fprintf(stderr, "lex: [%d] } end state=%d\n", lineno, mystate);
+#endif
+			    mystate = LEX_NONE;
+			    BEGIN(INITIAL); return RBRACE;
+			}
 "+"			{ return PLUS; }
 "-"			{ return MINUS; }
-"."			{ return DOT; }
 ":"			{ return COLON; }
 ","			{ return COMMA; }
 

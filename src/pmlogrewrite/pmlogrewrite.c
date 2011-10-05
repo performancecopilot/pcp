@@ -405,25 +405,56 @@ reportconfig(void)
 		printf("Output:\t\t");
 		switch (mp->output) {
 		    case OUTPUT_ONE:
-			printf("value for instance id %d\n", mp->one_inst);
+			if (mp->old_desc.indom != PM_INDOM_NULL) {
+			    printf("value for instance");
+			    if (mp->one_inst != PM_IN_NULL)
+				printf(" %d", mp->one_inst);
+			    if (mp->one_name != NULL)
+				printf(" \"%s\"", mp->one_name);
+			    putchar('\n');
+			}
+			else
+			    printf("the only value (output instance %d)\n", mp->one_inst);
 			break;
 		    case OUTPUT_FIRST:
-			if (mp->old_desc.indom == PM_INDOM_NULL)
-			    printf("singular value (with instance id %d)\n", mp->one_inst);
-			else
+			if (mp->old_desc.indom != PM_INDOM_NULL)
 			    printf("first value\n");
+			else {
+			    if (mp->one_inst != PM_IN_NULL)
+				printf("first and only value (output instance %d)\n", mp->one_inst);
+			    else
+				printf("first and only value (output instance \"%s\")\n", mp->one_name);
+			}
 			break;
 		    case OUTPUT_LAST:
-			printf("last value\n");
+			if (mp->old_desc.indom != PM_INDOM_NULL)
+			    printf("last value\n");
+			else
+			    printf("last and only value (output instance %d)\n", mp->one_inst);
 			break;
 		    case OUTPUT_MIN:
-			printf("smallest value\n");
+			if (mp->old_desc.indom != PM_INDOM_NULL)
+			    printf("smallest value\n");
+			else
+			    printf("smallest and only value (output instance %d)\n", mp->one_inst);
 			break;
 		    case OUTPUT_MAX:
-			printf("largest value\n");
+			if (mp->old_desc.indom != PM_INDOM_NULL)
+			    printf("largest value\n");
+			else
+			    printf("largest and only value (output instance %d)\n", mp->one_inst);
+			break;
+		    case OUTPUT_SUM:
+			if (mp->old_desc.indom != PM_INDOM_NULL)
+			    printf("sum value (output instance %d)\n", mp->one_inst);
+			else
+			    printf("sum and only value (output instance %d)\n", mp->one_inst);
 			break;
 		    case OUTPUT_AVG:
-			printf("average value\n");
+			if (mp->old_desc.indom != PM_INDOM_NULL)
+			    printf("average value (output instance %d)\n", mp->one_inst);
+			else
+			    printf("average and only value (output instance %d)\n", mp->one_inst);
 			break;
 		}
 	    }
@@ -583,7 +614,6 @@ check_indoms()
 	for (i = 0; i < ip->numinst; i++) {
 	    int		insti;
 	    char	*namei;
-	    int		namelen;
 	    int		j;
 	    if (ip->flags[i] & INST_CHANGE_INST)
 		insti = ip->new_inst[i];
@@ -593,8 +623,6 @@ check_indoms()
 		namei = ip->new_iname[i];
 	    else
 		namei = ip->old_iname[i];
-	    for (namelen = 0; namei[namelen] != '\0' && namei[namelen] != ' '; namelen++)
-		;
 	    for (j = 0; j < ip->numinst; j++) {
 		int	instj;
 		char	*namej;
@@ -612,10 +640,7 @@ check_indoms()
 		    snprintf(mess, sizeof(mess), "Duplicate instance id %d (\"%s\" and \"%s\") for indom %s", insti, namei, namej, pmInDomStr(ip->old_indom));
 		    yysemantic(mess);
 		}
-		if (strlen(namej) < namelen)
-		    continue;
-		if (strncmp(namei, namej, namelen) == 0 &&
-		    (namej[namelen] == '\0' || namej[namelen] == ' ')) {
+		if (inst_name_eq(namei, namej) > 0) {
 		    snprintf(mess, sizeof(mess), "Duplicate instance name \"%s\" (%d) and \"%s\" (%d) for indom %s", namei, insti, namej, instj, pmInDomStr(ip->old_indom));
 		    yysemantic(mess);
 		}
@@ -623,6 +648,106 @@ check_indoms()
 	}
     }
 }
+
+static void
+check_output()
+{
+    /*
+     * For each metric, if there is an INDOM clause, perform some
+     * additional semantic checks and perhaps a name -> instance id
+     * mapping.
+     *
+     * Note instance renumbering happens _after_ value selction from
+     * 		the INDOM -> ,,,, OUTPUT clause, so all references to
+     * 		instance names and instance ids are relative to the
+     * 		"old" set.
+     */
+    metricspec_t	*mp;
+    indomspec_t		*ip;
+    __pmHashCtl		*hcp;
+
+    hcp = &inarch.ctxp->c_archctl->ac_log->l_hashindom;
+
+    for (mp = metric_root; mp != NULL; mp = mp->m_next) {
+	if ((mp->flags & METRIC_CHANGE_INDOM)) {
+	    if (mp->output == OUTPUT_ONE || mp->output == OUTPUT_FIRST) {
+		/*
+		 * cases here are
+		 * INAME "name"
+		 * 	=> one_name == "name" and one_inst == PM_IN_NULL
+		 * INST id
+		 * 	=> one_name == NULL and one_inst = id
+		 */
+		if (mp->old_desc.indom != PM_INDOM_NULL && mp->output == OUTPUT_ONE) {
+		    /*
+		     * old metric is not singular, so one_name and one_inst
+		     * are used to pick the value
+		     * also map one_name -> one_inst 
+		     */
+		    int		i;
+		    ip = start_indom(mp->old_desc.indom);
+		    for (i = 0; i < ip->numinst; i++) {
+			if (mp->one_name != NULL) {
+			    if (inst_name_eq(ip->old_iname[i], mp->one_name) > 0) {
+				mp->one_name = NULL;
+				mp->one_inst = ip->old_inst[i];
+				break;
+			    }
+			}
+			else if (ip->old_inst[i] == mp->one_inst)
+			    break;
+		    }
+		    if (i == ip->numinst) {
+			if (wflag) {
+			    if (mp->one_name != NULL)
+				snprintf(mess, sizeof(mess), "Instance \"%s\" from OUTPUT clause not found in old indom %s", mp->one_name, pmInDomStr(mp->old_desc.indom));
+			    else
+				snprintf(mess, sizeof(mess), "Instance %d from OUTPUT clause not found in old indom %s", mp->one_inst, pmInDomStr(mp->old_desc.indom));
+			    yywarn(mess);
+			}
+		    }
+		}
+		if (mp->new_desc.indom != PM_INDOM_NULL) {
+		    /*
+		     * new metric is not singular, so one_inst should be
+		     * found in the new instance domain ... ignore one_name
+		     * other than to map one_name -> one_inst if one_inst
+		     * is not already known
+		     */
+		    int		i;
+		    ip = start_indom(mp->new_desc.indom);
+		    for (i = 0; i < ip->numinst; i++) {
+			if (mp->one_name != NULL) {
+			    if (inst_name_eq(ip->old_iname[i], mp->one_name) > 0) {
+				mp->one_name = NULL;
+				mp->one_inst = ip->old_inst[i];
+				break;
+			    }
+			}
+			else if (ip->old_inst[i] == mp->one_inst)
+			    break;
+		    }
+		    if (i == ip->numinst) {
+			if (wflag) {
+			    if (mp->one_name != NULL)
+				snprintf(mess, sizeof(mess), "Instance \"%s\" from OUTPUT clause not found in new indom %s", mp->one_name, pmInDomStr(mp->new_desc.indom));
+			    else
+				snprintf(mess, sizeof(mess), "Instance %d from OUTPUT clause not found in new indom %s", mp->one_inst, pmInDomStr(mp->new_desc.indom));
+			    yywarn(mess);
+			}
+		    }
+		    /*
+		     * use default rule (id 0) if INAME not found and
+		     * and instance id is needed for output value
+		     */
+		    if (mp->old_desc.indom == PM_INDOM_NULL && mp->one_inst == PM_IN_NULL)
+			mp->one_inst = 0;
+		}
+	    }
+	}
+    }
+}
+
 
 int
 main(int argc, char **argv)
@@ -691,6 +816,7 @@ main(int argc, char **argv)
      */
     link_entries();
     check_indoms();
+    check_output();
 
     if (vflag)
 	reportconfig();

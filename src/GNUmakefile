@@ -33,7 +33,7 @@ SUBDIRS = include \
 	  pmtrace pmstat pmsocks pmdas pmafm procmemstat pmimport \
 	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
 	  autofsd-probe telnet-probe cpan bashrc pmiestatus \
-	  pmevent
+	  pmevent pmlogrewrite
 
 default :: default_pcp
 

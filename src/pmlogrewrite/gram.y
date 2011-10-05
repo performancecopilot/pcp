@@ -34,6 +34,7 @@ static int		star_cluster;
 static int		do_walk_metric;
 static int		output = OUTPUT_ALL;
 static int		one_inst;
+static char		*one_name;
 
 indomspec_t *
 walk_indom(int mode)
@@ -118,7 +119,6 @@ walk_metric(int mode, int flag, char *which)
 	RBRACE
 	PLUS
 	MINUS
-	DOT
 	COLON
 	COMMA
 	ASSIGN
@@ -130,6 +130,7 @@ walk_metric(int mode, int flag, char *which)
 	TIME
 	NAME
 	INST
+	INAME
 	DELETE
 	PMID
 	NULL_INT
@@ -371,7 +372,7 @@ indomspec	: INDOM indom_int
 			LBRACE optindomopt RBRACE
 		| INDOM
 		    {
-			snprintf(mess, sizeof(mess), "Expecting <d>.<s> or <d>.* in indom clause");
+			snprintf(mess, sizeof(mess), "Expecting <domain>.<serial> or <domain>.* in indom rule");
 			yyerror(mess);
 		    }
 		;
@@ -386,11 +387,11 @@ indom_int	: FLOAT
 			    snprintf(mess, sizeof(mess), "Missing serial field for indom");
 			    yyerror(mess);
 			}
-			if (domain >= DYNAMIC_PMID) {
+			if (domain < 1 || domain >= DYNAMIC_PMID) {
 			    snprintf(mess, sizeof(mess), "Illegal domain field (%d) for indom", domain);
 			    yyerror(mess);
 			}
-			if (serial >= 4194304) {
+			if (serial < 0 || serial >= 4194304) {
 			    snprintf(mess, sizeof(mess), "Illegal serial field (%d) for indom", serial);
 			    yyerror(mess);
 			}
@@ -402,7 +403,7 @@ indom_int	: FLOAT
 		    {
 			int		domain;
 			sscanf($1, "%d.", &domain);
-			if (domain >= DYNAMIC_PMID) {
+			if (domain < 1 || domain >= DYNAMIC_PMID) {
 			    snprintf(mess, sizeof(mess), "Illegal domain field (%d) for indom", domain);
 			    yyerror(mess);
 			}
@@ -444,7 +445,7 @@ indomopt	: INDOM ASSIGN indom_int
 			    }
 			}
 		    }
-		| NAME STRING ASSIGN STRING
+		| INAME STRING ASSIGN STRING
 		    {
 			indomspec_t	*ip;
 			for (ip = walk_indom(W_START); ip != NULL; ip = walk_indom(W_NEXT)) {
@@ -454,7 +455,7 @@ indomopt	: INDOM ASSIGN indom_int
 			free($2);
 			/* Note: $4 referenced from new_iname[] */
 		    }
-		| NAME STRING ASSIGN DELETE
+		| INAME STRING ASSIGN DELETE
 		    {
 			indomspec_t	*ip;
 			for (ip = walk_indom(W_START); ip != NULL; ip = walk_indom(W_NEXT)) {
@@ -481,7 +482,7 @@ indomopt	: INDOM ASSIGN indom_int
 		    }
 		| INDOM ASSIGN
 		    {
-			snprintf(mess, sizeof(mess), "Expecting <d>.<s> or <d>.* in indom clause");
+			snprintf(mess, sizeof(mess), "Expecting <domain>.<serial> or <domain>.* in indom clause");
 			yyerror(mess);
 		    }
 		| INDOM
@@ -489,19 +490,19 @@ indomopt	: INDOM ASSIGN indom_int
 			snprintf(mess, sizeof(mess), "Expecting -> in indom clause");
 			yyerror(mess);
 		    }
-		| NAME STRING ASSIGN
+		| INAME STRING ASSIGN
 		    {
-			snprintf(mess, sizeof(mess), "Expecting new external instance name string or DELETE in name clause");
+			snprintf(mess, sizeof(mess), "Expecting new external instance name string or DELETE in iname clause");
 			yyerror(mess);
 		    }
-		| NAME STRING
+		| INAME STRING
 		    {
-			snprintf(mess, sizeof(mess), "Expecting -> in name clause");
+			snprintf(mess, sizeof(mess), "Expecting -> in iname clause");
 			yyerror(mess);
 		    }
-		| NAME
+		| INAME
 		    {
-			snprintf(mess, sizeof(mess), "Expecting old external instance name string in name clause");
+			snprintf(mess, sizeof(mess), "Expecting old external instance name string in iname clause");
 			yyerror(mess);
 		    }
 		| INST number ASSIGN
@@ -544,7 +545,10 @@ metricspec	: METRIC pmid_or_name
 			    do_walk_metric = 1;
 			}
 			else {
-			    if ($2 != PM_ID_NULL)
+			    if ($2 == PM_ID_NULL)
+				/* metric not in archive */
+				current_metricspec = NULL;
+			    else
 				current_metricspec = start_metric($2);
 			    do_walk_metric = 0;
 			}
@@ -552,7 +556,7 @@ metricspec	: METRIC pmid_or_name
 			LBRACE optmetricoptlist RBRACE
 		| METRIC
 		    {
-			snprintf(mess, sizeof(mess), "Expecting metric name or <d>.<c>.<i> or <d>.<c>.* or <d>.*.* in metric clause");
+			snprintf(mess, sizeof(mess), "Expecting metric name or <domain>.<cluster>.<item> or <domain>.<cluster>.* or <domain>.*.* in metric rule");
 			yyerror(mess);
 		    }
 		;
@@ -584,15 +588,15 @@ pmid_int	: PMID_INT
 			int	sts;
 			sts = sscanf($1, "%d.%d.%d", &domain, &cluster, &item);
 			assert(sts == 3);
-			if (domain >= DYNAMIC_PMID) {
+			if (domain < 1 || domain >= DYNAMIC_PMID) {
 			    snprintf(mess, sizeof(mess), "Illegal domain field (%d) for pmid", domain);
 			    yyerror(mess);
 			}
-			if (cluster >= 4096) {
+			if (cluster < 0 || cluster >= 4096) {
 			    snprintf(mess, sizeof(mess), "Illegal cluster field (%d) for pmid", cluster);
 			    yyerror(mess);
 			}
-			if (item >= 1024) {
+			if (item < 0 || item >= 1024) {
 			    snprintf(mess, sizeof(mess), "Illegal item field (%d) for pmid", item);
 			    yyerror(mess);
 			}
@@ -606,7 +610,7 @@ pmid_int	: PMID_INT
 			int	cluster;
 			int	sts;
 			sts = sscanf($1, "%d.%d.", &domain, &cluster);
-			if (domain >= DYNAMIC_PMID) {
+			if (domain < 1 || domain >= DYNAMIC_PMID) {
 			    snprintf(mess, sizeof(mess), "Illegal domain field (%d) for pmid", domain);
 			    yyerror(mess);
 			}
@@ -670,6 +674,13 @@ metricopt	: PMID ASSIGN pmid_int
 				}
 			    }
 			    else {
+				int	sts;
+				pmID	pmid;
+				sts = pmLookupName(1, &$3, &pmid);
+				if (sts >= 0) {
+				    snprintf(mess, sizeof(mess), "Metric name %s already assigned for PMID %s", $3, pmIDStr(pmid));
+				    yyerror(mess);
+				}
 				mp->new_name = $3;
 				mp->flags |= METRIC_CHANGE_NAME;
 			    }
@@ -703,7 +714,7 @@ metricopt	: PMID ASSIGN pmid_int
 			    }
 			}
 		    }
-		| INDOM ASSIGN null_or_indom
+		| INDOM ASSIGN null_or_indom pick
 		    {
 			metricspec_t	*mp;
 			pmInDom		indom;
@@ -720,47 +731,58 @@ metricopt	: PMID ASSIGN pmid_int
 				}
 			    }
 			    else {
+				if ((output == OUTPUT_MIN ||
+					  output == OUTPUT_MAX ||
+					  output == OUTPUT_SUM ||
+					  output == OUTPUT_AVG) &&
+					 mp->old_desc.type != PM_TYPE_32 &&
+					 mp->old_desc.type != PM_TYPE_U32 &&
+					 mp->old_desc.type != PM_TYPE_64 &&
+					 mp->old_desc.type != PM_TYPE_U64 &&
+					 mp->old_desc.type != PM_TYPE_FLOAT &&
+					 mp->old_desc.type != PM_TYPE_DOUBLE) {
+				    snprintf(mess, sizeof(mess), "OUTPUT option MIN, MAX, AVG or SUM requires type to be numeric, not PM_TYPE_%s", pmTypeStr(mp->old_desc.type));
+				    yyerror(mess);
+				}
 				mp->new_desc.indom = indom;
 				mp->flags |= METRIC_CHANGE_INDOM;
 				mp->output = output;
-				if (mp->old_desc.indom == PM_INDOM_NULL) {
-				    if (output == OUTPUT_ONE) {
+				if (output == OUTPUT_ONE) {
+				    mp->one_name = one_name;
+				    mp->one_inst = one_inst;
+				    if (mp->old_desc.indom == PM_INDOM_NULL)
+					/*
+					 * singular input, pick first (only)
+					 * value, not one_inst matching ...
+					 * one_inst used for output instance
+					 * id
+					 */
 					mp->output = OUTPUT_FIRST;
-					mp->one_inst = one_inst;
+				}
+				if (output == OUTPUT_ALL) {
+				    /*
+				     * No OUTPUT clause, set up the defaults
+				     * based on indom types:
+				     * non-NULL -> NULL
+				     *		OUTPUT_FIRST, inst PM_IN_NULL
+				     * NULL -> non-NULL
+				     *		OUTPUT_FIRST, inst 0
+				     * non-NULL -> non-NULL
+				     * 		all instances selected
+				     *		(nothing to do for defaults)
+				     * NULL -> NULL
+				     *		caught above in no change case
+				     */
+				    if (mp->old_desc.indom != PM_INDOM_NULL &&
+				        mp->new_desc.indom == PM_INDOM_NULL) {
+					mp->output = OUTPUT_FIRST;
+					mp->one_inst = PM_IN_NULL;
 				    }
-				    else if (output == OUTPUT_ALL) {
-					/* default */
+				    else if (mp->old_desc.indom == PM_INDOM_NULL &&
+				             mp->new_desc.indom != PM_INDOM_NULL) {
 					mp->output = OUTPUT_FIRST;
 					mp->one_inst = 0;
 				    }
-				    else {
-					snprintf(mess, sizeof(mess), "OUTPUT option requires metric to be singular, not indom %s", pmInDomStr(mp->old_desc.indom));
-					yyerror(mess);
-				    }
-				}
-				if (mp->new_desc.indom == PM_INDOM_NULL) {
-				    if (output == OUTPUT_ALL)
-					mp->output = OUTPUT_FIRST;
-				    else if (output == OUTPUT_ONE)
-					mp->one_inst = one_inst;
-				    else if ((output == OUTPUT_MIN ||
-					      output == OUTPUT_MAX ||
-					      output == OUTPUT_AVG) &&
-					     mp->old_desc.type != PM_TYPE_32 &&
-					     mp->old_desc.type != PM_TYPE_U32 &&
-					     mp->old_desc.type != PM_TYPE_64 &&
-					     mp->old_desc.type != PM_TYPE_U64 &&
-					     mp->old_desc.type != PM_TYPE_FLOAT &&
-					     mp->old_desc.type != PM_TYPE_DOUBLE) {
-					snprintf(mess, sizeof(mess), "OUTPUT option MIN, MAX or AVG requires type to be numeric, not PM_TYPE_%s", pmTypeStr(mp->old_desc.type));
-					yyerror(mess);
-				    }
-				}
-				if (mp->old_desc.indom != PM_INDOM_NULL &&
-				    mp->new_desc.indom != PM_INDOM_NULL &&
-				    output != OUTPUT_ALL) {
-				    snprintf(mess, sizeof(mess), "OUTPUT option requires input or output metric to be singular");
-				    yyerror(mess);
 				}
 			    }
 			}
@@ -819,12 +841,12 @@ metricopt	: PMID ASSIGN pmid_int
 		    }
 		| PMID ASSIGN
 		    {
-			snprintf(mess, sizeof(mess), "Expecting <d>.<c>.<i> or <d>.<c>.* or <d>.*.* in pmid clause");
+			snprintf(mess, sizeof(mess), "Expecting <domain>.<cluster>.<item> or <domain>.<cluster>.* or <domain>.*.* in pmid clause");
 			yyerror(mess);
 		    }
 		| NAME ASSIGN
 		    {
-			snprintf(mess, sizeof(mess), "Expecting metric name in name clause");
+			snprintf(mess, sizeof(mess), "Expecting metric name in iname clause");
 			yyerror(mess);
 		    }
 		| TYPE ASSIGN
@@ -834,7 +856,7 @@ metricopt	: PMID ASSIGN pmid_int
 		    }
 		| INDOM ASSIGN
 		    {
-			snprintf(mess, sizeof(mess), "Expecting <d>.<s> or <d>.* or NULL in indom clause");
+			snprintf(mess, sizeof(mess), "Expecting <domain>.<serial> or NULL in indom clause");
 			yyerror(mess);
 		    }
 		| SEM ASSIGN
@@ -864,37 +886,35 @@ metricopt	: PMID ASSIGN pmid_int
 		    }
 		;
 
-null_or_indom	: NULL_INT
+null_or_indom	: indom_int
+		| NULL_INT
 		    {
 			$$ = PM_INDOM_NULL;
 		    }
-		| NULL_INT OUTPUT INST number
+		;
+
+pick		: OUTPUT INST number
 		    {
 			output = OUTPUT_ONE;
-			one_inst = $4;
-			$$ = PM_INDOM_NULL;
+			one_inst = $3;
+			one_name = NULL;
 		    }
-		| NULL_INT OUTPUT OUTPUT_TYPE
-		    {
-			output = $3;
-			$$ = PM_INDOM_NULL;
-		    }
-		| NULL_INT OUTPUT
-		    {
-			snprintf(mess, sizeof(mess), "Expecting FIRST or LAST or INST or MIN or MAX or AVG for OUTPUT instance option");
-			yyerror(mess);
-		    }
-		| indom_int
-		| indom_int OUTPUT INST number
+		| OUTPUT INAME STRING
 		    {
 			output = OUTPUT_ONE;
-			one_inst = $4;
+			one_inst = PM_IN_NULL;
+			one_name = $3;
 		    }
-		| indom_int OUTPUT
+		| OUTPUT OUTPUT_TYPE
 		    {
-			snprintf(mess, sizeof(mess), "Expecting INST for OUTPUT instance option");
+			output = $2;
+		    }
+		| OUTPUT
+		    {
+			snprintf(mess, sizeof(mess), "Expecting FIRST or LAST or INST or INAME or MIN or MAX or AVG for OUTPUT instance option");
 			yyerror(mess);
 		    }
+		| /* nothing */
 		;
 
 %%

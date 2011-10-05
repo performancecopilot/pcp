@@ -28,9 +28,19 @@ start_metric(pmID pmid)
     metricspec_t	*mp;
     int			sts;
 
+#if PCP_DEBUG
+    if ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1)) == (DBG_TRACE_APPL0 | DBG_TRACE_APPL1))
+	fprintf(stderr, "start_metric(%s)", pmIDStr(pmid));
+#endif
+
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {
-	if (pmid == mp->old_desc.pmid)
+	if (pmid == mp->old_desc.pmid) {
+#if PCP_DEBUG
+	    if ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1)) == (DBG_TRACE_APPL0 | DBG_TRACE_APPL1))
+		fprintf(stderr, " -> %s\n", mp->old_name);
+#endif
 	    break;
+	}
     }
     if (mp == NULL) {
 	char	*name;
@@ -39,7 +49,7 @@ start_metric(pmID pmid)
 	sts = pmNameID(pmid, &name);
 	if (sts < 0) {
 	    if (wflag) {
-		snprintf(mess, sizeof(mess), "Metric %s pmNameID: %s\n", pmIDStr(pmid), pmErrStr(sts));
+		snprintf(mess, sizeof(mess), "Metric %s pmNameID: %s", pmIDStr(pmid), pmErrStr(sts));
 		yywarn(mess);
 	    }
 	    return NULL;
@@ -47,7 +57,7 @@ start_metric(pmID pmid)
 	sts = pmLookupDesc(pmid, &desc);
 	if (sts < 0) {
 	    if (wflag) {
-		snprintf(mess, sizeof(mess), "Metric %s: pmLookupDesc: %s\n", mp->old_name, pmErrStr(sts));
+		snprintf(mess, sizeof(mess), "Metric %s: pmLookupDesc: %s", mp->old_name, pmErrStr(sts));
 		yywarn(mess);
 	    }
 	    return NULL;
@@ -67,6 +77,10 @@ start_metric(pmID pmid)
 	mp->new_desc = mp->old_desc;
 	mp->flags = 0;
 	mp->ip = NULL;
+#if PCP_DEBUG
+	if ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1)) == (DBG_TRACE_APPL0 | DBG_TRACE_APPL1))
+	    fprintf(stderr, " -> %s [new entry]\n", mp->old_name);
+#endif
     }
 
     return mp;
