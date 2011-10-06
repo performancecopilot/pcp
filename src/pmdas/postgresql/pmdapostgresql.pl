@@ -44,33 +44,33 @@ my $sys_seq_indom = 10; my @sys_seq_instances;
 my $user_seq_indom = 11; my @user_seq_instances;
 my $replicant_indom = 12; my @replicant_instances;
 
-# hash of hashes holding DB handle and last values, indexed by table name
+# hash of hashes holding DB handle, last values, and min version indexed by table name
 my %tables_by_name = (
-    pg_stat_activity		=> { handle => undef, values => {} },
-    pg_stat_bgwriter		=> { handle => undef, values => {} },
-    pg_stat_database		=> { handle => undef, values => {} },
-    pg_stat_database_conflicts	=> { handle => undef, values => {} },
-    pg_stat_replication		=> { handle => undef, values => {} },
-    pg_stat_all_tables		=> { handle => undef, values => {} },
-    pg_stat_sys_tables		=> { handle => undef, values => {} },
-    pg_stat_user_tables		=> { handle => undef, values => {} },
-    pg_stat_all_indexes		=> { handle => undef, values => {} },
-    pg_stat_sys_indexes		=> { handle => undef, values => {} },
-    pg_stat_user_indexes	=> { handle => undef, values => {} },
-    pg_statio_all_tables	=> { handle => undef, values => {} },
-    pg_statio_sys_tables	=> { handle => undef, values => {} },
-    pg_statio_user_tables	=> { handle => undef, values => {} },
-    pg_statio_all_indexes	=> { handle => undef, values => {} },
-    pg_statio_sys_indexes	=> { handle => undef, values => {} },
-    pg_statio_user_indexes	=> { handle => undef, values => {} },
-    pg_statio_all_sequences	=> { handle => undef, values => {} },
-    pg_statio_sys_sequences	=> { handle => undef, values => {} },
-    pg_statio_user_sequences	=> { handle => undef, values => {} },
-    pg_stat_user_functions	=> { handle => undef, values => {} },
-    pg_stat_xact_user_functions	=> { handle => undef, values => {} },
-    pg_stat_xact_all_tables	=> { handle => undef, values => {} },
-    pg_stat_xact_sys_tables	=> { handle => undef, values => {} },
-    pg_stat_xact_user_tables	=> { handle => undef, values => {} },
+    pg_stat_activity		=> { handle => undef, values => {}, version => undef },
+    pg_stat_bgwriter		=> { handle => undef, values => {}, version => undef },
+    pg_stat_database		=> { handle => undef, values => {}, version => undef },
+    pg_stat_database_conflicts	=> { handle => undef, values => {}, version => 9.1 },
+    pg_stat_replication		=> { handle => undef, values => {}, version => 9.1 },
+    pg_stat_all_tables		=> { handle => undef, values => {}, version => undef },
+    pg_stat_sys_tables		=> { handle => undef, values => {}, version => undef },
+    pg_stat_user_tables		=> { handle => undef, values => {}, version => undef },
+    pg_stat_all_indexes		=> { handle => undef, values => {}, version => undef },
+    pg_stat_sys_indexes		=> { handle => undef, values => {}, version => undef },
+    pg_stat_user_indexes	=> { handle => undef, values => {}, version => undef },
+    pg_statio_all_tables	=> { handle => undef, values => {}, version => undef },
+    pg_statio_sys_tables	=> { handle => undef, values => {}, version => undef },
+    pg_statio_user_tables	=> { handle => undef, values => {}, version => undef },
+    pg_statio_all_indexes	=> { handle => undef, values => {}, version => undef },
+    pg_statio_sys_indexes	=> { handle => undef, values => {}, version => undef },
+    pg_statio_user_indexes	=> { handle => undef, values => {}, version => undef },
+    pg_statio_all_sequences	=> { handle => undef, values => {}, version => undef },
+    pg_statio_sys_sequences	=> { handle => undef, values => {}, version => undef },
+    pg_statio_user_sequences	=> { handle => undef, values => {}, version => undef },
+    pg_stat_user_functions	=> { handle => undef, values => {}, version => undef },
+    pg_stat_xact_user_functions	=> { handle => undef, values => {}, version => 9.1 },
+    pg_stat_xact_all_tables	=> { handle => undef, values => {}, version => 9.1 },
+    pg_stat_xact_sys_tables	=> { handle => undef, values => {}, version => 9.1 },
+    pg_stat_xact_user_tables	=> { handle => undef, values => {}, version => 9.1 },
 );
 
 # hash of hashes holding setup and refresh function, indexed by PMID cluster
@@ -220,16 +220,40 @@ my %tables_by_cluster = (
 	refresh => \&refresh_io_user_sequences },
 );
 
+sub postgresql_version_query
+{
+    my $handle = $dbh->prepare("select VERSION()");
+
+    if (defined($handle->execute())) {
+	my $result = $handle->fetchall_arrayref();
+	return 0 unless defined($result);
+	my $version = $result->[0][0];
+	$version =~ s/^PostgreSQL (\d+\.\d+)\.\d+ .*/$1/g;
+	return $version;
+    }
+    return 0;
+}
+
 sub postgresql_connection_setup
 {
     if (!defined($dbh)) {
 	$dbh = DBI->connect($database, $username, $password,
-			    {AutoCommit => 0, pg_bool_tf => 0});
+			    {AutoCommit => 1, pg_bool_tf => 0});
 	if (defined($dbh)) {
 	    $pmda->log("PostgreSQL connection established");
+	    my $version = postgresql_version_query();
+
 	    foreach my $key (keys %tables_by_name) {
-		my $query = $dbh->prepare("select * from $key");
-		$tables_by_name{$key}{handle} = $query;
+		my $minversion = $tables_by_name{$key}{version};
+		my $query;
+
+		$minversion = 0 unless defined($minversion);
+		if ($minversion > $version) {
+		    $pmda->log("Skipping table $key, not supported on $version");
+		} else {
+		    $query = $dbh->prepare("select * from $key");
+		}
+		$tables_by_name{$key}{handle} = $query unless !defined($query);
 	    }
 	}
     }
@@ -333,7 +357,7 @@ sub refresh_results
 	if (defined($handle->execute())) {
 	    return $handle->fetchall_arrayref();
 	}
-	$dbh = undef;	# force a reconnect
+	$table{handle} = undef;
     }
     return undef;
 }
