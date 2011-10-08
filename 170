@@ -28,14 +28,14 @@ trap _cleanup 0 1 2 3 15
 
 # real QA test starts here
 
-rm -rf $tmp.*
-echo "First, the standard logfile:"
+rm -rf $tmp.* $seq.full
+echo "First, the standard logfile:" | tee -a $seq.full
 $sudo $PCP_RC_DIR/pcp stop >/dev/null
 $sudo rm -f $PCP_LOG_DIR/pmcd/pmcd.log
-$sudo $PCP_RC_DIR/pcp start >$tmp.out
+$sudo $PCP_RC_DIR/pcp start | tee -a $seq.full >$tmp.out
 _wait_for_pmcd
 _wait_for_pmlogger
-grep -i '^starting pmcd' $tmp.out | _filter_pcp_start
+grep -i 'starting pmcd' $tmp.out | _filter_pcp_start
 if [ -f $PCP_LOG_DIR/pmcd/pmcd.log ]
 then
     echo '$PCP_LOG_DIR/pmcd/pmcd.log created'
@@ -55,8 +55,8 @@ cat <<End-Of-File >>$tmp.options
 End-Of-File
 $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
 
-echo "The logfile from the hacked \$PCP_PMCDOPTIONS_PATH (pmcd.options):"
-$sudo $PCP_RC_DIR/pcp start >$tmp.out
+echo "The logfile from the hacked \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee -a $seq.full
+$sudo $PCP_RC_DIR/pcp start | tee -a $seq.full >$tmp.out
 _wait_for_pmcd
 _wait_for_pmlogger
 grep -i 'starting pmcd' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start
