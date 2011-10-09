@@ -21,6 +21,7 @@ _y(pmAtomValue *ap, int type)
     int			vlen;
     char		*cp;
     pmEventArray	*eap;
+    pmAtomValue		av;
 
     switch (type) {
 	case PM_TYPE_32:
@@ -30,10 +31,14 @@ _y(pmAtomValue *ap, int type)
 	    printf("%u", ap->ul);
 	    break;
 	case PM_TYPE_64:
-	    printf("%lld", (long long)ap->ll);
+	    /* avoid alignment problems */
+	    memcpy((void *)&av.ll, (void *)&ap->ll, sizeof(ap->ll));
+	    printf("%lld", (long long)av.ll);
 	    break;
 	case PM_TYPE_U64:
-	    printf("%llu", (unsigned long long)ap->ull);
+	    /* avoid alignment problems */
+	    memcpy((void *)&av.ull, (void *)&ap->ull, sizeof(ap->ull));
+	    printf("%llu", (unsigned long long)av.ull);
 	    break;
 	case PM_TYPE_FLOAT:
 	    printf("%e", (double)ap->f);
@@ -134,10 +139,7 @@ main(int argc, char *argv[])
 		    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(__int64_t);
 		    vbp->vtype = PM_TYPE_64;
 		    ap = (pmAtomValue *)vbp->vbuf;
-		    if (sgn)
-			ap->ll = llv;
-		    else
-			ap->ll = (unsigned long long)llv;
+		    memcpy((void *)&ap->ll, (void *)&llv, sizeof(llv));
 		    break;
 		case PM_TYPE_U64:
 		    valfmt = PM_VAL_SPTR;
@@ -145,10 +147,7 @@ main(int argc, char *argv[])
 		    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(__uint64_t);
 		    vbp->vtype = PM_TYPE_U64;
 		    ap = (pmAtomValue *)vbp->vbuf;
-		    if (sgn)
-			ap->ull = llv;
-		    else
-			ap->ull = (unsigned long long)llv;
+		    memcpy((void *)&ap->ull, (void *)&llv, sizeof(llv));
 		    break;
 		case PM_TYPE_FLOAT:
 		    valfmt = PM_VAL_SPTR;
@@ -370,35 +369,35 @@ error_cases:
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_64)) < 0)
 	printf("%s\n", pmErrStr(e));
     else
-	printf("%lld\n", av.ll);
+	printf("%lld\n", (long long)av.ll);
 
     ap->f = (float)0x7fffffffffffffffLL;
     printf("old FLOAT: %22.1f -> 64: ", ap->f);
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_64)) < 0)
 	printf("%s\n", pmErrStr(e));
     else
-	printf("%lld\n", av.ll);
+	printf("%lld\n", (long long)av.ll);
 
     ap->f = 123.456;
     printf("old FLOAT: %15.3f -> U64: ", ap->f);
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_U64)) < 0)
 	printf("%s\n", pmErrStr(e));
     else
-	printf("%llu\n", av.ull);
+	printf("%llu\n", (unsigned long long)av.ull);
 
     ap->f = (float)((unsigned long long)0xffffffffffffffffLL);
     printf("old FLOAT: %22.1f -> U64: ", ap->f);
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_U64)) < 0)
 	printf("%s\n", pmErrStr(e));
     else
-	printf("%llu\n", av.ull);
+	printf("%llu\n", (unsigned long long)av.ull);
 
     ap->f = -123.456;
     printf("old FLOAT: %15.3f -> U64: ", ap->f);
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_U64)) < 0)
 	printf("%s\n", pmErrStr(e));
     else
-	printf("%llu\n", av.ull);
+	printf("%llu\n", (unsigned long long)av.ull);
 
     ap->f = 123.45678;
     printf("old FLOAT: %15.5f -> DOUBLE: ", ap->f);
@@ -418,20 +417,21 @@ error_cases:
     vbp->vlen = PM_VAL_HDR_SIZE + sizeof(ap->ll);
     vbp->vtype = PM_TYPE_NOSUPPORT;
     ap = (pmAtomValue *)vbp->vbuf;
-    ap->ll = 12345;
-    printf("bad 64: %12lld -> 64: ", ap->ll);
+    llv = 12345;
+    memcpy((void *)&ap->ll, (void *)&llv, sizeof(llv));
+    printf("bad 64: %12lld -> 64: ", (long long)ap->ll);
     if ((e = pmExtractValue(PM_VAL_SPTR, &pv, PM_TYPE_64, &av, PM_TYPE_64)) < 0)
 	printf("%s\n", pmErrStr(e));
     else
-	printf("%12lld\n", av.ll);
+	printf("%12lld\n", (long long)av.ll);
 
     vbp->vlen = PM_VAL_HDR_SIZE + sizeof(ap->ull);
-    ap->ull = 12345;
-    printf("bad U64: %12llu -> U64: ", ap->ull);
+    memcpy((void *)&ap->ll, (void *)&llv, sizeof(llv));
+    printf("bad U64: %12llu -> U64: ", (unsigned long long)llv);
     if ((e = pmExtractValue(PM_VAL_SPTR, &pv, PM_TYPE_U64, &av, PM_TYPE_U64)) < 0)
 	printf("%s\n", pmErrStr(e));
     else
-	printf("%12llu\n", av.ull);
+	printf("%12llu\n", (unsigned long long)av.ull);
 
     vbp->vlen = PM_VAL_HDR_SIZE + sizeof(ap->f);
     ap->f = 123.456;
