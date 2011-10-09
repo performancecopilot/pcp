@@ -89,5 +89,15 @@ pmdumplog: Cannot open archive "src-oss/badlen-7": Illegal label record at start
 __pmLogOpen: inspect file "src-oss/badlen-8.0"
 __pmLogOpen: inspect file "src-oss/badlen-8.index"
 __pmLogOpen: inspect file "src-oss/badlen-8.meta"
-__pmLogChkLabel: fd=N vol=0 version 255 not supported
+__pmLogChkLabel: fd=N vol=0 label version 255 not supported
 pmdumplog: Cannot open archive "src-oss/badlen-8": Illegal label record at start of a PCP archive log file
+
+--- src-oss/badlen-9 ---
+__pmLogOpen: inspect file "src-oss/badlen-9.0"
+__pmLogOpen: inspect file "src-oss/badlen-9.index"
+__pmLogOpen: inspect file "src-oss/badlen-9.meta"
+__pmLogChkLabel: fd=N vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOST-laptop]
+__pmLogChangeVol: change to volume 0
+__pmLogChkLabel: fd=N vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOST-laptop]
+__pmLogChkLabel: fd=N vol=-1 [magic=50052602 version=2 vol=-1 pid=PID host=HOST-laptop]
+pmdumplog: Cannot open archive "src-oss/badlen-9": Corrupted record in a PCP archive log
