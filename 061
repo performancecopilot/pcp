@@ -16,6 +16,9 @@ echo "QA output created by $seq"
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 signal=$PCP_BINADM_DIR/pmsignal
 
+# this line changed from msec to usec in 3.5.9
+# state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+#
 _filter_pmlogger()
 {
     _filter_pmlogger_log \
@@ -26,7 +29,8 @@ _filter_pmlogger()
 	-e 's/0x[0-9a-f]*/ADDR/g' \
 	-e 's/(nil)/ADDR/g' \
 	-e 's/value [0-9]*/value INT/g' \
-	-e 's/[0-2][0-9]:00:00.000/TIME/'
+	-e 's/[0-2][0-9]:00:00.000/TIME/' \
+	-e 's/msec numpmid/usec numpmid/'
 }
 
 _filter_dumplog()
