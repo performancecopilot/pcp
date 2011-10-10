@@ -155,12 +155,17 @@ clean_vset(pmResult *rp)
 
 /*
  * pick/calculate one value from multiple values for the ith vset[] ...
+ *
+ * Note: pval->vbuf may not have correct alignment for all data types,
+ *       so memcpy() rather than assign.
  */
 static int
 pick_val(int i, metricspec_t *mp)
 {
     int		j;
     int		pick = -1;
+    pmAtomValue	jval;
+    pmAtomValue	pickval;
 
     assert(inarch.rp->vset[i]->numval > 0);
 
@@ -174,6 +179,20 @@ pick_val(int i, metricspec_t *mp)
 	}
 	if (j == 0) {
 	    pick = 0;
+	    switch (mp->old_desc.type) {
+		case PM_TYPE_64:
+		    memcpy(&pickval.ll, &inarch.rp->vset[i]->vlist[0].value.pval->vbuf, sizeof(__int64_t));
+		    break;
+		case PM_TYPE_U64:
+		    memcpy(&pickval.ull, &inarch.rp->vset[i]->vlist[0].value.pval->vbuf, sizeof(__uint64_t));
+		    break;
+		case PM_TYPE_FLOAT:
+		    memcpy(&pickval.f, &inarch.rp->vset[i]->vlist[0].value.pval->vbuf, sizeof(float));
+		    break;
+		case PM_TYPE_DOUBLE:
+		    memcpy(&pickval.d, &inarch.rp->vset[i]->vlist[0].value.pval->vbuf, sizeof(double));
+		    break;
+	    }
 	    if (mp->output == OUTPUT_MIN || mp->output == OUTPUT_MAX ||
 	        mp->output == OUTPUT_SUM || mp->output == OUTPUT_AVG)
 		continue;
@@ -212,66 +231,86 @@ pick_val(int i, metricspec_t *mp)
 		}
 		break;
 	    case PM_TYPE_64:
+		memcpy(&jval.ll, &inarch.rp->vset[i]->vlist[j].value.pval->vbuf, sizeof(__int64_t));
 		switch (mp->output) {
 		    case OUTPUT_MIN:
-			if (*(__int64_t *)inarch.rp->vset[i]->vlist[j].value.pval->vbuf < *(__int64_t *)inarch.rp->vset[i]->vlist[pick].value.pval->vbuf)
+			if (jval.ll < pickval.ll) {
+			    pickval.ll = jval.ll;
 			    pick = j;
+			}
 			break;
 		    case OUTPUT_MAX:
-			if (*(__int64_t *)inarch.rp->vset[i]->vlist[j].value.pval->vbuf > *(__int64_t *)inarch.rp->vset[i]->vlist[pick].value.pval->vbuf)
+			if (jval.ll > pickval.ll) {
+			    pickval.ll = jval.ll;
 			    pick = j;
+			}
 			break;
 		    case OUTPUT_SUM:
 		    case OUTPUT_AVG:
-			*(__int64_t *)inarch.rp->vset[i]->vlist[0].value.pval->vbuf += *(__int64_t *)inarch.rp->vset[i]->vlist[j].value.pval->vbuf;
+			pickval.ll += jval.ll;
 			break;
 		}
 		break;
 	    case PM_TYPE_U64:
+		memcpy(&jval.ull, &inarch.rp->vset[i]->vlist[j].value.pval->vbuf, sizeof(__int64_t));
 		switch (mp->output) {
 		    case OUTPUT_MIN:
-			if (*(__uint64_t *)inarch.rp->vset[i]->vlist[j].value.pval->vbuf < *(__uint64_t *)inarch.rp->vset[i]->vlist[pick].value.pval->vbuf)
+			if (jval.ull < pickval.ull) {
+			    pickval.ull = jval.ull;
 			    pick = j;
+			}
 			break;
 		    case OUTPUT_MAX:
-			if (*(__uint64_t *)inarch.rp->vset[i]->vlist[j].value.pval->vbuf > *(__uint64_t *)inarch.rp->vset[i]->vlist[pick].value.pval->vbuf)
+			if (jval.ull > pickval.ull) {
+			    pickval.ull = jval.ull;
 			    pick = j;
+			}
 			break;
 		    case OUTPUT_SUM:
 		    case OUTPUT_AVG:
-			*(__uint64_t *)inarch.rp->vset[i]->vlist[0].value.pval->vbuf += *(__uint64_t *)inarch.rp->vset[i]->vlist[j].value.pval->vbuf;
+			pickval.ull += jval.ull;
 			break;
 		}
 		break;
 	    case PM_TYPE_FLOAT:
+		memcpy(&jval.f, &inarch.rp->vset[i]->vlist[j].value.pval->vbuf, sizeof(float));
 		switch (mp->output) {
 		    case OUTPUT_MIN:
-			if (*(float *)inarch.rp->vset[i]->vlist[j].value.pval->vbuf < *(float *)inarch.rp->vset[i]->vlist[pick].value.pval->vbuf)
+			if (jval.f < pickval.f) {
+			    pickval.f = jval.f;
 			    pick = j;
+			}
 			break;
 		    case OUTPUT_MAX:
-			if (*(float *)inarch.rp->vset[i]->vlist[j].value.pval->vbuf > *(float *)inarch.rp->vset[i]->vlist[pick].value.pval->vbuf)
+			if (jval.f > pickval.f) {
+			    pickval.f = jval.f;
 			    pick = j;
+			}
 			break;
 		    case OUTPUT_SUM:
 		    case OUTPUT_AVG:
-			*(float *)inarch.rp->vset[i]->vlist[0].value.pval->vbuf += *(float *)inarch.rp->vset[i]->vlist[j].value.pval->vbuf;
+			pickval.f += jval.f;
 			break;
 		}
 		break;
 	    case PM_TYPE_DOUBLE:
+		memcpy(&jval.d, &inarch.rp->vset[i]->vlist[j].value.pval->vbuf, sizeof(double));
 		switch (mp->output) {
 		    case OUTPUT_MIN:
-			if (*(double *)inarch.rp->vset[i]->vlist[j].value.pval->vbuf < *(double *)inarch.rp->vset[i]->vlist[pick].value.pval->vbuf)
+			if (jval.d < pickval.d) {
+			    pickval.d = jval.d;
 			    pick = j;
+			}
 			break;
 		    case OUTPUT_MAX:
-			if (*(double *)inarch.rp->vset[i]->vlist[j].value.pval->vbuf > *(double *)inarch.rp->vset[i]->vlist[pick].value.pval->vbuf)
+			if (jval.d > pickval.d) {
+			    pickval.d = jval.d;
 			    pick = j;
+			}
 			break;
 		    case OUTPUT_SUM:
 		    case OUTPUT_AVG:
-			*(double *)inarch.rp->vset[i]->vlist[0].value.pval->vbuf += *(double *)inarch.rp->vset[i]->vlist[j].value.pval->vbuf;
+			pickval.d += jval.d;
 			break;
 		}
 		break;
@@ -287,19 +326,36 @@ pick_val(int i, metricspec_t *mp)
 		*(__uint32_t *)&inarch.rp->vset[i]->vlist[0].value.lval = (__uint32_t)(0.5 + *(__uint32_t *)&inarch.rp->vset[i]->vlist[0].value.lval / (double)inarch.rp->vset[i]->numval);
 		break;
 	    case PM_TYPE_64:
-		*(__int64_t *)inarch.rp->vset[i]->vlist[0].value.pval->vbuf = (int64_t)(0.5 + *(__int64_t *)inarch.rp->vset[i]->vlist[0].value.pval->vbuf / (double)inarch.rp->vset[i]->numval);
+		pickval.ll = 0.5 + pickval.ll / (double)inarch.rp->vset[i]->numval;
 		break;
 	    case PM_TYPE_U64:
-		*(__uint64_t *)inarch.rp->vset[i]->vlist[0].value.pval->vbuf = (__uint64_t)(0.5 + *(__uint64_t *)inarch.rp->vset[i]->vlist[0].value.pval->vbuf / (double)inarch.rp->vset[i]->numval);
+		pickval.ull = 0.5 + pickval.ull / (double)inarch.rp->vset[i]->numval;
 		break;
 	    case PM_TYPE_FLOAT:
-		*(float *)inarch.rp->vset[i]->vlist[0].value.pval->vbuf /= inarch.rp->vset[i]->numval;
+		pickval.f = pickval.f / (float)inarch.rp->vset[i]->numval;
 		break;
 	    case PM_TYPE_DOUBLE:
-		*(double *)inarch.rp->vset[i]->vlist[0].value.pval->vbuf /= inarch.rp->vset[i]->numval;
+		pickval.d = pickval.d / (double)inarch.rp->vset[i]->numval;
 		break;
 	}
     }
+    if (mp->output == OUTPUT_AVG || mp->output == OUTPUT_SUM) {
+	switch (mp->old_desc.type) {
+	    case PM_TYPE_64:
+		memcpy(&inarch.rp->vset[i]->vlist[0].value.pval->vbuf, &pickval.ll, sizeof(__int64_t));
+		break;
+	    case PM_TYPE_U64:
+		memcpy(&inarch.rp->vset[i]->vlist[0].value.pval->vbuf, &pickval.ull, sizeof(__uint64_t));
+		break;
+	    case PM_TYPE_FLOAT:
+		memcpy(&inarch.rp->vset[i]->vlist[0].value.pval->vbuf, &pickval.f, sizeof(float));
+		break;
+	    case PM_TYPE_DOUBLE:
+		memcpy(&inarch.rp->vset[i]->vlist[0].value.pval->vbuf, &pickval.d, sizeof(double));
+		break;
+	}
+    }
+
     return pick;
 }
 
