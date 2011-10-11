@@ -19,7 +19,7 @@
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/pmlogrewrite\f1
 [\f3\-Cdsvw \f1]
-[\f3\-c\f1 \f2configfile\f1]
+[\f3\-c\f1 \f2config\f1]
 \f2inlog\f1 \f2outlog\f1 
 .SH DESCRIPTION
 .B pmlogrewrite
@@ -30,8 +30,7 @@ and creates a PCP archive log in
 .IR outlog .
 Under normal usage, the
 .B \-c
-option will be used to nominate a
-.I configfile
+option will be used to nominate a configuration file or files
 that contains specifications (see the
 .B "REWRITING RULES SYNTAX"
 section below)
@@ -97,9 +96,19 @@ Parse the rewriting rules and quit.
 .I outlog
 is not created.
 .TP 7
-.BI \-c " configfile"
-Read and parse rewriting rules from
-.IR configfile .
+.BI \-c " config"
+If
+.I config
+is a file or symbolic link,
+read and parse rewriting rules from there.
+If
+.I config
+is a directory, then all of the files or symbolic links in that
+directory (excluding those beginning with a period ``.'') will
+be used to provide the rewriting rules.
+Multiple
+.B \-c
+options are allowed.
 .TP 7
 .B \-d
 Desperate mode.  Normally if a fatal error occurs, all trace of
@@ -137,8 +146,7 @@ remains silent for any warning that is not fatal, e.g. a rewriting
 rule for a metric or instance domain or an instance that is not present in
 .IR inlog .
 .SH REWRITING RULES SYNTAX
-The
-.I configfile
+A configuration file
 contains zero or more rewriting rules as defined below.
 .PP
 Keywords and special punctuation characters are shown below in

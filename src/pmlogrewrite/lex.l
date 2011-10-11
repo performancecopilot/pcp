@@ -26,7 +26,6 @@
 #include "logger.h"
 #include <errno.h>
 
-int	lineno = 1;
 char	mess[256];
 
 #define LEX_NONE	0

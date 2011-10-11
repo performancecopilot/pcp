@@ -26,6 +26,7 @@
 global_t	global;
 indomspec_t	*indom_root = NULL;
 metricspec_t	*metric_root = NULL;
+int		lineno;
 
 /*
  *  Usage
@@ -37,12 +38,12 @@ usage(void)
 "Usage: %s [options] input-archive output-archive\n\
 \n\
 Options:\n\
-  -c configfile  file to load config from\n\
-  -C             parse config file(s) and quit\n\
-  -d             desperate, save output archive even after error\n\
-  -s             do scale conversion\n\
-  -v             verbose\n\
-  -w             emit warnings [default is silence]\n",
+  -c config   file or directory to load rules from\n\
+  -C          parse config file(s) and quit\n\
+  -d          desperate, save output archive even after error\n\
+  -s          do scale conversion\n\
+  -v          verbose\n\
+  -w          emit warnings [default is silence]\n",
 	pmProgname);
 }
 
@@ -60,7 +61,9 @@ inarch_t		inarch;		/* input archive control */
 outarch_t		outarch;	/* output archive control */
 
 /* command line args */
-char	*configfile = NULL;		/* -c name of config file */
+int	nconf = 0;			/* number of config files */
+char	**conf = NULL;			/* list of config files */
+char	*configfile = NULL;		/* current config file */
 int	Cflag = 0;			/* -C parse config and quit */
 int	dflag = 0;			/* -d desperate */
 int	sflag = 0;			/* -s scale values */
@@ -219,6 +222,12 @@ nextlog(void)
     return old_vol == inarch.ctxp->c_archctl->ac_log->l_curvol ? 0 : 1;
 }
 
+#ifdef IS_MINGW
+#define SEP '\\'
+#else
+#define SEP '/'
+#endif
+
 /*
  * parse command line arguments
  */
@@ -234,11 +243,57 @@ parseargs(int argc, char *argv[])
 	switch (c) {
 
 	case 'c':	/* config file */
-	    configfile = optarg;
-	    if (stat(configfile, &sbuf) < 0) {
-		fprintf(stderr, "%s: %s - invalid file\n",
-			pmProgname, configfile);
+	    if (stat(optarg, &sbuf) < 0) {
+		fprintf(stderr, "%s: stat(%s) failed: %s\n",
+			pmProgname, optarg, osstrerror());
 		errflag++;
+		break;
+	    }
+#ifndef S_ISLINK
+#define S_ISLINK(mode) ((mode & S_IFMT) == S_IFLNK)
+#endif
+	    if (S_ISREG(sbuf.st_mode) || S_ISLINK(sbuf.st_mode)) {
+		nconf++;
+		if ((conf = (char **)realloc(conf, nconf*sizeof(conf[0]))) != NULL)
+		    conf[nconf-1] = optarg;
+	    }
+	    else if (S_ISDIR(sbuf.st_mode)) {
+		DIR		*dirp;
+		struct dirent	*dp;
+		char		path[MAXPATHLEN+1];
+
+		if ((dirp = opendir(optarg)) == NULL) {
+		    fprintf(stderr, "%s: opendir(%s) failed: %s\n", pmProgname, optarg, osstrerror());
+		    errflag++;
+		}
+		else while ((dp = readdir(dirp)) != NULL) {
+		    /* skip ., .. and "hidden" files */
+		    if (dp->d_name[0] == '.') continue;
+		    snprintf(path, sizeof(path), "%s%c%s", optarg, SEP, dp->d_name);
+		    if (stat(path, &sbuf) < 0) {
+			fprintf(stderr, "%s: %s: %s\n",
+				pmProgname, path, osstrerror());
+			errflag++;
+		    }
+		    if (sbuf.st_mode & (S_IFREG | S_IFLNK)) {
+			nconf++;
+			if ((conf = (char **)realloc(conf, nconf*sizeof(conf[0]))) == NULL)
+			    break;
+			if ((conf[nconf-1] = strdup(path)) == NULL) {
+			    fprintf(stderr, "conf[%d] strdup(%s) failed: %s\n", nconf-1, path, strerror(errno));
+			    exit(1);
+			}
+
+		    }
+		}
+	    }
+	    else {
+		fprintf(stderr, "Error: -c config %s is not a file or directory\n", optarg);
+		errflag++;
+	    }
+	    if (nconf > 0 && conf == NULL) {
+		fprintf(stderr, "conf[%d] realloc(%d) failed: %s\n", nconf, (int)(nconf*sizeof(conf[0])), strerror(errno));
+		exit(1);
 	    }
 	    break;
 
@@ -287,17 +342,20 @@ parseargs(int argc, char *argv[])
     return -errflag;
 }
 
-int
-parseconfig(void)
+static void
+parseconfig(char *file)
 {
-    int		errflag = 0;
     extern FILE * yyin;
 
+    configfile = file;
     if ((yyin = fopen(configfile, "r")) == NULL) {
 	fprintf(stderr, "%s: Cannot open config file \"%s\": %s\n",
 		pmProgname, configfile, osstrerror());
 	exit(1);
     }
+    if (vflag > 1)
+	fprintf(stderr, "Start configfile: %s\n", file);
+    lineno = 1;
 
     if (yyparse() != 0)
 	exit(1);
@@ -305,7 +363,7 @@ parseconfig(void)
     fclose(yyin);
     yyin = NULL;
 
-    return(-errflag);
+    return;
 }
 
 char *
@@ -755,6 +813,7 @@ main(int argc, char **argv)
     int		sts;
     int		stslog;			/* sts from nextlog() */
     int		stsmeta = 0;		/* sts from nextmeta() */
+    int		i;
     int		ti_idx;			/* next slot for input temporal index */
     int		needti = 0;
     int		doneti = 0;
@@ -799,15 +858,10 @@ main(int argc, char **argv)
     outarch.name = argv[argc-1];
 
     /*
-     * process config file
-     * TODO - more than one configfile via multiple -c options
-     * TODO - configfile is dir => readdir and process all files
+     * process config file(s)
      */
-    if (configfile != NULL) {
-	if (parseconfig() < 0) {
-	    usage();
-	    exit(1);
-	}
+    for (i = 0; i < nconf; i++) {
+	parseconfig(conf[i]);
     }
 
     /*
