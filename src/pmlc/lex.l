@@ -52,6 +52,9 @@ ctx(int type)
 
 %}
 
+%option noinput
+%option nounput
+
 %%
 "["	{ return LSQB; }
 "]"	{ return RSQB; }

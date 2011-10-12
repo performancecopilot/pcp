@@ -412,11 +412,18 @@ extern int pmdaTreeSize(__pmnsTree *);
  * 	add entry into the cache, or change state, assigns internal
  * 	instance identifier
  *
+ * pmdaCacheStoreKey
+ * 	add entry into the cache, or change state, caller provides "hint"
+ * 	for internal instance identifier
+ *
  * pmdaCacheLookup
  *	fetch entry based on internal instance identifier
  *
  * pmdaCacheLookupName
  *	fetch entry based on external instance name
+ *
+ * pmdaCacheLookupKey
+ *	fetch entry based on key as "hint", like pmdaCacheStoreKey()
  *
  * pmdaCacheOp
  *	service routines to load, unload, mark as write-thru, purge,
@@ -426,8 +433,10 @@ extern int pmdaTreeSize(__pmnsTree *);
  *	cull inactive entries
  */
 extern int pmdaCacheStore(pmInDom, int, const char *, void *);
+extern int pmdaCacheStoreKey(pmInDom, int, const char *, int, const void *, void *);
 extern int pmdaCacheLookup(pmInDom, int, char **, void **);
 extern int pmdaCacheLookupName(pmInDom, const char *, int *, void **);
+extern int pmdaCacheLookupKey(pmInDom, const char *, int, const void *, char **, int *, void **);
 extern int pmdaCacheOp(pmInDom, int);
 extern int pmdaCachePurge(pmInDom, time_t);
 
@@ -449,6 +458,7 @@ extern int pmdaCachePurge(pmInDom, time_t);
 #define PMDA_CACHE_REORG		17
 #define PMDA_CACHE_SYNC			18
 #define PMDA_CACHE_DUMP			19
+#define PMDA_CACHE_DUMP_ALL		20
 
 /*
  * Internal libpcp_pmda routines.

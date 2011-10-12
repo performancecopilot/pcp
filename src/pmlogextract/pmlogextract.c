@@ -1499,6 +1499,7 @@ writerlist(rlist_t **rlready, double mintime)
 
 
 	/* write out log record */
+	old_log_offset = ftell(logctl.l_mfp);
 	if ((sts = __pmLogPutResult(&logctl, pb)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
 		    pmProgname, pmErrStr(sts));
@@ -1835,7 +1836,6 @@ main(int argc, char **argv)
 	ilog = -1;
 	curlog.tv_sec = 0;
 	curlog.tv_usec = 0;
-	old_log_offset = ftell(logctl.l_mfp);
 	old_meta_offset = ftell(logctl.l_mdfp);
 
 	/* nextlog() resets ilog, and curlog (to the smallest timestamp)
@@ -1970,6 +1970,7 @@ cleanup:
 	    mintime, tmptime, logend_time, winend_time, current.tv_sec, current.tv_usec);
 #endif
 
+	fseek(logctl.l_mfp, old_log_offset, SEEK_SET);
 	__pmLogPutIndex(&logctl, &current);
 
 

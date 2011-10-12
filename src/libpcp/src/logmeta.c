@@ -29,11 +29,11 @@ StrTimeval(__pmTimeval *tp)
     }
     else {
 	static char		sbuf[13];
-	static struct tm	*tmp;
+	struct tm		tmp;
 	time_t 			t = tp->tv_sec;
-	tmp = localtime(&t);
+	pmLocaltime(&t, &tmp);
 	sprintf(sbuf, "%02d:%02d:%02d.%03d",	/* safe */
-	    tmp->tm_hour, tmp->tm_min, tmp->tm_sec, tp->tv_usec/1000);
+	    tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tp->tv_usec/1000);
 	return sbuf;
     }
 }

@@ -1,5 +1,7 @@
+#!gmake
 #
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -16,33 +18,34 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
 
-TOPDIR = ..
+TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-SUBDIRS = include \
-	  libpcp libpcp_pmda libpcp_trace libpcp_http libpcp_pmcd libpcp_gui \
-	  libpcp_mmv \
-	  pmconfig pmns newhelp pminfo pmnscomp pmcpp \
-	  libpcp_import \
-	  pmcd pmerr pmdbg \
-	  pmcdctl pmlogctl win32ctl \
-	  pmdate pmie pmieconf pmpost pmprobe pmlock pmval pmlogger \
-	  pmdumplog pmlogextract pmstore pmhostname pmgenmap \
-	  pmlogconf pmloglabel pmlogsummary pmclient pcp pmlc dbpmda \
-	  pmtrace pmstat pmsocks pmdas pmafm procmemstat pmimport \
-	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
-	  autofsd-probe telnet-probe cpan bashrc pmiestatus \
-	  pmevent pmlogrewrite
+CFILES	= pmlogrewrite.c util.c logio.c metric.c indom.c result.c
+HFILES	= logger.h
+LFILES  = lex.l
+YFILES	= gram.y
 
-default :: default_pcp
+CMDTARGET = pmlogrewrite$(EXECSUFFIX)
 
-default_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+LLDLIBS	= -lpcp -lm
+LDIRT	+= $(YFILES:%.y=%.tab.?)
 
-install :: default_pcp install_pcp
-
-install_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+default:	$(CMDTARGET)
 
 include $(BUILDRULES)
+
+pmlogextract:	$(OBJECTS)
+
+install:	$(CMDTARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
+
+gram.tab.h gram.tab.c:	gram.y
+
+lex.o gram.tab.o:	gram.tab.h logger.h
+indom.o metric.o result.o util.o pmlogrewrite.o:	logger.h
+
+default_pcp:	default
+
+install_pcp:	install

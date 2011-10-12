@@ -1,0 +1,2 @@
+CFLAGS += -fprofile-arcs -ftest-coverage
+LDIRT  += *.gcda *.gcno *.gcov
