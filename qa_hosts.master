@@ -24,6 +24,9 @@ vm02.localdomain
 vm03.localdomain
 vm04.localdomain
 
+# SGI Section
+grundy.sgi.com
+
 # Mort Section
 opensuse11-1.bork.org
 fedora11.bork.org
@@ -46,6 +49,7 @@ deb32.bork.org
 #order	.melbourne.sgi		.melbourne.sgi		.engr.sgi.com
 #order	.engr.sgi.com		.engr.sgi.com		.melbourne.sgi
 #order	.americas.sgi.com	.americas.sgi.com	.engr.sgi.com	.melbourne.sgi
+#order	.sgi.com		.sgi.com
 # Aconex Section
 #order	edge			.engr.acx
 #order	.engr.acx		.localdomain
