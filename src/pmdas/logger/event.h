@@ -46,7 +46,7 @@ extern int event_queueid(int handle);
 extern __uint64_t event_pathsize(int handle);
 extern const char *event_pathname(int handle);
 extern const char *event_pmnsname(int handle);
-extern int event_decoder(int eventarray, void *buffer, int size, void *data);
+extern int event_decoder(int eventarray, void *buffer, size_t size, void *data);
 
 extern int event_regex_alloc(int context, const char *string, void **filter);
 extern int event_regex_apply(int context, void *rp, void *data, int size);

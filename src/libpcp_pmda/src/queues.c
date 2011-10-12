@@ -30,15 +30,19 @@ typedef void (*clientVisitCallBack)(event_client_t *, event_queue_t *, void *);
 static void client_iterate(clientVisitCallBack, event_queue_t *, void *);
 
 int
-pmdaEventNewQueue(const char *name, int maxmemory)
+pmdaEventNewQueue(const char *name, size_t maxmemory)
 {
     event_queue_t *queue;
-    int size, i;
+    size_t size;
+    int i;
 
-    for (i = 0; i < numqueues; i++) {
+    for (i = 0; i < numqueues; i++)
+	if (queues[i].inuse == 0 && strcmp(queues[i].name, name) == 0)
+	    return -EEXIST;
+
+    for (i = 0; i < numqueues; i++)
 	if (queues[i].inuse == 0)
-	   break;
-    }
+	    break;
     if (i == numqueues) {
 	/* no free slots, extend the available set */
 	size = (numqueues + 1) * sizeof(event_queue_t);
@@ -59,6 +63,17 @@ pmdaEventNewQueue(const char *name, int maxmemory)
     return i;
 }
 
+int
+pmdaEventQueueHandle(const char *name)
+{
+    int i;
+
+    for (i = 0; i < numqueues; i++)
+	if (queues[i].inuse && strcmp(queues[i].name, name) == 0)
+	    return i;
+    return -ESRCH;
+}
+
 static event_queue_t *
 queue_lookup(int handle)
 {
@@ -67,21 +82,6 @@ queue_lookup(int handle)
     if (queues[handle].inuse)
 	return &queues[handle];
     return NULL;
-}
-
-int
-pmdaEventEndQueue(int handle)
-{
-    event_queue_t *queue = queue_lookup(handle);
-
-    if (!queue)
-	return -EINVAL;
-
-    /* ... TODO: cull any queued events, update clients ... */
-
-    pmdaEventReleaseArray(queue->eventarray);
-    memset(queue, 0, sizeof(*queue));
-    return 0;
 }
 
 int
@@ -148,7 +148,7 @@ queue_drop(event_client_t *client, event_queue_t *queue, void *data)
 }
 
 int
-pmdaEventQueueAppend(int handle, void *buffer, int bytes, struct timeval *tv)
+pmdaEventQueueAppend(int handle, void *buffer, size_t bytes, struct timeval *tv)
 {
     event_queue_t *queue = queue_lookup(handle);
     event_t *event, *next;

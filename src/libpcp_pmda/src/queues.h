@@ -52,7 +52,7 @@ typedef struct event {
     TAILQ_ENTRY(event)	events;
     struct timeval	time;		/* timestamp for this event */
     int			count;		/* events reference count */
-    int			size;		/* buffer size in bytes */
+    size_t		size;		/* buffer size in bytes */
     char		buffer[];
 } event_t;
 
@@ -60,8 +60,8 @@ TAILQ_HEAD(tailqueue, event);
 
 typedef struct event_queue {
     const char		*name;		/* callers identifier for this queue */
+    size_t		maxmemory;	/* max data bytes that can be queued */
     int			inuse;		/* is this queue in use or free */
-    int			maxmemory;	/* max data bytes that can be queued */
     int			eventarray;	/* event records for this queue */
     __uint32_t		numclients;	/* export: number of active clients */
     __uint32_t		qsize;		/* total data in the queue (< maxmem) */

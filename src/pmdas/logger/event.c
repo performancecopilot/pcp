@@ -424,7 +424,7 @@ event_pmid(int handle)
 }
 
 int
-event_decoder(int eventarray, void *buffer, int size, void *data)
+event_decoder(int eventarray, void *buffer, size_t size, void *data)
 {
     int sts, handle = *(int *)data;
     pmID pmid = event_pmid(handle);
