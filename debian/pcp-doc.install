@@ -8,6 +8,7 @@ usr/share/doc/pcp-doc/html/howto.cpuperf.html
 usr/share/doc/pcp-doc/html/howto.diskmodel.html
 usr/share/doc/pcp-doc/html/howto.diskperf.html
 usr/share/doc/pcp-doc/html/howto.enterprise.html
+usr/share/doc/pcp-doc/html/howto.systemlog.html
 usr/share/doc/pcp-doc/html/index.html
 usr/share/doc/pcp-doc/html/installation.html
 usr/share/doc/pcp-doc/html/lab.importdata.html
@@ -40,6 +41,7 @@ usr/share/doc/pcp-doc/html/diskmodel/nasread.out
 usr/share/doc/pcp-doc/html/diskmodel/naswrite.out
 usr/share/doc/pcp-doc/html/images/cpu_pswitch.png
 usr/share/doc/pcp-doc/html/images/dkvis.png
+usr/share/doc/pcp-doc/html/images/elasticsearch.png
 usr/share/doc/pcp-doc/html/images/model_biload.png
 usr/share/doc/pcp-doc/html/images/model_dbload.png
 usr/share/doc/pcp-doc/html/images/model_nasload.png
@@ -90,6 +92,10 @@ usr/share/doc/pcp-doc/html/images/pmview.flow.png
 usr/share/doc/pcp-doc/html/images/rattle.png
 usr/share/doc/pcp-doc/html/images/sar-d.png
 usr/share/doc/pcp-doc/html/images/stepfwd_on.png
+usr/share/doc/pcp-doc/html/images/systemlog-arrival.png
+usr/share/doc/pcp-doc/html/images/systemlog-events.png
+usr/share/doc/pcp-doc/html/images/systemlogs.png
+usr/share/doc/pcp-doc/html/images/systemlog-throughput.png
 usr/share/doc/pcp-doc/html/images/system-search.png
 usr/share/doc/pcp-doc/html/images/tngconsole.png
 usr/share/doc/pcp-doc/html/images/trace_1.png
