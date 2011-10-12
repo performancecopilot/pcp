@@ -722,9 +722,6 @@ check_output()
      */
     metricspec_t	*mp;
     indomspec_t		*ip;
-    __pmHashCtl		*hcp;
-
-    hcp = &inarch.ctxp->c_archctl->ac_log->l_hashindom;
 
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {
 	if ((mp->flags & METRIC_CHANGE_INDOM)) {
