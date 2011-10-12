@@ -5,7 +5,7 @@ __pmLogLoadMeta: record len=49, type=1 @ offset=132
 __pmLogLoadMeta: PMID: 1.18.2 name: hinv.ncpu
 __pmLogLoadMeta: record len=54, type=1 @ offset=181
 __pmLogLoadMeta: PMID: 1.82.9 name: disk.all.total
-__pmLogLoadMeta: header read -> 8: expected: 8 or len=-194
+__pmLogLoadMeta: header read -> 8: expected: 8
 pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
 
 === bad #2 ===
@@ -16,13 +16,13 @@ __pmLogLoadMeta: PMID: 1.82.9 name: disk.all.total
 __pmLogLoadMeta: record len=62, type=1 @ offset=235
 __pmLogLoadMeta: PMID: 1.28.11 name: kernel.percpu.cpu.user
 __pmLogLoadMeta: record len=41, type=2 @ offset=297
-addindom( ..., 1.1, 05:27:09.991, numinst=1)
+addindom( ..., 1.1, TIMESTAMP, numinst=1)
 __pmLogLoadMeta: record len=61, type=1 @ offset=338
 __pmLogLoadMeta: PMID: 1.28.9 name: kernel.percpu.cpu.sys
 __pmLogLoadMeta: record len=55, type=1 @ offset=399
 __pmLogLoadMeta: PMID: 1.18.3 name: kernel.all.load
 __pmLogLoadMeta: record len=80, type=2 @ offset=454
-addindom( ..., 1.5, 05:27:09.991, numinst=3)
+addindom( ..., 1.5, TIMESTAMP, numinst=3)
 __pmLogLoadMeta: trailer read -> 4 or len=-1: expected 80 @ offset=530
 pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
 
@@ -30,12 +30,210 @@ pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP a
 pmdumplog: Cannot open archive "TMP/bozo.client_v2": Illegal label record at start of a PCP archive log file
 
 === size 132 ===
-__pmLogLoadMeta: no metrics found?
-pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+Note: timezone set to local timezone of host "bozo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo
+  commencing Tue Feb  7 05:27:05.069 1995
+  ending     Tue Feb  7 05:27:50.002 1995
+
+Descriptions for Metrics in the Log ...
+
+Instance Domains in the Log ...
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+05:27:05.069       0          297          132
+             Error: offset to meta file past end of file (132)
+05:27:09.991       0          585          172
+             Error: offset to meta file past end of file (132)
+
+[40 bytes]
+05:27:05.069  1.18.2 (<noname>): value 1
+
+[140 bytes]
+05:27:09.991  1.82.9 (<noname>): value 17317758937239388160 -1.306541007051815e+233 [00000000000a55f0]
+              1.28.11 (<noname>): value 1623960
+              1.28.9 (<noname>): value 1851290
+              1.18.3 (<noname>):
+                value 1050050560
+                value 1044185088
+              1.18.1 (<noname>): value 23080
+
+[140 bytes]
+05:27:14.992  1.82.9 (<noname>): value 18398622847808307200 -2.308458143322094e+305 [00000000000a55ff]
+              1.28.11 (<noname>): value 1623960
+              1.28.9 (<noname>): value 1851290
+              1.18.3 (<noname>):
+                value 1049395200
+                value 1044119552
+              1.18.1 (<noname>): value 23080
+
+[140 bytes]
+05:27:20.002  1.82.9 (<noname>): value 960966565606457344 2.017328601836956e-244 [00000000000a560d]
+              1.28.11 (<noname>): value 1623960
+              1.28.9 (<noname>): value 1851290
+              1.18.3 (<noname>):
+                value 1050378240
+                value 1044316160
+              1.18.1 (<noname>): value 23176
+
+[140 bytes]
+05:27:24.992  1.82.9 (<noname>): value 1393312129834024960 1.59829238311012e-215 [00000000000a5613]
+              1.28.11 (<noname>): value 1623960
+              1.28.9 (<noname>): value 1851290
+              1.18.3 (<noname>):
+                value 1051852800
+                value 1044578304
+              1.18.1 (<noname>): value 23176
+
+[140 bytes]
+05:27:30.002  1.82.9 (<noname>): value 1897715288099520512 8.298808519842818e-182 [00000000000a561a]
+              1.28.11 (<noname>): value 1624000
+              1.28.9 (<noname>): value 1851300
+              1.18.3 (<noname>):
+                value 1051099136
+                value 1044512768
+              1.18.1 (<noname>): value 23180
+
+[140 bytes]
+05:27:34.992  1.82.9 (<noname>): value 1969772882137448448 5.438707151564189e-177 [00000000000a561b]
+              1.28.11 (<noname>): value 1624020
+              1.28.9 (<noname>): value 1851330
+              1.18.3 (<noname>):
+                value 1050378240
+                value 1044447232
+              1.18.1 (<noname>): value 23180
+
+[140 bytes]
+05:27:40.002  1.82.9 (<noname>): value 1969772882137448448 5.438707151564189e-177 [00000000000a561b]
+              1.28.11 (<noname>): value 1624020
+              1.28.9 (<noname>): value 1851330
+              1.18.3 (<noname>):
+                value 1051230208
+                value 1044643840
+              1.18.1 (<noname>): value 23180
+
+[140 bytes]
+05:27:44.992  1.82.9 (<noname>): value 2185945664251232256 1.530859968822608e-162 [00000000000a561e]
+              1.28.11 (<noname>): value 1624080
+              1.28.9 (<noname>): value 1851360
+              1.18.3 (<noname>):
+                value 1050509312
+                value 1044578304
+              1.18.1 (<noname>): value 23180
+
+[140 bytes]
+05:27:50.002  1.82.9 (<noname>): value 2258003258289160192 1.003264389167585e-157 [00000000000a561f]
+              1.28.11 (<noname>): value 1624080
+              1.28.9 (<noname>): value 1851360
+              1.18.3 (<noname>):
+                value 1049821184
+                value 1044512768
+              1.18.1 (<noname>): value 23180
 
 === size 136 ===
-__pmLogLoadMeta: no metrics found?
-pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+Note: timezone set to local timezone of host "bozo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo
+  commencing Tue Feb  7 05:27:05.069 1995
+  ending     Tue Feb  7 05:27:50.002 1995
+
+Descriptions for Metrics in the Log ...
+
+Instance Domains in the Log ...
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+05:27:05.069       0          297          132
+             Error: offset to meta file past end of file (136)
+05:27:09.991       0          585          172
+             Error: offset to meta file past end of file (136)
+
+[40 bytes]
+05:27:05.069  1.18.2 (<noname>): value 1
+
+[140 bytes]
+05:27:09.991  1.82.9 (<noname>): value 17317758937239388160 -1.306541007051815e+233 [00000000000a55f0]
+              1.28.11 (<noname>): value 1623960
+              1.28.9 (<noname>): value 1851290
+              1.18.3 (<noname>):
+                value 1050050560
+                value 1044185088
+              1.18.1 (<noname>): value 23080
+
+[140 bytes]
+05:27:14.992  1.82.9 (<noname>): value 18398622847808307200 -2.308458143322094e+305 [00000000000a55ff]
+              1.28.11 (<noname>): value 1623960
+              1.28.9 (<noname>): value 1851290
+              1.18.3 (<noname>):
+                value 1049395200
+                value 1044119552
+              1.18.1 (<noname>): value 23080
+
+[140 bytes]
+05:27:20.002  1.82.9 (<noname>): value 960966565606457344 2.017328601836956e-244 [00000000000a560d]
+              1.28.11 (<noname>): value 1623960
+              1.28.9 (<noname>): value 1851290
+              1.18.3 (<noname>):
+                value 1050378240
+                value 1044316160
+              1.18.1 (<noname>): value 23176
+
+[140 bytes]
+05:27:24.992  1.82.9 (<noname>): value 1393312129834024960 1.59829238311012e-215 [00000000000a5613]
+              1.28.11 (<noname>): value 1623960
+              1.28.9 (<noname>): value 1851290
+              1.18.3 (<noname>):
+                value 1051852800
+                value 1044578304
+              1.18.1 (<noname>): value 23176
+
+[140 bytes]
+05:27:30.002  1.82.9 (<noname>): value 1897715288099520512 8.298808519842818e-182 [00000000000a561a]
+              1.28.11 (<noname>): value 1624000
+              1.28.9 (<noname>): value 1851300
+              1.18.3 (<noname>):
+                value 1051099136
+                value 1044512768
+              1.18.1 (<noname>): value 23180
+
+[140 bytes]
+05:27:34.992  1.82.9 (<noname>): value 1969772882137448448 5.438707151564189e-177 [00000000000a561b]
+              1.28.11 (<noname>): value 1624020
+              1.28.9 (<noname>): value 1851330
+              1.18.3 (<noname>):
+                value 1050378240
+                value 1044447232
+              1.18.1 (<noname>): value 23180
+
+[140 bytes]
+05:27:40.002  1.82.9 (<noname>): value 1969772882137448448 5.438707151564189e-177 [00000000000a561b]
+              1.28.11 (<noname>): value 1624020
+              1.28.9 (<noname>): value 1851330
+              1.18.3 (<noname>):
+                value 1051230208
+                value 1044643840
+              1.18.1 (<noname>): value 23180
+
+[140 bytes]
+05:27:44.992  1.82.9 (<noname>): value 2185945664251232256 1.530859968822608e-162 [00000000000a561e]
+              1.28.11 (<noname>): value 1624080
+              1.28.9 (<noname>): value 1851360
+              1.18.3 (<noname>):
+                value 1050509312
+                value 1044578304
+              1.18.1 (<noname>): value 23180
+
+[140 bytes]
+05:27:50.002  1.82.9 (<noname>): value 2258003258289160192 1.003264389167585e-157 [00000000000a561f]
+              1.28.11 (<noname>): value 1624080
+              1.28.9 (<noname>): value 1851360
+              1.18.3 (<noname>):
+                value 1049821184
+                value 1044512768
+              1.18.1 (<noname>): value 23180
 
 === size 160 ===
 __pmLogLoadMeta: record len=49, type=1 @ offset=132
@@ -55,7 +253,7 @@ __pmLogLoadMeta: PMID: 1.82.9 name: disk.all.total
 __pmLogLoadMeta: record len=62, type=1 @ offset=235
 __pmLogLoadMeta: PMID: 1.28.11 name: kernel.percpu.cpu.user
 __pmLogLoadMeta: record len=41, type=2 @ offset=297
-addindom( ..., 1.1, 05:27:09.991, numinst=1)
+addindom( ..., 1.1, TIMESTAMP, numinst=1)
 __pmLogLoadMeta: record len=61, type=1 @ offset=338
 __pmLogLoadMeta: PMID: 1.28.9 name: kernel.percpu.cpu.sys
 __pmLogLoadMeta: record len=55, type=1 @ offset=399
@@ -70,7 +268,7 @@ __pmLogLoadMeta: PMID: 1.82.9 name: disk.all.total
 __pmLogLoadMeta: record len=62, type=1 @ offset=235
 __pmLogLoadMeta: PMID: 1.28.11 name: kernel.percpu.cpu.user
 __pmLogLoadMeta: record len=41, type=2 @ offset=297
-addindom( ..., 1.1, 05:27:09.991, numinst=1)
+addindom( ..., 1.1, TIMESTAMP, numinst=1)
 __pmLogLoadMeta: record len=61, type=1 @ offset=338
 __pmLogLoadMeta: PMID: 1.28.9 name: kernel.percpu.cpu.sys
 __pmLogLoadMeta: record len=55, type=1 @ offset=399
@@ -85,7 +283,7 @@ __pmLogLoadMeta: PMID: 1.82.9 name: disk.all.total
 __pmLogLoadMeta: record len=62, type=1 @ offset=235
 __pmLogLoadMeta: PMID: 1.28.11 name: kernel.percpu.cpu.user
 __pmLogLoadMeta: record len=41, type=2 @ offset=297
-addindom( ..., 1.1, 05:27:09.991, numinst=1)
+addindom( ..., 1.1, TIMESTAMP, numinst=1)
 __pmLogLoadMeta: record len=61, type=1 @ offset=338
 __pmLogLoadMeta: PMID: 1.28.9 name: kernel.percpu.cpu.sys
 __pmLogLoadMeta: record len=55, type=1 @ offset=399
@@ -122,7 +320,7 @@ __pmLogLoadMeta: PMID: 40.0.0 name: 40.0.0
 __pmLogLoadMeta: record len=54, type=1 @ offset=500
 __pmLogLoadMeta: PMID: 1.80.7 name: disk.dev.total
 __pmLogLoadMeta: record len=163, type=2 @ offset=554
-addindom( ..., 1.2, 15:25:09.043, numinst=9)
+addindom( ..., 1.2, TIMESTAMP, numinst=9)
 __pmLogLoadMeta: record len=54, type=1 @ offset=717
 __pmLogLoadMeta: PMID: 1.80.2 name: disk.dev.write
 __pmLogLoadMeta: record len=53, type=1 @ offset=771
@@ -130,13 +328,13 @@ __pmLogLoadMeta: PMID: 1.80.1 name: disk.dev.read
 __pmLogLoadMeta: record len=67, type=1 @ offset=824
 __pmLogLoadMeta: PMID: 1.25.12 name: network.interface.out.bytes
 __pmLogLoadMeta: record len=64, type=2 @ offset=891
-addindom( ..., 1.6, 15:25:09.043, numinst=3)
+addindom( ..., 1.6, TIMESTAMP, numinst=3)
 __pmLogLoadMeta: record len=66, type=1 @ offset=955
 __pmLogLoadMeta: PMID: 1.25.7 name: network.interface.in.bytes
 __pmLogLoadMeta: record len=55, type=1 @ offset=1021
 __pmLogLoadMeta: PMID: 1.18.3 name: kernel.all.load
 __pmLogLoadMeta: record len=80, type=2 @ offset=1076
-addindom( ..., 1.5, 15:25:09.043, numinst=3)
+addindom( ..., 1.5, TIMESTAMP, numinst=3)
 __pmLogLoadMeta: record len=59, type=1 @ offset=1156
 __pmLogLoadMeta: PMID: 1.10.54 name: kernel.all.ipc.sema
 __pmLogLoadMeta: record len=58, type=1 @ offset=1215
@@ -184,7 +382,7 @@ __pmLogLoadMeta: PMID: 40.0.0 name: 40.0.0
 __pmLogLoadMeta: record len=54, type=1 @ offset=500
 __pmLogLoadMeta: PMID: 1.80.7 name: disk.dev.total
 __pmLogLoadMeta: record len=163, type=2 @ offset=554
-addindom( ..., 1.2, 15:25:09.043, numinst=9)
+addindom( ..., 1.2, TIMESTAMP, numinst=9)
 __pmLogLoadMeta: record len=54, type=1 @ offset=717
 __pmLogLoadMeta: PMID: 1.80.2 name: disk.dev.write
 __pmLogLoadMeta: record len=53, type=1 @ offset=771
@@ -192,13 +390,13 @@ __pmLogLoadMeta: PMID: 1.80.1 name: disk.dev.read
 __pmLogLoadMeta: record len=67, type=1 @ offset=824
 __pmLogLoadMeta: PMID: 1.25.12 name: network.interface.out.bytes
 __pmLogLoadMeta: record len=64, type=2 @ offset=891
-addindom( ..., 1.6, 15:25:09.043, numinst=3)
+addindom( ..., 1.6, TIMESTAMP, numinst=3)
 __pmLogLoadMeta: record len=66, type=1 @ offset=955
 __pmLogLoadMeta: PMID: 1.25.7 name: network.interface.in.bytes
 __pmLogLoadMeta: record len=55, type=1 @ offset=1021
 __pmLogLoadMeta: PMID: 1.18.3 name: kernel.all.load
 __pmLogLoadMeta: record len=80, type=2 @ offset=1076
-addindom( ..., 1.5, 15:25:09.043, numinst=3)
+addindom( ..., 1.5, TIMESTAMP, numinst=3)
 __pmLogLoadMeta: record len=59, type=1 @ offset=1156
 __pmLogLoadMeta: PMID: 1.10.54 name: kernel.all.ipc.sema
 __pmLogLoadMeta: record len=58, type=1 @ offset=1215
@@ -247,7 +445,7 @@ __pmLogLoadMeta: PMID: 40.0.0 name: 40.0.0
 __pmLogLoadMeta: record len=54, type=1 @ offset=500
 __pmLogLoadMeta: PMID: 1.80.7 name: disk.dev.total
 __pmLogLoadMeta: record len=163, type=2 @ offset=554
-addindom( ..., 1.2, 14:25:09.043, numinst=9)
+addindom( ..., 1.2, TIMESTAMP, numinst=9)
 __pmLogLoadMeta: record len=54, type=1 @ offset=717
 __pmLogLoadMeta: PMID: 1.80.2 name: disk.dev.write
 __pmLogLoadMeta: record len=53, type=1 @ offset=771
@@ -255,13 +453,13 @@ __pmLogLoadMeta: PMID: 1.80.1 name: disk.dev.read
 __pmLogLoadMeta: record len=67, type=1 @ offset=824
 __pmLogLoadMeta: PMID: 1.25.12 name: network.interface.out.bytes
 __pmLogLoadMeta: record len=64, type=2 @ offset=891
-addindom( ..., 1.6, 14:25:09.043, numinst=3)
+addindom( ..., 1.6, TIMESTAMP, numinst=3)
 __pmLogLoadMeta: record len=66, type=1 @ offset=955
 __pmLogLoadMeta: PMID: 1.25.7 name: network.interface.in.bytes
 __pmLogLoadMeta: record len=55, type=1 @ offset=1021
 __pmLogLoadMeta: PMID: 1.18.3 name: kernel.all.load
 __pmLogLoadMeta: record len=80, type=2 @ offset=1076
-addindom( ..., 1.5, 14:25:09.043, numinst=3)
+addindom( ..., 1.5, TIMESTAMP, numinst=3)
 __pmLogLoadMeta: record len=59, type=1 @ offset=1156
 __pmLogLoadMeta: PMID: 1.10.54 name: kernel.all.ipc.sema
 __pmLogLoadMeta: record len=58, type=1 @ offset=1215
@@ -296,7 +494,7 @@ pmval archive meta data exercises ...
 __pmLogLoadMeta: record len=58, type=1 @ offset=132
 __pmLogLoadMeta: PMID: 2.3.3 name: pmcd.pmlogger.host
 __pmLogLoadMeta: record len=41, type=2 @ offset=190
-addindom( ..., 2.1, 08:48:29.436, numinst=1)
+addindom( ..., 2.1, TIMESTAMP, numinst=1)
 __pmLogLoadMeta: record len=58, type=1 @ offset=231
 __pmLogLoadMeta: PMID: 2.3.0 name: pmcd.pmlogger.port
 __pmLogLoadMeta: record len=61, type=1 @ offset=289
@@ -304,7 +502,7 @@ __pmLogLoadMeta: PMID: 2.3.2 name: pmcd.pmlogger.archive
 __pmLogLoadMeta: record len=55, type=1 @ offset=350
 __pmLogLoadMeta: PMID: 60.2.0 name: kernel.all.load
 __pmLogLoadMeta: record len=80, type=2 @ offset=405
-addindom( ..., 60.2, 08:48:34.052, numinst=3)
+addindom( ..., 60.2, TIMESTAMP, numinst=3)
 __pmLogLoadMeta: record len=49, type=1 @ offset=485
 __pmLogLoadMeta: PMID: 60.1.7 name: swap.used
 __pmLogLoadMeta: record len=55, type=1 @ offset=534
@@ -355,7 +553,7 @@ interval:  5.00 sec
 __pmLogLoadMeta: record len=58, type=1 @ offset=132
 __pmLogLoadMeta: PMID: 2.3.3 name: pmcd.pmlogger.host
 __pmLogLoadMeta: record len=41, type=2 @ offset=190
-addindom( ..., 2.1, 08:48:29.436, numinst=1)
+addindom( ..., 2.1, TIMESTAMP, numinst=1)
 __pmLogLoadMeta: record len=58, type=1 @ offset=231
 __pmLogLoadMeta: PMID: 2.3.0 name: pmcd.pmlogger.port
 __pmLogLoadMeta: record len=61, type=1 @ offset=289
@@ -363,7 +561,7 @@ __pmLogLoadMeta: PMID: 2.3.2 name: pmcd.pmlogger.archive
 __pmLogLoadMeta: record len=55, type=1 @ offset=350
 __pmLogLoadMeta: PMID: 60.2.0 name: kernel.all.load
 __pmLogLoadMeta: record len=80, type=2 @ offset=405
-addindom( ..., 60.2, 08:48:34.052, numinst=3)
+addindom( ..., 60.2, TIMESTAMP, numinst=3)
 __pmLogLoadMeta: record len=49, type=1 @ offset=485
 __pmLogLoadMeta: PMID: 60.1.7 name: swap.used
 __pmLogLoadMeta: record len=55, type=1 @ offset=534
@@ -437,7 +635,7 @@ pmNameInDomArchive(60.123, 1234567) -> Operation requires context with archive s
 __pmLogLoadMeta: record len=58, type=1 @ offset=132
 __pmLogLoadMeta: PMID: 2.3.3 name: pmcd.pmlogger.host
 __pmLogLoadMeta: record len=41, type=2 @ offset=190
-addindom( ..., 2.1, 08:48:29.436, numinst=1)
+addindom( ..., 2.1, TIMESTAMP, numinst=1)
 __pmLogLoadMeta: record len=58, type=1 @ offset=231
 __pmLogLoadMeta: PMID: 2.3.0 name: pmcd.pmlogger.port
 __pmLogLoadMeta: record len=61, type=1 @ offset=289
@@ -445,7 +643,7 @@ __pmLogLoadMeta: PMID: 2.3.2 name: pmcd.pmlogger.archive
 __pmLogLoadMeta: record len=55, type=1 @ offset=350
 __pmLogLoadMeta: PMID: 60.2.0 name: kernel.all.load
 __pmLogLoadMeta: record len=80, type=2 @ offset=405
-addindom( ..., 60.2, 08:48:34.052, numinst=3)
+addindom( ..., 60.2, TIMESTAMP, numinst=3)
 __pmLogLoadMeta: record len=49, type=1 @ offset=485
 __pmLogLoadMeta: PMID: 60.1.7 name: swap.used
 __pmLogLoadMeta: record len=55, type=1 @ offset=534
@@ -479,17 +677,17 @@ __pmLogLoadMeta: PMID: 60.0.10 name: swap.in
 pmGetInDomArchive(PM_INDOM_NULL) -> Unknown or illegal instance domain identifier
 pmLookupInDomArchive(PM_INDOM_NULL, foobar) -> Unknown or illegal instance domain identifier
 pmNameInDomArchive(PM_INDOM_NULL, 1234567) -> Unknown or illegal instance domain identifier
-searchindom( ..., PM_INDOM_NULL, 08:48:29.436)
+searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
 __pmLogGetInDom(PM_INDOM_NULL) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., PM_INDOM_NULL, 08:48:29.436)
+searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
 __pmLogLookupInDom(PM_INDOM_NULL, foobar) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., PM_INDOM_NULL, 08:48:29.436)
+searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
 __pmLogNameInDom(PM_INDOM_NULL, 1234567) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., PM_INDOM_NULL, 08:48:41.284)
+searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
 __pmLogGetInDom(PM_INDOM_NULL) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., PM_INDOM_NULL, 08:48:41.284)
+searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
 __pmLogLookupInDom(PM_INDOM_NULL, foobar) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., PM_INDOM_NULL, 08:48:41.284)
+searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
 __pmLogNameInDom(PM_INDOM_NULL, 1234567) -> Instance domain identifier not defined in the PCP archive log
 pmGetInDomArchive(60.2) -> 3
    [1] 1 minute
@@ -500,43 +698,43 @@ pmLookupInDomArchive(60.2, 1 minute) -> 1
 pmLookupInDomArchive(60.2, 1) -> 1
 pmNameInDomArchive(60.2, 1234567) -> Instance identifier not defined in the PCP archive log
 pmNameInDomArchive(60.2, 1) -> 1 minute
-searchindom( ..., 60.2, 08:48:29.436)
+searchindom( ..., 60.2, TIMESTAMP)
 too early for indom @ 08:48:34.052
 __pmLogGetInDom(60.2) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.2, 08:48:29.436)
+searchindom( ..., 60.2, TIMESTAMP)
 too early for indom @ 08:48:34.052
 __pmLogLookupInDom(60.2, foobar) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.2, 08:48:29.436)
+searchindom( ..., 60.2, TIMESTAMP)
 too early for indom @ 08:48:34.052
 __pmLogLookupInDom(60.2, 1 minute) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.2, 08:48:29.436)
+searchindom( ..., 60.2, TIMESTAMP)
 too early for indom @ 08:48:34.052
 __pmLogLookupInDom(60.2, 1) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.2, 08:48:29.436)
+searchindom( ..., 60.2, TIMESTAMP)
 too early for indom @ 08:48:34.052
 __pmLogNameInDom(60.2, 1234567) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.2, 08:48:29.436)
+searchindom( ..., 60.2, TIMESTAMP)
 too early for indom @ 08:48:34.052
 __pmLogNameInDom(60.2, 1) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.2, 08:48:41.284)
+searchindom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052
 __pmLogGetInDom(60.2) -> 3
    [1] 1 minute
    [5] 5 minute
    [15] 15 minute
-searchindom( ..., 60.2, 08:48:41.284)
+searchindom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052
 __pmLogLookupInDom(60.2, foobar) -> Instance identifier not defined in the PCP archive log
-searchindom( ..., 60.2, 08:48:41.284)
+searchindom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052
 __pmLogLookupInDom(60.2, 1 minute) -> 1
-searchindom( ..., 60.2, 08:48:41.284)
+searchindom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052
 __pmLogLookupInDom(60.2, 1) -> 1
-searchindom( ..., 60.2, 08:48:41.284)
+searchindom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052
 __pmLogNameInDom(60.2, 1234567) -> Instance identifier not defined in the PCP archive log
-searchindom( ..., 60.2, 08:48:41.284)
+searchindom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052
 __pmLogNameInDom(60.2, 1) -> 1 minute
 pmGetInDomArchive(60.123) -> Instance domain identifier not defined in the PCP archive log
@@ -545,27 +743,27 @@ pmLookupInDomArchive(60.123, 1 minute) -> Instance domain identifier not defined
 pmLookupInDomArchive(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
 pmNameInDomArchive(60.123, 1234567) -> Instance domain identifier not defined in the PCP archive log
 pmNameInDomArchive(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, 08:48:29.436)
+searchindom( ..., 60.123, TIMESTAMP)
 __pmLogGetInDom(60.123) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, 08:48:29.436)
+searchindom( ..., 60.123, TIMESTAMP)
 __pmLogLookupInDom(60.123, foobar) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, 08:48:29.436)
+searchindom( ..., 60.123, TIMESTAMP)
 __pmLogLookupInDom(60.123, 1 minute) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, 08:48:29.436)
+searchindom( ..., 60.123, TIMESTAMP)
 __pmLogLookupInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, 08:48:29.436)
+searchindom( ..., 60.123, TIMESTAMP)
 __pmLogNameInDom(60.123, 1234567) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, 08:48:29.436)
+searchindom( ..., 60.123, TIMESTAMP)
 __pmLogNameInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, 08:48:41.284)
+searchindom( ..., 60.123, TIMESTAMP)
 __pmLogGetInDom(60.123) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, 08:48:41.284)
+searchindom( ..., 60.123, TIMESTAMP)
 __pmLogLookupInDom(60.123, foobar) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, 08:48:41.284)
+searchindom( ..., 60.123, TIMESTAMP)
 __pmLogLookupInDom(60.123, 1 minute) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, 08:48:41.284)
+searchindom( ..., 60.123, TIMESTAMP)
 __pmLogLookupInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, 08:48:41.284)
+searchindom( ..., 60.123, TIMESTAMP)
 __pmLogNameInDom(60.123, 1234567) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, 08:48:41.284)
+searchindom( ..., 60.123, TIMESTAMP)
 __pmLogNameInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive log

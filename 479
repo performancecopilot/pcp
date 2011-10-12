@@ -12,6 +12,14 @@
 
 seq=`basename $0`
 
+rm -f $seq.out
+if [ $PCP_VER -lt 4000 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
 echo "QA output created by $seq"
 
 status=0	# success is the default!
@@ -22,13 +30,16 @@ trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 _filter()
 {
     sed \
-	-e "s;$tmp;TMP;g"
+	-e "s;$tmp;TMP;g" \
+	-e '/addindom( /s/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/' \
+	-e '/searchindom( /s/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/'
 }
 
 _filter2()
 {
     _filter_pmie_log \
-    | sed -e '/Info: evaluator exiting/d'
+    | sed -e '/Info: evaluator exiting/d' \
+    | _filter
 }
 
 cp src-oss/bozo.client_v2.* $tmp
@@ -40,7 +51,7 @@ do
     echo
     echo "=== bad #`echo $bad | sed -e 's/.*\.bad\.//'` ==="
     cp $bad $tmp/bozo.client_v2.meta
-    pmdumplog -a -Dlogmeta $tmp/bozo.client_v2 2>&1 \
+    pmdumplog -z -a -Dlogmeta $tmp/bozo.client_v2 2>&1 \
     | _filter
 done
 
@@ -49,7 +60,7 @@ do
     echo
     echo "=== size $size ==="
     dd if=$tmp/bozo.client_v2.save bs=1 count=$size of=$tmp/bozo.client_v2.meta >/dev/null 2>&1
-    pmdumplog -a -Dlogmeta $tmp/bozo.client_v2 2>&1 \
+    pmdumplog -z -a -Dlogmeta $tmp/bozo.client_v2 2>&1 \
     | _filter
 done
 
@@ -69,13 +80,13 @@ echo 'some_inst disk.dev.total #dks1d1 #dks1d7 > 0 -> print "active disks: " "%i
 
 echo
 echo "pmval archive meta data exercises ..."
-pmval -z -t 5sec -Dlogmeta -a src-oss/ac15 kernel.all.load
+pmval -z -t 5sec -Dlogmeta -a src-oss/ac15 kernel.all.load 2>&1 | _filter
 echo
-pmval -z -t 5sec -Dlogmeta -a src-oss/ac15 -i '"15 minute","5","1 minute"' kernel.all.load
+pmval -z -t 5sec -Dlogmeta -a src-oss/ac15 -i '"15 minute","5","1 minute"' kernel.all.load 2>&1 | _filter
 
 echo
 echo "torture ..."
-src-oss/torture_logmeta -Dlogmeta src-oss/ac15 60 2 123
+src-oss/torture_logmeta -Dlogmeta src-oss/ac15 60 2 123 2>&1 | _filter
 
 # success, all done
 exit

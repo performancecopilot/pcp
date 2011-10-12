@@ -23,7 +23,13 @@ echo "QA output created by $seq"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g"
+}
 
 _cnt_logrecs()
 {
@@ -40,6 +46,28 @@ echo "=== usage cases ==="
 pmlogrewrite -x in out
 echo
 pmlogrewrite in out foo
+echo
+pmlogrewrite -c no.such.file in out
+echo
+pmlogrewrite -c /dev/tty in out
+echo
+touch $tmp.forbidden
+chmod 0 $tmp.forbidden
+pmlogrewrite -c $tmp.forbidden src-oss/rattle $tmp.new 2>&1 | _filter
+rm -f $tmp.new.* $tmp.forbidden
+echo
+mkdir $tmp.forbiddendir
+chmod 0 $tmp.forbiddendir
+pmlogrewrite -c $tmp.forbiddendir in out 2>&1 | _filter
+echo
+pmlogrewrite -c $tmp.forbiddendir/blah in out 2>&1 | _filter
+rm -rf $tmp.forbidden
+echo
+mkdir $tmp.configdir
+touch $tmp.configdir/forbidden
+chmod 0 $tmp.configdir/forbidden
+pmlogrewrite -v -c $tmp.configdir src-oss/rattle $tmp.new 2>&1 | _filter
+rm -rf $tmp.config
 
 echo
 echo "=== truncated archive ==="

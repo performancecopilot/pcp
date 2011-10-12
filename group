@@ -811,3 +811,4 @@ pmlogrewrite
 1050 pmieconf local sgi
 1051 pmieconf #696008 local sgi
 1108 logutil local folio sgi
+496 pmlogrewrite pmlogdump local oss

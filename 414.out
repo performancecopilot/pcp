@@ -22,9 +22,9 @@ TIME AFenqueue ADDR(32770, (nil)) for TIME
 TIME AFenqueue ADDR(32771, (nil)) for TIME
 TIME AFenqueue ADDR(32772, (nil)) for TIME
 TIME AFonalarm(14)
-TIME AFsetitimer for delta DELTA
-onevent done: DELTA
-onevent(32769, (nil)) called: DELTA
-onevent(32770, (nil)) called: DELTA
-onevent(32771, (nil)) called: DELTA
-returned from pause(): DELTA
+TIME AFsetitimer for delta TIME
+onevent done: TIME
+onevent(32769, (nil)) called: TIME
+onevent(32770, (nil)) called: TIME
+onevent(32771, (nil)) called: TIME
+returned from pause(): TIME

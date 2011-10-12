@@ -4,22 +4,70 @@ pmlogrewrite: invalid option -- 'x'
 Usage: pmlogrewrite [options] input-archive output-archive
 
 Options:
-  -c configfile  file to load config from
-  -C             parse config file(s) and quit
-  -d             desperate, save output archive even after error
-  -s             do scale conversion
-  -v             verbose
-  -w             emit warnings [default is silence]
+  -c config   file or directory to load rules from
+  -C          parse config file(s) and quit
+  -d          desperate, save output archive even after error
+  -s          do scale conversion
+  -v          verbose
+  -w          emit warnings [default is silence]
 
 Usage: pmlogrewrite [options] input-archive output-archive
 
 Options:
-  -c configfile  file to load config from
-  -C             parse config file(s) and quit
-  -d             desperate, save output archive even after error
-  -s             do scale conversion
-  -v             verbose
-  -w             emit warnings [default is silence]
+  -c config   file or directory to load rules from
+  -C          parse config file(s) and quit
+  -d          desperate, save output archive even after error
+  -s          do scale conversion
+  -v          verbose
+  -w          emit warnings [default is silence]
+
+pmlogrewrite: stat(no.such.file) failed: No such file or directory
+Usage: pmlogrewrite [options] input-archive output-archive
+
+Options:
+  -c config   file or directory to load rules from
+  -C          parse config file(s) and quit
+  -d          desperate, save output archive even after error
+  -s          do scale conversion
+  -v          verbose
+  -w          emit warnings [default is silence]
+
+Error: -c config /dev/tty is not a file or directory
+Usage: pmlogrewrite [options] input-archive output-archive
+
+Options:
+  -c config   file or directory to load rules from
+  -C          parse config file(s) and quit
+  -d          desperate, save output archive even after error
+  -s          do scale conversion
+  -v          verbose
+  -w          emit warnings [default is silence]
+
+pmlogrewrite: Cannot open config file "TMP.forbidden": Permission denied
+
+pmlogrewrite: opendir(TMP.forbiddendir) failed: Permission denied
+Usage: pmlogrewrite [options] input-archive output-archive
+
+Options:
+  -c config   file or directory to load rules from
+  -C          parse config file(s) and quit
+  -d          desperate, save output archive even after error
+  -s          do scale conversion
+  -v          verbose
+  -w          emit warnings [default is silence]
+
+pmlogrewrite: stat(TMP.forbiddendir/blah) failed: Permission denied
+Usage: pmlogrewrite [options] input-archive output-archive
+
+Options:
+  -c config   file or directory to load rules from
+  -C          parse config file(s) and quit
+  -d          desperate, save output archive even after error
+  -s          do scale conversion
+  -v          verbose
+  -w          emit warnings [default is silence]
+
+pmlogrewrite: Cannot open config file "TMP.configdir/forbidden": Permission denied
 
 === truncated archive ===
 pmlogrewrite: Error: __pmLogRead[log src-oss/ok-truncbin]: Corrupted record in a PCP archive log

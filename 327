@@ -27,10 +27,10 @@ test_and_repair()
     opts="$@"
     archive="$tmp/ok-mv-foo"
 
-    pmdumplog -L $archive 2>&1 | filter_paths 	# test
+    pmdumplog -z -L $archive 2>&1 | filter_paths 	# test
     pmloglabel $archive		# check
     pmloglabel $opts $archive	# repair
-    pmdumplog -L $archive	# test
+    pmdumplog -z -L $archive	# test
 }
 
 # real QA test starts here
