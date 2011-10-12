@@ -97,7 +97,7 @@ static void err(int severity, int do_where, QString msg)
 	// else do nothing for E_INFO
 	msg.append("\n");
 	fflush(stderr);
-	pmprintf((const char *)msg.toAscii());
+	pmprintf("%s", (const char *)msg.toAscii());
 	pmflush();
     }
     else {
