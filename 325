@@ -6,11 +6,19 @@
 #
 
 seq=`basename $0`
-echo "QA output created by $seq"
 
 . ./common.product
 . ./common.check
 . ./common.config
+
+if which pmconfirm >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun pmconfirm not installed
+fi
+
+echo "QA output created by $seq"
 
 _cleanup()
 {
