@@ -65,9 +65,6 @@ MAN_PAGES += \
 MAN_PAGES += \
 	pmaf.3 pmconnectlogger.3 pmcontrollog.3
 
-# Merged but not yet installed:
-#MAN_PAGES += pmimport.3
-
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 LSRCFILES	= $(MAN_PAGES)
 
