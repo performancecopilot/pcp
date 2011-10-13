@@ -155,7 +155,7 @@ pmdaEventQueueAppend(int handle, void *buffer, size_t bytes, struct timeval *tv)
 
     if (pmDebug & DBG_TRACE_APPL1)
 	__pmNotifyErr(LOG_INFO, "Event enqueue, handle %d (%d bytes)",
-			handle, bytes);
+			handle, (int)bytes);
     if (!queue)
 	return -EINVAL;
 
@@ -173,15 +173,15 @@ pmdaEventQueueAppend(int handle, void *buffer, size_t bytes, struct timeval *tv)
 
 	if (pmDebug & DBG_TRACE_APPL1)
 	    __pmNotifyErr(LOG_INFO, "Dropping %s: e=%p sz=%d max=%d qsz=%d",
-				    queue->name, event, event->size,
-				    queue->maxmemory, queue->qsize);
+				    queue->name, event, (int)event->size,
+				    (int)queue->maxmemory, queue->qsize);
 
 	/* Walk clients - if event last seen, drop it and bump missed count */
 	client_iterate(queue_drop, queue, event);
 
 	if (pmDebug & DBG_TRACE_APPL1)
 	    __pmNotifyErr(LOG_INFO, "Removing %s event %p (%d bytes)",
-				    queue->name, event, event->size);
+				    queue->name, event, (int)event->size);
 
 	TAILQ_REMOVE(&queue->tailq, event, events);
 	queue->qsize -= event->size;
@@ -211,7 +211,7 @@ pmdaEventQueueAppend(int handle, void *buffer, size_t bytes, struct timeval *tv)
 
     if (pmDebug & DBG_TRACE_APPL1)
 	__pmNotifyErr(LOG_INFO, "Inserted %s event %p (%d bytes) clients = %d.",
-			queue->name, event, event->size, event->count);
+			queue->name, event, (int)event->size, event->count);
     return 0;
 }
 
@@ -439,7 +439,7 @@ pmdaEventEndClient(int context)
 
     if (pmDebug & DBG_TRACE_APPL2)
 	fprintf(stderr, "pmdaEventEndClient: ctx=%d slot=%d\n",
-		context, client ? (client - clients) : -1);
+		context, client ? (int)(client - clients) : 0);
 
     if (!client) {
 	/*
