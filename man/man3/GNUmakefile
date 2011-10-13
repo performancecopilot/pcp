@@ -54,7 +54,7 @@ MAN_PAGES	= \
 	pmiaddinstance.3 pmiend.3 pmierrstr.3 \
 	pmiputresult.3 pmiputvalue.3 pmiputvaluehandle.3 pmiwrite.3 \
 	pmunpackeventrecords.3 pmfreeeventresult.3 pmeventflagsstr.3 \
-	pmdaevent.3
+	pmdaeventarray.3 pmdaeventclient.3 pmdaeventqueue.3
 
 # IMPL_MANPAGES from IRIX
 MAN_PAGES += \
