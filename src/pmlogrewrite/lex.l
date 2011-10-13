@@ -39,15 +39,6 @@ static int	comma_count;
 
 #include "gram.tab.h"
 
-#ifdef FLEX_SCANNER
-#define YY_NO_UNPUT
-#else
-#undef input
-#define input() ((yytchar=fgetc(yyin)) == EOF ? 0 : yytchar)
-#undef unput
-#define unput(c) {yytchar=(c); ungetc(yytchar, yyin);}
-#endif
-
 static char *
 dupstr(char *s, int strip_quotes)
 {
@@ -71,10 +62,19 @@ dupstr(char *s, int strip_quotes)
 
 %}
 
-%s none glob host indom metric type sem units space time count output
-%option case-insensitive
 %option noinput
 %option nounput
+
+%{
+#ifdef FLEX_SCANNER
+#ifndef YY_NO_UNPUT
+#define YY_NO_UNPUT
+#endif
+#endif
+%}
+
+%s none glob host indom metric type sem units space time count output
+%option case-insensitive
 
 %%
 
