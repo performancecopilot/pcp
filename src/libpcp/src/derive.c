@@ -873,7 +873,8 @@ __dmdumpexpr(node_t *np, int level)
 	fprintf(stderr, " [%s] master=%d", np->value, np->info == NULL ? 1 : 0);
     fputc('\n', stderr);
     if (np->info) {
-	fprintf(stderr, "    PMID: %s (%s from pmDesc) numval: %d", pmIDStr(np->info->pmid), pmIDStr(np->desc.pmid), np->info->numval);
+	fprintf(stderr, "    PMID: %s", pmIDStr(np->info->pmid));
+	fprintf(stderr, " (%s from pmDesc) numval: %d", pmIDStr(np->desc.pmid), np->info->numval);
 	if (np->info->div_scale != 1)
 	    fprintf(stderr, " div_scale: %d", np->info->div_scale);
 	if (np->info->mul_scale != 1)
