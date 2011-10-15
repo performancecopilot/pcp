@@ -364,6 +364,8 @@ QA output created by 366
 > 	network.interface.inet_addr
 > }
 > #----
+> #+ postgresql/summary:x::
+> #----
 > #+ shping/summary:x::
 > #----
 > #+ sqlserver/summary:x::
