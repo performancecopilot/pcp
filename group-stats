@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+# Report test frequency by group
+#
+# Sample lines ...
+# # log rewriting app
+# pmlogrewrite
+#
+# 015 pdu local ostest oss sanity pmstore
+#
+
+awk <group '
+/^\#/		{ next }
+NF == 0		{ next }
+/^[0-9]/	{ for (i = 2; i <= NF; i++) {
+		    if (f[$i] == "") {
+			if ($i == "remote" || $i == "local" || $i == "sanity" ||
+			    $i == "oss" || $i == "ostest" ||
+			    $i ~ /^\#/ || $i ~ /patch/) {
+			    # control "groups" or sgi bug numbers
+			    continue
+			}
+			printf "Warning[%d]: test %s: group \"%s\" not declared\n",NR,$1,$i
+		    }
+		    else
+			f[$i]++
+		  }
+		  next
+		}
+		{ if ($i == "remote" || $i == "local" || $i == "sanity" ||
+		      $i == "oss" || $i == "ostest")
+		    next
+		  f[$1] = 0
+		}
+END		{ for (g in f) {
+		    if (f[g] != "")
+			printf "%3d %s\n",f[g],g
+		  }
+		}' \
+| sort -k 1,1nr -k2,2

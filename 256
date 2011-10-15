@@ -23,10 +23,7 @@ else
 fi
 
 rm -f $seq.out
-if test $PCP_EOE_VER -ge 4000
-then
-    ln $seq.out.3 $seq.out || exit 1
-elif test $PCP_EOE_VER -ge 3013
+if test $PCP_EOE_VER -ge 3013
 then
     ln $seq.out.2 $seq.out || exit 1
 else

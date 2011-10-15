@@ -22,6 +22,8 @@ pmcd
 pmproxy
 # pmchart app
 pmchart
+# pmdumptext app
+pmdumptext
 # pmdumplog app
 pmdumplog
 # pmlogger app (not control scripts)
@@ -619,8 +621,8 @@ pmlogrewrite
 383 pmda.cisco local oss
 384 pmda.pmcd local oss
 385 libpcp pmda.sample pminfo pmprobe local oss event sanity
-386 pdu valgrind local oss
-387 pmns valgrind local oss
+386 pdu mem_leak valgrind local oss
+387 pmns mem_leak valgrind local oss
 388 archive mem_leak valgrind local oss
 389 pmlogger local oss
 390 pmda.proc local pmval oss
@@ -723,7 +725,7 @@ pmlogrewrite
 487 pmlogrewrite pmdumplog local oss
 488 pmlogrewrite pmdumplog local oss
 489 pmda local oss
-490 pmlogrewrite valgrind local oss
+490 pmlogrewrite mem_leak valgrind local oss
 491 pmda local oss
 492 pmlogrewrite local oss
 493 pmlogrewrite local oss
@@ -811,4 +813,5 @@ pmlogrewrite
 1050 pmieconf local sgi
 1051 pmieconf #696008 local sgi
 1108 logutil local folio sgi
-496 pmlogrewrite pmlogdump local oss
+496 pmlogrewrite pmdumplog local oss
+497 pmlogconf local oss
