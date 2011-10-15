@@ -33,6 +33,8 @@ pmcpp: TMP.root[2]: #include "TMP.1"
 pmcpp: Error: Cannot open file for #include
 Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
 pminfo: Error loading namespace: Problems parsing PMNS definitions
+pmcpp: TMP.4[2]: #include "TMP.5"
+pmcpp: Error: #include nesting too deep
 load(name=TMP.root, binok=1, dupok=0) lic case=0 fname=TMP.root
 loadbinary(file=TMP.root.bin)
 loadbinary(file=TMP.root)
@@ -42,8 +44,6 @@ pmLoadNameSpace: one -> 1.0.1
 pmLoadNameSpace: two -> 1.0.2
 pmLoadNameSpace: three -> 1.0.3
 pmLoadNameSpace: four -> 1.0.4
-pmcpp: TMP.4[2]: #include "TMP.5"
-pmcpp: Error: #include nesting too deep
 Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
 pminfo: Error loading namespace: Problems parsing PMNS definitions
 
