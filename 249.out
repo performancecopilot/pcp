@@ -72,7 +72,7 @@ __dmgetpmid: metric "myname.a" -> PMID 511.0.2
 derived metrics prefetch added 1 metrics: 29.0.13
 __dmpostfetch: [0] root node 511.0.2: numval=1 vset[0]: inst=-1 l=1000000
 expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
-    PMID: 29.0.13 (29.0.13 from pmDesc) numval: 1
+    PMID: 29.0.13 (511.0.2 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
@@ -124,43 +124,43 @@ expr node <addr-0> type=NUMBER left=(nil) right=(nil) save_last=0 [123456] maste
 [0] inst=-1, val=123456
 __dmpostfetch: [1] root node 511.0.2: numval=1 vset[0]: inst=-1 l=1000000
 expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
-    PMID: 29.0.13 (29.0.13 from pmDesc) numval: 1
+    PMID: 29.0.13 (511.0.2 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
 __dmpostfetch: [2] root node 511.0.3: numval=1 vset[0]: inst=-1 ll=1000000
 expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] master=0
-    PMID: 29.0.23 (29.0.23 from pmDesc) numval: 1
+    PMID: 29.0.23 (511.0.3 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
 __dmpostfetch: [3] root node 511.0.4: numval=1 vset[0]: inst=-1 f=1000000.000000
 expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.million] master=0
-    PMID: 29.0.18 (29.0.18 from pmDesc) numval: 1
+    PMID: 29.0.18 (511.0.4 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1e+06
 __dmpostfetch: [4] root node 511.0.5: numval=1 vset[0]: inst=-1 d=1000000.000000
 expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.million] master=0
-    PMID: 29.0.28 (29.0.28 from pmDesc) numval: 1
+    PMID: 29.0.28 (511.0.5 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1e+06
 __dmpostfetch: [5] root node 511.0.6: numval=1 vset[0]: inst=-1 cp= (len=1)
 expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.null] master=0
-    PMID: 29.0.30 (29.0.30 from pmDesc) numval: 1
+    PMID: 29.0.30 (511.0.6 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=
 __dmpostfetch: [6] root node 511.0.7: numval=1 vset[0]: inst=-1 cp=hullo world! (len=13)
 expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] master=0
-    PMID: 29.0.31 (29.0.31 from pmDesc) numval: 1
+    PMID: 29.0.31 (511.0.7 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=hullo world!
 __dmpostfetch: [7] root node 511.0.8: numval=1 vset[0]: inst=-1 cp=13 (len=3)
 expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.write_me] master=0
-    PMID: 29.0.32 (29.0.32 from pmDesc) numval: 1
+    PMID: 29.0.32 (511.0.8 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=13
@@ -655,7 +655,7 @@ __dmopencontext: bind metric[14] myname.n
 __dmgetpmid: metric "myname.a" -> PMID 511.0.2
 __dmpostfetch: [0] root node 511.0.2: numval=1 vset[0]: inst=-1 l=1000000
 expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
-    PMID: 29.0.13 (29.0.13 from pmDesc) numval: 1
+    PMID: 29.0.13 (511.0.2 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
@@ -753,7 +753,7 @@ __dmopencontext: bind metric[14] myname.n
 __dmgetpmid: metric "myname.a" -> PMID 511.0.2
 __dmpostfetch: [7] root node 511.0.2: numval=1 vset[0]: inst=-1 l=1000000
 expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
-    PMID: 29.0.13 (29.0.13 from pmDesc) numval: 1
+    PMID: 29.0.13 (511.0.2 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
@@ -852,13 +852,13 @@ __dmgetpmid: metric "myname.a" -> PMID 511.0.2
 __dmgetpmid: metric "myname.b" -> PMID 511.0.3
 __dmpostfetch: [7] root node 511.0.2: numval=1 vset[0]: inst=-1 l=1000000
 expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
-    PMID: 29.0.13 (29.0.13 from pmDesc) numval: 1
+    PMID: 29.0.13 (511.0.2 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
 __dmpostfetch: [8] root node 511.0.3: numval=1 vset[0]: inst=-1 ll=1000000
 expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] master=0
-    PMID: 29.0.23 (29.0.23 from pmDesc) numval: 1
+    PMID: 29.0.23 (511.0.3 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
@@ -1044,7 +1044,7 @@ __dmgetpmid: metric "myname.n" -> PMID 511.0.15
 derived metrics prefetch added 15 metrics: 29.0.13 29.0.23 29.0.18 29.0.28 29.0.12 29.0.11 29.0.10 29.0.22 29.0.21 29.0.20 29.0.17 29.0.16 29.0.15 29.0.27 29.0.48
 __dmpostfetch: [3] root node 511.0.7: numval=1 vset[0]: inst=-1 cp=hullo world! (len=13)
 expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] master=0
-    PMID: 29.0.31 (29.0.31 from pmDesc) numval: 1
+    PMID: 29.0.31 (511.0.7 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=hullo world!
@@ -1056,43 +1056,43 @@ expr node <addr-1> type=NUMBER left=(nil) right=(nil) save_last=0 [123456] maste
 [0] inst=-1, val=123456
 __dmpostfetch: [6] root node 511.0.2: numval=1 vset[0]: inst=-1 l=1000000
 expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
-    PMID: 29.0.13 (29.0.13 from pmDesc) numval: 1
+    PMID: 29.0.13 (511.0.2 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
 __dmpostfetch: [7] root node 511.0.3: numval=1 vset[0]: inst=-1 ll=1000000
 expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] master=0
-    PMID: 29.0.23 (29.0.23 from pmDesc) numval: 1
+    PMID: 29.0.23 (511.0.3 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
 __dmpostfetch: [8] root node 511.0.4: numval=1 vset[0]: inst=-1 f=1000000.000000
 expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.million] master=0
-    PMID: 29.0.18 (29.0.18 from pmDesc) numval: 1
+    PMID: 29.0.18 (511.0.4 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1e+06
 __dmpostfetch: [9] root node 511.0.5: numval=1 vset[0]: inst=-1 d=1000000.000000
 expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.million] master=0
-    PMID: 29.0.28 (29.0.28 from pmDesc) numval: 1
+    PMID: 29.0.28 (511.0.5 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1e+06
 __dmpostfetch: [10] root node 511.0.6: numval=1 vset[0]: inst=-1 cp= (len=1)
 expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.null] master=0
-    PMID: 29.0.30 (29.0.30 from pmDesc) numval: 1
+    PMID: 29.0.30 (511.0.6 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=
 __dmpostfetch: [11] root node 511.0.7: numval=1 vset[0]: inst=-1 cp=hullo world! (len=13)
 expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] master=0
-    PMID: 29.0.31 (29.0.31 from pmDesc) numval: 1
+    PMID: 29.0.31 (511.0.7 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=hullo world!
 __dmpostfetch: [12] root node 511.0.8: numval=1 vset[0]: inst=-1 cp=13 (len=3)
 expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.write_me] master=0
-    PMID: 29.0.32 (29.0.32 from pmDesc) numval: 1
+    PMID: 29.0.32 (511.0.8 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=13
@@ -2490,7 +2490,7 @@ __dmgetpmid: metric "myname.f" -> PMID 511.0.6
 derived metrics prefetch added 5 metrics: 29.0.49 29.0.12 29.0.56 29.0.9 29.0.10
 __dmpostfetch: [0] root node 511.0.1: numval=-12365
 expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.needprofile] master=0
-    PMID: 29.0.49 (29.0.49 from pmDesc) numval: -12365
+    PMID: 29.0.49 (511.0.1 from pmDesc) numval: -12365
     Data Type: float  InDom: 29.4 0x7400004
     Semantics: discrete  Units: none
 __dmpostfetch: [1] root node 511.0.2: numval=-12365
@@ -2554,7 +2554,7 @@ expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sample.needpro
     Semantics: discrete  Units: none
 __dmpostfetch: [4] root node 511.0.5: numval=0
 expr node <addr-14> type=NAME left=(nil) right=(nil) save_last=0 [sample.noinst] master=0
-    PMID: 29.0.9 (29.0.9 from pmDesc) numval: 0
+    PMID: 29.0.9 (511.0.5 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 __dmpostfetch: [5] root node 511.0.6: numval=0
