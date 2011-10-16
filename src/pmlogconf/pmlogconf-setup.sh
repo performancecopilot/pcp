@@ -79,7 +79,7 @@ eval `sed -n <"$1" \
     -e '/^probe[ 	]/{
 s/^probe[ 	]*/metric="/
 s/$/ /
-s/ /" options="/
+s/[ 	]/" options="/
 s/ *$/"/
 p
 q
@@ -135,17 +135,17 @@ s/ //
 | $PCP_AWK_PROG -F '
 BEGIN		{ # conditions
 	      i = 0
-	      exists = ++i; condition[i] = "exists"
-	      values = ++i; condition[i] = "values"
-	      force = ++i; conditon[i] = "-"
-	      regexp = ++i; condition[i] = "~" 
-	      notregexp = ++i; condition[i] = "!~" 
-	      gt = ++i; condition[i] = ">";
-	      ge = ++i; condition[i] = ">=";
-	      eq = ++i; condition[i] = "==";
-	      neq = ++i; condition[i] = "!=";
-	      le = ++i; condition[i] = "<=";
-	      lt = ++i; condition[i] = "<";
+	      exists = ++i; condition[exists] = "exists"
+	      values = ++i; condition[values] = "values"
+	      force = ++i; conditon[force] = "-"
+	      regexp = ++i; condition[regexp] = "~" 
+	      notregexp = ++i; condition[notregexp] = "!~" 
+	      gt = ++i; condition[gt] = ">";
+	      ge = ++i; condition[ge] = ">=";
+	      eq = ++i; condition[eq] = "==";
+	      neq = ++i; condition[neq] = "!=";
+	      le = ++i; condition[le] = "<=";
+	      lt = ++i; condition[lt] = "<";
 	      # states
 	      include = 100; state[include] = "include"
 	      exclude = 101; state[exclude] = "exclude"
@@ -167,27 +167,30 @@ NR == 1 && $1 == "force" && NF == 2 {
 	      printf "probe=1 action=%d\n",action >>"'$tmp.out'"
 	      exit
 	    }
-NR == 1		{ if (NF == 0) {
-		op = exists	# default predicate
-		yes = available	# default success action
-		no = exclude	# default failure action
-	      }
-	      else {
-		op = -1
+NR == 1		{
+	      op = exists	# default predicate
+	      yes = available	# default success action
+	      no = exclude	# default failure action
+	      if (NF > 0) {
+		have_condition = 0
 		for (i in condition) {
 		    if ($1 == condition[i]) {
+			have_condition = 1
 			op = i
 			yes = available	# default success action
 			no = exclude	# default failure action
 			break
 		    }
 		}
-		if (op == -1) {
+		if (have_condition == 0 && $1 != "?") {
 		    print "condition operator \"" $1 "\" not recognized" >"'$tmp.err'"
 		    exit
 		}
 		if (op == exists || op == values) {
-		    actarg = 2
+		    if (have_condition)
+			actarg = 2
+		    else
+			actarg = 1
 		}
 		else {
 		    if (NF < 2) {
@@ -245,7 +248,8 @@ NR == 1		{ if (NF == 0) {
 		}
 	      } 
 	    }
-NR == 2		{ #debug# printf "op: %d %s pmprobe: %s",op, condition[op],$0
+NR == 2		{
+	      #debug# printf "op: %d %s pmprobe: %s",op, condition[op],$0
 	      probe = 0
 	      if ($2 < 0) {
 		# error from pmprobe

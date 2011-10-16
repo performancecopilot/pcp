@@ -149,7 +149,7 @@ again:
 		fprintf(stderr, "\n%03d: ", j);
 		i = 0;
 	    }
-	    fprintf(stderr, "0x%x ", lpb[j]);
+	    fprintf(stderr, "%08x ", lpb[j]);
 	    i++;
 	}
 	fputc('\n', stderr);
@@ -157,28 +157,5 @@ again:
 #endif
 
     *pb = lpb;
-    return 0;
-}
-
-int
-_pmLogPut(FILE *f, __pmPDU *pb)
-{
-    int		rlen = ntohl(pb[0]);
-    int		sts;
-
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOG) {
-	fprintf(stderr, "_pmLogPut: fd=%d rlen=%d\n",
-	    fileno(f), rlen);
-    }
-#endif
-
-    if ((sts = (int)fwrite(pb, 1, rlen, f)) != rlen) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "_pmLogPut: fwrite=%d %s\n", sts, osstrerror());
-#endif
-	return -oserror();
-    }
     return 0;
 }

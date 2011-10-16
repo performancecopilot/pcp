@@ -4298,9 +4298,11 @@ pmdaMetric linux_metrictab[] = {
     { NULL, {PMDA_PMID(CLUSTER_CGROUP_MOUNTS,1), PM_TYPE_U32,
     PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+#if 0	/* not yet implemented */
     /* cgroup.groups.cpuset.[<group>.]tasks.pid */
     { NULL, {PMDA_PMID(CLUSTER_CPUSET_PROCS,0), PM_TYPE_U32,
     PROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+#endif
 
     /* cgroup.groups.cpuset.[<group>.]cpus */
     { NULL, {PMDA_PMID(CLUSTER_CPUSET_GROUPS,0), PM_TYPE_STRING,
@@ -4310,9 +4312,11 @@ pmdaMetric linux_metrictab[] = {
     { NULL, {PMDA_PMID(CLUSTER_CPUSET_GROUPS,1), PM_TYPE_STRING,
     PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+#if 0	/* not yet implemented */
     /* cgroup.groups.cpuacct.[<group>.]tasks.pid */
     { NULL, {PMDA_PMID(CLUSTER_CPUACCT_PROCS,0), PM_TYPE_U32,
     PROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+#endif
 
     /* cgroup.groups.cpuacct.[<group>.]stat.user */
     { NULL, {PMDA_PMID(CLUSTER_CPUACCT_GROUPS,0), PM_TYPE_U64,
@@ -4330,17 +4334,21 @@ pmdaMetric linux_metrictab[] = {
     { NULL, {PMDA_PMID(CLUSTER_CPUACCT_GROUPS,3), PM_TYPE_U64,
     CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
 
+#if 0
     /* cgroup.groups.cpusched.[<group>.]tasks.pid */
     { NULL, {PMDA_PMID(CLUSTER_CPUSCHED_PROCS,0), PM_TYPE_U32,
     PROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+#endif
 
     /* cgroup.groups.cpusched.[<group>.]shares */
     { NULL, {PMDA_PMID(CLUSTER_CPUSCHED_GROUPS,0), PM_TYPE_U64,
     PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+#if 0
     /* cgroup.groups.memory.[<group>.]tasks.pid */
     { NULL, {PMDA_PMID(CLUSTER_MEMORY_PROCS,0), PM_TYPE_U32,
     PROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+#endif
 
     /* cgroup.groups.memory.[<group>.]stat.cache */
     { NULL, {PMDA_PMID(CLUSTER_MEMORY_GROUPS,0), PM_TYPE_U64,
@@ -4382,9 +4390,11 @@ pmdaMetric linux_metrictab[] = {
     { NULL, {PMDA_PMID(CLUSTER_MEMORY_GROUPS,9), PM_TYPE_U64,
     PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
+#if 0
     /* cgroup.groups.netclass.[<group>.]tasks.pid */
     { NULL, {PMDA_PMID(CLUSTER_NET_CLS_PROCS,0), PM_TYPE_U32,
     PROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+#endif
 
     /* cgroup.groups.netclass.[<group>.]classid */
     { NULL, {PMDA_PMID(CLUSTER_NET_CLS_GROUPS,0), PM_TYPE_U64,

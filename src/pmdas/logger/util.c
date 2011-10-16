@@ -1,5 +1,5 @@
 /*
- * Utiltiy functions for the logger PMDA.
+ * Utility functions for the logger PMDA.
  *
  * Copyright (c) 2011 Red Hat Inc.
  * 

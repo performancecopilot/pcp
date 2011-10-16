@@ -26,7 +26,6 @@
 #include "logger.h"
 #include <errno.h>
 
-int	lineno = 1;
 char	mess[256];
 
 #define LEX_NONE	0
@@ -39,15 +38,6 @@ int mystate = LEX_NONE;
 static int	comma_count;
 
 #include "gram.tab.h"
-
-#ifdef FLEX_SCANNER
-#define YY_NO_UNPUT
-#else
-#undef input
-#define input() ((yytchar=fgetc(yyin)) == EOF ? 0 : yytchar)
-#undef unput
-#define unput(c) {yytchar=(c); ungetc(yytchar, yyin);}
-#endif
 
 static char *
 dupstr(char *s, int strip_quotes)
@@ -72,10 +62,19 @@ dupstr(char *s, int strip_quotes)
 
 %}
 
-%s none glob host indom metric type sem units space time count output
-%option case-insensitive
 %option noinput
 %option nounput
+
+%{
+#ifdef FLEX_SCANNER
+#ifndef YY_NO_UNPUT
+#define YY_NO_UNPUT
+#endif
+#endif
+%}
+
+%s none glob host indom metric type sem units space time count output
+%option case-insensitive
 
 %%
 
@@ -91,9 +90,10 @@ dupstr(char *s, int strip_quotes)
 
 <indom,metric>"delete"	{ return DELETE; }
 <indom>"indom"		{ return INDOM; }
-<indom,metric>"name"	{ return NAME; }
-<indom,metric>"inst"	{ return INST; }
+<indom>"iname"		{ return INAME; }
+<indom>"inst"		{ return INST; }
 
+<metric>"name"		{ return NAME; }
 <metric>"pmid"		{ return PMID; }
 <metric>"type"		{ BEGIN(type); return TYPE; }
 <metric>"indom"		{ return INDOM; }
@@ -116,6 +116,7 @@ dupstr(char *s, int strip_quotes)
 <output>"sum"		{ yylval.ival = OUTPUT_SUM; BEGIN(metric); return OUTPUT_TYPE; }
 <output>"avg"		{ yylval.ival = OUTPUT_AVG; BEGIN(metric); return OUTPUT_TYPE; }
 <output>"inst"		{ BEGIN(metric); return INST; }
+<output>"iname"		{ BEGIN(metric); return INAME; }
 
 <sem>"COUNTER"		{ yylval.ival = PM_SEM_COUNTER; BEGIN(metric); return SEM_NAME; }
 <sem>"INSTANT"		{ yylval.ival = PM_SEM_INSTANT; BEGIN(metric); return SEM_NAME; }
@@ -185,12 +186,22 @@ dupstr(char *s, int strip_quotes)
 			    if (mystate == LEX_GLOBAL) BEGIN(glob);
 			    if (mystate == LEX_INDOM) BEGIN(indom);
 			    if (mystate == LEX_METRIC) BEGIN(metric);
+#if PCP_DEBUG
+    if ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1)) == (DBG_TRACE_APPL0 | DBG_TRACE_APPL1))
+	fprintf(stderr, "lex: [%d] { begin state=%d\n", lineno, mystate);
+#endif
 			    return LBRACE;
 			}
-"}"			{ BEGIN(INITIAL); return RBRACE; }
+"}"			{
+#if PCP_DEBUG
+    if ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1)) == (DBG_TRACE_APPL0 | DBG_TRACE_APPL1))
+	fprintf(stderr, "lex: [%d] } end state=%d\n", lineno, mystate);
+#endif
+			    mystate = LEX_NONE;
+			    BEGIN(INITIAL); return RBRACE;
+			}
 "+"			{ return PLUS; }
 "-"			{ return MINUS; }
-"."			{ return DOT; }
 ":"			{ return COLON; }
 ","			{ return COMMA; }
 

@@ -40,7 +40,7 @@ start_indom(pmInDom indom)
 	numinst = pmGetInDomArchive(indom, &instlist, &namelist);
 	if (numinst < 0) {
 	    if (wflag) {
-		snprintf(mess, sizeof(mess), "Instance domain %s: %s\n", pmInDomStr(indom), pmErrStr(numinst));
+		snprintf(mess, sizeof(mess), "Instance domain %s: %s", pmInDomStr(indom), pmErrStr(numinst));
 		yywarn(mess);
 	    }
 	    return NULL;
@@ -93,24 +93,7 @@ change_inst_by_name(pmInDom indom, char *old, char *new)
     assert(ip != NULL);
 
     for (i = 0; i < ip->numinst; i++) {
-	char	*p;
-	char	*q;
-	int	match = 0;
-	for (p = ip->old_iname[i], q = old; ; p++, q++) {
-	    if (*p == '\0' || *p == ' ') {
-		if (*q == '\0' || *q == ' ')
-		    match = 1;
-		break;
-	    }
-	    if (*q == '\0' || *q == ' ') {
-		if (*p == '\0' || *p == ' ')
-		    match = 1;
-		break;
-	    }
-	    if (*p != *q)
-		break;
-	}
-	if (match) {
+	if (inst_name_eq(ip->old_iname[i], old) > 0) {
 	    if ((new == NULL && ip->flags[i]) ||
 	        (ip->flags[i] & (INST_CHANGE_INAME|INST_DELETE))) {
 		sprintf(mess, "Duplicate or conflicting clauses for instance [%d] \"%s\" of indom %s",
@@ -134,7 +117,7 @@ change_inst_by_name(pmInDom indom, char *old, char *new)
     if (strcmp(ip->old_iname[i], new) == 0) {
 	/* no change ... */
 	if (wflag) {
-	    snprintf(mess, sizeof(mess), "Instance domain %s: Instance: \"%s\": No change\n", pmInDomStr(indom), ip->old_iname[i]);
+	    snprintf(mess, sizeof(mess), "Instance domain %s: Instance: \"%s\": No change", pmInDomStr(indom), ip->old_iname[i]);
 	    yywarn(mess);
 	}
     }
@@ -183,7 +166,7 @@ change_inst_by_inst(pmInDom indom, int old, int new)
     if (ip->old_inst[i] == new) {
 	/* no change ... */
 	if (wflag) {
-	    snprintf(mess, sizeof(mess), "Instance domain %s: Instance: %d: No change\n", pmInDomStr(indom), ip->old_inst[i]);
+	    snprintf(mess, sizeof(mess), "Instance domain %s: Instance: %d: No change", pmInDomStr(indom), ip->old_inst[i]);
 	    yywarn(mess);
 	}
     }
@@ -265,6 +248,7 @@ do_indom(void)
     int		sts;
     int		i;
     int		j;
+    int		need_alloc = 0;
 
     out_offset = ftell(outarch.logctl.l_mdfp);
     _pmUnpackInDom(inarch.metarec, &indom, &stamp, &numinst, &instlist, &inamelist);
@@ -296,18 +280,53 @@ do_indom(void)
 		    inamelist[j-1] = inamelist[j];
 		    j++;
 		}
+		need_alloc = 1;
 		numinst--;
 	    }
 	    else {
 		if (ip->flags[i] & INST_CHANGE_INST)
 		    instlist[j] = ip->new_inst[i];
-		if (ip->flags[i] & INST_CHANGE_INAME)
+		if (ip->flags[i] & INST_CHANGE_INAME) {
 		    inamelist[j] = ip->new_iname[i];
+		    need_alloc = 1;
+		}
 #if PCP_DEBUG
-		if ((ip->flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) && (pmDebug & DBG_TRACE_APPL1))
-		    fprintf(stderr, "Rewrite: instance %s (%d) -> %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], ip->new_iname[i], ip->new_inst[i], pmInDomStr(ip->old_indom));
+		if ((ip->flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) && (pmDebug & DBG_TRACE_APPL1)) {
+		    if ((ip->flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) == (INST_CHANGE_INST | INST_CHANGE_INAME))
+			fprintf(stderr, "Rewrite: instance %s (%d) -> %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], ip->new_iname[i], ip->new_inst[i], pmInDomStr(ip->old_indom));
+		    else if ((ip->flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) == INST_CHANGE_INST)
+			fprintf(stderr, "Rewrite: instance %s (%d) -> %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], ip->old_iname[i], ip->new_inst[i], pmInDomStr(ip->old_indom));
+		    else
+			fprintf(stderr, "Rewrite: instance %s (%d) -> %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], ip->new_iname[i], ip->old_inst[i], pmInDomStr(ip->old_indom));
+		}
 #endif
 	    }
+	}
+    }
+
+    if (need_alloc) {
+	/*
+	 * __pmLogPutInDom assumes the elements of inamelist[] point into
+	 * of a contiguous allocation starting at inamelist[0] ... if we've
+	 * changed an instance name or moved instance names about, then we
+	 * need to reallocate the strings for inamelist[]
+	 */
+	int	need = 0;
+	char	*new;
+	char	*p;
+
+	for (j = 0; j < numinst; j++)
+	    need += strlen(inamelist[j]) + 1;
+	new = (char *)malloc(need);
+	if (new == NULL) {
+	    fprintf(stderr, "inamelist[] malloc(%d) failed: %s\n", need, strerror(errno));
+	    exit(1);
+	}
+	p = new;
+	for (j = 0; j < numinst; j++) {
+	    strcpy(p, inamelist[j]);
+	    inamelist[j] = p;
+	    p += strlen(p) + 1;
 	}
     }
 
@@ -323,5 +342,7 @@ do_indom(void)
 #endif
 
     free(instlist);
+    if (need_alloc)
+	free(inamelist[0]);
     free(inamelist);
 }

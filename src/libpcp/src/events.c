@@ -398,13 +398,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		    }
 		    free(rp);
 		    r--;
-		    while (r >= 0) {
-			if ((*rap)[r] != NULL)
-			    pmFreeResult((*rap)[r]);
-			r--;
-		    }
-		    free(*rap);
-		    return PM_ERR_TYPE;
+		    sts = PM_ERR_TYPE;
+		    goto bail;
 	    }
 	    need = vsize + PM_VAL_HDR_SIZE;
 	    want = need;

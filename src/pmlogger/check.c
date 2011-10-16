@@ -142,14 +142,15 @@ chk_all(task_t *tp, pmID pmid)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
-	printf("chk_all: pmid=%s state=%s%s%s%s delta=%d.%06d\n",
-		pmIDStr(pmid),
+	fprintf(stderr, "chk_all: pmid=%s task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",
+		pmIDStr(pmid), tp,
 		PMLC_GET_INLOG(tp->t_state) ? " " : "N",
 		PMLC_GET_AVAIL(tp->t_state) ? " " : "N",
 		PMLC_GET_MAND(tp->t_state) ? "M" : "A",
 		PMLC_GET_ON(tp->t_state) ? "Y" : "N",
 		(int)tp->t_delta.tv_sec, (int)tp->t_delta.tv_usec);
-	printf("compared to: state=%s%s%s%s delta=%d.%06d\n",
+	fprintf(stderr, "compared to: optreq task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",
+		ctp,
 		PMLC_GET_INLOG(ctp->t_state) ? " " : "N",
 		PMLC_GET_AVAIL(ctp->t_state) ? " " : "N",
 		PMLC_GET_MAND(ctp->t_state) ? "M" : "A",

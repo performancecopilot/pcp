@@ -1,5 +1,8 @@
 Revision history for Perl extension PCP::PMDA.
 
+1.13  Sun Oct  2 08:58:50 EST 2011
+	- Add an interface to allow a PMDA to drop privileges.
+
 1.12  Fri Jul 22 11:15:41 EST 2011
 	- Ensure local fetch and instance wrapper routines
 	  are always called.  Otherwise refresh interface

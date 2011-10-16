@@ -334,6 +334,8 @@ static pmID disk_metric_table[] = {
     /* disk.partitions.read_bytes */ PMDA_PMID(CLUSTER_PARTITIONS,6),
     /* disk.partitions.write_bytes */PMDA_PMID(CLUSTER_PARTITIONS,7),
     /* disk.partitions.total_bytes */PMDA_PMID(CLUSTER_PARTITIONS,8),
+
+    /* hinv.ndisk */                 PMDA_PMID(CLUSTER_STAT,33),
 };
 
 int

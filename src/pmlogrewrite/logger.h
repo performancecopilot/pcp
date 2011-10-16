@@ -71,7 +71,8 @@ typedef struct metricspec {
     struct metricspec	*m_next;
     int			flags;		/* METRIC_* flags */
     int			output;		/* OUTPUT_* values */
-    int			one_inst;	/* for OUTPUT_ONE */
+    int			one_inst;	/* for OUTPUT_ONE INST */
+    char		*one_name;	/* for OUTPUT_ONE NAME */
     char		*old_name;
     char		*new_name;
     pmDesc		old_desc;
@@ -153,6 +154,7 @@ extern metricspec_t	*start_metric(pmID);
 extern indomspec_t	*start_indom(pmInDom);
 extern int		change_inst_by_inst(pmInDom, int, int);
 extern int		change_inst_by_name(pmInDom, char *, char *);
+extern int		inst_name_eq(const char *, const char *);
 
 extern char	*SemStr(int);
 extern int	_pmLogGet(__pmLogCtl *, int, __pmPDU **);

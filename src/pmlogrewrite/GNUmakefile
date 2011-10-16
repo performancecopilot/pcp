@@ -30,7 +30,7 @@ YFILES	= gram.y
 CMDTARGET = pmlogrewrite$(EXECSUFFIX)
 
 LLDLIBS	= -lpcp -lm
-LDIRT	= $(YFILES:%.y=%.tab.?)
+LDIRT	+= $(YFILES:%.y=%.tab.?)
 
 default:	$(CMDTARGET)
 

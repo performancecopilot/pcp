@@ -724,6 +724,15 @@ error(self,message)
     CODE:
 	__pmNotifyErr(LOG_ERR, "%s", message);
 
+int
+set_user(self,username)
+	pmdaInterface *self
+	char * username
+    CODE:
+	RETVAL = local_user(username);
+    OUTPUT:
+	RETVAL
+
 void
 set_fetch(self,function)
 	pmdaInterface *self

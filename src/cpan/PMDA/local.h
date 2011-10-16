@@ -63,6 +63,8 @@ extern void input_callback(scalar_t *, int, char *);
 extern char *local_strdup_suffix(const char *string, const char *suffix);
 extern char *local_strdup_prefix(const char *prefix, const char *string);
 
+extern int local_user(const char *username);
+
 extern int local_timer(double timeout, scalar_t *callback, int cookie);
 extern int local_timer_get_cookie(int id);
 extern scalar_t *local_timer_get_callback(int id);
