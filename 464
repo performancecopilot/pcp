@@ -20,7 +20,17 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    sed \
+    cat >$tmp.tmp
+    grep "^pmcpp:" <$tmp.tmp >$tmp.save
+    if [ -s $tmp.save ]
+    then
+	# pmcpp lines ... move 'em to the start
+	cat $tmp.save
+	grep -v "^pmcpp:" $tmp.tmp
+    else
+	cat $tmp.tmp
+    fi \
+    | sed \
 	-e "s;$tmp;TMP;g"
 }
 
@@ -42,7 +52,8 @@ four.five {
     six	7:8:9
 }
 End-of-File
-pminfo -n $tmp.root -m 2>&1 | _filter
+pminfo -n $tmp.root -m >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
 
 echo
 cat <<End-of-File >$tmp.root
@@ -67,7 +78,8 @@ four.five {
     six	7:8:9
 }
 End-of-File
-pminfo -n $tmp.root -m 2>&1 | _filter
+pminfo -n $tmp.root -m >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
 rm -f $tmp.?
 
 echo
@@ -91,7 +103,8 @@ four.five {
  * multi-line comment at the end
  */
 End-of-File
-pminfo -n $tmp.root -m 2>&1 | _filter
+pminfo -n $tmp.root -m >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
 
 echo
 cat <<End-of-File >$tmp.root
@@ -115,7 +128,8 @@ foo_path3 {
     urk	FIVE:FOUR:THREE
 }
 End-of-File
-pminfo -n $tmp.root -m 2>&1 | _filter
+pminfo -n $tmp.root -m >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
 
 echo
 echo "#include errors ..."
@@ -124,7 +138,8 @@ root {
 #include $tmp.1
 }
 End-of-File
-pminfo -n $tmp.root -m 2>&1 | _filter
+pminfo -n $tmp.root -m >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
 rm -f $tmp.?
 
 cat <<End-of-File >$tmp.root
@@ -132,14 +147,16 @@ root {
 #include "$tmp.1
 }
 End-of-File
-pminfo -n $tmp.root -m 2>&1 | _filter
+pminfo -n $tmp.root -m >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
 
 cat <<End-of-File >$tmp.root
 root {
 #include "$tmp.1" junk
 }
 End-of-File
-pminfo -n $tmp.root -m 2>&1 | _filter
+pminfo -n $tmp.root -m >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
 rm -f $tmp.?
 
 cat <<End-of-File >$tmp.root
@@ -147,7 +164,8 @@ root {
 #include "$tmp.1"
 }
 End-of-File
-pminfo -n $tmp.root -m 2>&1 | _filter
+pminfo -n $tmp.root -m >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
 rm -f $tmp.?
 
 cat <<End-of-File >$tmp.root
@@ -172,7 +190,8 @@ cat <<End-of-File >$tmp.4
     four	1:0:4
 #include "$tmp.5"
 End-of-File
-pminfo -Dpmns -n $tmp.root -m 2>&1 | _filter
+pminfo -Dpmns -n $tmp.root -m >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
 rm -f $tmp.?
 
 echo
@@ -182,7 +201,8 @@ root {
 #define
 }
 End-of-File
-pminfo -n $tmp.root -m 2>&1 | _filter
+pminfo -n $tmp.root -m >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
 
 cat <<End-of-File >$tmp.root
 root {
@@ -190,21 +210,24 @@ root {
 #define 
 }
 End-of-File
-pminfo -n $tmp.root -m 2>&1 | _filter
+pminfo -n $tmp.root -m >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
 
 cat <<End-of-File >$tmp.root
 root {
 #define foo
 }
 End-of-File
-pminfo -n $tmp.root -m 2>&1 | _filter
+pminfo -n $tmp.root -m >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
 
 cat <<End-of-File >$tmp.root
 root {
 #define bad_123_macro!name
 }
 End-of-File
-pminfo -n $tmp.root -m 2>&1 | _filter
+pminfo -n $tmp.root -m >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
 
 echo
 echo "other #cpp line errors ..."
@@ -213,7 +236,8 @@ root {
 #fumble
 }
 End-of-File
-pminfo -n $tmp.root -m 2>&1 | _filter
+pminfo -n $tmp.root -m >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
 
 # success, all done
 exit

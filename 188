@@ -48,6 +48,9 @@ elif [ $PCP_PLATFORM = linux ] ; then
 	    'Fedora release 7'*)
 		ln $seq.linux.fc6 $seq.out
 		;;
+	    *)
+		ln $seq.linux $seq.out
+		;;
 	esac
     elif [ -f /etc/debian_version ]
     then

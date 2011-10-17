@@ -1,7 +1,7 @@
 #!/bin/sh
 # PCP QA Test No. 368
 #
-# pmlogconf - handle changes in installed group files and error conditions
+# pmlogconf - handle changes in installed group files
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
@@ -65,14 +65,14 @@ End-of-File
 
 cat <<End-of-File >$tmp/03
 #pmlogconf-setup 2.0
-probe	sample.longlong.ten == 10 ? include : available
+probe	sample.longlong.ten >= 10 ? include : available
 ident	qa group three
 	sample.longlong.ten
 End-of-File
 
 cat <<End-of-File >$tmp/04
 #pmlogconf-setup 2.0
-probe	sample.ulonglong.ten != 10 ? include : available
+probe	sample.ulonglong.ten < 10 ? include : available
 ident	qa group four
 	sample.ulonglong.ten
 End-of-File
@@ -109,7 +109,7 @@ rm $tmp/03
 #
 cat <<End-of-File >$tmp/02
 #pmlogconf-setup 2.0
-probe	sample.ulong.ten == 10 ? include : exclude
+probe	sample.ulong.ten <= 10 ? include : exclude
 ident	qa group two
 	sample.ulong.ten
 End-of-File
@@ -118,7 +118,7 @@ End-of-File
 #
 cat <<End-of-File >$tmp/03
 #pmlogconf-setup 2.0
-probe	sample.longlong.ten != 10 ? include : available
+probe	sample.longlong.ten > 10 ? include : available
 ident	qa group three
 	sample.longlong.ten
 End-of-File
@@ -130,7 +130,7 @@ End-of-File
 #
 cat <<End-of-File >$tmp/01
 #pmlogconf-setup 2.0
-probe	sample.long.ten == 10 ? include : exclude
+probe	sample.long.ten ~ ^10$ ? include : exclude
 ident	qa group one
 	sample.long.ten
 	sample.long.million
@@ -140,10 +140,21 @@ End-of-File
 #
 cat <<End-of-File >$tmp/02
 #pmlogconf-setup 2.0
-probe	sample.ulong.ten == 10 ? include : exclude
+probe	sample.ulong.ten ~ 10 ? include : exclude
 ident	qa group two
 	sample.ulong.ten
 	sample.ulong.million
+End-of-File
+
+cat <<'End-of-File' >$tmp/98
+#pmlogconf-setup 2.0
+ident   postgresql summary information
+probe   postgresql.stat.all_tables.seq_scan ? include : available
+        postgresql.stat.database
+	postgresql.stat.all_tables
+	postgresql.stat.all_indexes
+	postgresql.statio.all_tables
+	postgresql.statio.all_indexes
 End-of-File
 
 cat <<'End-of-File' >$tmp/99

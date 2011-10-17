@@ -99,7 +99,7 @@ Differences ...
   ## qa group three
 Keep changes? [y] 
 Group: qa group one
-Log this group? [y] ......
+Log this group? [y] .......
 Differences ...
 *** TMP.orig ...
 --- TMP.new ...
@@ -125,10 +125,13 @@ Differences ...
   #+ 03:y:default:
 ***************
 *** 40,45 ****
---- 40,53 ----
+--- 40,56 ----
   #+ 05:n:default:
   ## qa group five
   #----
++ #+ 98:n:default:
++ ## postgresql summary information
++ #----
 + #+ 99:y:1 minute:
 + ## Example from pmlogconf(1) man page ... more descripton
 + log advisory on 1 minute {
@@ -182,6 +185,9 @@ log advisory on default {
 #----
 #+ 05:n:default:
 ## qa group five
+#----
+#+ 98:n:default:
+## postgresql summary information
 #----
 #+ 99:y:1 minute:
 ## Example from pmlogconf(1) man page ... more descripton

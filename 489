@@ -45,7 +45,10 @@ do
 	head -20 $tmp.out
 	echo
 	echo "Duplicate instance ids ... expect none"
-	sed -n -e '/pmdaCacheDump:/q' -e '/ -> /s/ -> .*//p' <$tmp.out \
+	sed -n <$tmp.out \
+	    -e '/pmdaCacheDump:/q' \
+	    -e '/active 0x0/s//active (nil)/' \
+	    -e '/ -> /s/ -> .*//p' \
 	| sort \
 	| uniq -c \
 	| grep -v ' 1 '
