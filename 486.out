@@ -905,10 +905,11 @@ pmdumplog diffs ...
                   15 or "15 minute"
  InDom: 2.1
  22:22:42.025 1 instances
-@@ -40,6 +40,7 @@
+@@ -40,7 +40,7 @@
  22:22:42.025       0          132          132
  22:22:42.060       0          351          284
  23:22:42.011       0          450          344
+-11:22:42.021       0          590         1784
 +11:22:42.021       0          589         1784
  
  [152 bytes]
@@ -1890,14 +1891,6 @@ pmdumplog diffs ...
  22:22:42.025 1 instances
                   19856 or "19856"
  
-@@ -40,6 +40,7 @@
- 22:22:42.025       0          132          132
- 22:22:42.060       0          351          284
- 23:22:42.011       0          450          344
-+11:22:42.021       0          590         1784
- 
- [152 bytes]
- 22:22:42.025  2.3.3 (pmcd.pmlogger.host): inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
 
 === metric hinv.ndisk { indom -> 1.5 } ===
 Warning [TMP.config, line 2]
@@ -1914,15 +1907,7 @@ pmdumplog diffs ...
      Semantics: instant  Units: none
  PMID: 2.3.2 (pmcd.pmlogger.archive)
      Data Type: string  InDom: 2.1 0x800001
-@@ -40,6 +40,7 @@
- 22:22:42.025       0          132          132
- 22:22:42.060       0          351          284
- 23:22:42.011       0          450          344
-+11:22:42.021       0          590         1784
- 
- [152 bytes]
- 22:22:42.025  2.3.3 (pmcd.pmlogger.host): inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
-@@ -47,7 +48,7 @@
+@@ -48,7 +48,7 @@
                2.3.2 (pmcd.pmlogger.archive): inst [19856 or "19856"] value "/var/adm/pcplog/rattle/970517.22.22"
  
  [60 bytes]
@@ -1945,15 +1930,7 @@ pmdumplog diffs ...
      Semantics: instant  Units: none
  PMID: 2.3.2 (pmcd.pmlogger.archive)
      Data Type: string  InDom: 2.1 0x800001
-@@ -40,6 +40,7 @@
- 22:22:42.025       0          132          132
- 22:22:42.060       0          351          284
- 23:22:42.011       0          450          344
-+11:22:42.021       0          590         1784
- 
- [152 bytes]
- 22:22:42.025  2.3.3 (pmcd.pmlogger.host): inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
-@@ -47,7 +48,7 @@
+@@ -48,7 +48,7 @@
                2.3.2 (pmcd.pmlogger.archive): inst [19856 or "19856"] value "/var/adm/pcplog/rattle/970517.22.22"
  
  [60 bytes]

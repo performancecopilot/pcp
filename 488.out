@@ -23,11 +23,12 @@ QA output created by 488
  PMID: 1.26.7 (hinv.ndisk)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
-@@ -39,16 +36,16 @@
+@@ -39,17 +36,16 @@
               Log Vol    end(meta)     end(log)
  22:22:42.025       0          132          132
  22:22:42.060       0          351          284
 -23:22:42.011       0          450          344
+-11:22:42.021       0          590         1784
 +23:22:42.011       0          401          324
 +11:22:42.021       0          541         1764
  
@@ -71,11 +72,12 @@ QA output created by 488
  PMID: 2.3.2 (pmcd.pmlogger.archive)
      Data Type: string  InDom: 2.1 0x800001
      Semantics: instant  Units: none
-@@ -39,17 +33,14 @@
+@@ -39,18 +33,14 @@
               Log Vol    end(meta)     end(log)
  22:22:42.025       0          132          132
  22:22:42.060       0          351          284
 -23:22:42.011       0          450          344
+-11:22:42.021       0          590         1784
 +23:22:42.011       0          351          284
 +11:22:42.021       0          491         1724
  
@@ -126,11 +128,12 @@ QA output created by 488
  PMID: 2.3.2 (pmcd.pmlogger.archive)
      Data Type: string  InDom: 2.1 0x800001
      Semantics: instant  Units: none
-@@ -39,124 +30,10 @@
+@@ -39,125 +30,10 @@
               Log Vol    end(meta)     end(log)
  22:22:42.025       0          132          132
  22:22:42.060       0          351          284
 -23:22:42.011       0          450          344
+-11:22:42.021       0          590         1784
 +23:22:42.011       0          351          284
 +11:22:42.021       0          431          284
  
