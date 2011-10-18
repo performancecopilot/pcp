@@ -47,7 +47,7 @@ _filter_seconds()
 BEGIN	{ previous = -1; sum = 0 }
 /^delta/ { sum += -(int($2));
 	  if ($2 < -2 || $2 > 0)
-	    printf("%s: Error - out of range !($2<=%d<=0)\n", $0, $2);
+	    printf("%s: Error - out of range !(-2<=%d<=0)\n", $0, $2);
 	  else if (previous == $2 && previous != -1)
 	    printf("$s: Error - previous (%d) == current (%d)\n", $0, previous, $2);
 	  else
