@@ -165,7 +165,7 @@ done
 
 # programs
 #
-for var in PCP_AWK_PROG PCP_XCONFIRM_PROG
+for var in PCP_AWK_PROG
 do
     eval prog=\$$var
     # strip args if any
