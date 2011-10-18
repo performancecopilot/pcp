@@ -42,7 +42,11 @@ _filter()
 	-e "s,/var$tmp,TMP,g" \
 	-e "s,$tmp,TMP,g" \
 	-e "s;/privateTMP;TMP;g" \
-	-e "s/$host/HOST/g"
+	-e "s/$host/HOST/g" \
+    | $PCP_AWK_PROG '
+NR == 1		{ big = $1; next }
+$1 > big	{ big = $1 }
+END		{ print big }'
 }
 
 rm -f $seq.full
@@ -77,7 +81,7 @@ $sudo ln $PCP_TMP_DIR/pmie/$pid1 $PCP_TMP_DIR/pmie/$pid3
 $sudo ln $PCP_TMP_DIR/pmie/$pid2 $PCP_TMP_DIR/pmie/$pid4
 
 echo "log mandatory on default { pmcd.pmie }" \
-| pmlogger -t 1sec -T3sec $tmp
+| pmlogger -t 0.25sec -T 5sec $tmp
 
 sleep 4
 
@@ -110,7 +114,6 @@ do
 	pmdumplog $tmp pmcd.pmie.$metric \
 	| tee -a $seq.full \
 	| grep $pid \
-	| tail -1 \
 	| _filter
     done
 done
