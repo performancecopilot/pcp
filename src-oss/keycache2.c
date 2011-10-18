@@ -15,13 +15,18 @@ static __uint32_t hash(const char *, int, __uint32_t);
 /* hash attempts looking for hash synonyms */
 #define MAXPOKE 200000
 
+typedef struct {
+    int	inst;
+    int	key;
+} inst_key_t;
+
 static int
 compar(const void *a, const void *b)
 {
-    const int	*ia = a;
-    const int	*ib = b;
+    const inst_key_t	*ia = (inst_key_t *)a;
+    const inst_key_t	*ib = (inst_key_t *)b;
 
-    return *ib - *ia;
+    return ib->inst - ia->inst;
 }
 
 int
@@ -40,10 +45,7 @@ main(int argc, char **argv)
     char	*usage = "[-D debug] [-k]";
     __uint32_t	try = 0;
     int		dup;
-    struct {
-	int	inst;
-	int	key;
-    } poke[MAXPOKE];
+    inst_key_t	poke[MAXPOKE];
     int		mykeylen;
     void	*mykey;
 
