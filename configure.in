@@ -1031,6 +1031,9 @@ $2 == "bozo"	{ t = $1
     *\*)	# pointer to a something
 	_fmt='"p"'
 	;;
+    struct\ *)	# not much can be done here ...
+	_fmt='"p"'
+	;;
     *)
 	echo
 	echo "FATAL ERROR: don't know what to do with type \"$_raw\""
@@ -1070,7 +1073,7 @@ dnl check sizeof long
 AC_MSG_CHECKING([sizeof long])
 cat <<End-of-File >conftest.c
 #include <stdio.h>
-main() { printf("%d\n", sizeof(long)); }
+main() { printf("%d", (int)sizeof(long)); }
 End-of-File
 (eval $ac_compile) 2>&5
 (eval $ac_link) 2>&5
@@ -1089,7 +1092,7 @@ dnl check sizeof pointer
 AC_MSG_CHECKING([sizeof pointer])
 cat <<End-of-File >conftest.c
 #include <stdio.h>
-main() { printf("%d\n", sizeof(char *)); }
+main() { printf("%d", (int)sizeof(char *)); }
 End-of-File
 (eval $ac_compile) 2>&5
 (eval $ac_link) 2>&5
@@ -1099,10 +1102,14 @@ AC_MSG_RESULT($ans)
 if test $ans -eq 4; then
     AC_DEFINE(HAVE_32BIT_PTR)
     PCP_PTR_SIZE=32
-fi
-if test $ans -eq 8; then
+elif test $ans -eq 8; then
     AC_DEFINE(HAVE_64BIT_PTR)
     PCP_PTR_SIZE=64
+else
+    echo
+    echo "FATAL ERROR: size of pointer is not 32 or 64 bits, cannot proceed."
+    echo "sizeof(char *) -> $ans"
+    exit 1
 fi
 rm -rf conftest conftest.*
 
@@ -1110,7 +1117,7 @@ dnl check sizeof int. If not 32, we die
 AC_MSG_CHECKING([sizeof int])
 cat <<End-of-File >conftest.c
 #include <stdio.h>
-main() { printf("%d\n", sizeof(int)); }
+main() { printf("%d", (int)sizeof(int)); }
 End-of-File
 (eval $ac_compile) 2>&5
 (eval $ac_link) 2>&5
@@ -1820,6 +1827,16 @@ else
     pcp_mpi_dirs=
 fi
 AC_SUBST(pcp_mpi_dirs)
+
+dnl Check for struct timespec in <time.h>
+AC_MSG_CHECKING([for struct timespec in time.h])
+AC_TRY_COMPILE(
+[
+    #include <time.h>
+],
+[
+    struct timespec foo;
+], AC_DEFINE(HAVE_STRUCT_TIMESPEC) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
 dnl Check if we have IRIX style altzone 
 AC_MSG_CHECKING([for altzone in time.h])
