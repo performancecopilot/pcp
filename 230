@@ -84,7 +84,7 @@ fi
 #	 	631 ipp
 #
 port=''
-$sudo netstat -an -p tcp 2>&1 \
+$sudo netstat -an 2>&1 \
 | tee -a $seq.full \
 | sed -n \
     -e 's/[ 	][ 	]*/ /g' \

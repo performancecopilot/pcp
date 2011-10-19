@@ -36,24 +36,53 @@ rootdev=`mount | $PCP_AWK_PROG '$3 == "/" { print $1 }'`
 # disk name aliases are a real pain ...
 #
 mount \
-| sed -e 's/[ 	].*//' \
+| sed \
+    -e '/ type proc/d' \
+    -e '/ type sysfs/d' \
+    -e '/ type devpts/d' \
+    -e '/ type devtmpfs/d' \
+    -e '/ type tmpfs/d' \
+    -e '/ type debugfs/d' \
+    -e '/ type autofs/d' \
+    -e '/ type securityfs/d' \
+    -e '/ type selinuxfs/d' \
+    -e '/ type rpc_pipefs/d' \
+    -e '/ type fusectl/d' \
+    -e '/ type binfmt_misc/d' \
+    -e '/ type fuse.gvfs-fuse-daemon/d' \
+    -e '/ type cgroup/d' \
+    -e '/ type hugetlbfs/d' \
+    -e '/ type mqueue/d' \
+    -e 's/[ 	].*//' \
 | while read dev
 do
     [ ! -L $dev ] && continue
     [ "$dev" = "/dev/root" ] && continue
+    echo "$dev" >>$seq.full
     link=$dev
     while true
     do
 	next=`ls -l $link | sed -n -e '/ -> /s/.* -> //p'`
 	[ -z "$next" ] && break
+	echo "    $link -> $next" >>$seq.full
 	case $next
 	in
 	    md/*|xscsi/*)
 		# relative pathname in LBS!
 		link=/dev/$next
 		;;
-	    *)
+	    /*)
 		link=$next
+		;;
+	    ../*)
+		dir=`dirname $link`
+		dir=`dirname $dir`
+		next=`echo $next | sed -e 's/^\.\.\///'`
+		link=$dir/$next
+		;;
+	    *)
+		dir=`dirname $link`
+		link=$dir/$next
 		;;
 	esac
     done

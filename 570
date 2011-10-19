@@ -33,6 +33,10 @@ if [ -r $1 -o -w $1 -o -x $1 ] ; then
 #crw-rw-rw-    1 root     sys        1,  2 Apr 29 04:57 /dev/null
 #Cannot access nofile: No such file or directory
     LC_TIME=POSIX ls -ld $1 \
+    | sed \
+	-e 's/-rw-r--r--\./-rw-r--r--/' \
+	-e 's/crw-rw-rw-\./crw-rw-rw-/' \
+	-e 's/drwxr-xr-x\./drwxr-xr-x/' \
     | $PCP_AWK_PROG '
 NF == 9 && /^-/		{ print $1,"...",$5,"...",$9; next }
 NF == 9 && /^d/		{ print $1,"...",$9; next }
