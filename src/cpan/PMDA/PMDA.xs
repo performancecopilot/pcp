@@ -699,20 +699,14 @@ pmda_uptime(now)
 int
 pmda_long()
     CODE:
-	if (sizeof(long) == 32)
-	    RETVAL = PM_TYPE_32;
-	else
-	    RETVAL = PM_TYPE_64;
+	RETVAL = (sizeof(long) == 4) ? PM_TYPE_32 : PM_TYPE_64;
     OUTPUT:
 	RETVAL
 
 int
 pmda_ulong()
     CODE:
-	if (sizeof(unsigned long) == 32)
-	    RETVAL = PM_TYPE_U32;
-	else
-	    RETVAL = PM_TYPE_U64;
+	RETVAL = (sizeof(unsigned long) == 4) ? PM_TYPE_32 : PM_TYPE_64;
     OUTPUT:
 	RETVAL
 
