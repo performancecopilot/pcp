@@ -18,47 +18,6 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-
-#ifdef IS_MINGW
-int
-pmdaEventNewQueue(const char *name, size_t maxmemory)
-{
-    return PM_ERR_NYI;
-}
-int
-pmdaEventQueueHandle(const char *name)
-{
-    return PM_ERR_NYI;
-}
-int
-pmdaEventQueueCounter(int handle, pmAtomValue *atom)
-{
-    return PM_ERR_NYI;
-}
-int
-pmdaEventClients(pmAtomValue *atom)
-{
-    return PM_ERR_NYI;
-}
-int
-pmdaEventSetFilter(int context, void *filter,
-		   pmdaEventApplyFilterCallBack apply,
-		   pmdaEventReleaseFilterCallBack release)
-{
-    return PM_ERR_NYI;
-}
-int
-pmdaEventSetAccess(int context, int allow)
-{
-    return PM_ERR_NYI;
-}
-int
-pmdaEventFilter(int context, void *data, int size)
-{
-    return PM_ERR_NYI;
-}
-#else
-
 #include "queues.h"
 #include <ctype.h>
 
@@ -566,5 +525,3 @@ pmdaEventFilter(int context, void *data, int size)
 	return PM_ERR_PERMISSION;
     return 0;
 }
-
-#endif	/* ! IS_MINGW */
