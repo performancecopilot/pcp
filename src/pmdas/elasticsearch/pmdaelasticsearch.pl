@@ -11,10 +11,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
 
 use strict;
 use warnings;
@@ -25,7 +21,7 @@ use LWP::Simple;
 
 my $es_port = 9200;
 my $es_instance = 'localhost';
-use vars qw($pmda $es_cluster $es_nodes $es_nodestats);
+use vars qw($pmda $es_cluster $es_nodes $es_nodestats $es_root);
 my $nodes_indom = 0;
 my @nodes_instances;
 my @nodes_instance_ids;
@@ -93,6 +89,14 @@ sub es_refresh
 	} else {
 	    # $pmda->log("es_refresh $cluster failed $content");
 	    $es_nodes = undef;
+	}
+    } elsif ($cluster == 3) {	# Update the root metrics
+	$content = get($baseurl);
+	if (defined($content)) {
+	    $es_root = decode_json($content);
+	} else {
+	    # $pmda->log("es_refresh $cluster failed $content");
+	    $es_root = undef;
 	}
     }
     $cluster_cache[$cluster] = $now;
@@ -212,6 +216,15 @@ sub es_fetch_callback
 	    case 5  { return es_value($node->{'jvm'}->{'mem'}->{'heap_max_in_bytes'}); }
 	    case 6  { return es_value($node->{'jvm'}->{'mem'}->{'non_heap_init_in_bytes'}); }
 	    case 7  { return es_value($node->{'jvm'}->{'mem'}->{'non_heap_max_in_bytes'}); }
+	    else    { return (PM_ERR_PMID, 0); }
+	}
+    }
+    elsif ($cluster == 3) {
+	if (!defined($es_root))		{ return (PM_ERR_AGAIN, 0); }
+	if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
+
+	switch ($item) {
+	    case 0  { return es_value($es_root->{'version'}->{'number'}); }
 	    else    { return (PM_ERR_PMID, 0); }
 	}
     }
@@ -397,6 +410,11 @@ $pmda->add_metric(pmda_pmid(2,7), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		'elasticsearch.nodes.jvm.mem.non_heap_max',
 		'Maximum Java memory size excluding heap space', '');
+
+$pmda->add_metric(pmda_pmid(3,0), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'elasticsearch.version.number',
+		  'Version number of elasticsearch', '');
 
 $pmda->add_indom($nodes_indom, \@nodes_instances,
                  'Instance domain exporting each elasticsearch node', '');
