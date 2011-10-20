@@ -18,6 +18,15 @@
 #
 # Create pmdbg.h from impl.h
 
+if [ -f pcp.conf ]
+then
+    # needed for $PCP_SORT_PROG
+    . ./pcp.conf
+else
+    echo "mk_pmdbg: cannot find pcp.conf"
+    exit 1
+fi
+
 if [ ! -f impl.h ]
 then
     echo "mk_pmdbg: cannot find impl.h"
@@ -42,7 +51,7 @@ sed -n <impl.h \
     -e '/#define[ 	]*DBG_TRACE_/{
 s/#define[ 	]*\(DBG_TRACE_\)\([A-Z0-9_]*\).*/    { "\2",	\1\2 },/p
 }' \
-| sort >>pmdbg.h
+| $PCP_SORT_PROG >>pmdbg.h
 
 cat <<End-of-File >>pmdbg.h
 };

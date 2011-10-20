@@ -514,10 +514,12 @@ extern void srand48(long int);
 
 #undef HAVE_STRUCT_TIMESPEC
 #ifndef HAVE_STRUCT_TIMESPEC
-struct timespec {
-    time_t	tv_sec;
-    long	tv_nsec;
-};
+/*
+ * This is a bit odd ... but for MinGW, struct timespec is not in
+ * <time.h> but _is_ in <pthread.h> ... the structure (sec, nanosec)
+ * is what we want, so include <pthread.h>
+ */
+#include <pthread.h>
 #endif
 
 extern int nanosleep(const struct timespec *, struct timespec *);

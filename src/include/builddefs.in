@@ -288,7 +288,7 @@ INSTALL_MAN = \
 						sub (d, ds[d], $$0); \
 					    } \
 					    print; } }' \
-		| LC_COLLATE=POSIX sort -u | \
+		| LC_COLLATE=POSIX $(PCP_SORT_PROG) -u | \
 	while read m; do \
 	    [ -z "$$m" -o "$$m" = "\\" ] && continue; \
 	    t=$(MAN_DEST)/$$m.$(MAN_SECTION); \

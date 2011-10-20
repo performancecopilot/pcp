@@ -18,9 +18,6 @@
 #ifndef _QUEUES_H
 #define _QUEUES_H
 
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
 #include <sys/queue.h>
 
 /*

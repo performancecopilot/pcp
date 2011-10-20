@@ -33,9 +33,9 @@ endif
 
 LCFLAGS = -I.
 LLDLIBS = -lpcp
-LDIRT = pcp $(SYMTARGET)
+LDIRT = $(SYMTARGET)
 
-default: pcp $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+default: $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
 include $(BUILDRULES)
 
@@ -58,6 +58,3 @@ ifneq "$(SYMTARGET)" ""
 $(SYMTARGET):
 	$(LN_S) -f $(LIBTARGET) $@
 endif
-
-pcp:
-	$(LN_S) -f $(TOPDIR)/src/include pcp

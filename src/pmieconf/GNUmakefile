@@ -60,7 +60,7 @@ pmlogger.config: $(SUBDIRS)
 	@echo >>pmlogger.config
 	@echo "log advisory on default {" >>pmlogger.config
 	$(SUBDIRS_MAKERULE) | grep -v '===' >pmlogger.tmp
-	@sort -u pmlogger.tmp | sed -e 's/^/    /' >>pmlogger.config
+	@$(PCP_SORT_PROG) -u pmlogger.tmp | sed -e 's/^/    /' >>pmlogger.config
 	@echo "}" >>pmlogger.config
 
 install_pcp: install
