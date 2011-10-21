@@ -328,6 +328,12 @@ extern __pmHashNode *__pmHashSearch(unsigned int, __pmHashCtl *);
 extern int __pmHashAdd(unsigned int, void *, __pmHashCtl *);
 extern int __pmHashDel(unsigned int, void *, __pmHashCtl *);
 
+typedef enum { PM_PHI_CONTINUE, PM_PHI_CONTINUE_DELETE,
+               PM_PHI_STOP, PM_PHI_STOP_DELETE } pmHashIterResult_t;
+typedef pmHashIterResult_t (*pmHashIterFn_t) (const __pmHashCtl *hcp, void *cdata, 
+                                              const __pmHashNode *kv);
+extern void __pmHashIter(__pmHashCtl *hcp, pmHashIterFn_t fn, void *cdata);
+
 /*
  * External file and internal (below PMAPI) format for an archive label
  * Note: int is OK here, because configure ensures int is a 32-bit integer

@@ -22,7 +22,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 LLDLIBS = -lpcp -lmicrohttpd
-CFILES	= main.c
+CFILES	= main.c pmwebapi.c pmresapi.c
 CMDTARGET = pmwebapi$(EXECSUFFIX)
 LDIRT = $(TARGET)
 
