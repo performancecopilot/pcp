@@ -30,7 +30,7 @@ SCRIPTS	= Install Remove
 OTHERS	= pmns root 
 DFILES	= help README 
 DEMOS	= app1.c app2.c app3.c fapp1.f japp1.java
-DEMOFILES = README.demos GNUmakefile.demos GNUmakefile.stub stub.c
+DEMOFILES = README.demos Makefile.proto GNUmakefile.stub stub.c
 APPS	= app1$(EXECSUFFIX) app2$(EXECSUFFIX) app3$(EXECSUFFIX)
 
 LCFLAGS = -I.
@@ -38,13 +38,13 @@ LLDFLAGS= -L$(TOPDIR)/src/libpcp/src -L$(TOPDIR)/src/libpcp_trace/src
 LLDLIBS = -lpcp -lpcp_trace
 
 LDIRT	= *.log *.dir *.pag *.o $(APPS) pcp \
-	  pmtrace.c tmpcp
+	  pmtrace.c tmpcp Makefile.demos
 
 LSRCFILES= $(SCRIPTS) $(OTHERS) $(DEMOS) $(DEMOFILES) $(DFILES)
 
 SUBDIRS	= src
 
-default:	$(SUBDIRS) build-me
+default:	$(SUBDIRS) Makefile.demos build-me
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
@@ -52,13 +52,13 @@ include $(BUILDRULES)
 ifneq "$(TARGET_OS)" "mingw"
 build-me:	demos
 
-install:	$(SUBDIRS)
+install:	$(SUBDIRS) Makefile.demos
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 $(OTHERS) $(DFILES) $(PMDADIR)
 	$(INSTALL) -m 755 -d $(DEMODIR)
-	$(INSTALL) -m 644 GNUmakefile.demos $(DEMODIR)/Makefile
+	$(INSTALL) -m 644 Makefile.demos $(DEMODIR)/Makefile
 	$(INSTALL) -m 644 README.demos $(DEMODIR)/README
 	$(INSTALL) -m 644 GNUmakefile.stub $(DEMODIR)/Makefile.stub
 	$(INSTALL) -m 644 stub.c pmtrace.c $(DEMOS) $(DEMODIR)
@@ -91,3 +91,7 @@ tmpcp:
 default_pcp:	default
 
 install_pcp:	install
+
+Makefile.demos:	Makefile.proto
+	rm -f Makefile.demos
+	sed <Makefile.proto >Makefile.demos -s 's/LIB_FOR_PTHREADS/$(LIB_FOR_PTHREADS)/'
