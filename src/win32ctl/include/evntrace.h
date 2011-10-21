@@ -6,6 +6,15 @@
 #ifndef _EVNTRACE_
 #define _EVNTRACE_
 
+/* --- start added by kenj */
+#undef __MINGW_EXTENSION
+#if defined(__GNUC__) || defined(__GNUG__)
+#define __MINGW_EXTENSION	__extension__
+#else
+#define __MINGW_EXTENSION
+#endif
+/* --- end added by kenj */
+
 #if defined(_WINNT_) || defined(WINNT)
 
 #ifndef WMIAPI
