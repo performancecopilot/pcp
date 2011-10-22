@@ -34,6 +34,21 @@ void release_filter(int context, void *data)
     fprintf(stderr, "=> release filter(%d,%d)", context, filter);
 }
 
+/*
+ * Report stats about the state of given queue identifier
+ */
+void queue_statistics(int q)
+{
+    pmAtomValue count, bytes, clients, memory;
+
+    pmdaEventQueueCounter(q, &count);
+    pmdaEventQueueBytes(q, &bytes);
+    pmdaEventQueueClients(q, &clients);
+    pmdaEventQueueMemory(q, &memory);
+
+    fprintf(stderr, "event queue#%d count=%d, bytes=%d, clients=%d, mem=%d\n",
+	    q, (int)count.ul, (int)bytes.ull, (int)clients.ul, (int)memory.ul);
+}
 
 int
 main(int argc, char **argv)
@@ -48,7 +63,7 @@ main(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "C:c:D:de:F:f:q:")) != EOF) {
+    while ((c = getopt(argc, argv, "C:c:D:E:e:F:f:q:s:")) != EOF) {
 	switch (c) {
 
 	case 'c':	/* new client: ID */
@@ -78,12 +93,9 @@ main(int argc, char **argv)
 		pmDebug |= sts;
 	    break;
 
-	case 'd':	/* dump queues, events, clients? */
-	    break;
-
 	case 'e':	/* create an event on named queue of given size */
-	    name = optarg;
-	    s = strtok(optarg, ",");
+	    s = optarg;
+	    name = strsep(&s, ",");
 	    if (!s) {
 		fprintf(stderr, "%s: invalid event size specification (%s)\n",
 			pmProgname, optarg);
@@ -106,9 +118,28 @@ main(int argc, char **argv)
 	    fputc('\n', stderr);
 	    break;
 
+	case 'E':	/* create an event on queue ID of given size */
+	    s = optarg;
+	    name = strsep(&s, ",");
+	    if (!s) {
+		fprintf(stderr, "%s: invalid event size specification (%s)\n",
+			pmProgname, optarg);
+		errflag++;
+		break;
+	    }
+	    context = atoi(name);
+	    size = atoi(s);
+	    event = make_event(size, &tv);
+	    sts = pmdaEventQueueAppend(context, event, size, &tv);
+	    fprintf(stderr, "add event(%s,%d) -> %d ", name, size, sts);
+	    if (sts < 0) fprintf(stderr, "%s", pmErrStr(sts));
+	    else __pmPrintStamp(stderr, &tv);
+	    fputc('\n', stderr);
+	    break;
+
 	case 'q':	/* create queue with name and a max memory size */
-	    name = optarg;
-	    s = strtok(optarg, ",");
+	    s = optarg;
+	    name = strsep(&s, ",");
 	    if (!s) {
 		fprintf(stderr, "%s: invalid queue memory specification (%s)\n",
 			pmProgname, optarg);
@@ -123,8 +154,8 @@ main(int argc, char **argv)
 	    break;
 
 	case 'f':	/* create client filter, limits size */
-	    name = optarg;
-	    s = strtok(optarg, ",");
+	    s = optarg;
+	    name = strsep(&s, ",");
 	    if (!s) {
 		fprintf(stderr, "%s: invalid client filter size specification (%s)\n",
 			pmProgname, optarg);
@@ -147,6 +178,18 @@ main(int argc, char **argv)
 	    fputc('\n', stderr);
 	    break;
 
+	case 's':	/* dump queue, events, clients counters */
+	    name = optarg;
+	    context = pmdaEventQueueHandle(name);
+	    if (context < 0) {
+		fprintf(stderr, "%s: invalid event queue specification (%s)\n",
+			pmProgname, name);
+		errflag++;
+		break;
+	    }
+	    queue_statistics(context);
+	    break;
+
 	case '?':
 	default:
 	    errflag++;
@@ -159,15 +202,15 @@ main(int argc, char **argv)
 	fprintf(stderr, "Options:\n");
 	fprintf(stderr, "  -c id          create a new client\n");
 	fprintf(stderr, "  -e name,size   append an event of size on queue\n");
+	fprintf(stderr, "  -E id,size     append an event of size on queue\n");
 	fprintf(stderr, "  -q name,size   create a new queue with max size\n");
 	fprintf(stderr, "  -f id,size     create client filter, limits size\n");
 	fprintf(stderr, "  -C id          remove a client by id (ordinal)\n");
 	fprintf(stderr, "  -F id          remove a clients filter\n");
 	fprintf(stderr, "  -D debug\n");
-	fprintf(stderr, "  -d             dump\n");
+	fprintf(stderr, "  -s name        report statistics for a queue\n");
 	exit(1);
     }
 
     return 0;
 }
-

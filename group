@@ -731,6 +731,9 @@ pmlogrewrite
 493 pmlogrewrite local oss
 494 pmlogrewrite pmdumplog local oss
 495 pmlogrewrite pmval local oss
+496 pmlogrewrite pmdumplog local oss
+497 pmlogconf local oss
+498 event pmda local oss
 500 logutil local #636417 folio oss
 501 pmie remote oss
 504 pmie remote pmsocks oss
@@ -813,5 +816,3 @@ pmlogrewrite
 1050 pmieconf local sgi
 1051 pmieconf #696008 local sgi
 1108 logutil local folio sgi
-496 pmlogrewrite pmdumplog local oss
-497 pmlogconf local oss
