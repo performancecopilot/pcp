@@ -84,9 +84,7 @@ $sudo cp $tmp.primary $PCP_TMP_DIR/pmlogger/primary
 # real QA test starts here
 
 echo "=== Hang on Connection Cases ==="
-# need -h localhost as smtp may not be listening on the real IP addr,
-# just on the loopback address
-#
+
 echo
 echo "Expect hang ..."
 src-oss/drain-server &
