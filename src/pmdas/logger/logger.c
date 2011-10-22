@@ -238,41 +238,41 @@ static int
 logger_store(pmResult *result, pmdaExt *pmda)
 {
     int		i, j, sts;
-    pmValueSet	*vsp;
-    __pmID_int	*idp;
 
     pmdaEventNewClient(pmda->e_context);
 
     for (i = 0; i < result->numpmid; i++) {
-	vsp = result->vset[i];
-	idp = (__pmID_int *)&vsp->pmid;
+	pmValueSet		*vsp = result->vset[i];
+	__pmID_int		*idp = (__pmID_int *)&vsp->pmid;
+	dynamic_metric_info_t	*pinfo = NULL;
+	void			*filter;
+	int			queueid;
 
 	if ((sts = valid_pmid(idp->cluster, idp->item)) < 0)
 	    return sts;
-	else {
-	    dynamic_metric_info_t	*pinfo = NULL;
-	    void			*filter;
-
-	    for (j = 0; j < pmda->e_nmetrics; j++) {
-		if (vsp->pmid == pmda->e_metrics[j].m_desc.pmid) {
-		    pinfo = pmda->e_metrics[j].m_user;
-		    break;
-		}
+	for (j = 0; j < pmda->e_nmetrics; j++) {
+	    if (vsp->pmid == pmda->e_metrics[j].m_desc.pmid) {
+		pinfo = pmda->e_metrics[j].m_user;
+		break;
 	    }
-	    if (pinfo == NULL)
-		return PM_ERR_PMID;
-	    if (pinfo->pmid_index != 5)
-		return PM_ERR_PERMISSION;
-	    if (vsp->numval != 1 || vsp->valfmt != PM_VAL_SPTR)
-		return PM_ERR_CONV;
-
-	    if ((sts = event_regex_alloc(pmda->e_context,
-				vsp->vlist[0].value.pval->vbuf, &filter)) < 0)
-		return sts;
-	    if ((sts = pmdaEventSetFilter(pmda->e_context, filter,
-				event_regex_apply, event_regex_release)) < 0)
-		return sts;
 	}
+	if (pinfo == NULL)
+	    return PM_ERR_PMID;
+	if (pinfo->pmid_index != 5)
+	    return PM_ERR_PERMISSION;
+	queueid = event_queueid(pinfo->handle);
+
+	if (vsp->numval != 1 || vsp->valfmt != PM_VAL_SPTR)
+	    return PM_ERR_CONV;
+
+	sts = event_regex_alloc(vsp->vlist[0].value.pval->vbuf, &filter);
+	if (sts < 0)
+	    return sts;
+
+	sts = pmdaEventSetFilter(pmda->e_context, queueid, filter,
+				event_regex_apply, event_regex_release);
+	if (sts < 0 )
+	    return sts;
     }
     return 0;
 }

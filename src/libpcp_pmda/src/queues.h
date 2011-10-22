@@ -116,10 +116,12 @@ struct {								\
 
 /*
  * Data structures used in the PMDA event queue implementation
+ * Every event is timestamped and linked into one (tail) queue.
+ * Events know nothing about the clients accessing them.
  */
 
 typedef struct event {
-    TAILQ_ENTRY(event)	events;
+    TAILQ_ENTRY(event)	events;		/* link into queue of events */
     struct timeval	time;		/* timestamp for this event */
     int			count;		/* events reference count */
     size_t		size;		/* buffer size in bytes */
@@ -134,23 +136,37 @@ typedef struct event_queue {
     int			inuse;		/* is this queue in use or free */
     int			eventarray;	/* event records for this queue */
     __uint32_t		numclients;	/* export: number of active clients */
-    __uint32_t		qsize;		/* total data in the queue (< maxmem) */
     __uint32_t		count;		/* exported: event counter */
     __uint64_t		bytes;		/* exported: data throughput */
+    __uint64_t		qsize;		/* data in the queue (<= maxmem) */
     struct tailqueue	tailq;		/* queue of events for clients */
 } event_queue_t;
 
+/*
+ * Data structures used in the PMDA event client implementation
+ * Each client is one PCP tool invocation (e.g. pmevent) and has
+ * a link back to those queues which it has fetched/stored into
+ * at some point in the past.  The "last" event pointer, gives a
+ * pointer to the last observed event for that client, which is
+ * used as the starting point for a subsequent fetch request (or
+ * when dropping events, should the client not be keeping up).
+ */
+
+typedef struct event_clientq {
+    int			active;		/* client interest in this queue */
+    int			missed;		/* count of events missed on queue */
+    int			access;		/* is access restricted/permitted */
+    event_t		*last;		/* last event seen on this queue */
+    void		*filter;	/* filter data for the event queue */
+    pmdaEventApplyFilterCallBack apply;		/* actual filter callback */
+    pmdaEventReleaseFilterCallBack release;	/* remove filter callback */
+} event_clientq_t;
+
 typedef struct event_client {
-    int		context;
-    int		inuse;
-    int		access;
-    int		active;
-    int		missed;
-    int		unused;
-    event_t	*last;
-    void	*filter;
-    pmdaEventApplyFilterCallBack apply;
-    pmdaEventReleaseFilterCallBack release;
+    int			context;	/* client context identifier */
+    int			inuse;		/* is this table slot in use */
+    int			nclientq;	/* allocated size of clientq */
+    event_clientq_t	*clientq;	/* per-queue client state */
 } event_client_t;
 
 #endif /* _QUEUES_H */
