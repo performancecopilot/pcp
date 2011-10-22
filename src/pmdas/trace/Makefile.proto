@@ -51,7 +51,7 @@ app2:	app2.c
 
 app3:	app3.c
 	rm -f $@
-	$(CC) $(CFLAGS) -o $@ app3.c -lpcp_trace
+	$(CC) $(CFLAGS) -o $@ app3.c -lpcp_trace LIB_FOR_PTHREADS
 
 fapp1.77:	fapp1.f
 	rm -f $@
