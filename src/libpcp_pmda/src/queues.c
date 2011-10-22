@@ -136,7 +136,7 @@ queue_drop(event_client_t *client, event_queue_t *queue, void *data)
 {
     event_t *event = (event_t *)data;
 
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebug & DBG_TRACE_LIBPMDA)
 	__pmNotifyErr(LOG_INFO, "Visited ctx=%d event %p (last was %p)",
 			client->context, event, client->last);
 
@@ -144,7 +144,7 @@ queue_drop(event_client_t *client, event_queue_t *queue, void *data)
 	client->last = TAILQ_NEXT(event, events);
 	client->missed++;
 
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebug & DBG_TRACE_LIBPMDA)
 	    __pmNotifyErr(LOG_INFO, "Missed %s event %p for ctx=%d",
 			queue->name, event, client->context);
     }
@@ -156,7 +156,7 @@ pmdaEventQueueAppend(int handle, void *buffer, size_t bytes, struct timeval *tv)
     event_queue_t *queue = queue_lookup(handle);
     event_t *event, *next;
 
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebug & DBG_TRACE_LIBPMDA)
 	__pmNotifyErr(LOG_INFO, "Event enqueue, handle %d (%d bytes)",
 			handle, (int)bytes);
     if (!queue)
@@ -174,7 +174,7 @@ pmdaEventQueueAppend(int handle, void *buffer, size_t bytes, struct timeval *tv)
 	    break;
 	next = TAILQ_NEXT(event, events);
 
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebug & DBG_TRACE_LIBPMDA)
 	    __pmNotifyErr(LOG_INFO, "Dropping %s: e=%p sz=%d max=%d qsz=%d",
 				    queue->name, event, (int)event->size,
 				    (int)queue->maxmemory, queue->qsize);
@@ -182,7 +182,7 @@ pmdaEventQueueAppend(int handle, void *buffer, size_t bytes, struct timeval *tv)
 	/* Walk clients - if event last seen, drop it and bump missed count */
 	client_iterate(queue_drop, queue, event);
 
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebug & DBG_TRACE_LIBPMDA)
 	    __pmNotifyErr(LOG_INFO, "Removing %s event %p (%d bytes)",
 				    queue->name, event, (int)event->size);
 
@@ -212,7 +212,7 @@ pmdaEventQueueAppend(int handle, void *buffer, size_t bytes, struct timeval *tv)
     TAILQ_INSERT_TAIL(&queue->tailq, event, events);
     queue->qsize += bytes;
 
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebug & DBG_TRACE_LIBPMDA)
 	__pmNotifyErr(LOG_INFO, "Inserted %s event %p (%d bytes) clients = %d.",
 			queue->name, event, (int)event->size, event->count);
     return 0;
@@ -225,7 +225,7 @@ queue_fetch(event_queue_t *queue, pmAtomValue *atom, event_client_t *client,
     event_t *event, *next;
     int records, key, sts;
 
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebug & DBG_TRACE_LIBPMDA)
 	__pmNotifyErr(LOG_INFO, "queue_fetch: ctx=%d\n", client->context);
 
     /*
@@ -239,7 +239,7 @@ queue_fetch(event_queue_t *queue, pmAtomValue *atom, event_client_t *client,
     }
 
     event = client->last;
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebug & DBG_TRACE_LIBPMDA)
 	__pmNotifyErr(LOG_INFO, "queue_fetch start, last event=%p\n", event);
 
     sts = records = 0;
@@ -251,13 +251,13 @@ queue_fetch(event_queue_t *queue, pmAtomValue *atom, event_client_t *client,
 	int filter;
 
 	filter = pmdaEventFilter(client->context, event->buffer, event->size);
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebug & DBG_TRACE_LIBPMDA)
 	    __pmNotifyErr(LOG_INFO, "%s parameter: \"%s\"", 
 				    filter ? "Filtering" : "Adding",
 				    __pmdaEventPrint(event->buffer, event->size,
 					 message, sizeof(message)));
 	if (!filter) {
-	    if (pmDebug & DBG_TRACE_APPL1)
+	    if (pmDebug & DBG_TRACE_LIBPMDA)
 		__pmNotifyErr(LOG_INFO, "Adding param: \"%s\"", 
 				    __pmdaEventPrint(event->buffer, event->size,
 					message, sizeof(message)));
@@ -274,7 +274,7 @@ queue_fetch(event_queue_t *queue, pmAtomValue *atom, event_client_t *client,
 
 	/* Remove the current one (if its use count hits zero) */
 	if (--event->count <= 0) {
-	    if (pmDebug & DBG_TRACE_APPL1)
+	    if (pmDebug & DBG_TRACE_LIBPMDA)
 		__pmNotifyErr(LOG_INFO, "Removing %s event %p in fetch",
 					queue->name, event);
 	    TAILQ_REMOVE(&queue->tailq, event, events);
@@ -345,7 +345,7 @@ queue_cleanup(event_queue_t *queue, event_client_t *client)
 
 	/* Remove the current event (if use count hits zero) */
 	if (--event->count <= 0) {
-	    if (pmDebug & DBG_TRACE_APPL1)
+	    if (pmDebug & DBG_TRACE_LIBPMDA)
 		__pmNotifyErr(LOG_INFO, "Removing %s event %p",
 				queue->name, event);
 	    TAILQ_REMOVE(&queue->tailq, event, events);
@@ -397,7 +397,7 @@ pmdaEventNewClient(int context)
 	    __pmNoMem("pmdaEventNewClient", size, PM_FATAL_ERR);
 	numclients++;
 
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebug & DBG_TRACE_LIBPMDA)
 	    __pmNotifyErr(LOG_INFO, "%s: new client, slot=%d (total=%d)\n",
 		      __FUNCTION__, i, numclients);
     }
@@ -440,7 +440,7 @@ pmdaEventEndClient(int context)
     event_client_t *client = client_lookup(context);
     int i;
 
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebug & DBG_TRACE_LIBPMDA)
 	fprintf(stderr, "pmdaEventEndClient: ctx=%d slot=%d\n",
 		context, client ? (int)(client - clients) : 0);
 
