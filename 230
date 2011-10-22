@@ -73,39 +73,10 @@ then
     #NOTREACHED#
 fi
 
-# Note - use a port that is this is likely to be enabled and listening
-#        and is used as a surrogate for a bad pmlogger that accepts
-#        connections from pmlc, but does not send the handshake PDU nor
-#        respond to requests
-#	 Likely options are:
-#		111 sunrpc
-#	 	22 ssh
-#	 	25 smtp
-#	 	631 ipp
+# see comment in src-oss/drain-server.c for choice of port #
 #
-port=''
-$sudo netstat -an 2>&1 \
-| tee -a $seq.full \
-| sed -n \
-    -e 's/[ 	][ 	]*/ /g' \
-    -e 's/0\.0\.0\.0:/*./' \
-    -e 's/$/ /' \
-    -e '/^tcp[ 4].* LISTEN /p' >$tmp.ports
-for try in 111 22 25 631
-do
-    if grep "\\*\\.$try " $tmp.ports >/dev/null
-    then
-	port=$try
-	echo "port=$port" >>$seq.full
-	break
-    fi
-done
-if [ -z "$port" ]
-then
-    echo "Argh ... no likely port to use from this lot ..."
-    cat $tmp.ports
-    exit 1
-fi
+port=1214
+
 $sudo sed -e "1s/.*/$port/" $PCP_TMP_DIR/pmlogger/primary >$tmp.primary
 $sudo cp $PCP_TMP_DIR/pmlogger/primary $PCP_TMP_DIR/pmlogger/primary.qa.$seq
 $sudo cp $tmp.primary $PCP_TMP_DIR/pmlogger/primary
@@ -118,12 +89,14 @@ echo "=== Hang on Connection Cases ==="
 #
 echo
 echo "Expect hang ..."
+src-oss/drain-server &
 pmlc -e -h localhost -P >$tmp.out 2>&1 &
 _check $!
 _filter
 
 echo
 echo "Expect hang and warning ..."
+src-oss/drain-server &
 export PMLOGGER_REQUEST_TIMEOUT=1.5
 pmlc -e -h localhost -P >$tmp.out 2>&1 &
 _check $!
@@ -131,6 +104,7 @@ _filter
 
 echo
 echo "Expect no hang and unable to connect to pmlogger ..."
+src-oss/drain-server &
 export PMLOGGER_REQUEST_TIMEOUT=1
 pmlc -e -h localhost -P >$tmp.out 2>&1 &
 _check $!
