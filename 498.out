@@ -1,0 +1,22 @@
+QA output created by 498
+
+events arriving with no queues setup yet (fail)
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "?" (1024 bytes)
+add event(0,1024) -> -22 Invalid argument
+
+attempt to register duplicate queue names (fail)
+new queue(queue1,1024) -> 0
+new queue(queue1,1024) -> -17 File exists
+
+attempt queue creation without memory limit (fail)
+new queue(queue1,0) -> -22 Invalid argument
+
+create one queue, events arriving with no clients yet
+new queue(queue1,1024) -> 0
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue1" (128 bytes)
+add event(queue1,128) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue1" (42 bytes)
+add event(queue1,42) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue1" (18 bytes)
+add event(queue1,18) -> 0 [TIME]
+event queue#0 count=3, bytes=188, clients=0, mem=0
