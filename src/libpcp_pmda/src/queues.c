@@ -324,7 +324,7 @@ queue_fetch(event_queue_t *queue, event_clientq_t *clientq, pmAtomValue *atom,
     }
 
     /* Update queue tail pointer for this client. */
-    clientq->last = TAILQ_LAST(&queue->tailq, tailqueue);
+    clientq->last = NULL;
 
     atom->vbp = records ? (pmValueBlock *)pmdaEventGetAddr(key) : NULL;
     return sts;
