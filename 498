@@ -2,6 +2,20 @@
 # PCP QA Test No. 498
 # exercise pmdaEventQueue interfaces
 #
+# Queue test option reference guide:
+#  -a id,name     disable a clients access
+#  -A id,name     enable a clients access
+#  -c id          create a new client
+#  -C id          remove a client by id
+#  -e name,size   append an event of size on queue
+#  -E id,size     append an event of size on queue
+#  -q name,size   create a new queue with max size
+#  -f id,name,sz  create client filter, limit size
+#  -F id,name     remove a clients filter
+#  -D debug
+#  -s name        report statistics for a queue
+#  -S id,name     report clients events in a queue
+#
 # Copyright (c) 2011 Nathan Scott.  All Rights Reserved.
 #
 
@@ -29,7 +43,7 @@ _filter()
 
 _queue_test()
 {
-    # always enable library debugging, do a final dump, stash and filter
+    # always enable library debugging, stash raw results and output filtered
     src-oss/pmdaqueue -Dlibpmda $@ 2>&1 | tee -a $seq.full | _filter
 }
 
@@ -50,24 +64,76 @@ echo
 echo "create one queue, events arriving with no clients yet"
 _queue_test -q queue1,1024 -e queue1,128 -e queue1,42 -e queue1,18 -s queue1
 
-# WIP...
+echo
+echo "multiple queues, events arriving without clients"
+_queue_test \
+    -q queue0,1024 -q queue1,512 \
+    -e queue0,128 -e queue1,24 -e queue0,18 \
+	-e queue1,228 -e queue0,142 -e queue1,28 \
+    -s queue0 -s queue1 \
+    -q queue2,356 \
+    -e queue2,328 -e queue2,32 -e queue0,17 -e queue1,227 \
+    -s queue0 -s queue1 -s queue2
 
-#echo
-#echo "multiple queues, events arriving with multiple clients"
-#_queue_test \
-#    -q queue1,1024 -q queue2,512 \
-#    -e queue1,128 -e queue2,24 -e queue1,18 -e queue2,228 -e queue1,142 -e queue2,28 \
-#    -s queue1 -s queue2 \
-#    -q queue3,356 \
-#    -e queue3,328 -e queue3,32 -e queue1,17 -e queue2,227 \
-#    -s queue1 -s queue2 -s queue3
+echo
+echo "single queue, single client, coming and going, no events arriving"
+_queue_test -q queue0,1024 -c 1 -S 1,queue0 -s queue0 -C 1 -s queue0
 
-#echo
-#echo "multiple queues, events arriving with clients, clients quit, more events"
+echo
+echo "single queue, single client, coming and going, with events arriving"
+_queue_test \
+    -q queue0,1024 \
+    -c 1 \
+    -S 1,queue0 -s queue0 \
+    -e queue0,24 \
+    -S 1,queue0 -s queue0 \
+    -C 1 \
+    -s queue0
 
-#echo
-#echo "multiple queues, events arriving with filtering clients"
+echo
+echo "single queue, single client, queue filling up"
+_queue_test \
+    -q queue0,42 \
+    -c 1 \
+    -A 1,queue0 \
+    -S 1,queue0 -s queue0 \
+    -e queue0,24 \
+    -e queue0,2 \
+    -e queue0,8 \
+    -S 1,queue0 -s queue0 \
+    -e queue0,28 \
+    -e queue0,28 \
+    -S 1,queue0 -s queue0
 
+echo
+echo "multiple queues, multiple clients coming and going, queues filling"
+_queue_test \
+    -q queue0,1024 -q queue1,512 \
+    -c 84 -c 42 -c 21 \
+    -S 84,queue0 -S 42,queue1 -S 21,queue1 \
+    -e queue0,128 -e queue1,24 -e queue0,18 \
+	-e queue1,228 -e queue0,142 -e queue1,28 \
+    -S 84,queue0 -s queue0 -S 42,queue1 -s queue1 -S 21,queue2 -s queue2 \
+    -q queue2,356 \
+    -C 84 \
+    -e queue2,328 -e queue2,32 -e queue0,17 -e queue1,227 \
+    -c 84 -C 42 -c 21 \
+    -S 84,queue0 -s queue0 -S 42,queue1 -s queue1 -S 21,queue2 -s queue2
+
+echo
+echo "single queue, single filtering client"
+_queue_test \
+    -q queue0,42 \
+    -c 1 \
+    -f 1,queue0,10 \
+    -S 1,queue0 -s queue0 \
+    -e queue0,24 \
+    -e queue0,2 \
+    -e queue0,8 \
+    -S 1,queue0 -s queue0 \
+    -e queue0,28 \
+    -e queue0,28 \
+    -S 1,queue0 -s queue0
 
 # success, all done
 exit
