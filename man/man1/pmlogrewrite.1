@@ -204,11 +204,11 @@ This clause forces all the timestamps to be adjusted by
 .IR delta ,
 where
 .I delta
-is an optional sign ``+'' (the default) or ``-'', an optional number of
+is an optional sign ``+'' (the default) or ``\-'', an optional number of
 hours followed by a colon ``:'', an optional number of minutes followed by a 
 colon ``:'', a number of seconds, an optional fraction of seconds following
 a period ``.''.  The simplest example would be ``30'' to increase the
-timestamps by 30 seconds.  A more complex example would be ``-23:59:59.999''
+timestamps by 30 seconds.  A more complex example would be ``\-23:59:59.999''
 to move the timestamps backwards by one millisecond less than one day.
 .RE
 .PP
@@ -732,7 +732,7 @@ an unsigned type.
 .I newunits
 is six values separated by commas.  The first 3 values describe the
 dimension of the metric along the dimensions of space, time and count; these
-are integer values, usually 0, 1 or -1.  The remaining 3 values describe
+are integer values, usually 0, 1 or \-1.  The remaining 3 values describe
 the scale of the metric's values in the dimensions of space, time and
 count.
 Space scale values should be 0 (if the space dimension is 0), else
