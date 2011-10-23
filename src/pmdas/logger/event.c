@@ -438,7 +438,7 @@ event_decoder(int eventarray, void *buffer, size_t size, void *data)
 }
 
 int
-event_regex_apply(void *rp, void *data, int size)
+event_regex_apply(void *rp, void *data, size_t size)
 {
     regex_t *regex = (regex_t *)rp;
     return regexec(regex, data, 0, NULL, 0) == REG_NOMATCH;

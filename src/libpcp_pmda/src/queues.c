@@ -23,7 +23,6 @@
 
 static event_queue_t *queues;
 static int numqueues;
-static event_queue_t *queue_lookup(int handle);
 
 static event_client_t *clients;
 static int numclients;
@@ -232,7 +231,7 @@ done:
 }
 
 static int
-queue_filter(event_clientq_t *clientq, void *data, int size)
+queue_filter(event_clientq_t *clientq, void *data, size_t size)
 {
     if (clientq->filter) /* Note: having a filter (stored) implies access */
 	return clientq->apply(clientq->filter, data, size);

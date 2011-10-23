@@ -49,7 +49,7 @@ extern const char *event_pmnsname(int handle);
 extern int event_decoder(int arrayid, void *buffer, size_t size, void *data);
 
 extern int event_regex_alloc(const char *s, void **filter);
-extern int event_regex_apply(void *rp, void *data, int size);
+extern int event_regex_apply(void *rp, void *data, size_t size);
 extern void event_regex_release(void *rp);
 
 #endif /* _EVENT_H */

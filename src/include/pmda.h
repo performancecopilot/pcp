@@ -556,7 +556,7 @@ extern int pmdaEventNewClient(int);
 extern int pmdaEventEndClient(int);
 extern int pmdaEventClients(pmAtomValue *);
 
-typedef int (*pmdaEventApplyFilterCallBack)(void *, void *, int);
+typedef int (*pmdaEventApplyFilterCallBack)(void *, void *, size_t);
 typedef void (*pmdaEventReleaseFilterCallBack)(void *);
 extern int pmdaEventSetFilter(int, int, void *,
 		pmdaEventApplyFilterCallBack, pmdaEventReleaseFilterCallBack);
