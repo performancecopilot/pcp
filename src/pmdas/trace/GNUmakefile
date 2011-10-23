@@ -93,5 +93,5 @@ default_pcp:	default
 install_pcp:	install
 
 Makefile.demos:	Makefile.proto
-	rm -f Makefile.demos
-	sed <Makefile.proto >Makefile.demos -s 's/LIB_FOR_PTHREADS/$(LIB_FOR_PTHREADS)/'
+	rm -f $@
+	sed -s 's/LIB_FOR_PTHREADS/$(LIB_FOR_PTHREADS)/' < $^ > $@
