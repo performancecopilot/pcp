@@ -253,11 +253,12 @@ queue_fetch(event_queue_t *queue, event_clientq_t *clientq, pmAtomValue *atom,
      */
     if (clientq->active == 0) {
 	clientq->active = 1;
-	clientq->last = TAILQ_LAST(&queue->tailq, tailqueue);
 	queue->numclients++;
     }
-
+    if (clientq->last == NULL)
+	clientq->last = TAILQ_FIRST(&queue->tailq);
     event = clientq->last;
+
     if (pmDebug & DBG_TRACE_LIBPMDA)
 	__pmNotifyErr(LOG_INFO, "queue_fetch start, last event=%p\n", event);
 
@@ -359,9 +360,6 @@ client_queue_lookup(int context, int handle, int accessq)
     size -= client->nclientq * sizeof(struct event_clientq);
     memset(client->clientq + client->nclientq, 0, size);
     client->nclientq = handle + 1;
-
-    /* mark the new clientq as active and return it */
-    client->clientq[handle].active = 1;
     return &client->clientq[handle];
 }
 
@@ -373,7 +371,7 @@ pmdaEventQueueRecords(int handle, pmAtomValue *atom, int context,
     event_queue_t *queue = queue_lookup(handle);
     int sts;
 
-    if (!queue)
+    if (!queue || !clientq)
 	return -EINVAL;
 
     sts = queue_fetch(queue, clientq, atom, queue_decoder, data);
