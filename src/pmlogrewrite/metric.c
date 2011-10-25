@@ -72,6 +72,7 @@ start_metric(pmID pmid)
 	metric_root = mp;
 	mp->output = OUTPUT_ALL;
 	mp->one_inst = 0;
+	mp->one_name = NULL;
 	mp->old_name = name;
 	mp->old_desc = desc;
 	mp->new_desc = mp->old_desc;
