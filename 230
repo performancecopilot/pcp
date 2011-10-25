@@ -87,26 +87,46 @@ echo "=== Hang on Connection Cases ==="
 
 echo
 echo "Expect hang ..."
-src-oss/drain-server &
+src-oss/drain-server -h &
+draino=$!
 pmlc -e -h localhost -P >$tmp.out 2>&1 &
 _check $!
 _filter
+pidlist=`_get_pids_by_name "drain-server"`
+for pid in $pidlist
+do
+    [ "$draino" = "$pid" ] && kill -TERM $draino
+done
+sleep 2
 
 echo
 echo "Expect hang and warning ..."
-src-oss/drain-server &
+src-oss/drain-server -h &
+draino=$!
 export PMLOGGER_REQUEST_TIMEOUT=1.5
 pmlc -e -h localhost -P >$tmp.out 2>&1 &
 _check $!
 _filter
+pidlist=`_get_pids_by_name "drain-server"`
+for pid in $pidlist
+do
+    [ "$draino" = "$pid" ] && kill -TERM $draino
+done
+sleep 2
 
 echo
 echo "Expect no hang and unable to connect to pmlogger ..."
 src-oss/drain-server &
+draino=$!
 export PMLOGGER_REQUEST_TIMEOUT=1
 pmlc -e -h localhost -P >$tmp.out 2>&1 &
 _check $!
 _filter
+pidlist=`_get_pids_by_name "drain-server"`
+for pid in $pidlist
+do
+    [ "$draino" = "$pid" ] && kill -TERM $draino
+done
 
 echo
 echo "=== Timeout on pmlc commands cases ==="

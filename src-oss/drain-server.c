@@ -17,6 +17,7 @@ main(int argc, char *argv[])
     int		fd;
     int		port = 1214;
 		    /* default port assigned to kazaa what ever that is! */
+    int		hang = 0;
     int		i, sts;
     int		c;
     int		newfd;
@@ -27,7 +28,7 @@ main(int argc, char *argv[])
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "D:p:?")) != EOF) {
+    while ((c = getopt(argc, argv, "D:hp:?")) != EOF) {
 	switch (c) {
 
 	case 'D':	/* debug flag */
@@ -39,6 +40,10 @@ main(int argc, char *argv[])
 	    }
 	    else
 		pmDebug |= sts;
+	    break;
+
+	case 'h':	/* hang after accept */
+	    hang = 1;
 	    break;
 
 	case 'p':
@@ -57,7 +62,7 @@ main(int argc, char *argv[])
     }
 
     if (errflag || optind != argc) {
-	fprintf(stderr, "Usage: %s [-D n] [-d] [-p port]\n", pmProgname);
+	fprintf(stderr, "Usage: %s [-D n] [-h] [-p port]\n", pmProgname);
 	exit(1);
     }
 
@@ -97,6 +102,12 @@ main(int argc, char *argv[])
     if (newfd < 0) {
 	fprintf(stderr, "%s: accept: %s\n", pmProgname, strerror(errno));
 	exit(1);
+    }
+
+    if (hang) {
+	/* wait for a signal ... */
+	pause();
+	exit(0);
     }
 
     /* drain input */
