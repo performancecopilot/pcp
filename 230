@@ -89,6 +89,7 @@ echo
 echo "Expect hang ..."
 src-oss/drain-server -h &
 draino=$!
+sleep 2
 pmlc -e -h localhost -P >$tmp.out 2>&1 &
 _check $!
 _filter
@@ -103,6 +104,7 @@ echo
 echo "Expect hang and warning ..."
 src-oss/drain-server -h &
 draino=$!
+sleep 2
 export PMLOGGER_REQUEST_TIMEOUT=1.5
 pmlc -e -h localhost -P >$tmp.out 2>&1 &
 _check $!
@@ -118,6 +120,7 @@ echo
 echo "Expect no hang and unable to connect to pmlogger ..."
 src-oss/drain-server &
 draino=$!
+sleep 2
 export PMLOGGER_REQUEST_TIMEOUT=1
 pmlc -e -h localhost -P >$tmp.out 2>&1 &
 _check $!
