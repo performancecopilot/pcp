@@ -565,9 +565,11 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp)
 	    if (__pmTimevalSub(&idp->stamp, tp) <= 0)
 		break;
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LOGMETA)
+	    if (pmDebug & DBG_TRACE_LOGMETA) {
+		fprintf(stderr, "request @ %s is ", StrTimeval(tp));
 		fprintf(stderr, "too early for indom @ %s\n",
 		    StrTimeval(&idp->stamp));
+	    }
 #endif
 	}
 	if (idp == NULL)
