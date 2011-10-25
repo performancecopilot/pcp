@@ -222,8 +222,7 @@ sed -f $tmp.map $tmp.2 | LC_COLLATE=POSIX sort >$tmp.tmp
 mv $tmp.tmp $tmp.2
 
 echo "-- df --" >>$seq.full
-df -lk >>$seq.full
-df -li >>$seq.full
+$sudo df -li >>$seq.full 2>&1
 echo "-- df-filtered --" >>$seq.full
 cat $tmp.2 >>$seq.full
 
