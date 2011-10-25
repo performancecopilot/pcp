@@ -105,7 +105,7 @@ Options:\n\
 		exit(1);
 	    }
 	}
-	fprintf(stderr, "\n=== context %d ===\n", sts);
+	fprintf(stderr, "\n=== iteration %d context %d ===\n", c, sts);
 
 	if (c == 2) {
 	    if ((sts = pmGetArchiveLabel(&label)) < 0) {
@@ -269,8 +269,13 @@ Options:\n\
 			    now.tv_usec = appOffset.tv_usec;
 			 }
 			 else {
-			    now.tv_sec = (appOffset.tv_sec+appEnd.tv_sec)/2;
-			    now.tv_usec = (appOffset.tv_usec+appEnd.tv_usec)/2;
+			    /*
+			     * danger! need to promote arithmetic to 64-bit
+			     * for platforms where tv_sec is 32-bit and
+			     * tv_sec + tv_sec => overflow
+			     */
+			    now.tv_sec = ((__int64_t)appOffset.tv_sec+(__int64_t)appEnd.tv_sec)/2;
+			    now.tv_usec = ((__int64_t)appOffset.tv_usec+(__int64_t)appEnd.tv_usec)/2;
 			 }
 			if ((sts = __pmLogGetInDom(ctxp->c_archctl->ac_log, indom[i], &now, &instlist, &namelist)) < 0) {
 			    fprintf(stderr, "__pmLogGetInDom(%s) -> ", pmInDomStr(indom[i]));
