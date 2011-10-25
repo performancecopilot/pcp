@@ -254,7 +254,7 @@ main(int argc, char **argv)
 	    name = optarg;
 	    queueid = pmdaEventQueueHandle(name);
 	    if (queueid < 0) {
-		fprintf(stderr, "%s: invalid event queue specification (%s)\n",
+		fprintf(stderr, "%s: invalid queue specification (%s)\n",
 			pmProgname, name);
 		errflag++;
 		break;
@@ -293,8 +293,8 @@ main(int argc, char **argv)
 	fprintf(stderr, "  -e name,size   append an event of size on queue\n");
 	fprintf(stderr, "  -E id,size     append an event of size on queue\n");
 	fprintf(stderr, "  -q name,size   create a new queue with max size\n");
-	fprintf(stderr, "  -f id,size     create client filter, limits size\n");
-	fprintf(stderr, "  -F id,name     remove a clients filter\n");
+	fprintf(stderr, "  -f id,name,sz  client queue filter, limit size\n");
+	fprintf(stderr, "  -F id,name     remove a clients queue filter\n");
 	fprintf(stderr, "  -D debug\n");
 	fprintf(stderr, "  -s name        report statistics for a queue\n");
 	fprintf(stderr, "  -S id,name     report clients events in a queue\n");
