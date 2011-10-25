@@ -268,16 +268,17 @@ queue_fetch(event_queue_t *queue, event_clientq_t *clientq, pmAtomValue *atom,
 
     while (event != NULL) {
 	char	message[64];
-	int	filter = queue_filter(clientq, event->buffer, event->size);
 
-	if (pmDebug & DBG_TRACE_LIBPMDA)
-	    __pmNotifyErr(LOG_INFO, "%s parameter: \"%s\"", 
-				filter ? "Filtering" : "Adding",
+	if (queue_filter(clientq, event->buffer, event->size)) {
+	    if (pmDebug & DBG_TRACE_LIBPMDA)
+		__pmNotifyErr(LOG_INFO, "Culling event (sz=%ld): \"%s\"", 
+				(long)event->size,
 				__pmdaEventPrint(event->buffer, event->size,
 					message, sizeof(message)));
-	if (!filter) {
+	} else {
 	    if (pmDebug & DBG_TRACE_LIBPMDA)
-		__pmNotifyErr(LOG_INFO, "Adding param: \"%s\"", 
+		__pmNotifyErr(LOG_INFO, "Adding event (sz=%ld): \"%s\"", 
+				(long)event->size,
 				__pmdaEventPrint(event->buffer, event->size,
 					message, sizeof(message)));
 	    sts = pmdaEventAddRecord(key, &event->time, PM_EVENT_FLAG_POINT);
@@ -418,20 +419,20 @@ queue_cleanup(int handle, event_clientq_t *clientq)
 char *
 __pmdaEventPrint(const char *buffer, int bufsize, char *msg, int msgsize)
 {
+    int minsize = msgsize < bufsize ? msgsize : bufsize;
     int i;
 
     if (msgsize < 4)
 	return NULL;
-    strncpy(msg, buffer, msgsize - 4);
-    msg[msgsize - 4] = '\0';
-    for (i = 0; i < (msgsize - 4) && i < bufsize; i++) {
+    memcpy(msg, buffer, minsize);
+    memset(msg + minsize, '.', msgsize - minsize);
+    msg[minsize - 1] = '\0';
+    for (i = 0; i < minsize - 1; i++) {
 	if (isspace(msg[i]))
 	    msg[i] = ' ';
 	else if (!isprint(msg[i]))
 	    msg[i] = '.';
     }
-    if (bufsize > msgsize - 4)
-	strcat(msg, "...");
     return msg;
 }
 
