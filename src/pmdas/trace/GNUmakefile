@@ -94,4 +94,4 @@ install_pcp:	install
 
 Makefile.demos:	Makefile.proto
 	rm -f $@
-	sed -e 's/LIB_FOR_PTHREADS/$(LIB_FOR_PTHREADS)/' < $^ > $@
+	sed -e 's/PTHREAD_LIB/$(PTHREAD_LIB)/' <$^ >$@
