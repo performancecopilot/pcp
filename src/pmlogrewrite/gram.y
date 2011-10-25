@@ -131,7 +131,7 @@ walk_metric(int mode, int flag, char *which)
 	NAME
 	INST
 	INAME
-	DELETE
+	DELETED
 	PMID
 	NULL_INT
 	TYPE
@@ -139,7 +139,7 @@ walk_metric(int mode, int flag, char *which)
 	UNITS
 	OUTPUT
 
-%token<str>	GNAME NUMBER STRING HNAME FLOAT INDOM_STAR PMID_INT PMID_STAR
+%token<str>	GNAME NUMBER STRING HNAME NFLOAT INDOM_STAR PMID_INT PMID_STAR
 %token<ival>	TYPE_NAME SEM_NAME SPACE_NAME TIME_NAME COUNT_NAME OUTPUT_TYPE
 
 %type<str>	hname
@@ -234,12 +234,12 @@ globalopt	: HOSTNAME ASSIGN hname
 	 * ambiguity in lexical scanner ... handle here
 	 * abc.def - is HNAME or GNAME
 	 * 123 - is HNAME or NUMBER
-	 * 123.456 - is HNAME or FLOAT
+	 * 123.456 - is HNAME or NFLOAT
 	 */
 hname		: HNAME
 		| GNAME
 		| NUMBER
-		| FLOAT
+		| NFLOAT
 		;
 
 signnumber	: PLUS NUMBER
@@ -266,7 +266,7 @@ number		: NUMBER
 		    }
 		;
 
-float		: FLOAT
+float		: NFLOAT
 		    {
 			$$ = atof($1);
 			free($1);
@@ -377,7 +377,7 @@ indomspec	: INDOM indom_int
 		    }
 		;
 
-indom_int	: FLOAT
+indom_int	: NFLOAT
 		    {
 			int		domain;
 			int		serial;
@@ -455,7 +455,7 @@ indomopt	: INDOM ASSIGN indom_int
 			free($2);
 			/* Note: $4 referenced from new_iname[] */
 		    }
-		| INAME STRING ASSIGN DELETE
+		| INAME STRING ASSIGN DELETED
 		    {
 			indomspec_t	*ip;
 			for (ip = walk_indom(W_START); ip != NULL; ip = walk_indom(W_NEXT)) {
@@ -472,7 +472,7 @@ indomopt	: INDOM ASSIGN indom_int
 				yyerror(mess);
 			}
 		    }
-		| INST number ASSIGN DELETE
+		| INST number ASSIGN DELETED
 		    {
 			indomspec_t	*ip;
 			for (ip = walk_indom(W_START); ip != NULL; ip = walk_indom(W_NEXT)) {
@@ -832,7 +832,7 @@ metricopt	: PMID ASSIGN pmid_int
 			    }
 			}
 		    }
-		| DELETE
+		| DELETED
 		    {
 			metricspec_t	*mp;
 			for (mp = walk_metric(W_START, METRIC_DELETE, "delete"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_DELETE, "delete")) {

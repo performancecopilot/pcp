@@ -223,9 +223,11 @@ nextlog(void)
 }
 
 #ifdef IS_MINGW
-#define SEP '\\'
+#define S_ISLINK(mode) 0	/* no symlink support */
 #else
-#define SEP '/'
+#ifndef S_ISLINK
+#define S_ISLINK(mode) ((mode & S_IFMT) == S_IFLNK)
+#endif
 #endif
 
 /*
@@ -236,6 +238,7 @@ parseargs(int argc, char *argv[])
 {
     int			c;
     int			sts;
+    int			sep = __pmPathSeparator();
     int			errflag = 0;
     struct stat		sbuf;
 
@@ -249,9 +252,6 @@ parseargs(int argc, char *argv[])
 		errflag++;
 		break;
 	    }
-#ifndef S_ISLINK
-#define S_ISLINK(mode) ((mode & S_IFMT) == S_IFLNK)
-#endif
 	    if (S_ISREG(sbuf.st_mode) || S_ISLINK(sbuf.st_mode)) {
 		nconf++;
 		if ((conf = (char **)realloc(conf, nconf*sizeof(conf[0]))) != NULL)
@@ -269,13 +269,13 @@ parseargs(int argc, char *argv[])
 		else while ((dp = readdir(dirp)) != NULL) {
 		    /* skip ., .. and "hidden" files */
 		    if (dp->d_name[0] == '.') continue;
-		    snprintf(path, sizeof(path), "%s%c%s", optarg, SEP, dp->d_name);
+		    snprintf(path, sizeof(path), "%s%c%s", optarg, sep, dp->d_name);
 		    if (stat(path, &sbuf) < 0) {
 			fprintf(stderr, "%s: %s: %s\n",
 				pmProgname, path, osstrerror());
 			errflag++;
 		    }
-		    if (sbuf.st_mode & (S_IFREG | S_IFLNK)) {
+		    if (S_ISREG(sbuf.st_mode) || S_ISLINK(sbuf.st_mode)) {
 			nconf++;
 			if ((conf = (char **)realloc(conf, nconf*sizeof(conf[0]))) == NULL)
 			    break;

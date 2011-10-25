@@ -88,7 +88,7 @@ dupstr(char *s, int strip_quotes)
 	/* Hostname */
 <host>[A-Za-z0-9][A-Za-z0-9.-]*	{ yylval.str = dupstr(yytext, 0); BEGIN(glob); return HNAME; }
 
-<indom,metric>"delete"	{ return DELETE; }
+<indom,metric>"delete"	{ return DELETED; }
 <indom>"indom"		{ return INDOM; }
 <indom>"iname"		{ return INAME; }
 <indom>"inst"		{ return INST; }
@@ -165,7 +165,7 @@ dupstr(char *s, int strip_quotes)
 
 [0-9]+			{ yylval.str = dupstr(yytext, 0); return NUMBER; }
 
-[0-9]+\.[0-9]*		{ yylval.str = dupstr(yytext, 0); return FLOAT; }
+[0-9]+\.[0-9]*		{ yylval.str = dupstr(yytext, 0); return NFLOAT; }
 
 [0-9]+\.\*		{ yylval.str = dupstr(yytext, 0); return INDOM_STAR; }
 

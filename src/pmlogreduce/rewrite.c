@@ -1,6 +1,5 @@
 #include "pmlogreduce.h"
 #include <inttypes.h>
-#include <assert.h>
 
 static pmResult	*orp;
 
@@ -32,7 +31,12 @@ rewrite(pmResult *rp)
 	int		j;
 	int		need;
 
-	assert(pmidlist[i] = vsp->pmid);
+	if (pmidlist[i] != vsp->pmid) {
+	    fprintf(stderr,
+		"%s: rewrite: Arrgh, mismatched PMID %s vs %s\n",
+		    pmProgname, pmIDStr(pmidlist[i]), pmIDStr(vsp->pmid));
+	    exit(1);
+	}
 
 	if (vsp->numval > 0)
 	    need = (vsp->numval - 1) * sizeof(pmValue);
