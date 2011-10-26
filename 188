@@ -61,21 +61,47 @@ elif [ $PCP_PLATFORM = linux ] ; then
 	# this is some old folklore ... better to handle in the explicit
 	# case above if possible
 	#
-	case `rpm -q glibc`
-	in
-	    glibc-1.*|glibc-2.[01].*|glibc-2.2.[0-4]-*|glibc-2.3.3-*)
-		ln $seq.linux $seq.out
-		;;
-	    *)
-		ln $seq.irix $seq.out
-		;;
-	esac
+	if which rpm >/dev/null 2>&1
+	then
+	    case `rpm -q glibc`
+	    in
+		glibc-1.*|glibc-2.[01].*|glibc-2.2.[0-4]-*|glibc-2.3.3-*)
+		    ln $seq.linux $seq.out
+		    ;;
+		*)
+		    ln $seq.irix $seq.out
+		    ;;
+	    esac
+	elif which emerge >/dev/null 2>&1
+	then
+	    # looking for a line like ...
+	    # sys-libs/glibc-2.12.2 was built with the following:
+	    version="`emerge --info glibc | sed -n -e '/was built with/{
+s/ was built with.*//
+s/.*\///
+p
+}'`"
+	    case "$version"
+	    in
+		glibc-2\.12\.*)
+		    ln $seq.linux $seq.out
+		    ;;
+		*)
+		    echo "Arrgh ... don't know what to do with glibc version $version"
+		    exit 1
+		    ;;
+	    esac
+	else
+	    echo "Arrg ... don't know how to determine glibc version"
+	    exit 1
+	fi
     fi
 elif [ $PCP_PLATFORM = darwin ] ; then
     ln $seq.darwin $seq.out
 fi
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 # real QA test starts here
 
