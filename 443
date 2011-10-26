@@ -35,7 +35,8 @@ _filter_usage()
 	-e '/illegal option/{
 s/illegal/invalid/
 s/.$/'"'&'"'/
-}'
+}' \
+	-e '/invalid option/s/[^'"'"']$/'"'&'"'/'
 }
 
 _filter()
