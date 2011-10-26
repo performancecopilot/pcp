@@ -31,6 +31,13 @@ _filter()
 	-e "s;$tmp;TMP;g"
 }
 
+_filter_usage()
+{
+    sed \
+	-e '/invalid option/s/[^'"'"']$/'"'&'"'/'
+}
+
+
 _cnt_logrecs()
 {
     if [ ! -f $1.0 ]
@@ -43,7 +50,7 @@ _cnt_logrecs()
 
 # real QA test starts here
 echo "=== usage cases ==="
-pmlogrewrite -x in out
+pmlogrewrite -x in out 2>&1 | _filter_usage
 echo
 pmlogrewrite in out foo
 echo
@@ -61,13 +68,14 @@ chmod 0 $tmp.forbiddendir
 pmlogrewrite -c $tmp.forbiddendir in out 2>&1 | _filter
 echo
 pmlogrewrite -c $tmp.forbiddendir/blah in out 2>&1 | _filter
-rm -rf $tmp.forbidden
+chmod 755 $tmp.forbiddendir
+rm -rf $tmp.forbiddendir
 echo
 mkdir $tmp.configdir
 touch $tmp.configdir/forbidden
 chmod 0 $tmp.configdir/forbidden
 pmlogrewrite -v -c $tmp.configdir src-oss/rattle $tmp.new 2>&1 | _filter
-rm -rf $tmp.config
+rm -rf $tmp.config $tmp.forbidden
 
 echo
 echo "=== truncated archive ==="
