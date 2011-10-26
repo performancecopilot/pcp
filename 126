@@ -6,12 +6,28 @@
 # 
 
 seq=`basename $0`
-echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+
+. ./localconfig
+rm -f $seq.out
+if [ -f /etc/redhat-release ]
+then
+    if grep 'CentOS release 5.6' </etc/redhat-release >/dev/null 2>&1
+    then
+	# not all the snmp metrics are there ...
+	ln $seq.out.2 $seq.out
+    else
+	ln $seq.out.1 $seq.out
+    fi
+else
+    ln $seq.out.1 $seq.out
+fi
+
+echo "QA output created by $seq"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
