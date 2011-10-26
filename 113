@@ -230,8 +230,8 @@ join -a2 -1 1 $tmp.1 $tmp.2 \
 | $PCP_AWK_PROG '{
     a=$2; b=$3; d=a-b;
     if (d<0) d = -d;
-    if (d>a/100) {
-	print "'$0' : Diff of more than 1 percent: ", $0
+    if (d > 5 && d>a/100) {
+	print "'$0' : Diff of more than 5 in total and 1 percent: ", $0
 	err++
     }
 }
