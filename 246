@@ -41,9 +41,13 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 #
 _filter()
 {
+    echo "--- stdout ---" >>$seq.full
     cat $tmp.out >>$seq.full
+    echo "--- stderr ---" >>$seq.full
+    cat $tmp.err >>$seq.full
     # __dmclosecontext(->ctx 8) called dm->0x9216d58 3 metrics
-    sed <$tmp.out \
+    cat $tmp.err \
+    | sed \
 	-e 's/(->ctx [0-9][0-9]*)//' \
 	-e 's/->/ /' \
     | awk >$tmp.sed '
@@ -57,7 +61,7 @@ $1 == "__dmclosecontext"	{ if (map[$4] != "") next
 				{ next }'
     echo "=== sed ===" >>$seq.full
     cat $tmp.sed >>$seq.full
-    sed <$tmp.out \
+    sed <$tmp.err \
 	-e '/bind metric\[[12]] myname.[bc]/d' \
 	-e '/bind metric\[0] myname.a/{
 s/bind metric... //
@@ -67,6 +71,8 @@ s/$/ .../
 	-e '/__dmclosecontext/s/__dmclosecontext(->ctx [0-9][0-9]*) called dm->/close /' \
 	-e "s;$tmp;TMP;" \
     | sed -f $tmp.sed
+
+    cat $tmp.out
 }
 
 # real QA test starts here
@@ -76,7 +82,7 @@ myname.b = sample.long.one + sample.long.ten + sample.long.hundred + sample.long
 myname.c= sample.long.one * sample.longlong.one + sample.long.ten * sample.longlong.ten + sample.long.hundred * sample.longlong.hundred + sample.long.million * sample.longlong.million
 End-of-File
 
-src-oss/grind_ctx -D derive -c $tmp.config -s 100 >$tmp.out 2>&1
+src-oss/grind_ctx -D derive -c $tmp.config -s 100 >$tmp.out 2>$tmp.err
 _filter
 
 # success, all done
