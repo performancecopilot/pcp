@@ -368,12 +368,12 @@ _run_purify()
 
     _here=`pwd`
     cd $_purify_dir
-    $_purify_dir/$_pure_prog $args > $tmp.purify.out 2>&1
-    cat $tmp.purify.out >>$_here/$seq.full
-    if grep -i expired $tmp.purify.out >/dev/null; then
-	cat $tmp.purify.out
+    $_purify_dir/$_pure_prog $args > $tmp._purify.out 2>&1
+    cat $tmp._purify.out >>$_here/$seq.full
+    if grep -i expired $tmp._purify.out >/dev/null; then
+	cat $tmp._purify.out
     else
-	_filter_purify < $tmp.purify.out
+	_filter_purify < $tmp._purify.out
     fi
     cd $_here
 }
@@ -432,16 +432,16 @@ _run_valgrind()
 {
     valgrind \
 	--leak-check=full --read-var-info=yes \
-	--suppressions=valgrind-suppress --log-file=$tmp.valgrind \
-	    $* 2>$tmp.valgrind.err >$tmp.valgrind.out
+	--suppressions=valgrind-suppress --log-file=$tmp._valgrind \
+	    $* 2>$tmp._valgrind.err >$tmp._valgrind.out
     echo "=== std out ==="
-    cat $tmp.valgrind.out
+    cat $tmp._valgrind.out
     echo "=== std err ==="
-    cat $tmp.valgrind.err
+    cat $tmp._valgrind.err
     echo "=== valgrind report ===" >>$seq.full
-    cat $tmp.valgrind >>$seq.full
+    cat $tmp._valgrind >>$seq.full
     echo "=== filtered valgrind report ==="
-    sed <$tmp.valgrind \
+    sed <$tmp._valgrind \
 	-e 's/^==*[1-9][0-9]*==* *//' \
 	-e '/^$/d' \
 	-e '/^Copyright (/d' \
@@ -527,20 +527,20 @@ _within_tolerance()
   $_debug && echo "min = $_min"
   $_debug && echo "max = $_max"
 
-  cat <<EOF > $tmp.bc.1
+  cat <<EOF > $tmp._bc.1
 scale=5;
 if ($_min <= $_given_val) 1;
 if ($_min > $_given_val) 0; 
 EOF
 
-  cat <<EOF > $tmp.bc.2
+  cat <<EOF > $tmp._bc.2
 scale=5;
 if ($_given_val <= $_max) 1;
 if ($_given_val > $_max) 0;
 EOF
 
-  _above_min=`bc < $tmp.bc.1`
-  _below_max=`bc < $tmp.bc.2`
+  _above_min=`bc < $tmp._bc.1`
+  _below_max=`bc < $tmp._bc.2`
 
   _in_range=`expr $_above_min \& $_below_max` 
 
@@ -851,6 +851,7 @@ _get_fqdn()
 
 # deal with chkconfig et al
 # assumes $sudo is set correctly
+# try very hard to _not_ emit messages unless serious errors encountered
 #
 _change_config()
 {
@@ -888,10 +889,28 @@ _change_config()
 		case $2
 		in
 		    on)
-			$sudo rc-update add $pat
+			if [ -z "`$sudo rc-update show default | grep $pat`" ]
+			then
+			    if $sudo rc-update add $pat >$tmp._tmp 2>&1
+			    then
+				:
+			    else
+				cat $tmp._tmp
+			    fi
+			fi
 			;;
 		    off)
-			$sudo rc-update delete $pat
+			if [ -z "`$sudo rc-update show default | grep $pat`" ]
+			then
+			    :
+			else
+			    if $sudo rc-update delete $pat >$tmp._tmp 2>&1
+			    then
+				:
+			    else
+				cat $tmp._tmp
+			    fi
+			fi
 			;;
 		    *)
 			echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
@@ -968,9 +987,9 @@ p
 	    fi
 	    if [ "$state" != "$req_state" ]
 	    then
-		sed </etc/hostconfig >$tmp.state \
+		sed </etc/hostconfig >$tmp._state \
 		    -e "/^$pat=/s/-.*/-$req_state-/"
-		sudo cp $tmp.state /etc/hostconfig
+		sudo cp $tmp._state /etc/hostconfig
 	    fi
 	fi
     else
@@ -1066,7 +1085,7 @@ _get_config()
 		#
 		echo on
 	    else
-		if rc-update show | grep $pat >/dev/null
+		if rc-update show default | grep $pat >/dev/null
 		then
 		    echo on
 		else
@@ -1182,14 +1201,14 @@ _disable_loggers()
 	[ ! -f $tmp.control ] && \
 		$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
     fi
-    cat <<End-of-File >$tmp.tmp
+    cat <<End-of-File >$tmp._tmp
 # dummy file created by qa/$seq on `date`
 # the goal here is to have a controlled primary logger that does
 # not make requests to pmcd!
 \$version=1.1
 LOCALHOSTNAME y n /var/adm/pcplog/LOCALHOSTNAME -c /dev/null
 End-of-File
-    $sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
+    $sudo cp $tmp._tmp $PCP_PMLOGGERCONTROL_PATH
 }
 
 _restore_loggers()
@@ -1245,10 +1264,10 @@ _prepare_pmda_install()
 
     cd $PCP_PMDAS_DIR/$iam
     if [ -f Makefile -o -f GNUmakefile ] ; then
-	if $sudo make clobber >$tmp.out 2>&1 ; then
+	if $sudo make clobber >$tmp._tmp 2>&1 ; then
 	    :
 	else
-	    cat $tmp.out
+	    cat $tmp._tmp
 	    echo "Arrgh, make clobber failed"
 	    exit
 	fi
