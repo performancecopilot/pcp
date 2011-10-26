@@ -53,6 +53,12 @@ then
     elif [ -f /etc/init.d/rsyslog ]
     then
 	upstart=false
+	init=/etc/init.d/rsyslog
+    elif [ -f /etc/init.d/syslog ]
+    then
+	# the SuSE way
+	upstart=false
+	init=/etc/init.d/syslog
     else
 	echo "Botch: using rsyslog, but I don't know how to stop/start it"
 	exit 1
@@ -85,7 +91,7 @@ cleanup()
 		# kill should be enough, but restart to be sure
 		#
 		# $sudo kill -HUP `cat /var/run/rsyslogd.pid` || exit
-		$sudo /etc/init.d/rsyslog restart >>$seq.full 2>&1
+		$sudo $init restart >>$seq.full 2>&1
 	    fi
 	else
 	    $sudo $signal -a -s HUP $daemon || exit
@@ -120,7 +126,7 @@ setup()
 	    # kill should be enough, but restart to be sure
 	    #
 	    # $sudo kill -HUP `cat /var/run/rsyslogd.pid` || exit
-	    $sudo /etc/init.d/rsyslog restart >>$seq.full 2>&1
+	    $sudo $init restart >>$seq.full 2>&1
 	fi
     else
 	$sudo $signal -a -s HUP $daemon || exit
