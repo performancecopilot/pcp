@@ -15,6 +15,9 @@ seq=`basename $0`
 if [ $PCP_PLATFORM = darwin ]
 then
     _notrun No proc metrics for Mac OS X
+elif [ $PCP_PLATFORM = solaris ]
+then
+    _notrun No proc metrics for Solaris
 fi
 
 rm -f $seq.out $seq.full
