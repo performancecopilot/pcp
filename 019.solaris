@@ -1,0 +1,689 @@
+QA output created by 019
+*** This should fail
+PCP_LITE_SAMPLE= PMDA_LOCAL_SAMPLE=
+sampledso.bin: pmLookupDesc: No PMCD agent for domain of request
+sampledso.long.one: pmLookupDesc: No PMCD agent for domain of request
+sampledso.long.ten: pmLookupDesc: No PMCD agent for domain of request
+sampledso.long.hundred: pmLookupDesc: No PMCD agent for domain of request
+sampledso.long.million: pmLookupDesc: No PMCD agent for domain of request
+sampledso.long.write_me: pmLookupDesc: No PMCD agent for domain of request
+sampledso.long.bin: pmLookupDesc: No PMCD agent for domain of request
+sampledso.long.bin_ctr: pmLookupDesc: No PMCD agent for domain of request
+sampledso.longlong.one: pmLookupDesc: No PMCD agent for domain of request
+sampledso.longlong.ten: pmLookupDesc: No PMCD agent for domain of request
+sampledso.longlong.hundred: pmLookupDesc: No PMCD agent for domain of request
+sampledso.longlong.million: pmLookupDesc: No PMCD agent for domain of request
+sampledso.longlong.write_me: pmLookupDesc: No PMCD agent for domain of request
+sampledso.longlong.bin: pmLookupDesc: No PMCD agent for domain of request
+sampledso.longlong.bin_ctr: pmLookupDesc: No PMCD agent for domain of request
+sampledso.float.one: pmLookupDesc: No PMCD agent for domain of request
+sampledso.float.ten: pmLookupDesc: No PMCD agent for domain of request
+sampledso.float.hundred: pmLookupDesc: No PMCD agent for domain of request
+sampledso.float.million: pmLookupDesc: No PMCD agent for domain of request
+sampledso.float.write_me: pmLookupDesc: No PMCD agent for domain of request
+sampledso.float.bin: pmLookupDesc: No PMCD agent for domain of request
+sampledso.float.bin_ctr: pmLookupDesc: No PMCD agent for domain of request
+sampledso.double.one: pmLookupDesc: No PMCD agent for domain of request
+sampledso.double.ten: pmLookupDesc: No PMCD agent for domain of request
+sampledso.double.hundred: pmLookupDesc: No PMCD agent for domain of request
+sampledso.double.million: pmLookupDesc: No PMCD agent for domain of request
+sampledso.double.write_me: pmLookupDesc: No PMCD agent for domain of request
+sampledso.double.bin: pmLookupDesc: No PMCD agent for domain of request
+sampledso.double.bin_ctr: pmLookupDesc: No PMCD agent for domain of request
+sampledso.string.null: pmLookupDesc: No PMCD agent for domain of request
+sampledso.string.hullo: pmLookupDesc: No PMCD agent for domain of request
+sampledso.string.write_me: pmLookupDesc: No PMCD agent for domain of request
+sampledso.aggregate.null: pmLookupDesc: No PMCD agent for domain of request
+sampledso.aggregate.hullo: pmLookupDesc: No PMCD agent for domain of request
+sampledso.aggregate.write_me: pmLookupDesc: No PMCD agent for domain of request
+
+*** This should work
+PCP_LITE_SAMPLE=yes PMDA_LOCAL_SAMPLE=
+
+sampledso.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.long.one
+    value 1
+
+sampledso.long.ten
+    value 10
+
+sampledso.long.hundred
+    value 100
+
+sampledso.long.million
+    value 1000000
+
+sampledso.long.write_me
+    value 13
+
+sampledso.long.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.long.bin_ctr
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.longlong.one
+    value 1
+
+sampledso.longlong.ten
+    value 10
+
+sampledso.longlong.hundred
+    value 100
+
+sampledso.longlong.million
+    value 1000000
+
+sampledso.longlong.write_me
+    value 13
+
+sampledso.longlong.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.longlong.bin_ctr
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.float.one
+    value 1
+
+sampledso.float.ten
+    value 10
+
+sampledso.float.hundred
+    value 100
+
+sampledso.float.million
+    value 1000000
+
+sampledso.float.write_me
+    value 13
+
+sampledso.float.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.float.bin_ctr
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.double.one
+    value 1
+
+sampledso.double.ten
+    value 10
+
+sampledso.double.hundred
+    value 100
+
+sampledso.double.million
+    value 1000000
+
+sampledso.double.write_me
+    value 13
+
+sampledso.double.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.double.bin_ctr
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.string.null
+    value ""
+
+sampledso.string.hullo
+    value "hullo world!"
+
+sampledso.string.write_me
+    value "13"
+
+sampledso.aggregate.null
+    value "" []
+
+sampledso.aggregate.hullo
+    value "hullo world!" [68756c6c6f20776f726c6421]
+
+sampledso.aggregate.write_me
+    value "13" [3133]
+
+*** This should work
+PCP_LITE_SAMPLE= PMDA_LOCAL_SAMPLE=yes
+
+sampledso.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.long.one
+    value 1
+
+sampledso.long.ten
+    value 10
+
+sampledso.long.hundred
+    value 100
+
+sampledso.long.million
+    value 1000000
+
+sampledso.long.write_me
+    value 13
+
+sampledso.long.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.long.bin_ctr
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.longlong.one
+    value 1
+
+sampledso.longlong.ten
+    value 10
+
+sampledso.longlong.hundred
+    value 100
+
+sampledso.longlong.million
+    value 1000000
+
+sampledso.longlong.write_me
+    value 13
+
+sampledso.longlong.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.longlong.bin_ctr
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.float.one
+    value 1
+
+sampledso.float.ten
+    value 10
+
+sampledso.float.hundred
+    value 100
+
+sampledso.float.million
+    value 1000000
+
+sampledso.float.write_me
+    value 13
+
+sampledso.float.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.float.bin_ctr
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.double.one
+    value 1
+
+sampledso.double.ten
+    value 10
+
+sampledso.double.hundred
+    value 100
+
+sampledso.double.million
+    value 1000000
+
+sampledso.double.write_me
+    value 13
+
+sampledso.double.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.double.bin_ctr
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.string.null
+    value ""
+
+sampledso.string.hullo
+    value "hullo world!"
+
+sampledso.string.write_me
+    value "13"
+
+sampledso.aggregate.null
+    value "" []
+
+sampledso.aggregate.hullo
+    value "hullo world!" [68756c6c6f20776f726c6421]
+
+sampledso.aggregate.write_me
+    value "13" [3133]
+
+*** This should work
+PCP_LITE_SAMPLE=yes PMDA_LOCAL_SAMPLE=yes
+
+sampledso.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.long.one
+    value 1
+
+sampledso.long.ten
+    value 10
+
+sampledso.long.hundred
+    value 100
+
+sampledso.long.million
+    value 1000000
+
+sampledso.long.write_me
+    value 13
+
+sampledso.long.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.long.bin_ctr
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.longlong.one
+    value 1
+
+sampledso.longlong.ten
+    value 10
+
+sampledso.longlong.hundred
+    value 100
+
+sampledso.longlong.million
+    value 1000000
+
+sampledso.longlong.write_me
+    value 13
+
+sampledso.longlong.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.longlong.bin_ctr
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.float.one
+    value 1
+
+sampledso.float.ten
+    value 10
+
+sampledso.float.hundred
+    value 100
+
+sampledso.float.million
+    value 1000000
+
+sampledso.float.write_me
+    value 13
+
+sampledso.float.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.float.bin_ctr
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.double.one
+    value 1
+
+sampledso.double.ten
+    value 10
+
+sampledso.double.hundred
+    value 100
+
+sampledso.double.million
+    value 1000000
+
+sampledso.double.write_me
+    value 13
+
+sampledso.double.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.double.bin_ctr
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sampledso.string.null
+    value ""
+
+sampledso.string.hullo
+    value "hullo world!"
+
+sampledso.string.write_me
+    value "13"
+
+sampledso.aggregate.null
+    value "" []
+
+sampledso.aggregate.hullo
+    value "hullo world!" [68756c6c6f20776f726c6421]
+
+sampledso.aggregate.write_me
+    value "13" [3133]
+
+*** This should 1/3 work, proc[no] irix[yes] sampledso[n]
+PCP_LITE_SAMPLE= PMDA_LOCAL_SAMPLE=
+Error: proc.nprocs: Unknown metric name
+kernel.all.cpu.idle: pmLookupDesc: No PMCD agent for domain of request
+kernel.all.load: pmLookupDesc: No PMCD agent for domain of request
+sampledso.float.one: pmLookupDesc: No PMCD agent for domain of request
+sampledso.float.ten: pmLookupDesc: No PMCD agent for domain of request
+sampledso.float.hundred: pmLookupDesc: No PMCD agent for domain of request
+sampledso.float.million: pmLookupDesc: No PMCD agent for domain of request
+sampledso.float.write_me: pmLookupDesc: No PMCD agent for domain of request
+sampledso.float.bin: pmLookupDesc: No PMCD agent for domain of request
+sampledso.float.bin_ctr: pmLookupDesc: No PMCD agent for domain of request
+
+*** This should 2/3 work, proc[no] irix[yes] sampledso[yes]
+PMDA_LOCAL_SAMPLE=yes
+Error: proc.nprocs: Unknown metric name
+
+kernel.all.cpu.idle
+    value NUMBER
+
+kernel.all.load
+    inst [1 or "1 minute"] value NUMBER
+    inst [5 or "5 minutes"] value NUMBER
+    inst [15 or "15 minutes"] value NUMBER
+
+sampledso.float.one
+    value NUMBER
+
+sampledso.float.ten
+    value NUMBER
+
+sampledso.float.hundred
+    value NUMBER
+
+sampledso.float.million
+    value NUMBER
+
+sampledso.float.write_me
+    value NUMBER
+
+sampledso.float.bin
+    inst [100 or "bin-100"] value NUMBER
+    inst [200 or "bin-200"] value NUMBER
+    inst [300 or "bin-300"] value NUMBER
+    inst [400 or "bin-400"] value NUMBER
+    inst [500 or "bin-500"] value NUMBER
+    inst [600 or "bin-600"] value NUMBER
+    inst [700 or "bin-700"] value NUMBER
+    inst [800 or "bin-800"] value NUMBER
+    inst [900 or "bin-900"] value NUMBER
+
+sampledso.float.bin_ctr
+    inst [100 or "bin-100"] value NUMBER
+    inst [200 or "bin-200"] value NUMBER
+    inst [300 or "bin-300"] value NUMBER
+    inst [400 or "bin-400"] value NUMBER
+    inst [500 or "bin-500"] value NUMBER
+    inst [600 or "bin-600"] value NUMBER
+    inst [700 or "bin-700"] value NUMBER
+    inst [800 or "bin-800"] value NUMBER
+    inst [900 or "bin-900"] value NUMBER
+
+*** This should work, proc[yes] irix[yes] sampledso[yes]
+PMDA_LOCAL_SAMPLE=yes PMDA_LOCAL_PROC=yes
+Error: proc.nprocs: Unknown metric name
+
+kernel.all.cpu.idle
+    value NUMBER
+
+kernel.all.load
+    inst [1 or "1 minute"] value NUMBER
+    inst [5 or "5 minutes"] value NUMBER
+    inst [15 or "15 minutes"] value NUMBER
+
+sampledso.float.one
+    value NUMBER
+
+sampledso.float.ten
+    value NUMBER
+
+sampledso.float.hundred
+    value NUMBER
+
+sampledso.float.million
+    value NUMBER
+
+sampledso.float.write_me
+    value NUMBER
+
+sampledso.float.bin
+    inst [100 or "bin-100"] value NUMBER
+    inst [200 or "bin-200"] value NUMBER
+    inst [300 or "bin-300"] value NUMBER
+    inst [400 or "bin-400"] value NUMBER
+    inst [500 or "bin-500"] value NUMBER
+    inst [600 or "bin-600"] value NUMBER
+    inst [700 or "bin-700"] value NUMBER
+    inst [800 or "bin-800"] value NUMBER
+    inst [900 or "bin-900"] value NUMBER
+
+sampledso.float.bin_ctr
+    inst [100 or "bin-100"] value NUMBER
+    inst [200 or "bin-200"] value NUMBER
+    inst [300 or "bin-300"] value NUMBER
+    inst [400 or "bin-400"] value NUMBER
+    inst [500 or "bin-500"] value NUMBER
+    inst [600 or "bin-600"] value NUMBER
+    inst [700 or "bin-700"] value NUMBER
+    inst [800 or "bin-800"] value NUMBER
+    inst [900 or "bin-900"] value NUMBER

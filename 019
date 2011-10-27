@@ -21,6 +21,9 @@ then
 elif [ $PCP_PLATFORM = darwin ]
 then
     ln $seq.darwin $seq.out
+elif [ $PCP_PLATFORM = solaris ]
+then
+    ln $seq.solaris $seq.out
 else
     echo "Warning: no validated output for $PCP_PLATFORM"
 fi
@@ -58,7 +61,7 @@ echo "*** This should work"
 PCP_LITE_SAMPLE=yes
 export PCP_LITE_SAMPLE
 echo "PCP_LITE_SAMPLE=$PCP_LITE_SAMPLE PMDA_LOCAL_SAMPLE=$PMDA_LOCAL_SAMPLE"
-pminfo -L -f 2>&1 \
+$sudo pminfo -L -f 2>&1 \
     sampledso.bin sampledso.long sampledso.longlong \
     sampledso.float sampledso.double sampledso.string sampledso.aggregate \
 | _filter
@@ -70,7 +73,7 @@ echo "*** This should work"
 PMDA_LOCAL_SAMPLE=yes
 export PMDA_LOCAL_SAMPLE
 echo "PCP_LITE_SAMPLE=$PCP_LITE_SAMPLE PMDA_LOCAL_SAMPLE=$PMDA_LOCAL_SAMPLE"
-pminfo -L -f 2>&1 \
+$sudo pminfo -L -f 2>&1 \
     sampledso.bin sampledso.long sampledso.longlong \
     sampledso.float sampledso.double sampledso.string sampledso.aggregate \
 | _filter
@@ -83,7 +86,7 @@ PMDA_LOCAL_SAMPLE=yes
 PCP_LITE_SAMPLE=yes
 export PMDA_LOCAL_SAMPLE PCP_LITE_SAMPLE
 echo "PCP_LITE_SAMPLE=$PCP_LITE_SAMPLE PMDA_LOCAL_SAMPLE=$PMDA_LOCAL_SAMPLE"
-pminfo -L -f 2>&1 \
+$sudo pminfo -L -f 2>&1 \
     sampledso.bin sampledso.long sampledso.longlong \
     sampledso.float sampledso.double sampledso.string sampledso.aggregate \
 | _filter
@@ -93,7 +96,7 @@ unset PMDA_LOCAL_SAMPLE PCP_LITE_SAMPLE
 echo
 echo "*** This should 1/3 work, proc[no] irix[yes] sampledso[n]"
 echo "PCP_LITE_SAMPLE=$PCP_LITE_SAMPLE PMDA_LOCAL_SAMPLE=$PMDA_LOCAL_SAMPLE"
-pminfo -K clear -L -f 2>&1 \
+$sudo pminfo -K clear -L -f 2>&1 \
     proc.nprocs kernel.all.cpu.idle kernel.all.load sampledso.float \
 | _filter \
 | sed -e '/value /{
@@ -107,7 +110,7 @@ echo "*** This should 2/3 work, proc[no] irix[yes] sampledso[yes]"
 PMDA_LOCAL_SAMPLE=yes
 echo "PMDA_LOCAL_SAMPLE=$PMDA_LOCAL_SAMPLE"
 export PMDA_LOCAL_SAMPLE
-pminfo -L -f 2>&1 \
+$sudo pminfo -L -f 2>&1 \
     proc.nprocs kernel.all.cpu.idle kernel.all.load sampledso.float \
 | _filter \
 | sed -e '/value /{
@@ -123,7 +126,7 @@ PMDA_LOCAL_SAMPLE=yes
 PMDA_LOCAL_PROC=yes
 echo "PMDA_LOCAL_SAMPLE=$PMDA_LOCAL_SAMPLE PMDA_LOCAL_PROC=$PMDA_LOCAL_PROC"
 export PMDA_LOCAL_SAMPLE PMDA_LOCAL_PROC
-pminfo -L -f 2>&1 \
+$sudo pminfo -L -f 2>&1 \
     proc.nprocs kernel.all.cpu.idle kernel.all.load sampledso.float \
 | _filter \
 | sed -e '/value /{
