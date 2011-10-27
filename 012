@@ -23,6 +23,9 @@ then
 elif [ $PCP_PLATFORM = darwin ]
 then
     ln $seq.darwin $seq.out
+elif [ $PCP_PLATFORM = solaris ]
+then
+    ln $seq.solaris $seq.out
 else
     echo "Arrgh ... need qualified output for $PCP_PLATFORM"
     exit 1
