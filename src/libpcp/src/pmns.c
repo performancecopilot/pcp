@@ -2701,7 +2701,6 @@ pmTrimNameSpace(void)
     __pmContext	*ctxp;
     __pmHashCtl	*hcp;
     __pmHashNode *hp;
-    int 	version;
     int		pmns_location = GetLocation();
 
     if (pmns_location < 0)
@@ -2722,8 +2721,6 @@ pmTrimNameSpace(void)
 	PM_UNLOCK(ctxp->c_lock);
 	return 0;
     }
-
-    version = ctxp->c_archctl->ac_log->l_label.ill_magic & 0xff;
 
     /* Don't do any trimming for archives.
      * Exception: if an explicit load PMNS call was made.
