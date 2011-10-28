@@ -1061,21 +1061,12 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 		    fprintf(stderr, "pmcd: version cred (%u)\n", version);
 #endif
 		break;
-	    case CAUTH:
-		cookie |= credlist[i].c_valc;
-		cookie <<= 8;
-		cookie |= credlist[i].c_valb;
-		cookie <<= 8;
-		cookie |= credlist[i].c_vala;
-
-		if ((sts = __pmMakeAuthCookie(cp->pduInfo.authorize, (pid_t)sender)) != cookie) {
-		    sts = PM_ERR_PERMISSION;
-		}
+	    default:
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_CONTEXT)
-		    fprintf(stderr, "pmcd: my auth cred cookie=%u - client %s (pid=%d)\n",
-			cookie, (sts==PM_ERR_PERMISSION)?("denied"):("accepted"), sender);
+		    fprintf(stderr, "pmcd: Error: bogus cred type %d\n", credlist[i].c_type);
 #endif
+		sts = PM_ERR_IPC;
 		break;
 	}
     }

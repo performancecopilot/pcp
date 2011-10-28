@@ -587,7 +587,6 @@ typedef struct {
 
 /* Types of credential PDUs */
 #define CVERSION        1
-#define CAUTH           2
 
 extern int __pmXmitPDU(int, __pmPDU *);
 extern int __pmGetPDU(int, int, int, __pmPDU **);
@@ -1068,8 +1067,6 @@ extern void __pmAccDumpHosts(FILE *);
 extern int __pmAccSaveHosts(void);
 extern int __pmAccRestoreHosts(void);
 extern void __pmAccFreeSavedHosts(void);
-
-extern unsigned int __pmMakeAuthCookie(unsigned int, pid_t);
 
 /*
  * platform independent process routines
