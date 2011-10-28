@@ -1042,7 +1042,6 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
     int			i, sts, credcount = 0;
     int			version = UNKNOWN_VERSION;
     int			sender = 0;
-    unsigned int	cookie = 0;
     __pmCred		*credlist = NULL;
 
     if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0)
