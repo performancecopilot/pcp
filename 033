@@ -6,11 +6,18 @@
 #
 
 seq=`basename $0`
-echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
+
+if [ $PCP_PLATFORM = solaris ]
+then
+    _notrun No filesys metrics for Solaris
+fi
+
+echo "QA output created by $seq"
 
 rm -f $seq.out
 if [ $PCP_PLATFORM = irix ]
