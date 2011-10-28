@@ -928,24 +928,36 @@ _change_config()
     then
 	# Try the Solaris way ..
 	#
-	case $1 
-	in
-	    pmlogger)	pat=pcp
-			    ;;
-	    pmcd)		pat=pcp
-			    ;;
-	    pmie)		pat=pmie
-			    ;;
-	    verbose)	pat=""
-			    ;;
-	    *)		pat=$1
-			    ;;
-	esac
-	if [ $2 = on ]
+	if which svcadm >/dev/null 2>&1
 	then
-	    [ -n "$pat" ] && $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; chkconfig_on $pat"
+	    case $1 
+	    in
+			    # cannot really turn pmlogger on/off from here
+		pmlogger)   pat=""
+			    ;;
+		pmcd)	    pat=pcp
+			    ;;
+		verbose)    pat=""
+			    ;;
+		*)	    pat=$1
+			    ;;
+	    esac
+	    if [ -n "$pat" ]
+	    then
+		if [ "$2" = on ]
+		then
+		    $sudo svcadm enable -s svc:/application/pcp/$pat
+		elif [ "$2" = off ]
+		then
+		    $sudo svcadm disable -s svc:/application/pcp/$pat
+		else
+		    echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
+		    exit 1
+		fi
+	    fi
 	else
-	    [ -n "$pat" ] && $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; chkconfig_off $pat"
+	    echo "_change_config: Error: cannot find svcs for Solaris"
+	    exit 1
 	fi
     elif [ $PCP_PLATFORM = darwin ]
     then
@@ -1014,8 +1026,7 @@ _get_config()
 	case $1 
 	in
 	    pmlogger|pmcd)
-		# both these IRIX chkconfig options map to
-		# pcp for RedHat Linux
+		# both these IRIX chkconfig options map to pcp for Linux
 		pat=pcp
 		;;
 	    verbose)
@@ -1093,19 +1104,17 @@ _get_config()
 		fi
 	    fi
 	else
-	    # I have no clue!
-	    #
-	    echo unknown
+	    echo "_change_config: Error: don't know how to change config for Linux"
+	    exit 1
 	fi
     elif [ $PCP_PLATFORM = solaris ]
     then
-	if which chkconfig >/dev/null 2>&1
+	if which svcs >/dev/null 2>&1
 	then
 	    case $1 
 	    in
 		pmlogger|pmcd)
-				# both these IRIX chkconfig options map to
-				# pcp for RedHat Linux
+				# both these options map to pcp for Solaris
 				pat=pcp
 				;;
 		verbose)
@@ -1120,17 +1129,24 @@ _get_config()
 		#
 		echo on
 	    else
-		if chkconfig $pat
-		then
-		    echo on
-		else
-		    echo off
-		fi
+		state=`svcs -H svc:/application/pcp/$pat | sed -e 's/[ 	].*//'`
+		case "$state"
+		in
+		    online|maintenance)
+			echo on
+			;;
+		    offline|disabled)
+			echo off
+			;;
+		    *)
+			echo "_change_config: Error: smf ($state) from svcs not expected"
+			exit 1
+			;;
+		esac
 	    fi
 	else
-	    # I have no clue!
-	    #
-	    echo unknown
+	    echo "_change_config: Error: cannot find svcs for Solaris"
+	    exit 1
 	fi
     elif [ $PCP_PLATFORM = darwin ]
     then
@@ -1183,9 +1199,8 @@ p
 		echo off
 	    fi
 	else
-	    # I have no clue!
-	    #
-	    echo unknown
+	    echo "_change_config: Error: cannot find chkconfig for IRIX"
+	    exit 1
 	fi
     fi
 }
