@@ -584,7 +584,7 @@ cat >kill.001 <<End-of-File
 
 tricky		128	pipe	binary		\\
 			cat "whacko name" \\
-			more  	 		 params -D -R -d 43\\
+			more  	 		 params x-D x-R x-d 43\\
 21 back\\\\slash "broken\\
 string" \\
 abc:def 1;2;3 zzz "#abc\\"def" "x \\"y\\" z" \\#abc #and a comment\\

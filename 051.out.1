@@ -964,7 +964,7 @@ kill.001================
 
 tricky		128	pipe	binary		\
 			cat "whacko name" \
-			more  	 		 params -D -R -d 43\
+			more  	 		 params x-D x-R x-d 43\
 21 back\\slash "broken\
 string" \
 abc:def 1;2;3 zzz "#abc\"def" "x \"y\" z" \#abc #and a comment\
@@ -996,9 +996,9 @@ dummy cat agent should have produced "Cannot open" messages:
 Cannot open whacko name: No such file or directory
 Cannot open more: No such file or directory
 Cannot open params: No such file or directory
-Cannot open -D: No such file or directory
-Cannot open -R: No such file or directory
-Cannot open -d: No such file or directory
+Cannot open x-D: No such file or directory
+Cannot open x-R: No such file or directory
+Cannot open x-d: No such file or directory
 Cannot open 43: No such file or directory
 Cannot open 21: No such file or directory
 Cannot open back\\slash: No such file or directory
