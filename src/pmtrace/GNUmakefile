@@ -22,17 +22,14 @@ LCFLAGS = -I.
 
 CMDTARGET = pmtrace$(EXECSUFFIX)
 
-LDIRT = pcp $(CMDTARGET)
+LDIRT = $(CMDTARGET)
 
-default:	pcp $(CMDTARGET)
+default:	$(CMDTARGET)
 
 include $(BUILDRULES)
 
 install:	default
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
-
-pcp:	
-	$(LN_S) $(TOPDIR)/src/include pcp
 
 default_pcp:	default
 

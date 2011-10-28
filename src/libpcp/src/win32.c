@@ -11,6 +11,21 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
+
+/*
+ * For the MinGW headers and library to work correctly, we need
+ * something newer than the default Windows 95 versions of the Win32
+ * APIs.  0x0500 is the magic sauce to select the Windows 2000 version
+ * of the Win32 APIs, which is the minimal version needed for PCP.
+ *
+ * WINVER needs to be set before any of the MinGW headers are processed
+ * and we include <windows.h> from pmapi.h via platform_defs.h.
+ *
+ * Thanks to "Earnie" on the mingw-users@lists.sourceforge.net mailing
+ * list for this tip.
+ */
+#define WINVER 0x0500
+
 #include "pmapi.h"
 #include "impl.h"
 #include <winbase.h>

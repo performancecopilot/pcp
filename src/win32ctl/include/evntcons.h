@@ -6,6 +6,15 @@
 #ifndef _EVNTCONS_H_
 #define _EVNTCONS_H_
 
+/* --- start added by kenj */
+#undef __MINGW_EXTENSION
+#if defined(__GNUC__) || defined(__GNUG__)
+#define __MINGW_EXTENSION	__extension__
+#else
+#define __MINGW_EXTENSION
+#endif
+/* --- end added by kenj */
+
 #include <wmistr.h>
 #include <evntrace.h>
 #include <evntprov.h>

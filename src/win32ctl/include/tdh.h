@@ -5,6 +5,16 @@
  */
 #ifndef _INC_TDH
 #define _INC_TDH
+
+/* --- start added by kenj */
+#undef __MINGW_EXTENSION
+#if defined(__GNUC__) || defined(__GNUG__)
+#define __MINGW_EXTENSION	__extension__
+#else
+#define __MINGW_EXTENSION
+#endif
+/* --- end added by kenj */
+
 #include <evntprov.h>
 #include <evntcons.h>
 #if (_WIN32_WINNT >= 0x0600)

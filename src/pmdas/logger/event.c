@@ -438,21 +438,21 @@ event_decoder(int eventarray, void *buffer, size_t size, void *data)
 }
 
 int
-event_regex_apply(int context, void *rp, void *data, int size)
+event_regex_apply(void *rp, void *data, size_t size)
 {
     regex_t *regex = (regex_t *)rp;
     return regexec(regex, data, 0, NULL, 0) == REG_NOMATCH;
 }
 
 void
-event_regex_release(int context, void *rp)
+event_regex_release(void *rp)
 {
     regex_t *regex = (regex_t *)rp;
     regfree(regex);
 }
 
 int
-event_regex_alloc(int context, const char *string, void **filter)
+event_regex_alloc(const char *string, void **filter)
 {
     regex_t *regex = malloc(sizeof(regex_t));
 

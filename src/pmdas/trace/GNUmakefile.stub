@@ -16,11 +16,12 @@
 #
 
 include /etc/pcp.conf
-DSO_SUFFIX	= $(shell echo $(PCP_LIB_DIR)/libpcp_trace.* | sed -e 's/$$/ /' -e 's/[^ ]*\.a //' -e 's/[^ ]*[0-9][^ ]* //' -e 's/.*\.//')
+DSO_SUFFIX	= $(shell echo $(PCP_LIB_DIR)/libpcp_trace.* | sed -e 's/$$/ /' -e 's/[^ ]*\.a //' -e 's/[^ ]*\.[0-9][^ ]* //' -e 's/.*\.//')
 ifeq "$(DSO_SUFFIX)" ""
 $(error cannot set DSO_SUFFIX on this platform)
 endif
-DSO_VERSION	= $(shell echo $(PCP_LIB_DIR)/libpcp_trace.* | sed -e 's/.*trace\.\([^ ]*[0-9][^ ]*\).*/\1/')
+# Note: DSO_VERSION includes (starts with) $(DSO_SUFFIX)
+DSO_VERSION	= $(shell echo $(PCP_LIB_DIR)/libpcp_trace.* | sed -e 's/.*trace\.\([^ ]*\.[0-9][^ ]*\).*/\1/')
 ifeq "$(DSO_VERSION)" ""
 $(error cannot set DSO_VERSION on this platform)
 endif
@@ -38,7 +39,7 @@ default: $(TARGETS)
 lib/libpcp_trace.$(DSO_VERSION): stub.c
 	-[ ! -d lib ] && mkdir lib
 	rm -f $@
-	cd lib; $(CC) $(CFLAGS) -shared ../stub.c -o $(@F)
+	cd lib; $(CC) $(CFLAGS) -shared ../stub.c -o libpcp_trace.$(DSO_VERSION)
 
 lib/libpcp_trace.$(DSO_SUFFIX):	lib/libpcp_trace.$(DSO_VERSION)
 	rm -f $@

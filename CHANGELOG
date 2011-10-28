@@ -1,8 +1,24 @@
-pcp-3.5.9 (26 August 2011)
+pcp-3.5.9 (23 October 2011)
     - Add rc script support for condrestart, and condrestart the pcp,
       pmie and pmproxy services after an RPM install or upgrade.
-    - fix a bug where hinv.ndisk is incorrect if CLUSTER_PARTITIONS
-      hasn't yet been refreshed immediately following a restart
+    - Fix a bug where hinv.ndisk is incorrect if CLUSTER_PARTITIONS
+      hasn't yet been refreshed immediately following a restart.
+    - Implementation of client event queueing logic for all PMDAs to
+      share (all PMDAs wishing to support event metrics, that is).
+    - New manual pages for new PMDA event queueing interfaces.
+    - PostgreSQL PMDA, supporting versions 9.0 and 9.1 (at least).
+    - Reserved ID 111 for Samba Clustered Trivial Database PMDA.
+    - Add perl interface to allow PMDAs to drop priveleges
+    - Add an elasticsearch version metric.
+    - Correct perl module type detection logic for 32/64-bit systems.
+    - Small pmlogconf source and man page fixes.
+    - Rework flex usage to resolve build warnings.
+    - Make Darwin CPU metrics 64 bit.
+    - Add (long) opaque key support to libpcp_pmda.
+    - Add pmdaCacheStoreInst() routine to libpcp_pmda.
+    - Added mssql PMDA for SQL server Dynamic Management View stats.
+    - Add pmlogrewrite(1) to rewrite archives (fix inconsistencies).
+    - Fix a cgroup option parsing error on consecutive fetch calls.
 
 pcp-3.5.8 (08 August 2011)
     - Rework rsyslog PMDA to remove Switch use, very odd behaviour

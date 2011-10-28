@@ -78,49 +78,49 @@ dupstr(char *s, int strip_quotes)
 
 %%
 
-<INITIAL>"global"	{ mystate= LEX_GLOBAL; return GLOBAL; }
-<INITIAL>"metric"	{ mystate = LEX_METRIC; return METRIC; }
-<INITIAL>"indom"	{ mystate = LEX_INDOM; return INDOM; }
+<INITIAL>"global"	{ mystate= LEX_GLOBAL; return TOK_GLOBAL; }
+<INITIAL>"metric"	{ mystate = LEX_METRIC; return TOK_METRIC; }
+<INITIAL>"indom"	{ mystate = LEX_INDOM; return TOK_INDOM; }
 
-<glob>"hostname"	{ BEGIN(host); return HOSTNAME; }
-<glob>"time"		{ return TIME; }
-<glob>"tz"		{ return TZ; }
+<glob>"hostname"	{ BEGIN(host); return TOK_HOSTNAME; }
+<glob>"time"		{ return TOK_TIME; }
+<glob>"tz"		{ return TOK_TZ; }
 	/* Hostname */
-<host>[A-Za-z0-9][A-Za-z0-9.-]*	{ yylval.str = dupstr(yytext, 0); BEGIN(glob); return HNAME; }
+<host>[A-Za-z0-9][A-Za-z0-9.-]*	{ yylval.str = dupstr(yytext, 0); BEGIN(glob); return TOK_HNAME; }
 
-<indom,metric>"delete"	{ return DELETE; }
-<indom>"indom"		{ return INDOM; }
-<indom>"iname"		{ return INAME; }
-<indom>"inst"		{ return INST; }
+<indom,metric>"delete"	{ return TOK_DELETE; }
+<indom>"indom"		{ return TOK_INDOM; }
+<indom>"iname"		{ return TOK_INAME; }
+<indom>"inst"		{ return TOK_INST; }
 
-<metric>"name"		{ return NAME; }
-<metric>"pmid"		{ return PMID; }
-<metric>"type"		{ BEGIN(type); return TYPE; }
-<metric>"indom"		{ return INDOM; }
-<metric>"NULL"		{ return NULL_INT; }
-<metric>"output"	{ BEGIN(output); return OUTPUT; }
-<metric>"sem"		{ BEGIN(sem); return SEM; }
-<metric>"units"		{ BEGIN(units); comma_count = 0; return UNITS; }
+<metric>"name"		{ return TOK_NAME; }
+<metric>"pmid"		{ return TOK_PMID; }
+<metric>"type"		{ BEGIN(type); return TOK_TYPE; }
+<metric>"indom"		{ return TOK_INDOM; }
+<metric>"NULL"		{ return TOK_NULL_INT; }
+<metric>"output"	{ BEGIN(output); return TOK_OUTPUT; }
+<metric>"sem"		{ BEGIN(sem); return TOK_SEM; }
+<metric>"units"		{ BEGIN(units); comma_count = 0; return TOK_UNITS; }
 
-<type>"32"		{ yylval.ival = PM_TYPE_32; BEGIN(metric); return TYPE_NAME; }
-<type>"U32"		{ yylval.ival = PM_TYPE_U32; BEGIN(metric); return TYPE_NAME; }
-<type>"64"		{ yylval.ival = PM_TYPE_64; BEGIN(metric); return TYPE_NAME; }
-<type>"U64"		{ yylval.ival = PM_TYPE_U64; BEGIN(metric); return TYPE_NAME; }
-<type>"FLOAT"		{ yylval.ival = PM_TYPE_FLOAT; BEGIN(metric); return TYPE_NAME; }
-<type>"DOUBLE"		{ yylval.ival = PM_TYPE_DOUBLE; BEGIN(metric); return TYPE_NAME; }
+<type>"32"		{ yylval.ival = PM_TYPE_32; BEGIN(metric); return TOK_TYPE_NAME; }
+<type>"U32"		{ yylval.ival = PM_TYPE_U32; BEGIN(metric); return TOK_TYPE_NAME; }
+<type>"64"		{ yylval.ival = PM_TYPE_64; BEGIN(metric); return TOK_TYPE_NAME; }
+<type>"U64"		{ yylval.ival = PM_TYPE_U64; BEGIN(metric); return TOK_TYPE_NAME; }
+<type>"FLOAT"		{ yylval.ival = PM_TYPE_FLOAT; BEGIN(metric); return TOK_TYPE_NAME; }
+<type>"DOUBLE"		{ yylval.ival = PM_TYPE_DOUBLE; BEGIN(metric); return TOK_TYPE_NAME; }
 
-<output>"first"		{ yylval.ival = OUTPUT_FIRST; BEGIN(metric); return OUTPUT_TYPE; }
-<output>"last"		{ yylval.ival = OUTPUT_LAST; BEGIN(metric); return OUTPUT_TYPE; }
-<output>"min"		{ yylval.ival = OUTPUT_MIN; BEGIN(metric); return OUTPUT_TYPE; }
-<output>"max"		{ yylval.ival = OUTPUT_MAX; BEGIN(metric); return OUTPUT_TYPE; }
-<output>"sum"		{ yylval.ival = OUTPUT_SUM; BEGIN(metric); return OUTPUT_TYPE; }
-<output>"avg"		{ yylval.ival = OUTPUT_AVG; BEGIN(metric); return OUTPUT_TYPE; }
-<output>"inst"		{ BEGIN(metric); return INST; }
-<output>"iname"		{ BEGIN(metric); return INAME; }
+<output>"first"		{ yylval.ival = OUTPUT_FIRST; BEGIN(metric); return TOK_OUTPUT_TYPE; }
+<output>"last"		{ yylval.ival = OUTPUT_LAST; BEGIN(metric); return TOK_OUTPUT_TYPE; }
+<output>"min"		{ yylval.ival = OUTPUT_MIN; BEGIN(metric); return TOK_OUTPUT_TYPE; }
+<output>"max"		{ yylval.ival = OUTPUT_MAX; BEGIN(metric); return TOK_OUTPUT_TYPE; }
+<output>"sum"		{ yylval.ival = OUTPUT_SUM; BEGIN(metric); return TOK_OUTPUT_TYPE; }
+<output>"avg"		{ yylval.ival = OUTPUT_AVG; BEGIN(metric); return TOK_OUTPUT_TYPE; }
+<output>"inst"		{ BEGIN(metric); return TOK_INST; }
+<output>"iname"		{ BEGIN(metric); return TOK_INAME; }
 
-<sem>"COUNTER"		{ yylval.ival = PM_SEM_COUNTER; BEGIN(metric); return SEM_NAME; }
-<sem>"INSTANT"		{ yylval.ival = PM_SEM_INSTANT; BEGIN(metric); return SEM_NAME; }
-<sem>"DISCRETE"		{ yylval.ival = PM_SEM_DISCRETE; BEGIN(metric); return SEM_NAME; }
+<sem>"COUNTER"		{ yylval.ival = PM_SEM_COUNTER; BEGIN(metric); return TOK_SEM_NAME; }
+<sem>"INSTANT"		{ yylval.ival = PM_SEM_INSTANT; BEGIN(metric); return TOK_SEM_NAME; }
+<sem>"DISCRETE"		{ yylval.ival = PM_SEM_DISCRETE; BEGIN(metric); return TOK_SEM_NAME; }
 
 <units>","		{
 			    ++comma_count;
@@ -138,50 +138,50 @@ dupstr(char *s, int strip_quotes)
 				    BEGIN(count);
 				    break;
 			    }
-			    return COMMA;
+			    return TOK_COMMA;
 			}
 
-<space>"BYTE"		{ yylval.ival = PM_SPACE_BYTE; BEGIN(units); return SPACE_NAME; }
-<space>"KBYTE"		{ yylval.ival = PM_SPACE_KBYTE; BEGIN(units); return SPACE_NAME; }
-<space>"MBYTE"		{ yylval.ival = PM_SPACE_MBYTE; BEGIN(units); return SPACE_NAME; }
-<space>"GBYTE"		{ yylval.ival = PM_SPACE_GBYTE; BEGIN(units); return SPACE_NAME; }
-<space>"TBYTE"		{ yylval.ival = PM_SPACE_TBYTE; BEGIN(units); return SPACE_NAME; }
-<space>"PBYTE"		{ yylval.ival = PM_SPACE_PBYTE; BEGIN(units); return SPACE_NAME; }
-<space>"EBYTE"		{ yylval.ival = PM_SPACE_EBYTE; BEGIN(units); return SPACE_NAME; }
-<space>"0"		{ yylval.ival = 0; BEGIN(units); return SPACE_NAME; }
+<space>"BYTE"		{ yylval.ival = PM_SPACE_BYTE; BEGIN(units); return TOK_SPACE_NAME; }
+<space>"KBYTE"		{ yylval.ival = PM_SPACE_KBYTE; BEGIN(units); return TOK_SPACE_NAME; }
+<space>"MBYTE"		{ yylval.ival = PM_SPACE_MBYTE; BEGIN(units); return TOK_SPACE_NAME; }
+<space>"GBYTE"		{ yylval.ival = PM_SPACE_GBYTE; BEGIN(units); return TOK_SPACE_NAME; }
+<space>"TBYTE"		{ yylval.ival = PM_SPACE_TBYTE; BEGIN(units); return TOK_SPACE_NAME; }
+<space>"PBYTE"		{ yylval.ival = PM_SPACE_PBYTE; BEGIN(units); return TOK_SPACE_NAME; }
+<space>"EBYTE"		{ yylval.ival = PM_SPACE_EBYTE; BEGIN(units); return TOK_SPACE_NAME; }
+<space>"0"		{ yylval.ival = 0; BEGIN(units); return TOK_SPACE_NAME; }
 
-<time>"NSEC"		{ yylval.ival = PM_TIME_NSEC; BEGIN(units); return TIME_NAME; }
-<time>"USEC"		{ yylval.ival = PM_TIME_USEC; BEGIN(units); return TIME_NAME; }
-<time>"MSEC"		{ yylval.ival = PM_TIME_MSEC; BEGIN(units); return TIME_NAME; }
-<time>"SEC"		{ yylval.ival = PM_TIME_SEC; BEGIN(units); return TIME_NAME; }
-<time>"MIN"		{ yylval.ival = PM_TIME_MIN; BEGIN(units); return TIME_NAME; }
-<time>"HOUR"		{ yylval.ival = PM_TIME_HOUR; BEGIN(units); return TIME_NAME; }
-<time>"0"		{ yylval.ival = 0; BEGIN(units); return TIME_NAME; }
+<time>"NSEC"		{ yylval.ival = PM_TIME_NSEC; BEGIN(units); return TOK_TIME_NAME; }
+<time>"USEC"		{ yylval.ival = PM_TIME_USEC; BEGIN(units); return TOK_TIME_NAME; }
+<time>"MSEC"		{ yylval.ival = PM_TIME_MSEC; BEGIN(units); return TOK_TIME_NAME; }
+<time>"SEC"		{ yylval.ival = PM_TIME_SEC; BEGIN(units); return TOK_TIME_NAME; }
+<time>"MIN"		{ yylval.ival = PM_TIME_MIN; BEGIN(units); return TOK_TIME_NAME; }
+<time>"HOUR"		{ yylval.ival = PM_TIME_HOUR; BEGIN(units); return TOK_TIME_NAME; }
+<time>"0"		{ yylval.ival = 0; BEGIN(units); return TOK_TIME_NAME; }
 
-<count>"ONE"		{ yylval.ival = PM_COUNT_ONE; BEGIN(metric); return COUNT_NAME; }
-<count>[0-9]+		{ yylval.ival = atoi(yytext); BEGIN(metric); return COUNT_NAME; }
+<count>"ONE"		{ yylval.ival = PM_COUNT_ONE; BEGIN(metric); return TOK_COUNT_NAME; }
+<count>[0-9]+		{ yylval.ival = atoi(yytext); BEGIN(metric); return TOK_COUNT_NAME; }
 
-\"[^\"\n][^\"\n]*\"	{ yylval.str = dupstr(yytext, 1); return STRING; }
+\"[^\"\n][^\"\n]*\"	{ yylval.str = dupstr(yytext, 1); return TOK_STRING; }
 
-[0-9]+			{ yylval.str = dupstr(yytext, 0); return NUMBER; }
+[0-9]+			{ yylval.str = dupstr(yytext, 0); return TOK_NUMBER; }
 
-[0-9]+\.[0-9]*		{ yylval.str = dupstr(yytext, 0); return FLOAT; }
+[0-9]+\.[0-9]*		{ yylval.str = dupstr(yytext, 0); return TOK_FLOAT; }
 
-[0-9]+\.\*		{ yylval.str = dupstr(yytext, 0); return INDOM_STAR; }
+[0-9]+\.\*		{ yylval.str = dupstr(yytext, 0); return TOK_INDOM_STAR; }
 
-[0-9]+\.[0-9]+\.[0-9]+	{ yylval.str = dupstr(yytext, 0); return PMID_INT; }
+[0-9]+\.[0-9]+\.[0-9]+	{ yylval.str = dupstr(yytext, 0); return TOK_PMID_INT; }
 
-[0-9]+\.[0-9]+\.\*	{ yylval.str = dupstr(yytext, 0); return PMID_STAR; }
-[0-9]+\.\*\.\*		{ yylval.str = dupstr(yytext, 0); return PMID_STAR; }
+[0-9]+\.[0-9]+\.\*	{ yylval.str = dupstr(yytext, 0); return TOK_PMID_STAR; }
+[0-9]+\.\*\.\*		{ yylval.str = dupstr(yytext, 0); return TOK_PMID_STAR; }
 
 	/* Generic name, e.g. for identifier or metric or hostname */
-[A-Za-z][A-Za-z0-9_.]*	{ yylval.str = dupstr(yytext, 0); return GNAME; }
+[A-Za-z][A-Za-z0-9_.]*	{ yylval.str = dupstr(yytext, 0); return TOK_GNAME; }
 
 \#.*			{ }
 
 [ \t\r]+		{ }
 
-"->"			{ return ASSIGN; }
+"->"			{ return TOK_ASSIGN; }
 "{"			{
 			    if (mystate == LEX_GLOBAL) BEGIN(glob);
 			    if (mystate == LEX_INDOM) BEGIN(indom);
@@ -190,7 +190,7 @@ dupstr(char *s, int strip_quotes)
     if ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1)) == (DBG_TRACE_APPL0 | DBG_TRACE_APPL1))
 	fprintf(stderr, "lex: [%d] { begin state=%d\n", lineno, mystate);
 #endif
-			    return LBRACE;
+			    return TOK_LBRACE;
 			}
 "}"			{
 #if PCP_DEBUG
@@ -198,12 +198,12 @@ dupstr(char *s, int strip_quotes)
 	fprintf(stderr, "lex: [%d] } end state=%d\n", lineno, mystate);
 #endif
 			    mystate = LEX_NONE;
-			    BEGIN(INITIAL); return RBRACE;
+			    BEGIN(INITIAL); return TOK_RBRACE;
 			}
-"+"			{ return PLUS; }
-"-"			{ return MINUS; }
-":"			{ return COLON; }
-","			{ return COMMA; }
+"+"			{ return TOK_PLUS; }
+"-"			{ return TOK_MINUS; }
+":"			{ return TOK_COLON; }
+","			{ return TOK_COMMA; }
 
 \n			{ lineno++; }
 .			{ 

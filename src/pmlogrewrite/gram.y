@@ -115,32 +115,34 @@ walk_metric(int mode, int flag, char *which)
     pmID		pmid;
 }
 
-%token	LBRACE
-	RBRACE
-	PLUS
-	MINUS
-	COLON
-	COMMA
-	ASSIGN
-	GLOBAL
-	INDOM
-	METRIC
-	HOSTNAME
-	TZ
-	TIME
-	NAME
-	INST
-	INAME
-	DELETE
-	PMID
-	NULL_INT
-	TYPE
-	SEM
-	UNITS
-	OUTPUT
+%token	TOK_LBRACE
+	TOK_RBRACE
+	TOK_PLUS
+	TOK_MINUS
+	TOK_COLON
+	TOK_COMMA
+	TOK_ASSIGN
+	TOK_GLOBAL
+	TOK_INDOM
+	TOK_METRIC
+	TOK_HOSTNAME
+	TOK_TZ
+	TOK_TIME
+	TOK_NAME
+	TOK_INST
+	TOK_INAME
+	TOK_DELETE
+	TOK_PMID
+	TOK_NULL_INT
+	TOK_TYPE
+	TOK_SEM
+	TOK_UNITS
+	TOK_OUTPUT
 
-%token<str>	GNAME NUMBER STRING HNAME FLOAT INDOM_STAR PMID_INT PMID_STAR
-%token<ival>	TYPE_NAME SEM_NAME SPACE_NAME TIME_NAME COUNT_NAME OUTPUT_TYPE
+%token<str>	TOK_GNAME TOK_NUMBER TOK_STRING TOK_HNAME TOK_FLOAT
+%token<str>	TOK_INDOM_STAR TOK_PMID_INT TOK_PMID_STAR
+%token<ival>	TOK_TYPE_NAME TOK_SEM_NAME TOK_SPACE_NAME TOK_TIME_NAME
+%token<ival>	TOK_COUNT_NAME TOK_OUTPUT_TYPE
 
 %type<str>	hname
 %type<indom>	indom_int null_or_indom
@@ -162,15 +164,15 @@ spec		: globalspec
 		| metricspec
 		;
 
-globalspec	: GLOBAL LBRACE globaloptlist RBRACE
-		| GLOBAL LBRACE RBRACE
+globalspec	: TOK_GLOBAL TOK_LBRACE globaloptlist TOK_RBRACE
+		| TOK_GLOBAL TOK_LBRACE TOK_RBRACE
 		;
 
 globaloptlist	: globalopt
 		| globalopt globaloptlist
 		;
 
-globalopt	: HOSTNAME ASSIGN hname
+globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 		    {
 			if (global.flags & GLOBAL_CHANGE_HOSTNAME) {
 			    snprintf(mess, sizeof(mess), "Duplicate global hostname clause");
@@ -180,7 +182,7 @@ globalopt	: HOSTNAME ASSIGN hname
 			free($3);
 			global.flags |= GLOBAL_CHANGE_HOSTNAME;
 		    }
-		| TZ ASSIGN STRING
+		| TOK_TZ TOK_ASSIGN TOK_STRING
 		    {
 			if (global.flags & GLOBAL_CHANGE_TZ) {
 			    snprintf(mess, sizeof(mess), "Duplicate global tz clause");
@@ -190,7 +192,7 @@ globalopt	: HOSTNAME ASSIGN hname
 			free($3);
 			global.flags |= GLOBAL_CHANGE_TZ;
 		    }
-		| TIME ASSIGN signtime
+		| TOK_TIME TOK_ASSIGN signtime
 		    {
 			if (global.flags & GLOBAL_CHANGE_TIME) {
 			    snprintf(mess, sizeof(mess), "Duplicate global time clause");
@@ -198,32 +200,32 @@ globalopt	: HOSTNAME ASSIGN hname
 			}
 			global.flags |= GLOBAL_CHANGE_TIME;
 		    }
-		| HOSTNAME ASSIGN
+		| TOK_HOSTNAME TOK_ASSIGN
 		    {
 			snprintf(mess, sizeof(mess), "Expecting hostname in hostname clause");
 			yyerror(mess);
 		    }
-		| HOSTNAME
+		| TOK_HOSTNAME
 		    {
 			snprintf(mess, sizeof(mess), "Expecting -> in hostname clause");
 			yyerror(mess);
 		    }
-		| TZ ASSIGN
+		| TOK_TZ TOK_ASSIGN
 		    {
 			snprintf(mess, sizeof(mess), "Expecting timezone string in tz clause");
 			yyerror(mess);
 		    }
-		| TZ
+		| TOK_TZ
 		    {
 			snprintf(mess, sizeof(mess), "Expecting -> in tz clause");
 			yyerror(mess);
 		    }
-		| TIME ASSIGN
+		| TOK_TIME TOK_ASSIGN
 		    {
 			snprintf(mess, sizeof(mess), "Expecting delta of the form [+-][HH:[MM:]]SS[.d...] in time clause");
 			yyerror(mess);
 		    }
-		| TIME
+		| TOK_TIME
 		    {
 			snprintf(mess, sizeof(mess), "Expecting -> in time clause");
 			yyerror(mess);
@@ -232,53 +234,53 @@ globalopt	: HOSTNAME ASSIGN hname
 
 	/*
 	 * ambiguity in lexical scanner ... handle here
-	 * abc.def - is HNAME or GNAME
-	 * 123 - is HNAME or NUMBER
-	 * 123.456 - is HNAME or FLOAT
+	 * abc.def - is TOK_HNAME or TOK_GNAME
+	 * 123 - is TOK_HNAME or TOK_NUMBER
+	 * 123.456 - is TOK_HNAME or TOK_FLOAT
 	 */
-hname		: HNAME
-		| GNAME
-		| NUMBER
-		| FLOAT
+hname		: TOK_HNAME
+		| TOK_GNAME
+		| TOK_NUMBER
+		| TOK_FLOAT
 		;
 
-signnumber	: PLUS NUMBER
+signnumber	: TOK_PLUS TOK_NUMBER
 		    {
 			$$ = atoi($2);
 			free($2);
 		    }
-		| MINUS NUMBER
+		| TOK_MINUS TOK_NUMBER
 		    {
 			$$ = -atoi($2);
 			free($2);
 		    }
-		| NUMBER
+		| TOK_NUMBER
 		    {
 			$$ = atoi($1);
 			free($1);
 		    }
 		;
 
-number		: NUMBER
+number		: TOK_NUMBER
 		    {
 			$$ = atoi($1);
 			free($1);
 		    }
 		;
 
-float		: FLOAT
+float		: TOK_FLOAT
 		    {
 			$$ = atof($1);
 			free($1);
 		    }
 		;
 
-signtime	: PLUS time
-		| MINUS time { global.time.tv_sec = -global.time.tv_sec; }
+signtime	: TOK_PLUS time
+		| TOK_MINUS time { global.time.tv_sec = -global.time.tv_sec; }
 		| time
 		;
 
-time		: number COLON number COLON float	/* HH:MM:SS.d.. format */
+time		: number TOK_COLON number TOK_COLON float	/* HH:MM:SS.d.. format */
 		    { 
 			if ($3 > 59) {
 			    snprintf(mess, sizeof(mess), "Minutes (%d) in time clause more than 59", $3);
@@ -291,7 +293,7 @@ time		: number COLON number COLON float	/* HH:MM:SS.d.. format */
 			global.time.tv_sec = $1 * 3600 + $3 * 60 + (int)$5;
 			global.time.tv_usec = (int)(1000000*(($5 - (int)$5))+0.5);
 		    }
-		| number COLON number COLON number	/* HH:MM:SS format */
+		| number TOK_COLON number TOK_COLON number	/* HH:MM:SS format */
 		    { 
 			if ($3 > 59) {
 			    snprintf(mess, sizeof(mess), "Minutes (%d) in time clause more than 59", $3);
@@ -303,7 +305,7 @@ time		: number COLON number COLON float	/* HH:MM:SS.d.. format */
 			}
 			global.time.tv_sec = $1 * 3600 + $3 * 60 + $5;
 		    }
-		| number COLON float		/* MM:SS.d.. format */
+		| number TOK_COLON float		/* MM:SS.d.. format */
 		    { 
 			if ($1 > 59) {
 			    snprintf(mess, sizeof(mess), "Minutes (%d) in time clause more than 59", $1);
@@ -316,7 +318,7 @@ time		: number COLON number COLON float	/* HH:MM:SS.d.. format */
 			global.time.tv_sec = $1 * 60 + (int)$3;
 			global.time.tv_usec = (int)(1000000*(($3 - (int)$3))+0.5);
 		    }
-		| number COLON number		/* MM:SS format */
+		| number TOK_COLON number		/* MM:SS format */
 		    { 
 			if ($1 > 59) {
 			    snprintf(mess, sizeof(mess), "Minutes (%d) in time clause more than 59", $1);
@@ -348,7 +350,7 @@ time		: number COLON number COLON float	/* HH:MM:SS.d.. format */
 		    }
 		;
 
-indomspec	: INDOM indom_int
+indomspec	: TOK_INDOM indom_int
 		    {
 			if (current_star_indom) {
 			    __pmContext		*ctxp;
@@ -369,15 +371,15 @@ indomspec	: INDOM indom_int
 			    do_walk_indom = 0;
 			}
 		    }
-			LBRACE optindomopt RBRACE
-		| INDOM
+			TOK_LBRACE optindomopt TOK_RBRACE
+		| TOK_INDOM
 		    {
 			snprintf(mess, sizeof(mess), "Expecting <domain>.<serial> or <domain>.* in indom rule");
 			yyerror(mess);
 		    }
 		;
 
-indom_int	: FLOAT
+indom_int	: TOK_FLOAT
 		    {
 			int		domain;
 			int		serial;
@@ -399,7 +401,7 @@ indom_int	: FLOAT
 			free($1);
 			$$ = pmInDom_build(domain, serial);
 		    }
-		| INDOM_STAR
+		| TOK_INDOM_STAR
 		    {
 			int		domain;
 			sscanf($1, "%d.", &domain);
@@ -421,7 +423,7 @@ indomoptlist	: indomopt
 		| indomopt indomoptlist
 		;
 
-indomopt	: INDOM ASSIGN indom_int
+indomopt	: TOK_INDOM TOK_ASSIGN indom_int
 		    {
 			indomspec_t	*ip;
 			for (ip = walk_indom(W_START); ip != NULL; ip = walk_indom(W_NEXT)) {
@@ -445,7 +447,7 @@ indomopt	: INDOM ASSIGN indom_int
 			    }
 			}
 		    }
-		| INAME STRING ASSIGN STRING
+		| TOK_INAME TOK_STRING TOK_ASSIGN TOK_STRING
 		    {
 			indomspec_t	*ip;
 			for (ip = walk_indom(W_START); ip != NULL; ip = walk_indom(W_NEXT)) {
@@ -455,7 +457,7 @@ indomopt	: INDOM ASSIGN indom_int
 			free($2);
 			/* Note: $4 referenced from new_iname[] */
 		    }
-		| INAME STRING ASSIGN DELETE
+		| TOK_INAME TOK_STRING TOK_ASSIGN TOK_DELETE
 		    {
 			indomspec_t	*ip;
 			for (ip = walk_indom(W_START); ip != NULL; ip = walk_indom(W_NEXT)) {
@@ -464,7 +466,7 @@ indomopt	: INDOM ASSIGN indom_int
 			}
 			free($2);
 		    }
-		| INST number ASSIGN number
+		| TOK_INST number TOK_ASSIGN number
 		    {
 			indomspec_t	*ip;
 			for (ip = walk_indom(W_START); ip != NULL; ip = walk_indom(W_NEXT)) {
@@ -472,7 +474,7 @@ indomopt	: INDOM ASSIGN indom_int
 				yyerror(mess);
 			}
 		    }
-		| INST number ASSIGN DELETE
+		| TOK_INST number TOK_ASSIGN TOK_DELETE
 		    {
 			indomspec_t	*ip;
 			for (ip = walk_indom(W_START); ip != NULL; ip = walk_indom(W_NEXT)) {
@@ -480,49 +482,49 @@ indomopt	: INDOM ASSIGN indom_int
 				yyerror(mess);
 			}
 		    }
-		| INDOM ASSIGN
+		| TOK_INDOM TOK_ASSIGN
 		    {
 			snprintf(mess, sizeof(mess), "Expecting <domain>.<serial> or <domain>.* in indom clause");
 			yyerror(mess);
 		    }
-		| INDOM
+		| TOK_INDOM
 		    {
 			snprintf(mess, sizeof(mess), "Expecting -> in indom clause");
 			yyerror(mess);
 		    }
-		| INAME STRING ASSIGN
+		| TOK_INAME TOK_STRING TOK_ASSIGN
 		    {
 			snprintf(mess, sizeof(mess), "Expecting new external instance name string or DELETE in iname clause");
 			yyerror(mess);
 		    }
-		| INAME STRING
+		| TOK_INAME TOK_STRING
 		    {
 			snprintf(mess, sizeof(mess), "Expecting -> in iname clause");
 			yyerror(mess);
 		    }
-		| INAME
+		| TOK_INAME
 		    {
 			snprintf(mess, sizeof(mess), "Expecting old external instance name string in iname clause");
 			yyerror(mess);
 		    }
-		| INST number ASSIGN
+		| TOK_INST number TOK_ASSIGN
 		    {
 			snprintf(mess, sizeof(mess), "Expecting new internal instance identifier or DELETE in inst clause");
 			yyerror(mess);
 		    }
-		| INST number
+		| TOK_INST number
 		    {
 			snprintf(mess, sizeof(mess), "Expecting -> in inst clause");
 			yyerror(mess);
 		    }
-		| INST
+		| TOK_INST
 		    {
 			snprintf(mess, sizeof(mess), "Expecting old internal instance identifier in inst clause");
 			yyerror(mess);
 		    }
 		;
 
-metricspec	: METRIC pmid_or_name
+metricspec	: TOK_METRIC pmid_or_name
 		    {
 			if (current_star_metric) {
 			    __pmContext		*ctxp;
@@ -553,8 +555,8 @@ metricspec	: METRIC pmid_or_name
 			    do_walk_metric = 0;
 			}
 		    }
-			LBRACE optmetricoptlist RBRACE
-		| METRIC
+			TOK_LBRACE optmetricoptlist TOK_RBRACE
+		| TOK_METRIC
 		    {
 			snprintf(mess, sizeof(mess), "Expecting metric name or <domain>.<cluster>.<item> or <domain>.<cluster>.* or <domain>.*.* in metric rule");
 			yyerror(mess);
@@ -562,7 +564,7 @@ metricspec	: METRIC pmid_or_name
 		;
 
 pmid_or_name	: pmid_int
-		|  GNAME
+		|  TOK_GNAME
 		    {
 			int	sts;
 			pmID	pmid;
@@ -580,7 +582,7 @@ pmid_or_name	: pmid_int
 		    }
 		;
 
-pmid_int	: PMID_INT
+pmid_int	: TOK_PMID_INT
 		    {
 			int	domain;
 			int	cluster;
@@ -604,7 +606,7 @@ pmid_int	: PMID_INT
 			free($1);
 			$$ = pmid_build(domain, cluster, item);
 		    }
-		| PMID_STAR
+		| TOK_PMID_STAR
 		    {
 			int	domain;
 			int	cluster;
@@ -638,7 +640,7 @@ metricoptlist	: metricopt
 		| metricopt metricoptlist
 		;
 
-metricopt	: PMID ASSIGN pmid_int
+metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 		    {
 			metricspec_t	*mp;
 			pmID		pmid;
@@ -662,7 +664,7 @@ metricopt	: PMID ASSIGN pmid_int
 			    }
 			}
 		    }
-		| NAME ASSIGN GNAME
+		| TOK_NAME TOK_ASSIGN TOK_GNAME
 		    {
 			metricspec_t	*mp;
 			for (mp = walk_metric(W_START, METRIC_CHANGE_NAME, "name"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_NAME, "name")) {
@@ -686,7 +688,7 @@ metricopt	: PMID ASSIGN pmid_int
 			    }
 			}
 		    }
-		| TYPE ASSIGN TYPE_NAME
+		| TOK_TYPE TOK_ASSIGN TOK_TYPE_NAME
 		    {
 			metricspec_t	*mp;
 			for (mp = walk_metric(W_START, METRIC_CHANGE_TYPE, "type"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_TYPE, "type")) {
@@ -714,7 +716,7 @@ metricopt	: PMID ASSIGN pmid_int
 			    }
 			}
 		    }
-		| INDOM ASSIGN null_or_indom pick
+		| TOK_INDOM TOK_ASSIGN null_or_indom pick
 		    {
 			metricspec_t	*mp;
 			pmInDom		indom;
@@ -788,7 +790,7 @@ metricopt	: PMID ASSIGN pmid_int
 			}
 			output = OUTPUT_ALL;	/* for next time */
 		    }
-		| SEM ASSIGN SEM_NAME
+		| TOK_SEM TOK_ASSIGN TOK_SEM_NAME
 		    {
 			metricspec_t	*mp;
 			for (mp = walk_metric(W_START, METRIC_CHANGE_SEM, "sem"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_SEM, "sem")) {
@@ -805,7 +807,7 @@ metricopt	: PMID ASSIGN pmid_int
 			    }
 			}
 		    }
-		| UNITS ASSIGN signnumber COMMA signnumber COMMA signnumber COMMA SPACE_NAME COMMA TIME_NAME COMMA COUNT_NAME
+		| TOK_UNITS TOK_ASSIGN signnumber TOK_COMMA signnumber TOK_COMMA signnumber TOK_COMMA TOK_SPACE_NAME TOK_COMMA TOK_TIME_NAME TOK_COMMA TOK_COUNT_NAME
 		    {
 			metricspec_t	*mp;
 			for (mp = walk_metric(W_START, METRIC_CHANGE_UNITS, "units"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_UNITS, "units")) {
@@ -832,54 +834,54 @@ metricopt	: PMID ASSIGN pmid_int
 			    }
 			}
 		    }
-		| DELETE
+		| TOK_DELETE
 		    {
 			metricspec_t	*mp;
 			for (mp = walk_metric(W_START, METRIC_DELETE, "delete"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_DELETE, "delete")) {
 			    mp->flags |= METRIC_DELETE;
 			}
 		    }
-		| PMID ASSIGN
+		| TOK_PMID TOK_ASSIGN
 		    {
 			snprintf(mess, sizeof(mess), "Expecting <domain>.<cluster>.<item> or <domain>.<cluster>.* or <domain>.*.* in pmid clause");
 			yyerror(mess);
 		    }
-		| NAME ASSIGN
+		| TOK_NAME TOK_ASSIGN
 		    {
 			snprintf(mess, sizeof(mess), "Expecting metric name in iname clause");
 			yyerror(mess);
 		    }
-		| TYPE ASSIGN
+		| TOK_TYPE TOK_ASSIGN
 		    {
 			snprintf(mess, sizeof(mess), "Expecting XXX (from PM_TYPE_XXX) in type clause");
 			yyerror(mess);
 		    }
-		| INDOM ASSIGN
+		| TOK_INDOM TOK_ASSIGN
 		    {
 			snprintf(mess, sizeof(mess), "Expecting <domain>.<serial> or NULL in indom clause");
 			yyerror(mess);
 		    }
-		| SEM ASSIGN
+		| TOK_SEM TOK_ASSIGN
 		    {
 			snprintf(mess, sizeof(mess), "Expecting XXX (from PM_SEM_XXX) in sem clause");
 			yyerror(mess);
 		    }
-		| UNITS ASSIGN 
+		| TOK_UNITS TOK_ASSIGN 
 		    {
 			snprintf(mess, sizeof(mess), "Expecting 3 numeric values for dim* fields of units");
 			yyerror(mess);
 		    }
-		| UNITS ASSIGN signnumber COMMA signnumber COMMA signnumber COMMA
+		| TOK_UNITS TOK_ASSIGN signnumber TOK_COMMA signnumber TOK_COMMA signnumber TOK_COMMA
 		    {
 			snprintf(mess, sizeof(mess), "Expecting 0 or XXX (from PM_SPACE_XXX) for scaleSpace field of units");
 			yyerror(mess);
 		    }
-		| UNITS ASSIGN signnumber COMMA signnumber COMMA signnumber COMMA SPACE_NAME COMMA
+		| TOK_UNITS TOK_ASSIGN signnumber TOK_COMMA signnumber TOK_COMMA signnumber TOK_COMMA TOK_SPACE_NAME TOK_COMMA
 		    {
 			snprintf(mess, sizeof(mess), "Expecting 0 or XXX (from PM_TIME_XXX) for scaleTime field of units");
 			yyerror(mess);
 		    }
-		| UNITS ASSIGN signnumber COMMA signnumber COMMA signnumber COMMA SPACE_NAME COMMA TIME_NAME COMMA
+		| TOK_UNITS TOK_ASSIGN signnumber TOK_COMMA signnumber TOK_COMMA signnumber TOK_COMMA TOK_SPACE_NAME TOK_COMMA TOK_TIME_NAME TOK_COMMA
 		    {
 			snprintf(mess, sizeof(mess), "Expecting 0 or ONE for scaleCount field of units");
 			yyerror(mess);
@@ -887,29 +889,29 @@ metricopt	: PMID ASSIGN pmid_int
 		;
 
 null_or_indom	: indom_int
-		| NULL_INT
+		| TOK_NULL_INT
 		    {
 			$$ = PM_INDOM_NULL;
 		    }
 		;
 
-pick		: OUTPUT INST number
+pick		: TOK_OUTPUT TOK_INST number
 		    {
 			output = OUTPUT_ONE;
 			one_inst = $3;
 			one_name = NULL;
 		    }
-		| OUTPUT INAME STRING
+		| TOK_OUTPUT TOK_INAME TOK_STRING
 		    {
 			output = OUTPUT_ONE;
 			one_inst = PM_IN_NULL;
 			one_name = $3;
 		    }
-		| OUTPUT OUTPUT_TYPE
+		| TOK_OUTPUT TOK_OUTPUT_TYPE
 		    {
 			output = $2;
 		    }
-		| OUTPUT
+		| TOK_OUTPUT
 		    {
 			snprintf(mess, sizeof(mess), "Expecting FIRST or LAST or INST or INAME or MIN or MAX or AVG for OUTPUT instance option");
 			yyerror(mess);

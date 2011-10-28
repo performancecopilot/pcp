@@ -42,8 +42,8 @@ static pmdaInstid prefetch_insts[ARRAY_SIZE(methodtab)];
 
 static pmdaInstid loadavg_insts[] = {
 	{1, "1 minute"},
-	{5, "5 minutes"},
-	{15, "15 minutes"}
+	{5, "5 minute"},
+	{15, "15 minute"}
 };
 
 pmdaMetric *metrictab;
