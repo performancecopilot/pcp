@@ -42,6 +42,8 @@ typedef struct {
 
 int	__pmFault_arm;
 
+#define FAULT_INDOM pmInDom_build(DYNAMIC_PMID, 1024)
+
 void
 __pmFaultInject(char *ident, int class)
 {
@@ -70,7 +72,7 @@ __pmFaultInject(char *ident, int class)
 		 * default guard is ">0", i.e. fault on every trip
 		 * leading # => comment
 		 */
-		pmdaCacheOp(PM_INDOM_NULL, PMDA_CACHE_CULL);
+		pmdaCacheOp(FAULT_INDOM, PMDA_CACHE_CULL);
 		while (fgets(line, sizeof(line), f) != NULL) {
 		    char	*lp = line;
 		    char	*sp;
@@ -151,7 +153,7 @@ __pmFaultInject(char *ident, int class)
 		    cp->ntrip = cp->nfault = 0;
 		    cp->op = op;
 		    cp->thres = thres;
-		    sts = pmdaCacheStore(PM_INDOM_NULL, PMDA_CACHE_ADD, sp, cp);
+		    sts = pmdaCacheStore(FAULT_INDOM, PMDA_CACHE_ADD, sp, cp);
 		    if (sts < 0) {
 			fprintf(stderr, "%s[%d]: %s\n", fname, lineno, pmErrStr(sts));
 		    }
@@ -167,7 +169,7 @@ __pmFaultInject(char *ident, int class)
 	first = 0;
     }
 
-    sts = pmdaCacheLookupName(PM_INDOM_NULL, ident, NULL, (void **)&cp);
+    sts = pmdaCacheLookupName(FAULT_INDOM, ident, NULL, (void **)&cp);
     if (sts == PMDA_CACHE_ACTIVE) {
 	cp->ntrip++;
 	__pmFault_arm = 0;
@@ -223,18 +225,22 @@ void
 __pmFaultSummary(void)
 {
     int		inst;
-    int		sts;
     char	*ident;
     control_t	*cp;
+    int		sts;
     static char	*opstr[] = { "<", "<=", "==", ">=", ">", "!=", "%" };
 
-    pmdaCacheOp(PM_INDOM_NULL, PMDA_CACHE_WALK_REWIND);
+    pmdaCacheOp(FAULT_INDOM, PMDA_CACHE_WALK_REWIND);
 
     fprintf(stderr, "=== Fault Injection Summary Report ===\n");
-    while ((inst = pmdaCacheOp(PM_INDOM_NULL, PMDA_CACHE_WALK_NEXT)) != -1) {
-	sts = pmdaCacheLookup(PM_INDOM_NULL, inst, &ident, (void **)&cp);
-	// TODO sts error?
-	fprintf(stderr, "%s: guard trip%s%d, %d trips, %d faults\n", ident, opstr[cp->op], cp->thres, cp->ntrip, cp->nfault);
+    while ((inst = pmdaCacheOp(FAULT_INDOM, PMDA_CACHE_WALK_NEXT)) != -1) {
+	sts = pmdaCacheLookup(FAULT_INDOM, inst, &ident, (void **)&cp);
+	if (sts < 0) {
+	    char	strbuf[20];
+	    fprintf(stderr, "pmdaCacheLookup(%s, %d, %s, ..): %s\n", pmInDomStr_r(FAULT_INDOM, strbuf, sizeof(strbuf)), inst, ident, pmErrStr(sts));
+	}
+	else
+	    fprintf(stderr, "%s: guard trip%s%d, %d trips, %d faults\n", ident, opstr[cp->op], cp->thres, cp->ntrip, cp->nfault);
 
     }
 }
