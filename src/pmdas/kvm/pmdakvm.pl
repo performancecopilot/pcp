@@ -54,6 +54,7 @@ my @metrics = grep {
 closedir DIR;
 
 $pmda->set_fetch_callback(\&kvm_fetch_callback);
+$pmda->set_user('nobody');
 $pmda->run;
 
 =pod
