@@ -21,11 +21,15 @@ use LWP::Simple;
 
 my $es_port = 9200;
 my $es_instance = 'localhost';
+my $es_user = 'nobody';
 use vars qw($pmda $es_cluster $es_nodes $es_nodestats $es_root);
+
 my $nodes_indom = 0;
 my @nodes_instances;
 my @nodes_instance_ids;
-my @cluster_cache = ( 0, 0, 0 );	# time of last refresh for each cluster
+
+my @cluster_cache;		# time of last refresh for each cluster
+my $cache_interval = 2;		# min secs between refreshes for clusters
 
 # Configuration files for overriding the above settings
 for my $file (pmda_config('PCP_PMDAS_DIR') . '/elasticsearch/es.conf', 'es.conf') {
@@ -59,7 +63,8 @@ sub es_refresh
     my $content;
     my $now = time;
 
-    if ($now - $cluster_cache[$cluster] <= 1.0) {
+    if (defined($cluster_cache[$cluster]) &&
+        $now - $cluster_cache[$cluster] <= $cache_interval) {
 	# $pmda->log("es_refresh $cluster - no refresh needed yet");
 	return;
     }
@@ -421,6 +426,7 @@ $pmda->add_indom($nodes_indom, \@nodes_instances,
 
 $pmda->set_fetch_callback(\&es_fetch_callback);
 $pmda->set_refresh(\&es_refresh);
+$pmda->set_user($es_user);
 $pmda->run;
 
 =pod
