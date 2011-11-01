@@ -10,8 +10,8 @@ Normal builds do not descend into this directory.
 To build and use the library, cd into here, then
 
     $ cd src
-    $ make qa_default
-    $ sudo make qa_install
+    $ make
+    $ sudo make install
     $ make clean
 
 To use the library in a test application, 
@@ -20,5 +20,16 @@ To use the library in a test application,
 
     ...
 
-Then compile the code with -DPM_FAULT_INJECTION=1 and link
-with -lpcp_fault -lpcp_pmda instead of -lpcp
+Then compile the code with -DPM_FAULT_INJECTION=1 and link with
+-lpcp_fault instead of -lpcp
+
+To use with an executable that is already linked, set $LD_PRELOAD in
+the environment to the full pathname to the installed libpcp_fault, e.g.
+
+    $ LD_PRELOAD=/usr/lib/libpcp.so pminfo ...
+
+The mechanisms for defining fault injection points and controlling the
+triggering of fault injection is described in the brief "man" page
+found in the this directory.  Review with
+
+    $ man ./pmfault.3

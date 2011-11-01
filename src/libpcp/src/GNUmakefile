@@ -76,15 +76,13 @@ endif
 
 include $(BUILDRULES)
 
-connect.o:
-
 derive.o derive_fetch.o: derive.h
 
 p_error.o p_result.o: oldpmapi.h
 
 util.o:	$(TOPDIR)/src/include/pmdbg.h
 
-fetch.c: internal.h
+fetch.o: internal.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pmapi.h $(TOPDIR)/src/include/impl.h
 

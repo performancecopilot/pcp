@@ -44,8 +44,14 @@ int	__pmFault_arm;
 
 #define FAULT_INDOM pmInDom_build(DYNAMIC_PMID, 1024)
 
+static void
+__pmFaultAtExit(void)
+{
+    __pmFaultSummary(stderr);
+}
+
 void
-__pmFaultInject(char *ident, int class)
+__pmFaultInject(const char *ident, int class)
 {
     static int first = 1;
     int		sts;
@@ -163,7 +169,7 @@ __pmFaultInject(char *ident, int class)
 #ifdef HAVE_ATEXIT
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_FAULT)
-	    atexit(__pmFaultSummary);
+	    atexit(__pmFaultAtExit);
 #endif
 #endif
 	first = 0;
@@ -222,7 +228,7 @@ __pmFaultInject(char *ident, int class)
 }
 
 void
-__pmFaultSummary(void)
+__pmFaultSummary(FILE *f)
 {
     int		inst;
     char	*ident;
@@ -232,15 +238,15 @@ __pmFaultSummary(void)
 
     pmdaCacheOp(FAULT_INDOM, PMDA_CACHE_WALK_REWIND);
 
-    fprintf(stderr, "=== Fault Injection Summary Report ===\n");
+    fprintf(f, "=== Fault Injection Summary Report ===\n");
     while ((inst = pmdaCacheOp(FAULT_INDOM, PMDA_CACHE_WALK_NEXT)) != -1) {
 	sts = pmdaCacheLookup(FAULT_INDOM, inst, &ident, (void **)&cp);
 	if (sts < 0) {
 	    char	strbuf[20];
-	    fprintf(stderr, "pmdaCacheLookup(%s, %d, %s, ..): %s\n", pmInDomStr_r(FAULT_INDOM, strbuf, sizeof(strbuf)), inst, ident, pmErrStr(sts));
+	    fprintf(f, "pmdaCacheLookup(%s, %d, %s, ..): %s\n", pmInDomStr_r(FAULT_INDOM, strbuf, sizeof(strbuf)), inst, ident, pmErrStr(sts));
 	}
 	else
-	    fprintf(stderr, "%s: guard trip%s%d, %d trips, %d faults\n", ident, opstr[cp->op], cp->thres, cp->ntrip, cp->nfault);
+	    fprintf(f, "%s: guard trip%s%d, %d trips, %d faults\n", ident, opstr[cp->op], cp->thres, cp->ntrip, cp->nfault);
 
     }
 }
@@ -286,16 +292,16 @@ __pmFault_strdup(const char *s)
 
 #else
 void
-__pmFaultInject(char *ident, int class)
+__pmFaultInject(const char *ident, int class)
 {
     fprintf(stderr, "__pmFaultInject() called but library not compiled with -DPM_FAULT_INJECTION\n");
     exit(1);
 }
 
 void
-__pmFaultSummary(void)
+__pmFaultSummary(FILE *f)
 {
-    fprintf(stderr, "__pmFaultSummary() called but library not compiled with -DPM_FAULT_INJECTION\n");
+    fprintf(f, "__pmFaultSummary() called but library not compiled with -DPM_FAULT_INJECTION\n");
     exit(1);
 
 }

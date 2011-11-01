@@ -171,10 +171,10 @@ pmErrStr(int code)
 	     */
 	    char *sp = strrchr(msg, ' ');
 	    char *endp = NULL;
-            unsigned long long ec = strtoull(sp+1, &endp, 0);
+            unsigned long ec = strtoul(sp+1, &endp, 0);
 
             if ((endp != NULL) && (*endp == '\0') && (endp != sp+1)) {
-		if (ec == (unsigned long long)-1LL) {
+		if (ec == (unsigned long)-1L) {
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 		    if ((unknown = strdup(msg)) != NULL) {
 			unknown[sp - msg] = '\0';
