@@ -144,6 +144,8 @@ $pmda->set_fetch(\&news_fetch);
 $pmda->set_fetch_callback(\&news_fetch_callback);
 
 &news_init;
+
+$pmda->set_user('nobody');
 $pmda->run;
 
 =pod

@@ -88,6 +88,7 @@ die "Cannot find a valid named statistics file\n" unless -f $statsfile;
 
 $pmda->add_tail($statsfile, \&named_parser, 0);
 $pmda->set_fetch_callback(\&named_fetch_callback);
+$pmda->set_user('nobody');
 $pmda->run;
 
 =pod
