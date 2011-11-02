@@ -19,6 +19,14 @@ else
     _notrun libpcp not built with fault injection enabled
 fi
 
+rm -f $seq.out
+if grep 'define HAVE_64BIT_PTR 1' $PCP_INC_DIR/platform_defs.h >/dev/null 2>&1
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
 echo "QA output created by $seq"
 
 status=0	# success is the default!
@@ -37,6 +45,7 @@ s/([0-9][0-9]*)/(PID)/
 
 # real QA test starts here
 export PM_FAULT_CONTROL=$tmp.control
+export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
 
 for i in 1 2 3 4 5 6 7 8 9
 do
