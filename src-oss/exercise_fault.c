@@ -6,8 +6,7 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-#define PM_FAULT_INJECTION 1
-#include "fault.h"
+#include <pcp/fault.h>
 #include <string.h>
 #include <errno.h>
 

@@ -105,9 +105,9 @@ CFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
 	exerlock.c
 endif
 
-ifeq ($(shell test -f ../../pcp/src/include/fault.h && echo 1), 1)
-# only include these ones if we can suck fault.h out of the PCP source
-# (assumes PCP >= 4.0 is installed alongside the QA)
+ifeq ($(shell test -f /usr/include/pcp/fault.h && echo 1), 1)
+# only include these ones if the fault injection version of libpcp
+# appears to have been installed (assumes PCP >= 4.0)
 #
 CFILES += check_fault_injection.c exercise_fault.c
 endif
@@ -151,7 +151,7 @@ TRACELIB	= -lpcp_trace
 LDIRT	= *.log domain.h help.pag help.dir mv-foo.? mv-bar.? mv-bigbin.? \
 	$(subst .c,.o,$(CFILES)) \
 	chkctx2_lite.c mv-interp.? fetchrate_lite.c \
-	localconfig.h gmon.out pmtimzone.so pmtimezone.o fault.h
+	localconfig.h gmon.out pmtimzone.so pmtimezone.o
 
 .ORDER:	torture_api \
 	chkctx2 fetchrate
@@ -181,11 +181,6 @@ OBJECTS = $(shell echo $(CFILES) | sed -e 's/\.c/.o/g')
 # make just the archives, not the binaries
 #
 arch:	$(ARCH)
-
-fault.h:	../../pcp/src/include/fault.h
-	cp ../../pcp/src/include/fault.h fault.h
-
-check_fault_injection.o exercise_fault.o: fault.h
 
 # --- do NOT need libpcp
 #
@@ -443,6 +438,17 @@ tabort:	tabort.c
 check_import:	check_import.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_import $(LDLIBS)
+
+# --- need libpcp_fault
+#
+
+check_fault_injection: check_fault_injection.c
+	rm -f $@
+	$(CCF) $(CDEFS) -DPM_FAULT_INJECTION=1 -o $@ $@.c -lpcp_fault -lpcp -lpcp_pmda
+
+exercise_fault: exercise_fault.c
+	rm -f $@
+	$(CCF) $(CDEFS) -DPM_FAULT_INJECTION=1 -o $@ $@.c -lpcp_fault -lpcp -lpcp_pmda
 
 # --- need lib for pthreads
 #
