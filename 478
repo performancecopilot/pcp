@@ -30,6 +30,7 @@ src-oss/err 0
 
 echo
 export PM_FAULT_CONTROL=$tmp.control
+export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
 cat >$tmp.control <<End-of-File
 libpcp/err.c:1
 End-of-File
