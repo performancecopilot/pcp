@@ -11,15 +11,6 @@ seq=`basename $0`
 
 echo "QA output created by $seq"
 
-# check for new version ... may need -o to force "old style" behaviour
-#
-if pmlogger_daily -\? 2>&1 | grep '^.*-o.*(old style)' >/dev/null
-then
-    oflag='-o'
-else
-    oflag=''
-fi
-
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
@@ -27,6 +18,17 @@ fi
 
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+rm -f $seq.full
+
+# check for new version ... may need -o to force "old style" behaviour
+#
+if pmlogger_daily -\? 2>&1 | grep '^.*-o.*(old style)' >/dev/null
+then
+    oflag='-o'
+    echo "Using -o" >>$seq.full
+else
+    oflag=''
+fi
 
 _filter()
 {
@@ -55,7 +57,41 @@ s/ [0-9][0-9]*/ ... PID/
 # yyyymmdd (new year 2000 format)
 #
 SUMMARY_LOGNAME=`pmdate -1d %Y%m%d`
+echo "SUMMARY_LOGNAME=$SUMMARY_LOGNAME" >>$seq.full
+echo "Files to be removed before we start ..." >>$seq.full
+ls -l $PCP_LOG_DIR/pmlogger/*/$SUMMARY_LOGNAME.* >>$seq.full 2>&1
 $sudo rm -f $PCP_LOG_DIR/pmlogger/*/$SUMMARY_LOGNAME.*
 
+# make sure  pmlogger_daily gets a timestamp that is at least
+# a minute after the previous primary logger was started to avoid
+# the collision on the timestamp and the extra 3 mv's needed to
+# rename the archive files from <timestamp> to <timestamp>-00
+#
+current=`pminfo -f pmcd.pmlogger.archive | sed -n -e '/"primary"/{
+s;.*/;;
+s/"//
+p
+}'`
+if [ -z "$current" ]
+then
+    echo "Arrgh ... cannot get current primary pmlogger timestamp from"
+    pminfo -f pmcd.pmlogger.archive
+    status=1
+    exit
+fi
+echo "current=$current" >>$seq.full
+sec=0
+while [ $sec -lt 60 ]
+do
+    now=`pmdate %Y%m%d.%H.%M`
+    [ "$now" != "$current" ] && break
+    echo "now=$now" >>$seq.full
+    sleep 1
+    sec=`expr $sec + 1`
+done
+echo "done, now=$now" >>$seq.full
+
 # real QA test starts here
-pmlogger_daily $oflag -k 550 -N 2>&1 | _filter
+pmlogger_daily $oflag -k 550 -N 2>&1 \
+| tee -a $seq.full \
+| _filter
