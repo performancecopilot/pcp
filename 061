@@ -30,6 +30,10 @@ _filter_pmlogger()
 	-e 's/(nil)/ADDR/g' \
 	-e 's/value [0-9]*/value INT/g' \
 	-e 's/[0-2][0-9]:00:00.000/TIME/' \
+	-e '/__pmLogPutResult/{
+s/len=[0-9]*/len=NNN/
+s/posn=[0-9]*/posn=NNN/
+}' \
 	-e 's/msec numpmid/usec numpmid/'
 }
 
