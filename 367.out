@@ -253,13 +253,12 @@ pdu-server: waiting ...
 016: 61732073 6e6f770a 
 
 pdu-server: waiting ...
-[SERVER]pmGetPDU: CREDS fd=<n> len=24 from=CLIENT
-000:       18     700c   CLIENT        2  1020a0b  2141516 
-+ PDU_CREDS: sender=CLIENT count=2
+[SERVER]pmGetPDU: CREDS fd=<n> len=20 from=CLIENT
+000:       14     700c   CLIENT  1000000  b0a0201 
++ PDU_CREDS: sender=CLIENT count=1
 + [0] type=1 a=2 b=10 c=11
-+ [1] type=2 a=20 b=21 c=22
-[SERVER]pmXmitPDU: CREDS fd=<n> len=24
-000:       18     700c   SERVER        2  1020a0b  2141516 
+[SERVER]pmXmitPDU: CREDS fd=<n> len=20
+000:       14     700c   SERVER  1000000  b0a0201 
 
 pdu-server: waiting ...
 [SERVER]pmGetPDU: PMNS_IDS fd=<n> len=44 from=CLIENT

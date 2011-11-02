@@ -132,7 +132,7 @@ _z(void)
     int			sender;
     int			count;
     char		*vp;
-    __pmCred		increds[2];
+    __pmCred		increds[1];
     __pmCred		*outcreds;
     char		*resname;
     char		**resnamelist;
@@ -795,17 +795,12 @@ _z(void)
     increds[0].c_vala = (unsigned char)PDU_VERSION;
     increds[0].c_valb = (unsigned char)10;
     increds[0].c_valc = (unsigned char)11;
-    increds[1].c_type = CAUTH;
-    increds[1].c_vala = (unsigned char)20;
-    increds[1].c_valb = (unsigned char)21;
-    increds[1].c_valc = (unsigned char)22;
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
 	fprintf(stderr, "0 = %x\n", *(unsigned int*)&(increds[0]));
-	fprintf(stderr, "1 = %x\n", *(unsigned int*)&(increds[1]));
     }
 #endif
-    if ((e = __pmSendCreds(fd[1], mypid, 2, increds)) < 0) {
+    if ((e = __pmSendCreds(fd[1], mypid, 1, increds)) < 0) {
 	fprintf(stderr, "Error: SendCreds: %s\n", pmErrStr(e));
 	exit(1);
     }
@@ -834,28 +829,20 @@ _z(void)
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_APPL0) {
 		    fprintf(stderr, "0 = %x\n", *(unsigned int*)&(outcreds[0]));
-		    fprintf(stderr, "1 = %x\n", *(unsigned int*)&(outcreds[1]));
 		}
 #endif
 		if (outcreds[0].c_type != CVERSION)
 		    fprintf(stderr, "Botch: Creds: type: got: %x expect: %x\n",
 			    (unsigned int)outcreds[0].c_type, (unsigned int)CVERSION);
-		if (outcreds[1].c_type != CAUTH)
-		    fprintf(stderr, "Botch: Creds: type: got: %x expect: %x\n",
-			    (unsigned int)outcreds[1].c_type, (unsigned int)CAUTH);
 		if ((outcreds[0].c_vala != (unsigned char)PDU_VERSION) ||
 		    (outcreds[0].c_valb != (unsigned char)10) ||
 		    (outcreds[0].c_valc != (unsigned char)11))
 		    fprintf(stderr, "Botch: Creds: value mismatch (cred #0)\n");
-		if ((outcreds[1].c_vala != (unsigned char)20) ||
-		    (outcreds[1].c_valb != (unsigned char)21) ||
-		    (outcreds[1].c_valc != (unsigned char)22))
-		    fprintf(stderr, "Botch: Creds: value mismatch (cred #1)\n");
 		if (standalone && sender != mypid)
 		    fprintf(stderr, "Botch: Creds: sender pid mismatch: got:%d expect:%d\n",
 			    sender, mypid);
-		if (count != 2)
-		    fprintf(stderr, "Botch: Creds: PDU count: got:%d expect:%d\n", count, 2);
+		if (count != 1)
+		    fprintf(stderr, "Botch: Creds: PDU count: got:%d expect:%d\n", count, 1);
 		if (outcreds != NULL)
 		    free(outcreds);
 	    }
