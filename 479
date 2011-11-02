@@ -86,7 +86,9 @@ pmval -z -t 5sec -Dlogmeta -a src-oss/ac15 -i '"15 minute","5","1 minute"' kerne
 
 echo
 echo "torture ..."
-src-oss/torture_logmeta -Dlogmeta src-oss/ac15 60 2 123 2>&1 | _filter
+src-oss/torture_logmeta -Dlogmeta src-oss/ac15 60 2 123 2>&1 \
+| tee -a $seq.full \
+| _filter
 
 # success, all done
 exit
