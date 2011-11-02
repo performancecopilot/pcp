@@ -42,6 +42,7 @@ _filter()
 }
 
 export PM_FAULT_CONTROL=$tmp.control
+export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
 
 # real QA test starts here
 cat >$tmp.control <<End-of-File
