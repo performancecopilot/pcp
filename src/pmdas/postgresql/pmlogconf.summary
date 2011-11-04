@@ -1,0 +1,8 @@
+#pmlogconf-setup 2.0
+ident	postgresql summary information
+probe	postgresql.stat.all_tables.seq_scan ? include : exclude
+	postgresql.stat.database
+	postgresql.stat.all_tables
+	postgresql.stat.all_indexes
+	postgresql.statio.all_tables
+	postgresql.statio.all_indexes

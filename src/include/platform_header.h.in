@@ -292,7 +292,7 @@ typedef long __psint_t;
 typedef long long __psint_t;
 #endif
 #else
-#error Unknown pointer size
+#error Unknown pointer size - not 32 and not 64
 #endif
 #endif
 
@@ -511,6 +511,16 @@ extern char *index(const char *, int);
 extern char *rindex(const char *, int);
 extern long int lrand48(void);
 extern void srand48(long int);
+
+#undef HAVE_STRUCT_TIMESPEC
+#ifndef HAVE_STRUCT_TIMESPEC
+/*
+ * This is a bit odd ... but for MinGW, struct timespec is not in
+ * <time.h> but _is_ in <pthread.h> ... the structure (sec, nanosec)
+ * is what we want, so include <pthread.h>
+ */
+#include <pthread.h>
+#endif
 
 extern int nanosleep(const struct timespec *, struct timespec *);
 extern unsigned int sleep(unsigned int);

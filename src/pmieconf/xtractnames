@@ -20,6 +20,15 @@
 # more context sensitive, and not PMNS-driven
 #
 
+for d in ../include ../../include /etc
+do
+    if [ -f $d/pcp.conf ]
+    then
+	. $d/pcp.conf
+	break
+    fi
+done
+
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
@@ -56,6 +65,6 @@ want == 1			{ print }' \
     | tr -cs 'a-zA-Z0-9_.' '[\012*]' \
     | grep '[a-zA-Z].*\.[a-zA-Z0-9_]'
 done \
-| sort -u
+| $PCP_SORT_PROG -u
 
 exit

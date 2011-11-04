@@ -82,11 +82,16 @@ run_done(int sts, char *msg)
     	fprintf(stderr, "pmlogger: End of run time, exiting\n");
 #endif
 
-    /* write the last time stamp */
+    /*
+     * write the last last temportal index entry with the time stamp
+     * of the last pmResult and the seek pointer set to the offset
+     * _before_ the last log record
+     */
     if (last_stamp.tv_sec != 0) {
 	__pmTimeval	tmp;
 	tmp.tv_sec = (__int32_t)last_stamp.tv_sec;
 	tmp.tv_usec = (__int32_t)last_stamp.tv_usec;
+	fseek(logctl.l_mfp, last_log_offset, SEEK_SET);
 	__pmLogPutIndex(&logctl, &tmp);
     }
 
@@ -741,7 +746,7 @@ Options:\n\
 		PMLC_GET_AVAIL(tp->t_state) ? "" : "un",
 		PMLC_GET_MAND(tp->t_state) ? "mand" : "adv",
 		PMLC_GET_ON(tp->t_state) ? "on" : "off");
-	    fprintf(stderr, " delta: %ld msec", 
+	    fprintf(stderr, " delta: %ld usec", 
 			(long)1000 * tp->t_delta.tv_sec + tp->t_delta.tv_usec);
 	    fprintf(stderr, " numpmid: %d\n", tp->t_numpmid);
 	    for (i = 0; i < tp->t_numpmid; i++) {

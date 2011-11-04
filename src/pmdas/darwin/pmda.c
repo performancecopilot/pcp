@@ -327,19 +327,19 @@ static pmdaMetric metrictab[] = {
 
 /* kernel.all.cpu.user */
   { NULL,
-    { PMDA_PMID(CLUSTER_CPULOAD,42), PM_TYPE_U32, PM_INDOM_NULL,
+    { PMDA_PMID(CLUSTER_CPULOAD,42), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 /* kernel.all.cpu.nice */
   { NULL,
-    { PMDA_PMID(CLUSTER_CPULOAD,43), PM_TYPE_U32, PM_INDOM_NULL,
+    { PMDA_PMID(CLUSTER_CPULOAD,43), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 /* kernel.all.cpu.sys */
   { NULL,
-    { PMDA_PMID(CLUSTER_CPULOAD,44), PM_TYPE_U32, PM_INDOM_NULL,
+    { PMDA_PMID(CLUSTER_CPULOAD,44), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 /* kernel.all.cpu.idle */
   { NULL,
-    { PMDA_PMID(CLUSTER_CPULOAD,45), PM_TYPE_U32, PM_INDOM_NULL,
+    { PMDA_PMID(CLUSTER_CPULOAD,45), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
 /* hinv.ndisk */
@@ -449,19 +449,19 @@ static pmdaMetric metrictab[] = {
       PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* kernel.percpu.cpu.user */
   { NULL,
-    { PMDA_PMID(CLUSTER_CPU,72), PM_TYPE_U32, CPU_INDOM,
+    { PMDA_PMID(CLUSTER_CPU,72), PM_TYPE_U64, CPU_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 /* kernel.percpu.cpu.nice */
   { NULL,
-    { PMDA_PMID(CLUSTER_CPU,73), PM_TYPE_U32, CPU_INDOM,
+    { PMDA_PMID(CLUSTER_CPU,73), PM_TYPE_U64, CPU_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 /* kernel.percpu.cpu.sys */
   { NULL,
-    { PMDA_PMID(CLUSTER_CPU,74), PM_TYPE_U32, CPU_INDOM,
+    { PMDA_PMID(CLUSTER_CPU,74), PM_TYPE_U64, CPU_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 /* kernel.percpu.cpu.idle */
   { NULL,
-    { PMDA_PMID(CLUSTER_CPU,75), PM_TYPE_U32, CPU_INDOM,
+    { PMDA_PMID(CLUSTER_CPU,75), PM_TYPE_U64, CPU_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
 /* kernel.all.uptime */
@@ -738,19 +738,19 @@ fetch_cpuload(unsigned int item, pmAtomValue *atom)
 	return mach_cpuload_error;
     switch (item) {
     case 42: /* kernel.all.cpu.user */
-	atom->ul = LOAD_SCALE * (double)
+	atom->ull = LOAD_SCALE * (double)
 		mach_cpuload.cpu_ticks[CPU_STATE_USER] / mach_hertz;
         return 1;
     case 43: /* kernel.all.cpu.nice */
-	atom->ul = LOAD_SCALE * (double)
+	atom->ull = LOAD_SCALE * (double)
 		mach_cpuload.cpu_ticks[CPU_STATE_NICE] / mach_hertz;
         return 1;
     case 44: /* kernel.all.cpu.sys */
-	atom->ul = LOAD_SCALE * (double)
+	atom->ull = LOAD_SCALE * (double)
 		mach_cpuload.cpu_ticks[CPU_STATE_SYSTEM] / mach_hertz;
         return 1;
     case 45: /* kernel.all.cpu.idle */
-	atom->ul = LOAD_SCALE * (double)
+	atom->ull = LOAD_SCALE * (double)
 		mach_cpuload.cpu_ticks[CPU_STATE_IDLE] / mach_hertz;
         return 1;
     }
@@ -990,19 +990,19 @@ fetch_cpu(unsigned int item, unsigned int inst, pmAtomValue *atom)
 	return PM_ERR_INST;
     switch (item) {
     case 72: /* kernel.percpu.cpu.user */
-	atom->ul = LOAD_SCALE * (double)
+	atom->ull = LOAD_SCALE * (double)
 			mach_cpu[inst].cpu_ticks[CPU_STATE_USER] / mach_hertz;
 	return 1;
     case 73: /* kernel.percpu.cpu.nice */
-	atom->ul = LOAD_SCALE * (double)
+	atom->ull = LOAD_SCALE * (double)
 			mach_cpu[inst].cpu_ticks[CPU_STATE_NICE] / mach_hertz;
 	return 1;
     case 74: /* kernel.percpu.cpu.sys */
-	atom->ul = LOAD_SCALE * (double)
+	atom->ull = LOAD_SCALE * (double)
 			mach_cpu[inst].cpu_ticks[CPU_STATE_SYSTEM] / mach_hertz;
 	return 1;
     case 75: /* kernel.percpu.cpu.idle */
-	atom->ul = LOAD_SCALE * (double)
+	atom->ull = LOAD_SCALE * (double)
 			mach_cpu[inst].cpu_ticks[CPU_STATE_IDLE] / mach_hertz;
 	return 1;
     }

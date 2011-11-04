@@ -42,6 +42,7 @@ then
 FATAL ERROR: Cannot guess your target, try explicit specification
              using --target or, if that fails, add it to config.guess and 
 	     send a copy to pcp@oss.sgi.com.'
+    rm -rf conftest conftest.*
     exit 1
 else
     dnl Remove 4th name component, if present, from target, target_os,
@@ -99,6 +100,7 @@ then
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
+    rm -rf conftest conftest.*
     exit 1
 fi
 
@@ -235,6 +237,7 @@ then
 		echo "FATAL ERROR: could not find GNU make anywhere"
 		echo "You need to set \$MAKE as the full path to GNU make "
 		echo "in the environment."
+		rm -rf conftest conftest.*
 		exit 1
 	    else
 		MAKE=/usr/bin/make
@@ -406,6 +409,7 @@ else
     echo "FATAL ERROR: Perl ExtUtils::MakeMaker module missing."
     echo "You can either install this from your distribution, or"
     echo "download from CPAN (Comprehensive Perl Archive Network)."
+    rm -rf conftest conftest.*
     exit 1
 fi
 
@@ -464,6 +468,7 @@ else
     echo "FATAL ERROR: did not find a valid yacc executable."
     echo "You can either set \$YACC as the full path to yacc"
     echo "in the environment, or install a yacc/bison package."
+    rm -rf conftest conftest.*
     exit 1
 fi
 AC_MSG_CHECKING([if lex is executable])
@@ -478,6 +483,7 @@ else
     echo "FATAL ERROR: did not find a valid lex executable."
     echo "You can either set \$LEX as the full path to lex"
     echo "in the environment, or install a lex/flex package."
+    rm -rf conftest conftest.*
     exit 1
 fi
 
@@ -497,6 +503,30 @@ if test -z "$ECHO"; then
 fi
 echo=$ECHO
 AC_SUBST(echo)
+
+dnl check we don't get the Windows sort ...
+AC_MSG_CHECKING([where unix-like sort(1) lives])
+if test $target_os = mingw; then
+    for d in /bin /usr/bin /mingw/bin /mingw/usr/bin
+    do
+	if test -x $d/sort; then
+	    sort=$d/sort
+	    break
+	fi
+    done
+else
+    sort=`which sort`
+fi
+AC_MSG_RESULT($sort)
+$sort -n </dev/null
+if test $? != 0
+then
+    echo
+    echo "FATAL ERROR: $sort -n failed!"
+    rm -rf conftest conftest.*
+    exit 1
+fi
+AC_SUBST(sort)
 
 dnl echo_n set to -n if echo understands -n to suppress newline
 dnl echo_c set to \c if echo understands \c to suppress newline
@@ -590,7 +620,7 @@ then
     AC_MSG_RESULT(unknown)
     echo "FATAL ERROR: could not determine how to get the \"all processes with arguments\""
     echo "format output from your ps(1)."
-    rm -f conftest.out
+    rm -rf conftest conftest.*
     exit 1
 fi
 dnl checking for w(ide) option so more psargs chars
@@ -927,7 +957,7 @@ dnl check if printf %p has 0x prefix
 AC_MSG_CHECKING([if printf %p produces 0x prefix])
 cat <<End-of-File >conftest.c
 #include <stdio.h>
-main(int argc,  char **argv) { printf("%p\n", argv); exit(0); }
+main(int argc,  char **argv) { printf("%p", argv); exit(0); }
 End-of-File
 (eval $ac_compile) 2>&5
 (eval $ac_link) 2>&5
@@ -1031,11 +1061,15 @@ $2 == "bozo"	{ t = $1
     *\*)	# pointer to a something
 	_fmt='"p"'
 	;;
+    struct\ *)	# not much can be done here ...
+	_fmt='"p"'
+	;;
     *)
 	echo
 	echo "FATAL ERROR: don't know what to do with type \"$_raw\""
 	echo "... typedef mapping ..."
 	cat conftest.debug
+	rm -rf conftest conftest.*
 	exit 1
 	;;
     esac
@@ -1070,7 +1104,7 @@ dnl check sizeof long
 AC_MSG_CHECKING([sizeof long])
 cat <<End-of-File >conftest.c
 #include <stdio.h>
-main() { printf("%d\n", sizeof(long)); }
+main() { printf("%d", (int)sizeof(long)); }
 End-of-File
 (eval $ac_compile) 2>&5
 (eval $ac_link) 2>&5
@@ -1089,7 +1123,7 @@ dnl check sizeof pointer
 AC_MSG_CHECKING([sizeof pointer])
 cat <<End-of-File >conftest.c
 #include <stdio.h>
-main() { printf("%d\n", sizeof(char *)); }
+main() { printf("%d", (int)sizeof(char *)); }
 End-of-File
 (eval $ac_compile) 2>&5
 (eval $ac_link) 2>&5
@@ -1099,10 +1133,15 @@ AC_MSG_RESULT($ans)
 if test $ans -eq 4; then
     AC_DEFINE(HAVE_32BIT_PTR)
     PCP_PTR_SIZE=32
-fi
-if test $ans -eq 8; then
+elif test $ans -eq 8; then
     AC_DEFINE(HAVE_64BIT_PTR)
     PCP_PTR_SIZE=64
+else
+    echo
+    echo "FATAL ERROR: size of pointer is not 32 or 64 bits, cannot proceed."
+    echo "sizeof(char *) -> $ans"
+    rm -rf conftest conftest.*
+    exit 1
 fi
 rm -rf conftest conftest.*
 
@@ -1110,7 +1149,7 @@ dnl check sizeof int. If not 32, we die
 AC_MSG_CHECKING([sizeof int])
 cat <<End-of-File >conftest.c
 #include <stdio.h>
-main() { printf("%d\n", sizeof(int)); }
+main() { printf("%d", (int)sizeof(int)); }
 End-of-File
 (eval $ac_compile) 2>&5
 (eval $ac_link) 2>&5
@@ -1123,6 +1162,7 @@ then
     echo "FATAL ERROR: sizeof(int) is not 32 bits, cannot proceed."
     echo "Note: 32-bit ints are assumed in the PCP external file formats and"
     echo "      the over-the-wire PDU formats"
+    rm -rf conftest conftest.*
     exit 1
 fi
 rm -rf conftest conftest.*
@@ -1131,7 +1171,7 @@ dnl check bit field allocation order within a word
 AC_MSG_CHECKING([if bit fields allocated left-to-right])
 cat <<End-of-File >conftest.c
 union { struct { unsigned int b:4; unsigned int c:4; } a; int p; } u;
-main() { u.a.b = 1; u.a.c = 2; printf("%0*x\n", 2*sizeof(int), u.p); }
+main() { u.a.b = 1; u.a.c = 2; printf("%0*x", 2*sizeof(int), u.p); }
 End-of-File
 (eval $ac_compile) 2>&5
 (eval $ac_link) 2>&5
@@ -1321,6 +1361,7 @@ if test $have_stat_type = false
 then
     echo 'FATAL ERROR: Cannot determine stuct stat time types.'
     echo 'Please send a copy of sys/stat.h to pcp@oss.sgi.com.'
+    rm -rf conftest conftest.*
     exit 1
 fi
 
@@ -1346,6 +1387,7 @@ else
 	echo "FATAL ERROR: could not find /etc directory."
 	echo "You need to set \$PCP_ETC_DIR in the environment"
 	echo "as the path to the directory containing \"pcp.conf\"."
+	rm -rf conftest conftest.*
 	exit 1
     fi
 fi
@@ -1600,6 +1642,7 @@ fi
 if test -z "$pcp_man_dir"
 then
     echo "FATAL ERROR: could not find pcp_man_dir directory."
+    rm -rf conftest conftest.*
     exit 1
 fi
 if test x"$man_header" = "x'\\\" t" -o x"$man_header" = "x'\\\" te" ; then
@@ -1820,6 +1863,16 @@ else
     pcp_mpi_dirs=
 fi
 AC_SUBST(pcp_mpi_dirs)
+
+dnl Check for struct timespec in <time.h>
+AC_MSG_CHECKING([for struct timespec in time.h])
+AC_TRY_COMPILE(
+[
+    #include <time.h>
+],
+[
+    struct timespec foo;
+], AC_DEFINE(HAVE_STRUCT_TIMESPEC) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
 dnl Check if we have IRIX style altzone 
 AC_MSG_CHECKING([for altzone in time.h])

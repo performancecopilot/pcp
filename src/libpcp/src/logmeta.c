@@ -29,11 +29,11 @@ StrTimeval(__pmTimeval *tp)
     }
     else {
 	static char		sbuf[13];
-	static struct tm	*tmp;
+	struct tm		tmp;
 	time_t 			t = tp->tv_sec;
-	tmp = localtime(&t);
+	pmLocaltime(&t, &tmp);
 	sprintf(sbuf, "%02d:%02d:%02d.%03d",	/* safe */
-	    tmp->tm_hour, tmp->tm_min, tmp->tm_sec, tp->tv_usec/1000);
+	    tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tp->tv_usec/1000);
 	return sbuf;
     }
 }
@@ -565,9 +565,11 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp)
 	    if (__pmTimevalSub(&idp->stamp, tp) <= 0)
 		break;
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LOGMETA)
+	    if (pmDebug & DBG_TRACE_LOGMETA) {
+		fprintf(stderr, "request @ %s is ", StrTimeval(tp));
 		fprintf(stderr, "too early for indom @ %s\n",
 		    StrTimeval(&idp->stamp));
+	    }
 #endif
 	}
 	if (idp == NULL)

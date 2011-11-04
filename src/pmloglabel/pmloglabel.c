@@ -162,7 +162,7 @@ main(int argc, char *argv[])
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "D:h:lLp:vV:Z:?")) != EOF) {
+    while ((c = getopt(argc, argv, "D:h:lLp:svV:Z:?")) != EOF) {
 	switch (c) {
 	case 'D':	/* debug flag */
 	    sts = __pmParseDebug(optarg);
@@ -191,6 +191,10 @@ main(int argc, char *argv[])
 
 	case 'p':	/* rewrite pid */
 	    pid = atoi(optarg);
+	    readonly = 0;
+	    break;
+
+	case 's':	/* rewrite sentinels */
 	    readonly = 0;
 	    break;
 
@@ -229,6 +233,7 @@ main(int argc, char *argv[])
 "  -l           dump the archive label\n"
 "  -L           more verbose form of -l\n"
 "  -p pid       set the logger process ID field for all files in archive\n"
+"  -s           write the label sentinel values for all files in archive\n"
 "  -v           run in verbose mode, reporting on each stage of checking\n"
 "  -V version   write magic and version numbers for all files in archive\n"
 "  -Z timezone  set the timezone for all files in archive\n",

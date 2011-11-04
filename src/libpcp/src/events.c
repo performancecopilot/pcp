@@ -371,11 +371,14 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 		    break;
 		case PM_TYPE_EVENT:	/* no nesting! */
 		default:
-		    while (p-- >= 0)
+		    while (p >= 0) {
 			__pmPoolFree(rp->vset[p], sizeof(pmValueSet));
-		    while (r-- >= 0)
-			pmFreeResult((*rap)[r]);
-		    return PM_ERR_TYPE;
+			p--;
+		    }
+		    free(rp);
+		    r--;
+		    sts = PM_ERR_TYPE;
+		    goto bail;
 	    }
 	    need = vsize + PM_VAL_HDR_SIZE;
 	    if (vsize == sizeof(__int64_t)) {

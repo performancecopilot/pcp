@@ -64,9 +64,7 @@ __pmResizeIPC(int fd)
 	if ((__pmIPCTablePtr = (__pmIPC *)realloc(__pmIPCTablePtr,
 				sizeof(__pmIPC)*ipctablesize)) == NULL)
 	    return -oserror();
-	if (oldsize == 0)
-	    memset(__pmIPCTablePtr, 0, sizeof(__pmIPC)*ipctablesize);
-	memset((__pmIPCTablePtr+fd), 0, sizeof(__pmIPC)*(ipctablesize-fd));
+	memset((__pmIPCTablePtr+oldsize), 0, sizeof(__pmIPC)*(ipctablesize-oldsize));
     }
     return 0;
 }

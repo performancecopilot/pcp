@@ -20,24 +20,16 @@
 #include "pmapi.h"
 #include "./pmlc.h"
 
+extern int eflag;
+
 #ifdef FLEX_SCANNER
-#define YY_NO_UNPUT
 #include "gram.tab.h"
 int pmlcFlexInput (char *, int);
-#undef YY_INPUT
-#define YY_INPUT(b,r,ms) (r=pmlcFlexInput(b, ms))
-
 int lineno = 0;
-#else /* AT&T Lex */
+#else /* AT&T lex */
 #include "gram.h"
-#undef input
-#undef unput
-#undef yywrap
-
 int lineno = 1;
 #endif
-
-extern int eflag;
 
 static int
 ctx(int type)
@@ -50,6 +42,23 @@ ctx(int type)
     }
 }
 
+%}
+
+%option noinput
+%option nounput
+
+%{
+#ifdef FLEX_SCANNER
+#ifndef YY_NO_UNPUT
+#define YY_NO_UNPUT
+#endif
+#undef YY_INPUT
+#define YY_INPUT(b,r,ms) (r=pmlcFlexInput(b, ms))
+#else /* AT&T Lex */
+#undef input
+#undef unput
+#undef yywrap
+#endif
 %}
 
 %%

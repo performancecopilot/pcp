@@ -148,6 +148,9 @@ PCP_DEMOS_DIR=@pcp_demos_dir@
 # awk
 PCP_AWK_PROG=@awk@
 
+# unix-like sort
+PCP_SORT_PROG=@sort@
+
 # tools needed to rebuild things on the target platform
 PCP_MAKE_PROG=@make@
 PCP_CC_PROG="@cc@ @cflags_abi@"

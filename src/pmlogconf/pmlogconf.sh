@@ -35,7 +35,8 @@ prog=`basename $0`
 _usage()
 {
     echo "Usage: $prog [-qrv] [-d groupsdir] [-h hostname] configfile"
-    exit 1
+    sts=1
+    exit
 }
 
 quick=false
@@ -89,12 +90,14 @@ fi
 if [ ! -d $BASE ]
 then
     echo "$prog: Error: base directory ($BASE) for group files does not exist"
-    exit 1
+    sts=1
+    exit
 fi
 
 config=$1
 
 tmp=/var/tmp/$$
+sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 #debug# tmp=`pwd`/tmp
 rm -f $tmp.*
@@ -165,8 +168,14 @@ BEGIN						{ out = "'"$tmp.pre"'" }
 						{ print >out }'
 	    mv $tmp.pre $tmp.ctl
 	    [ -z "$HOST" ] && HOST=localhost
-	    $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags $BASE/"$tag" 2>$tmp.err \
-	    | sed -e "s;$BASE/;;" >$tmp.tmp
+	    if $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags $BASE/"$tag" 2>$tmp.err >$tmp.out
+	    then
+		:
+	    else
+		echo "$prog: Warning: $BASE/$tag: pmlogconf-setup failed"
+		sts=1
+	    fi
+	    sed -e "s;$BASE/;;" <$tmp.out >$tmp.tmp
 	    [ -s $tmp.err ] && cat $tmp.err
 	    sed -e '/^#+/s/+/?/' <$tmp.tmp >>$tmp.ctl
 	    cat $tmp.post >>$tmp.ctl
@@ -183,8 +192,14 @@ BEGIN						{ out = "'"$tmp.pre"'" }
 	if $reprobe
 	then
 	    [ -z "$HOST" ] && HOST=localhost
-	    $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags $BASE/"$tag" 2>$tmp.err \
-	    | sed -e "s;$BASE/;;" >$tmp.tmp
+	    if $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags $BASE/"$tag" 2>$tmp.err >$tmp.out
+	    then
+		:
+	    else
+		echo "$prog: Warning: $BASE/$tag: pmlogconf-setup failed"
+		sts=1
+	    fi
+	    sed -e "s;$BASE/;;" <$tmp.out >$tmp.tmp
 	    [ -s $tmp.err ] && cat $tmp.err
 	    if [ -s $tmp.tmp ]
 	    then
@@ -408,7 +423,8 @@ then
     if [ ! -f "$config" ]
     then
 	echo "$prog: Error: config file \"$config\" does not exist and cannot be created"
-	exit 1
+	sts=1
+	exit
     fi
 
     $PCP_ECHO_PROG "Creating config file \"$config\" using default settings ..."
@@ -443,8 +459,15 @@ End-of-File
 	    # not one of our group files, skip it ...
 	    continue
 	fi
-	$PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags "$tag" 2>$tmp.err \
-	| sed -e "s;$BASE/;;" >>$tmp.in
+	if $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags "$tag" 2>$tmp.err >$tmp.out
+	then
+	    :
+	else
+	    echo "$prog: Warning: $BASE/$tag: pmlogconf-setup failed"
+	    [ -s $tmp.err ] && cat $tmp.err
+	    sts=1
+	fi
+	sed -e "s;$BASE/;;" <$tmp.out >>$tmp.in
 	[ -s $tmp.err ] && cat $tmp.err
     done
 
@@ -541,16 +564,19 @@ s; S2:; networking/rpc:;
 	    cp "$config" $tmp.in
 	else
 	    echo "$prog: Error: existing config file \"$config\" is wrong version ($version)"
-	    exit 1
+	    sts=1
+	    exit
 	fi
     else
 	echo "$prog: Error: existing \"$config\" is not a $prog control file"
-	exit 1
+	sts=1
+	exit
     fi
     if [ ! -w "$config" ]
     then
 	echo "$prog: Error: existing config file \"$config\" is not writeable"
-	exit 1
+	sts=1
+	exit
     fi
 
     [ -n "$HOST" ] && echo "$prog: Warning: existing config file, -h $HOST will be ignored"

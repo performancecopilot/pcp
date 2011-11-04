@@ -31,16 +31,9 @@ static int using_readline = 0;
 #endif
 
 #ifdef FLEX_SCANNER
-#define YY_NO_UNPUT
 #include "./gram.tab.h"
 static int dbpmdaFlexInput (char *, int);
-#undef YY_INPUT
-#define YY_INPUT(b,r,ms) (r=dbpmdaFlexInput(b, ms))
-#else /* AT&T Lex */
-#undef input
-#undef unput
-#undef yywrap
-#undef yyinput
+#else
 #include "./gram.h"
 #endif
 
@@ -50,6 +43,24 @@ static int dbpmdaFlexInput (char *, int);
 
 %s FNAME
 %a 2200
+
+%option noinput
+%option nounput
+
+%{
+#ifdef FLEX_SCANNER
+#ifndef YY_NO_UNPUT
+#define YY_NO_UNPUT
+#endif
+#undef YY_INPUT
+#define YY_INPUT(b,r,ms) (r=dbpmdaFlexInput(b, ms))
+#else
+#undef input
+#undef unput
+#undef yywrap
+#undef yyinput
+#endif
+%}
 
 %%
 

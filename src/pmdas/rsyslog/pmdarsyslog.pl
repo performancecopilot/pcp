@@ -174,6 +174,7 @@ $pmda->add_indom($queue_indom, \@queue_insts,
 
 $pmda->add_tail($statsfile, \&rsyslog_parser, 0);
 $pmda->set_fetch_callback(\&rsyslog_fetch_callback);
+$pmda->set_user('nobody');
 $pmda->run;
 
 =pod

@@ -29,15 +29,22 @@ int lineno = 1;
 
 #include "gram.tab.h"
 
+%}
+
+%option noinput
+%option nounput
+
+%{
 #ifdef FLEX_SCANNER
+#ifndef YY_NO_UNPUT
 #define YY_NO_UNPUT
+#endif
 #else
 #undef input
 #define input() ((yytchar=fgetc(yyin)) == EOF ? 0 : yytchar)
 #undef unput
 #define unput(c) {yytchar=(c); ungetc(yytchar, yyin);}
 #endif
-
 %}
 
 %%

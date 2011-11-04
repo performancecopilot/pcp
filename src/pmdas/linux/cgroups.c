@@ -161,6 +161,7 @@ static int
 process_prepare(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
 		const char *name, int group, int domain)
 {
+#if 0	/* not yet implemented */
     FILE *fp;
     pmID pmid;
     char process[64];
@@ -179,6 +180,7 @@ process_prepare(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
     snprintf(taskpath, sizeof(taskpath), "cgroup.groups.%s%s.tasks.pid",
 			subsys->name, name);
     __pmAddPMNSNode(pmns, pmid, taskpath);
+#endif
     return 0;
 }
 
@@ -683,7 +685,7 @@ size_metrictable(int *total, int *trees)
 	    if (group->id > maxid)
 		maxid = group->id;
 	}
-	count += subsys->metric_count + 1;	/* +1 for task.pid */
+	count += subsys->metric_count + 0;	/* +1 for task.pid */
     }
 
     *total = count;

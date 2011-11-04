@@ -237,6 +237,8 @@ $pmda->add_timer($memcache_delay, \&memcache_timer_callback, 0);
 $pmda->set_fetch_callback(\&memcache_fetch_callback);
 
 &memcache_connect;
+
+$pmda->set_user('nobody');
 $pmda->run;
 
 =pod

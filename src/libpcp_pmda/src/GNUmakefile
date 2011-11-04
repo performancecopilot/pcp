@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
-# Copyright (c) 2009 Aconex.  All Rights Reserved.
+# Copyright (c) 2009,2011 Aconex.  All Rights Reserved.
 # 
 # This library is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published
@@ -18,8 +18,8 @@ include $(TOPDIR)/src/include/builddefs
 -include GNUlocaldefs
 
 CFILES	= callback.c open.c mainloop.c help.c cache.c tree.c context.c \
-	  events.c
-HFILES	= libdefs.h
+	  events.c queues.c
+HFILES	= libdefs.h queues.h
 LLDLIBS	= -lpcp
 
 STATICLIBTARGET = libpcp_pmda.a

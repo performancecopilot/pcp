@@ -13,10 +13,16 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMDAEVENT 3 "SGI" "Performance Co-Pilot"
+.TH PMDAEVENTARRAY 3 "SGI" "Performance Co-Pilot"
 .SH NAME
 .ad l
-\f3pmdaEventNewArray\f1, \f3pmdaEventResetArray\f1, \f3pmdaEventReleaseArray\f1, \f3pmdaEventAddRecord\f1, \f3pmdaEventAddMissedRecord\f1, \f3pmdaEventAddParam\f1, \f3pmdaEventGetAddr\f1 \- utilities for PMDAs to build packed arrays of event records
+\f3pmdaEventNewArray\f1,
+\f3pmdaEventResetArray\f1,
+\f3pmdaEventReleaseArray\f1,
+\f3pmdaEventAddRecord\f1,
+\f3pmdaEventAddMissedRecord\f1,
+\f3pmdaEventAddParam\f1,
+\f3pmdaEventGetAddr\f1 \- utilities for PMDAs to build packed arrays of event records
 .br
 .ad
 .SH "C SYNOPSIS"
@@ -242,7 +248,8 @@ eap = pmdaEventGetAddr(myarray);
 .ps
 .ft
 .SH SEE ALSO
-.BR PMAPI (3)
+.BR pmdaEventNewQueue (3),
+.BR pmdaEventNewClient (3),
 .BR PMDA (3)
 and
 .BR pmEventFlagsStr (3).

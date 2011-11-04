@@ -29,6 +29,9 @@ extern char *conf_buffer_ptr;
 
 %}
 
+%option noinput
+%option nounput
+
 %%
 
 Version		{ return VERSION; }
