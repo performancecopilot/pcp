@@ -7,6 +7,7 @@ Options:
   -c config   file or directory to load rules from
   -C          parse config file(s) and quit
   -d          desperate, save output archive even after error
+  -q          quick mode, no output if no change
   -s          do scale conversion
   -v          verbose
   -w          emit warnings [default is silence]
@@ -17,6 +18,7 @@ Options:
   -c config   file or directory to load rules from
   -C          parse config file(s) and quit
   -d          desperate, save output archive even after error
+  -q          quick mode, no output if no change
   -s          do scale conversion
   -v          verbose
   -w          emit warnings [default is silence]
@@ -28,6 +30,7 @@ Options:
   -c config   file or directory to load rules from
   -C          parse config file(s) and quit
   -d          desperate, save output archive even after error
+  -q          quick mode, no output if no change
   -s          do scale conversion
   -v          verbose
   -w          emit warnings [default is silence]
@@ -39,6 +42,7 @@ Options:
   -c config   file or directory to load rules from
   -C          parse config file(s) and quit
   -d          desperate, save output archive even after error
+  -q          quick mode, no output if no change
   -s          do scale conversion
   -v          verbose
   -w          emit warnings [default is silence]
@@ -52,6 +56,7 @@ Options:
   -c config   file or directory to load rules from
   -C          parse config file(s) and quit
   -d          desperate, save output archive even after error
+  -q          quick mode, no output if no change
   -s          do scale conversion
   -v          verbose
   -w          emit warnings [default is silence]
@@ -63,6 +68,7 @@ Options:
   -c config   file or directory to load rules from
   -C          parse config file(s) and quit
   -d          desperate, save output archive even after error
+  -q          quick mode, no output if no change
   -s          do scale conversion
   -v          verbose
   -w          emit warnings [default is silence]
