@@ -18,7 +18,7 @@
 \f3pmlogrewrite\f1 \- rewrite Performance Co-Pilot archives
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/pmlogrewrite\f1
-[\f3\-Cdsvw \f1]
+[\f3\-Cdqsvw \f1]
 [\f3\-c\f1 \f2config\f1]
 \f2inlog\f1 \f2outlog\f1 
 .SH DESCRIPTION
@@ -95,6 +95,15 @@ are as follows:
 Parse the rewriting rules and quit.
 .I outlog
 is not created.
+When
+.B \-C
+is specified, this also sets
+.B \-v
+and
+.B \-w
+so that all warnings and verbose messages are displayed as
+.I config
+is parsed.
 .TP 7
 .BI \-c " config"
 If
@@ -120,6 +129,18 @@ option, the partially created
 .I outlog
 archive log is not removed.
 .TP 7
+.B \-q
+Quick mode, where if there are no rewriting actions to be
+performed (none of the global data, instance domains or metrics
+from
+.I inlog
+will be changed), then
+.B pmlogrewrite
+will exit (with status 0, so success) immediately after parsing
+the configuration file(s) and
+.I outlog
+is not created.
+.TP 7
 .B \-s
 When the ``units'' of a metric are changed, if the dimension in terms
 of space, time and count is unaltered, then the scaling factor is being changed,
@@ -142,9 +163,25 @@ Increase verbosity of diagnostic output.
 .BI \-w
 Emit warnings.  Normally
 .B pmlogrewrite
-remains silent for any warning that is not fatal, e.g. a rewriting
-rule for a metric or instance domain or an instance that is not present in
-.IR inlog .
+remains silent for any warning that is not fatal and
+it is expected that for a particular archive, some (or indeed, all)
+of the rewriting specifications may not apply.  For example, changes to
+a PMDA may be captured in a set of rewriting rules, but a single archive
+may not contain all of the modified metrics nor all of the modified
+instance domains and/or instances.  Because these cases are expected,
+they do not prevent
+.B pmlogrewrite
+executing, and rules that do not apply to
+.I inlog
+are silently ignored by default.
+Similarly, some rewriting rules may involve no change because
+the metadata in
+.I inlog
+already matches the intent of the rewriting rule to correct data
+from a previous version of a PMDA.
+The
+.B \-w
+flag forces warnings to be emitted for all of these cases.
 .SH REWRITING RULES SYNTAX
 A configuration file
 contains zero or more rewriting rules as defined below.

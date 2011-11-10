@@ -39,8 +39,9 @@ usage(void)
 \n\
 Options:\n\
   -c config   file or directory to load rules from\n\
-  -C          parse config file(s) and quit\n\
+  -C          parse config file(s) and quit (sets -v and -w also)\n\
   -d          desperate, save output archive even after error\n\
+  -q          quick mode, no output if no change\n\
   -s          do scale conversion\n\
   -v          verbose\n\
   -w          emit warnings [default is silence]\n",
@@ -66,6 +67,7 @@ char	**conf = NULL;			/* list of config files */
 char	*configfile = NULL;		/* current config file */
 int	Cflag = 0;			/* -C parse config and quit */
 int	dflag = 0;			/* -d desperate */
+int	qflag = 0;			/* -q quick or quiet */
 int	sflag = 0;			/* -s scale values */
 int	vflag = 0;			/* -v verbosity */
 int	wflag = 0;			/* -w emit warnings */
@@ -242,7 +244,7 @@ parseargs(int argc, char *argv[])
     int			errflag = 0;
     struct stat		sbuf;
 
-    while ((c = getopt(argc, argv, "c:CdD:svw?")) != EOF) {
+    while ((c = getopt(argc, argv, "c:CdD:qsvw?")) != EOF) {
 	switch (c) {
 
 	case 'c':	/* config file */
@@ -300,6 +302,7 @@ parseargs(int argc, char *argv[])
 	case 'C':	/* parse configs and quit */
 	    Cflag = 1;
 	    vflag = 1;
+	    wflag = 1;
 	    break;
 
 	case 'd':	/* desperate */
@@ -315,6 +318,10 @@ parseargs(int argc, char *argv[])
 	    }
 	    else
 		pmDebug |= sts;
+	    break;
+
+	case 'q':	/* quick or quiet */
+	    qflag = 1;
 	    break;
 
 	case 's':	/* do scale conversions */
@@ -532,6 +539,31 @@ reportconfig(void)
     }
     if (change == 0)
 	printf("No changes\n");
+}
+
+static int
+anychange(void)
+{
+    indomspec_t		*ip;
+    metricspec_t	*mp;
+    int			i;
+
+    if (global.flags != 0)
+	return 1;
+    for (ip = indom_root; ip != NULL; ip = ip->i_next) {
+	if (ip->new_indom != ip->old_indom)
+	    return 1;
+	for (i = 0; i < ip->numinst; i++) {
+	    if (ip->flags[i])
+		return 1;
+	}
+    }
+    for (mp = metric_root; mp != NULL; mp = mp->m_next) {
+	if (mp->flags != 0 || mp->ip != NULL)
+	    return 1;
+    }
+    
+    return 0;
 }
 
 static int
@@ -873,6 +905,9 @@ main(int argc, char **argv)
 	reportconfig();
 
     if (Cflag)
+	exit(0);
+
+    if (qflag && anychange() == 0)
 	exit(0);
 
     /* create output log - must be done before writing label */

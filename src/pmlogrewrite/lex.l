@@ -207,7 +207,7 @@ dupstr(char *s, int strip_quotes)
 
 \n			{ lineno++; }
 .			{ 
-			    sprintf(mess, "Unexpected character '%c'",
+			    snprintf(mess, sizeof(mess), "Unexpected character '%c'",
 				yytext[0]);
 			    yyerror(mess);
 			}
