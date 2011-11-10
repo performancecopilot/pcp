@@ -5,7 +5,7 @@ Usage: pmlogrewrite [options] input-archive output-archive
 
 Options:
   -c config   file or directory to load rules from
-  -C          parse config file(s) and quit
+  -C          parse config file(s) and quit (sets -v and -w also)
   -d          desperate, save output archive even after error
   -q          quick mode, no output if no change
   -s          do scale conversion
@@ -16,7 +16,7 @@ Usage: pmlogrewrite [options] input-archive output-archive
 
 Options:
   -c config   file or directory to load rules from
-  -C          parse config file(s) and quit
+  -C          parse config file(s) and quit (sets -v and -w also)
   -d          desperate, save output archive even after error
   -q          quick mode, no output if no change
   -s          do scale conversion
@@ -28,7 +28,7 @@ Usage: pmlogrewrite [options] input-archive output-archive
 
 Options:
   -c config   file or directory to load rules from
-  -C          parse config file(s) and quit
+  -C          parse config file(s) and quit (sets -v and -w also)
   -d          desperate, save output archive even after error
   -q          quick mode, no output if no change
   -s          do scale conversion
@@ -40,7 +40,7 @@ Usage: pmlogrewrite [options] input-archive output-archive
 
 Options:
   -c config   file or directory to load rules from
-  -C          parse config file(s) and quit
+  -C          parse config file(s) and quit (sets -v and -w also)
   -d          desperate, save output archive even after error
   -q          quick mode, no output if no change
   -s          do scale conversion
@@ -54,7 +54,7 @@ Usage: pmlogrewrite [options] input-archive output-archive
 
 Options:
   -c config   file or directory to load rules from
-  -C          parse config file(s) and quit
+  -C          parse config file(s) and quit (sets -v and -w also)
   -d          desperate, save output archive even after error
   -q          quick mode, no output if no change
   -s          do scale conversion
@@ -66,7 +66,7 @@ Usage: pmlogrewrite [options] input-archive output-archive
 
 Options:
   -c config   file or directory to load rules from
-  -C          parse config file(s) and quit
+  -C          parse config file(s) and quit (sets -v and -w also)
   -d          desperate, save output archive even after error
   -q          quick mode, no output if no change
   -s          do scale conversion

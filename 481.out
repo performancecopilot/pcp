@@ -425,8 +425,10 @@ Inst Changes:	<- InDom 2.1
 Metric: pmcd.pmlogger.archive (2.3.2)
 Inst Changes:	<- InDom 2.1
 === indom 2.1 { iname "19857" -> "19856 bozo" } ===
-Specification error in configuration file (TMP.conf)
-[line 1] Unknown instance "19857" in name clause for indom 2.1
+Warning [TMP.conf, line 1]
+Unknown instance "19857" in iname clause for indom 2.1
+PCP Archive Log Rewrite Specifications Summary
+No changes
 
 === context sensitive lexical scanning ... expect pass ===
 PCP Archive Log Rewrite Specifications Summary
