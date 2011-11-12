@@ -35,26 +35,30 @@ static void
 usage(void)
 {
     fprintf(stderr,
-"Usage: %s [options] input-archive output-archive\n\
+"Usage: %s [options] input-archive [output-archive]\n\
 \n\
 Options:\n\
   -c config   file or directory to load rules from\n\
   -C          parse config file(s) and quit (sets -v and -w also)\n\
   -d          desperate, save output archive even after error\n\
+  -i          rewrite in place, input-archive will be over-written\n\
   -q          quick mode, no output if no change\n\
   -s          do scale conversion\n\
   -v          verbose\n\
-  -w          emit warnings [default is silence]\n",
+  -w          emit warnings [default is silence]\n\
+\n\
+output-archive is required unless -i is specified\n",
 	pmProgname);
 }
 
 /*
  *  Global variables
  */
-static int	first_datarec = 1;		/* first record flag */
+static int	first_datarec = 1;	/* first record flag */
+static char	bak_base[MAXPATHLEN+1];	/* basename for backup with -i */
 
-off_t		new_log_offset;			/* new log offset */
-off_t		new_meta_offset;		/* new meta offset */
+off_t		new_log_offset;		/* new log offset */
+off_t		new_meta_offset;	/* new meta offset */
 
 
 /* archive control stuff */
@@ -67,6 +71,7 @@ char	**conf = NULL;			/* list of config files */
 char	*configfile = NULL;		/* current config file */
 int	Cflag = 0;			/* -C parse config and quit */
 int	dflag = 0;			/* -d desperate */
+int	iflag = 0;			/* -i in-place */
 int	qflag = 0;			/* -q quick or quiet */
 int	sflag = 0;			/* -s scale values */
 int	vflag = 0;			/* -v verbosity */
@@ -88,8 +93,9 @@ _report(FILE *fp)
 	fprintf(stderr, ": stat: %s\n", osstrerror());
     else
 	fprintf(stderr, " %ld bytes.\n", (long)sbuf.st_size);
-    fprintf(stderr, "The last record, and the remainder of this file will not be extracted.\n");
-    exit(1);
+    if (dflag)
+	fprintf(stderr, "The last record, and the remainder of this file will not be processed.\n");
+    abandon();
 }
 
 /*
@@ -110,7 +116,7 @@ newvolume(int vol)
     else {
 	fprintf(stderr, "%s: __pmLogNewFile(%s,%d) Error: %s\n",
 		pmProgname, outarch.name, vol, pmErrStr(-oserror()));
-	exit(1);
+	abandon();
     }
 }
 
@@ -244,7 +250,7 @@ parseargs(int argc, char *argv[])
     int			errflag = 0;
     struct stat		sbuf;
 
-    while ((c = getopt(argc, argv, "c:CdD:qsvw?")) != EOF) {
+    while ((c = getopt(argc, argv, "c:CdD:iqsvw?")) != EOF) {
 	switch (c) {
 
 	case 'c':	/* config file */
@@ -283,7 +289,7 @@ parseargs(int argc, char *argv[])
 			    break;
 			if ((conf[nconf-1] = strdup(path)) == NULL) {
 			    fprintf(stderr, "conf[%d] strdup(%s) failed: %s\n", nconf-1, path, strerror(errno));
-			    exit(1);
+			    abandon();
 			}
 
 		    }
@@ -295,7 +301,7 @@ parseargs(int argc, char *argv[])
 	    }
 	    if (nconf > 0 && conf == NULL) {
 		fprintf(stderr, "conf[%d] realloc(%d) failed: %s\n", nconf, (int)(nconf*sizeof(conf[0])), strerror(errno));
-		exit(1);
+		abandon();
 	    }
 	    break;
 
@@ -318,6 +324,10 @@ parseargs(int argc, char *argv[])
 	    }
 	    else
 		pmDebug |= sts;
+	    break;
+
+	case 'i':	/* in-place, over-write input archive */
+	    iflag = 1;
 	    break;
 
 	case 'q':	/* quick or quiet */
@@ -343,8 +353,11 @@ parseargs(int argc, char *argv[])
 	}
     }
 
-    if (errflag == 0 && optind != argc-2)
-	errflag++;
+    if (errflag == 0) {
+	if ((iflag == 0 && optind != argc-2) ||
+	    (iflag == 1 && optind != argc-1))
+	    errflag++;
+    }
 
     return -errflag;
 }
@@ -859,7 +872,10 @@ main(int argc, char **argv)
     }
 
     /* input archive */
-    inarch.name = argv[argc-2];
+    if (iflag == 0)
+	inarch.name = argv[argc-2];
+    else
+	inarch.name = argv[argc-1];
     inarch.logrec = inarch.metarec = NULL;
     inarch.mark = 0;
     inarch.rp = NULL;
@@ -884,7 +900,76 @@ main(int argc, char **argv)
     }
 
     /* output archive */
-    outarch.name = argv[argc-1];
+    if (iflag && Cflag == 0) {
+	/*
+	 * -i (in place) method outline
+	 *
+	 * + create one temporary base filename in the same directory is
+	 *   the input archive, keep a copy of this name this accessed
+	 *   via outarch.name
+	 * + create a second (and different) temporary base file name
+	 *   in the same directory, keep this name in bak_base[]
+	 * + close the temporary file descriptors and unlink the basename
+	 *   files
+	 * + create the output as per normal in outarch.name
+	 * + rename the _input_ archive files using the _second_ temporary
+	 *   basename
+	 * + rename the output archive files to the basename of the input
+	 *   archive ... if this step fails for any reason, restore the
+	 *   original input files
+	 * + unlink all the (old) input archive files
+	 */
+	char	path[MAXPATHLEN+1];
+	char	dname[MAXPATHLEN+1];
+	int	tmp_f1;			/* fd for first temp basename */
+	int	tmp_f2;			/* fd for second temp basename */
+	strncpy(path, argv[argc-1], sizeof(path));
+	strncpy(dname, dirname(path), sizeof(dname));
+#if HAVE_MKSTEMP
+	sprintf(path, "%s%cXXXXXX", dname, __pmPathSeparator());
+	tmp_f1 = mkstemp(path);
+	outarch.name = strdup(path);
+	    // TODO check
+	sprintf(bak_base, "%s%cXXXXXX", dname, __pmPathSeparator());
+	tmp_f2 = mkstemp(bak_base);
+#else
+	char	fname[MAXPATHLEN+1];
+	char	*s;
+	strncpy(path, argv[argc-1], sizeof(path));
+	strncpy(fname, basename(path)m sizeof(fname));
+	if ((s = tempnam(dname, fname)) == NULL) {
+	    fprintf(stderr, "Error: first tempnam() failed: %s\n", strerror(errno));
+	    abandon();
+	}
+	else {
+	    outarch.name = strdup(s);
+	    // TODO check
+	    tmp_f1 = open(outarch.name, O_WRONLY|O_CREAT|O_EXCL, 0600);
+	}
+	if ((s = tempnam(dname, fname)) == NULL) {
+	    fprintf(stderr, "Error: second tempnam() failed: %s\n", strerror(errno));
+	    abandon();
+	}
+	else {
+	    strcpy(bak_base, s);
+	    tmp_f2 = open(bak_base, O_WRONLY|O_CREAT|O_EXCL, 0600);
+	}
+#endif
+	if (tmp_f1 < 0) {
+	    fprintf(stderr, "Error: create first temp (%s) failed: %s\n", outarch.name, strerror(errno));
+	    abandon();
+	}
+	if (tmp_f2 < 0) {
+	    fprintf(stderr, "Error: create second temp (%s) failed: %s\n", bak_base, strerror(errno));
+	    abandon();
+	}
+	close(tmp_f1);
+	close(tmp_f2);
+	unlink(outarch.name);
+	unlink(bak_base);
+    }
+    else
+	outarch.name = argv[argc-1];
 
     /*
      * process config file(s)
@@ -914,7 +999,7 @@ main(int argc, char **argv)
     if ((sts = __pmLogCreate("", outarch.name, PM_LOG_VERS02, &outarch.logctl)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate(%s): %s\n",
 		pmProgname, outarch.name, pmErrStr(sts));
-	exit(1);
+	abandon();
     }
 
     /* initialize and write label records */
@@ -1051,7 +1136,7 @@ main(int argc, char **argv)
 	    else {
 		fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",
 		    pmProgname, stsmeta);
-		exit(1);
+		abandon();
 	    }
 	    free(inarch.metarec);
 	    stsmeta = 0;
@@ -1099,25 +1184,40 @@ main(int argc, char **argv)
 	__pmLogPutIndex(&outarch.logctl, &tstamp);
     }
 
+    if (iflag) {
+	if (__pmLogRename(inarch.name, bak_base) < 0)
+	    abandon();
+	if (__pmLogRename(outarch.name, inarch.name) < 0)
+	    abandon();
+	__pmLogRemove(bak_base);
+    }
+
     exit(0);
 }
 
 void
 abandon(void)
 {
-    char    fname[MAXNAMELEN];
+    char    path[MAXNAMELEN+1];
     if (dflag == 0) {
-	fprintf(stderr, "Archive \"%s\" not created.\n", outarch.name);
+	if (Cflag == 0 && iflag == 0)
+	    fprintf(stderr, "Archive \"%s\" not created.\n", outarch.name);
+
+	__pmLogRemove(outarch.name);
+	if (iflag)
+	    __pmLogRename(bak_base, inarch.name);
 	while (outarch.logctl.l_curvol >= 0) {
-	    snprintf(fname, sizeof(fname), "%s.%d", outarch.name, outarch.logctl.l_curvol);
-	    unlink(fname);
+	    snprintf(path, sizeof(path), "%s.%d", outarch.name, outarch.logctl.l_curvol);
+	    unlink(path);
 	    outarch.logctl.l_curvol--;
 	}
-	snprintf(fname, sizeof(fname), "%s.meta", outarch.name);
-	unlink(fname);
-	snprintf(fname, sizeof(fname), "%s.index", outarch.name);
-	unlink(fname);
+	snprintf(path, sizeof(path), "%s.meta", outarch.name);
+	unlink(path);
+	snprintf(path, sizeof(path), "%s.index", outarch.name);
+	unlink(path);
     }
     else
-	fprintf(stderr, "Archive \"%s\" creation aborted.\n", outarch.name);
+	fprintf(stderr, "Archive \"%s\" creation truncated.\n", outarch.name);
+
+    exit(1);
 }

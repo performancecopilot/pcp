@@ -18,9 +18,9 @@
 \f3pmlogrewrite\f1 \- rewrite Performance Co-Pilot archives
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/pmlogrewrite\f1
-[\f3\-Cdqsvw \f1]
+[\f3\-Cdiqsvw \f1]
 [\f3\-c\f1 \f2config\f1]
-\f2inlog\f1 \f2outlog\f1 
+\f2inlog\f1 [\f2outlog\f1]
 .SH DESCRIPTION
 .B pmlogrewrite
 reads a Performance Co-Pilot (PCP) archive log
@@ -129,6 +129,20 @@ option, the partially created
 .I outlog
 archive log is not removed.
 .TP 7
+.B \-i
+Rather than creating
+.IR outlog ,
+.I inlog
+is rewritten in place when the
+.B \-i
+option is used.
+A new archive is created using temporary file names and then renamed to 
+.I inlog
+in such a way that
+if any errors (not warnings) are encountered,
+.I inlog
+remains unaltered.
+.TP 7
 .B \-q
 Quick mode, where if there are no rewriting actions to be
 performed (none of the global data, instance domains or metrics
@@ -182,6 +196,12 @@ from a previous version of a PMDA.
 The
 .B \-w
 flag forces warnings to be emitted for all of these cases.
+.PP
+The argument
+.I outlog
+is required in all cases, except when
+.B \-i
+is specified.
 .SH REWRITING RULES SYNTAX
 A configuration file
 contains zero or more rewriting rules as defined below.

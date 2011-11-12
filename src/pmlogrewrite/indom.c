@@ -49,14 +49,14 @@ start_indom(pmInDom indom)
 	ip = (indomspec_t *)malloc(sizeof(indomspec_t));
 	if (ip == NULL) {
 	    fprintf(stderr, "indomspec malloc(%d) failed: %s\n", (int)sizeof(indomspec_t), strerror(errno));
-	    exit(1);
+	    abandon();
 	}
 	ip->i_next = indom_root;
 	indom_root = ip;
 	ip->flags = (int *)malloc(numinst*sizeof(int));
 	if (ip->flags == NULL) {
 	    fprintf(stderr, "indomspec flags malloc(%d) failed: %s\n", numinst*(int)sizeof(int), strerror(errno));
-	    exit(1);
+	    abandon();
 	}
 	for (i = 0; i < numinst; i++)
 	    ip->flags[i] = 0;
@@ -67,13 +67,13 @@ start_indom(pmInDom indom)
 	ip->new_inst = (int *)malloc(numinst*sizeof(int));
 	if (ip->new_inst == NULL) {
 	    fprintf(stderr, "new_inst malloc(%d) failed: %s\n", numinst*(int)sizeof(int), strerror(errno));
-	    exit(1);
+	    abandon();
 	}
 	ip->old_iname = namelist;
 	ip->new_iname = (char **)malloc(numinst*sizeof(char *));
 	if (ip->new_iname == NULL) {
 	    fprintf(stderr, "new_iname malloc(%d) failed: %s\n", numinst*(int)sizeof(char *), strerror(errno));
-	    exit(1);
+	    abandon();
 	}
     }
 
@@ -212,7 +212,7 @@ _pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, __pmTimeval *tp, int *numinst, i
     *instlist = (int *)malloc(*numinst * sizeof(int));
     if (*instlist == NULL) {
 	fprintf(stderr, "_pmUnpackInDom instlist malloc(%d) failed: %s\n", (int)(*numinst * sizeof(int)), strerror(errno));
-	exit(1);
+	abandon();
     }
     ip = (int *)idp->other;
     for (i = 0; i < *numinst; i++)
@@ -220,7 +220,7 @@ _pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, __pmTimeval *tp, int *numinst, i
     *inamelist = (char **)malloc(*numinst * sizeof(char *));
     if (*inamelist == NULL) {
 	fprintf(stderr, "_pmUnpackInDom inamelist malloc(%d) failed: %s\n", (int)(*numinst * sizeof(char *)), strerror(errno));
-	exit(1);
+	abandon();
     }
     /*
      * ip[i] is stridx[i], which is offset into strbuf[]
@@ -326,7 +326,7 @@ do_indom(void)
 	new = (char *)malloc(need);
 	if (new == NULL) {
 	    fprintf(stderr, "inamelist[] malloc(%d) failed: %s\n", need, strerror(errno));
-	    exit(1);
+	    abandon();
 	}
 	p = new;
 	for (j = 0; j < numinst; j++) {
@@ -339,7 +339,7 @@ do_indom(void)
     if ((sts = __pmLogPutInDom(&outarch.logctl, indom, &stamp, numinst, instlist, inamelist)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutInDom: %s: %s\n",
 			pmProgname, pmInDomStr(indom), pmErrStr(sts));
-	exit(1);
+	abandon();
     }
 #if PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
