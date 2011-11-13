@@ -579,7 +579,7 @@ END							{ print m }'`
     #
     # Assume if .meta file is present then other archive components are
     # also present (if not the case it is a serious process botch, and
-    # pmlogmerge will fail below)
+    # pmlogger_merge will fail below)
     #
     # Find all candidate input archives, remove any that contain today's
     # date and group the remainder by date.
@@ -674,6 +674,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 	# this is sufficiently serious that we don't want to remove
 	# the lock file, so problems are not compounded the next time
 	# the script is run
+	$VERY_VERBOSE && echo "Skip culling and compression ..."
 	continue
     fi
 
@@ -697,6 +698,8 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 	    else
 		cat $tmp.list | xargs rm -f
 	    fi
+	else
+	    $VERY_VERBOSE && echo "$prog: Warning: no archive files found to cull"
 	fi
     fi
 
@@ -722,6 +725,8 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 	    else
 		cat $tmp.list | xargs $COMPRESS
 	    fi
+	else
+	    $VERY_VERBOSE && echo "$prog: Warning: no archive files found to compress"
 	fi
     fi
 
@@ -745,6 +750,8 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 	    else
 		cat $tmp.list | xargs rm -f
 	    fi
+	else
+	    $VERY_VERBOSE && echo "$prog: Warning: no trace files found to cull"
 	fi
     fi
 
