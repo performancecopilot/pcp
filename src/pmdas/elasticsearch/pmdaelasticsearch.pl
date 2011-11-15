@@ -117,10 +117,9 @@ sub es_lookup_node
 sub es_value
 {
     my ( $values, $names ) = @_;
-    my @subnames = @$names;
     my ( $value, $name );
 
-    foreach $name (@subnames) {
+    foreach $name (@$names) {
 	$value = $values->{$name};
 	return (PM_ERR_APPVERSION, 0) unless (defined($value));
 	$values = $value;
