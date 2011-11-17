@@ -109,7 +109,7 @@ sub es_refresh
 sub es_lookup_node
 {
     my ($json, $inst) = @_;
-    my $nodeID = $nodes_instance_ids[$inst+1];
+    my $nodeID = $nodes_instance_ids[($inst*2)+1];
     return $json->{'nodes'}->{$nodeID};
 }
 
