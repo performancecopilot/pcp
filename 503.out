@@ -1,0 +1,362 @@
+QA output created by 503
++++ should just work ... +++
+
+=== daily maintenance of PCP archives for host HOSTNAME ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "HOSTNAME"
+[TMP.control:2] ... logging for host "HOSTNAME" unchanged
+
+Input archives to be merged:
+	20111001.21.10
+	20111001.22.10
+Output archive files:
+-rw-r--r-- ... 20111001.meta
+-rw-r--r-- ... 20111001.index
+-rw-r--r-- ... 20111001.0
+Removing input archive files ... done
+
+!!! global { hostname -> dreaming } !!!
+
++++ expect mismatch +++
+
+=== daily maintenance of PCP archives for host HOSTNAME ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "HOSTNAME"
+[TMP.control:2] ... logging for host "HOSTNAME" unchanged
+
+Input archives to be merged:
+	20111001.21.10
+	20111001.22.10
+pmlogextract: Error: host name mismatch for input archives
+archive: 20111001.21.10 host: bozo-laptop
+archive: 20111001.22.10 host: dreaming
+Archive "20111001" not created.
+pmlogger_merge: Directory: TMP.arch
+pmlogger_merge: Failed: pmlogextract  20111001.21.10 20111001.22.10 20111001
+pmlogger_merge: Trying to continue, although output archive may be corrupted.
+Output archive files:
+pmlogger_merge: Error: file "20111001.meta" not created
+pmlogger_merge: Error: file "20111001.index" not created
+pmlogger_merge: Error: file "20111001.0" not created
+
++++ expect fix via local config file +++
+
+=== daily maintenance of PCP archives for host HOSTNAME ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "HOSTNAME"
+[TMP.control:2] ... logging for host "HOSTNAME" unchanged
+
+Input archives to be merged:
+	20111001.21.10
+	20111001.22.10
+Output archive files:
+-rw-r--r-- ... 20111001.meta
+-rw-r--r-- ... 20111001.index
+-rw-r--r-- ... 20111001.0
+Removing input archive files ... done
+--- TMP.in
++++ TMP.out
+@@ -1,7 +1,7 @@
+-Note: timezone set to local timezone of host "bozo-laptop" from archive
++Note: timezone set to local timezone of host "dreaming" from archive
+ 
+ Log Label (Log Format Version 2)
+-Performance metrics from host bozo-laptop
++Performance metrics from host dreaming
+   commencing Sat Oct  1 21:10:11.751 2011
+   ending     Sat Oct  1 22:10:12.128 2011
+ 
+
++++ expect fix via local symlink config file +++
+
+=== daily maintenance of PCP archives for host HOSTNAME ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "HOSTNAME"
+[TMP.control:2] ... logging for host "HOSTNAME" unchanged
+
+Input archives to be merged:
+	20111001.21.10
+	20111001.22.10
+Output archive files:
+-rw-r--r-- ... 20111001.meta
+-rw-r--r-- ... 20111001.index
+-rw-r--r-- ... 20111001.0
+Removing input archive files ... done
+--- TMP.in
++++ TMP.out
+@@ -1,7 +1,7 @@
+-Note: timezone set to local timezone of host "bozo-laptop" from archive
++Note: timezone set to local timezone of host "dreaming" from archive
+ 
+ Log Label (Log Format Version 2)
+-Performance metrics from host bozo-laptop
++Performance metrics from host dreaming
+   commencing Sat Oct  1 21:10:11.751 2011
+   ending     Sat Oct  1 22:10:12.128 2011
+ 
+
++++ expect fix via global config dir +++
+
+=== daily maintenance of PCP archives for host HOSTNAME ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "HOSTNAME"
+[TMP.control:2] ... logging for host "HOSTNAME" unchanged
+
+Input archives to be merged:
+	20111001.21.10
+	20111001.22.10
+Output archive files:
+-rw-r--r-- ... 20111001.meta
+-rw-r--r-- ... 20111001.index
+-rw-r--r-- ... 20111001.0
+Removing input archive files ... done
+--- TMP.in
++++ TMP.out
+@@ -1,7 +1,7 @@
+-Note: timezone set to local timezone of host "bozo-laptop" from archive
++Note: timezone set to local timezone of host "dreaming" from archive
+ 
+ Log Label (Log Format Version 2)
+-Performance metrics from host bozo-laptop
++Performance metrics from host dreaming
+   commencing Sat Oct  1 21:10:11.751 2011
+   ending     Sat Oct  1 22:10:12.128 2011
+ 
+
++++ expect fix via symlink to global config dir +++
+
+=== daily maintenance of PCP archives for host HOSTNAME ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "HOSTNAME"
+[TMP.control:2] ... logging for host "HOSTNAME" unchanged
+
+Input archives to be merged:
+	20111001.21.10
+	20111001.22.10
+Output archive files:
+-rw-r--r-- ... 20111001.meta
+-rw-r--r-- ... 20111001.index
+-rw-r--r-- ... 20111001.0
+Removing input archive files ... done
+--- TMP.in
++++ TMP.out
+@@ -1,7 +1,7 @@
+-Note: timezone set to local timezone of host "bozo-laptop" from archive
++Note: timezone set to local timezone of host "dreaming" from archive
+ 
+ Log Label (Log Format Version 2)
+-Performance metrics from host bozo-laptop
++Performance metrics from host dreaming
+   commencing Sat Oct  1 21:10:11.751 2011
+   ending     Sat Oct  1 22:10:12.128 2011
+ 
+
+!!! metric sampledso.double.hundred { type -> float } !!!
+
++++ expect mismatch +++
+
+=== daily maintenance of PCP archives for host HOSTNAME ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "HOSTNAME"
+[TMP.control:2] ... logging for host "HOSTNAME" unchanged
+
+Input archives to be merged:
+	20111001.21.10
+	20111001.22.10
+pmlogextract: Error: metric sampledso.double.hundred: type changed from DOUBLE to FLOAT!
+Archive "20111001" not created.
+pmlogger_merge: Directory: TMP.arch
+pmlogger_merge: Failed: pmlogextract  20111001.21.10 20111001.22.10 20111001
+pmlogger_merge: Trying to continue, although output archive may be corrupted.
+Output archive files:
+pmlogger_merge: Error: file "20111001.meta" not created
+pmlogger_merge: Error: file "20111001.index" not created
+pmlogger_merge: Error: file "20111001.0" not created
+
++++ expect fix via local config file +++
+
+=== daily maintenance of PCP archives for host HOSTNAME ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "HOSTNAME"
+[TMP.control:2] ... logging for host "HOSTNAME" unchanged
+
+Input archives to be merged:
+	20111001.21.10
+	20111001.22.10
+Output archive files:
+-rw-r--r-- ... 20111001.meta
+-rw-r--r-- ... 20111001.index
+-rw-r--r-- ... 20111001.0
+Removing input archive files ... done
+--- TMP.in
++++ TMP.out
+@@ -40,7 +40,7 @@
+     Data Type: 32-bit int  InDom: 30.2 0x7800002
+     Semantics: instant  Units: none
+ PMID: 30.0.27 (sampledso.double.hundred)
+-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 30.0.3 (sampledso.milliseconds)
+     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+@@ -121,10 +121,10 @@
+ 21:10:11.751       0          132          132
+ 21:10:11.876       0          350          284
+ 21:10:11.878       0          652          428
+-22:10:11.751       0         1727         3456
+-22:10:11.876       0         1768         3608
+-22:10:11.878       0         1940         3752
+-22:10:12.128       0         2112         6248
++22:10:11.751       0         1727         3448
++22:10:11.876       0         1768         3600
++22:10:11.878       0         1940         3744
++22:10:12.128       0         2112         6232
+ 
+ 21:10:11.751  2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
+               2.3.0 (pmcd.pmlogger.port): inst [1933 or "1933"] value 4331
+
++++ expect fix via local symlink config file +++
+
+=== daily maintenance of PCP archives for host HOSTNAME ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "HOSTNAME"
+[TMP.control:2] ... logging for host "HOSTNAME" unchanged
+
+Input archives to be merged:
+	20111001.21.10
+	20111001.22.10
+Output archive files:
+-rw-r--r-- ... 20111001.meta
+-rw-r--r-- ... 20111001.index
+-rw-r--r-- ... 20111001.0
+Removing input archive files ... done
+--- TMP.in
++++ TMP.out
+@@ -40,7 +40,7 @@
+     Data Type: 32-bit int  InDom: 30.2 0x7800002
+     Semantics: instant  Units: none
+ PMID: 30.0.27 (sampledso.double.hundred)
+-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 30.0.3 (sampledso.milliseconds)
+     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+@@ -121,10 +121,10 @@
+ 21:10:11.751       0          132          132
+ 21:10:11.876       0          350          284
+ 21:10:11.878       0          652          428
+-22:10:11.751       0         1727         3456
+-22:10:11.876       0         1768         3608
+-22:10:11.878       0         1940         3752
+-22:10:12.128       0         2112         6248
++22:10:11.751       0         1727         3448
++22:10:11.876       0         1768         3600
++22:10:11.878       0         1940         3744
++22:10:12.128       0         2112         6232
+ 
+ 21:10:11.751  2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
+               2.3.0 (pmcd.pmlogger.port): inst [1933 or "1933"] value 4331
+
++++ expect fix via global config dir +++
+
+=== daily maintenance of PCP archives for host HOSTNAME ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "HOSTNAME"
+[TMP.control:2] ... logging for host "HOSTNAME" unchanged
+
+Input archives to be merged:
+	20111001.21.10
+	20111001.22.10
+Output archive files:
+-rw-r--r-- ... 20111001.meta
+-rw-r--r-- ... 20111001.index
+-rw-r--r-- ... 20111001.0
+Removing input archive files ... done
+--- TMP.in
++++ TMP.out
+@@ -40,7 +40,7 @@
+     Data Type: 32-bit int  InDom: 30.2 0x7800002
+     Semantics: instant  Units: none
+ PMID: 30.0.27 (sampledso.double.hundred)
+-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 30.0.3 (sampledso.milliseconds)
+     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+@@ -121,10 +121,10 @@
+ 21:10:11.751       0          132          132
+ 21:10:11.876       0          350          284
+ 21:10:11.878       0          652          428
+-22:10:11.751       0         1727         3456
+-22:10:11.876       0         1768         3608
+-22:10:11.878       0         1940         3752
+-22:10:12.128       0         2112         6248
++22:10:11.751       0         1727         3448
++22:10:11.876       0         1768         3600
++22:10:11.878       0         1940         3744
++22:10:12.128       0         2112         6232
+ 
+ 21:10:11.751  2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
+               2.3.0 (pmcd.pmlogger.port): inst [1933 or "1933"] value 4331
+
++++ expect fix via symlink to global config dir +++
+
+=== daily maintenance of PCP archives for host HOSTNAME ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "HOSTNAME"
+[TMP.control:2] ... logging for host "HOSTNAME" unchanged
+
+Input archives to be merged:
+	20111001.21.10
+	20111001.22.10
+Output archive files:
+-rw-r--r-- ... 20111001.meta
+-rw-r--r-- ... 20111001.index
+-rw-r--r-- ... 20111001.0
+Removing input archive files ... done
+--- TMP.in
++++ TMP.out
+@@ -40,7 +40,7 @@
+     Data Type: 32-bit int  InDom: 30.2 0x7800002
+     Semantics: instant  Units: none
+ PMID: 30.0.27 (sampledso.double.hundred)
+-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 30.0.3 (sampledso.milliseconds)
+     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+@@ -121,10 +121,10 @@
+ 21:10:11.751       0          132          132
+ 21:10:11.876       0          350          284
+ 21:10:11.878       0          652          428
+-22:10:11.751       0         1727         3456
+-22:10:11.876       0         1768         3608
+-22:10:11.878       0         1940         3752
+-22:10:12.128       0         2112         6248
++22:10:11.751       0         1727         3448
++22:10:11.876       0         1768         3600
++22:10:11.878       0         1940         3744
++22:10:12.128       0         2112         6232
+ 
+ 21:10:11.751  2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
+               2.3.0 (pmcd.pmlogger.port): inst [1933 or "1933"] value 4331
+
++++ expect fail when -r used and local config file present +++
+
+=== daily maintenance of PCP archives for host HOSTNAME ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "HOSTNAME"
+[TMP.control:2] ... logging for host "HOSTNAME" unchanged
+
+Input archives to be merged:
+	20111001.21.10
+	20111001.22.10
+pmlogextract: Error: metric sampledso.double.hundred: type changed from DOUBLE to FLOAT!
+Archive "20111001" not created.
+pmlogger_merge: Directory: TMP.arch
+pmlogger_merge: Failed: pmlogextract  20111001.21.10 20111001.22.10 20111001
+pmlogger_merge: Trying to continue, although output archive may be corrupted.
+Output archive files:
+pmlogger_merge: Error: file "20111001.meta" not created
+pmlogger_merge: Error: file "20111001.index" not created
+pmlogger_merge: Error: file "20111001.0" not created
