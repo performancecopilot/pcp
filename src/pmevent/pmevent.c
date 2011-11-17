@@ -233,7 +233,7 @@ myeventdump(pmValueSet *vsp, int idx)
 
     nrecords = pmUnpackEventRecords(vsp, idx, &res);
     if (nrecords < 0) {
-	fprintf(stderr, "pmUnpackEventRecords: %s\n", pmErrStr(nrecords));
+	printf(" pmUnpackEventRecords: %s\n", pmErrStr(nrecords));
 	return;
     }
     printf(" %d event records\n", nrecords);

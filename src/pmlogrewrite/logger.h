@@ -149,6 +149,8 @@ extern int	yyparse(void);
 #define W_NONE	3
 
 extern __pmHashNode	*__pmHashWalk(__pmHashCtl *, int);
+extern int		__pmLogRename(const char *, const char *);
+extern int		__pmLogRemove(const char *);
 
 extern metricspec_t	*start_metric(pmID);
 extern indomspec_t	*start_indom(pmInDom);

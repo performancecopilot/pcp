@@ -178,9 +178,18 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 			    snprintf(mess, sizeof(mess), "Duplicate global hostname clause");
 			    yyerror(mess);
 			}
-			strncpy(global.hostname, $3, sizeof(global.hostname));
+			if (strcmp(inarch.label.ll_hostname, $3) == 0) {
+			    /* no change ... */
+			    if (wflag) {
+				snprintf(mess, sizeof(mess), "Global hostname (%s): No change", inarch.label.ll_hostname);
+				yywarn(mess);
+			    }
+			}
+			else {
+			    strncpy(global.hostname, $3, sizeof(global.hostname));
+			    global.flags |= GLOBAL_CHANGE_HOSTNAME;
+			}
 			free($3);
-			global.flags |= GLOBAL_CHANGE_HOSTNAME;
 		    }
 		| TOK_TZ TOK_ASSIGN TOK_STRING
 		    {
@@ -188,9 +197,18 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 			    snprintf(mess, sizeof(mess), "Duplicate global tz clause");
 			    yyerror(mess);
 			}
-			strncpy(global.tz, $3, sizeof(global.tz));
+			if (strcmp(inarch.label.ll_tz, $3) == 0) {
+			    /* no change ... */
+			    if (wflag) {
+				snprintf(mess, sizeof(mess), "Global timezone (%s): No change", inarch.label.ll_tz);
+				yywarn(mess);
+			    }
+			}
+			else {
+			    strncpy(global.tz, $3, sizeof(global.tz));
+			    global.flags |= GLOBAL_CHANGE_TZ;
+			}
 			free($3);
-			global.flags |= GLOBAL_CHANGE_TZ;
 		    }
 		| TOK_TIME TOK_ASSIGN signtime
 		    {
@@ -198,7 +216,15 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 			    snprintf(mess, sizeof(mess), "Duplicate global time clause");
 			    yyerror(mess);
 			}
-			global.flags |= GLOBAL_CHANGE_TIME;
+			if (global.time.tv_sec == 0 && global.time.tv_usec == 0) {
+			    /* no change ... */
+			    if (wflag) {
+				snprintf(mess, sizeof(mess), "Global time: No change");
+				yywarn(mess);
+			    }
+			}
+			else
+			    global.flags |= GLOBAL_CHANGE_TIME;
 		    }
 		| TOK_HOSTNAME TOK_ASSIGN
 		    {

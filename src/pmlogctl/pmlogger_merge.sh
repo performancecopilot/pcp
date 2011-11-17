@@ -98,6 +98,7 @@ fi
 
 fail=false
 mergelist=""
+rmlist=""
 
 # handle dupicate-breaking name form of the base name
 # i.e. YYYYMMDD.HH.MM-seq# and ensure no duplicates
@@ -120,6 +121,7 @@ do
     for file in $input.index
     do
 	file=`basename $file .index`
+	rmlist="$rmlist $file"
 	empty=0
 	if [ ! -f "$file.index" ]
 	then
@@ -175,81 +177,86 @@ $fail && _abandon
 i=0
 list=""
 part=0
-$VERBOSE && echo "Input archives to be merged:"
-for input in $mergelist
-do
-    for file in $input.index
-    do
-	if [ $i -ge 35 ]
-	then
-	    # this limit requires of the order of 3 x 35 input + 3 x 1
-	    # output = 108 file descriptors which should be well below any
-	    # shell-imposed or system-imposed limits
-	    #
-	    $VERBOSE && echo "		-> partial merge to $tmp.$part"
-	    cmd="pmlogextract $list $tmp.$part"
-	    if $SHOWME
-	    then
-		echo "+ $cmd"
-	    else
-		if $cmd
-		then
-		    :
-		else
-		    $VERBOSE || echo "		-> partial merge to $tmp.$part"
-		    echo "$prog: Directory: `pwd`"
-		    echo "$prog: Failed: pmlogextract $list $tmp.$part"
-		    _warning
-		fi
-	    fi
-	    list=$tmp.$part
-	    part=`expr $part + 1`
-	    i=0
-	fi
-	file=`basename $file .index`
-	list="$list $file"
-	$VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "	$file""$PCP_ECHO_C"
-	numvol=`echo $file.[0-9]* | wc -w | sed -e 's/  *//g'`
-	if [ $numvol -gt 1 ]
-	then
-	    $VERBOSE && echo " ($numvol volumes)"
-	else
-	    $VERBOSE && echo
-	fi
-	i=`expr $i + 1`
-    done
-done
-
-cmd="pmlogextract $list $output"
-if $SHOWME
+if [ -z "$mergelist" ]
 then
-    echo "+ $cmd"
+    $VERBOSE && echo "No archives to be merged."
 else
-    if $cmd
-    then
-	:
-    else
-	echo "$prog: Directory: `pwd`"
-	echo "$prog: Failed: pmlogextract $list $output"
-	_warning
-    fi
-    $VERBOSE && echo "Output archive files:"
-    for file in $output.meta $output.index $output.0
+    $VERBOSE && echo "Input archives to be merged:"
+    for input in $mergelist
     do
-	if [ -f $file ]
-	then
-	    $VERBOSE && LC_TIME=POSIX ls -l $file
-	else
-	    echo "$prog: Error: file \"$file\" not created"
-	    force=false
-	fi
+	for file in $input.index
+	do
+	    if [ $i -ge 35 ]
+	    then
+		# this limit requires of the order of 3 x 35 input + 3 x 1
+		# output = 108 file descriptors which should be well below any
+		# shell-imposed or system-imposed limits
+		#
+		$VERBOSE && echo "		-> partial merge to $tmp.$part"
+		cmd="pmlogextract $list $tmp.$part"
+		if $SHOWME
+		then
+		    echo "+ $cmd"
+		else
+		    if $cmd
+		    then
+			:
+		    else
+			$VERBOSE || echo "		-> partial merge to $tmp.$part"
+			echo "$prog: Directory: `pwd`"
+			echo "$prog: Failed: pmlogextract $list $tmp.$part"
+			_warning
+		    fi
+		fi
+		list=$tmp.$part
+		part=`expr $part + 1`
+		i=0
+	    fi
+	    file=`basename $file .index`
+	    list="$list $file"
+	    $VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "	$file""$PCP_ECHO_C"
+	    numvol=`echo $file.[0-9]* | wc -w | sed -e 's/  *//g'`
+	    if [ $numvol -gt 1 ]
+	    then
+		$VERBOSE && echo " ($numvol volumes)"
+	    else
+		$VERBOSE && echo
+	    fi
+	    i=`expr $i + 1`
+	done
     done
+
+    cmd="pmlogextract $list $output"
+    if $SHOWME
+    then
+	echo "+ $cmd"
+    else
+	if $cmd
+	then
+	    :
+	else
+	    echo "$prog: Directory: `pwd`"
+	    echo "$prog: Failed: pmlogextract $list $output"
+	    _warning
+	fi
+	$VERBOSE && echo "Output archive files:"
+	for file in $output.meta $output.index $output.0
+	do
+	    if [ -f $file ]
+	    then
+		$VERBOSE && LC_TIME=POSIX ls -l $file
+	    else
+		echo "$prog: Error: file \"$file\" not created"
+		force=false
+	    fi
+	done
+    fi
 fi
 
 if $force
 then
     $VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "Removing input archive files ...""$PCP_ECHO_C"
-    for input in $mergelist
+    for input in $rmlist
     do
 	for file in $input.index
 	do

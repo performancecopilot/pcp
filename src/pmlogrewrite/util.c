@@ -23,6 +23,9 @@
 #include "impl.h"
 #include "logger.h"
 #include <assert.h>
+#include <ctype.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 void
 yywarn(char *s)
@@ -109,4 +112,211 @@ inst_name_eq(const char *p, const char *q)
 	    break;
     }
     return 0;
+}
+
+/*
+ * Rename all the physical archive files with basename of old to
+ * a basename of new.
+ *
+ * If _any_ error occurs, don't make any changes.
+ *
+ * Note: does not handle compressed versions of files.
+ *
+ * TODO - need global locking for PCP 4.0 version if this is promoted
+ *        to libpcp
+ */
+int
+__pmLogRename(const char *old, const char *new)
+{
+    int			sts;
+    int			nfound = 0;
+    char		**found = NULL;
+    char		*dname;
+    char		*obase;
+    char		path[MAXPATHLEN+1];
+    char		opath[MAXPATHLEN+1];
+    char		npath[MAXPATHLEN+1];
+    DIR			*dirp;
+    struct dirent	*dp;
+
+    strncpy(path, old, sizeof(path));
+    dname = dirname(path);
+
+    if ((dirp = opendir(dname)) == NULL)
+	return -oserror();
+
+    strncpy(path, old, sizeof(path));
+    obase = basename(path);
+
+    for ( ; ; ) {
+	setoserror(0);
+	if ((dp = readdir(dirp)) == NULL)
+	    break;
+	if (strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0)
+	    continue;
+	if (strncmp(obase, dp->d_name, strlen(obase)) == 0) {
+	    /*
+	     * match the base part of the old archive name, now check
+	     * for meta or index or a valid volume number
+	     */
+	    char	*p = &dp->d_name[strlen(obase)];
+	    int		want = 0;
+	    if (strcmp(p, ".meta") == 0)
+		want = 1;
+	    else if (strcmp(p, ".index") == 0)
+		want = 1;
+	    else if (*p == '.' && isdigit(p[1])) {
+		char	*endp;
+		long	vol;
+		vol = strtol(&p[1], &endp, 10);
+		if (vol >= 0 && *endp == '\0')
+		    want = 1;
+	    }
+	    if (want) {
+		struct stat	stbuf;
+		snprintf(opath, sizeof(opath), "%s%s", old, p);
+		snprintf(npath, sizeof(npath), "%s%s", new, p);
+		if (stat(npath, &stbuf) == 0) {
+		    fprintf(stderr, "__pmLogRename: destination file %s already exists\n", npath);
+		    goto revert;
+		}
+		if (rename(opath, npath) == -1) {
+		    fprintf(stderr, "__pmLogRename: rename %s -> %s failed: %s\n", opath, npath, pmErrStr(-oserror()));
+		    goto revert;
+		}
+		nfound++;
+		found = (char **)realloc(found, nfound*sizeof(found[0]));
+		if (found == NULL) {
+		    __pmNoMem("__pmLogRename: realloc", nfound*sizeof(found[0]), PM_RECOV_ERR);
+		    abandon();
+		}
+		if ((found[nfound-1] = strdup(p)) == NULL) {
+		    __pmNoMem("__pmLogRename: strdup", strlen(p)+1, PM_RECOV_ERR);
+		    abandon();
+		}
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_LOG)
+		    fprintf(stderr, "__pmLogRename: %s -> %s\n", opath, npath);
+#endif
+	    }
+	}
+    }
+
+    if ((sts = oserror()) != 0) {
+	fprintf(stderr, "__pmLogRename: readdir for %s failed: %s\n", dname, pmErrStr(-sts));
+	goto revert;
+    }
+
+    closedir(dirp);
+    sts = 0;
+    goto cleanup;
+
+revert:
+    while (nfound > 0) {
+	snprintf(opath, sizeof(opath), "%s%s", old, found[nfound-1]);
+	snprintf(npath, sizeof(npath), "%s%s", new, found[nfound-1]);
+	if (rename(npath, opath) == -1) {
+	    fprintf(stderr, "__pmLogRename: arrgh trying to revert rename %s -> %s failed: %s\n", npath, opath, pmErrStr(-oserror()));
+	}
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LOG)
+	    fprintf(stderr, "__pmLogRename: revert %s <- %s\n", opath, npath);
+#endif
+	nfound--;
+    }
+    sts = PM_ERR_GENERIC;
+
+cleanup:
+    while (nfound > 0) {
+	free(found[nfound-1]);
+	nfound--;
+    }
+    if (found != NULL)
+	free(found);
+
+    return sts;
+}
+
+/*
+ * Remove all the physical archive files with basename of base.
+ *
+ * Note: does not handle compressed versions of files.
+ *
+ * TODO - need global locking for PCP 4.0 version if this is promoted
+ *        to libpcp
+ */
+int
+__pmLogRemove(const char *name)
+{
+    int			sts;
+    int			nfound = 0;
+    char		*dname;
+    char		*base;
+    char		path[MAXPATHLEN+1];
+    DIR			*dirp;
+    struct dirent	*dp;
+
+    strncpy(path, name, sizeof(path));
+    dname = strdup(dirname(path));
+    if (dname == NULL) {
+	__pmNoMem("__pmLogRemove: dirname strdup", strlen(dirname(path))+1, PM_RECOV_ERR);
+	abandon();
+    }
+
+    if ((dirp = opendir(dname)) == NULL)
+	return -oserror();
+
+    strncpy(path, name, sizeof(path));
+    base = strdup(basename(path));
+    if (base == NULL) {
+	__pmNoMem("__pmLogRemove: basename strdup", strlen(basename(path))+1, PM_RECOV_ERR);
+	abandon();
+    }
+
+    for ( ; ; ) {
+	setoserror(0);
+	if ((dp = readdir(dirp)) == NULL)
+	    break;
+	if (strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0)
+	    continue;
+	if (strncmp(base, dp->d_name, strlen(base)) == 0) {
+	    /*
+	     * match the base part of the old archive name, now check
+	     * for meta or index or a valid volume number
+	     */
+	    char	*p = &dp->d_name[strlen(base)];
+	    int		want = 0;
+	    if (strcmp(p, ".meta") == 0)
+		want = 1;
+	    else if (strcmp(p, ".index") == 0)
+		want = 1;
+	    else if (*p == '.' && isdigit(p[1])) {
+		char	*endp;
+		long	vol;
+		vol = strtol(&p[1], &endp, 10);
+		if (vol >= 0 && *endp == '\0')
+		    want = 1;
+	    }
+	    if (want) {
+		snprintf(path, sizeof(path), "%s%s", name, p);
+		unlink(path);
+		nfound++;
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_LOG)
+		    fprintf(stderr, "__pmLogRemove: %s\n", path);
+#endif
+	    }
+	}
+    }
+
+    if ((sts = oserror()) != 0) {
+	fprintf(stderr, "__pmLogRemove: readdir for %s failed: %s\n", dname, pmErrStr(-sts));
+	sts = -sts;
+    }
+    else
+	sts = nfound;
+
+    closedir(dirp);
+
+    return sts;
 }
