@@ -172,7 +172,7 @@ pmResult dump ... numpmid: 3
     inst [700 or ???] value 700
     inst [800 or ???] value 800
     inst [900 or ???] value 900
-Archive "TMP.new" creation aborted.
+Archive "TMP.new" creation truncated.
 pmval diffs ...
 --- TMP.in
 +++ TMP.out
