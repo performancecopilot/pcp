@@ -1539,7 +1539,7 @@ AC_SUBST(pcp_etc_dir)
 dnl shared PCP files (shareable for diskless)
 pcp_share_dir=`eval echo $datadir`
 pcp_share_dir=`eval echo $pcp_share_dir`
-if test -z "`echo $pcp_share_dir | sed 's;/.*\$;;'`"
+if test -z "`echo $pcp_share_dir | sed 's;/\s*\$;;'`"
 then
     if test $target_os = mingw
     then
@@ -1559,7 +1559,7 @@ AC_SUBST(pcp_share_dir)
 dnl private PCP executables
 pcp_binadm_dir=`eval echo $libexecdir`
 pcp_binadm_dir=`eval echo $pcp_binadm_dir`
-if test -z "`echo $pcp_binadm_dir | sed 's;/.*\$;;'`"
+if test -z "`echo $pcp_binadm_dir | sed 's;/\s*\$;;'`"
 then
     if test $target_distro = debian
     then
@@ -1581,7 +1581,7 @@ AC_SUBST(pcp_binadm_dir)
 dnl non-shared (i.e. system local) PCP files
 pcp_var_dir=`eval echo $localstatedir`
 pcp_var_dir=`eval echo $pcp_var_dir`
-if test -z "`echo $pcp_var_dir | sed 's;/.*\$;;'`"
+if test -z "`echo $pcp_var_dir | sed 's;/\s*\$;;'`"
 then
     if test $target_os = mingw
     then
@@ -1654,7 +1654,7 @@ then
 else
     pcp_lib_dir=`eval echo $libdir`
     pcp_lib_dir=`eval echo $pcp_lib_dir`
-    if test -z "`echo $pcp_lib_dir | sed 's;/.*\$;;'`"
+    if test -z "`echo $pcp_lib_dir | sed 's;/\s*\$;;'`"
     then
        if test -d /usr/lib
        then
@@ -1716,7 +1716,7 @@ need_old_tbl_header=false
 man_header=
 pcp_man_dir=`eval echo $mandir`
 pcp_man_dir=`eval echo $pcp_man_dir`
-if test -z "`echo $pcp_man_dir | sed 's;/.*\$;;'`"
+if test -z "`echo $pcp_man_dir | sed 's;/\s*\$;;'`"
 then
     dnl some low risk defaults
     if test $target_os = mingw
@@ -1827,7 +1827,7 @@ AC_SUBST(need_old_tbl_header)
 dnl public binaries
 pcp_bin_dir=`eval echo $bindir`
 pcp_bin_dir=`eval echo $pcp_bin_dir`
-if test -z "`echo $pcp_bin_dir | sed 's;/.*\$;;'`"
+if test -z "`echo $pcp_bin_dir | sed 's;/\s*\$;;'`"
 then
     if test $target_os = mingw
     then
@@ -1844,7 +1844,7 @@ AC_SUBST(pcp_bin_dir)
 dnl include files
 pcp_inc_dir=`eval echo $includedir`
 pcp_inc_dir=`eval echo $pcp_inc_dir`
-if test -z "`echo $pcp_inc_dir | sed 's;/.*\$;;'`"
+if test -z "`echo $pcp_inc_dir | sed 's;/\s*\$;;'`"
 then
     if test $target_os = mingw
     then
