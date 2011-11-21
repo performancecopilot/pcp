@@ -56,7 +56,10 @@ $sudo ./Install </dev/null >>$here/$seq.full
 cd $here
 
 cat <<End-of-File >$tmp.config
-log mandatory on default { bigun }
+log mandatory on default {
+    bigun
+    sample.hordes
+}
 End-of-File
 
 # real QA test starts here
