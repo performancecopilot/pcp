@@ -461,6 +461,50 @@ Metric: hinv.ncpu (1.18.2): units: : No change
 PCP Archive Log Rewrite Specifications Summary
 No changes
 
+=== metric sampledso.long.bin_ctr { units -> 1,0,0,BYTE,0,0 } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Metric: sampledso.long.bin_ctr (30.0.104)
+Units:		Kbyte -> byte
+PCP Archive Log Rewrite Specifications Summary
+
+Metric: sampledso.long.bin_ctr (30.0.104)
+Units:		Kbyte -> byte (rescale)
+
+=== metric sampledso.long.bin_ctr { units -> 1,0,0,BYTE,0,0 RESCALE } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Metric: sampledso.long.bin_ctr (30.0.104)
+Units:		Kbyte -> byte (rescale)
+PCP Archive Log Rewrite Specifications Summary
+
+Metric: sampledso.long.bin_ctr (30.0.104)
+Units:		Kbyte -> byte (rescale)
+
+=== metric sampledso.long.bin_ctr { units -> 1,-1,0,KBYTE,SEC,0 } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Metric: sampledso.long.bin_ctr (30.0.104)
+Units:		Kbyte -> Kbyte / sec
+PCP Archive Log Rewrite Specifications Summary
+
+Metric: sampledso.long.bin_ctr (30.0.104)
+Units:		Kbyte -> Kbyte / sec
+
+=== metric sampledso.long.bin_ctr { units -> 1,-1,0,KBYTE,SEC,0 rescale } ===
+Warning [TMP.conf, line 1]
+Metric: sampledso.long.bin_ctr (30.0.104): Dimension changed, cannot rescale
+PCP Archive Log Rewrite Specifications Summary
+
+Metric: sampledso.long.bin_ctr (30.0.104)
+Units:		Kbyte -> Kbyte / sec
+Warning [TMP.conf, line 1]
+Metric: sampledso.long.bin_ctr (30.0.104): Dimension changed, cannot rescale
+PCP Archive Log Rewrite Specifications Summary
+
+Metric: sampledso.long.bin_ctr (30.0.104)
+Units:		Kbyte -> Kbyte / sec
+
 === metric hinv.ncpu { delete } ===
 PCP Archive Log Rewrite Specifications Summary
 
@@ -548,7 +592,7 @@ Specification error in configuration file (TMP.conf)
 === metric 1.18.3 { sem -> COUNTER delete } ===
 Specification error in configuration file (TMP.conf)
 [line 1] Conflicting delete and other clauses for metric irix.kernel.all.load
-Warning [TMP.conf, line 12]
+Warning [TMP.conf, line 13]
 Metric: irix.kernel.all.load (1.18.3): units: : No change
 PCP Archive Log Rewrite Specifications Summary
 
