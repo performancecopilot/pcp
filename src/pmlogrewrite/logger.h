@@ -88,6 +88,7 @@ typedef struct metricspec {
 #define METRIC_CHANGE_SEM	 16
 #define METRIC_CHANGE_UNITS	 32
 #define METRIC_DELETE		 64
+#define METRIC_RESCALE		128
 
 /* values for output when indom (numval >= 1) => PM_INDOM_NULL (numval = 1) */
 #define OUTPUT_ALL	0
@@ -161,6 +162,7 @@ extern int		inst_name_eq(const char *, const char *);
 extern char	*SemStr(int);
 extern int	_pmLogGet(__pmLogCtl *, int, __pmPDU **);
 extern int	_pmLogPut(FILE *, __pmPDU *);
+extern void	newvolume(int);
 
 extern void	do_desc(void);
 extern void	do_indom(void);

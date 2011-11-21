@@ -138,6 +138,7 @@ walk_metric(int mode, int flag, char *which)
 	TOK_SEM
 	TOK_UNITS
 	TOK_OUTPUT
+	TOK_RESCALE
 
 %token<str>	TOK_GNAME TOK_NUMBER TOK_STRING TOK_HNAME TOK_FLOAT
 %token<str>	TOK_INDOM_STAR TOK_PMID_INT TOK_PMID_STAR
@@ -147,7 +148,7 @@ walk_metric(int mode, int flag, char *which)
 %type<str>	hname
 %type<indom>	indom_int null_or_indom
 %type<pmid>	pmid_int pmid_or_name
-%type<ival>	signnumber number
+%type<ival>	signnumber number rescaleopt
 %type<dval>	float
 
 %%
@@ -833,7 +834,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 			    }
 			}
 		    }
-		| TOK_UNITS TOK_ASSIGN signnumber TOK_COMMA signnumber TOK_COMMA signnumber TOK_COMMA TOK_SPACE_NAME TOK_COMMA TOK_TIME_NAME TOK_COMMA TOK_COUNT_NAME
+		| TOK_UNITS TOK_ASSIGN signnumber TOK_COMMA signnumber TOK_COMMA signnumber TOK_COMMA TOK_SPACE_NAME TOK_COMMA TOK_TIME_NAME TOK_COMMA TOK_COUNT_NAME rescaleopt
 		    {
 			metricspec_t	*mp;
 			for (mp = walk_metric(W_START, METRIC_CHANGE_UNITS, "units"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_UNITS, "units")) {
@@ -857,6 +858,25 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 				mp->new_desc.units.scaleTime = $11;
 				mp->new_desc.units.scaleCount = $13;
 				mp->flags |= METRIC_CHANGE_UNITS;
+				if ($14 == 1) {
+				    if ($3 == mp->old_desc.units.dimSpace &&
+					$5 == mp->old_desc.units.dimTime &&
+					$7 == mp->old_desc.units.dimCount)
+					/* OK, no dim changes */
+					mp->flags |= METRIC_RESCALE;
+				    else {
+					if (wflag) {
+					    snprintf(mess, sizeof(mess), "Metric: %s (%s): Dimension changed, cannot rescale", mp->old_name, pmIDStr(mp->old_desc.pmid));
+					    yywarn(mess);
+					}
+				    }
+				}
+				else if (sflag) {
+				    if ($3 == mp->old_desc.units.dimSpace &&
+					$5 == mp->old_desc.units.dimTime &&
+					$7 == mp->old_desc.units.dimCount)
+					mp->flags |= METRIC_RESCALE;
+				}
 			    }
 			}
 		    }
@@ -943,6 +963,11 @@ pick		: TOK_OUTPUT TOK_INST number
 			yyerror(mess);
 		    }
 		| /* nothing */
+		;
+
+rescaleopt	: TOK_RESCALE { $$ = 1; }
+		| /* nothing */
+		    { $$ = 0; }
 		;
 
 %%

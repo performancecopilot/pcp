@@ -101,7 +101,7 @@ _report(FILE *fp)
 /*
  *  switch output volumes
  */
-static void
+void
 newvolume(int vol)
 {
     FILE		*newfp;
@@ -545,7 +545,10 @@ reportconfig(void)
 	}
 	if (mp->flags & METRIC_CHANGE_UNITS) {
 	    printf("Units:\t\t%s ->", pmUnitsStr(&mp->old_desc.units));
-	    printf(" %s\n", pmUnitsStr(&mp->new_desc.units));
+	    printf(" %s", pmUnitsStr(&mp->new_desc.units));
+	    if (mp->flags & METRIC_RESCALE)
+		printf(" (rescale)");
+	    putchar('\n');
 	}
 	if (mp->flags & METRIC_DELETE)
 	    printf("DELETE\n");
@@ -929,7 +932,10 @@ main(int argc, char **argv)
 	sprintf(path, "%s%cXXXXXX", dname, __pmPathSeparator());
 	tmp_f1 = mkstemp(path);
 	outarch.name = strdup(path);
-	    // TODO check
+	if (outarch.name == NULL) {
+	    fprintf(stderr, "temp file strdup(%s) failed: %s\n", path, strerror(errno));
+	    abandon();
+	}
 	sprintf(bak_base, "%s%cXXXXXX", dname, __pmPathSeparator());
 	tmp_f2 = mkstemp(bak_base);
 #else
@@ -943,7 +949,10 @@ main(int argc, char **argv)
 	}
 	else {
 	    outarch.name = strdup(s);
-	    // TODO check
+	    if (outarch.name == NULL) {
+		fprintf(stderr, "temp file strdup(%s) failed: %s\n", s, strerror(errno));
+		abandon();
+	    }
 	    tmp_f1 = open(outarch.name, O_WRONLY|O_CREAT|O_EXCL, 0600);
 	}
 	if ((s = tempnam(dname, fname)) == NULL) {
@@ -1034,7 +1043,15 @@ main(int argc, char **argv)
 	}
 	if (stslog == 1) {
 	    /* volume change */
-	    newvolume(inarch.ctxp->c_archctl->ac_log->l_curvol);
+	    if (inarch.ctxp->c_archctl->ac_log->l_curvol >= outarch.logctl.l_curvol+1)
+		/* track input volume numbering */
+		newvolume(inarch.ctxp->c_archctl->ac_log->l_curvol);
+	    else
+		/*
+		 * output archive volume number is ahead, probably because
+		 * rewriting has forced an earlier volume change
+		 */
+		newvolume(outarch.logctl.l_curvol+1);
 	}
 #if PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL0) {

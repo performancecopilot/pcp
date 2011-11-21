@@ -140,6 +140,7 @@ dupstr(char *s, int strip_quotes)
 			    }
 			    return TOK_COMMA;
 			}
+<metric>"rescale"	{ return TOK_RESCALE; }
 
 <space>"BYTE"		{ yylval.ival = PM_SPACE_BYTE; BEGIN(units); return TOK_SPACE_NAME; }
 <space>"KBYTE"		{ yylval.ival = PM_SPACE_KBYTE; BEGIN(units); return TOK_SPACE_NAME; }

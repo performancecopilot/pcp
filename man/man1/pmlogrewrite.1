@@ -22,6 +22,9 @@
 [\f3\-c\f1 \f2config\f1]
 \f2inlog\f1 [\f2outlog\f1]
 .SH DESCRIPTION
+.de KW
+\\f(BI\\$1\\fP\\$2
+..
 .B pmlogrewrite
 reads a Performance Co-Pilot (PCP) archive log
 identified by
@@ -169,7 +172,14 @@ to change as well.  The default
 .B pmlogrewrite
 behaviour matches case (a).  If case (b) applies, then use the
 .B \-s
-option and the values of the metric in each result will be rescaled.
+option and the values of all the
+metrics with a scale factor change in each result will be rescaled.
+For finer control over value rescaling refer to
+the
+.KW RESCALE
+option for the
+.KW UNITS
+clause of the metric rewriting rule described below.
 .TP 7
 .BI \-v
 Increase verbosity of diagnostic output.
@@ -207,9 +217,6 @@ A configuration file
 contains zero or more rewriting rules as defined below.
 .PP
 Keywords and special punctuation characters are shown below in
-.de KW
-\\f(BI\\$1\\fP\\$2
-..
 .KW bolditalic
 font and are case-insensitive, so
 .KW METRIC ,
@@ -516,8 +523,9 @@ both the metadata and all values in results are expunged.
 .PP
 .KW INDOM
 .KW ->
-\fInewdomain\fP\f(BI.\fP\fInewserial\fP
+\fInewdomain\fP\f(BI.\fP\fInewserial\fP [
 .I pick
+]
 .RS +4n
 .PP
 Modifies the metadata to change the instance domain for this metric.
@@ -652,9 +660,10 @@ metric sample.bin { indom -> 123.2 }
 .PP
 .KW INDOM
 .KW ->
-.KW NULL
+.KW NULL [
 .I pick
 .RS +4n
+]
 .PP
 The metric (which must have been
 previously defined over an instance domain) is being modified to
@@ -784,6 +793,9 @@ an unsigned type.
 .KW UNITS
 .KW ->
 .I newunits
+[
+.KW RESCALE
+]
 .RS +4n
 .PP
 .I newunits
@@ -818,6 +830,13 @@ and
 .B PM_COUNT_XXX
 macros are defined in <pcp/pmapi.h> or
 .BR pmLookupDesc (3).
+.PP
+When the scale is changed (but the dimension is
+unaltered) the optional keyword
+.KW RESCALE
+may be used to chose value rescaling as per the
+.B \-s
+command line option, but applied to just this metric.
 .RE
 
 .PP
