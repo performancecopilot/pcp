@@ -1,3 +1,12 @@
+pcp-3.5.10 (04 November 2011)
+    - Support new 0.18+ elasticsearch metrics.
+    - Fix handling of elasticsearch version metric cluster.
+    - Fix trace PMDA build issues.
+    - Fix some Win32 build issues.
+    - Run with reduced privileges for more of the perl PMDAs.
+    - Name Solaris load average metric consistently.
+    - Small metric documentation tweaks for Solaris PMDA.
+
 pcp-3.5.9 (23 October 2011)
     - Add rc script support for condrestart, and condrestart the pcp,
       pmie and pmproxy services after an RPM install or upgrade.
