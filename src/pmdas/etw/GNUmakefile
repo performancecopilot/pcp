@@ -19,16 +19,15 @@ WINDIR = $(TOPDIR)/src/win32ctl
 
 IAM		= etw
 DOMAIN		= ETW
-CFILES		= util.c
-HFILES		= util.h
+CFILES		= util.c event.c pmda.c
+HFILES		= util.h event.h
 LSRCFILES	= tdhlist.c tdhconsume.c pcp.xml
-LCFLAGS		= -I$(WINDIR)/include -D_WIN32_WINNT=0x0600 -DINITGUID -DFORCEINLINE="static inline"
+LCFLAGS		= -I$(WINDIR)/include -D_WIN32_WINNT=0x0600 -DFORCEINLINE="static inline"
 LLDFLAGS	= -L$(WINDIR)/lib
-LLDLIBS		= -lpcp_tdh
+LLDLIBS		= -lpcp -lpcp_pmda -lpcp_tdh
 
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
-#CMDTARGET	= pmdaetw.exe
-#LIBTARGET	= pmda_etw.dll
+LIBTARGET	= pmda_etw.dll
 EXTRATARGETS	= tdhlist.exe tdhconsume.exe
 LDIRT		= $(EXTRATARGETS) domain.h *.o
 
@@ -37,7 +36,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "mingw"
-build-me: $(LSRCFILES) $(CMDTARGET) $(LIBTARGET) $(EXTRATARGETS)
+build-me: $(LSRCFILES) $(LIBTARGET) $(EXTRATARGETS)
 install: build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 tdhlist.exe $(PMDADIR)/tdhlist.exe
