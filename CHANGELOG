@@ -1,3 +1,9 @@
+pcp-3.5.11 (...)
+    - Fix instance domain checks in elasticsearch PMDA.
+    - Make KVM PMDA to run as root once more (permissions issues).
+    - Integration of pmlogger_daily with pmlogrewrite.
+    - Fix pmlogger_merge corner case for empty archives.
+
 pcp-3.5.10 (04 November 2011)
     - Support new 0.18+ elasticsearch metrics.
     - Fix handling of elasticsearch version metric cluster.
