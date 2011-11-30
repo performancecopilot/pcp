@@ -14,7 +14,7 @@ C for more details.
 C 
 C You should have received a copy of the GNU General Public License along
 C with this program; if not, write to the Free Software Foundation, Inc.,
-C 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+C 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 C fapp1.f
 C

@@ -1,4 +1,6 @@
 pcp-3.5.11 (...)
+    - update FSF contact address in copyright notices to keep
+      rpmlint happy
     - Fix instance domain checks in elasticsearch PMDA.
     - Make KVM PMDA to run as root once more (permissions issues).
     - Integration of pmlogger_daily with pmlogrewrite.
