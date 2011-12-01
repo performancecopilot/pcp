@@ -110,5 +110,8 @@ set -x
 %defattr(-,root,root)
 
 %changelog
+* Thu Dec 01 2011 Nathan Scott <nathans@aconex.com>
+- Updates to make rpmlint happy for Fedora build.
+
 * Tue Jul 13 2010 Nathan Scott <nathans@aconex.com>
 - Rework spec file to produce a separate pcp-doc package as well.

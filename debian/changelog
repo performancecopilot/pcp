@@ -1,3 +1,9 @@
+pcp-gui (1.5.2) unstable; urgency=low
+
+  * New pcp-gui release (see doc/CHANGES for details).
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 01 Dec 2011 21:23:32 +1100
+
 pcp-gui (1.5.1) unstable; urgency=low
 
   * New pcp-gui release (see doc/CHANGES for details).

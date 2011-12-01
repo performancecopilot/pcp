@@ -1,3 +1,10 @@
+pcp-gui 1.5.2 (1 December 2011)
+    - Updates to source files with incorrect FSF address for rpmlint.
+    - Fix compilation warnings.
+    - Relax Debian dependencies somewhat (only pcp libs required).
+    - Add new Qt help library dependency on Debian build.
+    - Additional examples in the pcp-doc documents.
+
 pcp-gui 1.5.1 (1 October 2010)
     - Build fix for rpm generation.
     - Build fix for Win32 builds (hide Mac).
