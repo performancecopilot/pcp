@@ -2,7 +2,7 @@ Source: pcp-gui
 Section: utils
 Priority: extra
 Maintainer: Nathan Scott <nathans@debian.org>
-Build-Depends: autoconf, bison, flex, gawk, debhelper (>= 5), libpcp3-dev (>= 2.7.4-20080507), libqt4-dev, libqt4-opengl-dev, libqtassistantclient-dev
+Build-Depends: autoconf, bison, flex, gawk, debhelper (>= 5), libpcp3-dev (>= 2.7.4-20080507), libqt4-dev, libqt4-opengl-dev, libqtassistantclient-dev | qt4-dev-tools
 Standards-Version: 3.9.1
 
 Package: pcp-gui
