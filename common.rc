@@ -27,6 +27,18 @@ fi
 # QA default environment variables
 PCP_PMCD_PROG=$PCP_BINADM_DIR/pmcd
 PCP_PMCDLOG_PATH=$PCP_LOG_DIR/pmcd/pmcd.log
+export PCP_PMCD_PROG PCP_PMCDLOG_PATH
+
+# In openSUSE 12.1, /etc/rc.status intercepts our rc script and passes
+# control to systemctl which uses systemd ... the result is that messages
+# from our rc scripts are sent to syslog by default, and there is no
+# apparent way to revert to the classical behaviour, so this "hack" allows
+# PCP QA to set $PCPQA_NO_RC_STATUS and continue to see stdout and stderr
+# from our rc scripts
+# - Ken 1 Dec 2011
+#
+PCPQA_NO_RC_STATUS=
+export PCPQA_NO_RC_STATUS
 
 case $PCP_PLATFORM
 in
@@ -42,5 +54,11 @@ in
 esac
 
 sudo=`which sudo`
+if $sudo -E true >/dev/null 2>&1
+then
+    # sudo has -E to preserve the environment
+    #
+    sudo="$sudo -E"
+fi
 here=`pwd`
 tmp=/tmp/$$
