@@ -361,6 +361,9 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Thu Dec  1 2011 Nathan Scott <nathans@aconex.com> - 3.5.11-1
+- Update to latest PCP sources.
+
 * Sun Oct 23 2011 Mark Goodwin <mgoodwin@redhat.com> - 3.5.9-1
 - Update to latest PCP sources.
 

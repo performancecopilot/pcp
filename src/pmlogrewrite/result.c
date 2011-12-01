@@ -511,7 +511,6 @@ do_result(void)
     int			sts;
     int			orig_numpmid;
     int			*orig_numval = NULL;
-    long		out_offset;
 
     orig_numpmid = inarch.rp->numpmid;
 
@@ -666,17 +665,13 @@ do_result(void)
 		    }
 		}
 	    }
-	    if (mp->flags & METRIC_CHANGE_UNITS) {
-		if (mp->old_desc.units.dimSpace == mp->new_desc.units.dimSpace &&
-		    mp->old_desc.units.dimTime == mp->new_desc.units.dimTime &&
-		    mp->old_desc.units.dimCount == mp->new_desc.units.dimCount &&
-		    sflag) {
-		    /*
-		     * dimension the same, -s on command line, so rescale
-		     * values
-		     */
-		    rescale(i, mp);
-		}
+	    if (mp->flags & METRIC_RESCALE) {
+		/*
+		 * parser already checked that dimension is unchanged,
+		 * scale is different and -s on command line or RESCALE
+		 * in UNITS clause of metricspec => rescale values
+		 */
+		rescale(i, mp);
 	    }
 	    if (mp->flags & METRIC_CHANGE_TYPE)
 		retype(i, mp);
@@ -688,13 +683,24 @@ do_result(void)
      * only output numpmid == 0 case if input was a mark record
      */
     if (orig_numpmid == 0 || inarch.rp->numpmid > 0) {
-	out_offset = ftell(outarch.logctl.l_mfp);
+	unsigned long	out_offset;
+	unsigned long	peek_offset;
+	peek_offset = ftell(outarch.logctl.l_mfp);
 	sts = __pmEncodeResult(PDU_OVERRIDE2, inarch.rp, &inarch.logrec);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    abandon();
 	}
+	peek_offset += ((__pmPDUHdr *)inarch.logrec)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
+	if (peek_offset > 0x7fffffff) {
+	    /*
+	     * data file size will exceed 2^31-1 bytes, so force
+	     * volume switch
+	     */
+	    newvolume(outarch.logctl.l_curvol+1);
+	}
+	out_offset = ftell(outarch.logctl.l_mfp);
 	if ((sts = __pmLogPutResult(&outarch.logctl, inarch.logrec)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
 		    pmProgname, pmErrStr(sts));

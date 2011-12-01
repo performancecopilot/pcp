@@ -2058,7 +2058,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		pmResult	*result;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOG)
-		    fprintf(stderr, " back up ...");
+		    fprintf(stderr, " back up ...\n");
 #endif
 		if (__pmLogRead(lcp, PM_MODE_BACK, NULL, &result) >= 0)
 		    pmFreeResult(result);
