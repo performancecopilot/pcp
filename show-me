@@ -18,14 +18,18 @@ if which gdiff >/dev/null 2>&1
 then
     DIFF=gdiff
 else
-    if which xxdiff >/dev/null 2>&1
+    if which meld >/dev/null 2>&1
     then
-	DIFF=xxdiff
+	DIFF=meld
     else
-	DIFF="diff -c"
+	if which xxdiff >/dev/null 2>&1
+	then
+	    DIFF=xxdiff
+	else
+	    DIFF="diff -c"
+	fi
     fi
 fi
-
 
 tmp=/tmp/$$
 trap "cd /; rm -rf $tmp; exit" 0 1 2 3 15
