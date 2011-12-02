@@ -51,7 +51,7 @@ _wrapup()
     # for hangcheck ...
     # remove files that were used by hangcheck
     #
-    if [ "$HANGCHECK" = true -a "$USER" = pcpqa -a -x $sudo ]
+    if [ "$HANGCHECK" = true -a "$USER" = pcpqa ]
     then
         checkpid=`cat "$CHECKPID"`
     	[ "$checkpid" = "$mypid" -a -f "$CHECKSTS" ] && rm -f "$CHECKSTS"
@@ -318,10 +318,13 @@ qapassed=4	# test passed
 PCP_TRACE_TIMEOUT=15
 export PCP_TRACE_TIMEOUT
 
+# generic initialization... this may take a while to run, because (unless
+# $quick is true) make is run.
+. ./common
+
 # we have to cheat a bit... but we need to create a check.[pid|sts] file
 # to tell hangcheck that we are alive, but not ready to run yet.
-sudo=`which sudo`
-if [ "$HANGCHECK" = true -a "$USER" = pcpqa -a -x $sudo ]
+if [ "$HANGCHECK" = true -a "$USER" = pcpqa ]
 then
     # for hangcheck ...
     # Save pid of check in a well known place, so that hangcheck can be sure it
@@ -360,10 +363,6 @@ then
     fi
     [ ! -f "$CHECKSTS" ] && echo "preamble" >"$CHECKSTS"
 fi
-
-# generic initialization... this may take a while to run, because (unless
-# $quick is true) make is run.
-. ./common
 
 [ -f check.time ] || touch check.time
 
@@ -439,7 +438,7 @@ do
 	$timestamp && _timestamp
 
 	# for hangcheck ...
-	[ "$HANGCHECK" = true -a "$USER" = pcpqa -a -x $sudo ] && echo "$seq" >"$CHECKSTS"
+	[ "$HANGCHECK" = true -a "$USER" = pcpqa ] && echo "$seq" >"$CHECKSTS"
 
 	if $qatrace
 	then
@@ -456,7 +455,7 @@ do
 	stop=`_wallclock`
 
 	# for hangcheck ...
-	[ "$HANGCHECK" = true -a "$USER" = pcpqa -a -x $sudo ] && echo "working" >"$CHECKSTS"
+	[ "$HANGCHECK" = true -a "$USER" = pcpqa ] && echo "working" >"$CHECKSTS"
 
 	if $check_config
 	then
