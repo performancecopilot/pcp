@@ -39,7 +39,7 @@ echo "=== empty config and -L, should exit when pmcd restarted ==="
 rm -f $tmp.*
 pmlogger -L -c /dev/null -l $tmp.log $tmp &
 _wait_for_pmlogger $! $tmp.log 5
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 echo "expect no pmlogger process ..."
 ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == "'$!'" { print }'
@@ -51,7 +51,7 @@ rm -f $tmp.*
 echo "log mandatory on 1 sec pmcd.version" >$tmp.config
 pmlogger -c $tmp.config -l $tmp.log $tmp &
 _wait_for_pmlogger $! $tmp.log 5
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 echo "expect no pmlogger process ..."
 ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == "'$!'" { print }'

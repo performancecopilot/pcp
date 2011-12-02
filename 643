@@ -26,7 +26,7 @@ _cleanup()
     else
 	( cd $PCP_PMDAS_DIR/trivial ; $sudo make >/dev/null 2>&1 )
 	[ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	done_clean=true

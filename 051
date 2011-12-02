@@ -86,7 +86,7 @@ cleanup()
 	$sudo mv $oconfig $config
     fi
     echo "Restarting pmcd"
-    $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
     rm -f $tmp.*
@@ -110,13 +110,6 @@ fi
 ls 051.work/die.*
 ls 051.work/kill*
 cd 051.work
-
-if [ ! -x $sudo ]
-then
-    echo "Couldn't find $sudo"
-    exit 1
-fi
-
 
 echo "terminating pmcd..."
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop

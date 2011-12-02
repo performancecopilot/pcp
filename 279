@@ -34,7 +34,7 @@ _cleanup()
 	echo "Restoring real \$PCP_PMCDCONF_PATH ..."
 	[ -f $tmp.pmcd.conf.save ] && $sudo mv $tmp.pmcd.conf.save $PCP_PMCDCONF_PATH
 	_restore_loggers
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	_needclean=false
@@ -112,7 +112,7 @@ echo "=== initial pmcd.conf ===" >>$seq.full
 cat $tmp.conf >>$seq.full
 echo "=== ===" >>$seq.full
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 
 cat <<End-of-File >$tmp.cmd

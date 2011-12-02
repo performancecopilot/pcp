@@ -105,7 +105,7 @@ pmie -t 1sec >$tmp.out 2>$tmp.err <$tmp.in &
 pmie_pid=$!
 
 sleep 5
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 

@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.filter
 
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd 240
 _wait_for_pmlogger
 

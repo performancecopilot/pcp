@@ -38,7 +38,7 @@ _cleanup()
 	echo
 	$sudo rm -f $PCP_PMCDCONF_PATH
 	$sudo mv $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
     else
 	$sudo $signal -a -s HUP pmcd
@@ -89,7 +89,7 @@ esac
 
 $sudo mv $PCP_PMCDCONF_PATH $PCP_PMCDCONF_PATH.$seq
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 
 unset ROOT

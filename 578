@@ -54,7 +54,7 @@ _cleanup()
     then
     	echo "=== Restart PMCD ==="
 	unset PMCD_PORT
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
     fi
     
@@ -326,7 +326,7 @@ fi
 # need to do this indirectly because system sudo cleanses the environment
 #
 echo "export PMCD_PORT=$PMCD_PORT" >$tmp.start
-echo "$PCP_RC_DIR/pcp start" >>$tmp.start
+echo "$PCP_RC_DIR/pcp restart" >>$tmp.start
 $sudo sh $tmp.start | _filter_pcp_start | _filter_init 2>&1
 _wait_for_pmcd
 

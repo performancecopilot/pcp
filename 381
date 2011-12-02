@@ -83,7 +83,7 @@ _cleanup()
 	echo
 	_filter_pmlogger_log <$tmp.log
 	echo
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	need_clean=false

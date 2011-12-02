@@ -36,7 +36,7 @@ $sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
 
 # real QA test starts here
 echo "Install should fail"
-$sudo $PCP_RC_DIR/pcp start 2>&1 | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_start
 if [ -f $PCP_VAR_DIR/pmdas/bozo/.NeedInstall ]
 then
     echo ".NeedInstall present"
@@ -47,7 +47,7 @@ fi
 echo
 echo "Install should succeed"
 $sudo rm -f $PCP_VAR_DIR/pmdas/bozo/fail
-$sudo $PCP_RC_DIR/pcp start 2>&1 | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_start
 if [ -f $PCP_VAR_DIR/pmdas/bozo/.NeedInstall ]
 then
     echo ".NeedInstall present"

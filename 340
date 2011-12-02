@@ -47,7 +47,7 @@ cleanup()
         _needclean=false
 	[ -f $oconfig ] && $sudo cp $oconfig $config
 	_change_config pmlogger on
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
     fi
@@ -56,7 +56,7 @@ cleanup()
     then
 	[ -f $tmp.control ] && \
 	    $sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
     	_chkconfig_pmlogger_on=false
@@ -163,7 +163,7 @@ echo "---- start pmcd.conf ----" >>$seq.full
 cat $config >>$seq.full
 echo "---- end pmcd.conf ----" >>$seq.full
 
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 
 echo "    checking default access for this host ..."
@@ -243,7 +243,7 @@ echo "---- start pmcd.conf ----" >>$seq.full
 cat $config >>$seq.full
 echo "---- end pmcd.conf ----" >>$seq.full
 
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 
 echo "    checking default access for this host ..."

@@ -35,7 +35,7 @@ _cleanup()
     [ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
     pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
     && $sudo sh $tmp.cmd
-    $sudo $PCP_RC_DIR/pcp start >$tmp.start 
+    $sudo $PCP_RC_DIR/pcp restart >$tmp.start 
     _filter_pcp_start <$tmp.start | sed -e 's/\.\.\.\.\.*/[dots]/'
     _wait_for_pmcd
     _wait_for_pmlogger

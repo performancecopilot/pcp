@@ -24,7 +24,7 @@ _reset()
 	:
     else
 	_restore_loggers
-	$sudo $PCP_RC_DIR/pcp start \
+	$sudo $PCP_RC_DIR/pcp restart \
 	| _filter_pcp_start \
 	| sed -e '/Waiting/s/\.\.\.*/[dots]/'
 	_wait_for_pmcd
@@ -50,7 +50,7 @@ trap "_reset; exit \$status" 0 1 2 3 15
 # real QA test starts here
 
 _disable_loggers
-$sudo $PCP_RC_DIR/pcp start \
+$sudo $PCP_RC_DIR/pcp restart \
 | _filter_pcp_start \
 | sed -e '/Waiting/s/\.\.\.*/[dots]/'
 _wait_for_pmcd

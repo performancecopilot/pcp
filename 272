@@ -106,7 +106,7 @@ cleanup()
 	unset PMCD_PORT
 	[ -f $oconfig ] && $sudo cp $oconfig $config
 	# _change_config pmlogger on
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
         _needclean=false
@@ -194,7 +194,7 @@ cat $config >>$seq.full
 PMCD_PORT=$port
 export PMCD_PORT
 
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 
 #DEBUG# pmstore pmcd.control.traceconn 1
@@ -289,7 +289,7 @@ echo >>$seq.full
 echo "=== Second pmcd.conf ===" >>$seq.full
 cat $config >>$seq.full
 
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd_from_remote $other1
 ssh -q $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me pmcd.control.debug 4096'"
 

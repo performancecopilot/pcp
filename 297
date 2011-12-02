@@ -40,7 +40,7 @@ _cleanup()
 {
     [ -n "$killpid" ] && $signal $killpid
     $sudo $signal -a pmproxy >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pmproxy start >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmproxy restart >/dev/null 2>&1
 }
 
 fqdn=`pmhostname`
@@ -127,7 +127,7 @@ echo "1st pmcd log" >>$seq.full
 cat $PMCDLOG >>$seq.full
 
 echo "re-starting pmcd ..."
-$sudo $PCP_RC_DIR/pcp start >/dev/null 2>&1
+$sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
 
 sleep 4
 echo >>$seq.full

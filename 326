@@ -28,7 +28,7 @@ _cleanup()
 	echo "Restore pmcd.conf and restart PMCD ..."
 	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	rm -f $tmp.*
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	done_clean=true
@@ -82,7 +82,7 @@ $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
 #
 sync
 
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 if [ -d $PCP_LOG_DIR/pmlogger ]
 then

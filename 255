@@ -124,7 +124,7 @@ _cleanup()
 	cat $PCP_PMCDCONF_PATH >>$seq.full
 	echo '=== $PCP_PMCDOPTIONS_PATH before init.d/pcp/start' >>$seq.full
 	cat $PCP_PMCDOPTIONS_PATH >>$seq.full
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
     fi
     if [ -f $tmp.log ]
@@ -390,7 +390,7 @@ _renew_pmcd main
 # Start with a fresh pmcd log
 #
 $sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
-$sudo $PCP_RC_DIR/pcp start | _filter_init 2>&1
+$sudo $PCP_RC_DIR/pcp restart | _filter_init 2>&1
 _wait_for_pmcd
 
 # Test 2.0 PMDA first

@@ -71,7 +71,7 @@ _cleanup()
 {
     [ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
     [ "$PCP_PLATFORM" != "linux" ] && _change_config pmlogger on
-    $sudo $PCP_RC_DIR/pcp start >/dev/null
+    $sudo $PCP_RC_DIR/pcp restart >/dev/null
     _wait_for_pmcd
     _wait_for_pmlogger
     $sudo rm -f $tmp.pmcd.conf

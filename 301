@@ -99,7 +99,7 @@ then
     sleep $BREATHER
 fi
 dbugEcho 1 "Starting up PCP"
-$sudo sh $PCP_RC_DIR/pcp start >/dev/null
+$sudo sh $PCP_RC_DIR/pcp restart >/dev/null
 _wait_for_pmcd
 
 # success or failure, we've finished

@@ -32,7 +32,7 @@ _cleanup()
 	[ -d $SAVE_MMV_STATS_DIR ] && rm -fr "$MMV_STATS_DIR"
 	[ -d $SAVE_MMV_STATS_DIR ] && $sudo mv $SAVE_MMV_STATS_DIR $MMV_STATS_DIR
 	rm -f $tmp.*
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	done_clean=true

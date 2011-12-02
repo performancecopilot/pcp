@@ -40,7 +40,7 @@ _cleanup()
         [ -f $tmp.control ] && \
             $sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
 	needclean=false
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 
 	# make sure bogus has gone away
@@ -93,7 +93,7 @@ END			{ if (flag == 0) printline(); }'
 $sudo cp $tmp.pmcd.new $PCP_PMCDCONF_PATH
 
 # restart pmcd
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 
 # check that pmcd reported the agent as an error

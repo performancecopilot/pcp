@@ -35,7 +35,7 @@ signal=$PCP_BINADM_DIR/pmsignal
 # unconditionally restart pmcd and pmlogger so avoid fd leak
 # problems in buggy flexlm code
 #
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 
