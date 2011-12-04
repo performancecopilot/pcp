@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out
+rm -f $seq.out $seq.full
 if [ $PCP_VER -lt 3509 ]
 then
     ln $seq.out.1 $seq.out || exit 1
@@ -26,9 +26,11 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 # real QA test starts here
 for arch in src-oss/mv-bigbin
 do
-    echo
-    echo "=== $arch ==="
+    echo | tee -a $seq.full
+    echo "=== $arch ===" | tee -a $seq.full
+    pmdumplog -t $arch >>$seq.full
     src-oss/xarch -a $arch -D128 2>&1 \
+    | tee -a $seq.full \
     | sed \
 	-e 's/posn=[0-9]*/posn=OFFSET/' \
 	-e 's/__pmLogChkLabel/chkLabel/g' \
