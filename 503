@@ -32,7 +32,7 @@ _filter()
     tee -a $seq.full \
     | sed \
 	-e "s/for host $hostname/for host HOSTNAME/g" \
-	-e "s/host \"$hostname\"/host \"HOSTNAME\"/g" \
+	-e "s/for host \"$hostname\"/for host \"HOSTNAME\"/g" \
 	-e "s;$tmp;TMP;g" \
 	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/" \
 	-e '/^-rw-r--r--/s/-rw-r--r--.* 2011/-rw-r--r-- ... 2011/'
