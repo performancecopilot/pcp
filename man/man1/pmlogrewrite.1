@@ -18,10 +18,13 @@
 \f3pmlogrewrite\f1 \- rewrite Performance Co-Pilot archives
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/pmlogrewrite\f1
-[\f3\-Cdsvw \f1]
+[\f3\-Cdiqsvw \f1]
 [\f3\-c\f1 \f2config\f1]
-\f2inlog\f1 \f2outlog\f1 
+\f2inlog\f1 [\f2outlog\f1]
 .SH DESCRIPTION
+.de KW
+\\f(BI\\$1\\fP\\$2
+..
 .B pmlogrewrite
 reads a Performance Co-Pilot (PCP) archive log
 identified by
@@ -95,6 +98,15 @@ are as follows:
 Parse the rewriting rules and quit.
 .I outlog
 is not created.
+When
+.B \-C
+is specified, this also sets
+.B \-v
+and
+.B \-w
+so that all warnings and verbose messages are displayed as
+.I config
+is parsed.
 .TP 7
 .BI \-c " config"
 If
@@ -120,6 +132,32 @@ option, the partially created
 .I outlog
 archive log is not removed.
 .TP 7
+.B \-i
+Rather than creating
+.IR outlog ,
+.I inlog
+is rewritten in place when the
+.B \-i
+option is used.
+A new archive is created using temporary file names and then renamed to 
+.I inlog
+in such a way that
+if any errors (not warnings) are encountered,
+.I inlog
+remains unaltered.
+.TP 7
+.B \-q
+Quick mode, where if there are no rewriting actions to be
+performed (none of the global data, instance domains or metrics
+from
+.I inlog
+will be changed), then
+.B pmlogrewrite
+will exit (with status 0, so success) immediately after parsing
+the configuration file(s) and
+.I outlog
+is not created.
+.TP 7
 .B \-s
 When the ``units'' of a metric are changed, if the dimension in terms
 of space, time and count is unaltered, then the scaling factor is being changed,
@@ -134,7 +172,14 @@ to change as well.  The default
 .B pmlogrewrite
 behaviour matches case (a).  If case (b) applies, then use the
 .B \-s
-option and the values of the metric in each result will be rescaled.
+option and the values of all the
+metrics with a scale factor change in each result will be rescaled.
+For finer control over value rescaling refer to
+the
+.KW RESCALE
+option for the
+.KW UNITS
+clause of the metric rewriting rule described below.
 .TP 7
 .BI \-v
 Increase verbosity of diagnostic output.
@@ -142,17 +187,36 @@ Increase verbosity of diagnostic output.
 .BI \-w
 Emit warnings.  Normally
 .B pmlogrewrite
-remains silent for any warning that is not fatal, e.g. a rewriting
-rule for a metric or instance domain or an instance that is not present in
-.IR inlog .
+remains silent for any warning that is not fatal and
+it is expected that for a particular archive, some (or indeed, all)
+of the rewriting specifications may not apply.  For example, changes to
+a PMDA may be captured in a set of rewriting rules, but a single archive
+may not contain all of the modified metrics nor all of the modified
+instance domains and/or instances.  Because these cases are expected,
+they do not prevent
+.B pmlogrewrite
+executing, and rules that do not apply to
+.I inlog
+are silently ignored by default.
+Similarly, some rewriting rules may involve no change because
+the metadata in
+.I inlog
+already matches the intent of the rewriting rule to correct data
+from a previous version of a PMDA.
+The
+.B \-w
+flag forces warnings to be emitted for all of these cases.
+.PP
+The argument
+.I outlog
+is required in all cases, except when
+.B \-i
+is specified.
 .SH REWRITING RULES SYNTAX
 A configuration file
 contains zero or more rewriting rules as defined below.
 .PP
 Keywords and special punctuation characters are shown below in
-.de KW
-\\f(BI\\$1\\fP\\$2
-..
 .KW bolditalic
 font and are case-insensitive, so
 .KW METRIC ,
@@ -459,8 +523,9 @@ both the metadata and all values in results are expunged.
 .PP
 .KW INDOM
 .KW ->
-\fInewdomain\fP\f(BI.\fP\fInewserial\fP
+\fInewdomain\fP\f(BI.\fP\fInewserial\fP [
 .I pick
+]
 .RS +4n
 .PP
 Modifies the metadata to change the instance domain for this metric.
@@ -595,9 +660,10 @@ metric sample.bin { indom -> 123.2 }
 .PP
 .KW INDOM
 .KW ->
-.KW NULL
+.KW NULL [
 .I pick
 .RS +4n
+]
 .PP
 The metric (which must have been
 previously defined over an instance domain) is being modified to
@@ -727,6 +793,9 @@ an unsigned type.
 .KW UNITS
 .KW ->
 .I newunits
+[
+.KW RESCALE
+]
 .RS +4n
 .PP
 .I newunits
@@ -761,6 +830,13 @@ and
 .B PM_COUNT_XXX
 macros are defined in <pcp/pmapi.h> or
 .BR pmLookupDesc (3).
+.PP
+When the scale is changed (but the dimension is
+unaltered) the optional keyword
+.KW RESCALE
+may be used to chose value rescaling as per the
+.B \-s
+command line option, but applied to just this metric.
 .RE
 
 .PP

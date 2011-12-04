@@ -15,17 +15,20 @@
 use strict;
 use warnings;
 use JSON;
-use Switch;
 use PCP::PMDA;
 use LWP::Simple;
 
 my $es_port = 9200;
 my $es_instance = 'localhost';
+my $es_user = 'nobody';
 use vars qw($pmda $es_cluster $es_nodes $es_nodestats $es_root);
+
 my $nodes_indom = 0;
 my @nodes_instances;
 my @nodes_instance_ids;
-my @cluster_cache = ( 0, 0, 0 );	# time of last refresh for each cluster
+
+my @cluster_cache;		# time of last refresh for each cluster
+my $cache_interval = 2;		# min secs between refreshes for clusters
 
 # Configuration files for overriding the above settings
 for my $file (pmda_config('PCP_PMDAS_DIR') . '/elasticsearch/es.conf', 'es.conf') {
@@ -59,7 +62,8 @@ sub es_refresh
     my $content;
     my $now = time;
 
-    if ($now - $cluster_cache[$cluster] <= 1.0) {
+    if (defined($cluster_cache[$cluster]) &&
+        $now - $cluster_cache[$cluster] <= $cache_interval) {
 	# $pmda->log("es_refresh $cluster - no refresh needed yet");
 	return;
     }
@@ -109,13 +113,19 @@ sub es_lookup_node
     return $json->{'nodes'}->{$nodeID};
 }
 
+# iterate over metric-name components, performing hash lookups as we go.
 sub es_value
 {
-    my ($value) = @_;
+    my ( $values, $names ) = @_;
+    my @subnames = @$names;
+    my ( $value, $name );
 
-    if (!defined($value)) {
-	return (PM_ERR_APPVERSION, 0);
+    foreach $name (@subnames) {
+	$value = $values->{$name};
+	return (PM_ERR_APPVERSION, 0) unless (defined($value));
+	$values = $value;
     }
+    return (PM_ERR_APPVERSION, 0) unless (defined($value));
     return ($value, 1);
 }
 
@@ -139,28 +149,30 @@ sub es_status
 sub es_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
+    my $metric_name = pmda_pmid_name($cluster, $item);
+    my @metric_subnames;
     my ($node, $json);
 
-    # If the PMDA cluster is 0, we return from the $es_cluster scalar
-    # $pmda->log("es_fetch_callback: $cluster.$item ($inst)");
+    # $pmda->log("es_fetch_callback: $metric_name $cluster.$item ($inst)");
+
+    # split into sub-names, remove first couple (e.g. elasticsearch.node.)
+    @metric_subnames = split(/\./, $metric_name);
+    splice(@metric_subnames,0,2);
+
     if ($cluster == 0) {
 	if (!defined($es_cluster))	{ return (PM_ERR_AGAIN, 0); }
 	if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
 
-	switch ($item) {
-	    case 0  { return es_value($es_cluster->{'cluster_name'}); }
-	    case 1  { return es_value($es_cluster->{'status'}); }
-	    case 2  { return es_status($es_cluster->{'timed_out'}); }
-	    case 3  { return es_value($es_cluster->{'number_of_nodes'}); }
-	    case 4  { return es_value($es_cluster->{'number_of_data_nodes'}); }
-	    case 5  { return es_value($es_cluster->{'active_primary_shards'}); }
-	    case 6  { return es_value($es_cluster->{'active_shards'}); }
-	    case 7  { return es_value($es_cluster->{'relocating_shards'}); }
-	    case 8  { return es_value($es_cluster->{'initializing_shards'}); }
-	    case 9  { return es_value($es_cluster->{'unassigned_shards'}); }
-	    case 10 { return es_status($es_cluster->{'status'}); }
-	    else    { return (PM_ERR_PMID, 0); }
+	# cluster.timed_out and cluster.status (numeric codes)
+	if ($item == 1) {
+	    my $value = $es_cluster->{'status'};
+	    return (PM_ERR_APPVERSION, 0) unless (defined($value));
+	    return ($value, 1);
 	}
+	elsif ($item == 2 || $item == 10) {
+	    return es_status($es_cluster->{$metric_subnames[0]});
+	}
+	return es_value($es_cluster, \@metric_subnames);
     }
     elsif ($cluster == 1) {
 	if ($inst == PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
@@ -168,37 +180,7 @@ sub es_fetch_callback
 
 	$node = es_lookup_node($es_nodestats, $inst);
 	if (!defined($node))		{ return (PM_ERR_AGAIN, 0); }
-
-	switch ($item) {
-	    case 0  { return es_value($node->{'indices'}->{'size_in_bytes'}); }
-	    case 1  { return es_value($node->{'indices'}->{'docs'}->{'num_docs'}); }
-	    case 2  { return es_value($node->{'indices'}->{'docs'}->{'num_docs'}); }
-	    case 3  { return es_value($node->{'indices'}->{'cache'}->{'field_evictions'}); }
-	    case 4  { return es_value($node->{'indices'}->{'cache'}->{'field_size_in_bytes'}); }
-	    case 5  { return es_value($node->{'indices'}->{'cache'}->{'filter_count'}); }
-	    case 6  { return es_value($node->{'indices'}->{'cache'}->{'filter_evictions'}); }
-	    case 7  { return es_value($node->{'indices'}->{'cache'}->{'filter_size_in_bytes'}); }
-	    case 8  { return es_value($node->{'indices'}->{'merges'}->{'current'}); }
-	    case 9  { return es_value($node->{'indices'}->{'merges'}->{'total'}); }
-	    case 10 { return es_value($node->{'indices'}->{'merges'}->{'total_time_in_millis'}); }
-	    case 11 { return es_value($node->{'jvm'}->{'uptime_in_millis'}); }
-	    case 12 { return es_value($node->{'jvm'}->{'uptime'}); }
-	    case 13 { return es_value($node->{'jvm'}->{'mem'}->{'heap_used_in_bytes'}); }
-	    case 14 { return es_value($node->{'jvm'}->{'mem'}->{'heap_committed_in_bytes'}); }
-	    case 15 { return es_value($node->{'jvm'}->{'mem'}->{'non_heap_used_in_bytes'}); }
-	    case 16 { return es_value($node->{'jvm'}->{'mem'}->{'non_heap_committed_in_bytes'}); }
-	    case 17 { return es_value($node->{'jvm'}->{'threads'}->{'count'}); }
-	    case 18 { return es_value($node->{'jvm'}->{'threads'}->{'peak_count'}); }
-	    case 19 { return es_value($node->{'jvm'}->{'gc'}->{'collection_count'}); }
-	    case 20 { return es_value($node->{'jvm'}->{'gc'}->{'collection_time_in_millis'}); }
-	    case 21 { return es_value($node->{'jvm'}->{'gc'}->{'collectors'}->{'Copy'}->{'collection_count'}); }
-	    case 22 { return es_value($node->{'jvm'}->{'gc'}->{'collectors'}->{'Copy'}->{'collection_time_in_millis'}); }
-	    case 23 { return es_value($node->{'jvm'}->{'gc'}->{'collectors'}->{'ParNew'}->{'collection_count'}); }
-	    case 24 { return es_value($node->{'jvm'}->{'gc'}->{'collectors'}->{'ParNew'}->{'collection_time_in_millis'}); }
-	    case 25 { return es_value($node->{'jvm'}->{'gc'}->{'collectors'}->{'ConcurrentMarkSweep'}->{'collection_count'}); }
-	    case 26 { return es_value($node->{'jvm'}->{'gc'}->{'collectors'}->{'ConcurrentMarkSweep'}->{'collection_time_in_millis'}); }
-	    else    { return (PM_ERR_PMID, 0); }
-	}
+	return es_value($node, \@metric_subnames);
     }
     elsif ($cluster == 2) {
 	if ($inst == PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
@@ -206,27 +188,13 @@ sub es_fetch_callback
 
 	$node = es_lookup_node($es_nodes, $inst);
 	if (!defined($node))		{ return (PM_ERR_AGAIN, 0); }
-
-	switch ($item) {
-	    case 0  { return es_value($node->{'jvm'}->{'pid'}); }
-	    case 1  { return es_value($node->{'jvm'}->{'version'}); }
-	    case 2  { return es_value($node->{'jvm'}->{'vm_name'}); }
-	    case 3  { return es_value($node->{'jvm'}->{'vm_version'}); }
-	    case 4  { return es_value($node->{'jvm'}->{'mem'}->{'heap_init_in_bytes'}); }
-	    case 5  { return es_value($node->{'jvm'}->{'mem'}->{'heap_max_in_bytes'}); }
-	    case 6  { return es_value($node->{'jvm'}->{'mem'}->{'non_heap_init_in_bytes'}); }
-	    case 7  { return es_value($node->{'jvm'}->{'mem'}->{'non_heap_max_in_bytes'}); }
-	    else    { return (PM_ERR_PMID, 0); }
-	}
+	return es_value($node, \@metric_subnames);
     }
     elsif ($cluster == 3) {
 	if (!defined($es_root))		{ return (PM_ERR_AGAIN, 0); }
 	if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
 
-	switch ($item) {
-	    case 0  { return es_value($es_root->{'version'}->{'number'}); }
-	    else    { return (PM_ERR_PMID, 0); }
-	}
+	return es_value($es_root, \@metric_subnames);
     }
     return (PM_ERR_PMID, 0);
 }
@@ -282,65 +250,64 @@ $pmda->add_metric(pmda_pmid(0,10), PM_TYPE_32, PM_INDOM_NULL,
 		  'Maps the cluster status colour to a numeric value for alarming');
 
 # node stats
-$pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U64, $nodes_indom,
-		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		'elasticsearch.nodes.indices.size',
-		'Size of indices on each elasticsearch node', '');
-$pmda->add_metric(pmda_pmid(1,1), PM_TYPE_U64, $nodes_indom,
+$pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U64, $nodes_indom,	# deprecated
+		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		'elasticsearch.nodes.indices.size_in_bytes', '', '');
+$pmda->add_metric(pmda_pmid(1,1), PM_TYPE_U64, $nodes_indom,	# deprecated
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		'elasticsearch.nodes.docs.count',
-		'Cumulative counter of documents indexed by elasticsearch', '');
+		'elasticsearch.nodes.indices.docs.count', '', '');
 $pmda->add_metric(pmda_pmid(1,2), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		'elasticsearch.nodes.docs.num_docs',
+		'elasticsearch.nodes.indices.docs.num_docs',
 		'Raw number of documents indexed by elasticsearch', '');
 $pmda->add_metric(pmda_pmid(1,3), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		'elasticsearch.nodes.cache.field_evictions', '', '');
+		'elasticsearch.nodes.indices.cache.field_evictions', '', '');
 $pmda->add_metric(pmda_pmid(1,4), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.cache.field_size', '', '');
+		'elasticsearch.nodes.indices.cache.field_size_in_bytes', '', '');
 $pmda->add_metric(pmda_pmid(1,5), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		'elasticsearch.nodes.cache.filter_count', '', '');
+		'elasticsearch.nodes.indices.cache.filter_count', '', '');
 $pmda->add_metric(pmda_pmid(1,6), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		'elasticsearch.nodes.cache.filter_evictions', '', '');
+		'elasticsearch.nodes.indices.cache.filter_evictions', '', '');
 $pmda->add_metric(pmda_pmid(1,7), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.cache.filter_size', '', '');
+		'elasticsearch.nodes.indices.cache.filter_size_in_bytes', '', '');
 $pmda->add_metric(pmda_pmid(1,8), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		'elasticsearch.nodes.merges.current', '', '');
+		'elasticsearch.nodes.indices.merges.current', '', '');
 $pmda->add_metric(pmda_pmid(1,9), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		'elasticsearch.nodes.merges.total', '', '');
+		'elasticsearch.nodes.indices.merges.total', '', '');
 $pmda->add_metric(pmda_pmid(1,10), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
-		'elasticsearch.nodes.merges.total_time', '', '');
+		'elasticsearch.nodes.indices.merges.total_time_in_millis',
+		'', '');
 $pmda->add_metric(pmda_pmid(1,11), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
-		'elasticsearch.nodes.jvm.uptime',
+		'elasticsearch.nodes.jvm.uptime_in_millis',
 		'Number of milliseconds each elasticsearch node has been running', '');
 $pmda->add_metric(pmda_pmid(1,12), PM_TYPE_STRING, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		'elasticsearch.nodes.jvm.uptime_s',
+		'elasticsearch.nodes.jvm.uptime',
 		'Time (as a string) that each elasticsearch node has been up', '');
 $pmda->add_metric(pmda_pmid(1,13), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.jvm.mem.heap_used',
+		'elasticsearch.nodes.jvm.mem.heap_used_in_bytes',
 		'Actual amount of memory in use for the Java heap', '');
 $pmda->add_metric(pmda_pmid(1,14), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.jvm.mem.heap_committed',
+		'elasticsearch.nodes.jvm.mem.heap_committed_in_bytes',
 		'Virtual memory size', '');
 $pmda->add_metric(pmda_pmid(1,15), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.jvm.mem.non_heap_used',
+		'elasticsearch.nodes.jvm.mem.non_heap_used_in_bytes',
 		'Actual memory in use by Java excluding heap space', '');
 $pmda->add_metric(pmda_pmid(1,16), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.jvm.mem.non_heap_committed',
+		'elasticsearch.nodes.jvm.mem.non_heap_committed_in_bytes',
 		'Virtual memory size excluding heap', '');
 $pmda->add_metric(pmda_pmid(1,17), PM_TYPE_U32, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
@@ -352,30 +319,154 @@ $pmda->add_metric(pmda_pmid(1,18), PM_TYPE_U32, $nodes_indom,
 		'Maximum observed Java threads in use on each node', '');
 $pmda->add_metric(pmda_pmid(1,19), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		'elasticsearch.nodes.jvm.gc.count',
+		'elasticsearch.nodes.jvm.gc.collection_count',
 		'Count of Java garbage collections', '');
 $pmda->add_metric(pmda_pmid(1,20), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
-		'elasticsearch.nodes.jvm.gc.time',
+		'elasticsearch.nodes.jvm.gc.collection_time_in_millis',
 		'Time spent performing garbage collections in Java', '');
 $pmda->add_metric(pmda_pmid(1,21), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		'elasticsearch.nodes.jvm.gc.collectors.Copy.count', '', '');
+		'elasticsearch.nodes.jvm.gc.collectors.Copy.collection_count',
+		'', '');
 $pmda->add_metric(pmda_pmid(1,22), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
-		'elasticsearch.nodes.jvm.gc.collectors.Copy.time', '', '');
+		'elasticsearch.nodes.jvm.gc.collectors.Copy.collection_time_in_millis',
+		'', '');
 $pmda->add_metric(pmda_pmid(1,23), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		'elasticsearch.nodes.jvm.gc.collectors.ParNew.count', '', '');
+		'elasticsearch.nodes.jvm.gc.collectors.ParNew.collection_count',
+		'', '');
 $pmda->add_metric(pmda_pmid(1,24), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
-		'elasticsearch.nodes.jvm.gc.collectors.ParNew.time', '', '');
+		'elasticsearch.nodes.jvm.gc.collectors.ParNew.collection_time_in_millis',
+		'', '');
 $pmda->add_metric(pmda_pmid(1,25), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		'elasticsearch.nodes.jvm.gc.collectors.CMS.count', '', '');
+		'elasticsearch.nodes.jvm.gc.collectors.ConcurrentMarkSweep.collection_count',
+		'', '');
 $pmda->add_metric(pmda_pmid(1,26), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
-		'elasticsearch.nodes.jvm.gc.collectors.CMS.time', '', '');
+		'elasticsearch.nodes.jvm.gc.collectors.ConcurrentMarkSweep.collection_time_in_millis',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,27), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'elasticsearch.nodes.indices.docs.deleted',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,28), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'elasticsearch.nodes.indices.indexing.index_total',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,29), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		'elasticsearch.nodes.indices.indexing.index_time_in_millis',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,30), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'elasticsearch.nodes.indices.indexing.delete_total',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,31), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		'elasticsearch.nodes.indices.indexing.delete_time_in_millis',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,32), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'elasticsearch.nodes.indices.merges.current_docs',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,33), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		'elasticsearch.nodes.indices.merges.current_size_in_bytes',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,34), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'elasticsearch.nodes.indices.merges.total_docs',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,35), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		'elasticsearch.nodes.indices.merges.total_size_in_bytes',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,36), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'elasticsearch.nodes.indices.refresh.total',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,37), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		'elasticsearch.nodes.indices.refresh.total_time_in_millis',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,38), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'elasticsearch.nodes.indices.flush.total',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,39), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		'elasticsearch.nodes.indices.flush.total_time_in_millis',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,40), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		'elasticsearch.nodes.process.timestamp', '', '');
+$pmda->add_metric(pmda_pmid(1,41), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		'elasticsearch.nodes.process.open_file_descriptors', '', '');
+$pmda->add_metric(pmda_pmid(1,42), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		'elasticsearch.nodes.process.cpu.percent', '', '');
+$pmda->add_metric(pmda_pmid(1,43), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		'elasticsearch.nodes.process.cpu.sys_in_millis', '', '');
+$pmda->add_metric(pmda_pmid(1,44), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		'elasticsearch.nodes.process.cpu.user_in_millis', '', '');
+$pmda->add_metric(pmda_pmid(1,45), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		'elasticsearch.nodes.process.mem.resident_in_bytes', '', '');
+$pmda->add_metric(pmda_pmid(1,46), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		'elasticsearch.nodes.process.mem.total_virtual_in_bytes',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,47), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		'elasticsearch.nodes.indices.store.size_in_bytes',
+		'Size of indices store on each elasticsearch node', '');
+$pmda->add_metric(pmda_pmid(1,48), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'elasticsearch.nodes.indices.get.total',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,49), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		'elasticsearch.nodes.indices.get.time_in_millis',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,50), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'elasticsearch.nodes.indices.get.exists_total',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,51), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		'elasticsearch.nodes.indices.get.exists_time_in_millis',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,52), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'elasticsearch.nodes.indices.get.missing_total',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,53), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		'elasticsearch.nodes.indices.get.missing_time_in_millis',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,54), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'elasticsearch.nodes.indices.search.query_total',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,55), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		'elasticsearch.nodes.indices.search.query_time_in_millis',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,56), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'elasticsearch.nodes.indices.search.fetch_total',
+		'', '');
+$pmda->add_metric(pmda_pmid(1,57), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		'elasticsearch.nodes.indices.search.fetch_time_in_millis',
+		'', '');
 
 # node info stats
 $pmda->add_metric(pmda_pmid(2,0), PM_TYPE_U32, $nodes_indom,
@@ -396,20 +487,23 @@ $pmda->add_metric(pmda_pmid(2,3), PM_TYPE_STRING, $nodes_indom,
 		'Java Virtual Machine version on each node', '');
 $pmda->add_metric(pmda_pmid(2,4), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.jvm.mem.heap_init',
+		'elasticsearch.nodes.jvm.mem.heap_init_in_bytes',
 		'Initial Java heap memory configuration size', '');
 $pmda->add_metric(pmda_pmid(2,5), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.jvm.mem.heap_max',
+		'elasticsearch.nodes.jvm.mem.heap_max_in_bytes',
 		'Maximum Java memory size', '');
 $pmda->add_metric(pmda_pmid(2,6), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.jvm.mem.non_heap_init',
+		'elasticsearch.nodes.jvm.mem.non_heap_init_in_bytes',
 		'Initial Java memory configuration size excluding heap space', '');
 $pmda->add_metric(pmda_pmid(2,7), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		'elasticsearch.nodes.jvm.mem.non_heap_max',
+		'elasticsearch.nodes.jvm.mem.non_heap_max_in_bytes',
 		'Maximum Java memory size excluding heap space', '');
+$pmda->add_metric(pmda_pmid(2,8), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		'elasticsearch.nodes.process.max_file_descriptors', '', '');
 
 $pmda->add_metric(pmda_pmid(3,0), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
@@ -421,6 +515,7 @@ $pmda->add_indom($nodes_indom, \@nodes_instances,
 
 $pmda->set_fetch_callback(\&es_fetch_callback);
 $pmda->set_refresh(\&es_refresh);
+$pmda->set_user($es_user);
 $pmda->run;
 
 =pod

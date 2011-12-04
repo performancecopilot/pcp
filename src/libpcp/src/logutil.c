@@ -1095,6 +1095,12 @@ __pmLogPutResult(__pmLogCtl *lcp, __pmPDU *pb)
 	lcp->l_state = PM_LOG_STATE_INIT;
     }
 
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_LOG) {
+	fprintf(stderr, "__pmLogPutResult: pdubuf=" PRINTF_P_PFX "%p len=%d posn=%ld\n", pb, php->len, (long)ftell(lcp->l_mfp));
+    }
+#endif
+
     php->from = php->len - (int)sizeof(__pmPDUHdr) + 2 * (int)sizeof(int);
     sz = php->from - (int)sizeof(int);
 
@@ -2048,7 +2054,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		pmResult	*result;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOG)
-		    fprintf(stderr, " back up ...");
+		    fprintf(stderr, " back up ...\n");
 #endif
 		if (__pmLogRead(lcp, PM_MODE_BACK, NULL, &result, PMLOGREAD_NEXT) >= 0)
 		    pmFreeResult(result);

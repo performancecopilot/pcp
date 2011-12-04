@@ -107,6 +107,7 @@ Options:
   -N            show-me mode, no operations performed
   -o            (old style) merge logs only from yesterday
                 [default is to merge all possible logs before today]
+  -r            do not process archives with pmlogrewrite(1)
   -s size       rotate NOTICES file after reaching size bytes
   -t want       implies -VV and keep trace of verbose output for "want"
                 days
@@ -127,8 +128,9 @@ VERY_VERBOSE=false
 MYARGS=""
 OFLAG=false
 TRACE=0
+RFLAG=false
 
-while getopts c:k:m:Nos:t:Vx:X:Y:? c
+while getopts c:k:m:Nors:t:Vx:X:Y:? c
 do
     case $c
     in
@@ -149,6 +151,8 @@ do
 		MYARGS="$MYARGS -N"
 		;;
 	o)	OFLAG=true
+		;;
+	r)	RFLAG=true
 		;;
 	s)	ROLLNOTICES="$OPTARG"
 		check=`echo "$ROLLNOTICES" | sed -e 's/[0-9]//g'`
@@ -580,7 +584,7 @@ END							{ print m }'`
     #
     # Assume if .meta file is present then other archive components are
     # also present (if not the case it is a serious process botch, and
-    # pmlogmerge will fail below)
+    # pmlogger_merge will fail below)
     #
     # Find all candidate input archives, remove any that contain today's
     # date and group the remainder by date.
@@ -624,6 +628,37 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 	mv $tmp.tmp $tmp.list
     fi
 
+    # pmlogrewrite if no -r on command line and
+    # (a) pmlogrewrite exists in the same directory that the input
+    #     archives are found, or
+    # (b) if $PCP_VAR_LIB/config/pmlogrewrite exists
+    # "exists" => file, directory or symbolic link
+    #
+    rewrite=''
+    if $RFLAG
+    then
+	:
+    else
+	for type in -f -d -L
+	do
+	    if [ $type "$dir/pmlogrewrite" ]
+	    then
+		rewrite="$dir/pmlogrewrite"
+		break
+	    fi
+	done
+	if [ -z "$rewrite" ]
+	then
+	    for type in -f -d -L
+	    do
+		if [ $type "$PCP_VAR_DIR/config/pmlogrewrite" ]
+		then
+		    rewrite="$PCP_VAR_DIR/config/pmlogrewrite"
+		    break
+		fi
+	    done
+	fi
+    fi
     rm -f $tmp.skip
     if [ ! -s $tmp.list ]
     then
@@ -643,6 +678,23 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 		touch $tmp.skip
 		break
 	    else
+		if [ -n "$rewrite" ]
+		then
+		    $VERY_VERBOSE && echo "Rewriting input archives using $rewrite"
+		    for arch in $inlist
+		    do
+			if pmlogrewrite -iq -c "$rewrite" $arch
+			then
+			    :
+			else
+			    echo "$prog: Warning: rewrite for $arch using -c $rewrite failed"
+			    echo "[$CONTROL:$line] ... skip log merging, culling and compressing for host \"$host\""
+			    touch $tmp.skip
+			    break
+			fi
+		    done
+
+		fi
 		if $VERY_VERBOSE
 		then
 		    for arch in $inlist
@@ -675,6 +727,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 	# this is sufficiently serious that we don't want to remove
 	# the lock file, so problems are not compounded the next time
 	# the script is run
+	$VERY_VERBOSE && echo "Skip culling and compression ..."
 	continue
     fi
 
@@ -698,6 +751,8 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 	    else
 		cat $tmp.list | xargs rm -f
 	    fi
+	else
+	    $VERY_VERBOSE && echo "$prog: Warning: no archive files found to cull"
 	fi
     fi
 
@@ -723,6 +778,8 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 	    else
 		cat $tmp.list | xargs $COMPRESS
 	    fi
+	else
+	    $VERY_VERBOSE && echo "$prog: Warning: no archive files found to compress"
 	fi
     fi
 
@@ -746,6 +803,8 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 	    else
 		cat $tmp.list | xargs rm -f
 	    fi
+	else
+	    $VERY_VERBOSE && echo "$prog: Warning: no trace files found to cull"
 	fi
     fi
 

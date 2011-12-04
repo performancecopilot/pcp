@@ -74,7 +74,7 @@ save_vset(pmResult *rp, int idx)
     rp->vset[idx] = (pmValueSet *)malloc(need);
     if (rp->vset[idx] == NULL) {
 	fprintf(stderr, "save_vset: malloc(%d) failed: %s\n", need, strerror(errno));
-	exit(1);
+	abandon();
     }
     rp->vset[idx]->pmid = vsp->pmid;
     rp->vset[idx]->numval = vsp->numval;
@@ -375,7 +375,6 @@ rescale(int i, metricspec_t *mp)
 	    inarch.rp->vset[i]->numval = j;
 	    __pmDumpResult(stderr, inarch.rp);
 	    abandon();
-	    exit(1);
 	}
 	sts = pmConvScale(mp->old_desc.type, &ival, &mp->old_desc.units, &oval, &mp->new_desc.units);
 	if (sts < 0) {
@@ -390,7 +389,6 @@ rescale(int i, metricspec_t *mp)
 	    inarch.rp->vset[i]->numval = j;
 	    __pmDumpResult(stderr, inarch.rp);
 	    abandon();
-	    exit(1);
 	}
 	if (already_saved && old_valfmt == PM_VAL_DPTR) {
 	    /*
@@ -420,7 +418,6 @@ rescale(int i, metricspec_t *mp)
 	    inarch.rp->vset[i]->numval = j;
 	    __pmDumpResult(stderr, inarch.rp);
 	    abandon();
-	    exit(1);
 	}
     }
     inarch.rp->vset[i]->valfmt = sts;
@@ -456,7 +453,6 @@ retype(int i, metricspec_t *mp)
 	    inarch.rp->vset[i]->numval = j;
 	    __pmDumpResult(stderr, inarch.rp);
 	    abandon();
-	    exit(1);
 	}
 	if (already_saved && old_valfmt == PM_VAL_DPTR) {
 	    /*
@@ -486,7 +482,6 @@ retype(int i, metricspec_t *mp)
 	    inarch.rp->vset[i]->numval = j;
 	    __pmDumpResult(stderr, inarch.rp);
 	    abandon();
-	    exit(1);
 	}
     }
     inarch.rp->vset[i]->valfmt = sts;
@@ -501,7 +496,6 @@ do_result(void)
     int			sts;
     int			orig_numpmid;
     int			*orig_numval = NULL;
-    long		out_offset;
 
     orig_numpmid = inarch.rp->numpmid;
 
@@ -510,7 +504,7 @@ do_result(void)
 	save = (pmValueSet **)realloc(save, inarch.rp->numpmid * sizeof(save[0]));
 	if (save == NULL) {
 	    fprintf(stderr, "save_vset: save realloc(...,%d) failed: %s\n", (int)(inarch.rp->numpmid * sizeof(save[0])), strerror(errno));
-	    exit(1);
+	    abandon();
 	}
 	for (i = len_save; i < inarch.rp->numpmid; i++)
 	    save[i] = NULL;
@@ -519,7 +513,7 @@ do_result(void)
     orig_numval = (int *)malloc(orig_numpmid * sizeof(int));
     if (orig_numval == NULL) {
 	fprintf(stderr, "orig_numval malloc(%d) failed: %s\n", (int)(orig_numpmid * sizeof(int)), strerror(errno));
-	exit(1);
+	abandon();
     }
     for (i = 0; i < orig_numpmid; i++)
 	orig_numval[i] = inarch.rp->vset[i]->numval;
@@ -656,17 +650,13 @@ do_result(void)
 		    }
 		}
 	    }
-	    if (mp->flags & METRIC_CHANGE_UNITS) {
-		if (mp->old_desc.units.dimSpace == mp->new_desc.units.dimSpace &&
-		    mp->old_desc.units.dimTime == mp->new_desc.units.dimTime &&
-		    mp->old_desc.units.dimCount == mp->new_desc.units.dimCount &&
-		    sflag) {
-		    /*
-		     * dimension the same, -s on command line, so rescale
-		     * values
-		     */
-		    rescale(i, mp);
-		}
+	    if (mp->flags & METRIC_RESCALE) {
+		/*
+		 * parser already checked that dimension is unchanged,
+		 * scale is different and -s on command line or RESCALE
+		 * in UNITS clause of metricspec => rescale values
+		 */
+		rescale(i, mp);
 	    }
 	    if (mp->flags & METRIC_CHANGE_TYPE)
 		retype(i, mp);
@@ -678,17 +668,28 @@ do_result(void)
      * only output numpmid == 0 case if input was a mark record
      */
     if (orig_numpmid == 0 || inarch.rp->numpmid > 0) {
-	out_offset = ftell(outarch.logctl.l_mfp);
+	unsigned long	out_offset;
+	unsigned long	peek_offset;
+	peek_offset = ftell(outarch.logctl.l_mfp);
 	sts = __pmEncodeResult(PDU_OVERRIDE2, inarch.rp, &inarch.logrec);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmProgname, pmErrStr(sts));
-	    exit(1);
+	    abandon();
 	}
+	peek_offset += ((__pmPDUHdr *)inarch.logrec)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
+	if (peek_offset > 0x7fffffff) {
+	    /*
+	     * data file size will exceed 2^31-1 bytes, so force
+	     * volume switch
+	     */
+	    newvolume(outarch.logctl.l_curvol+1);
+	}
+	out_offset = ftell(outarch.logctl.l_mfp);
 	if ((sts = __pmLogPutResult(&outarch.logctl, inarch.logrec)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
 		    pmProgname, pmErrStr(sts));
-	    exit(1);
+	    abandon();
 	}
 	/* do not free inarch.logrec ... this is a libpcp PDU buffer */
 #if PCP_DEBUG

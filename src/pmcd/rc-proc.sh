@@ -15,7 +15,7 @@
 # 
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 # 
 
 # source the PCP configuration environment variables
@@ -350,7 +350,16 @@ chkconfig_on_msg()
 
 #
 # load some rc functions if available
-if [ -r /etc/rc.status ]
+#
+# In openSUSE 12.1, /etc/rc.status intercepts our rc script and passes
+# control to systemctl which uses systemd ... the result is that messages
+# from our rc scripts are sent to syslog by default, and there is no
+# apparent way to revert to the classical behaviour, so this "hack" allows
+# PCP QA to set $PCPQA_NO_RC_STATUS and continue to see stdout and stderr
+# from our rc scripts
+# - Ken 1 Dec 2011
+#
+if [ -r /etc/rc.status -a -z "${PCPQA_NO_RC_STATUS+set}" ]
 then
     #
     # SuSE style

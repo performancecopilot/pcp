@@ -14,6 +14,7 @@
  * for more details.
  */
 
+#define INITGUID
 #include <pmapi.h>
 #include <impl.h>
 #include <tdh.h>
@@ -33,7 +34,7 @@ struct {
     { EVENT_TRACE_FLAG_MEMORY_HARD_FAULTS, "memory_hard_faults" },
     { EVENT_TRACE_FLAG_NETWORK_TCPIP, "network_tcpip" },
     { EVENT_TRACE_FLAG_REGISTRY, "registry" },
-    { EVENT_TRACE_FLAG_DBGPRINT, "dgbprint" },
+    { EVENT_TRACE_FLAG_DBGPRINT, "dbgprint" },
     { EVENT_TRACE_FLAG_PROCESS_COUNTERS, "process_counters" },
     { EVENT_TRACE_FLAG_CSWITCH, "cswitch" },
     { EVENT_TRACE_FLAG_DPC, "dpc" },

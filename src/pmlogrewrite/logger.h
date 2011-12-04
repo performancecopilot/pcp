@@ -13,7 +13,7 @@
  * 
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
  * common data structures for pmlogextract
  */
@@ -88,6 +88,7 @@ typedef struct metricspec {
 #define METRIC_CHANGE_SEM	 16
 #define METRIC_CHANGE_UNITS	 32
 #define METRIC_DELETE		 64
+#define METRIC_RESCALE		128
 
 /* values for output when indom (numval >= 1) => PM_INDOM_NULL (numval = 1) */
 #define OUTPUT_ALL	0
@@ -149,6 +150,8 @@ extern int	yyparse(void);
 #define W_NONE	3
 
 extern __pmHashNode	*__pmHashWalk(__pmHashCtl *, int);
+extern int		__pmLogRename(const char *, const char *);
+extern int		__pmLogRemove(const char *);
 
 extern metricspec_t	*start_metric(pmID);
 extern indomspec_t	*start_indom(pmInDom);
@@ -159,6 +162,7 @@ extern int		inst_name_eq(const char *, const char *);
 extern char	*SemStr(int);
 extern int	_pmLogGet(__pmLogCtl *, int, __pmPDU **);
 extern int	_pmLogPut(FILE *, __pmPDU *);
+extern void	newvolume(int);
 
 extern void	do_desc(void);
 extern void	do_indom(void);

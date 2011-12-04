@@ -16,7 +16,7 @@
 # 
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 LOGDIR=Logs
 
@@ -66,9 +66,9 @@ then
 	    eval `grep DISTRIB_RELEASE= /etc/lsb-release`
 	    XDISTRIB_RELEASE=`echo $DISTRIB_RELEASE | sed -e 's/[^0-9]//g'`
 	    [ -z "$XDISTRIB_RELEASE" ] && XDISTRIB_RELEASE=0000
-	    if [ $XDISTRIB_RELEASE -ge 1110 ]
+	    if [ $XDISTRIB_RELEASE -gt 1110 ]
 	    then
-		# Hope the problem is fixed in Ubuntu 11.10
+		# Hope the problem is fixed after Ubuntu 11.10
 		OPT=true
 	    fi
 	fi

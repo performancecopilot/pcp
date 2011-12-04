@@ -66,7 +66,7 @@ start_metric(pmID pmid)
 	mp = (metricspec_t *)malloc(sizeof(metricspec_t));
 	if (mp == NULL) {
 	    fprintf(stderr, "metricspec malloc(%d) failed: %s\n", (int)sizeof(metricspec_t), strerror(errno));
-	    exit(1);
+	    abandon();
 	}
 	mp->m_next = metric_root;
 	metric_root = mp;
@@ -115,7 +115,7 @@ _pmUnpackDesc(__pmPDU *pdubuf, pmDesc *desc, int *numnames, char ***names)
     *names = (char **)malloc(*numnames * sizeof(names[1]));
     if (names == NULL) {
 	fprintf(stderr, "_pmUnpackDesc malloc(%d) failed: %s\n", (int)(*numnames * sizeof(names[1])), strerror(errno));
-	exit(1);
+	abandon();
     }
 
     p = pp->strbuf;
@@ -126,7 +126,7 @@ _pmUnpackDesc(__pmPDU *pdubuf, pmDesc *desc, int *numnames, char ***names)
 	(*names)[i] = malloc(slen+1);
 	if ((*names)[i] == NULL) {
 	    fprintf(stderr, "_pmUnpackDesc malloc(%d) failed: %s\n", slen+1, strerror(errno));
-	    exit(1);
+	    abandon();
 	}
 	strncpy((*names)[i], p, slen);
 	(*names)[i][slen] = '\0';
@@ -179,7 +179,7 @@ do_desc(void)
 		    names[i] = strdup(mp->new_name);
 		    if (names[i] == NULL) {
 			fprintf(stderr, "do_desc strdup(%s) failed: %s\n", mp->new_name, strerror(errno));
-			exit(1);
+			abandon();
 		    }
 		}
 		break;
@@ -192,7 +192,7 @@ do_desc(void)
 		    fprintf(stderr, " %s", names[i]);
 		}
 		fputc('\n', stderr);
-		exit(1);
+		abandon();
 	    }
 	}
 	if (mp->flags & METRIC_CHANGE_TYPE)
@@ -208,7 +208,7 @@ do_desc(void)
     if ((sts = __pmLogPutDesc(&outarch.logctl, &desc, numnames, names)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutDesc: %s (%s): %s\n",
 		pmProgname, names[0], pmIDStr(desc.pmid), pmErrStr(sts));
-	exit(1);
+	abandon();
     }
 #if PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)

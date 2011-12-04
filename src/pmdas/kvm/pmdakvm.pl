@@ -54,6 +54,9 @@ my @metrics = grep {
 closedir DIR;
 
 $pmda->set_fetch_callback(\&kvm_fetch_callback);
+# Don't lower permissions ... need to be root to read /sys/kernel/debug/kvm
+#
+# $pmda->set_user('nobody');
 $pmda->run;
 
 =pod
