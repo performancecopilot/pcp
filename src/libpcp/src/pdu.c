@@ -22,9 +22,10 @@
  * responsibility of the __pmGetPDU() caller to unpin the buffer when
  * it is safe to do so.
  *
- * TODO - __pmPDUCntIn[] and __pmPDUCntOut[] are diagnostic counters ...
- *	decide if these need atomic updates and check the initialization
- *	case in __pmSetPDUCntBuf()
+ * __pmPDUCntIn[] and __pmPDUCntOut[] are diagnostic counters that are
+ * maintained with non-atomic updates ... we've decided that it is
+ * acceptable for their values to be subject to possible (but unlikely)
+ * missed updates
  */
 
 #include <signal.h>

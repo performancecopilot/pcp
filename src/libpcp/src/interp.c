@@ -13,8 +13,9 @@
  *
  * Thread-safe notes:
  *
- * TODO - nr[] and nr_cache[] are diagnostic counters ... decide if these
- * 	need atomic updates (and check the re-set to zero case)
+ * nr[] and nr_cache[] are diagnostic counters that are maintained with
+ * non-atomic updates ... we've decided that it is acceptable for their
+ * values to be subject to possible (but unlikely) missed updates
  */
 
 #include <limits.h>

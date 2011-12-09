@@ -13,8 +13,9 @@
  *
  * Thread-safe notes:
  *
- * TODO - __pmLogReads is a diagnostic counter ... decide if this
- * 	needs atomic updates
+ * __pmLogReads is a diagnostic counter that is maintained with
+ * non-atomic updates ... we've decided that it is acceptable for the
+ * value to be subject to possible (but unlikely) missed updates
  */
 
 #include <inttypes.h>
