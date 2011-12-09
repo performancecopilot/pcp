@@ -95,7 +95,6 @@ main(int argc, char **argv)
     int		dupok = 0;
     int		errflag = 0;
     char	*p;
-    char	cmd[3*MAXPATHLEN];
     char	pmnsfile[MAXPATHLEN];
     char	outfname[MAXPATHLEN];
     struct stat	sbuf;
@@ -142,7 +141,7 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if ((sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
+    if ((sts = pmLoadASCIINameSpace(pmnsfile, dupok)) < 0) {
 	fprintf(stderr, "%s: Error: pmLoadNameSpace(%s): %s\n",
 	    pmProgname, pmnsfile, pmErrStr(sts));
 	exit(1);
@@ -181,7 +180,7 @@ main(int argc, char **argv)
     }
     if (stat(pmnsfile, &sbuf) == 0) {
 	/*
-	 * preserve the mode and ownership of any existing ascii PMNS file
+	 * preserve the mode and ownership of any existing PMNS file
 	 */
 	chmod(outfname, sbuf.st_mode & ~S_IFMT);
 #if defined(HAVE_CHOWN)
@@ -194,44 +193,13 @@ main(int argc, char **argv)
     pmns_output(root, outf);
     fclose(outf);
 
-    snprintf(cmd, sizeof(cmd), "%s%cpmnscomp %s -f -n %s %s.bin",
-	pmGetConfig("PCP_BINADM_DIR"), sep, dupok ? "-d" : "", outfname, outfname);
-    sts = system(cmd);
-
-    if (sts == 0) {
-	/* rename the ascii PMNS */
-	if (rename2(outfname, pmnsfile) == -1) {
-	    fprintf(stderr, "%s: cannot rename \"%s\" to \"%s\": %s\n", pmProgname, outfname, pmnsfile, osstrerror());
-	    /* remove _both_ the ascii and binary versions of the new PMNS */
-	    unlink(outfname);
-	    strcat(outfname, ".bin");
-	    unlink(outfname);
-	    exit(1);
-	}
-	/* now rename the binary PMNS */
-	strcat(outfname, ".bin");
-	strcat(pmnsfile, ".bin");
-	if (stat(pmnsfile, &sbuf) == 0) {
-	    /*
-	     * preserve the mode and ownership of any existing binary PMNS file
-	     */
-	    chmod(outfname, sbuf.st_mode & ~S_IFMT);
-#if defined(HAVE_CHOWN)
-	    if (chown(outfname, sbuf.st_uid, sbuf.st_gid) < 0)
-		fprintf(stderr, "%s: chown(%s, ...) failed: %s\n",
-		    pmProgname, outfname, osstrerror());
-#endif
-	}
-	if (rename2(outfname, pmnsfile) == -1) {
-	    fprintf(stderr, "%s: cannot rename \"%s\" to \"%s\": %s\n", pmProgname, outfname, pmnsfile, osstrerror());
-	    /*
-	     * ascii file has been updated, remove the old binary file
-	     * to avoid inconsistency between the ascii and binary PMNS
-	     */
-	    unlink(pmnsfile);
-	    exit(1);
-	}
+    /* rename the PMNS */
+    if (rename2(outfname, pmnsfile) == -1) {
+	fprintf(stderr, "%s: cannot rename \"%s\" to \"%s\": %s\n", pmProgname, outfname, pmnsfile, osstrerror());
+	/* remove the new PMNS */
+	unlink(outfname);
+	exit(1);
     }
 
-    exit(sts);
+    exit(0);
 }

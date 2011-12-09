@@ -566,22 +566,12 @@ more than once.
 .B PM_ERR_PMNS
 .I "Problems parsing PMNS definitions"
 .br
-Only occurs when an ASCII namespace is loaded.  As of PCP 2.0 this
-error is mostly confined to
-.BR pmnscomp (1)
-and client applications that use an uncompiled namespace file with a
-.B \-n
-option.
+Only occurs when an ASCII namespace is explicitly loaded.
 .TP
 .B PM_ERR_NOPMNS
 .I "PMNS not accessible"
 .br
-Only occurs when an ASCII namespace is loaded.  As of PCP 2.0 this
-error is mostly confined to
-.BR pmnscomp (1)
-and client applications that use an uncompiled namespace file with a
-.B \-n
-option.
+Only occurs when an ASCII namespace is explicitly loaded.
 .SH "PMCD-PMDA ERRORS"
 These error codes are used in the interactions between
 .BR pmcd (1)

@@ -216,7 +216,7 @@ typedef struct {
 } __pmnsTree;
 
 
-/* used by pmnscomp... */
+/* used by pmnsmerge... */
 extern __pmnsTree* __pmExportPMNS(void); 
 
 /* for PMNS in archives */

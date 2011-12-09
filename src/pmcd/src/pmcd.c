@@ -33,6 +33,7 @@ static int	run_daemon = 1;		/* run as a daemon, see -f */
 int		_creds_timeout = 3;	/* Timeout for agents credential PDU */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*pmnsfile = PM_NS_DEFAULT;
+static int	dupok = 0;		/* set to 1 for -N pmnsfile */
 
 /*
  * Interfaces we're willing to listen for clients on, from -i
@@ -199,7 +200,7 @@ ParseOptions(int argc, char *argv[])
     putenv("POSIXLY_CORRECT=");
 #endif
 
-    while ((c = getopt(argc, argv, "D:fi:l:L:n:p:q:t:T:x:?")) != EOF)
+    while ((c = getopt(argc, argv, "D:fi:l:L:N:n:p:q:t:T:x:?")) != EOF)
 	switch (c) {
 
 	    case 'D':	/* debug flag */
@@ -241,6 +242,9 @@ ParseOptions(int argc, char *argv[])
 		}
 		break;
 
+	    case 'N':
+		dupok = 1;
+		/*FALLTHROUGH*/
 	    case 'n':
 	    	/* name space file name */
 		pmnsfile = optarg;
@@ -328,6 +332,7 @@ ParseOptions(int argc, char *argv[])
 "  -l logfile      redirect diagnostics and trace output\n"
 "  -L bytes        maximum size for PDUs from clients [default 65536]\n"
 "  -n pmnsfile     use an alternative PMNS\n"
+"  -N pmnsfile     use an alternative PMNS (duplicate PMIDs are allowed)\n"
 "  -p port         accept connections on this port\n"
 "  -q timeout      PMDA initial negotiation timeout (seconds) [default 3]\n"
 "  -T traceflag    Event trace control\n"
@@ -663,7 +668,11 @@ SignalReloadPMNS(void)
 	__pmNotifyErr(LOG_INFO, "Reloading PMNS \"%s\"",
 	   (pmnsfile==PM_NS_DEFAULT)?"DEFAULT":pmnsfile);
 	pmUnloadNameSpace();
-	if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
+	if (dupok)
+	    sts = pmLoadASCIINameSpace(pmnsfile, 1);
+	else
+	    sts = pmLoadNameSpace(pmnsfile);
+	if (sts < 0) {
 	    __pmNotifyErr(LOG_ERR, "PMNS \"%s\" load failed: %s",
 		(pmnsfile == PM_NS_DEFAULT) ? "DEFAULT" : pmnsfile,
 		pmErrStr(sts));
@@ -1113,7 +1122,11 @@ main(int argc, char *argv[])
 	/* tough luck, do nothing ... but makes gcc warning go away! */
     	;
 
-    if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
+    if (dupok)
+	sts = pmLoadASCIINameSpace(pmnsfile, 1);
+    else
+	sts = pmLoadNameSpace(pmnsfile);
+    if (sts < 0) {
 	fprintf(stderr, "Error: pmLoadNameSpace: %s\n", pmErrStr(sts));
 	DontStart();
     }

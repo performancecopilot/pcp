@@ -79,7 +79,7 @@ static int export;
 static int havePmLoadCall;
 static int useExtPMNS;	/* set by __pmUsePMNS() */
 
-static int load(const char *filename, int binok, int dupok);
+static int load(const char *filename, int dupok);
 static __pmnsNode *locate(const char *name, __pmnsNode *root);
 
 
@@ -122,7 +122,7 @@ LoadDefault(char *reason_msg)
 		reason_msg);
 	}
 #endif
-	if (load(PM_NS_DEFAULT, 1, 0) < 0)
+	if (load(PM_NS_DEFAULT, 0) < 0)
 	    return PM_ERR_NOPMNS;
 	else
 	    return PMNS_LOCAL;
@@ -587,6 +587,8 @@ attach(char *base, __pmnsNode *rp)
 		    return PM_ERR_PMNS;
 		}
 		np->first = xp->first;
+		/* node xp and name no longer needed */
+		free(xp->name);
 		free(xp);
 		seenpmid--;
 		i = attach(path, np);
@@ -957,256 +959,6 @@ __pmAddPMNSNode(__pmnsTree *tree, int pmid, const char *name)
     return AddPMNSNode(tree->root, pmid, name);
 }
 
-
-/*
- * 32-bit and 64-bit dependencies ... there are TWO external format,
- * both created by pmnscomp ... choose the correct one based upon
- * how big pointer is ...
- *
- * Magic cookies in the binary format file
- *	PmNs	- old 32-bit (Version 0)
- *	PmN1	- new 32-bit and 64-bit (Version 1)
- *	PmN2	- new 32-bit and 64-bit (Version 1 + checksum)
- *
- * File format:
- *
- *   Version 0
- *     htab
- *     tree-nodes
- *     symbols
- *
- *
- *
- *   Version 1/2
- *     symbols
- *     list of binary-format PMNS (see below)
- *
- *   Binary-format PMNS
- *     htab size, htab entry size
- *     tree-node-tab size, tree-node-tab entry size
- *     htab
- *     tree-nodes
- *     
- */
-static int
-loadbinary(void)
-{
-    FILE	*fbin;
-    char	magic[4];
-    int		nodecnt;
-    int		symbsize;
-    int		htabsize;
-    int		i;
-    int		try;
-    int		version;
-    __int32_t	sum;
-    __int32_t	chksum;
-    long	endsum;
-    __psint_t	ord;
-    __pmnsNode	*root;
-    __pmnsNode	**htab;
-    char	*symbol;
-
-    for (try = 0; try < 2; try++) {
-	if (try == 0) {
-	    strcpy(linebuf, fname);
-	    strcat(linebuf, ".bin");
-	}
-	else
-	    strcpy(linebuf, fname);
-
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PMNS)
-	    fprintf(stderr, "loadbinary(file=%s)\n", linebuf);
-#endif
-	if ((fbin = fopen(linebuf, "r")) == NULL)
-	    continue;
-
-	version = -1;	/* fall through with this version for an ascii pmns */
-
-	if (fread(magic, sizeof(magic), 1, fbin) != 1) {
-	    fclose(fbin);
-	    continue;
-	}
-	if (strncmp(magic, "PmN1", 4) == 0)
-	    version = 1;
-	else if (strncmp(magic, "PmN2", 4) == 0) {
-	    version = 2;
-	    if (fread(&sum, sizeof(sum), 1, fbin) != 1) {
-		fclose(fbin);
-		continue;
-	    }
-	    sum = ntohl(sum);
-	    endsum = ftell(fbin);
-	    chksum = __pmCheckSum(fbin);
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_PMNS)
-		fprintf(stderr, "Version 2 Binary PMNS Checksums: got=%x expected=%x\n", chksum, sum);
-#endif
-	    if (chksum != sum) {
-		__pmNotifyErr(LOG_WARNING, "pmLoadNameSpace: checksum failure for binary file \"%s\"", linebuf);
-		fclose(fbin);
-		continue;
-	    }
-	    fseek(fbin, endsum, SEEK_SET);
-	}
-	else if (strncmp(magic, "PmNs", 4) == 0)
-	    version = 0;
-
-	if (version == -1)
-	    continue;
-	else if (version == 1 || version == 2) {
-	    int		sz_htab_ent;
-	    int		sz_nodetab_ent;
-
-	    if (fread(&symbsize, sizeof(symbsize), 1, fbin) != 1) goto bad;
-	    symbsize = ntohl(symbsize);
-	    symbol = (char *)malloc(symbsize);
-	    if (symbol == NULL) {
-		__pmNoMem("loadbinary-symbol", symbsize, PM_FATAL_ERR);
-		/*NOTREACHED*/
-	    }
-	    if (fread(symbol, sizeof(symbol[0]), 
-	        symbsize, fbin) != symbsize) goto bad;
-
-
-	    /* once for each style ... or until EOF */
-	    for ( ; ; ) {
-		long	skip;
-
-		if (fread(&htabsize, sizeof(htabsize), 1, fbin) != 1) goto bad;
-		htabsize = ntohl(htabsize);
-		if (fread(&sz_htab_ent, sizeof(sz_htab_ent), 1, fbin) != 1) goto bad;
-		sz_htab_ent = ntohl(sz_htab_ent);
-		if (fread(&nodecnt, sizeof(nodecnt), 1, fbin) != 1) goto bad;
-		nodecnt = ntohl(nodecnt);
-		if (fread(&sz_nodetab_ent, sizeof(sz_nodetab_ent), 1, fbin) != 1) goto bad;
-		sz_nodetab_ent = ntohl(sz_nodetab_ent);
-		if (sz_htab_ent == sizeof(htab[0]) && sz_nodetab_ent == sizeof(*root))
-		   break; /* found correct one */
-
-		/* skip over hash-table and node-table */
-		skip = htabsize * sz_htab_ent + nodecnt * sz_nodetab_ent;
-		fseek(fbin, skip, SEEK_CUR);
-	    }
-
-	    /* the structure elements are all the right size */
-	    main_pmns = (__pmnsTree*)malloc(sizeof(*main_pmns));
-	    htab = (__pmnsNode **)malloc(htabsize * sizeof(htab[0]));
-	    root = (__pmnsNode *)malloc(nodecnt * sizeof(*root));
-
-	    if (main_pmns == NULL || htab == NULL || root == NULL) {
-		__pmNoMem("loadbinary-1",
-			 sizeof(*main_pmns) +
-			 htabsize * sizeof(htab[0]) + 
-			 nodecnt * sizeof(*root),
-			 PM_FATAL_ERR);
-		/*NOTREACHED*/
-	    }
-
-	    if (fread(htab, sizeof(htab[0]), htabsize, fbin) != htabsize) goto bad;
-	    if (fread(root, sizeof(*root), nodecnt, fbin) != nodecnt) goto bad;
-
-#if defined(HAVE_32BIT_PTR)
-	    /* swab htab : pointers are 32 bits */
-	    for (i=0; i < htabsize; i++) {
-		htab[i] = (__pmnsNode *)ntohl((__uint32_t)htab[i]);
-	    }
-
-	    /* swab all nodes : pointers are 32 bits */
-	    for (i=0; i < nodecnt; i++) {
-		__pmnsNode *p = &root[i];
-		p->pmid = __ntohpmID(p->pmid);
-		p->parent = (__pmnsNode *)ntohl((__uint32_t)p->parent);
-		p->next = (__pmnsNode *)ntohl((__uint32_t)p->next);
-		p->first = (__pmnsNode *)ntohl((__uint32_t)p->first);
-		p->hash = (__pmnsNode *)ntohl((__uint32_t)p->hash);
-		p->name = (char *)ntohl((__uint32_t)p->name);
-	    }
-#elif defined(HAVE_64BIT_PTR)
-	    /* swab htab : pointers are 64 bits */
-	    for (i=0; i < htabsize; i++) {
-		__ntohll((char *)&htab[i]);
-	    }
-
-	    /* swab all nodes : pointers are 64 bits */
-	    for (i=0; i < nodecnt; i++) {
-		__pmnsNode *p = &root[i];
-		p->pmid = __ntohpmID(p->pmid);
-		__ntohll((char *)&p->parent);
-		__ntohll((char *)&p->next);
-		__ntohll((char *)&p->first);
-		__ntohll((char *)&p->hash);
-		__ntohll((char *)&p->name);
-	    }
-#else
-!bozo!
-#endif
-
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_PMNS)
-		fprintf(stderr, "Loaded Version 1 or 2 Binary PMNS, nodetab ent = %d bytes\n", sz_nodetab_ent);
-#endif
-	    fclose(fbin);
-	}
-	else
-	    /* not a version we're willing to support */
-	    goto bad;
-
-	/* relocate */
-	for (i = 0; i < htabsize; i++) {
-	    ord = (ptrdiff_t)htab[i];
-	    if (ord == (__psint_t)-1)
-		htab[i] = NULL;
-	    else
-		htab[i] = &root[ord];
-	}
-
-	for (i = 0; i < nodecnt; i++) {
-	    ord = (__psint_t)root[i].parent;
-	    if (ord == (__psint_t)-1)
-		root[i].parent = NULL;
-	    else
-		root[i].parent = &root[ord];
-	    ord = (__psint_t)root[i].next;
-	    if (ord == (__psint_t)-1)
-		root[i].next = NULL;
-	    else
-		root[i].next = &root[ord];
-	    ord = (__psint_t)root[i].first;
-	    if (ord == (__psint_t)-1)
-		root[i].first = NULL;
-	    else
-		root[i].first = &root[ord];
-	    ord = (__psint_t)root[i].hash;
-	    if (ord == (__psint_t)-1)
-		root[i].hash = NULL;
-	    else
-		root[i].hash = &root[ord];
-	    ord = (__psint_t)root[i].name;
-	    root[i].name = &symbol[ord];
-	}
-
-	/* set the pmns tree fields */
-	main_pmns->root = root;
-	main_pmns->htab = htab;
-	main_pmns->htabsize = htabsize;
-	main_pmns->symbol = symbol;
-	main_pmns->contiguous = 1;
-	main_pmns->mark_state = UNKNOWN_MARK_STATE;
-	return 1;
-	
-bad:
-	__pmNotifyErr(LOG_WARNING, "pmLoadNameSpace: bad binary file, \"%s\"", linebuf);
-	fclose(fbin);
-	return 0;
-    }
-
-    /* failed to open and/or find magic cookie */
-    return 0;
-}
-
-
 /*
  * fsa for parser
  *
@@ -1470,7 +1222,7 @@ done:
 }
 
 static int
-load(const char *filename, int binok, int dupok)
+load(const char *filename, int dupok)
 {
     int 	i = 0;
 
@@ -1481,7 +1233,7 @@ load(const char *filename, int binok, int dupok)
 	    /*
 	     * drop the loaded PMNS ... huge memory leak, but it is
 	     * assumed the caller has saved the previous PMNS after calling
-	     * __pmExportPMNS()
+	     * __pmExportPMNS() ... only user of this service is pmnsmerge
 	     */
 	    main_pmns = NULL;
 	}
@@ -1494,8 +1246,8 @@ load(const char *filename, int binok, int dupok)
  
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS)
-	fprintf(stderr, "load(name=%s, binok=%d, dupok=%d) lic case=%d fname=%s\n",
-		filename, binok, dupok, i, fname);
+	fprintf(stderr, "load(name=%s, dupok=%d) lic case=%d fname=%s\n",
+		filename, dupok, i, fname);
 #endif
 
     /* Note modification time of pmns file */
@@ -1513,20 +1265,14 @@ load(const char *filename, int binok, int dupok)
 	}
     }
 
-    /* try the easy way, c/o pmnscomp */
-    if (binok && loadbinary()) {
-	mark_all(main_pmns, 0);
-	return 0;
-    }
-
     /*
-     * the hard way, compiling as we go ...
+     * load ASCII PMNS
      */
     return loadascii(dupok);
 }
 
 /*
- * just for pmnscomp to use
+ * just for pmnsmerge to use
  */
 __pmnsTree*
 __pmExportPMNS(void)
@@ -1576,17 +1322,13 @@ locate(const char *name, __pmnsNode *root)
  * PMAPI routines from here down
  */
 
+/*
+ * As of PCP 4.0, there is _only_ the ASCII version of the PMNS
+ */
 int
 pmLoadNameSpace(const char *filename)
 {
-    int	sts;
-
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    havePmLoadCall = 1;
-    sts = load(filename, 1, 0);
-    PM_UNLOCK(__pmLock_libpcp);
-    return sts;
+    return pmLoadASCIINameSpace(filename, 0);
 }
 
 int
@@ -1597,7 +1339,7 @@ pmLoadASCIINameSpace(const char *filename, int dupok)
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     havePmLoadCall = 1;
-    sts = load(filename, 0, dupok);
+    sts = load(filename, dupok);
     PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
@@ -1608,21 +1350,21 @@ pmLoadASCIINameSpace(const char *filename, int dupok)
  * Traverse entire tree and free each node.
  */
 static void
-FreeTraversePMNS(__pmnsNode *parent)
+FreeTraversePMNS(__pmnsNode *this)
 {
     __pmnsNode *np, *next;
 
-    if (!parent)
+    if (this == NULL)
 	return;
 
     /* Free child sub-trees */
-    for (np = parent->first; np != NULL; np = next) {
+    for (np = this->first; np != NULL; np = next) {
 	next = np->next;
 	FreeTraversePMNS(np);
     }
 
-    free(parent->name);
-    free(parent);
+    free(this->name);
+    free(this);
 }
 
 void
