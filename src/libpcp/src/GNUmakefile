@@ -67,7 +67,7 @@ endif
 
 LDIRT += $(SYMTARGET)
 
-base default : $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+base default : $(LIBTARGET) check $(SYMTARGET) $(STATICLIBTARGET)
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET): 
@@ -110,3 +110,10 @@ install_pcp : install
 $(TOPDIR)/src/pmns/stdpmid:
 	cd $(@D); $(MAKE) $(@F)
 
+# The library is thread-safe ... check-statics will force a build failure
+# if there has been any change to the static variables and their disposition
+# ... refer to check-statics to add exceptions and annotations for new
+# cases
+#
+check:
+	./check-statics
