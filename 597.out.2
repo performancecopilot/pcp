@@ -1,0 +1,85 @@
+QA output created by 597
+
+=== default shping agent installation ===
+Culling the Performance Metrics Name Space ...
+shping ... not found in Name Space, this is OK
+Updating the PMCD control file, and notifying PMCD ...
+Check shping metrics have gone away ... OK
+You will need to choose an appropriate configuration for installation of
+the "shping" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Possible configuration files to choose from:
+[1] ./sample.conf
+[2] Specify your own configuration file.
+[3] None of the above (abandon configuration file selection).
+Which configuration file do you want to use ? [1] 
+Contents of the selected configuration file:
+--------------- start ./sample.conf ---------------
+# sample configuration file for shping PMDA
+#
+# Warning: these commands will be run as "root" using sh(1) with the
+#	current directory set to $PCP_LOG_DIR/pmcd and the
+#	following set in the environment:
+#		IFS=" \t\n"
+#		PATH=... as per $PCP_DIR/etc/pcp.env ...
+#
+
+# Specification format, one per line ("Tags" must be unique)
+# Tag	Shell command
+
+# minimal effort here, no stress for the shell ... just start and quit
+null	exit 0
+
+# not too much work, date(1) is pretty light-weight
+date	date
+
+# compile and run the generic simple program ... requires a C compiler
+# to be installed
+cc	cd /tmp; rm -f $$.[oc] $$; echo "main(){printf(\"g'day world\\\\n\");}" >/tmp/$$.c; cc -o $$ $$.c; ./$$; rm -f $$.[oc] $$
+
+# Is the default DNS server responding?
+# CONFIGURE-ME-PLEASE - local customization required
+# CONFIGURE-ME-PLEASE - DEFAULT-DNS-SERVER will be changed by Install to
+# CONFIGURE-ME-PLEASE - be the hostname for the default DNS server
+dns	nslookup - DEFAULT-DNS-SERVER </dev/null
+
+# DNS lookup for localhost
+dns-self	nslookup `hostname`
+
+# DNS lookup that will fail ...
+dns-err	nslookup foo.bar.no.host.com
+
+# ypserv ... if you have yp running
+ypserv	ypcat hosts | grep `hostname`
+
+# contact portmap/rpcbind for registered RPC programs
+rpcbind	rpcinfo -p
+
+# if smtpd is running here, a simple test
+smtp	( echo "expn root"; echo quit ) | telnet-probe localhost 25
+
+# NNTP ... need to customize nntp server host
+nntp	( echo "listgroup comp.sys.sgi"; echo quit ) | telnet-probe tokyo.engr.sgi.com 119
+--------------- end ./sample.conf ---------------
+
+Use this configuration file? [y] 
+All commands are run one after another as a group and the group is run
+once per "cycle" time.   Enter the cycle time in seconds [120] 
+Each command must complete within a timeout period, or it will be aborted
+by the "shping" PMDA.  Enter the timeout period (in seconds) [20] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Wait 10 seconds for the shping agent to initialize ...
+Check shping metrics have appeared ... 11 metrics and 65 values
+
+=== remove shping agent ===
+Culling the Performance Metrics Name Space ...
+shping ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check shping metrics have gone away ... OK

@@ -5,15 +5,23 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-seq=`basename $0`
 # get standard filters
 . ./common.product
-. ./common.check
 . ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 4000 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    # Note - not sure what 110.out.2 is for - Ken
+    ln $seq.out.3 $seq.out || exit 1
+fi
 
 echo "[expect no compiler warnings]"
-rm -f $seq.out; ln $seq.out.1 $seq.out
-
 echo "QA output created by $seq"
 
 signal=$PCP_BINADM_DIR/pmsignal

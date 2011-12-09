@@ -129,6 +129,7 @@ main(int argc, char **argv)
 	}
 	do_PMNS_op("post-load");
     }
+    pmUnloadNameSpace();
 
     (void)pmDestroyContext(pmWhichContext());
     exit(0);

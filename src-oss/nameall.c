@@ -16,6 +16,7 @@ static int 	pmns_style = 1;
 static int	vflag;
 static char	*host = "localhost";
 static char	*namespace = PM_NS_DEFAULT;
+static int	dupok = 0;
 
 static void
 dometric(const char *name)
@@ -49,7 +50,7 @@ parse_args(int argc, char **argv)
     int		errflag = 0;
     int		c;
     int		sts;
-    static char	*usage = "[-h hostname] [-n namespace] [-v]";
+    static char	*usage = "[-h hostname] [-[N|n] namespace] [-v]";
     char	*endnum;
 
 #ifdef PCP_DEBUG
@@ -66,7 +67,7 @@ parse_args(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "D:h:n:s:v")) != EOF) {
+    while ((c = getopt(argc, argv, "D:h:N:n:s:v")) != EOF) {
 	switch (c) {
 #ifdef PCP_DEBUG
 
@@ -86,6 +87,9 @@ parse_args(int argc, char **argv)
 	    host = optarg;
 	    break;
 
+	case 'N':
+	    dupok=1;
+	    /*FALLTHROUGH*/
 	case 'n':	/* alternative name space file */
 	    namespace = optarg;
 	    break;
@@ -124,7 +128,11 @@ load_namespace(char *namespace)
     int sts;
 
     gettimeofday(&then, (struct timezone *)0);
-    if ((sts = pmLoadNameSpace(namespace)) < 0) {
+    if (dupok)
+	sts = pmLoadASCIINameSpace(namespace, 1);
+    else
+	sts = pmLoadNameSpace(namespace);
+    if (sts < 0) {
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
 	exit(1);
     }
