@@ -58,15 +58,15 @@
  * via ctxp->c_lock.  We should not unlock the context, that is the
  * responsibility of our callers.
  *
- * TODO errmsg and pmDerivedErrStr are not thread-safe.
+ * errmsg needs to be thread-private
  */
 
 #include <inttypes.h>
 #include "derive.h"
 #include "fault.h"
 
-static int	need_init = 1;
-static ctl_t	registered = {
+static int		need_init = 1;
+static ctl_t		registered = {
 #ifdef PM_MULTI_THREAD
 #ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
     PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
@@ -74,19 +74,28 @@ static ctl_t	registered = {
 bozo! the registered mutex must allow recursive locking
 #endif
 #endif
-    0, NULL, 0, 0
-};
+	0, NULL, 0, 0 };
 
 /* parser and lexer variables */
-static char	*tokbuf = NULL;
-static int	tokbuflen;
+static char		*tokbuf = NULL;
+static int		tokbuflen;
 static const char	*this;		/* start of current lexicon */
-static int	lexpeek = 0;
+static int		lexpeek = 0;
 static const char	*string;
-static char	*errmsg;
 
-static const char *type_dbg[] = { "ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "PLUS", "MINUS", "STAR", "SLASH", "LPAREN", "RPAREN", "AVG", "COUNT", "DELTA", "MAX", "MIN", "SUM", "ANON" };
-static const char type_c[] = { '\0', '\0', '\0', '\0', '\0', '+', '-', '*', '/', '(', ')', '\0' };
+#ifdef PM_MULTI_THREAD
+/* using a gcc construct here to make errmsg thread-private */
+static __thread char	*errmsg;
+#else
+static char		*errmsg;
+#endif
+
+static const char	*type_dbg[] = {
+	"ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "PLUS", "MINUS",
+	"STAR", "SLASH", "LPAREN", "RPAREN", "AVG", "COUNT", "DELTA",
+	"MAX", "MIN", "SUM", "ANON" };
+static const char	type_c[] = {
+	'\0', '\0', '\0', '\0', '\0', '+', '-', '*', '/', '(', ')', '\0' };
 
 /* function table for lexer */
 static const struct {
@@ -112,7 +121,8 @@ static const struct {
 #define P_FUNC_END	5
 #define P_END		99
 
-static const char *state_dbg[] = { "INIT", "LEAF", "LEAF_PAREN", "BINOP", "FUNC_OP", "FUNC_END" };
+static const char	*state_dbg[] = {
+	"INIT", "LEAF", "LEAF_PAREN", "BINOP", "FUNC_OP", "FUNC_END" };
 
 /* Register an anonymous metric */
 int
