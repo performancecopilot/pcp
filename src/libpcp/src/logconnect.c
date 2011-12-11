@@ -109,8 +109,10 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     if (*port == PM_LOG_NO_PORT) {
 	if ((n = __pmLogFindPort(hostname, *pid, &lpp)) < 0) {
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "__pmConnectLogger: __pmLogFindPort: %s\n", pmErrStr(n));
+	    if (pmDebug & DBG_TRACE_CONTEXT) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "__pmConnectLogger: __pmLogFindPort: %s\n", pmErrStr_r(n, errmsg, sizeof(errmsg)));
+	    }
 #endif
 	    return n;
 	}
@@ -156,8 +158,10 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	sts = -neterror();
 	__pmCloseSocket(fd);
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT)
-	    fprintf(stderr, "__pmConnectLogger: connect: %s\n", pmErrStr(sts));
+	if (pmDebug & DBG_TRACE_CONTEXT) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmConnectLogger: connect: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
 #endif
 	return sts;
     }
@@ -183,8 +187,10 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	if (pmDebug & DBG_TRACE_CONTEXT) {
 	    if (sts == PM_ERR_TIMEOUT)
 		fprintf(stderr, "__pmConnectLogger: timeout (after %d secs)\n", __pmLoggerTimeout());
-	    else
-		fprintf(stderr, "__pmConnectLogger: Error: %s\n", pmErrStr(sts));
+	    else {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "__pmConnectLogger: Error: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    }
 	}
 #endif
 	;	/* fall through */

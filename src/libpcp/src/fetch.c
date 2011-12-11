@@ -166,8 +166,10 @@ done:
 	}
 	if (n >= 0)
 	    __pmDumpResult(stderr, *result);
-	else
-	    fprintf(stderr, "Error: %s\n", pmErrStr(n));
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "Error: %s\n", pmErrStr_r(n, errmsg, sizeof(errmsg)));
+	}
     }
 #endif
 

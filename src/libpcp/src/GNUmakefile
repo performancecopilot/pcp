@@ -31,7 +31,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 HFILES = derive.h oldpmapi.h internal.h
 
 ifneq "$(TARGET_OS)" "mingw"
-LSRCFILES = win32.c
+LSRCFILES += win32.c check-statics
 else
 CFILES += win32.c
 LLDLIBS	+= -lpsapi
@@ -65,9 +65,9 @@ LIBTARGET = libpcp.$(DSOSUFFIX)
 SYMTARGET =
 endif
 
-LDIRT += $(SYMTARGET)
+LDIRT += $(SYMTARGET) check.done
 
-base default : $(LIBTARGET) check $(SYMTARGET) $(STATICLIBTARGET)
+base default : $(LIBTARGET) check.done $(SYMTARGET) $(STATICLIBTARGET)
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET): 
@@ -84,7 +84,9 @@ util.o:	$(TOPDIR)/src/include/pmdbg.h
 
 fetch.o: internal.h
 
-$(OBJECTS):	$(TOPDIR)/src/include/pmapi.h $(TOPDIR)/src/include/impl.h
+$(OBJECTS):	$(TOPDIR)/src/include/pmapi.h $(TOPDIR)/src/include/impl.h \
+		$(TOPDIR)/src/include/platform_defs.h
+
 
 ifeq "$(TARGET_OS)" "mingw"
 kernel_pmda_dso	= windows
@@ -115,5 +117,6 @@ $(TOPDIR)/src/pmns/stdpmid:
 # ... refer to check-statics to add exceptions and annotations for new
 # cases
 #
-check:
+check.done:	$(OBJECTS)
 	./check-statics
+	touch check.done

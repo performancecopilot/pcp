@@ -559,7 +559,8 @@ bad:
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_VALUE) {
 	char	strbuf[60];
-	fprintf(stderr, " -> Error: %s", pmErrStr(sts));
+	char	errmsg[PM_MAXERRMSGLEN];
+	fprintf(stderr, " -> Error: %s", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	fprintf(stderr, " [%s]\n", pmUnitsStr_r(ounit, strbuf, sizeof(strbuf)));
     }
 #endif
@@ -1068,12 +1069,13 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_VALUE) {
 	char	strbuf[80];
+	char	errmsg[PM_MAXERRMSGLEN];
 	fprintf(stderr, " %s", vp);
 	fprintf(stderr, " [%s]", pmTypeStr_r(itype, strbuf, sizeof(strbuf)));
 	if (sts == 0)
 	    fprintf(stderr, " -> %s", pmAtomStr_r(oval, otype, strbuf, sizeof(strbuf)));
 	else
-	    fprintf(stderr, " -> Error: %s", pmErrStr(sts));
+	    fprintf(stderr, " -> Error: %s", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	fprintf(stderr, " [%s]\n", pmTypeStr_r(otype, strbuf, sizeof(strbuf)));
     }
 #endif

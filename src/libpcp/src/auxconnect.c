@@ -41,17 +41,19 @@ __pmCreateSocket(void)
     /* avoid 200 ms delay */
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
 		   (mysocklen_t)sizeof(nodelay)) < 0) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_ERR, 
 		      "__pmCreateSocket(%d): setsockopt TCP_NODELAY: %s\n",
-		      fd, netstrerror());
+		      fd, netstrerror_r(errmsg, sizeof(errmsg)));
     }
 
     /* don't linger on close */
     if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
 		   (mysocklen_t)sizeof(nolinger)) < 0) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_ERR, 
 		      "__pmCreateSocket(%d): setsockopt SO_LINGER: %s\n",
-		      fd, netstrerror());
+		      fd, netstrerror_r(errmsg, sizeof(errmsg)));
     }
 
     return fd;
@@ -79,9 +81,10 @@ __pmConnectTo(int fd, const struct sockaddr *addr, int port)
     myAddr.sin_port = htons(port);
 
     if (fcntl(fd, F_SETFL, fdFlags | FNDELAY) < 0) {
+	char	errmsg[PM_MAXERRMSGLEN];
         __pmNotifyErr(LOG_ERR, "__pmConnectTo: cannot set FNDELAY - "
 		      "fcntl(%d,F_SETFL,0x%x) failed: %s\n",
-		      fd, fdFlags|FNDELAY , osstrerror());
+		      fd, fdFlags|FNDELAY , osstrerror_r(errmsg, sizeof(errmsg)));
     }
     
     if (connect(fd, (struct sockaddr*)&myAddr, sizeof(myAddr)) < 0) {
@@ -102,10 +105,11 @@ __pmConnectCheckError(int fd)
     mysocklen_t	olen = sizeof(int);
 
     if (getsockopt(fd, SOL_SOCKET, SO_ERROR, (void *)&so_err, &olen) < 0) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	so_err = neterror();
 	__pmNotifyErr(LOG_ERR, 
 		"__pmConnectCheckError: getsockopt(SO_ERROR) failed: %s\n",
-		netstrerror());
+		netstrerror_r(errmsg, sizeof(errmsg)));
     }
     return so_err;
 }
@@ -116,9 +120,10 @@ __pmConnectRestoreFlags(int fd, int fdFlags)
     int sts;
 
     if (fcntl(fd, F_SETFL, fdFlags) < 0) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_WARNING,"__pmConnectRestoreFlags: cannot restore "
 		      "flags fcntl(%d,F_SETFL,0x%x) failed: %s\n",
-		      fd, fdFlags, osstrerror());
+		      fd, fdFlags, osstrerror_r(errmsg, sizeof(errmsg)));
     }
 
     if ((fdFlags = fcntl(fd, F_GETFD)) >= 0)
@@ -127,9 +132,10 @@ __pmConnectRestoreFlags(int fd, int fdFlags)
         sts = fdFlags;
 
     if (sts == -1) {
+	char	errmsg[PM_MAXERRMSGLEN];
         __pmNotifyErr(LOG_WARNING, "__pmConnectRestoreFlags: "
 		      "fcntl(%d) get/set flags failed: %s\n",
-		      fd, osstrerror());
+		      fd, osstrerror_r(errmsg, sizeof(errmsg)));
 	close(fd);
 	return sts;
     }

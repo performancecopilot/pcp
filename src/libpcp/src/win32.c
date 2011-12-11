@@ -606,7 +606,7 @@ static const struct {
           { 0,"" }
 };
 
-char *
+const char *
 wsastrerror(int code)
 {
     int i;

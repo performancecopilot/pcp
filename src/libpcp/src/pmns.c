@@ -10,6 +10,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes
+ *
+ * locerr - no serious side-effects, most unlikely to be used, and
+ * repeated calls are likely to produce the same result, so don't bother
+ * to make thread-safe
  */
 
 #include <sys/stat.h>
@@ -96,11 +102,14 @@ __pmUsePMNS(__pmnsTree *t)
     PM_UNLOCK(__pmLock_libpcp);
 }
 
-static const char *
+static char *
 pmPMNSLocationStr(int location)
 {
-    if (location < 0)
-	return pmErrStr(location);
+    if (location < 0) {
+	/* see thread-safe note above */
+	static char	locerr[PM_MAXERRMSGLEN];
+	return pmErrStr_r(location, locerr, sizeof(locerr));
+    }
 
     switch(location) {
     case PMNS_LOCAL:	return "Local";
@@ -164,10 +173,11 @@ pmGetPMNSLocation(void)
 			goto done;
 		    }
 		    if ((sts = version = __pmVersionIPC(ctxp->c_pmcd->pc_fd)) < 0) {
+			char	errmsg[PM_MAXERRMSGLEN];
 			__pmNotifyErr(LOG_ERR, 
 				"pmGetPMNSLocation: version lookup failed "
 				"(context=%d, fd=%d): %s", 
-				n, ctxp->c_pmcd->pc_fd, pmErrStr(sts));
+				n, ctxp->c_pmcd->pc_fd, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 			pmns_location = PM_ERR_NOPMNS;
 		    }
 		    else if (version == PDU_VERSION2) {
@@ -1589,6 +1599,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_PMNS) {
 		char	strbuf[20];
+		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "pmLookupName: receive_names <-");
 		if (sts >= 0) {
 		    for (i = 0; i < numpmid; i++)
@@ -1596,7 +1607,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 		    fputc('\n', stderr);
 		}
 	    else
-		fprintf(stderr, " %s\n", pmErrStr(sts));
+		fprintf(stderr, " %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 #endif
 	}
@@ -1623,9 +1634,10 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_DERIVE) {
 		    char	strbuf[20];
+		    char	errmsg[PM_MAXERRMSGLEN];
 		    fprintf(stderr, "__dmgetpmid: metric \"%s\" -> ", namelist[i]);
 		    if (lsts < 0)
-			fprintf(stderr, "%s\n", pmErrStr(lsts));
+			fprintf(stderr, "%s\n", pmErrStr_r(lsts, errmsg, sizeof(errmsg)));
 		    else
 			fprintf(stderr, "PMID %s\n", pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)));
 		}
@@ -1646,8 +1658,10 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {
 	fprintf(stderr, "pmLookupName(%d, ...) -> ", numpmid);
-	if (sts < 0)
-	    fprintf(stderr, "%s\n", pmErrStr(sts));
+	if (sts < 0) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
 	else
 	    fprintf(stderr, "%d\n", sts);
     }
@@ -2010,12 +2024,13 @@ check:
     dm_num = __dmchildren(name, &dm_offspring, &dm_statuslist);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DERIVE) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	if (num < 0)
-	    fprintf(stderr, "pmGetChildren(name=\"%s\") no regular children (%s)", name, pmErrStr(num));
+	    fprintf(stderr, "pmGetChildren(name=\"%s\") no regular children (%s)", name, pmErrStr_r(num, errmsg, sizeof(errmsg)));
 	else
 	    fprintf(stderr, "pmGetChildren(name=\"%s\") %d regular children", name, num);
 	if (dm_num < 0)
-	    fprintf(stderr, ", no derived children (%s)\n", pmErrStr(dm_num));
+	    fprintf(stderr, ", no derived children (%s)\n", pmErrStr_r(dm_num, errmsg, sizeof(errmsg)));
 	else if (dm_num == 0)
 	    fprintf(stderr, ", derived leaf\n");
 	else
@@ -2044,8 +2059,10 @@ report:
 	    else
 		__pmDumpNameList(stderr, num, *offspring);
 	}
-	else
-	    fprintf(stderr, "%s\n", pmErrStr(num));
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(num, errmsg, sizeof(errmsg)));
+	}
     }
 #endif
 
@@ -2288,7 +2305,8 @@ TraversePMNS_local(const char *name, void(*func)(const char *), void(*func_r)(co
 	for (j = 0; j < sts; j++) {
 	    newname = (char *)malloc(strlen(name) + 1 + strlen(enfants[j]) + 1);
 	    if (newname == NULL) {
-		printf("pmTraversePMNS: malloc: %s\n", osstrerror());
+		char	errmsg[PM_MAXERRMSGLEN];
+		printf("pmTraversePMNS: malloc: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
 		exit(1);
 	    }
 	    if (*name == '\0')

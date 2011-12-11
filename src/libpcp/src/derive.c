@@ -178,7 +178,8 @@ init(void)
 	    sts = pmLoadDerivedConfig(configpath);
 #ifdef PCP_DEBUG
 	    if (sts < 0 && (pmDebug & DBG_TRACE_DERIVE)) {
-		fprintf(stderr, "pmLoadDerivedConfig -> %s\n", pmErrStr(sts));
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "pmLoadDerivedConfig -> %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 #endif
 	}
@@ -410,7 +411,8 @@ bind_expr(int n, node_t *np)
 	if (sts < 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
-		fprintf(stderr, "bind_expr: error: derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr(sts));
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "bind_expr: error: derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 #endif
 	    free(new->info);
@@ -422,7 +424,8 @@ bind_expr(int n, node_t *np)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
 		char	strbuf[20];
-		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->info->pmid, strbuf, sizeof(strbuf)), pmErrStr(sts));
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 #endif
 	    free(new->info);

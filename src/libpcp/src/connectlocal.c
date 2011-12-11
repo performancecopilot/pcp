@@ -339,9 +339,10 @@ __pmConnectLocal(void)
 
 	if (dp->dispatch.status != 0) {
 	    /* initialization failed for some reason */
+	    char	errmsg[PM_MAXERRMSGLEN];
 	    pmprintf("__pmConnectLocal: Warning: initialization "
 		     "routine \"%s\" failed in DSO \"%s\": %s\n", 
-		     dp->init, path, pmErrStr(dp->dispatch.status));
+		     dp->init, path, pmErrStr_r(dp->dispatch.status, errmsg, sizeof(errmsg)));
 	    pmflush();
 	    dlclose(dp->handle);
 	    dp->domain = -1;
@@ -471,8 +472,10 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT) {
-	if (sts != 0)
-	    fprintf(stderr, "__pmLocalPMDA -> %s\n", pmErrStr(sts));
+	if (sts != 0) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmLocalPMDA -> %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
 	fprintf(stderr, "Local Context PMDA Table");
 	if (numdso == 0)
 	    fprintf(stderr, " ... empty");
@@ -613,7 +616,8 @@ doit:
     if (sts < 0) {
 	/* see thread-safe note at the head of this file */
 	static char buffer[256];
-	snprintf(buffer, sizeof(buffer), "__pmLocalPMDA: %s", pmErrStr(sts));
+	char	errmsg[PM_MAXERRMSGLEN];
+	snprintf(buffer, sizeof(buffer), "__pmLocalPMDA: %s", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	free(sbuf);
 	return buffer;
     }

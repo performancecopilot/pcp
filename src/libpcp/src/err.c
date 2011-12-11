@@ -10,21 +10,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- *
- * Thread-safe notes
- *
- * barf[] needs to be thread-private
- *
- * TODO - pmErrStr is inherently not thread-safe ... needs a lot of
- * 	work to fix this with pmErrStr_r() and then replacing the
- * 	thread-unsafe calls to strerror() et al by their thread-safe
- * 	equivalents ... this may allow barf[] to go back to being
- * 	global, but only for the (already) unsafe pmErrStr version
  */
 
 #include "pmapi.h"
 #include "impl.h"
 #include "fault.h"
+#include <ctype.h>
 
 /*
  * if you modify this table at all, be sure to remake qa/006
@@ -139,23 +130,43 @@ static const struct {
 };
 
 #define BADCODE "No such PMAPI error code (%d)"
-/* using a gcc construct here to make barf thread-private */
-static __thread char	barf[45];
 
-const char *
-pmErrStr(int code)
+/*
+ * handle non-determinism in the GNU implementation of strerror_r()
+ */
+static void
+strerror_x(int code, char *buf, int buflen)
+{
+    char	*p;
+    buf[0] = '\0';
+    p = strerror_r(code, buf, buflen);
+    if (buf[0] == '\0' && p != NULL) {
+	/*
+	 * smells like GNU glibc where this
+	 * (_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && ! _GNU_SOURCE
+	 * is false, and we have the weird GNU-version rather than the
+	 * XSI-compliant version, so the message is returned via the value
+	 * from strerror_r() ... copy it into the caller provided buffer
+	 */
+	strncpy(buf, p, buflen);
+    }
+}
+
+char *
+pmErrStr_r(int code, char *buf, int buflen)
 {
     int		i;
-    char	*msg;
 #ifndef IS_MINGW
     static int	first = 1;
-    static char	*unknown;
+    static char	*unknown = NULL;
 #else
     static char	unknown[] = "Unknown error";
 #endif
 
-    if (code == 0)
-	return "No error";
+    if (code == 0) {
+	strncpy(buf, "No error", buflen);
+	return buf;
+    }
 
 #ifndef IS_MINGW
     if (first) {
@@ -163,58 +174,82 @@ pmErrStr(int code)
 	 * reference message for an unrecognized error code.
 	 * For IRIX, strerror() returns NULL in this case.
 	 */
-	if ((msg = strerror(-1)) != NULL) {
+	strerror_x(-1, buf, buflen);
+	if (buf[0] != '\0') {
 	    /*
 	     * For Linux et al, strip the last word, expected to be the
 	     * error number as in ...
 	     *    Unknown error -1
+	     * or
+	     *    Unknown error 4294967295
 	     */
-	    char *sp = strrchr(msg, ' ');
-	    char *endp = NULL;
-            unsigned long ec = strtoul(sp+1, &endp, 0);
+	    char *sp = strrchr(buf, ' ');
+	    char *p;
 
-            if ((endp != NULL) && (*endp == '\0') && (endp != sp+1)) {
-		if (ec == (unsigned long)-1L) {
+	    if (sp != NULL) {
+		sp++;
+		for (p = sp; *p != '\0'; p++) {
+		    if (!isdigit(*p)) break;
+		}
+
+		if (*p == '\0') {
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
-		    if ((unknown = strdup(msg)) != NULL) {
-			unknown[sp - msg] = '\0';
-		    }
-                }
+		    *sp = '\0';
+		    if ((unknown = strdup(buf)) != NULL)
+			unknown[sp - buf] = '\0';
+		}
 	    }
 	}
 	first = 0;
     }
     if (code < 0 && code > -PM_ERR_BASE) {
 	/* intro(2) errors, maybe */
-	msg = strerror(-code);
+	strerror_x(-code, buf, buflen);
 	if (unknown == NULL) {
-	    if (msg != NULL)
-		return msg;
+	    if (buf[0] != '\0')
+		return buf;
 	}
 	else {
 	    /* The intention here is to catch variants of "Unknown
-	     * error XXX" - in this case we're going to return pcp
-	     * error message and not the system one */
-	    if (msg != NULL && strncmp(msg, unknown, strlen(unknown)) != 0)
-		return msg;
+	     * error XXX" - in this case we're going to fail the
+	     * stncmp() below, fall through and return a pcp error
+	     * message, otherwise return the system error message
+	     */
+	    if (strncmp(buf, unknown, strlen(unknown)) != 0)
+		return buf;
 	}
     }
 #else	/* WIN32 */
     if (code > -PM_ERR_BASE || code < -PM_ERR_NYI) {
-	if ((msg = wsastrerror(-code)) == NULL)
-	    msg = strerror(-code);
-	if (msg != NULL && strncmp(msg, unknown, strlen(unknown)) != 0)
-	    return msg;
+	char	*bp;
+	if ((bp = wsastrerror(-code)) == NULL)
+	    strerror_r(-code, buf, buflen);
+	else
+	    strncpy(buf, bp, buflen);
+
+	if (strncmp(buf, unknown, strlen(unknown)) != 0)
+	    return buf;
     }
 #endif
 
-    for (i = 0; errtab[i].err; i++)
-	if (errtab[i].err == code)
-	    return errtab[i].errmess;
+    for (i = 0; errtab[i].err; i++) {
+	if (errtab[i].err == code) {
+	    strncpy(buf, errtab[i].errmess, buflen);
+	    return buf;
+	}
+    }
 
     /* failure */
-    snprintf(barf, sizeof(barf), BADCODE,  code);
-    return barf;
+    snprintf(buf, buflen, BADCODE,  code);
+    return buf;
+}
+
+char *
+pmErrStr(int code)
+{
+    static char	errmsg[PM_MAXERRMSGLEN];
+    pmErrStr_r(code, errmsg, sizeof(errmsg));
+    return errmsg;
 }
 
 void

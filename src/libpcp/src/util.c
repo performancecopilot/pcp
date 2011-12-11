@@ -23,8 +23,6 @@
  *
  * base (in __pmProcessDataSize) - no real side-effects, don't bother
  *	locking
- *
- * TODO - audit oserror(), strerror() and osstrerror() for thread-safeness
  */
 
 #include <stdarg.h>
@@ -220,6 +218,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
     oldstream = freopen(logname, "w", oldstream);
     if (oldstream == NULL) {
 	int	save_error = oserror();	/* need for error message */
+	char	errmsg[PM_MAXERRMSGLEN];
 
 	close(oldfd);
 	if (dup(dupoldfd) != oldfd)
@@ -237,7 +236,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 	}
 	*status = 0;
 	pmprintf("%s: cannot open log \"%s\" for writing : %s\n",
-		progname, logname, strerror(save_error));
+		progname, logname, pmErrStr_r(-save_error, errmsg, sizeof(errmsg)));
 	pmflush();
     }
     else {
@@ -466,7 +465,8 @@ __pmDumpResult(FILE *f, const pmResult *resp)
 	    continue;
 	}
 	else if (vsp->numval < 0) {
-	    fprintf(f, " %s\n", pmErrStr(vsp->numval));
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(f, " %s\n", pmErrStr_r(vsp->numval, errmsg, sizeof(errmsg)));
 	    continue;
 	}
 	if (__pmGetInternalState() == PM_STATE_PMCS || pmLookupDesc(vsp->pmid, &desc) < 0) {
@@ -719,9 +719,10 @@ pmPrintValue(FILE *f,			/* output stream */
 void
 __pmNoMem(const char *where, size_t size, int fatal)
 {
+    char	errmsg[PM_MAXERRMSGLEN];
     __pmNotifyErr(fatal ? LOG_ERR : LOG_WARNING,
 			"%s: malloc(%d) failed: %s",
-			where, (int)size, osstrerror());
+			where, (int)size, osstrerror_r(errmsg, sizeof(errmsg)));
     if (fatal)
 	exit(1);
 }
@@ -1010,8 +1011,9 @@ pmfstate(int state)
 	    if (strcasecmp(ferr, "DISPLAY") == 0) {
 		char * xconfirm = pmGetConfig("PCP_XCONFIRM_PROG");
 		if (access(__pmNativePath(xconfirm), X_OK) < 0) {
+		    char	errmsg[PM_MAXERRMSGLEN];
 		    fprintf(stderr, "%s: using stderr - cannot access %s: %s\n",
-			    pmProgname, xconfirm, osstrerror());
+			    pmProgname, xconfirm, osstrerror_r(errmsg, sizeof(errmsg)));
 		}
 		else
 		    errtype = PM_USEDIALOG;
@@ -1037,8 +1039,9 @@ vpmprintf(const char *msg, va_list arg)
 	if (fname == NULL ||
 	    (fd = open(fname, O_RDWR|O_APPEND|O_CREAT|O_EXCL, 0600)) < 0 ||
 	    (fptr = fdopen(fd, "a")) == NULL) {
+	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s: vpmprintf: failed to create \"%s\": %s\n",
-		pmProgname, fname, osstrerror());
+		pmProgname, fname, osstrerror_r(errmsg, sizeof(errmsg)));
 	    fprintf(stderr, "vpmprintf msg:\n");
 	    if (fd != -1)
 		close(fd);
@@ -1085,8 +1088,9 @@ pmflush(void)
 	state = pmfstate(PM_QUERYERR);
 	if (state == PM_USEFILE) {
 	    if ((eptr = fopen(ferr, "a")) == NULL) {
+		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "pmflush: cannot append to file '%s' (from "
-			"$PCP_STDERR): %s\n", ferr, osstrerror());
+			"$PCP_STDERR): %s\n", ferr, osstrerror_r(errmsg, sizeof(errmsg)));
 		state = PM_USESTDERR;
 	    }
 	}
@@ -1096,8 +1100,9 @@ pmflush(void)
 	    while ((len = (int)read(fileno(fptr), outbuf, MSGBUFLEN)) > 0) {
 		sts = write(fileno(stderr), outbuf, len);
 		if (sts != len) {
+		    char	errmsg[PM_MAXERRMSGLEN];
 		    fprintf(stderr, "pmflush: write() failed: %s\n", 
-			osstrerror());
+			osstrerror_r(errmsg, sizeof(errmsg)));
 		}
 		sts = 0;
 	    }
@@ -1109,8 +1114,9 @@ pmflush(void)
 		    __pmNativePath(pmGetConfig("PCP_XCONFIRM_PROG")), fname,
 		    (msgsize > 80 ? "-useslider" : ""));
 	    if (system(outbuf) < 0) {
+		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "%s: system failed: %s\n", pmProgname,
-			osstrerror());
+			osstrerror_r(errmsg, sizeof(errmsg)));
 		sts = -oserror();
 	    }
 	    break;
@@ -1119,8 +1125,9 @@ pmflush(void)
 	    while ((len = (int)read(fileno(fptr), outbuf, MSGBUFLEN)) > 0) {
 		sts = write(fileno(eptr), outbuf, len);
 		if (sts != len) {
+		    char	errmsg[PM_MAXERRMSGLEN];
 		    fprintf(stderr, "pmflush: write() failed: %s\n", 
-			osstrerror());
+			osstrerror_r(errmsg, sizeof(errmsg)));
 		}
 		sts = 0;
 	    }
@@ -1459,6 +1466,7 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
     }
     else {
 	/* child */
+	char	errmsg[PM_MAXERRMSGLEN];
 	close(in[1]);
 	close(out[0]);
 	if (in[0] != 0) {
@@ -1472,7 +1480,7 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	    close(out[1]);
 	}
 	execvp(argv[0], argv);
-	fprintf(stderr, "execvp: %s\n", osstrerror());
+	fprintf(stderr, "execvp: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
 	exit(1);
     }
     return pid;

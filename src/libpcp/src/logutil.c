@@ -291,8 +291,10 @@ fopen_compress(const char *fname)
     if (sts == -1) {
 	sts = oserror();
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "__pmLogOpen: uncompress command failed: %s\n", osstrerror());
+	if (pmDebug & DBG_TRACE_LOG) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmLogOpen: uncompress command failed: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
+	}
 #endif
 	close(fd);
 	unlink(msg);
@@ -492,8 +494,9 @@ __pmLogNewFile(const char *base, int vol)
     }
 
     if ((f = fopen(fname, "w")) == NULL) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	save_error = oserror();
-	pmprintf("__pmLogNewFile: failed to create \"%s\": %s\n", fname, osstrerror());
+	pmprintf("__pmLogNewFile: failed to create \"%s\": %s\n", fname, osstrerror_r(errmsg, sizeof(errmsg)));
 
 	pmflush();
 	setoserror(save_error);
@@ -501,7 +504,8 @@ __pmLogNewFile(const char *base, int vol)
     }
 
     if ((save_error = __pmSetVersionIPC(fileno(f), PDU_VERSION)) < 0) {
-	pmprintf("__pmLogNewFile: failed to setup \"%s\": %s\n", fname, osstrerror());
+	char	errmsg[PM_MAXERRMSGLEN];
+	pmprintf("__pmLogNewFile: failed to setup \"%s\": %s\n", fname, osstrerror_r(errmsg, sizeof(errmsg)));
 	pmflush();
 	setoserror(save_error);
 	return NULL;
@@ -530,8 +534,9 @@ __pmLogWriteLabel(FILE *f, const __pmLogLabel *lp)
     if ((int)fwrite(&len, 1, sizeof(len), f) != sizeof(len) ||
 	(int)fwrite(&outll, 1, sizeof(outll), f) != sizeof(outll) ||
         (int)fwrite(&len, 1, sizeof(len), f) != sizeof(len)) {
+	    char	errmsg[PM_MAXERRMSGLEN];
 	    sts = -oserror();
-	    pmprintf("__pmLogWriteLabel: %s\n", osstrerror());
+	    pmprintf("__pmLogWriteLabel: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
 	    pmflush();
 	    fclose(f);
     }
@@ -889,8 +894,10 @@ done:
     else {
 #ifdef PCP_DEBUG
 	sts = -oserror();
-	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "__pmLogOpen: cannot scan directory \"%s\": %s\n", dir, pmErrStr(sts));
+	if (pmDebug & DBG_TRACE_LOG) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmLogOpen: cannot scan directory \"%s\": %s\n", dir, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
 	PM_UNLOCK(__pmLock_libpcp);
 	goto cleanup;
 	
@@ -1450,10 +1457,12 @@ again:
     }
     if ((pb = __pmFindPDUBuf(rlen + (int)sizeof(__pmPDUHdr))) == NULL) {
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
+	if (pmDebug & DBG_TRACE_LOG) {
+	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "\nError: __pmFindPDUBuf(%d) %s\n",
 		(int)(rlen + sizeof(__pmPDUHdr)),
-		osstrerror());
+		osstrerror_r(errmsg, sizeof(errmsg)));
+	}
 #endif
 	fseek(f, offset, SEEK_SET);
 	return -oserror();
@@ -1820,8 +1829,9 @@ more:
 	    sts = __pmLogLookupDesc(ctxp->c_archctl->ac_log, newres->vset[i]->pmid, &desc);
 	    if (sts < 0) {
 		char	strbuf[20];
+		char	errmsg[PM_MAXERRMSGLEN];
 		__pmNotifyErr(LOG_WARNING, "__pmLogFetch: missing pmDesc for pmID %s: %s",
-			    pmIDStr_r(desc.pmid, strbuf, sizeof(strbuf)), pmErrStr(sts));
+			    pmIDStr_r(desc.pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		pmFreeResult(newres);
 		break;
 	    }

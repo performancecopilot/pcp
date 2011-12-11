@@ -200,8 +200,10 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 		(long)lfup->head_posn, (long)lfup->tail_posn);
 	    if (lfup->sts == 0)
 		fprintf(stderr, "sts=%d\n", lfup->sts);
-	    else
-		fprintf(stderr, "sts=%s\n", pmErrStr(lfup->sts));
+	    else {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "sts=%s\n", pmErrStr_r(lfup->sts, errmsg, sizeof(errmsg)));
+	    }
 	}
 #endif
     }

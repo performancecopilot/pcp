@@ -41,9 +41,10 @@ negotiate_proxy(int fd, const char *hostname, int port)
      */
 
     if (send(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_WARNING,
 	     "__pmConnectPMCD: send version string to pmproxy failed: %s\n",
-	     pmErrStr(-neterror()));
+	    pmErrStr_r(-neterror(), errmsg, sizeof(errmsg)));
 	return PM_ERR_IPC;
     }
     for (bp = buf; bp < &buf[MY_BUFLEN]; bp++) {
@@ -71,9 +72,10 @@ negotiate_proxy(int fd, const char *hostname, int port)
 
     snprintf(buf, sizeof(buf), "%s %d\n", hostname, port);
     if (send(fd, buf, strlen(buf), 0) != strlen(buf)) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_WARNING,
 	     "__pmConnectPMCD: send hostname+port string to pmproxy failed: %s'\n",
-	     pmErrStr(-neterror()));
+	     pmErrStr_r(-neterror(), errmsg, sizeof(errmsg)));
 	return PM_ERR_IPC;
     }
 
@@ -244,9 +246,10 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	if ((envstr = getenv("PMPROXY_HOST")) != NULL) {
 	    proxy.name = strdup(envstr);
 	    if (proxy.name == NULL) {
+		char	errmsg[PM_MAXERRMSGLEN];
 		__pmNotifyErr(LOG_WARNING,
 			     "__pmConnectPMCD: cannot save PMPROXY_HOST: %s\n",
-			     pmErrStr(-oserror()));
+			     pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	    }
 	    else {
 		static int proxy_port = PROXY_PORT;
@@ -294,13 +297,14 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	if (sts < 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT) {
+		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "__pmConnectPMCD(%s): pmcd connection port=",
 		   hosts[0].name);
 		for (i = 0; i < nports; i++) {
 		    if (i == 0) fprintf(stderr, "%d", ports[i]);
 		    else fprintf(stderr, ",%d", ports[i]);
 		}
-		fprintf(stderr, " failed: %s\n", pmErrStr(sts));
+		fprintf(stderr, " failed: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 #endif
 	    return sts;
@@ -329,8 +333,9 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	if (fd < 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT) {
+		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "__pmConnectPMCD(%s): proxy to %s port=%d failed: %s \n",
-			hosts[0].name, proxyhost->name, proxyport, pmErrStr(-neterror()));
+			hosts[0].name, proxyhost->name, proxyport, pmErrStr_r(-neterror(), errmsg, sizeof(errmsg)));
 	    }
 #endif
 	    PM_UNLOCK(__pmLock_libpcp);
@@ -348,13 +353,14 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
     if (sts < 0) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
+	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "__pmConnectPMCD(%s): proxy connection to %s port=",
 			hosts[0].name, proxyhost->name);
 	    for (i = 0; i < nports; i++) {
 		if (i == 0) fprintf(stderr, "%d", ports[i]);
 		else fprintf(stderr, ",%d", ports[i]);
 	    }
-	    fprintf(stderr, " failed: %s\n", pmErrStr(sts));
+	    fprintf(stderr, " failed: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
 #endif
 	PM_UNLOCK(__pmLock_libpcp);

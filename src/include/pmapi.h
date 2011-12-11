@@ -201,7 +201,10 @@ typedef struct {
 /*
  * Report PMAPI errors messages
  */
-extern const char *pmErrStr(int);
+extern char *pmErrStr(int);				/* NOT thread-safe */
+extern char *pmErrStr_r(int, char *, int);
+/* safe size for a pmErrStr_r buffer to accommodate all error messages */
+#define PM_MAXERRMSGLEN		128
 
 /*
  * Load a Performance Metrics Name Space

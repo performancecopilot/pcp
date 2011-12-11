@@ -251,7 +251,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_PMAPI);
 	if (first == 1) {
 	    sts = __pmRegisterAnon(name_flags, PM_TYPE_U32);
 	    if (sts < 0) {
-		fprintf(stderr, "pmUnpackEventRecords: Warning: failed to register %s: %s\n", name_flags, pmErrStr(sts));
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "pmUnpackEventRecords: Warning: failed to register %s: %s\n", name_flags, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		PM_UNLOCK(__pmLock_libpcp);
 		return sts;
 	    }
@@ -260,7 +261,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_PMAPI);
 PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_PMAPI);
 	sts = __pmRegisterAnon(name_missed, PM_TYPE_U32);
 	if (sts < 0) {
-	    fprintf(stderr, "pmUnpackEventRecords: Warning: failed to register %s: %s\n", name_missed, pmErrStr(sts));
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "pmUnpackEventRecords: Warning: failed to register %s: %s\n", name_missed, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    PM_UNLOCK(__pmLock_libpcp);
 	    return sts;
 	}
@@ -335,7 +337,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		if (pmid_flags == 0) {
 		    lsts = pmLookupName(1, &name_flags, &pmid_flags);
 		    if (lsts < 0) {
-			fprintf(stderr, "pmUnpackEventRecords: Warning: failed to get PMID for %s: %s\n", name_flags, pmErrStr(lsts));
+			char	errmsg[PM_MAXERRMSGLEN];
+			fprintf(stderr, "pmUnpackEventRecords: Warning: failed to get PMID for %s: %s\n", name_flags, pmErrStr_r(lsts, errmsg, sizeof(errmsg)));
 			__pmid_int(&pmid_flags)->item = 1;
 		    }
 		}
@@ -353,7 +356,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		if (pmid_missed == 0) {
 		    lsts = pmLookupName(1, &name_missed, &pmid_missed);
 		    if (lsts < 0) {
-			fprintf(stderr, "pmUnpackEventRecords: Warning: failed to get PMID for %s: %s\n", name_missed, pmErrStr(lsts));
+			char	errmsg[PM_MAXERRMSGLEN];
+			fprintf(stderr, "pmUnpackEventRecords: Warning: failed to get PMID for %s: %s\n", name_missed, pmErrStr_r(lsts, errmsg, sizeof(errmsg)));
 			__pmid_int(&pmid_missed)->item = 1;
 		    }
 		}

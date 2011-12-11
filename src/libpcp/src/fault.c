@@ -62,7 +62,8 @@ __pmFaultInject(const char *ident, int class)
 	if (fname != NULL) {
 	    FILE	*f;
 	    if ((f = fopen(fname, "r")) == NULL) {
-		fprintf(stderr, "__pmFaultInject: cannot open \"%s\": %s\n", fname, strerror(errno));
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "__pmFaultInject: cannot open \"%s\": %s\n", fname, pmErrStr_r(-errno, msgbuf, sizeof(msgbuf)));
 	    }
 	    else {
 		char	line[128];
@@ -152,7 +153,8 @@ __pmFaultInject(const char *ident, int class)
 		    }
 		    cp = (control_t *)malloc(sizeof(control_t));
 		    if (cp == NULL) {
-			fprintf(stderr, "__pmFaultInject: malloc failed: %s\n", strerror(errno));
+			char	errmsg[PM_MAXERRMSGLEN];
+			fprintf(stderr, "__pmFaultInject: malloc failed: %s\n", pmErrStr_r(-errno, errmsg, sizeof(errmsg)));
 			break;
 		    }
 		    *ep = '\0';
@@ -161,7 +163,8 @@ __pmFaultInject(const char *ident, int class)
 		    cp->thres = thres;
 		    sts = pmdaCacheStore(FAULT_INDOM, PMDA_CACHE_ADD, sp, cp);
 		    if (sts < 0) {
-			fprintf(stderr, "%s[%d]: %s\n", fname, lineno, pmErrStr(sts));
+			char	errmsg[PM_MAXERRMSGLEN];
+			fprintf(stderr, "%s[%d]: %s\n", fname, lineno, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		    }
 		}
 	    }
@@ -222,7 +225,8 @@ __pmFaultInject(const char *ident, int class)
     }
     else {
 	/* oops, this is serious */
-	fprintf(stderr, "__pmFaultInject(%s): %s\n", ident, pmErrStr(sts));
+	char	errmsg[PM_MAXERRMSGLEN];
+	fprintf(stderr, "__pmFaultInject(%s): %s\n", ident, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
     }
 
 }
@@ -243,7 +247,8 @@ __pmFaultSummary(FILE *f)
 	sts = pmdaCacheLookup(FAULT_INDOM, inst, &ident, (void **)&cp);
 	if (sts < 0) {
 	    char	strbuf[20];
-	    fprintf(f, "pmdaCacheLookup(%s, %d, %s, ..): %s\n", pmInDomStr_r(FAULT_INDOM, strbuf, sizeof(strbuf)), inst, ident, pmErrStr(sts));
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(f, "pmdaCacheLookup(%s, %d, %s, ..): %s\n", pmInDomStr_r(FAULT_INDOM, strbuf, sizeof(strbuf)), inst, ident, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
 	else
 	    fprintf(f, "%s: guard trip%s%d, %d trips, %d faults\n", ident, opstr[cp->op], cp->thres, cp->ntrip, cp->nfault);

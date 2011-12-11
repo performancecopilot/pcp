@@ -94,7 +94,7 @@ err.o
     d errtab			# const
     d first.[0-9]*		# guarded by __pmLock_libpcp mutex
     b unknown.[0-9]*		# guarded by __pmLock_libpcp mutex
-    b barf			# __thread private
+    b errmsg.[0-9]*		# pmErrStr deprecated by pmErrStr_r
 events.o
     d first.[0-9]*		# guarded by __pmLock_libpcp mutex
     d name_flags.[0-9]*		# guarded by __pmLock_libpcp mutex
@@ -193,6 +193,7 @@ pmns.o
     b repname.[0-9]*		# guarded by __pmLock_libpcp mutex
     b main_pmns			# guarded by __pmLock_libpcp mutex
     b curr_pmns			# guarded by __pmLock_libpcp mutex
+    b locerr.[0-9]*		# no unsafe side-effects, see notes in pmns.c
 p_pmns.o
 p_profile.o
 p_result.o

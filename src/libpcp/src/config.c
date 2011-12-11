@@ -194,8 +194,9 @@ __pmConfig(__pmConfigCallback formatter)
 
     if (access((const char *)conf, R_OK) < 0 ||
 	(fp = fopen(conf, "r")) == (FILE *)NULL) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	pmprintf("FATAL PCP ERROR: could not open config file \"%s\" : %s\n",
-		conf, osstrerror());
+		conf, osstrerror_r(errmsg, sizeof(errmsg)));
 	pmprintf("You may need to set PCP_CONF or PCP_DIR in your environment.\n");
 	pmflush();
 	PM_UNLOCK(__pmLock_libpcp);

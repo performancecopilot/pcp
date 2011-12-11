@@ -196,8 +196,9 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		    return PM_ERR_TIMEOUT;
 		}
 		else if (status < 0) {
+		    char	errmsg[PM_MAXERRMSGLEN];
 		    __pmNotifyErr(LOG_ERR, "pduread: select() on fd=%d: %s",
-			    fd, netstrerror());
+			    fd, netstrerror_r(errmsg, sizeof(errmsg)));
 		    setoserror(neterror());
 		    return status;
 		}
@@ -402,8 +403,10 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 		 *  EPIPE EAGAIN (nfs, bds & ..., but not ip or tcp?)
 		 */
 		len = 0;
-	    else
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr(-oserror()));
+	    else {
+		char	errmsg[PM_MAXERRMSGLEN];
+		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+	    }
 	}
 	else if (len >= (int)sizeof(php->len)) {
 	    /*
@@ -420,7 +423,8 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 	    return PM_ERR_TIMEOUT;
 	}
 	else if (len < 0) {
-	    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr(len));
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr_r(len, errmsg, sizeof(errmsg)));
 	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_IPC;
 	}
@@ -497,8 +501,10 @@ check_read_len:
 		__pmUnpinPDUBuf(pdubuf);
 		return PM_ERR_TIMEOUT;
 	    }
-	    else if (len < 0)
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: len=%d: %s", fd, len, pmErrStr(-oserror()));
+	    else if (len < 0) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: len=%d: %s", fd, len, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+	    }
 	    else
 		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: have %d, want %d, got %d", fd, have, need, len);
 	    /*

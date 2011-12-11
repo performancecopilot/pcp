@@ -638,8 +638,9 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
     free(stridx);
 
     if (wlen != (int)ntohl(h.len)) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	pmprintf("__pmLogPutInDom: wrote %d, expected %d: %s\n",
-	    wlen, (int)ntohl(h.len), osstrerror());
+	    wlen, (int)ntohl(h.len), osstrerror_r(errmsg, sizeof(errmsg)));
 	pmflush();
 	return -oserror();
     }
