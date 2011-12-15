@@ -260,9 +260,11 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		/* <mark> is closer than best lower bound to date */
 		icp->t_prior = t_this;
 		icp->m_prior = 1;
-		if (icp->v_prior.pval != NULL)
-		    __pmUnpinPDUBuf((void *)icp->v_prior.pval);
-		icp->v_prior.pval = NULL;
+		if (icp->metric->valfmt != PM_VAL_INSITU) {
+		    if (icp->v_prior.pval != NULL)
+			__pmUnpinPDUBuf((void *)icp->v_prior.pval);
+		    icp->v_prior.pval = NULL;
+		}
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_INTERP) {
 		    fprintf(stderr, "pmid %s inst %d <mark> t_prior=%.3f t_first=%.3f t_last=%.3f\n",
@@ -280,9 +282,11 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		/* <mark> is closer than best upper bound to date */
 		icp->t_next = t_this;
 		icp->m_next = 1;
-		if (icp->v_next.pval != NULL)
-		    __pmUnpinPDUBuf((void *)icp->v_next.pval);
-		icp->v_next.pval = NULL;
+		if (icp->metric->valfmt != PM_VAL_INSITU) {
+		    if (icp->v_next.pval != NULL)
+			__pmUnpinPDUBuf((void *)icp->v_next.pval);
+		    icp->v_next.pval = NULL;
+		}
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_INTERP) {
 		    fprintf(stderr, "pmid %s inst %d <mark> t_next=%.3f t_first=%.3f t_last=%.3f\n",
