@@ -14,6 +14,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include <assert.h>
 
 #define PDU_CHUNK	1024	/* unit of space allocation for PDU buffer */
 
@@ -90,6 +91,8 @@ __pmPinPDUBuf(void *handle)
     bufctl_t	*pcp;
     bufctl_t	*prior = NULL;
 
+    assert(((__psint_t)handle % sizeof(int)) == 0);
+
     for (pcp = buf_free; pcp != NULL; pcp = pcp->bc_next) {
 	if (pcp->bc_buf <= (char *)handle && (char *)handle < pcp->bc_bufend)
 	    break;
@@ -141,6 +144,8 @@ __pmUnpinPDUBuf(void *handle)
 {
     bufctl_t	*pcp;
     bufctl_t	*prior = NULL;
+
+    assert(((__psint_t)handle % sizeof(int)) == 0);
 
     for (pcp = buf_pin; pcp != NULL; pcp = pcp->bc_next) {
 	if (pcp->bc_buf <= (char *)handle && (char *)handle < &pcp->bc_buf[pcp->bc_size])
