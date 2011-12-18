@@ -1544,8 +1544,13 @@ again:
     if (pmDebug & DBG_TRACE_LOG) {
 	head -= sizeof(head) + sizeof(trail);
 	fprintf(stderr, "@");
-	if (sts >= 0)
+	if (sts >= 0) {
+	    __pmTimeval	tmp;
 	    printstamp(&(*result)->timestamp);
+	    tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
+	    tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
+	    fprintf(stderr, " (t=%.6f)", __pmTimevalSub(&tmp, &lcp->l_label.ill_start));
+	}
 	else
 	    fprintf(stderr, "unknown time");
 	fprintf(stderr, " len=header+%d+trailer\n", head);
