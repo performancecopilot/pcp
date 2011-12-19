@@ -1,0 +1,313 @@
+QA output created by 508
+=== disk.dev.read ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== disk.all.read ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== disk.dev.read_bytes ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== disk.all.read_bytes ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== filesys.used ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== sample.longlong.one ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== filesys.usedfiles ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== sample.control ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== disk.all.write ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== disk.dev.write_bytes ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== disk.all.write_bytes ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== sample.longlong.bin ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== swap.length ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== swapdev.free ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== kernel.all.uptime ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== filesys.capacity ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== mem.physmem ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== filesys.capacity ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== hinv.physmem ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== disk.dev.total ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+07:32:12.000 352442 250241 No reduce values available
+07:32:15.000 352446 250242 No reduce values available
+07:32:48.000 352496 250256 No reduce values available
+07:32:51.000 352498 250257 No reduce values available
+07:32:54.000 352500 250258 No reduce values available
+07:33:36.000 352648 250339 No reduce values available
+07:33:39.000 352652 250350 No reduce values available
+=== disk.all.total ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+07:32:12.000 602683 No reduce values available
+07:32:15.000 602687 No reduce values available
+07:32:48.000 602751 No reduce values available
+07:32:51.000 602755 No reduce values available
+07:32:54.000 602758 No reduce values available
+07:33:36.000 602988 No reduce values available
+07:33:39.000 603003 No reduce values available
+=== disk.dev.total_bytes ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+07:32:12.000 21383718 13771611 No reduce values available
+07:32:15.000 21383802 13771613 No reduce values available
+07:32:48.000 21384532 13771725 No reduce values available
+07:32:51.000 21384555 13771732 No reduce values available
+07:32:54.000 21384578 13771739 No reduce values available
+07:33:36.000 21388979 13772286 No reduce values available
+07:33:39.000 21389045 13772348 No reduce values available
+=== disk.all.total_bytes ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+07:32:12.000 35155329 No reduce values available
+07:32:15.000 35155415 No reduce values available
+07:32:48.000 35156257 No reduce values available
+07:32:51.000 35156287 No reduce values available
+07:32:54.000 35156317 No reduce values available
+07:33:36.000 35161265 No reduce values available
+07:33:39.000 35161393 No reduce values available
+=== filesys.free ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+07:32:12.000 2319004 2059264 3577332 2680848 458296796 368837924 4113016 2599540 270849020 No reduce values available
+07:32:15.000 2319004 2059264 3577332 2680848 458296796 368837924 4113016 2599540 270849020 No reduce values available
+07:32:48.000 2319004 2059264 3577332 2680848 458296728 368837924 4113016 2599548 270849020 No reduce values available
+07:32:51.000 2319004 2059264 3577332 2680848 458296728 368837924 4113016 2599548 270849020 No reduce values available
+07:32:54.000 2319004 2059264 3577332 2680848 458296728 368837924 4113016 2599548 270849020 No reduce values available
+07:33:36.000 2319000 2059264 3577332 2680848 458296644 368837924 4113016 2599544 270849020 No reduce values available
+07:33:39.000 2319000 2059264 3577332 2680848 458296644 368837924 4113016 2599544 270849020 No reduce values available
+=== mem.util.kernelStack ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+07:32:12.000 3528 No reduce values available
+07:32:15.000 3528 No reduce values available
+07:32:48.000 3520 No reduce values available
+07:32:51.000 3520 No reduce values available
+07:32:54.000 3520 No reduce values available
+07:33:36.000 3536 No reduce values available
+07:33:39.000 3536 No reduce values available
+=== pmcd.buf.alloc ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+07:32:12.000 14 0 0 3 0 0 0 No reduce values available
+07:32:15.000 14 0 0 3 0 0 0 No reduce values available
+07:32:48.000 14 0 0 3 0 0 0 No reduce values available
+07:32:51.000 14 0 0 3 0 0 0 No reduce values available
+07:32:54.000 14 0 0 3 0 0 0 No reduce values available
+07:33:36.000 14 0 0 3 0 0 0 No reduce values available
+07:33:39.000 14 0 0 3 0 0 0 No reduce values available
+=== network.tcpconn.close ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+07:32:12.000 0 No reduce values available
+07:32:15.000 0 No reduce values available
+07:32:48.000 0 No reduce values available
+07:32:51.000 0 No reduce values available
+07:32:54.000 0 No reduce values available
+07:33:36.000 0 No reduce values available
+07:33:39.000 0 No reduce values available
+=== tmpfs.capacity ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== hinv.cpu.cache ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== filesys.maxfiles ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== hinv.pagesize ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---
+=== hinv.ncpu ===
+--- inputs compared to merge ---
+07:32:24.000 No merge values available
+07:33:00.000 No merge values available
+07:33:03.000 No merge values available
+07:33:06.000 No merge values available
+07:33:09.000 No merge values available
+--- merge compared to reduce ---

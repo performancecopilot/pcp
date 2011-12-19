@@ -64,7 +64,8 @@ SRCARCH	= mirage.0 moomba.client.0 \
 	541380.0 541380_v2.0 \
 	573184.0 20101004-trunc.0 \
 	bozo.client_v2.meta.bad.1 bozo.client_v2.meta.bad.2 \
-	rewrite.0 proc.0
+	rewrite.0 proc.0 section-a.0 section-b.0 section-c.0 section-d.0 \
+	interpmark.0
 
 MKARCH	= foo.0 mv-foo.0 noti-foo.0 bar.0 mv-bar.0 noti-bar.0 \
 	bigbin.0 mv-bigbin.0 noti-bigbin.0 truncbin.0 null.0 \
