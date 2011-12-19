@@ -401,7 +401,7 @@ pmlogrewrite
 163 archive local oss
 164 diskstat local oss pmval pmdumplog
 165 pmval local oss
-166 pmlogreduce local oss pmval pmdumplog
+166 pmlogreduce local oss pmval pmdumplog archive
 167 pmda.pmcd pmval local oss
 168 pmlogextract #933456 local oss pmstore
 169 pmcd local oss
