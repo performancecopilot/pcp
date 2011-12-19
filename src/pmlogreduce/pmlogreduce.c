@@ -31,6 +31,16 @@
  * 	- testing with dynamic instance domains
  *	- check comments ahead of call to doscan() and the description
  *	  in the head of scan.c
+ *
+ * Debug flags
+ *   APPL0
+ *	initialization
+ *	metadata
+ *   APPL1
+ *	inst-value scanning in doscan()
+ *   APPL2
+ *	scan summary
+ *	details for records read and records written
  */
 
 #include <sys/stat.h>
@@ -89,9 +99,6 @@ main(int argc, char **argv)
     __pmPDU	*pb;		/* pdu buffer */
     struct timeval	unused;
     unsigned long	peek_offset;
-#ifdef DESPERATE
-    char	buf[26];
-#endif
 
     __pmSetProgname(argv[0]);
 
@@ -177,11 +184,14 @@ main(int argc, char **argv)
 		pmProgname, msg);
 	exit(1);
     }
-#ifdef DESPERATE
-    pmCtime((const time_t *)&winstart_tval.tv_sec, buf);
-    fprintf(stderr, "Start time: %s", buf);
-    pmCtime((const time_t *)&winend_tval.tv_sec, buf);
-    fprintf(stderr, "End time: %s", buf);
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL0) {
+	char	buf[26];
+	pmCtime((const time_t *)&winstart_tval.tv_sec, buf);
+	fprintf(stderr, "Start time: %s", buf);
+	pmCtime((const time_t *)&winend_tval.tv_sec, buf);
+	fprintf(stderr, "End time: %s", buf);
+    }
 #endif
 
     if ((sts = pmSetMode(PM_MODE_INTERP | PM_XTB_SET(PM_TIME_SEC),

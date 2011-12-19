@@ -134,7 +134,6 @@ dometric(const char *name)
 		    pmProgname, pmInDomStr(mp->idp->indom));
 		exit(1);
 	    }
-	    mp->idp->state = I_INIT;
 	    mp->idp->indom = mp->idesc.indom;
 	    mp->idp->numinst = 0;
 	    mp->idp->inst = NULL;
@@ -142,7 +141,7 @@ dometric(const char *name)
 	}
     }
 
-#if PCP_DEBUG && DESPERATE
+#if PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
 	if (mp->idp != NULL)
 	    fprintf(stderr, "    indom %s -> (%p)\n", pmInDomStr(mp->idp->indom), mp->idp);
