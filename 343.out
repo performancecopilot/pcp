@@ -2,6 +2,8 @@ QA output created by 343
 ==============================================
 -S +8h -T +3h -t 20min ... expect 10 results
 ==============================================
+Start time: Fri Mar  9 08:10:47 2007
+End time: Fri Mar  9 11:10:47 2007
 metric: "aconex.connections.inuse" (129.0.12)
 input descriptor:
     Data Type: 64-bit int  InDom: 129.0 0x20400000
@@ -9,6 +11,7 @@ input descriptor:
 output descriptor (added to archive):
     Data Type: 64-bit int  InDom: 129.0 0x20400000
     Semantics: instant  Units: count
+    indom 129.0 -> (ADDR)
 Add metadata: indom 129.0 for metric 129.0.12
 Note: timezone set to local timezone of host "app1" from archive
 
@@ -38,6 +41,8 @@ Note: timezone set to local timezone of host "app1" from archive
 ==============================================
 -A 15m -S +8h -T +2h -t 15min ... expect 9 results
 ==============================================
+Start time: Fri Mar  9 08:15:00 2007
+End time: Fri Mar  9 10:15:00 2007
 metric: "aconex.connections.inuse" (129.0.12)
 input descriptor:
     Data Type: 64-bit int  InDom: 129.0 0x20400000
@@ -45,6 +50,7 @@ input descriptor:
 output descriptor (added to archive):
     Data Type: 64-bit int  InDom: 129.0 0x20400000
     Semantics: instant  Units: count
+    indom 129.0 -> (ADDR)
 Add metadata: indom 129.0 for metric 129.0.12
 Note: timezone set to local timezone of host "app1" from archive
 
@@ -72,6 +78,8 @@ Note: timezone set to local timezone of host "app1" from archive
 ==============================================
 -Z UTC -S @16:00:00 -T +2h -t 15min ... expect 9 results
 ==============================================
+Start time: Thu Mar  8 16:00:00 2007
+End time: Thu Mar  8 18:00:00 2007
 metric: "aconex.connections.inuse" (129.0.12)
 input descriptor:
     Data Type: 64-bit int  InDom: 129.0 0x20400000
@@ -79,6 +87,7 @@ input descriptor:
 output descriptor (added to archive):
     Data Type: 64-bit int  InDom: 129.0 0x20400000
     Semantics: instant  Units: count
+    indom 129.0 -> (ADDR)
 Add metadata: indom 129.0 for metric 129.0.12
 Note: timezone set to "TZ=UTC"
 
