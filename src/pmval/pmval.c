@@ -200,7 +200,7 @@ initinsts(Context *x)
 	    else
 		n = pmGetInDom(x->desc.indom, &ip, &np);
 	    if (n < 0) {
-                fprintf(stderr, "%s: pmGetInDom: %s\n", pmProgname, pmErrStr(n));
+                fprintf(stderr, "%s: pmGetInDom(%s): %s\n", pmProgname, pmInDomStr(x->desc.indom), pmErrStr(n));
                 exit(EXIT_FAILURE);
 	    }
             x->inum = n;
