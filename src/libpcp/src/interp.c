@@ -773,11 +773,11 @@ retry_back:
 		 *  	so need to go back
 		 *  t_prior > t_req => need to push t_prior to be <= t_req
 		 *  	if possible, so go back
-		 *  t_next is valid and a mark and t_next < t_req => need
+		 *  t_next is valid and a mark and t_next > t_req => need
 		 *  to search back also
 		 */
 		if (icp->t_prior < 0 || icp->t_prior > t_req ||
-		    (icp->t_next >= 0 && icp->m_next && icp->t_next < t_req)) {
+		    (icp->t_next >= 0 && icp->m_next && icp->t_next > t_req)) {
 		    if (back == 0 && !done_roll) {
 			done_roll = 1;
 			if (ctxp->c_delta > 0)  {
@@ -884,11 +884,11 @@ retry_forw:
 		 *  	so need to go forward
 		 *  t_next < t_req => need to push t_next to be >= t_req
 		 *  	if possible, so go forward
-		 *  t_prior is valid and a mark and t_prior > t_req => need
+		 *  t_prior is valid and a mark and t_prior < t_req => need
 		 *  to search forward also
 		 */
 		if (icp->t_next < 0 || icp->t_next < t_req ||
-		    (icp->m_prior >= 0 && icp->m_prior && icp->t_prior > t_req)) {
+		    (icp->t_prior >= 0 && icp->m_prior && icp->t_prior < t_req)) {
 		    if (forw == 0 && !done_roll) {
 			done_roll = 1;
 			if (ctxp->c_delta < 0)  {
