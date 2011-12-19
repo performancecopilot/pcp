@@ -22,7 +22,9 @@ _filter()
 {
     _filter_dbg \
     | _filter_pmdumplog \
-    | sed -e 's/__pmLogChkLabel/chkLabel/g' \
+    | sed \
+	-e 's/__pmLogChkLabel/chkLabel/g' \
+	-e 's/TIMESTAMP (t=[0-9][0-9.]*)/TIMESTAMP/g' \
     | grep -v "$tmp.tmp" \
     | grep -v "$tmp.out" \
     | $PCP_AWK_PROG '
