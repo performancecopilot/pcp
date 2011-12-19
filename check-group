@@ -21,18 +21,19 @@ do
 done >$tmp.group
 
 comm -23 $tmp.scripts $tmp.group >$tmp.tmp
-
 if [ -s $tmp.tmp ]
 then
-    echo "In QA scripts and NOT in group ..."
+    echo "$1 in QA scripts and NOT in group ..."
     sed -e 's/^/    /' $tmp.tmp
     echo
 fi
 
 comm -13 $tmp.scripts $tmp.group >$tmp.tmp
-
 if [ -s $tmp.tmp ]
 then
-    echo "In group and NOT in QA scripts ..."
+    echo "$1 in group and NOT in QA scripts ..."
     sed -e 's/^/    /' $tmp.tmp
 fi
+
+comm -12 $tmp.scripts $tmp.group >$tmp.tmp
+echo "$1 in group and QA scripts `wc -l <$tmp.tmp | sed -e 's/ //g'` times"
