@@ -27,7 +27,7 @@ _filter()
 	  -e 's/ init \[[0-9]*]/ init/' \
 	  -e 's/ \/etc\/init/ init/' \
 	  -e 's/ \/sbin\/init/ init/' \
-	  -e 's/init *"/init"/'
+	  -e 's/init .*"/init"/'
 }
 
 signal=$PCP_BINADM_DIR/pmsignal
