@@ -10,6 +10,8 @@
 . ./common.filter
 . ./common.check
 
+seq=`basename $0`
+
 if [ $PCP_PLATFORM != linux ]
 then
     _notrun "KVM only exists on Linux"
@@ -19,8 +21,6 @@ if $sudo [ ! -d $kvm_stats_path ]
 then
     _notrun "KVM sysfs interface not available"
 fi
-
-seq=`basename $0`
 
 rm -f $seq.out
 if [ $PCP_VER -lt 4000 ]
