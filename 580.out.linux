@@ -4,9 +4,9 @@ pm*InDom: inst=[15] iname=<15 minute> reverse lookup: inst=[15]
 pmGetInDom:
    [15] <15 minute>
 proc.psinfo.pid:
-pm*InDom: inst=[1] iname=<ONE INIT> reverse lookup: inst=[1]
+pm*InDom: inst=[1] iname=<ONE init> reverse lookup: inst=[1]
 pmGetInDom:
-   [1] <ONE INIT>
+   [1] <ONE init>
 sample.needprofile:
 pm*InDom: inst=[4] iname=<fat> reverse lookup: inst=[4]
 pmGetInDom:
