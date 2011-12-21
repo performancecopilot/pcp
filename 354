@@ -130,6 +130,12 @@ then
     exit
 else
     echo "pmlogger pid: $pid" >>$here/$seq.full
+    npmlogger=`echo "$pid" | wc -w | sed -e 's/ //g'`
+    if [ "$npmlogger" -ne 1 ]
+    then
+	echo "Arrgh, expecting 1 pmlogger process found $npmlogger processes ... see $seq.full"
+	exit
+    fi
     $signal -s TERM $pid
 fi
 
