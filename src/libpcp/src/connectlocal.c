@@ -540,6 +540,9 @@ __pmSpecLocalPMDA(const char *spec)
 	    free(sbuf);
 	    return "bad domain in spec";
 	}
+	if (*ap != '\0')
+	    /* skip , after domain */
+	    ap++;
     }
     else {
 	if (op != PM_LOCAL_DEL) {
@@ -547,8 +550,8 @@ __pmSpecLocalPMDA(const char *spec)
 	    free(sbuf);
 	    return "missing domain in spec";
 	}
+	ap++;
     }
-    ap++;
     /* ap -> char after , following domain */
     if (*ap == ',') {
 	/* no path, could have init (not useful but possible!) */
