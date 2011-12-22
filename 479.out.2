@@ -413,7 +413,7 @@ interval:  5.00 sec
 
 torture ...
 
-=== context -1 ===
+=== iteration 0 context -1 ===
 pmGetInDomArchive(PM_INDOM_NULL) -> Unknown or illegal instance domain identifier
 pmLookupInDomArchive(PM_INDOM_NULL, foobar) -> Unknown or illegal instance domain identifier
 pmNameInDomArchive(PM_INDOM_NULL, 1234567) -> Unknown or illegal instance domain identifier
@@ -424,7 +424,7 @@ pmGetInDomArchive(60.123) -> Attempt to use an illegal context
 pmLookupInDomArchive(60.123, foobar) -> Attempt to use an illegal context
 pmNameInDomArchive(60.123, 1234567) -> Attempt to use an illegal context
 
-=== context 0 ===
+=== iteration 1 context 0 ===
 pmGetInDomArchive(PM_INDOM_NULL) -> Unknown or illegal instance domain identifier
 pmLookupInDomArchive(PM_INDOM_NULL, foobar) -> Unknown or illegal instance domain identifier
 pmNameInDomArchive(PM_INDOM_NULL, 1234567) -> Unknown or illegal instance domain identifier
@@ -475,7 +475,7 @@ __pmLogLoadMeta: PMID: 60.0.11 name: swap.out
 __pmLogLoadMeta: record len=47, type=1 @ offset=1206
 __pmLogLoadMeta: PMID: 60.0.10 name: swap.in
 
-=== context 1 ===
+=== iteration 2 context 1 ===
 pmGetInDomArchive(PM_INDOM_NULL) -> Unknown or illegal instance domain identifier
 pmLookupInDomArchive(PM_INDOM_NULL, foobar) -> Unknown or illegal instance domain identifier
 pmNameInDomArchive(PM_INDOM_NULL, 1234567) -> Unknown or illegal instance domain identifier
@@ -501,22 +501,22 @@ pmLookupInDomArchive(60.2, 1) -> 1
 pmNameInDomArchive(60.2, 1234567) -> Instance identifier not defined in the PCP archive log
 pmNameInDomArchive(60.2, 1) -> 1 minute
 searchindom( ..., 60.2, TIMESTAMP)
-too early for indom @ 08:48:34.052
+request @ 08:48:29.436 is too early for indom @ 08:48:34.052
 __pmLogGetInDom(60.2) -> Instance domain identifier not defined in the PCP archive log
 searchindom( ..., 60.2, TIMESTAMP)
-too early for indom @ 08:48:34.052
+request @ 08:48:29.436 is too early for indom @ 08:48:34.052
 __pmLogLookupInDom(60.2, foobar) -> Instance domain identifier not defined in the PCP archive log
 searchindom( ..., 60.2, TIMESTAMP)
-too early for indom @ 08:48:34.052
+request @ 08:48:29.436 is too early for indom @ 08:48:34.052
 __pmLogLookupInDom(60.2, 1 minute) -> Instance domain identifier not defined in the PCP archive log
 searchindom( ..., 60.2, TIMESTAMP)
-too early for indom @ 08:48:34.052
+request @ 08:48:29.436 is too early for indom @ 08:48:34.052
 __pmLogLookupInDom(60.2, 1) -> Instance domain identifier not defined in the PCP archive log
 searchindom( ..., 60.2, TIMESTAMP)
-too early for indom @ 08:48:34.052
+request @ 08:48:29.436 is too early for indom @ 08:48:34.052
 __pmLogNameInDom(60.2, 1234567) -> Instance domain identifier not defined in the PCP archive log
 searchindom( ..., 60.2, TIMESTAMP)
-too early for indom @ 08:48:34.052
+request @ 08:48:29.436 is too early for indom @ 08:48:34.052
 __pmLogNameInDom(60.2, 1) -> Instance domain identifier not defined in the PCP archive log
 searchindom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052

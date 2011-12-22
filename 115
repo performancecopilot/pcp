@@ -132,7 +132,7 @@ echo "pmie count at start of QA testing: $?"
 echo
 
 echo === check default install operation ===
-$sudo $PCP_RC_DIR/pmie start 2>&1 | _filter_pmie_start
+$sudo $PCP_RC_DIR/pmie restart 2>&1 | _filter_pmie_start
 _count_pmies
 echo "pmie count after chkconfig pmie off: $?"
 echo
@@ -141,7 +141,7 @@ echo === check for missing control file ===
 _change_config pmie off
 $sudo rm -f $control
 _change_config pmie on
-$sudo $PCP_RC_DIR/pmie start 2>&1 | _filter_pmie_start
+$sudo $PCP_RC_DIR/pmie restart 2>&1 | _filter_pmie_start
 _count_pmies
 echo "pmie count after attempt without control file: $?"
 echo

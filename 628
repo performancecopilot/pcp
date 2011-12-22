@@ -37,11 +37,8 @@ _cleanup()
 
     [ -f $tmp.root ] && $sudo cp $tmp.root $PCP_VAR_DIR/pmns/root
     [ -f $tmp.root.bin ] && $sudo cp $tmp.root.bin $PCP_VAR_DIR/pmns/root.bin
-    if [ -f $tmp.pmcd.conf ]
-    then
-	$sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-    fi
-    $sudo $PCP_RC_DIR/pcp start >/dev/null 2>&1
+    [ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+    $sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
     $sudo rm -rf $tmp.* $PCP_PMDAS_DIR/idiot
     exit $status
 }
@@ -59,10 +56,10 @@ unset ROOT
 
 # restart pmcd and copy the pmcd config file and pmns to restore state later
 #
-$sudo $PCP_RC_DIR/pcp start >/dev/null 2>&1
+$sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 cp $PCP_VAR_DIR/pmns/root $tmp.root
-cp $PCP_VAR_DIR/pmns/root.bin $tmp.root.bin
+[ -f $PCP_VAR_DIR/pmns/root.bin ] && cp $PCP_VAR_DIR/pmns/root.bin $tmp.root.bin
 
 if $sudo make clobber >$tmp.out 2>&1
 then

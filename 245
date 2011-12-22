@@ -15,9 +15,15 @@ echo "QA output created by $seq"
 rm -f $seq.out
 if [ $PCP_EOE_VER -ge 6514 -o \( $PCP_EOE_VER -ge 2201 -a $PCP_EOE_VER -lt 6500 \) ]
 then
-    # IRIX 6.5.14 or later, else pcp 2.2.1 or later (Linux or IRIX 6.2)
-    #
-    ln $seq.out.2 $seq.out
+    if [ $PCP_VER -lt 4000 ]
+    then
+	# IRIX 6.5.14 or later, else pcp 2.2.1 or later (Linux or IRIX 6.2)
+	#
+	ln $seq.out.2 $seq.out
+    else
+	# PCP 4.0 or later
+	ln $seq.out.3 $seq.out
+    fi
 else
     ln $seq.out.1 $seq.out
 fi
@@ -149,7 +155,10 @@ done
 echo
 echo "=== all leaves ==="
 cp foo mypmns
-pmnscomp -f -n mypmns mypmns.bin
+if [ $PCP_VER -lt 4000 ]
+then
+    pmnscomp -f -n mypmns mypmns.bin
+fi
 metric=`pminfo -n mypmns | tr '\012' ' '`
 echo "delete: $metric"
 pmnsdel -n mypmns $metric

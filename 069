@@ -113,7 +113,7 @@ cleanup()
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
 	echo "Restarting pmcd"
-	$sudo $PCP_RC_DIR/pcp start >/dev/null
+	$sudo $PCP_RC_DIR/pcp restart >/dev/null
 	_wait_for_pmcd
 	_wait_for_pmlogger
     fi
@@ -193,7 +193,7 @@ export PMCD_CONNECT_TIMEOUT=30
 export PMCD_PORT=$port
 echo "export PMCD_CONNECT_TIMEOUT=30" >$tmp.start
 echo "export PMCD_PORT=$port" >>$tmp.start
-echo "sh $PCP_RC_DIR/pcp start" >>$tmp.start
+echo "sh $PCP_RC_DIR/pcp restart" >>$tmp.start
 $sudo sh $tmp.start 2>&1 \
 | tee -a $seq.full \
 | sed '/Wait/d' \

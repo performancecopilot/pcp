@@ -160,6 +160,17 @@ do
     rm -f $tmp.new.*
     pmlogrewrite -w -C -c $tmp.conf src-oss/rattle $tmp.new 2>&1 | _filter
 done
+for u in '1,0,0,BYTE,0,0' '1,0,0,BYTE,0,0 RESCALE'  \
+	'1,-1,0,KBYTE,SEC,0' '1,-1,0,KBYTE,SEC,0 rescale'
+do
+    echo
+    echo "=== metric sampledso.long.bin_ctr { units -> $u } ==="
+    echo "metric sampledso.long.bin_ctr { units -> $u }" >$tmp.conf
+    rm -f $tmp.new.*
+    pmlogrewrite -wC -c $tmp.conf src-oss/rewrite $tmp.new 2>&1 | _filter
+    rm -f $tmp.new.*
+    pmlogrewrite -swC -c $tmp.conf src-oss/rewrite $tmp.new 2>&1 | _filter
+done
 
 # delete exercises
 for m in hinv.ncpu 2.3.2 '2.3.*' '1.*.*'

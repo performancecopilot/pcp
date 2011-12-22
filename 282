@@ -92,7 +92,7 @@ fi
 
 _poke_pmcd()
 {
-    $sudo $PCP_RC_DIR/pcp start 2>&1 \
+    $sudo $PCP_RC_DIR/pcp restart 2>&1 \
     | tee -a $seq.full \
     | sed \
 	-e '/ root .* .usr.etc.pmcd /s/.*/-- ps output line --/' \
@@ -209,7 +209,7 @@ _cleanup()
         if [ $PCP_PLATFORM = irix ]; then
 	    _change_config verbose on
         fi
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_needclean=false
     fi

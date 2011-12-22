@@ -33,7 +33,7 @@ pmcd.numclients > 0
 End-of-File
 
 sleep 3
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 pmcd_wait
 sleep 10
 $signal -s TERM $!

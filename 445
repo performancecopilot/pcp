@@ -20,7 +20,7 @@ _cleanup()
     if [ -f $tmp.bak ]
     then
 	$sudo cp $tmp.bak $PCP_PMCDCONF_PATH
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
     fi
     $sudo rm -f $tmp.*
@@ -74,7 +74,7 @@ esac
 $sudo rm -f $tmp.bak ${TRACELOG}*
 $sudo cp $PCP_PMCDCONF_PATH $tmp.bak
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 sleep 15
 

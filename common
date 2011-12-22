@@ -139,7 +139,7 @@ _haveagents()
 		else
 		    _log_fyi $PCP_LOG_DIR/pmcd/pmcd.log $agentlog
 		    echo "Restarting PMCD ..."
-		    $sudo $PCP_RC_DIR/pcp start
+		    $sudo $PCP_RC_DIR/pcp restart
 		    restart=true
 		fi
 		if $reinstall
@@ -232,7 +232,7 @@ End-of-File
 		fi
 	    fi
 	fi
-	$sudo $PCP_RC_DIR/pcp start
+	$sudo $PCP_RC_DIR/pcp restart
 	_wait_for_pmlogger
     fi
 }
@@ -265,7 +265,7 @@ $a
 w
 q
 End-of-File
-	$sudo $PCP_RC_DIR/pcp start
+	$sudo $PCP_RC_DIR/pcp restart
 	_wait_for_pmlogger
     fi
 
@@ -617,7 +617,7 @@ in
 	# don't need sudo
 	;;
     *)
-	sudo=`which sudo`
+
 	_havesudo
 	;;
 esac

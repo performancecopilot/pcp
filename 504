@@ -151,7 +151,7 @@ pmie_check -V -V -N -c $tmp.control 2>&1 | _filter
 echo
 
 echo === check customised control file ===
-$sudo $PCP_RC_DIR/pmie start 2>&1 | _filter_pmie_start
+$sudo $PCP_RC_DIR/pmie restart 2>&1 | _filter_pmie_start
 sleep 30	# can take awhile, but in bg - TODO: really needs a "pmie_wait"
 _count_pmies
 echo "pmie count with custom config (expect 3): $?"

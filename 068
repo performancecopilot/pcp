@@ -38,7 +38,7 @@ _cleanup()
 	&& $sudo sh $tmp.cmd
 	echo >>$seq.full
 	echo "--- pcp start ---" >>$seq.full
-	$sudo $PCP_RC_DIR/pcp start | tee -a $seq.full | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | tee -a $seq.full | _filter_pcp_start
 	echo >>$seq.full
 	echo "--- _wait_for_pmcd ---" >>$seq.full
 	_wait_for_pmcd | tee -a $seq.full

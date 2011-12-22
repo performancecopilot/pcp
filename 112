@@ -5,12 +5,22 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 4000 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
 
 status=1
 
@@ -42,19 +52,28 @@ rm -f $tmp.*
 
 # test out compilation stat values
 # use a fixed namespace
-pmnscomp -n src-oss/root_pmns $tmp.bin.fixed
+if [ $PCP_VER -lt 4000 ]
+then
+    pmnscomp -n src-oss/root_pmns $tmp.bin.fixed
+fi
 
 cp $PCP_VAR_DIR/pmns/root $tmp.ascii
-pmnscomp -n $tmp.ascii $tmp.bin >/dev/null 2>&1
+if [ $PCP_VER -lt 4000 ]
+then
+    pmnscomp -n $tmp.ascii $tmp.bin >/dev/null 2>&1
+fi
 
 echo "=== pmapi v2, ascii format pmns ==="
 src-oss/torture_api -v -n $tmp.ascii 2>&1 | _filter >$tmp.out
 _cmp $tmp.out
 
-echo ""
-echo "=== pmapi v2, binary format pmns ==="
-src-oss/torture_api -v -n $tmp.bin 2>&1 | _filter >$tmp.out
-_cmp $tmp.out
+if [ $PCP_VER -lt 4000 ]
+then
+    echo ""
+    echo "=== pmapi v2, binary format pmns ==="
+    src-oss/torture_api -v -n $tmp.bin 2>&1 | _filter >$tmp.out
+    _cmp $tmp.out
+fi
 
 status=0
 exit

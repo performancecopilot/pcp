@@ -17,14 +17,17 @@ echo "QA output created by $seq"
 rm -f $seq.out
 if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
 then
-    if test $PCP_EOE_VER -ge 2704
+    if [ $PCP_VER -ge 4000 ]
     then
-	ln $seq.out.3 $seq.out
+	ln $seq.out.4 $seq.out || exit 1
+    elif test $PCP_EOE_VER -ge 2704
+    then
+	ln $seq.out.3 $seq.out || exit 1
     else
-	ln $seq.out.2 $seq.out
+	ln $seq.out.2 $seq.out || exit 1
     fi
 else
-    ln $seq.out.1 $seq.out
+    ln $seq.out.1 $seq.out || exit 1
 fi
 
 signal=$PCP_BINADM_DIR/pmsignal
@@ -124,7 +127,7 @@ _cleanup()
 	cat $PCP_PMCDCONF_PATH >>$seq.full
 	echo '=== $PCP_PMCDOPTIONS_PATH before init.d/pcp/start' >>$seq.full
 	cat $PCP_PMCDOPTIONS_PATH >>$seq.full
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
     fi
     if [ -f $tmp.log ]
@@ -390,7 +393,7 @@ _renew_pmcd main
 # Start with a fresh pmcd log
 #
 $sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
-$sudo $PCP_RC_DIR/pcp start | _filter_init 2>&1
+$sudo $PCP_RC_DIR/pcp restart | _filter_init 2>&1
 _wait_for_pmcd
 
 # Test 2.0 PMDA first

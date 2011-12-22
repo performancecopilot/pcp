@@ -109,7 +109,7 @@ echo "=== no primary logger ===" >>$seq.full
 $sudo $signal -a -s TERM pmlogger
 sleep 2
 pmnewlog $tmp 2>&1 | tee -a $seq.full | _filter
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 

@@ -53,7 +53,7 @@ _wait_filter()
 
 _start()
 {
-    $sudo $PCP_RC_DIR/pcp start >$tmp.start.out
+    $sudo $PCP_RC_DIR/pcp restart >$tmp.start.out
 }
 
 _stop()

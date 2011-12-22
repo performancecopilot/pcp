@@ -5,12 +5,22 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 4000 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
@@ -44,10 +54,13 @@ End-of-File
 echo "Load ascii ..."
 pminfo -n $tmp.src
 
-echo ""
-echo "Compile ..."
-pmnscomp -n $tmp.src $tmp.bin
+if [ $PCP_VER -lt 4000 ]
+then
+    echo ""
+    echo "Compile ..."
+    pmnscomp -n $tmp.src $tmp.bin
 
-echo ""
-echo "Load binary ..."
-pminfo -n $tmp
+    echo ""
+    echo "Load binary ..."
+    pminfo -n $tmp
+fi

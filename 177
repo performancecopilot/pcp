@@ -44,14 +44,17 @@ _filter_err()
     | uniq -c \
     | $PCP_AWK_PROG '
 BEGIN           {
+		  min["0.1-interp"] = 116; max["0.1-interp"] = 120
 		  min["0.1-back"] = 1; max["0.1-back"] = 5
 		  min["0.1-forw"] = 51; max["0.1-forw"] = 56
 		  min["0.1-peek"] = 1; max["0.1-peek"] = 1
 
+		  min["0.2-interp"] = 58; max["0.2-interp"] = 60
 		  min["0.2-back"] = 1; max["0.2-back"] = 5
 		  min["0.2-forw"] = 51; max["0.2-forw"] = 56
 		  min["0.2-peek"] = 1; max["0.2-peek"] = 1
 
+		  min["0.4-interp"] = 29; max["0.4-interp"] = 30
 		  min["0.4-back"] = 5; max["0.4-back"] = 20
 		  min["0.4-forw"] = 51; max["0.4-forw"] = 56
 		  min["0.4-peek"] = 1; max["0.4-peek"] = 1
@@ -121,7 +124,7 @@ for delta in 0.1 0.2 0.4
 do
     echo
     echo "=== pmval -t $delta ===" | tee -a $seq.full
-    pmval -O $offset -Dlog,logmeta -i "bin-100,bin-200" -t $delta -a $tmp sample.bin 2>$tmp.err \
+    pmval -O $offset -Dlog,logmeta,interp -i "bin-100,bin-200" -t $delta -a $tmp sample.bin 2>$tmp.err \
     | tee -a $seq.full \
     | _filter $delta
     _filter_err $delta <$tmp.err

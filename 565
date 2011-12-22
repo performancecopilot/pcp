@@ -15,8 +15,16 @@ seq=`basename $0`
 rm -f $seq.out
 case $PCP_PLATFORM
 in
-    irix|linux)
-	ln $seq.$PCP_PLATFORM $seq.out || exit 1
+    irix)
+	ln $seq.irix $seq.out || exit 1
+	;;
+    linux)
+	if [ $PCP_VER -lt 4000 ]
+	then
+	    ln $seq.linux $seq.out || exit 1
+	else
+	    ln $seq.out.2 $seq.out || exit 1
+	fi
 	;;
     darwin)
 	ln $seq.linux $seq.out || exit 1
@@ -40,7 +48,7 @@ _cleanup()
     else
 	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	rm -f $tmp.*
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	done_clean=true
     fi

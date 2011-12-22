@@ -248,7 +248,7 @@ interval:  15.00 sec
 22:05:30.000  No values available
 22:05:45.000  No values available
 22:06:00.000  No values available
-22:06:15.000  No values available
+22:06:15.000               1.000 
 22:06:30.000               1.000 
 22:06:45.000               1.000 
 22:07:00.000               1.000 
@@ -315,7 +315,7 @@ interval:  15.00 sec
 22:05:15.000  No values available
 22:05:30.000  No values available
 22:05:45.000  No values available
-22:06:00.000  No values available
+22:06:00.000              3934854
 22:06:15.000              3949854
 22:06:30.000              3964854
 22:06:45.000              3979854
@@ -478,7 +478,7 @@ interval:  15.00 sec
 22:05:15.000  No values available
 22:05:30.000  No values available
 22:05:45.000  No values available
-22:06:00.000  No values available
+22:06:00.000        363
 22:06:15.000        363
 22:06:30.000        363
 22:06:45.000        363

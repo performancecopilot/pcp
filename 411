@@ -5,26 +5,40 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
 # get standard filters
 . ./common.product
 . ./common.check
 . ./common.filter
 
+seq=`basename $0`
+
 rm -f $seq.out
 if pminfo -f simple.now | grep '3600 or "hour"' >/dev/null
 then
     # old simple with indom 1, 60, 3600
-    ln $seq.out.0 $seq.out
+    ln $seq.out.0 $seq.out || exit 1
 else
     # new simple with indom 0, 1, 2
-    ln $seq.out.1 $seq.out
+    if [ $PCP_VER -lt 4000 ]
+    then
+	ln $seq.out.1 $seq.out || exit 1
+    else
+	ln $seq.out.2 $seq.out || exit 1
+    fi
 fi
 
+echo "QA output created by $seq"
+
 status=1	# failure is the default!
-trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup" 0 1 2 3 15
+
+_cleanup()
+{
+    [ -f $iam.conf.$seq ] && $sudo mv $iam.conf.$seq $iam.conf
+    $sudo ./Install </dev/null >/dev/null 2>&1
+    $sudo rm -f $tmp.*
+    exit $status
+}
 
 unset ROOT TOOLROOT
 
@@ -44,6 +58,8 @@ then
 fi
 cd $home/$iam
 unset ROOT
+
+$sudo mv $iam.conf $iam.conf.$seq
 
 echo "sec,min,hour" >$tmp.conf
 $sudo cp $tmp.conf $home/$iam/$iam.conf

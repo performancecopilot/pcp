@@ -41,7 +41,7 @@ w!
 q
 End-of-File
 	_needclean=false
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
     fi
@@ -126,7 +126,12 @@ echo "start pmcd ..."
 for i in 1 2 3
 do
     rm -f $PMCD_LOG_DIR/core*
-    $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+    if [ $1 -eq 1 ]
+    then
+	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+    else
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    fi
     _wait_for_pmcd
     [ "`echo $PMCD_LOG_DIR/core*`" != "$PMCD_LOG_DIR/core*" ] && _cleanup
 done
@@ -153,7 +158,7 @@ g/^#$seq#.*pmdacisco/s/^#$seq#//
 w!
 q
 End-of-File
-    $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
     _wait_for_pmcd
 
     echo "[pass $i] unconfigure pmdacisco and notify pmcd ..."
