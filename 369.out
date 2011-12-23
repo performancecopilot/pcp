@@ -230,8 +230,6 @@ PM_TYPE_NOSUPPORT
 *PCP::LogImport::PM_TYPE_NOSUPPORT
 pmInDom_build
 *PCP::LogImport::pmInDom_build
-EXPORT_FAIL
-*PCP::LogImport::EXPORT_FAIL
 pmiSetTimezone
 *PCP::LogImport::pmiSetTimezone
 pmiWrite
