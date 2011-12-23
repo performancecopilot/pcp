@@ -73,6 +73,11 @@ else
     _notrun "No /etc/*syslog.conf -- probably using a different syslog package"
 fi
 
+# avoid systemd/systemctl wrapper
+#
+[ -f /etc/SuSE-release ] && export SYSTEMD_NO_WRAP=1
+[ -f /etc/fedora-release ] && export SYSTEMCTL_SKIP_REDIRECT=1
+
 cleanup()
 {
     if [ -f $config.$seq ]; then
