@@ -109,6 +109,20 @@ _queue_test \
 echo
 echo "multiple queues, multiple clients coming and going, queues filling"
 _queue_test \
+    -q queue0,1024 -q queue1,512 -q queue2,356 \
+    -c 84 -A 84,queue0 -c 42 -A 42,queue1 -c 21 -A 21,queue1 \
+    -S 84,queue0 -S 42,queue1 -S 21,queue1 \
+    -e queue0,128 -e queue1,24 -e queue0,18 \
+	-e queue1,228 -e queue0,142 -e queue1,28 \
+    -s queue0 -S 84,queue0 -s queue1 -S 42,queue1 -s queue2 -S 21,queue2 \
+    -C 84 \
+    -e queue2,328 -e queue2,32 -e queue0,17 -e queue1,227 \
+    -c 84 -C 42 -c 21 \
+    -s queue0 -S 84,queue0 -s queue1 -S 42,queue1 -s queue2 -S 21,queue2
+
+echo
+echo "ad-hoc queues, multiple clients coming and going, queues filling"
+_queue_test \
     -q queue0,1024 -q queue1,512 \
     -c 84 -A 84,queue0 -c 42 -A 42,queue1 -c 21 -A 21,queue1 \
     -S 84,queue0 -S 42,queue1 -S 21,queue1 \
