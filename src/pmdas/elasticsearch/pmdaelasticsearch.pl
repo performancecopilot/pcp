@@ -109,7 +109,7 @@ sub es_refresh
 sub es_lookup_node
 {
     my ($json, $inst) = @_;
-    my $nodeID = $nodes_instance_ids[$inst+1];
+    my $nodeID = $nodes_instance_ids[($inst*2)+1];
     return $json->{'nodes'}->{$nodeID};
 }
 
@@ -117,10 +117,9 @@ sub es_lookup_node
 sub es_value
 {
     my ( $values, $names ) = @_;
-    my @subnames = @$names;
     my ( $value, $name );
 
-    foreach $name (@subnames) {
+    foreach $name (@$names) {
 	$value = $values->{$name};
 	return (PM_ERR_APPVERSION, 0) unless (defined($value));
 	$values = $value;
