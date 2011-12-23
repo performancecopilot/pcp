@@ -24,6 +24,13 @@ else
     exit 1
 fi
 
+# augment $PATH for QA specific dirs
+#
+for dir in /sbin
+do
+    [ -d "$dir" ] && PATH="$PATH:$dir"
+done
+
 # QA default environment variables
 PCP_PMCD_PROG=$PCP_BINADM_DIR/pmcd
 PCP_PMCDLOG_PATH=$PCP_LOG_DIR/pmcd/pmcd.log
