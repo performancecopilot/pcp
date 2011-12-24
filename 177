@@ -40,7 +40,7 @@ _filter_err()
 /LogRead.*forw/		{ print "__pmLogRead-forw"; next }
 /LogRead.*back/		{ print "__pmLogRead-back"; next }
 /FetchInterp/		{ print "_pmFetchInterp"; next }' \
-    | sort \
+    | LC_COLLATE=POSIX sort \
     | uniq -c \
     | $PCP_AWK_PROG '
 BEGIN           {
