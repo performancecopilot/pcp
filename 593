@@ -42,7 +42,8 @@ log mandatory on once {
 }
 EOF
 
-pmlogger -l /dev/fd/1 -s 1 -c $tmp.config $tmp | _filter_pmlogger_log 
+pmlogger -l $tmp.log -s 1 -c $tmp.config $tmp
+_filter_pmlogger_log <$tmp.log
 
 status=0
 exit
