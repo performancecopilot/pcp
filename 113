@@ -31,7 +31,7 @@ then
     exit
 fi
 
-rootdev=`mount | $PCP_AWK_PROG '$3 == "/" { print $1 }'`
+rootdev=`mount | $PCP_AWK_PROG '$1 ~ /\// && $3 == "/" { print $1 }'`
 
 # disk name aliases are a real pain ...
 #
@@ -53,12 +53,13 @@ mount \
     -e '/ type cgroup/d' \
     -e '/ type hugetlbfs/d' \
     -e '/ type mqueue/d' \
+    -e '/ type rootfs/d' \
     -e 's/[ 	].*//' \
 | while read dev
 do
     [ ! -L $dev ] && continue
     [ "$dev" = "/dev/root" ] && continue
-    echo "$dev" >>$seq.full
+    echo "mount device: $dev" >>$seq.full
     link=$dev
     while true
     do
