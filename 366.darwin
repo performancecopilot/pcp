@@ -333,6 +333,8 @@ QA output created by 366
 > #----
 > #+ platform/linux:x::
 > #----
+> #+ postgresql/summary:x::
+> #----
 > #+ shping/summary:x::
 > #----
 > #+ sqlserver/summary:x::
