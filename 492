@@ -42,6 +42,10 @@ _filter()
 _filter_usage()
 {
     sed \
+	-e '/illegal option/{
+s/illegal/invalid/
+s/.$/'"'&'"'/
+}' \
 	-e '/invalid option/s/[^'"'"']$/'"'&'"'/'
 }
 
@@ -52,7 +56,7 @@ _cnt_logrecs()
     then
 	echo no file
     else
-	pmdumplog $1 2>/dev/null | grep '^[0-9]' | wc -l
+	pmdumplog $1 2>/dev/null | grep '^[0-9]' | wc -l | sed -e 's/ //g'
     fi
 }
 
