@@ -538,7 +538,7 @@ reportconfig(void)
 	    }
 	}
 	if (mp->ip != NULL)
-	    printf("Inst Changes:\t<- InDom %s", pmInDomStr(mp->ip->old_indom));
+	    printf("Inst Changes:\t<- InDom %s\n", pmInDomStr(mp->ip->old_indom));
 	if (mp->flags & METRIC_CHANGE_SEM) {
 	    printf("Semantics:\t%s ->", SemStr(mp->old_desc.sem));
 	    printf(" %s\n", SemStr(mp->new_desc.sem));
