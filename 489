@@ -60,7 +60,8 @@ do
 	-d*|-l*)
 	    $PCP_AWK_PROG <$tmp.out '
 /pmdaCacheDump:/	{ want = 1 }
-want == 1		{ print }'
+want == 1		{ print }' \
+	    | sed -e '/active 0x0/s//active (nil)/'
 	    ;;
 
 	*)
