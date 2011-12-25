@@ -73,6 +73,7 @@ pmlogger_daily -V -N -x 3 -X bzip2 -c $tmp.ctl | sed \
 	-e "s/$FIVEMONTHS/FIVEMONTHS/g" \
 	-e "s/$$/PID/g" \
 	-e '/Warning: no archives found to merge/d' \
+	-e "s;/private/;/;g" \
 	-e "s,/var/tmp,TMP,g" \
 	-e "s,/tmp,TMP,g" \
 
