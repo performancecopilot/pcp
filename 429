@@ -54,7 +54,10 @@ echo "valid_metric 0:0:1" >abc.$$
 echo "!bozo" >/tmp/abc.$$
 
 _copy_Rebuild .
-$sudo ./Rebuild -v | sed -e "s;`pwd -P`;TMPDIR;g" 2>&1
+$sudo ./Rebuild -v \
+| sed \
+    -e 's;/private/;/;' \
+    -e "s;$tmp.dir;TMPDIR;" 2>&1
 if [ $PCP_VER -lt 4000 ]
 then
     pminfo -mn root.bin
