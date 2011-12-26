@@ -26,7 +26,12 @@ compar(const void *a, const void *b)
     const inst_key_t	*ia = (inst_key_t *)a;
     const inst_key_t	*ib = (inst_key_t *)b;
 
-    return ib->inst - ia->inst;
+    if (ib->inst != ia->inst)
+	return ib->inst - ia->inst;
+    /*
+     * inst same (synonyms), reverse sort on key to make results deterministic
+     */
+    return ia->key - ib->key;
 }
 
 int
