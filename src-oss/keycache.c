@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 
 static int histo[128];
+static int vflag = 0;
 
 static void
 do_key(int i, int j, int k, char *name, int *keylen, int *key)
@@ -41,6 +42,9 @@ do_key(int i, int j, int k, char *name, int *keylen, int *key)
 	    sprintf(name, "%08x-%08x-%08x-%08x", key[0], key[1], key[2], key[3]);
 	    break;
     }
+
+    if (vflag)
+	fprintf(stderr, "do_key(%d, %d, %d, ...) -> %s\n", i, j, k, name);
 }
 
 /*
@@ -134,7 +138,7 @@ main(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "D:dkl")) != EOF) {
+    while ((c = getopt(argc, argv, "D:dklv")) != EOF) {
 	switch (c) {
 
 	case 'D':	/* debug flag */
@@ -158,6 +162,10 @@ main(int argc, char **argv)
 
 	case 'l':	/* load */
 	    lflag = 1;
+	    break;
+
+	case 'v':	/* verbose */
+	    vflag = 1;
 	    break;
 
 	case '?':
