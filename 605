@@ -134,7 +134,7 @@ then
     esac
 elif [ $PCP_PLATFORM = darwin ]
 then
-    $sudo make -f Makefile.stub lib/libpcp_trace.dylib >/dev/null 2>&1
+    $sudo make -f Makefile.stub >/dev/null 2>&1
     DYLD_INSERT_LIBRARIES=$PCP_DEMOS_DIR/trace/lib/libpcp_trace.dylib
     DYLD_FORCE_FLAT_NAMESPACE=yes
     export DYLD_INSERT_LIBRARIES DYLD_FORCE_FLAT_NAMESPACE
