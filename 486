@@ -142,7 +142,9 @@ do
     echo "$spec" >$tmp.config
     echo "=== `cat $tmp.config` ===" | tee -a $seq.full
     rm -f $tmp.new.*
-    pmlogrewrite -w -c $tmp.config `echo $arch_args | sed -e 's/|/ /g'` $tmp.new 2>&1 | _filter
+    arch=`echo "$arch_args" | sed -e 's/|.*//'`
+    args=`echo "$arch_args" | sed -n -e '/|/s/.*|//p'`
+    pmlogrewrite -w -c $tmp.config $args $arch $tmp.new 2>&1 | _filter
     filter_old=''
     filter_new=''
     case "$arch_args"
@@ -152,7 +154,7 @@ do
 		filter_new=_f1_new
 		;;
     esac
-    _cmp `echo $arch_args | sed -e 's/|.*//'` $tmp.new
+    _cmp $arch $tmp.new
 done
 
 # success, all done
