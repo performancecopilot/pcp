@@ -30,7 +30,7 @@ endif
 
 # Note: DSO_VERSION includes (starts with or ends with) $(DSO_SUFFIX)
 #
-DSO_VERSION	= $(shell ls $(PCP_LIB_DIR)/libpcp_trace.* | sed -e '/\.a$$/d' -e 's/.*libpcp_trace//' -e 's/^\.//' | LC_COLLATE=POSIX sort -r | sed -e 1q)
+DSO_VERSION	= $(shell ls $(PCP_LIB_DIR)/libpcp_trace.* | sed -n -e '/\.a$$/d' -e 's/.*libpcp_trace\.//' -e '/\.$(DSO_SUFFIX)/p' -e '/$(DSO_SUFFIX)\./p' | sed -e 's/^\.//' -e 1q) 
 ifeq "$(DSO_VERSION)" ""
 $(error cannot set DSO_VERSION on this platform)
 endif
@@ -38,7 +38,7 @@ endif
 SHELL	= /bin/sh
 CC	= cc
 TARGETS	= lib/libpcp_trace.$(DSO_VERSION)
-ifeq "$(shell [ -f lib/libpcp_trace.$(DSO_SUFFIX) ] && echo 1)" "1"
+ifeq "$(shell [ -f $(PCP_LIB_DIR)/libpcp_trace.$(DSO_SUFFIX) ] && echo 1)" "1"
 TARGETS	+= lib/libpcp_trace.$(DSO_SUFFIX) 
 endif
 CFILES	= stub.c
@@ -53,7 +53,7 @@ lib/libpcp_trace.$(DSO_VERSION): stub.c
 	rm -f $@
 	cd lib; $(CC) $(CFLAGS) -shared ../stub.c -o libpcp_trace.$(DSO_VERSION)
 
-lib/libpcp_trace.$(DSO_SUFFIX):	lib/libpcp_trace.$(DSO_VERSION)
+lib/libpcp_trace.$(DSO_SUFFIX): lib/libpcp_trace.$(DSO_VERSION)
 	rm -f $@
 	cd lib; ln -s libpcp_trace.$(DSO_VERSION) libpcp_trace.$(DSO_SUFFIX)
 
@@ -63,3 +63,7 @@ clean:
 clobber:
 	rm -rf $(LDIRT) $(TARGETS)
 
+debug:
+	@echo "DSO_SUFFIX=$(DSO_SUFFIX)"
+	@echo "DSO_VERSION=$(DSO_VERSION)"
+	@echo "TARGETS=$(TARGETS)"
