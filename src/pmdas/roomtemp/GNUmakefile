@@ -36,7 +36,7 @@ IAM	= roomtemp
 DOMAIN	= ROOMTEMP
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
-LDIRT	= domain.h pcp $(IAM).log pmda$(IAM) pmda_$(IAM).so libmlan.a
+LDIRT	= domain.h $(IAM).log pmda$(IAM) pmda_$(IAM).so libmlan.a
 
 default: build-me
 
@@ -48,7 +48,7 @@ build-me:
 
 install:
 else
-build-me: pcp domain.h libmlan.a $(CMDTARGET)
+build-me: domain.h libmlan.a $(CMDTARGET)
 
 install: default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
@@ -63,9 +63,6 @@ libmlan.a : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	rm -f libmlan.a
 	ln -sf mlan/libmlan.a .
-
-pcp:
-	$(LN_S) -f $(TOPDIR)/src/include pcp
 
 default_pcp : default
 
