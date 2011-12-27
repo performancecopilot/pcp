@@ -176,6 +176,7 @@ MD5SUM	= @md5sum@
 
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
 HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
+HAVE_LZMAED_MANPAGES = @have_lzmaed_manpages@
 NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 RDYNAMIC_FLAG = @rdynamic_flag@
 
@@ -303,6 +304,9 @@ INSTALL_MAN = \
 		if $(HAVE_BZIP2ED_MANPAGES) ; then \
 		    $(BZIP2) -c $$d$$_tfx > $$d.bz2; _tfx=.bz2; _sfx=.bz2; \
 		fi; \
+		if $(HAVE_LZMAED_MANPAGES) ; then \
+		    $(LZMA) -c $$d$$_tfx > $$d.lzma; _tfx=.lzma; _sfx=.lzma; \
+		fi; \
 		u=$$m.$(MAN_SECTION)$$_sfx; \
 		echo $(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
 		$(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
@@ -358,11 +362,16 @@ PERL_GET_FILELIST = \
 	find $$DIST_ROOT -name $(2).so -exec chmod 755 '{}' ';'
 else
 # Everyone else ... includes the RPM-based packaging platforms
+ifeq "$(PACKAGE_DISTRIBUTION)" "mandriva"
+	man_suffix=lzma
+else
+	man_suffix=gz
+endif
 PERL_GET_FILELIST = \
 	$(PERLMAKE) -f Makefile install DESTDIR=$$DIST_ROOT; \
 	find $$DIST_ROOT -name .packlist -exec mv '{}' $(1) ';' ; \
 	if [ -s $(1) ] ; then \
-	    sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&.gz/' -e "s@^$$DIST_ROOT@@p" -i.tmp $(1) || exit 1; \
+	    sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&.$(man_suffix)/' -e "s@^$$DIST_ROOT@@p" -i.tmp $(1) || exit 1; \
 	else echo "Arrgh ... no files to include in package via $(1)"; exit 1; \
 	fi; \
 	find $$DIST_ROOT -name perllocal.pod -exec rm -f '{}' ';' ; \

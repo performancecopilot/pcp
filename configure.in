@@ -73,6 +73,7 @@ then
     test -f /etc/debian_version && target_distro=debian
     test -f /etc/slackware-version && target_distro=slackware
     test -f /etc/gentoo-release && target_distro=gentoo
+    test -f /etc/mandriva-release && target_distro=mandriva
 elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS)
@@ -307,11 +308,22 @@ dnl (needed to bzip2 man pages on some platforms)
 if test -z "$BZIP2"; then
     AC_PATH_PROG(BZIP2, bzip2, /bin/bzip2)
 fi
+test ! -x "$BZIP2" && BZIP2=/usr/bin/bzip2
 test ! -x "$BZIP2" && BZIP2=/usr/local/bin/bzip2
 test ! -x "$BZIP2" && BZIP2=/usr/freeware/bin/bzip2
-test ! -x "$BZIP2" && BZIP2=/usr/bin/bzip2
 bzip2=$BZIP2
 AC_SUBST(bzip2)
+
+dnl check if the lzma program is available
+dnl (needed to lzma man pages on some platforms)
+if test -z "$LZMA"; then
+    AC_PATH_PROG(LZMA, lzma, /bin/lzma)
+fi
+test ! -x "$LZMA" && LZMA=/usr/bin/lzma
+test ! -x "$LZMA" && LZMA=/usr/local/bin/lzma
+test ! -x "$LZMA" && LZMA=/usr/freeware/bin/lzma
+lzma=$LZMA
+AC_SUBST(lzma)
 
 dnl Check for mac PackageMaker
 AC_MSG_CHECKING([for PackageMaker])
@@ -1569,6 +1581,7 @@ AC_SUBST(pcp_x11_appdefs_dir)
 dnl man pages (source)
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
+have_lzmaed_manpages=false
 need_old_tbl_header=false
 man_header=
 pcp_man_dir=`eval echo $mandir`
@@ -1603,6 +1616,12 @@ then
 	    pcp_man_dir=$d
 	    man_header=`$BZIP2 -d < $d/man1/man.1.bz2 | head -1`
 	    break
+	elif test -f $d/man1/man.1.lzma
+	then
+	    have_lzmaed_manpages=true
+	    pcp_man_dir=$d
+	    man_header=`$LZMA -d < $d/man1/man.1.lzma | head -1`
+	    break
 	elif test -f $d/man1/man.1
 	then
 	    pcp_man_dir=$d
@@ -1620,6 +1639,12 @@ then
 	    pcp_man_dir=$d
 	    man_header=`$BZIP2 -d < $d/sman1/man.1.bz2 | head -1`
 	    break
+	elif test -f $d/sman1/man.1.lzma
+	then
+	    have_lzmaed_manpages=true
+	    pcp_man_dir=$d
+	    man_header=`$LZMA -d < $d/sman1/man.1.lzma | head -1`
+	    break
 	elif test -f $d/sman1/man.1
 	then
 	    pcp_man_dir=$d
@@ -1633,10 +1658,11 @@ then
 	    break
 	fi
     done
-    if test -x /usr/lib/rpm/brp-compress
+    if test -x /usr/lib/rpm/brp-compress -a $target_distro != mandriva
     then
 	have_gzipped_manpages=true
 	have_bzip2ed_manpages=false
+	have_lzmaed_manpages=false
     fi
 fi
 if test -z "$pcp_man_dir"
@@ -1651,6 +1677,7 @@ fi
 AC_SUBST(pcp_man_dir)
 AC_SUBST(have_gzipped_manpages)
 AC_SUBST(have_bzip2ed_manpages)
+AC_SUBST(have_lzmaed_manpages)
 AC_SUBST(need_old_tbl_header)
 
 dnl public binaries
