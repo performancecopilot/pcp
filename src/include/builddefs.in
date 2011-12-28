@@ -159,6 +159,8 @@ MAKEDEPEND = @makedepend@
 
 ZIP	= @gzip@
 BZIP2	= @bzip2@
+LZMA	= @lzma@
+XZ	= @xz@
 TAR	= @tar@
 RPMPROG	= @rpmprog@
 PACKAGE_MAKER = @package_maker@
@@ -177,6 +179,8 @@ MD5SUM	= @md5sum@
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
 HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
 HAVE_LZMAED_MANPAGES = @have_lzmaed_manpages@
+HAVE_XZED_MANPAGES = @have_xzed_manpages@
+
 NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 RDYNAMIC_FLAG = @rdynamic_flag@
 
@@ -307,6 +311,9 @@ INSTALL_MAN = \
 		if $(HAVE_LZMAED_MANPAGES) ; then \
 		    $(LZMA) -c $$d$$_tfx > $$d.lzma; _tfx=.lzma; _sfx=.lzma; \
 		fi; \
+		if $(HAVE_XZED_MANPAGES) ; then \
+		    $(XZ) -c $$d$$_tfx > $$d.xz; _tfx=.xz; _sfx=.xz; \
+		fi; \
 		u=$$m.$(MAN_SECTION)$$_sfx; \
 		echo $(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
 		$(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
@@ -371,7 +378,11 @@ PERL_GET_FILELIST = \
 	$(PERLMAKE) -f Makefile install DESTDIR=$$DIST_ROOT; \
 	find $$DIST_ROOT -name .packlist -exec mv '{}' $(1) ';' ; \
 	if [ -s $(1) ] ; then \
-	    sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&.$(man_suffix)/' -e "s@^$$DIST_ROOT@@p" -i.tmp $(1) || exit 1; \
+	    _sfx=.gz; \
+	    $(HAVE_BZIP2ED_MANPAGES) && _sfx=.bz2; \
+	    $(HAVE_LZMAED_MANPAGES) && _sfx=.lzma; \
+	    $(HAVE_XZED_MANPAGES) && _sfx=.xz; \
+	    sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&'"$$_sfx/" -e "s@^$$DIST_ROOT@@p" -i.tmp $(1) || exit 1; \
 	else echo "Arrgh ... no files to include in package via $(1)"; exit 1; \
 	fi; \
 	find $$DIST_ROOT -name perllocal.pod -exec rm -f '{}' ';' ; \

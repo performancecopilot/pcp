@@ -301,6 +301,7 @@ test ! -x "$ZIP" && ZIP=/usr/local/bin/gzip
 test ! -x "$ZIP" && ZIP=/usr/freeware/bin/gzip
 test ! -x "$ZIP" && ZIP=/usr/bin/gzip
 gzip=$ZIP
+test -z "$gzip" && gzip=no-gzip
 AC_SUBST(gzip)
 
 dnl check if the bzip2 program is available
@@ -312,6 +313,7 @@ test ! -x "$BZIP2" && BZIP2=/usr/bin/bzip2
 test ! -x "$BZIP2" && BZIP2=/usr/local/bin/bzip2
 test ! -x "$BZIP2" && BZIP2=/usr/freeware/bin/bzip2
 bzip2=$BZIP2
+test -z "$bzip2" && bzip2=no-bzip2
 AC_SUBST(bzip2)
 
 dnl check if the lzma program is available
@@ -323,7 +325,20 @@ test ! -x "$LZMA" && LZMA=/usr/bin/lzma
 test ! -x "$LZMA" && LZMA=/usr/local/bin/lzma
 test ! -x "$LZMA" && LZMA=/usr/freeware/bin/lzma
 lzma=$LZMA
+test -z "$lzma" && lzma=no-lzma
 AC_SUBST(lzma)
+
+dnl check if the xz program is available
+dnl (needed to xz man pages on some platforms)
+if test -z "$XZ"; then
+    AC_PATH_PROG(XZ, xz, /bin/xz)
+fi
+test ! -x "$XZ" && XZ=/usr/bin/xz
+test ! -x "$XZ" && XZ=/usr/local/bin/xz
+test ! -x "$XZ" && XZ=/usr/freeware/bin/xz
+xz=$XZ
+test -z "$xz" && xz=no-xz
+AC_SUBST(xz)
 
 dnl Check for mac PackageMaker
 AC_MSG_CHECKING([for PackageMaker])
@@ -1582,6 +1597,7 @@ dnl man pages (source)
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
 have_lzmaed_manpages=false
+have_xzed_manpages=false
 need_old_tbl_header=false
 man_header=
 pcp_man_dir=`eval echo $mandir`
@@ -1622,6 +1638,12 @@ then
 	    pcp_man_dir=$d
 	    man_header=`$LZMA -d < $d/man1/man.1.lzma | head -1`
 	    break
+	elif test -f $d/man1/man.1.xz
+	then
+	    have_xzed_manpages=true
+	    pcp_man_dir=$d
+	    man_header=`$XZ -d < $d/man1/man.1.xz | head -1`
+	    break
 	elif test -f $d/man1/man.1
 	then
 	    pcp_man_dir=$d
@@ -1645,6 +1667,12 @@ then
 	    pcp_man_dir=$d
 	    man_header=`$LZMA -d < $d/sman1/man.1.lzma | head -1`
 	    break
+	elif test -f $d/sman1/man.1.xz
+	then
+	    have_xzed_manpages=true
+	    pcp_man_dir=$d
+	    man_header=`$XZ -d < $d/sman1/man.1.xz | head -1`
+	    break
 	elif test -f $d/sman1/man.1
 	then
 	    pcp_man_dir=$d
@@ -1663,6 +1691,7 @@ then
 	have_gzipped_manpages=true
 	have_bzip2ed_manpages=false
 	have_lzmaed_manpages=false
+	have_xzed_manpages=false
     fi
 fi
 if test -z "$pcp_man_dir"
@@ -1678,6 +1707,7 @@ AC_SUBST(pcp_man_dir)
 AC_SUBST(have_gzipped_manpages)
 AC_SUBST(have_bzip2ed_manpages)
 AC_SUBST(have_lzmaed_manpages)
+AC_SUBST(have_xzed_manpages)
 AC_SUBST(need_old_tbl_header)
 
 dnl public binaries
