@@ -849,6 +849,22 @@ _get_fqdn()
     _host_to_fqdn `hostname`
 }
 
+# Distro-specific filtering for init, rc scripts, chkconfig, et al
+#
+_filter_init_distro()
+{
+    if [ -f /etc/mandriva-release ]
+    then
+	# looks like this is a Mandriva bug ... see
+	# http://mandriva.598463.n5.nabble.com/Bug-24409-initscripts-New-netfs-provides-local-fs-scripts-can-t-be-turned-off-td869820.html
+	#
+	sed \
+	    -e '/Warning: netfs is needed by pcp in runlevel/d'
+    else
+	cat
+    fi
+}
+
 # deal with chkconfig et al
 # assumes $sudo is set correctly
 # try very hard to _not_ emit messages unless serious errors encountered
@@ -1016,7 +1032,8 @@ p
 	    echo "_change_config: Error: cannot change config \"$1 $2\""
 	    exit 1
 	fi
-    fi
+    fi 2>&1 \
+    | _filter_init_distro
 }
 
 _get_config()

@@ -380,7 +380,8 @@ s/\.\.\.[. ]*done/.../
 }' \
 	-e 's/^\(Waiting .*\.\.\.\)\(\$PCP_RC_DIR\)/\1\
 \2/' \
-	-e '/^[ 	]*$/d'
+	-e '/^[ 	]*$/d' \
+    | _filter_init_distro
 }
 
 _filter_pcp_stop()
@@ -395,7 +396,8 @@ s/PMCD/pmcd/
 	-e '/Warning: Forcing PMCD to terminate!/s/PMCD/pmcd/' \
 	-e '/^Waiting for pmie/s/\.\.\. *$/.../' \
 	-e '/^Performance Co-Pilot/s/\.\.\. *$/.../' \
-        -e '/^\.[. ]*done$/d'
+        -e '/^\.[. ]*done$/d' \
+    | _filter_init_distro
 }
 
 _filterall_pcp_start()
