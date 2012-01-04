@@ -5261,7 +5261,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_LOADAVG: 
 	switch(idp->item) {
-	case 0:  /* kernel.all.loadavg */
+	case 0:  /* kernel.all.load */
 	    if (inst == 1)
 	    	atom->f = proc_loadavg.loadavg[0];
 	    else
