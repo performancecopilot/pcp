@@ -272,9 +272,14 @@ else
 fi
 AC_SUBST(pcp_owner)
 if test -z "$PCP_GROUP" ; then
-    case "$target_os" in
-    darwin) pcp_group=wheel;;
-    *)	pcp_group=root;;
+    case "$target_os"
+    in
+	darwin|freebsd)
+	    pcp_group=wheel
+	    ;;
+	*)
+	    pcp_group=root
+	    ;;
     esac
 else
     pcp_group="$PCP_GROUP"
