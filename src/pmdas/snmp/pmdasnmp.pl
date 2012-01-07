@@ -388,6 +388,8 @@ optional configuration file for B<pmdasnmp>
 
 snmp PMDA for PCP
 
+TODO: define config file format here
+
 =over
 
 =item $PCP_PMDAS_DIR/snmp/Install

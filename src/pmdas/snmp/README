@@ -53,5 +53,3 @@ restarts or on idle timeouts.
 The instance ID is currently used to specify the SNMP host for this OID
 mapping.
 
-TODO: define config file format here
-
