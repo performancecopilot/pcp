@@ -382,7 +382,7 @@ the agent is installed or removed.
 
 =over
 
-=item $PCP_PMDAS_DIR/snmp/snmp2pcp.conf
+=item $PCP_PMDAS_DIR/snmp/snmp.conf
 
 optional configuration file for B<pmdasnmp>
 
@@ -403,9 +403,10 @@ undo installation script for the B<pmdasnmp> agent
 =item $PCP_LOG_DIR/pmcd/snmp.log
 
 default log file for error messages from B<pmdasnmp>
+This will also receive any perl "warn()" output
 
 =back
 
 =head1 SEE ALSO
 
-pmcd(1) and snmp
+pmcd(1) and SNMP
