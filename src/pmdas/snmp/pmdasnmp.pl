@@ -174,7 +174,6 @@ sub hosts_indom {
 sub db_create_indom {
     my ($db) = @_;
 
-    #add_indom(self,indom,list,help,longhelp)
     $pmda->add_indom($dom_hosts,hosts_indom($db),'SNMP hosts','');
 
     my @dom;
@@ -193,7 +192,8 @@ sub db_create_indom {
 sub db_add_metrics {
     my ($db) = @_;
 
-    #$pmda->clear_metrics();
+    # TODO - nuke the PMDA.xs current list of metrics here
+    # (there is a clear_metrics() in the xs that might be adapted to work)
 
     # add our version
     $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_STRING,
@@ -252,17 +252,6 @@ sub instance {
     }
 }
 
-# refresh_func is called with "clustertab[index]"
-# in "refresh", "fetch",
-
-# input_cb_func is called with "data", "string"
-# in ?
-
-# store_cb_func is called with params
-# in "store_callback"
-
-# actually fetch a metric
-# fetch_cb_func is called with "cluster", "item", "inst" in "fetch_callback"
 sub fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
@@ -307,6 +296,7 @@ sub fetch_callback
         return (PM_ERR_NOTHOST, 0);
     }
     if (!defined $host->{snmp}) {
+	# We have no snmp object for this host
         # FIXME - a better errno?
         return (PM_ERR_EOF, 0);
     }
@@ -319,8 +309,8 @@ sub fetch_callback
     );
 
     if (!$result) {
-        # FIXME - a better errno?
-        return (PM_ERR_IPC, 0);
+	# We didnt get a valid snmp response
+        return (PM_ERR_PMID, 0);
     }
 
     my $types = $snmp->var_bind_types();
