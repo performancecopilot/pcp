@@ -1,3 +1,9 @@
+pcp-gui (1.5.3) unstable; urgency=low
+
+  * Fix build dependence on pcp.conf (closes: #654616)
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 09 Jan 2012 21:09:09 +1100
+
 pcp-gui (1.5.2) unstable; urgency=low
 
   * New pcp-gui release (see doc/CHANGES for details).
