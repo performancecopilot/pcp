@@ -110,6 +110,9 @@ set -x
 %defattr(-,root,root)
 
 %changelog
+* Mon Jan 09 2012 Nathan Scott <nathans@aconex.com>
+- Updates to make desktop icons appear for RHEL builds.
+
 * Thu Dec 01 2011 Nathan Scott <nathans@aconex.com>
 - Updates to make rpmlint happy for Fedora build.
 

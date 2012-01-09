@@ -1,3 +1,9 @@
+pcp-gui 1.5.3 (8 January 2012)
+    - Add Encoding=UTF-8, needed by desktop-file-validate for
+      RHEL builds.
+    - Fix man page format configure check for minimal build deps
+      used in Debian builds.
+
 pcp-gui 1.5.2 (1 December 2011)
     - Updates to source files with incorrect FSF address for rpmlint.
     - Fix compilation warnings.
