@@ -19,7 +19,7 @@ void *make_event(size_t size, struct timeval *tv)
  */
 int apply_filter(void *data, void *event, size_t size)
 {
-    size_t filter = (size_t)data;
+    size_t filter = *(size_t *)data;
 
     fprintf(stderr, "=> apply-filter(%d<%d) -> %d\n",
 	    (int)filter, (int)size, size >= filter);
@@ -31,7 +31,7 @@ int apply_filter(void *data, void *event, size_t size)
  */
 void release_filter(void *data)
 {
-    size_t filter = (size_t)data;
+    size_t filter = *(size_t *)data;
     fprintf(stderr, "=> release filter(%d)\n", (int)filter);
 }
 
@@ -68,7 +68,7 @@ int decode_event(int key, void *event, size_t size, void *data)
 	if (buffer[i] != 0xA)
 	    ok = 0;
     fprintf(stderr, "queue#%d client#%d event: %p, size=%d check=%s\n",
-	    queueid, context, event, size, ok? "ok" : "bad");
+	    queueid, context, event, (int)size, ok? "ok" : "bad");
     return 0;
 }
 
@@ -88,6 +88,7 @@ main(int argc, char **argv)
     int	c, sts;
     int errflag = 0;
     int context, queueid, size;
+    int filter_size;
     struct timeval tv;
     char *s, *name;
     void *event;
@@ -223,11 +224,11 @@ main(int argc, char **argv)
 		break;
 	    }
 	    queueid = pmdaEventQueueHandle(name);
-	    size = atoi(s);
-	    sts = pmdaEventSetFilter(context, queueid, (void *)size,
+	    filter_size = atoi(s);
+	    sts = pmdaEventSetFilter(context, queueid, (void *)&filter_size,
 				     apply_filter, release_filter);
 	    fprintf(stderr, "client#%d set filter(sz<%d) on queue#%d-> %d",
-		    context, size, queueid, sts);
+		    context, filter_size, queueid, sts);
 	    if (sts < 0) fprintf(stderr, " %s", pmErrStr(sts));
 	    fputc('\n', stderr);
 	    break;
