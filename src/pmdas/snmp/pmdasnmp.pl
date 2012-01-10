@@ -28,7 +28,8 @@ $Data::Dumper::Useqq = 1;	# PMDA log doesnt like binary :-(
 our $VERSION='0.3';
 my $db = {};
 my $option = {
-	max_row => 100,	# default maximum number of rows for a table
+	max_row => 100, # default maximum number of rows for a table
+	pmid_per_host => 100, # default number of pmid's for each host
 };
 
 # SNMP string type name to numeric type number
@@ -65,8 +66,7 @@ my $snmptype2pcp = {
     0x46 => { type=> PM_TYPE_64, sem=> PM_SEM_COUNTER },	# COUNTER64
 };
 
-my $dom_hosts = 0;	# this indom nr used for a list of known hosts
-my $dom_hostrows = 1;	# this indom nr used for known hosts and row nrs
+my $dom_rows = 0;	# this indom nr used for generic row numbers
 
 my $pmda = PCP::PMDA->new('snmp', 56);
 
@@ -80,6 +80,8 @@ sub load_config {
     }
     if (!defined $db->{map}) {
         $db->{map} = {};
+	$db->{map}{hosts} = [];
+	$db->{map}{oids} = [];
     }
 
     for my $filename (@_) {
@@ -125,6 +127,10 @@ sub load_config {
 		    $e->{snmp}->translate([-timeticks=>0]);
                 }
                 $db->{hosts}{$1} = $e;
+	        my $id = scalar @{$db->{map}{hosts}};
+		# TODO - allow this pmid 'index base' to be set
+		$e->{id} = $id;
+		@{$db->{map}{hosts}}[$id]=$e;
             } elsif (m/^map\s+(single|column)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.*)$/) {
                 my $snmptype = $snmptype2val->{$3};
                 if (!defined $snmptype) {
@@ -135,59 +141,46 @@ sub load_config {
                 my $id = $4;
                 if ($id eq '+') {
                     # select the next available number
-                    $id = scalar @{$db->{map}{static}};
+                    $id = scalar @{$db->{map}{oids}};
                 }
+		if ($id > $option->{pmid_per_host}) {
+		    warn("More metrics than allowed by pmid_per_host");
+		    next;
+		}
                 $e->{type}=$1;
 		$e->{oid}=$2;
 		$e->{snmptype}=$snmptype;
 		$e->{id}=$id;
 		$e->{text}=$5;
-		@{$db->{map}{static}}[$id]=$e;
+		@{$db->{map}{oids}}[$id]=$e;
             } else {
                 warn("Unrecognised config line: $_\n");
             }
-            # TODO - add map tree, mib load, maxstatic
+            # TODO - add map tree, mib load
         }
     }
 
     $db->{max}{hosts} = scalar keys %{$db->{hosts}};
-    $db->{max}{static} = scalar @{$db->{map}{static}};
+    $db->{max}{oids} = scalar @{$db->{map}{oids}};
+    $db->{max}{static} = $db->{max}{hosts} * $option->{pmid_per_host};
+    # any PMID above max static is available for dynamicly created mappings
 
     return $db;
 }
 
-# Using the hosts data, create a list of instance domains
-#
-sub hosts_indom {
-	my ($db) = @_;
-
-	my @dom;
-	my $i=0;
-
-	for my $e (values %{$db->{hosts}}) {
-		push @dom,$i,$e->{hostname};
-		@{$db->{map}{hosts}}[$i] = $e;
-		$e->{id} = $i;
-		$i++;
-	}
-	return \@dom;
-}
-
-# Create both the hosts and hostrows indom
+# Create the fake generic rows indom
+# TODO - demand create the rows indoms
 sub db_create_indom {
     my ($db) = @_;
 
-    $pmda->add_indom($dom_hosts,hosts_indom($db),'SNMP hosts','');
-
     my @dom;
-    for my $host (values %{$db->{hosts}}) {
-        for my $row (0..$option->{max_row}) {
-            my $domid = $row * $db->{max}{hosts} + $host->{id};
-            my $domname = $host->{hostname}.'/'.$row;
-            push @dom,$domid,$domname;
-        }
+    for my $row (0..$option->{max_row}) {
+	# first is id, second is string description
+	# for now, both are the same
+	# TODO - populate the indom with rational names from an SNMP column
+        push @dom,$row,$row;
     }
-    $pmda->add_indom($dom_hostrows,\@dom,'SNMP host rows','');
+    $pmda->add_indom($dom_rows,\@dom,'SNMP rows','');
 }
 
 # Using the mappings, define all the metrics
@@ -203,33 +196,41 @@ sub db_add_metrics {
         PM_INDOM_NULL, PM_SEM_DISCRETE,
         pmda_units(0,0,0,0,0,0), "snmp.version", '', '');
 
-    for my $e (@{$db->{map}{static}}) {
+    # FIXME - testing with just one host
+    for my $e (@{$db->{map}{oids}}) {
+	# for each predefined static mapping, register a metric
+
         if (!defined $e) {
             next;
         }
+	my $id = $e->{id}; # TODO - add (hostid * pmid_per_host)
+
         # hack around the too transparent opaque datatype
-        my $cluster = int($e->{id} /1024);
-        my $item = $e->{id} %1024;
+        my $cluster = int($id /1024);
+        my $item = $id %1024;
+
         my $type = $snmptype2pcp->{$e->{snmptype}};
         if (!defined $type) {
             warn("Unknown type=$type for id=$e->{id}\n");
             next;
         }
+
         my $indom;
         if ($e->{type} eq 'single') {
-            $indom = $dom_hosts;
+            $indom = PM_INDOM_NULL;
         } elsif ($e->{type} eq 'column') {
-            $indom = $dom_hostrows;
+	    # TODO - use metric specific indom, for now, just use generic
+            $indom = $dom_rows;
+	    $e->{indom} = $indom;
         } else {
             warn("Unknown map type = $e->{type}\n");
             next;
         }
-        $e->{indom} = $indom;
         $pmda->add_metric(pmda_pmid($cluster,$item),
             $type->{type},
             $indom, $type->{sem},
             pmda_units(0,0,0,0,0,0),
-            'snmp.oid.'.$e->{oid}, $e->{text}, ''
+            'snmp.xxx.'.$e->{oid}, $e->{text}, ''
         );
     }
 }
@@ -268,36 +269,31 @@ sub fetch_callback
     if ($id == 0) {
         return ($VERSION,1);
     }
-    if ($id == 2) {
-        return (1,1);
+
+    my $hostnr = int($id / $option->{pmid_per_host});
+    my $host = @{$db->{map}{hosts}}[$hostnr];
+    if (!defined $host) {
+        return (PM_ERR_NOTHOST, 0);
     }
 
-    if ($inst == PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
-
-    my $map = @{$db->{map}{static}}[$id];
+    my $map = @{$db->{map}{oids}}[$id % $option->{pmid_per_host}];
     if (!defined $map) {
         return (PM_ERR_PMID, 0);
     }
     my $oid = $map->{oid};
 
-    my $hostnr;
-    my $rownr = -1;
-    if ($map->{indom} == $dom_hostrows) {
-        $hostnr = $inst % $db->{max}{hosts};
-        $rownr = int($inst / $db->{max}{hosts});
-        $oid.='.'.$rownr;
-    } else {
-        $hostnr = $inst;
+    if (defined $map->{indom}) {
+	# only metrics with rows have an indom
+        $oid.='.'.$inst;
     }
+
+    # TODO - maybe check if a map single has been called with an inst other
+    # than PM_INDOM_NULL
 
     if ($option->{debug}) {
-	$pmda->log("fetch_callback hostnr=$hostnr rownr=$rownr");
+	$pmda->log("fetch_callback hostnr=$hostnr rownr=$inst");
     }
 
-    my $host = @{$db->{map}{hosts}}[$hostnr];
-    if (!defined $host) {
-        return (PM_ERR_NOTHOST, 0);
-    }
     if (!defined $host->{snmp}) {
 	# We have no snmp object for this host
         # FIXME - a better errno?
