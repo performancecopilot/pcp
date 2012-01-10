@@ -7,8 +7,8 @@ Net::SNMP	libnet-snmp-perl
 
 The PCP names that are exported are (currently)
 
-	snmp.oid.$oid[$hostname]
-	snmp.oid.$oid[$hostname/$rownr]
+	snmp.host.$hostname.$oid
+	snmp.host.$hostname.$oid[$rownr]
 
 In the future I hope to propose an extension to the PCP agent protocol
 to allow the use of virtual hostnames, which would change the names
@@ -49,7 +49,4 @@ config is used every time.  If a query for a new mapping is received
 then the gateway dynamically allocates the next free ID (starting from
 MAXINT working downwards).  This dynamic mapping might change on gateway
 restarts or on idle timeouts.
-
-The instance ID is currently used to specify the SNMP host for this OID
-mapping.
 

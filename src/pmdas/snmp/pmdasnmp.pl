@@ -114,6 +114,9 @@ sub load_config {
 		$e->{hostname}=$1;
 		$e->{community}=$2;
 
+		# The reversed dotted hostname is used in the metric name
+		$e->{revname} = join('.',reverse(split('\.',$1)));
+
 		# TODO - lazy create snmp sessions on first use
                 my ($session,$error) = Net::SNMP->session(
                     -hostname =>$e->{hostname},
@@ -196,42 +199,46 @@ sub db_add_metrics {
         PM_INDOM_NULL, PM_SEM_DISCRETE,
         pmda_units(0,0,0,0,0,0), "snmp.version", '', '');
 
-    # FIXME - testing with just one host
-    for my $e (@{$db->{map}{oids}}) {
-	# for each predefined static mapping, register a metric
+    for my $host (@{$db->{map}{hosts}}) {
+	# calculate the pmid for the first metric for this host
+	my $hostbase = $host->{id} * $option->{pmid_per_host};
 
-        if (!defined $e) {
-            next;
-        }
-	my $id = $e->{id}; # TODO - add (hostid * pmid_per_host)
+        for my $e (@{$db->{map}{oids}}) {
+            # for each predefined static mapping, register a metric
 
-        # hack around the too transparent opaque datatype
-        my $cluster = int($id /1024);
-        my $item = $id %1024;
+            if (!defined $e) {
+                next;
+            }
+            my $id = $hostbase + $e->{id};
 
-        my $type = $snmptype2pcp->{$e->{snmptype}};
-        if (!defined $type) {
-            warn("Unknown type=$type for id=$e->{id}\n");
-            next;
-        }
+            # hack around the too transparent opaque datatype
+            my $cluster = int($id /1024);
+            my $item = $id %1024;
 
-        my $indom;
-        if ($e->{type} eq 'single') {
-            $indom = PM_INDOM_NULL;
-        } elsif ($e->{type} eq 'column') {
-	    # TODO - use metric specific indom, for now, just use generic
-            $indom = $dom_rows;
-	    $e->{indom} = $indom;
-        } else {
-            warn("Unknown map type = $e->{type}\n");
-            next;
-        }
-        $pmda->add_metric(pmda_pmid($cluster,$item),
-            $type->{type},
-            $indom, $type->{sem},
-            pmda_units(0,0,0,0,0,0),
-            'snmp.xxx.'.$e->{oid}, $e->{text}, ''
-        );
+            my $type = $snmptype2pcp->{$e->{snmptype}};
+            if (!defined $type) {
+                warn("Unknown type=$type for id=$e->{id}\n");
+                next;
+            }
+
+            my $indom;
+            if ($e->{type} eq 'single') {
+                $indom = PM_INDOM_NULL;
+            } elsif ($e->{type} eq 'column') {
+                # TODO - use metric specific indom, for now, just use generic
+                $indom = $dom_rows;
+                $e->{indom} = $indom;
+            } else {
+                warn("Unknown map type = $e->{type}\n");
+                next;
+            }
+            $pmda->add_metric(pmda_pmid($cluster,$item),
+                $type->{type},
+                $indom, $type->{sem},
+                pmda_units(0,0,0,0,0,0),
+                'snmp.host.'.$host->{revname}.'.'.$e->{oid}, $e->{text}, ''
+            );
+	}
     }
 }
 
