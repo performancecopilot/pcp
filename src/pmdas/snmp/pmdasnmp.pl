@@ -25,9 +25,11 @@ $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Quotekeys = 0;
 $Data::Dumper::Useqq = 1;	# PMDA log doesnt like binary :-(
 
-our $VERSION='0.2';
+our $VERSION='0.3';
 my $db = {};
-my $option = {};
+my $option = {
+	max_row => 100,	# default maximum number of rows for a table
+};
 
 # SNMP string type name to numeric type number
 #
@@ -110,6 +112,7 @@ sub load_config {
 		$e->{hostname}=$1;
 		$e->{community}=$2;
 
+		# TODO - lazy create snmp sessions on first use
                 my ($session,$error) = Net::SNMP->session(
                     -hostname =>$e->{hostname},
                     -community=>$e->{community},
@@ -149,7 +152,6 @@ sub load_config {
 
     $db->{max}{hosts} = scalar keys %{$db->{hosts}};
     $db->{max}{static} = scalar @{$db->{map}{static}};
-    $db->{max}{rows} = 100; # FIXME - load from config
 
     return $db;
 }
@@ -179,7 +181,7 @@ sub db_create_indom {
 
     my @dom;
     for my $host (values %{$db->{hosts}}) {
-        for my $row (0..$db->{max}{rows}) {
+        for my $row (0..$option->{max_row}) {
             my $domid = $row * $db->{max}{hosts} + $host->{id};
             my $domname = $host->{hostname}.'/'.$row;
             push @dom,$domid,$domname;
