@@ -77,7 +77,7 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 
     if (!started) {
 	started = 1;
-	memset(proc_stat, 0, sizeof(proc_stat));
+	memset(proc_stat, 0, sizeof(*proc_stat));
 
 	/* hz of running kernel */
 	proc_stat->hz = sysconf(_SC_CLK_TCK);

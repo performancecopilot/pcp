@@ -38,7 +38,7 @@ refresh_proc_net_snmp(proc_net_snmp_t *proc_net_snmp)
 
     if (!started) {
 	started = 1;
-	memset(proc_net_snmp, 0, sizeof(proc_net_snmp));
+	memset(proc_net_snmp, 0, sizeof(*proc_net_snmp));
     }
 
     if ((fp = fopen("/proc/net/snmp", "r")) == NULL)
