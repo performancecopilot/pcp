@@ -216,7 +216,7 @@ doscan(struct timeval *end)
     }
 #endif
 
-    if ((sts == pmSetMode(PM_MODE_FORW, &last_tv, 0)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_FORW, &last_tv, 0)) < 0) {
 	fprintf(stderr,
 	    "%s: doscan: Error: pmSetMode (ictx_b) time=", pmProgname);
 	__pmPrintStamp(stderr, &last_tv);

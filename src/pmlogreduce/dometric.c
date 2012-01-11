@@ -103,7 +103,7 @@ dometric(const char *name)
     }
 #endif
 
-    if ((sts == __pmLogPutDesc(&logctl, &mp->odesc, 1, &namelist[numpmid])) < 0) {
+    if ((sts = __pmLogPutDesc(&logctl, &mp->odesc, 1, &namelist[numpmid])) < 0) {
 	fprintf(stderr,
 	    "%s: Error: failed to add pmDesc for %s (%s): %s\n",
 		pmProgname, namelist[numpmid], pmIDStr(pmidlist[numpmid]), pmErrStr(sts));
@@ -131,7 +131,7 @@ dometric(const char *name)
 	    if ((mp->idp = (indom_t *)malloc(sizeof(indom_t))) == NULL) {
 		fprintf(stderr,
 		    "%s: dometric: Error: cannot malloc indom_t for %s\n",
-		    pmProgname, pmInDomStr(mp->idp->indom));
+		    pmProgname, pmInDomStr(mp->idesc.indom));
 		exit(1);
 	    }
 	    mp->idp->indom = mp->idesc.indom;
