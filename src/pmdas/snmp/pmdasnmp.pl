@@ -85,7 +85,11 @@ sub load_config {
     }
 
     for my $filename (@_) {
-        my $fh = FileHandle->new($filename) or warn "opening $filename $!";
+        my $fh = FileHandle->new($filename);
+	if (!defined $fh) {
+		warn "opening $filename $!";
+		next;
+	}
 
         while(<$fh>) {
             chomp; s/\r//g;
@@ -202,6 +206,9 @@ sub db_add_metrics {
     for my $host (@{$db->{map}{hosts}}) {
 	# calculate the pmid for the first metric for this host
 	my $hostbase = $host->{id} * $option->{pmid_per_host};
+
+	# skip hosts that did not setup their snmp session
+	next if (!$host->{snmp});
 
         for my $e (@{$db->{map}{oids}}) {
             # for each predefined static mapping, register a metric
