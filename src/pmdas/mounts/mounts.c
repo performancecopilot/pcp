@@ -190,6 +190,7 @@ void mounts_grab_config_info() {
   if ((fp = fopen(mypath, "r")) == NULL) {
     __pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
 		  mypath, pmErrStr(-oserror()));
+    return;
   }
 
   while (fgets(mount_name, sizeof(mount_name), fp) != NULL) {
@@ -254,7 +255,7 @@ mounts_refresh_mounts(void) {
   }
 
 
-  if ((fd = fopen(MOUNT_FILE, "r")) > 0) {
+  if ((fd = fopen(MOUNT_FILE, "r")) != NULL) {
 #ifdef IS_SOLARIS
     char device_to_fsck[100];
     char fsck_pass[100];
