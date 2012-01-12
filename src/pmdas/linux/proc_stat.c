@@ -18,6 +18,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "indom.h"
 #include <dirent.h>
 #include <ctype.h>
 #include <sys/stat.h>
@@ -35,6 +36,7 @@ static int maxbufindex;
 int
 refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 {
+    pmdaIndom *idp = &indomtab[CPU_INDOM];
     char fmt[64];
     int fd;
     int n;
@@ -89,6 +91,7 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	}
 	if (proc_stat->ncpu == 0)
 	    proc_stat->ncpu = 1; /* non-SMP kernel? */
+	proc_stat->cpu_indom = idp;
 	proc_stat->cpu_indom->it_numinst = proc_stat->ncpu;
 	proc_stat->cpu_indom->it_set = (pmdaInstid *)malloc(
 		proc_stat->ncpu * sizeof(pmdaInstid));
