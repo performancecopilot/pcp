@@ -171,6 +171,7 @@ void process_grab_config_info() {
   if ((fp = fopen(mypath, "r")) == NULL) {
     __pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
         mypath, pmErrStr(-oserror()));
+    return;
   }
   while (fgets(process_name, sizeof(process_name), fp) != NULL) {
     if (process_name[0] == '#')
@@ -251,7 +252,7 @@ process_refresh_pid_checks()
         continue;
       }
     }
-    if ((fd = fopen(proc_path, "r")) > 0) {
+    if ((fd = fopen(proc_path, "r")) != NULL) {
 
       /*
        * matching process by name is platform specific ... this code
