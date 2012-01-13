@@ -49,7 +49,10 @@ event_init(pmID pmid)
 		    __pmNotifyErr(LOG_ERR, "open: %s - %s",
 				logfiles[i].pathname, strerror(errno));
 	    } else {
-		fstat(fd, &logfiles[i].pathstat);
+		if (fstat(fd, &logfiles[i].pathstat) < 0)
+		    if (logfiles[i].fd >= 0)	/* log once only */
+			__pmNotifyErr(LOG_ERR, "fstat: %s - %s",
+				    logfiles[i].pathname, strerror(errno));
 		lseek(fd, 0, SEEK_END);
 	    }
 	}

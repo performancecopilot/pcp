@@ -335,8 +335,9 @@ main(int argc, char * argv[])
 	struct stat s;
 	void * addr;
 
-	fstat(fd, &s);
-	if ((addr = __pmMemoryMap(fd, s.st_size, 0)) != NULL)
+	if (fstat(fd, &s) < 0)
+	    perror(file);
+	else if ((addr = __pmMemoryMap(fd, s.st_size, 0)) != NULL)
 	    return dump(file, addr);
     }
     return 1;
