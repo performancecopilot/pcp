@@ -2618,6 +2618,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 90:	/* dynamic.meta.pmdesc.units */
 		lp = (__int32_t *)&magic.units;
 		*lp = av.l;
+		break;
 	    case 97:	/* ulong.write_me */
 		_ulong = av.ul;
 		break;
