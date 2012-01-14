@@ -95,6 +95,7 @@ main(int argc, char **argv)
     char	*pmnsfile = PM_NS_DEFAULT;
     int		errflag = 0;
     int		aflag = 0;
+    int		eflag = 0;
     int		allpmid = 0;
     int		allindom = 0;
     char	*filename;
@@ -107,7 +108,7 @@ main(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "D:Hin:Opv:?")) != EOF) {
+    while ((c = getopt(argc, argv, "D:eHin:Opv:?")) != EOF) {
 	switch (c) {
 
 	case 'D':	/* debug flag */
@@ -121,10 +122,14 @@ main(int argc, char **argv)
 		pmDebug |= sts;
 	    break;
 
+	case 'e':	/* help text exists? */
+	    eflag = 1;
+	    break;
+
 	case 'H':	/* help text */
 	    help = 1;
 	    break;
-	
+
 	case 'i':
 	    aflag++;
 	    allindom = 1;
@@ -182,6 +187,7 @@ main(int argc, char **argv)
 "       %s [options] helpfile [metricname ...]\n"
 "\n"
 "Options:\n"
+"  -e           exists check, only report metrics with no help text\n"
 "  -H           display verbose help text\n"
 "  -i           process all the instance domains\n"
 "  -n pmnsfile  use an alternative PMNS\n"
@@ -218,6 +224,7 @@ main(int argc, char **argv)
 	aflag = 1;
 
     while (optind < argc || aflag) {
+    	int	found = 0;
 	if (aflag) {
 	    if (next(&id, &next_type) == 0)
 		break;
@@ -228,35 +235,38 @@ main(int argc, char **argv)
 	    if (next_type == 2) {
 		if (!allindom)
 		    continue;
-		printf("\nInDom %s:", pmInDomStr((pmInDom)id));
+		if (eflag == 0)
+		    printf("\nInDom %s:", pmInDomStr((pmInDom)id));
 	    }
 	    else {
 		char		*p;
 		if (!allpmid)
 		    continue;
 
-		printf("\nPMID %s", pmIDStr((pmID)id));
-		sts = pmNameID(id, &p);
-		if (sts == 0) {
-		    printf(" %s", p);
-		    free(p);
+		if (eflag == 0) {
+		    printf("\nPMID %s", pmIDStr((pmID)id));
+		    sts = pmNameID(id, &p);
+		    if (sts == 0) {
+			printf(" %s", p);
+			free(p);
+		    }
+		    putchar(':');
 		}
-		putchar(':');
 	    }
 	}
 	else {
 	    next_type = 1;
 	    name = argv[optind++];
-	    printf("\nPMID");
 	    if ((sts = pmLookupName(1, &name, (pmID *)&id)) < 0) {
-		printf(" %s: %s\n", name, pmErrStr(sts));
+		printf("\n%s: %s\n", name, pmErrStr(sts));
 		continue;
 	    }
-	    printf(" %s %s:", pmIDStr((pmID)id), name);
 	    if (id == PM_ID_NULL) {
-		printf(" unknown metric\n");
+		printf("\n%s: unknown metric\n", name);
 		continue;
 	    }
+	    if (eflag == 0)
+		printf("\nPMID %s %s:", pmIDStr((pmID)id), name);
 	}
 
 	if (oneline) {
@@ -264,12 +274,16 @@ main(int argc, char **argv)
 		tp = pmdaGetHelp(handle, (pmID)id, PM_TEXT_ONELINE);
 	    else
 		tp = pmdaGetInDomHelp(handle, (pmInDom)id, PM_TEXT_ONELINE);
-	    if (tp != NULL)
-		printf(" %s\n", tp);
-	    else
+	    if (tp != NULL) {
+		if (eflag == 0)
+		    printf(" %s", tp);
+		else
+		    found = 1;
+	    }
+	    if (eflag == 0)
 		putchar('\n');
 	}
-	else
+	else if (eflag == 0)
 	    putchar('\n');
 
 	if (help) {
@@ -277,8 +291,28 @@ main(int argc, char **argv)
 		tp = pmdaGetHelp(handle, (pmID)id, PM_TEXT_HELP);
 	    else
 		tp = pmdaGetInDomHelp(handle, (pmInDom)id, PM_TEXT_HELP);
-	    if (tp != NULL && *tp)
-		printf("%s\n", tp);
+	    if (tp != NULL && *tp) {
+		if (eflag == 0)
+		    printf("%s\n", tp);
+		else
+		    found = 1;
+	    }
+	}
+
+	if (eflag && found == 0) {
+	    /* no help text, report metric or instance domain */
+	    if (next_type == 1) {
+		char	*p;
+		sts = pmNameID(id, &p);
+		if (sts == 0) {
+		    printf("%s\n", p);
+		    free(p);
+		}
+		else
+		    printf("%s\n", pmIDStr((pmID)id));
+	    }
+	    else
+		printf("%s\n", pmInDomStr((pmInDom)id));
 	}
     }
 
