@@ -190,7 +190,12 @@ void mounts_grab_config_info() {
   if ((fp = fopen(mypath, "r")) == NULL) {
     __pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
 		  mypath, pmErrStr(-oserror()));
-    return;
+    if (mounts) {
+	free(mounts);
+	mounts = NULL;
+	mount_number = 0;
+    }
+    goto done;
   }
 
   while (fgets(mount_name, sizeof(mount_name), fp) != NULL) {
@@ -218,7 +223,9 @@ void mounts_grab_config_info() {
     mount_number++;
 
   }
+  fclose(fp);
 
+done:
   if (mounts == NULL) {
     __pmNotifyErr(LOG_WARNING, "\"mounts\" instance domain is empty");
   }
@@ -227,10 +234,6 @@ void mounts_grab_config_info() {
   indomtab[MOUNTS_INDOM].it_numinst = mount_number;
 
   mount_list = realloc(mount_list, (mount_number)*sizeof(mountinfo));
-
-  fclose(fp);
-
-    
 }
 
 

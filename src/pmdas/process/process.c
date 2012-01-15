@@ -171,7 +171,12 @@ void process_grab_config_info() {
   if ((fp = fopen(mypath, "r")) == NULL) {
     __pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
         mypath, pmErrStr(-oserror()));
-    return;
+    if (processes != NULL) {
+	free(processes);
+	processes = NULL;
+	process_number = 0;
+    }
+    goto done;
   }
   while (fgets(process_name, sizeof(process_name), fp) != NULL) {
     if (process_name[0] == '#')
@@ -196,7 +201,9 @@ void process_grab_config_info() {
     process_number++;
 
   }
+  fclose(fp);
 
+done:
   if (processes == NULL) {
     __pmNotifyErr(LOG_WARNING, "\"process\" instance domain is empty");
   }
@@ -205,8 +212,6 @@ void process_grab_config_info() {
   indomtab[PROC_INDOM].it_numinst = process_number;
 
   num_procs = realloc(num_procs, (process_number)*sizeof(int));
-
-  fclose(fp);
 
 }
 
