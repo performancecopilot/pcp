@@ -15,6 +15,7 @@
  */
 
 #include "event.h"
+#include "util.h"
 
 static struct {
     TRACEHANDLE			session;
@@ -52,7 +53,7 @@ event_decode_timestamp(PEVENT_RECORD event, struct timeval *tv)
     ft.dwHighDateTime = event->EventHeader.TimeStamp.HighPart;
     ft.dwLowDateTime = event->EventHeader.TimeStamp.LowPart;
 
-    __uint64 tmp = 0;
+    __uint64_t tmp = 0;
     tmp |= ft.dwHighDateTime;
     tmp <<= 32;
     tmp |= ft.dwLowDateTime;
@@ -102,7 +103,7 @@ event_sys_setup(void)
 
     sys.tracemode.LoggerName = KERNEL_LOGGER_NAME;
     sys.tracemode.BufferCallback = event_buffer_callback;
-    sys.tracemode.EventRecordCallback = event_process_callback;
+    sys.tracemode.EventRecordCallback = event_record_callback;
     sys.tracemode.ProcessTraceMode = PROCESS_TRACE_MODE_REAL_TIME;
 }
 
@@ -116,7 +117,7 @@ event_trace_sys(LPVOID ptr)
 retry_session:
     event_sys_setup();
 
-    sts = StartTrace(&sys.session, KERNEL_LOGGER_NAME, properties);
+    sts = StartTrace(&sys.session, KERNEL_LOGGER_NAME, &sys.properties);
     if (sts != ERROR_SUCCESS) {
 	if (retried) {
 	    __pmNotifyErr(LOG_ERR, "Cannot start session (in use)");
@@ -124,7 +125,7 @@ retry_session:
 	    __pmNotifyErr(LOG_WARNING, "%s session in use, retry.. (flags=%lx)",
 				    KERNEL_LOGGER_NAME, sys.enabled);
 	    sys.properties.EnableFlags = 0;
-	    ControlTrace(NULL, KERNEL_LOGGER_NAME,
+	    ControlTrace(sys.session, KERNEL_LOGGER_NAME,
 			 &sys.properties, EVENT_TRACE_CONTROL_STOP);
 	    retried = 1;
 	    goto retry_session;
@@ -162,13 +163,13 @@ event_init(void)
     return 0;
 }
 
-static int __attribute__((constructor))
+void __attribute__((constructor))
 event_startup(void)
 {
     sys.session = INVALID_PROCESSTRACE_HANDLE;
 }
 
-static void __attribute__((destructor))
+void __attribute__((destructor))
 event_shutdown(void)
 {
     __pmNotifyErr(LOG_INFO, "%s: Shutting down tracing ...", __FUNCTION__);
