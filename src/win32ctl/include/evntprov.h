@@ -35,8 +35,6 @@
 extern "C" {
 #endif
 
-#include <guiddef.h>
-
 #define EVENT_MIN_LEVEL				0
 #define EVENT_MAX_LEVEL				0xff
 

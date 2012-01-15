@@ -30,7 +30,6 @@ PMNS		= pmns.disk pmns.kernel pmns.mem pmns.network \
 		  pmns.process
 LSRCFILES	= $(PMNS) root help README pdhlist.c pdhmatch.sh
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
-CMDTARGET	= pmdawindows.exe
 LIBTARGET	= pmda_windows.dll
 EXTRATARGETS	= pdhlist.exe help.dir help.pag
 
@@ -44,7 +43,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "mingw"
-build-me: root_windows $(LSRCFILES) $(CMDTARGET) $(LIBTARGET) $(EXTRATARGETS)
+build-me: root_windows $(LSRCFILES) $(LIBTARGET) $(EXTRATARGETS)
 	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
 	fi
