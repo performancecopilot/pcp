@@ -95,6 +95,7 @@ probe_cisco(cisco_t * cp)
 {
     char	*w;
     int		fd;
+    int		fd2;
     int		first = 1;
     char	*pass = NULL;
     int		defer = 0;
@@ -113,7 +114,11 @@ probe_cisco(cisco_t * cp)
 	}
 	else {
 	    cp->fin = fdopen (fd, "r");
-	    cp->fout = fdopen (dup(fd), "w");
+	    if ((fd2 = dup(fd)) < 0) {
+	    	perror"(dup");
+		exit(1);
+	    }
+	    cp->fout = fdopen (fd2, "w");
 	    if (cp->username != NULL) {
 		/*
 		 * Username stuff ...
