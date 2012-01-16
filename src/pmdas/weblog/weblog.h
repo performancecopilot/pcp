@@ -135,6 +135,6 @@ void sprocMain(void*);
 void web_init(pmdaInterface*);
 void logmessage(int, const char *, ...);
 
-#define wl_close(fd) close(fd); fd = -1;
+#define wl_close(fd) do { if (fd >= 0) close(fd); fd = -1; } while (0)
 
 #endif /* _WEBLOG_H */
