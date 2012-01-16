@@ -283,6 +283,7 @@ readData(int clientfd, int *protocol)
     double	 	data;
     hashdata_t		newhash;
     hashdata_t		*hptr;
+    hashdata_t		hash;
     char		*tag;
     int			type, taglen, sts;
     int			freeflag=0;
@@ -435,8 +436,6 @@ readData(int clientfd, int *protocol)
      */
     if ((hptr = __pmhashlookup(ringbuf.ring[rpos].stats, tag,
 							&newhash)) == NULL) {
-	hashdata_t	hash;
-
 	hash.tag = strdup(tag);
 	hash.tracetype = type;
 	hash.id = 0;	/* the ring buffer is never used to resolve indoms */
