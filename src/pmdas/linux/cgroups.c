@@ -384,17 +384,8 @@ refresh_cgroup_subsys(pmInDom indom)
 			&hierarchy, &numcgroups, &enabled) != 4)
 	    continue;
 	sts = pmdaCacheLookupName(indom, name, NULL, (void **)&data);
-	if (sts == PMDA_CACHE_ACTIVE) {
-	    if (data != hierarchy)
-		pmdaCacheStore(indom, PMDA_CACHE_ADD, name, (void *)hierarchy);
-	    continue;
-	}
-	if (sts != PMDA_CACHE_INACTIVE) {
-	    char *n = strdup(name);
-	    if (n == NULL)
-		continue;
-	    pmdaCacheStore(indom, PMDA_CACHE_ADD, n, (void *)hierarchy);
-	}
+	if (sts != PMDA_CACHE_INACTIVE || (sts == PMDA_CACHE_ACTIVE && data != hierarchy))
+	    pmdaCacheStore(indom, PMDA_CACHE_ADD, name, (void *)hierarchy);
     }
     fclose(fp);
     return 0;
