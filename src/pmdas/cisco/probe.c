@@ -115,7 +115,7 @@ probe_cisco(cisco_t * cp)
 	else {
 	    cp->fin = fdopen (fd, "r");
 	    if ((fd2 = dup(fd)) < 0) {
-	    	perror"(dup");
+	    	perror("dup");
 		exit(1);
 	    }
 	    cp->fout = fdopen (fd2, "w");
