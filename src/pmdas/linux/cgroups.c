@@ -307,8 +307,10 @@ prepare_string(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
 
     if ((atoms = malloc(sizeof(pmAtomValue))) == NULL)
 	return -oserror();
-    if ((atoms[0].cp = strdup(buffer)) == NULL)
+    if ((atoms[0].cp = strdup(buffer)) == NULL) {
+	free(atoms);
 	return -oserror();
+    }
     groups->metric_values[metric].item = metric;
     groups->metric_values[metric].atoms = atoms;
     groups->metric_values[metric].atom_count = 1;
