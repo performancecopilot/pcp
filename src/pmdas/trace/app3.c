@@ -153,6 +153,7 @@ pio_sucker(void *dummy)
 	    fgetc(foo);
 	    fputc('!', foo);
 	}
+	fclose(foo);
 
 	if ((sts = pmtraceend("pio_sucker")) < 0) {
 	    fprintf(stderr, "%s: pio_sucker end (%d): %s\n",
