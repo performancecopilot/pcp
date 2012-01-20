@@ -303,7 +303,8 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid)
 		sts = 0;
 	    }
 	}
-	close(fd);
+	if (fd >= 0)
+		close(fd);
 	ep->stat_fetched = 1;
     }
 
@@ -329,7 +330,8 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid)
 		sts = 0;
 	    }
 	}
-	close(fd);
+	if (fd >= 0)
+	    close(fd);
 	ep->wchan_fetched = 1;
     }
 
@@ -465,7 +467,8 @@ fetch_proc_pid_statm(int id, proc_pid_t *proc_pid)
 	    }
 	}
 
-	close(fd);
+	if (fd >= 0)
+	    close(fd);
 	ep->statm_fetched = 1;
     }
 
@@ -660,7 +663,6 @@ fetch_proc_pid_fd(int id, proc_pid_t *proc_pid)
 	char	buf[PATH_MAX];
 	uint32_t de_count = 0;
 	DIR	*dir;
-	struct dirent *de;
 
 	sprintf(buf, "/proc/%d/fd", ep->id);
 	dir = opendir(buf);
@@ -669,7 +671,7 @@ fetch_proc_pid_fd(int id, proc_pid_t *proc_pid)
 			  buf);
 	    return NULL;
 	}
-	while ((de = readdir(dir)) != NULL) {
+	while (readdir(dir) != NULL) {
 	    de_count++;
 	}
 	closedir(dir);

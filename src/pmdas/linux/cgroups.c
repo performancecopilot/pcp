@@ -307,8 +307,10 @@ prepare_string(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
 
     if ((atoms = malloc(sizeof(pmAtomValue))) == NULL)
 	return -oserror();
-    if ((atoms[0].cp = strdup(buffer)) == NULL)
+    if ((atoms[0].cp = strdup(buffer)) == NULL) {
+	free(atoms);
 	return -oserror();
+    }
     groups->metric_values[metric].item = metric;
     groups->metric_values[metric].atoms = atoms;
     groups->metric_values[metric].atom_count = 1;
@@ -382,17 +384,8 @@ refresh_cgroup_subsys(pmInDom indom)
 			&hierarchy, &numcgroups, &enabled) != 4)
 	    continue;
 	sts = pmdaCacheLookupName(indom, name, NULL, (void **)&data);
-	if (sts == PMDA_CACHE_ACTIVE) {
-	    if (data != hierarchy)
-		pmdaCacheStore(indom, PMDA_CACHE_ADD, name, (void *)hierarchy);
-	    continue;
-	}
-	if (sts != PMDA_CACHE_INACTIVE) {
-	    char *n = strdup(name);
-	    if (n == NULL)
-		continue;
-	    pmdaCacheStore(indom, PMDA_CACHE_ADD, n, (void *)hierarchy);
-	}
+	if (sts != PMDA_CACHE_INACTIVE || (sts == PMDA_CACHE_ACTIVE && data != hierarchy))
+	    pmdaCacheStore(indom, PMDA_CACHE_ADD, name, (void *)hierarchy);
     }
     fclose(fp);
     return 0;

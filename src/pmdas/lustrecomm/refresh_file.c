@@ -61,7 +61,7 @@ int refresh_file( struct file_state *f_s ){
 		return -1;
 	}
 	/* only grow, never shrink... what would be the point? */
-	while ((i = read (f_s->fd, f_s->datap, f_s->datas)) >= f_s->datas ){
+	while (f_s->datap && (i = read (f_s->fd, f_s->datap, f_s->datas)) >= f_s->datas ){
 		/* oh heck, what do I do if this fails? */
 		f_s->datas += BUFFERBLOCK;
                 if ((f_s->datap = realloc(f_s->datap,  f_s->datas)) == NULL){

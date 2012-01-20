@@ -98,6 +98,8 @@ parseAuth(char *spec)
 	p = squash(&spec[9], &offset);
 	if (p == NULL || p[0] == '\0') {
 	    fprintf(stderr, "%s: invalid disallow (%s)\n", pmProgname, spec);
+	    if (p)
+	    	free(p);
 	    return -1;
 	}
 #ifdef PCP_DEBUG
@@ -113,6 +115,8 @@ parseAuth(char *spec)
 	p = squash(&spec[6], &offset);
 	if (p == NULL || p[0] == '\0') {
 	    fprintf(stderr, "%s: invalid allow (%s)\n", pmProgname, spec);
+	    if (p)
+	    	free(p);
 	    return -1;
 	}
 	offset += 7;
