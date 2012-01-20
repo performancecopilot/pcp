@@ -109,9 +109,17 @@ from the file
 The
 .B \-e
 option provides an existence check where all of the specified
-metrics and/or instance domains are scanned, and only those for which
+metrics from the PMNS (note, not from
+.IR helpfile )
+are scanned, and only the names of the metrics for which
 .B no
-help text exists are reported.
+help text exists are reported.  The
+.B \-e
+option is mutually exclusive with the
+.B \-i
+and/or
+.B \-p
+options.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
