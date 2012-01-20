@@ -120,7 +120,6 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
     need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
     if ((req = (pmResult *)malloc(need)) == NULL) {
 	__pmNoMem("__pmDecodeLogControl.req", need, PM_RECOV_ERR);
-	pmFreeResult(req);
 	return -oserror();
     }
     req->numpmid = numpmid;

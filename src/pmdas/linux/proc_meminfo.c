@@ -99,7 +99,7 @@ refresh_proc_meminfo(proc_meminfo_t *proc_meminfo)
 
     if (!started) {
 	started = 1;
-	memset(proc_meminfo, 0, sizeof(proc_meminfo));
+	memset(proc_meminfo, 0, sizeof(*proc_meminfo));
     }
 
     for (i=0; meminfo_fields[i].field != NULL; i++) {

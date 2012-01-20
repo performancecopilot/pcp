@@ -407,7 +407,7 @@ static int
 etw_store(pmResult *result, pmdaExt *pmda)
 {
     pmdaEventNewClient(pmda->e_context);
-    return 0;
+    return PM_ERR_PERMISSION;
 }
 
 static void
@@ -415,30 +415,6 @@ etw_end_contextCallBack(int context)
 {
     pmdaEventEndClient(context);
 }
-
-#if 0
-static int
-etw_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
-{
-    pmdaEventNewClient(pmda->e_context);
-    return pmdaTreePMID(pmns, name, pmid);
-}
-
-static int
-etw_name(pmID pmid, char ***nameset, pmdaExt *pmda)
-{
-    pmdaEventNewClient(pmda->e_context);
-    return pmdaTreeName(pmns, pmid, nameset);
-}
-
-static int
-etw_children(const char *name, int traverse, char ***kids, int **sts,
-		pmdaExt *pmda)
-{
-    pmdaEventNewClient(pmda->e_context);
-    return pmdaTreeChildren(pmns, name, traverse, kids, sts);
-}
-#endif
 
 static int
 etw_text(int ident, int type, char **buffer, pmdaExt *pmda)
@@ -455,7 +431,7 @@ etw_init(pmdaInterface *dp, const char *configfile)
 
     snprintf(helppath, sizeof(helppath), "%s%c" "etw" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDSO(dp, PMDA_INTERFACE_3, "etw DSO", helppath);
+    pmdaDSO(dp, PMDA_INTERFACE_5, "etw DSO", helppath);
     if (dp->status != 0)
 	return;
 
@@ -471,11 +447,6 @@ etw_init(pmdaInterface *dp, const char *configfile)
     dp->version.four.store = etw_store;
     dp->version.four.profile = etw_profile;
     dp->version.four.text = etw_text;
-#if 0
-    dp->version.four.pmid = etw_pmid;
-    dp->version.four.name = etw_name;
-    dp->version.four.children = etw_children;
-#endif
 
     pmdaSetFetchCallBack(dp, etw_fetchCallBack);
     pmdaSetEndContextCallBack(dp, etw_end_contextCallBack);

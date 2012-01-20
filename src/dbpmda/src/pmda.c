@@ -370,8 +370,10 @@ dopmda(int pdu)
 	    printf("pmInDom: %s\n", pmInDomStr(param.indom));
 	    if ((sts = __pmSendInstanceReq(outfd, FROM_ANON, &now, param.indom, param.number, param.name)) >= 0) {
 		if ((sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_INSTANCE) {
-		    if ((sts = __pmDecodeInstance(pb, &inresult)) >= 0)
+		    if ((sts = __pmDecodeInstance(pb, &inresult)) >= 0) {
 			printindom(stdout, inresult);
+			__pmFreeInResult(inresult);
+		    }
 		    else
 			printf("Error: __pmDecodeInstance() failed: %s\n", pmErrStr(sts));
 		}
@@ -618,9 +620,9 @@ dopmda(int pdu)
 
 	default:
 	    printf("Error: Daemon PDU (%s) botch!\n", __pmPDUTypeStr(pdu));
+	    sts = PDU_ERROR;
 	    break;
-
-	}
+    }
 
     if (sts >= 0 && timer != 0) {
 	__pmtimevalNow(&end);
@@ -653,7 +655,7 @@ fillResult(pmResult *result, int type)
     case PM_TYPE_FLOAT:
 	atom.d = strtod(param.name, &endbuf);
 	if (atom.d < FLT_MIN || atom.d > FLT_MAX)
-	    sts = ERANGE;
+	    sts = -ERANGE;
 	else {
 	    atom.f = atom.d;
 	}
@@ -662,9 +664,9 @@ fillResult(pmResult *result, int type)
 	atom.d = strtod(param.name, &endbuf);
 	break;
     case PM_TYPE_STRING:
-	atom.cp = (char *)malloc(strlen(param.name));
+	atom.cp = (char *)malloc(strlen(param.name) + 1);
 	if (atom.cp == NULL)
-	    sts = ENOMEM;
+	    sts = -ENOMEM;
 	else {
 	    strcpy(atom.cp, param.name);
 	    endbuf = "";
@@ -674,7 +676,7 @@ fillResult(pmResult *result, int type)
 	printf("Error: dbpmda does not support storing into %s metrics\n", pmTypeStr(type));
 	sts = PM_ERR_TYPE;
     }
-    
+
     if (sts < 0) {
 	if (sts != PM_ERR_TYPE)
 	    printf("Error: Decoding value: %s\n", pmErrStr(sts));
