@@ -2603,17 +2603,17 @@ static int
 TraversePMNS_local(const char *name, void(*func)(const char *name))
 {
     int		sts;
+    int		nchildren;
     char	**enfants;
 
-    if ((sts = pmGetChildren(name, &enfants)) < 0) {
-	return sts;
+    if ((nchildren = pmGetChildren(name, &enfants)) < 0) {
+	return nchildren;
     }
-    else if (sts > 0) {
+    else if (nchildren > 0) {
 	int	j;
 	char	*newname;
-	int	n;
 
-	for (j = 0; j < sts; j++) {
+	for (j = 0; j < nchildren; j++) {
 	    newname = (char *)malloc(strlen(name) + 1 + strlen(enfants[j]) + 1);
 	    if (newname == NULL) {
 		printf("pmTraversePMNS: malloc: %s\n", osstrerror());
@@ -2626,16 +2626,17 @@ TraversePMNS_local(const char *name, void(*func)(const char *name))
 		strcat(newname, ".");
 		strcat(newname, enfants[j]);
 	    }
-	    n = TraversePMNS_local(newname, func);
+	    sts = TraversePMNS_local(newname, func);
 	    free(newname);
-	    if (sts == 0)
-		sts = n;
+	    if (sts < 0)
+		break;
 	}
 	free(enfants);
     }
-    else if (sts == 0) {
+    else {
 	/* leaf node, name is full name of a metric */
 	(*func)(name);
+	sts = 0;
     }
 
     return sts;
