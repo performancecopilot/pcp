@@ -1296,10 +1296,6 @@ loadascii(int dupok)
 	    }
 	    break;
 
-	default:
-	    err("Internal botch");
-	    abort();
-
 	}
 
 	if (state == 1 || state == 3) {
