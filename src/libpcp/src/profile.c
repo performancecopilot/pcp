@@ -206,7 +206,7 @@ pmAddProfile(pmInDom indom, int instlist_len, int instlist[])
 	return sts;
 
     ctxp = __pmHandleToPtr(sts);
-    if (indom == PM_INDOM_NULL && (instlist == NULL || instlist_len == 0)) {
+    if (indom == PM_INDOM_NULL && instlist_len == 0) {
 	_setGlobalState(ctxp, PM_PROFILE_INCLUDE);
 	goto SUCCESS;
     }
