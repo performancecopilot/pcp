@@ -181,8 +181,7 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
     numpmid = ntohl(pp->numpmid);
     if ((pr = (pmResult *)malloc(sizeof(pmResult) +
 			     (numpmid - 1) * sizeof(pmValueSet *))) == NULL) {
-	sts = -oserror();
-	goto badsts;
+	return -oserror();
     }
     pr->numpmid = numpmid;
     pr->timestamp.tv_sec = ntohl(pp->timestamp.tv_sec);
@@ -382,12 +381,4 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 #endif
     *result = pr;
     return 0;
-
-badsts:
-    if (pr != NULL) {
-	/* clean up partial malloc's */
-	pr->numpmid = i;
-	pmFreeResult(pr);
-    }
-    return sts;
 }
