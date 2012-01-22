@@ -297,6 +297,10 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
     if (*numnames == 0)
 	return 0;
 
+    if (numstatus < 0)
+	/* should not happen */
+	return PM_ERR_IPC;
+
     /* need space for name ptrs and the name characters */
     need = *numnames * ((int)sizeof(char*)) + ntohl(namelist_pdu->nstrbytes);
     if ((names = (char**)malloc(need)) == NULL)
