@@ -25,6 +25,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include <assert.h>
 
 /*
  * elements of optcost are
@@ -463,6 +464,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 	    }
 	    break;
 	}
+	assert(idp != NULL && pmp != NULL);
 	if (fp == tfp) {
 	    /*
 	     * The chosen one ...
