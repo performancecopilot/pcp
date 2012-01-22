@@ -34,6 +34,7 @@
  */
 
 #include <inttypes.h>
+#include <assert.h>
 #include "derive.h"
 
 static int	need_init = 1;
@@ -748,18 +749,23 @@ check_expr(int n, node_t *np)
     int		sts;
 
     assert(np != NULL);
+
     if (np->type == L_NUMBER || np->type == L_NAME)
 	return 0;
-    if (np->left != NULL)
-	if ((sts = check_expr(n, np->left)) < 0)
-	    return sts;
-    if (np->right != NULL)
+
+    /* otherwise, np->left is never NULL ... */
+    assert(np->left != NULL);
+
+    if ((sts = check_expr(n, np->left)) < 0)
+	return sts;
+    if (np->right != NULL) {
 	if ((sts = check_expr(n, np->right)) < 0)
 	    return sts;
-    /*
-     * np->left is never NULL ...
-     */
-    if (np->right == NULL) {
+	/* build pmDesc from pmDesc of both operands */
+	if ((sts = map_desc(n, np)) < 0)
+	    return sts;
+    }
+    else {
 	np->desc = np->left->desc;	/* struct copy */
 	/*
 	 * special cases for functions ...
@@ -804,12 +810,6 @@ check_expr(int n, node_t *np)
 	else if (np->type == L_ANON) {
 	    /* do nothing, pmDesc inherited "as is" from left node */
 	    ;
-	}
-    }
-    else {
-	/* build pmDesc from pmDesc of both operands */
-	if ((sts = map_desc(n, np)) < 0) {
-	    return sts;
 	}
     }
     return 0;

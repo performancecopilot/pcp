@@ -13,7 +13,6 @@
  */
 
 #include <ctype.h>
-#include <assert.h>
 #include "pmapi.h"
 #include "impl.h"
 
