@@ -482,6 +482,9 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	if (sts < 0) return sts;
     }
 
+    /* mostly, np->left is not NULL ... */
+    assert (np->type == L_NUMBER || np->type == L_NAME || np->left != NULL);
+
     switch (np->type) {
 
 	case L_NUMBER:
