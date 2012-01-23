@@ -300,6 +300,16 @@ fopen_compress(const char *fname)
     fd = open(msg, O_RDWR|O_CREAT|O_EXCL, 0600);
 #endif
 
+    if (fd < 0) {
+	sts = oserror();
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LOG)
+	    fprintf(stderr, "__pmLogOpen: temp file create failed: %s\n", osstrerror());
+#endif
+	setoserror(sts);
+	return NULL;
+    }
+
     sts = popen_uncompress(cmd, fname, compress_ctl[i].suff, fd);
     if (sts == -1) {
 	sts = oserror();
