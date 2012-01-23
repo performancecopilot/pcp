@@ -2268,7 +2268,9 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 
         /* Keep reading records from "logend" until can do so no more... */
 	for ( ; ; ) {
-	    offset = ftell(f);
+	    if ((offset = ftell(f)) < 0)
+		/* only coverity thinks this may happen! */
+		break;
 	    if ((int)fread(&head, 1, sizeof(head), f) != sizeof(head))
 		/* cannot read header for log record !!?? */
 		break;
