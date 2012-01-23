@@ -274,6 +274,8 @@ __pmSendNameList(int fd, int from, int numnames, char *namelist[],
 
 /*
  * Decode a PDU_PMNS_NAMES
+ *
+ * statuslist is optional ... if NULL, no status values will be returned
  */
 int
 __pmDecodeNameList(__pmPDU *pdubuf, int *numnames, 
@@ -288,7 +290,7 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
     namelist_pdu = (namelist_t *)pdubuf;
 
     *namelist = NULL;
-    if (statuslist)
+    if (statuslist != NULL)
 	*statuslist = NULL;
 
     *numnames = ntohl(namelist_pdu->numnames);
@@ -297,7 +299,7 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
     if (*numnames == 0)
 	return 0;
 
-    if (numstatus < 0)
+    if (*numnames < 0 || numstatus < 0)
 	/* should not happen */
 	return PM_ERR_IPC;
 
@@ -307,7 +309,7 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
 	return -oserror();
 
     /* need space for status values */
-    if (numstatus > 0) {
+    if (statuslist != NULL && numstatus > 0) {
 	need = numstatus * (int)sizeof(int);
 	if ((status = (int*)malloc(need)) == NULL) {
 	    free(names);
@@ -334,7 +336,7 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
 	    j += sizeof(namelen) + PM_PDU_SIZE_BYTES(namelen);
 	}
     }
-    else { /* include the status fields */
+    else { /* status fields included in the PDU */
 	int		i, j = 0;
         char		*dest = (char*)&names[*numnames];
 	name_status_t	*np;
@@ -344,7 +346,8 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
 	    np = (name_status_t*)&namelist_pdu->names[j/sizeof(__pmPDU)];
 	    names[i] = dest;
 	    namelen = ntohl(np->namelen);
-	    status[i] = ntohl(np->status);
+	    if (status != NULL)
+		status[i] = ntohl(np->status);
 
 	    memcpy(dest, np->name, namelen);
 	    *(dest + namelen) = '\0';
@@ -364,7 +367,7 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
 #endif
 
     *namelist = names;
-    if (status != NULL)
+    if (statuslist != NULL)
 	*statuslist = status;
     return *numnames;
 }
