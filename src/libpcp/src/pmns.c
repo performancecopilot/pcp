@@ -1027,7 +1027,11 @@ loadbinary(void)
 		continue;
 	    }
 	    sum = ntohl(sum);
-	    endsum = ftell(fbin);
+	    if ((endsum = ftell(fbin)) < 0) {
+		/* only coverity thinks this may happen! */
+		fclose(fbin);
+		continue;
+	    }
 	    chksum = __pmCheckSum(fbin);
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_PMNS)
