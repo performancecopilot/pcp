@@ -107,7 +107,7 @@ __pmRegisterAnon(char *name, int type)
 	    return PM_ERR_TYPE;
     }
     if ((msg = pmRegisterDerived(name, buf)) != NULL) {
-	pmprintf("__pmRegisterAnon(%s, %d): Error: %s\n", name, type, pmDerivedErrStr());
+	pmprintf("__pmRegisterAnon(%s, %d): @ \"%s\" Error: %s\n", name, type, msg, pmDerivedErrStr());
 	pmflush();
 	return PM_ERR_GENERIC;
     }
