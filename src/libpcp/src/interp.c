@@ -14,6 +14,7 @@
 
 #include <limits.h>
 #include <inttypes.h>
+#include <assert.h>
 #include "pmapi.h"
 #include "impl.h"
 
@@ -102,8 +103,10 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
     int		save_curvol;
     static int	round_robin = -1;
 
-    if (acp->ac_vol == acp->ac_log->l_curvol)
+    if (acp->ac_vol == acp->ac_log->l_curvol) {
 	posn = ftell(acp->ac_log->l_mfp);
+	assert(posn >= 0);
+    }
     else
 	posn = 0;
 
@@ -193,10 +196,12 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 	if (mode == PM_MODE_FORW) {
 	    lfup->head_posn = posn;
 	    lfup->tail_posn = ftell(acp->ac_log->l_mfp);
+	    assert(lfup->tail_posn >= 0);
 	}
 	else {
 	    lfup->tail_posn = posn;
 	    lfup->head_posn = ftell(acp->ac_log->l_mfp);
+	    assert(lfup->head_posn >= 0);
 	}
 #ifdef PCP_DEBUG
 	if ((pmDebug & DBG_TRACE_LOG) && (pmDebug & DBG_TRACE_INTERP)) {
@@ -468,6 +473,7 @@ do_roll(__pmContext *ctxp, double t_req)
 		    t_this, logrp->numpmid == 0 ? " <mark>" : "");
 #endif
 	    ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
+	    assert(ctxp->c_archctl->ac_offset >= 0);
 	    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 	    update_bounds(ctxp, t_req, logrp, UPD_MARK_FORW, NULL, NULL);
 	}
@@ -486,6 +492,7 @@ do_roll(__pmContext *ctxp, double t_req)
 		    t_this, logrp->numpmid == 0 ? " <mark>" : "");
 #endif
 	    ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
+	    assert(ctxp->c_archctl->ac_offset >= 0);
 	    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 	    update_bounds(ctxp, t_req, logrp, UPD_MARK_BACK, NULL, NULL);
 	}
@@ -700,6 +707,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	/* need gross positioning from temporal index */
 	__pmLogSetTime(ctxp);
 	ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
+	assert(ctxp->c_archctl->ac_offset >= 0);
 	ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 
 	/*
@@ -716,6 +724,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    break;
 		}
 		ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
+		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 		update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL, NULL);
 	    }
@@ -729,6 +738,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    break;
 		}
 		ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
+		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 		update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL, NULL);
 	    }
@@ -829,6 +839,7 @@ retry_back:
 	    if (ctxp->c_delta < 0 && t_this >= t_req) {
 		/* going backwards, and not up to t_req yet */
 		ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
+		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 	    }
 	    update_bounds(ctxp, t_req, logrp, UPD_MARK_BACK, &done, NULL);
@@ -940,6 +951,7 @@ retry_forw:
 	    if (ctxp->c_delta > 0 && t_this <= t_req) {
 		/* going forwards, and not up to t_req yet */
 		ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
+		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 	    }
 	    update_bounds(ctxp, t_req, logrp, UPD_MARK_FORW, NULL, &done);

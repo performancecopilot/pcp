@@ -13,6 +13,7 @@
  */
 
 #include <inttypes.h>
+#include <assert.h>
 #include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
@@ -1051,12 +1052,14 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
 	off_t	tmp;
 
 	tmp = ftell(lcp->l_mdfp);
+	assert(tmp >= 0);
 	ti.ti_meta = (__pm_off_t)tmp;
 	if (tmp != ti.ti_meta) {
 	    __pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive file (meta) too big\n");
 	    exit(1);
 	}
 	tmp = ftell(lcp->l_mfp);
+	assert(tmp >= 0);
 	ti.ti_log = (__pm_off_t)tmp;
 	if (tmp != ti.ti_log) {
 	    __pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive file (data) too big\n");
@@ -1065,7 +1068,9 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
     }
     else {
 	ti.ti_meta = (__pm_off_t)ftell(lcp->l_mdfp);
+	assert(ti.ti_meta >= 0);
 	ti.ti_log = (__pm_off_t)ftell(lcp->l_mfp);
+	assert(ti.ti_log >= 0);
     }
 
     oti.ti_stamp.tv_sec = htonl(ti.ti_stamp.tv_sec);
@@ -1352,6 +1357,7 @@ __pmLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result)
 	f = lcp->l_mfp;
 
     offset = ftell(f);
+    assert(offset >= 0);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
 	fprintf(stderr, "__pmLogRead: fd=%d%s mode=%s vol=%d posn=%ld ",
@@ -1375,6 +1381,7 @@ __pmLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result)
 			    f = lcp->l_mfp;
 			    fseek(f, 0L, SEEK_END);
 			    offset = ftell(f);
+			    assert(offset >= 0);
 #ifdef PCP_DEBUG
 			    if (pmDebug & DBG_TRACE_LOG) {
 				fprintf(stderr, "vol=%d posn=%ld ",
@@ -1874,6 +1881,7 @@ more:
 
     /* remember your position in this context */
     ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
+    assert(ctxp->c_archctl->ac_offset >= 0);
     ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 
     return sts;
@@ -2109,6 +2117,7 @@ __pmLogSetTime(__pmContext *ctxp)
 
     /* remember your position in this context */
     ctxp->c_archctl->ac_offset = ftell(lcp->l_mfp);
+    assert(ctxp->c_archctl->ac_offset >= 0);
     ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 }
 
@@ -2180,6 +2189,7 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 	if (lcp->l_curvol == vol) {
 	    f = lcp->l_mfp;
 	    save = ftell(f);
+	    assert(save >= 0);
 	}
 	else if ((f = _logpeek(lcp, vol)) == NULL) {
 	    sts = -oserror();
@@ -2268,9 +2278,8 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 
         /* Keep reading records from "logend" until can do so no more... */
 	for ( ; ; ) {
-	    if ((offset = ftell(f)) < 0)
-		/* only coverity thinks this may happen! */
-		break;
+	    offset = ftell(f);
+	    assert(offset >= 0);
 	    if ((int)fread(&head, 1, sizeof(head), f) != sizeof(head))
 		/* cannot read header for log record !!?? */
 		break;
