@@ -1005,8 +1005,10 @@ parse(int level)
 		    expr = curr = newnode(type);
 		    state = P_FUNC_OP;
 		}
-		else
+		else {
+		    free_expr(expr);
 		    return NULL;
+		}
 		break;
 
 	    case P_LEAF_PAREN:	/* fall through */
