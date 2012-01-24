@@ -156,8 +156,8 @@ get()
     if (eof) return L_EOF;
     c = *string;
     if (c == '\0') {
-	return L_EOF;
 	eof = 1;
+	return L_EOF;
     }
     string++;
     return c;
