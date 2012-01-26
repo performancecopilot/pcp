@@ -2321,8 +2321,14 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 	    lcp->l_endtime.tv_usec = (__int32_t)rp->timestamp.tv_usec;
 	    lcp->l_physend = physend;
 	}
-	pmFreeResult(rp);
 	sts = 0;
+    }
+    if (rp != NULL) {
+	/*
+	 * rp is not NULL from found==1 path _or_ from error break
+	 * after an initial paranoidLogRead() success
+	 */
+	pmFreeResult(rp);
     }
 
     return sts;
