@@ -967,6 +967,16 @@ parse(int level)
 
 	switch (state) {
 	    case P_INIT:
+		/*
+		 * Only come here at the start of parsing an expression.
+		 * The assert() is designed to stop Coverity flagging a
+		 * memory leak if we should come here after expr and/or
+		 * curr have already been assigned values either directly
+		 * from calling newnode() or via an assignment to np that
+		 * was previously assigned a value from newnode()
+		 */
+		assert(expr == NULL && curr == NULL);
+
 		if (type == L_NAME || type == L_NUMBER) {
 		    expr = curr = newnode(type);
 		    if ((curr->value = strdup(tokbuf)) == NULL) {
