@@ -70,7 +70,7 @@ static time_t	last_mtim;
 static __pmnsTree *curr_pmns; 
 
 /* The main_pmns points to the loaded PMNS (not from archive). */
-static __pmnsTree *main_pmns; 
+static __pmnsTree *main_pmns = NULL; 
 
 
 /* == 1 if PMNS loaded and __pmExportPMNS has been called */
@@ -572,6 +572,7 @@ attach(char *base, __pmnsNode *rp)
 		    snprintf(linebuf, sizeof(linebuf), "Cannot find definition for non-terminal node \"%s\" in name space",
 		        path);
 		    err(linebuf);
+		    free(path);
 		    return PM_ERR_PMNS;
 		}
 		np->first = xp->first;
@@ -794,6 +795,7 @@ __pmNewPMNS(__pmnsTree **pmns)
     np->parent = np->first = np->hash = np->next = NULL;
     np->name = strdup("root");
     if (np->name == NULL) {
+	free(t);
 	free(np);
 	return -oserror();
     }
@@ -877,8 +879,10 @@ AddPMNSNode(__pmnsNode *root, int pmid, const char *name)
 		return -oserror();
 
 	    /* fixup name */
-	    if ((np->name = (char *)malloc(nch+1)) == NULL)
+	    if ((np->name = (char *)malloc(nch+1)) == NULL) {
+		free(np);
 		return -oserror();
+	    }
 	    strncpy(np->name, name_p, nch);
 	    np->name[nch] = '\0';
 
@@ -985,9 +989,9 @@ loadbinary(void)
     __int32_t	chksum;
     long	endsum;
     __psint_t	ord;
-    __pmnsNode	*root;
-    __pmnsNode	**htab;
-    char	*symbol;
+    __pmnsNode	*root = NULL;
+    __pmnsNode	**htab = NULL;
+    char	*symbol = NULL;
 
     for (try = 0; try < 2; try++) {
 	if (try == 0) {
@@ -1195,6 +1199,16 @@ loadbinary(void)
 bad:
 	__pmNotifyErr(LOG_WARNING, "pmLoadNameSpace: bad binary file, \"%s\"", linebuf);
 	fclose(fbin);
+	if (symbol != NULL)
+	    free(symbol);
+	if (main_pmns != NULL) {
+	    free(main_pmns);
+	    main_pmns = NULL;
+	}
+	if (htab != NULL)
+	    free(htab);
+	if (root != NULL)
+	    free(root);
 	return 0;
     }
 
@@ -1303,8 +1317,10 @@ loadascii(int dupok)
 	    if ((np = (__pmnsNode *)malloc(sizeof(*np))) == NULL)
 		return -oserror();
 	    numpmid++;
-	    if ((np->name = (char *)malloc(strlen(tokbuf)+1)) == NULL)
+	    if ((np->name = (char *)malloc(strlen(tokbuf)+1)) == NULL) {
+		free(np);
 		return -oserror();
+	    }
 	    strcpy(np->name, tokbuf);
 	    np->first = np->hash = np->next = np->parent = NULL;
 	    np->pmid = PM_ID_NULL;
@@ -2243,6 +2259,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	if (statuslist != NULL) {
 	    if ((status = (int *)malloc(num*sizeof(int))) == NULL) {
 		num = -oserror();
+		free(result);
 		goto report;
 	    }
 	}
