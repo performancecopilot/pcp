@@ -573,7 +573,6 @@ __pmLogWriteLabel(FILE *f, const __pmLogLabel *lp)
 	    sts = -oserror();
 	    pmprintf("__pmLogWriteLabel: %s\n", osstrerror());
 	    pmflush();
-	    fclose(f);
     }
 
     return sts;
