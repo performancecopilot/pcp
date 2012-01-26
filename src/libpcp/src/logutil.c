@@ -542,6 +542,7 @@ __pmLogNewFile(const char *base, int vol)
     if ((save_error = __pmSetVersionIPC(fileno(f), PDU_VERSION)) < 0) {
 	pmprintf("__pmLogNewFile: failed to setup \"%s\": %s\n", fname, osstrerror());
 	pmflush();
+	fclose(f);
 	setoserror(save_error);
 	return NULL;
     }
