@@ -146,17 +146,14 @@ unget(int c)
 static int
 get()
 {
-    static int	eof = 0;
     int		c;
     if (lexpeek != 0) {
 	c = lexpeek;
 	lexpeek = 0;
 	return c;
     }
-    if (eof) return L_EOF;
     c = *string;
     if (c == '\0') {
-	eof = 1;
 	return L_EOF;
     }
     string++;
@@ -1411,7 +1408,14 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
 	     (registered.mlist[i].name[matchlen] == '.' ||
 	      registered.mlist[i].name[matchlen] == '\0'))) {
 	    if (registered.mlist[i].name[matchlen] == '\0') {
-		/* leaf node */
+		/*
+		 * leaf node
+		 * assert is for coverity, name uniqueness means we
+		 * should only ever come here after zero passes through
+		 * the block below where sts is incremented and children[]
+		 * and status[] are realloc'd
+		 */
+		assert(sts == 0 && children == NULL && status == NULL);
 		return 0;
 	    }
 	    start = matchlen > 0 ? matchlen + 1 : 0;
