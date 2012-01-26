@@ -1350,6 +1350,7 @@ next_line:
 	else
 	    *p++ = c;
     }
+    fclose(fp);
     free(buf);
     return sts;
 }
