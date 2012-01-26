@@ -767,6 +767,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	if (pmidlist[j] == PM_ID_NULL)
 	    continue;
 	hp = __pmHashSearch((int)pmidlist[j], hcp);
+	assert(hp != NULL);
 	pcp = (pmidcntl_t *)hp->data;
 	if (pcp->numval > 0) {
 	    for (icp = pcp->first; icp != NULL; icp = icp->next) {
@@ -879,6 +880,7 @@ retry_back:
 	if (pmidlist[j] == PM_ID_NULL)
 	    continue;
 	hp = __pmHashSearch((int)pmidlist[j], hcp);
+	assert(hp != NULL);
 	pcp = (pmidcntl_t *)hp->data;
 	if (pcp->numval > 0) {
 	    for (icp = pcp->first; icp != NULL; icp = icp->next) {
@@ -990,6 +992,7 @@ retry_forw:
 	if (pmidlist[j] == PM_ID_NULL)
 	    continue;
 	hp = __pmHashSearch((int)pmidlist[j], hcp);
+	assert(hp != NULL);
 	pcp = (pmidcntl_t *)hp->data;
 	for (icp = pcp->first; icp != NULL; icp = icp->next) {
 	    if (!icp->inresult)
@@ -1035,6 +1038,7 @@ retry_forw:
 	}
 	else {
 	    hp = __pmHashSearch((int)pmidlist[j], hcp);
+	    assert(hp != NULL);
 	    pcp = (pmidcntl_t *)hp->data;
 
 	    if (pcp->numval == 1)
