@@ -183,45 +183,43 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
      */
 
     fflush(oldstream);
+    *status = 1;		/* set to zero if all this works ... */
     oldfd = fileno(oldstream);
-    dupoldfd = dup(oldfd);
+    if ((dupoldfd = dup(oldfd)) >= 0) {
+	/*
+	 * try to remove the file first ... don't bother if this fails,
+	 * but if it succeeds, we at least get a chance to define the
+	 * owner and mode, rather than inheriting this from an existing
+	 * writeable file ... really only a problem when called as with
+	 * uid == 0, e.g. from pmcd(1).
+	 */
+	unlink(logname);
 
-    /*
-     * try to remove the file first ... don't bother if this fails,
-     * but if it succeeds, we at least get a chance to define the
-     * owner and mode, rather than inheriting this from an existing
-     * writeable file ... really only a problem when called as with
-     * uid == 0, e.g. from pmcd(1).
-     */
-    unlink(logname);
-
-    oldstream = freopen(logname, "w", oldstream);
-    if (oldstream == NULL) {
-	int	save_error = oserror();	/* need for error message */
-
-	close(oldfd);
-	if (dup(dupoldfd) != oldfd)
-	    /* fd juggling failed! */
-	    oldstream = NULL;
-	else
-	    /* oldfd now re-instated as at entry */
-	    oldstream = fdopen(oldfd, "w");
+	oldstream = freopen(logname, "w", oldstream);
 	if (oldstream == NULL) {
-	    /* serious trouble ... choose least obnoxious alternative */
-	    if (dupoldstream == stderr)
-		oldstream = fdopen(fileno(stdout), "w");
+	    int	save_error = oserror();	/* need for error message */
+
+	    close(oldfd);
+	    if (dup(dupoldfd) != oldfd)
+		/* fd juggling failed! */
+		oldstream = NULL;
 	    else
-		oldstream = fdopen(fileno(stderr), "w");
+		/* oldfd now re-instated as at entry */
+		oldstream = fdopen(oldfd, "w");
+	    if (oldstream == NULL) {
+		/* serious trouble ... choose least obnoxious alternative */
+		if (dupoldstream == stderr)
+		    oldstream = fdopen(fileno(stdout), "w");
+		else
+		    oldstream = fdopen(fileno(stderr), "w");
+	    }
+	    *status = 0;
+	    pmprintf("%s: cannot open log \"%s\" for writing : %s\n",
+		    progname, logname, strerror(save_error));
+	    pmflush();
 	}
-	*status = 0;
-	pmprintf("%s: cannot open log \"%s\" for writing : %s\n",
-		progname, logname, strerror(save_error));
-	pmflush();
+	close(dupoldfd);
     }
-    else {
-	*status = 1;
-    }
-    close(dupoldfd);
     return oldstream;
 }
 
