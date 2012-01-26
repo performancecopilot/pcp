@@ -290,6 +290,8 @@ event_create(event_logfile_t *logfile)
 
     offset = 0;
 multiread:
+    if (logfile->fd < 0)
+    	return 0;
     bytes = read(logfile->fd, buffer + offset, bufsize - 1 - offset);
     /*
      * Ignore the error if:
