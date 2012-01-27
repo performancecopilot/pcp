@@ -72,6 +72,7 @@ build_dsotab(void)
     }
     if (fread(config, 1, sbuf.st_size, configFile) != sbuf.st_size) {
 	fclose(configFile);
+	free(config);
 	return -oserror();
     }
     config[sbuf.st_size] = '\0';
