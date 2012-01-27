@@ -633,8 +633,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		pcp->desc.type = -1;
 	    else {
 		/* enumerate all the instances from the domain underneath */
-		int		*instlist;
-		char		**namelist;
+		int		*instlist = NULL;
+		char		**namelist = NULL;
 		instcntl_t	*lcp;
 		if (pcp->desc.indom == PM_INDOM_NULL) {
 		    sts = 1;
@@ -664,11 +664,10 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    icp->m_prior = icp->m_next = 1;
 		    icp->v_prior.pval = icp->v_next.pval = NULL;
 		}
-		if (sts > 0) {
+		if (instlist != NULL)
 		    free(instlist);
-		    if (pcp->desc.indom != PM_INDOM_NULL)
-			free(namelist);
-		}
+		if (namelist != NULL)
+		    free(namelist);
 	    }
 	}
 	else
