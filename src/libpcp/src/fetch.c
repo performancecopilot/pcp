@@ -124,7 +124,7 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
     if ((n = pmWhichContext()) >= 0) {
 	__pmContext	*ctxp = __pmHandleToPtr(n);
 	int		newcnt;
-	pmID		*newlist;
+	pmID		*newlist = NULL;
 	int		have_dm;
 
 	/* for derived metrics, may need to rewrite the pmidlist */
@@ -134,8 +134,6 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 	    numpmid = newcnt;
 	    pmidlist = newlist;
 	}
-	else
-	    newlist = NULL;
 
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((n = request_fetch (n, ctxp, numpmid, pmidlist)) >= 0) {
