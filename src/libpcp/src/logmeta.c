@@ -381,6 +381,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 		}
 		else
 		    sts = PM_ERR_LOGREC;
+		free(tbuf);
 		goto end;
 	    }
 
@@ -404,6 +405,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 		namelist = (char **)malloc(numinst*sizeof(char*));
 		if (namelist == NULL) {
 		    sts = -oserror();
+		    free(tbuf);
 		    goto end;
 		}
 #endif
@@ -419,8 +421,12 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 		instlist = NULL;
 		namelist = NULL;
 	    }
-	    if ((sts = addindom(lcp, indom, when, numinst, instlist, namelist, tbuf, allinbuf)) < 0)
+	    if ((sts = addindom(lcp, indom, when, numinst, instlist, namelist, tbuf, allinbuf)) < 0) {
+		free(tbuf);
+		if (allinbuf == 0)
+		    free(namelist);
 		goto end;
+	    }
 	}
 	else
 	    fseek(f, (long)rlen, SEEK_CUR);
