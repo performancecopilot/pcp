@@ -62,7 +62,7 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
      * Check if we have enough space to accomodate "best" case scenario -
      * all pmids are from the same domain
      */
-    if ( splitmax < numpmid ) {
+    if (splitmax < numpmid) {
 	splitmax = numpmid;
 	if ((splitlist = (pmID *)realloc (splitlist,
 					  sizeof (pmID)*splitmax)) == NULL) {
@@ -146,11 +146,16 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 	 *		ALWAYS return a pointer to the static area.
 	 */
 	for (n = 0, k = j; k < numpmid && n < cnt; k++) {
-	    if ( pmidlist[k] == splitlist[n] ) {
+	    if (pmidlist[k] == splitlist[n]) {
 		if (sts < 0) {
 		    ans->vset[k] = (pmValueSet *)malloc(sizeof(pmValueSet));
-		    if (ans->vset[k] == NULL)
+		    if (ans->vset[k] == NULL) {
+			/* cleanup all partial allocations for ans->vset[] */
+			for (k--; k >=0; k--)
+			    free(ans->vset[k]);
+			free(ans);
 			return -oserror();
+		    }
 		    ans->vset[k]->numval = sts;
 		    ans->vset[k]->pmid = pmidlist[k];
 		}
