@@ -210,8 +210,7 @@ __pmSendNameList(int fd, int from, int numnames, char *namelist[],
     for (i = 0; i < numnames; i++) {
 	int len = (int)strlen(namelist[i]);
         nstrbytes += len+1;
-        if (namelist != NULL)
-	    need += PM_PDU_SIZE_BYTES(len);
+	need += PM_PDU_SIZE_BYTES(len);
 	if (statuslist == NULL) 
             need += sizeof(*nt) - sizeof(nt->name);
 	else 
