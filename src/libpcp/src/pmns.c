@@ -2795,7 +2795,7 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 		    return sts;
 		numnames = 0;
 	    }
-	    else if (sts != PM_ERR_TIMEOUT)
+	    else
 		return PM_ERR_IPC;
 
 	    /*
