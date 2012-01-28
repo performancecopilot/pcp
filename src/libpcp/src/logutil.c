@@ -2243,8 +2243,13 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 	 */
 	logend = (int)sizeof(__pmLogLabel) + 2*(int)sizeof(int);
 	for (i = lcp->l_numti - 1; i >= 0; i--) {
-	    if (lcp->l_ti[i].ti_vol != vol)
+	    if (lcp->l_ti[i].ti_vol != vol) {
+		if (f != lcp->l_mfp) {
+		    fclose(f);
+		    f = NULL;
+		}
 		continue;
+	    }
 	    if (lcp->l_ti[i].ti_log <= physend) {
 		logend = lcp->l_ti[i].ti_log;
 		break;
