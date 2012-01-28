@@ -249,6 +249,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 		}
 		else
 		    sts = PM_ERR_LOGREC;
+		free(dp);
 		goto end;
 	    }
 	    else {
@@ -260,8 +261,10 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 		dp->pmid = __ntohpmID(dp->pmid);
 	    }
 
-	    if ((sts = __pmHashAdd((int)dp->pmid, (void *)dp, &lcp->l_hashpmid)) < 0)
+	    if ((sts = __pmHashAdd((int)dp->pmid, (void *)dp, &lcp->l_hashpmid)) < 0) {
+		free(dp);
 		goto end;
+	    }
 
             if (version2) {
                 char name[MAXPATHLEN];
