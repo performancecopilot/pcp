@@ -15,6 +15,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmcd.h"
+#include <assert.h>
 
 extern int _pmSelectReadable(int, fd_set *);
 
@@ -155,6 +156,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	int fd;
 	ap = FindDomainAgent(((__pmID_int *)&dResult[i]->vset[0]->pmid)->domain);
 	/* If it's in a "good" list, pmID has agent that is connected */
+	assert(ap != NULL);
 
 	if (ap->ipcType == AGENT_DSO) {
 	    if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
