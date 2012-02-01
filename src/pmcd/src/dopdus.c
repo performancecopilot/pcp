@@ -340,8 +340,10 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
 		sts = XLATE_ERR_1TO2(sts);
     }
     else {
-	if (ap->status.notReady)
+	if (ap->status.notReady) {
+	    if (name != NULL) free(name);
 	    return PM_ERR_AGAIN;
+	}
 	if (_pmcd_trace_mask)
 	    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_INSTANCE_REQ, (int)indom);
 	sts = __pmSendInstanceReq(ap->inFd, cp - client, &when, indom, inst, name);
