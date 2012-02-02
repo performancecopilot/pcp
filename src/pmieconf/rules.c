@@ -647,9 +647,10 @@ atom_defaults(atom_t *a, atom_t *p, char *param)
 		free(a);
 		a = NULL;
 	    }
-	    else
+	    else {
 		a->enabled = a->denabled;	/* reset enabled flag */
-	    a->changed = 0;
+		a->changed = 0;
+	    }
 	    return NULL;
 	}
 	snprintf(errmsg, sizeof(errmsg), "variable \"%s\" is inappropriate for this "
