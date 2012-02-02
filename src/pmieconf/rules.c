@@ -968,8 +968,6 @@ read_token(FILE *f, char *token, int token_length, int end)
 	    token[n++] = c;
 	    c = mygetc(f);
 	}
-	if (c == '\n' && end != '\n')
-	    linenum++;
 	break;
     case ';':
     case '=':
@@ -1906,11 +1904,6 @@ read_ltoken(FILE *f)
 	    }
 	    token[n++] = c;
 	    c = getc(f);
-	}
-	if (c == '\n') {
-	    linenum++;
-	    if (getc(f) != '/') return 0;
-	    if (getc(f) != '/') return 0;
 	}
 	break;
     case '=':
