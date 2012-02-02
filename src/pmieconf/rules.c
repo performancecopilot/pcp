@@ -692,8 +692,11 @@ rule_defaults(rule_t *rule, char *param)
 	}
     }
     else {	/* find the associated atom, and just reset that */
-	if (map_symbol(attribs, numattribs, param) != -1)
-	    return atom_defaults(&rule->self, NULL, param);
+	if (map_symbol(attribs, numattribs, param) != -1) {
+	    rule->self.enabled = rule->self.denabled;	/* reset enabled flag */
+	    rule->self.changed = 0;
+	    return NULL;
+	}
 	for (aptr = &rule->self; aptr != NULL; aptr = aptr->next) {
 	    if (strcmp(get_aname(rule, aptr), param) == 0)
 		return atom_defaults(aptr, prev, param);
