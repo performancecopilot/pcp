@@ -642,7 +642,7 @@ atom_defaults(atom_t *a, atom_t *p, char *param)
     if (sts != -1) {	/* an attribute - is it valid? */
 	if (sts == ATTRIB_ENABLED) {
 	    if (a->global) {	/* this was a global atom promoted to local */
-		p->next = a->next;
+		if (p) p->next = a->next;
 		free(a->name);
 		free(a);
 		a = NULL;
@@ -659,7 +659,7 @@ atom_defaults(atom_t *a, atom_t *p, char *param)
     }
     else {
 	if (a->global) {	/* this was a global atom promoted to local */
-	    p->next = a->next;
+	    if (p) p->next = a->next;
 	    free(a->name);
 	    free(a);
 	    a = NULL;
