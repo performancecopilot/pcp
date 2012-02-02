@@ -2121,7 +2121,7 @@ read_lheader(FILE *f, char **proot)
  * read the pmiefile format into global data structures
  */
 char *
-read_pmiefile(char *warning)
+read_pmiefile(char *warning, size_t warnlen)
 {
     char	*tmp = NULL;
     char	*p, *home;
@@ -2165,7 +2165,7 @@ read_pmiefile(char *warning)
     free(home);
 
     if (strcmp(get_rules(), tmp) != 0)
-	snprintf(warning, sizeof(warning), "warning - pmie configuration file \"%s\"\n"
+	snprintf(warning, warnlen, "warning - pmie configuration file \"%s\"\n"
 		" may not have been built using rules path:\n\t\"%s\"\n"
 		" (originally built using \"%s\")", filename, get_rules(), tmp);
 
@@ -2179,7 +2179,7 @@ read_pmiefile(char *warning)
 
 /*  ####  setup global data structures; return NULL/failure message  ####  */
 char *
-initialise(char *in_rules, char *in_pmie, char *warning)
+initialise(char *in_rules, char *in_pmie, char *warning, size_t warnlen)
 {
     char	*p;
     char	*home;
@@ -2255,7 +2255,7 @@ initialise(char *in_rules, char *in_pmie, char *warning)
     }
     free(home);
 
-    if (read_pmiefile(warning) != NULL)
+    if (read_pmiefile(warning, warnlen) != NULL)
 	return errmsg;
     linenum = 0;	/* finished all parsing */
     return NULL;
