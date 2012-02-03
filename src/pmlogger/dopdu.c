@@ -593,9 +593,11 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 			__pmHashNode	*hp;
 
 			for (hp = __pmHashSearch(pmid, &pm_hash);
-			     hp != NULL; hp = hp->next)
+			     hp != NULL; hp = hp->next) {
 			    if (pmid == (pmID)hp->key)
 				break;
+			}
+			assert(hp != NULL);
 			dp = ((optreq_t *)hp->data)->r_desc;
 		    }
 		    /* recycle pmDesc from the old group, if possible */
