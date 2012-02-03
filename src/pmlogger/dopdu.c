@@ -553,11 +553,11 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 		    }
 		    /* if that was the last instance, free the group */
 		    else {
+			if (( sts = __pmHashDel(pmid, (void *)rqp, &pm_hash)) < 0)
+			    die("update_metric: instance __pmHashDel", sts);
 			freedp = 1;
 			free(rqp->r_instlist);
 			free(rqp);
-			if (( sts = __pmHashDel(pmid, (void *)rqp, &pm_hash)) < 0)
-			    die("update_metric: instance __pmHashDel", sts);
 		    }
 		}
 
