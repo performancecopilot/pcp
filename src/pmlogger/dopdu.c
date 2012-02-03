@@ -316,8 +316,7 @@ add_metric(pmValueSet *vsp, task_t **result)
     }
 
     /* Add new metric to task's fetchgroup(s) and global hash table */
-    if ((sts = __pmOptFetchAdd(&tp->t_fetch, rqp)) < 0)
-	die("add_metric: __pmOptFetchAdd", sts);
+    __pmOptFetchAdd(&tp->t_fetch, rqp);
     linkback(tp);
     if ((sts = __pmHashAdd(pmid, (void *)rqp, &pm_hash)) < 0)
 	die("add_metric: __pmHashAdd", sts);
@@ -495,8 +494,7 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 	     */
 	    if ((sts = __pmOptFetchDel(&ctp->t_fetch, rqp)) < 0)
 		die("update_metric: 1 metric __pmOptFetchDel", sts);
-	    if ((sts = __pmOptFetchAdd(&ntp->t_fetch, rqp)) < 0)
-		die("update_metric: 1 metric __pmOptFetchAdd", sts);
+	    __pmOptFetchAdd(&ntp->t_fetch, rqp);
 	    linkback(ntp);
 	    addpmid = 1;
 	}
@@ -549,8 +547,7 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 			rqp->r_numinst--;
 			/* (don't bother realloc-ing the instlist to a smaller size) */
 
-			if ((sts = __pmOptFetchAdd(&ctp->t_fetch, rqp)) < 0)
-			    die("update_metric: instance del __pmOptFetchAdd", sts);
+			__pmOptFetchAdd(&ctp->t_fetch, rqp);
 			linkback(ctp);
 			/* no need to update hash list, rqp already there */
 		    }
@@ -627,8 +624,7 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 			     PM_FATAL_ERR);
 		}
 		rqp->r_instlist[rqp->r_numinst++] = inst;
-		if ((sts = __pmOptFetchAdd(&ntp->t_fetch, rqp)) < 0)
-		    die("update_metric: instance add __pmOptFetchAdd", sts);
+		__pmOptFetchAdd(&ntp->t_fetch, rqp);
 		linkback(ntp);
 		if (freedp)
 		    free(dp);
@@ -671,8 +667,7 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 		if ((sts = __pmOptFetchDel(&ctp->t_fetch, rqp)) < 0)
 		    die("update_metric: all inst __pmOptFetchDel", sts);
 		/* don't delete from hash list, rqp re-used */
-		if ((sts = __pmOptFetchAdd(&ntp->t_fetch, rqp)) < 0)
-		    die("update_metric: all inst __pmOptFetchAdd", sts);
+		__pmOptFetchAdd(&ntp->t_fetch, rqp);
 		linkback(ntp);
 	    }
 	    else {
@@ -705,8 +700,7 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 			     sizeof(optreq_t), PM_FATAL_ERR);
 		}
 		rqp->r_desc = dp;
-		if ((sts = __pmOptFetchAdd(&ntp->t_fetch, rqp)) < 0)
-		    die("update_metric: all inst __pmOptFetchAdd", sts);
+		__pmOptFetchAdd(&ntp->t_fetch, rqp);
 		linkback(ntp);
 		if ((sts = __pmHashAdd(pmid, (void *)rqp, &pm_hash)) < 0)
 		    die("update_metric: all inst __pmHashAdd", sts);

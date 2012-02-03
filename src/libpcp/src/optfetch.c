@@ -342,9 +342,10 @@ __pmOptFetchDump(FILE *f, const fetchctl_t *root)
 #endif /* DEBUG */
 
 /*
- * add a new request into a group of fetches
+ * add a new request into a group of fetches ...
+ * only failure is from calloc() and this is fatal
  */
-int
+void
 __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 {
     fetchctl_t		*fp;
@@ -509,7 +510,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 	}
     }
 
-    return 0;
+    return;
 }
 
 /*
@@ -593,7 +594,7 @@ __pmOptFetchDel(fetchctl_t **root, optreq_t *new)
     return -1;
 }
 
-int
+void
 __pmOptFetchRedo(fetchctl_t **root)
 {
     fetchctl_t		*newroot = NULL;
@@ -668,19 +669,19 @@ __pmOptFetchRedo(fetchctl_t **root)
     }
 
     *root = newroot;
-    return 0;
+    return;
 }
 
-int
+void
 __pmOptFetchGetParams(optcost_t *ocp)
 {
     *ocp = optcost;
-    return 0;
+    return;
 }
 
-int
+void
 __pmOptFetchPutParams(optcost_t *ocp)
 {
     optcost = *ocp;
-    return 0;
+    return;
 }
