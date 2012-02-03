@@ -1290,6 +1290,7 @@ sendstatus(void)
 	ls.ls_timenow.tv_usec = (__int32_t)now.tv_usec;
 	ls.ls_vol = logctl.l_curvol;
 	ls.ls_size = ftell(logctl.l_mfp);
+	assert(ls.ls_size >= 0);
 
 	/* be careful of buffer size mismatches when copying strings */
 	end = sizeof(ls.ls_hostname) - 1;

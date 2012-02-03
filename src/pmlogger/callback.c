@@ -497,6 +497,7 @@ log_callback(int afid, void *data)
 	 * in the pdu buffer for the non INSITU values ... sigh
 	 */
 	last_log_offset = ftell(logctl.l_mfp);
+	assert(last_log_offset >= 0);
 	if ((sts = __pmLogPutResult(&logctl, pb)) < 0) {
 	    fprintf(stderr, "__pmLogPutResult: %s\n", pmErrStr(sts));
 	    exit(1);
@@ -513,6 +514,7 @@ log_callback(int afid, void *data)
 
 	needti = 0;
 	old_meta_offset = ftell(logctl.l_mdfp);
+	assert(old_meta_offset >= 0);
 	for (i = 0; i < resp->numpmid; i++) {
 	    pmValueSet	*vsp = resp->vset[i];
 	    pmDesc	desc;
@@ -637,7 +639,9 @@ log_callback(int afid, void *data)
 	     * record, what a crock), ... ditto for the meta data
 	     */
 	    new_offset = ftell(logctl.l_mfp);
+	    assert(new_offset >= 0);
 	    new_meta_offset = ftell(logctl.l_mdfp);
+	    assert(new_meta_offset >= 0);
 	    fseek(logctl.l_mfp, last_log_offset, SEEK_SET);
 	    fseek(logctl.l_mdfp, old_meta_offset, SEEK_SET);
 	    tmp.tv_sec = (__int32_t)resp->timestamp.tv_sec;
