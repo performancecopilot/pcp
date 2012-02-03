@@ -61,7 +61,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 
     if (n >= 0) {
 	int		newcnt;
-	pmID		*newlist;
+	pmID		*newlist = NULL;
 	int		have_dm;
 
 	/* for derived metrics, may need to rewrite the pmidlist */
@@ -71,8 +71,6 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	    numpmid = newcnt;
 	    pmidlist = newlist;
 	}
-	else
-	    newlist = NULL;
 
 	n = __pmSendFetch(ctxp->c_pmcd->pc_fd, FROM_ANON, ctx, &ctxp->c_origin, numpmid, pmidlist);
 	if (n >= 0){
