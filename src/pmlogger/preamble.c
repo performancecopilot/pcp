@@ -75,10 +75,15 @@ do_preamble(void)
     tmp.tv_sec = (__int32_t)epoch.tv_sec;
     tmp.tv_usec = (__int32_t)epoch.tv_usec;
 
+    for (i = 0; i < n_metric; i++)
+	res->vset[i] = NULL;
+
     for (i = 0; i < n_metric; i++) {
 	res->vset[i] = (pmValueSet *)__pmPoolAlloc(sizeof(pmValueSet));
-	if (res->vset[i] == NULL)
-	    return -oserror();
+	if (res->vset[i] == NULL) {
+	    sts = -oserror();
+	    goto done;
+	}
 	res->vset[i]->pmid = desc[i].pmid;
 	res->vset[i]->numval = 1;
 	/* special case for each value 0 .. n_metric-1 */
@@ -117,27 +122,27 @@ do_preamble(void)
 
 	sts = __pmStuffValue(&atom, &res->vset[i]->vlist[0], desc[i].type);
 	if (sts < 0)
-	    return sts;
+	    goto done;
 	res->vset[i]->vlist[0].inst = (int)mypid;
 	res->vset[i]->valfmt = sts;
     }
 
     if ((sts = __pmEncodeResult(fileno(logctl.l_mfp), res, &pb)) < 0)
-	return sts;
+	goto done;
 
     __pmOverrideLastFd(fileno(logctl.l_mfp));	/* force use of log version */
     /* and start some writing to the archive log files ... */
     if ((sts = __pmLogPutResult(&logctl, pb)) < 0)
-	return sts;
+	goto done;
 
     for (i = 0; i < n_metric; i++) {
 	if (archive_version == PM_LOG_VERS02) {
 	    if ((sts = __pmLogPutDesc(&logctl, &desc[i], 1, &names[i])) < 0)
-		return sts;
+		goto done;
         }
         else {
 	    if ((sts = __pmLogPutDesc(&logctl, &desc[i], 0, NULL)) < 0)
-		return sts;
+		goto done;
         }
 	if (desc[i].indom == PM_INDOM_NULL)
 	    continue;
@@ -150,12 +155,17 @@ do_preamble(void)
 	    int		*instid;
 	    char	**instname;
 
-	    if ((instid = (int *)malloc(sizeof(*instid))) == NULL)
-		return -oserror();
+	    if ((instid = (int *)malloc(sizeof(*instid))) == NULL) {
+		sts = -oserror();
+		goto done;
+	    }
 	    *instid = (int)mypid;
 	    sprintf(path, "%" FMT_PID, mypid);
-	    if ((instname = (char **)malloc(sizeof(char *)+strlen(path)+1)) == NULL)
-		return -oserror();
+	    if ((instname = (char **)malloc(sizeof(char *)+strlen(path)+1)) == NULL) {
+		free(instid);
+		sts = -oserror();
+		goto done;
+	    }
 	    /*
 	     * this _is_ correct ... instname[] is a one element array
 	     * with the string value immediately following
@@ -167,7 +177,7 @@ do_preamble(void)
 	     *		away in addindom() below __pmLogPutInDom()
 	     */
 	    if ((sts = __pmLogPutInDom(&logctl, desc[i].indom, &tmp, 1, instid, instname)) < 0)
-		return sts;
+		goto done;
 	}
     }
 
@@ -179,15 +189,17 @@ do_preamble(void)
     __pmLogPutIndex(&logctl, &tmp);
     fseek(logctl.l_mfp, 0L, SEEK_END);
     fseek(logctl.l_mdfp, 0L, SEEK_END);
+    sts = 0;
 
     /*
      * and now free stuff
-     * Note:	error returns cause mem leaks, but this routine
-     *		is only ever called once, so tough luck
      */
-    for (i = 0; i < n_metric; i++)
-	__pmPoolFree(res->vset[i], sizeof(pmValueSet));
+done:
+    for (i = 0; i < n_metric; i++) {
+	if (res->vset[i] != NULL)
+	    __pmPoolFree(res->vset[i], sizeof(pmValueSet));
+    }
     free(res);
 
-    return 0;
+    return sts;
 }
