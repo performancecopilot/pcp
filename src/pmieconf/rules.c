@@ -642,14 +642,15 @@ atom_defaults(atom_t *a, atom_t *p, char *param)
     if (sts != -1) {	/* an attribute - is it valid? */
 	if (sts == ATTRIB_ENABLED) {
 	    if (a->global) {	/* this was a global atom promoted to local */
-		p->next = a->next;
+		if (p) p->next = a->next;
 		free(a->name);
 		free(a);
 		a = NULL;
 	    }
-	    else
+	    else {
 		a->enabled = a->denabled;	/* reset enabled flag */
-	    a->changed = 0;
+		a->changed = 0;
+	    }
 	    return NULL;
 	}
 	snprintf(errmsg, sizeof(errmsg), "variable \"%s\" is inappropriate for this "
@@ -658,7 +659,7 @@ atom_defaults(atom_t *a, atom_t *p, char *param)
     }
     else {
 	if (a->global) {	/* this was a global atom promoted to local */
-	    p->next = a->next;
+	    if (p) p->next = a->next;
 	    free(a->name);
 	    free(a);
 	    a = NULL;
@@ -692,8 +693,11 @@ rule_defaults(rule_t *rule, char *param)
 	}
     }
     else {	/* find the associated atom, and just reset that */
-	if (map_symbol(attribs, numattribs, param) != -1)
-	    return atom_defaults(&rule->self, NULL, param);
+	if (map_symbol(attribs, numattribs, param) != -1) {
+	    rule->self.enabled = rule->self.denabled;	/* reset enabled flag */
+	    rule->self.changed = 0;
+	    return NULL;
+	}
 	for (aptr = &rule->self; aptr != NULL; aptr = aptr->next) {
 	    if (strcmp(get_aname(rule, aptr), param) == 0)
 		return atom_defaults(aptr, prev, param);
@@ -822,14 +826,14 @@ dollar_expand(rule_t *rule, char *string, int pp)
     atom_t	*aptr;
     char	*tmp, *r;
     char	*sptr;
-    char	*s = NULL;
+    char	*s;
     char	*mark = NULL;
     char	localbuf[TOKEN_LENGTH];
 
 #ifdef PMIECONF_DEBUG
     fprintf(stderr, "debug - dollar_expand %s in %s\n", string, rule->self.name);
 #endif
-    if ((s = (char *)realloc(s, sizeof(char))) == NULL)
+    if ((s = (char *)malloc(sizeof(char))) == NULL)
 	return NULL;
     *s = '\0';
 
@@ -864,14 +868,19 @@ dollar_expand(rule_t *rule, char *string, int pp)
 		    if (tmp == NULL) {
 			snprintf(errmsg, sizeof(errmsg), "variable \"$%s$\" in %s is undefined",
 				localbuf, rule->self.name);
+			free(s);
 			return NULL;
 		    }
 		}
 		if (tmp != NULL) {
-		    if ((r = dollar_expand(rule, tmp, pp)) == NULL)
+		    if ((r = dollar_expand(rule, tmp, pp)) == NULL) {
+			free(s);
 			return NULL;
-		    if ((s = append_string(s, r, strlen(r))) == NULL)
+		    }
+		    if ((s = append_string(s, r, strlen(r))) == NULL) {
+			free(r);
 			return NULL;
+		    }
 		    free(r);
 		}
 	    }
@@ -965,8 +974,6 @@ read_token(FILE *f, char *token, int token_length, int end)
 	    token[n++] = c;
 	    c = mygetc(f);
 	}
-	if (c == '\n' && end != '\n')
-	    linenum++;
 	break;
     case ';':
     case '=':
@@ -1071,15 +1078,20 @@ read_atom(FILE *f, rule_t *r, char *name, int type, int global)
 	else {
 	    if ((attrib = map_symbol(attribs, numattribs, attr)) < 0) {
 		parse_error("attribute keyword", attr);
-		return errmsg;
+		goto fail;
 	    }
 	    if (set_attribute(r, &atom, attrib, value, 0) != NULL)
-		return errmsg;
+		goto fail;
 	    free(attr);
 	    free(value);
 	}
     }
     return NULL;
+
+fail:
+    free(attr);
+    free(value);
+    return errmsg;
 }
 
 
@@ -1187,15 +1199,20 @@ read_rule(FILE *f, rule_t **r, char *name)
 	else {
 	    if ((attrib = map_symbol(attribs, numattribs, attr)) < 0) {
 		parse_error("rule attribute keyword", attr);
-		return errmsg;
+		goto fail;
 	    }
 	    if (set_rule_attribute(&rule, attrib, value) != NULL)
-		return errmsg;
+		goto fail;
 	    free(attr);
 	    free(value);
 	}
     }
     return NULL;
+
+fail:
+    free(attr);
+    free(value);
+    return errmsg;
 }
 
 
@@ -1672,10 +1689,13 @@ expand_enumerate(rule_t *rule)
 	if ((list[i].valuelist = realloc(list[i].valuelist,
 		sizeof(char *) * (list[i].nvalues + 1))) == NULL) {
 	    snprintf(errmsg, sizeof(errmsg), "insufficient memory for rule enumeration");
+	    free(p);
 	    return errmsg;
 	}
-	if ((list[i].valuelist = get_listitems(p, &j)) == NULL)
+	if ((list[i].valuelist = get_listitems(p, &j)) == NULL) {
+	    free(p);
 	    return errmsg;
+	}
 	list[i].nvalues = j;
 #ifdef PMIECONF_DEBUG
 	fprintf(stderr, "debug - %s value list:", list[i].atom->name);
@@ -1904,11 +1924,6 @@ read_ltoken(FILE *f)
 	    token[n++] = c;
 	    c = getc(f);
 	}
-	if (c == '\n') {
-	    linenum++;
-	    if (getc(f) != '/') return 0;
-	    if (getc(f) != '/') return 0;
-	}
 	break;
     case '=':
 	token[n++] = c;			/* single char token */
@@ -2118,7 +2133,7 @@ read_lheader(FILE *f, char **proot)
  * read the pmiefile format into global data structures
  */
 char *
-read_pmiefile(char *warning)
+read_pmiefile(char *warning, size_t warnlen)
 {
     char	*tmp = NULL;
     char	*p, *home;
@@ -2162,7 +2177,7 @@ read_pmiefile(char *warning)
     free(home);
 
     if (strcmp(get_rules(), tmp) != 0)
-	snprintf(warning, sizeof(warning), "warning - pmie configuration file \"%s\"\n"
+	snprintf(warning, warnlen, "warning - pmie configuration file \"%s\"\n"
 		" may not have been built using rules path:\n\t\"%s\"\n"
 		" (originally built using \"%s\")", filename, get_rules(), tmp);
 
@@ -2176,7 +2191,7 @@ read_pmiefile(char *warning)
 
 /*  ####  setup global data structures; return NULL/failure message  ####  */
 char *
-initialise(char *in_rules, char *in_pmie, char *warning)
+initialise(char *in_rules, char *in_pmie, char *warning, size_t warnlen)
 {
     char	*p;
     char	*home;
@@ -2252,7 +2267,7 @@ initialise(char *in_rules, char *in_pmie, char *warning)
     }
     free(home);
 
-    if (read_pmiefile(warning) != NULL)
+    if (read_pmiefile(warning, warnlen) != NULL)
 	return errmsg;
     linenum = 0;	/* finished all parsing */
     return NULL;
@@ -2305,6 +2320,7 @@ lookup_processes(int *count, char ***processes)
 	if ((proc_list = (char **)realloc(proc_list, size)) == NULL
 		|| (proc_list[running] = strdup(dp->d_name)) == NULL) {
 	    snprintf(errmsg, sizeof(errmsg), "insufficient memory for process search");
+	    if (proc_list) free(proc_list);
 	    closedir(dirp);
 	    close(fd);
 	    return errmsg;
