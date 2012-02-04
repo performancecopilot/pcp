@@ -1130,6 +1130,7 @@ getargs(int		argc,		/* in - command line argument count */
 			   &logStart, &last,
 			   &first, &last, posn, &msg) < 0) {
 	fprintf(stderr, "%s", msg);
+	free(msg);
 	exit(EXIT_FAILURE);
     }
 
