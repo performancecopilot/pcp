@@ -826,14 +826,14 @@ dollar_expand(rule_t *rule, char *string, int pp)
     atom_t	*aptr;
     char	*tmp, *r;
     char	*sptr;
-    char	*s = NULL;
+    char	*s;
     char	*mark = NULL;
     char	localbuf[TOKEN_LENGTH];
 
 #ifdef PMIECONF_DEBUG
     fprintf(stderr, "debug - dollar_expand %s in %s\n", string, rule->self.name);
 #endif
-    if ((s = (char *)realloc(s, sizeof(char))) == NULL)
+    if ((s = (char *)malloc(sizeof(char))) == NULL)
 	return NULL;
     *s = '\0';
 
@@ -868,14 +868,19 @@ dollar_expand(rule_t *rule, char *string, int pp)
 		    if (tmp == NULL) {
 			snprintf(errmsg, sizeof(errmsg), "variable \"$%s$\" in %s is undefined",
 				localbuf, rule->self.name);
+			free(s);
 			return NULL;
 		    }
 		}
 		if (tmp != NULL) {
-		    if ((r = dollar_expand(rule, tmp, pp)) == NULL)
+		    if ((r = dollar_expand(rule, tmp, pp)) == NULL) {
+			free(s);
 			return NULL;
-		    if ((s = append_string(s, r, strlen(r))) == NULL)
+		    }
+		    if ((s = append_string(s, r, strlen(r))) == NULL) {
+			free(r);
 			return NULL;
+		    }
 		    free(r);
 		}
 	    }
@@ -1073,15 +1078,20 @@ read_atom(FILE *f, rule_t *r, char *name, int type, int global)
 	else {
 	    if ((attrib = map_symbol(attribs, numattribs, attr)) < 0) {
 		parse_error("attribute keyword", attr);
-		return errmsg;
+		goto fail;
 	    }
 	    if (set_attribute(r, &atom, attrib, value, 0) != NULL)
-		return errmsg;
+		goto fail;
 	    free(attr);
 	    free(value);
 	}
     }
     return NULL;
+
+fail:
+    free(attr);
+    free(value);
+    return errmsg;
 }
 
 
@@ -1189,15 +1199,20 @@ read_rule(FILE *f, rule_t **r, char *name)
 	else {
 	    if ((attrib = map_symbol(attribs, numattribs, attr)) < 0) {
 		parse_error("rule attribute keyword", attr);
-		return errmsg;
+		goto fail;
 	    }
 	    if (set_rule_attribute(&rule, attrib, value) != NULL)
-		return errmsg;
+		goto fail;
 	    free(attr);
 	    free(value);
 	}
     }
     return NULL;
+
+fail:
+    free(attr);
+    free(value);
+    return errmsg;
 }
 
 
@@ -1674,10 +1689,13 @@ expand_enumerate(rule_t *rule)
 	if ((list[i].valuelist = realloc(list[i].valuelist,
 		sizeof(char *) * (list[i].nvalues + 1))) == NULL) {
 	    snprintf(errmsg, sizeof(errmsg), "insufficient memory for rule enumeration");
+	    free(p);
 	    return errmsg;
 	}
-	if ((list[i].valuelist = get_listitems(p, &j)) == NULL)
+	if ((list[i].valuelist = get_listitems(p, &j)) == NULL) {
+	    free(p);
 	    return errmsg;
+	}
 	list[i].nvalues = j;
 #ifdef PMIECONF_DEBUG
 	fprintf(stderr, "debug - %s value list:", list[i].atom->name);
@@ -2302,6 +2320,7 @@ lookup_processes(int *count, char ***processes)
 	if ((proc_list = (char **)realloc(proc_list, size)) == NULL
 		|| (proc_list[running] = strdup(dp->d_name)) == NULL) {
 	    snprintf(errmsg, sizeof(errmsg), "insufficient memory for process search");
+	    if (proc_list) free(proc_list);
 	    closedir(dirp);
 	    close(fd);
 	    return errmsg;
