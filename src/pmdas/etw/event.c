@@ -64,26 +64,66 @@ event_decode_timestamp(PEVENT_RECORD event, struct timeval *tv)
     tv->tv_usec = tmp % 1000000UL;
 }
 
+void
+event_duplicate_record(PEVENT_RECORD source, PEVENT_RECORD target)
+{
+    memcpy(source, target, sizeof(EVENT_RECORD));
+}
+
+void
+event_duplicate_buffer(PEVENT_RECORD source, char *buffer, size_t *bytes)
+{
+    PTRACE_EVENT_INFO pinfo = (PTRACE_EVENT_INFO)buffer;
+    DWORD size = DEFAULT_MAXMEM, sts;
+
+    sts = TdhGetEventInformation(source, 0, NULL, pinfo, &size);
+    if (sts == ERROR_INSUFFICIENT_BUFFER) {
+	*bytes = 0;	/* too large for us, too bad, bail out */
+    } else {
+	*bytes = size;
+    }
+}
+
+/*
+ * This is the main event callback routine.  It uses a fixed
+ * maximally sized buffer to capture and do minimal decoding
+ * of the event, before passing it into a queue.  Avoid any
+ * memory allocation and/or copying here where possible, as
+ * this is the event arrival fast path.
+ * Note: if there are no clients, the queuing code will drop
+ * this event (within pmdaEventQueueAppend), so don't waste
+ * time here - basically just lookup the queue and dispatch.
+ */
 VOID WINAPI
 event_record_callback(PEVENT_RECORD event)
 {
+    size_t bytes;
     struct timeval timestamp;
+    struct {
+	EVENT_RECORD	record;
+	char		buffer[DEFAULT_MAXMEM];
+    } localevent;
+    etw_event_t *entry;
 
-    event_decode_timestamp(event, &timestamp);
+    LPGUID guid = &event->EventHeader.ProviderId;
+    int eventid = event->EventHeader.EventDescriptor.Id;
+    int version = event->EventHeader.EventDescriptor.Version; 
 
-    /* TODO: need to find queueid, fast - from provider+eventid+version? */
-    /* TODO: need a structure to extract into...
-	pid from pEvent.EventHeader.ProcessId
-	tid from pEvent.EventHeader.ThreadId
-	(also in header: flags, size, provider, desc, utime, stime, activityId)
-	(  desc has eventid & version#  - uniq id within a provider  )
-	cpuid from pEvent.BufferContext.ProcessorNumber
-       Soooo need to copy these things into a *new* event structure
-	along with UserData (of UserDataLength bytes).
+    if ((entry = event_table_lookup(guid, eventid, version)) != NULL) {
 
-       Finally: thread-safety measures will be needed around
-	pmdaEventQueueAppend(queueid, buffer, bytes, &timestamp);
-    */
+	event_decode_timestamp(event, &timestamp);
+	event_duplicate_record(event, &localevent.record);
+	event_duplicate_buffer(event, &localevent.buffer[0], &bytes);
+	bytes += sizeof(EVENT_RECORD);
+
+	event_queue_lock(entry);
+	pmdaEventQueueAppend(entry->queueid, &localevent, bytes, &timestamp);
+	event_queue_unlock(entry);
+
+    } else {
+	__pmNotifyErr(LOG_ERR, "failed to enqueue event %d:%d from provider %s",
+			eventid, version, strguid(guid));
+    }
 }
 
 static void
@@ -150,6 +190,18 @@ retry_session:
     return sts;
 }
 
+void
+event_queue_lock(etw_event_t *entry)
+{
+    WaitForSingleObject(entry->mutex, INFINITE);
+}
+
+void
+event_queue_unlock(etw_event_t *entry)
+{
+    ReleaseMutex(entry->mutex);
+}
+
 int
 event_init(void)
 {
@@ -159,7 +211,7 @@ event_init(void)
     thread = CreateThread(NULL, 0, event_trace_sys, &sys, 0, NULL);
     if (thread == NULL)
 	return -ECHILD;
-    CloseHandle(thread);
+    CloseHandle(thread);	/* no longer need the handle */
     return 0;
 }
 

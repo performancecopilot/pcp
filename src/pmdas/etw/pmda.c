@@ -19,18 +19,24 @@
 #include "util.h"
 
 etw_event_t eventtab[] = {
-    { EVENT_PROCESS_START, EVENT_TRACE_FLAG_PROCESS, "process.start", 0,
-      &SystemTraceControlGuid, KERNEL_LOGGER_NAME, sizeof(KERNEL_LOGGER_NAME) },
-    { EVENT_PROCESS_EXIT, EVENT_TRACE_FLAG_PROCESS, "process.exit", 2,
-      &SystemTraceControlGuid, KERNEL_LOGGER_NAME, sizeof(KERNEL_LOGGER_NAME) },
-    { EVENT_THREAD_START, EVENT_TRACE_FLAG_THREAD, "thread.start", 3,
-      &SystemTraceControlGuid, KERNEL_LOGGER_NAME, sizeof(KERNEL_LOGGER_NAME) },
-    { EVENT_THREAD_STOP, EVENT_TRACE_FLAG_THREAD, "thread.stop", 4,
-      &SystemTraceControlGuid, KERNEL_LOGGER_NAME, sizeof(KERNEL_LOGGER_NAME) },
-    { EVENT_IMAGE_LOAD, EVENT_TRACE_FLAG_IMAGE_LOAD, "image.load", 5,
-      &SystemTraceControlGuid, KERNEL_LOGGER_NAME, sizeof(KERNEL_LOGGER_NAME) },
-    { EVENT_IMAGE_UNLOAD, EVENT_TRACE_FLAG_IMAGE_LOAD, "image.unload", 6,
-      &SystemTraceControlGuid, KERNEL_LOGGER_NAME, sizeof(KERNEL_LOGGER_NAME) },
+    { EVENT_PROCESS_START, 0, 1, EVENT_TRACE_FLAG_PROCESS, NULL,
+      "process.start", &SystemTraceControlGuid,
+      KERNEL_LOGGER_NAME, sizeof(KERNEL_LOGGER_NAME) },
+    { EVENT_PROCESS_EXIT, 2, 1, EVENT_TRACE_FLAG_PROCESS, NULL,
+      "process.exit", &SystemTraceControlGuid,
+      KERNEL_LOGGER_NAME, sizeof(KERNEL_LOGGER_NAME) },
+    { EVENT_THREAD_START, 3, 1, EVENT_TRACE_FLAG_THREAD, NULL,
+      "thread.start", &SystemTraceControlGuid,
+      KERNEL_LOGGER_NAME, sizeof(KERNEL_LOGGER_NAME) },
+    { EVENT_THREAD_STOP, 4, 1, EVENT_TRACE_FLAG_THREAD, NULL,
+      "thread.stop", &SystemTraceControlGuid,
+      KERNEL_LOGGER_NAME, sizeof(KERNEL_LOGGER_NAME) },
+    { EVENT_IMAGE_LOAD, 5, 1, EVENT_TRACE_FLAG_IMAGE_LOAD, NULL,
+      "image.load", &SystemTraceControlGuid,
+      KERNEL_LOGGER_NAME, sizeof(KERNEL_LOGGER_NAME) },
+    { EVENT_IMAGE_UNLOAD, 6, 1, EVENT_TRACE_FLAG_IMAGE_LOAD, NULL,
+      "image.unload", &SystemTraceControlGuid,
+      KERNEL_LOGGER_NAME, sizeof(KERNEL_LOGGER_NAME) },
 };
 
 #if 0
@@ -347,9 +353,11 @@ etw_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case 71:		/* etw.kernel.thread.stop.records */
 	    case 91:		/* etw.kernel.process.image_load.records */
 	    case 111:		/* etw.kernel.process.image_unload.records */
+		event_queue_lock(etw);
 		sts = pmdaEventQueueRecords(etw->queueid, atom,
 					    pmdaGetContext(),
 					    event_decoder, &etw);
+		event_queue_unlock(etw);
 		break;
 	    case 2:		/* etw.kernel.process.start.numclients */
 	    case 22:		/* etw.kernel.process.exit.numclients */
@@ -423,23 +431,69 @@ etw_text(int ident, int type, char **buffer, pmdaExt *pmda)
     return pmdaText(ident, type, buffer, pmda);
 }
 
+static int
+event_equal(etw_event_t *event, LPGUID provider, int eventid, int version)
+{
+    if (memcmp(event->provider, provider, sizeof(GUID)) != 0)
+	return 0;
+    return (event->eventid == eventid && event->version == version);
+}
+
+etw_event_t *
+event_table_lookup(LPGUID guid, int eventid, int version)
+{
+    static int last;	/* punt on previous type of event reoccurring */
+    int i = last;
+
+    if (event_equal(&eventtab[i], guid, eventid, version))
+	return &eventtab[i];
+
+    for (i = 0; i < sizeof(eventtab)/sizeof(eventtab[0]); i++) {
+	etw_event_t *e = &eventtab[i];
+	if (event_equal(e, guid, eventid, version)) {
+	    last = i;
+	    return e;
+	}
+    }
+    return NULL;
+}
+
+int
+event_table_init(void)
+{
+    int		i, id;
+
+    for (i = 0; i < sizeof(eventtab)/sizeof(eventtab[0]); i++) {
+	HANDLE mutex = CreateMutex(NULL, FALSE, NULL);
+	etw_event_t *e = &eventtab[i];
+
+	if (!mutex) {
+	    __pmNotifyErr(LOG_WARNING, "failed to create mutex for event %s",
+				    e->pmnsname);
+	} else if ((id = pmdaEventNewQueue(e->pmnsname, DEFAULT_MAXMEM)) < 0) {
+	    __pmNotifyErr(LOG_WARNING, "failed to create queue for event %s",
+				    e->pmnsname);
+	} else {
+	    e->queueid = id;
+	    e->mutex = mutex;
+	}
+    }
+    return 0;
+}
+
 void 
 etw_init(pmdaInterface *dp, const char *configfile)
 {
-    char		helppath[MAXPATHLEN];
-    int			i, id, sep = __pmPathSeparator();
+    char	helppath[MAXPATHLEN];
+    int		sep = __pmPathSeparator();
 
     snprintf(helppath, sizeof(helppath), "%s%c" "etw" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDSO(dp, PMDA_INTERFACE_5, "etw DSO", helppath);
     if (dp->status != 0)
 	return;
-
-    for (i = 0; i < sizeof(eventtab)/sizeof(eventtab[0]); i++) {
-	id = pmdaEventNewQueue(eventtab[i].pmnsname, DEFAULT_MAXMEM);
-	eventtab[i].queueid = id;
-    }
-
+    if (event_table_init() < 0)
+	return;
     if (event_init() < 0)
 	return;
 
