@@ -73,19 +73,19 @@ demos:	$(APPS) pmtrace.c
 pmtrace.c:	$(TOPDIR)/src/pmtrace/pmtrace.c
 	rm -f $@ && cp $< $@
 
-app1.o:	app1.c $(TOPDIR)/src/include/pmapi.h
+app1.o:	app1.c $(TOPDIR)/src/include/pcp/pmapi.h
 	@rm -f tmp.c
 	sed -e 's;<pcp/\(.*\)>;"\1";' app1.c >tmp.c
 	$(CCF) -c -o $@ tmp.c
 	@rm -f tmp.c
 
-app2.o:	app2.c $(TOPDIR)/src/include/pmapi.h
+app2.o:	app2.c $(TOPDIR)/src/include/pcp/pmapi.h
 	@rm -f tmp.c
 	sed -e 's;<pcp/\(.*\)>;"\1";' app2.c >tmp.c
 	$(CCF) -c -o $@ tmp.c
 	@rm -f tmp.c
 
-app3.o:	app3.c $(TOPDIR)/src/include/pmapi.h
+app3.o:	app3.c $(TOPDIR)/src/include/pcp/pmapi.h
 	@rm -f tmp.c
 	sed -e 's;<pcp/\(.*\)>;"\1";' app3.c >tmp.c
 	$(CCF) -c -o $@ tmp.c

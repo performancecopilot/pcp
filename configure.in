@@ -14,7 +14,7 @@ dnl for more details.
 dnl 
 
 dnl unpacking check - this file must exist
-AC_INIT(src/include/pmapi.h)
+AC_INIT(src/include/pcp/pmapi.h)
 
 dnl Irix build issue ... use the tools from the local filesystems
 unset ROOT TOOLROOT
@@ -175,8 +175,8 @@ fi
 AC_SUBST(package_builder)
 
 dnl output header with cpp defs HAVE_*, etc
-AC_CONFIG_HEADER(src/include/platform_header.h)
-AC_OUTPUT(src/include/platform_trailer)
+AC_CONFIG_HEADER(src/include/pcp/platform_header.h)
+AC_OUTPUT(src/include/pcp/platform_trailer)
 
 dnl check if user wants their own C compiler
 cflags_abi=

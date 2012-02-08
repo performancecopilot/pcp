@@ -9,13 +9,13 @@ my $cccdlflags;
 
 if ($ENV{TARGET_OS} eq "mingw") {
     $ldfrom = "-L$ENV{PCP_TOPDIR}/src/libpcp/src -L$ENV{PCP_TOPDIR}/src/libpcp_mmv/src -L$ENV{PCP_DIR}\\local\\bin -lpcp_mmv -lpcp MMV.o";
-    $inc = "-I$ENV{PCP_TOPDIR}/src/include -I/usr/include/pcp -I$ENV{PCP_DIR}\\include\\pcp -I$ENV{PCP_DIR}\\c\\include";
+    $inc = "-I$ENV{PCP_TOPDIR}/src/include/pcp -I/usr/include/pcp -I$ENV{PCP_DIR}\\include\\pcp -I$ENV{PCP_DIR}\\c\\include";
     $libs = ["-L$ENV{PCP_DIR}\\local\\bin", '-lpcp_mmv', '-lpcp'];
 }
 else {
-    $ldfrom = "-L$ENV{PCP_TOPDIR}/src/libpcp/src -L$ENV{PCP_TOPDIR}/src/libpcp_mmv/src -lpcp_mmv -lpcp MMV.o";
-    $inc = "-I$ENV{PCP_TOPDIR}/src/include -I/usr/include/pcp";
-    $libs = ['-lpcp_mmv', '-lpcp'];
+    $ldfrom = "MMV.o";
+    $inc = "-I$ENV{PCP_TOPDIR}/src/include/pcp -I/usr/include/pcp";
+    $libs = ["-L$ENV{PCP_TOPDIR}/src/libpcp_mmv/src -L$ENV{PCP_TOPDIR}/src/libpcp/src -lpcp_mmv -lpcp"];
 }
 if ($ENV{TARGET_OS} eq "darwin") {
     # standard ones, minus -arch ppc

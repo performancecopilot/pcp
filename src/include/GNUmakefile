@@ -20,41 +20,34 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-HFILES = pmapi.h impl.h pmda.h pmtime.h pmafm.h pmiestats.h \
-	 trace.h trace_dev.h trace_hash.h mmv_stats.h mmv_dev.h \
-	 import.h
-GENERATED_HFILES = pmdbg.h platform_defs.h
-CONFFILES = platform_header.h platform_trailer builddefs pcp.conf
+CONFFILES = builddefs pcp.conf
 
-LSRCFILES = platform_header.h.in platform_trailer.in \
-	    builddefs.in buildrules \
-	    pcp.conf.in pcp.env pcp.mingw mk_pmdbg
+LSRCFILES = builddefs.in buildrules \
+	    pcp.conf.in pcp.env pcp.mingw
 
 LDIRT = builddefs.install
 
+SUBDIRS = pcp
+
 default :: default_pcp
 
-default_pcp : pcp.conf $(HEADERS) $(GENERATED_HFILES) builddefs.install
+default_pcp : $(SUBDIRS) pcp.conf builddefs.install
+	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
 
 install :: default_pcp install_pcp
 
-install_pcp : default_pcp
+install_pcp : $(SUBDIRS) default_pcp
 	$(INSTALL) -m 644 pcp.conf /etc/pcp.conf
 ifeq "$(TARGET_OS)" "mingw"
 	$(INSTALL) -m 644 pcp.mingw /etc/pcp.env
 else
 	$(INSTALL) -m 644 pcp.env /etc/pcp.env
 endif
-	$(INSTALL) -m 644 $(HFILES) $(GENERATED_HFILES) buildrules $(PCP_INC_DIR)
+	$(INSTALL) -m 644 buildrules $(PCP_INC_DIR)/buildrules
 	$(INSTALL) -m 644 builddefs.install $(PCP_INC_DIR)/builddefs
-
-platform_defs.h:	platform_header.h platform_trailer
-	cat platform_header.h platform_trailer >platform_defs.h
-
-pmdbg.h : pmapi.h impl.h
-	./mk_pmdbg
+	$(SUBDIRS_MAKERULE)
 
 builddefs.install : builddefs
 	sed -e 's;^include .*pcp.conf;include /etc/pcp.conf;' \
