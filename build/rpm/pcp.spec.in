@@ -212,7 +212,6 @@ export DIST_ROOT DIST_MANIFEST
 rm -f $DIST_MANIFEST
 @make@ install_pcp
 
-set +x
 PCP_CONF=$BACKDIR/src/include/pcp.conf
 export PCP_CONF
 . $BACKDIR/src/include/pcp.env
@@ -298,8 +297,6 @@ $1 == "f" {
 	    }
 	    printf ("%%%%attr(%s,root,root) %s\n", $2, $6) >> f }
 $1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
-
-set -x
 
 %preun
 if [ "$1" -eq 0 ]
