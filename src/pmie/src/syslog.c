@@ -117,7 +117,6 @@ do_syslog_args(Expr *act)
     Expr	*tmp;
     Expr	*new;
 
-    others = act->arg1;
     /*
      * scan for -p pri and -t tag
      */
@@ -179,7 +178,7 @@ do_syslog_args(Expr *act)
     new->op = NOP;
     new->ring = (char *)alloc(sizeof(int)+strlen(tag)+1);
     *((int *)new->ring) = pri;
-    strcpy(&((char *)new->ring)[sizeof(int)], sdup(tag));
+    strcpy(&((char *)new->ring)[sizeof(int)], tag);
     act->arg2 = new;
     new->parent = act;
 
