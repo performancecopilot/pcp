@@ -83,6 +83,8 @@ main(int argc, char **argv)
     int			numpmid;
     pmResult		*old;
     pmResult		*new;
+    pmResult		pr;
+    pmValueSet		pvs;
 
     __pmSetProgname(argv[0]);
 
@@ -165,47 +167,66 @@ main(int argc, char **argv)
     old->numpmid--;
     if ((n = pmStore(old)) < 0) {
 	printf("pmStore no change: %s\n", pmErrStr(n));
-	exit(1);
     }
     if ((n = pmFetch(numpmid - 1, midlist, &new)) < 0) {
 	printf("pmFetch new: %s\n", pmErrStr(n));
 	exit(1);
     }
-    _compare(old, new);
-    pmFreeResult(new);
+    else {
+	_compare(old, new);
+	pmFreeResult(new);
+    }
 
     old->vset[0]->vlist[0].value.lval++;
     if ((n = pmStore(old)) < 0) {
 	printf("pmStore change: %s\n", pmErrStr(n));
-	exit(1);
     }
     if ((n = pmFetch(numpmid - 1, midlist, &new)) < 0) {
 	printf("pmFetch new again: %s\n", pmErrStr(n));
 	exit(1);
     }
-    _compare(old, new);
-    pmFreeResult(new);
+    else {
+	_compare(old, new);
+	pmFreeResult(new);
+    }
 
     old->vset[0]->vlist[0].value.lval--;
     if ((n = pmStore(old)) < 0) {
 	printf("pmStore restore: %s\n", pmErrStr(n));
-	exit(1);
     }
     if ((n = pmFetch(numpmid - 1, midlist, &new)) < 0) {
 	printf("pmFetch new once more: %s\n", pmErrStr(n));
-	exit(1);
     }
-    _compare(old, new);
-    pmFreeResult(new);
+    else {
+	_compare(old, new);
+	pmFreeResult(new);
+    }
 
     old->numpmid++;	/* cannot change sampledso.long.one */
     n = pmStore(old);
     if (n != -EACCES && n != PM_ERR_PERMISSION) {
 	printf("ERROR: expected EACCES or PM_ERR_PERMISSION error\n");
 	printf("pmStore all 3: %s\n", pmErrStr(n));
-	exit(1);
     }
     pmFreeResult(old);
+
+    /*
+     * see http://people.redhat.com/mgoodwin/pcp-cov/1/127dostore.c.html#error
+     */
+    pr.numpmid = 1;
+    pr.vset[0] = &pvs;
+    /* assume BROKEN PMDA is not installed */
+    pr.vset[0]->pmid = pmid_build(249,123,456);
+    pr.vset[0]->numval = 1;
+    pr.vset[0]->valfmt = PM_VAL_INSITU;
+    pr.vset[0]->vlist[0].inst = PM_INDOM_NULL;
+    pr.vset[0]->vlist[0].value.lval = 123456;
+    n = pmStore(&pr);
+    if (n != PM_ERR_NOAGENT) {
+	printf("ERROR: expected PM_ERR_NOAGENT error\n");
+	printf("pmStore bad agent domain: %s\n", pmErrStr(n));
+	exit(1);
+    }
 
     exit(0);
 }
