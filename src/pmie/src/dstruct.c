@@ -745,7 +745,7 @@ instExpr(Expr *x)
     Expr    *arg1 = x->arg1;
     Expr    *arg2 = x->arg2;
     Expr    *arg = primary(arg1, arg2);
-    pmUnits u;
+    pmUnits u = { 0 };
 
     /* semantics and units */
     if (x->sem == SEM_UNKNOWN) {
