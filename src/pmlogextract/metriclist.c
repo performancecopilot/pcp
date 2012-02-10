@@ -119,10 +119,10 @@ insertrlist(rlist_t **rlist, rlist_t *elm)
     rlist_t	*curr;
     rlist_t	*prev;
 
-    elm->next = NULL;
-
     if (elm == NULL)
 	return;
+
+    elm->next = NULL;
 
     if (*rlist == NULL) {
 	*rlist = elm;
