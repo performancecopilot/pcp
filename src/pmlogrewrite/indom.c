@@ -55,7 +55,7 @@ start_indom(pmInDom indom)
 	indom_root = ip;
 	ip->flags = (int *)malloc(numinst*sizeof(int));
 	if (ip->flags == NULL) {
-	    fprintf(stderr, "indomspec flags malloc(%d) failed: %s\n", numinst*(int)sizeof(int), strerror(errno));
+	    fprintf(stderr, "indomspec flags malloc(%d) failed: %s\n", (int)(numinst*sizeof(int)), strerror(errno));
 	    abandon();
 	}
 	for (i = 0; i < numinst; i++)
@@ -66,13 +66,13 @@ start_indom(pmInDom indom)
 	ip->old_inst = instlist;
 	ip->new_inst = (int *)malloc(numinst*sizeof(int));
 	if (ip->new_inst == NULL) {
-	    fprintf(stderr, "new_inst malloc(%d) failed: %s\n", numinst*(int)sizeof(int), strerror(errno));
+	    fprintf(stderr, "new_inst malloc(%d) failed: %s\n", (int)(numinst*sizeof(int)), strerror(errno));
 	    abandon();
 	}
 	ip->old_iname = namelist;
 	ip->new_iname = (char **)malloc(numinst*sizeof(char *));
 	if (ip->new_iname == NULL) {
-	    fprintf(stderr, "new_iname malloc(%d) failed: %s\n", numinst*(int)sizeof(char *), strerror(errno));
+	    fprintf(stderr, "new_iname malloc(%d) failed: %s\n", (int)(numinst*sizeof(char *)), strerror(errno));
 	    abandon();
 	}
     }
