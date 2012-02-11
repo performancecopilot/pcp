@@ -1098,6 +1098,7 @@ againlog:
 	    }
 	    continue;
 	}
+	assert(iap->_result != NULL);
 
 
 	/* set current log time - this is only done so that we can
@@ -1113,10 +1114,8 @@ againlog:
 	if (curtime < winstart_time) {
 	    /* log is not in time window - discard result and get next record
 	     */
-	    if (iap->_result != NULL) {
-		pmFreeResult(iap->_result);
-		iap->_result = NULL;
-	    }
+	    pmFreeResult(iap->_result);
+	    iap->_result = NULL;
 	    goto againlog;
 	}
         else {
@@ -1137,10 +1136,8 @@ againlog:
             if (iap->_Nresult == NULL) {
                 /* dont want any of the metrics in _result, try again
                  */
-                if (iap->_result != NULL) {
-                        pmFreeResult(iap->_result);
-                        iap->_result = NULL;
-                }
+		pmFreeResult(iap->_result);
+		iap->_result = NULL;
                 goto againlog;
             }
 	}
@@ -1373,7 +1370,7 @@ checkwinend(double now)
 	    if (tmptime < winstart_time) {
 		/* free _result and _Nresult
 		 */
-		if (iap->_result != iap->_Nresult && iap->_Nresult != NULL) {
+		if (iap->_result != iap->_Nresult) {
 		    free(iap->_Nresult);
 		}
 		if (iap->_result != NULL) {
@@ -1948,9 +1945,10 @@ main(int argc, char **argv)
 		}
 		free(iap->_Nresult);
 	    }
-	    if (iap->_result != NULL)
+	    if (iap->_result != NULL) {
 		pmFreeResult(iap->_result);
-	    iap->_result = NULL;
+		iap->_result = NULL;
+	    }
 	    iap->_Nresult = NULL;
 	}
     } /*while()*/
