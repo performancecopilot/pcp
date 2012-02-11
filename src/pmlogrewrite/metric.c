@@ -57,7 +57,7 @@ start_metric(pmID pmid)
 	sts = pmLookupDesc(pmid, &desc);
 	if (sts < 0) {
 	    if (wflag) {
-		snprintf(mess, sizeof(mess), "Metric %s: pmLookupDesc: %s", mp->old_name, pmErrStr(sts));
+		snprintf(mess, sizeof(mess), "Metric %s: pmLookupDesc: %s", pmIDStr(pmid), pmErrStr(sts));
 		yywarn(mess);
 	    }
 	    return NULL;
@@ -112,9 +112,9 @@ _pmUnpackDesc(__pmPDU *pdubuf, pmDesc *desc, int *numnames, char ***names)
     desc->units = __ntohpmUnits(pp->desc.units);
     desc->pmid = __ntohpmID(pp->desc.pmid);
     *numnames = ntohl(pp->numnames);
-    *names = (char **)malloc(*numnames * sizeof(names[1]));
-    if (names == NULL) {
-	fprintf(stderr, "_pmUnpackDesc malloc(%d) failed: %s\n", (int)(*numnames * sizeof(names[1])), strerror(errno));
+    *names = (char **)malloc(*numnames * sizeof(*names[1]));
+    if (*names == NULL) {
+	fprintf(stderr, "_pmUnpackDesc malloc(%d) failed: %s\n", (int)(*numnames * sizeof(*names[1])), strerror(errno));
 	abandon();
     }
 
@@ -181,8 +181,8 @@ do_desc(void)
 			fprintf(stderr, "do_desc strdup(%s) failed: %s\n", mp->new_name, strerror(errno));
 			abandon();
 		    }
+		    break;
 		}
-		break;
 	    }
 	    if (i == numnames) {
 		fprintf(stderr, "%s: Botch: old name %s not found in list of %d names for pmid %s ...",
