@@ -18,6 +18,7 @@
 #include <math.h>
 #include <ctype.h>
 #include <sys/stat.h>
+#include <assert.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "logger.h"
@@ -149,6 +150,7 @@ writelabel(int do_rewind)
 
     if (do_rewind) {
 	old_offset = ftell(outarch.logctl.l_tifp);
+	assert(old_offset >= 0);
 	rewind(outarch.logctl.l_tifp);
     }
     outarch.logctl.l_label.ill_vol = PM_LOG_VOL_TI;
@@ -158,6 +160,7 @@ writelabel(int do_rewind)
 
     if (do_rewind) {
 	old_offset = ftell(outarch.logctl.l_mdfp);
+	assert(old_offset >= 0);
 	rewind(outarch.logctl.l_mdfp);
     }
     outarch.logctl.l_label.ill_vol = PM_LOG_VOL_META;
@@ -167,6 +170,7 @@ writelabel(int do_rewind)
 
     if (do_rewind) {
 	old_offset = ftell(outarch.logctl.l_mfp);
+	assert(old_offset >= 0);
 	rewind(outarch.logctl.l_mfp);
     }
     outarch.logctl.l_label.ill_vol = 0;
@@ -1031,6 +1035,7 @@ main(int argc, char **argv)
 
 	fflush(outarch.logctl.l_mdfp);
 	old_meta_offset = ftell(outarch.logctl.l_mdfp);
+	assert(old_meta_offset >= 0);
 
 	in_offset = ftell(inarch.ctxp->c_archctl->ac_log->l_mfp);
 	stslog = nextlog();
@@ -1176,6 +1181,7 @@ main(int argc, char **argv)
 	    fflush(outarch.logctl.l_mdfp);
 	    fflush(outarch.logctl.l_mfp);
 	    new_meta_offset = ftell(outarch.logctl.l_mdfp);
+	    assert(new_meta_offset >= 0);
             fseek(outarch.logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
             __pmLogPutIndex(&outarch.logctl, &tstamp);
             fseek(outarch.logctl.l_mdfp, (long)new_meta_offset, SEEK_SET);
@@ -1186,6 +1192,7 @@ main(int argc, char **argv)
 	    doneti = 0;
 
 	old_log_offset = ftell(outarch.logctl.l_mfp);
+	assert(old_log_offset >= 0);
 
 	if (inarch.rp->numpmid == 0)
 	    /* mark record, need index entry @ next log record */
