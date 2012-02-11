@@ -915,7 +915,6 @@ nextmeta(void)
     __pmLogCtl	*lcp;
     __pmContext	*ctxp;
     inarch_t	*iap;			/* pointer to input archive control */
-    __pmHashNode	*hnp;
 
     for (i=0; i<inarchnum; i++) {
 	iap = &inarch[i];
@@ -971,9 +970,8 @@ againmeta:
 	    }
 
 	    if (want) {
-		if ((hnp = __pmHashSearch((int)pmid, &mdesc_hash)) == NULL) {
+		if (__pmHashSearch((int)pmid, &mdesc_hash) == NULL)
 		    __pmHashAdd((int)pmid, NULL, &mdesc_hash);
-		}
 		/*
 		 * update the desc list (add first time, check on subsequent
 		 * sightings of desc for this pmid from this source
