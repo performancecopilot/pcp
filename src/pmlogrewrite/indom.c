@@ -50,6 +50,7 @@ start_indom(pmInDom indom)
 	if (ip == NULL) {
 	    fprintf(stderr, "indomspec malloc(%d) failed: %s\n", (int)sizeof(indomspec_t), strerror(errno));
 	    abandon();
+	    /*NOTREACHED*/
 	}
 	ip->i_next = indom_root;
 	indom_root = ip;
@@ -57,6 +58,7 @@ start_indom(pmInDom indom)
 	if (ip->flags == NULL) {
 	    fprintf(stderr, "indomspec flags malloc(%d) failed: %s\n", (int)(numinst*sizeof(int)), strerror(errno));
 	    abandon();
+	    /*NOTREACHED*/
 	}
 	for (i = 0; i < numinst; i++)
 	    ip->flags[i] = 0;
@@ -68,12 +70,14 @@ start_indom(pmInDom indom)
 	if (ip->new_inst == NULL) {
 	    fprintf(stderr, "new_inst malloc(%d) failed: %s\n", (int)(numinst*sizeof(int)), strerror(errno));
 	    abandon();
+	    /*NOTREACHED*/
 	}
 	ip->old_iname = namelist;
 	ip->new_iname = (char **)malloc(numinst*sizeof(char *));
 	if (ip->new_iname == NULL) {
 	    fprintf(stderr, "new_iname malloc(%d) failed: %s\n", (int)(numinst*sizeof(char *)), strerror(errno));
 	    abandon();
+	    /*NOTREACHED*/
 	}
     }
 
@@ -213,6 +217,7 @@ _pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, __pmTimeval *tp, int *numinst, i
     if (*instlist == NULL) {
 	fprintf(stderr, "_pmUnpackInDom instlist malloc(%d) failed: %s\n", (int)(*numinst * sizeof(int)), strerror(errno));
 	abandon();
+	/*NOTREACHED*/
     }
     ip = (int *)idp->other;
     for (i = 0; i < *numinst; i++)
@@ -221,6 +226,7 @@ _pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, __pmTimeval *tp, int *numinst, i
     if (*inamelist == NULL) {
 	fprintf(stderr, "_pmUnpackInDom inamelist malloc(%d) failed: %s\n", (int)(*numinst * sizeof(char *)), strerror(errno));
 	abandon();
+	/*NOTREACHED*/
     }
     /*
      * ip[i] is stridx[i], which is offset into strbuf[]
@@ -327,6 +333,7 @@ do_indom(void)
 	if (new == NULL) {
 	    fprintf(stderr, "inamelist[] malloc(%d) failed: %s\n", need, strerror(errno));
 	    abandon();
+	    /*NOTREACHED*/
 	}
 	p = new;
 	for (j = 0; j < numinst; j++) {
@@ -340,6 +347,7 @@ do_indom(void)
 	fprintf(stderr, "%s: Error: __pmLogPutInDom: %s: %s\n",
 			pmProgname, pmInDomStr(indom), pmErrStr(sts));
 	abandon();
+	/*NOTREACHED*/
     }
 #if PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {

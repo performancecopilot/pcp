@@ -189,10 +189,12 @@ __pmLogRename(const char *old, const char *new)
 		if (found == NULL) {
 		    __pmNoMem("__pmLogRename: realloc", nfound*sizeof(found[0]), PM_RECOV_ERR);
 		    abandon();
+		    /*NOTREACHED*/
 		}
 		if ((found[nfound-1] = strdup(p)) == NULL) {
 		    __pmNoMem("__pmLogRename: strdup", strlen(p)+1, PM_RECOV_ERR);
 		    abandon();
+		    /*NOTREACHED*/
 		}
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOG)
@@ -261,6 +263,7 @@ __pmLogRemove(const char *name)
     if (dname == NULL) {
 	__pmNoMem("__pmLogRemove: dirname strdup", strlen(dirname(path))+1, PM_RECOV_ERR);
 	abandon();
+	/*NOTREACHED*/
     }
 
     if ((dirp = opendir(dname)) == NULL)
@@ -271,6 +274,7 @@ __pmLogRemove(const char *name)
     if (base == NULL) {
 	__pmNoMem("__pmLogRemove: basename strdup", strlen(basename(path))+1, PM_RECOV_ERR);
 	abandon();
+	/*NOTREACHED*/
     }
 
     for ( ; ; ) {
