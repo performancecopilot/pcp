@@ -300,8 +300,7 @@ dodso(int pdu)
 						     &result);
 
 		if (sts >= 0) {
-		    if (result != NULL &&
-			dispatch.comm.pmapi_version == PMAPI_VERSION_1) {
+		    if (dispatch.comm.pmapi_version == PMAPI_VERSION_1) {
 			for (j = 0; j < result->numpmid; j++)
 			    result->vset[j]->numval =
 				    XLATE_ERR_1TO2(result->vset[j]->numval);
