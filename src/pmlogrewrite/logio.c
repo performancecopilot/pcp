@@ -14,6 +14,7 @@
  * for more details.
  */
 
+#include <assert.h>
 #include "pmapi.h"
 #include "impl.h"
 
@@ -37,6 +38,7 @@ _pmLogGet(__pmLogCtl *lcp, int vol, __pmPDU **pb)
 	f = lcp->l_mfp;
 
     offset = ftell(f);
+    assert(offset >= 0);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
 	fprintf(stderr, "_pmLogGet: fd=%d vol=%d posn=%ld ",
