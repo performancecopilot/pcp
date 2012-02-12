@@ -91,6 +91,7 @@ again:
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "Error: data fread=%d %s\n", sts, osstrerror());
 #endif
+	free(lpb);
 	if (sts == 0) {
 	    fseek(f, offset, SEEK_SET);
 	    return PM_ERR_EOL;
@@ -110,6 +111,7 @@ again:
 	    fprintf(stderr, "Error: head-tail mismatch (%d-%d)\n",
 		(int)ntohl(head), (int)ntohl(tail));
 #endif
+	free(lpb);
 	return PM_ERR_LOGREC;
     }
 
