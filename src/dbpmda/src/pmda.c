@@ -681,7 +681,7 @@ fillResult(pmResult *result, int type)
 	if (sts != PM_ERR_TYPE)
 	    printf("Error: Decoding value: %s\n", pmErrStr(sts));
     }
-    else if (*endbuf != '\0') {
+    else if (endbuf != NULL && *endbuf != '\0') {
 	printf("Error: Value \"%s\" is incompatible with metric type (PM_TYPE_%s)\n",
 	       param.name, pmTypeStr(type));
 	sts = PM_ERR_VALUE;
