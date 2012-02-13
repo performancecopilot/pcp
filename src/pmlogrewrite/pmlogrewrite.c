@@ -298,9 +298,10 @@ parseargs(int argc, char *argv[])
 			    abandon();
 			    /*NOTREACHED*/
 			}
-
 		    }
 		}
+		if (dirp != NULL)
+		    closedir(dirp);
 	    }
 	    else {
 		fprintf(stderr, "Error: -c config %s is not a file or directory\n", optarg);
