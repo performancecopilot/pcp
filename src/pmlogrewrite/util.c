@@ -209,7 +209,6 @@ __pmLogRename(const char *old, const char *new)
 	goto revert;
     }
 
-    closedir(dirp);
     sts = 0;
     goto cleanup;
 
@@ -229,6 +228,7 @@ revert:
     sts = PM_ERR_GENERIC;
 
 cleanup:
+    closedir(dirp);
     while (nfound > 0) {
 	free(found[nfound-1]);
 	nfound--;
@@ -266,8 +266,10 @@ __pmLogRemove(const char *name)
 	/*NOTREACHED*/
     }
 
-    if ((dirp = opendir(dname)) == NULL)
+    if ((dirp = opendir(dname)) == NULL) {
+	free(dname);
 	return -oserror();
+    }
 
     strncpy(path, name, sizeof(path));
     base = strdup(basename(path));
@@ -321,6 +323,8 @@ __pmLogRemove(const char *name)
 	sts = nfound;
 
     closedir(dirp);
+    free(dname);
+    free(base);
 
     return sts;
 }
