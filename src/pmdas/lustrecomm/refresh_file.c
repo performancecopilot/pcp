@@ -30,7 +30,7 @@ static struct timespec file_time_offset = { 0 , 900000000 };
 
 int refresh_file( struct file_state *f_s ){
 	struct timespec now, tmp;
-	int i;
+	int i = 0;
 
 	if (f_s->datap) {
 		/* get time */
