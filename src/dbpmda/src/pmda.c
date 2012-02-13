@@ -285,7 +285,7 @@ dopmda(int pdu)
 {
     int			sts;
     pmDesc		desc;
-    pmDesc		*desc_list = NULL;	/* initialize to pander to gcc */
+    pmDesc		*desc_list = NULL;
     pmResult		*result;
     __pmInResult	*inresult;
     __pmPDU		*pb;
@@ -328,7 +328,7 @@ dopmda(int pdu)
 			return;
                     }
 		} 
-            }/*get_desc*/
+            }
 
 	    sts = 0;
 	    if (profile_changed) {
@@ -364,6 +364,8 @@ dopmda(int pdu)
 		else
 		    printf("Error: __pmSendFetch() failed: %s\n", pmErrStr(sts));
 	    }
+	    if (desc_list)
+		free(desc_list);
 	    break;
 
 	case PDU_INSTANCE_REQ:

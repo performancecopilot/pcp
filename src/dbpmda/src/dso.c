@@ -216,7 +216,7 @@ dodso(int pdu)
 {
     int			sts = 0;		/* initialize to pander to gcc */
     pmDesc		desc;
-    pmDesc		*desc_list = NULL;	/* initialize to pander to gcc */
+    pmDesc		*desc_list = NULL;
     pmResult		*result;
     __pmInResult	*inresult;
     int			i;
@@ -260,7 +260,7 @@ dodso(int pdu)
 			return;
                     }
 		} 
-            }/*get_desc*/
+            }
 	    sts = 0;
 	    if (profile_changed) {
 #ifdef PCP_DEBUG
@@ -305,10 +305,8 @@ dodso(int pdu)
 			    result->vset[j]->numval =
 				    XLATE_ERR_1TO2(result->vset[j]->numval);
 		    }
-		    if (get_desc) {
+		    if (desc_list)
 		        _dbDumpResult(stdout, result, desc_list);
-			free(desc_list);
-		    }
                     else
 		        __pmDumpResult(stdout, result);
 		    /*
@@ -323,6 +321,8 @@ dodso(int pdu)
 		    printf("Error: DSO fetch() failed: %s\n", pmErrStr(sts));
 		}
 	    }
+	    if (desc_list)
+		free(desc_list);
 	    break;
 
 	case PDU_INSTANCE_REQ:
