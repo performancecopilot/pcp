@@ -285,7 +285,7 @@ dopmda(int pdu)
 {
     int			sts;
     pmDesc		desc;
-    pmDesc		*desc_list = NULL;	/* initialize to pander to gcc */
+    pmDesc		*desc_list = NULL;
     pmResult		*result;
     __pmInResult	*inresult;
     __pmPDU		*pb;
@@ -328,7 +328,7 @@ dopmda(int pdu)
 			return;
                     }
 		} 
-            }/*get_desc*/
+            }
 
 	    sts = 0;
 	    if (profile_changed) {
@@ -364,6 +364,8 @@ dopmda(int pdu)
 		else
 		    printf("Error: __pmSendFetch() failed: %s\n", pmErrStr(sts));
 	    }
+	    if (desc_list)
+		free(desc_list);
 	    break;
 
 	case PDU_INSTANCE_REQ:
@@ -436,9 +438,7 @@ dopmda(int pdu)
 	    if (sts < 0)
 		return;
 
-	    sts = fillResult(result, desc.type);
-
-	    if (sts < 0) {
+	    if ((sts = fillResult(result, desc.type)) < 0) {
 		pmFreeResult(result);
 		return;
 	    }
@@ -546,9 +546,9 @@ dopmda(int pdu)
 	    if ((sts = __pmSendNameList(outfd, FROM_ANON, 1, &param.name, NULL)) >= 0) {
 		if ((sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_PMNS_IDS) {
 		    int		xsts;
-		    if ((sts = __pmDecodeIDList(pb, 1, &pmid, &xsts)) >= 0) {
+
+		    if ((sts = __pmDecodeIDList(pb, 1, &pmid, &xsts)) >= 0)
 			printf("   %s\n", pmIDStr(pmid));
-		    }
 		    else
 			printf("Error: __pmDecodeIDList() failed: %s\n", pmErrStr(sts));
 		}
@@ -681,7 +681,7 @@ fillResult(pmResult *result, int type)
 	if (sts != PM_ERR_TYPE)
 	    printf("Error: Decoding value: %s\n", pmErrStr(sts));
     }
-    else if (*endbuf != '\0') {
+    else if (endbuf != NULL && *endbuf != '\0') {
 	printf("Error: Value \"%s\" is incompatible with metric type (PM_TYPE_%s)\n",
 	       param.name, pmTypeStr(type));
 	sts = PM_ERR_VALUE;
