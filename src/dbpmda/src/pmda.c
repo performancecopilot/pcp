@@ -438,9 +438,7 @@ dopmda(int pdu)
 	    if (sts < 0)
 		return;
 
-	    sts = fillResult(result, desc.type);
-
-	    if (sts < 0) {
+	    if ((sts = fillResult(result, desc.type)) < 0) {
 		pmFreeResult(result);
 		return;
 	    }
@@ -548,9 +546,9 @@ dopmda(int pdu)
 	    if ((sts = __pmSendNameList(outfd, FROM_ANON, 1, &param.name, NULL)) >= 0) {
 		if ((sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_PMNS_IDS) {
 		    int		xsts;
-		    if ((sts = __pmDecodeIDList(pb, 1, &pmid, &xsts)) >= 0) {
+
+		    if ((sts = __pmDecodeIDList(pb, 1, &pmid, &xsts)) >= 0)
 			printf("   %s\n", pmIDStr(pmid));
-		    }
 		    else
 			printf("Error: __pmDecodeIDList() failed: %s\n", pmErrStr(sts));
 		}
