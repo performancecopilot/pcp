@@ -612,7 +612,8 @@ void Status(int pid, int primary)
 		break;
 
 	    case TZ_LOGGER:
-		pmNewZone(tzlogger);		/* but keep me! */
+		if (tzlogger)
+		    pmNewZone(tzlogger);	/* but keep me! */
 		zonename = "pmlogger";
 		break;
 
