@@ -226,9 +226,10 @@ ParseSize(char *size_arg, int *sample_counter, __int64_t *byte_size,
     char *interval_err;
 
     if (pmParseInterval(size_arg, time_delta, &interval_err) >= 0) {
-      free(interval_err);
       return 1;
     }
+    /* error message not used here */
+    free(interval_err);
   }
   
   /* Doesn't match anything, return an error */
