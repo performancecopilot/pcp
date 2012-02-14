@@ -586,14 +586,8 @@ void Status(int pid, int primary)
 	size = lsp->ls_size;
     }
     else {
-	tzlogger = NULL;
-	start = NULL;
-	last = NULL;
-	timenow = NULL;
-	hostname = NULL;
-	state = -1;
-	vol = -1;
-	size = -1;
+	fprintf(stderr, "Error: logger IPC version < LOG_PDU_VERSION2, not supported\n");
+	return;
     }
 
     if (tzchange) {
