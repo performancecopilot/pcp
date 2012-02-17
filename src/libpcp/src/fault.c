@@ -62,7 +62,7 @@ __pmFaultInject(const char *ident, int class)
 	if (fname != NULL) {
 	    FILE	*f;
 	    if ((f = fopen(fname, "r")) == NULL) {
-		char	errmsg[PM_MAXERRMSGLEN];
+		char	msgbuf[PM_MAXERRMSGLEN];
 		fprintf(stderr, "__pmFaultInject: cannot open \"%s\": %s\n", fname, pmErrStr_r(-errno, msgbuf, sizeof(msgbuf)));
 	    }
 	    else {

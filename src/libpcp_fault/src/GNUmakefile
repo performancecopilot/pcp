@@ -84,13 +84,13 @@ derive.o derive_fetch.o: derive.h
 
 p_error.o p_result.o: oldpmapi.h
 
-util.o:	$(TOPDIR)/src/include/pmdbg.h
+util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
 
 fetch.o: internal.h
 
-fault.o:	$(TOPDIR)/src/include/fault.h
+fault.o:	$(TOPDIR)/src/include/pcp/fault.h
 
-$(OBJECTS):	$(TOPDIR)/src/include/pmapi.h $(TOPDIR)/src/include/impl.h
+$(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h $(TOPDIR)/src/include/pcp/impl.h
 
 ifeq "$(TARGET_OS)" "mingw"
 kernel_pmda_dso	= windows
@@ -108,7 +108,7 @@ endif
 ifneq "$(STATICLIBTARGET)" ""
 	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 endif
-	$(INSTALL) -m 644 $(TOPDIR)/src/include/fault.h $(PCP_INC_DIR)/fault.h
+	$(INSTALL) -m 644 $(TOPDIR)/src/include/pcp/fault.h $(PCP_INC_DIR)/fault.h
 
 $(HFILES) $(CFILES):
 	ln -s ../../libpcp/src/$@ .
