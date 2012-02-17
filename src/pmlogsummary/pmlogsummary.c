@@ -227,7 +227,7 @@ printsummary(const char *name)
     int			i, j;
     int			star;
     pmID		pmid;
-    char		*str;
+    char		*str = NULL;
     const char		*u;
     __pmHashNode	*hptr;
     aveData		*avedata;
@@ -266,7 +266,6 @@ printsummary(const char *name)
 	    metricspan = tosec(metrictimespan);
 	    /* counter metric doesn't cover 90% of log */
 	    star = (avedata->desc.sem == PM_SEM_COUNTER && metricspan / logspan <= 0.1);
-	    str = NULL;
 
 	    if ((sts = pmNameInDom(avedata->desc.indom, instdata->inst, &str)) < 0) {
 		if (msp && msp->ninst > 0 && avedata->desc.indom == PM_INDOM_NULL)
@@ -289,8 +288,9 @@ printsummary(const char *name)
 		if (star)
 		    putchar('*');
 		printf("%s%c[\"%s\"]", name, delimiter, str);
-		if (str) free(str);
 	    }
+	    if (str) free(str);
+	    str = NULL;
 
 	    /* complete the calculations, count is number of intervals */
 	    if (avedata->desc.sem == PM_SEM_COUNTER) {
@@ -344,7 +344,7 @@ printsummary(const char *name)
 	}
 	if (avedata->instlist) free(avedata->instlist);
 	__pmHashDel(avedata->desc.pmid, (void*)avedata, &hashlist);
-	if (avedata) free(avedata);
+	free(avedata);
     }
 }
 
@@ -1200,24 +1200,20 @@ main(int argc, char *argv[])
 
     for (trip = 0; trip < 2; trip++) {	/* two passes if binning */
 	for ( ; ; ) {
-	    if ((sts = pmFetchArchive(&result)) < 0) {
-		if (result) pmFreeResult(result);
+	    if ((sts = pmFetchArchive(&result)) < 0)
 		break;
-	    }
 
 	    if (windowend.tv_sec > result->timestamp.tv_sec ||
 		(windowend.tv_sec == result->timestamp.tv_sec &&
 		 windowend.tv_usec >= result->timestamp.tv_usec)) {
-		if (result) {
-		    if (trip == 0)
-			calcaverage(result);
-		    else
-			calcbinning(result);
-		    pmFreeResult(result);
-		}
+		if (trip == 0)
+		    calcaverage(result);
+		else
+		    calcbinning(result);
+		pmFreeResult(result);
 	    }
 	    else {
-		if (result) pmFreeResult(result);
+		pmFreeResult(result);
 		sts = PM_ERR_EOL;
 		break;
 	    }

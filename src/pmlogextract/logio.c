@@ -14,6 +14,7 @@
  * for more details.
  */
 
+#include <assert.h>
 #include "pmapi.h"
 #include "impl.h"
 
@@ -37,6 +38,7 @@ _pmLogGet(__pmLogCtl *lcp, int vol, __pmPDU **pb)
 	f = lcp->l_mfp;
 
     offset = ftell(f);
+    assert(offset >= 0);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
 	fprintf(stderr, "_pmLogGet: fd=%d vol=%d posn=%ld ",
@@ -91,12 +93,17 @@ again:
 #endif
 	if (sts == 0) {
 	    fseek(f, offset, SEEK_SET);
+	    free(lpb);
 	    return PM_ERR_EOL;
 	}
-	else if (sts > 0)
+	else if (sts > 0) {
+	    free(lpb);
 	    return PM_ERR_LOGREC;
-	else
+	}
+	else {
+	    free(lpb);
 	    return -oserror();
+	}
     }
 
 
@@ -108,6 +115,7 @@ again:
 	    fprintf(stderr, "Error: head-tail mismatch (%d-%d)\n",
 		(int)ntohl(head), (int)ntohl(tail));
 #endif
+	free(lpb);
 	return PM_ERR_LOGREC;
     }
 

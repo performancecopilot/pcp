@@ -103,7 +103,7 @@ dometric(const char *name)
     }
 #endif
 
-    if ((sts == __pmLogPutDesc(&logctl, &mp->odesc, 1, &namelist[numpmid])) < 0) {
+    if ((sts = __pmLogPutDesc(&logctl, &mp->odesc, 1, &namelist[numpmid])) < 0) {
 	fprintf(stderr,
 	    "%s: Error: failed to add pmDesc for %s (%s): %s\n",
 		pmProgname, namelist[numpmid], pmIDStr(pmidlist[numpmid]), pmErrStr(sts));
@@ -131,10 +131,9 @@ dometric(const char *name)
 	    if ((mp->idp = (indom_t *)malloc(sizeof(indom_t))) == NULL) {
 		fprintf(stderr,
 		    "%s: dometric: Error: cannot malloc indom_t for %s\n",
-		    pmProgname, pmInDomStr(mp->idp->indom));
+		    pmProgname, pmInDomStr(mp->idesc.indom));
 		exit(1);
 	    }
-	    mp->idp->state = I_INIT;
 	    mp->idp->indom = mp->idesc.indom;
 	    mp->idp->numinst = 0;
 	    mp->idp->inst = NULL;
@@ -142,7 +141,7 @@ dometric(const char *name)
 	}
     }
 
-#if PCP_DEBUG && DESPERATE
+#if PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
 	if (mp->idp != NULL)
 	    fprintf(stderr, "    indom %s -> (%p)\n", pmInDomStr(mp->idp->indom), mp->idp);

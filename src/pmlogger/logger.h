@@ -21,6 +21,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include <assert.h>
 
 /*
  * a task is a bundle of fetches to be done together

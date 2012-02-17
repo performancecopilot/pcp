@@ -37,8 +37,8 @@ LCFLAGS = -I.
 LLDFLAGS= -L$(TOPDIR)/src/libpcp/src -L$(TOPDIR)/src/libpcp_trace/src
 LLDLIBS = -lpcp -lpcp_trace
 
-LDIRT	= *.log *.dir *.pag *.o $(APPS) pcp \
-	  pmtrace.c tmpcp Makefile.demos
+LDIRT	= *.log *.dir *.pag *.o $(APPS) tmp.c \
+	  pmtrace.c Makefile.demos
 
 LSRCFILES= $(SCRIPTS) $(OTHERS) $(DEMOS) $(DEMOFILES) $(DFILES)
 
@@ -73,7 +73,23 @@ demos:	$(APPS) pmtrace.c
 pmtrace.c:	$(TOPDIR)/src/pmtrace/pmtrace.c
 	rm -f $@ && cp $< $@
 
-app1.o app2.o app3.o:	tmpcp
+app1.o:	app1.c $(TOPDIR)/src/include/pcp/pmapi.h
+	@rm -f tmp.c
+	sed -e 's;<pcp/\(.*\)>;"\1";' app1.c >tmp.c
+	$(CCF) -c -o $@ tmp.c
+	@rm -f tmp.c
+
+app2.o:	app2.c $(TOPDIR)/src/include/pcp/pmapi.h
+	@rm -f tmp.c
+	sed -e 's;<pcp/\(.*\)>;"\1";' app2.c >tmp.c
+	$(CCF) -c -o $@ tmp.c
+	@rm -f tmp.c
+
+app3.o:	app3.c $(TOPDIR)/src/include/pcp/pmapi.h
+	@rm -f tmp.c
+	sed -e 's;<pcp/\(.*\)>;"\1";' app3.c >tmp.c
+	$(CCF) -c -o $@ tmp.c
+	@rm -f tmp.c
 
 app1$(EXECSUFFIX):	app1.o
 	$(CCF) -o $@ $(LDFLAGS) app1.o $(LDLIBS)
@@ -83,10 +99,6 @@ app2$(EXECSUFFIX):	app2.o
 
 app3$(EXECSUFFIX):	app3.o
 	$(CCF) -o $@ $(LDFLAGS) app3.o $(LDLIBS) $(LIB_FOR_PTHREADS)
-
-tmpcp:
-	$(LN_S) -s $(TOPDIR)/src/include pcp
-	touch tmpcp
 
 default_pcp:	default
 

@@ -38,14 +38,14 @@ LSRCFILES = Install Remove README help pmns root
 LLDLIBS	= -lpcp_pmda -lpcp -lrt
 LCFLAGS = -I.
 
-LDIRT	= domain.h pcp *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so
+LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so
 
 default: build-me
 
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me:	pcp domain.h $(TARGETS)
+build-me:	domain.h $(TARGETS)
 
 install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
@@ -64,6 +64,3 @@ install_pcp: install
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
-
-pcp:
-	$(LN_S) -f $(TOPDIR)/src/include pcp

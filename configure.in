@@ -14,7 +14,7 @@ dnl for more details.
 dnl 
 
 dnl unpacking check - this file must exist
-AC_INIT(src/include/pmapi.h)
+AC_INIT(src/include/pcp/pmapi.h)
 
 dnl Irix build issue ... use the tools from the local filesystems
 unset ROOT TOOLROOT
@@ -73,6 +73,7 @@ then
     test -f /etc/debian_version && target_distro=debian
     test -f /etc/slackware-version && target_distro=slackware
     test -f /etc/gentoo-release && target_distro=gentoo
+    test -f /etc/mandriva-release && target_distro=mandriva
 elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS)
@@ -174,8 +175,8 @@ fi
 AC_SUBST(package_builder)
 
 dnl output header with cpp defs HAVE_*, etc
-AC_CONFIG_HEADER(src/include/platform_header.h)
-AC_OUTPUT(src/include/platform_trailer)
+AC_CONFIG_HEADER(src/include/pcp/platform_header.h)
+AC_OUTPUT(src/include/pcp/platform_trailer)
 
 dnl check if user wants their own C compiler
 cflags_abi=
@@ -271,9 +272,14 @@ else
 fi
 AC_SUBST(pcp_owner)
 if test -z "$PCP_GROUP" ; then
-    case "$target_os" in
-    darwin) pcp_group=wheel;;
-    *)	pcp_group=root;;
+    case "$target_os"
+    in
+	darwin|freebsd)
+	    pcp_group=wheel
+	    ;;
+	*)
+	    pcp_group=root
+	    ;;
     esac
 else
     pcp_group="$PCP_GROUP"
@@ -300,6 +306,7 @@ test ! -x "$ZIP" && ZIP=/usr/local/bin/gzip
 test ! -x "$ZIP" && ZIP=/usr/freeware/bin/gzip
 test ! -x "$ZIP" && ZIP=/usr/bin/gzip
 gzip=$ZIP
+test -z "$gzip" && gzip=no-gzip
 AC_SUBST(gzip)
 
 dnl check if the bzip2 program is available
@@ -307,11 +314,36 @@ dnl (needed to bzip2 man pages on some platforms)
 if test -z "$BZIP2"; then
     AC_PATH_PROG(BZIP2, bzip2, /bin/bzip2)
 fi
+test ! -x "$BZIP2" && BZIP2=/usr/bin/bzip2
 test ! -x "$BZIP2" && BZIP2=/usr/local/bin/bzip2
 test ! -x "$BZIP2" && BZIP2=/usr/freeware/bin/bzip2
-test ! -x "$BZIP2" && BZIP2=/usr/bin/bzip2
 bzip2=$BZIP2
+test -z "$bzip2" && bzip2=no-bzip2
 AC_SUBST(bzip2)
+
+dnl check if the lzma program is available
+dnl (needed to lzma man pages on some platforms)
+if test -z "$LZMA"; then
+    AC_PATH_PROG(LZMA, lzma, /bin/lzma)
+fi
+test ! -x "$LZMA" && LZMA=/usr/bin/lzma
+test ! -x "$LZMA" && LZMA=/usr/local/bin/lzma
+test ! -x "$LZMA" && LZMA=/usr/freeware/bin/lzma
+lzma=$LZMA
+test -z "$lzma" && lzma=no-lzma
+AC_SUBST(lzma)
+
+dnl check if the xz program is available
+dnl (needed to xz man pages on some platforms)
+if test -z "$XZ"; then
+    AC_PATH_PROG(XZ, xz, /bin/xz)
+fi
+test ! -x "$XZ" && XZ=/usr/bin/xz
+test ! -x "$XZ" && XZ=/usr/local/bin/xz
+test ! -x "$XZ" && XZ=/usr/freeware/bin/xz
+xz=$XZ
+test -z "$xz" && xz=no-xz
+AC_SUBST(xz)
 
 dnl Check for mac PackageMaker
 AC_MSG_CHECKING([for PackageMaker])
@@ -1503,9 +1535,9 @@ if test $target_os = mingw
 then
     pcp_lib_dir=/local/bin
     pcp_lib32_dir=/local/bin
-elif test $target_os = linux -a $target_cpu = x86_64 -a $target_distro != debian
+elif test $target_os = linux -a \( $target_cpu = x86_64 -o $target_cpu = powerpc64 \) -a $target_distro != debian
 then
-    # Linux on x86_64 puts libraries in .../lib64 (and rpmbuild
+    # Linux on x86_64 and ppc64 puts libraries in .../lib64 (and rpmbuild
     # enforces that convention) but $libdir lies about it.
     pcp_lib_dir=/usr/lib64
     pcp_lib32_dir=/usr/lib
@@ -1577,6 +1609,8 @@ AC_SUBST(pcp_x11_appdefs_dir)
 dnl man pages (source)
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
+have_lzmaed_manpages=false
+have_xzed_manpages=false
 need_old_tbl_header=false
 man_header=
 pcp_man_dir=`eval echo $mandir`
@@ -1611,6 +1645,18 @@ then
 	    pcp_man_dir=$d
 	    man_header=`$BZIP2 -d < $d/man1/man.1.bz2 | head -1`
 	    break
+	elif test -f $d/man1/man.1.lzma
+	then
+	    have_lzmaed_manpages=true
+	    pcp_man_dir=$d
+	    man_header=`$LZMA -d < $d/man1/man.1.lzma | head -1`
+	    break
+	elif test -f $d/man1/man.1.xz
+	then
+	    have_xzed_manpages=true
+	    pcp_man_dir=$d
+	    man_header=`$XZ -d < $d/man1/man.1.xz | head -1`
+	    break
 	elif test -f $d/man1/man.1
 	then
 	    pcp_man_dir=$d
@@ -1628,6 +1674,18 @@ then
 	    pcp_man_dir=$d
 	    man_header=`$BZIP2 -d < $d/sman1/man.1.bz2 | head -1`
 	    break
+	elif test -f $d/sman1/man.1.lzma
+	then
+	    have_lzmaed_manpages=true
+	    pcp_man_dir=$d
+	    man_header=`$LZMA -d < $d/sman1/man.1.lzma | head -1`
+	    break
+	elif test -f $d/sman1/man.1.xz
+	then
+	    have_xzed_manpages=true
+	    pcp_man_dir=$d
+	    man_header=`$XZ -d < $d/sman1/man.1.xz | head -1`
+	    break
 	elif test -f $d/sman1/man.1
 	then
 	    pcp_man_dir=$d
@@ -1641,10 +1699,12 @@ then
 	    break
 	fi
     done
-    if test -x /usr/lib/rpm/brp-compress
+    if test -x /usr/lib/rpm/brp-compress -a $target_distro != mandriva
     then
 	have_gzipped_manpages=true
 	have_bzip2ed_manpages=false
+	have_lzmaed_manpages=false
+	have_xzed_manpages=false
     fi
 fi
 if test -z "$pcp_man_dir"
@@ -1659,6 +1719,8 @@ fi
 AC_SUBST(pcp_man_dir)
 AC_SUBST(have_gzipped_manpages)
 AC_SUBST(have_bzip2ed_manpages)
+AC_SUBST(have_lzmaed_manpages)
+AC_SUBST(have_xzed_manpages)
 AC_SUBST(need_old_tbl_header)
 
 dnl public binaries

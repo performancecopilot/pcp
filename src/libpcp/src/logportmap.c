@@ -317,32 +317,33 @@ __pmIsLocalhost(const char *hostname)
         if ((he = gethostbyname(lhost)) != NULL ) {
 	    int i;
 	    unsigned int * laddrs;
-	    for ( i=0; he->h_addr_list[i] != NULL; i++ ) ;
+	    for (i=0; he->h_addr_list[i] != NULL; i++) ;
 
 	    laddrs = (unsigned int *)calloc(i, sizeof (unsigned int));
-	    if ( laddrs != NULL ) {
+	    if (laddrs != NULL) {
 		int k;
-		for ( k=0; k < i; k++ ) {
+		for (k=0; k < i; k++) {
 		    laddrs[k] = ((struct in_addr *)he->h_addr_list[k])->s_addr;
 		}
 
 		if ((he = gethostbyname(hostname)) == NULL) {
+		    free(laddrs);
 		    PM_UNLOCK(__pmLock_libpcp);
 		    return -EHOSTUNREACH;
 		}
 
-		for ( i--; i >= 0; i-- ) {
+		for (i--; i >= 0; i--) {
 		    for (k = 0; he->h_addr_list[k] != NULL; k++) {
 			struct in_addr *s=(struct in_addr *)he->h_addr_list[k];
 			if (s->s_addr == laddrs[i]) {
-			    free (laddrs);
+			    free(laddrs);
 			    PM_UNLOCK(__pmLock_libpcp);
-			    return (1);
+			    return 1;
 			}
 		    }
 		}
 
-		free (laddrs);
+		free(laddrs);
 	    }
 	}
 	PM_UNLOCK(__pmLock_libpcp);

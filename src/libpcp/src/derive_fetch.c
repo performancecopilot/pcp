@@ -19,6 +19,7 @@
  */
 
 #include <inttypes.h>
+#include <assert.h>
 #include "derive.h"
 
 static void
@@ -481,6 +482,9 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	sts = eval_expr(np->right, rp, level+1);
 	if (sts < 0) return sts;
     }
+
+    /* mostly, np->left is not NULL ... */
+    assert (np->type == L_NUMBER || np->type == L_NAME || np->left != NULL);
 
     switch (np->type) {
 

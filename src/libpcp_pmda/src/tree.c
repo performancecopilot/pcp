@@ -179,7 +179,7 @@ __pmdaNodeRelativeChildren(__pmnsNode *base, char ***offspring, int **status)
     length += nmatch * sizeof(char *);	/* pointers to names */
     if ((list = (char **)malloc(length)) == NULL)
 	return -oserror();
-    if ((leaf = (int *)malloc(nmatch * sizeof(int*))) == NULL) {
+    if ((leaf = (int *)malloc(nmatch * sizeof(int))) == NULL) {
 	free(list);
 	return -oserror();
     }
@@ -264,7 +264,7 @@ __pmdaNodeAbsoluteChildren(__pmnsNode *node, char ***offspring, int **status)
     length += nmetrics * sizeof(char *);	/* pointers to names */
     if ((list = (char **)malloc(length)) == NULL)
 	return -oserror();
-    if ((leaf = (int *)malloc(nmetrics * sizeof(int*))) == NULL) {
+    if ((leaf = (int *)malloc(nmetrics * sizeof(int))) == NULL) {
 	free(list);
 	return -oserror();
     }

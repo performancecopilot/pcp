@@ -33,9 +33,9 @@ IAM	= trivial
 DOMAIN	= TRIVIAL
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
-LDIRT	= domain.h pcp *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so
+LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so
 
-default_pcp default:	pcp domain.h $(CMDTARGET)
+default_pcp default:	domain.h $(CMDTARGET)
 
 include $(BUILDRULES)
 
@@ -47,6 +47,3 @@ install install_pcp:	default
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
-
-pcp:
-	$(LN_S) -f $(TOPDIR)/src/include pcp

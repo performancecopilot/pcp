@@ -643,6 +643,7 @@ retry:
 			 "insert_cache: indom %s: too many instances",
 			 pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
 		    *sts = PM_ERR_GENERIC;
+		    free(dup);
 		    return NULL;
 		}
 		inst++;
@@ -657,6 +658,7 @@ retry:
 	     "insert_cache: indom %s: unable to allocate memory for entry_t",
 	     pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
 	*sts = PM_ERR_GENERIC;
+	free(dup);
 	return NULL;
     }
 
@@ -713,8 +715,8 @@ load_cache(hdr_t *h)
     int		cnt;
     int		x;
     int		inst;
-    int		keylen;
-    void	*key;
+    int		keylen = 0;
+    void	*key = NULL;
     int		s;
     char	buf[1024];	/* input line buffer, is this big enough? */
     char	*p;
@@ -736,6 +738,7 @@ load_cache(hdr_t *h)
     if (fgets(buf, sizeof(buf), fp) == NULL) {
 	__pmNotifyErr(LOG_ERR, 
 	     "pmdaCacheOp: %s: empty file?", filename);
+	fclose(fp);
 	return PM_ERR_GENERIC;
     }
     s = sscanf(buf, "%d %d", &x, &h->ins_mode);
@@ -743,6 +746,7 @@ load_cache(hdr_t *h)
 	__pmNotifyErr(LOG_ERR, 
 	     "pmdaCacheOp: %s: illegal first record: %s",
 	     filename, buf);
+	fclose(fp);
 	return PM_ERR_GENERIC;
     }
 
@@ -810,11 +814,16 @@ bad:
 	    __pmNotifyErr(LOG_ERR, 
 		 "pmdaCacheOp: %s: illegal record: %s",
 		 filename, buf);
+	    if (key) free(key);
+	    fclose(fp);
 	    return PM_ERR_GENERIC;
 	}
 	e = insert_cache(h, p, inst, &sts);
-	if (e == NULL)
+	if (e == NULL) {
+	    if (key) free(key);
+	    fclose(fp);
 	    return sts;
+	}
 	if (sts != 0) {
 	    __pmNotifyErr(LOG_WARNING,
 		"pmdaCacheOp: %s: loading instance %d (\"%s\") ignored, already in cache as %d (\"%s\")",

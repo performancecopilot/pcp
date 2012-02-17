@@ -533,6 +533,14 @@ BuildArgv(void)
 		    nLines);
 	    __pmNoMem("pmcd config: build argv", nArgs * sizeof(char *),
 		     PM_RECOV_ERR);
+	    if (result != NULL) {
+		while (nArgs >= 0) {
+		    if (result[nArgs] != NULL)
+			free(result[nArgs]);
+		    nArgs--;
+		}
+		free(result);
+	    }
 	    return NULL;
 	}
 #ifdef PCP_DEBUG
@@ -636,12 +644,14 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
     FindNextToken();
     if (*token == '\n') {
 	fprintf(stderr, "pmcd config[line %d]: Error: expected DSO pathname\n", nLines);
+	free(entryPoint);
 	return -1;
     }
     if (*token != '/') {
 	if (token[strlen(token)-1] == '\n')
 	    token[strlen(token)-1] = '\0';
 	fprintf(stderr, "pmcd config[line %d]: Error: path \"%s\" to PMDA is not absolute\n", nLines, token);
+	free(entryPoint);
 	return -1;
     }
 
@@ -656,6 +666,8 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
     if (*token != '\n') {
 	fprintf(stderr, "pmcd config[line %d]: Error: too many parameters for DSO\n",
 		     nLines);
+	free(entryPoint);
+	free(pathName);
 	return -1;
     }
 
@@ -667,7 +679,7 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
     newAgent->pmDomainId = pmDomainId;
     newAgent->inFd = -1;
     newAgent->outFd = -1;
-    newAgent->pmDomainLabel = pmDomainLabel;
+    newAgent->pmDomainLabel = strdup(pmDomainLabel);
     newAgent->ipc.dso.pathName = pathName;
     newAgent->ipc.dso.xlatePath = xlatePath;
     newAgent->ipc.dso.entryPoint = entryPoint;
@@ -726,7 +738,6 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
 	    fprintf(stderr,
 		"pmcd config[line %d]: Error: failed to get port number for port name %s\n",
 		nLines, socketName);
-	    free(pmDomainLabel);
 	    free(socketName);
 	    return -1;
 	}
@@ -740,7 +751,7 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
     newAgent->pmDomainId = pmDomainId;
     newAgent->inFd = -1;
     newAgent->outFd = -1;
-    newAgent->pmDomainLabel = pmDomainLabel;
+    newAgent->pmDomainLabel = strdup(pmDomainLabel);
     newAgent->ipc.socket.addrDomain = addrDomain;
     newAgent->ipc.socket.name = socketName;
     newAgent->ipc.socket.port = port;
@@ -798,7 +809,7 @@ ParsePipe(char *pmDomainLabel, int pmDomainId)
     newAgent->pmDomainId = pmDomainId;
     newAgent->inFd = -1;
     newAgent->outFd = -1;
-    newAgent->pmDomainLabel = pmDomainLabel;
+    newAgent->pmDomainLabel = strdup(pmDomainLabel);
     newAgent->status.startNotReady = notReady;
     newAgent->ipc.pipe.argv = BuildArgv();
 
@@ -1146,7 +1157,7 @@ ParseAccessControls(void)
 static int
 ReadConfigFile(FILE *configFile)
 {
-    char	*pmDomainLabel;
+    char	*pmDomainLabel = NULL;
     int		i, pmDomainId;
     int		sts = 0;
 
@@ -1217,6 +1228,10 @@ ReadConfigFile(FILE *configFile)
 	    sts = -1;
 	}
 doneLine:
+	if (pmDomainLabel != NULL) {
+	    free(pmDomainLabel);
+	    pmDomainLabel = NULL;
+	}
 	SkipLine();
     }
     if (scanError) {

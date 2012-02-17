@@ -57,7 +57,7 @@ start_metric(pmID pmid)
 	sts = pmLookupDesc(pmid, &desc);
 	if (sts < 0) {
 	    if (wflag) {
-		snprintf(mess, sizeof(mess), "Metric %s: pmLookupDesc: %s", mp->old_name, pmErrStr(sts));
+		snprintf(mess, sizeof(mess), "Metric %s: pmLookupDesc: %s", pmIDStr(pmid), pmErrStr(sts));
 		yywarn(mess);
 	    }
 	    return NULL;
@@ -67,6 +67,7 @@ start_metric(pmID pmid)
 	if (mp == NULL) {
 	    fprintf(stderr, "metricspec malloc(%d) failed: %s\n", (int)sizeof(metricspec_t), strerror(errno));
 	    abandon();
+	    /*NOTREACHED*/
 	}
 	mp->m_next = metric_root;
 	metric_root = mp;
@@ -112,10 +113,11 @@ _pmUnpackDesc(__pmPDU *pdubuf, pmDesc *desc, int *numnames, char ***names)
     desc->units = __ntohpmUnits(pp->desc.units);
     desc->pmid = __ntohpmID(pp->desc.pmid);
     *numnames = ntohl(pp->numnames);
-    *names = (char **)malloc(*numnames * sizeof(names[1]));
-    if (names == NULL) {
-	fprintf(stderr, "_pmUnpackDesc malloc(%d) failed: %s\n", (int)(*numnames * sizeof(names[1])), strerror(errno));
+    *names = (char **)malloc(*numnames * sizeof(*names[1]));
+    if (*names == NULL) {
+	fprintf(stderr, "_pmUnpackDesc malloc(%d) failed: %s\n", (int)(*numnames * sizeof(*names[1])), strerror(errno));
 	abandon();
+	/*NOTREACHED*/
     }
 
     p = pp->strbuf;
@@ -127,6 +129,7 @@ _pmUnpackDesc(__pmPDU *pdubuf, pmDesc *desc, int *numnames, char ***names)
 	if ((*names)[i] == NULL) {
 	    fprintf(stderr, "_pmUnpackDesc malloc(%d) failed: %s\n", slen+1, strerror(errno));
 	    abandon();
+	    /*NOTREACHED*/
 	}
 	strncpy((*names)[i], p, slen);
 	(*names)[i][slen] = '\0';
@@ -180,9 +183,10 @@ do_desc(void)
 		    if (names[i] == NULL) {
 			fprintf(stderr, "do_desc strdup(%s) failed: %s\n", mp->new_name, strerror(errno));
 			abandon();
+			/*NOTREACHED*/
 		    }
+		    break;
 		}
-		break;
 	    }
 	    if (i == numnames) {
 		fprintf(stderr, "%s: Botch: old name %s not found in list of %d names for pmid %s ...",
@@ -193,6 +197,7 @@ do_desc(void)
 		}
 		fputc('\n', stderr);
 		abandon();
+		/*NOTREACHED*/
 	    }
 	}
 	if (mp->flags & METRIC_CHANGE_TYPE)
@@ -209,6 +214,7 @@ do_desc(void)
 	fprintf(stderr, "%s: Error: __pmLogPutDesc: %s (%s): %s\n",
 		pmProgname, names[0], pmIDStr(desc.pmid), pmErrStr(sts));
 	abandon();
+	/*NOTREACHED*/
     }
 #if PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)

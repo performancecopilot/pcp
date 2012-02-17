@@ -21,6 +21,7 @@
 
 #include <math.h>
 #include <ctype.h>
+#include <assert.h>
 #include "show.h"
 #include "impl.h"
 #include "dstruct.h"
@@ -460,6 +461,7 @@ showSyn(FILE *f, Expr *x)
 
     /* unary operator */
     else {
+	assert(x->arg1 != NULL);
 	fputs(opStrings(x->op), f);
 	fputc(' ', f);
 	if (x->arg1->op >= ACT_ARG || x->arg1->op <= CND_DELAY)

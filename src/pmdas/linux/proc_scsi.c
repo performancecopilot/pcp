@@ -67,6 +67,7 @@ refresh_proc_scsi(proc_scsi_t *scsi) {
 	if (strncmp(buf, "Host:", 5) != 0)
 	    continue;
 
+	x.dev_name = NULL;
 	n = sscanf(buf, "Host: scsi%d Channel: %d Id: %d Lun: %d",
 	    &x.dev_host, &x.dev_channel, &x.dev_id, &x.dev_lun);
 	if (n != 4)

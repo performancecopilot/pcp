@@ -325,8 +325,10 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
 					ap->ipc.dso.dispatch.version.two.ext);
     }
     else {
-	if (ap->status.notReady)
+	if (ap->status.notReady) {
+	    if (name != NULL) free(name);
 	    return PM_ERR_AGAIN;
+	}
 	if (_pmcd_trace_mask)
 	    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_INSTANCE_REQ, (int)indom);
 	sts = __pmSendInstanceReq(ap->inFd, cp - client, &when, indom, inst, name);
@@ -503,10 +505,10 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 
     sts = pmLookupName(numids, namelist, idlist);
     for (i = 0; i < numids; i++) {
-	if (idlist[i] < 0) continue;
-	if (((__pmID_int *)&idlist[i])->domain == DYNAMIC_PMID) {
+	if (idlist[i] == PM_ID_NULL) continue;
+	if (pmid_domain(idlist[i]) == DYNAMIC_PMID && pmid_item(idlist[i]) == 0) {
 	    int		lsts;
-	    int		domain = ((__pmID_int *)&idlist[i])->cluster;
+	    int		domain = pmid_cluster(idlist[i]);
 	    /*
 	     * don't return <domain>.*.* ... all return paths from here
 	     * must either set a valid PMID in idlist[i] or indicate
@@ -629,8 +631,8 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
 
     namelist[0] = name;
     sts = pmLookupName(1, namelist, idlist);
-    if (sts == 1 && ((__pmID_int *)&idlist[0])->domain == DYNAMIC_PMID) {
-	int		domain = ((__pmID_int *)&idlist[0])->cluster;
+    if (sts == 1 && pmid_domain(idlist[0]) == DYNAMIC_PMID && pmid_item(idlist[0]) == 0) {
+	int		domain = pmid_cluster(idlist[0]);
 	AgentInfo	*ap = NULL;
 	if ((ap = FindDomainAgent(domain)) == NULL) {
 	    sts = PM_ERR_NOAGENT;
@@ -808,8 +810,8 @@ traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
 	sts = pmLookupName(1, namelist, idlist);
 	if (sts < 1)
 	    continue;
-	if (((__pmID_int *)&idlist[0])->domain == DYNAMIC_PMID) {
-	    int		domain = ((__pmID_int *)&idlist[0])->cluster;
+	if (pmid_domain(idlist[0]) == DYNAMIC_PMID && pmid_item(idlist[0]) == 0) {
+	    int		domain = pmid_cluster(idlist[0]);
 	    AgentInfo	*ap;
 	    if ((ap = FindDomainAgent(domain)) == NULL)
 		continue;

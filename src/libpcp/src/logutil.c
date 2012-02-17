@@ -19,6 +19,7 @@
  */
 
 #include <inttypes.h>
+#include <assert.h>
 #include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
@@ -287,6 +288,16 @@ fopen_compress(const char *fname)
     fd = open(msg, O_RDWR|O_CREAT|O_EXCL, 0600);
 #endif
 
+    if (fd < 0) {
+	sts = oserror();
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LOG)
+	    fprintf(stderr, "__pmLogOpen: temp file create failed: %s\n", osstrerror());
+#endif
+	setoserror(sts);
+	return NULL;
+    }
+
     sts = popen_uncompress(cmd, fname, compress_ctl[i].suff, fd);
     if (sts == -1) {
 	sts = oserror();
@@ -507,6 +518,7 @@ __pmLogNewFile(const char *base, int vol)
 	char	errmsg[PM_MAXERRMSGLEN];
 	pmprintf("__pmLogNewFile: failed to setup \"%s\": %s\n", fname, osstrerror_r(errmsg, sizeof(errmsg)));
 	pmflush();
+	fclose(f);
 	setoserror(save_error);
 	return NULL;
     }
@@ -538,7 +550,6 @@ __pmLogWriteLabel(FILE *f, const __pmLogLabel *lp)
 	    sts = -oserror();
 	    pmprintf("__pmLogWriteLabel: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
 	    pmflush();
-	    fclose(f);
     }
 
     return sts;
@@ -1032,12 +1043,14 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
 	off_t	tmp;
 
 	tmp = ftell(lcp->l_mdfp);
+	assert(tmp >= 0);
 	ti.ti_meta = (__pm_off_t)tmp;
 	if (tmp != ti.ti_meta) {
 	    __pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive file (meta) too big\n");
 	    exit(1);
 	}
 	tmp = ftell(lcp->l_mfp);
+	assert(tmp >= 0);
 	ti.ti_log = (__pm_off_t)tmp;
 	if (tmp != ti.ti_log) {
 	    __pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive file (data) too big\n");
@@ -1046,7 +1059,9 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
     }
     else {
 	ti.ti_meta = (__pm_off_t)ftell(lcp->l_mdfp);
+	assert(ti.ti_meta >= 0);
 	ti.ti_log = (__pm_off_t)ftell(lcp->l_mfp);
+	assert(ti.ti_log >= 0);
     }
 
     oti.ti_stamp.tv_sec = htonl(ti.ti_stamp.tv_sec);
@@ -1334,6 +1349,7 @@ __pmLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result, int optio
 	f = lcp->l_mfp;
 
     offset = ftell(f);
+    assert(offset >= 0);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
 	fprintf(stderr, "__pmLogRead: fd=%d%s mode=%s vol=%d posn=%ld ",
@@ -1357,6 +1373,7 @@ __pmLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result, int optio
 			    f = lcp->l_mfp;
 			    fseek(f, 0L, SEEK_END);
 			    offset = ftell(f);
+			    assert(offset >= 0);
 #ifdef PCP_DEBUG
 			    if (pmDebug & DBG_TRACE_LOG) {
 				fprintf(stderr, "vol=%d posn=%ld ",
@@ -1542,8 +1559,13 @@ again:
     if (pmDebug & DBG_TRACE_LOG) {
 	head -= sizeof(head) + sizeof(trail);
 	fprintf(stderr, "@");
-	if (sts >= 0)
+	if (sts >= 0) {
+	    __pmTimeval	tmp;
 	    __pmPrintStamp(stderr, &(*result)->timestamp);
+	    tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
+	    tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
+	    fprintf(stderr, " (t=%.6f)", __pmTimevalSub(&tmp, &lcp->l_label.ill_start));
+	}
 	else
 	    fprintf(stderr, "unknown time");
 	fprintf(stderr, " len=header+%d+trailer\n", head);
@@ -1866,6 +1888,7 @@ more:
 
     /* remember your position in this context */
     ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
+    assert(ctxp->c_archctl->ac_offset >= 0);
     ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 
     return sts;
@@ -2101,6 +2124,7 @@ __pmLogSetTime(__pmContext *ctxp)
 
     /* remember your position in this context */
     ctxp->c_archctl->ac_offset = ftell(lcp->l_mfp);
+    assert(ctxp->c_archctl->ac_offset >= 0);
     ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 }
 
@@ -2176,6 +2200,7 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 	if (lcp->l_curvol == vol) {
 	    f = lcp->l_mfp;
 	    save = ftell(f);
+	    assert(save >= 0);
 	}
 	else if ((f = _logpeek(lcp, vol)) == NULL) {
 	    sts = -oserror();
@@ -2229,8 +2254,13 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 	 */
 	logend = (int)sizeof(__pmLogLabel) + 2*(int)sizeof(int);
 	for (i = lcp->l_numti - 1; i >= 0; i--) {
-	    if (lcp->l_ti[i].ti_vol != vol)
+	    if (lcp->l_ti[i].ti_vol != vol) {
+		if (f != lcp->l_mfp) {
+		    fclose(f);
+		    f = NULL;
+		}
 		continue;
+	    }
 	    if (lcp->l_ti[i].ti_log <= physend) {
 		logend = lcp->l_ti[i].ti_log;
 		break;
@@ -2265,6 +2295,7 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
         /* Keep reading records from "logend" until can do so no more... */
 	for ( ; ; ) {
 	    offset = ftell(f);
+	    assert(offset >= 0);
 	    if ((int)fread(&head, 1, sizeof(head), f) != sizeof(head))
 		/* cannot read header for log record !!?? */
 		break;
@@ -2305,8 +2336,14 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 	    lcp->l_endtime.tv_usec = (__int32_t)rp->timestamp.tv_usec;
 	    lcp->l_physend = physend;
 	}
-	pmFreeResult(rp);
 	sts = 0;
+    }
+    if (rp != NULL) {
+	/*
+	 * rp is not NULL from found==1 path _or_ from error break
+	 * after an initial paranoidLogRead() success
+	 */
+	pmFreeResult(rp);
     }
 
     return sts;

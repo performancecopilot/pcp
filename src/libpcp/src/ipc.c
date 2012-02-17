@@ -21,14 +21,6 @@
 #include <sys/config.h>
 #endif
 
-#ifndef MAXINT
-#ifdef INT_MAX
-#define MAXINT INT_MAX
-#else
-bozo ... need to be able to find MAXINT or equivalent
-#endif
-#endif
-
 /*
  * We keep a table of connection state for each interesting file descriptor here.
  * The version field holds the version of the software at the other end of the
@@ -43,7 +35,7 @@ typedef struct {
     int		socket;		/* true or false */
 } __pmIPC;
 
-static int	__pmLastUsedFd = -MAXINT;
+static int	__pmLastUsedFd = -INT_MAX;
 static __pmIPC	*__pmIPCTablePtr;
 static int	ipctablesize;
 

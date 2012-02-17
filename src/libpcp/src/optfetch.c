@@ -27,6 +27,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include <assert.h>
 
 /*
  * elements of optcost are
@@ -349,9 +350,10 @@ __pmOptFetchDump(FILE *f, const fetchctl_t *root)
 #endif /* DEBUG */
 
 /*
- * add a new request into a group of fetches
+ * add a new request into a group of fetches ...
+ * only failure is from calloc() and this is fatal
  */
-int
+void
 __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 {
     fetchctl_t		*fp;
@@ -477,6 +479,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 	    }
 	    break;
 	}
+	assert(idp != NULL && pmp != NULL);
 	if (fp == tfp) {
 	    /*
 	     * The chosen one ...
@@ -522,7 +525,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
     }
 
     PM_UNLOCK(__pmLock_libpcp);
-    return 0;
+    return;
 }
 
 /*
@@ -606,7 +609,7 @@ __pmOptFetchDel(fetchctl_t **root, optreq_t *new)
     return -1;
 }
 
-int
+void
 __pmOptFetchRedo(fetchctl_t **root)
 {
     fetchctl_t		*newroot = NULL;
@@ -681,23 +684,23 @@ __pmOptFetchRedo(fetchctl_t **root)
     }
 
     *root = newroot;
-    return 0;
+    return;
 }
 
-int
+void
 __pmOptFetchGetParams(optcost_t *ocp)
 {
     PM_LOCK(__pmLock_libpcp);
     *ocp = optcost;
     PM_UNLOCK(__pmLock_libpcp);
-    return 0;
+    return;
 }
 
-int
+void
 __pmOptFetchPutParams(optcost_t *ocp)
 {
     PM_LOCK(__pmLock_libpcp);
     optcost = *ocp;
     PM_UNLOCK(__pmLock_libpcp);
-    return 0;
+    return;
 }

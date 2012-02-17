@@ -40,8 +40,8 @@
  *
  * registered.mutex is held throughout pmRegisterDerived() and this
  * protects all of the lexical scanner and parser state, i.e. tokbuf,
- * tokbuflen, string, lexpeek, this and eof.  Same applies to pmid
- * within pmRegisterDerived().
+ * tokbuflen, string, lexpeek and this.  Same applies to pmid within
+ * pmRegisterDerived().
  *
  * The return value from pmRegisterDerived is either a NULL or a pointer
  * back into the expr argument, so use of "this" to carry the return
@@ -62,6 +62,7 @@
  */
 
 #include <inttypes.h>
+#include <assert.h>
 #include "derive.h"
 #include "fault.h"
 
@@ -155,7 +156,7 @@ PM_FAULT_CHECK(PM_FAULT_PMAPI);
 	    return PM_ERR_TYPE;
     }
     if ((msg = pmRegisterDerived(name, buf)) != NULL) {
-	pmprintf("__pmRegisterAnon(%s, %d): Error: %s\n", name, type, pmDerivedErrStr());
+	pmprintf("__pmRegisterAnon(%s, %d): @ \"%s\" Error: %s\n", name, type, msg, pmDerivedErrStr());
 	pmflush();
 	return PM_ERR_GENERIC;
     }
@@ -196,18 +197,15 @@ unget(int c)
 static int
 get()
 {
-    static int	eof = 0;
     int		c;
     if (lexpeek != 0) {
 	c = lexpeek;
 	lexpeek = 0;
 	return c;
     }
-    if (eof) return L_EOF;
     c = *string;
     if (c == '\0') {
 	return L_EOF;
-	eof = 1;
     }
     string++;
     return c;
@@ -802,18 +800,23 @@ check_expr(int n, node_t *np)
     int		sts;
 
     assert(np != NULL);
+
     if (np->type == L_NUMBER || np->type == L_NAME)
 	return 0;
-    if (np->left != NULL)
-	if ((sts = check_expr(n, np->left)) < 0)
-	    return sts;
-    if (np->right != NULL)
+
+    /* otherwise, np->left is never NULL ... */
+    assert(np->left != NULL);
+
+    if ((sts = check_expr(n, np->left)) < 0)
+	return sts;
+    if (np->right != NULL) {
 	if ((sts = check_expr(n, np->right)) < 0)
 	    return sts;
-    /*
-     * np->left is never NULL ...
-     */
-    if (np->right == NULL) {
+	/* build pmDesc from pmDesc of both operands */
+	if ((sts = map_desc(n, np)) < 0)
+	    return sts;
+    }
+    else {
 	np->desc = np->left->desc;	/* struct copy */
 	/*
 	 * special cases for functions ...
@@ -858,12 +861,6 @@ check_expr(int n, node_t *np)
 	else if (np->type == L_ANON) {
 	    /* do nothing, pmDesc inherited "as is" from left node */
 	    ;
-	}
-    }
-    else {
-	/* build pmDesc from pmDesc of both operands */
-	if ((sts = map_desc(n, np)) < 0) {
-	    return sts;
 	}
     }
     return 0;
@@ -1026,6 +1023,16 @@ parse(int level)
 
 	switch (state) {
 	    case P_INIT:
+		/*
+		 * Only come here at the start of parsing an expression.
+		 * The assert() is designed to stop Coverity flagging a
+		 * memory leak if we should come here after expr and/or
+		 * curr have already been assigned values either directly
+		 * from calling newnode() or via an assignment to np that
+		 * was previously assigned a value from newnode()
+		 */
+		assert(expr == NULL && curr == NULL);
+
 		if (type == L_NAME || type == L_NUMBER) {
 		    expr = curr = newnode(type);
 		    if ((curr->value = strdup(tokbuf)) == NULL) {
@@ -1061,8 +1068,10 @@ parse(int level)
 		    expr = curr = newnode(type);
 		    state = P_FUNC_OP;
 		}
-		else
+		else {
+		    free_expr(expr);
 		    return NULL;
+		}
 		break;
 
 	    case P_LEAF_PAREN:	/* fall through */
@@ -1404,6 +1413,7 @@ next_line:
 	else
 	    *p++ = c;
     }
+    fclose(fp);
     free(buf);
     return sts;
 }
@@ -1475,7 +1485,14 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
 	     (registered.mlist[i].name[matchlen] == '.' ||
 	      registered.mlist[i].name[matchlen] == '\0'))) {
 	    if (registered.mlist[i].name[matchlen] == '\0') {
-		/* leaf node */
+		/*
+		 * leaf node
+		 * assert is for coverity, name uniqueness means we
+		 * should only ever come here after zero passes through
+		 * the block below where sts is incremented and children[]
+		 * and status[] are realloc'd
+		 */
+		assert(sts == 0 && children == NULL && status == NULL);
 		PM_UNLOCK(registered.mutex);
 		return 0;
 	    }

@@ -15,6 +15,7 @@
 #include "pmcd.h"
 #include "impl.h"
 #include <sys/stat.h>
+#include <assert.h>
 
 extern int  ParseInitAgents(char *);
 extern void ParseRestartAgents(char *);
@@ -1118,9 +1119,9 @@ main(int argc, char *argv[])
     /* close old stdout, and force stdout into same stream as stderr */
     fflush(stdout);
     close(fileno(stdout));
-    if (dup(fileno(stderr)) < 0)
-	/* tough luck, do nothing ... but makes gcc warning go away! */
-    	;
+    sts = dup(fileno(stderr));
+    /* if this fails beware of the sky falling in */
+    assert(sts >= 0);
 
     if (dupok)
 	sts = pmLoadASCIINameSpace(pmnsfile, 1);

@@ -31,6 +31,7 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
     int instcount;
     char *w, *p;
     int old_cache;
+    int err = 0;
     static int next_id = -1;
     static int major_version = -1;
     static int minor_version = 0;
@@ -55,7 +56,8 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
     /* skip header */
     if (fgets(buf, sizeof(buf), fp) == NULL) {
     	/* oops, no header! */
-	return -oserror();
+	err = -oserror();
+	goto out;
     }
 
     if (major_version < 0) {
@@ -77,14 +79,15 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 	if (buf[0] == '#')
 	    continue;
 	for (w = NULL, p = buf; *p != '\0'; p++) {
-		if (isspace((int)*p))
-			w = p;
-		else if (isdigit((int)*p))
-			break;
-		else if (isalpha((int)*p) && w) {
-			for (; w && w != p; w++) *w = '_';
-			w = NULL;
-		}
+	    if (isspace((int)*p))
+		w = p;
+	    else if (isdigit((int)*p))
+		break;
+	    else if (isalpha((int)*p) && w) {
+		for (; w && w != p; w++)
+		    *w = '_';
+		w = NULL;
+	    }
 	}
 
 	memset(&sbuf, 0, sizeof(slab_cache_t));
@@ -97,8 +100,10 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 	    n = sscanf(buf, "%s %lu %lu", sbuf.name,
 			    (unsigned long *)&sbuf.num_active_objs,
 			    (unsigned long *)&sbuf.total_objs);
-	    if (n != 3)
-		return PM_ERR_APPVERSION;
+	    if (n != 3) {
+		err = PM_ERR_APPVERSION;
+		goto out;
+	    }
 	}
 	else if (major_version == 1 && minor_version == 1) {
 	    /*
@@ -112,8 +117,10 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 			    &sbuf.num_active_slabs,
 			    &sbuf.total_slabs, 
 			    &sbuf.pages_per_slab);
-	    if (n != 7)
-		return PM_ERR_APPVERSION;
+	    if (n != 7) {
+		err = PM_ERR_APPVERSION;
+		goto out;
+	    }
 
 	    sbuf.total_size = sbuf.pages_per_slab * sbuf.num_active_slabs * _pm_system_pagesize;
 	}
@@ -128,14 +135,17 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 			    &sbuf.object_size,
 			    &sbuf.objects_per_slab, 
 			    &sbuf.pages_per_slab);
-	    if (n != 6)
-		return PM_ERR_APPVERSION;
+	    if (n != 6) {
+		err = PM_ERR_APPVERSION;
+		goto out;
+	    }
 
 	    sbuf.total_size = sbuf.pages_per_slab * sbuf.num_active_objs * _pm_system_pagesize / sbuf.objects_per_slab;
 	}
 	else {
 	    /* no support */
-	    return PM_ERR_APPVERSION;
+	    err = PM_ERR_APPVERSION;
+	    goto out;
 	}
 
 	old_cache = -1;
@@ -223,6 +233,7 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
     /*
      * success 
      */
+out:
     fclose(fp);
-    return 0;
+    return err;
 }

@@ -31,6 +31,7 @@ undo(task_t *tp, optreq_t *rqp, int inst)
 {
     int 	j;
     int		k;
+    int		sts;
 
     if (rqp->r_numinst >= 1) {
 	/* remove instance from list of instance */
@@ -39,7 +40,8 @@ undo(task_t *tp, optreq_t *rqp, int inst)
 		rqp->r_instlist[k++] = rqp->r_instlist[j];
 	}
 	rqp->r_numinst = k;
-	__pmOptFetchDel(&tp->t_fetch, rqp);
+	if ((sts =  __pmOptFetchDel(&tp->t_fetch, rqp)) < 0)
+	    die("undo: __pmOptFetchDel", sts);
 
 	if (rqp->r_numinst == 0) {
 	    /* no more instances, remove specification */

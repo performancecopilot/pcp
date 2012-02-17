@@ -80,12 +80,13 @@ derive.o derive_fetch.o: derive.h
 
 p_error.o p_result.o: oldpmapi.h
 
-util.o:	$(TOPDIR)/src/include/pmdbg.h
+util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
 
 fetch.o: internal.h
 
-$(OBJECTS):	$(TOPDIR)/src/include/pmapi.h $(TOPDIR)/src/include/impl.h \
-		$(TOPDIR)/src/include/platform_defs.h
+$(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
+		$(TOPDIR)/src/include/pcp/impl.h \
+		$(TOPDIR)/src/include/pcp/platform_defs.h
 
 
 ifeq "$(TARGET_OS)" "mingw"

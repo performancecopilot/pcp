@@ -238,14 +238,13 @@ symFree(Symbol sym)
 	    lead = lead->entry.stat.free.ptr;
 	}
 
-	/* coalesce with preceding free block */
-	if (lag + lag->entry.stat.free.count == sym) {
+	if (lag != NULL && (lag + lag->entry.stat.free.count) == sym) {
+	    /* coalesce with preceding free block */
 	    lag->entry.stat.free.count++;
 	    sym = lag;
 	}
-
-	/* link up as single free entry */
 	else {
+	    /* link up as single free entry */
 	    if (lag)
 		lag->entry.stat.free.ptr = sym;
 	    else
@@ -254,8 +253,8 @@ symFree(Symbol sym)
 	    sym->entry.stat.free.ptr = lead;
 	}
 
-	/* coalesce with following free block */
 	if (sym + sym->entry.stat.free.count == lead) {
+	    /* coalesce with following free block */
 	    sym->entry.stat.free.count += lead->entry.stat.free.count;
 	    sym->entry.stat.free.ptr = lead->entry.stat.free.ptr;
 	}

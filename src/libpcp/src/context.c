@@ -290,6 +290,7 @@ INIT_CONTEXT:
 	if (sts < 0) {
 	    pmprintf("pmNewContext: bad host specification\n%s", errmsg);
 	    pmflush();
+	    free(errmsg);
 	    goto FAILED;
 	}
 

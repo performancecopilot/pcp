@@ -18,6 +18,7 @@
 #include <math.h>
 #include <ctype.h>
 #include <sys/stat.h>
+#include <assert.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "logger.h"
@@ -96,6 +97,7 @@ _report(FILE *fp)
     if (dflag)
 	fprintf(stderr, "The last record, and the remainder of this file will not be processed.\n");
     abandon();
+    /*NOTREACHED*/
 }
 
 /*
@@ -117,6 +119,7 @@ newvolume(int vol)
 	fprintf(stderr, "%s: __pmLogNewFile(%s,%d) Error: %s\n",
 		pmProgname, outarch.name, vol, pmErrStr(-oserror()));
 	abandon();
+	/*NOTREACHED*/
     }
 }
 
@@ -149,6 +152,7 @@ writelabel(int do_rewind)
 
     if (do_rewind) {
 	old_offset = ftell(outarch.logctl.l_tifp);
+	assert(old_offset >= 0);
 	rewind(outarch.logctl.l_tifp);
     }
     outarch.logctl.l_label.ill_vol = PM_LOG_VOL_TI;
@@ -158,6 +162,7 @@ writelabel(int do_rewind)
 
     if (do_rewind) {
 	old_offset = ftell(outarch.logctl.l_mdfp);
+	assert(old_offset >= 0);
 	rewind(outarch.logctl.l_mdfp);
     }
     outarch.logctl.l_label.ill_vol = PM_LOG_VOL_META;
@@ -167,6 +172,7 @@ writelabel(int do_rewind)
 
     if (do_rewind) {
 	old_offset = ftell(outarch.logctl.l_mfp);
+	assert(old_offset >= 0);
 	rewind(outarch.logctl.l_mfp);
     }
     outarch.logctl.l_label.ill_vol = 0;
@@ -290,10 +296,12 @@ parseargs(int argc, char *argv[])
 			if ((conf[nconf-1] = strdup(path)) == NULL) {
 			    fprintf(stderr, "conf[%d] strdup(%s) failed: %s\n", nconf-1, path, strerror(errno));
 			    abandon();
+			    /*NOTREACHED*/
 			}
-
 		    }
 		}
+		if (dirp != NULL)
+		    closedir(dirp);
 	    }
 	    else {
 		fprintf(stderr, "Error: -c config %s is not a file or directory\n", optarg);
@@ -302,6 +310,7 @@ parseargs(int argc, char *argv[])
 	    if (nconf > 0 && conf == NULL) {
 		fprintf(stderr, "conf[%d] realloc(%d) failed: %s\n", nconf, (int)(nconf*sizeof(conf[0])), strerror(errno));
 		abandon();
+		/*NOTREACHED*/
 	    }
 	    break;
 
@@ -538,7 +547,7 @@ reportconfig(void)
 	    }
 	}
 	if (mp->ip != NULL)
-	    printf("Inst Changes:\t<- InDom %s", pmInDomStr(mp->ip->old_indom));
+	    printf("Inst Changes:\t<- InDom %s\n", pmInDomStr(mp->ip->old_indom));
 	if (mp->flags & METRIC_CHANGE_SEM) {
 	    printf("Semantics:\t%s ->", SemStr(mp->old_desc.sem));
 	    printf(" %s\n", SemStr(mp->new_desc.sem));
@@ -935,6 +944,7 @@ main(int argc, char **argv)
 	if (outarch.name == NULL) {
 	    fprintf(stderr, "temp file strdup(%s) failed: %s\n", path, strerror(errno));
 	    abandon();
+	    /*NOTREACHED*/
 	}
 	sprintf(bak_base, "%s%cXXXXXX", dname, __pmPathSeparator());
 	tmp_f2 = mkstemp(bak_base);
@@ -946,18 +956,21 @@ main(int argc, char **argv)
 	if ((s = tempnam(dname, fname)) == NULL) {
 	    fprintf(stderr, "Error: first tempnam() failed: %s\n", strerror(errno));
 	    abandon();
+	    /*NOTREACHED*/
 	}
 	else {
 	    outarch.name = strdup(s);
 	    if (outarch.name == NULL) {
 		fprintf(stderr, "temp file strdup(%s) failed: %s\n", s, strerror(errno));
 		abandon();
+		/*NOTREACHED*/
 	    }
 	    tmp_f1 = open(outarch.name, O_WRONLY|O_CREAT|O_EXCL, 0600);
 	}
 	if ((s = tempnam(dname, fname)) == NULL) {
 	    fprintf(stderr, "Error: second tempnam() failed: %s\n", strerror(errno));
 	    abandon();
+	    /*NOTREACHED*/
 	}
 	else {
 	    strcpy(bak_base, s);
@@ -967,10 +980,12 @@ main(int argc, char **argv)
 	if (tmp_f1 < 0) {
 	    fprintf(stderr, "Error: create first temp (%s) failed: %s\n", outarch.name, strerror(errno));
 	    abandon();
+	    /*NOTREACHED*/
 	}
 	if (tmp_f2 < 0) {
 	    fprintf(stderr, "Error: create second temp (%s) failed: %s\n", bak_base, strerror(errno));
 	    abandon();
+	    /*NOTREACHED*/
 	}
 	close(tmp_f1);
 	close(tmp_f2);
@@ -1009,6 +1024,7 @@ main(int argc, char **argv)
 	fprintf(stderr, "%s: Error: __pmLogCreate(%s): %s\n",
 		pmProgname, outarch.name, pmErrStr(sts));
 	abandon();
+	/*NOTREACHED*/
     }
 
     /* initialize and write label records */
@@ -1031,6 +1047,7 @@ main(int argc, char **argv)
 
 	fflush(outarch.logctl.l_mdfp);
 	old_meta_offset = ftell(outarch.logctl.l_mdfp);
+	assert(old_meta_offset >= 0);
 
 	in_offset = ftell(inarch.ctxp->c_archctl->ac_log->l_mfp);
 	stslog = nextlog();
@@ -1154,6 +1171,7 @@ main(int argc, char **argv)
 		fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",
 		    pmProgname, stsmeta);
 		abandon();
+		/*NOTREACHED*/
 	    }
 	    free(inarch.metarec);
 	    stsmeta = 0;
@@ -1176,6 +1194,7 @@ main(int argc, char **argv)
 	    fflush(outarch.logctl.l_mdfp);
 	    fflush(outarch.logctl.l_mfp);
 	    new_meta_offset = ftell(outarch.logctl.l_mdfp);
+	    assert(new_meta_offset >= 0);
             fseek(outarch.logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
             __pmLogPutIndex(&outarch.logctl, &tstamp);
             fseek(outarch.logctl.l_mdfp, (long)new_meta_offset, SEEK_SET);
@@ -1186,6 +1205,7 @@ main(int argc, char **argv)
 	    doneti = 0;
 
 	old_log_offset = ftell(outarch.logctl.l_mfp);
+	assert(old_log_offset >= 0);
 
 	if (inarch.rp->numpmid == 0)
 	    /* mark record, need index entry @ next log record */
@@ -1202,10 +1222,14 @@ main(int argc, char **argv)
     }
 
     if (iflag) {
-	if (__pmLogRename(inarch.name, bak_base) < 0)
+	if (__pmLogRename(inarch.name, bak_base) < 0) {
 	    abandon();
-	if (__pmLogRename(outarch.name, inarch.name) < 0)
+	    /*NOTREACHED*/
+	}
+	if (__pmLogRename(outarch.name, inarch.name) < 0) {
 	    abandon();
+	    /*NOTREACHED*/
+	}
 	__pmLogRemove(bak_base);
     }
 

@@ -179,7 +179,8 @@ void
 pmns_write(void)
 {
     __pmnsNode *node;
-    int root = strcmp(getenv("PCP_PERL_PMNS"), "root") == 0;
+    char *pppenv = getenv("PCP_PERL_PMNS");
+    int root = pppenv ? strcmp(pppenv, "root") == 0 : 0;
     char *prefix = root ? "\t" : "";
 
     pmns_refresh();

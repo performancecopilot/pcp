@@ -36,14 +36,14 @@ IAM	= txmon
 DOMAIN	= TXMON
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
-LDIRT	= pcp *.o *.log *.dir *.pag domain.h $(TARGETS)
+LDIRT	= *.o *.log *.dir *.pag domain.h $(TARGETS)
 
 default:	build-me
 
 include $(BUILDRULES)
 
 ifneq "$(TARGET_OS)" "mingw"
-build-me:	pcp $(TARGETS)
+build-me:	$(TARGETS)
 
 install:	build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
@@ -67,9 +67,6 @@ txmon$(EXECSUFFIX):	txmon.o
 
 txrecord$(EXECSUFFIX):	txrecord.o
 	$(CCF) -o $@ $(LDFLAGS) txrecord.o $(LDLIBS)
-
-pcp:
-	ln -s $(TOPDIR)/src/include pcp
 
 default_pcp:	default
 

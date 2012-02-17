@@ -22,7 +22,7 @@ CMDTARGET	= pmda$(IAM)$(EXECSUFFIX)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 TARGETS		= $(CMDTARGET) $(LIBTARGET) mmvdump$(EXECSUFFIX)
 DUMPDIRT	= mmvdump$(EXECSUFFIX) mmvdump.o
-LDIRT		= domain.h *.log *.dir *.pag so_locations $(DUMPDIRT) pmns pcp
+LDIRT		= domain.h *.log *.dir *.pag so_locations $(DUMPDIRT) pmns
 
 CFILES		= mmv.c
 LSRCFILES	= Install Remove mmvdump.c root_mmv
@@ -50,13 +50,10 @@ install_pcp install: default
 
 $(CMDTARGET):	$(OBJECTS)
 
-$(IAM).o : domain.h pcp
+$(IAM).o : domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
-
-pcp :
-	$(LN_S) -f $(TOPDIR)/src/include pcp
 
 pmns :
 	$(LN_S) -f root_mmv pmns

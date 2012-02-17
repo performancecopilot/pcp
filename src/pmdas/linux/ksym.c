@@ -165,6 +165,7 @@ read_ksyms(__psint_t *end_addr)
     int		ix = 0;
     int		l = 0;
     int		len;
+    int		err;
     FILE	*fp;
     char	*ksyms_path = "/proc/ksyms";
 
@@ -199,8 +200,11 @@ read_ksyms(__psint_t *end_addr)
 	    else
 		ksym_a_sz = INIT_KSIZE;
 	    ksym_a = (struct ksym *)realloc(ksym_a, ksym_a_sz * sizeof(struct ksym));
-	    if (ksym_a == NULL)
-		return -oserror();
+	    if (ksym_a == NULL) {
+		err = -oserror();
+		fclose(fp);
+		return err;
+	    }
 	}
 
 	ip = inbuf;
@@ -260,8 +264,11 @@ read_ksyms(__psint_t *end_addr)
 	    len = ip - sp + 1;
 
 	ksym_a[ix].name = strndup(sp, len);
-	if (ksym_a[ix].name == NULL)
-	    return -oserror();
+	if (ksym_a[ix].name == NULL) {
+	    err = -oserror();
+	    fclose(fp);
+	    return err;
+	}
 	ksym_a[ix].name[len-1] = '\0';
 
 	if (*end_addr == 0 && strcmp(ksym_a[ix].name, "_end") == 0)
@@ -299,8 +306,10 @@ read_ksyms(__psint_t *end_addr)
 
 	ksym_a[ix].module = strndup(sp, ip - sp + 1);
 	if (ksym_a[ix].module == NULL) {
+	    err = -oserror();
+	    fclose(fp);
 	    free(ksym_a[ix].name);
-	    return -oserror();
+	    return err;
 	}
 	ksym_a[ix].module[ip - sp] = '\0';
 

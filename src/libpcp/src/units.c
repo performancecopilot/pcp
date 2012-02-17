@@ -987,7 +987,7 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		len = ival->value.pval->vlen - PM_VAL_HDR_SIZE;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_VALUE) {
-		    if (ival->value.pval->vbuf == NULL)
+		    if (ival->value.pval->vbuf[0] == '\0')
 			vp = "<null>";
 		    else {
 			int		i;

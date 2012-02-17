@@ -5261,7 +5261,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_LOADAVG: 
 	switch(idp->item) {
-	case 0:  /* kernel.all.loadavg */
+	case 0:  /* kernel.all.load */
 	    if (inst == 1)
 	    	atom->f = proc_loadavg.loadavg[0];
 	    else
@@ -6726,7 +6726,7 @@ linux_metrictable_size(void)
 void 
 linux_init(pmdaInterface *dp)
 {
-    int		i, major, minor;
+    int		i, major, minor, point;
     __pmID_int	*idp;
 
     _pm_system_pagesize = getpagesize();
@@ -6766,14 +6766,15 @@ linux_init(pmdaInterface *dp)
     _pm_intr_size = 8;
     _pm_cputime_size = 8;
     _pm_idletime_size = 8;
-    if (sscanf(kernel_uname.release, "%d.%d", &major, &minor) == 2) {
+    if (sscanf(kernel_uname.release, "%d.%d.%d", &major, &minor, &point) == 3) {
 	if (major < 2 || (major == 2 && minor <= 4)) {	/* 2.4 and earlier */
 	    _pm_ctxt_size = 4;
 	    _pm_intr_size = 4;
 	    _pm_cputime_size = 4;
 	    _pm_idletime_size = sizeof(unsigned long);
 	}
-	else if (major == 2 && minor >= 0 && minor <= 4) {  /* 2.6.0->.4 */
+	else if (major == 2 && minor == 6 &&
+		 point >= 0 && point <= 4) {  /* 2.6.0->.4 */
 	    _pm_cputime_size = 4;
 	    _pm_idletime_size = 4;
 	}

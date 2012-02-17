@@ -18,7 +18,7 @@
 \f3chkhelp\f1 \- check performance metrics help text files
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/chkhelp\f1
-[\f3\-HiOp\f1]
+[\f3\-eHiOp\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-v\f1 \f2version\f1]
 \f2helpfile\f1
@@ -105,6 +105,21 @@ if the
 option is specified an alternative namespace is loaded
 from the file
 .IR pmnsfile .
+.PP
+The
+.B \-e
+option provides an existence check where all of the specified
+metrics from the PMNS (note, not from
+.IR helpfile )
+are scanned, and only the names of the metrics for which
+.B no
+help text exists are reported.  The
+.B \-e
+option is mutually exclusive with the
+.B \-i
+and/or
+.B \-p
+options.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_

@@ -34,17 +34,10 @@ typedef struct value {
  */
 typedef struct {
     int		indom;
-    int		state;
     int		numinst;
     int		*inst;
     char	**name;
 } indom_t;
-
-/*
- * state values
- */
-#define I_INIT	0
-#define I_DONE	1
 
 /*
  * Metric control record in metric hash list

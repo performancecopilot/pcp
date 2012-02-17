@@ -293,7 +293,7 @@ pmLoopRegisterSignal(
     if (sig < 0 || sig >= SIGMAX)
 	return -EINVAL;
 
-    if ((ss = (loop_signal_t *)malloc(sizeof(loop_signal_t))) != NULL)
+    if ((ss = (loop_signal_t *)malloc(sizeof(loop_signal_t))) == NULL)
 	return -ENOMEM;
 
     ss->tag = next_tag++;

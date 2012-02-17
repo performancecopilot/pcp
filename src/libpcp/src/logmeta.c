@@ -146,6 +146,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		}
 		else
 		    sts = PM_ERR_LOGREC;
+		free(dp);
 		goto end;
 	    }
 	    else {
@@ -157,8 +158,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		dp->pmid = __ntohpmID(dp->pmid);
 	    }
 
-	    if ((sts = __pmHashAdd((int)dp->pmid, (void *)dp, &lcp->l_hashpmid)) < 0)
+	    if ((sts = __pmHashAdd((int)dp->pmid, (void *)dp, &lcp->l_hashpmid)) < 0) {
+		free(dp);
 		goto end;
+	    }
 
             else {
                 char name[MAXPATHLEN];
@@ -280,6 +283,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 		}
 		else
 		    sts = PM_ERR_LOGREC;
+		free(tbuf);
 		goto end;
 	    }
 
@@ -304,6 +308,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 		namelist = (char **)malloc(numinst*sizeof(char*));
 		if (namelist == NULL) {
 		    sts = -oserror();
+		    free(tbuf);
 		    goto end;
 		}
 #endif
@@ -319,8 +324,12 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 		instlist = NULL;
 		namelist = NULL;
 	    }
-	    if ((sts = addindom(lcp, indom, when, numinst, instlist, namelist, tbuf, allinbuf)) < 0)
+	    if ((sts = addindom(lcp, indom, when, numinst, instlist, namelist, tbuf, allinbuf)) < 0) {
+		free(tbuf);
+		if (allinbuf == 0)
+		    free(namelist);
 		goto end;
+	    }
 	}
 	else
 	    fseek(f, (long)rlen, SEEK_CUR);

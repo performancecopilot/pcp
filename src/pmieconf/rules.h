@@ -101,7 +101,7 @@ extern char		errmsg[];	/* error message buffer */
  * routines below returning char*, on success return NULL else failure message
  */
 
-char *initialise(char *, char *, char *);    /* setup global data structures */
+char *initialise(char *, char *, char *, size_t);    /* setup global data */
 
 char *get_pmiefile(void);
 char *get_rules(void);

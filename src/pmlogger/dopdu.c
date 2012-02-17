@@ -316,8 +316,7 @@ add_metric(pmValueSet *vsp, task_t **result)
     }
 
     /* Add new metric to task's fetchgroup(s) and global hash table */
-    if ((sts = __pmOptFetchAdd(&tp->t_fetch, rqp)) < 0)
-	die("add_metric: __pmOptFetchAdd", sts);
+    __pmOptFetchAdd(&tp->t_fetch, rqp);
     linkback(tp);
     if ((sts = __pmHashAdd(pmid, (void *)rqp, &pm_hash)) < 0)
 	die("add_metric: __pmHashAdd", sts);
@@ -495,8 +494,7 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 	     */
 	    if ((sts = __pmOptFetchDel(&ctp->t_fetch, rqp)) < 0)
 		die("update_metric: 1 metric __pmOptFetchDel", sts);
-	    if ((sts = __pmOptFetchAdd(&ntp->t_fetch, rqp)) < 0)
-		die("update_metric: 1 metric __pmOptFetchAdd", sts);
+	    __pmOptFetchAdd(&ntp->t_fetch, rqp);
 	    linkback(ntp);
 	    addpmid = 1;
 	}
@@ -549,18 +547,17 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 			rqp->r_numinst--;
 			/* (don't bother realloc-ing the instlist to a smaller size) */
 
-			if ((sts = __pmOptFetchAdd(&ctp->t_fetch, rqp)) < 0)
-			    die("update_metric: instance del __pmOptFetchAdd", sts);
+			__pmOptFetchAdd(&ctp->t_fetch, rqp);
 			linkback(ctp);
 			/* no need to update hash list, rqp already there */
 		    }
 		    /* if that was the last instance, free the group */
 		    else {
+			if (( sts = __pmHashDel(pmid, (void *)rqp, &pm_hash)) < 0)
+			    die("update_metric: instance __pmHashDel", sts);
 			freedp = 1;
 			free(rqp->r_instlist);
 			free(rqp);
-			if (( sts = __pmHashDel(pmid, (void *)rqp, &pm_hash)) < 0)
-			    die("update_metric: instance __pmHashDel", sts);
 		    }
 		}
 
@@ -596,9 +593,11 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 			__pmHashNode	*hp;
 
 			for (hp = __pmHashSearch(pmid, &pm_hash);
-			     hp != NULL; hp = hp->next)
+			     hp != NULL; hp = hp->next) {
 			    if (pmid == (pmID)hp->key)
 				break;
+			}
+			assert(hp != NULL);
 			dp = ((optreq_t *)hp->data)->r_desc;
 		    }
 		    /* recycle pmDesc from the old group, if possible */
@@ -627,8 +626,7 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 			     PM_FATAL_ERR);
 		}
 		rqp->r_instlist[rqp->r_numinst++] = inst;
-		if ((sts = __pmOptFetchAdd(&ntp->t_fetch, rqp)) < 0)
-		    die("update_metric: instance add __pmOptFetchAdd", sts);
+		__pmOptFetchAdd(&ntp->t_fetch, rqp);
 		linkback(ntp);
 		if (freedp)
 		    free(dp);
@@ -671,8 +669,7 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 		if ((sts = __pmOptFetchDel(&ctp->t_fetch, rqp)) < 0)
 		    die("update_metric: all inst __pmOptFetchDel", sts);
 		/* don't delete from hash list, rqp re-used */
-		if ((sts = __pmOptFetchAdd(&ntp->t_fetch, rqp)) < 0)
-		    die("update_metric: all inst __pmOptFetchAdd", sts);
+		__pmOptFetchAdd(&ntp->t_fetch, rqp);
 		linkback(ntp);
 	    }
 	    else {
@@ -705,8 +702,7 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 			     sizeof(optreq_t), PM_FATAL_ERR);
 		}
 		rqp->r_desc = dp;
-		if ((sts = __pmOptFetchAdd(&ntp->t_fetch, rqp)) < 0)
-		    die("update_metric: all inst __pmOptFetchAdd", sts);
+		__pmOptFetchAdd(&ntp->t_fetch, rqp);
 		linkback(ntp);
 		if ((sts = __pmHashAdd(pmid, (void *)rqp, &pm_hash)) < 0)
 		    die("update_metric: all inst __pmHashAdd", sts);
@@ -1293,6 +1289,7 @@ sendstatus(void)
 	ls.ls_timenow.tv_usec = (__int32_t)now.tv_usec;
 	ls.ls_vol = logctl.l_curvol;
 	ls.ls_size = ftell(logctl.l_mfp);
+	assert(ls.ls_size >= 0);
 
 	/* be careful of buffer size mismatches when copying strings */
 	end = sizeof(ls.ls_hostname) - 1;

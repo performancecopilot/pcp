@@ -84,7 +84,6 @@ derive.o
     b string			# guarded by registered.mutex
     b lexpeek			# guarded by registered.mutex
     b this			# guarded by registered.mutex
-    b eof.[0-9]*		# guarded by registered.mutex
     d registered		# guarded by registered.mutex
     b pmid.[0-9]*		# guarded by registered.mutex
     b errmsg			# __thread private

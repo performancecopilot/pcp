@@ -208,7 +208,7 @@ pmAddProfile(pmInDom indom, int instlist_len, int instlist[])
     if (ctxp == NULL)
 	return PM_ERR_NOCONTEXT;
 
-    if (indom == PM_INDOM_NULL && (instlist == NULL || instlist_len == 0)) {
+    if (indom == PM_INDOM_NULL && instlist_len == 0) {
 	_setGlobalState(ctxp, PM_PROFILE_INCLUDE);
 	goto SUCCESS;
     }
@@ -288,7 +288,7 @@ pmDelProfile(pmInDom indom, int instlist_len, int instlist[])
     if (ctxp == NULL)
 	return PM_ERR_NOCONTEXT;
 
-    if (indom == PM_INDOM_NULL && (instlist == NULL || instlist_len == 0)) {
+    if (indom == PM_INDOM_NULL && instlist_len == 0) {
 	_setGlobalState(ctxp, PM_PROFILE_EXCLUDE);
 	goto SUCCESS;
     }

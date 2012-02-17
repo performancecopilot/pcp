@@ -983,12 +983,12 @@ typedef struct {
 
 #define OPT_COST_INFINITY	0x7fffffff
 
-extern int __pmOptFetchAdd(fetchctl_t **, optreq_t *);
+extern void __pmOptFetchAdd(fetchctl_t **, optreq_t *);
 extern int __pmOptFetchDel(fetchctl_t **, optreq_t *);
-extern int __pmOptFetchRedo(fetchctl_t **);
+extern void __pmOptFetchRedo(fetchctl_t **);
 extern void __pmOptFetchDump(FILE *, const fetchctl_t *);
-extern int __pmOptFetchGetParams(optcost_t *);
-extern int __pmOptFetchPutParams(optcost_t *);
+extern void __pmOptFetchGetParams(optcost_t *);
+extern void __pmOptFetchPutParams(optcost_t *);
 
 /* work out local timezone */
 extern char *__pmTimezone(void);			/* NOT thread-safe */

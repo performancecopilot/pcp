@@ -76,7 +76,7 @@ static time_t	last_mtim;
 static __pmnsTree *curr_pmns; 
 
 /* The main_pmns points to the loaded PMNS (not from archive). */
-static __pmnsTree *main_pmns; 
+static __pmnsTree *main_pmns = NULL; 
 
 
 /* == 1 if PMNS loaded and __pmExportPMNS has been called */
@@ -594,6 +594,7 @@ attach(char *base, __pmnsNode *rp)
 		    snprintf(linebuf, sizeof(linebuf), "Cannot find definition for non-terminal node \"%s\" in name space",
 		        path);
 		    err(linebuf);
+		    free(path);
 		    return PM_ERR_PMNS;
 		}
 		np->first = xp->first;
@@ -670,7 +671,7 @@ backlink(__pmnsTree *tree, __pmnsNode *root, int dupok)
 	    i = np->pmid % tree->htabsize;
 	    for (xp = tree->htab[i]; xp != NULL; xp = xp->hash) {
 		if (xp->pmid == np->pmid && !dupok &&
-		    pmid_domain(np->pmid) != DYNAMIC_PMID) {
+		    (pmid_domain(np->pmid) != DYNAMIC_PMID || pmid_item(np->pmid) != 0)) {
 		    char	*nn, *xn;
 		    char	strbuf[20];
 		    backname(np, &nn);
@@ -907,8 +908,10 @@ AddPMNSNode(__pmnsNode *root, int pmid, const char *name)
 		return -oserror();
 
 	    /* fixup name */
-	    if ((np->name = (char *)malloc(nch+1)) == NULL)
+	    if ((np->name = (char *)malloc(nch+1)) == NULL) {
+		free(np);
 		return -oserror();
+	    }
 	    strncpy(np->name, name_p, nch);
 	    np->name[nch] = '\0';
 
@@ -1064,18 +1067,16 @@ loadascii(int dupok)
 	    }
 	    break;
 
-	default:
-	    err("Internal botch");
-	    abort();
-
 	}
 
 	if (state == 1 || state == 3) {
 	    if ((np = (__pmnsNode *)malloc(sizeof(*np))) == NULL)
 		return -oserror();
 	    seenpmid++;
-	    if ((np->name = (char *)malloc(strlen(tokbuf)+1)) == NULL)
+	    if ((np->name = (char *)malloc(strlen(tokbuf)+1)) == NULL) {
+		free(np);
 		return -oserror();
+	    }
 	    strcpy(np->name, tokbuf);
 	    np->first = np->hash = np->next = np->parent = NULL;
 	    np->pmid = PM_ID_NULL;
@@ -1969,6 +1970,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	if (statuslist != NULL) {
 	    if ((status = (int *)malloc(num*sizeof(int))) == NULL) {
 		num = -oserror();
+		free(result);
 		goto report;
 	    }
 	}
@@ -2292,17 +2294,17 @@ static int
 TraversePMNS_local(const char *name, void(*func)(const char *), void(*func_r)(const char *, void *), void *closure)
 {
     int		sts;
+    int		nchildren;
     char	**enfants;
 
-    if ((sts = pmGetChildren(name, &enfants)) < 0) {
-	return sts;
+    if ((nchildren = pmGetChildren(name, &enfants)) < 0) {
+	return nchildren;
     }
-    else if (sts > 0) {
+    else if (nchildren > 0) {
 	int	j;
 	char	*newname;
-	int	n;
 
-	for (j = 0; j < sts; j++) {
+	for (j = 0; j < nchildren; j++) {
 	    newname = (char *)malloc(strlen(name) + 1 + strlen(enfants[j]) + 1);
 	    if (newname == NULL) {
 		char	errmsg[PM_MAXERRMSGLEN];
@@ -2316,19 +2318,20 @@ TraversePMNS_local(const char *name, void(*func)(const char *), void(*func_r)(co
 		strcat(newname, ".");
 		strcat(newname, enfants[j]);
 	    }
-	    n = TraversePMNS_local(newname, func, func_r, closure);
+	    sts = TraversePMNS_local(newname, func, func_r, closure);
 	    free(newname);
-	    if (sts == 0)
-		sts = n;
+	    if (sts < 0)
+		break;
 	}
 	free(enfants);
     }
-    else if (sts == 0) {
+    else {
 	/* leaf node, name is full name of a metric */
 	if (func_r == NULL)
 	    (*func)(name);
 	else
 	    (*func_r)(name, closure);
+	sts = 0;
     }
 
     return sts;

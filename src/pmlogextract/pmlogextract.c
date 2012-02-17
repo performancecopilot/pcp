@@ -17,6 +17,7 @@
 #include <math.h>
 #include <ctype.h>
 #include <sys/stat.h>
+#include <assert.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "logger.h"
@@ -912,7 +913,6 @@ nextmeta(void)
     __pmLogCtl	*lcp;
     __pmContext	*ctxp;
     inarch_t	*iap;			/* pointer to input archive control */
-    __pmHashNode	*hnp;
 
     for (i=0; i<inarchnum; i++) {
 	iap = &inarch[i];
@@ -971,9 +971,8 @@ againmeta:
 	    }
 
 	    if (want) {
-		if ((hnp = __pmHashSearch((int)pmid, &mdesc_hash)) == NULL) {
+		if (__pmHashSearch((int)pmid, &mdesc_hash) == NULL)
 		    __pmHashAdd((int)pmid, NULL, &mdesc_hash);
-		}
 		/*
 		 * update the desc list (add first time, check on subsequent
 		 * sightings of desc for this pmid from this source
@@ -1101,6 +1100,7 @@ againlog:
 	    }
 	    continue;
 	}
+	assert(iap->_result != NULL);
 
 
 	/* set current log time - this is only done so that we can
@@ -1116,10 +1116,8 @@ againlog:
 	if (curtime < winstart_time) {
 	    /* log is not in time window - discard result and get next record
 	     */
-	    if (iap->_result != NULL) {
-		pmFreeResult(iap->_result);
-		iap->_result = NULL;
-	    }
+	    pmFreeResult(iap->_result);
+	    iap->_result = NULL;
 	    goto againlog;
 	}
         else {
@@ -1140,10 +1138,8 @@ againlog:
             if (iap->_Nresult == NULL) {
                 /* dont want any of the metrics in _result, try again
                  */
-                if (iap->_result != NULL) {
-                        pmFreeResult(iap->_result);
-                        iap->_result = NULL;
-                }
+		pmFreeResult(iap->_result);
+		iap->_result = NULL;
                 goto againlog;
             }
 	}
@@ -1340,7 +1336,7 @@ checkwinend(double now)
 	    if (tmptime < winstart_time) {
 		/* free _result and _Nresult
 		 */
-		if (iap->_result != iap->_Nresult && iap->_Nresult != NULL) {
+		if (iap->_result != iap->_Nresult) {
 		    free(iap->_Nresult);
 		}
 		if (iap->_result != NULL) {
@@ -1460,6 +1456,7 @@ writerlist(rlist_t **rlready, double mintime)
 
 	/* write out log record */
 	old_log_offset = ftell(logctl.l_mfp);
+	assert(old_log_offset >= 0);
 	if ((sts = __pmLogPutResult(&logctl, pb)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
 		    pmProgname, pmErrStr(sts));
@@ -1491,7 +1488,9 @@ writerlist(rlist_t **rlready, double mintime)
 		old_log_offset = sizeof(__pmLogLabel)+2*sizeof(int);
 
             new_log_offset = ftell(logctl.l_mfp);
+	    assert(new_log_offset >= 0);
             new_meta_offset = ftell(logctl.l_mdfp);
+	    assert(new_meta_offset >= 0);
 
             fseek(logctl.l_mfp, (long)old_log_offset, SEEK_SET);
             fseek(logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
@@ -1502,7 +1501,9 @@ writerlist(rlist_t **rlready, double mintime)
             fseek(logctl.l_mdfp, (long)new_meta_offset, SEEK_SET);
 
             old_log_offset = ftell(logctl.l_mfp);
+	    assert(old_log_offset >= 0);
             old_meta_offset = ftell(logctl.l_mdfp);
+	    assert(old_meta_offset >= 0);
 
             flushsize = ftell(logctl.l_mfp) + 100000;
         }
@@ -1790,6 +1791,7 @@ main(int argc, char **argv)
 	curlog.tv_sec = 0;
 	curlog.tv_usec = 0;
 	old_meta_offset = ftell(logctl.l_mdfp);
+	assert(old_meta_offset >= 0);
 
 	/* nextlog() resets ilog, and curlog (to the smallest timestamp)
 	 */
@@ -1894,9 +1896,10 @@ main(int argc, char **argv)
 		}
 		free(iap->_Nresult);
 	    }
-	    if (iap->_result != NULL)
+	    if (iap->_result != NULL) {
 		pmFreeResult(iap->_result);
-	    iap->_result = NULL;
+		iap->_result = NULL;
+	    }
 	    iap->_Nresult = NULL;
 	}
     } /*while()*/
@@ -1916,7 +1919,9 @@ cleanup:
 	    old_log_offset = sizeof(__pmLogLabel)+2*sizeof(int);
 
 	new_log_offset = ftell(logctl.l_mfp);
+	assert(new_log_offset >= 0);
 	new_meta_offset = ftell(logctl.l_mdfp);
+	assert(new_meta_offset >= 0);
 
 #if 0
 	fprintf(stderr, "*** last tstamp: \n\tmintime=%g \n\ttmptime=%g \n\tlogend_time=%g \n\twinend_time=%g \n\tcurrent=%d.%06d\n",

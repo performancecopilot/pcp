@@ -16,8 +16,6 @@
 #include "hypnotoad.h"
 #include <ctype.h>
 
-static int isDSO = 1;
-
 /*
  * Array of all metrics - the PMID item field indexes this directly.
  */
@@ -1560,18 +1558,13 @@ void
 windows_init(pmdaInterface *dp)
 {
     static pmdaMetric	*metrictab;
+    char		helppath[MAXPATHLEN];
     int			metrictab_sz = metricdesc_sz;
-    int			i;
+    int			i, sep = __pmPathSeparator();
 
-    if (isDSO) {
-	char		helppath[MAXPATHLEN];
-	int		sep = __pmPathSeparator();
-
-	snprintf(helppath, sizeof(helppath), "%s%c" "windows" "%c" "help",
+    snprintf(helppath, sizeof(helppath), "%s%c" "windows" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_3, "windows DSO", helppath);
-    }
-
+    pmdaDSO(dp, PMDA_INTERFACE_3, "windows DSO", helppath);
     if (dp->status != 0)
 	return;
 
@@ -1605,46 +1598,4 @@ windows_init(pmdaInterface *dp)
     dp->version.two.text = windows_help;
     pmdaSetFetchCallBack(dp, windows_fetch_callback);
     pmdaInit(dp, NULL, 0, metrictab, metrictab_sz);
-}
-
-static void
-usage(void)
-{
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
-    fputs("Options:\n"
-	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile   write log into logfile rather than using default log name\n",
-	      stderr);		
-    exit(1);
-}
-
-/*
- * Set up the agent if running as a daemon.
- */
-int
-main(int argc, char **argv)
-{
-    int			sep = __pmPathSeparator();
-    int			err = 0;
-    int			c;
-    pmdaInterface	dispatch;
-    char		helppath[MAXPATHLEN];
-
-    isDSO = 0;
-    __pmSetProgname(argv[0]);
-
-    snprintf(helppath, sizeof(helppath), "%s%c" "windows" "%c" "help",
-		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, WINDOWS, "windows.log", helppath);
-
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err)) != EOF)
-	err++;
-    if (err)
-    	usage();
-
-    pmdaOpenLog(&dispatch);
-    windows_init(&dispatch);
-    pmdaConnect(&dispatch);
-    pmdaMain(&dispatch);
-    exit(0);
 }

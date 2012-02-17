@@ -153,6 +153,7 @@ io_sucker(void)
 	fgetc(foo);
 	fputc('!', foo);
     }
+    fclose(foo);
 
     if ((sts = pmtraceend("io_sucker")) < 0) {
 	fprintf(stderr, "%s: io_sucker end (%d): %s\n",

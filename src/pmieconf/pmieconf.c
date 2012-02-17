@@ -756,12 +756,8 @@ main(int argc, char **argv)
     char	*p;
     char	*in_rules = NULL;
     char	*in_pmie = NULL;
-    extern char	*optarg;
 
-    /* trim command name of leading directory components */
-    for (p = pmProgname = argv[0]; pmProgname && *p; p++)
-	if (*p == '/')
-	    pmProgname = p+1;
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "Ff:r:v?")) != EOF) {
 	switch (c) {
@@ -811,7 +807,7 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if ((p = initialise(in_rules, in_pmie, warn)) != NULL) {
+    if ((p = initialise(in_rules, in_pmie, warn, sizeof(warn))) != NULL) {
 	error(p);
 	exit(1);
     }

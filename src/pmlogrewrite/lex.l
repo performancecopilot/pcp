@@ -50,6 +50,7 @@ dupstr(char *s, int strip_quotes)
     if (p == NULL) {
 	fprintf(stderr, "Failed strdup(\"%s\") in lexer: %s\n", s, strerror(errno));
 	abandon();
+	/*NOTREACHED*/
     }
     if (strip_quotes) {
 	char	*pend = p;

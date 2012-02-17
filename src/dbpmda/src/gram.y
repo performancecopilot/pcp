@@ -53,7 +53,7 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
     extern int	infd;
     extern pmdaInterface	dispatch;
 
-    if (((__pmID_int *)pmidp)->domain == DYNAMIC_PMID) {
+    if (pmid_domain(*pmidp) == DYNAMIC_PMID && pmid_item(*pmidp) == 0) {
 	if (connmode == CONN_DSO) {
 	    if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
 		sts = dispatch.version.four.pmid(name, pmidp, dispatch.version.four.ext);
