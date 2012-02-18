@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# Copyright (c) 2011 Aconex.  All Rights Reserved.
+# Copyright (c) 2011-2012 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -251,7 +251,7 @@ sub db_add_metrics {
 
 # debug when fetch is called
 # fetch_func is called with no params during a "fetch", after refreshing the
-# PMNS befure calling refresh_func
+# PMNS before calling refresh_func
 #
 sub fetch {
     if ($option->{debug}) {
@@ -261,7 +261,7 @@ sub fetch {
 
 # debug when instance is called
 # instance_func is called with "indom" param during a "instance", after
-# refreshing the PMNS befure calling pmdaInstance
+# refreshing the PMNS before calling pmdaInstance
 #
 sub instance {
     my ($indom) = @_;
@@ -381,6 +381,10 @@ B<pmdasnmp> is launched by pmcd(1) and should never be executed
 directly.  The Install and Remove scripts notify pmcd(1) when
 the agent is installed or removed.
 
+=head1 CONFIGURATION
+
+TODO: define config file format here - map/set/host/... etc
+
 =head1 FILES
 
 =over
@@ -388,12 +392,6 @@ the agent is installed or removed.
 =item $PCP_PMDAS_DIR/snmp/snmp.conf
 
 optional configuration file for B<pmdasnmp>
-
-snmp PMDA for PCP
-
-TODO: define config file format here
-
-=over
 
 =item $PCP_PMDAS_DIR/snmp/Install
 
@@ -405,8 +403,7 @@ undo installation script for the B<pmdasnmp> agent
 
 =item $PCP_LOG_DIR/pmcd/snmp.log
 
-default log file for error messages from B<pmdasnmp>
-This will also receive any perl "warn()" output
+default log file for error and warn() messages from B<pmdasnmp>
 
 =back
 
