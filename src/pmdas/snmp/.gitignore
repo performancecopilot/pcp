@@ -1,5 +1,6 @@
 
 # these two files are created by the PMDA install process
+pmdasnmp.1
 domain.h
 pmns
 
