@@ -20,11 +20,11 @@ SUBDIRS = pmcd linux solaris aix darwin windows etw \
 	sample simple trivial sendmail mailq txmon \
 	cisco trace apache shping mounts weblog \
 	lmsensors process roomtemp summary hotproc \
-	logger \
+	logger freebsd \
 	dbping memcache systemtap mysql vmware kvm \
 	bonding lustrecomm mmv netfilter zimbra \
 	named news pdns samba dtsrun postfix gpsd \
-	rsyslog elasticsearch postgresql freebsd
+	rsyslog elasticsearch postgresql snmp
 
 LDIRT = pmcd.conf
 
