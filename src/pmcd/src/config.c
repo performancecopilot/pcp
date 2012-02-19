@@ -1309,15 +1309,16 @@ AgentNegotiate(AgentInfo *aPtr)
 	if ((sts = DoAgentCreds(aPtr, ack)) < 0) {
 	    fprintf(stderr, "pmcd: version exchange failed "
 		"for \"%s\" agent: %s\n", aPtr->pmDomainLabel, pmErrStr(sts));
-	    return sts;
 	}
-	return 0;
+	__pmUnpinPDUBuf(ack);
+	return sts;
     }
-    __pmUnpinPDUBuf(ack);
 
-    if (sts > 0)
+    if (sts > 0) {
 	fprintf(stderr, "pmcd: unexpected PDU type (0x%x) at initial "
 		"exchange with %s PMDA\n", sts, aPtr->pmDomainLabel);
+	__pmUnpinPDUBuf(ack);
+    }
     else if (sts == 0)
 	fprintf(stderr, "pmcd: unexpected end-of-file at initial "
 		"exchange with %s PMDA\n", aPtr->pmDomainLabel);
