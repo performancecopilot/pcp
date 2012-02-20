@@ -333,6 +333,8 @@ etw_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     etw_event_t	*etw;
     int		sts = PMDA_FETCH_STATIC;
 
+    __pmNotifyErr(LOG_WARNING, "called %s, mdesc=%p", __FUNCTION__, mdesc);
+
     switch (idp->cluster) {
     case CLUSTER_KERNEL_PROCESS:
 	if ((etw = ((mdesc != NULL) ? mdesc->m_user : NULL)) == NULL)
@@ -407,6 +409,7 @@ etw_profile(__pmProfile *prof, pmdaExt *pmda)
 static int
 etw_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
+    __pmNotifyErr(LOG_WARNING, "called %s", __FUNCTION__);
     pmdaEventNewClient(pmda->e_context);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
@@ -421,6 +424,7 @@ etw_store(pmResult *result, pmdaExt *pmda)
 static void
 etw_end_contextCallBack(int context)
 {
+    __pmNotifyErr(LOG_WARNING, "called %s", __FUNCTION__);
     pmdaEventEndClient(context);
 }
 
