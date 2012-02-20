@@ -92,7 +92,7 @@ END			{ if (flag == 0) printline(); }'
 # copy the new config
 $sudo cp $tmp.pmcd.new $PCP_PMCDCONF_PATH
 
-# restart pmcd
+# start a new pmcd
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 

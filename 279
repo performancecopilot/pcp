@@ -126,9 +126,8 @@ echo "__pmda_add test: expect this to fail and revert to the status quo ..."
 echo "__pmda_add test: expect this to fail and revert to the status quo ..." >>$seq.full
 echo
 
-$sudo sh $tmp.cmd 2>&1 \
-| tee $tmp.out \
-| _filter
+$sudo sh $tmp.cmd >$tmp.out 2>&1
+_filter <$tmp.out
 cat $tmp.out >>$seq.full
 
 echo "=== pmcd.conf after bogus install ===" >>$seq.full
@@ -157,9 +156,8 @@ echo "__pmda_cull test: expect this to fail and restoration to fail ..."
 echo "__pmda_cull test: expect this to fail and restoration to fail ..." >>$seq.full
 echo
 
-$sudo sh $tmp.cmd 2>&1 \
-| tee $tmp.out \
-| _filter
+$sudo sh $tmp.cmd >$tmp.out 2>&1
+_filter <$tmp.out
 cat $tmp.out >>$seq.full
 
 echo "=== pmcd.conf after fungus remove ===" >>$seq.full

@@ -92,8 +92,8 @@ fi
 
 _poke_pmcd()
 {
-    $sudo $PCP_RC_DIR/pcp restart 2>&1 \
-    | tee -a $seq.full \
+    $sudo $PCP_RC_DIR/pcp restart >$tmp.tmp 2>&1
+    tee -a $seq.full <$tmp.tmp \
     | sed \
 	-e '/ root .* .usr.etc.pmcd /s/.*/-- ps output line --/' \
 	-e '/UID .* PID /d' \

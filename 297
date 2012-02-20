@@ -95,7 +95,8 @@ $sudo $signal -a pmproxy >/dev/null 2>&1
 PMCD_RECONNECT_TIMEOUT=1
 export PMCD_RECONNECT_TIMEOUT
 
-pmproxy -Dcontext -l $tmp.log 2>&1 | _filter_pmproxy
+pmproxy -Dcontext -l $tmp.log >$tmp.tmp 2>&1
+_filter_pmproxy <$tmp.tmp
 
 PMPROXY_HOST=localhost
 export PMPROXY_HOST
@@ -116,7 +117,8 @@ echo "1st pmproxy log" >$seq.full
 cat $tmp.log >>$seq.full
 
 echo "re-starting pmproxy ..."
-pmproxy -Dcontext -l $tmp.log 2>&1 | _filter_pmproxy
+pmproxy -Dcontext -l $tmp.log >$tmp.tmp 2>&1
+_filter_pmproxy <$tmp.tmp
 
 sleep 4
 echo "killing pmcd ..."
