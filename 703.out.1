@@ -1,0 +1,27 @@
+QA output created by 703
+=== install weblog PMDA ===
+You will need to choose an appropriate configuration for installation of
+the "weblog" Performance Metrics Domain Agent (PMDA).
+
+ collector collect performance statistics on this system
+ monitor allow this system to monitor local and/or remote systems
+ both collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] 
+
+The default installation of the weblog PMDA will search for known
+Web server configurations on this host and will setup the weblog
+PMDA to monitor all associated Web server log files.
+
+Otherwise, you will be prompted for the required information.
+
+Do you want a default weblog PMDA installation [y] 
+Found at least one server ...
+Terminate PMDA if already installed ...
+Updating the PMCD control file, and notifying PMCD ...
+Wait 10 seconds for the weblog agent to initialize ...
+=== check metrics (expect no output) ===
+=== remove weblog PMDA ===
+Updating the PMCD control file, and notifying PMCD ...
+
+=== Checking uninstall (expect no output) ===

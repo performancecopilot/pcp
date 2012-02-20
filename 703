@@ -5,19 +5,24 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-seq=`basename $0`
-
+# get standard filters
+. ./common.filter
 . ./common.check
 . ./common.pcpweb
 
+seq=`basename $0`
+
 [ -d $PCP_PMDAS_DIR/weblog ] || _notrun "weblog PMDA not installed"
 
-echo "QA output created by $seq"
+rm -f $seq.out
+if [ $PCP_VER -lt 4000 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
 
-# get standard filters
-. ./common.product
-. ./common.filter
-. ./common.check
+echo "QA output created by $seq"
 
 status=1	# failure is the default!
 
