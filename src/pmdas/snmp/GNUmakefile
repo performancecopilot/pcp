@@ -22,7 +22,7 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM	= snmp
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LSRCFILES = Install Remove pmda$(IAM).pl
+LSRCFILES = Install Remove pmda$(IAM).pl snmp.conf
 LDIRT	= domain.h root pmns *.log $(MAN_PAGES)
 
 ifneq ($(POD2MAN),)
