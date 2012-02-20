@@ -71,6 +71,7 @@ my %tables_by_name = (
     pg_stat_xact_all_tables	=> { handle => undef, values => {}, version => 9.1 },
     pg_stat_xact_sys_tables	=> { handle => undef, values => {}, version => 9.1 },
     pg_stat_xact_user_tables	=> { handle => undef, values => {}, version => 9.1 },
+    pg_recovery			=> { handle => undef, values => {}, version => undef, sql => 'select pg_is_in_recovery(), pg_current_xlog_location(), pg_last_xlog_receive_location(), pg_last_xlog_replay_location()' },
 );
 
 # hash of hashes holding setup and refresh function, indexed by PMID cluster
@@ -110,6 +111,11 @@ my %tables_by_cluster = (
 	setup	=> \&setup_replication,
 	indom	=> $replicant_indom,
 	refresh => \&refresh_replication },
+    '7'	 => {
+	name	=> 'pg_recovery',
+	setup	=> \&setup_recovery_functions,
+	indom	=> PM_INDOM_NULL,
+	refresh	=> \&refresh_recovery_functions },
     '10' => {
 	name	=> 'pg_stat_all_tables',
 	setup	=> \&setup_stat_tables,
@@ -245,11 +251,14 @@ sub postgresql_connection_setup
 
 	    foreach my $key (keys %tables_by_name) {
 		my $minversion = $tables_by_name{$key}{version};
+		my $sqlquery = $tables_by_name{$key}{sql};
 		my $query;
 
 		$minversion = 0 unless defined($minversion);
 		if ($minversion > $version) {
 		    $pmda->log("Skipping table $key, not supported on $version");
+		} elsif (defined($sqlquery)) {
+		    $query = $dbh->prepare($sqlquery);
 		} else {
 		    $query = $dbh->prepare("select * from $key");
 		}
@@ -322,7 +331,7 @@ sub postgresql_fetch_callback
     return (PM_ERR_PMID, 0) unless defined($metric_name);
     $key = $metric_name;
     $key =~ s/^postgresql\./pg_/;
-    $key =~ s/\.[a-z0-9_]*$//;
+    $key =~ s/\.[a-zA-Z0-9_]*$//;
     $key =~ s/\./_/g;
 
     # $pmda->log("fetch_cb $metric_name $cluster:$item ($inst) - $key");
@@ -414,6 +423,36 @@ sub refresh_bgwriter
     my %table = %$tableref;
 
     $table{values}{"$pm_in_null"} = \@{$result->[0]} unless (!defined($result));
+}
+
+sub refresh_recovery_functions
+{
+    my $tableref = shift;
+    my $result = refresh_results($tableref);
+    my %table = %$tableref;
+
+    # Results from SQL (4 values; 2nd,3rd,4th may well contain undef):
+    # select pg_is_in_recovery(), pg_current_xlog_location(),
+    #        pg_last_xlog_receive_location(), pg_last_xlog_replay_location()
+    #
+    # We need to split out the log identifier and log record offset in the
+    # final three values, and save separately into the cached result table.
+    #
+    if (defined($result)) {
+	my $arrayref = $result->[0];
+	my @values = @$arrayref;
+	my @massaged = ( $values[0], undef,undef, undef,undef, undef,undef );
+	my $moffset = 1;		# index for @massaged array
+
+	foreach my $voffset (1..3) {	# index for @values array
+	    if (defined($values[$voffset])) {
+		my @pieces = split /\//, $values[$voffset];
+		$massaged[$moffset++] = hex($pieces[0]);
+		$massaged[$moffset++] = hex($pieces[1]);
+	    }
+	}
+	$table{values}{"$pm_in_null"} = \@massaged;
+    }
 }
 
 sub refresh_database
@@ -977,6 +1016,33 @@ sub setup_bgwriter
     $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'postgresql.stat.bgwriter.buffers_alloc', '', '');
+}
+
+sub setup_recovery_functions
+{
+    my ($cluster, $indom) = @_;
+
+    $pmda->add_metric(pmda_pmid($cluster,0), PM_TYPE_U32, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.recovery.is_in_recovery', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_U64, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.recovery.xlog_current_location_log_id', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,2), PM_TYPE_U64, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.recovery.xlog_current_location_offset', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U64, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.recovery.xlog_receive_location_log_id', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U64, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.recovery.xlog_receive_location_offset', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U64, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.recovery.xlog_replay_location_log_id', '', '');
+    $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U64, $indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'postgresql.recovery.xlog_replay_location_offset', '', '');
 }
 
 sub setup_database_conflicts

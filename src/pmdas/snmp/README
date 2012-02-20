@@ -1,0 +1,52 @@
+The PCP SNMP gateway PMDA is a plugin that allows PCP clients to query
+for data from SNMP agents.
+
+Depends on perl modules:
+PCP::PMDA	libpcp-pmda-perl
+Net::SNMP	libnet-snmp-perl
+
+The PCP names that are exported are (currently)
+
+	snmp.host.$hostname.$oid
+	snmp.host.$hostname.$oid[$rownr]
+
+In the future I hope to propose an extension to the PCP agent protocol
+to allow the use of virtual hostnames, which would change the names
+exported.
+
+I also hope in the future to load in full MIB names, which would also
+change the exported names to make them more readable.
+
+Also as a future target, as OIDs are queried for by the PCP client,
+this gateway will dynamically create mappings between the PCP internal
+ID and the SNMP OID.  This creates limitations on the total number of
+mappings available.
+
+SNMP uses an open ended hierachical namespace with a potentially unlimited
+number of values.  MIB files on the SNMP client are used to map between
+dotted names and dotted numbers.  These MIB files also provide type
+information and help text for each OID
+
+PCP uses a 64bit value to uniquely identify each available value.  This is
+divided into:
+	9 bits - "domain" number (./src/pmns/Make.stdpmid gives 56-58 to SNMP)
+	12 bits - "cluster" number
+	10 bits - "item" number (cluster+item identify the metric)
+	32 bits - "instance" of the metric
+PCP uses an open ended dotted text name to translate to this fixed 64bit value.
+The PCP agent sends the text to number mapping to the PCP client as needed.
+
+This gateway is configured with a config file:
+* define each SNMP hostname and credentials
+* define a list of MIB namespaces to load (future)
+* define a list of static OID -> PCP mappings (including room for tables..)
+* a static mapping of a tree (and the max static size of that tree?) (future)
+* a static "table" mapping for special use of the "instance" value
+* define a "high water mark" for static mappings (future)
+
+If a query comes in for a static mapping, then the PCP value from the
+config is used every time.  If a query for a new mapping is received
+then the gateway dynamically allocates the next free ID (starting from
+MAXINT working downwards).  This dynamic mapping might change on gateway
+restarts or on idle timeouts.
+
