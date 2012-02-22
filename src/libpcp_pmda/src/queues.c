@@ -155,7 +155,7 @@ pmdaEventQueueCounter(int handle, pmAtomValue *atom)
     if (!queue)
 	return -EINVAL;
     atom->ul = queue->count;
-    return 0;
+    return PMDA_FETCH_STATIC;
 }
 
 int
@@ -166,7 +166,7 @@ pmdaEventQueueClients(int handle, pmAtomValue *atom)
     if (!queue)
 	return -EINVAL;
     atom->ul = queue->numclients;
-    return 0;
+    return PMDA_FETCH_STATIC;
 }
 
 int
@@ -177,7 +177,7 @@ pmdaEventQueueMemory(int handle, pmAtomValue *atom)
     if (!queue)
 	return -EINVAL;
     atom->ull = queue->qsize;
-    return 0;
+    return PMDA_FETCH_STATIC;
 }
 
 int
@@ -188,7 +188,7 @@ pmdaEventQueueBytes(int handle, pmAtomValue *atom)
     if (!queue)
 	return -EINVAL;
     atom->ull = queue->bytes;
-    return 0;
+    return PMDA_FETCH_STATIC;
 }
 
 int
@@ -460,6 +460,10 @@ pmdaEventNewClient(int context)
     int size, i;
 
     for (i = 0; i < numclients; i++) {
+	if (clients[i].context == context && clients[i].inuse)
+	   return i;
+    }
+    for (i = 0; i < numclients; i++) {
 	if (clients[i].inuse == 0)
 	   break;
     }
@@ -540,7 +544,7 @@ pmdaEventEndClient(int context)
     if (client->clientq)
 	free(client->clientq);
 
-    memset(client, 0, sizeof(*client));
+    memset(client, 0, sizeof(*client));		/* sets !inuse */
     return 0;
 }
 
@@ -550,10 +554,10 @@ pmdaEventClients(pmAtomValue *atom)
     __uint32_t i, c = 0;
 
     for (i = 0; i < numclients; i++)
-	if (clients->inuse)
+	if (clients[i].inuse)
 	    c++;
     atom->ul = c;
-    return 0;
+    return PMDA_FETCH_STATIC;
 }
 
 /*
