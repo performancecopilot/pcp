@@ -30,12 +30,12 @@ typedef struct {
 #define CTX_INACTIVE	0
 #define CTX_ACTIVE	1
 
-static perctx_t	*ctxtab = NULL;
-static int	num_ctx = 0;
-static int	num_start = 0;	/* count of new contexts noted */
-static int	num_end = 0;	/* count of end context events */
-static int	num_recv_pdu = 0;	/* recv count from closed contexts */
-static int	num_xmit_pdu = 0;	/* xmit count from closed contexts */
+static perctx_t	*ctxtab;
+static int	num_ctx;
+static int	num_start;	/* count of new contexts noted */
+static int	num_end;	/* count of end context events */
+static int	num_recv_pdu;	/* recv count from closed contexts */
+static int	num_xmit_pdu;	/* xmit count from closed contexts */
 
 void
 sample_clr_recv(int ctx)
@@ -166,7 +166,8 @@ sample_inc_xmit(int ctx)
 	fputc('\n', stderr);
 	return;
     }
-    if (ctx >= num_ctx) growtab(ctx);
+    if (ctx >= num_ctx)
+	growtab(ctx);
     ctxtab[ctx].xmit_pdu++;
 }
 
