@@ -474,7 +474,7 @@ text(int ident, int type, char **buffer, pmdaExt *pmda)
 static int
 list_to_indom(SV *list, pmdaInstid **set)
 {
-    int	i, len;
+    int	i, j, len;
     SV	**id;
     SV	**name;
     AV	*ilist = (AV *) SvRV(list);
@@ -505,6 +505,9 @@ list_to_indom(SV *list, pmdaInstid **set)
 	instances[i].i_inst = SvIV(*id);
 	instances[i].i_name = strdup(SvPV_nolen(*name));
 	if (instances[i].i_name == NULL) {
+	    for (j=0; j < i; j++)
+	    	free(instances[j].i_name;
+	    free(instances);
 	    warn("insufficient memory for instance array names");
 	    return -1;
 	}
