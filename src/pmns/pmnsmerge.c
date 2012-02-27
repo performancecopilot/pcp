@@ -95,6 +95,8 @@ sortargs(char **argv, int argc)
 	if (verbose > 1)
 	    printf("arg[%d] %s _DATESTAMP=%s\n", i, tab[i].fname, tab[i].date);
     }
+
+    free(tab);
 }
 
 static void
