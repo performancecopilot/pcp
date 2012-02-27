@@ -43,7 +43,7 @@ int
 ConnectPMCD(void)
 {
     int			sts;
-    __pmPDU		*pb;
+    __pmPDU		*pb = NULL;
 
     if (src_ctx >= 0)
 	return src_ctx;
@@ -97,7 +97,8 @@ ConnectPMCD(void)
         src_ctx = sts;
 
 done:
-    __pmUnpinPDUBuf(pb);
+    if (pb)
+	__pmUnpinPDUBuf(pb);
     return sts;
 }
 
