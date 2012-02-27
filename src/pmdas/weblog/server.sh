@@ -810,7 +810,7 @@ _apache_extract()
 		$1 == "</VirtualHost>" { curnam=def; }
 		$1 == "ErrorLog" { 
 		    path = $2
-		    sub (/\${APACHE_LOG_DIR}/, "/var/log/apache2", path)
+		    sub (/\$\{APACHE_LOG_DIR\}/, "/var/log/apache2", path)
 		    if ( match (path, "/") != 1 ) {
 			erlog[curnam] = sprintf ("%s/%s", "'$apchroot'", path);
 		    } else {
@@ -819,7 +819,7 @@ _apache_extract()
 		}
 		$1 == "DocumentRoot" {
 		    path = $2
-		    sub (/\${APACHE_LOG_DIR}/, "/var/log/apache2", path)
+		    sub (/\$\{APACHE_LOG_DIR\}/, "/var/log/apache2", path)
 		    if ( match (path, "/") != 1 ) {
 			docs[curnam] = sprintf ("%s/%s", "'$apchroot'", path);
 		    } else {
@@ -828,7 +828,7 @@ _apache_extract()
 		}
 		$1 == "TransferLog" {
 		    path = $2
-		    sub (/\${APACHE_LOG_DIR}/, "/var/log/apache2", path)
+		    sub (/\$\{APACHE_LOG_DIR\}/, "/var/log/apache2", path)
 		    if ( match (path, "/") != 1 ) {
 			tlog[curnam] = sprintf ("%s/%s", "'$apchroot'", path);
 		    } else {
@@ -837,7 +837,7 @@ _apache_extract()
 		}
 		$1 == "CustomLog" && ($3 == "common" || $3 == "combined") { 
 		    path = $2
-		    sub (/\${APACHE_LOG_DIR}/, "/var/log/apache2", path)
+		    sub (/\$\{APACHE_LOG_DIR\}/, "/var/log/apache2", path)
 		    if ( match (path, "/") != 1 ) {
 			tlog[curnam] = sprintf ("%s/%s", "'$apchroot'", path);
 		    } else {
