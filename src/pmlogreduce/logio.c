@@ -90,12 +90,18 @@ again:
 #endif
 	if (sts == 0) {
 	    fseek(f, offset, SEEK_SET);
+	    free(lpb);
 	    return PM_ERR_EOL;
 	}
-	else if (sts > 0)
+	else if (sts > 0) {
+	    free(lpb);
 	    return PM_ERR_LOGREC;
-	else
-	    return -oserror();
+	}
+	else {
+	    int e = -oserror();
+	    free(lpb);
+	    return e;
+	}
     }
 
 
