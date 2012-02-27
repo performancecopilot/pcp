@@ -707,7 +707,7 @@ _pmauxtraceconnect(void)
 	hostname[MAXHOSTNAMELEN-1] = '\0';
     }
     if ((sptr = getenv(TRACE_ENV_PORT)) != NULL) {
-	port = (int)strtol(optarg, &endnum, 0);
+	port = (int)strtol(sptr, &endnum, 0);
 	if (*endnum != '\0' || port < 0) {
 	    fprintf(stderr, "trace warning: bad PCP_TRACE_PORT ignored.");
 	    port = TRACE_PORT;
@@ -722,7 +722,7 @@ _pmauxtraceconnect(void)
 	    timeout.tv_usec = (int)((timesec - (double)timeout.tv_sec)*1000000);
 	}
     }
-    if ((sptr = getenv(TRACE_ENV_NOAGENT)) != NULL)
+    if (getenv(TRACE_ENV_NOAGENT) != NULL)
 	__pmstate |= PMTRACE_STATE_NOAGENT;
 
     if ((servinfo = gethostbyname(hostname)) == NULL) {
