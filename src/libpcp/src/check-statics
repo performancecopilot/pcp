@@ -224,7 +224,7 @@ util.o
     b indombuf.[0-9]*		# pmInDomStr deprecated by pmInDomStr_r
     b ebuf.[0-9]*		# pmEventFlagsStr deprecated by pmEventFlagsStr_r
     b nbuf.[0-9]*		# pmNumberStr deprecated by pmNumberStr_r
-    d unknownVal.[0-9]*		# const
+    d ?unknownVal.[0-9]*	# const, variable may be optimized away by gcc
     d debug_map			# const
     b pmState			# no unsafe side-effects, see notes in util.c
     D pmProgname		# no unsafe side-effects, see notes in util.c
