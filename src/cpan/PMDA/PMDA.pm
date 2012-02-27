@@ -153,7 +153,7 @@ an application, etc.
 
 =head1 SEE ALSO
 
-perl(1) and pmda(3).
+perl(1) and pcpintro(3).
 
 The PCP mailing list pcp@oss.sgi.com can be used for questions about
 this module.
