@@ -506,7 +506,7 @@ list_to_indom(SV *list, pmdaInstid **set)
 	instances[i].i_name = strdup(SvPV_nolen(*name));
 	if (instances[i].i_name == NULL) {
 	    for (j=0; j < i; j++)
-	    	free(instances[j].i_name;
+	    	free(instances[j].i_name);
 	    free(instances);
 	    warn("insufficient memory for instance array names");
 	    return -1;
