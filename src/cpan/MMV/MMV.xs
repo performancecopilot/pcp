@@ -116,9 +116,9 @@ list_to_indom(SV *list, mmv_indom_t *indom)
 	entry[i] = av_fetch(ilist, i, 0);
 
     indom->serial = SvIV(*entry[0]);
-    indom->count = list_to_instances(*entry[1], &indom->instances);
-    if (indom->count < 0)
+    if ((i = list_to_instances(*entry[1], &indom->instances)) < 0)
 	return -1;
+    indom->count = i;
     if (len > 2)
 	indom->shorttext = strdup(SvPV_nolen(*entry[2]));
     else
