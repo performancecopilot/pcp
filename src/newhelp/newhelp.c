@@ -394,7 +394,7 @@ Options:\n\
 		bp++;	/* skip '@' */
 		while (*bp && isspace((int)*bp))
 		    bp++;
-		if (bp == '\0') {
+		if (bp[0] == '\0') {
 		    if (verbose)
 			fprintf(stderr, "%s: [%s:%d] null entry?\n", 
 				pmProgname, filename, ln);
