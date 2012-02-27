@@ -53,7 +53,7 @@ typedef struct {
 static int
 getvals(pmResult **result)
 {
-    pmResult	*rp;
+    pmResult	*rp = NULL;
     int		sts;
     int		i;
     int		m;
@@ -85,6 +85,7 @@ getvals(pmResult **result)
 		}
 	    }
 	    pmFreeResult(rp);
+	    rp = NULL;
 	}
     }
     else
@@ -93,6 +94,9 @@ getvals(pmResult **result)
 done:
     if (sts >= 0)
 	*result = rp;
+    else if (rp)
+    	pmFreeResult(rp);
+
     return sts;
 }
 
