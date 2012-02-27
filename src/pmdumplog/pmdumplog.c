@@ -86,14 +86,11 @@ dumpresult(pmResult *resp)
 
     for (i = 0; i < resp->numpmid; i++) {
 	pmValueSet	*vsp = resp->vset[i];
-	int		have_name = 1;
+
 	if (i > 0)
 	    printf("            ");
-	n = pmNameID(vsp->pmid, &mname);
-	if (n < 0) {
-	    mname = "<noname>";
-	    have_name = 0;
-	}
+	if ((n = pmNameID(vsp->pmid, &mname)) < 0)
+	    mname = strdup("<noname>");
 	if (vsp->numval == 0) {
 	    printf("  %s (%s): No values returned!\n", pmIDStr(vsp->pmid), mname);
 	    goto next;
@@ -268,7 +265,7 @@ dumpresult(pmResult *resp)
 	    }
 	}
 next:
-	if (have_name)
+	if (mname)
 	    free(mname);
     }
 }

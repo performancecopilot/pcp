@@ -122,7 +122,8 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
     }
     strcat(tbuf, "XXXXXX");
 #if HAVE_MKSTEMP
-    fd = mkstemp(tbuf);
+    if ((fd = mkstemp(tbuf)) < 0)
+	goto failed;
 #else
     if (mktemp(tbuf) == NULL)
 	goto failed;

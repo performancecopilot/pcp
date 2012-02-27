@@ -59,10 +59,16 @@ __pmhashinit(__pmHashTable *t, size_t tsize, size_t esize,
 static int
 hashalloc(__pmHashTable *t, __pmHashEnt **entry)
 {
+    int e;
+
     if ((*entry = (__pmHashEnt *)malloc(sizeof(__pmHashEnt))) == NULL)
 	return -oserror();
-    if (((*entry)->ent = malloc(t->esize)) == NULL)
-	return -oserror();
+    if (((*entry)->ent = malloc(t->esize)) == NULL) {
+	e = -oserror();
+	free(*entry);
+	*entry = NULL;
+	return e;
+    }
     (*entry)->next = NULL;
     return 0;
 }

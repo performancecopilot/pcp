@@ -249,7 +249,8 @@ directive(void)
 	    __pmNoMem("pmcpp: value", valuelen+1, PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
-	strncpy(macro[nmacro].value, value, valuelen);
+	if (value && valuelen)
+	    strncpy(macro[nmacro].value, value, valuelen);
 	macro[nmacro].value[valuelen] = '\0';
 	nmacro++;
 	return 0;

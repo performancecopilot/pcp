@@ -43,7 +43,7 @@ int
 ConnectPMCD(void)
 {
     int			sts;
-    __pmPDU		*pb;
+    __pmPDU		*pb = NULL;
 
     if (src_ctx >= 0)
 	return src_ctx;
@@ -99,6 +99,8 @@ ConnectPMCD(void)
         src_ctx = sts;
 
 done:
+    if (pb)
+	__pmUnpinPDUBuf(pb);
     return sts;
 }
 
@@ -589,14 +591,8 @@ void Status(int pid, int primary)
 	size = lsp->ls_size;
     }
     else {
-	tzlogger = NULL;
-	start = NULL;
-	last = NULL;
-	timenow = NULL;
-	hostname = NULL;
-	state = -1;
-	vol = -1;
-	size = -1;
+	fprintf(stderr, "Error: logger IPC version < LOG_PDU_VERSION2, not supported\n");
+	return;
     }
 
     if (tzchange) {
@@ -615,7 +611,8 @@ void Status(int pid, int primary)
 		break;
 
 	    case TZ_LOGGER:
-		pmNewZone(tzlogger);		/* but keep me! */
+		if (tzlogger)
+		    pmNewZone(tzlogger);	/* but keep me! */
 		zonename = "pmlogger";
 		break;
 
