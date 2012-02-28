@@ -194,8 +194,8 @@ export PMCD_PORT=$port
 echo "export PMCD_CONNECT_TIMEOUT=30" >$tmp.start
 echo "export PMCD_PORT=$port" >>$tmp.start
 echo "sh $PCP_RC_DIR/pcp restart" >>$tmp.start
-$sudo sh $tmp.start 2>&1 \
-| tee -a $seq.full \
+$sudo sh $tmp.start >$tmp.tmp 2>&1
+tee -a $seq.full <$tmp.tmp \
 | sed '/Wait/d' \
 | _filter_pcp_start
 _wait_for_pmcd
