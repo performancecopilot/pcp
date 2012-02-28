@@ -2125,10 +2125,11 @@ ParseRestartAgents(char *fileName)
 			pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		    if (sts == 0)
 			pmcd_trace(TR_EOF, ap->outFd, -1, -1);
-		    else
+		    else {
 			pmcd_trace(TR_WRONG_PDU, ap->outFd, -1, sts);
-
-		    __pmUnpinPDUBuf(pb);
+			if (sts > 0)
+			    __pmUnpinPDUBuf(pb);
+		    }
 
 		    CleanupAgent(ap, AT_COMM, ap->outFd);
 		}
