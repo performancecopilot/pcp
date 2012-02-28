@@ -268,7 +268,7 @@ add event(queue1,227) -> 0 [TIME]
 new client(84) -> 0
 pmdaEventEndClient: ctx=42 slot=1
 end client(42) -> 0
-new client(21) -> 1
+new client(21) -> 2
 event queue#0 count=4, bytes=305, clients=0, mem=0
 walking queue#0 events for client#84
 [DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
@@ -365,7 +365,7 @@ add event(queue1,227) -> 0 [TIME]
 new client(84) -> 0
 pmdaEventEndClient: ctx=42 slot=1
 end client(42) -> 0
-new client(21) -> 1
+new client(21) -> 2
 event queue#0 count=4, bytes=305, clients=0, mem=0
 walking queue#0 events for client#84
 [DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
