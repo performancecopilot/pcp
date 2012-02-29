@@ -133,8 +133,14 @@ is_chkconfig_on()
     then
 	case "$1"
 	in
-	    pcp|pmlogger)
-		if [ "`. /etc/hostconfig; echo $PCP`" = "-YES-" ]
+	    pmcd)
+		if [ "`. /etc/hostconfig; echo $PMCD`" = "-YES-" ]
+		then
+		    _ret=0
+		fi
+		;;
+	    pmlogger)
+		if [ "`. /etc/hostconfig; echo $PMLOGGER`" = "-YES-" ]
 		then
 		    _ret=0
 		fi
@@ -221,8 +227,11 @@ chkconfig_on()
 	echo "To enable $_flag, add the following line to /etc/hostconfig:"
 	case "$_flag"
 	in
-	    pcp|pmlogger)
-		echo "PCP=-YES-"
+	    pmcd)
+		echo "PMCD=-YES-"
+		;;
+	    pmlogger)
+		echo "PMLOGGER=-YES-"
 		;;
 	    pmie)
 		echo "PMIE=-YES-"
