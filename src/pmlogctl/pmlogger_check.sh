@@ -447,7 +447,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    continue
 	fi
 
-	if is_chkconfig_on pcp
+	if is_chkconfig_on pmlogger
 	then
 	    :
 	else
