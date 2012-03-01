@@ -4,6 +4,9 @@
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
+# need to know what version we're running
+. ./localconfig
+
 # common routine for preventing a test from running on some platforms
 # use: _notrun "Reason for not running this test is ..."
 # 
@@ -875,9 +878,25 @@ _change_config()
     then
 	case $1 
 	in
-	    pmcd)	pat=""
+	    pmcd)	if [ $PCP_VER -lt 4000 ]
+			then
+			    # both the chkconfig options pmlogger and pcp
+			    # map to pcp for Linux and PCP before 4.0 ...
+			    # use pcp here
+			    pat=pcp
+			else
+			    pat=pmcd
+			fi
 			;;
-	    pmlogger)	pat=pcp
+	    pmlogger)	if [ $PCP_VER -lt 4000 ]
+	    		then
+			    # both the chkconfig options pmlogger and pcp
+			    # map to pcp for Linux and PCP before 4.0 ...
+			    # skip pmlogger here
+			    pat=""
+			else
+			    pat=pmlogger
+			fi
 			;;
 	    pmie)	pat=pmie
 			;;
@@ -948,10 +967,25 @@ _change_config()
 	then
 	    case $1 
 	    in
-			    # cannot really turn pmlogger on/off from here
-		pmlogger)   pat=""
+		pmcd)       if [ $PCP_VER -lt 4000 ]
+			    then
+				# both the chkconfig options pmlogger and pcp
+				# map to pcp for Linux and PCP before 4.0 ...
+				# use pcp here
+				pat=pcp
+			    else
+				pat=pmcd
+			    fi
 			    ;;
-		pmcd)	    pat=pcp
+		pmlogger)   if [ $PCP_VER -lt 4000 ]
+			    then
+				# both the chkconfig options pmlogger and pcp
+				# map to pcp for Linux and PCP before 4.0 ...
+				# skip pmlogger here
+				pat=""
+			    else
+				pat=pmlogger
+			    fi
 			    ;;
 		verbose)    pat=""
 			    ;;
@@ -979,9 +1013,25 @@ _change_config()
     then
 	case $1 
 	in
-	    pmcd)	pat=""
+	    pmcd)	if [ $PCP_VER -lt 4000 ]
+			then
+			    # both the chkconfig options pmlogger and pcp
+			    # map to pcp for Linux and PCP before 4.0 ...
+			    # use PCP here
+			    pat=PCP
+			else
+			    pat=PMCD
+			fi
 			;;
-	    pmlogger)	pat=PCP
+	    pmlogger)	if [ $PCP_VER -lt 4000 ]
+	    		then
+			    # both the chkconfig options pmlogger and pcp
+			    # map to pcp for Linux and PCP before 4.0 ...
+			    # skip pmlogger here
+			    pat=""
+			else
+			    pat=PMLOGGER
+			fi
 			;;
 	    pmie)	pat=PMIE
 			;;
@@ -1043,8 +1093,14 @@ _get_config()
 	case $1 
 	in
 	    pmlogger|pmcd)
-		# both these IRIX chkconfig options map to pcp for Linux
-		pat=pcp
+		if [ $PCP_VER -lt 4000 ]
+		then
+		    # both the IRIX chkconfig options pmlogger and pcp
+		    # map to pcp for Linux and PCP before 4.0
+		    pat=pcp
+		else
+		    pat=$1
+		fi
 		;;
 	    verbose)
 		pat=""
@@ -1131,8 +1187,15 @@ _get_config()
 	    case $1 
 	    in
 		pmlogger|pmcd)
-				# both these options map to pcp for Solaris
-				pat=pcp
+				if [ $PCP_VER -lt 4000 ]
+				then
+				    # both the IRIX chkconfig options
+				    # pmlogger and pcp map to pcp for
+				    # Solaris and PCP before 4.0
+				    pat=pcp
+				else
+				    pat=$1
+				fi
 				;;
 		verbose)
 				pat=""
@@ -1169,9 +1232,25 @@ _get_config()
     then
 	case $1 
 	in
-	    pmcd)	pat=""
+	    pmcd)	if [ $PCP_VER -lt 4000 ]
+			then
+			    # both the chkconfig options pmlogger and pcp
+			    # map to pcp for Linux and PCP before 4.0 ...
+			    # use pcp here
+			    pat=PCP
+			else
+			    pat=PMCD
+			fi
 			;;
-	    pmlogger)	pat=PCP
+	    pmlogger)	if [ $PCP_VER -lt 4000 ]
+	    		then
+			    # both the chkconfig options pmlogger and pcp
+			    # map to pcp for Linux and PCP before 4.0 ...
+			    # skip pmlogger here
+			    pat=""
+			else
+			    pat=PMLOGGER
+			fi
 			;;
 	    pmie)	pat=PMIE
 			;;
