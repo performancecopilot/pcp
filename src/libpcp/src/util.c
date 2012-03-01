@@ -203,7 +203,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
      */
 
     fflush(oldstream);
-    *status = 1;		/* set to zero if all this works ... */
+    *status = 0;		/* set to one if all this works ... */
     oldfd = fileno(oldstream);
     if ((dupoldfd = dup(oldfd)) >= 0) {
 	/*
@@ -233,15 +233,20 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 		else
 		    oldstream = fdopen(fileno(stderr), "w");
 	    }
-	    *status = 0;
 	    pmprintf("%s: cannot open log \"%s\" for writing : %s\n",
 		    progname, logname, strerror(save_error));
 	    pmflush();
 	}
+	else {
+	    /* yippee */
+	    *status = 1;
+	}
+	close(dupoldfd);
     }
     else {
-	*status = 1;
-	close(dupoldfd);
+	pmprintf("%s: cannot redirect log output to \"%s\": %s\n",
+		progname, logname, strerror(errno));
+	pmflush();
     }
     return oldstream;
 }
