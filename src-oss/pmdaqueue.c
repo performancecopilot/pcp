@@ -56,7 +56,8 @@ void queue_statistics(int q)
  * decode_event is a callback, called once per-event.
  */
 
-int decode_event(int key, void *event, size_t size, void *data)
+int decode_event(int key, void *event, size_t size,
+		 struct timeval *timestamp, void *data)
 {
     char *buffer = (char *)event;
     int *datap = (int *)data;
