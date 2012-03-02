@@ -40,13 +40,21 @@ _do_time()
 	fi
     done
 
-    ed - <<'End-of-File' $tmp.sed
-4,$-1g/^s/s///
-4,$-1g/TIME/s/.TIME.*/\/d/
-$s/P-.*/P-LAST\/g/
-w
-q
-End-of-File
+    sed <$tmp.sed >$tmp.sed.tmp \
+	-e '${
+s/^s/xs/
+s/TIME/FOO/
+}' \
+	-e '4,${
+s/^s\//\//
+s/.TIME.*/\/d/
+}' \
+	-e '${
+s/^xs/s/
+s/FOO/TIME/
+s/P-.*/P-LAST\//
+}'
+    mv $tmp.sed.tmp $tmp.sed
 
     sed -f $tmp.sed $tmp.tmp \
     | sed -e 's/value .*/value .../' \
