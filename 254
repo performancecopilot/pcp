@@ -13,7 +13,7 @@
 seq=`basename $0`
 
 rm -f $seq.out
-if [ $PCP_VER -lt 4000 ]
+if [ $PCP_VER -lt 3600 ]
 then
     ln $seq.out.1 $seq.out || exit 1
 else
@@ -68,7 +68,7 @@ yet.another {
 }
 End-of-File
 
-if [ $PCP_VER -lt 4000 ]
+if [ $PCP_VER -lt 3600 ]
 then
     pmnscomp -df -n $pmns $pmns.bin
 fi
@@ -77,7 +77,7 @@ $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
 
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 #
-if [ $PCP_VER -lt 4000 ]
+if [ $PCP_VER -lt 3600 ]
 then
     $PCP_PMCD_PROG -f -n $pmns -l $seq.full &
 else

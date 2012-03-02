@@ -95,14 +95,12 @@ mv simple.conf idiot.conf
 mv pmdasimple.pl pmdaidiot.pl
 for file in *
 do
+    sed <$file >$tmp.tmp \
+	-e '/simple/s//idiot/g' \
+	-e '/SIMPLE/s//IDIOT/g' \
+	-e '/253/s//177/g'
     chmod u+w $file
-    ed -s $file <<End-of-File
-g/simple/s//idiot/g
-g/SIMPLE/s//IDIOT/g
-g/253/s//177/g
-w
-q
-End-of-File
+    cp $tmp.tmp $file
 done
 
 $sudo ./Remove >/dev/null 2>&1

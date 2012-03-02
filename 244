@@ -179,13 +179,13 @@ pminfo $NAMESPACE -d hinv.ncpu
 # original config file and restart PMCD.
 # The config file has changed and there is also a dead agent to restart.
 #
-grep pmdasample $CONFIGSAVE | sed -e 's/[ 	][ 	]*/ /g' -e 's/[ 	]*$//' >>$NEWCONFIG
-ed - $NEWCONFIG <<'End-of-File'
-$m2
-/fake_sampledso/d
-w
-q
-End-of-File
+sed <$NEWCONFIG >$tmp.tmp \
+    -e '1{
+a \
+'"`grep pmdasample $CONFIGSAVE | sed -e 's/[ 	][ 	]*/ /g' -e 's/[ 	]*$//'`"'
+}' \
+    -e '/fake_sampledso/d'
+mv $tmp.tmp $NEWCONFIG
 $sudo cp $NEWCONFIG $CONFIG
 
 echo '$PCP_PMCDCONF_PATH now contains:'

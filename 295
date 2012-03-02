@@ -47,8 +47,7 @@ _check()
 $sudo $PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
 $sudo $signal -a pmproxy >/dev/null 2>&1
 
-pmproxy -Dcontext -l $tmp.log >$tmp.tmp 2>&1
-_filter_pmproxy <$tmp.tmp
+pmproxy -Dcontext -l $tmp.log 2>&1 | _filter_pmproxy
 
 PMPROXY_HOST=localhost
 export PMPROXY_HOST

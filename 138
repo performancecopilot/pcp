@@ -13,7 +13,7 @@
 seq=`basename $0`
 
 rm -f $seq.out
-if [ $PCP_VER -lt 4000 ]
+if [ $PCP_VER -lt 3600 ]
 then
     ln $seq.out.1 $seq.out || exit 1
 else
@@ -54,7 +54,7 @@ c {
 End-of-File
 
 pminfo -m -n $tmp
-if [ $PCP_VER -lt 4000 ]
+if [ $PCP_VER -lt 3600 ]
 then
     pmnscomp -f -n $tmp $tmp.bin
     pminfo -m -n $tmp

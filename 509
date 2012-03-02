@@ -14,7 +14,7 @@
 seq=`basename $0`
 
 rm -f $seq.out
-if [ $PCP_VER -lt 4000 ]
+if [ $PCP_VER -lt 3600 ]
 then
     ln $seq.out.1 $seq.out || exit 1
 else
@@ -37,7 +37,16 @@ _filter()
 	-e 's/0x[0-9a-f][0-9a-f]*/ADDR/g' \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
 	-e '/PMNS Checksums/s/=[0-9a-f][0-9a-f]*/=CHECKSUM/g' \
-	-e '/Loaded Version 1 or 2/s/ent = [0-9][0-9]/ent = NN/'
+	-e '/Loaded Version 1 or 2/s/ent = [0-9][0-9]/ent = NN/' \
+    | $PCP_AWK_PROG '
+BEGIN					{ state = 0 }
+state == 0 && $1 == "pmLoadNameSpace:"	{ state = 1 }
+state == 1 && $1 != "pmLoadNameSpace:"	{ state = 2 }
+					{ print >"'$tmp.tmp.'" state }'
+
+    [ -f $tmp.tmp.0 ] && cat $tmp.tmp.0
+    [ -f $tmp.tmp.1 ] && LC_COLLATE=POSIX sort $tmp.tmp.1
+    [ -f $tmp.tmp.2 ] && cat $tmp.tmp.2
 }
 
 # real QA test starts here

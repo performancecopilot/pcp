@@ -17,7 +17,7 @@ echo "QA output created by $seq"
 $sudo rm -f $seq.out
 if [ $PCP_PLATFORM = linux ]
 then
-    if [ $PCP_VER -ge 4000 ]
+    if [ $PCP_VER -ge 3600 ]
     then
 	# /etc/init.d/pmcd and /etc/init.d/pmlogger changes
 	ln $seq.out.5 $seq.out || exit 1
@@ -92,8 +92,8 @@ fi
 
 _poke_pmcd()
 {
-    $sudo $PCP_RC_DIR/pcp restart >$tmp.tmp 2>&1
-    tee -a $seq.full <$tmp.tmp \
+    $sudo $PCP_RC_DIR/pcp restart 2>&1 \
+    | tee -a $seq.full \
     | sed \
 	-e '/ root .* .usr.etc.pmcd /s/.*/-- ps output line --/' \
 	-e '/UID .* PID /d' \
