@@ -548,7 +548,8 @@ extern int pmdaEventQueueCounter(int, pmAtomValue *);
 extern int pmdaEventQueueBytes(int, pmAtomValue *);
 extern int pmdaEventQueueMemory(int, pmAtomValue *);
 
-typedef int (*pmdaEventDecodeCallBack)(int, void *, size_t, void *);
+typedef int (*pmdaEventDecodeCallBack)(int,
+		void *, size_t, struct timeval *, void *);
 extern int pmdaEventQueueRecords(int, pmAtomValue *, int,
 		pmdaEventDecodeCallBack, void *);
 
