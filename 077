@@ -12,7 +12,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-if [ $PCP_VER -lt 4000 ]
+if [ $PCP_VER -lt 3600 ]
 then
     # V1 archives supported
     arch=src-oss/babylon.percpu

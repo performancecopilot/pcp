@@ -878,20 +878,20 @@ _change_config()
     then
 	case $1 
 	in
-	    pmcd)	if [ $PCP_VER -lt 4000 ]
+	    pmcd)	if [ $PCP_VER -lt 3600 ]
 			then
 			    # both the chkconfig options pmlogger and pcp
-			    # map to pcp for Linux and PCP before 4.0 ...
+			    # map to pcp for Linux and PCP before 3.6 ...
 			    # use pcp here
 			    pat=pcp
 			else
 			    pat=pmcd
 			fi
 			;;
-	    pmlogger)	if [ $PCP_VER -lt 4000 ]
+	    pmlogger)	if [ $PCP_VER -lt 3600 ]
 	    		then
 			    # both the chkconfig options pmlogger and pcp
-			    # map to pcp for Linux and PCP before 4.0 ...
+			    # map to pcp for Linux and PCP before 3.6 ...
 			    # skip pmlogger here
 			    pat=""
 			else
@@ -967,20 +967,20 @@ _change_config()
 	then
 	    case $1 
 	    in
-		pmcd)       if [ $PCP_VER -lt 4000 ]
+		pmcd)       if [ $PCP_VER -lt 3600 ]
 			    then
 				# both the chkconfig options pmlogger and pcp
-				# map to pcp for Linux and PCP before 4.0 ...
+				# map to pcp for Linux and PCP before 3.6 ...
 				# use pcp here
 				pat=pcp
 			    else
 				pat=pmcd
 			    fi
 			    ;;
-		pmlogger)   if [ $PCP_VER -lt 4000 ]
+		pmlogger)   if [ $PCP_VER -lt 3600 ]
 			    then
 				# both the chkconfig options pmlogger and pcp
-				# map to pcp for Linux and PCP before 4.0 ...
+				# map to pcp for Linux and PCP before 3.6 ...
 				# skip pmlogger here
 				pat=""
 			    else
@@ -1013,20 +1013,20 @@ _change_config()
     then
 	case $1 
 	in
-	    pmcd)	if [ $PCP_VER -lt 4000 ]
+	    pmcd)	if [ $PCP_VER -lt 3600 ]
 			then
 			    # both the chkconfig options pmlogger and pcp
-			    # map to pcp for Linux and PCP before 4.0 ...
+			    # map to pcp for Linux and PCP before 3.6 ...
 			    # use PCP here
 			    pat=PCP
 			else
 			    pat=PMCD
 			fi
 			;;
-	    pmlogger)	if [ $PCP_VER -lt 4000 ]
+	    pmlogger)	if [ $PCP_VER -lt 3600 ]
 	    		then
 			    # both the chkconfig options pmlogger and pcp
-			    # map to pcp for Linux and PCP before 4.0 ...
+			    # map to pcp for Linux and PCP before 3.6 ...
 			    # skip pmlogger here
 			    pat=""
 			else
@@ -1093,10 +1093,10 @@ _get_config()
 	case $1 
 	in
 	    pmlogger|pmcd)
-		if [ $PCP_VER -lt 4000 ]
+		if [ $PCP_VER -lt 3600 ]
 		then
 		    # both the IRIX chkconfig options pmlogger and pcp
-		    # map to pcp for Linux and PCP before 4.0
+		    # map to pcp for Linux and PCP before 3.6
 		    pat=pcp
 		else
 		    pat=$1
@@ -1187,11 +1187,11 @@ _get_config()
 	    case $1 
 	    in
 		pmlogger|pmcd)
-				if [ $PCP_VER -lt 4000 ]
+				if [ $PCP_VER -lt 3600 ]
 				then
 				    # both the IRIX chkconfig options
 				    # pmlogger and pcp map to pcp for
-				    # Solaris and PCP before 4.0
+				    # Solaris and PCP before 3.6
 				    pat=pcp
 				else
 				    pat=$1
@@ -1232,20 +1232,20 @@ _get_config()
     then
 	case $1 
 	in
-	    pmcd)	if [ $PCP_VER -lt 4000 ]
+	    pmcd)	if [ $PCP_VER -lt 3600 ]
 			then
 			    # both the chkconfig options pmlogger and pcp
-			    # map to pcp for Linux and PCP before 4.0 ...
+			    # map to pcp for Linux and PCP before 3.6 ...
 			    # use pcp here
 			    pat=PCP
 			else
 			    pat=PMCD
 			fi
 			;;
-	    pmlogger)	if [ $PCP_VER -lt 4000 ]
+	    pmlogger)	if [ $PCP_VER -lt 3600 ]
 	    		then
 			    # both the chkconfig options pmlogger and pcp
-			    # map to pcp for Linux and PCP before 4.0 ...
+			    # map to pcp for Linux and PCP before 3.6 ...
 			    # skip pmlogger here
 			    pat=""
 			else

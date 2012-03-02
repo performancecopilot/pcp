@@ -16,7 +16,7 @@ seq=`basename $0`
 . ./common.filter
 . ./common.check
 
-if [ $PCP_VER -lt 4000 ]
+if [ $PCP_VER -lt 3600 ]
 then
     # V1 archives supported
     :

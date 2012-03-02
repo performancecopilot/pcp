@@ -19,7 +19,7 @@ in
 	ln $seq.irix $seq.out || exit 1
 	;;
     linux)
-	if [ $PCP_VER -lt 4000 ]
+	if [ $PCP_VER -lt 3600 ]
 	then
 	    ln $seq.linux $seq.out || exit 1
 	else

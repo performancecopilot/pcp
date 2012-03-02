@@ -21,7 +21,7 @@ rm -f $seq.out
 case $PCP_PLATFORM
 in
     irix|linux|darwin)
-	if [ $PCP_VER -lt 4000 ]
+	if [ $PCP_VER -lt 3600 ]
 	then
 	    ln $seq.$PCP_PLATFORM $seq.out || exit 1
 	else

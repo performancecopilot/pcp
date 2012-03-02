@@ -14,7 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 rm -f $seq.out
-if [ $PCP_VER -lt 4000 ]
+if [ $PCP_VER -lt 3600 ]
 then
     # V1 archives supported
     arch=src-oss/951127.23.01

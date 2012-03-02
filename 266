@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 . ./common.filter
 
 rm -f $seq.out
-if [ $PCP_VER -lt 4000 ]
+if [ $PCP_VER -lt 3600 ]
 then
     # V1 archives supported
     ln $seq.out.1 $seq.out

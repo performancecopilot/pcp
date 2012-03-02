@@ -12,9 +12,9 @@
 
 seq=`basename $0`
 
-if [ $PCP_VER -lt 4000 ]
+if [ $PCP_VER -lt 3600 ]
 then
-    _notrun Fix for __pmConfig is in PCP 4.0
+    _notrun Fix for __pmConfig is in PCP 3.6
 else
     rm -f $seq.notrun
 fi
