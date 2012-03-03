@@ -52,7 +52,7 @@ int pmdaEventQueueAppend(int \fIhandle\fP, void *\fIbuffer\fP, size_t \fIbytes\f
 .ad
 .in +8n
 .ti -8n
-typedef int (*pmdaEventDecodeCallBack)(int, void *, int, void *);
+typedef int (*pmdaEventDecodeCallBack)(int, void *, int, struct timeval *, void *);
 .br
 .ti -8n
 int pmdaEventQueueRecords(int \fIhandle\fP, pmAtomValue *\fIavp\fP, int \fIcontext\fP, pmdaEventDecodeCallBack \fIdecoder\fP, void *\fIdata\fP);

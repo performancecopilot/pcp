@@ -429,12 +429,16 @@ event_pmid(int handle)
 }
 
 int
-event_decoder(int eventarray, void *buffer, size_t size, void *data)
+event_decoder(int eventarray, void *buffer, size_t size,
+		struct timeval *timestamp, void *data)
 {
     int sts, handle = *(int *)data;
     pmID pmid = event_pmid(handle);
     pmAtomValue atom;
 
+    sts = pmdaEventAddRecord(eventarray, timestamp, PM_EVENT_FLAG_POINT);
+    if (sts < 0)
+	return sts;
     atom.cp = buffer;
     sts = pmdaEventAddParam(eventarray, pmid, PM_TYPE_STRING, &atom);
     if (sts < 0)

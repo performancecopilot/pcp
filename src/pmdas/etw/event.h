@@ -83,7 +83,8 @@ typedef struct {
 extern etw_event_t eventtab[];
 extern int event_init(void);
 extern void event_shutdown(void);
-extern int event_decoder(int arrayid, void *buffer, size_t size, void *data);
+extern int event_decoder(int arrayid, void *buffer, size_t size,
+			 struct timeval *timestamp, void *data);
 
 extern etw_event_t *event_table_lookup(LPGUID guid, int eventid, int version);
 

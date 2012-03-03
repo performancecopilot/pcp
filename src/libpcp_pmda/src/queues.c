@@ -298,13 +298,11 @@ queue_fetch(event_queue_t *queue, event_clientq_t *clientq, pmAtomValue *atom,
 				(long)event->size,
 				__pmdaEventPrint(event->buffer, event->size,
 					message, sizeof(message)));
-	    sts = pmdaEventAddRecord(key, &event->time, PM_EVENT_FLAG_POINT);
-	    if (sts < 0)
+	    if ((sts = queue_decoder(key,
+			event->buffer, event->size, &event->time, data)) < 0)
 		break;
-	    sts = queue_decoder(key, event->buffer, event->size, data);
-	    if (sts < 0)
-		break;
-	    records++;
+	    records += sts;
+	    sts = 0;
 	}
 
 	next = TAILQ_NEXT(event, events);
