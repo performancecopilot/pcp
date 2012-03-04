@@ -19,7 +19,7 @@ SUBDIRS = src-oss pmdas
 
 TESTS	= $(shell sed -n -e '/^[0-9]/s/[ 	].*//p' <group)
 
-default:	new remake check qa_hosts $(OTHERS)
+default:	localconfig new remake check qa_hosts $(OTHERS)
 
 install:
 
