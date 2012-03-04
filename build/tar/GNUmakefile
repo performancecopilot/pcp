@@ -30,7 +30,7 @@ default install install_pcp default_pcp :
 pack_pcp : 
 	@ BINTAR=$(PACKAGE_NAME)-$(PACKAGE_VERSION)-$(PACKAGE_BUILD).tar.gz; \
 	HERE=`pwd`; cd $${DIST_ROOT:-/}; \
-	sort -u $$DIST_MANIFEST | $(PCP_AWK_PROG) ' \
+	sort -u $$DIST_MANIFEST | eval $(PCP_AWK_PROG) ' \
 	$$1 == "f" { printf (".%s\n", $$6); } \
 	$$1 == "d" { next; } \
 	$$1 == "l" { printf (".%s\n", $$3); }' | $(TAR) -T - -cf - | \
