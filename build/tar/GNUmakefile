@@ -26,14 +26,16 @@ LDIRT = $(wildcard pcp*.tar.gz pcp*.md5sum.src)
 
 default install install_pcp default_pcp :
 
+# Note on sed below
+# for f and l lines of manifest, want the last word (target name),
+# stripped of leading /
+#
 .PHONY: pack_pcp
 pack_pcp : 
 	@ BINTAR=$(PACKAGE_NAME)-$(PACKAGE_VERSION)-$(PACKAGE_BUILD).tar.gz; \
 	HERE=`pwd`; cd $${DIST_ROOT:-/}; \
-	sort -u $$DIST_MANIFEST | eval $(PCP_AWK_PROG) ' \
-	$$1 == "f" { printf (".%s\n", $$6); } \
-	$$1 == "d" { next; } \
-	$$1 == "l" { printf (".%s\n", $$3); }' | $(TAR) -T - -cf - | \
-		gzip > $$HERE/$$BINTAR; echo Wrote: $$HERE/$$BINTAR
+	sort -u $$DIST_MANIFEST | sed -n -e '/^[fl]/s/.* \/*//p' \
+	| $(TAR) -T - -cf - \
+	| gzip > $$HERE/$$BINTAR; echo Wrote: $$HERE/$$BINTAR
 
 include $(BUILDRULES)
