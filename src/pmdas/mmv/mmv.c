@@ -627,9 +627,9 @@ mmv_reload_maybe(pmdaExt *pmda)
     }
 
     /* check if the directory has been modified */
-    if (stat(statsdir, &s) >= 0 && s.st_ctime != statsdir_ts) {
+    if (stat(statsdir, &s) >= 0 && s.st_mtime != statsdir_ts) {
 	need_reload++;
-	statsdir_ts = s.st_ctime;
+	statsdir_ts = s.st_mtime;
     }
 
     if (need_reload) {
