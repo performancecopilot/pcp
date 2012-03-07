@@ -34,6 +34,7 @@ static int	run_daemon = 1;		/* run as a daemon, see -f */
 int		_creds_timeout = 3;	/* Timeout for agents credential PDU */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*pmnsfile = PM_NS_DEFAULT;
+static int	dupok = 0;		/* set to 1 for -N pmnsfile */
 
 /*
  * Interfaces we're willing to listen for clients on, from -i
@@ -200,7 +201,7 @@ ParseOptions(int argc, char *argv[])
     putenv("POSIXLY_CORRECT=");
 #endif
 
-    while ((c = getopt(argc, argv, "D:fi:l:L:n:p:q:t:T:x:?")) != EOF)
+    while ((c = getopt(argc, argv, "D:fi:l:L:N:n:p:q:t:T:x:?")) != EOF)
 	switch (c) {
 
 	    case 'D':	/* debug flag */
@@ -242,6 +243,9 @@ ParseOptions(int argc, char *argv[])
 		}
 		break;
 
+	    case 'N':
+		dupok = 1;
+		/*FALLTHROUGH*/
 	    case 'n':
 	    	/* name space file name */
 		pmnsfile = optarg;
@@ -329,6 +333,7 @@ ParseOptions(int argc, char *argv[])
 "  -l logfile      redirect diagnostics and trace output\n"
 "  -L bytes        maximum size for PDUs from clients [default 65536]\n"
 "  -n pmnsfile     use an alternative PMNS\n"
+"  -N pmnsfile     use an alternative PMNS (duplicate PMIDs are allowed)\n"
 "  -p port         accept connections on this port\n"
 "  -q timeout      PMDA initial negotiation timeout (seconds) [default 3]\n"
 "  -T traceflag    Event trace control\n"
@@ -447,13 +452,14 @@ HandleClientInput(fd_set *fdsPtr)
     ClientInfo	*cp;
 
     for (i = 0; i < nClients; i++) {
+	int		pinpdu;
 	if (!client[i].status.connected || !FD_ISSET(client[i].fd, fdsPtr))
 	    continue;
 
 	cp = &client[i];
 	this_client_id = i;
 
-	sts = __pmGetPDU(cp->fd, LIMIT_SIZE, _pmcd_timeout, &pb);
+	pinpdu = sts = __pmGetPDU(cp->fd, LIMIT_SIZE, _pmcd_timeout, &pb);
 	if (sts > 0 && _pmcd_trace_mask)
 	    pmcd_trace(TR_RECV_PDU, cp->fd, sts, (int)((__psint_t)pb & 0xffffffff));
 	if (sts <= 0) {
@@ -462,12 +468,17 @@ HandleClientInput(fd_set *fdsPtr)
 	}
 
 	php = (__pmPDUHdr *)pb;
-	if (__pmVersionIPC(cp->fd) == UNKNOWN_VERSION && php->type != PDU_CREDS)
-	    __pmSetVersionIPC(cp->fd, PDU_VERSION1);
+	if (__pmVersionIPC(cp->fd) == UNKNOWN_VERSION && php->type != PDU_CREDS) {
+	    /* old V1 client protocol, no longer supported */
+	    sts = PM_ERR_IPC;
+	    CleanupClient(cp, sts);
+	    __pmUnpinPDUBuf(pb);
+	    continue;
+	}
 
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
-		ShowClients(stderr);
+	if (pmDebug & DBG_TRACE_APPL0)
+	    ShowClients(stderr);
 #endif
 
 	switch (php->type) {
@@ -521,14 +532,7 @@ HandleClientInput(fd_set *fdsPtr)
 		break;
 
 	    case PDU_CREDS:
-		if ((sts = __pmVersionIPC(cp->fd)) < 0)
-		    break;
-		if (sts == PDU_VERSION1) {
-		    __pmNotifyErr(LOG_ERR, "pmcd: protocol version error on fd=%d\n", cp->fd);
-		    sts = PM_ERR_V1(PM_ERR_IPC);
-		}
-		else
-		    sts = DoCreds(cp, pb);
+		sts = DoCreds(cp, pb);
 		break;
 
 	    default:
@@ -551,6 +555,8 @@ HandleClientInput(fd_set *fdsPtr)
 			"error sending Error PDU to client[%d] %s\n", i, pmErrStr(sts));
 	    }
 	}
+	if (pinpdu > 0)
+	    __pmUnpinPDUBuf(pb);
     }
 }
 
@@ -663,7 +669,11 @@ SignalReloadPMNS(void)
 	__pmNotifyErr(LOG_INFO, "Reloading PMNS \"%s\"",
 	   (pmnsfile==PM_NS_DEFAULT)?"DEFAULT":pmnsfile);
 	pmUnloadNameSpace();
-	if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
+	if (dupok)
+	    sts = pmLoadASCIINameSpace(pmnsfile, 1);
+	else
+	    sts = pmLoadNameSpace(pmnsfile);
+	if (sts < 0) {
 	    __pmNotifyErr(LOG_ERR, "PMNS \"%s\" load failed: %s",
 		(pmnsfile == PM_NS_DEFAULT) ? "DEFAULT" : pmnsfile,
 		pmErrStr(sts));
@@ -693,10 +703,10 @@ HandleReadyAgents(fd_set *readyFds)
 	if (ap->status.notReady) {
 	    fd = ap->outFd;
 	    if (FD_ISSET(fd, readyFds)) {
-
+		int		pinpdu;
 		/* Expect an error PDU containing PM_ERR_PMDAREADY */
 		reason = AT_COMM;	/* most errors are protocol failures */
-		sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+		pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 		if (sts > 0 && _pmcd_trace_mask)
 		    pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		if (sts == PDU_ERROR) {
@@ -733,6 +743,8 @@ HandleReadyAgents(fd_set *readyFds)
 			pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_ERROR, sts);
 		    sts = PM_ERR_IPC; /* Wrong PDU type */
 		}
+		if (pinpdu > 0)
+		    __pmUnpinPDUBuf(pb);
 
 		if (ap->ipcType != AGENT_DSO && sts <= 0)
 		    CleanupAgent(ap, reason, fd);
@@ -838,13 +850,6 @@ ClientLoop(void)
 
 		    if (_pmcd_trace_mask)
 			pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
-		    /*
-		     * Note. in the event of an error being detected,
-		     *       sts is converted from 2.0 to 1.x in
-		     *       __pmSendXtendError() ... special case code
-		     *	     on the client side knows about this for 2.0
-		     *       clients.
-		     */
 		    xchallenge = *(__pmPDUInfo *)&challenge;
 		    xchallenge = __htonpmPDUInfo(xchallenge);
 		    s = __pmSendXtendError(cp->fd, FROM_ANON, sts, *(unsigned int *)&xchallenge);
@@ -1118,7 +1123,11 @@ main(int argc, char *argv[])
     /* if this fails beware of the sky falling in */
     assert(sts >= 0);
 
-    if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
+    if (dupok)
+	sts = pmLoadASCIINameSpace(pmnsfile, 1);
+    else
+	sts = pmLoadNameSpace(pmnsfile);
+    if (sts < 0) {
 	fprintf(stderr, "Error: pmLoadNameSpace: %s\n", pmErrStr(sts));
 	DontStart();
     }

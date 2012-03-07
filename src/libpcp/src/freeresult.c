@@ -15,8 +15,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-#define MAGIC PM_VAL_HDR_SIZE + sizeof(__int64_t)
-
 /* Free result buffer routines */
 
 void
@@ -51,46 +49,25 @@ __pmFreeResultValues(pmResult *result)
 	    /* pmValueBlocks may be malloc'd as well */
 	    int		j;
 	    for (j = 0; j < pvs->numval; j++) {
-		if (pvs->vlist[j].value.pval->vlen == MAGIC) {
 #ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_PDUBUF) {
-			fprintf(stderr, "__pmPoolFree(" PRINTF_P_PFX "%p) pmValueBlock pmid=%s inst=%d\n",
-			    pvs->vlist[j].value.pval, pmIDStr(pvs->pmid),
-			    pvs->vlist[j].inst);
-		    }
-#endif
-		    __pmPoolFree(pvs->vlist[j].value.pval, MAGIC);
+		if (pmDebug & DBG_TRACE_PDUBUF) {
+		    char	strbuf[20];
+		    fprintf(stderr, "free(" PRINTF_P_PFX "%p) pmValueBlock pmid=%s inst=%d\n",
+			pvs->vlist[j].value.pval, pmIDStr_r(pvs->pmid, strbuf, sizeof(strbuf)),
+			pvs->vlist[j].inst);
 		}
-		else {
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_PDUBUF) {
-			fprintf(stderr, "free(" PRINTF_P_PFX "%p) pmValueBlock pmid=%s inst=%d\n",
-			    pvs->vlist[j].value.pval, pmIDStr(pvs->pmid),
-			    pvs->vlist[j].inst);
-		    }
 #endif
-		    free(pvs->vlist[j].value.pval);
-		}
+		free(pvs->vlist[j].value.pval);
 	    }
 	}
-	if (pvs->numval == 1) {
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_PDUBUF) {
-		fprintf(stderr, "__pmPoolFree(" PRINTF_P_PFX "%p) vset pmid=%s\n",
-		    pvs, pmIDStr(pvs->pmid));
-	    }
-#endif
-	    __pmPoolFree(pvs, sizeof(pmValueSet));
+	if (pmDebug & DBG_TRACE_PDUBUF) {
+	    char	strbuf[20];
+	    fprintf(stderr, "free(" PRINTF_P_PFX "%p) vset pmid=%s\n",
+		pvs, pmIDStr_r(pvs->pmid, strbuf, sizeof(strbuf)));
 	}
-	else {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_PDUBUF) {
-		fprintf(stderr, "free(" PRINTF_P_PFX "%p) vset pmid=%s\n",
-		    pvs, pmIDStr(pvs->pmid));
-	    }
 #endif
-	    free(pvs);
-	}
+	free(pvs);
     }
 }
 

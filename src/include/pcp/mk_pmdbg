@@ -39,12 +39,12 @@ cat <<End-of-File >pmdbg.h
  * built from impl.h on `date` by mk_pmdbg
  */
 
-typedef struct {
-    char	*name;
-    int		bit;
+typedef const struct {
+    const char	*name;
+    const int	bit;
 } debug_map_t;
 
-static debug_map_t debug_map[] = {
+static const debug_map_t debug_map[] = {
 End-of-File
 
 sed -n <impl.h \
@@ -56,7 +56,7 @@ s/#define[ 	]*\(DBG_TRACE_\)\([A-Z0-9_]*\).*/    { "\2",	\1\2 },/p
 cat <<End-of-File >>pmdbg.h
 };
 
-static int num_debug = sizeof(debug_map) / sizeof(debug_map[0]);
+static const int num_debug = sizeof(debug_map) / sizeof(debug_map[0]);
 End-of-File
 
 exit 0

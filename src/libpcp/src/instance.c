@@ -16,112 +16,53 @@
 #include "impl.h"
 #include "pmda.h"
 
-static int
-request_instance (__pmContext *ctxp, pmInDom indom, int inst, const char *name)
-{
-    int n;
-
-#ifdef ASYNC_API
-    if (ctxp->c_pmcd->pc_curpdu != 0) {
-	return (PM_ERR_CTXBUSY);
-    }
-#endif /*ASYNC_API*/
-    
-    n = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
-				&ctxp->c_origin, indom, inst, name);
-    if (n < 0) {
-	n = __pmMapErrno(n);
-    }
-
-    return (n);
-}
-
-#ifdef ASYNC_API
-static int
-ctxid_request_instance (int ctx,  pmInDom indom, int inst, const char *name)
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetHostContextByID(ctx, &ctxp)) >= 0) {
-	if ((n = request_instance (ctxp, indom, inst, name)) >= 0) {
-	    ctxp->c_pmcd->pc_curpdu = PDU_INSTANCE_REQ;
-	    ctxp->c_pmcd->pc_tout_sec = TIMEOUT_DEFAULT;
-	}
-    }
-
-    return (n);
-}
-
-int
-pmRequestInDomInst (int ctx, pmInDom indom, const char *name)
-{
-    return (ctxid_request_instance(ctx, indom, PM_IN_NULL, name));
-}
-#endif /*ASYNC_API*/
-
-static int
-receive_instance_id (__pmContext *ctxp)
-{
-    int n;
-    __pmPDU	*pb;
-
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
-		   ctxp->c_pmcd->pc_tout_sec, &pb);
-    if (n == PDU_INSTANCE) {
-	__pmInResult	*result;
-	
-	if ((n = __pmDecodeInstance(pb, &result)) >= 0) {
-	    n = result->instlist[0];
-	    __pmFreeInResult(result);
-	}
-    }
-    else if (n == PDU_ERROR)
-	__pmDecodeError(pb, &n);
-    else if (n != PM_ERR_TIMEOUT)
-	n = PM_ERR_IPC;
-
-    return (n);
-}
-
-#ifdef ASYNC_API
-int 
-pmReceiveInDomInst (int ctx)
-{
-    int n;
-    __pmContext	*ctxp;
-
-    if ((n = __pmGetBusyHostContextByID(ctx, &ctxp, PDU_INSTANCE_REQ)) >= 0) {
-	n = receive_instance_id(ctxp);
-
-	ctxp->c_pmcd->pc_curpdu = 0;
-	ctxp->c_pmcd->pc_tout_sec = 0;
-    }
-    return (n);
-}
-#endif /*ASYNC_API*/
-
 int
 pmLookupInDom(pmInDom indom, const char *name)
 {
-    int		n;
+    int			n;
     __pmInResult	*result;
-    __pmContext	*ctxp;
-    __pmDSO	*dp;
+    __pmContext		*ctxp;
 
     if (indom == PM_INDOM_NULL)
 	return PM_ERR_INDOM;
     if ((n = pmWhichContext()) >= 0) {
 	int	ctx = n;
 	ctxp = __pmHandleToPtr(ctx);
-
+	if (ctxp == NULL)
+	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    if ((n = request_instance (ctxp, indom, PM_IN_NULL, name)) >= 0) {
-		n = receive_instance_id (ctxp);
+	    PM_LOCK(ctxp->c_pmcd->pc_lock);
+	    n = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+				    &ctxp->c_origin, indom, PM_IN_NULL, name);
+	    if (n < 0)
+		n = __pmMapErrno(n);
+	    else {
+		__pmPDU	*pb;
+		int	pinpdu;
+		pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
+			       ctxp->c_pmcd->pc_tout_sec, &pb);
+		if (n == PDU_INSTANCE) {
+		    __pmInResult	*result;
+		    if ((n = __pmDecodeInstance(pb, &result)) >= 0) {
+			n = result->instlist[0];
+			__pmFreeInResult(result);
+		    }
+		}
+		else if (n == PDU_ERROR)
+		    __pmDecodeError(pb, &n);
+		else if (n != PM_ERR_TIMEOUT)
+		    n = PM_ERR_IPC;
+		if (pinpdu > 0)
+		    __pmUnpinPDUBuf(pb);
 	    }
+	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
-	    if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
+	    __pmDSO		*dp;
+	    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
+		/* Local context requires single-threaded applications */
+		n = PM_ERR_THREAD;
+	    else if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
 		n = PM_ERR_NOAGENT;
 	    else {
 		/* We can safely cast away const here */
@@ -132,18 +73,11 @@ pmLookupInDom(pmInDom indom, const char *name)
 							  (char *)name, 
 							  &result, 
 							  dp->dispatch.version.four.ext);
-		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
+		else
 		    n = dp->dispatch.version.two.instance(indom, PM_IN_NULL, 
 							  (char *)name, 
 							  &result, 
 							  dp->dispatch.version.two.ext);
-		else
-		    n = dp->dispatch.version.one.instance(indom, PM_IN_NULL, 
-							  (char *)name, 
-							  &result);
-		if (n < 0 && dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-		    n = XLATE_ERR_1TO2(n);
 	    }
 	    if (n >= 0) {
 		n = result->instlist[0];
@@ -154,95 +88,68 @@ pmLookupInDom(pmInDom indom, const char *name)
 	    /* assume PM_CONTEXT_ARCHIVE */
 	    n = __pmLogLookupInDom(ctxp->c_archctl->ac_log, indom, &ctxp->c_origin, name);
 	}
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     return n;
 }
-
-#ifdef ASYNC_API
-int
-pmRequestInDomName(int ctx, pmInDom indom, int inst)
-{
-    return (ctxid_request_instance (ctx, indom, inst, NULL));
-}
-#endif /*ASYNC_API*/
-
-static int
-receive_instance_name(__pmContext *ctxp, char **name)
-{
-    int n;
-    __pmPDU *pb;
-
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
-		   ctxp->c_pmcd->pc_tout_sec, &pb);
-    if (n == PDU_INSTANCE) {
-	__pmInResult *result;
-
-	if ((n = __pmDecodeInstance(pb, &result)) >= 0) {
-	    if ((*name = strdup(result->namelist[0])) == NULL)
-		n = -oserror();
-	    __pmFreeInResult(result);
-	}
-    }
-    else if (n == PDU_ERROR)
-	__pmDecodeError(pb, &n);
-    else if (n != PM_ERR_TIMEOUT)
-	n = PM_ERR_IPC;
-
-    return n;
-}
-
-#ifdef ASYNC_API
-int
-pmReceiveInDomName(int ctx, char **name)
-{
-    int n;
-    __pmContext	*ctxp;
-
-    if ((n = __pmGetBusyHostContextByID(ctx, &ctxp, PDU_INSTANCE_REQ)) >= 0) {
-	n = receive_instance_name (ctxp, name);
-
-	ctxp->c_pmcd->pc_curpdu = 0;
-	ctxp->c_pmcd->pc_tout_sec = 0;
-    }
-    return (n);
-}
-#endif /*ASYNC_API*/
 
 int
 pmNameInDom(pmInDom indom, int inst, char **name)
 {
-    int		n;
+    int			n;
     __pmInResult	*result;
-    __pmContext	*ctxp;
-    __pmDSO	*dp;
+    __pmContext		*ctxp;
 
     if (indom == PM_INDOM_NULL)
 	return PM_ERR_INDOM;
     if ((n = pmWhichContext()) >= 0) {
 	int	ctx = n;
 	ctxp = __pmHandleToPtr(ctx);
+	if (ctxp == NULL)
+	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    if ((n = request_instance(ctxp, indom, inst, NULL)) >= 0) {
-		n = receive_instance_name (ctxp, name);
+	    PM_LOCK(ctxp->c_pmcd->pc_lock);
+	    n = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+				    &ctxp->c_origin, indom, inst, NULL);
+	    if (n < 0)
+		n = __pmMapErrno(n);
+	    else {
+		__pmPDU	*pb;
+		int	pinpdu;
+		pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
+					ctxp->c_pmcd->pc_tout_sec, &pb);
+		if (n == PDU_INSTANCE) {
+		    __pmInResult *result;
+		    if ((n = __pmDecodeInstance(pb, &result)) >= 0) {
+			if ((*name = strdup(result->namelist[0])) == NULL)
+			    n = -oserror();
+			__pmFreeInResult(result);
+		    }
+		}
+		else if (n == PDU_ERROR)
+		    __pmDecodeError(pb, &n);
+		else if (n != PM_ERR_TIMEOUT)
+		    n = PM_ERR_IPC;
+		if (pinpdu > 0)
+		    __pmUnpinPDUBuf(pb);
 	    }
+	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
-	    if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
+	    __pmDSO	*dp;
+	    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
+		/* Local context requires single-threaded applications */
+		n = PM_ERR_THREAD;
+	    else if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
 		n = PM_ERR_NOAGENT;
 	    else {
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		    dp->dispatch.version.four.ext->e_context = ctx;
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    n = dp->dispatch.version.four.instance(indom, inst, NULL, &result, dp->dispatch.version.four.ext);
-		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
-		    n = dp->dispatch.version.two.instance(indom, inst, NULL, &result, dp->dispatch.version.two.ext);
 		else
-		    n = dp->dispatch.version.one.instance(indom, inst, NULL, &result);
-		if (n < 0 &&
-		    dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-			n = XLATE_ERR_1TO2(n);
+		    n = dp->dispatch.version.two.instance(indom, inst, NULL, &result, dp->dispatch.version.two.ext);
 	    }
 	    if (n >= 0) {
 		if ((*name = strdup(result->namelist[0])) == NULL)
@@ -258,21 +165,14 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 		    n = -oserror();
 	    }
 	}
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     return n;
 }
 
-#ifdef ASYNC_API
-int
-pmRequestInDom (int ctx, pmInDom indom)
-{
-    return (ctxid_request_instance (ctx, indom, PM_IN_NULL, NULL));
-}
-#endif /*ASYNC_API*/
-
 static int
-inresult_to_lists (__pmInResult *result, int **instlist, char ***namelist)
+inresult_to_lists(__pmInResult *result, int **instlist, char ***namelist)
 {
     int n, i, sts, need;
     char *p;
@@ -315,47 +215,6 @@ inresult_to_lists (__pmInResult *result, int **instlist, char ***namelist)
 }
 
 int
-receive_indom (__pmContext *ctxp,  int **instlist, char ***namelist)
-{
-    int n;
-    __pmPDU	*pb;
-
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
-		   ctxp->c_pmcd->pc_tout_sec, &pb);
-    if (n == PDU_INSTANCE) {
-	__pmInResult	*result;
-	    
-	if ((n = __pmDecodeInstance(pb, &result)) < 0)
-	    return n;
-
-	n = inresult_to_lists (result, instlist, namelist);
-    }
-    else if (n == PDU_ERROR)
-	__pmDecodeError(pb, &n);
-    else if (n != PM_ERR_TIMEOUT)
-	n = PM_ERR_IPC;
-
-    return (n);
-}
-
-#ifdef ASYNC_API
-int
-pmReceiveInDom (int ctx,  int **instlist, char ***namelist)
-{
-    int n;
-    __pmContext	*ctxp;
-
-    if ((n = __pmGetBusyHostContextByID(ctx, &ctxp,  PDU_INSTANCE_REQ)) >= 0) {
-	n = receive_indom (ctxp, instlist, namelist);
-
-	ctxp->c_pmcd->pc_curpdu = 0;
-	ctxp->c_pmcd->pc_tout_sec = 0;
-    }
-    return (n);
-}
-#endif /*ASYNC_API*/
-
-int
 pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 {
     int			n;
@@ -366,24 +225,50 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
     int			need;
     int			*ilist;
     char		**nlist;
-    __pmDSO		*dp;
 
-    /* avoid ambiguity when no instances or errors */
-    *instlist = NULL;
-    *namelist = NULL;
     if (indom == PM_INDOM_NULL)
 	return PM_ERR_INDOM;
 
     if ((n = pmWhichContext()) >= 0) {
 	int	ctx = n;
 	ctxp = __pmHandleToPtr(ctx);
+	if (ctxp == NULL)
+	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    if ((n = request_instance (ctxp, indom, PM_IN_NULL, NULL)) >= 0) {
-		n = receive_indom (ctxp, instlist, namelist);
+	    PM_LOCK(ctxp->c_pmcd->pc_lock);
+	    n = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+				    &ctxp->c_origin, indom, PM_IN_NULL, NULL);
+	    if (n < 0)
+		n = __pmMapErrno(n);
+	    else {
+		__pmPDU	*pb;
+		int	pinpdu;
+		pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
+					ctxp->c_pmcd->pc_tout_sec, &pb);
+		if (n == PDU_INSTANCE) {
+		    __pmInResult	*result;
+		    if ((n = __pmDecodeInstance(pb, &result)) < 0) {
+			if (pinpdu > 0)
+			    __pmUnpinPDUBuf(pb);
+			return n;
+		    }
+		    n = inresult_to_lists(result, instlist, namelist);
+		}
+		else if (n == PDU_ERROR)
+		    __pmDecodeError(pb, &n);
+		else if (n != PM_ERR_TIMEOUT)
+		    n = PM_ERR_IPC;
+		if (pinpdu > 0)
+		    __pmUnpinPDUBuf(pb);
 	    }
+	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
-	    if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
+	    __pmDSO	*dp;
+	    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
+		/* Local context requires single-threaded applications */
+		n = PM_ERR_THREAD;
+	    else if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
 		n = PM_ERR_NOAGENT;
 	    else {
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
@@ -392,21 +277,13 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 		    n = dp->dispatch.version.four.instance(indom, PM_IN_NULL, NULL,
 					       &result,
 					       dp->dispatch.version.four.ext);
-		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
+		else
 		    n = dp->dispatch.version.two.instance(indom, PM_IN_NULL, NULL,
 					       &result,
 					       dp->dispatch.version.two.ext);
-		else
-		    n = dp->dispatch.version.one.instance(indom, PM_IN_NULL, NULL,
-					      &result);
-		if (n < 0 &&
-		    dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-			n = XLATE_ERR_1TO2(n);
 	    }
-	    if (n >= 0) {
-		n = inresult_to_lists (result, instlist, namelist);
-	    }
+	    if (n >= 0)
+		n = inresult_to_lists(result, instlist, namelist);
 	}
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE */
@@ -414,14 +291,15 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 	    char	**nametmp;
 	    if ((n = __pmLogGetInDom(ctxp->c_archctl->ac_log, indom, &ctxp->c_origin, &insttmp, &nametmp)) >= 0) {
 		need = 0;
-		for (i = 0; i < n; i++) {
+		for (i = 0; i < n; i++)
 		    need += sizeof(char *) + strlen(nametmp[i]) + 1;
-		}
 		if ((ilist = (int *)malloc(n * sizeof(insttmp[0]))) == NULL) {
+		    PM_UNLOCK(ctxp->c_lock);
 		    return -oserror();
 		}
 		if ((nlist = (char **)malloc(need)) == NULL) {
 		    free(ilist);
+		    PM_UNLOCK(ctxp->c_lock);
 		    return -oserror();
 		}
 		*instlist = ilist;
@@ -435,6 +313,13 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 		}
 	    }
 	}
+	PM_UNLOCK(ctxp->c_lock);
+    }
+
+    if (n == 0) {
+	/* avoid ambiguity when no instances or errors */
+	*instlist = NULL;
+	*namelist = NULL;
     }
 
     return n;
@@ -445,8 +330,9 @@ void
 __pmDumpInResult(FILE *f, const __pmInResult *irp)
 {
     int		i;
+    char	strbuf[20];
     fprintf(f,"pmInResult dump from " PRINTF_P_PFX "%p for InDom %s (0x%x), numinst=%d\n",
-		irp, pmInDomStr(irp->indom), irp->indom, irp->numinst);
+		irp, pmInDomStr_r(irp->indom, strbuf, sizeof(strbuf)), irp->indom, irp->numinst);
     for (i = 0; i < irp->numinst; i++) {
 	fprintf(f, "  [%d]", i);
 	if (irp->instlist != NULL)

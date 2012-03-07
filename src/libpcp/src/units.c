@@ -27,61 +27,61 @@
 #define SIGN_64_MASK 0x8000000000000000
 #endif
 
-/* pmAtomValue -> string, max length is 40 bytes */
-const char *
-pmAtomStr(const pmAtomValue *avp, int type)
+/* pmAtomValue -> string, max length is 80 bytes */
+char *
+pmAtomStr_r(const pmAtomValue *avp, int type, char *buf, int buflen)
 {
     int		i;
-    static char	buf[80];
     pmAtomValue	av;
     int		vlen;
+    char	strbuf[40];
 
     /* avoid alignment problems ... avp may be unaligned! */
     memcpy((void *)&av, (void *)avp, sizeof(av));
 
     switch (type) {
 	case PM_TYPE_32:
-	    snprintf(buf, sizeof(buf), "%d", av.l);
+	    snprintf(buf, buflen, "%d", av.l);
 	    break;
 	case PM_TYPE_U32:
-	    snprintf(buf, sizeof(buf), "%u", av.ul);
+	    snprintf(buf, buflen, "%u", av.ul);
 	    break;
 	case PM_TYPE_64:
-	    snprintf(buf, sizeof(buf), "%"PRIi64, av.ll);
+	    snprintf(buf, buflen, "%"PRIi64, av.ll);
 	    break;
 	case PM_TYPE_U64:
-	    snprintf(buf, sizeof(buf), "%"PRIu64, av.ull);
+	    snprintf(buf, buflen, "%"PRIu64, av.ull);
 	    break;
 	case PM_TYPE_FLOAT:
-	    snprintf(buf, sizeof(buf), "%e", (double)av.f);
+	    snprintf(buf, buflen, "%e", (double)av.f);
 	    break;
 	case PM_TYPE_DOUBLE:
-	    snprintf(buf, sizeof(buf), "%e", av.d);
+	    snprintf(buf, buflen, "%e", av.d);
 	    break;
 	case PM_TYPE_STRING:
 	    if (av.cp == NULL)
-		snprintf(buf, sizeof(buf), "<null>");
+		snprintf(buf, buflen, "<null>");
 	    else {
 		i = (int)strlen(av.cp);
 		if (i < 38)
-		    snprintf(buf, sizeof(buf), "\"%s\"", av.cp);
+		    snprintf(buf, buflen, "\"%s\"", av.cp);
 		else
-		    snprintf(buf, sizeof(buf), "\"%34.34s...\"", av.cp);
+		    snprintf(buf, buflen, "\"%34.34s...\"", av.cp);
 	    }
 	    break;
 	case PM_TYPE_AGGREGATE:
 	case PM_TYPE_AGGREGATE_STATIC:
 	    if (av.vbp == NULL) {
-		snprintf(buf, sizeof(buf), "<null>");
+		snprintf(buf, buflen, "<null>");
 		break;
 	    }
 	    vlen = av.vbp->vlen - PM_VAL_HDR_SIZE;
 	    if (vlen == 0)
-		snprintf(buf, sizeof(buf), "[type=%s len=%d]", pmTypeStr(av.vbp->vtype), vlen);
+		snprintf(buf, buflen, "[type=%s len=%d]", pmTypeStr_r(av.vbp->vtype, strbuf, sizeof(strbuf)), vlen);
 	    else {
 		char	*cp;
 		char	*bp;
-		snprintf(buf, sizeof(buf), "[type=%s len=%d]", pmTypeStr(av.vbp->vtype), vlen);
+		snprintf(buf, buflen, "[type=%s len=%d]", pmTypeStr_r(av.vbp->vtype, strbuf, sizeof(strbuf)), vlen);
 		cp = (char *)av.vbp->vbuf;
 		for (i = 0; i < vlen && i < 12; i++) {
 		    bp = &buf[strlen(buf)];
@@ -102,44 +102,59 @@ pmAtomStr(const pmAtomValue *avp, int type)
 		/* have to assume alignment is OK in this case */
 		pmEventArray	*eap = (pmEventArray *)avp->vbp;
 		if (eap->ea_nrecords == 1)
-		    snprintf(buf, sizeof(buf), "[1 event record]");
+		    snprintf(buf, buflen, "[1 event record]");
 		else
-		    snprintf(buf, sizeof(buf), "[%d event records]", eap->ea_nrecords);
+		    snprintf(buf, buflen, "[%d event records]", eap->ea_nrecords);
 	    }
 	    break;
 	default:
-	    snprintf(buf, sizeof(buf), "Error: unexpected type: %s", pmTypeStr(type));
+	    snprintf(buf, buflen, "Error: unexpected type: %s", pmTypeStr_r(type, strbuf, sizeof(strbuf)));
     }
     return buf;
+}
+
+const char *
+pmAtomStr(const pmAtomValue *avp, int type)
+{
+    static char	abuf[80];
+    pmAtomStr_r(avp, type, abuf, sizeof(abuf));
+    return abuf;
 }
 
 /*
  * must be in agreement with ordinal values for PM_TYPE_* #defines
  */
-static char *typename[] = {
+static const char *typename[] = {
     "32", "U32", "64", "U64", "FLOAT", "DOUBLE", "STRING", "AGGREGATE", "AGGREGATE_STATIC", "EVENT"
 };
 
 /* PM_TYPE_* -> string, max length is 20 bytes */
-const char *
-pmTypeStr(int type)
+char *
+pmTypeStr_r(int type, char *buf, int buflen)
 {
-    static char	buf[30];
     if (type >= 0 && type < sizeof(typename)/sizeof(typename[0]))
-	snprintf(buf, sizeof(buf), "%s", typename[type]);
+	snprintf(buf, buflen, "%s", typename[type]);
     else if (type == PM_TYPE_NOSUPPORT)
-	strcpy(buf, "Not Supported");
+	snprintf(buf, buflen, "%s", "Not Supported");
     else if (type == PM_TYPE_UNKNOWN)
-	strcpy(buf, "Unknown");
+	snprintf(buf, buflen, "%s", "Unknown");
     else
-	snprintf(buf, sizeof(buf), "Illegal type=%d", type);
+	snprintf(buf, buflen, "Illegal type=%d", type);
 
     return buf;
 }
 
-/* scale+units -> string, max length is 60 bytes */
 const char *
-pmUnitsStr(const pmUnits *pu)
+pmTypeStr(int type)
+{
+    static char	tbuf[20];
+    pmTypeStr_r(type, tbuf, sizeof(tbuf));
+    return tbuf;
+}
+
+/* scale+units -> string, max length is 60 bytes */
+char *
+pmUnitsStr_r(const pmUnits *pu, char *buf, int buflen)
 {
     char	*spacestr = NULL;
     char	*timestr = NULL;
@@ -148,7 +163,6 @@ pmUnitsStr(const pmUnits *pu)
     char	sbuf[20];
     char	tbuf[20];
     char	cbuf[20];
-    static char	buf[60];
 
     buf[0] = '\0';
 
@@ -227,25 +241,25 @@ pmUnitsStr(const pmUnits *pu)
 
     if (pu->dimSpace > 0) {
 	if (pu->dimSpace == 1)
-	    snprintf(p, sizeof(buf), "%s", spacestr);
+	    snprintf(p, buflen, "%s", spacestr);
 	else
-	    snprintf(p, sizeof(buf), "%s^%d", spacestr, pu->dimSpace);
+	    snprintf(p, buflen, "%s^%d", spacestr, pu->dimSpace);
 	while (*p) p++;
 	*p++ = ' ';
     }
     if (pu->dimTime > 0) {
 	if (pu->dimTime == 1)
-	    snprintf(p, sizeof(buf) - (p - buf), "%s", timestr);
+	    snprintf(p, buflen - (p - buf), "%s", timestr);
 	else
-	    snprintf(p, sizeof(buf) - (p - buf), "%s^%d", timestr, pu->dimTime);
+	    snprintf(p, buflen - (p - buf), "%s^%d", timestr, pu->dimTime);
 	while (*p) p++;
 	*p++ = ' ';
     }
     if (pu->dimCount > 0) {
 	if (pu->dimCount == 1)
-	    snprintf(p, sizeof(buf) - (p - buf), "%s", countstr);
+	    snprintf(p, buflen - (p - buf), "%s", countstr);
 	else
-	    snprintf(p, sizeof(buf) - (p - buf), "%s^%d", countstr, pu->dimCount);
+	    snprintf(p, buflen - (p - buf), "%s^%d", countstr, pu->dimCount);
 	while (*p) p++;
 	*p++ = ' ';
     }
@@ -254,25 +268,25 @@ pmUnitsStr(const pmUnits *pu)
 	*p++ = ' ';
 	if (pu->dimSpace < 0) {
 	    if (pu->dimSpace == -1)
-		snprintf(p, sizeof(buf) - (p - buf), "%s", spacestr);
+		snprintf(p, buflen - (p - buf), "%s", spacestr);
 	    else
-		snprintf(p, sizeof(buf) - (p - buf), "%s^%d", spacestr, -pu->dimSpace);
+		snprintf(p, buflen - (p - buf), "%s^%d", spacestr, -pu->dimSpace);
 	    while (*p) p++;
 	    *p++ = ' ';
 	}
 	if (pu->dimTime < 0) {
 	    if (pu->dimTime == -1)
-		snprintf(p, sizeof(buf) - (p - buf), "%s", timestr);
+		snprintf(p, buflen - (p - buf), "%s", timestr);
 	    else
-		snprintf(p, sizeof(buf) - (p - buf), "%s^%d", timestr, -pu->dimTime);
+		snprintf(p, buflen - (p - buf), "%s^%d", timestr, -pu->dimTime);
 	    while (*p) p++;
 	    *p++ = ' ';
 	}
 	if (pu->dimCount < 0) {
 	    if (pu->dimCount == -1)
-		snprintf(p, sizeof(buf) - (p - buf), "%s", countstr);
+		snprintf(p, buflen - (p - buf), "%s", countstr);
 	    else
-		snprintf(p, sizeof(buf) - (p - buf), "%s^%d", countstr, -pu->dimCount);
+		snprintf(p, buflen - (p - buf), "%s^%d", countstr, -pu->dimCount);
 	    while (*p) p++;
 	    *p++ = ' ';
 	}
@@ -286,9 +300,9 @@ pmUnitsStr(const pmUnits *pu)
 	 * behaviour
 	 */
 	if (pu->scaleCount == 1)
-	    snprintf(buf, sizeof(buf), "x 10");
+	    snprintf(buf, buflen, "x 10");
 	else if (pu->scaleCount != 0)
-	    snprintf(buf, sizeof(buf), "x 10^%d", pu->scaleCount);
+	    snprintf(buf, buflen, "x 10^%d", pu->scaleCount);
     }
     else {
 	p--;
@@ -296,6 +310,14 @@ pmUnitsStr(const pmUnits *pu)
     }
 
     return buf;
+}
+
+const char *
+pmUnitsStr(const pmUnits *pu)
+{
+    static char	ubuf[60];
+    pmUnitsStr_r(pu, ubuf, sizeof(ubuf));
+    return ubuf;
 }
 
 /* Scale conversion, based on value format, value type and scale */
@@ -310,8 +332,9 @@ pmConvScale(int type, const pmAtomValue *ival, const pmUnits *iunit,
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_VALUE) {
-	fprintf(stderr, "pmConvScale: %s", pmAtomStr(ival, type));
-	fprintf(stderr, " [%s]", pmUnitsStr(iunit));
+	char	strbuf[80];
+	fprintf(stderr, "pmConvScale: %s", pmAtomStr_r(ival, type, strbuf, sizeof(strbuf)));
+	fprintf(stderr, " [%s]", pmUnitsStr_r(iunit, strbuf, sizeof(strbuf)));
     }
 #endif
 
@@ -525,8 +548,9 @@ pmConvScale(int type, const pmAtomValue *ival, const pmUnits *iunit,
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_VALUE) {
-	fprintf(stderr, " -> %s", pmAtomStr(oval, type));
-	fprintf(stderr, " [%s]\n", pmUnitsStr(ounit));
+	char	strbuf[80];
+	fprintf(stderr, " -> %s", pmAtomStr_r(oval, type, strbuf, sizeof(strbuf)));
+	fprintf(stderr, " [%s]\n", pmUnitsStr_r(ounit, strbuf, sizeof(strbuf)));
     }
 #endif
     return 0;
@@ -534,8 +558,10 @@ pmConvScale(int type, const pmAtomValue *ival, const pmUnits *iunit,
 bad:
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_VALUE) {
-	fprintf(stderr, " -> Error: %s", pmErrStr(sts));
-	fprintf(stderr, " [%s]\n", pmUnitsStr(ounit));
+	char	strbuf[60];
+	char	errmsg[PM_MAXERRMSGLEN];
+	fprintf(stderr, " -> Error: %s", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	fprintf(stderr, " [%s]\n", pmUnitsStr_r(ounit, strbuf, sizeof(strbuf)));
     }
 #endif
     return sts;
@@ -551,7 +577,7 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
     int		sts = 0;
     int		len;
     const char	*vp;
-    static char	buf[80];
+    char	buf[80];
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_VALUE) {
@@ -564,8 +590,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
     if (valfmt == PM_VAL_INSITU) {
 	av.l = ival->value.lval;
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_VALUE)
-	    vp = pmAtomStr(&av, itype);
+	if (pmDebug & DBG_TRACE_VALUE) {
+	    char	strbuf[80];
+	    vp = pmAtomStr_r(&av, itype, strbuf, sizeof(strbuf));
+	}
 #endif
 	switch (itype) {
 
@@ -712,8 +740,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		}
 		ap = (pmAtomValue *)&ival->value.pval->vbuf;
 #ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_VALUE)
-		    vp = pmAtomStr(ap, itype);
+		if (pmDebug & DBG_TRACE_VALUE) {
+		    char	strbuf[80];
+		    vp = pmAtomStr_r(ap, itype, strbuf, sizeof(strbuf));
+		}
 #endif
 		memcpy((void *)&src, (void *)ap, sizeof(src));
 		switch (otype) {
@@ -760,8 +790,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		}
 		ap = (pmAtomValue *)&ival->value.pval->vbuf;
 #ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_VALUE)
-		    vp = pmAtomStr(ap, itype);
+		if (pmDebug & DBG_TRACE_VALUE) {
+		    char	strbuf[80];
+		    vp = pmAtomStr_r(ap, itype, strbuf, sizeof(strbuf));
+		}
 #endif
 		memcpy((void *)&usrc, (void *)ap, sizeof(usrc));
 		switch (otype) {
@@ -825,8 +857,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		}
 		ap = (pmAtomValue *)&ival->value.pval->vbuf;
 #ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_VALUE)
-		    vp = pmAtomStr(ap, itype);
+		if (pmDebug & DBG_TRACE_VALUE) {
+		    char	strbuf[80];
+		    vp = pmAtomStr_r(ap, itype, strbuf, sizeof(strbuf));
+		}
 #endif
 		memcpy((void *)&dsrc, (void *)ap, sizeof(dsrc));
 		switch (otype) {
@@ -888,8 +922,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		}
 		ap = (pmAtomValue *)&ival->value.pval->vbuf;
 #ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_VALUE)
-		    vp = pmAtomStr(ap, itype);
+		if (pmDebug & DBG_TRACE_VALUE) {
+		    char	strbuf[80];
+		    vp = pmAtomStr_r(ap, itype, strbuf, sizeof(strbuf));
+		}
 #endif
 		memcpy((void *)&fsrc, (void *)ap, sizeof(fsrc));
 		switch (otype) {
@@ -1032,13 +1068,15 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_VALUE) {
+	char	strbuf[80];
+	char	errmsg[PM_MAXERRMSGLEN];
 	fprintf(stderr, " %s", vp);
-	fprintf(stderr, " [%s]", pmTypeStr(itype));
+	fprintf(stderr, " [%s]", pmTypeStr_r(itype, strbuf, sizeof(strbuf)));
 	if (sts == 0)
-	    fprintf(stderr, " -> %s", pmAtomStr(oval, otype));
+	    fprintf(stderr, " -> %s", pmAtomStr_r(oval, otype, strbuf, sizeof(strbuf)));
 	else
-	    fprintf(stderr, " -> Error: %s", pmErrStr(sts));
-	fprintf(stderr, " [%s]\n", pmTypeStr(otype));
+	    fprintf(stderr, " -> Error: %s", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	fprintf(stderr, " [%s]\n", pmTypeStr_r(otype, strbuf, sizeof(strbuf)));
     }
 #endif
 

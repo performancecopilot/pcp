@@ -14,6 +14,12 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ *
+ * Thread-safe note
+ *
+ * myFetch() returns a PDU buffer that is pinned from _pmGetPDU() or
+ * __pmEncodeResult() and this needs to be unpinned by the myFetch()
+ * caller when safe to do so.
  */
 
 #include "logger.h"
@@ -31,6 +37,8 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 
     if ((ctx = pmWhichContext()) >= 0) {
 	ctxp = __pmHandleToPtr(ctx);
+	if (ctxp == NULL)
+	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type != PM_CONTEXT_HOST)
 	    return PM_ERR_NOTHOST;
     }
@@ -105,12 +113,13 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			}
 			else {
 			    __dmpostfetch(ctxp, &result);
-			    __pmPinPDUBuf(pb);
 			    if ((sts = __pmEncodeResult(ctxp->c_pmcd->pc_fd, result, &npb)) < 0)
 				n = sts;
-			    else
+			    else {
+				/* using PDU with derived metrics */
+				__pmUnpinPDUBuf(pb);
 				*pdup = npb;
-			    __pmUnpinPDUBuf(pb);
+			    }
 			}
 		    }
 		    else
@@ -127,6 +136,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			fprintf(stderr, "myFetch: ERROR PDU: %s\n", pmErrStr(n));
 			disconnect(PM_ERR_IPC);
 		    }
+		    __pmUnpinPDUBuf(pb);
 		}
 		else if (n == 0) {
 		    fprintf(stderr, "myFetch: End of File: PMCD exited?\n");
@@ -139,6 +149,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		else {
 		    fprintf(stderr, "myFetch: Unexpected %s PDU from PMCD\n", __pmPDUTypeStr(n));
 		    disconnect(PM_ERR_IPC);
+		    __pmUnpinPDUBuf(pb);
 		}
 	    } while (n == 0);
 

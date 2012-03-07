@@ -309,13 +309,17 @@ then
     /sbin/service pmproxy stop >/dev/null 2>&1
 
     /sbin/chkconfig --del pcp >/dev/null 2>&1
+    /sbin/chkconfig --del pmcd >/dev/null 2>&1
+    /sbin/chkconfig --del pmlogger >/dev/null 2>&1
     /sbin/chkconfig --del pmie >/dev/null 2>&1
     /sbin/chkconfig --del pmproxy >/dev/null 2>&1
 fi
 
 %post
-/sbin/chkconfig --add pcp >/dev/null 2>&1
-/sbin/service pcp condrestart
+/sbin/chkconfig --add pmcd >/dev/null 2>&1
+/sbin/service pmcd condrestart
+/sbin/chkconfig --add pmlogger >/dev/null 2>&1
+/sbin/service pmlogger condrestart
 /sbin/chkconfig --add pmie >/dev/null 2>&1
 /sbin/service pmie condrestart
 /sbin/chkconfig --add pmproxy >/dev/null 2>&1

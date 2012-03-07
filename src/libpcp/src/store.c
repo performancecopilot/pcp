@@ -16,81 +16,6 @@
 #include "impl.h"
 #include "pmda.h"
 
-static int
-sendstore (__pmContext *ctxp, const pmResult *result)
-{
-    int sts;
-
-#ifdef ASYNC_API
-    if (ctxp->c_pmcd->pc_curpdu != 0) {
-	return (PM_ERR_CTXBUSY);
-    }
-#endif /*ASYNC_API*/
-
-    sts = __pmSendResult(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), result);
-    if (sts < 0) {
-	sts = __pmMapErrno(sts);
-    }
-
-    return (sts);
-}
-
-#ifdef ASYNC_API
-int
-pmStoreSend (int ctx, const pmResult *result)
-{
-    int sts;
-    __pmContext *ctxp;
-
-    if ((sts = __pmGetHostContextByID(ctx, &ctxp)) >= 0) {
-	if ((sts = sendstore (ctxp, result)) >= 0) {
-	    ctxp->c_pmcd->pc_curpdu = PDU_RESULT;
-	    ctxp->c_pmcd->pc_tout_sec = TIMEOUT_DEFAULT;
-	}
-    }
-
-    return (sts);
-}
-#endif /*ASYNC_API*/
-
-static int
-store_check (__pmContext *ctxp)
-{
-    int sts;
-    __pmPDU	*pb;
- 
-    sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
-		     ctxp->c_pmcd->pc_tout_sec, &pb);
-    if (sts == PDU_ERROR)
-	__pmDecodeError(pb, &sts);
-    else if (sts != PM_ERR_TIMEOUT)
-	sts = PM_ERR_IPC;
-
-    return (sts);
-}
-
-#ifdef ASYNC_API
-int 
-pmStoreCheck (int ctx)
-{
-    int sts;
-    __pmContext	*ctxp;
-
-    if ((sts = __pmGetHostContextByID(ctx, &ctxp)) >= 0) {
-	if (ctxp->c_pmcd->pc_curpdu != PDU_RESULT) {
-	    return (PM_ERR_CTXBUSY);
-	}
-
-	sts = store_check (ctxp);
-
-	ctxp->c_pmcd->pc_curpdu = 0;
-	ctxp->c_pmcd->pc_tout_sec = 0;
-    }
-
-    return (sts);
-}
-#endif /*ASYNC_API*/
-
 int
 pmStore(const pmResult *result)
 {
@@ -109,12 +34,29 @@ pmStore(const pmResult *result)
     }
 
     if ((sts = pmWhichContext()) >= 0) {
-	int	ctx = n;
+	int	ctx = sts;
 	ctxp = __pmHandleToPtr(sts);
+	if (ctxp == NULL)
+	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    if ((sts = sendstore (ctxp, result)) >= 0) {
-		sts = store_check (ctxp);
+	    PM_LOCK(__pmLock_libpcp);
+	    sts = __pmSendResult(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), result);
+	    if (sts < 0)
+		sts = __pmMapErrno(sts);
+	    else {
+		__pmPDU	*pb;
+		int	pinpdu;
+	     
+		pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
+					  ctxp->c_pmcd->pc_tout_sec, &pb);
+		if (sts == PDU_ERROR)
+		    __pmDecodeError(pb, &sts);
+		else if (sts != PM_ERR_TIMEOUT)
+		    sts = PM_ERR_IPC;
+		if (pinpdu > 0)
+		    __pmUnpinPDUBuf(pb);
 	    }
+	    PM_UNLOCK(__pmLock_libpcp);
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
 	    /*
@@ -123,38 +65,39 @@ pmStore(const pmResult *result)
 	     */
 	    pmResult	tmp;
 	    pmValueSet	tmpvset;
-	    sts = 0;
-	    for (n = 0; sts == 0 && n < result->numpmid; n++) {
-		if ((dp = __pmLookupDSO(((__pmID_int *)&result->vset[n]->pmid)->domain)) == NULL)
-		    sts = PM_ERR_NOAGENT;
-		else {
-		    tmp.numpmid = 1;
-		    tmp.vset[0] = &tmpvset;
-		    tmpvset.numval = 1;
-		    tmpvset.pmid = result->vset[n]->pmid;
-		    tmpvset.valfmt = result->vset[n]->valfmt;
-		    tmpvset.vlist[0] = result->vset[n]->vlist[0];
-		    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
-			dp->dispatch.version.four.ext->e_context = ctx;
-		    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-			sts = dp->dispatch.version.four.store(&tmp,
-						dp->dispatch.version.four.ext);
-		    else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-			     dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
-			sts = dp->dispatch.version.two.store(&tmp,
-						dp->dispatch.version.two.ext);
-		    else
-			sts = dp->dispatch.version.one.store(&tmp);
-		    if (sts < 0 &&
-			dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-			sts = XLATE_ERR_1TO2(sts);
+	    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
+		/* Local context requires single-threaded applications */
+		sts = PM_ERR_THREAD;
+	    else {
+		sts = 0;
+		for (n = 0; sts == 0 && n < result->numpmid; n++) {
+		    if ((dp = __pmLookupDSO(((__pmID_int *)&result->vset[n]->pmid)->domain)) == NULL)
+			sts = PM_ERR_NOAGENT;
+		    else {
+			tmp.numpmid = 1;
+			tmp.vset[0] = &tmpvset;
+			tmpvset.numval = 1;
+			tmpvset.pmid = result->vset[n]->pmid;
+			tmpvset.valfmt = result->vset[n]->valfmt;
+			tmpvset.vlist[0] = result->vset[n]->vlist[0];
+			if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+			    dp->dispatch.version.four.ext->e_context = ctx;
+			if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
+			    sts = dp->dispatch.version.four.store(&tmp,
+						    dp->dispatch.version.four.ext);
+			else
+			    sts = dp->dispatch.version.two.store(&tmp,
+						    dp->dispatch.version.two.ext);
+		    }
 		}
 	    }
 	}
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE -- this is an error */
+	    PM_UNLOCK(ctxp->c_lock);
 	    return PM_ERR_NOTHOST;
 	}
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     return sts;

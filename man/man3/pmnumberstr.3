@@ -16,21 +16,30 @@
 .\"
 .TH PMNUMBERSTR 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmNumberStr\f1 \- fixed width output format for numbers
+\f3pmNumberStr\f1, \f3pmNumberStr\f1 \- fixed width output format for numbers
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 const char *pmNumberStr(double \fIvalue\fP);
+.br
+char *pmNumberStr_r(double \fIvalue\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
 .B pmNumberStr
-returns the address of a static 8-byte buffer that holds a
+returns the address of a 8-byte buffer that holds a
 null-byte terminated representation of
 .I value
 suitable for output with fixed width fields.
+The
+.B pmNumberStr_r
+function does the same, but stores the result in a user-supplied buffer
+.I buf
+of length
+.IR buflen ,
+which should have room for at least 8 bytes.
 .PP
 The value is scaled using multipliers in powers of ``one thousand''
 (the decimal ``kilo'') and has a bias that provides greater precision for
@@ -64,5 +73,11 @@ _
 .PP
 At the boundary points of the ranges, the chosen format will retain the
 maximum number of significant digits.
+.SH NOTES
+.B pmNumberStr
+returns a pointer to a static buffer and hence is not thread-safe.
+Multi-threaded applications should use
+.B pmNumberStr_r
+instead.
 .SH SEE ALSO
 .BR printf (3)

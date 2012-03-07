@@ -98,7 +98,7 @@ app2$(EXECSUFFIX):	app2.o
 	$(CCF) -o $@ $(LDFLAGS) app2.o $(LDLIBS)
 
 app3$(EXECSUFFIX):	app3.o
-	$(CCF) -o $@ $(LDFLAGS) app3.o $(LDLIBS) $(PTHREAD_LIB)
+	$(CCF) -o $@ $(LDFLAGS) app3.o $(LDLIBS) $(LIB_FOR_PTHREADS)
 
 default_pcp:	default
 
@@ -106,4 +106,4 @@ install_pcp:	install
 
 Makefile.demos:	Makefile.proto
 	rm -f $@
-	sed -e 's/PTHREAD_LIB/$(PTHREAD_LIB)/' <$^ >$@
+	sed -e 's/PTHREAD_LIB/$(LIB_FOR_PTHREADS)/' <$^ >$@

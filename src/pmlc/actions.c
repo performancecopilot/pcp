@@ -69,7 +69,9 @@ ConnectPMCD(void)
 		fprintf(stderr, "%s\n", pmErrStr(sts));
 	    return sts;
 	}
-	if ((sts = __pmDecodeLogStatus(pb, &lsp)) < 0) {
+	sts = __pmDecodeLogStatus(pb, &lsp);
+	__pmUnpinPDUBuf(pb);
+	if (sts < 0) {
 	    fprintf(stderr, "Error decoding response from pmlogger: ");
 	    if (still_connected(sts))
 		fprintf(stderr, "%s\n", pmErrStr(sts));
@@ -571,7 +573,9 @@ void Status(int pid, int primary)
 		fprintf(stderr, "%s\n", pmErrStr(sts));
 	    return;
 	}
-	if ((sts = __pmDecodeLogStatus(pb, &lsp)) < 0) {
+	sts = __pmDecodeLogStatus(pb, &lsp);
+	__pmUnpinPDUBuf(pb);
+	if (sts < 0) {
 	    fprintf(stderr, "Error decoding response from pmlogger: ");
 	    if (still_connected(sts))
 		fprintf(stderr, "%s\n", pmErrStr(sts));
@@ -648,7 +652,6 @@ void Status(int pid, int primary)
 	   startbuf, zonename, lastbuf, timenowbuf, vol, size);
 
 done:
-    __pmUnpinPDUBuf(pb);
     return;
 
 }
@@ -676,6 +679,8 @@ Sync(void)
     }
 
     if ((sts = __pmGetPDU(logger_fd, ANY_SIZE, __pmLoggerTimeout(), &pb)) != PDU_ERROR) {
+	if (sts > 0)
+	    __pmUnpinPDUBuf(pb);
 	if (sts == 0)
 	    /* end of file! */
 	    sts = PM_ERR_IPC;
@@ -685,6 +690,7 @@ Sync(void)
 	return;
     }
     __pmDecodeError(pb, &sts);
+    __pmUnpinPDUBuf(pb);
     if (sts < 0) {
 	fprintf(stderr, "Error decoding response from pmlogger: ");
 	if (still_connected(sts))
@@ -692,7 +698,6 @@ Sync(void)
 	return;
     }
 
-    __pmUnpinPDUBuf(pb);
     return;
 }
 
@@ -719,6 +724,8 @@ Qa(void)
     }
 
     if ((sts = __pmGetPDU(logger_fd, ANY_SIZE, __pmLoggerTimeout(), &pb)) != PDU_ERROR) {
+	if (sts > 0)
+	    __pmUnpinPDUBuf(pb);
 	if (sts == 0)
 	    /* end of file! */
 	    sts = PM_ERR_IPC;
@@ -728,6 +735,7 @@ Qa(void)
 	return;
     }
     __pmDecodeError(pb, &sts);
+    __pmUnpinPDUBuf(pb);
     if (sts < 0) {
 	fprintf(stderr, "Error decoding response from pmlogger: ");
 	if (still_connected(sts))
@@ -735,7 +743,6 @@ Qa(void)
 	return;
     }
 
-    __pmUnpinPDUBuf(pb);
     return;
 }
 
@@ -762,6 +769,8 @@ NewVolume(void)
     }
 
     if ((sts = __pmGetPDU(logger_fd, ANY_SIZE, __pmLoggerTimeout(), &pb)) != PDU_ERROR) {
+	if (sts > 0)
+	    __pmUnpinPDUBuf(pb);
 	if (sts == 0)
 	    /* end of file! */
 	    sts = PM_ERR_IPC;
@@ -771,6 +780,7 @@ NewVolume(void)
 	return;
     }
     __pmDecodeError(pb, &sts);
+    __pmUnpinPDUBuf(pb);
     if (sts < 0) {
 	fprintf(stderr, "Error decoding response from pmlogger: ");
 	if (still_connected(sts))

@@ -523,7 +523,15 @@ dnl check if user wants their own awk, sed and echo
 if test -z "$AWK"; then
     AC_PATH_PROGS(AWK, gawk awk, /usr/bin/awk)
 fi
-awk=$AWK
+case "$AWK"
+in
+    gawk|*/gawk)
+	awk="$AWK --posix"
+	;;
+    *)
+	awk=$AWK
+	;;
+esac
 AC_SUBST(awk)
 if test -z "$SED"; then
     AC_PATH_PROG(SED, sed, /bin/sed)
@@ -1906,15 +1914,15 @@ dnl Check which library provide pthread stuff
 	],  AC_MSG_RESULT(lib${cand:-c})
 	    if test -z "$cand"
 	    then
-		ac_cv_pthread_lib="$cand"
+		lib_for_pthreads="$cand"
 	    else
-		ac_cv_pthread_lib="-l$cand"
+		lib_for_pthreads="-l$cand"
 	    fi
 	    LIBS=$savedLIBS
 	    break )
 	LIBS=$savedLIBS
     done
-    AC_SUBST(ac_cv_pthread_lib)
+    AC_SUBST(lib_for_pthreads)
 fi
 
 dnl check for array sessions

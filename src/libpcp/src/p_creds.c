@@ -30,6 +30,7 @@ __pmSendCreds(int fd, int from, int credcount, const __pmCred *credlist)
     size_t	need = 0;
     creds_t	*pp = NULL;
     int		i;
+    int		sts;
 
     if (credcount <= 0 || credlist == NULL)
 	return PM_ERR_IPC;
@@ -49,7 +50,10 @@ __pmSendCreds(int fd, int from, int credcount, const __pmCred *credlist)
     /* swab and fix bitfield order */
     for (i = 0; i < credcount; i++)
 	pp->credlist[i] = __htonpmCred(credlist[i]);
-    return __pmXmitPDU(fd, (__pmPDU *)pp);
+
+    sts = __pmXmitPDU(fd, (__pmPDU *)pp);
+    __pmUnpinPDUBuf(pp);
+    return sts;
 }
 
 int

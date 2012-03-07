@@ -86,7 +86,7 @@ include $(BUILDRULES)
 #	$(DOMAIN_MAKERULE)
 #
 #help: $(PROC_DIR)/help help.hotproc pmns
-#	$(PCP_AWK_PROG) <$(PROC_DIR)/help '\
+#	$(AWK) <$(PROC_DIR)/help '\
 #$1 == "@"			{ want=0 }\
 #$1 == "@" && $2 ~ /^proc/	{ want=1 }\
 #want == 1	{ print }' \
@@ -96,7 +96,7 @@ include $(BUILDRULES)
 #	| ./help.fmt >$@ 
 #
 #pmns: $(PROC_DIR)/root_linux pmns.hotproc fixpmns.awk
-#	$(PCP_AWK_PROG) < $(PROC_DIR)/root_linux -f fixpmns.awk \
+#	$(AWK) < $(PROC_DIR)/root_linux -f fixpmns.awk \
 #	| sed -e '/nprocs/d' -e 's/60:/HOTPROC:/g' -e 's/^proc/hotproc/g' \
 #	| cat - pmns.hotproc >$@
 #

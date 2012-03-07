@@ -79,7 +79,7 @@ do_preamble(void)
 	res->vset[i] = NULL;
 
     for (i = 0; i < n_metric; i++) {
-	res->vset[i] = (pmValueSet *)__pmPoolAlloc(sizeof(pmValueSet));
+	res->vset[i] = (pmValueSet *)malloc(sizeof(pmValueSet));
 	if (res->vset[i] == NULL) {
 	    sts = -oserror();
 	    goto done;
@@ -132,18 +132,14 @@ do_preamble(void)
 
     __pmOverrideLastFd(fileno(logctl.l_mfp));	/* force use of log version */
     /* and start some writing to the archive log files ... */
-    if ((sts = __pmLogPutResult(&logctl, pb)) < 0)
+    sts = __pmLogPutResult(&logctl, pb);
+    __pmUnpinPDUBuf(pb);
+    if (sts < 0)
 	goto done;
 
     for (i = 0; i < n_metric; i++) {
-	if (archive_version == PM_LOG_VERS02) {
-	    if ((sts = __pmLogPutDesc(&logctl, &desc[i], 1, &names[i])) < 0)
-		goto done;
-        }
-        else {
-	    if ((sts = __pmLogPutDesc(&logctl, &desc[i], 0, NULL)) < 0)
-		goto done;
-        }
+	if ((sts = __pmLogPutDesc(&logctl, &desc[i], 1, &names[i])) < 0)
+	    goto done;
 	if (desc[i].indom == PM_INDOM_NULL)
 	    continue;
 	for (j = 0; j < i; j++) {
@@ -197,7 +193,7 @@ do_preamble(void)
 done:
     for (i = 0; i < n_metric; i++) {
 	if (res->vset[i] != NULL)
-	    __pmPoolFree(res->vset[i], sizeof(pmValueSet));
+	    free(res->vset[i]);
     }
     free(res);
 

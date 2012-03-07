@@ -551,8 +551,10 @@ enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
 #define oserror()	errno		/* not GetLastError() */
 #define neterror()	WSAGetLastError()
 #define hosterror()	WSAGetLastError()
-#define osstrerror()	strerror(GetLastError())
-#define netstrerror()	strerror(WSAGetLastError())
+#define osstrerror()		strerror(GetLastError())
+#define osstrerror_r(buf, len)	pmErrStr_r(-GetLastError(), buf, len)
+#define netstrerror()		strerror(WSAGetLastError())
+#define netstrerror_r(buf, len)	pmErrStr_r(-WSAGetLastError(), buf, len)
 #define hoststrerror()	strerror(WSAGetLastError())
 
 #else /*!MINGW*/
@@ -563,8 +565,10 @@ enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
 #define oserror()	errno
 #define neterror()	errno
 #define hosterror()	h_errno
-#define osstrerror()	strerror(errno)
-#define netstrerror()	strerror(errno)
+#define osstrerror()		strerror(errno)
+#define osstrerror_r(buf, len)	pmErrStr_r(-errno, buf, len)
+#define netstrerror()		strerror(errno)
+#define netstrerror_r(buf, len)	pmErrStr_r(-errno, buf, len)
 #define hoststrerror()	hstrerror(h_errno)
 #endif
 

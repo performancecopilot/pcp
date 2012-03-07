@@ -15,17 +15,13 @@
 .\"
 .TH PMSTORE 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmStore\f1,
-\f3pmRequestStore\f1,
-\f3pmReceiveStore\f1 \- modify values of performance metrics
+\f3pmStore\f1 \- modify values of performance metrics
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 .nf
 int pmStore(const pmResult *\fIresult\fP);
-int pmRequestStore(int \fIctx\fP, const pmResult *\fIresult\fP);
-int pmReceiveStore(int \fIctx\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -71,16 +67,6 @@ the archive logs, or in the recent past for real-time sources of metrics.
 The return code from
 .B pmStore
 is zero for success.
-.PP
-\f3pmRequestStore\fP and \f3pmReceiveStore\fP are used by
-applications which must communicate with the PMCD asynchronously.
-These functions take explicit context handle \f2ctx\fP which must refer
-to a host context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
-\f3pmNewContext\fP). \f3pmRequestStore\fP sends request to store data in
-\f2result\f1 in the metrics and returns without waiting for the response,
-\f3pmReceiveStore\fP reads confirmation from PMCD. It is the responsibility
-of the application to make sure the data are ready before calling
-\f3pmReceiveStore\f1 to avoid blocking.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmFetch (3)
@@ -116,5 +102,3 @@ in
 has a
 .CW numval
 field with a value less than one.
-.IP \f3PM_ERR_CTXBUSY\f1
-Context is currently in use by another asynchronous call.

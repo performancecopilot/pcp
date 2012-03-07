@@ -26,7 +26,7 @@ HFILES = pmapi.h impl.h pmda.h pmtime.h pmafm.h pmiestats.h \
 GENERATED_HFILES = pmdbg.h platform_defs.h
 CONFFILES = platform_header.h platform_trailer
 
-LSRCFILES = platform_header.h.in platform_trailer.in mk_pmdbg
+LSRCFILES = platform_header.h.in platform_trailer.in mk_pmdbg fault.h
 
 default :: default_pcp
 

@@ -55,8 +55,10 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 	if (sts < 0)
 	    return sts;
 
-	if (current->timezone == NULL)
-	    strcpy(lcp->l_label.ill_tz, __pmTimezone());
+	if (current->timezone == NULL) {
+	    char	tzbuf[PM_TZ_MAXLEN];
+	    strcpy(lcp->l_label.ill_tz, __pmTimezone_r(tzbuf, sizeof(tzbuf)));
+	}
 	else
 	    strcpy(lcp->l_label.ill_tz, current->timezone);
 	pmNewZone(lcp->l_label.ill_tz);
@@ -91,8 +93,10 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 	    if (current->metric[m].meta_done == 0) {
 		char	**namelist = &current->metric[m].name;
 
-		if ((sts = __pmLogPutDesc(lcp, &current->metric[m].desc, 1, namelist)) < 0)
+		if ((sts = __pmLogPutDesc(lcp, &current->metric[m].desc, 1, namelist)) < 0) {
+		    __pmUnpinPDUBuf(pb);
 		    return sts;
+		}
 		current->metric[m].meta_done = 1;
 		needti = 1;
 	    }
@@ -100,8 +104,10 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 		for (i = 0; i < current->nindom; i++) {
 		    if (current->metric[m].desc.indom == current->indom[i].indom) {
 			if (current->indom[i].meta_done == 0) {
-			    if ((sts = __pmLogPutInDom(lcp, current->indom[i].indom, &stamp, current->indom[i].ninstance, current->indom[i].inst, current->indom[i].name)) < 0)
+			    if ((sts = __pmLogPutInDom(lcp, current->indom[i].indom, &stamp, current->indom[i].ninstance, current->indom[i].inst, current->indom[i].name)) < 0) {
+				__pmUnpinPDUBuf(pb);
 				return sts;
+			    }
 			    current->indom[i].meta_done = 1;
 			    needti = 1;
 			}
@@ -115,9 +121,12 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 	__pmLogPutIndex(lcp, &stamp);
     }
 
-    if ((sts = __pmLogPutResult(lcp, pb)) < 0)
+    if ((sts = __pmLogPutResult(lcp, pb)) < 0) {
+	__pmUnpinPDUBuf(pb);
 	return sts;
+    }
 
+    __pmUnpinPDUBuf(pb);
     return 0;
 }
 

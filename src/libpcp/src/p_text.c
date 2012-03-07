@@ -28,6 +28,7 @@ int
 __pmSendTextReq(int fd, int from, int ident, int type)
 {
     text_req_t	*pp;
+    int		sts;
 
     if ((pp = (text_req_t *)__pmFindPDUBuf(sizeof(text_req_t))) == NULL)
 	return -oserror();
@@ -44,7 +45,9 @@ __pmSendTextReq(int fd, int from, int ident, int type)
 
     pp->type = htonl(type);
 
-    return __pmXmitPDU(fd, (__pmPDU *)pp);
+    sts = __pmXmitPDU(fd, (__pmPDU *)pp);
+    __pmUnpinPDUBuf(pp);
+    return sts;
 }
 
 int
@@ -79,6 +82,7 @@ __pmSendText(int fd, int ctx, int ident, const char *buffer)
 {
     text_t	*pp;
     size_t	need;
+    int		sts;
 
     need = sizeof(text_t) - sizeof(pp->buffer) + PM_PDU_SIZE_BYTES(strlen(buffer));
     if ((pp = (text_t *)__pmFindPDUBuf((int)need)) == NULL)
@@ -99,7 +103,9 @@ __pmSendText(int fd, int ctx, int ident, const char *buffer)
     memcpy((void *)pp->buffer, (void *)buffer, pp->buflen);
     pp->buflen = htonl(pp->buflen);
 
-    return __pmXmitPDU(fd, (__pmPDU *)pp);
+    sts = __pmXmitPDU(fd, (__pmPDU *)pp);
+    __pmUnpinPDUBuf(pp);
+    return sts;
 }
 
 int

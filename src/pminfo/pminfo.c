@@ -30,6 +30,7 @@ static int	need_pmid;	/* set if need to lookup names */
 static int	type;
 static char	*hostname;
 static char	*pmnsfile = PM_NS_DEFAULT;
+static int	dupok = 0;
 
 static char	**namelist;
 static pmID	*pmidlist;
@@ -451,6 +452,7 @@ Options:\n\
   -m		print PMID\n\
   -M		print PMID in verbose format\n\
   -n pmnsfile 	use an alternative PMNS\n\
+  -N pmnsfile 	use an alternative PMNS (duplicate PMIDs are allowed)\n\
   -O time	origin for a fetch from the archive\n\
   -t		get and display (terse) oneline text\n\
   -T		get and display (verbose) help text\n\
@@ -470,7 +472,7 @@ ParseOptions(int argc, char *argv[])
     int		errflag = 0;
     char	*endnum;
     char	*errmsg;
-    char	*opts = "a:b:c:dD:Ffn:h:K:LMmO:tTvxzZ:?";
+    char	*opts = "a:b:c:dD:Ffh:K:LMmN:n:O:tTvxzZ:?";
 
     while ((c = getopt(argc, argv, opts)) != EOF) {
 	switch (c) {
@@ -568,6 +570,9 @@ ParseOptions(int argc, char *argv[])
 		need_pmid = 1;
 		break;
 
+	    case 'N':
+		dupok = 1;
+		/*FALLTHROUGH*/
 	    case 'n':
 		pmnsfile = optarg;
 		break;
@@ -680,7 +685,7 @@ main(int argc, char **argv)
     }
 
     if (pmnsfile != PM_NS_DEFAULT) {
-	if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
+	if ((sts = pmLoadASCIINameSpace(pmnsfile, dupok)) < 0) {
 	    fprintf(stderr, "%s: Error loading namespace: %s\n",
 		pmProgname, pmErrStr(sts));
 	    exit(1);

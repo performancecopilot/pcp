@@ -37,7 +37,6 @@
 extern "C" {
 #endif
 
-#define PMAPI_VERSION_1	1
 #define PMAPI_VERSION_2	2
 #define PMAPI_VERSION	PMAPI_VERSION_2
 
@@ -134,21 +133,8 @@ typedef struct {
 #define PM_SEM_INSTANT	3	/* instantaneous value, continuous domain */
 #define PM_SEM_DISCRETE	4	/* instantaneous value, discrete domain */
 
-/*
- * for PCP 1.x PMDAs and PMCDs, need to map errors unconditionally sometimes
- * otherwise mapping is conditional upon value being in range
- */
-
-#define PM_ERR_BASE1 1000
 #define PM_ERR_BASE2 12345
 #define PM_ERR_BASE  PM_ERR_BASE2
-
-#define PM_ERR_V1(e) (e)+PM_ERR_BASE2-PM_ERR_BASE1
-
-#define XLATE_ERR_1TO2(e) \
-	((e) <= -PM_ERR_BASE1 ? (e)+PM_ERR_BASE1-PM_ERR_BASE2 : (e))
-#define XLATE_ERR_2TO1(e) \
-	((e) <= -PM_ERR_BASE2 ? PM_ERR_V1(e) : (e))
 
 /* PMAPI Error Conditions */
 
@@ -159,11 +145,11 @@ typedef struct {
 #define PM_ERR_TEXT		(-PM_ERR_BASE-4)    /* Oneline or help text is not available */
 #define PM_ERR_APPVERSION	(-PM_ERR_BASE-5)    /* Metric not supported by this version of monitored application */
 #define PM_ERR_VALUE		(-PM_ERR_BASE-6)    /* Missing metric value(s) */
-#define PM_ERR_LICENSE		(-PM_ERR_BASE-7)    /* Current PCP license does not permit this operation */
+/* retired PM_ERR_LICENSE (-PM_ERR_BASE-7) Current PCP license does not permit this operation */
 #define PM_ERR_TIMEOUT		(-PM_ERR_BASE-8)    /* Timeout waiting for a response from PMCD */
 #define PM_ERR_NODATA		(-PM_ERR_BASE-9)    /* Empty archive log file */
 #define PM_ERR_RESET		(-PM_ERR_BASE-10)   /* pmcd reset or configuration changed */
-#define PM_ERR_FILE		(-PM_ERR_BASE-11)   /* Cannot locate a file */
+/* retired PM_ERR_FILE (-PM_ERR_BASE-11) Cannot locate a file */
 #define PM_ERR_NAME		(-PM_ERR_BASE-12)   /* Unknown metric name */
 #define PM_ERR_PMID		(-PM_ERR_BASE-13)   /* Unknown or illegal metric identifier */
 #define PM_ERR_INDOM		(-PM_ERR_BASE-14)   /* Unknown or illegal instance domain identifier */
@@ -174,7 +160,7 @@ typedef struct {
 #define PM_ERR_SIGN		(-PM_ERR_BASE-19)   /* Negative value in conversion to unsigned */
 #define PM_ERR_PROFILE		(-PM_ERR_BASE-20)   /* Explicit instance identifier(s) required */
 #define PM_ERR_IPC		(-PM_ERR_BASE-21)   /* IPC protocol failure */
-#define PM_ERR_NOASCII		(-PM_ERR_BASE-22)   /* ASCII format not supported for this PDU */
+/* retired PM_ERR_NOASCII (-PM_ERR_BASE-22) ASCII format not supported for this PDU */
 #define PM_ERR_EOF		(-PM_ERR_BASE-23)   /* IPC channel closed */
 #define PM_ERR_NOTHOST		(-PM_ERR_BASE-24)   /* Operation requires context with host source of metrics */
 #define PM_ERR_EOL		(-PM_ERR_BASE-25)   /* End of PCP archive log */
@@ -193,19 +179,20 @@ typedef struct {
 #define PM_ERR_PERMISSION	(-PM_ERR_BASE-42)   /* No permission to perform requested operation */
 #define PM_ERR_CONNLIMIT	(-PM_ERR_BASE-43)   /* PMCD connection limit for this host exceeded */
 #define PM_ERR_AGAIN		(-PM_ERR_BASE-44)   /* try again. Info not currently available */
-
 #define PM_ERR_ISCONN		(-PM_ERR_BASE-45)   /* already connected */
 #define PM_ERR_NOTCONN		(-PM_ERR_BASE-46)   /* not connected */
 #define PM_ERR_NEEDPORT		(-PM_ERR_BASE-47)   /* port name required */
-#define PM_ERR_WANTACK		(-PM_ERR_BASE-48)   /* can not send due to pending acks */
+/* retired PM_ERR_WANTACK (-PM_ERR_BASE-48) can not send due to pending acks */
 #define PM_ERR_NONLEAF		(-PM_ERR_BASE-49)   /* PMNS node is not a leaf node */
-#define PM_ERR_OBJSTYLE		(-PM_ERR_BASE-50)   /* user/kernel object style mismatch */
-#define PM_ERR_PMCDLICENSE	(-PM_ERR_BASE-51)   /* PMCD is not licensed to accept connections */
+/* retired PM_ERR_OBJSTYLE (-PM_ERR_BASE-50) user/kernel object style mismatch */
+/* retired PM_ERR_PMCDLICENSE (-PM_ERR_BASE-51) PMCD is not licensed to accept connections */
 #define PM_ERR_TYPE		(-PM_ERR_BASE-52)   /* Unknown or illegal metric type */
+#define PM_ERR_THREAD		(-PM_ERR_BASE-53)   /* Operation not supported for multi-threaded applications */
 
-#define PM_ERR_CTXBUSY		(-PM_ERR_BASE-97)   /* Context is busy */
+/* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */
 #define PM_ERR_TOOBIG		(-PM_ERR_BASE-99)   /* Result size exceeded */
+#define PM_ERR_FAULT		(-PM_ERR_BASE-100)  /* QA fault injected */
 
 #define PM_ERR_PMDAREADY	(-PM_ERR_BASE-1048) /* now ready to respond */
 #define PM_ERR_PMDANOTREADY	(-PM_ERR_BASE-1049) /* not yet ready to respond */
@@ -214,7 +201,10 @@ typedef struct {
 /*
  * Report PMAPI errors messages
  */
-extern const char *pmErrStr(int);
+extern char *pmErrStr(int);				/* NOT thread-safe */
+extern char *pmErrStr_r(int, char *, int);
+/* safe size for a pmErrStr_r buffer to accommodate all error messages */
+#define PM_MAXERRMSGLEN		128
 
 /*
  * Load a Performance Metrics Name Space
@@ -261,6 +251,7 @@ extern int pmNameAll(pmID, char ***);		/* all */
  * Handy recursive descent of the PMNS
  */
 extern int pmTraversePMNS(const char *, void(*)(const char *));
+extern int pmTraversePMNS_r(const char *, void(*)(const char *, void *), void *);
 
 /*
  * Given a metric, find it's descriptor (caller supplies buffer for desc),
@@ -320,10 +311,6 @@ extern int pmNewContext(int, const char *);
 #define PM_CONTEXT_HOST		1	/* context types */
 #define PM_CONTEXT_ARCHIVE	2
 #define PM_CONTEXT_LOCAL	3	/* local host, no pmcd connection */
-#define PM_CONTEXT_TYPEMASK	0xff	/* Mask to separate types from flags */
-
-#define PM_CTXFLAG_SHALLOW	(1<<8)  /* Shallow host context - don't connect */
-#define PM_CTXFLAG_EXCLUSIVE	(1<<9)  /* Exclusive host context - don't share socket */
 
 /*
  * Duplicate current context -- returns handle to new one for pmUseContext()
@@ -340,15 +327,6 @@ extern int pmUseContext(int);
  * settings are preserved and the previous context settings are restored.
  */
 extern int pmReconnectContext(int);
-
-extern int pmGetContextFD(int);
-extern int pmGetContextTimeout(int, int*);
-
-struct sockaddr;
-extern int pmContextConnectTo(int, const struct sockaddr *);
-extern int pmContextConnectChangeState(int);
-
-extern void pmContextUndef(void);
 
 /*
  * Add to instance profile.
@@ -496,7 +474,6 @@ typedef struct {
 #define PM_TZ_MAXLEN	40
 #define PM_LOG_MAXHOSTLEN		64
 #define PM_LOG_MAGIC	0x50052600
-#define PM_LOG_VERS01	0x1
 #define PM_LOG_VERS02	0x2
 #define PM_LOG_VOL_TI	-2	/* temporal index */
 #define PM_LOG_VOL_META	-1	/* meta data */
@@ -550,13 +527,20 @@ extern int pmLookupInDomText(pmInDom, int, char **);
 /*
  * some handy formatting routines for messages, and other output
  */
-extern const char *pmIDStr(pmID);
-extern const char *pmInDomStr(pmInDom);
-extern const char *pmTypeStr(int);
-extern const char *pmUnitsStr(const pmUnits *);
-extern const char *pmAtomStr(const pmAtomValue *, int);
-extern const char *pmNumberStr(double);
-extern const char *pmEventFlagsStr(int);
+extern const char *pmIDStr(pmID);			/* NOT thread-safe */
+extern char *pmIDStr_r(pmID, char *, int);
+extern const char *pmInDomStr(pmInDom);			/* NOT thread-safe */
+extern char *pmInDomStr_r(pmInDom, char *, int);
+extern const char *pmTypeStr(int);			/* NOT thread-safe */
+extern char *pmTypeStr_r(int, char *, int);
+extern const char *pmUnitsStr(const pmUnits *);		/* NOT thread-safe */
+extern char *pmUnitsStr_r(const pmUnits *, char *, int);
+extern const char *pmAtomStr(const pmAtomValue *, int);	/* NOT thread-safe */
+extern char *pmAtomStr_r(const pmAtomValue *, int, char *, int);
+extern const char *pmNumberStr(double);			/* NOT thread-safe */
+extern char *pmNumberStr_r(double, char *, int);
+extern const char *pmEventFlagsStr(int);		/* NOT thread-safe */
+extern char *pmEventFlagsStr_r(int, char *, int);
 
 /* Extended time base definitions and macros */
 #define PM_XTB_FLAG	0x1000000
@@ -613,62 +597,11 @@ extern int pmflush(void);
 extern char *pmGetConfig(const char *);
 
 /*
- * Mainloop implementation.
- */
-struct rusage;
-
-int pmLoopRegisterInput(int, int, int (*)(int, int, void *), void *, int);
-int pmLoopRegisterSignal(int, int (*)(int, void *), void *);
-int pmLoopRegisterTimeout(int, int (*)(void *), void *);
-int pmLoopRegisterChild(pid_t, int (*)(pid_t, int, const struct rusage *, void *), void *);
-int pmLoopRegisterIdle(int (*)(void *), void *);
-
-void pmLoopUnregisterInput(int);
-void pmLoopUnregisterSignal(int);
-void pmLoopUnregisterTimeout(int);
-void pmLoopUnregisterChild(int);
-void pmLoopUnregisterIdle(int);
-
-void pmLoopStop(void);
-int pmLoopMain(void);
-
-extern int pmLoopDebug;
-
-/*
  * Derived Metrics support
  */
-int pmLoadDerivedConfig(char *);
-char *pmRegisterDerived(char *, char *);
-char *pmDerivedErrStr(void);
-
-/*
- * Asynchronous versions of main pmapi client routines - each one
- * either sends or receives a PDU.
- */ 
-extern int pmReceiveDesc(int, pmDesc *);
-extern int pmReceiveFetch(int, pmResult **);
-extern int pmReceiveInDom(int,  int **, char ***);
-extern int pmReceiveInDomInst(int);
-extern int pmReceiveInDomName(int, char **);
-extern int pmReceiveNameID(int, char **);
-extern int pmReceiveNames(int, int, pmID []);
-extern int pmReceiveNamesAll(int, char ***);
-extern int pmReceiveNamesOfChildren(int, char ***, int **);
-extern int pmReceiveStore(int);
-extern int pmReceiveText(int, char **);
-extern int pmReceiveTraversePMNS(int, void (*)(const char *));
-extern int pmRequestDesc(int, pmID);
-extern int pmRequestFetch(int, int, pmID *);
-extern int pmRequestInDom(int, pmInDom);
-extern int pmRequestInDomInst(int, pmInDom, const char *);
-extern int pmRequestInDomName(int, pmInDom, int);
-extern int pmRequestInDomText(int, pmID, int);
-extern int pmRequestNameID(int, pmID);
-extern int pmRequestNames(int, int, char *[]);
-extern int pmRequestNamesOfChildren(int, const char *, int);
-extern int pmRequestStore(int, const pmResult *);
-extern int pmRequestText(int, pmID, int);
-extern int pmRequestTraversePMNS(int, const char *);
+extern int pmLoadDerivedConfig(const char *);
+extern char *pmRegisterDerived(const char *, const char *);
+extern char *pmDerivedErrStr(void);
 
 /*
  * Event Record support

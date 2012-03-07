@@ -23,7 +23,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = src
-LSRCFILES = pmdaproc.sh rc_pcp rc_local pmcd.options \
+LSRCFILES = pmdaproc.sh rc_pcp rc_pmcd rc_local pmcd.options \
 	    rc-proc.sh rc-proc.sh.minimal
 
 default : $(SUBDIRS)
@@ -38,6 +38,7 @@ endif
 	$(INSTALL) -m 644 pmcd.options $(PCP_PMCDOPTIONS_PATH)
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMCDRCLOCAL_PATH)`
 	$(INSTALL) -m 755 rc_local $(PCP_PMCDRCLOCAL_PATH)
+	$(INSTALL) -m 755 rc_pmcd $(PCP_RC_DIR)/pmcd
 	$(INSTALL) -m 755 rc_pcp $(PCP_RC_DIR)/pcp
 	$(INSTALL) -m 644 pmdaproc.sh $(PCP_SHARE_DIR)/lib/pmdaproc.sh
 	$(INSTALL) -m 644 rc-proc.sh $(PCP_SHARE_DIR)/lib/rc-proc.sh

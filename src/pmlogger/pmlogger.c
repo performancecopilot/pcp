@@ -39,6 +39,7 @@ int		rflag;			/* report sizes */
 struct timeval	delta = { 60, 0 };	/* default logging interval */
 int		unbuffered;		/* is -u specified? */
 int		qa_case;		/* QA error injection state */
+char		*note = NULL;		/* note for port map file */
 
 static int 	    pmcdfd;		/* comms to pmcd */
 static int	    ctx;		/* handle correspondong to ctxp below */
@@ -502,7 +503,7 @@ main(int argc, char **argv)
      *		corresponding changes are made to pmnewlog when pmlogger
      *		options are passed through from the control file
      */
-    while ((c = getopt(argc, argv, "c:D:h:l:Ln:Prs:T:t:uv:V:x:?")) != EOF) {
+    while ((c = getopt(argc, argv, "c:D:h:l:Lm:n:Prs:T:t:uv:V:x:?")) != EOF) {
 	switch (c) {
 
 	case 'c':		/* config file */
@@ -547,6 +548,10 @@ main(int argc, char **argv)
 
 	case 'L':		/* linger if not primary logger */
 	    linger = 1;
+	    break;
+
+	case 'm':		/* note for port map file */
+	    note = optarg;
 	    break;
 
 	case 'n':		/* alternative name space file */
@@ -606,11 +611,10 @@ main(int argc, char **argv)
         case 'V': 
 	    archive_version = (int)strtol(optarg, &endnum, 10);
             if (*endnum != '\0' ||
-		(archive_version != PM_LOG_VERS01 &&
-                 archive_version != PM_LOG_VERS02)) {
+                archive_version != PM_LOG_VERS02) {
                 fprintf(stderr, "%s: -V requires a version number of "
-                        "%d or %d\n", pmProgname, 
-                        PM_LOG_VERS01, PM_LOG_VERS02); 
+                        "%d\n", pmProgname, 
+                        PM_LOG_VERS02); 
 		errflag++;
             }
 	    break;
@@ -640,6 +644,7 @@ Options:\n\
   -h host	metrics source is PMCD on host\n\
   -l logfile	redirect diagnostics and trace output\n\
   -L		linger, even if not primary logger instance and nothing to log\n\
+  -m note       note to be added to the port map file\n\
   -n pmnsfile   use an alternative PMNS\n\
   -P		execute as primary logger instance\n\
   -r		report record sizes and archive growth rate\n\
@@ -648,7 +653,7 @@ Options:\n\
   -T endtime	terminate at given time\n\
   -u		output is unbuffered\n\
   -v volsize	switch log volumes after volsize has been accumulated\n\
-  -V version    generate version 1 or 2 archives (default is 2)\n\
+  -V version    version for archive (default and only version is 2)\n\
   -x fd		control file descriptor for application launching pmlogger\n\
 		via pmRecordControl(3)\n",
 			pmProgname);
@@ -658,6 +663,13 @@ Options:\n\
     if (primary && pmcd_host != NULL) {
 	fprintf(stderr, "%s: -P and -h are mutually exclusive ... use -P only when running\n%s on the same (local) host as the PMCD to which it connects.\n", pmProgname, pmProgname);
 	exit(1);
+    }
+
+    if (rsc_fd != -1 && note == NULL) {
+	/* add default note to indicate running with -x */
+	static char	xnote[10];
+	snprintf(xnote, sizeof(xnote), "-x %d", rsc_fd);
+	note = xnote;
     }
 
     __pmOpenLog("pmlogger", logfile, stderr, &sts);
@@ -699,7 +711,10 @@ Options:\n\
     /*
      * discover fd for comms channel to PMCD ... 
      */
-    ctxp = __pmHandleToPtr(ctx);
+    if ((ctxp = __pmHandleToPtr(ctx)) == NULL) {
+	fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, ctx);
+	exit(1);
+    }
     pmcdfd = ctxp->c_pmcd->pc_fd;
     pmcd_host = ctxp->c_pmcd->pc_hosts[0].name;
 
@@ -921,6 +936,8 @@ Options:\n\
 			__pmPDUTypeStr(php->type));
 		    disconnect(PM_ERR_IPC);
 		}
+		if (sts > 0)
+		    __pmUnpinPDUBuf(pb);
 	    }
 #endif
 	    if (rsc_fd >= 0 && FD_ISSET(rsc_fd, &readyfds)) {

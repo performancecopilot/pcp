@@ -15,15 +15,13 @@
 .\"
 .TH PMLOOKUPINDOMTEXT 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmLookupInDomText\f1,
-\f3pmRequestInDomText\f1 \- return text describing a performance metrics instance domain
+\f3pmLookupInDomText\f1 \- return text describing a performance metrics instance domain
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 .nf
 int pmLookupInDomText(pmInDom \fIindom\fP, int \fIlevel\fP, char **\fIbuffer\fP);
-int pmRequestInDomText(int \fIctx\fP, pmInDom \fIindom\fP, int \fIlevel\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -69,17 +67,6 @@ the space when it is no longer required.
 .PP
 .B pmLookupInDomText
 returns zero on success.
-.PP
-\f3pmRequestInDomText\fP and \f3pmReceiveText\fP are used by
-applications which must communicate with the PMCD asynchronously.
-These functions take explicit context handle \f2ctx\fP which must refer
-to a host context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
-\f3pmNewContext\fP). \f3pmRequestInDomText\fP sends request to PMCD
-to provide descriptive text about performance metrics instance domain
-identified by \f2indom\f1 and returns without waiting for the response,
-\f3pmReceiveText\fP reads reply from PMCD. It is the responsibility
-of the application to make sure the data are ready before calling
-\f3pmReceiveText\fP to avoid blocking.
 .SH SEE ALSO
 .BR chkhelp (1),
 .BR newhelp (1),
@@ -87,7 +74,6 @@ of the application to make sure the data are ready before calling
 .BR pmGetConfig (3),
 .BR pmLookupDesc (3),
 .BR pmLookupText (3),
-.BR pmReceiveText (3),
 .BR pcp.conf (4)
 and
 .BR pcp.env (4).
@@ -95,5 +81,3 @@ and
 .IP \f3PM_ERR_NOTHOST\f1
 if the current PMAPI context is an archive log
 (help and one-line text is not maintained in the archive logs)
-.IP \f3PM_ERR_CTXBUSY\f1
-Context is currently in use by another asynchronous call.

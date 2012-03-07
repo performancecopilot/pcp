@@ -27,6 +27,7 @@ int
 __pmSendDescReq(int fd, int from, pmID pmid)
 {
     desc_req_t	*pp;
+    int		sts;
 
     if ((pp = (desc_req_t *)__pmFindPDUBuf(sizeof(desc_req_t))) == NULL)
 	return -oserror();
@@ -36,10 +37,15 @@ __pmSendDescReq(int fd, int from, pmID pmid)
     pp->pmid = __htonpmID(pmid);
 
 #ifdef DESPERATE
-    fprintf(stderr, "__pmSendDescReq: converted 0x%08x (%s) to 0x%08x\n", pmid, pmIDStr(pmid), pp->pmid);
+    {
+	char	strbuf[20];
+	fprintf(stderr, "__pmSendDescReq: converted 0x%08x (%s) to 0x%08x\n", pmid, pmIDStr_r(pmid, strbuf, sizeof(strbuf)), pp->pmid);
+    }
 #endif
 
-    return __pmXmitPDU(fd, (__pmPDU *)pp);
+    sts = __pmXmitPDU(fd, (__pmPDU *)pp);
+    __pmUnpinPDUBuf(pp);
+    return sts;
 }
 
 int
@@ -64,6 +70,7 @@ int
 __pmSendDesc(int fd, int ctx, pmDesc *desc)
 {
     desc_t	*pp;
+    int		sts;
 
     if ((pp = (desc_t *)__pmFindPDUBuf(sizeof(desc_t))) == NULL)
 	return -oserror();
@@ -76,7 +83,10 @@ __pmSendDesc(int fd, int ctx, pmDesc *desc)
     pp->desc.indom = __htonpmInDom(desc->indom);
     pp->desc.units = __htonpmUnits(desc->units);
     pp->desc.pmid = __htonpmID(desc->pmid);
-    return __pmXmitPDU(fd, (__pmPDU *)pp);
+
+    sts =__pmXmitPDU(fd, (__pmPDU *)pp);
+    __pmUnpinPDUBuf(pp);
+    return sts;
 }
 
 int

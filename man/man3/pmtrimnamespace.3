@@ -55,19 +55,16 @@ Prior to any trimming,
 the PMNS is restored to the state as of the completion of the last
 .BR pmLoadASCIINameSpace (3)
 or
-.BR pmLoadNameSpace (3)
-or
-implicit load (in the case of a host with a version 1
-Performance Metric Collector Daemon (PMCD))
-operation, so the effects of consecutive calls to
+.BR pmLoadNameSpace (3),
+so the effects of consecutive calls to
 .B pmTrimNameSpace
 with archive contexts are
 .B not
 additive.
 .PP
 If the current PMAPI context
-corresponds to a host, rather than an archive, 
-and the host has a version 1 pmcd or a 
+corresponds to a host
+and a
 .BR pmLoadASCIINameSpace (3) 
 or
 .BR pmLoadNameSpace (3) 
@@ -76,8 +73,8 @@ then the PMNS reverts to all names loaded into the PMNS
 at the completion of the last
 .BR pmLoadASCIINameSpace (3)
 or
-.BR pmLoadNameSpace (3)
-or implicit load operation, i.e. any trimming is undone.
+.BR pmLoadNameSpace (3),
+i.e. any trimming is undone.
 .PP
 On success,
 .B pmTrimNameSpace

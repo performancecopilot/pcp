@@ -67,7 +67,7 @@ Options:\n\
     if (optind >= argc) {
 	if (sflag)
 	    putenv("SHELL=/bin/sh");
-	__pmConfig("PCP_VERSION", formatter);
+	__pmConfig(formatter);
     }
     else if (sflag) {
 	putenv("SHELL=/bin/sh");

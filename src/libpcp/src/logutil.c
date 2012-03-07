@@ -10,6 +10,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes:
+ *
+ * __pmLogReads is a diagnostic counter that is maintained with
+ * non-atomic updates ... we've decided that it is acceptable for the
+ * value to be subject to possible (but unlikely) missed updates
  */
 
 #include <inttypes.h>
@@ -23,10 +29,6 @@
 
 INTERN int	__pmLogReads = 0;
 
-static char	*logfilename;
-static int	logfilenamelen;
-static int	seeking_end;
-
 /*
  * Suffixes and associated compresssion application for compressed filenames.
  * These can appear _after_ the volume number in the name of a file for an
@@ -35,9 +37,9 @@ static int	seeking_end;
 #define	USE_NONE	0
 #define	USE_BZIP2	1
 #define USE_GZIP	2
-static struct {
+static const struct {
     const char	*suff;
-    int		appl;
+    const int	appl;
 } compress_ctl[] = {
     { ".bz2",	USE_BZIP2 },
     { ".bz",	USE_BZIP2 },
@@ -45,7 +47,7 @@ static struct {
     { ".Z",	USE_GZIP },
     { ".z",	USE_GZIP }
 };
-static int	ncompress = sizeof(compress_ctl) / sizeof(compress_ctl[0]);
+static const int	ncompress = sizeof(compress_ctl) / sizeof(compress_ctl[0]);
 
 /*
  * first two fields are made to look like a pmValueSet when no values are
@@ -58,30 +60,16 @@ typedef struct {
     				/* value control for interpolation */
 } pmid_ctl;
 
-static __pmHashCtl	pc_hc;		/* hash control for requested metrics */
+/*
+ * Hash control for requested metrics, used to construct 'No values'
+ * result when the corresponding metric is requested but there is
+ * no values available in the pmResult
+ *
+ * Note, this hash table is global across all contexts.
+ */
+static __pmHashCtl	pc_hc;
 
 #ifdef PCP_DEBUG
-static void
-printstamp(struct timeval *tp)
-{
-    static struct tm	*tmp;
-    time_t t = (time_t)tp->tv_sec;
-
-    tmp = localtime(&t);
-    fprintf(stderr, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)(tp->tv_usec/1000));
-}
-
-static void
-printstamp32(__pmTimeval *tp)
-{
-    static struct tm	*tmp;
-    time_t		time;
-
-    time = tp->tv_sec;			/* let compiler sort out alignment */
-    tmp = localtime(&time);
-    fprintf(stderr, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, tp->tv_usec/1000);
-}
-
 static void
 dumpbuf(int nch, __pmPDU *pb)
 {
@@ -199,13 +187,12 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 
     version = lp->ill_magic & 0xff;
     if ((lp->ill_magic & 0xffffff00) != PM_LOG_MAGIC ||
-	(version != PM_LOG_VERS01 && version != PM_LOG_VERS02) ||
-	lp->ill_vol != vol) {
+	(version != PM_LOG_VERS02) || lp->ill_vol != vol) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG) {
 	    if ((lp->ill_magic & 0xffffff00) != PM_LOG_MAGIC)
 		fprintf(stderr, " label magic 0x%x not 0x%x as expected", (lp->ill_magic & 0xffffff00), PM_LOG_MAGIC);
-	    if (version != PM_LOG_VERS01 && version != PM_LOG_VERS02)
+	    if (version != PM_LOG_VERS02)
 		fprintf(stderr, " label version %d not supported", version);
 	    if (lp->ill_vol != vol)
 		fprintf(stderr, " label volume %d not %d as expected", lp->ill_vol, vol);
@@ -270,7 +257,7 @@ fopen_compress(const char *fname)
     char	*cmd;
     char	*msg;
     FILE	*fp;
-    static char	tmpname[MAXPATHLEN];
+    char	tmpname[MAXPATHLEN];
 
     for (i = 0; i < ncompress; i++) {
 	snprintf(tmpname, sizeof(tmpname), "%s%s", fname, compress_ctl[i].suff);
@@ -315,8 +302,10 @@ fopen_compress(const char *fname)
     if (sts == -1) {
 	sts = oserror();
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "__pmLogOpen: uncompress command failed: %s\n", osstrerror());
+	if (pmDebug & DBG_TRACE_LOG) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmLogOpen: uncompress command failed: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
+	}
 #endif
 	close(fd);
 	unlink(msg);
@@ -333,7 +322,7 @@ fopen_compress(const char *fname)
 		fprintf(stderr, "__pmLogOpen: uncompress failed, signal: %d\n", WTERMSIG(sts));
 	    else
 #endif
-		fprintf(stderr, "__pmLogOpen: uncompress failed, system() returns: %d\n", sts);
+		fprintf(stderr, "__pmLogOpen: uncompress failed, popen() returns: %d\n", sts);
 	}
 #endif
 	close(fd);
@@ -360,22 +349,14 @@ fopen_compress(const char *fname)
 static FILE *
 _logpeek(__pmLogCtl *lcp, int vol)
 {
-    int		sts;
-    FILE	*f;
+    int			sts;
+    FILE		*f;
     __pmLogLabel	label;
+    char		fname[MAXPATHLEN];
 
-    sts = (int)strlen(lcp->l_name) + 6; /* name.XXXX\0 */
-    if (sts > logfilenamelen) {
-	if ((logfilename = (char *)realloc(logfilename, sts)) == NULL) {
-	    logfilenamelen = 0;
-	    return NULL;
-	}
-	logfilenamelen = sts;
-    }
-
-    snprintf(logfilename, sts, "%s.%d", lcp->l_name, vol);
-    if ((f = fopen(logfilename, "r")) == NULL) {
-	if ((f = fopen_compress(logfilename)) == NULL)
+    snprintf(fname, sizeof(fname), "%s.%d", lcp->l_name, vol);
+    if ((f = fopen(fname, "r")) == NULL) {
+	if ((f = fopen_compress(fname)) == NULL)
 	    return f;
     }
 
@@ -478,49 +459,42 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
     return sts;
 }
 
+const char *
+__pmLogName_r(const char *base, int vol, char *buf, int buflen)
+{
+    switch (vol) {
+	case PM_LOG_VOL_TI:
+	    snprintf(buf, buflen, "%s.index", base);
+	    break;
+
+	case PM_LOG_VOL_META:
+	    snprintf(buf, buflen, "%s.meta", base);
+	    break;
+
+	default:
+	    snprintf(buf, buflen, "%s.%d", base, vol);
+	    break;
+    }
+
+    return buf;
+}
 
 const char *
 __pmLogName(const char *base, int vol)
 {
-    static char		*tbuf;
-    static int		tlen = 0;
-    int			len;
+    static char		tbuf[MAXPATHLEN];
 
-    len = (int)strlen(base) + 8;
-    if (len > tlen) {
-	if (tlen)
-	    free(tbuf);
-	if ((tbuf = (char *)malloc(len)) == NULL) {
-	    __pmNoMem("__pmLogName", len, PM_FATAL_ERR);
-	}
-	tlen = len;
-    }
-
-    switch (vol) {
-	case PM_LOG_VOL_TI:
-	    sprintf(tbuf, "%s.index", base);	/* safe */
-	    break;
-	
-	case PM_LOG_VOL_META:
-	    sprintf(tbuf, "%s.meta", base);	/* safe */
-	    break;
-
-	default:
-	    sprintf(tbuf, "%s.%d", base, vol);	/* safe */
-	    break;
-    }
-
-    return tbuf;
+    return __pmLogName_r(base, vol, tbuf, sizeof(tbuf));
 }
 
 FILE *
 __pmLogNewFile(const char *base, int vol)
 {
-    const char	*fname;
+    char	fname[MAXPATHLEN];
     FILE	*f;
     int		save_error;
 
-    fname = __pmLogName(base, vol);
+    __pmLogName_r(base, vol, fname, sizeof(fname));
 
     if (access(fname, R_OK) != -1) {
 	/* exists and readable ... */
@@ -531,8 +505,9 @@ __pmLogNewFile(const char *base, int vol)
     }
 
     if ((f = fopen(fname, "w")) == NULL) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	save_error = oserror();
-	pmprintf("__pmLogNewFile: failed to create \"%s\": %s\n", fname, osstrerror());
+	pmprintf("__pmLogNewFile: failed to create \"%s\": %s\n", fname, osstrerror_r(errmsg, sizeof(errmsg)));
 
 	pmflush();
 	setoserror(save_error);
@@ -540,7 +515,8 @@ __pmLogNewFile(const char *base, int vol)
     }
 
     if ((save_error = __pmSetVersionIPC(fileno(f), PDU_VERSION)) < 0) {
-	pmprintf("__pmLogNewFile: failed to setup \"%s\": %s\n", fname, osstrerror());
+	char	errmsg[PM_MAXERRMSGLEN];
+	pmprintf("__pmLogNewFile: failed to setup \"%s\": %s\n", fname, osstrerror_r(errmsg, sizeof(errmsg)));
 	pmflush();
 	fclose(f);
 	setoserror(save_error);
@@ -570,8 +546,9 @@ __pmLogWriteLabel(FILE *f, const __pmLogLabel *lp)
     if ((int)fwrite(&len, 1, sizeof(len), f) != sizeof(len) ||
 	(int)fwrite(&outll, 1, sizeof(outll), f) != sizeof(outll) ||
         (int)fwrite(&len, 1, sizeof(len), f) != sizeof(len)) {
+	    char	errmsg[PM_MAXERRMSGLEN];
 	    sts = -oserror();
-	    pmprintf("__pmLogWriteLabel: %s\n", osstrerror());
+	    pmprintf("__pmLogWriteLabel: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
 	    pmflush();
     }
 
@@ -583,6 +560,7 @@ __pmLogCreate(const char *host, const char *base, int log_version,
 	      __pmLogCtl *lcp)
 {
     int		save_error = 0;
+    char	fname[MAXPATHLEN];
 
     lcp->l_minvol = lcp->l_maxvol = lcp->l_curvol = 0;
     lcp->l_hashpmid.nodes = lcp->l_hashpmid.hsize = 0;
@@ -592,8 +570,11 @@ __pmLogCreate(const char *host, const char *base, int log_version,
     if ((lcp->l_tifp = __pmLogNewFile(base, PM_LOG_VOL_TI)) != NULL) {
 	if ((lcp->l_mdfp = __pmLogNewFile(base, PM_LOG_VOL_META)) != NULL) {
 	    if ((lcp->l_mfp = __pmLogNewFile(base, 0)) != NULL) {
-		char *tz = __pmTimezone();
-                int             sts;
+		char	tzbuf[PM_TZ_MAXLEN];
+		char	*tz;
+                int	sts;
+
+		tz = __pmTimezone_r(tzbuf, sizeof(tzbuf));
 
 		lcp->l_label.ill_magic = PM_LOG_MAGIC | log_version;
 		/*
@@ -624,14 +605,14 @@ __pmLogCreate(const char *host, const char *base, int log_version,
 	    }
 	    else {
 		save_error = oserror();
-		unlink(__pmLogName(base, PM_LOG_VOL_TI));
-		unlink(__pmLogName(base, PM_LOG_VOL_META));
+		unlink(__pmLogName_r(base, PM_LOG_VOL_TI, fname, sizeof(fname)));
+		unlink(__pmLogName_r(base, PM_LOG_VOL_META, fname, sizeof(fname)));
 		setoserror(save_error);
 	    }
 	}
 	else {
 	    save_error = oserror();
-	    unlink(__pmLogName(base, PM_LOG_VOL_TI));
+	    unlink(__pmLogName_r(base, PM_LOG_VOL_TI, fname, sizeof(fname)));
 	    setoserror(save_error);
 	}
     }
@@ -762,6 +743,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
      */
     if ((tbuf = strdup(name)) == NULL)
 	return -oserror();
+    PM_LOCK(__pmLock_libpcp);
     dir = dirname(tbuf);
 
     /*
@@ -771,8 +753,10 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
     if ((base = strdup(basename(filename))) == NULL) {
 	sts = -oserror();
 	free(tbuf);
+	PM_UNLOCK(__pmLock_libpcp);
 	return sts;
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     if (access(name, R_OK) == 0) {
 	/*
@@ -848,6 +832,7 @@ done:
     lcp->l_pmns = NULL;
 
     blen = (int)strlen(base);
+    PM_LOCK(__pmLock_libpcp);
     if ((dirp = opendir(dir)) != NULL) {
 #if defined(HAVE_READDIR64)
 	while ((direntp = readdir64(dirp)) != NULL)
@@ -871,6 +856,7 @@ done:
 		snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		if ((lcp->l_tifp = fopen(filename, "r")) == NULL) {
 		    sts = -oserror();
+		    PM_UNLOCK(__pmLock_libpcp);
 		    goto cleanup;
 		}
 	    }
@@ -879,6 +865,7 @@ done:
 		snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		if ((lcp->l_mdfp = fopen(filename, "r")) == NULL) {
 		    sts = -oserror();
+		    PM_UNLOCK(__pmLock_libpcp);
 		    goto cleanup;
 		}
 	    }
@@ -918,12 +905,16 @@ done:
     else {
 #ifdef PCP_DEBUG
 	sts = -oserror();
-	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "__pmLogOpen: cannot scan directory \"%s\": %s\n", dir, pmErrStr(sts));
+	if (pmDebug & DBG_TRACE_LOG) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmLogOpen: cannot scan directory \"%s\": %s\n", dir, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+	PM_UNLOCK(__pmLock_libpcp);
 	goto cleanup;
 	
 #endif
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     if (lcp->l_minvol == -1 || lcp->l_mdfp == NULL) {
 #ifdef PCP_DEBUG
@@ -1023,8 +1014,8 @@ cleanup:
 void
 __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
 {
-    static __pmLogTI	ti;
-    __pmLogTI		oti;
+    __pmLogTI	ti;
+    __pmLogTI	oti;
 
     if (lcp->l_tifp == NULL || lcp->l_mdfp == NULL || lcp->l_mfp == NULL) {
 	/*
@@ -1271,10 +1262,13 @@ paranoidCheck(int len, __pmPDU *pb)
 		return -1;
 	    }
 #ifdef DESPERATE
-	    if (i == 0) fputc('\n', stderr);
-	    pmid = __ntohpmID(vlp->pmid);
-	    fprintf(stderr, "vlist[%d] pmid: %s numval: %d valfmt: %d\n",
-				i, pmIDStr(pmid), numval, valfmt);
+	    {
+		char	strbuf[20];
+		if (i == 0) fputc('\n', stderr);
+		pmid = __ntohpmID(vlp->pmid);
+		fprintf(stderr, "vlist[%d] pmid: %s numval: %d valfmt: %d\n",
+		    i, pmIDStr_r(pmid, strbuf, sizeof(strbuf)), numval, valfmt);
+	    }
 #endif
 	    vsize += sizeof(vlp->valfmt) + numval * sizeof(__pmValue_PDU);
 	    if (valfmt != PM_VAL_INSITU) {
@@ -1320,9 +1314,7 @@ static int
 paranoidLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result)
 {
     int		sts;
-    seeking_end = 1;
-    sts = __pmLogRead(lcp, mode, peekf, result);
-    seeking_end = 0;
+    sts = __pmLogRead(lcp, mode, peekf, result, PMLOGREAD_TO_EOF);
     return sts;
 }
 
@@ -1335,7 +1327,7 @@ paranoidLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result)
  * if peekf != NULL, use this stream, and do not roll volume
  */
 int
-__pmLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result)
+__pmLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result, int option)
 {
     int		head;
     int		rlen;
@@ -1482,10 +1474,12 @@ again:
     }
     if ((pb = __pmFindPDUBuf(rlen + (int)sizeof(__pmPDUHdr))) == NULL) {
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
+	if (pmDebug & DBG_TRACE_LOG) {
+	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "\nError: __pmFindPDUBuf(%d) %s\n",
 		(int)(rlen + sizeof(__pmPDUHdr)),
-		osstrerror());
+		osstrerror_r(errmsg, sizeof(errmsg)));
+	}
 #endif
 	fseek(f, offset, SEEK_SET);
 	return -oserror();
@@ -1496,6 +1490,7 @@ again:
 
     if ((n = (int)fread(&pb[3], 1, rlen, f)) != rlen) {
 	/* data read failed */
+	__pmUnpinPDUBuf(pb);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "\nError: data fread got %d expected %d\n", n, rlen);
@@ -1519,6 +1514,7 @@ again:
 	fseek(f, -(long)(rlen + sizeof(head)), SEEK_CUR);
 
     if ((n = (int)fread(&trail, 1, sizeof(trail), f)) != sizeof(trail)) {
+	__pmUnpinPDUBuf(pb);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "\nError: trailer fread got %d expected %d\n", n, (int)sizeof(trail));
@@ -1544,18 +1540,20 @@ again:
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "\nError: record length mismatch: header (%d) != trailer (%d)\n", head, trail);
 #endif
+	__pmUnpinPDUBuf(pb);
 	return PM_ERR_LOGREC;
     }
 
-    if (seeking_end && paranoidCheck(head, pb) == -1)
+    if (option == PMLOGREAD_TO_EOF && paranoidCheck(head, pb) == -1) {
+	__pmUnpinPDUBuf(pb);
 	return PM_ERR_LOGREC;
+    }
 
     if (mode == PM_MODE_BACK)
 	fseek(f, -(long)sizeof(trail), SEEK_CUR);
 
     __pmOverrideLastFd(fileno(f));
     sts = __pmDecodeResult(pb, result); /* also swabs the result */
-    /* note, PDU buffer (pb) is now pinned */
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
@@ -1563,7 +1561,7 @@ again:
 	fprintf(stderr, "@");
 	if (sts >= 0) {
 	    __pmTimeval	tmp;
-	    printstamp(&(*result)->timestamp);
+	    __pmPrintStamp(stderr, &(*result)->timestamp);
 	    tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
 	    fprintf(stderr, " (t=%.6f)", __pmTimevalSub(&tmp, &lcp->l_label.ill_start));
@@ -1581,15 +1579,18 @@ again:
 	__pmUnpinPDUBuf(pb);
 	return PM_ERR_LOGREC;
     }
+
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU) {
 	fprintf(stderr, "__pmLogRead timestamp=");
-	printstamp(&(*result)->timestamp);
+	__pmPrintStamp(stderr, &(*result)->timestamp);
 	fprintf(stderr, " " PRINTF_P_PFX "%p ... " PRINTF_P_PFX "%p", &pb[3], &pb[head/sizeof(__pmPDU)+3]);
 	fputc('\n', stderr);
 	dumpbuf(rlen, &pb[3]);		/* see above to explain "3" */
     }
 #endif
+
+    __pmUnpinPDUBuf(pb);
 
     return 0;
 }
@@ -1663,7 +1664,7 @@ more:
 		tmp_mode = PM_MODE_BACK;
 	    else
 		tmp_mode = PM_MODE_FORW;
-	    while (__pmLogRead(ctxp->c_archctl->ac_log, tmp_mode, NULL, result) >= 0) {
+	    while (__pmLogRead(ctxp->c_archctl->ac_log, tmp_mode, NULL, result, PMLOGREAD_NEXT) >= 0) {
 		nskip++;
 		tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
 		tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
@@ -1689,7 +1690,7 @@ more:
 		    fprintf(stderr, "__pmLogFetch: ctx=%d skip reverse %d to ",
 			pmWhichContext(), nskip);
 		    if (*result  != NULL)
-			printstamp(&(*result)->timestamp);
+			__pmPrintStamp(stderr, &(*result)->timestamp);
 		    else
 			fprintf(stderr, "unknown time");
 		    fprintf(stderr, ", found=%d\n", found);
@@ -1705,7 +1706,7 @@ more:
 	}
 	if (found)
 	    break;
-	if ((sts = __pmLogRead(ctxp->c_archctl->ac_log, ctxp->c_mode, NULL, result)) < 0)
+	if ((sts = __pmLogRead(ctxp->c_archctl->ac_log, ctxp->c_mode, NULL, result, PMLOGREAD_NEXT)) < 0)
 	    break;
 	tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
 	tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
@@ -1723,7 +1724,7 @@ more:
 	    if (nskip) {
 		fprintf(stderr, "__pmLogFetch: ctx=%d skip %d to ",
 		    pmWhichContext(), nskip);
-		    printstamp(&(*result)->timestamp);
+		    __pmPrintStamp(stderr, &(*result)->timestamp);
 		    fputc('\n', stderr);
 		}
 #ifdef DESPERATE
@@ -1777,6 +1778,7 @@ more:
 	    newres->numpmid = numpmid;
 	    newres->timestamp = (*result)->timestamp;
 	    u = 0;
+	    PM_LOCK(__pmLock_libpcp);
 	    for (j = 0; j < numpmid; j++) {
 		hp = __pmHashSearch((int)pmidlist[j], &pc_hc);
 		if (hp == NULL) {
@@ -1787,8 +1789,10 @@ more:
 		    pcp->pc_pmid = pmidlist[j];
 		    pcp->pc_numval = 0;
 		    sts = __pmHashAdd((int)pmidlist[j], (void *)pcp, &pc_hc);
-		    if (sts < 0)
+		    if (sts < 0) {
+			PM_UNLOCK(__pmLock_libpcp);
 			return sts;
+		    }
 		}
 		else
 		    pcp = (pmid_ctl *)hp->data;
@@ -1808,6 +1812,7 @@ more:
 		    newres->vset[j] = (pmValueSet *)pcp;
 		}
 	    }
+	    PM_UNLOCK(__pmLock_libpcp);
 	    if (u == 0 && !all_derived) {
 		/*
 		 * not one of our pmids was in the log record, try
@@ -1845,8 +1850,10 @@ more:
 	    }
 	    sts = __pmLogLookupDesc(ctxp->c_archctl->ac_log, newres->vset[i]->pmid, &desc);
 	    if (sts < 0) {
+		char	strbuf[20];
+		char	errmsg[PM_MAXERRMSGLEN];
 		__pmNotifyErr(LOG_WARNING, "__pmLogFetch: missing pmDesc for pmID %s: %s",
-			    pmIDStr(desc.pmid), pmErrStr(sts));
+			    pmIDStr_r(desc.pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		pmFreeResult(newres);
 		break;
 	    }
@@ -1939,7 +1946,7 @@ __pmLogSetTime(__pmContext *ctxp)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
 	fprintf(stderr, "__pmLogSetTime(%d) ", pmWhichContext());
-	printstamp32(&ctxp->c_origin);
+	__pmPrintTimeval(stderr, &ctxp->c_origin);
 	fprintf(stderr, " delta=%d", ctxp->c_delta);
     }
 #endif
@@ -2005,7 +2012,7 @@ __pmLogSetTime(__pmContext *ctxp)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG) {
 		fprintf(stderr, " at ti[%d]@", j);
-		printstamp32(&lcp->l_ti[j].ti_stamp);
+		__pmPrintTimeval(stderr, &lcp->l_ti[j].ti_stamp);
 	    }
 #endif
 	}
@@ -2017,7 +2024,7 @@ __pmLogSetTime(__pmContext *ctxp)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG) {
 		fprintf(stderr, " before start ti@");
-		printstamp32(&lcp->l_ti[j].ti_stamp);
+		__pmPrintTimeval(stderr, &lcp->l_ti[j].ti_stamp);
 	    }
 #endif
 	}
@@ -2031,7 +2038,7 @@ __pmLogSetTime(__pmContext *ctxp)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG) {
 		fprintf(stderr, " after end ti@");
-		printstamp32(&lcp->l_ti[j].ti_stamp);
+		__pmPrintTimeval(stderr, &lcp->l_ti[j].ti_stamp);
 	    }
 #endif
 	}
@@ -2055,7 +2062,7 @@ __pmLogSetTime(__pmContext *ctxp)
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOG) {
 		    fprintf(stderr, " before ti[%d]@", j);
-		    printstamp32(&lcp->l_ti[j].ti_stamp);
+		    __pmPrintTimeval(stderr, &lcp->l_ti[j].ti_stamp);
 		}
 #endif
 	    }
@@ -2069,7 +2076,7 @@ __pmLogSetTime(__pmContext *ctxp)
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOG) {
 		    fprintf(stderr, " after ti[%d]@", j);
-		    printstamp32(&lcp->l_ti[j].ti_stamp);
+		    __pmPrintTimeval(stderr, &lcp->l_ti[j].ti_stamp);
 		}
 #endif
 	    }
@@ -2083,7 +2090,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		if (pmDebug & DBG_TRACE_LOG)
 		    fprintf(stderr, " back up ...\n");
 #endif
-		if (__pmLogRead(lcp, PM_MODE_BACK, NULL, &result) >= 0)
+		if (__pmLogRead(lcp, PM_MODE_BACK, NULL, &result, PMLOGREAD_NEXT) >= 0)
 		    pmFreeResult(result);
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOG)
@@ -2141,6 +2148,7 @@ pmGetArchiveLabel(pmLogLabel *lp)
 	lp->ll_start.tv_usec = rlp->ill_start.tv_usec;
 	memcpy(lp->ll_hostname, rlp->ill_hostname, PM_LOG_MAXHOSTLEN);
 	memcpy(lp->ll_tz, rlp->ill_tz, sizeof(lp->ll_tz));
+	PM_UNLOCK(ctxp->c_lock);
 	return 0;
     }
 }
@@ -2153,11 +2161,14 @@ pmGetArchiveEnd(struct timeval *tp)
      * at the end of ... ctxp->c_archctl->ac_log
      */
     __pmContext	*ctxp;
+    int		sts;
 
     ctxp = __pmHandleToPtr(pmWhichContext());
     if (ctxp == NULL || ctxp->c_type != PM_CONTEXT_ARCHIVE)
 	return PM_ERR_NOCONTEXT;
-    return __pmGetArchiveEnd(ctxp->c_archctl->ac_log, tp);
+    sts = __pmGetArchiveEnd(ctxp->c_archctl->ac_log, tp);
+    PM_UNLOCK(ctxp->c_lock);
+    return sts;
 }
 
 int
@@ -2273,7 +2284,7 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 		    fprintf(stderr, "pmGetArchiveEnd: "
                             "Error reading record ending at posn=%d ti[%d]@",
 			    logend, i);
-		    printstamp32(&lcp->l_ti[i].ti_stamp);
+		    __pmPrintTimeval(stderr, &lcp->l_ti[i].ti_stamp);
 		    fputc('\n', stderr);
 		}
 #endif

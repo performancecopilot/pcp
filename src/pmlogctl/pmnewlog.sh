@@ -179,7 +179,7 @@ _do_cmd()
 # part of the pmlogger control file for a long-running pmlogger.
 #
 
-while getopts "a:C:c:D:Ll:Nn:Pp:rst:T:Vv:" c
+while getopts "a:C:c:D:Ll:Nm:n:Pp:rst:T:Vv:" c
 do
     case $c
     in
@@ -257,7 +257,7 @@ do
 		args="$args-$c "
 		;;
 
-	D|t|T|v)
+	D|m|t|T|v)
 		args="$args-$c $OPTARG "
 		;;
 

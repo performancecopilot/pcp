@@ -28,12 +28,12 @@
  * constants
  ****************************************************************************/
 
-static char *whatmsg  = "unexpected value";
-static char *moremsg  = "more information expected";
-static char *alignmsg = "alignment specified by -A switch could not be applied";
+#define whatmsg  "unexpected value"
+#define moremsg  "more information expected"
+#define alignmsg "alignment specified by -A switch could not be applied"
 
 #define N_WDAYS	7
-static __uint32_t wdays[N_WDAYS] = {
+static const __uint32_t wdays[N_WDAYS] = {
     CODE3('s', 'u', 'n'),
     CODE3('m', 'o', 'n'),
     CODE3('t', 'u', 'e'),
@@ -44,7 +44,7 @@ static __uint32_t wdays[N_WDAYS] = {
 };
 
 #define N_MONTHS 12
-static __uint32_t months[N_MONTHS] = {
+static const __uint32_t months[N_MONTHS] = {
     CODE3('j', 'a', 'n'),
     CODE3('f', 'e', 'b'),
     CODE3('m', 'a', 'r'),
@@ -60,12 +60,12 @@ static __uint32_t months[N_MONTHS] = {
 };
 
 #define N_AMPM	2
-static __uint32_t ampm[N_AMPM] = {
+static const __uint32_t ampm[N_AMPM] = {
     CODE3('a', 'm',  0 ),
     CODE3('p', 'm',  0 )
 };
 
-static struct {
+static const struct {
     char	*name;		/* pmParseInterval scale name */
     int		len;		/* length of scale name */
     int		scale;		/* <0 -divisor, else multiplier */
@@ -84,7 +84,7 @@ static struct {
     { "h",		1,  3600 },
     { "d",		1, 86400 },
 };
-static int	numint = sizeof(int_tab) / sizeof(int_tab[0]);
+static const int	numint = sizeof(int_tab) / sizeof(int_tab[0]);
 
 #define NO_OFFSET	0
 #define PLUS_OFFSET	1
@@ -114,7 +114,7 @@ tvcmp(struct timeval tv1, struct timeval tv2)
    return: 1 == ok, 0 <= *rslt <= ncodes-1, *spec points to following char
 	   0 == not found, *spec updated to strip blanks */
 static int
-parse3char(const char **spec, __uint32_t *codes, int ncodes, int *rslt)
+parse3char(const char **spec, const __uint32_t *codes, int ncodes, int *rslt)
 {
     const char  *scan = *spec;
     __uint32_t  code = 0;

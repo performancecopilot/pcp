@@ -136,7 +136,8 @@ pmTimeStateSetup(
 	__pmtimevalNow(&pmtime->position);
     }
     if (tz == NULL) {
-	tz = __pmTimezone();
+	char	tzbuf[PM_TZ_MAXLEN];
+	tz = __pmTimezone_r(tzbuf, sizeof(tzbuf));
 	if (ctxt == PM_CONTEXT_ARCHIVE) {
 	    if ((sts = pmNewZone(tz)) < 0) {
 		fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",

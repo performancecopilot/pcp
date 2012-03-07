@@ -190,13 +190,9 @@ main(int argc, char **argv)
     int		dupok = 0;
     int		errflag = 0;
     __pmnsNode	*tmp;
-    char	cmd[MAXPATHLEN + 64];
-    char	pmnscomp[MAXPATHLEN];
 
     umask((mode_t)022);		/* anything else is pretty silly */
     __pmSetProgname(argv[0]);
-    snprintf(pmnscomp, sizeof(pmnscomp), "%s%c" "pmnscomp",
-		pmGetConfig("PCP_BINADM_DIR"), __pmPathSeparator());
 
     while ((c = getopt(argc, argv, "aD:dfv?")) != EOF) {
 	switch (c) {
@@ -278,7 +274,7 @@ Options:\n\
 	if (verbose)
 	    printf("%s:\n", argv[j]);
 
-	if ((sts = pmLoadASCIINameSpace(argv[j], 1)) < 0) {
+	if ((sts = pmLoadASCIINameSpace(argv[j], dupok)) < 0) {
 	    fprintf(stderr, "%s: Error: pmLoadNameSpace(%s): %s\n",
 		pmProgname, argv[j], pmErrStr(sts));
 	    exit(1);
@@ -307,9 +303,14 @@ Options:\n\
     pmns_output(root, outf);
     fclose(outf);
 
-    snprintf(cmd, sizeof(cmd), "%s %s -f -n %s %s.bin",
-		pmnscomp, dupok ? "-d" : "", argv[argc-1], argv[argc-1]);
-    sts = system(cmd);
+    /*
+     * now load the merged PMNS to check for errors ...
+     */
+    if ((sts = pmLoadASCIINameSpace(argv[argc-1], dupok)) < 0) {
+	fprintf(stderr, "%s: Error: pmLoadNameSpace(%s): %s\n",
+	    pmProgname, argv[argc-1], pmErrStr(sts));
+	exit(1);
+    }
 
-    exit(sts);
+    exit(0);
 }

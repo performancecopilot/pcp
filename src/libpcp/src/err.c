@@ -14,6 +14,8 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "fault.h"
+#include <ctype.h>
 
 /*
  * if you modify this table at all, be sure to remake qa/006
@@ -37,16 +39,12 @@ static const struct {
 	"Metric not supported by this version of monitored application" },
     { PM_ERR_VALUE,		"PM_ERR_VALUE",
 	"Missing metric value(s)" },
-    { PM_ERR_LICENSE,		"PM_ERR_LICENSE",
-	"Current PCP license does not permit this operation" },
     { PM_ERR_TIMEOUT,		"PM_ERR_TIMEOUT",
 	"Timeout waiting for a response from PMCD" },
     { PM_ERR_NODATA,		"PM_ERR_NODATA",
 	"Empty archive log file" },
     { PM_ERR_RESET,		"PM_ERR_RESET",
 	"PMCD reset or configuration change" },
-    { PM_ERR_FILE,		"PM_ERR_FILE",
-	"Cannot locate a file" },
     { PM_ERR_NAME,		"PM_ERR_NAME",
 	"Unknown metric name" },
     { PM_ERR_PMID,		"PM_ERR_PMID",
@@ -69,8 +67,6 @@ static const struct {
 	"Explicit instance identifier(s) required" },
     { PM_ERR_IPC,		"PM_ERR_IPC",
 	"IPC protocol failure" },
-    { PM_ERR_NOASCII,		"PM_ERR_NOASCII",
-	"ASCII format not supported for this PDU (no longer used)" },
     { PM_ERR_EOF,		"PM_ERR_EOF",
 	"IPC channel closed" },
     { PM_ERR_NOTHOST,		"PM_ERR_NOTHOST",
@@ -113,49 +109,64 @@ static const struct {
 	"Not Connected" },
     { PM_ERR_NEEDPORT,		"PM_ERR_NEEDPORT",
 	"A non-null port name is required" },
-    { PM_ERR_WANTACK,		"PM_ERR_WANTACK",
-	"Cannot send due to pending acknowledgements" },
     { PM_ERR_NONLEAF,		"PM_ERR_NONLEAF",
 	"Metric name is not a leaf in PMNS" },
     { PM_ERR_PMDANOTREADY,	"PM_ERR_PMDANOTREADY",
 	"PMDA is not yet ready to respond to requests" },
     { PM_ERR_PMDAREADY,		"PM_ERR_PMDAREADY",
 	"PMDA is now responsive to requests" },
-    { PM_ERR_OBJSTYLE,		"PM_ERR_OBJSTYLE",
-	"Caller does not match object style of running kernel" },
-    { PM_ERR_PMCDLICENSE,	"PM_ERR_PMCDLICENSE",
-	"PMCD is not licensed to accept client connections" },
     { PM_ERR_TOOSMALL,		"PM_ERR_TOOSMALL",
 	"Insufficient elements in list" },
     { PM_ERR_TOOBIG,		"PM_ERR_TOOBIG",
 	"Result size exceeded" },
+    { PM_ERR_FAULT,		"PM_ERR_FAULT",
+	"QA fault injected" },
     { PM_ERR_NYI,		"PM_ERR_NYI",
 	"Functionality not yet implemented" },
-#ifdef ASYNC_API
-    { PM_ERR_CTXBUSY,		"PM_ERR_CTXBUSY",
-        "Current context is used by asynchronous operation" },
-#endif /*ASYNC_API*/
+    { PM_ERR_THREAD,		"PM_ERR_THREAD",
+        "Operation not supported for multi-threaded applications" },
     { 0,			"",
 	"" }
 };
 
 #define BADCODE "No such PMAPI error code (%d)"
-static char	barf[45];
 
-const char *
-pmErrStr(int code)
+/*
+ * handle non-determinism in the GNU implementation of strerror_r()
+ */
+static void
+strerror_x(int code, char *buf, int buflen)
+{
+    char	*p;
+    buf[0] = '\0';
+    p = strerror_r(code, buf, buflen);
+    if (buf[0] == '\0' && p != NULL) {
+	/*
+	 * smells like GNU glibc where this
+	 * (_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && ! _GNU_SOURCE
+	 * is false, and we have the weird GNU-version rather than the
+	 * XSI-compliant version, so the message is returned via the value
+	 * from strerror_r() ... copy it into the caller provided buffer
+	 */
+	strncpy(buf, p, buflen);
+    }
+}
+
+char *
+pmErrStr_r(int code, char *buf, int buflen)
 {
     int		i;
-    char	*msg;
 #ifndef IS_MINGW
     static int	first = 1;
-    static char	*unknown;
+    static char	*unknown = NULL;
 #else
     static char	unknown[] = "Unknown error";
 #endif
 
-    if (code == 0)
-	return "No error";
+    if (code == 0) {
+	strncpy(buf, "No error", buflen);
+	return buf;
+    }
 
 #ifndef IS_MINGW
     if (first) {
@@ -163,57 +174,82 @@ pmErrStr(int code)
 	 * reference message for an unrecognized error code.
 	 * For IRIX, strerror() returns NULL in this case.
 	 */
-	if ((msg = strerror(-1)) != NULL) {
+	strerror_x(-1, buf, buflen);
+	if (buf[0] != '\0') {
 	    /*
 	     * For Linux et al, strip the last word, expected to be the
 	     * error number as in ...
 	     *    Unknown error -1
+	     * or
+	     *    Unknown error 4294967295
 	     */
-	    char *sp = strrchr(msg, ' ');
-	    char *endp = NULL;
-            long long ec = strtoll(sp+1, &endp, 0);
+	    char *sp = strrchr(buf, ' ');
+	    char *p;
 
-            if ((endp != NULL) && (*endp == '\0') && (endp != sp+1)) {
-		if ((ec == -1LL) || (ec == (unsigned long long)-1LL)) {
-		    if ((unknown = strdup (msg)) != NULL) {
-			unknown[sp - msg] = '\0';
-		    }
-                }
+	    if (sp != NULL) {
+		sp++;
+		for (p = sp; *p != '\0'; p++) {
+		    if (!isdigit(*p)) break;
+		}
+
+		if (*p == '\0') {
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
+		    *sp = '\0';
+		    if ((unknown = strdup(buf)) != NULL)
+			unknown[sp - buf] = '\0';
+		}
 	    }
 	}
 	first = 0;
     }
     if (code < 0 && code > -PM_ERR_BASE) {
 	/* intro(2) errors, maybe */
-	msg = strerror(-code);
+	strerror_x(-code, buf, buflen);
 	if (unknown == NULL) {
-	    if (msg != NULL)
-		return msg;
+	    if (buf[0] != '\0')
+		return buf;
 	}
 	else {
 	    /* The intention here is to catch variants of "Unknown
-	     * error XXX" - in this case we're going to return pcp
-	     * error message and not the system one */
-	    if (msg != NULL && strncmp(msg, unknown, strlen(unknown)) != 0)
-		return msg;
+	     * error XXX" - in this case we're going to fail the
+	     * stncmp() below, fall through and return a pcp error
+	     * message, otherwise return the system error message
+	     */
+	    if (strncmp(buf, unknown, strlen(unknown)) != 0)
+		return buf;
 	}
     }
 #else	/* WIN32 */
     if (code > -PM_ERR_BASE || code < -PM_ERR_NYI) {
-	if ((msg = wsastrerror(-code)) == NULL)
-	    msg = strerror(-code);
-	if (msg != NULL && strncmp(msg, unknown, strlen(unknown)) != 0)
-	    return msg;
+	char	*bp;
+	if ((bp = wsastrerror(-code)) == NULL)
+	    strerror_r(-code, buf, buflen);
+	else
+	    strncpy(buf, bp, buflen);
+
+	if (strncmp(buf, unknown, strlen(unknown)) != 0)
+	    return buf;
     }
 #endif
 
-    for (i = 0; errtab[i].err; i++)
-	if (errtab[i].err == code)
-	    return errtab[i].errmess;
+    for (i = 0; errtab[i].err; i++) {
+	if (errtab[i].err == code) {
+	    strncpy(buf, errtab[i].errmess, buflen);
+	    return buf;
+	}
+    }
 
     /* failure */
-    snprintf(barf, sizeof(barf), BADCODE,  code);
-    return barf;
+    snprintf(buf, buflen, BADCODE,  code);
+    return buf;
+}
+
+char *
+pmErrStr(int code)
+{
+    static char	errmsg[PM_MAXERRMSGLEN];
+    pmErrStr_r(code, errmsg, sizeof(errmsg));
+    return errmsg;
 }
 
 void

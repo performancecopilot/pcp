@@ -119,16 +119,6 @@ typedef struct {
     int status;         /* return initialization status here */
 
     union {
-        struct {                              /* PMDA_INTERFACE_1 */
-            int (*profile)(__pmProfile *);
-            int (*fetch)(int, pmID *, pmResult **);
-            int (*desc)(pmID, pmDesc *);
-            int (*instance)(pmInDom, int, char *, __pmInResult **);
-            int (*text)(int, int, char **);
-            int (*control)(pmResult *, int, int, int);
-            int (*store)(pmResult *);
-        } one;
-
         struct {                              /* PMDA_INTERFACE_2 or _3 */
             pmdaExt *e_ext;
             int (*profile)(__pmProfile *, pmdaExt *);
@@ -139,7 +129,7 @@ typedef struct {
             int (*store)(pmResult *, pmdaExt *);
         } two;
 
-        struct {                              /* PMDA_INTERFACE_4 */
+        struct {                              /* PMDA_INTERFACE_4 or _5 */
             pmdaExt *ext;
             int     (*profile)(__pmProfile *, pmdaExt *);
             int     (*fetch)(int, pmID *, pmResult **, pmdaExt *);
@@ -167,13 +157,6 @@ are ignored.  The
 .I comm.pmda_interface
 field is used to determine the interface used by the PMDA.  Setting this field
 to
-.B PMDA_INTERFACE_1
-will force 
-.B pmdaMain
-to use the callbacks in the
-.I version.one
-structure.
-A setting of
 .B PMDA_INTERFACE_2
 or
 .B PMDA_INTERFACE_3
@@ -184,6 +167,8 @@ to use the callbacks in the
 structure.
 A setting of
 .B PMDA_INTERFACE_4
+or
+.B PMDA_INTERFACE_5
 will force 
 .B pmdaMain
 to use the callbacks in the

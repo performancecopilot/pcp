@@ -95,12 +95,13 @@ sigpipe_handler(int sig)
 static void
 sigusr1_handler(int sig)
 {
-    /* set the flag ... flush occurs in x */
-#ifdef IS_MINGW
-    do_flush();
-#else
+    /*
+     * set the flag ... flush occurs in main event loop when we're
+     * quiescent
+     */
     wantflush = 1;
-    signal(SIGUSR1, sigusr1_handler);
+#ifndef IS_MINGW
+    __pmSetSignalHandler(SIGUSR1, sigusr1_handler);
 #endif
 }
 
@@ -256,7 +257,7 @@ GetPort(char *file)
     hep = gethostbyname(pmcd_host);
     fprintf(mapstream, "%s\n", hep == NULL ? "" : hep->h_name);
 
-    /* and finally the full pathname to the archive base */
+    /* then the full pathname to the archive base */
     __pmNativePath(archBase);
     if (__pmAbsolutePath(archBase))
 	fprintf(mapstream, "%s\n", archBase);
@@ -268,6 +269,10 @@ GetPort(char *file)
 	else
 	    fprintf(mapstream, "%s%c%s\n", path, __pmPathSeparator(), archBase);
     }
+
+    /* and finally, the annotation from -m or -x */
+    if (note != NULL)
+	fprintf(mapstream, "%s\n", note);
 
     fclose(mapstream);
     close(mapfd);

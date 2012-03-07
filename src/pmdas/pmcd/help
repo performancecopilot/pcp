@@ -57,8 +57,6 @@ identifiers are the process ids of the pmie instances.
 @ 2.5 buffer pool Instance Domain
 The instances are as follows:
 
-  0012  12-byte buffers managed by __pmPoolAlloc and __pmPoolFree
-  0020  20-byte buffers managed by __pmPoolAlloc and __pmPoolFree
   1024  1024-byte PDU buffers managed by __pmFindPDUBuf, __pmPinPDUBuf
 	and __pmUnpinPDUBuf
   2048  2-Kbyte PDU buffers managed by __pmFindPDUBuf, __pmPinPDUBuf
@@ -172,10 +170,6 @@ clients and agents.
 Running total of BINARY mode CONTROL_REQ PDUs received by the PMCD from
 clients and agents.
 
-@ pmcd.pdu_in.datax DATAX PDUs received by PMCD
-Running total of BINARY mode DATAX PDUs received by the PMCD from
-clients and agents.
-
 @ pmcd.pdu_in.creds CREDS PDUs received by PMCD
 Running total of BINARY mode CREDS PDUs received by the PMCD from
 clients and agents.
@@ -243,10 +237,6 @@ agents.
 @ pmcd.pdu_out.control_req CONTROL_REQ PDUs sent by PMCD
 Running total of BINARY mode CONTROL_REQ PDUs sent by the PMCD to
 clients and agents.
-
-@ pmcd.pdu_out.datax DATAX PDUs sent by PMCD
-Running total of BINARY mode DATAX PDUs sent by the PMCD to clients
-and agents.
 
 @ pmcd.pdu_out.creds CREDS PDUs sent by PMCD
 Running total of BINARY mode CREDS PDUs sent by the PMCD to clients

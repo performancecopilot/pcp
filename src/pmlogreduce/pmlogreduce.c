@@ -343,7 +343,9 @@ main(int argc, char **argv)
 	doindom(orp);
 
 	/* write out log record */
-	if ((sts = __pmLogPutResult(&logctl, pb)) < 0) {
+	sts = __pmLogPutResult(&logctl, pb);
+	__pmUnpinPDUBuf(pb);
+	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    goto cleanup;

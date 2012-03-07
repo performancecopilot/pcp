@@ -10,6 +10,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes:
+ *
+ * nr[] and nr_cache[] are diagnostic counters that are maintained with
+ * non-atomic updates ... we've decided that it is acceptable for their
+ * values to be subject to possible (but unlikely) missed updates
  */
 
 #include <limits.h>
@@ -51,27 +57,12 @@ typedef struct instcntl {		/* metric-instance control */
     struct pmidcntl	*metric;	/* back to metric control */
 } instcntl_t;
 
-static instcntl_t	*want_head;
-static instcntl_t	*unbound_head;
-
 typedef struct pmidcntl {		/* metric control */
     pmDesc		desc;
     int			valfmt;		/* used to build result */
     int			numval;		/* number of instances in this result */
     struct instcntl	*first;		/* first metric-instace control */
 } pmidcntl_t;
-
-#ifdef PCP_DEBUG
-static void
-printstamp(__pmTimeval *tp)
-{
-    static struct tm	*tmp;
-    time_t t = (time_t)tp->tv_sec;
-
-    tmp = localtime(&t);
-    fprintf(stderr, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, tp->tv_usec/1000);
-}
-#endif
 
 typedef struct {
     pmResult	*rp;		/* cached pmResult from __pmLogRead */
@@ -91,8 +82,8 @@ static cache_t		cache[NUMCACHE];
  * diagnostic counters ... indexed by PM_MODE_FORW (2) and
  * PM_MODE_BACK	(3), hence 4 elts for cached and non-cached reads
  */
-static long	nr_cache[4];
-static long	nr[4];
+static long	nr_cache[PM_MODE_BACK+1];
+static long	nr[PM_MODE_BACK+1];
 
 static int
 cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
@@ -102,6 +93,8 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
     cache_t	*lfup;
     int		save_curvol;
     static int	round_robin = -1;
+
+    PM_LOCK(__pmLock_libpcp);
 
     if (acp->ac_vol == acp->ac_log->l_curvol) {
 	posn = ftell(acp->ac_log->l_mfp);
@@ -137,6 +130,7 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 	    ((mode == PM_MODE_FORW && cp->head_posn == posn) ||
 	     (mode == PM_MODE_BACK && cp->tail_posn == posn)) &&
 	    cp->rp != NULL) {
+	    int		sts;
 	    *rp = cp->rp;
 	    cp->used++;
 	    if (mode == PM_MODE_FORW)
@@ -155,7 +149,9 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 		nr_cache[mode]++;
 	    }
 #endif
-	    return cp->sts;
+	    sts = cp->sts;
+	    PM_UNLOCK(__pmLock_libpcp);
+	    return sts;
 	}
     }
 
@@ -170,7 +166,7 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 
     save_curvol = acp->ac_log->l_curvol;
 
-    lfup->sts = __pmLogRead(acp->ac_log, mode, NULL, &lfup->rp);
+    lfup->sts = __pmLogRead(acp->ac_log, mode, NULL, &lfup->rp, PMLOGREAD_NEXT);
     if (lfup->sts < 0)
 	lfup->rp = NULL;
     *rp = lfup->rp;
@@ -210,12 +206,15 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 		(long)lfup->head_posn, (long)lfup->tail_posn);
 	    if (lfup->sts == 0)
 		fprintf(stderr, "sts=%d\n", lfup->sts);
-	    else
-		fprintf(stderr, "sts=%s\n", pmErrStr(lfup->sts));
+	    else {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "sts=%s\n", pmErrStr_r(lfup->sts, errmsg, sizeof(errmsg)));
+	    }
 	}
 #endif
     }
 
+    PM_UNLOCK(__pmLock_libpcp);
     return lfup->sts;
 }
 
@@ -224,6 +223,7 @@ __pmLogCacheClear(FILE *mfp)
 {
     cache_t	*cp;
 
+    PM_LOCK(__pmLock_libpcp);
     for (cp = cache; cp < &cache[NUMCACHE]; cp++) {
 	if (cp->mfp == mfp) {
 	    if (cp->rp != NULL)
@@ -233,6 +233,7 @@ __pmLogCacheClear(FILE *mfp)
 	    cp->used = 0;
 	}
     }
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 #ifdef PCP_DEBUG
@@ -285,7 +286,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 
     if (logrp->numpmid == 0 && do_mark != UPD_MARK_NONE) {
 	/* mark record, discontinuity in log */
-	for (icp = want_head; icp != NULL; icp = icp->want) {
+	for (icp = (instcntl_t *)ctxp->c_archctl->ac_want; icp != NULL; icp = icp->want) {
 	    if (t_this <= t_req &&
 		(t_this >= icp->t_prior || icp->t_prior > t_req)) {
 		/* <mark> is closer than best lower bound to date */
@@ -298,8 +299,9 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		}
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_INTERP) {
+		    char	strbuf[20];
 		    fprintf(stderr, "pmid %s inst %d <mark> t_prior=%.6f t_first=%.6f t_last=%.6f\n",
-			pmIDStr(icp->metric->desc.pmid), icp->inst, icp->t_prior, icp->t_first, icp->t_last);
+			pmIDStr_r(icp->metric->desc.pmid, strbuf, sizeof(strbuf)), icp->inst, icp->t_prior, icp->t_first, icp->t_last);
 		}
 #endif
 		if (icp->search && done_prior != NULL) {
@@ -320,8 +322,9 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		}
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_INTERP) {
+		    char	strbuf[20];
 		    fprintf(stderr, "pmid %s inst %d <mark> t_next=%.6f t_first=%.6f t_last=%.6f\n",
-			pmIDStr(icp->metric->desc.pmid), icp->inst, icp->t_next, icp->t_first, icp->t_last);
+			pmIDStr_r(icp->metric->desc.pmid, strbuf, sizeof(strbuf)), icp->inst, icp->t_next, icp->t_first, icp->t_last);
 		}
 #endif
 		if (icp->search && done_next != NULL) {
@@ -348,8 +351,9 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		    /* matched on instance */
 #if defined(PCP_DEBUG) && defined(DESPERATE)
 		    if (pmDebug & DBG_TRACE_INTERP) {
+			char	strbuf[20];
 			fprintf(stderr, "update: match pmid %s inst %d t_this=%.6f t_prior=%.6f t_next=%.6f t_first=%.6f t_last=%.6f\n",
-			    pmIDStr(logrp->vset[k]->pmid), icp->inst,
+			    pmIDStr_r(logrp->vset[k]->pmid, strbuf, sizeof(strbuf)), icp->inst,
 			    t_this, icp->t_prior, icp->t_next,
 			    icp->t_first, icp->t_last);
 		    }
@@ -427,9 +431,10 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		    }
 #ifdef PCP_DEBUG
 		    if ((pmDebug & DBG_TRACE_INTERP) && changed) {
+			char	strbuf[20];
 			fprintf(stderr, "update%s pmid %s inst %d prior: t=%.6f",
 			    changed & 2 ? "+search" : "",
-			    pmIDStr(logrp->vset[k]->pmid), icp->inst, icp->t_prior);
+			    pmIDStr_r(logrp->vset[k]->pmid, strbuf, sizeof(strbuf)), icp->inst, icp->t_prior);
 			dumpval(stderr, pcp->desc.type, icp->metric->valfmt, icp->m_prior, &icp->v_prior);
 			fprintf(stderr, " next: t=%.6f", icp->t_next);
 			dumpval(stderr, pcp->desc.type, icp->metric->valfmt, icp->m_next, &icp->v_next);
@@ -531,11 +536,11 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     int		forw = 0;
     int		done;
     int		done_roll;
-    static double	t_end = 0;
     static int	dowrap = -1;
     __pmTimeval	tmp;
     struct timeval delta_tv;
 
+    PM_LOCK(__pmLock_libpcp);
     if (dowrap == -1) {
 	/* PCP_COUNTER_WRAP in environment enables "counter wrap" logic */
 	if (getenv("PCP_COUNTER_WRAP") == NULL)
@@ -543,13 +548,14 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	else
 	    dowrap = 1;
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     t_req = __pmTimevalSub(&ctxp->c_origin, &ctxp->c_archctl->ac_log->l_label.ill_start);
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_INTERP) {
 	fprintf(stderr, "__pmLogFetchInterp @ ");
-	printstamp(&ctxp->c_origin);
+	__pmPrintTimeval(stderr, &ctxp->c_origin);
 	fprintf(stderr, " t_req=%.6f curvol=%d posn=%ld (vol=%d) serial=%d\n",
 	    t_req, ctxp->c_archctl->ac_log->l_curvol,
 	    (long)ctxp->c_archctl->ac_offset, ctxp->c_archctl->ac_vol,
@@ -568,24 +574,25 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	goto all_done;
     }
 
-    if (t_req > t_end + 0.001) {
+    if (t_req > ctxp->c_archctl->ac_end + 0.001) {
 	struct timeval	end;
 	__pmTimeval	tmp;
 
 	/*
-	 * past end of archive ... see if it has grown since we last looked
+	 * Past end of archive ... see if it has grown since we last looked.
 	 */
-	if (pmGetArchiveEnd(&end) >= 0)
+	if (pmGetArchiveEnd(&end) >= 0) {
 	    tmp.tv_sec = (__int32_t)end.tv_sec;
 	    tmp.tv_usec = (__int32_t)end.tv_usec;
-	    t_end = __pmTimevalSub(&tmp, &ctxp->c_archctl->ac_log->l_label.ill_start);
-	if (t_req > t_end) {
+	    ctxp->c_archctl->ac_end = __pmTimevalSub(&tmp, &ctxp->c_archctl->ac_log->l_label.ill_start);
+	}
+	if (t_req > ctxp->c_archctl->ac_end) {
 	    sts = PM_ERR_EOL;
 	    goto all_done;
 	}
     }
 
-    if ((rp = (pmResult *) malloc(sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *))) == NULL)
+    if ((rp = (pmResult *)malloc(sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *))) == NULL)
 	return -oserror();
 
     rp->timestamp.tv_sec = ctxp->c_origin.tv_sec;
@@ -608,7 +615,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
      * the log, and which instances are being requested ... also build
      * the skeletal pmResult
      */
-    want_head = NULL;
+    ctxp->c_archctl->ac_want = NULL;
     for (j = 0; j < numpmid; j++) {
 	if (pmidlist[j] == PM_ID_NULL)
 	    continue;
@@ -686,8 +693,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    for (icp = pcp->first; icp != NULL; icp = icp->next) {
 		if (__pmInProfile(pcp->desc.indom, ctxp->c_instprof, icp->inst)) {
 		    icp->inresult = 1;
-		    icp->want = want_head;
-		    want_head = icp;
+		    icp->want = (instcntl_t *)ctxp->c_archctl->ac_want;
+		    ctxp->c_archctl->ac_want = icp;
 		    pcp->numval++;
 		}
 		else
@@ -696,8 +703,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	}
 	else {
 	    pcp->first->inresult = 1;
-	    pcp->first->want = want_head;
-	    want_head = pcp->first;
+	    pcp->first->want = (instcntl_t *)ctxp->c_archctl->ac_want;
+	    ctxp->c_archctl->ac_want = pcp->first;
 	    pcp->numval = 1;
 	}
     }
@@ -761,7 +768,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     /*
      * second pass ... see which metrics are not currently bounded below
      */
-    unbound_head = NULL;
+    ctxp->c_archctl->ac_unbound = NULL;
     for (j = 0; j < numpmid; j++) {
 	if (pmidlist[j] == PM_ID_NULL)
 	    continue;
@@ -798,15 +805,17 @@ retry_back:
 		    }
 		    back++;
 		    icp->search = 1;
-		    icp->unbound = unbound_head;
-		    unbound_head = icp;
+		    icp->unbound = (instcntl_t *)ctxp->c_archctl->ac_unbound;
+		    ctxp->c_archctl->ac_unbound = icp;
 #ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_INTERP)
+		    if (pmDebug & DBG_TRACE_INTERP) {
+			char	strbuf[20];
 			fprintf(stderr, "search back for inst %d and pmid %s (t_first=%.6f t_prior=%.6f%s t_next=%.6f%s t_last=%.6f)\n",
-			    icp->inst, pmIDStr(pmidlist[j]), icp->t_first,
+			    icp->inst, pmIDStr_r(pmidlist[j], strbuf, sizeof(strbuf)), icp->t_first,
 			    icp->t_prior, icp->m_prior ? " <mark>" : "",
 			    icp->t_next, icp->m_next ? " <mark>" : "",
 			    icp->t_last);
+		    }
 #endif
 		}
 	    }
@@ -848,7 +857,7 @@ retry_back:
 	     * forget about those that can never be found from here
 	     * in this direction
 	     */
-	    for (icp = unbound_head; icp != NULL; icp = icp->unbound) {
+	    for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
 		if (icp->search && t_this <= icp->t_first) {
 		    icp->search = 0;
 		    done++;
@@ -856,14 +865,15 @@ retry_back:
 	    }
 	}
 	/* end of search, trim t_first as required */
-	for (icp = unbound_head; icp != NULL; icp = icp->unbound) {
+	for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
 	    if ((icp->t_prior == -1 || icp->t_prior > t_req) &&
 		icp->t_first < t_req) {
 		icp->t_first = t_req;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_INTERP) {
+		    char	strbuf[20];
 		    fprintf(stderr, "pmid %s inst %d no values before t_first=%.6f\n",
-			pmIDStr(icp->metric->desc.pmid), icp->inst, icp->t_first);
+			pmIDStr_r(icp->metric->desc.pmid, strbuf, sizeof(strbuf)), icp->inst, icp->t_first);
 		}
 #endif
 	    }
@@ -874,7 +884,7 @@ retry_back:
     /*
      * third pass ... see which metrics are not currently bounded above
      */
-    unbound_head = NULL;
+    ctxp->c_archctl->ac_unbound = NULL;
     for (j = 0; j < numpmid; j++) {
 	if (pmidlist[j] == PM_ID_NULL)
 	    continue;
@@ -911,15 +921,17 @@ retry_forw:
 		    }
 		    forw++;
 		    icp->search = 1;
-		    icp->unbound = unbound_head;
-		    unbound_head = icp;
+		    icp->unbound = (instcntl_t *)ctxp->c_archctl->ac_unbound;
+		    ctxp->c_archctl->ac_unbound = icp;
 #ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_INTERP)
+		    if (pmDebug & DBG_TRACE_INTERP) {
+			char	strbuf[20];
 			fprintf(stderr, "search forw for inst %d and pmid %s (t_first=%.6f t_prior=%.6f%s t_next=%.6f%s t_last=%.6f)\n",
-			    icp->inst, pmIDStr(pmidlist[j]), icp->t_first,
+			    icp->inst, pmIDStr_r(pmidlist[j], strbuf, sizeof(strbuf)), icp->t_first,
 			    icp->t_prior, icp->m_prior ? " <mark>" : "",
 			    icp->t_next, icp->m_next ? " <mark>" : "",
 			    icp->t_last);
+		    }
 #endif
 		}
 	    }
@@ -961,7 +973,7 @@ retry_forw:
 	     * forget about those that can never be found from here
 	     * in this direction
 	     */
-	    for (icp = unbound_head; icp != NULL; icp = icp->unbound) {
+	    for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
 		if (icp->search && icp->t_last >= 0 && t_this >= icp->t_last) {
 		    icp->search = 0;
 		    done++;
@@ -969,14 +981,15 @@ retry_forw:
 	    }
 	}
 	/* end of search, trim t_last as required */
-	for (icp = unbound_head; icp != NULL; icp = icp->unbound) {
+	for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
 	    if (icp->t_next < t_req &&
 		(icp->t_last < 0 || t_req < icp->t_last)) {
 		icp->t_last = t_req;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_INTERP) {
+		    char	strbuf[20];
 		    fprintf(stderr, "pmid %s inst %d no values after t_last=%.6f\n",
-			pmIDStr(icp->metric->desc.pmid), icp->inst, icp->t_last);
+			pmIDStr_r(icp->metric->desc.pmid, strbuf, sizeof(strbuf)), icp->inst, icp->t_last);
 		}
 #endif
 	    }
@@ -1040,9 +1053,7 @@ retry_forw:
 	    assert(hp != NULL);
 	    pcp = (pmidcntl_t *)hp->data;
 
-	    if (pcp->numval == 1)
-		rp->vset[j] = (pmValueSet *)__pmPoolAlloc(sizeof(pmValueSet));
-	    else if (pcp->numval > 1)
+	    if (pcp->numval >= 1)
 		rp->vset[j] = (pmValueSet *)malloc(sizeof(pmValueSet) +
 						(pcp->numval - 1)*sizeof(pmValue));
 	    else
@@ -1069,8 +1080,9 @@ retry_forw:
 		    continue;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_INTERP && done_roll) {
+		    char	strbuf[20];
 		    fprintf(stderr, "pmid %s inst %d prior: t=%.6f",
-			    pmIDStr(pmidlist[j]), icp->inst, icp->t_prior);
+			    pmIDStr_r(pmidlist[j], strbuf, sizeof(strbuf)), icp->inst, icp->t_prior);
 		    dumpval(stderr, pcp->desc.type, icp->metric->valfmt, icp->m_prior, &icp->v_prior);
 		    fprintf(stderr, " next: t=%.6f", icp->t_next);
 		    dumpval(stderr, pcp->desc.type, icp->metric->valfmt, icp->m_next, &icp->v_next);
@@ -1240,7 +1252,7 @@ retry_forw:
 		    int			ok = 1;
 
 		    need = PM_VAL_HDR_SIZE + sizeof(__int64_t);
-		    if ((vp = (pmValueBlock *)__pmPoolAlloc(need)) == NULL) {
+		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
 			sts = -oserror();
 			goto bad_alloc;
 		    }
@@ -1379,7 +1391,7 @@ retry_forw:
 		    int			ok = 1;
 
 		    need = PM_VAL_HDR_SIZE + sizeof(double);
-		    if ((vp = (pmValueBlock *)__pmPoolAlloc(need)) == NULL) {
+		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
 			sts = -oserror();
 			goto bad_alloc;
 		    }
@@ -1438,10 +1450,7 @@ retry_forw:
 
 		    need = icp->v_prior.pval->vlen;
 
-		    if (need == PM_VAL_HDR_SIZE + sizeof(__int64_t))
-			vp = (pmValueBlock *)__pmPoolAlloc(need);
-		    else
-			vp = (pmValueBlock *)malloc(need);
+		    vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {
 			sts = -oserror();
 			goto bad_alloc;

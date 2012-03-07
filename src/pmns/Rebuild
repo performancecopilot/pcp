@@ -16,11 +16,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
-# Rebuild the binary PMNS, handling assorted errors
+# Rebuild the PMNS, handling assorted errors
 #
 
-# Note. has to be run from where the PMNS files are installed, as
-#	pmnscomp uses dirname <root> as first in search path for #include
+# Note. has to be run from where the PMNS files are installed as local
+#       file names (not full paths) are used
+#
 
 # source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
@@ -71,7 +72,7 @@ _syslog()
 _die()
 {
     [ -f $tmp.trace ] && cat $tmp.trace
-    rm -f root.new root.new.bin
+    rm -f root.new
     exit
 }
 
@@ -82,7 +83,7 @@ root=root
 root_updated=false
 update=false
 verbose=""
-dupok=""
+dupok=false
 silent=false
 
 _usage()
@@ -169,7 +170,7 @@ while getopts dnusv\? c
 do
     case $c
     in
-	d)	dupok="-d"
+	d)	dupok=true
 		;;
 	n)	nochanges=true
 		echo "$prog: Warning: dry run, no changes will be made"
@@ -190,7 +191,7 @@ shift `expr $OPTIND - 1`
 
 # some preliminary checks
 #
-for file in $PCP_BINADM_DIR/pmnsmerge $PCP_BINADM_DIR/pmnscomp
+for file in $PCP_BINADM_DIR/pmnsmerge
 do
     if [ ! -x $file ]
     then
@@ -198,6 +199,10 @@ do
 	_die
     fi
 done
+
+# remove all trace of old binary pmns (not used in PCP 4.0 or later)
+#
+rm -f root.bin
 
 here=`pwd`
 _trace "Rebuilding the Performance Metrics Name Space (PMNS) in $here ..."
@@ -274,7 +279,6 @@ mergelist=""
 if [ "`echo root_*`" != "root_*" ]
 then
     mergelist=`ls -1 root_* | $PCP_AWK_PROG '
-    /root_.*\.bin/	{next}
     /root_web/		{next}
 			{print}'`
 fi
@@ -282,15 +286,20 @@ fi
 _trace "$prog: merging the following PMNS files: "
 _trace $root $mergelist | fmt | sed -e 's/^/    /'
 
-rm -f root.new root.new.bin
+rm -f root.new
 eval $PMNSMERGE
-pmnsmerge $verbose $dupok $root $mergelist root.new >$tmp.out 2>&1
+if $dupok
+then
+    pmnsmerge $verbose -d $root $mergelist root.new >$tmp.out 2>&1
+else
+    pmnsmerge $verbose $root $mergelist root.new >$tmp.out 2>&1
+fi
 
-if [ $? != 0 -o ! -f root.new.bin ]
+if [ $? != 0 ]
 then
     cat $tmp.out
     _syslog "$prog: pmnsmerge failed"
-    _trace "         \"root\" and \"root.bin\" have not been changed."
+    _trace "         \"root\" has not been changed."
     _die
 fi
 
@@ -298,18 +307,30 @@ fi
 #
 if [ -f root ]
 then
-    cp root $tmp.tmp		# cp to avoid any root.bin problems
-    pminfo -m -n $tmp.tmp 2>/dev/null | sort >$tmp.list.old
+    if $dupok
+    then
+	pminfo -m -N root 2>/dev/null | sort >$tmp.list.old
+    else
+	pminfo -m -n root 2>/dev/null | sort >$tmp.list.old
+    fi
 fi
 if [ ! -s $tmp.list.old ]
 then
-    cp $root $tmp.tmp		# cp to avoid any root.bin problems
-    pminfo -m -n $tmp.tmp 2>/dev/null | sort >$tmp.list.old
+    if $dupok
+    then
+	pminfo -m -N $root 2>/dev/null | sort >$tmp.list.old
+    else
+	pminfo -m -n $root 2>/dev/null | sort >$tmp.list.old
+    fi
 fi
-pminfo -m -n root.new | sort >$tmp.list.new
+if $dupok
+then
+    pminfo -m -N root.new | sort >$tmp.list.new
+else
+    pminfo -m -n root.new | sort >$tmp.list.new
+fi
 if cmp -s $tmp.list.old $tmp.list.new > /dev/null 2>&1
 then
-    [ ! -f root.bin ] && eval $MV root.new.bin root.bin
     [ ! -f root ] && eval $MV root.new root
     _trace "$prog: PMNS is unchanged."
 else
@@ -324,7 +345,6 @@ else
     else
 	_trace "$prog: new PMNS \"$here/root\" created."
     fi
-    eval $MV root.new.bin root.bin
     eval $MV root.new root
 
     # signal pmcd if it is running
@@ -342,7 +362,7 @@ else
 	_trace_file $tmp.diff
     fi
 fi
-rm -f root.new root.new.bin
+rm -f root.new
 
 # remake stdpmid
 #

@@ -68,11 +68,13 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 	    if (sts == PDU_PMNS_IDS) {
 		int	xsts;
 		sts = __pmDecodeIDList(pb, 1, pmidp, &xsts);
+		__pmUnpinPDUBuf(pb);
 		if (sts < 0) return sts;
 		return xsts;
 	    }
 	    else if (sts == PDU_ERROR) {
 		__pmDecodeError(pb, &sts);
+		__pmUnpinPDUBuf(pb);
 		return sts;
 	    }
 	}

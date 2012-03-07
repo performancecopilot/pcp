@@ -10,6 +10,22 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes:
+ *
+ * maxsize - monotonic increasing and rarely changes, so use global
+ * 	mutex to protect updates, but allow reads without locking
+ * 	as seeing an unexpected newly updated value is benign
+ *
+ * On success, the result parameter from __pmGetPDU() points into a PDU
+ * buffer that is pinned from the call to __pmFindPDUBuf().  It is the
+ * responsibility of the __pmGetPDU() caller to unpin the buffer when
+ * it is safe to do so.
+ *
+ * __pmPDUCntIn[] and __pmPDUCntOut[] are diagnostic counters that are
+ * maintained with non-atomic updates ... we've decided that it is
+ * acceptable for their values to be subject to possible (but unlikely)
+ * missed updates
  */
 
 #include <signal.h>
@@ -44,6 +60,7 @@ __pmDefaultRequestTimeout(void)
 {
     static int		done_default = 0;
 
+    PM_LOCK(__pmLock_libpcp);
     if (!done_default) {
 	char	*timeout_str;
 	char	*end_ptr;
@@ -64,6 +81,7 @@ __pmDefaultRequestTimeout(void)
 	}
 	done_default = 1;
     }
+    PM_UNLOCK(__pmLock_libpcp);
     return (&def_wait);
 }
 
@@ -178,8 +196,9 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		    return PM_ERR_TIMEOUT;
 		}
 		else if (status < 0) {
+		    char	errmsg[PM_MAXERRMSGLEN];
 		    __pmNotifyErr(LOG_ERR, "pduread: select() on fd=%d: %s",
-			    fd, netstrerror());
+			    fd, netstrerror_r(errmsg, sizeof(errmsg)));
 		    setoserror(neterror());
 		    return status;
 		}
@@ -206,34 +225,43 @@ pduread(int fd, char *buf, int len, int part, int timeout)
     return have;
 }
 
+char *
+__pmPDUTypeStr_r(int type, char *buf, int buflen)
+{
+    char	*res = NULL;
+    if (type == PDU_ERROR) res = "ERROR";
+    else if (type == PDU_RESULT) res = "RESULT";
+    else if (type == PDU_PROFILE) res = "PROFILE";
+    else if (type == PDU_FETCH) res = "FETCH";
+    else if (type == PDU_DESC_REQ) res = "DESC_REQ";
+    else if (type == PDU_DESC) res = "DESC";
+    else if (type == PDU_INSTANCE_REQ) res = "INSTANCE_REQ";
+    else if (type == PDU_INSTANCE) res = "INSTANCE";
+    else if (type == PDU_TEXT_REQ) res = "TEXT_REQ";
+    else if (type == PDU_TEXT) res = "TEXT";
+    else if (type == PDU_CONTROL_REQ) res = "CONTROL_REQ";
+    else if (type == PDU_CREDS) res = "CREDS";
+    else if (type == PDU_PMNS_IDS) res = "PMNS_IDS";
+    else if (type == PDU_PMNS_NAMES) res = "PMNS_NAMES";
+    else if (type == PDU_PMNS_CHILD) res = "PMNS_CHILD";
+    else if (type == PDU_PMNS_TRAVERSE) res = "PMNS_TRAVERSE";
+    else if (type == PDU_LOG_CONTROL) res = "LOG_CONTROL";
+    else if (type == PDU_LOG_STATUS) res = "LOG_STATUS";
+    else if (type == PDU_LOG_REQUEST) res = "LOG_REQUEST";
+    if (res == NULL)
+	snprintf(buf, buflen, "TYPE-%d?", type);
+    else
+	snprintf(buf, buflen, "%s", res);
+
+    return buf;
+}
+
 const char *
 __pmPDUTypeStr(int type)
 {
-    if (type == PDU_ERROR) return "ERROR";
-    else if (type == PDU_RESULT) return "RESULT";
-    else if (type == PDU_PROFILE) return "PROFILE";
-    else if (type == PDU_FETCH) return "FETCH";
-    else if (type == PDU_DESC_REQ) return "DESC_REQ";
-    else if (type == PDU_DESC) return "DESC";
-    else if (type == PDU_INSTANCE_REQ) return "INSTANCE_REQ";
-    else if (type == PDU_INSTANCE) return "INSTANCE";
-    else if (type == PDU_TEXT_REQ) return "TEXT_REQ";
-    else if (type == PDU_TEXT) return "TEXT";
-    else if (type == PDU_CONTROL_REQ) return "CONTROL_REQ";
-    else if (type == PDU_DATA_X) return "DATA_X";
-    else if (type == PDU_CREDS) return "CREDS";
-    else if (type == PDU_PMNS_IDS) return "PMNS_IDS";
-    else if (type == PDU_PMNS_NAMES) return "PMNS_NAMES";
-    else if (type == PDU_PMNS_CHILD) return "PMNS_CHILD";
-    else if (type == PDU_PMNS_TRAVERSE) return "PMNS_TRAVERSE";
-    else if (type == PDU_LOG_CONTROL) return "LOG_CONTROL";
-    else if (type == PDU_LOG_STATUS) return "LOG_STATUS";
-    else if (type == PDU_LOG_REQUEST) return "LOG_REQUEST";
-    else {
-	static char	buf[20];
-	snprintf(buf, sizeof(buf), "TYPE-%d?", type);
-	return buf;
-    }
+    static char	tbuf[20];
+    __pmPDUTypeStr_r(type, tbuf, sizeof(tbuf));
+    return tbuf;
 }
 
 #if defined(HAVE_SIGPIPE)
@@ -278,6 +306,7 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 	int	j;
 	char	*p;
 	int	jend = PM_PDU_SIZE(php->len);
+	char	strbuf[20];
 
 	/* for Purify ... */
 	p = (char *)pdubuf + php->len;
@@ -287,7 +316,7 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 	if (mypid == -1)
 	    mypid = (int)getpid();
 	fprintf(stderr, "[%d]pmXmitPDU: %s fd=%d len=%d",
-		mypid, __pmPDUTypeStr(php->type), fd, php->len);
+		mypid, __pmPDUTypeStr_r(php->type, strbuf, sizeof(strbuf)), fd, php->len);
 	for (j = 0; j < jend; j++) {
 	    if ((j % 8) == 0)
 		fprintf(stderr, "\n%03d: ", j);
@@ -329,6 +358,7 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
     return off;
 }
 
+/* result is pinned on successful return */
 int
 __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 {
@@ -373,8 +403,10 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 		 *  EPIPE EAGAIN (nfs, bds & ..., but not ip or tcp?)
 		 */
 		len = 0;
-	    else
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr(-oserror()));
+	    else {
+		char	errmsg[PM_MAXERRMSGLEN];
+		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+	    }
 	}
 	else if (len >= (int)sizeof(php->len)) {
 	    /*
@@ -386,20 +418,26 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 	     */
 	    goto check_read_len;	/* continue, do not return */
 	}
-	else if (len == PM_ERR_TIMEOUT)
+	else if (len == PM_ERR_TIMEOUT) {
+	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_TIMEOUT;
+	}
 	else if (len < 0) {
-	    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr(len));
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr_r(len, errmsg, sizeof(errmsg)));
+	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_IPC;
 	}
 	else if (len > 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: bad len=%d", fd, len);
+	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_IPC;
 	}
 
 	/*
 	 * end-of-file with no data
 	 */
+	__pmUnpinPDUBuf(pdubuf);
 	return 0;
     }
 
@@ -411,8 +449,10 @@ check_read_len:
 	 * ... looks like DOS attack like PV 935490
 	 */
 	__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d illegal PDU len=%d in hdr", fd, php->len);
+	__pmUnpinPDUBuf(pdubuf);
 	return PM_ERR_IPC;
-    } else if (mode == LIMIT_SIZE && php->len > ceiling) {
+    }
+    else if (mode == LIMIT_SIZE && php->len > ceiling) {
 	/*
 	 * Guard against denial of service attack ... don't accept PDUs
 	 * from clients that are larger than 64 Kbytes (ceiling)
@@ -422,6 +462,7 @@ check_read_len:
 	__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d bad PDU len=%d in hdr exceeds maximum client PDU size (%d)",
 		      fd, php->len, ceiling);
 
+	__pmUnpinPDUBuf(pdubuf);
 	return PM_ERR_TOOBIG;
     }
 
@@ -432,20 +473,20 @@ check_read_len:
 	int		tmpsize;
 	int		have = len;
 
+	PM_LOCK(__pmLock_libpcp);
 	if (php->len > maxsize) {
 	    tmpsize = PDU_CHUNK * ( 1 + php->len / PDU_CHUNK);
-	} else {
-	    tmpsize = maxsize;
+	    maxsize = tmpsize;
 	}
+	else
+	    tmpsize = maxsize;
+	PM_UNLOCK(__pmLock_libpcp);
 
-	__pmPinPDUBuf(pdubuf);
 	pdubuf_prev = pdubuf;
 	if ((pdubuf = __pmFindPDUBuf(tmpsize)) == NULL) {
 	    __pmUnpinPDUBuf(pdubuf_prev);
 	    return -oserror();
 	}
-
-	maxsize = tmpsize;
 
 	memmove((void *)pdubuf, (void *)php, len);
 	__pmUnpinPDUBuf(pdubuf_prev);
@@ -456,10 +497,14 @@ check_read_len:
 	/* block until all of the PDU is received this time */
 	len = pduread(fd, (void *)&handle[len], need, BODY, timeout);
 	if (len != need) {
-	    if (len == PM_ERR_TIMEOUT)
+	    if (len == PM_ERR_TIMEOUT) {
+		__pmUnpinPDUBuf(pdubuf);
 		return PM_ERR_TIMEOUT;
-	    else if (len < 0)
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: len=%d: %s", fd, len, pmErrStr(-oserror()));
+	    }
+	    else if (len < 0) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: len=%d: %s", fd, len, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+	    }
 	    else
 		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: have %d, want %d, got %d", fd, have, need, len);
 	    /*
@@ -471,6 +516,7 @@ check_read_len:
 		__pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x from=0x%x", php->len, (unsigned)ntohl(php->type), (unsigned)ntohl(php->from));
 	    else if (have >= (int)(sizeof(php->len)+sizeof(php->type)))
 		__pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x", php->len, (unsigned)ntohl(php->type));
+	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_IPC;
 	}
     }
@@ -483,6 +529,7 @@ check_read_len:
 	int	j;
 	char	*p;
 	int	jend = PM_PDU_SIZE(php->len);
+	char	strbuf[20];
 
 	/* for Purify ... */
 	p = (char *)*result + php->len;
@@ -492,7 +539,7 @@ check_read_len:
 	if (mypid == -1)
 	    mypid = (int)getpid();
 	fprintf(stderr, "[%d]pmGetPDU: %s fd=%d len=%d from=%d",
-		mypid, __pmPDUTypeStr(php->type), fd, php->len, php->from);
+		mypid, __pmPDUTypeStr_r(php->type, strbuf, sizeof(strbuf)), fd, php->len, php->from);
 	for (j = 0; j < jend; j++) {
 	    if ((j % 8) == 0)
 		fprintf(stderr, "\n%03d: ", j);
@@ -504,6 +551,11 @@ check_read_len:
     if (php->type >= PDU_START && php->type <= PDU_FINISH)
 	__pmPDUCntIn[php->type-PDU_START]++;
 
+    /*
+     * Note php points into the PDU buffer pdubuf that remains pinned
+     * and php is returned via the result parameter ... see the
+     * thread-safe comments above
+     */
     return php->type;
 }
 

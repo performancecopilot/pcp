@@ -15,17 +15,13 @@
 .\"
 .TH PMNAMEALL 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmNameAll\f1,
-\f3pmRequestNameAll\f1,
-\f3pmReceiveNameAll\f1 \- translate a PMID to a set of performance metric names
+\f3pmNameAll\f1 \- translate a PMID to a set of performance metric names
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 .nf
 int pmNameAll(pmID \fIpmid\fP, char ***\fInameset\fP);
-int pmRequestNameAll(int \fIctx\fP, pmID \fIpmid\fP);
-int pmReceiveNameAll(int \fIctx\fP, char ***\fInameset\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -71,16 +67,6 @@ a name and a PMID, and under these circumstances,
 .BR pmNameID (3)
 provides a slightly simpler interface in the absence of duplicate
 names for a particular PMID.
-.PP
-\f3pmRequestNameAll\fP and \f3pmReceiveNameAll\fP are used by
-applications which must communicate with the PMCD asynchronously.
-These functions take explicit context handle \f2ctx\fP which must refer
-to a host context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
-\f3pmNewContext\fP). \f3pmRequestNameAll\fP sends request to PMCD to
-return names of all metrics matching a PMID and returns without waiting
-for the response, \f3pmReceiveNameAll\fP reads reply from PMCD. It is
-the responsibility of the application to make sure the data are ready
-before calling \f3pmReceiveNameAll\f1 to avoid blocking.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmGetChildren (3),
@@ -110,5 +96,3 @@ does not correspond to a defined PMID in the PMNS.
 .IP \f3PM_ERR_*\f1
 Other diagnostics are for protocol failures when
 accessing the distributed PMNS.
-.IP \f3PM_ERR_CTXBUSY\f1
-Context is currently in use by another asynchronous call.

@@ -30,7 +30,7 @@ echo >$tmp.lock
 trap "rm -f \`[ -f $tmp.lock ] && cat $tmp.lock\` $tmp.*; exit \$status" 0 1 2 3 15
 prog=`basename $0`
 
-if is_chkconfig_on pcp
+if is_chkconfig_on pmlogger
 then
     PMLOGGER_CTL=on
 else
@@ -561,6 +561,7 @@ END							{ print m }'`
 	#
 	[ X"$primary" != Xy ] && args="-p $pid $args"
 	[ X"$socks" = Xy ] && args="-s $args"
+	args="$args -m pmlogger_daily"
 	$SHOWME && echo "+ pmnewlog$MYARGS $args $LOGNAME"
 	if pmnewlog$MYARGS $args $LOGNAME
 	then

@@ -237,15 +237,9 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		sts = aPtr->ipc.dso.dispatch.version.four.profile(cPtr->profile[ctxnum],
 				     aPtr->ipc.dso.dispatch.version.four.ext);
-	    else if (aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
-	        aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
+	    else
 		sts = aPtr->ipc.dso.dispatch.version.two.profile(cPtr->profile[ctxnum],
 				     aPtr->ipc.dso.dispatch.version.two.ext);
-	    else
-		sts = aPtr->ipc.dso.dispatch.version.one.profile(cPtr->profile[ctxnum]);
-	    if (sts < 0 &&
-		aPtr->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-		    sts = XLATE_ERR_1TO2(sts);
 	}
 	else {
 	    if (aPtr->status.notReady == 0) {
@@ -274,14 +268,10 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 		sts = aPtr->ipc.dso.dispatch.version.four.fetch(dpList->listSize,
 				   dpList->list, &result, 
 				   aPtr->ipc.dso.dispatch.version.four.ext);
-	    else if (aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
-	        aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
+	    else
 		sts = aPtr->ipc.dso.dispatch.version.two.fetch(dpList->listSize,
 				   dpList->list, &result, 
 				   aPtr->ipc.dso.dispatch.version.two.ext);
-	    else
-		sts = aPtr->ipc.dso.dispatch.version.one.fetch(dpList->listSize,
-				   dpList->list, &result);
 	    if (sts >= 0) {
 		if (result == NULL) {
 		    __pmNotifyErr(LOG_WARNING,
@@ -299,15 +289,8 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 			sts = PM_ERR_PMID;
 			bad = 2;
 		    }
-		    if (aPtr->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1) {
-			for (i = 0; i < result->numpmid; i++)
-			    if (result->vset[i]->numval < 0)
-				result->vset[i]->numval = XLATE_ERR_1TO2(result->vset[i]->numval);
-		    }
 		}
 	    }
-	    else if (aPtr->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-		    sts = XLATE_ERR_1TO2(sts);
 	}
 	else {
 	    if (aPtr->status.notReady == 0) {
@@ -480,13 +463,14 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 
 	/* Read results from agents that have them ready */
 	for (i = 0; i < nAgents; i++) {
-	    AgentInfo *ap = &agent[i];
+	    AgentInfo	*ap = &agent[i];
+	    int		pinpdu;
 	    if (!ap->status.busy || !FD_ISSET(ap->outFd, &readyFds))
 		continue;
 	    ap->status.busy = 0;
 	    FD_CLR(ap->outFd, &waitFds);
 	    nWait--;
-	    sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 	    if (sts > 0 && _pmcd_trace_mask)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 	    if (sts == PDU_RESULT) {
@@ -515,6 +499,8 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 		    sts = PM_ERR_IPC;
 		}
 	    }
+	    if (pinpdu > 0)
+		__pmUnpinPDUBuf(pb);
 
 	    if (sts < 0) {
 		/* Find entry in dList for this agent */
@@ -526,16 +512,11 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 
 		if (sts == PM_ERR_PMDANOTREADY) {
 		    /* the agent is indicating it can't handle PDUs for now */
-		    int s, k;
+		    int k;
 		    extern int CheckError(AgentInfo *ap, int sts);
 
-		    if (__pmVersionIPC(cip->fd) == PDU_VERSION1)
-			s = PM_ERR_V1(PM_ERR_AGAIN);
-		    else
-			s = PM_ERR_AGAIN;
-
 		    for (k = 0; k < dList[j].listSize; k++)
-			results[i]->vset[k]->numval = s;
+			results[i]->vset[k]->numval = PM_ERR_AGAIN;
 		    sts = CheckError(&agent[i], sts);
 		}
 
@@ -569,12 +550,10 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 
     sts = 0;
     if (cip->status.changes) {
-	if (__pmVersionIPC(cip->fd) >= PDU_VERSION2) {
-	    /* notify PCP >= 2.0 client of PMCD state change */
-	    sts = __pmSendError(cip->fd, FROM_ANON, (int)cip->status.changes);
-	    if (sts > 0)
-		sts = 0;
-	}
+	/* notify client of PMCD state change */
+	sts = __pmSendError(cip->fd, FROM_ANON, (int)cip->status.changes);
+	if (sts > 0)
+	    sts = 0;
 	cip->status.changes = 0;
     }
     if (sts == 0)

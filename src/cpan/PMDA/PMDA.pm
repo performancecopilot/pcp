@@ -19,16 +19,16 @@ require DynaLoader;
 	PM_TYPE_FLOAT PM_TYPE_DOUBLE PM_TYPE_STRING
     PM_SEM_COUNTER PM_SEM_INSTANT PM_SEM_DISCRETE
     PM_ERR_GENERIC PM_ERR_PMNS PM_ERR_NOPMNS PM_ERR_DUPPMNS PM_ERR_TEXT
-	PM_ERR_APPVERSION PM_ERR_VALUE PM_ERR_LICENSE PM_ERR_TIMEOUT
-	PM_ERR_NODATA PM_ERR_RESET PM_ERR_FILE PM_ERR_NAME PM_ERR_PMID
+	PM_ERR_APPVERSION PM_ERR_VALUE PM_ERR_TIMEOUT
+	PM_ERR_NODATA PM_ERR_RESET PM_ERR_NAME PM_ERR_PMID
 	PM_ERR_INDOM PM_ERR_INST PM_ERR_UNIT PM_ERR_CONV PM_ERR_TRUNC
-	PM_ERR_SIGN PM_ERR_PROFILE PM_ERR_IPC PM_ERR_NOASCII PM_ERR_EOF
+	PM_ERR_SIGN PM_ERR_PROFILE PM_ERR_IPC PM_ERR_EOF
 	PM_ERR_NOTHOST PM_ERR_EOL PM_ERR_MODE PM_ERR_LABEL PM_ERR_LOGREC
 	PM_ERR_NOTARCHIVE PM_ERR_NOCONTEXT PM_ERR_PROFILESPEC PM_ERR_PMID_LOG
 	PM_ERR_INDOM_LOG PM_ERR_INST_LOG PM_ERR_NOPROFILE PM_ERR_NOAGENT
 	PM_ERR_PERMISSION PM_ERR_CONNLIMIT PM_ERR_AGAIN PM_ERR_ISCONN
-	PM_ERR_NOTCONN PM_ERR_NEEDPORT PM_ERR_WANTACK PM_ERR_NONLEAF
-	PM_ERR_PMDANOTREADY PM_ERR_PMDAREADY PM_ERR_OBJSTYLE PM_ERR_PMCDLICENSE
+	PM_ERR_NOTCONN PM_ERR_NEEDPORT PM_ERR_NONLEAF
+	PM_ERR_PMDANOTREADY PM_ERR_PMDAREADY
 	PM_ERR_TOOSMALL PM_ERR_TOOBIG PM_ERR_NYI
 );
 @EXPORT_OK = qw();
@@ -82,11 +82,9 @@ sub PM_ERR_DUPPMNS	{ -12348; }	# Attempt to reload the PMNS
 sub PM_ERR_TEXT		{ -12349; }	# Oneline or help text is not available
 sub PM_ERR_APPVERSION	{ -12350; }	# Metric not supported by this version of monitored application
 sub PM_ERR_VALUE	{ -12351; }	# Missing metric value(s)
-sub PM_ERR_LICENSE	{ -12352; }	# Current PCP license does not permit this operation
 sub PM_ERR_TIMEOUT	{ -12353; }	# Timeout waiting for a response from PMCD
 sub PM_ERR_NODATA	{ -12354; }	# Empty archive log file
 sub PM_ERR_RESET	{ -12355; }	# PMCD reset or configuration change
-sub PM_ERR_FILE		{ -12356; }	# Cannot locate a file
 sub PM_ERR_NAME		{ -12357; }	# Unknown metric name
 sub PM_ERR_PMID		{ -12358; }	# Unknown or illegal metric identifier
 sub PM_ERR_INDOM	{ -12359; }	# Unknown or illegal instance domain identifier
@@ -97,7 +95,6 @@ sub PM_ERR_TRUNC	{ -12363; }	# Truncation in value conversion
 sub PM_ERR_SIGN		{ -12364; }	# Negative value in conversion to unsigned
 sub PM_ERR_PROFILE	{ -12365; }	# Explicit instance identifier(s) required
 sub PM_ERR_IPC		{ -12366; }	# IPC protocol failure
-sub PM_ERR_NOASCII	{ -12367; }	# ASCII format not supported for this PDU
 sub PM_ERR_EOF		{ -12368; }	# IPC channel closed
 sub PM_ERR_NOTHOST	{ -12369; }	# Operation requires context with host source of metrics
 sub PM_ERR_EOL		{ -12370; }	# End of PCP archive log
@@ -119,12 +116,9 @@ sub PM_ERR_AGAIN	{ -12389; }	# Try again. Information not currently available
 sub PM_ERR_ISCONN	{ -12390; }	# Already Connected
 sub PM_ERR_NOTCONN	{ -12391; }	# Not Connected
 sub PM_ERR_NEEDPORT	{ -12392; }	# A non-null port name is required
-sub PM_ERR_WANTACK	{ -12393; }	# Cannot send due to pending acknowledgements
 sub PM_ERR_NONLEAF	{ -12394; }	# Metric name is not a leaf in PMNS
 sub PM_ERR_PMDANOTREADY	{ -13394; }	# PMDA is not yet ready to respond to requests
 sub PM_ERR_PMDAREADY	{ -13393; }	# PMDA is now responsive to requests
-sub PM_ERR_OBJSTYLE	{ -12395; }	# Caller does not match object style of running kernel
-sub PM_ERR_PMCDLICENSE	{ -12396; }	# PMCD is not licensed to accept client connections
 sub PM_ERR_TOOSMALL	{ -12443; }	# Insufficient elements in list
 sub PM_ERR_TOOBIG	{ -12444; }	# Result size exceeded
 sub PM_ERR_NYI		{ -21344; }	# Functionality not yet implemented

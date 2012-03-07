@@ -63,6 +63,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     static __pmProfile	*profile = NULL;
     static int		first_time = 1;
     static pmdaExt	*pmda = NULL;
+    int			pinpdu;
 
     /* Initial version checks */
     if (first_time) {
@@ -84,7 +85,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	first_time = 0;
     }
 
-    sts = __pmGetPDU(pmda->e_infd, ANY_SIZE, TIMEOUT_NEVER, &pb);
+    pinpdu = sts = __pmGetPDU(pmda->e_infd, ANY_SIZE, TIMEOUT_NEVER, &pb);
     if (sts == 0)
 	/* End of File */
 	return PM_ERR_EOF;
@@ -110,12 +111,14 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    if (sts != PDU_PROFILE)
 		/* all other PDUs expect an ACK */
 		__pmSendError(pmda->e_outfd, FROM_ANON, i);
+	    __pmUnpinPDUBuf(pb);
 	    return 0;
 	}
     }
 
     switch (sts) {
 	int	endsts;
+	char	strbuf[20];
 
     case PDU_ERROR:
 	/*
@@ -397,9 +400,6 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	else {
 	    __pmSendText(pmda->e_outfd, FROM_ANON, ident, buffer);
-	    /* only PMDA_INTERFACE_1 malloc's the buffer */
-	    if (HAVE_V_ONE(dispatch->comm.pmda_interface))
-		free(buffer);
 	}
 	break;
 
@@ -448,9 +448,12 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     default:
 	__pmNotifyErr(LOG_ERR,
 		      "%s: Unrecognised pdu type: %s?\n",
-		      pmda->e_name, __pmPDUTypeStr(sts));
+		      pmda->e_name, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
 	break;
     }
+
+    if (pinpdu > 0)
+	__pmUnpinPDUBuf(pb);
 
     /*
      * if defined, callback once per PDU to do termination checks,

@@ -15,17 +15,13 @@
 .\"
 .TH PMLOOKUPINDOM 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmLookupInDom\f1,
-\f3pmRequestInDomInst\f1,
-\f3pmReceiveInDomInst\f1 \- translate an instance name into an instance identifier
+\f3pmLookupInDom\f1 \- translate an instance name into an instance identifier
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 .nf
 int pmLookupInDom(pmInDom \fIindom\fP, const char *\fIname\fP);
-int pmRequestInDomInst(int \fIctx\fP, pmInDom \fIindom\fP, const char *\fIname\fP);
-int pmReceiveInDomInst(int \fIctx\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -59,17 +55,6 @@ for a particular performance metric.
 .PP
 .B pmLookupInDom
 will return a positive instance identifier on success.
-.PP
-\f3pmRequestInDomInst\fP and \f3pmReceiveInDomInst\fP are used by applications
-which must communicate with the PMCD asynchronously.  These functions
-take explicit context handle \f2ctx\fP which must refer to a host
-context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
-\f3pmNewContext\fP). \f3pmRequestInDomInst\fP sends request to translate
-external instance name to internal instance identifier to 
-PMCD and returns without waiting for the response, \f3pmReceiveInDomInst\fP
-reads reply from PMCD. It is the responsibility of the application
-to make sure the data are ready before calling \f3pmReceiveInDomInst\f1 to
-avoid blocking.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmGetConfig (3),
@@ -90,5 +75,3 @@ The external instance
 is not known for the instance domain
 .I indom
 in the current PMAPI context
-.IP \f3PM_ERR_CTXBUSY\f1
-Context is currently in use by another asynchronous call.

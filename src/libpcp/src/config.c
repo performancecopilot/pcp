@@ -95,8 +95,13 @@ dos_rewrite_path(char *var, char *val, int msys)
  */
 static int posix_style(void)
 {
-    char *s = getenv("SHELL");
-    return (s && strncmp(s, "/bin/", 5) == 0);
+    char	*s;
+    int		sts;
+    PM_LOCK(__pmLock_libpcp);
+    s = getenv("SHELL");
+    sts = (s && strncmp(s, "/bin/", 5) == 0);
+    PM_UNLOCK(__pmLock_libpcp);
+    return sts;
 }
 
 static void
@@ -112,10 +117,12 @@ dos_formatter(char *var, char *prefix, char *val)
     else {
 	snprintf(envbuf, sizeof(envbuf), "%s=%s", var, val);
     }
+    PM_LOCK(__pmLock_libpcp);
     putenv(strdup(envbuf));
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
-INTERN __pmConfigCallback __pmNativeConfig = dos_formatter;
+INTERN const __pmConfigCallback __pmNativeConfig = dos_formatter;
 char *__pmNativePath(char *path) { return dos_native_path(path); }
 int __pmPathSeparator() { return posix_style() ? '/' : '\\'; }
 int __pmAbsolutePath(char *path) { return posix_style() ? path[0] == '/' : dos_absolute_path(path); }
@@ -127,18 +134,37 @@ int __pmPathSeparator() { return '/'; }
 static void
 posix_formatter(char *var, char *prefix, char *val)
 {
-    char envbuf[MAXPATHLEN];
+    /* +40 bytes for max PCP env variable name */
+    char	envbuf[MAXPATHLEN+40];
+    char	*vp;
+    char	*vend;
 
-    snprintf(envbuf, sizeof(envbuf), "%s=%s", var, val);
+    snprintf(envbuf, sizeof(envbuf), "%s=", var);
+    vend = &val[strlen(val)-1];
+    if (val[0] == *vend && (val[0] == '\'' || val[0] == '"')) {
+	/*
+	 * have quoted value like "gawk --posix" for $PCP_AWK_PROG ...
+	 * strip quotes
+	 */
+	vp = &val[1];
+	vend--;
+    }
+    else
+	vp = val;
+    strncat(envbuf, vp, vend-vp+1);
+    envbuf[strlen(var)+1+vend-vp+1+1] = '\0';
+
+    PM_LOCK(__pmLock_libpcp);
     putenv(strdup(envbuf));
+    PM_UNLOCK(__pmLock_libpcp);
     (void)prefix;
 }
 
-INTERN __pmConfigCallback __pmNativeConfig = posix_formatter;
+INTERN const __pmConfigCallback __pmNativeConfig = posix_formatter;
 #endif
 
 void
-__pmConfig(const char *name, __pmConfigCallback formatter)
+__pmConfig(__pmConfigCallback formatter)
 {
     /*
      * Scan ${PCP_CONF-$PCP_DIR/etc/pcp.conf} and put all PCP config
@@ -148,11 +174,13 @@ __pmConfig(const char *name, __pmConfigCallback formatter)
     char confpath[32];
     char dir[MAXPATHLEN];
     char var[MAXPATHLEN];
-    char *prefix = getenv("PCP_DIR");
+    char *prefix;
     char *conf;
     char *val;
     char *p;
 
+    PM_LOCK(__pmLock_libpcp);
+    prefix = getenv("PCP_DIR");
     if ((conf = getenv("PCP_CONF")) == NULL) {
 	strncpy(confpath, "/etc/pcp.conf", sizeof(confpath));
 	if (prefix == NULL)
@@ -166,10 +194,12 @@ __pmConfig(const char *name, __pmConfigCallback formatter)
 
     if (access((const char *)conf, R_OK) < 0 ||
 	(fp = fopen(conf, "r")) == (FILE *)NULL) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	pmprintf("FATAL PCP ERROR: could not open config file \"%s\" : %s\n",
-		conf, osstrerror());
+		conf, osstrerror_r(errmsg, sizeof(errmsg)));
 	pmprintf("You may need to set PCP_CONF or PCP_DIR in your environment.\n");
 	pmflush();
+	PM_UNLOCK(__pmLock_libpcp);
 	exit(1);
     }
 
@@ -189,27 +219,44 @@ __pmConfig(const char *name, __pmConfigCallback formatter)
 	    fprintf(stderr, "pmGetConfig: (init) %s=%s\n", var, val);
     }
     fclose(fp);
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 char *
 pmGetConfig(const char *name)
 {
-    static char *empty = "";
-    static int first = 1;
-    char *val;
+    /*
+     * state controls one-trip initialization, and recursion guard
+     * for pathological failures in initialization
+     */
+    static int		state = 0;
+    char		*val;
 
-    if (first) {
-	__pmConfig(name, __pmNativeConfig);
-	first = 0;
+    PM_LOCK(__pmLock_libpcp);
+    if (state == 0) {
+	state = 1;
+	PM_UNLOCK(__pmLock_libpcp);
+	__pmConfig(__pmNativeConfig);
+	PM_LOCK(__pmLock_libpcp);
+	state = 2;
+    }
+    else if (state == 1) {
+	/* recursion from error in __pmConfig() ... no value is possible */
+	PM_UNLOCK(__pmLock_libpcp);
+	if (pmDebug & DBG_TRACE_CONFIG)
+	    fprintf(stderr, "pmGetConfig: %s= ... recursion error\n", name);
+	val = "";
+	return val;
     }
 
     if ((val = getenv(name)) == NULL) {
 	pmprintf("Error: \"%s\" is not set in the environment\n", name);
-	val = empty;
+	val = "";
     }
 
     if (pmDebug & DBG_TRACE_CONFIG)
 	fprintf(stderr, "pmGetConfig: %s=%s\n", name, val);
 
+    PM_UNLOCK(__pmLock_libpcp);
     return val;
 }

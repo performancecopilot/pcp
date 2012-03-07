@@ -32,6 +32,7 @@ __pmSendFetch(int fd, int from, int ctxnum, __pmTimeval *when, int numpmid, pmID
     size_t	need;
     fetch_t	*pp;
     int		j;
+    int		sts;
 
     need = sizeof(fetch_t) + (numpmid-1) * sizeof(pmID);
     if ((pp = (fetch_t *)__pmFindPDUBuf((int)need)) == NULL)
@@ -58,7 +59,10 @@ __pmSendFetch(int fd, int from, int ctxnum, __pmTimeval *when, int numpmid, pmID
     pp->numpmid = htonl(numpmid);
     for (j = 0; j < numpmid; j++)
 	pp->pmidlist[j] = __htonpmID(pmidlist[j]);
-    return __pmXmitPDU(fd, (__pmPDU *)pp);
+
+    sts = __pmXmitPDU(fd, (__pmPDU *)pp);
+    __pmUnpinPDUBuf(pp);
+    return sts;
 }
 
 int

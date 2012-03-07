@@ -22,7 +22,7 @@
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-L\f1 \f2bytes\f1]
-[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-\f1[\f3n\f1|\f3N\f1] \f2pmnsfile\f1]
 [\f3\-p\f1 \f2port\f1[,\f2port\f1 ...]
 [\f3\-q\f1 \f2timeout\f1]
 [\f3\-T\f1 \f2traceflag\f1]
@@ -139,6 +139,17 @@ however if the
 option is specified an alternative namespace is loaded
 from the file
 .IR pmnsfile .
+.TP
+\f3\-N\f1 \f2pmnsfile\f1
+Same function as
+.BR \-n ,
+except for the handling of
+duplicate Performance Metric Identifiers (PMIDs) in
+.I pmnsfile
+\- duplicates are allowed with
+.B \-N
+they are not allowed with
+.BR \-n .
 .TP
 \f3\-q\f1 \f2timeout\f1
 The pmcd to agent version exchange protocol (new in PCP 2.0 - introduced to

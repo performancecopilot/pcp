@@ -345,14 +345,6 @@ as this routine does not use a target list of PMIDs that could be
 remapped (as is done for
 .BR pmFetch (3)).
 .PP
-Derived metrics are not available with the routines
-.BR pmRequestTraversePMNS (3)
-and
-.BR pmReceiveTraversePMNS (3)
-because the by the time the list of
-names is received, the original name at the root of the search
-is no longer available.
-.PP
 .B pmRegisterDerived
 does not apply retrospectively to any open contexts, so the normal
 use would be to make all calls to

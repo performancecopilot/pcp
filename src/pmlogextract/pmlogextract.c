@@ -63,7 +63,6 @@ Options:\n\
   -d             desperate, save output after fatal error\n\
   -f             choose timezone from first archive [default is to use\n\
                  timezone from last archive]\n\
-  -n pmnsfile    use an alternative PMNS\n\
   -S starttime   start of the time window\n\
   -s samples     terminate after this many log records have been written\n\
   -T endtime     end of the time window\n\
@@ -196,7 +195,6 @@ static double	logend_time = -1.0;		/* log end time */
 /* command line args */
 char	*configfile = NULL;		/* -c arg - name of config file */
 int	farg = 0;			/* -f arg - use first timezone */
-char	*pmnsfile = PM_NS_DEFAULT;	/* -n arg - alternate namespace */
 int	sarg = -1;			/* -s arg - finish after X samples */
 char	*Sarg = NULL;			/* -S arg - window start */
 char	*Targ = NULL;			/* -T arg - window end */
@@ -315,7 +313,7 @@ newlabel(void)
     inarchvers = iap->label.ll_magic & 0xff;
     outarchvers = inarchvers;
 
-    if (inarchvers != PM_LOG_VERS01 && inarchvers != PM_LOG_VERS02) {
+    if (inarchvers != PM_LOG_VERS02) {
 	fprintf(stderr,"%s: Error: illegal version number %d in archive (%s)\n",
 		pmProgname, inarchvers, iap->name);
 	abandon();
@@ -933,7 +931,10 @@ nextmeta(void)
 	    fprintf(stderr, "    iap->pb[META] is not NULL\n");
 	    abandon();
 	}
-	ctxp = __pmHandleToPtr(iap->ctx);
+	if ((ctxp = __pmHandleToPtr(iap->ctx)) == NULL) {
+	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, iap->ctx);
+	    abandon();
+	}
 	lcp = ctxp->c_archctl->ac_log;
 
 againmeta:
@@ -1072,10 +1073,13 @@ nextlog(void)
 	}
 
 againlog:
-	ctxp = __pmHandleToPtr(iap->ctx);
+	if ((ctxp = __pmHandleToPtr(iap->ctx)) == NULL) {
+	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, iap->ctx);
+	    abandon();
+	}
 	lcp = ctxp->c_archctl->ac_log;
 
-	if ((sts=__pmLogRead(lcp,PM_MODE_FORW,NULL,&iap->_result)) < 0) {
+	if ((sts=__pmLogRead(lcp, PM_MODE_FORW, NULL, &iap->_result, PMLOGREAD_NEXT)) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: Error: __pmLogRead[log %s]: %s\n",
 			pmProgname, iap->name, pmErrStr(sts));
@@ -1162,7 +1166,7 @@ parseargs(int argc, char *argv[])
     char		*endnum;
     struct stat		sbuf;
 
-    while ((c = getopt(argc, argv, "c:D:dfn:S:s:T:v:wZ:z?")) != EOF) {
+    while ((c = getopt(argc, argv, "c:D:dfS:s:T:v:wZ:z?")) != EOF) {
 	switch (c) {
 
 	case 'c':	/* config file */
@@ -1192,12 +1196,6 @@ parseargs(int argc, char *argv[])
 
 	case 'f':	/* use timezone from first archive */
 	    farg = 1;
-	    break;
-
-	case 'n':	/* namespace */
-			/* if namespace is reassigned from config file,
-			 * must reload namespace */
-	    pmnsfile = optarg;
 	    break;
 
 	case 's':	/* number of samples to write out */
@@ -1291,36 +1289,6 @@ parseconfig(void)
     yyin = NULL;
 
     return(-errflag);
-}
-
-void
-adminarch(void)
-{
-    int		i;
-    int		sts;
-
-    if (pmnsfile != PM_NS_DEFAULT || inarchvers == PM_LOG_VERS01) {
-	if ((sts = pmLoadNameSpace (pmnsfile)) < 0) {
-	    fprintf(stderr, "%s: Error: cannot load name space: %s\n",
-		    pmProgname, pmErrStr(sts));
-	    exit(1);
-	}
-
-	for (i=0; i<inarchnum; i++) {
-	    if ((sts = pmUseContext(inarch[i].ctx)) < 0) {
-		fprintf(stderr,
-		    "%s: Error: cannot use context (%d) from archive \"%s\"\n",
-			pmProgname, inarch[i].ctx, inarch[i].name);
-		exit(1);
-	    }
-
-	    if ((sts = pmTrimNameSpace ()) < 0) {
-		fprintf(stderr, "%s: Error: cannot trim name space: %s\n", 
-			pmProgname, pmErrStr(sts));
-		exit(1);
-	    }
-	}
-    }
 }
 
 /*
@@ -1458,20 +1426,12 @@ writerlist(rlist_t **rlready, double mintime)
 
 	/* convert log record to a pdu
 	 */
-	if (outarchvers == 1)
-	    sts = __pmEncodeResult(PDU_OVERRIDE1, elm->res, &pb);
-	else
-	    sts = __pmEncodeResult(PDU_OVERRIDE2, elm->res, &pb);
-
+	sts = __pmEncodeResult(PDU_OVERRIDE2, elm->res, &pb);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    abandon();
 	}
-
-	/* __pmEncodeResult doesn't pin the PDU buffer, so we have to
-	 */
-	__pmPinPDUBuf(pb);
 
         /* switch volumes if required */
         if (varg > 0) {
@@ -1548,7 +1508,7 @@ writerlist(rlist_t **rlready, double mintime)
             flushsize = ftell(logctl.l_mfp) + 100000;
         }
 
-	/* LOG: free PDU buffer */
+	/* free PDU buffer */
 	__pmUnpinPDUBuf(pb);
 	pb = NULL;
 
@@ -1723,13 +1683,6 @@ main(int argc, char **argv)
 
     logctl.l_label.ill_start.tv_sec = logstart_tval.tv_sec;
     logctl.l_label.ill_start.tv_usec = logstart_tval.tv_usec;
-
-
-    /* admin archive loads the namespace if required, and trims it
-     * according to the context of each archive
-     */
-    adminarch();
-
 
     /* process config file
      *	- this includes a list of metrics and their instances

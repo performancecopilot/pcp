@@ -28,17 +28,13 @@
 .\}
 .TH PMLOOKUPDESC 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmLookupDesc\f1,
-\f3pmReceiveDesc\f1,
-\f3pmRequestDesc\f1 \- obtain a description for a performance metric
+\f3pmLookupDesc\f1 \- obtain a description for a performance metric
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 .nf
 int pmLookupDesc(pmID \fIpmid\fP, pmDesc *\fIdesc\fP);
-int pmRequestDesc(int \fIctx\fP, pmID \fIpmid\fP);
-int pmReceiveDesc(int \fIctx\fP, pmDesc *\fIdesc\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -225,16 +221,6 @@ become 64-bits long, or change their units from Mbytes to Gbytes,
 well-written applications
 using the services provided by the PMAPI will continue
 to function correctly.
-.PP 
-\f3pmRequestDesc\fP and \f3pmReceiveDesc\fP are used by applications
-which must communicate with PMCD asynchronously. These functions
-take explicit context handle \f2ctx\fP which must refer to a host
-context (i.e. a context created by passing \f3PM_CONTEXT_HOST\fP to
-\f3pmNewContext\fP). \f3pmRequestDesc\fP sends request to
-PMCD and returns  without waiting for the response, \f3pmReceiveDesc\fP
-reads reply from PMCD. It is the responsibility of the application
-to make sure the data are ready before calling \f3pmReceiveDesc\f1 to
-avoid blocking.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmAtomStr (3),
@@ -251,5 +237,3 @@ and
 The requested PMID is not known to the PMCS
 .IP \f3PM_ERR_NOAGENT\f1
 The PMDA responsible for providing the metric is currently not available
-.IP \f3PM_ERR_CTXBUSY\f1
-Context is currently in use by another asynchronous call.

@@ -15,17 +15,13 @@
 .\"
 .TH PMGETCHILDREN 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmGetChildren\f1,
-\f3pmRequestNamesOfChildren\f1,
-\f3pmReceiveNamesOfChildren\f1 \- return the descendent nodes of a PMNS node
+\f3pmGetChildren\f1 \- return the descendent nodes of a PMNS node
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 .nf
 int pmGetChildren(const char *\fIname\fP, char ***\fIoffspring\fP);
-int pmRequestNamesOfChildren(int \fIctx\fP, const char *\fIname\fP, int \fIwantstatus\fP);
-int pmReceiveNamesOfChildren(int \fIctx\fP, char ***\fIoffspring\fP, int **\fIstatus\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -88,23 +84,6 @@ is undefined (no space will have been
 allocated, and so calling
 .BR free (3C)
 is a singularly bad idea).
-.PP
-\f3pmRequestNamesOfChildren\fP and \f3pmReceiveNamesOfChildren\fP are used
-by applications which must  communicate with the PMCD asynchronously.
-These functions take explicit context handle \f2ctx\fP which must refer
-to a host context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
-\f3pmNewContext\fP). \f3pmRequestNamesOfChildren\fP sends request to PMCD
-to enumerate names of the children of PMNS node and returns without 
-waiting for the response, \f3pmReceiveNamesOfChildren\fP reads reply from PMCD.
-It is the responsibility of the application to make sure the data are
-ready before calling \f3pmReceiveNamesOfChildren\f1 to avoid blocking.
-.PP
-If in the call to \f3pmRequestNamesOfChildren\fP \f2wantstatus\fP was set
-to non-zero value then \f3pmReceiveNamesOfChildren\fP will return the
-status of each child via \f2status\fP. The status will refer to either
-a leaf node (with  value \f3PMNS_LEAF_STATUS\fP) or a non-leaf node
-(with   value \f3PMNS_NONLEAF_STATUS\fP), otherwise the \f2status\fP is
-undefined and should not be referenced.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -149,5 +128,3 @@ is not valid in the current PMNS
 .IP \f3PM_ERR_*\f1
 Other diagnostics are for protocol failures when
 accessing the distributed PMNS.
-.IP \f3PM_ERR_CTXBUSY\f1
-Context is currently in use by another asynchronous call.

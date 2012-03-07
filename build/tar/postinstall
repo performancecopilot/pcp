@@ -37,7 +37,7 @@ done
 
 # Note: do not start pmie nor pmproxy by default
 #
-for svc in pcp
+for svc in pmcd pmlogger
 do
     if which rc-update >/dev/null 2>&1
     then

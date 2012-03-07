@@ -40,6 +40,18 @@
 #include <netdb.h>
 #endif
 
+/*
+ * Thread-safe support ... #define to enable thread-safe protection of
+ * global data structures and mutual exclusion when required
+ */
+#define PM_MULTI_THREAD 1
+
+#ifdef PM_MULTI_THREAD
+#ifdef HAVE_PTHREAD_H
+#include <pthread.h>
+#endif
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -204,7 +216,7 @@ typedef struct {
 } __pmnsTree;
 
 
-/* used by pmnscomp... */
+/* used by pmnsmerge... */
 extern __pmnsTree* __pmExportPMNS(void); 
 
 /* for PMNS in archives */
@@ -252,13 +264,16 @@ EXTERN int	pmDebug;
 #define DBG_TRACE_INTERP	(1<<20)	/* interpolate mode for archives */
 #define DBG_TRACE_CONFIG	(1<<21) /* configuration parameters */
 #define DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
+#define DBG_TRACE_FAULT		(1<<23) /* fault injection tracing */
 
 extern int __pmParseDebug(const char *);
 extern void __pmDumpResult(FILE *, const pmResult *);
 extern void __pmPrintStamp(FILE *, const struct timeval *);
+extern void __pmPrintTimeval(FILE *, const __pmTimeval *);
 extern void __pmPrintDesc(FILE *, const pmDesc *);
 extern void __pmFreeResultValues(pmResult *);
-extern const char *__pmPDUTypeStr(int);
+extern char *__pmPDUTypeStr_r(int, char *, int);
+extern const char *__pmPDUTypeStr(int);			/* NOT thread-safe */
 extern void __pmDumpNameSpace(FILE *, int);
 EXTERN int __pmLogReads;
 
@@ -424,11 +439,9 @@ extern void __pmFreeInResult(__pmInResult *);
  */
 
 #define UNKNOWN_VERSION	0
-#define PDU_VERSION1	1
 #define PDU_VERSION2	2
 #define PDU_VERSION	PDU_VERSION2
 
-#define PDU_OVERRIDE1	-1001
 #define PDU_OVERRIDE2	-1002
 
 typedef struct {
@@ -444,13 +457,6 @@ typedef struct {
     unsigned int	zero : 1;	/* ensure first bit is zero for 1.x compatibility */
 #endif
 } __pmPDUInfo;
-
-typedef enum {
-    PC_FETAL = 0,
-    PC_CONN_INPROGRESS,
-    PC_WAIT_FOR_PMCD,
-    PC_READY
-} pmcd_ctl_state_t;
 
 /*
  * Host specification allowing one or more pmproxy host, and port numbers
@@ -470,18 +476,18 @@ extern void __pmFreeHostSpec(pmHostSpec *, int);
  * Control for connection to a PMCD
  */
 typedef struct {
-    int		pc_refcnt;		/* number of contexts using this socket */
-    int		pc_fd;			/* socket for comm with pmcd */
+#ifdef PM_MULTI_THREAD
+    pthread_mutex_t	pc_lock;	/* mutex pmcd ipc */
+#endif
+    int			pc_refcnt;	/* number of contexts using this socket */
+    int			pc_fd;		/* socket for comm with pmcd */
 					/* ... -1 means no connection */
-    pmHostSpec	*pc_hosts;		/* pmcd and proxy host specifications */
-    int		pc_nhosts;		/* number of pmHostSpec entries */
-    int		pc_timeout;		/* set if connect times out */
-    time_t	pc_again;		/* time to try again */
-    int		pc_curpdu; 		/* current pdu in flight */
-    int		pc_tout_sec;		/* timeout for __pmGetPDU */
-    pmcd_ctl_state_t pc_state;		/* current state of this context */
-    int		pc_fdflags;		/* fcntl(2) flags for pc_fd */
-    struct sockaddr pc_addr;		/* server address */
+    pmHostSpec		*pc_hosts;	/* pmcd and proxy host specifications */
+    int			pc_nhosts;	/* number of pmHostSpec entries */
+    int			pc_timeout;	/* set if connect times out */
+    int			pc_tout_sec;	/* timeout for __pmGetPDU */
+    time_t		pc_again;	/* time to try again */
+    struct sockaddr	pc_addr;	/* server address */
 } __pmPMCDCtl;
 
 extern int __pmConnectPMCD(pmHostSpec *, int);
@@ -498,7 +504,6 @@ extern int __pmConnectCheckError(int);
 extern int __pmConnectRestoreFlags (int, int);
 extern int __pmConnectHandshake(int);
 
-
 /*
  * per context controls for archives and logs
  */
@@ -508,6 +513,9 @@ typedef struct {
     int			ac_vol;		/* volume for ac_offset */
     int			ac_serial;	/* serial access pattern for archives */
     __pmHashCtl		ac_pmid_hc;	/* per PMID controls for INTERP */
+    double		ac_end;		/* time at end of archive */
+    void		*ac_want;	/* used in interp.c */
+    void		*ac_unbound;	/* used in interp.c */
 } __pmArchCtl;
 
 /*
@@ -515,6 +523,9 @@ typedef struct {
  * one for each context created by the application.
  */
 typedef struct {
+#ifdef PM_MULTI_THREAD
+    pthread_mutex_t	c_lock;		/* mutex for multi-thread access */
+#endif
     int			c_type;		/* PM_CONTEXT_HOST, _ARCHIVE or _FREE */
     int			c_mode;		/* current mode PM_MODE_* */
     __pmPMCDCtl		*c_pmcd;	/* pmcd control for HOST contexts */
@@ -533,8 +544,6 @@ typedef struct {
 /* handle to __pmContext pointer */
 extern __pmContext *__pmHandleToPtr(int);
 extern int __pmPtrToHandle(__pmContext *);
-extern int __pmGetHostContextByID(int, __pmContext **);
-extern int __pmGetBusyHostContextByID(int, __pmContext **, int);
 
 /* timeout helper functions */
 extern const struct timeval * __pmDefaultRequestTimeout(void);
@@ -578,7 +587,6 @@ typedef struct {
 
 /* Types of credential PDUs */
 #define CVERSION        1
-#define CAUTH           2
 
 extern int __pmXmitPDU(int, __pmPDU *);
 extern int __pmGetPDU(int, int, int, __pmPDU **);
@@ -615,7 +623,6 @@ extern void __pmCountPDUBuf(int, int *, int *);
 #define PDU_TEXT_REQ		0x7008
 #define PDU_TEXT		0x7009
 #define PDU_CONTROL_REQ		0x700a
-#define PDU_DATA_X		0x700b
 #define PDU_CREDS		0x700c
 #define PDU_PMNS_IDS		0x700d
 #define PDU_PMNS_NAMES		0x700e
@@ -726,13 +733,6 @@ bozo - unknown size of long !!!
 #define PM_TEXT_INDOM	8
 
 /*
- * Quick-and-dirty pool memory allocator ...
- */
-extern void *__pmPoolAlloc(size_t);
-extern void __pmPoolFree(void *, size_t);
-extern void __pmPoolCount(size_t, int *, int *);
-
-/*
  * no mem today, my love has gone away ....
  */
 extern void __pmNoMem(const char *, size_t, int);
@@ -799,10 +799,13 @@ typedef struct {
 
 extern void __pmLogPutIndex(const __pmLogCtl *, const __pmTimeval *);
 
-extern const char *__pmLogName(const char *, int);
+extern const char *__pmLogName_r(const char *, int, char *, int);
+extern const char *__pmLogName(const char *, int);	/* NOT thread-safe */
 extern FILE *__pmLogNewFile(const char *, int);
 extern int __pmLogCreate(const char *, const char *, int, __pmLogCtl *);
-extern int __pmLogRead(__pmLogCtl *, int, FILE *, pmResult **);
+#define PMLOGREAD_NEXT		0
+#define PMLOGREAD_TO_EOF	1
+extern int __pmLogRead(__pmLogCtl *, int, FILE *, pmResult **, int);
 extern int __pmLogWriteLabel(FILE *, const __pmLogLabel *);
 extern int __pmLogOpen(const char *, __pmContext *);
 extern int __pmLogLoadLabel(__pmLogCtl *, const char *);
@@ -890,7 +893,8 @@ typedef struct {
 /*
  * event tracing for monitoring time between events
  */
-extern void __pmEventTrace(const char *);
+extern void __pmEventTrace(const char *);		/* NOT thread-safe */
+extern void __pmEventTrace_r(const char *, int *, double *, double *);
 
 /*
  * More IPC protocol stuff
@@ -987,7 +991,8 @@ extern void __pmOptFetchGetParams(optcost_t *);
 extern void __pmOptFetchPutParams(optcost_t *);
 
 /* work out local timezone */
-extern char * __pmTimezone(void);
+extern char *__pmTimezone(void);			/* NOT thread-safe */
+extern char *__pmTimezone_r(char *, int);
 
 #ifdef HAVE_NETWORK_BYTEORDER
 /*
@@ -1063,8 +1068,6 @@ extern int __pmAccSaveHosts(void);
 extern int __pmAccRestoreHosts(void);
 extern void __pmAccFreeSavedHosts(void);
 
-extern unsigned int __pmMakeAuthCookie(unsigned int, pid_t);
-
 /*
  * platform independent process routines
  */
@@ -1090,8 +1093,8 @@ extern int __pmSetSignalHandler(int, __pmSignalHandler);
  * platform independent environment and filesystem path access
  */
 typedef void (*__pmConfigCallback)(char *, char *, char *);
-EXTERN __pmConfigCallback __pmNativeConfig;
-extern void __pmConfig(const char *, __pmConfigCallback);
+EXTERN const __pmConfigCallback __pmNativeConfig;
+extern void __pmConfig(__pmConfigCallback);
 extern char *__pmNativePath(char *);
 extern int __pmAbsolutePath(char *);
 extern int __pmPathSeparator();
@@ -1108,7 +1111,6 @@ extern int __pmAFisempty(void);
 /*
  * private PDU protocol between pmlc and pmlogger
  */
-#define LOG_PDU_VERSION1	1	/* datax pdus & PCP 1.x error codes */
 #define LOG_PDU_VERSION2	2	/* private pdus & PCP 2.0 error codes */
 #define LOG_PDU_VERSION		LOG_PDU_VERSION2
 
@@ -1228,7 +1230,44 @@ extern int __pmCheckEventRecords(pmValueSet *, int);
 extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
 
 /* anonymous metric registration (uses derived metrics support) */
-int __pmRegisterAnon(char *, int);
+extern int __pmRegisterAnon(const char *, int);
+
+/* Multi-thread support */
+
+/*
+ * Each of these scopes defines one or more PMAPI routines that will
+ * not allow calls from more than one thread.
+ */
+#define PM_SCOPE_DSO_PMDA	0
+#define PM_SCOPE_ACL		1
+#define PM_SCOPE_AF		2
+#define PM_SCOPE_LOGPORT	3
+#define PM_SCOPE_MAX		3
+extern int __pmMultiThreaded(int);
+
+extern void __pmInitLocks(void);
+#ifdef PM_MULTI_THREAD
+#define PM_MULTIPLE_THREADS(x) __pmMultiThreaded(x)
+#define PM_INIT_LOCKS() __pmInitLocks()
+#ifdef HAVE_PTHREAD_MUTEX_T
+#define PM_LOCK(lock) { int __sts__; if ((__sts__ = pthread_mutex_lock(&lock)) != 0) { fprintf(stderr, "%s:%d: lock failed: %s\n", __FILE__, __LINE__, pmErrStr(-__sts__)); exit(1); } }
+#define PM_UNLOCK(lock) { int __sts__; if ((__sts__ = pthread_mutex_unlock(&lock)) != 0) { fprintf(stderr, "%s:%d: unlock failed: %s\n", __FILE__, __LINE__, pmErrStr(-__sts__)); exit(1); } }
+
+/* the big libpcp lock */
+extern pthread_mutex_t	__pmLock_libpcp;
+#else
+bozo - need pthreads to support multi-thread capabilities !!!
+#endif
+#else
+/*
+ * No multi-thread support, code still works correctly for single-threaded
+ * applications.
+ */
+#define PM_MULTIPLE_THREADS(x) (0)
+#define PM_INIT_LOCKS()
+#define PM_LOCK(x)
+#define PM_UNLOCK(x)
+#endif
 
 #ifdef __cplusplus
 }

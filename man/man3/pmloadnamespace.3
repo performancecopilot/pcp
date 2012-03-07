@@ -52,30 +52,17 @@ unless the environment variable
 is set, in which case the value is assumed to be the pathname
 to the file containing the default local PMNS.
 .PP
-Externally a PMNS may be stored in either an ASCII format or a binary format.
-The utility
-.BR pmnscomp (1)
-is used to create the binary format from the ASCII format described in
+Externally a PMNS is stored in an ASCII format as
+described in
 .BR pmns (4).
 .PP
-If the binary format is used, no checking is performed for aliasing
-in which multiple names in the PMNS are associated with a single Performance
+By default,
+multiple names in the PMNS are not allowed to be
+associated with a single Performance
 Metrics Identifier (PMID).
-If the ASCII format is to be used, duplicate PMIDs are not allowed,
-although
 .BR pmLoadASCIINameSpace (3)
 provides an alternative interface with user-defined control
-over the processing of duplicate PMIDs in an ASCII format PMNS.
-.PP
-.B pmLoadNameSpace
-attempts to load the PMNS by trying the following combinations in order,
-.IP 1. 3n
-Binary format from the file \f2filename\f3.bin\f1
-.IP 2. 3n
-Binary format from the file \f2filename\f1
-.IP 3. 3n
-ASCII format from the file \f2filename\f1
-.RE
+over the processing of duplicate PMIDs in the PMNS.
 .PP
 .B pmLoadNameSpace
 returns zero on success.
@@ -104,7 +91,6 @@ using the
 .IR pmGetConfig (3)
 function.
 .SH SEE ALSO
-.BR pmnscomp (1),
 .BR PMAPI (3),
 .BR pmGetConfig (3),
 .BR pmLoadASCIINameSpace (3),
@@ -130,4 +116,4 @@ more than once.
 .PP
 .B PM_ERR_PMNS
 .IP
-Syntax error in an ASCII format PMNS.
+Syntax error in the PMNS file.

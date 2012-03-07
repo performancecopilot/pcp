@@ -249,6 +249,13 @@ that appear once in the archive log, and are never logged again.
 .PP
 .B __pmControlLog
 returns zero on success.
+.SH NOTE
+This routine is not thread-safe as there is no serialization on the
+use of the communication channel between the sending of the request
+and receiving the reply.
+It is assumed that the caller is single-threaded,
+which is true for the only current user of this routine, namely
+.BR pmlc (1).
 .SH SEE ALSO
 .BR pmlc (1),
 .BR pmlogger (1),

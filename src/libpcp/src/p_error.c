@@ -14,6 +14,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "oldpmapi.h"
 #include <ctype.h>
 
 /*
@@ -37,6 +38,7 @@ int
 __pmSendError(int fd, int from, int code)
 {
     p_error_t	*pp;
+    int		sts;
 
     if ((pp = (p_error_t *)__pmFindPDUBuf(sizeof(p_error_t))) == NULL)
 	return -oserror();
@@ -44,10 +46,7 @@ __pmSendError(int fd, int from, int code)
     pp->hdr.type = PDU_ERROR;
     pp->hdr.from = from;
 
-    if (__pmVersionIPC(fd) == PDU_VERSION1)
-	pp->code = XLATE_ERR_2TO1(code);
-    else
-	pp->code = code;
+    pp->code = code;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
@@ -58,13 +57,16 @@ __pmSendError(int fd, int from, int code)
 
     pp->code = htonl(pp->code);
 
-    return __pmXmitPDU(fd, (__pmPDU *)pp);
+    sts = __pmXmitPDU(fd, (__pmPDU *)pp);
+    __pmUnpinPDUBuf(pp);
+    return sts;
 }
 
 int
 __pmSendXtendError(int fd, int from, int code, int datum)
 {
     x_error_t	*pp;
+    int		sts;
 
     if ((pp = (x_error_t *)__pmFindPDUBuf(sizeof(x_error_t))) == NULL)
 	return -oserror();
@@ -72,10 +74,23 @@ __pmSendXtendError(int fd, int from, int code, int datum)
     pp->hdr.type = PDU_ERROR;
     pp->hdr.from = from;
 
+    /*
+     * It is ALWAYS a PCP 1.x error code here ... this was required
+     * to support migration from the V1 to V2 protocols when a V2 pmcd
+     * (who is the sole user of this routine) supported connections
+     * from both V1 and V2 PMAPI clients ... for the same reason we
+     * cannot retire this translation, even when the V1 protocols are
+     * no longer supported in all other IPC cases.
+     *
+     * For most common cases, code is 0 so it makes no difference.
+     */
     pp->code = htonl(XLATE_ERR_2TO1(code));
+
     pp->datum = datum; /* NOTE: caller must swab this */
 
-    return __pmXmitPDU(fd, (__pmPDU *)pp);
+    sts = __pmXmitPDU(fd, (__pmPDU *)pp);
+    __pmUnpinPDUBuf(pp);
+    return sts;
 }
 
 int
@@ -84,10 +99,7 @@ __pmDecodeError(__pmPDU *pdubuf, int *code)
     p_error_t	*pp;
 
     pp = (p_error_t *)pdubuf;
-    if (__pmLastVersionIPC() == PDU_VERSION1)
-	*code = XLATE_ERR_1TO2((int)ntohl(pp->code));
-    else
-	*code = ntohl(pp->code);
+    *code = ntohl(pp->code);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
 	fprintf(stderr,
@@ -104,7 +116,8 @@ __pmDecodeXtendError(__pmPDU *pdubuf, int *code, int *datum)
     int		sts;
 
     /*
-     * it is ALWAYS a PCP 1.x error code here
+     * It is ALWAYS a PCP 1.x error code here ... see note above
+     * in __pmSendXtendError()
      */
     *code = XLATE_ERR_1TO2((int)ntohl(pp->code));
 
@@ -114,9 +127,7 @@ __pmDecodeXtendError(__pmPDU *pdubuf, int *code, int *datum)
 	*datum = pp->datum; /* NOTE: caller must swab this */
     }
     else {
-	/* assume a vanilla 1.x error PDU ... has same PDU type */
-	sts = PDU_VERSION1;
-	*datum = 0;
+	sts = PM_ERR_IPC;
     }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
