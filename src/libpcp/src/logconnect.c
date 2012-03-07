@@ -204,7 +204,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	sts = PM_ERR_IPC;
     }
 
-    if (pinpdu)
+    if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);
 
     if (sts >= 0) {
