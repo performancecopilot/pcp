@@ -21,7 +21,8 @@ use LWP::Simple;
 my $es_port = 9200;
 my $es_instance = 'localhost';
 my $es_user = 'nobody';
-use vars qw($pmda $es_cluster $es_nodes $es_nodestats $es_root);
+use vars qw($pmda $es_cluster);
+use vars qw($es_nodes $es_nodestats $es_root $es_transportstats $es_shardstats);
 
 my $nodes_indom = 0;
 my @nodes_instances;
@@ -37,7 +38,7 @@ for my $file (pmda_config('PCP_PMDAS_DIR') . '/elasticsearch/es.conf', 'es.conf'
 my $baseurl = "http://$es_instance:$es_port/";
 
 # crack json data structure, extract node names
-sub es_instances
+sub es_node_instances
 {
     my $nodeIDs = shift;
     my $i = 0;
@@ -59,7 +60,6 @@ sub es_instances
 sub es_refresh
 {
     my ($cluster) = @_;
-    my $content;
     my $now = time;
 
     if (defined($cluster_cache[$cluster]) &&
@@ -69,7 +69,7 @@ sub es_refresh
     }
 
     if ($cluster == 0) {	# Update the cluster metrics
-	$content = get($baseurl . "_cluster/health");
+	my $content = get($baseurl . "_cluster/health");
 	if (defined($content)) {
 	    $es_cluster = decode_json($content);
 	} else {
@@ -77,25 +77,25 @@ sub es_refresh
 	    $es_cluster = undef;
 	}
     } elsif ($cluster == 1) {	# Update the node metrics
-	$content = get($baseurl . "_cluster/nodes/stats");
+	my $content = get($baseurl . "_cluster/nodes/stats?all");
 	if (defined($content)) {
 	    $es_nodestats = decode_json($content);
-	    es_instances($es_nodestats->{'nodes'});
+	    es_node_instances($es_nodestats->{'nodes'});
 	} else {
 	    # $pmda->log("es_refresh $cluster failed $content");
 	    $es_nodestats = undef;
 	}
     } elsif ($cluster == 2) {	# Update the other node metrics
-	$content = get($baseurl . "_cluster/nodes");
+	my $content = get($baseurl . "_cluster/nodes?all");
 	if (defined($content)) {
 	    $es_nodes = decode_json($content);
-	    es_instances($es_nodes->{'nodes'});
+	    es_node_instances($es_nodes->{'nodes'});
 	} else {
 	    # $pmda->log("es_refresh $cluster failed $content");
 	    $es_nodes = undef;
 	}
     } elsif ($cluster == 3) {	# Update the root metrics
-	$content = get($baseurl);
+	my $content = get($baseurl);
 	if (defined($content)) {
 	    $es_root = decode_json($content);
 	} else {
@@ -155,8 +155,9 @@ sub es_fetch_callback
     # $pmda->log("es_fetch_callback: $metric_name $cluster.$item ($inst)");
 
     # split into sub-names, remove first couple (e.g. elasticsearch.node.)
+    # except for exception cases (like elasticsearch.version.number).
     @metric_subnames = split(/\./, $metric_name);
-    splice(@metric_subnames,0,2);
+    splice(@metric_subnames, 0, $cluster != 3 ? 2 : 1);
 
     if ($cluster == 0) {
 	if (!defined($es_cluster))	{ return (PM_ERR_AGAIN, 0); }
@@ -466,6 +467,34 @@ $pmda->add_metric(pmda_pmid(1,57), PM_TYPE_U64, $nodes_indom,
 		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
 		'elasticsearch.nodes.indices.search.fetch_time_in_millis',
 		'', '');
+$pmda->add_metric(pmda_pmid(1,58), PM_TYPE_U32, $nodes_indom,
+		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		'elasticsearch.nodes.transport.server_open',
+		'Count of open server connections', '');
+$pmda->add_metric(pmda_pmid(1,59), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'elasticsearch.nodes.transport.rx_count',
+		'Receive transaction count', '');
+$pmda->add_metric(pmda_pmid(1,60), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		'elasticsearch.nodes.transport.rx_size_in_bytes',
+		'Receive transaction size', '');
+$pmda->add_metric(pmda_pmid(1,61), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'elasticsearch.nodes.transport.tx_count',
+		'Transmit transaction count', '');
+$pmda->add_metric(pmda_pmid(1,62), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		'elasticsearch.nodes.transport.tx_size_in_bytes',
+		'Transmit transaction size', '');
+$pmda->add_metric(pmda_pmid(1,63), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		'elasticsearch.nodes.http.current_open',
+		'Number of currently open http connections', '');
+$pmda->add_metric(pmda_pmid(1,64), PM_TYPE_U64, $nodes_indom,
+		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'elasticsearch.nodes.http.total_opened',
+		'Count of http connections opened since starting', '');
 
 # node info stats
 $pmda->add_metric(pmda_pmid(2,0), PM_TYPE_U32, $nodes_indom,
@@ -510,7 +539,7 @@ $pmda->add_metric(pmda_pmid(3,0), PM_TYPE_STRING, PM_INDOM_NULL,
 		  'Version number of elasticsearch', '');
 
 $pmda->add_indom($nodes_indom, \@nodes_instances,
-                 'Instance domain exporting each elasticsearch node', '');
+		'Instance domain exporting each elasticsearch node', '');
 
 $pmda->set_fetch_callback(\&es_fetch_callback);
 $pmda->set_refresh(\&es_refresh);
