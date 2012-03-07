@@ -21,12 +21,14 @@ use LWP::Simple;
 my $es_port = 9200;
 my $es_instance = 'localhost';
 my $es_user = 'nobody';
-use vars qw($pmda $es_cluster);
-use vars qw($es_nodes $es_nodestats $es_root $es_transportstats $es_shardstats);
+use vars qw($pmda $es_cluster $es_nodes $es_nodestats $es_root $es_searchstats);
 
 my $nodes_indom = 0;
 my @nodes_instances;
 my @nodes_instance_ids;
+my $search_indom = 1;
+my @search_instances;
+my @search_instance_ids;
 
 my @cluster_cache;		# time of last refresh for each cluster
 my $cache_interval = 2;		# min secs between refreshes for clusters
@@ -57,51 +59,93 @@ sub es_node_instances
     $pmda->replace_indom($nodes_indom, \@nodes_instances);
 }
 
+# crack json data structure, extract index names
+sub es_search_instances
+{
+    my $searchIDs = shift;
+    my $i = 0;
+
+    @search_instances = ();
+    @search_instance_ids = ();
+    foreach my $search (keys %$searchIDs) {
+	$search_instances[$i*2] = $i;
+	$search_instances[($i*2)+1] = $search;
+	$search_instance_ids[$i*2] = $i;
+	$search_instance_ids[($i*2)+1] = $search;
+	$i++;
+	# $pmda->log("es_search_instances added index: $search");
+    }
+    $pmda->replace_indom($search_indom, \@search_instances);
+}
+
+sub es_refresh_cluster_health
+{
+    my $content = get($baseurl . "_cluster/health");
+    $es_cluster = defined($content) ? decode_json($content) : undef;
+}
+
+sub es_refresh_cluster_nodes_stats_all
+{
+    my $content = get($baseurl . "_cluster/nodes/stats?all");
+    if (defined($content)) {
+	$es_nodestats = decode_json($content);
+	es_node_instances($es_nodestats->{'nodes'});
+    } else {
+	$es_nodestats = undef;
+    }
+}
+
+sub es_refresh_cluster_nodes_all
+{
+    my $content = get($baseurl . "_cluster/nodes?all");
+    if (defined($content)) {
+	$es_nodes = decode_json($content);
+	es_node_instances($es_nodes->{'nodes'});
+    } else {
+	$es_nodes = undef;
+    }
+}
+
+sub es_refresh_root
+{
+    my $content = get($baseurl);
+    $es_root = defined($content) ? decode_json($content) : undef;
+}
+
+sub es_refresh_stats_search
+{
+    my $content = get($baseurl . "_stats/search");
+    if (defined($content)) {
+	$es_searchstats = decode_json($content);
+	es_search_instances($es_searchstats->{'_all'}->{'indices'});
+    } else {
+	$es_searchstats = undef;
+    }
+}
+
 sub es_refresh
 {
     my ($cluster) = @_;
     my $now = time;
 
     if (defined($cluster_cache[$cluster]) &&
-        $now - $cluster_cache[$cluster] <= $cache_interval) {
-	# $pmda->log("es_refresh $cluster - no refresh needed yet");
+	$now - $cluster_cache[$cluster] <= $cache_interval) {
 	return;
     }
 
     if ($cluster == 0) {	# Update the cluster metrics
-	my $content = get($baseurl . "_cluster/health");
-	if (defined($content)) {
-	    $es_cluster = decode_json($content);
-	} else {
-	    # $pmda->log("es_refresh $cluster failed $content");
-	    $es_cluster = undef;
-	}
+	es_refresh_cluster_health();
     } elsif ($cluster == 1) {	# Update the node metrics
-	my $content = get($baseurl . "_cluster/nodes/stats?all");
-	if (defined($content)) {
-	    $es_nodestats = decode_json($content);
-	    es_node_instances($es_nodestats->{'nodes'});
-	} else {
-	    # $pmda->log("es_refresh $cluster failed $content");
-	    $es_nodestats = undef;
-	}
+	es_refresh_cluster_nodes_stats_all();
     } elsif ($cluster == 2) {	# Update the other node metrics
-	my $content = get($baseurl . "_cluster/nodes?all");
-	if (defined($content)) {
-	    $es_nodes = decode_json($content);
-	    es_node_instances($es_nodes->{'nodes'});
-	} else {
-	    # $pmda->log("es_refresh $cluster failed $content");
-	    $es_nodes = undef;
-	}
+	es_refresh_cluster_nodes_all();
     } elsif ($cluster == 3) {	# Update the root metrics
-	my $content = get($baseurl);
-	if (defined($content)) {
-	    $es_root = decode_json($content);
-	} else {
-	    # $pmda->log("es_refresh $cluster failed $content");
-	    $es_root = undef;
-	}
+	es_refresh_root();
+    } elsif ($cluster == 4 ||	# Update the search metrics
+	     $cluster == 5) {
+	es_refresh_stats_search();
+	# avoid 2nd refresh call on metrics in other cluster
+	$cluster_cache[4] = $cluster_cache[5] = $now;
     }
     $cluster_cache[$cluster] = $now;
 }
@@ -111,6 +155,13 @@ sub es_lookup_node
     my ($json, $inst) = @_;
     my $nodeID = $nodes_instance_ids[($inst*2)+1];
     return $json->{'nodes'}->{$nodeID};
+}
+
+sub es_lookup_search
+{
+    my ($json, $inst) = @_;
+    my $searchID = $search_instance_ids[($inst*2)+1];
+    return $json->{'_all'}->{'indices'}->{$searchID};
 }
 
 # iterate over metric-name components, performing hash lookups as we go.
@@ -149,19 +200,17 @@ sub es_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
     my $metric_name = pmda_pmid_name($cluster, $item);
-    my @metric_subnames;
-    my ($node, $json);
+    my @metric_subnames = split(/\./, $metric_name);
+    my ($node, $json, $search);
 
     # $pmda->log("es_fetch_callback: $metric_name $cluster.$item ($inst)");
-
-    # split into sub-names, remove first couple (e.g. elasticsearch.node.)
-    # except for exception cases (like elasticsearch.version.number).
-    @metric_subnames = split(/\./, $metric_name);
-    splice(@metric_subnames, 0, $cluster != 3 ? 2 : 1);
 
     if ($cluster == 0) {
 	if (!defined($es_cluster))	{ return (PM_ERR_AGAIN, 0); }
 	if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
+
+	# remove first couple (i.e. elasticsearch.cluster.)
+	splice(@metric_subnames, 0, 2);
 
 	# cluster.timed_out and cluster.status (numeric codes)
 	if ($item == 1) {
@@ -180,6 +229,9 @@ sub es_fetch_callback
 
 	$node = es_lookup_node($es_nodestats, $inst);
 	if (!defined($node))		{ return (PM_ERR_AGAIN, 0); }
+
+	# remove first couple (i.e. elasticsearch.node.)
+	splice(@metric_subnames, 0, 2);
 	return es_value($node, \@metric_subnames);
     }
     elsif ($cluster == 2) {
@@ -188,13 +240,37 @@ sub es_fetch_callback
 
 	$node = es_lookup_node($es_nodes, $inst);
 	if (!defined($node))		{ return (PM_ERR_AGAIN, 0); }
+	# remove first couple (i.e. elasticsearch.node.)
+	splice(@metric_subnames, 0, 2);
 	return es_value($node, \@metric_subnames);
     }
     elsif ($cluster == 3) {
 	if (!defined($es_root))		{ return (PM_ERR_AGAIN, 0); }
 	if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
 
+	# remove first one (i.e. elasticsearch.)
+	splice(@metric_subnames, 0, 1);
 	return es_value($es_root, \@metric_subnames);
+    }
+    elsif ($cluster == 4) {
+	if (!defined($es_searchstats))	{ return (PM_ERR_AGAIN, 0); }
+	if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
+
+	# remove first couple (i.e. elasticsearch.search.)
+	splice(@metric_subnames, 0, 2);
+	# regex fixes up _all and _shard for us (invalid names)
+	$metric_subnames[0] =~ s/^(all|shards)$/_$1/;
+	return es_value($es_searchstats, \@metric_subnames);
+    }
+    elsif ($cluster == 5) {
+	if ($inst == PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
+	if ($inst > @search_instances)	{ return (PM_ERR_INST, 0); }
+
+	# remove first three (i.e. elasticsearch.search.perindex.)
+	splice(@metric_subnames, 0, 3);
+	$search = es_lookup_search($es_searchstats, $inst);
+	if (!defined($search))		{ return (PM_ERR_AGAIN, 0); }
+	return es_value($search, \@metric_subnames);
     }
     return (PM_ERR_PMID, 0);
 }
@@ -538,8 +614,88 @@ $pmda->add_metric(pmda_pmid(3,0), PM_TYPE_STRING, PM_INDOM_NULL,
 		  'elasticsearch.version.number',
 		  'Version number of elasticsearch', '');
 
+$pmda->add_metric(pmda_pmid(4,0), PM_TYPE_U64, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'elasticsearch.search.shards.total',
+		  'Number of shards in the elasticsearch cluster', '');
+$pmda->add_metric(pmda_pmid(4,1), PM_TYPE_U64, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'elasticsearch.search.shards.successful',
+		  'Number of successful shards in the elasticsearch cluster', '');
+$pmda->add_metric(pmda_pmid(4,2), PM_TYPE_U64, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'elasticsearch.search.shards.failed',
+		  'Number of failed shards in the elasticsearch cluster', '');
+$pmda->add_metric(pmda_pmid(4,3), PM_TYPE_U64, PM_INDOM_NULL,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'elasticsearch.search.all.primaries.search.query_total',
+		  'Number of search queries to all elasticsearch primaries', '');
+$pmda->add_metric(pmda_pmid(4,4), PM_TYPE_U64, PM_INDOM_NULL,
+		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		  'elasticsearch.search.all.primaries.search.query_time_in_millis',
+		  'Time spent in search queries to all elasticsearch primaries', '');
+$pmda->add_metric(pmda_pmid(4,5), PM_TYPE_U64, PM_INDOM_NULL,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'elasticsearch.search.all.primaries.search.fetch_total',
+		  'Number of search fetches to all elasticsearch primaries', '');
+$pmda->add_metric(pmda_pmid(4,6), PM_TYPE_U64, PM_INDOM_NULL,
+		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		  'elasticsearch.search.all.primaries.search.fetch_time_in_millis',
+		  'Time spent in search fetches to all elasticsearch primaries', '');
+$pmda->add_metric(pmda_pmid(4,7), PM_TYPE_U64, PM_INDOM_NULL,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'elasticsearch.search.all.total.search.query_total',
+		  'Number of search queries to all elasticsearch primaries', '');
+$pmda->add_metric(pmda_pmid(4,8), PM_TYPE_U64, PM_INDOM_NULL,
+		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		  'elasticsearch.search.all.total.search.query_time_in_millis',
+		  'Time spent in search queries to all elasticsearch primaries', '');
+$pmda->add_metric(pmda_pmid(4,9), PM_TYPE_U64, PM_INDOM_NULL,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'elasticsearch.search.all.total.search.fetch_total',
+		  'Number of search fetches to all elasticsearch primaries', '');
+$pmda->add_metric(pmda_pmid(4,10), PM_TYPE_U64, PM_INDOM_NULL,
+		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		  'elasticsearch.search.all.total.search.fetch_time_in_millis',
+		  'Time spent in search fetches to all elasticsearch primaries', '');
+
+$pmda->add_metric(pmda_pmid(5,0), PM_TYPE_U64, $search_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'elasticsearch.search.perindex.primaries.search.query_total',
+		  'Number of search queries to all elasticsearch primaries', '');
+$pmda->add_metric(pmda_pmid(5,1), PM_TYPE_U64, $search_indom,
+		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		  'elasticsearch.search.perindex.primaries.search.query_time_in_millis',
+		  'Time spent in search queries to all elasticsearch primaries', '');
+$pmda->add_metric(pmda_pmid(5,2), PM_TYPE_U64, $search_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'elasticsearch.search.perindex.primaries.search.fetch_total',
+		  'Number of search fetches to all elasticsearch primaries', '');
+$pmda->add_metric(pmda_pmid(5,3), PM_TYPE_U64, $search_indom,
+		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		  'elasticsearch.search.perindex.primaries.search.fetch_time_in_millis',
+		  'Time spent in search fetches to all elasticsearch primaries', '');
+$pmda->add_metric(pmda_pmid(5,4), PM_TYPE_U64, $search_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'elasticsearch.search.perindex.total.search.query_total',
+		  'Number of search queries to all elasticsearch primaries', '');
+$pmda->add_metric(pmda_pmid(5,5), PM_TYPE_U64, $search_indom,
+		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		  'elasticsearch.search.perindex.total.search.query_time_in_millis',
+		  'Time spent in search queries to all elasticsearch primaries', '');
+$pmda->add_metric(pmda_pmid(5,6), PM_TYPE_U64, $search_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'elasticsearch.search.perindex.total.search.fetch_total',
+		  'Number of search fetches to all elasticsearch primaries', '');
+$pmda->add_metric(pmda_pmid(5,7), PM_TYPE_U64, $search_indom,
+		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		  'elasticsearch.search.perindex.total.search.fetch_time_in_millis',
+		  'Time spent in search fetches to all elasticsearch primaries', '');
+
 $pmda->add_indom($nodes_indom, \@nodes_instances,
 		'Instance domain exporting each elasticsearch node', '');
+$pmda->add_indom($search_indom, \@search_instances,
+		'Instance domain exporting each elasticsearch index', '');
 
 $pmda->set_fetch_callback(\&es_fetch_callback);
 $pmda->set_refresh(\&es_refresh);
