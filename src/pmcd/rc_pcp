@@ -23,6 +23,23 @@
 # legacy bridge for any scripts or procedures that used $PCP_RC_DIR/pcp
 # from the days before PCP 4.0.
 #
+# The following is for chkconfig on RedHat based systems
+# chkconfig:
+# description: Legacy init script wrapper for the Performance Co-Pilot (PCP) daemons
+#
+# The following is for insserv(1) based systems,
+# e.g. SuSE, where chkconfig is a perl script.
+### BEGIN INIT INFO
+# Provides:          pcp
+# Required-Start:
+# Should-Start:
+# Required-Stop:
+# Should-Stop:
+# Default-Start:
+# Default-Stop:
+# Short-Description: Legacy control for PCP daemons
+# Description:       Legacy init script wrapper for the Performance Co-Pilot (PCP) daemons
+### END INIT INFO
 
 . $PCP_DIR/etc/pcp.env
 
