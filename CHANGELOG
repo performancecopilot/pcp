@@ -1,11 +1,17 @@
-pcp-3.6.0 (March 2012)
-    - thread-safe libpcp, including additional re-entrant and thread-safe
+pcp-3.6.0 (07 March 2012)
+    - Thread-safe libpcp, including additional re-entrant and thread-safe
       variants for some routines
-    - retire all asynchronous routines from libpcp
-    - retire all V1 protocols and services (archive format, PMAPI and
+    - Retire all asynchronous routines from libpcp
+    - Retire all V1 protocols and services (archive format, PMAPI and
       PMDA_INTERFACE)
     - PMNS moves to ASCII only (no binary PMNS)
-    - rework "init" scripts, splitting pcp into pmcd and pmlogger
+    - Rework "init" scripts, splitting pcp into pmcd and pmlogger
+    - Update elasticsearch PMDA to 0.19+, new transport and shard metrics
+    - Updates to PMDA new event queueing interfaces for agents wishing to
+      export that class of performance data.
+    - First round of Coverity cleanup fixes incorporated.
+    - Initial version of the SNMP PMDA, thanks to Hamish Coleman.
+    - Updates to postgres PMDA to export additional recovery metrics.
 
 pcp-3.5.11 (01 December 2011)
     - Update FSF contact address in copyright notices to keep

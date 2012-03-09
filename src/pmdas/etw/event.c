@@ -247,5 +247,5 @@ event_decoder(int eventarray, void *buffer, size_t size,
     sts = pmdaEventAddParam(eventarray, pmid, PM_TYPE_STRING, &atom);
     if (sts < 0)
 	return sts;
-    return 1;	/* simple decoder, added just one parameter into event array */
+    return 1;	/* simple decoder, added just one event array */
 }
