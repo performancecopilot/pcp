@@ -304,9 +304,11 @@ then
     #
     # Stop daemons before erasing the package
     #
-    /sbin/service pcp stop >/dev/null 2>&1
+    /sbin/service pmlogger stop >/dev/null 2>&1
     /sbin/service pmie stop >/dev/null 2>&1
     /sbin/service pmproxy stop >/dev/null 2>&1
+    /sbin/service pcp stop >/dev/null 2>&1
+    /sbin/service pmcd stop >/dev/null 2>&1
 
     /sbin/chkconfig --del pcp >/dev/null 2>&1
     /sbin/chkconfig --del pmcd >/dev/null 2>&1
