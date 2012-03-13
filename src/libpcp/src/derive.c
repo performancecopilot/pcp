@@ -58,12 +58,13 @@
  * via ctxp->c_lock.  We should not unlock the context, that is the
  * responsibility of our callers.
  *
- * errmsg needs to be thread-private
+ * derive_errmsg needs to be thread-private
  */
 
 #include <inttypes.h>
 #include <assert.h>
 #include "derive.h"
+#include "internal.h"
 #include "fault.h"
 
 static int		need_init = 1;
@@ -85,10 +86,12 @@ static int		lexpeek = 0;
 static const char	*string;
 
 #ifdef PM_MULTI_THREAD
-/* using a gcc construct here to make errmsg thread-private */
-static __thread char	*errmsg;
+#ifdef HAVE___THREAD
+/* using a gcc construct here to make derive_errmsg thread-private */
+static __thread char	*derive_errmsg;
+#endif
 #else
-static char		*errmsg;
+static char		*derive_errmsg;
 #endif
 
 static const char	*type_dbg[] = {
@@ -474,9 +477,9 @@ void report_sem_error(char *name, node_t *np)
 		pmprintf("botch @ node type #%d?", np->type);
 	    break;
     }
-    pmprintf(": %s\n", errmsg);
+    pmprintf(": %s\n", PM_TPD(derive_errmsg));
     pmflush();
-    errmsg = NULL;
+    PM_TPD(derive_errmsg) = NULL;
 }
 
 /* type promotion */
@@ -657,13 +660,13 @@ map_desc(int n, node_t *np)
     if (left->sem == PM_SEM_COUNTER) {
 	if (right->sem == PM_SEM_COUNTER) {
 	    if (np->type != L_PLUS && np->type != L_MINUS) {
-		errmsg = "Illegal operator for counters";
+		PM_TPD(derive_errmsg) = "Illegal operator for counters";
 		goto bad;
 	    }
 	}
 	else {
 	    if (np->type != L_STAR && np->type != L_SLASH) {
-		errmsg = "Illegal operator for counter and non-counter";
+		PM_TPD(derive_errmsg) = "Illegal operator for counter and non-counter";
 		goto bad;
 	    }
 	}
@@ -671,7 +674,7 @@ map_desc(int n, node_t *np)
     else {
 	if (right->sem == PM_SEM_COUNTER) {
 	    if (np->type != L_STAR) {
-		errmsg = "Illegal operator for non-counter and counter";
+		PM_TPD(derive_errmsg) = "Illegal operator for non-counter and counter";
 		goto bad;
 	    }
 	}
@@ -683,7 +686,7 @@ map_desc(int n, node_t *np)
 		 * arithmetic operators are supported and all are
 		 * acceptable here ... check added for completeness
 		 */
-		errmsg = "Illegal operator for non-counters";
+		PM_TPD(derive_errmsg) = "Illegal operator for non-counters";
 		goto bad;
 	    }
 	}
@@ -720,7 +723,7 @@ map_desc(int n, node_t *np)
 	case PM_TYPE_DOUBLE:
 	    break;
 	default:
-	    errmsg = "Non-arithmetic type for left operand";
+	    PM_TPD(derive_errmsg) = "Non-arithmetic type for left operand";
 	    goto bad;
     }
     switch (right->type) {
@@ -732,7 +735,7 @@ map_desc(int n, node_t *np)
 	case PM_TYPE_DOUBLE:
 	    break;
 	default:
-	    errmsg = "Non-arithmetic type for right operand";
+	    PM_TPD(derive_errmsg) = "Non-arithmetic type for right operand";
 	    goto bad;
     }
     np->desc.type = promote[left->type][right->type];
@@ -748,7 +751,7 @@ map_desc(int n, node_t *np)
 	if (left->units.dimCount != right->units.dimCount ||
 	    left->units.dimTime != right->units.dimTime ||
 	    left->units.dimSpace != right->units.dimSpace) {
-	    errmsg = "Dimensions are not the same";
+	    PM_TPD(derive_errmsg) = "Dimensions are not the same";
 	    goto bad;
 	}
 	map_units(np);
@@ -763,7 +766,7 @@ map_desc(int n, node_t *np)
 	    if (right->units.dimCount != 0 ||
 	        right->units.dimTime != 0 ||
 	        right->units.dimSpace != 0) {
-		errmsg = "Non-counter and not dimensionless for right operand";
+		PM_TPD(derive_errmsg) = "Non-counter and not dimensionless for right operand";
 		goto bad;
 	    }
 	}
@@ -771,7 +774,7 @@ map_desc(int n, node_t *np)
 	    if (left->units.dimCount != 0 ||
 	        left->units.dimTime != 0 ||
 	        left->units.dimSpace != 0) {
-		errmsg = "Non-counter and not dimensionless for left operand";
+		PM_TPD(derive_errmsg) = "Non-counter and not dimensionless for left operand";
 		goto bad;
 	    }
 	}
@@ -783,7 +786,7 @@ map_desc(int n, node_t *np)
      * instance domain
      */
     if (left->indom != PM_INDOM_NULL && right->indom != PM_INDOM_NULL && left->indom != right->indom) {
-	errmsg = "Operands should have the same instance domain";
+	PM_TPD(derive_errmsg) = "Operands should have the same instance domain";
 	goto bad;
     }
 
@@ -844,7 +847,7 @@ check_expr(int n, node_t *np)
 		    case PM_TYPE_DOUBLE:
 			break;
 		    default:
-			errmsg = "Non-arithmetic operand for function";
+			PM_TPD(derive_errmsg) = "Non-arithmetic operand for function";
 			report_sem_error(registered.mlist[n].name, np);
 			return -1;
 		}
@@ -997,14 +1000,14 @@ parse(int level)
 	/* handle lexicons that terminate the parsing */
 	switch (type) {
 	    case L_ERROR:
-		errmsg = "Illegal character";
+		PM_TPD(derive_errmsg) = "Illegal character";
 		free_expr(expr);
 		return NULL;
 		break;
 	    case L_EOF:
 		if (level == 1 && (state == P_LEAF || state == P_LEAF_PAREN))
 		    return expr;
-		errmsg = "End of input";
+		PM_TPD(derive_errmsg) = "End of input";
 		free_expr(expr);
 		return NULL;
 		break;
@@ -1015,7 +1018,7 @@ parse(int level)
 		}
 		if ((level > 1 && state == P_LEAF_PAREN) || state == P_LEAF)
 		    return expr;
-		errmsg = "Unexpected ')'";
+		PM_TPD(derive_errmsg) = "Unexpected ')'";
 		free_expr(expr);
 		return NULL;
 		break;
@@ -1044,7 +1047,7 @@ parse(int level)
 			__uint64_t	check;
 			check = strtoull(tokbuf, &endptr, 10);
 			if (*endptr != '\0' || check > 0xffffffffUL) {
-			    errmsg = "Constant value too large";
+			    PM_TPD(derive_errmsg) = "Constant value too large";
 			    free_expr(expr);
 			    return NULL;
 			}
@@ -1247,13 +1250,13 @@ pmRegisterDerived(const char *name, const char *expr)
     for (i = 0; i < registered.nmetric; i++) {
 	if (strcmp(name, registered.mlist[i].name) == 0) {
 	    /* oops, duplicate name ... */
-	    errmsg = "Duplicate derived metric name";
+	    PM_TPD(derive_errmsg) = "Duplicate derived metric name";
 	    PM_UNLOCK(registered.mutex);
 	    return (char *)expr;
 	}
     }
 
-    errmsg = NULL;
+    PM_TPD(derive_errmsg) = NULL;
     string = expr;
     np = parse(1);
     if (np == NULL) {
@@ -1421,7 +1424,8 @@ next_line:
 char *
 pmDerivedErrStr(void)
 {
-    return errmsg;
+    PM_INIT_LOCKS();
+    return PM_TPD(derive_errmsg);
 }
 
 /*

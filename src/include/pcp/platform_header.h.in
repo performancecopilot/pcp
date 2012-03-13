@@ -415,7 +415,9 @@ typedef void (*SIG_PF) (int);
 #include <libgen.h>
 #endif
 
+/* thread support options */
 #undef HAVE_PTHREAD_MUTEX_T
+#undef HAVE___THREAD
 
 #undef HAVE_FNDELAY
 #if !defined(HAVE_FNDELAY)

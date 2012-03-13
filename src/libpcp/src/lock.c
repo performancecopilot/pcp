@@ -14,38 +14,68 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 
 /* the big libpcp lock */
 #ifdef PM_MULTI_THREAD
 #ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
-pthread_mutex_t		__pmLock_libpcp = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+pthread_mutex_t	__pmLock_libpcp = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #else
-pthread_mutex_t		__pmLock_libpcp;
+pthread_mutex_t	__pmLock_libpcp;
 #endif
+#endif
+
+#ifndef HAVE___THREAD
+pthread_key_t 	__pmTPDKey;
+
+static void
+__pmTPD__destroy(void *addr)
+{
+    free(addr);
+}
 #endif
 
 void
 __pmInitLocks(void)
 {
 #ifdef PM_MULTI_THREAD
-#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
-    /*
-     * Unable to initialize at compile time, need to do it here in
-     * a one trip run-time initialization.
-     */
     static pthread_mutex_t	init = PTHREAD_MUTEX_INITIALIZER;
     static int			done = 0;
     pthread_mutex_lock(&init);
     if (!done) {
-	/* one-trip initialization */
+#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+	/*
+	 * Unable to initialize at compile time, need to do it here in
+	 * a one trip for all threads run-time initialization.
+	 */
 	pthread_mutexattr_t    attr;
 
 	pthread_mutexattr_init(&attr);
 	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
 	pthread_mutex_init(&__pmLock_libpcp, &attr);
+#endif
+#ifndef HAVE___THREAD
+	/* first thread here creates the thread private data key */
+	pthread_key_create(&__pmTPDKey, __pmTPD__destroy);
+#endif
 	done = 1;
     }
     pthread_mutex_unlock(&init);
+#ifndef HAVE___THREAD
+    if (pthread_getspecific(__pmTPDKey) == NULL) {
+	__pmTPD	*tpd = (__pmTPD *)malloc(sizeof(__pmTPD));
+	int	sts;
+	if (tpd == NULL) {
+	    __pmNoMem("__pmInitLocks: __pmTPD", sizeof(__pmTPD), PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	sts = pthread_setspecific(__pmTPDKey, tpd);
+	if (sts != 0) {
+	    fprintf(stderr, "__pmInitLocks: fatal pthread_setspecific failure: %d\n", sts);
+	    exit(1);
+	}
+	tpd->curcontext = PM_CONTEXT_UNDEF;
+    }
 #endif
 #endif
 }

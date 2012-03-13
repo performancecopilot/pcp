@@ -24,6 +24,31 @@ extern "C" {
  */
 extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **);
 
+#ifdef HAVE___THREAD
+/*
+ * C compiler is probably gcc and supports __thread declarations
+ */
+#define PM_TPD(x) x
+#else
+/*
+ * Roll-your-own Thread Private Data support
+ */
+extern pthread_key_t __pmTPDKey;
+
+typedef struct {
+    int		curcontext;	/* current context */
+    char	*derive_errmsg;	/* derived metric parser error message */
+} __pmTPD;
+
+static inline __pmTPD *
+__pmTPDGet(void)
+{
+    return (__pmTPD *)pthread_getspecific(__pmTPDKey);
+}
+
+#define PM_TPD(x)  __pmTPDGet()->x
+#endif
+
 #ifdef __cplusplus
 }
 #endif

@@ -1140,6 +1140,17 @@ AC_MSG_RESULT($fmt_pthread)
 AC_SUBST(fmt_pthread)
 rm -rf conftest.c conftest.debug
 
+dnl check if gcc supports __thread for thread private data
+AC_MSG_CHECKING([if compiler supports __thread])
+AC_TRY_COMPILE(
+[
+    #include <pthread.h>
+    __thread int x;
+],
+[
+    /* nothing here! */
+], AC_DEFINE(HAVE___THREAD) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+
 dnl check sizeof long
 AC_MSG_CHECKING([sizeof long])
 cat <<End-of-File >conftest.c

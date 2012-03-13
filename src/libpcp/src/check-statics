@@ -72,7 +72,7 @@ context.o
     b n_backoff			# guarded by __pmLock_libpcp mutex
     b contexts			# guarded by __pmLock_libpcp mutex
     b contexts_len		# guarded by __pmLock_libpcp mutex
-    d curcontext		# __thread private
+    d ?curcontext		# thread private
 derive_fetch.o
 derive.o
     d func			# const
@@ -86,7 +86,7 @@ derive.o
     b this			# guarded by registered.mutex
     d registered		# guarded by registered.mutex
     b pmid.[0-9]*		# guarded by registered.mutex
-    b errmsg			# __thread private
+    b ?derive_errmsg		# thread private
 desc.o
 endian.o
 err.o
@@ -123,6 +123,7 @@ lock.o
     D __pmLock_libpcp		# the global libpcp mutex
     b ?init.[0-9]*		# local __pmInitLocks mutex
     b ?done.[0-9]*		# guarded by local __pmInitLocks mutex
+    C ?__pmTPDKey		# one-trip initialization then read-only
     b multi_init		# guarded by __pmLock_libpcp mutex
     b multi_seen		# guarded by __pmLock_libpcp mutex
 logconnect.o
