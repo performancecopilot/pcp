@@ -27,7 +27,7 @@ TESTCODE  =
 PERLDOCS  = Changes MANIFEST
 LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLMOD) $(INTERFACE) $(TESTCODE)
 
-LPKGDIRT = PCP-LogImport-* tmp
+LPKGDIRT = PCP-LogImport-* tmp MYMETA.yml MYMETA.json
 LDIRT = Makefile COPYING LogImport.bs LogImport.c LogImport.o cvalue pm_to_blib blib \
 	Makefile.old $(LPKGDIRT)
 
