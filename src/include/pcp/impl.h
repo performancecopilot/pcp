@@ -44,7 +44,9 @@
  * Thread-safe support ... #define to enable thread-safe protection of
  * global data structures and mutual exclusion when required
  */
+#if defined(HAVE_THREAD_LOCALS) && defined(HAVE_PTHREAD_MUTEX_T)
 #define PM_MULTI_THREAD 1
+#endif
 
 #ifdef PM_MULTI_THREAD
 #ifdef HAVE_PTHREAD_H

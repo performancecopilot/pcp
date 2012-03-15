@@ -855,6 +855,15 @@ AC_TRY_COMPILE(
     long long x = 0LL;
 ], AC_DEFINE(HAVE_CONST_LONGLONG))
 
+dnl check if thread local storage is supported
+AC_TRY_COMPILE(
+[
+    #include <pthread.h>
+],
+[
+    static __thread int tl;
+], AC_DEFINE(HAVE_THREAD_LOCALS))
+
 dnl check if _environ is declared globally
 AC_TRY_LINK(
 [

@@ -50,8 +50,11 @@ __pmInitLocks(void)
 #endif
 }
 
+#ifdef PM_MULTI_THREAD
 static int		multi_init[PM_SCOPE_MAX+1];
 static pthread_t	multi_seen[PM_SCOPE_MAX+1];
+#endif
+
 int
 __pmMultiThreaded(int scope)
 {
