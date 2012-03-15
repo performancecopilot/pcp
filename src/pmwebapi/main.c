@@ -1,18 +1,18 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011 Red Hat Inc.
- * 
+ * Copyright (c) 2011-2012 Red Hat Inc.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
@@ -36,14 +36,14 @@ unsigned exit_p;               /* counted by SIG* handler */
    (b) operation an existing context: do it
    (c) access to some non-API URI: serve it from $resourcedir/ if configured.
 */
-int mhd_respond (void *cls, struct MHD_Connection *connection, 
-                 const char *url, 
-                 const char *method, const char *version, 
-                 const char *upload_data, 
+int mhd_respond (void *cls, struct MHD_Connection *connection,
+                 const char *url,
+                 const char *method, const char *version,
+                 const char *upload_data,
                  size_t *upload_data_size, void **con_cls)
 {
   static int dummy;
-  
+
   /* MHD calls us at least twice per request.  Skip the first one,
      since it only gives us headers, and not any POST content. */
   if (& dummy != *con_cls) {
@@ -76,7 +76,7 @@ int mhd_respond (void *cls, struct MHD_Connection *connection,
 
     __pmNotifyErr (LOG_INFO, "%s:%s %s %s %s", hostname, servname, version, method, url);
   }
-  
+
   /* Determine whether request is a pmapi or a resource call. */
   if (0 == strncmp(url, uriprefix, strlen(uriprefix)))
     return pmwebapi_respond (cls, connection,
@@ -85,7 +85,7 @@ int mhd_respond (void *cls, struct MHD_Connection *connection,
 
   else if (0 == strcmp(method, "GET") && resourcedir != NULL)
     return pmwebres_respond (cls, connection, url);
-  
+
   return MHD_NO;
 }
 
@@ -137,11 +137,11 @@ int main(int argc, char *argv[])
         if (*endptr != '\0' || pn < 0 || pn > 65535) {
           fprintf(stderr, "%s: invalid -p port number %s\n", pmProgname, optarg);
           errflag ++;
-        } 
+        }
         else port = (unsigned short) pn;
       }
       break;
-      
+
     case 't':
       {
         long tn;
@@ -150,41 +150,41 @@ int main(int argc, char *argv[])
         if (*endptr != '\0' || tn < 0 || tn > UINT_MAX) {
           fprintf(stderr, "%s: invalid -t timeoutr %s\n", pmProgname, optarg);
           errflag ++;
-        } 
+        }
         else maxtimeout = (unsigned) tn;
       }
       break;
-      
+
     case 'K':
       if ((errmsg = __pmSpecLocalPMDA(optarg)) != NULL) {
         fprintf(stderr, "%s: __pmSpecLocalPMDA failed\n%s\n", pmProgname, errmsg);
         errflag++;
       }
       break;
-      
+
     case 'n':
       pmnsfile = optarg;
       break;
-      
+
     case 'a':
       uriprefix = optarg;
       break;
-      
+
     case 'r':
       resourcedir = optarg;
       break;
-      
+
     case 'v':
       verbosity ++;
       break;
-      
+
     default:
     case '?':
     case 'h':
       fprintf(stderr, usage, pmProgname);
       exit(EXIT_FAILURE);
     }
-  
+
   if (errflag)
     exit(EXIT_FAILURE);
 
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
      future, if PMAPI becomes safe to invoke from a multithreaded
      application, consider MHD_USE_THREAD_PER_CONNECTION, with
      ample locking over the contexts etc. */
-  d = MHD_start_daemon(0 /* | MHD_USE_IPv6 */, 
+  d = MHD_start_daemon(0 /* | MHD_USE_IPv6 */,
                        port,
                        NULL, NULL,              /* default accept policy */
                        &mhd_respond, NULL,      /* handler callback */
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
     /* Always block for at most half the context maxtimeout, so on
        average we garbage-collect contexts at no more than 50% past
        their expiry times.  We don't need to bound it by
-       MHD_get_timeout, since we don't use a small 
+       MHD_get_timeout, since we don't use a small
        MHD_OPTION_CONNECTION_TIMEOUT. */
     tv.tv_sec = maxtimeout/2;
     tv.tv_usec = (maxtimeout*1000000)/2 % 1000000;
@@ -253,3 +253,4 @@ int main(int argc, char *argv[])
   /* But the OS will do all that for us anyway. */
   return 0;
 }
+

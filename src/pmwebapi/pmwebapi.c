@@ -1,18 +1,18 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011 Red Hat Inc.
- * 
+ * Copyright (c) 2011-2012 Red Hat Inc.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
@@ -39,8 +39,8 @@ static __pmHashCtl contexts;
 
 
 
-pmHashIterResult_t pmwebapi_gc_fn (const __pmHashCtl *hcp, void *cdata, 
-                                   const __pmHashNode *kv) 
+pmHashIterResult_t pmwebapi_gc_fn (const __pmHashCtl *hcp, void *cdata,
+                                   const __pmHashNode *kv)
 {
   const struct webcontext *value = kv->data;
   time_t now = * (time_t *) cdata;
@@ -69,7 +69,7 @@ void pmwebapi_gc ()
 
   /* if-multithread: Lock contexts. */
   __pmHashIter (& contexts, pmwebapi_gc_fn, & now);
-  /* if-multithread: Unlock contexts. */  
+  /* if-multithread: Unlock contexts. */
 }
 
 
@@ -79,7 +79,7 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
                       const char* method, const char* upload_data, size_t *upload_data_size)
 {
   /* Decode the calls to the web API. */
-  if (0 == strcmp (url, "context") && 
+  if (0 == strcmp (url, "context") &&
       (0 == strcmp (method, "POST") || 0 == strcmp (method, "GET"))) {
     /* Create a context. */
     const char *val;
@@ -105,7 +105,7 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
         pt = strtol(optarg, &endptr, 0);
         if (*endptr != '\0' || pt <= 0 || pt > maxtimeout) {
           polltimeout = maxtimeout;
-        } 
+        }
         else
           polltimeout = (unsigned) pt;
     } else {
