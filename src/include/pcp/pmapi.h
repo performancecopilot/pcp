@@ -621,18 +621,18 @@ typedef struct {
 
 typedef struct {
     __pmTimeval		er_timestamp;	/* must be 2 x 32-bit format */
-    int			er_flags;	/* event record characteristics */
-    int			er_nparams;	/* number of er_param[] entries */
+    unsigned int	er_flags;	/* event record characteristics */
+    unsigned int	er_nparams;	/* number of er_param[] entries */
     pmEventParameter	er_param[1];
 } pmEventRecord;
 
 /* potential flags bits set in er_flags (above) */
-#define PM_EVENT_FLAG_POINT	(1<<0)	/* an observation, default type */
-#define PM_EVENT_FLAG_START	(1<<1)	/* marking start of a new event */
-#define PM_EVENT_FLAG_END	(1<<2)	/* completion of a traced event */
-#define PM_EVENT_FLAG_ID	(1<<3)	/* 1st parameter is a trace ID */
-#define PM_EVENT_FLAG_PARENT	(1<<4)	/* 2nd parameter is parents ID */
-#define PM_EVENT_FLAG_MISSED	(1<<31)	/* nparams shows #missed events */
+#define PM_EVENT_FLAG_POINT	(1U<<0)	/* an observation, default type */
+#define PM_EVENT_FLAG_START	(1U<<1)	/* marking start of a new event */
+#define PM_EVENT_FLAG_END	(1U<<2)	/* completion of a traced event */
+#define PM_EVENT_FLAG_ID	(1U<<3)	/* 1st parameter is a trace ID */
+#define PM_EVENT_FLAG_PARENT	(1U<<4)	/* 2nd parameter is parents ID */
+#define PM_EVENT_FLAG_MISSED	(1U<<31)/* nparams shows #missed events */
 
 typedef struct {
 		/* align initial declarations with start of pmValueBlock */
@@ -644,7 +644,7 @@ typedef struct {
     unsigned int	ea_type : 8;	/* value type */
 #endif
 		/* real event records start here */
-    int			ea_nrecords;    /* number of ea_record[] entries */
+    unsigned int	ea_nrecords;    /* number of ea_record[] entries */
     pmEventRecord	ea_record[1];
 } pmEventArray;
 

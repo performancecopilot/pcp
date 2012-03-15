@@ -41,8 +41,8 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp, int idx)
     pmEventRecord	*erp;
     pmEventParameter	*epp;
     char		*vbuf;
-    int			r;	/* records */
-    int			p;	/* parameters in a record ... */
+    unsigned int	r;	/* records */
+    unsigned int	p;	/* parameters in a record ... */
     pmAtomValue		atom;
     char		strbuf[20];
 
@@ -70,11 +70,7 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp, int idx)
 		(unsigned long)PM_VAL_HDR_SIZE + sizeof(eap->ea_nrecords));
 	return;
     }
-    fprintf(f, "nrecords: %d\n", eap->ea_nrecords);
-    if (eap->ea_nrecords < 0) {
-	fprintf(f, "Error: bad nrecords\n");
-	return;
-    }
+    fprintf(f, "nrecords: %u\n", eap->ea_nrecords);
     if (eap->ea_nrecords == 0) {
 	fprintf(f, "Warning: no event records\n");
 	return;
@@ -84,7 +80,7 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp, int idx)
     base = (char *)&eap->ea_record[0];
     valend = &((char *)eap)[eap->ea_len];
     for (r = 0; r < eap->ea_nrecords; r++) {
-	fprintf(f, "Event Record [%d]", r);
+	fprintf(f, "Event Record [%u]", r);
 	if (base + sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams) > valend) {
 	    fprintf(f, " Error: buffer overflow\n");
 	    return;
@@ -100,10 +96,11 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp, int idx)
 	    fputc('\n', f);
 	    continue;
 	}
-	fprintf(f, " with %d parameters\n", erp->er_nparams);
+	fprintf(f, " with %u parameters\n", erp->er_nparams);
 	for (p = 0; p < erp->er_nparams; p++) {
 	    char	*name;
-	    fprintf(f, "    Parameter [%d]:", p);
+
+	    fprintf(f, "    Parameter [%u]:", p);
 	    if (base + sizeof(pmEventParameter) > valend) {
 		fprintf(f, " Error: buffer overflow\n");
 		return;
@@ -157,8 +154,6 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp, int idx)
 	    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);
 	}
     }
-
-    return;
 }
 
 /*
@@ -185,8 +180,6 @@ __pmCheckEventRecords(pmValueSet *vsp, int idx)
     if (eap->ea_type != PM_TYPE_EVENT)
 	return PM_ERR_TYPE;
     if (eap->ea_len < PM_VAL_HDR_SIZE + sizeof(eap->ea_nrecords))
-	return PM_ERR_TOOSMALL;
-    if (eap->ea_nrecords < 0)
 	return PM_ERR_TOOSMALL;
     base = (char *)&eap->ea_record[0];
     valend = &((char *)eap)[eap->ea_len];
@@ -234,8 +227,8 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
     pmResult		*rp;
     char		*base;
     char		*vbuf;
-    int			r;		/* records */
-    int			p;		/* parameters in a record ... */
+    unsigned int	r;		/* records */
+    unsigned int	p;		/* parameters in a record ... */
     int			numpmid;	/* metrics in a pmResult */
     int			need;
     int			want;
