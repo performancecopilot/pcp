@@ -539,6 +539,12 @@ closelog(void)
     eventlog = NULL;
 }
 
+const char *
+strerror_r(int errnum, char *buf, size_t buflen)
+{
+    return strerror_s(buf, buflen, errnum);
+}
+
 /* Windows socket error codes - what a nightmare! */
 static const struct {
     int  	err;

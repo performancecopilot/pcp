@@ -484,7 +484,8 @@ typedef void (*SIG_PF) (int);
 #define EPROTO		WSAEPROTONOSUPPORT
 #define EMSGSIZE	WSAEMSGSIZE
 #define ENODATA		WSANO_DATA
-extern char *wsastrerror(int);
+extern const char *wsastrerror(int);
+extern const char *strerror_r(int, char *, buflen);
 
 #define HAVE_PIPE1
 #define HAVE_MKDIR2
