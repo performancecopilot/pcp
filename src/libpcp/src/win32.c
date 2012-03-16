@@ -542,7 +542,9 @@ closelog(void)
 const char *
 strerror_r(int errnum, char *buf, size_t buflen)
 {
-    return strerror_s(buf, buflen, errnum);
+    /* Missing from MinGW headers, should use: */
+    /* return strerror_s(buf, buflen, errnum); */
+    return strerror(errnum);
 }
 
 /* Windows socket error codes - what a nightmare! */
