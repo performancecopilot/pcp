@@ -72,6 +72,7 @@ __pmSetVersionIPC(int fd, int version)
     if (pmDebug & DBG_TRACE_CONTEXT)
 	fprintf(stderr, "__pmSetVersionIPC: fd=%d version=%d\n", fd, version);
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if ((sts = __pmResizeIPC(fd)) < 0) {
 	PM_UNLOCK(__pmLock_libpcp);
@@ -96,6 +97,7 @@ __pmSetSocketIPC(int fd)
     if (pmDebug & DBG_TRACE_CONTEXT)
 	fprintf(stderr, "__pmSetSocketIPC: fd=%d\n", fd);
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if ((sts = __pmResizeIPC(fd)) < 0) {
 	PM_UNLOCK(__pmLock_libpcp);
@@ -119,6 +121,7 @@ __pmVersionIPC(int fd)
 
     if (fd == PDU_OVERRIDE2)
 	return PDU_VERSION2;
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (__pmIPCTablePtr == NULL || fd < 0 || fd >= ipctablesize) {
 	if (pmDebug & DBG_TRACE_CONTEXT)
@@ -138,6 +141,8 @@ int
 __pmLastVersionIPC()
 {
     int		sts;
+
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     sts = __pmVersionIPC(__pmLastUsedFd);
     PM_UNLOCK(__pmLock_libpcp);
@@ -149,6 +154,7 @@ __pmSocketIPC(int fd)
 {
     int		sts;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (__pmIPCTablePtr == NULL || fd < 0 || fd >= ipctablesize) {
 	PM_UNLOCK(__pmLock_libpcp);
@@ -169,6 +175,7 @@ __pmSocketIPC(int fd)
 void
 __pmOverrideLastFd(int fd)
 {
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     __pmLastUsedFd = fd;
     PM_UNLOCK(__pmLock_libpcp);
@@ -177,6 +184,7 @@ __pmOverrideLastFd(int fd)
 void
 __pmResetIPC(int fd)
 {
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (__pmIPCTablePtr == NULL || fd < 0 || fd >= ipctablesize) {
 	PM_UNLOCK(__pmLock_libpcp);
@@ -191,6 +199,7 @@ __pmPrintIPC(void)
 {
     int	i;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     fprintf(stderr, "IPC table fd(PDU version):");
     for (i = 0; i < ipctablesize; i++) {

@@ -179,6 +179,7 @@ __pmConfig(__pmConfigCallback formatter)
     char *val;
     char *p;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     prefix = getenv("PCP_DIR");
     if ((conf = getenv("PCP_CONF")) == NULL) {
@@ -232,6 +233,7 @@ pmGetConfig(const char *name)
     static int		state = 0;
     char		*val;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (state == 0) {
 	state = 1;

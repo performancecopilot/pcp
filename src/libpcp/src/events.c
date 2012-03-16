@@ -245,6 +245,7 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
     static char		*name_flags = "event.flags";
     static char		*name_missed = "event.missed";
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (first) {
 PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_PMAPI);

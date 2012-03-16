@@ -88,6 +88,7 @@ __pmMultiThreaded(int scope)
 #ifdef PM_MULTI_THREAD
     int			sts = 0;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (!multi_init[scope]) {
 	multi_init[scope] = 1;

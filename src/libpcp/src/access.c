@@ -292,6 +292,7 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 
 	if (strcasecmp(name, "localhost") == 0) {
 	    /* Map "localhost" to full host name & get IP address */
+	    PM_INIT_LOCKS();
 	    PM_LOCK(__pmLock_libpcp);
 	    if (!gotmyhostid)
 		if (getmyhostid() < 0) {
@@ -304,6 +305,7 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	}
 	else
 	    realname = name;
+	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
 	if ((hep = gethostbyname(realname)) == NULL) {
 	    __pmNotifyErr(LOG_ERR, "gethostbyname(%s), %s\n",
@@ -396,6 +398,7 @@ __pmAccAddClient(const struct in_addr *hostid, unsigned int *denyOpsResult)
      * consistently.
      */
     if (clientid.s_addr == htonl(INADDR_LOOPBACK)) {
+	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
 	if (!gotmyhostid)
 	    getmyhostid();

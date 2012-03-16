@@ -40,6 +40,7 @@ __pmLoggerTimeout(void)
     static int		timeout = TIMEOUT_NEVER;
     static int		done_default = 0;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (!done_default) {
 	char	*timeout_str;
@@ -130,6 +131,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 #endif
     }
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if ((servInfo = gethostbyname(hostname)) == NULL) {
 #ifdef PCP_DEBUG

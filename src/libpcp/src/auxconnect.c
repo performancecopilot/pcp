@@ -153,6 +153,7 @@ __pmConnectTimeout(void)
      * 	PMCD_CONNECT_TIMEOUT
      *	PMCD_PORT
      */
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (first_time) {
 	char	*env_str;
@@ -191,6 +192,7 @@ __pmAuxConnectPMCD(const char *hostname)
     static int		pmcd_port;
     static int		first_time = 1;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (first_time) {
 	char	*env_str;
@@ -225,6 +227,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     int			sts;
     int			fdFlags;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if ((servInfo = gethostbyname(hostname)) == NULL) {
 #ifdef PCP_DEBUG

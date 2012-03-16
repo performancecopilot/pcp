@@ -50,9 +50,9 @@
  * All access to registered is controlled by the registered.mutex.
  *
  * No locking needed in init() to protect need_init and the getenv()
- * call, as we always host the registered.mutex before calling init().
+ * call, as we always lock the registered.mutex before calling init().
  *
- * Tne context locking protocol ensures that when any of the routines
+ * The context locking protocol ensures that when any of the routines
  * below are called with a __pmContext * argument, that argument is
  * not NULL and is associated with a context that is ALREADY locked
  * via ctxp->c_lock.  We should not unlock the context, that is the
@@ -73,7 +73,7 @@ static ctl_t		registered = {
 #ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
     PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
 #else
-bozo! the registered mutex must allow recursive locking
+    PTHREAD_MUTEX_INITIALIZER,
 #endif
 #endif
 	0, NULL, 0, 0 };
@@ -127,6 +127,31 @@ static const struct {
 
 static const char	*state_dbg[] = {
 	"INIT", "LEAF", "LEAF_PAREN", "BINOP", "FUNC_OP", "FUNC_END" };
+
+#ifdef PM_MULTI_THREAD
+#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+static void
+initialize_mutex(void)
+{
+    static pthread_mutex_t	init = PTHREAD_MUTEX_INITIALIZER;
+    static int			done = 0;
+    pthread_mutex_lock(&init);
+    if (!done) {
+	/*
+	 * Unable to initialize at compile time, need to do it here in
+	 * a one trip for all threads run-time initialization.
+	 */
+	pthread_mutexattr_t    attr;
+
+	pthread_mutexattr_init(&attr);
+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutex_init(&registered.mutex, &attr);
+	done = 1;
+    }
+    pthread_mutex_unlock(&init);
+}
+#endif
+#endif
 
 /* Register an anonymous metric */
 int
@@ -1239,6 +1264,11 @@ pmRegisterDerived(const char *name, const char *expr)
     int			i;
 
     PM_INIT_LOCKS();
+#ifdef PM_MULTI_THREAD
+#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+    initialize_mutex();
+#endif
+#endif
     PM_LOCK(registered.mutex);
 
 #ifdef PCP_DEBUG
@@ -1440,6 +1470,11 @@ __dmtraverse(const char *name, char ***namelist)
     char	**list = NULL;
     int		matchlen = strlen(name);
 
+#ifdef PM_MULTI_THREAD
+#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+    initialize_mutex();
+#endif
+#endif
     PM_LOCK(registered.mutex);
     init();
 
@@ -1477,6 +1512,11 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
     int		start;
     int		len;
 
+#ifdef PM_MULTI_THREAD
+#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+    initialize_mutex();
+#endif
+#endif
     PM_LOCK(registered.mutex);
     init();
 
@@ -1567,6 +1607,11 @@ __dmgetpmid(const char *name, pmID *dp)
 {
     int		i;
 
+#ifdef PM_MULTI_THREAD
+#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+    initialize_mutex();
+#endif
+#endif
     PM_LOCK(registered.mutex);
     init();
 
@@ -1586,6 +1631,11 @@ __dmgetname(pmID pmid, char ** name)
 {
     int		i;
 
+#ifdef PM_MULTI_THREAD
+#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+    initialize_mutex();
+#endif
+#endif
     PM_LOCK(registered.mutex);
     init();
 
@@ -1613,6 +1663,11 @@ __dmopencontext(__pmContext *ctxp)
     int		sts;
     ctl_t	*cp;
 
+#ifdef PM_MULTI_THREAD
+#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+    initialize_mutex();
+#endif
+#endif
     PM_LOCK(registered.mutex);
     init();
 

@@ -101,6 +101,7 @@ waitawhile(__pmPMCDCtl *ctl)
 __pmContext *
 __pmHandleToPtr(int handle)
 {
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (handle < 0 || handle >= contexts_len ||
 	contexts[handle]->c_type == PM_CONTEXT_FREE) {
@@ -120,6 +121,7 @@ int
 __pmPtrToHandle(__pmContext *ctxp)
 {
     int		i;
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     for (i = 0; i < contexts_len; i++) {
 	if (ctxp == contexts[i]) {
@@ -441,6 +443,7 @@ pmReconnectContext(int handle)
     __pmPMCDCtl	*ctl;
     int		sts;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (handle < 0 || handle >= contexts_len ||
 	contexts[handle]->c_type == PM_CONTEXT_FREE) {
@@ -542,7 +545,7 @@ pmDupContext(void)
     pthread_mutex_t	save_lock;
 #endif
 
-
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if ((old = pmWhichContext()) < 0) {
 	sts = old;

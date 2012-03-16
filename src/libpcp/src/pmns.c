@@ -96,6 +96,7 @@ static __pmnsNode *locate(const char *name, __pmnsNode *root);
 void
 __pmUsePMNS(__pmnsTree *t)
 {
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     useExtPMNS = 1;
     curr_pmns = t;
@@ -149,6 +150,7 @@ pmGetPMNSLocation(void)
     int n;
     int sts;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (useExtPMNS) {
 	PM_UNLOCK(__pmLock_libpcp);
@@ -859,6 +861,7 @@ __pmFixPMNSHashTab(__pmnsTree *tree, int numpmid, int dupok)
     if (tree->htab == NULL)
 	return -oserror();
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if ((sts = backlink(tree, tree->root, dupok)) < 0) {
 	PM_UNLOCK(__pmLock_libpcp);
@@ -1155,6 +1158,7 @@ __pmHasPMNSFileChanged(const char *filename)
     const char	*f;
     int		sts;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
 
     f = getfname(filename);
@@ -1288,6 +1292,7 @@ load(const char *filename, int dupok)
 __pmnsTree*
 __pmExportPMNS(void)
 {
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     export = 1;
     PM_UNLOCK(__pmLock_libpcp);
@@ -1399,6 +1404,7 @@ __pmFreePMNS(__pmnsTree *pmns)
 void
 pmUnloadNameSpace(void)
 {
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     havePmLoadCall = 0;
     __pmFreePMNS(main_pmns);
@@ -1461,6 +1467,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	char		*xp;
 	__pmnsNode	*np;
 
+	PM_INIT_LOCKS();
 	if (ctxp != NULL)
 	    PM_UNLOCK(ctxp->c_lock);
 	for (i = 0; i < numpmid; i++) {
@@ -1838,6 +1845,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	if (statuslist)
 	  *statuslist = NULL;
 
+	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
 	if (*name == '\0')
 	    np = curr_pmns->root; /* use "" to name the root of the PMNS */
@@ -2146,6 +2154,7 @@ pmNameID(pmID pmid, char **name)
 
     else if (pmns_location == PMNS_LOCAL) {
     	__pmnsNode	*np;
+	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
 	for (np = curr_pmns->htab[pmid % curr_pmns->htabsize]; np != NULL; np = np->hash) {
 	    if (np->pmid == pmid) {
@@ -2207,6 +2216,7 @@ pmNameAll(pmID pmid, char ***namelist)
 	     */
 	    return PM_ERR_PMID;
 	}
+	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
 	for (np = curr_pmns->htab[pmid % curr_pmns->htabsize]; np != NULL; np = np->hash) {
 	    if (np->pmid == pmid) {
@@ -2351,6 +2361,7 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
     if (pmns_location == PMNS_LOCAL) {
 	int	sts;
 
+	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
 	sts = TraversePMNS_local(name, func, func_r, closure);
 	PM_UNLOCK(__pmLock_libpcp);
@@ -2476,6 +2487,7 @@ pmTrimNameSpace(void)
     if ((ctxp = __pmHandleToPtr(pmWhichContext())) == NULL)
 	return PM_ERR_NOCONTEXT;
 
+    PM_INIT_LOCKS();
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	/* unset all of the marks */
 	PM_LOCK(__pmLock_libpcp);
@@ -2519,6 +2531,7 @@ __pmDumpNameSpace(FILE *f, int verbosity)
     else if (pmns_location == PMNS_REMOTE)
 	fprintf(f, "__pmDumpNameSpace: Name Space is remote !\n");
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     dumptree(f, 0, curr_pmns->root, verbosity);
     PM_UNLOCK(__pmLock_libpcp);

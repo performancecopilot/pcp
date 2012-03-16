@@ -60,6 +60,7 @@ __pmDefaultRequestTimeout(void)
 {
     static int		done_default = 0;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (!done_default) {
 	char	*timeout_str;
@@ -473,6 +474,7 @@ check_read_len:
 	int		tmpsize;
 	int		have = len;
 
+	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
 	if (php->len > maxsize) {
 	    tmpsize = PDU_CHUNK * ( 1 + php->len / PDU_CHUNK);

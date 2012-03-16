@@ -313,6 +313,7 @@ __pmIsLocalhost(const char *hostname)
 	if (gethostname(lhost, MAXHOSTNAMELEN) < 0)
 	   return -oserror();
 
+	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
         if ((he = gethostbyname(lhost)) != NULL ) {
 	    int i;

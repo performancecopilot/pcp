@@ -365,6 +365,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
     pmInDom		indom = new->r_desc->indom;
     pmID		pmid = new->r_desc->pmid;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     /* add new fetch as first option ... will be reclaimed later if not used */
     if ((fp = (fetchctl_t *)calloc(1, sizeof(fetchctl_t))) == NULL) {
@@ -690,6 +691,7 @@ __pmOptFetchRedo(fetchctl_t **root)
 void
 __pmOptFetchGetParams(optcost_t *ocp)
 {
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     *ocp = optcost;
     PM_UNLOCK(__pmLock_libpcp);
@@ -699,6 +701,7 @@ __pmOptFetchGetParams(optcost_t *ocp)
 void
 __pmOptFetchPutParams(optcost_t *ocp)
 {
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     optcost = *ocp;
     PM_UNLOCK(__pmLock_libpcp);
