@@ -65,12 +65,13 @@ PCP_LIBS = -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) \
 	   -L$(TOPDIR)/src/libpcp_pmda/$(LIBPCP_ABIDIR)
 
 # platform-specific CFLAGS, LDLIBS, and shared library extension
+#
+# Note:
+# 	Need PCFLAGS setting here to match the CFLAGS settings in
+# 	../../configure.in
+#
 ifeq "$(TARGET_OS)" "linux"
 PCFLAGS = -fpic -fno-strict-aliasing -D_GNU_SOURCE
-DSOSUFFIX = so
-endif
-ifeq "$(TARGET_OS)" "freebsd"
-PCFLAGS = -fpic -fno-strict-aliasing
 DSOSUFFIX = so
 endif
 ifeq "$(TARGET_OS)" "darwin"
@@ -113,6 +114,10 @@ DSOSUFFIX = so
 PCFLAGS = -qcpluscmt
 PLDFLAGS = -brtl -bnoipath
 WARN_OFF =
+endif
+ifeq "$(TARGET_OS)" "freebsd"
+PCFLAGS = -fpic -fno-strict-aliasing
+DSOSUFFIX = so
 endif
 
 CFLAGS_ABI = @cflags_abi@

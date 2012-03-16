@@ -417,6 +417,7 @@ typedef void (*SIG_PF) (int);
 
 /* thread support options */
 #undef HAVE_PTHREAD_MUTEX_T
+#undef HAVE_PTHREAD_BARRIER_T
 #undef HAVE___THREAD
 
 #undef HAVE_FNDELAY
@@ -429,6 +430,8 @@ typedef void (*SIG_PF) (int);
 
 #undef HAVE_ALTZONE
 #undef HAVE_STRFTIME_z
+
+#undef HAVE_STRERROR_R_PTR
 
 #ifndef HAVE_VALLOC
 #define valloc(x) malloc(x)
