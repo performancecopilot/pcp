@@ -542,7 +542,8 @@ closelog(void)
 const char *
 strerror_r(int errnum, char *buf, size_t buflen)
 {
-    /* Missing from MinGW headers, should use: */
+    /* strerror_s is missing from the MinGW string.h */
+    /* we need to wait for it until we can do this:  */
     /* return strerror_s(buf, buflen, errnum); */
     return strerror(errnum);
 }

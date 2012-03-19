@@ -952,7 +952,7 @@ main(int argc, char **argv)
 	char	fname[MAXPATHLEN+1];
 	char	*s;
 	strncpy(path, argv[argc-1], sizeof(path));
-	strncpy(fname, basename(path)m sizeof(fname));
+	strncpy(fname, basename(path), sizeof(fname));
 	if ((s = tempnam(dname, fname)) == NULL) {
 	    fprintf(stderr, "Error: first tempnam() failed: %s\n", strerror(errno));
 	    abandon();
