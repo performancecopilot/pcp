@@ -60,18 +60,48 @@ from the installer.
 == A.3 AIX Installation
 
 At this stage, noone is making available pre-built AIX packages.
-A port to Solaris has been done, and merged, however - building from
+A port to AIX has been done, and merged, however - building from
 the source is currently the only option.  The packaging work is also
 begun on this platform (see the build/aix/ directory in the sources).
 
 
 == A.4 Solaris Installation
 
-At this stage, noone is making available pre-built Solaris binaries.
-A port to Solaris has been done, and merged, however - building from
-the source is currently the only option.  Packaging work is not begun
-for PCP on Solaris at this stage.
+Prebuild Solaris packages are available from PCP download section.
 
+At this stage the package are distributed as SVR4 package datastream
+and are build on Open Solaris 5.11.
+
+You can install the package using 'pkgadd' command, e.g.:
+
+	# pkgadd -d pcp-X.Y.Z
+
+During the installation the following three services are registered
+with the Solaris' service management facility:
+
+	# svccfg list \*/pcp/\*
+	application/pcp/pcp
+	application/pcp/pmie
+	application/pcp/pmproxy
+
+On the new installation all services are disabled, during the upgrade
+from the previous version of PCP the state of the services is
+preserved.
+
+Use of 'svcadm' command to enable or disable is preferred over explicit
+invocation of /etc/init.d/pcp script.
+
+Use 'svcs' command to check the state of the services, e.g.:
+
+	# svcs -l application/pcp/pcp
+	fmri         svc:/application/pcp/pcp:default
+	name         Performance Co-Pilot Collector Daemon
+	enabled      false
+	state        disabled
+	next_state   none
+	state_time   20 March 2012 11:33:27 AM EST
+	restarter    svc:/system/svc/restarter:default
+	dependency   require_all/none svc:/system/filesystem/local:default (online) svc:/milestone/network:default (online)
 
 == A.5 Windows Installation
 
@@ -123,12 +153,14 @@ PCP internet resources, and the pmchart utility.
 
    You will need to start the PCP Collection Daemon (PMCD), as root:
 
-   Linux, AIX, Solaris:
+   Linux, AIX:
    # /etc/init.d/pcp start
    Mac OS X:
-   /Library/StartupItems/pcp/pcp start
+   # /Library/StartupItems/pcp/pcp start
    Windows:
    $PCP_DIR/etc/pcp start
+   Solaris:
+   # svcadm enable application/pcp/pcp
 
    Once you have started the PMCD daemon, you can list all performance
    metrics using the pminfo(1) command, E.g.
