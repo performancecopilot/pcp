@@ -101,7 +101,8 @@ elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS)
     export PATH="$PATH:/opt/SunStudioExpress/bin"
-    export CFLAGS="-fPIC -fno-strict-aliasing"
+    export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
+    export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any"
 elif test $target_os = aix
 then
     AC_DEFINE(IS_AIX)
@@ -198,6 +199,12 @@ if test $target_os = solaris
 then
     AC_PATH_PROG(CCPATH,$CC,$CC)
     cc=$CCPATH
+    if test "$GCC" = "yes"
+    then
+	CFLAGS="$CFLAGS $CFLAGS_IF_GCC"
+    else
+	CFLAGS="$CFLAGS $CFLAGS_IF_SUNCC"
+    fi
     if test "$use_64bit" = "no"
     then
 	:
@@ -223,6 +230,8 @@ AC_SUBST(cc)
 cc_is_gcc=$GCC
 AC_SUBST(cc_is_gcc)
 AC_SUBST(cflags_abi)
+PCFLAGS=$CFLAGS
+AC_SUBST(PCFLAGS)
 
 dnl check if user wants their own make program
 dnl note: all makefiles in this package use the gmake syntax
