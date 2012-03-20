@@ -743,6 +743,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
      */
     if ((tbuf = strdup(name)) == NULL)
 	return -oserror();
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     dir = dirname(tbuf);
 
@@ -1778,6 +1779,7 @@ more:
 	    newres->numpmid = numpmid;
 	    newres->timestamp = (*result)->timestamp;
 	    u = 0;
+	    PM_INIT_LOCKS();
 	    PM_LOCK(__pmLock_libpcp);
 	    for (j = 0; j < numpmid; j++) {
 		hp = __pmHashSearch((int)pmidlist[j], &pc_hc);

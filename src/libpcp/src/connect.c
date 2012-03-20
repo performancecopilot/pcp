@@ -203,6 +203,7 @@ void
 __pmConnectGetPorts(pmHostSpec *host)
 {
     load_pmcd_ports();
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (__pmAddHostPorts(host, global_portlist, global_nports) < 0) {
 	__pmNotifyErr(LOG_WARNING,
@@ -229,6 +230,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
     static int first_time = 1;
     static pmHostSpec proxy;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (first_time) {
 	/*

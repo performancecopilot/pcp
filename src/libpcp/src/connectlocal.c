@@ -369,6 +369,7 @@ __pmConnectLocal(void)
 	    }
 	}
 #ifdef HAVE_ATEXIT
+	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
 	if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5 &&
 	    atexit_installed == 0) {

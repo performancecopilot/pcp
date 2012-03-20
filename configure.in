@@ -63,6 +63,8 @@ echo Building on $build for $target
 echo "Build: os=$build_os cpu=$build_cpu"
 echo "Target: os=$target_os cpu=$target_cpu"
 
+dnl CFLAGS setting is a co-dependency between here and PCFLAGS in
+dnl src/include/builddefs.in ... need to be the same in both places
 target_distro=$target_os
 if test $target_os = linux
 then
@@ -74,30 +76,42 @@ then
     test -f /etc/slackware-version && target_distro=slackware
     test -f /etc/gentoo-release && target_distro=gentoo
     test -f /etc/mandriva-release && target_distro=mandriva
-elif test $target_os = solaris
-then
-    AC_DEFINE(IS_SOLARIS)
-    export PATH="$PATH:/opt/SunStudioExpress/bin"
+    export CFLAGS="-fpic -fno-strict-aliasing -D_GNU_SOURCE"
 elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN)
     target_distro=macosx
     version=`sw_vers -productVersion | sed -e 's/\.//' -e 's/\..*//g'`
-    test $version -ge 106 && target_distro=cocoa
+    CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing -arch i386"
+    if test $version -ge 106
+    then
+	target_distro=cocoa
+	CFLAGS="$CFLAGS -arch x86_64"
+    fi
+    export CFLAGS
 elif test $target_os = mingw
 then
     AC_DEFINE(IS_MINGW)
+    CFLAGS="-fno-strict-aliasing"
     export CPPFLAGS="$CPPFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
     export CFLAGS="$CFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
     export LDFLAGS="$LDFLAGS -L$PCP_DIR/lib -L$PCP_DIR/local/lib"
     export PATH="$PATH:$PCP_DIR/bin:$PCP_DIR/local/bin"
+elif test $target_os = solaris
+then
+    AC_DEFINE(IS_SOLARIS)
+    export PATH="$PATH:/opt/SunStudioExpress/bin"
+    export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
+    export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any"
 elif test $target_os = aix
 then
     AC_DEFINE(IS_AIX)
+    export CFLAGS="-qcpluscmt"
 elif test $target_os = freebsd
 then
     AC_DEFINE(IS_FREEBSD)
     test -f /etc/debian_version && target_distro=debian
+    export CFLAGS="-fpic -fno-strict-aliasing"
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
@@ -185,6 +199,12 @@ if test $target_os = solaris
 then
     AC_PATH_PROG(CCPATH,$CC,$CC)
     cc=$CCPATH
+    if test "$GCC" = "yes"
+    then
+	CFLAGS="$CFLAGS $CFLAGS_IF_GCC"
+    else
+	CFLAGS="$CFLAGS $CFLAGS_IF_SUNCC"
+    fi
     if test "$use_64bit" = "no"
     then
 	:
@@ -210,6 +230,8 @@ AC_SUBST(cc)
 cc_is_gcc=$GCC
 AC_SUBST(cc_is_gcc)
 AC_SUBST(cflags_abi)
+PCFLAGS=$CFLAGS
+AC_SUBST(PCFLAGS)
 
 dnl check if user wants their own make program
 dnl note: all makefiles in this package use the gmake syntax
@@ -1137,17 +1159,36 @@ AC_MSG_RESULT($fmt_pid)
 AC_SUBST(fmt_pid)
 rm -rf conftest.c conftest.debug
 
-dnl printf type for pthread_t
-AC_MSG_CHECKING([printf type for pthread_t])
-cat <<End-of-File >conftest.c
+if test "$ac_cv_header_pthread_h" = "yes"
+then
+    dnl printf type for pthread_t
+    AC_MSG_CHECKING([printf type for pthread_t])
+    cat <<End-of-File >conftest.c
 #include <pthread.h>
 pthread_t bozo;
 End-of-File
-_do_type
-fmt_pthread="$_fmt"
-AC_MSG_RESULT($fmt_pthread)
-AC_SUBST(fmt_pthread)
-rm -rf conftest.c conftest.debug
+    _do_type
+    fmt_pthread="$_fmt"
+    AC_MSG_RESULT($fmt_pthread)
+    AC_SUBST(fmt_pthread)
+    rm -rf conftest.c conftest.debug
+
+    dnl check if gcc supports __thread for thread private data
+    AC_MSG_CHECKING([if compiler supports __thread])
+    AC_TRY_COMPILE([#include <pthread.h>
+__thread int x;], [],
+    AC_DEFINE(HAVE___THREAD) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+
+    dnl Check if pthread_mutex_t is defined in pthread.h
+    AC_MSG_CHECKING([for pthread_mutex_t in pthread.h])
+    AC_TRY_COMPILE([#include <pthread.h>], [pthread_mutex_t mymutex;],
+    AC_DEFINE(HAVE_PTHREAD_MUTEX_T) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+
+    dnl Check if pthread_barrier_T is defined in pthread.h
+    AC_MSG_CHECKING([for pthread_barrier_t in pthread.h])
+    AC_TRY_COMPILE([#include <pthread.h>], [pthread_barrier_t mybarrier;],
+    AC_DEFINE(HAVE_PTHREAD_BARRIER_T) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+fi
 
 dnl check sizeof long
 AC_MSG_CHECKING([sizeof long])
@@ -1893,20 +1934,11 @@ then
 	], AC_DEFINE(HAVE_FNDELAY) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 fi
 
-dnl Check if pthread_mutex_t is defined in pthread.h
+
+
 if test "$ac_cv_header_pthread_h" = "yes"
 then
-    AC_MSG_CHECKING([for pthread_mutex_t in pthread.h])
-    AC_TRY_COMPILE(
-    [
-	#include <pthread.h>
-    ],
-    [
-	pthread_mutex_t mymutex;
-    ], AC_DEFINE(HAVE_PTHREAD_MUTEX_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
-
-dnl Check which library provide pthread stuff
-
+    dnl Check which library provide pthread stuff
     AC_MSG_CHECKING([where pthread_create() is defined])
     for cand in "" pthreads pthread ; do
 	savedLIBS=$LIBS
@@ -1979,6 +2011,13 @@ int main () {
     return (0);
 }
 ], AC_DEFINE(HAVE_STRFTIME_z) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no),  0)
+
+dnl does strerror_r return char * a la GNU
+dnl (as opposed to the int return for XSI-compliant variants)
+AC_MSG_CHECKING([if strerror_r returns char *])
+AC_TRY_COMPILE(
+    [#include <string.h>], [strerror_r(0, NULL, 0)[0];],
+    AC_DEFINE(HAVE_STRERROR_R_PTR) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl first check for readline on its own then with curses
 savedLIBS=$LIBS

@@ -308,8 +308,9 @@ extern int pmDestroyContext(int);
  * for the named host
  */
 extern int pmNewContext(int, const char *);
-#define PM_CONTEXT_HOST		1	/* context types */
-#define PM_CONTEXT_ARCHIVE	2
+#define PM_CONTEXT_UNDEF	-1	/* current context is undefined */
+#define PM_CONTEXT_HOST		1	/* host via pmcd */
+#define PM_CONTEXT_ARCHIVE	2	/* PCP archive */
 #define PM_CONTEXT_LOCAL	3	/* local host, no pmcd connection */
 
 /*

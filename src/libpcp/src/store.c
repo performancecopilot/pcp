@@ -39,6 +39,7 @@ pmStore(const pmResult *result)
 	if (ctxp == NULL)
 	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
+	    PM_INIT_LOCKS();
 	    PM_LOCK(__pmLock_libpcp);
 	    sts = __pmSendResult(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), result);
 	    if (sts < 0)

@@ -87,6 +87,7 @@ __pmSquashTZ(char *tzbuffer)
 #ifndef IS_MINGW
     time_t	offset; 
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
 
     tzset();
@@ -159,6 +160,7 @@ __pmSquashTZ(char *tzbuffer)
     wchar_t *src;
     div_t d;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
 
     GetTimeZoneInformation(&tz);

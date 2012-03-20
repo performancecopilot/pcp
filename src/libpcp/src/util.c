@@ -63,6 +63,7 @@ static int vpmprintf(const char *, va_list);
 void
 __pmSyslog(int onoff)
 {
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     dosyslog = onoff;
     if (dosyslog)
@@ -88,6 +89,7 @@ __pmNotifyErr(int priority, const char *message, ...)
 
     time(&now);
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (dosyslog) {
 	char	syslogmsg[2048];
@@ -131,6 +133,7 @@ __pmNotifyErr(int priority, const char *message, ...)
 	    break;
     }
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     pmprintf("[%.19s] %s(%" FMT_PID ") %s: ", ctime(&now), pmProgname, getpid(), level);
     PM_UNLOCK(__pmLock_libpcp);
@@ -256,6 +259,7 @@ __pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
 	    int *status)
 {
     oldstream = logreopen(progname, logname, oldstream, status);
+    PM_INIT_LOCKS();
     logheader(progname, oldstream, "started");
 
     PM_LOCK(__pmLock_libpcp);
@@ -279,6 +283,7 @@ __pmRotateLog(const char *progname, const char *logname, FILE *oldstream,
 {
     int		i;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     for (i = 0; i < nfilelog; i++) {
 	if (oldstream == filelog[i]) {
@@ -1009,6 +1014,7 @@ pmfstate(int state)
     if (state > PM_QUERYERR)
 	errtype = state;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (errtype == PM_QUERYERR) {
 	errtype = PM_USESTDERR;
@@ -1036,6 +1042,7 @@ vpmprintf(const char *msg, va_list arg)
 {
     int		lsize = 0;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (fptr == NULL && msgsize == 0) {		/* create scratch file */
 	int	fd = -1;
@@ -1087,6 +1094,7 @@ pmflush(void)
     FILE	*eptr = NULL;
     char	outbuf[MSGBUFLEN];
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (fptr != NULL && msgsize > 0) {
 	fflush(fptr);
@@ -1179,6 +1187,7 @@ __pmSetClientId(const char *id)
 	return sts;
 
     (void)gethostname(host, MAXHOSTNAMELEN);
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     hep = gethostbyname(host);
     if (hep != NULL) {
@@ -1321,6 +1330,7 @@ scandir(const char *dirname, struct dirent ***namelist,
     struct dirent	*dp;
     struct dirent	*tp;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if ((dirp = opendir(dirname)) == NULL)
 	return -1;

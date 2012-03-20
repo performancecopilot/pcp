@@ -137,19 +137,16 @@ static const struct {
 static void
 strerror_x(int code, char *buf, int buflen)
 {
+#ifdef HAVE_STRERROR_R_PTR
     char	*p;
-    buf[0] = '\0';
     p = strerror_r(code, buf, buflen);
-    if (buf[0] == '\0' && p != NULL) {
-	/*
-	 * smells like GNU glibc where this
-	 * (_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && ! _GNU_SOURCE
-	 * is false, and we have the weird GNU-version rather than the
-	 * XSI-compliant version, so the message is returned via the value
-	 * from strerror_r() ... copy it into the caller provided buffer
-	 */
-	strncpy(buf, p, buflen);
-    }
+    strncpy(buf, p, buflen);
+#else
+    /*
+     * the more normal POSIX and XSI compliant variants always fill buf[]
+     */
+    strerror_r(code, buf, buflen);
+#endif
 }
 
 char *

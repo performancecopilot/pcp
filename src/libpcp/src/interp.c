@@ -223,6 +223,7 @@ __pmLogCacheClear(FILE *mfp)
 {
     cache_t	*cp;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     for (cp = cache; cp < &cache[NUMCACHE]; cp++) {
 	if (cp->mfp == mfp) {
@@ -540,6 +541,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     __pmTimeval	tmp;
     struct timeval delta_tv;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (dowrap == -1) {
 	/* PCP_COUNTER_WRAP in environment enables "counter wrap" logic */

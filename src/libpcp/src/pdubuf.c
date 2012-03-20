@@ -69,6 +69,7 @@ __pmFindPDUBuf(int need)
     bufctl_t	*pcp;
     __pmPDU	*sts;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     for (pcp = buf_free; pcp != NULL; pcp = pcp->bc_next) {
 	if (pcp->bc_size >= need)
@@ -108,6 +109,7 @@ __pmPinPDUBuf(void *handle)
     bufctl_t	*prior = NULL;
 
     assert(((__psint_t)handle % sizeof(int)) == 0);
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
 
     for (pcp = buf_free; pcp != NULL; pcp = pcp->bc_next) {
@@ -166,6 +168,7 @@ __pmUnpinPDUBuf(void *handle)
     bufctl_t	*prior = NULL;
 
     assert(((__psint_t)handle % sizeof(int)) == 0);
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
 
     for (pcp = buf_pin; pcp != NULL; pcp = pcp->bc_next) {
@@ -212,6 +215,7 @@ __pmCountPDUBuf(int need, int *alloc, int *free)
     bufctl_t	*pcp;
     int		count;
 
+    PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     count = 0;
     for (pcp = buf_pin; pcp != NULL; pcp = pcp->bc_next) {

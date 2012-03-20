@@ -67,7 +67,8 @@ endif
 
 LDIRT += $(SYMTARGET) check.done
 
-base default : $(LIBTARGET) check.done $(SYMTARGET) $(STATICLIBTARGET)
+base default : $(LIBTARGET) check.done $(SYMTARGET)
+$(LIBTARGET):	$(STATICLIBTARGET)
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET): 
@@ -82,7 +83,7 @@ p_error.o p_result.o: oldpmapi.h
 
 util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
 
-fetch.o: internal.h
+context.o derive.o fetch.o fetch.o lock.o: internal.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 		$(TOPDIR)/src/include/pcp/impl.h \

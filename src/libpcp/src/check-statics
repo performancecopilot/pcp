@@ -24,7 +24,9 @@ cat <<End-of-File \
 # Following the name of an object file follows zero or more
 # lines defining static data symbols from that object file that is
 # known to be thread-safe ... these lines contain the symbol's type
-# (as reported # by nm(1), the symbol and by convention an comment
+# as reported by nm(1) (this may be a regular expression for a set of
+# types as in [...] for cases where different compilers map the symbol
+# to different types), the symbol and by convention an comment
 # explaining why the symbol is thread-safe.  The symbol may be
 # preceded by a '?' character to indicate the symbol may or may not
 # be in the object file, otherwise a symbol named here that is not
@@ -51,7 +53,7 @@ auxconnect.o
     b pmcd_port.[0-9]*		# guarded by __pmLock_libpcp mutex
 checksum.o
 config.o
-    D __pmNativeConfig		# const
+    [SD] __pmNativeConfig		# const
     b state.[0-9]*		# guarded by __pmLock_libpcp mutex
 connectlocal.o
     b atexit_installed.[0-9]*	# guarded by __pmLock_libpcp mutex
@@ -72,12 +74,17 @@ context.o
     b n_backoff			# guarded by __pmLock_libpcp mutex
     b contexts			# guarded by __pmLock_libpcp mutex
     b contexts_len		# guarded by __pmLock_libpcp mutex
-    d curcontext		# __thread private
+    d ?curcontext		# thread private
 derive_fetch.o
 derive.o
-    d func			# const
+    [ds] func			# const
+    [bd] ?init.[0-9]*		# local initialize_mutex mutex
+    b ?done.[0-9]*		# guarded by local initialize_mutex mutex
     d type_dbg			# const
+    s ?type_c			# const
     d state_dbg			# const
+    s ?promote			# const
+    s ?timefactor		# const
     d need_init			# guarded by registered.mutex
     b tokbuf			# guarded by registered.mutex
     b tokbuflen			# guarded by registered.mutex
@@ -86,11 +93,11 @@ derive.o
     b this			# guarded by registered.mutex
     d registered		# guarded by registered.mutex
     b pmid.[0-9]*		# guarded by registered.mutex
-    b errmsg			# __thread private
+    b ?derive_errmsg		# thread private
 desc.o
 endian.o
 err.o
-    d errtab			# const
+    [ds] errtab			# const
     d first.[0-9]*		# guarded by __pmLock_libpcp mutex
     b unknown.[0-9]*		# guarded by __pmLock_libpcp mutex
     b errmsg.[0-9]*		# pmErrStr deprecated by pmErrStr_r
@@ -120,9 +127,10 @@ ipc.o
     d __pmLastUsedFd		# guarded by __pmLock_libpcp mutex
     b ipctablesize		# guarded by __pmLock_libpcp mutex
 lock.o
-    D __pmLock_libpcp		# the global libpcp mutex
-    b ?init.[0-9]*		# local __pmInitLocks mutex
+    [DC] __pmLock_libpcp	# the global libpcp mutex
+    [bd] ?init.[0-9]*		# local __pmInitLocks mutex
     b ?done.[0-9]*		# guarded by local __pmInitLocks mutex
+    C ?__pmTPDKey		# one-trip initialization then read-only
     b multi_init		# guarded by __pmLock_libpcp mutex
     b multi_seen		# guarded by __pmLock_libpcp mutex
 logconnect.o
@@ -137,8 +145,9 @@ logportmap.o
     b match			# single-threaded PM_SCOPE_LOGPORT
 logutil.o
     b tbuf.[0-9]*		# __pmLogName deprecated by __pmLogName_r
-    d compress_ctl		# const
-    B __pmLogReads		# diag counter, no atomic updates
+    [ds] compress_ctl		# const
+    s ?ncompress		# const
+    [BD] __pmLogReads		# diag counter, no atomic updates
     b pc_hc			# guarded by __pmLock_libpcp mutex
 optfetch.o
     d optcost			# guarded by __pmLock_libpcp mutex
@@ -152,7 +161,7 @@ pdu.o
     b done_default.[0-9]*	# guarded by __pmLock_libpcp mutex
     d def_timeout		# guarded by __pmLock_libpcp mutex
     d def_wait			# guarded by __pmLock_libpcp mutex
-    B pmDebug			# set-once in main(), read-only elsewhere
+    [BD] pmDebug		# set-once in main(), read-only elsewhere
     d ceiling			# no unsafe side-effects
     b sigpipe_done		# no unsafe side-effects
     d mypid			# no unsafe side-effects
@@ -199,7 +208,11 @@ p_result.o
 profile.o
 p_text.o
 rtime.o
-    d int_tab			# static const struct {...} int_tab[] = {...}
+    s ?wdays			# const
+    s ?months			# const
+    s ?ampm			# const
+    [ds] int_tab		# const struct {...} int_tab[] = {...}
+    s ?numint			# const
 sortinst.o
 spec.o
 store.o
@@ -225,7 +238,8 @@ util.o
     b ebuf.[0-9]*		# pmEventFlagsStr deprecated by pmEventFlagsStr_r
     b nbuf.[0-9]*		# pmNumberStr deprecated by pmNumberStr_r
     d ?unknownVal.[0-9]*	# const, variable may be optimized away by gcc
-    d debug_map			# const
+    [sd] debug_map		# const
+    s ?num_debug		# const
     b pmState			# no unsafe side-effects, see notes in util.c
     D pmProgname		# no unsafe side-effects, see notes in util.c
     b filelog			# guarded by __pmLock_libpcp mutex
@@ -241,7 +255,6 @@ util.o
     d first.[0-9]*		# __pmEventType deprecated by __pmEventType_r
     b last.[0-9]*		# __pmEventType deprecated by __pmEventType_r
     b sum.[0-9]*		# __pmEventType deprecated by __pmEventType_r
-
 END				# this is magic, DO NOT DELETE THIS LINE
 End-of-File
 
@@ -277,8 +290,20 @@ do
 	then
 	    if [ -f $type ]
 	    then
-		nm --defined-only $type \
-		| grep ' [dDbBC] ' >$tmp.out
+		# Need some nm special case logic ...
+		# for darwin
+		# + const data and text symbols both appear as "S", but
+		#   the latter have .eh appended to the name
+		# + static arrays and some debug (?) symbols appear as
+		#   "s", but the latter have _.NNN appended, or start
+		#   with LC, or have .eh appended, or start with EH_
+		nm $type \
+		| sed -n >$tmp.out \
+		    -e '/ [sS] .*\.eh$/d' \
+		    -e '/ s .*_\.[0-9][0-9]*$/d' \
+		    -e '/ s LC[0-9][0-9]*$/d' \
+		    -e '/ s EH_/d' \
+		    -e '/ [dDbBCsS] /p'
 		obj=$type
 	    else
 		echo "$type: Error: object file in control file but not found"
@@ -291,8 +316,12 @@ do
     opt=`echo $name | sed -n -e 's/?.*/?/p'`
     name=`echo $name | sed -e 's/?//'`
     #debug# echo "obj=$obj type=$type name=$name opt=$opt"
+    # Note some nm output prefixes the name with _, hence the two
+    #      sed lines below
+    #
     sed <$tmp.out >$tmp.tmp \
-	-e "/ $type $name\$/d"
+	-e "/ $type $name\$/d" \
+	-e "/ $type _$name\$/d"
     if cmp -s $tmp.out $tmp.tmp
     then
 	if [ "$opt" != "?" ]
