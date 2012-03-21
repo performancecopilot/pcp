@@ -1,4 +1,4 @@
-pcp-3.6.0 (07 March 2012)
+pcp-3.6.0 (21 March 2012)
     - Thread-safe libpcp, including additional re-entrant and thread-safe
       variants for some routines
     - Retire all asynchronous routines from libpcp
