@@ -371,6 +371,7 @@ void GroupControl::adjustArchiveWorldViewForward(PmTime::Packet *packet, bool se
 	packet->state = PmTime::StoppedState;
     if (active)
 	newButtonState(packet->state, packet->mode, pmchart->isTabRecording());
+    pmtime->setArchivePosition(&packet->position);
     refreshGadgets(active);
 }
 
@@ -424,6 +425,7 @@ void GroupControl::adjustArchiveWorldViewBackward(PmTime::Packet *packet, bool s
 	packet->state = PmTime::StoppedState;
     if (active)
 	newButtonState(packet->state, packet->mode, pmchart->isTabRecording());
+    pmtime->setArchivePosition(&packet->position);
     refreshGadgets(active);
 }
 

@@ -43,6 +43,7 @@ public:
     struct timeval *livePosition() { return &my.livePacket->position; }
     struct timeval *archiveInterval() { return &my.archivePacket->delta; }
     struct timeval *archivePosition() { return &my.archivePacket->position; }
+    void setArchivePosition(struct timeval *pos) { my.archivePacket->position = *pos; }
     struct timeval *archiveStart() { return &my.archivePacket->start; }
     struct timeval *archiveEnd() { return &my.archivePacket->end; }
 
