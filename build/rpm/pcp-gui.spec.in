@@ -110,6 +110,9 @@ set -x
 %defattr(-,root,root)
 
 %changelog
+* Wed Mar 21 2012 Mark Goodwin <mgoodwin@redhat.com>
+- Updates to fix pmchart archive positioning bug.
+
 * Mon Jan 09 2012 Nathan Scott <nathans@aconex.com>
 - Updates to make desktop icons appear for RHEL builds.
 

@@ -1,3 +1,8 @@
+pcp-gui 1.5.5 (21 March 2012)
+    - Fix long-standing pmchart bug where the current archive position
+      would revert to the beginning of the archive after adding a new
+      chart or plot to an existing chart.
+
 pcp-gui 1.5.4 (17 January 2012)
     - Need to remake aclocal.m4 to pick up autoconf macro change.
 
