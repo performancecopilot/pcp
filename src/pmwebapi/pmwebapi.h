@@ -18,23 +18,10 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#define _XOPEN_SOURCE 600
-#define _FILE_OFFSET_BITS 64
-
-#include <microhttpd.h>
-
 #include "pmapi.h"
 #include "impl.h"
-
-#include <sys/types.h>
-#include <sys/time.h>
-#include <syslog.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <limits.h>
 #include <assert.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#include <microhttpd.h>
 
 /* ------------------------------------------------------------------------ */
 
