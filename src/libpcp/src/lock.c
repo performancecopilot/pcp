@@ -26,7 +26,8 @@
 #ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 pthread_mutex_t	__pmLock_libpcp = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #else
-pthread_mutex_t	__pmLock_libpcp = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t	__pmLock_libpcp;
+#endif
 
 #ifndef HAVE___THREAD
 pthread_key_t 	__pmTPDKey = 0;
@@ -36,7 +37,6 @@ __pmTPD__destroy(void *addr)
 {
     free(addr);
 }
-#endif
 #endif
 #endif
 
