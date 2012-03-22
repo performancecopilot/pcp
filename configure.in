@@ -26,6 +26,13 @@ AC_ARG_WITH(
 	    [turn on 64 bit compilation node (default is platform dependent)])],
     [use_64bit=$withval])
 
+AC_ARG_WITH(
+    [threads],
+    [AC_HELP_STRING([--with-threads],
+		    [enable support for multiple threads (default is on)])],
+    [do_threads=$withval],
+    [do_threads=check])
+
 #
 # Note: the following environment variables may be
 # set to override the defaults.
@@ -742,7 +749,7 @@ AC_CHECK_HEADERS(unistd.h stddef.h sched.h dlfcn.h dl.h ieeefp.h)
 AC_CHECK_HEADERS(sys/time.h sys/timeb.h sys/times.h)
 AC_CHECK_HEADERS(sys/resource.h sys/prctl.h)
 AC_CHECK_HEADERS(sys/sysinfo.h sys/systeminfo.h)
-AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h pthread.h getopt.h)
+AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h getopt.h)
 AC_CHECK_HEADERS(values.h libgen.h sys/param.h sys/mman.h sys/un.h stdint.h)
 AC_CHECK_HEADERS(pwd.h regex.h sys/wait.h)
 AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h)
@@ -876,15 +883,6 @@ AC_TRY_COMPILE(
 [
     long long x = 0LL;
 ], AC_DEFINE(HAVE_CONST_LONGLONG))
-
-dnl check if thread local storage is supported
-AC_TRY_COMPILE(
-[
-    #include <pthread.h>
-],
-[
-    static __thread int tl;
-], AC_DEFINE(HAVE_THREAD_LOCALS))
 
 dnl check if _environ is declared globally
 AC_TRY_LINK(
@@ -1159,35 +1157,88 @@ AC_MSG_RESULT($fmt_pid)
 AC_SUBST(fmt_pid)
 rm -rf conftest.c conftest.debug
 
-if test "$ac_cv_header_pthread_h" = "yes"
+if test "$do_threads" = "check" -o "$do_threads" = "yes"
 then
-    dnl printf type for pthread_t
-    AC_MSG_CHECKING([printf type for pthread_t])
-    cat <<End-of-File >conftest.c
+    AC_CHECK_HEADERS(
+	pthread.h,
+	[],
+	[
+	    if test "$do_threads" = "yes"
+	    then
+		AC_MSG_ERROR(cannot enable multi-threaded mode - no pthread.h)
+	    fi
+	])
+
+    dnl Check if pthread_mutex_t is defined in pthread.h
+    dnl Ignore the fact that pthread.h could be missing - we don't
+    dnl really care if this test fails because of missing pthread_mutex_t
+    dnl or because of missing headers.
+    AC_MSG_CHECKING([for pthread_mutex_t in pthread.h])
+    AC_TRY_COMPILE(
+	[#include <pthread.h>], [pthread_mutex_t mymutex;],
+	AC_DEFINE(HAVE_PTHREAD_MUTEX_T) AC_MSG_RESULT(yes),
+	[
+	    if test "$do_threads" = "yes"
+	    then
+		AC_MSG_ERROR(cannot enable multi-threaded mode - no mutexes)
+	    else
+		AC_MSG_RESULT(no)
+	    fi
+	])
+
+    dnl Check which library provide pthread stuff
+    AC_MSG_CHECKING([where pthread_create() is defined])
+    for cand in "" pthreads pthread ; do
+	savedLIBS=$LIBS
+	if test -n "$cand" 
+	then
+	    LIBS=`echo $LIBS -l$cand`
+	fi
+	AC_TRY_LINK(
+	[
+	    #include <pthread.h>
+	],
+	[
+	    pthread_create(NULL, NULL, NULL, NULL);
+	],  AC_MSG_RESULT(lib${cand:-c})
+	    if test -z "$cand"
+	    then
+		lib_for_pthreads="$cand"
+	    else
+		lib_for_pthreads="-l$cand"
+	    fi
+	    LIBS=$savedLIBS
+	    break )
+	LIBS=$savedLIBS
+    done
+    AC_SUBST(lib_for_pthreads)
+
+    if test "$ac_cv_header_pthread_h" = "yes"
+    then
+	dnl printf type for pthread_t
+	AC_MSG_CHECKING([printf type for pthread_t])
+	cat <<End-of-File >conftest.c
 #include <pthread.h>
 pthread_t bozo;
 End-of-File
-    _do_type
-    fmt_pthread="$_fmt"
-    AC_MSG_RESULT($fmt_pthread)
-    AC_SUBST(fmt_pthread)
-    rm -rf conftest.c conftest.debug
+	_do_type
+	fmt_pthread="$_fmt"
+	AC_MSG_RESULT($fmt_pthread)
+	AC_SUBST(fmt_pthread)
+	rm -rf conftest.c conftest.debug
 
-    dnl check if gcc supports __thread for thread private data
-    AC_MSG_CHECKING([if compiler supports __thread])
-    AC_TRY_COMPILE([#include <pthread.h>
-__thread int x;], [],
-    AC_DEFINE(HAVE___THREAD) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+	dnl check if gcc supports __thread for thread private data
+	AC_MSG_CHECKING([if compiler supports __thread])
+	AC_TRY_COMPILE([#include <pthread.h>
+    __thread int x;], [],
+	    AC_DEFINE(HAVE___THREAD) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
-    dnl Check if pthread_mutex_t is defined in pthread.h
-    AC_MSG_CHECKING([for pthread_mutex_t in pthread.h])
-    AC_TRY_COMPILE([#include <pthread.h>], [pthread_mutex_t mymutex;],
-    AC_DEFINE(HAVE_PTHREAD_MUTEX_T) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
-
-    dnl Check if pthread_barrier_T is defined in pthread.h
-    AC_MSG_CHECKING([for pthread_barrier_t in pthread.h])
-    AC_TRY_COMPILE([#include <pthread.h>], [pthread_barrier_t mybarrier;],
-    AC_DEFINE(HAVE_PTHREAD_BARRIER_T) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+	dnl Check if pthread_barrier_t is defined in pthread.h
+	AC_MSG_CHECKING([for pthread_barrier_t in pthread.h])
+	AC_TRY_COMPILE([#include <pthread.h>], [pthread_barrier_t mybarrier;],
+	    AC_DEFINE(HAVE_PTHREAD_BARRIER_T) AC_MSG_RESULT(yes),
+	    AC_MSG_RESULT(no))
+    fi
 fi
 
 dnl check sizeof long
@@ -1932,38 +1983,6 @@ then
 	[
 	    int i = FNDELAY;
 	], AC_DEFINE(HAVE_FNDELAY) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
-fi
-
-
-
-if test "$ac_cv_header_pthread_h" = "yes"
-then
-    dnl Check which library provide pthread stuff
-    AC_MSG_CHECKING([where pthread_create() is defined])
-    for cand in "" pthreads pthread ; do
-	savedLIBS=$LIBS
-	if test -n "$cand" 
-	then
-	    LIBS=`echo $LIBS -l$cand`
-	fi
-	AC_TRY_LINK(
-	[
-	    #include <pthread.h>
-	],
-	[
-	    pthread_create(NULL, NULL, NULL, NULL);
-	],  AC_MSG_RESULT(lib${cand:-c})
-	    if test -z "$cand"
-	    then
-		lib_for_pthreads="$cand"
-	    else
-		lib_for_pthreads="-l$cand"
-	    fi
-	    LIBS=$savedLIBS
-	    break )
-	LIBS=$savedLIBS
-    done
-    AC_SUBST(lib_for_pthreads)
 fi
 
 dnl check for array sessions

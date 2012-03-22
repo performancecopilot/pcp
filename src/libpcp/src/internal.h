@@ -24,6 +24,7 @@ extern "C" {
  */
 extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **);
 
+#ifdef PM_MULTI_THREAD
 #ifdef HAVE___THREAD
 /*
  * C compiler is probably gcc and supports __thread declarations
@@ -47,6 +48,10 @@ __pmTPDGet(void)
 }
 
 #define PM_TPD(x)  __pmTPDGet()->x
+#endif
+#else
+/* No threads - just access global variables as is */
+#define PM_TPD(x) x
 #endif
 
 #ifdef __cplusplus

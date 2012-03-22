@@ -42,9 +42,6 @@ extern "C" {
 /* if your compiler supports LL sufix on 64 bit int constants */
 #undef HAVE_CONST_LONGLONG 
 
-/* if your compiler supports thread local storage */
-#undef HAVE_THREAD_LOCALS
-
 /*
  * HAVE_UNDERBAR_ENVIRON if extern char **_environ is defined
  * (else extern char **environ will be used)
