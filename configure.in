@@ -474,16 +474,18 @@ else
     exit 1
 fi
 
+AC_PATH_PROG(TRUEPROG, true)
+
 dnl check if the makedepend program is available
 if test -z "$MAKEDEPEND"; then
-    AC_PATH_PROG(MAKEDEPEND, makedepend, /bin/true)
+    AC_PATH_PROG(MAKEDEPEND, makedepend, $TRUEPROG)
 fi
 makedepend=$MAKEDEPEND
 AC_SUBST(makedepend)
 
 dnl check if the md5sum program is available
 if test -z "$MD5SUM"; then
-   AC_PATH_PROG(MD5SUM, md5sum, /bin/true)
+   AC_PATH_PROG(MD5SUM, md5sum, $TRUEPROG)
 fi
 md5sum=$MD5SUM
 AC_SUBST(md5sum)
