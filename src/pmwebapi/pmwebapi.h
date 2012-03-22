@@ -21,6 +21,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include <assert.h>
+#include <sys/stat.h>
 #include <microhttpd.h>
 
 /* ------------------------------------------------------------------------ */
