@@ -120,7 +120,5 @@ $(TOPDIR)/src/pmns/stdpmid:
 # cases
 #
 check.done:	$(OBJECTS)
-ifeq "$(TARGET_OS)" "linux"
 	./check-statics
-endif
 	touch check.done

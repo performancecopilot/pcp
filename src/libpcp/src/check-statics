@@ -9,6 +9,13 @@ tmp=/var/tmp/$$
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 rm -f $tmp.*
 
+# run on i686 and x86_64 linux platforms only
+# ("nm" options and output are the limiting factors)
+host=`uname 2>/dev/null`
+[ "$host" = "Linux" ] || exit 0
+arch=`uname -m 2>/dev/null`
+[ "$arch" = "i686" -o "$arch" = "x86_64" ] || exit 0
+
 obj=''
 cat <<End-of-File \
 | sed -e 's/[ 	]*#.*//' \
