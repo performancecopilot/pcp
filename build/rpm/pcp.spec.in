@@ -364,7 +364,7 @@ fi
 %defattr(-,root,root)
 
 %changelog
-* Wed Mar 21 2012 Nathan Scott <nathans@aconex.com> - 3.6.0-1
+* Wed Mar 28 2012 Nathan Scott <nathans@aconex.com> - 3.6.1-1
 - Update to latest PCP sources.
 
 * Thu Dec  1 2011 Nathan Scott <nathans@aconex.com> - 3.5.11-1
