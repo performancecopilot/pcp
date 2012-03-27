@@ -1,0 +1,56 @@
+pmwebapi: a http/json binding to PMAPI, API summary
+
+HTTP GET/POST URL patterns:
+
+* context creation
+
+  These calls invoke pmNewContext(3) with appropriate arguments.
+
+  /pmapi/context
+  /pmapi/context?hostname=STRING
+  /pmapi/context?archivefile=ARCHIVE
+
+  The result, if successful, is a application/json form: 
+     { "context": NNNN }
+  where the NNNN number is used in other pmwebapi URLs to identify the
+  context.  Upon an error, no result is printed.
+
+* metric metadata/listing
+
+  /pmapi/NNNN/_metric
+  /pmapi/NNNN/_metric?prefix=NAME
+
+  The result, if successful, is a application/json form to provide full
+  metric metadata:
+     { "metrics": [ 
+         { "name": "foo.bar", "domain": DDD, "type": "counter", 
+           "units": { "space":A, "scalespace":B, "time":B, ... } }
+         { "name": "foo.bar2", ... } 
+         ...
+     ] }
+         
+  where metric names are used in other pmwebapi URLs to identify the
+  metric.  PMID numbers are not used.  Upon an error, no result is
+  printed.
+
+* metric value fetching
+  These calls use pmns/metric names, not pmids.
+
+  /pmapi/NNNN/_fetch?names=NAME1
+  /pmapi/NNNN/_fetch?names=NAME1,NAME2&instances=IIII,IIII2
+
+  The result, if successful, is a application/json form to provide metric
+  values:
+     { "timestamp": { "s":SEC, "us":USEC },
+       "valuesets": [ 
+         { "name":NAME1, "values": [ { "instance":IIII, "value":VALUE
+                                -or-   "instance":IIII, "binary":"base64value"}
+                                -or-   "instance":IIII, "events":[ { ... } ] }
+                                    { ... } ] },
+         { "name": NAME2, .... }
+         ...
+     ] }
+         
+  Upon an error, no result is printed.
+
+
