@@ -42,14 +42,16 @@
 
 /*
  * Thread-safe support ... #define to enable thread-safe protection of
- * global data structures and mutual exclusion when required
+ * global data structures and mutual exclusion when required.
+ *
+ * We require pthread.h and working mutex, the rest can be faked
+ * by the libpcp itself.
  */
+#if defined(HAVE_PTHREAD_H) && defined(HAVE_PTHREAD_MUTEX_T)
+
 #define PM_MULTI_THREAD 1
 
-#ifdef PM_MULTI_THREAD
-#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
-#endif
 #endif
 
 #ifdef __cplusplus

@@ -23,10 +23,11 @@ include $(TOPDIR)/src/include/builddefs
 HFILES = pmapi.h impl.h pmda.h pmtime.h pmafm.h pmiestats.h \
 	 trace.h trace_dev.h trace_hash.h mmv_stats.h mmv_dev.h \
 	 import.h
-GENERATED_HFILES = pmdbg.h platform_defs.h
-CONFFILES = platform_header.h platform_trailer
+GENERATED_HFILES = pmdbg.h platform_defs.h platform_header.h
+CONFFILES = platform_header.h platform_defs.h
 
-LSRCFILES = platform_header.h.in platform_trailer.in mk_pmdbg fault.h
+LSRCFILES = platform_header.h.in platform_defs.h.in mk_pmdbg fault.h
+LDIRT = $(GENERATED_HFILES)
 
 default :: default_pcp
 
@@ -38,9 +39,6 @@ install :: default_pcp install_pcp
 
 install_pcp : default_pcp
 	$(INSTALL) -m 644 $(HFILES) $(GENERATED_HFILES) $(PCP_INC_DIR)
-
-platform_defs.h:	platform_header.h platform_trailer
-	cat platform_header.h platform_trailer >platform_defs.h
 
 pmdbg.h : pmapi.h impl.h
 	./mk_pmdbg

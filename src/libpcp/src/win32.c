@@ -539,6 +539,15 @@ closelog(void)
     eventlog = NULL;
 }
 
+const char *
+strerror_r(int errnum, char *buf, size_t buflen)
+{
+    /* strerror_s is missing from the MinGW string.h */
+    /* we need to wait for it until we can do this:  */
+    /* return strerror_s(buf, buflen, errnum); */
+    return strerror(errnum);
+}
+
 /* Windows socket error codes - what a nightmare! */
 static const struct {
     int  	err;

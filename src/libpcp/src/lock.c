@@ -23,7 +23,6 @@ pthread_mutex_t	__pmLock_libpcp = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #else
 pthread_mutex_t	__pmLock_libpcp;
 #endif
-#endif
 
 #ifndef HAVE___THREAD
 pthread_key_t 	__pmTPDKey;
@@ -33,6 +32,7 @@ __pmTPD__destroy(void *addr)
 {
     free(addr);
 }
+#endif
 #endif
 
 void
@@ -80,8 +80,11 @@ __pmInitLocks(void)
 #endif
 }
 
+#ifdef PM_MULTI_THREAD
 static int		multi_init[PM_SCOPE_MAX+1];
 static pthread_t	multi_seen[PM_SCOPE_MAX+1];
+#endif
+
 int
 __pmMultiThreaded(int scope)
 {

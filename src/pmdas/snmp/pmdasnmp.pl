@@ -1,4 +1,3 @@
-#!/usr/bin/env perl
 #
 # Copyright (c) 2011-2012 Aconex.  All Rights Reserved.
 #
