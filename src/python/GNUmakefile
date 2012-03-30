@@ -16,33 +16,28 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
-TOPDIR = ..
+TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
--include ./GNUlocaldefs
 
-SUBDIRS = include \
-	  libpcp libpcp_pmda libpcp_trace libpcp_http libpcp_pmcd libpcp_gui \
-	  libpcp_mmv \
-	  pmconfig pmns newhelp pminfo pmcpp \
-	  libpcp_import \
-	  pmcd pmerr pmdbg \
-	  pmcdctl pmlogctl win32ctl \
-	  pmdate pmie pmieconf pmpost pmprobe pmlock pmval pmlogger \
-	  pmdumplog pmlogextract pmstore pmhostname pmgenmap \
-	  pmlogconf pmloglabel pmlogsummary pmclient pcp pmlc dbpmda \
-	  pmtrace pmstat pmsocks pmdas pmafm procmemstat pmimport \
-	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop python \
-	  autofsd-probe telnet-probe cpan bashrc pmiestatus \
-	  pmevent pmlogrewrite
+CFILES = py-pmapi.c
+# LIB_FOR_BASENAME = "-lpcp"
+LLDLIBS = -lpcp $(LIB_FOR_BASENAME)
 
-default :: default_pcp
+LCFLAGS += '-DDSO_SUFFIX="$(DSOSUFFIX)"'
 
-default_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+DSOVERSION = 3
 
-install :: default_pcp install_pcp
+LIBTARGET = pcp.$(DSOSUFFIX).$(DSOVERSION)
+SYMTARGET = pcp.$(DSOSUFFIX) libpcp.$(DSOSUFFIX).2
 
-install_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+base default : $(LIBTARGET)
 
-include $(BUILDRULES)
+default_pcp : default
+
+install_pcp : install
+
+$(LIBTARGET):
+	$(CC) -shared -o $@ -g py-pmapi.c -fpic
+
+
+
