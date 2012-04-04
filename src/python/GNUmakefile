@@ -36,8 +36,8 @@ default_pcp : default
 
 install_pcp : install
 
-$(LIBTARGET):
-	$(CC) -shared -o $@ -g py-pmapi.c -fpic
+$(LIBTARGET): $(CFILES)
+	$(CC) -shared -o $@ -g py-pmapi.c -fpic -lpcp
 
 
 
