@@ -48,11 +48,9 @@ python_type (PyObject* this)
 
 static PyObject* pypmLookupName(PyObject* self, PyObject* args)
 {
-  char *metric_name;
   int sts;
 
   PyObject* names = PyTuple_GetItem(args, 0);
-  PyObject* name = NULL;
   int pm_size;
   if (python_type (names) == STRING)
     pm_size = 1;
@@ -93,7 +91,6 @@ static PyObject* pypmLookupDesc(PyObject* self, PyObject* args)
   int sts;
 
   PyObject *pmids = PyTuple_GetItem(args, 0);
-  PyObject *pmid = NULL;
   int pm_size;
   if (python_type (pmids) == LONG)
     pm_size = 1;
@@ -138,7 +135,6 @@ static PyObject* pypmFetch(PyObject* self, PyObject* args)
   int sts;
 
   PyObject *pmids = PyTuple_GetItem(args, 0);
-  PyObject *pmid = NULL;
   int pm_size;
   if (python_type (pmids) == LONG)
     pm_size = 1;
@@ -163,47 +159,57 @@ static PyObject* pypmFetch(PyObject* self, PyObject* args)
   }
 }
 
-// Python Usage: pcp.pmExtractValue (pmResult, pmDesc, pmResultIdx, pmDescIdx, 
+// Python Usage: pcp.pmExtractValue (pmResult, pmDesc, pmName[I], pmDescIdx, 
 // 				     PYTHON_TYPES)
 // Description: Roughly equivalent to pmExtractValue.
+// pmResult is result of pcp.pmFetch
+// pmDesc is result of pcp.pmLookupDesc
+// pmName[I] is the metric being extracted
+// pmDescIdx is the index of the desired pmDesc
+// PYTHON_TYPES is the type of the metric, "PM_TYPE_U32" or "PM_TYPE_FLOAT"
 // Returns: metric result scalar
 
 static PyObject* 
 pypmExtractValue(PyObject* self, PyObject* args)
 {
   long result;
-  long desc;
   int result_idx;
   int vlist_idx;
   char *type;
-  pmDesc	*pmdesc;	/* XXX allow tuple */
-  pmResult	*pmresult;
-  pmAtomValue   atom;
-  
-  if (!PyArg_ParseTuple (args, "lliis", &result, &desc, &result_idx,
-			 &vlist_idx, &type))
-    return NULL;
+  PyObject *desc;
+  pmResult *pmresult;
+  pmAtomValue atom;
+
+  result = PyLong_AsLong (PyTuple_GetItem(args, 0));
+  desc = (PyObject*)PyTuple_GetItem(args, 1);
+  result_idx = PyLong_AsLong (PyTuple_GetItem(args, 2));
+  vlist_idx = PyLong_AsLong (PyTuple_GetItem(args, 3));
+  type = PyString_AsString (PyTuple_GetItem(args, 4));
 
   pmresult = (pmResult*)result;
   int i;
-  pmdesc = (pmDesc*)desc;
 
-  if (strcmp (type, "PM_TYPE_U32") == 0)
+   if (strcmp (type, "PM_TYPE_U32") == 0)
     {
-      pmExtractValue(pmresult->vset[result_idx]->valfmt,
-		     &pmresult->vset[result_idx]->vlist[vlist_idx],
-		     pmdesc->type,
-		     &atom, PM_TYPE_U32);
+      for (i = 0; i < pmresult->numpmid; i++)
+	if (pmresult->vset[i]->pmid == result_idx)
+	  pmExtractValue(pmresult->vset[i]->valfmt,
+			 &pmresult->vset[i]->vlist[vlist_idx],
+			 ((pmDesc*)(PyLong_AsLong(PyTuple_GetItem (desc, i))))->type,
+			 &atom, PM_TYPE_U32);
       return Py_BuildValue("l", atom.ul); /* XXX build tuple */
     }
   else if (strcmp (type, "PM_TYPE_FLOAT") == 0)
     {
-      pmExtractValue(pmresult->vset[result_idx]->valfmt,
-		     &pmresult->vset[result_idx]->vlist[vlist_idx],
-		     pmdesc->type,
-		     &atom, PM_TYPE_FLOAT);
+      for (i = 0; i < pmresult->numpmid; i++)
+	if (pmresult->vset[i]->pmid == result_idx)
+	  pmExtractValue(pmresult->vset[i]->valfmt,
+			 &pmresult->vset[i]->vlist[vlist_idx],
+			 ((pmDesc*)(PyLong_AsLong(PyTuple_GetItem (desc, i))))->type,
+			 &atom, PM_TYPE_FLOAT);
       return Py_BuildValue("f", atom.f); /* XXX build tuple */
     }
+  return NULL;
 }
 
 static char pcp_docs[] =
@@ -233,4 +239,3 @@ metric_descs = pcp.pmLookupDesc(metric_names)
 metric_results = pcp.pmFetch(metric_names)
 user_cpu = pcp.pmExtractValue(metric_results, metric_descs[1], 2, cpu, "PM_TYPE_FLOAT")
 */
-
