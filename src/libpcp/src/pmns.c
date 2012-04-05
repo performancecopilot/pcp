@@ -1339,7 +1339,7 @@ locate(const char *name, __pmnsNode *root)
  */
 
 /*
- * As of PCP 4.0, there is _only_ the ASCII version of the PMNS
+ * As of PCP 3.6, there is _only_ the ASCII version of the PMNS
  */
 int
 pmLoadNameSpace(const char *filename)
