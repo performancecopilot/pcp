@@ -56,11 +56,15 @@ static int	afsetup;	/* one-time-setup: done flag */
 
 static void AFsetup(void)
 {
-    if (afsetup)
+    PM_LOCK(__pmLock_libpcp);
+    if (afsetup) {
+	PM_UNLOCK(__pmLock_libpcp);
 	return;
+    }
     afsetup = 1;
     afblock = CreateMutex(NULL, FALSE, NULL);
     aftimer = CreateWaitableTimer(NULL, TRUE, NULL);
+    PM_UNLOCK(__pmLock_libpcp);
 }
 static void AFhold(void)
 { 

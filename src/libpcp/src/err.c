@@ -131,6 +131,7 @@ static const struct {
 
 #define BADCODE "No such PMAPI error code (%d)"
 
+#ifndef IS_MINGW
 /*
  * handle non-determinism in the GNU implementation of strerror_r()
  */
@@ -148,6 +149,7 @@ strerror_x(int code, char *buf, int buflen)
     strerror_r(code, buf, buflen);
 #endif
 }
+#endif
 
 char *
 pmErrStr_r(int code, char *buf, int buflen)
@@ -218,11 +220,17 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     }
 #else	/* WIN32 */
     if (code > -PM_ERR_BASE || code < -PM_ERR_NYI) {
-	char	*bp;
-	if ((bp = wsastrerror(-code)) == NULL)
-	    strerror_r(-code, buf, buflen);
-	else
+	const char	*bp;
+	if ((bp = wsastrerror(-code)) != NULL)
 	    strncpy(buf, bp, buflen);
+	else {
+	    /* No strerror_r in MinGW, so need to lock */
+	    char	*tbp;
+	    PM_LOCK(__pmLock_libpcp);
+	    tbp = strerror(-code);
+	    strncpy(buf, tbp, buflen);
+	    PM_UNLOCK(__pmLock_libpcp);
+	}
 
 	if (strncmp(buf, unknown, strlen(unknown)) != 0)
 	    return buf;
