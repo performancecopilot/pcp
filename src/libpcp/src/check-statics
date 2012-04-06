@@ -9,12 +9,25 @@ tmp=/var/tmp/$$
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 rm -f $tmp.*
 
-# run on i686 and x86_64 linux platforms only
-# ("nm" options and output are the limiting factors)
-host=`uname 2>/dev/null`
-[ "$host" = "Linux" ] || exit 0
-arch=`uname -m 2>/dev/null`
-[ "$arch" = "i686" -o "$arch" = "x86_64" ] || exit 0
+# Note
+#    Really want to make this run on as many platforms as possible ...
+eval `grep PCP_PLATFORM= ../../include/pcp.conf`
+case "$PCP_PLATFORM"
+in
+    linux)
+	    # only works for some architectures ... and in particular not
+	    # Power PC!
+	    #
+	    arch=`uname -m 2>/dev/null`
+	    [ "$arch" = "i686" -o "$arch" = "x86_64" ] || exit 0
+	    ;;
+    darwin)
+	    ;;
+    *)
+	    echo "Warning: check-statics skipped for PCP_PLATFORM=$PCP_PLATFORM"
+	    exit 0
+	    ;;
+esac
 
 obj=''
 cat <<End-of-File \
@@ -148,7 +161,7 @@ lock.o
     [DC] __pmLock_libpcp	# the global libpcp mutex
     [bd] ?init.[0-9]*		# local __pmInitLocks mutex
     b ?done.[0-9]*		# guarded by local __pmInitLocks mutex
-    C ?__pmTPDKey		# one-trip initialization then read-only
+    [CD] ?__pmTPDKey		# one-trip initialization then read-only
     b multi_init		# guarded by __pmLock_libpcp mutex
     b multi_seen		# guarded by __pmLock_libpcp mutex
 logconnect.o
