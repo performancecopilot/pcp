@@ -39,11 +39,11 @@ include $(BUILDRULES)
 install :: default_pcp install_pcp
 
 install_pcp : $(SUBDIRS) default_pcp
-	$(INSTALL) -m 644 pcp.conf /etc/pcp.conf
+	$(INSTALL) -m 644 pcp.conf $(PCP_ETC_DIR)/pcp.conf
 ifeq "$(TARGET_OS)" "mingw"
-	$(INSTALL) -m 644 pcp.mingw /etc/pcp.env
+	$(INSTALL) -m 644 pcp.mingw $(PCP_ETC_DIR)/pcp.env
 else
-	$(INSTALL) -m 644 pcp.env /etc/pcp.env
+	$(INSTALL) -m 644 pcp.env $(PCP_ETC_DIR)/pcp.env
 endif
 	$(INSTALL) -m 644 buildrules $(PCP_INC_DIR)/buildrules
 	$(INSTALL) -m 644 builddefs.install $(PCP_INC_DIR)/builddefs
