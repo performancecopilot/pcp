@@ -623,7 +623,7 @@ typedef struct {
 typedef struct {
     __pmTimeval		er_timestamp;	/* must be 2 x 32-bit format */
     unsigned int	er_flags;	/* event record characteristics */
-    unsigned int	er_nparams;	/* number of er_param[] entries */
+    int			er_nparams;	/* number of er_param[] entries */
     pmEventParameter	er_param[1];
 } pmEventRecord;
 
@@ -645,7 +645,7 @@ typedef struct {
     unsigned int	ea_type : 8;	/* value type */
 #endif
 		/* real event records start here */
-    unsigned int	ea_nrecords;    /* number of ea_record[] entries */
+    int			ea_nrecords;    /* number of ea_record[] entries */
     pmEventRecord	ea_record[1];
 } pmEventArray;
 
