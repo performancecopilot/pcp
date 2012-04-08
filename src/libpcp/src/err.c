@@ -141,7 +141,8 @@ strerror_x(int code, char *buf, int buflen)
 #ifdef HAVE_STRERROR_R_PTR
     char	*p;
     p = strerror_r(code, buf, buflen);
-    strncpy(buf, p, buflen);
+    if (p != buf)
+	strncpy(buf, p, buflen);
 #else
     /*
      * the more normal POSIX and XSI compliant variants always fill buf[]
