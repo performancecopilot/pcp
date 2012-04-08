@@ -169,9 +169,14 @@ fi
 
 if [ "$IAM" != 0 -a "$1" != "status" ]
 then
-    echo "$prog:"'
+    if [ -n "$PCP_DIR" ]
+    then
+	: running in a non-default installation, do not need to be root
+    else
+	echo "$prog:"'
 Error: You must be root (uid 0) to start or stop the PCP PMPROXY daemon.'
-    exit
+	exit
+    fi
 fi
 
 # First reset status of this service
