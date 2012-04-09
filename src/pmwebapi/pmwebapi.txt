@@ -2,9 +2,7 @@ pmwebapi: a http/json binding to PMAPI, API summary
 
 HTTP GET/POST URL patterns:
 
-* context creation
-
-  These calls invoke pmNewContext(3) with appropriate arguments.
+* context creation: pmNewContext
 
   /pmapi/context
   /pmapi/context?hostname=STRING
@@ -15,16 +13,17 @@ HTTP GET/POST URL patterns:
   where the NNNN number is used in other pmwebapi URLs to identify the
   context.  Upon an error, no result is printed.
 
-* metric metadata/listing
+* metric metadata/listing: pmLookupName/pmLookupDesc
 
   /pmapi/NNNN/_metric
   /pmapi/NNNN/_metric?prefix=NAME
+  /pmapi/NNNN/_metric?pmids=ID1,ID2
 
   The result, if successful, is a application/json form to provide full
   metric metadata:
      { "metrics": [ 
-         { "name": "foo.bar", "domain": DDD, "type": "counter", 
-           "units": { "space":A, "scalespace":B, "time":B, ... } }
+         { "name": "foo.bar", "pmID":NNNN, "indom":DDD,
+           "type":"foo", "sem":"bar", "units": "MHz",
          { "name": "foo.bar2", ... } 
          ...
      ] }
@@ -33,11 +32,11 @@ HTTP GET/POST URL patterns:
   metric.  PMID numbers are not used.  Upon an error, no result is
   printed.
 
-* metric value fetching
-  These calls use pmns/metric names, not pmids.
+* metric value fetching: pmFetch
+  These calls use pmns/metric names (URL-encoded) and/or pmids.
 
-  /pmapi/NNNN/_fetch?names=NAME1
-  /pmapi/NNNN/_fetch?names=NAME1,NAME2&instances=IIII,IIII2
+  /pmapi/NNNN/_fetch?names=NAME1,NAME2
+  /pmapi/NNNN/_fetch?pmids=ID1,ID2
 
   The result, if successful, is a application/json form to provide metric
   values:
@@ -53,4 +52,25 @@ HTTP GET/POST URL patterns:
          
   Upon an error, no result is printed.
 
+* metric instance metadata: pmGetInDom,pmNameInDom/pmLookupInDom
+  These calls use instance names (URL-encoded) and/or instance identifiers.
+
+  /pmapi/NNNN/_indom?indom=DDDD
+  /pmapi/NNNN/_indom?indom=DDDD,instance=IIII,JJJJ
+  /pmapi/NNNN/_indom?indom=DDDD,iname=INAME,INAME2
+
+  The result, if successful, is a application/json form to provide metric
+  values:
+     { "instances": [ { "instance":IIII, "name":NNNN } ... } }
+
+
+* metric instance profile management: pmAddProfile/pmDelProfile (pmLookupInDom)
+  These calls use instance names (URL-encoded) and/or instance identifiers.
+
+  /pmapi/NNNN/_profile_reset?
+  /pmapi/NNNN/_profile_reset?indom=DDDD
+  /pmapi/NNNN/_profile_add?indom=DDDD,instance=IIII,JJJJ
+  /pmapi/NNNN/_profile_add?indom=DDDD,iname=IIII,JJJJ
+  /pmapi/NNNN/_profile_del?indom=DDDD,instance=JJJJ
+  /pmapi/NNNN/_profile_del?indom=DDDD,iname=INAME1,INAME2
 
