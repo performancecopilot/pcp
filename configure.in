@@ -2095,6 +2095,9 @@ dnl Do you have git installed?
 AC_CHECK_PROGS(GIT,git)
 AC_SUBST(GIT)
 
+dnl Was --prefix=... used?
+AC_SUBST(prefix)
+
 dnl
 dnl output files
 dnl
