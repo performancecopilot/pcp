@@ -499,8 +499,8 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
     rc = pmLookupDesc (pvs->pmid, &desc); /* need to find desc.type only */
     if (rc < 0) continue;
 
-    if (printed_metrics++ > 1)
-      mhdb_printf (& output, ",");
+    if (printed_metrics >= 1)
+      mhdb_printf (& output, ",\n");
     mhdb_printf (& output, "{ ");
 
     mhdb_printf (& output, "\"pmid\":%lu, ", (unsigned long) pvs->pmid);
@@ -567,6 +567,7 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
         mhdb_printf (& output, ","); /* comma separation */
     }
     mhdb_printf(& output, "] }"); /* iteration over instances */
+    printed_metrics ++; /* comma separation at beginning of loop */
   }
   mhdb_printf(& output, "] }"); /* iteration over metrics */
 
