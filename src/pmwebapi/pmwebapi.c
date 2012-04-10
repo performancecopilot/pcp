@@ -218,8 +218,6 @@ void mhdb_init (struct mhdb *md, size_t size)
    Extend/realloc the buffer if needed.  If unable, free the buffer,
    which will block any further mhdb_vsprintfs, and cause the
    mhdb_fini_response to fail. */
-/* XXX: need a variant that prints JSON-encoded string literals, so as to
-   protect embedded whitespace, double-quotes, etc. */
 void mhdb_printf(struct mhdb *md, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
 void mhdb_printf(struct mhdb *md, const char *fmt, ...)
 {
@@ -261,6 +259,33 @@ void mhdb_printf(struct mhdb *md, const char *fmt, ...)
 
 }
 
+
+/* Print a string with JSON quoting.  Replace non-ASCII characters
+   with \uFFFD "REPLACEMENT CHARACTER". */
+void mhdb_print_qstring(struct mhdb *md, const char *value)
+{
+  const char *c;
+
+  mhdb_printf(md, "\"");
+  for (c = value; *c; c++) {
+    if (! isascii(*c)) { mhdb_printf(md, "\\uFFFD"); continue; }
+    if (isalnum(*c)) { mhdb_printf(md, "%c", *c); continue; }
+    mhdb_printf(md, "\\u00%02x", *c);
+  }
+  mhdb_printf(md, "\"");
+}
+
+
+/* A convenience function to print a vanilla-ascii key and an
+   unknown ancestry value as a JSON pair.  Add given suffix,
+   which is likely to be a comma or a \n. */
+void mhdb_print_key_value(struct mhdb *md, const char *key, const char *value,
+                          const char *suffix)
+{
+  mhdb_printf(md, "\"%s\":", key);
+  mhdb_print_qstring(md, value);
+  mhdb_printf(md, "%s", suffix);
+}
 
 
 /* Ensure that any recent mhdb_printfs are canceled, and that the
@@ -334,29 +359,30 @@ void metric_list_traverse (const char* metric, void *closure)
     mhdb_printf (& mltc->mhdb, ",\n");
   
   mhdb_printf (& mltc->mhdb, "{ ");
-  mhdb_printf (& mltc->mhdb, "\"name\":\"%s\", ", metric);
+  mhdb_print_key_value (& mltc->mhdb, "name", metric, ",");
   rc = pmLookupText (metric_id, PM_TEXT_ONELINE, & metric_text);
   if (rc == 0) {
-    mhdb_printf (& mltc->mhdb, "\"text-oneline\":\"%s\", ", metric_text);
+    mhdb_print_key_value (& mltc->mhdb, "text-oneline", metric_text, ",");
     free (metric_text);
   }
-  /*
   rc = pmLookupText (metric_id, PM_TEXT_HELP, & metric_text);
   if (rc == 0) {
-    mhdb_printf (& mltc->mhdb, "\"text-help\":\"%s\", ", metric_text);
+    mhdb_print_key_value (& mltc->mhdb, "text-help", metric_text, ",");
     free (metric_text);
   }
-  */
   mhdb_printf (& mltc->mhdb, "\"pmid\":%lu, ", (unsigned long) metric_id);
   if (metric_desc.indom != PM_INDOM_NULL)
     mhdb_printf (& mltc->mhdb, "\"indom\":%lu, ", (unsigned long) metric_desc.indom);
-  mhdb_printf (& mltc->mhdb, "\"sem\":\"%s\", ", 
-               metric_desc.sem == PM_SEM_COUNTER ? "counter" :
-               metric_desc.sem == PM_SEM_INSTANT ? "instant" :
-               metric_desc.sem == PM_SEM_DISCRETE ? "discrete" :
-               "unknown");
-  mhdb_printf (& mltc->mhdb, "\"units\":\"%s\", ", pmUnitsStr (& metric_desc.units));
-  mhdb_printf (& mltc->mhdb, "\"type\":\"%s\" ", pmTypeStr (metric_desc.type));
+  mhdb_print_key_value (& mltc->mhdb, "sem",
+                        (metric_desc.sem == PM_SEM_COUNTER ? "counter" :
+                         metric_desc.sem == PM_SEM_INSTANT ? "instant" :
+                         metric_desc.sem == PM_SEM_DISCRETE ? "discrete" :
+                         "unknown"),
+                        ",");
+  mhdb_print_key_value (& mltc->mhdb, "units", 
+                        pmUnitsStr (& metric_desc.units), ",");
+  mhdb_print_key_value (& mltc->mhdb, "type",
+                        pmTypeStr (metric_desc.type), "");
   mhdb_printf (& mltc->mhdb, "}");
   
   mltc->num_metrics ++;
@@ -506,7 +532,7 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
     mhdb_printf (& output, "\"pmid\":%lu, ", (unsigned long) pvs->pmid);
     rc = pmNameID (pvs->pmid, &metric_name);
     if (rc == 0) {
-      mhdb_printf (& output, "\"name\":\"%s\", ", metric_name);
+      mhdb_print_key_value (& output, "name", metric_name, ",");
       free (metric_name);
     }
     mhdb_printf (& output, "\"instances\": [\n");
@@ -547,7 +573,7 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
           break;
 
         case PM_TYPE_STRING:
-          mhdb_printf (& output, "\"value\":\"%s\"", a.cp);
+          mhdb_print_key_value (& output, "value", a.cp, "");
           free (a.cp);
           break;
 
