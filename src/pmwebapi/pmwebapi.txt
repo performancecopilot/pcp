@@ -22,8 +22,9 @@ HTTP GET/POST URL patterns:
   The result, if successful, is a application/json form to provide full
   metric metadata:
      { "metrics": [ 
-         { "name": "foo.bar", "pmID":NNNN, "indom":DDD,
-           "type":"foo", "sem":"bar", "units": "MHz",
+         { "name": "foo.bar", "pmID":PPPP, "indom":DDDD,
+           "type":"32", "sem":"instant", "units": "MHz",
+           "text-oneline":"foo bar", "text-help":"blah blah blah"
          { "name": "foo.bar2", ... } 
          ...
      ] }
@@ -36,17 +37,18 @@ HTTP GET/POST URL patterns:
   These calls use pmns/metric names (URL-encoded) and/or pmids.
 
   /pmapi/NNNN/_fetch?names=NAME1,NAME2
-  /pmapi/NNNN/_fetch?pmids=ID1,ID2
+  /pmapi/NNNN/_fetch?pmids=PPPP1,PPPP2
 
   The result, if successful, is a application/json form to provide metric
-  values:
-     { "timestamp": { "s":SEC, "us":USEC },
-       "valuesets": [ 
-         { "name":NAME1, "values": [ { "instance":IIII, "value":VALUE
-                                -or-   "instance":IIII, "binary":"base64value"}
-                                -or-   "instance":IIII, "events":[ { ... } ] }
-                                    { ... } ] },
-         { "name": NAME2, .... }
+  { "timestamp": { "s":SEC, "us":USEC },
+    "values": [
+         { "pmid":PPPP1, "name":NAME1,
+           "instances:" [
+             { "instance":IIII, "value":VALUE }
+        -or- { "instance":IIII, "binary":"base64value" }
+        -or- { "instance":IIII, "events":[ { ... } ] }
+                        ],
+         { "pmid":PPPP2, "name":NAME2, ... }
          ...
      ] }
          

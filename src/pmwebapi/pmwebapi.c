@@ -21,6 +21,7 @@
 #include "pmwebapi.h"
 #include <stdio.h>
 #include <stdarg.h>
+#include <inttypes.h>
 
 
 /* ------------------------------------------------------------------------ */
@@ -217,6 +218,8 @@ void mhdb_init (struct mhdb *md, size_t size)
    Extend/realloc the buffer if needed.  If unable, free the buffer,
    which will block any further mhdb_vsprintfs, and cause the
    mhdb_fini_response to fail. */
+/* XXX: need a variant that prints JSON-encoded string literals, so as to
+   protect embedded whitespace, double-quotes, etc. */
 void mhdb_printf(struct mhdb *md, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
 void mhdb_printf(struct mhdb *md, const char *fmt, ...)
 {
@@ -310,6 +313,7 @@ void metric_list_traverse (const char* metric, void *closure)
   pmID metric_id;
   pmDesc metric_desc;
   int rc;
+  char *metric_text;
 
   assert (mltc != NULL);
 
@@ -329,12 +333,30 @@ void metric_list_traverse (const char* metric, void *closure)
   if (mltc->num_metrics > 0)
     mhdb_printf (& mltc->mhdb, ",\n");
   
-  mhdb_printf (& mltc->mhdb, "{");
+  mhdb_printf (& mltc->mhdb, "{ ");
   mhdb_printf (& mltc->mhdb, "\"name\":\"%s\", ", metric);
-  mhdb_printf (& mltc->mhdb, "\"pmID\":%lu, ", (unsigned long) metric_id);
-  mhdb_printf (& mltc->mhdb, "\"type\":%d, ", metric_desc.type); /* XXX: asciify */
-  mhdb_printf (& mltc->mhdb, "\"indom\":%lu", (unsigned long) metric_desc.indom);
-  /* XXX:units */
+  rc = pmLookupText (metric_id, PM_TEXT_ONELINE, & metric_text);
+  if (rc == 0) {
+    mhdb_printf (& mltc->mhdb, "\"text-oneline\":\"%s\", ", metric_text);
+    free (metric_text);
+  }
+  /*
+  rc = pmLookupText (metric_id, PM_TEXT_HELP, & metric_text);
+  if (rc == 0) {
+    mhdb_printf (& mltc->mhdb, "\"text-help\":\"%s\", ", metric_text);
+    free (metric_text);
+  }
+  */
+  mhdb_printf (& mltc->mhdb, "\"pmid\":%lu, ", (unsigned long) metric_id);
+  if (metric_desc.indom != PM_INDOM_NULL)
+    mhdb_printf (& mltc->mhdb, "\"indom\":%lu, ", (unsigned long) metric_desc.indom);
+  mhdb_printf (& mltc->mhdb, "\"sem\":\"%s\", ", 
+               metric_desc.sem == PM_SEM_COUNTER ? "counter" :
+               metric_desc.sem == PM_SEM_INSTANT ? "instant" :
+               metric_desc.sem == PM_SEM_DISCRETE ? "discrete" :
+               "unknown");
+  mhdb_printf (& mltc->mhdb, "\"units\":\"%s\", ", pmUnitsStr (& metric_desc.units));
+  mhdb_printf (& mltc->mhdb, "\"type\":\"%s\" ", pmTypeStr (metric_desc.type));
   mhdb_printf (& mltc->mhdb, "}");
   
   mltc->num_metrics ++;
@@ -361,8 +383,9 @@ int pmwebapi_respond_metric_list (struct MHD_Connection *connection,
 
   val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "prefix");
   if (val == NULL) val = "";
-  /* XXX: which PMAPI context is used? */
   pmTraversePMNS_r (val, & metric_list_traverse, & mltc);
+  /* XXX: also handle pmids=... */
+  /* XXX: also handle names=... */
 
   mhdb_printf(&mltc.mhdb, "] }");
   resp = mhdb_fini_response (& mltc.mhdb);
@@ -373,19 +396,208 @@ int pmwebapi_respond_metric_list (struct MHD_Connection *connection,
   rc = MHD_add_response_header (resp, "Content-Type", JSON_MIMETYPE);
   if (rc != MHD_YES) {
     __pmNotifyErr (LOG_ERR, "MHD_add_response_header failed\n");
-    /* FALLTHROUGH */
+    goto out1;
   }
   rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
   if (rc != MHD_YES) {
     __pmNotifyErr (LOG_ERR, "MHD_queue_response failed\n");
-    /* FALLTHROUGH */
+    goto out1;
+  }
+
+  MHD_destroy_response (resp);
+  return MHD_YES;
+
+ out1:
+  MHD_destroy_response (resp);
+ out:
+  return MHD_NO;
+}
+
+
+/* ------------------------------------------------------------------------ */
+
+
+int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
+                                  struct webcontext *c)
+{
+  const char* val;
+ struct MHD_Response* resp;
+  int rc;
+  int max_num_metrics;
+  int num_metrics;
+  int printed_metrics; /* exclude skipped ones */
+  pmID *metrics;
+  struct mhdb output;
+  pmResult *results;
+  int i;
+
+  val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "pmids");
+  if (val == NULL) val = "";
+  /* XXX: also handle names= */
+
+  /* Pessimistically overestimate maximum number of pmID elements
+     we'll need, to allocate the metrics[] array just once, and not have
+     to range-check. */
+  max_num_metrics = strlen(val); /* The real minimum is actually
+                                    closer to strlen()/2, to account
+                                    for commas. */
+  num_metrics = 0;
+  metrics = calloc ((size_t) max_num_metrics, sizeof(pmID));
+  if (metrics == NULL) {
+    __pmNotifyErr (LOG_ERR, "calloc pmIDs[%d] oom\n", max_num_metrics);
+    goto out;
+  }
+
+  /* Loop over pmid numbers in val, collect them in metrics[]. */
+  while (1) {
+    char *numend; 
+    unsigned long pmid = strtoul (val, & numend, 10); /* matches pmid printing above */
+    if (numend == val) break; /* invalid contents */
+
+    assert (num_metrics < max_num_metrics);
+    metrics[num_metrics++] = pmid;
+
+    if (*numend == '\0') break; /* end of string */
+    if (*numend == ',')
+      val = numend+1; /* advance to next string */
+  }  
+  if (num_metrics == 0) {
+    free (metrics);
+    __pmNotifyErr (LOG_ERR, "no metrics requested\n");
+    goto out;
+  }
+
+  rc = pmFetch (num_metrics, metrics, & results);
+  free (metrics); /* don't need any more */
+  if (rc < 0) {
+    __pmNotifyErr (LOG_ERR, "pmFetch failed\n");
+    goto out;
+  }
+  /* NB: we don't care about the possibility of PMCD_*_AGENT bits
+     being set, so rc > 0. */
+
+  /* We need to construct a copy of the entire JSON metric value
+     string, in one long malloc()'d buffer.  We size it generously to
+     avoid having to realloc the bad boy and cause copies. */
+  mhdb_init (& output, num_metrics * 200); /* WAG: per-metric size */
+  mhdb_printf(& output, "{ \"timestamp\": { \"s\":%lu, \"us\":%lu },\n", 
+              results->timestamp.tv_sec,
+              results->timestamp.tv_usec);
+
+  mhdb_printf(& output, "\"values\": [\n");
+
+  assert (results->numpmid == num_metrics);
+  printed_metrics = 0;
+  for (i=0; i<results->numpmid; i++) {
+    int j;
+    pmValueSet *pvs = results->vset[i];
+    char *metric_name;
+    pmDesc desc;
+
+    if (pvs->numval <= 0) continue; /* error code; skip metric */
+
+    rc = pmLookupDesc (pvs->pmid, &desc); /* need to find desc.type only */
+    if (rc < 0) continue;
+
+    if (printed_metrics++ > 1)
+      mhdb_printf (& output, ",");
+    mhdb_printf (& output, "{ ");
+
+    mhdb_printf (& output, "\"pmid\":%lu, ", (unsigned long) pvs->pmid);
+    rc = pmNameID (pvs->pmid, &metric_name);
+    if (rc == 0) {
+      mhdb_printf (& output, "\"name\":\"%s\", ", metric_name);
+      free (metric_name);
+    }
+    mhdb_printf (& output, "\"instances\": [\n");
+    for (j=0; j<pvs->numval; j++) {
+      pmAtomValue a;
+      pmValue* val = & pvs->vlist[j];
+      int printed_value = 1;
+
+      if (desc.type == PM_TYPE_EVENT) continue;
+
+      mhdb_printf (& output, "{");
+
+      rc = pmExtractValue (pvs->valfmt, val, desc.type, &a, desc.type);
+      if (rc == 0)
+        switch (desc.type) {
+        case PM_TYPE_32:
+          mhdb_printf (& output, "\"value\":%i", a.l);
+          break;
+
+        case PM_TYPE_U32:
+          mhdb_printf (& output, "\"value\":%u", a.ul);
+          break;
+
+        case PM_TYPE_64:
+          mhdb_printf (& output, "\"value\":%" PRIi64, a.ll);
+          break;
+
+        case PM_TYPE_U64:
+          mhdb_printf (& output, "\"value\":%" PRIu64, a.ull);
+          break;
+
+        case PM_TYPE_FLOAT:
+          mhdb_printf (& output, "\"value\":%g", (double)a.f);
+          break;
+
+        case PM_TYPE_DOUBLE:
+          mhdb_printf (& output, "\"value\":%g", a.d);
+          break;
+
+        case PM_TYPE_STRING:
+          mhdb_printf (& output, "\"value\":\"%s\"", a.cp);
+          free (a.cp);
+          break;
+
+          /* XXX: base64- PM_TYPE_AGGREGATE etc., as per pmPrintValue */
+
+        default:
+          /* ... just a complete unknown ... */
+          printed_value = 0;
+        }
+
+      if (desc.indom != PM_INDOM_NULL)
+        mhdb_printf (& output, "%c \"instance\":%d", 
+                     printed_value ? ',' : ' ', /* comma separation */
+                     val->inst);
+      mhdb_printf (& output, "}");
+      if (j+1 < pvs->numval)
+        mhdb_printf (& output, ","); /* comma separation */
+    }
+    mhdb_printf(& output, "] }"); /* iteration over instances */
+  }
+  mhdb_printf(& output, "] }"); /* iteration over metrics */
+
+  pmFreeResult (results); /* not needed any more */
+
+  resp = mhdb_fini_response (& output);
+  if (resp == NULL) {
+    __pmNotifyErr (LOG_ERR, "mhdb_response failed\n");
+    goto out;
+  }
+  rc = MHD_add_response_header (resp, "Content-Type", JSON_MIMETYPE);
+  if (rc != MHD_YES) {
+    __pmNotifyErr (LOG_ERR, "MHD_add_response_header failed\n");
+    goto out1;
+  }
+  rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
+  if (rc != MHD_YES) {
+    __pmNotifyErr (LOG_ERR, "MHD_queue_response failed\n");
+    goto out1;
   }
   MHD_destroy_response (resp);
   return MHD_YES;
 
+ out1:
+  MHD_destroy_response (resp);
  out:
   return MHD_NO;
 }
+
+
+/* ------------------------------------------------------------------------ */
 
 
 int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
@@ -448,6 +660,12 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
   if (0 == strcmp (context_command, "_metric") &&
       (0 == strcmp (method, "POST") || 0 == strcmp (method, "GET")))
     return pmwebapi_respond_metric_list (connection, c);
+
+  /* ------------------------------------------------------------------------ */
+  /* metric fetch: /context/$ID/_fetch */
+  if (0 == strcmp (context_command, "_fetch") &&
+      (0 == strcmp (method, "POST") || 0 == strcmp (method, "GET")))
+    return pmwebapi_respond_metric_fetch (connection, c);
 
 
   __pmNotifyErr (LOG_WARNING, "unrecognized %s context command %s \n", method, context_command);
