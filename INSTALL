@@ -257,16 +257,24 @@ PCP internet resources, and the pmchart utility.
 
    $ export PCP_DIR=/some/path
 
-   and amend your shell's $PATH to include the PCP directories, found as
-   follows
+   Amend your shell's $PATH to include the PCP directories, found as
+   follows:
 
    $ cd /some/path
    $ xtra=`grep '^PCP_BIN' etc/pcp.conf | sed -e 's/.*=//' | paste -s -d :`
    $ PATH=$xtra:$PATH
 
-   ensure the new libraries can be found
+   Ensure the new libraries can be found:
 
    $ export LD_LIBRARY_PATH=`grep '^PCP_LIB' etc/pcp.conf | sed -e 's/.*=//' | uniq | paste -s -d :`
+
+   Tell Perl where to find loadable modules:
+
+   $ export PERL5LIB=$PCP_DIR/usr/lib/perl5:$PCP_DIR/usr/share/perl5
+
+   Allow man(1) to find the PCP manual pages:
+
+   $ export MANPATH=`manpath`:$PCP_DIR/usr/share/man
 
    If your version is co-exiting with a running PCP in a default
    install, then alternative port numbers in your environment for pmcd
