@@ -809,25 +809,15 @@ END		{ if (warn) printf "%d warnings, ",warn
 		}'
 }
 
-__strip_pcp_dir()
-{
-    if [ "X$PCP_DIR" = X ]
-    then
-	echo "$1"
-    else
-	echo "$1" | sed -e "s,^$PCP_DIR,,"
-    fi
-}
-
 _setup()
 {
     # some more configuration controls
     pmns_name=${pmns_name-$iam}
     pmda_name=pmda$iam
     dso_name="${PCP_PMDAS_DIR}/${iam}/pmda_${iam}.${dso_suffix}"
-    dso_name=`__strip_pcp_dir "$dso_name"`
+    dso_name="$dso_name"
     dso_entry=${iam}_init
-    pmda_dir=`__strip_pcp_dir "${PCP_PMDAS_DIR}/${iam}"`
+    pmda_dir="${PCP_PMDAS_DIR}/${iam}"
 
     _check_userroot
     _check_directory
@@ -837,7 +827,7 @@ _setup()
     if $perl_opt
     then
 	perl_name="${PCP_PMDAS_DIR}/${iam}/pmda${iam}.pl"
-	perl_name=`__strip_pcp_dir "$perl_name"`
+	perl_name="$perl_name"
 	perl_pmns="${PCP_PMDAS_DIR}/${iam}/pmns.perl"
 	perl_dom="${PCP_PMDAS_DIR}/${iam}/domain.h.perl"
 	perl -e 'use PCP::PMDA' 2>/dev/null
@@ -1297,8 +1287,13 @@ _check_userroot()
 {
     if [ "$uid" -ne 0 ]
     then
-	echo "Error: You must be root (uid 0) to update the PCP collector configuration."
-	exit 1
+	if [ -n "$PCP_DIR" ]
+	then
+	    : running in a non-default installation, do not need to be root
+	else
+	    echo "Error: You must be root (uid 0) to update the PCP collector configuration."
+	    exit 1
+	fi
     fi
 }
 

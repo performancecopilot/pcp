@@ -29,7 +29,6 @@ LDIRT = Makefile COPYING MMV.bs MMV.c MMV.o pm_to_blib blib \
 default: dist
 
 MAKEMAKER_OPTIONS = "INSTALLDIRS=vendor"
-INSTALLER_OPTIONS = DESTDIR=$$DIST_ROOT PREFIX=/usr
 
 ifeq ($(TARGET_OS),mingw)
 PERLMAKE = dmake.exe
@@ -52,10 +51,16 @@ test dist: MMV.o
 
 include $(BUILDRULES)
 
+ifeq "$(PREFIX)" ""
+INSTALLER_OPTIONS = DESTDIR=$$DIST_ROOT PREFIX=/usr
 install: default
 ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
 	$(call PERL_GET_FILELIST,$(TOPDIR)/perl-pcp-mmv.list,MMV)
 	find $$DIST_ROOT -name server.pl -exec chmod 755 '{}' ';'
+endif
+else
+INSTALLER_OPTIONS = DESTDIR=$(PREFIX) PREFIX=/usr
+install: default install_perl
 endif
 
 install_perl:

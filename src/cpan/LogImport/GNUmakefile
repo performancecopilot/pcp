@@ -35,8 +35,6 @@ default: dist
 
 MAKEMAKER_OPTIONS = "INSTALLDIRS=vendor"
 
-INSTALLER_OPTIONS = DESTDIR=$$DIST_ROOT PREFIX=/usr
-
 ifeq ($(TARGET_OS),mingw)
 PERLMAKE = dmake.exe
 else
@@ -58,9 +56,15 @@ test dist: LogImport.o
 
 include $(BUILDRULES)
 
+ifeq "$(PREFIX)" ""
+INSTALLER_OPTIONS = DESTDIR=$$DIST_ROOT PREFIX=/usr
 install: default
 ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
 	$(call PERL_GET_FILELIST,$(TOPDIR)/perl-pcp-logimport.list,LogImport)
+endif
+else
+INSTALLER_OPTIONS = DESTDIR=$(PREFIX) PREFIX=/usr
+install: default install_perl
 endif
 
 install_perl:

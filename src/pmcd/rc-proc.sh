@@ -115,6 +115,9 @@ _runlevel_stop()
 #
 is_chkconfig_on()
 {
+    # if non-default install, everything is "on"
+    [ -n "$PCP_DIR" ] && return 0
+
     LANG=C
     _flag=$1
 
@@ -211,6 +214,9 @@ is_chkconfig_on()
 #
 chkconfig_on()
 {
+    # if non-default install, everything is "on"
+    [ -n "$PCP_DIR" ] && return 0
+
     _flag=$1
     [ -z "$_flag" ] && return 1 # fail
 
@@ -277,6 +283,9 @@ chkconfig_on()
 #
 chkconfig_off()
 {
+    # if non-default install, everything is "on"
+    [ -n "$PCP_DIR" ] && return 1
+
     _flag=$1
     [ -z "$_flag" ] && return 1 # fail
 

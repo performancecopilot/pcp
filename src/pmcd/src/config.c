@@ -109,22 +109,6 @@ CopyToken(void)
     return copy;
 }
 
-/* Return a strdup-ed copy of the current token, plus an optional prefix. */
-static char*
-CopyPathToken(const char *prefix)
-{
-    int		len = (int)(tokenend - token);
-    int		plen = prefix ? strlen(prefix) : 0;
-    char	*copy = (char *)malloc(plen + len + 1);
-    if (copy != NULL) {
-	if (plen > 0)
-	    strncpy(copy, prefix, plen);
-	strncpy(copy + plen, token, len);
-	copy[plen + len] = '\0';
-    }
-    return copy;
-}
-
 /* Get the next line from the input stream into linebuf. */
 
 static void
@@ -525,7 +509,7 @@ BuildArgv(void)
 	if (result != NULL) {
 	    if (*token != '/')
 		result[nArgs] = CopyToken();
-	    else if ((result[nArgs] = CopyPathToken(getenv("PCP_DIR"))))
+	    else if ((result[nArgs] = CopyToken()) != NULL)
 		__pmNativePath(result[nArgs]);
 	}
 	if (result == NULL || result[nArgs] == NULL) {
@@ -655,7 +639,7 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 	return -1;
     }
 
-    if ((pathName = CopyPathToken(getenv("PCP_DIR"))) == NULL) {
+    if ((pathName = CopyToken()) == NULL) {
 	fprintf(stderr, "pmcd config[line %d]: Error: couldn't copy DSO pathname\n",
 			nLines);
 	__pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);

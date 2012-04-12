@@ -52,6 +52,9 @@ BUILD_CPU = @build_cpu@
 
 PACKAGE_BUILDER = @package_builder@
 
+# From --prefix=... to configure
+PREFIX = @prefix@
+
 # LCFLAGS, LLDFLAGS, LLDLIBS, LSRCFILES and LDIRT may be specified in
 # user Makefiles. Note: LSRCFILES is anything other than Makefile,
 # $(CFILES), or $(HFILES) and is used to construct the manifest list

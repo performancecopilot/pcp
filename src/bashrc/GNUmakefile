@@ -16,7 +16,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 BASHRC = pcp_completion.sh
-BASHDIR = /etc/bash_completion.d
+BASHDIR = $(PCP_ETC_DIR)/bash_completion.d
 LSRCFILES = $(BASHRC)
 
 default:	$(BASHRC)
