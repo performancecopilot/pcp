@@ -43,7 +43,7 @@ static const char *guess_content_type (const char* filename)
 
 static const char *create_rfc822_date (time_t t)
 {
-  static char datebuf[512];
+  static char datebuf[80]; /* if-threaded: unstaticify */
   struct tm *now = gmtime (& t);
   size_t rc = strftime (datebuf, sizeof(datebuf), "%a, %d %b %Y %T %z", now);
   if (rc <= 0 || rc >= sizeof(datebuf)) return NULL;
@@ -90,7 +90,7 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
     goto out;
   }
 
-  if (! S_ISREG (fds.st_mode)) { /* consider directory-listing instead. */
+  if (! S_ISREG (fds.st_mode)) { /* XXX: consider directory-listing instead. */
     __pmNotifyErr (LOG_ERR, "pmwebres non-file %s attempted\n", filename);
     close (fd);
     goto out;
@@ -113,7 +113,6 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
 
   /* And since we're generous to a fault, supply a timestamp field to
      assist caching. */
-  /* if-threaded: make non-static */
   ctype = create_rfc822_date (fds.st_mtime);
   if (ctype)
     (void) MHD_add_response_header (resp, "Last-Modified", ctype);
