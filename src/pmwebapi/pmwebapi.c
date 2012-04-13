@@ -108,8 +108,9 @@ int pmwebapi_respond_new_context (struct MHD_Connection *connection)
   if (val) {
     long pt;
     char *endptr;
+    errno = 0;
     pt = strtol(optarg, &endptr, 0);
-    if (*endptr != '\0' || pt <= 0 || pt > maxtimeout) {
+    if (errno != 0 || *endptr != '\0' || pt <= 0 || pt > maxtimeout) {
       polltimeout = maxtimeout;
     }
     else
@@ -653,8 +654,10 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
     __pmNotifyErr (LOG_WARNING, "unknown method %s\n", method);
     goto out;
   }
+  errno = 0;
   webapi_ctx = strtol (url, & context_command, 10); /* matches %d above */
-  if (webapi_ctx <= 0 /* range check, plus string-nonemptyness check */
+  if (errno != 0
+      || webapi_ctx <= 0 /* range check, plus string-nonemptyness check */
       || webapi_ctx > INT_MAX /* matches random() loop above */
       || *context_command != '/') { /* parsed up to the next slash */
     __pmNotifyErr (LOG_WARNING, "unrecognized %s url %s \n", method, url);

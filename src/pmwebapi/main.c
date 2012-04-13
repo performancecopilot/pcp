@@ -133,8 +133,9 @@ int main(int argc, char *argv[])
       {
         long pn;
         char *endptr;
+        errno = 0;
         pn = strtol(optarg, &endptr, 0);
-        if (*endptr != '\0' || pn < 0 || pn > 65535) {
+        if (errno != 0 || *endptr != '\0' || pn < 0 || pn > 65535) {
           fprintf(stderr, "%s: invalid -p port number %s\n", pmProgname, optarg);
           errflag ++;
         }
@@ -146,8 +147,9 @@ int main(int argc, char *argv[])
       {
         long tn;
         char *endptr;
+        errno = 0;
         tn = strtol(optarg, &endptr, 0);
-        if (*endptr != '\0' || tn < 0 || tn > UINT_MAX) {
+        if (errno != 0 || *endptr != '\0' || tn < 0 || tn > UINT_MAX) {
           fprintf(stderr, "%s: invalid -t timeoutr %s\n", pmProgname, optarg);
           errflag ++;
         }
