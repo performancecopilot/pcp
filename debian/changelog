@@ -1,3 +1,10 @@
+pcp (3.6.2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Resolve FreeBSD build dependency (closes: #668671)
+
+ -- Nathan Scott <nathans@debian.org>  Sat, 14 Apr 2012 11:01:23 +1000
+
 pcp (3.6.1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
