@@ -110,7 +110,7 @@ endif
 configure_pcp: pcp.lsm
 
 pcp.lsm: configure pcp.lsm.in
-	./configure $(PCP_CONFIGURE_OPTIONS)
+	./configure
 
 configure : configure.in
 	rm -fr config.cache autom4te.cache
