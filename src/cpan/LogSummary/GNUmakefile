@@ -28,6 +28,7 @@ LDIRT = Makefile COPYING pm_to_blib blib Makefile.old $(LPKGDIRT) *.xls
 default: dist
 
 MAKEMAKER_OPTIONS = "INSTALLDIRS=vendor"
+INSTALLER_OPTIONS = DESTDIR=$$DIST_ROOT PREFIX=/usr
 
 ifeq ($(TARGET_OS),mingw)
 PERLMAKE = dmake.exe
@@ -47,15 +48,9 @@ test dist: Makefile
 
 include $(BUILDRULES)
 
-ifeq "$(PREFIX)" ""
-INSTALLER_OPTIONS = DESTDIR=$$DIST_ROOT PREFIX=/usr
 install: default
 ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
 	$(call PERL_GET_FILELIST,$(TOPDIR)/perl-pcp-logsummary.list,LogSummary)
-endif
-else
-INSTALLER_OPTIONS = DESTDIR=$(PREFIX) PREFIX=/usr
-install: default install_perl
 endif
 
 install_perl:
