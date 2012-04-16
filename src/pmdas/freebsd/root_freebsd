@@ -14,7 +14,12 @@
  * for more details.
  */
 
-#include <stdpmid>
+/*
+ * the domain for the FreeBSD PMDA ...
+ */
+#ifndef FREEBSD
+#define FREEBSD 85
+#endif
 
 root {
     hinv
@@ -163,3 +168,5 @@ swap {
     used	FREEBSD:0:26
     free	FREEBSD:1:1
 }
+
+#undef FREEBSD
