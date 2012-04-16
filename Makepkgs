@@ -20,10 +20,16 @@
 #
 LOGDIR=Logs
 
+MAKE=${MAKE:-make}
+
+_usage()
+{
+    echo "Usage: Makepkgs [-clean] [-verbose] [--prefix=/some/path]"
+    exit 1
+}
+
 clean=false
 verbose=false
-
-MAKE=${MAKE:-make}
 
 for opt in $*
 do
@@ -36,7 +42,12 @@ do
 	verbose=true
 	shift
 	;;
+    --prefix=*)
+	export PCP_CONFIGURE_OPTIONS="$opt"
+	shift
+	;;
     *)
+	_usage
 	break
 	;;
     esac

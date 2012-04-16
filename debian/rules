@@ -89,7 +89,7 @@ config: .census
 .census:
 	@echo "== dpkg-buildpackage: configure" 1>&2
 	$(checkdir)
-	$(options) $(MAKE) configure_pcp
+	$(options) $(MAKE) configure_pcp $(PCP_CONFIGURE_OPTIONS)
 	touch .census
 
 clean:
