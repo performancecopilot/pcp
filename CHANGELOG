@@ -1,6 +1,8 @@
-pcp-3.6.2 (XX April 2012)
+pcp-3.6.2 (18 April 2012)
     - Fix Debian builds on FreeBSD (missing header files)
     - Resolve Debian startup script (compat) lintian issue
+    - Resolve FreeBSD kernel PMDA build issue with PCP not installed
+      in the build root already.
 
 pcp-3.6.1 (12 April 2012)
     - Resolve final Mac OS X pthreads build issues
