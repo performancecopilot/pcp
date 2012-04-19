@@ -74,7 +74,7 @@ PCP_LIBS = -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) \
 # 	../../configure.in
 #
 PCFLAGS=@PCFLAGS@
-ifeq "$(TARGET_OS)" "linux"
+ifneq (, $(filter linux kfreebsd, $(TARGET_OS)))
 DSOSUFFIX = so
 endif
 ifeq "$(TARGET_OS)" "darwin"

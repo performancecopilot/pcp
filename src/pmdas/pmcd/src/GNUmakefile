@@ -27,7 +27,7 @@ LSRCFILES = objstyle
 
 # Add to CFLAGS to find files in pmcd/src...
 LCFLAGS = -I$(TOPDIR)/src
-ifeq "$(TARGET_OS)" "linux"
+ifneq (, $(filter linux kfreebsd, $(TARGET_OS)))
 ABI = $(shell ./objstyle)
 LCFLAGS += -DSIM_ABI=\""$(ABI)"\"
 endif
