@@ -291,7 +291,7 @@ util.o
     b nbuf.[0-9]*		# pmNumberStr deprecated by pmNumberStr_r
     [sd] ?unknownVal.[0-9]*	# const, variable may be optimized away by gcc
     [sd] debug_map		# const
-    [sd] ?num_debug		# const
+    [rsd] ?num_debug		# const
     b pmState			# no unsafe side-effects, see notes in util.c
     D pmProgname		# no unsafe side-effects, see notes in util.c
     b filelog			# guarded by __pmLock_libpcp mutex
@@ -374,6 +374,8 @@ do
 		    -e '/ d \.data/d' \
 		    -e '/ r \.rdata/d' \
 		    -e '/ r \.eh_frame/d' \
+		    -e '/ r __PRETTY_FUNCTION__.[0-9][0-9]*$/d' \
+		    -e '/ r \.LC[0-9][0-9]*$/d' \
 		    -e '/ C ___pmLogReads/d' \
 		    -e '/ C ___pmNativeConfig/d' \
 		    -e '/ C ___pmPDUCntIn/d' \
