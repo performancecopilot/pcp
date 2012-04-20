@@ -1,7 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2007 Silicon Graphics, Inc.  All Rights Reserved.
-# Copyright (c) 2011-2012 Red Hat Inc.
+# Copyright (c) 2011-2013 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -22,15 +21,9 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 ifeq "$(HAVE_LIBMICROHTTPD)" "1"
-LLDLIBS = -lpcp -lmicrohttpd
-else
-BUNDLED = libmicrohttpd-0.9.23
-BUNDLEDLIB = $(BUNDLED)/src/daemon/.libs/libmicrohttpd.a
-LLDLIBS = -lpcp $(BUNDLEDLIB) $(LIB_FOR_PTHREADS)
-LCFLAGS = -I$(BUNDLED)/src/include
-endif
 
-
+LLDLIBS = -lpcp -lmicrohttpd $(LIB_FOR_DLOPEN) $(LIB_FOR_PTHREADS) $(LIB_FOR_MATH) $(LIB_FOR_RT)
+LCFLAGS += -Wextra
 CFILES	= main.c pmwebapi.c pmresapi.c
 CMDTARGET = pmwebapi$(EXECSUFFIX)
 LDIRT = $(TARGET)
@@ -39,21 +32,21 @@ default:	$(CMDTARGET)
 
 $(CMDTARGET): $(BUNDLEDLIB)
 
-ifeq "$(HAVE_LIBMICROHTTPD)" "1"
-else
-$(BUNDLEDLIB):
-	cd $(BUNDLED); ./configure --disable-shared --disable-https; cd src/daemon; $(MAKE) 
-
-clean::
-	cd $(BUNDLED); make distclean
-endif
-
-include $(BUILDRULES)
-
 install:	$(CMDTARGET)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 
 default_pcp:	default
-
 install_pcp:	install
 
+else
+
+# no libmicrohttpd => no pmwebd
+
+default:
+install:
+default_pcp:
+install_pcp:
+
+endif
+
+include $(BUILDRULES)
