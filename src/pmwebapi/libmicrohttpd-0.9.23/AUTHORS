@@ -1,0 +1,46 @@
+Primary developers:
+Christian Grothoff <christian@grothoff.org> (maintainer)
+Nils Durner <durner@gnunet.org> (W32 port)
+Sagie Amir (TLS/SSL support using GNUtls)
+Richard Alimi <rich@velvetsea.net> (performance)
+Amr Ali <amr.ali.cc@gmail.com> (digest authentication)
+Matthieu Speder <mspeder@users.sourceforge.net> (basic authentication, client certificates)
+
+Code contributions also came from:
+Chris GauthierDickey <chrisg@cs.du.edu>
+Elliot Glaysher
+Daniel Pittman <depittman@gmail.com>
+John Popplewell <john@johnnypops.demon.co.uk>
+Heikki Lindholm <holin@iki.fi>
+Alex Sadovsky <alexeysad@gmail.com>
+Greg Schohn <greg.schohn@gmail.com>
+Thomas Martin <Thomas.Martin@rohde-schwarz.com>
+Peter Ross <pross@xvid.org>
+RuXu W <wrxzzj@gmail.com>
+Matthew Moore
+Colin Caughie <c.caughie@indigovision.com>
+David Carvalho <andaris@gmail.com>
+David Reiss <dreiss@facebook.com>
+Mika Raento <mikie@iki.fi>
+Mike Crowe <mac@mcrowe.com>
+John Muth <muth@parascale.com>
+Geoffrey McRae <geoff@spacevs.com>
+Piotr Grzybowski <narsil.pl@gmail.com>
+Gerrit Telkamp <g.telkamp@domologic.de>
+Erik Slagter <erik@slagter.name>
+Andreas Wehrmann <a.wehrmann@centersystems.com>
+Eivind Sarto <ivan@espial.com>
+Thomas Stalder <gnunet@netsolux.ch>
+Zhimin Huang <zhimin.huang@bqvision.com>
+Jan Seeger <jan.seeger@thenybble.de>
+Will Bryant <will.bryant@gmail.com>
+LRN <lrn1986@gmail.com>
+Sven Geggus <sts@fuchsschwanzdomain.de>
+Steve Wolf <stevewolf6@gmail.com>
+Brecht Sanders <brecht@sanders.org>
+Jan Janak <jan@janakj.org>
+
+Documentation contributions also came from:
+Marco Maggi <marco.maggi-ipsu@poste.it>
+Sebastian Gerhardt <sebgerhardt@gmx.net>
+

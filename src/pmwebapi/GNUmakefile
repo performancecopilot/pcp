@@ -21,12 +21,32 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
+ifeq "$(HAVE_LIBMICROHTTPD)" "1"
 LLDLIBS = -lpcp -lmicrohttpd
+else
+BUNDLED = libmicrohttpd-0.9.23
+BUNDLEDLIB = $(BUNDLED)/src/daemon/.libs/libmicrohttpd.a
+LLDLIBS = -lpcp $(BUNDLEDLIB) $(LIB_FOR_PTHREADS)
+LCFLAGS = -I$(BUNDLED)/src/include
+endif
+
+
 CFILES	= main.c pmwebapi.c pmresapi.c
 CMDTARGET = pmwebapi$(EXECSUFFIX)
 LDIRT = $(TARGET)
 
 default:	$(CMDTARGET)
+
+$(CMDTARGET): $(BUNDLEDLIB)
+
+ifeq "$(HAVE_LIBMICROHTTPD)" "1"
+else
+$(BUNDLEDLIB):
+	cd $(BUNDLED); ./configure --disable-shared --disable-https; cd src/daemon; $(MAKE) 
+
+clean::
+	cd $(BUNDLED); make distclean
+endif
 
 include $(BUILDRULES)
 

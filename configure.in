@@ -2088,9 +2088,10 @@ AC_TRY_COMPILE(
 [
 ], AC_DEFINE(HAVE_AI_ADDRCONFIG) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
-dnl Do you have microhttpd libraries for pmwebapi?
+dnl Do you have system microhttpd libraries for pmwebapi?
 savedLIBS=$LIBS
-AC_CHECK_LIB(microhttpd,MHD_start_daemon,[AC_SUBST(PMWEBAPI,pmwebapi)])
+AC_CHECK_LIB(microhttpd,MHD_start_daemon,[have_libmicrohttpd=1],[have_libmicrohttpd=0])
+AC_SUBST(HAVE_LIBMICROHTTPD,[$have_libmicrohttpd])
 LIBS=$savedLIBS
 
 dnl Do you have git installed?

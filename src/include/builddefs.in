@@ -208,8 +208,7 @@ LIB_FOR_NSPR = @lib_for_nspr@
 LIB_FOR_SASL = @lib_for_sasl@
 LIB_FOR_SSL = @lib_for_ssl@
 
-# whether to build pmwebapi (depends on libmicrohttpd)
-PMWEBAPI = @PMWEBAPI@
+HAVE_LIBMICROHTTPD = @HAVE_LIBMICROHTTPD@
 
 SHELL = /bin/sh
 IMAGES_DIR = $(TOPDIR)/all-images

@@ -1,0 +1,989 @@
+Fri Nov  9 21:36:46 CET 2012
+	Releasing libmicrohttpd 0.9.23. -CG
+
+Thu Nov  8 22:32:59 CET 2012
+	Ship our own version of tsearch and friends if not provided by platform,
+	so that MHD works nicely on Android. -JJ
+
+Mon Oct 22 13:05:01 CEST 2012
+	Immediately do a second read if we get a full buffer from
+	TLS as there might be more data in the TLS buffers even if
+	there is no activity on the socket. -CG
+
+Tue Oct 16 01:33:55 CEST 2012
+	Consistently use "#ifdef" and "#ifndef" WINDOWS, and not
+	sometimes "#if". -CG
+
+Sat Sep  1 20:51:21 CEST 2012
+	Releasing libmicrohttpd 0.9.22. -CG
+
+Sat Sep  1 20:38:35 CEST 2012
+	Adding configure option to allow selecting support for basic
+	and digest authentication separately (#2525). -CG
+
+Thu Aug 30 21:12:56 CEST 2012
+	Fixing URI argument parsing when string contained keys without
+	equals sign (i.e. '&bar&') in the middle of the argument (#2531).
+	Also replacing 'strstr' with more efficient 'strchr' when
+	possible. -CG
+
+Tue Aug 21 14:36:17 CEST 2012
+	Use "int" instead of "enum X" in 'va_arg' calls to be nice to
+	compilers that use 'short' (i.e. 8 or 16 bit) enums but pass
+	enums still as "int" in varargs. (See discussion on mailinglist). -CG/MV
+
+Tue Aug 21 14:31:54 CEST 2012
+	Reduce default size in post processor buffer (for small systems;
+	performance impact on large systems should be minimal). -CG/MV
+
+Thu Jul 19 21:48:42 CEST 2012
+	Releasing libmicrohttpd 0.9.21. -CG
+
+Thu Jul 19 11:34:50 CEST 2012
+	Consistently use 'panic' function instead of ever directly
+	calling 'abort ()'.  Eliminating unused mutex in SSL mode.
+	Removing check in testcases that fails depending on which
+	version of gnuTLS is involved. -CG
+
+Tue Jul 17 23:50:43 CEST 2012
+	Stylistic code clean up.  Allowing lookup up of trailing values
+	without keys using "MHD_lookup_connection_value" with a key of NULL
+	(thus achieving consistency with the existing iterator API). -CG
+
+Tue Jul 17 22:37:05 CEST 2012
+	Adding experimental (!) code for MHD operation without listen socket. -CG
+
+Tue Jul 17 22:15:57 CEST 2012
+	Making sendfile test pass again on non-W32 systems. -CG
+
+Mon Jul  9 13:43:35 CEST 2012
+	Misc changes to allow testcases to pass on W32. -LRN
+
+Sun Jul  8 15:05:31 CEST 2012
+	Misc changes to fix build on W32. -LRN
+
+Fri Jun 22 11:31:25 CEST 2012
+	Make sure sockets opened by MHD are non-inheritable by default (#2414). -CG
+
+Tue Jun 19 19:44:53 CEST 2012
+	Change various uses of time(NULL) to new MHD_monotonic_time() function to
+	make timeouts immune to the system real time clock changing. -MC
+
+Tue Jun 12 21:35:00 CEST 2012
+	Adding 451 status code. -CG
+
+Thu May 31 13:33:45 CEST 2012
+	Releasing 0.9.20. -CG
+
+Tue May 29 13:55:03 CEST 2012
+	Fixed some testcase build issues with disabled post processor. -CG
+
+Tue May 29 13:45:15 CEST 2012
+	Fixing bug where MHD failed to call connection termination callback
+	if a connection either was closed due to read errors or if MHD
+	was terminated with certain threading models.  Added new
+	termination code MHD_REQUEST_TERMINATED_READ_ERROR for the
+	read-termination cause. -CG
+
+Thu Mar 15 23:47:53 CET 2012
+	Eliminating code clone in tls connection read/write handlers. -CG
+
+Fri Mar  2 23:44:56 CET 2012
+	Making sure that MHD_get_connection_values iterates over the
+	headers in the order in which they were received. -CG
+
+Wed Feb  1 09:39:12 CET 2012
+	Fixed compilation problem on MinGW. -BS
+
+Tue Jan 31 17:50:24 CET 2012
+	Releasing 0.9.19. -CG
+
+Mon Jan 30 20:02:34 CET 2012
+	Fixed handling of garbage prior to first multipart boundary
+	(#2126). -woof
+
+Fri Jan 27 11:00:43 CET 2012
+	Fixed postprocessor failure for applications that enclosed boundary
+	in quotes (#2120). -woof
+
+Tue Jan 24 16:07:53 CET 2012
+	Added configure check for sin_len in 'struct sockaddr' and adding
+	code to initialize this field if it exists now. -CG
+
+Mon Jan 23 14:02:26 CET 2012
+	Fixed double-free if specified cipher was not valid (during
+	MHD_daemon_start).  Releasing 0.9.18. -CG
+
+Thu Jan 19 22:11:12 CET 2012
+	Switch to non-blocking sockets for all systems but Cygwin
+	(we already used non-blocking sockets for GNU/Linux); also
+	use non-blocking sockets on Cygwin for HTTPS as this is
+	required to avoid DoS-by-partial-record via gnutls.  On
+	Cygwin, #1824 implies that we need to use blocking sockets
+	for HTTP on Cygwin for now. -CG
+
+Thu Jan 19 17:46:05 CET 2012
+	Fixing use of uninitialized 'earliest_deadline' variable in
+	MHD_get_timeout which can lead to returning an incorrect
+	(too early) timeout (#2085). -tclaveirole
+
+Thu Jan 19 13:31:27 CET 2012
+	Fixing digest authentication for GET requests with URI arguments
+	(#2059). -CG
+
+Sat Jan  7 17:30:48 CET 2012
+	Digest authentication expects nonce count in base 16, not base 10
+	(#2061). -tclaveirole
+
+Thu Jan  5 22:01:37 CET 2012
+	Partial fix for #2059, digest authentication with GET arguments. -CG
+
+Thu Dec  1 15:22:57 CET 2011
+	Updated authorization_example.c to actually demonstrate the current
+	MHD API. -SG
+
+Mon Nov 21 18:51:30 CET 2011
+	Added option to suppress generation of the 'Date:' header to be
+	used on embedded systems without RTC.  Documented the new option
+	and the configure options. -CG
+
+Sat Nov 19 20:08:40 CET 2011
+	Releasing 0.9.17. -CG
+
+Fri Nov 18 20:17:22 CET 2011
+	Fixing return value of MHD_get_timeout if timeouts are not in use.
+        (#1914). -rboulton
+
+Sun Nov 13 13:34:29 CET 2011
+	Trying to fix accidental addition of a "Connection: close" footer
+	under certain (rare) circumstances. -CG
+
+Fri Nov  4 10:03:00 CET 2011
+	Small updates to the tutorial.
+	Releasing 0.9.16. -CG
+
+Thu Nov  3 10:14:59 CET 2011
+	shutdown(RDWR) fails on OS X after shutdown(RD), so only use
+	shutdown(WR) if we already closed the socket for reading (otherwise
+	OS X might not do shutdown (WR) at all). -CG
+
+Tue Nov  1 18:51:50 CET 2011
+	Force adding of 'Connection: close' to the header if we (for whatever
+	reason) are shutting down the socket for reading (see also
+	#1760). -CG
+
+Thu Oct 27 14:16:34 CEST 2011
+	Treat EAGAIN the same way as EINTR (helps on W32). -LRN
+
+Wed Oct 12 10:40:12 CEST 2011
+	Made sockets blocking again for non-Linux platforms as non-blocking
+	sockets cause problems (#1824) on Cygwin but offer better performance
+	on Linux (see change on August 11 2011). -CG/pross
+
+Fri Oct  7 19:50:07 CEST 2011
+ 	Fixed problems with testcases on W32. -LRN
+
+Fri Sep 30 17:56:36 CEST 2011
+	Fixed MHD_CONNECTION_OPTION_TIMEOUT for HTTPS (#1811). -CG
+
+Wed Sep 28 08:37:55 CEST 2011
+	Releasing libmicrohttpd 0.9.15. -CG
+
+Tue Sep 27 13:07:36 CEST 2011
+	Added ability to access URL arguments of the form 'url?foo' (without
+	'=').  Added testcase and updated documentation accordingly. -CG
+
+Mon Sep 26 21:24:00 CEST 2011
+	Only run response cleanup testcase if curl binary was found by
+	configure. -CG
+
+Wed Sep 21 09:53:18 CEST 2011
+	Reverting to using pipes for signalling select on non-Linux
+	platforms where shutdown-on-listen-sockets does not work. -WB/CG
+
+Mon Sep 19 14:06:30 CEST 2011
+	Fixing problem introduced with prompt response cleanup code. -CG
+
+Wed Sep 14 13:43:26 CEST 2011
+	Fixing minor memory leak if daemon with HTTPS support failed to
+	initialize (#1766). -CG
+
+Tue Sep 13 09:47:58 CEST 2011
+	Try to release responses more promptly upon connection termination. -CG
+
+Mon Sep 12 10:20:28 CEST 2011
+	Releasing libmicrohttpd 0.9.14. -CG
+
+Mon Sep 12 10:05:36 CEST 2011
+	Added new function to allow setting of a custom timeout value
+	for an individual connection (the MHD_set_connection_option is
+	more generic, but this is currently the only use). -CG
+
+Sat Sep 10 07:30:12 CEST 2011
+	Documenting that MHD_CONNECTION_INFO_GNUTLS_CLIENT_CERT is not
+	implemented and will not be implemented, and what to use instead. -CG
+
+Fri Sep  9 13:42:20 CEST 2011
+	Added testcase to demonstrate that response cleanup calling is
+	working. No bug was found. -CG
+
+Thu Aug 18 11:05:16 CEST 2011
+	Fixed bug with wrong state transition if callback returned
+	MHD_CONTENT_READER_END_OF_STREAM causing spurious extra callbacks
+	to the handler (thanks to Jan Seeger for pointing it out). -CG/JS
+
+Thu Aug 11 11:40:03 CEST 2011
+	Changing sockets to be non-blocking as suggested by Eivind Sarto
+	on the mailinglist. -CG
+
+Mon Jul 25 16:13:15 CEST 2011
+	Added a logo. -CG
+
+Sat Jul 16 22:42:10 CEST 2011
+	Change type of nonce to 'unsigned long int' to match return type
+	from 'strtoul'.  Fixes ERANGE check which would have previously
+	failed. -CG
+
+Wed Jul 13 09:26:17 CEST 2011
+	Fixing HTTP error status strings for certain high-numbered status codes.
+	Added support for some more (non-standard) status codes.
+	Releasing libmicrohttpd 0.9.13. -CG
+
+Thu Jul  7 10:24:20 CEST 2011
+	Adding performance measurements. -CG
+
+Thu Jun 23 14:21:13 CEST 2011
+	Releasing libmicrohttpd 0.9.12. -CG
+
+Wed Jun 22 14:32:23 CEST 2011
+	Force closing connection if either the client asked it or
+	if the response contains 'Connection: close' (so far,
+	only the client's request was considered). -CG/RV
+
+Wed Jun 22 10:37:35 CEST 2011
+	Removing listen socket from poll/select sets in
+	MHD_USE_THREAD_PER_CONNECTION mode; using 'shutdown'
+	on connection sockets to signal termination instead. -CG
+
+Wed Jun 22 10:25:13 CEST 2011
+	Eliminate unnecessary (and badly synchronized) calls to
+	MHD_get_timeout in MHD_USE_THREAD_PER_CONNECTION mode.
+	Document that this is not acceptable. -CG
+
+Tue Jun 21 13:54:59 CEST 2011
+	Fixing tiny memory leak in SSL code from 'gnutls_priority_init'.
+	Fixing data race between code doing connection shutdown and
+	connection cleanup.
+	Changing code to reduce connection cleanup cost from O(n) to O(1).
+	Cleaning up logging code around 'connection_close_error'. -CG
+
+Sat Jun 11 13:05:12 CEST 2011
+	Replacing use of sscanf by strtoul (#1688). -CG/bplant
+
+Fri Jun  3 15:26:42 CEST 2011
+	Adding MHD_CONNECTION_INFO_DAEMON to obtain MHD_Daemon
+	responsible for a given connection. -CG
+
+Wed May 25 14:23:20 CEST 2011
+	Trying to fix stutter problem on timeout described by
+	David Myers on the mailinglist (5/10/2011). -CG
+
+Fri May 20 22:11:55 CEST 2011
+	Fixed bug in testcase setup code causing crashes in
+	tls_session_timeout_test on some systems.
+	Releasing libmicrohttpd 0.9.11. -CG
+
+Fri May 20 19:34:59 CEST 2011
+	Fixed bug in parsing multipart/form-data with post processor where
+	the code failed to add a 0-terminator in the correct position. -PP
+
+Thu May 12 14:40:46 CEST 2011
+	Fixed bug where if multiple HTTP request messages are piped in at once,
+	microhttpd would call the handler with the wrong upload_data_size. -HZM
+
+Thu May 12 14:40:08 CEST 2011
+	Documented possible issue with off_t being sometimes
+	32-bit and sometimes 64-bit depending on #includes. -CG
+
+Sun May  8 21:52:47 CEST 2011
+	Allow MHD_SIZE_UNKNOWN to be used in conjunction with
+	MHD_create_response_from_fd (fixing #1679). -TG
+
+Wed Apr 27 16:11:18 CEST 2011
+	Releasing libmicrohttpd 0.9.10. -CG
+
+Fri Apr  8 11:40:35 CEST 2011
+	Workaround for cygwin poll brokenness. -TS
+
+Sun Apr  3 13:56:52 CEST 2011
+	Fixing compile error on OS X. -CG
+
+Wed Mar 30 12:56:09 CEST 2011
+	Initialize tv_usec in MHD_USE_THREAD_PER_CONNECTION with select
+	and per-connection timeout. -CG
+
+Tue Mar 29 14:15:13 CEST 2011
+	Releasing libmicrohttpd 0.9.9. -CG
+
+Tue Mar 29 14:11:19 CEST 2011
+	Fixed call to mmap for memory pool, extended testcase to cover
+	POLL. -CG
+
+Wed Mar 23 23:24:25 CET 2011
+	Do not use POLLIN when we only care about POLLHUP (significantly
+	improves performance when using MHD_USE_THREAD_PER_CONNECTION
+	in combination with MHD_USE_POLL). -ES
+
+Sun Mar 20 09:16:53 CET 2011
+	Fixing race when using MHD_USE_THREAD_PER_CONNECTION in combination
+	with MHD_USE_POLL. -CG
+
+Fri Mar 18 13:23:47 CET 2011
+	Removing MSG_DONTWAIT which should not be needed and was presumably
+	causing problems with EAGAIN under certain circumstances. -ES
+
+Fri Mar 11 22:25:29 CET 2011
+	Fixing bug in MHD_create_response_from_fd_at_offset with non-zero offsets. -ES
+
+Sat Mar  5 22:00:36 CET 2011
+	Do not use POLLRDHUP, which causes build errors on OS X / OpenSolaris
+	(#1667). -CG
+
+Fri Mar  4 10:24:04 CET 2011
+	Added new API to allow MHD server to initiate connection to
+	client (special use-case for servers behind NAT), thereby
+	addressing #1661 (externally created connections).
+	Releasing libmicrohttpd 0.9.8. -CG
+
+Fri Mar  4 10:07:18 CET 2011
+	Avoid using a pipe for signalling as well, just use server
+	socket shutdown (also for thread-per-connection). -CG
+
+Thu Mar  3 21:42:47 CET 2011
+	Fixing issue where Base64 decode fails when char is defined
+        as unsigned char  (Mantis 1666). -CG/tmayer
+
+Tue Mar  1 13:58:04 CET 2011
+	Allow use of 'poll' in combination with the external select mode.
+	Avoid using pthread signals (SIGALRM), use pipe instead.
+	Corrected timeout calculation (s vs. ms). -CG
+
+Wed Feb 23 14:21:44 CET 2011
+	Removing useless code pointed out by Eivind Sarto. -CG
+
+Fri Feb 18 11:03:59 CET 2011
+	Handle large (>2 GB) file transfers with sendfile on 32-bit
+	systems better; handle odd sendfile failures by libc/kernel
+	by falling back to standard 'SEND'. -CG
+
+Sun Feb 13 10:52:29 CET 2011
+	Handle gnutls receive error(s) for interrupted SSL
+	connections better. -MS
+	Releasing libmicrohttpd 0.9.7. -CG
+
+Fri Feb 11 10:15:38 CET 2011
+	Fixing parameter ordering in documentation (#1659). -wellska
+
+Thu Jan 27 10:51:39 CET 2011
+	Disable 'EXTRA_CHECKS's by default as suggested in #1652
+ 	(I guess it is time). -CG/timn
+
+Thu Jan 27 10:48:55 CET 2011
+	Removing bogus assertion in basic authentication code (#1651). -CG/timn
+
+Tue Jan 25 14:10:45 CET 2011
+	Releasing libmicrohttpd 0.9.6. -CG
+
+Mon Jan 24 16:36:35 CET 2011
+	Fixing compilation error if DAUTH_SUPPORT was 0 (#1646). -CG/bplant
+
+Tue Jan 18 23:58:09 CET 2011
+	Fixing hash calculation in digest auth; old function had
+	collisions causing the browser to challenge users for
+	authentication too often. -CG/AW
+
+Fri Jan 14 19:19:45 CET 2011
+	Removing dead code, adding missing new symbols to export list.
+	Fixed two missing NULL checks after malloc operations. -CG
+
+Mon Jan 10 14:07:33 CET 2011
+	Releasing libmicrohttpd 0.9.5. -CG
+
+Wed Jan  5 15:20:11 CET 2011
+	Fixing double-locking on non-Linux platforms when using
+	MHD_create_response_from_fd (#1639). -CG
+	Avoid use of strndup for better portability (#1636). -CG
+
+Tue Jan  4 13:07:21 CET 2011
+	Added MHD_create_response_from_buffer, deprecating
+	MHD_create_response_from_data.  Deprecating
+	MHD_create_response_from_fd as well. -CG
+
+Sun Dec 26 00:02:15 CET 2010
+	Releasing libmicrohttpd 0.9.4. -CG
+
+Sat Dec 25 21:57:14 CET 2010
+	Adding support for basic authentication.
+	Documented how to obtain client SSL certificates in tutorial. -MS
+
+Thu Dec 23 15:40:36 CET 2010
+	Increasing nonce length to 128 to support digest authentication
+	with Opera (see #1633).
+
+Mon Dec 20 21:22:57 CET 2010
+	Added macro MHD_LONG_LONG to allow change of MHD's "long long" use
+	to some other type on platforms that do not support "long long"
+	(Mantis #1631). -CG/bplant
+
+Sun Dec 19 19:54:15 CET 2010
+	Added 'MHD_create_response_from_fd_at_offset'. -CG
+
+Sun Dec 19 15:16:16 CET 2010
+	Fixing --enable and --disable configure options to behave properly. -CG
+
+Sun Dec 19 13:46:52 CET 2010
+	Added option to specify size of stacks for threads created by MHD. -CG
+
+Tue Nov 23 09:41:00 CET 2010
+	Releasing libmicrohttpd 0.9.3. -CG
+
+Thu Nov 18 23:10:36 CET 2010
+	Fixing #1619 (testcases not working with NSS on Fedora). -CG/timn
+
+Thu Nov 18 22:55:58 CET 2010
+	Fixing #1621 (socket not closed under certain circumstances). -CG/jaredc
+
+Wed Nov 17 12:16:53 CET 2010
+	Allowing signalling of errors in generating chunked responses to
+	clients (by closing connectins) using the new
+	MHD_CONTENT_READER_END_WITH_ERROR ((size_t)-2) return value.  Also
+	introducing MHD_CONTENT_READER_END_OF_STREAM constant instead
+	of (size_t) -1 / SIZE_MAX.
+
+Sun Nov 14 20:45:45 CET 2010
+	Adding API call to generate HTTP footers in response. -CG
+
+Sat Oct 16 12:38:43 CEST 2010
+	Releasing libmicrohttpd 0.9.2. -CG
+
+Tue Oct 12 15:41:51 CEST 2010
+	Fixed issue with data received via SSL being delayed in the
+	GNUtls buffer if sender stopped transmitting (but did not close
+	the connection) and MHD buffer size was smaller than last fragment,
+	resulting in possibly significantly delayed processing of
+	incoming data.  -CG
+
+Wed Sep 22 09:48:59 CEST 2010
+	Changed port argument from 'unsigned short' to 'uint16_t'.
+	Removed dead code when compiling with messages enabled.
+	Minimal unrelated code cleanup. -CG
+
+Tue Sep 21 15:12:41 CEST 2010
+	Use "size_t" for buffer size instead of "int". -CG
+
+Sat Sep 18 07:16:30 CEST 2010
+	Adding support for SHOUTcast. -CG
+
+Wed Sep 15 09:33:46 CEST 2010
+	Fixed double-free. -CG/ES
+
+Fri Sep 10 14:47:11 CEST 2010
+	Releasing libmicrohttpd 0.9.1. -CG
+
+Fri Sep 10 14:29:37 CEST 2010
+	Adding proper nonce counter checking for digest authentication. -CG/AA
+
+Sat Sep  4 21:55:52 CEST 2010
+	Digest authentication now seems to be working. -CG/AA
+
+Wed Sep  1 13:59:16 CEST 2010
+	Added ability to specify external unescape function.
+	"microhttpd.h" now includes the right headers for GNU/Linux
+	systems unless MHD_PLATFORM_H is defined (in which case it
+	is assumed that the right headers were already determined by
+	some configure-like process). -CG
+
+Tue Aug 31 15:39:25 CEST 2010
+	Fixed bug with missing call to response cleanup in case of
+	connection handling error (for example, after getting a SIGPIPE). -CG
+
+Tue Aug 24 11:39:25 CEST 2010
+	Fixed bug in handling EAGAIN from GnuTLS (caused
+	needlessly dropped SSL connections). -CG
+
+Sun Aug 22 16:49:13 CEST 2010
+	Initial draft for digest authentication. -AA
+
+Thu Aug 19 14:15:01 CEST 2010
+	Changed code to enable error messages and HTTPS by default;
+	added option to disable post processor API (use
+	breaks binary compatibility, should only be done
+	for embedded systems that require minimal footprint). -CG
+
+Thu Aug 19 13:26:00 CEST 2010
+	Patches for Windows to ease compilation trouble. -GT/CG
+
+Sat Aug 14 15:43:30 CEST 2010
+	Fixed small, largely hypothetical leaks.
+	Reduced calls to strlen for header processing. -CG
+
+Fri Aug  6 12:51:59 CEST 2010
+	Fixing (small) memory leak on daemon-shutdown with
+	SSL enabled. -CG/PG
+
+Thu Aug  5 22:24:37 CEST 2010
+	Fixing timeout bug on systems that think it's still
+	1970 (can happen if system time not initialized). -CG
+
+Mon Jul 26 10:46:57 CEST 2010
+	Releasing libmicrohttpd 0.9.0. -CG
+
+Sun Jul 25 14:57:47 CEST 2010
+	Adding support for sendfile on Linux.  Adding support
+	for systemd-style passing of an existing listen socket
+	as an option.  IPv6 sockets now only bind to IPv6
+	(if platform supports this). -CG
+
+Sun Jul 25 11:10:45 CEST 2010
+	Changed code to use external libgnutls code instead of
+	the "fork".  Minor API changes for setting TLS options. -CG
+
+Sun Jun 13 10:52:34 CEST 2010
+	Cleaned up example code. -CG
+
+Fri Apr 23 09:56:37 CEST 2010
+	Do not return HTTP headers for requests without version
+	numbers.  Do return HTTP version 1.0 if client requested
+	HTTP version 1.1 (previously, we returned HTTP/1.1 even
+	if the client specified HTTP/1.0).  -GM/CG
+
+Sat Mar 13 09:41:01 CET 2010
+	Releasing libmicrohttpd 0.4.6. -CG
+
+Wed Mar 10 13:18:26 CET 2010
+	Fixing bug in 100 CONTINUE replacement when handling POSTs
+	(see report on mailinglist), with testcase. -CG/MC
+
+Tue Feb 23 09:16:15 CET 2010
+	Added configure check for endianness to define WORDS_BIGENDIAN
+	which fixes SSL support on big endian architectures. -JA/CG
+
+Sat Feb 20 10:01:09 CET 2010
+	Added check for inconsistent options (MHD_OPTION_PROTOCOL_VERSION
+	without MHD_USE_SSL) causing instant segfault. -JA/CG
+
+Tue Feb  9 20:31:51 CET 2010
+	Fixed issue with poll doing busy waiting. -BK/CG
+
+Thu Jan 28 21:28:56 CET 2010
+	Releasing libmicrohttpd 0.4.5. -CG
+
+Thu Jan 28 20:35:48 CET 2010
+	Make sure addresses returned by memory pool are
+	aligned (fixes bus errors on Sparc). -CG
+
+Thu Dec 17 20:26:52 CET 2009
+	poll.h is not stricly required anymore. -ND
+
+Fri Dec  4 13:17:50 CET 2009
+	Adding MHD_OPTION_ARRAY. -CG
+
+Mon Nov 16 14:41:26 CET 2009
+	Fixed busy-loop in internal select mode for inactive
+	clients with infinite connection timeout. -CG
+
+Thu Nov 12 16:19:14 CET 2009
+	Adding support for setting a custom error handler for
+	fatal errors (previously, the implementation always
+	called 'abort' in these cases). -CG/ND
+
+Wed Nov 11 12:54:16 CET 2009
+	Adding support for poll (alternative to select allowing
+	for more than FD_SETSIZE parallel connections). -JM
+
+Wed Oct 28 20:26:00 CET 2009
+ 	Releasing libmicrohttpd 0.4.4. -CG
+
+Wed Oct 14 14:37:37 CEST 2009
+	Fixing (rare) deadlock due to SELECT missing SIGALRM by
+	making all SELECT calls block for at most 1s.  While this
+	can in (rare) situations delay the shutdown by 1s, I think
+	this is preferable (both performance and possibly portability-wise)
+	over using a pipe for the signal. -CG
+
+Sun Oct 11 14:57:29 CEST 2009
+	Adding eCos license as an additional license for the
+	non-HTTPS code of MHD. -CG
+
+Sun Oct 11 11:24:27 CEST 2009
+	Adding support for Symbian. -MR
+
+Fri Oct  9 15:21:29 CEST 2009
+	Check for error codes from pthread operations (to help with
+	error diagnostics) and abort if something went wrong. -CG
+
+Thu Oct  8 10:43:02 CEST 2009
+	Added check for sockets being '< FD_SETSIZE' (just to be safe). -CG
+
+Mon Oct  5 21:17:26 CEST 2009
+	Adding "COOKIE" header string #defines. -CG
+
+Mon Oct  5 08:29:06 CEST 2009
+	Documenting default values. -CG
+
+Fri Aug 28 22:56:47 CEST 2009
+ 	Releasing libmicrohttpd 0.4.3. -CG
+
+Sun Aug 23 16:21:35 UTC 2009
+	Allow MHD_get_daemon_info to return the daemon's listen socket.
+	Includes a test case that uses this functionality to bind a server to
+	an OS-assigned port, look the port up with getsockname, and curl it. -DR
+
+Tue Aug  4 00:14:04 CEST 2009
+	 Fixing double-call to read from content-reader callback for first
+	 data segment (as reported by Alex on the mailinglist). -CG
+
+Thu Jul 29 21:41:52 CEST 2009
+ 	 Fixed issue with the code not using the "block_size" argument
+         given to MHD_create_response_from_callback causing inefficiencies
+	 for values < 2048 and segmentation faults for values > 2048
+	 (as reported by Andre Colomb on the mailinglist). -CG
+
+Sun May 17 03:29:46 MDT 2009
+ 	 Releasing libmicrohttpd 0.4.2. -CG
+
+Fri May 15 11:00:20 MDT 2009
+	 Grow reserved read buffer more aggressively so that we are not
+	 needlessly stuck reading only a handfull of bytes in each iteration. -CG
+
+Thu May 14 21:20:30 MDT 2009
+	 Fixed issue where the "NOTIFY_COMPLETED" handler could be called
+	 twice (if a socket error or timeout occured for a pipelined
+	 connection after successfully completing a request and before
+	 the next request was successfully transmitted).  This could
+	 confuse applications not expecting to see a connection "complete"
+	 that they were never aware of in the first place. -CG
+
+Mon May 11 13:01:16 MDT 2009
+         Fixed issue where error code on timeout was "TERMINATED_WITH_ERROR"
+         instead of "TERMINATED_TIMEOUT_REACHED". -CG
+
+Wed Apr  1 21:33:05 CEST 2009
+         Added MHD_get_version(). -ND
+
+Wed Mar 18 22:59:07 MDT 2009
+	 Releasing libmicrohttpd 0.4.1. -CG
+
+Wed Mar 18 17:46:58 MDT 2009
+	 Always RECV/SEND with MSG_DONTWAIT to (possibly) address
+	 strange deadlock reported by Erik on the mailinglist ---
+	 and/or issues with blocking read after select on GNU/Linux
+	 (see select man page under bugs). -CG
+
+Tue Mar 17 01:19:50 MDT 2009
+	 Added support for thread-pools. -CG/RA
+
+Mon Mar  2 23:44:08 MST 2009
+	 Fixed problem with 64-bit upload and download sizes and
+	 "-1" being used to indicate "unknown" by introducing
+	 new 64-bit constant "MHD_SIZE_UNKNOWN". -CG/DC
+
+Wed Feb 18 08:13:56 MST 2009
+	 Added missing #include for build on arm-linux-uclibc. -CG/CC
+
+Mon Feb 16 21:12:21 MST 2009
+	 Moved MHD_get_connection_info so that it is always defined,
+	 even if HTTPS support is not enabled. -CG
+
+Sun Feb  8 21:15:30 MST 2009
+	 Releasing libmicrohttpd 0.4.0. -CG
+
+Thu Feb  5 22:43:45 MST 2009
+	 Incompatible API change to allow 64-bit uploads and downloads.
+	 Clients must use "uint64_t" for the "pos"
+	 argument (MHD_ContentReaderCallback) and the "off"
+	 argument (MHD_PostDataIterator) and the "size"
+	 argument (MHD_create_response_from_callback) now.
+	 Also, "unsigned int" was changed to "size_t" for
+	 the "upload_data_size" argument (MHD_AccessHandlerCallback),
+	 the argument to MHD_OPTION_CONNECTION_MEMORY_LIMIT,
+	 the "block_size" argument (MHD_create_response_from_callback),
+	 the "buffer_size" argument (MHD_create_post_processor) and
+	 the "post_data_len" argument (MHD_post_process).  You may
+	 need to #include <stdint.h> before <microhttpd.h> from now on. -CG
+
+Thu Feb  5 20:21:08 MST 2009
+	 Allow getting address information about the connecting
+	 client after the accept call. -CG
+
+Mon Feb  2 22:21:48 MST 2009
+	 Fixed missing size adjustment for offsets for %-encoded
+	 arguments processed by the post processor (Mantis #1447). -CG/SN
+
+Fri Jan 23 16:57:21 MST 2009
+	 Support charset specification (ignore) after content-type
+	 when post-processing HTTP POST requests (Mantis #1443). -CG/SN
+
+Fri Dec 26 23:08:04 MST 2008
+	 Fixed broken check for identical connection address. -CG
+	 Making cookie parser more RFC2109 compliant (handle
+	 spaces around key, allow value to be optional). -CG
+
+Sat Dec  6 18:36:17 MST 2008
+	 Added configure option to disable checking for CURL support.
+	 Added MHD_OPTION to allow specification of custom logger. -CG
+
+Tue Nov 18 01:19:53 MST 2008
+	 Removed support for untested and/or broken SSL features
+	 and (largely useless) options. -CG
+
+Sun Nov 16 16:54:54 MST 2008
+	 Added option to get unparsed URI via callback.
+	 Releasing GNU libmicrohttpd 0.4.0pre1. -CG
+
+Sun Nov 16 02:48:14 MST 2008
+	 Removed tons of dead code. -CG
+
+Sat Nov 15 17:34:24 MST 2008
+	 Added build support for code coverage analysis. -CG
+
+Sat Nov 15 00:31:33 MST 2008
+	 Removing (broken) support for HTTPS servers with
+	 anonymous (aka "no") certificates as well as
+	 various useless dead code. -CG
+
+Sat Nov  8 02:18:42 MST 2008
+	 Unset TCP_CORK at the end of transmitting a response
+	 to improve performance (on systems where this is
+	 supported). -MM
+
+Tue Sep 30 16:48:08 MDT 2008
+	 Make MHD useful to Cygwin users; detect IPv6 headers
+	 in configure.
+
+Sun Sep 28 14:57:46 MDT 2008
+	 Unescape URIs (convert "%ef%e4%45" to "中国"). -CG
+
+Wed Sep 10 22:43:59 MDT 2008
+	 Releasing GNU libmicrohttpd 0.4.0pre0. -CG
+
+Wed Sep 10 21:36:06 MDT 2008
+	 Fixed data race on closing sockets during
+	 shutdown (in one-thread-per-connection mode). -CG
+
+Thu Sep  4 23:37:18 MDT 2008
+	 Fixed some boundary issues with processing
+	 chunked requests; removed memmove from a
+	 number of spots, in favor of using an index into
+	 the current buffer instead. -GS
+
+Sun Aug 24 13:05:41 MDT 2008
+	 Now handling clients returning 0 from response callback
+	 as specified in the documentation (abort if internal
+	 select is used, retry immediately if a thread per
+	 connection is used). -CG
+
+Sun Aug 24 12:44:43 MDT 2008
+	 Added missing reason phrase. -SG
+
+Sun Aug 24 10:33:22 MDT 2008
+	 Fixed bug where MHD failed to transmit the response when
+	 the client decided not to send "100 CONTINUE" during
+	 a PUT/POST request. -CG
+
+Wed Jul 16 18:54:03 MDT 2008
+	 Fixed bug generating chunked responses with chunk sizes
+	 greater than 0xFFFFFF (would cause protocol violations). -CG
+
+Mon May 26 13:28:57 MDT 2008
+	 Updated and improved documentation.
+	 Releasing GNU libmicrohttpd 0.3.1. -CG
+
+Fri May 23 16:54:41 MDT 2008
+	 Fixed issue with postprocessor not handling URI-encoded
+	 values of more than 1024 bytes correctly. -CG
+
+Mon May  5 09:18:29 MDT 2008
+	 Fixed date header (was off by 1900 years). -JP
+
+Sun Apr 13 01:06:20 MDT 2008
+	 Releasing GNU libmicrohttpd 0.3.0. -CG
+
+Sat Apr 12 21:34:26 MDT 2008
+	 Generate an internal server error if the programmer fails
+	 to handle upload data correctly.  Tweaked testcases to
+	 avoid running into the problem in the testcases.
+	 Completed zzuf-based fuzzing testcases.  -CG
+
+Sat Apr 12 15:14:05 MDT 2008
+	 Restructured the code (curl-testcases and zzuf testcases
+	 are now in different directories; code examples are in
+	 src/examples/).
+	 Fixed a problem (introduced in 0.2.3) with handling very
+	 large requests (the code did not return proper error code).
+	 If "--enable-messages" is specified, the code now includes
+	 reasonable default HTML webpages for various build-in
+	 errors (such as request too large and malformed requests).
+	 Without that flag, the webpages returned will still be
+	 empty.
+	 Started to add zzuf-based fuzzing-testcases (these require
+	 the zzuf and socat binaries to be installed). -CG
+
+Fri Apr 11 20:20:34 MDT 2008
+	 I hereby dub libmicrohttpd a GNU package. -Richard Stallman
+
+Sat Mar 29 22:36:09 MDT 2008
+	 Fixed bugs in handling of malformed HTTP requests
+	 (causing either NULL dereferences or connections to
+	 persist until time-out, if any). -CG
+
+	 Updated and integrated TexInfo documentation. -CG
+
+Tue Mar 25 13:40:53 MDT 2008
+	 Prevent multi-part post-processor from going to error
+	 state when the input buffer is full and current token
+	 just changes processor state without consuming any data.
+	 Also, the original implementation would not consume any
+	 input in process_value_to_boundary if there is no new
+	 line character in sight. -AS
+
+	 Remove checks for request method after it finished writing
+	 response footers as it's only _pipelined_ requests that
+	 should not be allowed after POST or PUT requests.  Reusing
+	 the existing connection is perfectly ok though.  And there
+	 is no reliable way to detect pipelining on server side
+	 anyway so it is the client's responsibility to not send new
+	 data before it gets a response after a POST operation. -AS
+
+	 Clarified license in man page. Releasing
+         libmicrohttpd 0.2.3 -CG
+
+Sat Mar 22 01:12:38 MDT 2008
+	 Releasing libmicrohttpd 0.2.2. -CG
+
+Mon Feb 25 19:13:53 MST 2008
+	 Fixed a problem with sockets closed for reading ending up
+	 in the read set under certain circumstances. -CG
+
+Wed Jan 30 23:15:44 MST 2008
+	 Added support for nested multiparts to post processor.
+	 Made sure that MHD does not allow pipelining for methods
+	 other than HEAD and GET (and of course still also only
+	 allows it for http 1.1).  Releasing libmicrohttpd 0.2.1.  -CG
+
+Mon Jan 21 11:59:46 MST 2008
+	 Added option to limit number of concurrent connections
+	 accepted from the same IP address. -CG
+
+Fri Jan  4 16:02:08 MST 2008
+	 Fix to properly close connection if application signals
+	 problem handling the request. - AS
+
+Wed Jan  2 16:41:05 MST 2008
+	 Improvements and bugfixes to post processor implementation. - AS
+
+Wed Dec 19 21:12:04 MST 2007
+	 Implemented chunked (HTTP 1.1) downloads (including
+	 sending of HTTP footers).  Also allowed queuing of
+	 a response early to suppress the otherwise automatic
+	 "100 CONTINUE" response.  Removed the mostly useless
+	 "(un)register handler" methods from the API.  Changed
+	 the internal implementation to use a finite state
+	 machine (cleaner code, slightly less memory consumption).
+	 Releasing libmicrohttpd 0.2.0. - CG
+
+Sun Dec 16 03:24:13 MST 2007
+	 Implemented handling of chunked (HTTP 1.1) uploads.
+	 Note that the upload callback must be able to
+	 process chunks in the size uploaded by the client,
+	 MHD will not "join" small chunks into a big
+	 contiguous block of memory (even if buffer space
+	 would be available).  - CG
+
+Wed Dec  5 21:39:35 MST 2007
+	 Fixed race in multi-threaded server mode.
+	 Fixed handling of POST data when receiving a
+	 "Connection: close" header (#1296).
+	 Releasing libmicrohttpd 0.1.2. - CG
+
+Sat Nov 17 00:55:24 MST 2007
+	 Fixed off-by-one in error message string matching.
+	 Added code to avoid generating SIGPIPE on platforms
+	 where this is possible (everywhere else, the main
+	 application should install a handler for SIGPIPE).
+
+Thu Oct 11 11:02:06 MDT 2007
+	 Releasing libmicrohttpd 0.1.1. - CG
+
+Thu Oct 11 10:09:12 MDT 2007
+	 Fixing response to include HTTP status message. - EG
+
+Thu Sep 27 10:19:46 MDT 2007
+	 Fixing parsing of "%xx" in URLs with GET arguments. - eglaysher
+
+Sun Sep  9 14:32:23 MDT 2007
+	 Added option to compile debug/warning messages;
+	 error messages are now disabled by default.
+	 Modified linker option for GNU LD to not export
+	 non-public symbols (further reduces binary size).
+	 Releasing libmicrohttpd 0.1.0. - CG
+
+Sat Sep  8 21:54:04 MDT 2007
+	 Extended API to allow for incremental POST
+	 processing.  The new API is binary-compatible
+	 as long as the app does not handle POSTs, but
+	 since that maybe the case, we're strictly speaking
+	 breaking backwards compatibility (since url-encoded
+	 POST data is no longer obtained the same way). - CG
+
+Thu Aug 30 00:59:24 MDT 2007
+	 Improving API to allow clients to associate state
+         with a connection and to be notified about request
+         termination (this is a binary-compatible change). - CG
+	 Fixed compile errors under OS X. - HL
+
+Sun Aug 26 03:11:46 MDT 2007
+	 Added MHD_USE_PEDANTIC_CHECKS option which enforces
+	 receiving a "Host:" header in HTTP 1.1 (and sends a
+	 HTTP 400 status back if this is violated). - CG
+
+Tue Aug 21 01:01:46 MDT 2007
+	 Fixing assertion failure that occured when a client
+	 closed the connection after sending some data but
+	 not the full headers. - CG
+
+Sat Aug 18 03:06:09 MDT 2007
+	 Check for out of memory when adding headers to
+	 responses.  Check for NULL key when looking
+	 for headers.   If a content reader callback
+	 for a response returns zero (has no data yet),
+	 do not possibly fall into busy waiting when
+	 using external select (with internal selects
+	 we have no choice).  - CG
+
+Wed Aug 15 01:46:44 MDT 2007
+	 Extending API to allow timeout of connections.
+	 Changed API (MHD_create_response_from_callback) to
+	 allow user to specify IO buffer size.
+	 Improved error handling.
+         Released libmicrohttpd 0.0.3. - CG
+
+Tue Aug 14 19:45:49 MDT 2007
+	 Changed license to LGPL (with consent from all contributors).
+         Released libmicrohttpd 0.0.2. - CG
+
+Sun Aug 12 00:09:26 MDT 2007
+	 Released libmicrohttpd 0.0.1. - CG
+
+Fri Aug 10 17:31:23 MDT 2007
+	 Fixed problems with handling of responses created from
+	 callbacks.  Allowing accept policy callback to be NULL
+	 (to accept from all).  Added minimal fileserver example.
+	 Only send 100 continue header when specifically requested. - CG
+
+Wed Aug  8 01:46:06 MDT 2007
+	 Added pool allocation and connection limitations (total
+	 number and memory size).  Released libmicrohttpd 0.0.0. - CG
+
+Tue Jan  9 20:52:48 MST 2007
+	 Created project build files and updated API. - CG

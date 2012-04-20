@@ -621,7 +621,7 @@ ac_includes_default="\
 
 ac_subst_vars='PACKAGE_CONFIGURE
 GIT
-PMWEBAPI
+HAVE_LIBMICROHTTPD
 lib_for_curses
 lib_for_readline
 pcp_mpi_dirs
@@ -11900,9 +11900,12 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_microhttpd_MHD_start_daemon" >&5
 $as_echo "$ac_cv_lib_microhttpd_MHD_start_daemon" >&6; }
 if test "x$ac_cv_lib_microhttpd_MHD_start_daemon" = xyes; then :
-  PMWEBAPI=pmwebapi
-
+  have_libmicrohttpd=1
+else
+  have_libmicrohttpd=0
 fi
+
+HAVE_LIBMICROHTTPD=$have_libmicrohttpd
 
 LIBS=$savedLIBS
 
