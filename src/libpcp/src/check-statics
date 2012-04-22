@@ -335,6 +335,8 @@ do
 		# + static arrays and some debug (?) symbols appear as
 		#   "s", but the latter have _.NNN appended, or start
 		#   with LC, or have .eh appended, or start with EH_
+		# + older versions insert get_pc_thunk symbols in all
+		#   object files
 		# for MinGW
 		# + strip .bss and .data lines
 		# + strip .rdata and .eh_frame lines
@@ -343,6 +345,7 @@ do
 		skip_file=false
 		nm $type \
 		| sed -n >$tmp.out \
+		    -e '/ S ___i686.get_pc_thunk.[bc]x/d' \
 		    -e '/ [sS] .*\.eh$/d' \
 		    -e '/ s .*_\.[0-9][0-9]*$/d' \
 		    -e '/ s LC[0-9][0-9]*$/d' \

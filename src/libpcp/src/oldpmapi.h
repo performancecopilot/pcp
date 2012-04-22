@@ -29,7 +29,7 @@
  *    really an issue, as the error code is normally 0)
  *
  * These macros were removed from the more public pmapi.h and impl.h
- * headers in PCP 4.0
+ * headers in PCP 3.6
  */
 
 #define PM_ERR_BASE1 1000

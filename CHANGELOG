@@ -1,3 +1,20 @@
+pcp-3.6.2 (18 April 2012)
+    - Fix Debian builds on FreeBSD (missing header files)
+    - Resolve Debian startup script (compat) lintian issue
+    - Resolve FreeBSD kernel PMDA build issue with PCP not installed
+      in the build root already.
+
+pcp-3.6.1 (12 April 2012)
+    - Resolve final Mac OS X pthreads build issues
+    - Debian packaging improvements for split pmlogger/pmcd scripts,
+      perl module pieces, and other lintian reported issues
+    - Update the startup script dependencies for /var use
+    - Support --prefix=... and --exec-prefix=... configure options
+    - Relaxed the "are you running as root?" test in startup scripts
+    - Win32 build updates and improvements
+    - Cache /proc/stat file handle in Linux kernel agent to reduce
+      syscalls on the most commonly fetched metric subtree
+
 pcp-3.6.0 (21 March 2012)
     - Thread-safe libpcp, including additional re-entrant and thread-safe
       variants for some routines

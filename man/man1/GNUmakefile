@@ -23,7 +23,7 @@ include $(TOPDIR)/src/include/builddefs
 MAN_SECTION	= 1
 
 # Notes
-#	pmnscomp.1 retired in PCP 4.0
+#	pmnscomp.1 retired in PCP 3.6
 #
 MAN_PAGES	= chkhelp.1 dbpmda.1 mkaf.1 newhelp.1 pcp.1 pcpintro.1 \
 	pmafm.1 pmcd.1 pmcd_wait.1 pmclient.1 pmdacisco.1 pmdamailq.1 \

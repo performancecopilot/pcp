@@ -56,7 +56,6 @@ else
     dnl  build and build_os. Squash all x86 cpus into one LCD form - i386
     target=`echo $target | sed '[s/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/]'`
     target_os=`echo $target_os | sed '[s/solaris2\..*/solaris/]'`
-    target_os=`echo $target_os | sed '[s/kfreebsd/freebsd/]'`
     target_os=`echo $target_os | sed '[s/^\([^-][^-]*\)-.*$/\1/]' | sed '[s/[\.0-9]*//g]'`
     target_cpu=`echo $target_cpu | sed '[s/i[3-6]86/i386/]'`
 
@@ -114,11 +113,11 @@ elif test $target_os = aix
 then
     AC_DEFINE(IS_AIX)
     export CFLAGS="-qcpluscmt"
-elif test $target_os = freebsd
+elif test $target_os = freebsd || test $target_os = kfreebsd
 then
     AC_DEFINE(IS_FREEBSD)
     test -f /etc/debian_version && target_distro=debian
-    export CFLAGS="-fpic -fno-strict-aliasing"
+    export CFLAGS="-fpic -fno-strict-aliasing -D_GNU_SOURCE"
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
@@ -131,7 +130,8 @@ pcp_platform_paths=""
 case $target_os
 in
     aix)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
-    linux)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
+    linux|kfreebsd)
+		pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
     mingw)	pcp_platform_paths='/mingw/bin:/perl/bin:/usr/local/bin';;
     darwin)	pcp_platform_paths='/usr/local/bin';;
     solaris)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/usr/sfw/bin';;
@@ -828,7 +828,7 @@ AC_CHECK_FUNCS(strtod strtol strtoll strtoull)
 AC_CHECK_FUNCS(sysinfo)
 
 dnl only define readdir64 on non-linux platforms that support it
-if test $target_os != linux -a $target_os != freebsd; then
+if test $target_os != linux -a $target_os != freebsd -a $target_os != kfreebsd; then
     AC_CHECK_FUNCS(readdir64)
 fi
 
@@ -1477,7 +1477,7 @@ then
     changequote(<<, >>)<<[ 	]st_mtimespec>>changequote([, ]),
     sys/stat.h, [ have_stat_name=true; AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC) ])
 fi
-if test $have_stat_name = false -a $target_os != darwin -a $target_os != linux
+if test $have_stat_name = false -a $target_os != darwin -a $target_os != linux -a $target_os != kfreebsd
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<[ 	]st_mtime>>changequote([, ]),

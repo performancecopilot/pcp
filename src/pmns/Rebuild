@@ -200,7 +200,7 @@ do
     fi
 done
 
-# remove all trace of old binary pmns (not used in PCP 4.0 or later)
+# remove all trace of old binary pmns (not used in PCP 3.6 or later)
 #
 rm -f root.bin
 
