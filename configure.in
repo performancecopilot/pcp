@@ -1897,7 +1897,7 @@ if test "$localstatedir" != '${prefix}/var'
 then
     # --localstatedir= override
     var_dir=$localstatedir
-elif test "$prefix" != "/usr"
+elif "$prefix" != "/usr"
 then
     # --prefix= override
     var_dir=$prefix/var
