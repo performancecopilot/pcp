@@ -17,27 +17,11 @@
 #
 
 TOPDIR = ../..
-include $(TOPDIR)/src/include/builddefs
 
-CFILES = py-pmapi.c
 # LIB_FOR_BASENAME = "-lpcp"
-LLDLIBS = -lpcp $(LIB_FOR_BASENAME)
 
-LCFLAGS += '-DDSO_SUFFIX="$(DSOSUFFIX)"'
-
-DSOVERSION = 3
-
-LIBTARGET = pcp.$(DSOSUFFIX).$(DSOVERSION)
-SYMTARGET = pcp.$(DSOSUFFIX) libpcp.$(DSOSUFFIX).2
-
-base default : $(LIBTARGET)
-
-default_pcp : default
-
-install_pcp : install
-
-$(LIBTARGET): $(CFILES)
-	$(CC) -shared -o $@ -g py-pmapi.c -fpic -lpcp
+default_pcp:
+	:
 
 
 
