@@ -2083,7 +2083,6 @@ AC_SUBST(nspr_incflags)
 AC_SUBST(lib_for_nss)
 AC_SUBST(lib_for_nspr)
 
-
 dnl check for array sessions
 if test -f /usr/include/sn/arsess.h
 then
