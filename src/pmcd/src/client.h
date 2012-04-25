@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,10 +20,12 @@
 #ifndef _CLIENT_H
 #define _CLIENT_H
 
+#include "io.h"
+
 /* The table of clients, used by pmcd */
 typedef struct {
     int			fd;		/* Socket descriptor */
-    struct sockaddr_in	addr;		/* Address of client */
+    ClientAddr		addr;		/* Address of client */
     struct {				/* Status of connection to client */
 	unsigned int	connected : 1;	/* Client connected */
 	unsigned int	changes : 3;	/* PMCD_* bits for changes since last fetch */
@@ -42,7 +45,7 @@ typedef struct {
 PMCD_EXTERN ClientInfo	*client;		/* Array of clients */
 PMCD_EXTERN int		nClients;		/* Number of entries in array */
 extern int		maxClientFd;		/* largest fd for a client */
-extern fd_set		clientFds;		/* for client select() */
+extern FdSet		clientFds;		/* for client select() */
 PMCD_EXTERN int		this_client_id;		/* client for current request */
 
 /* prototypes */

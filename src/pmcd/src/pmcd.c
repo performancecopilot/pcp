@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ * Copyright (c) 2012 Red Hat Inc.
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
@@ -14,6 +14,7 @@
 
 #include "pmcd.h"
 #include "impl.h"
+#include "io.h"
 #include <sys/stat.h>
 #include <assert.h>
 
@@ -55,7 +56,7 @@ typedef struct {
     int			fd;		/* File descriptor */
     int			port;		/* Listening port */
     char*		ipSpec;		/* String used to specify IP addr (or NULL) */
-    __uint32_t		ipAddr;		/* IP address (network byte order) */
+    IpAddress		ipAddr;		/* IP address */
 } ReqPortInfo;
 
 /*
@@ -134,28 +135,17 @@ static int
 AddRequestPort(char *ipSpec, int port)
 {
     ReqPortInfo		*rp;
-    u_long		addr = 0;
+    IpAddress		addr;
+    int rc;
 
     if (ipSpec) {
-	int		i;
-	char		*sp = ipSpec;
-	char		*endp;
-	unsigned long	part;
-
-	for (i = 0; i < 4; i++) {
-	    part = strtoul(sp, &endp, 10);
-	    if (*endp != ((i < 3) ? '.' : '\0'))
-		return 0;
-	    if (part > 255)
-		return 0;
-	    addr |= part << (8 * (3 - i));
-	    if (i < 3)
-		sp = endp + 1;
-	}
+        rc = ioStringToNetAddr (ipSpec, &addr);
+	if (rc != 1)
+	    return 0;
     }
     else {
-	ipSpec = "INADDR_ANY";
-	addr = INADDR_ANY;
+        ipSpec = "INADDR_ANY";
+	ioInitializeNetAddr (INADDR_ANY, port, &addr);
     }
 
     if (nReqPorts == szReqPorts)
@@ -163,7 +153,7 @@ AddRequestPort(char *ipSpec, int port)
     rp = &reqPorts[nReqPorts];
     rp->fd = -1;
     rp->ipSpec = strdup(ipSpec);
-    rp->ipAddr = (__uint32_t)htonl(addr);
+    rp->ipAddr = addr;
     rp->port = port;
     nReqPorts++;
 
@@ -354,75 +344,40 @@ ParseOptions(int argc, char *argv[])
  * from clients use ipAddr = htonl(INADDR_ANY).
  */
 static int
-OpenRequestSocket(int port, __uint32_t ipAddr)
+OpenRequestSocket(int port, IpAddress *ipAddr)
 {
-    int			fd;
-    int			one, sts;
-    struct sockaddr_in	myAddr;
+    int	fd;
+    int	sts;
 
-    fd = __pmCreateSocket();
+    fd = ioCreateSocket();
     if (fd < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) socket: %s\n",
-		port, ipAddr, netstrerror());
+		port, *ipAddr, ioStrError());
 	return -1;
     }
     if (fd > maxClientFd)
 	maxClientFd = fd;
-    FD_SET(fd, &clientFds);
+    ioFD_SET(fd, &clientFds);
 
-    /* Ignore dead client connections */
-    one = 1;
-#ifndef IS_MINGW
-    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
-		(mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, 0x%x) setsockopt(SO_REUSEADDR): %s\n",
-		port, ipAddr, netstrerror());
-	goto fail;
-    }
-#else
-    if (setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
-		(mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d,0x%x) setsockopt(EXCLUSIVEADDRUSE): %s\n",
-		port, ipAddr, netstrerror());
-	goto fail;
-    }
-#endif
+    sts = ioSetClientSockopts (fd, port, ipAddr);
+    if (sts != 1)
+      goto fail;
 
-    /* and keep alive please - pv 916354 bad networks eat fds */
-    if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one,
-		(mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, 0x%x) setsockopt(SO_KEEPALIVE): %s\n",
-		port, ipAddr, netstrerror());
-	goto fail;
-    }
+    sts = ioBindClientSocket (fd, port, ipAddr);
+    if (sts != 1)
+      goto fail;
 
-    memset(&myAddr, 0, sizeof(myAddr));
-    myAddr.sin_family = AF_INET;
-    myAddr.sin_addr.s_addr = ipAddr;
-    myAddr.sin_port = htons(port);
-    sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
-    if (sts < 0) {
-	sts = neterror();
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) bind: %s\n",
-		port, ipAddr, netstrerror());
-	if (sts == EADDRINUSE)
-	    __pmNotifyErr(LOG_ERR, "pmcd may already be running\n");
-	goto fail;
-    }
-
-    sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
+    sts = ioListen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) listen: %s\n",
-		port, ipAddr, netstrerror());
+		port, *ipAddr, ioStrError());
 	goto fail;
     }
+
     return fd;
 
 fail:
-    __pmCloseSocket(fd);
+    ioCloseSocket(fd);
     return -1;
 }
 
@@ -443,7 +398,7 @@ extern int DoPMNSTraverse(ClientInfo *, __pmPDU *);
  */
 
 void
-HandleClientInput(fd_set *fdsPtr)
+HandleClientInput(FdSet *fdsPtr)
 {
     int		sts;
     int		i;
@@ -453,13 +408,13 @@ HandleClientInput(fd_set *fdsPtr)
 
     for (i = 0; i < nClients; i++) {
 	int		pinpdu;
-	if (!client[i].status.connected || !FD_ISSET(client[i].fd, fdsPtr))
+	if (!client[i].status.connected || !ioFD_ISSET(client[i].fd, fdsPtr))
 	    continue;
 
 	cp = &client[i];
 	this_client_id = i;
 
-	pinpdu = sts = __pmGetPDU(cp->fd, LIMIT_SIZE, _pmcd_timeout, &pb);
+	pinpdu = sts = ioGetPDU(cp->fd, LIMIT_SIZE, _pmcd_timeout, &pb);
 	if (sts > 0 && _pmcd_trace_mask)
 	    pmcd_trace(TR_RECV_PDU, cp->fd, sts, (int)((__psint_t)pb & 0xffffffff));
 	if (sts <= 0) {
@@ -549,7 +504,7 @@ HandleClientInput(fd_set *fdsPtr)
 	    if (cp->status.connected) {
 		if (_pmcd_trace_mask)
 		    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
-		sts = __pmSendError(cp->fd, FROM_ANON, sts);
+		sts = ioSendError(cp->fd, FROM_ANON, sts);
 		if (sts < 0)
 		    __pmNotifyErr(LOG_ERR, "HandleClientInput: "
 			"error sending Error PDU to client[%d] %s\n", i, pmErrStr(sts));
@@ -574,13 +529,13 @@ Shutdown(void)
 	    continue;
 	if (ap->inFd != -1) {
 	    if (__pmSocketIPC(ap->inFd))
-		__pmCloseSocket(ap->inFd);
+		ioCloseSocket(ap->inFd);
 	    else
 		close(ap->inFd);
 	}
 	if (ap->outFd != -1) {
 	    if (__pmSocketIPC(ap->outFd))
-		__pmCloseSocket(ap->outFd);
+		ioCloseSocket(ap->outFd);
 	    else
 		close(ap->outFd);
 	}
@@ -603,10 +558,10 @@ Shutdown(void)
     }
     for (i = 0; i < nClients; i++)
 	if (client[i].status.connected)
-	    __pmCloseSocket(client[i].fd);
+	    ioCloseSocket(client[i].fd);
     for (i = 0; i < nReqPorts; i++)
 	if ((fd = reqPorts[i].fd) != -1)
-	    __pmCloseSocket(fd);
+	    ioCloseSocket(fd);
     __pmNotifyErr(LOG_INFO, "pmcd Shutdown\n");
     fflush(stderr);
 }
@@ -689,7 +644,7 @@ SignalReloadPMNS(void)
  * to handle PDUs.
  */
 static int
-HandleReadyAgents(fd_set *readyFds)
+HandleReadyAgents(FdSet *readyFds)
 {
     int		i, s, sts;
     int		fd;
@@ -702,11 +657,11 @@ HandleReadyAgents(fd_set *readyFds)
 	ap = &agent[i];
 	if (ap->status.notReady) {
 	    fd = ap->outFd;
-	    if (FD_ISSET(fd, readyFds)) {
+	    if (ioFD_ISSET(fd, readyFds)) {
 		int		pinpdu;
 		/* Expect an error PDU containing PM_ERR_PMDAREADY */
 		reason = AT_COMM;	/* most errors are protocol failures */
-		pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+		pinpdu = sts = ioGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 		if (sts > 0 && _pmcd_trace_mask)
 		    pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		if (sts == PDU_ERROR) {
@@ -766,7 +721,7 @@ ClientLoop(void)
     int		maxFd;
     int		checkAgents;
     int		reload_ns = 0;
-    fd_set	readableFds;
+    FdSet	readableFds;
     int		CheckClientAccess(ClientInfo *);
     ClientInfo	*cp;
     __pmPDUInfo	xchallenge;
@@ -794,7 +749,7 @@ ClientLoop(void)
 
 	    if (ap->status.notReady) {
 		fd = ap->outFd;
-		FD_SET(fd, &readableFds);
+		ioFD_SET(fd, &readableFds);
 		if (fd > maxFd)
 		    maxFd = fd + 1;
 		checkAgents = 1;
@@ -807,13 +762,13 @@ ClientLoop(void)
 	    }
 	}
 
-	sts = select(maxFd, &readableFds, NULL, NULL, NULL);
+	sts = ioSelect(maxFd, &readableFds, NULL, NULL, NULL);
 
 	if (sts > 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
 		for (i = 0; i <= maxClientFd; i++)
-		    if (FD_ISSET(i, &readableFds))
+		    if (ioFD_ISSET(i, &readableFds))
 			fprintf(stderr, "DATA: from %s (fd %d)\n", FdToString(i), i);
 #endif
 	    /* Accept any new client connections */
@@ -821,7 +776,7 @@ ClientLoop(void)
 		int rfd = reqPorts[i].fd;
 		if (rfd == -1)
 		    continue;
-		if (FD_ISSET(rfd, &readableFds)) {
+		if (ioFD_ISSET(rfd, &readableFds)) {
 		    int	sts, s;
 		    int	accepted = 1;
 
@@ -831,7 +786,7 @@ ClientLoop(void)
 		    if (cp == NULL)
 		    	continue;
 
-		    sts = __pmAccAddClient(&cp->addr.sin_addr, &cp->denyOps);
+		    sts = ioAccAddClient(&cp->addr, &cp->denyOps);
 		    if (sts >= 0) {
 			cp->pduInfo.zero = 0;
 			cp->pduInfo.version = PDU_VERSION;
@@ -875,7 +830,7 @@ ClientLoop(void)
 	    HandleClientInput(&readableFds);
 	}
 	else if (sts == -1 && neterror() != EINTR) {
-	    __pmNotifyErr(LOG_ERR, "ClientLoop select: %s\n", netstrerror());
+	    __pmNotifyErr(LOG_ERR, "ClientLoop select: %s\n", ioStrError());
 	    break;
 	}
 	if (restart) {
@@ -997,6 +952,7 @@ main(int argc, char *argv[])
     umask(022);
     __pmProcessDataSize(NULL);
     __pmSetInternalState(PM_STATE_PMCS);
+    ioInit();
 
     /*
      * get optional stuff from environment ... PMCD_PORT ...
@@ -1103,7 +1059,7 @@ main(int argc, char *argv[])
 
     /* Open request ports for client connections */
     for (i = 0; i < nReqPorts; i++) {
-	reqPorts[i].fd = OpenRequestSocket(reqPorts[i].port, reqPorts[i].ipAddr);
+	reqPorts[i].fd = OpenRequestSocket(reqPorts[i].port, & reqPorts[i].ipAddr);
 	if (reqPorts[i].fd != -1) {
 	    if (reqPorts[i].fd > maxReqPortFd)
 		maxReqPortFd = reqPorts[i].fd;

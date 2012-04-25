@@ -1,6 +1,7 @@
 #!gmake
 #
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2012 Red Hat Inc.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -22,8 +23,8 @@ include $(TOPDIR)/src/include/builddefs
 
 CMDTARGET = pmcd$(EXECSUFFIX)
 HFILES = client.h pmcd.h
-CFILES = pmcd.c config.c dofetch.c dopdus.c dostore.c client.c agent.c util.c
-LLDLIBS	= -lpcp -lpcp_pmcd $(LIB_FOR_BASENAME) $(LIB_FOR_DLOPEN)
+CFILES = pmcd.c config.c dofetch.c dopdus.c dostore.c client.c agent.c util.c io.c
+LLDLIBS	= -lpcp -lpcp_pmcd $(LIB_FOR_BASENAME) $(LIB_FOR_DLOPEN) $(LIB_FOR_NSS) $(LIB_FOR_NSPR)
 
 PCP_LIBS += -L$(TOPDIR)/src/libpcp_pmcd/$(LIBPCP_ABIDIR)
 
@@ -31,6 +32,7 @@ PCP_LIBS += -L$(TOPDIR)/src/libpcp_pmcd/$(LIBPCP_ABIDIR)
 # allows the pmcd pmda (dynamicaly loaded shared library) to access the
 # global symbols in pmcd.
 #LCFLAGS = $(RDYNAMIC_FLAG)
+LCFLAGS += $(NSS_CFLAGS) $(NSPR_CFLAGS)
 LLDFLAGS = $(RDYNAMIC_FLAG)
 
 default:	$(CMDTARGET)

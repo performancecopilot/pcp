@@ -15,6 +15,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmcd.h"
+#include "io.h"
 
 /* Freq. histogram: pmids for each agent in current fetch request */
 
@@ -551,13 +552,13 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
     sts = 0;
     if (cip->status.changes) {
 	/* notify client of PMCD state change */
-	sts = __pmSendError(cip->fd, FROM_ANON, (int)cip->status.changes);
+	sts = ioSendError(cip->fd, FROM_ANON, (int)cip->status.changes);
 	if (sts > 0)
 	    sts = 0;
 	cip->status.changes = 0;
     }
     if (sts == 0)
-	sts = __pmSendResult(cip->fd, FROM_ANON, endResult);
+	sts = ioSendResult(cip->fd, FROM_ANON, endResult);
 
     if (sts < 0) {
 	pmcd_trace(TR_XMIT_ERR, cip->fd, PDU_RESULT, sts);
