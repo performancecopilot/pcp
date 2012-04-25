@@ -18,6 +18,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmcd.h"
+#include "io.h"
 #include <ctype.h>
 #include <sys/stat.h>
 #if defined(HAVE_SYS_WAIT_H)
@@ -2284,11 +2285,11 @@ ParseRestartAgents(char *fileName)
 	ClientInfo	*cp = &client[i];
 	int		s;
 
-	if ((s = __pmAccAddClient(&cp->addr.sin_addr, &cp->denyOps)) < 0) {
+	if ((s = ioAccAddClient(&cp->addr, &cp->denyOps)) < 0) {
 	    /* ignore errors, the client is being terminated in any case */
 	    if (_pmcd_trace_mask)
 		pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, s);
-	    __pmSendError(cp->fd, FROM_ANON, s);
+	    ioSendError(cp->fd, FROM_ANON, s);
 	    CleanupClient(cp, s);
 	}
     }

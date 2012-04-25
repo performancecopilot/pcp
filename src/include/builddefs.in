@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2012 Red Hat Inc.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -188,6 +189,8 @@ LIB_FOR_MATH = @lib_for_math@
 LIB_FOR_READLINE = @lib_for_readline@
 LIB_FOR_CURSES = @lib_for_curses@
 LIB_FOR_PTHREADS = @lib_for_pthreads@
+LIB_FOR_NSS = @lib_for_nss@
+LIB_FOR_NSPR = @lib_for_nspr@
 
 SHELL = /bin/sh
 IMAGES_DIR = $(TOPDIR)/all-images
@@ -413,6 +416,9 @@ PCP_X11_LDFLAGS = @pcp_x11_libflags@
 PCP_X11_EXTRALIBS = @pcp_x11_extra@
 PCP_X11_PRELIBS = @pcp_x11_pre@
 PCP_X11_APPDEFS_DIR = @pcp_x11_appdefs_dir@
+
+NSS_CFLAGS = @nss_incflags@
+NSPR_CFLAGS = @nspr_incflags@
 
 GIT=@GIT@
 

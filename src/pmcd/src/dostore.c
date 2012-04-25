@@ -15,6 +15,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmcd.h"
+#include "io.h"
 #include <assert.h>
 
 extern int _pmSelectReadable(int, fd_set *);
@@ -301,7 +302,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	int s;
 	if (_pmcd_trace_mask)
 	    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, 0);
-	s = __pmSendError(cp->fd, FROM_ANON, 0);
+	s = ioSendError(cp->fd, FROM_ANON, 0);
 	if (s < 0)
 	    CleanupClient(cp, s);
     }

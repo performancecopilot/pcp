@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,11 +16,12 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmcd.h"
+#include "io.h"
 
 #define MIN_CLIENTS_ALLOC 8
 
 int		maxClientFd = -1;	/* largest fd for a client */
-fd_set		clientFds;		/* for client select() */
+FdSet		clientFds;		/* for client select() */
 
 static int	clientSize = 0;
 
@@ -82,12 +84,10 @@ AcceptNewClient(int reqfd)
 {
     static unsigned int	seq = 0;
     int			i, fd;
-    mysocklen_t		addrlen;
     struct timeval	now;
 
     i = NewClient();
-    addrlen = sizeof(client[i].addr);
-    fd = accept(reqfd, (struct sockaddr *)&client[i].addr, &addrlen);
+    fd = ioAccept(reqfd, &client[i].addr);
     if (fd == -1) {
     	if (neterror() == EPERM) {
 	    __pmNotifyErr(LOG_NOTICE, "AcceptNewClient(%d): "
@@ -108,7 +108,7 @@ AcceptNewClient(int reqfd)
 
     PMCD_OPENFDS_SETHI(fd);
 
-    FD_SET(fd, &clientFds);
+    ioFD_SET(fd, &clientFds);
     __pmSetVersionIPC(fd, UNKNOWN_VERSION);	/* before negotiation */
     __pmSetSocketIPC(fd);
     client[i].fd = fd;
@@ -182,7 +182,7 @@ DeleteClient(ClientInfo *cp)
     }
     if (cp->fd != -1) {
 	__pmResetIPC(cp->fd);
-	FD_CLR(cp->fd, &clientFds);
+	ioFD_CLR(cp->fd, &clientFds);
 	close(cp->fd);
     }
     if (i == nClients-1) {
