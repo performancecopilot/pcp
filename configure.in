@@ -1988,9 +1988,6 @@ then
 	], AC_DEFINE(HAVE_FNDELAY) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 fi
 
-<<<<<<< HEAD
-=======
-
 
 if test "$ac_cv_header_pthread_h" = "yes"
 then
@@ -2086,7 +2083,7 @@ AC_SUBST(nspr_incflags)
 AC_SUBST(lib_for_nss)
 AC_SUBST(lib_for_nspr)
 
->>>>>>> First attempt at a posix/NSS io abstraction layer.
+
 dnl check for array sessions
 if test -f /usr/include/sn/arsess.h
 then
