@@ -194,7 +194,8 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 %prep
 %setup -q
 autoconf
-./configure --libdir=%{_libdir} --libexecdir=%{_libexecdir} && touch config.done
+%configure
+touch config.done
 
 %clean
 [ ! -z "$DIST_ROOT" ] && rm -rf $DIST_ROOT
