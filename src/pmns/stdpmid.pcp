@@ -89,6 +89,7 @@ MSSQL		109
 POSTGRESQL	110
 CTDB		111		/* Clustered Trivial Database (samba.org) */
 BASH		112
+FIBRECHANNEL	113
 ### NEXT FREE SLOT ###
 DBPING		244
 PMI_DOMAIN	245
