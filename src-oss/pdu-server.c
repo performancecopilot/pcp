@@ -16,7 +16,7 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include <pcp/trace.h>
-#include "trace_dev.h"
+#include <pcp/trace_dev.h>
 
 static int	raw;		/* if set, echo PDUs, do not decode/encode */
 
