@@ -115,7 +115,7 @@ then
     #
     if ./mk.localconfig
     then
-	make setup | egrep -v 'Entering|Leaving|Nothing'
+	${MAKE:-make} setup | egrep -v 'Entering|Leaving|Nothing'
     else
 	echo "$0: Error: need to fix failure in mk.localconfig"
 	_fail_check
@@ -280,10 +280,10 @@ $fail && _fail_check
 
 # the other pmcd's we think we can talk to ...
 #
-make qa_hosts >/dev/null 2>&1
+${MAKE:-make} qa_hosts >/dev/null 2>&1
 if [ ! -f qa_hosts ]
 then
-    echo "$0: Error: make failed to create the file \"qa_hosts\""
+    echo "$0: Error: ${MAKE:-make} failed to create the file \"qa_hosts\""
     _fail_check
 fi
 

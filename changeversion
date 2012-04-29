@@ -9,14 +9,14 @@ then
     # 3.x -> 3.6 make libpcp_fault and <pcp/fault.h>
     #
     cd $HOME/src/pcp
-    make pcp.lsm
+    ${MAKE:-make} pcp.lsm
     ./config.status
     cd src/include
-    make
+    ${MAKE:-make}
     cd ../libpcp_fault/src
-    make
-    sudo make install
-    make clean
+    ${MAKE:-make}
+    sudo ${MAKE:-make} install
+    ${MAKE:-make} clean
 else
     # 3.6 -> 3.x cleanup
     #
@@ -28,7 +28,7 @@ rm -f src-oss/descreqX2 src-oss/torture_logmeta
 rm -f src-oss/check_fault_injection src-oss/exercise_fault
 
 cd src-oss
-make
+${MAKE:-make}
 cd $here
 
 echo "To check ..."

@@ -643,7 +643,7 @@ if [ -z "$QA_HOSTS" ]
 then
     if [ ! -f $HOSTS ]
     then
-	if make $HOSTS >$tmp.make.out 2>&1
+	if ${MAKE:-make} $HOSTS >$tmp.make.out 2>&1
 	then
 	    :
 	else

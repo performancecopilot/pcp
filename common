@@ -52,12 +52,15 @@ _log_fyi()
 
 _havesudo()
 {
-    setuid=`$sudo id | sed -e 's/(.*//' -e 's/.*=//'`
-    if [ "$setuid" != 0 ]
+    if [ -z "$PCP_DIR" ]
     then
-	echo "\"sudo\" is not an executable setuid root. This is fatal."
-	echo "As root, you need to setup your sudoers file for pcpqa."
-	exit 1
+	setuid=`$sudo id | sed -e 's/(.*//' -e 's/.*=//'`
+	if [ "$setuid" != 0 ]
+	then
+	    echo "\"sudo\" is not an executable setuid root. This is fatal."
+	    echo "As root, you need to setup your sudoers file for pcpqa."
+	    exit 1
+	fi
     fi
 }
 
@@ -281,12 +284,12 @@ then
     then
 	:
     else
-	if make >/tmp/$$.make 2>&1
+	if ${MAKE:-make} >/tmp/$$.make 2>&1
 	then
 	    :
 	else
 	    cat /tmp/$$.make
-	    echo "Warning: make failed -- some tests may be missing"
+	    echo "Warning: ${MAKE:-make} failed -- some tests may be missing"
 	    warn=1
 	fi
 	rm -f /tmp/$$.make
@@ -629,7 +632,7 @@ else
     #
     if ./mk.localconfig
     then
-	make setup | egrep -v 'Entering|Leaving|Nothing'
+	${MAKE:-make} setup | egrep -v 'Entering|Leaving|Nothing'
     else
 	echo "Arrggh ... fix the PCP QA installation first!"
 	exit 1
@@ -646,13 +649,13 @@ else
     for dir in src src-oss pmdas
     do
 	[ -d $dir ] || continue
-	if ( cd $dir; unset ROOT TOOLROOT; make -i )
+	if ( cd $dir; unset ROOT TOOLROOT; ${MAKE:-make} -i )
 	then
 	    :
 	else
 	    echo
 	    echo ":----------------------------------------------"
-	    echo ": Warning: make failed in $dir -- some tests may fail as a result"
+	    echo ": Warning: ${MAKE:-make} failed in $dir -- some tests may fail as a result"
 	    echo ":----------------------------------------------"
 	    echo
 	    warn=1

@@ -1375,11 +1375,11 @@ _prepare_pmda_install()
 
     cd $PCP_PMDAS_DIR/$iam
     if [ -f Makefile -o -f GNUmakefile ] ; then
-	if $sudo make clobber >$tmp._tmp 2>&1 ; then
+	if $sudo ${MAKE:-make} clobber >$tmp._tmp 2>&1 ; then
 	    :
 	else
 	    cat $tmp._tmp
-	    echo "Arrgh, make clobber failed"
+	    echo "Arrgh, ${MAKE:-make} clobber failed"
 	    exit
 	fi
     fi

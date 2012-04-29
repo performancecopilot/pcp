@@ -70,12 +70,12 @@ then
     exit 1
 fi
 
-if make >$tmp.out 2>&1
+if ${MAKE:-make} >$tmp.out 2>&1
 then
     :
 else
     cat $tmp.out
-    echo "Warning: make failed -- some tests may be missing"
+    echo "Warning: ${MAKE:-make} failed -- some tests may be missing"
 fi
 
 if [ $# -gt 0 ]
