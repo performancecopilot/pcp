@@ -6,9 +6,9 @@
 ifdef PCP_CONF
 include $(PCP_CONF)
 else
-include /etc/pcp.conf
+include $(PCP_DIR)/etc/pcp.conf
 endif
-PATH	= $(shell . /etc/pcp.env; echo $$PATH)
+PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
 SUBDIRS = broken bigun

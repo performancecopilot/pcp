@@ -6,12 +6,12 @@
 ifdef PCP_CONF
 include $(PCP_CONF)
 else
-include /etc/pcp.conf
+include $(PCP_DIR)/etc/pcp.conf
 endif
 ifeq ($(shell [ -d /usr/gnu/bin ] && echo 0),0)
-PATH	= /usr/gun/bin:$(shell . /etc/pcp.env; echo $$PATH)
+PATH	= /usr/gun/bin:$(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 else
-PATH	= $(shell . /etc/pcp.env; echo $$PATH)
+PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 endif
 include $(PCP_INC_DIR)/builddefs
 

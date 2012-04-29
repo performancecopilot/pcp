@@ -12,7 +12,7 @@
 
 seq=`basename $0`
 
-if grep '^#define PM_MULTI_THREAD 1' /usr/include/pcp/impl.h >/dev/null
+if grep '^#define PM_MULTI_THREAD 1' $PCP_DIR/usr/include/pcp/impl.h >/dev/null
 then
     rm -f .notrun
 else

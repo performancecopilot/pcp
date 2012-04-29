@@ -13,7 +13,7 @@
 
 seq=`basename $0`
 
-if grep -q 'pmRegisterDerived' /usr/include/pcp/pmapi.h
+if grep -q 'pmRegisterDerived' $PCP_DIR/usr/include/pcp/pmapi.h
 then
     :
 else

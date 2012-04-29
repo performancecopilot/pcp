@@ -67,5 +67,13 @@ then
     #
     sudo="$sudo -E"
 fi
+real_sudo="$sudo"
+if [ -n "$PCP_DIR" ]
+then
+    # running with PCP_DIR set, probably don't want to do most things as
+    # root ... leave $real_sudo alone just in case
+    #
+    sudo=''
+fi
 here=`pwd`
 tmp=/tmp/$$

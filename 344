@@ -11,7 +11,7 @@
 . ./common.filter
 . ./common.check
 
-if grep __pmLocalPMDA /usr/include/pcp/impl.h >/dev/null
+if grep __pmLocalPMDA $PCP_DIR/usr/include/pcp/impl.h >/dev/null
 then
     :
 else

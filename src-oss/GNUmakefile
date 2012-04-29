@@ -7,9 +7,9 @@
 ifdef PCP_CONF
 include $(PCP_CONF)
 else
-include /etc/pcp.conf
+include $(PCP_DIR)/etc/pcp.conf
 endif
-PATH	= $(shell . /etc/pcp.env; echo $$PATH)
+PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
@@ -31,7 +31,14 @@ DEBUG   = $(DBG)
 #
 PCP_LIBS	=
 TMP		:= $(CFLAGS:-I%=)
-CFLAGS		= $(TMP)
+ifdef PCP_DIR
+# put -Ipath and -Lpath back but use paths for run-time environment
+#
+CFLAGS          = $(TMP) -I$(PCP_INC_DIR)/..
+LDFLAGS         = -L$(PCP_LIB_DIR)
+else
+CFLAGS          = $(TMP)
+endif
 
 HAVE_64	= $(shell test `uname -m | sed -e 's/.*64/64/g'` = "64" && echo 1 || echo 0)
 

@@ -7,10 +7,22 @@
 ifdef PCP_CONF
 include $(PCP_CONF)
 else
-include /etc/pcp.conf
+include $(PCP_DIR)/etc/pcp.conf
 endif
-PATH	= $(shell . /etc/pcp.env; echo $$PATH)
+PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
+
+# remove -Lpath and -Ipath options from builddefs CFLAGS value
+#
+PCP_LIBS        =
+TMP             := $(CFLAGS:-I%=)
+ifdef PCP_DIR
+# put -Ipath and -Lpath back but use paths for run-time environment
+#
+CFLAGS          = $(TMP) -I$(PCP_INC_DIR)/.. -L$(PCP_LIB_DIR)
+else
+CFLAGS          = $(TMP)
+endif
 
 CFILES = broken_pmda.c
 CFILES_TARGETS = $(CFILES)
