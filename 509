@@ -45,7 +45,11 @@ state == 1 && $1 != "pmLoadNameSpace:"	{ state = 2 }
 					{ print >"'$tmp.tmp.'" state }'
 
     [ -f $tmp.tmp.0 ] && cat $tmp.tmp.0
-    [ -f $tmp.tmp.1 ] && LC_COLLATE=POSIX sort $tmp.tmp.1
+    if [ -f $tmp.tmp.1 ]
+    then
+	grep ' 29' $tmp.tmp.1 \
+	| LC_COLLATE=POSIX sort
+    fi
     [ -f $tmp.tmp.2 ] && cat $tmp.tmp.2
 }
 
