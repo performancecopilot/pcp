@@ -395,24 +395,6 @@ mmv_nostats:	mmv_nostats.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_mmv $(LDLIBS)
 
-# --- need libpcp_trace 
-#
-__force_trace_dev:
-
-trace_dev.h: __force_trace_dev
-	@if [ -f ../../src/include/trace_dev.h -a -f trace_dev.h ]; \
-	 then grep -v '\$$[I]d:' <../../src/include/trace_dev.h | grep -v '^[ 	]*\* ' >/tmp/$$$$.src; \
-	      grep -v '\$$[I]d:' <trace_dev.h | grep -v '^[   ]*\* ' >/tmp/$$$$.qa; \
-	      if diff /tmp/$$$$.src /tmp/$$$$.qa >/dev/null 2>&1; \
-	      then rm -f /tmp/$$$$.*; \
-	      else echo "Error: trace_dev.h and ../../src/include/trace_dev.h are different!"; \
-		    rm -f /tmp/$$$$.*; \
-		    exit 1; \
-	      fi; \
-	  fi
-
-pducheck.o pdu-server.o : trace_dev.h
-
 pducheck:	pducheck.o 
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ pducheck.o  $(TRACELIB) -lpcp_pmda $(LDLIBS)
