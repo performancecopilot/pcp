@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "rm -f $tmp.*; sudo rm -f $PCP_TMP_DIR/pmlogger/$$; exit \$status" 0 1 2 3 15
+trap "rm -f $tmp.*; $sudo rm -f $PCP_TMP_DIR/pmlogger/$$; exit \$status" 0 1 2 3 15
 primary_port=`sed -e 1q $PCP_TMP_DIR/pmlogger/primary`
 
 _filter()
@@ -52,17 +52,17 @@ src-oss/logcontrol -Dcontext -p1 enquire sample.long.write_me 2>&1 \
 # start playing with libpcp's mind by munging files in
 # $PCP_TMP_DIR/pmlogger
 touch $tmp.ctl
-sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
+$sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
 src-oss/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
 | egrep '(/__pmConnectLogger)|(__pmLog)|(logcontrol)' \
 | _filter
 echo "bad port" >$tmp.ctl
-sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
+$sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
 src-oss/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
 | egrep '(/__pmConnectLogger)|(__pmLog)|(logcontrol)' \
 | _filter
 echo "123456" >$tmp.ctl
-sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
+$sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
 src-oss/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
 | egrep '(/__pmConnectLogger)|(__pmLog)|(logcontrol)' \
 | _filter
@@ -70,7 +70,7 @@ cat <<End-of-File >$tmp.ctl
 123456
 no-such-host
 End-of-File
-sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
+$sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
 src-oss/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
 | egrep '(/__pmConnectLogger)|(__pmLog)|(logcontrol)' \
 | _filter
@@ -79,7 +79,7 @@ cat <<End-of-File >$tmp.ctl
 no-such-host
 /no/such/file
 End-of-File
-sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
+$sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
 src-oss/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
 | egrep '(/__pmConnectLogger)|(__pmLog)|(logcontrol)' \
 | _filter
