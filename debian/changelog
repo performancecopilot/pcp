@@ -1,3 +1,10 @@
+pcp (3.6.3) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Further kFreeBSD fixes, final remaining issue in glibc headers.
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 27 Apr 2012 11:25:47 +1000
+
 pcp (3.6.2) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
