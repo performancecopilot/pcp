@@ -7,12 +7,20 @@
 
 seq=`basename $0`
 
-if [ ! -f $PCP_DIR/usr/include/pcp/platform_defs.h ]
+if [ -f $PCP_DIR/usr/include/pcp/platform_header.h ]
 then
-    echo "No $PCP_DIR/usr/include/pcp/platform_defs.h?" >$seq.notrun
+    # PCP 3.6 or later
+    defs=$PCP_DIR/usr/include/pcp/platform_header.h
+elif [ -f $PCP_DIR/usr/include/pcp/platform_defs.h ]
+then
+    # older PCP versions
+    defs=$PCP_DIR/usr/include/pcp/platform_defs.h
+else
+    echo "No $PCP_DIR/usr/include/pcp/platform_{header,defs}.h?" >$seq.notrun
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
-elif grep '#define HAVE_BITFIELDS_LTOR' $PCP_DIR/usr/include/pcp/platform_defs.h >/dev/null 2>&1
+fi
+if grep '#define HAVE_BITFIELDS_LTOR' $defs >/dev/null 2>&1
 then
     : OK, run it
 else

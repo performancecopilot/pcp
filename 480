@@ -19,8 +19,20 @@ else
     _notrun libpcp not built with fault injection enabled
 fi
 
+if [ -f $PCP_DIR/usr/include/pcp/platform_header.h ]
+then
+    # PCP 3.6 or later
+    defs=$PCP_DIR/usr/include/pcp/platform_header.h
+elif [ -f $PCP_DIR/usr/include/pcp/platform_defs.h ]
+then
+    # older PCP versions
+    defs=$PCP_DIR/usr/include/pcp/platform_defs.h
+else
+    _notrun "No $PCP_DIR/usr/include/pcp/platform_{header,defs}.h?"
+fi
+
 rm -f $seq.out
-if grep 'define HAVE_64BIT_PTR 1' $PCP_INC_DIR/platform_defs.h >/dev/null 2>&1
+if grep 'define HAVE_64BIT_PTR 1' $defs >/dev/null 2>&1
 then
     ln $seq.out.1 $seq.out || exit 1
 else
