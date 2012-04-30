@@ -11,6 +11,10 @@
 #include <pcp/impl.h>
 #include <pthread.h>
 
+#ifndef HAVE_PTHREAD_BARRIER_T
+#include "pthread_barrier.h"
+#endif
+
 static char	*namelist[] = {
     "pmcd.control.register",
     "pmcd.version",

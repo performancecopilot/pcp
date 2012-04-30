@@ -11,6 +11,10 @@
 #include <pcp/impl.h>
 #include <pthread.h>
 
+#ifndef HAVE_PTHREAD_BARRIER_T
+#include "pthread_barrier.h"
+#endif
+
 #define NMETRIC 5
 
 static char	*namelist[NMETRIC] = {
@@ -245,6 +249,9 @@ main(int argc, char **argv)
     if (msg != NULL) printf("tid2: %s\n", msg);
     pthread_join(tid3, (void *)&msg); 
     if (msg != NULL) printf("tid3: %s\n", msg);
+    pthread_cancel(tid1);
+    pthread_cancel(tid2);
+    pthread_cancel(tid3);
 
     exit(0);
 }

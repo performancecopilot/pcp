@@ -10,6 +10,10 @@
 #include <pcp/impl.h>
 #include <pthread.h>
 
+#ifndef HAVE_PTHREAD_BARRIER_T
+#include "pthread_barrier.h"
+#endif
+
 static pthread_barrier_t barrier;
 
 static int		ctx = -1;

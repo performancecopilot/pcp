@@ -11,6 +11,10 @@
 #include <pcp/impl.h>
 #include <pthread.h>
 
+#ifndef HAVE_PTHREAD_BARRIER_T
+#include "pthread_barrier.h"
+#endif
+
 #define ITER 10
 
 static int nmetric;

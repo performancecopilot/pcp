@@ -11,6 +11,10 @@
 #include <pcp/impl.h>
 #include <pthread.h>
 
+#ifndef HAVE_PTHREAD_BARRIER_T
+#include "pthread_barrier.h"
+#endif
+
 #define NMETRIC 5
 
 static char	*namelist[NMETRIC] = {
