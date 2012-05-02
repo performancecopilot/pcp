@@ -159,6 +159,14 @@ echo "== Building pcp, log is in $LOGF"
 
 . ./VERSION.pcp
 
+echo "== Configuring pcp for vendor/distro installation (--prefix=/usr)"
+if $verbose ; then
+    ./configure --prefix=/usr | tee -a $LOGF
+else
+    ./configure --prefix=/usr >> $LOGF
+fi
+
+
 special=false
 [ "$VERS" = MINGW ] && special=windows
 [ -f /etc/debian_version ] && special=debian
@@ -166,12 +174,6 @@ special=false
 if [ $special != false ]
 then
     LOGF=`pwd`/$LOGF
-
-    if $verbose ; then
-	$MAKE -j 1 configure_pcp 2>&1 | tee -a $LOGF
-    else
-	$MAKE -j 1 configure_pcp 2>&1 >> $LOGF
-    fi
 
     echo
     echo "== src-link, log is in $LOGF" | tee -a $LOGF

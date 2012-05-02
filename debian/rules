@@ -94,7 +94,8 @@ config: .census
 .census:
 	@echo "== dpkg-buildpackage: configure" 1>&2
 	$(checkdir)
-	$(options) $(MAKE) configure_pcp
+	$(options) autoconf
+	$(options) ./configure --prefix=/usr
 	touch .census
 
 clean:

@@ -333,10 +333,21 @@ INSTALL_MAN = \
     done
 endif
 
+
+PERL_INSTALL_BASE=@perl_install_base@
+PERL_INSTALLDIRS=@perl_installdirs@
+PCP_MAN_DIR=@pcp_man_dir@
+
+# MakeMaker INSTALL_BASE needs to be unset for proper vendor_perl paths to be used for --prefix=/usr;
+ifeq "$(PERL_INSTALL_BASE)" "/usr"
+MAKEMAKER_EXTRA_OPTIONS=
+else
+MAKEMAKER_EXTRA_OPTIONS=INSTALL_BASE=$(PERL_INSTALL_BASE) 
+endif
+
 PERL_MAKE_MAKEFILE = \
 	export PCP_TOPDIR=`cd $(TOPDIR) && pwd`; \
-	TARGET_OS="$(TARGET_OS)" \
-	CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_OPTIONS)
+        TARGET_OS="$(TARGET_OS)" CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_EXTRA_OPTIONS) $(MAKEMAKER_OPTIONS)
 
 # Collect files from a Perl "make -f Makefile install" below
 # src/cpan to build the PCP Perl packaging list, and also clean up
@@ -364,9 +375,9 @@ PERL_GET_FILELIST = \
 	if [ -s $(1) ]; then rm -f pack.list; \
 	else echo "Arrgh ... no files to include in package via $(1), see pack.list"; exit 1; \
 	fi; \
-	find $$DIST_ROOT -name perllocal.pod -exec rm -f '{}' ';' ; \
-	find $$DIST_ROOT -name \*.bs  -exec rm -f '{}' ';' ; \
-	find $$DIST_ROOT -name $(2).so -exec chmod 755 '{}' ';'
+	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name perllocal.pod -exec rm -f '{}' ';' ; \
+	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name \*.bs  -exec rm -f '{}' ';' ; \
+	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name $(2).so -exec chmod 755 '{}' ';'
 else
 # Everyone else ... includes the RPM-based packaging platforms
 ifeq "$(PACKAGE_DISTRIBUTION)" "mandriva"
@@ -376,7 +387,7 @@ else
 endif
 PERL_GET_FILELIST = \
 	$(PERLMAKE) -f Makefile install DESTDIR=$$DIST_ROOT; \
-	find $$DIST_ROOT -name .packlist -exec mv '{}' $(1) ';' ; \
+	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name .packlist -exec mv '{}' $(1) ';' ; \
 	if [ -s $(1) ] ; then \
 	    _sfx=.gz; \
 	    $(HAVE_BZIP2ED_MANPAGES) && _sfx=.bz2; \
@@ -385,9 +396,9 @@ PERL_GET_FILELIST = \
 	    sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&'"$$_sfx/" -e "s@^$$DIST_ROOT@@p" -i.tmp $(1) || exit 1; \
 	else echo "Arrgh ... no files to include in package via $(1)"; exit 1; \
 	fi; \
-	find $$DIST_ROOT -name perllocal.pod -exec rm -f '{}' ';' ; \
-	find $$DIST_ROOT -name \*.bs  -exec rm -f '{}' ';' ; \
-	find $$DIST_ROOT -name $(2).so -exec chmod 755 '{}' ';'
+	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name perllocal.pod -exec rm -f '{}' ';' ; \
+	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name \*.bs  -exec rm -f '{}' ';' ; \
+	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name $(2).so -exec chmod 755 '{}' ';'
 endif
 endif
 
@@ -409,13 +420,6 @@ PCP_ALTLIBS =
 endif
 endif
 endif
-
-
-PCP_X11_CFLAGS = @pcp_x11_incflags@
-PCP_X11_LDFLAGS = @pcp_x11_libflags@
-PCP_X11_EXTRALIBS = @pcp_x11_extra@
-PCP_X11_PRELIBS = @pcp_x11_pre@
-PCP_X11_APPDEFS_DIR = @pcp_x11_appdefs_dir@
 
 GIT=@GIT@
 
