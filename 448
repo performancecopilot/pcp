@@ -56,9 +56,10 @@ sed <$PCP_DIR/etc/pcp.conf \
     -e 's/"[ 	][ 	]*/"/' \
     -e 's/"//g' \
     -e 's/=/ /' \
+    -e 's/\\/<backslash>/g' \
 | while read var value
 do
-    xvalue=`src-oss/getconfig "$var" | sed -e 's/.* -> //' -e 's/[ 	]*$//'`
+    xvalue=`src-oss/getconfig "$var" | sed -e 's/.* -> //' -e 's/[ 	]*$//' -e 's/\\\\/<backslash>/g'`
     #debug# echo "$var: $value ? $xvalue"
     if [ "X${value}X" != "X${xvalue}X" ]
     then
