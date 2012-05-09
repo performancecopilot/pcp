@@ -1,4 +1,4 @@
-#! /bin/sh -x
+#!/bin/sh
 #
 # Copyright (c) 2003-2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -16,4 +16,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
+
+exit 0
 
