@@ -43,7 +43,8 @@ _log_fyi()
 	    echo ":::::::::  start $log  ::::::::"
 	    cat $log
 	    echo "::::::::::  end $log  :::::::::"
-	    $sudo rm -f $log
+	    
+	    [ $log != $PCP_LOG_DIR/pmcd/pmcd.log ] && $sudo rm -f $log
 	else
 	    echo "$log: not found"
 	fi
