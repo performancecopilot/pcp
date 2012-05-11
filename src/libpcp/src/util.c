@@ -646,27 +646,28 @@ pmPrintValue(FILE *f,			/* output stream */
 	    int		string;
 	    int		done = 0;
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(__uint64_t)) {
-		__uint64_t	i;
-		memcpy((void *)&i, (void *)&val->value.pval->vbuf, sizeof(__uint64_t));
-		fprintf(f, "%*"PRIu64, minwidth, i);
+		__uint64_t	tmp;
+		memcpy((void *)&tmp, (void *)val->value.pval->vbuf, sizeof(tmp));
+		fprintf(f, "%*"PRIu64, minwidth, tmp);
 		done = 1;
 	    }
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(double)) {
-		double	d;
-		memcpy((void *)&d, (void *)&val->value.pval->vbuf, sizeof(double));
-		if (!isnand(d)) {
+		double		tmp;
+		memcpy((void *)&tmp, (void *)val->value.pval->vbuf, sizeof(tmp));
+		if (!isnand(tmp)) {
 		    if (done) fputc(' ', f);
-		    fprintf(f, "%*.16g", minwidth, d);
+		    fprintf(f, "%*.16g", minwidth, tmp);
 		    done = 1;
 		}
 	    }
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(float)) {
-		float	*fp = (float *)&val->value.pval->vbuf;
+		float	tmp;
+		memcpy((void *)&tmp, (void *)val->value.pval->vbuf, sizeof(tmp));
 #ifdef HAVE_ISNANF
-		if (!isnanf(*fp)) {
+		if (!isnanf((double)tmp)) {
 #endif
 		    if (done) fputc(' ', f);
-		    fprintf(f, "%*.8g", minwidth, (double)*fp);
+		    fprintf(f, "%*.8g", minwidth, (double)tmp);
 		    done = 1;
 #ifdef HAVE_ISNANF
 		}
