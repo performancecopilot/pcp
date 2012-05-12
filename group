@@ -250,7 +250,7 @@ pmlogrewrite
 005 context archive local ostest oss sanity
 006 libpcp local ostest oss
 007 fetch local ostest oss sanity
-008 pmda libirixpmda ostest remote oss
+008 pmda libirixpmda ostest local oss
 009 pmda libirixpmda local ostest oss
 010 libpcp local ostest oss sanity
 011 mem_leak local ostest oss
