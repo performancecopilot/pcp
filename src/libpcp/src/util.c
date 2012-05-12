@@ -633,10 +633,16 @@ pmPrintValue(FILE *f,			/* output stream */
 	if (valfmt == PM_VAL_INSITU) {
 	    float	*fp = (float *)&val->value.lval;
 	    __uint32_t	*ip = (__uint32_t *)&val->value.lval;
+	    int		fp_bad = 0;
 	    fprintf(f, "%*u", minwidth, *ip);
+#ifdef HAVE_FPCLASSIFY
+	    fp_bad = fpclassify(*fp) == FP_NAN;
+#else
 #ifdef HAVE_ISNANF
-	    if (!isnanf(*fp))
+	    fp_bad = isnanf(*fp);
 #endif
+#endif
+	    if (!fp_bad)
 		fprintf(f, " %*.8g", minwidth, (double)*fp);
 	    if (minwidth > 2)
 		minwidth -= 2;
@@ -653,8 +659,16 @@ pmPrintValue(FILE *f,			/* output stream */
 	    }
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(double)) {
 		double		tmp;
+		int		fp_bad = 0;
 		memcpy((void *)&tmp, (void *)val->value.pval->vbuf, sizeof(tmp));
-		if (!isnand(tmp)) {
+#ifdef HAVE_FPCLASSIFY
+		fp_bad = fpclassify(tmp) == FP_NAN;
+#else
+#ifdef HAVE_ISNAN
+		fp_bad = isnan(tmp);
+#endif
+#endif
+		if (!fp_bad) {
 		    if (done) fputc(' ', f);
 		    fprintf(f, "%*.16g", minwidth, tmp);
 		    done = 1;
@@ -662,16 +676,20 @@ pmPrintValue(FILE *f,			/* output stream */
 	    }
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(float)) {
 		float	tmp;
+		int	fp_bad = 0;
 		memcpy((void *)&tmp, (void *)val->value.pval->vbuf, sizeof(tmp));
+#ifdef HAVE_FPCLASSIFY
+		fp_bad = fpclassify(tmp) == FP_NAN;
+#else
 #ifdef HAVE_ISNANF
-		if (!isnanf((double)tmp)) {
+		fp_bad = isnanf(tmp);
 #endif
+#endif
+		if (!fp_bad) {
 		    if (done) fputc(' ', f);
 		    fprintf(f, "%*.8g", minwidth, (double)tmp);
 		    done = 1;
-#ifdef HAVE_ISNANF
 		}
-#endif
 	    }
 	    if (val->value.pval->vlen < PM_VAL_HDR_SIZE)
 		fprintf(f, "pmPrintValue: negative length (%d) for aggregate value?",
@@ -1296,21 +1314,6 @@ dirname(char *name)
 	*p = '\0';
 	return(name);
     }
-}
-#endif
-
-#ifndef HAVE_ISNAND
-int
-isnand(double d)
-{
-#ifdef HAVE_ISNANF
-    float	f = (float)d;
-    /* not exact, but the best we can do! */
-    return(isnanf(f));
-#else
-    /* no support, assume is _not_ NAN, i.e. OK */
-    return(0);
-#endif
 }
 #endif
 
