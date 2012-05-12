@@ -88,8 +88,9 @@ main(int argc, char **argv)
 {
     int	c, sts;
     int errflag = 0;
-    int context, queueid, size;
-    int filter_size;
+    int context, queueid;
+    size_t size;
+    size_t filter_size;
     struct timeval tv;
     char *s, *name;
     void *event;
@@ -165,7 +166,7 @@ main(int argc, char **argv)
 	    }
 	    event = make_event(size, &tv);
 	    sts = pmdaEventQueueAppend(queueid, event, size, &tv);
-	    fprintf(stderr, "add event(%s,%d) -> %d ", name, size, sts);
+	    fprintf(stderr, "add event(%s,%d) -> %d ", name, (int)size, sts);
 	    if (sts < 0) fprintf(stderr, "%s", pmErrStr(sts));
 	    else __pmPrintStamp(stderr, &tv);
 	    fputc('\n', stderr);
@@ -185,7 +186,7 @@ main(int argc, char **argv)
 	    event = make_event(size, &tv);
 	    sts = pmdaEventQueueAppend(queueid, event, size, &tv);
 	    fprintf(stderr, "add queue#%d event(%s,%d) -> %d ",
-		    queueid, name, size, sts);
+		    queueid, name, (int)size, sts);
 	    if (sts < 0) fprintf(stderr, "%s", pmErrStr(sts));
 	    else __pmPrintStamp(stderr, &tv);
 	    fputc('\n', stderr);
@@ -202,7 +203,7 @@ main(int argc, char **argv)
 	    }
 	    size = atoi(s);
 	    sts = pmdaEventNewQueue(name, size);
-	    fprintf(stderr, "new queue(%s,%d) -> %d", name, size, sts);
+	    fprintf(stderr, "new queue(%s,%d) -> %d", name, (int)size, sts);
 	    if (sts < 0) fprintf(stderr, " %s", pmErrStr(sts));
 	    fputc('\n', stderr);
 	    break;
@@ -229,7 +230,7 @@ main(int argc, char **argv)
 	    sts = pmdaEventSetFilter(context, queueid, (void *)&filter_size,
 				     apply_filter, release_filter);
 	    fprintf(stderr, "client#%d set filter(sz<%d) on queue#%d-> %d",
-		    context, filter_size, queueid, sts);
+		    context, (int)filter_size, queueid, sts);
 	    if (sts < 0) fprintf(stderr, " %s", pmErrStr(sts));
 	    fputc('\n', stderr);
 	    break;
