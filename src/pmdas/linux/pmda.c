@@ -4656,6 +4656,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     char		*f;
     long		sl;
     unsigned long	ul;
+    int			*ip;
     struct filesys	*fs;
     proc_pid_entry_t	*entry;
     net_inet_t		*inetp;
@@ -6520,12 +6521,12 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_CGROUP_SUBSYS:
 	switch (idp->item) {
 	case 0:	/* cgroup.subsys.hierarchy */
-	    sts = pmdaCacheLookup(INDOM(CGROUP_SUBSYS_INDOM), inst, NULL, (void **)&i);
+	    sts = pmdaCacheLookup(INDOM(CGROUP_SUBSYS_INDOM), inst, NULL, (void **)&ip);
 	    if (sts < 0)
 		return sts;
 	    if (sts != PMDA_CACHE_ACTIVE)
 	    	return PM_ERR_INST;
-	    atom->ul = i;
+	    atom->ul = *ip;
 	    break;
 
 	case 1: /* cgroup.subsys.count */
