@@ -84,7 +84,7 @@ p
 }'`"
 	    case "$version"
 	    in
-		glibc-2\.12\.*)
+		glibc-2\.1[23][-.]*)
 		    ln $seq.linux $seq.out
 		    ;;
 		*)
