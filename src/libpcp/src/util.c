@@ -733,7 +733,24 @@ pmPrintValue(FILE *f,			/* output stream */
 	break;
 
     case PM_TYPE_EVENT:		/* not much we can do about minwidth */
-	print_event_summary(f, val);
+	if (valfmt == PM_VAL_INSITU) {
+	    /*
+	     * Special case for pmlc/pmlogger where PMLC_SET_*() macros
+	     * used to set control requests / state in the lval field
+	     * and the pval does not really contain a valid event record
+	     * Code here comes from PrintState() in actions.c from pmlc.
+	     */
+	    fputs("[pmlc control ", f);
+	    fputs(PMLC_GET_MAND(val->value.lval) ? "mand " : "adv ", f);
+	    fputs(PMLC_GET_ON(val->value.lval) ? "on " : "off ", f);
+	    if (PMLC_GET_INLOG(val->value.lval))
+		fputs(PMLC_GET_AVAIL(val->value.lval) ? " " : "na ", f);
+	    else
+		fputs("nl ", f);
+	    fprintf(f, "%d]", PMLC_GET_DELTA(val->value.lval));
+	}
+	else
+	    print_event_summary(f, val);
 	break;
 
     case PM_TYPE_NOSUPPORT:
