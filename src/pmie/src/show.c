@@ -311,7 +311,7 @@ showNum(Expr *x, int nth, size_t length, char **string)
 	    noval = fpclassify(*((double *)x->smpls[smpl].ptr + nth)) == FP_NAN;
 #else
 #ifdef HAVE_ISNAN
-	    noval = isnan(((double *)x->smpls[smpl].ptr + nth));
+	    noval = isnan(*((double *)x->smpls[smpl].ptr + nth));
 #endif
 #endif
 	}
