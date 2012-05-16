@@ -217,13 +217,15 @@ def define_pmResult (n):
 
     return pmResult
 
-class pmInDom(Structure):
-    """Structure describing a metric's instances
-    """
-    _fields_ = [ ( "indom", c_uint ),
-                 ( "num", c_int ),
-                 ( "instlist", c_void_p ),
-                 ( "namelist", c_void_p ) ]
+pmInDom = c_uint
+
+# class pmInDom(Structure):
+#     """Structure describing a metric's instances
+#     """
+#     _fields_ = [ ( "indom", c_uint ),
+#                  ( "num", c_int ),
+#                  ( "instlist", c_void_p ),
+#                  ( "namelist", c_void_p ) ]
 
 class pmDesc(Structure):
     """Structure describing a metric
@@ -358,7 +360,7 @@ libpcp.pmDelProfile.restype = c_int
 libpcp.pmDelProfile.argtypes = [ c_uint, c_int, POINTER(c_int) ]
 
 libpcp.pmSetMode.restype = c_int
-libpcp.pmSetMode.argtypes = [ c_int, timeval, c_int ]
+libpcp.pmSetMode.argtypes = [ c_int, POINTER(timeval), c_int ]
 
 libpcp.pmReconnectContext.restype = c_int
 libpcp.pmReconnectContext.argtypes = [ c_int ]
@@ -414,22 +416,24 @@ libpcp.pmStore.restype = c_int
 # PMAPI Archive-Specific Services
 
 libpcp.pmGetArchiveLabel.restype = c_int
-libpcp.pmGetArchiveLabel.argtypes = [ pmLogLabel ]
+libpcp.pmGetArchiveLabel.argtypes = [ POINTER(pmLogLabel) ]
 
 libpcp.pmGetArchiveEnd.restype = c_int
 libpcp.pmGetArchiveEnd.argtypes = [ timeval ]
 
 libpcp.pmGetInDomArchive.restype = c_int
-libpcp.pmGetInDomArchive.argtypes = [ pmInDom ]
+libpcp.pmGetInDomArchive.argtypes = [
+                  c_uint, POINTER(POINTER(c_int)), POINTER(POINTER(c_char_p)) ]
 
 libpcp.pmLookupInDomArchive.restype = c_int
+libpcp.pmLookupInDom.argtypes = [ c_uint, c_char_p ]
 libpcp.pmLookupInDomArchive.argtypes = [ pmInDom, c_char_p ]
 
 libpcp.pmNameInDomArchive.restype = c_int
 libpcp.pmNameInDomArchive.argtypes = [ pmInDom, c_int ]
 
 libpcp.pmFetchArchive.restype = c_int
-libpcp.pmFetchArchive.argtypes = [ ]
+# libpcp.pmFetchArchive.argtypes = [ ]
 
 
 ##
@@ -1121,7 +1125,7 @@ class pmContext( object ):
             raise pmErr (status)
         return status
 
-    def pmSetMode( self, timeVal, delta ):
+    def pmSetMode( self, mode, timeVal, delta ):
         """PMAPI - TBD - set interpolation mode for reading archive files
         """
         # this method is context dependent and requires the pmapi lock
@@ -1132,7 +1136,8 @@ class pmContext( object ):
                 pmContext._pmapiLock.release()
                 raise pmErr (status)
             pmContext._lastUsedContext = self
-        status = libpcp.pmSetMode( byref(timeVal), delta )
+        status = libpcp.pmSetMode( mode, pointer(timeVal), delta )
+        status = 0
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr (status)
@@ -1338,11 +1343,11 @@ class pmContext( object ):
     ##
     # PMAPI Archive-Specific Services
 
-    def pmGetArchiveLabel( self, loglabel ):
+    def pmGetArchiveLabel( self ):
         """PMAPI - TBD - Get the label record from the archive
         """
         # this method is context dependent and requires the pmapi lock
-        loglabel = POINTER(pmLogLabel)()
+        loglabel = pmLogLabel()
         pmContext._pmapiLock.acquire()
         if not self == pmContext._lastUsedContext: 
             status = libpcp.pmUseContext( self.ctx )
@@ -1350,7 +1355,8 @@ class pmContext( object ):
                 pmContext._pmapiLock.release()
                 raise pmErr (status)
             pmContext._lastUsedContext = self
-        status = libpcp.pmGetArchiveLabel ( loglabel )
+        status = libpcp.pmGetArchiveLabel ( byref(loglabel) )
+
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr (status)
@@ -1375,26 +1381,33 @@ class pmContext( object ):
             raise pmErr (status)
         return status, tvp
 
-    def pmGetInDomArchive( self, indom ):
+    def pmGetInDomArchive( self, pmdescp ):
         """PMAPI - TBD - Get the instance IDs and names for an instance domain
         """
         # this method is context dependent and requires the pmapi lock
         pmContext._pmapiLock.acquire()
-        instlist = POINTER(c_int)()
-        namelist = POINTER(c_int)()
+        instA_p = POINTER(c_int)()
+        nameA_p = POINTER(c_char_p)()
         if not self == pmContext._lastUsedContext: 
             status = libpcp.pmUseContext( self.ctx )
             if status < 0:
                 pmContext._pmapiLock.release()
                 raise pmErr (status)
             pmContext._lastUsedContext = self
-        status = libpcp.pmGetInDomArchive(indom, instlist, namelist )
+        status = libpcp.pmGetInDomArchive( pmdescp.contents.indom, byref(instA_p), byref(nameA_p) )
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr (status)
-        return status, instlist, namelist
+        if status > 0:
+            instL = [] ; nameL = []
+            nameL = map( lambda x: str( nameA_p[x] ), range( status ) )
+            instL = map( lambda x: int( instA_p[x] ), range( status ) )
+            libc.free( instA_p ) ; libc.free( nameA_p )
+        else:
+            instL = None ; NameL = None
+        return instL, nameL
 
-    def pmLookupInDomArchive( self, indom, name ):
+    def pmLookupInDomArchive( self, pmdesc, name ):
         """PMAPI - TBD - Get the instance ID for name and instance domain
         """
         # this method is context dependent and requires the pmapi lock
@@ -1405,17 +1418,17 @@ class pmContext( object ):
                 pmContext._pmapiLock.release()
                 raise pmErr (status)
             pmContext._lastUsedContext = self
-        status = libpcp.pmLookupInDomArchive(indom, name )
+        status = libpcp.pmLookupInDomArchive(pmdesc.contents.indom, name )
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr (status)
         return status
 
-    def pmNameInDomArchive( self, indom, inst ):
+    def pmNameInDomArchive( self, pmdesc, inst ):
         """PMAPI - TBD - Get the name for the given indom and inst ID
         """
         # this method is context dependent and requires the pmapi lock
-        name_p = POINTER(c_char_p)()
+        name_p = c_char_p()
         pmContext._pmapiLock.acquire()
         if not self == pmContext._lastUsedContext: 
             status = libpcp.pmUseContext( self.ctx )
@@ -1423,17 +1436,21 @@ class pmContext( object ):
                 pmContext._pmapiLock.release()
                 raise pmErr (status)
             pmContext._lastUsedContext = self
-        status = libpcp.pmNameInDomArchive(indom, inst, name_p )
+        status = libpcp.pmNameInDomArchive(pmdesc.contents.indom, inst, byref(name_p) )
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr (status)
-        return status, name_p
+        outName = str( name_p.value )
+        libc.free( name_p )
+        return outName
 
     def pmFetchArchive( self ):
         """PMAPI - TBD - Fetch the next record from an archive log
         """
         # this method is context dependent and requires the pmapi lock
+        pmResult = define_pmResult(1)
         result_p = POINTER(pmResult)()
+        libpcp.pmFetchArchive.argtypes = [ POINTER(POINTER(pmResult)) ]
         pmContext._pmapiLock.acquire()
         if not self == pmContext._lastUsedContext: 
             status = libpcp.pmUseContext( self.ctx )
@@ -1441,7 +1458,7 @@ class pmContext( object ):
                 pmContext._pmapiLock.release()
                 raise pmErr (status)
             pmContext._lastUsedContext = self
-        status = libpcp.pmFetchArchive(result_p )
+        status = libpcp.pmFetchArchive(byref(result_p) )
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr (status)
@@ -1488,7 +1505,7 @@ class pmContext( object ):
                 byref(outAtom),
                 outType)
             if code < 0:
-                raise pmErr (status)
+                raise pmErr (code)
             return code, outAtom
 
 
