@@ -694,7 +694,7 @@ pmlogrewrite
 456 logutil local #591459 folio oss
 457 pmda.logger pmda.install event local oss
 458 pmda.logger pmda.install event local oss
-459 pmlogreduce local oss
+459 pmlogreduce local oss valgrind
 460 pmlogextract local #598265 oss pmdumplog
 461 pmda.logger pmda.install event local oss
 462 pmcd_wait local #589006 #581025 oss
@@ -823,4 +823,3 @@ pmlogrewrite
 1050 pmieconf local sgi
 1051 pmieconf #696008 local sgi
 1108 logutil local folio sgi
-510 pmlc pmlogger local oss
