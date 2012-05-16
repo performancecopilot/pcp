@@ -26,7 +26,7 @@ fi
 
 # augment $PATH for QA specific dirs
 #
-for dir in /sbin
+for dir in /sbin /usr/sbin
 do
     [ -d "$dir" ] && PATH="$PATH:$dir"
 done
