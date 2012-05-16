@@ -6,7 +6,7 @@
  * ping pmcd 4 times, kill off pmcd, ping 4 more times, restart pmcd,
  * ping 4 more times ... and some reconnect attempts for good measure ...
  * and some more pings ...
- * sleep 3 seconds after change of state for pmcd
+ * sleep 10 seconds after change of state for pmcd
  *
  * Has to be run as root to control pmcd
  */
@@ -327,7 +327,7 @@ Options:\n\
 
     fprintf(stderr, "Kill off pmcd ...\n");
     system(". /etc/pcp.env; $PCP_RC_DIR/pcp stop");
-    sleep(5);
+    sleep(10);
     _text = _indom_text = 0;
     close(ctlport);
 
