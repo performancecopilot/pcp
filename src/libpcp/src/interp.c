@@ -649,6 +649,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    if (sts < 0) {
 		rp->numpmid = j;
 		pmFreeResult(rp);
+		free(pcp);
 		return sts;
 	    }
 	    sts = __pmLogLookupDesc(ctxp->c_archctl->ac_log, pmidlist[j], &pcp->desc);
