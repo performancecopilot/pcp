@@ -66,7 +66,10 @@ def test_pcp(self, context = 'local', path = ''):
     self.assertTrue(code >= 0)
 
     # pmExtractValue
-    (code, atom) = pm.pmExtractValue(results, descs, self.ncpu_id[0], 0, pmapi.PM_TYPE_U32)
+    (code, atom) = pm.pmExtractValue(results.contents.get_valfmt(0),
+                                     results.contents.get_vlist(0, 0),
+                                     descs[0].contents.type,
+                                     pmapi.PM_TYPE_U32)
     self.assertTrue(code >= 0)
     self.assertTrue(atom.ul > 0)
     print ("#cpus=",atom.ul)
@@ -221,13 +224,23 @@ def test_pcp(self, context = 'local', path = ''):
             self.assertTrue(code >= 0)
 
             # pmExtractValue kernel.percpu.cpu.user
-            (code, atom) = pm.pmExtractValue(results, descs, self.metric_ids[1], 0, pmapi.PM_TYPE_FLOAT)
+            for i in xrange(results.contents.numpmid):
+                if (results.contents.get_pmid(i) != self.metric_ids[1]):
+                    continue
+                (code, atom) = pm.pmExtractValue(results.contents.get_valfmt(i),
+                                                 results.contents.get_vlist(i, 0),
+                                                 descs[i].contents.type, pmapi.PM_TYPE_FLOAT)
             self.assertTrue(code >= 0)
             cpu_val = atom.f - previous_cpu_user[cpu]
             previous_cpu_user[cpu] = atom.f
 
             # pmExtractValue kernel.percpu.cpu.sys
-            (code, atom) = pm.pmExtractValue(results, descs, self.metric_ids[2], 0, pmapi.PM_TYPE_FLOAT)
+            for i in xrange(results.contents.numpmid):
+                if (results.contents.get_pmid(i) != self.metric_ids[2]):
+                    continue
+                (code, atom) = pm.pmExtractValue(results.contents.get_valfmt(i),
+                                                 results.contents.get_vlist(i, 0),
+                                                 descs[i].contents.type, pmapi.PM_TYPE_FLOAT)
             self.assertTrue(code >= 0)
             cpu_val = cpu_val + atom.f - previous_cpu_sys[cpu]
             print "cpu_val=", cpu_val
@@ -236,16 +249,26 @@ def test_pcp(self, context = 'local', path = ''):
             cpu = cpu + 1
 
             # pmExtractValue mem.freemem
-            (code, tmpatom) = pm.pmExtractValue(results, descs, self.metric_ids[3], 0, pmapi.PM_TYPE_FLOAT)
+            for i in xrange(results.contents.numpmid):
+                if (results.contents.get_pmid(i) != self.metric_ids[3]):
+                    continue
+                (code, tmpatom) = pm.pmExtractValue(results.contents.get_valfmt(i),
+                                                    results.contents.get_vlist(i, 0),
+                                                    descs[i].contents.type, pmapi.PM_TYPE_FLOAT)
             self.assertTrue(code >= 0)
             # pmConvScale
             (code, atom) = pm.pmConvScale(pmapi.PM_TYPE_FLOAT, tmpatom, descs, 3, pmapi.PM_SPACE_MBYTE)
             self.assertTrue(code >= 0)
             print "freemem (Mbytes)=",atom.f
 
-            for i in xrange(results.contents.get_vset_length(0) - 1):
+            for i in xrange(results.contents.get_numval(0) - 1):
                 # pmExtractValue kernel.all.load
-                (code, atom) = pm.pmExtractValue(results, descs, self.metric_ids[0], 0, pmapi.PM_TYPE_FLOAT)
+                for i in xrange(results.contents.numpmid):
+                    if (results.contents.get_pmid(i) != self.metric_ids[0]):
+                        continue
+                    (code, atom) = pm.pmExtractValue(results.contents.get_valfmt(i),
+                                                     results.contents.get_vlist(i, 0),
+                                                     descs[i].contents.type, pmapi.PM_TYPE_FLOAT)
                 value = atom.f
                 self.assertTrue(code >= 0)
                 if results.contents.get_inst(0, i) == inst1:
@@ -256,7 +279,12 @@ def test_pcp(self, context = 'local', path = ''):
                     print "load average 15=%f",atom.f
 
             # pmExtractValue disk.all.total
-            (code, atom) = pm.pmExtractValue(results, descs, self.metric_ids[4], 0, pmapi.PM_TYPE_U32)
+            for i in xrange(results.contents.numpmid):
+                if (results.contents.get_pmid(i) != self.metric_ids[4]):
+                    continue
+                (code, atom) = pm.pmExtractValue(results.contents.get_valfmt(i),
+                                                 results.contents.get_vlist(i, 0),
+                                                 descs[i].contents.type, pmapi.PM_TYPE_U32)
             dkiops = atom.ul;
             dkiops = dkiops - previous_disk
             previous_disk = atom.ul

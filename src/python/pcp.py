@@ -137,7 +137,7 @@ except NameError:
 
     class pmUnits(Structure):
         """Linux bitfields specifying scale and dimentsion of metric values
-            
+
         Constants for specifying metric units are defined in module pmapi
         """
         _fields_ = [ ("pad", c_int, 8),
@@ -195,27 +195,41 @@ class pmValueSet(Structure):
     def __str__(self):
         return "pmValueSet@%#lx id=%#lx numval=%d valfmt=%d" % (addressof(self), self.pmid, self.numval, self.valfmt) + (str([" %s" % str(self.vlist[i]) for i in xrange(self.numval)])) if self.valfmt == 0 else ""
                    
-def define_pmResult (n):
-    class pmResult (Structure):
-        """Structure returned by pmFetch, with a value set for each metric queried
-           Build the type so the array extent can be dynamically set
-        """
-        numpmid = n
-        _fields_ = [ ("timestamp", timeval),
-                     ("numpmid", c_int),
-                     # array N of pointer to pmValueSet
-                     ("vset", (POINTER(pmValueSet)) * numpmid) ]
-        def __init__(self):
-            self.numpmid = n
-            print 211,n
-        def __str__(self):
-            return "pmResult@%#lx id#=%d " % (addressof(self), self.numpmid) + str([" %s" % str(self.vset[i].contents) for i in xrange(self.numpmid)])
-        def get_vset_length(self, vset_idx):
-            return self.vset[vset_idx].contents.numval
-        def get_inst(self, vset_idx, vlist_idx):
-            return cast(self.vset[vset_idx].contents.vlist,POINTER(pmValue))[vlist_idx].inst
+class pmResult (Structure):
+    """Structure returned by pmFetch, with a value set for each metric queried
 
-    return pmResult
+    Build the type so the array extent can be dynamically set.  Alternately,
+    use the getter methods which are array bounds agnostic
+    """
+    _fields_ = [ ("timestamp", timeval),
+                 ("numpmid", c_int),
+                 # array N of pointer to pmValueSet
+                 ("vset", (POINTER(pmValueSet)) * 1) ]
+    def __init__(self):
+        self.numpmid = n
+        print 211,n
+    def __str__(self):
+        return "pmResult@%#lx id#=%d " % (addressof(self), self.numpmid) + str([" %s" % str(self.vset[i].contents) for i in xrange(self.numpmid)])
+    def get_pmid(self, vset_idx):
+        """ Return the pmid of vset[vset_idx]
+        """
+        return cast(self.vset,POINTER(POINTER(pmValueSet)))[vset_idx].contents.pmid
+    def get_valfmt(self, vset_idx):
+        """ Return the valfmt of vset[vset_idx]
+        """
+        return cast(self.vset,POINTER(POINTER(pmValueSet)))[vset_idx].contents.valfmt
+    def get_numval(self, vset_idx):
+        """ Return the numval of vset[vset_idx]
+        """
+        return cast(self.vset,POINTER(POINTER(pmValueSet)))[vset_idx].contents.numval
+    def get_vlist(self, vset_idx, vlist_idx):
+        """ Return the vlist[vlist_idx] of vset[vset_idx]
+        """
+        return cast(cast(self.vset,POINTER(POINTER(pmValueSet)))[vset_idx].contents.vlist,POINTER(pmValue))[vlist_idx]
+    def get_inst(self, vset_idx, vlist_idx):
+        """ Return the inst for vlist[vlist_idx] of vset[vset_idx]
+        """
+        return cast(cast(self.vset,POINTER(POINTER(pmValueSet)))[vset_idx].contents.vlist,POINTER(pmValue))[vlist_idx].inst
 
 pmInDom = c_uint
 
@@ -237,6 +251,22 @@ class pmDesc(Structure):
                  ("units", pmUnits) ]
     def __str__(self):
         return "pmDesc@%#lx id=%#lx type=%d" % (addressof(self), self.pmid, self.type)
+
+def get_indom( pmdesc ):
+    """Extract an indom from a pmdesc
+
+       Allow functions requiring an indom to be passed a pmDesc* instead
+    """
+    class Value(Union):
+        _fields_ = [ ("pval", POINTER(pmDesc)),
+                     ("lval", c_uint) ]
+    if type (pmdesc) == POINTER(pmDesc):
+        return pmdesc.contents.indom 
+    else:           # raw indom
+        # Goodness, there must be a simpler way to do this
+        value = Value()
+        value.pval = pmdesc
+        return value.lval
 
 class pmMetricSpec(Structure):
     """Structure describing a metric's specification
@@ -389,13 +419,13 @@ libpcp.pmWhichZone.argtypes = [ POINTER(c_char_p) ]
 # PMAPI Metrics Services
 
 libpcp.pmFetch.restype = c_int
-# libpcp.pmFetch.argtypes = [ c_int, POINTER(c_uint), POINTER(POINTER(pmResult)) ]
+libpcp.pmFetch.argtypes = [ c_int, POINTER(c_uint), POINTER(POINTER(pmResult)) ]
 
 libpcp.pmFreeResult.restype = None
-# libpcp.pmFreeResult.argtypes = [ POINTER(pmResult) ]
+libpcp.pmFreeResult.argtypes = [ POINTER(pmResult) ]
 
 libpcp.pmStore.restype = c_int
-# libpcp.pmStore.argtypes = [ POINTER(pmResult) ]
+libpcp.pmStore.argtypes = [ POINTER(pmResult) ]
 
 
 ##
@@ -433,7 +463,7 @@ libpcp.pmNameInDomArchive.restype = c_int
 libpcp.pmNameInDomArchive.argtypes = [ pmInDom, c_int ]
 
 libpcp.pmFetchArchive.restype = c_int
-# libpcp.pmFetchArchive.argtypes = [ ]
+libpcp.pmFetch.argtypes = [ c_int, POINTER(c_uint), POINTER(POINTER(pmResult)) ]
 
 
 ##
@@ -663,7 +693,7 @@ class pmContext( object ):
     #
 
     def pmGetChildren( self, name ):
-        """PMAPI - Lookup names of children of the given PMNS node
+        """PMAPI - Lookup names of children of the given PMNS node NAME
         """
         # this method is context dependent and requires the pmapi lock
         offspring = POINTER(c_char_p)()
@@ -686,7 +716,7 @@ class pmContext( object ):
         return childL
 
     def pmGetChildrenStatus( self, name ):
-        """PMAPI - Lookup names and status of children of the given metric
+        """PMAPI - Lookup names and status of children of the given metric NAME
         """
         # this method is context dependent and requires the pmapi lock
         offspring = POINTER(c_char_p)()
@@ -747,7 +777,7 @@ class pmContext( object ):
         return status
 
     def pmLoadASCIINameSpace( self, filename, dupok ):
-        """PMAPI - Load an ASCII formatted local namespace
+        """PMAPI - Load an ASCII formatted local namespace from FILENAME
         """
         # this method is context dependent and requires the pmapi lock
         pmContext._pmapiLock.acquire()
@@ -764,7 +794,8 @@ class pmContext( object ):
         return status
 
     def pmLookupName( self, nameA ):
-        """PMAPI - Lookup pmIDs from a list of metric names
+        """PMAPI - Lookup pmIDs from a list of metric names nameA
+
         (status, pmid_ctype []) = pmidpmLookupName("MetricName") 
         (status, pmid_ctype []) = pmLookupName(("MetricName1" "MetricName2"...)) 
         """
@@ -792,7 +823,7 @@ class pmContext( object ):
         return status, pmidA
 
     def pmNameAll( self, pmid ):
-        """PMAPI - Lookup list of all metric names having this identical pmid
+        """PMAPI - Lookup list of all metric names having this identical PMID
         """
         # this method is context dependent and requires the pmapi lock
         nameA_p = POINTER(c_char_p)()
@@ -812,7 +843,7 @@ class pmContext( object ):
         return nameL
 
     def pmNameID( self, pmid ):
-        """PMAPI - Lookup a metric name from a pmID
+        """PMAPI - Lookup a metric name from a PMID
         """
         # this method is context dependent and requires the pmapi lock
         k = c_char_p()
@@ -832,7 +863,7 @@ class pmContext( object ):
         return name
 
     def pmTraversePMNS( self, name, callback ):
-        """PMAPI - Scan namespace, depth first, run callback at each node
+        """PMAPI - Scan namespace, depth first, run CALLBACK at each node
         """
         # this method is context dependent and requires the pmapi lock
         pmContext._pmapiLock.acquire()
@@ -872,6 +903,7 @@ class pmContext( object ):
 
     def pmLookupDesc( self, pmids_p ):
         """PMAPI - Lookup a metric description structure from a pmID
+
         (status, (pmDesc_ctype*)[]) = pmLookupDesc(pmid_ctype[N])
         (status, (pmDesc_ctype*)[]) = pmLookupDesc(pmid_ctype[])
         """
@@ -906,6 +938,7 @@ class pmContext( object ):
 
     def pmLookupInDomText( self, pmdesc, kind=PM_TEXT_ONELINE ):
         """PMAPI - Lookup the description of a metric's instance domain
+
         "instance" = pmLookupInDomText(pmDesc_ctype)   
         """
         # this method is context dependent and requires the pmapi lock
@@ -918,7 +951,8 @@ class pmContext( object ):
                 pmContext._pmapiLock.release()
                 raise pmErr (status)
             pmContext._lastUsedContext = self
-        status = libpcp.pmLookupInDomText( pmdesc.contents.indom, kind, byref(buf) )
+             
+        status = libpcp.pmLookupInDomText( get_indom (pmdesc), kind, byref(buf) )
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr (status)
@@ -951,6 +985,7 @@ class pmContext( object ):
 
     def pmGetInDom( self, pmdescp ):
         """PMAPI - Lookup the list of instances from an instance domain
+
         ((instance1, instance2...) (name1, name2...)) pmGetInDom(pmDesc_ctype)
         """
         # this method is context dependent and requires the pmapi lock
@@ -963,7 +998,7 @@ class pmContext( object ):
                 pmContext._pmapiLock.release()
                 raise pmErr (status)
             pmContext._lastUsedContext = self
-        status = libpcp.pmGetInDom( pmdescp.contents.indom, byref(instA_p), byref(nameA_p) )
+        status = libpcp.pmGetInDom( get_indom (pmdescp), byref(instA_p), byref(nameA_p) )
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr (status)
@@ -978,6 +1013,7 @@ class pmContext( object ):
 
     def pmLookupInDom( self, pmdesc, name ):
         """PMAPI - Lookup the instance id with the given name in the indom
+
         instid_ctype = pmLookupInDom(pmDesc_ctype, "Instance")   
         """
         # this method is context dependent and requires the pmapi lock
@@ -988,7 +1024,7 @@ class pmContext( object ):
                 pmContext._pmapiLock.release()
                 raise pmErr (status)
             pmContext._lastUsedContext = self
-        status = libpcp.pmLookupInDom( pmdesc.contents.indom, name )
+        status = libpcp.pmLookupInDom( get_indom (pmdesc), name )
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr (status)
@@ -996,6 +1032,8 @@ class pmContext( object ):
 
     def pmNameInDom( self, pmdesc, instval ):
         """PMAPI - Lookup the text name of an instance in an instance domain
+
+        string = pmNameInDom(pmDesc_ctype, instid_ctype)
         """
         # this method is context dependent and requires the pmapi lock
         name_p = c_char_p()
@@ -1006,7 +1044,7 @@ class pmContext( object ):
                 pmContext._pmapiLock.release()
                 raise pmErr (status)
             pmContext._lastUsedContext = self
-        status = libpcp.pmNameInDom( pmdesc.contents.indom, instval, byref( name_p ) )
+        status = libpcp.pmNameInDom( get_indom (pmdesc), instval, byref( name_p ) )
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr (status)
@@ -1072,6 +1110,7 @@ class pmContext( object ):
 
     def pmAddProfile( self, pmdesc, instL ):
         """PMAPI - add instances to list that will be collected from indom
+
         status = pmAddProfile(pmDesc_ctype, instid_ctype)   
         """
         # this method is context dependent and requires the pmapi lock
@@ -1093,7 +1132,7 @@ class pmContext( object ):
                 pmContext._pmapiLock.release()
                 raise pmErr (status)
             pmContext._lastUsedContext = self
-        status = libpcp.pmAddProfile( pmdesc.contents.indom, numinst, instA )
+        status = libpcp.pmAddProfile( get_indom(pmdesc), numinst, instA )
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr (status)
@@ -1101,6 +1140,7 @@ class pmContext( object ):
 
     def pmDelProfile( self, pmdesc, instL ):
         """PMAPI - delete instances from list to be collected from indom 
+
         status = pmDelProfile(pmDesc_ctype, inst_list)   
         """
         # this method is context dependent and requires the pmapi lock
@@ -1119,7 +1159,7 @@ class pmContext( object ):
                 raise pmErr (status)
             pmContext._lastUsedContext = self
         apmDesc = pmDesc()
-        status = libpcp.pmDelProfile( pmdesc.contents.indom, numinst, instA )
+        status = libpcp.pmDelProfile( get_indom (pmdesc), numinst, instA )
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr (status)
@@ -1238,13 +1278,12 @@ class pmContext( object ):
 
     def pmFetch( self, pmids ):
         """PMAPI - Fetch measurements from the target source
+
         (status, pmResult_ctype*) = pmFetch (pmid_ctype[])
         """
         # this method is context dependent and requires the pmapi lock
         n = len(pmids)
-        pmResult = define_pmResult(n)
         result_p = POINTER(pmResult)()
-        libpcp.pmFetch.argtypes = [ c_int, POINTER(c_uint), POINTER(POINTER(pmResult)) ]
         pmContext._pmapiLock.acquire()
         if not self == pmContext._lastUsedContext: 
             status = libpcp.pmUseContext( self.ctx )
@@ -1383,6 +1422,8 @@ class pmContext( object ):
 
     def pmGetInDomArchive( self, pmdescp ):
         """PMAPI - TBD - Get the instance IDs and names for an instance domain
+
+        ((instance1, instance2...) (name1, name2...)) pmGetInDom(pmDesc_ctype)
         """
         # this method is context dependent and requires the pmapi lock
         pmContext._pmapiLock.acquire()
@@ -1394,7 +1435,7 @@ class pmContext( object ):
                 pmContext._pmapiLock.release()
                 raise pmErr (status)
             pmContext._lastUsedContext = self
-        status = libpcp.pmGetInDomArchive( pmdescp.contents.indom, byref(instA_p), byref(nameA_p) )
+        status = libpcp.pmGetInDomArchive( get_indom (pmdescp), byref(instA_p), byref(nameA_p) )
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr (status)
@@ -1408,7 +1449,9 @@ class pmContext( object ):
         return instL, nameL
 
     def pmLookupInDomArchive( self, pmdesc, name ):
-        """PMAPI - TBD - Get the instance ID for name and instance domain
+        """PMAPI - Lookup the instance id with the given name in the indom
+
+        instid_ctype = pmLookupInDomArchive(pmDesc_ctype, "Instance")   
         """
         # this method is context dependent and requires the pmapi lock
         pmContext._pmapiLock.acquire()
@@ -1418,14 +1461,16 @@ class pmContext( object ):
                 pmContext._pmapiLock.release()
                 raise pmErr (status)
             pmContext._lastUsedContext = self
-        status = libpcp.pmLookupInDomArchive(pmdesc.contents.indom, name )
+        status = libpcp.pmLookupInDomArchive(get_indom (pmdesc), name )
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr (status)
         return status
 
     def pmNameInDomArchive( self, pmdesc, inst ):
-        """PMAPI - TBD - Get the name for the given indom and inst ID
+        """PMAPI - Lookup the text name of an instance in an instance domain
+
+        string = pmNameInDomArchive(pmDesc_ctype, instid_ctype)
         """
         # this method is context dependent and requires the pmapi lock
         name_p = c_char_p()
@@ -1436,7 +1481,7 @@ class pmContext( object ):
                 pmContext._pmapiLock.release()
                 raise pmErr (status)
             pmContext._lastUsedContext = self
-        status = libpcp.pmNameInDomArchive(pmdesc.contents.indom, inst, byref(name_p) )
+        status = libpcp.pmNameInDomArchive(get_indom (pmdesc), inst, byref(name_p) )
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr (status)
@@ -1445,12 +1490,12 @@ class pmContext( object ):
         return outName
 
     def pmFetchArchive( self ):
-        """PMAPI - TBD - Fetch the next record from an archive log
+        """PMAPI - Fetch measurements from the target source
+
+        (status, pmResult_ctype*) = pmFetch ()
         """
         # this method is context dependent and requires the pmapi lock
-        pmResult = define_pmResult(1)
         result_p = POINTER(pmResult)()
-        libpcp.pmFetchArchive.argtypes = [ POINTER(POINTER(pmResult)) ]
         pmContext._pmapiLock.acquire()
         if not self == pmContext._lastUsedContext: 
             status = libpcp.pmUseContext( self.ctx )
@@ -1488,29 +1533,27 @@ class pmContext( object ):
         pmContext._pmapiLock.release()
         return x
 
-    def pmExtractValue( self, value, desc, metric_idx, vlist_idx, outType):
+# int pmExtractValue(int valfmt, const pmValue *ival, int itype,
+# pmAtomValue *oval, int otype)
+
+    def pmExtractValue( self, valfmt, vlist, intype, outtype ):
+#    def pmExtractValue( self, value, desc, metric_idx, vlist_idx, outType):
         """PMAPI - Extract a value from a pmValue struct and convert its type
+
         (status, pmAtomValue_ctype) = pmExtractValue(pmResult_ctype*, 
                  (pmDesc_ctype*)[], pmid_ctype[N], vlist_idx, pmapi.PM_TYPE_*)
         """
         # this method is _not_ context dependent and requires _no_ pmapi lock
         outAtom = pmAtomValue()
-        for i in xrange(value.contents.numpmid):
-            if (value.contents.vset[i].contents.pmid != metric_idx):
-                continue
-            code = libpcp.pmExtractValue (
-                value.contents.vset[i].contents.valfmt,
-                value.contents.vset[i].contents.vlist[vlist_idx],
-                desc[i].contents.type,
-                byref(outAtom),
-                outType)
-            if code < 0:
-                raise pmErr (code)
-            return code, outAtom
+        code = libpcp.pmExtractValue (valfmt, vlist, intype, byref(outAtom), outtype)
+        if code < 0:
+            raise pmErr (code)
+        return code, outAtom
 
 
     def pmConvScale( self, inType, inAtom, desc, metric_idx, outUnits ):
         """PMAPI - Convert a value to a different scale
+
         pmAtomValue_ctype = pmConvScale(pmapi.PM_TYPE_*, pmAtomValue_ctype, 
                             (pmDesc_ctype*)[], pmDesc_idx, pmapi.PM_SPACE_*)
         """
@@ -1538,6 +1581,7 @@ class pmContext( object ):
 
     def pmIDStr( self, pmid ):
         """PMAPI - Convert a pmID to a readable string
+
         pmIDStr(pmid_ctype [I])
         """
         # this method is _not_ context dependent and requires _no_ pmapi lock
@@ -1549,12 +1593,13 @@ class pmContext( object ):
 
     def pmInDomStr( self, pmdescp ):
         """PMAPI - Convert an instance domain ID  to a readable string
+
         "dom" =  pmGetInDom(pmDesc_ctype)
         """
         # this method is _not_ context dependent and requires _no_ pmapi lock
         # this method uses a static buffer and requires an individual lock
         pmContext._pmapiLock.acquire()
-        x = str( libpcp.pmInDomStr( pmdescp.contents.indom ))
+        x = str( libpcp.pmInDomStr( get_indom (pmdescp) ))
         pmContext._pmapiLock.release()
         return x
 
@@ -1626,6 +1671,7 @@ class pmContext( object ):
 
     def pmParseInterval( self, str ):
         """PMAPI - TBD - parse a textual time interval into a timeval struct
+
         (status, timeval_ctype, "error message") = pmParseInterval ("time string")
         """
         # this method is _not_ context dependent and requires _no_ pmapi lock
