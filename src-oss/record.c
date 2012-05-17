@@ -42,7 +42,7 @@ main(int argc, char **argv)
 	    exit(1);
 	}
 	printf("f_config: %s", rhp[i-4]->f_config == NULL ? "NULL" : "OK");
-	printf(" f_ipc: %d pid: %d status: %d\n", rhp[i-4]->fd_ipc, rhp[i-4]->pid, rhp[i-4]->status);
+	printf(" f_ipc: %d pid: %" FMT_PID " status: %d\n", rhp[i-4]->fd_ipc, rhp[i-4]->pid, rhp[i-4]->status);
 	printf("logfile: %s\n", rhp[i-4]->logfile);
 	fprintf(rhp[i-4]->f_config, "log mandatory on 30sec pmcd.control.timeout\n");
     }
@@ -60,7 +60,7 @@ main(int argc, char **argv)
     for (i = 4; i < argc; i++) {
 	printf("host: %s\n", argv[i]);
 	printf("f_config: %s", rhp[i-4]->f_config == NULL ? "NULL" : "OK");
-	printf(" f_ipc: %d pid: %d status: %d\n", rhp[i-4]->fd_ipc, rhp[i-4]->pid, rhp[i-4]->status);
+	printf(" f_ipc: %d pid: %" FMT_PID " status: %d\n", rhp[i-4]->fd_ipc, rhp[i-4]->pid, rhp[i-4]->status);
 	printf("logfile: %s\n", rhp[i-4]->logfile);
     }
 
@@ -112,7 +112,7 @@ main(int argc, char **argv)
     for (i = 4; i < argc; i++) {
 	printf("host: %s\n", argv[i]);
 	printf("f_config: %s", rhp[i-4]->f_config == NULL ? "NULL" : "OK");
-	printf(" f_ipc: %d pid: %d status: %d\n", rhp[i-4]->fd_ipc, rhp[i-4]->pid, rhp[i-4]->status);
+	printf(" f_ipc: %d pid: %" FMT_PID " status: %d\n", rhp[i-4]->fd_ipc, rhp[i-4]->pid, rhp[i-4]->status);
 	printf("logfile: %s\n", rhp[i-4]->logfile);
     }
 

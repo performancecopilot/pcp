@@ -17,6 +17,7 @@
 #include <pcp/impl.h>
 #include <pcp/trace.h>
 #include <pcp/trace_dev.h>
+#include <strings.h>
 
 static int	raw;		/* if set, echo PDUs, do not decode/encode */
 
@@ -578,6 +579,8 @@ main(int argc, char *argv[])
     int		errflag = 0;
     __pmPDU	*pb;
     __pmPDUHdr	*php;
+    char	*fmt;
+    char	*p;
 
     __pmSetProgname(argv[0]);
     mypid = getpid();
@@ -656,7 +659,13 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-    fprintf(stderr, "%s: MYPID %d %x\n", pmProgname, mypid, mypid);
+    fprintf(stderr, "%s: MYPID %" FMT_PID, pmProgname, mypid);
+    /* don't have %x equivalent of FMT_PID unfortunately */
+    fmt = strdup(" %" FMT_PID "\n");
+    p = index(fmt, 'd');
+    *p = 'x';
+    fprintf(stderr, fmt, mypid);
+    free(fmt);
 
     for ( ; ; ) {
 

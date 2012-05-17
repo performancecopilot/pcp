@@ -351,7 +351,7 @@ test_instance(void)
 	sleep(2*refresh+1);
 	exit(0);
     }
-    printf("cpid=%d\n", child_pid);
+    printf("cpid=%" FMT_PID "\n", child_pid);
  
     if (is_hotproc) {
 	/* sleep so that hotprocs can update active list */
@@ -399,7 +399,7 @@ test_instance(void)
 	if (sts < 0) {
 	    if (sts == PM_ERR_INST) {
 		if (all_inst[i] == child_pid)
-		    printf("  Death of child detected, pid=%d\n", child_pid); 
+		    printf("  Death of child detected, pid=%" FMT_PID "\n", child_pid); 
 		/* ignore deaths */
 		continue;
 	    }
@@ -578,7 +578,7 @@ main(int argc, char **argv)
     int	sts;
 
     set_proc_fmt();
-    printf("pid=%d ppid=%d\n", getpid(), getppid());
+    printf("pid=%" FMT_PID " ppid=%" FMT_PID "\n", getpid(), getppid());
     getargs(argc, argv);
 
     if (pmnsfile != PM_NS_DEFAULT) {

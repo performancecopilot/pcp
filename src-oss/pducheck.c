@@ -839,7 +839,7 @@ _z(void)
 		    (outcreds[0].c_valc != (unsigned char)11))
 		    fprintf(stderr, "Botch: Creds: value mismatch (cred #0)\n");
 		if (standalone && sender != mypid)
-		    fprintf(stderr, "Botch: Creds: sender pid mismatch: got:%d expect:%d\n",
+		    fprintf(stderr, "Botch: Creds: sender pid mismatch: got:%d expect:%" FMT_PID "\n",
 			    sender, mypid);
 		if (count != 1)
 		    fprintf(stderr, "Botch: Creds: PDU count: got:%d expect:%d\n", count, 1);
