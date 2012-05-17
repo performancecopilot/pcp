@@ -15,7 +15,7 @@ main(int argc, char **argv)
     char	*cmd = argv[0];
     int		errflag = 0;
     int		type = 0;
-    char	*host;
+    char	*host = NULL;			/* pander to gcc */
     char 	*logfile = (char *)0;
     pmLogLabel	label;				/* get hostname for archives */
     char	local[MAXHOSTNAMELEN];

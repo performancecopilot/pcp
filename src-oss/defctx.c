@@ -20,7 +20,7 @@ main(int argc, char **argv)
     int		inst;
     int		errflag = 0;
     int		type = 0;
-    char	*host;
+    char	*host = NULL;	/* pander to gcc */
     char	*namespace = PM_NS_DEFAULT;
     pmDesc	desc;
     pmID	pmid;

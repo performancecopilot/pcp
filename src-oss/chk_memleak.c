@@ -31,7 +31,7 @@ main(int argc, char **argv)
     int		niter = 100;
     int		contype = PM_CONTEXT_HOST;
     unsigned long first_memusage;
-    unsigned long last_memusage;
+    unsigned long last_memusage = 0;
     unsigned long memusage;
 
     __pmSetProgname(argv[0]);

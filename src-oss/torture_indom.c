@@ -237,7 +237,7 @@ main(int argc, char **argv)
     int		errflag = 0;
     char	*errmsg;
     int		type = 0;
-    char	*host;
+    char	*host = NULL;			/* pander to gcc */
     int		mode = PM_MODE_INTERP;		/* mode for archives */
     pmLogLabel	label;				/* get hostname for archives */
     char	local[MAXHOSTNAMELEN];

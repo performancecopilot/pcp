@@ -74,6 +74,9 @@ add_param(pmID pmid, int type, pmAtomValue *avp)
 	    need += PM_PDU_SIZE_BYTES(vlen);
 	    src = avp->vbp->vbuf;
 	    break;
+	default:
+	    fprintf(stderr, "add_parameter failed: bad type (%d)\n", type);
+	    exit(1);
     }
     if ((sts = check_buf(need)) < 0) {
 	fprintf(stderr, "add_parameter failed: %s\n", pmErrStr(sts));

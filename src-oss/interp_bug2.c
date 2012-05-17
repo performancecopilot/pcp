@@ -39,7 +39,7 @@ main(int argc, char **argv)
     int		type = 0;
     int		force = 0;
     int 	verbose = 0;
-    char	*host;
+    char	*host = NULL;		/* pander to gcc */
     char 	*configfile = (char *)0;
     char 	*logfile = (char *)0;
     pmLogLabel	label;				/* get hostname for archives */

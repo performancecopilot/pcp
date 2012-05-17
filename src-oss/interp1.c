@@ -19,7 +19,7 @@ main(int argc, char **argv)
     double	tdiff;
     int		errflag = 0;
     int		ahtype = 0;
-    char	*host;
+    char	*host = NULL;			/* pander to gcc */
     pmLogLabel	label;				/* get hostname for archives */
     char	*namespace = PM_NS_DEFAULT;
     int		samples = 10;

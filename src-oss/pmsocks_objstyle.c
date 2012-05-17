@@ -14,7 +14,7 @@ main(int argc, char **argv)
     int		sts;
     int		errflag = 0;
     int		type = 0;
-    char	*host;
+    char	*host = NULL;			/* pander to gcc */
     int		mode = PM_MODE_INTERP;		/* mode for archives */
     char	*start = NULL;
     char	*finish = NULL;

@@ -51,8 +51,8 @@ main(int argc, char **argv)
     __uint32_t	try = 0;
     int		dup;
     inst_key_t	poke[MAXPOKE];
-    int		mykeylen;
-    void	*mykey;
+    int		mykeylen = 0;			/* pander to gcc */
+    void	*mykey = NULL;			/* pander to gcc */
 
     __pmSetProgname(argv[0]);
 

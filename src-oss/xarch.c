@@ -300,8 +300,8 @@ main(int argc, char **argv)
     printf("\nPass 4: cascading forward scan, 100%%, 75%%, 50%%, 25%%, 0%%\n");
     pmUseContext(ctx[0]);
     for (k = 0; k < 5; k++) {
+	j = 0;
 	if (resnum > 0) {
-	    j = 0;
 	    i = ( k * resnum ) / 4;
 	    if (i <= resnum - 1) {
 		when = resvec[i]->timestamp;
@@ -345,8 +345,8 @@ main(int argc, char **argv)
     printf("\nPass 5: cascading backward scan, 100%%, 75%%, 50%%, 25%%, 0%%\n");
     pmUseContext(ctx[0]);
     for (k = 0; k < 5; k++) {
+	j = 0;
 	if (resnum > 0) {
-	    j = 0;
 	    i = resnum - ( k * resnum ) / 4 - 1;
 	    if (i < 0)
 		i = 0;

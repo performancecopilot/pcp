@@ -11,7 +11,7 @@ main(int argc, char **argv)
 {
     int		c;
     int		i;
-    int		sts;
+    int		sts = 0;			/* pander to gcc */
     int		fault = 0;
     int		errflag = 0;
     char	*offset = NULL;

@@ -26,7 +26,7 @@ main(int argc, char **argv)
     int		errflag = 0;
     int		type = 0;
     int 	verbose = 0;
-    char	*host;
+    char	*host = NULL;			/* pander to gcc */
     int		mode = PM_MODE_INTERP;		/* mode for archives */
     char 	*configfile = NULL;
     char	*start = NULL;

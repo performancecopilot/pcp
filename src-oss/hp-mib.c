@@ -155,6 +155,10 @@ main(int argc, char **argv)
 	    exit(1);
 	}
     }
+    else {
+	printf("%s: botch: metric %s (%s) should have an instance domain\n", pmProgname, metrics[1], pmIDStr(pmids[1]));
+	exit(1);
+    }
 
     /*
      * sort the instance identifiers

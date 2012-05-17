@@ -31,8 +31,8 @@ main(int argc, char **argv)
     int		j;
     int		max_ctx;
     int		max_nofile;
-    int		numopen;
-    int		ctx;
+    int		numopen = 0;			/* pander to gcc */
+    int		ctx = -1;			/* pander to gcc */
     int		last_ctx;
     char	buf[100];
     char	lbuf[100];

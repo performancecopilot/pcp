@@ -12,7 +12,7 @@ main(int argc, char **argv)
     int		sts;
     int		errflag = 0;
     int		type = 0;
-    char	*host;
+    char	*host = NULL;			/* pander to gcc */
     int		mode = PM_MODE_INTERP;		/* mode for archives */
     char 	*configfile = NULL;
     char	*start = NULL;
@@ -26,7 +26,6 @@ main(int argc, char **argv)
     int		tzh;				/* initial timezone handle */
     char	local[MAXHOSTNAMELEN];
     char	*pmnsfile = PM_NS_DEFAULT;
-    int		control_port = -1;
     int		samples = -1;
     char	*endnum;
     struct timeval delta = { 1, 0 };
@@ -39,7 +38,7 @@ main(int argc, char **argv)
     /* trim cmd name of leading directory components */
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "a:A:c:D:h:l:Ln:O:p:s:S:t:T:U:zZ:?")) != EOF) {
+    while ((c = getopt(argc, argv, "a:A:c:D:h:l:Ln:O:s:S:t:T:U:zZ:?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* archive name */
@@ -110,14 +109,6 @@ main(int argc, char **argv)
 
 	case 'n':	/* alternative name space file */
 	    pmnsfile = optarg;
-	    break;
-
-	case 'p':	/* port for slave of existing pmtime master */
-	    control_port = (int)strtol(optarg, &endnum, 10);
-	    if (*endnum != '\0' || samples < 0) {
-		fprintf(stderr, "%s: -p requires numeric argument\n", pmProgname);
-		errflag++;
-	    }
 	    break;
 
 	case 'O':	/* sample offset time */
@@ -206,7 +197,6 @@ Options:\n\
 #endif
 "  -n pmnsfile    use an alternative PMNS\n\
   -O offset      initial offset into the time window\n\
-  -p port        port name for connection to existing time control\n\
   -s samples     terminate after this many samples\n\
   -S starttime   start of the time window\n\
   -t interval    sample interval [default 1.0 seconds]\n\

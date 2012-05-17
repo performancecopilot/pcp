@@ -41,7 +41,7 @@ main(int argc, char **argv)
     int		ahtype = 0;
     int		verbose = 0;
     int		quick = 0;
-    char	*host;
+    char	*host = NULL;			/* pander to gcc */
     pmResult	*result;
     pmResult	*prev = NULL;
     struct timeval	start = { 0,0 };

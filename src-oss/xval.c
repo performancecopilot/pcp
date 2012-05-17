@@ -95,7 +95,6 @@ main(int argc, char *argv[])
     int		vflag = 0;	/* set to 1 to show all results */
     int		sgn = 1;	/* -u to force 64 unsigned from command line value */
     long long 	llv;
-    int		match;
 
     ea.ea_nrecords = 1;
     ea.ea_record[0].er_nparams = 0;
@@ -225,6 +224,7 @@ main(int argc, char *argv[])
 		    printf(": %s\n", pmErrStr(e));
 		}
 		else {
+		    int		match;
 		    /* avoid ap-> alignment issues */
 		    memcpy((void *)&iv, (void *)ap, sizeof(iv));
 		    switch (type[o]) {
@@ -309,6 +309,7 @@ main(int argc, char *argv[])
 				match = (bv.cp[k] == av.cp[k]);
 			    break;
 			case PM_TYPE_EVENT:
+			default:
 			    /* should never get here */
 			    match = 0;
 			    break;

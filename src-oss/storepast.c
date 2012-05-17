@@ -16,7 +16,7 @@ main(int argc, char **argv)
     int		sts;
     int		errflag = 0;
     int		type = 0;
-    char	*host;
+    char	*host = NULL;			/* pander to gcc */
     char	local[MAXHOSTNAMELEN];
     char	*namespace = PM_NS_DEFAULT;
     pmResult	req;

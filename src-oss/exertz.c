@@ -14,12 +14,12 @@ main(int argc, char **argv)
     int		type = 0;
     int		force = 0;
     int 	verbose = 0;
-    char	*host;
+    char	*host = NULL;			/* pander to gcc */
     char 	*configfile = (char *)0;
     char 	*logfile = (char *)0;
     char 	*tz = (char *)0;
     char 	*tzhost = (char *)0;
-    int		tzh;
+    int		tzh = -1;			/* pander to gcc */
     char	local[MAXHOSTNAMELEN];
     char	*namespace = PM_NS_DEFAULT;
     int		samples = -1;
