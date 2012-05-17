@@ -250,6 +250,7 @@ pmnewlog -p $pid $tmp 2>&1 \
 | _filter \
 | sed \
     -e "/\.save/s/.*/-- ps line removed --/" \
+    -e '/^kill:.*permission denied/s/.*/Permission denied/' \
     -e '/^kill:.*Not owner/s/Not owner/Operation not permitted/' \
     -e '/.*: kill:.*Not owner/s/Not owner/Operation not permitted/' \
     -e 's/.*kill:.*Operation not permitted/KILL: Operation not permitted/' \

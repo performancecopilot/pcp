@@ -16,9 +16,9 @@ seq=`basename $0`
 if [ $PCP_PLATFORM = linux ]
 then
     _notrun "network.ip checks for linux done in test 216"
-elif [ $PCP_PLATFORM = darwin ]
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
-    _notrun "no network.ip metrics for darwin"
+    _notrun "no network.ip metrics for $PCP_PLATFORM"
 fi
 
 echo "QA output created by $seq"

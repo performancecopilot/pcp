@@ -13,8 +13,8 @@ The following pmloggers are running on HOST:
 port from $PCP_TMP_DIR/pmlogger/primary
 43000
 ... and netstat
-tcp 0 0 *.42000 *.* LISTEN
-tcp 0 0 *.43000 *.* LISTEN
+... *.42000 ... LISTEN
+... *.43000 ... LISTEN
 Waiting for pmcd to terminate ...
 Starting pmcd ... 
 Starting pmlogger ... 

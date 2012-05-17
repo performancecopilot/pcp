@@ -85,6 +85,7 @@ _filter()
 	-e '/^cc/d' \
 	-e '/^gcc/d' \
 	-e '/^x86_64-mandriva-linux-gnu-gcc/d' \
+	-e '/\/usr\/bin\/gcc/d' \
 	-e '/make: Nothing to be done/d' \
 	-e '/^pmda.c:$/d' \
 	-e '/^trivial.c:$/d' \

@@ -85,7 +85,7 @@ then
 	    exit
 	    ;;
     esac
-elif [ $PCP_PLATFORM = linux ]
+elif [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris ]
 then
     # we've had bad experience with file(1) and compiled "magic" files
     # on assorted Linux versions ... try to use the uncompiled magic

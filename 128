@@ -12,9 +12,9 @@ seq=`basename $0`
 . ./common.filter
 . ./common.check
 
-if [ $PCP_PLATFORM = darwin ]
+if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
-    _notrun "no nfs metrics for darwin"
+    _notrun "no nfs metrics for $PCP_PLATFORM"
 fi
 
 echo "QA output created by $seq"

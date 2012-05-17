@@ -21,6 +21,9 @@ then
 elif ps -l -p 1 2>/dev/null | sed -e 1q | grep RSS >/dev/null
 then
     ps_arg=-l
+elif ps -o uid,pid,rss,fname -p 1 2>/dev/null | sed -e 1q | grep RSS >/dev/null
+then
+    ps_arg="-o uid,pid,rss,fname"
 else
     echo "$seq: how do I coerce RSS from your ps?"
 fi
