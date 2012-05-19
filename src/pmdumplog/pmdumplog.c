@@ -689,6 +689,14 @@ main(int argc, char *argv[])
 	fprintf(stderr, "%s: %s!\n", pmProgname, pmErrStr(PM_ERR_NOCONTEXT));
 	exit(1);
     }
+    /*
+     * Note: ctxp->c_lock remains locked throughout ... __pmHandleToPtr()
+     *       is only called once, and a single context is used throughout
+     *       ... so there is no PM_UNLOCK(ctxp->c_lock) anywhere in the
+     *       pmdumplog code.
+     *       This works because ctxp->c_lock is a recursive lock and
+     *       pmdumplog is single-threaded.
+     */
 
     if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
