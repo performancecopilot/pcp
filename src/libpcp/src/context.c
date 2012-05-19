@@ -264,11 +264,25 @@ INIT_CONTEXT:
 	 * __pmHandleToPtr() while the current context is already
 	 * locked
 	 */
-	pthread_mutexattr_t    attr;
+	pthread_mutexattr_t	attr;
+	int			psts;
+	char			errmsg[PM_MAXERRMSGLEN];
 
-	pthread_mutexattr_init(&attr);
-	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-	pthread_mutex_init(&new->c_lock, &attr);
+	if ((psts = pthread_mutexattr_init(&attr)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "pmNewContext: context=%d lock pthread_mutexattr_init failed: %s", contexts_len-1, errmsg);
+	    exit(4);
+	}
+	if ((psts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "pmNewContext: context=%d lock pthread_mutexattr_settype failed: %s", contexts_len-1, errmsg);
+	    exit(4);
+	}
+	if ((psts = pthread_mutex_init(&new->c_lock, &attr)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "pmNewContext: context=%d lock pthread_mutex_init failed: %s", contexts_len-1, errmsg);
+	    exit(4);
+	}
     }
 #endif
     new->c_type = type;
@@ -335,7 +349,15 @@ INIT_CONTEXT:
 	    new->c_pmcd->pc_nhosts = nhosts;
 	    new->c_pmcd->pc_tout_sec = __pmConvertTimeout(TIMEOUT_DEFAULT) / 1000;
 #ifdef PM_MULTI_THREAD
-	    pthread_mutex_init(&new->c_pmcd->pc_lock, NULL);
+	    {
+		int		psts;
+		char		errmsg[PM_MAXERRMSGLEN];
+		if ((psts = pthread_mutex_init(&new->c_pmcd->pc_lock, NULL)) != 0) {
+		    strerror_r(psts, errmsg, sizeof(errmsg));
+		    fprintf(stderr, "pmNewContext: context=%d pmcd channel lock pthread_mutex_init failed: %s", contexts_len, errmsg);
+		    exit(4);
+		}
+	    }
 #endif
 	}
 	else {
@@ -674,6 +696,8 @@ pmDestroyContext(int handle)
 {
     __pmContext		*ctxp;
     struct linger       dolinger = {0, 1};
+    int			psts;
+    char		errmsg[PM_MAXERRMSGLEN];
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -725,7 +749,11 @@ pmDestroyContext(int handle)
 
     PM_UNLOCK(ctxp->c_lock);
 #ifdef PM_MULTI_THREAD
-    pthread_mutex_destroy(&ctxp->c_lock);
+    if ((psts = pthread_mutex_destroy(&ctxp->c_lock)) != 0) {
+	strerror_r(psts, errmsg, sizeof(errmsg));
+	fprintf(stderr, "pmDestroyContext: context=%d pthread_mutex_destroy failed: %s", handle, errmsg);
+	exit(4);
+    }
 #endif
 
     PM_UNLOCK(__pmLock_libpcp);

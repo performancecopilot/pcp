@@ -41,38 +41,63 @@ __pmInitLocks(void)
 #ifdef PM_MULTI_THREAD
     static pthread_mutex_t	init = PTHREAD_MUTEX_INITIALIZER;
     static int			done = 0;
-    pthread_mutex_lock(&init);
+    int				psts;
+    char			errmsg[PM_MAXERRMSGLEN];
+    if ((psts = pthread_mutex_lock(&init)) != 0) {
+	strerror_r(psts, errmsg, sizeof(errmsg));
+	fprintf(stderr, "__pmInitLocks: pthread_mutex_lock failed: %s", errmsg);
+	exit(4);
+    }
     if (!done) {
 #ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 	/*
 	 * Unable to initialize at compile time, need to do it here in
 	 * a one trip for all threads run-time initialization.
 	 */
-	pthread_mutexattr_t    attr;
+	pthread_mutexattr_t	attr;
 
-	pthread_mutexattr_init(&attr);
-	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-	pthread_mutex_init(&__pmLock_libpcp, &attr);
+	if ((psts = pthread_mutexattr_init(&attr)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "__pmInitLocks: pthread_mutexattr_init failed: %s", errmsg);
+	    exit(4);
+	}
+	if ((psts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "__pmInitLocks: pthread_mutexattr_settype failed: %s", errmsg);
+	    exit(4);
+	}
+	if ((psts = pthread_mutex_init(&__pmLock_libpcp, &attr)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "__pmInitLocks: pthread_mutex_init failed: %s", errmsg);
+	    exit(4);
+	}
 #endif
 #ifndef HAVE___THREAD
 	/* first thread here creates the thread private data key */
-	pthread_key_create(&__pmTPDKey, __pmTPD__destroy);
+	if ((psts = pthread_key_create(&__pmTPDKey, __pmTPD__destroy)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "__pmInitLocks: pthread_key_create failed: %s", errmsg);
+	    exit(4);
+	}
 #endif
 	done = 1;
     }
-    pthread_mutex_unlock(&init);
+    if ((psts = pthread_mutex_unlock(&init)) != 0) {
+	strerror_r(psts, errmsg, sizeof(errmsg));
+	fprintf(stderr, "__pmInitLocks: pthread_mutex_unlock failed: %s", errmsg);
+	exit(4);
+    }
 #ifndef HAVE___THREAD
     if (pthread_getspecific(__pmTPDKey) == NULL) {
 	__pmTPD	*tpd = (__pmTPD *)malloc(sizeof(__pmTPD));
-	int	sts;
 	if (tpd == NULL) {
 	    __pmNoMem("__pmInitLocks: __pmTPD", sizeof(__pmTPD), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
-	sts = pthread_setspecific(__pmTPDKey, tpd);
-	if (sts != 0) {
-	    fprintf(stderr, "__pmInitLocks: fatal pthread_setspecific failure: %d\n", sts);
-	    exit(1);
+	if ((psts = pthread_setspecific(__pmTPDKey, tpd)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "__pmInitLocks: pthread_setspecific failed: %s", errmsg);
+	    exit(4);
 	}
 	tpd->curcontext = PM_CONTEXT_UNDEF;
     }
