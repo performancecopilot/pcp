@@ -29,6 +29,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "internal.h"
+#include <string.h>
 
 static __pmContext	**contexts;		/* array of context ptrs */
 static int		contexts_len;		/* number of contexts */
@@ -112,7 +113,7 @@ __pmHandleToPtr(int handle)
 	__pmContext	*sts;
 	sts = contexts[handle];
 	PM_UNLOCK(__pmLock_libpcp);
-	PM_LOCK((sts->c_lock));
+	PM_LOCK(sts->c_lock);
 	return sts;
     }
 }
@@ -800,3 +801,37 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 
     PM_UNLOCK(__pmLock_libpcp);
 }
+
+#ifdef PM_MULTI_THREAD
+#ifdef PM_MULTI_THREAD_DEBUG
+/*
+ * return context if lock == c_lock for a context ... no locking here
+ * to avoid recursion ad nauseum
+ */
+int
+__pmIsContextLock(void *lock)
+{
+    int		i;
+    for (i = 0; i < contexts_len; i++) {
+	if ((void *)&contexts[i]->c_lock == lock)
+	    return i;
+    }
+    return -1;
+}
+
+/*
+ * return context if lock == pc_lock for a context ... no locking here
+ * to avoid recursion ad nauseum
+ */
+int
+__pmIsChannelLock(void *lock)
+{
+    int		i;
+    for (i = 0; i < contexts_len; i++) {
+	if ((void *)&contexts[i]->c_pmcd->pc_lock == lock)
+	    return i;
+    }
+    return -1;
+}
+#endif
+#endif

@@ -108,3 +108,96 @@ __pmMultiThreaded(int scope)
 #endif
 }
 
+#ifdef PM_MULTI_THREAD
+#ifdef PM_MULTI_THREAD_DEBUG
+extern int __pmIsContextLock(void *);
+extern int __pmIsChannelLock(void *);
+extern int __pmIsDeriveLock(void *);
+
+typedef struct {
+    void	*lock;
+    int		count;
+} lockdbg_t;
+
+void __pmDebugLock(int op, void *lock, char *file, int line)
+{
+    int			report = 0;
+    int			ctx;
+    static __pmHashCtl	hashctl = { 0, 0, NULL };
+    __pmHashNode	*hp = NULL;
+    lockdbg_t		*ldp;
+    int			try;
+    int			sts;
+
+    if (lock == (void *)&__pmLock_libpcp) {
+	if ((pmDebug & DBG_TRACE_APPL0) | ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1 | DBG_TRACE_APPL2)) == 0))
+	    report = DBG_TRACE_APPL0;
+    }
+    else if ((ctx = __pmIsContextLock(lock)) >= 0) {
+	if ((pmDebug & DBG_TRACE_APPL1) | ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1 | DBG_TRACE_APPL2)) == 0))
+	    report = DBG_TRACE_APPL1;
+    }
+    else {
+	if ((pmDebug & DBG_TRACE_APPL2) | ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1 | DBG_TRACE_APPL2)) == 0))
+	    report = DBG_TRACE_APPL2;
+    }
+    
+    if (report) {
+	fprintf(stderr, "%s:%d %s", file, line, op == PM_LOCK_OP ? "lock" : "unlock");
+	try = 0;
+again:
+	hp = __pmHashSearch((unsigned int)lock, &hashctl);
+	while (hp != NULL) {
+	    ldp = (lockdbg_t *)hp->data;
+	    if (ldp->lock == lock)
+		break;
+	    hp = hp->next;
+	}
+	if (hp == NULL) {
+	    ldp = (lockdbg_t *)malloc(sizeof(lockdbg_t));
+	    ldp->lock = lock;
+	    ldp->count = 0;
+	    sts = __pmHashAdd((unsigned int)lock, (void *)ldp, &hashctl);
+	    if (sts == 1) {
+		try++;
+		if (try == 1)
+		    goto again;
+	    }
+	    hp = NULL;
+	    fprintf(stderr, " hash control failure: %s\n", pmErrStr(sts));
+	}
+    }
+
+    if (report == DBG_TRACE_APPL0) {
+	fprintf(stderr, "(global_libpcp)");
+    }
+    else if (report == DBG_TRACE_APPL1) {
+	fprintf(stderr, "(ctx %d)", ctx);
+    }
+    else if (report == DBG_TRACE_APPL2) {
+	if ((ctx = __pmIsChannelLock(lock)) >= 0)
+	    fprintf(stderr, "(ctx %d ipc channel)", ctx);
+	else if (__pmIsDeriveLock(lock))
+	    fprintf(stderr, "(derived_metric)");
+	else
+	    fprintf(stderr, "(" PRINTF_P_PFX "%p)", lock);
+    }
+    if (report) {
+	if (hp != NULL) {
+	    ldp = (lockdbg_t *)hp->data;
+	    if (op == PM_LOCK_OP) {
+		if (ldp->count != 0)
+		    fprintf(stderr, " [count=%d]", ldp->count);
+		ldp->count++;
+	    }
+	    else {
+		if (ldp->count != 1)
+		    fprintf(stderr, " [count=%d]", ldp->count);
+		ldp->count--;
+	    }
+	}
+	fputc('\n', stderr);
+    }
+}
+#endif
+#endif

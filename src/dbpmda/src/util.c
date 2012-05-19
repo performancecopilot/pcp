@@ -39,7 +39,7 @@ static int		argc;
 static char* debugFlags[] = {
     "pdu", "fetch", "profile", "value", "context", "indom", "pdubuf", "log",
     "logmeta", "optfetch", "af", "appl0", "appl1", "appl2", "pmns", "libpmda",
-    "timecontrol", "pmc", "interp"
+    "timecontrol", "pmc", "derive", "lock", "interp", "config", "loop", "fault"
 };
 
 static int numFlags = sizeof(debugFlags)/sizeof(debugFlags[0]);
@@ -69,6 +69,7 @@ setup_context(void)
 	fprintf(stderr, "setup_context: creation failed: %s\n", pmErrStr(sts));
 	exit(1);
     }
+
     ctxp = __pmHandleToPtr(sts);
     if (ctxp == NULL) {
 	fprintf(stderr, "botch: setup_context: __pmHandleToPtr(%d) returns NULL!\n", sts);

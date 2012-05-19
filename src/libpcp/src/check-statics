@@ -164,6 +164,7 @@ lock.o
     [CD] ?__pmTPDKey		# one-trip initialization then read-only
     b multi_init		# guarded by __pmLock_libpcp mutex
     b multi_seen		# guarded by __pmLock_libpcp mutex
+    b ?hashctl.[0-9]*		# for lock debug tracing
 logconnect.o
     b done_default.[0-9]*	# guarded by __pmLock_libpcp mutex
     b timeout.[0-9]*		# guarded by __pmLock_libpcp mutex

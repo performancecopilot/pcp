@@ -1763,3 +1763,17 @@ __dmdesc(__pmContext *ctxp, pmID pmid, pmDesc *desc)
     }
     return PM_ERR_PMID;
 }
+
+#ifdef PM_MULTI_THREAD
+#ifdef PM_MULTI_THREAD_DEBUG
+/*
+ * return true if lock == registered.mutex ... no locking here to avoid
+ * recursion ad nauseum
+ */
+int
+__pmIsDeriveLock(void *lock)
+{
+    return lock == (void *)&registered.mutex;
+}
+#endif
+#endif
