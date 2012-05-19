@@ -69,9 +69,12 @@ LIBTARGET = libpcp_fault.$(DSOSUFFIX)
 SYMTARGET =
 endif
 
-LDIRT += $(SYMTARGET)
+LDIRT += $(SYMTARGET) libpcp.so
 
-base default : $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+base default : $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) libpcp.so
+
+libpcp.so: $(SYMTARGET)
+	ln -s $(SYMTARGET) libpcp.so
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET): 
