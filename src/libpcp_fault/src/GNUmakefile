@@ -14,7 +14,7 @@
 # License for more details.
 #
 
-LCFLAGS += -DPM_FAULT_INJECTION=1
+LCFLAGS += -DPM_FAULT_INJECTION=1 -DPM_MULTI_THREAD_DEBUG=1
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
