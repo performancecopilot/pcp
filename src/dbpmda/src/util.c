@@ -75,6 +75,16 @@ setup_context(void)
 	fprintf(stderr, "botch: setup_context: __pmHandleToPtr(%d) returns NULL!\n", sts);
 	exit(1);
     }
+    /*
+     * Note: ctxp->c_lock remains locked throughout ... setup_context()
+     *       is only called once, and a single context is used throughout
+     *       to "fake" out the connection to the current PMDA ... so
+     *       there is no PM_UNLOCK(ctxp->c_lock) anywhere in the dbpmda
+     *       code.
+     *       This works because ctxp->c_lock is a recursive lock and
+     *       dbpmda is single-threaded.
+     */
+
 #ifdef PM_MULTI_THREAD
     /* need to be careful about the initialized lock */
     save_c_lock = ctxp->c_lock;
