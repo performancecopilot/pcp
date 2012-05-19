@@ -42,8 +42,6 @@ int		qa_case;		/* QA error injection state */
 char		*note = NULL;		/* note for port map file */
 
 static int 	    pmcdfd;		/* comms to pmcd */
-static int	    ctx;		/* handle correspondong to ctxp below */
-static __pmContext  *ctxp;		/* pmlogger has just this one context */
 static fd_set	    fds;		/* file descriptors mask for select */
 static int	    numfds;		/* number of file descriptors in mask */
 
@@ -494,6 +492,8 @@ main(int argc, char **argv)
     fd_set		readyfds;
     char		*p;
     char		*runtime = NULL;
+    int	    		ctx;		/* handle correspondong to ctxp below */
+    __pmContext  	*ctxp;		/* pmlogger has just this one context */
 
     __pmSetProgname(argv[0]);
 
@@ -716,7 +716,9 @@ Options:\n\
 	exit(1);
     }
     pmcdfd = ctxp->c_pmcd->pc_fd;
-    pmcd_host = ctxp->c_pmcd->pc_hosts[0].name;
+    strcpy(local, ctxp->c_pmcd->pc_hosts[0].name);
+    pmcd_host = local;
+    PM_UNLOCK(ctxp->c_lock);
 
     if (configfile != NULL) {
 	if ((yyin = fopen(configfile, "r")) == NULL) {
@@ -1096,13 +1098,17 @@ newvolume(int vol_switch_type)
 void
 disconnect(int sts)
 {
-    time_t  now;
+    time_t  		now;
+#if CAN_RECONNECT
+    int			ctx;
+    __pmContext		*ctxp;
+#endif
 
     time(&now);
     if (sts != 0)
 	fprintf(stderr, "%s: Error: %s\n", pmProgname, pmErrStr(sts));
     fprintf(stderr, "%s: Lost connection to PMCD on \"%s\" at %s",
-	    pmProgname, ctxp->c_pmcd->pc_hosts[0].name, ctime(&now));
+	    pmProgname, pmcd_host, ctime(&now));
 #if CAN_RECONNECT
     if (primary) {
 	fprintf(stderr, "This is fatal for the primary logger.");
@@ -1112,7 +1118,14 @@ disconnect(int sts)
     FD_CLR(pmcdfd, &fds);
     pmcdfd = -1;
     numfds = maxfd() + 1;
+    if ((ctx = pmWhichContext()) >= 0)
+	ctxp = __pmHandleToPtr(ctx);
+    if (ctx < 0 || ctxp == NULL) {
+	fprintf(stderr, "%s: disconnect botch: cannot get context: %s\n", pmProgname, pmErrStr(ctx));
+	exit(1);
+    }
     ctxp->c_pmcd->pc_fd = -1;
+    PM_UNLOCK(ctxp->c_lock);
 #else
     exit(1);
 #endif
@@ -1122,18 +1135,27 @@ disconnect(int sts)
 int
 reconnect(void)
 {
-    int	    sts;
+    int	    		sts;
+    int			ctx;
+    __pmContext		*ctxp;
 
+    if ((ctx = pmWhichContext()) >= 0)
+	ctxp = __pmHandleToPtr(ctx);
+    if (ctx < 0 || ctxp == NULL) {
+	fprintf(stderr, "%s: reconnect botch: cannot get context: %s\n", pmProgname, pmErrStr(ctx));
+	exit(1);
+    }
     sts = pmReconnectContext(ctx);
     if (sts >= 0) {
 	time_t      now;
 	time(&now);
 	fprintf(stderr, "%s: re-established connection to PMCD on \"%s\" at %s\n",
-		pmProgname, ctxp->c_pmcd->pc_name, ctime(&now));
+		pmProgname, pmcd_host, ctime(&now));
 	pmcdfd = ctxp->c_pmcd->pc_fd;
 	FD_SET(pmcdfd, &fds);
 	numfds = maxfd() + 1;
     }
+    PM_UNLOCK(ctxp->c_lock);
     return sts;
 }
 #endif
