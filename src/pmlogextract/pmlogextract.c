@@ -948,6 +948,7 @@ againmeta:
 			pmProgname, iap->name, pmErrStr(sts));
 		_report(lcp->l_mdfp);
 	    }
+	    PM_UNLOCK(ctxp->c_lock);
 	    continue;
 	}
 
@@ -1026,6 +1027,7 @@ againmeta:
 	    abandon();
 	}
 
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     if (numeof == inarchnum) return(-1);
@@ -1072,13 +1074,13 @@ nextlog(void)
 	    continue;
 	}
 
-againlog:
 	if ((ctxp = __pmHandleToPtr(iap->ctx)) == NULL) {
 	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, iap->ctx);
 	    abandon();
 	}
 	lcp = ctxp->c_archctl->ac_log;
 
+againlog:
 	if ((sts=__pmLogRead(lcp, PM_MODE_FORW, NULL, &iap->_result, PMLOGREAD_NEXT)) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: Error: __pmLogRead[log %s]: %s\n",
@@ -1098,6 +1100,7 @@ againlog:
 		iap->mark = 1;
 		iap->pb[LOG] = _createmark();
 	    }
+	    PM_UNLOCK(ctxp->c_lock);
 	    continue;
 	}
 	assert(iap->_result != NULL);
@@ -1143,6 +1146,8 @@ againlog:
                 goto againlog;
             }
 	}
+
+	PM_UNLOCK(ctxp->c_lock);
     } /*for(i)*/
 
     /* if we are here, then each archive control struct should either
