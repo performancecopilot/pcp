@@ -53,7 +53,7 @@ rm -f $seq.out $seq.full
 if [ $PCP_PLATFORM = linux ]
 then
     ln $seq.linux $seq.out
-elif [ $PCP_PLATFORM = darwin ]
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
     ln $seq.darwin $seq.out
 elif [ $PCP_PLATFORM = irix ]
@@ -76,6 +76,7 @@ do
 	proc.*)
 	    [ $PCP_PLATFORM = linux ] && continue
 	    [ $PCP_PLATFORM = darwin ] && continue
+	    [ $PCP_PLATFORM = solaris ] && continue
 	    ;;
     esac
     _doit $m

@@ -97,8 +97,12 @@ p
 	    exit 1
 	fi
     fi
-elif [ $PCP_PLATFORM = darwin ] ; then
+elif [ $PCP_PLATFORM = darwin ]
+then
     ln $seq.darwin $seq.out
+elif [ $PCP_PLATFORM = solaris ]
+then
+    ln $seq.solaris $seq.out
 fi
 
 sts=0

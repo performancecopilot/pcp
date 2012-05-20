@@ -9,7 +9,7 @@ seq=`basename $0`
 
 . ./localconfig
 rm -f $seq.out
-if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin ]
+if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
     ln $seq.out.linux $seq.out
 else
@@ -250,10 +250,10 @@ pmnewlog -p $pid $tmp 2>&1 \
 | _filter \
 | sed \
     -e "/\.save/s/.*/-- ps line removed --/" \
-    -e '/^kill:.*permission denied/s/.*/Permission denied/' \
     -e '/^kill:.*Not owner/s/Not owner/Operation not permitted/' \
     -e '/.*: kill:.*Not owner/s/Not owner/Operation not permitted/' \
     -e 's/.*kill:.*Operation not permitted/KILL: Operation not permitted/' \
+    -e 's/.*kill:.*permission denied/KILL: Operation not permitted/' \
     -e '/to get logging state/d' \
     -e '/errors from talking/d' \
     -e '/continuing/d' \

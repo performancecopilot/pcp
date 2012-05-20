@@ -133,6 +133,9 @@ _time_me ()
 	    #         0.00 real         0.00 user         0.00 sys
 	    $PCP_AWK_PROG '{print $1}' | sed -e 's/\..*//'
 	else 
+	    # real        0.0
+	    # user        0.0
+	    # sys         0.0
 	    $PCP_AWK_PROG '/^real/ {print $2}' | sed -e 's/\..*//'
 	fi
 }

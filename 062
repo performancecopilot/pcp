@@ -23,7 +23,7 @@ then
 elif [ $PCP_PLATFORM = linux ]
 then
     ln $seq.out.linux $seq.out
-elif [ $PCP_PLATFORM = darwin ]
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
     # same output as for linux
     ln $seq.out.linux $seq.out
