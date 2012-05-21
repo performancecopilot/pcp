@@ -53,7 +53,9 @@ def test_pcp(self, context = 'local', path = ''):
     self.assertTrue(rsltp.contents.source == "1 minute")
 
     # pmLookupName Get number cpus
+    print "XXX"
     (code, self.ncpu_id) = pm.pmLookupName(("hinv.ncpu","kernel.all.load"))
+    print "YYY"
     self.assertTrue(code >= 0)
     # pmIDStr
     self.assertTrue(pm.pmIDStr(self.ncpu_id[0]).count(".") >= 1)
@@ -99,7 +101,7 @@ def test_pcp(self, context = 'local', path = ''):
         (code, badid) = pm.pmLookupName("A_BAD_METRIC")
         self.assertTrue(False)
     except  pmErr as e:
-        print "pmLookupName bad metric: ", pm.pmErrStr(e.value)
+        print "pmLookupName bad metric: ", e
         self.assertTrue(True)
 
     # Get metrics
@@ -157,7 +159,7 @@ def test_pcp(self, context = 'local', path = ''):
         text = pm.pmLookupInDomText(descs[0])
         self.assertTrue(False)
     except pmErr as e:
-        print "pmLookupInDomText no help info: ", pm.pmErrStr(e.value)
+        print "pmLookupInDomText no help info: ", e
         self.assertTrue(True)
         
     # pmAddProfile
@@ -170,7 +172,7 @@ def test_pcp(self, context = 'local', path = ''):
         inst = pm.pmLookupInDom(descs[0], "gg minute")
         self.assertTrue(False)
     except  pmErr as e:
-        print "pmLookupInDom invalid minute: ", pm.pmErrStr(e.value)
+        print "pmLookupInDom invalid minute: ", e
         self.assertTrue(True)
         
     if self.local_type:
@@ -198,7 +200,7 @@ def test_pcp(self, context = 'local', path = ''):
         inst = pm.pmLoadNameSpace("NoSuchFile")
         self.assertTrue(False)
     except  pmErr as e:
-        print "pmLoadNameSpace no such file: ", pm.pmErrStr(e.value)
+        print "pmLoadNameSpace no such file: ", e
         self.assertTrue(True)
 
     n = 0
@@ -218,7 +220,7 @@ def test_pcp(self, context = 'local', path = ''):
                 code = pm.pmStore(results)
                 self.assertTrue(False)
             except pmErr as e:
-                print "pmStore: ", pm.pmErrStr(e.value)
+                print "pmStore: ", e
                 self.assertTrue(True)
                     
             self.assertTrue(code >= 0)
@@ -337,6 +339,8 @@ class TestSequenceFunctions(unittest.TestCase):
 
 
 if __name__ == '__main__':
+
+    HAVE_BITFIELDS_LTOR = False
     if (len(sys.argv) == 2):
         open(sys.argv[1] + '.index', mode='r')
         archive = sys.argv[1]
