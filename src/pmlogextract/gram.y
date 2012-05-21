@@ -156,7 +156,6 @@ dometric(const char *name)
     ml[ml_numpmid-1].name = NULL;
     ml[ml_numpmid-1].idesc = NULL;
     ml[ml_numpmid-1].odesc = NULL;
-    ml[ml_numpmid-1].scale = 1.0;
     ml[ml_numpmid-1].numinst = 0;
     ml[ml_numpmid-1].instlist = NULL;
 
@@ -201,26 +200,17 @@ dometric(const char *name)
 	/*
          * malloc here, and keep ... gets buried
          */
-	ml[ml_numpmid-1].instlist = (instlist_t *)malloc(ml[ml_numpmid-1].numinst * sizeof(instlist_t));
+	ml[ml_numpmid-1].instlist = (int *)malloc(ml[ml_numpmid-1].numinst * sizeof(int));
 	if (ml[ml_numpmid-1].instlist == NULL) {
 	    goto nomem;
 	}
 
 	for (i=0; i<ml[ml_numpmid-1].numinst; i++) {
 	    if (intlist == NULL)
-		ml[ml_numpmid-1].instlist[i].id = -1;
+		ml[ml_numpmid-1].instlist[i] = -1;
 	    else
-		ml[ml_numpmid-1].instlist[i].id = intlist[i];
+		ml[ml_numpmid-1].instlist[i] = intlist[i];
 
-	    ml[ml_numpmid-1].instlist[i].ready = 0;
-	    ml[ml_numpmid-1].instlist[i].lasttstamp = 0.0;
-	    ml[ml_numpmid-1].instlist[i].nexttstamp = 0.0;
-	    ml[ml_numpmid-1].instlist[i].lasttime = 0.0;
-	    ml[ml_numpmid-1].instlist[i].lastval = 0.0;
-	    ml[ml_numpmid-1].instlist[i].value = 0.0;
-	    ml[ml_numpmid-1].instlist[i].deltat = 0.0;
-	    ml[ml_numpmid-1].instlist[i].numsamples = 0;
-	    ml[ml_numpmid-1].instlist[i].average = 0.0;
 	} /*for(i)*/
 
 	if (intlist != NULL)
@@ -235,7 +225,7 @@ dometric(const char *name)
 	/*
 	 * malloc here, and keep ... gets buried
 	 */
-	ml[ml_numpmid-1].instlist = (instlist_t *)malloc(numinst * sizeof(instlist_t));
+	ml[ml_numpmid-1].instlist = (int *)malloc(numinst * sizeof(int));
 	if (ml[ml_numpmid-1].instlist == NULL) {
 	    goto nomem;
 	}
@@ -273,16 +263,7 @@ dometric(const char *name)
 	    /* if inst is > -1 then this instance exists, and its id is `inst'
 	     */
 	    if (inst > -1) {
-		ml[ml_numpmid-1].instlist[j].id = inst;
-		ml[ml_numpmid-1].instlist[j].ready = 0;
-		ml[ml_numpmid-1].instlist[j].lasttstamp = 0.0;
-		ml[ml_numpmid-1].instlist[j].nexttstamp = 0.0;
-		ml[ml_numpmid-1].instlist[j].lasttime = 0.0;
-		ml[ml_numpmid-1].instlist[j].lastval = 0.0;
-		ml[ml_numpmid-1].instlist[j].value = 0.0;
-		ml[ml_numpmid-1].instlist[j].deltat = 0.0;
-		ml[ml_numpmid-1].instlist[j].numsamples = 0;
-		ml[ml_numpmid-1].instlist[j].average = 0.0;
+		ml[ml_numpmid-1].instlist[j] = inst;
 		++j;
 	    }
 	} /* for(i) */

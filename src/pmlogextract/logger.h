@@ -52,39 +52,6 @@ extern inarch_t	*inarch;	/* input archive control(s) */
 extern int	inarchnum;	/* number of input archives */
 
 /*
- *  instance list
- */
-typedef struct {
-    int		id;		/* instance id */
-    int		ready;		/* if (ready == 1) then write out this inst */
-    /*
-     * timestamp is used to determine when to write out the next record
-     */
-    double	lasttstamp;	/* time of last write (0 == b4 first) */
-    double	nexttstamp;	/* time of next write (0 == b4 first) */
-    /*
-     * lasttime and lastval are used to calculate the time and value for
-     * this interval
-     */
-    double	lasttime;	/* time of last record (0 == b4 first) */
-    double	lastval;	/* value of last record */
-    /*
-     * value, deltat and numsamples, are used to calculate the final value
-     * to be written out; 
-     *		time average       = value / deltat
-     *		stochastic average = value / numsamples
-     */
-    double	value;		/* value so far (0 == b4 first value) */
-    double	deltat;		/* elapsed time since last write */
-    int		numsamples;	/* number of samples since last write */
-    /*
-     * the final average value to be written out
-     */
-    double	average;
-} instlist_t;
-    
-
-/*
  *  metric [instance] list
  */
 typedef struct {
@@ -95,9 +62,8 @@ typedef struct {
      */
     pmDesc	*idesc;		/* input  metric descriptor - pmid, pmindom */
     pmDesc	*odesc;		/* output metric descriptor - pmid, pmindom */
-    double	scale;		/* scale multiplier for counter metrics */
     int		numinst;	/* number of instances (0 means all) */
-    instlist_t	*instlist;	/* instance id [see above] list */
+    int		*instlist;	/* instance ids */
 } mlist_t;
 
 
