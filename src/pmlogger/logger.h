@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -158,8 +159,8 @@ extern int client_req(void);
 extern __pmHashCtl	hist_hash;
 extern unsigned int	clientops;	/* access control (deny ops) */
 extern struct timeval	last_stamp;
-extern int		clientfd;
-extern int		ctlfd;
+extern __pmFD		clientfd;
+extern __pmFD		ctlfd;
 extern int		exit_samples;
 extern int		vol_switch_samples;
 extern __int64_t	vol_switch_bytes;

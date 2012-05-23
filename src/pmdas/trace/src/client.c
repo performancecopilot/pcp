@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +19,7 @@
 #include "client.h"
 #include "comms.h"
 
-extern fd_set	fds;
+extern __pmFdSet	fds;
 
 int		nclients;		/* number of entries in array */
 int		maxfd;			/* largest fd currently in use */
@@ -32,20 +33,21 @@ static int newClient(void);
 client_t *
 acceptClient(int reqfd)
 {
-    int		i, fd;
+    int		i;
+    __pmFD	fd;
     mysocklen_t	addrlen;
 
     i = newClient();
     addrlen = sizeof(clients[i].addr);
-    fd = accept(reqfd, (struct sockaddr *)&clients[i].addr, &addrlen);
-    if (fd == -1) {
+    fd = __pmAccept(reqfd, (__pmSockAddr *)&clients[i].addr, &addrlen);
+    if (fd == PM_ERROR_FD) {
 	__pmNotifyErr(LOG_ERR, "acceptClient(%d) accept: %s",
 		reqfd, netstrerror());
 	return NULL;
     }
     if (fd > maxfd)
 	maxfd = fd;
-    FD_SET(fd, &fds);
+    __pmFD_SET(fd, &fds);
     clients[i].fd = fd;
     clients[i].status.connected = 1;
     clients[i].status.padding = 0;
@@ -92,10 +94,10 @@ deleteClient(client_t *cp)
 #endif
 	return;
     }
-    if (cp->fd != -1) {
+    if (cp->fd != PM_ERROR_FD) {
 	__pmtracenomoreinput(cp->fd);
-	FD_CLR(cp->fd, &fds);
-	close(cp->fd);
+	__pmFD_CLR(cp->fd, &fds);
+	__pmCloseSocket(cp->fd);
     }
     if (cp->fd == maxfd) {
 	maxfd = -1;
@@ -110,13 +112,13 @@ deleteClient(client_t *cp)
 	if (pmDebug & DBG_TRACE_APPL0)
 	    __pmNotifyErr(LOG_DEBUG, "deleteClient: client removed (fd=%d)", cp->fd);
 #endif
-    cp->fd = -1;
+    cp->fd = PM_ERROR_FD;
 }
 
 void
 showClients(void)
 {
-    struct hostent	*hp;
+    __pmHostEnt		*hp;
     int			i;
 
     fprintf(stderr, "%s: %d connected clients:\n", pmProgname, nclients);
@@ -126,8 +128,7 @@ showClients(void)
 	fprintf(stderr, "    %3d", clients[i].fd);
 	fprintf(stderr, "  %s  ", clients[i].status.protocol == 1 ? "sync ":"async");
 	fprintf(stderr, "%s  ", clients[i].status.connected == 1 ? "up  ":"down");
-	hp = gethostbyaddr((void *)&clients[i].addr.sin_addr.s_addr,
-			sizeof(clients[i].addr.sin_addr.s_addr), AF_INET);
+	hp = __pmGetHostByAddr(& clients[i].addr);
 	if (hp == NULL) {
 	    char	*p = (char *)&clients[i].addr.sin_addr.s_addr;
 	    int		k;

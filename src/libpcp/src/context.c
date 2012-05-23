@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 1995-2002,2004,2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -469,10 +470,10 @@ pmReconnectContext(int handle)
 	    return -ETIMEDOUT;
 	}
 
-	if (ctl->pc_fd >= 0) {
+	if (ctl->pc_fd != PM_ERROR_FD) {
 	    /* don't care if this fails */
 	    __pmCloseSocket(ctl->pc_fd);
-	    ctl->pc_fd = -1;
+	    ctl->pc_fd = PM_ERROR_FD;
 	}
 
 	if ((sts = __pmConnectPMCD(ctl->pc_hosts, ctl->pc_nhosts)) >= 0) {
@@ -690,7 +691,7 @@ pmDestroyContext(int handle)
     PM_LOCK(ctxp->c_lock);
     if (ctxp->c_pmcd != NULL) {
 	if (--ctxp->c_pmcd->pc_refcnt == 0) {
-	    if (ctxp->c_pmcd->pc_fd >= 0) {
+	    if (ctxp->c_pmcd->pc_fd != PM_ERROR_FD) {
 		/* before close, unsent data should be flushed */
 		setsockopt(ctxp->c_pmcd->pc_fd, SOL_SOCKET,
 		    SO_LINGER, (char *) &dolinger, (mysocklen_t)sizeof(dolinger));
@@ -764,7 +765,7 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 	    if (con->c_type == PM_CONTEXT_HOST) {
 		fprintf(f, " host %s:", con->c_pmcd->pc_hosts[0].name);
 		fprintf(f, " pmcd=%s profile=%s fd=%d refcnt=%d",
-		    (con->c_pmcd->pc_fd < 0) ? "NOT CONNECTED" : "CONNECTED",
+		    (con->c_pmcd->pc_fd == PM_ERROR_FD) ? "NOT CONNECTED" : "CONNECTED",
 		    con->c_sent ? "SENT" : "NOT_SENT",
 		    con->c_pmcd->pc_fd,
 		    con->c_pmcd->pc_refcnt);

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +20,7 @@
 #define MIN_CLIENTS_ALLOC 8
 
 int		maxClientFd = -1;	/* largest fd for a client */
-fd_set		clientFds;		/* for client select() */
+__pmFdSet	clientFds;		/* for client __pmSelect...() */
 
 static int	clientSize = 0;
 
@@ -81,18 +82,19 @@ ClientInfo *
 AcceptNewClient(int reqfd)
 {
     static unsigned int	seq = 0;
-    int			i, fd;
+    int			i;
+    __pmFD 		fd;
     mysocklen_t		addrlen;
     struct timeval	now;
 
     i = NewClient();
     addrlen = sizeof(client[i].addr);
-    fd = accept(reqfd, (struct sockaddr *)&client[i].addr, &addrlen);
-    if (fd == -1) {
+    fd = __pmAccept(reqfd, (__pmSockAddr *)&client[i].addr, &addrlen);
+    if (fd == PM_ERROR_FD) {
     	if (neterror() == EPERM) {
 	    __pmNotifyErr(LOG_NOTICE, "AcceptNewClient(%d): "
 	 	          "Permission Denied\n", reqfd);
-	    client[i].fd = -1;
+	    client[i].fd = PM_ERROR_FD;
 	    DeleteClient(&client[i]);
 	    return NULL;	
 	}
@@ -108,7 +110,7 @@ AcceptNewClient(int reqfd)
 
     PMCD_OPENFDS_SETHI(fd);
 
-    FD_SET(fd, &clientFds);
+    __pmFD_SET(fd, &clientFds);
     __pmSetVersionIPC(fd, UNKNOWN_VERSION);	/* before negotiation */
     __pmSetSocketIPC(fd);
     client[i].fd = fd;
@@ -180,9 +182,9 @@ DeleteClient(ClientInfo *cp)
 #endif
 	return;
     }
-    if (cp->fd != -1) {
+    if (cp->fd != PM_ERROR_FD) {
 	__pmResetIPC(cp->fd);
-	FD_CLR(cp->fd, &clientFds);
+	__pmFD_CLR(cp->fd, &clientFds);
 	close(cp->fd);
     }
     if (i == nClients-1) {
@@ -205,7 +207,7 @@ DeleteClient(ClientInfo *cp)
 	}
     }
     cp->status.connected = 0;
-    cp->fd = -1;
+    cp->fd = PM_ERROR_FD;
 
     NotifyEndContext(cp-client);
 }

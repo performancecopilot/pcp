@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -392,14 +393,14 @@ failed:
  *	?[<msg>]\n	- display session status
  */
 static int
-xmit_to_logger(int fd, char tag, const char *msg)
+xmit_to_logger(__pmFD fd, char tag, const char *msg)
 {
     int		sts;
 #ifdef HAVE_SIGPIPE
     SIG_PF	user_onpipe;
 #endif
 
-    if (fd < 0)
+    if (fd == PM_ERROR_FD)
 	return PM_ERR_IPC;
 
 #ifdef HAVE_SIGPIPE

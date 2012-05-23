@@ -68,7 +68,7 @@ event_init(pmID pmid)
 	    } else {
 		if (fd > maxfd)
 		    maxfd = fd;
-		FD_SET(fd, &fds);
+		__pmFD_SET(fd, &fds);
 	    }
 	}
 

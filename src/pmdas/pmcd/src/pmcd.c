@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1294,10 +1295,10 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			    case 3:		/* pmlogger.host */
 				if (hostname == NULL) {
 				    char		hbuf[MAXHOSTNAMELEN];
-				    struct hostent	*hep;
+				    __pmHostEnt	*hep;
 				    (void)gethostname(hbuf, MAXHOSTNAMELEN);
 				    hbuf[MAXHOSTNAMELEN-1] = '\0';
-				    hep = gethostbyname(hbuf);
+				    hep = __pmGetHostByName(hbuf);
 				    if (hep != NULL)
 					hostname = strdup(hep->h_name);
 				}

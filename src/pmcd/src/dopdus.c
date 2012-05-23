@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -206,7 +207,7 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
     pmID	pmid;
     AgentInfo	*ap;
     pmDesc	desc;
-    int		fdfail = -1;
+    int		fdfail = PM_ERROR_FD;
 
     if ((sts = __pmDecodeDescReq(pb, &pmid)) < 0)
 	return sts;
@@ -273,7 +274,7 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
     else
 	if (ap->ipcType != AGENT_DSO &&
 	    (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE) &&
-	    fdfail != -1)
+	    fdfail != PM_ERROR_FD)
 	    CleanupAgent(ap, AT_COMM, fdfail);
 
     return sts;
@@ -289,7 +290,7 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
     char		*name;
     __pmInResult		*inresult = NULL;
     AgentInfo		*ap;
-    int			fdfail = -1;
+    int			fdfail = PM_ERROR_FD;
 
     __pmDecodeInstanceReq(pb, &when, &indom, &inst, &name);
     if (when.tv_sec != 0 || when.tv_usec != 0) {
@@ -377,7 +378,7 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
     else
 	if (ap->ipcType != AGENT_DSO &&
 	    (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE) &&
-	    fdfail != -1)
+	    fdfail != PM_ERROR_FD)
 	    CleanupAgent(ap, AT_COMM, fdfail);
 
     return sts;
@@ -396,7 +397,7 @@ DoPMNSIDs(ClientInfo *cp, __pmPDU *pb)
     pmID	idlist[1];
     char	**namelist = NULL;
     AgentInfo	*ap = NULL;
-    int		fdfail = -1;
+    int		fdfail = PM_ERROR_FD;
 
     if ((sts = __pmDecodeIDList(pb, 1, idlist, &op_sts)) < 0)
 	goto fail;
@@ -476,7 +477,7 @@ DoPMNSIDs(ClientInfo *cp, __pmPDU *pb)
 fail:
     if (ap != NULL && ap->ipcType != AGENT_DSO &&
 	(sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE) &&
-	fdfail != -1)
+	fdfail != PM_ERROR_FD)
 	CleanupAgent(ap, AT_COMM, fdfail);
     if (namelist) free(namelist);
     return sts;
@@ -537,7 +538,7 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 	    }
 	    else {
 		/* daemon PMDA ... ship request on */
-		int		fdfail = -1;
+		int		fdfail = PM_ERROR_FD;
 		if (ap->status.notReady)
 		    lsts = PM_ERR_AGAIN;
 		else {
@@ -576,7 +577,7 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 		}
 		if (ap != NULL && ap->ipcType != AGENT_DSO &&
 		    (lsts == PM_ERR_IPC || lsts == PM_ERR_TIMEOUT || lsts == -EPIPE) &&
-		    fdfail != -1)
+		    fdfail != PM_ERROR_FD)
 		    CleanupAgent(ap, AT_COMM, fdfail);
 	    }
 	    /*
@@ -663,7 +664,7 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
 	}
 	else {
 	    /* daemon PMDA ... ship request on */
-	    int		fdfail = -1;
+	    int		fdfail = PM_ERROR_FD;
 	    if (ap->status.notReady)
 		sts = PM_ERR_AGAIN;
 	    else {
@@ -706,7 +707,7 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
 	    }
 	    if (ap != NULL && ap->ipcType != AGENT_DSO &&
 		(sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE) &&
-		fdfail != -1)
+		fdfail != PM_ERROR_FD)
 		CleanupAgent(ap, AT_COMM, fdfail);
 	}
     }
@@ -848,7 +849,7 @@ traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
 	    }
 	    else {
 		/* daemon PMDA ... ship request on */
-		int		fdfail = -1;
+		int		fdfail = PM_ERROR_FD;
 		if (ap->status.notReady)
 		    continue;
 		if (_pmcd_trace_mask)
@@ -905,7 +906,7 @@ traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
 		}
 		if (ap != NULL && ap->ipcType != AGENT_DSO &&
 		    (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE) &&
-		    fdfail != -1)
+		    fdfail != PM_ERROR_FD)
 		    CleanupAgent(ap, AT_COMM, fdfail);
 	    }
 	}

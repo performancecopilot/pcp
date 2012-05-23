@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -733,8 +734,8 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
 
     newAgent->ipcType = AGENT_SOCKET;
     newAgent->pmDomainId = pmDomainId;
-    newAgent->inFd = -1;
-    newAgent->outFd = -1;
+    newAgent->inFd = PM_ERROR_FD;
+    newAgent->outFd = PM_ERROR_FD;
     newAgent->pmDomainLabel = strdup(pmDomainLabel);
     newAgent->ipc.socket.addrDomain = addrDomain;
     newAgent->ipc.socket.name = socketName;
@@ -791,8 +792,8 @@ ParsePipe(char *pmDomainLabel, int pmDomainId)
     newAgent = GetNewAgent();
     newAgent->ipcType = AGENT_PIPE;
     newAgent->pmDomainId = pmDomainId;
-    newAgent->inFd = -1;
-    newAgent->outFd = -1;
+    newAgent->inFd = PM_ERROR_FD;
+    newAgent->outFd = PM_ERROR_FD;
     newAgent->pmDomainLabel = strdup(pmDomainLabel);
     newAgent->status.startNotReady = notReady;
     newAgent->ipc.pipe.argv = BuildArgv();
@@ -1317,20 +1318,20 @@ static int
 ConnectSocketAgent(AgentInfo *aPtr)
 {
     int		sts = 0;
-    int		fd;
+    __pmFD	fd;
 
     if (aPtr->ipc.socket.addrDomain == AF_INET) {
-	struct sockaddr_in	addr;
-	struct hostent		*hostInfo;
+	__pmSockAddrIn addr;
+	__pmHostEnt *hostInfo;
 
 	fd = __pmCreateSocket();
-	if (fd < 0) {
+	if (fd == PM_ERROR_FD) {
 	    fprintf(stderr,
 		     "pmcd: Error creating socket for \"%s\" agent : %s\n",
 		     aPtr->pmDomainLabel, netstrerror());
 	    return -1;
 	}
-	hostInfo = gethostbyname("localhost");
+	hostInfo = __pmGetHostByName("localhost");
 	if (hostInfo == NULL) {
 	    fputs("pmcd: Error getting inet address for localhost\n", stderr);
 	    goto error;
@@ -1339,7 +1340,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	addr.sin_family = AF_INET;
 	memcpy(&addr.sin_addr, hostInfo->h_addr, hostInfo->h_length);
 	addr.sin_port = htons(aPtr->ipc.socket.port);
-	sts = connect(fd, (struct sockaddr *) &addr, sizeof(addr));
+	sts = __pmConnect(fd, (__pmSockAddr *) &addr, sizeof(addr));
     }
     else {
 #if defined(HAVE_SYS_UN_H)
@@ -2070,20 +2071,20 @@ ParseRestartAgents(char *fileName)
     AgentInfo	*oldAgent;
     int		oldNAgents;
     AgentInfo	*ap;
-    fd_set	fds;
+    __pmFdSet	fds;
 
     /* Clean up any deceased agents.  We haven't seen an agent's death unless
      * a PDU transfer involving the agent has occurred.  This cleans up others
      * as well.
      */
-    FD_ZERO(&fds);
+    __pmFD_ZERO(&fds);
     j = -1;
     for (i = 0; i < nAgents; i++) {
 	ap = &agent[i];
 	if (ap->status.connected &&
 	    (ap->ipcType == AGENT_SOCKET || ap->ipcType == AGENT_PIPE)) {
 
-	    FD_SET(ap->outFd, &fds);
+	    __pmFD_SET(ap->outFd, &fds);
 	    if (ap->outFd > j)
 		j = ap->outFd;
 	}
@@ -2094,13 +2095,13 @@ ParseRestartAgents(char *fileName)
 	 */
 	struct timeval	timeout = {0, 0};
 
-	sts = select(j, &fds, NULL, NULL, &timeout);
+	sts = __pmSelectRead(j, &fds, &timeout);
 	if (sts > 0) {
 	    for (i = 0; i < nAgents; i++) {
 		ap = &agent[i];
 		if (ap->status.connected &&
 		    (ap->ipcType == AGENT_SOCKET || ap->ipcType == AGENT_PIPE) &&
-		    FD_ISSET(ap->outFd, &fds)) {
+		    __pmFD_ISSET(ap->outFd, &fds)) {
 
 		    /* try to discover more ... */
 		    __pmPDU	*pb;
@@ -2120,7 +2121,7 @@ ParseRestartAgents(char *fileName)
 	    }
 	}
 	else if (sts < 0)
-	    fprintf(stderr, "pmcd: deceased agents select: %s\n",
+	    fprintf(stderr, "pmcd: deceased agents __pmSelectRead: %s\n",
 			 netstrerror());
     }
 

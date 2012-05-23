@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +20,7 @@
 ClientInfo	*client;
 int		nClients;		/* Number in array, (not all in use) */
 int		maxSockFd = -1;		/* largest fd for a client */
-fd_set		sockFds;		/* for client select() */
+__pmFdSet		sockFds;		/* for client __pmSelect...() */
 
 static int	clientSize;
 
@@ -58,7 +59,7 @@ ClientInfo *
 AcceptNewClient(int reqfd)
 {
     int		i;
-    int		fd;
+    __pmFD	fd;
     mysocklen_t	addrlen;
     int		ok = 0;
     char	buf[MY_BUFLEN];
@@ -67,8 +68,8 @@ AcceptNewClient(int reqfd)
 
     i = NewClient();
     addrlen = sizeof(client[i].addr);
-    fd = accept(reqfd, (struct sockaddr *)&client[i].addr, &addrlen);
-    if (fd == -1) {
+    fd = __pmAccept(reqfd, (__pmSockAddr *)&client[i].addr, &addrlen);
+    if (fd == PM_ERROR_FD) {
 	__pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) accept failed: %s",
 			reqfd, netstrerror());
 	Shutdown();
@@ -77,10 +78,10 @@ AcceptNewClient(int reqfd)
     __pmSetSocketIPC(fd);
     if (fd > maxSockFd)
 	maxSockFd = fd;
-    FD_SET(fd, &sockFds);
+    __pmFD_SET(fd, &sockFds);
 
     client[i].fd = fd;
-    client[i].pmcd_fd = -1;
+    client[i].pmcd_fd = PM_ERROR_FD;
     client[i].status.connected = 1;
     client[i].pmcd_hostname = NULL;
 
@@ -206,14 +207,14 @@ DeleteClient(ClientInfo *cp)
 	fprintf(stderr, "DeleteClient [%d]\n", i);
 #endif
 
-    if (cp->fd >= 0) {
+    if (cp->fd != PM_ERROR_FD) {
 	__pmResetIPC(cp->fd);
-	FD_CLR(cp->fd, &sockFds);
-	close(cp->fd);
+	__pmFD_CLR(cp->fd, &sockFds);
+	__pmCloseSocket(cp->fd);
     }
-    if (cp->pmcd_fd >= 0) {
+    if (cp->pmcd_fd != PM_ERROR_FD) {
 	__pmResetIPC(cp->pmcd_fd);
-	FD_CLR(cp->pmcd_fd, &sockFds);
+	__pmFD_CLR(cp->pmcd_fd, &sockFds);
 	close(cp->pmcd_fd);
     }
     if (i == nClients-1) {
@@ -234,8 +235,8 @@ DeleteClient(ClientInfo *cp)
 	}
     }
     cp->status.connected = 0;
-    cp->fd = -1;
-    cp->pmcd_fd = -1;
+    cp->fd = PM_ERROR_FD;
+    cp->pmcd_fd = PM_ERROR_FD;
     if (cp->pmcd_hostname != NULL) {
 	free(cp->pmcd_hostname);
 	cp->pmcd_hostname = NULL;

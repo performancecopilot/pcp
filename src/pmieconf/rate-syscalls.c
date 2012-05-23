@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2010 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,9 +36,9 @@ main()
     struct timeval	then;
     struct timeval	eek;
     double		delta;
-    struct hostent	*servInfo;
+    __pmHostEnt		*servInfo;
     int			s;
-    struct sockaddr_in	myAddr;
+    __pmSockAddrIn	myAddr;
     struct linger	noLinger = {1, 0};
     int			scale = 2;
 
@@ -105,7 +106,7 @@ main()
 	(int)(0.5 + 2*n / delta), delta);
     unlink("/tmp/creat-clo");
 
-    servInfo = gethostbyname("localhost");
+    servInfo = __pmGetHostByName("localhost");
     memset(&myAddr, 0, sizeof(myAddr));
     myAddr.sin_family = AF_INET;
     memcpy(&myAddr.sin_addr, servInfo->h_addr, servInfo->h_length);
@@ -124,7 +125,7 @@ main()
 	    exit(1);
 	}
 
-	if (connect(s, (struct sockaddr*) &myAddr, sizeof(myAddr)) < 0) {
+	if (__pmConnect(s, (__pmSockAddr*) &myAddr, sizeof(myAddr)) < 0) {
 	    fprintf(stderr, "connect: %s\n", netstrerror());
 	    exit(1);
 	}

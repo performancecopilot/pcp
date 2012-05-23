@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -59,10 +60,10 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
     char		*buffer;
     __pmProfile		*profile;
     __pmProfile		*saveprofile = NULL;
-    static fd_set	readFds;
+    static __pmFdSet	readFds;
     int			maxfd;
     int			configReady, clientReady, pmcdReady;
-    int infd, outfd;
+    __pmFD infd, outfd;
 
     if (dtp->comm.pmda_interface != PMDA_INTERFACE_2) {
 	__pmNotifyErr(LOG_CRIT, 
@@ -81,19 +82,19 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 	maxfd = configfd+1;
 
     for ( ;; ) {
-	FD_ZERO(&readFds);
-	FD_SET(infd, &readFds);
-	FD_SET(clientfd, &readFds);
+	__pmFD_ZERO(&readFds);
+	__pmFD_SET(infd, &readFds);
+	__pmFD_SET(clientfd, &readFds);
 	if (configfd >= 0)
-	    FD_SET(configfd, &readFds);
+	    __pmFD_SET(configfd, &readFds);
 
-	/* select here : block if nothing to do */
-	sts = select(maxfd, &readFds, NULL, NULL, NULL);
+	/* __pmSelectRead here : block if nothing to do */
+	sts = __pmSelectRead(maxfd, &readFds, NULL);
 
-	clientReady = FD_ISSET(clientfd, &readFds);
-	pmcdReady = FD_ISSET(infd, &readFds);
+	clientReady = __pmFD_ISSET(clientfd, &readFds);
+	pmcdReady = __pmFD_ISSET(infd, &readFds);
 	if (configfd >= 0)
-	    configReady = FD_ISSET(configfd, &readFds);
+	    configReady = __pmFD_ISSET(configfd, &readFds);
 	else
 	    configReady = 0;
 

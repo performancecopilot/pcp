@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -73,9 +74,9 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 {
     int			n, sts;
     __pmLogPort		*lpp;
-    struct sockaddr_in	myAddr;
-    struct hostent*	servInfo;
-    int			fd;	/* Fd for socket connection to pmcd */
+    __pmSockAddrIn	myAddr;
+    __pmHostEnt*	servInfo;
+    __pmFD		fd;	/* Fd for socket connection to pmcd */
     __pmPDU		*pb;
     __pmPDUHdr		*php;
     int			pinpdu;
@@ -133,10 +134,10 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    if ((servInfo = gethostbyname(hostname)) == NULL) {
+    if ((servInfo = __pmGetHostByName(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
-	    fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
+	    fprintf(stderr, "__pmConnectLogger: __pmGetHostByName: %s\n",
 		    hoststrerror());
 #endif
 	PM_UNLOCK(__pmLock_libpcp);
@@ -144,7 +145,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     }
 
     /* Create socket and attempt to connect to the pmlogger control port */
-    if ((fd = __pmCreateSocket()) < 0) {
+    if ((fd = __pmCreateSocket()) == PM_ERROR_FD) {
 	PM_UNLOCK(__pmLock_libpcp);
 	return fd;
     }
@@ -155,7 +156,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     PM_UNLOCK(__pmLock_libpcp);
     myAddr.sin_port = htons(*port);
 
-    sts = connect(fd, (struct sockaddr*) &myAddr, sizeof(myAddr));
+    sts = __pmConnect(fd, (__pmSockAddr*) &myAddr, sizeof(myAddr));
     if (sts < 0) {
 	sts = -neterror();
 	__pmCloseSocket(fd);

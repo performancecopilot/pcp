@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -215,11 +216,11 @@ __pmConnectGetPorts(pmHostSpec *host)
     PM_UNLOCK(__pmLock_libpcp);
 }
 
-int
+__pmFD
 __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 {
     int		sts = -1;
-    int		fd = -1;	/* Fd for socket connection to pmcd */
+    __pmFD	fd = PM_ERROR_FD;	/* Fd for socket connection to pmcd */
     int		*ports;
     int		nports;
     int		i;
@@ -284,16 +285,16 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	 */
 	PM_UNLOCK(__pmLock_libpcp);
 	for (i = 0; i < nports; i++) {
-	    if ((fd = __pmAuxConnectPMCDPort(hosts[0].name, ports[i])) >= 0) {
+	    if ((fd = __pmAuxConnectPMCDPort(hosts[0].name, ports[i])) != PM_ERROR_FD) {
 		if ((sts = __pmConnectHandshake(fd)) < 0) {
-		    close(fd);
+		    __pmCloseSocket(fd);
 		}
 		else
 		    /* success */
 		    break;
 	    }
 	    else
-		sts = fd;
+		sts = -1;
 	}
 
 	if (sts < 0) {
@@ -332,7 +333,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 
     for (i = 0; i < nports; i++) {
 	fd = __pmAuxConnectPMCDPort(proxyhost->name, proxyport);
-	if (fd < 0) {
+	if (fd == PM_ERROR_FD) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT) {
 		char	errmsg[PM_MAXERRMSGLEN];
@@ -344,9 +345,9 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	    return fd;
 	}
 	if ((sts = version = negotiate_proxy(fd, hosts[0].name, ports[i])) < 0)
-	    close(fd);
+	    __pmCloseSocket(fd);
 	else if ((sts = __pmConnectHandshake(fd)) < 0)
-	    close(fd);
+	    __pmCloseSocket(fd);
 	else
 	    /* success */
 	    break;

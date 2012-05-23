@@ -3,7 +3,7 @@
  *
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2011 Nathan Scott.  All Rights Reserved.
- * Copyright (c) 2011 Red Hat Inc.
+ * Copyright (c) 2011-2012 Red Hat Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,7 +46,7 @@
 long maxmem;
 
 int maxfd;
-fd_set fds;
+__pmFdSet fds;
 static int interval_expired;
 static struct timeval interval = { 2, 0 };
 
@@ -433,15 +433,16 @@ logger_timer(int sig, void *ptr)
 void
 loggerMain(pmdaInterface *dispatch)
 {
-    fd_set		readyfds;
-    int			nready, pmcdfd;
+    __pmFdSet		readyfds;
+    int			nready;
+    __pmFD		pmcdfd;
 
     pmcdfd = __pmdaInFd(dispatch);
     if (pmcdfd > maxfd)
 	maxfd = pmcdfd;
 
-    FD_ZERO(&fds);
-    FD_SET(pmcdfd, &fds);
+    __pmFD_ZERO(&fds);
+    __pmFD_SET(pmcdfd, &fds);
 
     /* arm interval timer */
     if (__pmAFregister(&interval, NULL, logger_timer) < 0) {
@@ -465,7 +466,7 @@ loggerMain(pmdaInterface *dispatch)
 	}
 
 	__pmAFblock();
-	if (nready > 0 && FD_ISSET(pmcdfd, &readyfds)) {
+	if (nready > 0 && __pmFD_ISSET(pmcdfd, &readyfds)) {
 	    if (pmDebug & DBG_TRACE_APPL0)
 		__pmNotifyErr(LOG_DEBUG, "processing pmcd PDU [fd=%d]", pmcdfd);
 	    if (__pmdaMainPDU(dispatch) < 0) {

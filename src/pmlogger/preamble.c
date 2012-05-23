@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -89,10 +90,10 @@ do_preamble(void)
 	/* special case for each value 0 .. n_metric-1 */
 	if (desc[i].pmid == PMID(2,3,3)) {
 	    /* my fully qualified hostname, cloned from the pmcd PMDA */
-	    struct hostent	*hep = NULL;
+	    __pmHostEnt	*hep = NULL;
 	    (void)gethostname(host, MAXHOSTNAMELEN);
 	    host[MAXHOSTNAMELEN-1] = '\0';
-	    hep = gethostbyname(host);
+	    hep = __pmGetHostByName(host);
 	    if (hep != NULL)
 		atom.cp = hep->h_name;
 	    else

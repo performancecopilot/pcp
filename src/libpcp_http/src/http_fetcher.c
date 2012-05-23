@@ -2,6 +2,7 @@
 
 	HTTP Fetcher 
 	Copyright (C) 2001, 2003, 2004 Lyle Hanson (lhanson@users.sourceforge.net)
+	Copyright (C) 2012 Red Hat.  All Rights Reserved.
 
 	This library is free software; you can redistribute it and/or
 	modify it under the terms of the GNU Library General Public
@@ -48,7 +49,7 @@ static int errorInt = 0;			/* When the error message has a %d in it,
 	 */
 int http_fetch(const char *url_tmp, char **fileBuf)
 	{
-	fd_set rfds;
+	__pmFdSet rfds;
 	struct timeval tv;
 	char headerBuf[HEADER_BUF_SIZE];
 	char *tmp, *url, *pageBuf, *requestBuf = NULL, *host, *charIndex;
@@ -388,15 +389,15 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 	/* Begin reading the body of the file */
 	while(ret > 0)
 		{
-		FD_ZERO(&rfds);
-		FD_SET(sock, &rfds);
+		__pmFD_ZERO(&rfds);
+		__pmFD_SET(sock, &rfds);
 		tv.tv_sec = timeout; 
 		tv.tv_usec = 0;
 
 		if(timeout >= 0)
-			selectRet = select(sock+1, &rfds, NULL, NULL, &tv);
+			selectRet = __pmSelectRead(sock+1, &rfds, &tv);
 		else		/* No timeout, can block indefinately */
-			selectRet = select(sock+1, &rfds, NULL, NULL, NULL);
+			selectRet = __pmSelectRead(sock+1, &rfds, NULL);
 
 		if(selectRet == 0)
 			{
@@ -698,21 +699,21 @@ const char *http_strerror()
 	 */
 int _http_read_header(int sock, char *headerPtr)
 	{
-	fd_set rfds;
+	__pmFdSet rfds;
 	struct timeval tv;
 	int bytesRead = 0, newlines = 0, ret, selectRet;
 
 	while(newlines != 2 && bytesRead != HEADER_BUF_SIZE)
 		{
-		FD_ZERO(&rfds);
-		FD_SET(sock, &rfds);
+		__pmFD_ZERO(&rfds);
+		__pmFD_SET(sock, &rfds);
 		tv.tv_sec = timeout; 
 		tv.tv_usec = 0;
 
 		if(timeout >= 0)
-			selectRet = select(sock+1, &rfds, NULL, NULL, &tv);
+			selectRet = __pmSelectRead(sock+1, &rfds, &tv);
 		else		/* No timeout, can block indefinately */
-			selectRet = select(sock+1, &rfds, NULL, NULL, NULL);
+			selectRet = __pmSelectRead(sock+1, &rfds, NULL);
 		
 		if(selectRet == 0)
 			{
@@ -768,8 +769,8 @@ int _http_read_header(int sock, char *headerPtr)
 int makeSocket(const char *host)
 	{
 	int sock;										/* Socket descriptor */
-	struct sockaddr_in sa;							/* Socket address */
-	struct hostent *hp;								/* Host entity */
+	__pmSockAddrIn sa;							/* Socket address */
+	__pmHostEnt *hp;								/* Host entity */
 	int ret;
     int port;
     char *p;
@@ -784,18 +785,18 @@ int makeSocket(const char *host)
     else
         port = PORT_NUMBER;
 
-	hp = gethostbyname(host);
+	hp = __pmGetHostByName(host);
 	if(hp == NULL) { errorSource = H_ERRNO; return -1; }
 		
 	/* Copy host address from hostent to (server) socket address */
 	memcpy((char *)&sa.sin_addr, (char *)hp->h_addr, hp->h_length);
 	sa.sin_family = hp->h_addrtype;		/* Set service sin_family to PF_INET */
-	sa.sin_port = htons(port);      	/* Put portnum into sockaddr */
+	sa.sin_port = htons(port);      	/* Put portnum into socket address */
 
 	sock = socket(hp->h_addrtype, SOCK_STREAM, 0);
 	if(sock == -1) { errorSource = ERRNO; return -1; }
 
-	ret = connect(sock, (struct sockaddr *)&sa, sizeof(sa));
+	ret = __pmConnect(sock, (__pmSockAddr *)&sa, sizeof(sa));
 	if(ret == -1) { errorSource = ERRNO; return -1; }
 
 	return sock;

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1266,7 +1267,7 @@ sendstatus(void)
     static int			firsttime = 1;
     static char			*tzlogger;
     struct timeval		now;
-    struct hostent		*hep = NULL;
+    __pmHostEnt			*hep = NULL;
 
     if (firsttime) {
         tzlogger = __pmTimezone();
@@ -1296,7 +1297,7 @@ sendstatus(void)
 	strncpy(ls.ls_hostname, logctl.l_label.ill_hostname, end);
 	ls.ls_hostname[end] = '\0';
 	end = sizeof(ls.ls_fqdn) - 1;
-	hep = gethostbyname(logctl.l_label.ill_hostname);
+	hep = __pmGetHostByName(logctl.l_label.ill_hostname);
 	if (hep != NULL)
 	    /* send the fully qualified domain name */
 	    strncpy(ls.ls_fqdn, hep->h_name, end);
@@ -1433,8 +1434,8 @@ client_req(void)
 	if (sts != 0)
 	    fprintf(stderr, "client_req: %s\n", pmErrStr(sts));
 	__pmResetIPC(clientfd);
-	close(clientfd);
-	clientfd = -1;
+	__pmCloseSocket(clientfd);
+	clientfd = PM_ERROR_FD;
 	return 1;
     }
     if (qa_case == QA_SLEEPY) {
@@ -1468,7 +1469,7 @@ client_req(void)
 	/* the client isn't playing by the rules; disconnect it */
 	__pmSendError(clientfd, FROM_ANON, sts);
 	__pmCloseSocket(clientfd);
-	clientfd = -1;
+	clientfd = PM_ERROR_FD;
 	return 1;
     }
 }

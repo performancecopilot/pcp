@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006 Aconex.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +24,7 @@ int stomping;
 char *stompfile;
 extern int verbose;
 
-static int fd = -1;
+static __pmFD fd = PM_ERROR_FD;
 static int port = -1;
 static int timeout = 2;	/* default 2 sec to timeout JMS server ACKs */
 static char *hostname;
@@ -38,14 +39,14 @@ static int stomp_connect(const char *hostname, int port)
 {
     int sts, nodelay = 1;
     struct linger nolinger = { 1, 0 };
-    struct sockaddr_in myaddr;
-    struct hostent *servinfo;
+    __pmSockAddrIn myaddr;
+    __pmHostEnt *servinfo;
 
-    if ((servinfo = gethostbyname(hostname)) == NULL)
+    if ((servinfo = __pmGetHostByName(hostname)) == NULL)
 	return -1;
 
     /* socket setup */
-    if ((fd = socket(PF_INET, SOCK_STREAM, 0)) < 0)
+    if ((fd = __pmSocket(PF_INET, SOCK_STREAM, 0)) == PM_ERROR_FD)
 	return -2;
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, /* avoid 200 ms delay */
 		   (char *)&nodelay, (socklen_t)sizeof(nodelay)) < 0) {
@@ -62,7 +63,7 @@ static int stomp_connect(const char *hostname, int port)
     myaddr.sin_family = AF_INET;
     memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
     myaddr.sin_port = htons(port);
-    if ((sts = connect(fd, (struct sockaddr *)&myaddr, sizeof(myaddr))) < 0) {
+    if ((sts = __pmConnect(fd, (__pmSockAddr *)&myaddr, sizeof(myaddr))) < 0) {
 	stomp_disconnect();
 	return -5;
     }
@@ -73,15 +74,15 @@ static int stomp_connect(const char *hostname, int port)
 static int stomp_read_ack(void)
 {
     struct timeval tv;
-    fd_set fds, readyfds;
+    __pmFdSet fds, readyfds;
     int nready, sts;
 
-    FD_ZERO(&fds);
-    FD_SET(fd, &fds);
+    __pmFD_ZERO(&fds);
+    __pmFD_SET(fd, &fds);
     tv.tv_sec = timeout;
     tv.tv_usec = 0;
     memcpy(&readyfds, &fds, sizeof(readyfds));
-    nready = select(fd + 1, &readyfds, NULL, NULL, &tv);
+    nready = __pmSelectRead(fd + 1, &readyfds, &tv);
     if (nready <= 0) {
 	if (nready == 0)
 	    __pmNotifyErr(LOG_ERR, "Timed out waiting for server %s:%d - %s",
@@ -104,7 +105,7 @@ static int stomp_read_ack(void)
 	/* check for anything else we need to read to clear this ACK */
 	memset(&tv, 0, sizeof(tv));
 	memcpy(&readyfds, &fds, sizeof(readyfds));
-    } while (select(fd + 1, &readyfds, NULL, NULL, &tv) > 0);
+    } while (__pmSelectRead(fd + 1, &readyfds, &tv) > 0);
 
     return 0;
 }
@@ -133,7 +134,7 @@ static int stomp_authenticate(void)
 {
     int len;
 
-    if (fd < 0)
+    if (fd == PM_ERROR_FD)
 	return -1;
     len = snprintf(buffer, sizeof(buffer),
 		   "CONNECT\nlogin:%s\npasscode:%s\n\n", username, passcode);
@@ -148,7 +149,7 @@ static int stomp_destination(void)
 {
     int len;
 
-    if (fd < 0)
+    if (fd == PM_ERROR_FD)
 	return -1;
     len = snprintf(buffer, sizeof(buffer),
 		   "SUB\ndestination:/topic/%s\n\n", topic);
@@ -163,7 +164,7 @@ static int stomp_hello(void)
 {
     int len;
 
-    if (fd < 0)
+    if (fd == PM_ERROR_FD)
 	return -1;
     len = snprintf(buffer, sizeof(buffer), "SEND\ndestination:/topic/%s\n\n"
 		   "INFO: PMIE: Established initial connection", topic);
@@ -176,9 +177,9 @@ static int stomp_hello(void)
 
 static void stomp_disconnect(void)
 {
-    if (fd >= 0)
-	close(fd);
-    fd = -1;
+    if (fd != PM_ERROR_FD)
+	__pmCloseSocket(fd);
+    fd = PM_ERROR_FD;
 }
 
 static char *isspace_terminate(char *string)
@@ -337,8 +338,8 @@ int stompSend(const char *msg)
 {
     int len;
 
-    if (fd < 0) stompInit();	/* reconnect */
-    if (fd < -1) return -1;
+    if (fd == PM_ERROR_FD) stompInit();	/* reconnect */
+    if (fd == PM_ERROR_FD) return -1;
 
     len = snprintf(buffer, sizeof(buffer),
 		   "SEND\ndestination:/topic/%s\n\n", topic);

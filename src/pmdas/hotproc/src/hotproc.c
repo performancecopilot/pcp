@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1478,9 +1479,9 @@ main(int argc, char **argv)
     pmdaInterface	dispatch;
     char		*p;
     int			sep = __pmPathSeparator();
-    int			infd;
-    fd_set		fds;
-    fd_set 		readyfds;        
+    __pmFD		infd;
+    __pmFdSet		fds;
+    __pmFdSet 		readyfds;        
     int			nready;
     int			numfds;
     FILE		*conf;
@@ -1518,10 +1519,10 @@ main(int argc, char **argv)
     hotproc_init(&dispatch);
     pmdaConnect(&dispatch);
 
-    if ((infd = __pmdaInFd(&dispatch)) < 0)
+    if ((infd = __pmdaInFd(&dispatch)) == PM_ERROR_FD)
 	exit(1);
-    FD_ZERO(&fds);
-    FD_SET(infd, &fds);
+    __pmFD_ZERO(&fds);
+    __pmFD_SET(infd, &fds);
     numfds = infd+1;
 
     refresh_afid = __pmAFregister(&refresh_delta, NULL, timer_callback);
@@ -1529,7 +1530,7 @@ main(int argc, char **argv)
     /* custom pmda main loop */
     for (;;) {
 	(void)memcpy(&readyfds, &fds, sizeof(readyfds));
-        nready = select(numfds, &readyfds, NULL, NULL, NULL);
+        nready = __pmSelectRead(numfds, &readyfds, NULL);
 
         if (nready > 0) {
 	    __pmAFblock();
@@ -1538,7 +1539,7 @@ main(int argc, char **argv)
 	    __pmAFunblock();
 	}
 	else if (nready < 0 && neterror() != EINTR) {
-	    __pmNotifyErr(LOG_ERR, "select failed: %s\n", netstrerror());
+	    __pmNotifyErr(LOG_ERR, "__pmSelectRead failed: %s\n", netstrerror());
 	}
     }
 

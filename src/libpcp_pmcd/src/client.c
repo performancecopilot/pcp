@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,7 +29,7 @@ void
 ShowClients(FILE *f)
 {
     int			i;
-    struct hostent	*hp;
+    __pmHostEnt		*hp;
 
     fprintf(f, "     fd  client connection from                    ipc ver  operations denied\n");
     fprintf(f, "     ==  ========================================  =======  =================\n");
@@ -38,7 +39,7 @@ ShowClients(FILE *f)
 
 	fprintf(f, "    %3d  ", client[i].fd);
 
-	hp = gethostbyaddr((void *)&client[i].addr.sin_addr.s_addr, sizeof(client[i].addr.sin_addr.s_addr), AF_INET);
+	hp = __pmGetHostByAddr(&client[i].addr);
 	if (hp == NULL) {
 	    char	*p = (char *)&client[i].addr.sin_addr.s_addr;
 	    int	k;

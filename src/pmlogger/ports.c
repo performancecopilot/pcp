@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,7 +36,7 @@
 static char	*ctlfile;	/* Control directory/portmap name */
 static char	*linkfile;	/* Link name for primary logger */
 
-int		ctlfd;		/* fd for control port */
+__pmFD		ctlfd;		/* fd for control port */
 int		ctlport;	/* pmlogger control port number */
 int		wantflush;	/* flush via SIGUSR1 flag */
 
@@ -177,16 +178,16 @@ static sig_map_t	sig_handler[] = {
 static int
 GetPort(char *file)
 {
-    int			fd;
+    __pmFD		fd;
     int			mapfd;
     FILE		*mapstream;
     int			sts;
-    struct sockaddr_in	myAddr;
+    __pmSockAddrIn	myAddr;
     static int		port_base = -1;
-    struct hostent	*hep;
+    __pmHostEnt		*hep;
 
     fd = __pmCreateSocket();
-    if (fd < 0) {
+    if (fd == PM_ERROR_FD) {
 	fprintf(stderr, "GetPort: socket failed: %s\n", netstrerror());
 	exit(1);
     }
@@ -220,7 +221,7 @@ GetPort(char *file)
 	myAddr.sin_family = AF_INET;
 	myAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	myAddr.sin_port = htons(ctlport);
-	sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
+	sts = __pmBind(fd, (__pmSockAddr*)&myAddr, sizeof(myAddr));
 	if (sts < 0) {
 	    if (neterror() != EADDRINUSE) {
 		fprintf(stderr, "bind(%d): %s\n", ctlport, netstrerror());
@@ -254,7 +255,7 @@ GetPort(char *file)
     fprintf(mapstream, "%d\n", ctlport);
 
     /* then the PMCD host */
-    hep = gethostbyname(pmcd_host);
+    hep = __pmGetHostByName(pmcd_host);
     fprintf(mapstream, "%s\n", hep == NULL ? "" : hep->h_name);
 
     /* then the full pathname to the archive base */
@@ -394,7 +395,7 @@ init_ports(void)
  * connection has been accepted.
  */
 
-int		clientfd = -1;
+__pmFD		clientfd = PM_ERROR_FD;
 unsigned int	clientops = 0;		/* for access control (deny ops) */
 char		pmlc_host[MAXHOSTNAMELEN];
 int		connect_state = 0;
@@ -402,19 +403,20 @@ int		connect_state = 0;
 int
 control_req(void)
 {
-    int			fd, sts;
-    struct sockaddr_in	addr;
-    struct hostent	*hp;
+    __pmFD		fd;
+      int		sts;
+    __pmSockAddrIn	addr;
+    __pmHostEnt		*hp;
     mysocklen_t		addrlen;
 
     addrlen = sizeof(addr);
-    fd = accept(ctlfd, (struct sockaddr *)&addr, &addrlen);
-    if (fd == -1) {
+    fd = __pmAccept(ctlfd, (__pmSockAddr *)&addr, &addrlen);
+    if (fd == PM_ERROR_FD) {
 	fprintf(stderr, "error accepting client: %s\n", netstrerror());
 	return 0;
     }
     __pmSetSocketIPC(fd);
-    if (clientfd != -1) {
+    if (clientfd != PM_ERROR_FD) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr, "control_req: send EADDRINUSE on fd=%d (client already on fd=%d)\n", fd, clientfd);
@@ -435,7 +437,7 @@ control_req(void)
 	return 0;
     }
 
-    hp = gethostbyaddr((void *)&addr.sin_addr.s_addr, sizeof(addr.sin_addr.s_addr), AF_INET);
+    hp = __pmGetHostByAddr(& addr);
     if (hp == NULL || strlen(hp->h_name) > MAXHOSTNAMELEN-1) {
 	char	*p = (char *)&addr.sin_addr.s_addr;
 

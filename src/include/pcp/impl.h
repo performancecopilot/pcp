@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,6 +39,38 @@
 #endif
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
+#endif
+#ifdef HAVE_NSS
+#include <nspr.h>
+#endif
+
+/* SSL/TLS/IPv6 support via NSS/NSPR. */
+#ifdef HAVE_NSS
+/* Socket I/O types */
+typedef PRNetAddr __pmSockAddr;
+typedef PRNetAddr __pmSockAddrIn;
+typedef PRNetAddr __pmInAddr;
+typedef PRFileDesc *__pmFD;
+#define PM_ERROR_FD NULL
+typedef PRHostEnt __pmHostEnt;
+
+/* Handling of sets of sockets */
+typedef struct __pmFdSet
+{
+  size_t size;
+  PRPollDesc *elements;
+} __pmFdSet;
+#else
+/* Socket I/O types */
+typedef struct sockaddr __pmSockAddr;
+typedef struct sockaddr_in __pmSockAddrIn;
+typedef struct in_addr __pmInAddr;
+typedef int __pmFD;
+#define PM_ERROR_FD (-1)
+typedef struct hostent __pmHostEnt;
+
+/* Handling of sets of sockets */
+typedef fd_set __pmFdSet;
 #endif
 
 /*
@@ -482,29 +515,47 @@ typedef struct {
     pthread_mutex_t	pc_lock;	/* mutex pmcd ipc */
 #endif
     int			pc_refcnt;	/* number of contexts using this socket */
-    int			pc_fd;		/* socket for comm with pmcd */
-					/* ... -1 means no connection */
+    __pmFD		pc_fd;		/* socket for comm with pmcd */
+					/* ... PM_ERROR_FD means no connection */
     pmHostSpec		*pc_hosts;	/* pmcd and proxy host specifications */
     int			pc_nhosts;	/* number of pmHostSpec entries */
     int			pc_timeout;	/* set if connect times out */
     int			pc_tout_sec;	/* timeout for __pmGetPDU */
     time_t		pc_again;	/* time to try again */
-    struct sockaddr	pc_addr;	/* server address */
+    __pmSockAddr	pc_addr;	/* server address */
 } __pmPMCDCtl;
 
 extern int __pmConnectPMCD(pmHostSpec *, int);
 extern int __pmConnectLocal(void);
 extern int __pmAuxConnectPMCD(const char *);
 extern int __pmAuxConnectPMCDPort(const char *, int);
-extern int __pmCreateSocket(void);
-extern void __pmCloseSocket(int);
+extern __pmFD __pmCreateSocket(void);
+extern __pmFD __pmSocket(int domain, int type, int protocol);
+extern void __pmCloseSocket(__pmFD);
 extern int __pmAddHostPorts(pmHostSpec *, int *, int);
 extern void __pmDropHostPort(pmHostSpec *);
 extern void __pmConnectGetPorts(pmHostSpec *);
-extern int __pmConnectTo (int, const struct sockaddr *, int);
+extern int __pmConnect(__pmFD, __pmSockAddr *, mysocklen_t);
+extern int __pmConnectTo (int, const __pmSockAddr *, int);
 extern int __pmConnectCheckError(int);
 extern int __pmConnectRestoreFlags (int, int);
 extern int __pmConnectHandshake(int);
+extern int __pmBind(__pmFD, __pmSockAddr *, mysocklen_t);
+extern __pmFD __pmAccept(__pmFD, __pmSockAddr *, mysocklen_t *);
+
+#define PM_NET_ADDR_STRING_SIZE 46 /* from the NSPR API reference */
+extern char * __pmNetAddrToString(__pmInAddr *);
+
+extern __pmHostEnt *__pmGetHostByName(const char *);
+extern __pmHostEnt *__pmGetHostByAddr(__pmSockAddrIn *);
+extern __pmHostEnt *__pmGetHostByInAddr(__pmInAddr *);
+
+extern void __pmFD_CLR(__pmFD fd, __pmFdSet *set);
+extern int  __pmFD_ISSET(__pmFD fd, __pmFdSet *set);
+extern void __pmFD_SET(__pmFD fd, __pmFdSet *set);
+extern void __pmFD_ZERO(__pmFdSet *set);
+extern int __pmSelectRead(int nfds, __pmFdSet *readfds, struct timeval *timeout);
+extern int __pmSelectWrite(int nfds, __pmFdSet *writefds, struct timeval *timeout);
 
 /*
  * per context controls for archives and logs
@@ -1062,8 +1113,8 @@ extern void __htonll(char *);		/* 64bit int */
  */
 extern int __pmAccAddOp(unsigned int);
 extern int __pmAccAddHost(const char *, unsigned int, unsigned int, int);
-extern int __pmAccAddClient(const struct in_addr *, unsigned int *);
-extern void __pmAccDelClient(const struct in_addr *);
+extern int __pmAccAddClient(const __pmInAddr *, unsigned int *);
+extern void __pmAccDelClient(const __pmInAddr *);
 
 extern void __pmAccDumpHosts(FILE *);
 extern int __pmAccSaveHosts(void);

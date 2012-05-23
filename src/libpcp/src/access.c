@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,8 +24,8 @@
 
 typedef struct {
     char		*hostspec;	/* Host specification */
-    struct in_addr	hostid;		/* Partial host-id to match */
-    struct in_addr	hostmask;	/* Mask for wildcarding */
+    __pmInAddr		hostid;		/* Partial host-id to match */
+    __pmInAddr		hostmask;	/* Mask for wildcarding */
     int			level;		/* Level of wildcarding */
     unsigned int	specOps;	/* Mask of specified operations */
     unsigned int	denyOps;	/* Mask of disallowed operations */
@@ -73,7 +74,7 @@ __pmAccAddOp(unsigned int op)
  */
 
 static int		gotmyhostid;
-static struct in_addr	myhostid;
+static __pmInAddr	myhostid;
 static char		myhostname[MAXHOSTNAMELEN+1];
 
 /*
@@ -84,19 +85,19 @@ static char		myhostname[MAXHOSTNAMELEN+1];
 static int
 getmyhostid(void)
 {
-    struct hostent	*hep;
+    __pmHostEnt	*hep;
 
     (void)gethostname(myhostname, MAXHOSTNAMELEN);
     myhostname[MAXHOSTNAMELEN-1] = '\0';
 
     PM_LOCK(__pmLock_libpcp);
-    if ((hep = gethostbyname(myhostname)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "gethostbyname(%s), %s\n",
+    if ((hep = __pmGetHostByName(myhostname)) == NULL) {
+	__pmNotifyErr(LOG_ERR, "__pmGetHostByName(%s), %s\n",
 		     myhostname, hoststrerror());
 	PM_UNLOCK(__pmLock_libpcp);
 	return -1;
     }
-    myhostid.s_addr = ((struct in_addr *)hep->h_addr_list[0])->s_addr;
+    myhostid.s_addr = ((__pmInAddr *)hep->h_addr_list[0])->s_addr;
     PM_UNLOCK(__pmLock_libpcp);
     gotmyhostid = 1;
     return 0;
@@ -222,9 +223,9 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 {
     size_t		need;
     int			i, n, sts;
-    struct hostent	*hep;
+    __pmHostEnt		*hep;
     int			level = 0;	/* Wildcarding level */
-    struct in_addr	hostid, hostmask;
+    __pmInAddr		hostid, hostmask;
     const char		*p;
     hostinfo		*hp;
 
@@ -307,13 +308,13 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	    realname = name;
 	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
-	if ((hep = gethostbyname(realname)) == NULL) {
-	    __pmNotifyErr(LOG_ERR, "gethostbyname(%s), %s\n",
+	if ((hep = __pmGetHostByName(realname)) == NULL) {
+	    __pmNotifyErr(LOG_ERR, "__pmGetHostByName(%s), %s\n",
 			 realname, hoststrerror());
 	    PM_UNLOCK(__pmLock_libpcp);
 	    return -EHOSTUNREACH;	/* host error unsuitable to return */
 	}
-	hostid.s_addr = ((struct in_addr *)hep->h_addr_list[0])->s_addr;
+	hostid.s_addr = ((__pmInAddr *)hep->h_addr_list[0])->s_addr;
 	PM_UNLOCK(__pmLock_libpcp);
 	hostmask.s_addr = 0xffffffff;
 	level = 0;
@@ -381,12 +382,12 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
  * denyOpsResult is a pointer to return the capability vector
  */
 int
-__pmAccAddClient(const struct in_addr *hostid, unsigned int *denyOpsResult)
+__pmAccAddClient(const __pmInAddr *hostid, unsigned int *denyOpsResult)
 {
     int			i;
     hostinfo		*hp;
     hostinfo		*lastmatch = NULL;
-    struct in_addr	clientid;
+    __pmInAddr		clientid;
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
 	return PM_ERR_THREAD;
@@ -456,7 +457,7 @@ __pmAccAddClient(const struct in_addr *hostid, unsigned int *denyOpsResult)
 }
 
 void
-__pmAccDelClient(const struct in_addr *hostid)
+__pmAccDelClient(const __pmInAddr *hostid)
 {
     int		i;
     hostinfo	*hp;

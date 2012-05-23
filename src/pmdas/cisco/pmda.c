@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -232,9 +233,9 @@ main(int argc, char **argv)
 		break;
 	}
 	if (i == n_cisco) {
-	    struct hostent *hostInfo;
+	    __pmHostEnt *hostInfo;
 
-	    if ((hostInfo = gethostbyname(p)) == NULL) {
+	    if ((hostInfo = __pmGetHostByName(p)) == NULL) {
 #ifdef PARSE_ONLY
 		/*
 		 * for debugging, "host" may be a file ...
@@ -266,7 +267,7 @@ main(int argc, char **argv)
 #endif
 	    }
 	    else {
-		struct sockaddr_in *sinp = & cisco[i].ipaddr;
+	        __pmSockAddrIn *sinp = & cisco[i].ipaddr;
 
 		cisco[i].host = p;
 		cisco[i].username = myusername != NULL ? myusername : username;

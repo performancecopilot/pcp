@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -308,14 +309,14 @@ __pmIsLocalhost(const char *hostname)
 	return 1;
     else {
 	char lhost[MAXHOSTNAMELEN+1];
-	struct hostent *he;
+	__pmHostEnt *he;
 
 	if (gethostname(lhost, MAXHOSTNAMELEN) < 0)
 	   return -oserror();
 
 	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
-        if ((he = gethostbyname(lhost)) != NULL ) {
+        if ((he = __pmGetHostByName(lhost)) != NULL ) {
 	    int i;
 	    unsigned int * laddrs;
 	    for (i=0; he->h_addr_list[i] != NULL; i++) ;
@@ -324,10 +325,10 @@ __pmIsLocalhost(const char *hostname)
 	    if (laddrs != NULL) {
 		int k;
 		for (k=0; k < i; k++) {
-		    laddrs[k] = ((struct in_addr *)he->h_addr_list[k])->s_addr;
+		    laddrs[k] = ((__pmInAddr *)he->h_addr_list[k])->s_addr;
 		}
 
-		if ((he = gethostbyname(hostname)) == NULL) {
+		if ((he = __pmGetHostByName(hostname)) == NULL) {
 		    free(laddrs);
 		    PM_UNLOCK(__pmLock_libpcp);
 		    return -EHOSTUNREACH;
@@ -335,7 +336,7 @@ __pmIsLocalhost(const char *hostname)
 
 		for (i--; i >= 0; i--) {
 		    for (k = 0; he->h_addr_list[k] != NULL; k++) {
-			struct in_addr *s=(struct in_addr *)he->h_addr_list[k];
+			__pmInAddr *s=(__pmInAddr *)he->h_addr_list[k];
 			if (s->s_addr == laddrs[i]) {
 			    free(laddrs);
 			    PM_UNLOCK(__pmLock_libpcp);

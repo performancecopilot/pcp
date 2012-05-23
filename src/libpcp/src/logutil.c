@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -252,7 +253,7 @@ static FILE *
 fopen_compress(const char *fname)
 {
     int		sts;
-    int		fd;
+    __pmFD	fd;
     int		i;
     char	*cmd;
     char	*msg;

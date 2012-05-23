@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -34,9 +35,9 @@ void
 __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 {
     int			sts;
-    int			sfd;
-    struct sockaddr_in	myaddr;
-    struct sockaddr_in	from;
+    __pmFD		sfd;
+    __pmSockAddrIn	myaddr;
+    __pmSockAddrIn	from;
     struct servent	*service;
     mysocklen_t		addrlen;
     int			one = 1;
@@ -52,7 +53,7 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
     }
 
     sfd = __pmCreateSocket();
-    if (sfd < 0) {
+    if (sfd == PM_ERROR_FD) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet socket: %s\n",
 			netstrerror());
 	exit(1);
@@ -82,22 +83,22 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
     myaddr.sin_family = AF_INET;
     myaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     myaddr.sin_port = htons(myport);
-    sts = bind(sfd, (struct sockaddr*) &myaddr, sizeof(myaddr));
-    if (sts < 0) {
+    sts = __pmBind(sfd, (__pmSockAddr*) &myaddr, sizeof(myaddr));
+    if (sts == PM_ERROR_FD) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet bind: %s\n",
 			netstrerror());
 	exit(1);
     }
 
     sts = listen(sfd, 5);	/* Max. of 5 pending connection requests */
-    if (sts == -1) {
+    if (sts == PM_ERROR_FD) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet listen: %s\n",
 			netstrerror());
 	exit(1);
     }
     addrlen = sizeof(from);
     /* block here, waiting for a connection */
-    if ((*infd = accept(sfd, (struct sockaddr *)&from, &addrlen)) < 0) {
+    if ((*infd = __pmAccept(sfd, (__pmSockAddr *)&from, &addrlen)) == PM_ERROR_FD) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet accept: %s\n",
 			netstrerror());
 	exit(1);
@@ -156,7 +157,7 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
     }
 
     sts = listen(sfd, 5);	/* Max. of 5 pending connection requests */
-    if (sts == -1) {
+    if (sts == PM_ERROR_FD) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix listen: %s\n",
 			netstrerror());
 	exit(1);
@@ -488,19 +489,19 @@ __pmdaSetupPDU(int infd, int outfd, char *agentname)
     handshake[0].c_valc = 0;
     if ((sts = __pmSendCreds(outfd, (int)getpid(), 1, handshake)) < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s send creds: %s\n", agentname, pmErrStr(sts));
-	return -1;
+	return PM_ERROR_FD;
     }
 
     if ((pinpdu = sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_DEFAULT, &pb)) < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s getting creds: %s\n", agentname, pmErrStr(sts));
-	return -1;
+	return PM_ERROR_FD;
     }
 
     if (sts == PDU_CREDS) {
 	if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0) {
 	    __pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s decode creds: %s\n", agentname, pmErrStr(sts));
 	    __pmUnpinPDUBuf(pb);
-	    return -1;
+	    return PM_ERROR_FD;
 	}
 
 	for (i = 0; i < credcount; i++) {
@@ -664,8 +665,8 @@ __pmdaSetup(pmdaInterface *dispatch, int version, char *name)
     pmda->e_logfile = NULL;
     pmda->e_helptext = NULL;
     pmda->e_status = 0;
-    pmda->e_infd = -1;
-    pmda->e_outfd = -1;
+    pmda->e_infd = PM_ERROR_FD;
+    pmda->e_outfd = PM_ERROR_FD;
     pmda->e_port = -1;
     pmda->e_singular = -1;
     pmda->e_ordinal = -1;

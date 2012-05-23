@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -94,8 +95,8 @@ static void
 probe_cisco(cisco_t * cp)
 {
     char	*w;
-    int		fd;
-    int		fd2;
+    __pmFD	fd;
+    __pmFD	fd2;
     int		first = 1;
     char	*pass = NULL;
     int		defer = 0;
@@ -107,7 +108,7 @@ probe_cisco(cisco_t * cp)
 
     if (cp->fin == NULL) {
 	fd = conn_cisco(cp);
-	if (fd == -1) {
+	if (fd == PM_ERROR_FD) {
 	    fprintf(stderr, "grab_cisco(%s): connect failed: %s\n",
 		cp->host, osstrerror());
 	    return;
@@ -267,7 +268,7 @@ main(int argc, char **argv)
     char		*endnum;
     char		*passwd = NULL;
     char		*username = NULL;
-    struct hostent	*hostInfo;
+    __pmHostEnt		*hostInfo;
 
     __pmSetProgname(argv[0]);
 
@@ -316,7 +317,7 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if ((hostInfo = gethostbyname(argv[optind])) == NULL) {
+    if ((hostInfo = __pmGetHostByName(argv[optind])) == NULL) {
 	FILE	*f;
 	if ((f = fopen(argv[optind], "r")) == NULL) {
 	    fprintf(stderr, "%s: unknown hostname or filename %s: %s\n",
@@ -340,7 +341,7 @@ main(int argc, char **argv)
 	}
     } else {
 	cisco_t c;
-	struct sockaddr_in *sinp = & c.ipaddr;
+	__pmSockAddrIn *sinp = & c.ipaddr;
 
 	c.host = argv[optind];
 	c.username = username;

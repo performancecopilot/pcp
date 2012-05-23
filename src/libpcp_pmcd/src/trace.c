@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -105,8 +106,8 @@ pmcd_dump_trace(FILE *f)
     int			p;
     struct tm		last = { 0, 0 };
     struct tm		*this;
-    struct in_addr	addr;	/* internet address */
-    struct hostent	*hp;
+    __pmInAddr		addr;	/* internet address */
+    __pmHostEnt		*hp;
     char		strbuf[20];
 
     if ((_pmcd_trace_mask & TR_MASK_NOBUF) == 0)
@@ -144,7 +145,7 @@ pmcd_dump_trace(FILE *f)
 		case TR_ADD_CLIENT:
 		    fprintf(f, "New client: from=");
 		    addr.s_addr = trace[p].t_who;
-		    hp = gethostbyaddr((void *)&addr.s_addr, sizeof(addr.s_addr), AF_INET);
+		    hp = __pmGetHostByInAddr(&addr);
 		    if (hp == NULL) {
 			char	*p = (char *)&addr.s_addr;
 			int	k;

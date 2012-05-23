@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -76,7 +77,7 @@ typedef struct {
     int        pmDomainId;		/* PMD identifier */
     int        ipcType;			/* DSO, socket or pipe */
     int        pduVersion;		/* PDU_VERSION for this agent */
-    int        inFd, outFd;		/* For input to/output from agent */
+    __pmFD     inFd, outFd;		/* For input to/output from agent */
     int	       done;			/* Set when processed for this Fetch */
     ClientInfo *profClient;		/* Last client to send profile to agent */
     int	       profIndex;		/* Index of profile that client sent */

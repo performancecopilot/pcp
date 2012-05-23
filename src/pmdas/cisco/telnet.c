@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,16 +29,16 @@
 
 extern int	port;
 
-int
+__pmFD
 conn_cisco(cisco_t * cp)
 {
-    int	fd;
+    __pmFD	fd;
     int	i;
 
-    fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (fd < 0) {
+    fd = __pmSocket(AF_INET, SOCK_STREAM, 0);
+    if (fd == PM_ERROR_FD) {
 	fprintf(stderr, "conn_cisco(%s) socket: %s\n", cp->host, netstrerror());
-	return -1;
+	return PM_ERROR_FD;
     }
 
     i = 1;
@@ -48,7 +49,7 @@ conn_cisco(cisco_t * cp)
 	return -1;
     }
 
-    if (connect(fd, (struct sockaddr *)&cp->ipaddr, sizeof(cp->ipaddr)) < 0) {
+    if (__pmConnect(fd, (__pmSockAddr *)&cp->ipaddr, sizeof(cp->ipaddr)) < 0) {
 	fprintf(stderr, "conn_cisco(%s): connect: %s\n",
 	    cp->host, netstrerror());
 	close(fd);
@@ -395,7 +396,7 @@ grab_cisco(intf_t *ip)
     int		namelen;
     char	*pw_prompt = NULL;
     char	*w;
-    int		fd;
+    __pmFD	fd;
     int		fd2;
     int		nval = 0;
     cisco_t	*cp = ip->cp;
@@ -413,7 +414,7 @@ grab_cisco(intf_t *ip)
 
     if (cp->fin == NULL) {
 	fd = conn_cisco(cp);
-	if (fd < 0) {
+	if (fd == PM_ERROR_FD) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
 		fprintf(stderr, "grab_cisco(%s:%s): connect failed: %s\n",

@@ -32,7 +32,7 @@ typedef struct event_logfile {
 } event_logfile_t;
 
 extern int maxfd;
-extern fd_set fds;
+extern __pmFdSet fds;
 extern long maxmem;
 
 extern void event_init(pmID pmid);

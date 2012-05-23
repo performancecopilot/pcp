@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,15 +30,15 @@ extern int	maxfd;
 extern int	nclients;
 extern client_t	*clients;
 extern int	ctlport;		/* control port number */
-static int	ctlfd;			/* fd for control port */
-static int	pmcdfd;			/* fd for pmcd */
+static __pmFD	ctlfd;			/* fd for control port */
+static __pmFD	pmcdfd;			/* fd for pmcd */
 
 void alarming(int, void *);
 static void hangup(int);
 static int getcport(void);
 
 /* currently in-use fd mask */
-fd_set	fds;
+__pmFdSet	fds;
 
 /* the AF event number */
 int	afid = -1;
@@ -46,15 +47,15 @@ void
 traceMain(pmdaInterface *dispatch)
 {
     client_t	*cp;
-    fd_set	readyfds;
+    __pmFdSet	readyfds;
     int		nready, i, pdutype, sts, protocol;
 
     ctlfd = getcport();
     pmcdfd = __pmdaInFd(dispatch);
     maxfd = (ctlfd > pmcdfd) ? (ctlfd):(pmcdfd);
-    FD_ZERO(&fds);
-    FD_SET(ctlfd, &fds);
-    FD_SET(pmcdfd, &fds);
+    __pmFD_ZERO(&fds);
+    __pmFD_SET(ctlfd, &fds);
+    __pmFD_SET(pmcdfd, &fds);
 
     signal(SIGHUP, hangup);
 
@@ -66,20 +67,20 @@ traceMain(pmdaInterface *dispatch)
 
     for (;;) {
 	memcpy(&readyfds, &fds, sizeof(readyfds));
-	nready = select(maxfd+1, &readyfds, NULL, NULL, NULL);
+	nready = __pmSelectRead(maxfd+1, &readyfds, NULL);
 
 	if (nready == 0)
 	    continue;
 	else if (nready < 0) {
 	    if (neterror() != EINTR) {
-		__pmNotifyErr(LOG_ERR, "select failure: %s", netstrerror());
+		__pmNotifyErr(LOG_ERR, "__pmSelectRead failure: %s", netstrerror());
 		exit(1);
 	    }
 	    continue;
 	}
 
 	__pmAFblock();
-	if (FD_ISSET(pmcdfd, &readyfds)) {
+	if (__pmFD_ISSET(pmcdfd, &readyfds)) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
 		__pmNotifyErr(LOG_DEBUG, "processing pmcd request [fd=%d]", pmcdfd);
@@ -90,7 +91,7 @@ traceMain(pmdaInterface *dispatch)
 	    }
 	}
 	/* handle request on control port */
-	if (FD_ISSET(ctlfd, &readyfds)) {
+	if (__pmFD_ISSET(ctlfd, &readyfds)) {
 	    if ((cp = acceptClient(ctlfd)) != NULL) {
 		sts = __pmAccAddClient(&cp->addr.sin_addr, &cp->denyOps);
 		if (sts == PM_ERR_PERMISSION)
@@ -137,7 +138,7 @@ traceMain(pmdaInterface *dispatch)
 		__pmAccDelClient(&clients[i].addr.sin_addr);
 		deleteClient(&clients[i]);
 	    }
-	    else if (FD_ISSET(clients[i].fd, &readyfds)) {
+	    else if (__pmFD_ISSET(clients[i].fd, &readyfds)) {
 		protocol = 1;	/* default to synchronous */
 		do {
 		    if ((pdutype = readData(clients[i].fd, &protocol)) < 0) {
@@ -200,13 +201,13 @@ hangup(int sig)
 static int
 getcport(void)
 {
-    int			fd;
+    __pmFD		fd;
     int			i=1, one=1, sts;
-    struct sockaddr_in	myAddr;
+    __pmSockAddrIn	myAddr;
     struct linger	noLinger = {1, 0};
 
-    fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (fd < 0) {
+    fd = __pmSocket(AF_INET, SOCK_STREAM, 0);
+    if (fd == PM_ERROR_FD) {
 	__pmNotifyErr(LOG_ERR, "getcport: socket: %s", netstrerror());
 	exit(1);
     }
@@ -264,7 +265,7 @@ getcport(void)
     myAddr.sin_family = AF_INET;
     myAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     myAddr.sin_port = htons(ctlport);
-    sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
+    sts = __pmBind(fd, (__pmSockAddr*)&myAddr, sizeof(myAddr));
     if (sts < 0) {
 	__pmNotifyErr(LOG_ERR, "bind(%d): %s", ctlport, netstrerror());
 	exit(1);

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -96,7 +97,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
     int			status = 0;
     int			have = 0;
     int			size;
-    fd_set		onefd;
+    __pmFdSet		onefd;
 
     while (len) {
 	if (timeout == GETPDU_ASYNC) {
@@ -104,7 +105,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 	     * no grabbing more than you need ... read header to get
 	     * length and then read body.
 	     * This assumes you are either willing to block, or have
-	     * already done a select() and are pretty confident that
+	     * already done a __pmSelectRead() and are pretty confident that
 	     * you will not block.
 	     * Also assumes buf is aligned on a __pmPDU boundary.
 	     */
@@ -168,13 +169,13 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		}
 		else
 		    wait = def_wait;
-		FD_ZERO(&onefd);
-		FD_SET(fd, &onefd);
-		status = select(fd+1, &onefd, NULL, NULL, &wait);
+		__pmFD_ZERO(&onefd);
+		__pmFD_SET(fd, &onefd);
+		status = __pmSelectRead(fd+1, &onefd, &wait);
 		if (status == 0) {
 		    if (__pmGetInternalState() != PM_STATE_APPL) {
 			/* special for PMCD and friends 
-			 * Note, on Linux select would return 'time remaining'
+			 * Note, on Linux __pmSelectRead would return 'time remaining'
 			 * in timeout value, so report the expected timeout
 			 */
 			int tosec, tomsec;
@@ -198,7 +199,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		}
 		else if (status < 0) {
 		    char	errmsg[PM_MAXERRMSGLEN];
-		    __pmNotifyErr(LOG_ERR, "pduread: select() on fd=%d: %s",
+		    __pmNotifyErr(LOG_ERR, "pduread: __pmSelectRead() on fd=%d: %s",
 			    fd, netstrerror_r(errmsg, sizeof(errmsg)));
 		    setoserror(neterror());
 		    return status;

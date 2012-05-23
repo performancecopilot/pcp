@@ -2,6 +2,7 @@
  * trace.c - client-side interface for trace PMDA
  *
  * Copyright (c) 1997-2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -601,10 +602,10 @@ _pmtracereconnect(void)
 #endif
 	return -ETIMEDOUT;
     }
-    if (__pmfd >= 0) {
+    if (__pmfd != PM_ERROR_FD) {
 	__pmtracenomoreinput(__pmfd);
-	close(__pmfd);
-	__pmfd = -1;
+	__pmCloseSocket(__pmfd);
+	__pmfd = PM_ERROR_FD;
     }
     if (_pmtraceconnect(1) < 0) {
 #ifdef PMTRACE_DEBUG
@@ -674,8 +675,8 @@ _pmauxtraceconnect(void)
     int			port = TRACE_PORT;
     char		hostname[MAXHOSTNAMELEN];
     struct timeval	timeout = { 3, 0 };     /* default 3 secs */
-    struct sockaddr_in	myaddr;
-    struct hostent	*servinfo;
+    __pmSockAddrIn	myaddr;
+    __pmHostEnt		*servinfo;
     struct linger	nolinger = {1, 0};
 #ifndef IS_MINGW
     struct itimerval	_pmolditimer;
@@ -725,10 +726,10 @@ _pmauxtraceconnect(void)
     if (getenv(TRACE_ENV_NOAGENT) != NULL)
 	__pmstate |= PMTRACE_STATE_NOAGENT;
 
-    if ((servinfo = gethostbyname(hostname)) == NULL) {
+    if ((servinfo = __pmGetHostByName(hostname)) == NULL) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
-	    fprintf(stderr, "_pmtraceconnect(gethostbyname(hostname=%s): "
+	    fprintf(stderr, "_pmtraceconnect(__pmGetHostByName(hostname=%s): "
 		    "hosterror=%d, ``%s''\n", hostname, hosterror(),
 		    hoststrerror());
 #endif
@@ -736,7 +737,7 @@ _pmauxtraceconnect(void)
     }
 
     /* Create socket and attempt to connect to the local PMDA */
-    if ((__pmfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    if ((__pmfd = __pmSocket(AF_INET, SOCK_STREAM, 0)) == PM_ERROR_FD) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
 	    fprintf(stderr, "_pmtraceconnect(socket failed): %s\n",
@@ -789,7 +790,7 @@ _pmauxtraceconnect(void)
     }
 #endif
 
-    if ((rc = connect(__pmfd, (struct sockaddr*) &myaddr, sizeof(myaddr))) < 0)
+    if ((rc = __pmConnect(__pmfd, (__pmSockAddr*) &myaddr, sizeof(myaddr))) < 0)
 	return -neterror();
 
 #ifndef IS_MINGW
@@ -820,7 +821,7 @@ _pmauxtraceconnect(void)
 	if (sts == EINTR)
 	    sts = -ETIMEDOUT;
 	close(__pmfd);	/* safe for tracemoreinput(), as no PDUs yet */
-	__pmfd = -1;
+	__pmfd = PM_ERROR_FD;
 	return sts;
     }
 

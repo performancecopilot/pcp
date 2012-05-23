@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +19,7 @@
 #include "pmlc.h"
 
 /* for the pmlogger/PMCD we currently have a connection to */
-static int	logger_fd = -1;		/* file desc pmlogger */
+static int	logger_fd = PM_ERROR_FD;		/* file desc pmlogger */
 static char	*lasthost;		/* host that logger_ctx is for */
 static int	src_ctx = -1;		/* context for logged host's PMCD*/
 static char	*srchost;		/* host that logged_ctx is for */
@@ -127,7 +128,7 @@ ConnectLogger(char *hostname, int *pid, int *port)
     }
 
     if ((sts = __pmConnectLogger(hostname, pid, port)) < 0) {
-	logger_fd = -1;
+	logger_fd = PM_ERROR_FD;
 	return sts;
     }
     else {
@@ -142,10 +143,10 @@ ConnectLogger(char *hostname, int *pid, int *port)
 void
 DisconnectLogger(void)
 {
-    if (logger_fd != -1) {
+    if (logger_fd != PM_ERROR_FD) {
 	__pmResetIPC(logger_fd);
 	close(logger_fd);
-	logger_fd = -1;
+	logger_fd = PM_ERROR_FD;
 	sleep(1);
     }
 }
@@ -797,7 +798,7 @@ NewVolume(void)
 int
 connected(void)
 {
-    if (logger_fd == -1) {
+    if (logger_fd == PM_ERROR_FD) {
 	yyerror("Not connected to any pmlogger instance");
 	return 0;
     }

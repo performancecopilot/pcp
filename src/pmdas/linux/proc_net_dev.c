@@ -2,6 +2,7 @@
  * Linux /proc/net_dev metrics cluster
  *
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,12 +25,12 @@
 #include <ctype.h>
 #include "proc_net_dev.h"
 
-int
+__pmFD
 refresh_net_socket()
 {
-    static int netfd = -1;
-    if (netfd < 0)
-	netfd = socket(AF_INET, SOCK_DGRAM, 0);
+    static __pmFD netfd = PM_ERROR_FD;
+    if (netfd == PM_ERROR_FD)
+        netfd = __pmSocket(AF_INET, SOCK_DGRAM, 0);
     return netfd;
 }
 
@@ -38,10 +39,10 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip)
 {
     struct ethtool_cmd ecmd;
     struct ifreq ifr;
-    int fd;
+    __pmFD fd;
 
     memset(&netip->ioc, 0, sizeof(netip->ioc));
-    if ((fd = refresh_net_socket()) < 0)
+    if ((fd = refresh_net_socket()) == PM_ERROR_FD)
 	return;
 
     ecmd.cmd = ETHTOOL_GSET;
@@ -66,18 +67,18 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip)
 void
 refresh_net_inet_ioctl(char *name, net_inet_t *netip)
 {
-    struct sockaddr_in *sin;
+    __pmSockAddrIn *sin;
     struct ifreq ifr;
-    int fd;
+    __pmFD fd;
 
-    if ((fd = refresh_net_socket()) < 0)
+    if ((fd = refresh_net_socket()) == PM_ERROR_FD)
 	return;
 
     strcpy(ifr.ifr_name, name);
     ifr.ifr_addr.sa_family = AF_INET;
     if (!(ioctl(fd, SIOCGIFADDR, &ifr) < 0)) {
 	netip->hasip = 1;
-	sin = (struct sockaddr_in *)&ifr.ifr_addr;
+	sin = (__pmSockAddrIn *)&ifr.ifr_addr;
 	netip->addr = sin->sin_addr;
     }
 }
@@ -190,7 +191,7 @@ Inter-|   Receive                                                |  Transmit
  * This separate indom provides the IP addresses for all interfaces including
  * aliases (e.g. eth0, eth0:0, eth0:1, etc) - this is what ifconfig does.
  */
-int
+__pmFD
 refresh_net_dev_inet(pmInDom indom)
 {
     int n, fd, sts, numreqs = 30;
@@ -201,7 +202,7 @@ refresh_net_dev_inet(pmInDom indom)
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-    if ((fd = refresh_net_socket()) < 0)
+    if ((fd = refresh_net_socket()) == PM_ERROR_FD)
 	return fd;
 
     ifc.ifc_buf = NULL;

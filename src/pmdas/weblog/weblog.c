@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -2284,8 +2285,8 @@ probe(void)
     int			dummy = 1;
     int			sprocsUsed = 0;
     int			nfds = 0;
-    fd_set		rfds;
-    fd_set		tmprfds;
+    __pmFdSet		rfds;
+    __pmFdSet		tmprfds;
     int			thisFD;
     WebSproc		*sprocData = (WebSproc*)0;
     struct timeval	theTime;
@@ -2299,7 +2300,7 @@ probe(void)
     	logmessage(LOG_DEBUG, "Starting probe at %d\n", wl_timeOfRefresh);
 #endif
 
-    FD_ZERO(&rfds);
+    __pmFD_ZERO(&rfds);
 
 /*
  * Determine which sprocs have servers that must be refreshed.
@@ -2345,7 +2346,7 @@ probe(void)
 	    exit(1);
 	}
 
-	FD_SET(thisFD, &rfds);
+	__pmFD_SET(thisFD, &rfds);
 	nfds = nfds < (thisFD + 1) ? thisFD + 1 : nfds;
     }
 
@@ -2393,10 +2394,9 @@ probe(void)
 
     for (i=0; i<sprocsUsed;) {
         memcpy(&tmprfds, &rfds, sizeof(tmprfds));
-	sts = select(nfds, &tmprfds, (fd_set*)0, (fd_set*)0, 
-		     (struct timeval*)0);
+	sts = __pmSelectRead(nfds, &tmprfds, (struct timeval*)0);
 	if (sts < 0) {
-	    logmessage(LOG_ERR, "Error on fetch select: %s", netstrerror());
+	    logmessage(LOG_ERR, "Error on fetch __pmSelectRead: %s", netstrerror());
 	    exit(1);
 	}
 	else if (sts == 0)
@@ -2407,8 +2407,8 @@ probe(void)
 	    sprocData = &wl_sproc[j];
 	    thisFD = sprocData->outFD[0];
 
-	    if (FD_ISSET(thisFD, &tmprfds)) {
-	    	FD_CLR(sprocData->outFD[0], &rfds);
+	    if (__pmFD_ISSET(thisFD, &tmprfds)) {
+	    	__pmFD_CLR(sprocData->outFD[0], &rfds);
 		sts = read(thisFD, &dummy, sizeof(dummy));
 		if (sts < 0) {
 		    logmessage(LOG_ERR, "Error on fetch read: %s",

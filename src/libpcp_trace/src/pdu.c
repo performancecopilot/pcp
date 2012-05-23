@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -25,7 +26,7 @@ typedef struct {
 static more_ctl		*more;
 static int		maxfd = -1;
 
-extern int	__pmfd;
+extern __pmFD		__pmfd;
 
 static char *
 pdutypestr(int type)
@@ -93,7 +94,7 @@ moreinput(int fd, __pmTracePDU *pdubuf, int len)
 int
 __pmtracemoreinput(int fd)
 {
-    if (fd < 0 || fd > maxfd)
+    if (fd == PM_ERROR_FD || fd > maxfd)
 	return 0;
 
     return more[fd].pdubuf == NULL ? 0 : 1;
@@ -102,7 +103,7 @@ __pmtracemoreinput(int fd)
 void
 __pmtracenomoreinput(int fd)
 {
-    if (fd < 0 || fd > maxfd)
+    if (fd == PM_ERROR_FD || fd > maxfd)
 	return;
 
     if (more[fd].pdubuf != NULL) {
@@ -119,7 +120,7 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
      */
     int				status = 0;
     int				have = 0;
-    fd_set			onefd;
+    __pmFdSet			onefd;
     static int			done_default = 0;
     static struct timeval	def_wait = { 10, 0 };
 
@@ -160,9 +161,9 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 	    }
 	    else
 		wait = def_wait;
-	    FD_ZERO(&onefd);
-	    FD_SET(fd, &onefd);
-	    status = select(fd+1, &onefd, NULL, NULL, &wait);
+	    __pmFD_ZERO(&onefd);
+	    __pmFD_SET(fd, &onefd);
+	    status = __pmSelectRead(fd+1, &onefd, &wait);
 	    if (status == 0)
 		return PMTRACE_ERR_TIMEOUT;
 	    else if (status < 0) {
@@ -211,7 +212,7 @@ __pmtracexmitPDU(int fd, __pmTracePDU *pdubuf)
 	signal(SIGPIPE, user_onpipe);
 #endif
 
-    if (__pmfd == -1)
+    if (__pmfd == PM_ERROR_FD)
 	return PMTRACE_ERR_IPC;
 
     php->from = (__int32_t)getpid();
@@ -263,7 +264,7 @@ __pmtracegetPDU(int fd, int timeout, __pmTracePDU **result)
     __pmTracePDU	*pdubuf_prev;
     __pmTracePDUHdr	*php;
 
-    if (__pmfd == -1)
+    if (__pmfd == PM_ERROR_FD)
 	return PMTRACE_ERR_IPC;
 
     /*

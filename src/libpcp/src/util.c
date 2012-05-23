@@ -3,6 +3,7 @@
  *
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -1180,7 +1181,7 @@ __pmSetClientId(const char *id)
     pmValueBlock	*pmvb;
     char        	host[MAXHOSTNAMELEN];
     char        	ipaddr[16] = "";	/* IPv4 xxx.xxx.xxx.xxx */
-    struct hostent      *hep = NULL;
+    __pmHostEnt         *hep = NULL;
     int			vblen;
 
     if ((sts = pmLookupName(1, &name, &pmid)) < 0)
@@ -1189,11 +1190,11 @@ __pmSetClientId(const char *id)
     (void)gethostname(host, MAXHOSTNAMELEN);
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    hep = gethostbyname(host);
+    hep = __pmGetHostByName(host);
     if (hep != NULL) {
 	strcpy(host, hep->h_name);
 	if (hep->h_addrtype == AF_INET) {
-	    strcpy(ipaddr, inet_ntoa(*((struct in_addr *)hep->h_addr_list[0])));
+	    strcpy(ipaddr, __pmNetAddrToString((__pmInAddr *)hep->h_addr_list[0]));
 	}
 	vblen = strlen(host) + strlen(ipaddr) + strlen(id) + 5;
     }

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006 Aconex.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -48,7 +49,7 @@ pmServerExec(int fd, int livemode)
 static int
 pmConnectHandshake(int fd, int port, pmTime *pkt)
 {
-    struct sockaddr_in myaddr;
+    __pmSockAddrIn myaddr;
     char buffer[4096];
     pmTime *ack;
     int sts;
@@ -61,7 +62,7 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
     myaddr.sin_family = AF_INET;
     myaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     myaddr.sin_port = htons(port);
-    if ((sts = connect(fd, (struct sockaddr *)&myaddr, sizeof(myaddr))) < 0) {
+    if ((sts = __pmConnect(fd, (__pmSockAddr *)&myaddr, sizeof(myaddr))) < 0) {
 	setoserror(neterror());
 	goto error;
     }
@@ -102,9 +103,9 @@ error:
 int
 pmTimeConnect(int port, pmTime *pkt)
 {
-    int	fd;
+    __pmFD	fd;
 
-    if ((fd = __pmCreateSocket()) < 0)
+    if ((fd = __pmCreateSocket()) == PM_ERROR_FD)
 	return -1;
     if (port < 0) {
 	if ((port = pmServerExec(fd, pkt->source != PM_SOURCE_ARCHIVE)) < 0)
@@ -121,7 +122,7 @@ pmTimeConnect(int port, pmTime *pkt)
 int
 pmTimeDisconnect(int fd)
 {
-    if (fd < 0) {
+    if (fd == PM_ERROR_FD) {
 	setoserror(EINVAL);
 	return -1;
     }

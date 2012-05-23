@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -55,15 +56,15 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
     }
     else {
 	pmcd_trace(TR_DEL_AGENT, aPtr->pmDomainId, aPtr->inFd, aPtr->outFd);
-	if (aPtr->inFd != -1) {
+	if (aPtr->inFd != PM_ERROR_FD) {
 	    __pmResetIPC(aPtr->inFd);
 	    close(aPtr->inFd);
-	    aPtr->inFd = -1;
+	    aPtr->inFd = PM_ERROR_FD;
 	}
-	if (aPtr->outFd != -1) {
+	if (aPtr->outFd != PM_ERROR_FD) {
 	    __pmResetIPC(aPtr->outFd);
 	    close(aPtr->outFd);
-	    aPtr->outFd = -1;
+	    aPtr->outFd = PM_ERROR_FD;
 	}
 	if (aPtr->ipcType == AGENT_SOCKET &&
 	    aPtr->ipc.socket.addrDomain == AF_UNIX) {
