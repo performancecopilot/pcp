@@ -34,9 +34,9 @@ signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-if [ $PCP_PLATFORM = darwin ]
+if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
-    _notrun "No proc metrics for darwin"
+    _notrun "No proc metrics for $PCP_PLATFORM"
 fi
 
 eval `./getpmcdhosts -L -n 2 -m 'proc.psinfo.ppid>=0' | sed -e 's/ / host2=/' -e 's/^/host1=/'`

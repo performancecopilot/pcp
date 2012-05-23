@@ -373,16 +373,31 @@ end-of-file
 
 if [ $PCP_PLATFORM = irix ]
 then
-    echo "irix    1       dso     irix_init       libirixpmda.so" >>$tmp.newconf
-    echo "pmcd    2       dso     pmcd_init       pmda_pmcd.so" >>$tmp.newconf
+    cat >>$tmp.newconf  <<End-of-File
+# from qa/$seq
+irix    1       dso     irix_init       libirixpmda.so
+pmcd    2       dso     pmcd_init       pmda_pmcd.so
+End-of-File
 elif [ $PCP_PLATFORM = linux ]
 then
-    echo "linux   60      dso     linux_init      $PCP_PMDAS_DIR/linux/pmda_linux.so" >>$tmp.newconf
-    echo "pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.so" >>$tmp.newconf
+    cat >>$tmp.newconf  <<End-of-File
+# from qa/$seq
+linux   60      dso     linux_init      $PCP_PMDAS_DIR/linux/pmda_linux.so
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
 elif [ $PCP_PLATFORM = darwin ]
 then
-    echo "darwin  78      dso     darwin_init      $PCP_PMDAS_DIR/darwin/pmda_darwin.dylib" >>$tmp.newconf
-    echo "pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib" >>$tmp.newconf
+    cat >>$tmp.newconf  <<End-of-File
+# from qa/$seq
+darwin  78      dso     darwin_init     $PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+End-of-File
+elif [ $PCP_PLATFORM = solaris ]
+then
+    cat >>$tmp.newconf  <<End-of-File
+solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
 else
     echo "Arrgh ... need pmcd.conf for $PCP_PLATFORM"
     exit 1

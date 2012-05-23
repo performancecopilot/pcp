@@ -996,10 +996,13 @@ _change_config()
 	    then
 		if [ "$2" = on ]
 		then
-		    $sudo svcadm enable -s svc:/application/pcp/$pat
+		    state=`svcs -l svc:/application/pcp/$pat | sed -n '/^state[ 	]/s///p'`
+		    [ -n "$state" -a "$state" != "online" ] \
+			&& $sudo svcadm clear svc:/application/pcp/$pat
+		    $sudo svcadm enable svc:/application/pcp/$pat
 		elif [ "$2" = off ]
 		then
-		    $sudo svcadm disable -s svc:/application/pcp/$pat
+		    $sudo svcadm disable svc:/application/pcp/$pat
 		else
 		    echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
 		    exit 1

@@ -812,7 +812,7 @@ pmlogrewrite
 648 pmda.mmv local oss
 649 pmda.mmv local oss
 650 pmlogger local oss pmdumplog
-651 pmproxy remote oss
+651 pmproxy local oss
 703 pcpweb local oss
 706 pcpweb local oss
 1044 pmie local pmieconf sgi sanity

@@ -29,6 +29,15 @@ _cleanup()
     exit $status
 }
 
+_filter()
+{
+    $PCP_AWK_PROG '
+/--- end \.\/sample\.conf ---/	{ skip = 0 }
+skip == 0	{ print }
+/--- start \.\/sample\.conf ---/{ print "[deleted]"; skip = 1 }
+'
+}
+
 iam=shping
 status=1
 trap "_cleanup" 0 1 2 3 15
@@ -40,7 +49,7 @@ echo
 echo "=== default $iam agent installation ==="
 $sudo ./Remove > $tmp.out 2>&1
 $sudo ./Install </dev/null >>$tmp.out 2>&1
-_filter_pmda_install <$tmp.out
+_filter_pmda_install <$tmp.out | _filter
 
 if pminfo -v $iam
 then

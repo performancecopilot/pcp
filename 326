@@ -54,7 +54,7 @@ rm -f $seq.full
 
 # real QA test starts here
 
-if [ $PCP_PLATFORM = linux ]
+if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris ]
 then
 	PMDA_PMCD_PATH=$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 elif [ $PCP_PLATFORM = darwin ]
