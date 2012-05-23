@@ -662,7 +662,7 @@ shping_init(pmdaInterface *dp)
 	    dp->status = err;
 	} else {
 	    dp->status = 0;
-	    logmessage (LOG_INFO, "Started thread " FMT_PTHREAD "\n", sprocpid);
+	    logmessage (LOG_INFO, "Started thread %" FMT_PTHREAD "\n", sprocpid);
 	}
     }
 #else
