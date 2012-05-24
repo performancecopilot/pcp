@@ -243,8 +243,9 @@ extern "C" {
 #undef HAVE_STRTOULL
 
 #undef HAVE_DLOPEN
+#undef HAVE_FPCLASSIFY
+#undef HAVE_ISNAN
 #undef HAVE_ISNANF
-#undef HAVE_ISNAND
 #undef HAVE_FLOG10
 #undef HAVE_DIRNAME
 #undef HAVE_BASENAME
@@ -438,7 +439,6 @@ typedef void (*SIG_PF) (int);
 /* Determine if we are on a Linux box */
 #undef IS_LINUX
 #ifdef IS_LINUX
-#define isnand(d) isnan(d)	/* isnan is a type-independent macro (isnanf is defined though) */
 #ifndef O_CLOEXEC
 #define O_CLOEXEC 02000000	/* set close_on_exec */
 #endif
@@ -460,15 +460,11 @@ typedef void (*SIG_PF) (int);
 #define st_atim st_atimespec    /* workaround */
 #define st_mtim st_mtimespec    /* workaround */
 #define st_ctim st_ctimespec    /* workaround */
-#define isnand(d) isnan(d)	/* isnan is a type-independent macro */
-#define isnanf(d) isnan(d)	/* isnan is a type-independent macro */
 #endif
 
 /* Determine if we are on Windows with MinGW compiler */
 #undef IS_MINGW
 #ifdef IS_MINGW
-#define isnand(d) isnan(d)	/* isnan is a type-independent macro */
-#define isnanf(d) isnan(d)	/* isnan is a type-independent macro */
 
 #ifdef PCP_VERSION		/* used to reduce namespace pollution */
 #define EINPROGRESS	WSAEINPROGRESS
@@ -585,9 +581,6 @@ extern char *dirname(char *);
 #endif
 #ifndef HAVE_BASENAME
 extern char *basename(char *);
-#endif
-#ifndef HAVE_ISNAND
-extern int isnand (double);
 #endif
 
 #ifdef HAVE_CONST_DIRENT

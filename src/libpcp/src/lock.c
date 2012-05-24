@@ -41,38 +41,63 @@ __pmInitLocks(void)
 #ifdef PM_MULTI_THREAD
     static pthread_mutex_t	init = PTHREAD_MUTEX_INITIALIZER;
     static int			done = 0;
-    pthread_mutex_lock(&init);
+    int				psts;
+    char			errmsg[PM_MAXERRMSGLEN];
+    if ((psts = pthread_mutex_lock(&init)) != 0) {
+	strerror_r(psts, errmsg, sizeof(errmsg));
+	fprintf(stderr, "__pmInitLocks: pthread_mutex_lock failed: %s", errmsg);
+	exit(4);
+    }
     if (!done) {
 #ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 	/*
 	 * Unable to initialize at compile time, need to do it here in
 	 * a one trip for all threads run-time initialization.
 	 */
-	pthread_mutexattr_t    attr;
+	pthread_mutexattr_t	attr;
 
-	pthread_mutexattr_init(&attr);
-	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-	pthread_mutex_init(&__pmLock_libpcp, &attr);
+	if ((psts = pthread_mutexattr_init(&attr)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "__pmInitLocks: pthread_mutexattr_init failed: %s", errmsg);
+	    exit(4);
+	}
+	if ((psts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "__pmInitLocks: pthread_mutexattr_settype failed: %s", errmsg);
+	    exit(4);
+	}
+	if ((psts = pthread_mutex_init(&__pmLock_libpcp, &attr)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "__pmInitLocks: pthread_mutex_init failed: %s", errmsg);
+	    exit(4);
+	}
 #endif
 #ifndef HAVE___THREAD
 	/* first thread here creates the thread private data key */
-	pthread_key_create(&__pmTPDKey, __pmTPD__destroy);
+	if ((psts = pthread_key_create(&__pmTPDKey, __pmTPD__destroy)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "__pmInitLocks: pthread_key_create failed: %s", errmsg);
+	    exit(4);
+	}
 #endif
 	done = 1;
     }
-    pthread_mutex_unlock(&init);
+    if ((psts = pthread_mutex_unlock(&init)) != 0) {
+	strerror_r(psts, errmsg, sizeof(errmsg));
+	fprintf(stderr, "__pmInitLocks: pthread_mutex_unlock failed: %s", errmsg);
+	exit(4);
+    }
 #ifndef HAVE___THREAD
     if (pthread_getspecific(__pmTPDKey) == NULL) {
 	__pmTPD	*tpd = (__pmTPD *)malloc(sizeof(__pmTPD));
-	int	sts;
 	if (tpd == NULL) {
 	    __pmNoMem("__pmInitLocks: __pmTPD", sizeof(__pmTPD), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
-	sts = pthread_setspecific(__pmTPDKey, tpd);
-	if (sts != 0) {
-	    fprintf(stderr, "__pmInitLocks: fatal pthread_setspecific failure: %d\n", sts);
-	    exit(1);
+	if ((psts = pthread_setspecific(__pmTPDKey, tpd)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "__pmInitLocks: pthread_setspecific failed: %s", errmsg);
+	    exit(4);
 	}
 	tpd->curcontext = PM_CONTEXT_UNDEF;
     }
@@ -108,3 +133,96 @@ __pmMultiThreaded(int scope)
 #endif
 }
 
+#ifdef PM_MULTI_THREAD
+#ifdef PM_MULTI_THREAD_DEBUG
+extern int __pmIsContextLock(void *);
+extern int __pmIsChannelLock(void *);
+extern int __pmIsDeriveLock(void *);
+
+typedef struct {
+    void	*lock;
+    int		count;
+} lockdbg_t;
+
+void __pmDebugLock(int op, void *lock, char *file, int line)
+{
+    int			report = 0;
+    int			ctx;
+    static __pmHashCtl	hashctl = { 0, 0, NULL };
+    __pmHashNode	*hp = NULL;
+    lockdbg_t		*ldp;
+    int			try;
+    int			sts;
+
+    if (lock == (void *)&__pmLock_libpcp) {
+	if ((pmDebug & DBG_TRACE_APPL0) | ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1 | DBG_TRACE_APPL2)) == 0))
+	    report = DBG_TRACE_APPL0;
+    }
+    else if ((ctx = __pmIsContextLock(lock)) >= 0) {
+	if ((pmDebug & DBG_TRACE_APPL1) | ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1 | DBG_TRACE_APPL2)) == 0))
+	    report = DBG_TRACE_APPL1;
+    }
+    else {
+	if ((pmDebug & DBG_TRACE_APPL2) | ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1 | DBG_TRACE_APPL2)) == 0))
+	    report = DBG_TRACE_APPL2;
+    }
+    
+    if (report) {
+	fprintf(stderr, "%s:%d %s", file, line, op == PM_LOCK_OP ? "lock" : "unlock");
+	try = 0;
+again:
+	hp = __pmHashSearch((unsigned int)lock, &hashctl);
+	while (hp != NULL) {
+	    ldp = (lockdbg_t *)hp->data;
+	    if (ldp->lock == lock)
+		break;
+	    hp = hp->next;
+	}
+	if (hp == NULL) {
+	    ldp = (lockdbg_t *)malloc(sizeof(lockdbg_t));
+	    ldp->lock = lock;
+	    ldp->count = 0;
+	    sts = __pmHashAdd((unsigned int)lock, (void *)ldp, &hashctl);
+	    if (sts == 1) {
+		try++;
+		if (try == 1)
+		    goto again;
+	    }
+	    hp = NULL;
+	    fprintf(stderr, " hash control failure: %s\n", pmErrStr(sts));
+	}
+    }
+
+    if (report == DBG_TRACE_APPL0) {
+	fprintf(stderr, "(global_libpcp)");
+    }
+    else if (report == DBG_TRACE_APPL1) {
+	fprintf(stderr, "(ctx %d)", ctx);
+    }
+    else if (report == DBG_TRACE_APPL2) {
+	if ((ctx = __pmIsChannelLock(lock)) >= 0)
+	    fprintf(stderr, "(ctx %d ipc channel)", ctx);
+	else if (__pmIsDeriveLock(lock))
+	    fprintf(stderr, "(derived_metric)");
+	else
+	    fprintf(stderr, "(" PRINTF_P_PFX "%p)", lock);
+    }
+    if (report) {
+	if (hp != NULL) {
+	    ldp = (lockdbg_t *)hp->data;
+	    if (op == PM_LOCK_OP) {
+		if (ldp->count != 0)
+		    fprintf(stderr, " [count=%d]", ldp->count);
+		ldp->count++;
+	    }
+	    else {
+		if (ldp->count != 1)
+		    fprintf(stderr, " [count=%d]", ldp->count);
+		ldp->count--;
+	    }
+	}
+	fputc('\n', stderr);
+    }
+}
+#endif
+#endif

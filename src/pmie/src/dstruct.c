@@ -1141,7 +1141,15 @@ __dumpExpr(int level, Expr *x)
 		    }
 		    else {
 			double	v = *((double *)x->smpls[j].ptr+k);
-			if (isnand(v))
+			int		fp_bad = 0;
+#ifdef HAVE_FPCLASSIFY
+			fp_bad = fpclassify(v) == FP_NAN;
+#else
+#ifdef HAVE_ISNAN
+			fp_bad = isnan(v);
+#endif
+#endif
+			if (fp_bad)
 			    fputc('?', stderr);
 			else
 			    fprintf(stderr, "%g", v);

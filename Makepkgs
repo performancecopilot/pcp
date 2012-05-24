@@ -23,7 +23,21 @@ LOGDIR=Logs
 clean=false
 verbose=false
 
-MAKE=${MAKE:-make}
+if [ -z "$MAKE" ]
+then
+    MAKE=make
+else
+    # $MAKE in the environment, ensure it is a full path so that
+    # configure ends up setting the right thing for $PCP_MAKE_PROG
+    #
+    try=`which $MAKE 2>/dev/null`
+    if [ -z "$try" ]
+    then
+	echo "Error: $MAKE (from \$MAKE) does not exist!"
+	exit 1
+    fi
+    export MAKE=$try
+fi
 
 for opt in $*
 do

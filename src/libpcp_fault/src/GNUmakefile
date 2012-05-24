@@ -14,7 +14,7 @@
 # License for more details.
 #
 
-LCFLAGS += -DPM_FAULT_INJECTION=1
+LCFLAGS += -DPM_FAULT_INJECTION=1 -DPM_MULTI_THREAD_DEBUG=1
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
@@ -69,9 +69,12 @@ LIBTARGET = libpcp_fault.$(DSOSUFFIX)
 SYMTARGET =
 endif
 
-LDIRT += $(SYMTARGET)
+LDIRT += $(SYMTARGET) libpcp.so
 
-base default : $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+base default : $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) libpcp.so
+
+libpcp.so: $(SYMTARGET)
+	ln -s $(SYMTARGET) libpcp.so
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET): 

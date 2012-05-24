@@ -633,10 +633,16 @@ pmPrintValue(FILE *f,			/* output stream */
 	if (valfmt == PM_VAL_INSITU) {
 	    float	*fp = (float *)&val->value.lval;
 	    __uint32_t	*ip = (__uint32_t *)&val->value.lval;
+	    int		fp_bad = 0;
 	    fprintf(f, "%*u", minwidth, *ip);
+#ifdef HAVE_FPCLASSIFY
+	    fp_bad = fpclassify(*fp) == FP_NAN;
+#else
 #ifdef HAVE_ISNANF
-	    if (!isnanf(*fp))
+	    fp_bad = isnanf(*fp);
 #endif
+#endif
+	    if (!fp_bad)
 		fprintf(f, " %*.8g", minwidth, (double)*fp);
 	    if (minwidth > 2)
 		minwidth -= 2;
@@ -646,31 +652,44 @@ pmPrintValue(FILE *f,			/* output stream */
 	    int		string;
 	    int		done = 0;
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(__uint64_t)) {
-		__uint64_t	i;
-		memcpy((void *)&i, (void *)&val->value.pval->vbuf, sizeof(__uint64_t));
-		fprintf(f, "%*"PRIu64, minwidth, i);
+		__uint64_t	tmp;
+		memcpy((void *)&tmp, (void *)val->value.pval->vbuf, sizeof(tmp));
+		fprintf(f, "%*"PRIu64, minwidth, tmp);
 		done = 1;
 	    }
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(double)) {
-		double	d;
-		memcpy((void *)&d, (void *)&val->value.pval->vbuf, sizeof(double));
-		if (!isnand(d)) {
+		double		tmp;
+		int		fp_bad = 0;
+		memcpy((void *)&tmp, (void *)val->value.pval->vbuf, sizeof(tmp));
+#ifdef HAVE_FPCLASSIFY
+		fp_bad = fpclassify(tmp) == FP_NAN;
+#else
+#ifdef HAVE_ISNAN
+		fp_bad = isnan(tmp);
+#endif
+#endif
+		if (!fp_bad) {
 		    if (done) fputc(' ', f);
-		    fprintf(f, "%*.16g", minwidth, d);
+		    fprintf(f, "%*.16g", minwidth, tmp);
 		    done = 1;
 		}
 	    }
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(float)) {
-		float	*fp = (float *)&val->value.pval->vbuf;
+		float	tmp;
+		int	fp_bad = 0;
+		memcpy((void *)&tmp, (void *)val->value.pval->vbuf, sizeof(tmp));
+#ifdef HAVE_FPCLASSIFY
+		fp_bad = fpclassify(tmp) == FP_NAN;
+#else
 #ifdef HAVE_ISNANF
-		if (!isnanf(*fp)) {
+		fp_bad = isnanf(tmp);
 #endif
+#endif
+		if (!fp_bad) {
 		    if (done) fputc(' ', f);
-		    fprintf(f, "%*.8g", minwidth, (double)*fp);
+		    fprintf(f, "%*.8g", minwidth, (double)tmp);
 		    done = 1;
-#ifdef HAVE_ISNANF
 		}
-#endif
 	    }
 	    if (val->value.pval->vlen < PM_VAL_HDR_SIZE)
 		fprintf(f, "pmPrintValue: negative length (%d) for aggregate value?",
@@ -714,7 +733,24 @@ pmPrintValue(FILE *f,			/* output stream */
 	break;
 
     case PM_TYPE_EVENT:		/* not much we can do about minwidth */
-	print_event_summary(f, val);
+	if (valfmt == PM_VAL_INSITU) {
+	    /*
+	     * Special case for pmlc/pmlogger where PMLC_SET_*() macros
+	     * used to set control requests / state in the lval field
+	     * and the pval does not really contain a valid event record
+	     * Code here comes from PrintState() in actions.c from pmlc.
+	     */
+	    fputs("[pmlc control ", f);
+	    fputs(PMLC_GET_MAND(val->value.lval) ? "mand " : "adv ", f);
+	    fputs(PMLC_GET_ON(val->value.lval) ? "on " : "off ", f);
+	    if (PMLC_GET_INLOG(val->value.lval))
+		fputs(PMLC_GET_AVAIL(val->value.lval) ? " " : "na ", f);
+	    else
+		fputs("nl ", f);
+	    fprintf(f, "%d]", PMLC_GET_DELTA(val->value.lval));
+	}
+	else
+	    print_event_summary(f, val);
 	break;
 
     case PM_TYPE_NOSUPPORT:
@@ -1295,21 +1331,6 @@ dirname(char *name)
 	*p = '\0';
 	return(name);
     }
-}
-#endif
-
-#ifndef HAVE_ISNAND
-int
-isnand(double d)
-{
-#ifdef HAVE_ISNANF
-    float	f = (float)d;
-    /* not exact, but the best we can do! */
-    return(isnanf(f));
-#else
-    /* no support, assume is _not_ NAN, i.e. OK */
-    return(0);
-#endif
 }
 #endif
 

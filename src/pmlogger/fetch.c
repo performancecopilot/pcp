@@ -39,8 +39,10 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	ctxp = __pmHandleToPtr(ctx);
 	if (ctxp == NULL)
 	    return PM_ERR_NOCONTEXT;
-	if (ctxp->c_type != PM_CONTEXT_HOST)
+	if (ctxp->c_type != PM_CONTEXT_HOST) {
+	    PM_UNLOCK(ctxp->c_lock);
 	    return PM_ERR_NOTHOST;
+	}
     }
     else
 	return PM_ERR_NOCONTEXT;
@@ -49,8 +51,10 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
     if (ctxp->c_pmcd->pc_fd == -1) {
 	/* lost connection, try to get it back */
 	n = reconnect();
-	if (n < 0)
+	if (n < 0) {
+	    PM_UNLOCK(ctxp->c_lock);
 	    return n;
+	}
     }
 #endif
 
@@ -180,5 +184,6 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	disconnect(n);
     }
 
+    PM_UNLOCK(ctxp->c_lock);
     return n;
 }

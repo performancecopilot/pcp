@@ -1388,7 +1388,7 @@ then
 fi
 AC_SUBST(lib_for_dlopen)
 
-dnl check if flog10 and isnanf are available in the maths library
+dnl check if flog10, fpclassify and isnanf are available in the maths library
 lib_for_math=
 AC_CHECK_FUNCS(flog10)
 if test $ac_cv_func_flog10 = no
@@ -1399,10 +1399,57 @@ then
 	AC_DEFINE(HAVE_FLOG10)
 	lib_for_math=-lm
     fi
+else
+    AC_DEFINE(HAVE_FLOG10)
 fi
-
-if test $target_os != darwin -a $target_os != mingw -a $target_os != linux
+AC_MSG_CHECKING([for fpclassify()])
+ac_cv_func_fpclassify=no
+AC_TRY_LINK(
+[
+    #include <math.h>
+],
+[
+    double x = 123.456;
+    if (fpclassify(x) == FP_NAN) exit(1);
+], ac_cv_func_fpclassify=yes)
+AC_MSG_RESULT($ac_cv_func_fpclassify)
+if test $ac_cv_func_fpclassify = no
 then
+    dnl try with -lm
+    AC_MSG_CHECKING([for fpclassify() with -lm])
+    savedLIBS=$LIBS
+    LIBS=-lm
+    AC_TRY_LINK(
+[
+    #include <math.h>
+],
+[
+    double x = 123.456;
+    if (fpclassify(x) == FP_NAN) exit(1);
+], ac_cv_func_fpclassify=yes)
+    AC_MSG_RESULT($ac_cv_func_fpclassify)
+    if test $ac_cv_func_fpclassify = yes
+    then
+	lib_for_math=-lm
+    fi
+    LIBS=$savedLIBS
+fi
+if test $ac_cv_func_fpclassify = yes
+then
+    AC_DEFINE(HAVE_FPCLASSIFY)
+else
+    dnl prefer fpclassify() but will take isnan() and isnanf() as
+    dnl possible alternates
+    AC_CHECK_FUNCS(isnan)
+    if test $ac_cv_func_isnan = no
+    then
+	AC_CHECK_LIB(m, isnan)
+	if test $ac_cv_lib_m_isnan = yes
+	then
+	    AC_DEFINE(HAVE_ISNAN)
+	    lib_for_math=-lm
+	fi
+    fi
     AC_CHECK_FUNCS(isnanf)
     if test $ac_cv_func_isnanf = no
     then
@@ -1413,19 +1460,6 @@ then
 	    lib_for_math=-lm
 	fi
     fi
-    AC_CHECK_FUNCS(isnand)
-    if test $ac_cv_func_isnand = no
-    then
-	AC_CHECK_LIB(m, isnand)
-	if test $ac_cv_lib_m_isnand = yes
-	then
-	    AC_DEFINE(HAVE_ISNAND)
-	    lib_for_math=-lm
-	fi
-    fi
-else
-    AC_DEFINE(HAVE_ISNANF)
-    AC_DEFINE(HAVE_ISNAND)
 fi
 AC_SUBST(lib_for_math)
 
