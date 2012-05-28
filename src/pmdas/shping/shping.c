@@ -669,5 +669,8 @@ shping_init(pmdaInterface *dp)
 #error "Need pthreads or sproc"
 #endif
 
+    /* we're talking to pmcd ... no timeout's for us thanks */
+    signal(SIGALRM, SIG_IGN);
+
     return;
 }
