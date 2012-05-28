@@ -22,7 +22,7 @@
 #include <ctype.h>
 #include <regex.h>
 
-static char *prefix = "pcp-bash";
+static char *prefix = "pmdabash";
 static char *pcptmpdir;			/* probably /var/tmp */
 static char pidpath[MAXPATHLEN];
 

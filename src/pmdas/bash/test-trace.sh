@@ -1,7 +1,7 @@
 #!/bin/bash
 
 trap "wax_off; exit" 1 2 3 4 5 6 7 8 9 10 11 12 15
-TRACEFILE="/var/tmp/pcp-bash/$$"
+TRACEFILE="/var/tmp/pmdabash/$$"
 TRACEFD=99
 
 wax_on()
