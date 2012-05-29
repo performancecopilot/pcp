@@ -4,7 +4,7 @@
 # pcp.py
 #
 # Copyright (C) 2012 Red Hat Inc.
-# Copyright 2009, Michael T. Werner
+# Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of pcp, the python extensions for SGI's Performance
 # Co-Pilot. Pcp is free software: you can redistribute it and/or modify
