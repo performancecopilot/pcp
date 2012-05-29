@@ -1,32 +1,38 @@
 #!/bin/bash
 
-trap "wax_off; exit" 1 2 3 4 5 6 7 8 9 10 11 12 15
-TRACEFILE="/var/tmp/pmdabash/$$"
-TRACEFD=99
+trap "wax_off" 0
+PCP_TMP_DIR="/var/tmp"
+TRACE_DIR="${PCP_TMP_DIR}/pmdabash"
+TRACE_HEADER="${TRACE_DIR}/.$$"
+TRACE_DATA="${TRACE_DIR}/$$"
 
 wax_on()
 {
-	[ ! -e "/proc/$$/fd/$TRACEFD" ] || return 0
-	[ -d `dirname "${TRACEFILE}"` ] || return 0
-	[ "${BASH_VERSINFO[0]}" -ge 4 ] || return 0
+	[ -n "${BASH_VERSION}" ] || return 0		# wrong shell
+	[ "${BASH_VERSINFO[0]}" -ge 4 ] || return 0	# no support
+	[ ! -d "/proc/$$/fd" -o ! -e "/proc/$$/fd/99" ] || return 0
+	[ -d "${TRACE_DIR}" ] || return 0		# no pcp pmda
 
 	trap "wax_on 13" 13	# reset on sigpipe (consumer died)
 	printf -v TRACESTART '%(%s)T' -2
-	mkfifo -m 600 "${TRACEFILE}" 2>/dev/null || return 0
-	# header trace: command, parent, and start time
-	PS4='bash:${BASH_SOURCE} ppid:${PPID} date:${TRACESTART} + '
-	exec 99>"$TRACEFILE"
-	BASH_XTRACEFD="$TRACEFD"
-	set -o xtrace
-	# recurring traces: time, line#, and (optionally) function
+	mkfifo -m 600 "${TRACE_DATA}" #2>/dev/null || return 0
+	# header: version, command, parent, and start time
+	echo "version:1 ppid:${PPID} date:${TRACESTART} + ${BASH_SOURCE}" \
+		> "${TRACE_HEADER}" || return 0
+	# setup link between xtrace & fifo
+	exec 99>"${TRACE_DATA}"
+	BASH_XTRACEFD=99	# magic bash environment variable
+	set -o xtrace		# start tracing from here onward
+	# traces: time, line#, and (optionally) function
 	PS4='time:${SECONDS} line:${LINENO} func:${FUNCNAME[0]-} + '
 }
 
 wax_off()
 {
-	[ -e "${TRACEFILE}" ] || return 0
+	[ -e "${TRACE_DATA}" ] || return 0
 	exec 99>/dev/null
-	unlink "${TRACEFILE}" 2>/dev/null
+	unlink "${TRACE_DATA}" 2>/dev/null
+	unlink "${TRACE_HEADER}" 2>/dev/null
 }
 
 tired()
@@ -40,7 +46,7 @@ while true
 do
 	(( count++ ))
 	echo "awoke, $count"	# top level
-	tired 2			# call a shell function
+	tired 2		# call a shell function
 done
 
 exit 0

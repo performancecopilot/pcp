@@ -25,7 +25,7 @@ LLDLIBS		= -lpcp -lpcp_pmda
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 LDIRT		= domain.h *.log *.dir *.pag so_locations
 
-CFILES		= event.c pmda.c
+CFILES		= event.c pmda.c util.c
 HFILES		= event.h
 LSRCFILES	= Install Remove pmns help root
 
@@ -43,7 +43,7 @@ install:	default
 	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
 
 pmda.o: domain.h
-event.o pmda.o: event.h
+event.o pmda.o util.o: event.h
 
 .NOTPARALLEL:
 .ORDER:	domain.h $(OBJECTS)

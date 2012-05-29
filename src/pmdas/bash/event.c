@@ -26,37 +26,110 @@ static char *prefix = "pmdabash";
 static char *pcptmpdir;			/* probably /var/tmp */
 static char pidpath[MAXPATHLEN];
 
+/*
+ * Extract time of last modification to the trace file, from stat()
+ */
+static void
+process_mtime_timestamp(bash_process_t *process, struct timeval *timestamp)
+{
+    timestamp->tv_sec = process->stat.st_mtim.tv_sec;
+    timestamp->tv_usec = process->stat.st_mtim.tv_nsec / 1000;
+}
+
+/*
+ * Parse the header file (/path/.pid) containing xtrace metadata.
+ * Helper routine, used during initialising of a tracked shell.
+ */
+static void
+process_head_parser(bash_process_t *verify, const char *buffer, size_t size)
+{
+    char *p = (char *)buffer, *end = (char *)buffer + size - 1;
+    int version = 0;
+    int date = 0;
+
+    p += extract_int(p, "version:", sizeof("version:")-1, &version);
+    p += extract_int(p, "ppid:", sizeof("ppid:")-1, &verify->parent);
+    p += extract_int(p, "date:", sizeof("date:")-1, &date);
+    extract_cmd(p, end - p, "+", 1, verify->script, sizeof(verify->script));
+
+    if (date == 0) {
+	process_mtime_timestamp(verify, &verify->starttime);
+    } else {
+	verify->starttime.tv_sec = date;
+	verify->starttime.tv_usec = 0;
+    }
+    verify->version = version;
+
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_DEBUG, "process header v%d: script='%s' ppid=%d",
+			verify->version, verify->script, verify->parent);
+}
+
+/*
+ * Verify the header file (/path/.pid) containing xtrace metadata.
+ * Helper routine, used during initialising of a tracked shell.
+ */
 static int
-process_init(const char *bashname, bash_process_t *bash)
+process_head_verify(const char *filename, bash_process_t *verify)
+{
+    size_t size;
+    char buffer[1024];
+    int fd = open(filename, O_RDONLY);
+
+    if (fd < 0)
+	return fd;
+
+    size = read(fd, buffer, sizeof(buffer));
+    if (size > 0)
+	process_head_parser(verify, buffer, size);
+    close(fd);
+
+    /* make sure we only parse header/trace file formats we understand */
+    if (verify->version < MINIMUM_VERSION || verify->version > MAXIMUM_VERSION)
+	return -1;
+    return 0;
+}
+
+/*
+ * Verify the data files associated with a traced bash process.
+ * Helper routine, used during initialising of a tracked shell.
+ */
+static int
+process_verify(const char *bashname, bash_process_t *verify)
 {
     char *endnum;
     char path[MAXPATHLEN];
 
-    if (pmDebug & DBG_TRACE_APPL2)
-	__pmNotifyErr(LOG_DEBUG, "process_init check: %s", bashname);
+    verify->pid = (pid_t) strtoul(bashname, &endnum, 10);
+    if (*endnum != '\0' || verify->pid < 1)
+	return -1;
 
-    bash->pid = (pid_t) strtoul(bashname, &endnum, 10);
-    if (*endnum != '\0' || bash->pid < 1)
+    snprintf(path, sizeof(path), "%s%c.%s", pidpath, __pmPathSeparator(), bashname);
+    if (process_head_verify(path, verify) < 0)
 	return -1;
+
     snprintf(path, sizeof(path), "%s%c%s", pidpath, __pmPathSeparator(), bashname);
-    if ((bash->fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
+    if ((verify->fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 	return -1;
-    if (fstat(bash->fd, &bash->stat) < 0 || !S_ISFIFO(bash->stat.st_mode)) {
-	close(bash->fd);
+    if (fstat(verify->fd, &verify->stat) < 0 || !S_ISFIFO(verify->stat.st_mode)) {
+	close(verify->fd);
 	return -1;
     }
-
-    if (pmDebug & DBG_TRACE_APPL2)
-	__pmNotifyErr(LOG_DEBUG, "process_init pass: %s", path);
     return 0;
 }
 
+/*
+ * Finally allocate memory for a verified, traced bash process.
+ * Helper routine, used during initialising of a tracked shell.
+ */
 static bash_process_t *
-process_fill(const char *bashname, bash_process_t *init)
+process_alloc(const char *bashname, bash_process_t *init)
 {
     int queueid = pmdaEventNewQueue(bashname, bash_maxmem);
-    size_t size = sizeof(*init) + strlen(bashname) + 1;
-    bash_process_t *bashful = malloc(size);
+    bash_process_t *bashful = malloc(sizeof(bash_process_t));
+
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_DEBUG, "process_alloc: %s, queueid=%d", bashname, queueid);
 
     if (!bashful) {
 	__pmNotifyErr(LOG_ERR, "process allocation out of memory");
@@ -70,22 +143,49 @@ process_fill(const char *bashname, bash_process_t *init)
 
     bashful->fd = init->fd;
     bashful->pid = init->pid;
-    bashful->stat = init->stat;
-    bashful->first = 1;
+    bashful->parent = init->parent;
     bashful->queueid = queueid;
+    bashful->exited = 0;
+    bashful->restrict = 0;
+    bashful->version = init->version;
+    bashful->padding = 0;
+
+    memcpy(&bashful->starttime, &init->starttime, sizeof(struct timeval));
+    memcpy(&bashful->stat, &init->stat, sizeof(struct stat));
+    /* copy of first stat time, identifies first event */
+    process_mtime_timestamp(bashful, &bashful->startstat);
+
+    strcpy(bashful->script, init->script);
     strcpy(bashful->basename, bashname);
 
     if (pmDebug & DBG_TRACE_APPL0)
-	__pmNotifyErr(LOG_DEBUG, "process_fill: %s, queueid=%d", bashname, queueid);
+	__pmNotifyErr(LOG_DEBUG, "process_alloc: %s: script=%s", bashname, bashful->script);
 
     return bashful;
 }
 
-static void
-process_timestamp(bash_process_t *process, struct timeval *timestamp)
+/*
+ * Initialise a bash process data structure using the header and
+ * trace file.  Ready to accept event traces from this shell on
+ * completion of this routine - file descriptor setup, structure
+ * filled with all metadata (exported) about this process.
+ * Note: this is using an on-stack process structure, only if it
+ * all checks out will we allocate memory for it, and keep it.
+ */
+static int
+process_init(const char *bashname, bash_process_t **bp)
 {
-    timestamp->tv_sec = process->stat.st_mtim.tv_sec;
-    timestamp->tv_usec = process->stat.st_mtim.tv_nsec / 1000;
+    bash_process_t init = { 0 };
+
+    if (pmDebug & DBG_TRACE_APPL1)
+	__pmNotifyErr(LOG_DEBUG, "process_init: %s", bashname);
+
+    if (process_verify(bashname, &init) < 0)
+	return -1;
+    *bp = process_alloc(bashname, &init);
+    if (*bp == NULL)
+	return -1;
+    return 0;
 }
 
 static int
@@ -140,7 +240,7 @@ multiread:
 	return -1;
     }
 
-    process_timestamp(process, &timestamp);
+    process_mtime_timestamp(process, &timestamp);
 
     buffer[bufsize-1] = '\0';
     for (s = p = buffer, j = 0; *s != '\0' && j < bufsize-1; s++, j++) {
@@ -173,7 +273,7 @@ process_done(bash_process_t *process)
 	process->exited = (__pmProcessExists(process->pid) == 0);
 	/* empty event inserted into queue to denote bash has exited */
 	if (process->exited == 1) {
-	    process_timestamp(process, &timestamp);
+	    process_mtime_timestamp(process, &timestamp);
 	    pmdaEventQueueAppend(process->queueid, NULL, 0, &timestamp);
 	}
     }
@@ -183,11 +283,11 @@ void
 event_refresh(pmInDom bash_indom)
 {
     struct dirent **files;
-    bash_process_t init, *bp;
+    bash_process_t *bp;
     int i, id, sts, num = scandir(pidpath, &files, NULL, NULL);
 
-    if (pmDebug & DBG_TRACE_APPL2)
-	__pmNotifyErr(LOG_DEBUG, "event_refresh");
+    if (pmDebug & DBG_TRACE_APPL1)
+	__pmNotifyErr(LOG_DEBUG, "event_refresh: %d files", num);
 
     pmdaCacheOp(bash_indom, PMDA_CACHE_INACTIVE);
 
@@ -196,14 +296,13 @@ event_refresh(pmInDom bash_indom)
 
 	if (processid[0] == '.')
 	    continue;
-	if (process_init(processid, &init) < 0)
-	    continue;
 
 	/* either create or re-activate a bash process structure */
 	sts = pmdaCacheLookupName(bash_indom, processid, &id, (void **)&bp);
-	if ((sts != PMDA_CACHE_INACTIVE) &&
-	   ((bp = process_fill(processid, &init)) == NULL))
-	    continue;
+	if (sts != PMDA_CACHE_INACTIVE) {
+	    if (process_init(processid, &bp) < 0)
+		continue;
+	}
 	pmdaCacheStore(bash_indom, PMDA_CACHE_ADD, bp->basename, (void *)bp);
 
 	/* read any/all new events for this bash process, enqueue 'em */
