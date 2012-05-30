@@ -31,7 +31,7 @@ typedef struct event_logfile {
     char		pathname[MAXPATHLEN];
 } event_logfile_t;
 
-extern int maxfd;
+extern __pmFD maxfd;
 extern __pmFdSet fds;
 extern long maxmem;
 

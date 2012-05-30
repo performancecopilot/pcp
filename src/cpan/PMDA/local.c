@@ -315,7 +315,8 @@ void
 local_pmdaMain(pmdaInterface *self)
 {
     static char buffer[4096];
-    int pmcdfd, nready, nfds, i, j, count, fd, maxfd = -1;
+    int nready, i, j, count;
+    __pmFD pmcdfd, nfds, fd, maxfd = PM_ERROR_FD;
     __pmFdSet fds, readyfds;
     ssize_t bytes;
     size_t offset;
@@ -339,10 +340,10 @@ local_pmdaMain(pmdaInterface *self)
 		continue;
 	    fd = files[i].fd;
 	    __pmFD_SET(fd, &fds);
-	    if (fd > maxfd)
-		maxfd = fd;
+	    maxfd = __pmUpdateMaxFD(fd, maxfd);
 	}
-	nfds = ((pmcdfd > maxfd) ? pmcdfd : maxfd) + 1;
+	nfds = __pmUpdateMaxFD(pmcfd, maxfd);
+	nfds = __pmIncrFD(nfds);
 
 	memcpy(&readyfds, &fds, sizeof(readyfds));
 	nready = __pmSelectRead(nfds, &readyfds, &timeout);

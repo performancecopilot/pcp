@@ -61,7 +61,7 @@ static int	scanError = 0;		/* Problem in scanner */
 static char	*linebuf;		/* Buffer for input stream */
 static int	szLineBuf = 0;		/* Allocated size of linebuf */
 static char	*token = NULL;		/* Start of current token */
-static int	max_seen_fd = -1;	/* Larges fd we've seen */
+static int	max_seen_fd = -1;	/* Largest fd we've seen */
 static char	*tokenend = NULL;	/* End of current token */
 static int	nLines;			/* Current line of config file */
 static int	linesize = 0;		/* Length of line in linebuf */

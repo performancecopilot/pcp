@@ -19,8 +19,8 @@
 
 ClientInfo	*client;
 int		nClients;		/* Number in array, (not all in use) */
-int		maxSockFd = -1;		/* largest fd for a client */
-__pmFdSet		sockFds;		/* for client __pmSelect...() */
+__pmFD		maxSockFd = PM_ERROR_FD;/* largest fd for a client */
+__pmFdSet	sockFds;		/* for client __pmSelect...() */
 
 static int	clientSize;
 
@@ -76,8 +76,7 @@ AcceptNewClient(int reqfd)
 	exit(1);
     }
     __pmSetSocketIPC(fd);
-    if (fd > maxSockFd)
-	maxSockFd = fd;
+    maxSockFd = __pmUpdateMaxFD(fd, maxSockFd);
     __pmFD_SET(fd, &sockFds);
 
     client[i].fd = fd;

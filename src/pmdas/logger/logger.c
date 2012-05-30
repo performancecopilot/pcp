@@ -45,7 +45,7 @@
 #define DEFAULT_MAXMEM	(2 * 1024 * 1024)	/* 2 megabytes */
 long maxmem;
 
-int maxfd;
+__pmFD maxfd = PM_ERROR_FD;
 __pmFdSet fds;
 static int interval_expired;
 static struct timeval interval = { 2, 0 };
@@ -438,8 +438,7 @@ loggerMain(pmdaInterface *dispatch)
     __pmFD		pmcdfd;
 
     pmcdfd = __pmdaInFd(dispatch);
-    if (pmcdfd > maxfd)
-	maxfd = pmcdfd;
+    maxfd = __pmUpdateMaxFD(pmcdfd, maxfd);
 
     __pmFD_ZERO(&fds);
     __pmFD_SET(pmcdfd, &fds);
@@ -452,7 +451,7 @@ loggerMain(pmdaInterface *dispatch)
 
     for (;;) {
 	memcpy(&readyfds, &fds, sizeof(readyfds));
-	nready = select(maxfd+1, &readyfds, NULL, NULL, NULL);
+	nready = select(__pmIncrFD(maxfd), &readyfds, NULL, NULL, NULL);
 	if (pmDebug & DBG_TRACE_APPL2)
 	    __pmNotifyErr(LOG_DEBUG, "select: nready=%d interval=%d",
 			  nready, interval_expired);

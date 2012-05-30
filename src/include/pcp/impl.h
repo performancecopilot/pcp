@@ -541,6 +541,7 @@ extern int __pmConnectCheckError(int);
 extern int __pmConnectRestoreFlags (int, int);
 extern int __pmConnectHandshake(int);
 extern int __pmBind(__pmFD, __pmSockAddr *, mysocklen_t);
+extern int __pmListen(__pmFD fd, int backlog);
 extern __pmFD __pmAccept(__pmFD, __pmSockAddr *, mysocklen_t *);
 
 #define PM_NET_ADDR_STRING_SIZE 46 /* from the NSPR API reference */
@@ -554,6 +555,8 @@ extern void __pmFD_CLR(__pmFD fd, __pmFdSet *set);
 extern int  __pmFD_ISSET(__pmFD fd, __pmFdSet *set);
 extern void __pmFD_SET(__pmFD fd, __pmFdSet *set);
 extern void __pmFD_ZERO(__pmFdSet *set);
+extern __pmFD __pmUpdateMaxFD(__pmFD fd, int maxSockFD);
+extern __pmFD __pmIncrFD(__pmFD fd);
 extern int __pmSelectRead(int nfds, __pmFdSet *readfds, struct timeval *timeout);
 extern int __pmSelectWrite(int nfds, __pmFdSet *writefds, struct timeval *timeout);
 
@@ -955,14 +958,14 @@ extern void __pmEventTrace_r(const char *, int *, double *, double *);
 
 typedef int (*__pmConnectHostType)(int, int);
 
-extern int __pmSetSocketIPC(int);
-extern int __pmSetVersionIPC(int, int);
+extern int __pmSetSocketIPC(__pmFD);
+extern int __pmSetVersionIPC(__pmFD, int);
 extern int __pmLastVersionIPC();
-extern int __pmVersionIPC(int);
-extern int __pmSocketIPC(int);
-extern void __pmOverrideLastFd(int);
+extern int __pmVersionIPC(__pmFD);
+extern int __pmSocketIPC(__pmFD);
+extern void __pmOverrideLastFd(__pmFD);
 extern void __pmPrintIPC(void);
-extern void __pmResetIPC(int);
+extern void __pmResetIPC(__pmFD);
 
 /* safely insert an atom value into a pmValue */
 extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);

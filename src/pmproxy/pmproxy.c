@@ -43,7 +43,7 @@ typedef struct {
 static unsigned		nReqPorts = 0;	/* number of ports */
 static unsigned		szReqPorts = 0;	/* capacity of ports array */
 static ReqPortInfo	*reqPorts = NULL;	/* ports array */
-int			maxReqPortFd = -1;	/* highest request port file descriptor */
+__pmFD			maxReqPortFd = PM_ERROR_FD; /* highest request port file descriptor */
 
 static void
 DontStart(void)
@@ -235,8 +235,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 			port, netstrerror());
 	DontStart();
     }
-    if (fd > maxSockFd)
-	maxSockFd = fd;
+    maxSockFd = __pmUpdateMaxFD(fd, maxSockFd);
     __pmFD_SET(fd, &sockFds);
 
 #ifndef IS_MINGW
@@ -280,7 +279,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 	DontStart();
     }
 
-    sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
+    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) listen: %s\n",
 			port, netstrerror());
@@ -445,7 +444,7 @@ static void
 ClientLoop(void)
 {
     int		i, sts;
-    int		maxFd;
+    __pmFD	maxFd;
     __pmFdSet	readableFds;
     int		CheckClientAccess(ClientInfo *);
     ClientInfo	*cp;
@@ -455,7 +454,7 @@ ClientLoop(void)
 	 * track of the highest numbered descriptor for the select call.
 	 */
 	readableFds = sockFds;
-	maxFd = maxSockFd + 1;
+	maxFd = __pmIncrFD(maxSockFd);
 
 	sts = __pmSelectRead(maxFd, &readableFds, NULL);
 
@@ -490,8 +489,7 @@ ClientLoop(void)
 			CleanupClient(cp, -oserror());
 		    }
 		    else {
-			if (cp->pmcd_fd > maxSockFd)
-			    maxSockFd = cp->pmcd_fd;
+			maxSockFd = __pmUpdateMaxFD(cp->pmcd_fd, maxSockFd);
 			__pmFD_SET(cp->pmcd_fd, &sockFds);
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_CONTEXT)
@@ -589,8 +587,7 @@ main(int argc, char *argv[])
 	int fd = OpenRequestSocket(port, reqPorts[i].ipAddr);
 	if (fd != PM_ERROR_FD) {
 	    reqPorts[i].fd = fd;
-	    if (fd > maxReqPortFd)
-		maxReqPortFd = fd;
+	    maxReqPortFd = __pmUpdateMaxFD(fd, maxReqPortFd);
 	    nReqPortsOK++;
 	}
     }

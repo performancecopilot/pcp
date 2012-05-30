@@ -65,7 +65,7 @@ typedef struct {
 static unsigned		nReqPorts = 0;	/* number of ports */
 static unsigned		szReqPorts = 0;	/* capacity of ports array */
 static ReqPortInfo	*reqPorts = NULL;	/* ports array */
-int			maxReqPortFd = -1;	/* highest request port file descriptor */
+__pmFD			maxReqPortFd = PM_ERROR_FD;/* highest request port file descriptor */
 
 #ifdef HAVE_SA_SIGINFO
 static pid_t	killer_pid;
@@ -367,8 +367,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 		port, ipAddr, netstrerror());
 	return PM_ERROR_FD;
     }
-    if (fd > maxClientFd)
-	maxClientFd = fd;
+    maxClientFd = __pmUpdateMaxFD(fd, maxClientFd);
     __pmFD_SET(fd, &clientFds);
 
     /* Ignore dead client connections */
@@ -414,7 +413,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 	goto fail;
     }
 
-    sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
+    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) listen: %s\n",
 		port, ipAddr, netstrerror());
@@ -764,7 +763,7 @@ ClientLoop(void)
 {
     int		i, sts;
     int		challenge;
-    int		maxFd;
+    __pmFD	maxFd;
     int		checkAgents;
     int		reload_ns = 0;
     __pmFdSet	readableFds;
@@ -783,7 +782,7 @@ ClientLoop(void)
 	 * track of the highest numbered descriptor for the __pmSelectRead call.
 	 */
 	readableFds = clientFds;
-	maxFd = maxClientFd + 1;
+	maxFd = __pmIncrFD(maxClientFd);
 
 	/* If an agent was not ready, it may send an ERROR PDU to indicate it
 	 * is now ready.  Add such agents to the list of file descriptors.
@@ -796,8 +795,7 @@ ClientLoop(void)
 	    if (ap->status.notReady) {
 		fd = ap->outFd;
 		__pmFD_SET(fd, &readableFds);
-		if (fd > maxFd)
-		    maxFd = fd + 1;
+		maxFd = __pmUpdateMaxFD(__pmIncrFD(fd), maxFd);
 		checkAgents = 1;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_APPL0)
@@ -1106,8 +1104,7 @@ main(int argc, char *argv[])
     for (i = 0; i < nReqPorts; i++) {
 	reqPorts[i].fd = OpenRequestSocket(reqPorts[i].port, reqPorts[i].ipAddr);
 	if (reqPorts[i].fd != PM_ERROR_FD) {
-	    if (reqPorts[i].fd > maxReqPortFd)
-		maxReqPortFd = reqPorts[i].fd;
+	    maxReqPortFd = __pmUpdateMaxFD(reqPorts[i].fd, maxReqPortFd);
 	    nReqPortsOK++;
 	}
     }
@@ -1259,8 +1256,7 @@ CleanupClient(ClientInfo *cp, int sts)
     pmcd_trace(TR_DEL_CLIENT, cp->fd, sts, 0);
     DeleteClient(cp);
 
-    if (maxClientFd < maxReqPortFd)
-	maxClientFd = maxReqPortFd;
+    maxClientFd = __pmUpdateMaxFD(maxReqPortFd, maxClientFd);
 
     for (i = 0; i < nAgents; i++)
 	if (agent[i].profClient == cp)

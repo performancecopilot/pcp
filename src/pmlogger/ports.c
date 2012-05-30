@@ -231,7 +231,7 @@ GetPort(char *file)
 	else
 	    break;
     }
-    sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
+    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	fprintf(stderr, "listen: %s\n", netstrerror());
 	exit(1);

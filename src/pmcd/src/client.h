@@ -42,7 +42,7 @@ typedef struct {
 
 PMCD_EXTERN ClientInfo	*client;		/* Array of clients */
 PMCD_EXTERN int		nClients;		/* Number of entries in array */
-extern int		maxClientFd;		/* largest fd for a client */
+extern __pmFD		maxClientFd;		/* largest fd for a client */
 extern __pmFdSet	clientFds;		/* for client __pmSelect...() */
 PMCD_EXTERN int		this_client_id;		/* client for current request */
 

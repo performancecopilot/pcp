@@ -61,7 +61,7 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
     __pmProfile		*profile;
     __pmProfile		*saveprofile = NULL;
     static __pmFdSet	readFds;
-    int			maxfd;
+    __pmFD		maxfd;
     int			configReady, clientReady, pmcdReady;
     __pmFD infd, outfd;
 
@@ -75,11 +75,10 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 	outfd = dtp->version.two.ext->e_outfd;
     }
 
-    maxfd = infd+1;
-    if (clientfd >= maxfd)
-	maxfd = clientfd+1;
-    if (configfd >= maxfd)
-	maxfd = configfd+1;
+    maxfd = infd;
+    maxfd = __pmUpdateMaxFD(clientfd, maxfd);
+    maxfd = __pmUpdateMaxFD(configfd, maxfd);
+    maxfd = __pmIncrFD(maxfd);
 
     for ( ;; ) {
 	__pmFD_ZERO(&readFds);

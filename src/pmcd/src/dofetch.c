@@ -359,7 +359,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
     __pmFdSet		waitFds;
     __pmFdSet		readyFds;
     int			nWait;
-    int			maxFd;
+    __pmFD		maxFd;
     struct timeval	timeout;
 
     if (nAgents > nDoms) {
@@ -408,7 +408,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
      */
     __pmFD_ZERO(&waitFds);
     nWait = 0;
-    maxFd = -1;
+    maxFd = PM_ERROR_FD;
     for (i = 0; dList[i].domain != -1; i++) {
 	j = mapdom[dList[i].domain];
 	results[j] = SendFetch(&dList[i], &agent[j], cip, ctxnum);
@@ -416,8 +416,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	    __pmFD fd = agent[j].outFd;
 	    agent[j].status.busy = 1;
 	    __pmFD_SET(fd, &waitFds);
-	    if (fd > maxFd)
-		maxFd = fd;
+	    maxFd = __pmUpdateMaxFD(fd, maxFd);
 	    nWait++;
 	}
     }
@@ -432,7 +431,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	    timeout.tv_sec = _pmcd_timeout;
 	    timeout.tv_usec = 0;
 
-	    sts = __pmSelectRead(maxFd+1, &readyFds, &timeout);
+	    sts = __pmSelectRead(__pmIncrFD(maxFd), &readyFds, &timeout);
 
 	    if (sts == 0) {
 		__pmNotifyErr(LOG_INFO, "DoFetch: __pmSelectRead timeout");

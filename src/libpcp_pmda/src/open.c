@@ -90,7 +90,7 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 	exit(1);
     }
 
-    sts = listen(sfd, 5);	/* Max. of 5 pending connection requests */
+    sts = __pmListen(sfd, 5);	/* Max. of 5 pending connection requests */
     if (sts == PM_ERROR_FD) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet listen: %s\n",
 			netstrerror());

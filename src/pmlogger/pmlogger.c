@@ -46,7 +46,7 @@ static __pmFD 	    pmcdfd;		/* comms to pmcd */
 static int	    ctx;		/* handle correspondong to ctxp below */
 static __pmContext  *ctxp;		/* pmlogger has just this one context */
 static __pmFdSet    fds;		/* file descriptors mask for __pmSelectRead */
-static int	    numfds;		/* number of file descriptors in mask */
+static __pmFD	    numfds;		/* number of file descriptors in mask */
 
 static int	rsc_fd = -1;	/* recording session control see -x */
 static int	rsc_replay;
@@ -116,12 +116,9 @@ static int
 maxfd(void)
 {
     int	max = ctlfd;
-    if (clientfd > max)
-	max = clientfd;
-    if (pmcdfd > max)
-	max = pmcdfd;
-    if (rsc_fd > max)
-	max = rsc_fd;
+    max = __pmUpdateMaxFD(clientfd, max);
+    max = __pmUpdateMaxFD(pmcdfd, max);
+    max = __pmUpdateMaxFD(rsc_fd, max);
     return max;
 }
 
@@ -862,7 +859,7 @@ Options:\n\
 #endif
     if (rsc_fd != -1)
 	__pmFD_SET(rsc_fd, &fds);
-    numfds = maxfd() + 1;
+    numfds = __pmIncrFD(maxfd());
 
     if ((sts = do_preamble()) < 0)
 	fprintf(stderr, "Warning: problem writing archive preamble: %s\n",
@@ -896,8 +893,7 @@ Options:\n\
 		if (control_req()) {
 		    /* new client has connected */
 		    __pmFD_SET(clientfd, &fds);
-		    if (clientfd >= numfds)
-			numfds = clientfd + 1;
+		    numfds = __pmUpdateMaxFD(__pmIncrFD(clientfd), numfds);
 		}
 	    }
 	    if (clientfd != PM_ERROR_FD && __pmFD_ISSET(clientfd, &readyfds)) {
@@ -909,7 +905,7 @@ Options:\n\
 		if (client_req()) {
 		    /* client closed connection */
 		    __pmFD_CLR(fd, &fds);
-		    numfds = maxfd() + 1;
+		    numfds = __pmIncrFD(maxfd());
 		    qa_case = 0;
 		}
 	    }
@@ -1112,7 +1108,7 @@ disconnect(int sts)
     close(pmcdfd);
     __pmFD_CLR(pmcdfd, &fds);
     pmcdfd = -1;
-    numfds = maxfd() + 1;
+    numfds = __pmIncrFD(maxfd());
     ctxp->c_pmcd->pc_fd = -1;
 #else
     exit(1);
@@ -1133,7 +1129,7 @@ reconnect(void)
 		pmProgname, ctxp->c_pmcd->pc_name, ctime(&now));
 	pmcdfd = ctxp->c_pmcd->pc_fd;
 	__pmFD_SET(pmcdfd, &fds);
-	numfds = maxfd() + 1;
+	numfds = __pmIncrFD(maxfd());
     }
     return sts;
 }

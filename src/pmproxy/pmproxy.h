@@ -38,15 +38,15 @@ typedef struct {
 
 extern ClientInfo	*client;		/* Array of clients */
 extern int		nClients;		/* Number of entries in array */
-extern int		maxSockFd;		/* largest fd for a clients
+extern __pmFD		maxSockFd;		/* largest fd for a clients
 						 * and pmcd connections */
-extern __pmFdSet		sockFds;		/* for __pmSelect...() */
+extern __pmFdSet	sockFds;		/* for __pmSelect...() */
 
 /* prototypes */
 extern ClientInfo *AcceptNewClient(int);
 extern void DeleteClient(ClientInfo *);
 extern void StartDaemon(int, char **);
 
-extern int	maxReqPortFd;	/* highest request port file descriptor */
+extern __pmFD	maxReqPortFd;	/* highest request port file descriptor */
 
 #endif /* _PROXY_H */

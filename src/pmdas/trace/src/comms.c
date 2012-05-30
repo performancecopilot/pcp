@@ -26,7 +26,7 @@ extern struct timeval	interval;
 extern int readData(int, int *);
 extern void timerUpdate(void);
 
-extern int	maxfd;
+extern __pmFD	maxfd;
 extern int	nclients;
 extern client_t	*clients;
 extern int	ctlport;		/* control port number */
@@ -52,7 +52,8 @@ traceMain(pmdaInterface *dispatch)
 
     ctlfd = getcport();
     pmcdfd = __pmdaInFd(dispatch);
-    maxfd = (ctlfd > pmcdfd) ? (ctlfd):(pmcdfd);
+    maxfd = __pmUpdateMaxFD(ctlfd, pmcdfd);
+    maxfd = __pmIncrFD(maxfd);
     __pmFD_ZERO(&fds);
     __pmFD_SET(ctlfd, &fds);
     __pmFD_SET(pmcdfd, &fds);
@@ -67,7 +68,7 @@ traceMain(pmdaInterface *dispatch)
 
     for (;;) {
 	memcpy(&readyfds, &fds, sizeof(readyfds));
-	nready = __pmSelectRead(maxfd+1, &readyfds, NULL);
+	nready = __pmSelectRead(maxfd, &readyfds, NULL);
 
 	if (nready == 0)
 	    continue;

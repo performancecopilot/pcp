@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -35,7 +36,7 @@ typedef struct {
     int		socket;		/* true or false */
 } __pmIPC;
 
-static int	__pmLastUsedFd = -INT_MAX;
+static __pmFD	__pmLastUsedFd = PM_ERROR_FD;
 static __pmIPC	*__pmIPCTablePtr;
 static int	ipctablesize;
 
@@ -43,7 +44,7 @@ static int	ipctablesize;
  * always called with __pmLock_libpcp held
  */
 static int
-__pmResizeIPC(int fd)
+__pmResizeIPC(__pmFD fd)
 {
     int	oldsize;
 
@@ -65,7 +66,7 @@ __pmResizeIPC(int fd)
 }
 
 int
-__pmSetVersionIPC(int fd, int version)
+__pmSetVersionIPC(__pmFD fd, int version)
 {
     int sts;
 
@@ -90,7 +91,7 @@ __pmSetVersionIPC(int fd, int version)
 }
 
 int
-__pmSetSocketIPC(int fd)
+__pmSetSocketIPC(__pmFD fd)
 {
     int sts;
 
@@ -115,7 +116,7 @@ __pmSetSocketIPC(int fd)
 }
 
 int
-__pmVersionIPC(int fd)
+__pmVersionIPC(__pmFD fd)
 {
     int		sts;
 
@@ -150,7 +151,7 @@ __pmLastVersionIPC()
 }
 
 int
-__pmSocketIPC(int fd)
+__pmSocketIPC(__pmFD fd)
 {
     int		sts;
 
@@ -173,7 +174,7 @@ __pmSocketIPC(int fd)
  * (when __pmDecodeError is called before knowing version).
  */
 void
-__pmOverrideLastFd(int fd)
+__pmOverrideLastFd(__pmFD fd)
 {
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -182,7 +183,7 @@ __pmOverrideLastFd(int fd)
 }
 
 void
-__pmResetIPC(int fd)
+__pmResetIPC(__pmFD fd)
 {
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);

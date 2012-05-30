@@ -14,19 +14,32 @@
  */
 
 #include <signal.h>
+#include <assert.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "trace.h"
 #include "trace_dev.h"
 
 typedef struct {
+    __pmFD		fd;
     __pmTracePDU	*pdubuf;
     int			len;
 } more_ctl;
-static more_ctl		*more;
-static int		maxfd = -1;
+static more_ctl		*more = NULL;
+static int		more_size = 0;
 
 extern __pmFD		__pmfd;
+
+static int
+find_more(__pmFD fd)
+{
+  int i;
+  for (i = 0; i < more_size; ++i) {
+    if (more[i].fd == fd)
+      return i;
+  }
+  return -1; /* not found */
+}
 
 static char *
 pdutypestr(int type)
@@ -41,8 +54,9 @@ pdutypestr(int type)
 }
 
 static void
-moreinput(int fd, __pmTracePDU *pdubuf, int len)
+moreinput(__pmFD fd, __pmTracePDU *pdubuf, int len)
 {
+  int more_ix;
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_PDU) {
 	__pmTracePDUHdr	*php = (__pmTracePDUHdr *)pdubuf;
@@ -71,49 +85,56 @@ moreinput(int fd, __pmTracePDU *pdubuf, int len)
 	putc('\n', stderr);
     }
 #endif
-    if (fd > maxfd) {
-	int	next = maxfd + 1;
-	if ((more = (more_ctl *)realloc(more, (fd+1)*sizeof(more[0]))) == NULL)
-{
+    more_ix = find_more (fd);
+    if (more_ix < 0) {
+        ++more_size;
+	if ((more = (more_ctl *)realloc(more, (more_size)*sizeof(more[0]))) == NULL) {
 	    fprintf(stderr, "realloc failed (%d bytes): %s\n",
-		    (fd+1)*(int)sizeof(more[0]), osstrerror());
+		    (more_size)*(int)sizeof(more[0]), osstrerror());
 	    return;
 	}
-	maxfd = fd;
-	while (next <= maxfd) {
-	    more[next].pdubuf = NULL;
-	    next++;
-	}
+	more_ix = more_size - 1;
     }
 
     __pmtracepinPDUbuf(pdubuf);
-    more[fd].pdubuf = pdubuf;
-    more[fd].len = len;
+    more[more_ix].fd = fd;
+    more[more_ix].pdubuf = pdubuf;
+    more[more_ix].len = len;
 }
 
 int
-__pmtracemoreinput(int fd)
+__pmtracemoreinput(__pmFD fd)
 {
-    if (fd == PM_ERROR_FD || fd > maxfd)
+    int more_ix;
+    if (fd == PM_ERROR_FD)
 	return 0;
 
-    return more[fd].pdubuf == NULL ? 0 : 1;
+    more_ix = find_more(fd);
+    if (more_ix < 0)
+	return 0;
+
+    return more[more_ix].pdubuf == NULL ? 0 : 1;
 }
 
 void
-__pmtracenomoreinput(int fd)
+__pmtracenomoreinput(__pmFD fd)
 {
-    if (fd == PM_ERROR_FD || fd > maxfd)
+    int more_ix;
+    if (fd == PM_ERROR_FD)
 	return;
 
-    if (more[fd].pdubuf != NULL) {
-	__pmtraceunpinPDUbuf(more[fd].pdubuf);
-	more[fd].pdubuf = NULL;
+    more_ix = find_more(fd);
+    if (more_ix < 0)
+	return;
+
+    if (more[more_ix].pdubuf != NULL) {
+	__pmtraceunpinPDUbuf(more[more_ix].pdubuf);
+	more[more_ix].pdubuf = NULL;
     }
 }
 
 static int
-pduread(int fd, char *buf, int len, int mode, int timeout)
+pduread(__pmFD fd, char *buf, int len, int mode, int timeout)
 {
     /*
      * handle short reads that may split a PDU ...
@@ -163,7 +184,7 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 		wait = def_wait;
 	    __pmFD_ZERO(&onefd);
 	    __pmFD_SET(fd, &onefd);
-	    status = __pmSelectRead(fd+1, &onefd, &wait);
+	    status = __pmSelectRead(__pmIncrFD(fd), &onefd, &wait);
 	    if (status == 0)
 		return PMTRACE_ERR_TIMEOUT;
 	    else if (status < 0) {
@@ -200,7 +221,7 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
  */
 
 int
-__pmtracexmitPDU(int fd, __pmTracePDU *pdubuf)
+__pmtracexmitPDU(__pmFD fd, __pmTracePDU *pdubuf)
 {
     int			n, len;
     __pmTracePDUHdr	*php = (__pmTracePDUHdr *)pdubuf;
@@ -255,9 +276,10 @@ __pmtracexmitPDU(int fd, __pmTracePDU *pdubuf)
 
 
 int
-__pmtracegetPDU(int fd, int timeout, __pmTracePDU **result)
+__pmtracegetPDU(__pmFD fd, int timeout, __pmTracePDU **result)
 {
     int			need, len;
+    int			more_ix;
     char		*handle;
     static int		maxsize = TRACE_PDU_CHUNK;
     __pmTracePDU	*pdubuf;
@@ -292,8 +314,10 @@ __pmtracegetPDU(int fd, int timeout, __pmTracePDU **result)
      */
     if (__pmtracemoreinput(fd)) {
 	/* some leftover from last time ... handle -> start of PDU */
-	pdubuf = more[fd].pdubuf;
-	len = more[fd].len;
+        more_ix = find_more(fd);
+	assert (more_ix >= 0);
+	pdubuf = more[more_ix].pdubuf;
+	len = more[more_ix].len;
 	__pmtracenomoreinput(fd);
     }
     else {

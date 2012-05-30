@@ -311,6 +311,16 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     return __pmConnectRestoreFlags (fd, fdFlags);
 }
 
+int
+__pmListen(__pmFD fd, int backlog)
+{
+#ifdef HAVE_NSS
+  #error __FUNCTION__ is not implemented for NSS
+#else
+  return listen(fd, backlog);
+#endif
+}
+
 __pmFD
 __pmAccept(__pmFD reqfd, __pmSockAddr *addr, mysocklen_t *addrlen)
 {
@@ -416,6 +426,30 @@ __pmFD_ZERO(__pmFdSet *set)
   #error __FUNCTION__ is not implemented for NSS
 #else
   FD_ZERO(set);
+#endif
+}
+
+__pmFD
+__pmUpdateMaxFD(__pmFD fd, int maxFd)
+{
+#ifdef HAVE_NSS
+  /* The NSPR select API (PR_Poll) does not use max fd, so leave it alone. */
+  return maxFd;
+#else
+  if (fd > maxFd)
+    maxFd = fd;
+  return maxFd;
+#endif
+}
+
+__pmFD
+__pmIncrFD(__pmFD fd)
+{
+#ifdef HAVE_NSS
+  /* The NSPR select API (PR_Poll) does not use max fd, so leave it alone. */
+  return fd;
+#else
+  return fd + 1;
 #endif
 }
 

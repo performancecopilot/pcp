@@ -137,7 +137,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
     __pmFdSet	readyFds;
     __pmFdSet	waitFds;
     int		nWait = 0;
-    int		maxFd = -1;
+    int		maxFd = PM_ERROR_FD;
     int		badStore;		/* != 0 => store to nonexistent agent */
     int		notReady = 0;		/* != 0 => store to agent that's not ready */
     struct timeval	timeout;
@@ -177,8 +177,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 		    ap->status.busy = 1;
 		    fd = ap->outFd;
 		    __pmFD_SET(fd, &waitFds);
-		    if (fd > maxFd)
-			maxFd = fd;
+		    maxFd = __pmUpdateMaxFD(fd, maxFd);
 		    nWait++;
 		}
 		else if (s == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || s == -EPIPE) {
@@ -210,7 +209,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	    timeout.tv_sec = _pmcd_timeout;
 	    timeout.tv_usec = 0;
 
-	    s = __pmSelectRead(maxFd+1, &readyFds, &timeout);
+	    s = __pmSelectRead(__pmIncrFD(maxFd), &readyFds, &timeout);
 
 	    if (s == 0) {
 		__pmNotifyErr(LOG_INFO, "DoStore: __pmSelectRead timeout");

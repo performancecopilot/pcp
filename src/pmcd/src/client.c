@@ -19,7 +19,7 @@
 
 #define MIN_CLIENTS_ALLOC 8
 
-int		maxClientFd = -1;	/* largest fd for a client */
+__pmFD		maxClientFd = -1;	/* largest fd for a client */
 __pmFdSet	clientFds;		/* for client __pmSelect...() */
 
 static int	clientSize = 0;
@@ -105,8 +105,7 @@ AcceptNewClient(int reqfd)
 	    exit(1);
 	}
     }
-    if (fd > maxClientFd)
-	maxClientFd = fd;
+    maxClientFd = __pmUpdateMaxFD(fd, maxClientFd);
 
     PMCD_OPENFDS_SETHI(fd);
 
@@ -194,10 +193,9 @@ DeleteClient(ClientInfo *cp)
 	nClients = (i >= 0) ? i + 1 : 0;
     }
     if (cp->fd == maxClientFd) {
-	maxClientFd = -1;
+	maxClientFd = PM_ERROR_FD;
 	for (i = 0; i < nClients; i++) {
-	    if (client[i].fd > maxClientFd)
-		maxClientFd = client[i].fd;
+	  maxClientFd = __pmUpdateMaxFD(client[i].fd, maxClientFd);
 	}
     }
     for (i = 0; i < cp->szProfile; i++) {

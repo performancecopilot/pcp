@@ -31,7 +31,8 @@ void
 event_init(pmID pmid)
 {
     char cmd[MAXPATHLEN];
-    int	i, fd;
+    int	i;
+    __pmFD fd;
 
     for (i = 0; i < numlogfiles; i++) {
 	size_t pathlen = strlen(logfiles[i].pathname);
@@ -66,8 +67,7 @@ event_init(pmID pmid)
 		    __pmNotifyErr(LOG_ERR, "pipe: %s - %s",
 					logfiles[i].pathname, strerror(errno));
 	    } else {
-		if (fd > maxfd)
-		    maxfd = fd;
+	        maxfd = __pmUpdateMaxFD(fd, maxfd);
 		__pmFD_SET(fd, &fds);
 	    }
 	}

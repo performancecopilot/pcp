@@ -22,7 +22,7 @@
 extern __pmFdSet	fds;
 
 int		nclients;		/* number of entries in array */
-int		maxfd;			/* largest fd currently in use */
+__pmFD		maxfd;			/* largest fd currently in use */
 client_t	*clients;		/* array of clients */
 
 #define MIN_CLIENTS_ALLOC 8
@@ -45,8 +45,7 @@ acceptClient(int reqfd)
 		reqfd, netstrerror());
 	return NULL;
     }
-    if (fd > maxfd)
-	maxfd = fd;
+    maxfd = __pmUpdateMaxFD(fd, maxfd);
     __pmFD_SET(fd, &fds);
     clients[i].fd = fd;
     clients[i].status.connected = 1;
@@ -100,10 +99,9 @@ deleteClient(client_t *cp)
 	__pmCloseSocket(cp->fd);
     }
     if (cp->fd == maxfd) {
-	maxfd = -1;
+	maxfd = PM_ERROR_FD;
 	for (i = 0; i < nclients; i++)
-	    if (clients[i].fd > maxfd)
-		maxfd = clients[i].fd;
+	    maxfd = __pmUpdateMaxFD(clients[i].fd, maxfd);
     }
     cp->status.connected = 0;
     cp->status.padding = 0;
