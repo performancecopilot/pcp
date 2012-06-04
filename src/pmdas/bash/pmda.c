@@ -41,7 +41,7 @@ static pmdaMetric metrics[] = {
     { NULL, { PMDA_PMID(0,bash_xtrace_queuemem), PM_TYPE_U64,
 	BASH_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 #define bash_xtrace_count	3
-    { NULL, { PMDA_PMID(0,bash_xtrace_count), PM_TYPE_U64,
+    { NULL, { PMDA_PMID(0,bash_xtrace_count), PM_TYPE_U32,
 	BASH_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 #define bash_xtrace_records	4
     { NULL, { PMDA_PMID(0,bash_xtrace_records), PM_TYPE_EVENT,
