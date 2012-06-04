@@ -93,7 +93,7 @@ AcceptNewClient(int reqfd)
      *   recv pmcd hostname and pmcd port
      */
     for (bp = buf; bp < &buf[MY_BUFLEN]; bp++) {
-	if (recv(fd, bp, 1, 0) != 1) {
+	if (__pmRecv(fd, bp, 1, 0) != 1) {
 	    *bp = '\0';		/* null terminate what we have */
 	    bp = &buf[MY_BUFLEN];	/* flag error */
 	    break;
@@ -123,7 +123,7 @@ AcceptNewClient(int reqfd)
 	return NULL;
     }
 
-    if (send(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
+    if (__pmSend(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
 	__pmNotifyErr(LOG_WARNING, "AcceptNewClient: failed to send version "
 			"string (%s) to client at %s\n",
 			MY_VERSION, inet_ntoa(client[i].addr.sin_addr));
@@ -132,7 +132,7 @@ AcceptNewClient(int reqfd)
     }
 
     for (bp = buf; bp < &buf[MY_BUFLEN]; bp++) {
-	if (recv(fd, bp, 1, 0) != 1) {
+	if (__pmRecv(fd, bp, 1, 0) != 1) {
 	    *bp = '\0';		/* null terminate what we have */
 	    bp = &buf[MY_BUFLEN];	/* flag error */
 	    break;

@@ -17,7 +17,7 @@
 #include "pmtime.h"
 
 static int
-pmServerExec(int fd, int livemode)
+pmServerExec(__pmFD fd, int livemode)
 {
     char portname[32];
     int port, in, out;
@@ -47,7 +47,7 @@ pmServerExec(int fd, int livemode)
 }
 
 static int
-pmConnectHandshake(int fd, int port, pmTime *pkt)
+pmConnectHandshake(__pmFD fd, int port, pmTime *pkt)
 {
     __pmSockAddrIn myaddr;
     char buffer[4096];
@@ -70,7 +70,7 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
     /*
      * Write the packet, then wait for an ACK.
      */
-    sts = send(fd, (const void *)pkt, pkt->length, 0);
+    sts = __pmSend(fd, (const void *)pkt, pkt->length, 0);
     if (sts < 0) {
 	setoserror(neterror());
 	goto error;
@@ -79,7 +79,7 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
 	goto error;
     }
     ack = (pmTime *)buffer;
-    sts = recv(fd, buffer, sizeof(buffer), 0);
+    sts = __pmRecv(fd, buffer, sizeof(buffer), 0);
     if (sts < 0) {
 	setoserror(neterror());
 	goto error;
@@ -120,7 +120,7 @@ pmTimeConnect(int port, pmTime *pkt)
 }
 
 int
-pmTimeDisconnect(int fd)
+pmTimeDisconnect(__pmFD fd)
 {
     if (fd == PM_ERROR_FD) {
 	setoserror(EINVAL);
@@ -131,7 +131,7 @@ pmTimeDisconnect(int fd)
 }
 
 int
-pmTimeSendAck(int fd, struct timeval *tv)
+pmTimeSendAck(__pmFD fd, struct timeval *tv)
 {
     pmTime data;
     int sts;
@@ -141,14 +141,14 @@ pmTimeSendAck(int fd, struct timeval *tv)
     data.length = sizeof(data);
     data.command = PM_TCTL_ACK;
     data.position = *tv;
-    sts = send(fd, (const void *)&data, sizeof(data), 0);
+    sts = __pmSend(fd, (const void *)&data, sizeof(data), 0);
     if (sts < 0)
 	setoserror(neterror());
     return sts;
 }
 
 int
-pmTimeShowDialog(int fd, int show)
+pmTimeShowDialog(__pmFD fd, int show)
 {
     pmTime data;
     int sts;
@@ -157,7 +157,7 @@ pmTimeShowDialog(int fd, int show)
     data.magic = PMTIME_MAGIC;
     data.length = sizeof(data);
     data.command = show ? PM_TCTL_GUISHOW : PM_TCTL_GUIHIDE;
-    sts = send(fd, (const void *)&data, sizeof(data), 0);
+    sts = __pmSend(fd, (const void *)&data, sizeof(data), 0);
     if (sts >= 0 && sts != sizeof(data)) {
 	setoserror(EMSGSIZE);
 	sts = -1;
@@ -167,13 +167,13 @@ pmTimeShowDialog(int fd, int show)
 }
 
 int
-pmTimeRecv(int fd, pmTime **datap)
+pmTimeRecv(__pmFD fd, pmTime **datap)
 {
     pmTime *k = *datap;
     int sts, remains;
 
     memset(k, 0, sizeof(pmTime));
-    sts = recv(fd, (void *)k, sizeof(pmTime), 0);
+    sts = __pmRecv(fd, (void *)k, sizeof(pmTime), 0);
     if (sts >= 0 && sts != sizeof(pmTime)) {
 	setoserror(EMSGSIZE);
 	sts = -1;
@@ -182,7 +182,7 @@ pmTimeRecv(int fd, pmTime **datap)
     } else if (k->length > sizeof(pmTime)) {	/* double dipping */
 	remains = k->length - sizeof(pmTime);
 	*datap = k = realloc(k, k->length);
-	sts = recv(fd, (char *)k + sizeof(pmTime), remains, 0);
+	sts = __pmRecv(fd, (char *)k + sizeof(pmTime), remains, 0);
 	if (sts >= 0 && sts != remains) {
 	    setoserror(E2BIG);
 	    sts = -1;

@@ -95,7 +95,7 @@ static int stomp_read_ack(void)
     }
 
     do {
-	sts = recv(fd, buffer, sizeof(buffer), 0);
+	sts = __pmRecv(fd, buffer, sizeof(buffer), 0);
 	if (sts < 0) {
 	    __pmNotifyErr(LOG_ERR, "Error recving from server %s:%d - %s",
 				hostname, port, netstrerror());
@@ -115,7 +115,7 @@ static int stomp_write(const char *buffer, int length)
     int sts;
 
     do {
-	sts = send(fd, buffer, length, 0);
+	sts = __pmSend(fd, buffer, length, 0);
 	if (sts < 0) {
 	    __pmNotifyErr(LOG_ERR, "Write error to JMS server %s:%d - %s",
 			hostname, port, netstrerror());

@@ -28,7 +28,7 @@
 #define MY_VERSION "pmproxy-client 1\n"
 
 static int
-negotiate_proxy(int fd, const char *hostname, int port)
+negotiate_proxy(__pmFD fd, const char *hostname, int port)
 {
     char	buf[MY_BUFLEN];
     char	*bp;
@@ -41,7 +41,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
      *   send hostname and port
      */
 
-    if (send(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
+    if (__pmSend(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_WARNING,
 	     "__pmConnectPMCD: send version string to pmproxy failed: %s\n",
@@ -49,7 +49,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
 	return PM_ERR_IPC;
     }
     for (bp = buf; bp < &buf[MY_BUFLEN]; bp++) {
-	if (recv(fd, bp, 1, 0) != 1) {
+	if (__pmRecv(fd, bp, 1, 0) != 1) {
 	    *bp = '\0';
 	    bp = &buf[MY_BUFLEN];
 	    break;
@@ -72,7 +72,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
     }
 
     snprintf(buf, sizeof(buf), "%s %d\n", hostname, port);
-    if (send(fd, buf, strlen(buf), 0) != strlen(buf)) {
+    if (__pmSend(fd, buf, strlen(buf), 0) != strlen(buf)) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_WARNING,
 	     "__pmConnectPMCD: send hostname+port string to pmproxy failed: %s'\n",

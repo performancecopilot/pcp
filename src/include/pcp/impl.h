@@ -543,6 +543,8 @@ extern int __pmConnectHandshake(int);
 extern int __pmBind(__pmFD, __pmSockAddr *, mysocklen_t);
 extern int __pmListen(__pmFD fd, int backlog);
 extern __pmFD __pmAccept(__pmFD, __pmSockAddr *, mysocklen_t *);
+extern ssize_t __pmSend(__pmFD socket, const void *buffer, size_t length, int flags);
+extern ssize_t __pmRecv(__pmFD socket, void *buffer, size_t length, int flags);
 
 #define PM_NET_ADDR_STRING_SIZE 46 /* from the NSPR API reference */
 extern char * __pmNetAddrToString(__pmInAddr *);

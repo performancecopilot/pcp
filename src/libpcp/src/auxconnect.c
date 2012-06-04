@@ -342,6 +342,26 @@ __pmBind(__pmFD fd, __pmSockAddr *addr, mysocklen_t addrlen)
 #endif
 }
 
+ssize_t
+__pmSend(__pmFD socket, const void *buffer, size_t length, int flags)
+{
+#ifdef HAVE_NSS
+  #error __FUNCTION__ is not implemented for NSS
+#else
+  return send(socket, buffer, length, flags);
+#endif
+}
+
+ssize_t
+__pmRecv(__pmFD socket, void *buffer, size_t length, int flags)
+{
+#ifdef HAVE_NSS
+  #error __FUNCTION__ is not implemented for NSS
+#else
+  return recv(socket, buffer, length, flags);
+#endif
+}
+
 char *
 __pmNetAddrToString(__pmInAddr *address) {
 #ifdef HAVE_NSS

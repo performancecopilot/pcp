@@ -88,7 +88,7 @@ __pmDefaultRequestTimeout(void)
 }
 
 int
-pduread(int fd, char *buf, int len, int part, int timeout)
+pduread(__pmFD fd, char *buf, int len, int part, int timeout)
 {
     /*
      * handle short reads that may split a PDU ...
@@ -112,7 +112,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 	    __pmPDU	*lp;
 
 	    if (socketipc) {
-		status = recv(fd, buf, (int)sizeof(__pmPDU), 0);
+		status = __pmRecv(fd, buf, (int)sizeof(__pmPDU), 0);
 		setoserror(neterror());
 	    } else {
 		status = read(fd, buf, (int)sizeof(__pmPDU));
@@ -128,7 +128,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 	    have = ntohl(*lp);
 	    size = have - (int)sizeof(__pmPDU);
 	    if (socketipc) {
-		status = recv(fd, &buf[sizeof(__pmPDU)], size, 0);
+		status = __pmRecv(fd, &buf[sizeof(__pmPDU)], size, 0);
 		setoserror(neterror());
 	    } else {
 		status = read(fd, &buf[sizeof(__pmPDU)], size);
@@ -206,7 +206,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		}
 	    }
 	    if (socketipc) {
-		status = recv(fd, buf, len, 0);
+		status = __pmRecv(fd, buf, len, 0);
 		setoserror(neterror());
 	    } else {
 		status = read(fd, buf, len);
@@ -294,7 +294,7 @@ static void setup_sigpipe() { }
 #endif
 
 int
-__pmXmitPDU(int fd, __pmPDU *pdubuf)
+__pmXmitPDU(__pmFD fd, __pmPDU *pdubuf)
 {
     int		socketipc = __pmSocketIPC(fd);
     int		off = 0;
@@ -338,7 +338,7 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 
 	p += off;
 
-	n = socketipc ? send(fd, p, len-off, 0) : write(fd, p, len-off);
+	n = socketipc ? __pmSend(fd, p, len-off, 0) : write(fd, p, len-off);
 	if (n < 0)
 	    break;
 	off += n;
