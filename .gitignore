@@ -16,6 +16,7 @@ commit-msg.*
 051.work/*
 151.work/*
 check.log
+pmlogger.log
 check.time
 localconfig
 localconfig.h
