@@ -472,3 +472,28 @@ __pmSelectWrite(int nfds, __pmFdSet *writefds, struct timeval *timeout)
   return select(nfds, NULL, writefds, NULL, timeout);
 #endif
 }
+
+/* Return
+    0 for stdin
+    1 for stdout
+    2 for stderr
+   >= 3 otherwise
+*/
+int
+__pmStandardStreamIx(__pmFD fd)
+{
+  if (fd == PM_ERROR_FD)
+    return 3;
+#ifdef HAVE_NSS
+  if (fd == PR_STDIN)
+    return 0;
+  if (fd == PR_STDOUT)
+    return 1;
+  if (fd == PR_STDERR)
+    return 2;
+  return 3;
+#else
+  return fd;
+#endif
+}
+

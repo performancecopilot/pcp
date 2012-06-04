@@ -416,10 +416,12 @@ FdToString(int fd)
 #define FDNAMELEN 40
     static char fdStr[FDNAMELEN];
     static char *stdFds[4] = {"*UNKNOWN FD*", "stdin", "stdout", "stderr"};
+    int		streamIx;
     int		i;
 
-    if (fd >= PM_ERROR_FD && fd < 3)
-	return stdFds[fd + 1];
+    streamIx = __pmStandardStreamIx(fd);
+    if (streamIx < 3)
+	return stdFds[streamIx + 1];
     for (i = 0; i < nReqPorts; i++) {
 	if (fd == reqPorts[i].fd) {
 	    sprintf(fdStr, "pmproxy request socket %s", reqPorts[i].ipSpec);

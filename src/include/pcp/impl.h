@@ -560,6 +560,8 @@ extern __pmFD __pmIncrFD(__pmFD fd);
 extern int __pmSelectRead(int nfds, __pmFdSet *readfds, struct timeval *timeout);
 extern int __pmSelectWrite(int nfds, __pmFdSet *writefds, struct timeval *timeout);
 
+extern int __pmStandardStreamIx(__pmFD fd);
+
 /*
  * per context controls for archives and logs
  */
