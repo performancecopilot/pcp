@@ -17,7 +17,7 @@ wax_on()
 	printf -v TRACESTART '%(%s)T' -2
 	mkfifo -m 600 "${TRACE_DATA}" #2>/dev/null || return 0
 	# header: version, command, parent, and start time
-	echo "version:1 ppid:${PPID} date:${TRACESTART} + ${BASH_SOURCE}" \
+	echo "version:1 ppid:${PPID} date:${TRACESTART} + ${BASH_SOURCE} $@" \
 		> "${TRACE_HEADER}" || return 0
 	# setup link between xtrace & fifo
 	exec 99>"${TRACE_DATA}"
@@ -40,7 +40,7 @@ tired()
 	sleep $1
 }
 
-wax_on
+wax_on $@
 count=0
 while true
 do

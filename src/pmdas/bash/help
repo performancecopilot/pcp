@@ -27,6 +27,10 @@
 # blank lines before the @ line are ignored
 #
 
+@ BASH.0 Instance domain of traced bash processes
+An instance domain representing all of the currently running bash
+processes which are exporting trace metrics.
+
 @ bash.xtrace.numclients
 The number of attached clients.
 
@@ -38,7 +42,6 @@ Maximum number of queued event bytes for each log file.
 @ bash.xtrace.records
 @ bash.xtrace.parameters.pid
 @ bash.xtrace.parameters.parent
-@ bash.xtrace.parameters.script
 @ bash.xtrace.parameters.lineno
 @ bash.xtrace.parameters.function
 @ bash.xtrace.parameters.command

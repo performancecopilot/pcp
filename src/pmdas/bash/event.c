@@ -44,13 +44,14 @@ static void
 process_head_parser(bash_process_t *verify, const char *buffer, size_t size)
 {
     char *p = (char *)buffer, *end = (char *)buffer + size - 1;
+    char script[1024];
     int version = 0;
     int date = 0;
 
     p += extract_int(p, "version:", sizeof("version:")-1, &version);
     p += extract_int(p, "ppid:", sizeof("ppid:")-1, &verify->parent);
     p += extract_int(p, "date:", sizeof("date:")-1, &date);
-    extract_cmd(p, end - p, "+", 1, verify->script, sizeof(verify->script));
+    extract_cmd(p, end - p, "+", 1, script, sizeof(script));
 
     if (date == 0) {
 	process_mtime_timestamp(verify, &verify->starttime);
@@ -60,9 +61,13 @@ process_head_parser(bash_process_t *verify, const char *buffer, size_t size)
     }
     verify->version = version;
 
+    size = 16 + strlen(script);		/* pid and script name */
+    verify->instance = malloc(size);
+    snprintf(verify->instance, size, "%u %s", verify->pid, script);
+
     if (pmDebug & DBG_TRACE_APPL0)
-	__pmNotifyErr(LOG_DEBUG, "process header v%d: script='%s' ppid=%d",
-			verify->version, verify->script, verify->parent);
+	__pmNotifyErr(LOG_DEBUG, "process header v%d: inst='%s' ppid=%d",
+			verify->version, verify->instance, verify->parent);
 }
 
 /*
@@ -154,12 +159,11 @@ process_alloc(const char *bashname, bash_process_t *init)
     memcpy(&bashful->stat, &init->stat, sizeof(struct stat));
     /* copy of first stat time, identifies first event */
     process_mtime_timestamp(bashful, &bashful->startstat);
-
-    strcpy(bashful->script, init->script);
-    strcpy(bashful->basename, bashname);
+    /* copy of pointer to dynamically allocated memory */
+    bashful->instance = init->instance;
 
     if (pmDebug & DBG_TRACE_APPL0)
-	__pmNotifyErr(LOG_DEBUG, "process_alloc: %s: script=%s", bashname, bashful->script);
+	__pmNotifyErr(LOG_DEBUG, "process_alloc: %s", bashful->instance);
 
     return bashful;
 }
@@ -236,7 +240,7 @@ multiread:
 	return 0;
     if (bytes < 0) {
 	__pmNotifyErr(LOG_ERR, "read failure on process %s: %s",
-		      process->basename, strerror(errno));
+		      process->instance, strerror(errno));
 	return -1;
     }
 
@@ -303,7 +307,7 @@ event_refresh(pmInDom bash_indom)
 	    if (process_init(processid, &bp) < 0)
 		continue;
 	}
-	pmdaCacheStore(bash_indom, PMDA_CACHE_ADD, bp->basename, (void *)bp);
+	pmdaCacheStore(bash_indom, PMDA_CACHE_ADD, bp->instance, (void *)bp);
 
 	/* read any/all new events for this bash process, enqueue 'em */
 	process_read(bp);

@@ -53,16 +53,13 @@ static pmdaMetric metrics[] = {
 #define bash_xtrace_parameters_parent	6
     { NULL, { PMDA_PMID(0,bash_xtrace_parameters_parent), PM_TYPE_U32,
 	BASH_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-#define bash_xtrace_parameters_script	7
-    { NULL, { PMDA_PMID(0,bash_xtrace_parameters_script), PM_TYPE_STRING,
-	BASH_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-#define bash_xtrace_parameters_lineno	8
+#define bash_xtrace_parameters_lineno	7
     { NULL, { PMDA_PMID(0,bash_xtrace_parameters_lineno), PM_TYPE_U32,
 	BASH_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-#define bash_xtrace_parameters_function	9
+#define bash_xtrace_parameters_function	8
     { NULL, { PMDA_PMID(0,bash_xtrace_parameters_function), PM_TYPE_STRING,
 	BASH_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-#define bash_xtrace_parameters_command	10
+#define bash_xtrace_parameters_command	9
     { NULL, { PMDA_PMID(0,bash_xtrace_parameters_command), PM_TYPE_STRING,
 	BASH_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
@@ -161,15 +158,6 @@ bash_trace_decoder(int eventarray,
 	return sts;
     count++;
 
-    if (process->script[0] != '\0') {
-        atom.cp = process->script;
-	pmid = metrics[bash_xtrace_parameters_script].m_desc.pmid;
-	sts = pmdaEventAddParam(eventarray, pmid, PM_TYPE_STRING, &atom);
-	if (sts < 0)
-	    return sts;
-	count++;
-    }
-
     if (trace.line) {
 	atom.ul = trace.line;
 	pmid = metrics[bash_xtrace_parameters_lineno].m_desc.pmid;
@@ -230,7 +218,6 @@ bash_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 				     bash_trace_decoder, bp);
     case bash_xtrace_parameters_pid:
     case bash_xtrace_parameters_parent:
-    case bash_xtrace_parameters_script:
     case bash_xtrace_parameters_lineno:
     case bash_xtrace_parameters_function:
     case bash_xtrace_parameters_command:

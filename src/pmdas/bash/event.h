@@ -33,8 +33,8 @@ typedef struct bash_process {
     struct timeval	starttime;	/* timestamp trace started */
     struct timeval	startstat;	/* timestamp of first stat */
     struct stat		stat;
-    char		basename[16];	/* pid as string */
-    char		script[256];	/* name of traced script */
+
+    char		*instance;	/* process id, space, script */
 } bash_process_t;
 
 typedef struct bash_trace {

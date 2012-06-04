@@ -30,8 +30,7 @@ bash.xtrace {
 bash.xtrace.parameters {
     pid			BASH:0:5
     parent		BASH:0:6
-    script		BASH:0:7
-    lineno		BASH:0:8
-    function		BASH:0:9
-    command		BASH:0:10
+    lineno		BASH:0:7
+    function		BASH:0:8
+    command		BASH:0:9
 }
