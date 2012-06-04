@@ -1670,7 +1670,7 @@ if test $target_os = mingw
 then
     pcp_lib_dir=/local/bin
     pcp_lib32_dir=/local/bin
-elif test $target_os = linux -a \( $target_cpu = x86_64 -o $target_cpu = powerpc64 \) -a $target_distro != debian
+elif test $target_os = linux -a \( $target_cpu = x86_64 -o $target_cpu = powerpc64 -o $target_cpu = s390x \) -a $target_distro != debian
 then
     # Linux on x86_64 and ppc64 puts libraries in .../lib64 (and rpmbuild
     # enforces that convention) but $libdir lies about it.
