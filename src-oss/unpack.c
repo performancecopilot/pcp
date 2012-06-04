@@ -410,7 +410,7 @@ main(int argc, char **argv)
     add_param(pmid_type, PM_TYPE_U32, &atom);
     eap->ea_len = eptr - ebuf;
     vs.vlist[0].inst = 42;
-    dump("odd instance");
+    dump("1 record, instance 42");
 
     reset();
     add_record(&stamp, 0);

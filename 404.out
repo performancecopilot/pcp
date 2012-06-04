@@ -134,13 +134,13 @@ Event Records Dump ...
 PMID: 29.4095.0 numval: 1 valfmt: 42
 Error: bad valfmt
 pmUnpackEventRecords: Impossible value or scale conversion
-Expecting ... odd instance
+Expecting ... 1 record, instance 42
 [instance 42]
 Array contains 1 records and 0 missed records
 pmResult[0]
 pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 1
   29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
-   value 1 1.4012985e-45 0x1
+    inst [42 or ???] value 1 1.4012985e-45 0x1
 Expecting ... 1 record, nested event type @ 1st parameter
 pmUnpackEventRecords: Unknown or illegal metric type
 Expecting ... 3 records, nested event type @ 2nd parameter of 2nd record
