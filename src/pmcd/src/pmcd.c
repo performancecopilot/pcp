@@ -576,13 +576,13 @@ Shutdown(void)
 	    if (__pmSocketIPC(ap->inFd))
 		__pmCloseSocket(ap->inFd);
 	    else
-		close(ap->inFd);
+		__pmClose(ap->inFd);
 	}
 	if (ap->outFd != PM_ERROR_FD) {
 	    if (__pmSocketIPC(ap->outFd))
 		__pmCloseSocket(ap->outFd);
 	    else
-		close(ap->outFd);
+		__pmClose(ap->outFd);
 	}
 	if (ap->ipcType == AGENT_SOCKET &&
 	    ap->ipc.socket.addrDomain == AF_UNIX) {

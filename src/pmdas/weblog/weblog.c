@@ -1578,11 +1578,11 @@ sprocMain(void *sprocNum)
 #endif
 
 /* close channel to pmcd */
-    if(close(extp->e_infd) < 0) {
+    if(__pmClose(extp->e_infd) < 0) {
     	logmessage(LOG_ERR, "sprocMain: pmcd ch. close(fd=%d) failed: %s\n",
 		   extp->e_infd, osstrerror());
     }
-    if(close(extp->e_outfd) < 0) {
+    if(__pmClose(extp->e_outfd) < 0) {
     	logmessage(LOG_ERR, "sprocMain: pmcd ch. close(fd=%d) failed: %s\n",
 		   extp->e_outfd, osstrerror());
     }

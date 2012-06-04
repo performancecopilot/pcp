@@ -214,7 +214,7 @@ DeleteClient(ClientInfo *cp)
     if (cp->pmcd_fd != PM_ERROR_FD) {
 	__pmResetIPC(cp->pmcd_fd);
 	__pmFD_CLR(cp->pmcd_fd, &sockFds);
-	close(cp->pmcd_fd);
+	__pmCloseSocket(cp->pmcd_fd);
     }
     if (i == nClients-1) {
 	i--;

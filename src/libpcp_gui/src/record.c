@@ -406,18 +406,18 @@ xmit_to_logger(__pmFD fd, char tag, const char *msg)
 #ifdef HAVE_SIGPIPE
     user_onpipe = signal(SIGPIPE, SIG_IGN);
 #endif
-    sts = (int)write(fd, &tag, 1);
+    sts = (int)__pmWrite(fd, &tag, 1);
     if (sts != 1)
 	goto fail;
 
     if (msg != NULL) {
 	int	len = (int)strlen(msg);
-	sts = (int)write(fd, msg, len);
+	sts = (int)__pmWrite(fd, msg, len);
 	if (sts != len)
 	    goto fail;
     }
 
-    sts = (int)write(fd, "\n", 1);
+    sts = (int)__pmWrite(fd, "\n", 1);
     if (sts != 1)
 	goto fail;
 

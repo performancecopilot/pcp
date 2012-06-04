@@ -48,7 +48,7 @@ static __pmContext  *ctxp;		/* pmlogger has just this one context */
 static __pmFdSet    fds;		/* file descriptors mask for __pmSelectRead */
 static __pmFD	    numfds;		/* number of file descriptors in mask */
 
-static int	rsc_fd = -1;	/* recording session control see -x */
+static __pmFD	rsc_fd = PM_ERROR_FD;	/* recording session control see -x */
 static int	rsc_replay;
 static time_t	rsc_start;
 static char	*rsc_prog = "<unknown>";
@@ -467,9 +467,9 @@ failed:
 
     if (cmd != '?') {
 	/* detach, silently go off to the races ... */
-	close(rsc_fd);
+	__pmClose(rsc_fd);
 	__pmFD_CLR(rsc_fd, &fds);
-	rsc_fd = -1;
+	rsc_fd = PM_ERROR_FD;
     }
 }
 
@@ -663,7 +663,7 @@ Options:\n\
 	exit(1);
     }
 
-    if (rsc_fd != -1 && note == NULL) {
+    if (rsc_fd != PM_ERROR_FD && note == NULL) {
 	/* add default note to indicate running with -x */
 	static char	xnote[10];
 	snprintf(xnote, sizeof(xnote), "-x %d", rsc_fd);
@@ -701,7 +701,7 @@ Options:\n\
 	exit(1);
     }
 
-    if (rsc_fd == -1) {
+    if (rsc_fd == PM_ERROR_FD) {
 	/* no -x, so register client id with pmcd */
 	__pmSetClientIdArgv(argc, argv);
     }
@@ -857,7 +857,7 @@ Options:\n\
 #ifndef IS_MINGW
     __pmFD_SET(pmcdfd, &fds);
 #endif
-    if (rsc_fd != -1)
+    if (rsc_fd != PM_ERROR_FD)
 	__pmFD_SET(rsc_fd, &fds);
     numfds = __pmIncrFD(maxfd());
 
@@ -955,7 +955,7 @@ Options:\n\
 		int	fake_x = 0;
 
 		for (rp = rsc_buf; ; rp++) {
-		    if (read(rsc_fd, &myc, 1) <= 0) {
+		    if (__pmRead(rsc_fd, &myc, 1) <= 0) {
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_APPL2)
 			    fprintf(stderr, "recording session control: eof\n");
@@ -1105,7 +1105,7 @@ disconnect(int sts)
 	fprintf(stderr, "This is fatal for the primary logger.");
 	exit(1);
     }
-    close(pmcdfd);
+    __pmCloseSocket(pmcdfd);
     __pmFD_CLR(pmcdfd, &fds);
     pmcdfd = -1;
     numfds = __pmIncrFD(maxfd());

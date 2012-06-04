@@ -234,7 +234,7 @@ local_atexit(void)
 	if (files[nfiles].type == FILE_PIPE)
 	    pclose(files[nfiles].me.pipe.file);
 	if (files[nfiles].type == FILE_TAIL) {
-	    close(files[nfiles].fd);
+	    __pmClose(files[nfiles].fd);
 	    if (files[nfiles].me.tail.path)
 		free(files[nfiles].me.tail.path);
 	    files[nfiles].me.tail.path = NULL;
@@ -296,7 +296,7 @@ local_reconnector(files_t *file)
     memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
     myaddr.sin_port = htons(files->me.sock.port);
     if (connect(fd, (__pmSockAddr *)&myaddr, sizeof(myaddr)) < 0) {
-	close(fd);
+	__pmCloseSocket(fd);
 	return;
     }
     files->fd = fd;
@@ -374,7 +374,7 @@ local_pmdaMain(pmdaInterface *self)
 		continue;
 	    offset = 0;
 multiread:
-	    bytes = read(fd, buffer + offset, sizeof(buffer)-1 - offset);
+	    bytes = __pmRead(fd, buffer + offset, sizeof(buffer)-1 - offset);
 	    if (bytes < 0) {
 		if ((files[i].type == FILE_TAIL) &&
 		    (oserror() == EINTR) ||
@@ -382,7 +382,7 @@ multiread:
 		    (oserror() == EWOULDBLOCK))
 		    continue;
 		if (files[i].type == FILE_SOCK) {
-		    close(files[i].fd);
+		    __pmCloseSocket(files[i].fd);
 		    files[i].fd = PM_ERROR_FD;
 		    continue;
 		}

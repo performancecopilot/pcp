@@ -263,7 +263,7 @@ __pmtracexmitPDU(__pmFD fd, __pmTracePDU *pdubuf)
     php->len = htonl(php->len);
     php->from = htonl(php->from);
     php->type = htonl(php->type);
-    n = (int)write(fd, pdubuf, len);
+    n = (int)__pmWrite(fd, pdubuf, len);
     php->len = ntohl(php->len);
     php->from = ntohl(php->from);
     php->type = ntohl(php->type);

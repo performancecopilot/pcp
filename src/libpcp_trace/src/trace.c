@@ -89,7 +89,7 @@ _pmlibdel(void *entry)
 	free(data);
 }
 
-int			__pmfd = 0;
+__pmFD			__pmfd = 0;
 static __pmHashTable	_pmtable;
 
 #if defined(HAVE_PTHREAD_MUTEX_T)
@@ -820,7 +820,7 @@ _pmauxtraceconnect(void)
     if (rc < 0) {
 	if (sts == EINTR)
 	    sts = -ETIMEDOUT;
-	close(__pmfd);	/* safe for tracemoreinput(), as no PDUs yet */
+	__pmCloseSocket(__pmfd);	/* safe for tracemoreinput(), as no PDUs yet */
 	__pmfd = PM_ERROR_FD;
 	return sts;
     }
@@ -828,8 +828,8 @@ _pmauxtraceconnect(void)
     _pmtimedout = 0;
 
     /* make sure this file descriptor is closed if exec() is called */
-    if ((flags = fcntl(__pmfd, F_GETFD)) != -1)
-	sts = fcntl(__pmfd, F_SETFD, flags | FD_CLOEXEC);
+    if ((flags = __pmFcntlGetFlags(__pmfd)) != -1)
+	sts = __pmFcntlSetFlags(__pmfd, flags | FD_CLOEXEC);
     else
 	sts = -1;
     if (sts == -1)
@@ -837,8 +837,8 @@ _pmauxtraceconnect(void)
 
     if (__pmtraceprotocol(TRACE_PROTOCOL_QUERY) == TRACE_PROTOCOL_ASYNC) {
 	/* in the asynchronoous protocol - ensure no delay after close */
-	if ((flags = fcntl(__pmfd, F_GETFL)) != -1)
-	    sts = fcntl(__pmfd, F_SETFL, flags | FNDELAY);
+	if ((flags = __pmFcntlGetFlags(__pmfd)) != -1)
+	    sts = __pmFcntlSetFlags(__pmfd, flags | FNDELAY);
 	else
 	    sts = -1;
 	if (sts == -1)

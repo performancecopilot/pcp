@@ -145,7 +145,7 @@ DisconnectLogger(void)
 {
     if (logger_fd != PM_ERROR_FD) {
 	__pmResetIPC(logger_fd);
-	close(logger_fd);
+	__pmClose(logger_fd);
 	logger_fd = PM_ERROR_FD;
 	sleep(1);
     }

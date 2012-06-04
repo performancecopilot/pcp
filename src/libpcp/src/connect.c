@@ -87,7 +87,7 @@ negotiate_proxy(__pmFD fd, const char *hostname, int port)
  * client connects to pmcd handshake
  */
 int
-__pmConnectHandshake(int fd)
+__pmConnectHandshake(__pmFD fd)
 {
     __pmPDU	*pb;
     int		ok;

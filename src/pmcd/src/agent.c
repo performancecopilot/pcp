@@ -58,12 +58,12 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
 	pmcd_trace(TR_DEL_AGENT, aPtr->pmDomainId, aPtr->inFd, aPtr->outFd);
 	if (aPtr->inFd != PM_ERROR_FD) {
 	    __pmResetIPC(aPtr->inFd);
-	    close(aPtr->inFd);
+	    __pmClose(aPtr->inFd);
 	    aPtr->inFd = PM_ERROR_FD;
 	}
 	if (aPtr->outFd != PM_ERROR_FD) {
 	    __pmResetIPC(aPtr->outFd);
-	    close(aPtr->outFd);
+	    __pmClose(aPtr->outFd);
 	    aPtr->outFd = PM_ERROR_FD;
 	}
 	if (aPtr->ipcType == AGENT_SOCKET &&

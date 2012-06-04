@@ -536,13 +536,15 @@ extern int __pmAddHostPorts(pmHostSpec *, int *, int);
 extern void __pmDropHostPort(pmHostSpec *);
 extern void __pmConnectGetPorts(pmHostSpec *);
 extern int __pmConnect(__pmFD, __pmSockAddr *, mysocklen_t);
-extern int __pmConnectTo (int, const __pmSockAddr *, int);
-extern int __pmConnectCheckError(int);
-extern int __pmConnectRestoreFlags (int, int);
-extern int __pmConnectHandshake(int);
+extern int __pmConnectTo (__pmFD, const __pmSockAddr *, int);
+extern int __pmConnectCheckError(__pmFD);
+extern int __pmConnectRestoreFlags (__pmFD, int);
+extern int __pmConnectHandshake(__pmFD);
 extern int __pmBind(__pmFD, __pmSockAddr *, mysocklen_t);
 extern int __pmListen(__pmFD fd, int backlog);
 extern __pmFD __pmAccept(__pmFD, __pmSockAddr *, mysocklen_t *);
+extern ssize_t __pmRead(__pmFD fildes, void *buf, size_t nbyte);
+extern ssize_t __pmWrite(__pmFD fildes, const void *buf, size_t nbyte);
 extern ssize_t __pmSend(__pmFD socket, const void *buffer, size_t length, int flags);
 extern ssize_t __pmRecv(__pmFD socket, void *buffer, size_t length, int flags);
 
@@ -552,6 +554,9 @@ extern char * __pmNetAddrToString(__pmInAddr *);
 extern __pmHostEnt *__pmGetHostByName(const char *);
 extern __pmHostEnt *__pmGetHostByAddr(__pmSockAddrIn *);
 extern __pmHostEnt *__pmGetHostByInAddr(__pmInAddr *);
+
+extern int __pmFcntlGetFlags(__pmFD fildes);
+extern int __pmFcntlSetFlags(__pmFD fildes, int flags);
 
 extern void __pmFD_CLR(__pmFD fd, __pmFdSet *set);
 extern int  __pmFD_ISSET(__pmFD fd, __pmFdSet *set);
@@ -563,6 +568,7 @@ extern int __pmSelectRead(int nfds, __pmFdSet *readfds, struct timeval *timeout)
 extern int __pmSelectWrite(int nfds, __pmFdSet *writefds, struct timeval *timeout);
 
 extern int __pmStandardStreamIx(__pmFD fd);
+extern int __pmClose(__pmFD fd);
 
 /*
  * per context controls for archives and logs

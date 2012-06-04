@@ -71,11 +71,13 @@ __pmSocket(int domain, int type, int protocol)
 }
 
 void
-__pmCloseSocket(int fd)
+__pmCloseSocket(__pmFD fd)
 {
     __pmResetIPC(fd);
 
-#if defined(IS_MINGW)
+#ifdef HAVE_NSS
+  #error __FUNCTION__ is not implemented for NSS
+#elif defined(IS_MINGW)
     closesocket(fd);
 #else
     close(fd);
@@ -94,15 +96,15 @@ __pmConnect(__pmFD fd, __pmSockAddr *addr, mysocklen_t addrlen)
 }
 
 int
-__pmConnectTo(int fd, const __pmSockAddr *addr, int port)
+__pmConnectTo(__pmFD fd, const __pmSockAddr *addr, int port)
 {
-    int sts, fdFlags = fcntl(fd, F_GETFL);
+    int sts, fdFlags = __pmFcntlGetFlags(fd);
     __pmSockAddrIn myAddr;
 
     memcpy(&myAddr, addr, sizeof (myAddr));
     myAddr.sin_port = htons(port);
 
-    if (fcntl(fd, F_SETFL, fdFlags | FNDELAY) < 0) {
+    if (__pmFcntlSetFlags(fd, fdFlags | FNDELAY) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
         __pmNotifyErr(LOG_ERR, "__pmConnectTo: cannot set FNDELAY - "
 		      "fcntl(%d,F_SETFL,0x%x) failed: %s\n",
@@ -112,7 +114,7 @@ __pmConnectTo(int fd, const __pmSockAddr *addr, int port)
     if (__pmConnect(fd, (__pmSockAddr*)&myAddr, sizeof(myAddr)) < 0) {
 	sts = neterror();
 	if (sts != EINPROGRESS) {
-	    close(fd);
+	    __pmCloseSocket(fd);
 	    return -sts;
 	}
     }
@@ -121,7 +123,7 @@ __pmConnectTo(int fd, const __pmSockAddr *addr, int port)
 }
 
 int
-__pmConnectCheckError(int fd)
+__pmConnectCheckError(__pmFD fd)
 {
     int	so_err;
     mysocklen_t	olen = sizeof(int);
@@ -137,19 +139,19 @@ __pmConnectCheckError(int fd)
 }
 
 int
-__pmConnectRestoreFlags(int fd, int fdFlags)
+__pmConnectRestoreFlags(__pmFD fd, int fdFlags)
 {
     int sts;
 
-    if (fcntl(fd, F_SETFL, fdFlags) < 0) {
+    if (__pmFcntlSetFlags(fd, fdFlags) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_WARNING,"__pmConnectRestoreFlags: cannot restore "
 		      "flags fcntl(%d,F_SETFL,0x%x) failed: %s\n",
 		      fd, fdFlags, osstrerror_r(errmsg, sizeof(errmsg)));
     }
 
-    if ((fdFlags = fcntl(fd, F_GETFD)) >= 0)
-        sts = fcntl(fd, F_SETFD, fdFlags | FD_CLOEXEC);
+    if ((fdFlags = __pmFcntlGetFlags(fd)) >= 0)
+        sts = __pmFcntlSetFlags(fd, fdFlags | FD_CLOEXEC);
     else
         sts = fdFlags;
 
@@ -158,7 +160,7 @@ __pmConnectRestoreFlags(int fd, int fdFlags)
         __pmNotifyErr(LOG_WARNING, "__pmConnectRestoreFlags: "
 		      "fcntl(%d) get/set flags failed: %s\n",
 		      fd, osstrerror_r(errmsg, sizeof(errmsg)));
-	close(fd);
+	__pmCloseSocket(fd);
 	return sts;
     }
 
@@ -300,7 +302,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	}
 	
 	if (sts) {
-	    close(fd);
+	    __pmCloseSocket(fd);
 	    return -sts;
 	}
     }
@@ -309,6 +311,26 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
      * flags and make sure this file descriptor is closed if exec() is
      * called */
     return __pmConnectRestoreFlags (fd, fdFlags);
+}
+
+int
+__pmFcntlGetFlags(__pmFD fildes)
+{
+#ifdef HAVE_NSS
+  #error __FUNCTION__ is not implemented for NSS
+#else
+  return fcntl(fildes, F_GETFL);
+#endif
+}
+
+int
+__pmFcntlSetFlags(__pmFD fildes, int flags)
+{
+#ifdef HAVE_NSS
+  #error __FUNCTION__ is not implemented for NSS
+#else
+  return fcntl(fildes, F_SETFL, flags);
+#endif
 }
 
 int
@@ -339,6 +361,26 @@ __pmBind(__pmFD fd, __pmSockAddr *addr, mysocklen_t addrlen)
   return prStatus == PR_SUCCESS ? 0 : -1;
 #else
   return bind(fd, addr, addrlen);
+#endif
+}
+
+ssize_t
+__pmRead(__pmFD fildes, void *buf, size_t nbyte)
+{
+#ifdef HAVE_NSS
+  #error __FUNCTION__ is not implemented for NSS
+#else
+  return read(fildes, buf, nbyte);
+#endif
+}
+
+ssize_t
+__pmWrite(__pmFD fildes, const void *buf, size_t nbyte)
+{
+#ifdef HAVE_NSS
+  #error __FUNCTION__ is not implemented for NSS
+#else
+  return write(fildes, buf, nbyte);
 #endif
 }
 
@@ -406,6 +448,16 @@ __pmGetHostByInAddr(__pmInAddr *address)
   return __pmGetHostByAddr(address);
 #else
   return gethostbyaddr((void *)&address->s_addr, sizeof(address->s_addr), AF_INET);
+#endif
+}
+
+int
+__pmClose(__pmFD fd)
+{
+#ifdef HAVE_NSS
+  #error __FUNCTION__ is not implemented for NSS
+#else
+  return close(fd);
 #endif
 }
 

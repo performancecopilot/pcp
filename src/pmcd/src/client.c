@@ -184,7 +184,7 @@ DeleteClient(ClientInfo *cp)
     if (cp->fd != PM_ERROR_FD) {
 	__pmResetIPC(cp->fd);
 	__pmFD_CLR(cp->fd, &clientFds);
-	close(cp->fd);
+	__pmClose(cp->fd);
     }
     if (i == nClients-1) {
 	i--;

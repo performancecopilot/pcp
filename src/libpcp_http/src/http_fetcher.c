@@ -240,7 +240,7 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 		free(url);
         url = NULL;
 
-		if(write(sock, requestBuf, strlen(requestBuf)) == -1)
+		if(__pmWrite(sock, requestBuf, strlen(requestBuf)) == -1)
 			{
 			__pmCloseSocket(sock);
 			free(requestBuf);

@@ -33,7 +33,7 @@ pmServerExec(__pmFD fd, int livemode)
 	return -1;
     }
 
-    if (read(in, &portname, sizeof(portname)) < 0)
+    if (__pmRead(in, &portname, sizeof(portname)) < 0)
 	port = -1;
     else if (sscanf(portname, "port=%d", &port) != 1) {
 	setoserror(EPROTO);

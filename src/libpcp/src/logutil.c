@@ -253,7 +253,7 @@ static FILE *
 fopen_compress(const char *fname)
 {
     int		sts;
-    __pmFD	fd;
+    int		fd;
     int		i;
     char	*cmd;
     char	*msg;
