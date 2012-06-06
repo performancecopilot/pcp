@@ -40,11 +40,6 @@ echo "Local time, TZ=$TZ"
 pmdumplog -l $arch
 
 echo ""
-TZ=""
-echo "GMT time, TZ is empty"
-pmdumplog -l $arch
-
-echo ""
 echo "-Z UTC"
 pmdumplog -l -Z UTC $arch
 
