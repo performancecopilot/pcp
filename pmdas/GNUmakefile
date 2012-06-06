@@ -16,5 +16,5 @@ SUBDIRS = broken bigun
 default: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
-clobber install: $(SUBDIRS)
+clobber clean install: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

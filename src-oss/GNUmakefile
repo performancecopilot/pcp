@@ -166,7 +166,7 @@ LDIRT	= *.log domain.h help.pag help.dir mv-foo.? mv-bar.? mv-bigbin.? \
 
 default: $(CFILES_TARGETS) $(TARGETS) $(ARCH) ipcs_clear
 
-clobber: clean-exec clean-arch
+clobber clean: clean-exec clean-arch
 	rm -rf $(LDIRT) $(OBJECTS)
 
 $(TARGETS):
