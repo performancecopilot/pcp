@@ -1,6 +1,6 @@
-#!/bin/sh
+#! /bin/sh
 #
-# Copyright (c) 2011-2012 Aconex.  All Rights Reserved.
+# Copyright (c) 2012 Nathan Scott.  All rights reversed.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,26 +12,12 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# Install the ElasticSearch PMDA
+# Remove the bash PMDA
 #
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
-
-iam=elasticsearch
-perl_opt=true
-daemon_opt=false
-
-for module in JSON LWP::UserAgent
-do
-    perl -e "use $module" 2>/dev/null 
-    if test $? -ne 0
-    then
-        echo "$module perl module is not installed"
-	exit 1
-    fi
-done
-
+iam=bash
 pmdaSetup
-pmdaInstall
+pmdaRemove
 exit 0
