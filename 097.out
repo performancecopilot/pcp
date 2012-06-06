@@ -18,7 +18,7 @@ Pass 2.2: forwards prior to SOL
 Pass 3: forwards scan
 Found between 15 and 17 samples
 
-Archive bigbin ...
+Archive ok-bigbin ...
 
 Pass 1: forward scan
 Found between 40 and 42 samples
@@ -56,7 +56,7 @@ Pass 2.2: forwards prior to SOL
 Pass 3: forwards scan
 Found between 15 and 17 samples
 
-Archive multi-volume bigbin ...
+Archive multi-volume ok-bigbin ...
 
 Pass 1: forward scan
 Found between 40 and 42 samples
