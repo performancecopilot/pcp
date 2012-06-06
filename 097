@@ -49,13 +49,13 @@ echo "Archive foo ..."
 src-oss/interp4 -a src-oss/foo | _filterfoo
 
 echo
-echo "Archive bigbin ..."
-src-oss/interp4 -a src-oss/bigbin | _filterbigbin
+echo "Archive ok-bigbin ..."
+src-oss/interp4 -a src-oss/ok-bigbin | _filterbigbin
 
 echo
 echo "Archive multi-volume foo ..."
 src-oss/interp4 -a src-oss/mv-foo | _filterfoo
 
 echo
-echo "Archive multi-volume bigbin ..."
-src-oss/interp4 -a src-oss/mv-bigbin | _filterbigbin
+echo "Archive multi-volume ok-bigbin ..."
+src-oss/interp4 -a src-oss/ok-mv-bigbin | _filterbigbin

@@ -51,6 +51,12 @@ _run()
     pmevent $* 2>&1 | _filter_usage
 }
 
+_run_sudo()
+{
+    echo "=== $* ==="
+    $sudo pmevent $* 2>&1 | _filter_usage
+}
+
 _run_ok()
 {
     echo "=== $* ==="
@@ -77,7 +83,7 @@ _run -D blah
 _run -g -p 1234
 _run -p 1234 -g
 _run -p 123foo
-_run -K blah,a,/no/such/file,no_init
+_run_sudo -K blah,a,/no/such/file,no_init
 _run -s 456bar
 _run -s 3 -T+5min
 _run -T+5min -s 10
@@ -102,13 +108,13 @@ _run -a src-oss/eventrec-old src-oss/eventrec-old/sample.event.records foo/bar
 _run localhost:sample.event.records foo:bar
 _run -h somehost foo/bar
 _run -h localhost localhost:sample.event.records foo:bar
-_run @:sampledso.event.records foo:bar
+_run_sudo @:sampledso.event.records foo:bar
 
 echo
 echo "--- problems at source of metrics ---"
 _run -h no.such.host sample.event.records
 _run -a /no/such/archive sample.event.records
-_run -L sample.event.records
+_run_sudo -L sample.event.records
 _run sample.event.records sample.colour
 _run -Dappl0 "sample.colour[red]"
 _run -Dappl0 "sample.event.no_indom_records[red]"

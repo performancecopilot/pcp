@@ -15,7 +15,7 @@ step: 100 msec
 90% TIMESTAMP N forw + M back = 79-82 5-15 log reads
 100% TIMESTAMP N forw + M back = 79-82 5-15 log reads
 
-=== src-oss/bigbin ===
+=== src-oss/ok-bigbin ===
 start: TIMESTAMP
 end: TIMESTAMP
 step: 100 msec
@@ -47,7 +47,7 @@ step: 100 msec
 90% TIMESTAMP N forw + M back = 79-82 10-20 log reads
 100% TIMESTAMP N forw + M back = 79-82 10-20 log reads
 
-=== src-oss/mv-bigbin ===
+=== src-oss/ok-mv-bigbin ===
 start: TIMESTAMP
 end: TIMESTAMP
 step: 100 msec
@@ -79,7 +79,7 @@ step: 100 msec
 90% TIMESTAMP N forw + M back = 79-82 10-20 log reads
 100% TIMESTAMP N forw + M back = 79-82 10-20 log reads
 
-=== src-oss/noti-bigbin ===
+=== src-oss/ok-noti-bigbin ===
 start: TIMESTAMP
 end: TIMESTAMP
 step: 100 msec

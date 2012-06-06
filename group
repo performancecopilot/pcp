@@ -476,7 +476,7 @@ pmlogrewrite
 238 pmns local oss
 239 pmns local oss
 240 pmns local oss
-241 pmda.mmv local oss pmval sanity
+241 pmda.mmv local oss pmval sanity perl
 242 pmlogger local oss
 243 pmcd local pmprobe oss
 244 pmcd local pmprobe oss
@@ -582,7 +582,7 @@ pmlogrewrite
 344 context_local local oss
 345 pmns derive local oss sanity
 346 pmda.mailq local pmda.install oss
-347 pmda.news local pmda.install oss
+347 pmda.news local pmda.install oss perl
 348 pmda.kvm local pmda.install oss
 349 pmda.summary local pmda.install oss
 350 pmda.simple pmda local oss
@@ -604,11 +604,11 @@ pmlogrewrite
 366 pmlogconf local oss
 367 pdu local trace oss
 368 pmlogconf local oss
-369 pmimport local oss sanity pmdumplog
-370 pmimport local oss derive pmdumplog
-371 pmimport local oss sanity pmdumplog
-372 pmimport local oss sanity pmdumplog
-373 pmimport local oss
+369 pmimport local oss sanity pmdumplog perl
+370 pmimport local oss derive pmdumplog perl
+371 pmimport local oss sanity pmdumplog perl
+372 pmimport local oss sanity pmdumplog perl
+373 pmimport local oss perl
 374 pmlc pmlogger remote oss
 375 pmlc pmlogger remote oss
 376 trace local pmda.install oss
@@ -651,7 +651,7 @@ pmlogrewrite
 413 pmie local oss event
 414 libpcp_dev local oss
 415 pmval pmstore local oss event
-416 pmda.news dbpmda local oss sanity
+416 pmda.news dbpmda local oss sanity perl
 417 archive local oss pmdumplog
 418 pmdumplog local oss
 419 pmdumplog local oss
@@ -814,7 +814,7 @@ pmlogrewrite
 650 pmlogger local oss pmdumplog
 651 pmproxy local oss
 703 pcpweb local oss
-706 pcpweb local oss
+706 libpcp local oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
 1046 pmie local pmieconf sgi

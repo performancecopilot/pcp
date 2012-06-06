@@ -43,11 +43,6 @@ echo "Local time, TZ=$TZ"
 pmclient -a $ARCH | _filter
 
 echo ""
-TZ=""
-echo "GMT time, TZ is empty"
-pmclient -a $ARCH | _filter
-
-echo ""
 echo "-Z UTC"
 pmclient -a $ARCH -Z UTC | _filter
 

@@ -19,8 +19,9 @@ then
     NM_ARG='-B'
     libmajor=1
     DSO_VERSION=$DSO_SUFFIX.$libmajor
-elif [ $PCP_PLATFORM = linux ]
+elif [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris ]
 then
+    # same options for Linux and OpenSolaris
     NM_ARG='--dynamic -B'
     libmajor=2
     DSO_VERSION=$DSO_SUFFIX.$libmajor

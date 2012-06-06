@@ -13,6 +13,7 @@ seq=`basename $0`
 . ./common.check
 
 [ $PCP_PLATFORM = darwin ] && _notrun "No sysinfo on darwin"
+[ $PCP_PLATFORM = solaris ] && _notrun "No sysinfo on solaris"
 
 echo "QA output created by $seq"
 

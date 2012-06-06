@@ -29,14 +29,13 @@ install_pcp install_pro:
 
 exports install:
 
-clobber cleanup:	$(SUBDIRS)
+clobber clean:	$(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 	rm -rf 051.work
 	rm -f *.bak *.bad *.core *.full *.raw *.o core a.out core.*
 	rm -f *.log eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz
 	rm -f *.full.ok *.new rc_cron_check.clean
 	rm -f make.out qa_hosts localconfig localconfig.h check.time
-	if [ -d src ]; then cd src; $(MAKE) clobber; else exit 0; fi
-	if [ -d src-oss ]; then cd src-oss; $(MAKE) clobber; else exit 0; fi
 	find ???.out ????.out -type f -links +1 | xargs rm -f
 	rm -f 134.full.*
 	# these ones are links to the real files created when the associated
@@ -46,7 +45,6 @@ clobber cleanup:	$(SUBDIRS)
 	# from QA 441
 	#
 	rm -f big1.*
-	$(SUBDIRS_MAKERULE)
 
 # 051 depends on this rule being here
 051.work/die.001: 051.setup
@@ -60,3 +58,19 @@ setup:
 
 localconfig:
 	PATH=$(PATH); ./mk.localconfig
+
+COMMON= common common.check common.config common.filter common.install.cisco \
+	common.pcpweb common.product common.rc common.setup
+
+src-link:	$(COMMON)
+	@test ! -z "$$SRCLINK_ROOT" || ( echo '$$SRCLINK_ROOT not set ... bozo!' ; echo "... generally unsafe to run make src-link outside the Makepkgs script"; exit 1 )
+	@test -z "$$DIR" && DIR="."; \
+	for f in `echo $^`; do \
+	    if test -d $$f ; then \
+		mkdir $$SRCLINK_ROOT/$$DIR/$$f || exit $$?; \
+		$(MAKEF) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
+	    else \
+		ln $$f $$SRCLINK_ROOT/$$DIR/$$f || exit $$?; \
+	    fi; \
+	done
+

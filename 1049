@@ -58,6 +58,13 @@ then
     #
     cat >>$tmp.cmd <<EOF
 EOF
+elif [ $PCP_PLATFORM = solaris ]
+then
+    # Not all metrics are available in Solaris, so skip the associated
+    # rules
+    #
+    cat >>$tmp.cmd <<EOF
+EOF
 else
     echo "Arrgh ... need rule customization for $PCP_PLATFORM"
     exit 1

@@ -13,7 +13,7 @@ seq=`basename $0`
 . ./common.check
 
 rm -f $seq.out $seq.full
-if [ $PCP_PLATFORM = "darwin" ]
+if [ $PCP_PLATFORM = darwin ]
 then
     ln $seq.out.2 $seq.out
 else

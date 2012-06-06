@@ -50,7 +50,7 @@ export TZ
 echo "sum of $ARCH ..."
 # want historic BSD "sum" algorithm ...
 #
-if [ $PCP_PLATFORM = "darwin" ]
+if [ $PCP_PLATFORM = darwin ]
 then
     SUM=sum
 else

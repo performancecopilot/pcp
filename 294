@@ -7,15 +7,15 @@
 
 seq=`basename $0`
 
-echo "QA output created by $seq"
-
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
+echo "QA output created by $seq"
+
 rm -f $seq.out
-if [ $PCP_PLATFORM = darwin ]
+if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
     if which pmdumptext >/dev/null 2>&1
     then
@@ -126,9 +126,10 @@ _do pmie -c $tmp.in -v -t 0.5 -T 1.5
 _do pmdumptext -h `hostname | sed -e 's/\..*//'` -t 0.5 -s 2 sample.string.hullo
 _do pmdumptext -t 0.5 -s 2 `hostname | sed -e 's/\..*//'`:sample.string.hullo
 _do pmdumptext -t 0.5 -s 2 `pmhostname`:kernel.all.load
-if [ $PCP_PLATFORM = darwin ]
+if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
-    : not much to do, as metrics for pmstat are largely missing on Mac OS X
+    : not much to do, as metrics for pmstat are largely missing
+    : on Mac OS X and OpenSolaris
 else
     _do pmstat -t 0.5 -s 2
     _do pmlogger -c $PCP_VAR_DIR/config/pmlogger/config.pmstat -t 0.5sec -s 3 -l $tmp.logger.log $tmp.arch

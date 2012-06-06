@@ -42,7 +42,7 @@ LDIRT	= *.log domain.h help.pag help.dir $(subst .c,.o,$(CFILES)) \
 
 default: $(CFILES_TARGETS) $(TARGETS)
 
-clobber:
+clobber clean:
 	rm -f $(LDIRT) $(TARGETS)
 
 $(TARGETS):

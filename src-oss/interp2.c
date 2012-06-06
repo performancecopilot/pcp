@@ -13,15 +13,19 @@ static void
 mung(struct timeval *start, struct timeval *end,
      int pct, struct timeval *mid)
 {
-    double	tstart;
-    double	tend;
-    double	twant;
-
-    tstart = start->tv_sec + (double)start->tv_usec / 1000000;
-    tend = end->tv_sec + (double)end->tv_usec / 1000000;
-    twant = (pct * tend + (100 - pct) * tstart) / 100;
-    mid->tv_sec = (long)twant;
-    mid->tv_usec = (long)(1000000 * (twant - mid->tv_sec));
+    __int64_t	sec, usec;
+    sec = (50 + pct * (__int64_t)end->tv_sec + (100 - pct) * (__int64_t)start->tv_sec) / 100;
+    usec = (50 + pct * (__int64_t)end->tv_usec + (100 - pct) * (__int64_t)start->tv_usec) / 100;
+    while (usec > 1000000) {
+	usec -= 1000000;
+	sec++;
+    }
+    while (usec < 0) {
+	usec += 1000000;
+	sec--;
+    }
+    mid->tv_sec = sec;
+    mid->tv_usec = usec;
 }
 
 static void

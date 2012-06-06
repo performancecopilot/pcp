@@ -19,14 +19,14 @@ rm -f big1.*
 
 # Filesystem           1M-blocks Used Available Use% Mounted on
 # /dev/sda5                57349     24838     29621  46% /
-free=`df -m . \
+free=`df -mP . \
 | $PCP_AWK_PROG '
 NR == 2	{ print $4 }'`
 
 rm -f .notrun
 if [ -z "$free" ]
 then
-    _notrun "Cannot determine free disk space (df -m fails)"
+    _notrun "Cannot determine free disk space (df -mP fails)"
 elif [ "$free" -lt 10240 ]
 then
     # 10GB should keep us out of trouble
@@ -85,6 +85,7 @@ for vol in big1.?
 do
     if [ $PCP_PLATFORM = darwin ]
     then
+	# Mac OS X format
 	# stat(1) format
 	# 234881026 5304024 -rwxr-xr-x 1 kenj kenj 0 2016 "May  4 14:00:42 2011" "Apr 27 20:14:16 2011" "Apr 27 20:14:16 2011" "Apr 27 20:14:16 2011" 4096 8 0 441
 	size=`stat $vol 2>&1 | $PCP_AWK_PROG '{ print $8 }'`

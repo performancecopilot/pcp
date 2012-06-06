@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 
 _filter()
 {
+    tee -a $seq.full \
     _filter_pmcd_log \
     | sed \
 	-e '/^ *$/d' \
@@ -34,9 +35,9 @@ _filter()
 
 _expect()
 {
-    echo ""
-    echo "### Expect: $* ###"
-    echo ""
+    echo "" | tee -a $seq.full
+    echo "### Expect: $* ###" | tee -a $seq.full
+    echo "" | tee -a $seq.full
 }
 
 if test $PCP_PLATFORM = mingw
@@ -76,6 +77,8 @@ else
     LOGGING_DIR=$PCP_LOG_DIR
 fi
 
+rm -f $seq.full
+
 # real QA test starts here
 
 # disable all pmloggers ... Linux does not have "chkconfig pmlogger off"
@@ -94,8 +97,14 @@ $sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 # after 040 sometimes produces garbled messages unless
 # this is done!
 $sudo $PCP_RC_DIR/pcp stop >$tmp.out 2>$tmp.err
+cat $tmp.out >>$seq.full
 _filter_pcp_stop <$tmp.out
 cat $tmp.err
+
+# allow pmcd's socket teardown to complete
+#
+sleep 2
+
 rm -f $tmp.out $tmp.err
 _expect "connection refused"
 pminfo -f sample.long.million 2>&1 | _filter
@@ -113,9 +122,14 @@ if [ -z "$pid" ]
 then
     echo "Arrgh ... cannot find PID for pmcd!"
     ps $PCP_PS_ALL_FLAGS
+    echo "=== pmcd.log ==="
+    cat $PCP_LOG_DIR/pmcd/pmcd.log
+    echo "=== pmcd.log.prev ==="
+    cat $PCP_LOG_DIR/pmcd/pmcd.log.prev
     exit
 fi
-#DEBUG# ps $PCP_PS_ALL_FLAGS
+echo "pmcd pid=$pid" >>$seq.full
+ps $PCP_PS_ALL_FLAGS | egrep "PID|$pid" >>$seq.full
 
 $sudo kill -STOP $pid
 
@@ -129,6 +143,7 @@ export PMCD_CONNECT_TIMEOUT
 pminfo -f sample.long.million >$tmp.tmp 2>&1 &
 
 _expect "Starting, Waiting, Forcing termination and Starting again"
+ps $PCP_PS_ALL_FLAGS | egrep "PID|$pid" >>$seq.full
 $sudo $PCP_RC_DIR/pcp start >$tmp.two 2>&1
 
 _wait_for_pmcd

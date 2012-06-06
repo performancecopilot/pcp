@@ -19,6 +19,10 @@ in
     irix|linux|darwin)
 	ln $seq.out.$PCP_PLATFORM $seq.out || exit 1
 	;;
+    solaris)
+	# same output for Mac OS X and OpenSolaris
+	ln $seq.out.darwin $seq.out || exit 1
+	;;
     *)
 	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
 	exit 1
@@ -35,7 +39,7 @@ _filter()
 
 # real QA test starts here
 src-oss/indom -i 15 kernel.all.load | _filter
-if [ $PCP_PLATFORM != darwin ]
+if [ $PCP_PLATFORM != darwin -a $PCP_PLATFORM != solaris ]
 then
     src-oss/indom -i 1 proc.psinfo.pid \
     | _filter \
