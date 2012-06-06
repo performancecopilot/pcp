@@ -17,7 +17,7 @@ echo "QA output created by $seq"
 rm -f $seq.out
 case $PCP_PLATFORM
 in
-    irix|linux|darwin)
+    irix|linux|darwin|solaris)
 	ln $seq.$PCP_PLATFORM $seq.out || exit 1
 	;;
     *)
@@ -52,12 +52,14 @@ _cleanup()
     fi
 }
 
+# default case
+PMCDLOG=$PCP_LOG_DIR/pmcd/pmcd.log
+
 case "$PCP_PLATFORM" in
 irix)
     PMCDLOG=$PCP_LOG_DIR/pmcd.log
     cat <<End-of-File >$tmp.conf
-# for QA $seq
-#
+# temporary pmcd.conf for qa/$seq
 irix	1	dso	irix_init	libirixpmda.so
 pmcd	2	dso	pmcd_init	pmda_pmcd.so
 proc	3	dso	proc_init	pmda_proc.so
@@ -65,20 +67,26 @@ End-of-File
     ;;
 
 linux)
-    PMCDLOG=$PCP_LOG_DIR/pmcd/pmcd.log
     cat >> $tmp.conf << EOF
-# Name  Id      IPC     IPC Params      File/Cmd
+# temporary pmcd.conf for qa/$seq
 pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 linux   60      dso     linux_init      $PCP_PMDAS_DIR/linux/pmda_linux.so
 EOF
     ;;
 
 darwin)
-    PMCDLOG=$PCP_LOG_DIR/pmcd/pmcd.log
     cat >> $tmp.conf << EOF
-# Name  Id      IPC     IPC Params      File/Cmd
+# temporary pmcd.conf for qa/$seq
 pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
 darwin  78      dso     darwin_init     $PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
+EOF
+    ;;
+
+solaris)
+    cat >> $tmp.conf << EOF
+# temporary pmcd.conf for qa/$seq
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
 EOF
     ;;
 

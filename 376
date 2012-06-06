@@ -29,7 +29,8 @@ in
 	    ln $seq.$PCP_PLATFORM.1 $seq.out || exit 1
 	fi
 	;;
-    darwin)
+    darwin|solaris)
+	# same output for Mac OS X and OpenSolaris
 	ln $seq.linux.2 $seq.out || exit 1
 	;;
     *)

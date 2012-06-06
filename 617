@@ -23,7 +23,7 @@ if [ $PCP_PLATFORM = irix ]
 then
    BINFMT=`/usr/pcp/bin/pmobjstyle`
    PMDADSO=/var/pcp/lib/$BINFMT.pmda_sample.so
-elif [ $PCP_PLATFORM = linux ]
+elif [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris ]
 then
    PMDADSO=$PCP_PMDAS_DIR/sample/pmda_sample.so
 elif [ $PCP_PLATFORM = darwin ]
@@ -58,7 +58,7 @@ _filter()
 
 # real QA test starts here
 
-dbpmda -ie 2>&1 <<End-of-File | _filter
+$sudo dbpmda -ie 2>&1 <<End-of-File | _filter
 help
 status
 #a comment, this should be ignored

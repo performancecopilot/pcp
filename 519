@@ -5,6 +5,15 @@
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
+#
+# Solaris Note (OpenIndiana specifically)
+#
+# Need to edit /etc/syslog.conf and add these lines
+# # for PCP QA
+# daemon.info                     /var/log/syslog
+#
+# then kill -HUP <pid-for-syslogd>
+#
 
 seq=`basename $0`
 
@@ -21,9 +30,13 @@ in
 	ln $seq.$PCP_PLATFORM $seq.out || exit 1
 	SYSLOG_OPT='"-p daemon.info"'
 	;;
-    darwin|solaris)
+    darwin)
 	ln $seq.linux $seq.out || exit 1
 	SYSLOG_OPT=''
+	;;
+    solaris)
+	ln $seq.linux $seq.out || exit 1
+	SYSLOG_OPT='"-p daemon.info"'
 	;;
     *)
 	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
@@ -38,7 +51,8 @@ _filter()
 	-e 's/[A-Z][a-z][a-z] *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/TIMESTAMP/' \
 	-e "s/`hostname | sed -e 's/\..*//'`/HOST/" \
 	-e 's/[0-9][A-Z]:HOST/HOST/' \
-	-e 's/\(pmie[([]\)[0-9][0-9]*/\1PID/'
+	-e 's/\(pmie[([]\)[0-9][0-9]*/\1PID/' \
+	-e 's/ \[ID [0-9][0-9]* daemon.info]//'
 }
 
 status=0	# success is the default!

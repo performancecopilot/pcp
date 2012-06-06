@@ -162,10 +162,10 @@ Options\n\
     namelist[i++] = "network.interface.in.bytes";       
     namelist[i++] = "network.interface.in.packets";
     namelist[i++] = "network.interface.out.errors";
-    namelist[i++] = "network.interface.total.packets";
-    namelist[i++] = "web.allservers.numwatched";
-    namelist[i++] = "web.allservers.numalive";
-    namelist[i++] = "web.allservers.requests.total";
+    namelist[i++] = "network.interface.out.packets";
+    namelist[i++] = "simple.color";
+    namelist[i++] = "simple.time.user";
+    namelist[i++] = "simple.numfetch";
     namelist[i++] = "sample.step";
     namelist[i++] = "sample.lights";
     namelist[i++] = "sample.magnitude";

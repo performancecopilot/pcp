@@ -77,3 +77,9 @@ then
 fi
 here=`pwd`
 tmp=/tmp/$$
+
+# some versions of sed/awk/... do not deal with [A-Z] or [a-z] correctly
+# (in the classical sense) and most versions of sort(1) may be
+# non-deterministic unless we force the Locale
+#
+export LC_COLLATE=POSIX

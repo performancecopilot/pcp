@@ -20,7 +20,7 @@ export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
 rm -f $seq.out
 case $PCP_PLATFORM
 in
-    irix|linux|darwin)
+    irix|linux|darwin|solaris)
 	if [ $PCP_VER -lt 3600 ]
 	then
 	    ln $seq.$PCP_PLATFORM $seq.out || exit 1

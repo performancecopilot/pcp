@@ -78,31 +78,32 @@ trap "_interrupt; _cleanup" 1 2 3 15
 #
 if [ $PCP_PLATFORM = irix ]
 then
-cat <<End-of-File >$tmp.conf
+    cat <<End-of-File >$tmp.conf
 # temporary pmcd.conf for qa/$seq
-#
-# Name	Id	IPC	IPC Params 	File/Cmd
 irix	1	dso	irix_init	libirixpmda.so
 pmcd	2	dso	pmcd_init	pmda_pmcd.so
 proc	3	dso	proc_init	pmda_proc.so
 End-of-File
 elif [ $PCP_PLATFORM = linux ]
 then
-cat <<End-of-File >$tmp.conf
+    cat <<End-of-File >$tmp.conf
 # temporary pmcd.conf for qa/$seq
-#
-# Name	Id	IPC	IPC Params 	File/Cmd
 linux	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 End-of-File
 elif [ $PCP_PLATFORM = darwin ]
 then
-cat <<End-of-File >$tmp.conf
+    cat <<End-of-File >$tmp.conf
 # temporary pmcd.conf for qa/$seq
-#
-# Name	Id	IPC	IPC Params 	File/Cmd
 darwin	78	dso	darwin_init	$PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+End-of-File
+elif [ $PCP_PLATFORM = solaris ]
+then
+    cat <<End-of-File >$tmp.conf
+# temporary pmcd.conf for qa/$seq
+solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 End-of-File
 else
     echo "Arrgh ... need pmcd.conf for $PCP_PLATFORM"

@@ -24,7 +24,7 @@ signal=$PCP_BINADM_DIR/pmsignal
 
 get_pminfo()
 {
-    LC_ALL=C perl -e '
+    perl -e '
         open STATS, "pminfo -f '$1' |" || die "pminfo: $!";
         while (<STATS>) {
             if (m/.*"(\S+)"] value (\d+)/) {
@@ -37,7 +37,7 @@ get_pminfo()
 
 get_nfsstat()
 {
-    LC_ALL=C perl -e '
+    perl -e '
     	$prefix = "";
 	open STATS, "nfsstat -n |" || die "nfsstat: $!";
 	while (<STATS>) {

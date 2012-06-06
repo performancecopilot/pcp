@@ -29,7 +29,8 @@ echo "QA output created by $seq"
 
 case $PCP_PLATFORM
 in
-    irix|linux)
+    irix|linux|solaris)
+	# same syslog options for Irix, Linux and OpenSolaris
 	SYSLOG_OPT='"-p daemon.info"'
 	;;
     darwin)

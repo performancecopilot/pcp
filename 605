@@ -19,7 +19,7 @@ if [ $PCP_VER -lt 2200 ]; then
     cat $seq.in >>$seq.out
 else
     # tweak output for PCP 2.2...
-    cat $seq.in | LC_ALL=C perl -e '
+    cat $seq.in | perl -e '
 	@in=<>;
 	$"="";
 	print "@in[0..$#in-1]";

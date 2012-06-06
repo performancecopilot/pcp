@@ -22,6 +22,7 @@ seq=`basename $0`
 . ./common.check
 
 [ $PCP_PLATFORM = darwin ] && _notrun "No proc metrics for darwin"
+[ $PCP_PLATFORM = solaris ] && _notrun "No proc metrics for solaris"
 
 echo "QA output created by $seq"
 

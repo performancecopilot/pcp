@@ -39,6 +39,14 @@ _filter_pmie()
 	sed \
 	    -e '/metric swap.pagesout not in namespace/d' \
 	    -e '/pmLookupName failed: Unknown metric name/d'
+    elif [ $PCP_PLATFORM = solaris ]
+    then
+	sed \
+	    -e '/metric swap.pagesout not in namespace/d' \
+	    -e '/metric filesys.used not in namespace/d' \
+	    -e '/metric filesys.capacity not in namespace/d' \
+	    -e '/metric filesys.used not in namespace/d' \
+	    -e '/pmLookupName failed: Unknown metric name/d'
     else
 	cat
     fi

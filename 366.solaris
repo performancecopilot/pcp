@@ -1,0 +1,342 @@
+QA output created by 366
+< #pmlogconf 1.0
+---
+> #pmlogconf 2.0
+> #+ groupdir /var/lib/pcp/config/pmlogconf
+> #
+< #+ I0:n:once:
+< ## hardware configuration [nodevis, osvis, oview, routervis,
+< ## pmchart:Overview]
+---
+> #+ platform/hinv:y:once:
+> ## platform, filesystem and hardware configuration
+> log advisory on once {
+> 	hinv
+> 	kernel.uname
+> 	filesys.mountdir
+> 	filesys.blocksize
+> 	filesys.capacity
+> }
+< #+ D0:n:default:
+< ## activity (IOPs and bytes for both reads and writes) over all disks
+< ## [osvis, pmstat, pmchart:Disk, pmchart:Overview]
+---
+> #+ disk/summary:y:default:
+> ## summary disk activity (IOPs and bytes for both reads and writes over
+> ## all disks).
+> log advisory on default {
+> 	disk.all.read
+> 	disk.all.write
+> 	disk.all.total
+> 	disk.all.read_bytes
+> 	disk.all.write_bytes
+> 	disk.all.bytes			# for irix
+> 	disk.all.total_bytes		# for linux
+> 	disk.all.avg_disk.active	# for irix
+> 	disk.all.avactive		# for linux
+> }
+< #+ D1:n:default:
+< ## per controller disk activity [pmchart:DiskCntrls]
+---
+> #+ disk/percontroller:x::
+< #+ D2:n:default:
+< ## per spindle disk activity [dkvis, pmie:per_disk]
+---
+> #+ disk/perdisk:n:default:
+> ## per spindle disk activity
+< #+ D3:n:default:
+---
+> #+ v1.0/D3:n:default:
+< #+ C0:n:default:
+< ## utilization (usr, sys, idle, ...) over all CPUs [osvis, pmstat,
+< ## pmchart:CPU, pmchart:Overview, pmie:cpu]
+---
+> #+ cpu/summary:y:default:
+> ## utilization (usr, sys, idle, ...) over all CPUs
+> log advisory on default {
+> 	kernel.all.cpu
+> }
+< #+ C2:n:default:
+---
+> #+ v1.0/C2:n:default:
+< #+ C1:n:default:
+< ## utilization per CPU [clustervis, mpvis, nodevis, oview, pmie:cpu,
+< ## pmie:per_cpu]
+---
+> #+ cpu/percpu:n:default:
+> ## utilization per CPU
+< #+ C3:n:default:
+---
+> #+ v1.0/C3:n:default:
+< #+ K0:n:default:
+< ## load average and number of logins [osvis, pmstat, pmchart:LoadAvg,
+< ## pmchart:Overview, pmie:cpu]
+---
+> #+ v1.0/K0:y:default:
+> ## load average and number of logins
+> log advisory on default {
+> 	kernel.all.load
+> 	kernel.all.users
+> }
+< #+ Ka:n:default:
+< ## run and swap queues [pmkstat]
+---
+> #+ kernel/queues-irix:x::
+< #+ K1:n:default:
+---
+> #+ kernel/syscalls-irix:n:default:
+< ## write, fork, exec, select) over all CPUs [pmstat, pmchart:Syscalls,
+< ## pmie:cpu]
+---
+> ## write, fork, exec, select) over all CPUs [Irix]
+< #+ K2:n:default:
+---
+> #+ kernel/syscalls-percpu-irix:n:default:
+< ## [pmie:per_cpu]
+---
+> ## [Irix]
+< #+ K3:n:default:
+< ## bytes across the read() and write() syscall interfaces
+---
+> #+ kernel/read-write-data:x::
+< #+ K4:n:default:
+< ## interrupts [pmkstat]
+---
+> #+ kernel/interrupts-irix:x::
+< #+ K5:n:default:
+< ## buffer cache reads, writes, hits and misses [pmchart:BufferCache,
+< ## pmie:filesys]
+---
+> #+ kernel/bufcache-activity:n:default:
+> ## kernel buffer cache reads, writes, hits and misses
+< #+ K6:n:default:
+< ## all available buffer cache data
+---
+> #+ kernel/bufcache-all:x::
+< #+ K7:n:default:
+< ## vnode activity
+---
+> #+ kernel/vnodes:x::
+< #+ K8:n:default:
+< ## name cache (namei, iget, etc) activity [pmchart:DNLC, pmie:filesys]
+---
+> #+ kernel/inode-cache:x::
+< #+ K9:n:default:
+< ## asynchronous I/O activity
+---
+> #+ sgi/kaio:x::
+< #+ M0:n:default:
+< ## pages in and out (severe VM demand) [pmstat, pmchart:Paging]
+---
+> #+ memory/swap-activity:n:default:
+> ## pages in and out (severe VM demand)
+< #+ M1:n:default:
+< ## address translation (faults and TLB activity)
+---
+> #+ memory/tlb-irix:x::
+< #+ M2:n:default:
+< ## kernel memory allocation [osvis, pmstat, pmchart:Memory, pmchart:Overview]
+---
+> #+ kernel/memory-irix:x::
+< #+ M3:n:default:
+< ## current swap allocation and all swap activity [pmchart:Swap, pmie:memory]
+---
+> #+ memory/swap-all:n:default:
+> ## current swap allocation and all swap activity
+< #+ M4:n:default:
+---
+> #+ memory/swap-config:n:default:
+< #+ M5:n:default:
+< ## "large" page and Origin node-based allocations and activity [nodevis,
+< ## oview]
+---
+> #+ sgi/node-memory:x::
+< #+ M7:n:default:
+< ## NUMA migration stats [nodevis, oview]
+---
+> #+ sgi/numa-summary:x::
+< #+ M6:n:default:
+< ## all NUMA stats
+---
+> #+ sgi/numa:x::
+< #+ N0:n:default:
+< ## bytes and packets (in and out) and bandwidth per network interface
+< ## [clustervis, osvis, pmchart:NetBytes, pmchart:Overview, pmie:per_netif]
+---
+> #+ networking/interface-summary:y:default:
+> ## bytes, packets and errors (in and out) per network interface
+> log advisory on default {
+> 	network.interface.in.bytes
+> 	network.interface.in.packets
+> 	network.interface.in.errors
+> 	network.interface.out.bytes
+> 	network.interface.out.packets
+> 	network.interface.out.errors
+> 	network.interface.collisions
+> }
+< #+ N1:n:default:
+---
+> #+ networking/interface-all:n:default:
+< #+ N2:n:default:
+< ## TCP bytes and packets (in and out), connects, accepts, drops and closes
+< ## [pmchart:NetConnDrop, pmchart:NetPackets, pmie:network]
+---
+> #+ networking/tcp-activity-irix:x::
+< #+ N3:n:default:
+< ## all available TCP data [pmchart:NetTCPCongestion]
+---
+> #+ networking/tcp-all:n:default:
+> ## all available TCP data
+< #+ N4:n:default:
+< ## UDP packets in and out [pmchart:NetPackets]
+---
+> #+ networking/udp-packets-irix:n:default:
+> ## UDP packets in and out [Irix]
+< #+ N5:n:default:
+---
+> #+ networking/udp-all:n:default:
+< #+ N6:n:default:
+< ## socket stats (counts by type and state)
+---
+> #+ networking/socket-irix:x::
+< #+ N7:n:default:
+< ## all available data for other protocols (IP, ICMP, IGMP)
+---
+> #+ networking/other-protocols:n:default:
+> ## all available data for other protocols (ip, icmp, igmp, udplite)
+< #+ N8:n:default:
+< ## mbuf stats (alloc, failed, waited, etc) [pmie:network]
+---
+> #+ networking/mbufs:x::
+< #+ N9:n:default:
+< ## multicast routing stats
+---
+> #+ networking/multicast:x::
+< #+ Na:n:default:
+< ## SVR5 streams activity
+---
+> #+ networking/streams:x::
+< #+ S0:n:default:
+< ## NFS2 stats [nfsvis, pmchart:NFS2]
+---
+> #+ v1.0/S0:n:default:
+> ## NFS2 stats
+< #+ S1:n:default:
+< ## NFS3 stats [nfsvis, pmchart:NFS3]
+---
+> #+ v1.0/S1:n:default:
+> ## NFS3 stats
+< #+ S2:n:default:
+< ## RPC stats [pmie:rpc]
+---
+> #+ networking/rpc:n:default:
+> ## RPC stats
+< #+ F0:n:default:
+< ## Filesystem fullness [pmchart:FileSystem, pmie:filesys]
+---
+> #+ filesystem/all:n:default:
+> ## generic filesystem size, fullness and mount information
+< #+ F1:n:default:
+< ## XFS data and log traffic
+---
+> #+ filesystem/xfs-io-irix:x::
+< #+ F2:n:default:
+< ## all available XFS data
+---
+> #+ filesystem/xfs-all:x::
+< #+ F3:n:default:
+< ## XLV operations and bytes per volume [xlv_vis]
+---
+> #+ sgi/xlv-activity:x::
+< #+ F4:n:default:
+< ## XLV striped volume stats [xlv_vis]
+---
+> #+ sgi/xlv-stripe-io:x::
+< #+ F6:n:default:
+< ## XVM operations and bytes per volume
+---
+> #+ sgi/xvm-ops:x::
+< #+ F7:n:default:
+< ## XVM stripe, mirror and concat volume stats [pmie:xvm]
+---
+> #+ sgi/xvm-stats:x::
+< #+ F8:n:default:
+< ## all available XVM data
+---
+> #+ sgi/xvm-all:x::
+< #+ F5:n:default:
+< ## EFS activity
+---
+> #+ sgi/efs:x::
+< #+ H0:n:default:
+< ## NUMALink routers [nodevis, oview, routervis, pmchart:NUMALinks,
+< ## pmie:craylink]
+---
+> #+ sgi/craylink:x::
+< #+ H1:n:default:
+< ## Origin hubs [pmie:craylink]
+---
+> #+ sgi/hub:x::
+< #+ H2:n:default:
+< ## global MIPS CPU event counters (enable first with ecadmin(1))
+---
+> #+ sgi/cpu-evctr:x::
+< #+ H3:n:default:
+< ## XBOW activity [xbowvis]
+---
+> #+ sgi/xbow:x::
+> #+ apache/processes:x::
+> #----
+> #+ apache/summary:x::
+> #----
+> #+ apache/uptime:x::
+> #----
+> #+ filesystem/summary:n:default:
+> ## filesystem size and fullness
+> #----
+> #+ filesystem/xfs-io-linux:x::
+> #----
+> #+ kernel/load:n:default:
+> ## load average
+> #----
+> #+ kernel/memory-linux:x::
+> #----
+> #+ kernel/summary-linux:x::
+> #----
+> #+ kernel/summary-windows:x::
+> #----
+> #+ kernel/syscalls-linux:n:default:
+> ## context switches and fork system calls over all CPUs [Linux]
+> #----
+> #+ mailq/summary:x::
+> #----
+> #+ mysql/summary:x::
+> #----
+> #+ networking/nfs2-client:n:default:
+> ## NFS v2 client stats
+> #----
+> #+ networking/nfs2-server:n:default:
+> ## NFS v2 server stats
+> #----
+> #+ networking/nfs3-client:n:default:
+> ## NFS v3 client stats
+> #----
+> #+ networking/nfs3-server:n:default:
+> ## NFS v3 server stats
+> #----
+> #+ networking/socket-linux:x::
+> #----
+> #+ networking/tcp-activity-linux:x::
+> #----
+> #+ networking/udp-packets-linux:x::
+> #----
+> #+ platform/linux:x::
+> #----
+> #+ postgresql/summary:x::
+> #----
+> #+ shping/summary:x::
+> #----
+> #+ sqlserver/summary:x::
+> #----
+> #+ zimbra/all:x::
+> #----

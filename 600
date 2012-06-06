@@ -48,7 +48,7 @@ then
 fi
 
 rm -f $seq.out
-if [ $PCP_PLATFORM = "linux" ]
+if [ $PCP_PLATFORM = linux ]
 then
     a=''
     which rpm >/dev/null 2>&1
@@ -152,9 +152,12 @@ then
     fi
     #DEBUG# echo "glibc version $a.$b.$c"
     #DEBUG# ls -l $seq*
-elif [ $PCP_PLATFORM = "darwin" ]
+elif [ $PCP_PLATFORM = darwin ]
 then
     ln $seq.out.darwin $seq.out
+elif [ $PCP_PLATFORM = solaris  ]
+then
+    ln $seq.out.solaris $seq.out
 else
     ln $seq.out.irix $seq.out
 fi

@@ -11,8 +11,6 @@ seq=`basename $0`
 . ./common.setup
 . ./common.pcpweb
 
-[ -d $PCP_PMDAS_DIR/weblog ] || _notrun "weblog PMDA not installed"
-
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
@@ -33,7 +31,6 @@ trap _cleanup 0 1 2 3 15
 # real QA test starts here
 
 _save_state
-_require_pmda weblog
 
 for i in 1 2 3 4
 do

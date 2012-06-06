@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 hostname=`_get_fqdn 2>/dev/null`
 [ -z "$hostname" ] && hostname=`hostname`
@@ -37,7 +37,7 @@ s/amp: .* num/amp: TIMESTAMPS num/
 }
 
 # real QA test starts here
-cat <<End-of-File | dbpmda -ei >$tmp.out 2>&1
+cat <<End-of-File | $sudo dbpmda -ei >$tmp.out 2>&1
 open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -l $tmp.log
 store sample.event.reset "0"
 fetch sample.event.records

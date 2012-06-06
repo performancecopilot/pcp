@@ -39,7 +39,8 @@ _check()
 	args="$args $file:$x"
     done
     echo "=== $args ==="
-    $PCP_PMDAS_DIR/cisco/parse $args
+    $PCP_PMDAS_DIR/cisco/parse $args 2>&1 \
+    | sed -e 's/fd=4/fd=3/'
 }
 
 # real QA test starts here

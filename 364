@@ -16,12 +16,9 @@ echo "QA output created by $seq"
 
 . ./localconfig
 rm -f $seq.out
-if [ $PCP_PLATFORM = linux ]
+if [ -f $seq.$PCP_PLATFORM ]
 then
-    ln $seq.linux $seq.out
-elif [ $PCP_PLATFORM = darwin ]
-then
-    ln $seq.darwin $seq.out
+    ln $seq.$PCP_PLATFORM $seq.out
 else
     echo "Arrgh ... need qualified output for $PCP_PLATFORM"
     exit 1

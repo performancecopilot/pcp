@@ -69,7 +69,7 @@ pmprobe -v sample.long.hundred 2>&1 | _filter
 
 echo
 echo "== non-standard PMPROXY_PORT, expect success =="
-$sudo killall pmproxy
+$sudo $PCP_BINADM_DIR/pmsignal -a pmproxy
 $PCP_BINADM_DIR/pmproxy
 sleep 1
 pmprobe -v sample.long.hundred 2>&1 | _filter
@@ -77,7 +77,7 @@ pmprobe -v sample.long.hundred 2>&1 | _filter
 echo
 echo "== restricted interface for connections, expect failure =="
 unset PMPROXY_PORT
-$sudo killall pmproxy
+$sudo $PCP_BINADM_DIR/pmsignal -a pmproxy
 $PCP_BINADM_DIR/pmproxy -i 127.0.0.1
 sleep 1
 pmprobe -v sample.long.hundred 2>&1 | _filter

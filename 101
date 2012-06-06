@@ -86,11 +86,11 @@ _do_cmds()
 		      echo "# $ctl $state -> $req_ctl $req_state"; \
 		      echo "log $ctl $state sample.bin "'[ "bin-100", "bin-200", "bin-300"]'
 		    ) | pmlc -ie $1
-		    sleep 1
+		    sleep 2
 		    ( echo "log $req_ctl $req_state sample.bin "'[ "bin-400", "bin-500" ]'; \
 		      echo "query sample.bin"; \
 		    ) | pmlc -ie $1
-		    sleep 1
+		    sleep 2
 		    # need sleeps to allow pmlogger to get a look in and
 		    # to allow the pmlogger socket to be closed so the
 		    # next pmlc invocation can get connected

@@ -19,6 +19,11 @@ else
     _notrun libpcp not built with fault injection enabled
 fi
 
+if [ $PCP_PLATFORM = solaris ]
+then
+    _notrun fault injection point in libpcp/err.c not executed for Solaris
+fi
+
 echo "QA output created by $seq"
 
 status=0	# success is the default!
