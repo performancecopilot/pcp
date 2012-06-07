@@ -370,7 +370,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	    epp = (pmEventParameter *)base;
 	    rp->vset[p]->pmid = epp->ep_pmid;
 	    rp->vset[p]->numval = 1;
-	    rp->vset[p]->vlist[0].inst = vsp->vlist[idx].inst;
+	    rp->vset[p]->vlist[0].inst = PM_IN_NULL;
 	    vbuf = (char *)epp + sizeof(epp->ep_pmid) + sizeof(int);
 	    switch (epp->ep_type) {
 		case PM_TYPE_32:
