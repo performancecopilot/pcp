@@ -99,10 +99,9 @@ bash_trace_parser(bash_process_t *bash, bash_trace_t *trace,
 	trace->flags = PM_EVENT_FLAG_END;
     } else {
 	char	*p = (char *)buffer, *end = (char *)buffer + size - 1;
-	int	start = (!memcmp(timestamp, &bash->startstat, sizeof(*timestamp)));
 
 	trace->flags = (PM_EVENT_FLAG_ID | PM_EVENT_FLAG_PARENT);
-	trace->flags |= start ? PM_EVENT_FLAG_START : PM_EVENT_FLAG_POINT;
+	trace->flags |= event_start(bash, timestamp) ? PM_EVENT_FLAG_START : PM_EVENT_FLAG_POINT;
 
 	if (pmDebug & DBG_TRACE_APPL0)
 	    __pmNotifyErr(LOG_DEBUG, "processing buffer[%d]: %s", size, buffer);

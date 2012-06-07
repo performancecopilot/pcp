@@ -32,7 +32,7 @@ typedef struct bash_process {
 
     struct timeval	starttime;	/* timestamp trace started */
     struct timeval	startstat;	/* timestamp of first stat */
-    struct stat		stat;
+    struct stat		stat;		/* stat of the header file */
 
     char		*instance;	/* process id, space, script */
 } bash_process_t;
@@ -49,6 +49,7 @@ extern long bash_maxmem;
 
 extern void event_init(void);
 extern void event_refresh(pmInDom);
+extern int event_start(bash_process_t *, struct timeval *);
 
 #define MINIMUM_VERSION	1
 #define MAXIMUM_VERSION	1
