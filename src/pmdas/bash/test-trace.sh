@@ -1,46 +1,30 @@
 #!/bin/bash
+#
+# Copyright (c) 2012 Nathan Scott.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
 
-trap "wax_off" 0
-PCP_TMP_DIR="/var/tmp"
-TRACE_DIR="${PCP_TMP_DIR}/pmdabash"
-TRACE_HEADER="${TRACE_DIR}/.$$"
-TRACE_DATA="${TRACE_DIR}/$$"
+# . $PCP_DIR/etc/pcp.sh
 
-wax_on()
-{
-	[ -n "${BASH_VERSION}" ] || return 0		# wrong shell
-	[ "${BASH_VERSINFO[0]}" -ge 4 ] || return 0	# no support
-	[ ! -d "/proc/$$/fd" -o ! -e "/proc/$$/fd/99" ] || return 0
-	[ -d "${TRACE_DIR}" ] || return 0		# no pcp pmda
+. $PCP_DIR/etc/pcp.env
+. ./bashproc.sh
 
-	trap "wax_on 13" 13	# reset on sigpipe (consumer died)
-	printf -v TRACESTART '%(%s)T' -2
-	mkfifo -m 600 "${TRACE_DATA}" #2>/dev/null || return 0
-	# header: version, command, parent, and start time
-	echo "version:1 ppid:${PPID} date:${TRACESTART} + ${BASH_SOURCE} $@" \
-		> "${TRACE_HEADER}" || return 0
-	# setup link between xtrace & fifo
-	exec 99>"${TRACE_DATA}"
-	BASH_XTRACEFD=99	# magic bash environment variable
-	set -o xtrace		# start tracing from here onward
-	# traces: time, line#, and (optionally) function
-	PS4='time:${SECONDS} line:${LINENO} func:${FUNCNAME[0]-} + '
-}
-
-wax_off()
-{
-	[ -e "${TRACE_DATA}" ] || return 0
-	exec 99>/dev/null
-	unlink "${TRACE_DATA}" 2>/dev/null
-	unlink "${TRACE_HEADER}" 2>/dev/null
-}
+pcp_trace on $@
 
 tired()
 {
 	sleep $1
 }
 
-wax_on $@
 count=0
 while true
 do
@@ -48,5 +32,6 @@ do
 	echo "awoke, $count"	# top level
 	tired 2		# call a shell function
 done
+pcp_trace off
 
 exit 0
