@@ -163,6 +163,7 @@ process_alloc(const char *bashname, bash_process_t *init)
     bashful->parent = init->parent;
     bashful->queueid = queueid;
     bashful->exited = 0;
+    bashful->finished = 0;
     bashful->restrict = 0;
     bashful->version = init->version;
     bashful->padding = 0;
@@ -300,7 +301,8 @@ process_done(bash_process_t *process)
     if (process->exited == 0) {
 	process->exited = (__pmProcessExists(process->pid) == 0);
 	/* empty event inserted into queue to denote bash has exited */
-	if (process->exited == 1) {
+	if (process->exited && !process->finished) {
+	    process->finished = 1;	/* generate no further events */
 	    process_stat_timestamp(process, &timestamp);
 	    pmdaEventQueueAppend(process->queueid, NULL, 0, &timestamp);
 	}

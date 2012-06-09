@@ -26,9 +26,10 @@ typedef struct bash_process {
     int			queueid;
 
     int			exited  : 1;	/* flag: process running? */
+    int			finished: 1;	/* flag: exit event sent? */
     int			restrict: 1;	/* flag: store-to-access? */
     int			version : 8;	/* pmda <-> bash xtrace version */
-    int			padding : 22;	/* filler */
+    int			padding : 21;	/* filler */
 
     struct timeval	starttime;	/* timestamp trace started */
     struct timeval	startstat;	/* timestamp of first stat */
