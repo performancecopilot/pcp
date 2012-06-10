@@ -88,7 +88,7 @@ process_head_verify(const char *filename, bash_process_t *verify)
 
     if (fd < 0)
 	return fd;
-    if (fstat(fd, &verify->stat) < 0 || !S_ISFIFO(verify->stat.st_mode)) {
+    if (fstat(fd, &verify->stat) < 0 || !S_ISREG(verify->stat.st_mode)) {
 	close(fd);
 	return -1;
     }
