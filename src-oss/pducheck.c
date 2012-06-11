@@ -212,13 +212,17 @@ _z(void)
     rp->vset[i] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
     rp->vset[i]->pmid = pmidlist[0];
     rp->vset[i]->numval = 1;
-    rp->vset[i]->valfmt = PM_VAL_SPTR;
+    rp->vset[i]->valfmt = PM_VAL_DPTR;
     rp->vset[i]->vlist[0].inst = PM_IN_NULL;
     rp->vset[i]->vlist[0].value.pval = &myvb;
     rp->vset[i]->vlist[0].value.pval->vtype = PM_TYPE_STRING;
     rp->vset[i]->vlist[0].value.pval->vlen = PM_VAL_HDR_SIZE + 2;
+    av.cp = "0";
+    if ((e = __pmStuffValue(&av, &rp->vset[i]->vlist[0], PM_TYPE_STRING)) < 0) {
+	fprintf(stderr, "Error: __pmStuffValue vset[%d] PM_TYPE_STRING: %s\n", i, pmErrStr(e));
+	exit(1);
+    }
     rp->vset[i]->vlist[0].value.pval->vbuf[0] = '0' + pass;
-    rp->vset[i]->vlist[0].value.pval->vbuf[1] = '\0';
     i++;
     /* singular instance, U64 value in pmValueBlock */
     rp->vset[i] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
@@ -227,7 +231,7 @@ _z(void)
     rp->vset[i]->vlist[0].inst = PM_IN_NULL;
     av.ull = 0x8765432112345678LL;
     if ((e = __pmStuffValue(&av, &rp->vset[i]->vlist[0], PM_TYPE_U64)) < 0) {
-	fprintf(stderr, "Error: __pmStuffValue vset[%d]: %s\n", i, pmErrStr(e));
+	fprintf(stderr, "Error: __pmStuffValue vset[%d] PM_TYPE_U64: %s\n", i, pmErrStr(e));
 	exit(1);
     }
     rp->vset[i]->valfmt = e;
@@ -239,7 +243,7 @@ _z(void)
     rp->vset[i]->vlist[0].inst = PM_IN_NULL;
     av.f = 4.3E+21;
     if ((e = __pmStuffValue(&av, &rp->vset[i]->vlist[0], PM_TYPE_FLOAT)) < 0) {
-	fprintf(stderr, "Error: __pmStuffValue vset[%d]: %s\n", i, pmErrStr(e));
+	fprintf(stderr, "Error: __pmStuffValue vset[%d] PM_TYPE_FLOAT: %s\n", i, pmErrStr(e));
 	exit(1);
     }
     rp->vset[i]->valfmt = e;
@@ -251,7 +255,7 @@ _z(void)
     rp->vset[i]->vlist[0].inst = PM_IN_NULL;
     av.d = 4.56E+123;
     if ((e = __pmStuffValue(&av, &rp->vset[i]->vlist[0], PM_TYPE_DOUBLE)) < 0) {
-	fprintf(stderr, "Error: __pmStuffValue vset[%d]: %s\n", i, pmErrStr(e));
+	fprintf(stderr, "Error: __pmStuffValue vset[%d] PM_TYPE_DOUBLE: %s\n", i, pmErrStr(e));
 	exit(1);
     }
     rp->vset[i]->valfmt = e;

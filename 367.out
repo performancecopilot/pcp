@@ -23,7 +23,7 @@ pdu-server: waiting ...
 [SERVER]pmGetPDU: RESULT fd=<n> len=208 from=CLIENT
 000:       d0     7001   CLIENT    1a5e0    1e240        7     dead        1 
 008:        0 ffffffff      4d2     beef        3        0        2      929 
-016:        4      d80        8     11d7        0        1        2 ffffffff 
+016:        4      d80        8     11d7        0        1        1 ffffffff 
 024:       2a 1ec72315        1        1 ffffffff       2c 3fc00000        1 
 032:        1 ffffffff       2f   3ffc00        1        1 ffffffff       31 
 040: deadcafe ffffcfc7  6000006 30007e7e  300000c 87654321 12345678  4000008 
@@ -35,7 +35,7 @@ pmResult dump from ADDR timestamp: 108000.123456 06:00:00.123 numpmid: 7
     inst [2 or ???] value 2345 0 0x929
     inst [4 or ???] value 3456 0 0xd80
     inst [8 or ???] value 4567 0 0x11d7
-  0.0.0 (<noname>): numval: 1 valfmt: 2 vlist[]:
+  0.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value "0"
   123.456.789 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 9756277977086449272
@@ -52,7 +52,7 @@ pmResult dump from ADDR timestamp: 108000.123456 06:00:00.123 numpmid: 7
     inst [2 or ???] value 2345 0 0x929
     inst [4 or ???] value 3456 0 0xd80
     inst [8 or ???] value 4567 0 0x11d7
-  0.0.0 (<noname>): numval: 1 valfmt: 2 vlist[]:
+  0.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value "0"
   123.456.789 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 9756277977086449272
@@ -68,7 +68,7 @@ pmResult dump from ADDR timestamp: 108000.123456 06:00:00.123 numpmid: 7
     inst [2 or ???] value 2345 0 0x929
     inst [4 or ???] value 3456 0 0xd80
     inst [8 or ???] value 4567 0 0x11d7
-  0.0.0 (<noname>): numval: 1 valfmt: 2 vlist[]:
+  0.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value "0"
   123.456.789 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 9756277977086449272
@@ -80,7 +80,7 @@ pmResult dump from ADDR timestamp: 108000.123456 06:00:00.123 numpmid: 7
 [SERVER]pmXmitPDU: RESULT fd=<n> len=208
 000:       d0     7001   SERVER    1a5e0    1e240        7     dead        1 
 008:        0 ffffffff      4d2     beef        3        0        2      929 
-016:        4      d80        8     11d7        0        1        2 ffffffff 
+016:        4      d80        8     11d7        0        1        1 ffffffff 
 024:       2a 1ec72315        1        1 ffffffff       2c 3fc00000        1 
 032:        1 ffffffff       2f   3ffc00        1        1 ffffffff       31 
 040: deadcafe ffffcfc7  6000006 30007e7e  300000c 87654321 12345678  4000008 
