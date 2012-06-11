@@ -27,10 +27,12 @@ static char *pcptmpdir;			/* probably /var/tmp */
 static char pidpath[MAXPATHLEN];
 
 /*
- * Extract time of last modification to the trace file, from stat()
+ * Extract time of creation of the trace files.  Initially uses header file
+ * as a reference since its created initially and then never modified again.
+ * Subsequent calls will use last modification to the trace data file.
  */
 static void
-process_mtime_timestamp(bash_process_t *process, struct timeval *timestamp)
+process_stat_timestamp(bash_process_t *process, struct timeval *timestamp)
 {
     timestamp->tv_sec = process->stat.st_mtim.tv_sec;
     timestamp->tv_usec = process->stat.st_mtim.tv_nsec / 1000;
@@ -53,11 +55,14 @@ process_head_parser(bash_process_t *verify, const char *buffer, size_t size)
     p += extract_int(p, "date:", sizeof("date:")-1, &date);
     extract_cmd(p, end - p, "+", 1, script, sizeof(script));
 
-    if (date == 0) {
-	process_mtime_timestamp(verify, &verify->starttime);
-    } else {
+    if (date) {
+	/* Use the given starttime of the script from the header */
 	verify->starttime.tv_sec = date;
 	verify->starttime.tv_usec = 0;
+    } else {
+	/* Use a timestamp from the header as a best-effort guess */
+	verify->starttime.tv_sec = verify->stat.st_mtim.tv_sec;
+	verify->starttime.tv_usec = verify->stat.st_mtim.tv_nsec / 1000;
     }
     verify->version = version;
 
@@ -83,6 +88,10 @@ process_head_verify(const char *filename, bash_process_t *verify)
 
     if (fd < 0)
 	return fd;
+    if (fstat(fd, &verify->stat) < 0 || !S_ISREG(verify->stat.st_mode)) {
+	close(fd);
+	return -1;
+    }
 
     size = read(fd, buffer, sizeof(buffer));
     if (size > 0)
@@ -102,8 +111,10 @@ process_head_verify(const char *filename, bash_process_t *verify)
 static int
 process_verify(const char *bashname, bash_process_t *verify)
 {
+    int fd;
     char *endnum;
     char path[MAXPATHLEN];
+    struct stat stat;
 
     verify->pid = (pid_t) strtoul(bashname, &endnum, 10);
     if (*endnum != '\0' || verify->pid < 1)
@@ -114,12 +125,13 @@ process_verify(const char *bashname, bash_process_t *verify)
 	return -1;
 
     snprintf(path, sizeof(path), "%s%c%s", pidpath, __pmPathSeparator(), bashname);
-    if ((verify->fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
+    if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 	return -1;
-    if (fstat(verify->fd, &verify->stat) < 0 || !S_ISFIFO(verify->stat.st_mode)) {
-	close(verify->fd);
+    if (fstat(fd, &stat) < 0 || !S_ISFIFO(stat.st_mode)) {
+	close(fd);
 	return -1;
     }
+    verify->fd = fd;
     return 0;
 }
 
@@ -151,6 +163,7 @@ process_alloc(const char *bashname, bash_process_t *init)
     bashful->parent = init->parent;
     bashful->queueid = queueid;
     bashful->exited = 0;
+    bashful->finished = 0;
     bashful->restrict = 0;
     bashful->version = init->version;
     bashful->padding = 0;
@@ -158,7 +171,7 @@ process_alloc(const char *bashname, bash_process_t *init)
     memcpy(&bashful->starttime, &init->starttime, sizeof(struct timeval));
     memcpy(&bashful->stat, &init->stat, sizeof(struct stat));
     /* copy of first stat time, identifies first event */
-    process_mtime_timestamp(bashful, &bashful->startstat);
+    process_stat_timestamp(bashful, &bashful->startstat);
     /* copy of pointer to dynamically allocated memory */
     bashful->instance = init->instance;
 
@@ -166,6 +179,18 @@ process_alloc(const char *bashname, bash_process_t *init)
 	__pmNotifyErr(LOG_DEBUG, "process_alloc: %s", bashful->instance);
 
     return bashful;
+}
+
+int
+event_start(bash_process_t *bp, struct timeval *timestamp)
+{
+    int	start = memcmp(timestamp, &bp->startstat, sizeof(*timestamp));
+
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_DEBUG, "first event for %s (%d), %ld vs %ld",
+		bp->instance, start, bp->startstat.tv_sec, timestamp->tv_sec);
+
+    return start == 0;
 }
 
 /*
@@ -244,7 +269,7 @@ multiread:
 	return -1;
     }
 
-    process_mtime_timestamp(process, &timestamp);
+    process_stat_timestamp(process, &timestamp);
 
     buffer[bufsize-1] = '\0';
     for (s = p = buffer, j = 0; *s != '\0' && j < bufsize-1; s++, j++) {
@@ -276,8 +301,9 @@ process_done(bash_process_t *process)
     if (process->exited == 0) {
 	process->exited = (__pmProcessExists(process->pid) == 0);
 	/* empty event inserted into queue to denote bash has exited */
-	if (process->exited == 1) {
-	    process_mtime_timestamp(process, &timestamp);
+	if (process->exited && !process->finished) {
+	    process->finished = 1;	/* generate no further events */
+	    process_stat_timestamp(process, &timestamp);
 	    pmdaEventQueueAppend(process->queueid, NULL, 0, &timestamp);
 	}
     }

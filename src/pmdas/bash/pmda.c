@@ -49,19 +49,19 @@ static pmdaMetric metrics[] = {
 
 #define bash_xtrace_parameters_pid	5
     { NULL, { PMDA_PMID(0,bash_xtrace_parameters_pid), PM_TYPE_U32,
-	BASH_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 #define bash_xtrace_parameters_parent	6
     { NULL, { PMDA_PMID(0,bash_xtrace_parameters_parent), PM_TYPE_U32,
-	BASH_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 #define bash_xtrace_parameters_lineno	7
     { NULL, { PMDA_PMID(0,bash_xtrace_parameters_lineno), PM_TYPE_U32,
-	BASH_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 #define bash_xtrace_parameters_function	8
     { NULL, { PMDA_PMID(0,bash_xtrace_parameters_function), PM_TYPE_STRING,
-	BASH_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 #define bash_xtrace_parameters_command	9
     { NULL, { PMDA_PMID(0,bash_xtrace_parameters_command), PM_TYPE_STRING,
-	BASH_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 #define METRIC_COUNT	(sizeof(metrics)/sizeof(metrics[0]))
 
@@ -99,10 +99,9 @@ bash_trace_parser(bash_process_t *bash, bash_trace_t *trace,
 	trace->flags = PM_EVENT_FLAG_END;
     } else {
 	char	*p = (char *)buffer, *end = (char *)buffer + size - 1;
-	int	start = (!memcmp(timestamp, &bash->startstat, sizeof(*timestamp)));
 
 	trace->flags = (PM_EVENT_FLAG_ID | PM_EVENT_FLAG_PARENT);
-	trace->flags |= start ? PM_EVENT_FLAG_START : PM_EVENT_FLAG_POINT;
+	trace->flags |= event_start(bash, timestamp) ? PM_EVENT_FLAG_START : PM_EVENT_FLAG_POINT;
 
 	if (pmDebug & DBG_TRACE_APPL0)
 	    __pmNotifyErr(LOG_DEBUG, "processing buffer[%d]: %s", size, buffer);
@@ -197,9 +196,16 @@ bash_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     if (idp->cluster != 0)
 	return PM_ERR_PMID;
 
-    if (idp->item == bash_xtrace_maxmem) {
+    switch (idp->item) {
+    case bash_xtrace_maxmem:
 	atom->ull = (unsigned long long)bash_maxmem;
 	return PMDA_FETCH_STATIC;
+    case bash_xtrace_parameters_pid:
+    case bash_xtrace_parameters_parent:
+    case bash_xtrace_parameters_lineno:
+    case bash_xtrace_parameters_function:
+    case bash_xtrace_parameters_command:
+	return PMDA_FETCH_NOVALUES;
     }
 
     if (PMDA_CACHE_ACTIVE !=
@@ -216,12 +222,6 @@ bash_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case bash_xtrace_records:
 	return pmdaEventQueueRecords(bp->queueid, atom, pmdaGetContext(),
 				     bash_trace_decoder, bp);
-    case bash_xtrace_parameters_pid:
-    case bash_xtrace_parameters_parent:
-    case bash_xtrace_parameters_lineno:
-    case bash_xtrace_parameters_function:
-    case bash_xtrace_parameters_command:
-	return PMDA_FETCH_NOVALUES;
     }
 
     return PM_ERR_PMID;
