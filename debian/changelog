@@ -1,3 +1,10 @@
+pcp (3.6.4) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Ensure correct pmpost used in startup scripts (closes: #677091)
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 12 Jun 2012 09:57:07 +1000
+
 pcp (3.6.3) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

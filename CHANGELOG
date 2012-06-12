@@ -1,3 +1,9 @@
+pcp-3.6.4 (12 June 2012)
+    - Fix build on s390x platform (thanks to Dan Horak)
+    - Rethink order of PATH setting for pcp start scripts, to ensure
+      binaries from other packages with names that conflict with pcp
+      binaries are not found ahead of the same-named pcp binary.
+
 pcp-3.6.3 (27 April 2012)
     - Revert initial attempt at getting configure --prefix option to
       make sense for local developer PCP installations
