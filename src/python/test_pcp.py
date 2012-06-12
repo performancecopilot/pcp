@@ -1,3 +1,42 @@
+
+##############################################################################
+#
+# test_pcp.py
+#
+# Copyright (C) 2012 Red Hat Inc.
+#
+# This file is part of pcp, the python extensions for SGI's Performance
+# Co-Pilot. Pcp is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Pcp is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
+# more details. You should have received a copy of the GNU Lesser General
+# Public License along with pcp. If not, see <http://www.gnu.org/licenses/>.
+#
+
+"""Test for libpcp Wrapper module
+
+Additional Information:
+
+Performance Co-Pilot Web Site
+http://oss.sgi.com/projects/pcp
+
+Performance Co-Pilot Programmer's Guide
+SGI Document 007-3434-005
+http://techpubs.sgi.com
+cf. Chapter 3. PMAPI - The Performance Metrics API
+"""
+
+
+##############################################################################
+#
+# imports
+#
+
 import unittest
 import pmapi
 import time
@@ -53,9 +92,7 @@ def test_pcp(self, context = 'local', path = ''):
     self.assertTrue(rsltp.contents.source == "1 minute")
 
     # pmLookupName Get number cpus
-    print "XXX"
     (code, self.ncpu_id) = pm.pmLookupName(("hinv.ncpu","kernel.all.load"))
-    print "YYY"
     self.assertTrue(code >= 0)
     # pmIDStr
     self.assertTrue(pm.pmIDStr(self.ncpu_id[0]).count(".") >= 1)
@@ -177,9 +214,11 @@ def test_pcp(self, context = 'local', path = ''):
         
     if self.local_type:
         # pmLookupInDom
+        inst5 = pm.pmLookupInDom(descs[0], "5 minute")
         inst15 = pm.pmLookupInDom(descs[0], "15 minute")
     else:
         # pmLookupInDomArchive
+        inst5 = pm.pmLookupInDomArchive(descs[0], "5 minute")
         inst15 = pm.pmLookupInDomArchive(descs[0], "15 minute")
     self.assertTrue(inst15 >= 0)
         
@@ -263,20 +302,22 @@ def test_pcp(self, context = 'local', path = ''):
             self.assertTrue(code >= 0)
             print "freemem (Mbytes)=",atom.f
 
-            for i in xrange(results.contents.get_numval(0) - 1):
+            for i in xrange(results.contents.numpmid):
                 # pmExtractValue kernel.all.load
-                for i in xrange(results.contents.numpmid):
-                    if (results.contents.get_pmid(i) != self.metric_ids[0]):
-                        continue
+                if (results.contents.get_pmid(i) != self.metric_ids[0]):
+                    continue
+                for j in xrange(results.contents.get_numval(i) - 1):
                     (code, atom) = pm.pmExtractValue(results.contents.get_valfmt(i),
-                                                     results.contents.get_vlist(i, 0),
+                                                     results.contents.get_vlist(i, j),
                                                      descs[i].contents.type, pmapi.PM_TYPE_FLOAT)
                 value = atom.f
                 self.assertTrue(code >= 0)
-                if results.contents.get_inst(0, i) == inst1:
+                if results.contents.get_inst(i, j) == inst1:
                     # XXX pm.pmprintf ("load average 1=%f", value)
                     print "load average 1=",atom.f
-                elif results.contents.get_inst(0, i) == inst15:
+                elif results.contents.get_inst(i, j) == inst5:
+                    print "load average 5=",atom.f
+                elif results.contents.get_inst(i, j) == inst15:
                     # XXX why no 15?
                     print "load average 15=%f",atom.f
 

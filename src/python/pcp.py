@@ -843,7 +843,7 @@ class pmContext( object ):
             n = len( nameA )
         names = (c_char_p * n)()
         # py_to_c_str_arr (nameA, names)
-        if type(nameA) != type(tuple()):
+        if type(nameA) == type(""):
             names[0] = c_char_p(nameA)
         else:
             for i in xrange (len(nameA)):
@@ -948,6 +948,7 @@ class pmContext( object ):
     # PMAPI Metrics Description Services
 
     def pmLookupDesc( self, pmids_p ):
+
         """PMAPI - Lookup a metric description structure from a pmID
 
         (status, (pmDesc_ctype*)[]) = pmLookupDesc(pmid_ctype[N])
@@ -1710,8 +1711,8 @@ class pmContext( object ):
 
     def pmtimevalSleep( self, timeVal_p):
         # libpcp.__pmtimevalSleep(timeVal_p) 
-        # doesn't dynamically link so use sleep instead
-        print "sleep ",timeVal_p.tv_sec
+        # doesn't dynamically link (leading underscore issue?)
+#       libpcp.__pmtimevalSleep(timeVal_p)
         time.sleep(timeVal_p.tv_sec)
 
 
