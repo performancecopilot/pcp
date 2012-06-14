@@ -108,8 +108,6 @@ done:
 int
 ConnectLogger(char *hostname, int *pid, int *port)
 {
-    int		sts;
-
     if (lasthost != NULL) {
 	free(lasthost);
 	lasthost = NULL;
@@ -117,6 +115,7 @@ ConnectLogger(char *hostname, int *pid, int *port)
     DisconnectLogger();
 
     if (src_ctx != -1) {
+        int sts;
 	if ((sts = pmDestroyContext(src_ctx)) < 0)
 		fprintf(stderr, "Error deleting PMCD connection to %s: %s\n",
 			srchost, pmErrStr(sts));
@@ -127,12 +126,10 @@ ConnectLogger(char *hostname, int *pid, int *port)
 	srchost = NULL;
     }
 
-    if ((sts = __pmConnectLogger(hostname, pid, port)) < 0) {
-	logger_fd = PM_ERROR_FD;
-	return sts;
+    if ((logger_fd = __pmConnectLogger(hostname, pid, port)) == PM_ERROR_FD) {
+        return -1; /* TODO -- get real error from pmConnectLogger */
     }
     else {
-	logger_fd = sts;
 	if ((lasthost = strdup(hostname)) == NULL) {
 	    __pmNoMem("Error copying host name", strlen(hostname), PM_FATAL_ERR);
 	}

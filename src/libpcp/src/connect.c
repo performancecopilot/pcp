@@ -310,13 +310,13 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 		fprintf(stderr, " failed: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 #endif
-	    return sts;
+	    return PM_ERROR_FD;
 	}
 
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
 	    fprintf(stderr, "__pmConnectPMCD(%s): pmcd connection port=%d fd=%d PDU version=%u\n",
-		    hosts[0].name, ports[i], fd, __pmVersionIPC(fd));
+		    hosts[0].name, ports[i], __pmFdRef(fd), __pmVersionIPC(fd));
 	    __pmPrintIPC();
 	}
 #endif
@@ -367,13 +367,13 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	}
 #endif
 	PM_UNLOCK(__pmLock_libpcp);
-	return sts;
+	return PM_ERROR_FD;
     }
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT) {
 	fprintf(stderr, "__pmConnectPMCD(%s): proxy connection host=%s port=%d fd=%d version=%d\n",
-	    hosts[0].name, proxyhost->name, ports[i], fd, version);
+		hosts[0].name, proxyhost->name, ports[i], __pmFdRef(fd), version);
     }
 #endif
 

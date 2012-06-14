@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,7 +25,7 @@ typedef struct {
 } desc_req_t;
 
 int
-__pmSendDescReq(int fd, int from, pmID pmid)
+__pmSendDescReq(__pmFD fd, int from, pmID pmid)
 {
     desc_req_t	*pp;
     int		sts;
@@ -67,7 +68,7 @@ typedef struct {
 } desc_t;
 
 int
-__pmSendDesc(int fd, int ctx, pmDesc *desc)
+__pmSendDesc(__pmFD fd, int ctx, pmDesc *desc)
 {
     desc_t	*pp;
     int		sts;

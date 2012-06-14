@@ -1180,8 +1180,9 @@ __pmSetClientId(const char *id)
     pmValueSet		pmvs;
     pmValueBlock	*pmvb;
     char        	host[MAXHOSTNAMELEN];
-    char        	ipaddr[16] = "";	/* IPv4 xxx.xxx.xxx.xxx */
-    __pmHostEnt         *hep = NULL;
+    char        	*ipaddr = NULL;	/* IPv4 xxx.xxx.xxx.xxx */
+    __pmHostEnt         he;
+    char        	*hebuf;
     int			vblen;
 
     if ((sts = pmLookupName(1, &name, &pmid)) < 0)
@@ -1190,16 +1191,17 @@ __pmSetClientId(const char *id)
     (void)gethostname(host, MAXHOSTNAMELEN);
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    hep = __pmGetHostByName(host);
-    if (hep != NULL) {
-	strcpy(host, hep->h_name);
-	if (hep->h_addrtype == AF_INET) {
-	    strcpy(ipaddr, __pmNetAddrToString((__pmInAddr *)hep->h_addr_list[0]));
+    hebuf = __pmAllocHostEntBuffer();
+    if (__pmGetHostByName(host, &he, hebuf) != NULL) {
+	strcpy(host, he.h_name);
+	if (he.h_addrtype == AF_INET) {
+	    ipaddr = __pmNetAddrToString((__pmInAddr *)he.h_addr_list[0]);
 	}
 	vblen = strlen(host) + strlen(ipaddr) + strlen(id) + 5;
     }
     else
 	vblen = strlen(host) + strlen(id) + 2;
+    __pmFreeHostEntBuffer(hebuf);
     PM_UNLOCK(__pmLock_libpcp);
 
     /* build pmResult for pmStore() */
@@ -1212,10 +1214,11 @@ __pmSetClientId(const char *id)
     pmvb->vlen = PM_VAL_HDR_SIZE+vblen;
     strcpy(pmvb->vbuf, host);
     strcat(pmvb->vbuf, " ");
-    if (ipaddr[0] != '\0') {
+    if (ipaddr) {
 	strcat(pmvb->vbuf, "(");
 	strcat(pmvb->vbuf, ipaddr);
 	strcat(pmvb->vbuf, ") ");
+	free(ipaddr);
     }
     strcat(pmvb->vbuf, id);
 

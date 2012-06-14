@@ -193,14 +193,14 @@ pduread(__pmFD fd, char *buf, int len, int part, int timeout)
 				      "sec) while attempting to read %d "
 				      "bytes out of %d in %s on fd=%d",
 				      tosec, tomsec, len - have, len, 
-				      part == HEADER ? "HDR" : "BODY", fd);
+				      part == HEADER ? "HDR" : "BODY", __pmFdRef(fd));
 		    }
 		    return PM_ERR_TIMEOUT;
 		}
 		else if (status < 0) {
 		    char	errmsg[PM_MAXERRMSGLEN];
 		    __pmNotifyErr(LOG_ERR, "pduread: __pmSelectRead() on fd=%d: %s",
-			    fd, netstrerror_r(errmsg, sizeof(errmsg)));
+				  __pmFdRef(fd), netstrerror_r(errmsg, sizeof(errmsg)));
 		    setoserror(neterror());
 		    return status;
 		}
@@ -318,7 +318,7 @@ __pmXmitPDU(__pmFD fd, __pmPDU *pdubuf)
 	if (mypid == -1)
 	    mypid = (int)getpid();
 	fprintf(stderr, "[%d]pmXmitPDU: %s fd=%d len=%d",
-		mypid, __pmPDUTypeStr_r(php->type, strbuf, sizeof(strbuf)), fd, php->len);
+		mypid, __pmPDUTypeStr_r(php->type, strbuf, sizeof(strbuf)), __pmFdRef(fd), php->len);
 	for (j = 0; j < jend; j++) {
 	    if ((j % 8) == 0)
 		fprintf(stderr, "\n%03d: ", j);
@@ -362,7 +362,7 @@ __pmXmitPDU(__pmFD fd, __pmPDU *pdubuf)
 
 /* result is pinned on successful return */
 int
-__pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
+__pmGetPDU(__pmFD fd, int mode, int timeout, __pmPDU **result)
 {
     int			need;
     int			len;
@@ -407,7 +407,7 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 		len = 0;
 	    else {
 		char	errmsg[PM_MAXERRMSGLEN];
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", __pmFdRef(fd), len, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	    }
 	}
 	else if (len >= (int)sizeof(php->len)) {
@@ -426,12 +426,12 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 	}
 	else if (len < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
-	    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr_r(len, errmsg, sizeof(errmsg)));
+	    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", __pmFdRef(fd), len, pmErrStr_r(len, errmsg, sizeof(errmsg)));
 	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_IPC;
 	}
 	else if (len > 0) {
-	    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: bad len=%d", fd, len);
+	  __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: bad len=%d", __pmFdRef(fd), len);
 	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_IPC;
 	}
@@ -450,7 +450,7 @@ check_read_len:
 	 * PDU length indicates insufficient bytes for a PDU header
 	 * ... looks like DOS attack like PV 935490
 	 */
-	__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d illegal PDU len=%d in hdr", fd, php->len);
+      __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d illegal PDU len=%d in hdr", __pmFdRef(fd), php->len);
 	__pmUnpinPDUBuf(pdubuf);
 	return PM_ERR_IPC;
     }
@@ -462,7 +462,7 @@ check_read_len:
 	 * e.g. for a pmResult or instance domain enquiry)
 	 */
 	__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d bad PDU len=%d in hdr exceeds maximum client PDU size (%d)",
-		      fd, php->len, ceiling);
+		      __pmFdRef(fd), php->len, ceiling);
 
 	__pmUnpinPDUBuf(pdubuf);
 	return PM_ERR_TOOBIG;
@@ -506,10 +506,10 @@ check_read_len:
 	    }
 	    else if (len < 0) {
 		char	errmsg[PM_MAXERRMSGLEN];
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: len=%d: %s", fd, len, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: len=%d: %s", __pmFdRef(fd), len, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	    }
 	    else
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: have %d, want %d, got %d", fd, have, need, len);
+	      __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: have %d, want %d, got %d", __pmFdRef(fd), have, need, len);
 	    /*
 	     * only report header fields if you've read enough bytes
 	     */
@@ -542,7 +542,7 @@ check_read_len:
 	if (mypid == -1)
 	    mypid = (int)getpid();
 	fprintf(stderr, "[%d]pmGetPDU: %s fd=%d len=%d from=%d",
-		mypid, __pmPDUTypeStr_r(php->type, strbuf, sizeof(strbuf)), fd, php->len, php->from);
+		mypid, __pmPDUTypeStr_r(php->type, strbuf, sizeof(strbuf)), __pmFdRef(fd), php->len, php->from);
 	for (j = 0; j < jend; j++) {
 	    if ((j % 8) == 0)
 		fprintf(stderr, "\n%03d: ", j);

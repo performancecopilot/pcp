@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -34,7 +35,7 @@ typedef struct {
 } profile_t;
 
 int
-__pmSendProfile(int fd, int from, int ctxnum, __pmProfile *instprof)
+__pmSendProfile(__pmFD fd, int from, int ctxnum, __pmProfile *instprof)
 {
     __pmInDomProfile	*prof, *p_end;
     profile_t		*pduProfile;

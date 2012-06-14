@@ -210,6 +210,7 @@ pmNewContext(int type, const char *name)
 {
     __pmContext	*new = NULL;
     __pmContext	**list;
+    __pmFD      fd;
     int		i;
     int		sts;
     int		old_curcontext;
@@ -316,9 +317,10 @@ INIT_CONTEXT:
 	     * If this fails, restore the original current context
 	     * and return an error.
 	     */
-	    sts = __pmConnectPMCD(hosts, nhosts);
+	    fd = __pmConnectPMCD(hosts, nhosts);
 
-	    if (sts < 0) {
+	    if (fd == PM_ERROR_FD) {
+	        sts = -1;
 		__pmFreeHostSpec(hosts, nhosts);
 		goto FAILED;
 	    }
@@ -326,11 +328,11 @@ INIT_CONTEXT:
 	    new->c_pmcd = (__pmPMCDCtl *)calloc(1,sizeof(__pmPMCDCtl));
 	    if (new->c_pmcd == NULL) {
 		sts = -oserror();
-		__pmCloseSocket(sts);
+		__pmCloseSocket(fd);
 		__pmFreeHostSpec(hosts, nhosts);
 		goto FAILED;
 	    }
-	    new->c_pmcd->pc_fd = sts;
+	    new->c_pmcd->pc_fd = fd;
 	    new->c_pmcd->pc_hosts = hosts;
 	    new->c_pmcd->pc_nhosts = nhosts;
 	    new->c_pmcd->pc_tout_sec = __pmConvertTimeout(TIMEOUT_DEFAULT) / 1000;
@@ -442,7 +444,7 @@ pmReconnectContext(int handle)
 {
     __pmContext	*ctxp;
     __pmPMCDCtl	*ctl;
-    int		sts;
+    __pmFD	fd;
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -476,12 +478,12 @@ pmReconnectContext(int handle)
 	    ctl->pc_fd = PM_ERROR_FD;
 	}
 
-	if ((sts = __pmConnectPMCD(ctl->pc_hosts, ctl->pc_nhosts)) >= 0) {
-	    ctl->pc_fd = sts;
+	if ((fd = __pmConnectPMCD(ctl->pc_hosts, ctl->pc_nhosts)) != PM_ERROR_FD) {
+	    ctl->pc_fd = fd;
 	    ctxp->c_sent = 0;
 	}
 
-	if (sts < 0) {
+	if (fd == PM_ERROR_FD) {
 	    waitawhile(ctl);
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)
@@ -693,7 +695,7 @@ pmDestroyContext(int handle)
 	if (--ctxp->c_pmcd->pc_refcnt == 0) {
 	    if (ctxp->c_pmcd->pc_fd != PM_ERROR_FD) {
 		/* before close, unsent data should be flushed */
-		setsockopt(ctxp->c_pmcd->pc_fd, SOL_SOCKET,
+		__pmSetSockOpt(ctxp->c_pmcd->pc_fd, SOL_SOCKET,
 		    SO_LINGER, (char *) &dolinger, (mysocklen_t)sizeof(dolinger));
 		__pmCloseSocket(ctxp->c_pmcd->pc_fd);
 	    }
@@ -767,7 +769,7 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 		fprintf(f, " pmcd=%s profile=%s fd=%d refcnt=%d",
 		    (con->c_pmcd->pc_fd == PM_ERROR_FD) ? "NOT CONNECTED" : "CONNECTED",
 		    con->c_sent ? "SENT" : "NOT_SENT",
-		    con->c_pmcd->pc_fd,
+		    __pmFdRef(con->c_pmcd->pc_fd),
 		    con->c_pmcd->pc_refcnt);
 	    }
 	    else if (con->c_type == PM_CONTEXT_LOCAL) {
@@ -780,9 +782,9 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 		fprintf(f, " mode=%s", _mode[con->c_mode & __PM_MODE_MASK]);
 		fprintf(f, " profile=%s tifd=%d mdfd=%d mfd=%d\nrefcnt=%d vol=%d",
 		    con->c_sent ? "SENT" : "NOT_SENT",
-		    con->c_archctl->ac_log->l_tifp == NULL ? -1 : fileno(con->c_archctl->ac_log->l_tifp),
-		    fileno(con->c_archctl->ac_log->l_mdfp),
-		    fileno(con->c_archctl->ac_log->l_mfp),
+		    con->c_archctl->ac_log->l_tifp == PM_ERROR_FD ? -1 : __pmFdRef(con->c_archctl->ac_log->l_tifp),
+		    __pmFdRef(con->c_archctl->ac_log->l_mdfp),
+		    __pmFdRef(con->c_archctl->ac_log->l_mfp),
 		    con->c_archctl->ac_log->l_refcnt,
 		    con->c_archctl->ac_log->l_curvol);
 		fprintf(f, " offset=%ld (vol=%d) serial=%d",

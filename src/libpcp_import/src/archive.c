@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -81,8 +82,8 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 	__pmLogPutIndex(&current->logctl, &stamp);
     }
 
-    __pmOverrideLastFd(fileno(lcp->l_mfp));
-    if ((sts = __pmEncodeResult(fileno(lcp->l_mfp), result, &pb)) < 0)
+    __pmOverrideLastFd(lcp->l_mfp);
+    if ((sts = __pmEncodeResult(lcp->l_mfp, result, &pb)) < 0)
 	return sts;
 
     needti = 0;

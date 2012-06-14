@@ -155,7 +155,7 @@ interp.o
     b cache			# guarded by __pmLock_libpcp mutex
 ipc.o
     b __pmIPCTablePtr		# guarded by __pmLock_libpcp mutex
-    d __pmLastUsedFd		# guarded by __pmLock_libpcp mutex
+    [db] __pmLastUsedFd		# guarded by __pmLock_libpcp mutex
     b ipctablesize		# guarded by __pmLock_libpcp mutex
 lock.o
     [DC] __pmLock_libpcp	# the global libpcp mutex

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -37,7 +38,7 @@ typedef struct {
 } logstatus_t;
 
 int
-__pmSendLogStatus(int fd, __pmLoggerStatus *status)
+__pmSendLogStatus(__pmFD fd, __pmLoggerStatus *status)
 {
     logstatus_t	*pp;
     int		sts;

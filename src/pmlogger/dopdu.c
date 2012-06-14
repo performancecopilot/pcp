@@ -1267,7 +1267,8 @@ sendstatus(void)
     static int			firsttime = 1;
     static char			*tzlogger;
     struct timeval		now;
-    __pmHostEnt			*hep = NULL;
+    __pmHostEnt			he;
+    char			*hebuf;
 
     if (firsttime) {
         tzlogger = __pmTimezone();
@@ -1289,7 +1290,7 @@ sendstatus(void)
 	ls.ls_timenow.tv_sec = (__int32_t)now.tv_sec;
 	ls.ls_timenow.tv_usec = (__int32_t)now.tv_usec;
 	ls.ls_vol = logctl.l_curvol;
-	ls.ls_size = ftell(logctl.l_mfp);
+	ls.ls_size = __pmTell(logctl.l_mfp);
 	assert(ls.ls_size >= 0);
 
 	/* be careful of buffer size mismatches when copying strings */
@@ -1297,13 +1298,14 @@ sendstatus(void)
 	strncpy(ls.ls_hostname, logctl.l_label.ill_hostname, end);
 	ls.ls_hostname[end] = '\0';
 	end = sizeof(ls.ls_fqdn) - 1;
-	hep = __pmGetHostByName(logctl.l_label.ill_hostname);
-	if (hep != NULL)
+	hebuf = __pmAllocHostEntBuffer();
+	if (__pmGetHostByName(logctl.l_label.ill_hostname, &he, hebuf) != NULL)
 	    /* send the fully qualified domain name */
-	    strncpy(ls.ls_fqdn, hep->h_name, end);
+	    strncpy(ls.ls_fqdn, he.h_name, end);
 	else
 	    /* use the hostname from -h ... on command line */
 	    strncpy(ls.ls_fqdn, logctl.l_label.ill_hostname, end);
+        __pmFreeHostEntBuffer(hebuf);
 	ls.ls_fqdn[end] = '\0';
 
 	end = sizeof(ls.ls_tz) - 1;

@@ -2,6 +2,7 @@
  * pmResult rewrite methods for pmlogrewrite
  *
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -678,7 +679,7 @@ do_result(void)
     if (orig_numpmid == 0 || inarch.rp->numpmid > 0) {
 	unsigned long	out_offset;
 	unsigned long	peek_offset;
-	peek_offset = ftell(outarch.logctl.l_mfp);
+	peek_offset = __pmTell(outarch.logctl.l_mfp);
 	sts = __pmEncodeResult(PDU_OVERRIDE2, inarch.rp, &inarch.logrec);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
@@ -694,7 +695,7 @@ do_result(void)
 	     */
 	    newvolume(outarch.logctl.l_curvol+1);
 	}
-	out_offset = ftell(outarch.logctl.l_mfp);
+	out_offset = __pmTell(outarch.logctl.l_mfp);
 	if ((sts = __pmLogPutResult(&outarch.logctl, inarch.logrec)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
 		    pmProgname, pmErrStr(sts));

@@ -233,9 +233,11 @@ main(int argc, char **argv)
 		break;
 	}
 	if (i == n_cisco) {
-	    __pmHostEnt *hostInfo;
+	    __pmHostEnt hostInfo;
+	    char *hibuf;
 
-	    if ((hostInfo = __pmGetHostByName(p)) == NULL) {
+	    hibuf = __pmAllocHostEntBuffer();
+	    if (__pmGetHostByName(p, &hostInfo, hibuf) == NULL) {
 #ifdef PARSE_ONLY
 		/*
 		 * for debugging, "host" may be a file ...
@@ -245,6 +247,7 @@ main(int argc, char **argv)
 		    fprintf(stderr, "%s: unknown hostname or filename %s: %s\n",
 			pmProgname, argv[optind], hoststrerror());
 		    /* abandon this host (cisco) */
+		    __pmFreeHostEntBuffer(hibuf);
 		    continue;
 		}
 		else {
@@ -263,6 +266,7 @@ main(int argc, char **argv)
 		fprintf(stderr, "%s: unknown hostname %s: %s\n",
 			pmProgname, p, hoststrerror());
 		/* abandon this host (cisco) */
+		__pmFreeHostEntBuffer(hibuf);
 		continue;
 #endif
 	    }
@@ -278,8 +282,9 @@ main(int argc, char **argv)
 
 		memset(sinp, 0, sizeof(cisco[i].ipaddr));
 		sinp->sin_family = AF_INET;
-		memcpy(&sinp->sin_addr, hostInfo->h_addr, hostInfo->h_length);
+		memcpy(&sinp->sin_addr, hostInfo.h_addr, hostInfo.h_length);
 		sinp->sin_port = htons(port);	/* telnet */
+		__pmFreeHostEntBuffer(hibuf);
 
 		n_cisco++;
 		fprintf (stderr, "Adding new host %s\n", p);

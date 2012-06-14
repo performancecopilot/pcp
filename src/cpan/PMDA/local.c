@@ -173,21 +173,26 @@ int
 local_sock(char *host, int port, scalar_t *callback, int cookie)
 {
     __pmSockAddrIn myaddr;
-    __pmHostEnt *servinfo;
+    __pmHostEnt servinfo;
+    char       *servbuf;
     int me, fd;
 
-    if ((servinfo = __pmGetHostByName(host)) == NULL) {
+    servbuf = __pmAllocHostEntBuffer();
+    if (__pmGetHostByName(host, &servinfo, servbuf) == NULL) {
+        __pmFreeHostEntBuffer(servbuf);
 	__pmNotifyErr(LOG_ERR, "__pmGetHostByName (%s): %s", host, netstrerror());
 	exit(1);
     }
     if ((fd = __pmCreateSocket()) == PM_ERROR_FD) {
+        __pmFreeHostEntBuffer(servbuf);
 	__pmNotifyErr(LOG_ERR, "socket (%s): %s", host, netstrerror());
 	exit(1);
     }
     memset(&myaddr, 0, sizeof(myaddr));
     myaddr.sin_family = AF_INET;
-    memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
+    memcpy(&myaddr.sin_addr, servinfo.h_addr, servinfo.h_length);
     myaddr.sin_port = htons(port);
+    __pmFreeHostEntBuffer(servbuf);
     if (__pmConnect(fd, (__pmSockAddr *)&myaddr, sizeof(myaddr)) < 0) {
 	__pmNotifyErr(LOG_ERR, "connect (%s): %s", host, netstrerror());
 	exit(1);
@@ -282,19 +287,24 @@ static void
 local_reconnector(files_t *file)
 {
     __pmSockAddrIn myaddr;
-    __pmHostEnt *servinfo;
+    __pmHostEnt servinfo;
+    char       *servbuf;
     int fd;
 
     if (file->fd >= 0)		/* reconnect-needed flag */
 	return;
-    if ((servinfo = __pmGetHostByName(file->me.sock.host)) == NULL)
+    servbuf = __pmAllocHostEntBuffer();
+    if (__pmGetHostByName(file->me.sock.host, &servinfo, servbuf) == NULL) {
+        __pmFreeHostEntBuffer(servbuf);
 	return;
+    }
     if ((fd = __pmCreateSocket()) == PM_ERROR_FD)
 	return;
     memset(&myaddr, 0, sizeof(myaddr));
     myaddr.sin_family = AF_INET;
-    memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
+    memcpy(&myaddr.sin_addr, servinfo.h_addr, servinfo.h_length);
     myaddr.sin_port = htons(files->me.sock.port);
+    __pmFreeHostEntBuffer(servbuf);
     if (connect(fd, (__pmSockAddr *)&myaddr, sizeof(myaddr)) < 0) {
 	__pmCloseSocket(fd);
 	return;
@@ -342,7 +352,7 @@ local_pmdaMain(pmdaInterface *self)
 	    __pmFD_SET(fd, &fds);
 	    maxfd = __pmUpdateMaxFD(fd, maxfd);
 	}
-	nfds = __pmUpdateMaxFD(pmcfd, maxfd);
+	nfds = __pmUpdateMaxFD(pmcdfd, maxfd);
 	nfds = __pmIncrFD(nfds);
 
 	memcpy(&readyfds, &fds, sizeof(readyfds));

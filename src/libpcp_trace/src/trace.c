@@ -676,7 +676,8 @@ _pmauxtraceconnect(void)
     char		hostname[MAXHOSTNAMELEN];
     struct timeval	timeout = { 3, 0 };     /* default 3 secs */
     __pmSockAddrIn	myaddr;
-    __pmHostEnt		*servinfo;
+    __pmHostEnt		servinfo;
+    char		*servbuf;
     struct linger	nolinger = {1, 0};
 #ifndef IS_MINGW
     struct itimerval	_pmolditimer;
@@ -726,13 +727,15 @@ _pmauxtraceconnect(void)
     if (getenv(TRACE_ENV_NOAGENT) != NULL)
 	__pmstate |= PMTRACE_STATE_NOAGENT;
 
-    if ((servinfo = __pmGetHostByName(hostname)) == NULL) {
+    servbuf = __pmAllocHostEntBuffer();
+    if (__pmGetHostByName(hostname, &servinfo, servbuf) == NULL) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
 	    fprintf(stderr, "_pmtraceconnect(__pmGetHostByName(hostname=%s): "
 		    "hosterror=%d, ``%s''\n", hostname, hosterror(),
 		    hoststrerror());
 #endif
+        __pmFreeHostEntBuffer(servbuf);
 	return -EHOSTUNREACH;
     }
 
@@ -743,34 +746,37 @@ _pmauxtraceconnect(void)
 	    fprintf(stderr, "_pmtraceconnect(socket failed): %s\n",
 		    netstrerror());
 #endif
+        __pmFreeHostEntBuffer(servbuf);
 	return -neterror();
     }
 
     /* avoid 200 ms delay */
-    if (setsockopt(__pmfd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
+    if (__pmSetSockOpt(__pmfd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
 				    (mysocklen_t)sizeof(nodelay)) < 0) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
-	    fprintf(stderr, "_pmtraceconnect(setsockopt1 failed): %s\n",
+	    fprintf(stderr, "_pmtraceconnect(__pmSetSockOpt1 failed): %s\n",
 		    netstrerror());
 #endif
+        __pmFreeHostEntBuffer(servbuf);
 	return -neterror();
     }
 
     /* don't linger on close */
-    if (setsockopt(__pmfd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
+    if (__pmSetSockOpt(__pmfd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
 				    (mysocklen_t)sizeof(nolinger)) < 0) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
-	    fprintf(stderr, "_pmtraceconnect(setsockopt2 failed): %s\n",
+	    fprintf(stderr, "_pmtraceconnect(__pmSetSockOpt2 failed): %s\n",
 		    netstrerror());
 #endif
+        __pmFreeHostEntBuffer(servbuf);
 	return -neterror();
     }
 
     memset(&myaddr, 0, sizeof(myaddr));
     myaddr.sin_family = AF_INET;
-    memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
+    memcpy(&myaddr.sin_addr, servinfo.h_addr, servinfo.h_length);
     myaddr.sin_port = htons(port);
 
 #ifndef IS_MINGW
@@ -786,9 +792,10 @@ _pmauxtraceconnect(void)
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_COMMS) {
 	fprintf(stderr, "_pmtraceconnect: PMDA host=%s port=%d timeout=%d"
-		"secs\n", servinfo->h_name, port, (int)timeout.tv_sec);
+		"secs\n", servinfo.h_name, port, (int)timeout.tv_sec);
     }
 #endif
+    __pmFreeHostEntBuffer(servbuf);
 
     if ((rc = __pmConnect(__pmfd, (__pmSockAddr*) &myaddr, sizeof(myaddr))) < 0)
 	return -neterror();

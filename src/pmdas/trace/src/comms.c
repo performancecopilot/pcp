@@ -213,32 +213,32 @@ getcport(void)
 	exit(1);
     }
     /* avoid 200 ms delay */
-    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i,
+    if (__pmSetSockOpt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i,
 				    (mysocklen_t)sizeof(i)) < 0) {
-	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(nodelay): %s",
+	__pmNotifyErr(LOG_ERR, "getcport: __pmSetSockOpt(nodelay): %s",
 		netstrerror());
 	exit(1);
     }
     /* don't linger on close */
-    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger,
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger,
 				    (mysocklen_t)sizeof(noLinger)) < 0) {
-	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(nolinger): %s",
+	__pmNotifyErr(LOG_ERR, "getcport: __pmSetSockOpt(nolinger): %s",
 		netstrerror());
 	exit(1);
     }
 #ifndef IS_MINGW
     /* ignore dead client connections */
-    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one,
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one,
 				    (mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(reuseaddr): %s",
+	__pmNotifyErr(LOG_ERR, "getcport: __pmSetSockOpt(reuseaddr): %s",
 		netstrerror());
 	exit(1);
     }
 #else
     /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
-    if (setsockopt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one,
+    if (__pmSetSockOpt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one,
 				    (mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(excladdruse): %s",
+	__pmNotifyErr(LOG_ERR, "getcport: __pmSetSockOpt(excladdruse): %s",
 		netstrerror());
 	exit(1);
     }

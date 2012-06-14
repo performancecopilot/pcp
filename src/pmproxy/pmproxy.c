@@ -240,29 +240,29 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 
 #ifndef IS_MINGW
     /* Ignore dead client connections */
-    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one,
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one,
 			(mysocklen_t)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d) setsockopt(SO_REUSEADDR): %s\n",
+		"OpenRequestSocket(%d) __pmSetSockOpt(SO_REUSEADDR): %s\n",
 		port, netstrerror());
 	DontStart();
     }
 #else
     /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
-    if (setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one,
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one,
 			(mysocklen_t)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d) setsockopt(SO_EXCLUSIVEADDRUSE): %s\n",
+		"OpenRequestSocket(%d) __pmSetSockOpt(SO_EXCLUSIVEADDRUSE): %s\n",
 		port, netstrerror());
 	DontStart();
     }
 #endif
 
     /* and keep alive please - pv 916354 bad networks eat fds */
-    if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one,
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one,
 			(mysocklen_t)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, 0x%x) setsockopt(SO_KEEPALIVE): %s\n",
+		"OpenRequestSocket(%d, 0x%x) __pmSetSockOpt(SO_KEEPALIVE): %s\n",
 		port, ipAddr, netstrerror());
 	DontStart();
     }

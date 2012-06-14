@@ -36,7 +36,8 @@ main()
     struct timeval	then;
     struct timeval	eek;
     double		delta;
-    __pmHostEnt		*servInfo;
+    __pmHostEnt		servInfo;
+    char		*servBuf;
     int			s;
     __pmSockAddrIn	myAddr;
     struct linger	noLinger = {1, 0};
@@ -106,11 +107,13 @@ main()
 	(int)(0.5 + 2*n / delta), delta);
     unlink("/tmp/creat-clo");
 
-    servInfo = __pmGetHostByName("localhost");
+    servBuf = __pmAllocHostEntBuffer();
+    __pmGetHostByName("localhost", servInfo, servBuf);
     memset(&myAddr, 0, sizeof(myAddr));
     myAddr.sin_family = AF_INET;
-    memcpy(&myAddr.sin_addr, servInfo->h_addr, servInfo->h_length);
+    memcpy(&myAddr.sin_addr, servInfo.h_addr, servInfo.h_length);
     myAddr.sin_port = htons(80);
+    __pmFreeHostEntBuffer(servBuf);
     n = 4000 * scale;
     __pmtimevalNow(&then);
     for (i = 0; i < n; i++) {
@@ -120,8 +123,8 @@ main()
 	    exit(1);
 	}
 
-	if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger, sizeof(noLinger)) < 0) {
-	    fprintf(stderr, "setsockopt(SO_LINGER): %s\n", netstrerror());
+	if (__pmSetSockOpt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger, sizeof(noLinger)) < 0) {
+	    fprintf(stderr, "__pmSetSockOpt(SO_LINGER): %s\n", netstrerror());
 	    exit(1);
 	}
 

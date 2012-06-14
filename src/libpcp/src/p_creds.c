@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -25,7 +26,7 @@ typedef struct {
 } creds_t;
 
 int
-__pmSendCreds(int fd, int from, int credcount, const __pmCred *credlist)
+__pmSendCreds(__pmFD fd, int from, int credcount, const __pmCred *credlist)
 {
     size_t	need = 0;
     creds_t	*pp = NULL;

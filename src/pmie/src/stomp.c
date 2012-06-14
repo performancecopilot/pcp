@@ -40,29 +40,38 @@ static int stomp_connect(const char *hostname, int port)
     int sts, nodelay = 1;
     struct linger nolinger = { 1, 0 };
     __pmSockAddrIn myaddr;
-    __pmHostEnt *servinfo;
+    __pmHostEnt servinfo;
+    char *sibuf;
 
-    if ((servinfo = __pmGetHostByName(hostname)) == NULL)
+    sibuf = __pmAllocHostEntBuffer();
+    if (__pmGetHostByName(hostname, &servinfo, sibuf) == NULL) {
+        __pmFreeHostEntBuffer(sibuf);
 	return -1;
+    }
 
     /* socket setup */
-    if ((fd = __pmSocket(PF_INET, SOCK_STREAM, 0)) == PM_ERROR_FD)
+    if ((fd = __pmSocket(PF_INET, SOCK_STREAM, 0)) == PM_ERROR_FD) {
+        __pmFreeHostEntBuffer(sibuf);
 	return -2;
-    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, /* avoid 200 ms delay */
+    }
+    if (__pmSetSockOpt(fd, IPPROTO_TCP, TCP_NODELAY, /* avoid 200 ms delay */
 		   (char *)&nodelay, (socklen_t)sizeof(nodelay)) < 0) {
 	stomp_disconnect();
+        __pmFreeHostEntBuffer(sibuf);
 	return -3;
     }
-    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, /* don't linger on close */
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_LINGER, /* don't linger on close */
 		   (char *)&nolinger, (socklen_t)sizeof(nolinger)) < 0) {
 	stomp_disconnect();
+        __pmFreeHostEntBuffer(sibuf);
 	return -4;
     }
 
     memset(&myaddr, 0, sizeof(myaddr));
     myaddr.sin_family = AF_INET;
-    memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
+    memcpy(&myaddr.sin_addr, servinfo.h_addr, servinfo.h_length);
     myaddr.sin_port = htons(port);
+    __pmFreeHostEntBuffer(sibuf);
     if ((sts = __pmConnect(fd, (__pmSockAddr *)&myaddr, sizeof(myaddr))) < 0) {
 	stomp_disconnect();
 	return -5;

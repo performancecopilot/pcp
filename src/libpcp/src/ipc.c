@@ -32,6 +32,7 @@
  * but must rather use recv/send/closesocket.
  */
 typedef struct {
+    __pmFD      fd;
     int		version;	/* one or two */
     int		socket;		/* true or false */
 } __pmIPC;
@@ -40,6 +41,17 @@ static __pmFD	__pmLastUsedFd = PM_ERROR_FD;
 static __pmIPC	*__pmIPCTablePtr;
 static int	ipctablesize;
 
+static int
+__pmFindFdIPC(__pmFD fd)
+{
+  int i;
+  for (i = 0; i < ipctablesize; ++i) {
+    if (__pmIPCTablePtr[i].fd == fd)
+      return i;
+  }
+  return -1; /* not found */
+}
+
 /*
  * always called with __pmLock_libpcp held
  */
@@ -47,31 +59,33 @@ static int
 __pmResizeIPC(__pmFD fd)
 {
     int	oldsize;
+    int ix;
 
-    if (__pmIPCTablePtr == NULL || fd >= ipctablesize) {
+    if ((ix = __pmFindFdIPC(fd)) < 0) {
 	oldsize = ipctablesize;
-	while (fd >= ipctablesize) {
-	    if (ipctablesize == 0) {
-		ipctablesize = 4;
-	    }
-	    else
-		ipctablesize *= 2;
-	}
+	if (ipctablesize == 0)
+	    ipctablesize = 4;
+	else
+	    ipctablesize *= 2;
+
 	if ((__pmIPCTablePtr = (__pmIPC *)realloc(__pmIPCTablePtr,
 				sizeof(__pmIPC)*ipctablesize)) == NULL)
 	    return -oserror();
 	memset((__pmIPCTablePtr+oldsize), 0, sizeof(__pmIPC)*(ipctablesize-oldsize));
+	__pmIPCTablePtr[oldsize].fd = fd;
+	ix = oldsize;
     }
-    return 0;
+    return ix;
 }
 
 int
 __pmSetVersionIPC(__pmFD fd, int version)
 {
     int sts;
+    int ix;
 
     if (pmDebug & DBG_TRACE_CONTEXT)
-	fprintf(stderr, "__pmSetVersionIPC: fd=%d version=%d\n", fd, version);
+        fprintf(stderr, "__pmSetVersionIPC: fd=%d version=%d\n", __pmFdRef(fd), version);
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -80,7 +94,9 @@ __pmSetVersionIPC(__pmFD fd, int version)
 	return sts;
     }
 
-    __pmIPCTablePtr[fd].version = version;
+    ix = sts;
+    sts = 0;
+    __pmIPCTablePtr[ix].version = version;
     __pmLastUsedFd = fd;
 
     if (pmDebug & DBG_TRACE_CONTEXT)
@@ -94,9 +110,10 @@ int
 __pmSetSocketIPC(__pmFD fd)
 {
     int sts;
+    int ix;
 
     if (pmDebug & DBG_TRACE_CONTEXT)
-	fprintf(stderr, "__pmSetSocketIPC: fd=%d\n", fd);
+        fprintf(stderr, "__pmSetSocketIPC: fd=%d\n", __pmFdRef(fd));
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -105,7 +122,9 @@ __pmSetSocketIPC(__pmFD fd)
 	return sts;
     }
 
-    __pmIPCTablePtr[fd].socket = 1;
+    ix = sts;
+    sts = 0;
+    __pmIPCTablePtr[ix].socket = 1;
     __pmLastUsedFd = fd;
 
     if (pmDebug & DBG_TRACE_CONTEXT)
@@ -119,20 +138,21 @@ int
 __pmVersionIPC(__pmFD fd)
 {
     int		sts;
+    int		ix;
 
     if (fd == PDU_OVERRIDE2)
 	return PDU_VERSION2;
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    if (__pmIPCTablePtr == NULL || fd < 0 || fd >= ipctablesize) {
+    if ((ix = __pmFindFdIPC(fd)) < 0) {
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr,
 		"IPC protocol botch: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
-		__pmIPCTablePtr, fd, ipctablesize);
+		__pmIPCTablePtr, __pmFdRef(fd), ipctablesize);
 	PM_UNLOCK(__pmLock_libpcp);
 	return UNKNOWN_VERSION;
     }
-    sts = __pmIPCTablePtr[fd].version;
+    sts = __pmIPCTablePtr[ix].version;
 
     PM_UNLOCK(__pmLock_libpcp);
     return sts;
@@ -154,14 +174,15 @@ int
 __pmSocketIPC(__pmFD fd)
 {
     int		sts;
+    int		ix;
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    if (__pmIPCTablePtr == NULL || fd < 0 || fd >= ipctablesize) {
+    if ((ix = __pmFindFdIPC(fd)) < 0) {
 	PM_UNLOCK(__pmLock_libpcp);
 	return 0;
     }
-    sts = __pmIPCTablePtr[fd].socket;
+    sts = __pmIPCTablePtr[ix].socket;
 
     PM_UNLOCK(__pmLock_libpcp);
     return sts;
@@ -185,13 +206,16 @@ __pmOverrideLastFd(__pmFD fd)
 void
 __pmResetIPC(__pmFD fd)
 {
+    int ix;
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    if (__pmIPCTablePtr == NULL || fd < 0 || fd >= ipctablesize) {
+    if ((ix = __pmFindFdIPC(fd)) < 0) {
 	PM_UNLOCK(__pmLock_libpcp);
 	return;
     }
-    memset(&__pmIPCTablePtr[fd], 0, sizeof(__pmIPC));
+    /* Clear the table entry but retain the fd for searching purposes. */
+    memset(&__pmIPCTablePtr[ix], 0, sizeof(__pmIPC));
+    __pmIPCTablePtr[ix].fd = fd;
     PM_UNLOCK(__pmLock_libpcp);
 }
 

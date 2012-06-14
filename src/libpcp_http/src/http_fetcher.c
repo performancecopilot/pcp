@@ -771,30 +771,36 @@ int makeSocket(const char *host)
 	{
 	int sock;										/* Socket descriptor */
 	__pmSockAddrIn sa;							/* Socket address */
-	__pmHostEnt *hp;								/* Host entity */
+	__pmHostEnt h;								/* Host entity */
+	char *hbuf;
 	int ret;
-    int port;
-    char *p;
+	int port;
+	char *p;
 	
-    /* Check for port number specified in URL */
-    p = strchr(host, ':');
-    if(p)
-        {
-        port = atoi(p + 1);
-        *p = '\0';
-        }
-    else
-        port = PORT_NUMBER;
+	/* Check for port number specified in URL */
+	p = strchr(host, ':');
+	if(p)
+	  {
+	      port = atoi(p + 1);
+	      *p = '\0';
+	  }
+	else
+	    port = PORT_NUMBER;
 
-	hp = __pmGetHostByName(host);
-	if(hp == NULL) { errorSource = H_ERRNO; return -1; }
+	hbuf = __pmAllocHostEntBuffer();
+	if (__pmGetHostByName(host, &h, hbuf) == NULL) {
+	    errorSource = H_ERRNO;
+	    __pmFreeHostEntBuffer(hbuf);
+	    return -1;
+	}
 		
 	/* Copy host address from hostent to (server) socket address */
-	memcpy((char *)&sa.sin_addr, (char *)hp->h_addr, hp->h_length);
-	sa.sin_family = hp->h_addrtype;		/* Set service sin_family to PF_INET */
+	memcpy((char *)&sa.sin_addr, (char *)h.h_addr, h.h_length);
+	sa.sin_family = h.h_addrtype;		/* Set service sin_family to PF_INET */
 	sa.sin_port = htons(port);      	/* Put portnum into socket address */
 
-	sock = socket(hp->h_addrtype, SOCK_STREAM, 0);
+	sock = __pmSocket(h.h_addrtype, SOCK_STREAM, 0);
+	__pmFreeHostEntBuffer(hbuf);
 	if(sock == -1) { errorSource = ERRNO; return -1; }
 
 	ret = __pmConnect(sock, (__pmSockAddr *)&sa, sizeof(sa));

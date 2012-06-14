@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,7 +24,7 @@
 #include "impl.h"
 
 int
-__pmControlLog(int fd, const pmResult *request, int control, int state, int delta, pmResult **status)
+__pmControlLog(__pmFD fd, const pmResult *request, int control, int state, int delta, pmResult **status)
 {
     int         	n;
     __pmPDU     	*pb;

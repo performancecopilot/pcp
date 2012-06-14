@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -35,7 +36,7 @@ typedef struct {
 } x_error_t;
 
 int
-__pmSendError(int fd, int from, int code)
+__pmSendError(__pmFD fd, int from, int code)
 {
     p_error_t	*pp;
     int		sts;
@@ -63,7 +64,7 @@ __pmSendError(int fd, int from, int code)
 }
 
 int
-__pmSendXtendError(int fd, int from, int code, int datum)
+__pmSendXtendError(__pmFD fd, int from, int code, int datum)
 {
     x_error_t	*pp;
     int		sts;

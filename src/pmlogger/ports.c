@@ -184,7 +184,8 @@ GetPort(char *file)
     int			sts;
     __pmSockAddrIn	myAddr;
     static int		port_base = -1;
-    __pmHostEnt		*hep;
+    __pmHostEnt		he;
+    char		*hebuf;
 
     fd = __pmCreateSocket();
     if (fd == PM_ERROR_FD) {
@@ -217,10 +218,7 @@ GetPort(char *file)
      * and try again.
      */
     for (ctlport = port_base; ; ctlport++) {
-	memset(&myAddr, 0, sizeof(myAddr));
-	myAddr.sin_family = AF_INET;
-	myAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	myAddr.sin_port = htons(ctlport);
+        __pmInitSockAddr(&myAddr, htons(ctlport));
 	sts = __pmBind(fd, (__pmSockAddr*)&myAddr, sizeof(myAddr));
 	if (sts < 0) {
 	    if (neterror() != EADDRINUSE) {
@@ -255,8 +253,11 @@ GetPort(char *file)
     fprintf(mapstream, "%d\n", ctlport);
 
     /* then the PMCD host */
-    hep = __pmGetHostByName(pmcd_host);
-    fprintf(mapstream, "%s\n", hep == NULL ? "" : hep->h_name);
+    hebuf = __pmAllocHostEntBuffer();
+    if (__pmGetHostByName(pmcd_host, &he, hebuf) != NULL)
+        fprintf(mapstream, "%s", he.h_name);
+    fprintf(mapstream, "\n");
+    __pmFreeHostEntBuffer(hebuf);
 
     /* then the full pathname to the archive base */
     __pmNativePath(archBase);
@@ -406,7 +407,8 @@ control_req(void)
     __pmFD		fd;
       int		sts;
     __pmSockAddrIn	addr;
-    __pmHostEnt		*hp;
+    __pmHostEnt		h;
+    char		*hbuf;
     mysocklen_t		addrlen;
 
     addrlen = sizeof(addr);
@@ -437,8 +439,8 @@ control_req(void)
 	return 0;
     }
 
-    hp = __pmGetHostByAddr(& addr);
-    if (hp == NULL || strlen(hp->h_name) > MAXHOSTNAMELEN-1) {
+    hbuf = __pmAllocHostEntBuffer();
+    if (__pmGetHostByAddr(& addr, &h, hbuf) == NULL || strlen(h.h_name) > MAXHOSTNAMELEN-1) {
 	char	*p = (char *)&addr.sin_addr.s_addr;
 
 	sprintf(pmlc_host, "%d.%d.%d.%d",
@@ -446,7 +448,8 @@ control_req(void)
     }
     else
 	/* this is safe, due to strlen() test above */
-	strcpy(pmlc_host, hp->h_name);
+	strcpy(pmlc_host, h.h_name);
+    __pmFreeHostEntBuffer(hbuf);
 
     if ((sts = __pmAccAddClient(&addr.sin_addr, &clientops)) < 0) {
 #ifdef PCP_DEBUG

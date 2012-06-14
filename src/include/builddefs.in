@@ -114,14 +114,14 @@ endif
 CFLAGS_ABI = @cflags_abi@
 CFLAGS += $(CFLAGS_ABI) $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -g -DPCP_DEBUG \
 	-DPCP_VERSION=\"$(PCP_VERSION)\" \
-	-I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp
+	-I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp $(NSS_CFLAGS) $(NSPR_CFLAGS)
 
 LDFLAGS += $(CFLAGS_ABI) $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
 SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(MFILES) \
 	$(LSRCFILES) $(LFILES) $(YFILES)
 
-LDLIBS = $(LLDLIBS) $(PLDLIBS)
+LDLIBS = $(LLDLIBS) $(PLDLIBS) $(LIB_FOR_NSS) $(LIB_FOR_NSPR)
 MAKEOPTS = --no-print-directory
 DIRT = $(LDIRT) dep dep.bak $(OBJECTS) $(CMDTARGET) \
 	$(LIBTARGET) $(STATICLIBTARGET) \

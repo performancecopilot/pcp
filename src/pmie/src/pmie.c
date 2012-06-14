@@ -319,7 +319,9 @@ stopmonitor(void)
 static void
 startmonitor(void)
 {
-    __pmHostEnt		*hep = noDnsFlag ? NULL : __pmGetHostByName(dfltHost);
+    __pmHostEnt		he;
+    __pmHostEnt		*hep;
+    char		*hebuf;
     void		*ptr;
     int			fd;
     char		zero = '\0';
@@ -361,7 +363,12 @@ startmonitor(void)
 
     perf = (pmiestats_t *)ptr;
     strcpy(perf->logfile, logfile[0] == '\0'? "<none>" : logfile);
+
+    hebuf = __pmAllocHostEntBuffer();
+    hep = noDnsFlag ? NULL : __pmGetHostByName(dfltHost, &he, hebuf);
     strcpy(perf->defaultfqdn, hep == NULL? dfltHost : hep->h_name);
+    __pmFreeHostEntBuffer(hebuf);
+
     perf->version = 1;
 }
 

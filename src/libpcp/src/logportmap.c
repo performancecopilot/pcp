@@ -309,36 +309,40 @@ __pmIsLocalhost(const char *hostname)
 	return 1;
     else {
 	char lhost[MAXHOSTNAMELEN+1];
-	__pmHostEnt *he;
+	__pmHostEnt he;
+	char *hebuf;
 
 	if (gethostname(lhost, MAXHOSTNAMELEN) < 0)
 	   return -oserror();
 
 	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
-        if ((he = __pmGetHostByName(lhost)) != NULL ) {
+	hebuf = __pmAllocHostEntBuffer();
+        if (__pmGetHostByName(lhost, &he, hebuf) != NULL) {
 	    int i;
-	    unsigned int * laddrs;
-	    for (i=0; he->h_addr_list[i] != NULL; i++) ;
+	    __pmIPAddr * laddrs;
+	    i = __pmHostEntNumAddrs(&he);
 
-	    laddrs = (unsigned int *)calloc(i, sizeof (unsigned int));
+	    laddrs = (__pmIPAddr *)calloc(i, sizeof (*laddrs));
 	    if (laddrs != NULL) {
 		int k;
 		for (k=0; k < i; k++) {
-		    laddrs[k] = ((__pmInAddr *)he->h_addr_list[k])->s_addr;
+		  laddrs[k] = *__pmHostEntGetIPAddr(&he, k);
 		}
 
-		if ((he = __pmGetHostByName(hostname)) == NULL) {
+		if (__pmGetHostByName(hostname, &he, hebuf) == NULL) {
 		    free(laddrs);
+		    __pmFreeHostEntBuffer(hebuf);
 		    PM_UNLOCK(__pmLock_libpcp);
 		    return -EHOSTUNREACH;
 		}
 
 		for (i--; i >= 0; i--) {
-		    for (k = 0; he->h_addr_list[k] != NULL; k++) {
-			__pmInAddr *s=(__pmInAddr *)he->h_addr_list[k];
-			if (s->s_addr == laddrs[i]) {
+		    for (k = 0; k < __pmHostEntNumAddrs(&he); k++) {
+		        __pmIPAddr *s = __pmHostEntGetIPAddr(&he, k);
+			if (__pmCompareIPAddr (s, & laddrs[i]) == 0) {
 			    free(laddrs);
+			    __pmFreeHostEntBuffer(hebuf);
 			    PM_UNLOCK(__pmLock_libpcp);
 			    return 1;
 			}
@@ -348,6 +352,7 @@ __pmIsLocalhost(const char *hostname)
 		free(laddrs);
 	    }
 	}
+	__pmFreeHostEntBuffer(hebuf);
 	PM_UNLOCK(__pmLock_libpcp);
     }
 

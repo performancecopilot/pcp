@@ -64,11 +64,11 @@ do_flush(void)
     int		sts;
 
     sts = 0;
-    if (fflush(logctl.l_mdfp) != 0)
+    if (__pmFlush(logctl.l_mdfp) != 0)
 	sts = oserror();
-    if (fflush(logctl.l_mfp) != 0 && sts == 0)
+    if (__pmFlush(logctl.l_mfp) != 0 && sts == 0)
 	sts = oserror();
-    if (fflush(logctl.l_tifp) != 0 && sts == 0)
+    if (__pmFlush(logctl.l_tifp) != 0 && sts == 0)
 	sts = oserror();
 
     return sts;
@@ -93,7 +93,7 @@ run_done(int sts, char *msg)
 	__pmTimeval	tmp;
 	tmp.tv_sec = (__int32_t)last_stamp.tv_sec;
 	tmp.tv_usec = (__int32_t)last_stamp.tv_usec;
-	fseek(logctl.l_mfp, last_log_offset, SEEK_SET);
+	__pmSeek(logctl.l_mfp, last_log_offset, SEEK_SET);
 	__pmLogPutIndex(&logctl, &tmp);
     }
 
@@ -332,7 +332,7 @@ do_dialog(char cmd)
 	/* hack is close enough! */
 	now = 1;
 
-    archsize = vol_bytes + ftell(logctl.l_mfp);
+    archsize = vol_bytes + __pmTell(logctl.l_mfp);
 
     nchar = add_msg(&p, 0, "");
     p[0] = '\0';
@@ -1023,7 +1023,7 @@ Options:\n\
 int
 newvolume(int vol_switch_type)
 {
-    FILE	*newfp;
+    __pmFD	newfp;
     int		nextvol = logctl.l_curvol + 1;
     time_t	now;
     static char *vol_sw_strs[] = {
@@ -1032,7 +1032,7 @@ newvolume(int vol_switch_type)
     };
 
     vol_samples_counter = 0;
-    vol_bytes += ftell(logctl.l_mfp);
+    vol_bytes += __pmTell(logctl.l_mfp);
     if (exit_bytes != -1) {
         if (vol_bytes >= exit_bytes) 
 	    run_done(0, "Byte limit reached");
@@ -1051,7 +1051,7 @@ newvolume(int vol_switch_type)
                                    vol_switch_callback);
     }
 
-    if ((newfp = __pmLogNewFile(archBase, nextvol)) != NULL) {
+    if ((newfp = __pmLogNewFile(archBase, nextvol)) != PM_ERROR_FD) {
 	if (logctl.l_state == PM_LOG_STATE_NEW) {
 	    /*
 	     * nothing has been logged as yet, force out the label records
@@ -1075,11 +1075,11 @@ newvolume(int vol_switch_type)
 	    __pmLogPutIndex(&logctl, &tmp);
 	}
 #endif
-	fclose(logctl.l_mfp);
+	__pmClose(logctl.l_mfp);
 	logctl.l_mfp = newfp;
 	logctl.l_label.ill_vol = logctl.l_curvol = nextvol;
 	__pmLogWriteLabel(logctl.l_mfp, &logctl.l_label);
-	fflush(logctl.l_mfp);
+	__pmFlush(logctl.l_mfp);
 	time(&now);
 	fprintf(stderr, "New log volume %d, via %s at %s",
 		nextvol, vol_sw_strs[vol_switch_type], ctime(&now));

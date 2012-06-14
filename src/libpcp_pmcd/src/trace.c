@@ -107,7 +107,8 @@ pmcd_dump_trace(FILE *f)
     struct tm		last = { 0, 0 };
     struct tm		*this;
     __pmInAddr		addr;	/* internet address */
-    __pmHostEnt		*hp;
+    __pmHostEnt		h;
+    char		*hbuf;
     char		strbuf[20];
 
     if ((_pmcd_trace_mask & TR_MASK_NOBUF) == 0)
@@ -145,8 +146,8 @@ pmcd_dump_trace(FILE *f)
 		case TR_ADD_CLIENT:
 		    fprintf(f, "New client: from=");
 		    addr.s_addr = trace[p].t_who;
-		    hp = __pmGetHostByInAddr(&addr);
-		    if (hp == NULL) {
+		    hbuf = __pmAllocHostEntBuffer();
+		    if (__pmGetHostByInAddr(&addr, &h, hbuf) == NULL) {
 			char	*p = (char *)&addr.s_addr;
 			int	k;
 			for (k = 0; k < 4; k++) {
@@ -156,8 +157,9 @@ pmcd_dump_trace(FILE *f)
 			}
 		    }
 		    else {
-			fprintf(f, "%s", hp->h_name);
+			fprintf(f, "%s", h.h_name);
 		    }
+		    __pmFreeHostEntBuffer(hbuf);
 		    fprintf(f, ", fd=%d, seq=%u\n", trace[p].t_p1, (unsigned int)trace[p].t_p2);
 		    break;
 

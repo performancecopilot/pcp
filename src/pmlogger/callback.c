@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -482,12 +483,12 @@ log_callback(int afid, void *data)
 	 * Even without a -v option, we may need to switch volumes
 	 * if the data file exceeds 2^31-1 bytes
 	 */
-	peek_offset = ftell(logctl.l_mfp);
+	peek_offset = __pmTell(logctl.l_mfp);
 	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
 	if (peek_offset > 0x7fffffff) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL2)
-		fprintf(stderr, "callback: new volume based on max size, currently %ld\n", ftell(logctl.l_mfp));
+		fprintf(stderr, "callback: new volume based on max size, currently %ld\n", __pmTell(logctl.l_mfp));
 #endif
 	    (void)newvolume(VOL_SW_MAX);
 	}
@@ -497,14 +498,14 @@ log_callback(int afid, void *data)
 	 * temporal index writes, but __pmDecodeResult changes the pointers
 	 * in the pdu buffer for the non INSITU values ... sigh
 	 */
-	last_log_offset = ftell(logctl.l_mfp);
+	last_log_offset = __pmTell(logctl.l_mfp);
 	assert(last_log_offset >= 0);
 	if ((sts = __pmLogPutResult(&logctl, pb)) < 0) {
 	    fprintf(stderr, "__pmLogPutResult: %s\n", pmErrStr(sts));
 	    exit(1);
 	}
 
-	__pmOverrideLastFd(fileno(logctl.l_mfp));
+	__pmOverrideLastFd(logctl.l_mfp);
 	if ((sts = __pmDecodeResult(pb, &resp)) < 0) {
 	    fprintf(stderr, "__pmDecodeResult: %s\n", pmErrStr(sts));
 	    exit(1);
@@ -514,7 +515,7 @@ log_callback(int afid, void *data)
 	resp_tval.tv_usec = resp->timestamp.tv_usec;
 
 	needti = 0;
-	old_meta_offset = ftell(logctl.l_mdfp);
+	old_meta_offset = __pmTell(logctl.l_mdfp);
 	assert(old_meta_offset >= 0);
 	for (i = 0; i < resp->numpmid; i++) {
 	    pmValueSet	*vsp = resp->vset[i];
@@ -611,11 +612,11 @@ log_callback(int afid, void *data)
 	    }
 	}
 
-	if (ftell(logctl.l_mfp) > flushsize) {
+	if (__pmTell(logctl.l_mfp) > flushsize) {
 	    needti = 1;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL2)
-		fprintf(stderr, "callback: file size (%d) reached flushsize (%d)\n", (int)ftell(logctl.l_mfp), flushsize);
+		fprintf(stderr, "callback: file size (%d) reached flushsize (%d)\n", (int)__pmTell(logctl.l_mfp), flushsize);
 #endif
 	}
 
@@ -629,7 +630,7 @@ log_callback(int afid, void *data)
 	}
 
 	if (needti)
-	    fflush(logctl.l_mdfp);
+	    __pmFlush(logctl.l_mdfp);
 
 	if (needti) {
 	    /*
@@ -637,21 +638,21 @@ log_callback(int afid, void *data)
 	     * result (but if this is the first one, skip the label
 	     * record, what a crock), ... ditto for the meta data
 	     */
-	    new_offset = ftell(logctl.l_mfp);
+	    new_offset = __pmTell(logctl.l_mfp);
 	    assert(new_offset >= 0);
-	    new_meta_offset = ftell(logctl.l_mdfp);
+	    new_meta_offset = __pmTell(logctl.l_mdfp);
 	    assert(new_meta_offset >= 0);
-	    fseek(logctl.l_mfp, last_log_offset, SEEK_SET);
-	    fseek(logctl.l_mdfp, old_meta_offset, SEEK_SET);
+	    __pmSeek(logctl.l_mfp, last_log_offset, SEEK_SET);
+	    __pmSeek(logctl.l_mdfp, old_meta_offset, SEEK_SET);
 	    tmp.tv_sec = (__int32_t)resp->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)resp->timestamp.tv_usec;
 	    __pmLogPutIndex(&logctl, &tmp);
 	    /*
 	     * ... and put them back
 	     */
-	    fseek(logctl.l_mfp, new_offset, SEEK_SET);
-	    fseek(logctl.l_mdfp, new_meta_offset, SEEK_SET);
-	    flushsize = ftell(logctl.l_mfp) + 100000;
+	    __pmSeek(logctl.l_mfp, new_offset, SEEK_SET);
+	    __pmSeek(logctl.l_mdfp, new_meta_offset, SEEK_SET);
+	    flushsize = __pmTell(logctl.l_mfp) + 100000;
 	}
 
 	last_stamp = resp->timestamp;	/* struct assignment */
@@ -718,7 +719,7 @@ log_callback(int afid, void *data)
 	run_done(0, "Sample limit reached");
 
     if (exit_bytes != -1 && 
-        (vol_bytes + ftell(logctl.l_mfp) >= exit_bytes)) 
+        (vol_bytes + __pmTell(logctl.l_mfp) >= exit_bytes)) 
         /* reached exit_bytes limit, so stop logging */
         run_done(0, "Byte limit reached");
 
@@ -732,11 +733,11 @@ log_callback(int afid, void *data)
     }
 
     if (vol_switch_bytes > 0 &&
-        (ftell(logctl.l_mfp) >= vol_switch_bytes)) {
+        (__pmTell(logctl.l_mfp) >= vol_switch_bytes)) {
         (void)newvolume(VOL_SW_BYTES);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL2)
-	    fprintf(stderr, "callback: new volume based on size (%d)\n", (int)ftell(logctl.l_mfp));
+	    fprintf(stderr, "callback: new volume based on size (%d)\n", (int)__pmTell(logctl.l_mfp));
 #endif
     }
 
@@ -777,7 +778,7 @@ putmark(void)
     mark.timestamp.tv_usec = htonl(mark.timestamp.tv_usec);
     mark.numpmid = htonl(0);
 
-    if (fwrite(&mark, 1, sizeof(mark), logctl.l_mfp) != sizeof(mark))
+    if (__pmWrite(logctl.l_mfp, &mark, sizeof(mark)) != sizeof(mark))
 	return -oserror();
     else
 	return 0;

@@ -116,18 +116,19 @@ deleteClient(client_t *cp)
 void
 showClients(void)
 {
-    __pmHostEnt		*hp;
+    __pmHostEnt		h;
+    char		*hbuf;
     int			i;
 
     fprintf(stderr, "%s: %d connected clients:\n", pmProgname, nclients);
     fprintf(stderr, "     fd  type   conn  client connection from\n"
 		    "     ==  =====  ====  ======================\n");
+    hbuf = __pmAllocHostEntBuffer();
     for (i=0; i < nclients; i++) {
 	fprintf(stderr, "    %3d", clients[i].fd);
 	fprintf(stderr, "  %s  ", clients[i].status.protocol == 1 ? "sync ":"async");
 	fprintf(stderr, "%s  ", clients[i].status.connected == 1 ? "up  ":"down");
-	hp = __pmGetHostByAddr(& clients[i].addr);
-	if (hp == NULL) {
+	if (__pmGetHostByAddr(& clients[i].addr, &h, hbuf) == NULL) {
 	    char	*p = (char *)&clients[i].addr.sin_addr.s_addr;
 	    int		k;
 
@@ -138,7 +139,7 @@ showClients(void)
 	    }
 	}
 	else
-	    fprintf(stderr, "%-40.40s", hp->h_name);
+	    fprintf(stderr, "%-40.40s", h.h_name);
 	if (clients[i].denyOps != 0) {
 	    fprintf(stderr, "  ");
 	    if (clients[i].denyOps & TR_OP_SEND)
@@ -147,5 +148,6 @@ showClients(void)
 
 	fputc('\n', stderr);
     }
+    __pmFreeHostEntBuffer(hbuf);
     fputc('\n', stderr);
 }

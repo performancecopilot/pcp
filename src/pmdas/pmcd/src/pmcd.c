@@ -1294,13 +1294,15 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				break;
 			    case 3:		/* pmlogger.host */
 				if (hostname == NULL) {
-				    char		hbuf[MAXHOSTNAMELEN];
-				    __pmHostEnt	*hep;
+				    char	hbuf[MAXHOSTNAMELEN];
+				    __pmHostEnt	he;
+				    char	*hebuf;
 				    (void)gethostname(hbuf, MAXHOSTNAMELEN);
 				    hbuf[MAXHOSTNAMELEN-1] = '\0';
-				    hep = __pmGetHostByName(hbuf);
-				    if (hep != NULL)
-					hostname = strdup(hep->h_name);
+				    hebuf = __pmAllocHostEntBuffer();
+				    if (__pmGetHostByName(hbuf, &he, hebuf) != NULL)
+					hostname = strdup(he.h_name);
+				    __pmFreeHostEntBuffer(hebuf);
 				}
 				atom.cp = (hostname != NULL) ? hostname : "";
 				break;
