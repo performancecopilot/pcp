@@ -23,10 +23,7 @@
 ** from <pcp/pmapi.h> into the module dictionary. The PMAPI functions and   **
 ** data structures are wrapped in pcp.py, using ctypes.                     **
 **                                                                          **
-** The following constansts and macros have not been wrapped.               **
-**    - PM_ERR_V1()                                                         **
-**    - XLATE_ERR_1TO2()                                                    **
-**    - XLATE_ERR_2TO1()                                                    **
+** The following constants and macros have not been wrapped.               **
 **    - PM_XTB_FLAG                                                         **
 **    - PM_XTB_SET()                                                        **
 **    - PM_XTB_GET()                                                        **
@@ -95,12 +92,6 @@ static PyMethodDef methods[] = {
     {NULL, NULL}
 };
 
-/****************************************************************************\
-**                                                                          **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
-
 
 /* This function is called when the module is initialized. */ 
 
@@ -117,8 +108,6 @@ initpmapi() {
 
     dict = PyModule_GetDict( module );
 
-    dict_add( dict, "PMAPI_VERSION_1",
-              (intu) PMAPI_VERSION_1, INT_T, NULL );
     dict_add( dict, "PMAPI_VERSION_2",
               (intu) PMAPI_VERSION_2, INT_T, NULL );
     dict_add( dict, "PMAPI_VERSION",
@@ -176,6 +165,7 @@ initpmapi() {
               (intu) PM_TYPE_AGGREGATE,        INT_T, NULL );
     dict_add( dict, "PM_TYPE_AGGREGATE_STATIC",
               (intu) PM_TYPE_AGGREGATE_STATIC, INT_T, NULL );
+    dict_add( dict, "PM_TYPE_EVENT",  (intu) PM_TYPE_EVENT, INT_T, NULL );
     dict_add( dict, "PM_TYPE_UNKNOWN",
               (intu) PM_TYPE_UNKNOWN,          INT_T, NULL );
 
@@ -202,16 +192,22 @@ initpmapi() {
     dict_add( dict, "PM_CONTEXT_HOST",
               (intu) PM_CONTEXT_HOST,    INT_T, NULL );
 
+    /* event type */
+    dict_add( dict, "PM_EVENT_FLAG_POINT",  (intu) PM_EVENT_FLAG_POINT, INT_T, NULL );
+    dict_add( dict, "PM_EVENT_FLAG_START",  (intu) PM_EVENT_FLAG_START, INT_T, NULL );
+    dict_add( dict, "PM_EVENT_FLAG_END",    (intu) PM_EVENT_FLAG_END,   INT_T, NULL );
+    dict_add( dict, "PM_EVENT_FLAG_ID",     (intu) PM_EVENT_FLAG_ID,    INT_T, NULL );
+    dict_add( dict, "PM_EVENT_FLAG_PARENT", (intu) PM_EVENT_FLAG_PARENT, INT_T, NULL );
+    dict_add( dict, "PM_EVENT_FLAG_MISSED", (intu) PM_EVENT_FLAG_MISSED, INT_T, NULL );
+
 
     dict_add( dict, "PM_VAL_HDR_SIZE", (intu) PM_VAL_HDR_SIZE, INT_T, NULL );
     dict_add( dict, "PM_VAL_VLEN_MAX", (intu) PM_VAL_VLEN_MAX, INT_T, NULL );
-
 
     /* values for valfmt in pmValueSet */
     dict_add( dict, "PM_VAL_INSITU", (intu) PM_VAL_INSITU, INT_T, NULL );
     dict_add( dict, "PM_VAL_DPTR",   (intu) PM_VAL_DPTR,   INT_T, NULL );
     dict_add( dict, "PM_VAL_SPTR",   (intu) PM_VAL_SPTR,   INT_T, NULL );
-
 
     dict_add( dict, "PMCD_NO_CHANGE",
               (intu) PMCD_NO_CHANGE,     INT_T, NULL );
@@ -228,7 +224,6 @@ initpmapi() {
     dict_add( dict, "PM_LOG_MAXHOSTLEN",
               (intu) PM_LOG_MAXHOSTLEN, INT_T, NULL );
     dict_add( dict, "PM_LOG_MAGIC",    (intu) PM_LOG_MAGIC,    INT_T, NULL );
-    dict_add( dict, "PM_LOG_VERS01",   (intu) PM_LOG_VERS01,   INT_T, NULL );
     dict_add( dict, "PM_LOG_VERS02",   (intu) PM_LOG_VERS02,   INT_T, NULL );
     dict_add( dict, "PM_LOG_VOL_TI",   (intu) PM_LOG_VOL_TI,   INT_T, NULL );
     dict_add( dict, "PM_LOG_VOL_META", (intu) PM_LOG_VOL_META, INT_T, NULL );
@@ -244,7 +239,6 @@ initpmapi() {
     dict_add( dict, "PM_TEXT_HELP",    (intu) PM_TEXT_HELP,    INT_T, NULL );
 
 
-    dict_add( dict, "PM_ERR_BASE1", (intu) PM_ERR_BASE1, INT_T, NULL );
     dict_add( dict, "PM_ERR_BASE2", (intu) PM_ERR_BASE2, INT_T, NULL );
     dict_add( dict, "PM_ERR_BASE",  (intu) PM_ERR_BASE,  INT_T, NULL );
 
@@ -263,16 +257,12 @@ initpmapi() {
               (intu) PM_ERR_APPVERSION,   INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_VALUE",
               (intu) PM_ERR_VALUE,        INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_LICENSE",
-              (intu) PM_ERR_LICENSE,      INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_TIMEOUT",
               (intu) PM_ERR_TIMEOUT,      INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_NODATA",
               (intu) PM_ERR_NODATA,       INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_RESET",
               (intu) PM_ERR_RESET,        INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_FILE",
-              (intu) PM_ERR_FILE,         INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_NAME",
               (intu) PM_ERR_NAME,         INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_PMID",
@@ -293,8 +283,6 @@ initpmapi() {
               (intu) PM_ERR_PROFILE,      INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_IPC",
               (intu) PM_ERR_IPC,          INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_NOASCII",
-              (intu) PM_ERR_NOASCII,      INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_EOF",
               (intu) PM_ERR_EOF,          INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_NOTHOST",
@@ -337,33 +325,22 @@ initpmapi() {
               (intu) PM_ERR_NOTCONN,      INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_NEEDPORT",
               (intu) PM_ERR_NEEDPORT,     INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_WANTACK",
-              (intu) PM_ERR_WANTACK,      INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_NONLEAF",
               (intu) PM_ERR_NONLEAF,      INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_OBJSTYLE",
-              (intu) PM_ERR_OBJSTYLE,     INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_PMCDLICENSE",
-              (intu) PM_ERR_PMCDLICENSE,  INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_CTXBUSY",
-              (intu) PM_ERR_CTXBUSY,     INT_T, pmErrSymD );
+    dict_add( dict, "PM_ERR_TYPE",
+              (intu) PM_ERR_TYPE,         INT_T, pmErrSymD );
+    dict_add( dict, "PM_ERR_THREAD",
+              (intu) PM_ERR_THREAD,       INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_TOOSMALL",
               (intu) PM_ERR_TOOSMALL,     INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_TOOBIG",
               (intu) PM_ERR_TOOBIG,       INT_T, pmErrSymD );
+    dict_add( dict, "PM_ERR_FAULT",
+              (intu) PM_ERR_FAULT,        INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_PMDAREADY",
               (intu) PM_ERR_PMDAREADY,    INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_PMDANOTREADY",
               (intu) PM_ERR_PMDANOTREADY, INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_NYI",
               (intu) PM_ERR_NYI,          INT_T, pmErrSymD );
-
-
 }
-
-/****************************************************************************\
-**                                                                          **
-**  End of pmapi.c                                                          **
-**                                                                          **
-\****************************************************************************/
-

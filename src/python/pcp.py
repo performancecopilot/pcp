@@ -378,9 +378,6 @@ libpcp.pmGetPMNSLocation.argtypes = []
 libpcp.pmLoadNameSpace.restype = c_int
 libpcp.pmLoadNameSpace.argtypes = [ c_char_p ]
 
-libpcp.pmLoadASCIINameSpace.restype = c_int
-libpcp.pmLoadASCIINameSpace.argtypes = [ c_char_p, c_int ]
-
 libpcp.pmLookupName.restype = c_int
 libpcp.pmLookupName.argtypes = [ c_int, (c_char_p * 1), POINTER(c_uint) ]
 
@@ -808,23 +805,6 @@ class pmContext( object ):
                 raise pmErr, status
             pmContext._lastUsedContext = self
         status = libpcp.pmLoadNameSpace( filename )
-        pmContext._pmapiLock.release()
-        if status < 0:
-            raise pmErr, status
-        return status
-
-    def pmLoadASCIINameSpace( self, filename, dupok ):
-        """PMAPI - Load an ASCII formatted local namespace from FILENAME
-        """
-        # this method is context dependent and requires the pmapi lock
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
-        status = libpcp.pmLoadASCIINameSpace( filename, dupok )
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status

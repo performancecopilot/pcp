@@ -235,7 +235,7 @@ def test_pcp(self, context = 'local', path = ''):
     self.assertTrue(code >= 0)
 
     try:
-        # pmLoadNameSpace XXX Test: a real use, pmLoadASCIINameSpace, pmUnLoadNameSpace
+        # pmLoadNameSpace XXX Test: a real use, pmUnLoadNameSpace
         inst = pm.pmLoadNameSpace("NoSuchFile")
         self.assertTrue(False)
     except  pmErr as e:
