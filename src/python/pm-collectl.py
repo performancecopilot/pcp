@@ -69,6 +69,7 @@ def get_atom_value (metric, atom1, atom2, type, first):
         want_diff = False
     else:
         want_diff = True
+    # value conversion and diff, if required
     if type == pmapi.PM_TYPE_32:
         return atom1.l - (atom2.l if not first else 0)
     elif type == pmapi.PM_TYPE_U32:
@@ -97,16 +98,21 @@ def get_stats (metric, metric_name, metric_desc, metric_value, old_metric_value)
     check_code (code)
 
     first = True if max(old_metric_value) == 0 else False
+    # list of metric names
     for i in xrange(len(metric)):
+        # list of metric results, one per metric name
         for j in xrange(metric_result.contents.numpmid):
             if (metric_result.contents.get_pmid(j) != metric_name[i]):
                 continue
             atomlist = []
+            # list of instances, one or more per metric.  e.g. there are many 
+            # instances for network metrics, one per network interface
             for k in xrange(metric_result.contents.get_numval(j)):
                 (code, atom) = pm.pmExtractValue(metric_result.contents.get_valfmt(j), metric_result.contents.get_vlist(j, k), metric_desc[j].contents.type, metric_desc[j].contents.type)
                 atomlist.append(atom)
 
             value = []
+            # metric may require a diff to get a per interval value
             for k in xrange(metric_result.contents.get_numval(j)):
                 if first:
                     old_val = 0
@@ -146,7 +152,12 @@ class _subsys(object):
 
 class _cpu(_subsys):
     def __init__(self):
-        self.cpu_metrics = ['kernel.all.cpu.nice', 'kernel.all.cpu.user', 'kernel.all.cpu.intr', 'kernel.all.cpu.sys', 'kernel.all.cpu.idle', 'kernel.all.cpu.steal', 'kernel.all.cpu.irq.hard', 'kernel.all.cpu.irq.soft', 'kernel.all.cpu.wait.total', 'hinv.ncpu']
+        self.cpu_metrics = ['kernel.all.cpu.nice', 'kernel.all.cpu.user',
+                            'kernel.all.cpu.intr', 'kernel.all.cpu.sys',
+                            'kernel.all.cpu.idle', 'kernel.all.cpu.steal',
+                            'kernel.all.cpu.irq.hard', 'kernel.all.cpu.irq.soft',
+                            'kernel.all.cpu.wait.total', 'hinv.ncpu']
+        self.cpu_metrics_dict={i:self.cpu_metrics.index(i) for i in self.cpu_metrics}
         self.cpu_metric_value = [0 for i in range(len(self.cpu_metrics))]
         self.old_cpu_metric_value = [0 for i in range(len(self.cpu_metrics))]
         (code, self.cpu_metric_name) = pm.pmLookupName(self.cpu_metrics)
@@ -156,18 +167,61 @@ class _cpu(_subsys):
     def get_stats(self):
         get_stats (self.cpu_metrics, self.cpu_metric_name, self.cpu_metric_desc, self.cpu_metric_value, self.old_cpu_metric_value)
     def get_total(self):
-        self.cpu_total = (self.cpu_metric_value[0]+self.cpu_metric_value[1]+self.cpu_metric_value[2]+self.cpu_metric_value[3]+self.cpu_metric_value[4]+self.cpu_metric_value[5]+self.cpu_metric_value[6]+self.cpu_metric_value[7] )
+        _=self.cpu_metrics_dict
+        self.cpu_total = (self.cpu_metric_value[_['kernel.all.cpu.nice']] +
+                          self.cpu_metric_value[_['kernel.all.cpu.user']] +
+                          self.cpu_metric_value[_['kernel.all.cpu.intr']] +
+                          self.cpu_metric_value[_['kernel.all.cpu.sys']] +
+                          self.cpu_metric_value[_['kernel.all.cpu.idle']] +
+                          self.cpu_metric_value[_['kernel.all.cpu.steal']] +
+                          self.cpu_metric_value[_['kernel.all.cpu.irq.hard']] +
+                          self.cpu_metric_value[_['kernel.all.cpu.irq.soft']] )
     def print_brief_header1(self):
         print '#<--------CPU-------->',
     def print_brief_header2(self):
         print '#cpu sys inter  ctxsw',
     def print_brief(self):
-        print "%4d" % (100*(self.cpu_metric_value[0]+self.cpu_metric_value[1]+self.cpu_metric_value[2]+self.cpu_metric_value[3]+self.cpu_metric_value[5]+self.cpu_metric_value[6]+self.cpu_metric_value[7]) / self.cpu_total),
-        print "%4d" % (100*(self.cpu_metric_value[2]+self.cpu_metric_value[3]+self.cpu_metric_value[5]+self.cpu_metric_value[6]+self.cpu_metric_value[7]) / self.cpu_total),
+        _=self.cpu_metrics_dict
+        print "%4d" % (100 * (self.cpu_metric_value[_['kernel.all.cpu.nice']] +
+                              self.cpu_metric_value[_['kernel.all.cpu.user']] +
+                              self.cpu_metric_value[_['kernel.all.cpu.intr']] +
+                              self.cpu_metric_value[_['kernel.all.cpu.sys']] +
+                              self.cpu_metric_value[_['kernel.all.cpu.steal']] +
+                              self.cpu_metric_value[_['kernel.all.cpu.irq.hard']] +
+                              self.cpu_metric_value[_['kernel.all.cpu.irq.soft']]) /
+                       self.cpu_total),
+        print "%4d" % (100 * (self.cpu_metric_value[_['kernel.all.cpu.intr']] +
+                              self.cpu_metric_value[_['kernel.all.cpu.sys']] +
+                              self.cpu_metric_value[_['kernel.all.cpu.steal']] +
+                              self.cpu_metric_value[_['kernel.all.cpu.irq.hard']] +
+                              self.cpu_metric_value[_['kernel.all.cpu.irq.soft']]) /
+                       self.cpu_total),
     def print_verbose(self):
+        _=self.cpu_metrics_dict
         print '# CPU SUMMARY (INTR, CTXSW & PROC /sec)'
         print '#User  Nice   Sys  Wait   IRQ  Soft Steal  Idle  CPUs  Intr  Ctxsw  Proc  RunQ   Run   Avg1  Avg5 Avg15 RunT BlkT'
-        print "%4d %6d %5d %4d %4d %5d %6d %6d %5d" % ((100*(self.cpu_metric_value[0]+self.cpu_metric_value[1]+self.cpu_metric_value[2]+self.cpu_metric_value[3]+self.cpu_metric_value[5]+self.cpu_metric_value[6]+self.cpu_metric_value[7]) / self.cpu_total), self.cpu_metric_value[0], (100*(self.cpu_metric_value[2]+self.cpu_metric_value[3]+self.cpu_metric_value[5]+self.cpu_metric_value[6]+self.cpu_metric_value[7]) / self.cpu_total), self.cpu_metric_value[8], self.cpu_metric_value[6], self.cpu_metric_value[7], self.cpu_metric_value[5], self.cpu_metric_value[4], self.cpu_metric_value[9]),
+        print "%4d %6d %5d %4d %4d %5d %6d %6d %5d" % (
+            (100 * (self.cpu_metric_value[_['kernel.all.cpu.nice']] +
+                    self.cpu_metric_value[_['kernel.all.cpu.user']] +
+                    self.cpu_metric_value[_['kernel.all.cpu.intr']] +
+                    self.cpu_metric_value[_['kernel.all.cpu.sys']] +
+                    self.cpu_metric_value[_['kernel.all.cpu.steal']] +
+                    self.cpu_metric_value[_['kernel.all.cpu.irq.hard']] +
+                    self.cpu_metric_value[_['kernel.all.cpu.irq.soft']]) /
+             self.cpu_total),
+            self.cpu_metric_value[_['kernel.all.cpu.nice']],
+            (100 * (self.cpu_metric_value[_['kernel.all.cpu.intr']] +
+                    self.cpu_metric_value[_['kernel.all.cpu.sys']] +
+                    self.cpu_metric_value[_['kernel.all.cpu.steal']] +
+                    self.cpu_metric_value[_['kernel.all.cpu.irq.hard']] +
+                    self.cpu_metric_value[_['kernel.all.cpu.irq.soft']]) /
+             self.cpu_total),
+            self.cpu_metric_value[_['kernel.all.cpu.wait.total']],
+            self.cpu_metric_value[_['kernel.all.cpu.irq.hard']],
+            self.cpu_metric_value[_['kernel.all.cpu.irq.soft']],
+            self.cpu_metric_value[_['kernel.all.cpu.steal']],
+            self.cpu_metric_value[_['kernel.all.cpu.idle']],
+            self.cpu_metric_value[_['hinv.ncpu']]),
 
 
 # _interrupt  -----------------------------------------------------------------
@@ -176,6 +230,7 @@ class _cpu(_subsys):
 class _interrupt(_subsys):
     def __init__(self):
         self.interrupt_metrics = ['kernel.all.intr', 'kernel.all.pswitch']
+        self.interrupt_metrics_dict={i:self.interrupt_metrics.index(i) for i in self.interrupt_metrics}
         self.interrupt_metric_value = [0 for i in range(len(self.interrupt_metrics))]
         self.old_interrupt_metric_value = [0 for i in range(len(self.interrupt_metrics))]
         (code, self.int_metric_name) = pm.pmLookupName(self.interrupt_metrics)
@@ -184,8 +239,12 @@ class _interrupt(_subsys):
         check_code (code)
     def get_stats(self):
         get_stats (self.interrupt_metrics, self.int_metric_name, self.int_metric_desc, self.interrupt_metric_value, self.old_interrupt_metric_value)
+    def print_verbose(self):
+        self.print_brief()
     def print_brief(self):
-        print "%4d %6d" % (self.interrupt_metric_value[0], self.interrupt_metric_value[1]),
+        _=self.interrupt_metrics_dict
+        print "%4d %6d" % (self.interrupt_metric_value[_['kernel.all.intr']],
+                           self.interrupt_metric_value[_['kernel.all.pswitch']]),
 
 
 # _process  -----------------------------------------------------------------
@@ -194,6 +253,7 @@ class _interrupt(_subsys):
 class _process(_subsys):
     def __init__(self):
         self.process_metrics = ['kernel.all.nprocs', 'kernel.all.runnable', 'proc.runq.runnable', 'kernel.all.load', 'proc.runq.blocked']
+        self.process_metrics_dict={i:self.process_metrics.index(i) for i in self.process_metrics}
         self.process_metric_value = [0 for i in range(len(self.process_metrics))]
         self.old_process_metric_value = [0 for i in range(len(self.process_metrics))]
         (code, self.process_metric_name) = pm.pmLookupName(self.process_metrics)
@@ -203,7 +263,16 @@ class _process(_subsys):
     def get_stats(self):
         get_stats (self.process_metrics, self.process_metric_name, self.process_metric_desc, self.process_metric_value, self.old_process_metric_value)
     def print_verbose(self):
-        print "%6d %5d %5d %5.2f %5.2f %5.2f %4d %4d" % (self.process_metric_value[0], self.process_metric_value[1], self.process_metric_value[2], self.process_metric_value[3][0],self.process_metric_value[3][1],self.process_metric_value[3][2], self.process_metric_value[1], self.process_metric_value[4]),
+        _=self.process_metrics_dict
+        print "%6d %5d %5d %5.2f %5.2f %5.2f %4d %4d" % (
+            self.process_metric_value[_['kernel.all.nprocs']],
+            self.process_metric_value[_['kernel.all.runnable']],
+            self.process_metric_value[_['proc.runq.runnable']],
+            self.process_metric_value[_['kernel.all.load']][0],
+            self.process_metric_value[_['kernel.all.load']][1],
+            self.process_metric_value[_['kernel.all.load']][2],
+            self.process_metric_value[_['kernel.all.runnable']],
+            self.process_metric_value[_['proc.runq.blocked']])
 
 
 # _disk  -----------------------------------------------------------------
@@ -211,7 +280,10 @@ class _process(_subsys):
 
 class _disk(_subsys):
     def __init__(self):
-        self.disk_metrics = ['disk.all.read_bytes', 'disk.all.read', 'disk.all.write_bytes', 'disk.all.write', 'disk.all.read_merge', 'disk.all.write_merge']
+        self.disk_metrics = ['disk.all.read_bytes', 'disk.all.read',
+                             'disk.all.write_bytes', 'disk.all.write',
+                             'disk.all.read_merge', 'disk.all.write_merge']
+        self.disk_metrics_dict={i:self.disk_metrics.index(i) for i in self.disk_metrics}
         self.disk_metric_value = [0 for i in range(len(self.disk_metrics))]
         self.old_disk_metric_value = [0 for i in range(len(self.disk_metrics))]
         (code, self.disk_metric_name) = pm.pmLookupName(self.disk_metrics)
@@ -225,11 +297,29 @@ class _disk(_subsys):
     def print_brief_header2(self):
         print 'KBRead  Reads KBWrit Writes',
     def print_brief(self):
-        print "%4d %6d %6d %6d" % (self.disk_metric_value[0], self.disk_metric_value[1], self.disk_metric_value[2], self.disk_metric_value[3]),
+        _=self.disk_metrics_dict
+        print "%4d %6d %6d %6d" % (
+            self.disk_metric_value[_['disk.all.read_bytes']],
+            self.disk_metric_value[_['disk.all.read']],
+            self.disk_metric_value[_['disk.all.write_bytes']],
+            self.disk_metric_value[_['disk.all.write']]),
     def print_verbose(self):
+        _=self.disk_metrics_dict
         print '\n\n# DISK SUMMARY (/sec)'
         print '#KBRead RMerged  Reads SizeKB  KBWrite WMerged Writes SizeKB\n'
-        print '%6d %6d %6d %6d %7d %8d %6d %6d' % (0 if self.disk_metric_value[0] == 0 else self.disk_metric_value[0]/self.disk_metric_value[1], self.disk_metric_value[4], self.disk_metric_value[1], 0, 0 if self.disk_metric_value[3] == 0 else self.disk_metric_value[2]/self.disk_metric_value[3], self.disk_metric_value[5], self.disk_metric_value[3], 0)
+        print '%6d %6d %6d %6d %7d %8d %6d %6d' % (
+            0 if self.disk_metric_value[_['disk.all.read_bytes']] == 0
+              else self.disk_metric_value[_['disk.all.read_bytes']]/
+                   self.disk_metric_value[_['disk.all.read']],
+            self.disk_metric_value[_['disk.all.read_merge']],
+            self.disk_metric_value[_['disk.all.read']],
+            0,
+            0 if self.disk_metric_value[_['disk.all.write_bytes']] == 0
+              else self.disk_metric_value[_['disk.all.write_bytes']]/
+                   self.disk_metric_value[_['disk.all.write']],
+            self.disk_metric_value[_['disk.all.write_merge']],
+            self.disk_metric_value[_['disk.all.write']],
+            0)
 
 
 # _net  -----------------------------------------------------------------
@@ -237,7 +327,17 @@ class _disk(_subsys):
 
 class _net(_subsys):
     def __init__(self):
-        self.net_metrics = ['network.interface.in.bytes', 'network.interface.in.packets', 'network.interface.out.bytes', 'network.interface.out.packets', 'network.interface.in.mcasts', 'network.interface.total.mcasts', 'network.interface.in.compressed', 'network.interface.out.compressed', 'network.interface.in.errors', 'network.interface.out.errors']
+        self.net_metrics = ['network.interface.in.bytes',
+                            'network.interface.in.packets',
+                            'network.interface.out.bytes',
+                            'network.interface.out.packets',
+                            'network.interface.in.mcasts',
+                            'network.interface.total.mcasts',
+                            'network.interface.in.compressed',
+                            'network.interface.out.compressed',
+                            'network.interface.in.errors',
+                            'network.interface.out.errors']
+        self.net_metrics_dict={i:self.net_metrics.index(i) for i in self.net_metrics}
         self.net_metric_value = [0 for i in range(len(self.net_metrics))]
         self.old_net_metric_value = [0 for i in range(len(self.net_metrics))]
         (code, self.net_metric_name) = pm.pmLookupName(self.net_metrics)
@@ -251,13 +351,32 @@ class _net(_subsys):
     def print_brief_header2(self):
         print ' KBIn  PktIn  KBOut  PktOut',
     def print_brief(self):
-        print "%8d %6d %6d %6d" % (sum(self.net_metric_value[0]), sum(self.net_metric_value[1]), sum(self.net_metric_value[2]), sum(self.net_metric_value[3])),
+        _=self.net_metrics_dict
+        print "%8d %6d %6d %6d" % (
+            sum(self.net_metric_value[_['network.interface.in.bytes']]),
+            sum(self.net_metric_value[_['network.interface.in.packets']]),
+            sum(self.net_metric_value[_['network.interface.out.bytes']]),
+            sum(self.net_metric_value[_['network.interface.out.packets']])),
     def print_verbose(self):
+        _=self.net_metrics_dict
         print '\n\n# NETWORK SUMMARY (/sec)'
         print '# KBIn  PktIn SizeIn  MultI   CmpI  ErrsI  KBOut PktOut  SizeO   CmpO  ErrsO'
-        self.net_metric_value[0][0] = 0 # don't include loopback
-        self.net_metric_value[0][1] = 0
-        print '%6d %5d %6d %6d %6d %6d %6d %6d %6d %6d %7d' % (sum(self.net_metric_value[0]) / 1000, sum(self.net_metric_value[1]), sum(self.net_metric_value[0]) / sum(self.net_metric_value[1]), sum(self.net_metric_value[4]), sum(self.net_metric_value[6]), sum(self.net_metric_value[8]),sum(self.net_metric_value[2]), sum(self.net_metric_value[3]), sum(self.net_metric_value[2]) / sum(self.net_metric_value[3]) / 1000, sum(self.net_metric_value[5]), sum(self.net_metric_value[7]))
+        self.net_metric_value[_['network.interface.in.bytes']][0] = 0 # don't include loopback
+        self.net_metric_value[_['network.interface.in.bytes']][1] = 0
+        print '%6d %5d %6d %6d %6d %6d %6d %6d %6d %6d %7d' % (
+            sum(self.net_metric_value[_['network.interface.in.bytes']]) / 1000,
+            sum(self.net_metric_value[_['network.interface.in.packets']]),
+            sum(self.net_metric_value[_['network.interface.in.bytes']]) /
+            sum(self.net_metric_value[_['network.interface.in.packets']]),
+            sum(self.net_metric_value[_['network.interface.in.mcasts']]),
+            sum(self.net_metric_value[_['network.interface.in.compressed']]),
+            sum(self.net_metric_value[_['network.interface.in.errors']]),
+            sum(self.net_metric_value[_['network.interface.in.packets']]),
+            sum(self.net_metric_value[_['network.interface.out.packets']]),
+            sum(self.net_metric_value[_['network.interface.in.packets']]) /
+            sum(self.net_metric_value[_['network.interface.out.packets']]) / 1000,
+            sum(self.net_metric_value[_['network.interface.total.mcasts']]),
+            sum(self.net_metric_value[_['network.interface.out.compressed']]))
 
 
 # main ----------------------------------------------------------------------
