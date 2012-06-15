@@ -72,6 +72,29 @@ sub es_node_instances
     $pmda->replace_indom($nodes_indom, \@nodes_instances);
 }
 
+# crack json data structure, extract only non-data-node names
+sub es_non_data_node_instances
+{
+    my $nodeIDs = shift;
+    my $i = 0;
+
+    @nodes_instances = ();
+    @nodes_instance_ids = ();
+    foreach my $node (keys %$nodeIDs) {
+     my $attributes = $nodeIDs->{$node}->{'attributes'};
+     unless (defined($attributes) && $attributes->{'data'} == 'false') {
+	 my $name = $nodeIDs->{$node}->{'name'};
+	 $nodes_instances[$i*2] = $i;
+	 $nodes_instances[($i*2)+1] = $name;
+	 $nodes_instance_ids[$i*2] = $i;
+	 $nodes_instance_ids[($i*2)+1] = $node;
+	 $i++;
+	 # $pmda->log("es_instances added node: $name ($node)");
+     }
+    }
+    $pmda->replace_indom($nodes_indom, \@nodes_instances);
+}
+
 # crack json data structure, extract index names
 sub es_search_instances
 {
@@ -102,7 +125,7 @@ sub es_refresh_cluster_nodes_stats_all
     my $content = es_agent_get($baseurl . "_cluster/nodes/stats?all");
     if (defined($content)) {
 	$es_nodestats = decode_json($content);
-	es_node_instances($es_nodestats->{'nodes'});
+	es_non_data_node_instances($es_nodestats->{'nodes'});
     } else {
 	$es_nodestats = undef;
     }
@@ -113,7 +136,7 @@ sub es_refresh_cluster_nodes_all
     my $content = es_agent_get($baseurl . "_cluster/nodes?all");
     if (defined($content)) {
 	$es_nodes = decode_json($content);
-	es_node_instances($es_nodes->{'nodes'});
+	es_non_data_node_instances($es_nodes->{'nodes'});
     } else {
 	$es_nodes = undef;
     }
