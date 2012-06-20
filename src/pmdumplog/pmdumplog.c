@@ -413,9 +413,12 @@ dumpTI(__pmContext *ctxp)
 	    printf("             Error: offset to log file past end of file (%ld)\n",
 		(long)log_size);
 	if (i > 0) {
-	    if (tip->ti_stamp.tv_sec + (double)tip->ti_stamp.tv_usec / 1000000.0 <
-		lastp->ti_stamp.tv_sec + (double)lastp->ti_stamp.tv_usec / 1000000.0)
-		printf("             Error: timestamp went backwards in time\n");
+	    if (tip->ti_stamp.tv_sec < lastp->ti_stamp.tv_sec ||
+	        (tip->ti_stamp.tv_sec == lastp->ti_stamp.tv_sec &&
+	         tip->ti_stamp.tv_usec < lastp->ti_stamp.tv_usec))
+		printf("             Error: timestamp went backwards in time %d.%06d -> %d.%06d\n",
+			(int)lastp->ti_stamp.tv_sec, (int)lastp->ti_stamp.tv_usec,
+			(int)tip->ti_stamp.tv_sec, (int)tip->ti_stamp.tv_usec);
 	    if (tip->ti_vol < lastp->ti_vol)
 		printf("             Error: volume number decreased\n");
 	    if (tip->ti_vol == lastp->ti_vol && tip->ti_meta < lastp->ti_meta)
