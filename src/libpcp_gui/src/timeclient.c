@@ -20,7 +20,8 @@ static int
 pmServerExec(__pmFD fd, int livemode)
 {
     char portname[32];
-    int port, in, out;
+    int port;
+    __pmFD in, out;
     char *argv[] = { "pmtime", NULL, NULL };
 
     if (livemode)
@@ -39,8 +40,8 @@ pmServerExec(__pmFD fd, int livemode)
 	setoserror(EPROTO);
 	port = -1;
     }
-    close(in);
-    close(out);
+    __pmClose(in);
+    __pmClose(out);
     if (port == -1)
 	__pmCloseSocket(fd);
     return port;
@@ -58,10 +59,8 @@ pmConnectHandshake(__pmFD fd, int port, pmTime *pkt)
      * Connect to pmtime - pmtime guaranteed started by now, due to the
      * port number read(2) earlier, or -p option (so no race there).
      */
-    memset(&myaddr, 0, sizeof(myaddr));
-    myaddr.sin_family = AF_INET;
-    myaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    myaddr.sin_port = htons(port);
+    __pmInitSockAddr(&myaddr, htonl(INADDR_LOOPBACK), htons(port));
+
     if ((sts = __pmConnect(fd, (__pmSockAddr *)&myaddr, sizeof(myaddr))) < 0) {
 	setoserror(neterror());
 	goto error;
@@ -100,21 +99,21 @@ error:
     return -1;
 }
 
-int
+__pmFD
 pmTimeConnect(int port, pmTime *pkt)
 {
     __pmFD	fd;
 
     if ((fd = __pmCreateSocket()) == PM_ERROR_FD)
-	return -1;
+      return PM_ERROR_FD; /* TODO: -1; */
     if (port < 0) {
 	if ((port = pmServerExec(fd, pkt->source != PM_SOURCE_ARCHIVE)) < 0)
-	    return -2;
+	  return PM_ERROR_FD; /* TODO: -2; */
 	if (pmConnectHandshake(fd, port, pkt) < 0)
-	    return -3;
+	  return PM_ERROR_FD; /* TODO: -3; */
     } else {		/* attempt to connect to the given port (once) */
 	if (pmConnectHandshake(fd, port, pkt) < 0)
-	    return -4;
+	  return PM_ERROR_FD; /* TODO: -4; */
     }
     return fd;
 }

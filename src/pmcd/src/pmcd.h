@@ -103,6 +103,12 @@ typedef struct {
 PMCD_EXTERN AgentInfo	*agent;		/* Array of domain agent structs */
 PMCD_EXTERN int		nAgents;	/* Number of agents in array */
 
+/* A way of passing either an integer or a file descriptor to a function. */
+typedef union pmcdWho {
+  int    n;
+  __pmFD fd;
+} pmcdWho;
+
 /*
  * DomainId-to-AgentIndex map
  * 9 bits of DomainId, max value is 510 because 511 is special (see
@@ -141,10 +147,10 @@ extern int		mapdom[];	/* the map */
 #define REASON_PROTOCOL	8
 
 extern AgentInfo *FindDomainAgent(int);
-extern void CleanupAgent(AgentInfo *, int, int);
+extern void CleanupAgent(AgentInfo *, int, pmcdWho *);
 extern int HarvestAgents(unsigned int);
 extern void CleanupClient(ClientInfo*, int);
-extern char* FdToString(int);
+extern char* FdToString(__pmFD);
 extern pmResult **SplitResult(pmResult *);
 extern void Shutdown(void);
 
@@ -187,7 +193,7 @@ PMCD_EXTERN int		_pmcd_trace_nbufs;
  * routines
  */
 extern void pmcd_init_trace(int);
-extern void pmcd_trace(int, int, int, int);
+extern void pmcd_trace(int, pmcdWho *, int, int);
 extern void pmcd_dump_trace(FILE *);
 extern int pmcd_load_libpcp_pmda(void);
 
@@ -197,11 +203,15 @@ extern int pmcd_load_libpcp_pmda(void);
 extern void MarkStateChanges(int);
 
 /*
- * Keep the highest know file desriptor used for a Client or an Agent connection.
+ * Keep the highest known file desriptor used for a Client or an Agent connection.
  * This is reported in the pmcd.openfds metric. See Bug #660497.
  */
 PMCD_EXTERN int pmcd_hi_openfds;   /* Highest known file descriptor for pmcd */
 
+#ifdef HAVE_NSS
+#define PMCD_OPENFDS_SETHI(x) ;
+#else
 #define PMCD_OPENFDS_SETHI(x) if (x > pmcd_hi_openfds) pmcd_hi_openfds = x;
+#endif
 
 #endif /* _PMCD_H */

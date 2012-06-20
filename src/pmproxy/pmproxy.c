@@ -221,7 +221,7 @@ ParseOptions(int argc, char *argv[])
  * order, see htonl(3N)).  To allow connections to all this host's IP addresses
  * from clients use ipAddr = htonl(INADDR_ANY).
  */
-static int
+static __pmFD
 OpenRequestSocket(int port, __uint32_t ipAddr)
 {
     __pmFD		fd;
@@ -267,10 +267,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 	DontStart();
     }
 
-    memset(&myAddr, 0, sizeof(myAddr));
-    myAddr.sin_family = AF_INET;
-    myAddr.sin_addr.s_addr = ipAddr;
-    myAddr.sin_port = htons(port);
+    __pmInitSockAddr(&myAddr, ipAddr, htons(port));
     sts = __pmBind(fd, (__pmSockAddr*)&myAddr, sizeof(myAddr));
     if (sts < 0){
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) bind: %s\n",
@@ -299,7 +296,7 @@ CleanupClient(ClientInfo *cp, int sts)
 		break;
 	}
 	fprintf(stderr, "CleanupClient: client[%d] fd=%d %s (%d)\n",
-	    i, cp->fd, pmErrStr(sts), sts);
+		i, __pmFdRef(cp->fd), pmErrStr(sts), sts);
     }
 #endif
 
@@ -411,7 +408,7 @@ SignalShutdown(void)
 #ifdef PCP_DEBUG
 /* Convert a file descriptor to a string describing what it is for. */
 char*
-FdToString(int fd)
+FdToString(__pmFD fd)
 {
 #define FDNAMELEN 40
     static char fdStr[FDNAMELEN];
@@ -446,7 +443,7 @@ static void
 ClientLoop(void)
 {
     int		i, sts;
-    __pmFD	maxFd;
+    int		numFds;
     __pmFdSet	readableFds;
     int		CheckClientAccess(ClientInfo *);
     ClientInfo	*cp;
@@ -456,16 +453,18 @@ ClientLoop(void)
 	 * track of the highest numbered descriptor for the select call.
 	 */
 	readableFds = sockFds;
-	maxFd = __pmIncrFD(maxSockFd);
+	numFds = __pmIncrFD(maxSockFd);
 
-	sts = __pmSelectRead(maxFd, &readableFds, NULL);
+	sts = __pmSelectRead(numFds, &readableFds, NULL);
 
 	if (sts > 0) {
+#ifndef HAVE_NSS /* NSS TODO */
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
 		for (i = 0; i <= maxSockFd; i++)
 		    if (__pmFD_ISSET(i, &readableFds))
 			fprintf(stderr, "__pmSelectRead(): from %s fd=%d\n", FdToString(i), i);
+#endif
 #endif
 	    /* Accept any new client connections */
 	    for (i = 0; i < nReqPorts; i++) {
@@ -496,7 +495,7 @@ ClientLoop(void)
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_CONTEXT)
 			    /* append to message started in AcceptNewClient() */
-			    fprintf(stderr, " fd=%d\n", cp->pmcd_fd);
+			  fprintf(stderr, " fd=%d\n", __pmFdRef(cp->pmcd_fd));
 #endif
 		    }
 		}
@@ -586,7 +585,7 @@ main(int argc, char *argv[])
 
     /* Open request ports for client connections */
     for (i = 0; i < nReqPorts; i++) {
-	int fd = OpenRequestSocket(port, reqPorts[i].ipAddr);
+	__pmFD fd = OpenRequestSocket(port, reqPorts[i].ipAddr);
 	if (fd != PM_ERROR_FD) {
 	    reqPorts[i].fd = fd;
 	    maxReqPortFd = __pmUpdateMaxFD(fd, maxReqPortFd);
@@ -615,7 +614,7 @@ main(int argc, char *argv[])
 	ReqPortInfo *rp = &reqPorts[i];
 	fprintf(stderr, "  %s %3d %08x %s\n",
 		(rp->fd != PM_ERROR_FD) ? "ok " : "err",
-		rp->fd, rp->ipAddr,
+		__pmFdRef(rp->fd), rp->ipAddr,
 		rp->ipSpec ? rp->ipSpec : "(any address)");
     }
     fflush(stderr);

@@ -32,7 +32,7 @@
  */
 
 void
-__pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
+__pmdaOpenInet(char *sockname, int myport, __pmFD *infd, __pmFD *outfd)
 {
     int			sts;
     __pmFD		sfd;
@@ -79,19 +79,16 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
     }
 #endif
 
-    memset(&myaddr, 0, sizeof(myaddr));
-    myaddr.sin_family = AF_INET;
-    myaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    myaddr.sin_port = htons(myport);
+    __pmInitSockAddr(&myaddr, htonl(INADDR_ANY), htons(myport));
     sts = __pmBind(sfd, (__pmSockAddr*) &myaddr, sizeof(myaddr));
-    if (sts == PM_ERROR_FD) {
+    if (sts < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet bind: %s\n",
 			netstrerror());
 	exit(1);
     }
 
     sts = __pmListen(sfd, 5);	/* Max. of 5 pending connection requests */
-    if (sts == PM_ERROR_FD) {
+    if (sts < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet listen: %s\n",
 			netstrerror());
 	exit(1);
@@ -108,13 +105,13 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
     *outfd = *infd;
 }
 
-#if !defined(IS_MINGW)
+#if !defined(IS_MINGW) && !defined(HAVE_NSS)
 /*
  * Open a unix port to PMCD
  */
 
 void
-__pmdaOpenUnix(char *sockname, int *infd, int *outfd)
+__pmdaOpenUnix(char *sockname, __pmFD *infd, __pmFD *outfd)
 {
     int			sts;
     int			sfd;
@@ -157,7 +154,7 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
     }
 
     sts = listen(sfd, 5);	/* Max. of 5 pending connection requests */
-    if (sts == PM_ERROR_FD) {
+    if (sts < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix listen: %s\n",
 			netstrerror());
 	exit(1);
@@ -173,11 +170,15 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
     *outfd = *infd;
 }
 
-#else	/* MINGW */
+#else	/* MINGW || NSS/NSPR */
 void
-__pmdaOpenUnix(char *sockname, int *infd, int *outfd)
+__pmdaOpenUnix(char *sockname, __pmFD *infd, __pmFD *outfd)
 {
+#if defined(IS_MINGW)
     __pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: Not supported on Windows");
+#elif defined(HAVE_NSS)
+    __pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: Not supported by NSS/NSPR");
+#endif
     exit(1);
 }
 #endif
@@ -474,7 +475,7 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
  */
 
 int
-__pmdaSetupPDU(int infd, int outfd, char *agentname)
+__pmdaSetupPDU(__pmFD infd, __pmFD outfd, char *agentname)
 {
     __pmCred	handshake[1];
     __pmCred	*credlist = NULL;
@@ -489,19 +490,19 @@ __pmdaSetupPDU(int infd, int outfd, char *agentname)
     handshake[0].c_valc = 0;
     if ((sts = __pmSendCreds(outfd, (int)getpid(), 1, handshake)) < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s send creds: %s\n", agentname, pmErrStr(sts));
-	return PM_ERROR_FD;
+	return -1;
     }
 
     if ((pinpdu = sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_DEFAULT, &pb)) < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s getting creds: %s\n", agentname, pmErrStr(sts));
-	return PM_ERROR_FD;
+	return -1;
     }
 
     if (sts == PDU_CREDS) {
 	if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0) {
 	    __pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s decode creds: %s\n", agentname, pmErrStr(sts));
 	    __pmUnpinPDUBuf(pb);
-	    return PM_ERROR_FD;
+	    return -1;
 	}
 
 	for (i = 0; i < credcount; i++) {
@@ -555,13 +556,13 @@ pmdaConnect(pmdaInterface *dispatch)
 	case pmdaPipe:
 	case pmdaUnknown:		/* Default */
 
-	    pmda->e_infd = fileno(stdin);
-	    pmda->e_outfd = fileno(stdout);
+	    pmda->e_infd = __pmStandardStreamToFD(stdin);
+	    pmda->e_outfd = __pmStandardStreamToFD(stdout);
 
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LIBPMDA) {
 	    	__pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened pipe to pmcd, infd = %d, outfd = %d\n",
-			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
+			      pmda->e_name, __pmFdRef(pmda->e_infd), __pmFdRef(pmda->e_outfd));
 	    }
 #endif
 	    break;
@@ -574,7 +575,7 @@ pmdaConnect(pmdaInterface *dispatch)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LIBPMDA) {
 	    	__pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened inet connection, infd = %d, outfd = %d\n",
-			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
+			      pmda->e_name, __pmFdRef(pmda->e_infd), __pmFdRef(pmda->e_outfd));
 	    }
 #endif
 
@@ -587,7 +588,7 @@ pmdaConnect(pmdaInterface *dispatch)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LIBPMDA) {
 	    	__pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: Opened unix connection, infd = %d, outfd = %d\n",
-			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
+			      pmda->e_name, __pmFdRef(pmda->e_infd), __pmFdRef(pmda->e_outfd));
 	    }
 #endif
 

@@ -19,6 +19,7 @@
 #define PMTIME_H
 
 #include <sys/time.h>
+#include "pmio.h"
 
 typedef enum {
     PM_TCTL_SET		= (1<<0),	// client -> server
@@ -66,10 +67,10 @@ typedef struct {
     char		data[0];	/* arbitrary length info (e.g. $TZ) */
 } pmTime;
 
-extern int pmTimeSendAck(int, struct timeval *);
-extern int pmTimeConnect(int, pmTime *);
-extern int pmTimeShowDialog(int, int);
-extern int pmTimeRecv(int, pmTime **);
+extern int pmTimeSendAck(__pmFD, struct timeval *);
+extern __pmFD pmTimeConnect(int, pmTime *);
+extern int pmTimeShowDialog(__pmFD, int);
+extern int pmTimeRecv(__pmFD, pmTime **);
 
 /*
  * Time state management API for simple clients

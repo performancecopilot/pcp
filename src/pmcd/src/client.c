@@ -19,7 +19,7 @@
 
 #define MIN_CLIENTS_ALLOC 8
 
-__pmFD		maxClientFd = -1;	/* largest fd for a client */
+__pmFD		maxClientFd = PM_ERROR_FD;/* largest fd for a client */
 __pmFdSet	clientFds;		/* for client __pmSelect...() */
 
 static int	clientSize = 0;
@@ -33,6 +33,7 @@ extern void	Shutdown(void);
 static void
 NotifyEndContext(int ctx)
 {
+    pmcdWho who;
     int i;
 
     for (i = 0; i < nAgents; i++) {
@@ -70,8 +71,10 @@ NotifyEndContext(int ctx)
 		    agent[i].pmDomainLabel, agent[i].pmDomainId, ctx);
 	    }
 #endif
-	    if (_pmcd_trace_mask)
-		pmcd_trace(TR_XMIT_PDU, agent[i].inFd, PDU_ERROR, PM_ERR_NOTCONN);
+	    if (_pmcd_trace_mask) {
+	        who.fd = agent[i].inFd;
+		pmcd_trace(TR_XMIT_PDU, &who, PDU_ERROR, PM_ERR_NOTCONN);
+	    }
 	    __pmSendError(agent[i].inFd, ctx, PM_ERR_NOTCONN);
 	}
     }
@@ -79,13 +82,14 @@ NotifyEndContext(int ctx)
 
 /* Establish a new socket connection to a client */
 ClientInfo *
-AcceptNewClient(int reqfd)
+AcceptNewClient(__pmFD reqfd)
 {
     static unsigned int	seq = 0;
     int			i;
     __pmFD 		fd;
     mysocklen_t		addrlen;
     struct timeval	now;
+    pmcdWho		who;
 
     i = NewClient();
     addrlen = sizeof(client[i].addr);
@@ -93,14 +97,14 @@ AcceptNewClient(int reqfd)
     if (fd == PM_ERROR_FD) {
     	if (neterror() == EPERM) {
 	    __pmNotifyErr(LOG_NOTICE, "AcceptNewClient(%d): "
-	 	          "Permission Denied\n", reqfd);
+	 	          "Permission Denied\n", __pmFdRef(reqfd));
 	    client[i].fd = PM_ERROR_FD;
 	    DeleteClient(&client[i]);
 	    return NULL;	
 	}
 	else {
 	    __pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) accept: %s\n",
-	    reqfd, netstrerror());
+			  __pmFdRef(reqfd), netstrerror());
 	    Shutdown();
 	    exit(1);
 	}
@@ -126,9 +130,10 @@ AcceptNewClient(int reqfd)
     client[i].start = now.tv_sec;
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)
-	fprintf(stderr, "AcceptNewClient(%d): client[%d] (fd %d)\n", reqfd, i, fd);
+      fprintf(stderr, "AcceptNewClient(%d): client[%d] (fd %d)\n", __pmFdRef(reqfd), i, __pmFdRef(fd));
 #endif
-    pmcd_trace(TR_ADD_CLIENT, client[i].addr.sin_addr.s_addr, fd, client[i].seq);
+    who.n = __pmSockAddrInToIPAddr(&client[i].addr);
+    pmcd_trace(TR_ADD_CLIENT, &who, __pmFdRef(fd), client[i].seq);
 
     return &client[i];
 }

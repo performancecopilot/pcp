@@ -39,18 +39,10 @@ ShowClients(FILE *f)
 	if (client[i].status.connected == 0)
 	    continue;
 
-	fprintf(f, "    %3d  ", client[i].fd);
+	fprintf(f, "    %3d  ", __pmFdRef(client[i].fd));
 
-	if (__pmGetHostByAddr(&client[i].addr, &h, hbuf) == NULL) {
-	    char	*p = (char *)&client[i].addr.sin_addr.s_addr;
-	    int	k;
-
-	    for (k = 0; k < 4; k++) {
-		if (k > 0)
-		    fputc('.', f);
-		fprintf(f, "%d", p[k] & 0xff);
-	    }
-	}
+	if (__pmGetHostByAddr(&client[i].addr, &h, hbuf) == NULL)
+	    fprintf(f, "%s", __pmSockAddrInToString(&client[i].addr));
 	else
 	    fprintf(f, "%-40.40s", h.h_name);
 

@@ -38,7 +38,7 @@ mainLoopFreeResultCallback(void (*callback)(pmResult *res))
 }
 
 void
-summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
+summaryMainLoop(char *pmdaname, __pmFD configfd, __pmFD clientfd, pmdaInterface *dtp)
 {
     __pmPDU		*pb_pmcd;
     __pmPDU		*pb_client;
@@ -62,6 +62,7 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
     __pmProfile		*saveprofile = NULL;
     static __pmFdSet	readFds;
     __pmFD		maxfd;
+    int                 numFds;
     int			configReady, clientReady, pmcdReady;
     __pmFD infd, outfd;
 
@@ -78,7 +79,7 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
     maxfd = infd;
     maxfd = __pmUpdateMaxFD(clientfd, maxfd);
     maxfd = __pmUpdateMaxFD(configfd, maxfd);
-    maxfd = __pmIncrFD(maxfd);
+    numFds = __pmIncrFD(maxfd);
 
     for ( ;; ) {
 	__pmFD_ZERO(&readFds);
@@ -88,7 +89,7 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 	    __pmFD_SET(configfd, &readFds);
 
 	/* __pmSelectRead here : block if nothing to do */
-	sts = __pmSelectRead(maxfd, &readFds, NULL);
+	sts = __pmSelectRead(numFds, &readFds, NULL);
 
 	clientReady = __pmFD_ISSET(clientfd, &readFds);
 	pmcdReady = __pmFD_ISSET(infd, &readFds);
@@ -111,8 +112,8 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 		__pmNotifyErr(LOG_ERR, "config __pmGetPDU: %s\n", pmErrStr(sts));
 	    if (sts <= 0) {
 		/* End of File or error. Just close the file or pipe */
-		close(configfd);
-		configfd = -1;
+		__pmClose(configfd);
+		configfd = PM_ERROR_FD;
 	    }
 	    else {
 		service_config(pb_config);

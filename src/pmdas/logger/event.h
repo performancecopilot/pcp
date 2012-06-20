@@ -22,7 +22,7 @@
 
 typedef struct event_logfile {
     pmID		pmid;
-    int			fd;
+    __pmFD		fd;
     pid_t	        pid;
     int			queueid;
     int			restrict;

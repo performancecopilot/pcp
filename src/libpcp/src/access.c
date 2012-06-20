@@ -390,7 +390,7 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
  * denyOpsResult is a pointer to return the capability vector
  */
 int
-__pmAccAddClient(const __pmInAddr *hostid, unsigned int *denyOpsResult)
+__pmAccAddClient(const __pmSockAddrIn *hostid, unsigned int *denyOpsResult)
 {
     int			i;
     hostinfo		*hp;
@@ -401,7 +401,7 @@ __pmAccAddClient(const __pmInAddr *hostid, unsigned int *denyOpsResult)
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
 	return PM_ERR_THREAD;
 
-    clientid = *__pmInAddrToIPAddr(hostid);
+    clientid = __pmSockAddrInToIPAddr(hostid);
 
     /* Map "localhost" to the real IP address.  Host access statements for
      * localhost are mapped to the "real" IP address so that wildcarding works
@@ -468,7 +468,7 @@ __pmAccAddClient(const __pmInAddr *hostid, unsigned int *denyOpsResult)
 }
 
 void
-__pmAccDelClient(const __pmInAddr *hostid)
+__pmAccDelClient(const __pmSockAddrIn *hostid)
 {
     int		i;
     hostinfo	*hp;
@@ -483,7 +483,7 @@ __pmAccDelClient(const __pmInAddr *hostid)
      */
     for (i = 0; i < nhosts; i++) {
 	hp = &hostlist[i];
-	maskedid = *__pmInAddrToIPAddr(hostid);
+	maskedid = __pmSockAddrInToIPAddr(hostid);
 	if (__pmCompareIPAddr(__pmMaskIPAddr(&maskedid, &hp->hostmask), &hp->hostid) == 0)
  	    if (hp->maxcons)
 		hp->curcons--;

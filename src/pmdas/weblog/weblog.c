@@ -2285,8 +2285,8 @@ probe(void)
     int			dummy = 1;
     int			sprocsUsed = 0;
     int			nfds = 0;
-    __pmFdSet		rfds;
-    __pmFdSet		tmprfds;
+    fd_set		rfds;
+    fd_set		tmprfds;
     int			thisFD;
     WebSproc		*sprocData = (WebSproc*)0;
     struct timeval	theTime;
@@ -2300,7 +2300,7 @@ probe(void)
     	logmessage(LOG_DEBUG, "Starting probe at %d\n", wl_timeOfRefresh);
 #endif
 
-    __pmFD_ZERO(&rfds);
+    FD_ZERO(&rfds);
 
 /*
  * Determine which sprocs have servers that must be refreshed.
@@ -2346,7 +2346,7 @@ probe(void)
 	    exit(1);
 	}
 
-	__pmFD_SET(thisFD, &rfds);
+	FD_SET(thisFD, &rfds);
 	nfds = nfds < (thisFD + 1) ? thisFD + 1 : nfds;
     }
 
@@ -2394,7 +2394,7 @@ probe(void)
 
     for (i=0; i<sprocsUsed;) {
         memcpy(&tmprfds, &rfds, sizeof(tmprfds));
-	sts = __pmSelectRead(nfds, &tmprfds, (struct timeval*)0);
+	sts = select(nfds, &tmprfds, NULL, NULL, NULL);
 	if (sts < 0) {
 	    logmessage(LOG_ERR, "Error on fetch __pmSelectRead: %s", netstrerror());
 	    exit(1);
@@ -2407,8 +2407,8 @@ probe(void)
 	    sprocData = &wl_sproc[j];
 	    thisFD = sprocData->outFD[0];
 
-	    if (__pmFD_ISSET(thisFD, &tmprfds)) {
-	    	__pmFD_CLR(sprocData->outFD[0], &rfds);
+	    if (FD_ISSET(thisFD, &tmprfds)) {
+	    	FD_CLR(sprocData->outFD[0], &rfds);
 		sts = read(thisFD, &dummy, sizeof(dummy));
 		if (sts < 0) {
 		    logmessage(LOG_ERR, "Error on fetch read: %s",

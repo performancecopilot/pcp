@@ -34,7 +34,7 @@
 typedef struct {
     time_t	t_stamp;	/* timestamp */
     int		t_type;		/* event type */
-    int		t_who;		/* originator or principal identifier */
+    pmcdWho	t_who;		/* originator or principal identifier */
     int		t_p1;		/* optional event parameters */
     int		t_p2;
 } tracebuf;
@@ -66,7 +66,7 @@ pmcd_init_trace(int n)
 }
 
 void
-pmcd_trace(int type, int who, int p1, int p2)
+pmcd_trace(int type, pmcdWho *who, int p1, int p2)
 {
     int		p;
 
@@ -90,7 +90,7 @@ pmcd_trace(int type, int who, int p1, int p2)
 
     time(&trace[p].t_stamp);
     trace[p].t_type = type;
-    trace[p].t_who = who;
+    trace[p].t_who = *who;
     trace[p].t_p1 = p1;
     trace[p].t_p2 = p2;
 
@@ -106,7 +106,7 @@ pmcd_dump_trace(FILE *f)
     int			p;
     struct tm		last = { 0, 0 };
     struct tm		*this;
-    __pmInAddr		addr;	/* internet address */
+    __pmSockAddrIn	addr;	/* internet address */
     __pmHostEnt		h;
     char		*hbuf;
     char		strbuf[20];
@@ -145,33 +145,25 @@ pmcd_dump_trace(FILE *f)
 
 		case TR_ADD_CLIENT:
 		    fprintf(f, "New client: from=");
-		    addr.s_addr = trace[p].t_who;
+		    __pmInitSockAddr(&addr, trace[p].t_who.n, 0);
 		    hbuf = __pmAllocHostEntBuffer();
-		    if (__pmGetHostByInAddr(&addr, &h, hbuf) == NULL) {
-			char	*p = (char *)&addr.s_addr;
-			int	k;
-			for (k = 0; k < 4; k++) {
-			    if (k > 0)
-				fputc('.', f);
-			    fprintf(f, "%d", p[k] & 0xff);
-			}
-		    }
-		    else {
+		    if (__pmGetHostByAddr(&addr, &h, hbuf) == NULL)
+			fprintf(f, "%s", __pmSockAddrInToString(&addr));
+		    else
 			fprintf(f, "%s", h.h_name);
-		    }
 		    __pmFreeHostEntBuffer(hbuf);
 		    fprintf(f, ", fd=%d, seq=%u\n", trace[p].t_p1, (unsigned int)trace[p].t_p2);
 		    break;
 
 		case TR_DEL_CLIENT:
-		    fprintf(f, "End client: fd=%d", trace[p].t_who);
+		    fprintf(f, "End client: fd=%d", __pmFdRef(trace[p].t_who.fd));
 		    if (trace[p].t_p1 != 0)
 			fprintf(f, ", err=%d: %s", trace[p].t_p1, pmErrStr(trace[p].t_p1));
 		    fputc('\n', f);
 		    break;
 
 		case TR_ADD_AGENT:
-		    fprintf(f, "Add PMDA: domain=%d, ", trace[p].t_who);
+		    fprintf(f, "Add PMDA: domain=%d, ", trace[p].t_who.n);
 		    if (trace[p].t_p1 == -1 && trace[p].t_p2 == -1)
 			fprintf(f, "DSO\n");
 		    else
@@ -179,7 +171,7 @@ pmcd_dump_trace(FILE *f)
 		    break;
 
 		case TR_DEL_AGENT:
-		    fprintf(f, "Drop PMDA: domain=%d, ", trace[p].t_who);
+		    fprintf(f, "Drop PMDA: domain=%d, ", trace[p].t_who.n);
 		    if (trace[p].t_p1 == -1 && trace[p].t_p2 == -1)
 			fprintf(f, "DSO\n");
 		    else
@@ -189,25 +181,25 @@ pmcd_dump_trace(FILE *f)
 		case TR_EOF:
 		    fprintf(f, "Premature EOF: expecting %s PDU, fd=%d\n",
 			trace[p].t_p1 == -1 ? "NO" : __pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)),
-			trace[p].t_who);
+			    __pmFdRef(trace[p].t_who.fd));
 		    break;
 
 		case TR_WRONG_PDU:
 		    if (trace[p].t_p2 > 0) {
 			fprintf(f, "Wrong PDU type: expecting %s PDU, fd=%d, got %s PDU\n",
 			    trace[p].t_p1 == -1 ? "NO" : __pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)),
-			    trace[p].t_who,
+			    __pmFdRef(trace[p].t_who.fd),
 			    trace[p].t_p2 == -1 ? "NO" : __pmPDUTypeStr_r(trace[p].t_p2, strbuf, sizeof(strbuf)));
 		    }
 		    else if (trace[p].t_p2 == 0) {
 			fprintf(f, "Wrong PDU type: expecting %s PDU, fd=%d, got EOF\n",
 			    trace[p].t_p1 == -1 ? "NO" : __pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)),
-			    trace[p].t_who);
+			__pmFdRef(trace[p].t_who.fd));
 		    }
 		    else {
 			fprintf(f, "Wrong PDU type: expecting %s PDU, fd=%d, got err=%d: %s\n",
 			    trace[p].t_p1 == -1 ? "NO" : __pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)),
-			    trace[p].t_who,
+			    __pmFdRef(trace[p].t_who.fd),
 			    trace[p].t_p2, pmErrStr(trace[p].t_p2));
 
 		    }
@@ -215,24 +207,25 @@ pmcd_dump_trace(FILE *f)
 
 		case TR_XMIT_ERR:
 		    fprintf(f, "Send %s PDU failed: fd=%d, err=%d: %s\n",
-			__pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)), trace[p].t_who,
+			__pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)),
+			__pmFdRef(trace[p].t_who.fd),
 			trace[p].t_p2, pmErrStr(trace[p].t_p2));
 		    break;
 
 		case TR_RECV_TIMEOUT:
 		    fprintf(f, "Recv timeout: expecting %s PDU, fd=%d\n",
-			__pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)), trace[p].t_who);
+			__pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)), __pmFdRef(trace[p].t_who.fd));
 		    break;
 
 		case TR_RECV_ERR:
 		    fprintf(f, "Recv error: expecting %s PDU, fd=%d, err=%d: %s\n",
-			__pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)), trace[p].t_who,
+			__pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)), __pmFdRef(trace[p].t_who.fd),
 			trace[p].t_p2, pmErrStr(trace[p].t_p2));
 		    break;
 
 		case TR_XMIT_PDU:
 		    fprintf(f, "Xmit: %s PDU, fd=%d",
-			__pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)), trace[p].t_who);
+			__pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)), __pmFdRef(trace[p].t_who.fd));
 		    if (trace[p].t_p1 == PDU_ERROR)
 			fprintf(f, ", err=%d: %s",
 			    trace[p].t_p2, pmErrStr(trace[p].t_p2));
@@ -258,7 +251,7 @@ pmcd_dump_trace(FILE *f)
 
 		case TR_RECV_PDU:
 		    fprintf(f, "Recv: %s PDU, fd=%d, pdubuf=0x",
-			__pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)), trace[p].t_who);
+			__pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)), __pmFdRef(trace[p].t_who.fd));
 		    /* This will only work if sizeof (int) == sizeof (ptr).
 		     * On MIPS int is always 32 bits regardless the ABI,
 		     * and on Linux we're checking in configure if an int is
@@ -272,7 +265,7 @@ pmcd_dump_trace(FILE *f)
 
 		default:
 		    fprintf(f, "Type=%d who=%d p1=%d p2=%d\n",
-			trace[p].t_type, trace[p].t_who, trace[p].t_p1,
+			trace[p].t_type, trace[p].t_who.n, trace[p].t_p1,
 			trace[p].t_p2);
 		    break;
 	    }

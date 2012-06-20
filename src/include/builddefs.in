@@ -335,6 +335,7 @@ endif
 
 PERL_MAKE_MAKEFILE = \
 	export PCP_TOPDIR=`cd $(TOPDIR) && pwd`; \
+	NSS_CFLAGS="$(NSS_CFLAGS)" NSPR_CFLAGS="$(NSPR_CFLAGS)" \
 	TARGET_OS="$(TARGET_OS)" \
 	CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_OPTIONS)
 

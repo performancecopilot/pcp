@@ -25,12 +25,12 @@
 #include <ctype.h>
 #include "proc_net_dev.h"
 
-__pmFD
+int
 refresh_net_socket()
 {
-    static __pmFD netfd = PM_ERROR_FD;
-    if (netfd == PM_ERROR_FD)
-        netfd = __pmSocket(AF_INET, SOCK_DGRAM, 0);
+    static int netfd = -1;
+    if (netfd == -1)
+        netfd = socket(AF_INET, SOCK_DGRAM, 0);
     return netfd;
 }
 
@@ -39,10 +39,10 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip)
 {
     struct ethtool_cmd ecmd;
     struct ifreq ifr;
-    __pmFD fd;
+    int fd;
 
     memset(&netip->ioc, 0, sizeof(netip->ioc));
-    if ((fd = refresh_net_socket()) == PM_ERROR_FD)
+    if ((fd = refresh_net_socket()) == -1)
 	return;
 
     ecmd.cmd = ETHTOOL_GSET;
@@ -67,18 +67,18 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip)
 void
 refresh_net_inet_ioctl(char *name, net_inet_t *netip)
 {
-    __pmSockAddrIn *sin;
+    struct sockaddr_in *sin;
     struct ifreq ifr;
-    __pmFD fd;
+    int fd;
 
-    if ((fd = refresh_net_socket()) == PM_ERROR_FD)
+    if ((fd = refresh_net_socket()) == -1)
 	return;
 
     strcpy(ifr.ifr_name, name);
     ifr.ifr_addr.sa_family = AF_INET;
     if (!(ioctl(fd, SIOCGIFADDR, &ifr) < 0)) {
 	netip->hasip = 1;
-	sin = (__pmSockAddrIn *)&ifr.ifr_addr;
+	sin = (struct sockaddr_in *)&ifr.ifr_addr;
 	netip->addr = sin->sin_addr;
     }
 }
@@ -191,7 +191,7 @@ Inter-|   Receive                                                |  Transmit
  * This separate indom provides the IP addresses for all interfaces including
  * aliases (e.g. eth0, eth0:0, eth0:1, etc) - this is what ifconfig does.
  */
-__pmFD
+int
 refresh_net_dev_inet(pmInDom indom)
 {
     int n, fd, sts, numreqs = 30;
@@ -202,7 +202,7 @@ refresh_net_dev_inet(pmInDom indom)
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-    if ((fd = refresh_net_socket()) == PM_ERROR_FD)
+    if ((fd = refresh_net_socket()) == -1)
 	return fd;
 
     ifc.ifc_buf = NULL;

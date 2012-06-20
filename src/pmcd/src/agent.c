@@ -40,11 +40,12 @@ FindDomainAgent(int domain)
 }
 
 void
-CleanupAgent(AgentInfo* aPtr, int why, int status)
+CleanupAgent(AgentInfo* aPtr, int why, pmcdWho* status)
 {
     extern int	AgentDied;
-    int		exit_status = status;
+    int		exit_status = status->n;
     int		reason = 0;
+    pmcdWho	who;
 
     if (aPtr->ipcType == AGENT_DSO) {
 	if (aPtr->ipc.dso.dlHandle != NULL) {
@@ -52,10 +53,12 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
 	    dlclose(aPtr->ipc.dso.dlHandle);
 #endif
 	}
-	pmcd_trace(TR_DEL_AGENT, aPtr->pmDomainId, -1, -1);
+	who.n = aPtr->pmDomainId;
+	pmcd_trace(TR_DEL_AGENT, &who, -1, -1);
     }
     else {
-	pmcd_trace(TR_DEL_AGENT, aPtr->pmDomainId, aPtr->inFd, aPtr->outFd);
+	who.n = aPtr->pmDomainId;
+	pmcd_trace(TR_DEL_AGENT, &who, __pmFdRef(aPtr->inFd), __pmFdRef(aPtr->outFd));
 	if (aPtr->inFd != PM_ERROR_FD) {
 	    __pmResetIPC(aPtr->inFd);
 	    __pmClose(aPtr->inFd);
@@ -79,14 +82,14 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
     if (why == AT_EXIT) {
 	/* waitpid has already been done */
 	fprintf(stderr, " terminated");
-	reason = (status << 8) | REASON_EXIT;
+	reason = (status->n << 8) | REASON_EXIT;
     }
     else {
 	if (why == AT_CONFIG) {
 	    fprintf(stderr, " unconfigured");
 	} else {
 	    reason = REASON_PROTOCOL;
-	    fprintf(stderr, " protocol failure for fd=%d", status);
+	    fprintf(stderr, " protocol failure for fd=%d", __pmFdRef(status->fd));
 	    exit_status = -1;
 	}
 	if (aPtr->status.isChild == 1) {
@@ -165,6 +168,7 @@ HarvestAgents(unsigned int total)
     int		found;
     pid_t	pid;
     AgentInfo	*ap;
+    pmcdWho	who;
 
     /*
      * Check for child process termination.  Be careful, and ignore any
@@ -196,7 +200,8 @@ HarvestAgents(unsigned int total)
 	    if (pid == ((ap->ipcType == AGENT_SOCKET) 
 			? ap->ipc.socket.agentPid 
 			: ap->ipc.pipe.agentPid)) {
-		CleanupAgent(ap, AT_EXIT, sts);
+	        who.n = sts;
+		CleanupAgent(ap, AT_EXIT, &who);
 		break;
 	    }
 	}

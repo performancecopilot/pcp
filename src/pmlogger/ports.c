@@ -175,7 +175,7 @@ static sig_map_t	sig_handler[] = {
  * clients to use.  Only returns if it succeeds (exits on failure).
  */
 
-static int
+static __pmFD
 GetPort(char *file)
 {
     __pmFD		fd;
@@ -218,7 +218,7 @@ GetPort(char *file)
      * and try again.
      */
     for (ctlport = port_base; ; ctlport++) {
-        __pmInitSockAddr(&myAddr, htons(ctlport));
+        __pmInitSockAddr(&myAddr, htonl(INADDR_ANY), htons(ctlport));
 	sts = __pmBind(fd, (__pmSockAddr*)&myAddr, sizeof(myAddr));
 	if (sts < 0) {
 	    if (neterror() != EADDRINUSE) {
@@ -421,7 +421,8 @@ control_req(void)
     if (clientfd != PM_ERROR_FD) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
-	    fprintf(stderr, "control_req: send EADDRINUSE on fd=%d (client already on fd=%d)\n", fd, clientfd);
+	    fprintf(stderr, "control_req: send EADDRINUSE on fd=%d (client already on fd=%d)\n",
+		    __pmFdRef(fd), __pmFdRef(clientfd));
 #endif
 	sts = __pmSendError(fd, FROM_ANON, -EADDRINUSE);
 	if (sts < 0)
@@ -441,24 +442,20 @@ control_req(void)
 
     hbuf = __pmAllocHostEntBuffer();
     if (__pmGetHostByAddr(& addr, &h, hbuf) == NULL || strlen(h.h_name) > MAXHOSTNAMELEN-1) {
-	char	*p = (char *)&addr.sin_addr.s_addr;
-
-	sprintf(pmlc_host, "%d.%d.%d.%d",
-		p[0] & 0xff, p[1] & 0xff, p[2] & 0xff, p[3] & 0xff);
+      sprintf(pmlc_host, "%s", __pmSockAddrInToString(&addr));
     }
     else
 	/* this is safe, due to strlen() test above */
 	strcpy(pmlc_host, h.h_name);
     __pmFreeHostEntBuffer(hbuf);
 
-    if ((sts = __pmAccAddClient(&addr.sin_addr, &clientops)) < 0) {
+    if ((sts = __pmAccAddClient(&addr, &clientops)) < 0) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
-	    char	*p = (char *)&addr.sin_addr.s_addr;
-	    fprintf(stderr, "client addr: %d.%d.%d.%d\n",
-		p[0] & 0xff, p[1] & 0xff, p[2] & 0xff, p[3] & 0xff);
+	  fprintf(stderr, "client addr: %s\n", __pmSockAddrInToString(&addr));
 	    __pmAccDumpHosts(stderr);
-	    fprintf(stderr, "control_req: connection rejected on fd=%d from %s: %s\n", fd, pmlc_host, pmErrStr(sts));
+	    fprintf(stderr, "control_req: connection rejected on fd=%d from %s: %s\n",
+		    __pmFdRef(fd), pmlc_host, pmErrStr(sts));
 	}
 #endif
 	sts = __pmSendError(fd, FROM_ANON, sts);
@@ -486,7 +483,7 @@ control_req(void)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
-	fprintf(stderr, "control_req: connection accepted on fd=%d from %s\n", fd, pmlc_host);
+      fprintf(stderr, "control_req: connection accepted on fd=%d from %s\n", __pmFdRef(fd), pmlc_host);
 #endif
 
     return 1;

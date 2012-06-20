@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997-2000 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -27,7 +28,7 @@ typedef struct {
 } ack_t;
 
 int
-__pmtracesendack(int fd, __int32_t data)
+__pmtracesendack(__pmFD fd, __int32_t data)
 {
     ack_t	*pp;
 

@@ -95,8 +95,8 @@ static void
 probe_cisco(cisco_t * cp)
 {
     char	*w;
-    __pmFD	fd;
-    __pmFD	fd2;
+    int		fd;
+    int		fd2;
     int		first = 1;
     char	*pass = NULL;
     int		defer = 0;
@@ -108,7 +108,7 @@ probe_cisco(cisco_t * cp)
 
     if (cp->fin == NULL) {
 	fd = conn_cisco(cp);
-	if (fd == PM_ERROR_FD) {
+	if (fd == -1) {
 	    fprintf(stderr, "grab_cisco(%s): connect failed: %s\n",
 		cp->host, osstrerror());
 	    return;
@@ -344,7 +344,7 @@ main(int argc, char **argv)
 	}
     } else {
 	cisco_t c;
-	__pmSockAddrIn *sinp = & c.ipaddr;
+	struct sockaddr_in *sinp = & c.ipaddr;
 
 	c.host = argv[optind];
 	c.username = username;

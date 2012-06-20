@@ -23,6 +23,8 @@
 extern "C" {
 #endif
 
+#include "pmio.h"
+
 /*
  * Recording session support
  */
@@ -34,7 +36,7 @@ extern "C" {
 
 typedef struct {
     FILE	*f_config;	/* caller writes pmlogger configuration here */
-    int		fd_ipc;		/* IPC channel to pmlogger */
+    __pmFD	fd_ipc;		/* IPC channel to pmlogger */
     char	*logfile;	/* full pathname for pmlogger error logfile */
     pid_t	pid;		/* process id for pmlogger */
     int		status;		/* exit status, -1 if unknown */

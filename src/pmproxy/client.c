@@ -56,7 +56,7 @@ NewClient(void)
 
 /* Establish a new socket connection to a client */
 ClientInfo *
-AcceptNewClient(int reqfd)
+AcceptNewClient(__pmFD reqfd)
 {
     int		i;
     __pmFD	fd;
@@ -71,7 +71,7 @@ AcceptNewClient(int reqfd)
     fd = __pmAccept(reqfd, (__pmSockAddr *)&client[i].addr, &addrlen);
     if (fd == PM_ERROR_FD) {
 	__pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) accept failed: %s",
-			reqfd, netstrerror());
+		      __pmFdRef(reqfd), netstrerror());
 	Shutdown();
 	exit(1);
     }
@@ -114,7 +114,7 @@ AcceptNewClient(int reqfd)
 
     if (!ok) {
 	__pmNotifyErr(LOG_WARNING, "Bad version string from client at %s",
-			inet_ntoa(client[i].addr.sin_addr));
+		      __pmSockAddrInToString(&client[i].addr));
 	fprintf(stderr, "AcceptNewClient: bad version string was \"");
 	for (bp = buf; *bp && bp < &buf[MY_BUFLEN]; bp++)
 	    fputc(*bp & 0xff, stderr);
@@ -126,7 +126,7 @@ AcceptNewClient(int reqfd)
     if (__pmSend(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
 	__pmNotifyErr(LOG_WARNING, "AcceptNewClient: failed to send version "
 			"string (%s) to client at %s\n",
-			MY_VERSION, inet_ntoa(client[i].addr.sin_addr));
+			MY_VERSION, __pmSockAddrInToString(&client[i].addr));
 	DeleteClient(&client[i]);
 	return NULL;
     }
@@ -157,7 +157,7 @@ AcceptNewClient(int reqfd)
 	    if (*endp != '\0') {
 		__pmNotifyErr(LOG_WARNING, "AcceptNewClient: bad pmcd port "
 				"\"%s\" from client at %s",
-				bp, inet_ntoa(client[i].addr.sin_addr));
+				bp, __pmSockAddrInToString(&client[i].addr));
 		DeleteClient(&client[i]);
 		return NULL;
 	    }
@@ -168,7 +168,7 @@ AcceptNewClient(int reqfd)
     if (client[i].pmcd_hostname == NULL) {
 	__pmNotifyErr(LOG_WARNING, "AcceptNewClient: failed to get PMCD "
 				"hostname (%s) from client at %s",
-				buf, inet_ntoa(client[i].addr.sin_addr));
+				buf, __pmSockAddrInToString(&client[i].addr));
 	DeleteClient(&client[i]);
 	return NULL;
     }
@@ -180,7 +180,7 @@ AcceptNewClient(int reqfd)
 	 * made in ClientLoop()
 	 */
 	fprintf(stderr, "AcceptNewClient [%d] fd=%d from %s to %s (port %s)",
-	    i, fd, inet_ntoa(client[i].addr.sin_addr),
+		i, __pmFdRef(fd), __pmSockAddrInToString(&client[i].addr),
 	    client[i].pmcd_hostname, bp);
 #endif
 

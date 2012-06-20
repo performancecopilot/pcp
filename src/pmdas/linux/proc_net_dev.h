@@ -30,7 +30,7 @@ typedef struct {
 
 typedef struct {
     uint8_t	hasip;
-    __pmInAddr  addr;
+    struct in_addr addr;
 } net_inet_t;
 
 #define PROC_DEV_COUNTERS_PER_LINE   16

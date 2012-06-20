@@ -29,27 +29,27 @@
 
 extern int	port;
 
-__pmFD
+int
 conn_cisco(cisco_t * cp)
 {
-    __pmFD	fd;
+    int	fd;
     int	i;
 
-    fd = __pmSocket(AF_INET, SOCK_STREAM, 0);
-    if (fd == PM_ERROR_FD) {
+    fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (fd == -1) {
 	fprintf(stderr, "conn_cisco(%s) socket: %s\n", cp->host, netstrerror());
-	return PM_ERROR_FD;
+	return -1;
     }
 
     i = 1;
-    if (__pmSetSockOpt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i, (mysocklen_t)sizeof(i)) < 0) {
+    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i, (mysocklen_t)sizeof(i)) < 0) {
 	fprintf(stderr, "conn_cisco(%s): __pmSetSockOpt: %s\n",
 		cp->host, netstrerror());
 	close(fd);
 	return -1;
     }
 
-    if (__pmConnect(fd, (__pmSockAddr *)&cp->ipaddr, sizeof(cp->ipaddr)) < 0) {
+    if (connect(fd, (struct sockaddr *)&cp->ipaddr, sizeof(cp->ipaddr)) < 0) {
 	fprintf(stderr, "conn_cisco(%s): connect: %s\n",
 	    cp->host, netstrerror());
 	close(fd);
@@ -396,7 +396,7 @@ grab_cisco(intf_t *ip)
     int		namelen;
     char	*pw_prompt = NULL;
     char	*w;
-    __pmFD	fd;
+    int		fd;
     int		fd2;
     int		nval = 0;
     cisco_t	*cp = ip->cp;
@@ -414,7 +414,7 @@ grab_cisco(intf_t *ip)
 
     if (cp->fin == NULL) {
 	fd = conn_cisco(cp);
-	if (fd == PM_ERROR_FD) {
+	if (fd == -1) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
 		fprintf(stderr, "grab_cisco(%s:%s): connect failed: %s\n",

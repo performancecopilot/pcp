@@ -89,7 +89,7 @@ _pmlibdel(void *entry)
 	free(data);
 }
 
-__pmFD			__pmfd = 0;
+__pmFD			__pmfd = PM_ERROR_FD;
 static __pmHashTable	_pmtable;
 
 #if defined(HAVE_PTHREAD_MUTEX_T)
@@ -774,10 +774,8 @@ _pmauxtraceconnect(void)
 	return -neterror();
     }
 
-    memset(&myaddr, 0, sizeof(myaddr));
-    myaddr.sin_family = AF_INET;
-    memcpy(&myaddr.sin_addr, servinfo.h_addr, servinfo.h_length);
-    myaddr.sin_port = htons(port);
+    __pmInitSockAddr(&myaddr, htonl(INADDR_ANY), htons(port));
+    __pmSetSockAddr(&myaddr, &servinfo);
 
 #ifndef IS_MINGW
     /* arm interval timer */

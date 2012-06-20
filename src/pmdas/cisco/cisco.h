@@ -29,7 +29,7 @@
 
 typedef struct {
     char		*host;		/* CISCO hostname */
-    __pmSockAddrIn	ipaddr;		/* IP address for 'host' */
+    struct sockaddr_in	ipaddr;		/* IP address for 'host' */
     char		*username;	/* username */
     char		*passwd;	/* password */
     char		*prompt;	/* command prompt */

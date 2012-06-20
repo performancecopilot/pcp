@@ -235,7 +235,7 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 		requestBuf = tmp;
 
 		sock = makeSocket(host);		/* errorSource set within makeSocket */
-		if(sock == -1) { free(url); free(requestBuf); return -1;}
+		if(sock == PM_ERROR_FD) { free(url); free(requestBuf); return -1;}
 
 		free(url);
         url = NULL;
@@ -396,9 +396,9 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 		tv.tv_usec = 0;
 
 		if(timeout >= 0)
-			selectRet = __pmSelectRead(sock+1, &rfds, &tv);
+			selectRet = __pmSelectRead(__pmIncrFD(sock), &rfds, &tv);
 		else		/* No timeout, can block indefinately */
-			selectRet = __pmSelectRead(sock+1, &rfds, NULL);
+			selectRet = __pmSelectRead(__pmIncrFD(sock), &rfds, NULL);
 
 		if(selectRet == 0)
 			{
@@ -698,7 +698,7 @@ const char *http_strerror()
 	 *	# of bytes read on success, or
 	 *	-1 on error
 	 */
-int _http_read_header(int sock, char *headerPtr)
+int _http_read_header(__pmFD sock, char *headerPtr)
 	{
 	__pmFdSet rfds;
 	struct timeval tv;
@@ -712,9 +712,9 @@ int _http_read_header(int sock, char *headerPtr)
 		tv.tv_usec = 0;
 
 		if(timeout >= 0)
-			selectRet = __pmSelectRead(sock+1, &rfds, &tv);
+			selectRet = __pmSelectRead(__pmIncrFD(sock), &rfds, &tv);
 		else		/* No timeout, can block indefinately */
-			selectRet = __pmSelectRead(sock+1, &rfds, NULL);
+			selectRet = __pmSelectRead(__pmIncrFD(sock), &rfds, NULL);
 		
 		if(selectRet == 0)
 			{
@@ -767,9 +767,9 @@ int _http_read_header(int sock, char *headerPtr)
 	 *	socket descriptor, or
 	 *	-1 on error
 	 */
-int makeSocket(const char *host)
+__pmFD makeSocket(const char *host)
 	{
-	int sock;										/* Socket descriptor */
+	__pmFD sock;										/* Socket descriptor */
 	__pmSockAddrIn sa;							/* Socket address */
 	__pmHostEnt h;								/* Host entity */
 	char *hbuf;
@@ -791,20 +791,19 @@ int makeSocket(const char *host)
 	if (__pmGetHostByName(host, &h, hbuf) == NULL) {
 	    errorSource = H_ERRNO;
 	    __pmFreeHostEntBuffer(hbuf);
-	    return -1;
+	    return PM_ERROR_FD;
 	}
 		
 	/* Copy host address from hostent to (server) socket address */
-	memcpy((char *)&sa.sin_addr, (char *)h.h_addr, h.h_length);
-	sa.sin_family = h.h_addrtype;		/* Set service sin_family to PF_INET */
-	sa.sin_port = htons(port);      	/* Put portnum into socket address */
+	__pmInitSockAddr(&sa, htonl(INADDR_ANY), htons(port));
+	__pmSetSockAddr(&sa, &h);
 
 	sock = __pmSocket(h.h_addrtype, SOCK_STREAM, 0);
 	__pmFreeHostEntBuffer(hbuf);
-	if(sock == -1) { errorSource = ERRNO; return -1; }
+	if(sock == PM_ERROR_FD) { errorSource = ERRNO; return PM_ERROR_FD; }
 
 	ret = __pmConnect(sock, (__pmSockAddr *)&sa, sizeof(sa));
-	if(ret == -1) { errorSource = ERRNO; return -1; }
+	if(ret == -1) { errorSource = ERRNO; return PM_ERROR_FD; }
 
 	return sock;
 	}

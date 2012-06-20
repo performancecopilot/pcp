@@ -47,7 +47,7 @@ extern __pmFdSet	clientFds;		/* for client __pmSelect...() */
 PMCD_EXTERN int		this_client_id;		/* client for current request */
 
 /* prototypes */
-extern ClientInfo *AcceptNewClient(int);
+extern ClientInfo *AcceptNewClient(__pmFD);
 extern int NewClient(void);
 extern void DeleteClient(ClientInfo *);
 PMCD_EXTERN void ShowClients(FILE *m);

@@ -17,8 +17,8 @@
 #include "./gram.h"
 
 extern pmdaInterface	dispatch;
-extern int		infd;
-extern int		outfd;
+extern __pmFD		infd;
+extern __pmFD		outfd;
 
 __pmProfile		*profile;
 int			profile_changed;

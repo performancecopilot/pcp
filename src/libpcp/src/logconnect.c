@@ -157,7 +157,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	return PM_ERROR_FD;
     }
 
-    __pmInitSockAddr(&myAddr, htons(*port));
+    __pmInitSockAddr(&myAddr, htonl(INADDR_ANY), htons(*port));
     __pmSetSockAddr(&myAddr, &servInfo);
     __pmFreeHostEntBuffer(sibuf);
     PM_UNLOCK(__pmLock_libpcp);

@@ -43,7 +43,7 @@ extern __pmFD		maxSockFd;		/* largest fd for a clients
 extern __pmFdSet	sockFds;		/* for __pmSelect...() */
 
 /* prototypes */
-extern ClientInfo *AcceptNewClient(int);
+extern ClientInfo *AcceptNewClient(__pmFD);
 extern void DeleteClient(ClientInfo *);
 extern void StartDaemon(int, char **);
 

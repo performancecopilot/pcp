@@ -32,7 +32,7 @@ typedef struct {
     unsigned int	denyOps;
 } client_t;
 
-extern client_t *acceptClient(int);
+extern client_t *acceptClient(__pmFD);
 extern void deleteClient(client_t *);
 extern void showClients(void);
 

@@ -280,10 +280,8 @@ main(int argc, char **argv)
 		cisco[i].fin = NULL;
 		cisco[i].fout = NULL;
 
-		memset(sinp, 0, sizeof(cisco[i].ipaddr));
-		sinp->sin_family = AF_INET;
-		memcpy(&sinp->sin_addr, hostInfo.h_addr, hostInfo.h_length);
-		sinp->sin_port = htons(port);	/* telnet */
+		__pmInitSockAddr(sinp, 0, htons(port));
+		__pmSetSockAddr(sinp, &hostInfo);
 		__pmFreeHostEntBuffer(hibuf);
 
 		n_cisco++;

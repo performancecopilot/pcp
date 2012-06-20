@@ -308,15 +308,15 @@ receivePDUs(pmdaInterface *dispatch)
     time_t		interval = 0;
     int			sts = 0;
     struct timeval	timeout;
-    __pmFdSet		rfds;
+    fd_set		rfds;
 
 
-    __pmFD_ZERO(&rfds);
+    FD_ZERO(&rfds);
     nfds = fileno(stdin)+1;
 
     for (;;) {
 
-	__pmFD_SET(fileno(stdin), &rfds);
+	FD_SET(fileno(stdin), &rfds);
 	__pmtimevalNow(&timeout);
 	timeout.tv_usec = 0;
 	interval = (time_t)wl_refreshDelay - (timeout.tv_sec % (time_t)wl_refreshDelay);

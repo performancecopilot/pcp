@@ -53,12 +53,12 @@ lstrip(char *str)
     return ptr;
 }
 
-int
+__pmFD
 start_cmd(const char *cmd, pid_t *ppid)
 {
     pid_t child_pid;
     int rc;
-    int pipe_fds[2];
+    __pmFD pipe_fds[2];
 #define PARENT_END 0			/* parent end of the pipe */
 #define CHILD_END 1			/* child end of the pipe */
 #define STDOUT_FD 1			/* stdout fd */
@@ -79,32 +79,32 @@ start_cmd(const char *cmd, pid_t *ppid)
 
     /* Create the pipes. */
 #if defined(HAVE_PIPE2)
-    rc = pipe2(pipe_fds, O_CLOEXEC|O_NONBLOCK);
+    rc = __pmPipe2(pipe_fds, O_CLOEXEC|O_NONBLOCK);
     if (rc < 0) {
-	__pmNotifyErr(LOG_ERR, "%s: pipe2() returned %s", __FUNCTION__,
+	__pmNotifyErr(LOG_ERR, "%s: __pmPipe2() returned %s", __FUNCTION__,
 		      strerror(-rc));
-	return rc;
+	return PM_ERROR_FD;
     }
 #else
-    rc = pipe(pipe_fds);
+    rc = __pmPipe(pipe_fds);
     if (rc < 0) {
-	__pmNotifyErr(LOG_ERR, "%s: pipe() returned %s", __FUNCTION__,
+	__pmNotifyErr(LOG_ERR, "%s: __pmPipe() returned %s", __FUNCTION__,
 		      strerror(-rc));
-	return rc;
+	return PM_ERROR_FD;
     }
 
     /* Set the right flags on the pipes. */
     if (fcntl(pipe_fds[PARENT_END], F_SETFL, O_NDELAY) < 0
 	|| fcntl(pipe_fds[CHILD_END], F_SETFL, O_NDELAY) < 0) {
 	__pmNotifyErr(LOG_ERR, "%s: fcntl() returned %s", __FUNCTION__,
-		      strerror(-rc));
-	return rc;
+		      strerror(errno));
+	return PM_ERROR_FD;
     }
     if (fcntl(pipe_fds[PARENT_END], F_SETFD, O_CLOEXEC) < 0
 	|| fcntl(pipe_fds[CHILD_END], F_SETFD, O_CLOEXEC) < 0) {
 	__pmNotifyErr(LOG_ERR, "%s: fcntl() returned %s", __FUNCTION__,
-		      strerror(-rc));
-	return rc;
+		      strerror(errno));
+	return PM_ERROR_FD;
     }
 #endif
 
@@ -116,8 +116,8 @@ start_cmd(const char *cmd, pid_t *ppid)
 	/* Duplicate our pipe fd onto stdout of the child. Note that
 	 * this clears O_CLOEXEC, so the new stdout should stay open
 	 * when we call exec(). */
-	if (pipe_fds[CHILD_END] != STDOUT_FD) {
-	    if (dup2(pipe_fds[CHILD_END], STDOUT_FD) < 0) {
+	if (pipe_fds[CHILD_END] != __pmSTDOUT_FILENO()) {
+	    if (__pmDup2(pipe_fds[CHILD_END], __pmSTDOUT_FILENO()) < 0) {
 		__pmNotifyErr(LOG_ERR, "%s: dup2() returned %s", __FUNCTION__,
 			      strerror(errno));
 		_exit(127);
@@ -125,11 +125,13 @@ start_cmd(const char *cmd, pid_t *ppid)
 	}
 
 	/* Close all other fds. */
+#ifndef HAVE_NSS /* TODO NSS */
 	for (i = 0; i <= pipe_fds[CHILD_END]; i++) {
 	    if (i != STDOUT_FD) {
 		close(i);
 	    }
 	}
+#endif
 
 	/* Actually run the command. */
 	execl ("/bin/sh", "sh", "-c", cmd, (char *)NULL);
@@ -137,7 +139,7 @@ start_cmd(const char *cmd, pid_t *ppid)
 
     }
     else if (child_pid > 0) {		/* parent process */
-	close (pipe_fds[CHILD_END]);
+	__pmClose (pipe_fds[CHILD_END]);
 	if (ppid != NULL) {
 	    *ppid = child_pid;
 	}
@@ -147,10 +149,10 @@ start_cmd(const char *cmd, pid_t *ppid)
 
 	__pmNotifyErr(LOG_ERR, "%s: fork() returned %s", __FUNCTION__,
 		      strerror(errno_save));
-	close (pipe_fds[PARENT_END]);
-	close (pipe_fds[CHILD_END]);
+	__pmClose (pipe_fds[PARENT_END]);
+	__pmClose (pipe_fds[CHILD_END]);
 
-	return -errno_save;
+	return PM_ERROR_FD;
     }
     
     return pipe_fds[PARENT_END];

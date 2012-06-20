@@ -138,7 +138,7 @@ __pmConnectTo(__pmFD fd, const __pmSockAddr *addr, int port)
     int sts, fdFlags = __pmFcntlGetFlags(fd);
     __pmSockAddrIn myAddr;
 
-    __pmInitSockAddr(&myAddr, htons(port));
+    __pmInitSockAddr(&myAddr, htonl(INADDR_ANY), htons(port));
 
     if (__pmFcntlSetFlags(fd, fdFlags | FNDELAY) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
@@ -311,7 +311,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	return PM_ERROR_FD;
     }
 
-    __pmInitSockAddr(&myAddr, 0);
+    __pmInitSockAddr(&myAddr, htonl(INADDR_ANY), 0);
     __pmSetSockAddr(&myAddr, &servInfo);
     __pmFreeHostEntBuffer(sibuf);
     PM_UNLOCK(__pmLock_libpcp);
@@ -519,14 +519,14 @@ __pmClose(__pmFD fd)
 }
 
 void
-__pmInitSockAddr(__pmSockAddrIn *addr, int port)
+__pmInitSockAddr(__pmSockAddrIn *addr, int address, int port)
 {
 #ifdef HAVE_NSS
   //#error __FUNCTION__ is not implemented for NSS
 #else
   memset(addr, 0, sizeof(*addr));
   addr->sin_family = AF_INET;
-  addr->sin_addr.s_addr = htonl(INADDR_ANY);
+  addr->sin_addr.s_addr = address;
   addr->sin_port = port;
 #endif
 }
@@ -543,7 +543,17 @@ __pmSetSockAddr(__pmSockAddrIn *addr, __pmHostEnt *he)
 
 /* Convert an address in network byte order to a string. The caller must free the buffer. */
 char *
-__pmNetAddrToString(__pmInAddr *address) {
+__pmSockAddrInToString(__pmSockAddrIn *address) {
+#ifdef HAVE_NSS
+  return __pmInAddrToString(address);
+#else
+  return __pmInAddrToString(&address->sin_addr);
+#endif
+}
+
+/* Convert an address in network byte order to a string. The caller must free the buffer. */
+char *
+__pmInAddrToString(__pmInAddr *address) {
 #ifdef HAVE_NSS
   PRStatus prStatus;
   char     *buf = malloc(PM_NET_ADDR_STRING_SIZE);
@@ -638,6 +648,17 @@ __pmHostEntNumAddrs(const __pmHostEnt *he)
 #endif
 }
 
+__pmInAddr *
+__pmHostEntGetInAddr(const __pmHostEnt *he, int ix)
+{
+#ifdef HAVE_NSS
+  //  #error __FUNCTION__ is not implemented for NSS
+  return NULL;
+#else
+  return (struct in_addr *)he->h_addr_list[ix];
+#endif
+}
+
 __pmIPAddr *
 __pmHostEntGetIPAddr(const __pmHostEnt *he, int ix)
 {
@@ -649,14 +670,24 @@ __pmHostEntGetIPAddr(const __pmHostEnt *he, int ix)
 #endif
 }
 
-const __pmIPAddr *
+const __pmIPAddr
 __pmInAddrToIPAddr(const __pmInAddr *inaddr)
 {
 #ifdef HAVE_NSS
   /* For NSPR, these point to the same type. */
-  return inaddr;
+  return 0;
 #else
-  return & inaddr->s_addr;
+  return inaddr->s_addr;
+#endif
+}
+
+const __pmIPAddr
+__pmSockAddrInToIPAddr(const __pmSockAddrIn *inaddr)
+{
+#ifdef HAVE_NSS
+  return 0;
+#else
+  return __pmInAddrToIPAddr(&inaddr->sin_addr);
 #endif
 }
 
@@ -755,8 +786,8 @@ __pmFD_ZERO(__pmFdSet *set)
 #endif
 }
 
-int
-__pmUpdateMaxFD(__pmFD fd, int maxFd)
+__pmFD
+__pmUpdateMaxFD(__pmFD fd, __pmFD maxFd)
 {
 #ifdef HAVE_NSS
   /* The NSPR select API (PR_Poll) does not use max fd, so leave it alone. */
@@ -772,10 +803,28 @@ int
 __pmIncrFD(__pmFD fd)
 {
 #ifdef HAVE_NSS
-  /* The NSPR select API (PR_Poll) does not use max fd, so leave it alone. */
+  /* The NSPR select API (PR_Poll) does not use max fd, so return anything. */
   return 0;
 #else
   return fd + 1;
+#endif
+}
+
+__pmFD
+__pmFdSetFirst(__pmFdSet *set, __pmFD max) {
+#ifdef HAVE_NSS
+  return max;
+#else
+  return 0;
+#endif
+}
+
+__pmFD
+__pmFdSetNext(__pmFdSet *set, __pmFD prev, __pmFD max) {
+#ifdef HAVE_NSS
+  return PM_ERROR_FD;
+#else
+  return prev >= max ? PM_ERROR_FD : prev + 1;
 #endif
 }
 
@@ -798,6 +847,36 @@ __pmSelectWrite(int nfds, __pmFdSet *writefds, struct timeval *timeout)
   return 0;
 #else
   return select(nfds, NULL, writefds, NULL, timeout);
+#endif
+}
+
+int
+__pmPipe(__pmFD pipefd[2])
+{
+#ifdef HAVE_NSS
+  return -1;
+#else
+  return pipe1(pipefd);
+#endif
+}
+
+int
+__pmPipe2(__pmFD pipefd[2], int flags)
+{
+#ifdef HAVE_NSS
+  return -1;
+#else
+  return pipe2(pipefd, flags);
+#endif
+}
+
+int
+__pmDup2(__pmFD oldfd, __pmFD newfd)
+{
+#ifdef HAVE_NSS
+  return -1;
+#else
+  return dup2(oldfd, newfd); 
 #endif
 }
 
@@ -826,6 +905,52 @@ __pmStandardStreamIx(__pmFD fd)
 }
 
 __pmFD
+__pmStandardStreamToFD(FILE *stream)
+{
+#ifdef HAVE_NSS
+  if (stream == stdin)
+    return PR_STDIN;
+  if (stream == stdout)
+    return PR_STDOUT;
+  if (stream == stderr)
+    return PR_STDERR;
+  return NULL;
+#else
+  return fileno(stream);
+#endif
+}
+
+__pmFD
+__pmSTDIN_FILENO(void)
+{
+#ifdef HAVE_NSS
+  return PR_STDIN;
+#else
+  return STDIN_FILENO;
+#endif
+}
+
+__pmFD
+__pmSTDOUT_FILENO(void)
+{
+#ifdef HAVE_NSS
+  return PR_STDOUT;
+#else
+  return STDOUT_FILENO;
+#endif
+}
+
+__pmFD
+__pmSTDERR_FILENO(void)
+{
+#ifdef HAVE_NSS
+  return PR_STDERR;
+#else
+  return STDERR_FILENO;
+#endif
+}
+
+__pmFD
 __pmMkstemp(char *template)
 {
 #ifdef HAVE_NSS
@@ -833,5 +958,15 @@ __pmMkstemp(char *template)
   return PM_ERROR_FD;
 #else
   return mkstemp(template);
+#endif
+}
+
+__pmFD
+__pmStrToFd(const char *str, char **end)
+{
+#ifdef HAVE_NSS
+  return 0;
+#else
+  return (int)strtol(str, end, 10);
 #endif
 }

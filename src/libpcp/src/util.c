@@ -1195,7 +1195,7 @@ __pmSetClientId(const char *id)
     if (__pmGetHostByName(host, &he, hebuf) != NULL) {
 	strcpy(host, he.h_name);
 	if (he.h_addrtype == AF_INET) {
-	    ipaddr = __pmNetAddrToString((__pmInAddr *)he.h_addr_list[0]);
+	  ipaddr = __pmInAddrToString(__pmHostEntGetInAddr(& he, 0));
 	}
 	vblen = strlen(host) + strlen(ipaddr) + strlen(id) + 5;
     }
@@ -1461,15 +1461,15 @@ __pmProcessRunTimes(double *usr, double *sys)
 
 #if !defined(IS_MINGW)
 pid_t
-__pmProcessCreate(char **argv, int *infd, int *outfd)
+__pmProcessCreate(char **argv, __pmFD *infd, __pmFD *outfd)
 {
-    int		in[2];
-    int		out[2];
+    __pmFD	in[2];
+    __pmFD	out[2];
     pid_t	pid;
 
-    if (pipe1(in) < 0)
+    if (__pmPipe(in) < 0)
 	return -oserror();
-    if (pipe1(out) < 0)
+    if (__pmPipe(out) < 0)
 	return -oserror();
 
     pid = fork();
@@ -1478,25 +1478,25 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
     }
     else if (pid) {
 	/* parent */
-	close(in[0]);
-	close(out[1]);
+	__pmClose(in[0]);
+	__pmClose(out[1]);
 	*infd = out[0];
 	*outfd = in[1];
     }
     else {
 	/* child */
 	char	errmsg[PM_MAXERRMSGLEN];
-	close(in[1]);
-	close(out[0]);
-	if (in[0] != 0) {
-	    close(0);
-	    dup2(in[0], 0);
-	    close(in[0]);
+	__pmClose(in[1]);
+	__pmClose(out[0]);
+	if (in[0] != __pmSTDIN_FILENO()) {
+	    __pmClose(__pmSTDIN_FILENO());
+	    __pmDup2(in[0], __pmSTDIN_FILENO());
+	    __pmClose(in[0]);
 	}
-	if (out[1] != 1) {
-	    close(1);
-	    dup2(out[1], 1);
-	    close(out[1]);
+	if (out[1] != __pmSTDOUT_FILENO()) {
+	    __pmClose(__pmSTDOUT_FILENO());
+	    __pmDup2(out[1], __pmSTDOUT_FILENO());
+	    __pmClose(out[1]);
 	}
 	execvp(argv[0], argv);
 	fprintf(stderr, "execvp: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));

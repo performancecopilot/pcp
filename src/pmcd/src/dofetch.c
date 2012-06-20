@@ -199,6 +199,7 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
     static __pmTimeval	when = {0, 0};	/* Agents never see archive requests */
     int			bad = 0;
     int			i;
+    pmcdWho		who;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
@@ -244,11 +245,12 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 	}
 	else {
 	    if (aPtr->status.notReady == 0) {
+	        who.fd = aPtr->inFd;
 		if (_pmcd_trace_mask)
-		    pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_PROFILE, ctxnum);
+		    pmcd_trace(TR_XMIT_PDU, &who, PDU_PROFILE, ctxnum);
 		if ((sts = __pmSendProfile(aPtr->inFd, cPtr - client,
 					   ctxnum, cPtr->profile[ctxnum])) < 0) {
-		    pmcd_trace(TR_XMIT_ERR, aPtr->inFd, PDU_PROFILE, sts);
+		    pmcd_trace(TR_XMIT_ERR, &who, PDU_PROFILE, sts);
 		}
 	    } else {
 		sts = PM_ERR_AGAIN;
@@ -296,11 +298,12 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 	else {
 	    if (aPtr->status.notReady == 0) {
 		/* agent is ready for PDUs */
+	        who.fd = aPtr->inFd;
 		if (_pmcd_trace_mask)
-		    pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_FETCH, dpList->listSize);
+		    pmcd_trace(TR_XMIT_PDU, &who, PDU_FETCH, dpList->listSize);
 		if ((sts = __pmSendFetch(aPtr->inFd, cPtr - client, ctxnum, &when,
 				   dpList->listSize, dpList->list)) < 0)
-		    pmcd_trace(TR_XMIT_ERR, aPtr->inFd, PDU_FETCH, sts);
+		    pmcd_trace(TR_XMIT_ERR, &who, PDU_FETCH, sts);
 	    }
 	    else {
 		/* agent is not ready for PDUs */
@@ -332,8 +335,10 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 	    aPtr->status.madeDsoResult = 1;
 	    sts = 0;
 	}
-	else if (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE)
-	    CleanupAgent(aPtr, AT_COMM, aPtr->inFd);
+	else if (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE) {
+	    who.fd = aPtr->inFd;
+	    CleanupAgent(aPtr, AT_COMM, &who);
+	}
 
 	result = MakeBadResult(dpList->listSize, dpList->list, sts);
     }
@@ -361,6 +366,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
     int			nWait;
     __pmFD		maxFd;
     struct timeval	timeout;
+    pmcdWho		who;
 
     if (nAgents > nDoms) {
 	if (results != NULL)
@@ -446,8 +452,10 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 			results[i] = MakeBadResult(dList[j].listSize,
 						   dList[j].list,
 						   PM_ERR_NOAGENT);
-			pmcd_trace(TR_RECV_TIMEOUT, agent[i].outFd, PDU_RESULT, 0);
-			CleanupAgent(&agent[i], AT_COMM, agent[i].inFd);
+			who.fd = agent[i].outFd;
+			pmcd_trace(TR_RECV_TIMEOUT, &who, PDU_RESULT, 0);
+			who.fd = agent[i].inFd;
+			CleanupAgent(&agent[i], AT_COMM, &who);
 		    }
 		}
 		break;
@@ -471,8 +479,10 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	    __pmFD_CLR(ap->outFd, &waitFds);
 	    nWait--;
 	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
-	    if (sts > 0 && _pmcd_trace_mask)
-		pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+	    if (sts > 0 && _pmcd_trace_mask) {
+	        who.fd = ap->outFd;
+		pmcd_trace(TR_RECV_PDU, &who, sts, (int)((__psint_t)pb & 0xffffffff));
+	    }
 	    if (sts == PDU_RESULT) {
 		if ((sts = __pmDecodeResult(pb, &results[i])) >= 0)
 		    if (results[i]->numpmid != aFreq[i]) {
@@ -492,10 +502,12 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 			sts = s;
 		    else if (sts >= 0)
 			sts = PM_ERR_GENERIC;
-		    pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_RESULT, sts);
+		    who.fd = ap->outFd;
+		    pmcd_trace(TR_RECV_ERR, &who, PDU_RESULT, sts);
 		}
 		else if (sts >= 0) {
-		    pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_RESULT, sts);
+		    who.fd = ap->outFd;
+		    pmcd_trace(TR_WRONG_PDU, &who, PDU_RESULT, sts);
 		    sts = PM_ERR_IPC;
 		}
 	    }
@@ -526,8 +538,10 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 			    ap->pmDomainLabel, pmErrStr(sts));
 		}
 #endif
-		if (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT)
-		    CleanupAgent(ap, AT_COMM, ap->outFd);
+		if (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT) {
+		    who.fd = ap->outFd;
+		    CleanupAgent(ap, AT_COMM, &who);
+		}
 	    }
 	}
     }
@@ -545,8 +559,10 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	j = mapdom[((__pmID_int *)&pmidList[i])->domain];
 	endResult->vset[i] = results[j]->vset[resIndex[j]++];
     }
-    if (_pmcd_trace_mask)
-	pmcd_trace(TR_XMIT_PDU, cip->fd, PDU_RESULT, endResult->numpmid);
+    if (_pmcd_trace_mask) {
+        who.fd = cip->fd;
+	pmcd_trace(TR_XMIT_PDU, &who, PDU_RESULT, endResult->numpmid);
+    }
 
     sts = 0;
     if (cip->status.changes) {
@@ -560,7 +576,8 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	sts = __pmSendResult(cip->fd, FROM_ANON, endResult);
 
     if (sts < 0) {
-	pmcd_trace(TR_XMIT_ERR, cip->fd, PDU_RESULT, sts);
+        who.fd = cip->fd;
+	pmcd_trace(TR_XMIT_ERR, &who, PDU_RESULT, sts);
 	CleanupClient(cip, sts);
     }
 

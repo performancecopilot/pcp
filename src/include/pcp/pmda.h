@@ -116,8 +116,8 @@ typedef struct {
     char	*e_logfile;	/* path to log file */
     char	*e_helptext;	/* path to help text */		    
     int		e_status;	/* =0 is OK */
-    int		e_infd;		/* input file descriptor from pmcd */
-    int		e_outfd;	/* output file descriptor to pmcd */
+    __pmFD	e_infd;		/* input file descriptor from pmcd */
+    __pmFD	e_outfd;	/* output file descriptor to pmcd */
     int		e_port;		/* port to pmcd */
     int		e_singular;	/* =0 for singular values */
     int		e_ordinal;	/* >=0 for non-singular values */
@@ -493,13 +493,13 @@ extern void __pmdaStartInst(pmInDom, pmdaExt *);
 extern int __pmdaNextInst(int *, pmdaExt *);
 
 extern void __pmdaSetup(pmdaInterface *, int, char *);
-extern int __pmdaSetupPDU(int, int, char *);
+extern int __pmdaSetupPDU(__pmFD, __pmFD, char *);
 
-extern void __pmdaOpenInet(char *, int, int *, int *);
-extern void __pmdaOpenUnix(char *, int *, int *);
+extern void __pmdaOpenInet(char *, int, __pmFD *, __pmFD *);
+extern void __pmdaOpenUnix(char *, __pmFD *, __pmFD *);
 
 extern int __pmdaMainPDU(pmdaInterface *);
-extern int __pmdaInFd(pmdaInterface *);
+extern __pmFD __pmdaInFd(pmdaInterface *);
 
 extern void __pmdaCacheDumpAll(FILE *, int);
 extern void __pmdaCacheDump(FILE *, pmInDom, int);

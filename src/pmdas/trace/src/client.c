@@ -31,7 +31,7 @@ static int	clientsize;
 static int newClient(void);
 
 client_t *
-acceptClient(int reqfd)
+acceptClient(__pmFD reqfd)
 {
     int		i;
     __pmFD	fd;
@@ -42,7 +42,7 @@ acceptClient(int reqfd)
     fd = __pmAccept(reqfd, (__pmSockAddr *)&clients[i].addr, &addrlen);
     if (fd == PM_ERROR_FD) {
 	__pmNotifyErr(LOG_ERR, "acceptClient(%d) accept: %s",
-		reqfd, netstrerror());
+		      __pmFdRef(reqfd), netstrerror());
 	return NULL;
     }
     maxfd = __pmUpdateMaxFD(fd, maxfd);
@@ -108,7 +108,7 @@ deleteClient(client_t *cp)
     cp->status.protocol = 1;	/* sync */
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL0)
-	    __pmNotifyErr(LOG_DEBUG, "deleteClient: client removed (fd=%d)", cp->fd);
+	  __pmNotifyErr(LOG_DEBUG, "deleteClient: client removed (fd=%d)", __pmFdRef(cp->fd));
 #endif
     cp->fd = PM_ERROR_FD;
 }
@@ -125,19 +125,11 @@ showClients(void)
 		    "     ==  =====  ====  ======================\n");
     hbuf = __pmAllocHostEntBuffer();
     for (i=0; i < nclients; i++) {
-	fprintf(stderr, "    %3d", clients[i].fd);
+        fprintf(stderr, "    %3d", __pmFdRef(clients[i].fd));
 	fprintf(stderr, "  %s  ", clients[i].status.protocol == 1 ? "sync ":"async");
 	fprintf(stderr, "%s  ", clients[i].status.connected == 1 ? "up  ":"down");
-	if (__pmGetHostByAddr(& clients[i].addr, &h, hbuf) == NULL) {
-	    char	*p = (char *)&clients[i].addr.sin_addr.s_addr;
-	    int		k;
-
-	    for (k=0; k < 4; k++) {
-		if (k > 0)
-		    fputc('.', stderr);
-		fprintf(stderr, "%d", p[k] & 0xff);
-	    }
-	}
+	if (__pmGetHostByAddr(& clients[i].addr, &h, hbuf) == NULL)
+	    fprintf(stderr, "%s", __pmSockAddrInToString(& clients[i].addr));
 	else
 	    fprintf(stderr, "%-40.40s", h.h_name);
 	if (clients[i].denyOps != 0) {

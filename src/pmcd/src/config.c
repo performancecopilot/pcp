@@ -662,8 +662,8 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 
     newAgent->ipcType = AGENT_DSO;
     newAgent->pmDomainId = pmDomainId;
-    newAgent->inFd = -1;
-    newAgent->outFd = -1;
+    newAgent->inFd = PM_ERROR_FD;
+    newAgent->outFd = PM_ERROR_FD;
     newAgent->pmDomainLabel = strdup(pmDomainLabel);
     newAgent->ipc.dso.pathName = pathName;
     newAgent->ipc.dso.xlatePath = xlatePath;
@@ -1239,11 +1239,14 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
     int			vflag = 0;
     int			version = UNKNOWN_VERSION;
     __pmCred		*credlist = NULL;
+    pmcdWho             who;
 
     if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0)
 	return sts;
-    else if (_pmcd_trace_mask)
-	pmcd_trace(TR_RECV_PDU, aPtr->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+    else if (_pmcd_trace_mask) {
+        who.fd = aPtr->outFd;
+	pmcd_trace(TR_RECV_PDU, &who, sts, (int)((__psint_t)pb & 0xffffffff));
+    }
 
     for (i = 0; i < credcount; i++) {
 	switch (credlist[i].c_type) {
@@ -1275,8 +1278,10 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
 	handshake[0].c_valc = 0;
 	if ((sts = __pmSendCreds(aPtr->inFd, (int)getpid(), 1, handshake)) < 0)
 	    return sts;
-	else if (_pmcd_trace_mask)
-	    pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_CREDS, credcount);
+	else if (_pmcd_trace_mask) {
+	    who.fd = aPtr->inFd;
+	    pmcd_trace(TR_XMIT_PDU, &who, PDU_CREDS, credcount);
+	}
     }
 
     return 0;
@@ -1338,10 +1343,8 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	    __pmFreeHostEntBuffer(hibuf);
 	    goto error;
 	}
-	memset(&addr, 0, sizeof(addr));
-	addr.sin_family = AF_INET;
-	memcpy(&addr.sin_addr, hostInfo.h_addr, hostInfo.h_length);
-	addr.sin_port = htons(aPtr->ipc.socket.port);
+	__pmInitSockAddr(&addr, 0, htons(aPtr->ipc.socket.port));
+	__pmSetSockAddr(&addr, &hostInfo);
 	__pmFreeHostEntBuffer(hibuf);
 	sts = __pmConnect(fd, (__pmSockAddr *) &addr, sizeof(addr));
     }
@@ -1349,9 +1352,10 @@ ConnectSocketAgent(AgentInfo *aPtr)
 #if defined(HAVE_SYS_UN_H)
 	struct sockaddr_un	addr;
 	int			len;
+	int			ufd;
 
-	fd = socket(aPtr->ipc.socket.addrDomain, SOCK_STREAM, 0);
-	if (fd < 0) {
+	ufd = socket(aPtr->ipc.socket.addrDomain, SOCK_STREAM, 0);
+	if (ufd < 0) {
 	    fprintf(stderr,
 		     "pmcd: Error creating socket for \"%s\" agent : %s\n",
 		     aPtr->pmDomainLabel, netstrerror());
@@ -1361,7 +1365,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	addr.sun_family = AF_UNIX;
 	strcpy(addr.sun_path, aPtr->ipc.socket.name);
 	len = (int)offsetof(struct sockaddr_un, sun_path) + (int)strlen(addr.sun_path);
-	sts = connect(fd, (struct sockaddr *) &addr, len);
+	sts = connect(ufd, (struct sockaddr *) &addr, len);
 #else
 	fprintf(stderr, "pmcd: UNIX sockets are not supported : \"%s\" agent\n",
 		     aPtr->pmDomainLabel);
@@ -1374,8 +1378,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	goto error;
     }
     aPtr->outFd = aPtr->inFd = fd;	/* Sockets are bi-directional */
-    if (fd > max_seen_fd)
-	max_seen_fd = fd;
+    max_seen_fd = __pmUpdateMaxFD(fd, max_seen_fd);
 
     PMCD_OPENFDS_SETHI(fd);
 
@@ -1388,7 +1391,7 @@ error:
     if (aPtr->ipc.socket.addrDomain == AF_INET)
 	__pmCloseSocket(fd);
     else
-	close(fd);
+	__pmClose(fd);
     return -1;
 }
 
@@ -1396,31 +1399,32 @@ error:
 static pid_t
 CreateAgentPOSIX(AgentInfo *aPtr)
 {
+#ifndef HAVE_NSS
     int		i;
-    int		inPipe[2];	/* Pipe for input to child */
-    int		outPipe[2];	/* For output to child */
+#endif
+    __pmFD	inPipe[2];	/* Pipe for input to child */
+    __pmFD	outPipe[2];	/* For output to child */
     pid_t	childPid = (pid_t)-1;
     char	**argv = NULL;
 
     if (aPtr->ipcType == AGENT_PIPE) {
 	argv = aPtr->ipc.pipe.argv;
-	if (pipe1(inPipe) < 0) {
+	if (__pmPipe(inPipe) < 0) {
 	    fprintf(stderr,
 		    "pmcd: input pipe create failed for \"%s\" agent: %s\n",
 		    aPtr->pmDomainLabel, osstrerror());
 	    return (pid_t)-1;
 	}
 
-	if (pipe1(outPipe) < 0) {
+	if (__pmPipe(outPipe) < 0) {
 	    fprintf(stderr,
 		    "pmcd: output pipe create failed for \"%s\" agent: %s\n",
 		    aPtr->pmDomainLabel, osstrerror());
-	    close(inPipe[0]);
-	    close(inPipe[1]);
+	    __pmClose(inPipe[0]);
+	    __pmClose(inPipe[1]);
 	    return (pid_t)-1;
 	}
-	if (outPipe[1] > max_seen_fd)
-	    max_seen_fd = outPipe[1];
+	max_seen_fd = __pmUpdateMaxFD(outPipe[1], max_seen_fd);
 	
 	PMCD_OPENFDS_SETHI(outPipe[1]);
     }
@@ -1433,10 +1437,10 @@ CreateAgentPOSIX(AgentInfo *aPtr)
 	    fprintf(stderr, "pmcd: creating child for \"%s\" agent: %s\n",
 			 aPtr->pmDomainLabel, osstrerror());
 	    if (aPtr->ipcType == AGENT_PIPE) {
-		close(inPipe[0]);
-		close(inPipe[1]);
-		close(outPipe[0]);
-		close(outPipe[1]);
+		__pmClose(inPipe[0]);
+		__pmClose(inPipe[1]);
+		__pmClose(outPipe[0]);
+		__pmClose(outPipe[1]);
 	    }
 	    return (pid_t)-1;
 	}
@@ -1444,8 +1448,8 @@ CreateAgentPOSIX(AgentInfo *aPtr)
 	if (childPid) {
 	    /* This is the parent (PMCD) */
 	    if (aPtr->ipcType == AGENT_PIPE) {
-		close(inPipe[0]);
-		close(outPipe[1]);
+		__pmClose(inPipe[0]);
+		__pmClose(outPipe[1]);
 		aPtr->inFd = inPipe[1];
 		aPtr->outFd = outPipe[0];
 	    }
@@ -1455,29 +1459,31 @@ CreateAgentPOSIX(AgentInfo *aPtr)
 	     * This is the child (new agent)
 	     * make sure stderr is fd 2
 	     */
-	    dup2(fileno(stderr), STDERR_FILENO); 
+	    __pmDup2(__pmStandardStreamToFD(stderr), __pmSTDERR_FILENO()); 
 	    if (aPtr->ipcType == AGENT_PIPE) {
 		/* make pipe stdin for PMDA */
-		dup2(inPipe[0], STDIN_FILENO);
+	        __pmDup2(inPipe[0], __pmSTDIN_FILENO());
 		/* make pipe stdout for PMDA */
-		dup2(outPipe[1], STDOUT_FILENO);
+		__pmDup2(outPipe[1], __pmSTDOUT_FILENO());
 	    }
 	    else {
 		/*
 		 * not a pipe, close stdin and attach stdout to stderr
 		 */
-		close(STDIN_FILENO);
-		dup2(STDERR_FILENO, STDOUT_FILENO);
+	        __pmClose(__pmSTDIN_FILENO());
+		__pmDup2(__pmSTDERR_FILENO(), __pmSTDOUT_FILENO());
 	    }
-
+#ifndef HAVE_NSS
 	    for (i = 0; i <= max_seen_fd; i++) {
 		/* Close all except std{in,out,err} */
+	        /* TODO --- need to iterate over open fds */
 		if (i == STDIN_FILENO ||
 		    i == STDOUT_FILENO ||
 		    i == STDERR_FILENO)
 		    continue;
 		close(i);
 	    }
+#endif
 
 	    execvp(argv[0], argv);
 	    /* botch if reach here */
@@ -1601,8 +1607,8 @@ CreateAgent(AgentInfo *aPtr)
 	aPtr->ipc.pipe.agentPid = childPid;
 	/* ready for version negotiation */
 	if ((sts = AgentNegotiate(aPtr)) < 0) {
-	    close(aPtr->inFd);
-	    close(aPtr->outFd);
+	    __pmClose(aPtr->inFd);
+	    __pmClose(aPtr->outFd);
 	    return sts;
 	}
     }
@@ -1646,7 +1652,7 @@ PrintAgentInfo(FILE *stream)
 	case AGENT_SOCKET:
 	    version = __pmVersionIPC(aPtr->inFd);
 	    fprintf(stream, " %3d %5" FMT_PID " %3d %3d %3d ",
-		aPtr->pmDomainId, aPtr->ipc.socket.agentPid, aPtr->inFd, aPtr->outFd, version);
+		    aPtr->pmDomainId, aPtr->ipc.socket.agentPid, __pmFdRef(aPtr->inFd), __pmFdRef(aPtr->outFd), version);
 	    fputs("bin ", stream);
 	    fputs("sock ", stream);
 	    if (aPtr->ipc.socket.addrDomain == AF_UNIX)
@@ -1671,7 +1677,7 @@ PrintAgentInfo(FILE *stream)
 	case AGENT_PIPE:
 	    version = __pmVersionIPC(aPtr->inFd);
 	    fprintf(stream, " %3d %5" FMT_PID " %3d %3d %3d ",
-		aPtr->pmDomainId, aPtr->ipc.pipe.agentPid, aPtr->inFd, aPtr->outFd, version);
+		    aPtr->pmDomainId, aPtr->ipc.pipe.agentPid, __pmFdRef(aPtr->inFd), __pmFdRef(aPtr->outFd), version);
 	    fputs("bin ", stream);
 	    if (aPtr->ipc.pipe.commandLine) {
 		fputs("pipe cmd=", stream);
@@ -1836,6 +1842,7 @@ ContactAgents(void)
     int		sts = 0;
     int		createdSocketAgents = 0;
     AgentInfo	*aPtr;
+    pmcdWho     who;
 
     for (i = 0; i < nAgents; i++) {
 	aPtr = &agent[i];
@@ -1865,10 +1872,11 @@ ContactAgents(void)
 	}
 	aPtr->status.connected = sts == 0;
 	if (aPtr->status.connected) {
+	    who.n = aPtr->pmDomainId;
 	    if (aPtr->ipcType == AGENT_DSO)
-		pmcd_trace(TR_ADD_AGENT, aPtr->pmDomainId, -1, -1);
+		pmcd_trace(TR_ADD_AGENT, &who, -1, -1);
 	    else
-		pmcd_trace(TR_ADD_AGENT, aPtr->pmDomainId, aPtr->inFd, aPtr->outFd);
+	      pmcd_trace(TR_ADD_AGENT, &who, __pmFdRef(aPtr->inFd), __pmFdRef(aPtr->outFd));
 	    MarkStateChanges(PMCD_ADD_AGENT);
 	    aPtr->status.notReady = aPtr->status.startNotReady;
 	}
@@ -2073,8 +2081,10 @@ ParseRestartAgents(char *fileName)
     struct stat	statBuf;
     AgentInfo	*oldAgent;
     int		oldNAgents;
+    int         agentsReady;
     AgentInfo	*ap;
     __pmFdSet	fds;
+    pmcdWho     who;
 
     /* Clean up any deceased agents.  We haven't seen an agent's death unless
      * a PDU transfer involving the agent has occurred.  This cleans up others
@@ -2082,23 +2092,24 @@ ParseRestartAgents(char *fileName)
      */
     __pmFD_ZERO(&fds);
     j = -1;
+    agentsReady = 0;
     for (i = 0; i < nAgents; i++) {
 	ap = &agent[i];
 	if (ap->status.connected &&
 	    (ap->ipcType == AGENT_SOCKET || ap->ipcType == AGENT_PIPE)) {
 
 	    __pmFD_SET(ap->outFd, &fds);
-	    if (ap->outFd > j)
-		j = ap->outFd;
+	    j = __pmUpdateMaxFD(ap->outFd, j);
+	    agentsReady = 1;
 	}
     }
-    if (++j) {
+    if (agentsReady) {
 	/* any agent with output ready has either closed the file descriptor or
 	 * sent an unsolicited PDU.  Clean up the agent in either case.
 	 */
 	struct timeval	timeout = {0, 0};
 
-	sts = __pmSelectRead(j, &fds, &timeout);
+	sts = __pmSelectRead(j+1, &fds, &timeout);
 	if (sts > 0) {
 	    for (i = 0; i < nAgents; i++) {
 		ap = &agent[i];
@@ -2109,17 +2120,19 @@ ParseRestartAgents(char *fileName)
 		    /* try to discover more ... */
 		    __pmPDU	*pb;
 		    sts = __pmGetPDU(ap->outFd, ANY_SIZE, TIMEOUT_NEVER, &pb);
+		    who.fd = ap->outFd;
 		    if (sts > 0 && _pmcd_trace_mask)
-			pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+			pmcd_trace(TR_RECV_PDU, &who, sts, (int)((__psint_t)pb & 0xffffffff));
 		    if (sts == 0)
-			pmcd_trace(TR_EOF, ap->outFd, -1, -1);
+			pmcd_trace(TR_EOF, &who, -1, -1);
 		    else {
-			pmcd_trace(TR_WRONG_PDU, ap->outFd, -1, sts);
+			pmcd_trace(TR_WRONG_PDU, &who, -1, sts);
 			if (sts > 0)
 			    __pmUnpinPDUBuf(pb);
 		    }
 
-		    CleanupAgent(ap, AT_COMM, ap->outFd);
+		    who.fd = ap->outFd;
+		    CleanupAgent(ap, AT_COMM, &who);
 		}
 	    }
 	}
@@ -2138,7 +2151,7 @@ ParseRestartAgents(char *fileName)
 	return;
     }
 
-    /* If the config file's modification time hasn't changed, just try to
+    /* If the config file's modification time hasn't changed, ujst try to
      * restart any deceased agents
      */
 #if defined(HAVE_ST_MTIME_WITH_SPEC)
@@ -2272,10 +2285,12 @@ ParseRestartAgents(char *fileName)
 	ClientInfo	*cp = &client[i];
 	int		s;
 
-	if ((s = __pmAccAddClient(&cp->addr.sin_addr, &cp->denyOps)) < 0) {
+	if ((s = __pmAccAddClient(&cp->addr, &cp->denyOps)) < 0) {
 	    /* ignore errors, the client is being terminated in any case */
-	    if (_pmcd_trace_mask)
-		pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, s);
+	    if (_pmcd_trace_mask) {
+	        who.fd = cp->fd;
+		pmcd_trace(TR_XMIT_PDU, &who, PDU_ERROR, s);
+	    }
 	    __pmSendError(cp->fd, FROM_ANON, s);
 	    CleanupClient(cp, s);
 	}

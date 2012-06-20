@@ -33,8 +33,8 @@
 
 static __pmTimeval	now = { 0, 0 };
 
-int			infd;
-int			outfd;
+__pmFD			infd;
+__pmFD			outfd;
 char			*myPmdaName = 0;
 
 extern int		_creds_timeout;
@@ -131,7 +131,7 @@ pmdaversion(void)
     }
     else {
 	if (sts < 0)
-	    fprintf(stderr, "__pmGetPDU(%d): %s\n", infd, pmErrStr(sts));
+	  fprintf(stderr, "__pmGetPDU(%d): %s\n", __pmFdRef(infd), pmErrStr(sts));
 	else
 	    fprintf(stderr, "pmdaversion: expecting PDU_CREDS, got PDU type %d\n", sts);
 	fprintf(stderr, "Warning: no version exchange with PMDA %s\n",
@@ -174,7 +174,7 @@ openpmda(char *fname)
     }
 }
 
-#ifdef HAVE_SYS_UN_H
+#if defined(HAVE_SYS_UN_H) && ! defined(HAVE_NSS)
 void
 opensocket(char *fname)
 {
@@ -233,8 +233,8 @@ closepmda(void)
     if (connmode != NO_CONN) {
 	/* End of context logic mimics PMCD, no error checking is needed. */
 	__pmSendError(outfd, FROM_ANON, PM_ERR_NOTCONN);
-	close(outfd);
-	close(infd);
+	__pmClose(outfd);
+	__pmClose(infd);
 	__pmResetIPC(infd);
 	connmode = NO_CONN;
 	if (myPmdaName != NULL) {

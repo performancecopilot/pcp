@@ -19,7 +19,7 @@
 #include "pmlc.h"
 
 /* for the pmlogger/PMCD we currently have a connection to */
-static int	logger_fd = PM_ERROR_FD;		/* file desc pmlogger */
+static __pmFD	logger_fd = PM_ERROR_FD;		/* file desc pmlogger */
 static char	*lasthost;		/* host that logger_ctx is for */
 static int	src_ctx = -1;		/* context for logged host's PMCD*/
 static char	*srchost;		/* host that logged_ctx is for */

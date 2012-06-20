@@ -46,7 +46,7 @@ static __pmFD 	    pmcdfd;		/* comms to pmcd */
 static int	    ctx;		/* handle correspondong to ctxp below */
 static __pmContext  *ctxp;		/* pmlogger has just this one context */
 static __pmFdSet    fds;		/* file descriptors mask for __pmSelectRead */
-static __pmFD	    numfds;		/* number of file descriptors in mask */
+static int	    numfds;		/* number of file descriptors in mask */
 
 static __pmFD	rsc_fd = PM_ERROR_FD;	/* recording session control see -x */
 static int	rsc_replay;
@@ -112,10 +112,10 @@ vol_switch_callback(int i, void *j)
   newvolume(VOL_SW_TIME);
 }
 
-static int
+static __pmFD
 maxfd(void)
 {
-    int	max = ctlfd;
+    __pmFD max = ctlfd;
     max = __pmUpdateMaxFD(clientfd, max);
     max = __pmUpdateMaxFD(pmcdfd, max);
     max = __pmUpdateMaxFD(rsc_fd, max);
@@ -618,8 +618,8 @@ main(int argc, char **argv)
 	    break;
 
 	case 'x':		/* recording session control fd */
-	    rsc_fd = (int)strtol(optarg, &endnum, 10);
-	    if (*endnum != '\0' || rsc_fd < 0) {
+	  rsc_fd = __pmStrToFd(optarg, &endnum);
+	  if (*endnum != '\0' || rsc_fd < 0) {
 		fprintf(stderr, "%s: -x requires a non-negative numeric argument\n", pmProgname);
 		errflag++;
 	    }
@@ -666,7 +666,7 @@ Options:\n\
     if (rsc_fd != PM_ERROR_FD && note == NULL) {
 	/* add default note to indicate running with -x */
 	static char	xnote[10];
-	snprintf(xnote, sizeof(xnote), "-x %d", rsc_fd);
+	snprintf(xnote, sizeof(xnote), "-x %d", __pmFdRef(rsc_fd));
 	note = xnote;
     }
 
@@ -893,7 +893,7 @@ Options:\n\
 		if (control_req()) {
 		    /* new client has connected */
 		    __pmFD_SET(clientfd, &fds);
-		    numfds = __pmUpdateMaxFD(__pmIncrFD(clientfd), numfds);
+		    numfds = __pmIncrFD(__pmUpdateMaxFD(clientfd, maxfd()));
 		}
 	    }
 	    if (clientfd != PM_ERROR_FD && __pmFD_ISSET(clientfd, &readyfds)) {

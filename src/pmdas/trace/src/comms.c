@@ -23,7 +23,7 @@
 #include "comms.h"
 
 extern struct timeval	interval;
-extern int readData(int, int *);
+extern int readData(__pmFD, int *);
 extern void timerUpdate(void);
 
 extern __pmFD	maxfd;
@@ -35,7 +35,7 @@ static __pmFD	pmcdfd;			/* fd for pmcd */
 
 void alarming(int, void *);
 static void hangup(int);
-static int getcport(void);
+static __pmFD getcport(void);
 
 /* currently in-use fd mask */
 __pmFdSet	fds;
@@ -49,11 +49,13 @@ traceMain(pmdaInterface *dispatch)
     client_t	*cp;
     __pmFdSet	readyfds;
     int		nready, i, pdutype, sts, protocol;
+    int numFds;
 
     ctlfd = getcport();
+    maxfd = __pmUpdateMaxFD(ctlfd, maxfd);
     pmcdfd = __pmdaInFd(dispatch);
-    maxfd = __pmUpdateMaxFD(ctlfd, pmcdfd);
-    maxfd = __pmIncrFD(maxfd);
+    maxfd = __pmUpdateMaxFD(pmcdfd, maxfd);
+    numFds = __pmIncrFD(maxfd);
     __pmFD_ZERO(&fds);
     __pmFD_SET(ctlfd, &fds);
     __pmFD_SET(pmcdfd, &fds);
@@ -68,7 +70,7 @@ traceMain(pmdaInterface *dispatch)
 
     for (;;) {
 	memcpy(&readyfds, &fds, sizeof(readyfds));
-	nready = __pmSelectRead(maxfd, &readyfds, NULL);
+	nready = __pmSelectRead(numFds, &readyfds, NULL);
 
 	if (nready == 0)
 	    continue;
@@ -84,7 +86,7 @@ traceMain(pmdaInterface *dispatch)
 	if (__pmFD_ISSET(pmcdfd, &readyfds)) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
-		__pmNotifyErr(LOG_DEBUG, "processing pmcd request [fd=%d]", pmcdfd);
+	        __pmNotifyErr(LOG_DEBUG, "processing pmcd request [fd=%d]", __pmFdRef(pmcdfd));
 #endif
 	    if (__pmdaMainPDU(dispatch) < 0) {
 		__pmAFunblock();
@@ -94,7 +96,7 @@ traceMain(pmdaInterface *dispatch)
 	/* handle request on control port */
 	if (__pmFD_ISSET(ctlfd, &readyfds)) {
 	    if ((cp = acceptClient(ctlfd)) != NULL) {
-		sts = __pmAccAddClient(&cp->addr.sin_addr, &cp->denyOps);
+		sts = __pmAccAddClient(&cp->addr, &cp->denyOps);
 		if (sts == PM_ERR_PERMISSION)
 		    sts = PMTRACE_ERR_PERMISSION;
 		else if (sts == PM_ERR_CONNLIMIT)
@@ -106,8 +108,8 @@ traceMain(pmdaInterface *dispatch)
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_APPL0) {
 			__pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: connect refused, denyOps=0x%x: %s",
-				 inet_ntoa(cp->addr.sin_addr),
-				 cp->fd, cp->denyOps, pmtraceerrstr(sts));
+				 __pmSockAddrInToString(&cp->addr),
+				 __pmFdRef(cp->fd), cp->denyOps, pmtraceerrstr(sts));
 		    }
 #endif
 		    deleteClient(cp);
@@ -116,8 +118,8 @@ traceMain(pmdaInterface *dispatch)
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_APPL0) {
 			__pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: new connection, denyOps=0x%x",
-				inet_ntoa(cp->addr.sin_addr),
-				cp->fd, cp->denyOps);
+			      __pmSockAddrInToString(&cp->addr),
+				 __pmFdRef(cp->fd), cp->denyOps);
 		    }
 #endif
 		    ;
@@ -131,26 +133,26 @@ traceMain(pmdaInterface *dispatch)
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_APPL0) {
 		    __pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: send denied, denyOps=0x%x",
-			    inet_ntoa(clients[i].addr.sin_addr),
-			    clients[i].fd, clients[i].denyOps);
+			    __pmSockAddrInToString(&clients[i].addr),
+			    __pmFdRef(clients[i].fd), clients[i].denyOps);
 		}
 #endif
 		__pmtracesendack(clients[i].fd, PMTRACE_ERR_PERMISSION);
-		__pmAccDelClient(&clients[i].addr.sin_addr);
+		__pmAccDelClient(&clients[i].addr);
 		deleteClient(&clients[i]);
 	    }
 	    else if (__pmFD_ISSET(clients[i].fd, &readyfds)) {
-		protocol = 1;	/* default to synchronous */
+		protocol = 1;	/* default gto synchronous */
 		do {
 		    if ((pdutype = readData(clients[i].fd, &protocol)) < 0) {
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_APPL0) {
 			    __pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: close connection",
-				inet_ntoa(clients[i].addr.sin_addr),
-				clients[i].fd);
+				__pmSockAddrInToString(&clients[i].addr),
+			        __pmFdRef(clients[i].fd));
 			}
 #endif
-			__pmAccDelClient(&clients[i].addr.sin_addr);
+			__pmAccDelClient(&clients[i].addr);
 			deleteClient(&clients[i]);
 		    }
 		    else {
@@ -159,16 +161,16 @@ traceMain(pmdaInterface *dispatch)
 #ifdef PCP_DEBUG
 			    if (pmDebug & DBG_TRACE_APPL0)
 				__pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: %s ACK (type=%d)",
-				    inet_ntoa(clients[i].addr.sin_addr),
-				    clients[i].fd,
+				    __pmSockAddrInToString(&clients[i].addr),
+				    __pmFdRef(clients[i].fd),
 				    protocol ? "sending" : "no", pdutype);
 #endif
 			    if (protocol == 1) {
 				sts = __pmtracesendack(clients[i].fd, pdutype);
 				if (sts < 0) {
 				    __pmNotifyErr(LOG_ERR, "client %s [fd=%d]: ACK send failed (type=%d): %s",
-					inet_ntoa(clients[i].addr.sin_addr),
-					clients[i].fd,
+					__pmSockAddrInToString(&clients[i].addr),
+					__pmFdRef(clients[i].fd),
 					pdutype, pmtraceerrstr(sts));
 				}
 			    }
@@ -199,7 +201,7 @@ hangup(int sig)
  * Create socket for incoming connections and bind to it an address for
  * clients to use.  Only returns if it succeeds (exits on failure).
  */
-static int
+static __pmFD
 getcport(void)
 {
     __pmFD		fd;
@@ -262,16 +264,13 @@ getcport(void)
 	    ctlport = TRACE_PORT;
     }
 
-    memset(&myAddr, 0, sizeof(myAddr));
-    myAddr.sin_family = AF_INET;
-    myAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    myAddr.sin_port = htons(ctlport);
+    __pmInitSockAddr(&myAddr, htonl(INADDR_ANY), htons(ctlport));
     sts = __pmBind(fd, (__pmSockAddr*)&myAddr, sizeof(myAddr));
     if (sts < 0) {
 	__pmNotifyErr(LOG_ERR, "bind(%d): %s", ctlport, netstrerror());
 	exit(1);
     }
-    sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
+    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	__pmNotifyErr(LOG_ERR, "listen: %s", netstrerror());
 	exit(1);

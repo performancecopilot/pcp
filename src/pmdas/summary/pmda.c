@@ -34,10 +34,10 @@ main(int argc, char **argv)
     pmdaInterface	dispatch;
     int			i;
     int			len, c;
-    int			clientPipe[2];
-    int			configfd = -1;
+    __pmFD		clientPipe[2];
+    __pmFD		configfd = PM_ERROR_FD;
     char		helpfile[MAXPATHLEN]; 
-    int			cmdpipe;		/* metric source/cmd pipe */
+    __pmFD		cmdpipe;		/* metric source/cmd pipe */
     char		*command = NULL;
 
     __pmSetProgname(argv[0]);
@@ -104,7 +104,7 @@ main(int argc, char **argv)
     summary_init(&dispatch);
 
     if (configFile) {
-	if ((configfd = open(configFile, O_RDONLY)) < 0) {
+      if ((configfd = __pmOpen(configFile, O_RDONLY, 0)) < 0) {
 	    fprintf(stderr, "%s: failed to open config file ", pmProgname);
 	    perror(configFile);
 	    exit(1);
@@ -122,7 +122,7 @@ main(int argc, char **argv)
     /*
      * open a pipe to the command
      */
-    if (pipe1(clientPipe) < 0) {
+    if (__pmPipe(clientPipe) < 0) {
 	perror("pipe");
 	exit(oserror());
     }
@@ -130,12 +130,12 @@ main(int argc, char **argv)
     if ((clientPID = fork()) == 0) {
 	/* child */
 	char cmdpath[MAXPATHLEN+5];
-	close(clientPipe[0]);
-	if (dup2(clientPipe[1], fileno(stdout)) < 0) {
+	__pmClose(clientPipe[0]);
+	if (__pmDup2(clientPipe[1], __pmSTDOUT_FILENO()) < 0) {
 	    perror("dup");
 	    exit(oserror());
 	}
-	close(clientPipe[1]);
+	__pmClose(clientPipe[1]);
 
         snprintf (cmdpath, sizeof(cmdpath), "exec %s", commandArgv[0]);
 	execv(commandArgv[0], commandArgv);
@@ -146,7 +146,7 @@ main(int argc, char **argv)
 
     fprintf(stderr, "clientPID = %" FMT_PID "\n", clientPID);
 
-    close(clientPipe[1]);
+    __pmClose(clientPipe[1]);
     cmdpipe = clientPipe[0]; /* parent/agent reads from here */
     __pmSetVersionIPC(cmdpipe, PDU_VERSION2);
 
