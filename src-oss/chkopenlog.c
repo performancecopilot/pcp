@@ -26,8 +26,8 @@ main(int argc, char *argv[])
     else fout = fopen("/tmp/chk.fout", "w");
     if (fout == NULL) {
 	fprintf(stderr, "chkopenlog: botched open ... fd=%d\n", fd);
-	system("ls -l /tmp/chk.fout");
-	exit(1);
+	sts = system("ls -l /tmp/chk.fout");
+	exit(sts == 0 ? 1 : sts);
     }
 
     fprintf(fout, "This message on oldstream before __pmOpenLog() called\n");

@@ -52,6 +52,7 @@ mmv_noinit(const char *filename)
     size_t size = mmv_filesize();
     int fd, sep = __pmPathSeparator();
     void *addr = NULL;
+    int sts;
 
     snprintf(path, sizeof(path), "%s%c" "mmv" "%c%s",
 		pmGetConfig("PCP_TMP_DIR"), sep, sep, filename);
@@ -62,7 +63,11 @@ mmv_noinit(const char *filename)
 		path, strerror(errno));
 	return NULL;
     }
-    ftruncate(fd, size);
+    sts = ftruncate(fd, size);
+    if (sts != 0) {
+	fprintf(stderr, "Error: ftruncate() returns %d\n", sts);
+	exit(1);
+    }
     addr = __pmMemoryMap(fd, size, 1);
 
     close(fd);

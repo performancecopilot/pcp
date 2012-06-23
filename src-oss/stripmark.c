@@ -20,6 +20,7 @@ main(int argc, char *argv[])
     int		in;
     int		out;
     int		nb;
+    int		sts;
 
     if (argc != 3) {
 	fprintf(stderr, "Usage: stripmark in.0 out.0\n");
@@ -63,8 +64,13 @@ main(int argc, char *argv[])
 			(int)(htonl(*len)-sizeof(*len)), nb);
 	    exit(1);
 	}
-	if (htonl(*len) > sizeof(__pmPDUHdr) - sizeof(*len) + sizeof(__pmTimeval) + sizeof(int))
-	    write(out, buf, htonl(*len));
+	if (htonl(*len) > sizeof(__pmPDUHdr) - sizeof(*len) + sizeof(__pmTimeval) + sizeof(int)) {
+	    sts = write(out, buf, htonl(*len));
+	    if (sts != htonl(*len)) {
+		fprintf(stderr, "Error: write %d returns %d\n", htonl(*len), sts);
+		exit(1);
+	    }
+	}
 	else
 	    fprintf(stderr, "Skip mark @ byte %d into input\n", (int)(lseek(in, 0, SEEK_CUR) - sizeof(*len)));
     }

@@ -175,7 +175,9 @@ _b(void)
     indomp->serial = 8;
 
     sprintf(cmd, "rm -f %s/config/pmda/%s", pmGetConfig("PCP_VAR_DIR"), pmInDomStr(indom));
-    system(cmd);
+    sts =system(cmd);
+    if (sts != 0)
+	fprintf(stderr, "Warning: %s: exit status %d\n", cmd, sts);
     sprintf(cmd, "cat %s/config/pmda/%s", pmGetConfig("PCP_VAR_DIR"), pmInDomStr(indom));
 
     fprintf(stderr, "\nPopulate the instance domain ...\n");
@@ -200,19 +202,25 @@ _b(void)
 	if (i == 6 || i == 13) {
 	    fprintf(stderr, "Save ...\n");
 	    fprintf(stderr, "Before:\n");
-	    system(cmd);
+	    sts =system(cmd);
+	    if (sts != 0)
+		fprintf(stderr, "Warning: %s: exit status %d\n", cmd, sts);
 	    sts = pmdaCacheOp(indom, PMDA_CACHE_SAVE);
 	    fprintf(stderr, "return -> %d", sts);
 	    if (sts < 0) fprintf(stderr, ": %s", pmErrStr(sts));
 	    fputc('\n', stderr);
 	    fprintf(stderr, "After:\n");
-	    system(cmd);
+	    sts =system(cmd);
+	    if (sts != 0)
+		fprintf(stderr, "Warning: %s: exit status %d\n", cmd, sts);
 	}
 	if (i == 14) {
 	    fprintf(stderr, "Start save after changes ...\n");
 	}
 	if (i > 14) {
-	    system(cmd);
+	    sts =system(cmd);
+	    if (sts != 0)
+		fprintf(stderr, "Warning: %s: exit status %d\n", cmd, sts);
 	}
     }
     __pmdaCacheDump(stderr, indom, 0);
@@ -224,28 +232,36 @@ _b(void)
 	fprintf(stderr, "PMDA_CACHE_HIDE failed for \"%s\": %s\n", nbuf, pmErrStr(inst));
     sts = pmdaCacheOp(indom, PMDA_CACHE_SAVE);
     fprintf(stderr, "Save -> %d\n", sts);
-    system(cmd);
+    sts =system(cmd);
+    if (sts != 0)
+	fprintf(stderr, "Warning: %s: exit status %d\n", cmd, sts);
     fprintf(stderr, "Add %s ...\n", nbuf);
     inst = pmdaCacheStore(indom, PMDA_CACHE_ADD, nbuf, (void *)((__psint_t)0xdeadbeef));
     if (inst < 0)
 	fprintf(stderr, "PMDA_CACHE_ADD failed for \"%s\": %s\n", nbuf, pmErrStr(inst));
     sts = pmdaCacheOp(indom, PMDA_CACHE_SAVE);
     fprintf(stderr, "Save -> %d\n", sts);
-    system(cmd);
+    sts =system(cmd);
+    if (sts != 0)
+	fprintf(stderr, "Warning: %s: exit status %d\n", cmd, sts);
     fprintf(stderr, "Cull %s ...\n", nbuf);
     inst = pmdaCacheStore(indom, PMDA_CACHE_CULL, nbuf, NULL);
     if (inst < 0)
 	fprintf(stderr, "PMDA_CACHE_CULL failed for \"%s\": %s\n", nbuf, pmErrStr(inst));
     sts = pmdaCacheOp(indom, PMDA_CACHE_SAVE);
     fprintf(stderr, "Save -> %d\n", sts);
-    system(cmd);
+    sts =system(cmd);
+    if (sts != 0)
+	fprintf(stderr, "Warning: %s: exit status %d\n", cmd, sts);
     fprintf(stderr, "Add %s ...\n", nbuf);
     inst = pmdaCacheStore(indom, PMDA_CACHE_ADD, nbuf, (void *)((__psint_t)0xdeadbeef));
     if (inst < 0)
 	fprintf(stderr, "PMDA_CACHE_ADD failed for \"%s\": %s\n", nbuf, pmErrStr(inst));
     sts = pmdaCacheOp(indom, PMDA_CACHE_SAVE);
     fprintf(stderr, "Save -> %d\n", sts);
-    system(cmd);
+    sts =system(cmd);
+    if (sts != 0)
+	fprintf(stderr, "Warning: %s: exit status %d\n", cmd, sts);
 
 }
 

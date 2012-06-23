@@ -45,7 +45,11 @@ try(int len)
 	close(fd);
 	return;
     }
-    read(fd, buf, sizeof(buf));
+    sts = read(fd, buf, sizeof(buf));
+    if (sts < 0) {
+	/* in this case don't really care about the return code from read() */
+	;
+    }
     close(fd);
 }
 

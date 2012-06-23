@@ -76,8 +76,11 @@ main(int argc, char *argv[])
 	    fprintf(stderr, "__pmSetClientId(%s): %s\n",
 		    cp, pmErrStr(sts));
 	}
-	else
-	    system("pminfo -f pmcd.client.whoami");
+	else {
+	    sts = system("pminfo -f pmcd.client.whoami");
+	    if (sts != 0)
+		fprintf(stderr, "Warning: pminfo command: exit status %d\n", sts);
+	}
 	free(cp);
     }
 

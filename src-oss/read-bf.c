@@ -30,11 +30,16 @@ main(int argc, char *argv[])
     ext_bits_t	extbits;
     __uint32_t	*ip;
     int		i;
+    int		sts;
 
     fprintf(stderr, "sizeof(bits_t): %d\n", (int)sizeof(bits_t));
 
     if (strcmp(basename(argv[0]), "read-bf") == 0) {
-	read(0, &extbits, sizeof(ext_bits_t));
+	sts = read(0, &extbits, sizeof(ext_bits_t));
+	if (sts != sizeof(ext_bits_t)) {
+	    fprintf(stderr, "read() returns %d not %d as expected\n", sts, (int)sizeof(ext_bits_t));
+	    exit(1);
+	}
 
 	fprintf(stderr, "read: ");
 	for (i = 0, ip = (__uint32_t *)&extbits; i < sizeof(ext_bits_t); i += sizeof(*ip), ip++)
@@ -91,7 +96,11 @@ main(int argc, char *argv[])
 	    fprintf(stderr, " %08x", *ip);
 	fputc('\n', stderr);
 
-	write(1, &extbits, sizeof(bits_t));
+	sts = write(1, &extbits, sizeof(bits_t));
+	if (sts != sizeof(bits_t)) {
+	    fprintf(stderr, "write() returns %d not %d as expected\n", sts, (int)sizeof(bits_t));
+	    exit(1);
+	}
     }
     exit(0);
 }
