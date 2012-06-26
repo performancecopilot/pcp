@@ -15,36 +15,30 @@ PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 endif
 include $(PCP_INC_DIR)/builddefs
 
-SUBDIRS = src-oss pmdas
+SUBDIRS = src-oss
+ifeq ($(shell [ -d src ] && echo 0),0)
+SUBDIRS += src
+endif
+SUBDIRS += pmdas debian
 
 TESTS	= $(shell sed -n -e '/^[0-9]/s/[ 	].*//p' <group)
 
-default:	localconfig new remake check qa_hosts $(OTHERS)
-
-install:
-
-default_pcp default_pro:
-
-install_pcp install_pro:
-
-exports install:
-
-clobber clean:	$(SUBDIRS)
+default: localconfig new remake check qa_hosts $(OTHERS) $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
-	rm -rf 051.work
-	rm -f *.bak *.bad *.core *.full *.raw *.o core a.out core.*
-	rm -f *.log eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz
-	rm -f *.full.ok *.new rc_cron_check.clean
-	rm -f make.out qa_hosts localconfig localconfig.h check.time
-	find ???.out ????.out -type f -links +1 | xargs rm -f
-	rm -f 134.full.*
+
+setup: $(SUBDIRS) pconf cisco
+	$(SUBDIRS_MAKERULE)
+
+LDIRT += 051.work 134.full.* \
+         *.bak *.bad *.core *.full *.raw *.o core a.out core.* \
+	 *.log eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz \
+	 *.full.ok *.new rc_cron_check.clean \
+	  make.out qa_hosts localconfig localconfig.h check.time
 	# these ones are links to the real files created when the associated
 	# test is run
-	#
-	grep '\.out$$' .gitignore | xargs rm -f
+LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
 	# from QA 441
-	#
-	rm -f big1.*
+LDIRT += big1.*
 
 # 051 depends on this rule being here
 051.work/die.001: 051.setup
@@ -54,23 +48,36 @@ clobber clean:	$(SUBDIRS)
 qa_hosts:	qa_hosts.master mk.qa_hosts
 	PATH=$(PATH); ./mk.qa_hosts
 
-setup:
-
 localconfig:
 	PATH=$(PATH); ./mk.localconfig
 
-COMMON= common common.check common.config common.filter common.install.cisco \
-	common.pcpweb common.product common.rc common.setup
+pconf:	pconf.tar
+	tar xpf pconf.tar
 
-src-link:	$(COMMON)
-	@test ! -z "$$SRCLINK_ROOT" || ( echo '$$SRCLINK_ROOT not set ... bozo!' ; echo "... generally unsafe to run make src-link outside the Makepkgs script"; exit 1 )
-	@test -z "$$DIR" && DIR="."; \
-	for f in `echo $^`; do \
-	    if test -d $$f ; then \
-		mkdir $$SRCLINK_ROOT/$$DIR/$$f || exit $$?; \
-		$(MAKEF) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
-	    else \
-		ln $$f $$SRCLINK_ROOT/$$DIR/$$f || exit $$?; \
-	    fi; \
-	done
+cisco:	cisco.tar
+	tar xpf cisco.tar
 
+SCRIPTS = mk.localconfig new check recheck remake mk.qa_hosts findmetric \
+	  fix-rc getpmcdhosts group-stats mk.variant changeversion \
+	  check-gitignore check-group chk.setup sanity.coverage show-me \
+	  xlate_2_new_pmns Makepkgs
+
+COMMON = common common.check common.config common.filter common.install.cisco \
+	 common.pcpweb common.product common.rc common.setup
+
+OTHERS = group qa_hosts.master COPYING README pconf.tar \
+	 cisco.tar VERSION.pcpqa valgrind-suppress
+
+DOTOUTFILES = $(shell git ls-tree --name-only HEAD | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$')
+
+LSRCFILES = $(SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS)
+
+install: $(SUBDIRS)
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/qa
+	$(INSTALL) -m 755 $(SCRIPTS) $(PCP_VAR_DIR)/qa
+	$(INSTALL) -m 644 GNUmakefile $(COMMON) $(OTHERS) $(PCP_VAR_DIR)/qa
+	$(INSTALL) -m 755 $(TESTS) $(PCP_VAR_DIR)/qa
+	$(INSTALL) -m 644 $(DOTOUTFILES) $(PCP_VAR_DIR)/qa
+	$(SUBDIRS_MAKERULE)
+
+include $(BUILDRULES)

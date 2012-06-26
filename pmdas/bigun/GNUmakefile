@@ -28,14 +28,20 @@ endif
 CFILES = bigun.c
 LIBTARGET = bigun.$(DSOSUFFIX)
 TARGETS = $(LIBTARGET)
+MYFILES = domain.h help pmns root
+MYSCRIPTS = Install Remove
+LSRCFILES = $(MYFILES) $(MYSCRIPTS)
 LDIRT = help.pag help.dir
 
 LLDLIBS = -lpcp_pmda -lpcp
 
-default: $(TARGETS)
+default setup: $(TARGETS)
 
 $(LIBTARGET):	bigun.o
 
-install: default
+install:
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/qa/pmdas/bigun
+	$(INSTALL) -m 755 $(MYSCRIPTS) $(PCP_VAR_DIR)/qa/pmdas/bigun
+	$(INSTALL) -m 644 GNUmakefile $(CFILES) $(MYFILES) $(PCP_VAR_DIR)/qa/pmdas/bigun
 
 include $(PCP_INC_DIR)/buildrules

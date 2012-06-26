@@ -1,0 +1,13 @@
+Source: pcpqa
+Section: utils
+Priority: extra
+Homepage: http://oss.sgi.com/projects/pcp
+Maintainer: Ken McDonell <kenj@kenj.com.au>
+Build-Depends: gawk, procps, debhelper (>= 5)
+Standards-Version: 3.9.2
+
+Package: pcpqa
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, sysv-rc-conf, pcp
+Architecture: any
+Description: Performance Co-Pilot (PCP) Quality Assurance Suite
+ Unit tests for PCP QA coverage.

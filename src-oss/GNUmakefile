@@ -15,7 +15,7 @@ include $(PCP_INC_DIR)/builddefs
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
 else
-$(warning Warning: ../localconfig does not exist, assuming PCP 3.0)
+# Warning: ../localconfig does not exist, assuming PCP 3.0
 PCP_VER=3000
 endif
 
@@ -44,16 +44,11 @@ HAVE_64	= $(shell test `uname -m | sed -e 's/.*64/64/g'` = "64" && echo 1 || ech
 
 SRCARCH	= mirage.0 moomba.client.0 \
 	babylon.percpu.0 babylon.percpu_v2.0 \
-	omen.client.0 \
-	bozo.client.0 bozo.client_v2.0 \
-	late.0 ok-bigbin.0 ok-mv-bigbin.0 ok-noti-bigbin.0 ok-truncbin.0 \
-	babylon.pmview.0 babylon.pmview_v2.0 \
-	ok-foo.0 ok-mv-foo.0 \
-	bug.0 bug_v2.0 \
-	ace.0 ace_v2.0 \
-	951127.23.01.0 951127.23.01_v2.0 \
-	960624.08.17.0 960624.08.17_v2.0 \
-	bigace.0 bigace_v2.0 \
+	omen.client.0 bozo.client.0 bozo.client_v2.0 \
+	late.0 ok-bigbin.0 ok-mv-bigbin.0 ok-truncbin.0 \
+	babylon.pmview.0 babylon.pmview_v2.0 ok-foo.0 ok-mv-foo.0 \
+	bug.0 bug_v2.0 ace.0 ace_v2.0 bigace.0 bigace_v2.0 \
+	951127.23.01.0 951127.23.01_v2.0 960624.08.17.0 960624.08.17_v2.0 \
 	rattle.0 mark-bug.0 arch_a.0 arch_b.0 \
 	err_v1.0 changeinst.0 19970807.09.54.0 19970807.09.59.0 \
 	binning.0 wrap.0 573184.0 xbug1.0 pcpcmd.0 markmerge.0 \
@@ -61,25 +56,22 @@ SRCARCH	= mirage.0 moomba.client.0 \
 	reduce-1.0 reduce-2.0 kenj-pc-diskstat.0 snort-disks.0 \
 	vldb-disks.0 moomba.pmkstat.0 fcsw_indom.0 \
 	uwrap.0 20041125.0 ac15.0 conn20070309.0 logsummary-bug.0 \
-	mirage-1.0 mirage-2.0 \
 	tzchange-10-a.0 tzchange-10-b.0 tzchange-11-a.0 tzchange-11-b.0 \
 	tzchange-12-a.0 tzchange-12-b.0 sample_expr.0 \
-	eventrec-old.0 eventrec.0 \
+	mirage-1.0 mirage-2.0 eventrec-old.0 eventrec.0 \
 	badlen-0.0 badlen-1.0 badlen-2.0 badlen-3.0 badlen-4.0 \
 	badlen-5.0 badlen-6.0 badlen-7.0 badlen-8.0 badlen-9.0 \
-	540117-short.0 \
-	541380.0 541380_v2.0 \
-	573184.0 20101004-trunc.0 \
+	540117-short.0 541380.0 541380_v2.0 573184.0 20101004-trunc.0 \
 	bozo.client_v2.meta.bad.1 bozo.client_v2.meta.bad.2 \
 	rewrite.0 proc.0 section-a.0 section-b.0 section-c.0 section-d.0 \
-	interpmark.0
+	interpmark.0 all-irix-6.5.25.0 all-sles9-sp1.0 naslog.0
+
+SRCARCHPART = ok-noti-bigbin.0 
 
 MKARCH	= foo.0 mv-foo.0 noti-foo.0 bar.0 mv-bar.0 noti-bar.0 \
 	bigbin.0 mv-bigbin.0 noti-bigbin.0 truncbin.0 null.0 \
 	interp.0 mv-interp.0 noti-interp.0 noti-ok-foo.0 gap.0 gap2.0 \
 	dodgey-some.0 dodgey-all.0 dodgey-mixed.0 reduce-gap.0
-
-ARCH	= $(SRCARCH) $(MKARCH)
 
 CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	xval.c xxx.c chkopenlog.c chkconnect.c t_fetch.c \
@@ -104,13 +96,22 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	record.c record-setarg.c clientid.c killparent.c grind_ctx.c \
 	pmdacache.c check_import.c unpack.c aggrstore.c atomstr.c \
 	grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \
-	keycache2.c pmdaqueue.c drain-server.c
+	keycache2.c pmdaqueue.c drain-server.c template.c
 
 ifeq ($(shell test $(PCP_VER) -ge 3600 && echo 1), 1)
 CFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
 	multithread4.c multithread5.c multithread6.c multithread7.c \
 	multithread8.c multithread9.c \
 	exerlock.c
+else
+MYFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
+	multithread4.c multithread5.c multithread6.c multithread7.c \
+	multithread8.c multithread9.c \
+	exerlock.c
+LDIRT += multithread0 multithread1 multithread2 multithread3 \
+	multithread4 multithread5 multithread6 multithread7 \
+	multithread8 multithread9 \
+	exerlock
 endif
 
 ifeq ($(shell test -f /usr/include/pcp/fault.h && echo 1), 1)
@@ -133,13 +134,36 @@ PERLFILES = \
 ifneq "$(TARGET_OS)" "mingw"
 CFILES += $(POSIXFILES) $(TRACEFILES)
 else
-LSRCFILES += $(POSIXFILES) $(TRACEFILES) $(PERLFILES)
+MYFILES += $(POSIXFILES) $(TRACEFILES) $(PERLFILES)
+MYSCRIPTS += $(PERLFILES)
 endif
+
+MYFILES += $(SRCARCH) \
+	$(patsubst %.0,%.meta,$(SRCARCH)) $(patsubst %.0,%.index,$(SRCARCH)) \
+	ok-mv-bigbin.[1-9] ok-mv-foo.[12] \
+	$(SRCARCHPART) \
+	ok-noti-bigbin.meta err_v1.dump \
+	bigace.pmns check_import.pl \
+	config.bar config.bigbin config.dodgey-all config.dodgey-mixed \
+	config.dodgey-some config.foo config.interp kenj-pc-2.config \
+	reduce.config uwrap.config wrap.config \
+	root_irix root_pmns tiny.pmns sgi.bf versiondefs \
+	simple.csv simple.ods simple-resave.csv simple-resave.xlsx \
+	simple.sxc simple.xls simple.xlsx \
+	iostat iostat-c iostat-d iostat-d-k iostat-d-m iostat-p-ALL \
+	iostat-t iostat-t.ISO iostat-x iostat-z iostat-z-p-ALL \
+	pmtimezone.c pthread_barrier.h pv.c qa_test.c \
+	sa-sysstat-10.0.1 sa-sysstat-9.0.6 sa-sysstat-9.1.7
+
+MYSCRIPTS = grind-tools ipcs_clear make.dodgey mkarch-all mkbadlen \
+	mkeventrec mkinterpmark mkmirage mkproc mkrewrite mksample_expr \
+	mksa-sysstat mktzchange show-args
+
+LSRCFILES = $(MYFILES) $(MYSCRIPTS)
 
 CFILES_TARGETS = $(CFILES)
 
-TARGETS = \
-	$(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
+TARGETS = $(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
 	chkctx2_lite template \
 	fetchrate_lite pv
 
@@ -156,22 +180,47 @@ TRACELIB	= -lpcp_trace
 # all archives, except the ones checked into the source tree,
 # then add executables beyond $(TARGETS)
 #
-LDIRT	= *.log domain.h help.pag help.dir mv-foo.? mv-bar.? mv-bigbin.? \
-	$(subst .c,.o,$(CFILES)) \
-	chkctx2_lite.c mv-interp.? fetchrate_lite.c \
-	localconfig.h gmon.out pmtimzone.so pmtimezone.o
+LDIRT	+= *.log domain.h help.pag help.dir \
+	foo.0 foo.index foo.meta \
+	mv-foo.[0-9] mv-foo.index mv-foo.meta \
+	noti-foo.0 noti-foo.meta \
+	bar.0 bar.index bar.meta \
+	mv-bar.[0-9] mv-bar.index mv-bar.meta \
+	noti-bar.0 noti-bar.meta \
+	bigbin.0 bigbin.index bigbin.meta \
+	mv-bigbin.[0-9] mv-bigbin.index mv-bigbin.meta \
+	noti-bigbin.0 noti-bigbin.meta \
+	truncbin.0 truncbin.index truncbin.meta \
+	null.0 null.index null.meta \
+	interp.0 interp.index interp.meta \
+	mv-interp.[0-9] mv-interp.index mv-interp.meta \
+	noti-interp.0 noti-interp.meta \
+	noti-ok-foo.0 noti-ok-foo.meta \
+	gap.0 gap.index gap.meta \
+	gap2.0 gap2.index gap2.meta \
+	dodgey-some.0 dodgey-some.index dodgey-some.meta \
+	dodgey-all.0 dodgey-all.index dodgey-all.meta \
+	dodgey-mixed.0 dodgey-mixed.index dodgey-mixed.meta \
+	reduce-gap.0 reduce-gap.index reduce-gap.meta \
+	chkctx2_lite.c fetchrate_lite.c \
+	localconfig.h gmon.out pmtimzone.so pmtimezone.o \
+	$(TARGETS)
 
 .ORDER:	torture_api \
 	chkctx2 fetchrate
 
-default: $(CFILES_TARGETS) $(TARGETS) $(ARCH) ipcs_clear
+default: $(CFILES_TARGETS) $(TARGETS) $(SRCARCH) $(SRCARCHPART) ipcs_clear
 
-clobber clean: clean-exec clean-arch
-	rm -rf $(LDIRT) $(OBJECTS)
+setup: default $(MKARCH) 
 
 $(TARGETS):
 
-install: default
+install:
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/qa/src-oss
+	$(INSTALL) -m 644 GNUmakefile $(CFILES) $(MYFILES) $(PCP_VAR_DIR)/qa/src-oss
+	$(INSTALL) -m 755 $(MYSCRIPTS) $(PCP_VAR_DIR)/qa/src-oss
+
+include $(BUILDRULES)
 
 # remove just the binaries, not the archives
 #
@@ -189,7 +238,7 @@ OBJECTS = $(shell echo $(CFILES) | sed -e 's/\.c/.o/g')
 
 # make just the archives, not the binaries
 #
-arch:	$(ARCH)
+arch:	$(SRCARCH) $(SRCARCHPART) $(MKARCH)
 
 # --- do NOT need libpcp
 #

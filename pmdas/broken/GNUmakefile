@@ -38,16 +38,22 @@ LLDLIBS	= -lpcp
 #
 LDIRT	= *.log domain.h help.pag help.dir $(subst .c,.o,$(CFILES)) \
 	broken_pmda_*.c real_broken_pmns broken_v?.dir broken_v?.pag \
-	broken_pmda_?
+	$(TARGETS)
 
-default: $(CFILES_TARGETS) $(TARGETS)
+default setup: $(CFILES_TARGETS) $(TARGETS)
 
-clobber clean:
-	rm -f $(LDIRT) $(TARGETS)
+MYFILES = broken_help broken_pmns
+MYSCRIPTS = broken_Install broken_Remove
+LSRCFILES += $(MYFILES) $(MYSCRIPTS)
+
+include $(PCP_INC_DIR)/buildrules
 
 $(TARGETS):
 
-install: default
+install:
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/qa/pmdas/broken
+	$(INSTALL) -m 755 $(MYSCRIPTS) $(PCP_VAR_DIR)/qa/pmdas/broken
+	$(INSTALL) -m 644 GNUmakefile $(CFILES) $(MYFILES) $(PCP_VAR_DIR)/qa/pmdas/broken
 
 OBJECTS = $(shell echo $(CFILES) | sed -e 's/\.c/.o/g')
 

@@ -30,13 +30,13 @@ TARGET = pmlogconv
 
 LDIRT = $(TARGET)
 
-default : $(TARGET)
+default: $(TARGET)
 
-$(TARGET) : $(OBJECTS)
+$(TARGET): $(OBJECTS)
 
-include $(PCP_INC_DIR)/buildrules
+include $(BUILDRULES)
 
-install : default
+install: default
 	$(INSTALL) -m 755 $(TARGET) $(PCP_BIN_DIR)/$(TARGET)
 
 pmlogconv.o:	pmlogconv.c

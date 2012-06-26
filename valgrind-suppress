@@ -161,3 +161,11 @@
    fun:_dl_start
    obj:*
 }
+
+{
+   openSUSE 12.1 strlen() Conditional jump or move depends on uninitialised value(s)
+   Memcheck:Cond
+   fun:strlen
+   obj:*
+}
+

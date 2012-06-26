@@ -16,5 +16,12 @@ SUBDIRS = broken bigun
 default: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
-clobber clean install: $(SUBDIRS)
+setup: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
+
+install: $(SUBDIRS)
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/qa/pmdas
+	$(INSTALL) -m 644 GNUmakefile $(PCP_VAR_DIR)/qa/pmdas/GNUmakefile
+	$(SUBDIRS_MAKERULE)
+
+include $(BUILDRULES)

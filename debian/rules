@@ -1,0 +1,51 @@
+#!/usr/bin/make -f
+
+pkg = pcpqa
+
+dirpkg = debian/$(pkg)
+alldir = $(dirpkg)
+
+zip = @export GZIP=-9q
+pack = $(zip); export DIST_ROOT=`pwd`/$(dirpkg);
+
+options = export DEBUG=-DNDEBUG AWK=gawk;
+checkdir = test -f debian/rules
+uninstall = cat debian/*.install | sed -e "s,^,debian/$(pkg)/," | xargs rm -f
+uninstalld =
+
+build:
+	@echo "== dpkg-buildpackage: build" 1>&2
+	$(MAKE) default && touch built
+
+clean:
+	@echo "== dpkg-buildpackage: clean" 1>&2
+	$(checkdir)
+	-rm -f built
+	$(MAKE) clean
+	-rm -rf $(alldir)
+	-rm -f debian/*substvars debian/files* debian/*.debhelper
+
+binary: checkroot built
+	@echo "== dpkg-buildpackage: binary" 1>&2
+	$(checkdir)
+	-rm -rf $(alldir)
+	$(pack) $(MAKE) -C . install || exit 1
+	dh_installdocs
+	dh_installchangelogs
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_installdirs
+	dh_install --sourcedir=debian/$(pkg)
+	@$(uninstall)
+	@$(uninstalld)
+	dh_installdeb
+	dh_shlibdeps 2>/dev/null
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+checkroot:
+	test 0 -eq `id -u`
+
+.PHONY: binary clean checkroot build

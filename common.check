@@ -4,6 +4,11 @@
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
+if [ ! -f localconfig ]
+then
+    ./mk.localconfig
+fi
+
 # need to know what version we're running
 . ./localconfig
 
