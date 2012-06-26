@@ -1,0 +1,386 @@
+QA output created by 498
+
+events arriving with no queues setup yet (fail)
+add queue#0 event(0,1024) -> -22 Invalid argument
+
+attempt to register duplicate queue names (fail)
+new queue(queue1,1024) -> 0
+new queue(queue1,1024) -> -17 File exists
+
+attempt queue creation without memory limit (fail)
+new queue(queue1,0) -> -22 Invalid argument
+
+create one queue, events arriving with no clients yet
+new queue(queue1,1024) -> 0
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue1" (128 bytes)
+add event(queue1,128) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue1" (42 bytes)
+add event(queue1,42) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue1" (18 bytes)
+add event(queue1,18) -> 0 [TIME]
+event queue#0 count=3, bytes=188, clients=0, mem=0
+
+multiple queues, events arriving without clients
+new queue(queue0,1024) -> 0
+new queue(queue1,512) -> 1
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (128 bytes)
+add event(queue0,128) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#1 "queue1" (24 bytes)
+add event(queue1,24) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (18 bytes)
+add event(queue0,18) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#1 "queue1" (228 bytes)
+add event(queue1,228) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (142 bytes)
+add event(queue0,142) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#1 "queue1" (28 bytes)
+add event(queue1,28) -> 0 [TIME]
+event queue#0 count=3, bytes=288, clients=0, mem=0
+event queue#1 count=3, bytes=280, clients=0, mem=0
+new queue(queue2,356) -> 2
+[DATE] pmdaqueue(PID) Info: Appending event: queue#2 "queue2" (328 bytes)
+add event(queue2,328) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#2 "queue2" (32 bytes)
+add event(queue2,32) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (17 bytes)
+add event(queue0,17) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#1 "queue1" (227 bytes)
+add event(queue1,227) -> 0 [TIME]
+event queue#0 count=4, bytes=305, clients=0, mem=0
+event queue#1 count=4, bytes=507, clients=0, mem=0
+event queue#2 count=2, bytes=360, clients=0, mem=0
+
+single queue, single client, coming and going, no events arriving
+new queue(queue0,1024) -> 0
+[DATE] pmdaqueue(PID) Info: pmdaEventNewClient: new client, slot=0 (total=1)
+new client(1) -> 0
+walking queue#0 events for client#1
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
+end walk queue#0
+event queue#0 count=0, bytes=0, clients=1, mem=0
+pmdaEventEndClient: ctx=1 slot=0
+end client(1) -> 0
+event queue#0 count=0, bytes=0, clients=0, mem=0
+
+single queue, single client, coming and going, with events arriving
+new queue(queue0,1024) -> 0
+[DATE] pmdaqueue(PID) Info: pmdaEventNewClient: new client, slot=0 (total=1)
+new client(1) -> 0
+enable queue#0 access(1) -> 1
+event queue#0 count=0, bytes=0, clients=0, mem=0
+walking queue#0 events for client#1
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
+end walk queue#0
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (24 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue0 event 0xADDR (24 bytes) clients = 1.
+add event(queue0,24) -> 0 [TIME]
+event queue#0 count=1, bytes=24, clients=1, mem=24
+walking queue#0 events for client#1
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=0xADDR
+[DATE] pmdaqueue(PID) Info: Adding event (sz=24): "                       "
+queue#0 client#1 event: 0xADDR, size=24 check=ok
+[DATE] pmdaqueue(PID) Info: Removing queue0 event 0xADDR in fetch
+end walk queue#0
+pmdaEventEndClient: ctx=1 slot=0
+end client(1) -> 0
+event queue#0 count=1, bytes=24, clients=0, mem=0
+
+single queue, single client, queue filling up
+new queue(queue0,42) -> 0
+[DATE] pmdaqueue(PID) Info: pmdaEventNewClient: new client, slot=0 (total=1)
+new client(1) -> 0
+enable queue#0 access(1) -> 1
+event queue#0 count=0, bytes=0, clients=0, mem=0
+walking queue#0 events for client#1
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
+end walk queue#0
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (24 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue0 event 0xADDR (24 bytes) clients = 1.
+add event(queue0,24) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (2 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue0 event 0xADDR (2 bytes) clients = 1.
+add event(queue0,2) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (8 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue0 event 0xADDR (8 bytes) clients = 1.
+add event(queue0,8) -> 0 [TIME]
+event queue#0 count=3, bytes=34, clients=1, mem=34
+walking queue#0 events for client#1
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=0xADDR
+[DATE] pmdaqueue(PID) Info: Adding event (sz=24): "                       "
+queue#0 client#1 event: 0xADDR, size=24 check=ok
+[DATE] pmdaqueue(PID) Info: Removing queue0 event 0xADDR in fetch
+[DATE] pmdaqueue(PID) Info: Adding event (sz=2): " "
+queue#0 client#1 event: 0xADDR, size=2 check=ok
+[DATE] pmdaqueue(PID) Info: Removing queue0 event 0xADDR in fetch
+[DATE] pmdaqueue(PID) Info: Adding event (sz=8): "       "
+queue#0 client#1 event: 0xADDR, size=8 check=ok
+[DATE] pmdaqueue(PID) Info: Removing queue0 event 0xADDR in fetch
+end walk queue#0
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (28 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue0 event 0xADDR (28 bytes) clients = 1.
+add event(queue0,28) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (28 bytes)
+[DATE] pmdaqueue(PID) Info: Dropping queue0: e=0xADDR sz=28 max=42 qsz=28
+[DATE] pmdaqueue(PID) Info: Removing queue0 event 0xADDR (28 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue0 event 0xADDR (28 bytes) clients = 1.
+add event(queue0,28) -> 0 [TIME]
+event queue#0 count=5, bytes=90, clients=1, mem=28
+walking queue#0 events for client#1
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=0xADDR
+[DATE] pmdaqueue(PID) Info: Adding event (sz=28): "                           "
+queue#0 client#1 event: 0xADDR, size=28 check=ok
+[DATE] pmdaqueue(PID) Info: Removing queue0 event 0xADDR in fetch
+end walk queue#0
+
+single queue, single filtering client
+new queue(queue0,42) -> 0
+[DATE] pmdaqueue(PID) Info: pmdaEventNewClient: new client, slot=0 (total=1)
+new client(1) -> 0
+enable queue#0 access(1) -> 1
+client#1 set filter(sz<10) on queue#0-> 0
+event queue#0 count=0, bytes=0, clients=0, mem=0
+walking queue#0 events for client#1
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
+end walk queue#0
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (24 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue0 event 0xADDR (24 bytes) clients = 1.
+add event(queue0,24) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (2 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue0 event 0xADDR (2 bytes) clients = 1.
+add event(queue0,2) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (8 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue0 event 0xADDR (8 bytes) clients = 1.
+add event(queue0,8) -> 0 [TIME]
+event queue#0 count=3, bytes=34, clients=1, mem=34
+walking queue#0 events for client#1
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=0xADDR
+=> apply-filter(10<24) -> 1
+[DATE] pmdaqueue(PID) Info: Clientq filter applied (1)
+[DATE] pmdaqueue(PID) Info: Culling event (sz=24): "                       "
+[DATE] pmdaqueue(PID) Info: Removing queue0 event 0xADDR in fetch
+=> apply-filter(10<2) -> 0
+[DATE] pmdaqueue(PID) Info: Clientq filter applied (0)
+[DATE] pmdaqueue(PID) Info: Adding event (sz=2): " "
+queue#0 client#1 event: 0xADDR, size=2 check=ok
+[DATE] pmdaqueue(PID) Info: Removing queue0 event 0xADDR in fetch
+=> apply-filter(10<8) -> 0
+[DATE] pmdaqueue(PID) Info: Clientq filter applied (0)
+[DATE] pmdaqueue(PID) Info: Adding event (sz=8): "       "
+queue#0 client#1 event: 0xADDR, size=8 check=ok
+[DATE] pmdaqueue(PID) Info: Removing queue0 event 0xADDR in fetch
+end walk queue#0
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (28 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue0 event 0xADDR (28 bytes) clients = 1.
+add event(queue0,28) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (28 bytes)
+[DATE] pmdaqueue(PID) Info: Dropping queue0: e=0xADDR sz=28 max=42 qsz=28
+[DATE] pmdaqueue(PID) Info: Removing queue0 event 0xADDR (28 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue0 event 0xADDR (28 bytes) clients = 1.
+add event(queue0,28) -> 0 [TIME]
+event queue#0 count=5, bytes=90, clients=1, mem=28
+walking queue#0 events for client#1
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=0xADDR
+=> apply-filter(10<28) -> 1
+[DATE] pmdaqueue(PID) Info: Clientq filter applied (1)
+[DATE] pmdaqueue(PID) Info: Culling event (sz=28): "                           "
+[DATE] pmdaqueue(PID) Info: Removing queue0 event 0xADDR in fetch
+end walk queue#0
+
+multiple queues, multiple clients coming and going, queues filling
+new queue(queue0,1024) -> 0
+new queue(queue1,512) -> 1
+new queue(queue2,356) -> 2
+[DATE] pmdaqueue(PID) Info: pmdaEventNewClient: new client, slot=0 (total=1)
+new client(84) -> 0
+enable queue#0 access(84) -> 1
+[DATE] pmdaqueue(PID) Info: pmdaEventNewClient: new client, slot=1 (total=2)
+new client(42) -> 1
+enable queue#1 access(42) -> 1
+[DATE] pmdaqueue(PID) Info: pmdaEventNewClient: new client, slot=2 (total=3)
+new client(21) -> 2
+enable queue#1 access(21) -> 1
+walking queue#0 events for client#84
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
+end walk queue#0
+walking queue#1 events for client#42
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
+end walk queue#1
+walking queue#1 events for client#21
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
+end walk queue#1
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (128 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue0 event 0xADDR (128 bytes) clients = 1.
+add event(queue0,128) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#1 "queue1" (24 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue1 event 0xADDR (24 bytes) clients = 2.
+add event(queue1,24) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (18 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue0 event 0xADDR (18 bytes) clients = 1.
+add event(queue0,18) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#1 "queue1" (228 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue1 event 0xADDR (228 bytes) clients = 2.
+add event(queue1,228) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (142 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue0 event 0xADDR (142 bytes) clients = 1.
+add event(queue0,142) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#1 "queue1" (28 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue1 event 0xADDR (28 bytes) clients = 2.
+add event(queue1,28) -> 0 [TIME]
+event queue#0 count=3, bytes=288, clients=1, mem=288
+walking queue#0 events for client#84
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=0xADDR
+[DATE] pmdaqueue(PID) Info: Adding event (sz=128): "                                                               "
+queue#0 client#84 event: 0xADDR, size=128 check=ok
+[DATE] pmdaqueue(PID) Info: Removing queue0 event 0xADDR in fetch
+[DATE] pmdaqueue(PID) Info: Adding event (sz=18): "                 "
+queue#0 client#84 event: 0xADDR, size=18 check=ok
+[DATE] pmdaqueue(PID) Info: Removing queue0 event 0xADDR in fetch
+[DATE] pmdaqueue(PID) Info: Adding event (sz=142): "                                                               "
+queue#0 client#84 event: 0xADDR, size=142 check=ok
+[DATE] pmdaqueue(PID) Info: Removing queue0 event 0xADDR in fetch
+end walk queue#0
+event queue#1 count=3, bytes=280, clients=2, mem=280
+walking queue#1 events for client#42
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=0xADDR
+[DATE] pmdaqueue(PID) Info: Adding event (sz=24): "                       "
+queue#1 client#42 event: 0xADDR, size=24 check=ok
+[DATE] pmdaqueue(PID) Info: Adding event (sz=228): "                                                               "
+queue#1 client#42 event: 0xADDR, size=228 check=ok
+[DATE] pmdaqueue(PID) Info: Adding event (sz=28): "                           "
+queue#1 client#42 event: 0xADDR, size=28 check=ok
+end walk queue#1
+event queue#2 count=0, bytes=0, clients=0, mem=0
+walking queue#2 events for client#21
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
+end walk queue#2
+pmdaEventEndClient: ctx=84 slot=0
+end client(84) -> 0
+[DATE] pmdaqueue(PID) Info: Appending event: queue#2 "queue2" (328 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue2 event 0xADDR (328 bytes) clients = 1.
+add event(queue2,328) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#2 "queue2" (32 bytes)
+[DATE] pmdaqueue(PID) Info: Dropping queue2: e=0xADDR sz=328 max=356 qsz=328
+[DATE] pmdaqueue(PID) Info: Removing queue2 event 0xADDR (328 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue2 event 0xADDR (32 bytes) clients = 1.
+add event(queue2,32) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (17 bytes)
+add event(queue0,17) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#1 "queue1" (227 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue1 event 0xADDR (227 bytes) clients = 2.
+add event(queue1,227) -> 0 [TIME]
+new client(84) -> 0
+pmdaEventEndClient: ctx=42 slot=1
+end client(42) -> 0
+new client(21) -> 2
+event queue#0 count=4, bytes=305, clients=0, mem=0
+walking queue#0 events for client#84
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
+end walk queue#0
+event queue#1 count=4, bytes=507, clients=1, mem=507
+walking queue#1 events for client#42
+end walk queue#1
+event queue#2 count=2, bytes=360, clients=1, mem=32
+walking queue#2 events for client#21
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=0xADDR
+[DATE] pmdaqueue(PID) Info: Clientq access denied
+[DATE] pmdaqueue(PID) Info: Culling event (sz=32): "                               "
+[DATE] pmdaqueue(PID) Info: Removing queue2 event 0xADDR in fetch
+end walk queue#2
+
+ad-hoc queues, multiple clients coming and going, queues filling
+new queue(queue0,1024) -> 0
+new queue(queue1,512) -> 1
+[DATE] pmdaqueue(PID) Info: pmdaEventNewClient: new client, slot=0 (total=1)
+new client(84) -> 0
+enable queue#0 access(84) -> 1
+[DATE] pmdaqueue(PID) Info: pmdaEventNewClient: new client, slot=1 (total=2)
+new client(42) -> 1
+enable queue#1 access(42) -> 1
+[DATE] pmdaqueue(PID) Info: pmdaEventNewClient: new client, slot=2 (total=3)
+new client(21) -> 2
+enable queue#1 access(21) -> 1
+walking queue#0 events for client#84
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
+end walk queue#0
+walking queue#1 events for client#42
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
+end walk queue#1
+walking queue#1 events for client#21
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
+end walk queue#1
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (128 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue0 event 0xADDR (128 bytes) clients = 1.
+add event(queue0,128) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#1 "queue1" (24 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue1 event 0xADDR (24 bytes) clients = 2.
+add event(queue1,24) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (18 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue0 event 0xADDR (18 bytes) clients = 1.
+add event(queue0,18) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#1 "queue1" (228 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue1 event 0xADDR (228 bytes) clients = 2.
+add event(queue1,228) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (142 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue0 event 0xADDR (142 bytes) clients = 1.
+add event(queue0,142) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#1 "queue1" (28 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue1 event 0xADDR (28 bytes) clients = 2.
+add event(queue1,28) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Dropping queue0: e=0xADDR sz=128 max=1024 qsz=288
+[DATE] pmdaqueue(PID) Info: Removing queue0 event 0xADDR (128 bytes)
+[DATE] pmdaqueue(PID) Info: Dropping queue0: e=0xADDR sz=18 max=1024 qsz=160
+[DATE] pmdaqueue(PID) Info: Removing queue0 event 0xADDR (18 bytes)
+[DATE] pmdaqueue(PID) Info: Dropping queue0: e=0xADDR sz=142 max=1024 qsz=142
+[DATE] pmdaqueue(PID) Info: Removing queue0 event 0xADDR (142 bytes)
+[DATE] pmdaqueue(PID) Info: Dropping queue1: e=0xADDR sz=24 max=512 qsz=280
+[DATE] pmdaqueue(PID) Info: Removing queue1 event 0xADDR (24 bytes)
+[DATE] pmdaqueue(PID) Info: Dropping queue1: e=0xADDR sz=228 max=512 qsz=256
+[DATE] pmdaqueue(PID) Info: Removing queue1 event 0xADDR (228 bytes)
+[DATE] pmdaqueue(PID) Info: Dropping queue1: e=0xADDR sz=28 max=512 qsz=28
+[DATE] pmdaqueue(PID) Info: Removing queue1 event 0xADDR (28 bytes)
+new queue(queue2,356) -> 2
+event queue#0 count=3, bytes=288, clients=1, mem=0
+walking queue#0 events for client#84
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
+end walk queue#0
+event queue#1 count=3, bytes=280, clients=2, mem=0
+walking queue#1 events for client#42
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
+end walk queue#1
+event queue#2 count=0, bytes=0, clients=0, mem=0
+walking queue#2 events for client#21
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
+end walk queue#2
+pmdaEventEndClient: ctx=84 slot=0
+end client(84) -> 0
+[DATE] pmdaqueue(PID) Info: Appending event: queue#2 "queue2" (328 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue2 event 0xADDR (328 bytes) clients = 1.
+add event(queue2,328) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#2 "queue2" (32 bytes)
+[DATE] pmdaqueue(PID) Info: Dropping queue2: e=0xADDR sz=328 max=356 qsz=328
+[DATE] pmdaqueue(PID) Info: Removing queue2 event 0xADDR (328 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue2 event 0xADDR (32 bytes) clients = 1.
+add event(queue2,32) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#0 "queue0" (17 bytes)
+add event(queue0,17) -> 0 [TIME]
+[DATE] pmdaqueue(PID) Info: Appending event: queue#1 "queue1" (227 bytes)
+[DATE] pmdaqueue(PID) Info: Inserted queue1 event 0xADDR (227 bytes) clients = 2.
+add event(queue1,227) -> 0 [TIME]
+new client(84) -> 0
+pmdaEventEndClient: ctx=42 slot=1
+end client(42) -> 0
+new client(21) -> 2
+event queue#0 count=4, bytes=305, clients=0, mem=0
+walking queue#0 events for client#84
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=(nil)
+end walk queue#0
+event queue#1 count=4, bytes=507, clients=1, mem=227
+walking queue#1 events for client#42
+end walk queue#1
+event queue#2 count=2, bytes=360, clients=1, mem=32
+walking queue#2 events for client#21
+[DATE] pmdaqueue(PID) Info: queue_fetch start, last event=0xADDR
+[DATE] pmdaqueue(PID) Info: Clientq access denied
+[DATE] pmdaqueue(PID) Info: Culling event (sz=32): "                               "
+[DATE] pmdaqueue(PID) Info: Removing queue2 event 0xADDR in fetch
+end walk queue#2
