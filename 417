@@ -38,11 +38,21 @@ else
     case $PCP_PLATFORM
     in
 	irix|linux)
-	    ln $seq.$PCP_PLATFORM.2 $seq.out || exit 1
+	    if [ $PCP_VER -lt 3604 ]
+	    then
+		ln $seq.$PCP_PLATFORM.2 $seq.out || exit 1
+	    else
+		ln $seq.$PCP_PLATFORM.3 $seq.out || exit 1
+	    fi
 	    ;;
 	darwin|solaris)
 	    # same output for Mac OS X and OpenSolaris
-	    ln $seq.linux.2 $seq.out || exit 1
+	    if [ $PCP_VER -lt 3604 ]
+	    then
+		ln $seq.linux.2 $seq.out || exit 1
+	    else
+		ln $seq.linux.3 $seq.out || exit 1
+	    fi
 	    ;;
 	*)
 	    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
