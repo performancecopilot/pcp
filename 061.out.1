@@ -1,0 +1,1133 @@
+QA output created by 061
+
+mandatory on once -> mandatory on once
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+Warning: AF event queue is empty, nothing more will be scheduled
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+mandatory on once -> mandatory maybe
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  0 (adv off)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+Warning: AF event queue is empty, nothing more will be scheduled
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+mandatory on once -> mandatory off
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  2 (mand off)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+Warning: AF event queue is empty, nothing more will be scheduled
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+mandatory on once -> advisory on once
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
+Log for pmlogger on HOST started DATE
+
+Warning [/tmp/MYPID.config, line 6]
+Incompatible request for metric "sample.colour" and instance "blue"
+Request for (advisory) ON conflicts with current (mandatory) ON state
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+Warning: AF event queue is empty, nothing more will be scheduled
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+mandatory on once -> advisory off
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
+Log for pmlogger on HOST started DATE
+
+Warning [/tmp/MYPID.config, line 6]
+Incompatible request for metric "sample.colour" and instance "blue"
+Request for (advisory) OFF conflicts with current (mandatory) ON state
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+Warning: AF event queue is empty, nothing more will be scheduled
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+mandatory maybe -> mandatory on once
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+Warning: AF event queue is empty, nothing more will be scheduled
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+mandatory maybe -> mandatory maybe
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  0 (adv off)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+mandatory maybe -> mandatory off
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  2 (mand off)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+mandatory maybe -> advisory on once
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  13 (adv on, delta=0 msec, inlog, avail)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, adv, on delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+Warning: AF event queue is empty, nothing more will be scheduled
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+mandatory maybe -> advisory off
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  0 (adv off)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+mandatory off -> mandatory on once
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+Warning: AF event queue is empty, nothing more will be scheduled
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+mandatory off -> mandatory maybe
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  0 (adv off)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+mandatory off -> mandatory off
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  2 (mand off)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+mandatory off -> advisory on once
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  2 (mand off)
+Log for pmlogger on HOST started DATE
+
+Warning [/tmp/MYPID.config, line 6]
+Incompatible request for metric "sample.colour" and instance "blue"
+Request for (advisory) ON conflicts with current (mandatory) OFF state
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+mandatory off -> advisory off
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  2 (mand off)
+Log for pmlogger on HOST started DATE
+
+Warning [/tmp/MYPID.config, line 6]
+Incompatible request for metric "sample.colour" and instance "blue"
+Request for (advisory) OFF conflicts with current (mandatory) OFF state
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+advisory on once -> mandatory on once
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+Warning: AF event queue is empty, nothing more will be scheduled
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+advisory on once -> mandatory maybe
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  0 (adv off)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+Warning: AF event queue is empty, nothing more will be scheduled
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+advisory on once -> mandatory off
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  2 (mand off)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+Warning: AF event queue is empty, nothing more will be scheduled
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+advisory on once -> advisory on once
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  13 (adv on, delta=0 msec, inlog, avail)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, adv, on delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+Warning: AF event queue is empty, nothing more will be scheduled
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+advisory on once -> advisory off
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  0 (adv off)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+Warning: AF event queue is empty, nothing more will be scheduled
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+advisory off -> mandatory on once
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+Warning: AF event queue is empty, nothing more will be scheduled
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+advisory off -> mandatory maybe
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  0 (adv off)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+advisory off -> mandatory off
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  2 (mand off)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+advisory off -> advisory on once
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  13 (adv on, delta=0 msec, inlog, avail)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, adv, on delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+Warning: AF event queue is empty, nothing more will be scheduled
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+
+TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+advisory off -> advisory off
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  0 (adv off)
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Archive basename: ARCHIVE
+__pmLogPutResult: pdubuf=ADDR len=NNN posn=NNN
+do_control: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+
+Log finished DATE
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING

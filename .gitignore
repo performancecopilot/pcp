@@ -10,8 +10,6 @@
 /*.raw
 /*.log
 big1.*
-commit-id.*
-commit-msg.*
 134.full.*
 051.work/*
 151.work/*
@@ -39,6 +37,7 @@ sudo
 051.out
 052.out
 057.out
+061.out
 062.out
 066.out
 067.out
