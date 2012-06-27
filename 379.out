@@ -3,7 +3,6 @@ QA output created by 379
 ===  -Dappl2 Serial-0:s0 ===
 parse: assuming file Serial-0 contains output from "show int" command
 Interface s0(0) is on host Serial-0
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: Serial-0 username: (null) passwd: (null) prompt: > intf: 0-s0
 grab_cisco(Serial-0:s0):
@@ -172,7 +171,6 @@ total bytes: 2763796661 in 3098844973 out ? out_bcast
 ===  Serial-0:s0 ===
 parse: assuming file Serial-0 contains output from "show int" command
 Interface s0(0) is on host Serial-0
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: Serial-0 username: (null) passwd: (null) prompt: > intf: 0-s0
 grab_cisco(Serial-0:s0):
@@ -186,7 +184,6 @@ total bytes: 2763796661 in 3098844973 out ? out_bcast
 ===  -Ulogin Ethernet-0:e0 ===
 parse: assuming file Ethernet-0 contains output from "show int" command
 Interface e0(0) is on host Ethernet-0
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: Ethernet-0 username: login passwd: (null) prompt: > intf: 0-e0
 grab_cisco(Ethernet-0:e0):
@@ -200,7 +197,6 @@ total bytes: 1321046112 in 870622060 out ? out_bcast
 ===  -Ulogin -Psecret Fddi-2-0:f2/0 ===
 parse: assuming file Fddi-2-0 contains output from "show int" command
 Interface f2/0(0) is on host Fddi-2-0
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: Fddi-2-0 username: login passwd: secret prompt: > intf: 0-f2/0
 grab_cisco(Fddi-2-0:f2/0):
@@ -214,7 +210,6 @@ total bytes: 4009491185 in 612803885 out ? out_bcast
 ===  Serial-1:s1 ===
 parse: assuming file Serial-1 contains output from "show int" command
 Interface s1(0) is on host Serial-1
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: Serial-1 username: (null) passwd: (null) prompt: > intf: 0-s1
 grab_cisco(Serial-1:s1):
@@ -228,7 +223,6 @@ total bytes: 1105345262 in 675844616 out ? out_bcast
 ===  Ethernet-3-5:e3/5 ===
 parse: assuming file Ethernet-3-5 contains output from "show int" command
 Interface e3/5(0) is on host Ethernet-3-5
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: Ethernet-3-5 username: (null) passwd: (null) prompt: > intf: 0-e3/5
 grab_cisco(Ethernet-3-5:e3/5):
@@ -242,7 +236,6 @@ total bytes: 1448819515 in 3227527737 out ? out_bcast
 ===  ATM-12-0:a12/0 ===
 parse: assuming file ATM-12-0 contains output from "show int" command
 Interface a12/0(0) is on host ATM-12-0
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: ATM-12-0 username: (null) passwd: (null) prompt: > intf: 0-a12/0
 grab_cisco(ATM-12-0:a12/0):
@@ -256,7 +249,6 @@ total bytes: 1239748718 in 4188341273 out ? out_bcast
 ===  Hssi-3-0:h3/0 ===
 parse: assuming file Hssi-3-0 contains output from "show int" command
 Interface h3/0(0) is on host Hssi-3-0
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: Hssi-3-0 username: (null) passwd: (null) prompt: > intf: 0-h3/0
 grab_cisco(Hssi-3-0:h3/0):
@@ -270,7 +262,6 @@ total bytes: 1443052046 in 3684064154 out ? out_bcast
 ===  -s cmd# FastEthernet-1-0:E1/0 ===
 parse: assuming file FastEthernet-1-0 contains output from "show int" command
 Interface FastEthernet1/0(0) is on host FastEthernet-1-0
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: FastEthernet-1-0 username: (null) passwd: (null) prompt: cmd# intf: 0-FastEthernet1/0
 grab_cisco(FastEthernet-1-0:FastEthernet1/0):
@@ -284,7 +275,6 @@ total bytes: 1942263093 in 1811832796 out ? out_bcast
 ===  Serial-1-0-min:s1/0 ===
 parse: assuming file Serial-1-0-min contains output from "show int" command
 Interface s1/0(0) is on host Serial-1-0-min
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: Serial-1-0-min username: (null) passwd: (null) prompt: > intf: 0-s1/0
 grab_cisco(Serial-1-0-min:s1/0):
@@ -298,7 +288,6 @@ total bytes: 132623595 in 73186481 out ? out_bcast
 ===  Serial-1-0-sec:s1/0 ===
 parse: assuming file Serial-1-0-sec contains output from "show int" command
 Interface s1/0(0) is on host Serial-1-0-sec
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: Serial-1-0-sec username: (null) passwd: (null) prompt: > intf: 0-s1/0
 grab_cisco(Serial-1-0-sec:s1/0):
@@ -312,7 +301,6 @@ total bytes: 630502832 in 230325061 out ? out_bcast
 ===  Ethernet-1-0:e1/0 ===
 parse: assuming file Ethernet-1-0 contains output from "show int" command
 Interface e1/0(0) is on host Ethernet-1-0
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: Ethernet-1-0 username: (null) passwd: (null) prompt: > intf: 0-e1/0
 grab_cisco(Ethernet-1-0:e1/0):
@@ -326,7 +314,6 @@ total bytes: 2161281566 in 4162655553 out ? out_bcast
 ===  Vlan-256:Vl256 ===
 parse: assuming file Vlan-256 contains output from "show int" command
 Interface Vl256(0) is on host Vlan-256
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: Vlan-256 username: (null) passwd: (null) prompt: > intf: 0-Vl256
 grab_cisco(Vlan-256:Vl256):
@@ -340,7 +327,6 @@ total bytes: 816292345 in 3736073981 out ? out_bcast
 ===  -Ulogin -Psecret -s bgo-sw20# Vlan-1:Vl1 ===
 parse: assuming file Vlan-1 contains output from "show int" command
 Interface Vl1(0) is on host Vlan-1
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: Vlan-1 username: login passwd: secret prompt: bgo-sw20# intf: 0-Vl1
 grab_cisco(Vlan-1:Vl1):
@@ -354,7 +340,6 @@ total bytes: 284700228 in 0 out ? out_bcast
 ===  -Ulogin -Psecret -s bgo-sw20# Vlan-160:Vl160 ===
 parse: assuming file Vlan-160 contains output from "show int" command
 Interface Vl160(0) is on host Vlan-160
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: Vlan-160 username: login passwd: secret prompt: bgo-sw20# intf: 0-Vl160
 grab_cisco(Vlan-160:Vl160):
@@ -368,7 +353,6 @@ total bytes: 5045205764 in 656481017 out ? out_bcast
 ===  -Ulogin -Psecret -s bgo-sw20# FastEthernet-0-5:E0/5 ===
 parse: assuming file FastEthernet-0-5 contains output from "show int" command
 Interface FastEthernet0/5(0) is on host FastEthernet-0-5
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: FastEthernet-0-5 username: login passwd: secret prompt: bgo-sw20# intf: 0-FastEthernet0/5
 grab_cisco(FastEthernet-0-5:FastEthernet0/5):
@@ -382,7 +366,6 @@ total bytes: 7324243891 in 20222705373 out ? out_bcast
 ===  -Ulogin -Psecret -s bgo-sw20# FastEthernet-0-6:E0/6 ===
 parse: assuming file FastEthernet-0-6 contains output from "show int" command
 Interface FastEthernet0/6(0) is on host FastEthernet-0-6
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: FastEthernet-0-6 username: login passwd: secret prompt: bgo-sw20# intf: 0-FastEthernet0/6
 grab_cisco(FastEthernet-0-6:FastEthernet0/6):
@@ -396,7 +379,6 @@ total bytes: 4063397146 in 27283555831 out ? out_bcast
 ===  -Ulogin -Psecret -s bgo-sw20# GigabitEthernet-0-1:G0/1 ===
 parse: assuming file GigabitEthernet-0-1 contains output from "show int" command
 Interface G0/1(0) is on host GigabitEthernet-0-1
-Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
 cisco[0] host: GigabitEthernet-0-1 username: login passwd: secret prompt: bgo-sw20# intf: 0-G0/1
 grab_cisco(GigabitEthernet-0-1:G0/1):

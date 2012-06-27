@@ -40,7 +40,9 @@ _check()
     done
     echo "=== $args ==="
     $PCP_PMDAS_DIR/cisco/parse $args 2>&1 \
-    | sed -e 's/fd=4/fd=3/'
+    | sed \
+	-e 's/fd=4/fd=3/' \
+    	-e '/Sleeping while sproc does the work/d'
 }
 
 # real QA test starts here
