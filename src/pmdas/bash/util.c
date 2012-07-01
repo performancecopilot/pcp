@@ -51,20 +51,34 @@ extract_str(char *s, size_t end, const char *field, size_t length, char *value, 
 int
 extract_cmd(char *s, size_t end, const char *field, size_t length, char *value, size_t vsz)
 {
-    char *p;
+    char *start = NULL, *stop = NULL, *p;
     int len;
 
+    /* find the start of the command */
     for (p = s; p < s + end; p++) {
 	if (strncmp(p, field, length) != 0)
 	    continue;
 	p++;
 	if (*p == ' ')
 	    p++;
-	strncpy(value, p, vsz);
-	len = strlen(value);
-	if (value[len-1] == '\n')
-	    value[len-1] = '\0';
-	return len;
+	break;
     }
-    return 0;
+    if (p == s + end)
+	return 0;
+    start = p;
+
+    /* find the command terminator */
+    while (*p != '\n' && *p != '\0' && p < s + end)
+	p++;
+    stop = p;
+
+    /* truncate it if necessary */
+    len = stop - start;
+    if (len > vsz - 1)
+	len = vsz - 1;
+
+    /* copy it over to "value" */
+    start[len] = '\0';
+    strncpy(value, start, len + 1);
+    return len;
 }

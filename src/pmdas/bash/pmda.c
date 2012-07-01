@@ -92,16 +92,14 @@ static void
 bash_trace_parser(bash_process_t *bash, bash_trace_t *trace,
 	struct timeval *timestamp, const char *buffer, size_t size)
 {
-    int time = -1;
-
     /* empty event inserted into queue to signal process has exited */
     if (size <= 0) {
 	trace->flags = PM_EVENT_FLAG_END;
+	// TODO: need to stat the trace file and get last modified
+	memcpy(&trace->timestamp, timestamp, sizeof(*timestamp));
     } else {
 	char	*p = (char *)buffer, *end = (char *)buffer + size - 1;
-
-	trace->flags = (PM_EVENT_FLAG_ID | PM_EVENT_FLAG_PARENT);
-	trace->flags |= event_start(bash, timestamp) ? PM_EVENT_FLAG_START : PM_EVENT_FLAG_POINT;
+	int	sz, time = -1;
 
 	if (pmDebug & DBG_TRACE_APPL0)
 	    __pmNotifyErr(LOG_DEBUG, "processing buffer[%d]: %s", size, buffer);
@@ -110,17 +108,25 @@ bash_trace_parser(bash_process_t *bash, bash_trace_t *trace,
 	p += extract_int(p, "time:", sizeof("time:")-1, &time);
 	p += extract_int(p, "line:", sizeof("line:")-1, &trace->line);
 	p += extract_str(p, end - p, "func:", sizeof("func:")-1, trace->function, sizeof(trace->function));
-	extract_cmd(p, end - p, "+", 1, trace->command, sizeof(trace->command));
+	sz = extract_cmd(p, end - p, "+", sizeof("+")-1, trace->command, sizeof(trace->command));
+	if (sz <= 0)	/* wierd trace - no command */
+	    trace->command[0] = '\0';
+
+	if (time != -1) {	/* normal case */
+	    trace->timestamp.tv_sec = bash->starttime.tv_sec + time;
+	    trace->timestamp.tv_usec = bash->starttime.tv_usec;
+	} else {		/* wierd trace */
+	    memcpy(&trace->timestamp, timestamp, sizeof(*timestamp));
+	}
+
+	trace->flags = (PM_EVENT_FLAG_ID | PM_EVENT_FLAG_PARENT);
+	if (event_start(bash, &trace->timestamp))
+	    trace->flags |= PM_EVENT_FLAG_START;
 
 	if (pmDebug & DBG_TRACE_APPL0)
-	    __pmNotifyErr(LOG_DEBUG, "got func: '%s' cmd: '%s'", trace->function, trace->command);
-    }
-
-    if (time == -1) {
-	memcpy(&trace->timestamp, timestamp, sizeof(*timestamp));
-    } else {
-	trace->timestamp.tv_sec = bash->starttime.tv_sec + time;
-	trace->timestamp.tv_usec = bash->starttime.tv_usec;
+	    __pmNotifyErr(LOG_DEBUG,
+		"event parsed: flags: %x time: %d line: %d func: '%s' cmd: '%s'",
+				    trace->flags, time, trace->line, trace->function, trace->command);
     }
 }
 

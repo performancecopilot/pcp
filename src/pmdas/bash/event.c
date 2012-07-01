@@ -53,7 +53,7 @@ process_head_parser(bash_process_t *verify, const char *buffer, size_t size)
     p += extract_int(p, "version:", sizeof("version:")-1, &version);
     p += extract_int(p, "ppid:", sizeof("ppid:")-1, &verify->parent);
     p += extract_int(p, "date:", sizeof("date:")-1, &date);
-    extract_cmd(p, end - p, "+", 1, script, sizeof(script));
+    extract_cmd(p, end - p, "+", sizeof("+")-1, script, sizeof(script));
 
     if (date) {
 	/* Use the given starttime of the script from the header */
@@ -187,7 +187,7 @@ event_start(bash_process_t *bp, struct timeval *timestamp)
     int	start = memcmp(timestamp, &bp->startstat, sizeof(*timestamp));
 
     if (pmDebug & DBG_TRACE_APPL0)
-	__pmNotifyErr(LOG_DEBUG, "first event for %s (%d), %ld vs %ld",
+	__pmNotifyErr(LOG_DEBUG, "check start event for %s (%d), %ld vs %ld",
 		bp->instance, start, bp->startstat.tv_sec, timestamp->tv_sec);
 
     return start == 0;
