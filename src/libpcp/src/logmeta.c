@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -85,23 +84,24 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
     pmDesc	*dp;
     int		sts = 0;
     __pmLogHdr	h;
-    __pmFD	f = lcp->l_mdfp;
+    FILE	*f = lcp->l_mdfp;
     int		numpmid = 0;
     int		n;
     
     if ((sts = __pmNewPMNS(&(lcp->l_pmns))) < 0)
       goto end;
 
-    __pmSeek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
+    fseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
     for ( ; ; ) {
-      n = (int)__pmRead(f, &h, sizeof(__pmLogHdr));
+	n = (int)fread(&h, 1, sizeof(__pmLogHdr), f);
 
 	/* swab hdr */
 	h.len = ntohl(h.len);
 	h.type = ntohl(h.type);
 
 	if (n != sizeof(__pmLogHdr) || h.len <= 0) {
-            if (n == 0) {
+            if (feof(f)) {
+		clearerr(f);
                 sts = 0;
 		goto end;
             }
@@ -111,7 +111,8 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 			n, (int)sizeof(__pmLogHdr), h.len);
 	    }
 #endif
-	    if (n < 0) {
+	    if (ferror(f)) {
+		clearerr(f);
 		sts = -oserror();
 	    }
 	    else
@@ -121,7 +122,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOGMETA) {
 	    fprintf(stderr, "__pmLogLoadMeta: record len=%d, type=%d @ offset=%d\n",
-		h.len, h.type, (int)(__pmTell(f) - sizeof(__pmLogHdr)));
+		h.len, h.type, (int)(ftell(f) - sizeof(__pmLogHdr)));
 	}
 #endif
 	rlen = h.len - (int)sizeof(__pmLogHdr) - (int)sizeof(int);
@@ -132,14 +133,15 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		sts = -oserror();
 		goto end;
 	    }
-	    if ((n = (int)__pmRead(f, dp, sizeof(pmDesc))) != sizeof(pmDesc)) {
+	    if ((n = (int)fread(dp, 1, sizeof(pmDesc), f)) != sizeof(pmDesc)) {
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOGMETA) {
 		    fprintf(stderr, "__pmLogLoadMeta: pmDesc read -> %d: expected: %d\n",
 			    n, (int)sizeof(pmDesc));
 		}
 #endif
-		if (n < 0) {
+		if (ferror(f)) {
+		    clearerr(f);
 		    sts = -oserror();
 		}
 		else
@@ -168,7 +170,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		int len;
 
                 /* read in the names & store in PMNS tree ... */
-		if ((n = (int)__pmRead(f, &numnames, sizeof(numnames))) != 
+		if ((n = (int)fread(&numnames, 1, sizeof(numnames), f)) != 
                      sizeof(numnames)) {
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_LOGMETA) {
@@ -176,7 +178,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 				n, (int)sizeof(numnames));
 		    }
 #endif
-		    if (n < 0) {
+		    if (ferror(f)) {
+			clearerr(f);
 			sts = -oserror();
 		    }
 		    else
@@ -189,7 +192,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		}
 
  		for (i = 0; i < numnames; i++) {
-		  if ((n = (int)__pmRead(f, &len, sizeof(len))) != 
+		    if ((n = (int)fread(&len, 1, sizeof(len), f)) != 
 			 sizeof(len)) {
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_LOGMETA) {
@@ -197,7 +200,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 				    i, n, (int)sizeof(len));
 			}
 #endif
-			if (n < 0) {
+			if (ferror(f)) {
+			    clearerr(f);
 			    sts = -oserror();
 			}
 			else
@@ -209,14 +213,15 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 			len = ntohl(len);
 		    }
 
-		  if ((n = (int)__pmRead(f, name, len)) != len) {
+		    if ((n = (int)fread(name, 1, len, f)) != len) {
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_LOGMETA) {
 			    fprintf(stderr, "__pmLogLoadMeta: name[%d] read -> %d: expected: %d\n",
 				    i, n, len);
 			}
 #endif
-			if (n < 0) {
+			if (ferror(f)) {
+			    clearerr(f);
 			    sts = -oserror();
 			}
 			else
@@ -265,14 +270,15 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 		sts = -oserror();
 		goto end;
 	    }
-	    if ((n = (int)__pmRead(f, tbuf, rlen)) != rlen) {
+	    if ((n = (int)fread(tbuf, 1, rlen, f)) != rlen) {
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOGMETA) {
 		    fprintf(stderr, "__pmLogLoadMeta: indom read -> %d: expected: %d\n",
 			    n, rlen);
 		}
 #endif
-		if (n < 0) {
+		if (ferror(f)) {
+		    clearerr(f);
 		    sts = -oserror();
 		}
 		else
@@ -326,17 +332,18 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	    }
 	}
 	else
-	    __pmSeek(f, (long)rlen, SEEK_CUR);
-	n = (int)__pmRead(f, &check, sizeof(check));
+	    fseek(f, (long)rlen, SEEK_CUR);
+	n = (int)fread(&check, 1, sizeof(check), f);
 	check = ntohl(check);
 	if (n != sizeof(check) || h.len != check) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOGMETA) {
 		fprintf(stderr, "__pmLogLoadMeta: trailer read -> %d or len=%d: expected %d @ offset=%d\n",
-		    n, check, h.len, (int)(__pmTell(f) - sizeof(check)));
+		    n, check, h.len, (int)(ftell(f) - sizeof(check)));
 	    }
 #endif
-	    if (n < 0) {
+	    if (ferror(f)) {
+		clearerr(f);
 		sts = -oserror();
 	    }
 	    else
@@ -346,7 +353,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
     }/*for*/
 end:
     
-    __pmSeek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
+    fseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
 
     if (sts == 0) {
 	if (numpmid == 0) {
@@ -388,7 +395,7 @@ int
 __pmLogPutDesc(__pmLogCtl *lcp, const pmDesc *dp, int numnames, char **names)
 {
     __pmLogHdr	h;
-    __pmFD	f = lcp->l_mdfp;
+    FILE	*f = lcp->l_mdfp;
     pmDesc	*tdp;
     pmDesc	*odp;		/* pmDesc to write out */
     int		onumnames;	/* numnames to write out */
@@ -414,31 +421,31 @@ __pmLogPutDesc(__pmLogCtl *lcp, const pmDesc *dp, int numnames, char **names)
 
 	h.len = htonl(len);
 	onumnames = htonl(numnames);
-	if (__pmWrite(f, &h, sizeof(__pmLogHdr)) != sizeof(__pmLogHdr) ||
-	    __pmWrite(f, odp, sizeof(pmDesc)) != sizeof(pmDesc) ||
-            __pmWrite(f, &onumnames, sizeof(numnames)) != sizeof(numnames))
+	if (fwrite(&h, 1, sizeof(__pmLogHdr), f) != sizeof(__pmLogHdr) ||
+	    fwrite(odp, 1, sizeof(pmDesc), f) != sizeof(pmDesc) ||
+            fwrite(&onumnames, 1, sizeof(numnames), f) != sizeof(numnames))
 		return -oserror();
 
         /* write out the names */
         for (i = 0; i < numnames; i++) {
 	    int slen = (int)strlen(names[i]);
 	    olen = htonl(slen);
-            if (__pmWrite(f, &olen, LENSIZE) != LENSIZE)
+            if (fwrite(&olen, 1, LENSIZE, f) != LENSIZE)
                 return -oserror();
-            if (__pmWrite(f, names[i], slen) != slen)
+            if (fwrite(names[i], 1, slen, f) != slen)
                 return -oserror();
         }
 
 	olen = htonl(len);
-	if (__pmWrite(f, &olen, LENSIZE) != LENSIZE)
+	if (fwrite(&olen, 1, LENSIZE, f) != LENSIZE)
 	    return -oserror();
     }
     else {
 	h.len = htonl(len);
 	olen = htonl(len);
-	if (__pmWrite(f, &h, sizeof(__pmLogHdr)) != sizeof(__pmLogHdr) ||
-	    __pmWrite(f, odp, sizeof(pmDesc)) != sizeof(pmDesc) ||
-	    __pmWrite(f, &olen, LENSIZE) != LENSIZE)
+	if (fwrite(&h, 1, sizeof(__pmLogHdr), f) != sizeof(__pmLogHdr) ||
+	    fwrite(odp, 1, sizeof(pmDesc), f) != sizeof(pmDesc) ||
+	    fwrite(&olen, 1, LENSIZE, f) != LENSIZE)
 		return -oserror();
     }
 
@@ -626,17 +633,17 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
     oindom = __htonpmInDom(indom);
     onuminst = htonl(numinst);
 
-    wlen = (int)__pmWrite(lcp->l_mdfp, &h, sizeof(__pmLogHdr));
-    wlen += __pmWrite(lcp->l_mdfp, &otp, sizeof(otp));
-    wlen += __pmWrite(lcp->l_mdfp, &oindom, sizeof(oindom));
-    wlen += __pmWrite(lcp->l_mdfp, &onuminst, sizeof(onuminst));
+    wlen = (int)fwrite(&h, 1, sizeof(__pmLogHdr), lcp->l_mdfp);
+    wlen += fwrite(&otp, 1, sizeof(otp), lcp->l_mdfp);
+    wlen += fwrite(&oindom, 1, sizeof(oindom), lcp->l_mdfp);
+    wlen += fwrite(&onuminst, 1, sizeof(onuminst), lcp->l_mdfp);
     if (numinst > 0) {
-      wlen += __pmWrite(lcp->l_mdfp, instlist, real_numinst * sizeof(instlist[0]));
-      wlen += __pmWrite(lcp->l_mdfp, stridx, real_numinst * sizeof(stridx[0]));
+	wlen += fwrite(instlist, 1, real_numinst * sizeof(instlist[0]), lcp->l_mdfp);
+	wlen += fwrite(stridx, 1, real_numinst * sizeof(stridx[0]), lcp->l_mdfp);
 	/* see Note */
-      wlen += __pmWrite(lcp->l_mdfp, namelist[0], strsize);
+	wlen += fwrite(namelist[0], 1, strsize, lcp->l_mdfp);
     }
-    wlen += __pmWrite(lcp->l_mdfp, &h.len, sizeof(h.len));
+    wlen += fwrite(&h.len, 1, sizeof(h.len), lcp->l_mdfp);
     free(stridx);
 
     if (wlen != (int)ntohl(h.len)) {

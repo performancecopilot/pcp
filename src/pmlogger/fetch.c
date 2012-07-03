@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,7 +46,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	return PM_ERR_NOCONTEXT;
 
 #if CAN_RECONNECT
-    if (ctxp->c_pmcd->pc_fd == PM_ERROR_FD) {
+    if (ctxp->c_pmcd->pc_fd == -1) {
 	/* lost connection, try to get it back */
 	n = reconnect();
 	if (n < 0)
@@ -177,7 +176,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	    free(newlist);
     }
 
-    if (n < 0 && ctxp->c_pmcd->pc_fd != PM_ERROR_FD) {
+    if (n < 0 && ctxp->c_pmcd->pc_fd != -1) {
 	disconnect(n);
     }
 

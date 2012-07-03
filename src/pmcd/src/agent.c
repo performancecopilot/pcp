@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,12 +39,11 @@ FindDomainAgent(int domain)
 }
 
 void
-CleanupAgent(AgentInfo* aPtr, int why, pmcdWho* status)
+CleanupAgent(AgentInfo* aPtr, int why, int status)
 {
     extern int	AgentDied;
-    int		exit_status = status->n;
+    int		exit_status = status;
     int		reason = 0;
-    pmcdWho	who;
 
     if (aPtr->ipcType == AGENT_DSO) {
 	if (aPtr->ipc.dso.dlHandle != NULL) {
@@ -53,21 +51,19 @@ CleanupAgent(AgentInfo* aPtr, int why, pmcdWho* status)
 	    dlclose(aPtr->ipc.dso.dlHandle);
 #endif
 	}
-	who.n = aPtr->pmDomainId;
-	pmcd_trace(TR_DEL_AGENT, &who, -1, -1);
+	pmcd_trace(TR_DEL_AGENT, aPtr->pmDomainId, -1, -1);
     }
     else {
-	who.n = aPtr->pmDomainId;
-	pmcd_trace(TR_DEL_AGENT, &who, __pmFdRef(aPtr->inFd), __pmFdRef(aPtr->outFd));
-	if (aPtr->inFd != PM_ERROR_FD) {
+	pmcd_trace(TR_DEL_AGENT, aPtr->pmDomainId, aPtr->inFd, aPtr->outFd);
+	if (aPtr->inFd != -1) {
 	    __pmResetIPC(aPtr->inFd);
-	    __pmClose(aPtr->inFd);
-	    aPtr->inFd = PM_ERROR_FD;
+	    close(aPtr->inFd);
+	    aPtr->inFd = -1;
 	}
-	if (aPtr->outFd != PM_ERROR_FD) {
+	if (aPtr->outFd != -1) {
 	    __pmResetIPC(aPtr->outFd);
-	    __pmClose(aPtr->outFd);
-	    aPtr->outFd = PM_ERROR_FD;
+	    close(aPtr->outFd);
+	    aPtr->outFd = -1;
 	}
 	if (aPtr->ipcType == AGENT_SOCKET &&
 	    aPtr->ipc.socket.addrDomain == AF_UNIX) {
@@ -82,14 +78,14 @@ CleanupAgent(AgentInfo* aPtr, int why, pmcdWho* status)
     if (why == AT_EXIT) {
 	/* waitpid has already been done */
 	fprintf(stderr, " terminated");
-	reason = (status->n << 8) | REASON_EXIT;
+	reason = (status << 8) | REASON_EXIT;
     }
     else {
 	if (why == AT_CONFIG) {
 	    fprintf(stderr, " unconfigured");
 	} else {
 	    reason = REASON_PROTOCOL;
-	    fprintf(stderr, " protocol failure for fd=%d", __pmFdRef(status->fd));
+	    fprintf(stderr, " protocol failure for fd=%d", status);
 	    exit_status = -1;
 	}
 	if (aPtr->status.isChild == 1) {
@@ -168,7 +164,6 @@ HarvestAgents(unsigned int total)
     int		found;
     pid_t	pid;
     AgentInfo	*ap;
-    pmcdWho	who;
 
     /*
      * Check for child process termination.  Be careful, and ignore any
@@ -200,8 +195,7 @@ HarvestAgents(unsigned int total)
 	    if (pid == ((ap->ipcType == AGENT_SOCKET) 
 			? ap->ipc.socket.agentPid 
 			: ap->ipc.pipe.agentPid)) {
-	        who.n = sts;
-		CleanupAgent(ap, AT_EXIT, &who);
+		CleanupAgent(ap, AT_EXIT, sts);
 		break;
 	    }
 	}

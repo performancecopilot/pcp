@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -32,12 +31,12 @@
  */
 
 void
-__pmdaOpenInet(char *sockname, int myport, __pmFD *infd, __pmFD *outfd)
+__pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 {
     int			sts;
-    __pmFD		sfd;
-    __pmSockAddrIn	myaddr;
-    __pmSockAddrIn	from;
+    int			sfd;
+    struct sockaddr_in	myaddr;
+    struct sockaddr_in	from;
     struct servent	*service;
     mysocklen_t		addrlen;
     int			one = 1;
@@ -53,7 +52,7 @@ __pmdaOpenInet(char *sockname, int myport, __pmFD *infd, __pmFD *outfd)
     }
 
     sfd = __pmCreateSocket();
-    if (sfd == PM_ERROR_FD) {
+    if (sfd < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet socket: %s\n",
 			netstrerror());
 	exit(1);
@@ -63,39 +62,42 @@ __pmdaOpenInet(char *sockname, int myport, __pmFD *infd, __pmFD *outfd)
      * allow port to be quickly re-used, e.g. when Install and PMDA already
      * installed, this becomes terminate and restart in a hurry ...
      */
-    if (__pmSetSockOpt(sfd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
+    if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
 		(mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: __pmSetSockOpt(reuseaddr): %s\n",
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: setsockopt(reuseaddr): %s\n",
 			netstrerror());
 	exit(1);
     }
 #else
     /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
-    if (__pmSetSockOpt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
+    if (setsockopt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
 		(mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: __pmSetSockOpt(excladdruse): %s\n",
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: setsockopt(excladdruse): %s\n",
 			netstrerror());
 	exit(1);
     }
 #endif
 
-    __pmInitSockAddr(&myaddr, htonl(INADDR_ANY), htons(myport));
-    sts = __pmBind(sfd, (__pmSockAddr*) &myaddr, sizeof(myaddr));
+    memset(&myaddr, 0, sizeof(myaddr));
+    myaddr.sin_family = AF_INET;
+    myaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    myaddr.sin_port = htons(myport);
+    sts = bind(sfd, (struct sockaddr*) &myaddr, sizeof(myaddr));
     if (sts < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet bind: %s\n",
 			netstrerror());
 	exit(1);
     }
 
-    sts = __pmListen(sfd, 5);	/* Max. of 5 pending connection requests */
-    if (sts < 0) {
+    sts = listen(sfd, 5);	/* Max. of 5 pending connection requests */
+    if (sts == -1) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet listen: %s\n",
 			netstrerror());
 	exit(1);
     }
     addrlen = sizeof(from);
     /* block here, waiting for a connection */
-    if ((*infd = __pmAccept(sfd, (__pmSockAddr *)&from, &addrlen)) == PM_ERROR_FD) {
+    if ((*infd = accept(sfd, (struct sockaddr *)&from, &addrlen)) < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet accept: %s\n",
 			netstrerror());
 	exit(1);
@@ -105,13 +107,13 @@ __pmdaOpenInet(char *sockname, int myport, __pmFD *infd, __pmFD *outfd)
     *outfd = *infd;
 }
 
-#if !defined(IS_MINGW) && !defined(HAVE_NSS)
+#if !defined(IS_MINGW)
 /*
  * Open a unix port to PMCD
  */
 
 void
-__pmdaOpenUnix(char *sockname, __pmFD *infd, __pmFD *outfd)
+__pmdaOpenUnix(char *sockname, int *infd, int *outfd)
 {
     int			sts;
     int			sfd;
@@ -154,7 +156,7 @@ __pmdaOpenUnix(char *sockname, __pmFD *infd, __pmFD *outfd)
     }
 
     sts = listen(sfd, 5);	/* Max. of 5 pending connection requests */
-    if (sts < 0) {
+    if (sts == -1) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix listen: %s\n",
 			netstrerror());
 	exit(1);
@@ -170,15 +172,11 @@ __pmdaOpenUnix(char *sockname, __pmFD *infd, __pmFD *outfd)
     *outfd = *infd;
 }
 
-#else	/* MINGW || NSS/NSPR */
+#else	/* MINGW */
 void
-__pmdaOpenUnix(char *sockname, __pmFD *infd, __pmFD *outfd)
+__pmdaOpenUnix(char *sockname, int *infd, int *outfd)
 {
-#if defined(IS_MINGW)
     __pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: Not supported on Windows");
-#elif defined(HAVE_NSS)
-    __pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: Not supported by NSS/NSPR");
-#endif
     exit(1);
 }
 #endif
@@ -475,7 +473,7 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
  */
 
 int
-__pmdaSetupPDU(__pmFD infd, __pmFD outfd, char *agentname)
+__pmdaSetupPDU(int infd, int outfd, char *agentname)
 {
     __pmCred	handshake[1];
     __pmCred	*credlist = NULL;
@@ -556,13 +554,13 @@ pmdaConnect(pmdaInterface *dispatch)
 	case pmdaPipe:
 	case pmdaUnknown:		/* Default */
 
-	    pmda->e_infd = __pmStandardStreamToFD(stdin);
-	    pmda->e_outfd = __pmStandardStreamToFD(stdout);
+	    pmda->e_infd = fileno(stdin);
+	    pmda->e_outfd = fileno(stdout);
 
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LIBPMDA) {
 	    	__pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened pipe to pmcd, infd = %d, outfd = %d\n",
-			      pmda->e_name, __pmFdRef(pmda->e_infd), __pmFdRef(pmda->e_outfd));
+			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
 	    }
 #endif
 	    break;
@@ -575,7 +573,7 @@ pmdaConnect(pmdaInterface *dispatch)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LIBPMDA) {
 	    	__pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened inet connection, infd = %d, outfd = %d\n",
-			      pmda->e_name, __pmFdRef(pmda->e_infd), __pmFdRef(pmda->e_outfd));
+			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
 	    }
 #endif
 
@@ -588,7 +586,7 @@ pmdaConnect(pmdaInterface *dispatch)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LIBPMDA) {
 	    	__pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: Opened unix connection, infd = %d, outfd = %d\n",
-			      pmda->e_name, __pmFdRef(pmda->e_infd), __pmFdRef(pmda->e_outfd));
+			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
 	    }
 #endif
 
@@ -666,8 +664,8 @@ __pmdaSetup(pmdaInterface *dispatch, int version, char *name)
     pmda->e_logfile = NULL;
     pmda->e_helptext = NULL;
     pmda->e_status = 0;
-    pmda->e_infd = PM_ERROR_FD;
-    pmda->e_outfd = PM_ERROR_FD;
+    pmda->e_infd = -1;
+    pmda->e_outfd = -1;
     pmda->e_port = -1;
     pmda->e_singular = -1;
     pmda->e_ordinal = -1;

@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -44,7 +43,7 @@ __pmDumpIDList(FILE *f, int numids, const pmID idlist[])
  * Send a PDU_PMNS_IDS across socket.
  */
 int
-__pmSendIDList(__pmFD fd, int from, int numids, const pmID idlist[], int sts)
+__pmSendIDList(int fd, int from, int numids, const pmID idlist[], int sts)
 {
     idlist_t	*ip;
     int		need;
@@ -191,7 +190,7 @@ __pmDumpNameAndStatusList(FILE *f, int numnames, char *namelist[], int statuslis
  * Send a PDU_PMNS_NAMES across socket.
  */
 int
-__pmSendNameList(__pmFD fd, int from, int numnames, char *namelist[],
+__pmSendNameList(int fd, int from, int numnames, char *namelist[],
 		 const int statuslist[])
 {
     namelist_t		*nlistp;
@@ -397,7 +396,7 @@ typedef struct {
  * Send a PDU_PMNS_CHILD_REQ across socket.
  */
 static int
-SendNameReq(__pmFD fd, int from, const char *name, int pdu_type, int subtype)
+SendNameReq(int fd, int from, const char *name, int pdu_type, int subtype)
 {
     namereq_t	*nreq;
     int		need;
@@ -469,7 +468,7 @@ DecodeNameReq(__pmPDU *pdubuf, char **name_p, int *subtype)
  * Send a PDU_PMNS_CHILD
  */
 int
-__pmSendChildReq(__pmFD fd, int from, const char *name, int subtype)
+__pmSendChildReq(int fd, int from, const char *name, int subtype)
 {
     return SendNameReq(fd, from, name, PDU_PMNS_CHILD, subtype);
 }
@@ -490,7 +489,7 @@ __pmDecodeChildReq(__pmPDU *pdubuf, char **name_p, int *subtype)
  * Send a PDU_PMNS_TRAVERSE
  */
 int
-__pmSendTraversePMNSReq(__pmFD fd, int from, const char *name)
+__pmSendTraversePMNSReq(int fd, int from, const char *name)
 {
     return SendNameReq(fd, from, name, PDU_PMNS_TRAVERSE, 0);
 }

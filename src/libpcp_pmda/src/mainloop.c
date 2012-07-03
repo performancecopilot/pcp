@@ -17,8 +17,10 @@
 #include "pmda.h"
 #include "libdefs.h"
 
+extern int __pmdaSetupPDU(int, int, char *);
 
-__pmFD
+
+int
 __pmdaInFd(pmdaInterface *dispatch)
 {
     if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
@@ -28,7 +30,7 @@ __pmdaInFd(pmdaInterface *dispatch)
     else {
 	__pmNotifyErr(LOG_CRIT, "PMDA interface version %d not supported",
 		     dispatch->comm.pmda_interface);
-        return PM_ERROR_FD;
+        return -1;
     }
 }
 

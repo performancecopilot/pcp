@@ -141,7 +141,7 @@ const char *http_strerror();
 	 *	# of bytes read on success, or
 	 *	-1 on error
 	 */
-int _http_read_header(__pmFD sock, char *headerPtr);
+int _http_read_header(int sock, char *headerPtr);
 
 	/*
 	 * Opens a TCP socket and returns the descriptor
@@ -149,7 +149,7 @@ int _http_read_header(__pmFD sock, char *headerPtr);
 	 *	socket descriptor, or
 	 *	-1 on error
 	 */
-__pmFD makeSocket(const char *host);
+int makeSocket(const char *host);
 
 	/*
 	 * Determines if the given NULL-terminated buffer is large enough to

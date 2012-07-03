@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +18,7 @@
 #include "pmlc.h"
 
 /* for the pmlogger/PMCD we currently have a connection to */
-static __pmFD	logger_fd = PM_ERROR_FD;		/* file desc pmlogger */
+static int	logger_fd = -1;		/* file desc pmlogger */
 static char	*lasthost;		/* host that logger_ctx is for */
 static int	src_ctx = -1;		/* context for logged host's PMCD*/
 static char	*srchost;		/* host that logged_ctx is for */
@@ -108,6 +107,8 @@ done:
 int
 ConnectLogger(char *hostname, int *pid, int *port)
 {
+    int		sts;
+
     if (lasthost != NULL) {
 	free(lasthost);
 	lasthost = NULL;
@@ -115,7 +116,6 @@ ConnectLogger(char *hostname, int *pid, int *port)
     DisconnectLogger();
 
     if (src_ctx != -1) {
-        int sts;
 	if ((sts = pmDestroyContext(src_ctx)) < 0)
 		fprintf(stderr, "Error deleting PMCD connection to %s: %s\n",
 			srchost, pmErrStr(sts));
@@ -126,10 +126,12 @@ ConnectLogger(char *hostname, int *pid, int *port)
 	srchost = NULL;
     }
 
-    if ((logger_fd = __pmConnectLogger(hostname, pid, port)) == PM_ERROR_FD) {
-        return -1; /* TODO -- get real error from pmConnectLogger */
+    if ((sts = __pmConnectLogger(hostname, pid, port)) < 0) {
+	logger_fd = -1;
+	return sts;
     }
     else {
+	logger_fd = sts;
 	if ((lasthost = strdup(hostname)) == NULL) {
 	    __pmNoMem("Error copying host name", strlen(hostname), PM_FATAL_ERR);
 	}
@@ -140,10 +142,10 @@ ConnectLogger(char *hostname, int *pid, int *port)
 void
 DisconnectLogger(void)
 {
-    if (logger_fd != PM_ERROR_FD) {
+    if (logger_fd != -1) {
 	__pmResetIPC(logger_fd);
-	__pmClose(logger_fd);
-	logger_fd = PM_ERROR_FD;
+	close(logger_fd);
+	logger_fd = -1;
 	sleep(1);
     }
 }
@@ -795,7 +797,7 @@ NewVolume(void)
 int
 connected(void)
 {
-    if (logger_fd == PM_ERROR_FD) {
+    if (logger_fd == -1) {
 	yyerror("Not connected to any pmlogger instance");
 	return 0;
     }

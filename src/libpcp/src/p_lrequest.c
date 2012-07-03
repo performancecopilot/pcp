@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -37,7 +36,7 @@ typedef struct {
 } notify_t;
 
 int
-__pmSendLogRequest(__pmFD fd, int type)
+__pmSendLogRequest(int fd, int type)
 {
     notify_t	*pp;
     int		sts;

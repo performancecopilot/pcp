@@ -22,7 +22,7 @@
 
 typedef struct event_logfile {
     pmID		pmid;
-    __pmFD		fd;
+    int			fd;
     pid_t	        pid;
     int			queueid;
     int			restrict;
@@ -31,8 +31,8 @@ typedef struct event_logfile {
     char		pathname[MAXPATHLEN];
 } event_logfile_t;
 
-extern __pmFD maxfd;
-extern __pmFdSet fds;
+extern int maxfd;
+extern fd_set fds;
 extern long maxmem;
 
 extern void event_init(pmID pmid);

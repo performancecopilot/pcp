@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -28,7 +27,7 @@
 #define MY_VERSION "pmproxy-client 1\n"
 
 static int
-negotiate_proxy(__pmFD fd, const char *hostname, int port)
+negotiate_proxy(int fd, const char *hostname, int port)
 {
     char	buf[MY_BUFLEN];
     char	*bp;
@@ -41,7 +40,7 @@ negotiate_proxy(__pmFD fd, const char *hostname, int port)
      *   send hostname and port
      */
 
-    if (__pmSend(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
+    if (send(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_WARNING,
 	     "__pmConnectPMCD: send version string to pmproxy failed: %s\n",
@@ -49,7 +48,7 @@ negotiate_proxy(__pmFD fd, const char *hostname, int port)
 	return PM_ERR_IPC;
     }
     for (bp = buf; bp < &buf[MY_BUFLEN]; bp++) {
-	if (__pmRecv(fd, bp, 1, 0) != 1) {
+	if (recv(fd, bp, 1, 0) != 1) {
 	    *bp = '\0';
 	    bp = &buf[MY_BUFLEN];
 	    break;
@@ -72,7 +71,7 @@ negotiate_proxy(__pmFD fd, const char *hostname, int port)
     }
 
     snprintf(buf, sizeof(buf), "%s %d\n", hostname, port);
-    if (__pmSend(fd, buf, strlen(buf), 0) != strlen(buf)) {
+    if (send(fd, buf, strlen(buf), 0) != strlen(buf)) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_WARNING,
 	     "__pmConnectPMCD: send hostname+port string to pmproxy failed: %s'\n",
@@ -87,7 +86,7 @@ negotiate_proxy(__pmFD fd, const char *hostname, int port)
  * client connects to pmcd handshake
  */
 int
-__pmConnectHandshake(__pmFD fd)
+__pmConnectHandshake(int fd)
 {
     __pmPDU	*pb;
     int		ok;
@@ -216,11 +215,11 @@ __pmConnectGetPorts(pmHostSpec *host)
     PM_UNLOCK(__pmLock_libpcp);
 }
 
-__pmFD
+int
 __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 {
     int		sts = -1;
-    __pmFD	fd = PM_ERROR_FD;	/* Fd for socket connection to pmcd */
+    int		fd = -1;	/* Fd for socket connection to pmcd */
     int		*ports;
     int		nports;
     int		i;
@@ -285,16 +284,16 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	 */
 	PM_UNLOCK(__pmLock_libpcp);
 	for (i = 0; i < nports; i++) {
-	    if ((fd = __pmAuxConnectPMCDPort(hosts[0].name, ports[i])) != PM_ERROR_FD) {
+	    if ((fd = __pmAuxConnectPMCDPort(hosts[0].name, ports[i])) >= 0) {
 		if ((sts = __pmConnectHandshake(fd)) < 0) {
-		    __pmCloseSocket(fd);
+		    close(fd);
 		}
 		else
 		    /* success */
 		    break;
 	    }
 	    else
-		sts = -1;
+		sts = fd;
 	}
 
 	if (sts < 0) {
@@ -310,13 +309,13 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 		fprintf(stderr, " failed: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 #endif
-	    return PM_ERROR_FD;
+	    return sts;
 	}
 
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
 	    fprintf(stderr, "__pmConnectPMCD(%s): pmcd connection port=%d fd=%d PDU version=%u\n",
-		    hosts[0].name, ports[i], __pmFdRef(fd), __pmVersionIPC(fd));
+		    hosts[0].name, ports[i], fd, __pmVersionIPC(fd));
 	    __pmPrintIPC();
 	}
 #endif
@@ -333,7 +332,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 
     for (i = 0; i < nports; i++) {
 	fd = __pmAuxConnectPMCDPort(proxyhost->name, proxyport);
-	if (fd == PM_ERROR_FD) {
+	if (fd < 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT) {
 		char	errmsg[PM_MAXERRMSGLEN];
@@ -345,9 +344,9 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	    return fd;
 	}
 	if ((sts = version = negotiate_proxy(fd, hosts[0].name, ports[i])) < 0)
-	    __pmCloseSocket(fd);
+	    close(fd);
 	else if ((sts = __pmConnectHandshake(fd)) < 0)
-	    __pmCloseSocket(fd);
+	    close(fd);
 	else
 	    /* success */
 	    break;
@@ -367,13 +366,13 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	}
 #endif
 	PM_UNLOCK(__pmLock_libpcp);
-	return PM_ERROR_FD;
+	return sts;
     }
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT) {
 	fprintf(stderr, "__pmConnectPMCD(%s): proxy connection host=%s port=%d fd=%d version=%d\n",
-		hosts[0].name, proxyhost->name, ports[i], __pmFdRef(fd), version);
+	    hosts[0].name, proxyhost->name, ports[i], fd, version);
     }
 #endif
 

@@ -2,7 +2,6 @@
  * Indom metadata support for pmlogrewrite
  *
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -263,7 +262,7 @@ do_indom(void)
     int		j;
     int		need_alloc = 0;
 
-    out_offset = __pmTell(outarch.logctl.l_mdfp);
+    out_offset = ftell(outarch.logctl.l_mdfp);
     _pmUnpackInDom(inarch.metarec, &indom, &stamp, &numinst, &instlist, &inamelist);
 
     /*

@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,22 +22,22 @@
 #include "comms.h"
 
 extern struct timeval	interval;
-extern int readData(__pmFD, int *);
+extern int readData(int, int *);
 extern void timerUpdate(void);
 
-extern __pmFD	maxfd;
+extern int	maxfd;
 extern int	nclients;
 extern client_t	*clients;
 extern int	ctlport;		/* control port number */
-static __pmFD	ctlfd;			/* fd for control port */
-static __pmFD	pmcdfd;			/* fd for pmcd */
+static int	ctlfd;			/* fd for control port */
+static int	pmcdfd;			/* fd for pmcd */
 
 void alarming(int, void *);
 static void hangup(int);
-static __pmFD getcport(void);
+static int getcport(void);
 
 /* currently in-use fd mask */
-__pmFdSet	fds;
+fd_set	fds;
 
 /* the AF event number */
 int	afid = -1;
@@ -47,18 +46,15 @@ void
 traceMain(pmdaInterface *dispatch)
 {
     client_t	*cp;
-    __pmFdSet	readyfds;
+    fd_set	readyfds;
     int		nready, i, pdutype, sts, protocol;
-    int numFds;
 
     ctlfd = getcport();
-    maxfd = __pmUpdateMaxFD(ctlfd, maxfd);
     pmcdfd = __pmdaInFd(dispatch);
-    maxfd = __pmUpdateMaxFD(pmcdfd, maxfd);
-    numFds = __pmIncrFD(maxfd);
-    __pmFD_ZERO(&fds);
-    __pmFD_SET(ctlfd, &fds);
-    __pmFD_SET(pmcdfd, &fds);
+    maxfd = (ctlfd > pmcdfd) ? (ctlfd):(pmcdfd);
+    FD_ZERO(&fds);
+    FD_SET(ctlfd, &fds);
+    FD_SET(pmcdfd, &fds);
 
     signal(SIGHUP, hangup);
 
@@ -70,23 +66,23 @@ traceMain(pmdaInterface *dispatch)
 
     for (;;) {
 	memcpy(&readyfds, &fds, sizeof(readyfds));
-	nready = __pmSelectRead(numFds, &readyfds, NULL);
+	nready = select(maxfd+1, &readyfds, NULL, NULL, NULL);
 
 	if (nready == 0)
 	    continue;
 	else if (nready < 0) {
 	    if (neterror() != EINTR) {
-		__pmNotifyErr(LOG_ERR, "__pmSelectRead failure: %s", netstrerror());
+		__pmNotifyErr(LOG_ERR, "select failure: %s", netstrerror());
 		exit(1);
 	    }
 	    continue;
 	}
 
 	__pmAFblock();
-	if (__pmFD_ISSET(pmcdfd, &readyfds)) {
+	if (FD_ISSET(pmcdfd, &readyfds)) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
-	        __pmNotifyErr(LOG_DEBUG, "processing pmcd request [fd=%d]", __pmFdRef(pmcdfd));
+		__pmNotifyErr(LOG_DEBUG, "processing pmcd request [fd=%d]", pmcdfd);
 #endif
 	    if (__pmdaMainPDU(dispatch) < 0) {
 		__pmAFunblock();
@@ -94,9 +90,9 @@ traceMain(pmdaInterface *dispatch)
 	    }
 	}
 	/* handle request on control port */
-	if (__pmFD_ISSET(ctlfd, &readyfds)) {
+	if (FD_ISSET(ctlfd, &readyfds)) {
 	    if ((cp = acceptClient(ctlfd)) != NULL) {
-		sts = __pmAccAddClient(&cp->addr, &cp->denyOps);
+		sts = __pmAccAddClient(&cp->addr.sin_addr, &cp->denyOps);
 		if (sts == PM_ERR_PERMISSION)
 		    sts = PMTRACE_ERR_PERMISSION;
 		else if (sts == PM_ERR_CONNLIMIT)
@@ -108,8 +104,8 @@ traceMain(pmdaInterface *dispatch)
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_APPL0) {
 			__pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: connect refused, denyOps=0x%x: %s",
-				 __pmSockAddrInToString(&cp->addr),
-				 __pmFdRef(cp->fd), cp->denyOps, pmtraceerrstr(sts));
+				 inet_ntoa(cp->addr.sin_addr),
+				 cp->fd, cp->denyOps, pmtraceerrstr(sts));
 		    }
 #endif
 		    deleteClient(cp);
@@ -118,8 +114,8 @@ traceMain(pmdaInterface *dispatch)
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_APPL0) {
 			__pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: new connection, denyOps=0x%x",
-			      __pmSockAddrInToString(&cp->addr),
-				 __pmFdRef(cp->fd), cp->denyOps);
+				inet_ntoa(cp->addr.sin_addr),
+				cp->fd, cp->denyOps);
 		    }
 #endif
 		    ;
@@ -133,26 +129,26 @@ traceMain(pmdaInterface *dispatch)
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_APPL0) {
 		    __pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: send denied, denyOps=0x%x",
-			    __pmSockAddrInToString(&clients[i].addr),
-			    __pmFdRef(clients[i].fd), clients[i].denyOps);
+			    inet_ntoa(clients[i].addr.sin_addr),
+			    clients[i].fd, clients[i].denyOps);
 		}
 #endif
 		__pmtracesendack(clients[i].fd, PMTRACE_ERR_PERMISSION);
-		__pmAccDelClient(&clients[i].addr);
+		__pmAccDelClient(&clients[i].addr.sin_addr);
 		deleteClient(&clients[i]);
 	    }
-	    else if (__pmFD_ISSET(clients[i].fd, &readyfds)) {
-		protocol = 1;	/* default gto synchronous */
+	    else if (FD_ISSET(clients[i].fd, &readyfds)) {
+		protocol = 1;	/* default to synchronous */
 		do {
 		    if ((pdutype = readData(clients[i].fd, &protocol)) < 0) {
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_APPL0) {
 			    __pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: close connection",
-				__pmSockAddrInToString(&clients[i].addr),
-			        __pmFdRef(clients[i].fd));
+				inet_ntoa(clients[i].addr.sin_addr),
+				clients[i].fd);
 			}
 #endif
-			__pmAccDelClient(&clients[i].addr);
+			__pmAccDelClient(&clients[i].addr.sin_addr);
 			deleteClient(&clients[i]);
 		    }
 		    else {
@@ -161,16 +157,16 @@ traceMain(pmdaInterface *dispatch)
 #ifdef PCP_DEBUG
 			    if (pmDebug & DBG_TRACE_APPL0)
 				__pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: %s ACK (type=%d)",
-				    __pmSockAddrInToString(&clients[i].addr),
-				    __pmFdRef(clients[i].fd),
+				    inet_ntoa(clients[i].addr.sin_addr),
+				    clients[i].fd,
 				    protocol ? "sending" : "no", pdutype);
 #endif
 			    if (protocol == 1) {
 				sts = __pmtracesendack(clients[i].fd, pdutype);
 				if (sts < 0) {
 				    __pmNotifyErr(LOG_ERR, "client %s [fd=%d]: ACK send failed (type=%d): %s",
-					__pmSockAddrInToString(&clients[i].addr),
-					__pmFdRef(clients[i].fd),
+					inet_ntoa(clients[i].addr.sin_addr),
+					clients[i].fd,
 					pdutype, pmtraceerrstr(sts));
 				}
 			    }
@@ -201,46 +197,46 @@ hangup(int sig)
  * Create socket for incoming connections and bind to it an address for
  * clients to use.  Only returns if it succeeds (exits on failure).
  */
-static __pmFD
+static int
 getcport(void)
 {
-    __pmFD		fd;
+    int			fd;
     int			i=1, one=1, sts;
-    __pmSockAddrIn	myAddr;
+    struct sockaddr_in	myAddr;
     struct linger	noLinger = {1, 0};
 
-    fd = __pmSocket(AF_INET, SOCK_STREAM, 0);
-    if (fd == PM_ERROR_FD) {
+    fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (fd < 0) {
 	__pmNotifyErr(LOG_ERR, "getcport: socket: %s", netstrerror());
 	exit(1);
     }
     /* avoid 200 ms delay */
-    if (__pmSetSockOpt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i,
+    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i,
 				    (mysocklen_t)sizeof(i)) < 0) {
-	__pmNotifyErr(LOG_ERR, "getcport: __pmSetSockOpt(nodelay): %s",
+	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(nodelay): %s",
 		netstrerror());
 	exit(1);
     }
     /* don't linger on close */
-    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger,
+    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger,
 				    (mysocklen_t)sizeof(noLinger)) < 0) {
-	__pmNotifyErr(LOG_ERR, "getcport: __pmSetSockOpt(nolinger): %s",
+	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(nolinger): %s",
 		netstrerror());
 	exit(1);
     }
 #ifndef IS_MINGW
     /* ignore dead client connections */
-    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one,
+    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one,
 				    (mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR, "getcport: __pmSetSockOpt(reuseaddr): %s",
+	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(reuseaddr): %s",
 		netstrerror());
 	exit(1);
     }
 #else
     /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
-    if (__pmSetSockOpt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one,
+    if (setsockopt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one,
 				    (mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR, "getcport: __pmSetSockOpt(excladdruse): %s",
+	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(excladdruse): %s",
 		netstrerror());
 	exit(1);
     }
@@ -264,13 +260,16 @@ getcport(void)
 	    ctlport = TRACE_PORT;
     }
 
-    __pmInitSockAddr(&myAddr, htonl(INADDR_ANY), htons(ctlport));
-    sts = __pmBind(fd, (__pmSockAddr*)&myAddr, sizeof(myAddr));
+    memset(&myAddr, 0, sizeof(myAddr));
+    myAddr.sin_family = AF_INET;
+    myAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    myAddr.sin_port = htons(ctlport);
+    sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
     if (sts < 0) {
 	__pmNotifyErr(LOG_ERR, "bind(%d): %s", ctlport, netstrerror());
 	exit(1);
     }
-    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
+    sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	__pmNotifyErr(LOG_ERR, "listen: %s", netstrerror());
 	exit(1);

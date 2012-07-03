@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +16,8 @@
 #include "impl.h"
 #include "pmcd.h"
 #include <assert.h>
+
+extern int _pmSelectReadable(int, fd_set *);
 
 /* Routine to split a result into a list of results, each containing metrics
  * from a single domain.  The end of the list is marked by a pmResult with a
@@ -134,14 +135,13 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
     pmResult	*result;
     pmResult	**dResult;
     int		i;
-    __pmFdSet	readyFds;
-    __pmFdSet	waitFds;
+    fd_set	readyFds;
+    fd_set	waitFds;
     int		nWait = 0;
-    int		maxFd = PM_ERROR_FD;
+    int		maxFd = -1;
     int		badStore;		/* != 0 => store to nonexistent agent */
     int		notReady = 0;		/* != 0 => store to agent that's not ready */
     struct timeval	timeout;
-    pmcdWho		who;
 
 
     if ((sts = __pmDecodeResult(pb, &result)) < 0)
@@ -151,7 +151,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 
     /* Send the per-domain results to their respective agents */
 
-    __pmFD_ZERO(&waitFds);
+    FD_ZERO(&waitFds);
     for (i = 0; dResult[i]->numpmid > 0; i++) {
 	int fd;
 	ap = FindDomainAgent(((__pmID_int *)&dResult[i]->vset[0]->pmid)->domain);
@@ -171,22 +171,20 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	else {
 	    if (ap->status.notReady == 0) {
 		/* agent is ready for PDUs */
-	        if (_pmcd_trace_mask) {
-		    who.fd = ap->inFd;
-		    pmcd_trace(TR_XMIT_PDU, &who, PDU_RESULT, dResult[i]->numpmid);
-		}
+		if (_pmcd_trace_mask)
+		    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_RESULT, dResult[i]->numpmid);
 		s = __pmSendResult(ap->inFd, cp - client, dResult[i]);
 		if (s >= 0) {
 		    ap->status.busy = 1;
 		    fd = ap->outFd;
-		    __pmFD_SET(fd, &waitFds);
-		    maxFd = __pmUpdateMaxFD(fd, maxFd);
+		    FD_SET(fd, &waitFds);
+		    if (fd > maxFd)
+			maxFd = fd;
 		    nWait++;
 		}
 		else if (s == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || s == -EPIPE) {
-		    who.fd = ap->inFd;
-		    pmcd_trace(TR_XMIT_ERR, &who, PDU_RESULT, sts);
-		    CleanupAgent(ap, AT_COMM, &who);
+		    pmcd_trace(TR_XMIT_ERR, ap->inFd, PDU_RESULT, sts);
+		    CleanupAgent(ap, AT_COMM, ap->inFd);
 		}
 	    }
 	    else
@@ -213,18 +211,16 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	    timeout.tv_sec = _pmcd_timeout;
 	    timeout.tv_usec = 0;
 
-	    s = __pmSelectRead(__pmIncrFD(maxFd), &readyFds, &timeout);
+	    s = select(maxFd+1, &readyFds, NULL, NULL, &timeout);
 
 	    if (s == 0) {
-		__pmNotifyErr(LOG_INFO, "DoStore: __pmSelectRead timeout");
+		__pmNotifyErr(LOG_INFO, "DoStore: select timeout");
 
 		/* Timeout, terminate agents that haven't responded */
 		for (i = 0; i < nAgents; i++) {
 		    if (agent[i].status.busy) {
-		        who.fd = agent[i].outFd;
-			pmcd_trace(TR_RECV_TIMEOUT, &who, PDU_ERROR, 0);
-		        who.fd = agent[i].inFd;
-			CleanupAgent(&agent[i], AT_COMM, &who);
+			pmcd_trace(TR_RECV_TIMEOUT, agent[i].outFd, PDU_ERROR, 0);
+			CleanupAgent(&agent[i], AT_COMM, agent[i].inFd);
 		    }
 		}
 		sts = PM_ERR_IPC;
@@ -232,7 +228,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	    }
 	    else if (sts < 0) {
 		/* this is not expected to happen! */
-		__pmNotifyErr(LOG_ERR, "DoStore: fatal __pmSelectRead failure: %s\n",
+		__pmNotifyErr(LOG_ERR, "DoStore: fatal select failure: %s\n",
 			netstrerror());
 		Shutdown();
 		exit(1);
@@ -242,16 +238,14 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	for (i = 0; i < nAgents; i++) {
 	    int		pinpdu;
 	    ap = &agent[i];
-	    if (!ap->status.busy || !__pmFD_ISSET(ap->outFd, &readyFds))
+	    if (!ap->status.busy || !FD_ISSET(ap->outFd, &readyFds))
 		continue;
 	    ap->status.busy = 0;
-	    __pmFD_CLR(ap->outFd, &waitFds);
+	    FD_CLR(ap->outFd, &waitFds);
 	    nWait--;
 	    pinpdu = s = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
-	    if (s > 0 && _pmcd_trace_mask) {
-	        who.fd = ap->outFd;
-		pmcd_trace(TR_RECV_PDU, &who, s, (int)((__psint_t)pb & 0xffffffff));
-	    }
+	    if (s > 0 && _pmcd_trace_mask)
+		pmcd_trace(TR_RECV_PDU, ap->outFd, s, (int)((__psint_t)pb & 0xffffffff));
 	    if (s == PDU_ERROR) {
 		int ss;
 		if ((ss = __pmDecodeError(pb, &s)) < 0)
@@ -261,18 +255,16 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 			extern int CheckError(AgentInfo *, int);
 
 			sts = CheckError(ap, s);
-			who.fd = ap->outFd;
-			pmcd_trace(TR_RECV_ERR, &who, PDU_RESULT, sts);
+			pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_RESULT, sts);
 		    }
 		}
 	    }
 	    else {
 		/* Agent protocol error */
-	        who.fd = ap->outFd;
 		if (s < 0)
-		    pmcd_trace(TR_RECV_ERR, &who, PDU_RESULT, s);
+		    pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_RESULT, s);
 		else
-		    pmcd_trace(TR_WRONG_PDU, &who, PDU_ERROR, s);
+		    pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_ERROR, s);
 		sts = PM_ERR_IPC;
 	    }
 
@@ -280,10 +272,8 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 		__pmUnpinPDUBuf(pb);
 
 	    if (ap->ipcType != AGENT_DSO &&
-		(sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT)) {
-	        who.fd = ap->outFd;
-		CleanupAgent(ap, AT_COMM, &who);
-	    }
+		(sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT))
+		CleanupAgent(ap, AT_COMM, ap->outFd);
 	}
     }
 
@@ -309,10 +299,8 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
     if (sts >= 0) {
 	/* send PDU_ERROR, even if result was 0 */
 	int s;
-	if (_pmcd_trace_mask) {
-	    who.fd = cp->fd;
-	    pmcd_trace(TR_XMIT_PDU, &who, PDU_ERROR, 0);
-	}
+	if (_pmcd_trace_mask)
+	    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, 0);
 	s = __pmSendError(cp->fd, FROM_ANON, 0);
 	if (s < 0)
 	    CleanupClient(cp, s);

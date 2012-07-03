@@ -19,7 +19,7 @@
 
 extern char *lstrip(char *str);
 extern void rstrip(char *str);
-extern __pmFD start_cmd(const char *cmd, pid_t *ppid);
+extern int start_cmd(const char *cmd, pid_t *ppid);
 extern int stop_cmd(pid_t pid);
 
 #endif /* _UTIL_H */

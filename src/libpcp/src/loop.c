@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2004-2006 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -39,7 +38,7 @@ struct loop_input_s
 {
     loop_input_t *next;
     int tag;
-    __pmFD fd;
+    int fd;
     int flags;
     int (*callback)(int fd, int flags, void *closure);
     void *closure;

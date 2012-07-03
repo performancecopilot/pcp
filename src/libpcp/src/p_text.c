@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -26,7 +25,7 @@ typedef struct {
 } text_req_t;
 
 int
-__pmSendTextReq(__pmFD fd, int from, int ident, int type)
+__pmSendTextReq(int fd, int from, int ident, int type)
 {
     text_req_t	*pp;
     int		sts;
@@ -79,7 +78,7 @@ typedef struct {
 } text_t;
 
 int
-__pmSendText(__pmFD fd, int ctx, int ident, const char *buffer)
+__pmSendText(int fd, int ctx, int ident, const char *buffer)
 {
     text_t	*pp;
     size_t	need;

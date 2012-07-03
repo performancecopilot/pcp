@@ -3,7 +3,6 @@
  ***********************************************************************
  *
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -319,9 +318,7 @@ stopmonitor(void)
 static void
 startmonitor(void)
 {
-    __pmHostEnt		he;
-    __pmHostEnt		*hep;
-    char		*hebuf;
+    struct hostent	*hep = noDnsFlag ? NULL : gethostbyname(dfltHost);
     void		*ptr;
     int			fd;
     char		zero = '\0';
@@ -363,12 +360,7 @@ startmonitor(void)
 
     perf = (pmiestats_t *)ptr;
     strcpy(perf->logfile, logfile[0] == '\0'? "<none>" : logfile);
-
-    hebuf = __pmAllocHostEntBuffer();
-    hep = noDnsFlag ? NULL : __pmGetHostByName(dfltHost, &he, hebuf);
     strcpy(perf->defaultfqdn, hep == NULL? dfltHost : hep->h_name);
-    __pmFreeHostEntBuffer(hebuf);
-
     perf->version = 1;
 }
 

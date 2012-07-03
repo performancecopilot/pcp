@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,8 +20,8 @@
 #define CLIENT_H
 
 typedef struct {
-    __pmFD		fd;		/* socket descriptor  */
-    __pmSockAddrIn	addr;		/* address of client  */
+    int			fd;		/* socket descriptor  */
+    struct sockaddr_in	addr;		/* address of client  */
     struct {				/* connection status  */
 	unsigned int	connected : 1;	/* client connected   */
 	unsigned int	version   : 8;	/* client pdu version */
@@ -32,7 +31,7 @@ typedef struct {
     unsigned int	denyOps;
 } client_t;
 
-extern client_t *acceptClient(__pmFD);
+extern client_t *acceptClient(int);
 extern void deleteClient(client_t *);
 extern void showClients(void);
 

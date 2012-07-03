@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1997-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +22,6 @@
 #ifndef _PLATFORM_DEFS_H
 #include "platform_defs.h"
 #endif
-#include "pmio.h"
 
 #ifdef _cplusplus
 extern "C" {
@@ -58,8 +56,8 @@ typedef struct {
 
 typedef __uint32_t	__pmTracePDU;
 
-extern int __pmtracexmitPDU(__pmFD, __pmTracePDU *);
-extern int __pmtracegetPDU(__pmFD, int, __pmTracePDU **);
+extern int __pmtracexmitPDU(int, __pmTracePDU *);
+extern int __pmtracegetPDU(int, int, __pmTracePDU **);
 
 /* for __pmtracegetPDU */
 #define TRACE_TIMEOUT_NEVER	 0
@@ -71,8 +69,8 @@ extern int __pmtracegetPDU(__pmFD, int, __pmTracePDU **);
 extern __pmTracePDU *__pmtracefindPDUbuf(int);
 extern void __pmtracepinPDUbuf(void *);
 extern int __pmtraceunpinPDUbuf(void *);
-extern int __pmtracemoreinput(__pmFD);
-extern void __pmtracenomoreinput(__pmFD);
+extern int __pmtracemoreinput(int);
+extern void __pmtracenomoreinput(int);
 
 
 #define TRACE_PDU_BASE		0x7050
@@ -80,9 +78,9 @@ extern void __pmtracenomoreinput(__pmFD);
 #define TRACE_PDU_DATA		0x7051
 #define TRACE_PDU_MAX	 	2
 
-extern int __pmtracesendack(__pmFD, int);
+extern int __pmtracesendack(int, int);
 extern int __pmtracedecodeack(__pmTracePDU *, int *);
-extern int __pmtracesenddata(__pmFD, char *, int, int, double);
+extern int __pmtracesenddata(int, char *, int, int, double);
 extern int __pmtracedecodedata(__pmTracePDU *, char **, int *, int *, int *, double *);
 
 #define TRACE_PROTOCOL_FINAL    -1

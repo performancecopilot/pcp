@@ -31,8 +31,7 @@ void
 event_init(pmID pmid)
 {
     char cmd[MAXPATHLEN];
-    int	i;
-    __pmFD fd;
+    int	i, fd;
 
     for (i = 0; i < numlogfiles; i++) {
 	size_t pathlen = strlen(logfiles[i].pathname);
@@ -44,17 +43,17 @@ event_init(pmID pmid)
 	 *     interpreted as a command which pipes input to us.
 	 */
 	if (logfiles[i].pathname[pathlen - 1] != '|') {
-	  fd = __pmOpen(logfiles[i].pathname, O_RDONLY|O_NONBLOCK, 0);
-	    if (fd == PM_ERROR_FD) {
-		if (logfiles[i].fd != PM_ERROR_FD)	/* log once only */
+	    fd = open(logfiles[i].pathname, O_RDONLY|O_NONBLOCK);
+	    if (fd < 0) {
+		if (logfiles[i].fd >= 0)	/* log once only */
 		    __pmNotifyErr(LOG_ERR, "open: %s - %s",
 				logfiles[i].pathname, strerror(errno));
 	    } else {
-		if (__pmFstat(fd, &logfiles[i].pathstat) < 0)
-		    if (logfiles[i].fd != PM_ERROR_FD)	/* log once only */
+		if (fstat(fd, &logfiles[i].pathstat) < 0)
+		    if (logfiles[i].fd >= 0)	/* log once only */
 			__pmNotifyErr(LOG_ERR, "fstat: %s - %s",
 				    logfiles[i].pathname, strerror(errno));
-		__pmSeek(fd, 0, SEEK_END);
+		lseek(fd, 0, SEEK_END);
 	    }
 	}
 	else {
@@ -62,13 +61,14 @@ event_init(pmID pmid)
 	    cmd[pathlen - 1] = '\0';	/* get rid of the '|' */
 	    rstrip(cmd);	/* Remove all trailing whitespace. */
 	    fd = start_cmd(cmd, &logfiles[i].pid);
-	    if (fd == PM_ERROR_FD) {
-		if (logfiles[i].fd != PM_ERROR_FD)	/* log once only */
+	    if (fd < 0) {
+		if (logfiles[i].fd >= 0)	/* log once only */
 		    __pmNotifyErr(LOG_ERR, "pipe: %s - %s",
 					logfiles[i].pathname, strerror(errno));
 	    } else {
-	        maxfd = __pmUpdateMaxFD(fd, maxfd);
-		__pmFD_SET(fd, &fds);
+		if (fd > maxfd)
+		    maxfd = fd;
+		FD_SET(fd, &fds);
 	    }
 	}
 
@@ -90,9 +90,9 @@ event_shutdown(void)
 	    stop_cmd(logfiles[i].pid);
 	    logfiles[i].pid = 0;
 	}
-	if (logfiles[i].fd != PM_ERROR_FD) {
-	    __pmClose(logfiles[i].fd);
-	    logfiles[i].fd = PM_ERROR_FD;
+	if (logfiles[i].fd > 0) {
+	    close(logfiles[i].fd);
+	    logfiles[i].fd = 0;
 	}
     }
 }
@@ -290,9 +290,9 @@ event_create(event_logfile_t *logfile)
 
     offset = 0;
 multiread:
-    if (logfile->fd == PM_ERROR_FD)
+    if (logfile->fd < 0)
     	return 0;
-    bytes = __pmRead(logfile->fd, buffer + offset, bufsize - 1 - offset);
+    bytes = read(logfile->fd, buffer + offset, bufsize - 1 - offset);
     /*
      * Ignore the error if:
      * - we've got EOF (0 bytes read)
@@ -342,8 +342,7 @@ event_refresh(void)
 {
     struct event_logfile *logfile;
     struct stat pathstat;
-    int i, sts;
-    __pmFD fd;
+    int i, fd, sts;
 
     for (i = 0; i < numlogfiles; i++) {
 	logfile = &logfiles[i];
@@ -351,20 +350,20 @@ event_refresh(void)
 	if (logfile->pid > 0)	/* process pipe */
 	    goto events;
 	if (stat(logfile->pathname, &pathstat) < 0) {
-	    if (logfile->fd != PM_ERROR_FD) {
-		__pmClose(logfile->fd);
-		logfile->fd = PM_ERROR_FD;
+	    if (logfile->fd >= 0) {
+		close(logfile->fd);
+		logfile->fd = -1;
 	    }
 	    memset(&logfile->pathstat, 0, sizeof(logfile->pathstat));
 	} else {
 	    /* reopen if no descriptor before, or log rotated (new file) */
-	    if (logfile->fd == PM_ERROR_FD ||
+	    if (logfile->fd < 0 ||
 	        logfile->pathstat.st_ino != pathstat.st_ino ||
 		logfile->pathstat.st_dev != pathstat.st_dev) {
-		if (logfile->fd != PM_ERROR_FD)
-		    __pmClose(logfile->fd);
-		fd = __pmOpen(logfile->pathname, O_RDONLY|O_NONBLOCK, 0);
-		if (fd == PM_ERROR_FD && logfile->fd != PM_ERROR_FD)	/* log once */
+		if (logfile->fd >= 0)
+		    close(logfile->fd);
+		fd = open(logfile->pathname, O_RDONLY|O_NONBLOCK);
+		if (fd < 0 && logfile->fd >= 0)	/* log once */
 		    __pmNotifyErr(LOG_ERR, "open: %s - %s",
 				logfile->pathname, strerror(errno));
 		logfile->fd = fd;

@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -233,11 +232,9 @@ main(int argc, char **argv)
 		break;
 	}
 	if (i == n_cisco) {
-	    __pmHostEnt hostInfo;
-	    char *hibuf;
+	    struct hostent *hostInfo;
 
-	    hibuf = __pmAllocHostEntBuffer();
-	    if (__pmGetHostByName(p, &hostInfo, hibuf) == NULL) {
+	    if ((hostInfo = gethostbyname(p)) == NULL) {
 #ifdef PARSE_ONLY
 		/*
 		 * for debugging, "host" may be a file ...
@@ -247,7 +244,6 @@ main(int argc, char **argv)
 		    fprintf(stderr, "%s: unknown hostname or filename %s: %s\n",
 			pmProgname, argv[optind], hoststrerror());
 		    /* abandon this host (cisco) */
-		    __pmFreeHostEntBuffer(hibuf);
 		    continue;
 		}
 		else {
@@ -266,12 +262,11 @@ main(int argc, char **argv)
 		fprintf(stderr, "%s: unknown hostname %s: %s\n",
 			pmProgname, p, hoststrerror());
 		/* abandon this host (cisco) */
-		__pmFreeHostEntBuffer(hibuf);
 		continue;
 #endif
 	    }
 	    else {
-	        __pmSockAddrIn *sinp = & cisco[i].ipaddr;
+		struct sockaddr_in *sinp = & cisco[i].ipaddr;
 
 		cisco[i].host = p;
 		cisco[i].username = myusername != NULL ? myusername : username;
@@ -280,9 +275,10 @@ main(int argc, char **argv)
 		cisco[i].fin = NULL;
 		cisco[i].fout = NULL;
 
-		__pmInitSockAddr(sinp, 0, htons(port));
-		__pmSetSockAddr(sinp, &hostInfo);
-		__pmFreeHostEntBuffer(hibuf);
+		memset(sinp, 0, sizeof(cisco[i].ipaddr));
+		sinp->sin_family = AF_INET;
+		memcpy(&sinp->sin_addr, hostInfo->h_addr, hostInfo->h_length);
+		sinp->sin_port = htons(port);	/* telnet */
 
 		n_cisco++;
 		fprintf (stderr, "Adding new host %s\n", p);

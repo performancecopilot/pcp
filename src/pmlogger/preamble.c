@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -90,16 +89,14 @@ do_preamble(void)
 	/* special case for each value 0 .. n_metric-1 */
 	if (desc[i].pmid == PMID(2,3,3)) {
 	    /* my fully qualified hostname, cloned from the pmcd PMDA */
-	    __pmHostEnt	he;
-	    char *hebuf;
+	    struct hostent	*hep = NULL;
 	    (void)gethostname(host, MAXHOSTNAMELEN);
 	    host[MAXHOSTNAMELEN-1] = '\0';
-	    hebuf = __pmAllocHostEntBuffer();
-	    if (__pmGetHostByName(host, &he, hebuf) != NULL)
-		atom.cp = he.h_name;
+	    hep = gethostbyname(host);
+	    if (hep != NULL)
+		atom.cp = hep->h_name;
 	    else
 		atom.cp = host;
-	    __pmFreeHostEntBuffer(hebuf);
 	 }
 	 else if (desc[i].pmid == PMID(2,3,0)) {
 	    /* my control port number, from ports.c */
@@ -130,10 +127,10 @@ do_preamble(void)
 	res->vset[i]->valfmt = sts;
     }
 
-    if ((sts = __pmEncodeResult(logctl.l_mfp, res, &pb)) < 0)
+    if ((sts = __pmEncodeResult(fileno(logctl.l_mfp), res, &pb)) < 0)
 	goto done;
 
-    __pmOverrideLastFd(logctl.l_mfp);	/* force use of log version */
+    __pmOverrideLastFd(fileno(logctl.l_mfp));	/* force use of log version */
     /* and start some writing to the archive log files ... */
     sts = __pmLogPutResult(&logctl, pb);
     __pmUnpinPDUBuf(pb);
@@ -181,13 +178,13 @@ do_preamble(void)
     }
 
     /* fudge the temporal index */
-    __pmFlush(logctl.l_mfp);
-    __pmSeek(logctl.l_mfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
-    __pmFlush(logctl.l_mdfp);
-    __pmSeek(logctl.l_mdfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
+    fflush(logctl.l_mfp);
+    fseek(logctl.l_mfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
+    fflush(logctl.l_mdfp);
+    fseek(logctl.l_mdfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
     __pmLogPutIndex(&logctl, &tmp);
-    __pmSeek(logctl.l_mfp, 0L, SEEK_END);
-    __pmSeek(logctl.l_mdfp, 0L, SEEK_END);
+    fseek(logctl.l_mfp, 0L, SEEK_END);
+    fseek(logctl.l_mdfp, 0L, SEEK_END);
     sts = 0;
 
     /*

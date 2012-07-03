@@ -2,7 +2,6 @@
  * Web PMDA, based on generic driver for a daemon-based PMDA
  *
  * Copyright (c) 2000-2003 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -328,9 +327,9 @@ receivePDUs(pmdaInterface *dispatch)
 			 interval);
 #endif
 
-	sts = __pmSelectRead(nfds, &rfds, &timeout);
+	sts = select(nfds, &rfds, (fd_set*)0, (fd_set*)0, &timeout);
 	if (sts < 0) {
-	    logmessage(LOG_ERR, "Error on fetch __pmSelectRead: %s", netstrerror());
+	    logmessage(LOG_ERR, "Error on fetch select: %s", netstrerror());
 	    exit(1);
 	}  
 
@@ -338,7 +337,7 @@ receivePDUs(pmdaInterface *dispatch)
 
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL1)
-	    	logmessage(LOG_DEBUG, "__PmSelectRead timed out\n");
+	    	logmessage(LOG_DEBUG, "Select timed out\n");
 #endif
 
 	    refreshAll();

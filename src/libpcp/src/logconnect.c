@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -69,15 +68,14 @@ __pmLoggerTimeout(void)
  * expect one of pid or port to be 0 ... if port is 0, use
  * hostname+pid to find port, assuming pmcd is running there
  */
-__pmFD
+int
 __pmConnectLogger(const char *hostname, int *pid, int *port)
 {
     int			n, sts;
     __pmLogPort		*lpp;
-    __pmSockAddrIn	myAddr;
-    __pmHostEnt		servInfo;
-    char		*sibuf;
-    __pmFD		fd;	/* Fd for socket connection to pmcd */
+    struct sockaddr_in	myAddr;
+    struct hostent*	servInfo;
+    int			fd;	/* Fd for socket connection to pmcd */
     __pmPDU		*pb;
     __pmPDUHdr		*php;
     int			pinpdu;
@@ -97,8 +95,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr, "__pmConnectLogger: pid == PM_LOG_ALL_PIDS makes no sense here\n");
 #endif
-	//return -ECONNREFUSED; TODO
-	return PM_ERROR_FD;
+	return -ECONNREFUSED;
     }
 
     if (*pid == PM_LOG_NO_PID && *port == PM_LOG_PRIMARY_PORT) {
@@ -118,15 +115,14 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 		fprintf(stderr, "__pmConnectLogger: __pmLogFindPort: %s\n", pmErrStr_r(n, errmsg, sizeof(errmsg)));
 	    }
 #endif
-	    return PM_ERROR_FD;
+	    return n;
 	}
 	else if (n != 1) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)
 		fprintf(stderr, "__pmConnectLogger: __pmLogFindPort -> 1, cannot contact pmcd\n");
 #endif
-	    //return -ECONNREFUSED; TODO
-	    return PM_ERROR_FD;
+	    return -ECONNREFUSED;
 	}
 	*port = lpp->port;
 #ifdef PCP_DEBUG
@@ -137,32 +133,29 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    sibuf = __pmAllocHostEntBuffer();
-    if (__pmGetHostByName(hostname, &servInfo, sibuf) == NULL) {
+    if ((servInfo = gethostbyname(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
-	    fprintf(stderr, "__pmConnectLogger: __pmGetHostByName: %s\n",
+	    fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
 		    hoststrerror());
 #endif
-	__pmFreeHostEntBuffer(sibuf);
 	PM_UNLOCK(__pmLock_libpcp);
-	//return -ECONNREFUSED; TODO
-	return PM_ERROR_FD;
+	return -ECONNREFUSED;
     }
 
     /* Create socket and attempt to connect to the pmlogger control port */
-    if ((fd = __pmCreateSocket()) == PM_ERROR_FD) {
-	__pmFreeHostEntBuffer(sibuf);
+    if ((fd = __pmCreateSocket()) < 0) {
 	PM_UNLOCK(__pmLock_libpcp);
-	return PM_ERROR_FD;
+	return fd;
     }
 
-    __pmInitSockAddr(&myAddr, htonl(INADDR_ANY), htons(*port));
-    __pmSetSockAddr(&myAddr, &servInfo);
-    __pmFreeHostEntBuffer(sibuf);
+    memset(&myAddr, 0, sizeof(myAddr));	/* Arrgh! &myAddr, not myAddr */
+    myAddr.sin_family = AF_INET;
+    memcpy(&myAddr.sin_addr, servInfo->h_addr, servInfo->h_length);
     PM_UNLOCK(__pmLock_libpcp);
+    myAddr.sin_port = htons(*port);
 
-    sts = __pmConnect(fd, (__pmSockAddr*) &myAddr, sizeof(myAddr));
+    sts = connect(fd, (struct sockaddr*) &myAddr, sizeof(myAddr));
     if (sts < 0) {
 	sts = -neterror();
 	__pmCloseSocket(fd);
@@ -172,7 +165,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	    fprintf(stderr, "__pmConnectLogger: connect: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
 #endif
-	return PM_ERROR_FD;
+	return sts;
     }
 
     /* Expect an error PDU back: ACK/NACK for connection */
@@ -233,12 +226,12 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)
 		fprintf(stderr, "__pmConnectLogger: PDU version=%d fd=%d\n",
-			__pmVersionIPC(fd), __pmFdRef(fd));
+					__pmVersionIPC(fd), fd);
 #endif
 	    return fd;
 	}
     }
     /* error if we get here */
     __pmCloseSocket(fd);
-    return PM_ERROR_FD;
+    return sts;
 }

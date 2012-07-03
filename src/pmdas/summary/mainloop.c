@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,7 +37,7 @@ mainLoopFreeResultCallback(void (*callback)(pmResult *res))
 }
 
 void
-summaryMainLoop(char *pmdaname, __pmFD configfd, __pmFD clientfd, pmdaInterface *dtp)
+summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
 {
     __pmPDU		*pb_pmcd;
     __pmPDU		*pb_client;
@@ -60,11 +59,10 @@ summaryMainLoop(char *pmdaname, __pmFD configfd, __pmFD clientfd, pmdaInterface 
     char		*buffer;
     __pmProfile		*profile;
     __pmProfile		*saveprofile = NULL;
-    static __pmFdSet	readFds;
-    __pmFD		maxfd;
-    int                 numFds;
+    static fd_set	readFds;
+    int			maxfd;
     int			configReady, clientReady, pmcdReady;
-    __pmFD infd, outfd;
+    int infd, outfd;
 
     if (dtp->comm.pmda_interface != PMDA_INTERFACE_2) {
 	__pmNotifyErr(LOG_CRIT, 
@@ -76,25 +74,26 @@ summaryMainLoop(char *pmdaname, __pmFD configfd, __pmFD clientfd, pmdaInterface 
 	outfd = dtp->version.two.ext->e_outfd;
     }
 
-    maxfd = infd;
-    maxfd = __pmUpdateMaxFD(clientfd, maxfd);
-    maxfd = __pmUpdateMaxFD(configfd, maxfd);
-    numFds = __pmIncrFD(maxfd);
+    maxfd = infd+1;
+    if (clientfd >= maxfd)
+	maxfd = clientfd+1;
+    if (configfd >= maxfd)
+	maxfd = configfd+1;
 
     for ( ;; ) {
-	__pmFD_ZERO(&readFds);
-	__pmFD_SET(infd, &readFds);
-	__pmFD_SET(clientfd, &readFds);
+	FD_ZERO(&readFds);
+	FD_SET(infd, &readFds);
+	FD_SET(clientfd, &readFds);
 	if (configfd >= 0)
-	    __pmFD_SET(configfd, &readFds);
+	    FD_SET(configfd, &readFds);
 
-	/* __pmSelectRead here : block if nothing to do */
-	sts = __pmSelectRead(numFds, &readFds, NULL);
+	/* select here : block if nothing to do */
+	sts = select(maxfd, &readFds, NULL, NULL, NULL);
 
-	clientReady = __pmFD_ISSET(clientfd, &readFds);
-	pmcdReady = __pmFD_ISSET(infd, &readFds);
+	clientReady = FD_ISSET(clientfd, &readFds);
+	pmcdReady = FD_ISSET(infd, &readFds);
 	if (configfd >= 0)
-	    configReady = __pmFD_ISSET(configfd, &readFds);
+	    configReady = FD_ISSET(configfd, &readFds);
 	else
 	    configReady = 0;
 
@@ -112,8 +111,8 @@ summaryMainLoop(char *pmdaname, __pmFD configfd, __pmFD clientfd, pmdaInterface 
 		__pmNotifyErr(LOG_ERR, "config __pmGetPDU: %s\n", pmErrStr(sts));
 	    if (sts <= 0) {
 		/* End of File or error. Just close the file or pipe */
-		__pmClose(configfd);
-		configfd = PM_ERROR_FD;
+		close(configfd);
+		configfd = -1;
 	    }
 	    else {
 		service_config(pb_config);

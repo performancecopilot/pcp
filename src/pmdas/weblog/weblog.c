@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1578,11 +1577,11 @@ sprocMain(void *sprocNum)
 #endif
 
 /* close channel to pmcd */
-    if(__pmClose(extp->e_infd) < 0) {
+    if(close(extp->e_infd) < 0) {
     	logmessage(LOG_ERR, "sprocMain: pmcd ch. close(fd=%d) failed: %s\n",
 		   extp->e_infd, osstrerror());
     }
-    if(__pmClose(extp->e_outfd) < 0) {
+    if(close(extp->e_outfd) < 0) {
     	logmessage(LOG_ERR, "sprocMain: pmcd ch. close(fd=%d) failed: %s\n",
 		   extp->e_outfd, osstrerror());
     }
@@ -2394,9 +2393,10 @@ probe(void)
 
     for (i=0; i<sprocsUsed;) {
         memcpy(&tmprfds, &rfds, sizeof(tmprfds));
-	sts = select(nfds, &tmprfds, NULL, NULL, NULL);
+	sts = select(nfds, &tmprfds, (fd_set*)0, (fd_set*)0, 
+		     (struct timeval*)0);
 	if (sts < 0) {
-	    logmessage(LOG_ERR, "Error on fetch __pmSelectRead: %s", netstrerror());
+	    logmessage(LOG_ERR, "Error on fetch select: %s", netstrerror());
 	    exit(1);
 	}
 	else if (sts == 0)

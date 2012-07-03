@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -42,13 +41,13 @@ int		unbuffered;		/* is -u specified? */
 int		qa_case;		/* QA error injection state */
 char		*note = NULL;		/* note for port map file */
 
-static __pmFD 	    pmcdfd;		/* comms to pmcd */
+static int 	    pmcdfd;		/* comms to pmcd */
 static int	    ctx;		/* handle correspondong to ctxp below */
 static __pmContext  *ctxp;		/* pmlogger has just this one context */
-static __pmFdSet    fds;		/* file descriptors mask for __pmSelectRead */
+static fd_set	    fds;		/* file descriptors mask for select */
 static int	    numfds;		/* number of file descriptors in mask */
 
-static __pmFD	rsc_fd = PM_ERROR_FD;	/* recording session control see -x */
+static int	rsc_fd = -1;	/* recording session control see -x */
 static int	rsc_replay;
 static time_t	rsc_start;
 static char	*rsc_prog = "<unknown>";
@@ -64,11 +63,11 @@ do_flush(void)
     int		sts;
 
     sts = 0;
-    if (__pmFlush(logctl.l_mdfp) != 0)
+    if (fflush(logctl.l_mdfp) != 0)
 	sts = oserror();
-    if (__pmFlush(logctl.l_mfp) != 0 && sts == 0)
+    if (fflush(logctl.l_mfp) != 0 && sts == 0)
 	sts = oserror();
-    if (__pmFlush(logctl.l_tifp) != 0 && sts == 0)
+    if (fflush(logctl.l_tifp) != 0 && sts == 0)
 	sts = oserror();
 
     return sts;
@@ -93,7 +92,7 @@ run_done(int sts, char *msg)
 	__pmTimeval	tmp;
 	tmp.tv_sec = (__int32_t)last_stamp.tv_sec;
 	tmp.tv_usec = (__int32_t)last_stamp.tv_usec;
-	__pmSeek(logctl.l_mfp, last_log_offset, SEEK_SET);
+	fseek(logctl.l_mfp, last_log_offset, SEEK_SET);
 	__pmLogPutIndex(&logctl, &tmp);
     }
 
@@ -112,13 +111,16 @@ vol_switch_callback(int i, void *j)
   newvolume(VOL_SW_TIME);
 }
 
-static __pmFD
+static int
 maxfd(void)
 {
-    __pmFD max = ctlfd;
-    max = __pmUpdateMaxFD(clientfd, max);
-    max = __pmUpdateMaxFD(pmcdfd, max);
-    max = __pmUpdateMaxFD(rsc_fd, max);
+    int	max = ctlfd;
+    if (clientfd > max)
+	max = clientfd;
+    if (pmcdfd > max)
+	max = pmcdfd;
+    if (rsc_fd > max)
+	max = rsc_fd;
     return max;
 }
 
@@ -332,7 +334,7 @@ do_dialog(char cmd)
 	/* hack is close enough! */
 	now = 1;
 
-    archsize = vol_bytes + __pmTell(logctl.l_mfp);
+    archsize = vol_bytes + ftell(logctl.l_mfp);
 
     nchar = add_msg(&p, 0, "");
     p[0] = '\0';
@@ -467,9 +469,9 @@ failed:
 
     if (cmd != '?') {
 	/* detach, silently go off to the races ... */
-	__pmClose(rsc_fd);
-	__pmFD_CLR(rsc_fd, &fds);
-	rsc_fd = PM_ERROR_FD;
+	close(rsc_fd);
+	FD_CLR(rsc_fd, &fds);
+	rsc_fd = -1;
     }
 }
 
@@ -489,7 +491,7 @@ main(int argc, char **argv)
     int			i;
     task_t		*tp;
     optcost_t		ocp;
-    __pmFdSet		readyfds;
+    fd_set		readyfds;
     char		*p;
     char		*runtime = NULL;
 
@@ -618,8 +620,8 @@ main(int argc, char **argv)
 	    break;
 
 	case 'x':		/* recording session control fd */
-	  rsc_fd = __pmStrToFd(optarg, &endnum);
-	  if (*endnum != '\0' || rsc_fd < 0) {
+	    rsc_fd = (int)strtol(optarg, &endnum, 10);
+	    if (*endnum != '\0' || rsc_fd < 0) {
 		fprintf(stderr, "%s: -x requires a non-negative numeric argument\n", pmProgname);
 		errflag++;
 	    }
@@ -663,10 +665,10 @@ Options:\n\
 	exit(1);
     }
 
-    if (rsc_fd != PM_ERROR_FD && note == NULL) {
+    if (rsc_fd != -1 && note == NULL) {
 	/* add default note to indicate running with -x */
 	static char	xnote[10];
-	snprintf(xnote, sizeof(xnote), "-x %d", __pmFdRef(rsc_fd));
+	snprintf(xnote, sizeof(xnote), "-x %d", rsc_fd);
 	note = xnote;
     }
 
@@ -701,7 +703,7 @@ Options:\n\
 	exit(1);
     }
 
-    if (rsc_fd == PM_ERROR_FD) {
+    if (rsc_fd == -1) {
 	/* no -x, so register client id with pmcd */
 	__pmSetClientIdArgv(argc, argv);
     }
@@ -852,14 +854,14 @@ Options:\n\
 
     /* set up control port */
     init_ports();
-    __pmFD_ZERO(&fds);
-    __pmFD_SET(ctlfd, &fds);
+    FD_ZERO(&fds);
+    FD_SET(ctlfd, &fds);
 #ifndef IS_MINGW
-    __pmFD_SET(pmcdfd, &fds);
+    FD_SET(pmcdfd, &fds);
 #endif
-    if (rsc_fd != PM_ERROR_FD)
-	__pmFD_SET(rsc_fd, &fds);
-    numfds = __pmIncrFD(maxfd());
+    if (rsc_fd != -1)
+	FD_SET(rsc_fd, &fds);
+    numfds = maxfd() + 1;
 
     if ((sts = do_preamble()) < 0)
 	fprintf(stderr, "Warning: problem writing archive preamble: %s\n",
@@ -874,7 +876,7 @@ Options:\n\
 	int		nready;
 
 	memcpy(&readyfds, &fds, sizeof(readyfds));
-	nready = __pmSelectRead(numfds, &readyfds, NULL);
+	nready = select(numfds, &readyfds, NULL, NULL, NULL);
 
 	if (wantflush) {
 	    /*
@@ -889,28 +891,29 @@ Options:\n\
 	    __pmAFblock();
 
 	    /* handle request on control port */
-	    if (__pmFD_ISSET(ctlfd, &readyfds)) {
+	    if (FD_ISSET(ctlfd, &readyfds)) {
 		if (control_req()) {
 		    /* new client has connected */
-		    __pmFD_SET(clientfd, &fds);
-		    numfds = __pmIncrFD(__pmUpdateMaxFD(clientfd, maxfd()));
+		    FD_SET(clientfd, &fds);
+		    if (clientfd >= numfds)
+			numfds = clientfd + 1;
 		}
 	    }
-	    if (clientfd != PM_ERROR_FD && __pmFD_ISSET(clientfd, &readyfds)) {
+	    if (clientfd >= 0 && FD_ISSET(clientfd, &readyfds)) {
 		/* process request from client, save clientfd in case client
 		 * closes connection, resetting clientfd to -1
 		 */
-		__pmFD	fd = clientfd;
+		int	fd = clientfd;
 
 		if (client_req()) {
 		    /* client closed connection */
-		    __pmFD_CLR(fd, &fds);
-		    numfds = __pmIncrFD(maxfd());
+		    FD_CLR(fd, &fds);
+		    numfds = maxfd() + 1;
 		    qa_case = 0;
 		}
 	    }
 #ifndef IS_MINGW
-	    if (pmcdfd != PM_ERROR_FD && __pmFD_ISSET(pmcdfd, &readyfds)) {
+	    if (pmcdfd >= 0 && FD_ISSET(pmcdfd, &readyfds)) {
 		/*
 		 * do not expect this, given synchronous commumication with the
 		 * pmcd ... either pmcd has terminated, or bogus PDU ... or its
@@ -937,7 +940,7 @@ Options:\n\
 		    __pmUnpinPDUBuf(pb);
 	    }
 #endif
-	    if (rsc_fd != PM_ERROR_FD && __pmFD_ISSET(rsc_fd, &readyfds)) {
+	    if (rsc_fd >= 0 && FD_ISSET(rsc_fd, &readyfds)) {
 		/*
 		 * some action on the recording session control fd
 		 * end-of-file means launcher has quit, otherwise we
@@ -955,7 +958,7 @@ Options:\n\
 		int	fake_x = 0;
 
 		for (rp = rsc_buf; ; rp++) {
-		    if (__pmRead(rsc_fd, &myc, 1) <= 0) {
+		    if (read(rsc_fd, &myc, 1) <= 0) {
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_APPL2)
 			    fprintf(stderr, "recording session control: eof\n");
@@ -1014,7 +1017,7 @@ Options:\n\
 	    __pmAFunblock();
 	}
 	else if (nready < 0 && neterror() != EINTR)
-	    fprintf(stderr, "Error: __pmSelectRead: %s\n", netstrerror());
+	    fprintf(stderr, "Error: select: %s\n", netstrerror());
     }
 
 }
@@ -1023,7 +1026,7 @@ Options:\n\
 int
 newvolume(int vol_switch_type)
 {
-    __pmFD	newfp;
+    FILE	*newfp;
     int		nextvol = logctl.l_curvol + 1;
     time_t	now;
     static char *vol_sw_strs[] = {
@@ -1032,7 +1035,7 @@ newvolume(int vol_switch_type)
     };
 
     vol_samples_counter = 0;
-    vol_bytes += __pmTell(logctl.l_mfp);
+    vol_bytes += ftell(logctl.l_mfp);
     if (exit_bytes != -1) {
         if (vol_bytes >= exit_bytes) 
 	    run_done(0, "Byte limit reached");
@@ -1051,7 +1054,7 @@ newvolume(int vol_switch_type)
                                    vol_switch_callback);
     }
 
-    if ((newfp = __pmLogNewFile(archBase, nextvol)) != PM_ERROR_FD) {
+    if ((newfp = __pmLogNewFile(archBase, nextvol)) != NULL) {
 	if (logctl.l_state == PM_LOG_STATE_NEW) {
 	    /*
 	     * nothing has been logged as yet, force out the label records
@@ -1075,11 +1078,11 @@ newvolume(int vol_switch_type)
 	    __pmLogPutIndex(&logctl, &tmp);
 	}
 #endif
-	__pmClose(logctl.l_mfp);
+	fclose(logctl.l_mfp);
 	logctl.l_mfp = newfp;
 	logctl.l_label.ill_vol = logctl.l_curvol = nextvol;
 	__pmLogWriteLabel(logctl.l_mfp, &logctl.l_label);
-	__pmFlush(logctl.l_mfp);
+	fflush(logctl.l_mfp);
 	time(&now);
 	fprintf(stderr, "New log volume %d, via %s at %s",
 		nextvol, vol_sw_strs[vol_switch_type], ctime(&now));
@@ -1105,10 +1108,10 @@ disconnect(int sts)
 	fprintf(stderr, "This is fatal for the primary logger.");
 	exit(1);
     }
-    __pmCloseSocket(pmcdfd);
-    __pmFD_CLR(pmcdfd, &fds);
+    close(pmcdfd);
+    FD_CLR(pmcdfd, &fds);
     pmcdfd = -1;
-    numfds = __pmIncrFD(maxfd());
+    numfds = maxfd() + 1;
     ctxp->c_pmcd->pc_fd = -1;
 #else
     exit(1);
@@ -1128,8 +1131,8 @@ reconnect(void)
 	fprintf(stderr, "%s: re-established connection to PMCD on \"%s\" at %s\n",
 		pmProgname, ctxp->c_pmcd->pc_name, ctime(&now));
 	pmcdfd = ctxp->c_pmcd->pc_fd;
-	__pmFD_SET(pmcdfd, &fds);
-	numfds = __pmIncrFD(maxfd());
+	FD_SET(pmcdfd, &fds);
+	numfds = maxfd() + 1;
     }
     return sts;
 }

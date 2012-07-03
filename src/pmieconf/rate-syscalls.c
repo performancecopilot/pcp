@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2010 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,10 +35,9 @@ main()
     struct timeval	then;
     struct timeval	eek;
     double		delta;
-    __pmHostEnt		servInfo;
-    char		*servBuf;
+    struct hostent	*servInfo;
     int			s;
-    __pmSockAddrIn	myAddr;
+    struct sockaddr_in	myAddr;
     struct linger	noLinger = {1, 0};
     int			scale = 2;
 
@@ -107,13 +105,11 @@ main()
 	(int)(0.5 + 2*n / delta), delta);
     unlink("/tmp/creat-clo");
 
-    servBuf = __pmAllocHostEntBuffer();
-    __pmGetHostByName("localhost", servInfo, servBuf);
+    servInfo = gethostbyname("localhost");
     memset(&myAddr, 0, sizeof(myAddr));
     myAddr.sin_family = AF_INET;
-    memcpy(&myAddr.sin_addr, servInfo.h_addr, servInfo.h_length);
+    memcpy(&myAddr.sin_addr, servInfo->h_addr, servInfo->h_length);
     myAddr.sin_port = htons(80);
-    __pmFreeHostEntBuffer(servBuf);
     n = 4000 * scale;
     __pmtimevalNow(&then);
     for (i = 0; i < n; i++) {
@@ -123,12 +119,12 @@ main()
 	    exit(1);
 	}
 
-	if (__pmSetSockOpt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger, sizeof(noLinger)) < 0) {
-	    fprintf(stderr, "__pmSetSockOpt(SO_LINGER): %s\n", netstrerror());
+	if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger, sizeof(noLinger)) < 0) {
+	    fprintf(stderr, "setsockopt(SO_LINGER): %s\n", netstrerror());
 	    exit(1);
 	}
 
-	if (__pmConnect(s, (__pmSockAddr*) &myAddr, sizeof(myAddr)) < 0) {
+	if (connect(s, (struct sockaddr*) &myAddr, sizeof(myAddr)) < 0) {
 	    fprintf(stderr, "connect: %s\n", netstrerror());
 	    exit(1);
 	}

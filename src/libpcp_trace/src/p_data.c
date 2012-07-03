@@ -52,7 +52,7 @@ typedef struct {
 } tracedata_t;
 
 int
-__pmtracesenddata(__pmFD fd, char *tag, int taglen, int tagtype, double data)
+__pmtracesenddata(int fd, char *tag, int taglen, int tagtype, double data)
 {
     tracedata_t	*pp = NULL;
     size_t	need = 0;

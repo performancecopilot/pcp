@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,14 +35,14 @@ conn_cisco(cisco_t * cp)
     int	i;
 
     fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (fd == -1) {
+    if (fd < 0) {
 	fprintf(stderr, "conn_cisco(%s) socket: %s\n", cp->host, netstrerror());
 	return -1;
     }
 
     i = 1;
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i, (mysocklen_t)sizeof(i)) < 0) {
-	fprintf(stderr, "conn_cisco(%s): __pmSetSockOpt: %s\n",
+	fprintf(stderr, "conn_cisco(%s): setsockopt: %s\n",
 		cp->host, netstrerror());
 	close(fd);
 	return -1;
@@ -414,7 +413,7 @@ grab_cisco(intf_t *ip)
 
     if (cp->fin == NULL) {
 	fd = conn_cisco(cp);
-	if (fd == -1) {
+	if (fd < 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
 		fprintf(stderr, "grab_cisco(%s:%s): connect failed: %s\n",

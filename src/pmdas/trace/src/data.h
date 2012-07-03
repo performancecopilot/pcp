@@ -38,7 +38,7 @@ void instprint(__pmHashTable *t, void *e);
 typedef struct {
     char		*tag;
     unsigned int	id;
-    __pmFD		fd;
+    int			fd;
     unsigned int	tracetype : 8;
     unsigned int	taglength : 8;
     unsigned int	padding   : 16;

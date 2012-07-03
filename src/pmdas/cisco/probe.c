@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -268,8 +267,7 @@ main(int argc, char **argv)
     char		*endnum;
     char		*passwd = NULL;
     char		*username = NULL;
-    __pmHostEnt		hostInfo;
-    char		*hibuf;
+    struct hostent	*hostInfo;
 
     __pmSetProgname(argv[0]);
 
@@ -318,13 +316,11 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    hibuf = __pmAllocHostEntBuffer();
-    if (__pmGetHostByName(argv[optind], &hostInfo, hibuf) == NULL) {
+    if ((hostInfo = gethostbyname(argv[optind])) == NULL) {
 	FILE	*f;
 	if ((f = fopen(argv[optind], "r")) == NULL) {
 	    fprintf(stderr, "%s: unknown hostname or filename %s: %s\n",
 		pmProgname, argv[optind], hoststrerror());
-	    __pmFreeHostEntBuffer(hibuf);
 	    exit(1);
 	}
 	else {
@@ -355,9 +351,8 @@ main(int argc, char **argv)
 
 	memset(sinp, 0, sizeof(c.ipaddr));
 	sinp->sin_family = AF_INET;
-	memcpy(&sinp->sin_addr, hostInfo.h_addr, hostInfo.h_length);
+	memcpy(&sinp->sin_addr, hostInfo->h_addr, hostInfo->h_length);
 	sinp->sin_port = htons(23);	/* telnet */
-	__pmFreeHostEntBuffer(hibuf);
 
 	probe_cisco(&c);
     }

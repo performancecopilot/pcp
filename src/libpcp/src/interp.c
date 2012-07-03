@@ -67,7 +67,7 @@ typedef struct pmidcntl {		/* metric control */
 typedef struct {
     pmResult	*rp;		/* cached pmResult from __pmLogRead */
     int		sts;		/* from __pmLogRead */
-    __pmFD	mfp;		/* log stream */
+    FILE	*mfp;		/* log stream */
     int		vol;		/* log volume */
     long	head_posn;	/* posn in file before forwards __pmLogRead */
     long	tail_posn;	/* posn in file after forwards __pmLogRead */
@@ -97,7 +97,7 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
     PM_LOCK(__pmLock_libpcp);
 
     if (acp->ac_vol == acp->ac_log->l_curvol) {
-	posn = __pmTell(acp->ac_log->l_mfp);
+	posn = ftell(acp->ac_log->l_mfp);
 	assert(posn >= 0);
     }
     else
@@ -107,7 +107,7 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 	/* cache initialization */
 	for (cp = cache; cp < &cache[NUMCACHE]; cp++) {
 	    cp->rp = NULL;
-	    cp->mfp = PM_ERROR_FD;
+	    cp->mfp = NULL;
 	}
 	round_robin = 0;
     }
@@ -115,7 +115,7 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_LOG) && (pmDebug & DBG_TRACE_INTERP)) {
 	fprintf(stderr, "cache_read: fd=%d mode=%s vol=%d (curvol=%d) %s_posn=%ld ",
-	    __pmFdRef(acp->ac_log->l_mfp),
+	    fileno(acp->ac_log->l_mfp),
 	    mode == PM_MODE_FORW ? "forw" : "back",
 	    acp->ac_vol, acp->ac_log->l_curvol,
 	    mode == PM_MODE_FORW ? "head" : "tail",
@@ -134,9 +134,9 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 	    *rp = cp->rp;
 	    cp->used++;
 	    if (mode == PM_MODE_FORW)
-		__pmSeek(acp->ac_log->l_mfp, cp->tail_posn, SEEK_SET);
+		fseek(acp->ac_log->l_mfp, cp->tail_posn, SEEK_SET);
 	    else
-		__pmSeek(acp->ac_log->l_mfp, cp->head_posn, SEEK_SET);
+		fseek(acp->ac_log->l_mfp, cp->head_posn, SEEK_SET);
 #ifdef PCP_DEBUG
 	    if ((pmDebug & DBG_TRACE_LOG) && (pmDebug & DBG_TRACE_INTERP)) {
 		__pmTimeval	tmp;
@@ -166,7 +166,7 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 
     save_curvol = acp->ac_log->l_curvol;
 
-    lfup->sts = __pmLogRead(acp->ac_log, mode, PM_ERROR_FD, &lfup->rp, PMLOGREAD_NEXT);
+    lfup->sts = __pmLogRead(acp->ac_log, mode, NULL, &lfup->rp, PMLOGREAD_NEXT);
     if (lfup->sts < 0)
 	lfup->rp = NULL;
     *rp = lfup->rp;
@@ -177,7 +177,7 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 	 * new vol, stdio stream and we don't know where we started from
 	 * ... don't cache
 	 */
-	lfup->mfp = PM_ERROR_FD;
+	lfup->mfp = NULL;
 #ifdef PCP_DEBUG
 	if ((pmDebug & DBG_TRACE_LOG) && (pmDebug & DBG_TRACE_INTERP))
 	    fprintf(stderr, "cache_read: reload vol switch, mark cache[%d] unused\n",
@@ -191,12 +191,12 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 	lfup->used = 1;
 	if (mode == PM_MODE_FORW) {
 	    lfup->head_posn = posn;
-	    lfup->tail_posn = __pmTell(acp->ac_log->l_mfp);
+	    lfup->tail_posn = ftell(acp->ac_log->l_mfp);
 	    assert(lfup->tail_posn >= 0);
 	}
 	else {
 	    lfup->tail_posn = posn;
-	    lfup->head_posn = __pmTell(acp->ac_log->l_mfp);
+	    lfup->head_posn = ftell(acp->ac_log->l_mfp);
 	    assert(lfup->head_posn >= 0);
 	}
 #ifdef PCP_DEBUG
@@ -219,7 +219,7 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 }
 
 void
-__pmLogCacheClear(__pmFD mfp)
+__pmLogCacheClear(FILE *mfp)
 {
     cache_t	*cp;
 
@@ -230,7 +230,7 @@ __pmLogCacheClear(__pmFD mfp)
 	    if (cp->rp != NULL)
 		pmFreeResult(cp->rp);
 	    cp->rp = NULL;
-	    cp->mfp = PM_ERROR_FD;
+	    cp->mfp = NULL;
 	    cp->used = 0;
 	}
     }
@@ -478,7 +478,7 @@ do_roll(__pmContext *ctxp, double t_req)
 		fprintf(stderr, "roll forw to t=%.6f%s\n",
 		    t_this, logrp->numpmid == 0 ? " <mark>" : "");
 #endif
-	    ctxp->c_archctl->ac_offset = __pmTell(ctxp->c_archctl->ac_log->l_mfp);
+	    ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 	    assert(ctxp->c_archctl->ac_offset >= 0);
 	    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 	    update_bounds(ctxp, t_req, logrp, UPD_MARK_FORW, NULL, NULL);
@@ -497,7 +497,7 @@ do_roll(__pmContext *ctxp, double t_req)
 		fprintf(stderr, "roll back to t=%.6f%s\n",
 		    t_this, logrp->numpmid == 0 ? " <mark>" : "");
 #endif
-	    ctxp->c_archctl->ac_offset = __pmTell(ctxp->c_archctl->ac_log->l_mfp);
+	    ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 	    assert(ctxp->c_archctl->ac_offset >= 0);
 	    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 	    update_bounds(ctxp, t_req, logrp, UPD_MARK_BACK, NULL, NULL);
@@ -714,7 +714,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     if (ctxp->c_archctl->ac_serial == 0) {
 	/* need gross positioning from temporal index */
 	__pmLogSetTime(ctxp);
-	ctxp->c_archctl->ac_offset = __pmTell(ctxp->c_archctl->ac_log->l_mfp);
+	ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 	assert(ctxp->c_archctl->ac_offset >= 0);
 	ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 
@@ -731,7 +731,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		if (t_this <= t_req) {
 		    break;
 		}
-		ctxp->c_archctl->ac_offset = __pmTell(ctxp->c_archctl->ac_log->l_mfp);
+		ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 		update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL, NULL);
@@ -745,7 +745,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		if (t_this > t_req) {
 		    break;
 		}
-		ctxp->c_archctl->ac_offset = __pmTell(ctxp->c_archctl->ac_log->l_mfp);
+		ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 		update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL, NULL);
@@ -756,7 +756,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 
     /* get to the last remembered place */
     __pmLogChangeVol(ctxp->c_archctl->ac_log, ctxp->c_archctl->ac_vol);
-    __pmSeek(ctxp->c_archctl->ac_log->l_mfp, ctxp->c_archctl->ac_offset, SEEK_SET);
+    fseek(ctxp->c_archctl->ac_log->l_mfp, ctxp->c_archctl->ac_offset, SEEK_SET);
 
     /*
      * optimization to supress roll forwards unless really needed ...
@@ -830,7 +830,7 @@ retry_back:
 	 * position ourselves, ... and search
 	 */
 	__pmLogChangeVol(ctxp->c_archctl->ac_log, ctxp->c_archctl->ac_vol);
-	__pmSeek(ctxp->c_archctl->ac_log->l_mfp, ctxp->c_archctl->ac_offset, SEEK_SET);
+	fseek(ctxp->c_archctl->ac_log->l_mfp, ctxp->c_archctl->ac_offset, SEEK_SET);
 	done = 0;
 
 	while (done < back) {
@@ -849,7 +849,7 @@ retry_back:
 	    t_this = __pmTimevalSub(&tmp, &ctxp->c_archctl->ac_log->l_label.ill_start);
 	    if (ctxp->c_delta < 0 && t_this >= t_req) {
 		/* going backwards, and not up to t_req yet */
-		ctxp->c_archctl->ac_offset = __pmTell(ctxp->c_archctl->ac_log->l_mfp);
+		ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 	    }
@@ -946,7 +946,7 @@ retry_forw:
 	 * position ourselves ... and search
 	 */
 	__pmLogChangeVol(ctxp->c_archctl->ac_log, ctxp->c_archctl->ac_vol);
-	__pmSeek(ctxp->c_archctl->ac_log->l_mfp, ctxp->c_archctl->ac_offset, SEEK_SET);
+	fseek(ctxp->c_archctl->ac_log->l_mfp, ctxp->c_archctl->ac_offset, SEEK_SET);
 	done = 0;
 
 	while (done < forw) {
@@ -965,7 +965,7 @@ retry_forw:
 	    t_this = __pmTimevalSub(&tmp, &ctxp->c_archctl->ac_log->l_label.ill_start);
 	    if (ctxp->c_delta > 0 && t_this <= t_req) {
 		/* going forwards, and not up to t_req yet */
-		ctxp->c_archctl->ac_offset = __pmTell(ctxp->c_archctl->ac_log->l_mfp);
+		ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 	    }

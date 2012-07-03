@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -30,7 +29,7 @@ typedef struct {
 } instance_req_t;
 
 int
-__pmSendInstanceReq(__pmFD fd, int from, const __pmTimeval *when, pmInDom indom, 
+__pmSendInstanceReq(int fd, int from, const __pmTimeval *when, pmInDom indom, 
 		    int inst, const char *name)
 {
     instance_req_t	*pp;
@@ -112,7 +111,7 @@ typedef struct {
 } instance_t;
 
 int
-__pmSendInstance(__pmFD fd, int from, __pmInResult *result)
+__pmSendInstance(int fd, int from, __pmInResult *result)
 {
     instance_t	*rp;
     instlist_t		*ip;

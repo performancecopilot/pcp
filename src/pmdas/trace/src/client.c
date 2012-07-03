@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,10 +18,10 @@
 #include "client.h"
 #include "comms.h"
 
-extern __pmFdSet	fds;
+extern fd_set	fds;
 
 int		nclients;		/* number of entries in array */
-__pmFD		maxfd;			/* largest fd currently in use */
+int		maxfd;			/* largest fd currently in use */
 client_t	*clients;		/* array of clients */
 
 #define MIN_CLIENTS_ALLOC 8
@@ -31,22 +30,22 @@ static int	clientsize;
 static int newClient(void);
 
 client_t *
-acceptClient(__pmFD reqfd)
+acceptClient(int reqfd)
 {
-    int		i;
-    __pmFD	fd;
+    int		i, fd;
     mysocklen_t	addrlen;
 
     i = newClient();
     addrlen = sizeof(clients[i].addr);
-    fd = __pmAccept(reqfd, (__pmSockAddr *)&clients[i].addr, &addrlen);
-    if (fd == PM_ERROR_FD) {
+    fd = accept(reqfd, (struct sockaddr *)&clients[i].addr, &addrlen);
+    if (fd == -1) {
 	__pmNotifyErr(LOG_ERR, "acceptClient(%d) accept: %s",
-		      __pmFdRef(reqfd), netstrerror());
+		reqfd, netstrerror());
 	return NULL;
     }
-    maxfd = __pmUpdateMaxFD(fd, maxfd);
-    __pmFD_SET(fd, &fds);
+    if (fd > maxfd)
+	maxfd = fd;
+    FD_SET(fd, &fds);
     clients[i].fd = fd;
     clients[i].status.connected = 1;
     clients[i].status.padding = 0;
@@ -93,45 +92,54 @@ deleteClient(client_t *cp)
 #endif
 	return;
     }
-    if (cp->fd != PM_ERROR_FD) {
+    if (cp->fd != -1) {
 	__pmtracenomoreinput(cp->fd);
-	__pmFD_CLR(cp->fd, &fds);
-	__pmCloseSocket(cp->fd);
+	FD_CLR(cp->fd, &fds);
+	close(cp->fd);
     }
     if (cp->fd == maxfd) {
-	maxfd = PM_ERROR_FD;
+	maxfd = -1;
 	for (i = 0; i < nclients; i++)
-	    maxfd = __pmUpdateMaxFD(clients[i].fd, maxfd);
+	    if (clients[i].fd > maxfd)
+		maxfd = clients[i].fd;
     }
     cp->status.connected = 0;
     cp->status.padding = 0;
     cp->status.protocol = 1;	/* sync */
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL0)
-	  __pmNotifyErr(LOG_DEBUG, "deleteClient: client removed (fd=%d)", __pmFdRef(cp->fd));
+	    __pmNotifyErr(LOG_DEBUG, "deleteClient: client removed (fd=%d)", cp->fd);
 #endif
-    cp->fd = PM_ERROR_FD;
+    cp->fd = -1;
 }
 
 void
 showClients(void)
 {
-    __pmHostEnt		h;
-    char		*hbuf;
+    struct hostent	*hp;
     int			i;
 
     fprintf(stderr, "%s: %d connected clients:\n", pmProgname, nclients);
     fprintf(stderr, "     fd  type   conn  client connection from\n"
 		    "     ==  =====  ====  ======================\n");
-    hbuf = __pmAllocHostEntBuffer();
     for (i=0; i < nclients; i++) {
-        fprintf(stderr, "    %3d", __pmFdRef(clients[i].fd));
+	fprintf(stderr, "    %3d", clients[i].fd);
 	fprintf(stderr, "  %s  ", clients[i].status.protocol == 1 ? "sync ":"async");
 	fprintf(stderr, "%s  ", clients[i].status.connected == 1 ? "up  ":"down");
-	if (__pmGetHostByAddr(& clients[i].addr, &h, hbuf) == NULL)
-	    fprintf(stderr, "%s", __pmSockAddrInToString(& clients[i].addr));
+	hp = gethostbyaddr((void *)&clients[i].addr.sin_addr.s_addr,
+			sizeof(clients[i].addr.sin_addr.s_addr), AF_INET);
+	if (hp == NULL) {
+	    char	*p = (char *)&clients[i].addr.sin_addr.s_addr;
+	    int		k;
+
+	    for (k=0; k < 4; k++) {
+		if (k > 0)
+		    fputc('.', stderr);
+		fprintf(stderr, "%d", p[k] & 0xff);
+	    }
+	}
 	else
-	    fprintf(stderr, "%-40.40s", h.h_name);
+	    fprintf(stderr, "%-40.40s", hp->h_name);
 	if (clients[i].denyOps != 0) {
 	    fprintf(stderr, "  ");
 	    if (clients[i].denyOps & TR_OP_SEND)
@@ -140,6 +148,5 @@ showClients(void)
 
 	fputc('\n', stderr);
     }
-    __pmFreeHostEntBuffer(hbuf);
     fputc('\n', stderr);
 }

@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,8 +18,8 @@
 
 #define MIN_CLIENTS_ALLOC 8
 
-__pmFD		maxClientFd = PM_ERROR_FD;/* largest fd for a client */
-__pmFdSet	clientFds;		/* for client __pmSelect...() */
+int		maxClientFd = -1;	/* largest fd for a client */
+fd_set		clientFds;		/* for client select() */
 
 static int	clientSize = 0;
 
@@ -33,7 +32,6 @@ extern void	Shutdown(void);
 static void
 NotifyEndContext(int ctx)
 {
-    pmcdWho who;
     int i;
 
     for (i = 0; i < nAgents; i++) {
@@ -71,10 +69,8 @@ NotifyEndContext(int ctx)
 		    agent[i].pmDomainLabel, agent[i].pmDomainId, ctx);
 	    }
 #endif
-	    if (_pmcd_trace_mask) {
-	        who.fd = agent[i].inFd;
-		pmcd_trace(TR_XMIT_PDU, &who, PDU_ERROR, PM_ERR_NOTCONN);
-	    }
+	    if (_pmcd_trace_mask)
+		pmcd_trace(TR_XMIT_PDU, agent[i].inFd, PDU_ERROR, PM_ERR_NOTCONN);
 	    __pmSendError(agent[i].inFd, ctx, PM_ERR_NOTCONN);
 	}
     }
@@ -82,38 +78,37 @@ NotifyEndContext(int ctx)
 
 /* Establish a new socket connection to a client */
 ClientInfo *
-AcceptNewClient(__pmFD reqfd)
+AcceptNewClient(int reqfd)
 {
     static unsigned int	seq = 0;
-    int			i;
-    __pmFD 		fd;
+    int			i, fd;
     mysocklen_t		addrlen;
     struct timeval	now;
-    pmcdWho		who;
 
     i = NewClient();
     addrlen = sizeof(client[i].addr);
-    fd = __pmAccept(reqfd, (__pmSockAddr *)&client[i].addr, &addrlen);
-    if (fd == PM_ERROR_FD) {
+    fd = accept(reqfd, (struct sockaddr *)&client[i].addr, &addrlen);
+    if (fd == -1) {
     	if (neterror() == EPERM) {
 	    __pmNotifyErr(LOG_NOTICE, "AcceptNewClient(%d): "
-	 	          "Permission Denied\n", __pmFdRef(reqfd));
-	    client[i].fd = PM_ERROR_FD;
+	 	          "Permission Denied\n", reqfd);
+	    client[i].fd = -1;
 	    DeleteClient(&client[i]);
 	    return NULL;	
 	}
 	else {
 	    __pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) accept: %s\n",
-			  __pmFdRef(reqfd), netstrerror());
+	    reqfd, netstrerror());
 	    Shutdown();
 	    exit(1);
 	}
     }
-    maxClientFd = __pmUpdateMaxFD(fd, maxClientFd);
+    if (fd > maxClientFd)
+	maxClientFd = fd;
 
     PMCD_OPENFDS_SETHI(fd);
 
-    __pmFD_SET(fd, &clientFds);
+    FD_SET(fd, &clientFds);
     __pmSetVersionIPC(fd, UNKNOWN_VERSION);	/* before negotiation */
     __pmSetSocketIPC(fd);
     client[i].fd = fd;
@@ -130,10 +125,9 @@ AcceptNewClient(__pmFD reqfd)
     client[i].start = now.tv_sec;
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)
-      fprintf(stderr, "AcceptNewClient(%d): client[%d] (fd %d)\n", __pmFdRef(reqfd), i, __pmFdRef(fd));
+	fprintf(stderr, "AcceptNewClient(%d): client[%d] (fd %d)\n", reqfd, i, fd);
 #endif
-    who.n = __pmSockAddrInToIPAddr(&client[i].addr);
-    pmcd_trace(TR_ADD_CLIENT, &who, __pmFdRef(fd), client[i].seq);
+    pmcd_trace(TR_ADD_CLIENT, client[i].addr.sin_addr.s_addr, fd, client[i].seq);
 
     return &client[i];
 }
@@ -186,10 +180,10 @@ DeleteClient(ClientInfo *cp)
 #endif
 	return;
     }
-    if (cp->fd != PM_ERROR_FD) {
+    if (cp->fd != -1) {
 	__pmResetIPC(cp->fd);
-	__pmFD_CLR(cp->fd, &clientFds);
-	__pmClose(cp->fd);
+	FD_CLR(cp->fd, &clientFds);
+	close(cp->fd);
     }
     if (i == nClients-1) {
 	i--;
@@ -198,9 +192,10 @@ DeleteClient(ClientInfo *cp)
 	nClients = (i >= 0) ? i + 1 : 0;
     }
     if (cp->fd == maxClientFd) {
-	maxClientFd = PM_ERROR_FD;
+	maxClientFd = -1;
 	for (i = 0; i < nClients; i++) {
-	  maxClientFd = __pmUpdateMaxFD(client[i].fd, maxClientFd);
+	    if (client[i].fd > maxClientFd)
+		maxClientFd = client[i].fd;
 	}
     }
     for (i = 0; i < cp->szProfile; i++) {
@@ -210,7 +205,7 @@ DeleteClient(ClientInfo *cp)
 	}
     }
     cp->status.connected = 0;
-    cp->fd = PM_ERROR_FD;
+    cp->fd = -1;
 
     NotifyEndContext(cp-client);
 }

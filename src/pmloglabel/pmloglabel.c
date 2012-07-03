@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2008 Aconex.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,22 +26,22 @@ static int status;
  * checks too (these are stored as int's around the actual label).
  */
 int
-verify_label(__pmFD f, const char *file)
+verify_label(FILE *f, const char *file)
 {
     int version, magic;
     int n, len, xpectlen = sizeof(__pmLogLabel) + 2 * sizeof(len);
 
     /* check the prefix integer */
-    __pmSeek(f, (long)0, SEEK_SET);
-    n = (int)__pmRead(f, &len, sizeof(len));
+    fseek(f, (long)0, SEEK_SET);
+    n = (int)fread(&len, 1, sizeof(len), f);
     len = ntohl(len);
     if (n != sizeof(len)) {
-	if (n == 0) {
+	if (feof(f)) {
 	    fprintf(stderr, "Bad prefix sentinel read for %s: file too short\n",
 			file);
 	    status = 2;
 	}
-	else if (n < 0) {
+	else if (ferror(f)) {
 	    fprintf(stderr, "Prefix sentinel read error for %s: %s\n",
 			file, osstrerror());
 	    status = 2;
@@ -60,16 +59,16 @@ verify_label(__pmFD f, const char *file)
     }
 
     /* check the suffix integer */
-    __pmSeek(f, (long)(xpectlen - sizeof(len)), SEEK_SET);
-    n = (int)__pmRead(f, &len, sizeof(len));
+    fseek(f, (long)(xpectlen - sizeof(len)), SEEK_SET);
+    n = (int)fread(&len, 1, sizeof(len), f);
     len = ntohl(len);
     if (n != sizeof(len)) {
-	if (n == 0) {
+	if (feof(f)) {
 	    fprintf(stderr, "Bad suffix sentinel read for %s: file too short\n",
 			file);
 	    status = 2;
 	}
-	else if (n < 0) {
+	else if (ferror(f)) {
 	    fprintf(stderr, "Suffix sentinel read error for %s: %s\n",
 			file, osstrerror());
 	    status = 2;
@@ -107,7 +106,7 @@ verify_label(__pmFD f, const char *file)
  * we only use that to determine if this is good as a gold label.
  */
 void
-compare_golden(__pmFD f, const char *file, int sts, int warnings)
+compare_golden(FILE *f, const char *file, int sts, int warnings)
 {
     __pmLogLabel *label = &logctl.l_label;
 
@@ -313,13 +312,13 @@ main(int argc, char *argv[])
 	}
 
 	if (logctl.l_mfp)
-	    __pmClose(logctl.l_mfp);
+	    fclose(logctl.l_mfp);
 	for (c = logctl.l_minvol; c <= logctl.l_maxvol; c++) {
 	    if (verbose)
 		printf("Writing label on data volume %d\n", c);
 	    golden.ill_vol = c;
 	    snprintf(buffer, sizeof(buffer), "%s.%d", logctl.l_name, c);
-	    if ((logctl.l_mfp = __pmOpen(buffer, O_RDWR, 0)) == PM_ERROR_FD) {
+	    if ((logctl.l_mfp = fopen(buffer, "r+")) == NULL) {
 		fprintf(stderr, "Failed data volume %d open: %s\n",
 				c, osstrerror());
 		status = 3;
@@ -330,20 +329,20 @@ main(int argc, char *argv[])
 		status = 3;
 	    }
 	    if (logctl.l_mfp)
-		__pmClose(logctl.l_mfp);
+		fclose(logctl.l_mfp);
 	}
 	/* Need to reset the data volume, for subsequent label read */
-	logctl.l_mfp = PM_ERROR_FD;
+	logctl.l_mfp = NULL;
 	logctl.l_curvol = -1;
 	__pmLogChangeVol(&logctl, logctl.l_minvol);
 
 	if (logctl.l_tifp) {
-	    __pmClose(logctl.l_tifp);
+	    fclose(logctl.l_tifp);
 	    if (verbose)
 		printf("Writing label on temporal index\n");
 	    golden.ill_vol = PM_LOG_VOL_TI;
 	    snprintf(buffer, sizeof(buffer), "%s.index", logctl.l_name);
-	    if ((logctl.l_tifp = __pmOpen(buffer, O_RDWR, 0)) == PM_ERROR_FD) {
+	    if ((logctl.l_tifp = fopen(buffer, "r+")) == NULL) {
 		fprintf(stderr, "Failed temporal index open: %s\n",
 				osstrerror());
 		status = 3;
@@ -355,12 +354,12 @@ main(int argc, char *argv[])
 	    }
 	}
 
-	__pmClose(logctl.l_mdfp);
+	fclose(logctl.l_mdfp);
 	if (verbose)
 	    printf("Writing label on metadata volume\n");
 	golden.ill_vol = PM_LOG_VOL_META;
 	snprintf(buffer, sizeof(buffer), "%s.meta", logctl.l_name);
-	if ((logctl.l_mdfp = __pmOpen(buffer, O_RDWR, 0)) == PM_ERROR_FD) {
+	if ((logctl.l_mdfp = fopen(buffer, "r+")) == NULL) {
 	    fprintf(stderr, "Failed metadata volume open: %s\n",
 			    osstrerror());
 	    status = 3;

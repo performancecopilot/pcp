@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -53,7 +52,7 @@ typedef struct _record {
 
 static record_t	*record;
 static int	n_record;
-#if !defined(IS_MINGW) && !defined(HAVE_NSS)	/* not yet ported */
+#ifndef IS_MINGW	/* not yet ported */
 static int	n_alive;
 #endif
 static char	tbuf[MAXPATHLEN];	/* used for mktemp(), messages, ... */
@@ -193,9 +192,9 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
 	    fclose(rp->public.f_config);
 	    rp->public.f_config = NULL;
 	}
-	if (rp->public.fd_ipc != PM_ERROR_FD) {
-	    __pmClose(rp->public.fd_ipc);
-	    rp->public.fd_ipc = PM_ERROR_FD;
+	if (rp->public.fd_ipc != -1) {
+	    close(rp->public.fd_ipc);
+	    rp->public.fd_ipc = -1;
 	}
 	if (rp->public.logfile != NULL) {
 	    free(rp->public.logfile);
@@ -266,7 +265,7 @@ pmRecordAddHost(const char *host, int isdefault, pmRecordHost **rhp)
 	rp->argv = NULL;
 	rp->argc = 0;
 	rp->public.f_config = NULL;
-	rp->public.fd_ipc = PM_ERROR_FD;
+	rp->public.fd_ipc = -1;
 	rp->public.logfile = NULL;
 	rp->public.pid = (pid_t)0;
 	rp->public.status = -1;
@@ -378,7 +377,7 @@ failed:
     return sts;
 }
 
-#if !defined(IS_MINGW) && !defined(HAVE_NSS)	/* not yet ported */
+#ifndef IS_MINGW	/* not yet ported */
 /*
  * simple control protocol between here and pmlogger
  *  - only write from app to pmlogger
@@ -393,31 +392,31 @@ failed:
  *	?[<msg>]\n	- display session status
  */
 static int
-xmit_to_logger(__pmFD fd, char tag, const char *msg)
+xmit_to_logger(int fd, char tag, const char *msg)
 {
     int		sts;
 #ifdef HAVE_SIGPIPE
     SIG_PF	user_onpipe;
 #endif
 
-    if (fd == PM_ERROR_FD)
+    if (fd < 0)
 	return PM_ERR_IPC;
 
 #ifdef HAVE_SIGPIPE
     user_onpipe = signal(SIGPIPE, SIG_IGN);
 #endif
-    sts = (int)__pmWrite(fd, &tag, 1);
+    sts = (int)write(fd, &tag, 1);
     if (sts != 1)
 	goto fail;
 
     if (msg != NULL) {
 	int	len = (int)strlen(msg);
-	sts = (int)__pmWrite(fd, msg, len);
+	sts = (int)write(fd, msg, len);
 	if (sts != len)
 	    goto fail;
     }
 
-    sts = (int)__pmWrite(fd, "\n", 1);
+    sts = (int)write(fd, "\n", 1);
     if (sts != 1)
 	goto fail;
 
@@ -441,7 +440,7 @@ fail:
 int
 pmRecordControl(pmRecordHost *rhp, int request, const char *msg)
 {
-#if !defined(IS_MINGW) && !defined(HAVE_NSS)	/* not yet ported */
+#ifndef IS_MINGW	/* not yet ported */
     pid_t	pid;
     record_t	*rp;
     int		sts;
@@ -457,9 +456,9 @@ pmRecordControl(pmRecordHost *rhp, int request, const char *msg)
 	for (rp = record; rp != NULL; rp = rp->next) {
 	    if (pid == rp->public.pid) {
 		rp->public.status = sts;
-		if (rp->public.fd_ipc != PM_ERROR_FD) {
+		if (rp->public.fd_ipc != -1) {
 		    close(rp->public.fd_ipc);
-		    rp->public.fd_ipc = PM_ERROR_FD;
+		    rp->public.fd_ipc = -1;
 		}
 		break;
 	    }
@@ -594,7 +593,7 @@ fputc('\n', stderr);
 		    if (ok < 0) {
 			/* remember last failure */
 			sts = ok;
-			rp->public.fd_ipc = PM_ERROR_FD;
+			rp->public.fd_ipc = -1;
 			continue;
 		    }
 		    /* send the folio name */
@@ -602,7 +601,7 @@ fputc('\n', stderr);
 		    if (ok < 0) {
 			/* remember last failure */
 			sts = ok;
-			rp->public.fd_ipc = PM_ERROR_FD;
+			rp->public.fd_ipc = -1;
 			continue;
 		    }
 		    /* send the my name */
@@ -610,7 +609,7 @@ fputc('\n', stderr);
 		    if (ok < 0) {
 			/* remember last failure */
 			sts = ok;
-			rp->public.fd_ipc = PM_ERROR_FD;
+			rp->public.fd_ipc = -1;
 			continue;
 		    }
 		    /* do we know how to replay? */
@@ -619,7 +618,7 @@ fputc('\n', stderr);
 			if (ok < 0) {
 			    /* remember last failure */
 			    sts = ok;
-			    rp->public.fd_ipc = PM_ERROR_FD;
+			    rp->public.fd_ipc = -1;
 			    continue;
 			}
 		    }
@@ -631,7 +630,7 @@ fputc('\n', stderr);
 		for (rp = record; rp != NULL; rp = rp->next) {
 		    if (rp->public.fd_ipc >= 0) {
 			close(rp->public.fd_ipc);
-			rp->public.fd_ipc = PM_ERROR_FD;
+			rp->public.fd_ipc = -1;
 		    }
 		}
 	    }
@@ -678,7 +677,7 @@ broadcast:
 		    if (ok < 0) {
 			/* remember last failure */
 			sts = ok;
-			rp->public.fd_ipc = PM_ERROR_FD;
+			rp->public.fd_ipc = -1;
 		    }
 		}
 		else
@@ -687,9 +686,9 @@ broadcast:
 		if (cmd != '?') {
 		    n_alive--;
 		    rp->state = PM_REC_OFF;
-		    if (rp->public.fd_ipc != PM_ERROR_FD) {
+		    if (rp->public.fd_ipc != -1) {
 			close(rp->public.fd_ipc);
-			rp->public.fd_ipc = PM_ERROR_FD;
+			rp->public.fd_ipc = -1;
 		    }
 		}
 	    }

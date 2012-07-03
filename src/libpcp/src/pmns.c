@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -171,7 +170,7 @@ pmGetPMNSLocation(void)
 	if ((n = pmWhichContext()) >= 0 && (ctxp = __pmHandleToPtr(n)) != NULL) {
 	    switch(ctxp->c_type) {
 		case PM_CONTEXT_HOST:
-		    if (ctxp->c_pmcd->pc_fd == PM_ERROR_FD) {
+		    if (ctxp->c_pmcd->pc_fd == -1) {
 			pmns_location = PM_ERR_IPC;
 			goto done;
 		    }
@@ -180,7 +179,7 @@ pmGetPMNSLocation(void)
 			__pmNotifyErr(LOG_ERR, 
 				"pmGetPMNSLocation: version lookup failed "
 				"(context=%d, fd=%d): %s", 
-				      n, __pmFdRef(ctxp->c_pmcd->pc_fd), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+				n, ctxp->c_pmcd->pc_fd, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 			pmns_location = PM_ERR_NOPMNS;
 		    }
 		    else if (version == PDU_VERSION2) {
@@ -190,7 +189,7 @@ pmGetPMNSLocation(void)
 			__pmNotifyErr(LOG_ERR, 
 				"pmGetPMNSLocation: bad host PDU version "
 				"(context=%d, fd=%d, ver=%d)",
-				      n, __pmFdRef(ctxp->c_pmcd->pc_fd), version);
+				n, ctxp->c_pmcd->pc_fd, version);
 			pmns_location = PM_ERR_NOPMNS;
 		    }
 		    break;
@@ -212,7 +211,7 @@ pmGetPMNSLocation(void)
 		    else {
 			__pmNotifyErr(LOG_ERR, "pmGetPMNSLocation: bad archive "
 				"version (context=%d, fd=%d, ver=%d)",
-				      n, __pmFdRef(ctxp->c_pmcd->pc_fd), version); 
+				n, ctxp->c_pmcd->pc_fd, version); 
 			pmns_location = PM_ERR_NOPMNS;
 		    }
 		    break;

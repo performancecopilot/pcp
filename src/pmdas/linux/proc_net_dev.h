@@ -2,7 +2,6 @@
  * Linux /proc/net/dev metrics cluster
  *
  * Copyright (c) 1995,2005 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the

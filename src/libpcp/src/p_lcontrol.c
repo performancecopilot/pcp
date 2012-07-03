@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -36,7 +35,7 @@ typedef struct {
 } control_req_t;
 
 int
-__pmSendLogControl(__pmFD fd, const pmResult *request, int control, int state, int delta)
+__pmSendLogControl(int fd, const pmResult *request, int control, int state, int delta)
 {
     pmValueSet		*vsp;
     int			i;

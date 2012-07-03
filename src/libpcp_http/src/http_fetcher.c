@@ -2,7 +2,6 @@
 
 	HTTP Fetcher 
 	Copyright (C) 2001, 2003, 2004 Lyle Hanson (lhanson@users.sourceforge.net)
-	Copyright (C) 2012 Red Hat.  All Rights Reserved.
 
 	This library is free software; you can redistribute it and/or
 	modify it under the terms of the GNU Library General Public
@@ -49,12 +48,11 @@ static int errorInt = 0;			/* When the error message has a %d in it,
 	 */
 int http_fetch(const char *url_tmp, char **fileBuf)
 	{
-	__pmFdSet rfds;
+	fd_set rfds;
 	struct timeval tv;
 	char headerBuf[HEADER_BUF_SIZE];
 	char *tmp, *url, *pageBuf, *requestBuf = NULL, *host, *charIndex;
-	__pmFD sock;
-	int bytesRead = 0, contentLength = -1, bufsize = REQUEST_BUF_SIZE;
+	int sock, bytesRead = 0, contentLength = -1, bufsize = REQUEST_BUF_SIZE;
 	int i,
 		ret = -1,
 		tempSize,
@@ -235,14 +233,14 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 		requestBuf = tmp;
 
 		sock = makeSocket(host);		/* errorSource set within makeSocket */
-		if(sock == PM_ERROR_FD) { free(url); free(requestBuf); return -1;}
+		if(sock == -1) { free(url); free(requestBuf); return -1;}
 
 		free(url);
         url = NULL;
 
-		if(__pmWrite(sock, requestBuf, strlen(requestBuf)) == -1)
+		if(write(sock, requestBuf, strlen(requestBuf)) == -1)
 			{
-			__pmCloseSocket(sock);
+			close(sock);
 			free(requestBuf);
 			errorSource = ERRNO;
 			return -1;
@@ -253,13 +251,13 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 
 		/* Grab enough of the response to get the metadata */
 		ret = _http_read_header(sock, headerBuf);	/* errorSource set within */
-		if(ret < 0) { __pmCloseSocket(sock); return -1; }
+		if(ret < 0) { close(sock); return -1; }
 
 		/* Get the return code */
 		charIndex = strstr(headerBuf, "HTTP/");
 		if(charIndex == NULL)
 			{
-			__pmCloseSocket(sock);
+			close(sock);
 			errorSource = FETCHER_ERROR;
 			http_errno = HF_FRETURNCODE;
 			return -1;
@@ -271,14 +269,14 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 		ret = sscanf(charIndex, "%d", &i);
 		if(ret != 1)
 			{
-			__pmCloseSocket(sock);
+			close(sock);
 			errorSource = FETCHER_ERROR;
 			http_errno = HF_CRETURNCODE;
 			return -1;
 			}
 		if(i<200 || i>307)
 			{
-			__pmCloseSocket(sock);
+			close(sock);
 			errorInt = i;	/* Status code, to be inserted in error string */
 			errorSource = FETCHER_ERROR;
 			http_errno = HF_STATUSCODE;
@@ -298,7 +296,7 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 			charIndex = strstr(headerBuf, "Location:");
 			if(!charIndex)
 				{
-				__pmCloseSocket(sock);
+				close(sock);
 				errorInt = i; /* Status code, to be inserted in error string */
 				errorSource = FETCHER_ERROR;
 				http_errno = HF_CANTREDIRECT;
@@ -310,7 +308,7 @@ int http_fetch(const char *url_tmp, char **fileBuf)
                 charIndex++;
             if(*charIndex == '\0')
                 {
-				__pmCloseSocket(sock);
+				close(sock);
 				errorInt = i; /* Status code, to be inserted in error string */
 				errorSource = FETCHER_ERROR;
 				http_errno = HF_CANTREDIRECT;
@@ -343,7 +341,7 @@ int http_fetch(const char *url_tmp, char **fileBuf)
     
     if(redirectsFollowed >= followRedirects && !found)
         {
-        __pmCloseSocket(sock);
+        close(sock);
     	errorInt = followRedirects; /* To be inserted in error string */
     	errorSource = FETCHER_ERROR;
     	http_errno = HF_MAXREDIRECTS;
@@ -368,7 +366,7 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 			&contentLength);
 		if(ret < 1)
 			{
-			__pmCloseSocket(sock);
+			close(sock);
 			errorSource = FETCHER_ERROR;
 			http_errno = HF_CONTENTLEN;
 			return -1;
@@ -382,7 +380,7 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 	pageBuf = (char *)malloc(contentLength);
 	if(pageBuf == NULL)
 		{
-		__pmCloseSocket(sock);
+		close(sock);
 		errorSource = ERRNO;
 		return -1;
 		}
@@ -390,39 +388,39 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 	/* Begin reading the body of the file */
 	while(ret > 0)
 		{
-		__pmFD_ZERO(&rfds);
-		__pmFD_SET(sock, &rfds);
+		FD_ZERO(&rfds);
+		FD_SET(sock, &rfds);
 		tv.tv_sec = timeout; 
 		tv.tv_usec = 0;
 
 		if(timeout >= 0)
-			selectRet = __pmSelectRead(__pmIncrFD(sock), &rfds, &tv);
+			selectRet = select(sock+1, &rfds, NULL, NULL, &tv);
 		else		/* No timeout, can block indefinately */
-			selectRet = __pmSelectRead(__pmIncrFD(sock), &rfds, NULL);
+			selectRet = select(sock+1, &rfds, NULL, NULL, NULL);
 
 		if(selectRet == 0)
 			{
 			errorSource = FETCHER_ERROR;
 			http_errno = HF_DATATIMEOUT;
 			errorInt = timeout;
-			__pmCloseSocket(sock);
+			close(sock);
 			free(pageBuf);
 			return -1;
 			}
 		else if(selectRet == -1)
 			{
 			setoserror(neterror());
-			__pmCloseSocket(sock);
+			close(sock);
 			free(pageBuf);
 			errorSource = ERRNO;
 			return -1;
 			}
 
-		ret = __pmRecv(sock, pageBuf + bytesRead, contentLength, 0);
+		ret = recv(sock, pageBuf + bytesRead, contentLength, 0);
 		if(ret == -1)
 			{
 			setoserror(neterror());
-			__pmCloseSocket(sock);
+			close(sock);
 			free(pageBuf);
 			errorSource = ERRNO;
 			return -1;
@@ -439,7 +437,7 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 			tmp = (char *)realloc(pageBuf, bytesRead + contentLength);
 			if(tmp == NULL)
 				{
-				__pmCloseSocket(sock);
+				close(sock);
 				free(pageBuf);
 				errorSource = ERRNO;
 				return -1;
@@ -461,7 +459,7 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 		 *	an error message */
 	if(tmp == NULL)
 		{
-		__pmCloseSocket(sock);
+		close(sock);
 		free(pageBuf);
 		errorSource = ERRNO;
 		return -1;
@@ -474,7 +472,7 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 	else
 		*fileBuf = pageBuf;
 
-	__pmCloseSocket(sock);
+	close(sock);
 	return bytesRead;
 	}
 
@@ -698,23 +696,23 @@ const char *http_strerror()
 	 *	# of bytes read on success, or
 	 *	-1 on error
 	 */
-int _http_read_header(__pmFD sock, char *headerPtr)
+int _http_read_header(int sock, char *headerPtr)
 	{
-	__pmFdSet rfds;
+	fd_set rfds;
 	struct timeval tv;
 	int bytesRead = 0, newlines = 0, ret, selectRet;
 
 	while(newlines != 2 && bytesRead != HEADER_BUF_SIZE)
 		{
-		__pmFD_ZERO(&rfds);
-		__pmFD_SET(sock, &rfds);
+		FD_ZERO(&rfds);
+		FD_SET(sock, &rfds);
 		tv.tv_sec = timeout; 
 		tv.tv_usec = 0;
 
 		if(timeout >= 0)
-			selectRet = __pmSelectRead(__pmIncrFD(sock), &rfds, &tv);
+			selectRet = select(sock+1, &rfds, NULL, NULL, &tv);
 		else		/* No timeout, can block indefinately */
-			selectRet = __pmSelectRead(__pmIncrFD(sock), &rfds, NULL);
+			selectRet = select(sock+1, &rfds, NULL, NULL, NULL);
 		
 		if(selectRet == 0)
 			{
@@ -730,7 +728,7 @@ int _http_read_header(__pmFD sock, char *headerPtr)
 			return -1;
 			}
 
-		ret = __pmRecv(sock, headerPtr, 1, 0);
+		ret = recv(sock, headerPtr, 1, 0);
 		if(ret == -1)
 			{
 			setoserror(neterror());
@@ -767,43 +765,38 @@ int _http_read_header(__pmFD sock, char *headerPtr)
 	 *	socket descriptor, or
 	 *	-1 on error
 	 */
-__pmFD makeSocket(const char *host)
+int makeSocket(const char *host)
 	{
-	__pmFD sock;										/* Socket descriptor */
-	__pmSockAddrIn sa;							/* Socket address */
-	__pmHostEnt h;								/* Host entity */
-	char *hbuf;
+	int sock;										/* Socket descriptor */
+	struct sockaddr_in sa;							/* Socket address */
+	struct hostent *hp;								/* Host entity */
 	int ret;
-	int port;
-	char *p;
+    int port;
+    char *p;
 	
-	/* Check for port number specified in URL */
-	p = strchr(host, ':');
-	if(p)
-	  {
-	      port = atoi(p + 1);
-	      *p = '\0';
-	  }
-	else
-	    port = PORT_NUMBER;
+    /* Check for port number specified in URL */
+    p = strchr(host, ':');
+    if(p)
+        {
+        port = atoi(p + 1);
+        *p = '\0';
+        }
+    else
+        port = PORT_NUMBER;
 
-	hbuf = __pmAllocHostEntBuffer();
-	if (__pmGetHostByName(host, &h, hbuf) == NULL) {
-	    errorSource = H_ERRNO;
-	    __pmFreeHostEntBuffer(hbuf);
-	    return PM_ERROR_FD;
-	}
+	hp = gethostbyname(host);
+	if(hp == NULL) { errorSource = H_ERRNO; return -1; }
 		
 	/* Copy host address from hostent to (server) socket address */
-	__pmInitSockAddr(&sa, htonl(INADDR_ANY), htons(port));
-	__pmSetSockAddr(&sa, &h);
+	memcpy((char *)&sa.sin_addr, (char *)hp->h_addr, hp->h_length);
+	sa.sin_family = hp->h_addrtype;		/* Set service sin_family to PF_INET */
+	sa.sin_port = htons(port);      	/* Put portnum into sockaddr */
 
-	sock = __pmSocket(h.h_addrtype, SOCK_STREAM, 0);
-	__pmFreeHostEntBuffer(hbuf);
-	if(sock == PM_ERROR_FD) { errorSource = ERRNO; return PM_ERROR_FD; }
+	sock = socket(hp->h_addrtype, SOCK_STREAM, 0);
+	if(sock == -1) { errorSource = ERRNO; return -1; }
 
-	ret = __pmConnect(sock, (__pmSockAddr *)&sa, sizeof(sa));
-	if(ret == -1) { errorSource = ERRNO; return PM_ERROR_FD; }
+	ret = connect(sock, (struct sockaddr *)&sa, sizeof(sa));
+	if(ret == -1) { errorSource = ERRNO; return -1; }
 
 	return sock;
 	}

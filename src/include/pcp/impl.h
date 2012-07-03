@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,7 +39,6 @@
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
-#include "pmio.h"
 
 /*
  * Thread-safe support ... #define to enable thread-safe protection of
@@ -351,9 +349,9 @@ typedef struct {
 typedef struct {
     int		l_refcnt;	/* number of contexts using this log */
     char	*l_name;	/* external log base name */
-    __pmFD	l_tifp;	        /* temporal index */
-    __pmFD	l_mdfp;		/* meta data */
-    __pmFD	l_mfp;		/* current metrics log */
+    FILE	*l_tifp;	/* temporal index */
+    FILE	*l_mdfp;	/* meta data */
+    FILE	*l_mfp;		/* current metrics log */
     int		l_curvol;	/* current metrics log volume no. */
     int		l_state;	/* (when writing) log state */
     __pmHashCtl	l_hashpmid;	/* PMID hashed access */
@@ -446,7 +444,7 @@ extern void __pmFreeInResult(__pmInResult *);
 #define PDU_VERSION2	2
 #define PDU_VERSION	PDU_VERSION2
 
-#define PDU_OVERRIDE2	((__pmFD)-1002)
+#define PDU_OVERRIDE2	-1002
 
 typedef struct {
 #ifdef HAVE_BITFIELDS_LTOR
@@ -484,107 +482,29 @@ typedef struct {
     pthread_mutex_t	pc_lock;	/* mutex pmcd ipc */
 #endif
     int			pc_refcnt;	/* number of contexts using this socket */
-    __pmFD		pc_fd;		/* socket for comm with pmcd */
-					/* ... PM_ERROR_FD means no connection */
+    int			pc_fd;		/* socket for comm with pmcd */
+					/* ... -1 means no connection */
     pmHostSpec		*pc_hosts;	/* pmcd and proxy host specifications */
     int			pc_nhosts;	/* number of pmHostSpec entries */
     int			pc_timeout;	/* set if connect times out */
     int			pc_tout_sec;	/* timeout for __pmGetPDU */
     time_t		pc_again;	/* time to try again */
-    __pmSockAddr	pc_addr;	/* server address */
+    struct sockaddr	pc_addr;	/* server address */
 } __pmPMCDCtl;
 
-extern __pmFD __pmOpen(const char *pathname, int flags, mode_t mode);
-extern int __pmFdRef(__pmFD fd);
-extern __pmFD __pmConnectPMCD(pmHostSpec *, int);
+extern int __pmConnectPMCD(pmHostSpec *, int);
 extern int __pmConnectLocal(void);
-extern __pmFD __pmAuxConnectPMCD(const char *);
-extern __pmFD __pmAuxConnectPMCDPort(const char *, int);
-extern __pmFD __pmCreateSocket(void);
-extern __pmFD __pmSocket(int domain, int type, int protocol);
-extern void __pmCloseSocket(__pmFD);
-extern int __pmSetSockOpt(__pmFD socket, int level, int option_name, const void *option_value,
-			  mysocklen_t option_len);
-extern int __pmGetSockOpt(__pmFD socket, int level, int option_name, void *option_value,
-			  mysocklen_t *option_len);
+extern int __pmAuxConnectPMCD(const char *);
+extern int __pmAuxConnectPMCDPort(const char *, int);
+extern int __pmCreateSocket(void);
+extern void __pmCloseSocket(int);
 extern int __pmAddHostPorts(pmHostSpec *, int *, int);
 extern void __pmDropHostPort(pmHostSpec *);
 extern void __pmConnectGetPorts(pmHostSpec *);
-extern int __pmConnect(__pmFD, __pmSockAddr *, mysocklen_t);
-extern int __pmConnectTo (__pmFD, const __pmSockAddr *, int);
-extern int __pmConnectCheckError(__pmFD);
-extern __pmFD __pmConnectRestoreFlags (__pmFD, int);
-extern int __pmConnectHandshake(__pmFD);
-extern int __pmBind(__pmFD, __pmSockAddr *, mysocklen_t);
-extern int __pmListen(__pmFD fd, int backlog);
-extern __pmFD __pmAccept(__pmFD, __pmSockAddr *, mysocklen_t *);
-extern ssize_t __pmRead(__pmFD fildes, void *buf, size_t nbyte);
-extern ssize_t __pmWrite(__pmFD fildes, const void *buf, size_t nbyte);
-extern ssize_t __pmSend(__pmFD socket, const void *buffer, size_t length, int flags);
-extern ssize_t __pmRecv(__pmFD socket, void *buffer, size_t length, int flags);
-extern off_t __pmSeek(__pmFD fd, off_t offset, int whence);
-extern void __pmRewind(__pmFD fd);
-extern off_t __pmTell(__pmFD fd);
-
-extern void __pmInitSockAddr(__pmSockAddrIn *addr, int address, int port);
-extern void __pmSetSockAddr(__pmSockAddrIn *addr, __pmHostEnt *he);
-
-#define PM_NET_ADDR_STRING_SIZE 46 /* from the NSPR API reference */
-extern char *__pmSockAddrInToString(__pmSockAddrIn *address);
-extern char * __pmInAddrToString(__pmInAddr *);
-
-extern char *__pmAllocHostEntBuffer (void);
-extern __pmHostEnt *__pmGetHostByName(const char *, __pmHostEnt *hostEntry, char *buffer);
-extern __pmHostEnt *__pmGetHostByAddr(__pmSockAddrIn *, __pmHostEnt *hostEntry, char *buffer);
-extern __pmHostEnt *__pmGetHostByInAddr(__pmInAddr *, __pmHostEnt *hostEntry, char *buffer);
-extern int __pmHostEntNumAddrs(const __pmHostEnt *he);
-extern __pmInAddr *__pmHostEntGetInAddr(const __pmHostEnt *he, int ix);
-extern __pmIPAddr *__pmHostEntGetIPAddr(const __pmHostEnt *he, int ix);
-extern void __pmFreeHostEntBuffer (char *buffer);
-
-extern const __pmIPAddr __pmSockAddrInToIPAddr(const __pmSockAddrIn *inaddr);
-extern const __pmIPAddr __pmInAddrToIPAddr(const __pmInAddr *inaddr);
-extern void __pmSetIPAddr (__pmIPAddr *addr, unsigned int a);
-extern __pmIPAddr *__pmMaskIPAddr(__pmIPAddr *addr, const __pmIPAddr *mask);
-extern int __pmCompareIPAddr (const __pmIPAddr *addr1, const __pmIPAddr *addr2);
-extern int __pmIPAddrIsLoopBack(const __pmIPAddr *addr);
-extern int __pmIPAddrToInt(const __pmIPAddr *addr);
-
-extern int __pmFcntlGetFlags(__pmFD fildes);
-extern int __pmFcntlSetFlags(__pmFD fildes, int flags);
-
-extern void __pmFD_CLR(__pmFD fd, __pmFdSet *set);
-extern int  __pmFD_ISSET(__pmFD fd, __pmFdSet *set);
-extern void __pmFD_SET(__pmFD fd, __pmFdSet *set);
-extern void __pmFD_ZERO(__pmFdSet *set);
-extern __pmFD __pmUpdateMaxFD(__pmFD fd, __pmFD maxFD);
-extern int __pmIncrFD(__pmFD fd);
-extern __pmFD __pmFdSetFirst(__pmFdSet *set, __pmFD max);
-extern __pmFD __pmFdSetNext(__pmFdSet *set, __pmFD prev, __pmFD max);
-
-extern int __pmSelectRead(int nfds, __pmFdSet *readfds, struct timeval *timeout);
-extern int __pmSelectWrite(int nfds, __pmFdSet *writefds, struct timeval *timeout);
-
-extern int __pmPipe(__pmFD pipefd[2]);
-extern int __pmPipe2(__pmFD pipefd[2], int flags);
-
-extern int __pmFlush(__pmFD fd);
-extern int __pmFstat(__pmFD fd, struct stat *buf);
-
-extern int __pmDup2(__pmFD oldfd, __pmFD newfd);
-
-extern int __pmStandardStreamIx(__pmFD fd);
-extern __pmFD __pmStandardStreamToFD(FILE *stream);
-extern __pmFD __pmSTDIN_FILENO(void);
-extern __pmFD __pmSTDOUT_FILENO(void);
-extern __pmFD __pmSTDERR_FILENO(void);
-
-extern __pmFD __pmMkstemp(char *template);
-extern __pmFD __pmStrToFd(const char *str, char **end);
-
-extern int __pmIOctl(__pmFD d, int request, void *buf);
-
-extern int __pmClose(__pmFD fd);
+extern int __pmConnectTo (int, const struct sockaddr *, int);
+extern int __pmConnectCheckError(int);
+extern int __pmConnectRestoreFlags (int, int);
+extern int __pmConnectHandshake(int);
 
 /*
  * per context controls for archives and logs
@@ -670,8 +590,8 @@ typedef struct {
 /* Types of credential PDUs */
 #define CVERSION        1
 
-extern int __pmXmitPDU(__pmFD, __pmPDU *);
-extern int __pmGetPDU(__pmFD, int, int, __pmPDU **);
+extern int __pmXmitPDU(int, __pmPDU *);
+extern int __pmGetPDU(int, int, int, __pmPDU **);
 extern int __pmGetPDUCeiling (void);
 extern int __pmSetPDUCeiling (int);
 
@@ -733,38 +653,38 @@ extern void __pmCountPDUBuf(int, int *, int *);
  */
 #define FROM_ANON	0
 
-extern int __pmSendError(__pmFD, int, int);
+extern int __pmSendError(int, int, int);
 extern int __pmDecodeError(__pmPDU *, int *);
-extern int __pmSendXtendError(__pmFD, int, int, int);
+extern int __pmSendXtendError(int, int, int, int);
 extern int __pmDecodeXtendError(__pmPDU *, int *, int *);
-extern int __pmSendResult(__pmFD, int, const pmResult *);
-extern int __pmEncodeResult(__pmFD, const pmResult *, __pmPDU **);
+extern int __pmSendResult(int, int, const pmResult *);
+extern int __pmEncodeResult(int, const pmResult *, __pmPDU **);
 extern int __pmDecodeResult(__pmPDU *, pmResult **);
-extern int __pmSendProfile(__pmFD, int, int, __pmProfile *);
+extern int __pmSendProfile(int, int, int, __pmProfile *);
 extern int __pmDecodeProfile(__pmPDU *, int *, __pmProfile **);
-extern int __pmSendFetch(__pmFD, int, int, __pmTimeval *, int, pmID *);
+extern int __pmSendFetch(int, int, int, __pmTimeval *, int, pmID *);
 extern int __pmDecodeFetch(__pmPDU *, int *, __pmTimeval *, int *, pmID **);
-extern int __pmSendDescReq(__pmFD, int, pmID);
+extern int __pmSendDescReq(int, int, pmID);
 extern int __pmDecodeDescReq(__pmPDU *, pmID *);
-extern int __pmSendDesc(__pmFD, int, pmDesc *);
+extern int __pmSendDesc(int, int, pmDesc *);
 extern int __pmDecodeDesc(__pmPDU *, pmDesc *);
-extern int __pmSendInstanceReq(__pmFD, int, const __pmTimeval *, pmInDom, int, const char *);
+extern int __pmSendInstanceReq(int, int, const __pmTimeval *, pmInDom, int, const char *);
 extern int __pmDecodeInstanceReq(__pmPDU *, __pmTimeval *, pmInDom *, int *, char **);
-extern int __pmSendInstance(__pmFD, int, __pmInResult *);
+extern int __pmSendInstance(int, int, __pmInResult *);
 extern int __pmDecodeInstance(__pmPDU *, __pmInResult **);
-extern int __pmSendTextReq(__pmFD, int, int, int);
+extern int __pmSendTextReq(int, int, int, int);
 extern int __pmDecodeTextReq(__pmPDU *, int *, int *);
-extern int __pmSendText(__pmFD, int, int, const char *);
+extern int __pmSendText(int, int, int, const char *);
 extern int __pmDecodeText(__pmPDU *, int *, char **);
-extern int __pmSendCreds(__pmFD, int, int, const __pmCred *);
+extern int __pmSendCreds(int, int, int, const __pmCred *);
 extern int __pmDecodeCreds(__pmPDU *, int *, int *, __pmCred **);
-extern int __pmSendIDList(__pmFD, int, int, const pmID *, int);
+extern int __pmSendIDList(int, int, int, const pmID *, int);
 extern int __pmDecodeIDList(__pmPDU *, int, pmID *, int *);
-extern int __pmSendNameList(__pmFD, int, int, char **, const int *);
+extern int __pmSendNameList(int, int, int, char **, const int *);
 extern int __pmDecodeNameList(__pmPDU *, int *, char ***, int **);
-extern int __pmSendChildReq(__pmFD, int, const char *, int);
+extern int __pmSendChildReq(int, int, const char *, int);
 extern int __pmDecodeChildReq(__pmPDU *, char **, int *);
-extern int __pmSendTraversePMNSReq(__pmFD, int, const char *);
+extern int __pmSendTraversePMNSReq(int, int, const char *);
 extern int __pmDecodeTraversePMNSReq(__pmPDU *, char **);
 
 #if defined(HAVE_64BIT_LONG)
@@ -883,18 +803,18 @@ extern void __pmLogPutIndex(const __pmLogCtl *, const __pmTimeval *);
 
 extern const char *__pmLogName_r(const char *, int, char *, int);
 extern const char *__pmLogName(const char *, int);	/* NOT thread-safe */
-extern __pmFD __pmLogNewFile(const char *, int);
+extern FILE *__pmLogNewFile(const char *, int);
 extern int __pmLogCreate(const char *, const char *, int, __pmLogCtl *);
 #define PMLOGREAD_NEXT		0
 #define PMLOGREAD_TO_EOF	1
-extern int __pmLogRead(__pmLogCtl *, int, __pmFD, pmResult **, int);
-extern int __pmLogWriteLabel(__pmFD, const __pmLogLabel *);
+extern int __pmLogRead(__pmLogCtl *, int, FILE *, pmResult **, int);
+extern int __pmLogWriteLabel(FILE *, const __pmLogLabel *);
 extern int __pmLogOpen(const char *, __pmContext *);
 extern int __pmLogLoadLabel(__pmLogCtl *, const char *);
 extern int __pmLogLoadIndex(__pmLogCtl *);
 extern int __pmLogLoadMeta(__pmLogCtl *);
 extern void __pmLogClose(__pmLogCtl *);
-extern void __pmLogCacheClear(__pmFD);
+extern void __pmLogCacheClear(FILE *);
 
 extern int __pmLogPutDesc(__pmLogCtl *, const pmDesc *, int, char **);
 extern int __pmLogLookupDesc(__pmLogCtl *, pmID, pmDesc *);
@@ -910,7 +830,7 @@ extern void __pmLogSetTime(__pmContext *);
 extern void __pmLogResetInterp(__pmContext *);
 
 extern int __pmLogChangeVol(__pmLogCtl *, int);
-extern int __pmLogChkLabel(__pmLogCtl *, __pmFD, __pmLogLabel *, int);
+extern int __pmLogChkLabel(__pmLogCtl *, FILE *, __pmLogLabel *, int);
 extern int __pmGetArchiveEnd(__pmLogCtl *, struct timeval *);
 
 /* struct for maintaining information about pmlogger ports */
@@ -984,14 +904,14 @@ extern void __pmEventTrace_r(const char *, int *, double *, double *);
 
 typedef int (*__pmConnectHostType)(int, int);
 
-extern int __pmSetSocketIPC(__pmFD);
-extern int __pmSetVersionIPC(__pmFD, int);
+extern int __pmSetSocketIPC(int);
+extern int __pmSetVersionIPC(int, int);
 extern int __pmLastVersionIPC();
-extern int __pmVersionIPC(__pmFD);
-extern int __pmSocketIPC(__pmFD);
-extern void __pmOverrideLastFd(__pmFD);
+extern int __pmVersionIPC(int);
+extern int __pmSocketIPC(int);
+extern void __pmOverrideLastFd(int);
 extern void __pmPrintIPC(void);
-extern void __pmResetIPC(__pmFD);
+extern void __pmResetIPC(int);
 
 /* safely insert an atom value into a pmValue */
 extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);
@@ -1142,8 +1062,8 @@ extern void __htonll(char *);		/* 64bit int */
  */
 extern int __pmAccAddOp(unsigned int);
 extern int __pmAccAddHost(const char *, unsigned int, unsigned int, int);
-extern int __pmAccAddClient(const __pmSockAddrIn *, unsigned int *);
-extern void __pmAccDelClient(const __pmSockAddrIn *);
+extern int __pmAccAddClient(const struct in_addr *, unsigned int *);
+extern void __pmAccDelClient(const struct in_addr *);
 
 extern void __pmAccDumpHosts(FILE *);
 extern int __pmAccSaveHosts(void);
@@ -1155,7 +1075,7 @@ extern void __pmAccFreeSavedHosts(void);
  */
 extern int __pmProcessExists(pid_t);
 extern int __pmProcessTerminate(pid_t, int);
-extern pid_t __pmProcessCreate(char **, __pmFD *, __pmFD *);
+extern pid_t __pmProcessCreate(char **, int *, int *);
 extern int __pmProcessDataSize(unsigned long *);
 extern int __pmProcessRunTimes(double *, double *);
 
@@ -1221,19 +1141,19 @@ typedef struct {
 #define PDU_LOG_STATUS		0x8001
 #define PDU_LOG_REQUEST		0x8002
 
-extern __pmFD __pmConnectLogger(const char *, int *, int *);
-extern int __pmSendLogControl(__pmFD, const pmResult *, int, int, int);
+extern int __pmConnectLogger(const char *, int *, int *);
+extern int __pmSendLogControl(int, const pmResult *, int, int, int);
 extern int __pmDecodeLogControl(const __pmPDU *, pmResult **, int *, int *, int *);
-extern int __pmSendLogRequest(__pmFD, int);
+extern int __pmSendLogRequest(int, int);
 extern int __pmDecodeLogRequest(const __pmPDU *, int *);
-extern int __pmSendLogStatus(__pmFD, __pmLoggerStatus *);
+extern int __pmSendLogStatus(int, __pmLoggerStatus *);
 extern int __pmDecodeLogStatus(__pmPDU *, __pmLoggerStatus **);
 
 /*
  * other interfaces shared by pmlc and pmlogger
  */
 
-extern int __pmControlLog(__pmFD, const pmResult *, int, int, int, pmResult **);
+extern int __pmControlLog(int, const pmResult *, int, int, int, pmResult **);
 
 #define PM_LOG_OFF		0	/* state */
 #define PM_LOG_MAYBE		1

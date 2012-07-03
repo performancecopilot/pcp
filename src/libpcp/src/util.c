@@ -3,7 +3,6 @@
  *
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2009 Aconex.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -1180,9 +1179,8 @@ __pmSetClientId(const char *id)
     pmValueSet		pmvs;
     pmValueBlock	*pmvb;
     char        	host[MAXHOSTNAMELEN];
-    char        	*ipaddr = NULL;	/* IPv4 xxx.xxx.xxx.xxx */
-    __pmHostEnt         he;
-    char        	*hebuf;
+    char        	ipaddr[16] = "";	/* IPv4 xxx.xxx.xxx.xxx */
+    struct hostent      *hep = NULL;
     int			vblen;
 
     if ((sts = pmLookupName(1, &name, &pmid)) < 0)
@@ -1191,17 +1189,16 @@ __pmSetClientId(const char *id)
     (void)gethostname(host, MAXHOSTNAMELEN);
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    hebuf = __pmAllocHostEntBuffer();
-    if (__pmGetHostByName(host, &he, hebuf) != NULL) {
-	strcpy(host, he.h_name);
-	if (he.h_addrtype == AF_INET) {
-	  ipaddr = __pmInAddrToString(__pmHostEntGetInAddr(& he, 0));
+    hep = gethostbyname(host);
+    if (hep != NULL) {
+	strcpy(host, hep->h_name);
+	if (hep->h_addrtype == AF_INET) {
+	    strcpy(ipaddr, inet_ntoa(*((struct in_addr *)hep->h_addr_list[0])));
 	}
 	vblen = strlen(host) + strlen(ipaddr) + strlen(id) + 5;
     }
     else
 	vblen = strlen(host) + strlen(id) + 2;
-    __pmFreeHostEntBuffer(hebuf);
     PM_UNLOCK(__pmLock_libpcp);
 
     /* build pmResult for pmStore() */
@@ -1214,11 +1211,10 @@ __pmSetClientId(const char *id)
     pmvb->vlen = PM_VAL_HDR_SIZE+vblen;
     strcpy(pmvb->vbuf, host);
     strcat(pmvb->vbuf, " ");
-    if (ipaddr) {
+    if (ipaddr[0] != '\0') {
 	strcat(pmvb->vbuf, "(");
 	strcat(pmvb->vbuf, ipaddr);
 	strcat(pmvb->vbuf, ") ");
-	free(ipaddr);
     }
     strcat(pmvb->vbuf, id);
 
@@ -1461,15 +1457,15 @@ __pmProcessRunTimes(double *usr, double *sys)
 
 #if !defined(IS_MINGW)
 pid_t
-__pmProcessCreate(char **argv, __pmFD *infd, __pmFD *outfd)
+__pmProcessCreate(char **argv, int *infd, int *outfd)
 {
-    __pmFD	in[2];
-    __pmFD	out[2];
+    int		in[2];
+    int		out[2];
     pid_t	pid;
 
-    if (__pmPipe(in) < 0)
+    if (pipe1(in) < 0)
 	return -oserror();
-    if (__pmPipe(out) < 0)
+    if (pipe1(out) < 0)
 	return -oserror();
 
     pid = fork();
@@ -1478,25 +1474,25 @@ __pmProcessCreate(char **argv, __pmFD *infd, __pmFD *outfd)
     }
     else if (pid) {
 	/* parent */
-	__pmClose(in[0]);
-	__pmClose(out[1]);
+	close(in[0]);
+	close(out[1]);
 	*infd = out[0];
 	*outfd = in[1];
     }
     else {
 	/* child */
 	char	errmsg[PM_MAXERRMSGLEN];
-	__pmClose(in[1]);
-	__pmClose(out[0]);
-	if (in[0] != __pmSTDIN_FILENO()) {
-	    __pmClose(__pmSTDIN_FILENO());
-	    __pmDup2(in[0], __pmSTDIN_FILENO());
-	    __pmClose(in[0]);
+	close(in[1]);
+	close(out[0]);
+	if (in[0] != 0) {
+	    close(0);
+	    dup2(in[0], 0);
+	    close(in[0]);
 	}
-	if (out[1] != __pmSTDOUT_FILENO()) {
-	    __pmClose(__pmSTDOUT_FILENO());
-	    __pmDup2(out[1], __pmSTDOUT_FILENO());
-	    __pmClose(out[1]);
+	if (out[1] != 1) {
+	    close(1);
+	    dup2(out[1], 1);
+	    close(out[1]);
 	}
 	execvp(argv[0], argv);
 	fprintf(stderr, "execvp: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));

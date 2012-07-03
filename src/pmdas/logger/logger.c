@@ -3,7 +3,7 @@
  *
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2011 Nathan Scott.  All Rights Reserved.
- * Copyright (c) 2011-2012 Red Hat Inc.
+ * Copyright (c) 2011 Red Hat Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -45,8 +45,8 @@
 #define DEFAULT_MAXMEM	(2 * 1024 * 1024)	/* 2 megabytes */
 long maxmem;
 
-__pmFD maxfd = PM_ERROR_FD;
-__pmFdSet fds;
+int maxfd;
+fd_set fds;
 static int interval_expired;
 static struct timeval interval = { 2, 0 };
 
@@ -433,15 +433,15 @@ logger_timer(int sig, void *ptr)
 void
 loggerMain(pmdaInterface *dispatch)
 {
-    __pmFdSet		readyfds;
-    int			nready;
-    __pmFD		pmcdfd;
+    fd_set		readyfds;
+    int			nready, pmcdfd;
 
     pmcdfd = __pmdaInFd(dispatch);
-    maxfd = __pmUpdateMaxFD(pmcdfd, maxfd);
+    if (pmcdfd > maxfd)
+	maxfd = pmcdfd;
 
-    __pmFD_ZERO(&fds);
-    __pmFD_SET(pmcdfd, &fds);
+    FD_ZERO(&fds);
+    FD_SET(pmcdfd, &fds);
 
     /* arm interval timer */
     if (__pmAFregister(&interval, NULL, logger_timer) < 0) {
@@ -451,7 +451,7 @@ loggerMain(pmdaInterface *dispatch)
 
     for (;;) {
 	memcpy(&readyfds, &fds, sizeof(readyfds));
-	nready = __pmSelectRead(__pmIncrFD(maxfd), &readyfds, NULL);
+	nready = select(maxfd+1, &readyfds, NULL, NULL, NULL);
 	if (pmDebug & DBG_TRACE_APPL2)
 	    __pmNotifyErr(LOG_DEBUG, "select: nready=%d interval=%d",
 			  nready, interval_expired);
@@ -465,15 +465,15 @@ loggerMain(pmdaInterface *dispatch)
 	}
 
 	__pmAFblock();
-	if (nready > 0 && __pmFD_ISSET(pmcdfd, &readyfds)) {
+	if (nready > 0 && FD_ISSET(pmcdfd, &readyfds)) {
 	    if (pmDebug & DBG_TRACE_APPL0)
-	      __pmNotifyErr(LOG_DEBUG, "processing pmcd PDU [fd=%d]", __pmFdRef(pmcdfd));
+		__pmNotifyErr(LOG_DEBUG, "processing pmcd PDU [fd=%d]", pmcdfd);
 	    if (__pmdaMainPDU(dispatch) < 0) {
 		__pmAFunblock();
 		exit(1);	/* fatal if we lose pmcd */
 	    }
 	    if (pmDebug & DBG_TRACE_APPL0)
-	      __pmNotifyErr(LOG_DEBUG, "completed pmcd PDU [fd=%d]", __pmFdRef(pmcdfd));
+		__pmNotifyErr(LOG_DEBUG, "completed pmcd PDU [fd=%d]", pmcdfd);
 	}
 	if (interval_expired) {
 	    interval_expired = 0;

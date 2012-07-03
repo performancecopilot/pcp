@@ -2,7 +2,6 @@
  * Linux /proc/net_dev metrics cluster
  *
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,8 +28,8 @@ int
 refresh_net_socket()
 {
     static int netfd = -1;
-    if (netfd == -1)
-        netfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (netfd < 0)
+	netfd = socket(AF_INET, SOCK_DGRAM, 0);
     return netfd;
 }
 
@@ -42,7 +41,7 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip)
     int fd;
 
     memset(&netip->ioc, 0, sizeof(netip->ioc));
-    if ((fd = refresh_net_socket()) == -1)
+    if ((fd = refresh_net_socket()) < 0)
 	return;
 
     ecmd.cmd = ETHTOOL_GSET;
@@ -71,7 +70,7 @@ refresh_net_inet_ioctl(char *name, net_inet_t *netip)
     struct ifreq ifr;
     int fd;
 
-    if ((fd = refresh_net_socket()) == -1)
+    if ((fd = refresh_net_socket()) < 0)
 	return;
 
     strcpy(ifr.ifr_name, name);
@@ -202,7 +201,7 @@ refresh_net_dev_inet(pmInDom indom)
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-    if ((fd = refresh_net_socket()) == -1)
+    if ((fd = refresh_net_socket()) < 0)
 	return fd;
 
     ifc.ifc_buf = NULL;

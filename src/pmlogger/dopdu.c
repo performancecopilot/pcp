@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1267,8 +1266,7 @@ sendstatus(void)
     static int			firsttime = 1;
     static char			*tzlogger;
     struct timeval		now;
-    __pmHostEnt			he;
-    char			*hebuf;
+    struct hostent		*hep = NULL;
 
     if (firsttime) {
         tzlogger = __pmTimezone();
@@ -1290,7 +1288,7 @@ sendstatus(void)
 	ls.ls_timenow.tv_sec = (__int32_t)now.tv_sec;
 	ls.ls_timenow.tv_usec = (__int32_t)now.tv_usec;
 	ls.ls_vol = logctl.l_curvol;
-	ls.ls_size = __pmTell(logctl.l_mfp);
+	ls.ls_size = ftell(logctl.l_mfp);
 	assert(ls.ls_size >= 0);
 
 	/* be careful of buffer size mismatches when copying strings */
@@ -1298,14 +1296,13 @@ sendstatus(void)
 	strncpy(ls.ls_hostname, logctl.l_label.ill_hostname, end);
 	ls.ls_hostname[end] = '\0';
 	end = sizeof(ls.ls_fqdn) - 1;
-	hebuf = __pmAllocHostEntBuffer();
-	if (__pmGetHostByName(logctl.l_label.ill_hostname, &he, hebuf) != NULL)
+	hep = gethostbyname(logctl.l_label.ill_hostname);
+	if (hep != NULL)
 	    /* send the fully qualified domain name */
-	    strncpy(ls.ls_fqdn, he.h_name, end);
+	    strncpy(ls.ls_fqdn, hep->h_name, end);
 	else
 	    /* use the hostname from -h ... on command line */
 	    strncpy(ls.ls_fqdn, logctl.l_label.ill_hostname, end);
-        __pmFreeHostEntBuffer(hebuf);
 	ls.ls_fqdn[end] = '\0';
 
 	end = sizeof(ls.ls_tz) - 1;
@@ -1436,8 +1433,8 @@ client_req(void)
 	if (sts != 0)
 	    fprintf(stderr, "client_req: %s\n", pmErrStr(sts));
 	__pmResetIPC(clientfd);
-	__pmCloseSocket(clientfd);
-	clientfd = PM_ERROR_FD;
+	close(clientfd);
+	clientfd = -1;
 	return 1;
     }
     if (qa_case == QA_SLEEPY) {
@@ -1471,7 +1468,7 @@ client_req(void)
 	/* the client isn't playing by the rules; disconnect it */
 	__pmSendError(clientfd, FROM_ANON, sts);
 	__pmCloseSocket(clientfd);
-	clientfd = PM_ERROR_FD;
+	clientfd = -1;
 	return 1;
     }
 }

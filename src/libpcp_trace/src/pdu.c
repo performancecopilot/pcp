@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1997-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -14,32 +13,19 @@
  */
 
 #include <signal.h>
-#include <assert.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "trace.h"
 #include "trace_dev.h"
 
 typedef struct {
-    __pmFD		fd;
     __pmTracePDU	*pdubuf;
     int			len;
 } more_ctl;
-static more_ctl		*more = NULL;
-static int		more_size = 0;
+static more_ctl		*more;
+static int		maxfd = -1;
 
-extern __pmFD		__pmfd;
-
-static int
-find_more(__pmFD fd)
-{
-  int i;
-  for (i = 0; i < more_size; ++i) {
-    if (more[i].fd == fd)
-      return i;
-  }
-  return -1; /* not found */
-}
+extern int	__pmfd;
 
 static char *
 pdutypestr(int type)
@@ -54,9 +40,8 @@ pdutypestr(int type)
 }
 
 static void
-moreinput(__pmFD fd, __pmTracePDU *pdubuf, int len)
+moreinput(int fd, __pmTracePDU *pdubuf, int len)
 {
-  int more_ix;
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_PDU) {
 	__pmTracePDUHdr	*php = (__pmTracePDUHdr *)pdubuf;
@@ -66,7 +51,7 @@ moreinput(__pmFD fd, __pmTracePDU *pdubuf, int len)
 
 	jend = (php->len+(int)sizeof(__pmTracePDU)-1)/(int)sizeof(__pmTracePDU);
 	fprintf(stderr, "moreinput: fd=%d pdubuf=0x%p len=%d\n",
-		__pmFdRef(fd), pdubuf, len);
+		fd, pdubuf, len);
 	fprintf(stderr, "Piggy-back PDU: %s addr=0x%p len=%d from=%d",
 		pdutypestr(php->type), php, php->len, php->from);
 	fprintf(stderr, "%03d: ", 0);
@@ -85,63 +70,56 @@ moreinput(__pmFD fd, __pmTracePDU *pdubuf, int len)
 	putc('\n', stderr);
     }
 #endif
-    more_ix = find_more (fd);
-    if (more_ix < 0) {
-        ++more_size;
-	if ((more = (more_ctl *)realloc(more, (more_size)*sizeof(more[0]))) == NULL) {
+    if (fd > maxfd) {
+	int	next = maxfd + 1;
+	if ((more = (more_ctl *)realloc(more, (fd+1)*sizeof(more[0]))) == NULL)
+{
 	    fprintf(stderr, "realloc failed (%d bytes): %s\n",
-		    (more_size)*(int)sizeof(more[0]), osstrerror());
+		    (fd+1)*(int)sizeof(more[0]), osstrerror());
 	    return;
 	}
-	more_ix = more_size - 1;
+	maxfd = fd;
+	while (next <= maxfd) {
+	    more[next].pdubuf = NULL;
+	    next++;
+	}
     }
 
     __pmtracepinPDUbuf(pdubuf);
-    more[more_ix].fd = fd;
-    more[more_ix].pdubuf = pdubuf;
-    more[more_ix].len = len;
+    more[fd].pdubuf = pdubuf;
+    more[fd].len = len;
 }
 
 int
-__pmtracemoreinput(__pmFD fd)
+__pmtracemoreinput(int fd)
 {
-    int more_ix;
-    if (fd == PM_ERROR_FD)
+    if (fd < 0 || fd > maxfd)
 	return 0;
 
-    more_ix = find_more(fd);
-    if (more_ix < 0)
-	return 0;
-
-    return more[more_ix].pdubuf == NULL ? 0 : 1;
+    return more[fd].pdubuf == NULL ? 0 : 1;
 }
 
 void
-__pmtracenomoreinput(__pmFD fd)
+__pmtracenomoreinput(int fd)
 {
-    int more_ix;
-    if (fd == PM_ERROR_FD)
+    if (fd < 0 || fd > maxfd)
 	return;
 
-    more_ix = find_more(fd);
-    if (more_ix < 0)
-	return;
-
-    if (more[more_ix].pdubuf != NULL) {
-	__pmtraceunpinPDUbuf(more[more_ix].pdubuf);
-	more[more_ix].pdubuf = NULL;
+    if (more[fd].pdubuf != NULL) {
+	__pmtraceunpinPDUbuf(more[fd].pdubuf);
+	more[fd].pdubuf = NULL;
     }
 }
 
 static int
-pduread(__pmFD fd, char *buf, int len, int mode, int timeout)
+pduread(int fd, char *buf, int len, int mode, int timeout)
 {
     /*
      * handle short reads that may split a PDU ...
      */
     int				status = 0;
     int				have = 0;
-    __pmFdSet			onefd;
+    fd_set			onefd;
     static int			done_default = 0;
     static struct timeval	def_wait = { 10, 0 };
 
@@ -182,9 +160,9 @@ pduread(__pmFD fd, char *buf, int len, int mode, int timeout)
 	    }
 	    else
 		wait = def_wait;
-	    __pmFD_ZERO(&onefd);
-	    __pmFD_SET(fd, &onefd);
-	    status = __pmSelectRead(__pmFdRef(__pmIncrFD(fd)), &onefd, &wait);
+	    FD_ZERO(&onefd);
+	    FD_SET(fd, &onefd);
+	    status = select(fd+1, &onefd, NULL, NULL, &wait);
 	    if (status == 0)
 		return PMTRACE_ERR_TIMEOUT;
 	    else if (status < 0) {
@@ -192,7 +170,7 @@ pduread(__pmFD fd, char *buf, int len, int mode, int timeout)
 		return status;
 	    }
 	}
-	status = (int)__pmRead(fd, buf, len);
+	status = (int)read(fd, buf, len);
 	if (status <= 0) {	/* EOF or error */
 	    setoserror(neterror());
 	    return status;
@@ -221,7 +199,7 @@ pduread(__pmFD fd, char *buf, int len, int mode, int timeout)
  */
 
 int
-__pmtracexmitPDU(__pmFD fd, __pmTracePDU *pdubuf)
+__pmtracexmitPDU(int fd, __pmTracePDU *pdubuf)
 {
     int			n, len;
     __pmTracePDUHdr	*php = (__pmTracePDUHdr *)pdubuf;
@@ -233,7 +211,7 @@ __pmtracexmitPDU(__pmFD fd, __pmTracePDU *pdubuf)
 	signal(SIGPIPE, user_onpipe);
 #endif
 
-    if (__pmfd == PM_ERROR_FD)
+    if (__pmfd == -1)
 	return PMTRACE_ERR_IPC;
 
     php->from = (__int32_t)getpid();
@@ -249,7 +227,7 @@ __pmtracexmitPDU(__pmFD fd, __pmTracePDU *pdubuf)
 	    *p++ = '~';	/* buffer end */
 
 	fprintf(stderr, "[%d]__pmtracexmitPDU: %s fd=%d len=%d",
-		php->from, pdutypestr(php->type), __pmFdRef(fd), php->len);
+		php->from, pdutypestr(php->type), fd, php->len);
 	for (j = 0; j < jend; j++) {
 	    if ((j % 8) == 0)
 		fprintf(stderr, "\n%03d: ", j);
@@ -263,7 +241,7 @@ __pmtracexmitPDU(__pmFD fd, __pmTracePDU *pdubuf)
     php->len = htonl(php->len);
     php->from = htonl(php->from);
     php->type = htonl(php->type);
-    n = (int)__pmWrite(fd, pdubuf, len);
+    n = (int)write(fd, pdubuf, len);
     php->len = ntohl(php->len);
     php->from = ntohl(php->from);
     php->type = ntohl(php->type);
@@ -276,17 +254,16 @@ __pmtracexmitPDU(__pmFD fd, __pmTracePDU *pdubuf)
 
 
 int
-__pmtracegetPDU(__pmFD fd, int timeout, __pmTracePDU **result)
+__pmtracegetPDU(int fd, int timeout, __pmTracePDU **result)
 {
     int			need, len;
-    int			more_ix;
     char		*handle;
     static int		maxsize = TRACE_PDU_CHUNK;
     __pmTracePDU	*pdubuf;
     __pmTracePDU	*pdubuf_prev;
     __pmTracePDUHdr	*php;
 
-    if (__pmfd == PM_ERROR_FD)
+    if (__pmfd == -1)
 	return PMTRACE_ERR_IPC;
 
     /*
@@ -314,10 +291,8 @@ __pmtracegetPDU(__pmFD fd, int timeout, __pmTracePDU **result)
      */
     if (__pmtracemoreinput(fd)) {
 	/* some leftover from last time ... handle -> start of PDU */
-        more_ix = find_more(fd);
-	assert (more_ix >= 0);
-	pdubuf = more[more_ix].pdubuf;
-	len = more[more_ix].len;
+	pdubuf = more[fd].pdubuf;
+	len = more[fd].len;
 	__pmtracenomoreinput(fd);
     }
     else {
@@ -355,21 +330,21 @@ __pmtracegetPDU(__pmFD fd, int timeout, __pmTracePDU **result)
 		len = 0;
 	    else
 		fprintf(stderr, "__pmtracegetPDU: fd=%d hdr: %s",
-			__pmFdRef(fd), osstrerror());
+			fd, osstrerror());
 	}
 	else if (len > 0)
 	    fprintf(stderr, "__pmtracegetPDU: fd=%d hdr: len=%d, not %d?",
-		    __pmFdRef(fd), len, (int)sizeof(__pmTracePDUHdr));
+			fd, len, (int)sizeof(__pmTracePDUHdr));
 	else if (len == PMTRACE_ERR_TIMEOUT)
 	    return PMTRACE_ERR_TIMEOUT;
 	else if (len < 0)
-	  fprintf(stderr, "__pmtracegetPDU: fd=%d hdr: %s", __pmFdRef(fd), pmtraceerrstr(len));
+	    fprintf(stderr, "__pmtracegetPDU: fd=%d hdr: %s", fd, pmtraceerrstr(len));
 	return len ? PMTRACE_ERR_IPC : 0;
     }
 
     php->len = ntohl(php->len);
     if (php->len < 0) {
-      fprintf(stderr, "__pmtracegetPDU: fd=%d illegal len=%d in hdr\n", __pmFdRef(fd), php->len);
+	fprintf(stderr, "__pmtracegetPDU: fd=%d illegal len=%d in hdr\n", fd, php->len);
 	return PMTRACE_ERR_IPC;
     }
 
@@ -412,9 +387,9 @@ __pmtracegetPDU(__pmFD fd, int timeout, __pmTracePDU **result)
 	    if (len == PMTRACE_ERR_TIMEOUT)
 		return PMTRACE_ERR_TIMEOUT;
 	    if (len < 0)
-	      fprintf(stderr, "__pmtracegetPDU: error (%d) fd=%d: %s\n", (int)oserror(), __pmFdRef(fd), osstrerror());
+		fprintf(stderr, "__pmtracegetPDU: error (%d) fd=%d: %s\n", (int)oserror(), fd, osstrerror());
 	    else
-	      fprintf(stderr, "__pmtracegetPDU: len=%d, not %d? (fd=%d)\n", len, need, __pmFdRef(fd));
+		fprintf(stderr, "__pmtracegetPDU: len=%d, not %d? (fd=%d)\n", len, need, fd);
 	    fprintf(stderr, "hdr: len=0x%08x type=0x%08x from=0x%08x\n",
 			php->len, (int)ntohl(php->type), (int)ntohl(php->from));
 	    return PMTRACE_ERR_IPC;
@@ -436,7 +411,7 @@ __pmtracegetPDU(__pmFD fd, int timeout, __pmTracePDU **result)
 	    *p++ = '~';	/* buffer end */
 
 	fprintf(stderr, "[%" FMT_PID "]__pmtracegetPDU: %s fd=%d len=%d from=%d",
-		getpid(), pdutypestr(php->type), __pmFdRef(fd), php->len, php->from);
+		getpid(), pdutypestr(php->type), fd, php->len, php->from);
 
 	for (j = 0; j < jend; j++) {
 	    if ((j % 8) == 0)

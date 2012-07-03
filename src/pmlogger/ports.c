@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,7 +35,7 @@
 static char	*ctlfile;	/* Control directory/portmap name */
 static char	*linkfile;	/* Link name for primary logger */
 
-__pmFD		ctlfd;		/* fd for control port */
+int		ctlfd;		/* fd for control port */
 int		ctlport;	/* pmlogger control port number */
 int		wantflush;	/* flush via SIGUSR1 flag */
 
@@ -175,20 +174,19 @@ static sig_map_t	sig_handler[] = {
  * clients to use.  Only returns if it succeeds (exits on failure).
  */
 
-static __pmFD
+static int
 GetPort(char *file)
 {
-    __pmFD		fd;
+    int			fd;
     int			mapfd;
     FILE		*mapstream;
     int			sts;
-    __pmSockAddrIn	myAddr;
+    struct sockaddr_in	myAddr;
     static int		port_base = -1;
-    __pmHostEnt		he;
-    char		*hebuf;
+    struct hostent	*hep;
 
     fd = __pmCreateSocket();
-    if (fd == PM_ERROR_FD) {
+    if (fd < 0) {
 	fprintf(stderr, "GetPort: socket failed: %s\n", netstrerror());
 	exit(1);
     }
@@ -218,8 +216,11 @@ GetPort(char *file)
      * and try again.
      */
     for (ctlport = port_base; ; ctlport++) {
-        __pmInitSockAddr(&myAddr, htonl(INADDR_ANY), htons(ctlport));
-	sts = __pmBind(fd, (__pmSockAddr*)&myAddr, sizeof(myAddr));
+	memset(&myAddr, 0, sizeof(myAddr));
+	myAddr.sin_family = AF_INET;
+	myAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	myAddr.sin_port = htons(ctlport);
+	sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
 	if (sts < 0) {
 	    if (neterror() != EADDRINUSE) {
 		fprintf(stderr, "bind(%d): %s\n", ctlport, netstrerror());
@@ -229,7 +230,7 @@ GetPort(char *file)
 	else
 	    break;
     }
-    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
+    sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	fprintf(stderr, "listen: %s\n", netstrerror());
 	exit(1);
@@ -253,11 +254,8 @@ GetPort(char *file)
     fprintf(mapstream, "%d\n", ctlport);
 
     /* then the PMCD host */
-    hebuf = __pmAllocHostEntBuffer();
-    if (__pmGetHostByName(pmcd_host, &he, hebuf) != NULL)
-        fprintf(mapstream, "%s", he.h_name);
-    fprintf(mapstream, "\n");
-    __pmFreeHostEntBuffer(hebuf);
+    hep = gethostbyname(pmcd_host);
+    fprintf(mapstream, "%s\n", hep == NULL ? "" : hep->h_name);
 
     /* then the full pathname to the archive base */
     __pmNativePath(archBase);
@@ -396,7 +394,7 @@ init_ports(void)
  * connection has been accepted.
  */
 
-__pmFD		clientfd = PM_ERROR_FD;
+int		clientfd = -1;
 unsigned int	clientops = 0;		/* for access control (deny ops) */
 char		pmlc_host[MAXHOSTNAMELEN];
 int		connect_state = 0;
@@ -404,25 +402,22 @@ int		connect_state = 0;
 int
 control_req(void)
 {
-    __pmFD		fd;
-      int		sts;
-    __pmSockAddrIn	addr;
-    __pmHostEnt		h;
-    char		*hbuf;
+    int			fd, sts;
+    struct sockaddr_in	addr;
+    struct hostent	*hp;
     mysocklen_t		addrlen;
 
     addrlen = sizeof(addr);
-    fd = __pmAccept(ctlfd, (__pmSockAddr *)&addr, &addrlen);
-    if (fd == PM_ERROR_FD) {
+    fd = accept(ctlfd, (struct sockaddr *)&addr, &addrlen);
+    if (fd == -1) {
 	fprintf(stderr, "error accepting client: %s\n", netstrerror());
 	return 0;
     }
     __pmSetSocketIPC(fd);
-    if (clientfd != PM_ERROR_FD) {
+    if (clientfd != -1) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
-	    fprintf(stderr, "control_req: send EADDRINUSE on fd=%d (client already on fd=%d)\n",
-		    __pmFdRef(fd), __pmFdRef(clientfd));
+	    fprintf(stderr, "control_req: send EADDRINUSE on fd=%d (client already on fd=%d)\n", fd, clientfd);
 #endif
 	sts = __pmSendError(fd, FROM_ANON, -EADDRINUSE);
 	if (sts < 0)
@@ -440,22 +435,25 @@ control_req(void)
 	return 0;
     }
 
-    hbuf = __pmAllocHostEntBuffer();
-    if (__pmGetHostByAddr(& addr, &h, hbuf) == NULL || strlen(h.h_name) > MAXHOSTNAMELEN-1) {
-      sprintf(pmlc_host, "%s", __pmSockAddrInToString(&addr));
+    hp = gethostbyaddr((void *)&addr.sin_addr.s_addr, sizeof(addr.sin_addr.s_addr), AF_INET);
+    if (hp == NULL || strlen(hp->h_name) > MAXHOSTNAMELEN-1) {
+	char	*p = (char *)&addr.sin_addr.s_addr;
+
+	sprintf(pmlc_host, "%d.%d.%d.%d",
+		p[0] & 0xff, p[1] & 0xff, p[2] & 0xff, p[3] & 0xff);
     }
     else
 	/* this is safe, due to strlen() test above */
-	strcpy(pmlc_host, h.h_name);
-    __pmFreeHostEntBuffer(hbuf);
+	strcpy(pmlc_host, hp->h_name);
 
-    if ((sts = __pmAccAddClient(&addr, &clientops)) < 0) {
+    if ((sts = __pmAccAddClient(&addr.sin_addr, &clientops)) < 0) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
-	  fprintf(stderr, "client addr: %s\n", __pmSockAddrInToString(&addr));
+	    char	*p = (char *)&addr.sin_addr.s_addr;
+	    fprintf(stderr, "client addr: %d.%d.%d.%d\n",
+		p[0] & 0xff, p[1] & 0xff, p[2] & 0xff, p[3] & 0xff);
 	    __pmAccDumpHosts(stderr);
-	    fprintf(stderr, "control_req: connection rejected on fd=%d from %s: %s\n",
-		    __pmFdRef(fd), pmlc_host, pmErrStr(sts));
+	    fprintf(stderr, "control_req: connection rejected on fd=%d from %s: %s\n", fd, pmlc_host, pmErrStr(sts));
 	}
 #endif
 	sts = __pmSendError(fd, FROM_ANON, sts);
@@ -483,7 +481,7 @@ control_req(void)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
-      fprintf(stderr, "control_req: connection accepted on fd=%d from %s\n", __pmFdRef(fd), pmlc_host);
+	fprintf(stderr, "control_req: connection accepted on fd=%d from %s\n", fd, pmlc_host);
 #endif
 
     return 1;

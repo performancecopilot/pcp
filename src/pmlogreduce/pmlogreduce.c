@@ -2,7 +2,6 @@
  * pmlogreduce - statistical reduction of a PCP archive log
  *
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -238,7 +237,7 @@ main(int argc, char **argv)
     /*
      * All the initial metadata has been generated, add timestamp
      */
-    __pmFlush(logctl.l_mdfp);
+    fflush(logctl.l_mdfp);
     __pmLogPutIndex(&logctl, &current);
 
     written = 0;
@@ -329,7 +328,7 @@ main(int argc, char **argv)
 	 * Even without a -v option, we may need to switch volumes
 	 * if the data file exceeds 2^31-1 bytes
 	 */
-	peek_offset = __pmTell(logctl.l_mfp);
+	peek_offset = ftell(logctl.l_mfp);
 	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
 	if (peek_offset > 0x7fffffff) {
 	    __pmTimeval	next_stamp;
@@ -360,8 +359,8 @@ next:
     }
 
     /* write the last time stamp */
-    __pmFlush(logctl.l_mfp);
-    __pmFlush(logctl.l_mdfp);
+    fflush(logctl.l_mfp);
+    fflush(logctl.l_mdfp);
     __pmLogPutIndex(&logctl, &current);
 
     exit(exit_status);

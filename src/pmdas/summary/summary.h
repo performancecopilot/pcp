@@ -31,7 +31,7 @@ extern char	*helpfile;
 extern int	cmdpipe;
 extern pid_t	clientPID;
 
-extern void summaryMainLoop(char *, __pmFD, __pmFD, pmdaInterface *);
+extern void summaryMainLoop(char *, int, int, pmdaInterface *);
 extern void mainLoopFreeResultCallback(void (*)(pmResult *));
 extern void service_client(__pmPDU *);
 extern void service_config(__pmPDU *);

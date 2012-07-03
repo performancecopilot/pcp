@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2006 Aconex.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,11 +16,10 @@
 #include "pmtime.h"
 
 static int
-pmServerExec(__pmFD fd, int livemode)
+pmServerExec(int fd, int livemode)
 {
     char portname[32];
-    int port;
-    __pmFD in, out;
+    int port, in, out;
     char *argv[] = { "pmtime", NULL, NULL };
 
     if (livemode)
@@ -34,23 +32,23 @@ pmServerExec(__pmFD fd, int livemode)
 	return -1;
     }
 
-    if (__pmRead(in, &portname, sizeof(portname)) < 0)
+    if (read(in, &portname, sizeof(portname)) < 0)
 	port = -1;
     else if (sscanf(portname, "port=%d", &port) != 1) {
 	setoserror(EPROTO);
 	port = -1;
     }
-    __pmClose(in);
-    __pmClose(out);
+    close(in);
+    close(out);
     if (port == -1)
 	__pmCloseSocket(fd);
     return port;
 }
 
 static int
-pmConnectHandshake(__pmFD fd, int port, pmTime *pkt)
+pmConnectHandshake(int fd, int port, pmTime *pkt)
 {
-    __pmSockAddrIn myaddr;
+    struct sockaddr_in myaddr;
     char buffer[4096];
     pmTime *ack;
     int sts;
@@ -59,9 +57,11 @@ pmConnectHandshake(__pmFD fd, int port, pmTime *pkt)
      * Connect to pmtime - pmtime guaranteed started by now, due to the
      * port number read(2) earlier, or -p option (so no race there).
      */
-    __pmInitSockAddr(&myaddr, htonl(INADDR_LOOPBACK), htons(port));
-
-    if ((sts = __pmConnect(fd, (__pmSockAddr *)&myaddr, sizeof(myaddr))) < 0) {
+    memset(&myaddr, 0, sizeof(myaddr));
+    myaddr.sin_family = AF_INET;
+    myaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    myaddr.sin_port = htons(port);
+    if ((sts = connect(fd, (struct sockaddr *)&myaddr, sizeof(myaddr))) < 0) {
 	setoserror(neterror());
 	goto error;
     }
@@ -69,7 +69,7 @@ pmConnectHandshake(__pmFD fd, int port, pmTime *pkt)
     /*
      * Write the packet, then wait for an ACK.
      */
-    sts = __pmSend(fd, (const void *)pkt, pkt->length, 0);
+    sts = send(fd, (const void *)pkt, pkt->length, 0);
     if (sts < 0) {
 	setoserror(neterror());
 	goto error;
@@ -78,7 +78,7 @@ pmConnectHandshake(__pmFD fd, int port, pmTime *pkt)
 	goto error;
     }
     ack = (pmTime *)buffer;
-    sts = __pmRecv(fd, buffer, sizeof(buffer), 0);
+    sts = recv(fd, buffer, sizeof(buffer), 0);
     if (sts < 0) {
 	setoserror(neterror());
 	goto error;
@@ -99,29 +99,29 @@ error:
     return -1;
 }
 
-__pmFD
+int
 pmTimeConnect(int port, pmTime *pkt)
 {
-    __pmFD	fd;
+    int	fd;
 
-    if ((fd = __pmCreateSocket()) == PM_ERROR_FD)
-      return PM_ERROR_FD; /* TODO: -1; */
+    if ((fd = __pmCreateSocket()) < 0)
+	return -1;
     if (port < 0) {
 	if ((port = pmServerExec(fd, pkt->source != PM_SOURCE_ARCHIVE)) < 0)
-	  return PM_ERROR_FD; /* TODO: -2; */
+	    return -2;
 	if (pmConnectHandshake(fd, port, pkt) < 0)
-	  return PM_ERROR_FD; /* TODO: -3; */
+	    return -3;
     } else {		/* attempt to connect to the given port (once) */
 	if (pmConnectHandshake(fd, port, pkt) < 0)
-	  return PM_ERROR_FD; /* TODO: -4; */
+	    return -4;
     }
     return fd;
 }
 
 int
-pmTimeDisconnect(__pmFD fd)
+pmTimeDisconnect(int fd)
 {
-    if (fd == PM_ERROR_FD) {
+    if (fd < 0) {
 	setoserror(EINVAL);
 	return -1;
     }
@@ -130,7 +130,7 @@ pmTimeDisconnect(__pmFD fd)
 }
 
 int
-pmTimeSendAck(__pmFD fd, struct timeval *tv)
+pmTimeSendAck(int fd, struct timeval *tv)
 {
     pmTime data;
     int sts;
@@ -140,14 +140,14 @@ pmTimeSendAck(__pmFD fd, struct timeval *tv)
     data.length = sizeof(data);
     data.command = PM_TCTL_ACK;
     data.position = *tv;
-    sts = __pmSend(fd, (const void *)&data, sizeof(data), 0);
+    sts = send(fd, (const void *)&data, sizeof(data), 0);
     if (sts < 0)
 	setoserror(neterror());
     return sts;
 }
 
 int
-pmTimeShowDialog(__pmFD fd, int show)
+pmTimeShowDialog(int fd, int show)
 {
     pmTime data;
     int sts;
@@ -156,7 +156,7 @@ pmTimeShowDialog(__pmFD fd, int show)
     data.magic = PMTIME_MAGIC;
     data.length = sizeof(data);
     data.command = show ? PM_TCTL_GUISHOW : PM_TCTL_GUIHIDE;
-    sts = __pmSend(fd, (const void *)&data, sizeof(data), 0);
+    sts = send(fd, (const void *)&data, sizeof(data), 0);
     if (sts >= 0 && sts != sizeof(data)) {
 	setoserror(EMSGSIZE);
 	sts = -1;
@@ -166,13 +166,13 @@ pmTimeShowDialog(__pmFD fd, int show)
 }
 
 int
-pmTimeRecv(__pmFD fd, pmTime **datap)
+pmTimeRecv(int fd, pmTime **datap)
 {
     pmTime *k = *datap;
     int sts, remains;
 
     memset(k, 0, sizeof(pmTime));
-    sts = __pmRecv(fd, (void *)k, sizeof(pmTime), 0);
+    sts = recv(fd, (void *)k, sizeof(pmTime), 0);
     if (sts >= 0 && sts != sizeof(pmTime)) {
 	setoserror(EMSGSIZE);
 	sts = -1;
@@ -181,7 +181,7 @@ pmTimeRecv(__pmFD fd, pmTime **datap)
     } else if (k->length > sizeof(pmTime)) {	/* double dipping */
 	remains = k->length - sizeof(pmTime);
 	*datap = k = realloc(k, k->length);
-	sts = __pmRecv(fd, (char *)k + sizeof(pmTime), remains, 0);
+	sts = recv(fd, (char *)k + sizeof(pmTime), remains, 0);
 	if (sts >= 0 && sts != remains) {
 	    setoserror(E2BIG);
 	    sts = -1;

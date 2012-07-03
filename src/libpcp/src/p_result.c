@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2000 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -55,7 +54,7 @@ typedef struct {
 } result_t;
 
 int
-__pmEncodeResult(__pmFD targetfd, const pmResult *result, __pmPDU **pdubuf)
+__pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 {
     int		i;
     int		j;
@@ -146,7 +145,7 @@ __pmEncodeResult(__pmFD targetfd, const pmResult *result, __pmPDU **pdubuf)
 }
 
 int
-__pmSendResult(__pmFD fd, int from, const pmResult *result)
+__pmSendResult(int fd, int from, const pmResult *result)
 {
     int		sts;
     __pmPDU	*pdubuf;

@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -77,7 +76,7 @@ typedef struct {
     int        pmDomainId;		/* PMD identifier */
     int        ipcType;			/* DSO, socket or pipe */
     int        pduVersion;		/* PDU_VERSION for this agent */
-    __pmFD     inFd, outFd;		/* For input to/output from agent */
+    int        inFd, outFd;		/* For input to/output from agent */
     int	       done;			/* Set when processed for this Fetch */
     ClientInfo *profClient;		/* Last client to send profile to agent */
     int	       profIndex;		/* Index of profile that client sent */
@@ -102,12 +101,6 @@ typedef struct {
 
 PMCD_EXTERN AgentInfo	*agent;		/* Array of domain agent structs */
 PMCD_EXTERN int		nAgents;	/* Number of agents in array */
-
-/* A way of passing either an integer or a file descriptor to a function. */
-typedef union pmcdWho {
-  int    n;
-  __pmFD fd;
-} pmcdWho;
 
 /*
  * DomainId-to-AgentIndex map
@@ -147,10 +140,10 @@ extern int		mapdom[];	/* the map */
 #define REASON_PROTOCOL	8
 
 extern AgentInfo *FindDomainAgent(int);
-extern void CleanupAgent(AgentInfo *, int, pmcdWho *);
+extern void CleanupAgent(AgentInfo *, int, int);
 extern int HarvestAgents(unsigned int);
 extern void CleanupClient(ClientInfo*, int);
-extern char* FdToString(__pmFD);
+extern char* FdToString(int);
 extern pmResult **SplitResult(pmResult *);
 extern void Shutdown(void);
 
@@ -193,7 +186,7 @@ PMCD_EXTERN int		_pmcd_trace_nbufs;
  * routines
  */
 extern void pmcd_init_trace(int);
-extern void pmcd_trace(int, pmcdWho *, int, int);
+extern void pmcd_trace(int, int, int, int);
 extern void pmcd_dump_trace(FILE *);
 extern int pmcd_load_libpcp_pmda(void);
 
@@ -203,15 +196,11 @@ extern int pmcd_load_libpcp_pmda(void);
 extern void MarkStateChanges(int);
 
 /*
- * Keep the highest known file desriptor used for a Client or an Agent connection.
+ * Keep the highest know file desriptor used for a Client or an Agent connection.
  * This is reported in the pmcd.openfds metric. See Bug #660497.
  */
 PMCD_EXTERN int pmcd_hi_openfds;   /* Highest known file descriptor for pmcd */
 
-#ifdef HAVE_NSS
-#define PMCD_OPENFDS_SETHI(x) ;
-#else
 #define PMCD_OPENFDS_SETHI(x) if (x > pmcd_hi_openfds) pmcd_hi_openfds = x;
-#endif
 
 #endif /* _PMCD_H */

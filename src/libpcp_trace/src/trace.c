@@ -2,7 +2,6 @@
  * trace.c - client-side interface for trace PMDA
  *
  * Copyright (c) 1997-2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -89,7 +88,7 @@ _pmlibdel(void *entry)
 	free(data);
 }
 
-__pmFD			__pmfd = PM_ERROR_FD;
+int			__pmfd = 0;
 static __pmHashTable	_pmtable;
 
 #if defined(HAVE_PTHREAD_MUTEX_T)
@@ -602,10 +601,10 @@ _pmtracereconnect(void)
 #endif
 	return -ETIMEDOUT;
     }
-    if (__pmfd != PM_ERROR_FD) {
+    if (__pmfd >= 0) {
 	__pmtracenomoreinput(__pmfd);
-	__pmCloseSocket(__pmfd);
-	__pmfd = PM_ERROR_FD;
+	close(__pmfd);
+	__pmfd = -1;
     }
     if (_pmtraceconnect(1) < 0) {
 #ifdef PMTRACE_DEBUG
@@ -675,9 +674,8 @@ _pmauxtraceconnect(void)
     int			port = TRACE_PORT;
     char		hostname[MAXHOSTNAMELEN];
     struct timeval	timeout = { 3, 0 };     /* default 3 secs */
-    __pmSockAddrIn	myaddr;
-    __pmHostEnt		servinfo;
-    char		*servbuf;
+    struct sockaddr_in	myaddr;
+    struct hostent	*servinfo;
     struct linger	nolinger = {1, 0};
 #ifndef IS_MINGW
     struct itimerval	_pmolditimer;
@@ -727,55 +725,52 @@ _pmauxtraceconnect(void)
     if (getenv(TRACE_ENV_NOAGENT) != NULL)
 	__pmstate |= PMTRACE_STATE_NOAGENT;
 
-    servbuf = __pmAllocHostEntBuffer();
-    if (__pmGetHostByName(hostname, &servinfo, servbuf) == NULL) {
+    if ((servinfo = gethostbyname(hostname)) == NULL) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
-	    fprintf(stderr, "_pmtraceconnect(__pmGetHostByName(hostname=%s): "
+	    fprintf(stderr, "_pmtraceconnect(gethostbyname(hostname=%s): "
 		    "hosterror=%d, ``%s''\n", hostname, hosterror(),
 		    hoststrerror());
 #endif
-        __pmFreeHostEntBuffer(servbuf);
 	return -EHOSTUNREACH;
     }
 
     /* Create socket and attempt to connect to the local PMDA */
-    if ((__pmfd = __pmSocket(AF_INET, SOCK_STREAM, 0)) == PM_ERROR_FD) {
+    if ((__pmfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
 	    fprintf(stderr, "_pmtraceconnect(socket failed): %s\n",
 		    netstrerror());
 #endif
-        __pmFreeHostEntBuffer(servbuf);
 	return -neterror();
     }
 
     /* avoid 200 ms delay */
-    if (__pmSetSockOpt(__pmfd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
+    if (setsockopt(__pmfd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
 				    (mysocklen_t)sizeof(nodelay)) < 0) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
-	    fprintf(stderr, "_pmtraceconnect(__pmSetSockOpt1 failed): %s\n",
+	    fprintf(stderr, "_pmtraceconnect(setsockopt1 failed): %s\n",
 		    netstrerror());
 #endif
-        __pmFreeHostEntBuffer(servbuf);
 	return -neterror();
     }
 
     /* don't linger on close */
-    if (__pmSetSockOpt(__pmfd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
+    if (setsockopt(__pmfd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
 				    (mysocklen_t)sizeof(nolinger)) < 0) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
-	    fprintf(stderr, "_pmtraceconnect(__pmSetSockOpt2 failed): %s\n",
+	    fprintf(stderr, "_pmtraceconnect(setsockopt2 failed): %s\n",
 		    netstrerror());
 #endif
-        __pmFreeHostEntBuffer(servbuf);
 	return -neterror();
     }
 
-    __pmInitSockAddr(&myaddr, htonl(INADDR_ANY), htons(port));
-    __pmSetSockAddr(&myaddr, &servinfo);
+    memset(&myaddr, 0, sizeof(myaddr));
+    myaddr.sin_family = AF_INET;
+    memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
+    myaddr.sin_port = htons(port);
 
 #ifndef IS_MINGW
     /* arm interval timer */
@@ -790,12 +785,11 @@ _pmauxtraceconnect(void)
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_COMMS) {
 	fprintf(stderr, "_pmtraceconnect: PMDA host=%s port=%d timeout=%d"
-		"secs\n", servinfo.h_name, port, (int)timeout.tv_sec);
+		"secs\n", servinfo->h_name, port, (int)timeout.tv_sec);
     }
 #endif
-    __pmFreeHostEntBuffer(servbuf);
 
-    if ((rc = __pmConnect(__pmfd, (__pmSockAddr*) &myaddr, sizeof(myaddr))) < 0)
+    if ((rc = connect(__pmfd, (struct sockaddr*) &myaddr, sizeof(myaddr))) < 0)
 	return -neterror();
 
 #ifndef IS_MINGW
@@ -825,16 +819,16 @@ _pmauxtraceconnect(void)
     if (rc < 0) {
 	if (sts == EINTR)
 	    sts = -ETIMEDOUT;
-	__pmCloseSocket(__pmfd);	/* safe for tracemoreinput(), as no PDUs yet */
-	__pmfd = PM_ERROR_FD;
+	close(__pmfd);	/* safe for tracemoreinput(), as no PDUs yet */
+	__pmfd = -1;
 	return sts;
     }
 
     _pmtimedout = 0;
 
     /* make sure this file descriptor is closed if exec() is called */
-    if ((flags = __pmFcntlGetFlags(__pmfd)) != -1)
-	sts = __pmFcntlSetFlags(__pmfd, flags | FD_CLOEXEC);
+    if ((flags = fcntl(__pmfd, F_GETFD)) != -1)
+	sts = fcntl(__pmfd, F_SETFD, flags | FD_CLOEXEC);
     else
 	sts = -1;
     if (sts == -1)
@@ -842,8 +836,8 @@ _pmauxtraceconnect(void)
 
     if (__pmtraceprotocol(TRACE_PROTOCOL_QUERY) == TRACE_PROTOCOL_ASYNC) {
 	/* in the asynchronoous protocol - ensure no delay after close */
-	if ((flags = __pmFcntlGetFlags(__pmfd)) != -1)
-	    sts = __pmFcntlSetFlags(__pmfd, flags | FNDELAY);
+	if ((flags = fcntl(__pmfd, F_GETFL)) != -1)
+	    sts = fcntl(__pmfd, F_SETFL, flags | FNDELAY);
 	else
 	    sts = -1;
 	if (sts == -1)

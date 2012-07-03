@@ -277,7 +277,7 @@ summarydel(void *a)
  * later be closed.  Other errors - report in log file but continue.
  */
 int
-readData(__pmFD clientfd, int *protocol)
+readData(int clientfd, int *protocol)
 {
     __pmTracePDU	*result;
     double	 	data;
@@ -451,7 +451,7 @@ readData(__pmFD clientfd, int *protocol)
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL0)
 	    __pmNotifyErr(LOG_DEBUG, "fresh interval data on fd=%d rpos=%d "
-		  "('%s': len=%d type=%d value=%d)", __pmFdRef(clientfd), rpos,
+		    "('%s': len=%d type=%d value=%d)", clientfd, rpos,
 		    hash.tag, taglen, type, (int)data);
 #endif
 	if (__pmhashinsert(ringbuf.ring[rpos].stats, hash.tag, hptr) < 0) {
@@ -474,7 +474,7 @@ readData(__pmFD clientfd, int *protocol)
 	if (pmDebug & DBG_TRACE_APPL0)
 	    __pmNotifyErr(LOG_DEBUG, "Updating data on fd=%d ('%s': type=%d "
 		    "count=%d min=%f max=%f sum=%f)",
-		    __pmFdRef(clientfd), hptr->tag, hptr->tracetype,
+		    clientfd, hptr->tag, hptr->tracetype,
 		    hptr->txcount, hptr->txmin, hptr->txmax, hptr->txsum);
 #endif
     }

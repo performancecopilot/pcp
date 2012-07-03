@@ -19,7 +19,6 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#undef LINUX /* defined in NSS/NSPR headers as something different, which we do not need. */
 #include "domain.h"
 #include "dynamic.h"
 
@@ -5356,7 +5355,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 0: /* network.interface.inet_addr */
 	    if (!inetp->hasip)
 		return 0;
-	    if ((atom->cp = __pmInAddrToString(&inetp->addr)) == NULL)
+	    if ((atom->cp = inet_ntoa(inetp->addr)) == NULL)
 		return 0;
 	    break;
 	default:

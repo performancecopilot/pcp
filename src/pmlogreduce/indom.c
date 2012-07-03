@@ -96,7 +96,7 @@ doindom(pmResult *rp)
     }
 
     if (needti) {
-	__pmFlush(logctl.l_mdfp);
+	fflush(logctl.l_mdfp);
 	__pmLogPutIndex(&logctl, &current);
     }
 

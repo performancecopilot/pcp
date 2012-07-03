@@ -3,7 +3,6 @@
  *
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -158,7 +157,7 @@ pmTimeStateSetup(
     }
     strcpy(pmtime->data, tz);
     strcpy(pmtime->data + tzlen, tz_label);
-    if ((fd = pmTimeConnect(port, pmtime)) == PM_ERROR_FD) {
+    if ((fd = pmTimeConnect(port, pmtime)) < 0) {
 	fprintf(stderr, "%s: pmTimeConnect: %s\n", pmProgname, pmErrStr(fd));
 	exit(EXIT_FAILURE);
     }
