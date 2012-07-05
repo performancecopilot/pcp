@@ -101,14 +101,13 @@ bash_trace_parser(bash_process_t *bash, bash_trace_t *trace,
 	char	*p = (char *)buffer, *end = (char *)buffer + size - 1;
 	int	sz, time = -1;
 
-	if (pmDebug & DBG_TRACE_APPL0)
-	    __pmNotifyErr(LOG_DEBUG, "processing buffer[%d]: %s", size, buffer);
-
 	/* version 1 format: time, line#, function, and command line */
 	p += extract_int(p, "time:", sizeof("time:")-1, &time);
 	p += extract_int(p, "line:", sizeof("line:")-1, &trace->line);
-	p += extract_str(p, end - p, "func:", sizeof("func:")-1, trace->function, sizeof(trace->function));
-	sz = extract_cmd(p, end - p, "+", sizeof("+")-1, trace->command, sizeof(trace->command));
+	p += extract_str(p, end - p, "func:", sizeof("func:")-1,
+			trace->function, sizeof(trace->function));
+	sz = extract_cmd(p, end - p, "+", sizeof("+")-1,
+			trace->command, sizeof(trace->command));
 	if (sz <= 0)	/* wierd trace - no command */
 	    trace->command[0] = '\0';
 
@@ -126,7 +125,7 @@ bash_trace_parser(bash_process_t *bash, bash_trace_t *trace,
 	if (pmDebug & DBG_TRACE_APPL0)
 	    __pmNotifyErr(LOG_DEBUG,
 		"event parsed: flags: %x time: %d line: %d func: '%s' cmd: '%s'",
-				    trace->flags, time, trace->line, trace->function, trace->command);
+		trace->flags, time, trace->line, trace->function, trace->command);
     }
 }
 
@@ -141,7 +140,7 @@ bash_trace_decoder(int eventarray,
     int			sts, count = 0;
 
     if (pmDebug & DBG_TRACE_APPL0)
-	__pmNotifyErr(LOG_DEBUG, "bash_trace_decoder[%d bytes]", size);
+	__pmNotifyErr(LOG_DEBUG, "bash_trace_decoder[%ld bytes]", (long)size);
 
     bash_trace_parser(process, &trace, timestamp, (const char *)buffer, size);
 
