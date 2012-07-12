@@ -21,12 +21,10 @@
 long bash_maxmem;
 
 static int bash_interval_expired;
-static struct timeval bash_interval = { 2, 0 };
+static struct timeval bash_interval = { 1, 0 };
 
 #define BASH_INDOM	0
-static pmdaIndom indoms[] = {
-    { BASH_INDOM, 0, NULL },
-};
+static pmdaIndom indoms[] = { { BASH_INDOM, 0, NULL } };
 #define INDOM_COUNT	(sizeof(indoms)/sizeof(indoms[0]))
 
 static pmdaMetric metrics[] = {

@@ -140,9 +140,9 @@ process_verify(const char *bashname, bash_process_t *verify)
  * Helper routine, used during initialising of a tracked shell.
  */
 static bash_process_t *
-process_alloc(const char *bashname, bash_process_t *init)
+process_alloc(const char *bashname, bash_process_t *init, int numclients)
 {
-    int queueid = pmdaEventNewQueue(bashname, bash_maxmem);
+    int queueid = pmdaEventNewActiveQueue(bashname, bash_maxmem, numclients);
     bash_process_t *bashful = malloc(sizeof(bash_process_t));
 
     if (pmDebug & DBG_TRACE_APPL0)
@@ -206,12 +206,16 @@ process_init(const char *bashname, bash_process_t **bp)
 {
     bash_process_t init = { 0 };
 
+    pmAtomValue atom;
+    pmdaEventClients(&atom);
+
     if (pmDebug & DBG_TRACE_APPL1)
-	__pmNotifyErr(LOG_DEBUG, "process_init: %s", bashname);
+	__pmNotifyErr(LOG_DEBUG, "process_init: %s (%d clients)",
+			bashname, atom.ul);
 
     if (process_verify(bashname, &init) < 0)
 	return -1;
-    *bp = process_alloc(bashname, &init);
+    *bp = process_alloc(bashname, &init, atom.ul);
     if (*bp == NULL)
 	return -1;
     return 0;

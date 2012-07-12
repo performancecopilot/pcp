@@ -303,7 +303,6 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
     __pmInDom_int        *mindomp = NULL;
     __pmID_int	        *pmidp = NULL;
     pmdaExt	        *pmda = NULL;
-    int			serial;
 
     if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
 	pmda = dispatch->version.four.ext;
@@ -358,21 +357,17 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
 
     /* fix bit fields in indom for all instance domains */
     for (i = 0; i < pmda->e_nindoms; i++) {
-	serial = pmda->e_indoms[i].it_indom;
-	indomp = (__pmInDom_int *)&(pmda->e_indoms[i].it_indom);
-	indomp->serial = serial;
-	indomp->flag = 0;
-	indomp->domain = dispatch->domain;
+	unsigned int domain = dispatch->domain;
+	unsigned int serial = pmda->e_indoms[i].it_indom;
+	pmda->e_indoms[i].it_indom = pmInDom_build(domain, serial);
     }
 
     /* fix bit fields in indom for all metrics */
     for (i = 0; i < pmda->e_nmetrics; i++) {
 	if (pmda->e_metrics[i].m_desc.indom != PM_INDOM_NULL) {
-	    serial = pmda->e_metrics[i].m_desc.indom;
-	    indomp = (__pmInDom_int *)&(pmda->e_metrics[i].m_desc.indom);
-	    indomp->serial = serial;
-	    indomp->flag = 0;
-	    indomp->domain = dispatch->domain;
+	    unsigned int domain = dispatch->domain;
+	    unsigned int serial = pmda->e_metrics[i].m_desc.indom;
+	    pmda->e_metrics[i].m_desc.indom = pmInDom_build(domain, serial);
 	}
     }
 
