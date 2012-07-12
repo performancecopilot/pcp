@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2008 Aconex.  All Rights Reserved.
+# Copyright (c) 2008,2012 Aconex.  All Rights Reserved.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -11,10 +11,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 # 
 
 use strict;
@@ -28,8 +24,7 @@ my ( $red, $green, $blue ) = ( 0, 100, 200 );
 
 # simple.now instance domain stuff...
 my $simple_config = pmda_config('PCP_PMDAS_DIR') . '/simple/simple.conf';
-# timeslice array format: value, instance id, instance name
-my @timeslices = ( [0, 1, 'sec'], [0, 60, 'min'], [0, 3600, 'hour'] );
+my %timeslices = { 'sec' => 0, 'min' => 0, 'hour' => 0 };
 my $file_change = 0;
 my $file_error = 0;
 
@@ -42,8 +37,6 @@ sub simple_fetch	# called once per ``fetch'' pdu, before callbacks
 {
     $numfetch++;
     &simple_timenow_check;
-    ($timeslices[0]->[0], $timeslices[1]->[0], $timeslices[2]->[0],
-	    undef,undef,undef,undef,undef) = localtime;
 }
 
 sub simple_fetch_callback	# must return array of value,status
@@ -72,10 +65,9 @@ sub simple_fetch_callback	# must return array of value,status
 	else			{ return (PM_ERR_PMID, 0); }
     }
     elsif ($cluster == 2 && $item == 4) {
-	foreach (0..2) {
-	    ($inst == $timeslices[$_]->[1]) && return ($timeslices[$_]->[0], 1);
-	}
-	return (PM_ERR_INST, 0);
+	my $value = pmda_inst_lookup($now_indom, $inst);
+	return (PM_ERR_INST, 0) unless defined($value);
+	return ($$value, 1);
     }
     return (PM_ERR_PMID, 0);
 }
@@ -125,30 +117,28 @@ sub simple_timenow_check
 	    print STDERR "stat failed on $simple_config: $!\n";
 	    $file_error = $!;
 	}
-	$pmda->replace_indom( $now_indom, [] );
+	$pmda->replace_indom( $now_indom, {} );
     }
 }
 
 sub simple_timenow_init
 {
-    my ( $spec, $i );
-    my @inst;
-
     if (open(CONFIG, $simple_config)) {
+	my %values;
+
+	($values{'sec'}, $values{'min'}, $values{'hour'},
+	    undef,undef,undef,undef,undef) = localtime;
 	$_ = <CONFIG>;
 	chomp;		# avoid possible \n on last field
-	foreach $spec (split(/,/)) {
-	    foreach $i (0..2) {
-		($spec eq $timeslices[$i]->[2]) && push @inst,
-			$timeslices[$i]->[1], $timeslices[$i]->[2];
-	    }
+	foreach my $spec (split(/,/)) {
+	    $timeslices{$spec} = \$values{$spec};
 	}
 	close CONFIG;
-	$pmda->replace_indom( $now_indom, \@inst );
+	$pmda->replace_indom( $now_indom, \%timeslices );
     }
     else {
-	print STDERR "read failed on $simple_config: $!\n";
-	$pmda->replace_indom( $now_indom, [] );
+	$pmda->log("read failed on $simple_config: $!");
+	$pmda->replace_indom( $now_indom, {} );
     }
 }
 
@@ -171,7 +161,7 @@ $pmda->add_metric(pmda_pmid(2,4), PM_TYPE_U32, $now_indom,
 		  'simple.now', '', '');
 
 $pmda->add_indom($color_indom, [0 => 'red', 1 => 'green', 2 => 'blue'], '', '');
-$now = $pmda->add_indom($now_indom, [],	'', ''); # initialized on-the-fly
+$now_indom = $pmda->add_indom($now_indom, {}, '', ''); # initialized on-the-fly
 $pmda->set_fetch( \&simple_fetch );
 $pmda->set_instance( \&simple_instance );
 $pmda->set_fetch_callback( \&simple_fetch_callback );
