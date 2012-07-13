@@ -25,7 +25,6 @@ my ( $red, $green, $blue ) = ( 0, 100, 200 );
 # simple.now instance domain stuff...
 my $simple_config = pmda_config('PCP_PMDAS_DIR') . '/simple/simple.conf';
 my %timeslices = { 'sec' => 0, 'min' => 0, 'hour' => 0 };
-my $file_change = 0;
 my $file_error = 0;
 
 sub simple_instance	# called once per ``instance request'' pdu
@@ -103,26 +102,6 @@ sub simple_store_callback	# must return a single value (scalar context)
 
 sub simple_timenow_check
 {
-    my @statbuf;
-
-    if ((@statbuf) = stat($simple_config)) {
-	$file_error = 0;
-	if ($file_change != $statbuf[9]) {
-	    &simple_timenow_init;
-	    $file_change = $statbuf[9];		# mtime field
-	}
-    }
-    else {
-	unless ($file_error == $!) {
-	    print STDERR "stat failed on $simple_config: $!\n";
-	    $file_error = $!;
-	}
-	$pmda->replace_indom( $now_indom, {} );
-    }
-}
-
-sub simple_timenow_init
-{
     if (open(CONFIG, $simple_config)) {
 	my %values;
 
@@ -135,9 +114,13 @@ sub simple_timenow_init
 	}
 	close CONFIG;
 	$pmda->replace_indom( $now_indom, \%timeslices );
+	$file_error = 0;
     }
     else {
-	$pmda->log("read failed on $simple_config: $!");
+	unless ($file_error == $!) {
+	    $pmda->log("read failed on $simple_config: $!");
+	    $file_error = $!;
+	}
 	$pmda->replace_indom( $now_indom, {} );
     }
 }
