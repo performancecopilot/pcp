@@ -117,7 +117,8 @@ else
     RM=true; CP=true; LN=true; MKDIR=true; CHMOD=true; CHOWN=true
 fi
 
-[ -n "$DIST_ROOT" -a $REAL_UID -ne 0 ] && CHOWN=true
+
+test $REAL_UID -ne 0 && CHOWN=true
 
 while getopts "d:g:m:o:S:" c $*
 do
