@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -446,7 +447,7 @@ control_req(void)
 	/* this is safe, due to strlen() test above */
 	strcpy(pmlc_host, hp->h_name);
 
-    if ((sts = __pmAccAddClient(&addr.sin_addr, &clientops)) < 0) {
+    if ((sts = __pmAccAddClient(__pmSockAddrInToIPAddr(&addr), &clientops)) < 0) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
 	    char	*p = (char *)&addr.sin_addr.s_addr;

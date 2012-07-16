@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -42,7 +43,7 @@ typedef struct {
 PMCD_EXTERN ClientInfo	*client;		/* Array of clients */
 PMCD_EXTERN int		nClients;		/* Number of entries in array */
 extern int		maxClientFd;		/* largest fd for a client */
-extern fd_set		clientFds;		/* for client select() */
+extern __pmFdSet	clientFds;		/* for client select() */
 PMCD_EXTERN int		this_client_id;		/* client for current request */
 
 /* prototypes */

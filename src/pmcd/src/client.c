@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +20,7 @@
 #define MIN_CLIENTS_ALLOC 8
 
 int		maxClientFd = -1;	/* largest fd for a client */
-fd_set		clientFds;		/* for client select() */
+__pmFdSet	clientFds;		/* for client select() */
 
 static int	clientSize = 0;
 
@@ -87,7 +88,7 @@ AcceptNewClient(int reqfd)
 
     i = NewClient();
     addrlen = sizeof(client[i].addr);
-    fd = accept(reqfd, (struct sockaddr *)&client[i].addr, &addrlen);
+    fd = __pmAccept(reqfd, (struct sockaddr *)&client[i].addr, &addrlen);
     if (fd == -1) {
     	if (neterror() == EPERM) {
 	    __pmNotifyErr(LOG_NOTICE, "AcceptNewClient(%d): "
@@ -97,7 +98,7 @@ AcceptNewClient(int reqfd)
 	    return NULL;	
 	}
 	else {
-	    __pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) accept: %s\n",
+	    __pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) __pmAccept: %s\n",
 	    reqfd, netstrerror());
 	    Shutdown();
 	    exit(1);
@@ -108,7 +109,7 @@ AcceptNewClient(int reqfd)
 
     PMCD_OPENFDS_SETHI(fd);
 
-    FD_SET(fd, &clientFds);
+    __pmFD_SET(fd, &clientFds);
     __pmSetVersionIPC(fd, UNKNOWN_VERSION);	/* before negotiation */
     __pmSetSocketIPC(fd);
     client[i].fd = fd;
@@ -182,8 +183,8 @@ DeleteClient(ClientInfo *cp)
     }
     if (cp->fd != -1) {
 	__pmResetIPC(cp->fd);
-	FD_CLR(cp->fd, &clientFds);
-	close(cp->fd);
+	__pmFD_CLR(cp->fd, &clientFds);
+	__pmCloseSocket(cp->fd);
     }
     if (i == nClients-1) {
 	i--;

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -30,7 +31,7 @@ __pmCreateSocket(void)
     int			nodelay=1;
     struct linger	nolinger = {1, 0};
 
-    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    if ((fd = __pmSocket(AF_INET, SOCK_STREAM, 0)) < 0)
 	return -neterror();
 
     if ((sts = __pmSetSocketIPC(fd)) < 0) {
@@ -39,24 +40,35 @@ __pmCreateSocket(void)
     }
 
     /* avoid 200 ms delay */
-    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
+    if (__pmSetSockOpt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
 		   (mysocklen_t)sizeof(nodelay)) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_ERR, 
-		      "__pmCreateSocket(%d): setsockopt TCP_NODELAY: %s\n",
+		      "__pmCreateSocket(%d): __pmSetSockOpt TCP_NODELAY: %s\n",
 		      fd, netstrerror_r(errmsg, sizeof(errmsg)));
     }
 
     /* don't linger on close */
-    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
 		   (mysocklen_t)sizeof(nolinger)) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_ERR, 
-		      "__pmCreateSocket(%d): setsockopt SO_LINGER: %s\n",
+		      "__pmCreateSocket(%d): __pmSetSockOpt SO_LINGER: %s\n",
 		      fd, netstrerror_r(errmsg, sizeof(errmsg)));
     }
 
     return fd;
+}
+
+int
+__pmSocket(int domain, int type, int protocol)
+{
+#ifdef HAVE_NSS
+  //#error __FUNCTION__ is not implemented for NSS
+  return -1;
+#else
+  return socket(domain, type, protocol);
+#endif
 }
 
 void
@@ -64,10 +76,69 @@ __pmCloseSocket(int fd)
 {
     __pmResetIPC(fd);
 
-#if defined(IS_MINGW)
+#ifdef HAVE_NSS
+    //#error __FUNCTION__ is not implemented for NSS
+#elif defined(IS_MINGW)
     closesocket(fd);
 #else
     close(fd);
+#endif
+}
+
+int
+__pmSetSockOpt(int socket, int level, int option_name, const void *option_value,
+	       mysocklen_t option_len)
+{
+#ifdef HAVE_NSS
+  //#error __FUNCTION__ is not implemented for NSS
+  return -1;
+#else
+  return setsockopt(socket, level, option_name, option_value, option_len);
+#endif
+}
+
+void
+__pmInitSockAddr(__pmSockAddrIn *addr, int address, int port)
+{
+#ifdef HAVE_NSS
+  //#error __FUNCTION__ is not implemented for NSS
+#else
+  memset(addr, 0, sizeof(*addr));
+  addr->sin_family = AF_INET;
+  addr->sin_addr.s_addr = address;
+  addr->sin_port = port;
+#endif
+}
+
+int
+__pmListen(int fd, int backlog)
+{
+#ifdef HAVE_NSS
+  //  #error __FUNCTION__ is not implemented for NSS
+  return -1;
+#else
+  return listen(fd, backlog);
+#endif
+}
+
+int
+__pmAccept(int reqfd, __pmSockAddr *addr, mysocklen_t *addrlen)
+{
+#ifdef HAVE_NSS
+  return PR_Accept(reqfd, addr, PR_INTERVAL_MIN);
+#else
+  return accept(reqfd, addr, addrlen);
+#endif
+}
+
+int
+__pmBind(int fd, __pmSockAddr *addr, mysocklen_t addrlen)
+{
+#ifdef HAVE_NSS
+  PRStatus prStatus = PR_Bind(fd, addr);
+  return prStatus == PR_SUCCESS ? 0 : -1;
+#else
+  return bind(fd, addr, addrlen);
 #endif
 }
 
@@ -90,7 +161,7 @@ __pmConnectTo(int fd, const struct sockaddr *addr, int port)
     if (connect(fd, (struct sockaddr*)&myAddr, sizeof(myAddr)) < 0) {
 	sts = neterror();
 	if (sts != EINPROGRESS) {
-	    close(fd);
+	    __pmCloseSocket(fd);
 	    return -sts;
 	}
     }
@@ -136,7 +207,7 @@ __pmConnectRestoreFlags(int fd, int fdFlags)
         __pmNotifyErr(LOG_WARNING, "__pmConnectRestoreFlags: "
 		      "fcntl(%d) get/set flags failed: %s\n",
 		      fd, osstrerror_r(errmsg, sizeof(errmsg)));
-	close(fd);
+	__pmCloseSocket(fd);
 	return sts;
     }
 
@@ -278,7 +349,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	}
 	
 	if (sts) {
-	    close(fd);
+	    __pmCloseSocket(fd);
 	    return -sts;
 	}
     }
@@ -287,4 +358,201 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
      * flags and make sure this file descriptor is closed if exec() is
      * called */
     return __pmConnectRestoreFlags (fd, fdFlags);
+}
+
+ssize_t
+__pmSend(int socket, const void *buffer, size_t length, int flags)
+{
+#ifdef HAVE_NSS
+  //  #error __FUNCTION__ is not implemented for NSS
+  return -1;
+#else
+  return send(socket, buffer, length, flags);
+#endif
+}
+
+ssize_t
+__pmRecv(int socket, void *buffer, size_t length, int flags)
+{
+#ifdef HAVE_NSS
+  //  #error __FUNCTION__ is not implemented for NSS
+  return -1;
+#else
+  return recv(socket, buffer, length, flags);
+#endif
+}
+
+void
+__pmFD_CLR(int fd, __pmFdSet *set)
+{
+#ifdef HAVE_NSS
+  //  #error __FUNCTION__ is not implemented for NSS
+#else
+  FD_CLR(fd, set);
+#endif
+}
+
+int
+__pmFD_ISSET(int fd, __pmFdSet *set)
+{
+#ifdef HAVE_NSS
+  //#error __FUNCTION__ is not implemented for NSS
+  return 0;
+#else
+  return FD_ISSET(fd, set);
+#endif
+}
+
+void
+__pmFD_SET(int fd, __pmFdSet *set)
+{
+#ifdef HAVE_NSS
+  //#error __FUNCTION__ is not implemented for NSS
+#else
+  FD_SET(fd, set);
+#endif
+}
+
+void
+__pmFD_ZERO(__pmFdSet *set)
+{
+#ifdef HAVE_NSS
+  //#error __FUNCTION__ is not implemented for NSS
+#else
+  FD_ZERO(set);
+#endif
+}
+
+int
+__pmSelectRead(int nfds, __pmFdSet *readfds, struct timeval *timeout)
+{
+#ifdef HAVE_NSS
+  //  #error __FUNCTION__ is not implemented for NSS
+  return -1;
+#else
+  return select(nfds, readfds, NULL, NULL, timeout);
+#endif
+}
+
+char *
+__pmAllocHostEntBuffer (void)
+{
+#ifdef HAVE_NSS
+  // TODO NSS: check for malloc failure
+  return malloc(PR_NETDB_BUF_SIZE);
+#else
+  /* No buffer needed */
+  return NULL;
+#endif
+}
+
+void
+__pmFreeHostEntBuffer (char *buffer)
+{
+#ifdef HAVE_NSS
+  free(buffer);
+#else
+  /* No buffer was actually allocated. */
+#endif
+}
+
+__pmHostEnt *
+__pmGetHostByName(const char *hostName, __pmHostEnt *hostEntry, char *buffer)
+{
+#ifdef HAVE_NSS
+    PRStatus prStatus = PR_GetHostByName(hostName, buffer, PR_NETDB_BUF_SIZE, hostEntry);
+    return prStatus == PR_SUCCESS ? hostEntry : NULL;
+#else
+    __pmHostEnt *he = gethostbyname(hostName);
+    if (he == NULL)
+        return NULL;
+    *hostEntry = *he;
+    return hostEntry;
+#endif
+}
+
+__pmIPAddr *
+__pmHostEntGetIPAddr(const __pmHostEnt *he, int ix)
+{
+#ifdef HAVE_NSS
+  //  #error __FUNCTION__ is not implemented for NSS
+  return NULL;
+#else
+  return & ((struct in_addr *)he->h_addr_list[ix])->s_addr;
+#endif
+}
+
+void
+__pmSetIPAddr(__pmIPAddr *addr, unsigned int a)
+{
+#ifdef HAVE_NSS
+  //#error __FUNCTION__ is not implemented for NSS
+#else
+  *addr = a;
+#endif
+}
+
+__pmIPAddr *
+__pmMaskIPAddr(__pmIPAddr *addr, const __pmIPAddr *mask)
+{
+#ifdef HAVE_NSS
+  //#error __FUNCTION__ is not implemented for NSS
+  return addr;
+#else
+  *addr &= *mask;
+  return addr;
+#endif
+}
+
+int
+__pmCompareIPAddr(const __pmIPAddr *addr1, const __pmIPAddr *addr2)
+{
+#ifdef HAVE_NSS
+  return memcmp(addr1, addr2, sizeof(*addr1));
+#else
+  return *addr1 - *addr2;
+#endif
+}
+
+int
+__pmIPAddrIsLoopBack(const __pmIPAddr *addr)
+{
+#ifdef HAVE_NSS
+  //  #error __FUNCTION__ is not implemented for NSS
+  return 0;
+#else
+  return *addr == htonl(INADDR_LOOPBACK);
+#endif
+}
+
+const __pmIPAddr
+__pmSockAddrInToIPAddr(const __pmSockAddrIn *inaddr)
+{
+#ifdef HAVE_NSS
+  return 0;
+#else
+  return __pmInAddrToIPAddr(&inaddr->sin_addr);
+#endif
+}
+
+const __pmIPAddr
+__pmInAddrToIPAddr(const __pmInAddr *inaddr)
+{
+#ifdef HAVE_NSS
+  /* For NSPR, these point to the same type. */
+  return 0;
+#else
+  return inaddr->s_addr;
+#endif
+}
+
+int
+__pmIPAddrToInt(const __pmIPAddr *addr)
+{
+#ifdef HAVE_NSS
+  //#error __FUNCTION__ is not implemented for NSS
+  return 0;
+#else
+  return *addr;
+#endif
 }

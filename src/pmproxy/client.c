@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -67,9 +68,9 @@ AcceptNewClient(int reqfd)
 
     i = NewClient();
     addrlen = sizeof(client[i].addr);
-    fd = accept(reqfd, (struct sockaddr *)&client[i].addr, &addrlen);
+    fd = __pmAccept(reqfd, (struct sockaddr *)&client[i].addr, &addrlen);
     if (fd == -1) {
-	__pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) accept failed: %s",
+	__pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) __pmAccept failed: %s",
 			reqfd, netstrerror());
 	Shutdown();
 	exit(1);
@@ -88,12 +89,12 @@ AcceptNewClient(int reqfd)
      * version negotiation (converse to negotiate_proxy() logic in
      * libpcp
      *
-     *   recv client version message
-     *   send my server version message
-     *   recv pmcd hostname and pmcd port
+     *   __pmRecv client version message
+     *   __pmSend my server version message
+     *   __pmRecv pmcd hostname and pmcd port
      */
     for (bp = buf; bp < &buf[MY_BUFLEN]; bp++) {
-	if (recv(fd, bp, 1, 0) != 1) {
+	if (__pmRecv(fd, bp, 1, 0) != 1) {
 	    *bp = '\0';		/* null terminate what we have */
 	    bp = &buf[MY_BUFLEN];	/* flag error */
 	    break;
@@ -123,7 +124,7 @@ AcceptNewClient(int reqfd)
 	return NULL;
     }
 
-    if (send(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
+    if (__pmSend(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
 	__pmNotifyErr(LOG_WARNING, "AcceptNewClient: failed to send version "
 			"string (%s) to client at %s\n",
 			MY_VERSION, inet_ntoa(client[i].addr.sin_addr));
@@ -132,7 +133,7 @@ AcceptNewClient(int reqfd)
     }
 
     for (bp = buf; bp < &buf[MY_BUFLEN]; bp++) {
-	if (recv(fd, bp, 1, 0) != 1) {
+	if (__pmRecv(fd, bp, 1, 0) != 1) {
 	    *bp = '\0';		/* null terminate what we have */
 	    bp = &buf[MY_BUFLEN];	/* flag error */
 	    break;
@@ -209,12 +210,12 @@ DeleteClient(ClientInfo *cp)
     if (cp->fd >= 0) {
 	__pmResetIPC(cp->fd);
 	FD_CLR(cp->fd, &sockFds);
-	close(cp->fd);
+	__pmCloseSocket(cp->fd);
     }
     if (cp->pmcd_fd >= 0) {
 	__pmResetIPC(cp->pmcd_fd);
 	FD_CLR(cp->pmcd_fd, &sockFds);
-	close(cp->pmcd_fd);
+	__pmCloseSocket(cp->pmcd_fd);
     }
     if (i == nClients-1) {
 	i--;

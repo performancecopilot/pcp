@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -2268,7 +2269,7 @@ ParseRestartAgents(char *fileName)
 	ClientInfo	*cp = &client[i];
 	int		s;
 
-	if ((s = __pmAccAddClient(&cp->addr.sin_addr, &cp->denyOps)) < 0) {
+	if ((s = __pmAccAddClient(__pmSockAddrInToIPAddr(&cp->addr), &cp->denyOps)) < 0) {
 	    /* ignore errors, the client is being terminated in any case */
 	    if (_pmcd_trace_mask)
 		pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, s);

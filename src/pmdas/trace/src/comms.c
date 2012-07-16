@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -92,7 +93,7 @@ traceMain(pmdaInterface *dispatch)
 	/* handle request on control port */
 	if (FD_ISSET(ctlfd, &readyfds)) {
 	    if ((cp = acceptClient(ctlfd)) != NULL) {
-		sts = __pmAccAddClient(&cp->addr.sin_addr, &cp->denyOps);
+		sts = __pmAccAddClient(__pmSockAddrInToIPAddr(&cp->addr), &cp->denyOps);
 		if (sts == PM_ERR_PERMISSION)
 		    sts = PMTRACE_ERR_PERMISSION;
 		else if (sts == PM_ERR_CONNLIMIT)
@@ -134,7 +135,7 @@ traceMain(pmdaInterface *dispatch)
 		}
 #endif
 		__pmtracesendack(clients[i].fd, PMTRACE_ERR_PERMISSION);
-		__pmAccDelClient(&clients[i].addr.sin_addr);
+		__pmAccDelClient(__pmSockAddrInToIPAddr(&clients[i].addr));
 		deleteClient(&clients[i]);
 	    }
 	    else if (FD_ISSET(clients[i].fd, &readyfds)) {
@@ -148,7 +149,7 @@ traceMain(pmdaInterface *dispatch)
 				clients[i].fd);
 			}
 #endif
-			__pmAccDelClient(&clients[i].addr.sin_addr);
+			__pmAccDelClient(__pmSockAddrInToIPAddr(&clients[i].addr));
 			deleteClient(&clients[i]);
 		    }
 		    else {

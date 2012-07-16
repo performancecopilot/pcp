@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,6 +40,7 @@
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
+#include "pmio.h"
 
 /*
  * Thread-safe support ... #define to enable thread-safe protection of
@@ -497,6 +499,13 @@ extern int __pmConnectLocal(void);
 extern int __pmAuxConnectPMCD(const char *);
 extern int __pmAuxConnectPMCDPort(const char *, int);
 extern int __pmCreateSocket(void);
+extern int __pmSocket(int, int, int);
+extern int __pmSetSockOpt(int, int, int, const void *, mysocklen_t);
+extern int __pmBind(int, __pmSockAddr *, mysocklen_t);
+extern int __pmListen(int, int);
+extern int __pmAccept(int, __pmSockAddr *, mysocklen_t *);
+extern ssize_t __pmSend(int, const void *, size_t, int);
+extern ssize_t __pmRecv(int, void *, size_t, int);
 extern void __pmCloseSocket(int);
 extern int __pmAddHostPorts(pmHostSpec *, int *, int);
 extern void __pmDropHostPort(pmHostSpec *);
@@ -505,6 +514,27 @@ extern int __pmConnectTo (int, const struct sockaddr *, int);
 extern int __pmConnectCheckError(int);
 extern int __pmConnectRestoreFlags (int, int);
 extern int __pmConnectHandshake(int);
+
+extern void __pmFD_CLR(int, __pmFdSet *);
+extern int  __pmFD_ISSET(int, __pmFdSet *);
+extern void __pmFD_SET(int, __pmFdSet *);
+extern void __pmFD_ZERO(__pmFdSet *);
+extern int __pmSelectRead(int, __pmFdSet *, struct timeval *);
+
+extern void __pmInitSockAddr(__pmSockAddrIn *, int, int);
+extern void __pmSetIPAddr (__pmIPAddr *, unsigned int a);
+extern __pmIPAddr *__pmMaskIPAddr(__pmIPAddr *, const __pmIPAddr *);
+extern int __pmCompareIPAddr (const __pmIPAddr *, const __pmIPAddr *);
+extern int __pmIPAddrIsLoopBack(const __pmIPAddr *);
+
+extern const __pmIPAddr __pmSockAddrInToIPAddr(const __pmSockAddrIn *);
+extern const __pmIPAddr __pmInAddrToIPAddr(const __pmInAddr *);
+extern int __pmIPAddrToInt(const __pmIPAddr *);
+
+extern char *__pmAllocHostEntBuffer (void);
+extern void __pmFreeHostEntBuffer (char *);
+extern __pmHostEnt *__pmGetHostByName(const char *, __pmHostEnt *, char *);
+extern __pmIPAddr *__pmHostEntGetIPAddr(const __pmHostEnt *, int);
 
 /*
  * per context controls for archives and logs
@@ -1062,8 +1092,8 @@ extern void __htonll(char *);		/* 64bit int */
  */
 extern int __pmAccAddOp(unsigned int);
 extern int __pmAccAddHost(const char *, unsigned int, unsigned int, int);
-extern int __pmAccAddClient(const struct in_addr *, unsigned int *);
-extern void __pmAccDelClient(const struct in_addr *);
+extern int __pmAccAddClient(__pmIPAddr, unsigned int *);
+extern void __pmAccDelClient(__pmIPAddr);
 
 extern void __pmAccDumpHosts(FILE *);
 extern int __pmAccSaveHosts(void);
