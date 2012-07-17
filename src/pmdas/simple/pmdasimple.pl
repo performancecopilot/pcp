@@ -24,7 +24,7 @@ my ( $red, $green, $blue ) = ( 0, 100, 200 );
 
 # simple.now instance domain stuff...
 my $simple_config = pmda_config('PCP_PMDAS_DIR') . '/simple/simple.conf';
-my %timeslices = { 'sec' => 0, 'min' => 0, 'hour' => 0 };
+my %timeslices = ( 'sec' => 0, 'min' => 0, 'hour' => 0 );
 my $file_error = 0;
 
 sub simple_instance	# called once per ``instance request'' pdu
