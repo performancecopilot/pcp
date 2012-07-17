@@ -688,7 +688,7 @@ SignalReloadPMNS(void)
  * to handle PDUs.
  */
 static int
-HandleReadyAgents(fd_set *readyFds)
+HandleReadyAgents(__pmFdSet *readyFds)
 {
     int		i, s, sts;
     int		fd;
@@ -701,7 +701,7 @@ HandleReadyAgents(fd_set *readyFds)
 	ap = &agent[i];
 	if (ap->status.notReady) {
 	    fd = ap->outFd;
-	    if (FD_ISSET(fd, readyFds)) {
+	    if (__pmFD_ISSET(fd, readyFds)) {
 		int		pinpdu;
 		/* Expect an error PDU containing PM_ERR_PMDAREADY */
 		reason = AT_COMM;	/* most errors are protocol failures */
@@ -1179,15 +1179,15 @@ main(int argc, char *argv[])
 
 static int		 nBadHosts = 0;
 static int		 szBadHosts = 0;
-static struct in_addr	*badHost = NULL;
+static __pmIPAddr	*badHost = NULL;
 
 static int
-AddBadHost(struct in_addr *hostId)
+AddBadHost(__pmSockAddrIn *hostId)
 {
     int		i, need;
 
     for (i = 0; i < nBadHosts; i++)
-	if (hostId->s_addr == badHost[i].s_addr)
+        if (__pmSockAddrInToIPAddr(hostId) == badHost[i])
 	    /* already there */
 	    return 0;
 
@@ -1195,11 +1195,11 @@ AddBadHost(struct in_addr *hostId)
     if (nBadHosts == szBadHosts) {
 	szBadHosts += 8;
 	need = szBadHosts * (int)sizeof(badHost[0]);
-	if ((badHost = (struct in_addr *)realloc(badHost, need)) == NULL) {
+	if ((badHost = (__pmIPAddr *)realloc(badHost, need)) == NULL) {
 	    __pmNoMem("pmcd.AddBadHost", need, PM_FATAL_ERR);
 	}
     }
-    badHost[nBadHosts++].s_addr = hostId->s_addr;
+    badHost[nBadHosts++] = __pmSockAddrInToIPAddr(hostId);
     return 1;
 }
 
@@ -1229,9 +1229,9 @@ CleanupClient(ClientInfo *cp, int sts)
 	 * been dinged for an access violation since startup or reconfiguration
 	 */
 	if (sts == PM_ERR_PERMISSION || sts == PM_ERR_CONNLIMIT) {
-	    if ( (msg = AddBadHost(&cp->addr.sin_addr)) ) {
+	    if ( (msg = AddBadHost(&cp->addr)) ) {
 		fprintf(stderr, "access violation from host %s:\n",
-				inet_ntoa(cp->addr.sin_addr));
+				__pmSockAddrInToString(&cp->addr));
 	    }
 	}
 	else

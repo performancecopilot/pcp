@@ -447,7 +447,7 @@ control_req(void)
 	/* this is safe, due to strlen() test above */
 	strcpy(pmlc_host, hp->h_name);
 
-    if ((sts = __pmAccAddClient(__pmSockAddrInToIPAddr(&addr), &clientops)) < 0) {
+    if ((sts = __pmAccAddClient(addr.sin_addr.s_addr, &clientops)) < 0) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
 	    char	*p = (char *)&addr.sin_addr.s_addr;

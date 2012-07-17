@@ -23,7 +23,7 @@
 /* The table of clients, used by pmcd */
 typedef struct {
     int			fd;		/* Socket descriptor */
-    struct sockaddr_in	addr;		/* Address of client */
+    __pmSockAddrIn	addr;		/* Address of client */
     struct {				/* Status of connection to client */
 	unsigned int	connected : 1;	/* Client connected */
 	unsigned int	changes : 3;	/* PMCD_* bits for changes since last fetch */

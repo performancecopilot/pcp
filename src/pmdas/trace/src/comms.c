@@ -93,7 +93,7 @@ traceMain(pmdaInterface *dispatch)
 	/* handle request on control port */
 	if (FD_ISSET(ctlfd, &readyfds)) {
 	    if ((cp = acceptClient(ctlfd)) != NULL) {
-		sts = __pmAccAddClient(__pmSockAddrInToIPAddr(&cp->addr), &cp->denyOps);
+		sts = __pmAccAddClient(cp->addr.sin_addr.s_addr, &cp->denyOps);
 		if (sts == PM_ERR_PERMISSION)
 		    sts = PMTRACE_ERR_PERMISSION;
 		else if (sts == PM_ERR_CONNLIMIT)
@@ -135,7 +135,7 @@ traceMain(pmdaInterface *dispatch)
 		}
 #endif
 		__pmtracesendack(clients[i].fd, PMTRACE_ERR_PERMISSION);
-		__pmAccDelClient(__pmSockAddrInToIPAddr(&clients[i].addr));
+		__pmAccDelClient(clients[i].addr.sin_addr.s_addr);
 		deleteClient(&clients[i]);
 	    }
 	    else if (FD_ISSET(clients[i].fd, &readyfds)) {
@@ -149,7 +149,7 @@ traceMain(pmdaInterface *dispatch)
 				clients[i].fd);
 			}
 #endif
-			__pmAccDelClient(__pmSockAddrInToIPAddr(&clients[i].addr));
+			__pmAccDelClient(clients[i].addr.sin_addr.s_addr);
 			deleteClient(&clients[i]);
 		    }
 		    else {

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,29 +29,22 @@ void
 ShowClients(FILE *f)
 {
     int			i;
-    struct hostent	*hp;
+    __pmHostEnt		h;
+    char		*hbuf;
 
     fprintf(f, "     fd  client connection from                    ipc ver  operations denied\n");
     fprintf(f, "     ==  ========================================  =======  =================\n");
+    hbuf = __pmAllocHostEntBuffer();
     for (i = 0; i < nClients; i++) {
 	if (client[i].status.connected == 0)
 	    continue;
 
 	fprintf(f, "    %3d  ", client[i].fd);
 
-	hp = gethostbyaddr((void *)&client[i].addr.sin_addr.s_addr, sizeof(client[i].addr.sin_addr.s_addr), AF_INET);
-	if (hp == NULL) {
-	    char	*p = (char *)&client[i].addr.sin_addr.s_addr;
-	    int	k;
-
-	    for (k = 0; k < 4; k++) {
-		if (k > 0)
-		    fputc('.', f);
-		fprintf(f, "%d", p[k] & 0xff);
-	    }
-	}
+	if (__pmGetHostByAddr(&client[i].addr, &h, hbuf) == NULL)
+	    fprintf(f, "%s", __pmSockAddrInToString(&client[i].addr));
 	else
-	    fprintf(f, "%-40.40s", hp->h_name);
+	    fprintf(f, "%-40.40s", h.h_name);
 
 	fprintf(f, "  %7d", __pmVersionIPC(client[i].fd));
 
@@ -64,5 +58,6 @@ ShowClients(FILE *f)
 
 	fputc('\n', f);
     }
+    __pmFreeHostEntBuffer(hbuf);
     fputc('\n', f);
 }

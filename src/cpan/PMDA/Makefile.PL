@@ -14,7 +14,7 @@ if ($ENV{TARGET_OS} eq "mingw") {
 }
 else {
     $ldfrom = "local.o PMDA.o";
-    $inc = "-I$ENV{PCP_TOPDIR}/src/include/pcp -I/usr/include/pcp";
+    $inc = "-I$ENV{PCP_TOPDIR}/src/include/pcp -I/usr/include/pcp $ENV{NSS_CFLAGS} $ENV{NSPR_CFLAGS}";
     $libs = ["-L$ENV{PCP_TOPDIR}/src/libpcp_pmda/src -L$ENV{PCP_TOPDIR}/src/libpcp/src -lpcp_pmda -lpcp"];
 }
 if ($ENV{TARGET_OS} eq "darwin") {

@@ -88,7 +88,7 @@ AcceptNewClient(int reqfd)
 
     i = NewClient();
     addrlen = sizeof(client[i].addr);
-    fd = __pmAccept(reqfd, (struct sockaddr *)&client[i].addr, &addrlen);
+    fd = __pmAccept(reqfd, (__pmSockAddr *)&client[i].addr, &addrlen);
     if (fd == -1) {
     	if (neterror() == EPERM) {
 	    __pmNotifyErr(LOG_NOTICE, "AcceptNewClient(%d): "
@@ -128,7 +128,7 @@ AcceptNewClient(int reqfd)
     if (pmDebug & DBG_TRACE_APPL0)
 	fprintf(stderr, "AcceptNewClient(%d): client[%d] (fd %d)\n", reqfd, i, fd);
 #endif
-    pmcd_trace(TR_ADD_CLIENT, client[i].addr.sin_addr.s_addr, fd, client[i].seq);
+    pmcd_trace(TR_ADD_CLIENT, __pmSockAddrInToIPAddr(&client[i].addr), fd, client[i].seq);
 
     return &client[i];
 }

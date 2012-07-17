@@ -20,7 +20,7 @@
 ClientInfo	*client;
 int		nClients;		/* Number in array, (not all in use) */
 int		maxSockFd = -1;		/* largest fd for a client */
-fd_set		sockFds;		/* for client select() */
+__pmFdSet	sockFds;		/* for client select() */
 
 static int	clientSize;
 
@@ -68,7 +68,7 @@ AcceptNewClient(int reqfd)
 
     i = NewClient();
     addrlen = sizeof(client[i].addr);
-    fd = __pmAccept(reqfd, (struct sockaddr *)&client[i].addr, &addrlen);
+    fd = __pmAccept(reqfd, (__pmSockAddr *)&client[i].addr, &addrlen);
     if (fd == -1) {
 	__pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) __pmAccept failed: %s",
 			reqfd, netstrerror());
@@ -78,7 +78,7 @@ AcceptNewClient(int reqfd)
     __pmSetSocketIPC(fd);
     if (fd > maxSockFd)
 	maxSockFd = fd;
-    FD_SET(fd, &sockFds);
+    __pmFD_SET(fd, &sockFds);
 
     client[i].fd = fd;
     client[i].pmcd_fd = -1;
@@ -115,7 +115,7 @@ AcceptNewClient(int reqfd)
 
     if (!ok) {
 	__pmNotifyErr(LOG_WARNING, "Bad version string from client at %s",
-			inet_ntoa(client[i].addr.sin_addr));
+			__pmSockAddrInToString(&client[i].addr));
 	fprintf(stderr, "AcceptNewClient: bad version string was \"");
 	for (bp = buf; *bp && bp < &buf[MY_BUFLEN]; bp++)
 	    fputc(*bp & 0xff, stderr);
@@ -127,7 +127,7 @@ AcceptNewClient(int reqfd)
     if (__pmSend(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
 	__pmNotifyErr(LOG_WARNING, "AcceptNewClient: failed to send version "
 			"string (%s) to client at %s\n",
-			MY_VERSION, inet_ntoa(client[i].addr.sin_addr));
+			MY_VERSION, __pmSockAddrInToString(&client[i].addr));
 	DeleteClient(&client[i]);
 	return NULL;
     }
@@ -158,7 +158,7 @@ AcceptNewClient(int reqfd)
 	    if (*endp != '\0') {
 		__pmNotifyErr(LOG_WARNING, "AcceptNewClient: bad pmcd port "
 				"\"%s\" from client at %s",
-				bp, inet_ntoa(client[i].addr.sin_addr));
+				bp, __pmSockAddrInToString(&client[i].addr));
 		DeleteClient(&client[i]);
 		return NULL;
 	    }
@@ -169,7 +169,7 @@ AcceptNewClient(int reqfd)
     if (client[i].pmcd_hostname == NULL) {
 	__pmNotifyErr(LOG_WARNING, "AcceptNewClient: failed to get PMCD "
 				"hostname (%s) from client at %s",
-				buf, inet_ntoa(client[i].addr.sin_addr));
+				buf, __pmSockAddrInToString(&client[i].addr));
 	DeleteClient(&client[i]);
 	return NULL;
     }
@@ -181,7 +181,7 @@ AcceptNewClient(int reqfd)
 	 * made in ClientLoop()
 	 */
 	fprintf(stderr, "AcceptNewClient [%d] fd=%d from %s to %s (port %s)",
-	    i, fd, inet_ntoa(client[i].addr.sin_addr),
+	    i, fd, __pmSockAddrInToString(&client[i].addr),
 	    client[i].pmcd_hostname, bp);
 #endif
 
@@ -209,12 +209,12 @@ DeleteClient(ClientInfo *cp)
 
     if (cp->fd >= 0) {
 	__pmResetIPC(cp->fd);
-	FD_CLR(cp->fd, &sockFds);
+	__pmFD_CLR(cp->fd, &sockFds);
 	__pmCloseSocket(cp->fd);
     }
     if (cp->pmcd_fd >= 0) {
 	__pmResetIPC(cp->pmcd_fd);
-	FD_CLR(cp->pmcd_fd, &sockFds);
+	__pmFD_CLR(cp->pmcd_fd, &sockFds);
 	__pmCloseSocket(cp->pmcd_fd);
     }
     if (i == nClients-1) {

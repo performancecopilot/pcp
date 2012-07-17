@@ -226,7 +226,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 {
     int			fd;
     int			sts;
-    struct sockaddr_in	myAddr;
+    __pmSockAddrIn	myAddr;
     int			one = 1;
 
     fd = __pmCreateSocket();
@@ -268,11 +268,8 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 	DontStart();
     }
 
-    memset(&myAddr, 0, sizeof(myAddr));
-    myAddr.sin_family = AF_INET;
-    myAddr.sin_addr.s_addr = ipAddr;
-    myAddr.sin_port = htons(port);
-    sts = __pmBind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
+    __pmInitSockAddr(&myAddr, ipAddr, htons(port));
+    sts = __pmBind(fd, (__pmSockAddr *)&myAddr, sizeof(myAddr));
     if (sts < 0){
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) __pmBind: %s\n",
 			port, netstrerror());
@@ -311,7 +308,7 @@ CleanupClient(ClientInfo *cp, int sts)
  * as required.
  */
 void
-HandleInput(fd_set *fdsPtr)
+HandleInput(__pmFdSet *fdsPtr)
 {
     int		ists;
     int		osts;
@@ -321,7 +318,7 @@ HandleInput(fd_set *fdsPtr)
 
     /* input from client */
     for (i = 0; i < nClients; i++) {
-	if (!client[i].status.connected || !FD_ISSET(client[i].fd, fdsPtr))
+	if (!client[i].status.connected || !__pmFD_ISSET(client[i].fd, fdsPtr))
 	    continue;
 
 	cp = &client[i];
@@ -353,7 +350,7 @@ HandleInput(fd_set *fdsPtr)
 
     /* input from pmcd */
     for (i = 0; i < nClients; i++) {
-	if (!client[i].status.connected || !FD_ISSET(client[i].pmcd_fd, fdsPtr))
+	if (!client[i].status.connected || !__pmFD_ISSET(client[i].pmcd_fd, fdsPtr))
 	    continue;
 
 	cp = &client[i];
@@ -446,7 +443,7 @@ ClientLoop(void)
 {
     int		i, sts;
     int		maxFd;
-    fd_set	readableFds;
+    __pmFdSet	readableFds;
     int		CheckClientAccess(ClientInfo *);
     ClientInfo	*cp;
 
@@ -457,19 +454,19 @@ ClientLoop(void)
 	readableFds = sockFds;
 	maxFd = maxSockFd + 1;
 
-	sts = select(maxFd, &readableFds, NULL, NULL, NULL);
+	sts = __pmSelectRead(maxFd, &readableFds, NULL);
 
 	if (sts > 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
 		for (i = 0; i <= maxSockFd; i++)
-		    if (FD_ISSET(i, &readableFds))
+		    if (__pmFD_ISSET(i, &readableFds))
 			fprintf(stderr, "select(): from %s fd=%d\n", FdToString(i), i);
 #endif
 	    /* Accept any new client connections */
 	    for (i = 0; i < nReqPorts; i++) {
 		int rfd = reqPorts[i].fd;
-		if (FD_ISSET(rfd, &readableFds)) {
+		if (__pmFD_ISSET(rfd, &readableFds)) {
 		    cp = AcceptNewClient(rfd);
 		    if (cp == NULL) {
 			/* failed to negotiate correctly, already cleaned up */
@@ -492,7 +489,7 @@ ClientLoop(void)
 		    else {
 			if (cp->pmcd_fd > maxSockFd)
 			    maxSockFd = cp->pmcd_fd;
-			FD_SET(cp->pmcd_fd, &sockFds);
+			__pmFD_SET(cp->pmcd_fd, &sockFds);
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_CONTEXT)
 			    /* append to message started in AcceptNewClient() */

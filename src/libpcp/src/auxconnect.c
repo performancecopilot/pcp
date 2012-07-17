@@ -23,6 +23,19 @@
 /* default connect timeout is 5 seconds */
 static struct timeval	canwait = { 5, 000000 };
 
+/*
+Securable file descriptors must be unique from normal ones. We can then keep them both in the
+IPC table and the socket abstraction functions (below) can then determine how to handle them
+seamlessly. Perhaps we can discover what the max # of file descriptors is (rlimit?) and
+assign the securable ones values above this limit. Potential problem if the sysadmin increases the
+limit during execution. Maybe using the hard limit will avoid this problem.
+*/
+#if 0
+int
+__pmCreateSecurableSocket(void)
+{
+}
+#endif
 int
 __pmCreateSocket(void)
 {
@@ -125,7 +138,8 @@ int
 __pmAccept(int reqfd, __pmSockAddr *addr, mysocklen_t *addrlen)
 {
 #ifdef HAVE_NSS
-  return PR_Accept(reqfd, addr, PR_INTERVAL_MIN);
+  // return PR_Accept(reqfd, addr, PR_INTERVAL_MIN);
+  return -1;
 #else
   return accept(reqfd, addr, addrlen);
 #endif
@@ -135,7 +149,7 @@ int
 __pmBind(int fd, __pmSockAddr *addr, mysocklen_t addrlen)
 {
 #ifdef HAVE_NSS
-  PRStatus prStatus = PR_Bind(fd, addr);
+  PRStatus prStatus = PR_FAILURE; // PR_Bind(fd, addr);
   return prStatus == PR_SUCCESS ? 0 : -1;
 #else
   return bind(fd, addr, addrlen);
@@ -471,6 +485,21 @@ __pmGetHostByName(const char *hostName, __pmHostEnt *hostEntry, char *buffer)
 #endif
 }
 
+__pmHostEnt *
+__pmGetHostByAddr(__pmSockAddrIn *address, __pmHostEnt *hostEntry, char *buffer)
+{
+#ifdef HAVE_NSS
+  PRStatus prStatus = PR_GetHostByAddr(address, buffer, PR_NETDB_BUF_SIZE, hostEntry);
+  return prStatus == PR_SUCCESS ? hostEntry : NULL;
+#else
+  __pmHostEnt *he = gethostbyaddr((void *)&address->sin_addr.s_addr, sizeof(address->sin_addr.s_addr), AF_INET);
+  if (he == NULL)
+      return NULL;
+  *hostEntry = *he;
+  return hostEntry;
+#endif
+}
+
 __pmIPAddr *
 __pmHostEntGetIPAddr(const __pmHostEnt *he, int ix)
 {
@@ -554,5 +583,37 @@ __pmIPAddrToInt(const __pmIPAddr *addr)
   return 0;
 #else
   return *addr;
+#endif
+}
+
+/* Convert an address in network byte order to a string. The caller must free the buffer. */
+char *
+__pmSockAddrInToString(__pmSockAddrIn *address) {
+#ifdef HAVE_NSS
+  return __pmInAddrToString(address);
+#else
+  return __pmInAddrToString(&address->sin_addr);
+#endif
+}
+
+/* Convert an address in network byte order to a string. The caller must free the buffer. */
+char *
+__pmInAddrToString(__pmInAddr *address) {
+#ifdef HAVE_NSS
+  PRStatus prStatus;
+  char     *buf = malloc(PM_NET_ADDR_STRING_SIZE);
+  if (buf == NULL)
+      return NULL;
+  prStatus = PR_NetAddrToString(address, buf, PM_NET_ADDR_STRING_SIZE);
+  if (prStatus != PR_SUCCESS) {
+      free(buf);
+      return NULL;
+  }
+  return buf;
+#else
+  char *buf = inet_ntoa(*address);
+  if (buf == NULL)
+      return NULL;
+  return strdup(buf);
 #endif
 }

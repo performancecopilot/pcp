@@ -531,9 +531,14 @@ extern const __pmIPAddr __pmSockAddrInToIPAddr(const __pmSockAddrIn *);
 extern const __pmIPAddr __pmInAddrToIPAddr(const __pmInAddr *);
 extern int __pmIPAddrToInt(const __pmIPAddr *);
 
+#define PM_NET_ADDR_STRING_SIZE 46 /* from the NSPR API reference */
+extern char *__pmSockAddrInToString(__pmSockAddrIn *);
+extern char * __pmInAddrToString(__pmInAddr *);
+
 extern char *__pmAllocHostEntBuffer (void);
 extern void __pmFreeHostEntBuffer (char *);
 extern __pmHostEnt *__pmGetHostByName(const char *, __pmHostEnt *, char *);
+extern __pmHostEnt *__pmGetHostByAddr(__pmSockAddrIn *, __pmHostEnt *, char *);
 extern __pmIPAddr *__pmHostEntGetIPAddr(const __pmHostEnt *, int);
 
 /*
