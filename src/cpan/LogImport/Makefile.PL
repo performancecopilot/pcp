@@ -9,13 +9,13 @@ my $cccdlflags;
 
 if ($ENV{TARGET_OS} eq "mingw") {
     $ldfrom = "-L$ENV{PCP_TOPDIR}/src/libpcp/src -L$ENV{PCP_TOPDIR}/src/libpcp_import/src -L$ENV{PCP_DIR}\\local\\bin -lpcp_import -lpcp LogImport.o",
-    $inc = "-I$ENV{PCP_TOPDIR}/src/include -I/usr/include/pcp -I$ENV{PCP_DIR}\\include\\pcp -I$ENV{PCP_DIR}\\c\\include";
+    $inc = "-I$ENV{PCP_TOPDIR}/src/include/pcp -I/usr/include/pcp -I$ENV{PCP_DIR}\\include\\pcp -I$ENV{PCP_DIR}\\c\\include";
     $libs = ["-L$ENV{PCP_DIR}\\local\\bin", '-lpcp_import', '-lpcp'];
 }
 else {
-    $ldfrom = "-L$ENV{PCP_TOPDIR}/src/libpcp/src -L$ENV{PCP_TOPDIR}/src/libpcp_import/src -lpcp_import -lpcp LogImport.o",
-    $inc = "-I$ENV{PCP_TOPDIR}/src/include -I/usr/include/pcp";
-    $libs = ['-lpcp_import', '-lpcp'];
+    $ldfrom = "LogImport.o",
+    $inc = "-I$ENV{PCP_TOPDIR}/src/include/pcp -I/usr/include/pcp";
+    $libs = ["-L$ENV{PCP_TOPDIR}/src/libpcp/src -L$ENV{PCP_TOPDIR}/src/libpcp_import/src -lpcp_import -lpcp"];
 }
 if ($ENV{TARGET_OS} eq "darwin") {
     # standard ones, minus -arch ppc

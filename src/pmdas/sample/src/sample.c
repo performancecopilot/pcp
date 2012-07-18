@@ -620,6 +620,7 @@ static int	numdyn = sizeof(dynamic_ones)/sizeof(dynamic_ones[0]);
 static int
 redo_dynamic(void)
 {
+    int			err;
     int			i;
     int			sep = __pmPathSeparator();
     static struct stat	lastsbuf;
@@ -664,19 +665,26 @@ redo_dynamic(void)
 		    if (fscanf(fspec, "%d %s", &newinst, newname) != 2)
 			break;
 		    numinst++;
-		    if ((idp->it_set = (instid_t *)realloc(idp->it_set, numinst * sizeof(instid_t))) == NULL)
-			return -oserror();
+		    if ((idp->it_set = (instid_t *)realloc(idp->it_set, numinst * sizeof(instid_t))) == NULL) {
+			err = -oserror();
+			fclose(fspec);
+			return err;
+		    }
 		    idp->it_set[numinst-1].i_inst = newinst;
 		    if ((idp->it_set[numinst-1].i_name = strdup(newname)) == NULL) {
+			err = -oserror();
 			free(idp->it_set);
 			idp->it_set = NULL;
-			return -oserror();
+			fclose(fspec);
+			return err;
 		    }
 		    if (newinst > _dyn_max) {
 			if ((_dyn_ctr = (int *)realloc(_dyn_ctr, (newinst+1)*sizeof(_dyn_ctr[0]))) == NULL) {
+			    err = -oserror();
 			    free(idp->it_set);
 			    idp->it_set = NULL;
-			    return -oserror();
+			    fclose(fspec);
+			    return err;
 			}
 			for (i = _dyn_max+1; i <= newinst; i++)
 			    _dyn_ctr[i] = 0;
@@ -1680,9 +1688,7 @@ doit:
 	    numval = 0;
 
 	/* Must use individual malloc()s because of pmFreeResult() */
-	if (numval == 1)
-	    res->vset[i] = vset = (pmValueSet *)__pmPoolAlloc(sizeof(pmValueSet));
-	else if (numval > 1)
+	if (numval >= 1)
 	    res->vset[i] = vset = (pmValueSet *)malloc(sizeof(pmValueSet) + 
 					    (numval - 1)*sizeof(pmValue));
 	else
@@ -2618,6 +2624,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 90:	/* dynamic.meta.pmdesc.units */
 		lp = (__int32_t *)&magic.units;
 		*lp = av.l;
+		break;
 	    case 97:	/* ulong.write_me */
 		_ulong = av.ul;
 		break;

@@ -1,0 +1,13 @@
+/*
+ * @configure_input@
+ */
+#ifndef _PCP_PLATFORM_DEFS_H
+#define _PCP_PLATFORM_DEFS_H
+
+#include "platform_header.h"
+
+/* printf candy ... */
+#define FMT_PID @fmt_pid@
+#define FMT_PTHREAD @fmt_pthread@
+
+#endif /* _PCP_PLATFORM_DEFS_H */

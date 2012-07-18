@@ -53,7 +53,7 @@ typedef struct {
 static int
 getvals(pmResult **result)
 {
-    pmResult	*rp;
+    pmResult	*rp = NULL;
     int		sts;
     int		i;
     int		m;
@@ -85,6 +85,7 @@ getvals(pmResult **result)
 		}
 	    }
 	    pmFreeResult(rp);
+	    rp = NULL;
 	}
     }
     else
@@ -93,6 +94,9 @@ getvals(pmResult **result)
 done:
     if (sts >= 0)
 	*result = rp;
+    else if (rp)
+    	pmFreeResult(rp);
+
     return sts;
 }
 
@@ -191,7 +195,7 @@ mydump(const char *name, pmDesc *dp, pmValueSet *vsp)
 	    if ((p = lookup(dp->indom, vp->inst)) == NULL)
 		printf("[%d]", vp->inst);
 	    else
-		printf("[%s]", p);
+		printf("[\"%s\"]", p);
 	}
 	putchar(' ');
 	if (dp->type == PM_TYPE_AGGREGATE ||

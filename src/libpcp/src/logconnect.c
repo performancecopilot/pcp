@@ -10,6 +10,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes
+ *
+ * Do not need ctxp->c_pmcd->pc_lock lock around __pmSendCreds() call,
+ * as the connection to pmlogger has not been created, so no-one else
+ * could be using the fd.
  */
 
 #include "pmapi.h"
@@ -34,6 +40,8 @@ __pmLoggerTimeout(void)
     static int		timeout = TIMEOUT_NEVER;
     static int		done_default = 0;
 
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     if (!done_default) {
 	char	*timeout_str;
 	char	*end_ptr;
@@ -51,6 +59,7 @@ __pmLoggerTimeout(void)
 	}
 	done_default = 1;
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     return timeout;
 }
@@ -69,6 +78,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     int			fd;	/* Fd for socket connection to pmcd */
     __pmPDU		*pb;
     __pmPDUHdr		*php;
+    int			pinpdu;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
@@ -100,8 +110,10 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     if (*port == PM_LOG_NO_PORT) {
 	if ((n = __pmLogFindPort(hostname, *pid, &lpp)) < 0) {
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "__pmConnectLogger: __pmLogFindPort: %s\n", pmErrStr(n));
+	    if (pmDebug & DBG_TRACE_CONTEXT) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "__pmConnectLogger: __pmLogFindPort: %s\n", pmErrStr_r(n, errmsg, sizeof(errmsg)));
+	    }
 #endif
 	    return n;
 	}
@@ -119,22 +131,28 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 #endif
     }
 
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     if ((servInfo = gethostbyname(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
 		    hoststrerror());
 #endif
+	PM_UNLOCK(__pmLock_libpcp);
 	return -ECONNREFUSED;
     }
 
     /* Create socket and attempt to connect to the pmlogger control port */
-    if ((fd = __pmCreateSocket()) < 0)
+    if ((fd = __pmCreateSocket()) < 0) {
+	PM_UNLOCK(__pmLock_libpcp);
 	return fd;
+    }
 
     memset(&myAddr, 0, sizeof(myAddr));	/* Arrgh! &myAddr, not myAddr */
     myAddr.sin_family = AF_INET;
     memcpy(&myAddr.sin_addr, servInfo->h_addr, servInfo->h_length);
+    PM_UNLOCK(__pmLock_libpcp);
     myAddr.sin_port = htons(*port);
 
     sts = connect(fd, (struct sockaddr*) &myAddr, sizeof(myAddr));
@@ -142,27 +160,19 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	sts = -neterror();
 	__pmCloseSocket(fd);
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT)
-	    fprintf(stderr, "__pmConnectLogger: connect: %s\n", pmErrStr(sts));
+	if (pmDebug & DBG_TRACE_CONTEXT) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmConnectLogger: connect: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
 #endif
 	return sts;
     }
 
     /* Expect an error PDU back: ACK/NACK for connection */
-    sts = __pmGetPDU(fd, ANY_SIZE, __pmLoggerTimeout(), &pb);
+    pinpdu = sts = __pmGetPDU(fd, ANY_SIZE, __pmLoggerTimeout(), &pb);
     if (sts == PDU_ERROR) {
 	__pmOverrideLastFd(PDU_OVERRIDE2);	/* don't dink with the value */
 	__pmDecodeError(pb, &sts);
-	if (sts == 0)
-	    sts = LOG_PDU_VERSION1;
-	else if (sts == PM_ERR_V1(PM_ERR_CONNLIMIT) ||
-	         sts == PM_ERR_V1(PM_ERR_PERMISSION)) {
-	    /*
-	     * we do expect PM_ERR_CONNLIMIT and PM_ERR_PERMISSION as
-	     * real responses, even from a PCP 1.x pmcd
-	     */
-	    sts = XLATE_ERR_1TO2(sts);
-	}
 	php = (__pmPDUHdr *)pb;
 	if (*pid != PM_LOG_NO_PID && *pid != PM_LOG_PRIMARY_PID && php->from != *pid) {
 #ifdef PCP_DEBUG
@@ -179,8 +189,10 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	if (pmDebug & DBG_TRACE_CONTEXT) {
 	    if (sts == PM_ERR_TIMEOUT)
 		fprintf(stderr, "__pmConnectLogger: timeout (after %d secs)\n", __pmLoggerTimeout());
-	    else
-		fprintf(stderr, "__pmConnectLogger: Error: %s\n", pmErrStr(sts));
+	    else {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "__pmConnectLogger: Error: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    }
 	}
 #endif
 	;	/* fall through */
@@ -194,14 +206,11 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	sts = PM_ERR_IPC;
     }
 
+    if (pinpdu > 0)
+	__pmUnpinPDUBuf(pb);
+
     if (sts >= 0) {
-	if (sts == LOG_PDU_VERSION1) {
-	    /* no support for LOG_PDU_VERSION1 any more */
-	    pmprintf("__pmConnectLogger: logger PDU version 1 not supported\n");
-	    pmflush();
-	    sts = PM_ERR_GENERIC;
-	}
-	else if (sts >= LOG_PDU_VERSION2) {
+	if (sts == LOG_PDU_VERSION2) {
 	    __pmCred	handshake[1];
 
 	    __pmSetVersionIPC(fd, sts);
@@ -211,6 +220,8 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	    handshake[0].c_valc = 0;
 	    sts = __pmSendCreds(fd, (int)getpid(), 1, handshake);
 	}
+	else
+	    sts = PM_ERR_IPC;
 	if (sts >= 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)

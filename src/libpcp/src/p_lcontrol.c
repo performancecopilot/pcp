@@ -43,6 +43,7 @@ __pmSendLogControl(int fd, const pmResult *request, int control, int state, int 
     control_req_t	*pp;
     int			need;
     vlist_t		*vp;
+    int			sts;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU)
@@ -94,7 +95,9 @@ __pmSendLogControl(int fd, const pmResult *request, int control, int state, int 
 	    vp = (vlist_t *)((__psint_t)vp + sizeof(*vp) - sizeof(__pmValue_PDU));
     }
     
-    return __pmXmitPDU(fd, (__pmPDU *)pp);
+    sts = __pmXmitPDU(fd, (__pmPDU *)pp);
+    __pmUnpinPDUBuf(pp);
+    return sts;
 }
 
 int
@@ -120,7 +123,6 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
     need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
     if ((req = (pmResult *)malloc(need)) == NULL) {
 	__pmNoMem("__pmDecodeLogControl.req", need, PM_RECOV_ERR);
-	pmFreeResult(req);
 	return -oserror();
     }
     req->numpmid = numpmid;

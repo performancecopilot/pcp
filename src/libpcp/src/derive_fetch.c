@@ -19,6 +19,7 @@
  */
 
 #include <inttypes.h>
+#include <assert.h>
 #include "derive.h"
 
 static void
@@ -124,9 +125,10 @@ __dmprefetch(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmID **newlist)
 
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+	char	strbuf[20];
 	fprintf(stderr, "derived metrics prefetch added %d metrics:", xtracnt);
 	for (i = 0; i < xtracnt; i++)
-	    fprintf(stderr, " %s", pmIDStr(xtralist[i]));
+	    fprintf(stderr, " %s", pmIDStr_r(xtralist[i], strbuf, sizeof(strbuf)));
 	fputc('\n', stderr);
     }
 #endif
@@ -208,9 +210,9 @@ free_ivlist(node_t *np)
 static pmAtomValue
 bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomValue b, int rtype, int rmul, int rdiv)
 {
-    static pmAtomValue	res;
-    pmAtomValue		l;
-    pmAtomValue		r;
+    pmAtomValue	res;
+    pmAtomValue	l;
+    pmAtomValue	r;
 
     l = a;	/* struct assignments */
     r = b;
@@ -480,6 +482,9 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	sts = eval_expr(np->right, rp, level+1);
 	if (sts < 0) return sts;
     }
+
+    /* mostly, np->left is not NULL ... */
+    assert (np->type == L_NUMBER || np->type == L_NAME || np->left != NULL);
 
     switch (np->type) {
 
@@ -845,7 +850,8 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    }
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
-		fprintf(stderr, "eval_expr: botch: operand %s not in the extended pmResult\n", pmIDStr(np->info->pmid));
+		char	strbuf[20];
+		fprintf(stderr, "eval_expr: botch: operand %s not in the extended pmResult\n", pmIDStr_r(np->info->pmid, strbuf, sizeof(strbuf)));
 		__pmDumpResult(stderr, rp);
 	    }
 #endif
@@ -993,12 +999,9 @@ eval_expr(node_t *np, pmResult *rp, int level)
  * - if valfmt is not PM_VAL_INSITU use PM_VAL_DPTR (not PM_VAL_SPTR),
  *   so anything we point to is going to be released when our caller
  *   calls pmFreeResult()
- * - if numval == 1,  use __pmPoolAlloc() for the pmValueSet;
- *   otherwise use one malloc() for each pmValueSet with vlist[] sized
- *   to be 0 if numval < 0 else numval
- * - pmValueBlocks for 64-bit integers, doubles or anything with a
- *   length equal to the size of a 64-bit integer are from
- *   __pmPoolAlloc(); otherwise pmValueBlocks are from malloc()
+ * - use one malloc() for each pmValueSet with vlist[] sized to be 0
+ *   if numval < 0 else numval
+ * - pmValueBlocks are from malloc()
  *
  * For reference, the same logic appears in __pmLogFetchInterp() to
  * sythesize a pmResult there.
@@ -1056,8 +1059,9 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
 	int	k;
+	char	strbuf[20];
 
-	fprintf(stderr, "__dmpostfetch: [%d] root node %s: numval=%d", j, pmIDStr(rp->vset[j]->pmid), numval);
+	fprintf(stderr, "__dmpostfetch: [%d] root node %s: numval=%d", j, pmIDStr_r(rp->vset[j]->pmid, strbuf, sizeof(strbuf)), numval);
 	for (k = 0; k < numval; k++) {
 	    fprintf(stderr, " vset[%d]: inst=%d", k, cp->mlist[m].expr->info->ivlist[k].inst);
 	    if (cp->mlist[m].expr->desc.type == PM_TYPE_32)
@@ -1090,14 +1094,9 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 	    }
 	}
 
-	if (numval < 0) {
+	if (numval <= 0) {
 	    /* only need pmid and numval */
 	    need = sizeof(pmValueSet) - sizeof(pmValue);
-	}
-	else if (numval == 1) {
-	    /* special case for single value */
-	    newrp->vset[j] = (pmValueSet *)__pmPoolAlloc(sizeof(pmValueSet));
-	    need = 0;
 	}
 	else {
 	    /* already one pmValue in a pmValueSet */
@@ -1125,10 +1124,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		}
 		else {
 		    need = rp->vset[j]->vlist[i].value.pval->vlen;
-		    if (need == PM_VAL_HDR_SIZE + sizeof(__int64_t))
-			vp = (pmValueBlock *)__pmPoolAlloc(need);
-		    else
-			vp = (pmValueBlock *)malloc(need);
+		    vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {
 			__pmNoMem("__dmpostfetch: copy value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
@@ -1152,7 +1148,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		case PM_TYPE_64:
 		case PM_TYPE_U64:
 		    need = PM_VAL_HDR_SIZE + sizeof(__int64_t);
-		    if ((vp = (pmValueBlock *)__pmPoolAlloc(need)) == NULL) {
+		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
 			__pmNoMem("__dmpostfetch: 64-bit int value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
@@ -1176,7 +1172,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 
 		case PM_TYPE_DOUBLE:
 		    need = PM_VAL_HDR_SIZE + sizeof(double);
-		    if ((vp = (pmValueBlock *)__pmPoolAlloc(need)) == NULL) {
+		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
 			__pmNoMem("__dmpostfetch: double value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
@@ -1188,10 +1184,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 
 		case PM_TYPE_STRING:
 		    need = PM_VAL_HDR_SIZE + cp->mlist[m].expr->info->ivlist[i].vlen;
-		    if (need == PM_VAL_HDR_SIZE + sizeof(__int64_t))
-			vp = (pmValueBlock *)__pmPoolAlloc(need);
-		    else
-			vp = (pmValueBlock *)malloc(need);
+		    vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {
 			__pmNoMem("__dmpostfetch: string value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
@@ -1206,10 +1199,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		case PM_TYPE_AGGREGATE_STATIC:
 		case PM_TYPE_EVENT:
 		    need = cp->mlist[m].expr->info->ivlist[i].vlen;
-		    if (need == PM_VAL_HDR_SIZE + sizeof(__int64_t))
-			vp = (pmValueBlock *)__pmPoolAlloc(need);
-		    else
-			vp = (pmValueBlock *)malloc(need);
+		    vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {
 			__pmNoMem("__dmpostfetch: aggregate or event value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
@@ -1225,7 +1215,8 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		     */
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_DERIVE) {
-			fprintf(stderr, "__dmpostfetch: botch: drived metric[%d]: operand %s has odd type (%d)\n", m, pmIDStr(rp->vset[j]->pmid), cp->mlist[m].expr->desc.type);
+			char	strbuf[20];
+			fprintf(stderr, "__dmpostfetch: botch: drived metric[%d]: operand %s has odd type (%d)\n", m, pmIDStr_r(rp->vset[j]->pmid, strbuf, sizeof(strbuf)), cp->mlist[m].expr->desc.type);
 		    }
 #endif
 		    break;

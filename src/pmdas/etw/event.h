@@ -71,15 +71,24 @@ enum {
 typedef struct {
     int			queueid;
     int			eventid;
-    char		pmnsname[64];
+    int			version;
     ULONG		flags;
+    HANDLE		mutex;
+    char		pmnsname[64];
     const GUID		*provider;
     LPTSTR		pname;
     ULONG		plen;
 } etw_event_t;
 
+extern etw_event_t eventtab[];
 extern int event_init(void);
 extern void event_shutdown(void);
-extern int event_decoder(int arrayid, void *buffer, size_t size, void *data);
+extern int event_decoder(int arrayid, void *buffer, size_t size,
+			 struct timeval *timestamp, void *data);
+
+extern etw_event_t *event_table_lookup(LPGUID guid, int eventid, int version);
+
+void event_queue_lock(etw_event_t *entry);
+void event_queue_unlock(etw_event_t *entry);
 
 #endif /* _EVENT_H */

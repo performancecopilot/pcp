@@ -20,20 +20,20 @@
 #
 # The following is for chkconfig on RedHat based systems
 # chkconfig: 2345 95 05
-# description: Control pmproxy for PCP
+# description: pmproxy is the pmcd proxy daemon for the Performance Co-Pilot (PCP)
 #
 # The following is for insserv(1) based systems,
 # e.g. SuSE, where chkconfig is a perl script.
 ### BEGIN INIT INFO
 # Provides:       pmproxy
 # Required-Start: $remote_fs
-# Should-Start: $local_fs $network $syslog $time
+# Should-Start: $local_fs $network $syslog $time $pmcd
 # Required-Stop: $remote_fs
-# Should-Stop:  $local_fs $network $syslog
+# Should-Stop:  $local_fs $network $syslog $pmcd
 # Default-Start:  2 3 4 5
 # Default-Stop:   0 1 6
-# Short-Description:   Control the pmproxy daemon
-# Description:    Control the Performance Co-Pilot protocol proxy daemon
+# Short-Description: Control pmproxy (the pmcd proxy daemon for PCP)
+# Description:       Configure and control pmproxy (the pmcd proxy daemon for the Performance Co-Pilot)
 ### END INIT INFO
 
 . $PCP_DIR/etc/pcp.env
@@ -169,9 +169,14 @@ fi
 
 if [ "$IAM" != 0 -a "$1" != "status" ]
 then
-    echo "$prog:"'
+    if [ -n "$PCP_DIR" ]
+    then
+	: running in a non-default installation, do not need to be root
+    else
+	echo "$prog:"'
 Error: You must be root (uid 0) to start or stop the PCP PMPROXY daemon.'
-    exit
+	exit
+    fi
 fi
 
 # First reset status of this service

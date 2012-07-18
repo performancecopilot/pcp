@@ -1,0 +1,404 @@
+#!/bin/sh
+#
+# Check symbols for static variables against list of exceptions
+# that are known to be thread-safe
+#
+
+sts=0
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+rm -f $tmp.*
+
+# Note
+#    Really want to make this run on as many platforms as possible ...
+eval `grep PCP_PLATFORM= ../../include/pcp.conf`
+case "$PCP_PLATFORM"
+in
+    linux)
+	    # only works for some architectures ... and in particular not
+	    # Power PC!
+	    #
+	    arch=`uname -m 2>/dev/null`
+	    [ "$arch" = "i686" -o "$arch" = "x86_64" ] || exit 0
+	    ;;
+    darwin)
+	    ;;
+    *)
+	    echo "Warning: check-statics skipped for PCP_PLATFORM=$PCP_PLATFORM"
+	    exit 0
+	    ;;
+esac
+
+obj=''
+cat <<End-of-File \
+| sed -e 's/[ 	]*#.*//' \
+      -e '/^$/d' >$tmp.ctl
+# Format for the control file ...
+# All text after a # is treated as a comment
+#
+# Lines containing one word are assumed to be the name of an
+# object file ... if any object file is found in the current
+# directory that is not named in the control file, this is an
+# error.  Object file names beginning with '?' are optional,
+# otherwise the object file is expected to exist.
+#
+# Following the name of an object file follows zero or more
+# lines defining static data symbols from that object file that is
+# known to be thread-safe ... these lines contain the symbol's type
+# as reported by nm(1) (this may be a regular expression for a set of
+# types as in [...] for cases where different compilers map the symbol
+# to different types), the symbol and by convention an comment
+# explaining why the symbol is thread-safe.  The symbol may be
+# preceded by a '?' character to indicate the symbol may or may not
+# be in the object file, otherwise a symbol named here that is not
+# in the object file produces a warning.
+access.o
+    b all_ops			# single-threaded PM_SCOPE_ACL
+    b gotmyhostid		# single-threaded PM_SCOPE_ACL
+    b hostlist			# single-threaded PM_SCOPE_ACL
+    b myhostid			# single-threaded PM_SCOPE_ACL
+    b myhostname		# single-threaded PM_SCOPE_ACL
+    b nhosts			# single-threaded PM_SCOPE_ACL
+    b oldhostlist		# single-threaded PM_SCOPE_ACL
+    b oldnhosts			# single-threaded PM_SCOPE_ACL
+    b oldszhostlist		# single-threaded PM_SCOPE_ACL
+    b saved			# single-threaded PM_SCOPE_ACL
+    b szhostlist		# single-threaded PM_SCOPE_ACL
+AF.o
+    d afid			# single-threaded PM_SCOPE_AF
+    b block			# single-threaded PM_SCOPE_AF
+    b root			# single-threaded PM_SCOPE_AF
+    b ?afblock			# guarded by __pmLock_libpcp mutex
+    b ?afsetup			# guarded by __pmLock_libpcp mutex
+    b ?aftimer			# guarded by __pmLock_libpcp mutex
+auxconnect.o
+    d canwait			# guarded by __pmLock_libpcp mutex
+    d first_time.[0-9]*		# guarded by __pmLock_libpcp mutex
+    b pmcd_port.[0-9]*		# guarded by __pmLock_libpcp mutex
+checksum.o
+config.o
+    [SDR] ?__pmNativeConfig	# const
+    b state.[0-9]*		# guarded by __pmLock_libpcp mutex
+connectlocal.o
+    b atexit_installed.[0-9]*	# guarded by __pmLock_libpcp mutex
+    b buffer.[0-9]*		# assert safe, see notes in connectlocal.c
+    b dsotab			# assert safe, see notes in connectlocal.c
+    d numdso			# assert safe, see notes in connectlocal.c
+connect.o
+    b global_nports		# guarded by __pmLock_libpcp mutex
+    b global_portlist		# guarded by __pmLock_libpcp mutex
+    d default_portlist		# guarded by __pmLock_libpcp mutex
+    d first_time.[0-9]*		# guarded by __pmLock_libpcp mutex
+    b proxy.[0-9]*		# guarded by __pmLock_libpcp mutex
+    d proxy_port.[0-9]*		# guarded by __pmLock_libpcp mutex
+context.o
+    d _mode			# const
+    d def_backoff		# guarded by __pmLock_libpcp mutex
+    b backoff			# guarded by __pmLock_libpcp mutex
+    b n_backoff			# guarded by __pmLock_libpcp mutex
+    b contexts			# guarded by __pmLock_libpcp mutex
+    b contexts_len		# guarded by __pmLock_libpcp mutex
+    d ?curcontext		# thread private
+    r ?__emutls_t.curcontext	# thread private (MinGW)
+    d ?__emutls_v.curcontext	# thread private (MinGW)
+derive_fetch.o
+derive.o
+    [ds] ?func			# const
+    [bd] ?init.[0-9]*		# local initialize_mutex mutex
+    b ?done.[0-9]*		# guarded by local initialize_mutex mutex
+    d type_dbg			# const
+    s ?type_c			# const
+    d state_dbg			# const
+    s ?promote			# const
+    s ?timefactor		# const
+    d need_init			# guarded by registered.mutex
+    b tokbuf			# guarded by registered.mutex
+    b tokbuflen			# guarded by registered.mutex
+    b string			# guarded by registered.mutex
+    b lexpeek			# guarded by registered.mutex
+    b this			# guarded by registered.mutex
+    d registered		# guarded by registered.mutex
+    b pmid.[0-9]*		# guarded by registered.mutex
+    b ?derive_errmsg		# thread private
+    d ?__emutls_v.derive_errmsg	# thread private (MinGW)
+    r ?func			# const (MinGW)
+    r ?promote			# const (MinGW)
+    r ?timefactor		# const (MinGW)
+    r ?type_c			# const (MinGW)
+desc.o
+endian.o
+err.o
+    [dsr] ?errtab		# const
+    d ?first.[0-9]*		# guarded by __pmLock_libpcp mutex
+    [bd] unknown.[0-9]*		# guarded by __pmLock_libpcp mutex or const (MinGW)
+    b errmsg.[0-9]*		# pmErrStr deprecated by pmErrStr_r
+events.o
+    d first.[0-9]*		# guarded by __pmLock_libpcp mutex
+    d name_flags.[0-9]*		# guarded by __pmLock_libpcp mutex
+    d name_missed.[0-9]*	# guarded by __pmLock_libpcp mutex
+    b pmid_flags.[0-9]*		# no unsafe side-effects
+    b pmid_missed.[0-9]*	# no unsafe side-effects
+fault.o
+fetchlocal.o
+    b splitlist.[0-9]*		# single-threaded PM_SCOPE_DSO_PMDA
+    b splitmax.[0-9]*		# single-threaded PM_SCOPE_DSO_PMDA
+fetch.o
+freeresult.o
+hash.o
+help.o
+instance.o
+interp.o
+    d dowrap.[0-9]*		# guarded by __pmLock_libpcp mutex
+    d round_robin.[0-9]*	# guarded by __pmLock_libpcp mutex
+    b nr			# diag counters, no atomic updates
+    b nr_cache			# diag counters, no atomic updates
+    b cache			# guarded by __pmLock_libpcp mutex
+ipc.o
+    b __pmIPCTablePtr		# guarded by __pmLock_libpcp mutex
+    d __pmLastUsedFd		# guarded by __pmLock_libpcp mutex
+    b ipctablesize		# guarded by __pmLock_libpcp mutex
+lock.o
+    [DC] __pmLock_libpcp	# the global libpcp mutex
+    [bd] ?init.[0-9]*		# local __pmInitLocks mutex
+    b ?done.[0-9]*		# guarded by local __pmInitLocks mutex
+    [CD] ?__pmTPDKey		# one-trip initialization then read-only
+    b multi_init		# guarded by __pmLock_libpcp mutex
+    b multi_seen		# guarded by __pmLock_libpcp mutex
+    b ?hashctl.[0-9]*		# for lock debug tracing
+logconnect.o
+    b done_default.[0-9]*	# guarded by __pmLock_libpcp mutex
+    b timeout.[0-9]*		# guarded by __pmLock_libpcp mutex
+logcontrol.o
+logmeta.o
+logportmap.o
+    b nlogports			# single-threaded PM_SCOPE_LOGPORT
+    b szlogport			# single-threaded PM_SCOPE_LOGPORT
+    b logport			# single-threaded PM_SCOPE_LOGPORT
+    b match			# single-threaded PM_SCOPE_LOGPORT
+logutil.o
+    b tbuf.[0-9]*		# __pmLogName deprecated by __pmLogName_r
+    [dsr] compress_ctl		# const
+    [sr] ?ncompress		# const
+    [BD] __pmLogReads		# diag counter, no atomic updates
+    b pc_hc			# guarded by __pmLock_libpcp mutex
+optfetch.o
+    d optcost			# guarded by __pmLock_libpcp mutex
+p_creds.o
+p_desc.o
+pdubuf.o
+    b buf_free			# guarded by __pmLock_libpcp mutex
+    b buf_pin			# guarded by __pmLock_libpcp mutex
+    b buf_pin_tail		# guarded by __pmLock_libpcp mutex
+pdu.o
+    b done_default.[0-9]*	# guarded by __pmLock_libpcp mutex
+    d def_timeout		# guarded by __pmLock_libpcp mutex
+    d def_wait			# guarded by __pmLock_libpcp mutex
+    [BD] pmDebug		# set-once in main(), read-only elsewhere
+    d ceiling			# no unsafe side-effects
+    b ?sigpipe_done		# no unsafe side-effects
+    d mypid			# no unsafe side-effects
+    b tbuf.[0-9]*		# __pmPDUTypeStr deprecated by __pmPDUTypeStr_r
+    D __pmPDUCntIn		# pointer to diag counters, no atomic updates
+    D __pmPDUCntOut		# pointer to diag counters, no atomic updates
+    b inctrs			# diag counters, no atomic updates
+    b outctrs			# diag counters, no atomic updates
+    d maxsize.[0-9]*		# guarded by __pmLock_libpcp mutex
+p_error.o
+p_profile.o
+p_result.o
+profile.o
+p_text.o
+p_fetch.o
+p_instance.o
+p_lcontrol.o
+p_lrequest.o
+p_lstatus.o
+pmns.o
+    b lineno			# guarded by __pmLock_libpcp mutex
+    b export			# guarded by __pmLock_libpcp mutex
+    b fin.[0-9]*		# guarded by __pmLock_libpcp mutex
+    d first.[0-9]*		# guarded by __pmLock_libpcp mutex
+    b fname			# guarded by __pmLock_libpcp mutex
+    b havePmLoadCall		# guarded by __pmLock_libpcp mutex
+    b last_mtim			# guarded by __pmLock_libpcp mutex
+    d last_pmns_location.[0-9]*	# guarded by __pmLock_libpcp mutex
+    b linebuf			# guarded by __pmLock_libpcp mutex
+    b linep			# guarded by __pmLock_libpcp mutex
+    b lp.[0-9]*			# guarded by __pmLock_libpcp mutex
+    b seen			# guarded by __pmLock_libpcp mutex
+    b seenpmid			# guarded by __pmLock_libpcp mutex
+    b tokbuf			# guarded by __pmLock_libpcp mutex
+    b tokpmid			# guarded by __pmLock_libpcp mutex
+    b useExtPMNS		# guarded by __pmLock_libpcp mutex
+    b repname.[0-9]*		# guarded by __pmLock_libpcp mutex
+    b main_pmns			# guarded by __pmLock_libpcp mutex
+    b curr_pmns			# guarded by __pmLock_libpcp mutex
+    b locerr.[0-9]*		# no unsafe side-effects, see notes in pmns.c
+p_pmns.o
+p_profile.o
+p_result.o
+profile.o
+p_text.o
+rtime.o
+    s ?wdays			# const
+    s ?months			# const
+    s ?ampm			# const
+    [dsr] int_tab		# const struct {...} int_tab[] = {...}
+    [sr] ?numint		# const
+    r ?ampm			# const (MinGW)
+    r ?months			# const (MinGW)
+    r ?wdays			# const (MinGW)
+sortinst.o
+spec.o
+store.o
+stuffvalue.o
+tv.o
+tz.o
+    d curzone			# guarded by __pmLock_libpcp mutex
+    b envtz			# guarded by __pmLock_libpcp mutex
+    b envtzlen			# guarded by __pmLock_libpcp mutex
+    b zone			# guarded by __pmLock_libpcp mutex
+    b nzone			# guarded by __pmLock_libpcp mutex
+    b savetz			# guarded by __pmLock_libpcp mutex
+    b savetzp			# guarded by __pmLock_libpcp mutex
+    b tzbuffer.[0-9]*		# guarded by __pmLock_libpcp mutex
+    r ?wildabbr.[0-9]*		# const (MinGW)
+units.o
+    d typename			# const
+    b abuf.[0-9]*		# pmAtomStr deprecated by pmAtomStr_r
+    b tbuf.[0-9]*		# pmTypeStr deprecated by pmTypeStr_r
+    b ubuf.[0-9]*		# pmUnitsStr deprecated by pmUnitsStr_r
+util.o
+    b idbuf.[0-9]*		# pmIDStr deprecated by pmIDStr_r
+    b indombuf.[0-9]*		# pmInDomStr deprecated by pmInDomStr_r
+    b ebuf.[0-9]*		# pmEventFlagsStr deprecated by pmEventFlagsStr_r
+    b nbuf.[0-9]*		# pmNumberStr deprecated by pmNumberStr_r
+    d ?unknownVal.[0-9]*	# const, variable may be optimized away by gcc
+    [sd] debug_map		# const
+    [rsd] ?num_debug		# const
+    b pmState			# no unsafe side-effects, see notes in util.c
+    D pmProgname		# no unsafe side-effects, see notes in util.c
+    b filelog			# guarded by __pmLock_libpcp mutex
+    b nfilelog			# guarded by __pmLock_libpcp mutex
+    b dosyslog			# guarded by __pmLock_libpcp mutex
+    b done_exit			# guarded by __pmLock_libpcp mutex
+    b ferr			# guarded by __pmLock_libpcp mutex
+    d errtype.[0-9]*		# guarded by __pmLock_libpcp mutex
+    b fptr			# guarded by __pmLock_libpcp mutex
+    b fname			# guarded by __pmLock_libpcp mutex
+    b msgsize			# guarded by __pmLock_libpcp mutex
+    b ?base.[0-9]*		# no unsafe side-effects, see notes in util.c
+    d first.[0-9]*		# __pmEventType deprecated by __pmEventType_r
+    b last.[0-9]*		# __pmEventType deprecated by __pmEventType_r
+    b sum.[0-9]*		# __pmEventType deprecated by __pmEventType_r
+?win32.o
+END				# this is magic, DO NOT DELETE THIS LINE
+End-of-File
+
+for file in *.o
+do
+    if grep "^?*$file\$" $tmp.ctl >/dev/null 2>&1
+    then
+	:
+    else
+	echo "$file: Error: object file not mentioned in control file"
+	touch $tmp.fail
+    fi
+done
+
+skip_file=false
+
+cat $tmp.ctl \
+| while read type name
+do
+    if [ -z "$name" ]
+    then
+	# one word on a line, this is the name of a new object code file
+	if [ -n "$obj" ]
+	then
+	    if [ -s $tmp.out ]
+	    then
+		# extras from the last object code file
+		sed <$tmp.out \
+		    -e 's/^[^ ]* //' \
+		    -e "s/^\(.\) \(.*\)/$obj: \1 \2 : Error: additional symbol/"
+		touch $tmp.fail
+	    fi
+	fi
+	if [ "$type" != END ]
+	then
+	    if [ -f $type ]
+	    then
+		# Need some nm special case logic ...
+		# for darwin
+		# + const data and text symbols both appear as "S", but
+		#   the latter have .eh appended to the name
+		# + static arrays and some debug (?) symbols appear as
+		#   "s", but the latter have _.NNN appended, or start
+		#   with LC, or have .eh appended, or start with EH_
+		# + older versions insert get_pc_thunk symbols in all
+		#   object files
+		# for MinGW
+		# + strip .bss and .data lines
+		# + strip .rdata and .eh_frame lines
+		# + external symbols tend to have "C" lines
+		#
+		skip_file=false
+		nm $type \
+		| sed -n >$tmp.out \
+		    -e '/ S ___i686.get_pc_thunk.[bc]x/d' \
+		    -e '/ [sS] .*\.eh$/d' \
+		    -e '/ s .*_\.[0-9][0-9]*$/d' \
+		    -e '/ s LC[0-9][0-9]*$/d' \
+		    -e '/ s EH_/d' \
+		    -e '/ b \.bss/d' \
+		    -e '/ d \.data/d' \
+		    -e '/ r \.rdata/d' \
+		    -e '/ r \.eh_frame/d' \
+		    -e '/ r __PRETTY_FUNCTION__.[0-9][0-9]*$/d' \
+		    -e '/ r \.LC[0-9][0-9]*$/d' \
+		    -e '/ C ___pmLogReads/d' \
+		    -e '/ C ___pmNativeConfig/d' \
+		    -e '/ C ___pmPDUCntIn/d' \
+		    -e '/ C ___pmPDUCntOut/d' \
+		    -e '/ C _pmDebug/d' \
+		    -e '/ C _pmProgname/d' \
+		    -e '/ [dDbBCsSrR] /p'
+		obj=$type
+	    else
+		case "$type"
+		in
+		    \?*)
+			skip_file=true
+			;;
+		    *)
+			echo "$type: Error: object file in control file but not found"
+			touch $tmp.fail
+		esac
+	    fi
+	fi
+	continue
+    fi
+    $skip_file && continue
+    opt=`echo $name | sed -n -e 's/?.*/?/p'`
+    name=`echo $name | sed -e 's/?//'`
+    #debug# echo "obj=$obj type=$type name=$name opt=$opt"
+    # Note some nm output prefixes the name with _, hence the two
+    #      sed lines below
+    #
+    sed <$tmp.out >$tmp.tmp \
+	-e "/ $type $name\$/d" \
+	-e "/ $type _$name\$/d"
+    if cmp -s $tmp.out $tmp.tmp
+    then
+	if [ "$opt" != "?" ]
+	then
+	    echo "$obj: $name: Warning: exceptioned symbol (type=$type) no longer present"
+	fi
+    else
+	mv $tmp.tmp $tmp.out
+    fi
+done
+
+[ -f $tmp.fail ] && sts=1
+

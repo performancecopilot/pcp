@@ -15,18 +15,30 @@
 .\"
 .TH PMERRSTR 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmErrStr\f1 \- convert a PMAPI error code into a string
+\f3pmErrStr\f1, \f3pmErrStr_r\f1 \- convert a PMAPI error code into a string
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 const char *pmErrStr(int \fIcode\fP);
+.br
+char *pmErrStr_r(int \fIcode\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
 Translate an error code into a text string, suitable for generating a
 diagnostic message.
+The
+.B pmErrStr_r
+function does the same, but stores the result in a user-supplied buffer
+.I buf
+of length
+.IR buflen ,
+which should have room for at least
+.B PM_MAXERRMSGLEN
+bytes.
+.PP
 By convention, all error codes are negative.
 The small
 values are assumed to be negated versions of the Unix error codes as defined
@@ -40,10 +52,15 @@ error conditions and
 .BR pmErrStr (3)
 returns an appropriate PMAPI error string, as determined by
 .IR code .
-.PP
-The string value is held in a single static buffer, so the returned value is
-only valid until the next call to
-.BR pmErrStr .
+.SH NOTES
+.B pmErrStr
+returns a pointer to a static buffer,
+so the returned value is only valid until the next call to
+.B pmErrStr
+and hence is not thread-safe.
+Multi-threaded applications should use
+.B pmErrStr_r
+instead.
 .SH SEE ALSO
 .BR pmerr (1),
 .BR PMAPI (3)

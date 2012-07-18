@@ -115,6 +115,9 @@ _runlevel_stop()
 #
 is_chkconfig_on()
 {
+    # if non-default install, everything is "on"
+    [ -n "$PCP_DIR" ] && return 0
+
     LANG=C
     _flag=$1
 
@@ -124,7 +127,7 @@ is_chkconfig_on()
     _cmds_exist $_flag
     $_have_runlevel && _rl=`runlevel | $PCP_AWK_PROG '{print $2}'`
 
-    if [ "$PCP_PLATFORM" = mingw ]
+    if [ "$PCP_PLATFORM" = mingw -o "$PCP_PLATFORM" = "freebsd" ]
     then
 	# no chkconfig, just do it
 	#
@@ -133,8 +136,14 @@ is_chkconfig_on()
     then
 	case "$1"
 	in
-	    pcp|pmlogger)
-		if [ "`. /etc/hostconfig; echo $PCP`" = "-YES-" ]
+	    pmcd)
+		if [ "`. /etc/hostconfig; echo $PMCD`" = "-YES-" ]
+		then
+		    _ret=0
+		fi
+		;;
+	    pmlogger)
+		if [ "`. /etc/hostconfig; echo $PMLOGGER`" = "-YES-" ]
 		then
 		    _ret=0
 		fi
@@ -205,13 +214,16 @@ is_chkconfig_on()
 #
 chkconfig_on()
 {
+    # if non-default install, everything is "on"
+    [ -n "$PCP_DIR" ] && return 0
+
     _flag=$1
     [ -z "$_flag" ] && return 1 # fail
 
     _cmds_exist $_flag
     $_have_flag || return 1 # fail
 
-    if [ "$PCP_PLATFORM" = mingw ]
+    if [ "$PCP_PLATFORM" = mingw -o "$PCP_PLATFORM" = "freebsd" ]
     then
 	# no chkconfig, just pretend
 	#
@@ -221,8 +233,11 @@ chkconfig_on()
 	echo "To enable $_flag, add the following line to /etc/hostconfig:"
 	case "$_flag"
 	in
-	    pcp|pmlogger)
-		echo "PCP=-YES-"
+	    pmcd)
+		echo "PMCD=-YES-"
+		;;
+	    pmlogger)
+		echo "PMLOGGER=-YES-"
 		;;
 	    pmie)
 		echo "PMIE=-YES-"
@@ -268,13 +283,16 @@ chkconfig_on()
 #
 chkconfig_off()
 {
+    # if non-default install, everything is "on"
+    [ -n "$PCP_DIR" ] && return 1
+
     _flag=$1
     [ -z "$_flag" ] && return 1 # fail
 
     _cmds_exist $_flag
     $_have_flag || return 1 # fail
 
-    if [ "$PCP_PLATFORM" = mingw ]
+    if [ "$PCP_PLATFORM" = mingw -o "$PCP_PLATFORM" = "freebsd" ]
     then
 	# no chkconfig, just pretend
 	#
@@ -315,7 +333,7 @@ chkconfig_on_msg()
     _cmds_exist $_flag
     $_have_flag || return 1 # fail
 
-    if [ "$PCP_PLATFORM" = mingw ]
+    if [ "$PCP_PLATFORM" = mingw -o "$PCP_PLATFORM" = "freebsd" ]
     then
 	# no chkconfig, just pretend
 	#
@@ -331,11 +349,11 @@ chkconfig_on_msg()
 	    _cmd=`which sysv-rc-conf`
 	    echo "    # $_cmd $_flag on"
 	else
+	    _start=`_runlevel_start $_flag`
+	    _stop=`_runlevel_stop $_flag`
 	    if [ -f /etc/debian_version ]; then
 	      echo "         update-rc.d -f $_flag defaults s$_start k$_stop"
 	    else
-	      _start=`_runlevel_start $_flag`
-	      _stop=`_runlevel_stop $_flag`
 	      for _r in `_runlevels $_flag`
 	      do
 		  echo "    # ln -sf ../init.d/$_flag /etc/rc.d/rc$_r.d/S$_start""$_flag"

@@ -43,9 +43,6 @@
 #include "logger.h"
 #include <assert.h>
 
-/* for __pmPool* alloc */
-#define MAGIC PM_VAL_HDR_SIZE + sizeof(__int64_t)
-
 /*
  * Keep track of pmValueSets that have been moved aside to allow for
  * new values from __pmStuffValue() during rewriting.
@@ -78,6 +75,7 @@ save_vset(pmResult *rp, int idx)
     if (rp->vset[idx] == NULL) {
 	fprintf(stderr, "save_vset: malloc(%d) failed: %s\n", need, strerror(errno));
 	abandon();
+	/*NOTREACHED*/
     }
     rp->vset[idx]->pmid = vsp->pmid;
     rp->vset[idx]->numval = vsp->numval;
@@ -99,24 +97,13 @@ save_vset(pmResult *rp, int idx)
 static void
 free_pval(pmResult *rp, int i, int j)
 {
-    if (rp->vset[i]->vlist[j].value.pval->vlen == MAGIC) {
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
-	    fprintf(stderr, "free_pval: __pmPoolFree(" PRINTF_P_PFX "%p) pmid=%s inst=%d\n",
-		rp->vset[i]->vlist[j].value.pval, pmIDStr(rp->vset[i]->pmid), rp->vset[i]->vlist[j].inst);
-	}
-#endif
-	__pmPoolFree(rp->vset[i]->vlist[j].value.pval, MAGIC);
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "free_pval: free(" PRINTF_P_PFX "%p) pmid=%s inst=%d\n",
+	    rp->vset[i]->vlist[j].value.pval, pmIDStr(rp->vset[i]->pmid), rp->vset[i]->vlist[j].inst);
     }
-    else {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
-	    fprintf(stderr, "free_pval: free(" PRINTF_P_PFX "%p) pmid=%s inst=%d\n",
-		rp->vset[i]->vlist[j].value.pval, pmIDStr(rp->vset[i]->pmid), rp->vset[i]->vlist[j].inst);
-	}
 #endif
-	free(rp->vset[i]->vlist[j].value.pval);
-    }
+    free(rp->vset[i]->vlist[j].value.pval);
 }
 
 /*
@@ -138,7 +125,6 @@ clean_vset(pmResult *rp)
 	    }
 	    /*
 	     * we did the vset[i] allocation in save_vset(), so malloc()
-	     * and no __pmPoolAlloc() cases
 	     */
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL2) {
@@ -390,6 +376,7 @@ rescale(int i, metricspec_t *mp)
 	    inarch.rp->vset[i]->numval = j;
 	    __pmDumpResult(stderr, inarch.rp);
 	    abandon();
+	    /*NOTREACHED*/
 	}
 	sts = pmConvScale(mp->old_desc.type, &ival, &mp->old_desc.units, &oval, &mp->new_desc.units);
 	if (sts < 0) {
@@ -404,6 +391,7 @@ rescale(int i, metricspec_t *mp)
 	    inarch.rp->vset[i]->numval = j;
 	    __pmDumpResult(stderr, inarch.rp);
 	    abandon();
+	    /*NOTREACHED*/
 	}
 	if (already_saved && old_valfmt == PM_VAL_DPTR) {
 	    /*
@@ -433,6 +421,7 @@ rescale(int i, metricspec_t *mp)
 	    inarch.rp->vset[i]->numval = j;
 	    __pmDumpResult(stderr, inarch.rp);
 	    abandon();
+	    /*NOTREACHED*/
 	}
     }
     inarch.rp->vset[i]->valfmt = sts;
@@ -468,6 +457,7 @@ retype(int i, metricspec_t *mp)
 	    inarch.rp->vset[i]->numval = j;
 	    __pmDumpResult(stderr, inarch.rp);
 	    abandon();
+	    /*NOTREACHED*/
 	}
 	if (already_saved && old_valfmt == PM_VAL_DPTR) {
 	    /*
@@ -497,6 +487,7 @@ retype(int i, metricspec_t *mp)
 	    inarch.rp->vset[i]->numval = j;
 	    __pmDumpResult(stderr, inarch.rp);
 	    abandon();
+	    /*NOTREACHED*/
 	}
     }
     inarch.rp->vset[i]->valfmt = sts;
@@ -520,6 +511,7 @@ do_result(void)
 	if (save == NULL) {
 	    fprintf(stderr, "save_vset: save realloc(...,%d) failed: %s\n", (int)(inarch.rp->numpmid * sizeof(save[0])), strerror(errno));
 	    abandon();
+	    /*NOTREACHED*/
 	}
 	for (i = len_save; i < inarch.rp->numpmid; i++)
 	    save[i] = NULL;
@@ -529,6 +521,7 @@ do_result(void)
     if (orig_numval == NULL) {
 	fprintf(stderr, "orig_numval malloc(%d) failed: %s\n", (int)(orig_numpmid * sizeof(int)), strerror(errno));
 	abandon();
+	/*NOTREACHED*/
     }
     for (i = 0; i < orig_numpmid; i++)
 	orig_numval[i] = inarch.rp->vset[i]->numval;
@@ -691,6 +684,7 @@ do_result(void)
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    abandon();
+	    /*NOTREACHED*/
 	}
 	peek_offset += ((__pmPDUHdr *)inarch.logrec)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
 	if (peek_offset > 0x7fffffff) {
@@ -705,6 +699,7 @@ do_result(void)
 	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    abandon();
+	    /*NOTREACHED*/
 	}
 	/* do not free inarch.logrec ... this is a libpcp PDU buffer */
 #if PCP_DEBUG

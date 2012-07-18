@@ -23,7 +23,7 @@ include $(TOPDIR)/src/include/builddefs
 SUBDIRS = include \
 	  libpcp libpcp_pmda libpcp_trace libpcp_http libpcp_pmcd libpcp_gui \
 	  libpcp_mmv \
-	  pmconfig pmns newhelp pminfo pmnscomp pmcpp \
+	  pmconfig pmns newhelp pminfo pmcpp \
 	  libpcp_import \
 	  pmcd pmerr pmdbg \
 	  pmcdctl pmlogctl win32ctl \
@@ -32,8 +32,12 @@ SUBDIRS = include \
 	  pmlogconf pmloglabel pmlogsummary pmclient pcp pmlc dbpmda \
 	  pmtrace pmstat pmsocks pmdas pmafm procmemstat pmimport \
 	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
-	  autofsd-probe telnet-probe cpan bashrc pmiestatus \
+	  autofsd-probe telnet-probe bashrc pmiestatus \
 	  pmevent pmlogrewrite
+
+ifneq "$(TARGET_OS)" "mingw"
+SUBDIRS	+= cpan
+endif
 
 default :: default_pcp
 

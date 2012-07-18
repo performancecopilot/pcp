@@ -8,23 +8,35 @@ doindom(pmResult *rp)
     int			j;
     int			needti = 0;
     int			need;
-    metric_t		*mp;
+    metric_t		*mp = NULL;
     int			*instlist;
     char		**namelist;
     int			sts;
-
-    for (i = 0; i < numpmid; i++) {
-	if (metriclist[i].idp != NULL) {
-	    metriclist[i].idp->state = I_INIT;
-	}
-    }
 
     for (i = 0; i < rp->numpmid; i++) {
 	vsp = rp->vset[i];
 	if (vsp->numval <= 0)
 	    continue;
-	mp = &metriclist[i];
-	if (mp->idp == NULL || mp->idp->state == I_DONE)
+
+	/*
+	 * pmidlist[] and rp->vset[]->pmid may not be in 1:1
+	 * correspondence because we come here after rewrite() has
+	 * been called ... search for matching pmid
+	 */
+	for (j = 0; j < numpmid; j++) {
+	    if (pmidlist[j] == vsp->pmid) {
+		mp = &metriclist[j];
+		break;
+	    }
+	}
+	if (mp == NULL) {
+	    fprintf(stderr,
+		"%s: doindom: Arrgh, unexpected PMID %s @ vset[%d]\n",
+		    pmProgname, pmIDStr(vsp->pmid), i);
+	    __pmDumpResult(stderr, rp);
+	    exit(1);
+	}
+	if (mp->idp == NULL)
 	    continue;
 
 	if ((sts = pmGetInDom(mp->idp->indom, &instlist, &namelist)) < 0) {
@@ -68,7 +80,7 @@ doindom(pmResult *rp)
 	    mp->idp->name = namelist;
 	    mp->idp->inst = instlist;
 	    mp->idp->numinst = sts;
-	    if ((sts == __pmLogPutInDom(&logctl, mp->idp->indom, &current, mp->idp->numinst, mp->idp->inst, mp->idp->name)) < 0) {
+	    if ((sts = __pmLogPutInDom(&logctl, mp->idp->indom, &current, mp->idp->numinst, mp->idp->inst, mp->idp->name)) < 0) {
 		fprintf(stderr,
 		    "%s: Error: failed to add pmInDom: indom %s (for pmid %s): %s\n",
 			pmProgname, pmInDomStr(mp->idp->indom), pmIDStr(vsp->pmid), pmErrStr(sts));
@@ -81,7 +93,6 @@ doindom(pmResult *rp)
 	    free(namelist);
 	}
 
-	mp->idp->state = I_DONE;
     }
 
     if (needti) {

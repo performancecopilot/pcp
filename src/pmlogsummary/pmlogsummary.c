@@ -227,7 +227,7 @@ printsummary(const char *name)
     int			i, j;
     int			star;
     pmID		pmid;
-    char		*str;
+    char		*str = NULL;
     const char		*u;
     __pmHashNode	*hptr;
     aveData		*avedata;
@@ -266,7 +266,6 @@ printsummary(const char *name)
 	    metricspan = tosec(metrictimespan);
 	    /* counter metric doesn't cover 90% of log */
 	    star = (avedata->desc.sem == PM_SEM_COUNTER && metricspan / logspan <= 0.1);
-	    str = NULL;
 
 	    if ((sts = pmNameInDom(avedata->desc.indom, instdata->inst, &str)) < 0) {
 		if (msp && msp->ninst > 0 && avedata->desc.indom == PM_INDOM_NULL)
@@ -289,8 +288,9 @@ printsummary(const char *name)
 		if (star)
 		    putchar('*');
 		printf("%s%c[\"%s\"]", name, delimiter, str);
-		if (str) free(str);
 	    }
+	    if (str) free(str);
+	    str = NULL;
 
 	    /* complete the calculations, count is number of intervals */
 	    if (avedata->desc.sem == PM_SEM_COUNTER) {
@@ -344,7 +344,7 @@ printsummary(const char *name)
 	}
 	if (avedata->instlist) free(avedata->instlist);
 	__pmHashDel(avedata->desc.pmid, (void*)avedata, &hashlist);
-	if (avedata) free(avedata);
+	free(avedata);
     }
 }
 
@@ -592,6 +592,7 @@ calcbinning(pmResult *result)
 	if ((hptr = __pmHashSearch(vsp->pmid, &hashlist)) != NULL) {
 	    avedata = (aveData *)hptr->data;
 	    for (j = 0; j < vsp->numval; j++) {	/* iterate thro result values */
+		int	fp_bad;
 		vp = &vsp->vlist[j];
 		k = j;	/* index into stored inst list, result may differ */
 		if ((vsp->numval > 1) || (avedata->desc.indom != PM_INDOM_NULL)) {
@@ -617,7 +618,15 @@ calcbinning(pmResult *result)
 		    pmiderr(avedata->desc.pmid, "failed to extract value: %s\n", pmErrStr(sts));
 		    continue;
 		}
-		if (isnan(av.d))
+		fp_bad = 0;
+#ifdef HAVE_FPCLASSIFY
+		fp_bad = fpclassify(av.d) == FP_NAN;
+#else
+#ifdef HAVE_ISNAN
+		fp_bad = isnan(av.d);
+#endif
+#endif
+		if (fp_bad)
 		    continue;
 
 		/* reset values from first pass needed in this second pass */
@@ -736,6 +745,7 @@ calcaverage(pmResult *result)
 	else {	/* pmid exists - update statistics */
 	    avedata = (aveData*)hptr->data;
 	    for (j = 0; j < vsp->numval; j++) {	/* iterate thro result values */
+		int	fp_bad;
 		vp = &vsp->vlist[j];
 		k = j;	/* index into stored inst list, result may differ */
 		if ((vsp->numval > 1) || (avedata->desc.indom != PM_INDOM_NULL)) {
@@ -763,7 +773,15 @@ calcaverage(pmResult *result)
 		    pmiderr(avedata->desc.pmid, "failed to extract value: %s\n", pmErrStr(sts));
 		    continue;
 		}
-		if (isnan(av.d))
+		fp_bad = 0;
+#ifdef HAVE_FPCLASSIFY
+		fp_bad = fpclassify(av.d) == FP_NAN;
+#else
+#ifdef HAVE_ISNAN
+		fp_bad = isnan(av.d);
+#endif
+#endif
+		if (fp_bad)
 		    continue;
 		timediff = result->timestamp;
 		tsub(&timediff, &instdata->lasttime);
@@ -1200,24 +1218,20 @@ main(int argc, char *argv[])
 
     for (trip = 0; trip < 2; trip++) {	/* two passes if binning */
 	for ( ; ; ) {
-	    if ((sts = pmFetchArchive(&result)) < 0) {
-		if (result) pmFreeResult(result);
+	    if ((sts = pmFetchArchive(&result)) < 0)
 		break;
-	    }
 
 	    if (windowend.tv_sec > result->timestamp.tv_sec ||
 		(windowend.tv_sec == result->timestamp.tv_sec &&
 		 windowend.tv_usec >= result->timestamp.tv_usec)) {
-		if (result) {
-		    if (trip == 0)
-			calcaverage(result);
-		    else
-			calcbinning(result);
-		    pmFreeResult(result);
-		}
+		if (trip == 0)
+		    calcaverage(result);
+		else
+		    calcbinning(result);
+		pmFreeResult(result);
 	    }
 	    else {
-		if (result) pmFreeResult(result);
+		pmFreeResult(result);
 		sts = PM_ERR_EOL;
 		break;
 	    }

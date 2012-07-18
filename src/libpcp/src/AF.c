@@ -56,11 +56,15 @@ static int	afsetup;	/* one-time-setup: done flag */
 
 static void AFsetup(void)
 {
-    if (afsetup)
+    PM_LOCK(__pmLock_libpcp);
+    if (afsetup) {
+	PM_UNLOCK(__pmLock_libpcp);
 	return;
+    }
     afsetup = 1;
     afblock = CreateMutex(NULL, FALSE, NULL);
     aftimer = CreateWaitableTimer(NULL, TRUE, NULL);
+    PM_UNLOCK(__pmLock_libpcp);
 }
 static void AFhold(void)
 { 
@@ -95,9 +99,10 @@ static void AFsetitimer(struct timeval *interval)
 #else /* POSIX */
 static void AFsetitimer(struct timeval *interval)
 {
-    static struct itimerval val;
+    struct itimerval val;
 
     val.it_value = *interval;
+    val.it_interval.tv_sec = val.it_interval.tv_usec = 0;
     setitimer(ITIMER_REAL, &val, NULL);
 }
 
@@ -153,26 +158,15 @@ static void AFrearm(void) { signal(SIGALRM, onalarm); }
 
 #ifdef PCP_DEBUG
 static void
-printstamp(struct timeval *tp)
+printdelta(FILE *f, struct timeval *tp)
 {
-    static struct tm    *tmp;
-    time_t		tt =  (time_t)tp->tv_sec;
-
-    tmp = localtime(&tt);
-    fprintf(stderr, "%02d:%02d:%02d.%06ld", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (long)tp->tv_usec);
-}
-
-static void
-printdelta_pcp(struct timeval *tp)
-{
-    static struct tm    *tmp;
-    time_t		tt =  (time_t)tp->tv_sec;
+    struct tm	*tmp;
+    time_t	tt =  (time_t)tp->tv_sec;
 
     tmp = gmtime(&tt);
     fprintf(stderr, "%02d:%02d:%02d.%06ld", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (long)tp->tv_usec);
 }
 #endif
-
 /*
  * a := a + b for struct timevals
  */
@@ -239,10 +233,10 @@ enqueue(qelt *qp)
 	struct timeval	now;
 
 	__pmtimevalNow(&now);
-	printstamp(&now);
+	__pmPrintStamp(stderr, &now);
 	fprintf(stderr, " AFenqueue " PRINTF_P_PFX "%p(%d, " PRINTF_P_PFX "%p) for ",
 		qp->q_func, qp->q_afid, qp->q_data);
-	printstamp(&qp->q_when);
+	__pmPrintStamp(stderr, &qp->q_when);
 	fputc('\n', stderr);
     }
 #endif
@@ -276,7 +270,7 @@ onalarm(int dummy)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_AF) {
 	__pmtimevalNow(&now);
-	printstamp(&now);
+	__pmPrintStamp(stderr, &now);
 	fprintf(stderr, " AFonalarm(%d)\n", dummy);
     }
 #endif
@@ -297,7 +291,7 @@ onalarm(int dummy)
 		root = root->q_next;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_AF) {
-		    printstamp(&now);
+		    __pmPrintStamp(stderr, &now);
 		    fprintf(stderr, " AFcallback " PRINTF_P_PFX "%p(%d, " PRINTF_P_PFX "%p)\n",
 			    qp->q_func, qp->q_afid, qp->q_data);
 		}
@@ -337,9 +331,9 @@ onalarm(int dummy)
 			    break;
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_AF) {
-			    printstamp(&now);
+			    __pmPrintStamp(stderr, &now);
 			    fprintf(stderr, " AFcallback event %d too slow, skip callback for ", qp->q_afid);
-			    printstamp(&qp->q_when);
+			    __pmPrintStamp(stderr, &qp->q_when);
 			    fputc('\n', stderr);
 			}
 #endif
@@ -369,9 +363,9 @@ onalarm(int dummy)
 		interval.tv_usec = MIN_ITIMER_USEC;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_AF) {
-		printstamp(&now);
+		__pmPrintStamp(stderr, &now);
 		fprintf(stderr, " AFsetitimer for delta ");
-		printdelta_pcp(&interval);
+		printdelta(stderr, &interval);
 		fputc('\n', stderr);
 	    }
 #endif
@@ -390,6 +384,9 @@ __pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *
     qelt		*qp;
     struct timeval	now;
     struct timeval	interval;
+
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_AF))
+	return PM_ERR_THREAD;
 
     if (!block)
 	AFhold();
@@ -418,9 +415,9 @@ __pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *
 
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_AF) {
-	    printstamp(&now);
+	    __pmPrintStamp(stderr, &now);
 	    fprintf(stderr, " AFsetitimer for delta ");
-	    printdelta_pcp(&interval);
+	    printdelta(stderr, &interval);
 	    fputc('\n', stderr);
 	}
 #endif
@@ -439,6 +436,9 @@ __pmAFunregister(int afid)
     qelt		*priorp;
     struct timeval	now;
     struct timeval	interval;
+
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_AF))
+	return PM_ERR_THREAD;
 
     if (!block)
 	AFhold();
@@ -461,14 +461,14 @@ __pmAFunregister(int afid)
 	    interval = root->q_when;
 	    __pmtimevalNow(&now);
 	    tsub(&interval, &now);
-	    if (interval.tv_sec == 0 && interval.tv_usec == 0)
-		/* arbitrary 0.1 msec as minimal delay */
-		interval.tv_usec = 100;
+	    if (interval.tv_sec == 0 && interval.tv_usec < MIN_ITIMER_USEC)
+		/* use minimal delay (platform dependent) */
+		interval.tv_usec = MIN_ITIMER_USEC;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_AF) {
-		printstamp(&now);
+		__pmPrintStamp(stderr, &now);
 		fprintf(stderr, " AFsetitimer for delta ");
-		printdelta_pcp(&interval);
+		printdelta(stderr, &interval);
 		fputc('\n', stderr);
 	    }
 #endif
@@ -488,6 +488,8 @@ __pmAFunregister(int afid)
 void
 __pmAFblock(void)
 {
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_AF))
+	return;
     block = 1;
     AFhold();
 }
@@ -495,6 +497,8 @@ __pmAFblock(void)
 void
 __pmAFunblock(void)
 {
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_AF))
+	return;
     block = 0;
     AFrearm();
     AFrelse();

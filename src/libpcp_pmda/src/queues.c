@@ -31,6 +31,64 @@ static event_client_t *client_lookup(int context);
 typedef void (*clientVisitCallBack)(event_clientq_t *, event_queue_t *, void *);
 static void client_iterate(clientVisitCallBack, int, event_queue_t *, void *);
 
+static event_queue_t *
+queue_lookup(int handle)
+{
+    if (handle >= numqueues || handle < 0)
+	return NULL;
+    if (queues[handle].inuse)
+	return &queues[handle];
+    return NULL;
+}
+
+/*
+ * Drop an event after it has been queued (i.e. client was too slow)
+ */
+static void
+queue_drop(event_clientq_t *clientq, event_queue_t *queue, void *data)
+{
+    event_t *event = (event_t *)data;
+
+    if (clientq->last != NULL && clientq->last == event) {
+	clientq->last = TAILQ_NEXT(event, events);
+	clientq->missed++;
+
+	if (pmDebug & DBG_TRACE_LIBPMDA)
+	    __pmNotifyErr(LOG_INFO, "Client missed queue %s event %p",
+			queue->name, event);
+    }
+}
+
+static void
+queue_drop_bytes(int handle, event_queue_t *queue, size_t bytes)
+{
+    event_t *event, *next;
+
+    event = TAILQ_FIRST(&queue->tailq);
+    while (event) {
+	if (bytes <= queue->maxmemory - queue->qsize)
+	    break;
+	next = TAILQ_NEXT(event, events);
+
+	if (pmDebug & DBG_TRACE_LIBPMDA)
+	    __pmNotifyErr(LOG_INFO, "Dropping %s: e=%p sz=%d max=%d qsz=%d",
+				    queue->name, event, (int)event->size,
+				    (int)queue->maxmemory, (int)queue->qsize);
+
+	/* Walk clients - if event last seen, drop it and bump missed count */
+	client_iterate(queue_drop, handle, queue, event);
+
+	if (pmDebug & DBG_TRACE_LIBPMDA)
+	    __pmNotifyErr(LOG_INFO, "Removing %s event %p (%d bytes)",
+				    queue->name, event, (int)event->size);
+
+	TAILQ_REMOVE(&queue->tailq, event, events);
+	queue->qsize -= event->size;
+	free(event);
+	event = next;
+    }
+}
+
 int
 pmdaEventNewQueue(const char *name, size_t maxmemory)
 {
@@ -49,11 +107,21 @@ pmdaEventNewQueue(const char *name, size_t maxmemory)
 	if (queues[i].inuse == 0)
 	    break;
     if (i == numqueues) {
-	/* no free slots, extend the available set */
+	/*
+	 * No free slots - extend the available set.
+	 * realloc() potential moves "queues" address, fix up 
+	 * must tear down existing queues which may have back
+	 * references and then re-initialise them afterward.
+	 */
+	for (i = 0; i < numqueues; i++)
+	    queue_drop_bytes(i, &queues[i], INT_MAX);
 	size = (numqueues + 1) * sizeof(event_queue_t);
 	queues = realloc(queues, size);
 	if (!queues)
 	    __pmNoMem("pmdaEventNewQueue", size, PM_FATAL_ERR);
+	/* realloc moves tailq tqh_last pointer - reset 'em */
+	for (i = 0; i < numqueues; i++)
+	    TAILQ_INIT(&queues[i].tailq);
 	numqueues++;
     }
 
@@ -79,16 +147,6 @@ pmdaEventQueueHandle(const char *name)
     return -ESRCH;
 }
 
-static event_queue_t *
-queue_lookup(int handle)
-{
-    if (handle >= numqueues || handle < 0)
-	return NULL;
-    if (queues[handle].inuse)
-	return &queues[handle];
-    return NULL;
-}
-
 int
 pmdaEventQueueCounter(int handle, pmAtomValue *atom)
 {
@@ -97,7 +155,7 @@ pmdaEventQueueCounter(int handle, pmAtomValue *atom)
     if (!queue)
 	return -EINVAL;
     atom->ul = queue->count;
-    return 0;
+    return PMDA_FETCH_STATIC;
 }
 
 int
@@ -108,7 +166,7 @@ pmdaEventQueueClients(int handle, pmAtomValue *atom)
     if (!queue)
 	return -EINVAL;
     atom->ul = queue->numclients;
-    return 0;
+    return PMDA_FETCH_STATIC;
 }
 
 int
@@ -119,7 +177,7 @@ pmdaEventQueueMemory(int handle, pmAtomValue *atom)
     if (!queue)
 	return -EINVAL;
     atom->ull = queue->qsize;
-    return 0;
+    return PMDA_FETCH_STATIC;
 }
 
 int
@@ -130,39 +188,20 @@ pmdaEventQueueBytes(int handle, pmAtomValue *atom)
     if (!queue)
 	return -EINVAL;
     atom->ull = queue->bytes;
-    return 0;
-}
-
-/*
- * Drop an event after it has been queued (i.e. client was too slow)
- */
-static void
-queue_drop(event_clientq_t *clientq, event_queue_t *queue, void *data)
-{
-    event_t *event = (event_t *)data;
-
-    if (clientq->last != NULL && clientq->last == event) {
-	clientq->last = TAILQ_NEXT(event, events);
-	clientq->missed++;
-
-	if (pmDebug & DBG_TRACE_LIBPMDA)
-	    __pmNotifyErr(LOG_INFO, "Client missed queue %s event %p",
-			queue->name, event);
-    }
+    return PMDA_FETCH_STATIC;
 }
 
 int
 pmdaEventQueueAppend(int handle, void *data, size_t bytes, struct timeval *tv)
 {
     event_queue_t *queue = queue_lookup(handle);
-    event_t *event, *next;
+    event_t *event;
 
+    if (!queue)
+	return -EINVAL;
     if (pmDebug & DBG_TRACE_LIBPMDA)
 	__pmNotifyErr(LOG_INFO, "Appending event: queue#%d \"%s\" (%ld bytes)",
 			handle, queue? queue->name : "?", (long)bytes);
-    if (!queue)
-	return -EINVAL;
-
     if (bytes > queue->maxmemory) {
 	__pmNotifyErr(LOG_WARNING, "Event too large for queue %s (%ld > %ld)",
 			queue->name, (long)bytes, (long)queue->maxmemory);
@@ -175,30 +214,7 @@ pmdaEventQueueAppend(int handle, void *data, size_t bytes, struct timeval *tv)
      * Bump the missed counter for each client who missed an event we had to
      * throw away.
      */
-    event = TAILQ_FIRST(&queue->tailq);
-    while (event) {
-	if (bytes <= queue->maxmemory - queue->qsize)
-	    break;
-	next = TAILQ_NEXT(event, events);
-
-	if (pmDebug & DBG_TRACE_LIBPMDA)
-	    __pmNotifyErr(LOG_INFO, "Dropping %s: e=%p sz=%d max=%d qsz=%d",
-				    queue->name, event, (int)event->size,
-				    (int)queue->maxmemory, (int)queue->qsize);
-
-	/* Walk clients - if event last seen, drop it and bump missed count */
-	client_iterate(queue_drop, handle, queue, event);
-
-	if (pmDebug & DBG_TRACE_LIBPMDA)
-	    __pmNotifyErr(LOG_INFO, "Removing %s event %p (%d bytes)",
-				    queue->name, event, (int)event->size);
-
-	TAILQ_REMOVE(&queue->tailq, event, events);
-	queue->qsize -= event->size;
-	free(event);
-	event = next;
-    }
-
+    queue_drop_bytes(handle, queue, bytes);
     if (queue->numclients == 0)
 	goto done;
 
@@ -233,10 +249,18 @@ done:
 static int
 queue_filter(event_clientq_t *clientq, void *data, size_t size)
 {
-    if (clientq->filter) /* Note: having a filter (stored) implies access */
-	return clientq->apply(clientq->filter, data, size);
-    else if (!clientq->access)
+    /* Note: having a filter implies access (optionally) checked there */
+    if (clientq->filter) {
+	int sts = clientq->apply(clientq->filter, data, size);
+	if (pmDebug & DBG_TRACE_LIBPMDA)
+	    __pmNotifyErr(LOG_INFO, "Clientq filter applied (%d)\n", sts);
+	return sts;
+    }
+    else if (!clientq->access) {
+	if (pmDebug & DBG_TRACE_LIBPMDA)
+	    __pmNotifyErr(LOG_INFO, "Clientq access denied\n");
 	return -PM_ERR_PERMISSION;
+    }
     return 0;
 }
 
@@ -281,13 +305,11 @@ queue_fetch(event_queue_t *queue, event_clientq_t *clientq, pmAtomValue *atom,
 				(long)event->size,
 				__pmdaEventPrint(event->buffer, event->size,
 					message, sizeof(message)));
-	    sts = pmdaEventAddRecord(key, &event->time, PM_EVENT_FLAG_POINT);
-	    if (sts < 0)
+	    if ((sts = queue_decoder(key,
+			event->buffer, event->size, &event->time, data)) < 0)
 		break;
-	    sts = queue_decoder(key, event->buffer, event->size, data);
-	    if (sts < 0)
-		break;
-	    records++;
+	    records += sts;
+	    sts = 0;
 	}
 
 	next = TAILQ_NEXT(event, events);
@@ -443,6 +465,10 @@ pmdaEventNewClient(int context)
     int size, i;
 
     for (i = 0; i < numclients; i++) {
+	if (clients[i].context == context && clients[i].inuse)
+	   return i;
+    }
+    for (i = 0; i < numclients; i++) {
 	if (clients[i].inuse == 0)
 	   break;
     }
@@ -523,7 +549,7 @@ pmdaEventEndClient(int context)
     if (client->clientq)
 	free(client->clientq);
 
-    memset(client, 0, sizeof(*client));
+    memset(client, 0, sizeof(*client));		/* sets !inuse */
     return 0;
 }
 
@@ -533,10 +559,10 @@ pmdaEventClients(pmAtomValue *atom)
     __uint32_t i, c = 0;
 
     for (i = 0; i < numclients; i++)
-	if (clients->inuse)
+	if (clients[i].inuse)
 	    c++;
     atom->ul = c;
-    return 0;
+    return PMDA_FETCH_STATIC;
 }
 
 /*

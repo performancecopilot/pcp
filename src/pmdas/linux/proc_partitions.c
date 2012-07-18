@@ -528,6 +528,8 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_PARTITIONS:
+	if (p == NULL)
+	    return PM_ERR_INST;
 	switch(idp->item) {
 	    /* disk.partitions */
 	    case 0: /* disk.partitions.read */

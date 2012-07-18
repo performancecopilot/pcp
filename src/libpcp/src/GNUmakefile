@@ -20,21 +20,22 @@ include $(TOPDIR)/src/include/builddefs
 CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
         help.c instance.c p_desc.c p_error.c p_fetch.c p_instance.c \
 	p_profile.c p_result.c p_text.c p_pmns.c p_creds.c pdu.c \
-	pdubuf.c pmns.c pool.c profile.c store.c units.c util.c ipc.c \
+	pdubuf.c pmns.c profile.c store.c units.c util.c ipc.c \
         sortinst.c logmeta.c logportmap.c logutil.c tz.c interp.c \
 	checksum.c rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
-        stuffvalue.c endian.c config.c access.c authcookie.c auxconnect.c \
+        stuffvalue.c endian.c config.c access.c auxconnect.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
-	connectlocal.c derive.c derive_fetch.c events.c
+	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c \
+	fault.c
 
-HFILES = derive.h
+HFILES = derive.h oldpmapi.h internal.h
+
+LSRCFILES = check-statics
 
 ifneq "$(TARGET_OS)" "mingw"
-CFILES += loop.c
-LSRCFILES = win32.c
+LSRCFILES += win32.c
 else
 CFILES += win32.c
-LSRCFILES = loop.c
 LLDLIBS	+= -lpsapi
 endif
 
@@ -43,7 +44,7 @@ ifeq "$(LIB_FOR_BASENAME)" "-lpcp"
 LIB_FOR_BASENAME =
 endif
 
-LLDLIBS	+= $(LIB_FOR_MATH)
+LLDLIBS	+= $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS)
 
 LCFLAGS += -DLIBPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
 	'-DDSO_SUFFIX="$(DSOSUFFIX)"'
@@ -66,9 +67,10 @@ LIBTARGET = libpcp.$(DSOSUFFIX)
 SYMTARGET =
 endif
 
-LDIRT = $(SYMTARGET)
+LDIRT += $(SYMTARGET) check.done
 
-base default : $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+base default : $(LIBTARGET) check.done $(SYMTARGET)
+$(LIBTARGET):	$(STATICLIBTARGET)
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET): 
@@ -77,9 +79,18 @@ endif
 
 include $(BUILDRULES)
 
-connect.o:
-
 derive.o derive_fetch.o: derive.h
+
+p_error.o p_result.o: oldpmapi.h
+
+util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
+
+context.o derive.o fetch.o fetch.o lock.o: internal.h
+
+$(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
+		$(TOPDIR)/src/include/pcp/impl.h \
+		$(TOPDIR)/src/include/pcp/platform_defs.h
+
 
 ifeq "$(TARGET_OS)" "mingw"
 kernel_pmda_dso	= windows
@@ -105,3 +116,11 @@ install_pcp : install
 $(TOPDIR)/src/pmns/stdpmid:
 	cd $(@D); $(MAKE) $(@F)
 
+# The library is thread-safe ... check-statics will force a build failure
+# if there has been any change to the static variables and their disposition
+# ... refer to check-statics to add exceptions and annotations for new
+# cases
+#
+check.done:	$(OBJECTS)
+	./check-statics
+	touch check.done

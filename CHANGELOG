@@ -1,3 +1,47 @@
+pcp-3.6.4 (12 June 2012)
+    - Fix build on s390x platform (thanks to Dan Horak)
+    - Rethink order of PATH setting for pcp start scripts, to ensure
+      binaries from other packages with names that conflict with pcp
+      binaries are not found ahead of the same-named pcp binary.
+
+pcp-3.6.3 (27 April 2012)
+    - Revert initial attempt at getting configure --prefix option to
+      make sense for local developer PCP installations
+    - Fix RPM changelog typo in in-tree spec file
+    - Further work on Debian/kFreeBSD port (thanks to Robert Millan)
+
+pcp-3.6.2 (18 April 2012)
+    - Fix Debian builds on FreeBSD (missing header files)
+    - Resolve Debian startup script (compat) lintian issue
+    - Resolve FreeBSD kernel PMDA build issue with PCP not installed
+      in the build root already.
+
+pcp-3.6.1 (12 April 2012)
+    - Resolve final Mac OS X pthreads build issues
+    - Debian packaging improvements for split pmlogger/pmcd scripts,
+      perl module pieces, and other lintian reported issues
+    - Update the startup script dependencies for /var use
+    - Support --prefix=... and --exec-prefix=... configure options
+    - Relaxed the "are you running as root?" test in startup scripts
+    - Win32 build updates and improvements
+    - Cache /proc/stat file handle in Linux kernel agent to reduce
+      syscalls on the most commonly fetched metric subtree
+
+pcp-3.6.0 (21 March 2012)
+    - Thread-safe libpcp, including additional re-entrant and thread-safe
+      variants for some routines
+    - Retire all asynchronous routines from libpcp
+    - Retire all V1 protocols and services (archive format, PMAPI and
+      PMDA_INTERFACE)
+    - PMNS moves to ASCII only (no binary PMNS)
+    - Rework "init" scripts, splitting pcp into pmcd and pmlogger
+    - Update elasticsearch PMDA to 0.19+, new transport and shard metrics
+    - Updates to PMDA new event queueing interfaces for agents wishing to
+      export that class of performance data.
+    - First round of Coverity cleanup fixes incorporated.
+    - Initial version of the SNMP PMDA, thanks to Hamish Coleman.
+    - Updates to postgres PMDA to export additional recovery metrics.
+
 pcp-3.5.11 (01 December 2011)
     - Update FSF contact address in copyright notices to keep
       rpmlint happy.

@@ -10,6 +10,17 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe note
+ *
+ * Unlike most of the other __pmSend*() routines, there is no wrapper
+ * routine in libpcp for __pmSendLogStatus() so there is no place in
+ * the library to enforce serialization between the receiving the
+ * LOG_REQUEST_STATUS PDU and calling __pmSendLogStatus().
+ *
+ * It is assumed that the caller of __pmSendLogStatus() either manages
+ * this serialization or is single-threaded, which is true for
+ * the only current user of this routine, pmlogger(1).
  */
 
 #include <ctype.h>
@@ -29,6 +40,7 @@ int
 __pmSendLogStatus(int fd, __pmLoggerStatus *status)
 {
     logstatus_t	*pp;
+    int		sts;
 
     if ((pp = (logstatus_t *)__pmFindPDUBuf(sizeof(logstatus_t))) == NULL)
 	return -oserror();
@@ -57,7 +69,10 @@ __pmSendLogStatus(int fd, __pmLoggerStatus *status)
 		version == UNKNOWN_VERSION ? LOG_PDU_VERSION : version);
     }
 #endif
-    return __pmXmitPDU(fd, (__pmPDU *)pp);
+
+    sts = __pmXmitPDU(fd, (__pmPDU *)pp);
+    __pmUnpinPDUBuf(pp);
+    return sts;
 }
 
 int

@@ -11,6 +11,34 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes
+ *
+ * atexit_installed is protected by the __pmLock_libpcp mutex.
+ *
+ * __pmSpecLocalPMDA() uses buffer[], but this routine is only called
+ * from main() in single-threaded apps like pminfo, pmprobe, pmval
+ * and pmevent ... so we can ignore any multi-threading issues,
+ * especially as buffer[] is only used on an error handling code path.
+ *
+ * dsotab[] and numdso are obviously of interest via calls to
+ * __pmLookupDSO(), EndLocalContext(), __pmConnectLocal() or
+ * __pmLocalPMDA().
+ *
+ * Within libpcp, __pmLookupDSO() is called _only_ for PM_CONTEXT_LOCAL
+ * and it is not called from outside libpcp.  Local contexts are only
+ * supported for single-threaded applications in the scope
+ * PM_SCOPE_DSO_PMDA that is enforced in pmNewContext.  Multi-threaded
+ * applications are not supported for local contexts, so we do not need
+ * additional concurrency control for __pmLookupDSO().
+ *
+ * The same arguments apply to EndLocalContext() and __pmConnectLocal().
+ *
+ * __pmLocalPMDA() is a mixed bag, sharing some of the justifcation from
+ * __pmSpecLocalPMDA() and some from __pmConnectLocal().
+ *
+ * Because __pmConnectLocal() is not going to be used in a mult-threaded
+ * environment, the call to the thread-unsafe dlerror() is OK.
  */
 
 #include "pmapi.h"
@@ -72,6 +100,7 @@ build_dsotab(void)
     }
     if (fread(config, 1, sbuf.st_size, configFile) != sbuf.st_size) {
 	fclose(configFile);
+	free(config);
 	return -oserror();
     }
     config[sbuf.st_size] = '\0';
@@ -125,7 +154,7 @@ build_dsotab(void)
 	}
 #endif
 	/*
-	 * a little be recursive if we got here via __pmLocalPMDA(),
+	 * a little bit recursive if we got here via __pmLocalPMDA(),
 	 * but numdso has been set correctly, so this is OK
 	 */
 	__pmLocalPMDA(PM_LOCAL_ADD, domain, name, init);
@@ -177,6 +206,13 @@ EndLocalContext(void)
     int		i;
     __pmDSO	*dp;
     int		ctx = pmWhichContext();
+
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
+	/*
+	 * Local context requires single-threaded applications
+	 * ... should not really get here, so do nothing!
+	 */
+	return;
 
     for (i = 0; i < numdso; i++) {
 	dp = &dsotab[i];
@@ -304,37 +340,16 @@ __pmConnectLocal(void)
 
 	if (dp->dispatch.status != 0) {
 	    /* initialization failed for some reason */
+	    char	errmsg[PM_MAXERRMSGLEN];
 	    pmprintf("__pmConnectLocal: Warning: initialization "
 		     "routine \"%s\" failed in DSO \"%s\": %s\n", 
-		     dp->init, path, pmErrStr(dp->dispatch.status));
+		     dp->init, path, pmErrStr_r(dp->dispatch.status, errmsg, sizeof(errmsg)));
 	    pmflush();
 	    dlclose(dp->handle);
 	    dp->domain = -1;
 	}
 	else {
-	    if (dp->dispatch.comm.pmda_interface == challenge) {
-		/*
-		 * DSO did not change pmda_interface, assume PMAPI version 1
-		 * from PCP 1.x and PMDA_INTERFACE_1
-		 */
-		dp->dispatch.comm.pmda_interface = PMDA_INTERFACE_1;
-		dp->dispatch.comm.pmapi_version = PMAPI_VERSION_1;
-	    }
-	    else {
-		/*
-		 * gets a bit tricky ...
-		 * interface_version (8-bits) used to be version (4-bits),
-		 * so it is possible that only the bottom 4 bits were
-		 * changed and in this case the PMAPI version is 1 for
-		 * PCP 1.x
-		 */
-		if ((dp->dispatch.comm.pmda_interface & 0xf0) == (challenge & 0xf0)) {
-		    dp->dispatch.comm.pmda_interface &= 0x0f;
-		    dp->dispatch.comm.pmapi_version = PMAPI_VERSION_1;
-		}
-	    }
-
-	    if (dp->dispatch.comm.pmda_interface < PMDA_INTERFACE_1 ||
+	    if (dp->dispatch.comm.pmda_interface < PMDA_INTERFACE_2 ||
 		dp->dispatch.comm.pmda_interface > PMDA_INTERFACE_LATEST) {
 		pmprintf("__pmConnectLocal: Error: Unknown PMDA interface "
 			 "version %d in \"%s\" DSO\n", 
@@ -344,8 +359,7 @@ __pmConnectLocal(void)
 		dp->domain = -1;
 	    }
 
-	    if (dp->dispatch.comm.pmapi_version != PMAPI_VERSION_1 &&
-		dp->dispatch.comm.pmapi_version != PMAPI_VERSION_2) {
+	    if (dp->dispatch.comm.pmapi_version != PMAPI_VERSION_2) {
 		pmprintf("__pmConnectLocal: Error: Unknown PMAPI version %d "
 			 "in \"%s\" DSO\n",
 			 dp->dispatch.comm.pmapi_version, path);
@@ -355,12 +369,15 @@ __pmConnectLocal(void)
 	    }
 	}
 #ifdef HAVE_ATEXIT
+	PM_INIT_LOCKS();
+	PM_LOCK(__pmLock_libpcp);
 	if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5 &&
 	    atexit_installed == 0) {
 	    /* install end of local context handler */
 	    atexit(EndLocalContext);
 	    atexit_installed = 1;
 	}
+	PM_UNLOCK(__pmLock_libpcp);
 #endif
 #endif	/* HAVE_DLOPEN */
     }
@@ -457,8 +474,10 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT) {
-	if (sts != 0)
-	    fprintf(stderr, "__pmLocalPMDA -> %s\n", pmErrStr(sts));
+	if (sts != 0) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmLocalPMDA -> %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
 	fprintf(stderr, "Local Context PMDA Table");
 	if (numdso == 0)
 	    fprintf(stderr, " ... empty");
@@ -540,6 +559,9 @@ __pmSpecLocalPMDA(const char *spec)
 	    free(sbuf);
 	    return "bad domain in spec";
 	}
+	if (*ap != '\0')
+	    /* skip , after domain */
+	    ap++;
     }
     else {
 	if (op != PM_LOCAL_DEL) {
@@ -547,8 +569,8 @@ __pmSpecLocalPMDA(const char *spec)
 	    free(sbuf);
 	    return "missing domain in spec";
 	}
+	ap++;
     }
-    ap++;
     /* ap -> char after , following domain */
     if (*ap == ',') {
 	/* no path, could have init (not useful but possible!) */
@@ -597,8 +619,10 @@ __pmSpecLocalPMDA(const char *spec)
 doit:
     sts = __pmLocalPMDA(op, domain, name, init);
     if (sts < 0) {
+	/* see thread-safe note at the head of this file */
 	static char buffer[256];
-	snprintf(buffer, sizeof(buffer), "__pmLocalPMDA: %s", pmErrStr(sts));
+	char	errmsg[PM_MAXERRMSGLEN];
+	snprintf(buffer, sizeof(buffer), "__pmLocalPMDA: %s", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	free(sbuf);
 	return buffer;
     }

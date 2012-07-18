@@ -668,14 +668,6 @@ Since PCP version 2, version information has been associated with
 and PCP archives. The version number is used in a number of ways,
 but most noticeably for the distributed
 .BR pmns (4).
-In PCP version 1, the client applications would load the PMNS from the
-default PMNS file 
-but in PCP version 2, the client applications extract the PMNS information from
-.BR pmcd (1)
-or a PCP archive. 
-Thus in PCP version 2, the version number is used to determine if
-the PMNS to use is from the default local file or from the actual
-current source of the metrics.
 .SH PMCD HOSTNAME SPECIFICATION
 Since PCP version 3, the
 .BR pmcd (1)

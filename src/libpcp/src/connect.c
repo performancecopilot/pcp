@@ -10,6 +10,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes
+ *
+ * Do not need ctxp->c_pmcd->pc_lock lock around __pmSendCreds() call,
+ * as the context has not been created, so no-one else could be using
+ * the context's fd.
  */
 
 #include "pmapi.h"
@@ -35,9 +41,10 @@ negotiate_proxy(int fd, const char *hostname, int port)
      */
 
     if (send(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_WARNING,
 	     "__pmConnectPMCD: send version string to pmproxy failed: %s\n",
-	     pmErrStr(-neterror()));
+	    pmErrStr_r(-neterror(), errmsg, sizeof(errmsg)));
 	return PM_ERR_IPC;
     }
     for (bp = buf; bp < &buf[MY_BUFLEN]; bp++) {
@@ -65,9 +72,10 @@ negotiate_proxy(int fd, const char *hostname, int port)
 
     snprintf(buf, sizeof(buf), "%s %d\n", hostname, port);
     if (send(fd, buf, strlen(buf), 0) != strlen(buf)) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_WARNING,
 	     "__pmConnectPMCD: send hostname+port string to pmproxy failed: %s'\n",
-	     pmErrStr(-neterror()));
+	     pmErrStr_r(-neterror(), errmsg, sizeof(errmsg)));
 	return PM_ERR_IPC;
     }
 
@@ -85,64 +93,43 @@ __pmConnectHandshake(int fd)
     int		version;
     int		challenge;
     int		sts;
+    int		pinpdu;
 
     /* Expect an error PDU back from PMCD: ACK/NACK for connection */
-    sts = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
+    pinpdu = sts = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
     if (sts == PDU_ERROR) {
 	/*
-	 * See comments in pmcd ... we actually get an extended PDU
-	 * from a 2.0 pmcd, of the form
+	 * See comments in pmcd ... we actually get an extended error PDU
+	 * from pmcd, of the form
 	 *
 	 *  :----------:-----------:
 	 *  |  status  | challenge |
 	 *  :----------:-----------:
 	 *
-	 *                            status      challenge
-	 *     pmcd  licensed             0          bits
-	 *	     unlicensed       -1007          bits
+	 *   For a good connection, status is 0, else a PCP error code.
 	 *
-	 * -1007 is magic and is PM_ERR_LICENSE for PCP 1.x.
-	 * A 1.x pmcd will send us just the regular error PDU with
-	 * a "status" value.
-	 *
-	 * NB: Licensing is a historical remnant from the earlier
-	 * days of PCP on IRIX.  Modern day, open source PCP has no
-	 * run-time licensing restrictions using this mechanism.
+	 *   challenge was used for old PCP versions and can be ignored.
 	 */
-	ok = __pmDecodeXtendError(pb, &sts, &challenge);
-	if (ok < 0)
-	    return ok;
-
-	/*
-	 * At this point, ok is PDU_VERSION1 or PDU_VERSION2 and
-	 * sts is a PCP 2.0 error code
-	 */
-	version = ok;
-	if ((ok = __pmSetVersionIPC(fd, version)) < 0)
-	    return ok;
-
-	if (version == PDU_VERSION1) {
-	    /* 1.x pmcd */
-	    ;
+	version = __pmDecodeXtendError(pb, &sts, &challenge);
+	if (version < 0) {
+	    __pmUnpinPDUBuf(pb);
+	    return version;
 	}
-	else if (sts < 0 && sts != PM_ERR_LICENSE) {
-	    /* 2.0+ pmcd, but we have a fatal error on the connection ... */
-	    ;
+	if (sts < 0) {
+	    __pmUnpinPDUBuf(pb);
+	    return sts;
 	}
-	else {
+
+	if (version == PDU_VERSION2) {
 	    /*
-	     * 2.0+ pmcd, either pmcd is not licensed or no error so far,
-	     * so negotiate connection version and credentials
+	     * negotiate connection version and credentials
 	     */
-	    __pmPDUInfo	*pduinfo;
 	    __pmCred	handshake[2];
 
-	    /*
-	     * note: __pmDecodeXtendError() has not swabbed challenge
-	     * because it does not know it's data type.
-	     */
-	    pduinfo = (__pmPDUInfo *)&challenge;
-	    *pduinfo = __ntohpmPDUInfo(*pduinfo);
+	    if ((ok = __pmSetVersionIPC(fd, version)) < 0) {
+		__pmUnpinPDUBuf(pb);
+		return ok;
+	    }
 
 	    handshake[0].c_type = CVERSION;
 	    handshake[0].c_vala = PDU_VERSION;
@@ -150,9 +137,14 @@ __pmConnectHandshake(int fd)
 	    handshake[0].c_valc = 0;
 	    sts = __pmSendCreds(fd, (int)getpid(), 1, handshake);
 	}
+	else
+	    sts = PM_ERR_IPC;
     }
     else
 	sts = PM_ERR_IPC;
+
+    if (pinpdu > 0)
+	__pmUnpinPDUBuf(pb);
 
     return sts;
 }
@@ -166,6 +158,7 @@ load_pmcd_ports(void)
 {
     static int	first_time = 1;
 
+    PM_LOCK(__pmLock_libpcp);
     if (first_time) {
 	char	*envstr;
 	char	*endptr;
@@ -203,12 +196,15 @@ load_pmcd_ports(void)
 	    global_nports = sizeof(default_portlist) / sizeof(default_portlist[0]);
 	}
     }
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 void
 __pmConnectGetPorts(pmHostSpec *host)
 {
     load_pmcd_ports();
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     if (__pmAddHostPorts(host, global_portlist, global_nports) < 0) {
 	__pmNotifyErr(LOG_WARNING,
 		"__pmConnectGetPorts: portlist dup failed, "
@@ -216,6 +212,7 @@ __pmConnectGetPorts(pmHostSpec *host)
 	host->ports[0] = SERVER_PORT;
 	host->nports = 1;
     }
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 int
@@ -233,6 +230,8 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
     static int first_time = 1;
     static pmHostSpec proxy;
 
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     if (first_time) {
 	/*
 	 * One-trip check for use of pmproxy(1) in lieu of pmcd(1),
@@ -249,9 +248,10 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	if ((envstr = getenv("PMPROXY_HOST")) != NULL) {
 	    proxy.name = strdup(envstr);
 	    if (proxy.name == NULL) {
+		char	errmsg[PM_MAXERRMSGLEN];
 		__pmNotifyErr(LOG_WARNING,
 			     "__pmConnectPMCD: cannot save PMPROXY_HOST: %s\n",
-			     pmErrStr(-oserror()));
+			     pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	    }
 	    else {
 		static int proxy_port = PROXY_PORT;
@@ -282,6 +282,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	/*
 	 * no proxy, connecting directly to pmcd
 	 */
+	PM_UNLOCK(__pmLock_libpcp);
 	for (i = 0; i < nports; i++) {
 	    if ((fd = __pmAuxConnectPMCDPort(hosts[0].name, ports[i])) >= 0) {
 		if ((sts = __pmConnectHandshake(fd)) < 0) {
@@ -298,13 +299,14 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	if (sts < 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT) {
+		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "__pmConnectPMCD(%s): pmcd connection port=",
 		   hosts[0].name);
 		for (i = 0; i < nports; i++) {
 		    if (i == 0) fprintf(stderr, "%d", ports[i]);
 		    else fprintf(stderr, ",%d", ports[i]);
 		}
-		fprintf(stderr, " failed: %s\n", pmErrStr(sts));
+		fprintf(stderr, " failed: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 #endif
 	    return sts;
@@ -333,10 +335,12 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	if (fd < 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT) {
+		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "__pmConnectPMCD(%s): proxy to %s port=%d failed: %s \n",
-			hosts[0].name, proxyhost->name, proxyport, pmErrStr(-neterror()));
+			hosts[0].name, proxyhost->name, proxyport, pmErrStr_r(-neterror(), errmsg, sizeof(errmsg)));
 	    }
 #endif
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return fd;
 	}
 	if ((sts = version = negotiate_proxy(fd, hosts[0].name, ports[i])) < 0)
@@ -351,15 +355,17 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
     if (sts < 0) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
+	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "__pmConnectPMCD(%s): proxy connection to %s port=",
 			hosts[0].name, proxyhost->name);
 	    for (i = 0; i < nports; i++) {
 		if (i == 0) fprintf(stderr, "%d", ports[i]);
 		else fprintf(stderr, ",%d", ports[i]);
 	    }
-	    fprintf(stderr, " failed: %s\n", pmErrStr(sts));
+	    fprintf(stderr, " failed: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
 #endif
+	PM_UNLOCK(__pmLock_libpcp);
 	return sts;
     }
 
@@ -369,5 +375,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	    hosts[0].name, proxyhost->name, ports[i], fd, version);
     }
 #endif
+
+    PM_UNLOCK(__pmLock_libpcp);
     return fd;
 }

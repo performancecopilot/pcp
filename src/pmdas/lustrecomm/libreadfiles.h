@@ -22,9 +22,9 @@
 
 
 #include <sys/types.h>
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
-#include <pcp/pmda.h>
+#include "pmapi.h"
+#include "impl.h"
+#include "pmda.h"
 #include <fcntl.h>
 #include <unistd.h>
 #include <time.h>

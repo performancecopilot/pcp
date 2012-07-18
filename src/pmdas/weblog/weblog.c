@@ -1791,10 +1791,10 @@ refresh(WebSproc* proc)
                 
                             if(server->counts.extendedp) {
                                 if(pmatch[3].rm_so < 0 || pmatch[4].rm_so < 0) {
-                                logmessage(LOG_ERR,
-                                       "failed to match status codes: %s\n",
-                                       line);
-                                continue;
+				    logmessage(LOG_ERR,
+					   "failed to match status codes: %s\n",
+					   line);
+				    continue;
                                 }
                             }
                 
@@ -1808,16 +1808,16 @@ refresh(WebSproc* proc)
                                 (pmatch[wl_regexTable[accessFile->format].sizePos].rm_eo -
                                  pmatch[wl_regexTable[accessFile->format].sizePos].rm_so) + 1);
                 
-                            if(server->counts.extendedp){
-                            line[pmatch[wl_regexTable[accessFile->format].c_statusPos].rm_eo] = '\0';
-                            strncpy(proc->c_statusStr, &line[pmatch[wl_regexTable[accessFile->format].c_statusPos].rm_so],
-                                (pmatch[wl_regexTable[accessFile->format].c_statusPos].rm_eo -
-                                 pmatch[wl_regexTable[accessFile->format].c_statusPos].rm_so) + 1);
-                
-                            line[pmatch[wl_regexTable[accessFile->format].s_statusPos].rm_eo] = '\0';
-                            strncpy(proc->s_statusStr, &line[pmatch[wl_regexTable[accessFile->format].s_statusPos].rm_so],
-                                (pmatch[wl_regexTable[accessFile->format].s_statusPos].rm_eo -
-                                 pmatch[wl_regexTable[accessFile->format].s_statusPos].rm_so) + 1);
+                            if(server->counts.extendedp) {
+				line[pmatch[wl_regexTable[accessFile->format].c_statusPos].rm_eo] = '\0';
+				strncpy(proc->c_statusStr, &line[pmatch[wl_regexTable[accessFile->format].c_statusPos].rm_so],
+				    (pmatch[wl_regexTable[accessFile->format].c_statusPos].rm_eo -
+				     pmatch[wl_regexTable[accessFile->format].c_statusPos].rm_so) + 1);
+		    
+				line[pmatch[wl_regexTable[accessFile->format].s_statusPos].rm_eo] = '\0';
+				strncpy(proc->s_statusStr, &line[pmatch[wl_regexTable[accessFile->format].s_statusPos].rm_so],
+				    (pmatch[wl_regexTable[accessFile->format].s_statusPos].rm_eo -
+				     pmatch[wl_regexTable[accessFile->format].s_statusPos].rm_so) + 1);
                             } else {
                                 proc->c_statusStr[0] = '\0';
                                 proc->s_statusStr[0] = '\0';
@@ -1836,7 +1836,7 @@ refresh(WebSproc* proc)
 		    }
 #ifdef PCP_DEBUG
 		    else if (pmDebug & DBG_TRACE_APPL2)
-			    logmessage(LOG_DEBUG, "Regex failed on %s\n", line);
+			logmessage(LOG_DEBUG, "Regex failed on %s\n", line);
 #endif
 #endif
                     if ( ok ) {
@@ -1969,7 +1969,7 @@ refresh(WebSproc* proc)
                                 strcmp(proc->s_statusStr, "-") == 0)) {
 #ifdef PCP_DEBUG
                                 if (pmDebug & DBG_TRACE_APPL2) {
-                                logmessage(LOG_DEBUG, 
+				    logmessage(LOG_DEBUG, 
                                        "Access: Server=%d, CACHE return: of %.0f bytes\n",
                                        i,
                                        atof(proc->sizeStr));
@@ -1979,7 +1979,7 @@ refresh(WebSproc* proc)
                                  * now bucket the size
                                  */
                                 if (strcmp(proc->sizeStr, "-") == 0 ||
-                                strcmp(proc->sizeStr, " ") == 0) {
+				    strcmp(proc->sizeStr, " ") == 0) {
                                     size = 0;
                                     sizeIndex = wl_unknownSize;
                                 } 
@@ -2043,7 +2043,7 @@ refresh(WebSproc* proc)
                                 strstr(proc->s_statusStr, "_SWAPFAIL") != NULL)) {
 #ifdef PCP_DEBUG
                                 if (pmDebug & DBG_TRACE_APPL2) {
-                                logmessage(LOG_DEBUG, 
+				    logmessage(LOG_DEBUG, 
                                        "Access: Server=%d, REMOTE fetch: of %.0f bytes\n",
                                        i,
                                        atof(proc->sizeStr));
@@ -2085,7 +2085,7 @@ refresh(WebSproc* proc)
                                strstr(proc->s_statusStr, "_HIT") != NULL) {
 #ifdef PCP_DEBUG
                                 if (pmDebug & DBG_TRACE_APPL2) {
-                                logmessage(LOG_DEBUG, 
+				    logmessage(LOG_DEBUG, 
                                        "Access: Server=%d, CACHE return: of %.0f bytes\n",
                                        i,
                                        atof(proc->sizeStr));
@@ -2095,7 +2095,7 @@ refresh(WebSproc* proc)
                                  * now bucket the size
                                  */
                                 if (strcmp(proc->sizeStr, "-") == 0 ||
-                                strcmp(proc->sizeStr, " ") == 0) {
+				    strcmp(proc->sizeStr, " ") == 0) {
                                     size = 0;
                                     sizeIndex = wl_unknownSize;
                                 } 
@@ -2170,46 +2170,44 @@ refresh(WebSproc* proc)
                 server->counts.numLogs++;
 
                 while (errorFile->fileStat.st_size < tmpStat.st_size) {
-
                     sts = wl_gets(errorFile, &line);
                     if (sts <= 0) {
-
 #ifdef PCP_DEBUG
-                    if (pmDebug & DBG_TRACE_APPL0)
-                        logmessage(LOG_DEBUG, "%s was %d bytes short\n",
-                               errorFile->fileName,
-                               tmpStat.st_size - 
-                               errorFile->fileStat.st_size);
+			if (pmDebug & DBG_TRACE_APPL0)
+			    logmessage(LOG_DEBUG, "%s was %d bytes short\n",
+				   errorFile->fileName,
+				   tmpStat.st_size - 
+				   errorFile->fileStat.st_size);
 #endif
 
-                    if (sts < 0) {
-                        logmessage(LOG_ERR, "refresh %s: %s\n",
-                               errorFile->fileName, osstrerror());
-                    }
-                    else {
-                        logmessage(LOG_WARNING, 
-                               "refresh %s: unexpected eof\n",
-                               errorFile->fileName);
-                    }
+			if (sts < 0) {
+			    logmessage(LOG_ERR, "refresh %s: %s\n",
+				   errorFile->fileName, osstrerror());
+			}
+			else {
+			    logmessage(LOG_WARNING, 
+				   "refresh %s: unexpected eof\n",
+				   errorFile->fileName);
+			}
 
-                    wl_close(errorFile->filePtr);
-                    errorFile->lastActive -= wl_chkDelay;
-                    break;
+			wl_close(errorFile->filePtr);
+			errorFile->lastActive -= wl_chkDelay;
+			break;
                     }
 
                     errorFile->fileStat.st_size += sts;
 
                     if(wl_regexTable[errorFile->format].posix_regexp) {
-                    if (regexec(wl_regexTable[errorFile->format].regex,
-                          line, nmatch, pmatch, 0) == 0) {
-                    server->counts.errors++;
-                    }
+			if (regexec(wl_regexTable[errorFile->format].regex,
+			      line, nmatch, pmatch, 0) == 0) {
+			    server->counts.errors++;
+			}
 #ifdef NON_POSIX_REGEX
                     } else {
-                    if (regex(wl_regexTable[errorFile->format].np_regex,
-                          line, proc->methodStr, proc->sizeStr) != NULL) {
-                    server->counts.errors++;
-                            }
+			if (regex(wl_regexTable[errorFile->format].np_regex,
+			      line, proc->methodStr, proc->sizeStr) != NULL) {
+			    server->counts.errors++;
+			}
 #endif
                     }
                 }
@@ -2260,11 +2258,13 @@ web_profile(__pmProfile *prof, pmdaExt *ext)
     int		j;
 
     ext->e_prof = prof;	
-    for (j = 0; j < idp->it_numinst; j++)
+    for (j = 0; j < idp->it_numinst; j++) {
 	if (__pmInProfile(idp->it_indom, prof, idp->it_set[j].i_inst))
 	    wl_servers[j].update = 1;
 	else
 	    wl_servers[j].update = 0;
+    }
+
     return 0;
 }
 
@@ -2322,8 +2322,8 @@ probe(void)
 
 	if (j > sprocData->lastServer) {
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2)
-	    logmessage(LOG_DEBUG, "Skipping sproc %d\n", i);
+	    if (pmDebug & DBG_TRACE_APPL2)
+		logmessage(LOG_DEBUG, "Skipping sproc %d\n", i);
 #endif
 	    continue;
 	}
@@ -2521,8 +2521,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 #endif
 
 
-    if (numpmid > maxnpmids) 
-    {
+    if (numpmid > maxnpmids) {
 	if (res != (pmResult *)0)
 	    free(res);
 
@@ -2592,9 +2591,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 
         /* Must use individual malloc()s because of pmFreeResult() */
 
-        if (numval == 1)
-            res->vset[i] = vset = (pmValueSet*)__pmPoolAlloc(sizeof(pmValueSet));
-        else if (numval > 1)
+        if (numval >= 1)
             res->vset[i] = vset = (pmValueSet *)malloc(sizeof(pmValueSet) + 
                             (numval - 1)*sizeof(pmValue));
         else
@@ -2629,18 +2626,18 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
         do {
             if (j == numval) {
 
-            /* more instances than expected! */
+		/* more instances than expected! */
 
-            numval++;
-            res->vset[i] = vset = (pmValueSet *)realloc(vset,
-                    sizeof(pmValueSet) + (numval - 1)*sizeof(pmValue));
-            if (vset == (pmValueSet *)0) {
-                if (i) {
-                    res->numpmid = i;
-                    __pmFreeResultValues(res);
-                }
-                return -oserror();
-            }
+		numval++;
+		res->vset[i] = vset = (pmValueSet *)realloc(vset,
+			sizeof(pmValueSet) + (numval - 1)*sizeof(pmValue));
+		if (vset == (pmValueSet *)0) {
+		    if (i) {
+			res->numpmid = i;
+			__pmFreeResultValues(res);
+		    }
+		    return -oserror();
+		}
             }
 
             vset->vlist[j].inst = inst;
@@ -2648,8 +2645,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
             cluster = (dp->pmid & _clusterMask) >> 10;
             haveValue = 1;
 
-            switch(m_type)
-            {
+            switch(m_type) {
             case wl_globalPtr:
                 atom.ul = *(__uint32_t *)(m_offset);
                 break;
@@ -2910,9 +2906,9 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
                     atom.ul = tmp32;
                 } 
 		else if (wl_servers[inst].counts.active &&
-                           wl_servers[inst].counts.extendedp) {
-                           haveValue = 1;
-                           atom.ul = wl_servers[inst].counts.cached_sizeReq[m_offset];
+		   wl_servers[inst].counts.extendedp) {
+		   haveValue = 1;
+		   atom.ul = wl_servers[inst].counts.cached_sizeReq[m_offset];
                 }
                 break;
 
@@ -2920,12 +2916,13 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
                 haveValue = 0;
                 if (cluster == 3) {        /* all servers */
                     tmp64 = 0;
-                    for (s = 0; s < wl_numServers; s++)
+                    for (s = 0; s < wl_numServers; s++) {
                         if (wl_servers[s].counts.active &&
                             wl_servers[s].counts.extendedp) {
                             haveValue = 1;
                             tmp64 += wl_servers[s].counts.cached_sizeBytes[m_offset];
                         }
+		    }
                     atom.ull = tmp64;
                 } 
 		else if (wl_servers[inst].counts.active &&
@@ -2939,12 +2936,13 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
                 haveValue = 0;
                 if (cluster == 3) {        /* all servers */
                     tmp32 = 0;
-                    for (s = 0; s < wl_numServers; s++)
+                    for (s = 0; s < wl_numServers; s++) {
                         if (wl_servers[s].counts.active &&
-                        wl_servers[s].counts.extendedp ) {
-                        haveValue = 1;
-                        tmp32 += wl_servers[s].counts.uncached_sizeReq[m_offset];
+			    wl_servers[s].counts.extendedp ) {
+			    haveValue = 1;
+			    tmp32 += wl_servers[s].counts.uncached_sizeReq[m_offset];
                         }
+		    }
                     atom.ul = tmp32;
                 } 
 		else if (wl_servers[inst].counts.active &&
@@ -2958,12 +2956,13 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
                 haveValue = 0;
                 if (cluster == 3) {        /* all servers */
                     tmp64 = 0;
-                    for (s = 0; s < wl_numServers; s++)
+                    for (s = 0; s < wl_numServers; s++) {
                         if (wl_servers[s].counts.active &&
                             wl_servers[s].counts.extendedp) {
                             haveValue = 1;
                             tmp64 += wl_servers[s].counts.uncached_sizeBytes[m_offset];
                         }
+		    }
                     atom.ull = tmp64;
                 } 
 		else if (wl_servers[inst].counts.active &&
@@ -2978,9 +2977,10 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
                 break;
             case wl_numAlive:
                 tmp32 = 0;
-                for (s = 0; s < wl_numServers; s++)
+                for (s = 0; s < wl_numServers; s++) {
                     if (wl_servers[s].counts.active)
                         tmp32 += wl_servers[s].counts.numLogs > 0 ?1:0;
+		}
                 atom.ul = tmp32;
                 break;
 
@@ -3067,7 +3067,6 @@ web_store(pmResult *result, pmdaExt *ext)
 			wl_numActive--;
 			server->counts.active = 0;
 		    }
-
 		}
 	    }
 	    else {
@@ -3117,11 +3116,11 @@ web_init(pmdaInterface *dp)
     pmdaInit(dp, wl_indomTable, numIndoms, wl_metrics, numMetrics);
 
     for (m = 0; m < numMetrics; m++) {
-    type = wl_metricInfo[m].m_type;
-    if (type == wl_offset32 || type == wl_offset64 ||
-        type == wl_watched) {
-        wl_metricInfo[m].m_offset -= (__psint_t)&dummyCount;
-    }
+	type = wl_metricInfo[m].m_type;
+	if (type == wl_offset32 || type == wl_offset64 ||
+	    type == wl_watched) {
+	    wl_metricInfo[m].m_offset -= (__psint_t)&dummyCount;
+	}
     }
 
     return;

@@ -19,7 +19,7 @@
  * check help files build by newhelp
  *
  * Usage:
- *    chkhelp helpfile metric-name ...
+ *    chkhelp helpfile metricname ...
  */
 
 #include "pmapi.h"
@@ -28,6 +28,8 @@
 
 #define VERSION 2
 static int	version = VERSION;
+
+static int	handle;
 
 /*
  * Note: these two are from libpcp_pmda/src/help.c
@@ -85,6 +87,38 @@ next(int *ident, int *type)
     return 1;
 }
 
+
+/*
+ * with -e come here for every metric in the PMNS ...
+ */
+void
+dometric(const char *name)
+{
+    int		sts;
+    pmID	pmid;
+    char	*tp;
+
+    sts = pmLookupName(1, (char **)&name, &pmid);
+    if (sts < 0) {
+	fprintf(stderr, "pmLookupName: failed for \"%s\": %s\n", name, pmErrStr(sts));
+	return;
+    }
+    if (sts == 0) {
+	fprintf(stderr, "pmLookupName: failed for \"%s\"\n", name);
+	return;
+    }
+
+    tp = pmdaGetHelp(handle, pmid, PM_TEXT_ONELINE);
+    if (tp != NULL)
+	return;
+    tp = pmdaGetHelp(handle, pmid, PM_TEXT_HELP);
+    if (tp != NULL)
+	return;
+
+    /* no help text, report metric */
+    printf("%s\n", name);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -95,10 +129,10 @@ main(int argc, char **argv)
     char	*pmnsfile = PM_NS_DEFAULT;
     int		errflag = 0;
     int		aflag = 0;
+    int		eflag = 0;
     int		allpmid = 0;
     int		allindom = 0;
     char	*filename;
-    int		handle;
     char	*tp;
     char	*name;
     int		id;
@@ -107,7 +141,7 @@ main(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "D:Hin:Opv:?")) != EOF) {
+    while ((c = getopt(argc, argv, "D:eHin:Opv:?")) != EOF) {
 	switch (c) {
 
 	case 'D':	/* debug flag */
@@ -121,10 +155,14 @@ main(int argc, char **argv)
 		pmDebug |= sts;
 	    break;
 
+	case 'e':	/* help text exists? */
+	    eflag = 1;
+	    break;
+
 	case 'H':	/* help text */
 	    help = 1;
 	    break;
-	
+
 	case 'i':
 	    aflag++;
 	    allindom = 1;
@@ -164,14 +202,25 @@ main(int argc, char **argv)
 	}
     }
 
-    if (aflag && optind != argc - 1) {
-	fprintf(stderr, "%s: metric-name arguments cannot be used with -i or -p\n\n",
+    if (optind == argc) {
+	fprintf(stderr, "%s: missing helpfile argument\n\n", pmProgname);
+	errflag = 1;
+    }
+
+    if (aflag && optind < argc-1) {
+	fprintf(stderr, "%s: metricname arguments cannot be used with -i or -p\n\n",
 	    pmProgname);
 	errflag = 1;
     }
 
     if (aflag == 0 && optind == argc-1 && oneline+help != 0) {
-	fprintf(stderr, "%s: -O or -H require metric-name arguments or -i or -p\n\n",
+	fprintf(stderr, "%s: -O or -H require metricname arguments or -i or -p\n\n",
+	    pmProgname);
+	errflag = 1;
+    }
+
+    if (eflag && (allpmid || allindom)) {
+	fprintf(stderr, "%s: -e cannot be used with -i or -p\n\n",
 	    pmProgname);
 	errflag = 1;
     }
@@ -182,6 +231,7 @@ main(int argc, char **argv)
 "       %s [options] helpfile [metricname ...]\n"
 "\n"
 "Options:\n"
+"  -e           exists check, only report metrics with no help text\n"
 "  -H           display verbose help text\n"
 "  -i           process all the instance domains\n"
 "  -n pmnsfile  use an alternative PMNS\n"
@@ -217,12 +267,27 @@ main(int argc, char **argv)
 	/* no metric names, process all entries */
 	aflag = 1;
 
+    if (eflag) {
+	if (optind == argc)
+	    sts = pmTraversePMNS("", dometric);
+	    if (sts < 0)
+		fprintf(stderr, "Error: pmTraversePMNS(\"\", ...): %s\n", pmErrStr(sts));
+	else {
+	    for ( ; optind < argc; optind++) {
+		sts = pmTraversePMNS(argv[optind], dometric);
+		if (sts < 0)
+		    fprintf(stderr, "Error: pmTraversePMNS(\"%s\", ...): %s\n", argv[optind], pmErrStr(sts));
+	    }
+	}
+	exit(0);
+    }
+
     while (optind < argc || aflag) {
 	if (aflag) {
 	    if (next(&id, &next_type) == 0)
 		break;
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0 && allindom+allpmid == 0)
+	    if ((pmDebug & DBG_TRACE_APPL0) && allindom+allpmid == 0)
 		fprintf(stderr, "next_type=%d id=0x%x\n", next_type, id);
 #endif
 	    if (next_type == 2) {
@@ -247,16 +312,15 @@ main(int argc, char **argv)
 	else {
 	    next_type = 1;
 	    name = argv[optind++];
-	    printf("\nPMID");
 	    if ((sts = pmLookupName(1, &name, (pmID *)&id)) < 0) {
-		printf(" %s: %s\n", name, pmErrStr(sts));
+		printf("\n%s: %s\n", name, pmErrStr(sts));
 		continue;
 	    }
-	    printf(" %s %s:", pmIDStr((pmID)id), name);
 	    if (id == PM_ID_NULL) {
-		printf(" unknown metric\n");
+		printf("\n%s: unknown metric\n", name);
 		continue;
 	    }
+	    printf("\nPMID %s %s:", pmIDStr((pmID)id), name);
 	}
 
 	if (oneline) {
@@ -265,12 +329,9 @@ main(int argc, char **argv)
 	    else
 		tp = pmdaGetInDomHelp(handle, (pmInDom)id, PM_TEXT_ONELINE);
 	    if (tp != NULL)
-		printf(" %s\n", tp);
-	    else
-		putchar('\n');
-	}
-	else
+		printf(" %s", tp);
 	    putchar('\n');
+	}
 
 	if (help) {
 	    if (next_type == 1)
@@ -280,6 +341,7 @@ main(int argc, char **argv)
 	    if (tp != NULL && *tp)
 		printf("%s\n", tp);
 	}
+
     }
 
     return 0;

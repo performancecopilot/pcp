@@ -1,0 +1,36 @@
+#! /bin/sh
+#
+# Copyright (c) 2012 Nathan Scott.  All rights reversed.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# Install the bash PMDA and/or PMNS
+#
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=bash
+dso_opt=true
+socket_opt=true
+socket_inet_def=2082
+pmda_interface=5
+
+if [ ! -e "$PCP_TMP_DIR/pmdabash" ]
+then
+    echo "creating $PCP_TMP_DIR/pmdabash"
+    mkdir -p "$PCP_TMP_DIR/pmdabash"
+    chmod 1777 "$PCP_TMP_DIR/pmdabash"
+fi
+
+pmdaSetup
+pmdaInstall
+exit 0

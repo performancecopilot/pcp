@@ -14,19 +14,12 @@
 
 #include "pmapi.h"
 #include "impl.h"
-
-extern int __pmFetchLocal(int, pmID *, pmResult **);
+#include "internal.h"
 
 static int
-request_fetch (int ctxid, __pmContext *ctxp,  int numpmid, pmID pmidlist[])
+request_fetch(int ctxid, __pmContext *ctxp,  int numpmid, pmID pmidlist[])
 {
     int n;
-
-#ifdef ASYNC_API
-    if (ctxp->c_pmcd->pc_curpdu != 0) {
-	return (PM_ERR_CTXBUSY);
-    }
-#endif /*ASYNC_API*/
 
     if (ctxp->c_sent == 0) {
 	/*
@@ -52,80 +45,35 @@ request_fetch (int ctxid, __pmContext *ctxp,  int numpmid, pmID pmidlist[])
     if (n < 0) {
 	    n = __pmMapErrno(n);
     }
-    return (n);
+    return n;
 }
-
-#ifdef ASYNC_API
-int 
-pmRequestFetch(int ctxid, int numpmid, pmID pmidlist[])
-{
-    int n = 0;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetHostContextByID(ctxid, &ctxp)) >= 0) {
-	if ((n = request_fetch (ctxid, ctxp, numpmid, pmidlist)) >= 0) {
-	    ctxp->c_pmcd->pc_curpdu = PDU_FETCH;
-	    ctxp->c_pmcd->pc_tout_sec = TIMEOUT_DEFAULT;
-	}
-    }
-    return (n);
-}
-#endif /*ASYNC_API*/
-
-static int
-receive_fetch (__pmContext *ctxp, pmResult **result)
-{
-    int n;
-    __pmPDU	*pb;
-
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
-		   ctxp->c_pmcd->pc_tout_sec, &pb);
-    if (n == PDU_RESULT) {
-	n = __pmDecodeResult(pb, result);
-    }
-    else if (n == PDU_ERROR) {
-	__pmDecodeError(pb, &n);
-    }
-    else if (n != PM_ERR_TIMEOUT)
-	n = PM_ERR_IPC;
-
-    return (n);
-}
-
-#ifdef ASYNC_API
-int
-pmReceiveFetch (int ctxid, pmResult **result)
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetBusyHostContextByID (ctxid, &ctxp, PDU_FETCH)) >= 0) {
-	if ((n = receive_fetch (ctxp, result)) <= 0) {
-	    /* pmcd may return state change in error PDU before
-	     * returning results for fetch - if we get one of those,
-	     * keep the state in the context for the second call to
-	     * receive_fetch */
-	    ctxp->c_pmcd->pc_curpdu = 0;
-	    ctxp->c_pmcd->pc_tout_sec = 0;
-	}
-    }
-    return (n);
-}
-#endif /*ASYNC_API*/
 
 int
 pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 {
     int		n;
 
-    if (numpmid < 1)
-	return PM_ERR_TOOSMALL;
+    if (numpmid < 1) {
+	n = PM_ERR_TOOSMALL;
+	goto done;
+    }
 
     if ((n = pmWhichContext()) >= 0) {
 	__pmContext	*ctxp = __pmHandleToPtr(n);
 	int		newcnt;
-	pmID		*newlist;
+	pmID		*newlist = NULL;
 	int		have_dm;
+
+	if (ctxp == NULL) {
+	    n = PM_ERR_NOCONTEXT;
+	    goto done;
+	}
+	if (ctxp->c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
+	    /* Local context requires single-threaded applications */
+	    n = PM_ERR_THREAD;
+	    PM_UNLOCK(ctxp->c_lock);
+	    goto done;
+	}
 
 	/* for derived metrics, may need to rewrite the pmidlist */
 	have_dm = newcnt = __dmprefetch(ctxp, numpmid, pmidlist, &newlist);
@@ -134,25 +82,55 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 	    numpmid = newcnt;
 	    pmidlist = newlist;
 	}
-	else
-	    newlist = NULL;
 
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    if ((n = request_fetch (n, ctxp, numpmid, pmidlist)) >= 0) {
+	    /*
+	     * Thread-safe note
+	     *
+	     * Need to be careful here, because the PMCD changed protocol
+	     * may mean several PDUs are returned, but __pmDecodeResult()
+	     * may request more info from PMCD if pmDebug is set.
+	     *
+	     * So unlock ctxp->c_pmcd->pc_lock as soon as possible.
+	     */
+	    PM_LOCK(ctxp->c_pmcd->pc_lock);
+	    if ((n = request_fetch(n, ctxp, numpmid, pmidlist)) >= 0) {
 		int changed = 0;
 		do {
-		    if ((n = receive_fetch (ctxp, result)) > 0) {
-			/* PMCD state change protocol */
-			changed = n;
+		    __pmPDU	*pb;
+		    int		pinpdu;
+
+		    pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
+					    ctxp->c_pmcd->pc_tout_sec, &pb);
+		    if (n == PDU_RESULT) {
+			PM_UNLOCK(ctxp->c_pmcd->pc_lock);
+			n = __pmDecodeResult(pb, result);
 		    }
+		    else if (n == PDU_ERROR) {
+			__pmDecodeError(pb, &n);
+			if (n > 0)
+			    /* PMCD state change protocol */
+			    changed = n;
+			else
+			    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
+		    }
+		    else {
+			PM_UNLOCK(ctxp->c_pmcd->pc_lock);
+			if (n != PM_ERR_TIMEOUT)
+			    n = PM_ERR_IPC;
+		    }
+		    if (pinpdu > 0)
+			__pmUnpinPDUBuf(pb);
 		} while (n > 0);
 
 		if (n == 0)
 		    n |= changed;
 	    }
+	    else
+		PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
-	    n = __pmFetchLocal(numpmid, pmidlist, result);
+	    n = __pmFetchLocal(ctxp, numpmid, pmidlist, result);
 	}
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE */
@@ -170,8 +148,10 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 	    if (newlist != NULL)
 		free(newlist);
 	}
+	PM_UNLOCK(ctxp->c_lock);
     }
 
+done:
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_FETCH) {
 	fprintf(stderr, "pmFetch returns ...\n");
@@ -184,8 +164,10 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 	}
 	if (n >= 0)
 	    __pmDumpResult(stderr, *result);
-	else
-	    fprintf(stderr, "Error: %s\n", pmErrStr(n));
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "Error: %s\n", pmErrStr_r(n, errmsg, sizeof(errmsg)));
+	}
     }
 #endif
 
@@ -201,20 +183,25 @@ pmFetchArchive(pmResult **result)
 
     if ((n = pmWhichContext()) >= 0) {
 	ctxp = __pmHandleToPtr(n);
-	ctxp_mode = (ctxp->c_mode & __PM_MODE_MASK);
-	if (ctxp->c_type != PM_CONTEXT_ARCHIVE)
-	    n = PM_ERR_NOTARCHIVE;
-	else if (ctxp_mode == PM_MODE_INTERP)
-	    /* makes no sense! */
-	    n = PM_ERR_MODE;
+	if (ctxp == NULL)
+	    n = PM_ERR_NOCONTEXT;
 	else {
-	    /* assume PM_CONTEXT_ARCHIVE and BACK or FORW */
-	    n = __pmLogFetch(ctxp, 0, NULL, result);
-	    if (n >= 0) {
-		ctxp->c_origin.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
-		ctxp->c_origin.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
+	    ctxp_mode = (ctxp->c_mode & __PM_MODE_MASK);
+	    if (ctxp->c_type != PM_CONTEXT_ARCHIVE)
+		n = PM_ERR_NOTARCHIVE;
+	    else if (ctxp_mode == PM_MODE_INTERP)
+		/* makes no sense! */
+		n = PM_ERR_MODE;
+	    else {
+		/* assume PM_CONTEXT_ARCHIVE and BACK or FORW */
+		n = __pmLogFetch(ctxp, 0, NULL, result);
+		if (n >= 0) {
+		    ctxp->c_origin.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
+		    ctxp->c_origin.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
+		}
 	    }
 	}
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     return n;
@@ -229,17 +216,20 @@ pmSetMode(int mode, const struct timeval *when, int delta)
 
     if ((n = pmWhichContext()) >= 0) {
 	ctxp = __pmHandleToPtr(n);
+	if (ctxp == NULL)
+	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if (l_mode != PM_MODE_LIVE)
-		return PM_ERR_MODE;
-
-	    ctxp->c_origin.tv_sec = ctxp->c_origin.tv_usec = 0;
-	    ctxp->c_mode = mode;
-	    ctxp->c_delta = delta;
-	    return 0;
+		n = PM_ERR_MODE;
+	    else {
+		ctxp->c_origin.tv_sec = ctxp->c_origin.tv_usec = 0;
+		ctxp->c_mode = mode;
+		ctxp->c_delta = delta;
+		n = 0;
+	    }
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
-		return PM_ERR_MODE;
+	    n = PM_ERR_MODE;
 	}
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE */
@@ -257,12 +247,12 @@ pmSetMode(int mode, const struct timeval *when, int delta)
 		ctxp->c_delta = delta;
 		__pmLogSetTime(ctxp);
 		__pmLogResetInterp(ctxp);
-		return 0;
+		n = 0;
 	    }
 	    else
-		return PM_ERR_MODE;
+		n = PM_ERR_MODE;
 	}
+	PM_UNLOCK(ctxp->c_lock);
     }
-    else
-	return n;
+    return n;
 }

@@ -91,17 +91,6 @@ This error is used in results from
 .BR pmFetch (3)
 to indicate these situations.
 .TP
-.B PM_ERR_LICENSE
-.I "Current PCP license does not permit this operation"
-.br
-Some
-.BR pmcd (1)
-services require a valid PCP Collector license, and some
-PCP client applications require a valid PCP Monitor license.
-The open source version of 
-.BR pmcd (1)
-does not require any licenses at all.
-.TP
 .B PM_ERR_IPC
 .I "IPC protocol failure"
 .br
@@ -144,11 +133,6 @@ A bad
 data structure passed to
 .BR pmStore (3).
 .RE
-.TP
-.B PM_ERR_FILE
-.I "Cannot locate a file"
-.br
-Generic error when a named file is expected to already exist.
 .TP
 .B PM_ERR_NAME
 .I "Unknown metric name"
@@ -234,6 +218,17 @@ Some conversion requests to
 cannot be performed based on the metric types and values involved,
 in this case converting a negative value to an unsigned value.
 .TP
+.B PM_ERR_TYPE
+.I "Unknown or illegal metric type"
+.br
+The metric type is held in the metric descriptor and sometimes
+encoded in the metric values returned from a call to
+.BR pmFetch (3).
+Legal values for the metric type are defined by the
+.B PM_TYPE_*
+macros in
+.BR <pcp/pmapi.h> .
+.TP
 .B PM_ERR_UNIT
 .I "Illegal pmUnits specification"
 .br
@@ -261,6 +256,18 @@ See also the
 option to
 .BR pminfo (1).
 .TP
+.B PM_ERR_INST
+.I "Unknown or illegal instance identifier"
+.br
+A request to a PMDA nominates an instance that is unknown.
+May occur as a consequence of the profile established prior
+to a
+.BR pmFetch (3)
+call, or an explicit instance name or identifier to
+.BR pmLookupInDom (3)
+or
+.BR pmNameInDom (3).
+.TP
 .B PM_ERR_MODE
 .I "Illegal mode specification"
 .br
@@ -275,18 +282,6 @@ argument to
 Bad arguments passed from a PCP client to
 .BR pmAddProfile (3).
 .TP
-.B PM_ERR_OBJSTYLE
-.I "Caller does not match object style of running kernel"
-.br
-In some cases, a PCP application must be build with the same object code
-style as the booted kernel because direct access to kernel data
-structures may be required.  These cases are a client using
-.BR PM_CONTEXT_LOCAL ,
-or
-.BR pmcd (1),
-or a DSO-style PMDA to be used by
-.BR pmcd .
-.TP
 .B PM_ERR_TOOSMALL
 .I "Insufficient elements in list"
 .br
@@ -296,6 +291,15 @@ one element to
 .BR pmLookupName (3)
 or
 .BR pmStore (3).
+.TP
+.B PM_ERR_THREAD
+.I "Operation not supported for multi-threaded applications"
+.br
+As documented in
+.BR PMAPI (3)
+and elsewhere, some
+.B libpcp
+routines are intended soley for use from single-threaded applications.
 .TP
 .B PM_ERR_TOOBIG
 .I "Result size exceeded"
@@ -324,14 +328,6 @@ and/or changes to the PMDAs under
 control.
 .RE
 .TP
-.B PM_ERR_NOASCII
-.I "ASCII format not supported for this PDU"
-.br
-The ASCII mode PDU support is intended for use only between
-.B pmcd
-and a PMDA.  Consequently not all of the possible PDU types
-include encode and decode support for ASCII PDUs.
-.TP
 .B PM_ERR_NYI
 .I "Functionality not yet implemented"
 .br
@@ -347,18 +343,6 @@ characterization is not possible.
 These errors may occur in the interactions between a PCP client and
 .BR pmcd (1)
 providing real-time performance data.
-.TP
-.B PM_ERR_INST
-.I "Unknown or illegal instance identifier"
-.br
-A request to a PMDA nominates an instance that is unknown.
-May occur as a consequence of the profile established prior
-to a
-.BR pmFetch (3)
-call, or an explicit instance name or identifier to
-.BR pmLookupInDom (3)
-or
-.BR pmNameInDom (3).
 .TP
 .B PM_ERR_NOAGENT
 .I "No PMCD agent for domain of request"
@@ -390,20 +374,6 @@ unavailable.
 See also
 .BR PM_ERR_PMDANOTREADY .
 .TP
-.B PM_ERR_PMCDLICENSE
-.I "PMCD is not licensed to accept client connections"
-.br
-If
-.BR pmcd (1)
-is running without a valid PCP Collector License, then it will
-only accept connections from ``authorized'' PCP clients like
-.BR pminfo (1)
-or
-.BR pmlogger (1).
-This error occurs when an unauthorized PCP
-client attempts to connect to an unlicensed
-.BR pmcd (1).
-.TP
 .B PM_ERR_NOPROFILE
 .I "Missing profile - protocol botch"
 .br
@@ -416,6 +386,15 @@ These errors may occur in the interactions between a PCP client and
 the library routines that provide historical
 performance data from PCP archives created by
 .BR pmlogger (1).
+.TP
+.B PM_ERR_LOGFILE
+.I "Missing archive file"
+.br
+Each PCP archive consists of multiple physical files as described
+in
+.BR pmlogger (1).
+This error occurs when one of the physical files is missing or
+cannot be opened for reading.
 .TP
 .B PM_ERR_EOL
 .I "End of PCP archive log"
@@ -559,15 +538,6 @@ the
 argument to
 .BR pmTimeConnect (3)
 must not be invalid.
-.TP
-.B PM_ERR_WANTACK
-.I "Cannot send due to pending acknowledgements"
-.br
-Some client of
-.BR pmtime (1)
-is not acknowledging messages from
-.BR pmtime ,
-and this is causing other clients to be blocked.
 .SH "NAMESPACE ERRORS"
 These errors may occur in the processing of PCP namespace operations.
 A PCP namespace, see
@@ -596,22 +566,12 @@ more than once.
 .B PM_ERR_PMNS
 .I "Problems parsing PMNS definitions"
 .br
-Only occurs when an ASCII namespace is loaded.  As of PCP 2.0 this
-error is mostly confined to
-.BR pmnscomp (1)
-and client applications that use an uncompiled namespace file with a
-.B \-n
-option.
+Only occurs when an ASCII namespace is explicitly loaded.
 .TP
 .B PM_ERR_NOPMNS
 .I "PMNS not accessible"
 .br
-Only occurs when an ASCII namespace is loaded.  As of PCP 2.0 this
-error is mostly confined to
-.BR pmnscomp (1)
-and client applications that use an uncompiled namespace file with a
-.B \-n
-option.
+Only occurs when an ASCII namespace is explicitly loaded.
 .SH "PMCD-PMDA ERRORS"
 These error codes are used in the interactions between
 .BR pmcd (1)

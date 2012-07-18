@@ -1,0 +1,15 @@
+
+# these two files are created by the PMDA install process
+pmdasnmp.1
+pmdasnmp.1.gz
+pmdasnmp.1.lzma
+pmdasnmp.1.xz
+pmdasnmp.1.bz2
+domain.h
+pmns
+
+# this log file is created when hand running the module to test it
+snmp.log
+
+# This is the exported PDF version of the presentation
+snmp2pcp.pdf

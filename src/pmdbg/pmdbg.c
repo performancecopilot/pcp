@@ -69,12 +69,16 @@ static struct {
     		"Trace metrics class operations" },
     { DBG_TRACE_DERIVE,		"DERIVE",
     		"Derived metrics operations" },
+    { DBG_TRACE_LOCK,		"LOCK",
+    		"Trace locks (if multi-threading enabled)" },
     { DBG_TRACE_INTERP,		"INTERP",
 		"Diags for value interpolation in archives" },
     { DBG_TRACE_CONFIG,		"CONFIG",
 		"Trace config initialization from pmGetConfig" },
     { DBG_TRACE_LOOP,		"LOOP",
 		"Diags for pmLoop* services" },
+    { DBG_TRACE_FAULT,		"FAULT",
+    		"Trace fault injection (if enabled)" },
 };
 
 static int	nfoo = sizeof(foo) / sizeof(foo[0]);

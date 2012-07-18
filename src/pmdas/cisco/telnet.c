@@ -396,6 +396,7 @@ grab_cisco(intf_t *ip)
     char	*pw_prompt = NULL;
     char	*w;
     int		fd;
+    int		fd2;
     int		nval = 0;
     cisco_t	*cp = ip->cp;
     intf_t	tmp;
@@ -422,7 +423,11 @@ grab_cisco(intf_t *ip)
 	}
 	else {
 	    cp->fin = fdopen (fd, "r");
-	    cp->fout = fdopen (dup(fd), "w");
+	    if ((fd2 = dup(fd)) < 0) {
+	    	perror("dup");
+		exit(1);
+	    }
+	    cp->fout = fdopen (fd2, "w");
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0) {
 		fprintf(stderr, "grab_cisco(%s:%s): connected fin=%d fout=%d",

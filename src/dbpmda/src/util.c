@@ -29,8 +29,8 @@ static pmID		*pmidlist;
 static int		numpmid;
 static __pmContext	*ctxp;
 
-static char	**argv;
-static int	argc;
+static char		**argv;
+static int		argc;
 
 /*
  * Warning: order of these strings _must_ match bit field sequence defined
@@ -39,7 +39,7 @@ static int	argc;
 static char* debugFlags[] = {
     "pdu", "fetch", "profile", "value", "context", "indom", "pdubuf", "log",
     "logmeta", "optfetch", "af", "appl0", "appl1", "appl2", "pmns", "libpmda",
-    "timecontrol", "pmc", "interp"
+    "timecontrol", "pmc", "derive", "lock", "interp", "config", "loop", "fault"
 };
 
 static int numFlags = sizeof(debugFlags)/sizeof(debugFlags[0]);
@@ -61,13 +61,38 @@ void
 setup_context(void)
 {
     int sts;
+#ifdef PM_MULTI_THREAD
+    pthread_mutex_t	save_c_lock;
+#endif
 
-    if ((sts = pmNewContext(PM_CONTEXT_LOCAL | PM_CTXFLAG_SHALLOW, NULL)) < 0) {
+    if ((sts = pmNewContext(PM_CONTEXT_LOCAL, NULL)) < 0) {
 	fprintf(stderr, "setup_context: creation failed: %s\n", pmErrStr(sts));
 	exit(1);
     }
+
     ctxp = __pmHandleToPtr(sts);
+    if (ctxp == NULL) {
+	fprintf(stderr, "botch: setup_context: __pmHandleToPtr(%d) returns NULL!\n", sts);
+	exit(1);
+    }
+    /*
+     * Note: ctxp->c_lock remains locked throughout ... setup_context()
+     *       is only called once, and a single context is used throughout
+     *       to "fake" out the connection to the current PMDA ... so
+     *       there is no PM_UNLOCK(ctxp->c_lock) anywhere in the dbpmda
+     *       code.
+     *       This works because ctxp->c_lock is a recursive lock and
+     *       dbpmda is single-threaded.
+     */
+
+#ifdef PM_MULTI_THREAD
+    /* need to be careful about the initialized lock */
+    save_c_lock = ctxp->c_lock;
+#endif
     memset(ctxp, 0, sizeof(__pmContext));
+#ifdef PM_MULTI_THREAD
+    ctxp->c_lock = save_c_lock;
+#endif
     ctxp->c_type = PM_CONTEXT_HOST;
     reset_profile();
 }

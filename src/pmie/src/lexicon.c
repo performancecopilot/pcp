@@ -222,9 +222,15 @@ inFile(char *name)
     return 1;
 }
 
-
-/* dereference macro */
-static int		/* 0 -> error, 1 -> string, 2 -> truth, 3 -> number */
+#define DEREF_ERROR	0
+#define DEREF_STRING	1
+#define DEREF_BOOL	2
+#define DEREF_NUMBER	3
+/*
+ * dereference macro  ... return one of the DEREF_* values
+ * for DEREF_ERROR, error is reported here
+ */
+static int
 varDeref(char *name)
 {
     Symbol  s;
@@ -234,7 +240,7 @@ varDeref(char *name)
     /* lookup macro name */
     if ((s = symLookup(&vars, name)) == NULL) {
 	fprintf(stderr, "undefined macro name $%s\n", name);
-	return 0;
+	return DEREF_ERROR;
     }
     x = symValue(s);
 
@@ -248,13 +254,13 @@ varDeref(char *name)
 	lin->macro = (char *) x->ring;
 	lin->lno = 1;
 	lin->cno = 0;
-	return 1;
+	return DEREF_STRING;
     }
 
     /* truth valued macro */
     if (x->sem == SEM_TRUTH) {
 	yylval.x = x;
-	return 2;
+	return DEREF_BOOL;
     }
 
     /* constant numeric valued macro */
@@ -267,13 +273,13 @@ varDeref(char *name)
 	yylval.x = newExpr(NOP, NULL, NULL, -1, -1, -1, 1, SEM_NUMCONST);
 	yylval.x->smpls[0].ptr = x->smpls[0].ptr;
 	yylval.x->valid = 1;
-	return 3;
+	return DEREF_NUMBER;
     }
 
     /* variable numeric valued macro */
     if (x->sem == SEM_NUMVAR) {
 	yylval.x = x;
-	return 3;
+	return DEREF_NUMBER;
     }
 
     fprintf(stderr, "varDeref(%s): internal botch sem=%d?\n", name, x->sem);
@@ -478,12 +484,12 @@ yylex(void)
 		    if (!get_ident(nbuf))
 			return EOF;
 		    sts = varDeref(nbuf);
-		    if (sts == 0) {
+		    if (sts == DEREF_ERROR) {
 			/* error reporting in varDeref() */
 			lexSync();
 			return EOF;
 		    }
-		    else if (sts != 1) {
+		    else if (sts != DEREF_STRING) {
 			synerr();
 			fprintf(stderr, "macro $%s not string valued as expected\n", nbuf);
 			lexSync();
@@ -717,12 +723,12 @@ yylex(void)
 		    if (!get_ident(nbuf))
 			return EOF;
 		    sts = varDeref(nbuf);
-		    if (sts == 0) {
+		    if (sts == DEREF_ERROR) {
 			/* error reporting in varDeref() */
 			lexSync();
 			return EOF;
 		    }
-		    else if (sts != 1) {
+		    else if (sts != DEREF_STRING) {
 			synerr();
 			fprintf(stderr, "macro $%s not string valued as expected\n", nbuf);
 			lexSync();
@@ -770,25 +776,28 @@ yylex(void)
 	    if (!get_ident(nbuf))
 		return EOF;
 	    switch (varDeref(nbuf)) {
-	    case 0:
-		lexSync();
-		return EOF;
-	    case 1:
-		c = nextc();
-		continue;
-	    case 2:
+		case DEREF_ERROR:
+		    lexSync();
+		    return EOF;
+		case DEREF_STRING:
+		    c = nextc();
+		    continue;
+		case DEREF_BOOL:
 #if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
-		    fprintf(stderr, "yylex() -> (boolean) macro $%s\n", nbuf);
+		    if (pmDebug & DBG_TRACE_APPL0)
+			fprintf(stderr, "yylex() -> (boolean) macro $%s\n", nbuf);
 #endif
-		return VAR;
-	    case 3:
+		    return VAR;
+		case DEREF_NUMBER:
 #if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
-		    fprintf(stderr, "yylex() -> (numeric) macro $%s\n", nbuf);
+		    if (pmDebug & DBG_TRACE_APPL0)
+			fprintf(stderr, "yylex() -> (numeric) macro $%s\n", nbuf);
 #endif
-		return VAR;
+		    return VAR;
 	    }
+	    /*NOTREACHED*/
+	    break;
+
 	case '/':
 	    behind = c;
 	    c = nextc();

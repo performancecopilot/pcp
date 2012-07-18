@@ -15,6 +15,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmcd.h"
+#include <assert.h>
 
 extern int _pmSelectReadable(int, fd_set *);
 
@@ -155,6 +156,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	int fd;
 	ap = FindDomainAgent(((__pmID_int *)&dResult[i]->vset[0]->pmid)->domain);
 	/* If it's in a "good" list, pmID has agent that is connected */
+	assert(ap != NULL);
 
 	if (ap->ipcType == AGENT_DSO) {
 	    if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
@@ -162,15 +164,9 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	    if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		s = ap->ipc.dso.dispatch.version.four.store(dResult[i],
 				       ap->ipc.dso.dispatch.version.four.ext);
-	    else if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
-	        ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
+	    else
 		s = ap->ipc.dso.dispatch.version.two.store(dResult[i],
 				       ap->ipc.dso.dispatch.version.two.ext);
-	    else
-		s = ap->ipc.dso.dispatch.version.one.store(dResult[i]);
-	    if (s < 0 &&
-		ap->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-		    s = XLATE_ERR_1TO2(s);
 	}
 	else {
 	    if (ap->status.notReady == 0) {
@@ -240,13 +236,14 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	}
 
 	for (i = 0; i < nAgents; i++) {
+	    int		pinpdu;
 	    ap = &agent[i];
 	    if (!ap->status.busy || !FD_ISSET(ap->outFd, &readyFds))
 		continue;
 	    ap->status.busy = 0;
 	    FD_CLR(ap->outFd, &waitFds);
 	    nWait--;
-	    s = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+	    pinpdu = s = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 	    if (s > 0 && _pmcd_trace_mask)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, s, (int)((__psint_t)pb & 0xffffffff));
 	    if (s == PDU_ERROR) {
@@ -270,6 +267,9 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 		    pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_ERROR, s);
 		sts = PM_ERR_IPC;
 	    }
+
+	    if (pinpdu > 0)
+		__pmUnpinPDUBuf(pb);
 
 	    if (ap->ipcType != AGENT_DSO &&
 		(sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT))

@@ -336,11 +336,10 @@ findEval(Expr *x)
 	if (m == NULL) arity |= 2;
     }
 
+    /*
+     * never come here with x->op == NULL or OP_VAR
+     */
     switch (x->op) {
-
-    case NOP:
-    case OP_VAR:
-	x->eval = NULL;
 
     case RULE:
 	x->eval = rule;

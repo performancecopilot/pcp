@@ -204,9 +204,11 @@ pmAddProfile(pmInDom indom, int instlist_len, int instlist[])
 
     if ((sts = pmWhichContext()) < 0)
 	return sts;
-
     ctxp = __pmHandleToPtr(sts);
-    if (indom == PM_INDOM_NULL && (instlist == NULL || instlist_len == 0)) {
+    if (ctxp == NULL)
+	return PM_ERR_NOCONTEXT;
+
+    if (indom == PM_INDOM_NULL && instlist_len == 0) {
 	_setGlobalState(ctxp, PM_PROFILE_INCLUDE);
 	goto SUCCESS;
     }
@@ -214,6 +216,7 @@ pmAddProfile(pmInDom indom, int instlist_len, int instlist[])
     if ((prof = __pmFindProfile(indom, ctxp->c_instprof)) == NULL) {
 	if ((prof = _newprof(indom, ctxp)) == NULL) {
 	    /* fail */
+	    PM_UNLOCK(ctxp->c_lock);
 	    return -oserror();
 	}
 	else {
@@ -259,10 +262,12 @@ SUCCESS:
     ctxp->c_sent = 0;
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PROFILE) {
-	fprintf(stderr, "pmAddProfile() indom: %s\n", pmInDomStr(indom));
+	char	strbuf[20];
+	fprintf(stderr, "pmAddProfile() indom: %s\n", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	__pmDumpProfile(stderr, indom, ctxp->c_instprof);
     }
 #endif
+    PM_UNLOCK(ctxp->c_lock);
     return 0;
 }
 
@@ -279,9 +284,11 @@ pmDelProfile(pmInDom indom, int instlist_len, int instlist[])
 
     if ((sts = pmWhichContext()) < 0)
 	return sts;
-
     ctxp = __pmHandleToPtr(sts);
-    if (indom == PM_INDOM_NULL && (instlist == NULL || instlist_len == 0)) {
+    if (ctxp == NULL)
+	return PM_ERR_NOCONTEXT;
+
+    if (indom == PM_INDOM_NULL && instlist_len == 0) {
 	_setGlobalState(ctxp, PM_PROFILE_EXCLUDE);
 	goto SUCCESS;
     }
@@ -289,6 +296,7 @@ pmDelProfile(pmInDom indom, int instlist_len, int instlist[])
     if ((prof = __pmFindProfile(indom, ctxp->c_instprof)) == NULL) {
 	if ((prof = _newprof(indom, ctxp)) == NULL) {
 	    /* fail */
+	    PM_UNLOCK(ctxp->c_lock);
 	    return -oserror();
 	}
 	else {
@@ -334,10 +342,12 @@ SUCCESS:
     ctxp->c_sent = 0;
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PROFILE) {
-	fprintf(stderr, "pmDelProfile() indom: %s\n", pmInDomStr(indom));
+	char	strbuf[20];
+	fprintf(stderr, "pmDelProfile() indom: %s\n", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	__pmDumpProfile(stderr, indom, ctxp->c_instprof);
     }
 #endif
+    PM_UNLOCK(ctxp->c_lock);
     return 0;
 }
 
@@ -347,20 +357,21 @@ __pmDumpProfile(FILE *f, int indom, const __pmProfile *pp)
     int			j;
     int			k;
     __pmInDomProfile	*prof;
+    char		strbuf[20];
 
     fprintf(f, "Dump Instance Profile state=%s, %d profiles",
 	pp->state == PM_PROFILE_INCLUDE ? "INCLUDE" : "EXCLUDE",
 	pp->profile_len);
     if (indom != PM_INDOM_NULL)
 	fprintf(f, ", dump restricted to indom=%d [%s]", 
-	        indom, pmInDomStr(indom));
+	        indom, pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
     fprintf(f, "\n");
 
     for (prof=pp->profile, j=0; j < pp->profile_len; j++, prof++) {
 	if (indom != PM_INDOM_NULL && indom != prof->indom)
 	    continue;
 	fprintf(f, "\tProfile [%d] indom=%d [%s] state=%s %d instances\n",
-	    j, prof->indom, pmInDomStr(prof->indom),
+	    j, prof->indom, pmInDomStr_r(prof->indom, strbuf, sizeof(strbuf)),
 	    (prof->state == PM_PROFILE_INCLUDE) ? "INCLUDE" : "EXCLUDE",
 	    prof->instances_len);
 

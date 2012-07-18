@@ -18,15 +18,17 @@
 #include "impl.h"
 #include "pmda.h"
 
+/*
+ * Called with valid context locked ...
+ */
 int
-__pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
+__pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
 {
     int		sts;
     int		ctx;
     int		j;
     int		k;
     int		n;
-    __pmContext	*ctxp;
     pmResult	*ans;
     pmResult	*tmp_ans;
     __pmDSO	*dp;
@@ -35,12 +37,13 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
     static pmID * splitlist=NULL;
     static int	splitmax=0;
 
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
+	/* Local context requires single-threaded applications */
+	return PM_ERR_THREAD;
     if (numpmid < 1)
 	return PM_ERR_TOOSMALL;
 
-    if ((ctx = pmWhichContext()) < 0)
-	return ctx;
-    ctxp = __pmHandleToPtr(ctx);
+    ctx = __pmPtrToHandle(ctxp);
 
     /*
      * this is very ugly ... the DSOs have a high-water mark
@@ -62,7 +65,7 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
      * Check if we have enough space to accomodate "best" case scenario -
      * all pmids are from the same domain
      */
-    if ( splitmax < numpmid ) {
+    if (splitmax < numpmid) {
 	splitmax = numpmid;
 	if ((splitlist = (pmID *)realloc (splitlist,
 					  sizeof (pmID)*splitmax)) == NULL) {
@@ -107,12 +110,9 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    sts = dp->dispatch.version.four.profile(ctxp->c_instprof,
 							   dp->dispatch.version.four.ext);
-		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
+		else
 		    sts = dp->dispatch.version.two.profile(ctxp->c_instprof,
 							   dp->dispatch.version.two.ext);
-		else
-		    sts = dp->dispatch.version.one.profile(ctxp->c_instprof);
 		if (sts >= 0)
 		    ctxp->c_sent = dp->domain;
 	    }
@@ -132,12 +132,9 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 	    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		sts = dp->dispatch.version.four.fetch(cnt, splitlist, &tmp_ans,
 						     dp->dispatch.version.four.ext);
-	    else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-		     dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
+	    else
 		sts = dp->dispatch.version.two.fetch(cnt, splitlist, &tmp_ans,
 						     dp->dispatch.version.two.ext);
-	    else
-		sts = dp->dispatch.version.one.fetch(cnt, splitlist, &tmp_ans);
 	}
 
 	/* Copy results back
@@ -146,11 +143,16 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 	 *		ALWAYS return a pointer to the static area.
 	 */
 	for (n = 0, k = j; k < numpmid && n < cnt; k++) {
-	    if ( pmidlist[k] == splitlist[n] ) {
+	    if (pmidlist[k] == splitlist[n]) {
 		if (sts < 0) {
 		    ans->vset[k] = (pmValueSet *)malloc(sizeof(pmValueSet));
-		    if (ans->vset[k] == NULL)
+		    if (ans->vset[k] == NULL) {
+			/* cleanup all partial allocations for ans->vset[] */
+			for (k--; k >=0; k--)
+			    free(ans->vset[k]);
+			free(ans);
 			return -oserror();
+		    }
 		    ans->vset[k]->numval = sts;
 		    ans->vset[k]->pmid = pmidlist[k];
 		}
@@ -159,11 +161,13 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 		}
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_FETCH) {
+		    char	strbuf[20];
+		    char	errmsg[PM_MAXERRMSGLEN];
 		    fprintf(stderr, "__pmFetchLocal: [%d] PMID=%s nval=",
-			    k, pmIDStr(pmidlist[k]));
+			    k, pmIDStr_r(pmidlist[k], strbuf, sizeof(strbuf)));
 		    if (ans->vset[k]->numval < 0)
 			fprintf(stderr, "%s\n",
-				pmErrStr(ans->vset[k]->numval));
+				pmErrStr_r(ans->vset[k]->numval, errmsg, sizeof(errmsg)));
 		    else
 			fprintf(stderr, "%d\n", ans->vset[k]->numval);
 		}

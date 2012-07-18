@@ -200,7 +200,7 @@ initinsts(Context *x)
 	    else
 		n = pmGetInDom(x->desc.indom, &ip, &np);
 	    if (n < 0) {
-                fprintf(stderr, "%s: pmGetInDom: %s\n", pmProgname, pmErrStr(n));
+                fprintf(stderr, "%s: pmGetInDom(%s): %s\n", pmProgname, pmInDomStr(x->desc.indom), pmErrStr(n));
                 exit(EXIT_FAILURE);
 	    }
             x->inum = n;
@@ -283,6 +283,7 @@ getvals(Context *x,		/* in - full pm description */
 		if (gui || archive != NULL)
 		    __pmPrintStamp(stdout, &r->timestamp);
 		printf("  Archive logging suspended\n");
+		pmFreeResult(r);
 		return -1;
 	    }
 
@@ -317,6 +318,7 @@ getvals(Context *x,		/* in - full pm description */
 
     if ((double)r->timestamp.tv_sec + (double)r->timestamp.tv_usec/1000000 >
 	(double)last.tv_sec + (double)last.tv_usec/1000000) {
+	pmFreeResult(r);
 	return -2;
     }
 
@@ -326,6 +328,7 @@ getvals(Context *x,		/* in - full pm description */
 	    printf("  ");
 	}
 	printf("No values available\n");
+	pmFreeResult(r);
 	return -1;
     }
     else if (r->vset[i]->numval < 0) {
@@ -333,6 +336,7 @@ getvals(Context *x,		/* in - full pm description */
 	    fprintf(stderr, "\n%s: pmFetchArchive: %s\n", pmProgname, pmErrStr(r->vset[i]->numval));
 	else
 	    fprintf(stderr, "\n%s: pmFetch: %s\n", pmProgname, pmErrStr(r->vset[i]->numval));
+	pmFreeResult(r);
 	return -1;
     }
 
@@ -1126,6 +1130,7 @@ getargs(int		argc,		/* in - command line argument count */
 			   &logStart, &last,
 			   &first, &last, posn, &msg) < 0) {
 	fprintf(stderr, "%s", msg);
+	free(msg);
 	exit(EXIT_FAILURE);
     }
 

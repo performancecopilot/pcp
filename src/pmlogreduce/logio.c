@@ -75,7 +75,7 @@ again:
     if ((lpb = (__pmPDU *)malloc(ntohl(head))) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "Error: __pmFindPDUBuf(%d) %s\n",
+	    fprintf(stderr, "Error: _pmLogGet:(%d) %s\n",
 		(int)ntohl(head), osstrerror());
 #endif
 	fseek(f, offset, SEEK_SET);
@@ -90,12 +90,18 @@ again:
 #endif
 	if (sts == 0) {
 	    fseek(f, offset, SEEK_SET);
+	    free(lpb);
 	    return PM_ERR_EOL;
 	}
-	else if (sts > 0)
+	else if (sts > 0) {
+	    free(lpb);
 	    return PM_ERR_LOGREC;
-	else
-	    return -oserror();
+	}
+	else {
+	    int e = -oserror();
+	    free(lpb);
+	    return e;
+	}
     }
 
 

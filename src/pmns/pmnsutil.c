@@ -83,11 +83,10 @@ output(__pmnsNode *p, int depth, char *path)
     if (p->first != NULL)
 	fprintf(outf, "\t%s\n", p->name);
     else {
-	__pmID_int	*pmidp = (__pmID_int *)&p->pmid;
-	if (pmidp->domain == DYNAMIC_PMID)
-	    fprintf(outf, "\t%s\t%d:*:*\n", p->name, pmidp->cluster);
+	if (pmid_domain(p->pmid) == DYNAMIC_PMID && pmid_item(p->pmid) == 0)
+	    fprintf(outf, "\t%s\t%d:*:*\n", p->name, pmid_cluster(p->pmid));
 	else
-	    fprintf(outf, "\t%s\t%d:%d:%d\n", p->name, pmidp->domain, pmidp->cluster, pmidp->item);
+	    fprintf(outf, "\t%s\t%d:%d:%d\n", p->name, pmid_domain(p->pmid), pmid_cluster(p->pmid), pmid_item(p->pmid));
     }
 }
 

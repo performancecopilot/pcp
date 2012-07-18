@@ -24,7 +24,7 @@
 [\f3\-c\f1 \f2dmfile\f1]
 [\f3\-h\f1 \f2hostname\f1]
 [\f3\-K\f1 \f2spec\f1]
-[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-\f1[\f3n\f1|\f3N\f1] \f2pmnsfile\f1]
 [\f3\-O\f1 \f2time\f1]
 [\f3\-Z\f1 \f2timezone\f1]
 [\f2metricname\f1 ...]
@@ -41,6 +41,17 @@ if the
 option is specified an alternative local PMNS is loaded
 from the file
 .IR pmnsfile.
+The
+.B \-N
+option supports the same function as
+.BR \-n ,
+except for the handling of
+duplicate Performance Metric Identifiers (PMIDs) in
+.I pmnsfile
+\- duplicates are allowed with
+.B \-N
+they are not allowed with
+.BR \-n .
 .PP
 The metrics of interest are named in the
 .I metricname

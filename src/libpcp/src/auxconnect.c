@@ -41,17 +41,19 @@ __pmCreateSocket(void)
     /* avoid 200 ms delay */
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
 		   (mysocklen_t)sizeof(nodelay)) < 0) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_ERR, 
 		      "__pmCreateSocket(%d): setsockopt TCP_NODELAY: %s\n",
-		      fd, netstrerror());
+		      fd, netstrerror_r(errmsg, sizeof(errmsg)));
     }
 
     /* don't linger on close */
     if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
 		   (mysocklen_t)sizeof(nolinger)) < 0) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_ERR, 
 		      "__pmCreateSocket(%d): setsockopt SO_LINGER: %s\n",
-		      fd, netstrerror());
+		      fd, netstrerror_r(errmsg, sizeof(errmsg)));
     }
 
     return fd;
@@ -79,9 +81,10 @@ __pmConnectTo(int fd, const struct sockaddr *addr, int port)
     myAddr.sin_port = htons(port);
 
     if (fcntl(fd, F_SETFL, fdFlags | FNDELAY) < 0) {
+	char	errmsg[PM_MAXERRMSGLEN];
         __pmNotifyErr(LOG_ERR, "__pmConnectTo: cannot set FNDELAY - "
 		      "fcntl(%d,F_SETFL,0x%x) failed: %s\n",
-		      fd, fdFlags|FNDELAY , osstrerror());
+		      fd, fdFlags|FNDELAY , osstrerror_r(errmsg, sizeof(errmsg)));
     }
     
     if (connect(fd, (struct sockaddr*)&myAddr, sizeof(myAddr)) < 0) {
@@ -102,10 +105,11 @@ __pmConnectCheckError(int fd)
     mysocklen_t	olen = sizeof(int);
 
     if (getsockopt(fd, SOL_SOCKET, SO_ERROR, (void *)&so_err, &olen) < 0) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	so_err = neterror();
 	__pmNotifyErr(LOG_ERR, 
 		"__pmConnectCheckError: getsockopt(SO_ERROR) failed: %s\n",
-		netstrerror());
+		netstrerror_r(errmsg, sizeof(errmsg)));
     }
     return so_err;
 }
@@ -116,9 +120,10 @@ __pmConnectRestoreFlags(int fd, int fdFlags)
     int sts;
 
     if (fcntl(fd, F_SETFL, fdFlags) < 0) {
+	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_WARNING,"__pmConnectRestoreFlags: cannot restore "
 		      "flags fcntl(%d,F_SETFL,0x%x) failed: %s\n",
-		      fd, fdFlags, osstrerror());
+		      fd, fdFlags, osstrerror_r(errmsg, sizeof(errmsg)));
     }
 
     if ((fdFlags = fcntl(fd, F_GETFD)) >= 0)
@@ -127,9 +132,10 @@ __pmConnectRestoreFlags(int fd, int fdFlags)
         sts = fdFlags;
 
     if (sts == -1) {
+	char	errmsg[PM_MAXERRMSGLEN];
         __pmNotifyErr(LOG_WARNING, "__pmConnectRestoreFlags: "
 		      "fcntl(%d) get/set flags failed: %s\n",
-		      fd, osstrerror());
+		      fd, osstrerror_r(errmsg, sizeof(errmsg)));
 	close(fd);
 	return sts;
     }
@@ -147,6 +153,8 @@ __pmConnectTimeout(void)
      * 	PMCD_CONNECT_TIMEOUT
      *	PMCD_PORT
      */
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     if (first_time) {
 	char	*env_str;
 	first_time = 0;
@@ -166,6 +174,7 @@ __pmConnectTimeout(void)
 	}
 
     }
+    PM_UNLOCK(__pmLock_libpcp);
     return (&canwait);
 }
  
@@ -183,6 +192,8 @@ __pmAuxConnectPMCD(const char *hostname)
     static int		pmcd_port;
     static int		first_time = 1;
 
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     if (first_time) {
 	char	*env_str;
 	char	*end_ptr;
@@ -202,6 +213,7 @@ __pmAuxConnectPMCD(const char *hostname)
 	else
 	    pmcd_port = SERVER_PORT;
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     return __pmAuxConnectPMCDPort(hostname, pmcd_port);
 }
@@ -215,6 +227,8 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     int			sts;
     int			fdFlags;
 
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     if ((servInfo = gethostbyname(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
@@ -222,17 +236,21 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 		    hostname, pmcd_port, hosterror(), hoststrerror());
 	}
 #endif
+	PM_UNLOCK(__pmLock_libpcp);
 	return -EHOSTUNREACH;
     }
 
     __pmConnectTimeout();
 
-    if ((fd = __pmCreateSocket()) < 0)
+    if ((fd = __pmCreateSocket()) < 0) {
+	PM_UNLOCK(__pmLock_libpcp);
 	return fd;
+    }
 
     memset(&myAddr, 0, sizeof(myAddr));	/* Arrgh! &myAddr, not myAddr */
     myAddr.sin_family = AF_INET;
     memcpy(&myAddr.sin_addr, servInfo->h_addr, servInfo->h_length);
+    PM_UNLOCK(__pmLock_libpcp);
 
     if ((fdFlags = __pmConnectTo(fd, (const struct sockaddr *)&myAddr,
 				 pmcd_port)) < 0) {
@@ -240,6 +258,9 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     } else { /* FNDELAY and we're in progress - wait on select */
 	int	rc;
 	fd_set wfds;
+	// TODO hope this goes away with ASYNC API stuff else need lock
+	// and more tricky logic to make sure canwait has indeed been
+	// initialized
 	struct timeval stv = canwait;
 	struct timeval *pstv = (stv.tv_sec || stv.tv_usec) ? &stv : NULL;
 
@@ -265,5 +286,5 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     /* If we're here, it means we have valid connection, restore the
      * flags and make sure this file descriptor is closed if exec() is
      * called */
-    return (__pmConnectRestoreFlags (fd, fdFlags));
+    return __pmConnectRestoreFlags (fd, fdFlags);
 }

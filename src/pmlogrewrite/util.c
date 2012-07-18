@@ -122,7 +122,7 @@ inst_name_eq(const char *p, const char *q)
  *
  * Note: does not handle compressed versions of files.
  *
- * TODO - need global locking for PCP 4.0 version if this is promoted
+ * TODO - need global locking for PCP 3.6 version if this is promoted
  *        to libpcp
  */
 int
@@ -189,10 +189,12 @@ __pmLogRename(const char *old, const char *new)
 		if (found == NULL) {
 		    __pmNoMem("__pmLogRename: realloc", nfound*sizeof(found[0]), PM_RECOV_ERR);
 		    abandon();
+		    /*NOTREACHED*/
 		}
 		if ((found[nfound-1] = strdup(p)) == NULL) {
 		    __pmNoMem("__pmLogRename: strdup", strlen(p)+1, PM_RECOV_ERR);
 		    abandon();
+		    /*NOTREACHED*/
 		}
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOG)
@@ -207,7 +209,6 @@ __pmLogRename(const char *old, const char *new)
 	goto revert;
     }
 
-    closedir(dirp);
     sts = 0;
     goto cleanup;
 
@@ -227,6 +228,7 @@ revert:
     sts = PM_ERR_GENERIC;
 
 cleanup:
+    closedir(dirp);
     while (nfound > 0) {
 	free(found[nfound-1]);
 	nfound--;
@@ -242,7 +244,7 @@ cleanup:
  *
  * Note: does not handle compressed versions of files.
  *
- * TODO - need global locking for PCP 4.0 version if this is promoted
+ * TODO - need global locking for PCP 3.6 version if this is promoted
  *        to libpcp
  */
 int
@@ -261,16 +263,20 @@ __pmLogRemove(const char *name)
     if (dname == NULL) {
 	__pmNoMem("__pmLogRemove: dirname strdup", strlen(dirname(path))+1, PM_RECOV_ERR);
 	abandon();
+	/*NOTREACHED*/
     }
 
-    if ((dirp = opendir(dname)) == NULL)
+    if ((dirp = opendir(dname)) == NULL) {
+	free(dname);
 	return -oserror();
+    }
 
     strncpy(path, name, sizeof(path));
     base = strdup(basename(path));
     if (base == NULL) {
 	__pmNoMem("__pmLogRemove: basename strdup", strlen(basename(path))+1, PM_RECOV_ERR);
 	abandon();
+	/*NOTREACHED*/
     }
 
     for ( ; ; ) {
@@ -317,6 +323,8 @@ __pmLogRemove(const char *name)
 	sts = nfound;
 
     closedir(dirp);
+    free(dname);
+    free(base);
 
     return sts;
 }

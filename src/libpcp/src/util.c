@@ -13,6 +13,16 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes
+ *
+ * pmState - no side-effects, don't bother locking
+ *
+ * pmProgname - most likely set in main(), not worth protecting here
+ * 	and impossible to capture all the read uses in other places
+ *
+ * base (in __pmProcessDataSize) - no real side-effects, don't bother
+ *	locking
  */
 
 #include <stdarg.h>
@@ -53,11 +63,14 @@ static int vpmprintf(const char *, va_list);
 void
 __pmSyslog(int onoff)
 {
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     dosyslog = onoff;
     if (dosyslog)
 	openlog("pcp", LOG_PID, LOG_DAEMON);
     else
 	closelog();
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 /*
@@ -76,12 +89,15 @@ __pmNotifyErr(int priority, const char *message, ...)
 
     time(&now);
 
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     if (dosyslog) {
 	char	syslogmsg[2048];
 
 	snprintf(syslogmsg, sizeof(syslogmsg), message, arg);
 	syslog(priority, "%s", syslogmsg);
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     /*
      * do the stderr equivalent
@@ -117,7 +133,10 @@ __pmNotifyErr(int priority, const char *message, ...)
 	    break;
     }
 
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     pmprintf("[%.19s] %s(%" FMT_PID ") %s: ", ctime(&now), pmProgname, getpid(), level);
+    PM_UNLOCK(__pmLock_libpcp);
     vpmprintf(message, arg);
     va_end(arg);
     /* trailing \n if needed */
@@ -138,7 +157,9 @@ logheader(const char *progname, FILE *log, const char *act)
     gethostname(host, MAXHOSTNAMELEN);
     host[MAXHOSTNAMELEN-1] = '\0';
     time(&now);
+    PM_LOCK(__pmLock_libpcp);
     fprintf(log, "Log for %s on %s %s %s\n", progname, host, act, ctime(&now));
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 static void
@@ -147,7 +168,9 @@ logfooter(FILE *log, const char *act)
     time_t	now;
 
     time(&now);
+    PM_LOCK(__pmLock_libpcp);
     fprintf(log, "\nLog %s %s", act, ctime(&now));
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 static void
@@ -155,16 +178,16 @@ logonexit(void)
 {
     int		i;
 
-    /*
-     * there is a race condition here ... but the worse that can happen
-     * is (a) no "Log finished" message, or (b) _two_ "Log finished"
-     * messages ... neither case is serious enough to warrant a mutex guard
-     */
-    if (++done_exit != 1)
+    PM_LOCK(__pmLock_libpcp);
+    if (++done_exit != 1) {
+	PM_UNLOCK(__pmLock_libpcp);
 	return;
+    }
 
     for (i = 0; i < nfilelog; i++)
 	logfooter(filelog[i], "finished");
+
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 /* common code shared by __pmRotateLog and __pmOpenLog */
@@ -183,45 +206,51 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
      */
 
     fflush(oldstream);
+    *status = 0;		/* set to one if all this works ... */
     oldfd = fileno(oldstream);
-    dupoldfd = dup(oldfd);
+    if ((dupoldfd = dup(oldfd)) >= 0) {
+	/*
+	 * try to remove the file first ... don't bother if this fails,
+	 * but if it succeeds, we at least get a chance to define the
+	 * owner and mode, rather than inheriting this from an existing
+	 * writeable file ... really only a problem when called as with
+	 * uid == 0, e.g. from pmcd(1).
+	 */
+	unlink(logname);
 
-    /*
-     * try to remove the file first ... don't bother if this fails,
-     * but if it succeeds, we at least get a chance to define the
-     * owner and mode, rather than inheriting this from an existing
-     * writeable file ... really only a problem when called as with
-     * uid == 0, e.g. from pmcd(1).
-     */
-    unlink(logname);
-
-    oldstream = freopen(logname, "w", oldstream);
-    if (oldstream == NULL) {
-	int	save_error = oserror();	/* need for error message */
-
-	close(oldfd);
-	if (dup(dupoldfd) != oldfd)
-	    /* fd juggling failed! */
-	    oldstream = NULL;
-	else
-	    /* oldfd now re-instated as at entry */
-	    oldstream = fdopen(oldfd, "w");
+	oldstream = freopen(logname, "w", oldstream);
 	if (oldstream == NULL) {
-	    /* serious trouble ... choose least obnoxious alternative */
-	    if (dupoldstream == stderr)
-		oldstream = fdopen(fileno(stdout), "w");
+	    int	save_error = oserror();	/* need for error message */
+
+	    close(oldfd);
+	    if (dup(dupoldfd) != oldfd)
+		/* fd juggling failed! */
+		oldstream = NULL;
 	    else
-		oldstream = fdopen(fileno(stderr), "w");
+		/* oldfd now re-instated as at entry */
+		oldstream = fdopen(oldfd, "w");
+	    if (oldstream == NULL) {
+		/* serious trouble ... choose least obnoxious alternative */
+		if (dupoldstream == stderr)
+		    oldstream = fdopen(fileno(stdout), "w");
+		else
+		    oldstream = fdopen(fileno(stderr), "w");
+	    }
+	    pmprintf("%s: cannot open log \"%s\" for writing : %s\n",
+		    progname, logname, strerror(save_error));
+	    pmflush();
 	}
-	*status = 0;
-	pmprintf("%s: cannot open log \"%s\" for writing : %s\n",
-		progname, logname, strerror(save_error));
-	pmflush();
+	else {
+	    /* yippee */
+	    *status = 1;
+	}
+	close(dupoldfd);
     }
     else {
-	*status = 1;
+	pmprintf("%s: cannot redirect log output to \"%s\": %s\n",
+		progname, logname, strerror(errno));
+	pmflush();
     }
-    close(dupoldfd);
     return oldstream;
 }
 
@@ -230,8 +259,10 @@ __pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
 	    int *status)
 {
     oldstream = logreopen(progname, logname, oldstream, status);
+    PM_INIT_LOCKS();
     logheader(progname, oldstream, "started");
 
+    PM_LOCK(__pmLock_libpcp);
     nfilelog++;
     if (nfilelog == 1)
 	atexit(logonexit);
@@ -241,6 +272,8 @@ __pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
 	__pmNoMem("__pmOpenLog", nfilelog * sizeof(FILE *), PM_FATAL_ERR);
     }
     filelog[nfilelog-1] = oldstream;
+
+    PM_UNLOCK(__pmLock_libpcp);
     return oldstream;
 }
 
@@ -250,6 +283,8 @@ __pmRotateLog(const char *progname, const char *logname, FILE *oldstream,
 {
     int		i;
 
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     for (i = 0; i < nfilelog; i++) {
 	if (oldstream == filelog[i]) {
 	    logfooter(oldstream, "rotated");	/* old */
@@ -259,17 +294,18 @@ __pmRotateLog(const char *progname, const char *logname, FILE *oldstream,
 	    break;
 	}
     }
+    PM_UNLOCK(__pmLock_libpcp);
     return oldstream;
 }
 
-const char *
-pmIDStr(pmID pmid)
+/* pmID -> string, max length is 20 bytes */
+char *
+pmIDStr_r(pmID pmid, char *buf, int buflen)
 {
-    static char	pbuf[20];
     __pmID_int*	p = (__pmID_int*)&pmid;
     if (pmid == PM_ID_NULL)
-	return "PM_ID_NULL";
-    if (p->domain == DYNAMIC_PMID && p->item == 0)
+	snprintf(buf, buflen, "%s", "PM_ID_NULL");
+    else if (p->domain == DYNAMIC_PMID && p->item == 0)
 	/*
 	 * this PMID represents the base of a dynamic subtree in the PMNS
 	 * ... identified by setting the domain field to the reserved
@@ -277,65 +313,90 @@ pmIDStr(pmID pmid)
 	 * that can enumerate the subtree in the cluster field, while
 	 * the item field is not used
 	 */
-	snprintf(pbuf, sizeof(pbuf), "%d.*.*", p->cluster);
+	snprintf(buf, buflen, "%d.*.*", p->cluster);
     else
-	snprintf(pbuf, sizeof(pbuf), "%d.%d.%d", p->domain, p->cluster, p->item);
-    return pbuf;
+	snprintf(buf, buflen, "%d.%d.%d", p->domain, p->cluster, p->item);
+    return buf;
+}
+
+const char *
+pmIDStr(pmID pmid)
+{
+    static char	idbuf[20];
+    pmIDStr_r(pmid, idbuf, sizeof(idbuf));
+    return idbuf;
+}
+
+/* pmInDom -> string, max length is 20 bytes */
+char *
+pmInDomStr_r(pmInDom indom, char *buf, int buflen)
+{
+    __pmInDom_int*	p = (__pmInDom_int*)&indom;
+    if (indom == PM_INDOM_NULL)
+	snprintf(buf, buflen, "%s", "PM_INDOM_NULL");
+    else
+	snprintf(buf, buflen, "%d.%d", p->domain, p->serial);
+    return buf;
 }
 
 const char *
 pmInDomStr(pmInDom indom)
 {
-    static char	pbuf[20];
-    __pmInDom_int*	p = (__pmInDom_int*)&indom;
-    if (indom == PM_INDOM_NULL)
-	return "PM_INDOM_NULL";
-    snprintf(pbuf, sizeof(pbuf), "%d.%d", p->domain, p->serial);
-    return pbuf;
+    static char	indombuf[20];
+    pmInDomStr_r(indom, indombuf, sizeof(indombuf));
+    return indombuf;
 }
 
-const char *
-pmNumberStr(double value)
+/* double -> string, max length is 8 bytes */
+char *
+pmNumberStr_r(double value, char *buf, int buflen)
 {
-    static char buf[8];
-
     if (value >= 0.0) {
 	if (value >= 999995000000000.0)
-	    strncpy(buf, " inf? ", sizeof(buf));
+	    snprintf(buf, buflen, " inf?  ");
 	else if (value >= 999995000000.0)
-	    snprintf(buf, sizeof(buf), "%6.2fT", value / 1000000000000.0);
+	    snprintf(buf, buflen, "%6.2fT", value / 1000000000000.0);
 	else if (value >= 999995000.0)
-	    snprintf(buf, sizeof(buf), "%6.2fG", value / 1000000000.0);
+	    snprintf(buf, buflen, "%6.2fG", value / 1000000000.0);
 	else if (value >= 999995.0)
-	    snprintf(buf, sizeof(buf), "%6.2fM", value / 1000000.0);
+	    snprintf(buf, buflen, "%6.2fM", value / 1000000.0);
 	else if (value >= 999.995)
-	    snprintf(buf, sizeof(buf), "%6.2fK", value / 1000.0);
+	    snprintf(buf, buflen, "%6.2fK", value / 1000.0);
 	else if (value >= 0.005)
-	    snprintf(buf, sizeof(buf), "%6.2f ", value);
+	    snprintf(buf, buflen, "%6.2f ", value);
 	else
-	    snprintf(buf, sizeof(buf), "%6.2f ", 0.0);
+	    snprintf(buf, buflen, "%6.2f ", 0.0);
     }
     else {
 	if (value <= -99995000000000.0)
-	    strncpy(buf, "-inf?  ", sizeof(buf));
+	    snprintf(buf, buflen, "-inf?  ");
 	else if (value <= -99995000000.0)
-	    snprintf(buf, sizeof(buf), "%6.2fT", value / 1000000000000.0);
+	    snprintf(buf, buflen, "%6.2fT", value / 1000000000000.0);
 	else if (value <= -99995000.0)
-	    snprintf(buf, sizeof(buf), "%6.2fG", value / 1000000000.0);
+	    snprintf(buf, buflen, "%6.2fG", value / 1000000000.0);
 	else if (value <= -99995.0)
-	    snprintf(buf, sizeof(buf), "%6.2fM", value / 1000000.0);
+	    snprintf(buf, buflen, "%6.2fM", value / 1000000.0);
 	else if (value <= -99.995)
-	    snprintf(buf, sizeof(buf), "%6.2fK", value / 1000.0);
+	    snprintf(buf, buflen, "%6.2fK", value / 1000.0);
 	else if (value <= -0.005)
-	    snprintf(buf, sizeof(buf), "%6.2f ", value);
+	    snprintf(buf, buflen, "%6.2f ", value);
 	else
-	    snprintf(buf, sizeof(buf), "%6.2f ", 0.0);
+	    snprintf(buf, buflen, "%6.2f ", 0.0);
     }
     return buf;
 }
 
 const char *
-pmEventFlagsStr(int flags)
+pmNumberStr(double value)
+{
+    static char nbuf[8];
+    pmNumberStr_r(value, nbuf, sizeof(nbuf));
+    return nbuf;
+}
+
+/* flags -> string, max length is 64 bytes */
+char *
+pmEventFlagsStr_r(int flags, char *buf, int buflen)
 {
     /*
      * buffer needs to be long enough to hold each flag name
@@ -343,34 +404,41 @@ pmEventFlagsStr(int flags)
      * point,start,end,id,parent (even though it is unlikely that
      * both start and end would be set for the one event record)
      */
-    static char buffer[64];
     int started = 0;
 
     if (flags & PM_EVENT_FLAG_MISSED)
-	return strcpy(buffer, "missed");
+	return strcpy(buf, "missed");
 
-    buffer[0] = '\0';
+    buf[0] = '\0';
     if (flags & PM_EVENT_FLAG_POINT) {
-	if (started++) strcat(buffer, ",");
-	strcat(buffer, "point");
+	if (started++) strcat(buf, ",");
+	strcat(buf, "point");
     }
     if (flags & PM_EVENT_FLAG_START) {
-	if (started++) strcat(buffer, ",");
-	strcat(buffer, "start");
+	if (started++) strcat(buf, ",");
+	strcat(buf, "start");
     }
     if (flags & PM_EVENT_FLAG_END) {
-	if (started++) strcat(buffer, ",");
-	strcat(buffer, "end");
+	if (started++) strcat(buf, ",");
+	strcat(buf, "end");
     }
     if (flags & PM_EVENT_FLAG_ID) {
-	if (started++) strcat(buffer, ",");
-	strcat(buffer, "id");
+	if (started++) strcat(buf, ",");
+	strcat(buf, "id");
     }
     if (flags & PM_EVENT_FLAG_PARENT) {
-	if (started++) strcat(buffer, ",");
-	strcat(buffer, "parent");
+	if (started++) strcat(buf, ",");
+	strcat(buf, "parent");
     }
-    return buffer;
+    return buf;
+}
+
+const char *
+pmEventFlagsStr(int flags)
+{
+    static char ebuf[64];
+    pmEventFlagsStr_r(flags, ebuf, sizeof(ebuf));
+    return ebuf;
 }
 
 void
@@ -394,11 +462,12 @@ __pmDumpResult(FILE *f, const pmResult *resp)
     fprintf(f, " numpmid: %d\n", resp->numpmid);
     for (i = 0; i < resp->numpmid; i++) {
 	pmValueSet	*vsp = resp->vset[i];
+	char		strbuf[20];
 	n = pmNameID(vsp->pmid, &p);
 	if (n < 0)
-	    fprintf(f,"  %s (%s):", pmIDStr(vsp->pmid), "<noname>");
+	    fprintf(f,"  %s (%s):", pmIDStr_r(vsp->pmid, strbuf, sizeof(strbuf)), "<noname>");
 	else {
-	    fprintf(f,"  %s (%s):", pmIDStr(vsp->pmid), p);
+	    fprintf(f,"  %s (%s):", pmIDStr_r(vsp->pmid, strbuf, sizeof(strbuf)), p);
 	    free(p);
 	}
 	if (vsp->numval == 0) {
@@ -406,7 +475,8 @@ __pmDumpResult(FILE *f, const pmResult *resp)
 	    continue;
 	}
 	else if (vsp->numval < 0) {
-	    fprintf(f, " %s\n", pmErrStr(vsp->numval));
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(f, " %s\n", pmErrStr_r(vsp->numval, errmsg, sizeof(errmsg)));
 	    continue;
 	}
 	if (__pmGetInternalState() == PM_STATE_PMCS || pmLookupDesc(vsp->pmid, &desc) < 0) {
@@ -563,10 +633,16 @@ pmPrintValue(FILE *f,			/* output stream */
 	if (valfmt == PM_VAL_INSITU) {
 	    float	*fp = (float *)&val->value.lval;
 	    __uint32_t	*ip = (__uint32_t *)&val->value.lval;
+	    int		fp_bad = 0;
 	    fprintf(f, "%*u", minwidth, *ip);
+#ifdef HAVE_FPCLASSIFY
+	    fp_bad = fpclassify(*fp) == FP_NAN;
+#else
 #ifdef HAVE_ISNANF
-	    if (!isnanf(*fp))
+	    fp_bad = isnanf(*fp);
 #endif
+#endif
+	    if (!fp_bad)
 		fprintf(f, " %*.8g", minwidth, (double)*fp);
 	    if (minwidth > 2)
 		minwidth -= 2;
@@ -576,31 +652,44 @@ pmPrintValue(FILE *f,			/* output stream */
 	    int		string;
 	    int		done = 0;
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(__uint64_t)) {
-		__uint64_t	i;
-		memcpy((void *)&i, (void *)&val->value.pval->vbuf, sizeof(__uint64_t));
-		fprintf(f, "%*"PRIu64, minwidth, i);
+		__uint64_t	tmp;
+		memcpy((void *)&tmp, (void *)val->value.pval->vbuf, sizeof(tmp));
+		fprintf(f, "%*"PRIu64, minwidth, tmp);
 		done = 1;
 	    }
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(double)) {
-		double	d;
-		memcpy((void *)&d, (void *)&val->value.pval->vbuf, sizeof(double));
-		if (!isnand(d)) {
+		double		tmp;
+		int		fp_bad = 0;
+		memcpy((void *)&tmp, (void *)val->value.pval->vbuf, sizeof(tmp));
+#ifdef HAVE_FPCLASSIFY
+		fp_bad = fpclassify(tmp) == FP_NAN;
+#else
+#ifdef HAVE_ISNAN
+		fp_bad = isnan(tmp);
+#endif
+#endif
+		if (!fp_bad) {
 		    if (done) fputc(' ', f);
-		    fprintf(f, "%*.16g", minwidth, d);
+		    fprintf(f, "%*.16g", minwidth, tmp);
 		    done = 1;
 		}
 	    }
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(float)) {
-		float	*fp = (float *)&val->value.pval->vbuf;
+		float	tmp;
+		int	fp_bad = 0;
+		memcpy((void *)&tmp, (void *)val->value.pval->vbuf, sizeof(tmp));
+#ifdef HAVE_FPCLASSIFY
+		fp_bad = fpclassify(tmp) == FP_NAN;
+#else
 #ifdef HAVE_ISNANF
-		if (!isnanf(*fp)) {
+		fp_bad = isnanf(tmp);
 #endif
+#endif
+		if (!fp_bad) {
 		    if (done) fputc(' ', f);
-		    fprintf(f, "%*.8g", minwidth, (double)*fp);
+		    fprintf(f, "%*.8g", minwidth, (double)tmp);
 		    done = 1;
-#ifdef HAVE_ISNANF
 		}
-#endif
 	    }
 	    if (val->value.pval->vlen < PM_VAL_HDR_SIZE)
 		fprintf(f, "pmPrintValue: negative length (%d) for aggregate value?",
@@ -644,7 +733,24 @@ pmPrintValue(FILE *f,			/* output stream */
 	break;
 
     case PM_TYPE_EVENT:		/* not much we can do about minwidth */
-	print_event_summary(f, val);
+	if (valfmt == PM_VAL_INSITU) {
+	    /*
+	     * Special case for pmlc/pmlogger where PMLC_SET_*() macros
+	     * used to set control requests / state in the lval field
+	     * and the pval does not really contain a valid event record
+	     * Code here comes from PrintState() in actions.c from pmlc.
+	     */
+	    fputs("[pmlc control ", f);
+	    fputs(PMLC_GET_MAND(val->value.lval) ? "mand " : "adv ", f);
+	    fputs(PMLC_GET_ON(val->value.lval) ? "on " : "off ", f);
+	    if (PMLC_GET_INLOG(val->value.lval))
+		fputs(PMLC_GET_AVAIL(val->value.lval) ? " " : "na ", f);
+	    else
+		fputs("nl ", f);
+	    fprintf(f, "%d]", PMLC_GET_DELTA(val->value.lval));
+	}
+	else
+	    print_event_summary(f, val);
 	break;
 
     case PM_TYPE_NOSUPPORT:
@@ -659,9 +765,10 @@ pmPrintValue(FILE *f,			/* output stream */
 void
 __pmNoMem(const char *where, size_t size, int fatal)
 {
+    char	errmsg[PM_MAXERRMSGLEN];
     __pmNotifyErr(fatal ? LOG_ERR : LOG_WARNING,
 			"%s: malloc(%d) failed: %s",
-			where, (int)size, osstrerror());
+			where, (int)size, osstrerror_r(errmsg, sizeof(errmsg)));
     if (fatal)
 	exit(1);
 }
@@ -692,17 +799,32 @@ __pmTimevalSub(const __pmTimeval *ap, const __pmTimeval *bp)
 }
 
 /*
- * timestamp, e.g. from a log in HH:MM:SS.XXX format
+ * print timeval timestamp in HH:MM:SS.XXX format
  */
 void
 __pmPrintStamp(FILE *f, const struct timeval *tp)
 {
-    static struct tm	tmp;
-    time_t		now;
+    struct tm	tmp;
+    time_t	now;
 
     now = (time_t)tp->tv_sec;
     pmLocaltime(&now, &tmp);
     fprintf(f, "%02d:%02d:%02d.%03d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)(tp->tv_usec/1000));
+}
+
+/*
+ * print __pmTimeval timestamp in HH:MM:SS.XXX format
+ * (__pmTimeval variant used in PDUs, archives and internally)
+ */
+void
+__pmPrintTimeval(FILE *f, const __pmTimeval *tp)
+{
+    struct tm	tmp;
+    time_t	now;
+
+    now = (time_t)tp->tv_sec;
+    pmLocaltime(&now, &tmp);
+    fprintf(f, "%02d:%02d:%02d.%03d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tp->tv_usec/1000);
 }
 
 /*
@@ -711,10 +833,11 @@ __pmPrintStamp(FILE *f, const struct timeval *tp)
 void
 __pmPrintDesc(FILE *f, const pmDesc *desc)
 {
-    char	*type;
-    char	*sem;
-    static char	*unknownVal = "???";
-    const char	*units;
+    const char		*type;
+    const char		*sem;
+    static const char	*unknownVal = "???";
+    const char		*units;
+    char		strbuf[60];
 
     if (desc->type == PM_TYPE_NOSUPPORT) {
 	fprintf(f, "    Data Type: Not Supported\n");
@@ -760,7 +883,7 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
     if (type == unknownVal)
 	fprintf(f, " (%d)", desc->type);
 
-    fprintf(f,"  InDom: %s 0x%x\n", pmInDomStr(desc->indom), desc->indom);
+    fprintf(f,"  InDom: %s 0x%x\n", pmInDomStr_r(desc->indom, strbuf, sizeof(strbuf)), desc->indom);
 
     switch (desc->sem) {
 	case PM_SEM_COUNTER:
@@ -782,7 +905,7 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
 	fprintf(f, " (%d)", desc->sem);
 
     fprintf(f, "  Units: ");
-    units = pmUnitsStr(&desc->units);
+    units = pmUnitsStr_r(&desc->units, strbuf, sizeof(strbuf));
     if (*units == '\0')
 	fprintf(f, "none\n");
     else
@@ -793,23 +916,35 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
  * print times between events
  */
 void
-__pmEventTrace(const char *event)
+__pmEventTrace_r(const char *event, int *first, double *sum, double *last)
 {
 #ifdef PCP_DEBUG
-    static double last = 0;
-    static double sum = 0;
-    static int first = 1;
     struct timeval tv;
     double now;
 
     __pmtimevalNow(&tv);
     now = (double)tv.tv_sec + (double)tv.tv_usec / 1000000.0;
-    if (!first)
-        sum += now - last;
+    if (*first) {
+	*first = 0;
+	*sum = 0;
+	*last = now;
+    }
+    *sum += now - *last;
     fprintf(stderr, "%s: +%4.2f = %4.2f -> %s\n",
-			pmProgname, first ? 0 : (now-last), sum, event);
-    last = now;
-    first = 0;
+			pmProgname, now-*last, *sum, event);
+    *last = now;
+#endif
+}
+
+void
+__pmEventTrace(const char *event)
+{
+#ifdef PCP_DEBUG
+    static double last;
+    static double sum;
+    static int first = 1;
+
+    __pmEventTrace_r(event, &first, &sum, &last);
 #endif
 }
 
@@ -898,7 +1033,6 @@ __pmSetInternalState(int state)
 
 #define MSGBUFLEN	256
 static FILE	*fptr = NULL;
-static char	outbuf[MSGBUFLEN];
 static int	msgsize = 0;
 static char	*fname;		/* temporary file name for buffering errors */
 static char	*ferr;		/* error output filename from PCP_STDERR */
@@ -916,14 +1050,17 @@ pmfstate(int state)
     if (state > PM_QUERYERR)
 	errtype = state;
 
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     if (errtype == PM_QUERYERR) {
 	errtype = PM_USESTDERR;
 	if ((ferr = getenv("PCP_STDERR")) != NULL) {
 	    if (strcasecmp(ferr, "DISPLAY") == 0) {
 		char * xconfirm = pmGetConfig("PCP_XCONFIRM_PROG");
 		if (access(__pmNativePath(xconfirm), X_OK) < 0) {
+		    char	errmsg[PM_MAXERRMSGLEN];
 		    fprintf(stderr, "%s: using stderr - cannot access %s: %s\n",
-			    pmProgname, xconfirm, osstrerror());
+			    pmProgname, xconfirm, osstrerror_r(errmsg, sizeof(errmsg)));
 		}
 		else
 		    errtype = PM_USEDIALOG;
@@ -932,6 +1069,7 @@ pmfstate(int state)
 		errtype = PM_USEFILE;
 	}
     }
+    PM_UNLOCK(__pmLock_libpcp);
     return errtype;
 }
 
@@ -940,6 +1078,8 @@ vpmprintf(const char *msg, va_list arg)
 {
     int		lsize = 0;
 
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     if (fptr == NULL && msgsize == 0) {		/* create scratch file */
 	int	fd = -1;
 
@@ -947,8 +1087,9 @@ vpmprintf(const char *msg, va_list arg)
 	if (fname == NULL ||
 	    (fd = open(fname, O_RDWR|O_APPEND|O_CREAT|O_EXCL, 0600)) < 0 ||
 	    (fptr = fdopen(fd, "a")) == NULL) {
+	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s: vpmprintf: failed to create \"%s\": %s\n",
-		pmProgname, fname, osstrerror());
+		pmProgname, fname, osstrerror_r(errmsg, sizeof(errmsg)));
 	    fprintf(stderr, "vpmprintf msg:\n");
 	    if (fd != -1)
 		close(fd);
@@ -964,6 +1105,7 @@ vpmprintf(const char *msg, va_list arg)
     else
 	msgsize += (lsize = vfprintf(fptr, msg, arg));
 
+    PM_UNLOCK(__pmLock_libpcp);
     return lsize;
 }
 
@@ -986,14 +1128,18 @@ pmflush(void)
     int		len;
     int		state;
     FILE	*eptr = NULL;
+    char	outbuf[MSGBUFLEN];
 
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     if (fptr != NULL && msgsize > 0) {
 	fflush(fptr);
 	state = pmfstate(PM_QUERYERR);
 	if (state == PM_USEFILE) {
 	    if ((eptr = fopen(ferr, "a")) == NULL) {
+		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "pmflush: cannot append to file '%s' (from "
-			"$PCP_STDERR): %s\n", ferr, osstrerror());
+			"$PCP_STDERR): %s\n", ferr, osstrerror_r(errmsg, sizeof(errmsg)));
 		state = PM_USESTDERR;
 	    }
 	}
@@ -1003,8 +1149,9 @@ pmflush(void)
 	    while ((len = (int)read(fileno(fptr), outbuf, MSGBUFLEN)) > 0) {
 		sts = write(fileno(stderr), outbuf, len);
 		if (sts != len) {
+		    char	errmsg[PM_MAXERRMSGLEN];
 		    fprintf(stderr, "pmflush: write() failed: %s\n", 
-			osstrerror());
+			osstrerror_r(errmsg, sizeof(errmsg)));
 		}
 		sts = 0;
 	    }
@@ -1016,8 +1163,9 @@ pmflush(void)
 		    __pmNativePath(pmGetConfig("PCP_XCONFIRM_PROG")), fname,
 		    (msgsize > 80 ? "-useslider" : ""));
 	    if (system(outbuf) < 0) {
+		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "%s: system failed: %s\n", pmProgname,
-			osstrerror());
+			osstrerror_r(errmsg, sizeof(errmsg)));
 		sts = -oserror();
 	    }
 	    break;
@@ -1026,8 +1174,9 @@ pmflush(void)
 	    while ((len = (int)read(fileno(fptr), outbuf, MSGBUFLEN)) > 0) {
 		sts = write(fileno(eptr), outbuf, len);
 		if (sts != len) {
+		    char	errmsg[PM_MAXERRMSGLEN];
 		    fprintf(stderr, "pmflush: write() failed: %s\n", 
-			osstrerror());
+			osstrerror_r(errmsg, sizeof(errmsg)));
 		}
 		sts = 0;
 	    }
@@ -1044,6 +1193,7 @@ pmflush(void)
 
     msgsize = 0;
 
+    PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
 
@@ -1073,6 +1223,8 @@ __pmSetClientId(const char *id)
 	return sts;
 
     (void)gethostname(host, MAXHOSTNAMELEN);
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     hep = gethostbyname(host);
     if (hep != NULL) {
 	strcpy(host, hep->h_name);
@@ -1083,6 +1235,7 @@ __pmSetClientId(const char *id)
     }
     else
 	vblen = strlen(host) + strlen(id) + 2;
+    PM_UNLOCK(__pmLock_libpcp);
 
     /* build pmResult for pmStore() */
     pmvb = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE+vblen);
@@ -1171,29 +1324,13 @@ char *
 dirname(char *name)
 {
     char	*p = strrchr(name, '/');
-    static char	*dot = ".";
 
     if (p == NULL)
-	return(dot);
+	return(".");
     else {
 	*p = '\0';
 	return(name);
     }
-}
-#endif
-
-#ifndef HAVE_ISNAND
-int
-isnand(double d)
-{
-#ifdef HAVE_ISNANF
-    float	f = (float)d;
-    /* not exact, but the best we can do! */
-    return(isnanf(f));
-#else
-    /* no support, assume is _not_ NAN, i.e. OK */
-    return(0);
-#endif
 }
 #endif
 
@@ -1214,6 +1351,8 @@ scandir(const char *dirname, struct dirent ***namelist,
     struct dirent	*dp;
     struct dirent	*tp;
 
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     if ((dirp = opendir(dirname)) == NULL)
 	return -1;
 
@@ -1238,6 +1377,7 @@ scandir(const char *dirname, struct dirent ***namelist,
 	memcpy(tp->d_name, dp->d_name, strlen(dp->d_name)+1);
     }
     closedir(dirp);
+    PM_UNLOCK(__pmLock_libpcp);
     *namelist = names;
 
     if (n && compare)
@@ -1362,6 +1502,7 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
     }
     else {
 	/* child */
+	char	errmsg[PM_MAXERRMSGLEN];
 	close(in[1]);
 	close(out[0]);
 	if (in[0] != 0) {
@@ -1375,7 +1516,7 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	    close(out[1]);
 	}
 	execvp(argv[0], argv);
-	fprintf(stderr, "execvp: %s\n", osstrerror());
+	fprintf(stderr, "execvp: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
 	exit(1);
     }
     return pid;

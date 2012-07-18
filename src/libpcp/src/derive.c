@@ -31,27 +31,78 @@
  * 	call pmNewContext().
  * 4.	There is no pmUnregisterDerived(), so once registered a derived
  * 	metric persists for the life of the application.
+ *
+ * Thread-safe notes
+ *
+ * Need to call PM_INIT_LOCKS() in pmRegisterDerived() because we may
+ * be called before a context has been created, and missed the
+ * lock initialization in pmNewContext().
+ *
+ * registered.mutex is held throughout pmRegisterDerived() and this
+ * protects all of the lexical scanner and parser state, i.e. tokbuf,
+ * tokbuflen, string, lexpeek and this.  Same applies to pmid within
+ * pmRegisterDerived().
+ *
+ * The return value from pmRegisterDerived is either a NULL or a pointer
+ * back into the expr argument, so use of "this" to carry the return
+ * value in the error case is OK.
+ *
+ * All access to registered is controlled by the registered.mutex.
+ *
+ * No locking needed in init() to protect need_init and the getenv()
+ * call, as we always lock the registered.mutex before calling init().
+ *
+ * The context locking protocol ensures that when any of the routines
+ * below are called with a __pmContext * argument, that argument is
+ * not NULL and is associated with a context that is ALREADY locked
+ * via ctxp->c_lock.  We should not unlock the context, that is the
+ * responsibility of our callers.
+ *
+ * derive_errmsg needs to be thread-private
  */
 
 #include <inttypes.h>
+#include <assert.h>
 #include "derive.h"
+#include "internal.h"
+#include "fault.h"
 
-static int	need_init = 1;
-static ctl_t	registered;
+static int		need_init = 1;
+static ctl_t		registered = {
+#ifdef PM_MULTI_THREAD
+#ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+    PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
+#else
+    PTHREAD_MUTEX_INITIALIZER,
+#endif
+#endif
+	0, NULL, 0, 0 };
 
 /* parser and lexer variables */
-static char	*tokbuf = NULL;
-static int	tokbuflen;
-static char	*this;		/* start of current lexicon */
-static int	lexpeek = 0;
-static char	*string;
-static char	*errmsg;
+static char		*tokbuf = NULL;
+static int		tokbuflen;
+static const char	*this;		/* start of current lexicon */
+static int		lexpeek = 0;
+static const char	*string;
 
-static char *type_dbg[] = { "ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "PLUS", "MINUS", "STAR", "SLASH", "LPAREN", "RPAREN", "AVG", "COUNT", "DELTA", "MAX", "MIN", "SUM", "ANON" };
-static char type_c[] = { '\0', '\0', '\0', '\0', '\0', '+', '-', '*', '/', '(', ')', '\0' };
+#ifdef PM_MULTI_THREAD
+#ifdef HAVE___THREAD
+/* using a gcc construct here to make derive_errmsg thread-private */
+static __thread char	*derive_errmsg;
+#endif
+#else
+static char		*derive_errmsg;
+#endif
+
+static const char	*type_dbg[] = {
+	"ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "PLUS", "MINUS",
+	"STAR", "SLASH", "LPAREN", "RPAREN", "AVG", "COUNT", "DELTA",
+	"MAX", "MIN", "SUM", "ANON" };
+static const char	type_c[] = {
+	'\0', '\0', '\0', '\0', '\0', '+', '-', '*', '/', '(', ')', '\0' };
 
 /* function table for lexer */
-static struct {
+static const struct {
     int		f_type;
     char	*f_name;
 } func[] = {
@@ -74,15 +125,64 @@ static struct {
 #define P_FUNC_END	5
 #define P_END		99
 
-static char *state_dbg[] = { "INIT", "LEAF", "LEAF_PAREN", "BINOP", "FUNC_OP", "FUNC_END" };
+static const char	*state_dbg[] = {
+	"INIT", "LEAF", "LEAF_PAREN", "BINOP", "FUNC_OP", "FUNC_END" };
+
+#ifdef PM_MULTI_THREAD
+#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+static void
+initialize_mutex(void)
+{
+    static pthread_mutex_t	init = PTHREAD_MUTEX_INITIALIZER;
+    static int			done = 0;
+    int				psts;
+    char			errmsg[PM_MAXERRMSGLEN];
+    if ((psts = pthread_mutex_lock(&init)) != 0) {
+	strerror_r(psts, errmsg, sizeof(errmsg));
+	fprintf(stderr, "initializ_mutex: pthread_mutex_lock failed: %s", errmsg);
+	exit(4);
+    }
+    if (!done) {
+	/*
+	 * Unable to initialize at compile time, need to do it here in
+	 * a one trip for all threads run-time initialization.
+	 */
+	pthread_mutexattr_t    attr;
+
+	if ((psts = pthread_mutexattr_init(&attr)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "initialize_mutex: pthread_mutexattr_init failed: %s", errmsg);
+	    exit(4);
+	}
+	if ((psts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "initialize_mutex: pthread_mutexattr_settype failed: %s", errmsg);
+	    exit(4);
+	}
+	if ((psts = pthread_mutex_init(&registered.mutex, &attr)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "initialize_mutex: pthread_mutex_init failed: %s", errmsg);
+	    exit(4);
+	}
+	done = 1;
+    }
+    if ((psts = pthread_mutex_unlock(&init)) != 0) {
+	strerror_r(psts, errmsg, sizeof(errmsg));
+	fprintf(stderr, "initialize_mutex: pthread_mutex_unlock failed: %s", errmsg);
+	exit(4);
+    }
+}
+#endif
+#endif
 
 /* Register an anonymous metric */
 int
-__pmRegisterAnon(char *name, int type)
+__pmRegisterAnon(const char *name, int type)
 {
     char	*msg;
     char	buf[21];	/* anon(PM_TYPE_XXXXXX) */
 
+PM_FAULT_CHECK(PM_FAULT_PMAPI);
     switch (type) {
 	case PM_TYPE_32:
 	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_32)");
@@ -106,7 +206,7 @@ __pmRegisterAnon(char *name, int type)
 	    return PM_ERR_TYPE;
     }
     if ((msg = pmRegisterDerived(name, buf)) != NULL) {
-	pmprintf("__pmRegisterAnon(%s, %d): Error: %s\n", name, type, pmDerivedErrStr());
+	pmprintf("__pmRegisterAnon(%s, %d): @ \"%s\" Error: %s\n", name, type, msg, pmDerivedErrStr());
 	pmflush();
 	return PM_ERR_GENERIC;
     }
@@ -116,24 +216,26 @@ __pmRegisterAnon(char *name, int type)
 static void
 init(void)
 {
-    char	*configpath;
+    if (need_init) {
+	char	*configpath;
 
-    if ((configpath = getenv("PCP_DERIVED_CONFIG")) != NULL) {
-	int	sts;
+	if ((configpath = getenv("PCP_DERIVED_CONFIG")) != NULL) {
+	    int	sts;
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_DERIVE) {
-	    fprintf(stderr, "Derived metric initialization from $PCP_DERIVED_CONFIG\n");
-	}
+	    if (pmDebug & DBG_TRACE_DERIVE) {
+		fprintf(stderr, "Derived metric initialization from $PCP_DERIVED_CONFIG\n");
+	    }
 #endif
-	sts = pmLoadDerivedConfig(configpath);
+	    sts = pmLoadDerivedConfig(configpath);
 #ifdef PCP_DEBUG
-	if (sts < 0 && (pmDebug & DBG_TRACE_DERIVE)) {
-	    fprintf(stderr, "pmLoadDerivedConfig -> %s\n", pmErrStr(sts));
-	}
+	    if (sts < 0 && (pmDebug & DBG_TRACE_DERIVE)) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "pmLoadDerivedConfig -> %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    }
 #endif
+	}
+	need_init = 0;
     }
-
-    need_init = 0;
 }
 
 static void
@@ -145,18 +247,15 @@ unget(int c)
 static int
 get()
 {
-    static int	eof = 0;
     int		c;
     if (lexpeek != 0) {
 	c = lexpeek;
 	lexpeek = 0;
 	return c;
     }
-    if (eof) return L_EOF;
     c = *string;
     if (c == '\0') {
 	return L_EOF;
-	eof = 1;
     }
     string++;
     return c;
@@ -360,7 +459,8 @@ bind_expr(int n, node_t *np)
 	if (sts < 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
-		fprintf(stderr, "bind_expr: error: derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr(sts));
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "bind_expr: error: derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 #endif
 	    free(new->info);
@@ -371,7 +471,9 @@ bind_expr(int n, node_t *np)
 	if (sts < 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
-		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr(new->info->pmid), pmErrStr(sts));
+		char	strbuf[20];
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 #endif
 	    free(new->info);
@@ -422,13 +524,13 @@ void report_sem_error(char *name, node_t *np)
 		pmprintf("botch @ node type #%d?", np->type);
 	    break;
     }
-    pmprintf(": %s\n", errmsg);
+    pmprintf(": %s\n", PM_TPD(derive_errmsg));
     pmflush();
-    errmsg = NULL;
+    PM_TPD(derive_errmsg) = NULL;
 }
 
 /* type promotion */
-static int promote[6][6] = {
+static const int promote[6][6] = {
     { PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE },
     { PM_TYPE_U32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE },
     { PM_TYPE_64, PM_TYPE_64, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE },
@@ -438,7 +540,7 @@ static int promote[6][6] = {
 };
 
 /* time scale conversion factors */
-static int timefactor[] = {
+static const int timefactor[] = {
     1000,		/* NSEC -> USEC */
     1000,		/* USEC -> MSEC */
     1000,		/* MSEC -> SEC */
@@ -605,13 +707,13 @@ map_desc(int n, node_t *np)
     if (left->sem == PM_SEM_COUNTER) {
 	if (right->sem == PM_SEM_COUNTER) {
 	    if (np->type != L_PLUS && np->type != L_MINUS) {
-		errmsg = "Illegal operator for counters";
+		PM_TPD(derive_errmsg) = "Illegal operator for counters";
 		goto bad;
 	    }
 	}
 	else {
 	    if (np->type != L_STAR && np->type != L_SLASH) {
-		errmsg = "Illegal operator for counter and non-counter";
+		PM_TPD(derive_errmsg) = "Illegal operator for counter and non-counter";
 		goto bad;
 	    }
 	}
@@ -619,7 +721,7 @@ map_desc(int n, node_t *np)
     else {
 	if (right->sem == PM_SEM_COUNTER) {
 	    if (np->type != L_STAR) {
-		errmsg = "Illegal operator for non-counter and counter";
+		PM_TPD(derive_errmsg) = "Illegal operator for non-counter and counter";
 		goto bad;
 	    }
 	}
@@ -631,7 +733,7 @@ map_desc(int n, node_t *np)
 		 * arithmetic operators are supported and all are
 		 * acceptable here ... check added for completeness
 		 */
-		errmsg = "Illegal operator for non-counters";
+		PM_TPD(derive_errmsg) = "Illegal operator for non-counters";
 		goto bad;
 	    }
 	}
@@ -668,7 +770,7 @@ map_desc(int n, node_t *np)
 	case PM_TYPE_DOUBLE:
 	    break;
 	default:
-	    errmsg = "Non-arithmetic type for left operand";
+	    PM_TPD(derive_errmsg) = "Non-arithmetic type for left operand";
 	    goto bad;
     }
     switch (right->type) {
@@ -680,7 +782,7 @@ map_desc(int n, node_t *np)
 	case PM_TYPE_DOUBLE:
 	    break;
 	default:
-	    errmsg = "Non-arithmetic type for right operand";
+	    PM_TPD(derive_errmsg) = "Non-arithmetic type for right operand";
 	    goto bad;
     }
     np->desc.type = promote[left->type][right->type];
@@ -696,7 +798,7 @@ map_desc(int n, node_t *np)
 	if (left->units.dimCount != right->units.dimCount ||
 	    left->units.dimTime != right->units.dimTime ||
 	    left->units.dimSpace != right->units.dimSpace) {
-	    errmsg = "Dimensions are not the same";
+	    PM_TPD(derive_errmsg) = "Dimensions are not the same";
 	    goto bad;
 	}
 	map_units(np);
@@ -711,7 +813,7 @@ map_desc(int n, node_t *np)
 	    if (right->units.dimCount != 0 ||
 	        right->units.dimTime != 0 ||
 	        right->units.dimSpace != 0) {
-		errmsg = "Non-counter and not dimensionless for right operand";
+		PM_TPD(derive_errmsg) = "Non-counter and not dimensionless for right operand";
 		goto bad;
 	    }
 	}
@@ -719,7 +821,7 @@ map_desc(int n, node_t *np)
 	    if (left->units.dimCount != 0 ||
 	        left->units.dimTime != 0 ||
 	        left->units.dimSpace != 0) {
-		errmsg = "Non-counter and not dimensionless for left operand";
+		PM_TPD(derive_errmsg) = "Non-counter and not dimensionless for left operand";
 		goto bad;
 	    }
 	}
@@ -731,7 +833,7 @@ map_desc(int n, node_t *np)
      * instance domain
      */
     if (left->indom != PM_INDOM_NULL && right->indom != PM_INDOM_NULL && left->indom != right->indom) {
-	errmsg = "Operands should have the same instance domain";
+	PM_TPD(derive_errmsg) = "Operands should have the same instance domain";
 	goto bad;
     }
 
@@ -748,18 +850,23 @@ check_expr(int n, node_t *np)
     int		sts;
 
     assert(np != NULL);
+
     if (np->type == L_NUMBER || np->type == L_NAME)
 	return 0;
-    if (np->left != NULL)
-	if ((sts = check_expr(n, np->left)) < 0)
-	    return sts;
-    if (np->right != NULL)
+
+    /* otherwise, np->left is never NULL ... */
+    assert(np->left != NULL);
+
+    if ((sts = check_expr(n, np->left)) < 0)
+	return sts;
+    if (np->right != NULL) {
 	if ((sts = check_expr(n, np->right)) < 0)
 	    return sts;
-    /*
-     * np->left is never NULL ...
-     */
-    if (np->right == NULL) {
+	/* build pmDesc from pmDesc of both operands */
+	if ((sts = map_desc(n, np)) < 0)
+	    return sts;
+    }
+    else {
 	np->desc = np->left->desc;	/* struct copy */
 	/*
 	 * special cases for functions ...
@@ -787,7 +894,7 @@ check_expr(int n, node_t *np)
 		    case PM_TYPE_DOUBLE:
 			break;
 		    default:
-			errmsg = "Non-arithmetic operand for function";
+			PM_TPD(derive_errmsg) = "Non-arithmetic operand for function";
 			report_sem_error(registered.mlist[n].name, np);
 			return -1;
 		}
@@ -804,12 +911,6 @@ check_expr(int n, node_t *np)
 	else if (np->type == L_ANON) {
 	    /* do nothing, pmDesc inherited "as is" from left node */
 	    ;
-	}
-    }
-    else {
-	/* build pmDesc from pmDesc of both operands */
-	if ((sts = map_desc(n, np)) < 0) {
-	    return sts;
 	}
     }
     return 0;
@@ -866,6 +967,8 @@ dump_value(int type, pmAtomValue *avp)
 void
 __dmdumpexpr(node_t *np, int level)
 {
+    char	strbuf[20];
+
     if (level == 0) fprintf(stderr, "Derived metric expr dump from " PRINTF_P_PFX "%p...\n", np);
     if (np == NULL) return;
     fprintf(stderr, "expr node " PRINTF_P_PFX "%p type=%s left=" PRINTF_P_PFX "%p right=" PRINTF_P_PFX "%p save_last=%d", np, type_dbg[np->type+2], np->left, np->right, np->save_last);
@@ -873,8 +976,8 @@ __dmdumpexpr(node_t *np, int level)
 	fprintf(stderr, " [%s] master=%d", np->value, np->info == NULL ? 1 : 0);
     fputc('\n', stderr);
     if (np->info) {
-	fprintf(stderr, "    PMID: %s", pmIDStr(np->info->pmid));
-	fprintf(stderr, " (%s from pmDesc) numval: %d", pmIDStr(np->desc.pmid), np->info->numval);
+	fprintf(stderr, "    PMID: %s ", pmIDStr_r(np->info->pmid, strbuf, sizeof(strbuf)));
+	fprintf(stderr, "(%s from pmDesc) numval: %d", pmIDStr_r(np->desc.pmid, strbuf, sizeof(strbuf)), np->info->numval);
 	if (np->info->div_scale != 1)
 	    fprintf(stderr, " div_scale: %d", np->info->div_scale);
 	if (np->info->mul_scale != 1)
@@ -944,14 +1047,14 @@ parse(int level)
 	/* handle lexicons that terminate the parsing */
 	switch (type) {
 	    case L_ERROR:
-		errmsg = "Illegal character";
+		PM_TPD(derive_errmsg) = "Illegal character";
 		free_expr(expr);
 		return NULL;
 		break;
 	    case L_EOF:
 		if (level == 1 && (state == P_LEAF || state == P_LEAF_PAREN))
 		    return expr;
-		errmsg = "End of input";
+		PM_TPD(derive_errmsg) = "End of input";
 		free_expr(expr);
 		return NULL;
 		break;
@@ -962,7 +1065,7 @@ parse(int level)
 		}
 		if ((level > 1 && state == P_LEAF_PAREN) || state == P_LEAF)
 		    return expr;
-		errmsg = "Unexpected ')'";
+		PM_TPD(derive_errmsg) = "Unexpected ')'";
 		free_expr(expr);
 		return NULL;
 		break;
@@ -970,6 +1073,16 @@ parse(int level)
 
 	switch (state) {
 	    case P_INIT:
+		/*
+		 * Only come here at the start of parsing an expression.
+		 * The assert() is designed to stop Coverity flagging a
+		 * memory leak if we should come here after expr and/or
+		 * curr have already been assigned values either directly
+		 * from calling newnode() or via an assignment to np that
+		 * was previously assigned a value from newnode()
+		 */
+		assert(expr == NULL && curr == NULL);
+
 		if (type == L_NAME || type == L_NUMBER) {
 		    expr = curr = newnode(type);
 		    if ((curr->value = strdup(tokbuf)) == NULL) {
@@ -981,7 +1094,7 @@ parse(int level)
 			__uint64_t	check;
 			check = strtoull(tokbuf, &endptr, 10);
 			if (*endptr != '\0' || check > 0xffffffffUL) {
-			    errmsg = "Constant value too large";
+			    PM_TPD(derive_errmsg) = "Constant value too large";
 			    free_expr(expr);
 			    return NULL;
 			}
@@ -1005,8 +1118,10 @@ parse(int level)
 		    expr = curr = newnode(type);
 		    state = P_FUNC_OP;
 		}
-		else
+		else {
+		    free_expr(expr);
 		    return NULL;
+		}
 		break;
 
 	    case P_LEAF_PAREN:	/* fall through */
@@ -1164,11 +1279,19 @@ checkname(char *p)
 }
 
 char *
-pmRegisterDerived(char *name, char *expr)
+pmRegisterDerived(const char *name, const char *expr)
 {
     node_t		*np;
     static __pmID_int	pmid;
     int			i;
+
+    PM_INIT_LOCKS();
+#ifdef PM_MULTI_THREAD
+#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+    initialize_mutex();
+#endif
+#endif
+    PM_LOCK(registered.mutex);
 
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL0)) {
@@ -1179,17 +1302,20 @@ pmRegisterDerived(char *name, char *expr)
     for (i = 0; i < registered.nmetric; i++) {
 	if (strcmp(name, registered.mlist[i].name) == 0) {
 	    /* oops, duplicate name ... */
-	    errmsg = "Duplicate derived metric name";
-	    return expr;
+	    PM_TPD(derive_errmsg) = "Duplicate derived metric name";
+	    PM_UNLOCK(registered.mutex);
+	    return (char *)expr;
 	}
     }
 
-    errmsg = NULL;
+    PM_TPD(derive_errmsg) = NULL;
     string = expr;
     np = parse(1);
     if (np == NULL) {
 	/* parser error */
-	return this;
+	char	*sts = (char *)this;
+	PM_UNLOCK(registered.mutex);
+	return sts;
     }
 
     registered.nmetric++;
@@ -1216,11 +1342,12 @@ pmRegisterDerived(char *name, char *expr)
     }
 #endif
 
+    PM_UNLOCK(registered.mutex);
     return NULL;
 }
 
 int
-pmLoadDerivedConfig(char *fname)
+pmLoadDerivedConfig(const char *fname)
 {
     FILE	*fp;
     int		buflen;
@@ -1341,6 +1468,7 @@ next_line:
 	else
 	    *p++ = c;
     }
+    fclose(fp);
     free(buf);
     return sts;
 }
@@ -1348,7 +1476,8 @@ next_line:
 char *
 pmDerivedErrStr(void)
 {
-    return errmsg;
+    PM_INIT_LOCKS();
+    return PM_TPD(derive_errmsg);
 }
 
 /*
@@ -1363,7 +1492,13 @@ __dmtraverse(const char *name, char ***namelist)
     char	**list = NULL;
     int		matchlen = strlen(name);
 
-    if (need_init) init();
+#ifdef PM_MULTI_THREAD
+#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+    initialize_mutex();
+#endif
+#endif
+    PM_LOCK(registered.mutex);
+    init();
 
     for (i = 0; i < registered.nmetric; i++) {
 	/*
@@ -1383,6 +1518,7 @@ __dmtraverse(const char *name, char ***namelist)
     }
     *namelist = list;
 
+    PM_UNLOCK(registered.mutex);
     return sts;
 }
 
@@ -1398,7 +1534,13 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
     int		start;
     int		len;
 
-    if (need_init) init();
+#ifdef PM_MULTI_THREAD
+#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+    initialize_mutex();
+#endif
+#endif
+    PM_LOCK(registered.mutex);
+    init();
 
     for (i = 0; i < registered.nmetric; i++) {
 	/*
@@ -1409,7 +1551,15 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
 	     (registered.mlist[i].name[matchlen] == '.' ||
 	      registered.mlist[i].name[matchlen] == '\0'))) {
 	    if (registered.mlist[i].name[matchlen] == '\0') {
-		/* leaf node */
+		/*
+		 * leaf node
+		 * assert is for coverity, name uniqueness means we
+		 * should only ever come here after zero passes through
+		 * the block below where sts is incremented and children[]
+		 * and status[] are realloc'd
+		 */
+		assert(sts == 0 && children == NULL && status == NULL);
+		PM_UNLOCK(registered.mutex);
 		return 0;
 	    }
 	    start = matchlen > 0 ? matchlen + 1 : 0;
@@ -1461,13 +1611,16 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
 	}
     }
 
-    if (sts == 0)
+    if (sts == 0) {
+	PM_UNLOCK(registered.mutex);
 	return PM_ERR_NAME;
+    }
 
     *offspring = children;
     if (statuslist != NULL)
 	*statuslist = status;
 
+    PM_UNLOCK(registered.mutex);
     return sts;
 }
 
@@ -1476,14 +1629,22 @@ __dmgetpmid(const char *name, pmID *dp)
 {
     int		i;
 
-    if (need_init) init();
+#ifdef PM_MULTI_THREAD
+#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+    initialize_mutex();
+#endif
+#endif
+    PM_LOCK(registered.mutex);
+    init();
 
     for (i = 0; i < registered.nmetric; i++) {
 	if (strcmp(name, registered.mlist[i].name) == 0) {
 	    *dp = registered.mlist[i].pmid;
+	    PM_UNLOCK(registered.mutex);
 	    return 0;
 	}
     }
+    PM_UNLOCK(registered.mutex);
     return PM_ERR_NAME;
 }
 
@@ -1492,17 +1653,28 @@ __dmgetname(pmID pmid, char ** name)
 {
     int		i;
 
-    if (need_init) init();
+#ifdef PM_MULTI_THREAD
+#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+    initialize_mutex();
+#endif
+#endif
+    PM_LOCK(registered.mutex);
+    init();
 
     for (i = 0; i < registered.nmetric; i++) {
 	if (pmid == registered.mlist[i].pmid) {
 	    *name = strdup(registered.mlist[i].name);
-	    if (*name == NULL)
+	    if (*name == NULL) {
+		PM_UNLOCK(registered.mutex);
 		return -oserror();
-	    else
+	    }
+	    else {
+		PM_UNLOCK(registered.mutex);
 		return 0;
+	    }
 	}
     }
+    PM_UNLOCK(registered.mutex);
     return PM_ERR_PMID;
 }
 
@@ -1513,7 +1685,13 @@ __dmopencontext(__pmContext *ctxp)
     int		sts;
     ctl_t	*cp;
 
-    if (need_init) init();
+#ifdef PM_MULTI_THREAD
+#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+    initialize_mutex();
+#endif
+#endif
+    PM_LOCK(registered.mutex);
+    init();
 
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
@@ -1522,6 +1700,7 @@ __dmopencontext(__pmContext *ctxp)
 #endif
     if (registered.nmetric == 0) {
 	ctxp->c_dm = NULL;
+	PM_UNLOCK(registered.mutex);
 	return;
     }
     if ((cp = (void *)malloc(sizeof(ctl_t))) == NULL) {
@@ -1560,6 +1739,7 @@ __dmopencontext(__pmContext *ctxp)
 	}
 #endif
     }
+    PM_UNLOCK(registered.mutex);
 }
 
 void
@@ -1605,3 +1785,17 @@ __dmdesc(__pmContext *ctxp, pmID pmid, pmDesc *desc)
     }
     return PM_ERR_PMID;
 }
+
+#ifdef PM_MULTI_THREAD
+#ifdef PM_MULTI_THREAD_DEBUG
+/*
+ * return true if lock == registered.mutex ... no locking here to avoid
+ * recursion ad nauseum
+ */
+int
+__pmIsDeriveLock(void *lock)
+{
+    return lock == (void *)&registered.mutex;
+}
+#endif
+#endif

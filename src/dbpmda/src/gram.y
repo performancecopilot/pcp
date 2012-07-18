@@ -53,7 +53,7 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
     extern int	infd;
     extern pmdaInterface	dispatch;
 
-    if (((__pmID_int *)pmidp)->domain == DYNAMIC_PMID) {
+    if (pmid_domain(*pmidp) == DYNAMIC_PMID && pmid_item(*pmidp) == 0) {
 	if (connmode == CONN_DSO) {
 	    if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
 		sts = dispatch.version.four.pmid(name, pmidp, dispatch.version.four.ext);
@@ -68,11 +68,13 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 	    if (sts == PDU_PMNS_IDS) {
 		int	xsts;
 		sts = __pmDecodeIDList(pb, 1, pmidp, &xsts);
+		__pmUnpinPDUBuf(pb);
 		if (sts < 0) return sts;
 		return xsts;
 	    }
 	    else if (sts == PDU_ERROR) {
 		__pmDecodeError(pb, &sts);
+		__pmUnpinPDUBuf(pb);
 		return sts;
 	    }
 	}

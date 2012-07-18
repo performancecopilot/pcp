@@ -72,7 +72,6 @@ versions of a PMNS, constructed from an initialization file when the
 application starts; see
 .BR pmLoadASCIINameSpace (3),
 .BR pmLoadNameSpace (3),
-.BR pmnscomp (1)
 and
 .BR pmns (4).
 .PP
@@ -368,6 +367,62 @@ on some host is
 which indicates the communication link to
 .BR pmcd (1)
 has been lost.
+.SH "MULTI-THREADED APPLICATIONS"
+The original design for PCP was based around single-threaded applications, or
+more strictly applications in which only one thread was ever expected to
+call the PCP libraries.
+This restriction has been relaxed for
+.B libpcp
+to allow the most common PMAPI routines to be safely called from any
+thread in a multi-threaded application.
+.PP
+However the following groups of functions and services in
+.B libpcp
+are still restricted to being called from a single-thread, and this is enforced
+by returning
+.B PM_ERR_THREAD
+when an attempt to call the routines in each group from more than one
+thread is detected.
+.TP 4n
+1.
+Any use of a
+.B PM_CONTEXT_LOCAL
+context, as the DSO PMDAs that are called directly from
+.B libpcp
+may not be thread-safe.
+.TP 4n
+2.
+The interval timer services use global state with semantics that demand
+it is only used in the context of a single thread, so
+.BR __pmAFregister (3),
+.BR __pmAFunregister (3),
+.BR __pmAFblock (3),
+.B __pmAFunblock (3)
+and
+.BR __pmAFisempty (3).
+.TP 4n
+3.
+The following (undocumented) access control manipulation
+routines that are principally intended
+for single-threaded applications:
+.BR __pmAccAddOp ,
+.BR __pmAccSaveHosts ,
+.BR __pmAccRestoreHosts ,
+.BR __pmAccFreeSavedHosts ,
+.BR __pmAccAddHost ,
+.BR __pmAccAddClient ,
+.B __pmAccDelClient
+and
+.BR __pmAccDumpHosts .
+.TP 4n
+4.
+The following (undocumented) routines that identify
+.I pmlogger
+control ports and are principally intended
+for single-threaded applications:
+.B __pmLogFindPort
+and
+.BR __pmLogFindLocalPorts .
 .SH "PCP ENVIRONMENT"
 Most environment variables are described in
 .BR PCPIntro (1).

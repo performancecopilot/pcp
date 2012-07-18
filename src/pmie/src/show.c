@@ -21,6 +21,7 @@
 
 #include <math.h>
 #include <ctype.h>
+#include <assert.h>
 #include "show.h"
 #include "impl.h"
 #include "dstruct.h"
@@ -298,11 +299,23 @@ showNum(Expr *x, int nth, size_t length, char **string)
     cat = (char *)ralloc(*string, tlen + 1);
     dog = cat + length;
     for (smpl = 0; smpl < x->nsmpls; smpl++) {
+	int	noval = 0;
 	if (smpl > 0) {
 	    strcpy(dog, " ");
 	    dog += 1;
 	}
-	if (x->valid <= smpl || isnand(*((double *)x->smpls[smpl].ptr + nth))) {
+	if (x->valid <= smpl)
+	    noval = 1;
+	else {
+#ifdef HAVE_FPCLASSIFY
+	    noval = fpclassify(*((double *)x->smpls[smpl].ptr + nth)) == FP_NAN;
+#else
+#ifdef HAVE_ISNAN
+	    noval = isnan(*((double *)x->smpls[smpl].ptr + nth));
+#endif
+#endif
+	}
+	if (noval) {
 	    strcpy(dog, "?");
 	    dog += 1;
 	}
@@ -460,6 +473,7 @@ showSyn(FILE *f, Expr *x)
 
     /* unary operator */
     else {
+	assert(x->arg1 != NULL);
 	fputs(opStrings(x->op), f);
 	fputc(' ', f);
 	if (x->arg1->op >= ACT_ARG || x->arg1->op <= CND_DELAY)

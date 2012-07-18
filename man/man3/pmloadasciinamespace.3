@@ -37,7 +37,7 @@ make a call to load the PMNS explicitly.
 .B pmLoadASCIINameSpace
 is a variant of
 .BR pmLoadNameSpace (3)
-which will only process an ASCII format PMNS, and the
+in which the
 .I dupok
 argument may be used to control the handling of multiple names
 in the PMNS that may be associated with a single Performance Metric
@@ -53,10 +53,7 @@ the special value
 may be 
 used for
 .IR filename ,
-to force the default local PMNS to be loaded; although since the
-default local PMNS will exist in a binary format,
-.BR pmLoadNameSpace (3)
-would be the more efficient routine to use.
+to force the default local PMNS to be loaded.
 .PP
 The default local PMNS is found in the file
 .I $PCP_VAR_DIR/pmns/root
@@ -92,7 +89,6 @@ using the
 .IR pmGetConfig (3)
 function.
 .SH SEE ALSO
-.BR pmnscomp (1),
 .BR PMAPI (3),
 .BR pmGetConfig (3),
 .BR pmLoadNameSpace (3),

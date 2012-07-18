@@ -21,7 +21,7 @@ BuildRequires: initscripts
 Conflicts: pcp-pro < 2.2
 
 # Stuff used indirectly e.g. by shell scripts we install
-Requires: bash gawk sed grep fileutils findutils
+Requires: bash gawk sed grep coreutils findutils
 %if "%{_vendor}" == "suse"
 Requires: sysconfig
 %else
@@ -194,7 +194,8 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 %prep
 %setup -q
 autoconf
-./configure --libdir=%{_libdir} --libexecdir=%{_libexecdir} && touch config.done
+%configure
+touch config.done
 
 %clean
 [ ! -z "$DIST_ROOT" ] && rm -rf $DIST_ROOT
@@ -212,7 +213,6 @@ export DIST_ROOT DIST_MANIFEST
 rm -f $DIST_MANIFEST
 @make@ install_pcp
 
-set +x
 PCP_CONF=$BACKDIR/src/include/pcp.conf
 export PCP_CONF
 . $BACKDIR/src/include/pcp.env
@@ -299,26 +299,30 @@ $1 == "f" {
 	    printf ("%%%%attr(%s,root,root) %s\n", $2, $6) >> f }
 $1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
 
-set -x
-
 %preun
 if [ "$1" -eq 0 ]
 then
     #
     # Stop daemons before erasing the package
     #
-    /sbin/service pcp stop >/dev/null 2>&1
+    /sbin/service pmlogger stop >/dev/null 2>&1
     /sbin/service pmie stop >/dev/null 2>&1
     /sbin/service pmproxy stop >/dev/null 2>&1
+    /sbin/service pcp stop >/dev/null 2>&1
+    /sbin/service pmcd stop >/dev/null 2>&1
 
     /sbin/chkconfig --del pcp >/dev/null 2>&1
+    /sbin/chkconfig --del pmcd >/dev/null 2>&1
+    /sbin/chkconfig --del pmlogger >/dev/null 2>&1
     /sbin/chkconfig --del pmie >/dev/null 2>&1
     /sbin/chkconfig --del pmproxy >/dev/null 2>&1
 fi
 
 %post
-/sbin/chkconfig --add pcp >/dev/null 2>&1
-/sbin/service pcp condrestart
+/sbin/chkconfig --add pmcd >/dev/null 2>&1
+/sbin/service pmcd condrestart
+/sbin/chkconfig --add pmlogger >/dev/null 2>&1
+/sbin/service pmlogger condrestart
 /sbin/chkconfig --add pmie >/dev/null 2>&1
 /sbin/service pmie condrestart
 /sbin/chkconfig --add pmproxy >/dev/null 2>&1
@@ -361,6 +365,15 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Tue Jun 12 2012 Nathan Scott <nathans@aconex.com> - 3.6.4-1
+- Update to latest PCP sources, resolves Fedora s390x build issue.
+
+* Fri Apr 27 2012 Nathan Scott <nathans@aconex.com> - 3.6.3-1
+- Update to latest PCP sources.
+
+* Wed Mar 28 2012 Nathan Scott <nathans@aconex.com> - 3.6.0-1
+- Update to latest PCP sources.
+
 * Thu Dec  1 2011 Nathan Scott <nathans@aconex.com> - 3.5.11-1
 - Update to latest PCP sources.
 

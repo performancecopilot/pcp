@@ -60,40 +60,32 @@ PACKAGE_BUILDER = @package_builder@
 # turn on all warnings by default
 WARN_OFF = -Wall
 
-PTHREAD_LIB = @ac_cv_pthread_lib@
 LIBPCP_ABIDIR ?= src
 PCP_LIBS = -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) \
 	   -L$(TOPDIR)/src/libpcp_pmda/$(LIBPCP_ABIDIR)
 
 # platform-specific CFLAGS, LDLIBS, and shared library extension
-ifeq "$(TARGET_OS)" "linux"
-PCFLAGS = -fpic -fno-strict-aliasing -D_GNU_SOURCE
-DSOSUFFIX = so
-endif
-ifeq "$(TARGET_OS)" "freebsd"
-PCFLAGS = -fpic -fno-strict-aliasing
+#
+# Note:
+# 	Need PCFLAGS setting here to match the CFLAGS settings in
+# 	../../configure.in
+#
+PCFLAGS=@PCFLAGS@
+ifneq (, $(filter linux kfreebsd, $(TARGET_OS)))
 DSOSUFFIX = so
 endif
 ifeq "$(TARGET_OS)" "darwin"
-PCFLAGS = -fPIC -no-cpp-precomp -fno-strict-aliasing -arch i386
-ifeq "$(PACKAGE_DISTRIBUTION)" "cocoa"
-PCFLAGS += -arch x86_64
-endif
 DSOSUFFIX = dylib
 CASE_INSENSITIVE_FS=1
 endif
 ifeq "$(TARGET_OS)" "mingw"
-PCFLAGS = -fno-strict-aliasing -I$$PCP_DIR/local/include -I$$PCP_DIR/include
 DSOSUFFIX = dll
 EXECSUFFIX = .exe
 SHELLSUFFIX = .sh
 PLDLIBS = -lwsock32 -L$$PCP_DIR/local/bin -L$$PCP_DIR/local/lib -L$$PCP_DIR/lib
 endif
 ifeq "$(TARGET_OS)" "solaris"
-PCFLAGS = -fPIC
-ifeq "@cc_is_gcc@" "yes"
-PCFLAGS += -fno-strict-aliasing
-else
+ifneq "@cc_is_gcc@" "yes"
 # Assume that this is the Sun compiler which does not grok -Wall
 WARN_OFF =
 endif
@@ -111,14 +103,17 @@ DSOSUFFIX = so
 #       do not use path to DSOs from the build, use default search path
 #       rules
 # (and does not accept -Wall as a valid option)
-PCFLAGS = -qcpluscmt
 PLDFLAGS = -brtl -bnoipath
 WARN_OFF =
+endif
+ifeq "$(TARGET_OS)" "freebsd"
+DSOSUFFIX = so
 endif
 
 CFLAGS_ABI = @cflags_abi@
 CFLAGS += $(CFLAGS_ABI) $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -g -DPCP_DEBUG \
-	-DPCP_VERSION=\"$(PCP_VERSION)\" -DASYNC_API -I$(TOPDIR)/src/include
+	-DPCP_VERSION=\"$(PCP_VERSION)\" \
+	-I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp
 
 LDFLAGS += $(CFLAGS_ABI) $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
@@ -127,8 +122,9 @@ SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(MFILES) \
 
 LDLIBS = $(LLDLIBS) $(PLDLIBS)
 MAKEOPTS = --no-print-directory
-DIRT = $(LDIRT) dep dep.bak $(OBJECTS) $(CMDTARGET) $(LIBTARGET) \
-	$(STATICLIBTARGET) *.[1-9].gz *.[1-9].bz2 *.[1-9].tmp
+DIRT = $(LDIRT) dep dep.bak $(OBJECTS) $(CMDTARGET) \
+	$(LIBTARGET) $(STATICLIBTARGET) \
+	*.[1-9].gz *.[1-9].bz2 *.[1-9].lzma *.[1-9].xz *.[1-9].tmp
 DIRDIRT = $(LDIRDIRT)
 
 OBJECTS = $(ASFILES:.s=.o) \
@@ -159,6 +155,8 @@ MAKEDEPEND = @makedepend@
 
 ZIP	= @gzip@
 BZIP2	= @bzip2@
+LZMA	= @lzma@
+XZ	= @xz@
 TAR	= @tar@
 RPMPROG	= @rpmprog@
 PACKAGE_MAKER = @package_maker@
@@ -176,6 +174,9 @@ MD5SUM	= @md5sum@
 
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
 HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
+HAVE_LZMAED_MANPAGES = @have_lzmaed_manpages@
+HAVE_XZED_MANPAGES = @have_xzed_manpages@
+
 NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 RDYNAMIC_FLAG = @rdynamic_flag@
 
@@ -186,6 +187,7 @@ LIB_FOR_REGEX = @lib_for_regex@
 LIB_FOR_MATH = @lib_for_math@
 LIB_FOR_READLINE = @lib_for_readline@
 LIB_FOR_CURSES = @lib_for_curses@
+LIB_FOR_PTHREADS = @lib_for_pthreads@
 
 SHELL = /bin/sh
 IMAGES_DIR = $(TOPDIR)/all-images
@@ -220,7 +222,7 @@ DOMAIN_MAKERULE = \
 	echo "/*" >domain.h; \
 	echo " * built from $<" >>domain.h; \
 	echo " */" >>domain.h; \
-	$(PCP_AWK_PROG) <$< '\
+	$(AWK) <$< '\
 	    $$1=="\#define" && $$2 == "$(DOMAIN)" {\
 		print "\#define $(DOMAIN) " $$3 >>"$@"; found++ \
 	    }\
@@ -241,7 +243,7 @@ DOMAIN_PERLRULE = \
 	@export perldomain=`sed -n \
 		-e '/PCP::PMDA->new/s/[^0-9]*$$//' \
 		-e '/PCP::PMDA->new/s/^[^0-9]*//p' pmda$(IAM).pl`; \
-	$(PCP_AWK_PROG) <$< '\
+	$(AWK) <$< '\
 	    BEGIN {\
 		domain = toupper("$(IAM)") \
 	    }\
@@ -303,6 +305,12 @@ INSTALL_MAN = \
 		if $(HAVE_BZIP2ED_MANPAGES) ; then \
 		    $(BZIP2) -c $$d$$_tfx > $$d.bz2; _tfx=.bz2; _sfx=.bz2; \
 		fi; \
+		if $(HAVE_LZMAED_MANPAGES) ; then \
+		    $(LZMA) -c $$d$$_tfx > $$d.lzma; _tfx=.lzma; _sfx=.lzma; \
+		fi; \
+		if $(HAVE_XZED_MANPAGES) ; then \
+		    $(XZ) -c $$d$$_tfx > $$d.xz; _tfx=.xz; _sfx=.xz; \
+		fi; \
 		u=$$m.$(MAN_SECTION)$$_sfx; \
 		echo $(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
 		$(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
@@ -323,7 +331,7 @@ INSTALL_MAN = \
 endif
 
 PERL_MAKE_MAKEFILE = \
-	PCP_TOPDIR=$(TOPDIR); export PCP_TOPDIR;  \
+	export PCP_TOPDIR=`cd $(TOPDIR) && pwd`; \
 	TARGET_OS="$(TARGET_OS)" \
 	CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_OPTIONS)
 
@@ -358,11 +366,20 @@ PERL_GET_FILELIST = \
 	find $$DIST_ROOT -name $(2).so -exec chmod 755 '{}' ';'
 else
 # Everyone else ... includes the RPM-based packaging platforms
+ifeq "$(PACKAGE_DISTRIBUTION)" "mandriva"
+	man_suffix=lzma
+else
+	man_suffix=gz
+endif
 PERL_GET_FILELIST = \
 	$(PERLMAKE) -f Makefile install DESTDIR=$$DIST_ROOT; \
 	find $$DIST_ROOT -name .packlist -exec mv '{}' $(1) ';' ; \
 	if [ -s $(1) ] ; then \
-	    sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&.gz/' -e "s@^$$DIST_ROOT@@p" -i.tmp $(1) || exit 1; \
+	    _sfx=.gz; \
+	    $(HAVE_BZIP2ED_MANPAGES) && _sfx=.bz2; \
+	    $(HAVE_LZMAED_MANPAGES) && _sfx=.lzma; \
+	    $(HAVE_XZED_MANPAGES) && _sfx=.xz; \
+	    sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&'"$$_sfx/" -e "s@^$$DIST_ROOT@@p" -i.tmp $(1) || exit 1; \
 	else echo "Arrgh ... no files to include in package via $(1)"; exit 1; \
 	fi; \
 	find $$DIST_ROOT -name perllocal.pod -exec rm -f '{}' ';' ; \

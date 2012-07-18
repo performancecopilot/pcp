@@ -239,7 +239,7 @@ refresh_interrupt_values(void)
     }
     memset(online_cpumap, 0, cpu_count * sizeof(int));
 
-    if ((fp = fopen("/proc/interrupts", "r")) < 0)
+    if ((fp = fopen("/proc/interrupts", "r")) == NULL)
 	return -oserror();
 
     /* first parse header, which maps online CPU number to column number */

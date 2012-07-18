@@ -16,17 +16,13 @@
 .\"
 .TH PMFETCH 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmFetch\f1, 
-\f3pmRequestFetch\f1,
-\f3pmReceiveFetch\f1 \- get performance metric values
+\f3pmFetch\f1 \- get performance metric values
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 .nf
 int pmFetch(int \fInumpmid\fP, pmID *\fIpmidlist\fP, pmResult **\fIresult\fP);
-int pmRequestFetch(int \fIcxt\fP, int \fInumpmid\fP, pmID *\fIpmidlist\fP);
-int pmReceiveFetch(int \fIcxt\fP, pmResult **\fIresult\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -298,21 +294,6 @@ returned by
 .B pmFetch
 has the same interpretation independent of the return value being
 zero or greater than zero.
-.PP
-\f3pmRequestFetch\fP and \f3pmReceiveFetch\fP are used by applications
-which must communicate with the PMCD asynchronously.  These functions
-take explicit context handle \f2ctx\fP which must refer to a host
-context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
-\f3pmNewContext\fP). \f3pmRequestFetch\fP sends a fetch request to
-PMCD and returns without waiting for the response, \f3pmReceiveFetch\fP 
-reads the reply from PMCD. It is the responsibility of the application
-to make sure the data are ready before calling \f3pmReceiveFetch\f1 to
-avoid blocking while reading the reply.
-.PP
-\f3pmReceiveFetch\f1 can return a positive value to indicate a change in
-the state of PMCD. In this case the \f2result\fP is unchanged and the
-application is expected to call \f3pmReceiveFetch\fP again. 
-.B
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pmAddProfile (3),
@@ -372,8 +353,6 @@ defined by the records in the archive, and then commence to
 .B pmFetch
 will eventually see valid results once the time origin moves inside
 the temporal span of the archive.
-.IP \f3PM_ERR_CTXBUSY\f1
-Context is currently in use by another asynchronous call.
 .SH ENVIRONMENT
 Many of the performance metrics exported from PCP agents have the
 semantics of

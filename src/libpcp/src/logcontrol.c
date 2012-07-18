@@ -10,6 +10,13 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe note
+ *
+ * This routine is not thread-safe as there is no serialization on the
+ * use of the fd between the __pmSendLogControl() and the reading of
+ * the reply PDU.  It is assumed that the caller is single-threaded,
+ * which is true for the only current user of this routine, pmlc(1).
  */
 
 #include "pmapi.h"
@@ -29,8 +36,9 @@ __pmControlLog(int fd, const pmResult *request, int control, int state, int delt
     if (n < 0)
 	n = __pmMapErrno(n);
     else {
+	int		pinpdu;
 	/* get the reply */
-	n = __pmGetPDU(fd, ANY_SIZE, __pmLoggerTimeout(), &pb);
+	pinpdu = n = __pmGetPDU(fd, ANY_SIZE, __pmLoggerTimeout(), &pb);
 	if (n == PDU_RESULT) {
 	    n = __pmDecodeResult(pb, status);
 	}
@@ -38,6 +46,8 @@ __pmControlLog(int fd, const pmResult *request, int control, int state, int delt
 	    __pmDecodeError(pb, &n);
 	else if (n != PM_ERR_TIMEOUT)
 	    n = PM_ERR_IPC; /* unknown reply type */
+	if (pinpdu > 0)
+	    __pmUnpinPDUBuf(pb);
     }
 
     return n;

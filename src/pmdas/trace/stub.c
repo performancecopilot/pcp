@@ -121,7 +121,7 @@ pmtraceerrstr(int code)
 	{ 0, "" }
     };
 
-    if ((code < 0) && (code > -sys_nerr))	/* catch intro(2) errors */
+    if ((code < 0) && (code > -PMTRACE_ERR_BASE))	/* catch intro(2) errors */
 	return strerror(-code);
     else if (code == 0)
 	return "No error";

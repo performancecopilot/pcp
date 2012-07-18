@@ -145,7 +145,7 @@ refresh_proc_vmstat(proc_vmstat_t *proc_vmstat)
 
     if (!started) {
 	started = 1;
-	memset(proc_vmstat, 0, sizeof(proc_vmstat));
+	memset(proc_vmstat, 0, sizeof(*proc_vmstat));
     }
 
     for (i = 0; vmstat_fields[i].field != NULL; i++) {

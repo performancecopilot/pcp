@@ -10,6 +10,25 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe note
+ *
+ * Because __pmFindPDUBuf() returns with a pinned pdu buffer, the
+ * buffer passed back from __pmEncodeResult() must also remain pinned
+ * (otherwise another thread could clobber the buffer after returning
+ * from __pmEncodeResult()) ... it is the caller of __pmEncodeResult()
+ * who is responsible for (a) not pinning the buffer again, and (b)
+ * ensuring _someone_ will unpin the buffer when it is safe to do so.
+ *
+ * Similarly, __pmDecodeResult() accepts a pinned buffer and returns
+ * a pmResult that (on 64-bit pointer platforms) may contain pointers
+ * into a second underlying pinned buffer.  The input buffer remains
+ * pinned, the second buffer will be pinned if it is used.  The caller
+ * will typically call pmFreeResult(), but also needs to call
+ * __pmUnpinPDUBuf() for the input PDU buffer.  When the result contains
+ * pointers back into the input PDU buffer, this will be pinned _twice_
+ * so the pmFreeResult() and __pmUnpinPDUBuf() calls will still be
+ * required.
  */
 
 #include <ctype.h>
@@ -120,6 +139,8 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 	    vlp = (vlist_t *)((__psint_t)vlp + sizeof(vlp->pmid) + sizeof(vlp->numval));
     }
     *pdubuf = _pdubuf;
+
+    /* Note _pdubuf remains pinned ... see thread-safe comments above */
     return 0;
 }
 
@@ -138,9 +159,15 @@ __pmSendResult(int fd, int from, const pmResult *result)
 	return sts;
     pp = (result_t *)pdubuf;
     pp->hdr.from = from;
-    return __pmXmitPDU(fd, pdubuf);
+    sts = __pmXmitPDU(fd, pdubuf);
+    __pmUnpinPDUBuf(pdubuf);
+    return sts;
 }
 
+/*
+ * enter here with pdubuf already pinned ... result may point into
+ * _another_ pdu buffer that is pinned on exit
+ */
 int
 __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 {
@@ -156,9 +183,6 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
     char	*newbuf;
     int		valfmt;
     int		numval;
-#ifdef DESPERATE
-    pmID	pmid;
-#endif
 /*
  * Note: all sizes are in units of bytes ... beware that pp->data is in
  *	 units of __pmPDU
@@ -181,8 +205,7 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
     numpmid = ntohl(pp->numpmid);
     if ((pr = (pmResult *)malloc(sizeof(pmResult) +
 			     (numpmid - 1) * sizeof(pmValueSet *))) == NULL) {
-	sts = -oserror();
-	goto badsts;
+	return -oserror();
     }
     pr->numpmid = numpmid;
     pr->timestamp.tv_sec = ntohl(pp->timestamp.tv_sec);
@@ -196,9 +219,12 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	numval = ntohl(vlp->numval);
 	valfmt = ntohl(vlp->valfmt);
 #ifdef DESPERATE
-	pmid = __ntohpmID(vlp->pmid);
-	fprintf(stderr, "vlist[%d] pmid: %s numval: %d",
-			i, pmIDStr(pmid), numval);
+	{
+	    pmID	pmid = __ntohpmID(vlp->pmid);
+	    char	strbuf[20];
+	    fprintf(stderr, "vlist[%d] pmid: %s numval: %d",
+			i, pmIDStr_r(pmid, strbuf, sizeof(strbuf)), numval);
+	}
 #endif
 	nvsize += sizeof(pmValueSet);
 	if (numval > 0) {
@@ -230,11 +256,9 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
     fprintf(stderr, "vsize: %d nvsize: %d vbsize: %d\n", vsize, nvsize, vbsize);
 #endif
 
-    /* pin the original pdubuf so we don't just allocate that again */
-    __pmPinPDUBuf(pdubuf);
+    /* the original pdubuf is already pinned so we won't just allocate that again */
     if ((newbuf = (char *)__pmFindPDUBuf((int)nvsize + vbsize)) == NULL) {
 	free(pr);
-	__pmUnpinPDUBuf(pdubuf);
 	return -oserror();
     }
 
@@ -277,8 +301,11 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	nvsp->pmid = __ntohpmID(vlp->pmid);
 	nvsp->numval = ntohl(vlp->numval);
 #ifdef DESPERATE
-	fprintf(stderr, "new vlist[%d] pmid: %s numval: %d",
-			i, pmIDStr(nvsp->pmid), nvsp->numval);
+	{
+	    char	strbuf[20];
+	    fprintf(stderr, "new vlist[%d] pmid: %s numval: %d",
+			i, pmIDStr_r(nvsp->pmid, strbuf, sizeof(strbuf)), nvsp->numval);
+	}
 #endif
 
 	vsize += sizeof(nvsp->pmid) + sizeof(nvsp->numval);
@@ -321,17 +348,12 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 		}
 	    }
 	}
-	else if (nvsp->numval < 0 && version == PDU_VERSION1) {
-	    nvsp->numval = XLATE_ERR_1TO2(nvsp->numval);
-	}
 #ifdef DESPERATE
 	fputc('\n', stderr);
 #endif
     }
-
-    __pmUnpinPDUBuf(pdubuf);	/* release it now that data copied */
-    if (numpmid)
-	__pmPinPDUBuf(newbuf);	/* pin the new buffer containing data */
+    if (numpmid == 0)
+	__pmUnpinPDUBuf(newbuf);
 
 #elif defined(HAVE_32BIT_PTR)
 
@@ -366,13 +388,15 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	    }
 	    vlp = (vlist_t *)((__psint_t)vlp + sizeof(*vlp) + (vsp->numval-1)*sizeof(vlp->vlist[0]));
 	}
-	else {
-	    if (vsp->numval < 0 && version == PDU_VERSION1)
-		vsp->numval = XLATE_ERR_1TO2(vsp->numval);
+	else
 	    vlp = (vlist_t *)((__psint_t)vlp + sizeof(vlp->pmid) + sizeof(vlp->numval));
-	}
     }
-    if (numpmid)
+    if (numpmid > 0)
+	/*
+	 * PDU buffer already pinned on entry, pin again so that
+	 * the caller can safely call _both_ pmFreeResult() and
+	 * __pmUnpinPDUBuf() ... refer to thread-safe notes above.
+	 */
 	__pmPinPDUBuf(pdubuf);
 #endif
 
@@ -381,13 +405,11 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	__pmDumpResult(stderr, pr);
 #endif
     *result = pr;
-    return 0;
 
-badsts:
-    if (pr != NULL) {
-	/* clean up partial malloc's */
-	pr->numpmid = i;
-	pmFreeResult(pr);
-    }
-    return sts;
+    /*
+     * Note we return with the input buffer (pdubuf) still pinned and
+     * for the 64-bit pointer case the new buffer (newbuf) also pinned -
+     * if numpmid != 0 see the thread-safe comments above
+     */
+    return 0;
 }

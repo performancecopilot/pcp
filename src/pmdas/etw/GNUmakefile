@@ -21,33 +21,51 @@ IAM		= etw
 DOMAIN		= ETW
 CFILES		= util.c event.c pmda.c
 HFILES		= util.h event.h
-LSRCFILES	= tdhlist.c tdhconsume.c pcp.xml
+LSRCFILES	= tdhlist.c tdhconsume.c pcp.xml pmns root help
 LCFLAGS		= -I$(WINDIR)/include -D_WIN32_WINNT=0x0600 -DFORCEINLINE="static inline"
 LLDFLAGS	= -L$(WINDIR)/lib
 LLDLIBS		= -lpcp -lpcp_pmda -lpcp_tdh
 
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 LIBTARGET	= pmda_etw.dll
-EXTRATARGETS	= tdhlist.exe tdhconsume.exe
-LDIRT		= $(EXTRATARGETS) domain.h *.o
+EXTRATARGETS	= tdhlist.exe tdhconsume.exe help.dir help.pag
+LDIRT		= $(EXTRATARGETS) root_etw domain.h $(IAM).log
+
+CONF_LINE = "etw	87	dso	etw_init	$(PCP_PMDAS_DIR)/etw/pmda_etw.dll"
 
 default:	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "mingw"
-build-me: $(LSRCFILES) $(LIBTARGET) $(EXTRATARGETS)
+build-me: root_etw $(LSRCFILES) $(LIBTARGET) $(EXTRATARGETS)
+	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	fi
+
 install: build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 tdhlist.exe $(PMDADIR)/tdhlist.exe
+	$(INSTALL) -m 644 pmns $(PMDADIR)/root
+	$(INSTALL) -m 644 domain.h help.dir help.pag help $(PMDADIR)
+	$(INSTALL) -m 644 root_etw $(PCP_VAR_DIR)/pmns/root_etw
 else
 build-me:
 install:
 endif
 
+help.dir help.pag : help root_etw
+	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_etw -v 2 -o help < help
+
 default_pcp:	default
 
 install_pcp:	install
+
+root_etw:	../../pmns/stdpmid $(PMNS)
+	rm -f root_etw
+	sed -e 's;<stdpmid>;"../../pmns/stdpmid";' <root \
+	| $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp \
+	| sed -e '/^#/d' -e '/^$$/d' >root_etw
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

@@ -13,7 +13,6 @@
  */
 
 #include <ctype.h>
-#include <assert.h>
 #include "pmapi.h"
 #include "impl.h"
 
@@ -60,10 +59,13 @@ typedef struct {		/* one derived metric */
  * tree of expressions maintained per context.
  */
 typedef struct {
-    int		nmetric;	/* derived metrics */
-    dm_t	*mlist;
-    int		fetch_has_dm;	/* ==1 if pmResult rewrite needed */
-    int		numpmid;	/* from pmFetch before rewrite */
+#ifdef PM_MULTI_THREAD
+    pthread_mutex_t	mutex;
+#endif
+    int			nmetric;	/* derived metrics */
+    dm_t		*mlist;
+    int			fetch_has_dm;	/* ==1 if pmResult rewrite needed */
+    int			numpmid;	/* from pmFetch before rewrite */
 } ctl_t;
 
 /* lexical types */

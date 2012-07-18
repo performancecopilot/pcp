@@ -109,22 +109,6 @@ CopyToken(void)
     return copy;
 }
 
-/* Return a strdup-ed copy of the current token, plus an optional prefix. */
-static char*
-CopyPathToken(const char *prefix)
-{
-    int		len = (int)(tokenend - token);
-    int		plen = prefix ? strlen(prefix) : 0;
-    char	*copy = (char *)malloc(plen + len + 1);
-    if (copy != NULL) {
-	if (plen > 0)
-	    strncpy(copy, prefix, plen);
-	strncpy(copy + plen, token, len);
-	copy[plen + len] = '\0';
-    }
-    return copy;
-}
-
 /* Get the next line from the input stream into linebuf. */
 
 static void
@@ -525,7 +509,7 @@ BuildArgv(void)
 	if (result != NULL) {
 	    if (*token != '/')
 		result[nArgs] = CopyToken();
-	    else if ((result[nArgs] = CopyPathToken(getenv("PCP_DIR"))))
+	    else if ((result[nArgs] = CopyToken()) != NULL)
 		__pmNativePath(result[nArgs]);
 	}
 	if (result == NULL || result[nArgs] == NULL) {
@@ -533,6 +517,14 @@ BuildArgv(void)
 		    nLines);
 	    __pmNoMem("pmcd config: build argv", nArgs * sizeof(char *),
 		     PM_RECOV_ERR);
+	    if (result != NULL) {
+		while (nArgs >= 0) {
+		    if (result[nArgs] != NULL)
+			free(result[nArgs]);
+		    nArgs--;
+		}
+		free(result);
+	    }
 	    return NULL;
 	}
 #ifdef PCP_DEBUG
@@ -636,16 +628,18 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
     FindNextToken();
     if (*token == '\n') {
 	fprintf(stderr, "pmcd config[line %d]: Error: expected DSO pathname\n", nLines);
+	free(entryPoint);
 	return -1;
     }
     if (*token != '/') {
 	if (token[strlen(token)-1] == '\n')
 	    token[strlen(token)-1] = '\0';
 	fprintf(stderr, "pmcd config[line %d]: Error: path \"%s\" to PMDA is not absolute\n", nLines, token);
+	free(entryPoint);
 	return -1;
     }
 
-    if ((pathName = CopyPathToken(getenv("PCP_DIR"))) == NULL) {
+    if ((pathName = CopyToken()) == NULL) {
 	fprintf(stderr, "pmcd config[line %d]: Error: couldn't copy DSO pathname\n",
 			nLines);
 	__pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
@@ -656,6 +650,8 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
     if (*token != '\n') {
 	fprintf(stderr, "pmcd config[line %d]: Error: too many parameters for DSO\n",
 		     nLines);
+	free(entryPoint);
+	free(pathName);
 	return -1;
     }
 
@@ -667,7 +663,7 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
     newAgent->pmDomainId = pmDomainId;
     newAgent->inFd = -1;
     newAgent->outFd = -1;
-    newAgent->pmDomainLabel = pmDomainLabel;
+    newAgent->pmDomainLabel = strdup(pmDomainLabel);
     newAgent->ipc.dso.pathName = pathName;
     newAgent->ipc.dso.xlatePath = xlatePath;
     newAgent->ipc.dso.entryPoint = entryPoint;
@@ -726,7 +722,6 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
 	    fprintf(stderr,
 		"pmcd config[line %d]: Error: failed to get port number for port name %s\n",
 		nLines, socketName);
-	    free(pmDomainLabel);
 	    free(socketName);
 	    return -1;
 	}
@@ -740,7 +735,7 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
     newAgent->pmDomainId = pmDomainId;
     newAgent->inFd = -1;
     newAgent->outFd = -1;
-    newAgent->pmDomainLabel = pmDomainLabel;
+    newAgent->pmDomainLabel = strdup(pmDomainLabel);
     newAgent->ipc.socket.addrDomain = addrDomain;
     newAgent->ipc.socket.name = socketName;
     newAgent->ipc.socket.port = port;
@@ -798,7 +793,7 @@ ParsePipe(char *pmDomainLabel, int pmDomainId)
     newAgent->pmDomainId = pmDomainId;
     newAgent->inFd = -1;
     newAgent->outFd = -1;
-    newAgent->pmDomainLabel = pmDomainLabel;
+    newAgent->pmDomainLabel = strdup(pmDomainLabel);
     newAgent->status.startNotReady = notReady;
     newAgent->ipc.pipe.argv = BuildArgv();
 
@@ -1146,7 +1141,7 @@ ParseAccessControls(void)
 static int
 ReadConfigFile(FILE *configFile)
 {
-    char	*pmDomainLabel;
+    char	*pmDomainLabel = NULL;
     int		i, pmDomainId;
     int		sts = 0;
 
@@ -1217,6 +1212,10 @@ ReadConfigFile(FILE *configFile)
 	    sts = -1;
 	}
 doneLine:
+	if (pmDomainLabel != NULL) {
+	    free(pmDomainLabel);
+	    pmDomainLabel = NULL;
+	}
 	SkipLine();
     }
     if (scanError) {
@@ -1287,7 +1286,6 @@ static int
 AgentNegotiate(AgentInfo *aPtr)
 {
     int		sts;
-    int		version;
     __pmPDU	*ack;
 
     sts = __pmGetPDU(aPtr->outFd, ANY_SIZE, _creds_timeout, &ack);
@@ -1295,36 +1293,23 @@ AgentNegotiate(AgentInfo *aPtr)
 	if ((sts = DoAgentCreds(aPtr, ack)) < 0) {
 	    fprintf(stderr, "pmcd: version exchange failed "
 		"for \"%s\" agent: %s\n", aPtr->pmDomainLabel, pmErrStr(sts));
-	    return sts;
 	}
-	return 0;
-    }
-    else if (sts == PM_ERR_TIMEOUT) {
-	fprintf(stderr, "pmcd: no version exchange with PMDA %s: "
-		"assuming PCP 1.x PMDA.\n", aPtr->pmDomainLabel);
-	/*FALLTHROUGH*/
-    }
-    else {
-	if (sts > 0)
-	    fprintf(stderr, "pmcd: unexpected PDU type (0x%x) at initial "
-		    "exchange with %s PMDA\n", sts, aPtr->pmDomainLabel);
-	else if (sts == 0)
-	    fprintf(stderr, "pmcd: unexpected end-of-file at initial "
-		    "exchange with %s PMDA\n", aPtr->pmDomainLabel);
-	else
-	    fprintf(stderr, "pmcd: error at initial PDU exchange with "
-		    "%s PMDA: %s\n", aPtr->pmDomainLabel, pmErrStr(sts));
-	return PM_ERR_IPC;
+	__pmUnpinPDUBuf(ack);
+	return sts;
     }
 
-    /*
-     * Either Version 1 or timed out in PDU exchange
-     */
-    aPtr->pduVersion = PDU_VERSION1;
-    version = PDU_VERSION1;
-    if ((sts = __pmSetVersionIPC(aPtr->inFd, version)) >= 0)
-	sts = __pmSetVersionIPC(aPtr->outFd, version);
-    return sts;
+    if (sts > 0) {
+	fprintf(stderr, "pmcd: unexpected PDU type (0x%x) at initial "
+		"exchange with %s PMDA\n", sts, aPtr->pmDomainLabel);
+	__pmUnpinPDUBuf(ack);
+    }
+    else if (sts == 0)
+	fprintf(stderr, "pmcd: unexpected end-of-file at initial "
+		"exchange with %s PMDA\n", aPtr->pmDomainLabel);
+    else
+	fprintf(stderr, "pmcd: error at initial PDU exchange with "
+		"%s PMDA: %s\n", aPtr->pmDomainLabel, pmErrStr(sts));
+    return PM_ERR_IPC;
 }
 
 /* Connect to an agent's socket. */
@@ -1802,29 +1787,7 @@ GetAgentDso(AgentInfo *aPtr)
 	    return -1;
     }
 
-    if (dso->dispatch.comm.pmda_interface == challenge) {
-	/*
-	 * DSO did not change pmda_interface, assume PMAPI version 1
-	 * from PCP 1.x and PMDA_INTERFACE_1
-	 */
-	dso->dispatch.comm.pmda_interface = PMDA_INTERFACE_1;
-	dso->dispatch.comm.pmapi_version = PMAPI_VERSION_1;
-    }
-    else {
-	/*
-	 * gets a bit tricky ...
-	 * interface_version (8-bits) used to be version (4-bits),
-	 * so it is possible that only the bottom 4 bits were
-	 * changed and in this case the PMAPI version is 1 for
-	 * PCP 1.x
-	 */
-	if ((dso->dispatch.comm.pmda_interface & 0xf0) == (challenge & 0xf0)) {
-	    dso->dispatch.comm.pmda_interface &= 0x0f;
-	    dso->dispatch.comm.pmapi_version = PMAPI_VERSION_1;
-	}
-    }
-
-    if (dso->dispatch.comm.pmda_interface < PMDA_INTERFACE_1 ||
+    if (dso->dispatch.comm.pmda_interface < PMDA_INTERFACE_2 ||
 	dso->dispatch.comm.pmda_interface > PMDA_INTERFACE_LATEST) {
 	__pmNotifyErr(LOG_ERR,
 		 "Unknown PMDA interface version (%d) used by DSO %s\n",
@@ -1835,9 +1798,7 @@ GetAgentDso(AgentInfo *aPtr)
 	return -1;
     }
 
-    if (dso->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
-	aPtr->pduVersion = PDU_VERSION1;
-    else if (dso->dispatch.comm.pmapi_version == PMAPI_VERSION_2)
+    if (dso->dispatch.comm.pmapi_version == PMAPI_VERSION_2)
 	aPtr->pduVersion = PDU_VERSION2;
     else {
 	__pmNotifyErr(LOG_ERR,
@@ -2148,9 +2109,11 @@ ParseRestartAgents(char *fileName)
 			pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		    if (sts == 0)
 			pmcd_trace(TR_EOF, ap->outFd, -1, -1);
-		    else
+		    else {
 			pmcd_trace(TR_WRONG_PDU, ap->outFd, -1, sts);
-		    
+			if (sts > 0)
+			    __pmUnpinPDUBuf(pb);
+		    }
 
 		    CleanupAgent(ap, AT_COMM, ap->outFd);
 		}

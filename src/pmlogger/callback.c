@@ -458,9 +458,10 @@ log_callback(int afid, void *data)
 	    fprintf(stderr, "callback: fetch group %p (%d metrics)\n", fp, fp->f_numpmid);
 #endif
 
-	if (archive_version != PM_LOG_VERS02)
-	    pb = rewrite_pdu(pb, archive_version);
-
+	/*
+	 * hook to rewrite PDU buffer ...
+	 */
+	pb = rewrite_pdu(pb, archive_version);
 
 	if (rflag) {
 	    /*
@@ -497,6 +498,7 @@ log_callback(int afid, void *data)
 	 * in the pdu buffer for the non INSITU values ... sigh
 	 */
 	last_log_offset = ftell(logctl.l_mfp);
+	assert(last_log_offset >= 0);
 	if ((sts = __pmLogPutResult(&logctl, pb)) < 0) {
 	    fprintf(stderr, "__pmLogPutResult: %s\n", pmErrStr(sts));
 	    exit(1);
@@ -513,6 +515,7 @@ log_callback(int afid, void *data)
 
 	needti = 0;
 	old_meta_offset = ftell(logctl.l_mdfp);
+	assert(old_meta_offset >= 0);
 	for (i = 0; i < resp->numpmid; i++) {
 	    pmValueSet	*vsp = resp->vset[i];
 	    pmDesc	desc;
@@ -529,9 +532,7 @@ log_callback(int afid, void *data)
 		    exit(1);
 		}
 		desc = tp->t_desclist[taskindex];
-		if (archive_version == PM_LOG_VERS02) {
-		    numnames = lookupTaskCacheNames(vsp->pmid, &names);
-		}
+		numnames = lookupTaskCacheNames(vsp->pmid, &names);
 		if ((sts = __pmLogPutDesc(&logctl, &desc, numnames, names)) < 0) {
 		    fprintf(stderr, "__pmLogPutDesc: %s\n", pmErrStr(sts));
 		    exit(1);
@@ -637,7 +638,9 @@ log_callback(int afid, void *data)
 	     * record, what a crock), ... ditto for the meta data
 	     */
 	    new_offset = ftell(logctl.l_mfp);
+	    assert(new_offset >= 0);
 	    new_meta_offset = ftell(logctl.l_mdfp);
+	    assert(new_meta_offset >= 0);
 	    fseek(logctl.l_mfp, last_log_offset, SEEK_SET);
 	    fseek(logctl.l_mdfp, old_meta_offset, SEEK_SET);
 	    tmp.tv_sec = (__int32_t)resp->timestamp.tv_sec;
@@ -660,11 +663,14 @@ log_callback(int afid, void *data)
 	    pmFreeResult(lfp->lf_resp);
 	}
 	lfp->lf_resp = resp;
+	if (lfp->lf_pb != NULL)
+	    __pmUnpinPDUBuf(lfp->lf_pb);
 	lfp->lf_pb = pb;
     }
 
     if (rflag && tp->t_size == 0 && pdu_metrics > 0) {
 	char	*name = NULL;
+	int	taskindex;
 
 	tp->t_size = pdu_bytes;
 
@@ -672,22 +678,18 @@ log_callback(int afid, void *data)
 	    fprintf(stderr, "\nGroup [%d metrics] {\n\t", pdu_metrics);
 	else
 	    fprintf(stderr, "\nMetric ");
-	if (archive_version == PM_LOG_VERS02) {
-	    int taskindex = lookupTaskCacheIndex(tp, pdu_first_pmid);
-	    if (taskindex >= 0)
-		name = tp->t_namelist[taskindex];
-	}
+	taskindex = lookupTaskCacheIndex(tp, pdu_first_pmid);
+	if (taskindex >= 0)
+	    name = tp->t_namelist[taskindex];
 	fprintf(stderr, "%s", name ? name : pmIDStr(pdu_first_pmid));
 	if (pdu_metrics > 1) {
 	    fprintf(stderr, "\n\t");
 	    if (pdu_metrics > 2)
 		fprintf(stderr, "...\n\t");
 	    name = NULL;
-	    if (archive_version == PM_LOG_VERS02) {
-		int taskindex = lookupTaskCacheIndex(tp, pdu_last_pmid);
-		if (taskindex >= 0)
-		    name = tp->t_namelist[taskindex];
-	    }
+	    taskindex = lookupTaskCacheIndex(tp, pdu_last_pmid);
+	    if (taskindex >= 0)
+		name = tp->t_namelist[taskindex];
 	    fprintf(stderr, "%s\n}", name ? name : pmIDStr(pdu_last_pmid));
 	}
 	fprintf(stderr, " logged ");

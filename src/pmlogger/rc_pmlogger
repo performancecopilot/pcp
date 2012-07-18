@@ -1,0 +1,296 @@
+#!/bin/sh
+#
+# Copyright (c) 2000-2008 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Start or Stop the Performance Co-Pilot pmlogger processes.
+#
+# The following is for chkconfig on RedHat based systems
+# chkconfig: 2345 94 06
+# description: pmlogger is a performance metrics logger for the Performance Co-Pilot (PCP)
+#
+# The following is for insserv(1) based systems,
+# e.g. SuSE, where chkconfig is a perl script.
+### BEGIN INIT INFO
+# Provides:          pmlogger
+# Required-Start:    $local_fs
+# Should-Start:      $network $remote_fs $syslog $time $pmcd
+# Required-Stop:     $local_fs
+# Should-Stop:       $network $remote_fs $syslog $pmcd
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Control pmlogger (the performance metrics logger for PCP)
+# Description:       Configure and control pmlogger (the performance metrics logger for the Performance Co-Pilot)
+### END INIT INFO
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/rc-proc.sh
+
+PMLOGCTRL=$PCP_PMLOGGERCONTROL_PATH
+RUNDIR=$PCP_LOG_DIR/pmcd
+PMLOGGER=$PCP_BINADM_DIR/pmlogger
+prog=$PCP_RC_DIR/`basename $0`
+
+# search for your mail agent of choice ...
+#
+MAIL=''
+for try in Mail mail email
+do
+    if which $try >/dev/null 2>&1
+    then
+	MAIL=$try
+	break
+    fi
+done
+
+tmp=/var/tmp/$$
+status=1
+trap "rm -f $tmp.* ; exit \$status" 0 1 2 3 15
+
+LOCALHOSTNAME="localhost"
+which hostname >/dev/null 2>&1 && LOCALHOSTNAME=`hostname`
+LOGDIR=$PCP_LOG_DIR/pmlogger/$LOCALHOSTNAME
+
+if is_chkconfig_on pmlogger
+then
+    PMLOGGER_CTL=on
+else
+    PMLOGGER_CTL=off
+fi
+
+VERBOSE_CTL=on
+
+case "$PCP_PLATFORM"
+in
+    mingw)
+	# nothing we can usefully do here, skip the test
+	#
+	IAM=0
+	;;
+
+    *)
+	# standard Unix/Linux style test
+	#
+	ID=id
+	IAM=`$ID -u 2>/dev/null`
+	if [ -z "$IAM" ]
+	then
+	    # do it the hardway
+	    #
+	    IAM=`$ID | sed -e 's/.*uid=//' -e 's/(.*//'`
+	fi
+	;;
+esac
+
+_start_pmcheck()
+{
+    pmlogger_check $VFLAG >$tmp.pmcheck 2>&1
+    if [ -s $tmp.pmcheck ]
+    then
+	pmpost "pmlogger_check failed in $prog, mailing output to root"
+	if [ ! -z "$MAIL" ]
+	then
+	    $MAIL -s "pmlogger_check failed in $prog" root <$tmp.pmcheck 
+	else
+	    echo "$prog: pmlogger_check failed ..."
+	    cat $tmp.pmcheck 
+	fi
+    fi
+    rm -f $tmp.pmcheck
+}
+
+_start_pmlogger()
+{
+    if which pmlogger_check >/dev/null 2>&1
+    then
+	# pmlogger_check uses $PMLOGCTRL to start everything that is needed
+	#
+	if [ ! -f $PMLOGCTRL ]
+	then
+	    echo "$prog:"'
+Error: PCP archive logger control file '$PMLOGCTRL'
+       is missing!  Cannot start any Performance Co-Pilot archive logger(s).'
+	    # failure
+	    false
+	else
+	    # really start the pmlogger instances based on the control file.
+	    # done in the background to avoid delaying the init script,
+	    # failures are notified by mail
+	    #
+	    $ECHO $PCP_ECHO_N "Starting pmlogger ..." "$PCP_ECHO_C"
+	    _start_pmcheck &
+	    # success
+	    true
+	fi
+    else
+	echo "$prog:"'
+Warning: Performance Co-Pilot installation is incomplete (at least the
+         script "pmlogger_check" is missing) and the PCP archive logger(s)
+	 cannot be started.'
+	# failure
+	false
+    fi
+    $RC_STATUS -v
+}
+
+_shutdown()
+{
+    # Is any pmlogger running?
+    #
+    _get_pids_by_name pmlogger >$tmp.tmp
+    if [ ! -s $tmp.tmp ]
+    then
+ 	[ "$1" = verbose ] && echo "$prog: pmlogger not running"
+	return 0
+    fi
+
+    $ECHO $PCP_ECHO_N "Stopping pmlogger ...""$PCP_ECHO_C"
+    # Terminate those pmloggers started by either pmlogger_check or
+    # pmlogger_daily ... relies on the -m option to pmlogger and the
+    # annotation in the (optional) 4th line of the port map files
+    #
+    for pid in `cat $tmp.tmp`
+    do
+	if [ -f $PCP_TMP_DIR/pmlogger/$pid ]
+	then
+	    note=`sed -n -e 4p <$PCP_TMP_DIR/pmlogger/$pid`
+	    if [ "$note" = pmlogger_check -o "$note" = pmlogger_daily ]
+	    then
+		pmsignal -s TERM $pid
+	    fi
+	fi
+    done
+    $RC_STATUS -v
+    pmpost "stop pmlogger from $prog"
+}
+
+_usage()
+{
+    echo "Usage: $prog [-v] {start|restart|condrestart|stop|status|reload|force-reload}"
+}
+
+while getopts v c
+do
+    case $c
+    in
+	v)  # force verbose
+	    VERBOSE_CTL=on
+	    ;;
+	
+	*)
+	    _usage
+	    exit 1
+	    ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $VERBOSE_CTL = on ]
+then				# For a verbose startup and shutdown
+    ECHO=$PCP_ECHO_PROG
+    REBUILDOPT=''
+    VFLAG='-V'
+else				# For a quiet startup and shutdown
+    ECHO=:
+    REBUILDOPT=-s
+    VFLAG=
+fi
+
+if [ "$IAM" != 0 -a "$1" != "status" ]
+then
+    if [ -n "$PCP_DIR" ]
+    then
+	: running in a non-default installation, do not need to be root
+    else
+	echo "$prog:"'
+Error: You must be root (uid 0) to start or stop the Performance Co-Pilot loggers.'
+	exit
+    fi
+fi
+
+# First reset status of this service
+$RC_RESET
+ 
+# Return values acc. to LSB for all commands but status:
+# 0 - success
+# 1 - misc error
+# 2 - invalid or excess args
+# 3 - unimplemented feature (e.g. reload)
+# 4 - insufficient privilege
+# 5 - program not installed
+# 6 - program not configured
+#
+# Note that starting an already running service, stopping
+# or restarting a not-running service as well as the restart
+# with force-reload (in case signalling is not supported) are
+# considered a success.
+case "$1" in
+
+  'start'|'restart'|'condrestart'|'reload'|'force-reload')
+	if [ "$1" = "condrestart" ] && ! is_chkconfig_on pmlogger
+	then
+	    status=0
+	    exit
+	fi
+	_shutdown quietly
+
+	# pmlogger messages should go to stderr, not the GUI notifiers
+	#
+	unset PCP_STDERR
+
+	if [ -x $PMLOGGER ]
+	then
+	    if [ "$PMLOGGER_CTL" = on ]
+	    then
+		_start_pmlogger
+	    fi
+	fi
+
+	status=0
+        ;;
+
+  'stop')
+	_shutdown verbose
+	status=0
+        ;;
+
+  'status')
+	# NOTE: $RC_CHECKPROC returns LSB compliant status values.
+	$ECHO $PCP_ECHO_N "Checking for pmlogger:" "$PCP_ECHO_C"
+        if [ -r /etc/rc.status ]
+        then
+            # SuSE
+            $RC_CHECKPROC $PMLOGGER
+            $RC_STATUS -v
+            status=$?
+        else
+            # not SuSE
+            $RC_CHECKPROC $PMLOGGER
+            status=$?
+            if [ $status -eq 0 ]
+            then
+                $ECHO running
+            else
+                $ECHO stopped
+            fi
+        fi
+	;;
+
+  *)
+	_usage
+        ;;
+esac
+

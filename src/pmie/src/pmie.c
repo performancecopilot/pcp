@@ -497,7 +497,7 @@ getargs(int argc, char *argv[])
 		if (subopts != NULL) {
 		    *subopts++ = '\0';
 		}
-		a = (Archive *) zalloc(sizeof(Archive));
+		a = (Archive *)zalloc(sizeof(Archive));
 		a->fname = subopt;
 		if (!initArchive(a)) {
 		    exit(1);
@@ -839,7 +839,7 @@ static void
 interact(void)
 {
     int			quit = 0;
-    char		*line = (char *) zalloc(LINE_LENGTH + 2);
+    char		*line = (char *)zalloc(LINE_LENGTH + 2);
     char		*finger;
     char		*token;
     char		*msg;
@@ -939,6 +939,7 @@ interact(void)
 	    fflush(stdout);
 	}
     }
+    free(line);
 }
 
 

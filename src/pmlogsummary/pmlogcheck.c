@@ -589,11 +589,8 @@ main(int argc, char *argv[])
 
     sts = 0;
     for ( ; ; ) {
-	sts = pmFetchArchive(&result);
-	if (sts < 0) {
-	    if (result) pmFreeResult(result);
+	if ((sts = pmFetchArchive(&result)) < 0)
 	    break;
-	}
 	delta_stamp = result->timestamp;
 	tsub(&delta_stamp, &last_stamp);
 #ifdef PCP_DEBUG
@@ -639,10 +636,10 @@ main(int argc, char *argv[])
 	    ((windowend.tv_sec == result->timestamp.tv_sec) &&
 	     (windowend.tv_usec >= result->timestamp.tv_usec))) {
 	    docheck(result);
-	    if (result) pmFreeResult(result);
+	    pmFreeResult(result);
 	}
 	else {
-	    if (result) pmFreeResult(result);
+	    pmFreeResult(result);
 	    sts = PM_ERR_EOL;
 	    break;
 	}
@@ -654,6 +651,5 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-    return(0);
+    return 0;
 }
-

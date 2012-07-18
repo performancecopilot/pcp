@@ -27,6 +27,7 @@ CFILES	= pmlogger.c fetch.c util.c error.c callback.c ports.c \
 HFILES	= logger.h
 LFILES  = lex.l
 YFILES	= gram.y
+LSRCFILES = rc_pmlogger
 
 LLDLIBS	= -lpcp
 LDIRT	= *.log foo.* gram.h lex.c y.tab.? $(YFILES:%.y=%.tab.?) $(CMDTARGET)
@@ -37,6 +38,7 @@ include $(BUILDRULES)
 
 install:	$(CMDTARGET) $(OTHERS)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
+	$(INSTALL) -m 755 rc_pmlogger $(PCP_RC_DIR)/pmlogger
 
 YFLAGS += -v
 gram.tab.h gram.tab.c:	gram.y

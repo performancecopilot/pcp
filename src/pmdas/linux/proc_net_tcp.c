@@ -38,6 +38,7 @@ refresh_proc_net_tcp(proc_net_tcp_t *proc_net_tcp)
     /* skip header */
     if (fgets(buf, sizeof(buf), fp) == NULL) {
     	/* oops, no header! */
+	fclose(fp);
 	return -oserror();
     }
     for (buf[0]='\0';;) {

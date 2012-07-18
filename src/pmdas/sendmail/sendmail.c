@@ -352,6 +352,7 @@ do_sendmail_cf(void)
 #endif
 	}
     }
+    fclose(fp);
 
     indomtab[MAILER_INDOM].it_numinst = nmailer;
 }

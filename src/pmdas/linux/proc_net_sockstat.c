@@ -25,7 +25,7 @@ refresh_proc_net_sockstat(proc_net_sockstat_t *proc_net_sockstat)
 
     if (!started) {
     	started = 1;
-	memset(proc_net_sockstat, 0, sizeof(proc_net_sockstat));
+	memset(proc_net_sockstat, 0, sizeof(*proc_net_sockstat));
     }
 
     if ((fp = fopen("/proc/net/sockstat", "r")) == NULL) {

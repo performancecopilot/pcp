@@ -36,6 +36,10 @@
 # default on the platform on which this file is installed.
 #
 
+# directory for _this_ file ... useful in the build
+# Standard path: /etc
+PCP_ETC_DIR=@pcp_etc_dir@
+
 # directory for rc/startup scripts
 # Standard path: /etc/init.d
 PCP_RC_DIR=@pcp_rc_dir@
@@ -146,7 +150,7 @@ PCP_DOC_DIR=@pcp_doc_dir@
 PCP_DEMOS_DIR=@pcp_demos_dir@
 
 # awk
-PCP_AWK_PROG=@awk@
+PCP_AWK_PROG="@awk@"
 
 # unix-like sort
 PCP_SORT_PROG=@sort@

@@ -16,19 +16,31 @@
 #
 
 include /etc/pcp.conf
-DSO_SUFFIX	= $(shell echo $(PCP_LIB_DIR)/libpcp_trace.* | sed -e 's/$$/ /' -e 's/[^ ]*\.a //' -e 's/[^ ]*\.[0-9][^ ]* //' -e 's/.*\.//')
+
+# need to deal with these ...
+# ELF style
+#	/usr/lib/libpcp_trace.a  /usr/lib/libpcp_trace.so  /usr/lib/libpcp_trace.so.2
+# Mac OS X style
+#	/usr/lib/libpcp_trace.2.dylib
+#
+DSO_SUFFIX	= $(shell ls $(PCP_LIB_DIR)/libpcp_trace.* | sed -e '/\.a$$/d' -e 's/.*libpcp_trace//' -e 's/\.[0-9][0-9]*//' -e 's/^\.//' | sed -e 1q)
 ifeq "$(DSO_SUFFIX)" ""
 $(error cannot set DSO_SUFFIX on this platform)
 endif
-# Note: DSO_VERSION includes (starts with) $(DSO_SUFFIX)
-DSO_VERSION	= $(shell echo $(PCP_LIB_DIR)/libpcp_trace.* | sed -e 's/.*trace\.\([^ ]*\.[0-9][^ ]*\).*/\1/')
+
+# Note: DSO_VERSION includes (starts with or ends with) $(DSO_SUFFIX)
+#
+DSO_VERSION	= $(shell ls $(PCP_LIB_DIR)/libpcp_trace.* | sed -n -e '/\.a$$/d' -e 's/.*libpcp_trace\.//' -e '/\.$(DSO_SUFFIX)/p' -e '/$(DSO_SUFFIX)\./p' | sed -e 's/^\.//' -e 1q) 
 ifeq "$(DSO_VERSION)" ""
 $(error cannot set DSO_VERSION on this platform)
 endif
 
 SHELL	= /bin/sh
 CC	= cc
-TARGETS	= lib/libpcp_trace.$(DSO_VERSION) lib/libpcp_trace.$(DSO_SUFFIX) 
+TARGETS	= lib/libpcp_trace.$(DSO_VERSION)
+ifeq "$(shell [ -f $(PCP_LIB_DIR)/libpcp_trace.$(DSO_SUFFIX) ] && echo 1)" "1"
+TARGETS	+= lib/libpcp_trace.$(DSO_SUFFIX) 
+endif
 CFILES	= stub.c
 CFLAGS += -DPMTRACE_DEBUG
 CFLAGS += -fPIC -fno-strict-aliasing
@@ -41,7 +53,7 @@ lib/libpcp_trace.$(DSO_VERSION): stub.c
 	rm -f $@
 	cd lib; $(CC) $(CFLAGS) -shared ../stub.c -o libpcp_trace.$(DSO_VERSION)
 
-lib/libpcp_trace.$(DSO_SUFFIX):	lib/libpcp_trace.$(DSO_VERSION)
+lib/libpcp_trace.$(DSO_SUFFIX): lib/libpcp_trace.$(DSO_VERSION)
 	rm -f $@
 	cd lib; ln -s libpcp_trace.$(DSO_VERSION) libpcp_trace.$(DSO_SUFFIX)
 
@@ -51,3 +63,7 @@ clean:
 clobber:
 	rm -rf $(LDIRT) $(TARGETS)
 
+debug:
+	@echo "DSO_SUFFIX=$(DSO_SUFFIX)"
+	@echo "DSO_VERSION=$(DSO_VERSION)"
+	@echo "TARGETS=$(TARGETS)"

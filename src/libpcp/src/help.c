@@ -17,46 +17,6 @@
 #include "pmda.h"
 
 static int
-requesttext (__pmContext *ctxp, int ident, int type) 
-{
-    int n;
-
-#ifdef ASYNC_API
-    if (ctxp->c_pmcd->pc_curpdu != 0) {
-	return (PM_ERR_CTXBUSY);
-    }
-#endif /*ASYNC_API*/
-
-    n = __pmSendTextReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), ident, type);
-    if (n < 0) {
-	n = __pmMapErrno(n);
-    }
-
-    return (n);
-}
-
-static int
-receivetext (__pmContext *ctxp, char **buffer)
-{
-    int n;
-    __pmPDU *pb;
-
-    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
-		   ctxp->c_pmcd->pc_tout_sec, &pb);
-    if (n == PDU_TEXT) {
-	int x_ident;
-
-	n = __pmDecodeText(pb, &x_ident, buffer);
-    }
-    else if (n == PDU_ERROR)
-	__pmDecodeError(pb, &n);
-    else if (n != PM_ERR_TIMEOUT)
-	n = PM_ERR_IPC;
-
-    return (n);
-}
-
-static int
 lookuptext(int ident, int type, char **buffer)
 {
     int		n;
@@ -67,27 +27,49 @@ lookuptext(int ident, int type, char **buffer)
     if ((n = pmWhichContext()) >= 0) {
 	int	ctx = n;
 	ctxp = __pmHandleToPtr(ctx);
+	if (ctxp == NULL)
+	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
+	    PM_LOCK(ctxp->c_pmcd->pc_lock);
 again:
-	    if ((n = requesttext (ctxp, ident, type)) >= 0) {
-		n = receivetext (ctxp, buffer);
-
+	    n = __pmSendTextReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), ident, type);
+	    if (n < 0)
+		n = __pmMapErrno(n);
+	    else {
+		__pmPDU	*pb;
+		int		pinpdu;
+		pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
+					ctxp->c_pmcd->pc_tout_sec, &pb);
+		if (n == PDU_TEXT) {
+		    int x_ident;
+		    n = __pmDecodeText(pb, &x_ident, buffer);
+		}
+		else if (n == PDU_ERROR)
+		    __pmDecodeError(pb, &n);
+		else if (n != PM_ERR_TIMEOUT)
+		    n = PM_ERR_IPC;
+		if (pinpdu > 0)
+		    __pmUnpinPDUBuf(pb);
 		/*
 		 * Note: __pmDecodeText does not swab ident because it
 		 * does not know whether it's a pmID or a pmInDom.
 		 */
 
 		if (n == 0 && (*buffer)[0] == '\0' && (type & PM_TEXT_HELP)) {
-		    /* fall back to oneline, if possible */
+		    /* fall back to one-line, if possible */
 		    free(*buffer);
 		    type &= ~PM_TEXT_HELP;
 		    type |= PM_TEXT_ONELINE;
 		    goto again;
 		}
 	    }
+	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
-	    if ((dp = __pmLookupDSO(((__pmID_int *)&ident)->domain)) == NULL)
+	    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
+		/* Local context requires single-threaded applications */
+		n = PM_ERR_THREAD;
+	    else if ((dp = __pmLookupDSO(((__pmID_int *)&ident)->domain)) == NULL)
 		n = PM_ERR_NOAGENT;
 	    else {
 again_local:
@@ -95,81 +77,32 @@ again_local:
 		    dp->dispatch.version.four.ext->e_context = ctx;
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
 		    n = dp->dispatch.version.four.text(ident, type, buffer, dp->dispatch.version.four.ext);
-		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
-		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
-		    n = dp->dispatch.version.two.text(ident, type, buffer, dp->dispatch.version.two.ext);
 		else
-		    n = dp->dispatch.version.one.text(ident, type, buffer);
+		    n = dp->dispatch.version.two.text(ident, type, buffer, dp->dispatch.version.two.ext);
 		if (n == 0 && (*buffer)[0] == '\0' && (type & PM_TEXT_HELP)) {
-		    /* fall back to oneline, if possible */
+		    /* fall back to one-line, if possible */
 		    type &= ~PM_TEXT_HELP;
 		    type |= PM_TEXT_ONELINE;
 		    goto again_local;
 		}
-		if (n == 0 && dp->dispatch.comm.pmda_interface != PMDA_INTERFACE_1) {
+		if (n == 0) {
 		    /*
-		     * PMDAs after PMDA_INTERFACE_1 don't malloc the buffer
-		     * but the caller will free it, so malloc and copy
+		     * PMDAs don't malloc the buffer but the caller will
+		     * free it, so malloc and copy
 		     */
 		    *buffer = strdup(*buffer);
-		} else if (n < 0 &&
-		    dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1) {
-			n = XLATE_ERR_1TO2(n);
 		}
 	    }
 	}
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE -- this is an error */
-	    return PM_ERR_NOTHOST;
+	    n = PM_ERR_NOTHOST;
 	}
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     return n;
 }
-
-#ifdef ASYNC_API
-static int
-ctxidRequestText (int ctx, int id, int level)
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetHostContextByID(ctx, &ctxp)) >= 0) {
-	if ((n = requesttext (ctxp, id, level)) >= 0) {
-	    ctxp->c_pmcd->pc_curpdu = PDU_TEXT_REQ;
-	    ctxp->c_pmcd->pc_tout_sec = TIMEOUT_DEFAULT;
-	}
-    }
-    return (n);
-}
-
-int
-pmReceiveText (int ctx, char **buffer)
-{
-    int n;
-    __pmContext *ctxp;
-
-    if ((n = __pmGetBusyHostContextByID(ctx, &ctxp, PDU_TEXT_REQ)) >= 0) {
-	n = receivetext (ctxp, buffer);
-
-	ctxp->c_pmcd->pc_curpdu = 0;
-	ctxp->c_pmcd->pc_tout_sec = 0;
-    }
-    return (n);
-}
-
-int
-pmRequestText (int ctx, pmID pmid, int level)
-{
-    return (ctxidRequestText (ctx, (int)pmid, level | PM_TEXT_PMID));
-}
-
-int
-pmRequestInDomText (int ctx, pmID pmid, int level)
-{
-    return (ctxidRequestText (ctx, (int)pmid, level | PM_TEXT_INDOM));
-}
-#endif /*ASYNC_API*/
 
 int
 pmLookupText(pmID pmid, int level, char **buffer)

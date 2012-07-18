@@ -30,11 +30,12 @@ typedef struct {
 void
 __pmDumpIDList(FILE *f, int numids, const pmID idlist[])
 {
-    int i;
+    int		i;
+    char	strbuf[20];
 
     fprintf(f, "IDlist dump: numids = %d\n", numids);
     for (i = 0; i < numids; i++)
-	fprintf(f, "  PMID[%d]: 0x%08x %s\n", i, idlist[i], pmIDStr(idlist[i]));
+	fprintf(f, "  PMID[%d]: 0x%08x %s\n", i, idlist[i], pmIDStr_r(idlist[i], strbuf, sizeof(strbuf)));
 }
 #endif
 
@@ -47,6 +48,7 @@ __pmSendIDList(int fd, int from, int numids, const pmID idlist[], int sts)
     idlist_t	*ip;
     int		need;
     int		j;
+    int		lsts;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {
@@ -68,7 +70,9 @@ __pmSendIDList(int fd, int from, int numids, const pmID idlist[], int sts)
 	ip->idlist[j] = __htonpmID(idlist[j]);
     }
 
-    return __pmXmitPDU(fd, (__pmPDU *)ip);
+    lsts = __pmXmitPDU(fd, (__pmPDU *)ip);
+    __pmUnpinPDUBuf(ip);
+    return lsts;
 }
 
 /*
@@ -189,12 +193,13 @@ int
 __pmSendNameList(int fd, int from, int numnames, char *namelist[],
 		 const int statuslist[])
 {
-    namelist_t	*nlistp;
-    int		need;
-    int 	nstrbytes=0;
-    int 	i;
-    name_t	*nt; 
-    name_status_t *nst; 
+    namelist_t		*nlistp;
+    int			need;
+    int 		nstrbytes=0;
+    int 		i;
+    name_t		*nt; 
+    name_status_t	*nst; 
+    int			sts;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {
@@ -210,8 +215,7 @@ __pmSendNameList(int fd, int from, int numnames, char *namelist[],
     for (i = 0; i < numnames; i++) {
 	int len = (int)strlen(namelist[i]);
         nstrbytes += len+1;
-        if (namelist != NULL)
-	    need += PM_PDU_SIZE_BYTES(len);
+	need += PM_PDU_SIZE_BYTES(len);
 	if (statuslist == NULL) 
             need += sizeof(*nt) - sizeof(nt->name);
 	else 
@@ -269,11 +273,15 @@ __pmSendNameList(int fd, int from, int numnames, char *namelist[],
 	}
     }
 
-    return __pmXmitPDU(fd, (__pmPDU *)nlistp);
+    sts = __pmXmitPDU(fd, (__pmPDU *)nlistp);
+    __pmUnpinPDUBuf(nlistp);
+    return sts;
 }
 
 /*
  * Decode a PDU_PMNS_NAMES
+ *
+ * statuslist is optional ... if NULL, no status values will be returned
  */
 int
 __pmDecodeNameList(__pmPDU *pdubuf, int *numnames, 
@@ -288,7 +296,7 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
     namelist_pdu = (namelist_t *)pdubuf;
 
     *namelist = NULL;
-    if (statuslist)
+    if (statuslist != NULL)
 	*statuslist = NULL;
 
     *numnames = ntohl(namelist_pdu->numnames);
@@ -297,13 +305,17 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
     if (*numnames == 0)
 	return 0;
 
+    if (*numnames < 0 || numstatus < 0)
+	/* should not happen */
+	return PM_ERR_IPC;
+
     /* need space for name ptrs and the name characters */
     need = *numnames * ((int)sizeof(char*)) + ntohl(namelist_pdu->nstrbytes);
     if ((names = (char**)malloc(need)) == NULL)
 	return -oserror();
 
     /* need space for status values */
-    if (numstatus > 0) {
+    if (statuslist != NULL && numstatus > 0) {
 	need = numstatus * (int)sizeof(int);
 	if ((status = (int*)malloc(need)) == NULL) {
 	    free(names);
@@ -330,7 +342,7 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
 	    j += sizeof(namelen) + PM_PDU_SIZE_BYTES(namelen);
 	}
     }
-    else { /* include the status fields */
+    else { /* status fields included in the PDU */
 	int		i, j = 0;
         char		*dest = (char*)&names[*numnames];
 	name_status_t	*np;
@@ -340,7 +352,8 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
 	    np = (name_status_t*)&namelist_pdu->names[j/sizeof(__pmPDU)];
 	    names[i] = dest;
 	    namelen = ntohl(np->namelen);
-	    status[i] = ntohl(np->status);
+	    if (status != NULL)
+		status[i] = ntohl(np->status);
 
 	    memcpy(dest, np->name, namelen);
 	    *(dest + namelen) = '\0';
@@ -360,7 +373,7 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
 #endif
 
     *namelist = names;
-    if (status != NULL)
+    if (statuslist != NULL)
 	*statuslist = status;
     return *numnames;
 }
@@ -389,11 +402,14 @@ SendNameReq(int fd, int from, const char *name, int pdu_type, int subtype)
     int		need;
     int		namelen;
     int		alloc_len; /* length allocated for name */
+    int		sts;
 
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMNS)
+    if (pmDebug & DBG_TRACE_PMNS) {
+	char	strbuf[20];
 	fprintf(stderr, "SendNameReq: from=%d name=\"%s\" pdu=%s subtype=%d\n",
-		from, name, __pmPDUTypeStr(pdu_type), subtype);
+		from, name, __pmPDUTypeStr_r(pdu_type, strbuf, sizeof(strbuf)), subtype);
+    }
 #endif
 
     namelen = (int)strlen(name);
@@ -409,7 +425,9 @@ SendNameReq(int fd, int from, const char *name, int pdu_type, int subtype)
     nreq->namelen = htonl(namelen);
     memcpy(&nreq->name[0], name, namelen);
 
-    return __pmXmitPDU(fd, (__pmPDU *)nreq);
+    sts = __pmXmitPDU(fd, (__pmPDU *)nreq);
+    __pmUnpinPDUBuf(nreq);
+    return sts;
 }
 
 /*

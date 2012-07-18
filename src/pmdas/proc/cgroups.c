@@ -307,8 +307,10 @@ prepare_string(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
 
     if ((atoms = malloc(sizeof(pmAtomValue))) == NULL)
 	return -oserror();
-    if ((atoms[0].cp = strdup(buffer)) == NULL)
+    if ((atoms[0].cp = strdup(buffer)) == NULL) {
+	free(atoms);
 	return -oserror();
+    }
     groups->metric_values[metric].item = metric;
     groups->metric_values[metric].atoms = atoms;
     groups->metric_values[metric].atom_count = 1;
@@ -367,7 +369,8 @@ refresh_cgroup_subsys(pmInDom indom)
 {
     char buf[4096];
     char name[MAXPATHLEN];
-    int numcgroups, enabled, data, sts;
+    int numcgroups, enabled, sts;
+    long *data;
     long hierarchy;
     FILE *fp;
 
@@ -383,16 +386,31 @@ refresh_cgroup_subsys(pmInDom indom)
 	    continue;
 	sts = pmdaCacheLookupName(indom, name, NULL, (void **)&data);
 	if (sts == PMDA_CACHE_ACTIVE) {
-	    if (data != hierarchy)
-		pmdaCacheStore(indom, PMDA_CACHE_ADD, name, (void *)hierarchy);
+	    if (*data != hierarchy) {
+		/*
+		 * odd ... instance name repeated but different
+		 * hierarchy ... we cannot support more than one hierachy
+		 * yet
+		 */
+		fprintf(stderr, "refresh_cgroup_subsys: \"%s\": entries for hierachy %ld ignored (hierarchy %ld seen first)\n", name, hierarchy, *data);
+	    }
 	    continue;
 	}
-	if (sts != PMDA_CACHE_INACTIVE) {
-	    char *n = strdup(name);
-	    if (n == NULL)
+	else if (sts != PMDA_CACHE_INACTIVE) {
+	    if ((data = (long *)malloc(sizeof(long))) == NULL) {
+#if PCP_DEBUG
+		if (pmDebug & DBG_TRACE_LIBPMDA)
+		    fprintf(stderr, "refresh_cgroup_subsys: \"%s\": malloc failed\n", name);
+#endif
 		continue;
-	    pmdaCacheStore(indom, PMDA_CACHE_ADD, n, (void *)hierarchy);
+	    }
+	    *data = hierarchy;
 	}
+	pmdaCacheStore(indom, PMDA_CACHE_ADD, name, (void *)data);
+#if PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LIBPMDA)
+	    fprintf(stderr, "refresh_cgroup_subsys: add \"%s\" [hierarchy %ld]\n", name, hierarchy);
+#endif
     }
     fclose(fp);
     return 0;

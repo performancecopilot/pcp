@@ -352,6 +352,8 @@ hostAdd(pmHostSpec *specp, int *count, const char *name, int namelen)
 
     host = hostStrndup(name, namelen);
     if (!host || (specp = realloc(specp, sizeof(pmHostSpec) * (n+1))) == NULL) {
+	if (host != NULL)
+	    free(host);
 	*count = 0;
 	return NULL;
     }

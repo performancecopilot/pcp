@@ -7,10 +7,10 @@ A.1 Linux Installation (rpm, deb)
  .5 Windows Installation
 B. Building from source
 C. Post-install steps
+D. Non-default build, install and run
 
 This document describes how to configure and build the open source PCP
 ("pcp") package from source, and how to install and finally run it.
-
 
 == A.1 Linux Installation
 
@@ -56,22 +56,50 @@ Once this is installed, installing PCP from the DMG file is as simple
 as clicking on the icon in a Finder window, and following the prompts
 from the installer.
 
-
 == A.3 AIX Installation
 
 At this stage, noone is making available pre-built AIX packages.
-A port to Solaris has been done, and merged, however - building from
+A port to AIX has been done, and merged, however - building from
 the source is currently the only option.  The packaging work is also
 begun on this platform (see the build/aix/ directory in the sources).
 
-
 == A.4 Solaris Installation
 
-At this stage, noone is making available pre-built Solaris binaries.
-A port to Solaris has been done, and merged, however - building from
-the source is currently the only option.  Packaging work is not begun
-for PCP on Solaris at this stage.
+Prebuild Solaris packages are available from PCP download section.
 
+At this stage the package are distributed as SVR4 package datastream
+and are build on Open Solaris 5.11.
+
+You can install the package using 'pkgadd' command, e.g.:
+
+	# pkgadd -d pcp-X.Y.Z
+
+During the installation the following three services are registered
+with the Solaris' service management facility:
+
+	# svccfg list \*/pcp/\*
+	application/pcp/pcp
+	application/pcp/pmie
+	application/pcp/pmproxy
+
+On the new installation all services are disabled, during the upgrade
+from the previous version of PCP the state of the services is
+preserved.
+
+Use of 'svcadm' command to enable or disable is preferred over explicit
+invocation of /etc/init.d/pcp script.
+
+Use 'svcs' command to check the state of the services, e.g.:
+
+	# svcs -l application/pcp/pcp
+	fmri         svc:/application/pcp/pcp:default
+	name         Performance Co-Pilot Collector Daemon
+	enabled      false
+	state        disabled
+	next_state   none
+	state_time   20 March 2012 11:33:27 AM EST
+	restarter    svc:/system/svc/restarter:default
+	dependency   require_all/none svc:/system/filesystem/local:default (online) svc:/milestone/network:default (online)
 
 == A.5 Windows Installation
 
@@ -83,7 +111,6 @@ Menu item with several PCP options will be available - standard
 DOS shell or POSIX shell (with suitable environment setup), the
 Perl CPAN configuration tool, links to documentation and online
 PCP internet resources, and the pmchart utility.
-
 
 == B. Building from source
 
@@ -118,17 +145,18 @@ PCP internet resources, and the pmchart utility.
    tree to configure your environment before attempting to build from
    source under Win32.
 
-
 == C. Post-install steps
 
    You will need to start the PCP Collection Daemon (PMCD), as root:
 
-   Linux, AIX, Solaris:
+   Linux, AIX:
    # /etc/init.d/pcp start
    Mac OS X:
-   /Library/StartupItems/pcp/pcp start
+   # /Library/StartupItems/pcp/pcp start
    Windows:
    $PCP_DIR/etc/pcp start
+   Solaris:
+   # svcadm enable application/pcp/pcp
 
    Once you have started the PMCD daemon, you can list all performance
    metrics using the pminfo(1) command, E.g.
@@ -215,3 +243,38 @@ PCP internet resources, and the pmchart utility.
    configured by default - you choose the PMDAs you need and run the
    Install script.
 
+== D. Non-default build, install and run
+
+   To run build and run a version of PCP that is installed in a private
+   location (and does not require root privileges)
+
+   TODO
+
+   This will populate /some/path with a full PCP installation.  To use this 
+   ensure the following are set in the environment:
+
+   $ export PCP_DIR=/some/path
+
+   Amend your shell's $PATH to include the PCP directories, found as
+   follows:
+
+   $ cd /some/path
+   $ xtra=`grep '^PCP_BIN' etc/pcp.conf | sed -e 's/.*=//' | paste -s -d :`
+   $ PATH=$xtra:$PATH
+
+   Ensure the new libraries can be found:
+
+   $ export LD_LIBRARY_PATH=`grep '^PCP_LIB' etc/pcp.conf \
+     | sed -e 's/.*=//' | uniq | paste -s -d :`
+
+   Tell Perl where to find loadable modules:
+
+   $ export PERL5LIB=$PCP_DIR/usr/lib/perl5:$PCP_DIR/usr/share/perl5
+
+   Allow man(1) to find the PCP manual pages:
+
+   $ export MANPATH=`manpath`:$PCP_DIR/usr/share/man
+
+   If your version is co-exiting with a running PCP in a default
+   install, then alternative port numbers in your environment for pmcd
+   ($PMCD_PORT), pmlogger ($PMLOGGER_PORT) and pmproxy ($PMPROXY_PORT)

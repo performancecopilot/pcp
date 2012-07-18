@@ -109,9 +109,8 @@ fi
 
 # try to preserve mode, owner and group for the new output files
 #
-rm -f $namespace.new $namespace.new.bin
+rm -f $namespace.new
 [ -f $namespace ] && cp -p $namespace $namespace.new
-[ -f $namespace.bin ] && cp -p $namespace.bin $namespace.new.bin
 
 $PCP_BINADM_DIR/pmnsmerge -f $dupok $namespace $tmp.tmp $namespace.new
 exitsts=$?
@@ -123,9 +122,8 @@ trap "" 1 2 15
 
 if [ $exitsts = 0 ]
 then
-    mv $namespace.new.bin $namespace.bin
     mv $namespace.new $namespace
 else
     echo "$prog: No changes have been made to the PMNS file \"$namespace\""
-    rm -f $namespace.new $namespace.new.bin
+    rm -f $namespace.new
 fi

@@ -21,6 +21,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include <assert.h>
 
 /*
  * a task is a bundle of fetches to be done together
@@ -148,6 +149,7 @@ extern int		primary;		/* Non-zero for primary logger */
 extern int		rflag;
 extern struct timeval	delta;			/* default logging interval */
 extern int		ctlport;		/* pmlogger control port number */
+extern char		*note;			/* note for port map file */
 
 /* pmlc support */
 extern void init_ports(void);

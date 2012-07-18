@@ -99,8 +99,6 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(1,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /* pdu_in.control-req */
     { PMDA_PMID(1,10), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu_in.datax */
-    { PMDA_PMID(1,11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /* pdu_in.creds */
     { PMDA_PMID(1,12), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /* pdu_in.pmns-ids */
@@ -136,8 +134,6 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(2,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /* pdu_out.control-req */
     { PMDA_PMID(2,10), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* pdu_out.datax */
-    { PMDA_PMID(2,11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /* pdu_out.creds */
     { PMDA_PMID(2,12), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /* pdu_out.pmns-ids */
@@ -916,19 +912,13 @@ vset_resize(pmResult *rp, int i, int onumval, int numval)
     int		expect = numval;
 
     if (rp->vset[i] != NULL) {
-	if (onumval == 1)
-	    __pmPoolFree(rp->vset[i], sizeof(pmValueSet));
-	else
-	    free(rp->vset[i]);
+	free(rp->vset[i]);
     }
 
     if (numval < 0)
 	expect = 0;
 
-    if (expect == 1)
-	rp->vset[i] = (pmValueSet *)__pmPoolAlloc(sizeof(pmValueSet));
-    else
-	rp->vset[i] = (pmValueSet *)malloc(sizeof(pmValueSet) + (expect-1)*sizeof(pmValue));
+    rp->vset[i] = (pmValueSet *)malloc(sizeof(pmValueSet) + (expect-1)*sizeof(pmValue));
 
     if (rp->vset[i] == NULL) {
 	if (i) {
@@ -1208,28 +1198,22 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				for (j = numval = 0; j < nbufsz; j++) {
 				    int		alloced;
 				    int		free;
+				    int		xtra_alloced;
+				    int		xtra_free;
 				    if (!__pmInProfile(bufindom, _profile, bufinst[j].inst))
 					continue;
 				    vset->vlist[numval].inst = bufinst[j].inst;
-				    if (bufinst[j].inst < 1024) {
-					/* PoolAlloc pool */
-					__pmPoolCount(bufinst[j].inst, &alloced, &free);
-				    }
-				    else {
-					/* PDUBuf pool */
-					int	xtra_alloced;
-					int	xtra_free;
-					__pmCountPDUBuf(bufinst[j].inst, &alloced, &free);
-					/*
-					 * the 2K buffer count also includes
-					 * the 3K, 4K, ... buffers, so sub
-					 * these ... which are reported as
-					 * the 3K buffer count
-					 */
-					__pmCountPDUBuf(bufinst[j].inst + 1024, &xtra_alloced, &xtra_free);
-					alloced -= xtra_alloced;
-					free -= xtra_free;
-				    }
+				    /* PDUBuf pool */
+				    __pmCountPDUBuf(bufinst[j].inst, &alloced, &free);
+				    /*
+				     * the 2K buffer count also includes
+				     * the 3K, 4K, ... buffers, so sub
+				     * these ... which are reported as
+				     * the 3K buffer count
+				     */
+				    __pmCountPDUBuf(bufinst[j].inst + 1024, &xtra_alloced, &xtra_free);
+				    alloced -= xtra_alloced;
+				    free -= xtra_free;
 				    if (pmidp->item == 18)
 					atom.l = alloced;
 				    else

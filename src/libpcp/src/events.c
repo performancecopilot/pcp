@@ -13,11 +13,18 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes
+ *
+ * The initialization of pmid_flags and pmid_missed both have a potential
+ * race, but there are no side-effects and the end result will be the
+ * same, so no locking is required.
+ *
  */
-
 #include <inttypes.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "fault.h"
 
 /*
  * Dump a packed array of event records ... need to be paranoid
@@ -37,9 +44,10 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp, int idx)
     int			r;	/* records */
     int			p;	/* parameters in a record ... */
     pmAtomValue		atom;
+    char		strbuf[20];
 
     fprintf(f, "Event Records Dump ...\n");
-    fprintf(f, "PMID: %s numval: %d", pmIDStr(vsp->pmid), vsp->numval);
+    fprintf(f, "PMID: %s numval: %d", pmIDStr_r(vsp->pmid, strbuf, sizeof(strbuf)), vsp->numval);
     if (vsp->numval <= 0) {
 	fprintf(f, "\nError: bad numval\n");
 	return;
@@ -52,7 +60,7 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp, int idx)
     if (vsp->vlist[idx].inst != PM_IN_NULL)
 	fprintf(f, " inst: %d", vsp->vlist[idx].inst);
     eap = (pmEventArray *)vsp->vlist[idx].value.pval;
-    fprintf(f, " vtype: %s vlen: %d\n", pmTypeStr(eap->ea_type), eap->ea_len);
+    fprintf(f, " vtype: %s vlen: %d\n", pmTypeStr_r(eap->ea_type, strbuf, sizeof(strbuf)), eap->ea_len);
     if (eap->ea_type != PM_TYPE_EVENT) {
 	fprintf(f, "Error: bad vtype\n");
 	return;
@@ -110,7 +118,7 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp, int idx)
 		free(name);
 	    }
 	    else
-		fprintf(f, " %s", pmIDStr(epp->ep_pmid));
+		fprintf(f, " %s", pmIDStr_r(epp->ep_pmid, strbuf, sizeof(strbuf)));
 	    vbuf = (char *)epp + sizeof(epp->ep_pmid) + sizeof(int);
 	    switch (epp->ep_type) {
 		case PM_TYPE_32:
@@ -143,14 +151,12 @@ __pmDumpEventRecords(FILE *f, pmValueSet *vsp, int idx)
 		    fprintf(f, " = [%08x...]", ((__uint32_t *)vbuf)[0]);
 		    break;
 		default:
-		    fprintf(f, " : bad type %s", pmTypeStr(epp->ep_type));
+		    fprintf(f, " : bad type %s", pmTypeStr_r(epp->ep_type, strbuf, sizeof(strbuf)));
 	    }
 	    fputc('\n', f);
 	    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);
 	}
     }
-
-    return;
 }
 
 /*
@@ -230,25 +236,38 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
     int			p;		/* parameters in a record ... */
     int			numpmid;	/* metrics in a pmResult */
     int			need;
+    int			want;
     int			vsize;
     int			sts;
     static int		first = 1;
     static char		*name_flags = "event.flags";
     static char		*name_missed = "event.missed";
 
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     if (first) {
-	sts = __pmRegisterAnon(name_flags, PM_TYPE_U32);
-	if (sts < 0) {
-	    fprintf(stderr, "pmUnpackEventRecords: Warning: failed to register %s: %s\n", name_flags, pmErrStr(sts));
-	    return sts;
+PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_PMAPI);
+	if (first == 1) {
+	    sts = __pmRegisterAnon(name_flags, PM_TYPE_U32);
+	    if (sts < 0) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "pmUnpackEventRecords: Warning: failed to register %s: %s\n", name_flags, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		PM_UNLOCK(__pmLock_libpcp);
+		return sts;
+	    }
+	    first = 2;
 	}
+PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_PMAPI);
 	sts = __pmRegisterAnon(name_missed, PM_TYPE_U32);
 	if (sts < 0) {
-	    fprintf(stderr, "pmUnpackEventRecords: Warning: failed to register %s: %s\n", name_missed, pmErrStr(sts));
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "pmUnpackEventRecords: Warning: failed to register %s: %s\n", name_missed, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return sts;
 	}
 	first = 0;
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     sts = __pmCheckEventRecords(vsp, idx);
     if (sts < 0) {
@@ -266,6 +285,7 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
      * allocate one more than needed as a NULL sentinel to be used
      * in pmFreeEventResult
      */
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     *rap = (pmResult **)malloc((eap->ea_nrecords+1) * sizeof(pmResult *));
     if (*rap == NULL) {
 	return -oserror();
@@ -288,6 +308,7 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 	else
 	    numpmid = erp->er_nparams + 1;
 	need = sizeof(pmResult) + (numpmid-1)*sizeof(pmValueSet *);
+PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	rp = (pmResult *)malloc(need); 
 	if (rp == NULL) {
 	    sts = -oserror();
@@ -301,7 +322,8 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
 	for (p = 0; p < numpmid; p++) {
 	    /* always have numval == 1 */
-	    rp->vset[p] = (pmValueSet *)__pmPoolAlloc(sizeof(pmValueSet));
+PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
+	    rp->vset[p] = (pmValueSet *)malloc(sizeof(pmValueSet));
 	    if (rp->vset[p] == NULL) {
 		rp->numpmid = p;
 		sts = -oserror();
@@ -314,7 +336,8 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 		if (pmid_flags == 0) {
 		    lsts = pmLookupName(1, &name_flags, &pmid_flags);
 		    if (lsts < 0) {
-			fprintf(stderr, "pmUnpackEventRecords: Warning: failed to get PMID for %s: %s\n", name_flags, pmErrStr(lsts));
+			char	errmsg[PM_MAXERRMSGLEN];
+			fprintf(stderr, "pmUnpackEventRecords: Warning: failed to get PMID for %s: %s\n", name_flags, pmErrStr_r(lsts, errmsg, sizeof(errmsg)));
 			__pmid_int(&pmid_flags)->item = 1;
 		    }
 		}
@@ -332,7 +355,8 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 		if (pmid_missed == 0) {
 		    lsts = pmLookupName(1, &name_missed, &pmid_missed);
 		    if (lsts < 0) {
-			fprintf(stderr, "pmUnpackEventRecords: Warning: failed to get PMID for %s: %s\n", name_missed, pmErrStr(lsts));
+			char	errmsg[PM_MAXERRMSGLEN];
+			fprintf(stderr, "pmUnpackEventRecords: Warning: failed to get PMID for %s: %s\n", name_missed, pmErrStr_r(lsts, errmsg, sizeof(errmsg)));
 			__pmid_int(&pmid_missed)->item = 1;
 		    }
 		}
@@ -372,7 +396,7 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 		case PM_TYPE_EVENT:	/* no nesting! */
 		default:
 		    while (p >= 0) {
-			__pmPoolFree(rp->vset[p], sizeof(pmValueSet));
+			free(rp->vset[p]);
 			p--;
 		    }
 		    free(rp);
@@ -381,15 +405,11 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 		    goto bail;
 	    }
 	    need = vsize + PM_VAL_HDR_SIZE;
-	    if (vsize == sizeof(__int64_t)) {
-		rp->vset[p]->vlist[0].value.pval = (pmValueBlock *)__pmPoolAlloc(need);
-	    }
-	    else {
-		int	want = need;
-		if (want < sizeof(pmValueBlock))
-		    want = sizeof(pmValueBlock);
-		rp->vset[p]->vlist[0].value.pval = (pmValueBlock *)malloc(want);
-	    }
+	    want = need;
+	    if (want < sizeof(pmValueBlock))
+		want = sizeof(pmValueBlock);
+PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
+	    rp->vset[p]->vlist[0].value.pval = (pmValueBlock *)malloc(want);
 	    if (rp->vset[p]->vlist[0].value.pval == NULL) {
 		sts = -oserror();
 		rp->vset[p]->valfmt = PM_VAL_INSITU;

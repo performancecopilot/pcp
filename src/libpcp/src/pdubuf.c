@@ -10,10 +10,20 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes
+ *
+ * To avoid buffer trampling, on success __pmFindPDUBuf() now returns
+ * a pinned PDU buffer.  It is the caller's responsibility to unpin the
+ * PDU buffer when safe to do so.
+ *
+ * TODO now that buffers always pinned on return, we can do away
+ * with buf_pin and buf_pin_tail and maintain one list?
  */
 
 #include "pmapi.h"
 #include "impl.h"
+#include <assert.h>
 
 #define PDU_CHUNK	1024	/* unit of space allocation for PDU buffer */
 
@@ -35,6 +45,7 @@ pdubufdump(void)
 {
     bufctl_t	*pcp;
 
+    PM_LOCK(__pmLock_libpcp);
     if (buf_free != NULL) {
 	fprintf(stderr, "   free pdubuf[size]:");
 	for (pcp = buf_free; pcp != NULL; pcp = pcp->bc_next)
@@ -48,6 +59,7 @@ pdubufdump(void)
 	    fprintf(stderr, " " PRINTF_P_PFX "%p[%d]", pcp->bc_buf, pcp->bc_pincnt);
 	fputc('\n', stderr);
     }
+    PM_UNLOCK(__pmLock_libpcp);
 }
 #endif
 
@@ -55,7 +67,10 @@ __pmPDU *
 __pmFindPDUBuf(int need)
 {
     bufctl_t	*pcp;
+    __pmPDU	*sts;
 
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     for (pcp = buf_free; pcp != NULL; pcp = pcp->bc_next) {
 	if (pcp->bc_size >= need)
 	    break;
@@ -81,7 +96,10 @@ __pmFindPDUBuf(int need)
     }
 #endif
 
-    return (__pmPDU *)pcp->bc_buf;
+    __pmPinPDUBuf(pcp->bc_buf);
+    sts = (__pmPDU *)pcp->bc_buf;
+    PM_UNLOCK(__pmLock_libpcp);
+    return sts;
 }
 
 void
@@ -89,6 +107,10 @@ __pmPinPDUBuf(void *handle)
 {
     bufctl_t	*pcp;
     bufctl_t	*prior = NULL;
+
+    assert(((__psint_t)handle % sizeof(int)) == 0);
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
 
     for (pcp = buf_free; pcp != NULL; pcp = pcp->bc_next) {
 	if (pcp->bc_buf <= (char *)handle && (char *)handle < pcp->bc_bufend)
@@ -124,6 +146,7 @@ __pmPinPDUBuf(void *handle)
 	    if (pmDebug & DBG_TRACE_PDUBUF)
 		pdubufdump();
 #endif
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return;
 	}
     }
@@ -133,6 +156,8 @@ __pmPinPDUBuf(void *handle)
 	fprintf(stderr, "__pmPinPDUBuf(" PRINTF_P_PFX "%p) -> pdubuf=" PRINTF_P_PFX "%p, cnt=%d\n",
 	    handle, pcp->bc_buf, pcp->bc_pincnt);
 #endif
+
+    PM_UNLOCK(__pmLock_libpcp);
     return;
 }
 
@@ -141,6 +166,10 @@ __pmUnpinPDUBuf(void *handle)
 {
     bufctl_t	*pcp;
     bufctl_t	*prior = NULL;
+
+    assert(((__psint_t)handle % sizeof(int)) == 0);
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
 
     for (pcp = buf_pin; pcp != NULL; pcp = pcp->bc_next) {
 	if (pcp->bc_buf <= (char *)handle && (char *)handle < &pcp->bc_buf[pcp->bc_size])
@@ -154,6 +183,7 @@ __pmUnpinPDUBuf(void *handle)
 	    pdubufdump();
 	}
 #endif
+	PM_UNLOCK(__pmLock_libpcp);
 	return 0;
     }
 
@@ -175,6 +205,7 @@ __pmUnpinPDUBuf(void *handle)
 		handle, pcp->bc_buf, pcp->bc_pincnt);
 #endif
 
+    PM_UNLOCK(__pmLock_libpcp);
     return 1;
 }
 
@@ -184,6 +215,8 @@ __pmCountPDUBuf(int need, int *alloc, int *free)
     bufctl_t	*pcp;
     int		count;
 
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     count = 0;
     for (pcp = buf_pin; pcp != NULL; pcp = pcp->bc_next) {
 	if (pcp->bc_size >= need)
@@ -199,5 +232,6 @@ __pmCountPDUBuf(int need, int *alloc, int *free)
     *free = count;
     *alloc += count;
 
+    PM_UNLOCK(__pmLock_libpcp);
     return;
 }

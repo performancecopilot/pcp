@@ -119,10 +119,10 @@ insertrlist(rlist_t **rlist, rlist_t *elm)
     rlist_t	*curr;
     rlist_t	*prev;
 
-    elm->next = NULL;
-
     if (elm == NULL)
 	return;
+
+    elm->next = NULL;
 
     if (*rlist == NULL) {
 	*rlist = elm;
@@ -276,10 +276,10 @@ searchmlist(pmResult *_Oresult)
 		/* if id in ml is -1, chances are that we haven't seen
 		 * it before ... set the instance id
 		 */
-		if (ml[j].instlist[q].id < 0)
-		    ml[j].instlist[q].id = vsetp->vlist[r].inst;
+		if (ml[j].instlist[q] < 0)
+		    ml[j].instlist[q] = vsetp->vlist[r].inst;
 
-		if (ml[j].instlist[q].id == vsetp->vlist[r].inst) {
+		if (ml[j].instlist[q] == vsetp->vlist[r].inst) {
 		    /* instance has been found
 		     */
 		    vlistp[found].inst = vsetp->vlist[r].inst;

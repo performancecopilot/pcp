@@ -500,13 +500,9 @@ dometric(const char *name)
     }
 
     if (!skip) {
-	if ((sts = __pmOptFetchAdd(&fetchroot, rqp)) < 0) {
-       sprintf(emess, "__pmOptFetchAdd failed for metric \"%s\" ... logging not activated", name);
-	    goto snarf;
-	}
-
+	__pmOptFetchAdd(&fetchroot, rqp);
 	if ((sts = __pmHashAdd(pmid, (void *)rqp, &pm_hash)) < 0) {
-       sprintf(emess, "__pmHashAdd failed for metric \"%s\" ... logging not activated", name);
+	    sprintf(emess, "__pmHashAdd failed for metric \"%s\" ... logging not activated", name);
 
 	    goto snarf;
 	}

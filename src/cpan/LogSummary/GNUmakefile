@@ -22,7 +22,7 @@ PERLCODE  = extract.pl exceldemo.pl
 LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLMOD) $(PERLCODE)
 SUBDIRS   = t
 
-LPKGDIRT = PCP-LogSummary-*
+LPKGDIRT = PCP-LogSummary-* MYMETA.yml MYMETA.json
 LDIRT = Makefile COPYING pm_to_blib blib Makefile.old $(LPKGDIRT) *.xls
 
 default: dist

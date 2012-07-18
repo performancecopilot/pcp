@@ -14,7 +14,7 @@ dnl for more details.
 dnl 
 
 dnl unpacking check - this file must exist
-AC_INIT(src/include/pmapi.h)
+AC_INIT(src/include/pcp/pmapi.h)
 
 dnl Irix build issue ... use the tools from the local filesystems
 unset ROOT TOOLROOT
@@ -25,6 +25,13 @@ AC_ARG_WITH(
 	    [--with-64bit],
 	    [turn on 64 bit compilation node (default is platform dependent)])],
     [use_64bit=$withval])
+
+AC_ARG_WITH(
+    [threads],
+    [AC_HELP_STRING([--with-threads],
+		    [enable support for multiple threads (default is on)])],
+    [do_threads=$withval],
+    [do_threads=check])
 
 #
 # Note: the following environment variables may be
@@ -49,7 +56,6 @@ else
     dnl  build and build_os. Squash all x86 cpus into one LCD form - i386
     target=`echo $target | sed '[s/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/]'`
     target_os=`echo $target_os | sed '[s/solaris2\..*/solaris/]'`
-    target_os=`echo $target_os | sed '[s/kfreebsd/freebsd/]'`
     target_os=`echo $target_os | sed '[s/^\([^-][^-]*\)-.*$/\1/]' | sed '[s/[\.0-9]*//g]'`
     target_cpu=`echo $target_cpu | sed '[s/i[3-6]86/i386/]'`
 
@@ -63,6 +69,8 @@ echo Building on $build for $target
 echo "Build: os=$build_os cpu=$build_cpu"
 echo "Target: os=$target_os cpu=$target_cpu"
 
+dnl CFLAGS setting is a co-dependency between here and PCFLAGS in
+dnl src/include/builddefs.in ... need to be the same in both places
 target_distro=$target_os
 if test $target_os = linux
 then
@@ -73,30 +81,43 @@ then
     test -f /etc/debian_version && target_distro=debian
     test -f /etc/slackware-version && target_distro=slackware
     test -f /etc/gentoo-release && target_distro=gentoo
-elif test $target_os = solaris
-then
-    AC_DEFINE(IS_SOLARIS)
-    export PATH="$PATH:/opt/SunStudioExpress/bin"
+    test -f /etc/mandriva-release && target_distro=mandriva
+    export CFLAGS="-fpic -fno-strict-aliasing -D_GNU_SOURCE"
 elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN)
     target_distro=macosx
     version=`sw_vers -productVersion | sed -e 's/\.//' -e 's/\..*//g'`
-    test $version -ge 106 && target_distro=cocoa
+    CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing -arch i386"
+    if test $version -ge 106
+    then
+	target_distro=cocoa
+	CFLAGS="$CFLAGS -arch x86_64"
+    fi
+    export CFLAGS
 elif test $target_os = mingw
 then
     AC_DEFINE(IS_MINGW)
+    CFLAGS="-fno-strict-aliasing"
     export CPPFLAGS="$CPPFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
     export CFLAGS="$CFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
     export LDFLAGS="$LDFLAGS -L$PCP_DIR/lib -L$PCP_DIR/local/lib"
     export PATH="$PATH:$PCP_DIR/bin:$PCP_DIR/local/bin"
+elif test $target_os = solaris
+then
+    AC_DEFINE(IS_SOLARIS)
+    export PATH="$PATH:/opt/SunStudioExpress/bin"
+    export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
+    export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any"
 elif test $target_os = aix
 then
     AC_DEFINE(IS_AIX)
-elif test $target_os = freebsd
+    export CFLAGS="-qcpluscmt"
+elif test $target_os = freebsd || test $target_os = kfreebsd
 then
     AC_DEFINE(IS_FREEBSD)
     test -f /etc/debian_version && target_distro=debian
+    export CFLAGS="-fpic -fno-strict-aliasing -D_GNU_SOURCE"
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
@@ -109,7 +130,8 @@ pcp_platform_paths=""
 case $target_os
 in
     aix)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
-    linux)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
+    linux|kfreebsd)
+		pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
     mingw)	pcp_platform_paths='/mingw/bin:/perl/bin:/usr/local/bin';;
     darwin)	pcp_platform_paths='/usr/local/bin';;
     solaris)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/usr/sfw/bin';;
@@ -118,7 +140,7 @@ esac
 AC_SUBST(pcp_platform_paths)
 
 dnl default prefix
-AC_PREFIX_DEFAULT(/usr)
+AC_PREFIX_DEFAULT([])
 
 if test -f VERSION.pcp
 then
@@ -174,8 +196,8 @@ fi
 AC_SUBST(package_builder)
 
 dnl output header with cpp defs HAVE_*, etc
-AC_CONFIG_HEADER(src/include/platform_header.h)
-AC_OUTPUT(src/include/platform_trailer)
+AC_CONFIG_HEADER(src/include/pcp/platform_header.h)
+AC_OUTPUT(src/include/pcp/platform_defs.h)
 
 dnl check if user wants their own C compiler
 cflags_abi=
@@ -184,6 +206,12 @@ if test $target_os = solaris
 then
     AC_PATH_PROG(CCPATH,$CC,$CC)
     cc=$CCPATH
+    if test "$GCC" = "yes"
+    then
+	CFLAGS="$CFLAGS $CFLAGS_IF_GCC"
+    else
+	CFLAGS="$CFLAGS $CFLAGS_IF_SUNCC"
+    fi
     if test "$use_64bit" = "no"
     then
 	:
@@ -209,6 +237,8 @@ AC_SUBST(cc)
 cc_is_gcc=$GCC
 AC_SUBST(cc_is_gcc)
 AC_SUBST(cflags_abi)
+PCFLAGS=$CFLAGS
+AC_SUBST(PCFLAGS)
 
 dnl check if user wants their own make program
 dnl note: all makefiles in this package use the gmake syntax
@@ -271,9 +301,14 @@ else
 fi
 AC_SUBST(pcp_owner)
 if test -z "$PCP_GROUP" ; then
-    case "$target_os" in
-    darwin) pcp_group=wheel;;
-    *)	pcp_group=root;;
+    case "$target_os"
+    in
+	darwin|freebsd)
+	    pcp_group=wheel
+	    ;;
+	*)
+	    pcp_group=root
+	    ;;
     esac
 else
     pcp_group="$PCP_GROUP"
@@ -300,6 +335,7 @@ test ! -x "$ZIP" && ZIP=/usr/local/bin/gzip
 test ! -x "$ZIP" && ZIP=/usr/freeware/bin/gzip
 test ! -x "$ZIP" && ZIP=/usr/bin/gzip
 gzip=$ZIP
+test -z "$gzip" && gzip=no-gzip
 AC_SUBST(gzip)
 
 dnl check if the bzip2 program is available
@@ -307,11 +343,36 @@ dnl (needed to bzip2 man pages on some platforms)
 if test -z "$BZIP2"; then
     AC_PATH_PROG(BZIP2, bzip2, /bin/bzip2)
 fi
+test ! -x "$BZIP2" && BZIP2=/usr/bin/bzip2
 test ! -x "$BZIP2" && BZIP2=/usr/local/bin/bzip2
 test ! -x "$BZIP2" && BZIP2=/usr/freeware/bin/bzip2
-test ! -x "$BZIP2" && BZIP2=/usr/bin/bzip2
 bzip2=$BZIP2
+test -z "$bzip2" && bzip2=no-bzip2
 AC_SUBST(bzip2)
+
+dnl check if the lzma program is available
+dnl (needed to lzma man pages on some platforms)
+if test -z "$LZMA"; then
+    AC_PATH_PROG(LZMA, lzma, /bin/lzma)
+fi
+test ! -x "$LZMA" && LZMA=/usr/bin/lzma
+test ! -x "$LZMA" && LZMA=/usr/local/bin/lzma
+test ! -x "$LZMA" && LZMA=/usr/freeware/bin/lzma
+lzma=$LZMA
+test -z "$lzma" && lzma=no-lzma
+AC_SUBST(lzma)
+
+dnl check if the xz program is available
+dnl (needed to xz man pages on some platforms)
+if test -z "$XZ"; then
+    AC_PATH_PROG(XZ, xz, /bin/xz)
+fi
+test ! -x "$XZ" && XZ=/usr/bin/xz
+test ! -x "$XZ" && XZ=/usr/local/bin/xz
+test ! -x "$XZ" && XZ=/usr/freeware/bin/xz
+xz=$XZ
+test -z "$xz" && xz=no-xz
+AC_SUBST(xz)
 
 dnl Check for mac PackageMaker
 AC_MSG_CHECKING([for PackageMaker])
@@ -413,16 +474,18 @@ else
     exit 1
 fi
 
+AC_PATH_PROG(TRUEPROG, true)
+
 dnl check if the makedepend program is available
 if test -z "$MAKEDEPEND"; then
-    AC_PATH_PROG(MAKEDEPEND, makedepend, /bin/true)
+    AC_PATH_PROG(MAKEDEPEND, makedepend, $TRUEPROG)
 fi
 makedepend=$MAKEDEPEND
 AC_SUBST(makedepend)
 
 dnl check if the md5sum program is available
 if test -z "$MD5SUM"; then
-   AC_PATH_PROG(MD5SUM, md5sum, /bin/true)
+   AC_PATH_PROG(MD5SUM, md5sum, $TRUEPROG)
 fi
 md5sum=$MD5SUM
 AC_SUBST(md5sum)
@@ -491,7 +554,15 @@ dnl check if user wants their own awk, sed and echo
 if test -z "$AWK"; then
     AC_PATH_PROGS(AWK, gawk awk, /usr/bin/awk)
 fi
-awk=$AWK
+case "$AWK"
+in
+    gawk|*/gawk)
+	awk="$AWK --posix"
+	;;
+    *)
+	awk=$AWK
+	;;
+esac
 AC_SUBST(awk)
 if test -z "$SED"; then
     AC_PATH_PROG(SED, sed, /bin/sed)
@@ -680,7 +751,7 @@ AC_CHECK_HEADERS(unistd.h stddef.h sched.h dlfcn.h dl.h ieeefp.h)
 AC_CHECK_HEADERS(sys/time.h sys/timeb.h sys/times.h)
 AC_CHECK_HEADERS(sys/resource.h sys/prctl.h)
 AC_CHECK_HEADERS(sys/sysinfo.h sys/systeminfo.h)
-AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h pthread.h getopt.h)
+AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h getopt.h)
 AC_CHECK_HEADERS(values.h libgen.h sys/param.h sys/mman.h sys/un.h stdint.h)
 AC_CHECK_HEADERS(pwd.h regex.h sys/wait.h)
 AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h)
@@ -750,7 +821,7 @@ AC_CHECK_FUNCS(strtod strtol strtoll strtoull)
 AC_CHECK_FUNCS(sysinfo)
 
 dnl only define readdir64 on non-linux platforms that support it
-if test $target_os != linux -a $target_os != freebsd; then
+if test $target_os != linux -a $target_os != freebsd -a $target_os != kfreebsd; then
     AC_CHECK_FUNCS(readdir64)
 fi
 
@@ -1088,17 +1159,89 @@ AC_MSG_RESULT($fmt_pid)
 AC_SUBST(fmt_pid)
 rm -rf conftest.c conftest.debug
 
-dnl printf type for pthread_t
-AC_MSG_CHECKING([printf type for pthread_t])
-cat <<End-of-File >conftest.c
+if test "$do_threads" = "check" -o "$do_threads" = "yes"
+then
+    AC_CHECK_HEADERS(
+	pthread.h,
+	[],
+	[
+	    if test "$do_threads" = "yes"
+	    then
+		AC_MSG_ERROR(cannot enable multi-threaded mode - no pthread.h)
+	    fi
+	])
+
+    dnl Check if pthread_mutex_t is defined in pthread.h
+    dnl Ignore the fact that pthread.h could be missing - we don't
+    dnl really care if this test fails because of missing pthread_mutex_t
+    dnl or because of missing headers.
+    AC_MSG_CHECKING([for pthread_mutex_t in pthread.h])
+    AC_TRY_COMPILE(
+	[#include <pthread.h>], [pthread_mutex_t mymutex;],
+	AC_DEFINE(HAVE_PTHREAD_MUTEX_T) AC_MSG_RESULT(yes),
+	[
+	    if test "$do_threads" = "yes"
+	    then
+		AC_MSG_ERROR(cannot enable multi-threaded mode - no mutexes)
+	    else
+		AC_MSG_RESULT(no)
+	    fi
+	])
+
+    dnl Check which library provide pthread stuff
+    AC_MSG_CHECKING([where pthread_create() is defined])
+    for cand in "" pthreads pthread ; do
+	savedLIBS=$LIBS
+	if test -n "$cand" 
+	then
+	    LIBS=`echo $LIBS -l$cand`
+	fi
+	AC_TRY_LINK(
+	[
+	    #include <pthread.h>
+	],
+	[
+	    pthread_create(NULL, NULL, NULL, NULL);
+	],  AC_MSG_RESULT(lib${cand:-c})
+	    if test -z "$cand"
+	    then
+		lib_for_pthreads="$cand"
+	    else
+		lib_for_pthreads="-l$cand"
+	    fi
+	    LIBS=$savedLIBS
+	    break )
+	LIBS=$savedLIBS
+    done
+    AC_SUBST(lib_for_pthreads)
+
+    if test "$ac_cv_header_pthread_h" = "yes"
+    then
+	dnl printf type for pthread_t
+	AC_MSG_CHECKING([printf type for pthread_t])
+	cat <<End-of-File >conftest.c
 #include <pthread.h>
 pthread_t bozo;
 End-of-File
-_do_type
-fmt_pthread="$_fmt"
-AC_MSG_RESULT($fmt_pthread)
-AC_SUBST(fmt_pthread)
-rm -rf conftest.c conftest.debug
+	_do_type
+	fmt_pthread="$_fmt"
+	AC_MSG_RESULT($fmt_pthread)
+	AC_SUBST(fmt_pthread)
+	rm -rf conftest.c conftest.debug
+
+	dnl check if gcc supports __thread for thread private data
+	AC_MSG_CHECKING([if compiler supports __thread])
+	AC_TRY_COMPILE([#include <pthread.h>
+    __thread int x;], [],
+	    AC_DEFINE(HAVE___THREAD) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+
+	dnl Check if pthread_barrier_t is defined in pthread.h
+	AC_MSG_CHECKING([for pthread_barrier_t in pthread.h])
+	AC_TRY_COMPILE([#include <pthread.h>], [pthread_barrier_t mybarrier;],
+	    AC_DEFINE(HAVE_PTHREAD_BARRIER_T) AC_MSG_RESULT(yes),
+	    AC_MSG_RESULT(no))
+    fi
+fi
 
 dnl check sizeof long
 AC_MSG_CHECKING([sizeof long])
@@ -1245,7 +1388,7 @@ then
 fi
 AC_SUBST(lib_for_dlopen)
 
-dnl check if flog10 and isnanf are available in the maths library
+dnl check if flog10, fpclassify and isnanf are available in the maths library
 lib_for_math=
 AC_CHECK_FUNCS(flog10)
 if test $ac_cv_func_flog10 = no
@@ -1256,10 +1399,57 @@ then
 	AC_DEFINE(HAVE_FLOG10)
 	lib_for_math=-lm
     fi
+else
+    AC_DEFINE(HAVE_FLOG10)
 fi
-
-if test $target_os != darwin -a $target_os != mingw -a $target_os != linux
+AC_MSG_CHECKING([for fpclassify()])
+ac_cv_func_fpclassify=no
+AC_TRY_LINK(
+[
+    #include <math.h>
+],
+[
+    double x = 123.456;
+    if (fpclassify(x) == FP_NAN) exit(1);
+], ac_cv_func_fpclassify=yes)
+AC_MSG_RESULT($ac_cv_func_fpclassify)
+if test $ac_cv_func_fpclassify = no
 then
+    dnl try with -lm
+    AC_MSG_CHECKING([for fpclassify() with -lm])
+    savedLIBS=$LIBS
+    LIBS=-lm
+    AC_TRY_LINK(
+[
+    #include <math.h>
+],
+[
+    double x = 123.456;
+    if (fpclassify(x) == FP_NAN) exit(1);
+], ac_cv_func_fpclassify=yes)
+    AC_MSG_RESULT($ac_cv_func_fpclassify)
+    if test $ac_cv_func_fpclassify = yes
+    then
+	lib_for_math=-lm
+    fi
+    LIBS=$savedLIBS
+fi
+if test $ac_cv_func_fpclassify = yes
+then
+    AC_DEFINE(HAVE_FPCLASSIFY)
+else
+    dnl prefer fpclassify() but will take isnan() and isnanf() as
+    dnl possible alternates
+    AC_CHECK_FUNCS(isnan)
+    if test $ac_cv_func_isnan = no
+    then
+	AC_CHECK_LIB(m, isnan)
+	if test $ac_cv_lib_m_isnan = yes
+	then
+	    AC_DEFINE(HAVE_ISNAN)
+	    lib_for_math=-lm
+	fi
+    fi
     AC_CHECK_FUNCS(isnanf)
     if test $ac_cv_func_isnanf = no
     then
@@ -1270,19 +1460,6 @@ then
 	    lib_for_math=-lm
 	fi
     fi
-    AC_CHECK_FUNCS(isnand)
-    if test $ac_cv_func_isnand = no
-    then
-	AC_CHECK_LIB(m, isnand)
-	if test $ac_cv_lib_m_isnand = yes
-	then
-	    AC_DEFINE(HAVE_ISNAND)
-	    lib_for_math=-lm
-	fi
-    fi
-else
-    AC_DEFINE(HAVE_ISNANF)
-    AC_DEFINE(HAVE_ISNAND)
 fi
 AC_SUBST(lib_for_math)
 
@@ -1327,7 +1504,7 @@ then
     changequote(<<, >>)<<[ 	]st_mtimespec>>changequote([, ]),
     sys/stat.h, [ have_stat_name=true; AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC) ])
 fi
-if test $have_stat_name = false -a $target_os != darwin -a $target_os != linux
+if test $have_stat_name = false -a $target_os != darwin -a $target_os != linux -a $target_os != kfreebsd
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<[ 	]st_mtime>>changequote([, ]),
@@ -1393,8 +1570,6 @@ else
 fi
 AC_SUBST(pcp_etc_dir)
 
-test -z "$exec_prefix" && exec_prefix=${prefix}
-
 dnl shared PCP files (shareable for diskless)
 pcp_share_dir=`eval echo $datadir`
 pcp_share_dir=`eval echo $pcp_share_dir`
@@ -1402,7 +1577,7 @@ if test -z "`echo $pcp_share_dir | sed 's;/.*\$;;'`"
 then
     if test $target_os = mingw
     then
-        pcp_share_dir=
+	pcp_share_dir=
     elif test -d /usr/share
     then
 	pcp_share_dir=/usr/share/pcp
@@ -1422,15 +1597,15 @@ if test -z "`echo $pcp_binadm_dir | sed 's;/.*\$;;'`"
 then
     if test $target_distro = debian
     then
-        pcp_binadm_dir=/usr/lib/pcp/bin
+	pcp_binadm_dir=/usr/lib/pcp/bin
     elif test $target_os = mingw
     then
-        pcp_binadm_dir=/local/bin
+	pcp_binadm_dir=/local/bin
     elif test -d /usr/libexec
     then
-        pcp_binadm_dir=/usr/libexec/pcp/bin
+	pcp_binadm_dir=/usr/libexec/pcp/bin
     else
-        pcp_binadm_dir=$pcp_share_dir/bin
+	pcp_binadm_dir=$pcp_share_dir/bin
     fi
 else
    pcp_binadm_dir=`eval echo $pcp_binadm_dir/pcp/bin`
@@ -1495,9 +1670,9 @@ if test $target_os = mingw
 then
     pcp_lib_dir=/local/bin
     pcp_lib32_dir=/local/bin
-elif test $target_os = linux -a $target_cpu = x86_64 -a $target_distro != debian
+elif test $target_os = linux -a \( $target_cpu = x86_64 -o $target_cpu = powerpc64 -o $target_cpu = s390x \) -a $target_distro != debian
 then
-    # Linux on x86_64 puts libraries in .../lib64 (and rpmbuild
+    # Linux on x86_64 and ppc64 puts libraries in .../lib64 (and rpmbuild
     # enforces that convention) but $libdir lies about it.
     pcp_lib_dir=/usr/lib64
     pcp_lib32_dir=/usr/lib
@@ -1569,6 +1744,8 @@ AC_SUBST(pcp_x11_appdefs_dir)
 dnl man pages (source)
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
+have_lzmaed_manpages=false
+have_xzed_manpages=false
 need_old_tbl_header=false
 man_header=
 pcp_man_dir=`eval echo $mandir`
@@ -1603,6 +1780,18 @@ then
 	    pcp_man_dir=$d
 	    man_header=`$BZIP2 -d < $d/man1/man.1.bz2 | head -1`
 	    break
+	elif test -f $d/man1/man.1.lzma
+	then
+	    have_lzmaed_manpages=true
+	    pcp_man_dir=$d
+	    man_header=`$LZMA -d < $d/man1/man.1.lzma | head -1`
+	    break
+	elif test -f $d/man1/man.1.xz
+	then
+	    have_xzed_manpages=true
+	    pcp_man_dir=$d
+	    man_header=`$XZ -d < $d/man1/man.1.xz | head -1`
+	    break
 	elif test -f $d/man1/man.1
 	then
 	    pcp_man_dir=$d
@@ -1620,6 +1809,18 @@ then
 	    pcp_man_dir=$d
 	    man_header=`$BZIP2 -d < $d/sman1/man.1.bz2 | head -1`
 	    break
+	elif test -f $d/sman1/man.1.lzma
+	then
+	    have_lzmaed_manpages=true
+	    pcp_man_dir=$d
+	    man_header=`$LZMA -d < $d/sman1/man.1.lzma | head -1`
+	    break
+	elif test -f $d/sman1/man.1.xz
+	then
+	    have_xzed_manpages=true
+	    pcp_man_dir=$d
+	    man_header=`$XZ -d < $d/sman1/man.1.xz | head -1`
+	    break
 	elif test -f $d/sman1/man.1
 	then
 	    pcp_man_dir=$d
@@ -1633,10 +1834,12 @@ then
 	    break
 	fi
     done
-    if test -x /usr/lib/rpm/brp-compress
+    if test -x /usr/lib/rpm/brp-compress -a $target_distro != mandriva
     then
 	have_gzipped_manpages=true
 	have_bzip2ed_manpages=false
+	have_lzmaed_manpages=false
+	have_xzed_manpages=false
     fi
 fi
 if test -z "$pcp_man_dir"
@@ -1651,6 +1854,8 @@ fi
 AC_SUBST(pcp_man_dir)
 AC_SUBST(have_gzipped_manpages)
 AC_SUBST(have_bzip2ed_manpages)
+AC_SUBST(have_lzmaed_manpages)
+AC_SUBST(have_xzed_manpages)
 AC_SUBST(need_old_tbl_header)
 
 dnl public binaries
@@ -1752,44 +1957,32 @@ fi
 AC_SUBST(pcp_tmp_dir)
 
 dnl doc directory
-if test -z "`eval echo $prefix | sed 's;/.*\$;;'`"
+if test $target_os = mingw
 then
-    if test $target_os = mingw
-    then
-	pcp_doc_dir=/doc
-    elif test -d /usr/share/doc/packages
-    then
-	pcp_doc_dir=/usr/share/doc/packages/pcp-${PACKAGE_VERSION}
-    elif test -d /usr/share/doc
-    then
-	pcp_doc_dir=/usr/share/doc/pcp-${PACKAGE_VERSION}
-    elif test -d /usr/doc
-    then
-	pcp_doc_dir=/usr/doc/pcp-${PACKAGE_VERSION}
-    else
-	pcp_doc_dir=/usr/share/pcp/doc
-    fi
+    pcp_doc_dir=/doc
+elif test -d /usr/share/doc/packages
+then
+    pcp_doc_dir=/usr/share/doc/packages/pcp-${PACKAGE_VERSION}
+elif test -d /usr/share/doc
+then
+    pcp_doc_dir=/usr/share/doc/pcp-${PACKAGE_VERSION}
+elif test -d /usr/doc
+then
+    pcp_doc_dir=/usr/doc/pcp-${PACKAGE_VERSION}
 else
-   pcp_doc_dir=`eval echo $prefix/doc`
-   pcp_doc_dir=`eval echo $pcp_doc_dir`
+    pcp_doc_dir=/usr/share/pcp/doc
 fi
 AC_SUBST(pcp_doc_dir)
 
 dnl demos directory
-if test -z "`eval echo $prefix | sed 's;/.*\$;;'`"
+if test $target_os = mingw
 then
-    if test $target_os = mingw
-    then
-	pcp_demos_dir=/demos
-    elif test -d /usr/share/demos
-    then
-	pcp_demos_dir=/usr/share/demos/pcp
-    else
-	pcp_demos_dir=/usr/share/pcp/demos
-    fi
+    pcp_demos_dir=/demos
+elif test -d /usr/share/demos
+then
+    pcp_demos_dir=/usr/share/demos/pcp
 else
-   pcp_demos_dir=`eval echo $pcp_doc_dir/demos`
-   pcp_demos_dir=`eval echo $pcp_demos_dir`
+    pcp_demos_dir=/usr/share/pcp/demos
 fi
 AC_SUBST(pcp_demos_dir)
 
@@ -1812,47 +2005,6 @@ then
 	[
 	    int i = FNDELAY;
 	], AC_DEFINE(HAVE_FNDELAY) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
-fi
-
-dnl Check if pthread_mutex_t is defined in pthread.h
-if test "$ac_cv_header_pthread_h" = "yes"
-then
-    AC_MSG_CHECKING([for pthread_mutex_t in pthread.h])
-    AC_TRY_COMPILE(
-    [
-	#include <pthread.h>
-    ],
-    [
-	pthread_mutex_t mymutex;
-    ], AC_DEFINE(HAVE_PTHREAD_MUTEX_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
-
-dnl Check which library provide pthread stuff
-
-    AC_MSG_CHECKING([where pthread_create() is defined])
-    for cand in "" pthreads pthread ; do
-	savedLIBS=$LIBS
-	if test -n "$cand" 
-	then
-	    LIBS=`echo $LIBS -l$cand`
-	fi
-	AC_TRY_LINK(
-	[
-	    #include <pthread.h>
-	],
-	[
-	    pthread_create(NULL, NULL, NULL, NULL);
-	],  AC_MSG_RESULT(lib${cand:-c})
-	    if test -z "$cand"
-	    then
-		ac_cv_pthread_lib="$cand"
-	    else
-		ac_cv_pthread_lib="-l$cand"
-	    fi
-	    LIBS=$savedLIBS
-	    break )
-	LIBS=$savedLIBS
-    done
-    AC_SUBST(ac_cv_pthread_lib)
 fi
 
 dnl check for array sessions
@@ -1900,6 +2052,13 @@ int main () {
     return (0);
 }
 ], AC_DEFINE(HAVE_STRFTIME_z) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no),  0)
+
+dnl does strerror_r return char * a la GNU
+dnl (as opposed to the int return for XSI-compliant variants)
+AC_MSG_CHECKING([if strerror_r returns char *])
+AC_TRY_COMPILE(
+    [#include <string.h>], [strerror_r(0, NULL, 0)[0];],
+    AC_DEFINE(HAVE_STRERROR_R_PTR) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl first check for readline on its own then with curses
 savedLIBS=$LIBS

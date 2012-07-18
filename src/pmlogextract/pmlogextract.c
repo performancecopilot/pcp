@@ -17,6 +17,7 @@
 #include <math.h>
 #include <ctype.h>
 #include <sys/stat.h>
+#include <assert.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "logger.h"
@@ -62,7 +63,6 @@ Options:\n\
   -d             desperate, save output after fatal error\n\
   -f             choose timezone from first archive [default is to use\n\
                  timezone from last archive]\n\
-  -n pmnsfile    use an alternative PMNS\n\
   -S starttime   start of the time window\n\
   -s samples     terminate after this many log records have been written\n\
   -T endtime     end of the time window\n\
@@ -188,14 +188,13 @@ static struct timeval logend_tval = {0,0};	/* extracted log end */
 static struct timeval winstart_tval = {0,0};	/* window start tval*/
 static struct timeval winend_tval = {0,0};	/* window end tval*/
 
-static double 	winstart_time = -1.0;		/* window start time */
-static double	winend_time = -1.0;		/* window end time */
-static double	logend_time = -1.0;		/* log end time */
+static __pmTimeval 	winstart = {-1,0};	/* window start time */
+static __pmTimeval	winend = {-1,0};	/* window end time */
+static __pmTimeval	logend = {-1,0};	/* log end time */
 
 /* command line args */
 char	*configfile = NULL;		/* -c arg - name of config file */
 int	farg = 0;			/* -f arg - use first timezone */
-char	*pmnsfile = PM_NS_DEFAULT;	/* -n arg - alternate namespace */
 int	sarg = -1;			/* -s arg - finish after X samples */
 char	*Sarg = NULL;			/* -S arg - window start */
 char	*Targ = NULL;			/* -T arg - window end */
@@ -216,12 +215,21 @@ extern void insertresult(rlist_t **, pmResult *);
 extern pmResult *searchmlist(pmResult *);
 
 /*
- *  convert timeval to double
+ * return -1, 0 or 1 as the __pmTimeval's compare
+ * a < b, a == b or a > b
  */
-double
-tv2double(struct timeval *tv)
+static int
+tvcmp(__pmTimeval a, __pmTimeval b)
 {
-    return tv->tv_sec + (double)tv->tv_usec / 1000000.0;
+    if (a.tv_sec < b.tv_sec)
+	return -1;
+    if (a.tv_sec > b.tv_sec)
+	return 1;
+    if (a.tv_usec < b.tv_usec)
+	return -1;
+    if (a.tv_usec > b.tv_usec)
+	return 1;
+    return 0;
 }
 
 static void
@@ -314,7 +322,7 @@ newlabel(void)
     inarchvers = iap->label.ll_magic & 0xff;
     outarchvers = inarchvers;
 
-    if (inarchvers != PM_LOG_VERS01 && inarchvers != PM_LOG_VERS02) {
+    if (inarchvers != PM_LOG_VERS02) {
 	fprintf(stderr,"%s: Error: illegal version number %d in archive (%s)\n",
 		pmProgname, inarchvers, iap->name);
 	abandon();
@@ -430,7 +438,7 @@ mk_reclist_t(void)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
         totalmalloc += sizeof(reclist_t);
-        printf ("mk_reclist_t: allocated %d\n", (int)sizeof(reclist_t));
+        fprintf(stderr, "mk_reclist_t: allocated %d\n", (int)sizeof(reclist_t));
     }
 #endif
     rec->pdu = NULL;
@@ -868,7 +876,7 @@ _createmark(void)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
         totalmalloc += sizeof(mark_t);
-        printf ("_createmark : allocated %d\n", (int)sizeof(mark_t));
+        fprintf(stderr, "_createmark : allocated %d\n", (int)sizeof(mark_t));
     }
 #endif
 
@@ -914,7 +922,6 @@ nextmeta(void)
     __pmLogCtl	*lcp;
     __pmContext	*ctxp;
     inarch_t	*iap;			/* pointer to input archive control */
-    __pmHashNode	*hnp;
 
     for (i=0; i<inarchnum; i++) {
 	iap = &inarch[i];
@@ -933,7 +940,10 @@ nextmeta(void)
 	    fprintf(stderr, "    iap->pb[META] is not NULL\n");
 	    abandon();
 	}
-	ctxp = __pmHandleToPtr(iap->ctx);
+	if ((ctxp = __pmHandleToPtr(iap->ctx)) == NULL) {
+	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, iap->ctx);
+	    abandon();
+	}
 	lcp = ctxp->c_archctl->ac_log;
 
 againmeta:
@@ -947,6 +957,7 @@ againmeta:
 			pmProgname, iap->name, pmErrStr(sts));
 		_report(lcp->l_mdfp);
 	    }
+	    PM_UNLOCK(ctxp->c_lock);
 	    continue;
 	}
 
@@ -970,9 +981,8 @@ againmeta:
 	    }
 
 	    if (want) {
-		if ((hnp = __pmHashSearch((int)pmid, &mdesc_hash)) == NULL) {
+		if (__pmHashSearch((int)pmid, &mdesc_hash) == NULL)
 		    __pmHashAdd((int)pmid, NULL, &mdesc_hash);
-		}
 		/*
 		 * update the desc list (add first time, check on subsequent
 		 * sightings of desc for this pmid from this source
@@ -1026,6 +1036,7 @@ againmeta:
 	    abandon();
 	}
 
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     if (numeof == inarchnum) return(-1);
@@ -1042,7 +1053,7 @@ nextlog(void)
     int		i;
     int		eoflog = 0;	/* number of log files at eof */
     int		sts;
-    double	curtime;
+    __pmTimeval	curtime;
     __pmLogCtl	*lcp;
     __pmContext	*ctxp;
     inarch_t	*iap;
@@ -1072,11 +1083,14 @@ nextlog(void)
 	    continue;
 	}
 
-againlog:
-	ctxp = __pmHandleToPtr(iap->ctx);
+	if ((ctxp = __pmHandleToPtr(iap->ctx)) == NULL) {
+	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, iap->ctx);
+	    abandon();
+	}
 	lcp = ctxp->c_archctl->ac_log;
 
-	if ((sts=__pmLogRead(lcp,PM_MODE_FORW,NULL,&iap->_result)) < 0) {
+againlog:
+	if ((sts=__pmLogRead(lcp, PM_MODE_FORW, NULL, &iap->_result, PMLOGREAD_NEXT)) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: Error: __pmLogRead[log %s]: %s\n",
 			pmProgname, iap->name, pmErrStr(sts));
@@ -1095,27 +1109,27 @@ againlog:
 		iap->mark = 1;
 		iap->pb[LOG] = _createmark();
 	    }
+	    PM_UNLOCK(ctxp->c_lock);
 	    continue;
 	}
+	assert(iap->_result != NULL);
 
 
 	/* set current log time - this is only done so that we can
 	 * determine whether to keep or discard the log
 	 */
-	curtime = iap->_result->timestamp.tv_sec +
-			(double)iap->_result->timestamp.tv_usec / 1000000.0;
+	curtime.tv_sec = iap->_result->timestamp.tv_sec;
+	curtime.tv_usec = iap->_result->timestamp.tv_usec;
 
 	/* if log time is greater than (or equal to) the current window
 	 * start time, then we may want it
 	 *	(irrespective of the current window end time)
 	 */
-	if (curtime < winstart_time) {
+	if (tvcmp(curtime, winstart) < 0) {
 	    /* log is not in time window - discard result and get next record
 	     */
-	    if (iap->_result != NULL) {
-		pmFreeResult(iap->_result);
-		iap->_result = NULL;
-	    }
+	    pmFreeResult(iap->_result);
+	    iap->_result = NULL;
 	    goto againlog;
 	}
         else {
@@ -1136,13 +1150,13 @@ againlog:
             if (iap->_Nresult == NULL) {
                 /* dont want any of the metrics in _result, try again
                  */
-                if (iap->_result != NULL) {
-                        pmFreeResult(iap->_result);
-                        iap->_result = NULL;
-                }
+		pmFreeResult(iap->_result);
+		iap->_result = NULL;
                 goto againlog;
             }
 	}
+
+	PM_UNLOCK(ctxp->c_lock);
     } /*for(i)*/
 
     /* if we are here, then each archive control struct should either
@@ -1166,7 +1180,7 @@ parseargs(int argc, char *argv[])
     char		*endnum;
     struct stat		sbuf;
 
-    while ((c = getopt(argc, argv, "c:D:dfn:S:s:T:v:wZ:z?")) != EOF) {
+    while ((c = getopt(argc, argv, "c:D:dfS:s:T:v:wZ:z?")) != EOF) {
 	switch (c) {
 
 	case 'c':	/* config file */
@@ -1196,12 +1210,6 @@ parseargs(int argc, char *argv[])
 
 	case 'f':	/* use timezone from first archive */
 	    farg = 1;
-	    break;
-
-	case 'n':	/* namespace */
-			/* if namespace is reassigned from config file,
-			 * must reload namespace */
-	    pmnsfile = optarg;
 	    break;
 
 	case 's':	/* number of samples to write out */
@@ -1297,51 +1305,21 @@ parseconfig(void)
     return(-errflag);
 }
 
-void
-adminarch(void)
-{
-    int		i;
-    int		sts;
-
-    if (pmnsfile != PM_NS_DEFAULT || inarchvers == PM_LOG_VERS01) {
-	if ((sts = pmLoadNameSpace (pmnsfile)) < 0) {
-	    fprintf(stderr, "%s: Error: cannot load name space: %s\n",
-		    pmProgname, pmErrStr(sts));
-	    exit(1);
-	}
-
-	for (i=0; i<inarchnum; i++) {
-	    if ((sts = pmUseContext(inarch[i].ctx)) < 0) {
-		fprintf(stderr,
-		    "%s: Error: cannot use context (%d) from archive \"%s\"\n",
-			pmProgname, inarch[i].ctx, inarch[i].name);
-		exit(1);
-	    }
-
-	    if ((sts = pmTrimNameSpace ()) < 0) {
-		fprintf(stderr, "%s: Error: cannot trim name space: %s\n", 
-			pmProgname, pmErrStr(sts));
-		exit(1);
-	    }
-	}
-    }
-}
-
 /*
  *  we are within time window ... return 0
  *  we are outside of time window & mk new window ... return 1
  *  we are outside of time window & exit ... return -1
  */
 static int
-checkwinend(double now)
+checkwinend(__pmTimeval now)
 {
     int		i;
     int		sts;
-    double	tmptime;
+    __pmTimeval	tmptime;
     inarch_t	*iap;
     __pmPDU	*markpdu;	/* mark b/n time windows */
 
-    if (winend_time < 0 || now <= winend_time)
+    if (winend.tv_sec < 0 || tvcmp(now, winend) <= 0)
 	return(0);
 
     /* we have reached the end of a window
@@ -1353,26 +1331,26 @@ checkwinend(double now)
     if (!warg)
 	return(-1);
 
-    winstart_time += NUM_SEC_PER_DAY;
-    winend_time += NUM_SEC_PER_DAY;
+    winstart.tv_sec += NUM_SEC_PER_DAY;
+    winend.tv_sec += NUM_SEC_PER_DAY;
     pre_startwin = 1;
 
     /* if start of next window is later than max termination
      * then bail out here
      */
-    if (winstart_time > logend_time)
+    if (tvcmp(winstart, logend) > 0)
 	    return(-1);
 
     ilog = -1;
     for (i=0; i<inarchnum; i++) {
 	iap = &inarch[i];
 	if (iap->_Nresult != NULL) {
-	    tmptime = iap->_Nresult->timestamp.tv_sec
-			+ (double)iap->_Nresult->timestamp.tv_usec/1000000.0;
-	    if (tmptime < winstart_time) {
+	    tmptime.tv_sec = iap->_Nresult->timestamp.tv_sec;
+	    tmptime.tv_usec = iap->_Nresult->timestamp.tv_usec;
+	    if (tvcmp(tmptime, winstart) < 0) {
 		/* free _result and _Nresult
 		 */
-		if (iap->_result != iap->_Nresult && iap->_Nresult != NULL) {
+		if (iap->_result != iap->_Nresult) {
 		    free(iap->_Nresult);
 		}
 		if (iap->_result != NULL) {
@@ -1384,8 +1362,9 @@ checkwinend(double now)
 	    }
 	}
 	if (iap->pb[LOG] != NULL) {
-	    tmptime = ntohl(iap->pb[LOG][3]) + (double)ntohl(iap->pb[LOG][4])/1000000.0;
-	    if (tmptime < winstart_time) {
+	    tmptime.tv_sec = ntohl(iap->pb[LOG][3]);
+	    tmptime.tv_usec = ntohl(iap->pb[LOG][4]);
+	    if (tvcmp(tmptime, winstart) < 0) {
 		/* free PDU buffer ... it is probably a mark
 		 * and has not been pinned
 		 */
@@ -1413,27 +1392,27 @@ checkwinend(double now)
  *
  */
 void
-writerlist(rlist_t **rlready, double mintime)
+writerlist(rlist_t **rlready, __pmTimeval mintime)
 {
     int		sts;
-    int		needti;		/* need to flush/update */
-    double	titime;		/* time of last temporal index write */
-    double	restime;	/* time of result */
+    int		needti = 0;	/* need to flush/update */
+    __pmTimeval	titime  = {0,0};/* time of last temporal index write */
+    __pmTimeval	restime;	/* time of result */
     rlist_t	*elm;		/* element of rlready to be written out */
     __pmPDU	*pb;		/* pdu buffer */
-    __pmTimeval	this;		/* timeval of this record */
     unsigned long	peek_offset;
 
-    needti = 0;
-    titime = 0.0;
-
     while (*rlready != NULL) {
-	this.tv_sec = (*rlready)->res->timestamp.tv_sec;
-	this.tv_usec = (*rlready)->res->timestamp.tv_usec;
-	restime = this.tv_sec + (double)this.tv_usec / 1000000.0;
+	restime.tv_sec = (*rlready)->res->timestamp.tv_sec;
+	restime.tv_usec = (*rlready)->res->timestamp.tv_usec;
 
-        if (restime > mintime)
+        if (tvcmp(restime, mintime) > 0) {
+#if 0
+fprintf(stderr, "writelist: restime %d.%06d mintime %d.%06d ", restime.tv_sec, restime.tv_usec, mintime.tv_sec, mintime.tv_usec);
+fprintf(stderr, " break!\n");
+#endif
 	    break;
+	}
 
 	/* get the first element from the list
 	 */
@@ -1462,20 +1441,12 @@ writerlist(rlist_t **rlready, double mintime)
 
 	/* convert log record to a pdu
 	 */
-	if (outarchvers == 1)
-	    sts = __pmEncodeResult(PDU_OVERRIDE1, elm->res, &pb);
-	else
-	    sts = __pmEncodeResult(PDU_OVERRIDE2, elm->res, &pb);
-
+	sts = __pmEncodeResult(PDU_OVERRIDE2, elm->res, &pb);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    abandon();
 	}
-
-	/* __pmEncodeResult doesn't pin the PDU buffer, so we have to
-	 */
-	__pmPinPDUBuf(pb);
 
         /* switch volumes if required */
         if (varg > 0) {
@@ -1497,9 +1468,9 @@ writerlist(rlist_t **rlready, double mintime)
 	 */
 	write_metareclist(elm->res, &needti);
 
-
 	/* write out log record */
 	old_log_offset = ftell(logctl.l_mfp);
+	assert(old_log_offset >= 0);
 	if ((sts = __pmLogPutResult(&logctl, pb)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
 		    pmProgname, pmErrStr(sts));
@@ -1517,7 +1488,7 @@ writerlist(rlist_t **rlready, double mintime)
 	/* make sure that we do not write out the temporal index more
 	 * than once for the same timestamp
 	 */
-	if (needti && titime >= restime)
+	if (needti && tvcmp(titime, restime) >= 0)
 	    needti = 0;
 
 	/* flush/update */
@@ -1531,23 +1502,27 @@ writerlist(rlist_t **rlready, double mintime)
 		old_log_offset = sizeof(__pmLogLabel)+2*sizeof(int);
 
             new_log_offset = ftell(logctl.l_mfp);
+	    assert(new_log_offset >= 0);
             new_meta_offset = ftell(logctl.l_mdfp);
+	    assert(new_meta_offset >= 0);
 
             fseek(logctl.l_mfp, (long)old_log_offset, SEEK_SET);
             fseek(logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
 
-            __pmLogPutIndex(&logctl, &this);
+            __pmLogPutIndex(&logctl, &restime);
 
             fseek(logctl.l_mfp, (long)new_log_offset, SEEK_SET);
             fseek(logctl.l_mdfp, (long)new_meta_offset, SEEK_SET);
 
             old_log_offset = ftell(logctl.l_mfp);
+	    assert(old_log_offset >= 0);
             old_meta_offset = ftell(logctl.l_mdfp);
+	    assert(old_meta_offset >= 0);
 
             flushsize = ftell(logctl.l_mfp) + 100000;
         }
 
-	/* LOG: free PDU buffer */
+	/* free PDU buffer */
 	__pmUnpinPDUBuf(pb);
 	pb = NULL;
 
@@ -1610,9 +1585,9 @@ main(int argc, char **argv)
 
     char	*msg;
 
-    double 	now = 0.0;		/* the current time */
-    double 	mintime = 0.0;
-    double 	tmptime = 0.0;
+    __pmTimeval 	now = {0,0};	/* the current time */
+    __pmTimeval 	mintime = {0,0};
+    __pmTimeval 	tmptime = {0,0};
 
     __pmTimeval		tstamp;		/* temporary timestamp */
     inarch_t		*iap;		/* ptr to archive control */
@@ -1652,7 +1627,7 @@ main(int argc, char **argv)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
         totalmalloc += (inarchnum * sizeof(inarch_t));
-        printf ("main        : allocated %d\n",
+        fprintf(stderr, "main        : allocated %d\n",
 			(int)(inarchnum * sizeof(inarch_t)));
     }
 #endif
@@ -1723,13 +1698,6 @@ main(int argc, char **argv)
     logctl.l_label.ill_start.tv_sec = logstart_tval.tv_sec;
     logctl.l_label.ill_start.tv_usec = logstart_tval.tv_usec;
 
-
-    /* admin archive loads the namespace if required, and trims it
-     * according to the context of each archive
-     */
-    adminarch();
-
-
     /* process config file
      *	- this includes a list of metrics and their instances
      */
@@ -1799,12 +1767,15 @@ main(int argc, char **argv)
 		pmProgname, msg);
 	abandon();
     }
-    winstart_time = tv2double(&winstart_tval);
-    winend_time = tv2double(&winend_tval);
-    logend_time = tv2double(&logend_tval);
+    winstart.tv_sec = winstart_tval.tv_sec;
+    winstart.tv_usec = winstart_tval.tv_usec;
+    winend.tv_sec = winend_tval.tv_sec;
+    winend.tv_usec = winend_tval.tv_usec;
+    logend.tv_sec = logend_tval.tv_sec;
+    logend.tv_usec = logend_tval.tv_usec;
 
     if (warg) {
-	if (winstart_time + NUM_SEC_PER_DAY < winend_time) {
+	if (winstart.tv_sec + NUM_SEC_PER_DAY < winend.tv_sec) {
 	    fprintf(stderr, "%s: Warning: -S and -T must specify a time window within\nthe same day, for -w to be used.  Ignoring -w flag.\n", pmProgname);
 	    warg = 0;
 	}
@@ -1837,6 +1808,7 @@ main(int argc, char **argv)
 	curlog.tv_sec = 0;
 	curlog.tv_usec = 0;
 	old_meta_offset = ftell(logctl.l_mdfp);
+	assert(old_meta_offset >= 0);
 
 	/* nextlog() resets ilog, and curlog (to the smallest timestamp)
 	 */
@@ -1849,7 +1821,7 @@ main(int argc, char **argv)
 	 * set ilog
 	 * (this is a bit more complex when tflag is specified)
 	 */
-	mintime = 0.0;
+	mintime.tv_sec = mintime.tv_usec = 0;
 	for (i=0; i<inarchnum; i++) {
 	    if (inarch[i]._Nresult != NULL) {
 		tstamp.tv_sec = inarch[i]._Nresult->timestamp.tv_sec;
@@ -1857,8 +1829,8 @@ main(int argc, char **argv)
 		checklogtime(&tstamp, i);
 
 		if (ilog == i) {
-		    tmptime = curlog.tv_sec + (double)curlog.tv_usec/1000000.0;
-		    if (mintime <= 0 || mintime > tmptime)
+		    tmptime = curlog;
+		    if (mintime.tv_sec <= 0 || tvcmp(mintime, tmptime) > 0)
 		        mintime = tmptime;
 		}
 	    }
@@ -1868,8 +1840,8 @@ main(int argc, char **argv)
 		checklogtime(&tstamp, i);
 
 		if (ilog == i) {
-		    tmptime = curlog.tv_sec + (double)curlog.tv_usec/1000000.0;
-		    if (mintime <= 0 || mintime > tmptime)
+		    tmptime = curlog;
+		    if (mintime.tv_sec <= 0 || tvcmp(mintime, tmptime) > 0)
 		        mintime = tmptime;
 		}
 	    }
@@ -1880,12 +1852,12 @@ main(int argc, char **argv)
 	 * mintime == now or timestamp of the earliest mark
 	 *		(whichever is smaller)
 	 */
-	now = curlog.tv_sec + (double)curlog.tv_usec / 1000000.0;
+	now = curlog;
 
 	/* note - mark (after last archive) will be created, but this
 	 * break, will prevent it from being written out
 	 */
-	if (now > logend_time)
+	if (tvcmp(now, logend) > 0)
 	    break;
 
 	sts = checkwinend(now);
@@ -1894,8 +1866,7 @@ main(int argc, char **argv)
 	if (sts > 0)
 	    continue;
 
-	current.tv_sec = (long)now;
-	current.tv_usec = (now - (double)current.tv_sec) * 1000000.0;
+	current = curlog;
 
 	/* prepare to write out log record
 	 */
@@ -1904,6 +1875,7 @@ main(int argc, char **argv)
 	    fprintf(stderr, "    log file index = %d\n", ilog);
 	    abandon();
 	}
+
 
 	iap = &inarch[ilog];
 	if (iap->mark)
@@ -1917,7 +1889,20 @@ main(int argc, char **argv)
 		abandon();
 	    }
 	    insertresult(&rlready, iap->_Nresult);
-	    writerlist(&rlready, now);
+#if 0
+{
+    rlist_t	*rp;
+    int		i;
+
+    fprintf(stderr, "rlready");
+    for (i = 0, rp = rlready; rp != NULL; i++, rp = rp->next) {
+	fprintf(stderr, " [%d] t=%d.%06d numpmid=%d", i, (int)rp->res->timestamp.tv_sec, (int)rp->res->timestamp.tv_usec, rp->res->numpmid);
+    }
+    fprintf(stderr, " now=%d.%06d\n", now.tv_sec, now.tv_usec);
+}
+#endif
+
+	    writerlist(&rlready, curlog);
 
 	    /* writerlist frees elm (elements of rlready) but does not
 	     * free _result & _Nresult
@@ -1941,9 +1926,10 @@ main(int argc, char **argv)
 		}
 		free(iap->_Nresult);
 	    }
-	    if (iap->_result != NULL)
+	    if (iap->_result != NULL) {
 		pmFreeResult(iap->_result);
-	    iap->_result = NULL;
+		iap->_result = NULL;
+	    }
 	    iap->_Nresult = NULL;
 	}
     } /*while()*/
@@ -1963,11 +1949,13 @@ cleanup:
 	    old_log_offset = sizeof(__pmLogLabel)+2*sizeof(int);
 
 	new_log_offset = ftell(logctl.l_mfp);
+	assert(new_log_offset >= 0);
 	new_meta_offset = ftell(logctl.l_mdfp);
+	assert(new_meta_offset >= 0);
 
 #if 0
-	fprintf(stderr, "*** last tstamp: \n\tmintime=%g \n\ttmptime=%g \n\tlogend_time=%g \n\twinend_time=%g \n\tcurrent=%d.%06d\n",
-	    mintime, tmptime, logend_time, winend_time, current.tv_sec, current.tv_usec);
+	fprintf(stderr, "*** last tstamp: \n\tmintime=%d.%06d \n\ttmptime=%d.%06d \n\tlogend=%d.%06d \n\twinend=%d.%06d \n\tcurrent=%d.%06d\n",
+	    mintime.tv_sec, mintime.tv_usec, tmptime.tv_sec, tmptime.tv_usec, logend.tv_sec, logend.tv_usec, winend.tv_sec, winend.tv_usec, current.tv_sec, current.tv_usec);
 #endif
 
 	fseek(logctl.l_mfp, old_log_offset, SEEK_SET);
@@ -1979,10 +1967,9 @@ cleanup:
     }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
-        printf ("main        : total allocated %ld\n", totalmalloc);
+        fprintf(stderr, "main        : total allocated %ld\n", totalmalloc);
     }
 #endif
 
     exit(exit_status);
-    return(0);
 }

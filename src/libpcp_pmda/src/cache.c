@@ -166,9 +166,10 @@ find_cache(pmInDom indom, int *sts)
     }
 
     if ((h = (hdr_t *)malloc(sizeof(hdr_t))) == NULL) {
+	char	strbuf[20];
 	__pmNotifyErr(LOG_ERR, 
 	     "find_cache: indom %s: unable to allocate memory for hdr_t",
-	     pmInDomStr(indom));
+	     pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	*sts = PM_ERR_GENERIC;
 	return NULL;
     }
@@ -242,10 +243,11 @@ static void
 dump(FILE *fp, hdr_t *h, int do_hash)
 {
     entry_t	*e;
+    char	strbuf[20];
     int		i;
 
     fprintf(fp, "pmdaCacheDump: indom %s: nentry=%d ins_mode=%d hstate=%d hsize=%d\n",
-	pmInDomStr(h->indom), h->nentry, h->ins_mode, h->hstate, h->hsize);
+	pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)), h->nentry, h->ins_mode, h->hstate, h->hsize);
     for (e = h->first; e != NULL; e = e->next) {
 	if (e->state == PMDA_CACHE_EMPTY) {
 	    fprintf(fp, "(%10d) %8s\n", e->inst, "empty");
@@ -600,9 +602,10 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
     }
 
     if ((dup = strdup(name)) == NULL) {
+	char	strbuf[20];
 	__pmNotifyErr(LOG_ERR, 
 	     "insert_cache: indom %s: unable to allocate %d bytes for name: %s\n",
-	     pmInDomStr(h->indom), (int)strlen(name), name);
+	     pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)), (int)strlen(name), name);
 	*sts = PM_ERR_GENERIC;
 	return NULL;
     }
@@ -635,10 +638,12 @@ retry:
 		    /*
 		     * 2^32-1 is the maximum number of instances we can have
 		     */
+		    char	strbuf[20];
 		    __pmNotifyErr(LOG_ERR, 
 			 "insert_cache: indom %s: too many instances",
-			 pmInDomStr(h->indom));
+			 pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
 		    *sts = PM_ERR_GENERIC;
+		    free(dup);
 		    return NULL;
 		}
 		inst++;
@@ -648,10 +653,12 @@ retry:
     }
 
     if ((e = (entry_t *)malloc(sizeof(entry_t))) == NULL) {
+	char	strbuf[20];
 	__pmNotifyErr(LOG_ERR, 
 	     "insert_cache: indom %s: unable to allocate memory for entry_t",
-	     pmInDomStr(h->indom));
+	     pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
 	*sts = PM_ERR_GENERIC;
+	free(dup);
 	return NULL;
     }
 
@@ -708,13 +715,14 @@ load_cache(hdr_t *h)
     int		cnt;
     int		x;
     int		inst;
-    int		keylen;
-    void	*key;
+    int		keylen = 0;
+    void	*key = NULL;
     int		s;
     char	buf[1024];	/* input line buffer, is this big enough? */
     char	*p;
     int		sts;
     int		sep = __pmPathSeparator();
+    char	strbuf[20];
 
     if (vdp == NULL) {
 	vdp = pmGetConfig("PCP_VAR_DIR");
@@ -724,12 +732,13 @@ load_cache(hdr_t *h)
     }
 
     snprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
-		vdp, sep, sep, sep, pmInDomStr(h->indom));
+		vdp, sep, sep, sep, pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
     if ((fp = fopen(filename, "r")) == NULL)
 	return -oserror();
     if (fgets(buf, sizeof(buf), fp) == NULL) {
 	__pmNotifyErr(LOG_ERR, 
 	     "pmdaCacheOp: %s: empty file?", filename);
+	fclose(fp);
 	return PM_ERR_GENERIC;
     }
     s = sscanf(buf, "%d %d", &x, &h->ins_mode);
@@ -737,6 +746,7 @@ load_cache(hdr_t *h)
 	__pmNotifyErr(LOG_ERR, 
 	     "pmdaCacheOp: %s: illegal first record: %s",
 	     filename, buf);
+	fclose(fp);
 	return PM_ERR_GENERIC;
     }
 
@@ -804,11 +814,16 @@ bad:
 	    __pmNotifyErr(LOG_ERR, 
 		 "pmdaCacheOp: %s: illegal record: %s",
 		 filename, buf);
+	    if (key) free(key);
+	    fclose(fp);
 	    return PM_ERR_GENERIC;
 	}
 	e = insert_cache(h, p, inst, &sts);
-	if (e == NULL)
+	if (e == NULL) {
+	    if (key) free(key);
+	    fclose(fp);
 	    return sts;
+	}
 	if (sts != 0) {
 	    __pmNotifyErr(LOG_WARNING,
 		"pmdaCacheOp: %s: loading instance %d (\"%s\") ignored, already in cache as %d (\"%s\")",
@@ -838,6 +853,7 @@ save_cache(hdr_t *h, int hstate)
     int		cnt;
     time_t	now;
     int		sep = __pmPathSeparator();
+    char	strbuf[20];
 
     if ((h->hstate & hstate) == 0) {
 	/* nothing to be done */
@@ -852,7 +868,7 @@ save_cache(hdr_t *h, int hstate)
     }
 
     snprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
-		vdp, sep, sep, sep, pmInDomStr(h->indom));
+		vdp, sep, sep, sep, pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
     if ((fp = fopen(filename, "w")) == NULL)
 	return -oserror();
     fprintf(fp, "%d %d\n", VERSION, h->ins_mode);

@@ -51,21 +51,29 @@ main(int argc, char **argv)
     int		sts = 0;
     char	notices[MAXPATHLEN];
 #ifndef IS_MINGW
-    char	*tz = getenv("TZ");
+    char	*ep;
     struct flock lock;
     extern char **environ;
     static char *newenviron[] =
-	{"HOME=/nowhere", "SHELL=/noshell", "PATH=/nowhere", NULL};
+	{ "HOME=/nowhere", "SHELL=/noshell", "PATH=/nowhere", NULL };
+    static char *keepname[] =
+	{ "TZ", "PCP_DIR", "PCP_CONF", NULL };
+    char *keepval[] =
+	{ NULL, NULL,      NULL,       NULL };
 
     /*
      * Fix for bug #827972, do not trust the environment.
      * See also below.
      */
+    for (i = 0; keepname[i] != NULL; i++)
+	keepval[i] = getenv(keepname[i]);
     environ = newenviron;
-    if (tz && strlen(tz) < sizeof(notices)-4) {
-    	snprintf(notices, sizeof(notices), "TZ=%s", tz);
-	if ((tz = strdup(notices)) != NULL)
-	    putenv(tz);
+    for (i = 0; keepname[i] != NULL; i++) {
+	if (keepval[i] != NULL) {
+	    snprintf(notices, sizeof(notices), "%s=%s", keepname[i], keepval[i]);
+	    if ((ep = strdup(notices)) != NULL)
+		putenv(ep);
+	}
     }
 #endif
     umask(0022);

@@ -126,7 +126,7 @@ current status of the debugger:
 .in +0.5i
 $ cat .dbpmdarc
 debug libpmda
-open dso mips_o32.pmda_simple.so simple_init 253
+open dso pmda_simple.so simple_init 253
 status
 .fi
 .in
@@ -142,7 +142,7 @@ file are executed first:
 .in +0.5i
 $ dbpmda
 \&.dbpmdarc> debug libpmda
-\&.dbpmdarc> open dso mips_o32.pmda_simple.so simple_init 253
+\&.dbpmdarc> open dso pmda_simple.so simple_init 253
 [Fri Sep 19 10:19:55] dbpmda(11651) Debug: pmdaInit: PMDA simple DSO: Metric 0.0.1(1) matched to indom 253.0(0)
 [Fri Sep 19 10:19:55] dbpmda(11651) Debug: pmdaInit: PMDA simple DSO: help file $PCP_PMDAS_DIR/simple/help opened
 [Fri Sep 19 10:19:55] dbpmda(11651) Info: name        = simple DSO
@@ -153,7 +153,7 @@ $ dbpmda
 \&.dbpmdarc> status
 
 Namespace:              (default)
-PMDA:                   ./mips_o32.pmda_simple.so
+PMDA:                   ./pmda_simple.so
 Connection:             dso
 DSO Interface Version:  2
 PMDA PMAPI Version:     2
@@ -295,7 +295,7 @@ pmResult dump from 0x100078e0 timestamp: 0.000000 11:00:00.000 numpmid: 1
     inst [2 or ???] value 203
 dbpmda> status
 
-PMDA       = mips_o32.pmda_simple.so
+PMDA       = pmda_simple.so
 Connection = dso
 pmDebug    = 32768 ( libpmda )
 Timer      = off

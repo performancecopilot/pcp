@@ -49,7 +49,10 @@ event_init(pmID pmid)
 		    __pmNotifyErr(LOG_ERR, "open: %s - %s",
 				logfiles[i].pathname, strerror(errno));
 	    } else {
-		fstat(fd, &logfiles[i].pathstat);
+		if (fstat(fd, &logfiles[i].pathstat) < 0)
+		    if (logfiles[i].fd >= 0)	/* log once only */
+			__pmNotifyErr(LOG_ERR, "fstat: %s - %s",
+				    logfiles[i].pathname, strerror(errno));
 		lseek(fd, 0, SEEK_END);
 	    }
 	}
@@ -287,6 +290,8 @@ event_create(event_logfile_t *logfile)
 
     offset = 0;
 multiread:
+    if (logfile->fd < 0)
+    	return 0;
     bytes = read(logfile->fd, buffer + offset, bufsize - 1 - offset);
     /*
      * Ignore the error if:
@@ -355,7 +360,7 @@ event_refresh(void)
 	    if (logfile->fd < 0 ||
 	        logfile->pathstat.st_ino != pathstat.st_ino ||
 		logfile->pathstat.st_dev != pathstat.st_dev) {
-		if (logfile->fd < 0)
+		if (logfile->fd >= 0)
 		    close(logfile->fd);
 		fd = open(logfile->pathname, O_RDONLY|O_NONBLOCK);
 		if (fd < 0 && logfile->fd >= 0)	/* log once */
@@ -424,17 +429,21 @@ event_pmid(int handle)
 }
 
 int
-event_decoder(int eventarray, void *buffer, size_t size, void *data)
+event_decoder(int eventarray, void *buffer, size_t size,
+		struct timeval *timestamp, void *data)
 {
     int sts, handle = *(int *)data;
     pmID pmid = event_pmid(handle);
     pmAtomValue atom;
 
+    sts = pmdaEventAddRecord(eventarray, timestamp, PM_EVENT_FLAG_POINT);
+    if (sts < 0)
+	return sts;
     atom.cp = buffer;
     sts = pmdaEventAddParam(eventarray, pmid, PM_TYPE_STRING, &atom);
     if (sts < 0)
 	return sts;
-    return 1;	/* simple decoder, added just one parameter into event array */
+    return 1;	/* simple decoder, added just one event array */
 }
 
 int

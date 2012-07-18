@@ -494,7 +494,7 @@ int http_setUserAgent(const char *newAgent)
 		}
 	else
 		{
-		tmp = (char *)malloc(strlen(newAgent));
+		tmp = (char *)malloc(strlen(newAgent)+1);
 		if(tmp == NULL) { errorSource = ERRNO; return -1; }
 		if(freeOldAgent) free(userAgent);
 		userAgent = tmp;
@@ -524,7 +524,7 @@ int http_setReferer(const char *newReferer)
 		}
 	else
 		{
-		tmp = (char *)malloc(strlen(newReferer));
+		tmp = (char *)malloc(strlen(newReferer)+1);
 		if(tmp == NULL) { errorSource = ERRNO; return -1; }
 		if(freeOldReferer) free(referer);
 		referer = tmp;
@@ -588,7 +588,7 @@ int http_parseFilename(const char *url, char **filename)
 	ptr++;
 	if(*ptr == '\0') return 1;
 
-	*filename = (char *)malloc(strlen(ptr));
+	*filename = (char *)malloc(strlen(ptr)+1);
 	if(*filename == NULL) { errorSource = ERRNO; return -1; }
 	strcpy(*filename, ptr);
 

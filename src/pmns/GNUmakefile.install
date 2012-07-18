@@ -15,21 +15,21 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
-# Makefile to re-compile the binary format version of the default
-# Performance Metrics Names Space (PMNS)
+# Makefile to rebuild the Performance Metrics Names Space (PMNS) (root)
+# and the standard Performance Metric Domain numbers (stdpmid)
 #
 
-TARGETS	= root.bin
+TARGETS	= root
 PMNS	!= echo root_*
 STDPMID	!= echo stdpmid.*
 
-default: root.bin stdpmid
+default: root stdpmid
 
-root.bin:	$(PMNS)
+root:	$(PMNS)
 	./Rebuild
 
 stdpmid:	$(STDPMID)
 	./Make.stdpmid
 
 clobber:
-	rm -f root.bin stdpmid
+	rm -f stdpmid

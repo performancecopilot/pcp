@@ -114,7 +114,7 @@ _split()
     $PCP_AWK_PROG <$tmp.ctl '
 BEGIN						{ out = "'"$tmp.head"'" }
 /DO NOT UPDATE THE FILE ABOVE/			{ seen = 1 }
-seen == 0 && /^#\? [^:]*:[ynx]:/		{ print >"'"$tmp.tag"'"
+seen == 0 && /^\#\? [^:]*:[ynx]:/		{ print >"'"$tmp.tag"'"
 						  out = "'"$tmp.tail"'"
 						  seen = 1
 						  next

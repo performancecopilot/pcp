@@ -92,25 +92,25 @@ is_match(const_dirent *dep)
 int
 __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 {
-    static char		dir[MAXPATHLEN];
-    static int		lendir;
+    char		dir[MAXPATHLEN];
+    int			lendir;
     int			i, j, n;
     int			nf;		/* number of port files found */
     struct dirent	**files = NULL;	/* array of port file dirents */
     char		*p;
     int			len;
-    static char		*namebuf = NULL;
-					/* for building file names */
-    static int		sznamebuf = 0;	/* current size of namebuf */
+    char		namebuf[MAXPATHLEN];
     int			(*scanfn)(const_dirent *dep);
     FILE		*pfile;
     char		buf[MAXPATHLEN];
 
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_LOGPORT))
+	return PM_ERR_THREAD;
+
     if (result == NULL)
 	return -EINVAL;
 
-    if (lendir == 0)
-	lendir = snprintf(dir, sizeof(dir), "%s%cpmlogger",
+    lendir = snprintf(dir, sizeof(dir), "%s%cpmlogger",
 		pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator());
 
     /* Set up the appropriate function to select files from the control port
@@ -146,7 +146,8 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
     if (nf == -1 && oserror() == ENOENT)
 	nf = 0;
     else if (nf == -1) {
-	pmprintf("__pmLogFindLocalPorts: scandir: %s\n", osstrerror());
+	char	errmsg[PM_MAXERRMSGLEN];
+	pmprintf("__pmLogFindLocalPorts: scandir: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
 	pmflush();
 	return -oserror();
     }
@@ -175,18 +176,6 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	    len = j;
     /* +1 for trailing path separator, +1 for null termination */
     len += lendir + 2;
-    if (len > sznamebuf) {
-	if (namebuf != NULL)
-	    free(namebuf);
-	if ((namebuf = (char *)malloc(len)) == NULL) {
-	    __pmNoMem("__pmLogFindLocalPorts.namebuf", len, PM_RECOV_ERR);
-	    for (i=0; i < nf; i++)
-		free(files[i]);
-	    free(files);
-	    return -oserror();
-	}
-	sznamebuf = len;
-    }
 
     /* namebuf is the complete pathname, p points to the trailing filename
      * within namebuf.
@@ -205,8 +194,9 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	
 	strcpy(p, fname);
 	if ((pfile = fopen(namebuf, "r")) == NULL) {
+	    char	errmsg[PM_MAXERRMSGLEN];
 	    pmprintf("__pmLogFindLocalPorts: pmlogger port file %s: %s\n",
-		    namebuf, osstrerror());
+		    namebuf, osstrerror_r(errmsg, sizeof(errmsg)));
 	    free(files[i]);
 	    pmflush();
 	    continue;
@@ -217,9 +207,11 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 		pmprintf("__pmLogFindLocalPorts: pmlogger port file %s empty!\n",
 			namebuf);
 	    }
-	    else
+	    else {
+		char	errmsg[PM_MAXERRMSGLEN];
 		pmprintf("__pmLogFindLocalPorts: pmlogger port file %s: %s\n",
-			namebuf, osstrerror());
+			namebuf, osstrerror_r(errmsg, sizeof(errmsg)));
+	    }
 	    err = 1;
 	}
 	else {
@@ -316,39 +308,46 @@ __pmIsLocalhost(const char *hostname)
 	return 1;
     else {
 	char lhost[MAXHOSTNAMELEN+1];
-	struct hostent * he;
+	struct hostent *he;
 
 	if (gethostname(lhost, MAXHOSTNAMELEN) < 0)
 	   return -oserror();
 
+	PM_INIT_LOCKS();
+	PM_LOCK(__pmLock_libpcp);
         if ((he = gethostbyname(lhost)) != NULL ) {
 	    int i;
 	    unsigned int * laddrs;
-	    for ( i=0; he->h_addr_list[i] != NULL; i++ ) ;
+	    for (i=0; he->h_addr_list[i] != NULL; i++) ;
 
 	    laddrs = (unsigned int *)calloc(i, sizeof (unsigned int));
-	    if ( laddrs != NULL ) {
+	    if (laddrs != NULL) {
 		int k;
-		for ( k=0; k < i; k++ ) {
+		for (k=0; k < i; k++) {
 		    laddrs[k] = ((struct in_addr *)he->h_addr_list[k])->s_addr;
 		}
 
-		if ((he = gethostbyname(hostname)) == NULL)
+		if ((he = gethostbyname(hostname)) == NULL) {
+		    free(laddrs);
+		    PM_UNLOCK(__pmLock_libpcp);
 		    return -EHOSTUNREACH;
+		}
 
-		for ( i--; i >= 0; i-- ) {
+		for (i--; i >= 0; i--) {
 		    for (k = 0; he->h_addr_list[k] != NULL; k++) {
 			struct in_addr *s=(struct in_addr *)he->h_addr_list[k];
 			if (s->s_addr == laddrs[i]) {
-			    free (laddrs);
-			    return (1);
+			    free(laddrs);
+			    PM_UNLOCK(__pmLock_libpcp);
+			    return 1;
 			}
 		    }
 		}
 
-		free (laddrs);
+		free(laddrs);
 	    }
 	}
+	PM_UNLOCK(__pmLock_libpcp);
     }
 
     return sts;
@@ -372,6 +371,9 @@ __pmLogFindPort(const char *host, int pid, __pmLogPort **lpp)
     pmResult		*res;
     char		*namelist[] = {"pmcd.pmlogger.port"};
     pmID		pmid;
+
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_LOGPORT))
+	return PM_ERR_THREAD;
 
     *lpp = NULL;		/* pass null back in event of error */
     localcon = __pmIsLocalhost(host);

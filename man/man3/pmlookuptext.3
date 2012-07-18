@@ -15,17 +15,13 @@
 .\"
 .TH PMLOOKUPTEXT 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmLookupText\f1,
-\f3pmRequestText\f1,
-\f3pmReceiveText\f1 \- return text describing a performance metric
+\f3pmLookupText\f1 \- return text describing a performance metric
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 .nf
 int pmLookupText(pmID \fIpmid\fP, int \fIlevel\fP, char **\fIbuffer\fP);
-int pmRequestText(int \fIctx\fP, pmID \fIpmid\fP, int \fIlevel\fP);
-int pmReceiveText(int \fIctx\fP, char **\fIbuffer\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -59,20 +55,6 @@ the space when it is no longer required.
 .PP
 .B pmLookupText
 returns zero on success.
-.PP
-\f3pmRequestText\fP and \f3pmReceiveText\fP are used by applications
-which must communicate with the PMCD asynchronously.  These functions
-take explicit context handle \f2ctx\fP which must refer to a host
-context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
-\f3pmNewContext\fP). \f3pmRequestText\fP sends request to
-PMCD to provide descriptive text about a metric identified by a PMID and 
-returns without waiting for the response, \f3pmReceiveText\fP reads reply from
-PMCD. It is the responsibility of the application
-to make sure the data are ready before calling \f3pmReceiveText\f1 to
-avoid blocking.
-.PP
-\f3pmReceiveText\fP can be used to receive replies from either
-\f3pmRequestText\fP or \f3pmRequestInDomText\fP.
 .SH SEE ALSO
 .BR chkhelp (1),
 .BR newhelp (1),
@@ -80,7 +62,6 @@ avoid blocking.
 .BR pmGetConfig (3),
 .BR pmLookupDesc (3),
 .BR pmLookupInDomText (3),
-.BR pmRequestInDomText (3),
 .BR pcp.conf (4)
 and
 .BR pcp.env (4).
@@ -88,5 +69,3 @@ and
 .IP \f3PM_ERR_NOTHOST\f1
 if the current PMAPI context is an archive log
 (help and one-line text is not maintained in the archive logs)
-.IP \f3PM_ERR_CTXBUSY\f1
-Context is currently in use by another asynchronous call

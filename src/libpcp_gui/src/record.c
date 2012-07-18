@@ -122,7 +122,8 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
     }
     strcat(tbuf, "XXXXXX");
 #if HAVE_MKSTEMP
-    fd = mkstemp(tbuf);
+    if ((fd = mkstemp(tbuf)) < 0)
+	goto failed;
 #else
     if (mktemp(tbuf) == NULL)
 	goto failed;
@@ -340,8 +341,10 @@ pmRecordAddHost(const char *host, int isdefault, pmRecordHost **rhp)
 	}
 
 	sts = strlen(rp->public.logfile);
-	if (rp->public.logfile[sts - 1] != sep)
+	if (rp->public.logfile[sts - 1] != sep) {
 	    rp->public.logfile[sts] = sep;
+	    rp->public.logfile[sts+1] = '\0';
+	}
 	strcat(rp->public.logfile, rp->logfile);
     }
     else {

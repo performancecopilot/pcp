@@ -15,12 +15,14 @@
 .\"
 .TH PMEVENTFLAGSSTR 3 "SGI" "Performance Co-Pilot"
 .SH NAME
-\f3pmEventFlagsStr\f1 \- convert an event record flags value into a string
+\f3pmEventFlagsStr\f1, \f3pmEventFlagsStr_r\f1 \- convert an event record flags value into a string
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 const char *pmEventFlagsStr(int \fIflags\fP);
+.br
+char *pmEventFlagsStr_r(int \fIflags\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -29,17 +31,34 @@ cc ... \-lpcp
 .ie t \f(CW\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
-For use in error and diagnostic messages, return a `human readable' version of
+For use in error and diagnostic messages,
+.B pmEventFlagsStr
+returns a `human readable' version of
 the value
 .IR flags ,
 assuming this to be the
 .B er_flags
 field of a
 .BR pmEventRecord .
+The
+.B pmEventFlagsStr_r
+function does the same, but stores the result in a user-supplied buffer
+.I buf
+of length
+.IR buflen ,
+which should have room for at least 64 bytes.
 .PP
-The string value is held in a single static buffer, so the returned value is
+The string value result from
+.B pmEventFlagsStr
+is held in a single static buffer, so the returned value is
 only valid until the next call to
 .BR pmEventFlagsStr .
+.SH NOTES
+.B pmEventFlagsStr
+returns a pointer to a static buffer and hence is not thread-safe.
+Multi-threaded applications should use
+.B pmEventFlagsStr_r
+instead.
 .SH SEE ALSO
 .BR PMAPI (3)
 and

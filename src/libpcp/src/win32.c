@@ -539,89 +539,13 @@ closelog(void)
     eventlog = NULL;
 }
 
-
-/* loop.c */
-
-int
-pmLoopRegisterInput(
-    int fd,
-    int flags,
-    int (*callback)(int fd, int flags, void *closure),
-    void *closure,
-    int priority)
+const char *
+strerror_r(int errnum, char *buf, size_t buflen)
 {
-    return -1;
-}
-
-void
-pmLoopUnregisterInput(int tag)
-{
-}
-
-int
-pmLoopRegisterSignal(
-    int sig,
-    int (*callback)(int sig, void *closure),
-    void *closure)
-{
-    return -1;
-}
-
-void
-pmLoopUnregisterSignal(int tag)
-{
-}
-
-int
-pmLoopRegisterTimeout(
-    int tout_msec,
-    int (*callback)(void *closure),
-    void *closure)
-{
-    return -1;
-}
-
-void
-pmLoopUnregisterTimeout(int tag)
-{
-}
-
-int
-pmLoopRegisterChild(
-    pid_t pid,
-    int (*callback)(pid_t pid, int status, const struct rusage *, void *closure),
-    void *closure)
-{
-    return -1;
-}
-
-void
-pmLoopUnregisterChild(int tag)
-{
-}
-
-int
-pmLoopRegisterIdle(
-    int (*callback)(void *closure),
-    void *closure)
-{
-    return -1;
-}
-
-void
-pmLoopUnregisterIdle(int tag)
-{
-}
-
-void
-pmLoopStop(void)
-{
-}
-
-int
-pmLoopMain(void)
-{
-    return -1;
+    /* strerror_s is missing from the MinGW string.h */
+    /* we need to wait for it until we can do this:  */
+    /* return strerror_s(buf, buflen, errnum); */
+    return strerror(errnum);
 }
 
 /* Windows socket error codes - what a nightmare! */
@@ -691,7 +615,7 @@ static const struct {
           { 0,"" }
 };
 
-char *
+const char *
 wsastrerror(int code)
 {
     int i;

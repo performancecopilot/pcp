@@ -92,7 +92,7 @@ verify_label(FILE *f, const char *file)
 	fprintf(stderr, "Bad magic (%x) in %s\n", magic, file);
 	status = 2;
     }
-    if (version != PM_LOG_VERS01 && version != PM_LOG_VERS02) {
+    if (version != PM_LOG_VERS02) {
 	fprintf(stderr, "Bad version (%x) in %s\n", version, file);
 	status = 2;
     }
@@ -204,7 +204,7 @@ main(int argc, char *argv[])
 
 	case 'V':	/* reset magic and version numbers */
 	    version = atoi(optarg);
-	    if (version != PM_LOG_VERS01 && version != PM_LOG_VERS02) {
+	    if (version != PM_LOG_VERS02) {
 		fprintf(stderr, "%s: unknown version number (%s)\n",
 			pmProgname, optarg);
 		errflag++;

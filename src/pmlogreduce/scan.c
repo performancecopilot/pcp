@@ -175,9 +175,9 @@ doscan(struct timeval *end)
 		    vp->nobs = vp->nwrap = 0;
 		    vp->control = V_INIT;
 		    vp->next = NULL;
-#if PCP_DEBUG && DESPERATE
+#if PCP_DEBUG
 
-		    if (pmDebug & DBG_TRACE_APPL0) {
+		    if (pmDebug & DBG_TRACE_APPL1) {
 			fprintf(stderr,
 			    "add value_t for %s (%s) inst %d\n",
 			    namelist[i], pmIDStr(pmidlist[i]), vsp->vlist[j].inst);
@@ -216,7 +216,7 @@ doscan(struct timeval *end)
     }
 #endif
 
-    if ((sts == pmSetMode(PM_MODE_FORW, &last_tv, 0)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_FORW, &last_tv, 0)) < 0) {
 	fprintf(stderr,
 	    "%s: doscan: Error: pmSetMode (ictx_b) time=", pmProgname);
 	__pmPrintStamp(stderr, &last_tv);

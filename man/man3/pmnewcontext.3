@@ -47,7 +47,45 @@ or the base name common to all of the physical files of an archive log (\c
 .I type
 is
 .BR PM_CONTEXT_ARCHIVE ).
-In the latter case,
+.PP
+For a
+.I type
+of
+.BR PM_CONTEXT_HOST ,
+in addition to identifying a host
+the
+.I name
+may also be used to encode additional optional information in the form of
+a
+.BR pmcd (1)
+port number, a
+.BR pmproxy (1)
+hostname and a proxy port number. For example the
+.I name
+\&"app23:14321,4321@firewall.example.com:11111"
+specifies
+a connection on port
+.I 14321
+(or port
+.I 4321
+if
+.I 14321
+is unavailable)
+to
+.BR pmcd (1)
+on the host
+.I app23
+via port
+.I 11111
+to
+.BR pmproxy (1)
+on the host
+.IR firewall.example.com .
+.PP
+For a
+.I type
+of
+.BR PM_CONTEXT_HOST ,
 .I name
 may also be the name of any of the physical files of an
 archive, e.g.
@@ -182,7 +220,17 @@ from the kernel, which means that the
 .B pmNewContext
 caller should be an
 executable program compiled for the same object code format
-as the booted IRIX kernel.
+as the booted kernel.
+.P
+In addition, applications using a
+.B PM_CONTEXT_LOCAL
+context
+must be single-threaded because the various DSO PMDAs may not be
+thread-safe.  This restriction is enforced at the
+.BR PMAPI (4),
+where routines may return the error code
+.B PM_ERR_THREAD
+if the library detects calls from more than one thread.
 .P
 Applications that use
 .BR gethostbyname (3N)
@@ -199,6 +247,8 @@ both may call
 .BR gethostbyname (3N)
 internally.
 .SH SEE ALSO
+.BR pmcd (1),
+.BR pmproxy (1),
 .BR pmAddProfile (3),
 .BR PMAPI (3),
 .BR pmDelProfile (3),

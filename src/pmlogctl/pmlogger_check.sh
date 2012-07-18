@@ -447,7 +447,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    continue
 	fi
 
-	if is_chkconfig_on pcp
+	if is_chkconfig_on pmlogger
 	then
 	    :
 	else
@@ -588,6 +588,7 @@ END							{ print m }'`
 	    $VERBOSE && $SHOWME && echo
 	    eval $MV -f $logfile $logfile.prior
 	fi
+	args="$args -m pmlogger_check"
 	if $SHOWME
 	then
 	    echo
