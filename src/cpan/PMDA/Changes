@@ -9,6 +9,13 @@ Revision history for Perl extension PCP::PMDA.
 	  using an incorrect value for indom lookup.  This is
 	  now consistent with the other instance interfaces,
 	  and dtsrun PMDA (not widely used) has been fixed.
+	- Fix instance interface arguments - no current PMDA
+	  makes use of this, but if one did (pmdaoracle will)
+	  it would be given the internal indom identifier and
+	  not the handle given to all other indom interfaces.
+	- Remove unused parameters to internal preinstance()
+	  and prefetch() routines, no visible effect for any
+	  PMDAs but the wrapper code becomes more readable.
 	- Fix help file handling which (for current gcc/perl
 	  combinations at least) was using potentially-freed
 	  memory.

@@ -207,7 +207,7 @@ domain_write(void)
 }
 
 void
-prefetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
+prefetch(void)
 {
     dSP;
     ENTER;
@@ -231,15 +231,26 @@ fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
     if (need_refresh)
 	pmns_refresh();
     if (fetch_func)
-	prefetch(numpmid, pmidlist, rp, pmda);
+	prefetch();
     if (refresh_func)
 	refresh(numpmid, pmidlist);
     sts = pmdaFetch(numpmid, pmidlist, rp, pmda);
     return sts;
 }
 
+int
+instance_index(pmInDom indom)
+{
+    int i;
+
+    for (i = 0; i < itab_size; i++)
+	if (indomtab[i].it_indom == indom)
+	    return i;
+    return PM_INDOM_NULL;
+}
+
 void
-preinstance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
+preinstance(pmInDom indom)
 {
     dSP;
     ENTER;
@@ -262,7 +273,7 @@ instance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
     if (need_refresh)
 	pmns_refresh();
     if (instance_func)
-	preinstance(indom, a, b, rp, pmda);
+	preinstance(instance_index(indom));
     return pmdaInstance(indom, a, b, rp, pmda);
 }
 
