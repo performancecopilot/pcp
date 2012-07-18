@@ -501,6 +501,8 @@ extern int __pmAuxConnectPMCDPort(const char *, int);
 extern int __pmCreateSocket(void);
 extern int __pmSocket(int, int, int);
 extern int __pmSetSockOpt(int, int, int, const void *, mysocklen_t);
+extern int __pmGetSockOpt(int, int, int, void *, mysocklen_t *);
+extern int __pmConnect(int, __pmSockAddr *, mysocklen_t);
 extern int __pmBind(int, __pmSockAddr *, mysocklen_t);
 extern int __pmListen(int, int);
 extern int __pmAccept(int, __pmSockAddr *, mysocklen_t *);
@@ -510,18 +512,24 @@ extern void __pmCloseSocket(int);
 extern int __pmAddHostPorts(pmHostSpec *, int *, int);
 extern void __pmDropHostPort(pmHostSpec *);
 extern void __pmConnectGetPorts(pmHostSpec *);
-extern int __pmConnectTo (int, const struct sockaddr *, int);
+extern int __pmConnectTo (int, const __pmSockAddrIn *, int);
 extern int __pmConnectCheckError(int);
 extern int __pmConnectRestoreFlags (int, int);
 extern int __pmConnectHandshake(int);
+
+extern int __pmFcntlGetFlags(int);
+extern int __pmFcntlSetFlags(int, int);
 
 extern void __pmFD_CLR(int, __pmFdSet *);
 extern int  __pmFD_ISSET(int, __pmFdSet *);
 extern void __pmFD_SET(int, __pmFdSet *);
 extern void __pmFD_ZERO(__pmFdSet *);
 extern int __pmSelectRead(int, __pmFdSet *, struct timeval *);
+extern int __pmSelectWrite(int, __pmFdSet *, struct timeval *);
 
 extern void __pmInitSockAddr(__pmSockAddrIn *, int, int);
+extern void __pmSetSockAddr(__pmSockAddrIn *, __pmHostEnt *);
+extern void __pmSetPort(__pmSockAddrIn *, int);
 extern void __pmSetIPAddr (__pmIPAddr *, unsigned int a);
 extern __pmIPAddr *__pmMaskIPAddr(__pmIPAddr *, const __pmIPAddr *);
 extern int __pmCompareIPAddr (const __pmIPAddr *, const __pmIPAddr *);

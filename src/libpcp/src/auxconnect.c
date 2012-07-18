@@ -110,6 +110,18 @@ __pmSetSockOpt(int socket, int level, int option_name, const void *option_value,
 #endif
 }
 
+int
+__pmGetSockOpt(int socket, int level, int option_name, void *option_value,
+	       mysocklen_t *option_len)
+{
+#ifdef HAVE_NSS
+  //#error __FUNCTION__ is not implemented for NSS
+  return -1;
+#else
+  return getsockopt(socket, level, option_name, option_value, option_len);
+#endif
+}
+ 
 void
 __pmInitSockAddr(__pmSockAddrIn *addr, int address, int port)
 {
@@ -122,6 +134,27 @@ __pmInitSockAddr(__pmSockAddrIn *addr, int address, int port)
   addr->sin_port = port;
 #endif
 }
+
+void
+__pmSetSockAddr(__pmSockAddrIn *addr, __pmHostEnt *he)
+{
+#ifdef HAVE_NSS
+  //#error __FUNCTION__ is not implemented for NSS
+#else
+    memcpy(&addr->sin_addr, he->h_addr, he->h_length);
+#endif
+}
+
+void
+__pmSetPort(__pmSockAddrIn *addr, int port)
+{
+#ifdef HAVE_NSS
+    //  #error __FUNCTION__ is not implemented for NSS
+#else
+    addr->sin_port = htons(port);
+#endif
+}
+
 
 int
 __pmListen(int fd, int backlog)
@@ -157,22 +190,33 @@ __pmBind(int fd, __pmSockAddr *addr, mysocklen_t addrlen)
 }
 
 int
-__pmConnectTo(int fd, const struct sockaddr *addr, int port)
+__pmConnect(int fd, __pmSockAddr *addr, mysocklen_t addrlen)
 {
-    int sts, fdFlags = fcntl(fd, F_GETFL);
-    struct sockaddr_in myAddr;
+#ifdef HAVE_NSS
+  PRStatus prStatus = PR_FAILURE; // PR_Connect(fd, addr, PR_INTERVAL_NO_TIMEOUT);
+  return prStatus == PR_SUCCESS ? 0 : -1;
+#else
+  return connect(fd, addr, addrlen);
+#endif
+}
 
-    memcpy(&myAddr, addr, sizeof (struct sockaddr_in));
-    myAddr.sin_port = htons(port);
+int
+__pmConnectTo(int fd, const __pmSockAddrIn *addr, int port)
+{
+    int sts, fdFlags = __pmFcntlGetFlags(fd);
+    __pmSockAddrIn myAddr;
 
-    if (fcntl(fd, F_SETFL, fdFlags | FNDELAY) < 0) {
+    myAddr = *addr;
+    __pmSetPort(&myAddr, htons(port));
+
+    if (__pmFcntlSetFlags(fd, fdFlags | FNDELAY) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
         __pmNotifyErr(LOG_ERR, "__pmConnectTo: cannot set FNDELAY - "
 		      "fcntl(%d,F_SETFL,0x%x) failed: %s\n",
 		      fd, fdFlags|FNDELAY , osstrerror_r(errmsg, sizeof(errmsg)));
     }
     
-    if (connect(fd, (struct sockaddr*)&myAddr, sizeof(myAddr)) < 0) {
+    if (__pmConnect(fd, (__pmSockAddr*)&myAddr, sizeof(myAddr)) < 0) {
 	sts = neterror();
 	if (sts != EINPROGRESS) {
 	    __pmCloseSocket(fd);
@@ -189,7 +233,7 @@ __pmConnectCheckError(int fd)
     int	so_err;
     mysocklen_t	olen = sizeof(int);
 
-    if (getsockopt(fd, SOL_SOCKET, SO_ERROR, (void *)&so_err, &olen) < 0) {
+    if (__pmGetSockOpt(fd, SOL_SOCKET, SO_ERROR, (void *)&so_err, &olen) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	so_err = neterror();
 	__pmNotifyErr(LOG_ERR, 
@@ -204,15 +248,15 @@ __pmConnectRestoreFlags(int fd, int fdFlags)
 {
     int sts;
 
-    if (fcntl(fd, F_SETFL, fdFlags) < 0) {
+    if (__pmFcntlSetFlags(fd, fdFlags) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_WARNING,"__pmConnectRestoreFlags: cannot restore "
 		      "flags fcntl(%d,F_SETFL,0x%x) failed: %s\n",
 		      fd, fdFlags, osstrerror_r(errmsg, sizeof(errmsg)));
     }
 
-    if ((fdFlags = fcntl(fd, F_GETFD)) >= 0)
-        sts = fcntl(fd, F_SETFD, fdFlags | FD_CLOEXEC);
+    if ((fdFlags = __pmFcntlGetFlags(fd)) >= 0)
+        sts = __pmFcntlSetFlags(fd, fdFlags | FD_CLOEXEC);
     else
         sts = fdFlags;
 
@@ -306,21 +350,24 @@ __pmAuxConnectPMCD(const char *hostname)
 int
 __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 {
-    struct sockaddr_in	myAddr;
-    struct hostent*	servInfo;
+    __pmSockAddrIn	myAddr;
+    __pmHostEnt		servInfo;
+    char		*sibuf;
     int			fd;	/* Fd for socket connection to pmcd */
     int			sts;
     int			fdFlags;
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    if ((servInfo = gethostbyname(hostname)) == NULL) {
+    sibuf = __pmAllocHostEntBuffer();
+    if (__pmGetHostByName(hostname, &servInfo, sibuf) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
 	    fprintf(stderr, "__pmAuxConnectPMCDPort(%s, %d) : hosterror=%d, ``%s''\n",
 		    hostname, pmcd_port, hosterror(), hoststrerror());
 	}
 #endif
+	__pmFreeHostEntBuffer(sibuf);
 	PM_UNLOCK(__pmLock_libpcp);
 	return -EHOSTUNREACH;
     }
@@ -332,27 +379,26 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	return fd;
     }
 
-    memset(&myAddr, 0, sizeof(myAddr));	/* Arrgh! &myAddr, not myAddr */
-    myAddr.sin_family = AF_INET;
-    memcpy(&myAddr.sin_addr, servInfo->h_addr, servInfo->h_length);
+    __pmInitSockAddr(&myAddr, htonl(INADDR_ANY), 0);
+    __pmSetSockAddr(&myAddr, &servInfo);
+    __pmFreeHostEntBuffer(sibuf);
     PM_UNLOCK(__pmLock_libpcp);
 
-    if ((fdFlags = __pmConnectTo(fd, (const struct sockaddr *)&myAddr,
-				 pmcd_port)) < 0) {
+    if ((fdFlags = __pmConnectTo(fd, &myAddr, pmcd_port)) < 0) {
 	return (fdFlags);
     } else { /* FNDELAY and we're in progress - wait on select */
 	int	rc;
-	fd_set wfds;
+	__pmFdSet wfds;
 	// TODO hope this goes away with ASYNC API stuff else need lock
 	// and more tricky logic to make sure canwait has indeed been
 	// initialized
 	struct timeval stv = canwait;
 	struct timeval *pstv = (stv.tv_sec || stv.tv_usec) ? &stv : NULL;
 
-	FD_ZERO(&wfds);
-	FD_SET(fd, &wfds);
+	__pmFD_ZERO(&wfds);
+	__pmFD_SET(fd, &wfds);
 	sts = 0;
-	if ((rc = select(fd+1, NULL, &wfds, NULL, pstv)) == 1) {
+	if ((rc = __pmSelectWrite(fd+1, &wfds, pstv)) == 1) {
 	    sts = __pmConnectCheckError(fd);
 	}
 	else if (rc == 0) {
@@ -372,6 +418,28 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
      * flags and make sure this file descriptor is closed if exec() is
      * called */
     return __pmConnectRestoreFlags (fd, fdFlags);
+}
+
+int
+__pmFcntlGetFlags(int fildes)
+{
+#ifdef HAVE_NSS
+  //  #error __FUNCTION__ is not implemented for NSS
+  return -1;
+#else
+  return fcntl(fildes, F_GETFL);
+#endif
+}
+
+int
+__pmFcntlSetFlags(int fildes, int flags)
+{
+#ifdef HAVE_NSS
+  //  #error __FUNCTION__ is not implemented for NSS
+  return -1;
+#else
+  return fcntl(fildes, F_SETFL, flags);
+#endif
 }
 
 ssize_t
@@ -445,6 +513,17 @@ __pmSelectRead(int nfds, __pmFdSet *readfds, struct timeval *timeout)
   return -1;
 #else
   return select(nfds, readfds, NULL, NULL, timeout);
+#endif
+}
+
+int
+__pmSelectWrite(int nfds, __pmFdSet *writefds, struct timeval *timeout)
+{
+#ifdef HAVE_NSS
+  //#error __FUNCTION__ is not implemented for NSS
+  return 0;
+#else
+  return select(nfds, NULL, writefds, NULL, timeout);
 #endif
 }
 
