@@ -31,7 +31,8 @@ PCP_LIBS += -L$(TOPDIR)/src/libpcp_pmcd/$(LIBPCP_ABIDIR)
 # allows the pmcd pmda (dynamicaly loaded shared library) to access the
 # global symbols in pmcd.
 #LCFLAGS = $(RDYNAMIC_FLAG)
-LLDFLAGS = $(RDYNAMIC_FLAG)
+LLDFLAGS = $(RDYNAMIC_FLAG) $(PIELDFLAGS)
+LCFLAGS = $(PIECFLAGS)
 
 default:	$(CMDTARGET)
 
