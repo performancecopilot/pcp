@@ -982,7 +982,7 @@ class pmContext( object ):
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
-        text = str( buf )
+        text = str( buf.value )
         libc.free( buf )
         return text
 
@@ -1002,7 +1002,7 @@ class pmContext( object ):
         pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
-        text = str( buf )
+        text = buf.value
         libc.free( buf )
         return text
 
