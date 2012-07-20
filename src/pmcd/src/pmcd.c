@@ -772,11 +772,6 @@ ClientLoop(void)
     __pmPDUInfo	xchallenge;
 
     for (;;) {
-	if (_pmcd_done) {
-	    __pmNotifyErr(LOG_INFO,
-		"pmcd terminated via pmcd pmda and pmcd.control.debug");
-	    break;
-	}
 
 	/* Figure out which file descriptors to wait for input on.  Keep
 	 * track of the highest numbered descriptor for the select call.
