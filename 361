@@ -6,12 +6,32 @@
 #
 
 seq=`basename $0`
-echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
 . ./common.check
 . ./localconfig
+
+[ $PCP_PLATFORM = linux ] || _notrun "tests pmdalinux functionality on Linux only"
+
+rm -f $seq.out
+# cgroup metrics may not be available
+#
+if pminfo cgroup >/dev/null 2>&1
+then
+    prefix=cgroup
+    ln $seq.out.1 $seq.out
+else
+    if pminfo proc.cgroup >/dev/null 2>&1
+    then
+	prefix=proc.cgroup
+	ln $seq.out.1 $seq.out
+    else
+	_notrun cgroup metrics not available
+    fi
+fi
+
+echo "QA output created by $seq"
 
 _cleanup()
 {
@@ -24,7 +44,6 @@ grp=/tmp/cgroup_$seq
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-[ $PCP_PLATFORM = linux ] || _notrun "Tests pmdalinux functionality on Linux"
 [ -f /proc/cgroups ] || _notrun "No support for cgroups in the running kernel"
 grep -q cgroup /proc/mounts && _notrun "One or more cgroups already in use"
 grep -q cpuacct /proc/cgroups || _notrun "No cpuacct cgroup support"
@@ -40,30 +59,30 @@ pmda=
 
 # real test starts here
 echo "initial fetch, starting with a clean slate"
-pmprobe -L $pmda -v cgroup.mounts \
+pmprobe -L $pmda -v $prefix.mounts \
 | LC_COLLATE=POSIX sort
 
 echo "cpuset metrics fetch, no user groups defined, single controller"
 $sudo mount -t cgroup -o cpuset none $grp || _fail "cpuset mount"
-pminfo -L $pmda -m cgroup.mounts cgroup.groups \
+pminfo -L $pmda -m $prefix.mounts $prefix.groups \
 | LC_COLLATE=POSIX sort
 $sudo umount $grp || _fail "cpuset umount"
 
 echo "cpuacct and cpuset fetch, no user groups defined, dual controllers"
 $sudo mount -t cgroup -o cpuacct,cpuset none $grp || _fail "cpu,cpuacct mount"
-pminfo -L $pmda -m cgroup.mounts cgroup.groups \
+pminfo -L $pmda -m $prefix.mounts $prefix.groups \
 | LC_COLLATE=POSIX sort
 $sudo umount $grp || _fail "cpu,cpuacct cgroup umount"
 
 echo "cpuacct and cpuset fetch, one user group defined, dual controllers"
 $sudo mount -t cgroup -o cpuacct,cpuset none $grp || _fail "cpu,cpuacct mount"
 $sudo mkdir $grp/pcpqa
-pminfo -L $pmda cgroup.mounts cgroup.groups \
+pminfo -L $pmda $prefix.mounts $prefix.groups \
 | LC_COLLATE=POSIX sort \
 | xargs pminfo -L -d $pmda -m
 $sudo rmdir $grp/pcpqa
 echo "cpuacct and cpuset fetch, one user group removed, dual controllers"
-pminfo -L $pmda cgroup.mounts cgroup.groups \
+pminfo -L $pmda $prefix.mounts $prefix.groups \
 | LC_COLLATE=POSIX sort \
 | xargs pminfo -L -d $pmda -m
 $sudo umount $grp || _fail "cpu,cpuacct cgroup umount"
