@@ -73,7 +73,7 @@ static time_t	last_mtim;
  * Curr_pmns will point to either the main_pmns or
  * a pmns from a version 2 archive context.
  */
-static __pmnsTree *curr_pmns; 
+static __pmnsTree *curr_pmns = NULL; 
 
 /* The main_pmns points to the loaded PMNS (not from archive). */
 static __pmnsTree *main_pmns = NULL; 
@@ -206,7 +206,9 @@ pmGetPMNSLocation(void)
 		    version = ctxp->c_archctl->ac_log->l_label.ill_magic & 0xff;
 		    if (version == PM_LOG_VERS02) {
 			pmns_location = PMNS_ARCHIVE;
+			PM_LOCK(__pmLock_libpcp);
 			curr_pmns = ctxp->c_archctl->ac_log->l_pmns; 
+			PM_UNLOCK(__pmLock_libpcp);
 		    }
 		    else {
 			__pmNotifyErr(LOG_ERR, "pmGetPMNSLocation: bad archive "
@@ -251,8 +253,6 @@ pmGetPMNSLocation(void)
     /* fix up curr_pmns for API ops */
     if (pmns_location == PMNS_LOCAL)
 	curr_pmns = main_pmns;
-    else if (pmns_location != PMNS_ARCHIVE)
-	curr_pmns = NULL;
     PM_UNLOCK(__pmLock_libpcp);
 
 done:
@@ -1433,6 +1433,8 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	return PM_ERR_TOOSMALL;
     }
 
+    PM_INIT_LOCKS();
+
     ctx = lsts = pmWhichContext();
     if (lsts >= 0) {
 	ctxp = __pmHandleToPtr(ctx);
@@ -1467,7 +1469,6 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	char		*xp;
 	__pmnsNode	*np;
 
-	PM_INIT_LOCKS();
 	if (ctxp != NULL)
 	    PM_UNLOCK(ctxp->c_lock);
 	for (i = 0; i < numpmid; i++) {
@@ -1819,6 +1820,8 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
     if (name == NULL) 
 	return PM_ERR_NAME;
 
+    PM_INIT_LOCKS();
+
     ctx = sts = pmWhichContext();
     if (sts >= 0)
 	ctxp = __pmHandleToPtr(sts);
@@ -2152,9 +2155,10 @@ pmNameID(pmID pmid, char **name)
     if (pmns_location < 0)
 	return pmns_location;
 
-    else if (pmns_location == PMNS_LOCAL) {
+    PM_INIT_LOCKS();
+
+    if (pmns_location == PMNS_LOCAL) {
     	__pmnsNode	*np;
-	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
 	for (np = curr_pmns->htab[pmid % curr_pmns->htabsize]; np != NULL; np = np->hash) {
 	    if (np->pmid == pmid) {
@@ -2204,7 +2208,9 @@ pmNameAll(pmID pmid, char ***namelist)
     if (pmns_location < 0)
 	return pmns_location;
 
-    else if (pmns_location == PMNS_LOCAL) {
+    PM_INIT_LOCKS();
+
+    if (pmns_location == PMNS_LOCAL) {
     	__pmnsNode	*np;
 	int		sts = 0;
 	int		i;
@@ -2216,7 +2222,6 @@ pmNameAll(pmID pmid, char ***namelist)
 	     */
 	    return PM_ERR_PMID;
 	}
-	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
 	for (np = curr_pmns->htab[pmid % curr_pmns->htabsize]; np != NULL; np = np->hash) {
 	    if (np->pmid == pmid) {
@@ -2358,10 +2363,11 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
     if (name == NULL) 
 	return PM_ERR_NAME;
 
+    PM_INIT_LOCKS();
+
     if (pmns_location == PMNS_LOCAL) {
 	int	sts;
 
-	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
 	sts = TraversePMNS_local(name, func, func_r, closure);
 	PM_UNLOCK(__pmLock_libpcp);
@@ -2483,11 +2489,11 @@ pmTrimNameSpace(void)
 	return 0;
 
     /* for PMNS_LOCAL ... */
+    PM_INIT_LOCKS();
 
     if ((ctxp = __pmHandleToPtr(pmWhichContext())) == NULL)
 	return PM_ERR_NOCONTEXT;
 
-    PM_INIT_LOCKS();
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	/* unset all of the marks */
 	PM_LOCK(__pmLock_libpcp);

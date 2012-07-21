@@ -841,6 +841,34 @@ sub refresh_io_user_sequences
 #
 # Setup routines - one per cluster, add metrics to PMDA
 # 
+# For help text, see
+# http://www.postgresql.org/docs/9.2/static/monitoring-stats.html
+#
+# and the Postgres Licence:
+# Portions Copyright (c) 1996-2012, The PostgreSQL Global Development Group
+# 
+# Portions Copyright (c) 1994, The Regents of the University of California
+# 
+# Permission to use, copy, modify, and distribute this software
+# and its documentation for any purpose, without fee, and without a
+# written agreement is hereby granted, provided that the above copyright
+# notice and this paragraph and the following two paragraphs appear in
+# all copies.
+#
+# IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY
+# FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES,
+# INCLUDING LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND
+# ITS DOCUMENTATION, EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 
+# THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE
+# PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND THE UNIVERSITY
+# OF CALIFORNIA HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT,
+# UPDATES, ENHANCEMENTS, OR MODIFICATIONS
+#
+
 sub setup_activity
 {
     my ($cluster, $indom) = @_;
@@ -848,43 +876,74 @@ sub setup_activity
     # indom: procpid + application_name
     $pmda->add_metric(pmda_pmid($cluster,0), PM_TYPE_U32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.activity.datid', '', '');
+		  'postgresql.stat.activity.datid',
+		  'OID of the database this backend is connected to', '');
     $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.activity.datname', '', '');
+		  'postgresql.stat.activity.datname',
+		  'Name of the database this backend is connected to', '');
     $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.activity.usesysid', '', '');
+		  'postgresql.stat.activity.usesysid',
+		  'OID of the user logged into this backend', '');
     $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.activity.usename', '', '');
+		  'postgresql.stat.activity.usename',
+		  'Name of the user logged into this backend', '');
     $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.activity.application_name', '', '');
+		  'postgresql.stat.activity.application_name',
+		  'Name of the application that is connected to this backend', '');
     $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.activity.client_addr', '', '');
+		  'postgresql.stat.activity.client_addr',
+		  'Client IP address',
+'IP address of the client connected to this backend. If this field is null,
+it indicates either that the client is connected via a Unix socket on the
+server machine or that this is an internal process such as autovacuum.');
     $pmda->add_metric(pmda_pmid($cluster,7), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.activity.client_hostname', '', '');
+		  'postgresql.stat.activity.client_hostname',
+		  'Host name of the connected client',
+'Client host name is derived from reverse DNS lookup of
+postgresql.stat.activity.client_addr. This field will only be non-null
+for IP connections, and only when log_hostname is enabled.');
     $pmda->add_metric(pmda_pmid($cluster,8), PM_TYPE_U32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.activity.client_port', '', '');
+		  'postgresql.stat.activity.client_port',
+		  'Client TCP port number',
+'TCP port number that the client is using for communication with this
+backend.  Value will be -1 if a Unix socket is used.');
     $pmda->add_metric(pmda_pmid($cluster,9), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.activity.backend_start', '', '');
+		  'postgresql.stat.activity.backend_start',
+		  'Time when this process was started',
+'Time when this client process connected to the server.');
     $pmda->add_metric(pmda_pmid($cluster,10), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.activity.xact_start', '', '');
+		  'postgresql.stat.activity.xact_start',
+		  'Transaction start time',
+'Time when this process' . "'" . ' current transaction was started.
+The value will be null if no transaction is active. If the
+current query is the first of its transaction, value is equal to
+postgresql.stat.activity.query_start.');
     $pmda->add_metric(pmda_pmid($cluster,11), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.activity.query_start', '', '');
+		  'postgresql.stat.activity.query_start',
+		  'Query start time',
+'Time when the currently active query was started, or if state is not
+active, when the last query was started');
     $pmda->add_metric(pmda_pmid($cluster,12), PM_TYPE_32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.activity.waiting', '', '');
+		  'postgresql.stat.activity.waiting',
+		  'True if this backend is currently waiting on a lock', '');
     $pmda->add_metric(pmda_pmid($cluster,13), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.activity.current_query', '', '');
+		  'postgresql.stat.activity.current_query',
+		  'Most recent query',
+'Text of this backend' . "'" . 's most recent query. If state is active this field
+shows the currently executing query. In all other states, it shows the
+last query that was executed.');
 }
 
 sub setup_replication
@@ -894,46 +953,68 @@ sub setup_replication
     # indom: procpid + application_name
     $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_U32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.replication.usesysid', '', '');
+		  'postgresql.stat.replication.usesysid',
+		  'OID of the user logged into this WAL sender process', '');
     $pmda->add_metric(pmda_pmid($cluster,2), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.replication.usename', '', '');
+		  'postgresql.stat.replication.usename',
+		  'Name of the user logged into this WAL sender process', '');
     $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.replication.application_name', '', '');
+		  'postgresql.stat.replication.application_name',
+		  'Name of the application that is connected to this WAL sender', '');
     $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.replication.client_addr', '', '');
+		  'postgresql.stat.replication.client_addr',
+		  'WAL client IP address',
+'IP address of the client connected to this WAL sender. If this field is
+null, it indicates that the client is connected via a Unix socket on the
+server machine.');
     $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.replication.client_hostname', '', '');
+		  'postgresql.stat.replication.client_hostname',
+		  'WAL client host name',
+'Host name of the connected client, as reported by a reverse DNS lookup of
+postgresql.stat.replication.client_addr. This field will only be non-null
+for IP connections, and only when log_hostname is enabled.');
     $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.replication.client_port', '', '');
+		  'postgresql.stat.replication.client_port',
+		  'WAL client TCP port',
+'TCP port number that the client is using for communication with this WAL
+sender, or -1 if a Unix socket is used.');
     $pmda->add_metric(pmda_pmid($cluster,7), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.replication.backend_start', '', '');
+		  'postgresql.stat.replication.backend_start',
+		  'Time when when the client connected to this WAL sender', '');
     $pmda->add_metric(pmda_pmid($cluster,8), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.replication.state', '', '');
+		  'postgresql.stat.replication.state',
+		  'Current WAL sender state', '');
     $pmda->add_metric(pmda_pmid($cluster,9), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.replication.sent_location', '', '');
+		  'postgresql.stat.replication.sent_location',
+		  'Last transaction log position sent on this connection', '');
     $pmda->add_metric(pmda_pmid($cluster,10), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.replication.write_location', '', '');
+		  'postgresql.stat.replication.write_location',
+		  'Last transaction log position written to disk by this standby server', '');
     $pmda->add_metric(pmda_pmid($cluster,11), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.replication.flush_location', '', '');
+		  'postgresql.stat.replication.flush_location',
+		  'Last transaction log position flushed to disk by this standby server', '');
     $pmda->add_metric(pmda_pmid($cluster,12), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.replication.replay_location', '', '');
+		  'postgresql.stat.replication.replay_location',
+		  'Last transaction log position replayed into the database on this standby server', '');
     $pmda->add_metric(pmda_pmid($cluster,13), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.replication.sync_priority', '', '');
+		  'postgresql.stat.replication.sync_priority',
+		  'Priority of this standby server for being chosen as the synchronous standby', '');
     $pmda->add_metric(pmda_pmid($cluster,14), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.replication.sync_state', '', '');
+		  'postgresql.stat.replication.sync_state',
+		  'Synchronous state of this standby server', '');
 }
 
 sub setup_stat_xact_tables
@@ -943,31 +1024,41 @@ sub setup_stat_xact_tables
     # indom: relid + relname
     $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.xact.$tables.schemaname", '', '');
+		  "postgresql.stat.xact.$tables.schemaname",
+		  'Name of the schema that this table is in',
+'');
     $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.xact.$tables.seq_scan", '', '');
+		  "postgresql.stat.xact.$tables.seq_scan",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.xact.$tables.seq_tup_read", '', '');
+		  "postgresql.stat.xact.$tables.seq_tup_read",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.xact.$tables.idx_scan", '', '');
+		  "postgresql.stat.xact.$tables.idx_scan",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.xact.$tables.idx_tup_fetch", '', '');
+		  "postgresql.stat.xact.$tables.idx_tup_fetch",
+		  'Number of rows fetched by queries in this database', '');
     $pmda->add_metric(pmda_pmid($cluster,7), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.xact.$tables.n_tup_ins", '', '');
+		  "postgresql.stat.xact.$tables.n_tup_ins",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,8), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.xact.$tables.n_tup_upd", '', '');
+		  "postgresql.stat.xact.$tables.n_tup_upd",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,9), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.xact.$tables.n_tup_del", '', '');
+		  "postgresql.stat.xact.$tables.n_tup_del",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,10), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.xact.$tables.n_tup_hot_upd", '', '');
+		  "postgresql.stat.xact.$tables.n_tup_hot_upd",
+		  '', '');
 }
 
 sub setup_stat_tables
@@ -977,49 +1068,64 @@ sub setup_stat_tables
     # indom: relid + relname
     $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$tables.schemaname", '', '');
+		  "postgresql.stat.$tables.schemaname",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$tables.seq_scan", '', '');
+		  "postgresql.stat.$tables.seq_scan",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$tables.seq_tup_read", '', '');
+		  "postgresql.stat.$tables.seq_tup_read",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$tables.idx_scan", '', '');
+		  "postgresql.stat.$tables.idx_scan",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$tables.idx_tup_fetch", '', '');
+		  "postgresql.stat.$tables.idx_tup_fetch",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,7), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$tables.n_tup_ins", '', '');
+		  "postgresql.stat.$tables.n_tup_ins",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,8), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$tables.n_tup_upd", '', '');
+		  "postgresql.stat.$tables.n_tup_upd",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,9), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$tables.n_tup_del", '', '');
+		  "postgresql.stat.$tables.n_tup_del",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,10), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$tables.n_tup_hot_upd", '', '');
+		  "postgresql.stat.$tables.n_tup_hot_upd",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,11), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$tables.n_live_tup", '', '');
+		  "postgresql.stat.$tables.n_live_tup",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,12), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$tables.n_dead_tup", '', '');
+		  "postgresql.stat.$tables.n_dead_tup",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,13), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$tables.last_vacuum", '', '');
+		  "postgresql.stat.$tables.last_vacuum",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,14), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$tables.last_autovacuum", '', '');
+		  "postgresql.stat.$tables.last_autovacuum",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,15), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$tables.last_analyze", '', '');
+		  "postgresql.stat.$tables.last_analyze",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,16), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$tables.last_autoanalyze", '', '');
+		  "postgresql.stat.$tables.last_autoanalyze",
+		  '', '');
 }
 
 sub setup_bgwriter
@@ -1028,25 +1134,32 @@ sub setup_bgwriter
 
     $pmda->add_metric(pmda_pmid($cluster,0), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.bgwriter.checkpoints_timed', '', '');
+		  'postgresql.stat.bgwriter.checkpoints_timed',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.bgwriter.checkpoints_req', '', '');
+		  'postgresql.stat.bgwriter.checkpoints_req',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,2), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.bgwriter.buffers_checkpoints', '', '');
+		  'postgresql.stat.bgwriter.buffers_checkpoints',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.bgwriter.buffers_clean', '', '');
+		  'postgresql.stat.bgwriter.buffers_clean',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.bgwriter.maxwritten_clean', '', '');
+		  'postgresql.stat.bgwriter.maxwritten_clean',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.bgwriter.buffers_backend', '', '');
+		  'postgresql.stat.bgwriter.buffers_backend',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.bgwriter.buffers_alloc', '', '');
+		  'postgresql.stat.bgwriter.buffers_alloc',
+		  '', '');
 }
 
 sub setup_active_functions
@@ -1055,13 +1168,16 @@ sub setup_active_functions
 
     $pmda->add_metric(pmda_pmid($cluster,0), PM_TYPE_U32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.active.is_in_recovery', '', '');
+		  'postgresql.active.is_in_recovery',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_U64, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.active.xlog_current_location_log_id', '', '');
+		  'postgresql.active.xlog_current_location_log_id',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,2), PM_TYPE_U64, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.active.xlog_current_location_offset', '', '');
+		  'postgresql.active.xlog_current_location_offset',
+		  '', '');
 }
 
 sub setup_recovery_functions
@@ -1070,19 +1186,24 @@ sub setup_recovery_functions
 
     $pmda->add_metric(pmda_pmid($cluster,0), PM_TYPE_U32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.recovery.is_in_recovery', '', '');
+		  'postgresql.recovery.is_in_recovery',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_U64, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.recovery.xlog_receive_location_log_id', '', '');
+		  'postgresql.recovery.xlog_receive_location_log_id',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,2), PM_TYPE_U64, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.recovery.xlog_receive_location_offset', '', '');
+		  'postgresql.recovery.xlog_receive_location_offset',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U64, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.recovery.xlog_replay_location_log_id', '', '');
+		  'postgresql.recovery.xlog_replay_location_log_id',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U64, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.recovery.xlog_replay_location_offset', '', '');
+		  'postgresql.recovery.xlog_replay_location_offset',
+		  '', '');
 }
 
 sub setup_database_conflicts
@@ -1092,19 +1213,24 @@ sub setup_database_conflicts
     # indom: datid + datname
     $pmda->add_metric(pmda_pmid($cluster,2), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.database_conflicts.tablespace', '', '');
+		  'postgresql.stat.database_conflicts.tablespace',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.database_conflicts.lock', '', '');
+		  'postgresql.stat.database_conflicts.lock',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.database_conflicts.snapshot', '', '');
+		  'postgresql.stat.database_conflicts.snapshot',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.database_conflicts.bufferpin', '', '');
+		  'postgresql.stat.database_conflicts.bufferpin',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.database_conflicts.deadlock', '', '');
+		  'postgresql.stat.database_conflicts.deadlock',
+		  '', '');
 
 }
 sub setup_database
@@ -1114,40 +1240,52 @@ sub setup_database
     # indom: datid + datname
     $pmda->add_metric(pmda_pmid($cluster,2), PM_TYPE_U32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.database.numbackends', '', '');
+		  'postgresql.stat.database.numbackends',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.database.xact_commit', '', '');
+		  'postgresql.stat.database.xact_commit',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.database.xact_rollback', '', '');
+		  'postgresql.stat.database.xact_rollback',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.database.blks_read', '', '');
+		  'postgresql.stat.database.blks_read',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.database.blks_hit', '', '');
+		  'postgresql.stat.database.blks_hit',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,7), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.database.tup_returned', '', '');
+		  'postgresql.stat.database.tup_returned',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,8), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.database.tup_fetched', '', '');
+		  'postgresql.stat.database.tup_fetched',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,9), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.database.tup_inserted', '', '');
+		  'postgresql.stat.database.tup_inserted',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,10), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.database.tup_updated', '', '');
+		  'postgresql.stat.database.tup_updated',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,11), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.database.tup_deleted', '', '');
+		  'postgresql.stat.database.tup_deleted',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,12), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'postgresql.stat.database.conflicts', '', '');
+		  'postgresql.stat.database.conflicts',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,13), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.database.stats_reset', '', '');
+		  'postgresql.stat.database.stats_reset',
+		  '', '');
 }
 
 sub setup_stat_indexes
@@ -1156,22 +1294,28 @@ sub setup_stat_indexes
 
     $pmda->add_metric(pmda_pmid($cluster,0), PM_TYPE_32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$indexes.relid", '', '');
+		  "postgresql.stat.$indexes.relid",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,2), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$indexes.schemaname", '', '');
+		  "postgresql.stat.$indexes.schemaname",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  "postgresql.stat.$indexes.relname", '', '');
+		  "postgresql.stat.$indexes.relname",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.stat.$indexes.idx_scan", '', '');
+		  "postgresql.stat.$indexes.idx_scan",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.stat.$indexes.idx_tup_read", '', '');
+		  "postgresql.stat.$indexes.idx_tup_read",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,7), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.stat.$indexes.idx_tup_fetch", '', '');
+		  "postgresql.stat.$indexes.idx_tup_fetch",
+		  '', '');
 }
 
 sub setup_statio_tables
@@ -1180,31 +1324,40 @@ sub setup_statio_tables
 
     $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  "postgresql.statio.$tables.schemaname", '', '');
+		  "postgresql.statio.$tables.schemaname",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$tables.heap_blks_read", '', '');
+		  "postgresql.statio.$tables.heap_blks_read",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$tables.heap_blks_hit", '', '');
+		  "postgresql.statio.$tables.heap_blks_hit",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$tables.idx_blks_read", '', '');
+		  "postgresql.statio.$tables.idx_blks_read",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$tables.idx_blks_hit", '', '');
+		  "postgresql.statio.$tables.idx_blks_hit",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,7), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$tables.toast_blks_read", '', '');
+		  "postgresql.statio.$tables.toast_blks_read",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,8), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$tables.toast_blks_hit", '', '');
+		  "postgresql.statio.$tables.toast_blks_hit",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,9), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$tables.tidx_blks_read", '', '');
+		  "postgresql.statio.$tables.tidx_blks_read",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,10), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$tables.tidx_blks_hit", '', '');
+		  "postgresql.statio.$tables.tidx_blks_hit",
+		  '', '');
 }
 
 sub setup_statio_indexes
@@ -1214,19 +1367,24 @@ sub setup_statio_indexes
     # indom: indexrelid + indexrelname
     $pmda->add_metric(pmda_pmid($cluster,0), PM_TYPE_32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  "postgresql.statio.$indexes.relid", '', '');
+		  "postgresql.statio.$indexes.relid",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,2), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  "postgresql.statio.$indexes.schemaname", '', '');
+		  "postgresql.statio.$indexes.schemaname",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  "postgresql.statio.$indexes.relname", '', '');
+		  "postgresql.statio.$indexes.relname",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$indexes.idx_blks_read", '', '');
+		  "postgresql.statio.$indexes.idx_blks_read",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$indexes.idx_blks_hit", '', '');
+		  "postgresql.statio.$indexes.idx_blks_hit",
+		  '', '');
 }
 
 sub setup_statio_sequences
@@ -1236,13 +1394,16 @@ sub setup_statio_sequences
     # indom: relid + relname
     $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  "postgresql.statio.$sequences.schemaname", '', '');
+		  "postgresql.statio.$sequences.schemaname",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$sequences.blks_read", '', '');
+		  "postgresql.statio.$sequences.blks_read",
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U32, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  "postgresql.statio.$sequences.blks_hit", '', '');
+		  "postgresql.statio.$sequences.blks_hit",
+		  '', '');
 }
 
 sub setup_xact_user_functions
@@ -1252,16 +1413,20 @@ sub setup_xact_user_functions
     # indom: funcid + funcname
     $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.xact.user_functions.schemaname', '', '');
+		  'postgresql.stat.xact.user_functions.schemaname',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U64, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.xact.user_functions.calls', '', '');
+		  'postgresql.stat.xact.user_functions.calls',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U64, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
-		  'postgresql.stat.xact.user_functions.total_time', '', '');
+		  'postgresql.stat.xact.user_functions.total_time',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U64, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
-		  'postgresql.stat.xact.user_functions.self_time', '', '');
+		  'postgresql.stat.xact.user_functions.self_time',
+		  '', '');
 }
 
 sub setup_user_functions
@@ -1271,16 +1436,20 @@ sub setup_user_functions
     # indom: funcid + funcname
     $pmda->add_metric(pmda_pmid($cluster,1), PM_TYPE_STRING, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.user_functions.schemaname', '', '');
+		  'postgresql.stat.user_functions.schemaname',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,3), PM_TYPE_U64, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
-		  'postgresql.stat.user_functions.calls', '', '');
+		  'postgresql.stat.user_functions.calls',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,4), PM_TYPE_U64, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
-		  'postgresql.stat.user_functions.total_time', '', '');
+		  'postgresql.stat.user_functions.total_time',
+		  '', '');
     $pmda->add_metric(pmda_pmid($cluster,5), PM_TYPE_U64, $indom,
 		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
-		  'postgresql.stat.user_functions.self_time', '', '');
+		  'postgresql.stat.user_functions.self_time',
+		  '', '');
 }
 
 #
