@@ -9,6 +9,9 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include <pthread.h>
+#if darwin_hack
+#include <dlfcn.h>
+#endif
 
 #ifndef HAVE_PTHREAD_BARRIER_T
 #include "pthread_barrier.h"
@@ -24,25 +27,12 @@ static char		**instname;
 static int		*instance;
 static pmResult		*rp;
 
-static void *
-func(void *arg)
+static void
+func(void)
 {
     int			sts;
     char		**children;
     char		*p;
-
-    /*
-     * expect this to fail for the second thread through when
-     * using PM_CONTEXT_LOCAL
-     */
-    if ((sts = pmNewContext(PM_CONTEXT_LOCAL, NULL)) < 0)
-	printf("pmNewContext: %s\n", pmErrStr(sts));
-    else {
-	ctx = sts;
-	printf("pmNewContext: -> %d\n", ctx);
-    }
-
-    pthread_barrier_wait(&barrier);
 
     if ((sts = pmUseContext(ctx)) < 0) {
 	printf("pmUseContext(%d): %s\n", ctx, pmErrStr(sts));
@@ -139,6 +129,51 @@ func(void *arg)
     pthread_exit(NULL);
 }
 
+static void *
+func1(void *arg)
+{
+    int			sts;
+
+    if ((sts = pmNewContext(PM_CONTEXT_LOCAL, NULL)) < 0)
+	printf("pmNewContext: %s\n", pmErrStr(sts));
+    else {
+	ctx = sts;
+	printf("pmNewContext: -> %d\n", ctx);
+    }
+
+    pthread_barrier_wait(&barrier);
+    pthread_barrier_wait(&barrier);
+
+    func();
+    /*NOTREACHED*/
+    return NULL;
+}
+
+static void *
+func2(void *arg)
+{
+    int			sts;
+
+    pthread_barrier_wait(&barrier);
+
+    /*
+     * expect this to fail for the second thread through when
+     * using PM_CONTEXT_LOCAL
+     */
+    if ((sts = pmNewContext(PM_CONTEXT_LOCAL, NULL)) < 0)
+	printf("pmNewContext: %s\n", pmErrStr(sts));
+    else {
+	ctx = sts;
+	printf("pmNewContext: -> %d\n", ctx);
+    }
+
+    pthread_barrier_wait(&barrier);
+
+    func();
+    /*NOTREACHED*/
+    return NULL;
+}
+
 int
 main()
 {
@@ -147,18 +182,35 @@ main()
     int		sts;
     char	*msg;
 
+#if darwin_hack
+    /*
+     * This is just too bizarre!
+     * On Mac OS X, if one falls into the "CoreFoundation" libraries
+     * in a thread, without first having run the initialization code
+     * from the mainline, you die with a SIGTRAP!  Calling dlopen() with
+     * doomed to fail parameters suffices.
+     *
+     * See also the -framework CoreFoundation glue needed in
+     * GNUmakefile.
+     *
+     * I am not making this up, check out
+     * http://openradar.appspot.com/7209349
+     */
+    dlopen("/no/such/dso", RTLD_LAZY);
+#endif
+
     sts = pthread_barrier_init(&barrier, NULL, 2);
     if (sts != 0) {
 	printf("pthread_barrier_init: sts=%d\n", sts);
 	exit(1);
     }
 
-    sts = pthread_create(&tid1, NULL, func, NULL);
+    sts = pthread_create(&tid1, NULL, func1, NULL);
     if (sts != 0) {
 	printf("pthread_create: tid1: sts=%d\n", sts);
 	exit(1);
     }
-    sts = pthread_create(&tid2, NULL, func, NULL);
+    sts = pthread_create(&tid2, NULL, func2, NULL);
     if (sts != 0) {
 	printf("pthread_create: tid2: sts=%d\n", sts);
 	exit(1);

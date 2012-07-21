@@ -290,6 +290,7 @@ _filter_top_pmns()
 	-e '/^    oraping /d' \
 	-e '/^    pdns /d' \
 	-e '/^    postgresql /d' \
+	-e '/^    proc /d' \
 	-e '/^    rsyslog /d' \
 	-e '/^    samba /d' \
 	-e '/^    sendmail /d' \
