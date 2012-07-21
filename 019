@@ -16,7 +16,14 @@ then
     then
 	ln $seq.linux.1 $seq.out
     else
-	ln $seq.linux.2 $seq.out
+	# proc metrics may not be available
+	#
+	if pminfo proc.nprocs >/dev/null 2>&1
+	then
+	    ln $seq.linux.2 $seq.out
+	else
+	    ln $seq.linux.3 $seq.out
+	fi
     fi
 elif [ $PCP_PLATFORM = darwin ]
 then
