@@ -15,6 +15,15 @@ seq=`basename $0`
 if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
     _notrun No proc metrics for $PCP_PLATFORM
+else
+    # proc metrics may not be available
+    #
+    if pminfo proc.nprocs >/dev/null 2>&1
+    then
+	:
+    else
+	_notrun proc PMDA not installed
+    fi
 fi
 
 rm -f $seq.out $seq.full
