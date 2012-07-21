@@ -184,6 +184,7 @@ _filter_optional_pmdas()
 	-e '/pmdaapache/d' \
 	-e '/pmdaarray/d' \
 	-e '/pmdaash/d' \
+	-e '/pmdabash/d' \
 	-e '/pmdabonding/d' \
 	-e '/pmdabrocade/d' \
 	-e '/pmdacisco/d' \
@@ -255,6 +256,7 @@ _filter_top_pmns()
 	-e '/^    aim /d' \
 	-e '/^    array /d' \
 	-e '/^    ash /d' \
+	-e '/^    bash /d' \
 	-e '/^    bonding /d' \
 	-e '/^    brocade /d' \
 	-e '/^    broken /d' \
