@@ -16,7 +16,7 @@
 #include "impl.h"
 #include "pmda.h"
 #include "cgroups.h"
-#include "filesys.h"
+#include "../linux/filesys.h"
 #include "dynamic.h"
 #include "clusters.h"
 #include "proc_pid.h"
@@ -754,7 +754,7 @@ cgroup_init(void)
 		  CLUSTER_NET_CLS_GROUPS, CLUSTER_NET_CLS_PROCS,
 		};
 
-    linux_dynamic_pmns("cgroup", set, sizeof(set)/sizeof(int),
+    proc_dynamic_pmns("cgroup", set, sizeof(set)/sizeof(int),
 			refresh_cgroups, cgroup_text,
 			refresh_metrictable, size_metrictable);
 }

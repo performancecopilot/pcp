@@ -32,39 +32,27 @@
 #include <grp.h>
 
 #include "../linux/convert.h"
+#include "../linux/filesys.h"
 #include "clusters.h"
 #include "indom.h"
 
-#include "proc_stat.h"
 #include "getinfo.h"
 #include "proc_pid.h"
-#include "proc_partitions.h"
 #include "proc_runq.h"
-#include "proc_uptime.h"
 #include "ksym.h"
-#include "proc_sys_fs.h"
-#include "proc_vmstat.h"
-#include "sysfs_kernel.h"
-#include "linux_table.h"
 #include "cgroups.h"
 
-static proc_stat_t		proc_stat;
 static proc_pid_t		proc_pid;
 static struct utsname		kernel_uname;
-static char 			uname_string[sizeof(kernel_uname)];
 static proc_runq_t		proc_runq;
-static proc_uptime_t		proc_uptime;
-static proc_sys_fs_t		proc_sys_fs;
-static proc_vmstat_t		proc_vmstat;
-static sysfs_kernel_t		sysfs_kernel;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
 
 /* globals */
 size_t _pm_system_pagesize; /* for hinv.pagesize and used elsewhere */
-int _pm_have_proc_vmstat; /* if /proc/vmstat is available */
 
 pmdaIndom indomtab[] = {
+    { CPU_INDOM, 0, NULL },
     { PROC_INDOM, 0, NULL },
     { CGROUP_SUBSYS_INDOM, 0, NULL },
     { CGROUP_MOUNTS_INDOM, 0, NULL },
@@ -75,7 +63,7 @@ pmdaIndom indomtab[] = {
  * all metrics supported in this PMDA - one table entry for each
  */
 
-pmdaMetric linux_metrictab[] = {
+pmdaMetric proc_metrictab[] = {
 
 /*
  * proc/<pid>/stat cluster
@@ -741,7 +729,7 @@ refresh_cgroups(pmdaExt *pmda, __pmnsTree **tree)
 }
 
 static void
-linux_refresh(pmdaExt *pmda, int *need_refresh)
+proc_refresh(pmdaExt *pmda, int *need_refresh)
 {
     int need_refresh_mtab = 0;
 
@@ -765,42 +753,15 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
 	need_refresh[CLUSTER_PID_SCHEDSTAT] || need_refresh[CLUSTER_PID_FD])
 	refresh_proc_pid(&proc_pid);
 
-    if (need_refresh[CLUSTER_KERNEL_UNAME])
-    	uname(&kernel_uname);
-
     if (need_refresh[CLUSTER_PROC_RUNQ])
 	refresh_proc_runq(&proc_runq);
-
-    if (need_refresh[CLUSTER_SCSI])
-	refresh_proc_scsi(&proc_scsi);
-
-    if (need_refresh[CLUSTER_SEM_LIMITS])
-        refresh_sem_limits(&sem_limits);
-
-    if (need_refresh[CLUSTER_MSG_LIMITS])
-        refresh_msg_limits(&msg_limits);
-
-    if (need_refresh[CLUSTER_SHM_LIMITS])
-        refresh_shm_limits(&shm_limits);
-
-    if (need_refresh[CLUSTER_UPTIME])
-        refresh_proc_uptime(&proc_uptime);
-
-    if (need_refresh[CLUSTER_VFS])
-    	refresh_proc_sys_fs(&proc_sys_fs);
-
-    if (need_refresh[CLUSTER_VMSTAT])
-    	refresh_proc_vmstat(&proc_vmstat);
-
-    if (need_refresh[CLUSTER_SYSFS_KERNEL])
-    	refresh_sysfs_kernel(&sysfs_kernel);
 
     if (need_refresh_mtab)
 	proc_dynamic_metrictable(pmda);
 }
 
 static int
-linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
 {
     __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
     int			need_refresh[NUM_CLUSTERS];
@@ -808,6 +769,13 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 
     memset(need_refresh, 0, sizeof(need_refresh));
     switch (indomp->serial) {
+    case CPU_INDOM:
+	// TODO - need to pull back CPU_INDOM setup from proc_stat.c
+	// in linux PMDA to populate the indom for
+	// cgroup.groups.cpuacct.[<group>.]usage_percpu
+	// probably gut refresh_proc_stat() to make refresh_cpu_indom()
+	need_refresh[CLUSTER_CPUACCT_GROUPS]++;
+	break;
     case PROC_INDOM:
     	need_refresh[CLUSTER_PID_STAT]++;
     	need_refresh[CLUSTER_PID_STATM]++;
@@ -848,7 +816,7 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	}
     }
 
-    linux_refresh(pmda, need_refresh);
+    proc_refresh(pmda, need_refresh);
     return pmdaInstance(indom, inst, name, result, pmda);
 }
 
@@ -857,16 +825,17 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
  */
 
 static int
-linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
+proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
     int			i;
     int			sts;
     char		*f;
-    long		sl;
     unsigned long	ul;
     int			*ip;
     proc_pid_entry_t	*entry;
+    struct filesys	*fs;
+    static int		hz = -1;
 
     if (mdesc->m_user != NULL) {
 	/* 
@@ -875,16 +844,6 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	 * don't have NULL for the m_user field in their respective
          * metrictab slot.
 	 */
-	if (idp->cluster == CLUSTER_VMSTAT) {
-	    if (!_pm_have_proc_vmstat || *(__uint64_t *)mdesc->m_user == (__uint64_t)-1)
-	    	return 0; /* no value available on this kernel */
-	}
-	if (idp->cluster == CLUSTER_SYSFS_KERNEL) {
-	    /* no values available for udev metrics */
-	    if (idp->item == 0 && !sysfs_kernel.valid_uevent_seqnum) {
-		return 0;
-	    }
-	}
 
 	switch (mdesc->m_desc.type) {
 	case PM_TYPE_32:
@@ -914,28 +873,6 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     }
     else
     switch (idp->cluster) {
-
-    case CLUSTER_UPTIME:  /* uptime */
-	switch (idp->item) {
-	case 0:
-	    /*
-	     * kernel.all.uptime (in seconds)
-	     * contributed by "gilly" <gilly@exanet.com>
-	     * modified by Mike Mason" <mmlnx@us.ibm.com>
-	     */
-	    atom->ul = proc_uptime.uptime;
-	    break;
-	case 1:
-	    /*
-	     * kernel.all.idletime (in seconds)
-	     * contributed by "Mike Mason" <mmlnx@us.ibm.com>
-	     */
-	    atom->ul = proc_uptime.idletime;
-	    break;
-	default:
-	    return PM_ERR_PMID;
-	}
-	break;
 
     case CLUSTER_PID_STAT:
 	if (idp->item == 99) /* proc.nprocs */
@@ -1014,7 +951,12 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    return PM_ERR_INST;
 
 		sscanf(f, "%lu", &ul);
-		_pm_assign_ulong(atom, 1000 * (double)ul / proc_stat.hz);
+		if (hz == -1) {
+		    // TODO one trip initialization, same way
+		    // proc_stat.hz is set in the linux PMDA
+		    ;
+		}
+		_pm_assign_ulong(atom, 1000 * (double)ul / hz);
 		break;
 	    
 	    case PROC_PID_STAT_PRIORITY:
@@ -1307,123 +1249,6 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
-    /*
-     * Cluster added by Mike Mason <mmlnx@us.ibm.com>
-     */
-    case CLUSTER_SEM_LIMITS:
-	switch (idp->item) {
-	case 0:	/* ipc.sem.max_semmap */
-	    atom->ul = sem_limits.semmap;
-	    break;
-	case 1:	/* ipc.sem.max_semid */
-	    atom->ul = sem_limits.semmni;
-	    break;
-	case 2:	/* ipc.sem.max_sem */
-	    atom->ul = sem_limits.semmns;
-	    break;
-	case 3:	/* ipc.sem.num_undo */
-	    atom->ul = sem_limits.semmnu;
-	    break;
-	case 4:	/* ipc.sem.max_perid */
-	    atom->ul = sem_limits.semmsl;
-	    break;
-	case 5:	/* ipc.sem.max_ops */
-	    atom->ul = sem_limits.semopm;
-	    break;
-	case 6:	/* ipc.sem.max_undoent */
-	    atom->ul = sem_limits.semume;
-	    break;
-	case 7:	/* ipc.sem.sz_semundo */
-	    atom->ul = sem_limits.semusz;
-	    break;
-	case 8:	/* ipc.sem.max_semval */
-	    atom->ul = sem_limits.semvmx;
-	    break;
-	case 9:	/* ipc.sem.max_exit */
-	    atom->ul = sem_limits.semaem;
-	    break;
-	default:
-	    return PM_ERR_PMID;
-	}
-	break;
-
-    /*
-     * Cluster added by Mike Mason <mmlnx@us.ibm.com>
-     */
-    case CLUSTER_MSG_LIMITS:
-	switch (idp->item) {
-	case 0:	/* ipc.msg.sz_pool */
-	    atom->ul = msg_limits.msgpool;
-	    break;
-	case 1:	/* ipc.msg.mapent */
-	    atom->ul = msg_limits.msgmap;
-	    break;
-	case 2:	/* ipc.msg.max_msgsz */
-	    atom->ul = msg_limits.msgmax;
-	    break;
-	case 3:	/* ipc.msg.max_defmsgq */
-	    atom->ul = msg_limits.msgmnb;
-	    break;
-	case 4:	/* ipc.msg.max_msgqid */
-	    atom->ul = msg_limits.msgmni;
-	    break;
-	case 5:	/* ipc.msg.sz_msgseg */
-	    atom->ul = msg_limits.msgssz;
-	    break;
-	case 6:	/* ipc.msg.num_smsghdr */
-	    atom->ul = msg_limits.msgtql;
-	    break;
-	case 7:	/* ipc.msg.max_seg */
-	    atom->ul = (unsigned long) msg_limits.msgseg;
-	    break;
-	default:
-	    return PM_ERR_PMID;
-	}
-	break;
-
-    /*
-     * Cluster added by Mike Mason <mmlnx@us.ibm.com>
-     */
-    case CLUSTER_SHM_LIMITS:
-	switch (idp->item) {
-	case 0:	/* ipc.shm.max_segsz */
-	    atom->ul = shm_limits.shmmax;
-	    break;
-	case 1:	/* ipc.shm.min_segsz */
-	    atom->ul = shm_limits.shmmin;
-	    break;
-	case 2:	/* ipc.shm.max_seg */
-	    atom->ul = shm_limits.shmmni;
-	    break;
-	case 3:	/* ipc.shm.max_segproc */
-	    atom->ul = shm_limits.shmseg;
-	    break;
-	case 4:	/* ipc.shm.max_shmsys */
-	    atom->ul = shm_limits.shmall;
-	    break;
-	default:
-	    return PM_ERR_PMID;
-	}
-	break;
-
-    /*
-     * Cluster added by Mike Mason <mmlnx@us.ibm.com>
-     */
-    case CLUSTER_NUSERS:
-	{
-	    /* count the number of users */
-	    struct utmp *ut;
-	    atom->ul = 0;
-	    setutent();
-	    while ((ut = getutent())) {
-		    if ((ut->ut_type == USER_PROCESS) && (ut->ut_name[0] != '\0'))
-			    atom->ul++;
-	    }
-	    endutent();
-	}
-	break;
-
-
     case CLUSTER_CGROUP_SUBSYS:
 	switch (idp->item) {
 	case 0:	/* cgroup.subsys.hierarchy */
@@ -1490,7 +1315,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 
 static int
-linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
     int		i;
     int		need_refresh[NUM_CLUSTERS];
@@ -1500,51 +1325,22 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
 	if (idp->cluster >= 0 && idp->cluster < NUM_CLUSTERS) {
 	    need_refresh[idp->cluster]++;
-
-	    if (idp->cluster == CLUSTER_STAT && 
-		need_refresh[CLUSTER_PARTITIONS] == 0 &&
-		is_partitions_metric(pmidlist[i]))
-		need_refresh[CLUSTER_PARTITIONS]++;
-
-	    if (idp->cluster == CLUSTER_CPUACCT_GROUPS)
-		need_refresh[CLUSTER_STAT]++;
 	}
 
     }
 
-    linux_refresh(pmda, need_refresh);
+    proc_refresh(pmda, need_refresh);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
 static int
-procfs_zero(const char *filename, pmValueSet *vsp)
-{
-    FILE	*fp;
-    int		value;
-    int		sts = 0;
-
-    value = vsp->vlist[0].value.lval;
-    if (value < 0)
-	return PM_ERR_SIGN;
-
-    fp = fopen(filename, "w");
-    if (!fp) {
-	sts = -oserror();
-    } else {
-	fprintf(fp, "%d\n", value);
-	fclose(fp);
-    }
-    return sts;
-}
-
-static int
-linux_store(pmResult *result, pmdaExt *pmda)
+proc_store(pmResult *result, pmdaExt *pmda)
 {
     return PM_ERR_PERMISSION;
 }
 
 static int
-linux_text(int ident, int type, char **buf, pmdaExt *pmda)
+proc_text(int ident, int type, char **buf, pmdaExt *pmda)
 {
     if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
 	int sts = proc_dynamic_lookup_text(ident, type, buf, pmda);
@@ -1555,30 +1351,30 @@ linux_text(int ident, int type, char **buf, pmdaExt *pmda)
 }
 
 static int
-linux_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
+proc_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
     __pmnsTree *tree = proc_dynamic_lookup_name(pmda, name);
     return pmdaTreePMID(tree, name, pmid);
 }
 
 static int
-linux_name(pmID pmid, char ***nameset, pmdaExt *pmda)
+proc_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 {
     __pmnsTree *tree = proc_dynamic_lookup_pmid(pmda, pmid);
     return pmdaTreeName(tree, pmid, nameset);
 }
 
 static int
-linux_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda)
+proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda)
 {
     __pmnsTree *tree = proc_dynamic_lookup_name(pmda, name);
     return pmdaTreeChildren(tree, name, flag, kids, sts);
 }
 
 int
-linux_metrictable_size(void)
+proc_metrictable_size(void)
 {
-    return sizeof(linux_metrictab)/sizeof(linux_metrictab[0]);
+    return sizeof(proc_metrictab)/sizeof(proc_metrictab[0]);
 }
 
 /*
@@ -1586,31 +1382,28 @@ linux_metrictable_size(void)
  */
 
 void 
-linux_init(pmdaInterface *dp)
+proc_init(pmdaInterface *dp)
 {
-    int		i, major, minor;
-    __pmID_int	*idp;
-
     _pm_system_pagesize = getpagesize();
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
 	int sep = __pmPathSeparator();
-	snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
+	snprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_4, "linux DSO", helppath);
+	pmdaDSO(dp, PMDA_INTERFACE_4, "proc DSO", helppath);
     }
 
     if (dp->status != 0)
 	return;
 
-    dp->version.four.instance = linux_instance;
-    dp->version.four.store = linux_store;
-    dp->version.four.fetch = linux_fetch;
-    dp->version.four.text = linux_text;
-    dp->version.four.pmid = linux_pmid;
-    dp->version.four.name = linux_name;
-    dp->version.four.children = linux_children;
-    pmdaSetFetchCallBack(dp, linux_fetchCallBack);
+    dp->version.four.instance = proc_instance;
+    dp->version.four.store = proc_store;
+    dp->version.four.fetch = proc_fetch;
+    dp->version.four.text = proc_text;
+    dp->version.four.pmid = proc_pmid;
+    dp->version.four.name = proc_name;
+    dp->version.four.children = proc_children;
+    pmdaSetFetchCallBack(dp, proc_fetchCallBack);
 
     proc_pid.indom = &indomtab[PROC_INDOM];
 
@@ -1623,8 +1416,8 @@ linux_init(pmdaInterface *dp)
 
     cgroup_init();
 
-    pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), linux_metrictab,
-             sizeof(linux_metrictab)/sizeof(linux_metrictab[0]));
+    pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), proc_metrictab,
+             sizeof(proc_metrictab)/sizeof(proc_metrictab[0]));
 }
 
 
@@ -1655,9 +1448,9 @@ main(int argc, char **argv)
     _isDSO = 0;
     __pmSetProgname(argv[0]);
 
-    snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
+    snprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, LINUX, "linux.log", helppath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, PROC, "proc.log", helppath);
 
     if ((c = pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err)) != EOF)
     	err++;
@@ -1666,7 +1459,7 @@ main(int argc, char **argv)
     	usage();
 
     pmdaOpenLog(&dispatch);
-    linux_init(&dispatch);
+    proc_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
 
