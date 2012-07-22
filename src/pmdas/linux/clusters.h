@@ -27,12 +27,12 @@ enum {
 	CLUSTER_FILESYS,	/*  5 /proc/mounts + statfs */
 	CLUSTER_SWAPDEV,	/*  6 /proc/swaps */
 	CLUSTER_NET_NFS,	/*  7 /proc/net/rpc/nfs + /proc/net/rpc/nfsd */
-	CLUSTER_PID_STAT,	/*  8 /proc/<pid>/stat */
-	CLUSTER_PID_STATM,	/*  9 /proc/<pid>/statm + /proc/<pid>/maps */
+	PROC_PID_STAT,		/*  8 /proc/<pid>/stat -> proc PMDA */
+	PROC_PID_STATM,		/*  9 /proc/<pid>/statm + /proc/<pid>/maps -> proc PMDA */
 	CLUSTER_PARTITIONS,	/* 10 /proc/partitions */
 	CLUSTER_NET_SOCKSTAT,	/* 11 /proc/net/sockstat */
 	CLUSTER_KERNEL_UNAME,	/* 12 uname() system call */
-	CLUSTER_PROC_RUNQ,	/* 13 number of processes in various states */
+	PROC_PROC_RUNQ,		/* 13 number of processes in various states -> proc PMDA */
 	CLUSTER_NET_SNMP,	/* 14 /proc/net/snmp */
 	CLUSTER_SCSI,		/* 15 /proc/scsi/scsi */
 	CLUSTER_XFS,		/* 16 /proc/fs/xfs/stat */
@@ -43,34 +43,34 @@ enum {
 	CLUSTER_SEM_LIMITS,	/* 21 semctl(IPC_INFO) system call */
 	CLUSTER_MSG_LIMITS,	/* 22 msgctl(IPC_INFO) system call */
 	CLUSTER_SHM_LIMITS,	/* 23 shmctl(IPC_INFO) system call */
-	CLUSTER_PID_STATUS,	/* 24 /proc/<pid>/status */
+	PROC_PID_STATUS,	/* 24 /proc/<pid>/status -> proc PMDA */
 	CLUSTER_NUSERS,		/* 25 number of users */
 	CLUSTER_UPTIME,		/* 26 /proc/uptime */
 	CLUSTER_VFS,		/* 27 /proc/sys/fs */
 	CLUSTER_VMSTAT,		/* 28 /proc/vmstat */
 	CLUSTER_IB,		/* deprecated: do not re-use 29 infiniband */
 	CLUSTER_QUOTA,		/* 30 quotactl() */
-	CLUSTER_PID_SCHEDSTAT,	/* 31 /proc/<pid>/schedstat */
-	CLUSTER_PID_IO,		/* 32 /proc/<pid>/io */
+	PROC_PID_SCHEDSTAT,	/* 31 /proc/<pid>/schedstat -> proc PMDA */
+	PROC_PID_IO,		/* 32 /proc/<pid>/io -> proc PMDA */
 	CLUSTER_NET_INET,	/* 33 /proc/net/dev and ioctl(SIOCGIFCONF) */
 	CLUSTER_TMPFS,		/* 34 /proc/mounts + statfs (tmpfs only) */
 	CLUSTER_SYSFS_KERNEL,	/* 35 /sys/kernel metrics */
 	CLUSTER_NUMA_MEMINFO,	/* 36 /sys/devices/system/node* NUMA memory */
-	CLUSTER_CGROUP_SUBSYS,	/* 37 /proc/cgroups control group subsystems */
-	CLUSTER_CGROUP_MOUNTS,	/* 38 /proc/mounts active control groups */
-	CLUSTER_CPUSET_GROUPS,	/* 39 cpuset control groups */
-	CLUSTER_CPUSET_PROCS,	/* 40 cpuset control group processes */
-	CLUSTER_CPUACCT_GROUPS,	/* 41 cpu accounting control groups */
-	CLUSTER_CPUACCT_PROCS,	/* 42 cpu accounting group processes */
-	CLUSTER_CPUSCHED_GROUPS,/* 43 scheduler control groups */
-	CLUSTER_CPUSCHED_PROCS,	/* 44 scheduler group processes */
-	CLUSTER_MEMORY_GROUPS,	/* 45 memory control groups */
-	CLUSTER_MEMORY_PROCS,	/* 46 memory group processes */
-	CLUSTER_NET_CLS_GROUPS,	/* 47 network classification control groups */
-	CLUSTER_NET_CLS_PROCS,	/* 48 network classification group processes */
+	PROC_CGROUP_SUBSYS,	/* 37 /proc/cgroups control group subsystems -> proc PMDA */
+	PROC_CGROUP_MOUNTS,	/* 38 /proc/mounts active control groups -> proc PMDA */
+	PROC_CPUSET_GROUPS,	/* 39 cpuset control groups -> proc PMDA */
+	PROC_CPUSET_PROCS,	/* 40 cpuset control group processes -> proc PMDA */
+	PROC_CPUACCT_GROUPS,	/* 41 cpu accounting control groups -> proc PMDA */
+	PROC_CPUACCT_PROCS,	/* 42 cpu accounting group processes -> proc PMDA */
+	PROC_CPUSCHED_GROUPS,	/* 43 scheduler control groups -> proc PMDA */
+	PROC_CPUSCHED_PROCS,	/* 44 scheduler group processes -> proc PMDA */
+	PROC_MEMORY_GROUPS,	/* 45 memory control groups -> proc PMDA */
+	PROC_MEMORY_PROCS,	/* 46 memory group processes -> proc PMDA */
+	PROC_NET_CLS_GROUPS,	/* 47 network classification control groups -> proc PMDA */
+	PROC_NET_CLS_PROCS,	/* 48 network classification group processes -> proc PMDA */
 	CLUSTER_INTERRUPT_LINES,/* 49 /proc/interrupts percpu interrupts */
 	CLUSTER_INTERRUPT_OTHER,/* 50 /proc/interrupts percpu interrupts */
-	CLUSTER_PID_FD,		/* 51 /proc/<pid>/fd */
+	PROC_PID_FD,		/* 51 /proc/<pid>/fd -> proc PMDA */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

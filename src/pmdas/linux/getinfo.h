@@ -12,6 +12,5 @@
  * for more details.
  */
 
-extern char *get_ttyname_info(int, dev_t, char *);
 extern char *get_distro_info(void);
 

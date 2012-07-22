@@ -55,7 +55,6 @@
 #include "sem_limits.h"
 #include "msg_limits.h"
 #include "shm_limits.h"
-#include "ksym.h"
 #include "proc_sys_fs.h"
 #include "proc_vmstat.h"
 #include "sysfs_kernel.h"
@@ -247,7 +246,7 @@ pmdaIndom indomtab[] = {
     { SWAPDEV_INDOM, 0, NULL },
     { NFS_INDOM, NR_RPC_COUNTERS, nfs_indom_id },
     { NFS3_INDOM, NR_RPC3_COUNTERS, nfs3_indom_id },
-    { PROC_INDOM, 0, NULL },		/* migrated to the proc PMDA */
+    { PROC_PROC_INDOM, 0, NULL },	/* migrated to the proc PMDA */
     { PARTITIONS_INDOM, 0, NULL }, /* cached */
     { SCSI_INDOM, 0, NULL },
     { SLAB_INDOM, 0, NULL },
@@ -258,8 +257,6 @@ pmdaIndom indomtab[] = {
     { NET_INET_INDOM, 0, NULL },
     { TMPFS_INDOM, 0, NULL },
     { NODE_INDOM, 0, NULL },
-    { CGROUP_SUBSYS_INDOM, 0, NULL },
-    { CGROUP_MOUNTS_INDOM, 0, NULL },
 };
 
 
@@ -3798,24 +3795,10 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
     if (need_refresh[CLUSTER_NET_INET])
 	refresh_net_dev_inet(INDOM(NET_INET_INDOM));
 
-    if (need_refresh[CLUSTER_CGROUP_SUBSYS] ||
-	need_refresh[CLUSTER_CGROUP_MOUNTS] ||
-	need_refresh[CLUSTER_CPUSET_PROCS] ||
-	need_refresh[CLUSTER_CPUSET_GROUPS] ||
-	need_refresh[CLUSTER_CPUACCT_PROCS] || 
-	need_refresh[CLUSTER_CPUACCT_GROUPS] || 
-	need_refresh[CLUSTER_CPUSCHED_PROCS] ||
-	need_refresh[CLUSTER_CPUSCHED_GROUPS] ||
-	need_refresh[CLUSTER_MEMORY_PROCS] ||
-	need_refresh[CLUSTER_MEMORY_GROUPS] ||
-        need_refresh[CLUSTER_NET_CLS_PROCS] ||
-        need_refresh[CLUSTER_NET_CLS_GROUPS]) {
-    }
-    else
     if (need_refresh[CLUSTER_FILESYS] ||
 	need_refresh[CLUSTER_QUOTA] || need_refresh[CLUSTER_TMPFS])
 	refresh_filesys(INDOM(FILESYS_INDOM), INDOM(QUOTA_PRJ_INDOM),
-			INDOM(TMPFS_INDOM), INDOM(CGROUP_MOUNTS_INDOM));
+			INDOM(TMPFS_INDOM));
 
     if (need_refresh[CLUSTER_INTERRUPTS] ||
 	need_refresh[CLUSTER_INTERRUPT_LINES] ||
@@ -3921,12 +3904,6 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	break;
     case SLAB_INDOM:
     	need_refresh[CLUSTER_SLAB]++;
-	break;
-    case CGROUP_SUBSYS_INDOM:
-    	need_refresh[CLUSTER_CGROUP_SUBSYS]++;
-	break;
-    case CGROUP_MOUNTS_INDOM:
-    	need_refresh[CLUSTER_CGROUP_MOUNTS]++;
 	break;
     /* no default label : pmdaInstance will pick up errors */
     }
@@ -5436,6 +5413,22 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	return sts;
 
+    case CLUSTER_INTERRUPTS:
+	switch (idp->item) {
+	case 3:	/* kernel.all.interrupts.error */
+	    atom->ul = irq_err_count;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_INTERRUPT_LINES:
+    case CLUSTER_INTERRUPT_OTHER:
+	if (inst >= indomtab[CPU_INDOM].it_numinst)
+	    return PM_ERR_INST;
+	return interrupts_fetch(idp->cluster, idp->item, inst, atom);
+
     default: /* unknown cluster */
 	return PM_ERR_PMID;
     }
@@ -5462,7 +5455,6 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		need_refresh[CLUSTER_PARTITIONS]++;
 
 	    if (idp->cluster == CLUSTER_CPUINFO ||
-	    	idp->cluster == CLUSTER_CPUACCT_GROUPS ||
 		idp->cluster == CLUSTER_INTERRUPT_LINES ||
 		idp->cluster == CLUSTER_INTERRUPT_OTHER ||
 		idp->cluster == CLUSTER_INTERRUPTS)
@@ -5674,13 +5666,6 @@ linux_init(pmdaInterface *dp)
 	    fprintf(stderr, "Bad kernel metric descriptor type (%u.%u)\n",
 			    idp->cluster, idp->item);
     }
-
-    /* 
-     * Read System.map and /proc/ksyms. Used to translate wait channel
-     * addresses to symbol names. 
-     * Added by Mike Mason <mmlnx@us.ibm.com>
-     */
-    read_ksym_sources(kernel_uname.release);
 
     interrupts_init();
 
