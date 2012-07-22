@@ -21,14 +21,13 @@ DOMAIN		= PROC
 CMDTARGET	= pmdaproc
 LIBTARGET	= pmda_proc.so
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
-CONF_LINE	= "proc	60	dso	proc	$(PMDADIR)/$(LIBTARGET)"
 
 CFILES		= pmda.c cgroups.c dynamic.c filesys.c proc_pid.c proc_runq.c \
 		  ksym.c getinfo.c
 
 HFILES		= cgroups.h clusters.h dynamic.h proc_pid.h
 
-LSRCFILES 	= help pmns root
+LSRCFILES 	= Install Remove help pmns root
 LDIRT		= help.dir help.pag domain.h
 
 LLDLIBS		= -lpcp_pmda -lpcp
@@ -43,12 +42,10 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
 build-me: domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
-	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	fi
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 domain.h pmns root help help.dir help.pag $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 else
