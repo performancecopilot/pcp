@@ -263,6 +263,7 @@ EXTERN int	pmDebug;
 #define DBG_TRACE_TIMECONTROL	(1<<16)	/* time control api */
 #define DBG_TRACE_PMC		(1<<17)	/* metrics class */
 #define DBG_TRACE_DERIVE	(1<<18)	/* derived metrics */
+#define DBG_TRACE_LOCK		(1<<19) /* lock tracing */
 #define DBG_TRACE_INTERP	(1<<20)	/* interpolate mode for archives */
 #define DBG_TRACE_CONFIG	(1<<21) /* configuration parameters */
 #define DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
@@ -1249,11 +1250,22 @@ extern int __pmMultiThreaded(int);
 
 extern void __pmInitLocks(void);
 #ifdef PM_MULTI_THREAD
+/*
+ * define PM_MULTI_THREAD_DEBUG for lock debugging with -Dlock[,appl?...]
+ */
 #define PM_MULTIPLE_THREADS(x) __pmMultiThreaded(x)
 #define PM_INIT_LOCKS() __pmInitLocks()
 #ifdef HAVE_PTHREAD_MUTEX_T
+#ifdef PM_MULTI_THREAD_DEBUG
+extern void __pmDebugLock(int, void *, char *, int);
+#define PM_LOCK_OP	1
+#define PM_UNLOCK_OP	2
+#define PM_LOCK(lock) { int __sts__; if (pmDebug & DBG_TRACE_LOCK) __pmDebugLock(PM_LOCK_OP, &lock, __FILE__, __LINE__); if ((__sts__ = pthread_mutex_lock(&lock)) != 0) { fprintf(stderr, "%s:%d: lock failed: %s\n", __FILE__, __LINE__, pmErrStr(-__sts__)); exit(1); } }
+#define PM_UNLOCK(lock) { int __sts__; if (pmDebug & DBG_TRACE_LOCK) __pmDebugLock(PM_UNLOCK_OP, &lock, __FILE__, __LINE__); if ((__sts__ = pthread_mutex_unlock(&lock)) != 0) { fprintf(stderr, "%s:%d: unlock failed: %s\n", __FILE__, __LINE__, pmErrStr(-__sts__)); exit(1); } }
+#else
 #define PM_LOCK(lock) { int __sts__; if ((__sts__ = pthread_mutex_lock(&lock)) != 0) { fprintf(stderr, "%s:%d: lock failed: %s\n", __FILE__, __LINE__, pmErrStr(-__sts__)); exit(1); } }
 #define PM_UNLOCK(lock) { int __sts__; if ((__sts__ = pthread_mutex_unlock(&lock)) != 0) { fprintf(stderr, "%s:%d: unlock failed: %s\n", __FILE__, __LINE__, pmErrStr(-__sts__)); exit(1); } }
+#endif /* PM_MULTI_THREAD_DEBUG */
 
 /* the big libpcp lock */
 extern pthread_mutex_t	__pmLock_libpcp;

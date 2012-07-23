@@ -135,7 +135,13 @@ initialize_mutex(void)
 {
     static pthread_mutex_t	init = PTHREAD_MUTEX_INITIALIZER;
     static int			done = 0;
-    pthread_mutex_lock(&init);
+    int				psts;
+    char			errmsg[PM_MAXERRMSGLEN];
+    if ((psts = pthread_mutex_lock(&init)) != 0) {
+	strerror_r(psts, errmsg, sizeof(errmsg));
+	fprintf(stderr, "initializ_mutex: pthread_mutex_lock failed: %s", errmsg);
+	exit(4);
+    }
     if (!done) {
 	/*
 	 * Unable to initialize at compile time, need to do it here in
@@ -143,12 +149,28 @@ initialize_mutex(void)
 	 */
 	pthread_mutexattr_t    attr;
 
-	pthread_mutexattr_init(&attr);
-	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-	pthread_mutex_init(&registered.mutex, &attr);
+	if ((psts = pthread_mutexattr_init(&attr)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "initialize_mutex: pthread_mutexattr_init failed: %s", errmsg);
+	    exit(4);
+	}
+	if ((psts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "initialize_mutex: pthread_mutexattr_settype failed: %s", errmsg);
+	    exit(4);
+	}
+	if ((psts = pthread_mutex_init(&registered.mutex, &attr)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "initialize_mutex: pthread_mutex_init failed: %s", errmsg);
+	    exit(4);
+	}
 	done = 1;
     }
-    pthread_mutex_unlock(&init);
+    if ((psts = pthread_mutex_unlock(&init)) != 0) {
+	strerror_r(psts, errmsg, sizeof(errmsg));
+	fprintf(stderr, "initialize_mutex: pthread_mutex_unlock failed: %s", errmsg);
+	exit(4);
+    }
 }
 #endif
 #endif
@@ -1763,3 +1785,17 @@ __dmdesc(__pmContext *ctxp, pmID pmid, pmDesc *desc)
     }
     return PM_ERR_PMID;
 }
+
+#ifdef PM_MULTI_THREAD
+#ifdef PM_MULTI_THREAD_DEBUG
+/*
+ * return true if lock == registered.mutex ... no locking here to avoid
+ * recursion ad nauseum
+ */
+int
+__pmIsDeriveLock(void *lock)
+{
+    return lock == (void *)&registered.mutex;
+}
+#endif
+#endif

@@ -1,6 +1,7 @@
 hinv {
     ncpu	SOLARIS:SCLR_SYSINFO:56
     ndisk	SOLARIS:SCLR_DISK:20
+    nfilesys	SOLARIS:SCLR_FILESYS:1023
     pagesize	SOLARIS:SCLR_SYSINFO:108
     physmem	SOLARIS:SCLR_SYSINFO:109
     cpu

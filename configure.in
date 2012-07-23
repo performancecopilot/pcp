@@ -125,6 +125,43 @@ else
     exit 1
 fi
 
+# Add some security-related gcc flags
+AC_ARG_ENABLE([ssp],
+  [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
+AS_IF([test "x$enable_ssp" != xno],[
+   save_CFLAGS="$CFLAGS"
+   save_CXXFLAGS="$CXXFLAGS"
+   CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
+   AC_COMPILE_IFELSE([AC_LANG_SOURCE([int something ();])], [
+       AC_MSG_NOTICE([Compiling with gcc -fstack-protector-all et al.])
+       CFLAGS="$save_CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"],[
+       AC_MSG_NOTICE([Compiler does not support -fstack-protector-all et al.])
+       CFLAGS="$save_CFLAGS"])])
+
+# Check for even more security-related gcc/linker flags, useful for daemons
+AC_ARG_ENABLE([pie],
+  [AS_HELP_STRING([--disable-pie], [disable position-independent-executable])])
+AS_IF([test "x$enable_pie" != xno],[
+   PIECFLAGS='-fPIE'
+   PIELDFLAGS='-pie -Wl,-z,relro -Wl,-z,now'
+   save_CFLAGS="$CFLAGS"
+   save_LDFLAGS="$LDFLAGS"
+   CFLAGS="$CFLAGS $PIECFLAGS"
+   LDFLAGS="$LDFLAGS $PIELDFLAGS"
+   AC_LINK_IFELSE([AC_LANG_SOURCE([void main () {}])], [
+       AC_MSG_NOTICE([Compiling with gcc pie et al.])
+   ], [
+       AC_MSG_NOTICE([Compiler does not support -pie et al.])
+       PIECFLAGS=""
+       PIELDFLAGS=""
+   ])
+   CFLAGS="$save_CFLAGS"
+   LDFLAGS="$save_LDFLAGS"
+])
+AC_SUBST(PIELDFLAGS)
+AC_SUBST(PIECFLAGS)
+
+
 # setup additional platform-specific binary search PATH components
 pcp_platform_paths=""
 case $target_os
@@ -651,7 +688,9 @@ $2 == 1 && / \/etc\/init/ { print "OK"; exit }
 # Fedora 9
 $2 == 1 && / \/sbin\/init/ { print "OK"; exit }
 # Fedora 15
-$2 == 1 && / \/bin\/systemd/ { print "OK"; exit }'`
+$2 == 1 && / \/bin\/systemd/ { print "OK"; exit }
+# Fedora 17
+$2 == 1 && / \/usr\/lib\/systemd\/systemd/ { print "OK"; exit }'`
     if test "$ans" = OK
     then
 	pcp_ps_have_bsd=false
@@ -1388,7 +1427,7 @@ then
 fi
 AC_SUBST(lib_for_dlopen)
 
-dnl check if flog10 and isnanf are available in the maths library
+dnl check if flog10, fpclassify and isnanf are available in the maths library
 lib_for_math=
 AC_CHECK_FUNCS(flog10)
 if test $ac_cv_func_flog10 = no
@@ -1399,10 +1438,57 @@ then
 	AC_DEFINE(HAVE_FLOG10)
 	lib_for_math=-lm
     fi
+else
+    AC_DEFINE(HAVE_FLOG10)
 fi
-
-if test $target_os != darwin -a $target_os != mingw -a $target_os != linux
+AC_MSG_CHECKING([for fpclassify()])
+ac_cv_func_fpclassify=no
+AC_TRY_LINK(
+[
+    #include <math.h>
+],
+[
+    double x = 123.456;
+    if (fpclassify(x) == FP_NAN) exit(1);
+], ac_cv_func_fpclassify=yes)
+AC_MSG_RESULT($ac_cv_func_fpclassify)
+if test $ac_cv_func_fpclassify = no
 then
+    dnl try with -lm
+    AC_MSG_CHECKING([for fpclassify() with -lm])
+    savedLIBS=$LIBS
+    LIBS=-lm
+    AC_TRY_LINK(
+[
+    #include <math.h>
+],
+[
+    double x = 123.456;
+    if (fpclassify(x) == FP_NAN) exit(1);
+], ac_cv_func_fpclassify=yes)
+    AC_MSG_RESULT($ac_cv_func_fpclassify)
+    if test $ac_cv_func_fpclassify = yes
+    then
+	lib_for_math=-lm
+    fi
+    LIBS=$savedLIBS
+fi
+if test $ac_cv_func_fpclassify = yes
+then
+    AC_DEFINE(HAVE_FPCLASSIFY)
+else
+    dnl prefer fpclassify() but will take isnan() and isnanf() as
+    dnl possible alternates
+    AC_CHECK_FUNCS(isnan)
+    if test $ac_cv_func_isnan = no
+    then
+	AC_CHECK_LIB(m, isnan)
+	if test $ac_cv_lib_m_isnan = yes
+	then
+	    AC_DEFINE(HAVE_ISNAN)
+	    lib_for_math=-lm
+	fi
+    fi
     AC_CHECK_FUNCS(isnanf)
     if test $ac_cv_func_isnanf = no
     then
@@ -1413,19 +1499,6 @@ then
 	    lib_for_math=-lm
 	fi
     fi
-    AC_CHECK_FUNCS(isnand)
-    if test $ac_cv_func_isnand = no
-    then
-	AC_CHECK_LIB(m, isnand)
-	if test $ac_cv_lib_m_isnand = yes
-	then
-	    AC_DEFINE(HAVE_ISNAND)
-	    lib_for_math=-lm
-	fi
-    fi
-else
-    AC_DEFINE(HAVE_ISNANF)
-    AC_DEFINE(HAVE_ISNAND)
 fi
 AC_SUBST(lib_for_math)
 

@@ -144,7 +144,7 @@ dometric(const char *name)
 #if PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
 	if (mp->idp != NULL)
-	    fprintf(stderr, "    indom %s -> (%p)\n", pmInDomStr(mp->idp->indom), mp->idp);
+	    fprintf(stderr, "    indom %s -> (" PRINTF_P_PFX "%p)\n", pmInDomStr(mp->idp->indom), mp->idp);
     }
 #endif
 

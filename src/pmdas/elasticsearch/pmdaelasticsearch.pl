@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2011 Aconex.  All Rights Reserved.
+# Copyright (c) 2011-2012 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -16,12 +16,12 @@ use strict;
 use warnings;
 use JSON;
 use PCP::PMDA;
-use LWP::Simple;
+use LWP::UserAgent;
 
 my $es_port = 9200;
 my $es_instance = 'localhost';
 my $es_user = 'nobody';
-use vars qw($pmda $es_cluster $es_nodes $es_nodestats $es_root $es_searchstats);
+use vars qw($pmda $http $es_cluster $es_nodes $es_nodestats $es_root $es_searchstats);
 
 my $nodes_indom = 0;
 my @nodes_instances;
@@ -32,6 +32,7 @@ my @search_instance_ids;
 
 my @cluster_cache;		# time of last refresh for each cluster
 my $cache_interval = 2;		# min secs between refreshes for clusters
+my $http_timeout = 1;		# max secs for a request (*must* be small).
 
 # Configuration files for overriding the above settings
 for my $file (pmda_config('PCP_PMDAS_DIR') . '/elasticsearch/es.conf', 'es.conf') {
@@ -39,8 +40,20 @@ for my $file (pmda_config('PCP_PMDAS_DIR') . '/elasticsearch/es.conf', 'es.conf'
 }
 my $baseurl = "http://$es_instance:$es_port/";
 
-# crack json data structure, extract node names
-sub es_node_instances
+my $http = LWP::UserAgent->new;
+$http->agent('pmdaelasticsearch');
+$http->timeout($http_timeout);	# if elasticsearch not timely, no soup for you
+
+# http GET of elasticsearch json from a given url
+sub es_agent_get
+{
+    my $response = $http->get(shift);
+    return undef unless $response->is_success;
+    return $response->decoded_content;
+}
+
+# crack json data structure, extract only data-node names
+sub es_data_node_instances
 {
     my $nodeIDs = shift;
     my $i = 0;
@@ -48,13 +61,16 @@ sub es_node_instances
     @nodes_instances = ();
     @nodes_instance_ids = ();
     foreach my $node (keys %$nodeIDs) {
-	my $name = $nodeIDs->{$node}->{'name'};
-	$nodes_instances[$i*2] = $i;
-	$nodes_instances[($i*2)+1] = $name;
-	$nodes_instance_ids[$i*2] = $i;
-	$nodes_instance_ids[($i*2)+1] = $node;
-	$i++;
-	# $pmda->log("es_instances added node: $name ($node)");
+	my $attributes = $nodeIDs->{$node}->{'attributes'};
+	unless (defined($attributes) && $attributes->{'data'} == 'false') {
+	    my $name = $nodeIDs->{$node}->{'name'};
+	    $nodes_instances[$i*2] = $i;
+	    $nodes_instances[($i*2)+1] = $name;
+	    $nodes_instance_ids[$i*2] = $i;
+	    $nodes_instance_ids[($i*2)+1] = $node;
+	    $i++;
+	    # $pmda->log("es_instances added node: $name ($node)");
+	}
     }
     $pmda->replace_indom($nodes_indom, \@nodes_instances);
 }
@@ -80,16 +96,16 @@ sub es_search_instances
 
 sub es_refresh_cluster_health
 {
-    my $content = get($baseurl . "_cluster/health");
+    my $content = es_agent_get($baseurl . "_cluster/health");
     $es_cluster = defined($content) ? decode_json($content) : undef;
 }
 
 sub es_refresh_cluster_nodes_stats_all
 {
-    my $content = get($baseurl . "_cluster/nodes/stats?all");
+    my $content = es_agent_get($baseurl . "_cluster/nodes/stats?all");
     if (defined($content)) {
 	$es_nodestats = decode_json($content);
-	es_node_instances($es_nodestats->{'nodes'});
+	es_data_node_instances($es_nodestats->{'nodes'});
     } else {
 	$es_nodestats = undef;
     }
@@ -97,10 +113,10 @@ sub es_refresh_cluster_nodes_stats_all
 
 sub es_refresh_cluster_nodes_all
 {
-    my $content = get($baseurl . "_cluster/nodes?all");
+    my $content = es_agent_get($baseurl . "_cluster/nodes?all");
     if (defined($content)) {
 	$es_nodes = decode_json($content);
-	es_node_instances($es_nodes->{'nodes'});
+	es_data_node_instances($es_nodes->{'nodes'});
     } else {
 	$es_nodes = undef;
     }
@@ -108,13 +124,13 @@ sub es_refresh_cluster_nodes_all
 
 sub es_refresh_root
 {
-    my $content = get($baseurl);
+    my $content = es_agent_get($baseurl);
     $es_root = defined($content) ? decode_json($content) : undef;
 }
 
 sub es_refresh_stats_search
 {
-    my $content = get($baseurl . "_stats/search");
+    my $content = es_agent_get($baseurl . "_stats/search");
     if (defined($content)) {
 	$es_searchstats = decode_json($content);
 	es_search_instances($es_searchstats->{'_all'}->{'indices'});

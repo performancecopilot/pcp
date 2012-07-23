@@ -1065,6 +1065,14 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
 	assert(ti.ti_log >= 0);
     }
 
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_LOG) {
+	fprintf(stderr, "__pmLogPutIndex: timestamp=%d.06%d vol=%d meta posn=%ld log posn=%ld\n",
+	    (int)ti.ti_stamp.tv_sec, (int)ti.ti_stamp.tv_usec,
+	    ti.ti_vol, (long)ti.ti_meta, (long)ti.ti_log);
+    }
+#endif
+
     oti.ti_stamp.tv_sec = htonl(ti.ti_stamp.tv_sec);
     oti.ti_stamp.tv_usec = htonl(ti.ti_stamp.tv_usec);
     oti.ti_vol = htonl(ti.ti_vol);

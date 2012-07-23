@@ -1522,9 +1522,6 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 	if (pmidp->cluster == 0) {
 	    if (pmidp->item == 0) {	/* pmcd.control.debug */
 		pmDebug = vsp->vlist[0].value.lval;
-		if (pmDebug == -1)
-		    /* terminate pmcd */
-		    _pmcd_done = 1;
 	    }
 	    else if (pmidp->item == 4) { /* pmcd.control.timeout */
 		int	val = vsp->vlist[0].value.lval;

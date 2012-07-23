@@ -63,22 +63,22 @@ solaris_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     if (cluster == 4095) {
 	switch (id->item) {
-	case 0:
+	case 0: /* pmda.prefetch.time */
 		if ((inst <= 0) || (inst > methodtab_sz+1))
 			return PM_ERR_INST;
 		atom->ull = methodtab[inst-1].m_elapsed;
 		return 1;
-	case 1:
+	case 1: /* pmda.prefetch.count */
 		if ((inst <= 0) || (inst > methodtab_sz+1))
 			return PM_ERR_INST;
 		atom->ull = methodtab[inst-1].m_hits;
 		return 1;
-	case 2:
+	case 2:	/* pmda.metric.time */
 		if ((inst <= 0) || (inst > metrictab_sz+1))
 			return PM_ERR_INST;
 		atom->ull = metricdesc[inst-1].md_elapsed;
 		return 1;
-	case 3:
+	case 3:	/* pmda.metric.count */
 		if ((inst <= 0) || (inst > metrictab_sz+1))
 			return PM_ERR_INST;
 		atom->ull = metricdesc[inst-1].md_hits;

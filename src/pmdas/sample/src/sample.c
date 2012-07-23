@@ -362,28 +362,17 @@ static int	ndesc = sizeof(desctab)/sizeof(desctab[0]);
 static pmDesc magic = 
     { PMDA_PMID(0,86), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_SEC,0) };
 
-typedef struct {
-    int		i_inst;
-    char	*i_name;
-} instid_t;
-
-typedef struct {
-    pmInDom	it_indom;
-    int		it_numinst;
-    instid_t	*it_set;
-} indom_t;
-
-static instid_t	_colour[] = {
+static pmdaInstid _colour[] = {
     { 0, "red" }, { 1, "green" }, { 2, "blue" }
 };
 
-static instid_t	_bin[] = {
+static pmdaInstid _bin[] = {
     { 100, "bin-100" }, { 200, "bin-200" }, { 300, "bin-300" },
     { 400, "bin-400" }, { 500, "bin-500" }, { 600, "bin-600" },
     { 700, "bin-700" }, { 800, "bin-800" }, { 900, "bin-900" }
 };
 
-static instid_t	_scramble[] = {
+static pmdaInstid _scramble[] = {
     { 100, "bin-100" }, { 200, "bin-200" }, { 300, "bin-300" },
     { 400, "bin-400" }, { 500, "bin-500" }, { 600, "bin-600" },
     { 700, "bin-700" }, { 800, "bin-800" }, { 900, "bin-900" }
@@ -391,15 +380,15 @@ static instid_t	_scramble[] = {
 
 static long scramble_ver = 0;
 
-static instid_t	_family[] = {
+static pmdaInstid _family[] = {
     { 0, "colleen" }, { 1, "terry" }, { 2, "emma" }, { 3, "cathy" }, { 4, "fat bald bastard" }
 };
 
-static instid_t	_dodgey[] = {
+static pmdaInstid _dodgey[] = {
     { 1, NULL}, { 2, NULL }, { 3, NULL }, { 4, NULL }, { 5, NULL }
 };
 
-static instid_t _hordes[] = {
+static pmdaInstid _hordes[] = {
     {  0, "0" }, {  1, "1" }, {  2, "2" }, {  3, "3" }, {  4, "4" },
     {  5, "5" }, {  6, "6" }, {  7, "7" }, {  8, "8" }, {  9, "9" },
     { 10, "10" }, { 11, "11" }, { 12, "12" }, { 13, "13" }, { 14, "14" },
@@ -502,12 +491,12 @@ static instid_t _hordes[] = {
     {495, "495" }, {496, "496" }, {497, "497" }, {498, "498" }, {499, "499" }
 };
 
-static instid_t	_events[] = {
+static pmdaInstid _events[] = {
     { 0, "fungus" }, { 1, "bogus" }
 };
 
 /* all domains supported in this PMDA - one entry each */
-static indom_t	indomtab[] = {
+static pmdaIndom indomtab[] = {
 #define COLOUR_INDOM	0
     { 0, 3, _colour },
 #define BIN_INDOM	1
@@ -536,7 +525,7 @@ static struct timeval	_then;		/* time we started */
 static time_t		_start;		/* ditto */
 static __pmProfile	*_profile;	/* last received profile */
 static int		_x;
-static indom_t		*_idp;
+static pmdaIndom	*_idp;
 static int		_singular = -1;	/* =0 for singular values */
 static int		_ordinal = -1;	/* >=0 for non-singular values */
 static int		_control;	/* the control variable */
@@ -625,7 +614,7 @@ redo_dynamic(void)
     int			sep = __pmPathSeparator();
     static struct stat	lastsbuf;
     struct stat		statbuf;
-    indom_t		*idp = &indomtab[DYNAMIC_INDOM];
+    pmdaIndom		*idp = &indomtab[DYNAMIC_INDOM];
     char		mypath[MAXPATHLEN];
 
     snprintf(mypath, sizeof(mypath), "%s%c" "sample" "%c" "dynamic.indom",
@@ -665,7 +654,7 @@ redo_dynamic(void)
 		    if (fscanf(fspec, "%d %s", &newinst, newname) != 2)
 			break;
 		    numinst++;
-		    if ((idp->it_set = (instid_t *)realloc(idp->it_set, numinst * sizeof(instid_t))) == NULL) {
+		    if ((idp->it_set = (pmdaInstid *)realloc(idp->it_set, numinst * sizeof(pmdaInstid))) == NULL) {
 			err = -oserror();
 			fclose(fspec);
 			return err;
@@ -743,7 +732,7 @@ redo_dynamic(void)
 static int
 redo_many(void)
 {
-    indom_t     	*idp;
+    pmdaIndom   	*idp;
     int			a;
     static char		*tags=NULL;
     char		*tag;
@@ -757,7 +746,7 @@ redo_many(void)
 
     /* realloc instances buffer */
 
-    idp->it_set=realloc(idp->it_set,many_count*sizeof(instid_t));
+    idp->it_set = realloc(idp->it_set, many_count*sizeof(pmdaInstid));
     if (!idp->it_set) {
 	idp->it_numinst=0;
 	many_count=0;
@@ -797,7 +786,7 @@ redo_mirage(void)
     int			i;
     int			j;
     static int		newinst = 0;
-    indom_t		*idp;
+    pmdaIndom		*idp;
 
     now = time(NULL);
     if (now < doit)
@@ -806,7 +795,7 @@ redo_mirage(void)
     idp = &indomtab[MIRAGE_INDOM];
     if (idp->it_set == NULL) {
 	/* first time */
-	if ((idp->it_set = (instid_t *)malloc(sizeof(instid_t))) == NULL)
+	if ((idp->it_set = (pmdaInstid *)malloc(sizeof(pmdaInstid))) == NULL)
 	    return -oserror();
 	if ((idp->it_set[0].i_name = (char *)malloc(5)) == NULL) {
 	    idp->it_set = NULL;
@@ -831,7 +820,7 @@ redo_mirage(void)
 	    idp->it_set[numinst++] = idp->it_set[i];
 	}
 	if (numinst != idp->it_numinst) {
-	    if ((idp->it_set = (instid_t *)realloc(idp->it_set, numinst * sizeof(instid_t))) == NULL) {
+	    if ((idp->it_set = (pmdaInstid *)realloc(idp->it_set, numinst * sizeof(pmdaInstid))) == NULL) {
 		idp->it_set = NULL;
 		idp->it_numinst = 0;
 		return -oserror();
@@ -842,7 +831,7 @@ redo_mirage(void)
 	    if (lrand48() % 1000 < 500) {
 		/* add a new one */
 		numinst++;
-		if ((idp->it_set = (instid_t *)realloc(idp->it_set, numinst * sizeof(instid_t))) == NULL) {
+		if ((idp->it_set = (pmdaInstid *)realloc(idp->it_set, numinst * sizeof(pmdaInstid))) == NULL) {
 		    idp->it_set = NULL;
 		    idp->it_numinst = 0;
 		    return -oserror();
@@ -930,7 +919,7 @@ redo_dodgey(void)
 static int
 cntinst(pmInDom indom)
 {
-    indom_t	*idp;
+    pmdaIndom	*idp;
 
     if (indom == PM_INDOM_NULL)
 	return 1;
@@ -1191,8 +1180,8 @@ static int
 sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *ep)
 {
     int		i;
-    __pmInResult  *res;
-    indom_t	*idp;
+    __pmInResult *res;
+    pmdaIndom	*idp;
     int		err = 0;
 
     sample_inc_recv(ep->e_context);

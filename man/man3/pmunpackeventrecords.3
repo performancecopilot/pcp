@@ -47,7 +47,7 @@ should be 0, else the ordinal instance value identified by
 will be unpacked, i.e. vsp->vlist[idx].
 The unpacked records are turned into
 .I pmResult
-structures, one per event record and one metic per event parameter, and
+structures, one per event record and one metric per event parameter, and
 .I rap
 is returned as a pointer to an array (NULL pointer terminated) of
 pointers to the
@@ -105,7 +105,7 @@ is not a value of type
 .BR PM_TYPE_EVENT .
 .TP 10n
 PM_ERR_TOOSMALL
-The value identifed by
+The value identified by
 .I vbp
 is not legal because the value length is less than the minimum size,
 or the number of event records encoded in the (value header)

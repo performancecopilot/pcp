@@ -262,8 +262,8 @@ sub dtsrun_setup_metrics
 
 sub dtsrun_setup_instances
 {
-    $pmda->add_indom($package_indom, [], '', '');
-    $pmda->add_indom($steps_indom, [], '', '');
+    $package_indom = $pmda->add_indom($package_indom, [], '', '');
+    $steps_indom = $pmda->add_indom($steps_indom, [], '', '');
 }
 
 my $logfile = '';

@@ -17,15 +17,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
-if [ -d /Library/Receipts/pcp-* ]
-then
-    /bin/chmod 755 /Library/Receipts/pcp*
-    /usr/sbin/chown -R root /Library/Receipts/pcp*
-    /usr/bin/chgrp -R wheel /Library/Receipts/pcp*
-fi
-
-
-# Check for any waiting pmda's to be installed
 /Library/StartupItems/pcp/pcp start
 
 exit 0

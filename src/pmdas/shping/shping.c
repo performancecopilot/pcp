@@ -662,12 +662,15 @@ shping_init(pmdaInterface *dp)
 	    dp->status = err;
 	} else {
 	    dp->status = 0;
-	    logmessage (LOG_INFO, "Started thread " FMT_PTHREAD "\n", sprocpid);
+	    logmessage (LOG_INFO, "Started thread %" FMT_PTHREAD "\n", sprocpid);
 	}
     }
 #else
 #error "Need pthreads or sproc"
 #endif
+
+    /* we're talking to pmcd ... no timeout's for us thanks */
+    signal(SIGALRM, SIG_IGN);
 
     return;
 }

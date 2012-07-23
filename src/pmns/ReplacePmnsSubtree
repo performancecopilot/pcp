@@ -81,7 +81,7 @@ fi
 
 # variables for back-up/restore of namespace files affected by this script
 
-backups="root root.bin"
+backups="root"
 [ -f "$namespaceDir/$subtree" ] && backups="$backups $subtree"
 backSuffix="$prog-$$-backup"
 restore=false			# restore backup namespace files in cleanup()

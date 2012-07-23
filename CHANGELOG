@@ -1,3 +1,22 @@
+pcp-3.6.5 (not yet released)
+    - Add modern gcc/glibc security protection mechanisms where
+      available.
+    - Resolve an issue with configure script checking for the init(1)
+      process on Fedora 17 (and other systems using systemd).  Thanks
+      to Lukas Berk.
+    - pmdaelasticsearch only reports on nodes in the cluster now,
+      and not other client nodes.  Thanks to Nigel Donaldson.
+    - Added an interface to allow PMDAs to register event queues
+      with existing clients (pmdaEventNewActiveQueue).
+    - New (experimental) bash event tracing PMDA added (bash v4+)
+    - Added interfaces to PCP::PMDA Perl module to allow PMDAs to
+      use a hash instance domain (instead of int/string array).
+      These make use of the pmdaCacheOp(3) interfaces - the hash
+      keys are the (external) PCP instance names, and the value
+      associated with each key is an opaque reference.
+    - Work begun on Project Lazarus, bringing pmdaoracle back from
+      the firey depths of hell.  Jonathan will surely be pleased.
+
 pcp-3.6.4 (12 June 2012)
     - Fix build on s390x platform (thanks to Dan Horak)
     - Rethink order of PATH setting for pcp start scripts, to ensure

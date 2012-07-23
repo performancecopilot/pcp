@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 #
 # Copyright (c) 2003-2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -32,19 +32,33 @@ if [ ! -d $2 ]
 then
     echo "$prog: Unable to open directory of new files ($2)"
     echo "$prog: Unable to open directory of new files ($2)" >> /var/log/pcp_inst.log
-    exit 1
+    exit
 fi
 
 cd $2
 
-# TODO: Remove -v flag once stable
-if ./install-pcp -v -i -l /var/log/pcp_inst.log idb
+if ./install-pcp -i -l /var/log/pcp_inst.log idb
 then
     :
 else
     echo "$prog: Install Failed"
     echo "$prog: Install Failed" >> /var/log/pcp_inst.log
-    exit 1
+    exit
+fi
+
+if [ -f /etc/pcp.conf ]
+then
+    # for all the configuration files we know about, salt away file
+    # with a .orig suffix for a subsequent upgrade
+    #
+    . /etc/pcp.conf
+    for conf in \
+	$PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH $PCP_PMCDRCLOCAL_PATH \
+	$PCP_PMIECONTROL_PATH $PCP_PMLOGGERCONTROL_PATH \
+	$PCP_PMPROXYOPTIONS_PATH
+    do
+	[ -f $conf ] && cp $conf $conf.orig
+    done
 fi
 
 status=0

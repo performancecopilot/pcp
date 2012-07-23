@@ -14,7 +14,7 @@
 # License for more details.
 #
 
-LCFLAGS += -DPM_FAULT_INJECTION=1
+LCFLAGS += -DPM_FAULT_INJECTION=1 -DPM_MULTI_THREAD_DEBUG=1
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
@@ -69,9 +69,12 @@ LIBTARGET = libpcp_fault.$(DSOSUFFIX)
 SYMTARGET =
 endif
 
-LDIRT += $(SYMTARGET)
+LDIRT += $(SYMTARGET) libpcp.so
 
-base default : $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+base default : $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) libpcp.so
+
+libpcp.so: $(SYMTARGET)
+	ln -s $(SYMTARGET) libpcp.so
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET): 
@@ -80,9 +83,9 @@ endif
 
 include $(BUILDRULES)
 
-derive.o derive_fetch.o: derive.h
-
-p_error.o p_result.o: oldpmapi.h
+derive_fetch.o derive.o: derive.h
+p_error.o: oldpmapi.h
+context.o context.o derive.o fetch.o lock.o: internal.h
 
 util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
 
@@ -119,4 +122,3 @@ install_pcp : install
 
 $(TOPDIR)/src/pmns/stdpmid:
 	cd $(@D); $(MAKE) $(@F)
-

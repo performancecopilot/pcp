@@ -247,16 +247,31 @@ dumpval(FILE *f, int type, int valfmt, int mark, value *vp)
     }
     if (type == PM_TYPE_32 || type == PM_TYPE_U32)
 	fprintf(f, " v=%d", vp->lval);
-    else if (type == PM_TYPE_FLOAT && valfmt == PM_VAL_INSITU)
-	fprintf(f, " v=%f", (double)((float)vp->lval));
-    else if (type == PM_TYPE_64)
-        fprintf(f, " v=%"PRIi64, *((__int64_t *)&vp->pval->vbuf));
-    else if (type == PM_TYPE_U64)
-        fprintf(f, " v=%"PRIu64, *((__uint64_t *)&vp->pval->vbuf));
-    else if (type == PM_TYPE_FLOAT)
-        fprintf(f, " v=%f", (double)*((float *)&vp->pval->vbuf));
-    else if (type == PM_TYPE_DOUBLE)
-        fprintf(f, " v=%f", *((double *)&vp->pval->vbuf));
+    else if (type == PM_TYPE_FLOAT && valfmt == PM_VAL_INSITU) {
+	float		tmp;
+	memcpy((void *)&tmp, (void *)&vp->lval, sizeof(tmp));
+	fprintf(f, " v=%f", (double)tmp);
+    }
+    else if (type == PM_TYPE_64) {
+	__int64_t	tmp;
+	memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
+        fprintf(f, " v=%"PRIi64, tmp);
+    }
+    else if (type == PM_TYPE_U64) {
+	__uint64_t	tmp;
+	memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
+        fprintf(f, " v=%"PRIu64, tmp);
+    }
+    else if (type == PM_TYPE_FLOAT) {
+	float		tmp;
+	memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
+        fprintf(f, " v=%f", (double)tmp);
+    }
+    else if (type == PM_TYPE_DOUBLE) {
+	double		tmp;
+	memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
+        fprintf(f, " v=%f", tmp);
+    }
     else
         fprintf(f, "v=??? (lval=%d)", vp->lval);
 }
@@ -634,6 +649,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    if (sts < 0) {
 		rp->numpmid = j;
 		pmFreeResult(rp);
+		free(pcp);
 		return sts;
 	    }
 	    sts = __pmLogLookupDesc(ctxp->c_archctl->ac_log, pmidlist[j], &pcp->desc);
