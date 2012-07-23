@@ -1,4 +1,6 @@
 pcp-3.6.5 (not yet released)
+    - Add modern gcc/glibc security protection mechanisms where
+      available.
     - Resolve an issue with configure script checking for the init(1)
       process on Fedora 17 (and other systems using systemd).  Thanks
       to Lukas Berk.
