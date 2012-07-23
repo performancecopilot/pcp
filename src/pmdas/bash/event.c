@@ -16,8 +16,13 @@
 
 #include "event.h"
 #include <unistd.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <regex.h>
+
+#ifndef HAVE_MEMALIGN
+#define memalign(a,b) malloc(b)
+#endif
 
 static char *prefix = "pmdabash";
 static char *pcptmpdir;			/* probably /var/tmp */
