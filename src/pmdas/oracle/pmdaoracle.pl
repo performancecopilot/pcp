@@ -13,17 +13,6 @@
 # for more details.
 #
 
-# Run under Oracle Perl, for DBI.
-BEGIN {
-    die "ORACLE_HOME not set\n" unless $ENV{ORACLE_HOME};
-    unless ($ENV{PCP_ORACLE_PERL}) {
-       $ENV{PCP_ORACLE_PERL} = "$ENV{ORACLE_HOME}/perl";
-       $ENV{PERL5LIB} = "$ENV{PERL5LIB}:$ENV{PCP_ORACLE_PERL}/lib:$ENV{PCP_ORACLE_PERL}/lib/site_perl";
-       $ENV{LD_LIBRARY_PATH} = "$ENV{LD_LIBRARY_PATH}:$ENV{ORACLE_HOME}/lib32:$ENV{ORACLE_HOME}/lib";
-       exec "$ENV{PCP_ORACLE_PERL}/bin/perl", $0, @ARGV;
-    }
-}
-
 use strict;
 use warnings;
 use PCP::PMDA;
@@ -31,7 +20,7 @@ use DBI;
 
 my $username = 'SYSTEM';
 my $password = 'manager';
-my $sids = 'master';
+my @sids = ( 'master' );
 
 # Configuration files for overriding the above settings
 for my $file (	'/etc/pcpdbi.conf',	# system defaults (lowest priority)
@@ -41,10 +30,10 @@ for my $file (	'/etc/pcpdbi.conf',	# system defaults (lowest priority)
     eval `cat $file` unless ! -f $file;
 }
 
-use vars qw( $pmda %status %variables @processes @sid_instances );
-use vars qw( @latch_instances @file_instances @rollback_instances );
-use vars qw( @reqdist_instances @rowcache_instances @session_instances );
-use vars qw( @object_cache_instances @system_event_instances );
+use vars qw( $pmda %sid_instances );
+use vars qw( %latch_instances %file_instances %rollback_instances );
+use vars qw( %reqdist_instances %rowcache_instances %session_instances );
+use vars qw( %object_cache_instances %system_event_instances );
 
 my $latch_indom		= 0;
 my $file_indom		= 1;
@@ -58,13 +47,20 @@ my $librarycache_indom	= 8;
 my $waitstat_indom	= 9;
 my $sid_indom		= 10;
 
-my @object_cache_instances = (
-    'INDEX', 'TABLE', 'CLUSTER', 'VIEW', 'SET', 'SYNONYM', 'SEQUENCE',
-    'PROCEDURE', 'FUNCTION', 'PACKAGE', 'PACKAGE_BODY', 'TRIGGER', 'CLASS',
-    'OBJECT', 'USER', 'DBLINK', 'NON-EXISTENT', 'NOT_LOADED', 'OTHER' );
+my @novalues = ();
+my %object_cache_instances = [
+	'INDEX' => \@novalues,		'TABLE' => \@novalues,
+	'CLUSTER' => \@novalues,	'VIEW' => \@novalues,
+	'SET' => \@novalues,		'SYNONYM' => \@novalues,
+	'SEQUENCE' => \@novalues,	'PROCEDURE' => \@novalues,
+	'FUNCTION' => \@novalues,	'PACKAGE' => \@novalues,
+	'PACKAGE_BODY' => \@novalues,	'TRIGGER' => \@novalues,
+	'CLASS' => \@novalues,		'OBJECT' => \@novalues,	
+	'USER' => \@novalues,		'DBLINK' => \@novalues,
+	'NON-EXISTENT' => \@novalues,	'NOT_LOADED' => \@novalues,
+	'OTHER' => \@novalues ];
 
 my %sids_by_name;
-
 my %tables_by_name = (
     'sysstat'	=> {
 	insts_handle => undef, fetch_handle => undef, values => {},
@@ -114,7 +110,7 @@ my %tables_by_name = (
     'system_event' => {
 	insts_handle => undef, fetch_handle => undef, values => {},
 	insts => 'SELECT event#,name FROM v$event_name',
-	fetch => 'SELECT event, total_waits, total_timeouts,' .
+	fetch => 'SELECT event_id, event, total_waits, total_timeouts,' .
 		 '       time_waited, average_wait' .
 		 ' FROM v$system_event' },
     'version'	=> {
@@ -134,80 +130,81 @@ my %tables_by_cluster = (
 	name	=> 'sysstat',
 	setup	=> \&setup_license,
 	indom	=> $sid_indom,
-	refresh	=> \&refresh_sysstat },
+	values	=> \&sysstat_values },
     '1'  => {
 	name	=> 'license',
 	setup	=> \&setup_license,
 	indom	=> $sid_indom,
-	refresh	=> \&refresh_license },
+	values	=> \&license_values },
     '2'  => {
 	name	=> 'latch',
 	setup	=> \&setup_latch,
 	indom	=> $latch_indom,
-	refresh	=> \&refresh_latch },
+	values	=> \&latch_values },
     '3'  => {
 	name	=> 'filestat',
 	setup	=> \&setup_filestat,
 	indom	=> $file_indom,
-	refresh	=> \&refresh_filestat },
+	values	=> \&filestat_values },
     '4'  => {
 	name	=> 'rollstat',
 	setup	=> \&setup_rollstat,
 	indom	=> $rollback_indom,
-	refresh	=> \&refresh_rollstat },
+	values	=> \&rollstat_values },
     '5'  => {
 	name	=> 'reqdist',
 	setup	=> \&setup_reqdist,
 	indom	=> $reqdist_indom,
-	refresh	=> \&refresh_reqdist },
+	values	=> \&reqdist_values },
     '6'  => {
 	name	=> 'backup',
 	setup	=> \&setup_backup,
 	indom	=> 'backup',
-	refresh	=> \&refresh_backup },
+	values	=> \&backup_values },
     '7'  => {
 	name	=> 'rowcache',
 	setup	=> \&setup_rowcache,
 	indom	=> $rowcache_indom,
-	refresh	=> \&refresh_rowcache },
+	values	=> \&rowcache_values },
     '8'  => {
 	name	=> 'sesstat',
 	setup	=> \&setup_sesstat,
 	indom	=> $session_indom,
-	refresh	=> \&refresh_sesstat },
+	values	=> \&sesstat_values },
     '9'  => {
 	name	=> 'object_cache',
 	setup	=> \&setup_object_cache,
 	indom	=> $object_cache_indom,
-	refresh	=> \&refresh_object_cache },
+	values	=> \&object_cache_values },
     '10' => {
 	name	=> 'system_event',
 	setup	=> \&setup_system_event,
 	indom	=> $system_event_indom,
-	refresh	=> \&refresh_system_event },
+	insts	=> \&system_event_insts,
+	values	=> \&system_event_values },
     '11' => {
 	name	=> 'version',
 	setup	=> \&setup_version,
 	indom	=> $sid_indom,
-	refresh	=> \&refresh_version },
+	values	=> \&version_values },
     '12' => {
 	name	=> 'librarycache',
 	setup	=> \&setup_librarycache,
-	indom	=> librarycache_indom,
-	refresh	=> \&refresh_librarycache },
+	indom	=> $librarycache_indom,
+	values	=> \&librarycache_values },
     '13' => {
 	name	=> 'waitstat',
 	setup	=> \&setup_waitstat,
 	indom	=> $waitstat_indom,
-	refresh	=> \&refresh_waitstat },
+	values	=> \&waitstat_values },
 );
 
 sub oracle_connection_setup
 {
-    foreach my $id (keys %sids_by_name) {
-	my $db = $sids_by_name{$id}{db_handle};
-	$db = oracle_sid_connection_setup($id, $db);
-	$sids_by_name{$id}{db_handle} = $db;
+    foreach my $sid (@sids) {
+	my $db = $sids_by_name{$sid}{db_handle};
+	$db = oracle_sid_connection_setup($sid, $db);
+	$sids_by_name{$sid}{db_handle} = $db;
     }
 }
 
@@ -247,16 +244,19 @@ sub oracle_refresh
 {
     my ($cluster) = @_;
 
-    my $name = $tables_by_cluster{"$cluster"}{name};
-    my $refresh = $tables_by_cluster{"$cluster"}{refresh};
-    &$refresh($tables_by_name{$name});
+    foreach my $sid (@sids) {
+        my $db = $sids_by_name{$sid}{db_handle};
+        my $name = $tables_by_cluster{"$cluster"}{name};
+        my $refresh = $tables_by_cluster{"$cluster"}{values};
+        &$refresh($db, $sid, $tables_by_name{$name}{fetch_handle});
+    }
 }
 
 sub oracle_fetch_callback
 {
     my ( $cluster, $item, $inst) = @_;
     my $metric_name = pmda_pmid_name($cluster, $item);
-    my ( $table, $value, $valueref, @columns );
+    my ( $indom, $table, $value, $valueref, @columns );
 
     return (PM_ERR_PMID, 0) unless defined($metric_name);
     $table = $metric_name;
@@ -264,11 +264,9 @@ sub oracle_fetch_callback
     $table =~ s/\.*$//;
 
     # $pmda->log("fetch_cb $metric_name $cluster:$item ($inst) - $table\n");
-    $valueref = $tables_by_name{$table}{values}{"$inst"};
-    if (!defined($valueref)) {
-	return (PM_ERR_INST, 0) unless ($inst == PM_IN_NULL);
-        return (PM_ERR_VALUE, 0);
-    }
+    $indom = $tables_by_cluster{"$cluster"}{indom};
+    $valueref = pmda_inst_lookup($indom, $inst);
+    return (PM_ERR_INST, 0) unless defined($valueref);
     @columns = @$valueref;
     $value = $columns[$item];
     return (PM_ERR_APPVERSION, 0) unless defined($value);
@@ -282,85 +280,81 @@ sub oracle_fetch_callback
 #
 sub refresh_results
 {
-    my ( $sid, $dbh );	# XXX: TODO
-    my $tableref = shift;
-    my %table = %$tableref;
-    my ( $handle, $valuesref ) = ( $table{handle}, $table{values} );
-    my %values = %$valuesref;
+    my ( $dbh, $handle ) = @_;
 
-    %values = ();       # clear any previous values
-
-    if (defined($dbh) && defined($handle)) {
-        if (defined($handle->execute())) {
-            return $handle->fetchall_arrayref();
-        }
-        $table{handle} = undef;
-    }
-    return undef;
+    return undef
+	unless (defined($dbh) && defined($handle) && defined($handle->execute()));
+    return $handle->fetchall_arrayref();
 }
 
-sub refresh_sysstat
+sub system_event_values
 {
-    my $sid;	# XXX: TODO
-    my $tableref = shift;
-    my $result = refresh_results($tableref);
-    my %table = %$tableref;
+    my ( $dbh, $sid, $handle ) = @_;
+    my $result = refresh_results($dbh, $handle);
 
-    $table{values}{"$sid"} = \@{$result->[0]} unless (!defined($result));
-}
-
-=pod
-sub refresh_database
-{
-    my $tableref = shift;
-    my $result = refresh_results($tableref);
-    my %table = %$tableref;
-
-    @database_instances = ();           # refresh indom too
+    %system_event_instances = ();           # refresh indom too
     if (defined($result)) {
         for my $i (0 .. $#{$result}) {  # for each row (instance) returned
-            my $instid = $database_instances[($i*2)] = $result->[$i][0];
-            $database_instances[($i*2)+1] = $result->[$i][1];
-            $table{values}{$instid} = $result->[$i];
+            my $eventid = $result->[$i][0];
+            my $eventname = $result->[$i][1];
+            my $instname = "$sid/$eventid $eventname";
+            my @values = @$result[$i];
+            $system_event_instances{$instname} = \@values;
         }
     }
-    $pmda->replace_indom($database_indom, \@database_instances);
+    $pmda->replace_indom($system_event_indom, \%system_event_instances);
 }
-=cut
+
+sub system_event_insts
+{
+    my ( $dbh, $sid, $handle ) = @_;
+    my $result = refresh_results($dbh, $handle);
+
+    %system_event_instances = ();
+    if (defined($result)) {
+        for my $i (0 .. $#{$result}) {  # for each row (instance) returned
+            my $eventid = $result->[$i][0];
+            my $eventname = $result->[$i][1];
+            my $instname = "$sid/$eventid $eventname";
+            $system_event_instances{$instname} = \@novalues;
+        }
+    }
+    $pmda->replace_indom($system_event_indom, \%system_event_instances);
+}
 
 
 sub oracle_indoms_setup
 {
-    $pmda->add_indom($sid_indom, \@sid_instances,
+    $pmda->add_indom($sid_indom, \%sid_instances,
 		'Instance domain "SID" from Oracle PMDA',
 'The system identifiers used by the RDBMS and monitored by this PMDA.');
 
-    $pmda->add_indom($latch_indom, \@latch_instances,
+    $pmda->add_indom($latch_indom, \%latch_instances,
 		'Instance domain "latch" from Oracle PMDA',
 'The latches used by the RDBMS.  The latch instance domain does not
 change.  Latches are simple, low-level serialization mechanisms which
 protect access to structures in the system global area (SGA).');
 
-    $pmda->add_indom($file_indom, \@file_instances,
+    $pmda->add_indom($file_indom, \%file_instances,
 		'Instance domain "file" from Oracle PMDA',
 'The collection of data files that make up the database.  This instance
 domain may change during database operation as files are added to or
 removed.');
 
-    $pmda->add_indom($rollback_indom, \@rollback_instances,
+    $pmda->add_indom($rollback_indom, \%rollback_instances,
 		'Instance domain "rollback" from Oracle PMDA',
 'The collection of rollback segments for the database.  This instance
 domain may change during database operation as segments are added to or
 removed.');
 
-    $pmda->add_indom($reqdist_indom, \@reqdist_instances,
+    $pmda->add_indom($reqdist_indom, \%reqdist_instances,
 		'RDBMS Request Distribution from Oracle PMDA',
 'Each instance is one of the buckets in the histogram of RDBMS request
 service times.  The instances are named according to the longest
 service time that will be inserted into its bucket.  The instance
 domain does not change.');
 
-    $pmda->add_indom($rowcache_indom, \@rowcache_instances,
+    $pmda->add_indom($rowcache_indom, \%rowcache_instances,
 		'Instance domain "rowcache" from Oracle PMDA',
 'Each instance is a type of data dictionary cache.  The names are
 derived from the database parameters that define the number of entries
@@ -371,13 +365,13 @@ separator.  Each cache has an identifying number which appears in
 parentheses after the textual portion of the cache name to resolve
 naming ambiguities.  The rowcache instance domain does not change.');
 
-    $pmda->add_indom($session_indom, \@session_instances,
+    $pmda->add_indom($session_indom, \%session_instances,
 		'Instance domain "session" from Oracle PMDA',
 'Each instance is a session to the Oracle database.  Sessions may come
 and go rapidly.  The instance names correspond to the numeric Oracle
 session identifiers.');
 
-    $pmda->add_indom($object_cache_indom, \@object_cache_instances,
+    $pmda->add_indom($object_cache_indom, \%object_cache_instances,
 		'Instance domain "cache objects" from Oracle PMDA',
 'The various types of objects in the database object cache.  This
 includes such objects as indices, tables, procedures, packages, users
@@ -386,7 +380,7 @@ grouped together into a special instance named "other".  The instance
 domain may change as various types of objects are bought into and
 flushed out of the database object cache.');
 
-    $pmda->add_indom($system_event_indom, \@system_event_instances,
+    $pmda->add_indom($system_event_indom, \%system_event_instances,
 		'Instance domain "system events" from Oracle PMDA',
 'The various system events which the database may wait on.  This
 includes events such as interprocess communication, control file I/O,
@@ -2122,6 +2116,7 @@ V$LIBRARYCACHE view.');
 marked invalid due to a dependent object having been modified.  This
 value is obtained from the INVALIDATIONS column of the V$LIBRARYCACHE
 view.');
+}
 
 sub setup_latch		## latch statistics from v$latch
 {
@@ -2331,9 +2326,13 @@ the agent is installed or removed.
 
 configuration file for all PCP database monitors
 
-=item $PCP_PMDAS_DIR/oracle/oracle.conf
+=item $PCP_VAR_DIR/config/oracle/oracle.conf
 
 configuration file for B<pmdaoracle>
+
+=item $PCP_PMDAS_DIR/oracle/oracle.conf
+
+alternate configuration file for B<pmdaoracle>
 
 =item $PCP_PMDAS_DIR/oracle/Install
 
