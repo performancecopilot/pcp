@@ -27,7 +27,6 @@ root {
     nfs
     nfs3
     nfs4
-    proc
     xfs
     pmda
     ipc 
@@ -35,7 +34,6 @@ root {
     quota
     tmpfs
     sysfs
-    cgroup		60:*:*
 }
 
 hinv {
@@ -670,134 +668,6 @@ nfs4.client {
 nfs4.server {
     calls		60:7:66
     reqs		60:7:67
-}
-
-proc {
-    nprocs		60:8:99
-    psinfo
-    memory
-    runq
-    id
-    io
-    schedstat
-    fd
-}
-
-proc.psinfo {
-    pid			60:8:0
-    cmd			60:8:1
-    sname		60:8:2
-    ppid		60:8:3
-    pgrp		60:8:4
-    session		60:8:5
-    tty			60:8:6
-    tty_pgrp		60:8:7
-    flags		60:8:8
-    minflt		60:8:9
-    cmin_flt		60:8:10
-    maj_flt		60:8:11
-    cmaj_flt		60:8:12
-    utime		60:8:13
-    stime		60:8:14
-    cutime		60:8:15
-    cstime		60:8:16
-    priority		60:8:17
-    nice		60:8:18
-    /* not valid in 2.2.1 60:8:19 */
-    it_real_value	60:8:20
-    start_time		60:8:21
-    vsize		60:8:22
-    rss			60:8:23
-    rss_rlim		60:8:24
-    start_code		60:8:25
-    end_code		60:8:26
-    start_stack		60:8:27
-    esp			60:8:28
-    eip			60:8:29
-    signal		60:8:30
-    blocked		60:8:31
-    sigignore		60:8:32
-    sigcatch		60:8:33
-    wchan		60:8:34
-    nswap		60:8:35
-    cnswap		60:8:36
-    exit_signal		60:8:37
-    processor           60:8:38
-    ttyname		60:8:39
-    wchan_s             60:8:40
-    psargs		60:8:41
-    signal_s            60:24:16
-    blocked_s           60:24:17
-    sigignore_s         60:24:18
-    sigcatch_s          60:24:19
-}    
-
-proc.id {
-    uid                 60:24:0
-    euid                60:24:1
-    suid                60:24:2
-    fsuid               60:24:3
-    gid                 60:24:4
-    egid                60:24:5
-    sgid                60:24:6
-    fsgid               60:24:7
-    uid_nm              60:24:8
-    euid_nm             60:24:9
-    suid_nm             60:24:10
-    fsuid_nm            60:24:11
-    gid_nm              60:24:12
-    egid_nm             60:24:13
-    sgid_nm             60:24:14
-    fsgid_nm            60:24:15
-}
-
-proc.memory {
-    size		60:9:0
-    rss			60:9:1
-    share		60:9:2
-    textrss		60:9:3
-    librss		60:9:4
-    datrss		60:9:5
-    dirty		60:9:6
-    maps                60:9:7
-    vmsize      	60:24:20
-    vmlock      	60:24:21
-    vmrss      		60:24:22
-    vmdata      	60:24:23
-    vmstack      	60:24:24
-    vmexe      		60:24:25
-    vmlib           	60:24:26
-}
-
-proc.runq {
-    runnable		60:13:0
-    blocked		60:13:1
-    sleeping		60:13:2
-    stopped		60:13:3
-    swapped		60:13:4
-    defunct		60:13:5
-    unknown		60:13:6
-    kernel		60:13:7
-}
-
-proc.io {
-    rchar		60:32:0
-    wchar		60:32:1
-    syscr		60:32:2
-    syscw		60:32:3
-    read_bytes		60:32:4
-    write_bytes		60:32:5
-    cancelled_write_bytes 60:32:6
-}
-
-proc.schedstat {
-    cpu_time		60:31:0
-    run_delay		60:31:1
-    pcount		60:31:2
-}
-
-proc.fd {
-    count		60:51:0
 }
 
 xfs {

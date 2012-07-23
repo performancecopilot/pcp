@@ -16,17 +16,30 @@
 #ifndef _INDOM_H
 #define _INDOM_H
 
+/*
+ * indom cluster numbers ... to manage the indom migration after the
+ * linux -> linux + proc PMDAs split, these need to match the enum
+ * assigned values for *_INDOM from the linux PMDA.
+ */
+
+#define CPU_INDOM		 0 /* 0 - percpu */
+#define PROC_INDOM		 9 /* - processes */
+#define CGROUP_SUBSYS_INDOM	20 /* - control group subsystems */
+#define CGROUP_MOUNTS_INDOM	21 /* - control group mounts */
+
+#define MIN_INDOM  0		/* first cluster number we use here */
+#define NUM_INDOMS 22		/* one more than highest cluster number we use here */
+
+#if 0
 enum {
-	CPU_INDOM = 0,		/* 0 - percpu */
 	DISK_INDOM,		/* 1 - disks */
 	LOADAVG_INDOM,		/* 2 - 1, 5, 15 minute load averages */
 	NET_DEV_INDOM,		/* 3 - network interfaces */
-	PROC_INTERRUPTS_INDOM,	/* 4 - interrupt lines -> proc PMDA */
+	PROC_INTERRUPTS_INDOM,	/* 4 - interrupt lines */
 	FILESYS_INDOM,		/* 5 - mounted bdev filesystems */
 	SWAPDEV_INDOM,		/* 6 - swap devices */
 	NFS_INDOM,		/* 7 - nfs operations */
 	NFS3_INDOM,		/* 8 - nfs v3 operations */
-	PROC_PROC_INDOM,	/* 9 - processes */
 	PARTITIONS_INDOM, 	/* 10 - disk partitions */
 	SCSI_INDOM,		/* 11 - scsi devices */
 	SLAB_INDOM,		/* 12 - kernel slabs */
@@ -37,11 +50,8 @@ enum {
 	NET_INET_INDOM,		/* 17 - inet addresses */
 	TMPFS_INDOM,		/* 18 - tmpfs mounts */
 	NODE_INDOM,		/* 19 - NUMA nodes */
-	PROC_CGROUP_SUBSYS_INDOM,	/* 20 - control group subsystems -> proc PMDA */
-	PROC_CGROUP_MOUNTS_INDOM,	/* 21 - control group mounts -> proc PMDA */
-
-	NUM_INDOMS		/* one more than highest numbered cluster */
 };
+#endif
 
 #define INDOM(x) (indomtab[x].it_indom)
 extern pmdaIndom indomtab[];

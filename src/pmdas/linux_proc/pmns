@@ -1,0 +1,155 @@
+/*
+ * Metrics for the Linux proc PMDA
+ *
+ * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
+ * Portions Copyright (c) International Business Machines Corp., 2002
+ * Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
+ *
+ * Note:
+ *	names and pmids migrated from the Linux PMDA, with the domain
+ *	number changed from LINUX (60) to PROC (3)
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+
+proc {
+    nprocs		PROC:8:99
+    psinfo
+    memory
+    runq
+    id
+    io
+    schedstat
+    fd
+    cgroup		PROC:*:*
+}
+
+proc.psinfo {
+    pid			PROC:8:0
+    cmd			PROC:8:1
+    sname		PROC:8:2
+    ppid		PROC:8:3
+    pgrp		PROC:8:4
+    session		PROC:8:5
+    tty			PROC:8:6
+    tty_pgrp		PROC:8:7
+    flags		PROC:8:8
+    minflt		PROC:8:9
+    cmin_flt		PROC:8:10
+    maj_flt		PROC:8:11
+    cmaj_flt		PROC:8:12
+    utime		PROC:8:13
+    stime		PROC:8:14
+    cutime		PROC:8:15
+    cstime		PROC:8:16
+    priority		PROC:8:17
+    nice		PROC:8:18
+    /* not valid in 2.2.1 PROC:8:19 */
+    it_real_value	PROC:8:20
+    start_time		PROC:8:21
+    vsize		PROC:8:22
+    rss			PROC:8:23
+    rss_rlim		PROC:8:24
+    start_code		PROC:8:25
+    end_code		PROC:8:26
+    start_stack		PROC:8:27
+    esp			PROC:8:28
+    eip			PROC:8:29
+    signal		PROC:8:30
+    blocked		PROC:8:31
+    sigignore		PROC:8:32
+    sigcatch		PROC:8:33
+    wchan		PROC:8:34
+    nswap		PROC:8:35
+    cnswap		PROC:8:36
+    exit_signal		PROC:8:37
+    processor           PROC:8:38
+    ttyname		PROC:8:39
+    wchan_s             PROC:8:40
+    psargs		PROC:8:41
+    signal_s            PROC:24:16
+    blocked_s           PROC:24:17
+    sigignore_s         PROC:24:18
+    sigcatch_s          PROC:24:19
+}    
+
+proc.id {
+    uid                 PROC:24:0
+    euid                PROC:24:1
+    suid                PROC:24:2
+    fsuid               PROC:24:3
+    gid                 PROC:24:4
+    egid                PROC:24:5
+    sgid                PROC:24:6
+    fsgid               PROC:24:7
+    uid_nm              PROC:24:8
+    euid_nm             PROC:24:9
+    suid_nm             PROC:24:10
+    fsuid_nm            PROC:24:11
+    gid_nm              PROC:24:12
+    egid_nm             PROC:24:13
+    sgid_nm             PROC:24:14
+    fsgid_nm            PROC:24:15
+}
+
+proc.memory {
+    size		PROC:9:0
+    rss			PROC:9:1
+    share		PROC:9:2
+    textrss		PROC:9:3
+    librss		PROC:9:4
+    datrss		PROC:9:5
+    dirty		PROC:9:6
+    maps                PROC:9:7
+    vmsize      	PROC:24:20
+    vmlock      	PROC:24:21
+    vmrss      		PROC:24:22
+    vmdata      	PROC:24:23
+    vmstack      	PROC:24:24
+    vmexe      		PROC:24:25
+    vmlib           	PROC:24:26
+}
+
+proc.runq {
+    runnable		PROC:13:0
+    blocked		PROC:13:1
+    sleeping		PROC:13:2
+    stopped		PROC:13:3
+    swapped		PROC:13:4
+    defunct		PROC:13:5
+    unknown		PROC:13:6
+    kernel		PROC:13:7
+}
+
+proc.io {
+    rchar		PROC:32:0
+    wchar		PROC:32:1
+    syscr		PROC:32:2
+    syscw		PROC:32:3
+    read_bytes		PROC:32:4
+    write_bytes		PROC:32:5
+    cancelled_write_bytes PROC:32:6
+}
+
+proc.schedstat {
+    cpu_time		PROC:31:0
+    run_delay		PROC:31:1
+    pcount		PROC:31:2
+}
+
+proc.fd {
+    count		PROC:51:0
+}
