@@ -25,7 +25,8 @@ PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CFILES		= pmda.c cgroups.c dynamic.c filesys.c proc_pid.c proc_runq.c \
 		  ksym.c getinfo.c
 
-HFILES		= cgroups.h clusters.h dynamic.h proc_pid.h
+HFILES		= cgroups.h clusters.h dynamic.h proc_pid.h indom.h getinfo.h \
+		  proc_runq.h ksym.h filesys.h
 
 LSRCFILES 	= Install Remove help pmns root
 LDIRT		= help.dir help.pag domain.h

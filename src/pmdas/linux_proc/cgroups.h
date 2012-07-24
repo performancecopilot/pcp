@@ -19,6 +19,8 @@
  * is the 3rd cgroup we've seen).
  */
 
+#define CGROUP_ROOT	"proc.cgroup" /* cgroup root pmns node */
+
 static inline pmID
 cgroup_pmid_build(unsigned int domain, unsigned int cluster,
 		  unsigned int gid, unsigned int metric)
