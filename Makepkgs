@@ -152,11 +152,6 @@ if $clean; then
 fi
 
 echo
-if [ ! -f ./configure ]
-then
-    echo "== autoconf, log is in $LOGDIR/autoconf"
-    autoconf 2>&1 >$LOGDIR/autoconf
-fi
 
 LOGF=$LOGDIR/pcp
 echo
