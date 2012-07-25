@@ -20,7 +20,15 @@
 # source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
 
-tmp=$PCP_TMP_DIR/$$
+if [ -d $PCP_TMP_DIR ]
+then
+    tmp=$PCP_TMP_DIR/$$
+else
+    # if configure --prefix is used in a the build, then $PCP_TMP_DIR may
+    # not yet exist ... /tmp is a safe bet
+    #
+    tmp=/tmp/$$
+fi
 status=1
 rm -f $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

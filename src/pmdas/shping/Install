@@ -104,9 +104,35 @@ $1 == "'$iam'"	{ printf "%s",$6
 	_parsedefaults $ans
     fi
 
+    default_configfile=./sample.conf
+    if fgrep "CONFIGURE-ME-PLEASE" $default_configfile >/dev/null
+    then
+	# nslookup(1) may be hiding, like for OpenIndiana
+	#
+	export PATH=$PATH:/usr/sbin
+	nslookup=`which nslookup 2>/dev/null`
+	if [ -z "$nslookup" ]
+	then
+	    echo "Warning: cannot find nslookup"
+	    nslookup=nslookup
+	fi
+	# sample configuration file needs a little customization
+	#
+	if [ -f /etc/resolv.conf ]
+	then
+	    my_dns_server=`$PCP_AWK_PROG </etc/resolv.conf '$1 == "nameserver" { print $2; exit }'`
+	else
+	    my_dns_server=`hostname`
+	fi
+	sed <$default_configfile >$tmp.tmp \
+	    -e '/CONFIGURE-ME-PLEASE/d' \
+	    -e "s@DEFAULT-DNS-SERVER@$my_dns_server@" \
+	    -e "s@NSLOOKUP@$nslookup@"
+	cp $tmp.tmp $default_configfile
+    fi
+
     # go figure out which configuration file to use ...
     #
-    default_configfile=./sample.conf
     pmdaChooseConfigFile
 
     if [ ! -f "$configfile" ]
@@ -170,24 +196,6 @@ least one specification.
 	    echo "Error: Abandoning installation as no configuration file was specified."
 	    _quit 1
 	fi
-    fi
-
-    if fgrep "CONFIGURE-ME-PLEASE" $configfile >/dev/null
-    then
-	# sample configuration file needs a little customization
-	#
-	if [ -f /etc/resolv.conf ]
-	then
-	    my_dns_server=`$PCP_AWK_PROG </etc/resolv.conf '$1 == "nameserver" { print $2; exit }'`
-	else
-	    my_dns_server=`hostname`
-	fi
-	ex $configfile <<End-of-File > /dev/null 2>&1
-g/CONFIGURE-ME-PLEASE/d
-g/^dns.*DEFAULT-DNS-SERVER/s/DEFAULT-DNS-SERVER/$my_dns_server/
-w!
-q
-End-of-File
     fi
 
     echo

@@ -3,7 +3,6 @@
 touch /var/lib/pcp/pmns/.NeedRebuild
 chmod 644 /var/lib/pcp/pmns/.NeedRebuild
 
-update-rc.d -f pcp remove >/dev/null
 update-rc.d pmcd defaults >/dev/null
 update-rc.d pmlogger defaults >/dev/null
 update-rc.d pmie defaults >/dev/null

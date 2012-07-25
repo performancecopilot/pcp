@@ -26,6 +26,13 @@ AC_ARG_WITH(
 	    [turn on 64 bit compilation node (default is platform dependent)])],
     [use_64bit=$withval])
 
+AC_ARG_WITH(
+    [threads],
+    [AC_HELP_STRING([--with-threads],
+		    [enable support for multiple threads (default is on)])],
+    [do_threads=$withval],
+    [do_threads=check])
+
 #
 # Note: the following environment variables may be
 # set to override the defaults.
@@ -49,7 +56,6 @@ else
     dnl  build and build_os. Squash all x86 cpus into one LCD form - i386
     target=`echo $target | sed '[s/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/]'`
     target_os=`echo $target_os | sed '[s/solaris2\..*/solaris/]'`
-    target_os=`echo $target_os | sed '[s/kfreebsd/freebsd/]'`
     target_os=`echo $target_os | sed '[s/^\([^-][^-]*\)-.*$/\1/]' | sed '[s/[\.0-9]*//g]'`
     target_cpu=`echo $target_cpu | sed '[s/i[3-6]86/i386/]'`
 
@@ -107,11 +113,11 @@ elif test $target_os = aix
 then
     AC_DEFINE(IS_AIX)
     export CFLAGS="-qcpluscmt"
-elif test $target_os = freebsd
+elif test $target_os = freebsd || test $target_os = kfreebsd
 then
     AC_DEFINE(IS_FREEBSD)
     test -f /etc/debian_version && target_distro=debian
-    export CFLAGS="-fpic -fno-strict-aliasing"
+    export CFLAGS="-fpic -fno-strict-aliasing -D_GNU_SOURCE"
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
@@ -119,12 +125,50 @@ else
     exit 1
 fi
 
+# Add some security-related gcc flags
+AC_ARG_ENABLE([ssp],
+  [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
+AS_IF([test "x$enable_ssp" != xno],[
+   save_CFLAGS="$CFLAGS"
+   save_CXXFLAGS="$CXXFLAGS"
+   CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
+   AC_COMPILE_IFELSE([AC_LANG_SOURCE([int something ();])], [
+       AC_MSG_NOTICE([Compiling with gcc -fstack-protector-all et al.])
+       CFLAGS="$save_CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"],[
+       AC_MSG_NOTICE([Compiler does not support -fstack-protector-all et al.])
+       CFLAGS="$save_CFLAGS"])])
+
+# Check for even more security-related gcc/linker flags, useful for daemons
+AC_ARG_ENABLE([pie],
+  [AS_HELP_STRING([--disable-pie], [disable position-independent-executable])])
+AS_IF([test "x$enable_pie" != xno],[
+   PIECFLAGS='-fPIE'
+   PIELDFLAGS='-pie -Wl,-z,relro -Wl,-z,now'
+   save_CFLAGS="$CFLAGS"
+   save_LDFLAGS="$LDFLAGS"
+   CFLAGS="$CFLAGS $PIECFLAGS"
+   LDFLAGS="$LDFLAGS $PIELDFLAGS"
+   AC_LINK_IFELSE([AC_LANG_SOURCE([void main () {}])], [
+       AC_MSG_NOTICE([Compiling with gcc pie et al.])
+   ], [
+       AC_MSG_NOTICE([Compiler does not support -pie et al.])
+       PIECFLAGS=""
+       PIELDFLAGS=""
+   ])
+   CFLAGS="$save_CFLAGS"
+   LDFLAGS="$save_LDFLAGS"
+])
+AC_SUBST(PIELDFLAGS)
+AC_SUBST(PIECFLAGS)
+
+
 # setup additional platform-specific binary search PATH components
 pcp_platform_paths=""
 case $target_os
 in
     aix)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
-    linux)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
+    linux|kfreebsd)
+		pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
     mingw)	pcp_platform_paths='/mingw/bin:/perl/bin:/usr/local/bin';;
     darwin)	pcp_platform_paths='/usr/local/bin';;
     solaris)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/usr/sfw/bin';;
@@ -133,7 +177,7 @@ esac
 AC_SUBST(pcp_platform_paths)
 
 dnl default prefix
-AC_PREFIX_DEFAULT(/usr)
+AC_PREFIX_DEFAULT([])
 
 if test -f VERSION.pcp
 then
@@ -190,7 +234,7 @@ AC_SUBST(package_builder)
 
 dnl output header with cpp defs HAVE_*, etc
 AC_CONFIG_HEADER(src/include/pcp/platform_header.h)
-AC_OUTPUT(src/include/pcp/platform_trailer)
+AC_OUTPUT(src/include/pcp/platform_defs.h)
 
 dnl check if user wants their own C compiler
 cflags_abi=
@@ -467,16 +511,18 @@ else
     exit 1
 fi
 
+AC_PATH_PROG(TRUEPROG, true)
+
 dnl check if the makedepend program is available
 if test -z "$MAKEDEPEND"; then
-    AC_PATH_PROG(MAKEDEPEND, makedepend, /bin/true)
+    AC_PATH_PROG(MAKEDEPEND, makedepend, $TRUEPROG)
 fi
 makedepend=$MAKEDEPEND
 AC_SUBST(makedepend)
 
 dnl check if the md5sum program is available
 if test -z "$MD5SUM"; then
-   AC_PATH_PROG(MD5SUM, md5sum, /bin/true)
+   AC_PATH_PROG(MD5SUM, md5sum, $TRUEPROG)
 fi
 md5sum=$MD5SUM
 AC_SUBST(md5sum)
@@ -642,7 +688,9 @@ $2 == 1 && / \/etc\/init/ { print "OK"; exit }
 # Fedora 9
 $2 == 1 && / \/sbin\/init/ { print "OK"; exit }
 # Fedora 15
-$2 == 1 && / \/bin\/systemd/ { print "OK"; exit }'`
+$2 == 1 && / \/bin\/systemd/ { print "OK"; exit }
+# Fedora 17
+$2 == 1 && / \/usr\/lib\/systemd\/systemd/ { print "OK"; exit }'`
     if test "$ans" = OK
     then
 	pcp_ps_have_bsd=false
@@ -742,7 +790,7 @@ AC_CHECK_HEADERS(unistd.h stddef.h sched.h dlfcn.h dl.h ieeefp.h)
 AC_CHECK_HEADERS(sys/time.h sys/timeb.h sys/times.h)
 AC_CHECK_HEADERS(sys/resource.h sys/prctl.h)
 AC_CHECK_HEADERS(sys/sysinfo.h sys/systeminfo.h)
-AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h pthread.h getopt.h)
+AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h getopt.h)
 AC_CHECK_HEADERS(values.h libgen.h sys/param.h sys/mman.h sys/un.h stdint.h)
 AC_CHECK_HEADERS(pwd.h regex.h sys/wait.h)
 AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h)
@@ -812,7 +860,7 @@ AC_CHECK_FUNCS(strtod strtol strtoll strtoull)
 AC_CHECK_FUNCS(sysinfo)
 
 dnl only define readdir64 on non-linux platforms that support it
-if test $target_os != linux -a $target_os != freebsd; then
+if test $target_os != linux -a $target_os != freebsd -a $target_os != kfreebsd; then
     AC_CHECK_FUNCS(readdir64)
 fi
 
@@ -876,15 +924,6 @@ AC_TRY_COMPILE(
 [
     long long x = 0LL;
 ], AC_DEFINE(HAVE_CONST_LONGLONG))
-
-dnl check if thread local storage is supported
-AC_TRY_COMPILE(
-[
-    #include <pthread.h>
-],
-[
-    static __thread int tl;
-], AC_DEFINE(HAVE_THREAD_LOCALS))
 
 dnl check if _environ is declared globally
 AC_TRY_LINK(
@@ -1159,35 +1198,88 @@ AC_MSG_RESULT($fmt_pid)
 AC_SUBST(fmt_pid)
 rm -rf conftest.c conftest.debug
 
-if test "$ac_cv_header_pthread_h" = "yes"
+if test "$do_threads" = "check" -o "$do_threads" = "yes"
 then
-    dnl printf type for pthread_t
-    AC_MSG_CHECKING([printf type for pthread_t])
-    cat <<End-of-File >conftest.c
+    AC_CHECK_HEADERS(
+	pthread.h,
+	[],
+	[
+	    if test "$do_threads" = "yes"
+	    then
+		AC_MSG_ERROR(cannot enable multi-threaded mode - no pthread.h)
+	    fi
+	])
+
+    dnl Check if pthread_mutex_t is defined in pthread.h
+    dnl Ignore the fact that pthread.h could be missing - we don't
+    dnl really care if this test fails because of missing pthread_mutex_t
+    dnl or because of missing headers.
+    AC_MSG_CHECKING([for pthread_mutex_t in pthread.h])
+    AC_TRY_COMPILE(
+	[#include <pthread.h>], [pthread_mutex_t mymutex;],
+	AC_DEFINE(HAVE_PTHREAD_MUTEX_T) AC_MSG_RESULT(yes),
+	[
+	    if test "$do_threads" = "yes"
+	    then
+		AC_MSG_ERROR(cannot enable multi-threaded mode - no mutexes)
+	    else
+		AC_MSG_RESULT(no)
+	    fi
+	])
+
+    dnl Check which library provide pthread stuff
+    AC_MSG_CHECKING([where pthread_create() is defined])
+    for cand in "" pthreads pthread ; do
+	savedLIBS=$LIBS
+	if test -n "$cand" 
+	then
+	    LIBS=`echo $LIBS -l$cand`
+	fi
+	AC_TRY_LINK(
+	[
+	    #include <pthread.h>
+	],
+	[
+	    pthread_create(NULL, NULL, NULL, NULL);
+	],  AC_MSG_RESULT(lib${cand:-c})
+	    if test -z "$cand"
+	    then
+		lib_for_pthreads="$cand"
+	    else
+		lib_for_pthreads="-l$cand"
+	    fi
+	    LIBS=$savedLIBS
+	    break )
+	LIBS=$savedLIBS
+    done
+    AC_SUBST(lib_for_pthreads)
+
+    if test "$ac_cv_header_pthread_h" = "yes"
+    then
+	dnl printf type for pthread_t
+	AC_MSG_CHECKING([printf type for pthread_t])
+	cat <<End-of-File >conftest.c
 #include <pthread.h>
 pthread_t bozo;
 End-of-File
-    _do_type
-    fmt_pthread="$_fmt"
-    AC_MSG_RESULT($fmt_pthread)
-    AC_SUBST(fmt_pthread)
-    rm -rf conftest.c conftest.debug
+	_do_type
+	fmt_pthread="$_fmt"
+	AC_MSG_RESULT($fmt_pthread)
+	AC_SUBST(fmt_pthread)
+	rm -rf conftest.c conftest.debug
 
-    dnl check if gcc supports __thread for thread private data
-    AC_MSG_CHECKING([if compiler supports __thread])
-    AC_TRY_COMPILE([#include <pthread.h>
-__thread int x;], [],
-    AC_DEFINE(HAVE___THREAD) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+	dnl check if gcc supports __thread for thread private data
+	AC_MSG_CHECKING([if compiler supports __thread])
+	AC_TRY_COMPILE([#include <pthread.h>
+    __thread int x;], [],
+	    AC_DEFINE(HAVE___THREAD) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
-    dnl Check if pthread_mutex_t is defined in pthread.h
-    AC_MSG_CHECKING([for pthread_mutex_t in pthread.h])
-    AC_TRY_COMPILE([#include <pthread.h>], [pthread_mutex_t mymutex;],
-    AC_DEFINE(HAVE_PTHREAD_MUTEX_T) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
-
-    dnl Check if pthread_barrier_T is defined in pthread.h
-    AC_MSG_CHECKING([for pthread_barrier_t in pthread.h])
-    AC_TRY_COMPILE([#include <pthread.h>], [pthread_barrier_t mybarrier;],
-    AC_DEFINE(HAVE_PTHREAD_BARRIER_T) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+	dnl Check if pthread_barrier_t is defined in pthread.h
+	AC_MSG_CHECKING([for pthread_barrier_t in pthread.h])
+	AC_TRY_COMPILE([#include <pthread.h>], [pthread_barrier_t mybarrier;],
+	    AC_DEFINE(HAVE_PTHREAD_BARRIER_T) AC_MSG_RESULT(yes),
+	    AC_MSG_RESULT(no))
+    fi
 fi
 
 dnl check sizeof long
@@ -1335,7 +1427,7 @@ then
 fi
 AC_SUBST(lib_for_dlopen)
 
-dnl check if flog10 and isnanf are available in the maths library
+dnl check if flog10, fpclassify and isnanf are available in the maths library
 lib_for_math=
 AC_CHECK_FUNCS(flog10)
 if test $ac_cv_func_flog10 = no
@@ -1346,10 +1438,57 @@ then
 	AC_DEFINE(HAVE_FLOG10)
 	lib_for_math=-lm
     fi
+else
+    AC_DEFINE(HAVE_FLOG10)
 fi
-
-if test $target_os != darwin -a $target_os != mingw -a $target_os != linux
+AC_MSG_CHECKING([for fpclassify()])
+ac_cv_func_fpclassify=no
+AC_TRY_LINK(
+[
+    #include <math.h>
+],
+[
+    double x = 123.456;
+    if (fpclassify(x) == FP_NAN) exit(1);
+], ac_cv_func_fpclassify=yes)
+AC_MSG_RESULT($ac_cv_func_fpclassify)
+if test $ac_cv_func_fpclassify = no
 then
+    dnl try with -lm
+    AC_MSG_CHECKING([for fpclassify() with -lm])
+    savedLIBS=$LIBS
+    LIBS=-lm
+    AC_TRY_LINK(
+[
+    #include <math.h>
+],
+[
+    double x = 123.456;
+    if (fpclassify(x) == FP_NAN) exit(1);
+], ac_cv_func_fpclassify=yes)
+    AC_MSG_RESULT($ac_cv_func_fpclassify)
+    if test $ac_cv_func_fpclassify = yes
+    then
+	lib_for_math=-lm
+    fi
+    LIBS=$savedLIBS
+fi
+if test $ac_cv_func_fpclassify = yes
+then
+    AC_DEFINE(HAVE_FPCLASSIFY)
+else
+    dnl prefer fpclassify() but will take isnan() and isnanf() as
+    dnl possible alternates
+    AC_CHECK_FUNCS(isnan)
+    if test $ac_cv_func_isnan = no
+    then
+	AC_CHECK_LIB(m, isnan)
+	if test $ac_cv_lib_m_isnan = yes
+	then
+	    AC_DEFINE(HAVE_ISNAN)
+	    lib_for_math=-lm
+	fi
+    fi
     AC_CHECK_FUNCS(isnanf)
     if test $ac_cv_func_isnanf = no
     then
@@ -1360,19 +1499,6 @@ then
 	    lib_for_math=-lm
 	fi
     fi
-    AC_CHECK_FUNCS(isnand)
-    if test $ac_cv_func_isnand = no
-    then
-	AC_CHECK_LIB(m, isnand)
-	if test $ac_cv_lib_m_isnand = yes
-	then
-	    AC_DEFINE(HAVE_ISNAND)
-	    lib_for_math=-lm
-	fi
-    fi
-else
-    AC_DEFINE(HAVE_ISNANF)
-    AC_DEFINE(HAVE_ISNAND)
 fi
 AC_SUBST(lib_for_math)
 
@@ -1417,7 +1543,7 @@ then
     changequote(<<, >>)<<[ 	]st_mtimespec>>changequote([, ]),
     sys/stat.h, [ have_stat_name=true; AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC) ])
 fi
-if test $have_stat_name = false -a $target_os != darwin -a $target_os != linux
+if test $have_stat_name = false -a $target_os != darwin -a $target_os != linux -a $target_os != kfreebsd
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<[ 	]st_mtime>>changequote([, ]),
@@ -1483,8 +1609,6 @@ else
 fi
 AC_SUBST(pcp_etc_dir)
 
-test -z "$exec_prefix" && exec_prefix=${prefix}
-
 dnl shared PCP files (shareable for diskless)
 pcp_share_dir=`eval echo $datadir`
 pcp_share_dir=`eval echo $pcp_share_dir`
@@ -1492,7 +1616,7 @@ if test -z "`echo $pcp_share_dir | sed 's;/.*\$;;'`"
 then
     if test $target_os = mingw
     then
-        pcp_share_dir=
+	pcp_share_dir=
     elif test -d /usr/share
     then
 	pcp_share_dir=/usr/share/pcp
@@ -1512,15 +1636,15 @@ if test -z "`echo $pcp_binadm_dir | sed 's;/.*\$;;'`"
 then
     if test $target_distro = debian
     then
-        pcp_binadm_dir=/usr/lib/pcp/bin
+	pcp_binadm_dir=/usr/lib/pcp/bin
     elif test $target_os = mingw
     then
-        pcp_binadm_dir=/local/bin
+	pcp_binadm_dir=/local/bin
     elif test -d /usr/libexec
     then
-        pcp_binadm_dir=/usr/libexec/pcp/bin
+	pcp_binadm_dir=/usr/libexec/pcp/bin
     else
-        pcp_binadm_dir=$pcp_share_dir/bin
+	pcp_binadm_dir=$pcp_share_dir/bin
     fi
 else
    pcp_binadm_dir=`eval echo $pcp_binadm_dir/pcp/bin`
@@ -1585,7 +1709,7 @@ if test $target_os = mingw
 then
     pcp_lib_dir=/local/bin
     pcp_lib32_dir=/local/bin
-elif test $target_os = linux -a \( $target_cpu = x86_64 -o $target_cpu = powerpc64 \) -a $target_distro != debian
+elif test $target_os = linux -a \( $target_cpu = x86_64 -o $target_cpu = powerpc64 -o $target_cpu = s390x \) -a $target_distro != debian
 then
     # Linux on x86_64 and ppc64 puts libraries in .../lib64 (and rpmbuild
     # enforces that convention) but $libdir lies about it.
@@ -1872,44 +1996,32 @@ fi
 AC_SUBST(pcp_tmp_dir)
 
 dnl doc directory
-if test -z "`eval echo $prefix | sed 's;/.*\$;;'`"
+if test $target_os = mingw
 then
-    if test $target_os = mingw
-    then
-	pcp_doc_dir=/doc
-    elif test -d /usr/share/doc/packages
-    then
-	pcp_doc_dir=/usr/share/doc/packages/pcp-${PACKAGE_VERSION}
-    elif test -d /usr/share/doc
-    then
-	pcp_doc_dir=/usr/share/doc/pcp-${PACKAGE_VERSION}
-    elif test -d /usr/doc
-    then
-	pcp_doc_dir=/usr/doc/pcp-${PACKAGE_VERSION}
-    else
-	pcp_doc_dir=/usr/share/pcp/doc
-    fi
+    pcp_doc_dir=/doc
+elif test -d /usr/share/doc/packages
+then
+    pcp_doc_dir=/usr/share/doc/packages/pcp-${PACKAGE_VERSION}
+elif test -d /usr/share/doc
+then
+    pcp_doc_dir=/usr/share/doc/pcp-${PACKAGE_VERSION}
+elif test -d /usr/doc
+then
+    pcp_doc_dir=/usr/doc/pcp-${PACKAGE_VERSION}
 else
-   pcp_doc_dir=`eval echo $prefix/doc`
-   pcp_doc_dir=`eval echo $pcp_doc_dir`
+    pcp_doc_dir=/usr/share/pcp/doc
 fi
 AC_SUBST(pcp_doc_dir)
 
 dnl demos directory
-if test -z "`eval echo $prefix | sed 's;/.*\$;;'`"
+if test $target_os = mingw
 then
-    if test $target_os = mingw
-    then
-	pcp_demos_dir=/demos
-    elif test -d /usr/share/demos
-    then
-	pcp_demos_dir=/usr/share/demos/pcp
-    else
-	pcp_demos_dir=/usr/share/pcp/demos
-    fi
+    pcp_demos_dir=/demos
+elif test -d /usr/share/demos
+then
+    pcp_demos_dir=/usr/share/demos/pcp
 else
-   pcp_demos_dir=`eval echo $pcp_doc_dir/demos`
-   pcp_demos_dir=`eval echo $pcp_demos_dir`
+    pcp_demos_dir=/usr/share/pcp/demos
 fi
 AC_SUBST(pcp_demos_dir)
 
@@ -1932,38 +2044,6 @@ then
 	[
 	    int i = FNDELAY;
 	], AC_DEFINE(HAVE_FNDELAY) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
-fi
-
-
-
-if test "$ac_cv_header_pthread_h" = "yes"
-then
-    dnl Check which library provide pthread stuff
-    AC_MSG_CHECKING([where pthread_create() is defined])
-    for cand in "" pthreads pthread ; do
-	savedLIBS=$LIBS
-	if test -n "$cand" 
-	then
-	    LIBS=`echo $LIBS -l$cand`
-	fi
-	AC_TRY_LINK(
-	[
-	    #include <pthread.h>
-	],
-	[
-	    pthread_create(NULL, NULL, NULL, NULL);
-	],  AC_MSG_RESULT(lib${cand:-c})
-	    if test -z "$cand"
-	    then
-		lib_for_pthreads="$cand"
-	    else
-		lib_for_pthreads="-l$cand"
-	    fi
-	    LIBS=$savedLIBS
-	    break )
-	LIBS=$savedLIBS
-    done
-    AC_SUBST(lib_for_pthreads)
 fi
 
 dnl check for array sessions

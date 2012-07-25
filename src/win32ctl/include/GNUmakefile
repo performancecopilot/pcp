@@ -19,7 +19,7 @@ HFILES = _mingw_unicode.h pshpack8.h \
 	evntcons.h evntprov.h evntrace.h \
 	pdh.h pdhmsg.h \
 	tdh.h tdhmsg.h \
-	winevt.h winmeta.h winperf.h
+	winevt.h winmeta.h winperf.h wmistr.h
 
 default :: default_pcp
 

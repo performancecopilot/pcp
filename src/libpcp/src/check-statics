@@ -9,6 +9,26 @@ tmp=/var/tmp/$$
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 rm -f $tmp.*
 
+# Note
+#    Really want to make this run on as many platforms as possible ...
+eval `grep PCP_PLATFORM= ../../include/pcp.conf`
+case "$PCP_PLATFORM"
+in
+    linux)
+	    # only works for some architectures ... and in particular not
+	    # Power PC!
+	    #
+	    arch=`uname -m 2>/dev/null`
+	    [ "$arch" = "i686" -o "$arch" = "x86_64" ] || exit 0
+	    ;;
+    darwin)
+	    ;;
+    *)
+	    echo "Warning: check-statics skipped for PCP_PLATFORM=$PCP_PLATFORM"
+	    exit 0
+	    ;;
+esac
+
 obj=''
 cat <<End-of-File \
 | sed -e 's/[ 	]*#.*//' \
@@ -19,7 +39,8 @@ cat <<End-of-File \
 # Lines containing one word are assumed to be the name of an
 # object file ... if any object file is found in the current
 # directory that is not named in the control file, this is an
-# error.
+# error.  Object file names beginning with '?' are optional,
+# otherwise the object file is expected to exist.
 #
 # Following the name of an object file follows zero or more
 # lines defining static data symbols from that object file that is
@@ -47,13 +68,16 @@ AF.o
     d afid			# single-threaded PM_SCOPE_AF
     b block			# single-threaded PM_SCOPE_AF
     b root			# single-threaded PM_SCOPE_AF
+    b ?afblock			# guarded by __pmLock_libpcp mutex
+    b ?afsetup			# guarded by __pmLock_libpcp mutex
+    b ?aftimer			# guarded by __pmLock_libpcp mutex
 auxconnect.o
     d canwait			# guarded by __pmLock_libpcp mutex
     d first_time.[0-9]*		# guarded by __pmLock_libpcp mutex
     b pmcd_port.[0-9]*		# guarded by __pmLock_libpcp mutex
 checksum.o
 config.o
-    [SD] __pmNativeConfig		# const
+    [SDR] ?__pmNativeConfig	# const
     b state.[0-9]*		# guarded by __pmLock_libpcp mutex
 connectlocal.o
     b atexit_installed.[0-9]*	# guarded by __pmLock_libpcp mutex
@@ -75,9 +99,11 @@ context.o
     b contexts			# guarded by __pmLock_libpcp mutex
     b contexts_len		# guarded by __pmLock_libpcp mutex
     d ?curcontext		# thread private
+    r ?__emutls_t.curcontext	# thread private (MinGW)
+    d ?__emutls_v.curcontext	# thread private (MinGW)
 derive_fetch.o
 derive.o
-    [ds] func			# const
+    [ds] ?func			# const
     [bd] ?init.[0-9]*		# local initialize_mutex mutex
     b ?done.[0-9]*		# guarded by local initialize_mutex mutex
     d type_dbg			# const
@@ -94,12 +120,17 @@ derive.o
     d registered		# guarded by registered.mutex
     b pmid.[0-9]*		# guarded by registered.mutex
     b ?derive_errmsg		# thread private
+    d ?__emutls_v.derive_errmsg	# thread private (MinGW)
+    r ?func			# const (MinGW)
+    r ?promote			# const (MinGW)
+    r ?timefactor		# const (MinGW)
+    r ?type_c			# const (MinGW)
 desc.o
 endian.o
 err.o
-    [ds] errtab			# const
-    d first.[0-9]*		# guarded by __pmLock_libpcp mutex
-    b unknown.[0-9]*		# guarded by __pmLock_libpcp mutex
+    [dsr] ?errtab		# const
+    d ?first.[0-9]*		# guarded by __pmLock_libpcp mutex
+    [bd] unknown.[0-9]*		# guarded by __pmLock_libpcp mutex or const (MinGW)
     b errmsg.[0-9]*		# pmErrStr deprecated by pmErrStr_r
 events.o
     d first.[0-9]*		# guarded by __pmLock_libpcp mutex
@@ -130,9 +161,10 @@ lock.o
     [DC] __pmLock_libpcp	# the global libpcp mutex
     [bd] ?init.[0-9]*		# local __pmInitLocks mutex
     b ?done.[0-9]*		# guarded by local __pmInitLocks mutex
-    C ?__pmTPDKey		# one-trip initialization then read-only
+    [CD] ?__pmTPDKey		# one-trip initialization then read-only
     b multi_init		# guarded by __pmLock_libpcp mutex
     b multi_seen		# guarded by __pmLock_libpcp mutex
+    b ?hashctl.[0-9]*		# for lock debug tracing
 logconnect.o
     b done_default.[0-9]*	# guarded by __pmLock_libpcp mutex
     b timeout.[0-9]*		# guarded by __pmLock_libpcp mutex
@@ -145,8 +177,8 @@ logportmap.o
     b match			# single-threaded PM_SCOPE_LOGPORT
 logutil.o
     b tbuf.[0-9]*		# __pmLogName deprecated by __pmLogName_r
-    [ds] compress_ctl		# const
-    s ?ncompress		# const
+    [dsr] compress_ctl		# const
+    [sr] ?ncompress		# const
     [BD] __pmLogReads		# diag counter, no atomic updates
     b pc_hc			# guarded by __pmLock_libpcp mutex
 optfetch.o
@@ -163,7 +195,7 @@ pdu.o
     d def_wait			# guarded by __pmLock_libpcp mutex
     [BD] pmDebug		# set-once in main(), read-only elsewhere
     d ceiling			# no unsafe side-effects
-    b sigpipe_done		# no unsafe side-effects
+    b ?sigpipe_done		# no unsafe side-effects
     d mypid			# no unsafe side-effects
     b tbuf.[0-9]*		# __pmPDUTypeStr deprecated by __pmPDUTypeStr_r
     D __pmPDUCntIn		# pointer to diag counters, no atomic updates
@@ -211,8 +243,11 @@ rtime.o
     s ?wdays			# const
     s ?months			# const
     s ?ampm			# const
-    [ds] int_tab		# const struct {...} int_tab[] = {...}
-    s ?numint			# const
+    [dsr] int_tab		# const struct {...} int_tab[] = {...}
+    [sr] ?numint		# const
+    r ?ampm			# const (MinGW)
+    r ?months			# const (MinGW)
+    r ?wdays			# const (MinGW)
 sortinst.o
 spec.o
 store.o
@@ -227,6 +262,7 @@ tz.o
     b savetz			# guarded by __pmLock_libpcp mutex
     b savetzp			# guarded by __pmLock_libpcp mutex
     b tzbuffer.[0-9]*		# guarded by __pmLock_libpcp mutex
+    r ?wildabbr.[0-9]*		# const (MinGW)
 units.o
     d typename			# const
     b abuf.[0-9]*		# pmAtomStr deprecated by pmAtomStr_r
@@ -239,7 +275,7 @@ util.o
     b nbuf.[0-9]*		# pmNumberStr deprecated by pmNumberStr_r
     d ?unknownVal.[0-9]*	# const, variable may be optimized away by gcc
     [sd] debug_map		# const
-    s ?num_debug		# const
+    [rsd] ?num_debug		# const
     b pmState			# no unsafe side-effects, see notes in util.c
     D pmProgname		# no unsafe side-effects, see notes in util.c
     b filelog			# guarded by __pmLock_libpcp mutex
@@ -251,16 +287,17 @@ util.o
     b fptr			# guarded by __pmLock_libpcp mutex
     b fname			# guarded by __pmLock_libpcp mutex
     b msgsize			# guarded by __pmLock_libpcp mutex
-    b base.[0-9]*		# no unsafe side-effects, see notes in util.c
+    b ?base.[0-9]*		# no unsafe side-effects, see notes in util.c
     d first.[0-9]*		# __pmEventType deprecated by __pmEventType_r
     b last.[0-9]*		# __pmEventType deprecated by __pmEventType_r
     b sum.[0-9]*		# __pmEventType deprecated by __pmEventType_r
+?win32.o
 END				# this is magic, DO NOT DELETE THIS LINE
 End-of-File
 
 for file in *.o
 do
-    if grep "^$file\$" $tmp.ctl >/dev/null 2>&1
+    if grep "^?*$file\$" $tmp.ctl >/dev/null 2>&1
     then
 	:
     else
@@ -268,6 +305,8 @@ do
 	touch $tmp.fail
     fi
 done
+
+skip_file=false
 
 cat $tmp.ctl \
 | while read type name
@@ -297,22 +336,50 @@ do
 		# + static arrays and some debug (?) symbols appear as
 		#   "s", but the latter have _.NNN appended, or start
 		#   with LC, or have .eh appended, or start with EH_
+		# + older versions insert get_pc_thunk symbols in all
+		#   object files
+		# for MinGW
+		# + strip .bss and .data lines
+		# + strip .rdata and .eh_frame lines
+		# + external symbols tend to have "C" lines
+		#
+		skip_file=false
 		nm $type \
 		| sed -n >$tmp.out \
+		    -e '/ S ___i686.get_pc_thunk.[bc]x/d' \
 		    -e '/ [sS] .*\.eh$/d' \
 		    -e '/ s .*_\.[0-9][0-9]*$/d' \
 		    -e '/ s LC[0-9][0-9]*$/d' \
 		    -e '/ s EH_/d' \
-		    -e '/ [dDbBCsS] /p'
+		    -e '/ b \.bss/d' \
+		    -e '/ d \.data/d' \
+		    -e '/ r \.rdata/d' \
+		    -e '/ r \.eh_frame/d' \
+		    -e '/ r __PRETTY_FUNCTION__.[0-9][0-9]*$/d' \
+		    -e '/ r \.LC[0-9][0-9]*$/d' \
+		    -e '/ C ___pmLogReads/d' \
+		    -e '/ C ___pmNativeConfig/d' \
+		    -e '/ C ___pmPDUCntIn/d' \
+		    -e '/ C ___pmPDUCntOut/d' \
+		    -e '/ C _pmDebug/d' \
+		    -e '/ C _pmProgname/d' \
+		    -e '/ [dDbBCsSrR] /p'
 		obj=$type
 	    else
-		echo "$type: Error: object file in control file but not found"
-		continue
-		touch $tmp.fail
+		case "$type"
+		in
+		    \?*)
+			skip_file=true
+			;;
+		    *)
+			echo "$type: Error: object file in control file but not found"
+			touch $tmp.fail
+		esac
 	    fi
 	fi
 	continue
     fi
+    $skip_file && continue
     opt=`echo $name | sed -n -e 's/?.*/?/p'`
     name=`echo $name | sed -e 's/?//'`
     #debug# echo "obj=$obj type=$type name=$name opt=$opt"

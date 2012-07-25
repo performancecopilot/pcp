@@ -26,10 +26,10 @@
 # e.g. SuSE, where chkconfig is a perl script.
 ### BEGIN INIT INFO
 # Provides:          pmlogger
-# Required-Start:
-# Should-Start:      $local_fs $network $remote_fs $syslog $time $pmcd
-# Required-Stop:
-# Should-Stop:       $local_fs $network $remote_fs $syslog $pmcd
+# Required-Start:    $local_fs
+# Should-Start:      $network $remote_fs $syslog $time $pmcd
+# Required-Stop:     $local_fs
+# Should-Stop:       $network $remote_fs $syslog $pmcd
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Control pmlogger (the performance metrics logger for PCP)
@@ -85,8 +85,6 @@ in
 	# standard Unix/Linux style test
 	#
 	ID=id
-	test -f /usr/xpg4/bin/id && ID=/usr/xpg4/bin/id
-
 	IAM=`$ID -u 2>/dev/null`
 	if [ -z "$IAM" ]
 	then
@@ -213,9 +211,14 @@ fi
 
 if [ "$IAM" != 0 -a "$1" != "status" ]
 then
-    echo "$prog:"'
+    if [ -n "$PCP_DIR" ]
+    then
+	: running in a non-default installation, do not need to be root
+    else
+	echo "$prog:"'
 Error: You must be root (uid 0) to start or stop the Performance Co-Pilot loggers.'
-    exit
+	exit
+    fi
 fi
 
 # First reset status of this service

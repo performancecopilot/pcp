@@ -2,10 +2,11 @@ usr/include/pcp/impl.h
 usr/include/pcp/pmapi.h
 usr/include/pcp/pmdbg.h
 usr/include/pcp/platform_defs.h
+usr/include/pcp/platform_header.h
 usr/include/pcp/pmiestats.h
 usr/lib/libpcp.a
 usr/lib/libpcp.so
-/usr/lib/pcp/bin/install-sh
+usr/lib/pcp/bin/install-sh
 usr/share/man/man3/__pmAFblock.3.gz
 usr/share/man/man3/__pmAFisempty.3.gz
 usr/share/man/man3/__pmAFregister.3.gz

@@ -442,6 +442,12 @@ kmemread_init(void)
     }
 
     sts = kvm_nlist(kvmp, symbols);
+    if (sts < 0) {
+	fprintf(stderr, "kmemread_init: kvm_nlist failed: %s\n", pmErrStr(-errno));
+	for (i = 0; i < sizeof(symbols)/sizeof(symbols[0])-1; i++)
+	    symbols[i].n_value = 0;
+	return;
+    }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
 	for (i = 0; i < sizeof(symbols)/sizeof(symbols[0])-1; i++) {

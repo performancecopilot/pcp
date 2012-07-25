@@ -7,10 +7,10 @@ A.1 Linux Installation (rpm, deb)
  .5 Windows Installation
 B. Building from source
 C. Post-install steps
+D. Non-default build, install and run
 
 This document describes how to configure and build the open source PCP
 ("pcp") package from source, and how to install and finally run it.
-
 
 == A.1 Linux Installation
 
@@ -56,14 +56,12 @@ Once this is installed, installing PCP from the DMG file is as simple
 as clicking on the icon in a Finder window, and following the prompts
 from the installer.
 
-
 == A.3 AIX Installation
 
 At this stage, noone is making available pre-built AIX packages.
 A port to AIX has been done, and merged, however - building from
 the source is currently the only option.  The packaging work is also
 begun on this platform (see the build/aix/ directory in the sources).
-
 
 == A.4 Solaris Installation
 
@@ -114,7 +112,6 @@ DOS shell or POSIX shell (with suitable environment setup), the
 Perl CPAN configuration tool, links to documentation and online
 PCP internet resources, and the pmchart utility.
 
-
 == B. Building from source
 
 1. Configure, build and install the package
@@ -147,7 +144,6 @@ PCP internet resources, and the pmchart utility.
    that platform.  See the PCP Glider scripts and notes in the pcpweb
    tree to configure your environment before attempting to build from
    source under Win32.
-
 
 == C. Post-install steps
 
@@ -247,3 +243,38 @@ PCP internet resources, and the pmchart utility.
    configured by default - you choose the PMDAs you need and run the
    Install script.
 
+== D. Non-default build, install and run
+
+   To run build and run a version of PCP that is installed in a private
+   location (and does not require root privileges)
+
+   TODO
+
+   This will populate /some/path with a full PCP installation.  To use this 
+   ensure the following are set in the environment:
+
+   $ export PCP_DIR=/some/path
+
+   Amend your shell's $PATH to include the PCP directories, found as
+   follows:
+
+   $ cd /some/path
+   $ xtra=`grep '^PCP_BIN' etc/pcp.conf | sed -e 's/.*=//' | paste -s -d :`
+   $ PATH=$xtra:$PATH
+
+   Ensure the new libraries can be found:
+
+   $ export LD_LIBRARY_PATH=`grep '^PCP_LIB' etc/pcp.conf \
+     | sed -e 's/.*=//' | uniq | paste -s -d :`
+
+   Tell Perl where to find loadable modules:
+
+   $ export PERL5LIB=$PCP_DIR/usr/lib/perl5:$PCP_DIR/usr/share/perl5
+
+   Allow man(1) to find the PCP manual pages:
+
+   $ export MANPATH=`manpath`:$PCP_DIR/usr/share/man
+
+   If your version is co-exiting with a running PCP in a default
+   install, then alternative port numbers in your environment for pmcd
+   ($PMCD_PORT), pmlogger ($PMLOGGER_PORT) and pmproxy ($PMPROXY_PORT)

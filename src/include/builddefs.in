@@ -71,7 +71,7 @@ PCP_LIBS = -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) \
 # 	../../configure.in
 #
 PCFLAGS=@PCFLAGS@
-ifeq "$(TARGET_OS)" "linux"
+ifneq (, $(filter linux kfreebsd, $(TARGET_OS)))
 DSOSUFFIX = so
 endif
 ifeq "$(TARGET_OS)" "darwin"
@@ -114,6 +114,9 @@ CFLAGS_ABI = @cflags_abi@
 CFLAGS += $(CFLAGS_ABI) $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -g -DPCP_DEBUG \
 	-DPCP_VERSION=\"$(PCP_VERSION)\" \
 	-I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp
+
+PIECFLAGS = @PIECFLAGS@
+PIELDFLAGS = @PIELDFLAGS@
 
 LDFLAGS += $(CFLAGS_ABI) $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
@@ -331,7 +334,7 @@ INSTALL_MAN = \
 endif
 
 PERL_MAKE_MAKEFILE = \
-	PCP_TOPDIR=$(TOPDIR); export PCP_TOPDIR;  \
+	export PCP_TOPDIR=`cd $(TOPDIR) && pwd`; \
 	TARGET_OS="$(TARGET_OS)" \
 	CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_OPTIONS)
 

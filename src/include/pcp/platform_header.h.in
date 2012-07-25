@@ -1,24 +1,22 @@
 /*
  * Copyright (c) 2003 Moser, Inc. All Rights Reserved.
  * Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
- * @configure_input@
  */
 
-#ifndef _PLATFORM_DEFS_H
-#define _PLATFORM_DEFS_H
+#ifndef _PCP_PLATFORM_HEADER_H
+#define _PCP_PLATFORM_HEADER_H
 
-#ifdef __cplusplus      
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -41,9 +39,6 @@ extern "C" {
 
 /* if your compiler supports LL sufix on 64 bit int constants */
 #undef HAVE_CONST_LONGLONG 
-
-/* if your compiler supports thread local storage */
-#undef HAVE_THREAD_LOCALS
 
 /*
  * HAVE_UNDERBAR_ENVIRON if extern char **_environ is defined
@@ -248,8 +243,9 @@ extern "C" {
 #undef HAVE_STRTOULL
 
 #undef HAVE_DLOPEN
+#undef HAVE_FPCLASSIFY
+#undef HAVE_ISNAN
 #undef HAVE_ISNANF
-#undef HAVE_ISNAND
 #undef HAVE_FLOG10
 #undef HAVE_DIRNAME
 #undef HAVE_BASENAME
@@ -443,7 +439,6 @@ typedef void (*SIG_PF) (int);
 /* Determine if we are on a Linux box */
 #undef IS_LINUX
 #ifdef IS_LINUX
-#define isnand(d) isnan(d)	/* isnan is a type-independent macro (isnanf is defined though) */
 #ifndef O_CLOEXEC
 #define O_CLOEXEC 02000000	/* set close_on_exec */
 #endif
@@ -465,15 +460,11 @@ typedef void (*SIG_PF) (int);
 #define st_atim st_atimespec    /* workaround */
 #define st_mtim st_mtimespec    /* workaround */
 #define st_ctim st_ctimespec    /* workaround */
-#define isnand(d) isnan(d)	/* isnan is a type-independent macro */
-#define isnanf(d) isnan(d)	/* isnan is a type-independent macro */
 #endif
 
 /* Determine if we are on Windows with MinGW compiler */
 #undef IS_MINGW
 #ifdef IS_MINGW
-#define isnand(d) isnan(d)	/* isnan is a type-independent macro */
-#define isnanf(d) isnan(d)	/* isnan is a type-independent macro */
 
 #ifdef PCP_VERSION		/* used to reduce namespace pollution */
 #define EINPROGRESS	WSAEINPROGRESS
@@ -490,7 +481,6 @@ typedef void (*SIG_PF) (int);
 #define EMSGSIZE	WSAEMSGSIZE
 #define ENODATA		WSANO_DATA
 extern const char *wsastrerror(int);
-extern const char *strerror_r(int, char *, size_t);
 
 #define HAVE_PIPE1
 #define HAVE_MKDIR2
@@ -592,9 +582,6 @@ extern char *dirname(char *);
 #ifndef HAVE_BASENAME
 extern char *basename(char *);
 #endif
-#ifndef HAVE_ISNAND
-extern int isnand (double);
-#endif
 
 #ifdef HAVE_CONST_DIRENT
 #define const_dirent const struct dirent
@@ -622,3 +609,12 @@ extern int alphasort(const_dirent **, const_dirent **);
 #define pipe1(fds) pipe(fds)
 #endif
 
+#ifndef __cplusplus
+#undef inline
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _PCP_PLATFORM_HEADER_H */

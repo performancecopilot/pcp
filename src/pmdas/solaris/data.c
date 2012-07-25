@@ -343,12 +343,17 @@ metricdesc_t metricdesc[] = {
 
     { "hinv.ncpu",
       { PMDA_PMID(SCLR_SYSINFO,56), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
       }, -1},
 
     { "hinv.ndisk",
       { PMDA_PMID(SCLR_DISK,20), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, -1},
+
+    { "hinv.nfilesys",
+      { PMDA_PMID(SCLR_FILESYS,1023), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
       }, -1},
 
     { "pmda.uname",

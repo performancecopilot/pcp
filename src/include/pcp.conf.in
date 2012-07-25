@@ -36,6 +36,10 @@
 # default on the platform on which this file is installed.
 #
 
+# directory for _this_ file ... useful in the build
+# Standard path: /etc
+PCP_ETC_DIR=@pcp_etc_dir@
+
 # directory for rc/startup scripts
 # Standard path: /etc/init.d
 PCP_RC_DIR=@pcp_rc_dir@

@@ -43,13 +43,14 @@ dirpcp_import_sar = debian/$(pcp_import_sar)
 dirpcp_import_mrtg = debian/$(pcp_import_mrtg)
 dirpcp_import_sheet = debian/$(pcp_import_sheet)
 dirpcp_import_iostat = debian/$(pcp_import_iostat)
-alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) \
-		$(dirlibpcp_pmda) $(dirlibpcp_pmdadev) $(dirlibpcp_pmda_perl) \
+allperldir = $(dirlibpcp_pmda_perl) $(dirlibpcp_import_perl) \
+		$(dirpcp_logsummary_perl) $(dirlibpcp_mmv_perl)
+alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) $(allperldir) \
+		$(dirlibpcp_pmda) $(dirlibpcp_pmdadev) \
 		$(dirlibpcp_trace) $(dirlibpcp_tracedev) \
 		$(dirlibpcp_gui) $(dirlibpcp_guidev) \
 		$(dirlibpcp_import) $(dirlibpcp_importdev) \
-		$(dirlibpcp_import_perl) $(dirpcp_logsummary_perl) \
-		$(dirlibpcp_mmv) $(dirlibpcp_mmvdev) $(dirlibpcp_mmv_perl) \
+		$(dirlibpcp_mmv) $(dirlibpcp_mmvdev) \
 		$(dirpcp_import_sar) $(dirpcp_import_mrtg) \
 		$(dirpcp_import_sheet) $(dirpcp_import_iostat) \
 
@@ -74,6 +75,7 @@ options = export DEBUG=-DNDEBUG AWK=gawk;
 checkdir = test -f debian/rules
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
 uninstalld = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include
+unrpathperl = find $(allperldir) -name \*.so | xargs chrpath -d
 
 build: build-arch build-indep
 build-arch: built
@@ -124,6 +126,7 @@ binary-arch: checkroot built
 	dh_install --sourcedir=debian/$(pcp)
 	@$(uninstall)
 	@$(uninstalld)
+	@$(unrpathperl)
 	dh_makeshlibs -N $(libpcp)
 	dh_makeshlibs --package $(libpcp)
 	dh_makeshlibs -N $(libpcp_pmda)

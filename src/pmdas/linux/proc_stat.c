@@ -38,13 +38,16 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 {
     pmdaIndom *idp = &indomtab[CPU_INDOM];
     char fmt[64];
-    int fd;
+    static int fd = -1; /* kept open until exit() */
     int n;
     int i;
     int j;
 
-    if ((fd = open("/proc/stat", O_RDONLY)) < 0)
-	return -oserror();
+    if (fd >= 0)
+    	lseek(fd, 0, SEEK_SET);
+    else
+	if ((fd = open("/proc/stat", O_RDONLY)) < 0)
+	    return -oserror();
 
     for (n=0;;) {
 	if (n >= maxstatbuf) {
@@ -57,7 +60,6 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	    break;
     }
     statbuf[n] = '\0';
-    close(fd);
 
     if (bufindex == NULL) {
 	maxbufindex = 4;

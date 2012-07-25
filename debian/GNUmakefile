@@ -81,8 +81,6 @@ include $(BUILDRULES)
 
 install: default
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
-	$(INSTALL) -m 755 -d $(PCP_DOC_DIR)
-	$(INSTALL) -m 644 changelog $(PCP_DOC_DIR)/changelog.Debian
 	$(INSTALL) -m 755 -d $(LINTDIR)
 	$(INSTALL) -m 644 $(PCP_LINT) $(LINTDIR)/pcp
 endif

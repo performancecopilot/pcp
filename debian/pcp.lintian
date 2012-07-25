@@ -4,3 +4,7 @@ pcp: FSSTND-dir-in-manual-page
 # some configuration files live in /var/lib/pcp/config
 # too many and too intrusive to migrate to /etc really
 pcp: non-etc-file-marked-as-conffile var/lib/pcp/config/*
+
+# /etc/init.d/pcp is a legacy script and should not be registered
+# with update-rc.d
+pcp: script-in-etc-init.d-not-registered-via-update-rc.d etc/init.d/pcp

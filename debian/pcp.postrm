@@ -1,7 +1,6 @@
 #!/bin/sh -e
 #DEBHELPER#
 if [ "$1" = purge ]; then
-    update-rc.d -f pcp remove >/dev/null
     update-rc.d pmproxy remove >/dev/null
     update-rc.d pmie remove >/dev/null
     update-rc.d pmlogger remove >/dev/null

@@ -30,8 +30,10 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 
 HFILES = derive.h oldpmapi.h internal.h
 
+LSRCFILES = check-statics
+
 ifneq "$(TARGET_OS)" "mingw"
-LSRCFILES += win32.c check-statics
+LSRCFILES += win32.c
 else
 CFILES += win32.c
 LLDLIBS	+= -lpsapi
@@ -120,7 +122,5 @@ $(TOPDIR)/src/pmns/stdpmid:
 # cases
 #
 check.done:	$(OBJECTS)
-ifeq "$(TARGET_OS)" "linux"
 	./check-statics
-endif
 	touch check.done

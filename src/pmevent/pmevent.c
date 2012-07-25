@@ -195,7 +195,7 @@ mydump(const char *name, pmDesc *dp, pmValueSet *vsp)
 	    if ((p = lookup(dp->indom, vp->inst)) == NULL)
 		printf("[%d]", vp->inst);
 	    else
-		printf("[%s]", p);
+		printf("[\"%s\"]", p);
 	}
 	putchar(' ');
 	if (dp->type == PM_TYPE_AGGREGATE ||

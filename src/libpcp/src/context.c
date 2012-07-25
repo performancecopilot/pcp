@@ -29,6 +29,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "internal.h"
+#include <string.h>
 
 static __pmContext	**contexts;		/* array of context ptrs */
 static int		contexts_len;		/* number of contexts */
@@ -112,7 +113,7 @@ __pmHandleToPtr(int handle)
 	__pmContext	*sts;
 	sts = contexts[handle];
 	PM_UNLOCK(__pmLock_libpcp);
-	PM_LOCK((sts->c_lock));
+	PM_LOCK(sts->c_lock);
 	return sts;
     }
 }
@@ -263,11 +264,25 @@ INIT_CONTEXT:
 	 * __pmHandleToPtr() while the current context is already
 	 * locked
 	 */
-	pthread_mutexattr_t    attr;
+	pthread_mutexattr_t	attr;
+	int			psts;
+	char			errmsg[PM_MAXERRMSGLEN];
 
-	pthread_mutexattr_init(&attr);
-	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-	pthread_mutex_init(&new->c_lock, &attr);
+	if ((psts = pthread_mutexattr_init(&attr)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "pmNewContext: context=%d lock pthread_mutexattr_init failed: %s", contexts_len-1, errmsg);
+	    exit(4);
+	}
+	if ((psts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "pmNewContext: context=%d lock pthread_mutexattr_settype failed: %s", contexts_len-1, errmsg);
+	    exit(4);
+	}
+	if ((psts = pthread_mutex_init(&new->c_lock, &attr)) != 0) {
+	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "pmNewContext: context=%d lock pthread_mutex_init failed: %s", contexts_len-1, errmsg);
+	    exit(4);
+	}
     }
 #endif
     new->c_type = type;
@@ -334,7 +349,15 @@ INIT_CONTEXT:
 	    new->c_pmcd->pc_nhosts = nhosts;
 	    new->c_pmcd->pc_tout_sec = __pmConvertTimeout(TIMEOUT_DEFAULT) / 1000;
 #ifdef PM_MULTI_THREAD
-	    pthread_mutex_init(&new->c_pmcd->pc_lock, NULL);
+	    {
+		int		psts;
+		char		errmsg[PM_MAXERRMSGLEN];
+		if ((psts = pthread_mutex_init(&new->c_pmcd->pc_lock, NULL)) != 0) {
+		    strerror_r(psts, errmsg, sizeof(errmsg));
+		    fprintf(stderr, "pmNewContext: context=%d pmcd channel lock pthread_mutex_init failed: %s", contexts_len, errmsg);
+		    exit(4);
+		}
+	    }
 #endif
 	}
 	else {
@@ -673,6 +696,8 @@ pmDestroyContext(int handle)
 {
     __pmContext		*ctxp;
     struct linger       dolinger = {0, 1};
+    int			psts;
+    char		errmsg[PM_MAXERRMSGLEN];
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -724,7 +749,11 @@ pmDestroyContext(int handle)
 
     PM_UNLOCK(ctxp->c_lock);
 #ifdef PM_MULTI_THREAD
-    pthread_mutex_destroy(&ctxp->c_lock);
+    if ((psts = pthread_mutex_destroy(&ctxp->c_lock)) != 0) {
+	strerror_r(psts, errmsg, sizeof(errmsg));
+	fprintf(stderr, "pmDestroyContext: context=%d pthread_mutex_destroy failed: %s", handle, errmsg);
+	exit(4);
+    }
 #endif
 
     PM_UNLOCK(__pmLock_libpcp);
@@ -800,3 +829,37 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 
     PM_UNLOCK(__pmLock_libpcp);
 }
+
+#ifdef PM_MULTI_THREAD
+#ifdef PM_MULTI_THREAD_DEBUG
+/*
+ * return context if lock == c_lock for a context ... no locking here
+ * to avoid recursion ad nauseum
+ */
+int
+__pmIsContextLock(void *lock)
+{
+    int		i;
+    for (i = 0; i < contexts_len; i++) {
+	if ((void *)&contexts[i]->c_lock == lock)
+	    return i;
+    }
+    return -1;
+}
+
+/*
+ * return context if lock == pc_lock for a context ... no locking here
+ * to avoid recursion ad nauseum
+ */
+int
+__pmIsChannelLock(void *lock)
+{
+    int		i;
+    for (i = 0; i < contexts_len; i++) {
+	if ((void *)&contexts[i]->c_pmcd->pc_lock == lock)
+	    return i;
+    }
+    return -1;
+}
+#endif
+#endif

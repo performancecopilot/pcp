@@ -151,7 +151,6 @@ extern void Shutdown(void);
 PMCD_EXTERN int	_pmcd_timeout;
 
 /* global PMCD PMDA variables */
-PMCD_EXTERN int _pmcd_done;
 
 /*
  * trace types

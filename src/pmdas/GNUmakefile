@@ -20,7 +20,7 @@ SUBDIRS = pmcd linux solaris aix darwin windows etw \
 	sample simple trivial sendmail mailq txmon \
 	cisco trace apache shping mounts weblog \
 	lmsensors process roomtemp summary hotproc \
-	logger freebsd \
+	logger freebsd bash \
 	dbping memcache systemtap mysql vmware kvm \
 	bonding lustrecomm mmv netfilter zimbra \
 	named news pdns samba dtsrun postfix gpsd \

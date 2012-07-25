@@ -1,8 +1,42 @@
+pcp (3.6.5) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 23 Jul 2012 12:31:28 +1000
+
+pcp (3.6.4) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Ensure correct pmpost used in startup scripts (closes: #677091)
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 12 Jun 2012 09:57:07 +1000
+
+pcp (3.6.3) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Further kFreeBSD fixes, final remaining issue in glibc headers.
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 27 Apr 2012 11:25:47 +1000
+
+pcp (3.6.2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Resolve pcp RC script issue (closes: #668702)
+  * Resolve FreeBSD build dependency (closes: #668671)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 18 Apr 2012 20:23:05 +1000
+
+pcp (3.6.1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 12 Apr 2012 11:27:26 +1000
+
 pcp (3.6.0) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
 
- -- Nathan Scott <nathans@debian.org>  Wed, 21 Mar 2012 14:13:48 +1100
+ -- Nathan Scott <nathans@debian.org>  Wed, 28 Mar 2012 10:39:34 +1100
 
 pcp (3.5.11) unstable; urgency=low
 

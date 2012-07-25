@@ -122,7 +122,7 @@ inst_name_eq(const char *p, const char *q)
  *
  * Note: does not handle compressed versions of files.
  *
- * TODO - need global locking for PCP 4.0 version if this is promoted
+ * TODO - need global locking for PCP 3.6 version if this is promoted
  *        to libpcp
  */
 int
@@ -244,7 +244,7 @@ cleanup:
  *
  * Note: does not handle compressed versions of files.
  *
- * TODO - need global locking for PCP 4.0 version if this is promoted
+ * TODO - need global locking for PCP 3.6 version if this is promoted
  *        to libpcp
  */
 int

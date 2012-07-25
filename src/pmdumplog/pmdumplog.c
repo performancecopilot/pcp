@@ -24,6 +24,24 @@ static pmID		*pmid;
 static char		*archbasename;
 static int		sflag;
 
+/*
+ * return -1, 0 or 1 as the struct timeval's compare
+ * a < b, a == b or a > b
+ */
+int
+tvcmp(struct timeval a, struct timeval b)
+{
+    if (a.tv_sec < b.tv_sec)
+	return -1;
+    if (a.tv_sec > b.tv_sec)
+	return 1;
+    if (a.tv_usec < b.tv_usec)
+	return -1;
+    if (a.tv_usec > b.tv_usec)
+	return 1;
+    return 0;
+}
+
 static int
 do_size(pmResult *rp)
 {
@@ -395,9 +413,12 @@ dumpTI(__pmContext *ctxp)
 	    printf("             Error: offset to log file past end of file (%ld)\n",
 		(long)log_size);
 	if (i > 0) {
-	    if (tip->ti_stamp.tv_sec + (double)tip->ti_stamp.tv_usec / 1000000.0 <
-		lastp->ti_stamp.tv_sec + (double)lastp->ti_stamp.tv_usec / 1000000.0)
-		printf("             Error: timestamp went backwards in time\n");
+	    if (tip->ti_stamp.tv_sec < lastp->ti_stamp.tv_sec ||
+	        (tip->ti_stamp.tv_sec == lastp->ti_stamp.tv_sec &&
+	         tip->ti_stamp.tv_usec < lastp->ti_stamp.tv_usec))
+		printf("             Error: timestamp went backwards in time %d.%06d -> %d.%06d\n",
+			(int)lastp->ti_stamp.tv_sec, (int)lastp->ti_stamp.tv_usec,
+			(int)tip->ti_stamp.tv_sec, (int)tip->ti_stamp.tv_usec);
 	    if (tip->ti_vol < lastp->ti_vol)
 		printf("             Error: volume number decreased\n");
 	    if (tip->ti_vol == lastp->ti_vol && tip->ti_meta < lastp->ti_meta)
@@ -503,8 +524,7 @@ main(int argc, char *argv[])
     int			zflag = 0;		/* for -z */
     char 		*tz = NULL;		/* for -Z timezone */
     char		timebuf[32];		/* for pmCtime result + .xxx */
-    double		current;
-    double		done;
+    struct timeval	done;
 
     __pmSetProgname(argv[0]);
 
@@ -689,6 +709,14 @@ main(int argc, char *argv[])
 	fprintf(stderr, "%s: %s!\n", pmProgname, pmErrStr(PM_ERR_NOCONTEXT));
 	exit(1);
     }
+    /*
+     * Note: ctxp->c_lock remains locked throughout ... __pmHandleToPtr()
+     *       is only called once, and a single context is used throughout
+     *       ... so there is no PM_UNLOCK(ctxp->c_lock) anywhere in the
+     *       pmdumplog code.
+     *       This works because ctxp->c_lock is a recursive lock and
+     *       pmdumplog is single-threaded.
+     */
 
     if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
@@ -781,12 +809,12 @@ main(int argc, char *argv[])
     if (mflag) {
 	if (mode == PM_MODE_FORW) {
 	    sts = pmSetMode(mode, &appStart, 0);
-	    done = appEnd.tv_sec + (double)(appEnd.tv_usec)/1000000;
+	    done = appEnd;
 	}
 	else {
 	    appEnd.tv_sec = INT_MAX;
 	    sts = pmSetMode(mode, &appEnd, 0);
-	    done = appStart.tv_sec + (double)(appStart.tv_usec)/1000000;
+	    done = appStart;
 	}
 	if (sts < 0) {
 	    fprintf(stderr, "%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
@@ -804,9 +832,8 @@ main(int argc, char *argv[])
 		first = 0;
 		printf("\nLog finished at %24.24s - dump in reverse order\n", pmCtime(&result->timestamp.tv_sec, timebuf));
 	    }
-	    current = result->timestamp.tv_sec + (double)(result->timestamp.tv_usec)/1000000;
-	    if ((mode == PM_MODE_FORW && current > done) ||
-		(mode == PM_MODE_BACK && current < done)) {
+	    if ((mode == PM_MODE_FORW && tvcmp(result->timestamp, done) > 0) ||
+		(mode == PM_MODE_BACK && tvcmp(result->timestamp, done) < 0)) {
 		sts = PM_ERR_EOL;
 		break;
 	    }

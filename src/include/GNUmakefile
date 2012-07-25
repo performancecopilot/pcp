@@ -39,18 +39,18 @@ include $(BUILDRULES)
 install :: default_pcp install_pcp
 
 install_pcp : $(SUBDIRS) default_pcp
-	$(INSTALL) -m 644 pcp.conf /etc/pcp.conf
+	$(INSTALL) -m 644 pcp.conf $(PCP_ETC_DIR)/pcp.conf
 ifeq "$(TARGET_OS)" "mingw"
-	$(INSTALL) -m 644 pcp.mingw /etc/pcp.env
+	$(INSTALL) -m 644 pcp.mingw $(PCP_ETC_DIR)/pcp.env
 else
-	$(INSTALL) -m 644 pcp.env /etc/pcp.env
+	$(INSTALL) -m 644 pcp.env $(PCP_ETC_DIR)/pcp.env
 endif
 	$(INSTALL) -m 644 buildrules $(PCP_INC_DIR)/buildrules
 	$(INSTALL) -m 644 builddefs.install $(PCP_INC_DIR)/builddefs
 	$(SUBDIRS_MAKERULE)
 
 builddefs.install : builddefs
-	sed -e 's;^include .*pcp.conf;include /etc/pcp.conf;' \
+	sed -e 's;^include .*pcp.conf;include $$(PCP_DIR)/etc/pcp.conf;' \
 	    -e 's;^BUILDRULES.*=.*buildrules;BUILDRULES = $$\(PCP_INC_DIR\)/buildrules;' \
 	    -e 's;^INSTALL_SH.*=.*install-sh;INSTALL_SH = $$\(PCP_BINADM_DIR\)/install-sh;' \
 	    -e 's;^GENPMDA.*=.*genpmda;GENPMDA = $$\(PCP_BIN_DIR\)/genpmda;' \

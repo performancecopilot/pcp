@@ -71,9 +71,14 @@ LOGDIR=$RUNDIR/$LOCALHOSTNAME
 id=`id | sed -e "s/(.*//" -e "s/.*=//"`
 if [ "$id" != 0 -a "$1" != "status" ]
 then
-    echo "$prog:"'
+    if [ -n "$PCP_DIR" ]
+    then
+	: running in a non-default installation, do not need to be root
+    else
+	echo "$prog:"'
 Error: You must be root (uid 0) to start or stop pmie.'
-    exit
+	exit
+    fi
 fi
 
 _usage()

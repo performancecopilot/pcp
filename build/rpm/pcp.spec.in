@@ -194,7 +194,8 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 %prep
 %setup -q
 autoconf
-./configure --libdir=%{_libdir} --libexecdir=%{_libexecdir} && touch config.done
+%configure
+touch config.done
 
 %clean
 [ ! -z "$DIST_ROOT" ] && rm -rf $DIST_ROOT
@@ -364,7 +365,16 @@ fi
 %defattr(-,root,root)
 
 %changelog
-* Wed Mar 21 2012 Nathan Scott <nathans@aconex.com> - 3.6.0-1
+* Mon Jul 23 2012 Nathan Scott <nathans@debian.org> - 3.6.5-1
+- Update to latest PCP sources.
+
+* Tue Jun 12 2012 Nathan Scott <nathans@aconex.com> - 3.6.4-1
+- Update to latest PCP sources, resolves Fedora s390x build issue.
+
+* Fri Apr 27 2012 Nathan Scott <nathans@aconex.com> - 3.6.3-1
+- Update to latest PCP sources.
+
+* Wed Mar 28 2012 Nathan Scott <nathans@aconex.com> - 3.6.0-1
 - Update to latest PCP sources.
 
 * Thu Dec  1 2011 Nathan Scott <nathans@aconex.com> - 3.5.11-1

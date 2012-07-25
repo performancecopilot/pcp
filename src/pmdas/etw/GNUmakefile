@@ -21,7 +21,7 @@ IAM		= etw
 DOMAIN		= ETW
 CFILES		= util.c event.c pmda.c
 HFILES		= util.h event.h
-LSRCFILES	= tdhlist.c tdhconsume.c pcp.xml
+LSRCFILES	= tdhlist.c tdhconsume.c pcp.xml pmns root help
 LCFLAGS		= -I$(WINDIR)/include -D_WIN32_WINNT=0x0600 -DFORCEINLINE="static inline"
 LLDFLAGS	= -L$(WINDIR)/lib
 LLDLIBS		= -lpcp -lpcp_pmda -lpcp_tdh

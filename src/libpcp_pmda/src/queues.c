@@ -90,7 +90,7 @@ queue_drop_bytes(int handle, event_queue_t *queue, size_t bytes)
 }
 
 int
-pmdaEventNewQueue(const char *name, size_t maxmemory)
+pmdaEventNewActiveQueue(const char *name, size_t maxmemory, unsigned int numclients)
 {
     event_queue_t *queue;
     size_t size;
@@ -130,10 +130,17 @@ pmdaEventNewQueue(const char *name, size_t maxmemory)
     memset(queue, 0, sizeof(*queue));
     TAILQ_INIT(&queue->tailq); 
     queue->eventarray = pmdaEventNewArray();
+    queue->numclients = numclients;
     queue->maxmemory = maxmemory;
     queue->inuse = 1;
     queue->name = name;
     return i;
+}
+
+int
+pmdaEventNewQueue(const char *name, size_t maxmemory)
+{
+    return pmdaEventNewActiveQueue(name, maxmemory, 0);
 }
 
 int
@@ -197,12 +204,11 @@ pmdaEventQueueAppend(int handle, void *data, size_t bytes, struct timeval *tv)
     event_queue_t *queue = queue_lookup(handle);
     event_t *event;
 
+    if (!queue)
+	return -EINVAL;
     if (pmDebug & DBG_TRACE_LIBPMDA)
 	__pmNotifyErr(LOG_INFO, "Appending event: queue#%d \"%s\" (%ld bytes)",
 			handle, queue? queue->name : "?", (long)bytes);
-    if (!queue)
-	return -EINVAL;
-
     if (bytes > queue->maxmemory) {
 	__pmNotifyErr(LOG_WARNING, "Event too large for queue %s (%ld > %ld)",
 			queue->name, (long)bytes, (long)queue->maxmemory);
@@ -250,10 +256,18 @@ done:
 static int
 queue_filter(event_clientq_t *clientq, void *data, size_t size)
 {
-    if (clientq->filter) /* Note: having a filter (stored) implies access */
-	return clientq->apply(clientq->filter, data, size);
-    else if (!clientq->access)
+    /* Note: having a filter implies access (optionally) checked there */
+    if (clientq->filter) {
+	int sts = clientq->apply(clientq->filter, data, size);
+	if (pmDebug & DBG_TRACE_LIBPMDA)
+	    __pmNotifyErr(LOG_INFO, "Clientq filter applied (%d)\n", sts);
+	return sts;
+    }
+    else if (!clientq->access) {
+	if (pmDebug & DBG_TRACE_LIBPMDA)
+	    __pmNotifyErr(LOG_INFO, "Clientq access denied\n");
 	return -PM_ERR_PERMISSION;
+    }
     return 0;
 }
 
