@@ -60,6 +60,7 @@ test ! -d $LOGDIR && mkdir $LOGDIR
 rm -rf $LOGDIR/* 
 
 tmp=/tmp/$$
+rm -f $tmp.failed
 trap "rm -f $tmp.*;" 0 1 2 3 15
 
 ARCH=`uname -m | sed -e 's/i.86/ia32/'`
@@ -161,9 +162,16 @@ echo "== Building pcp, log is in $LOGF"
 
 echo "== Configuring pcp for vendor/distro installation (--prefix=/usr)"
 if $verbose ; then
-    ./configure --prefix=/usr | tee -a $LOGF
+    ./configure --prefix=/usr 2>&1 | tee -a $LOGF || touch $tmp.failed
 else
-    ./configure --prefix=/usr >> $LOGF
+    ./configure --prefix=/usr >> $LOGF 2>&1 || touch $tmp.failed
+fi
+if [ -f $tmp.failed ] ; then
+    if ! $verbose ; then
+        echo \"./configure\" failed, see log in $LOGF
+        tail $LOGF
+    fi
+    exit 1
 fi
 
 
