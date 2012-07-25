@@ -11,7 +11,7 @@ Source: @package_name@-@package_version@-@package_release@.src.tar.gz
 
 Distribution: @package_distribution@
 BuildRoot: @build_root@ 
-BuildRequires: procps autoconf bison flex ncurses-devel readline-devel
+BuildRequires: procps bison flex ncurses-devel readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
 %if "%{_vendor}" == "redhat"
@@ -193,7 +193,6 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 
 %prep
 %setup -q
-autoconf
 %configure
 touch config.done
 
