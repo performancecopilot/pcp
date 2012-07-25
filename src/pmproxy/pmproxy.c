@@ -229,7 +229,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     __pmSockAddrIn	myAddr;
     int			one = 1;
 
-    fd = __pmCreateSocket();
+    fd = __pmCreateSecurableSocket();
     if (fd < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) socket: %s\n",
 			port, netstrerror());
@@ -461,7 +461,7 @@ ClientLoop(void)
 	    if (pmDebug & DBG_TRACE_APPL0)
 		for (i = 0; i <= maxSockFd; i++)
 		    if (__pmFD_ISSET(i, &readableFds))
-			fprintf(stderr, "select(): from %s fd=%d\n", FdToString(i), i);
+			fprintf(stderr, "__pmSelectRead(): from %s fd=%d\n", FdToString(i), i);
 #endif
 	    /* Accept any new client connections */
 	    for (i = 0; i < nReqPorts; i++) {

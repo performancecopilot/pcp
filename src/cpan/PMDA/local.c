@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2008-2011 Aconex.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -187,8 +188,8 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
     myaddr.sin_family = AF_INET;
     memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
     myaddr.sin_port = htons(port);
-    if (connect(fd, (struct sockaddr *)&myaddr, sizeof(myaddr)) < 0) {
-	__pmNotifyErr(LOG_ERR, "connect (%s): %s", host, netstrerror());
+    if (__pmConnect(fd, (__pmSockAddr *)&myaddr, sizeof(myaddr)) < 0) {
+	__pmNotifyErr(LOG_ERR, "__pmConnect (%s): %s", host, netstrerror());
 	exit(1);
     }
     me = local_file(FILE_SOCK, fd, callback, cookie);
@@ -280,22 +281,24 @@ local_log_rotated(files_t *file)
 static void
 local_reconnector(files_t *file)
 {
-    struct sockaddr_in myaddr;
-    struct hostent *servinfo;
+    __pmSockAddrIn myaddr;
+    __pmHostEnt servinfo;
+    char       *servbuf;
     int fd;
 
     if (file->fd >= 0)		/* reconnect-needed flag */
 	return;
-    if ((servinfo = gethostbyname(file->me.sock.host)) == NULL)
+    servbuf = __pmAllocHostEntBuffer();
+    if (__pmGetHostByName(file->me.sock.host, &servinfo, servbuf) == NULL) {
+        __pmFreeHostEntBuffer(servbuf);
 	return;
+    }
     if ((fd = __pmCreateSocket()) < 0)
 	return;
-    memset(&myaddr, 0, sizeof(myaddr));
-    myaddr.sin_family = AF_INET;
-    memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
-    myaddr.sin_port = htons(files->me.sock.port);
-    if (connect(fd, (struct sockaddr *)&myaddr, sizeof(myaddr)) < 0) {
-	close(fd);
+    __pmInitSockAddr(&myaddr, 0, htons(files->me.sock.port));
+    __pmSetSockAddr(&myaddr, &servinfo);
+    if (__pmConnect(fd, (__pmSockAddr *)&myaddr, sizeof(myaddr)) < 0) {
+	__pmCloseSocket(fd);
 	return;
     }
     files->fd = fd;
@@ -315,7 +318,7 @@ local_pmdaMain(pmdaInterface *self)
 {
     static char buffer[4096];
     int pmcdfd, nready, nfds, i, j, count, fd, maxfd = -1;
-    fd_set fds, readyfds;
+    __pmFdSet fds, readyfds;
     ssize_t bytes;
     size_t offset;
     char *s, *p;
@@ -331,20 +334,20 @@ local_pmdaMain(pmdaInterface *self)
     for (count = 0; ; count++) {
 	struct timeval timeout = { 1, 0 };
 
-	FD_ZERO(&fds);
-	FD_SET(pmcdfd, &fds);
+	__pmFD_ZERO(&fds);
+	__pmFD_SET(pmcdfd, &fds);
 	for (i = 0; i < nfiles; i++) {
 	    if (files[i].type == FILE_TAIL)
 		continue;
 	    fd = files[i].fd;
-	    FD_SET(fd, &fds);
+	    __pmFD_SET(fd, &fds);
 	    if (fd > maxfd)
 		maxfd = fd;
 	}
 	nfds = ((pmcdfd > maxfd) ? pmcdfd : maxfd) + 1;
 
-	memcpy(&readyfds, &fds, sizeof(readyfds));
-	nready = select(nfds, &readyfds, NULL, NULL, &timeout);
+	__pmFD_COPY(&readyfds, &fds);
+	nready = __pmSelectRead(nfds, &readyfds, &timeout);
 	if (nready < 0) {
 	    if (neterror() != EINTR) {
 		__pmNotifyErr(LOG_ERR, "select failed: %s\n",
@@ -356,7 +359,7 @@ local_pmdaMain(pmdaInterface *self)
 
 	__pmAFblock();
 
-	if (FD_ISSET(pmcdfd, &readyfds)) {
+	if (__pmFD_ISSET(pmcdfd, &readyfds)) {
 	    if (__pmdaMainPDU(self) < 0) {
 		__pmAFunblock();
 		exit(1);
@@ -368,7 +371,7 @@ local_pmdaMain(pmdaInterface *self)
 	    /* check for log rotation or host reconnection needed */
 	    if ((count % 10) == 0)	/* but only once every 10 */
 		local_connection(&files[i]);
-	    if (files[i].type != FILE_TAIL && !(FD_ISSET(fd, &readyfds)))
+	    if (files[i].type != FILE_TAIL && !(__pmFD_ISSET(fd, &readyfds)))
 		continue;
 	    offset = 0;
 multiread:

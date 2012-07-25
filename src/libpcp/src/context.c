@@ -692,7 +692,7 @@ pmDestroyContext(int handle)
 	if (--ctxp->c_pmcd->pc_refcnt == 0) {
 	    if (ctxp->c_pmcd->pc_fd >= 0) {
 		/* before close, unsent data should be flushed */
-		setsockopt(ctxp->c_pmcd->pc_fd, SOL_SOCKET,
+		__pmSetSockOpt(ctxp->c_pmcd->pc_fd, SOL_SOCKET,
 		    SO_LINGER, (char *) &dolinger, (mysocklen_t)sizeof(dolinger));
 		__pmCloseSocket(ctxp->c_pmcd->pc_fd);
 	    }

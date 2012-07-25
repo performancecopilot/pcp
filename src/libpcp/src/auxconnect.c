@@ -23,29 +23,51 @@
 /* default connect timeout is 5 seconds */
 static struct timeval	canwait = { 5, 000000 };
 
-/*
-Securable file descriptors must be unique from normal ones. We can then keep them both in the
-IPC table and the socket abstraction functions (below) can then determine how to handle them
-seamlessly. Perhaps we can discover what the max # of file descriptors is (rlimit?) and
-assign the securable ones values above this limit. Potential problem if the sysadmin increases the
-limit during execution. Maybe using the hard limit will avoid this problem.
-*/
-#if 0
 int
 __pmCreateSecurableSocket(void)
 {
-}
+#ifdef HAVE_NSS
+    //#error __FUNCTION__ is not implemented for NSS
+    return -1;
+#else
+    /* Can't create a securable socket, but we can still create a socket. Attempts to secure
+       this socket will be handled if/when that happens. */
+    return __pmCreateSocket();
 #endif
+}
+
 int
 __pmCreateSocket(void)
 {
-    int			fd;
-    int			sts;
+    int fd;
+    int sts;
+
+    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	return -neterror();
+
+    if ((sts = __pmInitSocket(fd)) < 0)
+        return sts;
+
+    return fd;
+}
+
+int
+__pmSocket(int domain, int type, int protocol)
+{
+#ifdef HAVE_NSS
+  //#error __FUNCTION__ is not implemented for NSS
+  return -1;
+#else
+  return socket(domain, type, protocol);
+#endif
+}
+
+int
+__pmInitSocket(int fd)
+{
+    int sts;
     int			nodelay=1;
     struct linger	nolinger = {1, 0};
-
-    if ((fd = __pmSocket(AF_INET, SOCK_STREAM, 0)) < 0)
-	return -neterror();
 
     if ((sts = __pmSetSocketIPC(fd)) < 0) {
 	__pmCloseSocket(fd);
@@ -71,17 +93,6 @@ __pmCreateSocket(void)
     }
 
     return fd;
-}
-
-int
-__pmSocket(int domain, int type, int protocol)
-{
-#ifdef HAVE_NSS
-  //#error __FUNCTION__ is not implemented for NSS
-  return -1;
-#else
-  return socket(domain, type, protocol);
-#endif
 }
 
 void
@@ -374,7 +385,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 
     __pmConnectTimeout();
 
-    if ((fd = __pmCreateSocket()) < 0) {
+    if ((fd = __pmCreateSecurableSocket()) < 0) {
 	PM_UNLOCK(__pmLock_libpcp);
 	return fd;
     }
@@ -502,6 +513,16 @@ __pmFD_ZERO(__pmFdSet *set)
   //#error __FUNCTION__ is not implemented for NSS
 #else
   FD_ZERO(set);
+#endif
+}
+
+void
+__pmFD_COPY(__pmFdSet *s1, const __pmFdSet *s2)
+{
+#ifdef HAVE_NSS
+  //#error __FUNCTION__ is not implemented for NSS
+#else
+  memcpy(s1, s2, sizeof(*s1));
 #endif
 }
 

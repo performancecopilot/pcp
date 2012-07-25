@@ -1321,8 +1321,9 @@ ConnectSocketAgent(AgentInfo *aPtr)
     int		fd;
 
     if (aPtr->ipc.socket.addrDomain == AF_INET) {
-	struct sockaddr_in	addr;
-	struct hostent		*hostInfo;
+	__pmSockAddrIn addr;
+	__pmHostEnt hostInfo;
+	char *hibuf;
 
 	fd = __pmCreateSocket();
 	if (fd < 0) {
@@ -1331,16 +1332,16 @@ ConnectSocketAgent(AgentInfo *aPtr)
 		     aPtr->pmDomainLabel, netstrerror());
 	    return -1;
 	}
-	hostInfo = gethostbyname("localhost");
-	if (hostInfo == NULL) {
+	hibuf = __pmAllocHostEntBuffer();
+	if (__pmGetHostByName("localhost", &hostInfo, hibuf) == NULL) {
 	    fputs("pmcd: Error getting inet address for localhost\n", stderr);
+	    __pmFreeHostEntBuffer(hibuf);
 	    goto error;
 	}
-	memset(&addr, 0, sizeof(addr));
-	addr.sin_family = AF_INET;
-	memcpy(&addr.sin_addr, hostInfo->h_addr, hostInfo->h_length);
-	addr.sin_port = htons(aPtr->ipc.socket.port);
-	sts = connect(fd, (struct sockaddr *) &addr, sizeof(addr));
+	__pmInitSockAddr(&addr, 0, htons(aPtr->ipc.socket.port));
+	__pmSetSockAddr(&addr, &hostInfo);
+	__pmFreeHostEntBuffer(hibuf);
+	sts = __pmConnect(fd, (__pmSockAddr *) &addr, sizeof(addr));
     }
     else {
 #if defined(HAVE_SYS_UN_H)

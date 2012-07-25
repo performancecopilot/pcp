@@ -35,8 +35,8 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 {
     int			sts;
     int			sfd;
-    struct sockaddr_in	myaddr;
-    struct sockaddr_in	from;
+    __pmSockAddrIn	myaddr;
+    __pmSockAddrIn	from;
     struct servent	*service;
     mysocklen_t		addrlen;
     int			one = 1;
@@ -62,34 +62,31 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
      * allow port to be quickly re-used, e.g. when Install and PMDA already
      * installed, this becomes terminate and restart in a hurry ...
      */
-    if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
+    if (__pmSetSockOpt(sfd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
 		(mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: setsockopt(reuseaddr): %s\n",
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: __pmSetSockOpt(reuseaddr): %s\n",
 			netstrerror());
 	exit(1);
     }
 #else
     /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
-    if (setsockopt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
+    if (__pmSetsockOpt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
 		(mysocklen_t)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: setsockopt(excladdruse): %s\n",
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: __pmSetSockOpt(excladdruse): %s\n",
 			netstrerror());
 	exit(1);
     }
 #endif
 
-    memset(&myaddr, 0, sizeof(myaddr));
-    myaddr.sin_family = AF_INET;
-    myaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    myaddr.sin_port = htons(myport);
-    sts = bind(sfd, (struct sockaddr*) &myaddr, sizeof(myaddr));
+    __pmInitSockAddr(&myaddr, htonl(INADDR_ANY), htons(myport));
+    sts = __pmBind(sfd, (__pmSockAddr*) &myaddr, sizeof(myaddr));
     if (sts < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet bind: %s\n",
 			netstrerror());
 	exit(1);
     }
 
-    sts = listen(sfd, 5);	/* Max. of 5 pending connection requests */
+    sts = __pmListen(sfd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet listen: %s\n",
 			netstrerror());
@@ -97,7 +94,7 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
     }
     addrlen = sizeof(from);
     /* block here, waiting for a connection */
-    if ((*infd = accept(sfd, (struct sockaddr *)&from, &addrlen)) < 0) {
+    if ((*infd = __pmAccept(sfd, (__pmSockAddr *)&from, &addrlen)) < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet accept: %s\n",
 			netstrerror());
 	exit(1);
