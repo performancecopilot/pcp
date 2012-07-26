@@ -26,7 +26,7 @@ TOPDIR = .
 
 LICFILES = COPYING
 DOCFILES = README INSTALL CHANGELOG VERSION.pcp
-CONFFILES = pcp.lsm src/include/pcp/platform_defs.h
+CONFFILES = pcp.lsm
 LSRCFILES = configure configure.in Makepkgs install-sh $(DOCFILES) $(LICFILES) \
 	    config.guess config.sub pcp.lsm.in
 LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
