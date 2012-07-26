@@ -16,6 +16,7 @@ dnl
 
 dnl unpacking check - this file must exist
 AC_INIT(src/include/pcp/pmapi.h)
+AC_PREREQ([2.60])dnl
 
 dnl Irix build issue ... use the tools from the local filesystems
 unset ROOT TOOLROOT
