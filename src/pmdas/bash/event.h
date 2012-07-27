@@ -18,9 +18,6 @@
 
 #include "pmapi.h"
 #include "impl.h"
-#include "pmda.h"
-#include <sys/stat.h>
-#include <sys/types.h>
 
 typedef struct bash_process {
     int			fd;

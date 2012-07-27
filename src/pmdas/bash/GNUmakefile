@@ -28,7 +28,8 @@ LDIRT		= domain.h *.log *.dir *.pag so_locations
 CFILES		= event.c pmda.c util.c
 HFILES		= event.h
 SCRIPTS		= bashproc.sh pcp.sh
-LSRCFILES	= Install Remove pmns help root $(SCRIPTS)
+SAMPLES		= test-child.sh test-trace.sh
+LSRCFILES	= Install Remove pmns help root $(SCRIPTS) $(SAMPLES)
 
 default:	build-me
 

@@ -15,6 +15,7 @@
  */
 #include "domain.h"
 #include "event.h"
+#include "pmda.h"
 
 #define DEFAULT_MAXMEM	(2 * 1024 * 1024)	/* 2 megabytes */
 long bash_maxmem;

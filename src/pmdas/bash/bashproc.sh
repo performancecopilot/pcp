@@ -33,16 +33,19 @@ pcp_trace()
             exec 99>/dev/null
             unlink "${PCP_TRACE_DATA}" 2>/dev/null
             unlink "${PCP_TRACE_HEADER}" 2>/dev/null
+            wait
             ;;
 
         start|on)
             # series of sanity checks first
-            [ -n "${BASH_VERSION}" ] || return 0	# wrong shell
-            [ "${BASH_VERSINFO[0]}" -ge 4 ] || return 0	# no support
-            [ ! -d "/proc/$$/fd" -o ! -e "/proc/$$/fd/99" ] || return 0
+            [ -n "${BASH_VERSION}" ] || return 0        # wrong shell
+            [ "${BASH_VERSINFO[0]}" -ge 4 ] || return 0 # no support
             [ -z "${PCP_TMP_DIR}" ] && return 0	        # incorrect setup
-            [ -z "${PCP_TRACE_DIR}" ] && pcp_trace init
-            [ -d "${PCP_TRACE_DIR}" ] || return 0	# no pcp pmda
+            [ -d "${PCP_TRACE_DIR}" ] || return 0       # no pcp pmda yet
+            [ -z "${PCP_TRACE_DIR}" ] && pcp_trace init # not yet tracing
+
+            # is thi the child of a traced shell?
+            [ -e /proc/self/fd/99 ] && pcp_trace init
 
             trap "pcp_trace on" 13	# reset on sigpipe (consumer died)
             printf -v PCP_START '%(%s)T' -2
@@ -52,7 +55,7 @@ pcp_trace()
                 "$@" > "${PCP_TRACE_HEADER}" || return 0
             # setup link between xtrace & fifo
             exec 99>"${PCP_TRACE_DATA}"
-            BASH_XTRACEFD=99	# magic bash environment variable
+            BASH_XTRACEFD=99		# magic bash environment variable
             set -o xtrace		# start tracing from here onward
             # traces: time, line#, and (optionally) function
             PS4='time:${SECONDS} line:${LINENO} func:${FUNCNAME[0]-} + '

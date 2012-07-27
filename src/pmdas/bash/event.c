@@ -15,8 +15,10 @@
  */
 
 #include "event.h"
+#include "pmda.h"
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
-#include <stdlib.h>
 #include <ctype.h>
 #include <regex.h>
 
@@ -159,6 +161,9 @@ process_alloc(const char *bashname, bash_process_t *init, int numclients)
 	free(bashful);
 	return NULL;
     }
+
+    /* Tough access situation - how to log without this? */
+    /* pmdaEventSetAccess(pmdaGetContext(), queueid, 1); */
 
     bashful->fd = init->fd;
     bashful->pid = init->pid;
