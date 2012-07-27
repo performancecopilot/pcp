@@ -379,6 +379,13 @@ class _interrupt(_subsys):
 
         self.int_abs_metric= ()
 
+        # remove any unsupported metrics
+        for j in range(len(self.interrupt_metrics)-1, -1, -1):
+            try:
+                (code, self.int_metric_name) = pm.pmLookupName(self.interrupt_metrics[j])
+            except pmErr as e:
+                self.interrupt_metrics.remove(self.interrupt_metrics[j])
+
         self.interrupt_metrics_dict={i:self.interrupt_metrics.index(i) for i in self.interrupt_metrics}
         self.interrupt_metric_value = [0 for i in range(len(self.interrupt_metrics))]
         self.old_interrupt_metric_value = [0 for i in range(len(self.interrupt_metrics))]
@@ -775,7 +782,6 @@ if __name__ == '__main__':
         map( lambda x: subsys.add(x) , ("disk", "cpu", "process", "network") )
     elif cpu in subsys:
         subsys.add(proc)
-        print subsys
 
     if (pm < 0):
         print "PCP is not running"
