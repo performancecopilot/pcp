@@ -25,8 +25,10 @@ setup(name="pcp",
       description="Python Interface to SGI's Performance Co-Pilot client API",
       author="Michael Werner",
       author_email="mtw@protomagic.com",
+      maintainer="Stan Cox",
+      maintainer_email="scox@redhat.com",
       url="ftp://oss.sgi.com/www/projects/pcp/download/",
-      py_modules = ['pcp','pcpi'],
+      py_modules = ['pcp','pcpi','pm-collectl'],
       ext_modules=[ Extension( "pmapi", ["pmapi.c"],
                                libraries=["pcp"]
                              )
@@ -53,5 +55,3 @@ setup(name="pcp",
       ],
 
 )
-
-

@@ -17,11 +17,24 @@
 #
 
 TOPDIR = ../..
+include $(TOPDIR)/src/include/builddefs
+prefix = @prefix@
 
-# LIB_FOR_BASENAME = "-lpcp"
-
-default_pcp:
-	:
-
+PYFILES = pcpi.py pcp.py pm-collectl.py pmapi.c
 
 
+s-setup : $(PYFILES)
+	python setup.py build
+	touch s-setup
+
+default: s-setup; @true
+
+include $(BUILDRULES)
+
+# add  --root %(prefix) when prefix is available
+install: 
+	python setup.py install --skip-build
+
+default_pcp:    default
+
+install_pcp:    install
