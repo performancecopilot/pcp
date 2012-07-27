@@ -1,4 +1,4 @@
-pcp-3.6.5 (23 July 2012)
+pcp-3.6.5 (03 August 2012)
     - Add modern gcc/glibc security protection mechanisms where
       available.
     - Resolve an issue with configure script checking for the init(1)
@@ -16,6 +16,7 @@ pcp-3.6.5 (23 July 2012)
       associated with each key is an opaque reference.
     - Work begun on Project Lazarus, bringing pmdaoracle back from
       the firey depths of hell.  Jonathan will surely be pleased.
+    - Initial version of the (experimental) bash tracing PMDA.
 
 pcp-3.6.4 (12 June 2012)
     - Fix build on s390x platform (thanks to Dan Horak)
