@@ -159,6 +159,7 @@ parseinterval
 parsemetricspec
 pcp_lite_crash
 pducheck
+pducrash
 pdu-server
 permfetch
 pmcdgone

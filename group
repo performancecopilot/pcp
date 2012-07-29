@@ -746,6 +746,8 @@ pmlogrewrite
 508 archive pmlogreduce pmlogextract local oss
 509 derive pmns local oss
 510 pmlogger local oss
+512 threads pminfo pmlogger pmlogextract pmdumplog dbpmda local oss
+513 libpcp pdu local oss
 519 pmie remote oss
 522 pmcd local oss
 529 pmie local oss
@@ -824,4 +826,3 @@ pmlogrewrite
 1050 pmieconf local sgi
 1051 pmieconf #696008 local sgi
 1108 logutil local folio sgi
-512 threads pminfo pmlogger pmlogextract pmdumplog dbpmda local oss

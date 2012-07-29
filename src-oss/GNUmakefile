@@ -73,7 +73,7 @@ MKARCH	= foo.0 mv-foo.0 noti-foo.0 bar.0 mv-bar.0 noti-bar.0 \
 	interp.0 mv-interp.0 noti-interp.0 noti-ok-foo.0 gap.0 gap2.0 \
 	dodgey-some.0 dodgey-all.0 dodgey-mixed.0 reduce-gap.0
 
-CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
+CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	xval.c xxx.c chkopenlog.c chkconnect.c t_fetch.c \
 	hp-mib.c agenttimeout.c chkctx2.c pmcdgone.c chkhelp.c \
 	scale.c chktrim.c store.c torture_api.c logcontrol.c xlog.c \
@@ -86,7 +86,8 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	xmktime.c descreqX2.c recon.c torture_indom.c \
 	fetchrate.c stripmark.c pmnsinarchives.c \
 	endian.c chk_memleak.c chk_metric_types.c mark-bug.c \
-	pmnsunload.c parsemetricspec.c pdu-server.c parseinterval.c \
+	pmnsunload.c parsemetricspec.c parseinterval.c \
+	pducheck.c pducrash.c pdu-server.c \
 	pmprintf.c pmsocks_objstyle.c numberstr.c \
 	read-bf.c write-bf.c slow_af.c indom.c tztest.c \
 	multifetch.c pmconvscale.c torture-eol.c \
@@ -447,6 +448,10 @@ mmv_nostats:	mmv_nostats.c
 pducheck:	pducheck.o 
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ pducheck.o  $(TRACELIB) -lpcp_pmda $(LDLIBS)
+
+pducrash:	pducrash.o 
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ pducrash.o  $(TRACELIB) $(LDLIBS)
 
 pdu-server:	pdu-server.o
 	rm -f $@
