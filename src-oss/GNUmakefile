@@ -504,7 +504,12 @@ multithread0:	multithread0.c
 
 multithread1:	multithread1.c
 	rm -f $@
+ifeq "$(TARGET_OS)" "darwin"
+	@# see comments in multithread1.c to explain this crock
+	$(CCF) $(CDEFS) -Ddarwin_hack=1 -o $@ $@.c $(LIB_FOR_PTHREADS) -framework CoreFoundation $(LDLIBS)
+else
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+endif
 
 multithread2:	multithread2.c
 	rm -f $@

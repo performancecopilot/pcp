@@ -14,9 +14,16 @@ seq=`basename $0`
 
 if [ $PCP_PLATFORM != linux ]
 then
-    echo "Tests pmdalinux functionality on Linux" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun tests pmdalinux functionality on Linux only
+fi
+
+# proc metrics may not be available
+#
+if pminfo proc.nprocs >/dev/null 2>&1
+then
+    :
+else
+    _notrun proc PMDA not installed
 fi
 
 seq=`basename $0`

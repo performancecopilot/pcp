@@ -74,7 +74,6 @@ children of "" ...
     nfs4                <s = 1>
     pmcd                <s = 1>
     pmda                <s = 1>
-    proc                <s = 1>
     quota               <s = 1>
     rpc                 <s = 1>
     sample              <s = 1>

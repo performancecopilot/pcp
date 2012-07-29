@@ -52,10 +52,12 @@ localconfig:
 	PATH=$(PATH); ./mk.localconfig
 
 pconf:	pconf.tar
-	tar xpf pconf.tar
+	tar xf pconf.tar
+	touch pconf
 
 cisco:	cisco.tar
-	tar xpf cisco.tar
+	tar xf cisco.tar
+	touch cisco
 
 SCRIPTS = mk.localconfig new check recheck remake mk.qa_hosts findmetric \
 	  fix-rc getpmcdhosts group-stats mk.variant changeversion \

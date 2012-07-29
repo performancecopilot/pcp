@@ -24,6 +24,15 @@ seq=`basename $0`
 [ $PCP_PLATFORM = darwin ] && _notrun "No proc metrics for darwin"
 [ $PCP_PLATFORM = solaris ] && _notrun "No proc metrics for solaris"
 
+# proc metrics may not be available
+#
+if pminfo proc.nprocs >/dev/null 2>&1
+then
+    :
+else
+    _notrun proc PMDA not installed
+fi
+
 echo "QA output created by $seq"
 
 status=1	# failure is the default!

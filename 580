@@ -16,7 +16,17 @@ echo "QA output created by $seq"
 rm -f $seq.out
 case $PCP_PLATFORM
 in
-    irix|linux|darwin)
+    linux)
+	# proc metrics may not be available
+	#
+	if pminfo proc.nprocs >/dev/null 2>&1
+	then
+	    ln $seq.out.$PCP_PLATFORM $seq.out || exit 1
+	else
+	    ln $seq.out.$PCP_PLATFORM.noproc $seq.out || exit 1
+	fi
+	;;
+    irix|darwin)
 	ln $seq.out.$PCP_PLATFORM $seq.out || exit 1
 	;;
     solaris)

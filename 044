@@ -52,7 +52,16 @@ _doit()
 rm -f $seq.out $seq.full
 if [ $PCP_PLATFORM = linux ]
 then
-    ln $seq.linux $seq.out
+    # proc metrics may not be available
+    #
+    if pminfo proc.nprocs >/dev/null 2>&1
+    then
+	have_proc=true
+	ln $seq.linux $seq.out
+    else
+	have_proc=false
+	ln $seq.linux.1 $seq.out
+    fi
 elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
     ln $seq.darwin $seq.out
@@ -82,7 +91,7 @@ do
     _doit $m
 done
 
-if [ $PCP_PLATFORM = linux ]
+if [ $PCP_PLATFORM = linux ] && $have_proc
 then
     # impossible pid
     echo

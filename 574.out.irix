@@ -53,7 +53,6 @@ pmid: 0xffffffff name: bozo.the.clown
 children of "" ...
     hinv                <s = 1>
     pmcd                <s = 1>
-    proc                <s = 1>
     sample              <s = 1>
     sampledso           <s = 1>
 

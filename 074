@@ -13,11 +13,13 @@ echo "QA output created by $seq"
 . ./common.filter
 
 rm -f $seq.out
-if [ $PCP_PLATFORM = "darwin" -o $PCP_PLATFORM = "solaris" ]
+# proc metrics may not be available
+#
+if pminfo proc.nprocs >/dev/null 2>&1
 then
-    ln $seq.out.darwin $seq.out
-else
     ln $seq.out.other $seq.out
+else
+    ln $seq.out.noproc $seq.out
 fi
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15

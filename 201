@@ -44,6 +44,8 @@ src-oss/torture_cache -Dindom a 2>&1 | _filter
 
 echo
 echo "save tests ..."
+$sudo rm -f $PCP_VAR_DIR/config/pmda/123.8
+$sudo touch $PCP_VAR_DIR/config/pmda/123.8
 $sudo src-oss/torture_cache b 2>&1 | _filter
 
 echo
