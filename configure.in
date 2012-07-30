@@ -796,6 +796,7 @@ AC_CHECK_HEADERS(pwd.h regex.h sys/wait.h)
 AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h)
 AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h netinet/tcp.h arpa/inet.h)
 AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h)
+AC_CHECK_HEADERS(execinfo.h)
 AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])
 
 dnl Check if we have <sys/endian.h> ... standard way
@@ -858,6 +859,7 @@ AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
 AC_CHECK_FUNCS(strtod strtol strtoll strtoull)
 AC_CHECK_FUNCS(sysinfo)
+AC_CHECK_FUNCS(backtrace)
 
 dnl only define readdir64 on non-linux platforms that support it
 if test $target_os != linux -a $target_os != freebsd -a $target_os != kfreebsd; then
