@@ -389,10 +389,10 @@ refresh_cgroup_subsys(pmInDom indom)
 	    if (*data != hierarchy) {
 		/*
 		 * odd ... instance name repeated but different
-		 * hierarchy ... we cannot support more than one hierachy
+		 * hierarchy ... we cannot support more than one hierarchy
 		 * yet
 		 */
-		fprintf(stderr, "refresh_cgroup_subsys: \"%s\": entries for hierachy %ld ignored (hierarchy %ld seen first)\n", name, hierarchy, *data);
+		fprintf(stderr, "refresh_cgroup_subsys: \"%s\": entries for hierarchy %ld ignored (hierarchy %ld seen first)\n", name, hierarchy, *data);
 	    }
 	    continue;
 	}

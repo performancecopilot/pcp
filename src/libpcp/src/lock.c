@@ -15,6 +15,11 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "internal.h"
+#ifdef PM_MULTI_THREAD_DEBUG
+#ifdef HAVE_EXECINFO_H
+#include <execinfo.h>
+#endif
+#endif
 
 /* the big libpcp lock */
 #ifdef PM_MULTI_THREAD
@@ -222,6 +227,25 @@ again:
 	    }
 	}
 	fputc('\n', stderr);
+#ifdef HAVE_BACKTRACE
+#define MAX_TRACE_DEPTH 32
+	{
+	    void	*backaddr[MAX_TRACE_DEPTH];
+	    sts = backtrace(backaddr, MAX_TRACE_DEPTH);
+	    if (sts > 0) {
+		char	**symbols;
+		symbols = backtrace_symbols(backaddr, MAX_TRACE_DEPTH);
+		if (symbols != NULL) {
+		    int		i;
+		    fprintf(stderr, "backtrace:\n");
+		    for (i = 0; i < sts; i++)
+			fprintf(stderr, "  %s\n", symbols[i]);
+		    free(symbols);
+		}
+	    }
+	}
+
+#endif
     }
 }
 #endif

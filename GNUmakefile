@@ -26,8 +26,8 @@ TOPDIR = .
 
 LICFILES = COPYING
 DOCFILES = README INSTALL CHANGELOG VERSION.pcp
-CONFFILES = configure pcp.lsm
-LSRCFILES = configure.in Makepkgs install-sh $(DOCFILES) $(LICFILES) \
+CONFFILES = pcp.lsm
+LSRCFILES = configure configure.in Makepkgs install-sh $(DOCFILES) $(LICFILES) \
 	    config.guess config.sub pcp.lsm.in
 LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
 	pcp-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
@@ -107,11 +107,8 @@ realclean distclean clean clobber:
 	@true
 endif
 
-configure_pcp: pcp.lsm
+configure_pcp: pcp.lsm src/include/pcp/platform_defs.h
 
-pcp.lsm: configure pcp.lsm.in
+pcp.lsm src/include/pcp/platform_defs.h: configure pcp.lsm.in src/include/pcp/platform_defs.h.in
 	./configure
 
-configure : configure.in
-	rm -fr config.cache autom4te.cache
-	autoconf

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2012 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -207,7 +207,7 @@ domain_write(void)
 }
 
 void
-prefetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
+prefetch(void)
 {
     dSP;
     ENTER;
@@ -231,15 +231,26 @@ fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
     if (need_refresh)
 	pmns_refresh();
     if (fetch_func)
-	prefetch(numpmid, pmidlist, rp, pmda);
+	prefetch();
     if (refresh_func)
 	refresh(numpmid, pmidlist);
     sts = pmdaFetch(numpmid, pmidlist, rp, pmda);
     return sts;
 }
 
+int
+instance_index(pmInDom indom)
+{
+    int i;
+
+    for (i = 0; i < itab_size; i++)
+	if (indomtab[i].it_indom == indom)
+	    return i;
+    return PM_INDOM_NULL;
+}
+
 void
-preinstance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
+preinstance(pmInDom indom)
 {
     dSP;
     ENTER;
@@ -262,7 +273,7 @@ instance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
     if (need_refresh)
 	pmns_refresh();
     if (instance_func)
-	preinstance(indom, a, b, rp, pmda);
+	preinstance(instance_index(indom));
     return pmdaInstance(indom, a, b, rp, pmda);
 }
 
@@ -469,21 +480,60 @@ text(int ident, int type, char **buffer, pmdaExt *pmda)
 }
 
 /*
- * Converts Perl list ref like [a => 'foo', b => 'boo'] into an indom
+ * Converts Perl hash ref like {'foo' => \&data, 'boo' => \&data}
+ * into an instance structure (indom).
  */
 static int
-list_to_indom(SV *list, pmdaInstid **set)
+update_hash_indom(SV *insts, pmInDom indom)
 {
-    int	i, j, len;
-    SV	**id;
-    SV	**name;
-    AV	*ilist = (AV *) SvRV(list);
+    int sts;
+    SV *data;
+    I32 instsize;
+    char *instance;
+    HV *ihash = (HV *) SvRV(insts);
+
+    sts = pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+    if (sts < 0)
+	warn("pmda cache inactivation failed: %s", pmErrStr(sts));
+
+    hv_iterinit(ihash);
+    while ((data = hv_iternextsv(ihash, &instance, &instsize)) != NULL)
+	pmdaCacheStore(indom, PMDA_CACHE_ADD, instance, data);
+
+    sts = pmdaCacheOp(indom, PMDA_CACHE_SAVE);
+    if (sts < 0)
+	warn("pmda cache persistance failed: %s", pmErrStr(sts));
+
+    return 0;
+}
+
+/*
+ * Free all memory associated with a Perl list based indom
+ */
+static void
+release_list_indom(pmdaInstid *instances, int numinst)
+{
+    int i;
+
+    if (instances && numinst > 0) {
+	for (i = 0; i < numinst; i++)
+	    free(instances[i].i_name);	/* update_list_indom strdup */
+	free(instances);	/* update_list_indom calloc */
+    }
+}
+
+/*
+ * Converts Perl list ref like [a => 'foo', b => 'boo'] into an indom.
+ */
+static int
+update_list_indom(SV *insts, pmdaInstid **set)
+{
+    int	i, len;
+    SV **id;
+    SV **name;
+    AV *ilist = (AV *) SvRV(insts);
     pmdaInstid *instances;
 
-    if (SvTYPE((SV *)ilist) != SVt_PVAV) {
-	warn("final argument is not an array reference");
-	return -1;
-    }
     if ((len = av_len(ilist)) == -1) {	/* empty */
 	*set = NULL;
 	return 0;
@@ -505,15 +555,35 @@ list_to_indom(SV *list, pmdaInstid **set)
 	instances[i].i_inst = SvIV(*id);
 	instances[i].i_name = strdup(SvPV_nolen(*name));
 	if (instances[i].i_name == NULL) {
-	    for (j=0; j < i; j++)
-	    	free(instances[j].i_name);
-	    free(instances);
+	    release_list_indom(instances, i);
 	    warn("insufficient memory for instance array names");
 	    return -1;
 	}
     }
     *set = instances;
     return len;
+}
+
+/*
+ * Converts a Perl instance reference into a populated indom.
+ * This interface handles either the hash or list formats.
+ */
+static int
+update_indom(SV *insts, pmInDom indom, pmdaInstid **set)
+{
+    SV *rv = (SV *) SvRV(insts);
+    pmdaInstid *instances;
+
+    if (! SvROK(insts)) {
+	warn("expected a reference for instances argument");
+	return -1;
+    }
+    if (SvTYPE(rv) == SVt_PVAV)
+	return update_list_indom(insts, set);
+    if (SvTYPE(rv) == SVt_PVHV)
+	return update_hash_indom(insts, indom);
+    warn("instance argument is neither an array nor hash reference");
+    return -1;
 }
 
 
@@ -554,7 +624,7 @@ new(CLASS,name,domain)
 	}
 	else {
 	    pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmdaname, domain,
-			logfile, helpfile);
+			logfile, strdup(helpfile));
 	}
 	dispatch.version.four.fetch = fetch;
 	dispatch.version.four.instance = instance;
@@ -616,32 +686,51 @@ pmda_pmid_text(cluster,item)
 	RETVAL
 
 SV *
-pmda_inst_name(indom,instance)
-	unsigned int	indom
+pmda_inst_name(index,instance)
+	unsigned int	index
 	int		instance
     PREINIT:
+	int		i;
+	pmdaIndom *	p;
 	pmdaInstid	*instp;
-	int		i, instc;
     CODE:
-	indom = pmInDom_build(dispatch.domain, indom);
-	for (i = 0; i < itab_size; i++)
-	    if (indomtab[i].it_indom == indom)
-		break;
-	if (i == itab_size)
+	if (index >= itab_size || index < 0)	/* is this a valid indom */
 	    XSRETURN_UNDEF;
-	instp = indomtab[i].it_set;
-	instc = indomtab[i].it_numinst;
+	p = indomtab + index;
+	if (!p->it_set)	/* was this indom previously setup via a hash? */
+	    XSRETURN_UNDEF;
 
 	/* Optimistic (fast) direct lookup first, then iterate */
 	i = instance;
-	if (i > instc || i < 0 || instance != instp[i].i_inst) {
-	    for (i = 0; i < instc; i++)
-		if (instance == instp[i].i_inst)
+	if (i > p->it_numinst || i < 0 || instance != p->it_set[i].i_inst) {
+	    for (i = 0; i < p->it_numinst; i++)
+		if (instance == p->it_set[i].i_inst)
 		    break;
-	    if (i == instc)
+	    if (i == p->it_numinst)
 		XSRETURN_UNDEF;
 	}
-	RETVAL = newSVpv(instp[i].i_name,0);
+	RETVAL = newSVpv(p->it_set[i].i_name,0);
+    OUTPUT:
+	RETVAL
+
+SV *
+pmda_inst_lookup(index,instance)
+	unsigned int	index
+	int		instance
+    PREINIT:
+	pmdaIndom *	p;
+	SV *		svp;
+	int		i, sts;
+    CODE:
+	if (index >= itab_size || index < 0)	/* is this a valid indom */
+	    XSRETURN_UNDEF;
+	p = indomtab + index;
+	if (p->it_set)	/* was this indom previously setup via an array? */
+	    XSRETURN_UNDEF;
+	sts = pmdaCacheLookup(p->it_indom, instance, NULL, (void *)&svp);
+	if (sts != PMDA_CACHE_ACTIVE)
+	    XSRETURN_UNDEF;
+	RETVAL = SvREFCNT_inc(svp);
     OUTPUT:
 	RETVAL
 
@@ -876,18 +965,17 @@ clear_indoms(self)
 	clearHV(indom_helptext);
 
 int
-add_indom(self,indom,list,help,longhelp)
+add_indom(self,indom,insts,help,longhelp)
 	pmdaInterface *	self
 	int	indom
-	SV *	list
+	SV *	insts
 	char *	help
 	char *	longhelp
     PREINIT:
 	pmdaIndom  * p;
 	const char * hash;
-	int          size;
+	int          sts, size;
     CODE:
-	(void)self;
 	size = sizeof(pmdaIndom) * (itab_size + 1);
 	indomtab = (pmdaIndom *)realloc(indomtab, size);
 	if (indomtab == NULL) {
@@ -897,12 +985,15 @@ add_indom(self,indom,list,help,longhelp)
 	}
 
 	p = indomtab + itab_size;
-	p->it_indom = *(pmInDom *)&indom;
-	p->it_numinst = list_to_indom(list, &p->it_set);
-	if (p->it_numinst == -1)
+	memset(p, 0, sizeof(pmdaIndom));
+	p->it_indom = pmInDom_build(self->domain, indom);
+
+	sts = update_indom(insts, p->it_indom, &p->it_set);
+	if (sts < 0)
 	    XSRETURN_UNDEF;
-	else
-	    RETVAL = itab_size++;	/* used in calls to replace_indom() */
+	if (p->it_set)
+	    p->it_numinst = sts;
+	RETVAL = itab_size++;	/* used in calls to replace_indom() */
 
 	hash = pmInDomStr(indom);
 	size = strlen(hash);
@@ -914,13 +1005,13 @@ add_indom(self,indom,list,help,longhelp)
 	RETVAL
 
 int
-replace_indom(self,index,list)
+replace_indom(self,index,insts)
 	pmdaInterface *	self
 	int	index
-	SV *	list
+	SV *	insts
     PREINIT:
 	pmdaIndom *	p;
-	int		i;
+	int		sts;
     CODE:
 	if (index >= itab_size || index < 0) {
 	    warn("attempt to replace non-existent instance domain");
@@ -928,16 +1019,15 @@ replace_indom(self,index,list)
 	}
 	else {
 	    p = indomtab + index;
-	    if (p->it_set && p->it_numinst > 0) {
-		for (i = 0; i < p->it_numinst; i++)
-		    free(p->it_set[i].i_name);	/* list_to_indom strdup */
-		free(p->it_set);	/* list_to_indom calloc */
-	    }
-	    p->it_numinst = list_to_indom(list, &p->it_set);
-	    if (p->it_numinst == -1)
+	    /* was this indom previously setup via an array? */
+	    if (p->it_set)
+		release_list_indom(p->it_set, p->it_numinst);
+	    sts = update_indom(insts, p->it_indom, &p->it_set);
+	    if (sts < 0)
 		XSRETURN_UNDEF;
-	    else
-		RETVAL = p->it_numinst;
+	    if (p->it_set)
+		p->it_numinst = sts;
+	    RETVAL = sts;
 	}
     OUTPUT:
 	RETVAL

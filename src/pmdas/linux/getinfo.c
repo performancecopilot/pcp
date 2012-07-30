@@ -36,6 +36,7 @@ get_distro_info(void)
     };
     char *rfiles[] = {
 		"/etc/debian_version",
+		"/etc/oracle-release",
 		"/etc/fedora-release",
 		"/etc/redhat-release",
 		"/etc/slackware-version",

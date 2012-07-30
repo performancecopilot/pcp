@@ -31,7 +31,16 @@ do
 	(( count++ ))
 	echo "awoke, $count"	# top level
 	tired 2		# call a shell function
+	branch=$(( count % 3 ))
+	case $branch
+	in
+		0)	./test-child.sh $count &
+			;;
+		2)	wait
+			;;
+	esac
 done
+
 pcp_trace off
 
 exit 0

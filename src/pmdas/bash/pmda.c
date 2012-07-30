@@ -21,12 +21,10 @@
 long bash_maxmem;
 
 static int bash_interval_expired;
-static struct timeval bash_interval = { 2, 0 };
+static struct timeval bash_interval = { 1, 0 };
 
 #define BASH_INDOM	0
-static pmdaIndom indoms[] = {
-    { BASH_INDOM, 0, NULL },
-};
+static pmdaIndom indoms[] = { { BASH_INDOM, 0, NULL } };
 #define INDOM_COUNT	(sizeof(indoms)/sizeof(indoms[0]))
 
 static pmdaMetric metrics[] = {
@@ -92,35 +90,40 @@ static void
 bash_trace_parser(bash_process_t *bash, bash_trace_t *trace,
 	struct timeval *timestamp, const char *buffer, size_t size)
 {
-    int time = -1;
-
     /* empty event inserted into queue to signal process has exited */
     if (size <= 0) {
 	trace->flags = PM_EVENT_FLAG_END;
+	// TODO: need to stat the trace file and get last modified
+	memcpy(&trace->timestamp, timestamp, sizeof(*timestamp));
     } else {
 	char	*p = (char *)buffer, *end = (char *)buffer + size - 1;
-
-	trace->flags = (PM_EVENT_FLAG_ID | PM_EVENT_FLAG_PARENT);
-	trace->flags |= event_start(bash, timestamp) ? PM_EVENT_FLAG_START : PM_EVENT_FLAG_POINT;
-
-	if (pmDebug & DBG_TRACE_APPL0)
-	    __pmNotifyErr(LOG_DEBUG, "processing buffer[%d]: %s", size, buffer);
+	int	sz, time = -1;
 
 	/* version 1 format: time, line#, function, and command line */
 	p += extract_int(p, "time:", sizeof("time:")-1, &time);
 	p += extract_int(p, "line:", sizeof("line:")-1, &trace->line);
-	p += extract_str(p, end - p, "func:", sizeof("func:")-1, trace->function, sizeof(trace->function));
-	extract_cmd(p, end - p, "+", 1, trace->command, sizeof(trace->command));
+	p += extract_str(p, end - p, "func:", sizeof("func:")-1,
+			trace->function, sizeof(trace->function));
+	sz = extract_cmd(p, end - p, "+", sizeof("+")-1,
+			trace->command, sizeof(trace->command));
+	if (sz <= 0)	/* wierd trace - no command */
+	    trace->command[0] = '\0';
+
+	if (time != -1) {	/* normal case */
+	    trace->timestamp.tv_sec = bash->starttime.tv_sec + time;
+	    trace->timestamp.tv_usec = bash->starttime.tv_usec;
+	} else {		/* wierd trace */
+	    memcpy(&trace->timestamp, timestamp, sizeof(*timestamp));
+	}
+
+	trace->flags = (PM_EVENT_FLAG_ID | PM_EVENT_FLAG_PARENT);
+	if (event_start(bash, &trace->timestamp))
+	    trace->flags |= PM_EVENT_FLAG_START;
 
 	if (pmDebug & DBG_TRACE_APPL0)
-	    __pmNotifyErr(LOG_DEBUG, "got func: '%s' cmd: '%s'", trace->function, trace->command);
-    }
-
-    if (time == -1) {
-	memcpy(&trace->timestamp, timestamp, sizeof(*timestamp));
-    } else {
-	trace->timestamp.tv_sec = bash->starttime.tv_sec + time;
-	trace->timestamp.tv_usec = bash->starttime.tv_usec;
+	    __pmNotifyErr(LOG_DEBUG,
+		"event parsed: flags: %x time: %d line: %d func: '%s' cmd: '%s'",
+		trace->flags, time, trace->line, trace->function, trace->command);
     }
 }
 
@@ -135,7 +138,7 @@ bash_trace_decoder(int eventarray,
     int			sts, count = 0;
 
     if (pmDebug & DBG_TRACE_APPL0)
-	__pmNotifyErr(LOG_DEBUG, "bash_trace_decoder[%d bytes]", size);
+	__pmNotifyErr(LOG_DEBUG, "bash_trace_decoder[%ld bytes]", (long)size);
 
     bash_trace_parser(process, &trace, timestamp, (const char *)buffer, size);
 

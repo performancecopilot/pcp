@@ -27,11 +27,8 @@ LLDLIBS	= -lpcp -lpcp_pmcd $(LIB_FOR_BASENAME) $(LIB_FOR_DLOPEN)
 
 PCP_LIBS += -L$(TOPDIR)/src/libpcp_pmcd/$(LIBPCP_ABIDIR)
 
-# Note: on platforms that need it (see configure.in) the "-rdynamic" flag
-# allows the pmcd pmda (dynamicaly loaded shared library) to access the
-# global symbols in pmcd.
-#LCFLAGS = $(RDYNAMIC_FLAG)
-LLDFLAGS = $(RDYNAMIC_FLAG)
+LLDFLAGS += $(RDYNAMIC_FLAG) $(PIELDFLAGS)
+LCFLAGS += $(PIECFLAGS)
 
 default:	$(CMDTARGET)
 

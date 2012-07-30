@@ -92,7 +92,7 @@ realclean distclean: clean
 	      $(TOPDIR)/src/include/pcp/platform_trailer \
 	      $(TOPDIR)/src/include/pcp/platform_defs.h \
 	      $(TOPDIR)/src/include/pcp/pmdbg.h
-	rm -f $(TOPDIR)/pcp.lsm $(TOPDIR)/configure
+	rm -f $(TOPDIR)/pcp.lsm
 
 #
 # Never blow away subdirs

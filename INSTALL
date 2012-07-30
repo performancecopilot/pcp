@@ -117,8 +117,7 @@ PCP internet resources, and the pmchart utility.
 1. Configure, build and install the package
 
    The pcp package uses autoconf/configure and expects a GNU build
-   environment (your platform must at least have both autoconf and
-   gmake). 
+   environment (your platform must at least have gmake).
 
    If you just want to spin a .RPM, .DEB, .DMG, .EXE and/or tar
    file, use the Makepkgs script in the top level directory.

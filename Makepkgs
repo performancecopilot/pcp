@@ -138,9 +138,9 @@ fi
 if $clean; then
     echo "== cleaning, log is in $LOGDIR/clean"
     if $verbose ; then
-	($MAKE -j 1 clean 2>&1 || touch $tmp.failed )| tee $LOGDIR/clean
+	($MAKE -j 1 distclean 2>&1 || touch $tmp.failed )| tee $LOGDIR/clean
     else
-	$MAKE -j 1 clean > $LOGDIR/clean 2>&1  || touch $tmp.failed
+	$MAKE -j 1 distclean > $LOGDIR/clean 2>&1  || touch $tmp.failed
     fi
     if [ -f $tmp.failed ] ; then
 	if ! $verbose ; then
@@ -152,11 +152,6 @@ if $clean; then
 fi
 
 echo
-if [ ! -f ./configure ]
-then
-    echo "== autoconf, log is in $LOGDIR/autoconf"
-    autoconf 2>&1 >$LOGDIR/autoconf
-fi
 
 LOGF=$LOGDIR/pcp
 echo

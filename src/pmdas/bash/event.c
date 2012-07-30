@@ -22,6 +22,10 @@
 #include <ctype.h>
 #include <regex.h>
 
+#ifndef HAVE_MEMALIGN
+#define memalign(a,b) malloc(b)
+#endif
+
 static char *prefix = "pmdabash";
 static char *pcptmpdir;			/* probably /var/tmp */
 static char pidpath[MAXPATHLEN];
@@ -53,7 +57,7 @@ process_head_parser(bash_process_t *verify, const char *buffer, size_t size)
     p += extract_int(p, "version:", sizeof("version:")-1, &version);
     p += extract_int(p, "ppid:", sizeof("ppid:")-1, &verify->parent);
     p += extract_int(p, "date:", sizeof("date:")-1, &date);
-    extract_cmd(p, end - p, "+", 1, script, sizeof(script));
+    extract_cmd(p, end - p, "+", sizeof("+")-1, script, sizeof(script));
 
     if (date) {
 	/* Use the given starttime of the script from the header */
@@ -140,9 +144,9 @@ process_verify(const char *bashname, bash_process_t *verify)
  * Helper routine, used during initialising of a tracked shell.
  */
 static bash_process_t *
-process_alloc(const char *bashname, bash_process_t *init)
+process_alloc(const char *bashname, bash_process_t *init, int numclients)
 {
-    int queueid = pmdaEventNewQueue(bashname, bash_maxmem);
+    int queueid = pmdaEventNewActiveQueue(bashname, bash_maxmem, numclients);
     bash_process_t *bashful = malloc(sizeof(bash_process_t));
 
     if (pmDebug & DBG_TRACE_APPL0)
@@ -157,6 +161,9 @@ process_alloc(const char *bashname, bash_process_t *init)
 	free(bashful);
 	return NULL;
     }
+
+    /* Tough access situation - how to log without this? */
+    /* pmdaEventSetAccess(pmdaGetContext(), queueid, 1); */
 
     bashful->fd = init->fd;
     bashful->pid = init->pid;
@@ -187,7 +194,7 @@ event_start(bash_process_t *bp, struct timeval *timestamp)
     int	start = memcmp(timestamp, &bp->startstat, sizeof(*timestamp));
 
     if (pmDebug & DBG_TRACE_APPL0)
-	__pmNotifyErr(LOG_DEBUG, "first event for %s (%d), %ld vs %ld",
+	__pmNotifyErr(LOG_DEBUG, "check start event for %s (%d), %ld vs %ld",
 		bp->instance, start, bp->startstat.tv_sec, timestamp->tv_sec);
 
     return start == 0;
@@ -206,12 +213,16 @@ process_init(const char *bashname, bash_process_t **bp)
 {
     bash_process_t init = { 0 };
 
+    pmAtomValue atom;
+    pmdaEventClients(&atom);
+
     if (pmDebug & DBG_TRACE_APPL1)
-	__pmNotifyErr(LOG_DEBUG, "process_init: %s", bashname);
+	__pmNotifyErr(LOG_DEBUG, "process_init: %s (%d clients)",
+			bashname, atom.ul);
 
     if (process_verify(bashname, &init) < 0)
 	return -1;
-    *bp = process_alloc(bashname, &init);
+    *bp = process_alloc(bashname, &init, atom.ul);
     if (*bp == NULL)
 	return -1;
     return 0;

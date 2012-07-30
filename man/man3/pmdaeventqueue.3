@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2011 Nathan Scott.  All Rights Reserved.
+.\" Copyright (c) 2011-2012 Nathan Scott.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
 .SH NAME
 .ad l
 \f3pmdaEventNewQueue\f1,
+\f3pmdaEventNewActiveQueue\f1,
 \f3pmdaEventQueueHandle\f1,
 \f3pmdaEventQueueAppend\f1,
 \f3pmdaEventQueueRecords\f1,
@@ -39,6 +40,9 @@
 .in +8n
 .ti -8n
 int pmdaEventNewQueue(const char *\fIname\fP, size_t \fImaxmem\fP);
+.br
+.ti -8n
+int pmdaEventNewActiveQueue(const char *\fIname\fP, size_t \fImaxmem\fP,  int \fInclients\fP);
 .br
 .ti -8n
 int pmdaEventQueueHandle(const char *\fIname\fP);
@@ -99,9 +103,11 @@ described in
 and shield the average PMDA from the details of directly building event
 record arrays for individual client contexts.
 .PP
-The PMDA registers a new queue of events using
-.BR pmdaEventNewQueue .
-This is passed an identifying
+The PMDA registers a new queue of events using either
+.B pmdaEventNewQueue
+or
+.BR pmdaEventNewActiveQueue .
+These are passed an identifying
 .I name
 (for diagnostic purposes, and for subsequent lookup by
 .BR pmdaEventQueueLookup )
@@ -110,6 +116,12 @@ and
 an upper bound on the memory (in bytes) that can be consumed by events
 in this queue, before beginning to discard them (resulting in "missed"
 events for any client that has not kept up).
+If a queue is dynamically allocated (such that the PMDA may already have
+clients connected) the
+.B pmdaEventNewActiveQueue
+interface should be used, with the additional
+.I numclients
+parameter indicating the count of active client connections.
 The return is a negative error code on failure, suitable for decoding
 by the
 .BR pmErrStr (3)

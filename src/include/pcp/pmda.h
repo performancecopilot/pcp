@@ -525,6 +525,7 @@ extern pmEventArray *pmdaEventGetAddr(int);
  * Event Queue support
  */
 extern int pmdaEventNewQueue(const char *, size_t);
+extern int pmdaEventNewActiveQueue(const char *, size_t, unsigned int);
 extern int pmdaEventQueueHandle(const char *);
 extern int pmdaEventQueueAppend(int, void *, size_t, struct timeval *);
 extern int pmdaEventQueueClients(int, pmAtomValue *);
