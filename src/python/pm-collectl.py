@@ -842,14 +842,14 @@ class _net(_subsys):
     def insert_to_db(self):
         _=self.net_metrics_dict
         agent = uuid.uuid4()
-        networkinfo = {'agentid': agent, 'bytes-in': self.net_metric_value[_['network.interface.in.bytes']],
-                       'packets-in': self.net_metric_value[_['network.interface.in.packets']],
-                       'multicasts-in': self.net_metric_value[_['network.interface.in.mcasts']],
-                       'compressed-in': self.net_metric_value[_['network.interface.in.compressed']],
-                       'errors': self.net_metric_value[_['network.interface.in.errors']],
-                       'packets-out': self.net_metric_value[_['network.interface.out.packets']],
-                       'total-multicasts': self.net_metric_value[_['network.interface.total.mcasts']],
-                       'compressed-out': self.net_metric_value[_['network.interface.out.compressed']]}
+        networkinfo = {'agentid': agent, 'network-in-bytes': self.net_metric_value[_['network.interface.in.bytes']],
+                       'network-in-packets': self.net_metric_value[_['network.interface.in.packets']],
+                       'network-in-mcasts': self.net_metric_value[_['network.interface.in.mcasts']],
+                       'network-in-compressed': self.net_metric_value[_['network.interface.in.compressed']],
+                       'network-in-errors': self.net_metric_value[_['network.interface.in.errors']],
+                       'network-out-packets': self.net_metric_value[_['network.interface.out.packets']],
+                       'network-total-mcasts': self.net_metric_value[_['network.interface.total.mcasts']],
+                       'network-out-compressed': self.net_metric_value[_['network.interface.out.compressed']]}
         #print 'network info: {}'.format(networkinfo)
 
         #setup networkinfo collection
