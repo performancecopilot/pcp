@@ -28,8 +28,8 @@ LSRCFILES = rc_pmproxy pmproxy.options
 LLDLIBS	= -lpcp $(LIB_FOR_BASENAME)
 LDIRT += pmproxy.log
 
-LCFLAGS = $(PIECFLAGS)
-LLDFLAGS = $(PIELDFLAGS)
+LCFLAGS += $(PIECFLAGS)
+LLDFLAGS += $(PIELDFLAGS)
 
 default: $(CMDTARGET)
 
