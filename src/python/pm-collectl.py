@@ -341,9 +341,31 @@ class _cpu(_subsys):
             ),
 
     def insert_to_db(self):
+        _=self.cpu_metrics_dict
         agent = uuid.uuid4()
-        saved = self.cpu_metric_value[self.cpu_metrics_dict['kernel.all.cpu.sys']]
-        cpuinfo = {'agent-id': agent, 'kernel sys': saved }
+        cpuinfo = {'agent-id': agent, 'kernel-all-cpu-nice': self.cpu_metric_value[_['kernel.all.cpu.nice']],
+                   'kernel-all-cpu-user': self.cpu_metric_value[_['kernel.all.cpu.user']],
+                   'kernel-all-cpu-intr': self.cpu_metric_value[_['kernel.all.cpu.intr']],
+                   'kernel-all-cpu-sys': self.cpu_metric_value[_['kernel.all.cpu.sys']],
+                   'kernel-all-cpu-idle': self.cpu_metric_value[_['kernel.all.cpu.idle']],
+                   'kernel-all-cpu-steal': self.cpu_metric_value[_['kernel.all.cpu.steal']],
+                   'kernel-all-cpu-irq-hard': self.cpu_metric_value[_['kernel.all.cpu.irq.hard']],
+                   'kernel-all-cpu-irq-soft': self.cpu_metric_value[_['kernel.all.cpu.irq.soft']],
+                   'kernel-all-cpu-wait-total': self.cpu_metric_value[_['kernel.all.cpu.wait.total']],
+                   'hinv-ncpu': self.cpu_metric_value[_['hinv.ncpu']],
+                   'kernel-all-intr': self.cpu_metric_value[_['kernel.all.intr']],
+                   'kernel-all-pswitch': self.cpu_metric_value[_['kernel.all.pswitch']],
+                   'kernel-percpu-cpu-nice': self.cpu_metric_value[_['kernel.percpu.cpu.nice']],
+                   'kernel-percpu-cpu-user': self.cpu_metric_value[_['kernel.percpu.cpu.user']],
+                   'kernel-percpu-cpu-intr': self.cpu_metric_value[_['kernel.percpu.cpu.intr']],
+                   'kernel-percpu-cpu-sys': self.cpu_metric_value[_['kernel.percpu.cpu.sys']],
+                   'kernel-percpu-cpu-steal': self.cpu_metric_value[_['kernel.percpu.cpu.steal']],
+                   'kernel-percpu-cpu-irq-hard': self.cpu_metric_value[_['kernel.percpu.cpu.irq.hard']],
+                   'kernel-percpu-cpu-irq-soft': self.cpu_metric_value[_['kernel.percpu.cpu.irq.soft']],
+                   'kernel-percpu-cpu-wait-total': self.cpu_metric_value[_['kernel.percpu.cpu.wait.total']],
+                   'kernel-percpu-cpu-idle': self.cpu_metric_value[_['kernel.percpu.cpu.idle']],
+                   }
+
 
         #setup cpuinfo collection
         ins = dbconnect._cpuinfo.insert(cpuinfo)
@@ -378,9 +400,6 @@ class _interrupt(_subsys):
                                   'kernel.percpu.interrupts.line23',
                                   'kernel.percpu.interrupts.line22',
                                   'kernel.percpu.interrupts.line21',
-                                  'xxxx',
-                                  'yyyy',
-                                  'zzzz',
                                   'kernel.percpu.interrupts.line20',
                                   'kernel.percpu.interrupts.line19',
                                   'kernel.percpu.interrupts.line18',
@@ -490,10 +509,17 @@ class _process(_subsys):
             self.process_metric_value[_['proc.runq.blocked']]),
 
     def insert_to_db(self):
-
+        _=self.process_metrics_dict
         agent = uuid.uuid4()
-        saved = self.process_metric_value[self.process_metrics_dict['kernel.all.load']]
-        procinfo = {'agent-id': agent, 'kernel load 15': saved }
+        procinfo = {'agent-id': agent, 'kernel-all-nprocs': self.process_metric_value[_['kernel.all.nprocs']],
+                    'kernel-all-runnable': self.process_metric_value[_['kernel.all.runnable']],
+                    'proc-runq-runnable': self.process_metric_value[_['proc.runq.runnable']],
+                    'kernel-5-load': self.process_metric_value[_['kernel.all.load']][0],
+                    'kernel-10-load': self.process_metric_value[_['kernel.all.load']][1],
+                    'kernel-15-load': self.process_metric_value[_['kernel.all.load']][2],
+                    'kernel-all-runnable': self.process_metric_value[_['kernel.all.runnable']],
+                    'proc-runq-blocked': self.process_metric_value[_['proc.runq.blocked']]
+                    }
 
         #setup procinfo collection
         ins = dbconnect._procinfo.insert(procinfo)
@@ -585,9 +611,24 @@ class _disk(_subsys):
             0),
 
     def insert_to_db(self):
+        _=self.disk_metrics_dict
         agent = uuid.uuid4()
         saved = self.disk_metric_value[self.disk_metrics_dict['disk.all.write_bytes']]
-        diskinfo = {'agent-id': agent, 'write-bytes-total': saved }
+        diskinfo = {'agent-id': agent, 'disk-all-read': self.disk_metric_value[_['disk.all.read']],
+                    'disk-all-write': self.disk_metric_value[_['disk.all.write']],
+                    'disk-read-bytes': self.disk_metric_value[_['disk.all.read_bytes']],
+                    'disk-write-bytes': self.disk_metric_value[_['disk.all.write_bytes']],
+                    'disk-read_merge': self.disk_metric_value[_['disk.all.read_merge']],
+                    'disk-write-merge': self.disk_metric_value[_['disk.all.write_merge']],
+                    'disk-dev-read': self.disk_metric_value[_['disk.dev.read']],
+                    'disk-dev-write': self.disk_metric_value[_['disk.dev.write']],
+                    'disk-dev-read-bytes': self.disk_metric_value[_['disk.dev.read_bytes']],
+                    'disk-dev-write-bytes': self.disk_metric_value[_['disk.dev.write_bytes']],
+                    'disk-dev-read-merge': self.disk_metric_value[_['disk.dev.read_merge']],
+                    'disk-dev-write-merge': self.disk_metric_value[_['disk.dev.write_merge']],
+                    'disk-dev-blkread': self.disk_metric_value[_['disk.dev.blkread']],
+                    'disk-dev-blkwrite': self.disk_metric_value[_['disk.dev.blkwrite']] }
+
 
         #setup meminfo collection
         ins = dbconnect._diskinfo.insert(diskinfo)
@@ -680,9 +721,28 @@ class _memory(_subsys):
             round(self.memory_metric_value[_['mem.vmstat.pgpgout']], 1000))
 
     def insert_to_db(self):
+        _=self.memory_metrics_dict
         agent = uuid.uuid4()
-        saved = self.memory_metric_value[self.memory_metrics_dict['mem.util.swapTotal']]
-        meminfo = {'agent-id': agent, 'swap-total': saved }
+        meminfo = {'agent-id': agent, 'physical memory': self.memory_metric_value[_['mem.physmem']],
+                   'mem-used': self.memory_metric_value[_['mem.util.used']],
+                   'mem-free': self.memory_metric_value[_['mem.freemem']],
+                   'mem-buffered': self.memory_metric_value[_['mem.util.bufman']],
+                   'mem-cached': self.memory_metric_value[_['mem.util.cached']],
+                   'mem-slab': self.memory_metric_value[_['mem.util.slab']],
+                   'mem-mapped': self.memory_metric_value[_['mem.util.mapped']],
+                   'mem-anonpages': self.memory_metric_value[_['mem.util.anonpages']],
+                   'mem-committed-AS': self.memory_metric_value[_['mem.util.committed_AS']],
+                   'mem-locked': self.memory_metric_value[_['mem.util.mlocked']],
+                   'mem-inactive': self.memory_metric_value[_['mem.util.inactive']],
+                   'swap-total': self.memory_metric_value[_['mem.util.swapTotal']],
+                   'swap-used': self.memory_metric_value[_['swap.used']],
+                   'swap-free': self.memory_metric_value[_['swap.free']],
+                   'swap-pagesin': self.memory_metric_value[_['swap.pagesin']],
+                   'swap-pagesout': self.memory_metric_value[_['swap.pagesout']],
+                   'mem-pgfault': self.memory_metric_value[_['mem.vmstat.pgfault']],
+                   'mem-pgmajfault': self.memory_metric_value[_['mem.vmstat.pgmajfault']],
+                   'mem-pgpgin': self.memory_metric_value[_['mem.vmstat.pgpgin']],
+                   'mem-pgpgout': self.memory_metric_value[_['mem.vmstat.pgpgout']]  }
 
         #setup meminfo collection
         ins = dbconnect._meminfo.insert(meminfo)
@@ -780,9 +840,16 @@ class _net(_subsys):
                     self.net_metric_value[_['network.interface.out.compressed']][j])
 
     def insert_to_db(self):
+        _=self.net_metrics_dict
         agent = uuid.uuid4()
-        saved = self.net_metric_value[self.net_metrics_dict['network.interface.in.packets']]
-        networkinfo = {'agentid': agent, 'ip4addr': saved }
+        networkinfo = {'agentid': agent, 'bytes-in': self.net_metric_value[_['network.interface.in.bytes']],
+                       'packets-in': self.net_metric_value[_['network.interface.in.packets']],
+                       'multicasts-in': self.net_metric_value[_['network.interface.in.mcasts']],
+                       'compressed-in': self.net_metric_value[_['network.interface.in.compressed']],
+                       'errors': self.net_metric_value[_['network.interface.in.errors']],
+                       'packets-out': self.net_metric_value[_['network.interface.out.packets']],
+                       'total-multicasts': self.net_metric_value[_['network.interface.total.mcasts']],
+                       'compressed-out': self.net_metric_value[_['network.interface.out.compressed']]}
         #print 'network info: {}'.format(networkinfo)
 
         #setup networkinfo collection
