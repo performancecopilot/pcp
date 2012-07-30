@@ -43,8 +43,11 @@ import time
 import sys
 import argparse
 import copy
+import pymongo
+import uuid
 from pcp import *
 from ctypes import *
+from pymongo import *
 
 def check_code (code):
     if (code < 0):
@@ -207,7 +210,8 @@ class _subsys(object):
             return 0
         else:
             return dividend / divisor
-
+    def insert_to_db(self):
+        True
 
 # _cpu  -----------------------------------------------------------------
 
@@ -336,6 +340,14 @@ class _cpu(_subsys):
             self.cpu_metric_value[_['kernel.all.pswitch']]
             ),
 
+    def insert_to_db(self):
+        agent = uuid.uuid4()
+        saved = self.cpu_metric_value[self.cpu_metrics_dict['kernel.all.cpu.sys']]
+        cpuinfo = {'agent-id': agent, 'kernel sys': saved }
+
+        #setup cpuinfo collection
+        ins = dbconnect._cpuinfo.insert(cpuinfo)
+        #print 'ins: {}'.format(ins)
 
 # _interrupt  -----------------------------------------------------------------
 
@@ -366,6 +378,9 @@ class _interrupt(_subsys):
                                   'kernel.percpu.interrupts.line23',
                                   'kernel.percpu.interrupts.line22',
                                   'kernel.percpu.interrupts.line21',
+                                  'xxxx',
+                                  'yyyy',
+                                  'zzzz',
                                   'kernel.percpu.interrupts.line20',
                                   'kernel.percpu.interrupts.line19',
                                   'kernel.percpu.interrupts.line18',
@@ -436,8 +451,16 @@ class _interrupt(_subsys):
         print "     ",
         self.print_brief()
 
-# _process  -----------------------------------------------------------------
+    def insert_to_db(self):
+        agent = uuid.uuid4()
+        saved = self.interrupt_metric_value[self.interrupt_metrics_dict['kernel.percpu.interrupts.line1']]
+        interruptinfo = {'agent-id': agent, 'kernel interupt': saved }
 
+        #setup intinfo collection
+        ins = dbconnect._interruptinfo.insert(interruptinfo)
+        #print 'ins: {}'.format(ins)
+
+# _process  -----------------------------------------------------------------
 
 class _process(_subsys):
     def __init__(self):
@@ -466,6 +489,15 @@ class _process(_subsys):
             self.process_metric_value[_['kernel.all.runnable']],
             self.process_metric_value[_['proc.runq.blocked']]),
 
+    def insert_to_db(self):
+
+        agent = uuid.uuid4()
+        saved = self.process_metric_value[self.process_metrics_dict['kernel.all.load']]
+        procinfo = {'agent-id': agent, 'kernel load 15': saved }
+
+        #setup procinfo collection
+        ins = dbconnect._procinfo.insert(procinfo)
+        #print 'ins: {}'.format(ins)
 
 # _disk  -----------------------------------------------------------------
 
@@ -552,6 +584,14 @@ class _disk(_subsys):
             self.disk_metric_value[_['disk.all.write']],
             0),
 
+    def insert_to_db(self):
+        agent = uuid.uuid4()
+        saved = self.disk_metric_value[self.disk_metrics_dict['disk.all.write_bytes']]
+        diskinfo = {'agent-id': agent, 'write-bytes-total': saved }
+
+        #setup meminfo collection
+        ins = dbconnect._diskinfo.insert(diskinfo)
+        #print 'ins: {}'.format(ins)
 
 # _memory  -----------------------------------------------------------------
 
@@ -638,6 +678,15 @@ class _memory(_subsys):
             round(self.memory_metric_value[_['mem.vmstat.pgmajfault']], 1000),
             round(self.memory_metric_value[_['mem.vmstat.pgpgin']], 1000),
             round(self.memory_metric_value[_['mem.vmstat.pgpgout']], 1000))
+
+    def insert_to_db(self):
+        agent = uuid.uuid4()
+        saved = self.memory_metric_value[self.memory_metrics_dict['mem.util.swapTotal']]
+        meminfo = {'agent-id': agent, 'swap-total': saved }
+
+        #setup meminfo collection
+        ins = dbconnect._meminfo.insert(meminfo)
+        #print 'ins: {}'.format(ins)
 
 
 # _net  -----------------------------------------------------------------
@@ -730,6 +779,39 @@ class _net(_subsys):
                     self.net_metric_value[_['network.interface.total.mcasts']][j],
                     self.net_metric_value[_['network.interface.out.compressed']][j])
 
+    def insert_to_db(self):
+        agent = uuid.uuid4()
+        saved = self.net_metric_value[self.net_metrics_dict['network.interface.in.packets']]
+        networkinfo = {'agentid': agent, 'ip4addr': saved }
+        #print 'network info: {}'.format(networkinfo)
+
+        #setup networkinfo collection
+        ins = dbconnect._networkinfo.insert(networkinfo)
+        #print 'ins: {}'.format(ins)
+
+# _connect ------------------------------------------------------------------
+
+class _connect(_subsys):
+    def __init__(self, mongo_port, mongo_address):
+    
+    ## connection ##
+        try:
+            self.connection = Connection()
+            self.connection = Connection(mongo_address, mongo_port)
+            self.db = self.connection.mongo_database
+            print 'connection: {}'.format(self.connection)
+            self.collection = self.db.mongo_collection
+            self._networkinfo = self.db._networkinfo
+            self._meminfo = self.db._meminfo
+            self._diskinfo = self.db._diskinfo
+            self._procinfo = self.db._procinfo
+            self._interruptinfo = self.db._interruptinfo
+            self._cpuinfo = self.db._cpuinfo
+            
+        except:
+            print "Unexpected Database Connection Error: ", sys.exc_info()[0]
+            raise
+
 
 # main ----------------------------------------------------------------------
 
@@ -738,6 +820,9 @@ if __name__ == '__main__':
 
     n_samples = 0
     i = 1
+    mongo_connect = False
+    mongo_port = 27017
+    mongo_address = 'localhost'
     subsys = set()
     verbosity = "brief"
 
@@ -758,7 +843,7 @@ if __name__ == '__main__':
                  "m":[memory,"brief"],"M":[ss,"detail"],
                  "f":[ss,"brief"],"F":[ss,"detail"],
                  "y":[ss,"brief"],"Y":[ss,"detail"],
-                 "Z":[ss,"detail"]
+                 "Z":[ss,"detail"],
                  }
 
     while i < len(sys.argv):
@@ -773,11 +858,20 @@ if __name__ == '__main__':
                 subsys.add(s_options[subsys_arg][0])
                 if subsys_arg.isupper():
                     verbosity =  s_options[subsys_arg][1]
+        elif (sys.argv[i] == "--mongo-connect"):
+            mongo_connect = True
+        elif (sys.argv[i] == "--bind-ip"):
+            i += 1
+            mongo_address = sys.argv[i]
+        elif (sys.argv[i] == "--port"):
+            i += 1
+            mongo_port = int(sys.argv[i])
         elif (sys.argv[i] == "--verbose"):
             if verbosity != "detail":
                 verbosity = "verbose"
         i += 1
-
+    if(mongo_connect == True):
+            dbconnect = _connect(mongo_port, mongo_address)
     if len(subsys) == 0:
         map( lambda x: subsys.add(x) , ("disk", "cpu", "process", "network") )
     elif cpu in subsys:
@@ -793,6 +887,7 @@ if __name__ == '__main__':
         s.get_stats()
 
     # brief headings for different subsystems are concatenated together
+
     for s in subsys:
         if s == 0: continue
         s.print_header1()
@@ -801,7 +896,6 @@ if __name__ == '__main__':
         if s == 0: continue
         s.print_header2()
     print
-
     n = 0
 
     try:
@@ -813,6 +907,8 @@ if __name__ == '__main__':
                 if s == 0: continue
                 s.get_stats()
                 s.get_total()
+                if(mongo_connect):
+                    s.insert_to_db()
                 s.print_line()
             print
             n += 1
