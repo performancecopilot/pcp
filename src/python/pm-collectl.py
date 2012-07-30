@@ -866,7 +866,7 @@ class _connect(_subsys):
             self.connection = Connection()
             self.connection = Connection(mongo_address, mongo_port)
             self.db = self.connection.mongo_database
-            print 'connection: {}'.format(self.connection)
+            #print 'connection: {}'.format(self.connection)
             self.collection = self.db.mongo_collection
             self._networkinfo = self.db._networkinfo
             self._meminfo = self.db._meminfo
