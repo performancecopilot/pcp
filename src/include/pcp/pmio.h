@@ -17,6 +17,7 @@
 
 #ifdef HAVE_NSS
 #include <nspr.h>
+#include <private/pprio.h>
 #endif
 
 /* SSL/TLS/IPv6 support via NSS/NSPR. */

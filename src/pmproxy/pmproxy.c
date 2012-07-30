@@ -229,7 +229,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     __pmSockAddrIn	myAddr;
     int			one = 1;
 
-    fd = __pmCreateSecurableSocket();
+    fd = __pmCreateSocket();
     if (fd < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) socket: %s\n",
 			port, netstrerror());
