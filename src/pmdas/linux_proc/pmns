@@ -24,7 +24,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-
 proc {
     nprocs		PROC:8:99
     psinfo
@@ -34,7 +33,7 @@ proc {
     io
     schedstat
     fd
-    cgroup		PROC:*:*
+    cgroup		PROC:*:* /* dynamic */
 }
 
 proc.psinfo {

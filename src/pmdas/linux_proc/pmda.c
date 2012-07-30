@@ -4,6 +4,7 @@
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) 2002 International Business Machines Corp.
  * Portions Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
+ * Portions Copyright (c) 2012 Red Hat, Inc. All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,18 +52,15 @@ static int		_isDSO = 1;	/* =0 I am a daemon */
 /* globals */
 size_t _pm_system_pagesize; /* for hinv.pagesize and used elsewhere */
 
-pmdaIndom indomtab[] = {
-    { CPU_INDOM, 0, NULL },
-    { PROC_INDOM, 0, NULL },
-    { CGROUP_SUBSYS_INDOM, 0, NULL },
-    { CGROUP_MOUNTS_INDOM, 0, NULL },
-};
-
+/*
+ * The proc instance domain table is direct lookup and sparse.
+ * It is initialized in proc_init(), see below.
+ */
+pmdaIndom indomtab[NUM_INDOMS];
 
 /*
  * all metrics supported in this PMDA - one table entry for each
  */
-
 pmdaMetric proc_metrictab[] = {
 
 /*
@@ -828,7 +826,6 @@ static int
 proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
-    int			i;
     int			sts;
     char		*f;
     unsigned long	ul;
@@ -1257,7 +1254,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return sts;
 	    if (sts != PMDA_CACHE_ACTIVE)
 	    	return PM_ERR_INST;
-	    atom->ul = i;
+	    atom->ul = *ip;
 	    break;
 
 	case 1: /* cgroup.subsys.count */
@@ -1404,6 +1401,15 @@ proc_init(pmdaInterface *dp)
     dp->version.four.name = proc_name;
     dp->version.four.children = proc_children;
     pmdaSetFetchCallBack(dp, proc_fetchCallBack);
+
+    /*
+     * Initialize the instance domain table.
+     */
+    memset(indomtab, 0, sizeof(indomtab));
+    indomtab[CPU_INDOM].it_indom = CPU_INDOM;
+    indomtab[PROC_INDOM].it_indom = PROC_INDOM;
+    indomtab[CGROUP_SUBSYS_INDOM].it_indom = CGROUP_SUBSYS_INDOM;
+    indomtab[CGROUP_MOUNTS_INDOM].it_indom = CGROUP_MOUNTS_INDOM;
 
     proc_pid.indom = &indomtab[PROC_INDOM];
 

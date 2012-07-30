@@ -177,8 +177,8 @@ process_prepare(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
     qsort(list->pids, list->count, sizeof(int), compare_pid);
 
     pmid = cgroup_pmid_build(domain, subsys->process_cluster, group, 0);
-    snprintf(taskpath, sizeof(taskpath), "cgroup.groups.%s%s.tasks.pid",
-			subsys->name, name);
+    snprintf(taskpath, sizeof(taskpath), "%s.groups.%s%s.tasks.pid",
+			CGROUP_ROOT, subsys->name, name);
     __pmAddPMNSNode(pmns, pmid, taskpath);
 #endif
     return 0;
@@ -191,8 +191,8 @@ update_pmns(__pmnsTree *pmns, cgroup_subsys_t *subsys, const char *name,
     char entry[MAXPATHLEN];
     pmID pmid;
 
-    snprintf(entry, sizeof(entry), "cgroup.groups.%s%s.%s",
-			subsys->name, name, metrics->suffix);
+    snprintf(entry, sizeof(entry), "%s.groups.%s%s.%s",
+			CGROUP_ROOT, subsys->name, name, metrics->suffix);
     pmid = cgroup_pmid_build(domain, subsys->cluster, group, metrics->item);
     __pmAddPMNSNode(pmns, pmid, entry);
 }
@@ -550,10 +550,10 @@ cgroup_regulars(__pmnsTree *pmns, int domain)
 	int	cluster;
 	char	*name;
     } regulars[] = {
-	{ 0, CLUSTER_CGROUP_SUBSYS, "cgroup.subsys.hierarchy" },
-	{ 1, CLUSTER_CGROUP_SUBSYS, "cgroup.subsys.count" },
-	{ 0, CLUSTER_CGROUP_MOUNTS, "cgroup.mounts.subsys" },
-	{ 1, CLUSTER_CGROUP_MOUNTS, "cgroup.mounts.count" },
+	{ 0, CLUSTER_CGROUP_SUBSYS, CGROUP_ROOT ".subsys.hierarchy" },
+	{ 1, CLUSTER_CGROUP_SUBSYS, CGROUP_ROOT ".subsys.count" },
+	{ 0, CLUSTER_CGROUP_MOUNTS, CGROUP_ROOT ".mounts.subsys" },
+	{ 1, CLUSTER_CGROUP_MOUNTS, CGROUP_ROOT ".mounts.count" },
     };
 
     for (i = 0; i < 4; i++) {
@@ -754,7 +754,7 @@ cgroup_init(void)
 		  CLUSTER_NET_CLS_GROUPS, CLUSTER_NET_CLS_PROCS,
 		};
 
-    proc_dynamic_pmns("cgroup", set, sizeof(set)/sizeof(int),
+    proc_dynamic_pmns(CGROUP_ROOT, set, sizeof(set)/sizeof(int),
 			refresh_cgroups, cgroup_text,
 			refresh_metrictable, size_metrictable);
 }
