@@ -313,7 +313,7 @@ class pmDesc(Structure):
         return "pmDesc@%#lx id=%#lx type=%d" % (addressof(self), self.pmid, self.type)
 
 def get_indom( pmdesc ):
-    """Extract an indom from a pmdesc
+    """Internal function to extract an indom from a pmdesc
 
        Allow functions requiring an indom to be passed a pmDesc* instead
     """
@@ -1010,7 +1010,7 @@ class pmContext( object ):
     # PMAPI Instance Domain Services
 
     def pmGetInDom( self, pmdescp ):
-        """PMAPI - Lookup the list of instances from an instance domain
+        """PMAPI - Lookup the list of instances from an instance domain PMDESCP
 
         ((instance1, instance2...) (name1, name2...)) pmGetInDom(pmDesc_ctype)
         """
@@ -1038,7 +1038,7 @@ class pmContext( object ):
         return instL, nameL
 
     def pmLookupInDom( self, pmdesc, name ):
-        """PMAPI - Lookup the instance id with the given name in the indom
+        """PMAPI - Lookup the instance id with the given NAME in the indom
 
         instid_ctype = pmLookupInDom(pmDesc_ctype, "Instance")   
         """
@@ -1103,7 +1103,7 @@ class pmContext( object ):
         pass
 
     def pmDupContext( self ):
-        """PMAPI - TBD - Duplicate the current PMAPI Context
+        """PMAPI - Duplicate the current PMAPI Context
 
         This should be implemented to support copying a pmContext object
         """
@@ -1197,7 +1197,7 @@ class pmContext( object ):
         return status
 
     def pmSetMode( self, mode, timeVal, delta ):
-        """PMAPI - TBD - set interpolation mode for reading archive files
+        """PMAPI - set interpolation mode for reading archive files
         """
         # this method is context dependent and requires the pmapi lock
         pmContext._pmapiLock.acquire()
@@ -1244,7 +1244,7 @@ class pmContext( object ):
     # PMAPI Timezone Services
 
     def pmNewContextZone( self ):
-        """PMAPI - TBD - Query and set the current reporting timezone
+        """PMAPI - Query and set the current reporting timezone
         """
         # this method is context dependent and requires the pmapi lock
         pmContext._pmapiLock.acquire()
@@ -1261,7 +1261,7 @@ class pmContext( object ):
         return status
 
     def pmNewZone( self, tz ):
-        """PMAPI - TBD - Create new zone handle and set reporting timezone
+        """PMAPI - Create new zone handle and set reporting timezone
         """
         # this method is context dependent and requires the pmapi lock
         pmContext._pmapiLock.acquire()
@@ -1278,7 +1278,7 @@ class pmContext( object ):
         return status
 
     def pmUseZone( self, tz_handle ):
-        """PMAPI - TBD - Sets the current reporting timezone
+        """PMAPI - Sets the current reporting timezone
         """
         # this method is context dependent and requires the pmapi lock
         pmContext._pmapiLock.acquire()
@@ -1308,7 +1308,7 @@ class pmContext( object ):
     # PMAPI Metrics Services
 
     def pmFetch( self, pmidA ):
-        """PMAPI - Fetch measurements from the target source
+        """PMAPI - Fetch pmResult from the target source 
 
         (status, pmResult_ctype*) = pmFetch (pmid_ctype[])
         """
