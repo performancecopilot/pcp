@@ -9,20 +9,6 @@ import uuid
 from pcp import *
 from ctypes import *
 from pymongo import *
-"""connection = Connection()
-
-connection = Connection('localhost', 27017)
-
-db = connection.mongo_database
-collection = db['mongo_database']
-
-print 'collection names: {}'.format(db.collection_names())
-_networkinfo = db._networkinfo
-_meminfo = db._meminfo
-_diskinfo = db._diskinfo
-_procinfo = db._procinfo
-_interruptinfo = db._interruptinfo
-_cpuinfo = db._cpuinfo"""
 
 # _connect ------------------------------------------------------------------
 
