@@ -1351,6 +1351,8 @@ static int
 proc_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
     __pmnsTree *tree = proc_dynamic_lookup_name(pmda, name);
+    if (tree == NULL)
+	return PM_ERR_NAME;
     return pmdaTreePMID(tree, name, pmid);
 }
 
@@ -1358,6 +1360,8 @@ static int
 proc_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 {
     __pmnsTree *tree = proc_dynamic_lookup_pmid(pmda, pmid);
+    if (tree == NULL)
+	return PM_ERR_PMID;
     return pmdaTreeName(tree, pmid, nameset);
 }
 
@@ -1365,6 +1369,8 @@ static int
 proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda)
 {
     __pmnsTree *tree = proc_dynamic_lookup_name(pmda, name);
+    if (tree == NULL)
+	return PM_ERR_NAME;
     return pmdaTreeChildren(tree, name, flag, kids, sts);
 }
 
