@@ -29,8 +29,8 @@ LFILES  = lex.l
 YFILES	= gram.y
 LSRCFILES = rc_pmlogger
 
-LCFLAGS = $(PIECFLAGS)
-LLDFLAGS = $(PIELDFLAGS)
+LCFLAGS += $(PIECFLAGS)
+LLDFLAGS += $(PIELDFLAGS)
 
 LLDLIBS	= -lpcp
 LDIRT	= *.log foo.* gram.h lex.c y.tab.? $(YFILES:%.y=%.tab.?) $(CMDTARGET)

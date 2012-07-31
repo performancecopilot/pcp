@@ -7512,6 +7512,18 @@ fi
 
 done
 
+for ac_header in execinfo.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "execinfo.h" "ac_cv_header_execinfo_h" "$ac_includes_default"
+if test "x$ac_cv_header_execinfo_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_EXECINFO_H 1
+_ACEOF
+
+fi
+
+done
+
 for ac_header in iptypes.h
 do :
   ac_fn_c_check_header_compile "$LINENO" "iptypes.h" "ac_cv_header_iptypes_h" "#include <windows.h>
@@ -8113,6 +8125,17 @@ do :
 if test "x$ac_cv_func_sysinfo" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_SYSINFO 1
+_ACEOF
+
+fi
+done
+
+for ac_func in backtrace
+do :
+  ac_fn_c_check_func "$LINENO" "backtrace" "ac_cv_func_backtrace"
+if test "x$ac_cv_func_backtrace" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_BACKTRACE 1
 _ACEOF
 
 fi

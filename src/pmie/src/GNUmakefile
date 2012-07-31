@@ -42,8 +42,8 @@ LDIRT += $(YFILES:%.y=%.tab.?) fun.c fun.o $(TARGET) grammar.h
 
 LLDLIBS = -lpcp -lm $(LIB_FOR_REGEX)
 
-LCFLAGS = $(PIECFLAGS)
-LLDFLAGS = $(PIELDFLAGS)
+LCFLAGS += $(PIECFLAGS)
+LLDFLAGS += $(PIELDFLAGS)
 
 default:	$(TARGET)
 

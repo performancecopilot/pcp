@@ -125,6 +125,7 @@ extern "C" {
 #undef HAVE_WINDOWS_H
 #undef HAVE_WINSOCK2_H
 #undef HAVE_WS2TCPIP_H
+#undef HAVE_EXECINFO_H
 #undef HAVE_IPTYPES_H
 #undef HAVE_NETDB_H
 #undef HAVE_SYS_SOCKET_H
@@ -250,6 +251,7 @@ extern "C" {
 #undef HAVE_DIRNAME
 #undef HAVE_BASENAME
 #undef HAVE_SYSINFO
+#undef HAVE_BACKTRACE
 #undef HAVE_READDIR64
 
 /* if termio signals are supported */
