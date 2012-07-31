@@ -33,7 +33,6 @@ proc {
     io
     schedstat
     fd
-    cgroup		PROC:*:* /* dynamic */
 }
 
 proc.psinfo {

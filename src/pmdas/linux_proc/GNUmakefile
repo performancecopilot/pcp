@@ -28,7 +28,7 @@ CFILES		= pmda.c cgroups.c dynamic.c filesys.c proc_pid.c proc_runq.c \
 HFILES		= cgroups.h clusters.h dynamic.h proc_pid.h indom.h getinfo.h \
 		  proc_runq.h ksym.h filesys.h
 
-LSRCFILES 	= Install Remove help pmns root
+LSRCFILES 	= Install Remove help pmns pmns.cgroup root
 LDIRT		= help.dir help.pag domain.h
 
 LLDLIBS		= -lpcp_pmda -lpcp
@@ -47,7 +47,7 @@ build-me: domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 domain.h pmns root help help.dir help.pag $(PMDADIR)
+	$(INSTALL) -m 644 domain.h pmns pmns.cgroup root help help.dir help.pag $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 else
 build-me:
@@ -65,3 +65,12 @@ domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
 cgroups.o dynamic.o pmda.o: clusters.h
+cgroups.o pmda.o:	cgroups.h
+cgroups.o dynamic.o pmda.o:	dynamic.h
+cgroups.o pmda.o proc_pid.o proc_runq.o:	proc_pid.h
+pmda.o proc_runq.o:	proc_runq.h
+filesys.o:	filesys.h
+ksym.o pmda.o:		ksym.h
+pmda.o:	domain.h
+pmda.o:	indom.h
+pmda.o:	getinfo.h

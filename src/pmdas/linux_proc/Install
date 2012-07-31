@@ -25,6 +25,7 @@
 iam=proc
 pmda_interface=4
 dso_opt=true
+pmns_name="proc cgroup"
 
 pmdaSetup
 pmdaInstall

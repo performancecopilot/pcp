@@ -23,6 +23,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=proc
+pmns_name="proc cgroup"
 
 pmdaSetup
 pmdaRemove

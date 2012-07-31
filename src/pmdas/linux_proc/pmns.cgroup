@@ -1,5 +1,5 @@
 /*
- * Metrics for the Linux proc PMDA
+ * cgroup metrics for the Linux proc PMDA
  *
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) International Business Machines Corp., 2002
@@ -24,11 +24,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include <stdpmid>
+#ifndef PROC
+#define PROC 3
+#endif
 
 root {
     cgroup		PROC:*:* /* dynamic */
-    proc
 }
-
-#include "pmns"
