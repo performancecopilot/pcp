@@ -33,6 +33,7 @@
 
 #include <Python.h>
 #include <pcp/pmapi.h>
+#include <pcp/pmafm.h>
 
 typedef union {
     int i;
@@ -343,4 +344,13 @@ initpmapi() {
               (intu) PM_ERR_PMDANOTREADY, INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_NYI",
               (intu) PM_ERR_NYI,          INT_T, pmErrSymD );
+
+    /* pmapi.h */
+    dict_add( dict, "PM_EVENT_FLAG_POINT",  (intu) PM_EVENT_FLAG_POINT, INT_T, NULL );
+    dict_add( dict, "PM_REC_ON", (intu) PM_REC_ON, INT_T, NULL );
+    dict_add( dict, "PM_REC_OFF", (intu) PM_REC_OFF, INT_T, NULL );
+    dict_add( dict, "PM_REC_DETACH", (intu) PM_REC_DETACH, INT_T, NULL );
+    dict_add( dict, "PM_REC_STATUS", (intu) PM_REC_STATUS, INT_T, NULL );
+    dict_add( dict, "PM_REC_SETARG", (intu) PM_REC_SETARG, INT_T, NULL );
+
 }

@@ -75,6 +75,8 @@ def loadLib( lib ):
 # performance co-pilot pmapi library
 libpcp = loadLib( "pcp" )
 
+libpcp_gui = loadLib( "pcp_gui" )
+
 # libc is needed for calling free() 
 libc = loadLib( "c" )
 
@@ -488,15 +490,14 @@ libpcp.pmStore.argtypes = [ POINTER(pmResult) ]
 ##
 # PMAPI Record-Mode Services
 
-#libpcp.pmRecordAddHost.restype = c_int
-#libpcp.pmRecordAddHost.argtypes = [ ]
+libpcp_gui.pmRecordSetup.restype = c_long
+libpcp_gui.pmRecordSetup.argtypes = [ c_char_p, c_char_p, c_int]
 
-#libpcp.pmRecordControl.restype = c_int
-#libpcp.pmRecordControl.argtypes = [ ]
+libpcp_gui.pmRecordAddHost.restype = c_int
+libpcp_gui.pmRecordAddHost.argtypes = [ c_char_p, c_int, POINTER(POINTER(pmRecordHost))]
 
-#libpcp.pmRecordSetup.restype = c_int
-#libpcp.pmRecordSetup.argtypes = [ ]
-
+libpcp_gui.pmRecordControl.restype = c_int
+libpcp_gui.pmRecordControl.argtypes = [ POINTER(pmRecordHost), c_int, c_char_p ]
 
 ##
 # PMAPI Archive-Specific Services
@@ -822,7 +823,7 @@ class pmContext( object ):
         else:
             n = len( nameA )
         names = (c_char_p * n)()
-        # py_to_c_str_arr (nameA, names)
+
         if type(nameA) == type(""):
             names[0] = c_char_p(nameA)
         else:
@@ -1355,23 +1356,65 @@ class pmContext( object ):
     ##
     # PMAPI Record-Mode Services
 
+    def pmRecordSetup( self, folio, creator, config, replay ):
+        """PMAPI - TBD - Setup an archive recording session
+        """
+        # this method is context dependent and requires the pmapi lock
+        pmContext._pmapiLock.acquire()
+        if not self == pmContext._lastUsedContext: 
+            status = libpcp.pmUseContext( self.ctx )
+            if status < 0:
+                pmContext._pmapiLock.release()
+                raise pmErr, status
+            pmContext._lastUsedContext = self
+        file_result = libpcp_gui.pmRecordSetup ( c_char_p(folio), c_char_p(creator), replay )
+
+        print file_result
+        pmContext._pmapiLock.release()
+        if (file_result >= 0 and replay > 0):
+            status = libc.fputs (c_char_p(config), file_result)
+            if (status < 0):
+                libc.perror(c_char_p(""))
+                raise pmErr, status
+            libc.fclose (file_result)
+        return file_result
+
     def pmRecordAddHost( self, host, isdefault ):
         """PMAPI - TBD - Adds host to an archive recording session
         """
         # this method is context dependent and requires the pmapi lock
-        pass
+        pmContext._pmapiLock.acquire()
+        if not self == pmContext._lastUsedContext: 
+            status = libpcp.pmUseContext( self.ctx )
+            if status < 0:
+                pmContext._pmapiLock.release()
+                raise pmErr, status
+            pmContext._lastUsedContext = self
+        rhp = POINTER(pmRecordHost)()
+        status = libpcp_gui.pmRecordAddHost ( c_char_p(host), isdefault, byref(rhp) )
+
+        pmContext._pmapiLock.release()
+        if status < 0:
+            raise pmErr, status
+        return status, rhp
 
     def pmRecordControl( self, rhp, request, options ):
         """PMAPI - TBD - Control an archive recording session
         """
         # this method is context dependent and requires the pmapi lock
-        pass
+        pmContext._pmapiLock.acquire()
+        if not self == pmContext._lastUsedContext: 
+            status = libpcp.pmUseContext( self.ctx )
+            if status < 0:
+                pmContext._pmapiLock.release()
+                raise pmErr, status
+            pmContext._lastUsedContext = self
+        status = libpcp_gui.pmRecordControl ( cast(rhp,POINTER(pmRecordHost)), request, c_char_p(options) )
 
-    def pmRecordSetup( self, folio, creator, replay ):
-        """PMAPI - TBD - Setup an archive recording sesion
-        """
-        # this method is context dependent and requires the pmapi lock
-        pass
+        pmContext._pmapiLock.release()
+        if status < 0:
+            raise pmErr, status
+        return status
 
     ##
     # PMAPI Archive-Specific Services
