@@ -33,7 +33,7 @@
 #include <grp.h>
 
 #include "../linux/convert.h"
-#include "../linux/filesys.h"
+#include "filesys.h"
 #include "clusters.h"
 #include "indom.h"
 
@@ -701,6 +701,29 @@ pmdaMetric proc_metrictab[] = {
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 };
 
+static int
+refresh_cpu_indom(pmInDom indom)
+{
+    char buf[MAXPATHLEN];
+    char *space;
+    FILE *fp;
+
+    if ((fp = fopen("/proc/stat", "r")) == (FILE *)NULL)
+        return -oserror();
+    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+    while (fgets(buf, sizeof(buf), fp) != NULL) {
+    	if (strncmp(buf, "cpu", 3) == 0 && isdigit(buf[3])) {
+	    if ((space = strchr(buf, ' ')) != NULL) {
+	    	*space = '\0';
+		pmdaCacheStore(indom, PMDA_CACHE_ADD, buf, NULL);
+	    }
+	}
+    }
+    fclose(fp);
+
+    return pmdaCacheOp(indom, PMDA_CACHE_SIZE_ACTIVE);
+}
+
 int
 refresh_cgroups(pmdaExt *pmda, __pmnsTree **tree)
 {
@@ -716,6 +739,8 @@ refresh_cgroups(pmdaExt *pmda, __pmnsTree **tree)
 	}
     }
 
+    refresh_cpu_indom(INDOM(CPU_INDOM));
+    refresh_filesys(INDOM(CGROUP_MOUNTS_INDOM));
     refresh_cgroup_subsys(INDOM(CGROUP_SUBSYS_INDOM));
     changed = refresh_cgroup_groups(pmda, INDOM(CGROUP_MOUNTS_INDOM), tree);
 
@@ -768,10 +793,10 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     memset(need_refresh, 0, sizeof(need_refresh));
     switch (indomp->serial) {
     case CPU_INDOM:
-	// TODO - need to pull back CPU_INDOM setup from proc_stat.c
-	// in linux PMDA to populate the indom for
-	// cgroup.groups.cpuacct.[<group>.]usage_percpu
-	// probably gut refresh_proc_stat() to make refresh_cpu_indom()
+	/*
+	 * Used by cgroup.groups.cpuacct.[<group>.]usage_percpu
+	 * and cgroup.groups.cpuacct.usage_percpu
+	 */
 	need_refresh[CLUSTER_CPUACCT_GROUPS]++;
 	break;
     case PROC_INDOM:
@@ -1418,7 +1443,7 @@ proc_init(pmdaInterface *dp)
     indomtab[CGROUP_MOUNTS_INDOM].it_indom = CGROUP_MOUNTS_INDOM;
 
     proc_pid.indom = &indomtab[PROC_INDOM];
-
+ 
     /* 
      * Read System.map and /proc/ksyms. Used to translate wait channel
      * addresses to symbol names. 
@@ -1430,6 +1455,11 @@ proc_init(pmdaInterface *dp)
 
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), proc_metrictab,
              sizeof(proc_metrictab)/sizeof(proc_metrictab[0]));
+
+    /* cgroup metrics use the pmdaCache API for indom indexing */
+    pmdaCacheOp(INDOM(CPU_INDOM), PMDA_CACHE_CULL);
+    pmdaCacheOp(INDOM(CGROUP_SUBSYS_INDOM), PMDA_CACHE_CULL);
+    pmdaCacheOp(INDOM(CGROUP_MOUNTS_INDOM), PMDA_CACHE_CULL);
 }
 
 

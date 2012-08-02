@@ -35,3 +35,61 @@ scan_filesys_options(const char *options, const char *option)
     return NULL;
 }
 
+int
+refresh_filesys(pmInDom indom)
+{
+    char buf[MAXPATHLEN];
+    filesys_t *fs;
+    FILE *fp;
+    char *path, *device, *type, *options;
+    int sts;
+
+    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+
+    if ((fp = fopen("/proc/mounts", "r")) == (FILE *)NULL)
+	return -oserror();
+
+    while (fgets(buf, sizeof(buf), fp) != NULL) {
+	if ((device = strtok(buf, " ")) == 0 || strcmp(device, "cgroup") != 0)
+	    continue;
+	path = strtok(NULL, " ");
+	type = strtok(NULL, " ");
+	options = strtok(NULL, " ");
+
+	sts = pmdaCacheLookupName(indom, path, NULL, (void **)&fs);
+	if (sts == PMDA_CACHE_ACTIVE)	/* repeated line in /proc/mounts? */
+	    continue;
+	if (sts == PMDA_CACHE_INACTIVE) { /* re-activate an old mount */
+	    pmdaCacheStore(indom, PMDA_CACHE_ADD, path, fs);
+	    if (strcmp(path, fs->path) != 0) {	/* old device, new path */
+		free(fs->path);
+		fs->path = strdup(path);
+	    }
+	    if (strcmp(options, fs->options) != 0) {	/* old device, new opts */
+		free(fs->options);
+		fs->options = strdup(options);
+	    }
+	}
+	else {	/* new mount */
+	    if ((fs = malloc(sizeof(filesys_t))) == NULL)
+		continue;
+	    fs->device = strdup(device);
+	    fs->path = strdup(path);
+	    fs->options = strdup(options);
+#if PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_LIBPMDA) {
+		fprintf(stderr, "refresh_filesys: add \"%s\" \"%s\"\n",
+		    fs->path, device);
+	    }
+#endif
+	    pmdaCacheStore(indom, PMDA_CACHE_ADD, path, fs);
+	}
+	fs->flags = 0;
+    }
+
+    /*
+     * success
+     */
+    fclose(fp);
+    return 0;
+}

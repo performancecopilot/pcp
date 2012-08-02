@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +17,7 @@
 #include "impl.h"
 #include "pmda.h"
 #include "cgroups.h"
-#include "../linux/filesys.h"
+#include "filesys.h"
 #include "dynamic.h"
 #include "clusters.h"
 #include "proc_pid.h"
