@@ -50,11 +50,12 @@ refresh_filesys(pmInDom indom)
 	return -oserror();
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
-	if ((device = strtok(buf, " ")) == 0 || strcmp(device, "cgroup") != 0)
-	    continue;
+	device = strtok(buf, " ");
 	path = strtok(NULL, " ");
 	type = strtok(NULL, " ");
 	options = strtok(NULL, " ");
+	if (strcmp(type, "cgroup") != 0)
+	    continue;
 
 	sts = pmdaCacheLookupName(indom, path, NULL, (void **)&fs);
 	if (sts == PMDA_CACHE_ACTIVE)	/* repeated line in /proc/mounts? */
