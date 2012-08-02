@@ -28,7 +28,7 @@ CFILES		= pmda.c cgroups.c dynamic.c filesys.c proc_pid.c proc_runq.c \
 HFILES		= cgroups.h clusters.h dynamic.h proc_pid.h indom.h getinfo.h \
 		  proc_runq.h ksym.h filesys.h
 
-LSRCFILES 	= Install Remove help pmns pmns.cgroup root
+LSRCFILES 	= Install Remove help pmns pmns.cgroup root linux_proc_migrate.conf
 LDIRT		= help.dir help.pag domain.h
 
 LLDLIBS		= -lpcp_pmda -lpcp
@@ -49,6 +49,7 @@ install: default
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 domain.h pmns pmns.cgroup root help help.dir help.pag $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
+	$(INSTALL) -m 644 linux_proc_migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/linux_proc_migrate.conf
 else
 build-me:
 install:
