@@ -416,7 +416,7 @@ main(int argc, char **argv)
 	    printf("%s: pmFetchArchive: %s\n", pmProgname, pmErrStr(sts));
     }
     else {
-	printf("%s: pmFethcArchive: unexpected success after end of log\n", pmProgname);
+	printf("%s: pmFetchArchive: unexpected success after end of log\n", pmProgname);
 	__pmDumpResult(stdout, resp);
 	pmFreeResult(resp);
     }
