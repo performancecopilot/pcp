@@ -76,10 +76,9 @@ then
 
     if [ -z "$a" -o "$a" = "*" ]
     then
-	echo "Arrggh ... cannot get major version for libc"
-	[ ! -f /etc/debian_version ] && rpm -q glibc
-	ls -l /lib/libc-*.so
-	exit 1
+	#[ ! -f /etc/debian_version ] && rpm -q glibc
+	#ls -l /lib/libc-*.so
+        _notrun "Cannot find major version for libc"
     fi
 
     # Use glibc version
