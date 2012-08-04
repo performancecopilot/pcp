@@ -55,12 +55,17 @@ then
 fi
 if [ -L "$root" ]
 then
-    symroot=`ls -l $root | sed -e 's/.*-> //'`
-    if [ -z "$symroot" ]
+    if which realpath >/dev/null
     then
-	echo "Arrgh, cannot get symlink for device for root fs ..."
-	ls -l $root
-	exit
+	symroot=`realpath $root`
+    else
+	symroot=`ls -l $root | sed -e 's/.*-> //'`
+	if [ -z "$symroot" ]
+	then
+	    echo "Arrgh, cannot get symlink for device for root fs ..."
+	    ls -l $root
+	    exit
+	fi
     fi
 else
     symroot="$root"
