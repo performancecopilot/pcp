@@ -1,3 +1,7 @@
+pcp-gui 1.5.6 (not yet released)
+    - Initial toward supporting event record decoding and display in
+      pmchart.
+
 pcp-gui 1.5.5 (21 March 2012)
     - Fix long-standing pmchart bug where the current archive position
       would revert to the beginning of the archive after adding a new
