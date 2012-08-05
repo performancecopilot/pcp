@@ -39,4 +39,8 @@ static inline int __pmPathSeparator(void) { return '/'; }
 static inline void __pmtimevalNow(struct timeval *t) { gettimeofday(t, NULL); }
 #endif
 
+#if HAVE_DECL_PM_TYPE_EVENT == 0
+#define PM_TYPE_EVENT	9
+#endif
+
 #endif // VERSION_H

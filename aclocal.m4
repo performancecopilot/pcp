@@ -1,7 +1,8 @@
-# generated automatically by aclocal 1.11.1 -*- Autoconf -*-
+# generated automatically by aclocal 1.11.6 -*- Autoconf -*-
 
 # Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
-# 2005, 2006, 2007, 2008, 2009  Free Software Foundation, Inc.
+# 2005, 2006, 2007, 2008, 2009, 2010, 2011 Free Software Foundation,
+# Inc.
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -187,6 +188,13 @@ AC_DEFUN([AC_PACKAGE_HAVE_PM_TIMEVAL_NOW],
   [ AC_CHECK_LIB(pcp, __pmtimevalNow,
     [ have_pm_timeval_now=1 ], [ have_pm_timeval_now=0 ])
     AC_SUBST(have_pm_timeval_now)
+  ])
+
+#
+# Check if we have the PM_TYPE_EVENT macro in pmapi.h
+#
+AC_DEFUN([AC_PACKAGE_HAVE_PM_TYPE_EVENT],
+  [ AC_CHECK_DECLS(PM_TYPE_EVENT, [], [], [[#include <pcp/pmapi.h>]])
   ])
 
 #

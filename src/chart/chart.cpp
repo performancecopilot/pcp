@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * 
@@ -111,6 +112,7 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
 
     my.tab = chartTab;
     my.title = NULL;
+    my.eventType = false;
     my.rateConvert = true;
     my.antiAliasing = true;
     my.style = NoStyle;
@@ -668,13 +670,15 @@ int Chart::addPlot(pmMetricSpec *pmsp, const char *legend)
 
     if (my.plots.size() == 0) {
 	my.units = desc.units;
+	my.eventType = (desc.type == PM_TYPE_EVENT);
 	console->post("Chart::addPlot initial units %s", pmUnitsStr(&my.units));
     }
     else {
-	if (checkUnits(&desc.units) == false) {
-	    // error reporting handled in caller
+	// error reporting handled in caller
+	if (checkCompatibleUnits(&desc.units) == false)
 	    return PM_ERR_CONV;
-	}
+	if (checkCompatibleTypes(desc.type) == false)
+	    return PM_ERR_CONV;
     }
 
     Plot *plot = new Plot;
@@ -1361,15 +1365,24 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
     }
 }
 
-bool Chart::checkUnits(pmUnits *newUnits)
+bool Chart::checkCompatibleUnits(pmUnits *newUnits)
 {
-    console->post("Chart::checkUnits plot units %s", pmUnitsStr(newUnits));
+    console->post("Chart::check units plot units %s", pmUnitsStr(newUnits));
     if (my.units.dimSpace != newUnits->dimSpace ||
         my.units.dimTime != newUnits->dimTime ||
         my.units.dimCount != newUnits->dimCount)
 	return false;
-    else
-	return true;
+    return true;
+}
+
+bool Chart::checkCompatibleTypes(int newType)
+{
+    console->post("Chart::check plot event type %s", pmTypeStr(newType));
+    if (my.eventType == true && newType != PM_TYPE_EVENT)
+	return false;
+    if (my.eventType == false && newType == PM_TYPE_EVENT)
+	return false;
+    return true;
 }
 
 bool Chart::activePlot(int m)

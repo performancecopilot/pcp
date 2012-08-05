@@ -66,6 +66,13 @@ AC_DEFUN([AC_PACKAGE_HAVE_PM_TIMEVAL_NOW],
   ])
 
 #
+# Check if we have the PM_TYPE_EVENT macro in pmapi.h
+#
+AC_DEFUN([AC_PACKAGE_HAVE_PM_TYPE_EVENT],
+  [ AC_CHECK_DECLS(PM_TYPE_EVENT, [], [], [[#include <pcp/pmapi.h>]])
+  ])
+
+#
 # Check if we have the pmdaMain routine in libpcp_pmda
 #
 AC_DEFUN([AC_PACKAGE_NEED_LIBPCP_PMDA],

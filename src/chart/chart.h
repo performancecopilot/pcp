@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * 
@@ -127,9 +128,10 @@ private:
 	double *data;
 	double *plotData;
 	int dataCount;
+	pmUnits units;
+	bool eventType;
 	bool removed;
 	bool hidden;	// true if hidden through legend push button
-	pmUnits units;
     } Plot;
 
     bool isStepped(Plot *plot);
@@ -139,7 +141,8 @@ private:
     void setColor(Plot *plot, QColor c);
     void setLabel(Plot *plot, QString s);
     void resetDataArrays(Plot *plot, int v);
-    bool checkUnits(pmUnits *);
+    bool checkCompatibleUnits(pmUnits *);
+    bool checkCompatibleTypes(int);
 
     struct {
 	Tab *tab;
@@ -148,9 +151,10 @@ private:
 	Style style;
 	QString scheme;
 	int sequence;
+	pmUnits units;
+	bool eventType;
 	bool rateConvert;
 	bool antiAliasing;
-	pmUnits units;
 	QwtPlotPicker *picker;
 	ValueScaleEngine *engine;
     } my;
