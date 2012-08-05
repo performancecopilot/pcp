@@ -55,29 +55,14 @@ main(int argc, char* argv[])
     QmcSource *src = QmcSource::getSource(PM_CONTEXT_HOST, source, false);
     
     if (src->status() < 0) {
-	pmprintf("%s: Error: Unable to create context to \"%s\": \n",
+	pmprintf("%s: Error: Unable to create context to \"%s\": %s\n",
 		 pmProgname, buf, pmErrStr(src->status()));
 	pmflush();
 	return 1;
     }
 
-    __pmID_int hinv_ncpu_s;
-
-#ifdef IRIX6_5
-    /* IRIX hinv.ncpu PMID: 1.18.2 */
-    hinv_ncpu_s.pad = 0;
-    hinv_ncpu_s.domain = 1;
-    hinv_ncpu_s.cluster = 18;
-    hinv_ncpu_s.item = 2;
-#else
     /* Linux hinv.ncpu PMID: 60.0.32 */
-    hinv_ncpu_s.pad = 0;
-    hinv_ncpu_s.domain = 60;
-    hinv_ncpu_s.cluster = 0;
-    hinv_ncpu_s.item = 32;
-#endif
-
-    pmID hinv_ncpu = *((pmID*)&hinv_ncpu_s);
+    pmID hinv_ncpu = pmid_build(60, 0, 32);
     QmcDesc hinv_ncpu_pmc(hinv_ncpu);
     pmDesc hinv_ncpu_desc = hinv_ncpu_pmc.desc();
 
@@ -97,8 +82,7 @@ main(int argc, char* argv[])
     fflush(stderr);
 
     fprintf(stderr, "\n*** Fetch a bad descriptor ***\n");
-    __pmID_int bad_s = { 0, 42, 42, 42 };
-    pmID bad = *((pmID*)&bad_s);
+    pmID bad = pmid_build(42,42,42);
     QmcDesc bad_pmc(bad);
     
     if (bad_pmc.status() < 0) {
