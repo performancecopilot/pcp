@@ -1324,6 +1324,7 @@ _z(void)
 		    if (d != i * pi)
 			fprintf(stderr, "Botch: tracedata: value: got: %g expect: %g\n",
 			    d, i * pi);
+		    free(vp);
 		}
 	    }
 	}
