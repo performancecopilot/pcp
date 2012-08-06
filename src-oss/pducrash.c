@@ -783,17 +783,6 @@ decode_log_control(const char *name)
     if (sts >= 0) pmFreeResult(result);
     free(logvlist);
 
-    fprintf(stderr, "[%s] checking negative numval field\n", name);
-    logvlist = (struct logvlist *)calloc(1, sizeof(*logvlist));
-    logvlist->log_ctl.hdr.len = sizeof(*logvlist);
-    logvlist->log_ctl.hdr.type = PDU_LOG_CONTROL;
-    logvlist->log_ctl.numpmid = htonl(1);
-    logvlist->numval = htonl(-3);
-    sts = __pmDecodeLogControl((__pmPDU *)logvlist, &result, &ctl, &state, &delta);
-    fprintf(stderr, "  __pmDecodeLogControl: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) pmFreeResult(result);
-    free(logvlist);
-
     fprintf(stderr, "[%s] checking access beyond extended buffer\n", name);
     logvlist = (struct logvlist *)calloc(1, sizeof(*logvlist));
     logvlist->log_ctl.hdr.len = sizeof(*logvlist);
@@ -910,6 +899,7 @@ decode_result(const char *name)
     result = (struct result *)calloc(1, sizeof(*result));
     result->hdr.len = sizeof(*result);
     result->hdr.type = PDU_RESULT;
+    result->numpmid = htonl(4);
     sts = __pmDecodeResult((__pmPDU *)result, &resp);
     fprintf(stderr, "  __pmDecodeResult: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) pmFreeResult(resp);
