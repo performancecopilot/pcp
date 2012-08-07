@@ -793,20 +793,26 @@ __choose_ipc()
     fi
 }
 
-# Function to filter pminfo output
+# filter pmprobe -i output of the format:
+#	postgresql.active.is_in_recovery -12351 Missing metric value(s)
+#	postgresql.statio.sys_sequences.blks_hit 0
+#	disk.partitions.read 13 ?0 ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9 ?10 ?11 ?12
+# to produce a summary of metrics, values and warnings
 #
 __filter()
 {
     $PCP_AWK_PROG '
-NF==0		{ next }
-/ value /	{ value++; next }
-/^'$1'/		{ metric++
-		  if ($0 !~ /:/) next
-		}
-		{ warn++ }
-END		{ if (warn) printf "%d warnings, ",warn
-		  printf "%d metrics and %d values\n",metric,value
-		}'
+/^'$1'/         { metric++
+                  if ($2 < 0)
+		    warn++
+		  else
+		    value += $2
+		  next
+                }
+                { warn++ }
+END             { if (warn) printf "%d warnings, ",warn
+                  printf "%d metrics and %d values\n",metric,value
+                }'
 }
 
 _setup()
@@ -1182,7 +1188,7 @@ _install()
 	    for __n in $pmns_name
 	    do
 		$PCP_ECHO_PROG $PCP_ECHO_N "Check $__n metrics have appeared ... ""$PCP_ECHO_C"
-		pminfo -f $__ns_opt $__n | tee $tmp.verbose | __filter $__n
+		pmprobe -i $__ns_opt $__n | tee $tmp.verbose | __filter $__n
 		if $__verbose
 		then
 		    echo "pminfo output ..."
