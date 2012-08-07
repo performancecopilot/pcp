@@ -548,7 +548,7 @@ extern char *__pmAllocHostEntBuffer (void);
 extern void __pmFreeHostEntBuffer (char *);
 extern __pmHostEnt *__pmGetHostByName(const char *, __pmHostEnt *, char *);
 extern __pmHostEnt *__pmGetHostByAddr(__pmSockAddrIn *, __pmHostEnt *, char *);
-extern __pmIPAddr *__pmHostEntGetIPAddr(const __pmHostEnt *, int);
+extern __pmIPAddr __pmHostEntGetIPAddr(const __pmHostEnt *, int);
 
 /*
  * per context controls for archives and logs

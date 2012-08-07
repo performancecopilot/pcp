@@ -24,7 +24,7 @@
 static struct timeval	canwait = { 5, 000000 };
 
 #ifdef HAVE_NSS
-/* NSS/NSPR file descriptors are not integers, however integral file descriptors are expected
+/* NSS/NSPR file descriptors are not integers, however, integral file descriptors are expected
    in many parts of pcp. In order to deal with this assumption, when NSS/NSPR is available, we
    maintain a table of file descriptors. The file descriptor number returned by __pmCreateSocket
    is an index into this table and must be used for all further I/O operations on that socket.
@@ -32,15 +32,16 @@ static struct timeval	canwait = { 5, 000000 };
    Since some interfaces (e.g. the IPC table) will use a mix of native file descriptor numbers
    and indexed ones, we need a way to distinguish them. Obtaining the hard max fd number using
    getrlimit() was considered, but a sysadmin could change this limit arbitrarily while we are
-   running. We can't use negative values, since these indicate an error. For now, consider all fd
-   numbers >= INT_MAX/2 to be ones which index our table.
-   NB: Another solution might be to allocate the indexed file descriptors in a decreasing manner
-       beginning at INT_MAX and to track the lowest one as the threshold.
+   running. We can't use negative values, since these indicate an error.
+
+   There is a limit on the range of fd's which can be passed to the fd_set API. It is FD_SETSIZE.
+   So, consider all fd's >= FD_SETSIZE to be ones which index our table. Using this threshold will
+   also allow us to easily manage mixed sets of natrive and indexed fds.
 
    NB: __pmLock_libpcp must be held when accessing this table, since another thread could grow it
        or claim a NULL entry at any time.
  */
-#define PM_FD_TABLE_THRESHOLD (INT_MAX / 2)
+#define PM_FD_TABLE_THRESHOLD FD_SETSIZE
 static PRFileDesc **fdTable = NULL;
 static size_t fdTableSize = 0;
 
@@ -197,7 +198,7 @@ __pmCloseSocket(int fd)
 	return;
     }
 #endif
-    /* We havd a native fd */
+    /* We have a native fd */
 #if defined(IS_MINGW)
     closesocket(fd);
 #else
@@ -397,7 +398,7 @@ __pmListen(int fd, int backlog)
 	return prStatus == PR_SUCCESS ? 0 : -1;
     }
 #endif
-    /* We havd a native fd */
+    /* We have a native fd */
     return listen(fd, backlog);
 }
 
@@ -420,7 +421,7 @@ __pmAccept(int fd, void *addr, mysocklen_t *addrlen)
 	return fd;
     }
 #endif
-    /* We havd a native fd */
+    /* We have a native fd */
     return accept(fd, (struct sockaddr *)addr, addrlen);
 }
 
@@ -439,7 +440,7 @@ __pmBind(int fd, void *addr, mysocklen_t addrlen)
 	return prStatus == PR_SUCCESS ? 0 : -1;
     }
 #endif
-    /* We havd a native fd */
+    /* We have a native fd */
     return bind(fd, (struct sockaddr *)addr, addrlen);
 }
 
@@ -458,7 +459,7 @@ __pmConnect(int fd, void *addr, mysocklen_t addrlen)
 	return prStatus == PR_SUCCESS ? 0 : -1;
     }
 #endif
-    /* We havd a native fd */
+    /* We have a native fd */
     return connect(fd, (struct sockaddr *)addr, addrlen);
 }
 
@@ -683,54 +684,103 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 }
 
 int
-__pmFcntlGetFlags(int fildes)
+__pmFcntlGetFlags(int fd)
 {
 #ifdef HAVE_NSS
-  //  #error __FUNCTION__ is not implemented for NSS
-  return -1;
-#else
-  return fcntl(fildes, F_GETFL);
+    /* Map the request to the NSPR equivalent, if possible. */
+    if (isIndexedFd(fd)) {
+	int ix;
+	if ((ix = fdTableIndex(fd) < 0)) {
+	    __pmNotifyErr(LOG_ERR, "__pmFcntlGetFlags: invalid file descriptor: %d\n", fd);
+	    return -1;
+	}
+
+	/* There is no direct mapping of this function in NSPR. The best we can do is to use the
+	   (deprecated) function PR_FileDesc2NativeHandle to get the native fd and call
+	   fcntl on that handle. */
+	if ((fd = PR_FileDesc2NativeHandle(getFdTableEntry(ix))) < 0) {
+	  __pmNotifyErr(LOG_ERR, "__pmFcntlGetFlags: invalid file descriptor: %d\n", fd);
+	  return -1;
+	}
+    }
 #endif
+  return fcntl(fd, F_GETFL);
 }
 
 int
-__pmFcntlSetFlags(int fildes, int flags)
+__pmFcntlSetFlags(int fd, int flags)
 {
 #ifdef HAVE_NSS
-  //  #error __FUNCTION__ is not implemented for NSS
-  return -1;
-#else
-  return fcntl(fildes, F_SETFL, flags);
+    /* Map the request to the NSPR equivalent, if possible. */
+    if (isIndexedFd(fd)) {
+	int ix;
+	if ((ix = fdTableIndex(fd) < 0)) {
+	    __pmNotifyErr(LOG_ERR, "__pmFcntlGetFlags: invalid file descriptor: %d\n", fd);
+	    return -1;
+	}
+
+	/* There is no direct mapping of this function in NSPR. The best we can do is to use the
+	   (deprecated) function PR_FileDesc2NativeHandle to get the native fd and call
+	   fcntl on that handle. */
+	if ((fd = PR_FileDesc2NativeHandle(getFdTableEntry(ix))) < 0) {
+	  __pmNotifyErr(LOG_ERR, "__pmFcntlGetFlags: invalid file descriptor: %d\n", fd);
+	  return -1;
+	}
+    }
 #endif
+    return fcntl(fd, F_SETFL, flags);
 }
 
 ssize_t
 __pmSend(int socket, const void *buffer, size_t length, int flags)
 {
 #ifdef HAVE_NSS
-  //  #error __FUNCTION__ is not implemented for NSS
-  return -1;
-#else
-  return send(socket, buffer, length, flags);
+    /* Map the request to the NSPR equivalent, if possible. */
+    if (isIndexedFd(socket)) {
+	int ix;
+	if ((ix = fdTableIndex(socket) < 0)) {
+	    __pmNotifyErr(LOG_ERR, "__pmSend: invalid file descriptor: %d\n", socket);
+	    return -1;
+	}
+	return PR_Write (getFdTableEntry(ix), buffer, length);
+    }
 #endif
+    /* We have a native fd */
+    return send(socket, buffer, length, flags);
 }
 
 ssize_t
 __pmRecv(int socket, void *buffer, size_t length, int flags)
 {
 #ifdef HAVE_NSS
-  //  #error __FUNCTION__ is not implemented for NSS
-  return -1;
-#else
-  return recv(socket, buffer, length, flags);
+    /* Map the request to the NSPR equivalent, if possible. */
+    if (isIndexedFd(socket)) {
+	int ix;
+	if ((ix = fdTableIndex(socket) < 0)) {
+	    __pmNotifyErr(LOG_ERR, "__pmRecv: invalid file descriptor: %d\n", socket);
+	    return -1;
+	}
+	return PR_Read (getFdTableEntry(ix), buffer, length);
+    }
 #endif
+    /* We have a native fd */
+    return recv(socket, buffer, length, flags);
 }
 
 void
 __pmFD_CLR(int fd, __pmFdSet *set)
 {
 #ifdef HAVE_NSS
-  //  #error __FUNCTION__ is not implemented for NSS
+    if (isIndexedFd(fd)) {
+	int ix;
+	if ((ix = fdTableIndex(fd) < 0)) {
+	    __pmNotifyErr(LOG_ERR, "__pmFD_CLR: invalid file descriptor: %d\n", fd);
+	    return;
+	}
+	FD_CLR(ix, &set->indexedSet);
+	return;
+    }
+    FD_CLR(fd, &set->nativeSet);
 #else
   FD_CLR(fd, set);
 #endif
@@ -740,10 +790,17 @@ int
 __pmFD_ISSET(int fd, __pmFdSet *set)
 {
 #ifdef HAVE_NSS
-  //#error __FUNCTION__ is not implemented for NSS
-  return 0;
+    if (isIndexedFd(fd)) {
+	int ix;
+	if ((ix = fdTableIndex(fd) < 0)) {
+	    __pmNotifyErr(LOG_ERR, "__pmFD_CLR: invalid file descriptor: %d\n", fd);
+	    return 0;
+	}
+	return FD_ISSET(ix, &set->indexedSet);
+    }
+    return FD_ISSET(fd, &set->nativeSet);
 #else
-  return FD_ISSET(fd, set);
+    return FD_ISSET(fd, set);
 #endif
 }
 
@@ -751,9 +808,18 @@ void
 __pmFD_SET(int fd, __pmFdSet *set)
 {
 #ifdef HAVE_NSS
-  //#error __FUNCTION__ is not implemented for NSS
+    if (isIndexedFd(fd)) {
+	int ix;
+	if ((ix = fdTableIndex(fd) < 0)) {
+	    __pmNotifyErr(LOG_ERR, "__pmFD_SET: invalid file descriptor: %d\n", fd);
+	    return;
+	}
+	FD_SET(ix, &set->indexedSet);
+	return;
+    }
+    FD_SET(fd, &set->nativeSet);
 #else
-  FD_SET(fd, set);
+    FD_SET(fd, set);
 #endif
 }
 
@@ -761,20 +827,17 @@ void
 __pmFD_ZERO(__pmFdSet *set)
 {
 #ifdef HAVE_NSS
-  //#error __FUNCTION__ is not implemented for NSS
+    FD_ZERO(&set->indexedSet);
+    FD_ZERO(&set->nativeSet);
 #else
-  FD_ZERO(set);
+    FD_ZERO(set);
 #endif
 }
 
 void
 __pmFD_COPY(__pmFdSet *s1, const __pmFdSet *s2)
 {
-#ifdef HAVE_NSS
-  //#error __FUNCTION__ is not implemented for NSS
-#else
-  memcpy(s1, s2, sizeof(*s1));
-#endif
+    memcpy(s1, s2, sizeof(*s1));
 }
 
 int
@@ -803,11 +866,13 @@ char *
 __pmAllocHostEntBuffer (void)
 {
 #ifdef HAVE_NSS
-  // TODO NSS: check for malloc failure
-  return malloc(PR_NETDB_BUF_SIZE);
+    char *buffer = malloc(PR_NETDB_BUF_SIZE);
+    if (buffer == NULL)
+        __pmNoMem("__pmAllocHostEntBuffer", PR_NETDB_BUF_SIZE, PM_FATAL_ERR);
+    return buffer;
 #else
-  /* No buffer needed */
-  return NULL;
+    /* No buffer needed */
+    return NULL;
 #endif
 }
 
@@ -815,9 +880,9 @@ void
 __pmFreeHostEntBuffer (char *buffer)
 {
 #ifdef HAVE_NSS
-  free(buffer);
+    free(buffer);
 #else
-  /* No buffer was actually allocated. */
+    /* No buffer was actually allocated. */
 #endif
 }
 
@@ -840,68 +905,59 @@ __pmHostEnt *
 __pmGetHostByAddr(__pmSockAddrIn *address, __pmHostEnt *hostEntry, char *buffer)
 {
 #ifdef HAVE_NSS
-  PRStatus prStatus = PR_GetHostByAddr(address, buffer, PR_NETDB_BUF_SIZE, hostEntry);
-  return prStatus == PR_SUCCESS ? hostEntry : NULL;
+    PRStatus prStatus = PR_GetHostByAddr(address, buffer, PR_NETDB_BUF_SIZE, hostEntry);
+    return prStatus == PR_SUCCESS ? hostEntry : NULL;
 #else
-  __pmHostEnt *he = gethostbyaddr((void *)&address->sin_addr.s_addr, sizeof(address->sin_addr.s_addr), AF_INET);
-  if (he == NULL)
-      return NULL;
-  *hostEntry = *he;
-  return hostEntry;
+    __pmHostEnt *he = gethostbyaddr((void *)&address->sin_addr.s_addr, sizeof(address->sin_addr.s_addr), AF_INET);
+    if (he == NULL)
+        return NULL;
+    *hostEntry = *he;
+    return hostEntry;
 #endif
 }
 
-__pmIPAddr *
+__pmIPAddr
 __pmHostEntGetIPAddr(const __pmHostEnt *he, int ix)
 {
 #ifdef HAVE_NSS
-  //  #error __FUNCTION__ is not implemented for NSS
-  return NULL;
+    PRNetAddr address;
+    PRIntn rc = PR_EnumerateHostEnt(0, he, 0, &address);
+    if (rc < 0) {
+        __pmNotifyErr(LOG_ERR, "__pmHostEntGetIPAddr: unable to obtain host address\n");
+	return 0;
+    }
+    return __pmInAddrToIPAddr(&address);
 #else
-  return & ((struct in_addr *)he->h_addr_list[ix])->s_addr;
+    return ((struct in_addr *)he->h_addr_list[ix])->s_addr;
 #endif
 }
 
 void
 __pmSetIPAddr(__pmIPAddr *addr, unsigned int a)
 {
-#ifdef HAVE_NSS
-  //#error __FUNCTION__ is not implemented for NSS
-#else
-  *addr = a;
-#endif
+    *addr = a;
 }
 
 __pmIPAddr *
 __pmMaskIPAddr(__pmIPAddr *addr, const __pmIPAddr *mask)
 {
-#ifdef HAVE_NSS
-  //#error __FUNCTION__ is not implemented for NSS
-  return addr;
-#else
-  *addr &= *mask;
-  return addr;
-#endif
+    *addr &= *mask;
+    return addr;
 }
 
 int
 __pmCompareIPAddr(const __pmIPAddr *addr1, const __pmIPAddr *addr2)
 {
-#ifdef HAVE_NSS
-  return memcmp(addr1, addr2, sizeof(*addr1));
-#else
-  return *addr1 - *addr2;
-#endif
+    return *addr1 - *addr2;
 }
 
 int
 __pmIPAddrIsLoopBack(const __pmIPAddr *addr)
 {
 #ifdef HAVE_NSS
-  //  #error __FUNCTION__ is not implemented for NSS
-  return 0;
+    return *addr == PR_INADDR_LOOPBACK;
 #else
-  return *addr == htonl(INADDR_LOOPBACK);
+    return *addr == htonl(INADDR_LOOPBACK);
 #endif
 }
 
@@ -909,9 +965,9 @@ const __pmIPAddr
 __pmSockAddrInToIPAddr(const __pmSockAddrIn *inaddr)
 {
 #ifdef HAVE_NSS
-  return 0;
+    return __pmInAddrToIPAddr(inaddr);
 #else
-  return __pmInAddrToIPAddr(&inaddr->sin_addr);
+    return __pmInAddrToIPAddr(&inaddr->sin_addr);
 #endif
 }
 
@@ -919,22 +975,16 @@ const __pmIPAddr
 __pmInAddrToIPAddr(const __pmInAddr *inaddr)
 {
 #ifdef HAVE_NSS
-  /* For NSPR, these point to the same type. */
-  return 0;
+    return inaddr->inet.ip;
 #else
-  return inaddr->s_addr;
+    return inaddr->s_addr;
 #endif
 }
 
 int
 __pmIPAddrToInt(const __pmIPAddr *addr)
 {
-#ifdef HAVE_NSS
-  //#error __FUNCTION__ is not implemented for NSS
-  return 0;
-#else
-  return *addr;
-#endif
+    return *addr;
 }
 
 /* Convert an address in network byte order to a string. The caller must free the buffer. */

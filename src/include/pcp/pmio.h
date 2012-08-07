@@ -32,8 +32,8 @@ typedef PRHostEnt __pmHostEnt;
 /* Handling of sets of sockets */
 typedef struct __pmFdSet
 {
-  size_t size;
-  PRPollDesc *elements;
+  fd_set indexedSet;
+  fd_set nativeSet;
 } __pmFdSet;
 #else /* ! HAVE_NSS */
 /* Socket I/O types */

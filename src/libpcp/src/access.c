@@ -100,7 +100,7 @@ getmyhostid(void)
 	PM_UNLOCK(__pmLock_libpcp);
 	return -1;
     }
-    myhostid = *__pmHostEntGetIPAddr(&he, 0);
+    myhostid = __pmHostEntGetIPAddr(&he, 0);
     __pmFreeHostEntBuffer(hebuf);
     PM_UNLOCK(__pmLock_libpcp);
     gotmyhostid = 1;
@@ -321,7 +321,7 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	    PM_UNLOCK(__pmLock_libpcp);
 	    return -EHOSTUNREACH;	/* host error unsuitable to return */
 	}
-	hostid = *__pmHostEntGetIPAddr(&he, 0);
+	hostid = __pmHostEntGetIPAddr(&he, 0);
 	__pmFreeHostEntBuffer(hebuf);
 	PM_UNLOCK(__pmLock_libpcp);
 	__pmSetIPAddr(&hostmask, 0xffffffff);
