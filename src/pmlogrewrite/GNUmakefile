@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2012 Red Hat, Inc. All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -39,6 +40,7 @@ include $(BUILDRULES)
 pmlogextract:	$(OBJECTS)
 
 install:	$(CMDTARGET)
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogrewrite
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
 
 gram.tab.h gram.tab.c:	gram.y

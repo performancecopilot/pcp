@@ -115,7 +115,7 @@ scan_filesys_options(const char *options, const char *option)
 
 int
 refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom,
-		pmInDom tmpfs_indom, pmInDom cgroups_indom)
+		pmInDom tmpfs_indom)
 {
     char buf[MAXPATHLEN];
     char realdevice[MAXPATHLEN];
@@ -128,7 +128,6 @@ refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom,
     pmdaCacheOp(quota_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(tmpfs_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(filesys_indom, PMDA_CACHE_INACTIVE);
-    pmdaCacheOp(cgroups_indom, PMDA_CACHE_INACTIVE);
 
     if ((fp = fopen("/proc/mounts", "r")) == (FILE *)NULL)
 	return -oserror();
@@ -144,16 +143,13 @@ refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom,
 	    strcmp(type, "nfs") == 0 ||
 	    strcmp(type, "devfs") == 0 ||
 	    strcmp(type, "devpts") == 0 ||
+	    strcmp(type, "cgroup") == 0 ||
 	    strncmp(type, "auto", 4) == 0)
 	    continue;
 
 	indom = filesys_indom;
 	if (strcmp(type, "tmpfs") == 0) {
 	    indom = tmpfs_indom;
-	    device = path;
-	}
-	else if (strcmp(type, "cgroup") == 0) {
-	    indom = cgroups_indom;
 	    device = path;
 	}
 	else if (strncmp(device, "/dev", 4) != 0)
