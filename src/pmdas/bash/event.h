@@ -16,6 +16,8 @@
 #ifndef _EVENT_H
 #define _EVENT_H
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
 
