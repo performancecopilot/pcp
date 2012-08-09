@@ -14,13 +14,11 @@
  * for more details.
  */
 
-#include "event.h"
-#include "pmda.h"
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #include <ctype.h>
 #include <regex.h>
+#include "event.h"
+#include "pmda.h"
 
 #ifndef HAVE_MEMALIGN
 #define memalign(a,b) malloc(b)

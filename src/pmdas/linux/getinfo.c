@@ -20,41 +20,6 @@
 #include "pmapi.h"
 
 char *
-get_ttyname_info(int pid, dev_t dev, char *ttyname)
-{
-    DIR *dir;
-    struct dirent *dp;
-    struct stat sbuf;
-    int found=0;
-    char procpath[MAXPATHLEN];
-    char ttypath[MAXPATHLEN];
-
-    sprintf(procpath, "/proc/%d/fd", pid);
-    if ((dir = opendir(procpath)) != NULL) {
-	while ((dp = readdir(dir)) != NULL) {
-	    if (!isdigit(dp->d_name[0]))
-	    	continue;
-	    sprintf(procpath, "/proc/%d/fd/%s", pid, dp->d_name);
-	    if (realpath(procpath, ttypath) == NULL || stat(ttypath, &sbuf) < 0)
-	    	continue;
-	    if (S_ISCHR(sbuf.st_mode) && dev == sbuf.st_rdev) {
-		found=1;
-		break;
-	    }
-	}
-	closedir(dir);
-    }
-
-    if (!found)
-    	strcpy(ttyname, "?");
-    else
-	/* skip the "/dev/" prefix */
-    	strcpy(ttyname, &ttypath[5]);
-
-    return ttyname;
-}
-
-char *
 get_distro_info(void)
 {
     /*

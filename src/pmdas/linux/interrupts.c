@@ -19,7 +19,6 @@
 #include "dynamic.h"
 #include "clusters.h"
 #include "interrupts.h"
-#include "proc_pid.h"
 #include <sys/stat.h>
 #ifdef HAVE_STRINGS_H
 #include <strings.h>

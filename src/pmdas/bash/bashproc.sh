@@ -41,10 +41,10 @@ pcp_trace()
             [ -n "${BASH_VERSION}" ] || return 0        # wrong shell
             [ "${BASH_VERSINFO[0]}" -ge 4 ] || return 0 # no support
             [ -z "${PCP_TMP_DIR}" ] && return 0	        # incorrect setup
-            [ -d "${PCP_TRACE_DIR}" ] || return 0       # no pcp pmda yet
             [ -z "${PCP_TRACE_DIR}" ] && pcp_trace init # not yet tracing
+            [ -d "${PCP_TRACE_DIR}" ] || return 0       # no pcp pmda yet
 
-            # is thi the child of a traced shell?
+            # is this the child of a traced shell?
             [ -e /proc/self/fd/99 ] && pcp_trace init
 
             trap "pcp_trace on" 13	# reset on sigpipe (consumer died)

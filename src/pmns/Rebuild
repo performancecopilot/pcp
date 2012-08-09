@@ -111,6 +111,28 @@ _upgrade_root()
     # If there are deprecated top-level names (below "root") that are
     # no longer in a root_* file, add them here ...
     EXCLUDE="pagebuf origin"
+    if [ "$PCP_PLATFORM" = linux ]
+    then
+	# If we're on Linux and the proc PMDA is _not_ included in
+	# the pmcd configuration file, add the top-level metrics
+	# that migrated from the linux PMDA to the proc PMDA
+	#
+	if [ -f $PCP_PMCDCONF_PATH ]
+	then
+	    if grep '^proc[ 	]' $PCP_PMCDCONF_PATH >/dev/null
+	    then
+		# proc PMDA is installed
+		#
+		:
+	    else
+		EXCLUDE="$EXCLUDE proc cgroup"
+	    fi
+	else
+	    EXCLUDE="$EXCLUDE proc cgroup"
+	fi
+    else
+	EXCLUDE="$EXCLUDE proc cgroup"
+    fi
 
     # now gather top-level names from root_* files
     #
