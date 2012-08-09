@@ -32,8 +32,9 @@ typedef PRHostEnt __pmHostEnt;
 /* Handling of sets of sockets */
 typedef struct __pmFdSet
 {
-  fd_set indexedSet;
+  int numNativeFds;
   fd_set nativeSet;
+  fd_set indexedSet;
 } __pmFdSet;
 #else /* ! HAVE_NSS */
 /* Socket I/O types */

@@ -36,7 +36,7 @@ static struct timeval	canwait = { 5, 000000 };
 
    There is a limit on the range of fd's which can be passed to the fd_set API. It is FD_SETSIZE.
    So, consider all fd's >= FD_SETSIZE to be ones which index our table. Using this threshold will
-   also allow us to easily manage mixed sets of natrive and indexed fds.
+   also allow us to easily manage mixed sets of native and indexed fds.
 
    NB: __pmLock_libpcp must be held when accessing this table, since another thread could grow it
        or claim a NULL entry at any time.
@@ -781,6 +781,15 @@ __pmFD_CLR(int fd, __pmFdSet *set)
 	return;
     }
     FD_CLR(fd, &set->nativeSet);
+
+    /* Reset the max fd, if necessary. */
+    if (fd + 1 >= set->numNativeFds) {
+        for (--fd; fd >= 0; --fd) {
+	    if (FD_ISSET(fd, &set->nativeSet))
+	        break;
+	}
+	set->numNativeFds = fd + 1;
+    }
 #else
   FD_CLR(fd, set);
 #endif
@@ -818,6 +827,10 @@ __pmFD_SET(int fd, __pmFdSet *set)
 	return;
     }
     FD_SET(fd, &set->nativeSet);
+
+    /* Reset the max fd, if necessary. */
+    if (fd >= set->numNativeFds)
+        set->numNativeFds = fd + 1;
 #else
     FD_SET(fd, set);
 #endif
@@ -829,6 +842,7 @@ __pmFD_ZERO(__pmFdSet *set)
 #ifdef HAVE_NSS
     FD_ZERO(&set->indexedSet);
     FD_ZERO(&set->nativeSet);
+    set->numNativeFds = 0;
 #else
     FD_ZERO(set);
 #endif
@@ -840,14 +854,87 @@ __pmFD_COPY(__pmFdSet *s1, const __pmFdSet *s2)
     memcpy(s1, s2, sizeof(*s1));
 }
 
+#ifdef HAVE_NSS
+static int
+nsprSelect(int rwflag, __pmFdSet *fds, struct timeval *timeout)
+{
+    /* Convert the fd_set for the indexed fds to the form required by NSPR.
+       There can be a maximum of fdTableSize fds in the set. */
+    int indexedReady, nativeReady;
+    int maxIndexed;
+    PRIntervalTime nsprTimeout;
+    PRPollDesc *pollfds;
+    int fd;
+
+    /* fdTableSize is monotonically increasing, so we can safely take its size without
+       locking. We do want to use the same size throughout, however, so take it here.
+       Entries in the fdTable do not change their index, so we don't need to lock as long as
+       we access it using its access functions (which do lock as needed). */
+    maxIndexed = fdTableSize;
+    pollfds = malloc(maxIndexed * sizeof(*pollfds));
+    for (fd = 0; fd < maxIndexed; ++fd) {
+      if (FD_ISSET(fd, &fds->indexedSet)) {
+	pollfds[fd].fd = getFdTableEntry(fd);
+	pollfds[fd].in_flags = rwflag;
+      }
+      else
+	pollfds[fd].fd = NULL;
+    }
+
+    /* Convert the given timeout to the form required by NSPR. */
+    if (timeout != NULL) {
+      nsprTimeout = PR_SecondsToInterval(timeout->tv_sec);
+      nsprTimeout += PR_MicrosecondsToInterval(timeout->tv_usec);
+    }
+    else
+      nsprTimeout = PR_INTERVAL_NO_TIMEOUT;
+
+    /* Poll the given fds. */
+    indexedReady = PR_Poll(pollfds, maxIndexed, nsprTimeout);
+    if (indexedReady < 0) {
+      __pmNotifyErr(LOG_ERR, "nsprSelect: error polling indexed file descriptors\n");
+      free(pollfds);
+      return -1;
+    }
+
+    /* Convert the result back to the native format. */
+    FD_ZERO(&fds->indexedSet);
+    for (fd = 0; fd < maxIndexed; ++fd) {
+      if ((pollfds[fd].out_flags & rwflag) != 0)
+	FD_SET(fd, &fds->indexedSet);
+    }
+    free(pollfds);
+
+    /* Use the native 'select' function on the native fds. Ignore the nfds
+       passed to us and use the number from the set itself. */
+    if (rwflag == PR_POLL_READ)
+      nativeReady = select(fds->numNativeFds, &fds->nativeSet, NULL, NULL, timeout);
+    else
+      nativeReady = select(fds->numNativeFds, NULL, &fds->nativeSet, NULL, timeout);
+    if (nativeReady < 0) {
+      __pmNotifyErr(LOG_ERR, "nsprSelect: error polling native file descriptors\n");
+      return -1;
+    }
+
+    /* Reset the max fd. */
+    for (fd = fds->numNativeFds - 1; fd >= 0; --fd) {
+      if (FD_ISSET(fd, &fds->nativeSet))
+	break;
+    }
+    fds->numNativeFds = fd + 1;
+
+    /* Return the total number of ready fds. */
+    return indexedReady + nativeReady;
+}
+#endif /* HAVE_NSS */
+
 int
 __pmSelectRead(int nfds, __pmFdSet *readfds, struct timeval *timeout)
 {
 #ifdef HAVE_NSS
-  //  #error __FUNCTION__ is not implemented for NSS
-  return -1;
+    return nsprSelect(PR_POLL_READ, readfds, timeout);
 #else
-  return select(nfds, readfds, NULL, NULL, timeout);
+    return select(nfds, readfds, NULL, NULL, timeout);
 #endif
 }
 
@@ -855,10 +942,9 @@ int
 __pmSelectWrite(int nfds, __pmFdSet *writefds, struct timeval *timeout)
 {
 #ifdef HAVE_NSS
-  //#error __FUNCTION__ is not implemented for NSS
-  return 0;
+    return nsprSelect(PR_POLL_WRITE, writefds, timeout);
 #else
-  return select(nfds, NULL, writefds, NULL, timeout);
+    return select(nfds, NULL, writefds, NULL, timeout);
 #endif
 }
 
