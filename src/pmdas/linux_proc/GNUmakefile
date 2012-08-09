@@ -29,7 +29,7 @@ HFILES		= cgroups.h clusters.h dynamic.h proc_pid.h indom.h getinfo.h \
 		  proc_runq.h ksym.h filesys.h
 
 LSRCFILES 	= Install Remove help pmns pmns.cgroup root linux_proc_migrate.conf
-LDIRT		= help.dir help.pag domain.h
+LDIRT		= domain.h
 
 LLDLIBS		= -lpcp_pmda -lpcp
 
@@ -42,21 +42,18 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
+build-me: domain.h $(LIBTARGET) $(CMDTARGET)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 domain.h pmns pmns.cgroup root help help.dir help.pag $(PMDADIR)
+	$(INSTALL) -m 644 domain.h pmns pmns.cgroup root help $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 linux_proc_migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/linux_proc_migrate.conf
 else
 build-me:
 install:
 endif
-
-help.dir help.pag : help
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root -v 2 -o help < help
 
 default_pcp : default
 
