@@ -33,7 +33,7 @@ static char pidpath[MAXPATHLEN];
  * as a reference since its created initially and then never modified again.
  * Subsequent calls will use last modification to the trace data file.
  */
-static void
+void
 process_stat_timestamp(bash_process_t *process, struct timeval *timestamp)
 {
     timestamp->tv_sec = process->stat.st_mtim.tv_sec;
