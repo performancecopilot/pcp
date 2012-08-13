@@ -272,7 +272,7 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
 int
 DoInstance(ClientInfo *cp, __pmPDU* pb)
 {
-    int			sts = 0, s;
+    int			sts, s;
     __pmTimeval		when;
     pmInDom		indom;
     int			inst;
@@ -281,7 +281,9 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
     AgentInfo		*ap;
     int			fdfail = -1;
 
-    __pmDecodeInstanceReq(pb, &when, &indom, &inst, &name);
+    sts = __pmDecodeInstanceReq(pb, &when, &indom, &inst, &name);
+    if (sts < 0)
+	return sts;
     if (when.tv_sec != 0 || when.tv_usec != 0) {
 	/*
 	 * we have no idea how to do anything but current, yet!
