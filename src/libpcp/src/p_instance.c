@@ -181,21 +181,32 @@ __pmDecodeInstance(__pmPDU *pdubuf, __pmInResult **result)
     int			j;
     instance_t		*rp;
     instlist_t		*ip;
-    __pmInResult	*res = NULL;
+    __pmInResult	*res;
     int			sts;
     char		*p;
+    char		*pdu_end;
     int			keep_instlist;
     int			keep_namelist;
+
+    rp = (instance_t *)pdubuf;
+    pdu_end = (char *)pdubuf + rp->hdr.len;
+
+    if (pdu_end - (char *)pdubuf < sizeof(instance_t) - sizeof(__pmPDU))
+	return PM_ERR_IPC;
 
     if ((res = (__pmInResult *)malloc(sizeof(*res))) == NULL)
 	return -oserror();
     res->instlist = NULL;
     res->namelist = NULL;
-
-    rp = (instance_t *)pdubuf;
     res->indom = __ntohpmInDom(rp->indom);
     res->numinst = ntohl(rp->numinst);
 
+    if (res->numinst >= (INT_MAX / sizeof(res->instlist[0])) ||
+	res->numinst >= (INT_MAX / sizeof(res->namelist[0])) ||
+	res->numinst >= rp->hdr.len) {
+	sts = PM_ERR_IPC;
+	goto badsts;
+    }
     if ((res->instlist = (int *)malloc(res->numinst * sizeof(res->instlist[0]))) == NULL) {
 	sts = -oserror();
 	goto badsts;
@@ -214,12 +225,25 @@ __pmDecodeInstance(__pmPDU *pdubuf, __pmInResult **result)
 
     for (i = j = 0; i < res->numinst; i++) {
 	ip = (instlist_t *)&rp->rest[j/sizeof(__pmPDU)];
+	if (sizeof(instlist_t) - sizeof(ip->name) > (size_t)(pdu_end - (char *)ip)) {
+	    sts = PM_ERR_IPC;
+	    goto badsts;
+	}
+
 	res->instlist[i] = ntohl(ip->inst);
 	if (res->instlist[i] != PM_IN_NULL)
 	    keep_instlist = 1;
 	ip->namelen = ntohl(ip->namelen);
 	if (ip->namelen > 0)
 	    keep_namelist = 1;
+	if (ip->namelen < 0) {
+	    sts = PM_ERR_IPC;
+	    goto badsts;
+	}
+	if (sizeof(instlist_t) - sizeof(int) + ip->namelen > (size_t)(pdu_end - (char *)ip)) {
+	    sts = PM_ERR_IPC;
+	    goto badsts;
+	}
 	if ((p = (char *)malloc(ip->namelen + 1)) == NULL) {
 	    sts = -oserror();
 	    goto badsts;
