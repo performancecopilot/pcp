@@ -525,6 +525,15 @@ check_read_len:
 
     *result = (__pmPDU *)php;
     php->type = ntohl((unsigned int)php->type);
+    if (php->type < 0) {
+	/*
+	 * PDU type is bad ... could be a possible mem leak attack like
+	 * https://bugzilla.redhat.com/show_bug.cgi?id=841319
+	 */
+	__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d illegal PDU type=%d in hdr", fd, php->type);
+	__pmUnpinPDUBuf(pdubuf);
+	return PM_ERR_IPC;
+    }
     php->from = ntohl((unsigned int)php->from);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU) {
