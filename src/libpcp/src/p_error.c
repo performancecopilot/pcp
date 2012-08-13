@@ -97,16 +97,22 @@ int
 __pmDecodeError(__pmPDU *pdubuf, int *code)
 {
     p_error_t	*pp;
+    int		sts;
 
     pp = (p_error_t *)pdubuf;
-    *code = ntohl(pp->code);
+    if (pp->hdr.len != sizeof(p_error_t) && pp->hdr.len != sizeof(x_error_t)) {
+	sts = *code = PM_ERR_IPC;
+    } else {
+	*code = ntohl(pp->code);
+	sts = 0;
+    }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
 	fprintf(stderr,
 		"__pmDecodeError: got error PDU (code=%d, fromversion=%d)\n",
 		*code, __pmLastVersionIPC());
 #endif
-    return 0;
+    return sts;
 }
 
 int
@@ -115,12 +121,15 @@ __pmDecodeXtendError(__pmPDU *pdubuf, int *code, int *datum)
     x_error_t	*pp = (x_error_t *)pdubuf;
     int		sts;
 
-    /*
-     * It is ALWAYS a PCP 1.x error code here ... see note above
-     * in __pmSendXtendError()
-     */
-    *code = XLATE_ERR_1TO2((int)ntohl(pp->code));
-
+    if (pp->hdr.len != sizeof(p_error_t) && pp->hdr.len != sizeof(x_error_t)) {
+	*code = PM_ERR_IPC;
+    } else {
+	/*
+	 * It is ALWAYS a PCP 1.x error code here ... see note above
+	 * in __pmSendXtendError()
+	 */
+	*code = XLATE_ERR_1TO2((int)ntohl(pp->code));
+    }
     if (pp->hdr.len == sizeof(x_error_t)) {
 	/* really version 2 extended error PDU */
 	sts = PDU_VERSION2;
