@@ -1322,9 +1322,7 @@ paranoidCheck(int len, __pmPDU *pb)
 static int
 paranoidLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result)
 {
-    int		sts;
-    sts = __pmLogRead(lcp, mode, peekf, result, PMLOGREAD_TO_EOF);
-    return sts;
+    return __pmLogRead(lcp, mode, peekf, result, PMLOGREAD_TO_EOF);
 }
 
 /*
@@ -1460,7 +1458,7 @@ again:
      *  Decode
      *  <----  __pmPDUHdr  ----------->
      *  :---------:---------:---------:---------------- .........:
-     *  |   ???   |   ???   |   ???   | timestamp, .... pmResult |
+     *  | length  | pdutype |  anon   | timestamp, .... pmResult |
      *  :---------:---------:---------:---------------- .........:
      *  ^
      *  |
@@ -1516,6 +1514,10 @@ again:
 	return PM_ERR_LOGREC;
     }
     else {
+	__pmPDUHdr *header = (__pmPDUHdr *)pb;
+	header->len = sizeof(*header) + rlen;
+	header->type = PDU_RESULT;
+	header->from = FROM_ANON;
 	/* swab pdu buffer - done later in __pmDecodeResult */
     }
 
