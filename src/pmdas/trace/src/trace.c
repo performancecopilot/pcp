@@ -298,12 +298,10 @@ readData(int clientfd, int *protocol)
 	    return -1;
 	if (type < TRACE_FIRST_TYPE || type > TRACE_LAST_TYPE) {
 	    __pmNotifyErr(LOG_ERR, "unknown trace type for '%s' (%d)", tag, type);
+	    free(tag);
 	    return -1;
 	}
-	if ((newhash.tag = strdup(tag)) == NULL) {
-	    __pmNotifyErr(LOG_ERR, "string copy failed: %s", osstrerror());
-	    return -1;
-	}
+	newhash.tag = tag;
 	newhash.taglength = taglen;
 	newhash.tracetype = type;
     }
