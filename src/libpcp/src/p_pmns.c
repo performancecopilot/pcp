@@ -494,16 +494,26 @@ static int
 DecodeNameReq(__pmPDU *pdubuf, char **name_p, int *subtype)
 {
     namereq_t	*namereq_pdu;
+    char	*pdu_end;
     char	*name;
     int		namelen;
 
     namereq_pdu = (namereq_t *)pdubuf;
+    pdu_end = (char *)pdubuf + namereq_pdu->hdr.len;
+
+    if (pdu_end - (char *)namereq_pdu < sizeof(namereq_t) - sizeof(int))
+	return PM_ERR_IPC;
 
     /* only set it if you want it */
     if (subtype != NULL)
 	*subtype = ntohl(namereq_pdu->subtype);
-
     namelen = ntohl(namereq_pdu->namelen);
+
+    if (namelen < 0 || namelen > namereq_pdu->hdr.len)
+	return PM_ERR_IPC;
+    if (sizeof(namereq_t) - sizeof(int) + namelen > (size_t)(pdu_end - (char *)namereq_pdu))
+	return PM_ERR_IPC;
+
     name = malloc(namelen+1);
     if (name == NULL)
 	return -oserror(); 
