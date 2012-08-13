@@ -117,9 +117,15 @@ int
 __pmDecodeText(__pmPDU *pdubuf, int *ident, char **buffer)
 {
     text_t	*pp;
+    char	*pduend;
     int		buflen;
 
     pp = (text_t *)pdubuf;
+    pduend = (char *)pdubuf + pp->hdr.len;
+
+    if (pduend - (char*)pp < sizeof(text_t) - sizeof(int))
+	return PM_ERR_IPC;
+
     /*
      * Note: ident argument is returned in network byte order.
      * The caller has to convert it to host byte order because
@@ -129,6 +135,10 @@ __pmDecodeText(__pmPDU *pdubuf, int *ident, char **buffer)
      */
     *ident = pp->ident;
     buflen = ntohl(pp->buflen);
+    if (buflen < 0 || buflen >= INT_MAX - 1 || buflen > pp->hdr.len)
+	return PM_ERR_IPC;
+    if (pduend - (char *)pp < sizeof(text_t) - sizeof(pp->buffer) + buflen)
+	return PM_ERR_IPC;
     if ((*buffer = (char *)malloc(buflen+1)) == NULL)
 	return -oserror();
     strncpy(*buffer, pp->buffer, buflen);
