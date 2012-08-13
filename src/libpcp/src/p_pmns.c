@@ -85,14 +85,26 @@ int
 __pmDecodeIDList(__pmPDU *pdubuf, int numids, pmID idlist[], int *sts)
 {
     idlist_t	*idlist_pdu;
+    char	*pdu_end;
+    int		nids;
     int		j;
 
     idlist_pdu = (idlist_t *)pdubuf;
+    pdu_end = (char *)pdubuf + idlist_pdu->hdr.len;
 
+    if (pdu_end - (char *)pdubuf < sizeof(idlist_t) - sizeof(pmID))
+	return PM_ERR_IPC;
     *sts = ntohl(idlist_pdu->sts);
-    for (j = 0; j < numids; j++) {
+    nids = ntohl(idlist_pdu->numids);
+    if (nids <= 0 || nids != numids || nids > idlist_pdu->hdr.len)
+	return PM_ERR_IPC;
+    if (nids >= (INT_MAX - sizeof(idlist_t)) / sizeof(pmID))
+	return PM_ERR_IPC;
+    if (sizeof(idlist_t) + (sizeof(pmID) * (nids-1)) > (size_t)(pdu_end - (char *)pdubuf))
+	return PM_ERR_IPC;
+
+    for (j = 0; j < numids; j++)
 	idlist[j] = __ntohpmID(idlist_pdu->idlist[j]);
-    }
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {
