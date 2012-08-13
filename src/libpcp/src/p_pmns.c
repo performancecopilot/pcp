@@ -284,56 +284,87 @@ __pmSendNameList(int fd, int from, int numnames, char *namelist[],
  * statuslist is optional ... if NULL, no status values will be returned
  */
 int
-__pmDecodeNameList(__pmPDU *pdubuf, int *numnames, 
+__pmDecodeNameList(__pmPDU *pdubuf, int *numnamesp,
                   char*** namelist, int** statuslist)
 {
     namelist_t	*namelist_pdu;
+    char 	*pdu_end;
     char        **names;
+    char	*dest, *dest_end;
     int		*status = NULL;
-    int 	need;
-    int		numstatus;
+    int 	namesize, numnames;
+    int 	statussize, numstatus;
+    int 	nstrbytes;
+    int		namelen;
+    int		i, j;
 
     namelist_pdu = (namelist_t *)pdubuf;
+    pdu_end = (char *)pdubuf + namelist_pdu->hdr.len;
 
     *namelist = NULL;
     if (statuslist != NULL)
 	*statuslist = NULL;
 
-    *numnames = ntohl(namelist_pdu->numnames);
+    if (pdu_end - (char*)namelist_pdu < sizeof(namelist_t) - sizeof(__pmPDU))
+	return PM_ERR_IPC;
+
+    numnames = ntohl(namelist_pdu->numnames);
     numstatus = ntohl(namelist_pdu->numstatus);
+    nstrbytes = ntohl(namelist_pdu->nstrbytes);
 
-    if (*numnames == 0)
+    if (numnames == 0) {
+	*numnamesp = 0;
 	return 0;
+    }
 
-    if (*numnames < 0 || numstatus < 0)
-	/* should not happen */
+    /* validity checks - none of these conditions should happen */
+    if (numnames < 0 || nstrbytes < 0)
+	return PM_ERR_IPC;
+    /* anti-DOS measure - limiting allowable memory allocations */
+    if (numnames > namelist_pdu->hdr.len || nstrbytes > namelist_pdu->hdr.len)
+	return PM_ERR_IPC;
+    /* numstatus must be one (and only one) of zero or numnames */
+    if (numstatus != 0 && numstatus != numnames)
 	return PM_ERR_IPC;
 
     /* need space for name ptrs and the name characters */
-    need = *numnames * ((int)sizeof(char*)) + ntohl(namelist_pdu->nstrbytes);
-    if ((names = (char**)malloc(need)) == NULL)
+    if (numnames >= (INT_MAX - nstrbytes) / (int)sizeof(char *))
+	return PM_ERR_IPC;
+    namesize = numnames * ((int)sizeof(char*)) + nstrbytes;
+    if ((names = (char**)malloc(namesize)) == NULL)
 	return -oserror();
 
     /* need space for status values */
     if (statuslist != NULL && numstatus > 0) {
-	need = numstatus * (int)sizeof(int);
-	if ((status = (int*)malloc(need)) == NULL) {
+	if (numstatus >= INT_MAX / (int)sizeof(int))
+	    goto corrupt;
+	statussize = numstatus * (int)sizeof(int);
+	if ((status = (int*)malloc(statussize)) == NULL) {
 	    free(names);
 	    return -oserror();
 	}
     }
 
+    dest = (char*)&names[numnames];
+    dest_end = (char*)names + namesize;
+
     /* copy over ptrs and characters */
     if (numstatus == 0) {
-	int	i, j = 0;
-	char	*dest = (char*)&names[*numnames];
 	name_t	*np;
-	int	namelen;
 
-        for (i = 0; i < *numnames; i++) {
+	for (i = j = 0; i < numnames; i++) {
 	    np = (name_t*)&namelist_pdu->names[j/sizeof(__pmPDU)];
 	    names[i] = dest;
+
+	    if (sizeof(name_t) > (size_t)(pdu_end - (char *)np))
+		goto corrupt;
 	    namelen = ntohl(np->namelen);
+	    /* ensure source buffer contains everything that we copy over */
+	    if (sizeof(np->namelen) + namelen > (size_t)(pdu_end - (char *)np))
+		goto corrupt;
+	    /* ensure space in destination; note null-terminator is added */
+	    if (namelen < 0 || (namelen + 1) > (dest_end - dest))
+		goto corrupt;
 
 	    memcpy(dest, np->name, namelen);
 	    *(dest + namelen) = '\0';
@@ -343,15 +374,22 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
 	}
     }
     else { /* status fields included in the PDU */
-	int		i, j = 0;
-        char		*dest = (char*)&names[*numnames];
 	name_status_t	*np;
-	int		namelen;
 
-	for (i = 0; i < *numnames; i++) {
+	for (i = j = 0; i < numnames; i++) {
 	    np = (name_status_t*)&namelist_pdu->names[j/sizeof(__pmPDU)];
 	    names[i] = dest;
+
+	    if (sizeof(name_status_t) > (size_t)(pdu_end - (char *)np))
+		goto corrupt;
 	    namelen = ntohl(np->namelen);
+	    /* ensure source buffer contains everything that we copy over */
+	    if (sizeof(np->namelen) + sizeof(np->status) + namelen > (size_t)(pdu_end - (char *)np))
+		goto corrupt;
+	    /* ensure space for null-terminated name in destination buffer */
+	    if (namelen < 0 || (namelen + 1) > (dest_end - dest))
+		goto corrupt;
+
 	    if (status != NULL)
 		status[i] = ntohl(np->status);
 
@@ -366,7 +404,7 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {
 	fprintf(stderr, "__pmDecodeNameList\n");
-	__pmDumpNameList(stderr, *numnames, names);
+	__pmDumpNameList(stderr, numnames, names);
 	if (status != NULL)
 	    __pmDumpStatusList(stderr, numstatus, status);
     }
@@ -375,7 +413,14 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnames,
     *namelist = names;
     if (statuslist != NULL)
 	*statuslist = status;
-    return *numnames;
+    *numnamesp = numnames;
+    return numnames;
+
+corrupt:
+    if (status != NULL)
+	free(status);
+    free(names);
+    return PM_ERR_IPC;
 }
 
 
