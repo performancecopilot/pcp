@@ -140,45 +140,35 @@ DoText(ClientInfo *cp, __pmPDU* pb)
 int
 DoProfile(ClientInfo *cp, __pmPDU *pb)
 {
-    int		sts;
     __pmProfile	*newProf;
-    int		ctxnum;
+    int		ctxnum, sts, i;
 
     sts = __pmDecodeProfile(pb, &ctxnum, &newProf);
     if (sts >= 0) {
-	int i;
-
-	if (ctxnum < 0) {
-	    __pmNotifyErr(LOG_ERR, "DoProfile: bad ctxnum = %d\n", ctxnum);
-	    __pmFreeProfile(newProf);
-	    return PM_ERR_NOCONTEXT;
-	}
-
 	/* Allocate more profile pointers if required */
 	if (ctxnum >= cp->szProfile) {
-	    int		oldSize = cp->szProfile;
 	    __pmProfile	**newProfPtrs;
-	    unsigned	n;
+	    int		need, oldSize = cp->szProfile;
 
 	    if (ctxnum - cp->szProfile < 4)
 		cp->szProfile += 4;
 	    else
 		cp->szProfile = ctxnum + 1;
-	    n = cp->szProfile * (int)sizeof(__pmProfile *);
-	    if ((newProfPtrs = (__pmProfile **)malloc(n)) == NULL) {
+	    need = cp->szProfile * (int)sizeof(__pmProfile *);
+	    if ((newProfPtrs = (__pmProfile **)malloc(need)) == NULL) {
 		cp->szProfile = oldSize;
-		__pmNoMem("DoProfile.newProfPtrs", n, PM_RECOV_ERR);
+		__pmNoMem("DoProfile.newProfPtrs", need, PM_RECOV_ERR);
 		__pmFreeProfile(newProf);
 		return -oserror();
 	    }
 
 	    /* Copy any old pointers and zero the newly allocated ones */
-	    if ((n = oldSize * (int)sizeof(__pmProfile *))) {
-		memcpy(newProfPtrs, cp->profile, n);
+	    if ((need = oldSize * (int)sizeof(__pmProfile *))) {
+		memcpy(newProfPtrs, cp->profile, need);
 		free(cp->profile);	/* But not the __pmProfile ptrs! */
 	    }
-	    n = (cp->szProfile - oldSize) * (int)sizeof(__pmProfile *);
-	    memset(&newProfPtrs[oldSize], 0, n);
+	    need = (cp->szProfile - oldSize) * (int)sizeof(__pmProfile *);
+	    memset(&newProfPtrs[oldSize], 0, need);
 	    cp->profile = newProfPtrs;
 	}
 	else				/* cp->profile is big enough */
