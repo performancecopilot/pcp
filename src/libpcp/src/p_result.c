@@ -172,17 +172,15 @@ int
 __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 {
     int		numpmid;	/* number of metrics */
-    int		sts;		/* function status */
-    int		i = 0;		/* range of metrics */
+    int		i;		/* range of metrics */
     int		j;		/* range over values */
     int		index;
-    int		version;
     int		vsize;		/* size of vlist_t's in PDU buffer */
     char	*pduend;	/* end pointer for incoming buffer */
     char	*vsplit;	/* vlist/valueblock division point */
     result_t	*pp;
     vlist_t	*vlp;
-    pmResult	*pr = NULL;
+    pmResult	*pr;
 #if defined(HAVE_64BIT_PTR)
     char	*newbuf;
     int		valfmt;
@@ -201,9 +199,6 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 #else
     Bozo - unexpected sizeof pointer!!
 #endif
-
-    if ((sts = version = __pmLastVersionIPC()) < 0)
-	return sts;
 
     pp = (result_t *)pdubuf;
     pduend = (char *)pdubuf + pp->hdr.len;
