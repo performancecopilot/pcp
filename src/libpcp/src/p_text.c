@@ -54,10 +54,15 @@ int
 __pmDecodeTextReq(__pmPDU *pdubuf, int *ident, int *type)
 {
     text_req_t	*pp;
+    char	*pduend;
 
     pp = (text_req_t *)pdubuf;
-    *type = ntohl(pp->type);
+    pduend = (char *)pdubuf + pp->hdr.len;
 
+    if (pduend - (char*)pp < sizeof(text_req_t))
+	return PM_ERR_IPC;
+
+    *type = ntohl(pp->type);
     if ((*type) & PM_TEXT_PMID)
 	*ident = __ntohpmID(pp->ident);
     else
