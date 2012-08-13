@@ -106,7 +106,9 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
     int			sts;
     int			i;
     int			j;
+    int			nv;
     const control_req_t	*pp;
+    char		*pduend;
     int			numpmid;
     size_t		need;
     pmResult		*req;
@@ -114,12 +116,20 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
     vlist_t		*vp;
 
     pp = (const control_req_t *)pdubuf;
+    pduend = (char *)pdubuf + pp->c_hdr.len;
+    if (pduend - (char *)pdubuf < sizeof(control_req_t))
+	return PM_ERR_IPC;
+
     *control = ntohl(pp->c_control);
     *state = ntohl(pp->c_state);
     *delta = ntohl(pp->c_delta);
     numpmid = ntohl(pp->c_numpmid);
     vp = (vlist_t *)pp->c_data;
 
+    if (numpmid < 0 || numpmid > pp->c_hdr.len)
+	return PM_ERR_IPC;
+    if (numpmid >= (INT_MAX - sizeof(pmResult)) / sizeof(pmValueSet *))
+	return PM_ERR_IPC;
     need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
     if ((req = (pmResult *)malloc(need)) == NULL) {
 	__pmNoMem("__pmDecodeLogControl.req", need, PM_RECOV_ERR);
@@ -127,26 +137,41 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
     }
     req->numpmid = numpmid;
 
+    sts = PM_ERR_IPC;
     for (i = 0; i < numpmid; i++) {
-	int nv = (int)ntohl(vp->v_numval);
-	if (nv > 0)
-	    need = sizeof(pmValueSet) + (nv - 1)*sizeof(pmValue);
-	else
+	/* check that numval field is within the input buffer */
+	if (pduend - (char *)vp < sizeof(vlist_t) - sizeof(__pmValue_PDU))
+	    goto corrupt;
+	nv = (int)ntohl(vp->v_numval);
+	if (nv > pp->c_hdr.len)
+	    goto corrupt;
+	if (nv <= 0) {
 	    need = sizeof(pmValueSet) - sizeof(pmValue);
+	    /* check that pointer cannot move beyond input buffer end */
+	    if (pduend - (char *)vp < sizeof(vlist_t) - sizeof(__pmValue_PDU))
+		goto corrupt;
+	} else {
+	    /* check that dynamic allocation argument will not wrap */
+	    if (nv >= (INT_MAX - sizeof(pmValueSet)) / sizeof(pmValue))
+		goto corrupt;
+	    need = sizeof(pmValueSet) + ((nv - 1) * sizeof(pmValue));
+	    /* check that pointer cannot move beyond input buffer end */
+	    if (nv >= (INT_MAX - sizeof(vlist_t)) / sizeof(__pmValue_PDU))
+		goto corrupt;
+	    if (pduend - (char *)vp < sizeof(vlist_t) + ((nv - 1) * sizeof(__pmValue_PDU)))
+		goto corrupt;
+	}
 	if ((vsp = (pmValueSet *)malloc(need)) == NULL) {
 	    __pmNoMem("__pmDecodeLogControl.vsp", need, PM_RECOV_ERR);
 	    sts = -oserror();
 	    i--;
-	    while (i)
-		free(req->vset[i--]);
-	    free(req);
-	    return sts;
+	    goto corrupt;
 	}
 	req->vset[i] = vsp;
 	vsp->pmid = __ntohpmID(vp->v_pmid);
+	vsp->valfmt = PM_VAL_INSITU;
 	vsp->numval = nv;
-	vsp->valfmt  = PM_VAL_INSITU;
-	for (j = 0; j < vsp->numval; j++) {
+	for (j = 0; j < nv; j++) {
 	    vsp->vlist[j].inst = ntohl(vp->v_list[j].inst);
 	    vsp->vlist[j].value.lval = ntohl(vp->v_list[j].value.lval);
 	}
@@ -158,4 +183,10 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
 
     *request = req;
     return 0;
+
+corrupt:
+    while (i)
+	free(req->vset[i--]);
+    free(req);
+    return sts;
 }
