@@ -52,8 +52,14 @@ int
 __pmDecodeDescReq(__pmPDU *pdubuf, pmID *pmid)
 {
     desc_req_t	*pp;
+    char	*pduend;
 
     pp = (desc_req_t *)pdubuf;
+    pduend = (char *)pdubuf + pp->hdr.len;
+
+    if (pduend - (char*)pp != sizeof(desc_req_t))
+	return PM_ERR_IPC;
+
     *pmid = __ntohpmID(pp->pmid);
     return 0;
 }
@@ -93,8 +99,14 @@ int
 __pmDecodeDesc(__pmPDU *pdubuf, pmDesc *desc)
 {
     desc_t	*pp;
+    char	*pduend;
 
     pp = (desc_t *)pdubuf;
+    pduend = (char *)pdubuf + pp->hdr.len;
+
+    if (pduend - (char*)pp != sizeof(desc_t))
+	return PM_ERR_IPC;
+
     desc->type = ntohl(pp->desc.type);
     desc->sem = ntohl(pp->desc.sem);
     desc->indom = __ntohpmInDom(pp->desc.indom);
