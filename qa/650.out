@@ -1,0 +1,198 @@
+QA output created by 650
+Test case - one metric, remapped ID
+= metric names recorded
+sample.secret.foo.bar.max.redirect
+pmcd.pmlogger.archive
+pmcd.pmlogger.port
+pmcd.pmlogger.host
+= archive contents...
+Log Label (Log Format Version 2)
+Performance metrics from host ...
+
+Descriptions for Metrics in the Log ...
+PMID: 2.4.1 (sample.secret.foo.bar.max.redirect)
+    Data Type: 32-bit int  InDom: 2.3 0x800003
+    Semantics: discrete  Units: none
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+
+Instance Domains in the Log ...
+InDom: 2.3
+TIMESTAMP <some> instances
+                 ...
+InDom: 2.1
+TIMESTAMP 1 instances
+                 LOGGER_PID or "LOGGER_PID"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+TIMESTAMP       0       OFFSET       OFFSET
+TIMESTAMP       0       OFFSET       OFFSET
+TIMESTAMP       0       OFFSET       OFFSET
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+
+TIMESTAMP  2.4.1 (sample.secret.foo.bar.max.redirect):
+                <some values>
+
+TIMESTAMP  2.4.1 (sample.secret.foo.bar.max.redirect):
+                <some values>
+
+TIMESTAMP  2.4.1 (sample.secret.foo.bar.max.redirect):
+                <some values>
+
+TIMESTAMP  2.4.1 (sample.secret.foo.bar.max.redirect):
+                <some values>
+
+TIMESTAMP  2.4.1 (sample.secret.foo.bar.max.redirect):
+                <some values>
+= pmlogger log
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+Test case - two metric names, common PMID, one group
+= metric names recorded
+sample.secret.foo.bar.max.redirect
+pmcd.agent.status
+pmcd.pmlogger.archive
+pmcd.pmlogger.port
+pmcd.pmlogger.host
+= archive contents...
+Log Label (Log Format Version 2)
+Performance metrics from host ...
+
+Descriptions for Metrics in the Log ...
+PMID: 2.4.1 (pmcd.agent.status)
+    Data Type: 32-bit int  InDom: 2.3 0x800003
+    Semantics: discrete  Units: none
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+
+Instance Domains in the Log ...
+InDom: 2.3
+TIMESTAMP <some> instances
+                 ...
+InDom: 2.1
+TIMESTAMP 1 instances
+                 LOGGER_PID or "LOGGER_PID"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+TIMESTAMP       0       OFFSET       OFFSET
+TIMESTAMP       0       OFFSET       OFFSET
+TIMESTAMP       0       OFFSET       OFFSET
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+
+TIMESTAMP  2.4.1 (pmcd.agent.status):
+                <some values>
+
+TIMESTAMP  2.4.1 (pmcd.agent.status):
+                <some values>
+
+TIMESTAMP  2.4.1 (pmcd.agent.status):
+                <some values>
+
+TIMESTAMP  2.4.1 (pmcd.agent.status):
+                <some values>
+
+TIMESTAMP  2.4.1 (pmcd.agent.status):
+                <some values>
+= pmlogger log
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+Test case - two metric names, common PMID, two groups
+= metric names recorded
+sample.secret.foo.bar.max.redirect
+pmcd.agent.status
+pmcd.pmlogger.archive
+pmcd.pmlogger.port
+pmcd.pmlogger.host
+= archive contents...
+Log Label (Log Format Version 2)
+Performance metrics from host ...
+
+Descriptions for Metrics in the Log ...
+PMID: 2.4.1 (pmcd.agent.status)
+    Data Type: 32-bit int  InDom: 2.3 0x800003
+    Semantics: discrete  Units: none
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+
+Instance Domains in the Log ...
+InDom: 2.3
+TIMESTAMP <some> instances
+                 ...
+InDom: 2.1
+TIMESTAMP 1 instances
+                 LOGGER_PID or "LOGGER_PID"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+TIMESTAMP       0       OFFSET       OFFSET
+TIMESTAMP       0       OFFSET       OFFSET
+TIMESTAMP       0       OFFSET       OFFSET
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+
+TIMESTAMP  2.4.1 (pmcd.agent.status):
+                <some values>
+
+TIMESTAMP  2.4.1 (pmcd.agent.status):
+                <some values>
+
+TIMESTAMP  2.4.1 (pmcd.agent.status):
+                <some values>
+
+TIMESTAMP  2.4.1 (pmcd.agent.status):
+                <some values>
+
+TIMESTAMP  2.4.1 (pmcd.agent.status):
+                <some values>
+= pmlogger log
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE

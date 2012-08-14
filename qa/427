@@ -1,0 +1,117 @@
+#! /bin/sh
+# PCP QA Test No. 427
+# bogus pmda entries in pmcd.conf
+# #564017
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ -z "$PCP_PMCDCONF_PATH" ] ; then 
+	echo eek; exit 1;
+fi
+
+if [ -z "$PCP_PMCDLOG_PATH" ] ; then 
+	echo yuk; exit 1;
+fi
+status=1	# failure is the default!
+needclean=true
+
+[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+
+trap "_cleanup" 0 1 2 3 15
+
+_cleanup()
+{
+    if $needclean
+    then
+	if [ -s $tmp.pmcd.conf ]
+	then
+	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	fi
+        [ -f $tmp.control ] && \
+            $sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
+	needclean=false
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+
+	# make sure bogus has gone away
+	echo
+	echo "Anything below here may indicate that bogus has not gone away:"
+	grep bogus $PCP_PMCDCONF_PATH
+	pminfo -f pmcd.agent | grep bogus
+    fi
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+# real QA test starts here
+
+# disable all pmloggers ... Linux does not have "chkconfig pmlogger off"
+#
+$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGDIR=$PCP_LOG_DIR/pmlogger/LOCALHOSTNAME
+else
+    LOGDIR=$PCP_LOG_DIR/LOCALHOSTNAME
+fi
+cat <<End-of-File >$tmp.tmp
+# dummy file created by qa/$seq on `date`
+# the goal here is to have a controlled primary logger that does
+# not make requests to pmcd!
+\$version=1.1
+LOCALHOSTNAME y n $LOGDIR -c /dev/null
+End-of-File
+$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
+
+# backup $PCP_PMCDCONF_PATH
+$sudo cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+# add bogus entry
+$PCP_AWK_PROG < $PCP_PMCDCONF_PATH > $tmp.pmcd.new -v seq="$seq" -v path="$tmp.bogus.pmda" '
+function printline()
+{
+    printf("# Added by QA test %s\n", seq);
+    printf("bogus	169	pipe	binary	%s\n", path);
+}
+
+BEGIN			{ flag = 0 }
+$1 == "[access]"	{ printline(); print; flag = 1; next }
+			{ print }
+END			{ if (flag == 0) printline(); }'
+
+# copy the new config
+$sudo cp $tmp.pmcd.new $PCP_PMCDCONF_PATH
+
+# restart pmcd
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+
+# check that pmcd reported the agent as an error
+echo
+echo "errors for bogus in $PCP_PMCDLOG_PATH:" \
+| sed -e"s|$PCP_PMCDLOG_PATH|/var/adm/pcplog/pmcd.log|"
+egrep "^pmcd:" $PCP_PMCDLOG_PATH \
+| grep bogus \
+| sed -e "s#$tmp\.##"
+
+# check that the pmcd.agent.status metric is correct
+echo
+echo "pmcd agent metrics for bogus:"
+pminfo -f pmcd.agent.type | egrep '^pmcd|bogus'
+pminfo -f pmcd.agent.status | egrep '^pmcd|bogus'
+echo
+
+# success, all done
+status=0
+exit
+

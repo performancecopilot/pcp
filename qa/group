@@ -1,0 +1,828 @@
+# QA groups control
+#
+# define groups
+# do not start group name with a digit
+#
+
+# separate groups by distribution
+oss
+sgi
+
+# catch-all
+other
+
+# sanity check ... quick coverage of most functionality
+sanity
+
+# specific apps
+#
+# pmcd app and control infrastructure
+pmcd
+# pmcd proxy
+pmproxy
+# pmchart app
+pmchart
+# pmdumptext app
+pmdumptext
+# pmdumplog app
+pmdumplog
+# pmlogger app (not control scripts)
+pmlogger
+# pmview app
+pmview
+# pmie app, sample rules and friends
+pmie
+# dbpmda app
+dbpmda
+# pmlc app and pmlc-pmlogger IPC
+pmlc
+# folio handling (mkaf and pmafm), also record mode
+folio
+# pmval app
+pmval
+# pmkstat app
+pmkstat
+# pmstat app
+pmstat
+# pmem app
+pmem
+# pminfo app
+pminfo
+# pmprobe app
+pmprobe
+# routervis
+routervis
+# diskstat
+diskstat
+# pmpost
+pmpost
+# pmdate
+pmdate
+
+# general PDU encode/decode
+pdu
+
+# time control services
+pmtime
+
+# PMNS related functions/programs
+pmns
+
+# PCP version compatability
+compat
+
+# generic libpcp services (not pdu, not context, not archive)
+libpcp
+
+# fetch-specific, optfetch, groupfetch
+fetch
+
+# archive support in libpcp, includes interp.c
+archive
+
+# cron.*, pm*log* apps (except pmlogger)
+logutil
+
+# log extraction app
+pmlogextract
+# log reduction app
+pmlogreduce
+# log summary app
+pmlogsummary
+# pmlogger configuration tool
+pmlogconf
+
+# general context manipulations, includes profile cacheing
+context
+
+# indom specific services
+indom
+
+# PM_CONTEXT_LOCAL
+context_local
+
+# PCP on different platforms
+interop
+
+# memory leaks, assorted
+mem_leak
+
+# general pmdas, but includes libpcp_pmda
+pmda
+
+# pmda installation scripts and procedures
+pmda.install
+
+# launching tools from pmview/oview
+pmlaunch
+
+# tools which use PCP_COUNTER_WRAP 
+wrap
+
+# pmsnap utility
+pmsnap
+
+# pmstore command and pmStore() libpcp routine
+pmstore
+
+# trace library and PMDA
+trace
+# cisco PMDA
+pmda.cisco
+# environ PMDA
+pmda.environ
+# hotproc PMDA
+pmda.hotproc
+# mailq PMDA
+pmda.mailq
+# news PMDA
+pmda.news
+# kvm PMDA
+pmda.kvm
+# pmcd PMDA
+pmda.pmcd
+# proc PMDA
+pmda.proc
+# sample PMDA
+pmda.sample
+# shping PMDA
+pmda.shping
+# simple PMDA
+pmda.simple
+# summary PMDA
+pmda.summary
+# trivial PMDA
+pmda.trivial
+# sendmail PMDA
+pmda.sendmail
+# txmon PMDA
+pmda.txmon
+# mmv PMDA
+pmda.mmv
+# logger PMDA
+pmda.logger
+# rsyslog PMDA
+pmda.rsyslog
+
+# libirixpmda
+libirixpmda
+
+# Linux platform PMDA
+pmda.linux
+
+# libpcp_dev
+libpcp_dev
+
+# pmsocks
+pmsocks
+
+# newhelp, chkhelp and associated library support
+help
+
+# oview
+oview
+
+# pmgadgets
+pmgadgets
+
+# tests that use purify
+purify
+
+# tests that use valgrind
+valgrind
+
+# pmcd_wait - wait for pmcd to be ready for connections
+pmcd_wait
+
+# pmimport and plugins
+pmimport
+
+# pmieconf - app, pconf and lconf
+pmieconf
+
+# os testing - eagan
+ostest
+
+# pcpweb
+pcpweb
+
+# mpi stuff
+mpi
+
+# mpi PMDA
+pmda.mpi
+
+# mpi library
+libpcp_mpi
+
+# mpi read library
+libpcp_mpiread
+
+# dmf stuff
+dmf
+
+# derived metrics
+derive
+
+# event records and pmevent
+event
+
+# multi-threading and thread-safe exercises
+threads
+
+# perl bits
+perl
+
+# fault injection (in libpcp)
+fault
+
+# log rewriting app
+pmlogrewrite
+
+# test-group association ... one line per test
+# ... use sort -n from here on down to tidy up this mess
+#
+000 other pmcd local ostest oss
+001 pdu local ostest oss sanity
+002 pdu pmcd local ostest oss sanity
+003 pdu pmcd mem_leak local ostest oss
+004 context local ostest oss sanity
+005 context archive local ostest oss sanity
+006 libpcp local ostest oss
+007 fetch local ostest oss sanity
+008 pmda libirixpmda ostest local oss
+009 pmda libirixpmda local ostest oss
+010 libpcp local ostest oss sanity
+011 mem_leak local ostest oss
+012 archive local oss
+013 archive pmdumplog local ostest oss
+014 archive local ostest oss pmdumplog
+015 pdu local ostest oss sanity pmstore
+016 archive indom local ostest oss pmdumplog
+017 context local ostest oss
+018 pmcd local ostest oss
+019 context_local local ostest oss
+020 context_local local ostest oss
+021 other local ostest oss
+022 context_local pmda pmda.proc local ostest oss
+023 pmcd local pmprobe ostest oss
+024 context context_local ostest remote oss sanity
+025 context pmlc local ostest oss
+026 other help local ostest oss sanity libpcp
+027 libpcp local ostest oss sanity
+028 pmns local ostest oss
+029 pmns local ostest oss pmdumplog
+030 pdu pmcd pmda context_local local ostest oss pmstore
+031 pmns local oss sanity
+032 pmlc local ostest oss
+033 libirixpmda local ostest oss
+034 pmlogger archive local ostest oss sanity pmdumplog
+037 archive local ostest oss
+038 pmlogger local oss pmdumplog
+039 pmlogger archive local ostest oss pmdumplog
+040 pmlogger mem_leak local ostest oss
+041 pmcd local ostest oss
+043 libpcp fetch pmlc local ostest oss pmstore
+044 fetch pmval local ostest oss
+045 libpcp pmda local ostest oss pmstore
+046 archive pmlogger pmdumplog local ostest oss
+048 archive local ostest oss sanity
+049 archive local ostest oss
+050 archive local ostest oss
+051 pmcd ostest remote oss
+052 pmns local ostest oss
+053 other local pmprobe ostest oss
+054 pmlogger archive ostest remote oss pmdumplog
+055 pmie ostest remote oss sanity
+057 pmns local ostest oss
+058 pmval local ostest oss
+059 archive local ostest oss sanity pmdumplog
+060 archive context local ostest oss
+061 pmlogger pmlc local ostest oss pmdumplog
+062 pmcd local ostest oss
+063 fetch local ostest oss
+065 libpcp local ostest oss pmstore
+066 pmcd ostest remote oss
+067 pmcd local ostest oss
+068 context pmlc local ostest oss sanity
+069 pmcd pmval remote oss
+070 other ostest remote oss
+071 context_local local ostest oss
+072 pmlogger ostest remote oss pmdumplog
+074 pmda pmda.cisco pmda.pmcd local ostest oss sanity
+075 pmval pmstore ostest remote oss
+076 pmda.pmcd local ostest oss
+077 libpcp ostest remote oss sanity
+078 pmdumplog local ostest oss
+079 libpcp archive local ostest oss
+080 libpcp pmval local oss sanity
+081 indom archive pmns remote oss pmdumplog
+082 pmns local ostest oss
+083 pmlc pmlogger compat remote oss
+084 other local ostest oss
+085 pmlogger local ostest oss sanity
+086 libpcp ostest remote oss
+087 archive local ostest oss sanity
+088 archive #500237 pmval local ostest oss
+089 archive pmval local ostest oss
+090 archive local ostest oss
+091 archive local ostest oss sanity
+092 archive local ostest oss
+093 archive local ostest oss
+094 pmval archive local ostest oss
+095 archive local ostest oss
+096 pmda.proc local oss
+097 archive local ostest oss
+098 pmlc pmlogger other local oss pmdumplog
+099 pmlc local oss
+100 pmlc pmlogger local oss pmdumplog
+101 pmlc pmlogger remote oss pmdumplog
+102 pmlc local oss
+103 pmlc pmlogger local oss pmdumplog
+104 pmlc pmlogger local oss pmdumplog
+105 pmlc pmlogger local oss pmdumplog
+106 pmlc pmlogger local oss pmdumplog
+107 pmlc pmlogger local oss sanity
+108 pmda.cisco pmda.sample local oss
+109 other local pmprobe oss
+110 pmda.simple pmda.proc local pmda.install oss
+111 pmda.proc pmval local oss
+112 pmns local oss sanity
+113 libirixpmda local oss
+114 pmda.linux local oss
+115 pmie remote oss
+116 other pmie pmval remote pmlc oss
+117 libirixpmda local oss
+118 pmie local oss
+119 logutil local #877570 oss
+120 libirixpmda local oss
+121 pmlogconf #893249 local oss
+122 trace local #893884 remote oss
+123 libpcp local oss
+124 pmie local #870661 oss
+125 pmval archive
+126 pmda.linux local oss
+127 pmlogreduce local oss sanity pmdumplog
+128 libirixpmda pminfo local oss
+129 pmlogreduce local oss pmval
+130 libirixpmda local oss
+131 libpcp remote oss
+132 pmlogger local oss
+133 pmlc pmlogger local oss pmdumplog
+134 pmlc pmlogger local oss pmdumplog
+135 pmlc archive local oss pmdumplog
+136 pmlogger local oss pmdumplog
+137 dbpmda local pmda.simple oss sanity
+138 pmns local oss
+139 pmlc local oss
+140 pmns local oss
+141 archive context local oss
+142 pmlogreduce local oss
+143 pmns local oss
+144 pmlogreduce local oss pmval
+145 pmns local oss
+146 pmns libpcp local oss sanity
+147 dbpmda local oss
+148 libirixpmda local oss
+149 libirixpmda local oss
+150 pmlogreduce local oss pmval
+151 logutil local oss
+152 pmda.pmcd pmval local oss
+153 folio local oss sanity
+154 pmda.cisco help local oss sanity
+155 pmcd pmstore pmda.sample local oss sanity
+156 pmda.sample pmda.proc local pmcd_wait pmda.install oss
+157 pmlogger local oss
+158 pmval pmie local oss
+159 pmda.cisco pmda.proc remote pmda.install oss
+160 libpcp local oss
+161 pmlogger local oss
+162 pmda pmda.proc local pmda.shping pmda.install oss
+163 archive local oss
+164 diskstat local oss pmval pmdumplog
+165 pmval local oss
+166 pmlogreduce local oss pmval pmdumplog archive
+167 pmda.pmcd pmval local oss
+168 pmlogextract #933456 local oss pmstore
+169 pmcd local oss
+170 other local oss
+171 archive local oss pmdumplog
+172 pmcd pmlc local oss
+173 archive local oss pmdumplog
+174 dbpmda local oss
+175 pmval local oss
+176 libpcp pmval local oss
+177 archive pmval local oss pmdumplog
+178 logutil pmval local pmlogextract oss sanity pmdumplog
+179 pmval pmlc local oss pmdumplog
+180 archive pmval local oss
+181 pmval archive pmval local oss
+182 pmlc pmlogger local oss
+183 logutil local oss
+184 logutil remote folio oss sanity pmdumplog
+185 logutil local folio oss
+186 logutil local pmlogextract oss
+187 pmcd pmlogger #327288 remote oss pmstore
+188 libpcp local oss
+189 pmie local oss
+190 libpcp local oss
+191 pmie local oss
+192 pdu local oss
+193 libpcp pmcd #935490 local oss
+194 libpcp pmcd #935490 local oss
+195 archive local oss pmdumplog
+196 pmcd remote oss
+197 context local oss
+198 pmda context #934332 local oss
+199 pmda.trivial pmda.proc local pmda.install oss
+200 context local oss
+201 pmda local oss sanity
+202 logutil pmval local pmlogextract oss pmdumplog
+203 logutil archive pmval local pmlogextract oss pmdumplog
+204 pmlogger local oss pmdumplog
+205 pdu local oss
+206 archive pmval local oss
+207 pmns local oss sanity
+208 pmns local oss sanity
+209 pmval local oss
+210 pmns local oss pmval pmie sanity pmdumplog
+211 pmns local oss pmval pmie pmdumplog
+212 pmda pmda.cisco local oss
+213 dbpmda pmns local oss pmda.sample pmda.mmv
+214 pmlogextract local oss pmdumplog
+215 other pmsocks pmval remote oss
+216 pmda.linux local oss
+217 folio local oss
+218 archive logutil local pmlogextract oss pmdumplog
+219 other local oss
+220 pmlogger local oss
+221 pmlogger local oss
+222 other local oss
+223 pmns local oss
+224 pmcd local oss
+225 derive local oss
+226 dbpmda local oss
+227 folio local oss
+228 pmie local oss
+229 pmie local oss
+230 pmlogger pmlc local oss
+231 pmie #421411 local oss
+232 libpcp local oss sanity
+233 context_local local oss
+234 logutil local pmdumplog pmlogsummary pmlogextract oss sanity
+235 pmns local oss
+236 pmns local oss
+237 pmns local oss
+238 pmns local oss
+239 pmns local oss
+240 pmns local oss
+241 pmda.mmv local oss pmval sanity perl
+242 pmlogger local oss
+243 pmcd local pmprobe oss
+244 pmcd local pmprobe oss
+245 pmns local oss
+246 derive local oss
+247 derive local oss
+248 pmlogger local oss pmdumplog
+249 derive local oss sanity
+250 pmns local oss
+251 archive pmval local oss
+252 pmlogger local oss pmdumplog
+253 derive local oss
+254 libpcp pmns local oss
+255 compat pmda #508731 #509091 pmda.proc help pmda.install local pmda.simple oss
+256 derive pmns local oss sanity
+257 libpcp pmns compat remote oss
+258 trace local pmda.install oss
+259 derive pmval local oss
+260 derive pmie local oss
+261 logutil pmdumplog pmval local pmlogextract oss
+262 context_local pmie pmsocks remote pmstat oss
+263 derive local oss sanity
+264 pmns local oss
+265 libpcp local oss
+266 logutil #466346 patch2140 patch2141 local pmlogextract oss pmdumplog
+267 pmlogger local oss
+268 interop local oss
+269 wrap pmval pmkstat local oss
+270 pmlogextract logutil local oss pmdumplog
+271 archive local oss pmdumplog
+272 pmcd pmval pmprobe remote oss
+273 libpcp local oss
+274 pmda help local pmda.install oss dbpmda
+275 derive local oss
+276 pmie pmval indom local oss
+277 libpcp pdu interop local oss
+278 other help local oss sanity
+279 pmcd local oss
+280 pmlogger logutil local folio oss sanity
+281 archive mem_leak #504616 local oss
+282 pmcd local pmprobe logutil oss
+283 context pmcd local oss
+284 pdu local purify oss
+285 dbpmda local oss
+286 pmproxy pmcd context local oss
+287 pmlogreduce local oss pmval
+288 archive local oss
+289 libpcp fetch archive #505498 local oss
+290 pmns local purify oss
+291 logutil local pmlogextract oss pmdumplog
+292 pmlogextract logutil pmval local oss
+293 pmstat #939275 local oss
+294 pmproxy local oss pmval pmie
+295 pmproxy local oss pmval
+296 pmcd local oss
+297 pmproxy local oss
+298 pmie local oss
+299 libpcp local oss sanity
+300 pmcd local oss
+301 pmda pmcd pmlogger local oss
+302 pmlogextract logutil local oss pmdumplog
+303 logutil local pmlogextract oss pmdumplog
+304 pmlogger local oss
+305 pmgadgets local oss
+306 other local oss
+307 pmlc #936084 local oss
+308 pmlc pmlogger #452417 remote oss pmdumplog
+309 libpcp pmcd pmda.linux pmda.simple local oss
+310 pmie local oss
+311 archive compat pmlogger #509592 pminfo local oss pmstore pmdumplog
+312 pmie local oss
+313 pmval archive local oss pmdumplog
+314 pmie local oss
+315 pmie local oss
+316 libpcp local oss
+317 logutil pmlogsummary local oss
+318 pmie local oss
+319 pmie local oss
+320 local folio oss
+321 pmie local oss
+322 pmlc pmlogger remote oss
+323 pmda.shping pmda.proc local pmda.install oss
+324 pmda.txmon pmda.proc local pmda.install oss
+325 libpcp local oss
+326 pmlogger pmval libpcp pmcd local pmda.install folio oss pmdumplog
+327 archive oss local pmdumplog
+328 logutil local pmlogextract oss pmdumplog
+329 archive mem_leak local purify oss
+330 archive mem_leak local purify oss
+331 archive mem_leak local purify oss
+332 archive mem_leak local purify oss
+333 archive mem_leak local purify oss
+334 derive local oss
+335 derive local oss
+336 trace local pmda.install oss
+337 pmlogextract local oss pmval pmdumplog
+338 logutil pmlogextract local oss sanity
+339 pmie local oss
+340 pmcd remote oss
+341 pmda local oss
+342 other remote oss
+343 pmlogreduce local oss pmdumplog
+344 context_local local oss
+345 pmns derive local oss sanity
+346 pmda.mailq local pmda.install oss
+347 pmda.news local pmda.install oss perl
+348 pmda.kvm local pmda.install oss
+349 pmda.summary local pmda.install oss
+350 pmda.simple pmda local oss
+351 derive local oss
+352 derive pmlogger local oss pmdumplog
+353 pmsocks remote oss
+354 folio local oss sanity
+355 trace local pmda.install oss sanity
+356 derive local oss
+357 other local oss
+358 pmie local oss pmstore
+359 pmcd pminfo sanity local oss
+360 pmie remote oss
+361 pmda.linux local oss
+362 pmlogconf local oss
+363 logutil local oss
+364 pmlogconf local oss
+365 pmcd remote oss
+366 pmlogconf local oss
+367 pdu local trace oss
+368 pmlogconf local oss
+369 pmimport local oss sanity pmdumplog perl
+370 pmimport local oss derive pmdumplog perl
+371 pmimport local oss sanity pmdumplog perl
+372 pmimport local oss sanity pmdumplog perl
+373 pmimport local oss perl
+374 pmlc pmlogger remote oss
+375 pmlc pmlogger remote oss
+376 trace local pmda.install oss
+377 other local oss
+378 pmie local oss
+379 pmda.cisco local oss
+380 libpcp pmda pmda.sample local oss
+381 logutil pmlc remote oss
+382 dbpmda pmda pmda.sample local oss
+383 pmda.cisco local oss
+384 pmda.pmcd local oss
+385 libpcp pmda.sample pminfo pmprobe local oss event sanity
+386 pdu mem_leak valgrind local oss
+387 pmns mem_leak valgrind local oss
+388 archive mem_leak valgrind local oss
+389 pmlogger local oss
+390 pmda.proc local pmval oss
+391 archive mem_leak valgrind local oss
+392 pmns local oss
+393 archive mem_leak valgrind local oss
+394 archive mem_leak valgrind local oss
+395 archive mem_leak valgrind local oss
+396 pmval local oss
+397 dbpmda libpcp local oss pdu event sanity
+398 pmcd local oss
+399 pmie local oss
+400 pminfo mem_leak valgrind context_local libpcp local oss event
+401 libpcp pminfo local oss event sanity
+402 archive local pmprobe oss
+403 pmprobe pminfo pmval #541380 local oss sanity
+404 libpcp local oss event sanity
+405 libpcp mem_leak valgrind local oss event
+406 libpcp local oss event
+407 derive local oss event sanity
+408 pmda local #627395 help oss
+409 libpcp pminfo local oss event
+410 pmdumplog local oss event
+411 pmda.simple local pmda.install oss
+412 wrap archive libpcp pmval local oss pmdumplog
+413 pmie local oss event
+414 libpcp_dev local oss
+415 pmval pmstore local oss event
+416 pmda.news dbpmda local oss sanity perl
+417 archive local oss pmdumplog
+418 pmdumplog local oss
+419 pmdumplog local oss
+420 folio local oss pmdumplog
+421 trace local pmda.install oss
+422 libpcp local oss pmstore
+423 libpcp local oss
+424 logutil local pmlogsummary oss
+425 wrap logutil local pmlogsummary oss pmdumplog
+426 trace local oss
+427 pmcd #564017 local oss
+428 archive local pmval oss pmstore
+429 pmns local oss
+430 logutil local #553276 #568199 folio oss
+431 derive local oss
+432 pmlogreduce local oss
+433 pmie local #573184 oss
+434 pmval local oss
+435 archive local oss sanity pmdumplog
+436 archive local oss sanity pmdumplog
+437 archive local oss sanity
+438 archive local oss pmdumplog
+439 pmlc local oss
+440 pmlogger local oss pmdumplog
+441 pmlogger local oss
+442 pmlogextract local oss
+443 event local oss
+444 event local oss
+445 trace local oss
+446 trace local oss
+447 event local oss
+448 libpcp local oss
+449 threads local oss
+450 pmlogextract local #584487 pmval oss
+451 threads local oss
+452 pmda.linux local oss
+453 perl local oss sanity
+454 pmcd local oss
+455 pmda.rsyslog pmda.install local oss
+456 logutil local #591459 folio oss
+457 pmda.logger pmda.install event local oss
+458 pmda.logger pmda.install event local oss
+459 pmlogreduce local oss valgrind
+460 pmlogextract local #598265 oss pmdumplog
+461 pmda.logger pmda.install event local oss
+462 pmcd_wait local #589006 #581025 oss
+463 pmns local oss
+464 pmns local oss
+465 pmdumplog local #625913 folio oss
+466 pmlogger local #625913 oss
+467 pmns pmdumptext local oss
+468 pmns pmdumptext local oss
+469 help local #626853 oss
+470 threads local oss
+471 pmda local #621699 oss
+472 threads local oss
+473 threads local oss
+474 threads local oss
+475 threads local oss
+476 fault local oss
+477 event fault local oss
+478 fault local oss
+479 archive pmdumplog local oss
+480 archive fault local oss
+481 pmlogrewrite local oss
+482 pmlogsummary local oss pmdumplog
+483 pmlogrewrite local oss pmdumplog
+484 pmlogrewrite local oss pmdumplog
+485 pmlogrewrite local oss pmdumplog
+486 pmlogrewrite local oss pmdumplog
+487 pmlogrewrite pmdumplog local oss
+488 pmlogrewrite pmdumplog local oss
+489 pmda local oss
+490 pmlogrewrite mem_leak valgrind local oss
+491 pmda local oss
+492 pmlogrewrite local oss
+493 pmlogrewrite local oss
+494 pmlogrewrite pmdumplog local oss
+495 pmlogrewrite pmval local oss
+496 pmlogrewrite pmdumplog local oss
+497 pmlogconf local oss
+498 event pmda local oss
+499 pmlogrewrite local oss
+500 logutil local #636417 folio oss
+501 pmie remote oss
+502 pmlogrewrite local oss
+503 logutil pmlogrewrite local oss
+504 pmie remote pmsocks oss
+505 pmlogrewrite local oss
+506 pmlogrewrite local oss
+507 other local oss
+508 archive pmlogreduce pmlogextract local oss
+509 derive pmns local oss
+510 pmlogger local oss
+512 threads pminfo pmlogger pmlogextract pmdumplog dbpmda local oss
+513 libpcp pdu local oss
+519 pmie remote oss
+522 pmcd local oss
+529 pmie local oss
+530 logutil local pmlogextract local oss
+532 logutil pmlogextract local oss
+534 pmie local oss
+535 pmie local pmprobe oss
+538 pmie local oss pmstore
+539 pmpost local oss
+541 pmie #535080 local pmprobe oss
+542 pmdate #666344 local oss
+543 logutil remote oss
+545 pmsocks local oss
+548 pmie local oss sanity
+549 pmie local oss
+554 pmie local oss
+555 pmie local oss
+556 pmie local oss
+557 pmie local oss
+558 pmie local oss
+559 pmlogsummary local oss
+560 pmda.simple local pmda.install oss
+564 logutil local oss
+565 pmda.sendmail local pmda.install oss
+569 pmprobe #679693 local oss sanity
+570 pmns #690735 local oss
+571 pmlogger local oss pmdumplog
+572 pmcd pmda local pmda.install oss
+574 libpcp pmns compat local oss sanity
+575 pmie local oss
+578 pmcd local pmda.install oss pmval
+580 indom local ostest oss
+581 pmie local oss
+583 pmie #698718 remote oss
+584 libpcp pmie local #698774 oss
+587 pmcd #754795 local pmda.install oss pmda.trivial
+589 remote oss
+592 pmda.sample local oss
+593 pmlogger #779495 local oss pmstore
+594 pmda.sample #779246 #782029 local oss
+597 pmda.shping pmda.proc pmda.install local oss
+599 pmie local oss
+600 libpcp local oss
+601 trace pmda.install local oss
+602 trace pmda.install local oss
+603 trace pmda.install remote oss
+605 trace local oss
+614 pmns local oss
+617 dbpmda help local oss
+622 pmie remote oss
+628 pmda local pmda.simple oss
+633 pmlogger local oss
+634 libirixpmda local pmval oss
+635 pmda.linux libirixpmda remote oss
+636 libpcp local oss
+638 pmns local oss
+639 pmns local oss
+640 pmpost local oss
+642 pmda.trivial pmns local oss pmda.simple pmda.sample pmda.sendmail trace
+643 pmda.trivial pmns local oss
+644 pmns local oss
+645 pmlogger local oss
+646 pmda.mmv local oss sanity
+647 pmda.mmv local oss
+648 pmda.mmv local oss
+649 pmda.mmv local oss
+650 pmlogger local oss pmdumplog
+651 pmproxy local oss
+703 pcpweb local oss
+706 libpcp local oss
+1044 pmie local pmieconf sgi sanity
+1045 pmie local pmieconf sgi
+1046 pmie local pmieconf sgi
+1047 pmie local pmieconf sgi
+1049 pmie pmieconf local sgi
+1050 pmieconf local sgi
+1051 pmieconf #696008 local sgi
+1108 logutil local folio sgi

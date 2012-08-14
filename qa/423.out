@@ -1,0 +1,30 @@
+QA output created by 423
+-42 -> -42
+2147483648 -> 2147483648
+-1234567890123 -> -1234567890123
+9223372036854775808 -> 9223372036854775808
+123.456 -> 1.234560e+02
+0.123456789 -> 1.234568e-01
+mary had a little lamb-> "mary had a little lamb"
+(null)-> <null>
+abcdefghijklmnopqrstuvwxyz0123456789X -> "abcdefghijklmnopqrstuvwxyz0123456789X"
+abcdefghijklmnopqrstuvwxyz0123456789XYZ -> "abcdefghijklmnopqrstuvwxyz01234567..."
+??? -> [0 event records]
+??? -> [1 event record]
+??? -> [2 event records]
+??? -> [type=AGGREGATE_STATIC len=16] 00010203 04050607 08090a0b ...
+??? [len=0] -> [type=AGGREGATE len=0]
+??? [len=2] -> [type=AGGREGATE len=2] 0001
+??? [len=4] -> [type=AGGREGATE len=4] 00010203
+??? [len=6] -> [type=AGGREGATE len=6] 00010203 0405
+??? [len=8] -> [type=AGGREGATE len=8] 00010203 04050607
+??? [len=10] -> [type=AGGREGATE len=10] 00010203 04050607 0809
+??? [len=12] -> [type=AGGREGATE len=12] 00010203 04050607 08090a0b
+??? [len=14] -> [type=AGGREGATE len=14] 00010203 04050607 08090a0b ...
+??? [len=16] -> [type=AGGREGATE len=16] 00010203 04050607 08090a0b ...
+NULL -> <null>
+
+And now some error cases ...
+bad type -> Error: unexpected type: Illegal type=123
+no support type -> Error: unexpected type: Not Supported
+unknown type -> Error: unexpected type: Unknown

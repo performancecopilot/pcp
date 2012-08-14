@@ -1,0 +1,375 @@
+#! /bin/sh
+#
+# check PCP QA setup
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+PMCD_CONNECT_TIMEOUT=10
+export PMCD_CONNECT_TIMEOUT
+
+_fail_check()
+{
+    echo "... check failed!"
+    exit 1
+}
+
+_check_pmcd()
+{
+    # 5 seconds default seems like a reasonble max time to establish
+    # contact
+    rm -f $tmp.ok
+    _can_wait=5
+    _host=$1
+    _i=0
+    _dead=true
+    while [ $_i -lt $_can_wait ]
+    do
+	_sts=`pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients 2>/dev/null | $PCP_AWK_PROG '{print $2}'`
+	if [ "${_sts:-0}" -gt 0 ]
+	then
+	    # numval really > 0, we're done
+	    #
+	    _dead=false
+	    break
+	fi
+	sleep 1
+	_i=`expr $_i + 1`
+    done
+    if $_dead
+    then
+	:
+    else
+	touch $tmp.ok
+    fi
+}
+
+_check_pmlogger()
+{
+    $PCP_ECHO_PROG $PCP_ECHO_N "Contacting primary logger at $host ... ""$PCP_ECHO_C"
+    if pmlc -P -h $1 </dev/null 2>/dev/null | grep 'Connected to primary pmlogger' >/dev/null
+    then
+	echo "OK"
+    else
+	echo "not running"
+    fi
+}
+
+_check_pmdas()
+{
+    rm -f $tmp.bad
+    $PCP_ECHO_PROG $PCP_ECHO_N "Checking installed PMDAS at $host ... ""$PCP_ECHO_C"
+    pminfo -f -h $1 pmcd.agent.type >$tmp.tmp
+    for pmda in sample simple
+    do
+	if grep '"'$pmda'"' $tmp.tmp >/dev/null
+	then
+	    :
+	else
+	    echo $pmda >>$tmp.bad
+	fi
+    done
+    if [ -f $tmp.bad ]
+    then
+	echo "missing - `cat $tmp.bad`"
+    else
+	echo "OK"
+    fi
+}
+
+
+# files in the PCP distribution
+#
+fail=false
+for file in /etc/pcp.env
+do
+    if [ ! -f "$file" ]
+    then
+	echo "$0: Error: cannot file \"$file\" from the PCP distribution"
+	fail=true
+    fi
+done
+
+# files in the PCP QA distribution
+#
+for file in mk.localconfig common.rc common.setup common.product \
+    common.check common.config
+do
+    if [ ! -f "$file" ]
+    then
+	echo "$0: Error: cannot file \"$file\" from the PCP QA distribution"
+	fail=true
+    fi
+done
+
+# no point proceeding if any of these files are missing
+#
+$fail && _fail_check
+
+if [ ! -f localconfig ]
+then
+    # need localconfig
+    #
+    if ./mk.localconfig
+    then
+	${MAKE:-make} setup | egrep -v 'Entering|Leaving|Nothing'
+    else
+	echo "$0: Error: need to fix failure in mk.localconfig"
+	_fail_check
+    fi
+    if [ ! -f localconfig ]
+    then
+	echo "$0: Error: mk.localconfig failed to create the file \"localconfig\""
+	_fail_check
+    fi
+fi
+
+# source hierarchy
+#
+# common.product
+# 	common.setup
+#		common.rc
+#			/etc/pcp.env
+#	localconfig
+# common.check
+# common.config
+#	localconfig
+#
+. ./common.product
+. ./common.check
+. ./common.config
+
+# things we care about from /etc/pcp.env
+#
+
+# files
+#
+for var in PCP_PMCDCONF_PATH PCP_PMCDOPTIONS_PATH
+do
+    eval file=\$$var
+    if [ -z "$file" ]
+    then
+	echo "$0: Error: variable \$$var is not set from /etc/pcp.env"
+	fail=true
+    else
+	if [ ! -f "$file" ]
+	then
+	    echo "$0: Error: cannot find file \"$file\" (\$$var from /etc/pcp.env)"
+	    fail=true
+	fi
+    fi
+done
+
+# programs
+#
+for var in PCP_AWK_PROG
+do
+    eval prog=\$$var
+    # strip args if any
+    prog=`echo $prog | sed -e 's/ .*//'`
+    if [ -z "$prog" ]
+    then
+	echo "$0: Error: variable \$$var is not set from /etc/pcp.env"
+	fail=true
+    else
+	if which $prog >/dev/null 2>&1
+	then
+	    :
+	else
+	    echo "$0: Error: cannot find executable program \"$prog\" (\$$var from /etc/pcp.env)"
+	    fail=true
+	fi
+    fi
+done
+
+# directories
+#
+# these ones should be in /etc/pcp.conf but are not currently used in
+# the QA scripts, but are tested here for completeness
+#
+xtra="PCP_LIB_DIR PCP_INC_DIR PCP_MAN_DIR"
+#
+for var in PCP_RC_DIR PCP_PMDAS_DIR PCP_VAR_DIR PCP_DEMOS_DIR PCP_LOG_DIR \
+	PCP_BIN_DIR PCP_BINADM_DIR PCP_TMP_DIR PCP_SHARE_DIR PCP_DOC_DIR \
+	$xtra
+do
+    eval dir=\$$var
+    if [ -z "$dir" ]
+    then
+	echo "$0: Warning: variable \$$var is not set from /etc/pcp.env"
+    else
+	if [ ! -d "$dir" ]
+	then
+	    echo "$0: Warning: cannot find directory \"$prog\" (\$$var from /etc/pcp.env)"
+	fi
+    fi
+done
+
+# common.rc will unconditionally set these ones, else fail ... so no need to
+# check
+#	$PCP_PMCD_PROG
+#	$PCP_PMCDLOG_PATH
+
+# localconfig will unconditionally set these ones ... no real sane checking
+# I can do here!
+#	$PCP_PLATFORM	(redundant, copied from /etc/pcp.conf)
+#	$PCP_VER
+#	$PCP_EOE_VER
+#	$PCP_EOE_NOSHIP_VER
+
+# files from common.product
+#
+for var in PCP_PMCD_PATH
+do
+    eval file=\$$var
+    if [ -z "$file" ]
+    then
+	echo "$0: Error: variable \$$var is not set from common.product"
+	fail=true
+    else
+	if [ ! -f "$file" ]
+	then
+	    echo "$0: Error: cannot find file \"$file\" (\$$var from common.product)"
+	    fail=true
+	fi
+    fi
+done
+
+# no point proceeding if any of these files are missing
+#
+$fail && _fail_check
+
+# down to the common.config things ... these are the most contentious
+# and the ones that need local tuning ...
+#
+#	$PCPQA_CLOSE_X_SERVER is set here, but is not used in the open
+#	source version of the PCP QA and is hard to check, so skip that
+#	one.
+#
+for var in PCPQA_FAR_PMCD PCPQA_HYPHEN_HOST
+do
+    eval host=\$$var
+    if [ -z "$host" ]
+    then
+	echo "$0: Warning: variable \$$var is not set from common.config"
+    elif [ "$host" = "some-host" -o "$host" = "far_away_pmcd" ]
+    then
+	echo "$0: Warning: variable \$$var using bogus default from common.config"
+    else
+	# try to contact pmcd ...
+	#
+	$PCP_ECHO_PROG $PCP_ECHO_N "Contacting pmcd at $host ... ""$PCP_ECHO_C"
+	_check_pmcd $host
+	if [ -f $tmp.ok ]
+	then
+	    echo "OK"
+	    _check_pmlogger $host
+	    _check_pmdas $host
+	else
+	    echo "no response (warning)"
+	fi
+    fi
+done
+
+# no point proceeding if any of these variables are not set
+#
+$fail && _fail_check
+
+# the other pmcd's we think we can talk to ...
+#
+${MAKE:-make} qa_hosts >/dev/null 2>&1
+if [ ! -f qa_hosts ]
+then
+    echo "$0: Error: ${MAKE:-make} failed to create the file \"qa_hosts\""
+    _fail_check
+fi
+
+# failures here are not fatal ... some of the hosts may be off with the
+# pixies
+#
+echo "hullo world" >$tmp.hullo
+for host in `cat qa_hosts`
+do
+    # try to contact remote pmcd ...
+    #
+    $PCP_ECHO_PROG $PCP_ECHO_N "Contacting remote pmcd at $host ... ""$PCP_ECHO_C"
+    _check_pmcd $host
+    if [ -f $tmp.ok ]
+    then
+	echo "OK"
+	# pmcd there, check primary pmlogger
+	_check_pmlogger $host
+	# and the installed pmdas
+	_check_pmdas $host
+	# if the host is there, then the login for pcpqa needs to be
+	# setup and and ssh/scp working without passwords
+	$PCP_ECHO_PROG $PCP_ECHO_N "Trying scp/ssh for login pcpqa at $host ... ""$PCP_ECHO_C"
+	echo "== ssh 1st rm ==" >$tmp.out
+	ssh pcpqa@$host rm -f chk.hullo >>$tmp.out 2>&1
+	echo "== scp -> $host ==" >>$tmp.out
+	scp $tmp.hullo pcpqa@$host:chk.hullo >>$tmp.out 2>&1
+	echo "== ssh cat ==" >>$tmp.out
+	ssh pcpqa@$host cat chk.hullo >$tmp.ans 2>>$tmp.out
+	echo "== ssh 2nd rm ==" >>$tmp.out
+	ssh pcpqa@$host rm -f chk.hullo >>$tmp.out 2>&1
+	if [ "`cat $tmp.ans`" = "`cat $tmp.hullo`" ]
+	then
+	    echo "OK"
+	else
+	    echo "failed"
+	    fail=true
+	    echo "Expected output: \"`cat $tmp.hullo`\""
+	    echo "Actual output: \"`cat $tmp.ans`\""
+	    echo "Diagnostic Log:"
+	    cat $tmp.out
+	fi
+	# check remote shell's path includes the PCP binary directories
+	#
+	$PCP_ECHO_PROG $PCP_ECHO_N "Trying shell's path for login pcpqa at $host ... ""$PCP_ECHO_C"
+	echo "== ssh $host pmhostname ==" >$tmp.out
+	if ssh pcpqa@$host pmhostname >>$tmp.out 2>&1
+	then
+	    echo "OK"
+	else
+	    echo "failed"
+	    fail=true
+	    cat $tmp.out
+	fi
+    else
+	echo "no response (warning)"
+    fi
+done
+
+# down to pmcd on the local host
+#
+for host in localhost `hostname | sed -e 's/\..*//'` `_get_fqdn`
+do
+    # try to contact pmcd ...
+    #
+    $PCP_ECHO_PROG $PCP_ECHO_N "Contacting local pmcd at $host ... ""$PCP_ECHO_C"
+    _check_pmcd $host
+    if [ -f $tmp.ok ]
+    then
+	echo "OK"
+    else
+	echo "no response (fatal)"
+	fail=true
+    fi
+done
+
+# no point proceeding if any of these cannot be contacted
+#
+$fail && _fail_check
+
+echo "Check the sanity of these:"
+$PCP_ECHO_PROG $PCP_ECHO_N "  \$PCP_PLATFORM=$PCP_PLATFORM [y] ? ""$PCP_ECHO_C"
+read ans
+[ ! -z "$ans" -a "$ans" != y ] && _fail_check
+$PCP_ECHO_PROG $PCP_ECHO_N "  \$PCP_VERSION=$PCP_VERSION [y] ? ""$PCP_ECHO_C"
+read ans
+[ ! -z "$ans" -a "$ans" != y ] && _fail_check
+
+exit 0

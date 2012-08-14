@@ -1,0 +1,382 @@
+QA output created by 102
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+Error [<stdin>, line NUM]
+Not connected to any pmlogger instance
+Error [<stdin>, line NUM]
+Not connected to any pmlogger instance
+Error [<stdin>, line NUM]
+Syntax error
+Warning [<stdin>, line NUM]
+Problem with lookup for metric "barf.no.metric" ...
+Reason: Unknown metric name
+Logging statement ignored due to error(s)
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+pmlc commands
+
+  show loggers [@<host>]             display <pid>s of running pmloggers
+  connect _logger_id [@<host>]       connect to designated pmlogger
+  status                             information about connected pmlogger
+  query metric-list                  show logging state of metrics
+  new volume                         start a new log volume
+  flush                              flush the log buffers to disk
+
+  log { mandatory | advisory } on <interval> _metric-list
+  log { mandatory | advisory } off _metric-list
+  log mandatory maybe _metric-list
+
+  timezone local|logger|'<timezone>' change reporting timezone
+  help                               print this help message
+  quit                               exit from pmlc
+
+  _logger_id   is  primary | <pid> | port <n>
+  _metric-list is  _metric-spec | { _metric-spec ... }
+  _metric-spec is  <metric-name> | <metric-name> [ <instance> ... ]
+
+pmlc> # not connected
+pmlc> query sample.drift
+pmlc> advisory on 1 hour sample.drift
+pmlc> 
+pmlc> connect primary
+pmlc> # incomplete - syntax error
+pmlc> query sample.bin [
+pmlc> query { 
+? sample.drift
+? # eat input
+? # up to
+? # next } -- curly brace
+? }
+sample.drift
+    adv  off nl             
+
+pmlc> query {
+? barf.no.metric
+? # suck to } ... not that one, this one ..
+? }
+pmlc> 
+pmlc> 
+Error [<stdin>, line NUM]
+Unexpected character '-'
+Error [<stdin>, line NUM]
+Syntax error
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+pmlc commands
+
+  show loggers [@<host>]             display <pid>s of running pmloggers
+  connect _logger_id [@<host>]       connect to designated pmlogger
+  status                             information about connected pmlogger
+  query metric-list                  show logging state of metrics
+  new volume                         start a new log volume
+  flush                              flush the log buffers to disk
+
+  log { mandatory | advisory } on <interval> _metric-list
+  log { mandatory | advisory } off _metric-list
+  log mandatory maybe _metric-list
+
+  timezone local|logger|'<timezone>' change reporting timezone
+  help                               print this help message
+  quit                               exit from pmlc
+
+  _logger_id   is  primary | <pid> | port <n>
+  _metric-list is  _metric-spec | { _metric-spec ... }
+  _metric-spec is  <metric-name> | <metric-name> [ <instance> ... ]
+
+pmlc> connect PID
+pmlc> log advisory on -1 msec sample.bin [100]
+pmlc> 
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Signalled (signal=15), exiting
+
+Log finished DATE
+Logging delta (270000000 msec) cannot be bigger than 268435455 msec
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+pmlc commands
+
+  show loggers [@<host>]             display <pid>s of running pmloggers
+  connect _logger_id [@<host>]       connect to designated pmlogger
+  status                             information about connected pmlogger
+  query metric-list                  show logging state of metrics
+  new volume                         start a new log volume
+  flush                              flush the log buffers to disk
+
+  log { mandatory | advisory } on <interval> _metric-list
+  log { mandatory | advisory } off _metric-list
+  log mandatory maybe _metric-list
+
+  timezone local|logger|'<timezone>' change reporting timezone
+  help                               print this help message
+  quit                               exit from pmlc
+
+  _logger_id   is  primary | <pid> | port <n>
+  _metric-list is  _metric-spec | { _metric-spec ... }
+  _metric-spec is  <metric-name> | <metric-name> [ <instance> ... ]
+
+pmlc> connect PID
+pmlc> log advisory on 75 hours sample.bin [100]
+pmlc> 
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Signalled (signal=15), exiting
+
+Log finished DATE
+Logging delta (-2138567296 msec) must be positive
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+pmlc commands
+
+  show loggers [@<host>]             display <pid>s of running pmloggers
+  connect _logger_id [@<host>]       connect to designated pmlogger
+  status                             information about connected pmlogger
+  query metric-list                  show logging state of metrics
+  new volume                         start a new log volume
+  flush                              flush the log buffers to disk
+
+  log { mandatory | advisory } on <interval> _metric-list
+  log { mandatory | advisory } off _metric-list
+  log mandatory maybe _metric-list
+
+  timezone local|logger|'<timezone>' change reporting timezone
+  help                               print this help message
+  quit                               exit from pmlc
+
+  _logger_id   is  primary | <pid> | port <n>
+  _metric-list is  _metric-spec | { _metric-spec ... }
+  _metric-spec is  <metric-name> | <metric-name> [ <instance> ... ]
+
+pmlc> connect PID
+pmlc> log advisory on 599 hours sample.bin [100]
+pmlc> 
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Signalled (signal=15), exiting
+
+Log finished DATE
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+pmlc commands
+
+  show loggers [@<host>]             display <pid>s of running pmloggers
+  connect _logger_id [@<host>]       connect to designated pmlogger
+  status                             information about connected pmlogger
+  query metric-list                  show logging state of metrics
+  new volume                         start a new log volume
+  flush                              flush the log buffers to disk
+
+  log { mandatory | advisory } on <interval> _metric-list
+  log { mandatory | advisory } off _metric-list
+  log mandatory maybe _metric-list
+
+  timezone local|logger|'<timezone>' change reporting timezone
+  help                               print this help message
+  quit                               exit from pmlc
+
+  _logger_id   is  primary | <pid> | port <n>
+  _metric-list is  _metric-spec | { _metric-spec ... }
+  _metric-spec is  <metric-name> | <metric-name> [ <instance> ... ]
+
+pmlc> connect PID
+pmlc> log advisory on 1200 hours sample.bin [100]
+pmlc> 
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+
+DATE
+pmlc request from HOST: advisory on 25032.7 sec
+  metric: sample.bin
+    instance: bin-100
+pmlogger: Signalled (signal=15), exiting
+
+Log finished DATE
+sample.bin currently has no instance number 333
+    - you may only specify metric instances active now.  However if no
+      instances are specified, pmlogger will use all of the instances
+      available at the time the metric is logged
+Logging statement ignored due to error(s)
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+pmlc commands
+
+  show loggers [@<host>]             display <pid>s of running pmloggers
+  connect _logger_id [@<host>]       connect to designated pmlogger
+  status                             information about connected pmlogger
+  query metric-list                  show logging state of metrics
+  new volume                         start a new log volume
+  flush                              flush the log buffers to disk
+
+  log { mandatory | advisory } on <interval> _metric-list
+  log { mandatory | advisory } off _metric-list
+  log mandatory maybe _metric-list
+
+  timezone local|logger|'<timezone>' change reporting timezone
+  help                               print this help message
+  quit                               exit from pmlc
+
+  _logger_id   is  primary | <pid> | port <n>
+  _metric-list is  _metric-spec | { _metric-spec ... }
+  _metric-spec is  <metric-name> | <metric-name> [ <instance> ... ]
+
+pmlc> connect primary
+pmlc> log mandatory on 1 hour { sample.bin, sample.drift, sample.seconds }
+pmlc> query sample.bin[333]
+pmlc> 
+Warning [<stdin>, line NUM]
+Problem with lookup for metric "sample.bin" ...
+Reason: No PMCD agent for domain of request
+Logging statement ignored due to error(s)
+Warning [<stdin>, line NUM]
+Problem with lookup for metric "sample.bin" ...
+Reason: No PMCD agent for domain of request
+Logging statement ignored due to error(s)
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+pmlc commands
+
+  show loggers [@<host>]             display <pid>s of running pmloggers
+  connect _logger_id [@<host>]       connect to designated pmlogger
+  status                             information about connected pmlogger
+  query metric-list                  show logging state of metrics
+  new volume                         start a new log volume
+  flush                              flush the log buffers to disk
+
+  log { mandatory | advisory } on <interval> _metric-list
+  log { mandatory | advisory } off _metric-list
+  log mandatory maybe _metric-list
+
+  timezone local|logger|'<timezone>' change reporting timezone
+  help                               print this help message
+  quit                               exit from pmlc
+
+  _logger_id   is  primary | <pid> | port <n>
+  _metric-list is  _metric-spec | { _metric-spec ... }
+  _metric-spec is  <metric-name> | <metric-name> [ <instance> ... ]
+
+pmlc> connect primary
+pmlc> query sample.bin[100]
+pmlc> query sample.bin[100]
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+pmlc commands
+
+  show loggers [@<host>]             display <pid>s of running pmloggers
+  connect _logger_id [@<host>]       connect to designated pmlogger
+  status                             information about connected pmlogger
+  query metric-list                  show logging state of metrics
+  new volume                         start a new log volume
+  flush                              flush the log buffers to disk
+
+  log { mandatory | advisory } on <interval> _metric-list
+  log { mandatory | advisory } off _metric-list
+  log mandatory maybe _metric-list
+
+  timezone local|logger|'<timezone>' change reporting timezone
+  help                               print this help message
+  quit                               exit from pmlc
+
+  _logger_id   is  primary | <pid> | port <n>
+  _metric-list is  _metric-spec | { _metric-spec ... }
+  _metric-spec is  <metric-name> | <metric-name> [ <instance> ... ]
+
+pmlc> connect primary
+pmlc> query sample.bin[100]
+sample.bin
+    mand on  nl       1 hour [100 or "bin-100"]
+
+pmlc> 
+pmlc> query { sample.bin,sample.drift sample.seconds }
+sample.bin
+    mand on  nl       1 hour [100 or "bin-100"]
+    mand on  nl       1 hour [200 or "bin-200"]
+    mand on  nl       1 hour [300 or "bin-300"]
+    mand on  nl       1 hour [400 or "bin-400"]
+    mand on  nl       1 hour [500 or "bin-500"]
+    mand on  nl       1 hour [600 or "bin-600"]
+    mand on  nl       1 hour [700 or "bin-700"]
+    mand on  nl       1 hour [800 or "bin-800"]
+    mand on  nl       1 hour [900 or "bin-900"]
+
+sample.drift
+    mand on  nl       1 hour
+
+sample.seconds
+    mand on  nl       1 hour
+
+pmlc> query { sample.bin sample.drift,sample.seconds }
+sample.bin
+    mand on  nl       1 hour [100 or "bin-100"]
+    mand on  nl       1 hour [200 or "bin-200"]
+    mand on  nl       1 hour [300 or "bin-300"]
+    mand on  nl       1 hour [400 or "bin-400"]
+    mand on  nl       1 hour [500 or "bin-500"]
+    mand on  nl       1 hour [600 or "bin-600"]
+    mand on  nl       1 hour [700 or "bin-700"]
+    mand on  nl       1 hour [800 or "bin-800"]
+    mand on  nl       1 hour [900 or "bin-900"]
+
+sample.drift
+    mand on  nl       1 hour
+
+sample.seconds
+    mand on  nl       1 hour
+
+pmlc> query sample.bin [100,200,300 400 500,700]
+sample.bin
+    mand on  nl       1 hour [100 or "bin-100"]
+    mand on  nl       1 hour [200 or "bin-200"]
+    mand on  nl       1 hour [300 or "bin-300"]
+    mand on  nl       1 hour [400 or "bin-400"]
+    mand on  nl       1 hour [500 or "bin-500"]
+    mand on  nl       1 hour [700 or "bin-700"]
+
+pmlc> query sample.bin [100,"bin-200"]
+sample.bin
+    mand on  nl       1 hour [100 or "bin-100"]
+    mand on  nl       1 hour [200 or "bin-200"]
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+pmlc commands
+
+  show loggers [@<host>]             display <pid>s of running pmloggers
+  connect _logger_id [@<host>]       connect to designated pmlogger
+  status                             information about connected pmlogger
+  query metric-list                  show logging state of metrics
+  new volume                         start a new log volume
+  flush                              flush the log buffers to disk
+
+  log { mandatory | advisory } on <interval> _metric-list
+  log { mandatory | advisory } off _metric-list
+  log mandatory maybe _metric-list
+
+  timezone local|logger|'<timezone>' change reporting timezone
+  help                               print this help message
+  quit                               exit from pmlc
+
+  _logger_id   is  primary | <pid> | port <n>
+  _metric-list is  _metric-spec | { _metric-spec ... }
+  _metric-spec is  <metric-name> | <metric-name> [ <instance> ... ]
+
+pmlc> connect primary
+pmlc> log mandatory maybe {
+?     sample.bin
+?     sample.drift, sample.seconds
+? }
+pmlc> 

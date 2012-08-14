@@ -1,0 +1,40 @@
+QA output created by 169
+
+Test pmcd timeouts with the pmcd PMDA's pmcd.control.timeout
+
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+
+*** pmcd agent timeout < app timeout ***
+*** pmcd will killoff agent ***
+
+app timeout = 10
+pmcd timeout = 5
+pmcd.control.timeout old value=5 new value=5
+
+Expect dummyproc to fail (IPC protocol failure):
+dummyproc: pmLookupDesc: IPC protocol failure
+
+pmcd terminated dummy the dumb_pmda agent as desired
+
+
+*** pmcd agent timeout > app timeout ***
+*** pmcd will not killoff agent until later ***
+
+app timeout = 5
+pmcd timeout = 10
+pmcd.control.timeout old value=5 new value=10
+
+Expect dummyproc to fail (timeout for pmcd failure):
+dummyproc: pmLookupDesc: Timeout waiting for a response from PMCD
+
+pmcd did NOT terminate the dumb_pmda agent as desired
+
+Now wait for pmcd to timeout...
+
+pmcd terminated the dumb_pmda agent as desired
+
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

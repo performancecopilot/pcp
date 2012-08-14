@@ -1,0 +1,136 @@
+QA output created by 647
+
+=== mmv agent installation ===
+You will need to choose an appropriate configuration for installation of
+the "mmv" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Install mmv as a daemon or dso agent? [daemon] PMCD should communicate with the mmv daemon via a pipe or a socket? [pipe] Updating the Performance Metrics Name Space (PMNS) ...
+Compiled PMNS contains
+  NNN hash table entries
+  NNN leaf nodes
+  NNN non-leaf nodes
+  NNN bytes of symbol table
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check mmv metrics have appeared ... 2 metrics and 2 values
+
+=== validate values ===
+
+mmv.debug PMID: 70.0.1 [Debug flag]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+See pmdbg(1).  pmstore into this metric to change the debug value.
+    value 0
+
+mmv.reload PMID: 70.0.0 [Control maps reloading]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Writing anything other then 0 to this metric will result in
+re-reading directory and re-mapping files.
+    value 0
+
+mmv.test.counter PMID: 70.1.1 [test counter metric]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Yes, this is a test counter metric
+    value 41
+
+mmv.test.discrete PMID: 70.1.2 [test discrete metric]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+Yes, this is a test discrete metric
+    value 42
+
+mmv.test.indom PMID: 70.1.3 One-line Help: Error: One-line or help text is not available
+
+    Data Type: 32-bit unsigned int  InDom: 70.2049 0x11800801
+    Semantics: instant  Units: count
+Full Help: Error: One-line or help text is not available
+    inst [0 or "zero"] value 43
+    inst [1 or "hero"] value 0
+
+mmv.test.interval PMID: 70.1.4 One-line Help: Error: One-line or help text is not available
+
+    Data Type: 64-bit int  InDom: 70.2050 0x11800802
+    Semantics: counter  Units: microsec
+Full Help: Error: One-line or help text is not available
+    inst [0 or "bird"] value 0
+    inst [1 or "tree"] value 0
+    inst [2 or "eggs"] value USEC
+
+mmv.test.string PMID: 70.1.5 One-line Help: Error: One-line or help text is not available
+
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Full Help: Error: One-line or help text is not available
+    value "g'day world"
+
+mmv.test.strings PMID: 70.1.6 [test string metrics]
+    Data Type: string  InDom: 70.2049 0x11800801
+    Semantics: instant  Units: none
+Help:
+Yes, this is a test string metric with instances
+    inst [0 or "zero"] value "00oo00"
+    inst [1 or "hero"] value ""
+
+=== validate metrics ===
+
+mmv.debug PMID: 70.0.1 [Debug flag]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+See pmdbg(1).  pmstore into this metric to change the debug value.
+    value 0
+
+mmv.reload PMID: 70.0.0 [Control maps reloading]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Writing anything other then 0 to this metric will result in
+re-reading directory and re-mapping files.
+    value 0
+
+mmv.test.noinit PMID: 70.1.1 One-line Help: Error: One-line or help text is not available
+
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Full Help: Error: One-line or help text is not available
+    value 42
+
+=== remove mmv agent ===
+Culling the Performance Metrics Name Space ...
+mmv ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check mmv metrics have gone away ... OK
+
+=== mmv agent re-installation ===
+You will need to choose an appropriate configuration for installation of
+the "mmv" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Install mmv as a daemon or dso agent? [daemon] Updating the Performance Metrics Name Space (PMNS) ...
+Compiled PMNS contains
+  NNN hash table entries
+  NNN leaf nodes
+  NNN non-leaf nodes
+  NNN bytes of symbol table
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check mmv metrics have appeared ... 3 metrics and 3 values
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

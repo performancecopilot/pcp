@@ -1,0 +1,86 @@
+QA output created by 147
+dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29
+Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29
+dbpmda> getdesc on
+dbpmda> fetch 29.0.6
+PMID(s): 29.0.6
+pmResult ... numpmid: 1
+  29.0.6 (sample.bin): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or ???] value 100
+    inst [200 or ???] value 200
+    inst [300 or ???] value 300
+    inst [400 or ???] value 400
+    inst [500 or ???] value 500
+    inst [600 or ???] value 600
+    inst [700 or ???] value 700
+    inst [800 or ???] value 800
+    inst [900 or ???] value 900
+dbpmda> profile 29.2 none
+dbpmda> profile 29.2 add 200
+dbpmda> profile 29.2 add 400
+dbpmda> profile 29.2 add 600
+dbpmda> profile 29.2 add 800
+dbpmda> fetch 29.0.6
+PMID(s): 29.0.6
+pmResult ... numpmid: 1
+  29.0.6 (sample.bin): numval: 4 valfmt: 0 vlist[]:
+    inst [200 or ???] value 200
+    inst [400 or ???] value 400
+    inst [600 or ???] value 600
+    inst [800 or ???] value 800
+dbpmda> profile 29.2 all
+dbpmda> profile 29.2 delete 100
+dbpmda> profile 29.2 delete 300
+dbpmda> profile 29.2 delete 500
+dbpmda> profile 29.2 delete 700
+dbpmda> profile 29.2 delete 900
+dbpmda> fetch 29.0.6
+PMID(s): 29.0.6
+pmResult ... numpmid: 1
+  29.0.6 (sample.bin): numval: 4 valfmt: 0 vlist[]:
+    inst [200 or ???] value 200
+    inst [400 or ???] value 400
+    inst [600 or ???] value 600
+    inst [800 or ???] value 800
+dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX sample_init 30
+dbpmda> fetch 30.0.6
+PMID(s): 30.0.6
+pmResult ... numpmid: 1
+  30.0.6 (sampledso.bin): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or ???] value 100
+    inst [200 or ???] value 200
+    inst [300 or ???] value 300
+    inst [400 or ???] value 400
+    inst [500 or ???] value 500
+    inst [600 or ???] value 600
+    inst [700 or ???] value 700
+    inst [800 or ???] value 800
+    inst [900 or ???] value 900
+dbpmda> profile 30.2 none
+dbpmda> profile 30.2 add 200
+dbpmda> profile 30.2 add 400
+dbpmda> profile 30.2 add 600
+dbpmda> profile 30.2 add 800
+dbpmda> fetch 30.0.6
+PMID(s): 30.0.6
+pmResult ... numpmid: 1
+  30.0.6 (sampledso.bin): numval: 4 valfmt: 0 vlist[]:
+    inst [200 or ???] value 200
+    inst [400 or ???] value 400
+    inst [600 or ???] value 600
+    inst [800 or ???] value 800
+dbpmda> profile 30.2 all
+dbpmda> profile 30.2 delete 100
+dbpmda> profile 30.2 delete 300
+dbpmda> profile 30.2 delete 500
+dbpmda> profile 30.2 delete 700
+dbpmda> profile 30.2 delete 900
+dbpmda> fetch 30.0.6
+PMID(s): 30.0.6
+pmResult ... numpmid: 1
+  30.0.6 (sampledso.bin): numval: 4 valfmt: 0 vlist[]:
+    inst [200 or ???] value 200
+    inst [400 or ???] value 400
+    inst [600 or ???] value 600
+    inst [800 or ???] value 800
+dbpmda> 

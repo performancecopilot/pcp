@@ -1,0 +1,342 @@
+#! /bin/sh
+# PCP QA Test No. 069
+# Test pmcd's ability to supress multiple access control warnings from the same
+# host
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# ideally want a host with only 1 network interface ... getpmcdhosts
+# cannot express this, so we used to go for 1 CPU as a likely co-condition,
+# but even that has been dropped now that single CPU systems are so
+# rare
+#
+eval `./getpmcdhosts -L -n2 | sed -e 's/^/other1=/' -e 's/ / other2=/'`
+
+if [ -z "$other1" ]
+then
+    echo "Cannot find first remote host running pmcd" >$seq.notrun
+    status=1
+    exit
+fi
+
+if [ -z "$other2" ]
+then
+    echo "Cannot find second remote host running pmcd" >$seq.notrun
+    status=1
+    exit
+fi
+
+rm -f $seq.out
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
+then
+    ln $seq.out.2 $seq.out
+else
+    ln $seq.out.1 $seq.out
+fi
+
+# real QA test starts here
+
+status=0
+signal=$PCP_BINADM_DIR/pmsignal
+usersignal=pmsignal	# not run as root, which may lose pcpqa PATH setting
+config=$PCP_PMCDCONF_PATH
+oconfig=${PCP_PMCDCONF_PATH}.save.$seq
+nconfig=$tmp.pmcd.conf.new
+log=$PCP_PMCDLOG_PATH
+LOCALHOST=`hostname`
+LOCALHOST_FULL=`pmhostname`
+_needclean=true
+
+rm -f $seq.full
+
+_filter_log()
+{
+    sed <$log \
+	-e 's/^$//' \
+	-e '/^irix/s/\/var\//\/usr\//' \
+	-e '/^00[08]:/d' \
+	-e 's/ \[0x[0-9a-f]*]//' \
+	-e 's/ \[(nil)]//' \
+	-e "/$LOCALHOST\$/s/$LOCALHOSTe/ME/" \
+	-e "s/ 127\.0\.0\.1:/ MY_IP:/" \
+	-e "s/$me_ip/MY_IP/" \
+	-e "s/$other1_ip/OTHER1_IP/" \
+	-e "s/$other2_ip/OTHER2_IP/" \
+	-e '/access violation .* [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9]/{
+N
+d
+}' \
+	-e "s/$me_xip/MY_HEXIP/" \
+	-e "s/$other1/OTHER_1/" \
+	-e "s/$other1_xip/OTHER1_HEXIP/" \
+	-e "s/$other2/OTHER_2/" \
+	-e "s/$other2_xip/OTHER2_HEXIP/" \
+	-e 's/fd [0-9-][0-9]*/fd <n>/g' \
+	-e '/client\[[0-9][0-9]*\]/s//client[N]/' \
+	-e '/lib=.*\.'"$DSO_SUFFIX"'/s/[0-9] dso/N dso/' \
+    | $PCP_AWK_PROG '
+BEGIN				{ skip = 0 }
+/client connection from/	{ print; print "..."; skip=1; next }
+skip == 1 && NF == 0		{ skip = 0 }
+skip == 1			{ next }
+				{ print }' \
+    | _filter_pmcd_log
+}
+
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+
+cleanup()
+{
+    if $_needclean
+    then
+        _needclean=false
+	if [ -f $oconfig ]
+	then
+	    $sudo cp $oconfig $config
+	    $sudo rm -f $oconfig
+	fi
+	unset PMCD_PORT # don't worry about preserving just get rid of it
+	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+	&& $sudo sh $tmp.cmd
+	echo "Restarting pmcd"
+	$sudo $PCP_RC_DIR/pcp restart >/dev/null
+	_wait_for_pmcd
+	_wait_for_pmlogger
+    fi
+    rm -f $tmp.*
+}
+
+interrupt()
+{
+    trap 1 2 3 15
+    echo "Interrupted"
+    cleanup
+    status=1
+}
+
+trap "interrupt; exit \$status" 1 2 3 15
+trap "cleanup; exit \$status" 0
+
+cat <<End-of-File >$tmp.c
+#include <pcp/pmapi.h>
+#ifdef HAVE_NETWORK_BYTEORDER
+yes
+#else
+no
+#endif
+End-of-File
+
+network_byteorder=`cc -E $tmp.c | sed -e '/^ *$/d' | tail -1`
+
+_get_hex_addr()
+{
+    if [ $network_byteorder = yes ]
+    then
+	echo $1 \
+	| $PCP_AWK_PROG -F '.' '{ printf "%02x%02x%02x%02x", $1, $2, $3, $4 }'
+    else
+	echo $1 \
+	| $PCP_AWK_PROG -F '.' '{ printf "%02x%02x%02x%02x", $4, $3, $2, $1 }'
+    fi
+}
+
+pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+&& $sudo sh $tmp.cmd
+
+echo "host1 = $other1" >>$seq.full
+echo "host2 = $other2" >>$seq.full
+
+# pick a tcp port that is not in use
+#
+port=`_get_port tcp 4340 4350`
+if [ -z "$port" ]
+then
+    echo "Arrgh ... no free TCP port in the range 4340 ... 4350"
+    exit 1
+fi
+echo "port=$port" >>$seq.full
+
+me_ip=`_host_to_ipaddr $LOCALHOST`
+me_xip=`_get_hex_addr $me_ip`
+other1_ip=`_host_to_ipaddr $other1`
+other1_xip=`_get_hex_addr $other1_ip`
+other2_ip=`_host_to_ipaddr $other2`
+other2_xip=`_get_hex_addr $other2_ip`
+
+echo "me: ip=$me_ip hex_ip=$me_xip" >>$seq.full
+echo "host1: ip=$other1_ip hex_ip=$other1_xip" >>$seq.full
+echo "host2: ip=$other2_ip hex_ip=$other2_xip" >>$seq.full
+
+echo "# from qa/$seq" >$nconfig
+egrep '^(linux|irix|darwin|solaris)' $config >>$nconfig
+grep '^pmcd' $config >>$nconfig
+
+$sudo cp $config $oconfig
+$sudo cp $nconfig $config
+echo "--- initial pmcd.conf ---" >>$seq.full
+cat $config >>$seq.full
+export PMCD_CONNECT_TIMEOUT=30
+export PMCD_PORT=$port
+echo "export PMCD_CONNECT_TIMEOUT=30" >$tmp.start
+echo "export PMCD_PORT=$port" >>$tmp.start
+echo "sh $PCP_RC_DIR/pcp restart" >>$tmp.start
+$sudo sh $tmp.start 2>&1 \
+| tee -a $seq.full \
+| sed '/Wait/d' \
+| _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger
+
+echo "should be OK"
+pminfo -f pmcd.numclients # should be controlled now - determinate
+
+cat <<End-of-File >>$nconfig
+
+[access]
+allow $other1: all except store, maximum 1 connections;
+allow $other2: all, maximum 1 connections;
+disallow *: all;
+End-of-File
+$sudo cp $nconfig $config
+
+echo "=== local pmcd.conf ===" >>$seq.full
+cat $config >>$seq.full
+
+$sudo $signal -a -s HUP pmcd
+sleep 5
+
+echo
+echo "expect two access control errors:"
+# for Linux sometimes see "Connection reset by peer" ... this is believed
+# to be a timing issue, and the results are semantically equivalent for
+# the purposes of this test, so ...
+pminfo -f pmcd.numclients 2>&1 \
+| sed -e 's/"'$LOCALHOST'"/"LOCALHOST"/' \
+      -e 's/Connection reset by peer/No permission to perform requested operation/'
+pminfo -f pmcd.numclients 2>&1 \
+| sed -e 's/"'$LOCALHOST'"/"LOCALHOST"/' \
+      -e 's/Connection reset by peer/No permission to perform requested operation/'
+echo
+
+echo "expect two connection limit errors:"
+cmd1='sh -c "PMCD_CONNECT_TIMEOUT=30 PMCD_PORT='$PMCD_PORT'; export PMCD_CONNECT_TIMEOUT PMCD_PORT; pmval -h '$LOCALHOST_FULL' pmcd.numclients"'
+echo "cmd1: $cmd1" >>$seq.full
+(ssh -q pcpqa@$other1 $cmd1  &) 1>$tmp.pmval 2>&1
+sleep 5
+
+# not sure how long it takes to get the remote pmval command started,
+# and connected to pmcd so be prepared to try a few times ...
+#
+cmd2='sh -c "PMCD_CONNECT_TIMEOUT=30 PMCD_PORT='$PMCD_PORT'; export PMCD_CONNECT_TIMEOUT PMCD_PORT; pminfo -h '$LOCALHOST_FULL' -f pmcd.numclients"'
+echo "cmd2: $cmd2" >>$seq.full
+cnt=0
+echo >$tmp.pminfo
+for i in 1 2 3 4 5 6 7 8 9 10
+do
+    ssh -q pcpqa@$other1 $cmd2 >$tmp.tmp 2>&1
+    echo "--- attempt $i ---" >>$tmp.pminfo
+    cat $tmp.tmp >>$tmp.pminfo
+    if grep 'connection limit' $tmp.tmp >/dev/null
+    then
+	# bingo!
+	sed -e 's/".*"/"OTHERHOST1"/' <$tmp.tmp
+	cnt=`expr $cnt + 1`
+	[ $cnt -eq 2 ] && break
+    fi
+    sleep 1
+done
+if [ $cnt -ne 2 ]
+then
+    cat $tmp.pminfo
+fi
+ssh -q pcpqa@$other1 $usersignal -a pmval > /dev/null 2>&1
+echo
+echo "=== pmval output ===" >>$seq.full
+cat $tmp.pmval >>$seq.full
+echo "=== pminfo output ===" >>$seq.full
+cat $tmp.pminfo >>$seq.full
+
+echo "expect two connection limit errors:"
+(ssh -q pcpqa@$other2 $cmd1 &) > $tmp.pmval 2>&1
+sleep 5
+
+# not sure how long it takes to get the remote pmval command started
+# and connected to pmcd so be prepared to try a few times ...
+#
+found=false
+echo >$tmp.pminfo
+for i in 1 2 3 4 5 6 7 8 9 10
+do
+    ssh -q pcpqa@$other2 $cmd2 >$tmp.tmp 2>&1
+    echo "--- attempt $i ---" >>$tmp.pminfo
+    cat $tmp.tmp >>$tmp.pminfo
+    if grep 'connection limit' $tmp.tmp >/dev/null
+    then
+	# bingo!
+	sed -e 's/".*"/"OTHERHOST2"/' <$tmp.tmp
+	found=true
+	break
+    fi
+    sleep 1
+done
+$found || cat $tmp.pminfo
+#
+# Make this one a store to see if connection and access errors are treated the
+# same way.  Note that pmstore fails with connection limit exceeded before it
+# gets to attempt the store.
+#
+cmd3='sh -c "PMCD_CONNECT_TIMEOUT=30 PMCD_PORT='$PMCD_PORT'; export PMCD_CONNECT_TIMEOUT PMCD_PORT; pmstore -h '$LOCALHOST_FULL' pmcd.control.debug 1"'
+echo "cmd3: $cmd3" >>$seq.full
+# not sure how long it takes to get the remote pmval command started
+# and connected to pmcd so be prepared to try a few times ...
+#
+found=false
+echo >$tmp.pmstore
+for i in 1 2 3 4 5 6 7 8 9 10
+do
+    ssh -q pcpqa@$other2 $cmd3 >$tmp.tmp 2>&1
+    echo "--- attempt $i ---" >>$tmp.pminfo
+    cat $tmp.tmp >>$tmp.pmstore
+    if grep 'connection limit' $tmp.tmp >/dev/null
+    then
+	# bingo!
+	sed -e 's/".*"/"OTHERHOST2"/' <$tmp.tmp
+	found=true
+	break
+    fi
+    sleep 1
+done
+$found || cat $tmp.pmstore
+ssh -q pcpqa@$other2 $usersignal -a pmval > /dev/null 2>&1
+echo
+echo "=== pmval output ===" >>$seq.full
+cat $tmp.pmval >>$seq.full
+echo "=== pminfo output ===" >>$seq.full
+cat $tmp.pminfo >>$seq.full
+echo "=== pmstore output ===" >>$seq.full
+cat $tmp.pmstore >>$seq.full
+
+echo 'expect 3 access violation messages for localhost, OTHERHOST1 and OTHERHOST2
+and one endclient access violation for localhost and one endclient connection
+limit for each of OTHERHOST1 and OTHERHOST2'
+_filter_log
+
+echo "=== pmcd.log ===" >>$seq.full
+cat $log >>$seq.full
+
+echo
+echo "If failure, check $seq.full"

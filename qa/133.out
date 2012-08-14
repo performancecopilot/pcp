@@ -1,0 +1,34 @@
+QA output created by 133
+New log volume 1
+New log volume 2
+New log volume 5
+New log volume 6
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+
+DATE
+pmlc request from HOST: mandatory on 0.5 sec
+  metric: pmcd.numagents
+New log volume 1, via pmlc request at DATE
+New log volume 2, via pmlc request at DATE
+New log volume 3, via SIGHUP at DATE
+New log volume 4, via SIGHUP at DATE
+New log volume 5, via pmlc request at DATE
+New log volume 6, via pmlc request at DATE
+pmlogger: Signalled (signal=15), exiting
+
+Log finished DATE
+Created 10 log files.
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+TIMESTAMP       0       OFFSET       OFFSET
+TIMESTAMP       1       OFFSET       OFFSET
+TIMESTAMP       2       OFFSET       OFFSET
+TIMESTAMP       3       OFFSET       OFFSET
+TIMESTAMP       4       OFFSET       OFFSET
+TIMESTAMP       5       OFFSET       OFFSET
+TIMESTAMP       6       OFFSET       OFFSET

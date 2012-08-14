@@ -1,0 +1,44 @@
+#! /bin/sh
+# PCP QA Test No. 646
+# Testing of libpcp_mmv functionality (ondisk format)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2009-2010 Aconex.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+files="/var/tmp/mmv/test$$ /var/tmp/mmv/notest$$"
+$sudo rm -rf $tmp.* $files
+trap "rm -f $tmp.*; $sudo rm -f $files; exit \$status" 0 1 2 3 15
+
+_filter_mmvdump()
+{
+    sed \
+	-e "s,test$$,testPID,g" \
+	-e "s,notest$$,notestPID,g" \
+	-e "s,^Process.*= $pid1,Process    = PID,g" \
+	-e "s,^Process.*= $pid2,Process    = PID,g" \
+	-e "s,^Generated.*= [0-9][0-9]*,Generated  = TIMESTAMP,g" \
+	-e 's/interval = [0-9][0-9]*/interval = TIME/' \
+	-e 's/eggs"] = [0-9][0-9]* (value=[0-9][0-9]*/eggs"] = N (value=N/' \
+
+}
+
+src-oss/mmv_genstats test$$ &
+pid1=$!
+src-oss/mmv_nostats notest$$ &
+pid2=$!
+wait
+$PCP_PMDAS_DIR/mmv/mmvdump $PCP_TMP_DIR/mmv/test$$ | _filter_mmvdump
+$PCP_PMDAS_DIR/mmv/mmvdump $PCP_TMP_DIR/mmv/notest$$ | _filter_mmvdump
+
+status=0
+exit

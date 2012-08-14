@@ -1,0 +1,41 @@
+QA output created by 285
+=== dso and daemon handle indom ops the same way? ===
+
+dbpmda> open dso SAMPLEDSO sample_init 30
+dbpmda> instance 30.1
+pmInDom: 30.1
+[  0] inst: 0 name: "red"
+[  1] inst: 1 name: "green"
+[  2] inst: 2 name: "blue"
+dbpmda> instance 30.1 0
+pmInDom: 30.1
+[  0] name: "red"
+dbpmda> instance 30.1 "red"
+pmInDom: 30.1
+[  0] inst: 0
+
+dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 30
+Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 30
+dbpmda> instance 30.1
+pmInDom: 30.1
+[  0] inst: 0 name: "red"
+[  1] inst: 1 name: "green"
+[  2] inst: 2 name: "blue"
+dbpmda> instance 30.1 0
+pmInDom: 30.1
+[  0] name: "red"
+dbpmda> instance 30.1 "red"
+pmInDom: 30.1
+[  0] inst: 0
+
+Differences ... expect none after the "open" processing
+1c1,2
+< dbpmda> open dso SAMPLEDSO sample_init 30
+---
+> dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 30
+> Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 30
+
+=== IPC-PDU version botch for second PMDA? ===
+dbpmda> open dso SAMPLEDSO sample_init 30
+dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29
+Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29

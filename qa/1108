@@ -1,0 +1,97 @@
+#! /bin/sh
+# PCP QA Test No. 1108 (formerly 830)
+# pv:821339 sed gives "Too many commands" in cron.pmdaily script
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+rm -f $seq.full
+
+# check for new version ... may need -o to force "old style" behaviour
+#
+if pmlogger_daily -\? 2>&1 | grep '^.*-o.*(old style)' >/dev/null
+then
+    oflag='-o'
+    echo "Using -o" >>$seq.full
+else
+    oflag=''
+fi
+
+_filter()
+{
+    sed \
+	-e '/^+ cd /s/cd .*/cd .../' \
+	-e '/^+ mv /s/mv .*/mv .../' \
+	-e '/^+ pmlogger /s/pmlogger .*/pmlogger .../' \
+	-e '/^+ pmnewlog /s/pmnewlog .*/pmnewlog .../' \
+	-e '/^+ mkaf /s/mkaf .*/mkaf .../' \
+	-e '/^+ kill/{
+s/INT //
+s/-s USR1 //
+s/ [0-9][0-9]*/ ... PID/
+}' \
+	-e '/^+ rm /d' \
+	-e '/^+ pmlogger_merge /d' \
+	-e '/^[12][0-9][0-9][0-9][01][0-9][0-3][0-9]\.[0-9][0-9]\.[0-9][0-9]/d' \
+	-e '/Warning: no write access/d'
+}
+
+# Avoid conflict with normal management of the summary logs ...
+# this is lifted from pmlogger_daily
+
+# each summarized log is named yyyymmdd using yesterday's date
+# previous day's logs are named yymmdd (old format) or
+# yyyymmdd (new year 2000 format)
+#
+SUMMARY_LOGNAME=`pmdate -1d %Y%m%d`
+echo "SUMMARY_LOGNAME=$SUMMARY_LOGNAME" >>$seq.full
+echo "Files to be removed before we start ..." >>$seq.full
+ls -l $PCP_LOG_DIR/pmlogger/*/$SUMMARY_LOGNAME.* >>$seq.full 2>&1
+$sudo rm -f $PCP_LOG_DIR/pmlogger/*/$SUMMARY_LOGNAME.*
+
+# make sure  pmlogger_daily gets a timestamp that is at least
+# a minute after the previous primary logger was started to avoid
+# the collision on the timestamp and the extra 3 mv's needed to
+# rename the archive files from <timestamp> to <timestamp>-00
+#
+current=`pminfo -f pmcd.pmlogger.archive | sed -n -e '/"primary"/{
+s;.*/;;
+s/"//
+p
+}'`
+if [ -z "$current" ]
+then
+    echo "Arrgh ... cannot get current primary pmlogger timestamp from"
+    pminfo -f pmcd.pmlogger.archive
+    status=1
+    exit
+fi
+echo "current=$current" >>$seq.full
+sec=0
+while [ $sec -lt 60 ]
+do
+    now=`pmdate %Y%m%d.%H.%M`
+    [ "$now" != "$current" ] && break
+    echo "now=$now" >>$seq.full
+    sleep 1
+    sec=`expr $sec + 1`
+done
+echo "done, now=$now" >>$seq.full
+
+# real QA test starts here
+pmlogger_daily $oflag -k 550 -N 2>&1 \
+| tee -a $seq.full \
+| _filter

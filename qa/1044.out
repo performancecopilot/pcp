@@ -1,0 +1,52 @@
+QA output created by 1044
+
+=== basic test - check that we get one rule...
+  rule: memory.exhausted  [chronic main memory exhaustion]
+  help: The system is swapping modified pages out of main memory to the
+	swap partitions, and has been doing this on at least 3 of the
+	last 10 evaluations of this rule.
+	There appears to be insufficient main memory to meet the resident
+	demands of the current workload.
+	predicate = 
+	  some_host (30 %_sample swap.pagesout $hosts$ @0..9 > 0)
+  vars: enabled = yes
+
+=== basic test - check that we get one rule...
+  rule: memory.exhausted  [chronic main memory exhaustion]
+  help: The system is swapping modified pages out of main memory to the
+	swap partitions, and has been doing this on at least 3 of the
+	last 10 evaluations of this rule.
+	There appears to be insufficient main memory to meet the resident
+	demands of the current workload.
+	predicate = 
+	  some_host (30 %_sample swap.pagesout $hosts$ @0..9 > 0)
+  vars: enabled = yes
+
+=== check for non-existant rules location
+pmieconf: error - cannot stat /no/such/file: No such file or directory
+
+=== check no fatal errors when creating config.pmie
+45
+// pmieconf-pmie 1 ./pconf
+// end
+
+=== check generated config.pmie is good pmie syntax
+status=0
+
+=== check interactive similar to command line....
+214a215
+> 
+
+=== check rules path & duplicate rule names (-r)...
+pmieconf: error - rule name "SOME.RULE" has already been used, duplicate name found in:
+	"./pconf/SOME/RULE", line LINENUMBER.
+status=0
+
+=== check rules path & duplicate rule names (env)...
+pmieconf: error - rule name "SOME.RULE" has already been used, duplicate name found in:
+	"./pconf/SOME/RULE", line LINENUMBER.
+status=0
+
+=== check env variable gets used over default...
+pmieconf: error - cannot stat /no/such/rules: No such file or directory
+status=1

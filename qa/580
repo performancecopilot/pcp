@@ -1,0 +1,68 @@
+#! /bin/sh
+# PCP QA Test No. 580
+# Compare pmGetInDom and pmNameIndom for instance names containing spaces
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.filter
+. ./common.check
+. ./common.product
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    linux)
+	# proc metrics may not be available
+	#
+	if pminfo proc.nprocs >/dev/null 2>&1
+	then
+	    ln $seq.out.$PCP_PLATFORM $seq.out || exit 1
+	else
+	    ln $seq.out.$PCP_PLATFORM.noproc $seq.out || exit 1
+	fi
+	;;
+    irix|darwin)
+	ln $seq.out.$PCP_PLATFORM $seq.out || exit 1
+	;;
+    solaris)
+	# same output for Mac OS X and OpenSolaris
+	ln $seq.out.darwin $seq.out || exit 1
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -e 's/  *$//'
+}
+
+# real QA test starts here
+src-oss/indom -i 15 kernel.all.load | _filter
+if [ $PCP_PLATFORM != darwin -a $PCP_PLATFORM != solaris ]
+then
+    src-oss/indom -i 1 proc.psinfo.pid \
+    | _filter \
+    | sed 's/<0*1/<ONE/g;
+s,/etc/init ,init,g;
+s,/etc/init,init,g;
+s,/sbin/init,init,g;
+s,init[^>]*,init,g;'   # 6.2 has a space after the init, linux may have
+                       #  extra arguments
+fi
+src-oss/indom -i 4 sample.needprofile sampledso.needprofile | _filter
+src-oss/indom -i 500 sample.bin | _filter
+
+# success, all done
+status=0
+exit

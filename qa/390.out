@@ -1,0 +1,23 @@
+QA output created by 390
+
+metric:    proc.psinfo.pid
+host:      localhost
+semantics: discrete instantaneous value
+units:     none
+samples:   1
+
+PID 
+PID 
+
+metric:    proc.psinfo.pid
+host:      localhost
+semantics: discrete instantaneous value
+units:     none
+samples:   1
+
+PID 
+PID 
+
+pmval: instance PIDhi not available
+
+pmval: instance PID12345 not available

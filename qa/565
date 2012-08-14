@@ -1,0 +1,130 @@
+#! /bin/sh
+# PCP QA Test No. 565
+# Install/Remove for sendmail PMDA
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix)
+	ln $seq.irix $seq.out || exit 1
+	;;
+    linux|darwin|solaris)
+	# same output for Linux, Mac OS X and OpenSolaris
+	if [ $PCP_VER -lt 3600 ]
+	then
+	    ln $seq.linux $seq.out || exit 1
+	else
+	    ln $seq.out.2 $seq.out || exit 1
+	fi
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
+
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+done_clean=false
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	rm -f $tmp.*
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	done_clean=true
+    fi
+    exit $status
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/.* \(hash table entries\)/  NNN \1/' \
+	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(bytes of symbol table\)/  NNN \1/' \
+	-e 's/[0-9][0-9]* warnings, //' \
+	-e 's/metrics and [0-9][0-9]*/metrics and N/' \
+	-e '/^sendmail\..* No value(s) available/d' \
+	-e "/make: Nothing to be done for .install./d" \
+	-e '/^Installing .mchart view*/d' \
+	-e '/Installing files \.\.\./d' \
+	-e '/Removing files \.\.\./d'
+}
+
+# real QA test starts here
+home=$PCP_PMDAS_DIR
+iam=sendmail
+if [ ! -d $home/$iam ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd $home/$iam
+unset ROOT
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+# start from a known starting point
+$sudo ./Remove >/dev/null 2>&1
+
+if [ -f Makefile ] ; then
+    if $sudo make clobber >$tmp.out 2>&1
+    then
+	:
+    else
+	cat $tmp.out
+	echo "Arrgh, make clobber failed"
+	exit
+    fi
+
+    if $sudo make >$tmp.out 2>&1
+    then
+	:
+    else
+	cat $tmp.out
+	echo "Arrgh, make failed"
+	exit
+    fi
+fi
+
+echo
+echo "=== default $iam agent installation ==="
+$sudo ./Remove >$tmp.out 2>&1
+$sudo ./Install </dev/null >>$tmp.out 2>&1
+
+# cp $tmp.out $here/$seq.full
+
+_filter <$tmp.out
+
+echo
+echo "=== validate pmns ==="
+pminfo $iam
+
+echo
+echo "=== remove $iam agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+_filter <$tmp.out
+
+status=0
+exit

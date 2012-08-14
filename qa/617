@@ -1,0 +1,163 @@
+#! /bin/sh
+# PCP QA Test No. 617
+# exercise PCP dbpmda interface
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.filter
+. ./common.check
+. ./common.product
+. ./localconfig
+
+if [ $PCP_VER -lt 2200 ]
+then
+    _notrun "dbpmda interface test, requires more recent dbpmda"
+fi
+
+if [ $PCP_PLATFORM = irix ]
+then
+   BINFMT=`/usr/pcp/bin/pmobjstyle`
+   PMDADSO=/var/pcp/lib/$BINFMT.pmda_sample.so
+elif [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris ]
+then
+   PMDADSO=$PCP_PMDAS_DIR/sample/pmda_sample.so
+elif [ $PCP_PLATFORM = darwin ]
+then
+   PMDADSO=$PCP_PMDAS_DIR/sample/pmda_sample.dylib
+else
+    echo "Arrgh ... need customization for $PCP_PLATFORM"
+    exit 1
+fi
+export PMDADSO
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$PMDADSO;PMDADSO;" \
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+	-e 's;pcp/lib/mips_[^.]*\.;pcp/lib/ISA.;' \
+	-e 's/parse error/Syntax error/' \
+	-e 's/syntax error/Syntax error/' \
+	-e '/^dbpmda> $/d' \
+	-e '/pmResult/s/0x[^ ]*/ADDR/g' \
+	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9]/TIMEZONE/g' \
+	-e 's/Permission denied/No permission to perform requested operation/' \
+        -e '/Error PDU/s/One-line/Oneline/'
+
+# last sed substitution thanks to pv:937345 which changed the wording
+# ... preserving the old form so QA passes
+}
+
+# real QA test starts here
+
+$sudo dbpmda -ie 2>&1 <<End-of-File | _filter
+help
+status
+#a comment, this should be ignored
+#test the debug and status commands
+debug# a command with a trailing comment
+help debug
+debug all
+status
+debug appl0 timecontrol
+status
+debug none
+status
+debug blah
+debug 1 blah
+debug blah fetch
+open pipe /blah/this_file_should_not_exist
+status
+open dso /blah/this_file_should_not_exist blah_init 128
+status
+open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29
+status
+#test the desc command
+desc
+desc 29.0.6
+desc sample.bin
+#test the instance command
+instance
+instance 29.2
+instance 29.2 300
+instance 29.2 "bin-100"
+instance 29.2 "bin
+instance "bin
+instance 30.3
+instance 29
+instance -1
+#test the timer command
+timer
+timer on
+status
+timer off
+status
+#test the fetch command
+getdesc on
+fetch
+fetch 29.0.6
+fetch sample.bin 29.0.5
+fetch blah
+fetch 29
+fetch 0.29
+fetch 0.1.2
+#test the profile command
+profile
+profile 29.2 none
+status
+fetch 29.0.6
+profile 29.2 add 200
+status
+fetch 29.0.6
+profile 29.2 add 250
+status
+fetch 29.0.6
+profile 29.2 add 300
+status
+fetch 29.0.6
+profile 29.2 delete 200
+status
+fetch 29.0.6
+profile 29.2 all
+status
+fetch 29.0.6
+#test the text command
+text
+text 29.0.6
+text indom 29.2
+text indom 29.5
+text blah 29.2
+#test the store command
+store
+store 29.0.36 "42"
+fetch sample.write_me
+store 29.0.36
+store 29.0.36 "57.3"
+store 20.0.36 4
+store sample.write_me "Hello there"
+store 29.0.20 "3"
+store 0.0.0 "5"
+store sample.aggregate.write_me "foo bar"
+store sample.event.records "foo bar"
+#test the close and open commands
+close
+status
+open dso $PMDADSO sample_init 30
+status
+close
+status
+#other
+blah
+quit
+End-of-File
+
+status=0
+exit

@@ -1,0 +1,166 @@
+QA output created by 025
+.Text: This metric has 3 instances, designated "red", "green" and "blue".
+The value of the metric is monotonic increasing in the range N to
+N+100, then back to N.  The different instances have different N values,
+namely 100 (red), 200 (green) and 300 (blue).
+InDomText: Universally 3 instances, "red" (0), "green" (1) and "blue" (3).
+...
+Kill off pmcd ...
+Waiting for pmcd to terminate ...
+pmLookupDesc: IPC protocol failure -- error expected
+pmGetInDom: IPC protocol failure -- error expected
+pmNameInDom: IPC protocol failure -- error expected
+pmLookupInDom: IPC protocol failure -- error expected
+pmLookupText: IPC protocol failure -- error expected
+pmLookupInDomText: IPC protocol failure -- error expected
+pmFetch: IPC protocol failure -- error expected
+pmStore: IPC protocol failure -- error expected
+__pmControlLog: IPC protocol failure -- error expected
+pmLookupDesc: IPC protocol failure -- error expected
+pmGetInDom: IPC protocol failure -- error expected
+pmNameInDom: IPC protocol failure -- error expected
+pmLookupInDom: IPC protocol failure -- error expected
+pmLookupText: IPC protocol failure -- error expected
+pmLookupInDomText: IPC protocol failure -- error expected
+pmFetch: IPC protocol failure -- error expected
+pmStore: IPC protocol failure -- error expected
+__pmControlLog: IPC protocol failure -- error expected
+pmLookupDesc: IPC protocol failure -- error expected
+pmGetInDom: IPC protocol failure -- error expected
+pmNameInDom: IPC protocol failure -- error expected
+pmLookupInDom: IPC protocol failure -- error expected
+pmLookupText: IPC protocol failure -- error expected
+pmLookupInDomText: IPC protocol failure -- error expected
+pmFetch: IPC protocol failure -- error expected
+pmStore: IPC protocol failure -- error expected
+__pmControlLog: IPC protocol failure -- error expected
+pmLookupDesc: IPC protocol failure -- error expected
+pmGetInDom: IPC protocol failure -- error expected
+pmNameInDom: IPC protocol failure -- error expected
+pmLookupInDom: IPC protocol failure -- error expected
+pmLookupText: IPC protocol failure -- error expected
+pmLookupInDomText: IPC protocol failure -- error expected
+pmFetch: IPC protocol failure -- error expected
+pmStore: IPC protocol failure -- error expected
+__pmControlLog: IPC protocol failure -- error expected
+Reconnect to pmcd context 1 ...
+pmReconnectContext: Connection timed out -- error expected
+pmLookupDesc: IPC protocol failure -- error expected
+pmGetInDom: IPC protocol failure -- error expected
+pmNameInDom: IPC protocol failure -- error expected
+pmLookupInDom: IPC protocol failure -- error expected
+pmLookupText: IPC protocol failure -- error expected
+pmLookupInDomText: IPC protocol failure -- error expected
+pmFetch: IPC protocol failure -- error expected
+pmStore: IPC protocol failure -- error expected
+__pmControlLog: IPC protocol failure -- error expected
+pmLookupDesc: IPC protocol failure -- error expected
+pmGetInDom: IPC protocol failure -- error expected
+pmNameInDom: IPC protocol failure -- error expected
+pmLookupInDom: IPC protocol failure -- error expected
+pmLookupText: IPC protocol failure -- error expected
+pmLookupInDomText: IPC protocol failure -- error expected
+pmFetch: IPC protocol failure -- error expected
+pmStore: IPC protocol failure -- error expected
+__pmControlLog: IPC protocol failure -- error expected
+pmLookupDesc: IPC protocol failure -- error expected
+pmGetInDom: IPC protocol failure -- error expected
+pmNameInDom: IPC protocol failure -- error expected
+pmLookupInDom: IPC protocol failure -- error expected
+pmLookupText: IPC protocol failure -- error expected
+pmLookupInDomText: IPC protocol failure -- error expected
+pmFetch: IPC protocol failure -- error expected
+pmStore: IPC protocol failure -- error expected
+__pmControlLog: IPC protocol failure -- error expected
+pmLookupDesc: IPC protocol failure -- error expected
+pmGetInDom: IPC protocol failure -- error expected
+pmNameInDom: IPC protocol failure -- error expected
+pmLookupInDom: IPC protocol failure -- error expected
+pmLookupText: IPC protocol failure -- error expected
+pmLookupInDomText: IPC protocol failure -- error expected
+pmFetch: IPC protocol failure -- error expected
+pmStore: IPC protocol failure -- error expected
+__pmControlLog: IPC protocol failure -- error expected
+Reconnect to pmcd context 0 ...
+pmReconnectContext: Connection timed out -- error expected
+pmLookupDesc: IPC protocol failure -- error expected
+pmGetInDom: IPC protocol failure -- error expected
+pmNameInDom: IPC protocol failure -- error expected
+pmLookupInDom: IPC protocol failure -- error expected
+pmLookupText: IPC protocol failure -- error expected
+pmLookupInDomText: IPC protocol failure -- error expected
+pmFetch: IPC protocol failure -- error expected
+pmStore: IPC protocol failure -- error expected
+__pmControlLog: IPC protocol failure -- error expected
+pmLookupDesc: IPC protocol failure -- error expected
+pmGetInDom: IPC protocol failure -- error expected
+pmNameInDom: IPC protocol failure -- error expected
+pmLookupInDom: IPC protocol failure -- error expected
+pmLookupText: IPC protocol failure -- error expected
+pmLookupInDomText: IPC protocol failure -- error expected
+pmFetch: IPC protocol failure -- error expected
+pmStore: IPC protocol failure -- error expected
+__pmControlLog: IPC protocol failure -- error expected
+pmLookupDesc: IPC protocol failure -- error expected
+pmGetInDom: IPC protocol failure -- error expected
+pmNameInDom: IPC protocol failure -- error expected
+pmLookupInDom: IPC protocol failure -- error expected
+pmLookupText: IPC protocol failure -- error expected
+pmLookupInDomText: IPC protocol failure -- error expected
+pmFetch: IPC protocol failure -- error expected
+pmStore: IPC protocol failure -- error expected
+__pmControlLog: IPC protocol failure -- error expected
+pmLookupDesc: IPC protocol failure -- error expected
+pmGetInDom: IPC protocol failure -- error expected
+pmNameInDom: IPC protocol failure -- error expected
+pmLookupInDom: IPC protocol failure -- error expected
+pmLookupText: IPC protocol failure -- error expected
+pmLookupInDomText: IPC protocol failure -- error expected
+pmFetch: IPC protocol failure -- error expected
+pmStore: IPC protocol failure -- error expected
+__pmControlLog: IPC protocol failure -- error expected
+Restart pmcd ...
+Starting pmcd ... 
+Starting pmlogger ... 
+pmLookupDesc: IPC protocol failure -- error expected
+pmGetInDom: IPC protocol failure -- error expected
+pmNameInDom: IPC protocol failure -- error expected
+pmLookupInDom: IPC protocol failure -- error expected
+pmLookupText: IPC protocol failure -- error expected
+pmLookupInDomText: IPC protocol failure -- error expected
+pmFetch: IPC protocol failure -- error expected
+pmStore: IPC protocol failure -- error expected
+pmLookupDesc: IPC protocol failure -- error expected
+pmGetInDom: IPC protocol failure -- error expected
+pmNameInDom: IPC protocol failure -- error expected
+pmLookupInDom: IPC protocol failure -- error expected
+pmLookupText: IPC protocol failure -- error expected
+pmLookupInDomText: IPC protocol failure -- error expected
+pmFetch: IPC protocol failure -- error expected
+pmStore: IPC protocol failure -- error expected
+pmLookupDesc: IPC protocol failure -- error expected
+pmGetInDom: IPC protocol failure -- error expected
+pmNameInDom: IPC protocol failure -- error expected
+pmLookupInDom: IPC protocol failure -- error expected
+pmLookupText: IPC protocol failure -- error expected
+pmLookupInDomText: IPC protocol failure -- error expected
+pmFetch: IPC protocol failure -- error expected
+pmStore: IPC protocol failure -- error expected
+pmLookupDesc: IPC protocol failure -- error expected
+pmGetInDom: IPC protocol failure -- error expected
+pmNameInDom: IPC protocol failure -- error expected
+pmLookupInDom: IPC protocol failure -- error expected
+pmLookupText: IPC protocol failure -- error expected
+pmLookupInDomText: IPC protocol failure -- error expected
+pmFetch: IPC protocol failure -- error expected
+pmStore: IPC protocol failure -- error expected
+Reconnect to pmcd context 1 ...
+.Text: This metric has 3 instances, designated "red", "green" and "blue".
+The value of the metric is monotonic increasing in the range N to
+N+100, then back to N.  The different instances have different N values,
+namely 100 (red), 200 (green) and 300 (blue).
+InDomText: Universally 3 instances, "red" (0), "green" (1) and "blue" (3).
+...
+Reconnect to pmcd context 0 ...
+....
+0 unexpected errors.

@@ -1,0 +1,263 @@
+QA output created by 174
+dbpmda> debug 1
+dbpmda> getdesc on
+dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29
+Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29
+dbpmda> fetch 29.0.6
+PMID(s): 29.0.6
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  29.0.6 (sample.bin): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or ???] value 100
+    inst [200 or ???] value 200
+    inst [300 or ???] value 300
+    inst [400 or ???] value 400
+    inst [500 or ???] value 500
+    inst [600 or ???] value 600
+    inst [700 or ???] value 700
+    inst [800 or ???] value 800
+    inst [900 or ???] value 900
+dbpmda> fetch 29.0.6
+PMID(s): 29.0.6
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  29.0.6 (sample.bin): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or ???] value 100
+    inst [200 or ???] value 200
+    inst [300 or ???] value 300
+    inst [400 or ???] value 400
+    inst [500 or ???] value 500
+    inst [600 or ???] value 600
+    inst [700 or ???] value 700
+    inst [800 or ???] value 800
+    inst [900 or ???] value 900
+dbpmda> fetch 29.0.6
+PMID(s): 29.0.6
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  29.0.6 (sample.bin): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or ???] value 100
+    inst [200 or ???] value 200
+    inst [300 or ???] value 300
+    inst [400 or ???] value 400
+    inst [500 or ???] value 500
+    inst [600 or ???] value 600
+    inst [700 or ???] value 700
+    inst [800 or ???] value 800
+    inst [900 or ???] value 900
+dbpmda> profile 29.2 none
+dbpmda> profile 29.2 add 200
+dbpmda> fetch 29.0.6
+PMID(s): 29.0.6
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  29.0.6 (sample.bin): numval: 1 valfmt: 0 vlist[]:
+    inst [200 or ???] value 200
+dbpmda> fetch 29.0.6
+PMID(s): 29.0.6
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  29.0.6 (sample.bin): numval: 1 valfmt: 0 vlist[]:
+    inst [200 or ???] value 200
+dbpmda> fetch 29.0.6
+PMID(s): 29.0.6
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  29.0.6 (sample.bin): numval: 1 valfmt: 0 vlist[]:
+    inst [200 or ???] value 200
+dbpmda> profile 29.2 add 400
+dbpmda> fetch 29.0.6
+PMID(s): 29.0.6
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  29.0.6 (sample.bin): numval: 2 valfmt: 0 vlist[]:
+    inst [200 or ???] value 200
+    inst [400 or ???] value 400
+dbpmda> fetch 29.0.6
+PMID(s): 29.0.6
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  29.0.6 (sample.bin): numval: 2 valfmt: 0 vlist[]:
+    inst [200 or ???] value 200
+    inst [400 or ???] value 400
+dbpmda> fetch 29.0.6
+PMID(s): 29.0.6
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  29.0.6 (sample.bin): numval: 2 valfmt: 0 vlist[]:
+    inst [200 or ???] value 200
+    inst [400 or ???] value 400
+dbpmda> open dso SAMPLEDSO sample_init 30
+dbpmda> fetch 30.0.6
+PMID(s): 30.0.6
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  30.0.6 (sampledso.bin): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or ???] value 100
+    inst [200 or ???] value 200
+    inst [300 or ???] value 300
+    inst [400 or ???] value 400
+    inst [500 or ???] value 500
+    inst [600 or ???] value 600
+    inst [700 or ???] value 700
+    inst [800 or ???] value 800
+    inst [900 or ???] value 900
+dbpmda> fetch 30.0.6
+PMID(s): 30.0.6
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  30.0.6 (sampledso.bin): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or ???] value 100
+    inst [200 or ???] value 200
+    inst [300 or ???] value 300
+    inst [400 or ???] value 400
+    inst [500 or ???] value 500
+    inst [600 or ???] value 600
+    inst [700 or ???] value 700
+    inst [800 or ???] value 800
+    inst [900 or ???] value 900
+dbpmda> fetch 30.0.6
+PMID(s): 30.0.6
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  30.0.6 (sampledso.bin): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or ???] value 100
+    inst [200 or ???] value 200
+    inst [300 or ???] value 300
+    inst [400 or ???] value 400
+    inst [500 or ???] value 500
+    inst [600 or ???] value 600
+    inst [700 or ???] value 700
+    inst [800 or ???] value 800
+    inst [900 or ???] value 900
+dbpmda> profile 30.2 none
+dbpmda> profile 30.2 add 100
+dbpmda> fetch 30.0.6
+PMID(s): 30.0.6
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  30.0.6 (sampledso.bin): numval: 1 valfmt: 0 vlist[]:
+    inst [100 or ???] value 100
+dbpmda> fetch 30.0.6
+PMID(s): 30.0.6
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  30.0.6 (sampledso.bin): numval: 1 valfmt: 0 vlist[]:
+    inst [100 or ???] value 100
+dbpmda> fetch 30.0.6
+PMID(s): 30.0.6
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  30.0.6 (sampledso.bin): numval: 1 valfmt: 0 vlist[]:
+    inst [100 or ???] value 100
+dbpmda> profile 30.2 add 300
+dbpmda> fetch 30.0.6
+PMID(s): 30.0.6
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  30.0.6 (sampledso.bin): numval: 2 valfmt: 0 vlist[]:
+    inst [100 or ???] value 100
+    inst [300 or ???] value 300
+dbpmda> fetch 30.0.6
+PMID(s): 30.0.6
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  30.0.6 (sampledso.bin): numval: 2 valfmt: 0 vlist[]:
+    inst [100 or ???] value 100
+    inst [300 or ???] value 300
+dbpmda> fetch 30.0.6
+PMID(s): 30.0.6
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+pmResult dump from ... numpmid: 1
+  30.0.6 (sampledso.bin): numval: 2 valfmt: 0 vlist[]:
+    inst [100 or ???] value 100
+    inst [300 or ???] value 300
+
+PDUs sent ...
+[PID]pmXmitPDU: CREDS fd=<n> len=20
+000:       14     700c     XPID        1  1020000 
+[PID]pmXmitPDU: DESC_REQ fd=<n> len=16
+000:       10     7004     XPID  7400006 
+[PID]pmXmitPDU: PROFILE fd=<n> len=28
+000:       1c     7002     XPID        0        0        0        0 
+[PID]pmXmitPDU: FETCH fd=<n> len=32
+000:       20     7003     XPID        0        0        0        1  7400006 
+[PID]pmXmitPDU: DESC_REQ fd=<n> len=16
+000:       10     7004     XPID  7400006 
+[PID]pmXmitPDU: FETCH fd=<n> len=32
+000:       20     7003     XPID        0        0        0        1  7400006 
+[PID]pmXmitPDU: DESC_REQ fd=<n> len=16
+000:       10     7004     XPID  7400006 
+[PID]pmXmitPDU: FETCH fd=<n> len=32
+000:       20     7003     XPID        0        0        0        1  7400006 
+[PID]pmXmitPDU: DESC_REQ fd=<n> len=16
+000:       10     7004     XPID  7400006 
+[PID]pmXmitPDU: PROFILE fd=<n> len=48
+000:       30     7002     XPID        0        0        1        0  7400002 
+008:        1        1        0       c8 
+[PID]pmXmitPDU: FETCH fd=<n> len=32
+000:       20     7003     XPID        0        0        0        1  7400006 
+[PID]pmXmitPDU: DESC_REQ fd=<n> len=16
+000:       10     7004     XPID  7400006 
+[PID]pmXmitPDU: FETCH fd=<n> len=32
+000:       20     7003     XPID        0        0        0        1  7400006 
+[PID]pmXmitPDU: DESC_REQ fd=<n> len=16
+000:       10     7004     XPID  7400006 
+[PID]pmXmitPDU: FETCH fd=<n> len=32
+000:       20     7003     XPID        0        0        0        1  7400006 
+[PID]pmXmitPDU: DESC_REQ fd=<n> len=16
+000:       10     7004     XPID  7400006 
+[PID]pmXmitPDU: PROFILE fd=<n> len=52
+000:       34     7002     XPID        0        0        1        0  7400002 
+008:        1        2        0       c8      190 
+[PID]pmXmitPDU: FETCH fd=<n> len=32
+000:       20     7003     XPID        0        0        0        1  7400006 
+[PID]pmXmitPDU: DESC_REQ fd=<n> len=16
+000:       10     7004     XPID  7400006 
+[PID]pmXmitPDU: FETCH fd=<n> len=32
+000:       20     7003     XPID        0        0        0        1  7400006 
+[PID]pmXmitPDU: DESC_REQ fd=<n> len=16
+000:       10     7004     XPID  7400006 
+[PID]pmXmitPDU: FETCH fd=<n> len=32
+000:       20     7003     XPID        0        0        0        1  7400006 
+DSO init sample_init->VADDR() domain=0 challenge: pmda_interface=0xXXXX pmapi_version=2
+DSO has domain=30 pmda_interface=5 pmapi_version=2
+DSO desc()
+DSO profile()
+DSO fetch()
+DSO desc()
+DSO fetch()
+DSO desc()
+DSO fetch()
+DSO desc()
+DSO profile()
+DSO fetch()
+DSO desc()
+DSO fetch()
+DSO desc()
+DSO fetch()
+DSO desc()
+DSO profile()
+DSO fetch()
+DSO desc()
+DSO fetch()
+DSO desc()
+DSO fetch()

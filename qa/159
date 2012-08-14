@@ -1,0 +1,174 @@
+#! /bin/sh
+# PCP QA Test No. 159
+# check out cisco PMDA
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+if [ -z "$PCP_CISCO_ROUTER" ]
+then
+    echo "No cisco router set via PCP_CISCO_ROUTER" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+# New cisco metrics in pcp2.2 
+if [ $PCP_VER -ge 2300 ]
+then
+    rm -f $seq.out && ln $seq.out.3 $seq.out
+elif [ $PCP_VER -ge 2200 ]
+then
+    rm -f $seq.out && ln $seq.out.2 $seq.out
+else
+    rm -f $seq.out && ln $seq.out.1 $seq.out
+fi
+
+status=1
+signal=$PCP_BINADM_DIR/pmsignal
+trap _cleanup 0 1 2 3 15
+
+_cleanup()
+{
+    pmstore pmcd.control.tracenobuf 0 2>&1 >/dev/null
+    _cleanup_agent
+    rm -f $tmp.*
+    exit $status
+}
+
+_cleanup_agent()
+{
+    cd $home/$iam
+
+    [ -f $tmp_configfile ] && $sudo mv $tmp_configfile $configfile
+
+    if grep $iam $tmp.pmcd.conf > /dev/null
+    then
+	$sudo ./Install < /dev/null > /dev/null 2>&1
+    else
+	$sudo ./Remove < /dev/null > /dev/null 2>&1
+    fi
+
+    [ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+    $sudo $signal -a -s HUP pmcd
+
+    cd $here
+}
+
+_filter_ins()
+{
+    sed -e '/^Check/{
+s/ 1 warnings, / /
+s/ [0-9][0-9]* values/ SOME values/
+}' \
+	-e 's/.* \(hash table entries\)/  NNN \1/' \
+	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(bytes of symbol table\)/  NNN \1/' \
+	-e '/make: Nothing to be done for/d' \
+| $PCP_AWK_PROG '
+	/currently unselected interfaces/  { interfaces=1; print; next }
+        interfaces==1 { print "<interfaces>\n"; interfaces=0; next }
+	{ print }'
+}
+
+# real QA test starts here
+home=$PCP_PMDAS_DIR
+iam=cisco
+configdir=$PCP_VAR_DIR/config/$iam
+configfile=$configdir/$iam.conf
+tmp_configfile=/tmp/$iam.conf
+if [ ! -d $home/$iam ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd $home/$iam
+unset ROOT
+
+if [ -f Makefile ]
+then
+    if $sudo make clobber 2>&1 >$tmp.out
+    then
+	:
+    else
+	cat $tmp.out
+	echo "Arrgh, make clobber failed"
+	exit 1
+    fi
+fi
+
+# copy the pmcd config file to restore state later
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+# copy the agent config file to restore state later
+[ -f $configfile ] && $sudo mv $configfile $tmp_configfile
+
+echo
+echo "=== remove agent ==="
+pmpost "start watching for qa/159"
+pmstore pmcd.control.tracenobuf 1>/dev/null 2>&1
+$sudo ./Remove \
+| sed -e 's/not found in Name Space, this is OK/done/'
+
+if pminfo -v cisco
+then
+    echo "... failed!"
+    if [ -d $PCP_LOG_DIR/pmcd ]
+    then
+	cat $PCP_LOG_DIR/pmcd/pmcd.log
+    else
+	cat $PCP_LOG_DIR/pmcd.log
+    fi
+    echo
+    tail $PCP_LOG_DIR/NOTICES
+fi
+pmstore pmcd.control.tracenobuf 0 1>/dev/null 2>&1
+pmpost "end watching for qa/159"
+
+cat <<End-of-File >$tmp.in
+both
+$PCP_CISCO_ROUTER
+
+End-of-File
+if [ $PCP_VER -gt 2200 ]
+then
+    echo >>$tmp.in
+fi
+cat <<End-of-File >>$tmp.in
+s2/3
+e1/0
+quit
+$PCP_CISCO_ROUTER
+
+End-of-File
+if [ $PCP_VER -gt 2200 ]
+then
+    echo >>$tmp.in
+fi
+cat <<End-of-File >>$tmp.in
+s2/0
+quit
+
+End-of-File
+
+echo
+echo "=== install agent ==="
+$sudo ./Install <$tmp.in >$tmp.out 2>&1
+_filter_ins <$tmp.out
+pminfo -v `pminfo cisco | grep -v bytes_out_bcast` || echo "... failed!"
+
+echo
+echo "=== re-install agent ==="
+$sudo ./Install <$tmp.in >$tmp.out 2>&1
+_filter_ins <$tmp.out
+pminfo -v `pminfo cisco | grep -v bytes_out_bcast` || echo "... failed!"
+
+status=0
+exit

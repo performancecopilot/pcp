@@ -1,0 +1,152 @@
+#!/bin/sh
+# PCP QA Test No. 498
+# exercise pmdaEventQueue interfaces
+#
+# Copyright (c) 2011 Nathan Scott.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3604 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+elif [ $PCP_VER -lt 3605 ]
+then
+    ln $seq.out.2 $seq.out || exit 1
+else
+    ln $seq.out.3 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+        -e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATE]/' \
+        -e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/[TIME]/' \
+	-e 's/event=0x0$/event=(nil)/' \
+        -e 's/0x[0-9a-f][0-9a-f]*/0xADDR/' \
+        -e 's/queue([0-9][0-9]*)/queue(PID)/' \
+        -e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;"
+}
+
+_queue_test()
+{
+    # always enable library debugging, stash raw results and output filtered
+    src-oss/pmdaqueue -Dlibpmda $@ 2>&1 | tee -a $seq.full | _filter
+}
+
+# real QA test starts here
+echo
+echo "events arriving with no queues setup yet (fail)"
+_queue_test -E 0,1024
+
+echo
+echo "attempt to register duplicate queue names (fail)"
+_queue_test -q queue1,1024 -q queue1,1024
+
+echo
+echo "attempt queue creation without memory limit (fail)"
+_queue_test -q queue1,0
+
+echo
+echo "create one queue, events arriving with no clients yet"
+_queue_test -q queue1,1024 -e queue1,128 -e queue1,42 -e queue1,18 -s queue1
+
+echo
+echo "multiple queues, events arriving without clients"
+_queue_test \
+    -q queue0,1024 -q queue1,512 \
+    -e queue0,128 -e queue1,24 -e queue0,18 \
+	-e queue1,228 -e queue0,142 -e queue1,28 \
+    -s queue0 -s queue1 \
+    -q queue2,356 \
+    -e queue2,328 -e queue2,32 -e queue0,17 -e queue1,227 \
+    -s queue0 -s queue1 -s queue2
+
+echo
+echo "single queue, single client, coming and going, no events arriving"
+_queue_test -q queue0,1024 -c 1 -S 1,queue0 -s queue0 -C 1 -s queue0
+
+echo
+echo "single queue, single client, coming and going, with events arriving"
+_queue_test \
+    -q queue0,1024 \
+    -c 1 -A1,queue0 \
+    -s queue0 -S 1,queue0 \
+    -e queue0,24 \
+    -s queue0 -S 1,queue0 \
+    -C 1 \
+    -s queue0
+
+echo
+echo "single queue, single client, queue filling up"
+_queue_test \
+    -q queue0,42 \
+    -c 1 \
+    -A 1,queue0 \
+    -s queue0 -S 1,queue0 \
+    -e queue0,24 \
+    -e queue0,2 \
+    -e queue0,8 \
+    -s queue0 -S 1,queue0 \
+    -e queue0,28 \
+    -e queue0,28 \
+    -s queue0 -S 1,queue0
+
+echo
+echo "single queue, single filtering client"
+_queue_test \
+    -q queue0,42 \
+    -c 1 -A1,queue0 \
+    -f 1,queue0,10 \
+    -s queue0 -S 1,queue0 \
+    -e queue0,24 \
+    -e queue0,2 \
+    -e queue0,8 \
+    -s queue0 -S 1,queue0 \
+    -e queue0,28 \
+    -e queue0,28 \
+    -s queue0 -S 1,queue0
+
+echo
+echo "multiple queues, multiple clients coming and going, queues filling"
+_queue_test \
+    -q queue0,1024 -q queue1,512 -q queue2,356 \
+    -c 84 -A 84,queue0 -c 42 -A 42,queue1 -c 21 -A 21,queue1 \
+    -S 84,queue0 -S 42,queue1 -S 21,queue1 \
+    -e queue0,128 -e queue1,24 -e queue0,18 \
+	-e queue1,228 -e queue0,142 -e queue1,28 \
+    -s queue0 -S 84,queue0 -s queue1 -S 42,queue1 -s queue2 -S 21,queue2 \
+    -C 84 \
+    -e queue2,328 -e queue2,32 -e queue0,17 -e queue1,227 \
+    -c 84 -C 42 -c 21 \
+    -s queue0 -S 84,queue0 -s queue1 -S 42,queue1 -s queue2 -S 21,queue2
+
+echo
+echo "ad-hoc queues, multiple clients coming and going, queues filling"
+_queue_test \
+    -q queue0,1024 -q queue1,512 \
+    -c 84 -A 84,queue0 -c 42 -A 42,queue1 -c 21 -A 21,queue1 \
+    -S 84,queue0 -S 42,queue1 -S 21,queue1 \
+    -e queue0,128 -e queue1,24 -e queue0,18 \
+	-e queue1,228 -e queue0,142 -e queue1,28 \
+    -q queue2,356 \
+    -s queue0 -S 84,queue0 -s queue1 -S 42,queue1 -s queue2 -S 21,queue2 \
+    -C 84 \
+    -e queue2,328 -e queue2,32 -e queue0,17 -e queue1,227 \
+    -c 84 -C 42 -c 21 \
+    -s queue0 -S 84,queue0 -s queue1 -S 42,queue1 -s queue2 -S 21,queue2
+
+# success, all done
+exit

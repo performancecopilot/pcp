@@ -1,0 +1,147 @@
+QA output created by 304
+
+=== end-of-file, launcher exited ==
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+recording session control: "V0"
+recording session control: "Fmyfolio"
+recording session control: eof
+
+Error: pmconfirm(1) failed for recording session dialog
+Dialog:
+PCP recording for the archive folio "myfolio" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+
+The application that launched pmlogger has exited and you must decide if the PCP recording session should be terminated or continued.  If recording is continued the PCP archive will grow at the rate of SOME bytes per hour or SOME bytes per day.
+
+At any time this pmlogger process may be terminated with the following command:
+  $ pmsignal -s TERM PID
+
+
+Terminate this PCP recording session now?pmlogger: Recording session terminated, exiting
+
+Log finished DATE
+
+=== Quit ==
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+recording session control: "V0"
+recording session control: "Fmyfolio"
+recording session control: "Q"
+
+Error: pmconfirm(1) failed for recording session dialog
+Dialog:
+PCP recording for the archive folio "myfolio" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+
+The application that launched pmlogger has terminated this PCP recording session.
+pmlogger: Recording session terminated, exiting
+
+Log finished DATE
+
+=== Quit + can replay ==
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+recording session control: "V0"
+recording session control: "Fmyfolio"
+recording session control: "R"
+recording session control: "Q"
+
+Error: pmconfirm(1) failed for recording session dialog
+Dialog:
+PCP recording for the archive folio "myfolio" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+
+This archive may be replayed with the following command:
+  $ pmafm myfolio replay
+
+The application that launched pmlogger has terminated this PCP recording session.
+pmlogger: Recording session terminated, exiting
+
+Log finished DATE
+
+=== Detach ==
+As expected, pmlogger is still running ... kill it off
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+recording session control: "V0"
+recording session control: "Fmyfolio"
+recording session control: "D"
+
+Error: pmconfirm(1) failed for recording session dialog
+Dialog:
+PCP recording for the archive folio "myfolio" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+
+The application that launched pmlogger has asked pmlogger to continue independently and the PCP archive will grow at the rate of SOME bytes per hour or SOME bytes per day.
+
+At any time this pmlogger process may be terminated with the following command:
+  $ pmsignal -s TERM PID
+pmlogger: Signalled (signal=15), exiting
+
+Log finished DATE
+
+=== Status ==
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+recording session control: "V0"
+recording session control: "Fmyfolio"
+recording session control: "?"
+
+Warning: pmconfirm(1) failed for recording session dialog
+Dialog:
+PCP recording for the archive folio "myfolio" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+
+At any time this pmlogger process may be terminated with the following command:
+  $ pmsignal -s TERM PID
+recording session control: eof
+
+Error: pmconfirm(1) failed for recording session dialog
+Dialog:
+PCP recording for the archive folio "myfolio" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+
+The application that launched pmlogger has exited and you must decide if the PCP recording session should be terminated or continued.  If recording is continued the PCP archive will grow at the rate of SOME bytes per hour or SOME bytes per day.
+
+At any time this pmlogger process may be terminated with the following command:
+  $ pmsignal -s TERM PID
+
+
+Terminate this PCP recording session now?pmlogger: Recording session terminated, exiting
+
+Log finished DATE
+
+=== Bad control ==
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+recording session control: "V0"
+recording session control: "Fmyfolio"
+recording session control: "Junk"
+Error: illegal recording session control message: "Junk"
+
+Error: pmconfirm(1) failed for recording session dialog
+Dialog:
+PCP recording for the archive folio "myfolio" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+
+The application that launched pmlogger has exited and you must decide if the PCP recording session should be terminated or continued.  If recording is continued the PCP archive will grow at the rate of SOME bytes per hour or SOME bytes per day.
+
+At any time this pmlogger process may be terminated with the following command:
+  $ pmsignal -s TERM PID
+
+
+Terminate this PCP recording session now?pmlogger: Recording session terminated, exiting
+
+Log finished DATE

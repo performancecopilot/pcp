@@ -1,0 +1,254 @@
+#! /bin/sh
+# PCP QA Test No. 430
+# Bugs #568199 #553276
+# Test out pmcheck with duplicate directory names
+# Test out pmcheck with directory names where one is a subname
+# of the other.
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+#  EXPUNGED: dual of 481, 625, this test may *not* work
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+#  Requires common.product and localconfig:
+. ./localconfig
+if [ "$PCP_PLATFORM" = irix -a $PCP_VER -lt 2200 ]
+then
+    rm -f $seq.out; ln $seq-pre2.2.out $seq.out
+else  #  includes Linux...
+    rm -f $seq.out; ln $seq-2.2post.out $seq.out
+fi
+#  assumed that no $seq.out file exists already
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+LOCALHOST=`hostname | sed -e 's/\..*//'`
+hostsfile="/etc/hosts"
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/\.\.\.*/[dots]/' \
+	-e "s/`pmhostname`/LOCALHOST/g" \
+	-e "s/$LOCALHOST/LOCALHOST/g" \
+	-e 's/control:[0-9][0-9]*]/control:LINE]/' \
+	-e 's;/usr/var;/var;g' \
+	-e "s;$tmp;TMP;g" \
+	-e '/Duplicate/d' \
+	-e 's/process [0-9][0-9]*/process PID/' \
+	-e 's/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]/CHECK/' \
+	| _filter_cron_scripts
+}
+
+_stop_loggers()
+{
+    $sudo $signal -a -s TERM pmlogger >/dev/null 2>&1
+}
+
+_cleanup()
+{
+    echo
+    echo "Cleaning up"
+
+    if [ -f $tmp.etc.hosts.orig ]
+    then
+       $sudo cp $tmp.etc.hosts.orig $hostsfile
+    fi
+
+    _stop_loggers
+
+    cd # get out of tmp directory so we can delete it
+    $sudo rm -rf $tmp
+    $sudo rm -rf $tmp.*
+
+    $sudo $PCP_BINADM_DIR/pmlogger_check
+}
+
+_setup()
+{
+    _stop_loggers
+    cd
+    rm -rf $logdir
+    rm -rf $logdir2
+    mkdir $logdir
+    mkdir $logdir2
+}
+
+
+_update_hostsfile()
+{
+    extra_hostname=$1
+
+    # save old hosts file
+    $sudo cp $hostsfile $tmp.etc.hosts.orig
+
+    realhost=`pmhostname`
+
+    # update /etc/hosts
+    # add an entry for extra_hostname
+    $PCP_AWK_PROG <$hostsfile >$tmp.etc.hosts \
+	-v realhost=$realhost -v extra_hostname=$extra_hostname '
+$2 == realhost && gotit == 0 {  
+			   print
+			   printf("%s\t%s\n", $1, extra_hostname)
+			   gotit = 1
+			   next
+			}
+			{ print }'
+
+    # extra check
+    # we only want to add one line
+    diff $tmp.etc.hosts $hostsfile > $tmp.diff
+    len=`wc -l $tmp.diff | $PCP_AWK_PROG '{print $1}' `
+    if [ $len -ne 2 ]
+    then
+	echo "Updating $hostsfile failed: diff is not what was expected: (see $seq.full):"
+	echo "-- diffs --"
+	cat $tmp.diff
+	echo "-----------"
+	ls -l $tmp.etc.hosts $hostsfile >>$here/$seq.full
+	sum $tmp.etc.hosts $hostsfile >>$here/$seq.full
+	echo "=== $tmp.etc.hosts ===" >>$here/$seq.full
+	cat $tmp.etc.hosts >>$here/$seq.full
+	echo "=== $hostsfile ===" >>$here/$seq.full
+	cat $hostsfile >>$here/$seq.full
+	exit 1
+    fi
+
+    # create new hosts file
+    $sudo cp $tmp.etc.hosts $hostsfile
+}
+
+_extract_control()
+{
+    id=$1
+
+    #preamble
+    cat - <<EOF
+# PCP archive logging configuration/control - for qa/$seq
+#
+\$version=1.1
+#
+EOF
+
+    $PCP_AWK_PROG < $tmp.control -v id=$id '
+	$1 == "#" && $2 == id"." {
+		mode=1;
+		print;
+		next;
+	}
+	mode == 1 && $1 == "#" && $2 ~ /[0-9][0-9]*\./ {
+		# found next item so exit
+		exit;
+	}
+	mode == 1 {
+		print;
+		next;
+	}
+    ' 
+}
+
+
+# real QA test starts here
+rm -f $here/$seq.full
+
+host1=$LOCALHOST
+host2=$LOCALHOST"super"
+echo "host1=$host1" >>$here/$seq.full
+echo "host2=$host2" >>$here/$seq.full
+_update_hostsfile $host2
+logdir=$tmp
+logdir2="$tmp.subname"
+
+
+#
+# This global file should be extended to do more control
+# file tests.
+# Make sure you put the number in the form "# 3. "
+#
+cat > $tmp.control <<EOF
+# 
+# 1. Test duplicate directory names;  non-primary and then primary
+#
+LOCALHOSTNAME	n   n	$logdir -c $logdir/config
+LOCALHOSTNAME	y   n	$logdir	-c $logdir/config
+# 
+# 2. Test duplicate directory names ; primary and then non-primary
+#
+LOCALHOSTNAME	y   n	$logdir	-c $logdir/config
+LOCALHOSTNAME	n   n	$logdir	-c $logdir/config
+# 
+# 3. Test directory names which are subnames 
+#
+LOCALHOSTNAME	y   n   $logdir2  -c $logdir/config
+LOCALHOSTNAME	n   n   $logdir -c $logdir/config
+# 
+# 4. Test when have hosts which are subnames
+#
+$host1	y   n   $logdir/$host1  -c $logdir/config
+$host2	n   n   $logdir/$host2 -c $logdir/config
+#
+# 5. Putting all the cases together
+#
+LOCALHOSTNAME	y   n   $logdir.1 -c $logdir/config
+LOCALHOSTNAME	n   n   $logdir.2 -c $logdir/config
+$host1	        n   n   $logdir.3 -c $logdir/config
+$host1	        n   n   $logdir.4 -c $logdir/config
+$host2	        n   n   $logdir.5 -c $logdir/config
+$host2	        n   n   $logdir.6 -c $logdir/config
+EOF
+
+# which tests to try out
+test_set="1 2 3 4 5"
+
+for i in $test_set
+do
+    echo >>$here/$seq.full
+    echo "=== test $i ===" >>$here/$seq.full
+    _setup
+    
+    # create the control file from master
+    _extract_control $i > $logdir/control
+    echo "--- control ---" >>$here/$seq.full
+    cat $logdir/control >>$here/$seq.full
+
+    # let's see what control file we are using
+    echo
+    _filter < $logdir/control
+    echo
+
+    echo "log mandatory on once pmcd.control.debug" >$logdir/config
+    echo "--- pmlogger_check ---" >> $here/$seq.full
+    $PCP_BINADM_DIR/pmlogger_check -V -c $logdir/control 2>&1 | tee -a $here/$seq.full | _filter
+done
+
+echo
+echo "Restart tests while other pmloggers are running ..."
+
+# now for the 5. case, terminate the pmloggers one at a time and
+# check the pmlogger_check restarts the right one
+#
+for log in $logdir.1 $logdir.2 $logdir.3 $logdir.4 $logdir.5 $logdir.6
+do
+    echo
+    echo "Kill off one pmlogger ..."
+    pid=`grep -l $log $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
+    $signal -s TERM $pid
+    echo "Check ..."
+    $PCP_BINADM_DIR/pmlogger_check -V -V -c $logdir/control 2>&1 \
+    | sed -e '/^... try /d' \
+    | _filter
+
+done
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,42 @@
+QA output created by 432
+Initial archive ...
+pmcd.pmlogger.archive
+pmcd.pmlogger.host
+pmcd.pmlogger.port
+sample.aggregate.hullo
+sample.aggregate.null
+sample.aggregate.write_me
+sample.bin
+sample.event.no_indom_records
+sample.event.param_32
+sample.event.param_64
+sample.event.param_aggregate
+sample.event.param_double
+sample.event.param_float
+sample.event.param_string
+sample.event.param_u32
+sample.event.param_u64
+sample.event.records
+sample.event.reset
+sample.event.type
+
+Reduced archive ...
+pmlogreduce: sample.aggregate.null: Warning: skipping AGGREGATE metric
+pmlogreduce: sample.aggregate.hullo: Warning: skipping AGGREGATE metric
+pmlogreduce: sample.aggregate.write_me: Warning: skipping AGGREGATE metric
+pmlogreduce: sample.event.param_aggregate: Warning: skipping AGGREGATE metric
+pmlogreduce: sample.event.records: Warning: skipping EVENT metric
+pmlogreduce: sample.event.no_indom_records: Warning: skipping EVENT metric
+pmcd.pmlogger.archive
+pmcd.pmlogger.host
+pmcd.pmlogger.port
+sample.bin
+sample.event.param_32
+sample.event.param_64
+sample.event.param_double
+sample.event.param_float
+sample.event.param_string
+sample.event.param_u32
+sample.event.param_u64
+sample.event.reset
+sample.event.type

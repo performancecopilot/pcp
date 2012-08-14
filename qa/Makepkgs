@@ -1,0 +1,163 @@
+#! /bin/sh
+#
+# Make whichever packages the system supports
+#
+# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2012 Ken McDonell.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+LOGDIR=`pwd`/Logs
+LOGF=$LOGDIR/pcpqa
+
+clean=false
+verbose=false
+
+if [ -z "$MAKE" ]
+then
+    MAKE=make
+else
+    # $MAKE in the environment, ensure it is executable
+    #
+    try=`which $MAKE 2>/dev/null`
+    if [ -z "$try" ]
+    then
+	echo "Error: $MAKE (from \$MAKE) does not exist!"
+	exit 1
+    fi
+fi
+
+for opt in $*
+do
+    case "$opt" in
+    -clean)
+	clean=true
+	shift
+	;;
+    -verbose)
+	verbose=true
+	shift
+	;;
+    *)
+	break
+	;;
+    esac
+done
+
+test ! -d $LOGDIR && mkdir $LOGDIR
+rm -rf $LOGDIR/* 
+
+tmp=/tmp/$$
+sts=1
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+VERS=`uname -s | cut -c-5`
+
+if $clean; then
+    echo "== cleaning, log is in $LOGF"
+    echo "" >>$LOGF
+    echo "== cleaning ==" >>$LOGF
+    if $verbose ; then
+	($MAKE -j 1 clean 2>&1 || touch $tmp.failed )| tee -a $LOGF
+    else
+	$MAKE -j 1 clean >>$LOGF 2>&1 || touch $tmp.failed
+    fi
+    if [ -f $tmp.failed ] ; then
+	if ! $verbose ; then
+	    echo "$MAKE clean failed"
+	    tail $LOGF
+	fi
+	exit
+    fi
+fi
+
+echo "== Building pcpqa, log is in $LOGF"
+echo "" >>$LOGF
+echo "== Building pcpqa ==" >>$LOGF
+
+. ./VERSION.pcpqa
+
+special=false
+[ "$VERS" = MINGW ] && special=windows
+[ -f /etc/debian_version ] && special=debian
+    
+if [ $special != false ]
+then
+    echo "== src-link-pcp, log is in $LOGF"
+    echo "" >>$LOGF
+    echo "== src-link-pcp ==" >>$LOGF
+
+    VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
+    SRCLINK_ROOT=`pwd`/pcpqa-$VERSION
+    if [ $special = debian ] ; then
+	SRCLINK_ROOT=`pwd`/build/deb/pcpqa-$VERSION
+    fi
+    export SRCLINK_ROOT
+
+    rm -fr $SRCLINK_ROOT
+    mkdir -p $SRCLINK_ROOT || exit
+    $MAKE -j 1 src-link-pcp || exit
+    cd $SRCLINK_ROOT
+
+    if [ $special = debian ]
+    then
+	SUDO=${SUDO:-fakeroot}
+	if $verbose ; then
+	    dpkg-buildpackage -r$SUDO | tee -a $LOGF
+	else
+	    dpkg-buildpackage -r$SUDO >>$LOGF 2>&1 || exit
+	fi
+	sts=0
+	exit
+    fi
+fi
+
+# Fall through for MinGW (Win32) builds
+if $verbose ; then
+    st=`(($MAKE -j 1 default_pcp 2>&1; echo $? >&3) | tee $LOGF 1>&2) 3>&1`
+else
+    $MAKE -j 1 default >>$LOGF 2>&1; st=$?
+fi
+if [ $st -ne 0 ] ; then
+    if ! $verbose ; then
+	echo "$MAKE default failed"
+	tail $LOGF
+    fi
+    exit
+fi
+
+rm -f files.rpm
+echo "== Packaging pcpqa, log is in $LOGF"
+echo "" >>$LOGF
+echo "== Packaging pcpqa ==" >>$LOGF
+if $verbose ; then
+    ($MAKE -j 1 -C build pack_pcp 2>&1 || touch $tmp.failed) | tee -a $LOGF
+else
+    ($MAKE -j 1 -C build pack_pcp 2>&1 || touch $tmp.failed) >> $LOGF
+fi
+if [ -f $tmp.failed ] ; then
+    if ! $verbose ; then
+	echo Packaging failed, see log in $LOGF
+	tail $LOGF
+    fi
+    exit
+else
+    if ! $verbose ; then
+	grep '^Wrote:' $LOGF | sed -e 's/\.\.\/\.\.\///'
+    fi
+fi
+
+sts=0
+exit

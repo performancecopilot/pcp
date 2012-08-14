@@ -1,0 +1,150 @@
+#! /bin/sh
+# PCP QA Test No. 583
+# based on 519, caused pmie to dump core initially
+# also #698718
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+eval `./getpmcdhosts -n 2 -L | sed -e 's/ / other2=/' -e 's/^/other1=/'`
+if [ -z "$other1" ]
+then
+    echo "Cannot find first remote host running pmcd" >$seq.notrun
+    exit
+fi
+if [ -z "$other2" ]
+then
+    echo "Cannot find second remote host running pmcd" >$seq.notrun
+    exit
+fi
+
+echo "QA output created by $seq"
+
+case $PCP_PLATFORM
+in
+    irix|linux|solaris)
+	# same syslog options for Irix, Linux and OpenSolaris
+	SYSLOG_OPT='"-p daemon.info"'
+	;;
+    darwin)
+	SYSLOG_OPT=''
+	;;
+    *)
+	echo "Arrgh ... need syslog option for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
+
+_filter()
+{
+    sed \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z] *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/TIMESTAMP/' \
+	-e 's/[A-Z][a-z][a-z] *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/TIMESTAMP/' \
+	-e "s/`hostname | sed -e 's/\..*//'` /HOST /" \
+	-e 's/[0-9][A-Z]:HOST/HOST/' \
+	-e 's/\(pmie[([]\)[0-9][0-9]*/\1PID/'
+}
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+PMCD_CONNECT_TIMEOUT=60
+PMCD_REQUEST_TIMEOUT=60
+PMCD_RECONNECT_TIMEOUT=1,2
+export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT PMCD_RECONNECT_TIMEOUT
+
+SYSLOG=''
+for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages /var/log/syslog /var/log/system.log
+do
+    if [ -f $f ]
+    then
+	SYSLOG=$f
+	break
+    fi
+done
+if [ -z "$SYSLOG" ]
+then
+    echo "Arrgh! Cannot find your syslog file"
+    exit 1
+fi
+
+# real QA test starts here
+$sudo rm -f core* $seq.core*
+
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+sleep 3
+
+# note the following is time sensitive, run it too long
+# and we'll get extraneous output...
+cat <<EOF >$tmp.in
+// use hosts not in QA circus
+//
+
+hosts = ":'$other1' :'$other2' :localhost";
+
+some_host (
+  some_inst (
+    ( 100 * filesys.used \$hosts / filesys.capacity \$hosts ) > 0 ) )
+-> print 5sec "full" " %h:[%i] %v% "
+ & syslog 5sec $SYSLOG_OPT "PCP QA $seq - please ignore - ..." " %h:[%i] %v% ";
+
+EOF
+
+rm -f $seq.full
+echo "=== pmie.conf ===" >$seq.full
+cat $tmp.in >>$seq.full
+
+pmie -t 1sec >$tmp.out 2>$tmp.err <$tmp.in &
+pmie_pid=$!
+
+sleep 5
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger
+
+sleep 15
+$signal -s TERM $pmie_pid
+wait
+
+echo "pmie output ..."
+sed <$tmp.out \
+    -e "/ $other1:/d" \
+    -e "/ $other2:/d" \
+    -e '/ localhost:/d'
+grep " $other1:" <$tmp.out >/dev/null && echo "... at least one line for other1 host"
+grep " $other2:" <$tmp.out >/dev/null && echo "... at least one line for other2 host"
+grep ' localhost:' <$tmp.out >/dev/null && echo "... at least one line for localhost"
+
+echo
+echo "pmie stderr ..."
+_filter <$tmp.err
+
+echo >>$seq.full
+echo "=== pmie stdout ===" >>$seq.full
+cat $tmp.out >>$seq.full
+echo >>$seq.full
+echo "=== pmie stderr ===" >>$seq.full
+cat $tmp.err >>$seq.full
+
+echo
+echo "SYSLOG ..."
+$sudo tail -100 $SYSLOG \
+| sed -n '/PCP QA '"$seq"' - please ignore/s/\.\.\..*/.../p' \
+| _filter \
+| LC_COLLATE=POSIX sort -u
+
+echo >>$seq.full
+echo "=== tail SYSLOG ===" >>$seq.full
+$sudo tail -100 $SYSLOG >>$seq.full
+
+_check_core
+
+exit

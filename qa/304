@@ -1,0 +1,121 @@
+#! /bin/sh
+# PCP QA Test No. 304
+# exercise recording session control in pmlooger
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+LOCALHOST=`hostname`
+
+_do()
+{
+    rm -f $tmp.0 $tmp.index $tmp.meta
+    cat $tmp.ctl \
+    | pmlogger -L -x 0 -c /dev/null -l $tmp.log -D appl2 $tmp &
+    logger_pid=$!
+    if [ -z "$logger_pid" ]
+    then
+	echo "Arrgh ... failed to start pmlogger!"
+	exit $status
+    fi
+    sleep 3
+    alive=`ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == '"$logger_pid"' { print }'`
+    if [ ! -z "$alive" ]
+    then
+	if [ $1 = "alive" ]
+	then
+	    echo "As expected, pmlogger is still running ... kill it off"
+	else
+	    echo "$alive"
+	    echo "-----------------"
+	    echo "- Error: pmlogger is still running, kill it off"
+	    echo "-----------------"
+	fi
+	$signal -s TERM $!
+	sleep 2
+    else
+	if [ $1 = "alive" ]
+	then
+	    echo "-----------------"
+	    echo "- Error: pmlogger has died prematurely"
+	    echo "-----------------"
+	fi
+    fi
+
+    sed <$tmp.log \
+	-e "s/$LOCALHOST/HOST/g" \
+	-e 's/[0-9][^ ]* [kmKM]*bytes/SOME bytes/g' \
+	-e 's/[0-9][^ ]* seconds/SOME seconds/g' \
+	-e 's/-s TERM [0-9][0-9]*/-s TERM PID/' \
+    | _filter_pmlogger_log
+
+}
+
+# NOT the default pmconfirm(1), please
+#
+cat <<'End-of-File' >$tmp.xconfirm
+#!/bin/sh
+# generate no output so pmlogger will report the message
+exit 0
+End-of-File
+chmod 755 $tmp.xconfirm
+export PCP_XCONFIRM_PROG=$tmp.xconfirm
+
+# real QA test starts here
+
+echo
+echo "=== end-of-file, launcher exited =="
+echo 'V0
+Fmyfolio' >$tmp.ctl
+_do die
+
+echo
+echo "=== Quit =="
+echo 'V0
+Fmyfolio
+Q' >$tmp.ctl
+_do die
+
+echo
+echo "=== Quit + can replay =="
+echo 'V0
+Fmyfolio
+R
+Q' >$tmp.ctl
+_do die
+
+echo
+echo "=== Detach =="
+echo 'V0
+Fmyfolio
+D' >$tmp.ctl
+_do alive
+
+echo
+echo "=== Status =="
+echo 'V0
+Fmyfolio
+?' >$tmp.ctl
+_do die
+
+echo
+echo "=== Bad control =="
+echo 'V0
+Fmyfolio
+Junk' >$tmp.ctl
+_do die
+
+# success, all done
+status=0
+exit

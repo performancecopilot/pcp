@@ -1,0 +1,191 @@
+#!/bin/sh
+# PCP QA Test No. 503
+# Test pmlogrewrite use with pmlogger_daily
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which pmlogrewrite >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun pmlogrewrite not installed
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+hostname=`hostname | sed -e 's/\..*//'`
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed \
+	-e "s/for host $hostname/for host HOSTNAME/g" \
+	-e "s/for host \"$hostname\"/for host \"HOSTNAME\"/g" \
+	-e "s;$tmp;TMP;g" \
+	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/" \
+	-e '/^-rw-r--r--/s/-rw-r--r--.* 2011/-rw-r--r-- ... 2011/'
+}
+
+_setup()
+{
+    rm -f $tmp.arch/*
+    for x in 0 meta index
+    do
+	cp src-oss/rewrite.$x $tmp.arch/20111001.21.10.$x
+	cp src-oss/rewrite.$x $tmp.arch/20111001.22.10.$x
+    done
+    echo "global { time -> +1:00:00 }" >$tmp.conf.time
+    pmlogrewrite -c $tmp.conf.time -i $tmp.arch/20111001.22.10
+}
+
+_cmp()
+{
+    ok=true
+    for ext in 0 index meta
+    do
+	if [ ! -f "$1.$ext" ]
+	then
+	    echo "Arrgh ... $1.$ext missing" | _filter
+	    ok=false
+	fi
+	if [ ! -f "$2.$ext" ]
+	then
+	    echo "Warning: $2.$ext missing" | _filter
+	    ok=false
+	fi
+    done
+    $ok || return
+    pmdumplog -z -a $1 \
+    | tee -a $seq.full \
+    | sed -e '/^\[[0-9][0-9]* bytes]/d' >$tmp.in
+
+    pmdumplog -z -a $2 \
+    | tee -a $seq.full \
+    | sed -e '/^\[[0-9][0-9]* bytes]/d' >$tmp.out
+    diff -u $tmp.in $tmp.out | _filter
+}
+
+# take explicit control of the umask
+#
+umask 022
+
+mkdir $tmp.arch
+
+# metrics in play from src-oss/rewrite archive
+#
+# sample.bin PMID: 29.0.6
+#     Data Type: 32-bit int  InDom: 29.2 0x7400002
+#     Semantics: instant  Units: none
+#     inst [100 or "bin-100"] value 100
+#     inst [200 or "bin-200"] value 200
+#     inst [300 or "bin-300"] value 300
+#     inst [400 or "bin-400"] value 400
+#     inst [500 or "bin-500"] value 500
+#     inst [600 or "bin-600"] value 600
+#     inst [700 or "bin-700"] value 700
+#     inst [800 or "bin-800"] value 800
+#     inst [900 or "bin-900"] value 900
+# 
+# sampledso.double.hundred PMID: 30.0.27
+#     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+#     Semantics: instant  Units: none
+#     value 100
+#
+# Log Label (Log Format Version 2)
+# Performance metrics from host bozo-laptop
+#   commencing Sat Oct  1 21:10:11.751 2011
+#   ending     Sat Oct  1 21:10:12.128 2011
+# Archive timezone: EST-10
+#
+
+cat <<End-of-File >$tmp.control
+\$version=1.1
+LOCALHOSTNAME	n   n	$tmp.arch	-c $tmp.pmlogger
+End-of-File
+
+cat <<End-of-File >$tmp.pmlogger
+log mandatory on once { sample.bin }
+End-of-File
+
+# real QA test starts here
+echo "+++ should just work ... +++" | tee -a $seq.full
+_setup
+pmlogger_daily -c $tmp.control -V 2>&1 | _filter
+mkdir $tmp.ok
+mv $tmp.arch/20111001.* $tmp.ok
+
+cat <<'End-of-File' | while read conf
+global { hostname -> dreaming }
+metric sampledso.double.hundred { type -> float }
+End-of-File
+do
+    echo "$conf" >$tmp.conf
+    echo | tee -a $seq.full
+    echo "!!! $conf !!!" | tee -a $seq.full
+
+    echo | tee -a $seq.full
+    echo "+++ expect mismatch +++" | tee -a $seq.full
+    _setup
+    pmlogrewrite -c $tmp.conf -i $tmp.arch/20111001.22.10
+    pmlogger_daily -c $tmp.control -V 2>&1 | _filter
+
+    echo | tee -a $seq.full
+    echo "+++ expect fix via local config file +++" | tee -a $seq.full
+    _setup
+    pmlogrewrite -c $tmp.conf -i $tmp.arch/20111001.22.10
+    cp $tmp.conf $tmp.arch/pmlogrewrite
+    pmlogger_daily -c $tmp.control -V 2>&1 | _filter
+    _cmp $tmp.ok/20111001 $tmp.arch/20111001
+
+    echo | tee -a $seq.full
+    echo "+++ expect fix via local symlink config file +++" | tee -a $seq.full
+    _setup
+    pmlogrewrite -c $tmp.conf -i $tmp.arch/20111001.22.10
+    ln -s $tmp.conf $tmp.arch/pmlogrewrite
+    pmlogger_daily -c $tmp.control -V 2>&1 | _filter
+    _cmp $tmp.ok/20111001 $tmp.arch/20111001
+
+    echo | tee -a $seq.full
+    echo "+++ expect fix via global config dir +++" | tee -a $seq.full
+    _setup
+    pmlogrewrite -c $tmp.conf -i $tmp.arch/20111001.22.10
+    $sudo mkdir -p $PCP_VAR_DIR/config/pmlogrewrite
+    $sudo cp $tmp.conf $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
+    pmlogger_daily -c $tmp.control -V 2>&1 | _filter
+    _cmp $tmp.ok/20111001 $tmp.arch/20111001
+    $sudo rm -f $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
+
+    echo | tee -a $seq.full
+    echo "+++ expect fix via symlink to global config dir +++" | tee -a $seq.full
+    _setup
+    pmlogrewrite -c $tmp.conf -i $tmp.arch/20111001.22.10
+    $sudo mkdir -p $PCP_VAR_DIR/config/pmlogrewrite
+    $sudo cp $tmp.conf $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
+    ln -s $PCP_VAR_DIR/config/pmlogrewrite $tmp.arch/pmlogrewrite
+    pmlogger_daily -c $tmp.control -V 2>&1 | _filter
+    _cmp $tmp.ok/20111001 $tmp.arch/20111001
+    $sudo rm -f $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
+
+done
+
+echo | tee -a $seq.full
+echo "+++ expect fail when -r used and local config file present +++" | tee -a $seq.full
+_setup
+pmlogrewrite -c $tmp.conf -i $tmp.arch/20111001.22.10
+cp $tmp.conf $tmp.arch/pmlogrewrite
+pmlogger_daily -r -c $tmp.control -V 2>&1 | _filter
+
+# success, all done
+exit

@@ -1,0 +1,80 @@
+#! /bin/sh
+# PCP QA Test No. 446
+# checks contents of trace stub library
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./localconfig
+
+if [ $PCP_PLATFORM = irix ]
+then
+    NM_ARG='-B'
+    libmajor=1
+    DSO_VERSION=$DSO_SUFFIX.$libmajor
+elif [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris ]
+then
+    # same options for Linux and OpenSolaris
+    NM_ARG='--dynamic -B'
+    libmajor=2
+    DSO_VERSION=$DSO_SUFFIX.$libmajor
+elif [ $PCP_PLATFORM = darwin ]
+then
+    NM_ARG=''
+    libmajor=2
+    DSO_VERSION=$libmajor.$DSO_SUFFIX
+else
+    echo "Arrgh ... need configuration for $PCP_PLATFORM"
+    exit 1
+fi
+
+status=1	# failure is the default!
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+get_syms()
+{
+    # gets all code symbols, prints the name, & strips internal names
+    nm $NM_ARG $1 | grep " T " | $PCP_AWK_PROG '{print $3}' | grep -v "_" | grep -v "^.MIPS."
+}
+
+# real QA test starts here
+cd $PCP_DEMOS_DIR/trace
+unset ROOT TOOLROOT
+$sudo make -f Makefile.stub clobber 2>&1 >/dev/null
+$sudo make -f Makefile.stub lib/libpcp_trace.$DSO_VERSION 2>&1 >$tmp.make
+if [ $? -ne 0 ]
+then
+    echo Stub library make failed.  Heres the make output ...
+    cat $tmp.make
+else
+    echo make succeeded.
+fi
+
+get_syms $PCP_LIB_DIR/libpcp_trace.$DSO_VERSION > $tmp.actual
+get_syms $PCP_DEMOS_DIR/trace/lib/libpcp_trace.$DSO_VERSION > $tmp.stub
+
+diff $tmp.actual $tmp.stub >/dev/null
+status=$?
+
+$PCP_ECHO_PROG $PCP_ECHO_N "checking for actual/stub lib symbol differences ... ""$PCP_ECHO_C"
+if [ $status -ne 0 ]
+then
+    $PCP_ECHO_PROG files differ.
+    echo "--- Symbols from /usr/lib/libpcp_trace.... ---"
+    cat $tmp.actual
+    echo
+    echo "--- Symbols from demos libpcp_trace.... ---"
+    cat $tmp.stub
+else
+     $PCP_ECHO_PROG none found.
+fi
+
+exit

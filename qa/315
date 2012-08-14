@@ -1,0 +1,73 @@
+#! /bin/sh
+# PCP QA Test No. 315
+# exercise pmie log compression thru pmie_daily
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Portions Copyright (c) 2007 Aconex.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+
+_cleanup()
+{
+    [ -d $tmp.distdir ] && rm -fr $tmp.distdir
+    [ -d $tmp.relaydir ] && rm -fr $tmp.relaydir
+    rm -f $tmp.*
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# create test control file, directories and populate with dummy logfiles
+cat >$tmp.ctl<<EOF
+\$version=1.1
+#Host           S?  logfile                  args
+dist.engr       n   $tmp.distdir/pmie.log    -c config.default
+relay.engr      n   $tmp.relaydir/pmie.log   -c config.default
+EOF
+
+mkdir -p $tmp.distdir $tmp.relaydir
+
+# some logfiles for today...
+TODAY=`pmdate %Y%m%d`
+cp $tmp.ctl $tmp.distdir/pmie.log.$TODAY
+cp $tmp.ctl $tmp.relaydir/pmie.log.$TODAY
+
+# some logfiles for five days ago...
+FIVEDAYS=`pmdate -5d %Y%m%d`
+cp $tmp.ctl $tmp.distdir/pmie.log.$FIVEDAYS
+cp $tmp.ctl $tmp.relaydir/pmie.log.$FIVEDAYS
+
+# some logfiles for five months ago...
+FIVEMONTHS=`pmdate -5m %Y%m%d`
+cp $tmp.ctl $tmp.distdir/pmie.log.$FIVEMONTHS
+cp $tmp.ctl $tmp.relaydir/pmie.log.$FIVEMONTHS
+
+# real QA test starts here
+
+# "Error: ..." and "... unchanged" lines will only appear if pmie_daily
+# thinks pmie is "chkconfig on" ... and this is not guaranteed for the
+# QA platform, so cull 'em
+# Similarly the + rm -f TMP/pmie/<pid> lines come from defunct pmie
+# processes that don't have anything to do with this QA test
+#
+pmie_daily -V -N -x 3 -X compress -c $tmp.ctl | sed \
+	-e '/Error: no pmie instance running/d' \
+	-e '/inference engine for host .* unchanged/d' \
+	-e "s/$TODAY/TODAY/g" \
+	-e "s/$FIVEDAYS/FIVEDAYS/g" \
+	-e "s/$FIVEMONTHS/FIVEMONTHS/g" \
+	-e "s/$$/PID/g" \
+	-e "s;/private/;/;g" \
+	-e "s,/var/tmp,TMP,g" \
+	-e "s,/tmp,TMP,g" \
+	-e '/^+ rm -f TMP\/pmie\/[0-9][0-9]*$/d' \
+
+# success, all done
+status=0
+exit

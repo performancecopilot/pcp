@@ -1,0 +1,57 @@
+#!/bin/sh
+# PCP QA Test No. 373
+#
+# iostat2pcp exerciser
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+
+# creator
+owner=kenj
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which iostat2pcp >/dev/null 2>&1
+then
+    :
+else
+    echo "iostat2pcp not installed" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+tmp=/tmp/$$
+here=`pwd`
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+for infile in \
+    src-oss/iostat-t src-oss/iostat-t.ISO \
+    src-oss/iostat-c src-oss/iostat-d \
+    src-oss/iostat src-oss/iostat-z \
+    src-oss/iostat-d-k src-oss/iostat-d-m src-oss/iostat-x \
+    src-oss/iostat-p-ALL \
+    src-oss/iostat-z-p-ALL
+do
+    echo
+    echo "=== $infile ==="
+    rm -f $tmp.0 $tmp.index $tmp.meta
+    iostat2pcp -v $infile $tmp
+
+    if [ -f $tmp.0 ]
+    then
+	pmdumplog -z -a $tmp
+    fi
+done
+
+# success, all done
+exit
+

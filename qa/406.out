@@ -1,0 +1,30 @@
+QA output created by 406
+Expect error for each pmFetch ...
+metric[0]: sample.event.records
+
+sample 1, delta time=0.500 secs
+sample.event.records: current error Unknown or illegal metric type 
+
+sample 2, delta time=0.500 secs
+sample.event.records: current error Unknown or illegal metric type 
+
+sample 3, delta time=0.500 secs
+sample.event.records: current error Unknown or illegal metric type 
+
+sample 4, delta time=0.500 secs
+sample.event.records: current error Unknown or illegal metric type 
+
+sample 5, delta time=0.500 secs
+sample.event.records: current error Unknown or illegal metric type 
+
+sample 6, delta time=0.500 secs
+sample.event.records: current error Unknown or illegal metric type 
+
+sample 7, delta time=0.500 secs
+sample.event.records: current error Unknown or illegal metric type 
+
+sample 8, delta time=0.500 secs
+sample.event.records: current error Unknown or illegal metric type 
+sample[9] pmFetch: End of PCP archive log
+
+9 samples required 3 log reads

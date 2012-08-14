@@ -1,0 +1,114 @@
+QA output created by 031
+
+pmid: 0x414809 name: irix.disk.all.total
+
+pmid: 0xffffffff name: irix.kernel.percpu
+children of "irix.kernel.percpu" ...
+    cpu                 <s = 1>
+    flock               <s = 1>
+    intr                <s = 1>
+    io                  <s = 1>
+    pswitch             <s = 0>
+    pty                 <s = 1>
+    readch              <s = 0>
+    runocc              <s = 0>
+    runque              <s = 0>
+    swap                <s = 1>
+    syscall             <s = 0>
+    sysexec             <s = 0>
+    sysfork             <s = 0>
+    sysread             <s = 0>
+    syswrite            <s = 0>
+    tty                 <s = 1>
+    writech             <s = 0>
+
+pmid: 0x402813 name: irix.kernel.all.syscall
+
+pmid: 0x40280b name: irix.kernel.all.cpu.user
+
+pmid: 0x40281a name: irix.kernel.all.cpu.wait.io
+
+pmid: 0x404802 name: hinv.ncpu
+
+pmid: 0xffffffff name: pmcd.control
+children of "pmcd.control" ...
+    debug               <s = 0>
+    dumpconn            <s = 0>
+    dumptrace           <s = 0>
+    register            <s = 0>
+    sighup              <s = 0>
+    timeout             <s = 0>
+    tracebufs           <s = 0>
+    traceconn           <s = 0>
+    tracenobuf          <s = 0>
+    tracepdu            <s = 0>
+
+pmid: 0x7800022 name: sampledso.aggregate.hullo
+
+pmid: 0x7400002 name: sample.seconds
+
+pmid: 0x7400005 name: sample.colour
+
+pmid: 0xffffffff name: sample.longlong
+children of "sample.longlong" ...
+    hundred             <s = 0>
+    million             <s = 0>
+    one                 <s = 0>
+    ten                 <s = 0>
+    write_me            <s = 0>
+
+pmid: 0xffffffff name: bozo.the.clown
+
+children of "" ...
+    buffer_cache        <s = 1>
+    disk                <s = 1>
+    efs                 <s = 1>
+    filesys             <s = 1>
+    gfx                 <s = 1>
+    hinv                <s = 1>
+    kernel              <s = 1>
+    mem                 <s = 1>
+    name_cache          <s = 1>
+    network             <s = 1>
+    nfs                 <s = 1>
+    nfs3                <s = 1>
+    pmcd                <s = 1>
+    pmda                <s = 1>
+    resource            <s = 1>
+    rpc                 <s = 1>
+    sample              <s = 1>
+    sampledso           <s = 1>
+    swap                <s = 1>
+    swapdev             <s = 1>
+    vnodes              <s = 1>
+    xbow                <s = 1>
+    xfs                 <s = 1>
+    xlv                 <s = 1>
+    xpc                 <s = 1>
+
+Real-time result ...
+pmResult ... numpmid: 12
+  1.82.9 (disk.all.total): numval: 1 valfmt: 1 vlist[]:
+   value NUMBER
+  PM_ID_NULL (<noname>): No PMDA, no values [filtered]
+  1.10.19 (kernel.all.syscall): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  1.10.11 (kernel.all.cpu.user): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  1.10.26 (kernel.all.cpu.wait.io): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  1.18.2 (hinv.ncpu): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  PM_ID_NULL (<noname>): No PMDA, no values [filtered]
+  30.0.34 (sampledso.aggregate.hullo): numval: 1 valfmt: 1 vlist[]:
+   value STRING AGGREGATE
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  PM_ID_NULL (<noname>): No PMDA, no values [filtered]
+  PM_ID_NULL (<noname>): No PMDA, no values [filtered]
+
+Unexpected failure for 0 of N PMAPI operations

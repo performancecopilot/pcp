@@ -1,0 +1,164 @@
+QA output created by 139
+Warning [<stdin>, line 2]
+Problem with lookup for metric "no_such_metric" ...
+Reason: Unknown metric name
+Logging statement ignored due to error(s)
+Warning [<stdin>, line 3]
+Problem with lookup for metric "sample.bad.unknown" ...
+Logging statement ignored due to error(s)
+Warning [<stdin>, line 4]
+Problem with lookup for metric "sample.bad.nosupport" ...
+Logging statement ignored due to error(s)
+Warning [<stdin>, line 5]
+Problem with lookup for metric "sample.bad" ...
+Logging statement ignored due to error(s)
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+pmlc commands
+  show loggers [@<host>]             display <pid>s of running pmloggers
+  connect _logger_id [@<host>]       connect to designated pmlogger
+  status                             information about connected pmlogger
+  query metric-list                  show logging state of metrics
+  new volume                         start a new log volume
+  flush                              flush the log buffers to disk
+  log mandatory maybe _metric-list
+  timezone local|logger|'<timezone>' change reporting timezone
+  help                               print this help message
+  quit                               exit from pmlc
+  _logger_id   is  primary | <pid> | port <n>
+  _metric-list is  _metric-spec | { _metric-spec ... }
+  _metric-spec is  <metric-name> | <metric-name> [ <instance> ... ]
+pmlc> connect primary
+pmlc> query no_such_metric
+pmlc> query sample.bad.unknown
+pmlc> query sample.bad.nosupport
+pmlc> query sample.bad
+pmlc> query sample
+sample.control
+sample.daemon_pid
+sample.seconds
+sample.milliseconds
+sample.load
+sample.colour
+sample.bin
+sample.bucket
+sample.part_bin
+sample.bogus_bin
+sample.drift
+sample.step
+sample.step_counter
+sample.mirage
+sample.mirage_longlong
+sample.write_me
+sample.lights
+sample.magnitude
+sample.sysinfo
+sample.pdu
+sample.recv_pdu
+sample.xmit_pdu
+sample.noinst
+sample.needprofile
+sample.not_ready
+sample.rapid
+sample.error_code
+sample.error_check
+sample.secret.foo.bar.max.redirect
+sample.secret.bar
+sample.secret.foo.one
+sample.secret.foo.two
+sample.secret.foo.bar.three
+sample.secret.foo.bar.four
+sample.secret.foo.bar.grunt.five
+sample.secret.foo.bar.grunt.snort.six
+sample.secret.foo.bar.grunt.snort.huff.puff.seven
+sample.long.one
+sample.long.ten
+sample.long.hundred
+sample.long.million
+sample.long.write_me
+sample.long.bin
+sample.long.bin_ctr
+sample.ulong.one
+sample.ulong.ten
+sample.ulong.hundred
+sample.ulong.million
+sample.ulong.write_me
+sample.ulong.bin
+sample.ulong.bin_ctr
+sample.ulong.count.base
+sample.ulong.count.deca
+sample.ulong.count.hecto
+sample.ulong.count.kilo
+sample.ulong.count.mega
+sample.longlong.one
+sample.longlong.ten
+sample.longlong.hundred
+sample.longlong.million
+sample.longlong.write_me
+sample.longlong.bin
+sample.longlong.bin_ctr
+sample.ulonglong.one
+sample.ulonglong.ten
+sample.ulonglong.hundred
+sample.ulonglong.million
+sample.ulonglong.write_me
+sample.ulonglong.bin
+sample.ulonglong.bin_ctr
+sample.float.one
+sample.float.ten
+sample.float.hundred
+sample.float.million
+sample.float.write_me
+sample.float.bin
+sample.float.bin_ctr
+sample.double.one
+sample.double.ten
+sample.double.hundred
+sample.double.million
+sample.double.write_me
+sample.double.bin
+sample.double.bin_ctr
+sample.string.null
+sample.string.hullo
+sample.string.write_me
+sample.aggregate.null
+sample.aggregate.hullo
+sample.aggregate.write_me
+sample.hordes.one
+sample.hordes.two
+sample.wrap.long
+sample.wrap.ulong
+sample.wrap.longlong
+sample.wrap.ulonglong
+sample.dodgey.control
+sample.dodgey.value
+sample.scale_step.bytes_up
+sample.scale_step.bytes_down
+sample.scale_step.count_up
+sample.scale_step.count_down
+sample.scale_step.time_up_secs
+sample.scale_step.time_up_nanosecs
+sample.scale_step.none_up
+sample.const_rate.value
+sample.const_rate.gradient
+sample.scramble.version
+sample.scramble.bin
+sample.percontext.pdu
+sample.percontext.recv_pdu
+sample.percontext.xmit_pdu
+sample.percontext.control.ctx
+sample.percontext.control.active
+sample.percontext.control.start
+sample.percontext.control.end
+sample.event.records
+sample.event.no_indom_records
+sample.event.reset
+sample.event.type
+sample.event.param_32
+sample.event.param_u32
+sample.event.param_64
+sample.event.param_u64
+sample.event.param_float
+sample.event.param_double
+sample.event.param_string
+sample.event.param_aggregate
+pmlc> 

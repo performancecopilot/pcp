@@ -1,0 +1,1245 @@
+QA output created by 263
+=== expression trees and pmDesc propagation ===
+
+aggr.max32 = max(sample.bin)
+aggr.min32 = min(sample.long.hundred)
+aggr.maxu32_minu32 = max(sample.const_rate.value) - min(sample.const_rate.value)
+aggr.max64_min64 = max(sample.longlong.hundred) - min(sample.longlong.hundred)
+aggr.maxu64_minu64 = max(sample.pdu) - min(sample.pdu)
+aggr.maxuf_minuf = max(sample.float.million) - min(sample.float.million)
+aggr.maxud_minud = max(sample.double.million) - min(sample.double.million)
+aggr.count32 = count(sample.bin)
+aggr.avg32 = avg(sample.bin)
+aggr.max32_x = max(sample.bin)
+aggr.min32_x = min(sample.bin)
+aggr.sum32 = sum(sample.bin)
+aggr.avgu32 = avg(sample.ulong.bin_ctr)
+aggr.countu32 = count(sample.ulong.bin_ctr)
+aggr.maxu32 = max(sample.ulong.bin_ctr)
+aggr.minu32 = min(sample.ulong.bin_ctr)
+aggr.sumu32 = sum(sample.ulong.bin_ctr)
+aggr.avgf = avg(sample.float.bin)
+aggr.countf = count(sample.float.bin)
+aggr.maxf = max(sample.float.bin)
+aggr.minf = min(sample.float.bin)
+aggr.sumf = sum(sample.float.bin)
+aggr.avg64 = avg(sample.longlong.bin_ctr)
+aggr.count64 = count(sample.longlong.bin_ctr)
+aggr.max64 = max(sample.longlong.bin_ctr)
+aggr.min64 = min(sample.longlong.bin_ctr)
+aggr.sum64 = sum(sample.longlong.bin_ctr)
+aggr.avgu64 = avg(sample.ulonglong.bin_ctr)
+aggr.countu64 = count(sample.ulonglong.bin_ctr)
+aggr.maxu64 = max(sample.ulonglong.bin_ctr)
+aggr.minu64 = min(sample.ulonglong.bin_ctr)
+aggr.sumu64 = sum(sample.ulonglong.bin_ctr)
+aggr.avgd = avg(sample.double.bin)
+aggr.countd = count(sample.double.bin)
+aggr.maxd = max(sample.double.bin)
+aggr.mind = min(sample.double.bin)
+aggr.sumd = sum(sample.double.bin)
+aggr.count_err = count(sample.needprofile)
+aggr.sum_err = sum(sample.needprofile)
+aggr.countblob = count(sample.sysinfo)
+
+
+aggr.max32
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.min32
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.maxu32_minu32
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.max64_min64
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.maxu64_minu64
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.maxuf_minuf
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.maxud_minud
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.count32
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.avg32
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.max32_x
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.min32_x
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.sum32
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.avgu32
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.countu32
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.maxu32
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.minu32
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.sumu32
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.avgf
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.countf
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.maxf
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.minf
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.sumf
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.avg64
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.count64
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.max64
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.min64
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.sum64
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.avgu64
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.countu64
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.maxu64
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.minu64
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.sumu64
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+aggr.avgd
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.countd
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.maxd
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.mind
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.sumd
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.count_err
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+aggr.sum_err
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+aggr.countblob
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: name="aggr.max32" expr="max(sample.bin)"
+parse(1) state=P_INIT type=L_MAX "max("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[0] aggr.max32 = max(sample.bin)
+Derived metric expr dump from <addr-0>...
+expr node <addr-0> type=MAX left=<addr-1> right=(nil) save_last=0
+expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=1
+pmRegisterDerived: name="aggr.min32" expr="min(sample.long.hundred)"
+parse(1) state=P_INIT type=L_MIN "min("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.long.hundred"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[1] aggr.min32 = min(sample.long.hundred)
+Derived metric expr dump from <addr-2>...
+expr node <addr-2> type=MIN left=<addr-3> right=(nil) save_last=0
+expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=1 [sample.long.hundred] master=1
+pmRegisterDerived: name="aggr.maxu32_minu32" expr="max(sample.const_rate.value) - min(sample.const_rate.value)"
+parse(1) state=P_INIT type=L_MAX "max("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.const_rate.value"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_MIN "min("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.const_rate.value"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[2] aggr.maxu32_minu32 = max(sample.const_rate.value) - min(sample.const_rate.value)
+Derived metric expr dump from <addr-4>...
+expr node <addr-4> type=MINUS left=<addr-5> right=<addr-7> save_last=0
+expr node <addr-5> type=MAX left=<addr-6> right=(nil) save_last=0
+expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_rate.value] master=1
+expr node <addr-7> type=MIN left=<addr-8> right=(nil) save_last=0
+expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_rate.value] master=1
+pmRegisterDerived: name="aggr.max64_min64" expr="max(sample.longlong.hundred) - min(sample.longlong.hundred)"
+parse(1) state=P_INIT type=L_MAX "max("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.longlong.hundred"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_MIN "min("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.longlong.hundred"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[3] aggr.max64_min64 = max(sample.longlong.hundred) - min(sample.longlong.hundred)
+Derived metric expr dump from <addr-9>...
+expr node <addr-9> type=MINUS left=<addr-10> right=<addr-12> save_last=0
+expr node <addr-10> type=MAX left=<addr-11> right=(nil) save_last=0
+expr node <addr-11> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.hundred] master=1
+expr node <addr-12> type=MIN left=<addr-13> right=(nil) save_last=0
+expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.hundred] master=1
+pmRegisterDerived: name="aggr.maxu64_minu64" expr="max(sample.pdu) - min(sample.pdu)"
+parse(1) state=P_INIT type=L_MAX "max("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.pdu"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_MIN "min("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.pdu"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[4] aggr.maxu64_minu64 = max(sample.pdu) - min(sample.pdu)
+Derived metric expr dump from <addr-14>...
+expr node <addr-14> type=MINUS left=<addr-15> right=<addr-17> save_last=0
+expr node <addr-15> type=MAX left=<addr-16> right=(nil) save_last=0
+expr node <addr-16> type=NAME left=(nil) right=(nil) save_last=1 [sample.pdu] master=1
+expr node <addr-17> type=MIN left=<addr-18> right=(nil) save_last=0
+expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=1 [sample.pdu] master=1
+pmRegisterDerived: name="aggr.maxuf_minuf" expr="max(sample.float.million) - min(sample.float.million)"
+parse(1) state=P_INIT type=L_MAX "max("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.float.million"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_MIN "min("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.float.million"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[5] aggr.maxuf_minuf = max(sample.float.million) - min(sample.float.million)
+Derived metric expr dump from <addr-19>...
+expr node <addr-19> type=MINUS left=<addr-20> right=<addr-22> save_last=0
+expr node <addr-20> type=MAX left=<addr-21> right=(nil) save_last=0
+expr node <addr-21> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.million] master=1
+expr node <addr-22> type=MIN left=<addr-23> right=(nil) save_last=0
+expr node <addr-23> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.million] master=1
+pmRegisterDerived: name="aggr.maxud_minud" expr="max(sample.double.million) - min(sample.double.million)"
+parse(1) state=P_INIT type=L_MAX "max("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.double.million"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_MIN "min("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.double.million"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[6] aggr.maxud_minud = max(sample.double.million) - min(sample.double.million)
+Derived metric expr dump from <addr-24>...
+expr node <addr-24> type=MINUS left=<addr-25> right=<addr-27> save_last=0
+expr node <addr-25> type=MAX left=<addr-26> right=(nil) save_last=0
+expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.million] master=1
+expr node <addr-27> type=MIN left=<addr-28> right=(nil) save_last=0
+expr node <addr-28> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.million] master=1
+pmRegisterDerived: name="aggr.count32" expr="count(sample.bin)"
+parse(1) state=P_INIT type=L_COUNT "count("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[7] aggr.count32 = count(sample.bin)
+Derived metric expr dump from <addr-29>...
+expr node <addr-29> type=COUNT left=<addr-30> right=(nil) save_last=0
+expr node <addr-30> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=1
+pmRegisterDerived: name="aggr.avg32" expr="avg(sample.bin)"
+parse(1) state=P_INIT type=L_AVG "avg("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[8] aggr.avg32 = avg(sample.bin)
+Derived metric expr dump from <addr-31>...
+expr node <addr-31> type=AVG left=<addr-32> right=(nil) save_last=0
+expr node <addr-32> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=1
+pmRegisterDerived: name="aggr.max32_x" expr="max(sample.bin)"
+parse(1) state=P_INIT type=L_MAX "max("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[9] aggr.max32_x = max(sample.bin)
+Derived metric expr dump from <addr-33>...
+expr node <addr-33> type=MAX left=<addr-34> right=(nil) save_last=0
+expr node <addr-34> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=1
+pmRegisterDerived: name="aggr.min32_x" expr="min(sample.bin)"
+parse(1) state=P_INIT type=L_MIN "min("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[10] aggr.min32_x = min(sample.bin)
+Derived metric expr dump from <addr-35>...
+expr node <addr-35> type=MIN left=<addr-36> right=(nil) save_last=0
+expr node <addr-36> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=1
+pmRegisterDerived: name="aggr.sum32" expr="sum(sample.bin)"
+parse(1) state=P_INIT type=L_SUM "sum("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[11] aggr.sum32 = sum(sample.bin)
+Derived metric expr dump from <addr-37>...
+expr node <addr-37> type=SUM left=<addr-38> right=(nil) save_last=0
+expr node <addr-38> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=1
+pmRegisterDerived: name="aggr.avgu32" expr="avg(sample.ulong.bin_ctr)"
+parse(1) state=P_INIT type=L_AVG "avg("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.ulong.bin_ctr"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[12] aggr.avgu32 = avg(sample.ulong.bin_ctr)
+Derived metric expr dump from <addr-39>...
+expr node <addr-39> type=AVG left=<addr-40> right=(nil) save_last=0
+expr node <addr-40> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulong.bin_ctr] master=1
+pmRegisterDerived: name="aggr.countu32" expr="count(sample.ulong.bin_ctr)"
+parse(1) state=P_INIT type=L_COUNT "count("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.ulong.bin_ctr"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[13] aggr.countu32 = count(sample.ulong.bin_ctr)
+Derived metric expr dump from <addr-41>...
+expr node <addr-41> type=COUNT left=<addr-42> right=(nil) save_last=0
+expr node <addr-42> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulong.bin_ctr] master=1
+pmRegisterDerived: name="aggr.maxu32" expr="max(sample.ulong.bin_ctr)"
+parse(1) state=P_INIT type=L_MAX "max("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.ulong.bin_ctr"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[14] aggr.maxu32 = max(sample.ulong.bin_ctr)
+Derived metric expr dump from <addr-43>...
+expr node <addr-43> type=MAX left=<addr-44> right=(nil) save_last=0
+expr node <addr-44> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulong.bin_ctr] master=1
+pmRegisterDerived: name="aggr.minu32" expr="min(sample.ulong.bin_ctr)"
+parse(1) state=P_INIT type=L_MIN "min("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.ulong.bin_ctr"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[15] aggr.minu32 = min(sample.ulong.bin_ctr)
+Derived metric expr dump from <addr-45>...
+expr node <addr-45> type=MIN left=<addr-46> right=(nil) save_last=0
+expr node <addr-46> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulong.bin_ctr] master=1
+pmRegisterDerived: name="aggr.sumu32" expr="sum(sample.ulong.bin_ctr)"
+parse(1) state=P_INIT type=L_SUM "sum("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.ulong.bin_ctr"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[16] aggr.sumu32 = sum(sample.ulong.bin_ctr)
+Derived metric expr dump from <addr-47>...
+expr node <addr-47> type=SUM left=<addr-48> right=(nil) save_last=0
+expr node <addr-48> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulong.bin_ctr] master=1
+pmRegisterDerived: name="aggr.avgf" expr="avg(sample.float.bin)"
+parse(1) state=P_INIT type=L_AVG "avg("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.float.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[17] aggr.avgf = avg(sample.float.bin)
+Derived metric expr dump from <addr-49>...
+expr node <addr-49> type=AVG left=<addr-50> right=(nil) save_last=0
+expr node <addr-50> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.bin] master=1
+pmRegisterDerived: name="aggr.countf" expr="count(sample.float.bin)"
+parse(1) state=P_INIT type=L_COUNT "count("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.float.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[18] aggr.countf = count(sample.float.bin)
+Derived metric expr dump from <addr-51>...
+expr node <addr-51> type=COUNT left=<addr-52> right=(nil) save_last=0
+expr node <addr-52> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.bin] master=1
+pmRegisterDerived: name="aggr.maxf" expr="max(sample.float.bin)"
+parse(1) state=P_INIT type=L_MAX "max("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.float.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[19] aggr.maxf = max(sample.float.bin)
+Derived metric expr dump from <addr-53>...
+expr node <addr-53> type=MAX left=<addr-54> right=(nil) save_last=0
+expr node <addr-54> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.bin] master=1
+pmRegisterDerived: name="aggr.minf" expr="min(sample.float.bin)"
+parse(1) state=P_INIT type=L_MIN "min("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.float.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[20] aggr.minf = min(sample.float.bin)
+Derived metric expr dump from <addr-55>...
+expr node <addr-55> type=MIN left=<addr-56> right=(nil) save_last=0
+expr node <addr-56> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.bin] master=1
+pmRegisterDerived: name="aggr.sumf" expr="sum(sample.float.bin)"
+parse(1) state=P_INIT type=L_SUM "sum("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.float.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[21] aggr.sumf = sum(sample.float.bin)
+Derived metric expr dump from <addr-57>...
+expr node <addr-57> type=SUM left=<addr-58> right=(nil) save_last=0
+expr node <addr-58> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.bin] master=1
+pmRegisterDerived: name="aggr.avg64" expr="avg(sample.longlong.bin_ctr)"
+parse(1) state=P_INIT type=L_AVG "avg("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.longlong.bin_ctr"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[22] aggr.avg64 = avg(sample.longlong.bin_ctr)
+Derived metric expr dump from <addr-59>...
+expr node <addr-59> type=AVG left=<addr-60> right=(nil) save_last=0
+expr node <addr-60> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.bin_ctr] master=1
+pmRegisterDerived: name="aggr.count64" expr="count(sample.longlong.bin_ctr)"
+parse(1) state=P_INIT type=L_COUNT "count("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.longlong.bin_ctr"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[23] aggr.count64 = count(sample.longlong.bin_ctr)
+Derived metric expr dump from <addr-61>...
+expr node <addr-61> type=COUNT left=<addr-62> right=(nil) save_last=0
+expr node <addr-62> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.bin_ctr] master=1
+pmRegisterDerived: name="aggr.max64" expr="max(sample.longlong.bin_ctr)"
+parse(1) state=P_INIT type=L_MAX "max("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.longlong.bin_ctr"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[24] aggr.max64 = max(sample.longlong.bin_ctr)
+Derived metric expr dump from <addr-63>...
+expr node <addr-63> type=MAX left=<addr-64> right=(nil) save_last=0
+expr node <addr-64> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.bin_ctr] master=1
+pmRegisterDerived: name="aggr.min64" expr="min(sample.longlong.bin_ctr)"
+parse(1) state=P_INIT type=L_MIN "min("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.longlong.bin_ctr"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[25] aggr.min64 = min(sample.longlong.bin_ctr)
+Derived metric expr dump from <addr-65>...
+expr node <addr-65> type=MIN left=<addr-66> right=(nil) save_last=0
+expr node <addr-66> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.bin_ctr] master=1
+pmRegisterDerived: name="aggr.sum64" expr="sum(sample.longlong.bin_ctr)"
+parse(1) state=P_INIT type=L_SUM "sum("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.longlong.bin_ctr"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[26] aggr.sum64 = sum(sample.longlong.bin_ctr)
+Derived metric expr dump from <addr-67>...
+expr node <addr-67> type=SUM left=<addr-68> right=(nil) save_last=0
+expr node <addr-68> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.bin_ctr] master=1
+pmRegisterDerived: name="aggr.avgu64" expr="avg(sample.ulonglong.bin_ctr)"
+parse(1) state=P_INIT type=L_AVG "avg("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.ulonglong.bin_ctr"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[27] aggr.avgu64 = avg(sample.ulonglong.bin_ctr)
+Derived metric expr dump from <addr-69>...
+expr node <addr-69> type=AVG left=<addr-70> right=(nil) save_last=0
+expr node <addr-70> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulonglong.bin_ctr] master=1
+pmRegisterDerived: name="aggr.countu64" expr="count(sample.ulonglong.bin_ctr)"
+parse(1) state=P_INIT type=L_COUNT "count("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.ulonglong.bin_ctr"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[28] aggr.countu64 = count(sample.ulonglong.bin_ctr)
+Derived metric expr dump from <addr-71>...
+expr node <addr-71> type=COUNT left=<addr-72> right=(nil) save_last=0
+expr node <addr-72> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulonglong.bin_ctr] master=1
+pmRegisterDerived: name="aggr.maxu64" expr="max(sample.ulonglong.bin_ctr)"
+parse(1) state=P_INIT type=L_MAX "max("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.ulonglong.bin_ctr"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[29] aggr.maxu64 = max(sample.ulonglong.bin_ctr)
+Derived metric expr dump from <addr-73>...
+expr node <addr-73> type=MAX left=<addr-74> right=(nil) save_last=0
+expr node <addr-74> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulonglong.bin_ctr] master=1
+pmRegisterDerived: name="aggr.minu64" expr="min(sample.ulonglong.bin_ctr)"
+parse(1) state=P_INIT type=L_MIN "min("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.ulonglong.bin_ctr"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[30] aggr.minu64 = min(sample.ulonglong.bin_ctr)
+Derived metric expr dump from <addr-75>...
+expr node <addr-75> type=MIN left=<addr-76> right=(nil) save_last=0
+expr node <addr-76> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulonglong.bin_ctr] master=1
+pmRegisterDerived: name="aggr.sumu64" expr="sum(sample.ulonglong.bin_ctr)"
+parse(1) state=P_INIT type=L_SUM "sum("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.ulonglong.bin_ctr"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[31] aggr.sumu64 = sum(sample.ulonglong.bin_ctr)
+Derived metric expr dump from <addr-77>...
+expr node <addr-77> type=SUM left=<addr-78> right=(nil) save_last=0
+expr node <addr-78> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulonglong.bin_ctr] master=1
+pmRegisterDerived: name="aggr.avgd" expr="avg(sample.double.bin)"
+parse(1) state=P_INIT type=L_AVG "avg("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.double.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[32] aggr.avgd = avg(sample.double.bin)
+Derived metric expr dump from <addr-79>...
+expr node <addr-79> type=AVG left=<addr-80> right=(nil) save_last=0
+expr node <addr-80> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.bin] master=1
+pmRegisterDerived: name="aggr.countd" expr="count(sample.double.bin)"
+parse(1) state=P_INIT type=L_COUNT "count("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.double.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[33] aggr.countd = count(sample.double.bin)
+Derived metric expr dump from <addr-81>...
+expr node <addr-81> type=COUNT left=<addr-82> right=(nil) save_last=0
+expr node <addr-82> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.bin] master=1
+pmRegisterDerived: name="aggr.maxd" expr="max(sample.double.bin)"
+parse(1) state=P_INIT type=L_MAX "max("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.double.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[34] aggr.maxd = max(sample.double.bin)
+Derived metric expr dump from <addr-83>...
+expr node <addr-83> type=MAX left=<addr-84> right=(nil) save_last=0
+expr node <addr-84> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.bin] master=1
+pmRegisterDerived: name="aggr.mind" expr="min(sample.double.bin)"
+parse(1) state=P_INIT type=L_MIN "min("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.double.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[35] aggr.mind = min(sample.double.bin)
+Derived metric expr dump from <addr-85>...
+expr node <addr-85> type=MIN left=<addr-86> right=(nil) save_last=0
+expr node <addr-86> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.bin] master=1
+pmRegisterDerived: name="aggr.sumd" expr="sum(sample.double.bin)"
+parse(1) state=P_INIT type=L_SUM "sum("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.double.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[36] aggr.sumd = sum(sample.double.bin)
+Derived metric expr dump from <addr-87>...
+expr node <addr-87> type=SUM left=<addr-88> right=(nil) save_last=0
+expr node <addr-88> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.bin] master=1
+pmRegisterDerived: name="aggr.count_err" expr="count(sample.needprofile)"
+parse(1) state=P_INIT type=L_COUNT "count("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.needprofile"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[37] aggr.count_err = count(sample.needprofile)
+Derived metric expr dump from <addr-89>...
+expr node <addr-89> type=COUNT left=<addr-90> right=(nil) save_last=0
+expr node <addr-90> type=NAME left=(nil) right=(nil) save_last=1 [sample.needprofile] master=1
+pmRegisterDerived: name="aggr.sum_err" expr="sum(sample.needprofile)"
+parse(1) state=P_INIT type=L_SUM "sum("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.needprofile"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[38] aggr.sum_err = sum(sample.needprofile)
+Derived metric expr dump from <addr-91>...
+expr node <addr-91> type=SUM left=<addr-92> right=(nil) save_last=0
+expr node <addr-92> type=NAME left=(nil) right=(nil) save_last=1 [sample.needprofile] master=1
+pmRegisterDerived: name="aggr.countblob" expr="count(sample.sysinfo)"
+parse(1) state=P_INIT type=L_COUNT "count("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.sysinfo"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[39] aggr.countblob = count(sample.sysinfo)
+Derived metric expr dump from <addr-93>...
+expr node <addr-93> type=COUNT left=<addr-94> right=(nil) save_last=0
+expr node <addr-94> type=NAME left=(nil) right=(nil) save_last=1 [sample.sysinfo] master=1
+__dmopencontext(->ctx 0) called
+__dmopencontext: bind metric[0] aggr.max32
+Derived metric expr dump from <addr-95>...
+expr node <addr-95> type=MAX left=<addr-96> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-96> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[1] aggr.min32
+Derived metric expr dump from <addr-97>...
+expr node <addr-97> type=MIN left=<addr-98> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-98> type=NAME left=(nil) right=(nil) save_last=1 [sample.long.hundred] master=0
+    PMID: 29.0.12 (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[2] aggr.maxu32_minu32
+Derived metric expr dump from <addr-99>...
+expr node <addr-99> type=MINUS left=<addr-100> right=<addr-102> save_last=0
+    PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-100> type=MAX left=<addr-101> right=(nil) save_last=0
+    PMID: PM_ID_NULL (29.0.72 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-101> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_rate.value] master=0
+    PMID: 29.0.72 (29.0.72 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+expr node <addr-102> type=MIN left=<addr-103> right=(nil) save_last=0
+    PMID: PM_ID_NULL (29.0.72 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-103> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_rate.value] master=0
+    PMID: 29.0.72 (29.0.72 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+__dmopencontext: bind metric[3] aggr.max64_min64
+Derived metric expr dump from <addr-104>...
+expr node <addr-104> type=MINUS left=<addr-105> right=<addr-107> save_last=0
+    PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-105> type=MAX left=<addr-106> right=(nil) save_last=0
+    PMID: PM_ID_NULL (29.0.22 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-106> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.hundred] master=0
+    PMID: 29.0.22 (29.0.22 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-107> type=MIN left=<addr-108> right=(nil) save_last=0
+    PMID: PM_ID_NULL (29.0.22 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-108> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.hundred] master=0
+    PMID: 29.0.22 (29.0.22 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[4] aggr.maxu64_minu64
+Derived metric expr dump from <addr-109>...
+expr node <addr-109> type=MINUS left=<addr-110> right=<addr-112> save_last=0
+    PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-110> type=MAX left=<addr-111> right=(nil) save_last=0
+    PMID: PM_ID_NULL (29.0.40 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-111> type=NAME left=(nil) right=(nil) save_last=1 [sample.pdu] master=0
+    PMID: 29.0.40 (29.0.40 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+expr node <addr-112> type=MIN left=<addr-113> right=(nil) save_last=0
+    PMID: PM_ID_NULL (29.0.40 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-113> type=NAME left=(nil) right=(nil) save_last=1 [sample.pdu] master=0
+    PMID: 29.0.40 (29.0.40 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+__dmopencontext: bind metric[5] aggr.maxuf_minuf
+Derived metric expr dump from <addr-114>...
+expr node <addr-114> type=MINUS left=<addr-115> right=<addr-117> save_last=0
+    PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-115> type=MAX left=<addr-116> right=(nil) save_last=0
+    PMID: PM_ID_NULL (29.0.18 from pmDesc) numval: 0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-116> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.million] master=0
+    PMID: 29.0.18 (29.0.18 from pmDesc) numval: 0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-117> type=MIN left=<addr-118> right=(nil) save_last=0
+    PMID: PM_ID_NULL (29.0.18 from pmDesc) numval: 0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-118> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.million] master=0
+    PMID: 29.0.18 (29.0.18 from pmDesc) numval: 0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[6] aggr.maxud_minud
+Derived metric expr dump from <addr-119>...
+expr node <addr-119> type=MINUS left=<addr-120> right=<addr-122> save_last=0
+    PMID: PM_ID_NULL (511.0.7 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-120> type=MAX left=<addr-121> right=(nil) save_last=0
+    PMID: PM_ID_NULL (29.0.28 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-121> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.million] master=0
+    PMID: 29.0.28 (29.0.28 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-122> type=MIN left=<addr-123> right=(nil) save_last=0
+    PMID: PM_ID_NULL (29.0.28 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-123> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.million] master=0
+    PMID: 29.0.28 (29.0.28 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[7] aggr.count32
+Derived metric expr dump from <addr-124>...
+expr node <addr-124> type=COUNT left=<addr-125> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.8 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-125> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[8] aggr.avg32
+Derived metric expr dump from <addr-126>...
+expr node <addr-126> type=AVG left=<addr-127> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.9 from pmDesc) numval: 0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-127> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[9] aggr.max32_x
+Derived metric expr dump from <addr-128>...
+expr node <addr-128> type=MAX left=<addr-129> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.10 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-129> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[10] aggr.min32_x
+Derived metric expr dump from <addr-130>...
+expr node <addr-130> type=MIN left=<addr-131> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.11 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-131> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[11] aggr.sum32
+Derived metric expr dump from <addr-132>...
+expr node <addr-132> type=SUM left=<addr-133> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-133> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[12] aggr.avgu32
+Derived metric expr dump from <addr-134>...
+expr node <addr-134> type=AVG left=<addr-135> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.13 from pmDesc) numval: 0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+expr node <addr-135> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulong.bin_ctr] master=0
+    PMID: 29.0.106 (29.0.106 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: counter  Units: Kbyte
+__dmopencontext: bind metric[13] aggr.countu32
+Derived metric expr dump from <addr-136>...
+expr node <addr-136> type=COUNT left=<addr-137> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.14 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-137> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulong.bin_ctr] master=0
+    PMID: 29.0.106 (29.0.106 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: counter  Units: Kbyte
+__dmopencontext: bind metric[14] aggr.maxu32
+Derived metric expr dump from <addr-138>...
+expr node <addr-138> type=MAX left=<addr-139> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.15 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+expr node <addr-139> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulong.bin_ctr] master=0
+    PMID: 29.0.106 (29.0.106 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: counter  Units: Kbyte
+__dmopencontext: bind metric[15] aggr.minu32
+Derived metric expr dump from <addr-140>...
+expr node <addr-140> type=MIN left=<addr-141> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+expr node <addr-141> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulong.bin_ctr] master=0
+    PMID: 29.0.106 (29.0.106 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: counter  Units: Kbyte
+__dmopencontext: bind metric[16] aggr.sumu32
+Derived metric expr dump from <addr-142>...
+expr node <addr-142> type=SUM left=<addr-143> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.17 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+expr node <addr-143> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulong.bin_ctr] master=0
+    PMID: 29.0.106 (29.0.106 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: counter  Units: Kbyte
+__dmopencontext: bind metric[17] aggr.avgf
+Derived metric expr dump from <addr-144>...
+expr node <addr-144> type=AVG left=<addr-145> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.18 from pmDesc) numval: 0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-145> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.bin] master=0
+    PMID: 29.0.107 (29.0.107 from pmDesc) numval: 0
+    Data Type: float  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[18] aggr.countf
+Derived metric expr dump from <addr-146>...
+expr node <addr-146> type=COUNT left=<addr-147> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.19 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-147> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.bin] master=0
+    PMID: 29.0.107 (29.0.107 from pmDesc) numval: 0
+    Data Type: float  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[19] aggr.maxf
+Derived metric expr dump from <addr-148>...
+expr node <addr-148> type=MAX left=<addr-149> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.20 from pmDesc) numval: 0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-149> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.bin] master=0
+    PMID: 29.0.107 (29.0.107 from pmDesc) numval: 0
+    Data Type: float  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[20] aggr.minf
+Derived metric expr dump from <addr-150>...
+expr node <addr-150> type=MIN left=<addr-151> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.21 from pmDesc) numval: 0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-151> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.bin] master=0
+    PMID: 29.0.107 (29.0.107 from pmDesc) numval: 0
+    Data Type: float  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[21] aggr.sumf
+Derived metric expr dump from <addr-152>...
+expr node <addr-152> type=SUM left=<addr-153> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.22 from pmDesc) numval: 0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-153> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.bin] master=0
+    PMID: 29.0.107 (29.0.107 from pmDesc) numval: 0
+    Data Type: float  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[22] aggr.avg64
+Derived metric expr dump from <addr-154>...
+expr node <addr-154> type=AVG left=<addr-155> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.23 from pmDesc) numval: 0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+expr node <addr-155> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.bin_ctr] master=0
+    PMID: 29.0.110 (29.0.110 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: 29.2 0x7400002
+    Semantics: counter  Units: Kbyte
+__dmopencontext: bind metric[23] aggr.count64
+Derived metric expr dump from <addr-156>...
+expr node <addr-156> type=COUNT left=<addr-157> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.24 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-157> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.bin_ctr] master=0
+    PMID: 29.0.110 (29.0.110 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: 29.2 0x7400002
+    Semantics: counter  Units: Kbyte
+__dmopencontext: bind metric[24] aggr.max64
+Derived metric expr dump from <addr-158>...
+expr node <addr-158> type=MAX left=<addr-159> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.25 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+expr node <addr-159> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.bin_ctr] master=0
+    PMID: 29.0.110 (29.0.110 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: 29.2 0x7400002
+    Semantics: counter  Units: Kbyte
+__dmopencontext: bind metric[25] aggr.min64
+Derived metric expr dump from <addr-160>...
+expr node <addr-160> type=MIN left=<addr-161> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.26 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+expr node <addr-161> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.bin_ctr] master=0
+    PMID: 29.0.110 (29.0.110 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: 29.2 0x7400002
+    Semantics: counter  Units: Kbyte
+__dmopencontext: bind metric[26] aggr.sum64
+Derived metric expr dump from <addr-162>...
+expr node <addr-162> type=SUM left=<addr-163> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.27 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+expr node <addr-163> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.bin_ctr] master=0
+    PMID: 29.0.110 (29.0.110 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: 29.2 0x7400002
+    Semantics: counter  Units: Kbyte
+__dmopencontext: bind metric[27] aggr.avgu64
+Derived metric expr dump from <addr-164>...
+expr node <addr-164> type=AVG left=<addr-165> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.28 from pmDesc) numval: 0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+expr node <addr-165> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulonglong.bin_ctr] master=0
+    PMID: 29.0.112 (29.0.112 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: counter  Units: Kbyte
+__dmopencontext: bind metric[28] aggr.countu64
+Derived metric expr dump from <addr-166>...
+expr node <addr-166> type=COUNT left=<addr-167> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.29 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-167> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulonglong.bin_ctr] master=0
+    PMID: 29.0.112 (29.0.112 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: counter  Units: Kbyte
+__dmopencontext: bind metric[29] aggr.maxu64
+Derived metric expr dump from <addr-168>...
+expr node <addr-168> type=MAX left=<addr-169> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.30 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+expr node <addr-169> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulonglong.bin_ctr] master=0
+    PMID: 29.0.112 (29.0.112 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: counter  Units: Kbyte
+__dmopencontext: bind metric[30] aggr.minu64
+Derived metric expr dump from <addr-170>...
+expr node <addr-170> type=MIN left=<addr-171> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.31 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+expr node <addr-171> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulonglong.bin_ctr] master=0
+    PMID: 29.0.112 (29.0.112 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: counter  Units: Kbyte
+__dmopencontext: bind metric[31] aggr.sumu64
+Derived metric expr dump from <addr-172>...
+expr node <addr-172> type=SUM left=<addr-173> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.32 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+expr node <addr-173> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulonglong.bin_ctr] master=0
+    PMID: 29.0.112 (29.0.112 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: counter  Units: Kbyte
+__dmopencontext: bind metric[32] aggr.avgd
+Derived metric expr dump from <addr-174>...
+expr node <addr-174> type=AVG left=<addr-175> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.33 from pmDesc) numval: 0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-175> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.bin] master=0
+    PMID: 29.0.113 (29.0.113 from pmDesc) numval: 0
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[33] aggr.countd
+Derived metric expr dump from <addr-176>...
+expr node <addr-176> type=COUNT left=<addr-177> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.34 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-177> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.bin] master=0
+    PMID: 29.0.113 (29.0.113 from pmDesc) numval: 0
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[34] aggr.maxd
+Derived metric expr dump from <addr-178>...
+expr node <addr-178> type=MAX left=<addr-179> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.35 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-179> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.bin] master=0
+    PMID: 29.0.113 (29.0.113 from pmDesc) numval: 0
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[35] aggr.mind
+Derived metric expr dump from <addr-180>...
+expr node <addr-180> type=MIN left=<addr-181> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.36 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-181> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.bin] master=0
+    PMID: 29.0.113 (29.0.113 from pmDesc) numval: 0
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[36] aggr.sumd
+Derived metric expr dump from <addr-182>...
+expr node <addr-182> type=SUM left=<addr-183> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.37 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-183> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.bin] master=0
+    PMID: 29.0.113 (29.0.113 from pmDesc) numval: 0
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[37] aggr.count_err
+Derived metric expr dump from <addr-184>...
+expr node <addr-184> type=COUNT left=<addr-185> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.38 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-185> type=NAME left=(nil) right=(nil) save_last=1 [sample.needprofile] master=0
+    PMID: 29.0.49 (29.0.49 from pmDesc) numval: 0
+    Data Type: float  InDom: 29.4 0x7400004
+    Semantics: discrete  Units: none
+__dmopencontext: bind metric[38] aggr.sum_err
+Derived metric expr dump from <addr-186>...
+expr node <addr-186> type=SUM left=<addr-187> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.39 from pmDesc) numval: 0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-187> type=NAME left=(nil) right=(nil) save_last=1 [sample.needprofile] master=0
+    PMID: 29.0.49 (29.0.49 from pmDesc) numval: 0
+    Data Type: float  InDom: 29.4 0x7400004
+    Semantics: discrete  Units: none
+__dmopencontext: bind metric[39] aggr.countblob
+Derived metric expr dump from <addr-188>...
+expr node <addr-188> type=COUNT left=<addr-189> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.40 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-189> type=NAME left=(nil) right=(nil) save_last=1 [sample.sysinfo] master=0
+    PMID: 29.0.39 (29.0.39 from pmDesc) numval: 0
+    Data Type: aggregate  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+__dmgetpmid: metric "aggr.max32" -> PMID 511.0.1
+__dmgetpmid: metric "aggr.min32" -> PMID 511.0.2
+__dmgetpmid: metric "aggr.maxu32_minu32" -> PMID 511.0.3
+__dmgetpmid: metric "aggr.max64_min64" -> PMID 511.0.4
+__dmgetpmid: metric "aggr.maxu64_minu64" -> PMID 511.0.5
+__dmgetpmid: metric "aggr.maxuf_minuf" -> PMID 511.0.6
+__dmgetpmid: metric "aggr.maxud_minud" -> PMID 511.0.7
+__dmgetpmid: metric "aggr.count32" -> PMID 511.0.8
+__dmgetpmid: metric "aggr.avg32" -> PMID 511.0.9
+__dmgetpmid: metric "aggr.max32_x" -> PMID 511.0.10
+__dmgetpmid: metric "aggr.min32_x" -> PMID 511.0.11
+__dmgetpmid: metric "aggr.sum32" -> PMID 511.0.12
+__dmgetpmid: metric "aggr.avgu32" -> PMID 511.0.13
+__dmgetpmid: metric "aggr.countu32" -> PMID 511.0.14
+__dmgetpmid: metric "aggr.maxu32" -> PMID 511.0.15
+__dmgetpmid: metric "aggr.minu32" -> PMID 511.0.16
+__dmgetpmid: metric "aggr.sumu32" -> PMID 511.0.17
+__dmgetpmid: metric "aggr.avgf" -> PMID 511.0.18
+__dmgetpmid: metric "aggr.countf" -> PMID 511.0.19
+__dmgetpmid: metric "aggr.maxf" -> PMID 511.0.20
+__dmgetpmid: metric "aggr.minf" -> PMID 511.0.21
+__dmgetpmid: metric "aggr.sumf" -> PMID 511.0.22
+__dmgetpmid: metric "aggr.avg64" -> PMID 511.0.23
+__dmgetpmid: metric "aggr.count64" -> PMID 511.0.24
+__dmgetpmid: metric "aggr.max64" -> PMID 511.0.25
+__dmgetpmid: metric "aggr.min64" -> PMID 511.0.26
+__dmgetpmid: metric "aggr.sum64" -> PMID 511.0.27
+__dmgetpmid: metric "aggr.avgu64" -> PMID 511.0.28
+__dmgetpmid: metric "aggr.countu64" -> PMID 511.0.29
+__dmgetpmid: metric "aggr.maxu64" -> PMID 511.0.30
+__dmgetpmid: metric "aggr.minu64" -> PMID 511.0.31
+__dmgetpmid: metric "aggr.sumu64" -> PMID 511.0.32
+__dmgetpmid: metric "aggr.avgd" -> PMID 511.0.33
+__dmgetpmid: metric "aggr.countd" -> PMID 511.0.34
+__dmgetpmid: metric "aggr.maxd" -> PMID 511.0.35
+__dmgetpmid: metric "aggr.mind" -> PMID 511.0.36
+__dmgetpmid: metric "aggr.sumd" -> PMID 511.0.37
+__dmgetpmid: metric "aggr.count_err" -> PMID 511.0.38
+__dmgetpmid: metric "aggr.sum_err" -> PMID 511.0.39
+__dmgetpmid: metric "aggr.countblob" -> PMID 511.0.40
+
+=== fetch values exercises ===
+
+
+aggr.max32
+    value 900
+
+aggr.min32
+    value 100
+
+aggr.maxu32_minu32
+    value 0
+
+aggr.max64_min64
+    value 0
+
+aggr.maxu64_minu64
+    value 0
+
+aggr.maxuf_minuf
+    value 0
+
+aggr.maxud_minud
+    value 0
+
+aggr.count32
+    value 9
+
+aggr.avg32
+    value 500
+
+aggr.max32_x
+    value 900
+
+aggr.min32_x
+    value 100
+
+aggr.sum32
+    value 4500
+
+aggr.avgu32
+    value 500
+
+aggr.countu32
+    value 9
+
+aggr.maxu32
+    value 900
+
+aggr.minu32
+    value 100
+
+aggr.sumu32
+    value 4500
+
+aggr.avgf
+    value 500
+
+aggr.countf
+    value 9
+
+aggr.maxf
+    value 900
+
+aggr.minf
+    value 100
+
+aggr.sumf
+    value 4500
+
+aggr.avg64
+    value 500
+
+aggr.count64
+    value 9
+
+aggr.max64
+    value 900
+
+aggr.min64
+    value 100
+
+aggr.sum64
+    value 4500
+
+aggr.avgu64
+    value 500
+
+aggr.countu64
+    value 9
+
+aggr.maxu64
+    value 900
+
+aggr.minu64
+    value 100
+
+aggr.sumu64
+    value 4500
+
+aggr.avgd
+    value 500
+
+aggr.countd
+    value 9
+
+aggr.maxd
+    value 900
+
+aggr.mind
+    value 100
+
+aggr.sumd
+    value 4500
+
+aggr.count_err
+Error: Explicit instance identifier(s) required
+
+aggr.sum_err
+Error: Explicit instance identifier(s) required
+
+aggr.countblob
+    value 1
+
+=== semantic errors ===
+
+aggr.non_arith = max(sample.lights)
+
+aggr.non_arith: pmLookupDesc: Unknown or illegal metric identifier
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: name="aggr.non_arith" expr="max(sample.lights)"
+parse(1) state=P_INIT type=L_MAX "max("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.lights"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[0] aggr.non_arith = max(sample.lights)
+Derived metric expr dump from <addr-0>...
+expr node <addr-0> type=MAX left=<addr-1> right=(nil) save_last=0
+expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.lights] master=1
+__dmopencontext(->ctx 0) called
+Semantic error: derived metric aggr.non_arith: MAX(sample.lights): Non-arithmetic operand for function
+__dmgetpmid: metric "aggr.non_arith" -> PMID 511.0.1

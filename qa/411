@@ -1,0 +1,120 @@
+#! /bin/sh
+# PCP QA Test No. 411
+# exercising the simple pmdas dynamic instance domain
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.check
+. ./common.filter
+
+seq=`basename $0`
+
+rm -f $seq.out
+if pminfo -f simple.now | grep '3600 or "hour"' >/dev/null
+then
+    # old simple with indom 1, 60, 3600
+    ln $seq.out.0 $seq.out || exit 1
+else
+    # new simple with indom 0, 1, 2
+    if [ $PCP_VER -lt 3600 ]
+    then
+	ln $seq.out.1 $seq.out || exit 1
+    else
+	ln $seq.out.2 $seq.out || exit 1
+    fi
+fi
+
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+trap "_cleanup" 0 1 2 3 15
+
+_cleanup()
+{
+    [ -f $iam.conf.$seq ] && $sudo mv $iam.conf.$seq $iam.conf
+    $sudo ./Install </dev/null >/dev/null 2>&1
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+unset ROOT TOOLROOT
+
+_time_filter()
+{
+    sed \
+	-e 's/[0-9][0-9]*/[NUMBER]/g'
+}
+
+# real QA test starts here
+home=$PCP_PMDAS_DIR
+iam=simple
+if [ ! -d $home/$iam ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd $home/$iam
+unset ROOT
+
+$sudo mv $iam.conf $iam.conf.$seq
+
+echo "sec,min,hour" >$tmp.conf
+$sudo cp $tmp.conf $home/$iam/$iam.conf
+
+if $sudo make clobber >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh, make clobber failed"
+    exit
+fi
+
+# start from a known starting point
+$sudo ./Remove >/dev/null 2>&1
+
+$sudo ./Install -e </dev/null >$tmp.out 2>&1
+_filter_pmda_install <$tmp.out
+
+# exercise various configuration file entries (updated on the fly) ...
+# check all together
+cat > $tmp.test1 << EOF
+sec,min,hour
+EOF
+# should just get min
+cat > $tmp.test2 << EOF
+min, hour
+EOF
+# empty file (should fall back to previous config)
+cat > $tmp.test3 << EOF
+EOF
+# should just get hour
+cat > $tmp.test4 << EOF
+sdj, min,hour,df
+mday
+EOF
+# multiple entries the same ... should get just one instance returned
+cat > $tmp.test5 << EOF
+sec,sec,sec
+EOF
+
+# cp over prev config and then filter pminfo calls for each test
+for test in $tmp.test1 $tmp.test2 $tmp.test3 $tmp.test4 $tmp.test5
+do
+    $sudo cp $test $home/$iam/$iam.conf
+    sync
+    sleep 3
+    pminfo -f simple.now | _time_filter
+    $sudo rm -f $home/$iam/$iam.conf
+done
+$sudo cp $tmp.conf $home/$iam/$iam.conf
+
+# remove the agent
+$sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_install <$tmp.out
+
+status=0
+exit

@@ -1,0 +1,59 @@
+#! /bin/sh
+# PCP QA Test No. 242
+# pmlogger dumps core on repeated metric with explicit instance
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+status=0
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+echo "sample.long.hundred ..."
+cat <<End-of-File >$tmp.config
+log advisory on 200 msec {
+sample.long.hundred
+sample.long.hundred
+}
+End-of-File
+pmlogger -c $tmp.config -T 1 -l $tmp.log $tmp >$tmp.err 2>&1
+cat $tmp.err $tmp.log | _filter_pmlogger_log
+pminfo -a $tmp | LC_COLLATE=POSIX sort
+rm -f $tmp.0 $tmp.index $tmp.meta
+
+echo
+echo "kernel.all.load ["1 minute"] ..."
+cat <<End-of-File >$tmp.config
+log advisory on 200 msec {
+kernel.all.load ["1 minute"]
+kernel.all.load ["1 minute"]
+}
+End-of-File
+pmlogger -c $tmp.config -T 1 -l $tmp.log $tmp >$tmp.err 2>&1
+cat $tmp.err $tmp.log | _filter_pmlogger_log
+pminfo -a $tmp | LC_COLLATE=POSIX sort | ./xlate_2_new_pmns
+rm -f $tmp.0 $tmp.index $tmp.meta
+
+echo
+echo "kernel.all.load ..."
+cat <<End-of-File >$tmp.config
+log advisory on 200 msec {
+kernel.all.load
+kernel.all.load
+}
+End-of-File
+pmlogger -c $tmp.config -T 1 -l $tmp.log $tmp >$tmp.err 2>&1
+cat $tmp.err $tmp.log | _filter_pmlogger_log
+pminfo -a $tmp | LC_COLLATE=POSIX sort | ./xlate_2_new_pmns
+rm -f $tmp.0 $tmp.index $tmp.meta
+
+# all done
+exit

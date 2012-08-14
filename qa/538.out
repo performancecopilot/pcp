@@ -1,0 +1,23 @@
+QA output created by 538
+
+PMIE IS RUNNING
+=== check data file still exists...
+=== check log file after first exit...
+Log for pmie on HOST started DATE
+
+pmie: PID,HOST
+
+sample.write_me changed 5 != 2
+
+PMIE HAS NOW EXITED
+
+=== check data file has gone...
+=== check log file after real exit...
+Log for pmie on HOST started DATE
+
+pmie: PID,HOST
+
+sample.write_me changed 5 != 2
+[TIMESTAMP] pmie(PID) Info: pmie caught SIGINT or SIGTERM
+
+Log finished DATE

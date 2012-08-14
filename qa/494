@@ -1,0 +1,158 @@
+#!/bin/sh
+# PCP QA Test No. 494
+# pmlogrewrite man page examples
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which pmlogrewrite >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun pmlogrewrite not installed
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/"
+}
+
+_cmp()
+{
+    if [ ! -f $1.0 ]
+    then
+	echo "Arrgh ... cannot find $1.0" | _filter
+	return
+    fi
+    if [ ! -f $2.0 ]
+    then
+	echo "Arrgh ... cannot find $2.0" | _filter
+	return
+    fi
+    pmdumplog -z -a $1 | tee -a $seq.full >$tmp.in
+    pmdumplog -z -a $2 | tee -a $seq.full >$tmp.out
+    echo "pmdumplog diffs ..."
+    diff -u $tmp.in $tmp.out | _filter
+}
+
+_cmp2()
+{
+    if [ ! -f $1.0 ]
+    then
+	echo "Arrgh ... cannot find $1.0" | _filter
+	return
+    fi
+    if [ ! -f $2.0 ]
+    then
+	echo "Arrgh ... cannot find $2.0" | _filter
+	return
+    fi
+    echo "--- input metadata ---"
+    pminfo -d -a $1 $3
+    echo "--- output metadata ---"
+    pminfo -d -a $2 $3
+    pmval -zr -f 1 -w 12 -U $1 $3 | tee -a $seq.full >$tmp.in
+    pmval -zr -f 1 -w 12 -U $2 $3 | tee -a $seq.full >$tmp.out
+    echo "pmval diffs ..."
+    diff -u $tmp.in $tmp.out | _filter
+}
+
+# real QA test starts here
+sed -e '/^#/d' <<End-of-File | while read arch_args spec
+# archive[|arg1[|arg2[|...]]]	spec
+# double -> 
+src-oss/rewrite		global { time -> 30 }
+src-oss/rewrite		global { time -> -23:59:59.999 }
+src-oss/rewrite		indom 29.* { indom -> 109.* }
+src-oss/rewrite		metric 30.*.* { pmid -> 123.*.* }
+src-oss/rewrite		indom 29.* { indom -> 109.* } metric sample.bin { indom -> 109.2 }
+src-oss/rewrite		indom 29.* { indom -> 109.* } metric sample.bin { indom -> 123.2 }
+src-oss/proc		indom 60.2 { inst 1 -> 60 iname "1 minute" -> "60 second" inst 5 -> 300 iname "5 minute" -> "300 second" inst 15 -> 900 iname "15 minute" -> "900 second" }
+End-of-File
+do
+    echo | tee -a $seq.full
+    echo "$spec" >$tmp.config
+    echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+    rm -f $tmp.new.*
+    pmlogrewrite -ws -c $tmp.config `echo $arch_args | sed -e 's/|/ /g'` $tmp.new 2>&1 | _filter
+    _cmp `echo $arch_args | sed -e 's/|.*//'` $tmp.new
+done
+
+sed -e '/^#/d' <<End-of-File | while read arch_args spec
+# archive[|arg1[|arg2[|...]]]	spec|metric...
+# double -> 
+src-oss/babylon.pmview_v2		metric disk.dev.read { type -> U64 } metric disk.dev.write { type -> U64 } metric disk.dev.total { type -> U64 }|disk.dev.read disk.dev.write disk.dev.total
+End-of-File
+do
+    echo | tee -a $seq.full
+    metrics=`echo "$spec" | sed -e 's/.*|//'`
+    spec=`echo "$spec" | sed -e 's/|.*//'`
+    echo "$spec" >$tmp.config
+    echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+    rm -f $tmp.new.*
+    pmlogrewrite -ws -c $tmp.config `echo $arch_args | sed -e 's/|/ /g'` $tmp.new 2>&1 | _filter
+    for m in $metrics
+    do
+	_cmp2 `echo $arch_args | sed -e 's/|.*//'` $tmp.new $m
+    done
+done
+
+echo | tee -a $seq.full
+echo "=== proc metrics migration ===" | tee -a $seq.full
+cat <<End-of-File >$tmp.config
+# proc metrics are all in 7 clusters
+metric 60.8.* { pmid -> 123.*.* }
+metric 60.9.* { pmid -> 123.*.* }
+metric 60.13.* { pmid -> 123.*.* }
+metric 60.24.* { pmid -> 123.*.* }
+metric 60.31.* { pmid -> 123.*.* }
+metric 60.32.* { pmid -> 123.*.* }
+metric 60.51.* { pmid -> 123.*.* }
+# only one instance domain for Linux proc metrics
+indom 60.9 { indom -> 123.0 }
+End-of-File
+rm -f $tmp.new.*
+pmlogrewrite -ws -c $tmp.config src-oss/proc $tmp.new 2>&1 | _filter
+
+pminfo -m -a src-oss/proc | LC_COLLATE=POSIX sort >$tmp.in
+pminfo -m -a $tmp.new | LC_COLLATE=POSIX sort >$tmp.out
+echo
+echo "pmns diffs ..."
+diff -u $tmp.in $tmp.out | _filter
+
+for arg in -i -m
+do
+    pmdumplog -z $arg src-oss/proc >$tmp.in 2>$tmp.err
+    if [ -s $tmp.err ]
+    then
+	echo "stderr from pmdumplog -z $arg src-oss/proc ..."
+	cat $tmp.err
+    fi
+    pmdumplog -z $arg $tmp.new >$tmp.out 2>$tmp.err
+    if [ -s $tmp.err ]
+    then
+	echo "stderr from pmdumplog -z $arg $tmp.new ..." | _filter
+	cat $tmp.err
+    fi
+    echo
+    echo "pmdumplog $arg diffs ..."
+    diff -u $tmp.in $tmp.out | _filter
+done
+
+# success, all done
+exit

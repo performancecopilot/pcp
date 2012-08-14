@@ -1,0 +1,78 @@
+#! /bin/sh
+# PCP QA Test No. 465
+# pmdumplog -s
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+. ./localconfig
+rm -f $seq.out
+if [ $PCP_VER -gt 2100 -o $PCP_EOE_VER -ge 6510 ]
+then
+    echo "[Version for PCP 2.2 or later or IRIX >= 6.5.10]"
+    ln $seq.out.2 $seq.out
+elif [ $PCP_VER -le 2100 -o \
+     \( $PCP_EOE_VER -ge 6500 -a $PCP_EOE_VER -le 6509 \) ]
+then
+    echo "[Version for PCP prior to 2.2 or IRIX <= 6.5.9]"
+    ln $seq.out.1 $seq.out
+else
+    echo "Test not suitable for PCP ($PCP_VER) and PCP_EOE ($PCP_EOE_VER)" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<End-of-File | pmlogger -l $tmp.log -T 3sec $tmp
+log mandatory on once {
+    sample.control
+}
+log mandatory on once {
+    sample.long.one
+}
+log mandatory on once {
+    sample.float.one
+}
+log mandatory on once {
+    sample.double.one
+}
+log mandatory on once {
+    sample.string.null
+}
+log mandatory on once {
+    sample.string.hullo
+}
+log mandatory on once {
+    sample.bin
+}
+log mandatory on once {
+    sample.control
+    sample.long.one
+    sample.float.one
+    sample.double.one
+    sample.string.null
+    sample.string.hullo
+    sample.bin
+}
+End-of-File
+
+pmdumplog -s $tmp 2>&1 \
+| _filter_pmdumplog \
+| sed -e '1,/pmcd.pmlogger.archive/d'
+
+# success, all done
+status=0
+exit

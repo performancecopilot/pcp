@@ -1,0 +1,267 @@
+#! /bin/sh
+# PCP QA Test No. 183
+# pmnewlog error handling
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+. ./localconfig
+rm -f $seq.out
+if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+then
+    ln $seq.out.linux $seq.out
+else
+    ln $seq.out.irix $seq.out
+fi
+
+echo "QA output created by $seq"
+
+. ./common.product
+. ./common.check
+. ./common.filter
+
+signal=$PCP_BINADM_DIR/pmsignal
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+status=1
+
+# used to debug qa test (tes:June/2000)
+rm -rf $seq.full
+
+hostname=`hostname`
+
+_filter_ls()
+{
+    sed \
+	-e 's/tmp\/[0-9][0-9]*/tmp\/PID/' \
+	-e 's/[A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]/TIME/' \
+    | $PCP_AWK_PROG '
+/TIME/	{ $3 = "user"; $4 = "group" }
+	{ print }'
+}
+
+_filter()
+{
+    sed \
+        -e "s|${PCP_BINADM_DIR}|PCP_BINADM_DIR|" \
+	-e 's/process [0-9][0-9]*/process PID/' \
+	-e "s/ at $hostname:/ at HOST:/" \
+	-e "s/ port [0-9][0-9]*/ port PORT/" \
+	-e '/Error \[<stdin>,/d' \
+	-e '/Warning \[<stdin>,/d' \
+	-e '/Not connected to any/d' \
+	-e '/Logging statement ignored/d' \
+	-e '/Try again. Information not currently available/d' \
+	-e '/Unknown or illegal metric identifier/d' \
+	-e '/Unknown or illegal instance domain identifier/d' \
+	-e '/Operation not permitted/s/line 1: //' \
+	-e 's/Address already in use/[TCP\/IP error]/' \
+	-e 's/Connection reset by peer/[TCP\/IP error]/' \
+	-e 's/Connection refused/[TCP\/IP error]/'
+}
+
+cat <<End-of-File >$tmp.config
+log mandatory on once hinv.ndisk
+End-of-File
+
+# real QA test starts here
+echo "=== usage ==="
+pmnewlog
+
+echo
+echo "=== archive exists ==="
+echo "=== archive exists ===" >>$seq.full
+rm -f $tmp.save.*
+pmlogger -c $tmp.config -l $tmp.log $tmp.save >$tmp.err 2>&1 &
+pid=$!
+_wait_for_pmlogger $pid $tmp.log
+pmnewlog -p $pid $tmp.save >$tmp.out 2>&1
+ok=true
+for base in $tmp.save $tmp.save-00
+do
+    for suff in 0 index meta
+    do
+	[ -f $base.$suff ] && continue
+	echo "Failed! expected file $base.$suff not found"
+	ok=false
+    done
+done
+if $ok
+then
+    echo "OK, previous one renamed using \"-00\" suffix"
+else
+    echo "output from pmnewlog ..."
+    cat $tmp.out
+fi
+$signal -a -s TERM pmlogger >/dev/null 2>&1
+
+echo
+echo "=== no non-primary logger ==="
+echo "=== no non-primary logger ===" >>$seq.full
+date >/dev/null &
+wait
+pmnewlog -p $! $tmp 2>&1 | tee -a $seq.full | _filter
+
+echo
+echo "=== no primary logger ==="
+echo "=== no primary logger ===" >>$seq.full
+$sudo $signal -a -s TERM pmlogger
+sleep 2
+pmnewlog $tmp 2>&1 | tee -a $seq.full | _filter
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger
+
+echo
+echo "=== process is not called pmlogger ==="
+echo "=== process is not called pmlogger ===" >>$seq.full
+sleep 10 &
+pmnewlog -p $! $tmp 2>&1 | tee -a $seq.full | _filter
+
+echo
+echo "=== process is not really pmlogger ==="
+echo "=== process is not really pmlogger ===" >>$seq.full
+cp `which sleep` $tmp.pmlogger
+$tmp.pmlogger 10 &
+pmnewlog -p $! $tmp 2>&1 | tee -a $seq.full | _filter \
+| sed -e "/\.pmlogger/s/.*/-- ps line removed --/" -e "s/$!/PID/"
+
+echo
+echo "=== non-primary logger busy ==="
+echo "=== non-primary logger busy ===" >>$seq.full
+rm -f $tmp.save.*
+pmlogger -L -c /dev/null -l $tmp.log $tmp.save >$tmp.err 2>&1 &
+pid=$!
+_wait_for_pmlogger $pid $tmp.log
+(( echo "connect $pid"; sleep 3 ) | pmlc ) &
+pmnewlog -p $pid $tmp 2>&1 | tee -a $seq.full | _filter \
+| sed -e "/\.save/s/.*/-- ps line removed --/" -e "s/$pid/PID/"
+$signal -s TERM $pid
+
+echo
+echo "=== primary logger busy ==="
+echo "=== primary logger busy ===" >>$seq.full
+(( echo "connect primary"; sleep 3 ) | pmlc ) &
+pmnewlog $tmp 2>&1 | tee -a $seq.full | _filter \
+| sed -e "/\/pmlogger/s/.*/-- ps line removed --/"
+
+echo
+echo "=== no extracted configuration ==="
+echo "=== no extracted configuration ===" >>$seq.full
+rm -f $tmp.save.*
+pmlogger -L -c /dev/null -l $tmp.log $tmp.save >$tmp.err 2>&1 &
+pid=$!
+_wait_for_pmlogger $pid $tmp.log
+
+echo "pid=$pid" >>$seq.full
+ps $PCP_PS_ALL_FLAGS | grep pmlogger >>$seq.full
+
+sleep 3
+pmnewlog -p $pid $tmp 2>&1 \
+| tee -a $seq.full \
+| _filter \
+| sed \
+    -e "/\.save/s/.*/-- ps line removed --/" \
+    -e "s/$pid/PID/" \
+    -e '/to get logging state/d' \
+    -e '/errors from talking/d' \
+    -e '/continuing/d' \
+    -e '/Reason: Metric not supported by this version/d' \
+    -e '/Reason: IPC protocol failure/d' \
+    -e '/^$/d'
+
+$signal -s TERM $pid
+
+wait
+echo "-- tmp.log --" >>$seq.full
+cat $tmp.log  >>$seq.full
+echo "-- tmp.err --" >>$seq.full
+cat $tmp.err >>$seq.full
+echo "-- pmnewlog --" >>$seq.full
+
+echo
+echo "=== wrong uid to kill pmlogger ==="
+echo "=== wrong uid to kill pmlogger ===" >>$seq.full
+
+echo "=== initial pmloggers ===" >>$seq.full
+# root     29697     1  0 10:45 pts/1    00:00:00 pmlogger -P -c config.default 20101021.10.45
+ps $PCP_PS_ALL_FLAGS \
+| grep '[p]mlogger' \
+| tee -a $seq.full \
+| grep -v sudo \
+| $PCP_AWK_PROG '
+$1 == "root"	{ print $2 }' >$tmp.old
+cat $tmp.old >>$seq.full
+
+rm -f $tmp.save.*
+logger=`which pmlogger`
+$sudo $logger -L -c $tmp.config -l $tmp.log $tmp.save >$tmp.err 2>&1 &
+parent=$!
+sleep 2
+
+echo "=== final pmloggers ===" >>$seq.full
+ps $PCP_PS_ALL_FLAGS \
+| grep '[p]mlogger' \
+| tee -a $seq.full \
+| grep -v sudo \
+| $PCP_AWK_PROG '
+$1 == "root"	{ print $2 }' >$tmp.new
+cat $tmp.new >>$seq.full
+
+for pid in `cat $tmp.new`
+do
+    if grep "^$pid"'$' $tmp.old >/dev/null
+    then
+	:
+    else
+	break
+    fi
+done
+
+echo "target pmlogger pid=$pid" >>$seq.full
+
+
+if false
+then
+# parent is the pid of sudo
+# get pid for sh -c (if it exists)
+pid="`ps $PCP_PS_ALL_FLAGS | grep 'sh -c' | $PCP_AWK_PROG '$3 == '$parent' { print $2 }'`"
+if [ -z "$pid" ]
+then
+    pid=$parent
+fi
+
+# get pid for pmlogger
+parent=$pid
+pid="`ps $PCP_PS_ALL_FLAGS | grep pmlogger | $PCP_AWK_PROG '$3 == '$parent' { print $2 }'`"
+if [ -z "$pid" ]
+then
+    echo "Error: cannot find pmlogger process (parent pid: $parent)!"
+    ps $PCP_PS_ALL_FLAGS
+    exit 1
+fi
+fi
+
+sleep 2
+
+pmnewlog -p $pid $tmp 2>&1 \
+| tee -a $seq.full \
+| _filter \
+| sed \
+    -e "/\.save/s/.*/-- ps line removed --/" \
+    -e '/^kill:.*Not owner/s/Not owner/Operation not permitted/' \
+    -e '/.*: kill:.*Not owner/s/Not owner/Operation not permitted/' \
+    -e 's/.*kill:.*Operation not permitted/KILL: Operation not permitted/' \
+    -e 's/.*kill:.*permission denied/KILL: Operation not permitted/' \
+    -e '/to get logging state/d' \
+    -e '/errors from talking/d' \
+    -e '/continuing/d' \
+    -e '/Reason: Metric not supported by this version/d' \
+    -e '/Reason: Broken pipe/d' \
+    -e '/^$/d'
+
+$sudo $signal -s TERM $pid
+
+status=0
+exit

@@ -1,0 +1,100 @@
+#! /bin/sh
+# PCP QA Test No. 426
+# tests trace PMDA reset capability
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    if [ -n "$savedtracehost" ]
+    then
+	PCP_TRACE_HOST=$savedtracehost; export PCP_TRACE_HOST
+    fi
+    rm -f $tmp.*
+    exit $status
+}
+
+status=1	# failure is the default!
+trap "_cleanup" 0 1 2 3 15
+
+if [ -n "$PCP_TRACE_HOST" ]
+then
+    savedtracehost=$PCP_TRACE_HOST; unset PCP_TRACE_HOST
+fi
+
+_traceme()
+{
+    pmtrace $traceargs foo
+    pmtrace $traceargs bar
+    pmtrace $traceargs eek
+    echo
+    echo 'SHOULD SEE 1="foo", 2="bar", 3="eek" ...'
+    pminfo -f trace.$traceindom.count
+
+    echo
+    echo "Resetting trace metrics ($traceindom #1)"
+    pmstore trace.control.reset 1
+    echo
+    echo 'SHOULD SEE NO VALUES ...'
+    pminfo -f trace.$traceindom.count
+
+    pmtrace $traceargs eek
+    pmtrace $traceargs bar
+    echo
+    echo 'SHOULD SEE 2="bar", 3="eek" ...'
+    pminfo -f trace.$traceindom.count
+
+    echo
+    echo "Resetting trace metrics ($traceindom #2)"
+    pmstore trace.control.reset 1
+    echo
+    echo 'SHOULD SEE NO VALUES ...'
+    pminfo -f trace.$traceindom.count
+
+    pmtrace $traceargs new
+    pmtrace $traceargs foo
+    # should see 1=foo, 4=new
+    echo
+    echo 'SHOULD SEE 1="foo", 4="new" ...'
+    pminfo -f trace.$traceindom.count
+}
+
+# real QA test starts here
+$sudo $PCP_RC_DIR/pcp restart \
+| _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger
+
+# test the point instance domain reset
+traceindom="point"
+traceargs=""
+echo
+echo "--- Testing trace.point metrics ---"
+_traceme
+
+# test the observation instance domain reset
+traceindom="observe"
+traceargs="-v 1"
+echo
+echo "--- Testing trace.observe metrics ---"
+_traceme
+
+# test the transaction instance domain reset
+traceindom="transact"
+traceargs="-e exit"
+echo
+echo "--- Testing trace.transact metrics ---"
+_traceme
+
+# success, all done
+status=0
+exit

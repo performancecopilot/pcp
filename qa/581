@@ -1,0 +1,247 @@
+#! /bin/sh
+# PCP QA Test No. 581
+# pmie, #687355
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+control=$PCP_PMDAS_DIR/sample/dynamic.indom
+needclean=true
+
+HOST=`hostname`
+
+cat <<End-of-File >$tmp.pmie
+// disk indom
+some_inst disk.dev.total >= 0 -> print "\nDISK %i";
+
+// cpu indom
+some_inst kernel.percpu.cpu.user >= 0 -> print "\nCPU %i";
+End-of-File
+
+if [ $PCP_PLATFORM != solaris ]
+then
+    cat <<End-of-File >>$tmp.pmie
+
+// network interface indom
+some_inst network.interface.total.packets >= 0 -> print "\nNETWORK %i";
+
+// filesys indom
+some_inst filesys.capacity >= 0 -> print "\nFILESYS %i";
+End-of-File
+fi
+
+cat <<End-of-File >>$tmp.pmie
+
+// sample.mirage
+some_inst sample.mirage >= 0 -> print "\nMIRAGE %i";
+
+// the dynamic ones ...
+some_inst sample.dynamic.discrete >= 0 -> print "DYN_DISCRETE" " %i";
+some_inst sample.dynamic.instant >= 0 -> print "DYN_INSTANT" " %i";
+End-of-File
+
+_cleanup()
+{
+    if $needclean
+    then
+	$sudo rm -f $control
+	[ -f $control.$seq ] && $sudo mv $control.$seq $control
+	_restore_loggers
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	needlcean=false
+    fi
+    $sudo rm -f $tmp.*
+}
+
+_filter()
+{
+    sed \
+	-e '/value/s/ [0-9]*$/ N/'
+}
+
+$sudo rm -f $control.$seq
+trap "_cleanup; exit \$status" 0 1 2 3 15
+[ -f $control ] && $sudo mv $control $control.$seq
+
+PMCD_RECONNECT_TIMEOUT=1
+export PMCD_RECONNECT_TIMEOUT
+
+# instances - mk I
+#
+cat >$tmp.indom <<End-of-File
+10 ten
+20 twenty
+30 thirty
+End-of-File
+
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+_disable_loggers
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_wait_for_pmcd
+pminfo -f sample.dynamic.instant | _filter
+echo
+
+# real QA test starts here
+
+pmie -t 250msec -c $tmp.pmie >$tmp.out 2>&1 &
+pid_pmie=$!
+
+# sleep_stop	time to sleep before stopping pmcd
+# sleep_start	time to sleep before starting pmcd
+sleep_start=4
+sleep_stop=5
+
+# and again with the same instances
+#
+sleep $sleep_stop
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+sleep $sleep_start
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_wait_for_pmcd
+pminfo -f sample.dynamic.instant |_filter
+echo
+
+# instances - mk II
+#
+sleep $sleep_stop
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+cat >$tmp.indom <<End-of-File
+20 twenty
+25 twenty-five
+30 thirty
+40 forty
+49 forty-nine
+50 fifty
+58 fifty-eight
+106 one-hundred-and-six
+End-of-File
+$sudo cp $tmp.indom $control
+sleep $sleep_start
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_wait_for_pmcd
+pminfo -f sample.dynamic.instant |_filter
+echo
+
+# instances - mk III
+#
+sleep $sleep_stop
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+cat >$tmp.indom <<End-of-File
+07 seven
+08 eight
+10 ten
+20 twenty
+30 thirty-*
+100 one-hundred
+End-of-File
+$sudo cp $tmp.indom $control
+sleep $sleep_start
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_wait_for_pmcd
+pminfo -f sample.dynamic.instant |_filter
+echo
+
+# instances - mk IV
+#
+sleep $sleep_stop
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+cat >$tmp.indom <<End-of-File
+End-of-File
+$sudo cp $tmp.indom $control
+sleep $sleep_start
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_wait_for_pmcd
+pminfo -f sample.dynamic.instant |_filter
+echo
+
+sleep $sleep_stop
+$signal -s TERM $pid_pmie
+wait
+
+cp $tmp.out $seq.full
+
+echo
+echo "Expect only connection lost/re-established and DYN_* lines ..."
+echo
+
+# in addition to the regular filtering, some versions of Linux return
+# ECONNRESET on the write() when pmcd is signald, rather than waiting
+# to return the error on the following read() ... as far as this test
+# is concerned, these are synonyms
+#
+_filter_pmie_log <$tmp.out \
+| sed \
+    -e "/ Error: /s/$HOST/HOST/g" \
+    -e "/ Info: /s/$HOST/HOST/g" \
+    -e 's/failed: Connection reset by peer/failed: IPC protocol failure/' \
+    -e '/^DATE: *$/d' \
+    -e '/^FILESYS \/dev\//d' \
+    -e '/^FILESYS \/dev$/d' \
+    -e '/^FILESYS none$/d' \
+    -e '/^FILESYS devfs$/d' \
+    -e '/^FILESYS map -hosts$/d' \
+    -e '/^FILESYS map auto_home$/d' \
+    -e '/^MIRAGE m-[0-9][0-9]*$/d' \
+    -e '/^DISK dks[0-9][0-9]*d[0-9][0-9]*/d' \
+    -e '/^DISK [a-f0-9][a-f0-9]*\/lun[0-9][0-9]*\/c[0-9][0-9]*p[0-9][0-9]*/d' \
+    -e '/^DISK hd[a-z]/d' \
+    -e '/^DISK sd[a-z0-9]/d' \
+    -e '/^DISK cmdk[0-9]/d' \
+    -e '/^DISK rd\//d' \
+    -e '/^DISK scsi\/host/d' \
+    -e '/^DISK vd[a-z]/d' \
+    -e '/^DISK xscsi\/pci/d' \
+    -e '/^DISK xvm\//d' \
+    -e '/^DISK disk[0-9][0-9]*$/d' \
+    -e '/^CPU cpu[0-9][0-9]*$/d' \
+    -e '/^CPU cpu:[0-9][0-9]*\.[0-9][0-9]*\.[ab]$/d' \
+    -e '/^CPU cpu:[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[a-d]$/d' \
+    -e '/^NETWORK dummy[0-9]/d' \
+    -e '/^NETWORK br[0-9][0-9]*$/d' \
+    -e '/^NETWORK e[cft][0-9][0-9]*$/d' \
+    -e '/^NETWORK en[0-9][0-9]*$/d' \
+    -e '/^NETWORK eth[0-9]/d' \
+    -e '/^NETWORK fw[0-9][0-9]*$/d' \
+    -e '/^NETWORK gif[0-9][0-9]*$/d' \
+    -e '/^NETWORK lo[0-9][0-9]*$/d' \
+    -e '/^NETWORK lo$/d' \
+    -e '/^NETWORK pan[0-9][0-9]*$/d' \
+    -e '/^NETWORK ppp[0-9][0-9]*$/d' \
+    -e '/^NETWORK sit[0-9]/d' \
+    -e '/^NETWORK sl[0-9][0-9]*$/d' \
+    -e '/^NETWORK stf[0-9][0-9]*$/d' \
+    -e '/^NETWORK tun[0-9][0-9]*$/d' \
+    -e '/^NETWORK vde[0-9][0-9]*$/d' \
+    -e '/^NETWORK vnet[0-9][0-9]*$/d' \
+    -e '/^NETWORK virbr[0-9][0-9]*$/d' \
+    -e '/^NETWORK wlan[0-9][0-9]*$/d' \
+    -e '/^NETWORK wwan[0-9][0-9]*$/d' \
+    -e '/^NETWORK wmaster[0-9][0-9]*$/d' \
+    -e '/^NETWORK xp[0-9][0-9]*$/d' \
+| $PCP_AWK_PROG '
+BEGIN		{ last["DYN_DISCRETE"] = last["DYN_INSTANT"] = "" }
+$2 ~ /DYN_/	{ if (last[$2] != $0) {
+			print $0
+			last[$2] = $0
+		  }
+		  next
+		}
+		{ print }
+/Lost connection/	{ last["DYN_DISCRETE"] = last["DYN_INSTANT"] = "" }'
+
+# success, all done
+status=0
+exit

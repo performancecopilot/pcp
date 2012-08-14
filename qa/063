@@ -1,0 +1,36 @@
+#! /bin/sh
+# PCP QA Test No. 063
+# __pmOptFetchRedo() used to cause a core dump
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.* $tmp; exit" 0 1 2 3 15
+
+# real QA test starts here
+
+cat >$tmp.c <<End-of-File
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
+
+main()
+{
+    fetchctl_t	*root = (fetchctl_t *)0;
+
+    __pmOptFetchRedo(&root);
+
+    printf("__pmOptFetchRedo returns: %ld\n", (long)root);
+
+    exit(0);
+}
+End-of-File
+
+cc -o $tmp $tmp.c -lpcp
+$tmp

@@ -1,0 +1,43 @@
+QA output created by 185
+
+=== pmnewlog #1 ==
+Nothing unexpected in the pmnewlog output
+
+=== config differences ===
+1d0
+< # singular instances
+3d1
+< log mandatory on 10 sec sample.load
+5,8c3,24
+< # multiple instances
+< log mandatory off sample.colour
+< log mandatory on 20 sec sample.bin
+< log advisory on 1 min sample.bucket
+---
+> log mandatory on 10 sec sample.load
+> log mandatory off sample.colour ["red"]
+> log mandatory off sample.colour ["green"]
+> log mandatory off sample.colour ["blue"]
+> log mandatory on 20 sec sample.bin ["bin-100"]
+> log mandatory on 20 sec sample.bin ["bin-200"]
+> log mandatory on 20 sec sample.bin ["bin-300"]
+> log mandatory on 20 sec sample.bin ["bin-400"]
+> log mandatory on 20 sec sample.bin ["bin-500"]
+> log mandatory on 20 sec sample.bin ["bin-600"]
+> log mandatory on 20 sec sample.bin ["bin-700"]
+> log mandatory on 20 sec sample.bin ["bin-800"]
+> log mandatory on 20 sec sample.bin ["bin-900"]
+> log advisory on 1 min sample.bucket ["bin-100"]
+> log advisory on 1 min sample.bucket ["bin-200"]
+> log advisory on 1 min sample.bucket ["bin-300"]
+> log advisory on 1 min sample.bucket ["bin-400"]
+> log advisory on 1 min sample.bucket ["bin-500"]
+> log advisory on 1 min sample.bucket ["bin-600"]
+> log advisory on 1 min sample.bucket ["bin-700"]
+> log advisory on 1 min sample.bucket ["bin-800"]
+> log advisory on 1 min sample.bucket ["bin-900"]
+
+=== pmnewlog #2 ==
+Nothing unexpected in the pmnewlog output
+
+=== config differences (expect none!) ===

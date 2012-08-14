@@ -1,0 +1,81 @@
+#! /bin/sh
+# PCP QA Test No. 292
+# duplicate/alias base name resolution by pmlogger_check
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    sed \
+	-e '/host:/s/ [^ ].*/ HOST/' \
+	-e '/start:/s/ [^ ].*/ DATE/' \
+	-e '/end:/s/ [^ ].*/ DATE/' \
+	-e 's/^..:..:..\..../TIMESTAMP   /'
+}
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=0	# success is the default!
+trap "$signal -a -s TERM pmlogger >/dev/null 2>&1; cd; rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+rm -rf $tmp
+mkdir $tmp
+cd $tmp
+
+echo >control '# PCP archive logging configuration/control - for qa/'$seq'
+#
+$version=1.1
+LOCALHOSTNAME	n   n	'`pwd`'	-c ./config'
+
+echo "log mandatory on once pmcd.control.debug" >config
+
+# real QA test starts here
+echo "start pmlogger ..."
+pmlogger_check -V -c control >pmcheck.log 2>&1
+
+for i in 1 2 3 4
+do
+    echo "kill and restart pmlogger ..."
+    $sudo $signal -a -s TERM pmlogger
+    pmlogger_check -V -c control >>pmcheck.log 2>&1
+done
+$sudo $signal -a -s TERM pmlogger
+
+echo
+echo "Checking ..."
+for seq in 00 01
+do
+    if [ "`echo *-$seq.index`" != "*-$seq.index" ]
+    then
+	echo "Found at least one \"-$seq\" suffix"
+    else
+	echo "No \"-$seq\" suffix found!"
+	status=1
+    fi
+done
+
+if [ $status = 1 ]
+then
+    echo
+    echo "Hmm ... this is what we got"
+    ls -l
+    echo "=== pmlogger.log==="
+    cat pmlogger.log
+    echo "=== pmcheck.log==="
+    cat pmcheck.log
+fi
+
+echo
+echo "merge 'em together ..."
+pmlogextract *.0 out
+pmval -U out pmcd.control.debug | _filter
+
+exit

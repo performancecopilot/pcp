@@ -1,0 +1,178 @@
+#! /bin/sh
+# PCP QA Test No. 119
+# pmlogger_check failure produces way too many lines of output
+# pv 877570
+#
+# Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# need fix for pv 877570
+if [ $PCP_PLATFORM != irix -a $PCP_VER -ge 2300 ]
+then
+    # fix is in pcp-2.3.0-11
+    :
+elif [ $PCP_PLATFORM = irix -a $PCP_VER -ge 2400 ]
+then
+    # PCP 2.4 or later
+    :
+else
+    echo "need fix for pv #877570" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+rm -f $seq.out
+if $PCP_BINADM_DIR/pmlogger_check -x 2>&1 | grep NTV >/dev/null
+then
+    # new version with -T option
+    #
+    have_T=true
+    ln $seq.new.out $seq.out
+else
+    # old version
+    #
+    have_T=false
+    ln $seq.old.out $seq.out
+fi
+
+$sudo rm -rf $tmp.*
+status=1	# failure is the default!
+_needclean=true
+[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+
+LOGGING_DIR=$PCP_LOG_DIR/pmlogger_qa
+
+trap "_cleanup" 0 1 2 3 15
+
+_cleanup()
+{
+    if $_needclean
+    then
+	[ -f $tmp.control ] && \
+	    $sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	_needclean=false
+    fi
+    $sudo rm -f $tmp.*
+    $sudo rm -rf $LOGGING_DIR/`hostname | sed -e 's/\..*//'`-one
+    $sudo rm -rf $LOGGING_DIR/`hostname | sed -e 's/\..*//'`-two
+    $sudo rm -rf $LOGGING_DIR/no.such.host
+    exit $status
+}
+
+_filter()
+{
+    sed \
+	-e "s/`hostname | sed -e 's/\..*//'`/LOCALHOST/g" \
+	-e "/UID.*PID/d" \
+	-e "/USER.*PID/d" \
+	-e "s/.* pmlogger .*-c .*/<pmlogger process>/" \
+	-e "/Warning: creating directory/s/(.*\/\([^/][^/]*\))/(...\/\1)/" \
+    | _filter_pmlogger_log \
+    | $PCP_AWK_PROG '
+/pmlogger_check: Error: archive file .* missing/ {
+		    $5 = "FILE"
+		    print
+		    skip = 1
+		    next
+		}
+skip == 1	{ next }
+		{ print }'
+}
+
+$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
+cat <<End-of-File >$tmp.tmp
+# dummy file created by qa/$seq on `date`
+# the goal here is to have just two pmlogger instances running and
+# a third one that will never run ...
+#
+\$version=1.1
+LOCALHOSTNAME	y n $LOGGING_DIR/LOCALHOSTNAME-one -c /dev/null
+LOCALHOSTNAME	n n $LOGGING_DIR/LOCALHOSTNAME-two -c /dev/null -L
+no.such.host	n n $LOGGING_DIR/no.such.host -c /dev/null
+End-of-File
+$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
+
+myhost=`hostname | sed -e 's/\..*//'`
+
+# stop pmcd, create the archive directories, start pmcd ...
+#
+$sudo $PCP_RC_DIR/pcp stop >$tmp.out 2>&1
+cat $tmp.out >$seq.full
+$sudo mkdir -p $LOGGING_DIR/${myhost}-one >/dev/null 2>&1
+$sudo mkdir -p $LOGGING_DIR/${myhost}-two >/dev/null 2>&1
+$sudo mkdir -p $LOGGING_DIR/no.such.host >/dev/null 2>&1
+echo "+++ before pmcd start ..." >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full
+echo "+++" >>$seq.full
+$sudo $PCP_RC_DIR/pcp start >$tmp.out 2>&1
+cat $tmp.out >>$seq.full
+_wait_for_pmcd
+echo "+++ after pmcd start ..." >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full
+echo "+++" >>$seq.full
+
+# avoid race with pmloggers not being started before pmlogger_check
+# is run below
+for i in 1 2 3 4 5
+do
+    [ -f $LOGGING_DIR/${myhost}-one/pmlogger.log -a -f $LOGGING_DIR/${myhost}-two/pmlogger.log ] && break
+    sleep 1
+done
+if [ ! -f $LOGGING_DIR/${myhost}-one/pmlogger.log ]
+then
+    echo "Failed to start pmlogger for ${myhost}-one"
+    echo "Logging directory contents ..."
+    ls -l $LOGGING_DIR/${myhost}-one
+    exit
+fi
+
+if [ ! -f $LOGGING_DIR/${myhost}-two/pmlogger.log ]
+then
+    echo "Failed to start pmlogger for ${myhost}-two"
+    echo "Logging directory contents ..."
+    ls -l $LOGGING_DIR/${myhost}-two
+    exit
+fi
+
+# real QA test starts here
+
+echo
+echo "=== pmlogger_check ==="
+echo "+++ before pmlogger_check ..." >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full
+echo "+++" >>$seq.full
+echo >>$seq.full
+echo "=== pmlogger_check ===" >>$seq.full
+$sudo $PCP_BINADM_DIR/pmlogger_check >$tmp.out 2>&1
+echo "+++ after pmlogger_check ..." >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full
+echo "+++" >>$seq.full
+_filter <$tmp.out
+cat $tmp.out >>$seq.full
+
+if $have_T
+then
+    echo
+    echo "=== pmlogger_check -T ==="
+    echo >>$seq.full
+    echo "=== pmlogger_check -T ===" >>$seq.full
+    $sudo $PCP_BINADM_DIR/pmlogger_check -T >$tmp.out 2>&1
+    _filter <$tmp.out
+    cat $tmp.out >>$seq.full
+fi
+
+# all OK
+status=0
+exit

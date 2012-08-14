@@ -1,0 +1,96 @@
+#!/bin/sh
+# PCP QA Test No. 247
+#
+# Derived metrics - exercise pmDesc processing during bind
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if grep -q 'pmRegisterDerived' $PCP_DIR/usr/include/pcp/pmapi.h
+then
+    :
+else
+    echo "No derived metric support" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+unset PCP_DERIVED_CONFIG
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    cat $tmp.out >>$seq.full
+    sed <$tmp.out \
+	-e "s;$tmp;TMP;"
+}
+
+# real QA test starts here
+
+pminfo -d sample.pdu sample.recv_pdu sample.xmit_pdu sample.byte_ctr sample.kbyte_ctr sample.long.hundred sample.bin
+
+echo
+echo "No semantic errors here ..."
+cat <<End-of-File >$tmp.config
+myname.a = sample.kbyte_ctr
+myname.b = sample.recv_pdu + sample.xmit_pdu
+myname.c = 123
+myname.d = 123 + sample.long.hundred
+myname.e = sample.pdu / sample.long.hundred
+myname.f = 1024 * sample.byte_ctr
+myname.g = sample.bin + 100 - sample.bin - 100
+myname.h = sample.seconds + sample.milliseconds / 1000
+End-of-File
+
+pminfo -Dderive -d -c $tmp.config myname >$tmp.out 2>&1
+_filter
+
+echo
+echo "Semantic errors ..."
+cat <<End-of-File >$tmp.config
+# no-such-metric
+myname.a = no.such.metric
+# illegal metric
+myname.b = sample.bad.unknown
+# bad semantics - counters and *
+myname.c = disk.dev.read * disk.dev.write
+# bad semantics - counter and non-counter
+myname.d = sample.byte_ctr + sample.long.hundred
+# bad semantics - non-counter and counter
+myname.e = sample.long.hundred - 100 / sample.byte_ctr
+# bad semantics - non-counters ... not possible at the moment
+# bad semantics - non-arithmetic metrics
+myname.f = 3 + sample.lights
+myname.g = sample.sysinfo - 42
+# pmUnits checks and metric semantic checks
+myname.h = disk.dev.total + sample.long.hundred
+myname.i = sample.long.hundred - disk.dev.total
+myname.j = sample.mirage * sample.step_counter
+myname.k = sample.step_counter / sample.mirage_longlong
+# indom checks
+myname.l = sample.bin + sample.darkness
+# from here on down, test cases driven by gcov analysis ...
+myname.gcov.a = 42 + sample.bad.unknown
+myname.gcov.b = (disk.all.total + disk.dev.total) + 42 
+myname.gcov.c = 42 - (disk.all.total + disk.dev.total)
+myname.gcov.d = (sample.bin + sample.darkness)+42
+End-of-File
+
+#debug# pminfo -D derive,appl0,appl1 -d -c $tmp.config myname >$tmp.out 2>&1
+pminfo -D derive -d -c $tmp.config myname >$tmp.out 2>&1
+_filter
+
+# success, all done
+exit

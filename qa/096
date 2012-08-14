@@ -1,0 +1,131 @@
+#! /bin/sh
+# PCP QA Test No. 096
+# proc.psinfo.ttyname
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+. ./common.product
+. ./common.check
+. ./common.filter
+
+if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+then
+    _notrun "No proc metrics for $PCP_PLATFORM"
+else
+    # proc metrics may not be available
+    #
+    if pminfo proc.nprocs >/dev/null 2>&1
+    then
+	:
+    else
+	_notrun proc PMDA not installed
+    fi
+fi
+
+echo "QA output created by $seq"
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+
+if [ $# -eq 1 ]
+then
+   if [ $1 = "-v" ]
+   then
+     verbose=1
+   fi
+fi
+
+# make sure we have latest ttymap
+$sudo rm -f $seq.full
+$sudo rm -f /tmp/pcp.ttymap
+# make sure proc agent reloads it
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger
+
+#
+# tty filtering per host
+#
+if [ $PCP_PLATFORM = irix ]
+then
+	# handle stupid /dev/tablet as controlling tty!
+	ls -lr /dev | grep '^c.* 0,  1' \
+	| $PCP_AWK_PROG '
+	NR == 1	{ good=$NF; next }
+		{ print "s/" $NF "/" good "/" }' >$tmp.sed
+	ps -e | tee -a $seq.full |\
+	  sed -e 's#pts/#ttyq#' |
+	  sed -f $tmp.sed > $tmp.ps
+elif [ $PCP_PLATFORM = linux ]
+then
+	ps -e | tee -a $seq.full | sed \
+		-e 's#ttyS#tts/#' \
+        | $PCP_AWK_PROG '
+	/<defunct>/ { print $1, "?" }
+        {print}' >$tmp.ps  
+else
+    echo "Arrgh ... Need to know how to do tty filtering for $PCP_PLATFORM"
+    exit 1
+fi
+
+echo "=====================" >>$seq.full
+
+pminfo -F proc.psinfo.ttyname |\
+  sed > $tmp.pminfo \
+	-e '/DISAPPEARED/d' \
+	-e 's#"ttyS#"tts/#' \
+	-e 's#vc/#tty#'
+echo "----" > $tmp.sep
+
+maxfailures=0
+
+cat $tmp.ps $tmp.sep $tmp.pminfo | tee -a $seq.full |\
+$PCP_AWK_PROG -v verbose=$verbose -v maxfailures=$maxfailures -v failfile=$tmp.fail '
+	$0 == "----" { pminfo = 1; next; }
+        pminfo == 0  { 
+			# handle defunct processes which have "-" as tty
+			if ($2 == "-")
+			    $2 = "?"
+			ps[$1] = $2
+			ps_cmd[$1] = $4 
+			next
+		     }
+/ inst \[/	{
+		  sub(/.* inst \[/, "")	# delete up to [
+		  pid = $1
+		  # fall-through, expect value on same line, but not
+		  # not necessarily so
+		}
+/] value "/	{
+		  sub(/.*] value "/, "") # delete up to value " 
+		  sub(/"/,"") 		# delete the final "
+		  value = $1;
+
+		# do the comparison
+		if (pid in ps) {
+		    if (ps[pid] != value && value != "?") {
+			printf("mismatch: pid = %s, ps = %s, proc = %s, cmd = %s\n", pid, ps[pid], value, ps_cmd[pid]) > failfile;	
+			failures++;
+		    }
+		    else if (verbose == 1) {
+			printf("match for pid = %d, value = %s, ps[pid] = %s, cmd = %s\n", pid, value, ps[pid], ps_cmd[pid]);	
+		    }
+		}
+	}
+	END          { 
+			if (failures > maxfailures) {
+			    printf("Number of failures = %d\n", failures) 
+			    system("cat " failfile)
+			}
+			else 
+			    printf("proc.psinfo.ttyname matches with ps\n")
+		     }
+'
+echo
+echo "If failure, check $seq.full"
+
+exit 0

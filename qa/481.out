@@ -1,0 +1,469 @@
+QA output created by 481
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	rattle -> whizz-bang.engr.sgi.com
+Timezone:	EST-11 -> GMT+10
+Delta:		-> 00:00:10.000000
+
+Instance Domain: 1.5
+pmInDom:	-> 1.10
+Instance:	[15] "15 minute" -> [9999] "forever"
+
+Metric: irix.kernel.all.load (1.18.3)
+InDom:		1.5 -> 1.10
+Inst Changes:	<- InDom 1.5
+
+=== global time -> +3 ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> 00:00:03.000000
+
+=== global time -> +3.5 ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> 00:00:03.500000
+
+=== global time -> +3. ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> 00:00:03.000000
+
+=== global time -> +03 ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> 00:00:03.000000
+
+=== global time -> 4 ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> 00:00:04.000000
+
+=== global time -> 4.000005 ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> 00:00:04.000005
+
+=== global time -> 4. ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> 00:00:04.000000
+
+=== global time -> 04 ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> 00:00:04.000000
+
+=== global time -> -5 ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> -00:00:05.000000
+
+=== global time -> -5.005 ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> -00:00:05.005000
+
+=== global time -> -5. ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> -00:00:05.000000
+
+=== global time -> -05 ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> -00:00:05.000000
+
+=== global time -> +1:00.123456 ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> 00:01:00.123456
+
+=== global time -> +2:00 ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> 00:02:00.000000
+
+=== global time -> 3:00. ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> 00:03:00.000000
+
+=== global time -> 04:00 ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> 00:04:00.000000
+
+=== global time -> -5:12.345 ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> -00:05:12.345000
+
+=== global time -> -6:30 ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> -00:06:30.000000
+
+=== global time -> +23:59:59 ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> 23:59:59.000000
+
+=== global time -> -0:0:1 ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> -00:00:01.000000
+
+=== global time -> +12:34:56.789012 ===
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> 12:34:56.789012
+
+=== global hostname -> abc ===
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	rattle -> abc
+
+=== global hostname -> node123.localdomain ===
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	rattle -> node123.localdomain
+
+=== global hostname -> foo-bar ===
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	rattle -> foo-bar
+
+=== global hostname -> 123 ===
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	rattle -> 123
+
+=== global hostname -> 123.456 ===
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	rattle -> 123.456
+
+=== global hostname -> 123.456foobar ===
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	rattle -> 123.456foobar
+
+=== global hostname -> 100foo ===
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	rattle -> 100foo
+
+=== global hostname -> 100.foo ===
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	rattle -> 100.foo
+
+=== global hostname -> 10.0.foo ===
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	rattle -> 10.0.foo
+
+=== global time -> 60 (expect warning) ===
+Warning [TMP.conf, line 1]
+Seconds (60) in time clause more than 59
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> 00:01:00.000000
+
+=== global time -> 123:45 (expect warning) ===
+Warning [TMP.conf, line 1]
+Minutes (123) in time clause more than 59
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> 02:03:45.000000
+
+=== global time -> 123:0:61.678901 (expect warning) ===
+Warning [TMP.conf, line 1]
+Seconds (61.678901) in time clause more than 59
+PCP Archive Log Rewrite Specifications Summary
+Delta:		-> 123:01:01.678901
+
+=== global dup hostname clause (expect error) ===
+Specification error in configuration file (TMP.conf)
+[line 5] Duplicate global hostname clause
+
+=== global dup tz clause (expect error) ===
+Specification error in configuration file (TMP.conf)
+[line 4] Duplicate global tz clause
+
+=== global dup time clause (expect error) ===
+Specification error in configuration file (TMP.conf)
+[line 6] Duplicate global time clause
+
+=== indom dup indom clause (expect error) ===
+Specification error in configuration file (TMP.conf)
+[line 4] Duplicate indom clause for indom 1.5
+
+=== indom dup name clause (expect error) ===
+Specification error in configuration file (TMP.conf)
+[line 4] Duplicate or conflicting clauses for instance [1] "1 minute" of indom 1.5
+
+=== indom dup inst clause (expect error) ===
+Specification error in configuration file (TMP.conf)
+[line 3] Duplicate or conflicting clauses for instance [1] "1 minute" of indom 1.5
+
+=== indom 1.5 { } ===
+PCP Archive Log Rewrite Specifications Summary
+No changes
+
+=== indom 1.5 { indom -> 1.5 } ===
+Warning [TMP.conf, line 1]
+Instance domain 1.5: indom: No change
+PCP Archive Log Rewrite Specifications Summary
+No changes
+
+=== indom  { } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Expecting <domain>.<serial> or <domain>.* in indom rule
+
+=== indom 1.5 { indom ->  } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Expecting <domain>.<serial> or <domain>.* in indom clause
+
+=== indom 1.6 { } ===
+Warning [TMP.conf, line 1]
+Instance domain 1.6: Instance domain identifier not defined in the PCP archive log
+PCP Archive Log Rewrite Specifications Summary
+No changes
+
+=== indom 1.5 { indom -> 1.6 } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Instance Domain: 1.5
+pmInDom:	-> 1.6
+
+Metric: irix.kernel.all.load (1.18.3)
+InDom:		1.5 -> 1.6
+
+=== indom 1.2.3 { } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Expecting <domain>.<serial> or <domain>.* in indom rule
+
+=== indom 1.5 { indom -> 1.2.3 } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Expecting <domain>.<serial> or <domain>.* in indom clause
+
+=== indom foo { } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Expecting <domain>.<serial> or <domain>.* in indom rule
+
+=== indom 1.5 { indom -> foo } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Expecting <domain>.<serial> or <domain>.* in indom clause
+
+=== indom 1.4194304 { } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Illegal serial field (4194304) for indom
+
+=== indom 1.5 { indom -> 1.4194304 } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Illegal serial field (4194304) for indom
+
+=== indom 512.1 { } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Illegal domain field (512) for indom
+
+=== indom 1.5 { indom -> 512.1 } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Illegal domain field (512) for indom
+
+=== indom 513.4194310 { } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Illegal domain field (513) for indom
+
+=== indom 1.5 { indom -> 513.4194310 } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Illegal domain field (513) for indom
+
+=== indom 1.* { } ===
+PCP Archive Log Rewrite Specifications Summary
+No changes
+
+=== indom 1.5 { indom -> 1.* } ===
+Warning [TMP.conf, line 1]
+Instance domain 1.5: indom: No change
+PCP Archive Log Rewrite Specifications Summary
+No changes
+
+=== indom 1.5 { iname "15" -> "15 mid range" } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Instance Domain: 1.5
+Instance:	[15] "15 minute" -> [15] "15 mid range"
+
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
+
+=== indom 1.5 { inst 1 -> 3 } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Instance Domain: 1.5
+Instance:	[1] "1 minute" -> [3] "1 minute"
+
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
+
+=== indom 1.5 { inst 5 -> delete } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Instance Domain: 1.5
+Instance:	[5] "5 minute" -> DELETE
+
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
+
+=== indom 1.5 { iname "5" -> delete } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Instance Domain: 1.5
+Instance:	[5] "5 minute" -> DELETE
+
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
+
+=== indom 1.5 { inst 1 -> 3 iname "1" -> "3 minute" } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Instance Domain: 1.5
+Instance:	[1] "1 minute" -> [3] "3 minute"
+
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
+
+=== indom 1.5 { iname "15" -> } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Expecting new external instance name string or DELETE in iname clause
+
+=== indom 1.5 { iname "15" - } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Expecting -> in iname clause
+
+=== indom 1.5 { iname "15" } ===
+Specification error in configuration file (TMP.conf)
+[line 1] Expecting -> in iname clause
+
+=== indom 1.5 { iname "15" -> "16" iname "5" -> "6" iname "15" -> delete } (expect error) ===
+Specification error in configuration file (TMP.conf)
+[line 1] Duplicate or conflicting clauses for instance [15] "15 minute" of indom 1.5
+
+=== indom 1.5 { iname "5" -> "5 minute" } (expect error) ===
+Warning [TMP.conf, line 1]
+Instance domain 1.5: Instance: "5 minute": No change
+PCP Archive Log Rewrite Specifications Summary
+No changes
+
+=== indom 1.5 { inst 1 -> 1 } (expect error) ===
+Warning [TMP.conf, line 1]
+Instance domain 1.5: Instance: 1: No change
+PCP Archive Log Rewrite Specifications Summary
+No changes
+
+=== indom 1.5 { iname "15" -> delete iname "5" -> "6" iname "15" -> "deleted" } (expect error) ===
+Specification error in configuration file (TMP.conf)
+[line 1] Duplicate or conflicting clauses for instance [15] "15 minute" of indom 1.5
+
+=== indom 1.5 { inst 5 -> 6 inst 1 -> 2 inst 5 -> delete } (expect error) ===
+Specification error in configuration file (TMP.conf)
+[line 1] Duplicate or conflicting clauses for instance [5] "5 minute" of indom 1.5
+
+=== indom 1.5 { inst 5 -> delete inst 1 -> 2 inst 5 -> 123 } (expect error) ===
+Specification error in configuration file (TMP.conf)
+[line 1] Duplicate or conflicting clauses for instance [5] "5 minute" of indom 1.5
+
+=== indom 1.5 { iname "15" -> "16" inst 15 -> delete } (expect error) ===
+Specification error in configuration file (TMP.conf)
+[line 1] Duplicate or conflicting clauses for instance [15] "15 minute" of indom 1.5
+
+=== indom 1.5 { inst 15 -> delete iname "15" -> "16" } (expect error) ===
+Specification error in configuration file (TMP.conf)
+[line 1] Duplicate or conflicting clauses for instance [15] "15 minute" of indom 1.5
+
+=== indom 1.5 { inst 15 -> 16 iname "15" -> delete } (expect error) ===
+Specification error in configuration file (TMP.conf)
+[line 1] Duplicate or conflicting clauses for instance [15] "15 minute" of indom 1.5
+
+=== indom 1.5 { iname "15" -> delete inst 15 -> 16 } (expect error) ===
+Specification error in configuration file (TMP.conf)
+[line 1] Duplicate or conflicting clauses for instance [15] "15 minute" of indom 1.5
+
+=== indom 1.5 { iname "5 minutes" -> "yippee" } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Instance Domain: 1.5
+Instance:	[5] "5 minute" -> [5] "yippee"
+
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
+
+=== indom 1.5 { iname "1" -> "yippee" } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Instance Domain: 1.5
+Instance:	[1] "1 minute" -> [1] "yippee"
+
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
+
+=== indom 1.5 { iname "5" -> "yippee" } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Instance Domain: 1.5
+Instance:	[5] "5 minute" -> [5] "yippee"
+
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
+
+=== indom 1.5 { iname "15" -> "yippee" } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Instance Domain: 1.5
+Instance:	[15] "15 minute" -> [15] "yippee"
+
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
+
+=== indom 1.5 { iname "1 does not matter" -> "yippee" } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Instance Domain: 1.5
+Instance:	[1] "1 minute" -> [1] "yippee"
+
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
+
+=== indom 1.5 { iname "15 eek" -> "yippee" } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Instance Domain: 1.5
+Instance:	[15] "15 minute" -> [15] "yippee"
+
+Metric: irix.kernel.all.load (1.18.3)
+Inst Changes:	<- InDom 1.5
+
+=== indom 2.1 { iname "19856" -> "19856 bozo" } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Instance Domain: 2.1
+Instance:	[19856] "19856" -> [19856] "19856 bozo"
+
+Metric: pmcd.pmlogger.host (2.3.3)
+Inst Changes:	<- InDom 2.1
+
+Metric: pmcd.pmlogger.port (2.3.0)
+Inst Changes:	<- InDom 2.1
+
+Metric: pmcd.pmlogger.archive (2.3.2)
+Inst Changes:	<- InDom 2.1
+
+=== indom 2.1 { iname "19856 does not matter" -> "19856 bozo" } ===
+PCP Archive Log Rewrite Specifications Summary
+
+Instance Domain: 2.1
+Instance:	[19856] "19856" -> [19856] "19856 bozo"
+
+Metric: pmcd.pmlogger.host (2.3.3)
+Inst Changes:	<- InDom 2.1
+
+Metric: pmcd.pmlogger.port (2.3.0)
+Inst Changes:	<- InDom 2.1
+
+Metric: pmcd.pmlogger.archive (2.3.2)
+Inst Changes:	<- InDom 2.1
+
+=== indom 2.1 { iname "19857" -> "19856 bozo" } ===
+Warning [TMP.conf, line 1]
+Unknown instance "19857" in iname clause for indom 2.1
+PCP Archive Log Rewrite Specifications Summary
+No changes
+
+=== context sensitive lexical scanning ... expect pass ===
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	rattle -> global
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	rattle -> inst
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	rattle -> hostname
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	rattle -> tz
+PCP Archive Log Rewrite Specifications Summary
+
+Metric: irix.kernel.all.load (1.18.3)
+Name:		irix.kernel.all.load -> hostname
+
+=== context sensitive lexical scanning ... expect fail ===
+Specification error in configuration file (TMP.conf)
+[line 2] Expecting metric name in iname clause
+Specification error in configuration file (TMP.conf)
+[line 2] Expecting metric name in iname clause

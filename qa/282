@@ -1,0 +1,378 @@
+#! /bin/sh
+# PCP QA Test No. 282
+# Error handling in $PCP_RC_DIR/pcp
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./localconfig
+
+$sudo rm -f $seq.out
+if [ $PCP_PLATFORM = linux ]
+then
+    if [ $PCP_VER -ge 3600 ]
+    then
+	# /etc/init.d/pmcd and /etc/init.d/pmlogger changes
+	ln $seq.out.5 $seq.out || exit 1
+    else
+	if [ -f /etc/fedora-release ]
+	then
+	    if grep ' 2 ' /etc/fedora-release >/dev/null
+	    then
+		# $seq.out.4 works for Fedora2
+		ln $seq.out.4 $seq.out || exit 1
+	    else
+		# use the old Linux one
+		ln $seq.out.3 $seq.out || exit 1
+	    fi
+	else
+	    # $seq.out.3 is the old Linux one
+	    ln $seq.out.3 $seq.out || exit 1
+	fi
+    fi
+elif [ $PCP_PLATFORM = irix ]
+then
+    # Note - only need to set these two for the IRIX version, as
+    # not used for other platforms
+    PCP_PMLOGGEROPTIONS_PATH=/etc/config/pmlogger.options
+    SYSPMDA=/usr/pcp/lib/`pmobjstyle`.libirixpmda.so 
+    if [ $PCP_EOE_VER -lt 2100 -o \( $PCP_EOE_VER -ge 6500 -a \
+         $PCP_EOE_VER -le 6501 \) ]
+    then
+        # old version for PCP_EOE 2.0 or PCP_EOE from Irix 6.5 and 6.5.1
+        ln $seq.out.pre-2.1 $seq.out
+    else
+        ln $seq.out.2.1 $seq.out
+    fi
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+then
+    # same output for Mac OS X and OpenSolaris?
+    if [ $PCP_VER -ge 3600 ]
+    then
+	# /etc/init.d/pmcd and /etc/init.d/pmlogger changes
+	ln $seq.out.5 $seq.out || exit 1
+    else
+	ln $seq.out.3 $seq.out
+    fi
+elif [ $PCP_PLATFORM = mingw ]
+then
+    echo "Cannot send STOP signal to Win32 process" > $seq.notrun
+    exit 0
+else
+    echo "No clue what to do with PCP_PLATFORM=$PCP_PLATFORM!"
+    exit 1
+fi
+
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+
+status=1	# failure is the default!
+LOCALHOST=`hostname`
+_needclean=true
+sleepy=false
+
+if which pmlogger_check >$tmp.tmp 2>&1
+then
+    CHECK=`which pmlogger_check`
+else
+    echo "This is bad news ..."
+    cat $tmp.tmp
+    exit
+fi
+
+if [ -z "$CHECK" -o ! -x "$CHECK" ]
+then
+    echo "Cannot find an executable pmlogger_check: \"$CHECK\""
+    exit
+fi
+
+_poke_pmcd()
+{
+    $sudo $PCP_RC_DIR/pcp restart 2>&1 \
+    | tee -a $seq.full \
+    | sed \
+	-e '/ root .* .usr.etc.pmcd /s/.*/-- ps output line --/' \
+	-e '/UID .* PID /d' \
+	-e '/USER .* PID /d' \
+	-e "s/$LOCALHOST/HOST/g" \
+    | _filter_pcp_start \
+    | _filter_pmcd_log \
+    | _filter_cron_scripts \
+    | sed \
+	-e 's/\(install the pcp.sw.base\) .*/\1 ... PCP 2.0 or later .../' \
+	-e 's/.*\(consult PMLOGGER.CHECK(1), else\)/        ... \1/' \
+	-e '/root.*.PCP_BINADM_DIR.pmcd/s/.*/-- ps output line --/' \
+	-e '/^failed (status=1)/d' \
+	-e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+	-e '/^$/d'
+
+    can_wait=5
+    i=0
+    while [ $i -lt $can_wait ]
+    do
+	clients=`pmprobe pmcd.numclients 2>/dev/null | sed -e 's/.* //'`
+	if [ $i -eq 0 ]
+	then
+	    echo >>$seq.full
+	    echo "+ pmprobe pmcd.numclients" >>$seq.full
+	    pmprobe pmcd.numclients >>$seq.full 2>&1
+	    echo "clients=\"$clients\"" >>$seq.full
+	fi
+	[ ! -z "$clients" ] && [ "$clients" -gt 0 ] && break
+	sleep 1
+	i=`expr $i + 1`
+    done
+    
+    $PCP_ECHO_PROG $PCP_ECHO_N "=== probe pmcd: ""$PCP_ECHO_C"
+    x=`pmprobe pmcd.control.debug 2>&1 | sed -e "s/$LOCALHOST/HOST/g"`
+    if [ "$x" = "pmcd.control.debug 1" ]
+    then
+	$PCP_ECHO_PROG OK
+    else
+	$PCP_ECHO_PROG "$x"
+    fi
+}
+
+_poke_pmcd_n_logger()
+{
+    pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+    && $sudo sh $tmp.cmd
+    _poke_pmcd
+
+    can_wait=5
+    i=0
+    while [ $i -lt $can_wait ]
+    do
+	if pmlc -P </dev/null 2>&1 | grep "Connected to.* pmlogger" >/dev/null
+	then
+	    sleep 2
+	    break
+	fi
+	sleep 2
+	i=`expr $i + 1`
+    done
+
+    $PCP_ECHO_PROG $PCP_ECHO_N "=== probe pmlogger: ""$PCP_ECHO_C"
+    x=`echo connect primary | pmlc 2>&1 | sed -e "s/$LOCALHOST/HOST/g"`
+    sleep 2
+    if [ -z "$x" ]
+    then
+	$PCP_ECHO_PROG OK
+    else
+	$PCP_ECHO_PROG "$x"
+        if $sleepy 
+        then
+            echo go check the logs while I wait a couple of minutes
+            sleep 240
+        fi
+    fi
+}
+
+_interrupt()
+{
+    status=1
+}
+
+_save_setup()
+{
+	for file in $PCP_PMCDCONF_PATH $SYSPMDA \
+		$PCP_PMCD_PROG \
+		$CHECK $PCP_PMLOGGERCONTROL_PATH \
+		$PCP_PMLOGGEROPTIONS_PATH
+	do
+	    [ -f $file.$$ ] && $sudo rm -f $file.$$
+	    [ -f $file ] && $sudo cp $file $file.$$
+	done
+}
+
+_cleanup()
+{
+    trap "" 0 1 2 3 15
+    if $_needclean
+    then
+	echo
+	echo "Restore the state of the universe ..."
+	for file in $PCP_PMCDCONF_PATH $SYSPMDA \
+		$PCP_PMCD_PROG \
+		$CHECK $PCP_PMLOGGERCONTROL_PATH \
+		$PCP_PMLOGGEROPTIONS_PATH
+	do
+	    [ -f $file.$$ ] && $sudo mv $file.$$ $file
+	done
+
+	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+	&& $sudo sh $tmp.cmd
+        if [ $PCP_PLATFORM = irix ]; then
+	    _change_config verbose on
+        fi
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_needclean=false
+    fi
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+trap "_cleanup" 0
+trap "_interrupt; _cleanup" 1 2 3 15
+
+rm -f $seq.full
+touch $seq.full
+
+# real QA test starts here
+_save_setup
+_disable_loggers
+
+for verbose in on off
+do
+    if [ $PCP_PLATFORM = irix ]; then
+        echo
+        echo "======================="
+        echo "= chkconfig verbose $verbose "
+        echo "======================="
+        $sudo chkconfig verbose $verbose
+    fi
+
+    echo
+    echo '=== expect error: no $PCP_PMCDCONF_PATH ==='
+    $sudo rm -f $PCP_PMCDCONF_PATH
+    _poke_pmcd
+
+    if [ $PCP_PLATFORM = irix ]
+    then
+	cat <<End-of-File >$tmp.out
+# from qa/$seq
+irix	1	dso	irix_init	libirixpmda.so
+pmcd	2	dso	pmcd_init	pmda_pmcd.so
+proc	3	dso	proc_init	pmda_proc.so
+End-of-File
+    elif [ $PCP_PLATFORM = linux ]
+    then
+	cat <<End-of-File >$tmp.out
+# from qa/$seq
+linux	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
+    elif [ $PCP_PLATFORM = darwin ]
+    then
+	cat <<End-of-File >$tmp.out
+# from qa/$seq
+darwin	78	dso	darwin_init	$PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+End-of-File
+    elif [ $PCP_PLATFORM = solaris ]
+    then
+	cat <<End-of-File >$tmp.out
+# from qa/$seq
+solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
+    else
+	echo "Arrgh ... need pmcd.conf for $PCP_PLATFORM"
+	exit 1
+    fi
+
+    $sudo cp $tmp.out $PCP_PMCDCONF_PATH
+
+    echo
+    echo "=== simple case, no frills, no errors ==="
+    _poke_pmcd_n_logger
+
+    echo
+    echo "=== expected failure: a mere mortal ==="
+    osudo="$sudo"
+    sudo=''
+    _poke_pmcd
+    sudo="$osudo"
+    echo "=== start again ==="
+    _poke_pmcd_n_logger
+
+    echo 
+    echo "=== expect 2 x connect failure: pmcd is true(1), so hard for pmlogger ==="
+    $sudo rm $PCP_PMCD_PROG 
+    $sudo cp `which true` $PCP_PMCD_PROG
+    _poke_pmcd_n_logger
+    $sudo cp $PCP_PMCD_PROG.$$ $PCP_PMCD_PROG
+    echo "=== start again ==="
+    _poke_pmcd_n_logger
+
+    echo "=== expect difficulty terminating pmcd ... it has been sent a SIGSTOP ==="
+    pid=`_get_pids_by_name pmcd`
+    if [ -z "$pid" ]
+    then
+	echo "Arrgh ... cannot find PID for pmcd!"
+	ps $PCP_PS_ALL_FLAGS
+	exit
+    fi
+    #DEBUG# ps $PCP_PS_ALL_FLAGS
+
+    $sudo kill -STOP $pid
+    _poke_pmcd
+
+    echo 
+    echo "=== expect warning: PMLOGGER.CHECK moved, so no pmlogger ==="
+    $sudo rm $CHECK 
+    _poke_pmcd_n_logger
+    $sudo cp $CHECK.$$ $CHECK
+    _disable_loggers
+
+    echo 
+    echo "=== expect error: pmlogger/control moved, so no pmlogger ==="
+    $sudo rm -f $PCP_PMLOGGERCONTROL_PATH
+    _poke_pmcd_n_logger
+
+    if [ $PCP_PLATFORM = irix ]
+    then
+	# These features are in the IRIX init.d script, but not in the
+	# Linux one
+	#
+	echo 
+	echo "=== expect warning: host not in pmlogger/control, so initialize ==="
+	$sudo rm -f $PCP_PMLOGGERCONTROL_PATH
+	sed -e "/LOCALHOSTNAME/d" -e "/`hostname`/d" <$PCP_PMLOGGERCONTROL_PATH.$$ >$tmp.out
+	$sudo cp $tmp.out $PCP_PMLOGGERCONTROL_PATH
+	sleepy=true
+	_poke_pmcd_n_logger
+	sleepy=false
+	# added by mg
+	$sudo cp $PCP_PMLOGGERCONTROL_PATH.$$ $PCP_PMLOGGERCONTROL_PATH
+
+	echo
+	echo "=== expect pmlogger connect failure: same case, but pmlogger.options is bogus ==="
+	$sudo rm -f $PCP_PMLOGGERCONTROL_PATH
+	sed -e "/LOCALHOSTNAME/d" -e "/`hostname`/d" <$PCP_PMLOGGERCONTROL_PATH.$$ >$tmp.out
+	$sudo cp $tmp.out $PCP_PMLOGGERCONTROL_PATH
+	echo "-c /no/such/config" >$tmp.tmp
+	$sudo mv $tmp.tmp $PCP_PMLOGGEROPTIONS_PATH
+	_poke_pmcd_n_logger \
+	| sed \
+	    -e '/^-rw/d' \
+	    -e '/^-r-/d' \
+	    -e '/^---/d' \
+	    -e '/^drw/d' \
+	    -e '/^total /s/.*/.../' \
+	    -e '/missing$/s/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]/CHECK/' 
+	$sudo rm -f $PCP_PMLOGGEROPTIONS_PATH
+	$sudo cp $PCP_PMLOGGERCONTROL_PATH.$$ $PCP_PMLOGGERCONTROL_PATH
+    fi
+
+    # no chkconfig verbose for Linux
+    #
+    [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin ] && break
+
+done
+
+# success, all done
+status=0
+exit

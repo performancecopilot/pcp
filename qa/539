@@ -1,0 +1,52 @@
+#! /bin/sh
+# PCP QA Test No. 539
+# pmpost race condition between check modified date and lock
+# #665984
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    [ -f $PCP_LOG_DIR/NOTICES.qa.$seq ] && $sudo mv $PCP_LOG_DIR/NOTICES.qa.$seq $PCP_LOG_DIR/NOTICES
+    rm -f $tmp.*
+}
+
+_filter()
+{
+    echo "DATE lines (expect 1) ..."
+    sed -n <$1 \
+	-e '/^DATE:/s/ .*/ .../p'
+    echo "pmpost lines (expect 20) ..."
+    sed -n <$1 \
+	-e "/qa-$seq/s/.*qa/... qa/p"
+}
+
+$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.qa.$seq
+$sudo touch -t 199701020304.00 $PCP_LOG_DIR/NOTICES
+
+# real QA test starts here
+for i in 1 2 3 4 5
+do
+    $sudo $PCP_BINADM_DIR/pmpost qa-$seq & $sudo $PCP_BINADM_DIR/pmpost qa-$seq &
+    $sudo $PCP_BINADM_DIR/pmpost qa-$seq & $sudo $PCP_BINADM_DIR/pmpost qa-$seq &
+done
+
+wait
+
+_filter $PCP_LOG_DIR/NOTICES
+
+# success, all done
+status=0
+exit

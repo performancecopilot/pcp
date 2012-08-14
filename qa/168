@@ -1,0 +1,98 @@
+#! /bin/sh
+# PCP QA Test No. 168
+# pmlogmerge shall abort if descriptors non consistent across archives
+# pv 933456
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+# check for new version of sample pmda
+#
+if pminfo -v sample.dynamic.meta 2>&1 >/dev/null
+then
+    :
+else
+    echo "Need dynamic.meta metrics in sample PMDA" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; _reset; exit \$status" 0 1 2 3 15
+
+# force sample PMDA back to a sane state
+_reset()
+{
+    $sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
+}
+
+_filter()
+{
+    sed -e "s;$tmp;TMP;g"
+}
+
+# create second archive and try to merge 'em
+_doit()
+{
+    rm -f $tmp.new.* $tmp.out
+    echo "log mandatory on 1sec { sample.dynamic.meta }" \
+    | pmlogger -l $tmp.log -s 3 $tmp.new
+    _reset
+    pmlogextract $tmp.base $tmp.new $tmp.out 2>&1 \
+    | _filter
+    if [ -f $tmp.out.0 ]
+    then
+	echo "Oops ... should not have created an output archive!"
+	echo
+	echo "=== Original metadata ==="
+	pminfo -d -a $tmp.base sample.dynamic.meta.metric
+	echo
+	echo "=== New metadata ==="
+	pminfo -d -a $tmp.new sample.dynamic.meta.metric
+	echo
+	echo "=== Merged metadata ==="
+	pminfo -d -a $tmp.out sample.dynamic.meta.metric
+	echo
+	echo "=== Dump of output archive ==="
+	pmdumplog -a $tmp.out
+    fi
+}
+
+_reset
+
+echo "Check initial metric set up ..."
+pminfo -f sample.dynamic.meta
+
+echo "log mandatory on 1sec { sample.dynamic.meta }" \
+| pmlogger -l $tmp.log -s 3 $tmp.base
+
+# real QA test starts here
+
+echo "Change metric type ..."
+pmstore sample.dynamic.meta.pmdesc.type 3
+_doit
+
+echo "Change metric indom ..."
+pmstore sample.dynamic.meta.pmdesc.indom 42
+_doit
+
+echo "Change metric semantics ..."
+pmstore sample.dynamic.meta.pmdesc.sem 0
+_doit
+
+echo "Change metric units ..."
+pmstore sample.dynamic.meta.pmdesc.units 0
+_doit
+
+# success, all done
+exit

@@ -1,0 +1,197 @@
+QA output created by 381
+
+=== _host= _logger_id=QA-PMLOGGER-PID ===
+
+pmlc> connect primary 
+pmlc> status
+pmlogger [primary] on host LOCAL-HOST is logging metrics from host ...
+... status output ...
+pmlc> query sample.drift
+sample.drift
+    adv  off nl             
+
+pmlc> connect port 4330 
+pmlc> status
+pmlogger [PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
+... status output ...
+pmlc> flush
+pmlc> connect QA-PMLOGGER-PID 
+pmlc> status
+pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
+... status output ...
+pmlc> flush
+pmlc> 
+
+=== _host= _logger_id=port QA-PMLOGGER-PORT ===
+
+pmlc> connect primary 
+pmlc> status
+pmlogger [primary] on host LOCAL-HOST is logging metrics from host ...
+... status output ...
+pmlc> query sample.drift
+sample.drift
+    adv  off nl             
+
+pmlc> connect port 4330 
+pmlc> status
+pmlogger [PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
+... status output ...
+pmlc> flush
+pmlc> connect port QA-PMLOGGER-PORT 
+pmlc> status
+pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
+... status output ...
+pmlc> flush
+pmlc> 
+
+=== _host=@LOCAL-HOST _logger_id=QA-PMLOGGER-PID ===
+
+pmlc> connect primary @LOCAL-HOST
+pmlc> status
+pmlogger [primary] on host LOCAL-HOST is logging metrics from host ...
+... status output ...
+pmlc> query sample.drift
+sample.drift
+    adv  off nl             
+
+pmlc> connect port 4330 @LOCAL-HOST
+pmlc> status
+pmlogger [PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
+... status output ...
+pmlc> flush
+pmlc> connect QA-PMLOGGER-PID @LOCAL-HOST
+pmlc> status
+pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
+... status output ...
+pmlc> flush
+pmlc> 
+
+=== _host=@LOCAL-HOST _logger_id=port QA-PMLOGGER-PORT ===
+
+pmlc> connect primary @LOCAL-HOST
+pmlc> status
+pmlogger [primary] on host LOCAL-HOST is logging metrics from host ...
+... status output ...
+pmlc> query sample.drift
+sample.drift
+    adv  off nl             
+
+pmlc> connect port 4330 @LOCAL-HOST
+pmlc> status
+pmlogger [PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
+... status output ...
+pmlc> flush
+pmlc> connect port QA-PMLOGGER-PORT @LOCAL-HOST
+pmlc> status
+pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
+... status output ...
+pmlc> flush
+pmlc> 
+
+=== _host=@REMOTE-HOST _logger_id=PMLOGGER-PID ===
+
+pmlc> connect primary @REMOTE-HOST
+pmlc> status
+pmlogger [primary] on host REMOTE-HOST is logging metrics from host ...
+... status output ...
+pmlc> query sample.drift
+sample.drift
+    adv  off nl             
+
+pmlc> connect port 4330 @REMOTE-HOST
+pmlc> status
+pmlogger [PMLOGGER-PID] on host REMOTE-HOST is logging metrics from host ...
+... status output ...
+pmlc> flush
+pmlc> connect PID @REMOTE-HOST
+pmlc> status
+pmlogger [PMLOGGER-PID] on host REMOTE-HOST is logging metrics from host ...
+... status output ...
+pmlc> flush
+pmlc> 
+Waiting for pmcd to terminate ...
+
+
+=== _host= _logger_id=QA-PMLOGGER-PID ===
+
+pmlc> connect primary 
+Unable to connect to primary pmlogger at LOCAL-HOST: Connection refused
+pmlc> status
+Error [<stdin>, line 2]
+Not connected to any pmlogger instance
+pmlc> query Error [<stdin>, line 3]
+Not connected to any pmlogger instance
+sample.drift
+pmlc> connect port 4330 
+Unable to connect to pmlogger on port 4330 at LOCAL-HOST: Connection refused
+pmlc> status
+Error [<stdin>, line 5]
+Not connected to any pmlogger instance
+pmlc> flush
+Error [<stdin>, line 6]
+Not connected to any pmlogger instance
+pmlc> connect QA-PMLOGGER-PID 
+pmlc> status
+pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
+... status output ...
+pmlc> flush
+pmlc> 
+
+=== _host= _logger_id=port QA-PMLOGGER-PORT ===
+
+pmlc> connect primary 
+Unable to connect to primary pmlogger at LOCAL-HOST: Connection refused
+pmlc> status
+Error [<stdin>, line 2]
+Not connected to any pmlogger instance
+pmlc> query Error [<stdin>, line 3]
+Not connected to any pmlogger instance
+sample.drift
+pmlc> connect port 4330 
+Unable to connect to pmlogger on port 4330 at LOCAL-HOST: Connection refused
+pmlc> status
+Error [<stdin>, line 5]
+Not connected to any pmlogger instance
+pmlc> flush
+Error [<stdin>, line 6]
+Not connected to any pmlogger instance
+pmlc> connect port QA-PMLOGGER-PORT 
+pmlc> status
+pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
+... status output ...
+pmlc> flush
+pmlc> 
+
+=== _host=@REMOTE-HOST _logger_id=PMLOGGER-PID ===
+
+pmlc> connect primary @REMOTE-HOST
+pmlc> status
+pmlogger [primary] on host REMOTE-HOST is logging metrics from host ...
+... status output ...
+pmlc> query sample.drift
+sample.drift
+    adv  off nl             
+
+pmlc> connect port 4330 @REMOTE-HOST
+pmlc> status
+pmlogger [PMLOGGER-PID] on host REMOTE-HOST is logging metrics from host ...
+... status output ...
+pmlc> flush
+pmlc> connect PID @REMOTE-HOST
+pmlc> status
+pmlogger [PMLOGGER-PID] on host REMOTE-HOST is logging metrics from host ...
+... status output ...
+pmlc> flush
+pmlc> 
+
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Signalled (signal=15), exiting
+
+Log finished DATE
+
+Starting pmcd ... 
+Starting pmlogger ... 

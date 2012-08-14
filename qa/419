@@ -1,0 +1,167 @@
+#! /bin/sh
+# PCP QA Test No. 419
+# expand non-leaf names to pmdumplog
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux|darwin)
+	ln $seq.$PCP_PLATFORM $seq.out || exit 1
+	;;
+    solaris)
+	# same output config for Mac OS X and OpenSolaris
+	ln $seq.darwin $seq.out || exit 1
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -n \
+	-e '/No values/d' \
+	-e '/):/{
+s/):.*//
+s/.*(//
+p
+}' \
+    | LC_COLLATE=POSIX sort \
+    | uniq -c \
+    | sed -e 's/^[ 	][ 	]*/ /' \
+    | $here/xlate_2_new_pmns
+}
+
+$sudo rm -f $tmp.0 $tmp.index $tmp.meta
+
+if [ $PCP_PLATFORM = irix ]
+then
+    cat > $tmp.pmlogger.in <<End-of-File 
+log mandatory on default {
+	kernel.all.load
+	kernel.all.pswitch
+	kernel.all.readch
+	kernel.all.writech
+	kernel.all.runocc
+	kernel.all.runque
+	kernel.all.syscall
+	kernel.all.cpu.idle
+	kernel.all.cpu.intr
+	kernel.all.cpu.sys
+	kernel.all.cpu.sxbrk
+	kernel.all.cpu.user
+	kernel.all.cpu.wait.total
+	kernel.all.ipc.msg
+	kernel.all.ipc.sema
+	disk.dev.read
+	disk.dev.write
+	disk.dev.total
+	network.interface.in.bytes
+	network.interface.out.bytes
+}
+End-of-File
+elif [ $PCP_PLATFORM = linux ]
+then
+    cat > $tmp.pmlogger.in <<End-of-File
+log mandatory on default {
+	kernel.all.load
+	kernel.all.pswitch
+	kernel.all.cpu.idle
+	kernel.all.cpu.intr
+	kernel.all.cpu.sys
+	kernel.all.cpu.user
+	kernel.all.cpu.wait.total
+	disk.dev.read
+	disk.dev.write
+	disk.dev.total
+	network.interface.in.bytes
+	network.interface.out.bytes
+}
+End-of-File
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+then
+    # same pmlogger config for Mac OS X and OpenSolaris
+    cat > $tmp.pmlogger.in <<End-of-File
+log mandatory on default {
+	kernel.all.load
+	kernel.all.cpu.idle
+	kernel.all.cpu.sys
+	kernel.all.cpu.user
+	disk.dev.read
+	disk.dev.write
+	disk.dev.total
+	network.interface.in.bytes
+	network.interface.out.bytes
+}
+End-of-File
+else
+    echo "Arrgh ... need pmlogger config for $PCP_PLATFORM"
+    exit 1
+fi
+
+pmlogger -t 2sec -T 5sec -l $tmp.log $tmp < $tmp.pmlogger.in
+
+pmdumplog $tmp | _filter >$tmp.ref
+
+cat $tmp.ref
+
+# real QA test starts here
+if [ $PCP_PLATFORM = irix ]
+then
+		for args in "kernel.all disk.dev network.interface.in network.interface.out" "kernel disk network" "kernel.all.load kernel.all.pswitch kernel.all.readch kernel.all.writech kernel.all.runocc kernel.all.runque kernel.all.syscall kernel.all.cpu.idle kernel.all.cpu.intr kernel.all.cpu.sys kernel.all.cpu.sxbrk kernel.all.cpu.user kernel.all.cpu.wait.total kernel.all.ipc.msg kernel.all.ipc.sema disk.dev.read disk.dev.write disk.dev.total network.interface.in.bytes network.interface.out.bytes"
+		do
+			echo
+			echo "=== $args ==="
+			eval pmdumplog $tmp \
+			pmcd.pmlogger.host pmcd.pmlogger.port pmcd.pmlogger.archive $args \
+			| _filter >$tmp.tmp
+			cat $tmp.tmp
+			diff $tmp.ref $tmp.tmp
+		done
+elif [ $PCP_PLATFORM = linux ]
+then
+		for args in "kernel.all disk.dev network.interface.in network.interface.out" "kernel disk network" "kernel.all.load kernel.all.pswitch kernel.all.cpu.idle kernel.all.cpu.intr kernel.all.cpu.sys kernel.all.cpu.user kernel.all.cpu.wait.total disk.dev.read disk.dev.write disk.dev.total network.interface.in.bytes network.interface.out.bytes"
+		do
+			echo
+			echo "=== $args ==="
+			eval pmdumplog $tmp \
+			pmcd.pmlogger.host pmcd.pmlogger.port pmcd.pmlogger.archive $args \
+			| _filter >$tmp.tmp
+			cat $tmp.tmp
+			diff $tmp.ref $tmp.tmp
+		done
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+then
+		# same metrics for Mac OS X and OpenSolaris
+		for args in "kernel.all disk.dev network.interface.in network.interface.out" "kernel disk network" "kernel.all.load kernel.all.cpu.idle kernel.all.cpu.sys kernel.all.cpu.user disk.dev.read disk.dev.write disk.dev.total network.interface.in.bytes network.interface.out.bytes"
+		do
+			echo
+			echo "=== $args ==="
+			eval pmdumplog $tmp \
+			pmcd.pmlogger.host pmcd.pmlogger.port pmcd.pmlogger.archive $args \
+			| _filter >$tmp.tmp
+			cat $tmp.tmp
+			diff $tmp.ref $tmp.tmp
+		done
+else
+    echo "Arrgh ... need pmdumplog args for $PCP_PLATFORM"
+    exit 1
+fi
+
+status=0
+exit

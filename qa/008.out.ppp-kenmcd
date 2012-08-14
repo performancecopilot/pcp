@@ -1,0 +1,54 @@
+QA output created by 008
+Disks:
+	[0]: 0 hda
+	[1]: 7 hdc
+all drives should be included here
+pmResult ... numpmid: 1
+  60.0.4 (disk.dev.read): numval: 2 valfmt: 0 vlist[]:
+    inst [0 or "hda"] value ...
+    inst [7 or "hdc"] value ...
+
+no drives should be included here
+pmResult ... numpmid: 1
+  60.0.4 (disk.dev.read): No values returned!
+
+only the first and last drive should be included here
+pmResult ... numpmid: 1
+  60.0.4 (disk.dev.read): numval: 2 valfmt: 0 vlist[]:
+    inst [0 or "hda"] value ...
+    inst [7 or "hdc"] value ...
+
+all except drive zero should be included here
+pmResult ... numpmid: 1
+  60.0.4 (disk.dev.read): numval: 1 valfmt: 0 vlist[]:
+    inst [7 or "hdc"] value ...
+
+drive zero ONLY should be included here
+pmResult ... numpmid: 1
+  60.0.4 (disk.dev.read): numval: 1 valfmt: 0 vlist[]:
+    inst [0 or "hda"] value ...
+all drives should be included here
+pmResult ... numpmid: 1
+  60.0.4 (disk.dev.read): numval: 2 valfmt: 0 vlist[]:
+    inst [0 or "hda"] value ...
+    inst [7 or "hdc"] value ...
+
+no drives should be included here
+pmResult ... numpmid: 1
+  60.0.4 (disk.dev.read): No values returned!
+
+only the first and last drive should be included here
+pmResult ... numpmid: 1
+  60.0.4 (disk.dev.read): numval: 2 valfmt: 0 vlist[]:
+    inst [0 or "hda"] value ...
+    inst [7 or "hdc"] value ...
+
+all except drive zero should be included here
+pmResult ... numpmid: 1
+  60.0.4 (disk.dev.read): numval: 1 valfmt: 0 vlist[]:
+    inst [7 or "hdc"] value ...
+
+drive zero ONLY should be included here
+pmResult ... numpmid: 1
+  60.0.4 (disk.dev.read): numval: 1 valfmt: 0 vlist[]:
+    inst [0 or "hda"] value ...

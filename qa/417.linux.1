@@ -1,0 +1,405 @@
+QA output created by 417
+
+=== pminfo ===
+pminfo: Cannot locate end of archive: Corrupted record in a PCP archive log
+
+WARNING: This archive is sufficiently damaged that it may not be possible to
+         produce complete information.  Continuing and hoping for the best.
+
+irix.kernel.all.load
+irix.kernel.all.pswitch
+irix.kernel.all.readch
+irix.kernel.all.writech
+irix.kernel.all.runocc
+irix.kernel.all.runque
+irix.kernel.all.syscall
+irix.kernel.all.cpu.idle
+irix.kernel.all.cpu.intr
+irix.kernel.all.cpu.sys
+irix.kernel.all.cpu.sxbrk
+irix.kernel.all.cpu.user
+irix.kernel.all.cpu.wait.total
+irix.kernel.all.ipc.msg
+irix.kernel.all.ipc.sema
+irix.disk.dev.read
+irix.disk.dev.write
+irix.disk.dev.total
+irix.network.interface.in.bytes
+irix.network.interface.out.bytes
+
+=== pminfo -f irix ===
+pminfo: Cannot locate end of archive: Corrupted record in a PCP archive log
+
+WARNING: This archive is sufficiently damaged that it may not be possible to
+         produce complete information.  Continuing and hoping for the best.
+
+
+irix.kernel.all.load
+    inst [1 or "1 minute"] value 0.453125
+    inst [5 or "5 minute"] value 1.9179688
+    inst [15 or "15 minute"] value 1.7792969
+
+irix.kernel.all.pswitch
+    value 4195911
+
+irix.kernel.all.readch
+    value 197783843
+
+irix.kernel.all.writech
+    value 157316163
+
+irix.kernel.all.runocc
+    value 2109
+
+irix.kernel.all.runque
+    value 4388
+
+irix.kernel.all.syscall
+    value 8332101
+
+irix.kernel.all.cpu.idle
+    value 3536037
+
+irix.kernel.all.cpu.intr
+    value 241150
+
+irix.kernel.all.cpu.sys
+    value 2215310
+
+irix.kernel.all.cpu.sxbrk
+    value 0
+
+irix.kernel.all.cpu.user
+    value 1748450
+
+irix.kernel.all.cpu.wait.total
+    value 2481550
+
+irix.kernel.all.ipc.msg
+    value 0
+
+irix.kernel.all.ipc.sema
+    value 0
+
+irix.disk.dev.read
+    inst [131329 or "dks1d1"] value 2818590218
+    inst [131330 or "dks1d2"] value 2818572370
+    inst [131331 or "dks1d3"] value 2818572568
+    inst [131841 or "dks3d1"] value 2818572664
+    inst [131842 or "dks3d2"] value 2818574792
+    inst [131843 or "dks3d3"] value 2818572526
+    inst [131844 or "dks3d4"] value 2818587463
+    inst [132097 or "dks4d1"] value 2818573378
+    inst [132098 or "dks4d2"] value 2818575423
+
+irix.disk.dev.write
+    inst [131329 or "dks1d1"] value 12082
+    inst [131330 or "dks1d2"] value 11
+    inst [131331 or "dks1d3"] value 8
+    inst [131841 or "dks3d1"] value 310
+    inst [131842 or "dks3d2"] value 1181
+    inst [131843 or "dks3d3"] value 5
+    inst [131844 or "dks3d4"] value 1656
+    inst [132097 or "dks4d1"] value 524
+    inst [132098 or "dks4d2"] value 47856
+
+irix.disk.dev.total
+    inst [131329 or "dks1d1"] value 2818602300
+    inst [131330 or "dks1d2"] value 2818572381
+    inst [131331 or "dks1d3"] value 2818572576
+    inst [131841 or "dks3d1"] value 2818572974
+    inst [131842 or "dks3d2"] value 2818575973
+    inst [131843 or "dks3d3"] value 2818572531
+    inst [131844 or "dks3d4"] value 2818589119
+    inst [132097 or "dks4d1"] value 2818573902
+    inst [132098 or "dks4d2"] value 2818623279
+
+irix.network.interface.in.bytes
+    inst [1 or "et0"] value 22534841
+    inst [2 or "lo0"] value 19752688
+
+irix.network.interface.out.bytes
+    inst [1 or "et0"] value 154960710
+    inst [2 or "lo0"] value 19752688
+
+=== pmdumplog -t ===
+pmdumplog: Cannot locate end of archive: Corrupted record in a PCP archive log
+
+WARNING: This archive is sufficiently damaged that it may not be possible to
+         produce complete information.  Continuing and hoping for the best.
+
+Note: timezone set to local timezone of host "moomba" from archive
+
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+16:02:31.554       0          132          132
+16:02:31.842       0         1067          776
+16:02:44.394       0         3793        17720
+             Error: offset to log file past end of file (3076)
+16:02:52.126       0         4818        26312
+             Error: offset to log file past end of file (3076)
+16:02:57.161       0         9673        34200
+             Error: offset to log file past end of file (3076)
+16:03:45.417       0        15099       136800
+             Error: offset to log file past end of file (3076)
+16:04:34.777       0        15099       239400
+             Error: offset to log file past end of file (3076)
+16:05:26.568       0        15099       342000
+             Error: offset to log file past end of file (3076)
+16:06:14.821       0        15099       444600
+             Error: offset to log file past end of file (3076)
+16:07:04.206       0        15099       547200
+             Error: offset to log file past end of file (3076)
+16:07:54.932       0        15099       649800
+             Error: offset to log file past end of file (3076)
+16:08:44.433       0        15099       752400
+             Error: offset to log file past end of file (3076)
+16:09:34.998       0        15099       855000
+             Error: offset to log file past end of file (3076)
+16:09:59.184       0        15099       904248
+             Error: offset to log file past end of file (3076)
+16:10:12.524       0        20425       932696
+             Error: offset to log file past end of file (3076)
+16:10:22.471       0        25566       952816
+             Error: offset to log file past end of file (3076)
+16:10:26.115       0        30556       956800
+             Error: offset to log file past end of file (3076)
+16:10:30.222       0        35274       960744
+             Error: offset to log file past end of file (3076)
+16:10:40.330       0        39723       987512
+             Error: offset to log file past end of file (3076)
+11:02:12.1342514    29015    816930151       554564
+             Warning: file missing or compressed for log volume 29015
+             Error: illegal timestamp value (132 sec, 1342514689 usec)
+             Error: offset to meta file past end of file (74306)
+             Error: timestamp went backwards in time
+10:59:58.1836019    1650524160            0            0
+             Warning: file missing or compressed for log volume 1650524160
+             Error: illegal timestamp value (-2 sec, 1836019565 usec)
+11:00:00.000       0            0            0
+             Error: timestamp went backwards in time
+             Error: volume number decreased
+11:00:00.000       0            0            0
+11:00:00.000    1163088941    825312595   1412247856
+             Warning: file missing or compressed for log volume 1163088941
+             Error: offset to meta file past end of file (74306)
+00:09:51.842674    741552179    791820848    805306368
+             Warning: file missing or compressed for log volume 741552179
+             Error: illegal timestamp value (741881391 sec, 842674224 usec)
+             Error: offset to meta file past end of file (74306)
+             Error: volume number decreased
+11:00:00.000     132    816930151       554564
+             Warning: file missing or compressed for log volume 132
+             Error: offset to meta file past end of file (74306)
+             Error: timestamp went backwards in time
+             Error: volume number decreased
+11:00:00.000     132    816930151       842927
+             Error: offset to meta file past end of file (74306)
+11:00:00.001     776    816930164       394424
+             Warning: file missing or compressed for log volume 776
+             Error: offset to meta file past end of file (74306)
+11:00:00.003    17720    816930172       126787
+             Warning: file missing or compressed for log volume 17720
+             Error: offset to meta file past end of file (74306)
+11:00:00.004    26312    816930177       161532
+             Warning: file missing or compressed for log volume 26312
+             Error: offset to meta file past end of file (74306)
+11:00:00.009    34200    816930225       417958
+             Warning: file missing or compressed for log volume 34200
+             Error: offset to meta file past end of file (74306)
+11:00:00.015    136800    816930274       777093
+             Warning: file missing or compressed for log volume 136800
+             Error: offset to meta file past end of file (74306)
+11:00:00.015    239400    816930326       568147
+             Warning: file missing or compressed for log volume 239400
+             Error: offset to meta file past end of file (74306)
+11:00:00.015    342000    816930374       821970
+             Warning: file missing or compressed for log volume 342000
+             Error: offset to meta file past end of file (74306)
+11:00:00.015    444600    816930424       206151
+             Warning: file missing or compressed for log volume 444600
+             Error: offset to meta file past end of file (74306)
+11:00:00.015    547200    816930474       932012
+             Warning: file missing or compressed for log volume 547200
+             Error: offset to meta file past end of file (74306)
+11:00:00.015    649800    816930524       433918
+             Warning: file missing or compressed for log volume 649800
+             Error: offset to meta file past end of file (74306)
+11:00:00.015    752400    816930574       998173
+             Warning: file missing or compressed for log volume 752400
+             Error: offset to meta file past end of file (74306)
+11:00:00.015    855000    816930599       184043
+             Warning: file missing or compressed for log volume 855000
+             Error: offset to meta file past end of file (74306)
+11:00:00.015    904248    816930612       524938
+             Warning: file missing or compressed for log volume 904248
+             Error: offset to meta file past end of file (74306)
+11:00:00.020    932696    816930622       471061
+             Warning: file missing or compressed for log volume 932696
+             Error: offset to meta file past end of file (74306)
+11:00:00.025    952816    816930626       115458
+             Warning: file missing or compressed for log volume 952816
+             Error: offset to meta file past end of file (74306)
+11:00:00.030    956800    816930630       222020
+             Warning: file missing or compressed for log volume 956800
+             Error: offset to meta file past end of file (74306)
+11:00:00.035    960744    816930640       330045
+             Warning: file missing or compressed for log volume 960744
+             Error: offset to meta file past end of file (74306)
+
+=== pmdumplog -t, no index ===
+Note: timezone set to local timezone of host "moomba" from archive
+
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+
+=== pmdumplog -l ===
+pmdumplog: Cannot locate end of archive: Corrupted record in a PCP archive log
+
+WARNING: This archive is sufficiently damaged that it may not be possible to
+         produce complete information.  Continuing and hoping for the best.
+
+Note: timezone set to local timezone of host "moomba" from archive
+
+Log Label (Log Format Version 1)
+Performance metrics from host moomba
+  commencing Tue Nov 21 16:02:31.554 1995
+  ending     UNKNOWN
+
+=== pmdumplog -L ===
+pmdumplog: Cannot locate end of archive: Corrupted record in a PCP archive log
+
+WARNING: This archive is sufficiently damaged that it may not be possible to
+         produce complete information.  Continuing and hoping for the best.
+
+Note: timezone set to local timezone of host "moomba" from archive
+
+Log Label (Log Format Version 1)
+Performance metrics from host moomba
+  commencing Tue Nov 21 16:02:31.554 1995
+  ending     UNKNOWN
+Archive timezone: EST-11EST-10,86/2:00,303/2:00
+PID for pmlogger: 29015
+
+=== pmdumplog -m ===
+pmdumplog: Cannot locate end of archive: Corrupted record in a PCP archive log
+
+WARNING: This archive is sufficiently damaged that it may not be possible to
+         produce complete information.  Continuing and hoping for the best.
+
+pmdumplog: pmFetch: Corrupted record in a PCP archive log
+Note: timezone set to local timezone of host "moomba" from archive
+
+
+16:02:31.554  1.80.7 (irix.disk.dev.total):
+                inst [131329 or "dks1d1"] value 2818602300
+                inst [131330 or "dks1d2"] value 2818572381
+                inst [131331 or "dks1d3"] value 2818572576
+                inst [131841 or "dks3d1"] value 2818572974
+                inst [131842 or "dks3d2"] value 2818575973
+                inst [131843 or "dks3d3"] value 2818572531
+                inst [131844 or "dks3d4"] value 2818589119
+                inst [132097 or "dks4d1"] value 2818573902
+                inst [132098 or "dks4d2"] value 2818623279
+              1.80.2 (irix.disk.dev.write):
+                inst [131329 or "dks1d1"] value 12082
+                inst [131330 or "dks1d2"] value 11
+                inst [131331 or "dks1d3"] value 8
+                inst [131841 or "dks3d1"] value 310
+                inst [131842 or "dks3d2"] value 1181
+                inst [131843 or "dks3d3"] value 5
+                inst [131844 or "dks3d4"] value 1656
+                inst [132097 or "dks4d1"] value 524
+                inst [132098 or "dks4d2"] value 47856
+              1.80.1 (irix.disk.dev.read):
+                inst [131329 or "dks1d1"] value 2818590218
+                inst [131330 or "dks1d2"] value 2818572370
+                inst [131331 or "dks1d3"] value 2818572568
+                inst [131841 or "dks3d1"] value 2818572664
+                inst [131842 or "dks3d2"] value 2818574792
+                inst [131843 or "dks3d3"] value 2818572526
+                inst [131844 or "dks3d4"] value 2818587463
+                inst [132097 or "dks4d1"] value 2818573378
+                inst [132098 or "dks4d2"] value 2818575423
+              1.25.12 (irix.network.interface.out.bytes):
+                inst [1 or "et0"] value 154960710
+                inst [2 or "lo0"] value 19752688
+              1.25.7 (irix.network.interface.in.bytes):
+                inst [1 or "et0"] value 22534841
+                inst [2 or "lo0"] value 19752688
+              1.18.3 (irix.kernel.all.load):
+                inst [1 or "1 minute"] value 0.453125
+                inst [5 or "5 minute"] value 1.9179688
+                inst [15 or "15 minute"] value 1.7792969
+              1.10.54 (irix.kernel.all.ipc.sema): value 0
+              1.10.53 (irix.kernel.all.ipc.msg): value 0
+              1.10.29 (irix.kernel.all.writech): value 157316163
+              1.10.19 (irix.kernel.all.syscall): value 8332101
+              1.10.16 (irix.kernel.all.runque): value 4388
+              1.10.15 (irix.kernel.all.runocc): value 2109
+              1.10.14 (irix.kernel.all.readch): value 197783843
+              1.10.12 (irix.kernel.all.cpu.wait.total): value 2481550
+              1.10.11 (irix.kernel.all.cpu.user): value 1748450
+              1.10.10 (irix.kernel.all.cpu.sxbrk): value 0
+              1.10.9 (irix.kernel.all.cpu.sys): value 2215310
+              1.10.8 (irix.kernel.all.cpu.intr): value 241150
+              1.10.7 (irix.kernel.all.cpu.idle): value 3536037
+              1.10.3 (irix.kernel.all.pswitch): value 4195911
+
+=== pmlogsummary ===
+pmlogsummary: Cannot locate end of archive: Corrupted record in a PCP archive log
+
+WARNING: This archive is sufficiently damaged that it may not be possible to
+         produce complete information.  Continuing and hoping for the best.
+
+pmlogsummary: fetch failed: Corrupted record in a PCP archive log
+irix.kernel.all.load ["1 minute"] 0.000 none
+irix.kernel.all.load ["5 minute"] 0.000 none
+irix.kernel.all.load ["15 minute"] 0.000 none
+irix.kernel.all.pswitch  - insufficient archive data.
+irix.kernel.all.readch  - insufficient archive data.
+irix.kernel.all.writech  - insufficient archive data.
+irix.kernel.all.runocc  - insufficient archive data.
+irix.kernel.all.runque  - insufficient archive data.
+irix.kernel.all.syscall  - insufficient archive data.
+irix.kernel.all.cpu.idle  - insufficient archive data.
+irix.kernel.all.cpu.intr  - insufficient archive data.
+irix.kernel.all.cpu.sys  - insufficient archive data.
+irix.kernel.all.cpu.sxbrk  - insufficient archive data.
+irix.kernel.all.cpu.user  - insufficient archive data.
+irix.kernel.all.cpu.wait.total  - insufficient archive data.
+irix.kernel.all.ipc.msg  - insufficient archive data.
+irix.kernel.all.ipc.sema  - insufficient archive data.
+irix.disk.dev.read ["dks1d1"] - insufficient archive data.
+irix.disk.dev.read ["dks1d2"] - insufficient archive data.
+irix.disk.dev.read ["dks1d3"] - insufficient archive data.
+irix.disk.dev.read ["dks3d1"] - insufficient archive data.
+irix.disk.dev.read ["dks3d2"] - insufficient archive data.
+irix.disk.dev.read ["dks3d3"] - insufficient archive data.
+irix.disk.dev.read ["dks3d4"] - insufficient archive data.
+irix.disk.dev.read ["dks4d1"] - insufficient archive data.
+irix.disk.dev.read ["dks4d2"] - insufficient archive data.
+irix.disk.dev.write ["dks1d1"] - insufficient archive data.
+irix.disk.dev.write ["dks1d2"] - insufficient archive data.
+irix.disk.dev.write ["dks1d3"] - insufficient archive data.
+irix.disk.dev.write ["dks3d1"] - insufficient archive data.
+irix.disk.dev.write ["dks3d2"] - insufficient archive data.
+irix.disk.dev.write ["dks3d3"] - insufficient archive data.
+irix.disk.dev.write ["dks3d4"] - insufficient archive data.
+irix.disk.dev.write ["dks4d1"] - insufficient archive data.
+irix.disk.dev.write ["dks4d2"] - insufficient archive data.
+irix.disk.dev.total ["dks1d1"] - insufficient archive data.
+irix.disk.dev.total ["dks1d2"] - insufficient archive data.
+irix.disk.dev.total ["dks1d3"] - insufficient archive data.
+irix.disk.dev.total ["dks3d1"] - insufficient archive data.
+irix.disk.dev.total ["dks3d2"] - insufficient archive data.
+irix.disk.dev.total ["dks3d3"] - insufficient archive data.
+irix.disk.dev.total ["dks3d4"] - insufficient archive data.
+irix.disk.dev.total ["dks4d1"] - insufficient archive data.
+irix.disk.dev.total ["dks4d2"] - insufficient archive data.
+irix.network.interface.in.bytes ["et0"] - insufficient archive data.
+irix.network.interface.in.bytes ["lo0"] - insufficient archive data.
+irix.network.interface.out.bytes ["et0"] - insufficient archive data.
+irix.network.interface.out.bytes ["lo0"] - insufficient archive data.

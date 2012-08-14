@@ -1,0 +1,248 @@
+#! /bin/sh
+# PCP QA Test No. 199
+# check out trivial PMDA
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1
+install_on_cleanup=true
+
+_cleanup()
+{
+
+    if $sudo make >$tmp.out 2>&1
+    then
+	:
+    else
+	cat $tmp.out
+	echo "Arrgh, cleanup make failed"
+	exit
+    fi
+
+    if diff $tmp.root $PCP_VAR_DIR/pmns/root >/dev/null 2>&1
+    then
+	:
+    else
+	[ -f $tmp.root ] && $sudo mv $tmp.root $PCP_VAR_DIR/pmns/root
+    fi
+
+    if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+    then
+	:
+    else
+
+# do a default install which ensures the pmns and any views are installed
+
+	if $install_on_cleanup
+	then
+	    $sudo ./Install < /dev/null > /dev/null 2>&1
+	fi
+
+# PMDA may have been installed differently to default. As everything is
+# installed we can use the old pmcd.conf file to restore state.
+
+	if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+	then
+	    :
+	else
+	    [ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	    $sudo $signal -a -s HUP pmcd
+	fi
+    fi
+
+    rm -f $tmp.*
+    exit $status
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/^	- /d' \
+	-e '/	rm/d' \
+	-e '/	.*cc /d' \
+	-e '/.*\/usr\/sbin\/tag/d' \
+	-e '/^cc/d' \
+	-e '/^gcc/d' \
+	-e '/^x86_64-mandriva-linux-gnu-gcc/d' \
+	-e '/\/usr\/bin\/gcc/d' \
+	-e '/make: Nothing to be done/d' \
+	-e '/^pmda.c:$/d' \
+	-e '/^trivial.c:$/d' \
+	-e 's/.* \(hash table entries\)/  NNN \1/' \
+	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(bytes of symbol table\)/  NNN \1/' \
+    | $PCP_AWK_PROG '
+	/^cc-/ { noprint=1 }
+        /pmdatrivial/ { noprint=0 }
+	{ if (noprint==0) print }' \
+    | $PCP_AWK_PROG '
+	/The variable/ { noprint=1 }
+        /^Updating/ { noprint=0 }
+	{ if (noprint==0) print }'
+}
+
+# real QA test starts here
+home=$PCP_PMDAS_DIR
+iam=trivial
+if [ ! -d $home/$iam ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd $home/$iam
+unset ROOT
+
+# copy some config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+cp $PCP_VAR_DIR/pmns/root $tmp.root
+
+if [ `pmprobe trivial.time 2>&1 | $PCP_AWK_PROG '{print $2}'` -lt 0 ]
+then
+    install_on_cleanup=false
+fi
+
+if $sudo make clobber >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh, make clobber failed"
+    exit
+fi
+
+if $sudo make >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh, make failed"
+    exit
+fi
+
+# start from a known starting point
+$sudo ./Remove >/dev/null 2>&1
+
+echo
+echo "=== pipe daemon agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+echo 'both
+daemon
+pipe' | $sudo ./Install >>$tmp.out 2>&1
+
+_filter <$tmp.out
+
+if pminfo -v trivial
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+echo
+echo "=== Unix socket daemon agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+echo 'both
+daemon
+socket
+Unix
+'"$tmp.fifo" | $sudo ./Install >>$tmp.out 2>&1
+echo 'both
+daemon
+socket
+Unix
+'"$tmp.fifo" | $sudo ./Install >>$tmp.out 2>&1
+
+_filter <$tmp.out
+
+if pminfo -v trivial
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+echo
+echo "=== Internet socket daemon agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+
+# pick a tcp port that is not in use
+#
+port=`_get_port tcp 5670 5689`
+if [ -z "$port" ]
+then
+    echo "Arrgh ... no free TCP port in the range 5670 ... 5689"
+    exit 1
+fi
+
+echo 'both
+daemon
+socket
+Internet
+'$port | $sudo ./Install >>$tmp.out 2>&1
+
+# use next port this time
+port=`expr $port + 1`
+
+echo 'both
+daemon
+socket
+Internet
+'$port | $sudo ./Install >>$tmp.out 2>&1
+
+_filter <$tmp.out
+
+if pminfo -v trivial
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+echo
+echo "=== dso agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+echo 'both
+dso' | $sudo ./Install >>$tmp.out 2>&1
+echo 'both
+dso' | $sudo ./Install >>$tmp.out 2>&1
+
+_filter <$tmp.out
+
+if pminfo -v trivial
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+$sudo ./Remove >$tmp.out 2>&1
+_filter <$tmp.out
+
+status=0
+exit

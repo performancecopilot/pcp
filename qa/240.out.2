@@ -1,0 +1,141 @@
+QA output created by 240
+-- null --
+root {
+}
+PMNS appears to be empty!
+
+-- r1 --
+boo PMID: 1.2.3
+eek.stumble PMID: 1.2.4
+foo.bar.mumble PMID: 1.2.2
+foo.fumble PMID: 1.2.1
+
+-- r5 --
+eek.eek_ PMID: 2.2.3
+foo.bar.foobar_ PMID: 2.2.2
+foo.bar.xtra.x1_ PMID: 2.4.1
+foo.bar.xtra.x2_ PMID: 2.4.2
+foo.foo_ PMID: 2.2.1
+root_ PMID: 2.2.0
+surprise.s1_ PMID: 2.3.1
+surprise.s2_ PMID: 2.3.2
+
+-- null + r1 --
+root {
+	boo	1:2:3
+	foo
+	eek
+}
+
+foo {
+	fumble	1:2:1
+	bar
+}
+
+foo.bar {
+	mumble	1:2:2
+}
+
+eek {
+	stumble	1:2:4
+}
+boo PMID: 1.2.3
+eek.stumble PMID: 1.2.4
+foo.bar.mumble PMID: 1.2.2
+foo.fumble PMID: 1.2.1
+
+-- null + r1 + r5 --
+root {
+	boo	1:2:3
+	foo
+	eek
+	root_	2:2:0
+	surprise
+}
+
+foo {
+	fumble	1:2:1
+	bar
+	foo_	2:2:1
+}
+
+foo.bar {
+	mumble	1:2:2
+	foobar_	2:2:2
+	xtra
+}
+
+foo.bar.xtra {
+	x1_	2:4:1
+	x2_	2:4:2
+}
+
+eek {
+	stumble	1:2:4
+	eek_	2:2:3
+}
+
+surprise {
+	s1_	2:3:1
+	s2_	2:3:2
+}
+boo PMID: 1.2.3
+eek.eek_ PMID: 2.2.3
+eek.stumble PMID: 1.2.4
+foo.bar.foobar_ PMID: 2.2.2
+foo.bar.mumble PMID: 1.2.2
+foo.bar.xtra.x1_ PMID: 2.4.1
+foo.bar.xtra.x2_ PMID: 2.4.2
+foo.foo_ PMID: 2.2.1
+foo.fumble PMID: 1.2.1
+root_ PMID: 2.2.0
+surprise.s1_ PMID: 2.3.1
+surprise.s2_ PMID: 2.3.2
+
+-- r1 + r5 --
+root {
+	foo
+	boo	1:2:3
+	eek
+	root_	2:2:0
+	surprise
+}
+
+foo {
+	fumble	1:2:1
+	bar
+	foo_	2:2:1
+}
+
+foo.bar {
+	mumble	1:2:2
+	foobar_	2:2:2
+	xtra
+}
+
+foo.bar.xtra {
+	x1_	2:4:1
+	x2_	2:4:2
+}
+
+eek {
+	stumble	1:2:4
+	eek_	2:2:3
+}
+
+surprise {
+	s1_	2:3:1
+	s2_	2:3:2
+}
+boo PMID: 1.2.3
+eek.eek_ PMID: 2.2.3
+eek.stumble PMID: 1.2.4
+foo.bar.foobar_ PMID: 2.2.2
+foo.bar.mumble PMID: 1.2.2
+foo.bar.xtra.x1_ PMID: 2.4.1
+foo.bar.xtra.x2_ PMID: 2.4.2
+foo.foo_ PMID: 2.2.1
+foo.fumble PMID: 1.2.1
+root_ PMID: 2.2.0
+surprise.s1_ PMID: 2.3.1
+surprise.s2_ PMID: 2.3.2

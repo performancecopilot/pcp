@@ -1,0 +1,157 @@
+QA output created by 391
+
+=== archive src-oss/foo ===
+
+metric: sample.seconds
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp1 -s 6 -a src-oss/foo sample.seconds
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.bin
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp1 -s 6 -a src-oss/foo sample.bin
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.colour
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp1 -s 6 -a src-oss/foo sample.colour
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.drift
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp1 -s 6 -a src-oss/foo sample.drift
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.lights
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp1 -s 6 -a src-oss/foo sample.lights
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== archive src-oss/mv-foo ===
+
+metric: sample.seconds
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp1 -s 6 -a src-oss/mv-foo sample.seconds
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.bin
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp1 -s 6 -a src-oss/mv-foo sample.bin
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.colour
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp1 -s 6 -a src-oss/mv-foo sample.colour
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.drift
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp1 -s 6 -a src-oss/mv-foo sample.drift
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.lights
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp1 -s 6 -a src-oss/mv-foo sample.lights
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== archive src-oss/noti-foo ===
+
+metric: sample.seconds
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp1 -s 6 -a src-oss/noti-foo sample.seconds
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.bin
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp1 -s 6 -a src-oss/noti-foo sample.bin
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.colour
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp1 -s 6 -a src-oss/noti-foo sample.colour
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.drift
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp1 -s 6 -a src-oss/noti-foo sample.drift
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.lights
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src-oss/interp1 -s 6 -a src-oss/noti-foo sample.lights
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

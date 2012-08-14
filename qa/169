@@ -1,0 +1,269 @@
+#! /bin/sh
+# PCP QA Test No. 169
+#
+# Test pmcd timeouts with the pmcd PMDA's pmcd.control.timeout
+#
+# Test setting the app's timeouts < pmcd's timeout and vice versa
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+echo ""
+echo "Test pmcd timeouts with the pmcd PMDA's pmcd.control.timeout"
+echo ""
+
+. ./common.product
+. ./common.check
+. ./common.filter
+
+LOCALHOST=`hostname`
+signal=$PCP_BINADM_DIR/pmsignal
+
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+
+_cleanup()
+{
+    $sudo $PCP_RC_DIR/pcp stop >$tmp.stop
+    _filter_pcp_stop <$tmp.stop | sed -e 's/\.\.\.\.\.*/[dots]/'
+    [ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+    pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+    && $sudo sh $tmp.cmd
+    $sudo $PCP_RC_DIR/pcp restart >$tmp.start 
+    _filter_pcp_start <$tmp.start | sed -e 's/\.\.\.\.\.*/[dots]/'
+    _wait_for_pmcd
+    _wait_for_pmlogger
+
+    rm -f $tmp.*
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+rm -f $seq.full
+
+# real QA test starts here
+
+# This value is passed to processes this script creates on the command line.
+# It's unlikely to occur anywhere in a ps output and is used as a tag to
+# terminate or check for the existence of the processes later.
+#
+TAG=000000660066
+
+
+_check_pmcd_procs()
+{
+    n_pmcd=`ps $PCP_PS_ALL_FLAGS \
+	    | tee $tmp.pmcd \
+	    | fgrep "$PCP_PMCD_PATH" \
+	    | grep -v grep \
+	    | wc -l \
+	    | tr -d ' '`
+    if [ "X$n_pmcd" != "X$1" ]
+    then
+	echo "Expected $1 pmcd processes but found $n_pmcd:"
+	cat $tmp.pmcd
+	cat $PCP_PMCDLOG_PATH
+	file $PCP_LOG_DIR/core* $PCP_LOG_DIR/pmcd/core*
+	return 1
+    else
+	return 0
+    fi
+}
+
+_set_timeouts()
+{
+    pmcd_timeout=$1
+    app_timeout=$2
+
+    echo "app timeout = $app_timeout"
+    echo "pmcd timeout = $pmcd_timeout"
+    PMCD_REQUEST_TIMEOUT=$app_timeout
+    export PMCD_REQUEST_TIMEOUT
+
+    pmstore pmcd.control.timeout $pmcd_timeout
+
+}
+
+_echo()
+{
+    echo "$*"
+    echo "$*" >>$seq.full
+}
+
+rm -rf $tmp.*
+pmns=$tmp.pmns
+
+# use a dummy pmns for pminfo
+dummy_domain=160 # choose non-existent domain
+cat >$pmns <<EOF
+root {
+    dummyproc   $dummy_domain:0:0
+}
+EOF
+
+# pmcd will run a dumb_pmda, masquerading as the IRIX agent.  This will
+# not respond to PDUs from PMCD, which should then time it out.
+# The pmcd PMDA is required so that pmcd.control.timeout can be modified.
+# Save the current pmcd.conf so it can be restored afterwards.
+
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+cat >$tmp.tmp <<End-Of-File
+# QA test 169 dummy pmcd.conf (blame Jonathan if you find this!)
+#
+dummyproc	$dummy_domain	pipe	binary 	$here/src-oss/dumb_pmda -d $dummy_domain $TAG
+End-Of-File
+
+$PCP_AWK_PROG <$PCP_PMCDCONF_PATH >>$tmp.tmp '
+    $3 == "dso" && $4 == "irix_init"	{ print }
+    $3 == "dso" && $4 == "linux_init"	{ print }
+    $3 == "dso" && $4 == "pmcd_init"	{ print }
+    $3 == "pipe" && $1 == "pmcd"	{ print }
+					{ next }'
+
+pmcdlog=$PCP_PMCDLOG_PATH
+
+$sudo mv $tmp.tmp $PCP_PMCDCONF_PATH
+$sudo $PCP_RC_DIR/pcp start >$tmp.start
+_filter_pcp_start <$tmp.start | sed -e 's/\.\.\.\.\.*/[dots]/'
+_wait_for_pmcd
+if _check_pmcd_procs 1
+then
+    :
+else
+    _echo "pmcd didn't start!"
+    _echo ""
+    cat $pmcdlog >>$seq.full
+    exit 1
+fi
+
+if ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "dumb_pmda" >/dev/null
+then
+    :
+else
+    _echo "pmcd didn't create the dumb_pmda agent"
+    _echo ""
+    cat $pmcdlog >>$seq.full
+    exit 1
+fi
+
+# force to a known state
+#
+pmstore pmcd.control.timeout 5 >/dev/null 2>&1
+# pmstore pmcd.control.tracenobuf 1 # for debugging
+
+#
+# pmcd agent timeout < application time out
+#
+_echo ""
+_echo "*** pmcd agent timeout < app timeout ***"
+_echo "*** pmcd will killoff agent ***" 
+_echo ""
+_set_timeouts 5 10
+
+# Fetch from dummy domain.  This should cause the dumb_pmda agent to be
+# timed-out by pmcd, resulting in its termination.
+#
+_echo ""
+_echo "Expect dummyproc to fail (IPC protocol failure):"
+pminfo -n $pmns -d dummyproc
+_echo ""
+# make sure pmcd has had a chance to wait() on the pmda process
+#
+sleep 2
+pminfo -n $pmns -d dummyproc >/dev/null 2>&1
+
+if ps $PCP_PS_ALL_FLAGS | tee -a $seq.full | grep "[d]umb_pmda" >/dev/null
+then
+    _echo "Error: pmcd didn't terminate the dumb_pmda agent"
+    cat $pmcdlog >>$seq.full
+    exit 1
+else
+    _echo "pmcd terminated dummy the dumb_pmda agent as desired"
+fi
+
+# Restart pmcd and its agents
+_echo ""
+$sudo $signal -a -s HUP pmcd
+sleep 1
+_wait_for_pmcd
+if _check_pmcd_procs 1
+then
+    :
+else
+    _echo "pmcd was sent SIGHUP and died"
+    _echo ""
+    cat $pmcdlog >>$seq.full
+    exit 1
+fi
+
+if ps $PCP_PS_ALL_FLAGS | tee -a $seq.full | grep -v grep | grep "dumb_pmda" >/dev/null
+then
+    psline=`ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "dumb_pmda"`
+    old_dummy_pid=`echo $psline | cut -d ' ' -f 2`
+else
+    _echo "pmcd SIGHUP didn't restart the dumb_pmda agent"
+    _echo ""
+    cat $pmcdlog >>$seq.full
+    exit 1
+fi
+
+#
+# pmcd agent timeout > application time out
+#
+_echo ""
+_echo "*** pmcd agent timeout > app timeout ***"
+_echo "*** pmcd will not killoff agent until later ***" 
+_echo ""
+_set_timeouts 10 5
+
+# Fetch from dummy domain.  This should cause the dumb_pmda agent to be
+# timed-out by pmcd, resulting in its termination.
+#
+_echo ""
+_echo "Expect dummyproc to fail (timeout for pmcd failure):"
+#DEBUG# date
+pminfo -n $pmns -d dummyproc
+#DEBUG# date
+_echo ""
+
+if ps $PCP_PS_ALL_FLAGS | tee -a $seq.full | grep -v grep | grep "dumb_pmda" >/dev/null
+then 
+    _echo "pmcd did NOT terminate the dumb_pmda agent as desired"
+
+    # make sure it is really the same process - check pid
+    psline=`ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "dumb_pmda"`
+    new_dummy_pid=`echo $psline | cut -d ' ' -f 2`
+    if [ $old_dummy_pid -ne $new_dummy_pid ]
+    then
+	_echo "Error: dumb_pmda proc has been recreated"
+	_echo "pid mismatch: $old_dummy_pid versus $new_dummy_pid"
+	exit 1
+    fi
+else
+    _echo "Error: pmcd terminated the dumb_pmda agent"
+    cat $pmcdlog >>$seq.full
+    exit 1
+fi
+
+_echo ""
+_echo "Now wait for pmcd to timeout..."
+_echo ""
+sleep 6
+
+if ps $PCP_PS_ALL_FLAGS | tee -a $seq.full | grep -v grep | grep "dumb_pmda" >/dev/null
+then
+    _echo "Error: pmcd didn't terminate the dumb_pmda agent"
+    cat $pmcdlog >>$seq.full
+    exit 1
+else
+    _echo "pmcd terminated the dumb_pmda agent as desired"
+fi
+
+_echo ""
+status=0

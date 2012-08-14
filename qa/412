@@ -1,0 +1,242 @@
+#! /bin/sh
+# PCP QA Test No. 412
+# Test out wrapping on libpcp/interp
+#
+#  Test the creation and reading of an archive created using pmlogger(1) and
+#  and pmval(1).  On IRIX 6.2 and earlier, this test purposely sets the TZ
+#  variable to specify daylight savings using the extended format, in a way
+#  that does not break libc.so.
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_wrap_off()
+{
+    dowrap=0
+    unset PCP_COUNTER_WRAP
+    echo "--- Wrapping OFF ---"
+}
+
+_wrap_on()
+{
+    dowrap=1
+    PCP_COUNTER_WRAP=
+    export PCP_COUNTER_WRAP
+    echo "--- Wrapping ON ---"
+}
+
+_isLaterThanIRIX62 () {
+    if [ "$PCP_PLATFORM" = irix ]
+    then
+    	STAT=`uname -a | $PCP_AWK_PROG '
+BEGIN	{ status = 0 }
+1   	{
+    	    x = $3
+    	    if (x > 6.2) status = "0"
+    	    else status = "1"
+    	}
+END 	{ print status }
+'`
+    else
+    	STAT=2	#  not an IRIX platform
+    fi
+
+    return $STAT
+}
+
+_setTimeZone () {
+    MONTH=`date +%m`
+    
+    if [ $MONTH -lt 7 ]
+    then
+    	#  Daylight savings on from Sunday 1st January to
+    	#  Sunday 5th March
+        TZ="EST-10EDT-11,1/0,64/3"
+    else
+    	#  Daylight savings on from Sunday 29th October to Wednesday
+    	#  "32nd" December (including the end of the extra day for
+    	#  leap years)
+    	TZ="EST-10EDT-11,302/2,367/0"
+    fi
+    
+    #  This is what the specification should be normally, but
+    #  it won't work because the start date of daylight savings
+    #  is AFTER the end date.  libc.so hates this, so I hate
+    #  libc.so.
+    #TZ="EST-10EDT-11,302/2,64/3"
+    
+    echo $TZ
+}
+
+#
+# Reset the sample agent so that we start from a known
+# point for the wrap metrics
+#
+_reset()
+{
+    pmstore sample.control -1 >/dev/null
+    $sudo $signal -a -s HUP pmcd
+    _wait_for_pmcd
+}
+
+#
+# Simulate interpolated fetching with/without wrapping
+# Assumes doing it for sample.wrap.ulong
+#
+_process_log()
+{
+    $PCP_AWK_PROG -v dowrap=$dowrap -v half_delta=$half_delta '
+      BEGIN {
+	    maxuint = 4294967295;
+	    debug=0
+      }
+      $2 == "29.0.58" { 
+	    curr_time = $1;
+	    curr_value = $5;
+	    gsub(/^.*:/, "", curr_time);
+	    if (prev_time != 0) {
+		delta = curr_time - prev_time;
+		if (delta < 0) delta += 60; # delta wrap :-)
+		if (debug)
+		    printf("delta=%s;curr=%s;prev=%s\n", delta, curr_time, prev_time);
+
+		#x = (prev_value + curr_value) / 2.0
+		x = (curr_value - prev_value) / delta * half_delta;
+		x += prev_value;
+
+		if (curr_value < prev_value && dowrap) { # then wrap
+		    new_curr_value = curr_value + maxuint;
+
+		    x = (new_curr_value - prev_value) / delta * half_delta;
+		    x += prev_value;
+
+		    if (x > maxuint) x -= maxuint; # wrap back if necessary
+		}
+		printf "%15.0d\n",x; 
+	    }
+	    prev_time = curr_time;
+	    prev_value = curr_value;
+      }
+    ' <$tmp.dump
+}
+
+#
+# Note the time of the first sample.wrap value
+#
+_set_starttime()
+{
+    $PCP_AWK_PROG '
+      $2 == "29.0.58" { 
+		printf("starttime=%s\n", $1);
+	        exit 0;
+      }
+    ' <$tmp.dump >$tmp.starttime
+    eval `cat $tmp.starttime`
+}
+
+#
+# Get out the interp values using pmval
+#
+_pmval_log()
+{
+    echo >>$seq.full
+    echo "--- pmval ---" >>$seq.full
+    pmval -w 15 -f 0 -r -a $tmp.archive -S "@$starttime" -O $half_delta -t $delta \
+      sample.wrap.ulong \
+    | tee -a $seq.full \
+    | sed \
+	-e '/metric/,/interval/d' \
+	-e '/^[ 	]*$/d' \
+	-e 's/^[^ ][^ ]*  *//'
+}
+
+#
+# Compare values allowing for an error
+#
+_compare_results()
+{
+    echo >>$seq.full
+    echo "--- paste ---" >>$seq.full
+    error=1e+08
+    paste $tmp.1 $tmp.2 \
+    | tee -a $seq.full \
+    | $PCP_AWK_PROG -v error=$error ' {
+	    diff = $1-$2; 
+	    if (diff < 0) diff *= -1; 
+	    if (diff > error) 
+		printf("mismatch: %f, %f (diff=%f)\n", $1, $2, diff);
+	    else
+		printf("match\n");
+    }'
+}
+
+rm -f $seq.full
+
+# real QA test starts here
+
+delta=2
+half_delta=1
+
+_isLaterThanIRIX62
+if [ $? = 1 ]
+then
+    TZ=`_setTimeZone`	    #  this forces the timezone to be correct and
+    export TZ	    	    #  problem-free on IRIX 6.2 and earlier.
+fi
+
+_reset
+cat <<EOF >$tmp.config
+log advisory on $delta second {
+    sample.wrap.ulong
+} 
+EOF
+pmlogger -c $tmp.config -s5 -l$tmp.log $tmp.archive
+if [ $? -ne 0 ]
+then
+    echo "Archive failed to be created !"
+    cat $tmp.log
+    exit 1
+    fi
+pmdumplog $tmp.archive >$tmp.dump
+echo >>$seq.full
+echo "--- pmdumplog ---" >>$seq.full
+cat $tmp.dump >>$seq.full
+_set_starttime
+
+_wrap_off
+_process_log >$tmp.1
+echo >>$seq.full
+echo "--- process_log wrap_off ---" >>$seq.full
+cat $tmp.1 >>$seq.full
+_pmval_log >$tmp.2
+echo >>$seq.full
+echo "--- process pmval ---" >>$seq.full
+cat $tmp.2 >>$seq.full
+_compare_results
+
+_wrap_on
+_process_log >$tmp.1
+echo >>$seq.full
+echo "--- process_log wrap_on ---" >>$seq.full
+cat $tmp.1 >>$seq.full
+_pmval_log >$tmp.2
+echo >>$seq.full
+echo "--- process pmval ---" >>$seq.full
+cat $tmp.2 >>$seq.full
+_compare_results
+
+# success, all done
+status=0
+exit

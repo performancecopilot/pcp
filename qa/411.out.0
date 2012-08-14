@@ -1,0 +1,43 @@
+QA output created by 411
+You will need to choose an appropriate configuration for installation of
+the "simple" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] 
+Updating the Performance Metrics Name Space (PMNS) ...
+Compiled PMNS contains
+  NNN hash table entries
+  NNN leaf nodes
+  NNN non-leaf nodes
+  NNN bytes of symbol table
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check simple metrics have appeared ... 5 metrics and 9 values
+
+simple.now
+    inst [[NUMBER] or "sec"] value [NUMBER]
+    inst [[NUMBER] or "min"] value [NUMBER]
+    inst [[NUMBER] or "hour"] value [NUMBER]
+
+simple.now
+    inst [[NUMBER] or "min"] value [NUMBER]
+
+simple.now
+No value(s) available!
+
+simple.now
+    inst [[NUMBER] or "hour"] value [NUMBER]
+
+simple.now
+    inst [[NUMBER] or "sec"] value [NUMBER]
+    inst [[NUMBER] or "sec"] value [NUMBER]
+    inst [[NUMBER] or "sec"] value [NUMBER]
+Culling the Performance Metrics Name Space ...
+simple ... done
+Updating the PMCD control file, and notifying PMCD ...
+Removing files ...
+Check simple metrics have gone away ... OK

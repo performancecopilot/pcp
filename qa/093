@@ -1,0 +1,53 @@
+#! /bin/sh
+# PCP QA Test No. 093
+# interpolate at random offset, forwards and backwards
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/' \
+	-e 's/  *[0-9][0-9]* forw/ N forw/' \
+	-e 's/  *[0-9][0-9]* back/ M back/' \
+	-e 's/, / /g' \
+    | $PCP_AWK_PROG '
+/log reads/	{ if ('$1' <= $9 && $9 <= '$2') $9 = "'$1'-'$2'"
+		  if ('$3' <= $10 && $10 <= '$4') $10 = "'$3'-'$4'"
+		}
+		{ print }'
+}
+
+# real QA test starts here
+echo "=== src-oss/foo ==="
+src-oss/interp2 -a src-oss/foo | _filter 79 82 5 15
+
+echo
+echo "=== src-oss/ok-bigbin ==="
+src-oss/interp2 -a src-oss/ok-bigbin | _filter 199 210 900 1210
+
+echo
+echo "=== src-oss/mv-foo ==="
+src-oss/interp2 -a src-oss/mv-foo | _filter 79 82 10 20
+
+echo
+echo "=== src-oss/ok-mv-bigbin ==="
+src-oss/interp2 -a src-oss/ok-mv-bigbin | _filter 199 210 980 1025
+
+echo
+echo "=== src-oss/noti-foo ==="
+src-oss/interp2 -a src-oss/noti-foo | _filter 79 82 10 20
+
+echo
+echo "=== src-oss/ok-noti-bigbin ==="
+src-oss/interp2 -a src-oss/ok-noti-bigbin | _filter 199 210 1980 2010

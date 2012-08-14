@@ -1,0 +1,140 @@
+#! /bin/sh
+# PCP QA Test No. 023
+# Multiple PMCDs test
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+. ./localconfig
+rm -f $seq.out
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
+then
+    if test $PCP_EOE_VER -ge 2704
+    then
+	ln $seq.out.3 $seq.out
+    else
+	ln $seq.out.2 $seq.out
+    fi
+else
+    ln $seq.out.1 $seq.out
+fi
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter_err()
+{
+    _filter_pmcd_log \
+    | sed -e 's/may already be running/is already running/g' \
+    | sed -e '/Log for pmcd/,/INADDR_ANY/c\
+... boring stuff deleted'
+}
+
+_filter_log()
+{
+    sleep 3
+    _filter_pmcd_log <./pmcd.log \
+    | sed \
+	-e '/^DATA: from client/d' \
+	-e 's/Cannot open 000000660066: No such file or directory//' \
+	-e 's/^$//' \
+	-e '/^00[08]:/d' \
+	-e '/started PMDA ora_/d' \
+	-e '/cmd=\/usr\/pcp\/lib\/pmdaoracle7/d' \
+	-e '/started PMDA watch/d' \
+	-e '/cmd=\/usr\/pcp\/lib\/pmdawatch/d' \
+	-e '/pmGetPDU/{
+s/\[[0-9][0-9]*]/[PID]/
+s/from=.*/from=PID/
+}' \
+	-e '/_pmHaveMoreInput/{
+s/\[[0-9][0-9]*]/[PID]/
+s/0x[^ ]*\([^ ][^ ][^ ]\)/ADDR...\1/
+}' \
+	-e '/Piggy-back/{
+s/0x[^ ]*\([^ ][^ ][^ ]\)/ADDR...\1/
+s/from=.*/from=PID/
+}' \
+	-e '/pmXmitPDU/s/\[[0-9][0-9]*]/[PID]/' \
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e '/value /{
+s/value [0-9][0-9]*/value INTEGER/
+}' \
+	-e 's;pcp/lib/mips_[^.]*\.;pcp/lib/ISA.;' \
+    | $PCP_AWK_PROG '
+$3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
+			{ print }'
+
+}
+
+signal=$PCP_BINADM_DIR/pmsignal
+_needclean=true
+
+rm -rf $tmp
+mkdir $tmp
+chmod ugo+rwx $tmp
+cd $tmp
+
+cleanup()
+{
+    cd $here
+    if $_needclean
+    then
+	_needclean=false
+	$signal -s TERM $my_pmcd_pid
+	sleep 1
+	echo "Restart and ping pmcd ..."
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	pmprobe pmcd.control.debug
+    fi
+    rm -rf $tmp
+}
+
+status=1
+trap "cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+
+# Note: start pmcd with -f so that its PID stays the same (no daemon)
+#
+$PCP_PMCD_PROG -f -x err1 &
+my_pmcd_pid=$!
+
+_wait_for_pmcd
+
+echo "Checking for startup errors ..."
+[ -f err1 ] && _filter_err <err1
+
+# Try to start another pmcd.  This should fail because the socket is already in
+# use.  Make sure that there are no changes to the log file
+#
+if [ -f pmcd.log ]
+then
+    cp pmcd.log pmcd.log.$$
+else
+    echo "No pmcd.log, pmcd failed to start!"
+    exit
+fi
+
+echo
+echo "Trying to start another PMCD over the top of the first one."
+echo "Expect \"bind:  Address already in use\"...:"
+$PCP_PMCD_PROG -f -x err2 2>&1 | _filter_err &
+sleep 2
+
+echo "Checking for startup errors ..."
+[ -f err2 ] && _filter_err <err2
+
+echo "Checking that log hasn't changed ..."
+diff pmcd.log pmcd.log.$$
+
+status=$?

@@ -1,0 +1,47 @@
+#! /bin/sh
+# PCP QA Test No. 157
+# exercise the -u (unbuffered) option for pmlogger that was added
+# for NASmgr
+#
+# Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+rm -f $seq.full
+
+# real QA test starts here
+
+echo "log mandatory on default { sample.bucket }" \
+| pmlogger -u -r -l $tmp.log -t 2sec -s 5 $tmp &
+
+then=0
+for i in 1 2 3 4 5 6 7 8 9 10 11 12
+do
+    if [ -f $tmp.0 ]
+    then
+	now=`wc -c <$tmp.0 | sed -e 's/ //g'`
+	ls -l $tmp.0 >>$seq.full
+	echo "then=$then now=$now" >>$seq.full
+	if [ "$now" -ne "$then" ]
+	then
+	    echo "size changed"
+	    then=$now
+	fi
+    fi
+    sleep 1
+done
+
+cat $tmp.log >>$seq.full
+
+exit

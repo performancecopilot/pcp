@@ -1,0 +1,188 @@
+#!/bin/sh
+# PCP QA Test No. 499
+# pmlogrewrite - -q option
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which pmlogrewrite >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun pmlogrewrite not installed
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s;/$$\.;/PID.;g" \
+	-e '/[-+ ]\[[0-9][0-9]* bytes]/d' \
+	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/"
+}
+
+_cmp()
+{
+    ok=true
+    for ext in 0 index meta
+    do
+	if [ ! -f "$1.$ext" ]
+	then
+	    echo "Arrgh ... $1.$ext missing" | _filter
+	    ok=false
+	fi
+	if [ ! -f "$2.$ext" ]
+	then
+	    echo "Warning: $2.$ext missing" | _filter
+	    ok=false
+	fi
+    done
+    $ok || return
+    pmdumplog -z -a $1 | tee -a $seq.full >$tmp.in
+    pmdumplog -z -a $2 | tee -a $seq.full >$tmp.out
+    diff -u $tmp.in $tmp.out | _filter
+}
+
+mkdir $tmp.conf.dir
+i=0
+
+# real QA test starts here
+
+echo "=== metric not in archive ==="
+cat <<'End-of-File' >$tmp.conf.dir/conf.$i
+metric kernel.all.load { pmid -> 1.2.3 }
+End-of-File
+i=`expr $i + 1`
+rm -f $tmp.new.*
+pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+| _filter \
+| LC_COLLATE=POSIX sort
+_cmp src-oss/rewrite $tmp.new
+
+echo
+echo "=== + indom not in archive ==="
+cat <<'End-of-File' >$tmp.conf.dir/conf.$i
+indom 1.2 { inst 0 -> 1 }
+End-of-File
+i=`expr $i + 1`
+rm -f $tmp.new.*
+pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+| _filter \
+| LC_COLLATE=POSIX sort
+_cmp src-oss/rewrite $tmp.new
+
+echo
+echo "=== + empty global clause ==="
+cat <<'End-of-File' >$tmp.conf.dir/conf.$i
+global { }
+End-of-File
+i=`expr $i + 1`
+rm -f $tmp.new.*
+pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+| _filter \
+| LC_COLLATE=POSIX sort
+_cmp src-oss/rewrite $tmp.new
+
+echo
+echo "=== + no-change global hostname clause ==="
+cat <<'End-of-File' >$tmp.conf.dir/conf.$i
+global { hostname -> bozo-laptop }
+End-of-File
+i=`expr $i + 1`
+rm -f $tmp.new.*
+pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+| _filter \
+| LC_COLLATE=POSIX sort
+_cmp src-oss/rewrite $tmp.new
+
+echo
+echo "=== + no-change global time clause ==="
+cat <<'End-of-File' >$tmp.conf.dir/conf.$i
+global { time -> 00:00:00.000000 }
+End-of-File
+i=`expr $i + 1`
+rm -f $tmp.new.*
+pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+| _filter \
+| LC_COLLATE=POSIX sort
+_cmp src-oss/rewrite $tmp.new
+
+echo
+echo "=== + no-change global timezone clause ==="
+cat <<'End-of-File' >$tmp.conf.dir/conf.$i
+global { tz -> "EST-10" }
+End-of-File
+i=`expr $i + 1`
+rm -f $tmp.new.*
+pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+| _filter \
+| LC_COLLATE=POSIX sort
+_cmp src-oss/rewrite $tmp.new
+
+echo
+echo "=== + no-change indom clause ==="
+cat <<'End-of-File' >$tmp.conf.dir/conf.$i
+indom 29.2 {
+    # no change ones
+    indom -> 29.2
+    iname "bin-300" -> "bin-300"
+    inst 800 -> 800
+    # no match ones
+    iname "bin-999" -> "bin-998"
+    inst 123 -> 456
+}
+End-of-File
+i=`expr $i + 1`
+rm -f $tmp.new.*
+pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+| _filter \
+| LC_COLLATE=POSIX sort
+_cmp src-oss/rewrite $tmp.new
+
+echo
+echo "=== + no-change metric clause ==="
+cat <<'End-of-File' >$tmp.conf.dir/conf.$i
+metric sample.ulonglong.hundred {
+    indom -> NULL
+    name -> sample.ulonglong.hundred
+    pmid -> 29.0.100
+    sem -> instant
+    type -> u64
+    units -> 0,0,0,0,0,0
+}
+End-of-File
+i=`expr $i + 1`
+rm -f $tmp.new.*
+pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+| _filter \
+| LC_COLLATE=POSIX sort
+_cmp src-oss/rewrite $tmp.new
+
+echo
+echo "=== + change pmid clause ==="
+cat <<'End-of-File' >$tmp.conf.dir/conf.$i
+metric sample.longlong.bin_ctr { pmid -> 1.2.3 }
+End-of-File
+i=`expr $i + 1`
+rm -f $tmp.new.*
+pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+| _filter \
+| LC_COLLATE=POSIX sort
+_cmp src-oss/rewrite $tmp.new
+
+# success, all done
+exit

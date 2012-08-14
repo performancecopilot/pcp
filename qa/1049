@@ -1,0 +1,93 @@
+#! /bin/sh
+# PCP QA Test No. 1049 (formerly 552)
+# make sure that installed pmie rule files are syntactically OK.
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=nathans
+
+seq=`basename $0`
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./localconfig
+
+if which pmieconf >/dev/null 2>&1
+then
+    :
+else
+    _notrun "No pmieconf binary installed"
+fi
+
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+cat >$tmp.cmd <<EOF
+modify all enabled yes
+modify shping enabled no
+EOF
+
+# TODO - revisit these lists periodically to see what has changed
+#
+if [ $PCP_PLATFORM = irix ]
+then
+    # Not all metrics are available in IRIX, so skip the associated
+    # rules
+    cat >>$tmp.cmd <<EOF
+modify espping enabled no
+modify environ enabled no
+modify xvm enabled no
+EOF
+elif [ $PCP_PLATFORM = linux ]
+then
+    # Not all metrics are available in Linux, so skip the associated
+    # rules
+    #
+    cat >>$tmp.cmd <<EOF
+EOF
+elif [ $PCP_PLATFORM = darwin ]
+then
+    # Not all metrics are available in Mac OS X, so skip the associated
+    # rules
+    #
+    cat >>$tmp.cmd <<EOF
+EOF
+elif [ $PCP_PLATFORM = solaris ]
+then
+    # Not all metrics are available in Solaris, so skip the associated
+    # rules
+    #
+    cat >>$tmp.cmd <<EOF
+EOF
+else
+    echo "Arrgh ... need rule customization for $PCP_PLATFORM"
+    exit 1
+fi
+
+# real QA test starts here
+echo "running pmieconf with default rules..."
+( cat $tmp.cmd; echo quit ) | pmieconf -f $tmp.eek
+echo "status=$?"
+
+echo "running pmie..."
+pmie -C -c $tmp.eek -l $tmp.pmielog
+echo "status=$?"
+echo "pmie log file..."
+cat $tmp.pmielog | _filter_pmie_log
+
+echo "--- pmieconf input ---" >$seq.full
+cat $tmp.cmd >>$seq.full
+echo "--- pmie input ---" >>$seq.full
+cat $tmp.eek >>$seq.full
+echo "--- pmie output ---" >>$seq.full
+cat $tmp.pmielog >>$seq.full
+
+# success, all done
+status=0
+exit

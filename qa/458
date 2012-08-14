@@ -1,0 +1,85 @@
+#! /bin/sh
+# PCP QA Test No. 458
+# checks pmdalogger event functionality
+#
+# Copyright (c) 2011 Aconex.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d "$PCP_PMDAS_DIR/logger" ] || _notrun "No pmdalogger installed"
+_notrun "Test $seq needs to be updated"
+
+_cleanup()
+{
+    _restore_pmda_install $iam
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+_testdata()
+{
+    # generate data in a single write, for pmda determinism
+    echo \
+"TeSt DaTa ... TeSt DaTa ...
+TeSt2 DaTa2 ... TeSt2 DaTa2"
+}
+
+_filter()
+{
+    sed \
+	-e "s,$tmp,TMPFILE,g" \
+	-e "s,$PCP_VAR_DIR,PCP_VAR_DIR,g" \
+	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+}
+
+iam=logger
+status=1	# failure is the default!
+trap "_cleanup" 0 1 2 3 15
+
+# real QA test starts here
+_prepare_pmda_install $iam
+
+# prepare test case files (see below)
+$sudo rm -f $tmp.*
+touch  $tmp.reg
+mkfifo $tmp.fifo
+
+echo "
+reg	n	$tmp.reg
+fifo	n	$tmp.fifo
+" > $tmp.conf
+$sudo cp $tmp.conf $PCP_VAR_DIR/config/logger/logger.conf
+
+# install PMDA accepting the defaults (esp config file)
+$sudo ./Remove < /dev/null >/dev/null 2>&1
+$sudo ./Install < /dev/null >$tmp.out 2>&1
+cat $tmp.out | _filter_pmda_install | _filter
+
+echo "=== 1. regular file case ==="
+echo "Starting initial event watcher:"
+pmevent -s 5 -t 1 logger.perfile.reg.records > $tmp.event &
+sleep 2
+_testdata >> $tmp.reg
+wait
+echo "done."
+echo "Captured event trace was:"
+cat $tmp.event | _filter
+
+echo "=== 2. fifo queue case ==="
+echo "Starting initial event watcher:"
+pmevent -s 5 -t 1 logger.perfile.fifo.records > $tmp.event &
+sleep 2
+_testdata >> $tmp.fifo
+wait
+echo "done."
+echo "Captured event trace was:"
+cat $tmp.event | _filter
+
+status=0
+exit

@@ -1,0 +1,221 @@
+QA output created by 362
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Bad metric name
+probe	no.such.metric
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:x::
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Good metric name - default everything
+probe	sample.secret.foo.bar.three
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:n:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Good metric name - no values
+probe	sample.noinst values
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:x::
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Good metric name - has values
+probe	sample.secret.foo.bar.three values
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:n:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Good metric name - exists and non-default rules
+probe	sample.secret.foo.bar.three exists ? available : exclude
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:n:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Good metric name - exists and explicit default rules
+probe	sample.secret.foo.bar.three values ? include : exclude
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:y:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Good metric name - exists and regex
+probe	sample.secret.foo.bar.three ~ 3
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:n:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Good metric name - exists and regex and non-default rules
+probe	sample.secret.foo.bar.three ~ 3 ? available : exclude
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:n:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Bad: metric name exists and regex - missing operand
+probe	sample.secret.foo.bar.three ~ 
+--- pmlogconf-setup stdout ---
+--- exit status=1 ---
+--- pmlogconf-setup stderr ---
+TMP.grp: Error: missing condition operand after ~ operator
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Bad: metric exists - not ? as expected
+probe	hinv.ncpu exists foobar
+--- pmlogconf-setup stdout ---
+--- exit status=1 ---
+--- pmlogconf-setup stderr ---
+TMP.grp: Error: expected "?" after condition, found "foobar"
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Bad: metric exists - state rule missing an argument
+probe	hinv.ncpu exists ? include :
+--- pmlogconf-setup stdout ---
+--- exit status=1 ---
+--- pmlogconf-setup stderr ---
+TMP.grp: Error: missing state rule components: "? include :"
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Bad: metric exists - state rule extra arguments
+probe	hinv.ncpu exists ? include : exclude foo
+--- pmlogconf-setup stdout ---
+--- exit status=1 ---
+--- pmlogconf-setup stderr ---
+TMP.grp: Error: extra state rule components: "? include : exclude foo"
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Bad: metric exists - state rule not : where expected
+probe	hinv.ncpu exists ? include foo exclude
+--- pmlogconf-setup stdout ---
+--- exit status=1 ---
+--- pmlogconf-setup stderr ---
+TMP.grp: Error: expected ":" in state rule, found "foo"
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Bad: metric exists - state rule illegal success state
+probe	hinv.ncpu exists ? foo : exclude
+--- pmlogconf-setup stdout ---
+--- exit status=1 ---
+--- pmlogconf-setup stderr ---
+TMP.grp: Error: sucess state "foo" not recognized
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Bad: metric exists - state rule illegal failure state
+probe	hinv.ncpu exists ? available : foo
+--- pmlogconf-setup stdout ---
+--- exit status=1 ---
+--- pmlogconf-setup stderr ---
+TMP.grp: Error: failure state "foo" not recognized
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Good - force available
+force	available
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:n:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Good - regex match and include
+probe	sample.string.hullo ~ ^h[eu]llo.world!$
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:n:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Good - notregex nomatch and exclude
+probe	sample.bin !~ [1-9]00 ? include : exclude
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:x::
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Good - if bazillions of CPUs include, else available
+probe	hinv.ncpu > 1000 ? include : available
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:n:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Good - include
+probe	sample.bin < 101 ? include : exclude
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:y:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Good - include
+probe	sample.bin <= 100 ? include : exclude
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:y:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Good - include
+probe	sample.bin == 400 ? include : exclude
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:y:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Good - include
+probe	sample.bin != 100 ? include : exclude
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:y:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Good - include
+probe	sample.bin >= 900 ? include : exclude
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:y:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Good - include
+probe	sample.bin > 899 ? include : exclude
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:y:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Example from pmlogconf(1) man page
+ident	... more descripton
+delta	1 minute
+probe	sample.secret.foo.one values ? include : exclude
+	sample.secret.foo.one
+	sample.secret.foo.bar	# non-leaf in the PMNS
+	sample.colour [ red green ]
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:y:1 minute:
+--- exit status=0 ---

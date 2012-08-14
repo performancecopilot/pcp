@@ -1,0 +1,50 @@
+QA output created by 535
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+
+=== pmprobe ===
+sample.dynamic.counter 0
+sample.dynamic.instant 0
+sample.dynamic.discrete 0
+sample.dynamic.counter 4 "one" "two" "three" "twenty"
+sample.dynamic.instant 4 "one" "two" "three" "twenty"
+sample.dynamic.discrete 4 "one" "two" "three" "twenty"
+sample.dynamic.counter 5 "one" "two" "three" "four" "twenty"
+sample.dynamic.instant 5 "one" "two" "three" "four" "twenty"
+sample.dynamic.discrete 5 "one" "two" "three" "four" "twenty"
+sample.dynamic.counter 2 "one" "twenty"
+sample.dynamic.instant 2 "one" "twenty"
+sample.dynamic.discrete 2 "one" "twenty"
+sample.dynamic.counter 7 "zero" "one" "two" "three" "four" "twenty" "twenty-one"
+sample.dynamic.instant 7 "zero" "one" "two" "three" "four" "twenty" "twenty-one"
+sample.dynamic.discrete 7 "zero" "one" "two" "three" "four" "twenty" "twenty-one"
+sample.dynamic.counter 7 "zero+" "one" "two+" "three" "four+" "twenty" "twenty-one+"
+sample.dynamic.instant 7 "zero+" "one" "two+" "three" "four+" "twenty" "twenty-one+"
+sample.dynamic.discrete 7 "zero+" "one" "two+" "three" "four+" "twenty" "twenty-one+"
+sample.dynamic.counter 1 "singular"
+sample.dynamic.instant 1 "singular"
+sample.dynamic.discrete 1 "singular"
+sample.dynamic.counter 0
+sample.dynamic.instant 0
+sample.dynamic.discrete 0
+
+=== pmie ===
+counter: one:? twenty:?
+counter: one:? two:? three:? four:? twenty:?
+counter: one:? two:? three:? twenty:?
+counter: singular:?
+counter: zero+:? one:? two+:? three:? four+:? twenty:? twenty-one+:?
+counter: zero:? one:? two:? three:? four:? twenty:? twenty-one:?
+discrete: one:? twenty:?
+discrete: one:? two:? three:? four:? twenty:?
+discrete: one:? two:? three:? twenty:?
+discrete: singular:?
+discrete: zero+:? one:? two+:? three:? four+:? twenty:? twenty-one+:?
+discrete: zero:? one:? two:? three:? four:? twenty:? twenty-one:?
+instant: one:? twenty:?
+instant: one:? two:? three:? four:? twenty:?
+instant: one:? two:? three:? twenty:?
+instant: singular:?
+instant: zero+:? one:? two+:? three:? four+:? twenty:? twenty-one+:?
+instant: zero:? one:? two:? three:? four:? twenty:? twenty-one:?

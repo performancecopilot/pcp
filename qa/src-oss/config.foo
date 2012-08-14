@@ -1,0 +1,11 @@
+#
+# this one is to make the "foo" archive(s) for PCP QA suite
+#
+
+log mandatory on 1 sec {
+	sample.seconds
+	sample.bin
+	sample.colour
+	sample.drift
+	sample.lights
+}

@@ -1,0 +1,57 @@
+#!/bin/sh
+# PCP QA Test No. 397
+# Use dbpmda to check endian encoding for PM_TYPE_EVENT
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+hostname=`_get_fqdn 2>/dev/null`
+[ -z "$hostname" ] && hostname=`hostname`
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;g" \
+	-e "s/$hostname/MYHOST/" \
+	-e "s/`hostname`/MYHOST/" \
+	-e '/value/s/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g' \
+	-e '/29.0.126: .* -> 0/s/ [0-9] / OLD /' \
+	-e '/pmResult dump from/{
+s/0x[0-9a-f][0-9a-f]*/ADDR/
+s/amp: .* num/amp: TIMESTAMPS num/
+}'
+}
+
+# real QA test starts here
+cat <<End-of-File | $sudo dbpmda -ei >$tmp.out 2>&1
+open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -l $tmp.log
+store sample.event.reset "0"
+fetch sample.event.records
+fetch sample.event.records
+fetch sample.event.records
+fetch sample.event.records
+End-of-File
+
+cat $tmp.out >>$seq.full
+_filter <$tmp.out
+echo
+echo "=== pmda log ===" | tee -a $seq.full
+cat $tmp.log >>$seq.full
+_filter_pmcd_log <$tmp.log | _filter
+
+# success, all done
+exit

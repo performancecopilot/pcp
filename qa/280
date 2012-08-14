@@ -1,0 +1,147 @@
+#! /bin/sh
+# PCP QA Test No. 280
+# pmlogger_check basic sanity check
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+
+_filter()
+{
+    [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+    PCP_PMLOGGERCONTROL_PATH=`dirname "$PCP_PMLOGGERCONTROL_PATH"`
+    sed \
+	-e 's/\.\.\.*/[dots]/' \
+	-e 's;/usr/var;/var;g' \
+	-e "s/`hostname`/LOCALHOST/g" \
+	-e "s/$LOCALHOST/LOCALHOST/g" \
+	-e 's;/private/;/;g' \
+	-e "s;$LOGGING_DIR;\$PCP_LOG_DIR;" \
+	-e "s;$PCP_LOG_DIR;\$PCP_LOG_DIR;" \
+	-e "s;$PCP_PMLOGGERCONTROL_PATH;\$PCP_PMLOGGERCONTROL_PATH;" \
+	-e 's/control:[0-9][0-9]*]/control:LINE]/' \
+	-e 's/process [0-9][0-9]*/process PID/' \
+	-e 's/\.* done/. done/' \
+	-e 's/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]/CHECK/' \
+	-e 's/-rw-r--r--\./-rw-r--r--/' \
+    | _filter_cron_scripts
+}
+
+status=1	# failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+LOCALHOST=`hostname | sed -e 's/\..*//'`
+trap "rm -f $tmp.* $LOGGING_DIR/$LOCALHOST/lock; exit \$status" 0 1 2 3 15
+
+rm -f $seq.full
+
+# real QA test starts here
+
+umask 022
+
+# start from a known state
+#
+$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
+
+echo
+echo "Ping primary logger ..." | tee -a $seq.full
+echo 'connect primary' | pmlc
+
+echo
+echo "Expect this should do nothing ..." | tee -a $seq.full
+$sudo $PCP_BINADM_DIR/pmlogger_check -V 2>&1 | tee -a $seq.full | _filter
+echo 'connect primary' | pmlc
+
+pid=`LC_TIME=POSIX ls -l $PCP_TMP_DIR/pmlogger/primary 2>/dev/null | sed -e 's/.*\/\([0-9][0-9]*\)$/\1/'`
+
+if [ -z "$pid" ]
+then
+    echo "Error: cannot find PID for primary logger"
+    LC_TIME=POSIX ls -l $PCP_TMP_DIR/pmlogger
+    pminfo -f pmcd.pmlogger
+    exit
+fi
+
+echo
+echo "Kill off primary logger ..."
+$sudo $signal -s TERM $pid
+sleep 2
+echo 'connect primary' | pmlc 2>&1 | _filter
+pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+&& $sudo sh $tmp.cmd
+
+# delay to minimize risk of name clash
+#
+sleep 10
+
+echo "Expect this to re-start the primary logger ..." | tee -a $seq.full
+$sudo $PCP_BINADM_DIR/pmlogger_check -V 2>&1 | tee -a $seq.full | _filter
+echo 'connect primary' | pmlc
+
+pid=`LC_TIME=POSIX ls -l $PCP_TMP_DIR/pmlogger/primary 2>/dev/null | sed -e 's/.*\/\([0-9][0-9]*\)$/\1/'`
+
+if [ -z "$pid" ]
+then
+    echo "Error: cannot find PID for primary logger"
+    LC_TIME=POSIX ls -l $PCP_TMP_DIR/pmlogger
+    pminfo -f pmcd.pmlogger
+    exit
+fi
+
+echo
+echo "Kill off primary logger ..."
+$sudo $signal -s TERM $pid
+sleep 2
+echo 'connect primary' | pmlc 2>&1 | _filter
+pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+&& $sudo sh $tmp.cmd
+
+# delay to minimize risk of name clash
+#
+sleep 10
+
+echo
+echo "Expect this to quietly re-start the primary logger ..." | tee -a $seq.full
+$sudo $PCP_BINADM_DIR/pmlogger_check 2>&1 | tee -a $seq.full | _filter
+echo 'connect primary' | pmlc
+
+echo
+echo "Expect this to get a mutex failure ..." | tee -a $seq.full
+$sudo touch $LOGGING_DIR/$LOCALHOST/lock
+$sudo $PCP_BINADM_DIR/pmlogger_check 2>&1 \
+| tee -a $seq.full | _filter \
+| $PCP_AWK_PROG '
+/-r.-r.-r.-/	{ $4 = "GROUP"; $6 = "Mmm"; $7 = "D"; $8 = "YYYY" }
+		{ print }'
+
+echo
+echo "Expect this to cleanup an old lock file ..." | tee -a $seq.full
+$sudo rm -f $LOGGING_DIR/$LOCALHOST/lock
+$sudo touch -t 199701020304.00 $LOGGING_DIR/$LOCALHOST/lock
+$sudo $PCP_BINADM_DIR/pmlogger_check 2>&1 \
+| tee -a $seq.full | _filter \
+| $PCP_AWK_PROG '
+/-r.-r.-r.-/	{ $4 = "GROUP" }
+		{ print }'
+$sudo rm -f $LOGGING_DIR/$LOCALHOST/lock
+
+# success, all done
+status=0
+exit

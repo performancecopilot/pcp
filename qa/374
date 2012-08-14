@@ -1,0 +1,187 @@
+#! /bin/sh
+# PCP QA Test No. 374
+# pmlogger (assorted) and pmlc (PCP 2.0) version compatibility
+#
+# 64-bit host version ... see 322 for 32-bit host version ... this
+# one is optionally not run if you can't find a 64-bit host running
+# pcp
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    _filter_pmdumplog \
+    | sed \
+	-e '/^pmlogger .* on host .* is logging metrics from host .*/d' \
+	-e '/^PMCD host/d' \
+	-e '/^TIMESTAMP started/d' \
+    | $PCP_AWK_PROG '
+/datax/				{ skip = 3 }
+skip > 0			{ skip--; next }
+$1 == "log" && $2 == "size"	{ if ($3 > 100 && $3 <= 200) $3 = "more than 100"
+				  else if ($3 > 200 && $3 <= 300) $3 = "more than 200"
+				}
+				{ print }'
+}
+
+_speak_to_me()
+{
+    host=$1
+    pid=''
+    base=''
+    cat <<'End-of-File' | ssh -q pcpqa@$host sh >$tmp.tmp 2>&1
+if [ -r $PCP_DIR/etc/pcp.env ]
+then
+    . $PCP_DIR/etc/pcp.env
+else
+    echo "Error: unable to read $PCP_DIR/etc/pcp.env!" >&2
+    exit
+fi
+rm -f /tmp/$$.*
+( pmlogger -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1 ) &
+echo pid=$! base=$$
+End-of-File
+
+    echo >>$seq.full
+    echo "From ssh to $host ..." >>$seq.full
+    cat $tmp.tmp >>$seq.full
+
+    eval `cat $tmp.tmp`
+
+    if [ -z "$pid" ]
+    then
+	echo "Arrgh ... failed to get remote pmlogger pid for host $host"
+	exit
+    fi
+
+    if [ -z "$base" ]
+    then
+	echo "Arrgh ... failed to get remote archive basename for host $host"
+	exit
+    fi
+
+    for i in 1 2 3 4 5 6 7 8 9 10
+    do
+	if echo quit | pmlc -h $host $pid 2>&1 | grep 'Connected to' >/dev/null
+	then
+	    break
+	else
+	    if [ $i = 10 ]
+	    then
+		echo "Arrgh ... pmlogger (pid=$pid) on host $host failed to start after 20 seconds"
+		exit
+	    fi
+	fi
+	sleep 2
+    done
+
+    # the success cases
+    #
+    cat <<End-of-File | pmlc 2>&1 | _filter
+connect $pid@$host
+status
+new volume
+status
+flush
+# singular, all instances
+query { pmcd.simabi pmcd.control.register }
+# some instances
+query pmcd.agent.type ["sample" "pmcd" "sampledso"]
+# non-leaf
+query pmcd.pdu_in
+# logging
+log mandatory on once pmcd.agent.type ["sample" "pmcd"]
+End-of-File
+
+    # stopping and starting again should be enough to allow pmlogger
+    # to have logged the metrics from the last request ... except the
+    # pmlc control port socket may not have been ripped down, so
+    # sleep some
+    #
+    sleep 2
+
+    cat <<End-of-File | pmlc 2>&1 | _filter
+connect $pid@$host
+log mandatory off pmcd.agent.type ["sampledso"]
+query pmcd.agent.type ["sample" "pmcd" "sampledso"]
+End-of-File
+
+    # the failures
+    #
+    # echo "log mandatory on once proc" | pmlc -h $host $pid -D1
+    echo "connect 0@$host" | pmlc 2>&1 | _filter
+
+    # cleanup
+    #
+    if [ ! -z "$host" ]
+    then
+	ssh -q pcpqa@$host sh -c "pmsignal -s TERM $pid; sleep 1; pmsignal -s KILL $pid; rm -f /tmp/$base.*" >/dev/null 2>&1
+	pid=''
+	base=''
+    fi
+
+}
+
+_cleanup()
+{
+    if $need_clean
+    then
+	if [ ! -z "$pid" -a ! -z "$base" -a ! -z "$host" ]
+	then
+	    ssh -q pcpqa@$host sh -c "pmsignal -s TERM $pid; sleep 1; pmsignal -s KILL $pid; rm -f /tmp/$base.*" >/dev/null 2>&1
+	    pid=''
+	    base=''
+	fi
+	need_clean=false
+    fi
+    rm -f $tmp.*
+    exit
+}
+
+need_clean=true
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+host=''
+pid=''
+base=''
+
+# the v1 host may be on the other side of the planet
+#
+PMCD_CONNECT_TIMEOUT=30
+PMCD_REQUEST_TIMEOUT=30
+export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
+
+rm -f $seq.full
+
+# real QA test starts here
+
+for type in '-b 64 -v pcp\>=2'
+do
+    cmd="./getpmcdhosts -L -n 1 $type 2>/dev/null"
+    host=`eval $cmd`
+    if [ -z "$host" ]
+    then
+	echo "Cannot find a 64-bit host running PCP" >$seq.notrun
+	need_clean=false
+	exit
+    else
+	echo
+	echo "=== pmlogger host type: $type ===" | sed 's/\\>//'
+	echo "$type => $host" >>$seq.full
+	_speak_to_me $host
+    fi
+done
+
+# success, all done
+status=0
+exit

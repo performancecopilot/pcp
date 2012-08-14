@@ -1,0 +1,13 @@
+QA output created by 534
+expr_1: 1000011
+expr_2: 1000011
+expr_3: 1000011
+expr_4: 1000011
+expr_5: 1000011
+expr_6: 1000011
+expr_7: true
+
+high: bin-200:200 bin-300:300
+
+errors? ...
+[TIMESTAMP] pmie(PID) Info: evaluator exiting

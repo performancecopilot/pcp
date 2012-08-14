@@ -1,0 +1,176 @@
+#!/bin/sh
+# PCP QA Test No. 508
+# pmlogreduce workout (includes check for obscure interp.c bug reported
+# by Arthur Kepner @ sgi)
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+_filter1()
+{
+    sed \
+	-e '/^archive:/d' \
+	-e '/^end:/d' \
+	-e '/^samples:/d'
+}
+
+_filter2()
+{
+    sed \
+	-e '/^[a-z]/d' \
+	-e '/^Note/s/.*/<<< pmval header >>>/'
+}
+
+_join()
+{
+    # Note: sed in the pipeline is because join(1) on ia64 SuSE SLES 11
+    #       is broken and produces gratuitous white space in the output
+    #
+    join -a 1 -a 2 $1 $2 \
+    | sed -e 's/  */ /g' \
+    | awk '
+/No .* values available No .* values available/	{ next }
+		{ ok = 0 }
+NF % 2 == 1	{ for (i = 2; i < 2+(NF-1)/2; i++) {
+		    j = i+(NF-1)/2
+		    if ($i == $j)
+			continue
+		    if ($i+0 == $i && $j+0 == $j &&
+		        0.98*$i <= $j && $j <= 1.02*$i)
+			continue
+		    break
+		  }
+		  if (i == 2+(NF-1)/2)
+		    ok = 1
+		}
+ok == 0		{ print }'
+}
+
+if pmlogreduce -A 3sec -t 3sec src-oss/interpmark $tmp.reduce
+then
+    :
+else
+    echo "Arrgh: pmlogreduce failed!"
+    status=1
+    exit
+fi
+
+# from src-oss/mkinterpmark ...
+#
+# metric		semantics	type	indom	sample
+# disk.dev.read		counter		U64	60.1	500msec
+# disk.dev.write	counter		U64	60.1	2sec
+# disk.dev.total	counter		U64	60.1	10sec
+# disk.all.read		counter		U64	NULL	500msec
+# disk.all.write	counter		U64	NULL	2sec
+# disk.all.total	counter		U64	NULL	10sec
+# disk.dev.read_bytes	counter		U32	60.1	500msec
+# disk.dev.write_bytes	counter		U32	60.1	2sec
+# disk.dev.total_bytes	counter		U32	60.1	10sec
+# disk.all.read_bytes	counter		U32	NULL	500msec
+# disk.all.write_bytes	counter		U32	NULL	2sec
+# disk.all.total_bytes	counter		U32	NULL	10sec
+#
+# filesys.used		instant		U64	60.5	500msec
+# sample.longlong.bin	instant		64	29.2	2sec
+# filesys.free		instant		U64	60.5	10sec
+# sample.longlong.one	instant		64	NULL	500msec
+# swap.length		instant		U64	NULL	2sec
+# mem.util.kernelStack	instant		U64	NULL	10sec
+# filesys.usedfiles	instant		U32	60.5	500msec
+# swapdev.free		instant		U32	60.6	2sec
+# pmcd.buf.alloc	instant		32	2.5	10sec
+# sample.control	instant		32	NULL	500msec
+# kernel.all.uptime	instant		U32	NULL	2sec
+# network.tcpconn.close	instant		U32	NULL	10sec
+# 
+# filesys.capacity	discrete	U64	60.5	2sec
+# tmpfs.capacity	discrete	U64	60.18	once
+#
+# mem.physmem		discrete	U64	NULL	2sec
+#
+# filesys.capacity	discrete	U32	60.5	2sec
+# hinv.cpu.cache	discrete	U32	60.0	once
+# filesys.maxfiles	discrete	U32	60.5	once
+# hinv.physmem		discrete	U32	NULL	2sec
+# hinv.pagesize		discrete	U32	NULL	once
+# hinv.ncpu		discrete	U32	NULL	once
+
+for m in \
+	 \#500msec \
+	 disk.dev.read disk.all.read disk.dev.read_bytes disk.all.read_bytes \
+	 filesys.used sample.longlong.one filesys.usedfiles sample.control \
+	 \#2sec \
+	 disk.all.write disk.dev.write_bytes disk.all.write_bytes \
+	 sample.longlong.bin swap.length swapdev.free kernel.all.uptime \
+	 filesys.capacity mem.physmem filesys.capacity hinv.physmem \
+	 \#10sec \
+	 disk.dev.total disk.all.total disk.dev.total_bytes \
+	 disk.all.total_bytes filesys.free mem.util.kernelStack \
+	 pmcd.buf.alloc network.tcpconn.close \
+	 \#once \
+	 tmpfs.capacity hinv.cpu.cache filesys.maxfiles hinv.pagesize \
+	 hinv.ncpu
+do
+    case "$m"
+    in
+	\#*)
+	    continue
+	    ;;
+    esac
+    echo "=== $m ===" | tee -a $seq.full
+    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a src-oss/section-a $m \
+    | _filter1 >$tmp.in
+    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a src-oss/section-b $m \
+    | _filter2 >>$tmp.in
+    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a src-oss/section-d $m \
+    | _filter2 >>$tmp.in
+    sed -n '/^[0-2]/{
+s/[ 	]*$//
+s/No values/No input values/
+p
+}' $tmp.in >$tmp.in2
+    echo "--- inputs compared to merge ---" | tee -a $seq.full
+    pmval -rz -w 12 -f 3 -U src-oss/interpmark $m >>$seq.full 2>&1
+
+    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a src-oss/interpmark $m \
+    | tee -a $seq.full \
+    | _filter1 >$tmp.merge
+    sed -n '/^[0-2]/{
+s/[ 	]*$//
+s/No values/No merge values/
+p
+}' $tmp.merge >$tmp.tmp
+    _join $tmp.in2 $tmp.tmp
+
+    echo "--- merge compared to reduce ---"
+    pmval -rz -w 12 -f 3 -U $tmp.reduce $m >>$seq.full 2>&1
+
+    pmval -Dfetch,log,interp -rz -w 12 -f 3 -A 3sec -t 3sec -a $tmp.reduce $m 2>&1 \
+    | tee -a $seq.full \
+    | sed -n '/^[0-2]/{
+s/[ 	]*$//
+s/No values/No reduce values/
+p
+}' >$tmp.out
+    _join $tmp.tmp $tmp.out
+
+done
+
+# success, all done
+exit

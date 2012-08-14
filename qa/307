@@ -1,0 +1,73 @@
+#! /bin/sh
+# PCP QA Test No. 307
+# pv:936084 - nasflush from nasmgr causes high rate of tcp drops
+# (because it uses pmlc a lot)
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+numval=`pmprobe -v network.tcp.drops 2>/dev/null | $PCP_AWK_PROG '{print $2}'`
+if [ -z "$numval" -o "$numval" -lt 0 ]
+then
+    echo "metric network.tcp.drops is not available" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+        -e '/Connected to primary pmlogger /d' \
+        -e '/Goodbye/d'
+}
+
+echo "network.tcp.drops+network.tcp.conndrops+network.tcp.timeoutdrop > 10;" \
+| pmie -v -t 1 >$tmp.trace &
+
+# real QA test starts here
+
+# quit to pmlc
+#
+i=0
+while [ $i -lt 10 ]
+do
+    echo quit | pmlc -P 2>&1 | _filter
+    i=`expr $i + 1`
+done
+
+# E-O-F to pmlc
+#
+i=0
+while [ $i -lt 10 ]
+do
+    pmlc -P </dev/null 2>&1 | _filter
+    i=`expr $i + 1`
+done
+
+# reconnect to pmlc
+#
+i=0
+while [ $i -lt 10 ]
+do
+    echo "connect primary"
+    i=`expr $i + 1`
+done \
+| pmlc -P 2>&1 | _filter
+
+sort -u $tmp.trace
+cp $tmp.trace $seq.full
+
+# success, all done
+exit

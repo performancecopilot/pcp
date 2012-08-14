@@ -1,0 +1,70 @@
+#!/bin/sh
+# PCP QA Test No. 509
+# Expose bug in pmcd/dbpmda handling of derived metrics and unknown
+# metrics in same pmLookupName request.
+#
+# Copyright (c) 2012 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.def
+my.derived = sample.bin
+End-of-File
+
+_filter()
+{
+    sed \
+	-e 's/0x[0-9a-f][0-9a-f]*/ADDR/g' \
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+	-e '/PMNS Checksums/s/=[0-9a-f][0-9a-f]*/=CHECKSUM/g' \
+	-e '/Loaded Version 1 or 2/s/ent = [0-9][0-9]/ent = NN/' \
+	-e '/pmResult dump/s/ [0-9][0-9]*:00:00/ HH:00:00/' \
+    | $PCP_AWK_PROG '
+BEGIN					{ state = 0; outf = "'$tmp.tmp'.0" }
+state == "0" && $1 == "pmLoadNameSpace:"	{ state = 1; outf = "'$tmp.tmp'.1" }
+state == "1" && $1 != "pmLoadNameSpace:"	{ state = 2; outf = "'$tmp.tmp'.2" }
+					{ print >outf }'
+
+    [ -f $tmp.tmp.0 ] && cat $tmp.tmp.0
+    if [ -f $tmp.tmp.1 ]
+    then
+	grep ' 29' $tmp.tmp.1 \
+	| LC_COLLATE=POSIX sort
+    fi
+    [ -f $tmp.tmp.2 ] && cat $tmp.tmp.2
+}
+
+# real QA test starts here
+pminfo -D pmns -mf -c $tmp.def \
+    sample.secret.foo.one my.derived foo.bar sample.secret.foo.two \
+	>$tmp.out 2>$tmp.err
+_filter <$tmp.out
+_filter <$tmp.err
+
+export PCP_DERIVED_CONFIG=$tmp.def
+cat <<End-of-File | dbpmda -D pmns -ie >$tmp.out 2>$tmp.err
+open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29
+fetch sample.secret.foo.one, my.derived, sample.secret.foo.two
+End-of-File
+_filter <$tmp.out
+_filter <$tmp.err

@@ -1,0 +1,9 @@
+QA output created by 130
+checking PCP metric values against: nfsstat -rs
+badcalls: OK
+badlen: OK
+calls: OK
+dupage: OK
+duphits: OK
+nullrecv: OK
+xdrcall: OK

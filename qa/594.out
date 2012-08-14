@@ -1,0 +1,7 @@
+QA output created by 594
+    Data Type: aggregate  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+sample.sysinfo vtype == 7
+pmResult ... numpmid: 1
+  29.0.39 (sample.sysinfo): numval: 1 valfmt: 2 vlist[]:
+value [<expected number of BYTES>]

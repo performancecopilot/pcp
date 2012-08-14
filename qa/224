@@ -1,0 +1,61 @@
+#! /bin/sh
+# PCP QA Test No. 224
+# This used to cause a core dump for pmcd
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+done_reset=false
+status=0
+LOCALHOST=`hostname`
+
+_reset()
+{
+    if $done_reset
+    then
+	:
+    else
+	_restore_loggers
+	$sudo $PCP_RC_DIR/pcp restart \
+	| _filter_pcp_start \
+	| sed -e '/Waiting/s/\.\.\.*/[dots]/'
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	done_reset=true
+    fi
+    $sudo rm -f $tmp.*
+}
+
+_filter()
+{
+    sed -e 's/value .*/value .../' \
+	-e '/No value/d' |\
+    $PCP_AWK_PROG '
+	/0 or "primary"/ { print; next }
+        /inst \[[0-9]* or "[0-9]*"\]/ { next }
+	{ print }'
+	
+}
+
+trap "_reset; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+_disable_loggers
+$sudo $PCP_RC_DIR/pcp restart \
+| _filter_pcp_start \
+| sed -e '/Waiting/s/\.\.\.*/[dots]/'
+_wait_for_pmcd
+pminfo -f pmcd.numclients pmcd.pmlogger.host \
+| _filter
+
+# all done
+exit

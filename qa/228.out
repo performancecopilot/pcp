@@ -1,0 +1,19 @@
+QA output created by 228
+special chars in macro name ...
+x: 10
+y: 10
+z: 10
+x: 10
+y: 10
+z: 10
+pmie: note - evaluator exiting
+
+some syntax errors ...
+undefined macro name $foo-not-bar
+pmie: syntax error - near line 2 of standard input
+undefined macro name $foo
+pmie: syntax error - at end of file
+unexpected end of file in macro name: $foo-not-bar
+pmie: syntax error - at end of file
+macro name too long: $foo.long.ten.this.is...
+pmie: syntax error - near line 2 of standard input

@@ -1,0 +1,69 @@
+QA output created by 464
+no error cases ...
+one PMID: 1.2.3
+two.three PMID: 4.5.6
+four.five.six PMID: 7.8.9
+
+one PMID: 1.2.3
+two.three PMID: 4.5.6
+four.five.six PMID: 7.8.9
+
+one PMID: 1.2.3
+two.three PMID: 4.5.6
+four.five.six PMID: 7.8.9
+
+two PMID: 2.2.2
+foo.two.eek PMID: 3.4.5
+foo.three.urk PMID: 5.4.3
+
+#include errors ...
+pmcpp: TMP.root[2]: #include TMP.1
+pmcpp: Error: Expected " or < after #include
+Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
+pminfo: Error loading namespace: Problems parsing PMNS definitions
+pmcpp: TMP.root[2]: #include "TMP.1
+pmcpp: Error: Expected " after file name
+Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
+pminfo: Error loading namespace: Problems parsing PMNS definitions
+pmcpp: TMP.root[2]: #include "TMP.1" junk
+pmcpp: Error: Unexpected extra text in #include line
+Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
+pminfo: Error loading namespace: Problems parsing PMNS definitions
+pmcpp: TMP.root[2]: #include "TMP.1"
+pmcpp: Error: Cannot open file for #include
+Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
+pminfo: Error loading namespace: Problems parsing PMNS definitions
+pmcpp: TMP.4[2]: #include "TMP.5"
+pmcpp: Error: #include nesting too deep
+load(name=TMP.root, binok=1, dupok=0) lic case=0 fname=TMP.root
+loadbinary(file=TMP.root.bin)
+loadbinary(file=TMP.root)
+loadascii(file=TMP.root)
+pmLoadNameSpace: zero -> 1.0.0
+pmLoadNameSpace: one -> 1.0.1
+pmLoadNameSpace: two -> 1.0.2
+pmLoadNameSpace: three -> 1.0.3
+pmLoadNameSpace: four -> 1.0.4
+Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
+pminfo: Error loading namespace: Problems parsing PMNS definitions
+
+#define errors ...
+pmcpp: TMP.root[2]: #define
+pmcpp: Error: Missing macro name
+Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
+pminfo: Error loading namespace: Problems parsing PMNS definitions
+pmcpp: TMP.root[3]: #define
+pmcpp: Error: Missing macro name
+Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
+pminfo: Error loading namespace: Problems parsing PMNS definitions
+PMNS appears to be empty!
+pmcpp: TMP.root[2]: #define bad_123_macro!name
+pmcpp: Error: Illegal character in macro name
+Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
+pminfo: Error loading namespace: Problems parsing PMNS definitions
+
+other #cpp line errors ...
+pmcpp: TMP.root[2]: #fumble
+pmcpp: Error: Unrecognized control line
+Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
+pminfo: Error loading namespace: Problems parsing PMNS definitions

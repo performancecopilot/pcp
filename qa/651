@@ -1,0 +1,91 @@
+#! /bin/sh
+# PCP QA Test No. 651
+# basic pmproxy functionality
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ ! -f $PCP_BINADM_DIR/pmproxy ]
+then
+    echo "need $PCP_BINADM_DIR/pmproxy" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+hostname=`_get_fqdn`
+
+_filter()
+{
+    sed \
+	-e "s/$hostname/MYHOST/" \
+	-e "s/`hostname`/MYHOST/" \
+	-e '/hinv.ncpu/s/ 1 [0-9][0-9]*/ 1 <n>/'
+}
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    rm -f $tmp.*
+    $sudo $signal -a pmproxy
+}
+
+# real QA test starts here
+$sudo $signal -a pmproxy
+sleep 1
+
+PMPROXY_HOST=$hostname
+export PMPROXY_HOST
+
+echo "== pmproxy not running =="
+pmprobe -v sample.long.hundred 2>&1 | _filter
+
+echo
+echo "== simplest default case =="
+$PCP_BINADM_DIR/pmproxy
+sleep 1
+pmprobe -v sample.long.hundred 2>&1 | _filter
+
+echo
+echo "== simple explicit host case =="
+pmprobe -v -h localhost hinv.ncpu 2>&1 | _filter
+
+echo
+echo "== non-standard PMPROXY_PORT, expect failure =="
+PMPROXY_PORT=94322
+export PMPROXY_PORT
+pmprobe -v sample.long.hundred 2>&1 | _filter
+
+echo
+echo "== non-standard PMPROXY_PORT, expect success =="
+$sudo $PCP_BINADM_DIR/pmsignal -a pmproxy
+$PCP_BINADM_DIR/pmproxy
+sleep 1
+pmprobe -v sample.long.hundred 2>&1 | _filter
+
+echo
+echo "== restricted interface for connections, expect failure =="
+unset PMPROXY_PORT
+$sudo $PCP_BINADM_DIR/pmsignal -a pmproxy
+$PCP_BINADM_DIR/pmproxy -i 127.0.0.1
+sleep 1
+pmprobe -v sample.long.hundred 2>&1 | _filter
+
+echo
+echo "== restricted interface for connections, expect success =="
+PMPROXY_HOST=localhost
+pmprobe -v sample.long.hundred 2>&1 | _filter
+
+# success, all done
+exit

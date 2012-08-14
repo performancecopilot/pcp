@@ -1,0 +1,85 @@
+QA output created by 470
+Only one context ...
+ 100 func1: pmcd.buf.alloc (2.0.18) -> 32 2.5 instant count
+ 100 func1: pmcd.cputime.total (2.7.0) -> U64 PM_INDOM_NULL counter millisec
+ 100 func1: sample.seconds (29.0.2) -> U32 PM_INDOM_NULL counter sec
+ 100 func1: sample.ulonglong.bin_ctr (29.0.112) -> U64 29.2 counter Kbyte
+ 100 func1: sampledso.milliseconds (30.0.3) -> DOUBLE PM_INDOM_NULL counter millisec
+ 100 func2: pmcd.buf.alloc (2.0.18) -> 32 2.5 instant count
+ 100 func2: pmcd.cputime.total (2.7.0) -> U64 PM_INDOM_NULL counter millisec
+ 100 func2: sample.seconds (29.0.2) -> U32 PM_INDOM_NULL counter sec
+ 100 func2: sample.ulonglong.bin_ctr (29.0.112) -> U64 29.2 counter Kbyte
+ 100 func2: sampledso.milliseconds (30.0.3) -> DOUBLE PM_INDOM_NULL counter millisec
+ 100 func3: pmcd.buf.alloc (2.0.18) -> 32 2.5 instant count
+ 100 func3: pmcd.cputime.total (2.7.0) -> U64 PM_INDOM_NULL counter millisec
+ 100 func3: sample.seconds (29.0.2) -> U32 PM_INDOM_NULL counter sec
+ 100 func3: sample.ulonglong.bin_ctr (29.0.112) -> U64 29.2 counter Kbyte
+ 100 func3: sampledso.milliseconds (30.0.3) -> DOUBLE PM_INDOM_NULL counter millisec
+
+Two contexts, same host, different fd's ...
+ 100 func1: pmcd.buf.alloc (2.0.18) -> 32 2.5 instant count
+ 100 func1: pmcd.cputime.total (2.7.0) -> U64 PM_INDOM_NULL counter millisec
+ 100 func1: sample.seconds (29.0.2) -> U32 PM_INDOM_NULL counter sec
+ 100 func1: sample.ulonglong.bin_ctr (29.0.112) -> U64 29.2 counter Kbyte
+ 100 func1: sampledso.milliseconds (30.0.3) -> DOUBLE PM_INDOM_NULL counter millisec
+ 100 func2: pmcd.buf.alloc (2.0.18) -> 32 2.5 instant count
+ 100 func2: pmcd.cputime.total (2.7.0) -> U64 PM_INDOM_NULL counter millisec
+ 100 func2: sample.seconds (29.0.2) -> U32 PM_INDOM_NULL counter sec
+ 100 func2: sample.ulonglong.bin_ctr (29.0.112) -> U64 29.2 counter Kbyte
+ 100 func2: sampledso.milliseconds (30.0.3) -> DOUBLE PM_INDOM_NULL counter millisec
+ 100 func3: pmcd.buf.alloc (2.0.18) -> 32 2.5 instant count
+ 100 func3: pmcd.cputime.total (2.7.0) -> U64 PM_INDOM_NULL counter millisec
+ 100 func3: sample.seconds (29.0.2) -> U32 PM_INDOM_NULL counter sec
+ 100 func3: sample.ulonglong.bin_ctr (29.0.112) -> U64 29.2 counter Kbyte
+ 100 func3: sampledso.milliseconds (30.0.3) -> DOUBLE PM_INDOM_NULL counter millisec
+
+Two contexts, same host, same fd's ...
+ 100 func1: pmcd.buf.alloc (2.0.18) -> 32 2.5 instant count
+ 100 func1: pmcd.cputime.total (2.7.0) -> U64 PM_INDOM_NULL counter millisec
+ 100 func1: sample.seconds (29.0.2) -> U32 PM_INDOM_NULL counter sec
+ 100 func1: sample.ulonglong.bin_ctr (29.0.112) -> U64 29.2 counter Kbyte
+ 100 func1: sampledso.milliseconds (30.0.3) -> DOUBLE PM_INDOM_NULL counter millisec
+ 100 func2: pmcd.buf.alloc (2.0.18) -> 32 2.5 instant count
+ 100 func2: pmcd.cputime.total (2.7.0) -> U64 PM_INDOM_NULL counter millisec
+ 100 func2: sample.seconds (29.0.2) -> U32 PM_INDOM_NULL counter sec
+ 100 func2: sample.ulonglong.bin_ctr (29.0.112) -> U64 29.2 counter Kbyte
+ 100 func2: sampledso.milliseconds (30.0.3) -> DOUBLE PM_INDOM_NULL counter millisec
+ 100 func3: pmcd.buf.alloc (2.0.18) -> 32 2.5 instant count
+ 100 func3: pmcd.cputime.total (2.7.0) -> U64 PM_INDOM_NULL counter millisec
+ 100 func3: sample.seconds (29.0.2) -> U32 PM_INDOM_NULL counter sec
+ 100 func3: sample.ulonglong.bin_ctr (29.0.112) -> U64 29.2 counter Kbyte
+ 100 func3: sampledso.milliseconds (30.0.3) -> DOUBLE PM_INDOM_NULL counter millisec
+
+Three contexts, same host, different fd's ...
+ 100 func1: pmcd.buf.alloc (2.0.18) -> 32 2.5 instant count
+ 100 func1: pmcd.cputime.total (2.7.0) -> U64 PM_INDOM_NULL counter millisec
+ 100 func1: sample.seconds (29.0.2) -> U32 PM_INDOM_NULL counter sec
+ 100 func1: sample.ulonglong.bin_ctr (29.0.112) -> U64 29.2 counter Kbyte
+ 100 func1: sampledso.milliseconds (30.0.3) -> DOUBLE PM_INDOM_NULL counter millisec
+ 100 func2: pmcd.buf.alloc (2.0.18) -> 32 2.5 instant count
+ 100 func2: pmcd.cputime.total (2.7.0) -> U64 PM_INDOM_NULL counter millisec
+ 100 func2: sample.seconds (29.0.2) -> U32 PM_INDOM_NULL counter sec
+ 100 func2: sample.ulonglong.bin_ctr (29.0.112) -> U64 29.2 counter Kbyte
+ 100 func2: sampledso.milliseconds (30.0.3) -> DOUBLE PM_INDOM_NULL counter millisec
+ 100 func3: pmcd.buf.alloc (2.0.18) -> 32 2.5 instant count
+ 100 func3: pmcd.cputime.total (2.7.0) -> U64 PM_INDOM_NULL counter millisec
+ 100 func3: sample.seconds (29.0.2) -> U32 PM_INDOM_NULL counter sec
+ 100 func3: sample.ulonglong.bin_ctr (29.0.112) -> U64 29.2 counter Kbyte
+ 100 func3: sampledso.milliseconds (30.0.3) -> DOUBLE PM_INDOM_NULL counter millisec
+
+Three contexts, same host, same fd's ...
+ 100 func1: pmcd.buf.alloc (2.0.18) -> 32 2.5 instant count
+ 100 func1: pmcd.cputime.total (2.7.0) -> U64 PM_INDOM_NULL counter millisec
+ 100 func1: sample.seconds (29.0.2) -> U32 PM_INDOM_NULL counter sec
+ 100 func1: sample.ulonglong.bin_ctr (29.0.112) -> U64 29.2 counter Kbyte
+ 100 func1: sampledso.milliseconds (30.0.3) -> DOUBLE PM_INDOM_NULL counter millisec
+ 100 func2: pmcd.buf.alloc (2.0.18) -> 32 2.5 instant count
+ 100 func2: pmcd.cputime.total (2.7.0) -> U64 PM_INDOM_NULL counter millisec
+ 100 func2: sample.seconds (29.0.2) -> U32 PM_INDOM_NULL counter sec
+ 100 func2: sample.ulonglong.bin_ctr (29.0.112) -> U64 29.2 counter Kbyte
+ 100 func2: sampledso.milliseconds (30.0.3) -> DOUBLE PM_INDOM_NULL counter millisec
+ 100 func3: pmcd.buf.alloc (2.0.18) -> 32 2.5 instant count
+ 100 func3: pmcd.cputime.total (2.7.0) -> U64 PM_INDOM_NULL counter millisec
+ 100 func3: sample.seconds (29.0.2) -> U32 PM_INDOM_NULL counter sec
+ 100 func3: sample.ulonglong.bin_ctr (29.0.112) -> U64 29.2 counter Kbyte
+ 100 func3: sampledso.milliseconds (30.0.3) -> DOUBLE PM_INDOM_NULL counter millisec

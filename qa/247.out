@@ -1,0 +1,156 @@
+QA output created by 247
+
+sample.pdu
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+sample.recv_pdu
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+sample.xmit_pdu
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+sample.byte_ctr
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+
+sample.kbyte_ctr
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+
+sample.long.hundred
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+sample.bin
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+No semantic errors here ...
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: register metric[0] myname.a = sample.kbyte_ctr
+pmRegisterDerived: register metric[1] myname.b = sample.recv_pdu + sample.xmit_pdu
+pmRegisterDerived: register metric[2] myname.c = 123
+pmRegisterDerived: register metric[3] myname.d = 123 + sample.long.hundred
+pmRegisterDerived: register metric[4] myname.e = sample.pdu / sample.long.hundred
+pmRegisterDerived: register metric[5] myname.f = 1024 * sample.byte_ctr
+pmRegisterDerived: register metric[6] myname.g = sample.bin + 100 - sample.bin - 100
+pmRegisterDerived: register metric[7] myname.h = sample.seconds + sample.milliseconds / 1000
+__dmopencontext: bind metric[0] myname.a
+__dmopencontext: bind metric[1] myname.b
+__dmopencontext: bind metric[2] myname.c
+__dmopencontext: bind metric[3] myname.d
+__dmopencontext: bind metric[4] myname.e
+__dmopencontext: bind metric[5] myname.f
+__dmopencontext: bind metric[6] myname.g
+__dmopencontext: bind metric[7] myname.h
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.d" -> PMID 511.0.4
+__dmgetpmid: metric "myname.e" -> PMID 511.0.5
+__dmgetpmid: metric "myname.f" -> PMID 511.0.6
+__dmgetpmid: metric "myname.g" -> PMID 511.0.7
+__dmgetpmid: metric "myname.h" -> PMID 511.0.8
+
+myname.a
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+
+myname.b
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+myname.c
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+myname.d
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+myname.e
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+myname.f
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+
+myname.g
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+myname.h
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+
+Semantic errors ...
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: register metric[0] myname.a = no.such.metric
+pmRegisterDerived: register metric[1] myname.b = sample.bad.unknown
+pmRegisterDerived: register metric[2] myname.c = disk.dev.read * disk.dev.write
+pmRegisterDerived: register metric[3] myname.d = sample.byte_ctr + sample.long.hundred
+pmRegisterDerived: register metric[4] myname.e = sample.long.hundred - 100 / sample.byte_ctr
+pmRegisterDerived: register metric[5] myname.f = 3 + sample.lights
+pmRegisterDerived: register metric[6] myname.g = sample.sysinfo - 42
+pmRegisterDerived: register metric[7] myname.h = disk.dev.total + sample.long.hundred
+pmRegisterDerived: register metric[8] myname.i = sample.long.hundred - disk.dev.total
+pmRegisterDerived: register metric[9] myname.j = sample.mirage * sample.step_counter
+pmRegisterDerived: register metric[10] myname.k = sample.step_counter / sample.mirage_longlong
+pmRegisterDerived: register metric[11] myname.l = sample.bin + sample.darkness
+pmRegisterDerived: register metric[12] myname.gcov.a = 42 + sample.bad.unknown
+pmRegisterDerived: register metric[13] myname.gcov.b = (disk.all.total + disk.dev.total) + 42 
+pmRegisterDerived: register metric[14] myname.gcov.c = 42 - (disk.all.total + disk.dev.total)
+pmRegisterDerived: register metric[15] myname.gcov.d = (sample.bin + sample.darkness)+42
+__dmgetpmid: metric "no.such.metric" -> Unknown metric name
+bind_expr: error: derived metric myname.a: operand: no.such.metric: Unknown metric name
+bind_expr: error: derived metric myname.b: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
+Semantic error: derived metric myname.c: disk.dev.read * disk.dev.write: Illegal operator for counters
+Semantic error: derived metric myname.d: sample.byte_ctr + sample.long.hundred: Illegal operator for counter and non-counter
+Semantic error: derived metric myname.e: 100 / sample.byte_ctr: Illegal operator for non-counter and counter
+Semantic error: derived metric myname.f: 3 + sample.lights: Non-arithmetic type for right operand
+Semantic error: derived metric myname.g: sample.sysinfo - 42: Non-arithmetic type for left operand
+Semantic error: derived metric myname.h: disk.dev.total + sample.long.hundred: Illegal operator for counter and non-counter
+Semantic error: derived metric myname.i: sample.long.hundred - disk.dev.total: Illegal operator for non-counter and counter
+Semantic error: derived metric myname.j: sample.mirage * sample.step_counter: Non-counter and not dimensionless for left operand
+Semantic error: derived metric myname.k: sample.step_counter / sample.mirage_longlong: Non-counter and not dimensionless for right operand
+Semantic error: derived metric myname.l: sample.bin + sample.darkness: Operands should have the same instance domain
+bind_expr: error: derived metric myname.gcov.a: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
+Semantic error: derived metric myname.gcov.b: <expr> + 42: Illegal operator for counter and non-counter
+Semantic error: derived metric myname.gcov.c: 42 - <expr>: Illegal operator for non-counter and counter
+Semantic error: derived metric myname.gcov.d: sample.bin + sample.darkness: Operands should have the same instance domain
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.d" -> PMID 511.0.4
+__dmgetpmid: metric "myname.e" -> PMID 511.0.5
+__dmgetpmid: metric "myname.f" -> PMID 511.0.6
+__dmgetpmid: metric "myname.g" -> PMID 511.0.7
+__dmgetpmid: metric "myname.h" -> PMID 511.0.8
+__dmgetpmid: metric "myname.i" -> PMID 511.0.9
+__dmgetpmid: metric "myname.j" -> PMID 511.0.10
+__dmgetpmid: metric "myname.k" -> PMID 511.0.11
+__dmgetpmid: metric "myname.l" -> PMID 511.0.12
+__dmgetpmid: metric "myname.gcov.a" -> PMID 511.0.13
+__dmgetpmid: metric "myname.gcov.b" -> PMID 511.0.14
+__dmgetpmid: metric "myname.gcov.c" -> PMID 511.0.15
+__dmgetpmid: metric "myname.gcov.d" -> PMID 511.0.16
+myname.a: pmLookupDesc: Unknown or illegal metric identifier
+myname.b: pmLookupDesc: Unknown or illegal metric identifier
+myname.c: pmLookupDesc: Unknown or illegal metric identifier
+myname.d: pmLookupDesc: Unknown or illegal metric identifier
+myname.e: pmLookupDesc: Unknown or illegal metric identifier
+myname.f: pmLookupDesc: Unknown or illegal metric identifier
+myname.g: pmLookupDesc: Unknown or illegal metric identifier
+myname.h: pmLookupDesc: Unknown or illegal metric identifier
+myname.i: pmLookupDesc: Unknown or illegal metric identifier
+myname.j: pmLookupDesc: Unknown or illegal metric identifier
+myname.k: pmLookupDesc: Unknown or illegal metric identifier
+myname.l: pmLookupDesc: Unknown or illegal metric identifier
+myname.gcov.a: pmLookupDesc: Unknown or illegal metric identifier
+myname.gcov.b: pmLookupDesc: Unknown or illegal metric identifier
+myname.gcov.c: pmLookupDesc: Unknown or illegal metric identifier
+myname.gcov.d: pmLookupDesc: Unknown or illegal metric identifier

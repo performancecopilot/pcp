@@ -1,0 +1,58 @@
+QA output created by 108
+check sample pmda is still alive ...
+
+sample.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+sample.noinst: No value(s) available
+sample.needprofile: Explicit instance identifier(s) required
+sample.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
+sample.bad.nosupport: Not Supported
+sample.event.type: No value(s) available
+sample.event.param_32: No value(s) available
+sample.event.param_u32: No value(s) available
+sample.event.param_64: No value(s) available
+sample.event.param_u64: No value(s) available
+sample.event.param_float: No value(s) available
+sample.event.param_double: No value(s) available
+sample.event.param_string: No value(s) available
+sample.event.param_aggregate: No value(s) available
+
+check simple pmda is still alive ...
+
+simple.color
+... at least one value
+
+check sampledso pmda is still alive ...
+
+sampledso.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+sampledso.noinst: No value(s) available
+sampledso.needprofile: Explicit instance identifier(s) required
+sampledso.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
+sampledso.bad.nosupport: Not Supported
+sampledso.event.type: No value(s) available
+sampledso.event.param_32: No value(s) available
+sampledso.event.param_u32: No value(s) available
+sampledso.event.param_64: No value(s) available
+sampledso.event.param_u64: No value(s) available
+sampledso.event.param_float: No value(s) available
+sampledso.event.param_double: No value(s) available
+sampledso.event.param_string: No value(s) available
+sampledso.event.param_aggregate: No value(s) available
+

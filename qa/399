@@ -1,0 +1,119 @@
+#! /bin/sh
+# PCP QA Test No. 399
+# pmie core dumps
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+# get standard filters
+. ./common.product
+. ./common.check
+. ./common.filter
+
+[ $PCP_PLATFORM = darwin ] && \
+    _notrun "Neither disk.dev.response nor disk.dev.avactive for darwin"
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+$sudo rm -f core* $seq.core*
+
+echo
+echo "Test 1"
+if [ $PCP_PLATFORM = irix ]
+then
+
+cat >$tmp.conf <<'End-of-File'
+dsk = "disk.dev";
+total0 = $delta * $dsk.total@0;
+total1 = $delta * $dsk.total@1;
+iops = $delta * ($dsk.total@0 - $dsk.total@1);
+resp = $delta * 1000 * ($dsk.response@0 - $dsk.response@1);
+End-of-File
+
+elif [ $PCP_PLATFORM = linux ]
+then
+
+cat >$tmp.conf <<'End-of-File'
+dsk = "disk.dev";
+total0 = $delta * $dsk.total@0;
+total1 = $delta * $dsk.total@1;
+iops = $delta * ($dsk.total@0 - $dsk.total@1);
+resp = $delta * 1000 * ($dsk.avactive@0 - $dsk.avactive@1);
+End-of-File
+
+elif [ $PCP_PLATFORM = solaris ]
+then
+
+cat >$tmp.conf <<'End-of-File'
+dsk = "disk.dev";
+total0 = $delta * $dsk.total@0;
+total1 = $delta * $dsk.total@1;
+iops = $delta * ($dsk.total@0 - $dsk.total@1);
+resp = $delta * 1000 * ($dsk.run.time@0 - $dsk.run.time@1);
+End-of-File
+
+else
+    bozo!
+fi
+
+pmie -vv -t 1 -T 1 <$tmp.conf >/dev/null 2>$tmp.err
+echo "Stderr output ..."
+cat $tmp.err | _show_pmie_errors
+
+_check_core
+
+echo
+echo "Test 2"
+if [ $PCP_PLATFORM = irix ]
+then
+
+cat >$tmp.conf <<'End-of-File'
+dsk = "disk.dev";
+total0 = $delta * $dsk.total@0;
+total1 = $delta * $dsk.total@1;
+iops = $delta * ($dsk.total@0 - $dsk.total@1);
+resp = $delta * 1000 * ($dsk.response@0 - $dsk.response@1);
+avg = $delta * 1000 * ($dsk.response@0 - $dsk.response@1) / ($dsk.total@0 - $dsk.total@1);
+End-of-File
+
+elif [ $PCP_PLATFORM = linux ]
+then
+
+cat >$tmp.conf <<'End-of-File'
+dsk = "disk.dev";
+total0 = $delta * $dsk.total@0;
+total1 = $delta * $dsk.total@1;
+iops = $delta * ($dsk.total@0 - $dsk.total@1);
+resp = $delta * 1000 * ($dsk.avactive@0 - $dsk.avactive@1);
+avg = $delta * 1000 * ($dsk.avactive@0 - $dsk.avactive@1) / ($dsk.total@0 - $dsk.total@1);
+End-of-File
+
+elif [ $PCP_PLATFORM = solaris ]
+then
+
+cat >$tmp.conf <<'End-of-File'
+dsk = "disk.dev";
+total0 = $delta * $dsk.total@0;
+total1 = $delta * $dsk.total@1;
+iops = $delta * ($dsk.total@0 - $dsk.total@1);
+resp = $delta * 1000 * ($dsk.run.time@0 - $dsk.run.time@1);
+avg = $delta * 1000 * ($dsk.run.time@0 - $dsk.run.time@1) / ($dsk.total@0 - $dsk.total@1);
+End-of-File
+
+else
+    bozo!
+fi
+
+pmie -vv -t 1 -T 1 <$tmp.conf >/dev/null 2>$tmp.err
+echo "Stderr output ..."
+cat $tmp.err | _show_pmie_errors
+
+_check_core
+
+exit

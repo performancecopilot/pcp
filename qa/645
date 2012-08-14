@@ -1,0 +1,40 @@
+#! /bin/sh
+# PCP QA Test No. 645
+# pmlogger config with hyphens in hostname - #828416
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+    -e '/gethostbyname(/s/ Resolver Error 0 (no error)/ Unknown host/'
+}
+
+# real QA test starts here
+for host in nosuchhost no-such-host
+do
+    cat <<End-of-File | pmlogger -l $tmp.log $tmp
+log mandatory on once { hinv.ncpu }
+
+[access]
+allow $host:advisory,mandatory,enquire;
+End-of-File
+
+    _filter_pmlogger_log <$tmp.log | _filter
+done
+
+# success, all done
+exit

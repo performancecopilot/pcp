@@ -1,0 +1,30 @@
+QA output created by 414
+event 32771 callback
+event 32770 callback #?
+event 32769 callback #?
+event 32770 callback #?
+event 32770 callback #3
+event 32769 callback #?
+event 32770 callback #5
+event 32769 callback #4
+event 32770 callback #9
+event 32769 callback #7
+event 32770 callback #last
+
+Diagnostic output lines ...
+TIME AFcallback ADDR(32769, (nil))
+TIME AFcallback ADDR(32770, (nil))
+TIME AFcallback ADDR(32771, (nil))
+TIME AFcallback event 32769 too slow, skip callback for TIME
+TIME AFcallback event 32770 too slow, skip callback for TIME
+TIME AFenqueue ADDR(32769, (nil)) for TIME
+TIME AFenqueue ADDR(32770, (nil)) for TIME
+TIME AFenqueue ADDR(32771, (nil)) for TIME
+TIME AFenqueue ADDR(32772, (nil)) for TIME
+TIME AFonalarm(14)
+TIME AFsetitimer for delta TIME
+onevent done: TIME
+onevent(32769, (nil)) called: TIME
+onevent(32770, (nil)) called: TIME
+onevent(32771, (nil)) called: TIME
+returned from pause(): TIME

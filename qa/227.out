@@ -1,0 +1,31 @@
+QA output created by 227
+/dev/null ...
+pmafm> 
+
+one blank line ...
+pmafm> pmafm> 
+
+two blank lines, ?, two blank lines ...
+pmafm> pmafm> pmafm> PCP Archive Folio Manager
+
+Commands:
+  archives		- select all archives
+  archives N[,...]	- select archives with these ordinal numbers
+  archives name[,...]	- select archives with these names
+  check			- integrity check for folio
+  help			- this message
+  hosts 		- select archives for all hosts (the default)
+  hosts hostname[,...]	- select archives for just these hosts
+  list [verbose]	- display folio contents
+  quit			- exit
+  remove		- echo the sh(1) command to delete all files
+			  associated with the folio
+  repeat tool [arg ...]	- execute a known PCP tool on each archive in turn
+  replay		- replay archives using the tool that created the folio
+  [run] tool [arg ...]	- execute a known PCP tool on the selected archives
+  selections		- list selected archives
+  
+Selection:
+  If specified, both the "archives" and the "hosts" selection criteria
+  are applied as a conjunction.
+pmafm> pmafm> pmafm> 

@@ -1,0 +1,122 @@
+QA output created by 134
+
+=== logger started, nothing logged ===
+MYLOG.0 initial OK
+Log Label (Log Format Version 2)
+Performance metrics from host LOCALHOST
+  commencing month-day TIMESTAMP-0 year
+  ending     month-day TIMESTAMP-0 year
+
+Temporal Index
+             month-day end(meta)     end(log)
+TIMESTAMP-0     0       OFFSET       OFFSET
+Metrics in archive:
+    pmcd.pmlogger.host
+    pmcd.pmlogger.port
+    pmcd.pmlogger.archive
+
+=== first volume, one result ===
+MYLOG.0 incr 40 bytes
+Log Label (Log Format Version 2)
+Performance metrics from host LOCALHOST
+  commencing month-day TIMESTAMP-0 year
+  ending     month-day TIMESTAMP-1 year
+
+Temporal Index
+             month-day end(meta)     end(log)
+TIMESTAMP-0     0       OFFSET       OFFSET
+TIMESTAMP-1     0       OFFSET       OFFSET
+Metrics in archive:
+    pmcd.pmlogger.host
+    pmcd.pmlogger.port
+    pmcd.pmlogger.archive
+    pmcd.control.register
+New log volume 1
+
+=== second empty volume ===
+MYLOG.0 unchanged
+MYLOG.1 initial OK
+Log Label (Log Format Version 2)
+Performance metrics from host LOCALHOST
+  commencing month-day TIMESTAMP-0 year
+  ending     month-day TIMESTAMP-1 year
+
+Temporal Index
+             month-day end(meta)     end(log)
+TIMESTAMP-0     0       OFFSET       OFFSET
+TIMESTAMP-1     0       OFFSET       OFFSET
+Metrics in archive:
+    pmcd.pmlogger.host
+    pmcd.pmlogger.port
+    pmcd.pmlogger.archive
+    pmcd.control.register
+
+=== second volume, one result ===
+MYLOG.0 unchanged
+MYLOG.1 incr 40 bytes
+Log Label (Log Format Version 2)
+Performance metrics from host LOCALHOST
+  commencing month-day TIMESTAMP-0 year
+  ending     month-day TIMESTAMP-2 year
+
+Temporal Index
+             month-day end(meta)     end(log)
+TIMESTAMP-0     0       OFFSET       OFFSET
+TIMESTAMP-1     0       OFFSET       OFFSET
+TIMESTAMP-2     1       OFFSET       OFFSET
+Metrics in archive:
+    pmcd.pmlogger.host
+    pmcd.pmlogger.port
+    pmcd.pmlogger.archive
+    pmcd.control.register
+    pmcd.control.register
+
+=== second volume, second + third result ===
+MYLOG.0 unchanged
+MYLOG.1 incr 184 bytes
+Log Label (Log Format Version 2)
+Performance metrics from host LOCALHOST
+  commencing month-day TIMESTAMP-0 year
+  ending     month-day TIMESTAMP-4 year
+
+Temporal Index
+             month-day end(meta)     end(log)
+TIMESTAMP-0     0       OFFSET       OFFSET
+TIMESTAMP-1     0       OFFSET       OFFSET
+TIMESTAMP-2     1       OFFSET       OFFSET
+TIMESTAMP-3     1       OFFSET       OFFSET
+Metrics in archive:
+    pmcd.pmlogger.host
+    pmcd.pmlogger.port
+    pmcd.pmlogger.archive
+    pmcd.control.register
+    pmcd.control.register
+    sample.bin
+    pmcd.control.timeout
+    pmcd.control.debug
+    pmcd.control.register
+
+=== logger done ===
+MYLOG.0 unchanged
+MYLOG.1 unchanged
+Log Label (Log Format Version 2)
+Performance metrics from host LOCALHOST
+  commencing month-day TIMESTAMP-0 year
+  ending     month-day TIMESTAMP-4 year
+
+Temporal Index
+             month-day end(meta)     end(log)
+TIMESTAMP-0     0       OFFSET       OFFSET
+TIMESTAMP-1     0       OFFSET       OFFSET
+TIMESTAMP-2     1       OFFSET       OFFSET
+TIMESTAMP-3     1       OFFSET       OFFSET
+Metrics in archive:
+    pmcd.pmlogger.host
+    pmcd.pmlogger.port
+    pmcd.pmlogger.archive
+    pmcd.control.register
+    pmcd.control.register
+    sample.bin
+    pmcd.control.timeout
+    pmcd.control.debug
+    pmcd.control.register

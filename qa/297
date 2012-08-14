@@ -1,0 +1,147 @@
+#! /bin/sh
+# PCP QA Test No. 297
+# exercise pmproxy and client reconnect
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which pmdumptext >/dev/null 2>&1
+then
+    :
+else
+    _notrun "No pmdumptext binary installed"
+fi
+
+if which pmproxy >/dev/null 2>&1
+then
+    :
+else
+    _notrun "No pmproxy binary installed"
+fi
+
+echo "QA output created by $seq"
+
+PMCDLOG=$PCP_LOG_DIR/pmcd/pmcd.log
+
+signal=$PCP_BINADM_DIR/pmsignal
+killpid=""
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    [ -n "$killpid" ] && $signal $killpid
+    $sudo $signal -a pmproxy >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmproxy restart >/dev/null 2>&1
+}
+
+fqdn=`pmhostname`
+hostname=`hostname | sed -e 's/\..*//'`
+
+_filter()
+{
+    sed \
+	-e '/^pmWhichContext/d' \
+	-e '/^pmUseContext/d' \
+	-e '/^pmNewZone/d' \
+	-e '/^pmUseZone/d' \
+	-e '/^__pmFdLookup/d' \
+	-e '/^__pmDecodeXtendError/d' \
+	-e '/^__pmAddIPC/d' \
+	-e '/^__pmSendCreds/d' \
+	-e '/^IPC table/d' \
+	-e '/^__pmConnectPMCD.* failed/d' \
+	-e '/^__pmConnectPMCD/{
+s/'$fqdn'/MY_HOST/g
+s/'$hostname'/MY_HOST/g
+s/[0-9][0-9]*/N/g
+}' \
+	-e '/^pmReconnectContext.* failed/d' \
+	-e '/^pmReconnectContext.* too soon/d' \
+	-e '/^pmNewContext/{
+s/'$fqdn'/MY_HOST/g
+s/'$hostname'/MY_HOST/g
+}' \
+	-e '/^Context\[/{
+s/'$fqdn'/MY_HOST/g
+s/'$hostname'/MY_HOST/g
+s/[0-9][0-9]*/N/g
+}' \
+	-e '/^[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/{
+# pmdumptext
+s//DATE/
+s/	[0-9][0-9.]*/	N/g
+}' \
+    | _filter_pmproxy | uniq
+}
+
+_filter_pmproxy()
+{
+    sed -e '/^__pmSetSocketIPC: fd=/d' -e '/^IPC table fd/d' \
+	-e '/^__pmSetVersionIPC: fd=/d'
+}
+
+$sudo $PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
+$sudo $signal -a pmproxy >/dev/null 2>&1
+
+PMCD_RECONNECT_TIMEOUT=1
+export PMCD_RECONNECT_TIMEOUT
+
+pmproxy -Dcontext -l $tmp.log 2>&1 | _filter_pmproxy
+
+PMPROXY_HOST=localhost
+export PMPROXY_HOST
+
+# real QA test starts here
+pmdumptext -Dcontext -t 0.5 sample.bin >$tmp.out 2>&1 &
+killpid=$!
+
+# don't need to confuse pmproxy or pmcd ...
+#
+unset PMPROXY_HOST
+
+sleep 3
+echo "killing pmproxy ..."
+$signal -a pmproxy >/dev/null 2>&1
+sleep 2
+echo "1st pmproxy log" >$seq.full
+cat $tmp.log >>$seq.full
+
+echo "re-starting pmproxy ..."
+pmproxy -Dcontext -l $tmp.log 2>&1 | _filter_pmproxy
+
+sleep 4
+echo "killing pmcd ..."
+$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
+sleep 2
+echo >>$seq.full
+echo "1st pmcd log" >>$seq.full
+cat $PMCDLOG >>$seq.full
+
+echo "re-starting pmcd ..."
+$sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
+
+sleep 4
+echo >>$seq.full
+echo "2nd pmproxy log" >>$seq.full
+cat $tmp.log >>$seq.full
+echo >>$seq.full
+echo "2nd pmcd log" >>$seq.full
+cat $PMCDLOG >>$seq.full
+
+echo >>$seq.full
+echo "pmdumptext output" >>$seq.full
+cat $tmp.out >>$seq.full
+
+_filter <$tmp.out
+
+# success, all done
+exit

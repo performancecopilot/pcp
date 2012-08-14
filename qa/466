@@ -1,0 +1,86 @@
+#! /bin/sh
+# PCP QA Test No. 466
+# pmlogger -r
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+. ./localconfig
+if [ $PCP_EOE_VER -eq 2000 -o \
+    \( $PCP_EOE_VER -ge 6500 -a $PCP_EOE_VER -le 6501 \) ] ; then
+    echo "This test is applicable on PCP 2.1 or Irix 6.5.2 or later" > $seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<End-of-File | pmlogger -r -l $tmp.log -T 3sec $tmp
+log mandatory on once {
+    sample.control
+}
+log mandatory on once {
+    sample.long.one
+}
+log mandatory on once {
+    sample.float.one
+}
+log mandatory on once {
+    sample.double.one
+}
+log mandatory on once {
+    sample.string.null
+}
+log mandatory on once {
+    sample.string.hullo
+}
+log mandatory on once {
+    sample.bin
+}
+log mandatory on once {
+    sample.control
+    sample.long.one
+}
+log mandatory on once {
+    sample.control
+    sample.float.one
+    sample.double.one
+    sample.string.null
+    sample.string.hullo
+    sample.bin
+}
+log mandatory on 500 msec {
+    sample.control
+}
+log mandatory on 1 sec {
+    sample.control
+    sample.long.one
+}
+log mandatory on 2 sec {
+    sample.control
+    sample.float.one
+    sample.double.one
+    sample.string.null
+    sample.string.hullo
+    sample.bin
+}
+End-of-File
+
+sed <$tmp.log \
+    -e '1,/^Archive basename:/d' \
+    -e '/^Log finished/d'
+
+# success, all done
+status=0
+exit

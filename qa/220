@@ -1,0 +1,59 @@
+#! /bin/sh
+# PCP QA Test No. 220
+# Does primary logger die and cleanup when pmcd exits?
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0
+clean=false
+LOCALHOST=`hostname`
+
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+
+_cleanup()
+{
+    if $clean
+    then
+	:
+    else
+	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+	&& $sudo sh $tmp.cmd
+	rm -f $tmp.cmd
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	clean=true
+    fi
+}
+
+trap "rm -f $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+echo "primary pmlogger processes?  exect none"
+ps $PCP_PS_ALL_FLAGS | grep 'pmlogger.* -P' | grep -v grep
+
+echo
+echo "primary port map? expect none"
+if [ -e $PCP_TMP_DIR/pmlogger/primary ]; then
+    echo "Eh?!  $PCP_TMP_DIR/pmlogger/primar exists and it should not"
+else
+    echo "not there - goodness."
+fi
+
+# all done
+exit

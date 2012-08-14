@@ -1,0 +1,159 @@
+#! /bin/sh
+# PCP QA Test No. 115
+# exercises pmie_check functionality
+# See also of No. 504 ... for a version that uses pmsocks
+#
+# Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.check
+. ./common.filter
+
+signal=$PCP_BINADM_DIR/pmsignal
+lhost=`hostname | sed -e 's/\..*//'`
+host=`_get_fqdn`
+remote=`./getpmcdhosts -n 1 -L 2>/dev/null`
+if [ -z "$remote" ]
+then
+    echo "Arrgh ... ./getpmcdhosts -n 1 -L failed!"
+    exit 1
+fi
+needclean=false
+[ -z "$PCP_PMIECONTROL_PATH" ] && \
+	PCP_PMIECONTROL_PATH="$PCP_VAR_DIR/config/pmie/control"
+control="$PCP_PMIECONTROL_PATH"
+
+_cleanup()
+{
+    if $needclean
+    then
+	$sudo cp $tmp.control.bak $control
+	$sudo cp $tmp.pmcd.bak $PCP_PMCDCONF_PATH
+    fi
+    $sudo rm -f $tmp.*
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s/$$/PID/g" \
+	-e "s/$remote/REMOTEHOST/g" \
+	-e "s/$host/LOCALHOST/g" \
+	-e "s/$lhost/LOCALHOST/g" \
+	-e "s;/private/tmp;/tmp;g"
+}
+
+_filter_pmie_start()
+{
+    sed \
+	-e '/^Waiting for pmie process(es) to terminate/d' \
+	-e "s;$PCP_RC_DIR/pmie:;RC_SCRIPT;" \
+	-e '/RC_SCRIPT/d' \
+	-e '/(pmie) is disabled/d' \
+	-e '/To enable/d' \
+	-e '/\/sbin\/chkconfig pmie on/d' \
+	-e '/\/usr\/sbin\/sysv-rc-conf pmie on/d' \
+        -e '/update-rc.d -f pmie defaults/d' \
+	-e '/ln -sf \.\.\/init.d\/pmie \/etc\/rc\.d\//d' \
+	-e "s;$PCP_PMIECONTROL_PATH;\$PCP_PMIECONTROL_PATH;" \
+        -e '/^\.\.*done$/d' \
+        -e '/^\.\.*failed$/d' \
+	-e "s;/private/tmp;/tmp;g"
+}
+
+_count_pmies()
+{
+    count=0
+    if [ -d $PCP_TMP_DIR/pmie ] 
+    then cd $PCP_TMP_DIR/pmie
+    else return 0
+    fi
+
+    plist=`ls -1`
+    cd $here
+
+    for process in $plist
+    do
+	ps -p $process >/dev/null 2>&1
+	if [ $? = 1 ]
+	then
+	    echo "urk, $PCP_TMP_DIR/pmie/$process has no running pmie instance"
+	else
+	    count=`expr $count + 1`
+	fi
+    done
+
+    return $count
+}
+
+# create a basic pmcd config file
+cat >$tmp.pmcd.conf << EOF
+# from QA $seq
+irix	1	dso	irix_init	libirixpmda.so
+pmcd	2	dso	pmcd_init	pmda_pmcd.so
+proc	3	dso	proc_init	pmda_proc.so
+EOF
+
+# create a pmie config file
+cat >$tmp.conf << EOF
+foo = sample.long.one;
+doo = sample.long.ten;
+EOF
+
+# create pmie control files
+cat >$tmp.control << EOF
+\$version=1.0
+$remote         n $tmp.log1 -c $tmp.conf
+$remote         n $tmp.log2 -c $tmp.conf
+LOCALHOSTNAME   n $tmp.log0 $tmp.conf
+EOF
+
+# real QA test starts here
+cp $control $tmp.control.bak
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.bak
+needclean=true
+$sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH 
+
+$sudo $signal -a -s TERM pmie >/dev/null 2>&1
+_change_config pmcd on
+_change_config pmie off
+$sudo rm -f $PCP_TMP_DIR/pmie/*
+
+_count_pmies
+echo "pmie count at start of QA testing: $?"
+echo
+
+echo === check default install operation ===
+$sudo $PCP_RC_DIR/pmie restart 2>&1 | _filter_pmie_start
+_count_pmies
+echo "pmie count after chkconfig pmie off: $?"
+echo
+
+echo === check for missing control file ===
+_change_config pmie off
+$sudo rm -f $control
+_change_config pmie on
+$sudo $PCP_RC_DIR/pmie restart 2>&1 | _filter_pmie_start
+_count_pmies
+echo "pmie count after attempt without control file: $?"
+echo
+
+echo === check pmie_check and custom config ===
+pmie_check -V -V -N -c $tmp.control 2>&1 | _filter
+# don't bother counting pmie processes, as -N is used above!
+#
+echo
+
+$sudo $PCP_RC_DIR/pmie stop 2>&1 | _filter_pmie_start
+_change_config pmie off
+
+status=0
+exit

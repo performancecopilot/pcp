@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 369
+# Check out libpcp_import
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if [ -f $PCP_DIR/usr/include/pcp/import.h ]
+then
+    :
+else
+    echo "No support for libpcp_import" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+_filter1()
+{
+    sed \
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
+	-e '/^EXPORT_FAIL$/d' \
+	-e '/::EXPORT_FAIL$/d'
+}
+
+_filter2()
+{
+    _filter_pmdumplog \
+    | sed \
+	-e '/PID for pmlogger:/s/[0-9][0-9]*/PID/'
+}
+
+mkdir $tmp
+cd $tmp
+
+# real QA test starts here
+echo "C version ..."
+$here/src-oss/check_import 2>&1 | _filter1
+pminfo -dm -a myarchive
+pmdumplog -a myarchive 2>&1 | _filter2
+
+echo
+echo "Perl wrapper version ..."
+rm -f myarchive.*
+perl $here/src-oss/check_import.pl 2>&1 | _filter1
+pminfo -dm -a myarchive
+pmdumplog -a myarchive 2>&1 | _filter2
+
+# success, all done
+exit

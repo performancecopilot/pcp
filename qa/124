@@ -1,0 +1,41 @@
+#! /bin/sh
+# PCP QA Test No. 124
+# check that exit status in pmie actions processed correctly
+# (problem raised by todd.c.davis@intel.com)
+# pv #870661
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+echo 'hinv.ncpu > 0 -> shell "echo true; true";' | pmie -f -t2 -T1 2>/dev/null
+sleep 1
+
+echo 'hinv.ncpu > 0 -> shell "echo true; true" | shell "echo or true; true";' | pmie -f -t2 -T1 2>/dev/null
+sleep 1
+
+echo 'hinv.ncpu > 0 -> shell "echo true; true" & shell "echo and true; true";' | pmie -f -t2 -T1 2>/dev/null
+sleep 1
+
+echo 'hinv.ncpu > 0 -> shell "echo false; false" | shell "echo or true; true";' | pmie -f -t2 -T1 2>/dev/null
+sleep 1
+
+echo 'hinv.ncpu > 0 -> shell "echo false; false" & shell "echo and true; true";' | pmie -f -t2 -T1 2>/dev/null
+sleep 1
+
+# success, all done
+exit
+

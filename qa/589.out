@@ -1,0 +1,24 @@
+QA output created by 589
+
+=== 1st test
+.../telnet-probe: port must be a positive number
+Usage: .../telnet-probe [-c] [-v] host port
+exit status is 1 (should be 1 with error msg)
+.../telnet-probe: requires two arguments
+Usage: .../telnet-probe [-c] [-v] host port
+exit status is 1 (should be 1 with error msg)
+
+=== 2nd test
+exit status is 0 (should be 0)
+exit status is 0 (should be 0)
+
+=== 3rd test
+connect: Connection refused
+exit: 1
+exit status is 1 (should be 1 with verbosity)
+connect: Connection refused
+exit: 1
+exit status is 1 (should be 1 with verbosity)
+gethostbyname: Unknown host
+exit: 1
+exit status is 1 (should be 1 with verbosity)

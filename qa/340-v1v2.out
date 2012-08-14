@@ -1,0 +1,10 @@
+[no test results provided yet...]
+
+Please do the following:
+
+  % rm 340.out
+  % remake 340
+  % mv 340.out 340-v1v2.out
+  % p_fetal 340-v1v2.out
+  % p_finalize 340-v1v2.out
+

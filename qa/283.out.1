@@ -1,0 +1,27 @@
+QA output created by 283
+
+=== PMCD_PORT= pmcd_opt= ===
+--- PMCD_PORT= ---
+__pmConnectPMCD(HOST): pmcd connection port=44321 fd=<n> PDU version=2
+sample.long.one 1 1
+--- PMCD_PORT=9876,4321,44321 ---
+__pmConnectPMCD(HOST): pmcd connection port=4321 fd=<n> PDU version=2
+sample.long.one 1 1
+
+=== PMCD_PORT=9876,44321,4321 pmcd_opt= ===
+--- PMCD_PORT= ---
+__pmConnectPMCD(HOST): pmcd connection port=44321 fd=<n> PDU version=2
+sample.long.one 1 1
+--- PMCD_PORT=9876,4321,44321 ---
+__pmConnectPMCD(HOST): pmcd connection port=9876 fd=<n> PDU version=2
+sample.long.one 1 1
+
+=== PMCD_PORT= pmcd_opt=-p 4321 -p 44321 -p 9876 ===
+--- PMCD_PORT= ---
+__pmConnectPMCD(HOST): pmcd connection port=44321 fd=<n> PDU version=2
+sample.long.one 1 1
+--- PMCD_PORT=9876,4321,44321 ---
+__pmConnectPMCD(HOST): pmcd connection port=9876 fd=<n> PDU version=2
+sample.long.one 1 1
+Starting pmcd ... 
+Starting pmlogger ... 

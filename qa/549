@@ -1,0 +1,41 @@
+#! /bin/sh
+# PCP QA Test No. 549
+# Bad checking for non-numeric types in pmie
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+LOCALHOST=`hostname`
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmie -v -t 1sec -T 2sec 2>&1 <<End-of-File \
+| LC_COLLATE=POSIX sort -u \
+| sed \
+    -e '/Info: evaluator exiting/d' \
+    -e "s/$LOCALHOST/HOST/g" \
+    -e '/^pmie: /s/- on line/- near line/'
+unknown = sample.bad.unknown + 1;
+nosupport = sample.bad.nosupport - sample.long.one;
+noinst = sample.noinst / 1;
+needprofile = 100 * sample.needprofile;
+long = sample.long.one == 1;
+longlong = sample.longlong.one + 3;
+float = sample.float.one * 10;
+double = sample.double.one - 1;
+string = sample.string.hullo == "abc";
+aggregate = sample.aggregate.hullo / 4;
+End-of-File
+
+# success, all done
+status=0
+exit

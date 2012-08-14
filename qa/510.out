@@ -1,0 +1,108 @@
+QA output created by 510
+Starting pmcd ... 
+Starting pmlogger ... 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+pmlc commands
+
+  show loggers [@<host>]             display <pid>s of running pmloggers
+  connect _logger_id [@<host>]       connect to designated pmlogger
+  status                             information about connected pmlogger
+  query metric-list                  show logging state of metrics
+  new volume                         start a new log volume
+  flush                              flush the log buffers to disk
+
+  log { mandatory | advisory } on <interval> _metric-list
+  log { mandatory | advisory } off _metric-list
+  log mandatory maybe _metric-list
+
+  timezone local|logger|'<timezone>' change reporting timezone
+  help                               print this help message
+  quit                               exit from pmlc
+
+  _logger_id   is  primary | <pid> | port <n>
+  _metric-list is  _metric-spec | { _metric-spec ... }
+  _metric-spec is  <metric-name> | <metric-name> [ <instance> ... ]
+
+pmlc> connect primary
+pmlc> query sample.event
+sample.event.records
+    adv  off nl              [0 or "fungus"]
+    adv  off nl              [1 or "bogus"]
+
+sample.event.no_indom_records
+    adv  off nl             
+
+sample.event.reset
+    adv  off nl             
+
+sample.event.type
+    adv  off nl             
+
+sample.event.param_32
+    adv  off nl             
+
+sample.event.param_u32
+    adv  off nl             
+
+sample.event.param_64
+    adv  off nl             
+
+sample.event.param_u64
+    adv  off nl             
+
+sample.event.param_float
+    adv  off nl             
+
+sample.event.param_double
+    adv  off nl             
+
+sample.event.param_string
+    adv  off nl             
+
+sample.event.param_aggregate
+    adv  off nl             
+
+pmlc> log mandatory on once sample.event.records
+pmlc> query sample.event
+sample.event.records
+    mand on             once [0 or "fungus"]
+    mand on             once [1 or "bogus"]
+
+sample.event.no_indom_records
+    adv  off nl             
+
+sample.event.reset
+    adv  off nl             
+
+sample.event.type
+    adv  off nl             
+
+sample.event.param_32
+    adv  off nl             
+
+sample.event.param_u32
+    adv  off nl             
+
+sample.event.param_64
+    adv  off nl             
+
+sample.event.param_u64
+    adv  off nl             
+
+sample.event.param_float
+    adv  off nl             
+
+sample.event.param_double
+    adv  off nl             
+
+sample.event.param_string
+    adv  off nl             
+
+sample.event.param_aggregate
+    adv  off nl             
+
+pmlc> 
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

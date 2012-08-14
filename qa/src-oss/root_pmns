@@ -1,0 +1,2146 @@
+root {
+	news
+	txmon
+	shping
+	simple
+	trivial
+	web
+	webping
+	sample
+	sampledso
+	cisco
+	irix
+	hinv
+	hw
+	pmcd
+	proc
+}
+
+news {
+	articles
+	readers
+}
+
+news.articles {
+	total	28:0:201
+	count	28:0:301
+	last	28:0:302
+}
+
+news.readers {
+	nnrpd	28:0:101
+	rn	28:0:111
+	trn	28:0:112
+	xrn	28:0:113
+	vn	28:0:114
+}
+
+txmon {
+	count	248:0:0
+	ave_time	248:0:1
+	max_time	248:0:2
+	reset_count	248:0:3
+	control
+}
+
+txmon.control {
+	level	248:0:4
+	reset	248:0:5
+}
+
+shping {
+	status	19:0:6
+	error	19:0:10
+	cmd	19:0:7
+	time
+	control
+}
+
+shping.time {
+	real	19:0:0
+	cpu_usr	19:0:1
+	cpu_sys	19:0:2
+}
+
+shping.control {
+	numcmd	19:0:3
+	cycles	19:0:9
+	cycletime	19:0:4
+	timeout	19:0:5
+	debug	19:0:8
+}
+
+simple {
+	numfetch	253:0:0
+	color	253:0:1
+	time
+}
+
+simple.time {
+	user	253:1:2
+	sys	253:1:3
+}
+
+trivial {
+	time	250:0:0
+}
+
+web {
+	config
+	allservers
+	perserver
+}
+
+web.config {
+	numservers	22:0:0
+	catchup	22:0:1
+	catchuptime	22:0:2
+	check	22:0:3
+}
+
+web.allservers {
+	numwatched	22:0:4
+	numalive	22:0:5
+	errors	22:1:6
+	requests
+	bytes
+}
+
+web.allservers.requests {
+	total	22:1:7
+	get	22:1:8
+	head	22:1:9
+	post	22:1:10
+	other	22:1:11
+	size
+}
+
+web.allservers.requests.size {
+	zero	22:1:17
+	le3k	22:1:18
+	le10k	22:1:19
+	le30k	22:1:20
+	le100k	22:1:21
+	le300k	22:1:22
+	le1m	22:1:23
+	le3m	22:1:24
+	gt3m	22:1:25
+	unknown	22:1:66
+}
+
+web.allservers.bytes {
+	total	22:1:12
+	get	22:1:13
+	head	22:1:14
+	post	22:1:15
+	other	22:1:16
+	size
+}
+
+web.allservers.bytes.size {
+	zero	22:1:26
+	le3k	22:1:27
+	le10k	22:1:28
+	le30k	22:1:29
+	le100k	22:1:30
+	le300k	22:1:31
+	le1m	22:1:32
+	le3m	22:1:33
+	gt3m	22:1:34
+}
+
+web.perserver {
+	watched	22:0:35
+	numlogs	22:2:36
+	errors	22:2:37
+	logidletime	22:2:68
+	requests
+	bytes
+}
+
+web.perserver.requests {
+	total	22:2:38
+	get	22:2:39
+	head	22:2:40
+	post	22:2:41
+	other	22:2:42
+	size
+}
+
+web.perserver.requests.size {
+	zero	22:2:48
+	le3k	22:2:49
+	le10k	22:2:50
+	le30k	22:2:51
+	le100k	22:2:52
+	le300k	22:2:53
+	le1m	22:2:54
+	le3m	22:2:55
+	gt3m	22:2:56
+	unknown	22:2:67
+}
+
+web.perserver.bytes {
+	total	22:2:43
+	get	22:2:44
+	head	22:2:45
+	post	22:2:46
+	other	22:2:47
+	size
+}
+
+web.perserver.bytes.size {
+	zero	22:2:57
+	le3k	22:2:58
+	le10k	22:2:59
+	le30k	22:2:60
+	le100k	22:2:61
+	le300k	22:2:62
+	le1m	22:2:63
+	le3m	22:2:64
+	gt3m	22:2:65
+}
+
+webping {
+	active	21:0:8
+	kbytes	21:0:1
+	xferrate	21:0:2
+	count	21:0:3
+	errors
+	perurl
+	time
+	workload
+}
+
+webping.errors {
+	sockerr	21:0:9
+	httperr	21:0:10
+	htmlerr	21:0:11
+	othererr	21:0:12
+}
+
+webping.perurl {
+	kbytes	21:0:19
+	xferrate	21:0:20
+	httpcode	21:0:21
+	time
+}
+
+webping.perurl.time {
+	connect	21:0:22
+	head	21:0:23
+	body	21:0:24
+	total	21:0:25
+}
+
+webping.time {
+	connect	21:0:4
+	head	21:0:5
+	body	21:0:6
+	total	21:0:7
+}
+
+webping.workload {
+	buffersize	21:0:18
+	numread	21:0:13
+	numurls	21:0:14
+	control
+}
+
+webping.workload.control {
+	fxdbufsize	21:0:15
+	pingdelay	21:0:16
+	urldelay	21:0:17
+}
+
+sample {
+	control	29:0:0
+	daemon_pid	29:0:1
+	seconds	29:0:2
+	milliseconds	29:0:3
+	load	29:0:4
+	colour	29:0:5
+	bin	29:0:6
+	bucket	29:0:48
+	part_bin	29:0:50
+	bogus_bin	29:0:51
+	drift	29:0:7
+	step	29:0:8
+	step_counter	29:0:63
+	mirage	29:0:37
+	mirage_longlong	29:0:38
+	write_me	29:0:36
+	lights	29:0:46
+	magnitude	29:0:47
+	sysinfo	29:0:39
+	pdu	29:0:40
+	recv_pdu	29:0:41
+	xmit_pdu	29:0:42
+	noinst	29:0:9
+	needprofile	29:0:49
+	not_ready	29:0:56
+	rapid	29:0:64
+	error_code	29:0:74
+	error_check	29:0:75
+	long
+	longlong
+	float
+	double
+	string
+	aggregate
+	hordes
+	bad
+	wrap
+	dodgey
+	scale_step
+	const_rate
+}
+
+sample.long {
+	one	29:0:10
+	ten	29:0:11
+	hundred	29:0:12
+	million	29:0:13
+	write_me	29:0:14
+}
+
+sample.longlong {
+	one	29:0:20
+	ten	29:0:21
+	hundred	29:0:22
+	million	29:0:23
+	write_me	29:0:24
+}
+
+sample.float {
+	one	29:0:15
+	ten	29:0:16
+	hundred	29:0:17
+	million	29:0:18
+	write_me	29:0:19
+}
+
+sample.double {
+	one	29:0:25
+	ten	29:0:26
+	hundred	29:0:27
+	million	29:0:28
+	write_me	29:0:29
+}
+
+sample.string {
+	null	29:0:30
+	hullo	29:0:31
+	write_me	29:0:32
+}
+
+sample.aggregate {
+	null	29:0:33
+	hullo	29:0:34
+	write_me	29:0:35
+}
+
+sample.hordes {
+	one	29:0:52
+	two	29:0:53
+}
+
+sample.bad {
+	unknown	29:0:54
+	nosupport	29:0:55
+}
+
+sample.wrap {
+	long	29:0:57
+	ulong	29:0:58
+	longlong	29:0:59
+	ulonglong	29:0:60
+}
+
+sample.dodgey {
+	control	29:0:61
+	value	29:0:62
+}
+
+sample.scale_step {
+	bytes_up	29:0:65
+	bytes_down	29:0:66
+	count_up	29:0:67
+	count_down	29:0:68
+	time_up_secs	29:0:69
+	time_up_nanosecs	29:0:70
+	none_up	29:0:71
+}
+
+sample.const_rate {
+	value	29:0:72
+	gradient	29:0:73
+}
+
+sampledso {
+	control	30:0:0
+	daemon_pid	30:0:1
+	seconds	30:0:2
+	milliseconds	30:0:3
+	load	30:0:4
+	colour	30:0:5
+	bin	30:0:6
+	bucket	30:0:48
+	part_bin	30:0:50
+	bogus_bin	30:0:51
+	drift	30:0:7
+	step	30:0:8
+	step_counter	30:0:63
+	mirage	30:0:37
+	mirage_longlong	30:0:38
+	write_me	30:0:36
+	lights	30:0:46
+	magnitude	30:0:47
+	sysinfo	30:0:39
+	pdu	30:0:40
+	recv_pdu	30:0:41
+	xmit_pdu	30:0:42
+	noinst	30:0:9
+	needprofile	30:0:49
+	not_ready	30:0:56
+	rapid	30:0:64
+	error_code	30:0:74
+	error_check	30:0:75
+	long
+	longlong
+	float
+	double
+	string
+	aggregate
+	hordes
+	bad
+	wrap
+	dodgey
+	scale_step
+	const_rate
+}
+
+sampledso.long {
+	one	30:0:10
+	ten	30:0:11
+	hundred	30:0:12
+	million	30:0:13
+	write_me	30:0:14
+}
+
+sampledso.longlong {
+	one	30:0:20
+	ten	30:0:21
+	hundred	30:0:22
+	million	30:0:23
+	write_me	30:0:24
+}
+
+sampledso.float {
+	one	30:0:15
+	ten	30:0:16
+	hundred	30:0:17
+	million	30:0:18
+	write_me	30:0:19
+}
+
+sampledso.double {
+	one	30:0:25
+	ten	30:0:26
+	hundred	30:0:27
+	million	30:0:28
+	write_me	30:0:29
+}
+
+sampledso.string {
+	null	30:0:30
+	hullo	30:0:31
+	write_me	30:0:32
+}
+
+sampledso.aggregate {
+	null	30:0:33
+	hullo	30:0:34
+	write_me	30:0:35
+}
+
+sampledso.hordes {
+	one	30:0:52
+	two	30:0:53
+}
+
+sampledso.bad {
+	unknown	30:0:54
+	nosupport	30:0:55
+}
+
+sampledso.wrap {
+	long	30:0:57
+	ulong	30:0:58
+	longlong	30:0:59
+	ulonglong	30:0:60
+}
+
+sampledso.dodgey {
+	control	30:0:61
+	value	30:0:62
+}
+
+sampledso.scale_step {
+	bytes_up	30:0:65
+	bytes_down	30:0:66
+	count_up	30:0:67
+	count_down	30:0:68
+	time_up_secs	30:0:69
+	time_up_nanosecs	30:0:70
+	none_up	30:0:71
+}
+
+sampledso.const_rate {
+	value	30:0:72
+	gradient	30:0:73
+}
+
+cisco {
+	bandwidth	5:0:5
+	bytes_in	5:0:1
+	bytes_out	5:0:2
+	rate_in	5:0:3
+	rate_out	5:0:4
+}
+
+irix {
+	kernel
+	disk
+	mem
+	swap
+	swapdev
+	network
+	numa
+	node
+	gfx
+	rpc
+	nfs
+	nfs3
+	resource
+	filesys
+	ipc
+	xfs
+	kaio
+	xpc
+	pmda
+	engr
+	xbow
+	xlv
+}
+
+irix.kernel {
+	all
+	percpu
+}
+
+irix.kernel.all {
+	load	1:18:3
+	users	1:18:4
+	pswitch	1:10:3
+	readch	1:10:14
+	writech	1:10:29
+	runocc	1:10:15
+	runque	1:10:16
+	syscall	1:10:19
+	sysexec	1:10:20
+	sysfork	1:10:21
+	sysread	1:10:22
+	syswrite	1:10:23
+	sysother	1:10:59
+	cpu
+	io
+	swap
+	tty
+	intr
+	ipc
+	pty
+	flock
+}
+
+irix.kernel.all.cpu {
+	idle	1:10:7
+	intr	1:10:8
+	sys	1:10:9
+	sxbrk	1:10:10
+	user	1:10:11
+	wait
+}
+
+irix.kernel.all.cpu.wait {
+	total	1:10:12
+	gfxc	1:10:24
+	gfxf	1:10:25
+	io	1:10:26
+	pio	1:10:27
+	swap	1:10:28
+}
+
+irix.kernel.all.io {
+	iget	1:10:13
+	bread	1:10:30
+	bwrite	1:10:31
+	lread	1:10:32
+	lwrite	1:10:33
+	phread	1:10:34
+	phwrite	1:10:35
+	wcancel	1:10:36
+	namei	1:10:37
+	dirblk	1:10:38
+}
+
+irix.kernel.all.swap {
+	swpocc	1:10:17
+	swpque	1:10:18
+}
+
+irix.kernel.all.tty {
+	recvintr	1:10:39
+	xmitintr	1:10:40
+	mdmintr	1:10:41
+	out	1:10:42
+	raw	1:10:43
+	canon	1:10:44
+}
+
+irix.kernel.all.intr {
+	vme	1:10:51
+	non_vme	1:10:52
+}
+
+irix.kernel.all.ipc {
+	msg	1:10:53
+	sema	1:10:54
+}
+
+irix.kernel.all.pty {
+	masterch	1:10:55
+	slavech	1:10:56
+}
+
+irix.kernel.all.flock {
+	alloc	1:10:57
+	inuse	1:10:58
+}
+
+irix.kernel.percpu {
+	pswitch	1:28:3
+	readch	1:28:14
+	writech	1:28:29
+	runocc	1:28:15
+	runque	1:28:16
+	syscall	1:28:19
+	sysexec	1:28:20
+	sysfork	1:28:21
+	sysread	1:28:22
+	syswrite	1:28:23
+	sysother	1:28:59
+	cpu
+	io
+	swap
+	tty
+	intr
+	ipc
+	pty
+	flock
+}
+
+irix.kernel.percpu.cpu {
+	idle	1:28:7
+	intr	1:28:8
+	sys	1:28:9
+	sxbrk	1:28:10
+	user	1:28:11
+	wait
+}
+
+irix.kernel.percpu.cpu.wait {
+	total	1:28:12
+	gfxc	1:28:24
+	gfxf	1:28:25
+	io	1:28:26
+	pio	1:28:27
+	swap	1:28:28
+}
+
+irix.kernel.percpu.io {
+	iget	1:28:13
+	bread	1:28:30
+	bwrite	1:28:31
+	lread	1:28:32
+	lwrite	1:28:33
+	phread	1:28:34
+	phwrite	1:28:35
+	wcancel	1:28:36
+	namei	1:28:37
+	dirblk	1:28:38
+}
+
+irix.kernel.percpu.swap {
+	swpocc	1:28:17
+	swpque	1:28:18
+}
+
+irix.kernel.percpu.tty {
+	recvintr	1:28:39
+	xmitintr	1:28:40
+	mdmintr	1:28:41
+	out	1:28:42
+	raw	1:28:43
+	canon	1:28:44
+}
+
+irix.kernel.percpu.intr {
+	vme	1:28:51
+	non_vme	1:28:52
+}
+
+irix.kernel.percpu.ipc {
+	msg	1:28:53
+	sema	1:28:54
+}
+
+irix.kernel.percpu.pty {
+	masterch	1:28:55
+	slavech	1:28:56
+}
+
+irix.kernel.percpu.flock {
+	alloc	1:28:57
+	inuse	1:28:58
+}
+
+irix.disk {
+	dev
+	ctl
+	all
+}
+
+irix.disk.dev {
+	read	1:80:1
+	write	1:80:2
+	total	1:80:7
+	blkread	1:80:5
+	blkwrite	1:80:6
+	blktotal	1:80:4
+	active	1:80:3
+	response	1:80:8
+	bytes	1:80:15
+	read_bytes	1:80:16
+	write_bytes	1:80:17
+}
+
+irix.disk.ctl {
+	read	1:81:10
+	write	1:81:11
+	total	1:81:9
+	blkread	1:81:15
+	blkwrite	1:81:16
+	blktotal	1:81:14
+	active	1:81:12
+	response	1:81:13
+	bytes	1:81:17
+	read_bytes	1:81:18
+	write_bytes	1:81:19
+	avg_disk
+}
+
+irix.disk.ctl.avg_disk {
+	active	1:81:20
+	response	1:81:21
+}
+
+irix.disk.all {
+	read	1:82:10
+	write	1:82:11
+	total	1:82:9
+	blkread	1:82:15
+	blkwrite	1:82:16
+	blktotal	1:82:14
+	active	1:82:12
+	response	1:82:13
+	bytes	1:82:17
+	read_bytes	1:82:18
+	write_bytes	1:82:19
+	avg_disk
+}
+
+irix.disk.all.avg_disk {
+	active	1:82:20
+	response	1:82:21
+}
+
+irix.mem {
+	freemem	1:18:1
+	availsmem	1:18:5
+	availrmem	1:18:6
+	bufmem	1:18:7
+	physmem	1:18:8
+	dchunkpages	1:18:9
+	pmapmem	1:18:10
+	strmem	1:18:11
+	chunkpages	1:18:12
+	dpages	1:18:13
+	emptymem	1:18:14
+	freeswap	1:11:18
+	halloc	1:11:9
+	heapmem	1:11:10
+	hfree	1:11:11
+	hovhd	1:11:12
+	hunused	1:11:13
+	zfree	1:11:14
+	zonemem	1:11:15
+	zreq	1:11:16
+	iclean	1:11:17
+	bsdnet	1:11:19
+	palloc	1:11:30
+	unmodfl	1:11:31
+	unmodsw	1:11:32
+	fault
+	tlb
+	paging
+	system
+	lpage
+	util
+}
+
+irix.mem.fault {
+	prot
+	addr
+}
+
+irix.mem.fault.prot {
+	total	1:11:1
+	cow	1:11:2
+	steal	1:11:3
+}
+
+irix.mem.fault.addr {
+	total	1:11:4
+	cache	1:11:5
+	demand	1:11:6
+	file	1:11:7
+	swap	1:11:8
+}
+
+irix.mem.tlb {
+	flush	1:11:20
+	invalid	1:11:22
+	rfault	1:11:24
+	sync	1:11:25
+	tfault	1:11:26
+	purge	1:11:27
+	idnew	1:11:21
+	idwrap	1:11:23
+	kvmwrap	1:11:28
+}
+
+irix.mem.paging {
+	reclaim	1:11:29
+}
+
+irix.mem.system {
+	sptalloc	1:11:33
+	sptfree	1:11:34
+	sptclean	1:11:35
+	sptdirty	1:11:36
+	sptintrans	1:11:37
+	sptaged	1:11:38
+	sptbp	1:11:39
+	sptheap	1:11:40
+	sptzone	1:11:41
+	sptpt	1:11:42
+}
+
+irix.mem.lpage {
+	faults	1:41:3
+	allocs	1:41:4
+	downgrade	1:41:5
+	page_splits	1:41:6
+	basesize	1:41:7
+	maxsize	1:41:8
+	maxenabled	1:41:9
+	enabled	1:41:10
+	coalesce
+}
+
+irix.mem.lpage.coalesce {
+	scans	1:41:1
+	success	1:41:2
+}
+
+irix.mem.util {
+	kernel	1:18:15
+	fs_ctl	1:18:16
+	fs_dirty	1:18:17
+	fs_clean	1:18:18
+	free	1:18:19
+	user	1:18:20
+}
+
+irix.swap {
+	in	1:10:5
+	out	1:10:6
+	pagesin	1:10:1
+	pagesout	1:10:2
+	procout	1:10:4
+	free	1:16:6
+	length	1:16:7
+	maxswap	1:16:8
+	vlength	1:16:9
+	alloc	1:16:10
+	reserve	1:16:11
+	used	1:16:12
+	unused	1:16:13
+}
+
+irix.swapdev {
+	free	1:16:1
+	length	1:16:2
+	maxswap	1:16:3
+	vlength	1:16:4
+	priority	1:16:5
+}
+
+irix.network {
+	icmp
+	igmp
+	ip
+	tcp
+	udp
+	interface
+	mbuf
+	mcr
+	socket
+}
+
+irix.network.icmp {
+	error	1:17:52
+	oldshort	1:17:53
+	oldicmp	1:17:54
+	badcode	1:17:55
+	tooshort	1:17:56
+	checksum	1:17:57
+	badlen	1:17:58
+	reflect	1:17:59
+	inhist
+	outhist
+}
+
+irix.network.icmp.inhist {
+	echoreply	1:17:60
+	unreach	1:17:61
+	sourcequench	1:17:62
+	redirect	1:17:63
+	echo	1:17:64
+	routeradvert	1:17:65
+	routersolicit	1:17:66
+	timxceed	1:17:67
+	paramprob	1:17:68
+	tstamp	1:17:69
+	tstampreply	1:17:70
+	ireq	1:17:71
+	ireqreply	1:17:72
+	maskreq	1:17:73
+	maskreply	1:17:74
+}
+
+irix.network.icmp.outhist {
+	echoreply	1:17:75
+	unreach	1:17:76
+	sourcequench	1:17:77
+	redirect	1:17:78
+	echo	1:17:79
+	routeradvert	1:17:80
+	routersolicit	1:17:81
+	timxceed	1:17:82
+	paramprob	1:17:83
+	tstamp	1:17:84
+	tstampreply	1:17:85
+	ireq	1:17:86
+	ireqreply	1:17:87
+	maskreq	1:17:88
+	maskreply	1:17:89
+}
+
+irix.network.igmp {
+	rcv_total	1:17:90
+	rcv_tooshort	1:17:91
+	rcv_badsum	1:17:92
+	rcv_queries	1:17:93
+	rcv_badqueries	1:17:94
+	rcv_reports	1:17:95
+	rcv_badreports	1:17:96
+	rcv_ourreports	1:17:97
+	snd_reports	1:17:98
+}
+
+irix.network.ip {
+	badhlen	1:17:99
+	badlen	1:17:100
+	badoptions	1:17:101
+	badsum	1:17:102
+	cantforward	1:17:103
+	cantfrag	1:17:104
+	delivered	1:17:105
+	forward	1:17:106
+	fragdropped	1:17:107
+	fragmented	1:17:108
+	fragments	1:17:109
+	fragtimeout	1:17:110
+	localout	1:17:111
+	noproto	1:17:112
+	noroute	1:17:113
+	odropped	1:17:114
+	ofragments	1:17:115
+	reassembled	1:17:116
+	redirect	1:17:117
+	tooshort	1:17:118
+	toosmall	1:17:119
+	badvers	1:17:137
+	rawout	1:17:138
+	total	1:17:120
+}
+
+irix.network.tcp {
+	connattempt	1:17:1
+	accepts	1:17:2
+	connects	1:17:3
+	drops	1:17:4
+	conndrops	1:17:5
+	closed	1:17:6
+	segstimed	1:17:7
+	rttupdated	1:17:8
+	delack	1:17:9
+	timeoutdrop	1:17:10
+	rexmttimeo	1:17:11
+	persisttimeo	1:17:12
+	keeptimeo	1:17:13
+	keepprobe	1:17:14
+	keepdrops	1:17:15
+	sndtotal	1:17:16
+	sndpack	1:17:17
+	sndbyte	1:17:18
+	sndrexmitpack	1:17:19
+	sndrexmitbyte	1:17:20
+	sndacks	1:17:21
+	sndprobe	1:17:22
+	sndurg	1:17:23
+	sndwinup	1:17:24
+	sndctrl	1:17:25
+	sndrst	1:17:26
+	rcvtotal	1:17:27
+	rcvpack	1:17:28
+	rcvbyte	1:17:29
+	rcvbadsum	1:17:30
+	rcvbadoff	1:17:31
+	rcvshort	1:17:32
+	rcvduppack	1:17:33
+	rcvdupbyte	1:17:34
+	rcvpartduppack	1:17:35
+	rcvpartdupbyte	1:17:36
+	rcvoopack	1:17:37
+	rcvoobyte	1:17:38
+	rcvpackafterwin	1:17:39
+	rcvbyteafterwin	1:17:40
+	rcvafterclose	1:17:41
+	rcvwinprobe	1:17:42
+	rcvdupack	1:17:43
+	rcvacktoomuch	1:17:44
+	rcvackpack	1:17:45
+	rcvackbyte	1:17:46
+	rcvwinupd	1:17:47
+	pcbcachemiss	1:17:48
+	predack	1:17:49
+	preddat	1:17:50
+	pawsdrop	1:17:51
+	badsyn	1:17:152
+	listendrop	1:17:153
+	persistdrop	1:17:154
+	synpurge	1:17:155
+}
+
+irix.network.udp {
+	ipackets	1:17:121
+	hdrops	1:17:122
+	badsum	1:17:123
+	badlen	1:17:124
+	noport	1:17:125
+	noportbcast	1:17:126
+	fullsock	1:17:127
+	opackets	1:17:128
+	pcbcachemiss	1:17:129
+}
+
+irix.network.interface {
+	collisions	1:25:1
+	mtu	1:25:2
+	noproto	1:25:3
+	baudrate	1:25:4
+	in
+	out
+	total
+}
+
+irix.network.interface.in {
+	errors	1:25:5
+	packets	1:25:6
+	bytes	1:25:7
+	mcasts	1:25:8
+	drops	1:25:9
+}
+
+irix.network.interface.out {
+	errors	1:25:10
+	packets	1:25:11
+	bytes	1:25:12
+	mcasts	1:25:13
+	drops	1:25:14
+	qdrops	1:25:15
+	qlength	1:25:16
+	qmax	1:25:17
+}
+
+irix.network.interface.total {
+	errors	1:25:18
+	packets	1:25:19
+	bytes	1:25:20
+	mcasts	1:25:21
+	drops	1:25:22
+}
+
+irix.network.mbuf {
+	alloc	1:17:130
+	typealloc	1:17:136
+	clustalloc	1:17:131
+	clustfree	1:17:132
+	failed	1:17:133
+	waited	1:17:134
+	drained	1:17:135
+}
+
+irix.network.mcr {
+	mfc_lookups	1:17:139
+	mfc_misses	1:17:140
+	upcalls	1:17:141
+	no_route	1:17:142
+	bad_tunnel	1:17:143
+	cant_tunnel	1:17:144
+	wrong_if	1:17:145
+	upq_ovflw	1:17:146
+	cache_cleanups	1:17:147
+	drop_sel	1:17:148
+	q_overflow	1:17:149
+	pkt2large	1:17:150
+	upq_sockfull	1:17:151
+}
+
+irix.network.socket {
+	type	1:43:1
+	state	1:43:2
+}
+
+irix.numa {
+	routerload	1:39:1
+	migr
+	memory
+	unpegger
+	bouncectl
+	memoryd
+}
+
+irix.numa.migr {
+	threshold	1:39:2
+	intr
+	auto
+	user
+	queue
+	coalesc
+	triggers
+}
+
+irix.numa.migr.intr {
+	total	1:39:3
+	failstate	1:39:4
+	failenabled	1:39:5
+	failfrozen	1:39:6
+}
+
+irix.numa.migr.auto {
+	total	1:39:7
+	in	1:39:8
+	out	1:39:9
+	fail	1:39:10
+	queue_len	1:39:11
+}
+
+irix.numa.migr.user {
+	total	1:39:12
+	in	1:39:13
+	out	1:39:14
+	fail	1:39:15
+	queue_len	1:39:16
+}
+
+irix.numa.migr.queue {
+	total	1:39:17
+	in	1:39:18
+	out	1:39:19
+	fail
+}
+
+irix.numa.migr.queue.fail {
+	total	1:39:20
+	overflow	1:39:21
+	state	1:39:22
+	failq	1:39:23
+}
+
+irix.numa.migr.coalesc {
+	total	1:39:24
+	in	1:39:25
+	out	1:39:26
+	fail	1:39:27
+}
+
+irix.numa.migr.triggers {
+	capacity	1:39:28
+	time	1:39:29
+	traffic	1:39:30
+}
+
+irix.numa.memory {
+	lent	1:39:31
+	replicated
+}
+
+irix.numa.memory.replicated {
+	page_count	1:39:32
+	page_dest	1:39:33
+	page_reuse	1:39:34
+	page_notavail	1:39:35
+	control_refuse	1:39:36
+}
+
+irix.numa.unpegger {
+	calls	1:39:37
+	npages	1:39:38
+	last_npages	1:39:39
+}
+
+irix.numa.bouncectl {
+	calls	1:39:40
+	frozen_pages	1:39:41
+	melt_pages	1:39:42
+	last_melt_pages	1:39:43
+	dampened_pages	1:39:44
+}
+
+irix.numa.memoryd {
+	activations	1:39:45
+	periodic	1:39:46
+}
+
+irix.node {
+	physmem	1:40:1
+	free
+}
+
+irix.node.free {
+	total	1:40:2
+	pages_64k	1:40:3
+	pages_256k	1:40:4
+	pages_1m	1:40:5
+	pages_4m	1:40:6
+	pages_16m	1:40:7
+}
+
+irix.gfx {
+	ioctl	1:10:45
+	ctxswitch	1:10:46
+	swapbuf	1:10:47
+	intr	1:10:48
+	fifonowait	1:10:49
+	fifowait	1:10:50
+}
+
+irix.rpc {
+	client
+	server
+}
+
+irix.rpc.client {
+	badcalls	1:14:1
+	badxid	1:14:2
+	calls	1:14:3
+	newcred	1:14:4
+	retrans	1:14:5
+	timeout	1:14:6
+	wait	1:14:7
+	badverfs	1:14:8
+}
+
+irix.rpc.server {
+	badcalls	1:15:1
+	badlen	1:15:2
+	calls	1:15:3
+	dupage	1:15:4
+	duphits	1:15:5
+	nullrecv	1:15:6
+	xdrcall	1:15:7
+}
+
+irix.nfs {
+	client
+	server
+}
+
+irix.nfs.client {
+	badcalls	1:12:1
+	calls	1:12:2
+	nclget	1:12:3
+	nclsleep	1:12:4
+	reqs	1:12:5
+}
+
+irix.nfs.server {
+	badcalls	1:13:1
+	calls	1:13:2
+	reqs	1:13:3
+}
+
+irix.nfs3 {
+	client
+	server
+}
+
+irix.nfs3.client {
+	badcalls	1:33:1
+	calls	1:33:2
+	nclget	1:33:3
+	nclsleep	1:33:4
+	reqs	1:33:5
+}
+
+irix.nfs3.server {
+	badcalls	1:37:1
+	calls	1:37:2
+	reqs	1:37:3
+}
+
+irix.resource {
+	nproc	1:19:1
+	nbuf	1:19:2
+	hbuf	1:19:3
+	syssegsz	1:19:4
+	maxpmem	1:19:5
+	maxdmasz	1:19:6
+	dquot	1:19:7
+	nstream_queue	1:19:8
+	nstream_head	1:19:9
+	fileovf	1:20:1
+	procovf	1:20:2
+	name_cache
+	buffer_cache
+	vnodes
+	efs
+}
+
+irix.resource.name_cache {
+	hits	1:21:1
+	misses	1:21:2
+	enters	1:21:3
+	dbl_enters	1:21:4
+	long_enter	1:21:5
+	long_look	1:21:6
+	lru_empty	1:21:7
+	purges	1:21:8
+	vfs_purges	1:21:9
+	removes	1:21:10
+	searches	1:21:11
+	stale_hits	1:21:12
+	steps	1:21:13
+}
+
+irix.resource.buffer_cache {
+	getblks	1:22:1
+	getblockmiss	1:22:2
+	getfound	1:22:3
+	getbchg	1:22:4
+	getloops	1:22:5
+	getfree	1:22:6
+	getfreeempty	1:22:7
+	getfreehmiss	1:22:8
+	getfreehmissx	1:22:9
+	getfreealllck	1:22:10
+	getfreedelwri	1:22:11
+	flush	1:22:12
+	flushloops	1:22:13
+	getfreeref	1:22:14
+	getfreerelse	1:22:15
+	getoverlap	1:22:16
+	clusters	1:22:17
+	clustered	1:22:18
+	getfrag	1:22:19
+	getpatch	1:22:20
+	trimmed	1:22:21
+	inserts	1:22:22
+	irotates	1:22:23
+	deletes	1:22:24
+	drotates	1:22:25
+	decomms	1:22:26
+	flush_decomms	1:22:27
+	delrsv	1:22:28
+	delrsvclean	1:22:29
+	delrsvdirty	1:22:30
+	delrsvfree	1:22:31
+	delrsvwait	1:22:32
+}
+
+irix.resource.vnodes {
+	vnodes	1:23:1
+	extant	1:23:2
+	active	1:23:3
+	alloc	1:23:4
+	aheap	1:23:5
+	afree	1:23:6
+	afreeloops	1:23:7
+	get	1:23:8
+	gchg	1:23:9
+	gfree	1:23:10
+	rele	1:23:11
+	reclaim	1:23:12
+	destroy	1:23:13
+	afreemiss	1:23:14
+}
+
+irix.resource.efs {
+	attempts	1:24:1
+	found	1:24:2
+	frecycle	1:24:3
+	missed	1:24:4
+	dup	1:24:5
+	reclaims	1:24:6
+	itobp	1:24:7
+	itobpf	1:24:8
+	iupdat	1:24:9
+	iupacc	1:24:10
+	iupupd	1:24:11
+	iupchg	1:24:12
+	iupmod	1:24:13
+	iupunk	1:24:14
+	iallocrd	1:24:15
+	iallocrdf	1:24:16
+	ialloccoll	1:24:17
+	bmaprd	1:24:18
+	bmapfbm	1:24:19
+	bmapfbc	1:24:20
+	dirupd	1:24:21
+	truncs	1:24:22
+	icreat	1:24:23
+	attrchg	1:24:24
+	readcancel	1:24:25
+}
+
+irix.filesys {
+	capacity	1:27:1
+	used	1:27:2
+	free	1:27:3
+	maxfiles	1:27:4
+	usedfiles	1:27:5
+	freefiles	1:27:6
+	mountdir	1:27:7
+	full	1:27:8
+}
+
+irix.ipc {
+	sem
+	msg
+	shm
+}
+
+irix.ipc.sem {
+	nsems	1:31:1
+	ncnt	1:31:2
+	zcnt	1:31:3
+}
+
+irix.ipc.msg {
+	cbytes	1:30:1
+	qnum	1:30:2
+	qbytes	1:30:3
+}
+
+irix.ipc.shm {
+	segsz	1:29:1
+	nattch	1:29:2
+}
+
+irix.xfs {
+	allocx	1:32:1
+	allocb	1:32:2
+	freex	1:32:3
+	freeb	1:32:4
+	abt_lookup	1:32:5
+	abt_compare	1:32:6
+	abt_insrec	1:32:7
+	abt_delrec	1:32:8
+	blk_mapr	1:32:9
+	blk_mapw	1:32:10
+	blk_unmap	1:32:11
+	add_exlist	1:32:12
+	del_exlist	1:32:13
+	look_exlist	1:32:14
+	cmp_exlist	1:32:15
+	bmbt_lookup	1:32:16
+	bmbt_compare	1:32:17
+	bmbt_insrec	1:32:18
+	bmbt_delrec	1:32:19
+	dir_lookup	1:32:20
+	dir_create	1:32:21
+	dir_remove	1:32:22
+	dir_getdents	1:32:23
+	trans_sync	1:32:24
+	trans_async	1:32:25
+	trans_empty	1:32:26
+	ig_attempts	1:32:27
+	ig_found	1:32:28
+	ig_frecycle	1:32:29
+	ig_missed	1:32:30
+	ig_dup	1:32:31
+	ig_reclaims	1:32:32
+	ig_attrchg	1:32:33
+	log_writes	1:32:34
+	log_blocks	1:32:35
+	log_noiclogs	1:32:36
+	xfsd_bufs	1:32:37
+	xstrat_bytes	1:32:38
+	xstrat_quick	1:32:39
+	xstrat_split	1:32:40
+	write_calls	1:32:41
+	write_bytes	1:32:42
+	write_bufs	1:32:43
+	read_calls	1:32:44
+	read_bytes	1:32:45
+	read_bufs	1:32:46
+	attr_get	1:32:47
+	attr_set	1:32:48
+	attr_remove	1:32:49
+	attr_list	1:32:50
+}
+
+irix.kaio {
+	reads	1:36:3
+	writes	1:36:4
+	read_bytes	1:36:5
+	write_bytes	1:36:6
+	inuse	1:36:2
+	free	1:36:8
+	nobuf	1:36:1
+	proc_maxinuse	1:36:9
+	inprogress	1:36:10
+	errors	1:36:7
+}
+
+irix.xpc {
+	kernel
+	network
+	disk
+}
+
+irix.xpc.kernel {
+	all
+	percpu
+}
+
+irix.xpc.kernel.all {
+	cpu
+	io
+}
+
+irix.xpc.kernel.all.cpu {
+	idle	1:10:60
+	intr	1:10:61
+	sys	1:10:62
+	sxbrk	1:10:63
+	user	1:10:64
+	wait
+}
+
+irix.xpc.kernel.all.cpu.wait {
+	total	1:10:65
+	gfxc	1:10:66
+	gfxf	1:10:67
+	io	1:10:68
+	pio	1:10:69
+	swap	1:10:70
+}
+
+irix.xpc.kernel.all.io {
+	bread	1:10:71
+	bwrite	1:10:72
+	lread	1:10:73
+	lwrite	1:10:74
+	phread	1:10:75
+	phwrite	1:10:76
+	wcancel	1:10:77
+	dirblk	1:10:78
+}
+
+irix.xpc.kernel.percpu {
+	cpu
+	io
+}
+
+irix.xpc.kernel.percpu.cpu {
+	idle	1:28:60
+	intr	1:28:61
+	sys	1:28:62
+	sxbrk	1:28:63
+	user	1:28:64
+	wait
+}
+
+irix.xpc.kernel.percpu.cpu.wait {
+	total	1:28:65
+	gfxc	1:28:66
+	gfxf	1:28:67
+	io	1:28:68
+	pio	1:28:69
+	swap	1:28:70
+}
+
+irix.xpc.kernel.percpu.io {
+	bread	1:28:71
+	bwrite	1:28:72
+	lread	1:28:73
+	lwrite	1:28:74
+	phread	1:28:75
+	phwrite	1:28:76
+	wcancel	1:28:77
+	dirblk	1:28:78
+}
+
+irix.xpc.network {
+	interface
+}
+
+irix.xpc.network.interface {
+	in
+	out
+	total
+}
+
+irix.xpc.network.interface.in {
+	bytes	1:25:23
+}
+
+irix.xpc.network.interface.out {
+	bytes	1:25:24
+}
+
+irix.xpc.network.interface.total {
+	bytes	1:25:25
+}
+
+irix.xpc.disk {
+	dev
+}
+
+irix.xpc.disk.dev {
+	read	1:80:9
+	active	1:80:10
+	blkread	1:80:11
+	response	1:80:12
+	bytes	1:80:18
+	read_bytes	1:80:19
+	write_bytes	1:80:20
+}
+
+irix.pmda {
+	version	1:0:2
+	uname	1:0:3
+	reset	1:0:1
+	debug	1:0:4
+}
+
+irix.engr {
+	one	1:34:1
+	two	1:34:2
+	three	1:34:3
+	four	1:34:4
+}
+
+irix.xbow {
+	switch	1:42:5
+	nports	1:42:6
+	gen	1:42:7
+	active
+	total
+	port
+}
+
+irix.xbow.active {
+	xbows	1:42:3
+	ports	1:42:4
+}
+
+irix.xbow.total {
+	src	1:42:8
+	dst	1:42:9
+	rrcv	1:42:10
+	rxmt	1:42:11
+}
+
+irix.xbow.port {
+	flags	1:42:12
+	src	1:42:13
+	dst	1:42:14
+	rrcv	1:42:15
+	rxmt	1:42:16
+}
+
+irix.xlv {
+	read	1:45:2
+	write	1:45:3
+	read_bytes	1:45:4
+	write_bytes	1:45:5
+	stripe_ops	1:45:6
+	stripe_units	1:45:7
+	aligned
+	unaligned
+	largest_io
+}
+
+irix.xlv.aligned {
+	full_width	1:45:8
+	lt_width	1:45:9
+	gt_width	1:45:10
+	part_unit	1:45:11
+}
+
+irix.xlv.unaligned {
+	full_width	1:45:12
+	lt_width	1:45:13
+	gt_width	1:45:14
+	part_unit	1:45:15
+}
+
+irix.xlv.largest_io {
+	stripes	1:45:16
+	count	1:45:17
+}
+
+hinv {
+	ncpu	1:18:2
+	cpuclock	1:26:1
+	mincpuclock	1:26:10
+	maxcpuclock	1:26:11
+	cputype	1:26:13
+	dcache	1:26:2
+	icache	1:26:3
+	secondarycache	1:26:4
+	machine	1:26:12
+	physmem	1:26:5
+	pmeminterleave	1:26:6
+	ndisk	1:26:7
+	disk_sn	1:80:14
+	nnode	1:26:8
+	nrouter	1:38:0
+	nrouterport	1:38:11
+	interconnect	1:38:13
+	nxbow	1:42:1
+	ncell	1:26:14
+	pagesize	1:26:15
+	nxlv_volumes	1:45:1
+	nfilesys	1:27:9
+	nctl	1:81:22
+	map
+	ctl
+}
+
+hinv.map {
+	cpu	1:26:9
+	disk	1:80:13
+	node	1:39:49
+	router	1:38:1
+	routerport	1:38:12
+	xbow	1:42:2
+}
+
+hinv.ctl {
+	ndisk	1:81:23
+}
+
+hw {
+	r10kevctr
+	router
+	hub
+}
+
+hw.r10kevctr {
+	state	1:35:255
+	cpurev	1:35:254
+	cycles	1:35:0
+	fucomp	1:35:32
+	extint	1:35:12
+	extinv	1:35:13
+	vcc	1:35:14
+	tlb	1:35:23
+	grad
+	issue
+	fail
+	pcache
+	scache
+}
+
+hw.r10kevctr.grad {
+	instrg	1:35:15
+	loadg	1:35:18
+	storeg	1:35:19
+	scondg	1:35:20
+	fp	1:35:21
+}
+
+hw.r10kevctr.issue {
+	instri	1:35:1
+	loadi	1:35:2
+	storei	1:35:3
+	scondi	1:35:4
+	brd	1:35:6
+}
+
+hw.r10kevctr.fail {
+	scondf	1:35:5
+	brmp	1:35:24
+}
+
+hw.r10kevctr.pcache {
+	imiss	1:35:9
+	dmiss	1:35:25
+	wb	1:35:22
+}
+
+hw.r10kevctr.scache {
+	imiss	1:35:10
+	dmiss	1:35:26
+	wb	1:35:7
+	iwaymp	1:35:11
+	dwaymp	1:35:27
+	extinthit	1:35:28
+	extinvhit	1:35:29
+	upclean	1:35:30
+	upshare	1:35:31
+	ecc	1:35:8
+}
+
+hw.router {
+	portmask	1:38:2
+	rev_id	1:38:3
+	send_util	1:38:4
+	retry_errors	1:38:8
+	sn_errors	1:38:9
+	cb_errors	1:38:10
+	type	1:38:22
+	recv
+	perport
+}
+
+hw.router.recv {
+	bypass_util	1:38:5
+	queued_util	1:38:6
+	total_util	1:38:7
+}
+
+hw.router.perport {
+	send_util	1:38:14
+	retry_errors	1:38:18
+	sn_errors	1:38:19
+	cb_errors	1:38:20
+	excess_errors	1:38:21
+	recv
+}
+
+hw.router.perport.recv {
+	bypass_util	1:38:15
+	queued_util	1:38:16
+	total_util	1:38:17
+}
+
+hw.hub {
+	nasid	1:44:8
+	ni
+	ii
+}
+
+hw.hub.ni {
+	retry	1:44:1
+	sn_errors	1:44:2
+	cb_errors	1:44:3
+	overflows	1:44:4
+}
+
+hw.hub.ii {
+	sn_errors	1:44:5
+	cb_errors	1:44:6
+	overflows	1:44:7
+}
+
+pmcd {
+	datasize	2:0:1
+	numagents	2:0:2
+	numclients	2:0:3
+	timezone	2:0:5
+	simabi	2:0:6
+	version	2:0:7
+	license	2:0:16
+	control
+	pdu_in
+	pdu_out
+	agent
+	pmlogger
+}
+
+pmcd.control {
+	debug	2:0:0
+	timeout	2:0:4
+	register	2:0:8
+	traceconn	2:0:9
+	tracepdu	2:0:10
+	tracenobuf	2:0:14
+	tracebufs	2:0:11
+	dumptrace	2:0:12
+	dumpconn	2:0:13
+	sighup	2:0:15
+}
+
+pmcd.pdu_in {
+	error	2:1:0
+	result	2:1:1
+	profile	2:1:2
+	fetch	2:1:3
+	desc_req	2:1:4
+	desc	2:1:5
+	instance_req	2:1:6
+	instance	2:1:7
+	text_req	2:1:8
+	text	2:1:9
+	control_req	2:1:10
+	datax	2:1:11
+	creds	2:1:12
+	pmns_ids	2:1:13
+	pmns_names	2:1:14
+	pmns_child	2:1:15
+	total	2:1:16
+	pmns_traverse	2:1:17
+}
+
+pmcd.pdu_out {
+	error	2:2:0
+	result	2:2:1
+	profile	2:2:2
+	fetch	2:2:3
+	desc_req	2:2:4
+	desc	2:2:5
+	instance_req	2:2:6
+	instance	2:2:7
+	text_req	2:2:8
+	text	2:2:9
+	control_req	2:2:10
+	datax	2:2:11
+	creds	2:2:12
+	pmns_ids	2:2:13
+	pmns_names	2:2:14
+	pmns_child	2:2:15
+	total	2:2:16
+	pmns_traverse	2:2:17
+}
+
+pmcd.agent {
+	type	2:4:0
+	status	2:4:1
+}
+
+pmcd.pmlogger {
+	host	2:3:3
+	port	2:3:0
+	archive	2:3:2
+	pmcd_host	2:3:1
+}
+
+proc {
+	nprocs	3:0:0
+	psinfo
+	pstatus
+	pscred
+	psusage
+	memory
+	accounting
+}
+
+proc.psinfo {
+	state	3:1:0
+	sname	3:1:1
+	zomb	3:1:2
+	nice	3:1:3
+	flag	3:1:4
+	uid	3:1:5
+	gid	3:1:6
+	pid	3:1:7
+	ppid	3:1:8
+	pgrp	3:1:9
+	sid	3:1:10
+	addr	3:1:11
+	size	3:1:12
+	rssize	3:1:13
+	wchan	3:1:15
+	start	3:1:16
+	time	3:1:17
+	pri	3:1:18
+	oldpri	3:1:19
+	cpu	3:1:20
+	ttydev	3:1:21
+	clname	3:1:22
+	fname	3:1:23
+	psargs	3:1:24
+	uname	3:1:25
+	gname	3:1:26
+	ttyname	3:1:27
+	ttymajor	3:1:28
+	ttyminor	3:1:29
+	ctime	3:1:30
+	shareuid	3:1:31
+	pset	3:1:32
+	sonproc	3:1:33
+	spid	3:1:34
+	qtime	3:1:35
+	thds	3:1:36
+	wname	3:1:37
+}
+
+proc.pstatus {
+	flags	3:2:0
+	why	3:2:1
+	what	3:2:2
+	cursig	3:2:3
+	sigpend	3:2:4
+	sighold	3:2:5
+	info	3:2:6
+	altstack	3:2:7
+	action	3:2:8
+	syscall	3:2:9
+	nsysarg	3:2:10
+	errno	3:2:11
+	rval1	3:2:12
+	rval2	3:2:13
+	sysarg	3:2:14
+	pid	3:2:15
+	ppid	3:2:16
+	pgrp	3:2:17
+	sid	3:2:18
+	utime	3:2:19
+	stime	3:2:20
+	cutime	3:2:21
+	cstime	3:2:22
+	clname	3:2:23
+	instr	3:2:24
+	reg	3:2:25
+	nthreads	3:2:26
+	thsigpend	3:2:27
+	who	3:2:28
+}
+
+proc.pscred {
+	euid	3:3:0
+	ruid	3:3:1
+	suid	3:3:2
+	egid	3:3:3
+	rgid	3:3:4
+	sgid	3:3:5
+	ngroups	3:3:6
+}
+
+proc.psusage {
+	tstamp	3:4:0
+	starttime	3:4:1
+	utime	3:4:2
+	stime	3:4:3
+	minf	3:4:4
+	majf	3:4:5
+	utlb	3:4:6
+	nswap	3:4:7
+	gbread	3:4:8
+	bread	3:4:9
+	gbwrit	3:4:10
+	bwrit	3:4:11
+	sigs	3:4:12
+	vctx	3:4:13
+	ictx	3:4:14
+	sysc	3:4:15
+	syscr	3:4:16
+	syscw	3:4:17
+	syscps	3:4:18
+	sysci	3:4:19
+	graphfifo	3:4:20
+	graph_req	3:4:21
+	graph_wait	3:4:22
+	size	3:4:23
+	rss	3:4:24
+	inblock	3:4:25
+	oublock	3:4:26
+	ktlb	3:4:27
+	vfault	3:4:28
+}
+
+proc.memory {
+	virtual
+	physical
+}
+
+proc.memory.virtual {
+	txt	3:5:1
+	dat	3:5:3
+	bss	3:5:5
+	stack	3:5:7
+	shm	3:5:9
+}
+
+proc.memory.physical {
+	txt	3:5:0
+	dat	3:5:2
+	bss	3:5:4
+	stack	3:5:6
+	shm	3:5:8
+}
+
+proc.accounting {
+	flag	3:6:0
+	ash	3:6:1
+	prid	3:6:2
+	timers
+	counts
+}
+
+proc.accounting.timers {
+	utime	3:6:3
+	stime	3:6:4
+	bwtime	3:6:5
+	rwtime	3:6:6
+	qwtime	3:6:7
+}
+
+proc.accounting.counts {
+	mem	3:6:8
+	swaps	3:6:9
+	chr	3:6:10
+	chw	3:6:11
+	br	3:6:12
+	bw	3:6:13
+	syscr	3:6:14
+	syscw	3:6:15
+}

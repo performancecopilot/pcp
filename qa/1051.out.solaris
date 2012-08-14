@@ -1,0 +1,21 @@
+QA output created by 1051
+Warning - failed to expand action for rule cpu.context_switch
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule cpu.excess_fpe
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule cpu.load_average
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule cpu.syscall
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule cpu.system
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule filesys.buffer_cache
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule per_cpu.context_switch
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule per_cpu.syscall
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule per_cpu.system
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule shping.status
+  string: "$syslog_prefix$$rule$^ $action_expand$"

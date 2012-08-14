@@ -1,0 +1,244 @@
+QA output created by 463
+no error cases ...
+---------------- 1 -----------------
+# 1 "TMP.root"
+root {
+    one	1:2:3
+    two
+    four
+}
+two {
+    three	4:5:6
+}
+four {
+    five
+}
+four.five {
+    six	7:8:9
+}
+
+---------------- 2 -----------------
+# 1 "TMP.root"
+root {
+    one	1:2:3
+# 1 "TMP.1"
+    two
+    four
+}
+two {
+    three	4:5:6
+}
+# 1 "TMP.2"
+four {
+    five
+}
+four.five {
+    six	7:8:9
+}
+# 8 "TMP.1"
+# 4 "TMP.root"
+
+---------------- 3 -----------------
+# 1 "TMP.root"
+root {
+    one	1:2:3
+
+
+
+
+# 1 "TMP.1"
+    two
+}
+two {
+    three	4:5:6
+# 8 "TMP.root"
+
+}
+
+---------------- 4 -----------------
+# 1 "TMP.root"
+root {
+    one	1:2:3
+
+
+    yes 2:4:5
+
+
+
+
+}
+
+---------------- 5 -----------------
+# 1 "TMP.root"
+
+
+
+
+
+root {
+    two	2:2:2
+    foo
+}
+foo {
+    two
+    three
+}
+foo.two {
+    eek	3:4:5
+}
+foo.three {
+    urk	5:4:3
+}
+
+---------------- 6 -----------------
+# 1 "TMP.root"
+
+root {
+    one	1:2:3
+    two
+    four
+}
+two {
+    three                   	4:5:6
+}
+four {
+    five
+
+}
+four.five {
+        six	7:8:9
+}
+
+
+
+
+---------------- 7 -----------------
+# 1 "TMP.root"
+# 1 "PCP_VAR_DIR/pmns/stdpmid"
+# 2 "TMP.root"
+root {
+    sample	29:*:*
+    sampledso	30:*:*
+}
+
+---------------- 8 -----------------
+# 1 "TMP.root"
+root {
+
+    sample	29:*:*
+    sampledso	30:*:*
+
+}
+
+#include errors ...
+---------------- 9 -----------------
+# 1 "TMP.root"
+root {
+pmcpp: TMP.root[2]: #include TMP.1
+pmcpp: Error: Expected " or < after #include
+---------------- 10 -----------------
+# 1 "TMP.root"
+root {
+pmcpp: TMP.root[2]: #include "TMP.1
+pmcpp: Error: Expected " after file name
+---------------- 11 -----------------
+# 1 "TMP.root"
+root {
+pmcpp: TMP.root[2]: #include <TMP.1
+pmcpp: Error: Expected > after file name
+---------------- 12 -----------------
+# 1 "TMP.root"
+root {
+pmcpp: TMP.root[2]: #include "TMP.1" junk
+pmcpp: Error: Unexpected extra text in #include line
+---------------- 13 -----------------
+# 1 "TMP.root"
+root {
+pmcpp: TMP.root[2]: #include "TMP.1"
+pmcpp: Error: Cannot open file for #include
+---------------- 14 -----------------
+# 1 "TMP.root"
+root {
+    zero	1:0:0
+# 1 "TMP.1"
+    one	1:0:1
+# 1 "TMP.2"
+    two	1:0:2
+# 1 "TMP.3"
+    three	1:0:3
+# 1 "TMP.4"
+    four	1:0:4
+pmcpp: TMP.4[2]: #include "TMP.5"
+pmcpp: Error: #include nesting too deep
+
+#define errors ...
+---------------- 15 -----------------
+# 1 "TMP.root"
+root {
+pmcpp: TMP.root[2]: #define
+pmcpp: Error: Missing macro name
+---------------- 16 -----------------
+# 1 "TMP.root"
+root {
+
+pmcpp: TMP.root[3]: #define
+pmcpp: Error: Missing macro name
+---------------- 17 -----------------
+# 1 "TMP.root"
+root {
+
+}
+---------------- 18 -----------------
+# 1 "TMP.root"
+root {
+pmcpp: TMP.root[2]: #define bad_123_macro!name
+pmcpp: Error: Illegal character in macro name
+---------------- 19 -----------------
+# 1 "TMP.root"
+root {
+
+pmcpp: TMP.root[3]: #define dup no
+pmcpp: Error: Macro redefinition
+---------------- 20 -----------------
+pmcpp: <arg>[3]: #define foo
+pmcpp: Error: Macro redefinition
+---------------- 21 -----------------
+pmcpp: <arg>[2]: #define foo-bar 1
+pmcpp: Error: Illegal character in macro name
+
+#ifdef etc errors ...
+---------------- 22 -----------------
+# 1 "TMP.root"
+root {
+pmcpp: TMP.root[2]: #ifndef extra                    !
+pmcpp: Error: Unexpected extra text in a control line
+---------------- 23 -----------------
+# 1 "TMP.root"
+root {
+
+
+pmcpp: TMP.root[4]: #endif
+pmcpp: Error: No matching #ifdef or #ifndef for #endif
+---------------- 24 -----------------
+# 1 "TMP.root"
+root {
+
+
+
+pmcpp: TMP.root[5]: #ifdef nested
+pmcpp: Error: Nested #ifdef or #ifndef
+---------------- 25 -----------------
+# 1 "TMP.root"
+root {
+
+
+
+pmcpp: TMP.root[5]: #ifndef nested
+pmcpp: Error: Nested #ifdef or #ifndef
+
+other #cpp line errors ...
+---------------- 26 -----------------
+# 1 "TMP.root"
+root {
+pmcpp: TMP.root[2]: #fumble
+pmcpp: Error: Unrecognized control line

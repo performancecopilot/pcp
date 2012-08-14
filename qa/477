@@ -1,0 +1,78 @@
+#!/bin/sh
+# PCP QA Test No. 477
+# Increase coverage and check malloc failure for event record routines.
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if src-oss/check_fault_injection >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun libpcp not built with fault injection enabled
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    echo "=== stdout ===" >>$seq.full
+    cat $tmp.out >>$seq.full
+    echo >>$seq.full
+    echo >>$seq.full
+    echo "=== stderr ===" >>$seq.full
+    cat $tmp.err >>$seq.full
+    echo >>$seq.full
+    echo >>$seq.full
+    ( cat $tmp.out; echo; cat $tmp.err ) \
+    | sed \
+	-e '/__pmFaultInject(.*) not registered/d' \
+	-e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g' \
+	-e 's/Not enough space/Cannot allocate memory/'
+}
+
+export PM_FAULT_CONTROL=$tmp.control
+export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
+
+# real QA test starts here
+cat >$tmp.control <<End-of-File
+libpcp/events.c:1	% 7
+libpcp/events.c:2	% 11
+libpcp/events.c:3	% 13
+libpcp/events.c:4	% 9
+End-of-File
+pmstore sample.event.reset 0 >/dev/null 2>&1
+pmevent -Dfault -t 0.2 -s 10 sample.event.records >$tmp.out 2>$tmp.err
+_filter
+
+# first pmRegisterAnon() fails
+echo
+cat >$tmp.control <<End-of-File
+libpcp/events.c:5	<3
+End-of-File
+pmstore sample.event.reset 0 >/dev/null 2>&1
+pmevent -Dfault -t 0.2 -s 2 sample.event.records >$tmp.out 2>$tmp.err
+_filter
+
+# second pmRegisterAnon() fails
+echo
+cat >$tmp.control <<End-of-File
+libpcp/events.c:6	<3
+End-of-File
+pmstore sample.event.reset 0 >/dev/null 2>&1
+pmevent -Dfault -t 0.2 -s 2 sample.event.records >$tmp.out 2>$tmp.err
+_filter
+
+# success, all done
+exit

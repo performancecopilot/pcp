@@ -1,0 +1,11 @@
+QA output created by 442
+pmlogextract: New log volume 1, at TIMESTAMP
+pmlogextract: New log volume 2, at TIMESTAMP
+
+sum(input data volume sizes) - sum(output data volume sizes)
+132
+
+Temporal Index Entries ...
+big1: 2051
+big2: 2051
+big3: 4100

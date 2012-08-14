@@ -1,0 +1,72 @@
+QA output created by 282
+
+=== expect error: no $PCP_PMCDCONF_PATH ===
+Waiting for pmcd to terminate DOTS
+$PCP_RC_DIR/pmcd:
+Warning: PMCD control file $PCP_PMCDCONF_PATH is missing, cannot identify PMDAs
+         to be terminated.
+$PCP_RC_DIR/pmcd:
+Error: PMCD control file $PCP_PMCDCONF_PATH is missing, cannot start PMCD.
+=== probe pmcd: pmprobe: Cannot connect to PMCD on host "HOST": Connection refused
+
+=== simple case, no frills, no errors ===
+Starting pmcd ... 
+Starting pmlogger ... 
+=== probe pmcd: OK
+=== probe pmlogger: OK
+
+=== expected failure: a mere mortal ===
+$PCP_RC_DIR/pmcd:
+Error: You must be root (uid 0) to start or stop the Performance Co-Pilot PMCD.
+=== probe pmcd: OK
+=== start again ===
+Waiting for pmcd to terminate DOTS
+Starting pmcd ... 
+Starting pmlogger ... 
+=== probe pmcd: OK
+=== probe pmlogger: OK
+
+=== expect 2 x connect failure: pmcd is true(1), so hard for pmlogger ===
+Waiting for pmcd to terminate DOTS
+Starting pmcd ... 
+Starting pmlogger ... 
+=== probe pmcd: pmprobe: Cannot connect to PMCD on host "HOST": Connection refused
+=== probe pmlogger: Unable to connect to primary pmlogger at HOST: Connection refused
+=== start again ===
+Starting pmcd ... 
+Starting pmlogger ... 
+=== probe pmcd: OK
+=== probe pmlogger: OK
+=== expect difficulty terminating pmcd ... it has been sent a SIGSTOP ===
+Waiting for pmcd to terminate DOTS
+Process ...
+-- ps output line --
+$PCP_RC_DIR/pmcd: Warning: Forcing pmcd to terminate!
+Starting pmcd ... 
+Starting pmlogger ... 
+=== probe pmcd: OK
+
+=== expect warning: PMLOGGER.CHECK moved, so no pmlogger ===
+Waiting for pmcd to terminate DOTS
+Starting pmcd ... 
+$PCP_RC_DIR/pmcd:
+Warning: Performance Co-Pilot installation is incomplete (at least the
+         script "PMLOGGER.CHECK" is missing) and the PCP archive logger(s)
+	 cannot be started.
+=== probe pmcd: OK
+=== probe pmlogger: Unable to connect to primary pmlogger at HOST: Connection refused
+
+=== expect error: pmlogger/control moved, so no pmlogger ===
+Waiting for pmcd to terminate DOTS
+Starting pmcd ... 
+Starting pmlogger ... 
+$PCP_RC_DIR/pmcd:
+Error: PCP archive logger control file $PCP_PMLOGGERCONTROL_PATH
+       is missing!  Cannot start any Performance Co-Pilot archive logger(s).
+=== probe pmcd: OK
+=== probe pmlogger: Unable to connect to primary pmlogger at HOST: Connection refused
+
+Restore the state of the universe ...
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

@@ -1,0 +1,45 @@
+#!/bin/sh
+# PCP QA Test No. 359
+# Simple sanity check that we can get through validation of all
+# of the metrics without any surprises
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/No value(s) available/d' \
+	-e '/Metric not supported by this version of monitored application/d' \
+	-e '/^sample.needprofile:/d' \
+	-e '/^sample.bad.unknown:/d' \
+	-e '/^sample.bad.nosupport:/d' \
+	-e '/^sampledso.needprofile:/d' \
+	-e '/^sampledso.bad.unknown:/d' \
+	-e '/^sampledso.bad.nosupport:/d' \
+	-e '/^logger.perfile.reg.records: No permission/d' \
+	-e '/^logger.perfile.fifo.records: Try again./d' \
+	-e '/^logger.perfile.reg.records: Try again./d'
+}
+
+# real QA test starts here
+
+echo "First attempt ... expect nothing"
+pminfo -v | _filter
+echo "Second attempt ... expect nothing"
+pminfo -v | _filter
+
+# success, all done
+exit

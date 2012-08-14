@@ -1,0 +1,36 @@
+/*
+ * Metrics for a broken PMDA
+ */
+
+broken {
+    valid
+    bad
+    no
+    bogus
+}
+
+broken.valid {
+    one		BROKEN:0:0
+    two		BROKEN:0:1
+    three	BROKEN:0:7
+}
+
+broken.bad {
+    type	BROKEN:0:5
+    semantics	BROKEN:1:1
+    scale	BROKEN:1:2
+    indom	BROKEN:1:4
+}
+
+broken.no {
+    fetch	BROKEN:0:9
+    help	BROKEN:0:10
+    shorthelp	BROKEN:0:11
+    longhelp	BROKEN:0:12
+    instfetch	BROKEN:0:13
+    instances	BROKEN:0:14
+}
+
+broken.bogus {
+    one		BROKEN:0:2
+}
