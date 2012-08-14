@@ -55,7 +55,7 @@ then
 fi
 if [ -L "$root" ]
 then
-    if which realpath >/dev/null
+    if which realpath 2>/dev/null
     then
 	symroot=`realpath $root`
     else
