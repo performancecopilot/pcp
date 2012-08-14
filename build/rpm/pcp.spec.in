@@ -364,8 +364,8 @@ fi
 %defattr(-,root,root)
 
 %changelog
-* Fri Aug  3 2012 Nathan Scott <nathans@debian.org> - 3.6.5-1
-- Update to latest PCP sources.
+* Thu Aug 16 2012 Nathan Scott <nathans@redhat.com> - 3.6.5-1
+- Update to latest PCP sources, resolves several security issues.
 
 * Tue Jun 12 2012 Nathan Scott <nathans@aconex.com> - 3.6.4-1
 - Update to latest PCP sources, resolves Fedora s390x build issue.
