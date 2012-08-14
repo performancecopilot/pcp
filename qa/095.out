@@ -1,0 +1,475 @@
+QA output created by 095
+=== foo ===
+
+Pass 1: forward scan
+Found between 15 and 17 samples
+
+Pass 2: backwards scan
+Found between 15 and 17 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found between 31 and 34 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found between 15 and 17 samples
+Found between 11 and 14 samples
+Found between 7 and 9 samples
+Found between 4 and 5 samples
+Found between 1 and 1 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found between 15 and 17 samples
+Found between 11 and 14 samples
+Found between 7 and 9 samples
+Found between 4 and 5 samples
+Found between 1 and 1 samples
+
+Pass 6: cascading forward/reverse scan, 100%, 75%, 50%, 25%, 0%
+Found between 15 and 17 samples
+Found between 11 and 14 samples
+Found between 7 and 9 samples
+Found between 4 and 5 samples
+Found between 1 and 1 samples
+Pass 6 done
+
+Pass 1: forward scan
+Found between 7 and 9 samples
+
+Pass 2: backwards scan
+Found between 7 and 9 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found between 15 and 18 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found between 7 and 9 samples
+Found between 6 and 7 samples
+Found between 4 and 5 samples
+Found between 2 and 3 samples
+Found between 1 and 1 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found between 7 and 9 samples
+Found between 6 and 7 samples
+Found between 4 and 5 samples
+Found between 2 and 3 samples
+Found between 1 and 1 samples
+
+Pass 6: cascading forward/reverse scan, 100%, 75%, 50%, 25%, 0%
+Found between 7 and 9 samples
+Found between 6 and 7 samples
+Found between 4 and 5 samples
+Found between 2 and 3 samples
+Found between 1 and 1 samples
+Pass 6 done
+
+Pass 1: forward scan
+Found between 3 and 5 samples
+
+Pass 2: backwards scan
+Found between 3 and 5 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found between 7 and 10 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found between 3 and 5 samples
+Found between 3 and 4 samples
+Found between 2 and 3 samples
+Found between 1 and 2 samples
+Found between 1 and 1 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found between 3 and 5 samples
+Found between 3 and 4 samples
+Found between 2 and 3 samples
+Found between 1 and 2 samples
+Found between 1 and 1 samples
+
+Pass 6: cascading forward/reverse scan, 100%, 75%, 50%, 25%, 0%
+Found between 3 and 5 samples
+Found between 3 and 4 samples
+Found between 2 and 3 samples
+Found between 1 and 2 samples
+Found between 1 and 1 samples
+Pass 6 done
+
+=== bigbin ===
+
+Pass 1: forward scan
+Found between 10 and 11 samples
+
+Pass 2: backwards scan
+Found between 10 and 11 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found between 20 and 22 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found between 10 and 11 samples
+Found between 8 and 9 samples
+Found between 5 and 6 samples
+Found between 3 and 3 samples
+Found between 1 and 1 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found between 10 and 11 samples
+Found between 8 and 9 samples
+Found between 5 and 6 samples
+Found between 3 and 3 samples
+Found between 1 and 1 samples
+
+Pass 6: cascading forward/reverse scan, 100%, 75%, 50%, 25%, 0%
+Found between 10 and 11 samples
+Found between 8 and 9 samples
+Found between 5 and 6 samples
+Found between 3 and 3 samples
+Found between 1 and 1 samples
+Pass 6 done
+
+Pass 1: forward scan
+Found between 1625 and 1680 samples
+
+Pass 2: backwards scan
+Found between 1625 and 1680 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found between 3265 and 3360 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found between 1625 and 1680 samples
+Found between 1220 and 1260 samples
+Found between 815 and 840 samples
+Found between 405 and 420 samples
+Found between 1 and 1 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found between 1625 and 1680 samples
+Found between 1220 and 1260 samples
+Found between 815 and 840 samples
+Found between 405 and 420 samples
+Found between 1 and 1 samples
+
+Pass 6: cascading forward/reverse scan, 100%, 75%, 50%, 25%, 0%
+Found between 1625 and 1680 samples
+Found between 1220 and 1260 samples
+Found between 815 and 840 samples
+Found between 405 and 420 samples
+Found between 1 and 1 samples
+Pass 6 done
+=== multi-volume foo ===
+
+Pass 1: forward scan
+Found between 15 and 17 samples
+
+Pass 2: backwards scan
+Found between 15 and 17 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found between 31 and 34 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found between 15 and 17 samples
+Found between 11 and 14 samples
+Found between 7 and 9 samples
+Found between 4 and 5 samples
+Found between 1 and 1 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found between 15 and 17 samples
+Found between 11 and 14 samples
+Found between 7 and 9 samples
+Found between 4 and 5 samples
+Found between 1 and 1 samples
+
+Pass 6: cascading forward/reverse scan, 100%, 75%, 50%, 25%, 0%
+Found between 15 and 17 samples
+Found between 11 and 14 samples
+Found between 7 and 9 samples
+Found between 4 and 5 samples
+Found between 1 and 1 samples
+Pass 6 done
+
+Pass 1: forward scan
+Found between 7 and 9 samples
+
+Pass 2: backwards scan
+Found between 7 and 9 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found between 15 and 18 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found between 7 and 9 samples
+Found between 6 and 7 samples
+Found between 4 and 5 samples
+Found between 2 and 3 samples
+Found between 1 and 1 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found between 7 and 9 samples
+Found between 6 and 7 samples
+Found between 4 and 5 samples
+Found between 2 and 3 samples
+Found between 1 and 1 samples
+
+Pass 6: cascading forward/reverse scan, 100%, 75%, 50%, 25%, 0%
+Found between 7 and 9 samples
+Found between 6 and 7 samples
+Found between 4 and 5 samples
+Found between 2 and 3 samples
+Found between 1 and 1 samples
+Pass 6 done
+
+Pass 1: forward scan
+Found between 3 and 5 samples
+
+Pass 2: backwards scan
+Found between 3 and 5 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found between 7 and 10 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found between 3 and 5 samples
+Found between 3 and 4 samples
+Found between 2 and 3 samples
+Found between 1 and 2 samples
+Found between 1 and 1 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found between 3 and 5 samples
+Found between 3 and 4 samples
+Found between 2 and 3 samples
+Found between 1 and 2 samples
+Found between 1 and 1 samples
+
+Pass 6: cascading forward/reverse scan, 100%, 75%, 50%, 25%, 0%
+Found between 3 and 5 samples
+Found between 3 and 4 samples
+Found between 2 and 3 samples
+Found between 1 and 2 samples
+Found between 1 and 1 samples
+Pass 6 done
+
+=== multi-volume bigbin ===
+
+Pass 1: forward scan
+Found between 10 and 11 samples
+
+Pass 2: backwards scan
+Found between 10 and 11 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found between 20 and 22 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found between 10 and 11 samples
+Found between 8 and 9 samples
+Found between 5 and 6 samples
+Found between 3 and 3 samples
+Found between 1 and 1 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found between 10 and 11 samples
+Found between 8 and 9 samples
+Found between 5 and 6 samples
+Found between 3 and 3 samples
+Found between 1 and 1 samples
+
+Pass 6: cascading forward/reverse scan, 100%, 75%, 50%, 25%, 0%
+Found between 10 and 11 samples
+Found between 8 and 9 samples
+Found between 5 and 6 samples
+Found between 3 and 3 samples
+Found between 1 and 1 samples
+Pass 6 done
+
+Pass 1: forward scan
+Found between 1625 and 1680 samples
+
+Pass 2: backwards scan
+Found between 1625 and 1680 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found between 3265 and 3360 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found between 1625 and 1680 samples
+Found between 1220 and 1260 samples
+Found between 815 and 840 samples
+Found between 405 and 420 samples
+Found between 1 and 1 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found between 1625 and 1680 samples
+Found between 1220 and 1260 samples
+Found between 815 and 840 samples
+Found between 405 and 420 samples
+Found between 1 and 1 samples
+
+Pass 6: cascading forward/reverse scan, 100%, 75%, 50%, 25%, 0%
+Found between 1625 and 1680 samples
+Found between 1220 and 1260 samples
+Found between 815 and 840 samples
+Found between 405 and 420 samples
+Found between 1 and 1 samples
+Pass 6 done
+=== no index foo ===
+
+Pass 1: forward scan
+Found between 15 and 17 samples
+
+Pass 2: backwards scan
+Found between 15 and 17 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found between 31 and 34 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found between 15 and 17 samples
+Found between 11 and 14 samples
+Found between 7 and 9 samples
+Found between 4 and 5 samples
+Found between 1 and 1 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found between 15 and 17 samples
+Found between 11 and 14 samples
+Found between 7 and 9 samples
+Found between 4 and 5 samples
+Found between 1 and 1 samples
+
+Pass 6: cascading forward/reverse scan, 100%, 75%, 50%, 25%, 0%
+Found between 15 and 17 samples
+Found between 11 and 14 samples
+Found between 7 and 9 samples
+Found between 4 and 5 samples
+Found between 1 and 1 samples
+Pass 6 done
+
+Pass 1: forward scan
+Found between 7 and 9 samples
+
+Pass 2: backwards scan
+Found between 7 and 9 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found between 15 and 18 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found between 7 and 9 samples
+Found between 6 and 7 samples
+Found between 4 and 5 samples
+Found between 2 and 3 samples
+Found between 1 and 1 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found between 7 and 9 samples
+Found between 6 and 7 samples
+Found between 4 and 5 samples
+Found between 2 and 3 samples
+Found between 1 and 1 samples
+
+Pass 6: cascading forward/reverse scan, 100%, 75%, 50%, 25%, 0%
+Found between 7 and 9 samples
+Found between 6 and 7 samples
+Found between 4 and 5 samples
+Found between 2 and 3 samples
+Found between 1 and 1 samples
+Pass 6 done
+
+Pass 1: forward scan
+Found between 3 and 5 samples
+
+Pass 2: backwards scan
+Found between 3 and 5 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found between 7 and 10 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found between 3 and 5 samples
+Found between 3 and 4 samples
+Found between 2 and 3 samples
+Found between 1 and 2 samples
+Found between 1 and 1 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found between 3 and 5 samples
+Found between 3 and 4 samples
+Found between 2 and 3 samples
+Found between 1 and 2 samples
+Found between 1 and 1 samples
+
+Pass 6: cascading forward/reverse scan, 100%, 75%, 50%, 25%, 0%
+Found between 3 and 5 samples
+Found between 3 and 4 samples
+Found between 2 and 3 samples
+Found between 1 and 2 samples
+Found between 1 and 1 samples
+Pass 6 done
+
+=== no index bigbin ===
+
+Pass 1: forward scan
+Found between 10 and 11 samples
+
+Pass 2: backwards scan
+Found between 10 and 11 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found between 20 and 22 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found between 10 and 11 samples
+Found between 8 and 9 samples
+Found between 5 and 6 samples
+Found between 3 and 3 samples
+Found between 1 and 1 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found between 10 and 11 samples
+Found between 8 and 9 samples
+Found between 5 and 6 samples
+Found between 3 and 3 samples
+Found between 1 and 1 samples
+
+Pass 6: cascading forward/reverse scan, 100%, 75%, 50%, 25%, 0%
+Found between 10 and 11 samples
+Found between 8 and 9 samples
+Found between 5 and 6 samples
+Found between 3 and 3 samples
+Found between 1 and 1 samples
+Pass 6 done
+
+Pass 1: forward scan
+Found between 1625 and 1680 samples
+
+Pass 2: backwards scan
+Found between 1625 and 1680 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found between 3265 and 3360 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found between 1625 and 1680 samples
+Found between 1220 and 1260 samples
+Found between 815 and 840 samples
+Found between 405 and 420 samples
+Found between 1 and 1 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found between 1625 and 1680 samples
+Found between 1220 and 1260 samples
+Found between 815 and 840 samples
+Found between 405 and 420 samples
+Found between 1 and 1 samples
+
+Pass 6: cascading forward/reverse scan, 100%, 75%, 50%, 25%, 0%
+Found between 1625 and 1680 samples
+Found between 1220 and 1260 samples
+Found between 815 and 840 samples
+Found between 405 and 420 samples
+Found between 1 and 1 samples
+Pass 6 done

@@ -1,0 +1,36 @@
+#! /bin/sh
+# PCP QA Test No. 310
+# pmie botch in folding numeric constants used in macros
+#
+# Copyright (c) 2007 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+# bad pmie's don't report "true" for most rules and all rules by the
+# third sample ... any false or syntax error or seg fault is a botch
+# due to premature freeing of the Expr for the folded constant $spd
+
+pmie -t 1sec -T +5sec -v <<'End-of-File' 2>&1 | grep -v 'evaluator exiting'
+spd = 24 * 60 * 60;
+hinv.ncpu < 1 * $spd;
+hinv.ncpu < 2 + $spd;
+hinv.ncpu < hinv.ndisk + $spd - hinv.ndisk;
+some_sample ( hinv.ncpu@0..2 < hinv.ncpu@0..2 + 3 * $spd / 4);
+hinv.ncpu < 1 * $spd;
+End-of-File
+
+# success, all done
+exit

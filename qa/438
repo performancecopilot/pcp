@@ -1,0 +1,50 @@
+#!/bin/sh
+# PCP QA Test No. 438
+# Better code coverage for libpcp/src/logutil.c
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# __pmLogChkLabel: fd=3 vol=0 [magic=50052602 version=2 vol=0 pid=3901 host=bozo]
+# __pmLogSetTime(0) 17:29:20.472 delta=0 at ti[0]@17:29:20.472 vol=0 posn=132 serial=1
+_filter()
+{
+    sed \
+	-e 's/pid=[0-9][0-9]*/pid=PID/' \
+	-e 's/host=[a-zA-Z][a-zA-Z0-9_]*/host=HOST/' \
+	-e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIME/g' \
+	-e 's/TIME (t=[0-9][0-9.]*)/TIME/g' \
+	-e '/__pmLogChkLabel/s/fd=[0-9]/fd=N/' \
+    | $PCP_AWK_PROG '
+$1 == "__pmLogOpen:"	{ print >"'$tmp'.0"; next }
+			{ print >"'$tmp'.1" }'
+    LC_COLLATE=POSIX sort $tmp.0
+    cat $tmp.1
+}
+
+# real QA test starts here
+for i in src-oss/badlen-*.0
+do
+    [ "$i" = "src-oss/badlen-0.0" ] && continue
+    i=`echo $i | sed -e 's/\.0$//'`
+    echo
+    echo "--- $i ---"
+    pmdumplog -Dlog $i 2>&1 \
+    | _filter
+done
+
+# success, all done
+exit

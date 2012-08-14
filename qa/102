@@ -1,0 +1,130 @@
+#! /bin/sh
+# PCP QA Test No. 102
+# pmlc parser/scanner/error handling
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+
+_filter_pmlc()
+{
+    # error message mapping is due to differences between IRIX and Linux
+    #
+    sed \
+	-e 's/connect [0-9][0-9]*/connect PID/' \
+	-e 's/Version [0-9].*/Version VERSION/' \
+	-e 's/^parse error/Syntax error/' \
+	-e 's/line [0-9]*/line NUM/g' \
+	-e 's/^syntax error/Syntax error/' \
+	-e 's/^Reason: Unknown or illegal.*$/Reason: No PMCD agent for domain of request/'
+}
+
+signal=$PCP_BINADM_DIR/pmsignal
+
+# real QA test starts here
+
+# unconditionally restart pmcd and pmlogger so avoid fd leak
+# problems in buggy flexlm code
+#
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger
+
+pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
+# not connected
+query sample.drift
+advisory on 1 hour sample.drift
+
+connect primary
+# incomplete - syntax error
+query sample.bin [
+query { 
+sample.drift
+# eat input
+# up to
+# next } -- curly brace
+}
+query {
+barf.no.metric
+# suck to } ... not that one, this one ..
+}
+
+End-of-File
+_filter_pmlc <$tmp.err
+_filter_pmlc <$tmp.out
+
+for delta in "-1 msec" "75 hours" "599 hours" "1200 hours"
+do
+    rm -f $tmp.*
+    cat <<End-of-File >$tmp.config
+log advisory on $delta sample.bin [100]
+End-of-File
+    # pmlogger -c $tmp.config -T 4 $tmp
+    rm -f $tmp.*
+    pmlogger -L -c /dev/null -l $tmp.log -T 4 $tmp &
+    pid=$!
+    sleep 2
+    pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
+connect $pid
+log advisory on $delta sample.bin [100]
+End-of-File
+_filter_pmlc <$tmp.err
+_filter_pmlc <$tmp.out
+    $signal -s TERM $pid
+    wait
+    _filter_pmlogger_log <$tmp.log
+done
+sleep 2
+
+pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
+connect primary
+log mandatory on 1 hour { sample.bin, sample.drift, sample.seconds }
+query sample.bin[333]
+End-of-File
+_filter_pmlc <$tmp.err
+_filter_pmlc <$tmp.out
+
+$sudo $signal -a pmdasample
+sleep 2					# time to cleanup
+pminfo -f sample >/dev/null 2>&1	# and make sure pmcd notices
+
+pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
+connect primary
+query sample.bin[100]
+query sample.bin[100]
+End-of-File
+_filter_pmlc <$tmp.err
+_filter_pmlc <$tmp.out
+
+$sudo $signal -a -s HUP pmcd
+sleep 2		# time to cleanup
+pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
+connect primary
+query sample.bin[100]
+
+query { sample.bin,sample.drift sample.seconds }
+query { sample.bin sample.drift,sample.seconds }
+query sample.bin [100,200,300 400 500,700]
+query sample.bin [100,"bin-200"]
+End-of-File
+_filter_pmlc <$tmp.err
+_filter_pmlc <$tmp.out
+
+pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
+connect primary
+log mandatory maybe {
+    sample.bin
+    sample.drift, sample.seconds
+}
+End-of-File
+_filter_pmlc <$tmp.err
+_filter_pmlc <$tmp.out

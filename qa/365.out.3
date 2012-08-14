@@ -1,0 +1,40 @@
+QA output created by 365
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+Log for pmcd on HOST started DATE
+
+[DATE] pmcd(PID) Error: gethostbyname(not.a.real.host), No address associated with name
+Warning: the following access control specification will be ignored
+pmcd config[line 8]: Warning: access control error for host 'not.a.real.host': No route to host
+[DATE] pmcd(PID) Error: gethostbyname(nohost.engr.sgi.com), No address associated with name
+Warning: the following access control specification will be ignored
+pmcd config[line 9]: Warning: access control error for host 'nohost.engr.sgi.com': No route to host
+[DATE] pmcd(PID) Error: gethostbyname(not.a.real.host), No address associated with name
+Warning: the following access control specification will be ignored
+pmcd config[line 10]: Warning: access control error for host 'not.a.real.host': No route to host
+[DATE] pmcd(PID) Error: gethostbyname(nohost.melbourne.sgi.com), No address associated with name
+Warning: the following access control specification will be ignored
+pmcd config[line 11]: Warning: access control error for host 'nohost.melbourne.sgi.com': No route to host
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+[OS]          ??                 2 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 2 dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+
+Host access list:
+00 01 Cur/MaxCons host-spec host-mask lvl host-name
+== == =========== ========= ========= === ==============
+ y  y     0     0  <hexnum>  ffffffff   0 LOCALHOST
+ y        0     0  <hexnum>  ffffffff   0 OTHERHOST1
+    y     0     0  <hexnum>  ffffffff   0 OTHERHOST2
+
+
+pmcd: PID = PID
+pmcd request port(s):
+  sts fd  port  IP addr
+  === === ===== ==========
+ok FD 44321 0x<hexnum> INADDR_ANY
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

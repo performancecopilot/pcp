@@ -1,0 +1,77 @@
+QA output created by 043
+pmResult ... numpmid: 3
+  2.0.0 (pmcd.control.debug): numval: 1 valfmt: 0 vlist[]:
+   value INTEGER
+  30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
+   value INTEGER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INTEGER
+    inst [1 or "green"] value INTEGER
+    inst [2 or "blue"] value INTEGER
+
+base store test (failures not unexpected) ...
+pmStore: No permission to perform requested operation
+
+numpmid == 0 tests (failures expected) ...
+pmResult ... numpmid: 0
+pmStore: Insufficient elements in list
+__pmControlLog: Insufficient elements in list
+
+numval == 0 tests (failures expected) ...
+pmResult ... numpmid: 3
+  2.0.0 (pmcd.control.debug): numval: 1 valfmt: 0 vlist[]:
+   value INTEGER
+  30.0.14 (sampledso.long.write_me): No values returned!
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INTEGER
+    inst [1 or "green"] value INTEGER
+    inst [2 or "blue"] value INTEGER
+pmStore: Missing metric value(s)
+__pmControlLog: OK
+pmResult ... numpmid: 3
+  2.0.0 (pmcd.control.debug): numval: 1 valfmt: 0 vlist[]:
+   value INTEGER
+  30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
+   value INTEGER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INTEGER
+    inst [1 or "green"] value INTEGER
+    inst [2 or "blue"] value INTEGER
+
+numval < 0 tests (failures expected) ...
+pmResult ... numpmid: 3
+  2.0.0 (pmcd.control.debug): numval: 1 valfmt: 0 vlist[]:
+   value INTEGER
+  30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
+   value INTEGER
+  29.0.5 (sample.colour): No PMCD agent for domain of request
+pmStore: Missing metric value(s)
+__pmControlLog: OK
+pmResult ... numpmid: 3
+  2.0.0 (pmcd.control.debug): numval: 1 valfmt: 0 vlist[]:
+   value INTEGER
+  30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
+   value INTEGER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INTEGER
+    inst [1 or "green"] value INTEGER
+    inst [2 or "blue"] value INTEGER
+pmResult ... numpmid: 4
+  30.0.12 (sampledso.long.hundred): numval: 1 valfmt: 0 vlist[]:
+   value INTEGER
+  30.0.49 (sampledso.needprofile): Explicit instance identifier(s) required
+  29.0.12 (sample.long.hundred): numval: 1 valfmt: 0 vlist[]:
+   value INTEGER
+  29.0.49 (sample.needprofile): Explicit instance identifier(s) required
+pmResult ... numpmid: 4
+  30.0.12 (sampledso.long.hundred): numval: 1 valfmt: 0 vlist[]:
+   value INTEGER
+  30.0.49 (sampledso.needprofile): numval: 3 valfmt: 1 vlist[]:
+    inst [0 or "colleen"] value 3.05
+    inst [2 or "emma"] value 11.09
+    inst [4 or "fat"] value 5.2600002
+  29.0.12 (sample.long.hundred): numval: 1 valfmt: 0 vlist[]:
+   value INTEGER
+  29.0.49 (sample.needprofile): numval: 2 valfmt: 1 vlist[]:
+    inst [1 or "terry"] value 12.05
+    inst [3 or "cathy"] value 11.09

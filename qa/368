@@ -1,0 +1,179 @@
+#!/bin/sh
+# PCP QA Test No. 368
+#
+# pmlogconf - handle changes in installed group files
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if [ -f $PCP_BINADM_DIR/pmlogconf-setup ]
+then
+    :
+else
+    _notrun "pmlogconf version 2.0 not installed"
+fi
+
+echo "QA output created by $seq"
+
+rm -f $seq.out
+if [ $PCP_PLATFORM = darwin ]
+then
+    ln $seq.darwin $seq.out || exit 1
+else
+    ln $seq.other $seq.out || exit 1
+fi
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+mkdir $tmp
+
+# need to handle diff-c lines like this
+# *** TMP.conf	2010-06-17 06:36:00.000000000 +1000
+# --- /var/tmp/26102.ctl	2010-06-17 06:36:01.000000000 +1000
+#
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e '/^\*\*\* TMP\.conf/s/\.conf.*/.orig .../' \
+	-e '/^--- .*\.ctl/s/ .*/ TMP.new .../'
+}
+
+cat <<End-of-File >$tmp/01
+#pmlogconf-setup 2.0
+probe	sample.long.ten == 10 ? include : exclude
+ident	qa group one
+	sample.long.ten
+	sample.long.hundred
+	sample.long.million
+End-of-File
+
+cat <<End-of-File >$tmp/02
+#pmlogconf-setup 2.0
+probe	sample.ulong.ten != 10 ? include : exclude
+ident	qa group two
+	sample.ulong.ten
+End-of-File
+
+cat <<End-of-File >$tmp/03
+#pmlogconf-setup 2.0
+probe	sample.longlong.ten >= 10 ? include : available
+ident	qa group three
+	sample.longlong.ten
+End-of-File
+
+cat <<End-of-File >$tmp/04
+#pmlogconf-setup 2.0
+probe	sample.ulonglong.ten < 10 ? include : available
+ident	qa group four
+	sample.ulonglong.ten
+End-of-File
+
+# real QA test starts here
+
+pmlogconf -d $tmp $tmp.conf \
+| _filter
+
+echo "--- start initial config file ---"
+cat $tmp.conf | _filter
+echo "--- end initial config file ---"
+
+cat <<End-of-File >$tmp/00
+#pmlogconf-setup 2.0
+force	include
+ident	qa group zero
+	sample.float.ten
+End-of-File
+
+cat <<End-of-File >$tmp/05
+#pmlogconf-setup 2.0
+force	available
+ident	qa group five
+	sample.double.ten
+End-of-File
+
+rm $tmp/03
+
+( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf \
+| _filter
+
+# reverse the condition
+#
+cat <<End-of-File >$tmp/02
+#pmlogconf-setup 2.0
+probe	sample.ulong.ten <= 10 ? include : exclude
+ident	qa group two
+	sample.ulong.ten
+End-of-File
+
+# reverse the condition
+#
+cat <<End-of-File >$tmp/03
+#pmlogconf-setup 2.0
+probe	sample.longlong.ten > 10 ? include : available
+ident	qa group three
+	sample.longlong.ten
+End-of-File
+
+( echo q ; echo '') | pmlogconf -r -d $tmp $tmp.conf \
+| _filter
+
+# drop a metric
+#
+cat <<End-of-File >$tmp/01
+#pmlogconf-setup 2.0
+probe	sample.long.ten ~ ^10$ ? include : exclude
+ident	qa group one
+	sample.long.ten
+	sample.long.million
+End-of-File
+
+# add a metric
+#
+cat <<End-of-File >$tmp/02
+#pmlogconf-setup 2.0
+probe	sample.ulong.ten ~ 10 ? include : exclude
+ident	qa group two
+	sample.ulong.ten
+	sample.ulong.million
+End-of-File
+
+cat <<'End-of-File' >$tmp/98
+#pmlogconf-setup 2.0
+ident   postgresql summary information
+probe   postgresql.stat.all_tables.seq_scan ? include : available
+        postgresql.stat.database
+	postgresql.stat.all_tables
+	postgresql.stat.all_indexes
+	postgresql.statio.all_tables
+	postgresql.statio.all_indexes
+End-of-File
+
+cat <<'End-of-File' >$tmp/99
+#pmlogconf-setup 2.0
+ident	Example from pmlogconf(1) man page
+ident	... more descripton
+delta	1 minute
+probe	sample.secret.foo.one values ? include : exclude
+	sample.secret.foo.one
+	sample.secret.foo.bar	# non-leaf in the PMNS
+	sample.colour [ red green ]
+End-of-File
+
+( echo q ; echo '') | pmlogconf -d $tmp $tmp.conf \
+| _filter
+
+echo "--- start final config file ---"
+cat $tmp.conf | _filter
+echo "--- end final config file ---"
+
+# success, all done
+exit

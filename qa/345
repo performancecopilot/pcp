@@ -1,0 +1,98 @@
+#!/bin/sh
+# PCP QA Test No. 345
+#
+# PM_CONTEXT_LOCAL and PMNS operations involving derived and dynamic
+# metrics
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if grep 'pmRegisterDerived' $PCP_DIR/usr/include/pcp/pmapi.h >/dev/null
+then
+    :
+else
+    echo "No derived metric support" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+if grep __pmLocalPMDA $PCP_DIR/usr/include/pcp/impl.h >/dev/null
+then
+    :
+else
+    echo "No libpcp support for __pmLocalPMDA" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.derive
+sampledso.secret.derived.eek.eight = 2 * sampledso.secret.foo.bar.four
+End-of-File
+
+# with -f need to remove "inst" lines for the metric
+# sampledso.secret.foo.bar.max.redirect as we will never find these
+# aliased pmcd metrics with -L
+# also strip blank lines to reduce "diff noise" later
+#
+_filter()
+{
+    $PCP_AWK_PROG '
+$1 == "sampledso.secret.foo.bar.max.redirect"	{ print; skip = 1; next }
+NF == 0						{ skip = 0; next }
+skip == 1 && $1 == "inst"			{ next }
+						{ print }'
+}
+
+# real QA test starts here
+for metric_args in \
+    "sampledso.secret.foo.bar.grunt.five sampledso.secret.derived.eek.eight sampledso.secret.foo.bar.grunt" \
+    sampledso.secret.foo \
+    sampledso.secret \
+    sampledso
+do
+    for margs in '' -m -f
+    do
+	# -f for all of sampledso will never match ...
+	[ "$metric_args" = sampledso -a -n "$margs" ] && continue
+	for hargs in '' '-h localhost' '-L'
+	do
+	    args="$hargs $margs"
+	    if [ -z "$hargs" ]
+	    then
+		echo | tee -a $seq.full
+		echo "=== $args $metric_args ===" | tee -a $seq.full
+		pminfo -c $tmp.derive $args $metric_args >$tmp.raw
+		cat $tmp.raw >>$seq.full
+		_filter <$tmp.raw \
+		| LC_COLLATE=POSIX sort >$tmp.base
+	    else
+		$sudo pminfo -c $tmp.derive $args $metric_args >$tmp.raw
+		echo "=== $args $metric_args" >>$seq.full
+		cat $tmp.raw >>$seq.full
+		_filter <$tmp.raw \
+		| LC_COLLATE=POSIX sort >$tmp.tmp
+		echo "--- $args diffs against baseline ---" | tee -a $seq.full
+		diff -u $tmp.base $tmp.tmp \
+		| sed -e "/---/s/.*/- baseline output/" \
+		      -e "/+++/s/.*/+ $args output/" \
+		| tee -a $seq.full
+	    fi
+	done
+    done
+done
+
+# success, all done
+exit

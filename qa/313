@@ -1,0 +1,106 @@
+#! /bin/sh
+# PCP QA Test No. 313
+# assorted issues associated with pmval and archives with mark
+# records
+#
+## note this file edited by hand to simulate the expected output
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./localconfig
+
+rm -f $seq.out
+if [ $PCP_PLATFORM = irix -a \( $PCP_EOE_VER -ge 6512 -o \
+                                $PCP_EOE_VER = 6200 \) ]
+then
+    ln $seq.62_6512plus $seq.out || exit 1
+elif [ $PCP_PLATFORM = irix ]
+then
+    ln $seq.6511minus $seq.out || exit 1
+elif [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+then
+    # same output for Linux, Mac OS X and OpenSolaris
+    ln $seq.62_6512plus $seq.out || exit 1
+else
+    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+    exit 1
+fi
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# deal with an annoying libc error ... using TZ=:Australia/Melbourne
+# causes the -z option to report the wrong time, at least for some
+# times of the year
+#
+TZ=EST-10
+export TZ
+
+offset=`_arch_start src-oss/changeinst -0.25`
+
+# real QA test starts here
+
+for delta in 1sec 0.5sec
+do
+
+echo
+echo "=== delta=$delta counter in each non-preamble result in all 3 sections ==="
+pmval -O $offset -t $delta -z -a src-oss/changeinst sample.seconds 2>$tmp.err
+cat $tmp.err
+
+echo
+echo "=== delta=$delta counter in the 2nd section only ==="
+pmval -O $offset -t $delta -z -a src-oss/changeinst sample.milliseconds 2>$tmp.err
+cat $tmp.err
+
+echo
+echo "=== delta=$delta instantaneous in 1st and 3rd sections ==="
+pmval -O $offset -t $delta -z -a src-oss/changeinst sample.drift 2>$tmp.err
+cat $tmp.err
+
+echo
+echo "=== delta=$delta discrete and logged once in the 1st and 3rd sections ==="
+pmval -O $offset -t $delta -z -a src-oss/changeinst hinv.ncpu 2>$tmp.err
+cat $tmp.err
+
+echo
+echo "=== delta=$delta counter and indom all over the place ==="
+echo "  lo0     ec0     ec2     section"
+echo "  yes     yes     no      1"
+echo "  no      no      no      2"
+echo "  yes     no      yes     3"
+pmval -O $offset -t $delta -z -a src-oss/changeinst -i ec0,ec2,lo0 irix.network.interface.total.packets 2>$tmp.err
+cat $tmp.err
+
+echo
+echo "=== delta=$delta instantaneous and indom all over the place ==="
+echo "  bin-100 bin-200 bin-300 bin-400 bin-500 section"
+echo "  yes     yes     no      yes     no      1"
+echo "  yes     no      yes     yes     once    2"
+echo "  no      yes     yes     yes     no      3"
+pmval -O $offset -t $delta -z -a src-oss/changeinst -i bin-100,bin-200,bin-300,bin-400,bin-500 sample.bin 2>$tmp.err
+cat $tmp.err
+
+echo
+echo "=== delta=$delta discrete logged once, different indom in each section ==="
+pmval -O $offset -t $delta -z -a src-oss/changeinst pmcd.pmlogger.port 2>$tmp.err
+cat $tmp.err
+
+done
+
+echo
+echo "=== the whole shooting match ==="
+pmdumplog -z -a src-oss/changeinst \
+| sed -e '/\[[0-9][0-9]* bytes\]/d'
+
+# success, all done
+status=0
+exit

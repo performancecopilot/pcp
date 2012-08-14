@@ -1,0 +1,130 @@
+#! /bin/sh
+# PCP QA Test No. 628
+# libpcp_pmda botch in pmdaFetch for multiple DSO PMDAs used in the
+# on pmFetch ... bug #809111
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+. ./localconfig
+if [ $PCP_PLATFORM != irix -a $PCP_VER -ge 2200 ]
+then
+    : PCP 2.2 or later
+elif [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -ge 6512 ]
+then
+    : IRIX 6.5.12 or later
+elif [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -lt 6500 -a $PCP_EOE_VER -ge 2200 ]
+then
+    : IRIX 6.2 and PCP 2.2
+else
+    _notrun "need fix for pv #809111 and multiple DSO PMDAs"
+fi
+
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+
+_cleanup()
+{
+    cd $here
+
+    [ -f $tmp.root ] && $sudo cp $tmp.root $PCP_VAR_DIR/pmns/root
+    [ -f $tmp.root.bin ] && $sudo cp $tmp.root.bin $PCP_VAR_DIR/pmns/root.bin
+    [ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+    $sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
+    $sudo rm -rf $tmp.* $PCP_PMDAS_DIR/idiot
+    exit $status
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+home=$PCP_PMDAS_DIR
+if [ ! -d $home/simple ]
+then
+    echo "Where is $home/simple?"
+    exit 1
+fi
+cd $home/simple
+unset ROOT
+
+# restart pmcd and copy the pmcd config file and pmns to restore state later
+#
+$sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+cp $PCP_VAR_DIR/pmns/root $tmp.root
+[ -f $PCP_VAR_DIR/pmns/root.bin ] && cp $PCP_VAR_DIR/pmns/root.bin $tmp.root.bin
+
+if $sudo make clobber >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh, make clobber failed"
+    exit
+fi
+
+$sudo rm -rf $PCP_PMDAS_DIR/idiot
+$sudo mkdir $PCP_PMDAS_DIR/idiot
+$sudo chmod 777 $PCP_PMDAS_DIR/idiot
+cp * $PCP_PMDAS_DIR/idiot
+
+$sudo ./Remove >/dev/null 2>&1
+cat <<End-of-File | $sudo ./Install >$tmp.out 2>&1
+both
+dso
+End-of-File
+
+if pminfo -v simple
+then
+    :
+else
+    echo "simple DSO install failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+cd $PCP_PMDAS_DIR/idiot
+mv simple.c idiot.c
+mv simple.conf idiot.conf
+mv pmdasimple.pl pmdaidiot.pl
+for file in *
+do
+    sed <$file >$tmp.tmp \
+	-e '/simple/s//idiot/g' \
+	-e '/SIMPLE/s//IDIOT/g' \
+	-e '/253/s//177/g'
+    chmod u+w $file
+    cp $tmp.tmp $file
+done
+
+$sudo ./Remove >/dev/null 2>&1
+cat <<End-of-File | $sudo ./Install >$tmp.out 2>&1
+both
+dso
+End-of-File
+
+if pminfo -v idiot
+then
+    :
+else
+    echo "idiot DSO install failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+
+# real QA test starts here
+pminfo -fm simple.numfetch
+pminfo -fm idiot.numfetch
+pminfo -fm idiot.numfetch
+pminfo -fm idiot.numfetch
+pminfo -fm simple.numfetch idiot.numfetch
+
+# success, all done
+status=0
+exit

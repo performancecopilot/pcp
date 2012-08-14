@@ -1,0 +1,231 @@
+QA output created by 509
+
+sample.secret.foo.one PMID: 29.0.1001
+    value 1
+
+my.derived PMID: 511.0.1
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sample.secret.foo.two PMID: 29.0.1002
+    value 2
+pmGetPMNSLocation() -> Remote
+pmLookupName: request_names -> [0] sample.bin
+__pmSendNameList
+namelist dump: numnames = 1
+  name[0]: "sample.bin"
+__pmDecodeIDList
+IDlist dump: numids = 1
+  PMID[0]: ADDR 29.0.6
+pmLookupName: receive_names <- [0] 29.0.6
+pmLookupName(1, ...) -> 1
+SendNameReq: from=0 name="sample.secret.foo.one" pdu=PMNS_TRAVERSE subtype=0
+__pmDecodeNameList
+namelist dump: numnames = 1
+  name[0]: "sample.secret.foo.one"
+SendNameReq: from=0 name="my.derived" pdu=PMNS_TRAVERSE subtype=0
+SendNameReq: from=0 name="foo.bar" pdu=PMNS_TRAVERSE subtype=0
+Error: foo.bar: Unknown metric name
+SendNameReq: from=0 name="sample.secret.foo.two" pdu=PMNS_TRAVERSE subtype=0
+__pmDecodeNameList
+namelist dump: numnames = 1
+  name[0]: "sample.secret.foo.two"
+pmLookupName: request_names -> [0] sample.secret.foo.one [1] my.derived [2] sample.secret.foo.two
+__pmSendNameList
+namelist dump: numnames = 3
+  name[0]: "sample.secret.foo.one"
+  name[1]: "my.derived"
+  name[2]: "sample.secret.foo.two"
+__pmDecodeIDList
+IDlist dump: numids = 3
+  PMID[0]: ADDR 29.0.1001
+  PMID[1]: ADDR PM_ID_NULL
+  PMID[2]: ADDR 29.0.1002
+pmLookupName: receive_names <- [0] 29.0.1001 [1] PM_ID_NULL [2] 29.0.1002
+pmLookupName(3, ...) -> 3
+dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29
+Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29
+dbpmda> fetch sample.secret.foo.one, my.derived, sample.secret.foo.two
+PMID(s): 29.0.1001 511.0.1 29.0.1002
+pmResult dump from ADDR timestamp: 0.000000 HH:00:00.000 numpmid: 3
+  29.0.1001 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 1 1.4012985e-45 ADDR
+  511.0.1 (my.derived): No values returned!
+  29.0.1002 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 2 2.8025969e-45 ADDR
+dbpmda> 
+load(name=(null), dupok=0) lic case=0 fname=/var/lib/pcp/pmns/root
+loadascii(file=/var/lib/pcp/pmns/root)
+pmLoadNameSpace: active -> 29.0.123
+pmLoadNameSpace: base -> 29.0.115
+pmLoadNameSpace: bigid -> 29.0.1023
+pmLoadNameSpace: bin -> 29.0.103
+pmLoadNameSpace: bin -> 29.0.105
+pmLoadNameSpace: bin -> 29.0.107
+pmLoadNameSpace: bin -> 29.0.109
+pmLoadNameSpace: bin -> 29.0.111
+pmLoadNameSpace: bin -> 29.0.113
+pmLoadNameSpace: bin -> 29.0.121
+pmLoadNameSpace: bin -> 29.0.6
+pmLoadNameSpace: bin_ctr -> 29.0.104
+pmLoadNameSpace: bin_ctr -> 29.0.106
+pmLoadNameSpace: bin_ctr -> 29.0.108
+pmLoadNameSpace: bin_ctr -> 29.0.110
+pmLoadNameSpace: bin_ctr -> 29.0.112
+pmLoadNameSpace: bin_ctr -> 29.0.114
+pmLoadNameSpace: bogus_bin -> 29.0.51
+pmLoadNameSpace: bucket -> 29.0.48
+pmLoadNameSpace: byte_ctr -> 29.0.81
+pmLoadNameSpace: byte_rate -> 29.0.82
+pmLoadNameSpace: byte_rate_perhour -> 29.0.85
+pmLoadNameSpace: bytes_down -> 29.0.66
+pmLoadNameSpace: bytes_up -> 29.0.65
+pmLoadNameSpace: colour -> 29.0.5
+pmLoadNameSpace: control -> 29.0.0
+pmLoadNameSpace: control -> 29.0.61
+pmLoadNameSpace: count -> 29.0.79
+pmLoadNameSpace: count_down -> 29.0.68
+pmLoadNameSpace: count_up -> 29.0.67
+pmLoadNameSpace: counter -> 29.0.76
+pmLoadNameSpace: ctx -> 29.0.122
+pmLoadNameSpace: daemon_pid -> 29.0.1
+pmLoadNameSpace: darkness -> 29.0.92
+pmLoadNameSpace: datasize -> 29.0.91
+pmLoadNameSpace: deca -> 29.0.116
+pmLoadNameSpace: discrete -> 29.0.77
+pmLoadNameSpace: drift -> 29.0.7
+pmLoadNameSpace: end -> 29.0.125
+pmLoadNameSpace: error_check -> 29.0.75
+pmLoadNameSpace: error_code -> 29.0.74
+pmLoadNameSpace: gradient -> 29.0.73
+pmLoadNameSpace: hecto -> 29.0.117
+pmLoadNameSpace: hullo -> 29.0.31
+pmLoadNameSpace: hullo -> 29.0.34
+pmLoadNameSpace: hundred -> 29.0.100
+pmLoadNameSpace: hundred -> 29.0.12
+pmLoadNameSpace: hundred -> 29.0.17
+pmLoadNameSpace: hundred -> 29.0.22
+pmLoadNameSpace: hundred -> 29.0.27
+pmLoadNameSpace: hundred -> 29.0.95
+pmLoadNameSpace: indom -> 29.0.88
+pmLoadNameSpace: instant -> 29.0.78
+pmLoadNameSpace: int -> 29.0.80
+pmLoadNameSpace: kbyte_ctr -> 29.0.83
+pmLoadNameSpace: kbyte_rate -> 29.0.84
+pmLoadNameSpace: kilo -> 29.0.118
+pmLoadNameSpace: lights -> 29.0.46
+pmLoadNameSpace: load -> 29.0.4
+pmLoadNameSpace: long -> 29.0.57
+pmLoadNameSpace: longlong -> 29.0.59
+pmLoadNameSpace: magnitude -> 29.0.47
+pmLoadNameSpace: mega -> 29.0.119
+pmLoadNameSpace: metric -> 29.0.86
+pmLoadNameSpace: million -> 29.0.101
+pmLoadNameSpace: million -> 29.0.13
+pmLoadNameSpace: million -> 29.0.18
+pmLoadNameSpace: million -> 29.0.23
+pmLoadNameSpace: million -> 29.0.28
+pmLoadNameSpace: million -> 29.0.96
+pmLoadNameSpace: milliseconds -> 29.0.3
+pmLoadNameSpace: mirage -> 29.0.37
+pmLoadNameSpace: mirage_longlong -> 29.0.38
+pmLoadNameSpace: needprofile -> 29.0.49
+pmLoadNameSpace: no_indom_records -> 29.0.137
+pmLoadNameSpace: noinst -> 29.0.9
+pmLoadNameSpace: none_up -> 29.0.71
+pmLoadNameSpace: nosupport -> 29.0.55
+pmLoadNameSpace: not_ready -> 29.0.56
+pmLoadNameSpace: null -> 29.0.30
+pmLoadNameSpace: null -> 29.0.33
+pmLoadNameSpace: one -> 29.0.10
+pmLoadNameSpace: one -> 29.0.15
+pmLoadNameSpace: one -> 29.0.20
+pmLoadNameSpace: one -> 29.0.25
+pmLoadNameSpace: one -> 29.0.52
+pmLoadNameSpace: one -> 29.0.93
+pmLoadNameSpace: one -> 29.0.98
+pmLoadNameSpace: param_32 -> 29.0.128
+pmLoadNameSpace: param_64 -> 29.0.130
+pmLoadNameSpace: param_aggregate -> 29.0.135
+pmLoadNameSpace: param_double -> 29.0.133
+pmLoadNameSpace: param_float -> 29.0.132
+pmLoadNameSpace: param_string -> 29.0.134
+pmLoadNameSpace: param_u32 -> 29.0.129
+pmLoadNameSpace: param_u64 -> 29.0.131
+pmLoadNameSpace: part_bin -> 29.0.50
+pmLoadNameSpace: pdu -> 29.0.40
+pmLoadNameSpace: pdu -> 29.0.43
+pmLoadNameSpace: rapid -> 29.0.64
+pmLoadNameSpace: records -> 29.0.136
+pmLoadNameSpace: recv_pdu -> 29.0.41
+pmLoadNameSpace: recv_pdu -> 29.0.44
+pmLoadNameSpace: reset -> 29.0.126
+pmLoadNameSpace: seconds -> 29.0.2
+pmLoadNameSpace: secret -> 29.*.*
+pmLoadNameSpace: sem -> 29.0.89
+pmLoadNameSpace: start -> 29.0.124
+pmLoadNameSpace: step -> 29.0.8
+pmLoadNameSpace: step_counter -> 29.0.63
+pmLoadNameSpace: sysinfo -> 29.0.39
+pmLoadNameSpace: ten -> 29.0.11
+pmLoadNameSpace: ten -> 29.0.16
+pmLoadNameSpace: ten -> 29.0.21
+pmLoadNameSpace: ten -> 29.0.26
+pmLoadNameSpace: ten -> 29.0.94
+pmLoadNameSpace: ten -> 29.0.99
+pmLoadNameSpace: time_up_nanosecs -> 29.0.70
+pmLoadNameSpace: time_up_secs -> 29.0.69
+pmLoadNameSpace: two -> 29.0.53
+pmLoadNameSpace: type -> 29.0.127
+pmLoadNameSpace: type -> 29.0.87
+pmLoadNameSpace: ulong -> 29.0.58
+pmLoadNameSpace: ulonglong -> 29.0.60
+pmLoadNameSpace: units -> 29.0.90
+pmLoadNameSpace: unknown -> 29.0.54
+pmLoadNameSpace: value -> 29.0.62
+pmLoadNameSpace: value -> 29.0.72
+pmLoadNameSpace: version -> 29.0.120
+pmLoadNameSpace: write_me -> 29.0.102
+pmLoadNameSpace: write_me -> 29.0.14
+pmLoadNameSpace: write_me -> 29.0.19
+pmLoadNameSpace: write_me -> 29.0.24
+pmLoadNameSpace: write_me -> 29.0.29
+pmLoadNameSpace: write_me -> 29.0.32
+pmLoadNameSpace: write_me -> 29.0.35
+pmLoadNameSpace: write_me -> 29.0.36
+pmLoadNameSpace: write_me -> 29.0.97
+pmLoadNameSpace: xmit_pdu -> 29.0.42
+pmLoadNameSpace: xmit_pdu -> 29.0.45
+Loaded ASCII PMNS
+pmGetPMNSLocation() -> Local
+pmLookupName(1, ...) using local PMNS returns 1 and ...
+  name[0]: "sample.bin" PMID: ADDR 29.0.6
+pmLookupName(1, ...) -> 1
+pmLookupName(1, ...) using local PMNS returns 1 and ...
+  name[0]: "sample.secret.foo.one" PMID: ADDR 29.*.*
+pmLookupName(1, ...) -> 1
+__pmSendNameList
+namelist dump: numnames = 1
+  name[0]: "sample.secret.foo.one"
+__pmDecodeIDList
+IDlist dump: numids = 1
+  PMID[0]: ADDR 29.0.1001
+pmLookupName(1, ...) using local PMNS returns 0 and ...
+  name[0]: "my.derived" PMID: ADDR PM_ID_NULL
+pmLookupName(1, ...) -> 1
+pmLookupName(1, ...) using local PMNS returns 1 and ...
+  name[0]: "sample.secret.foo.two" PMID: ADDR 29.*.*
+pmLookupName(1, ...) -> 1
+__pmSendNameList
+namelist dump: numnames = 1
+  name[0]: "sample.secret.foo.two"
+__pmDecodeIDList
+IDlist dump: numids = 1
+  PMID[0]: ADDR 29.0.1002

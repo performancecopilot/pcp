@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+# Script to recreate the tzshift series of archives
+#
+
+if [ ! -f /etc/pcp.env ]
+then
+    echo "No /etc/pcp.env ... I give up!"
+    exit 1
+fi
+. /etc/pcp.env
+
+if make pmtimezone.so
+then
+    :
+else
+    echo "make pmtimezone.so failed ... I give up!"
+    exit 1
+fi
+
+../sudo $PCP_RC_DIR/pcp stop
+
+[ -d /var/run/pcp ] && ../sudo chmod 777 /var/run/pcp
+
+for hr in 10 11 12
+do
+    export PCPQA_TZ=EST-$hr
+    export LD_PRELOAD=`pwd`/pmtimezone.so
+    pmcd &
+    rm -f tzchange-$hr-*
+    for a in a b
+    do
+	echo "log mandatory on 200msec sample.drift" | pmlogger tzchange-$hr-$a -s 4
+    done
+    ../sudo $PCP_RC_DIR/pcp stop
+done
+
+[ -d /var/run/pcp ] && ../sudo chmod 755 /var/run/pcp
+unset LD_PRELOAD
+../sudo $PCP_RC_DIR/pcp start

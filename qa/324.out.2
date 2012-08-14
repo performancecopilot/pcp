@@ -1,0 +1,71 @@
+QA output created by 324
+
+=== default txmon agent installation ===
+Culling the Performance Metrics Name Space ...
+txmon ... not found in Name Space, this is OK
+Updating the PMCD control file, and notifying PMCD ...
+Removing files ...
+Check txmon metrics have gone away ... OK
+You will need to choose an appropriate configuration for installation of
+the "txmon" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] b
+Welcome to the Install script for the demonstration "txmon" PMDA.
+This PMDA will establish a shared memory segment with one statistics
+structure per transaction type.
+
+You must define the names of the transaction types (the names are
+arbitrary strings with no embedded white space, e.g. mytx#1).
+
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check txmon metrics have appeared ... 6 metrics and 14 values
+
+=== validate values ===
+Mean service time for pigs tx: NUMBER
+Mean service time for can tx: NUMBER
+Mean service time for fly tx: NUMBER
+
+txmon.count
+    inst [0 or "pigs"] value NUMBER
+    inst [1 or "can"] value NUMBER
+    inst [2 or "fly"] value NUMBER
+
+txmon.ave_time
+    inst [0 or "pigs"] value NUMBER
+    inst [1 or "can"] value NUMBER
+    inst [2 or "fly"] value NUMBER
+
+txmon.max_time
+    inst [0 or "pigs"] value NUMBER
+    inst [1 or "can"] value NUMBER
+    inst [2 or "fly"] value NUMBER
+
+txmon.reset_count
+    inst [0 or "pigs"] value NUMBER
+    inst [1 or "can"] value NUMBER
+    inst [2 or "fly"] value NUMBER
+
+txmon.control.level
+    value NUMBER
+
+txmon.control.reset
+    value NUMBER
+
+=== remove txmon agent ===
+Culling the Performance Metrics Name Space ...
+txmon ... done
+Updating the PMCD control file, and notifying PMCD ...
+Removing files ...
+Check txmon metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

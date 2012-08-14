@@ -1,0 +1,141 @@
+#! /bin/sh
+# PCP QA Test No. 296
+# daemon pmdas not exiting after unconfiguring them?
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+LOCALHOST=`hostname`
+_needclean=true
+
+_interrupt()
+{
+    status=1
+}
+
+_cleanup()
+{
+    if $_needclean
+    then
+	echo
+	echo 'Restoring real pmcd.conf ...'
+	[ -f $tmp.pmcd.conf.save ] && \
+	    $sudo mv $tmp.pmcd.conf.save $PCP_PMCDCONF_PATH
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	_needclean=false
+    fi
+    rm -f $tmp.*
+    exit $status
+}
+
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf.save
+
+trap "_cleanup" 0
+trap "_interrupt; _cleanup" 1 2 3 15
+
+# real QA test starts here
+
+case $PCP_PLATFORM in
+linux|solaris)
+    cat <<End-of-File >$tmp.minconf
+# temporary pmcd.conf for qa/$seq
+#
+# Name	Id	IPC	IPC Params 	File/Cmd
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
+    ;;
+
+irix)
+    cat <<End-of-File >$tmp.minconf
+# temporary pmcd.conf for qa/$seq
+#
+# Name	Id	IPC	IPC Params 	File/Cmd
+pmcd	2	dso	pmcd_init	pmda_pmcd.so
+End-of-File
+    ;;
+
+darwin)
+    cat <<End-of-File >$tmp.minconf
+# temporary pmcd.conf for qa/$seq
+#
+# Name	Id	IPC	IPC Params 	File/Cmd
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+End-of-File
+    ;;
+
+*)
+    echo "Unknown platfrom $PCP_PLATFORM"
+    exit 1
+    ;;
+esac
+
+echo "start 11 daemon instances of the sample PMDA"
+cp $tmp.minconf $tmp.out
+cat <<End-of-File >>$tmp.out
+sample	9	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 9
+sample	19	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 19
+sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
+sample	39	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 39
+sample	49	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 49
+sample	59	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 59
+sample	69	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 69
+sample	79	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 79
+sample	89	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 89
+sample	99	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 99
+sample	109	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 109
+End-of-File
+$sudo cp $tmp.out $PCP_PMCDCONF_PATH
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+
+ps $PCP_PS_ALL_FLAGS >$tmp.out
+num=`grep pmdasample $tmp.out | wc -l | sed -e 's/ //g'`
+if [ $num -ne 11 ]
+then
+    echo "Error: number of sample PMDAs? expect 11 got $num"
+    echo "=== ps $PCP_PS_ALL_FLAGS ==="
+    cat $tmp.out
+    echo "=== pmcd.log ==="
+    cat $PCP_PMCDLOG_PATH
+    status=1
+    exit
+else
+    echo "OK, 11 started"
+fi
+
+echo
+echo "unconfigure them all"
+$sudo cp $tmp.minconf $PCP_PMCDCONF_PATH
+$sudo $signal -a -s HUP pmcd
+sleep 5
+_wait_for_pmcd
+
+ps $PCP_PS_ALL_FLAGS >$tmp.out
+cp $tmp.out $seq.full
+num=`grep pmdasample $tmp.out | wc -l | sed -e 's/ //g'`
+if [ $num -ne 0 ]
+then
+    echo "Error: number of sample PMDAs? expect 11 got $num"
+    echo "=== ps $PCP_PS_ALL_FLAGS ==="
+    cat $tmp.out
+    echo "=== pmcd.log ==="
+    cat $PCP_PMCDLOG_PATH
+    status=1
+else
+    echo "OK, 0 remain"
+fi
+
+# all done
+exit

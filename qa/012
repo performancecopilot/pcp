@@ -1,0 +1,75 @@
+#! /bin/sh
+# PCP QA Test No. 012
+# exercise __pmOpenLog
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out
+if [ $PCP_PLATFORM = irix ]
+then
+    ln $seq.irix $seq.out
+elif [ $PCP_PLATFORM = linux ]
+then
+    ln $seq.linux $seq.out
+elif [ $PCP_PLATFORM = darwin ]
+then
+    ln $seq.darwin $seq.out
+elif [ $PCP_PLATFORM = solaris ]
+then
+    ln $seq.solaris $seq.out
+else
+    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+    exit 1
+fi
+
+trap "cd $here; rm -rf $tmp $tmp.* /tmp/chk.fout; exit" 0 1 2 3 15
+$sudo rm -rf $tmp $tmp.*
+mkdir $tmp
+cd $tmp
+
+_doit()
+{
+    echo
+    echo "--- fd=$fd ---"
+    $sudo rm -f /tmp/chk.fout
+    $here/src-oss/chkopenlog $fd tmp.log >$tmp.1 2>$tmp.2
+    echo "stdout:" ; sed -f $tmp.sed $tmp.1
+    echo "stderr:" ; sed -f $tmp.sed $tmp.2
+    echo "log file:" ; sed -f $tmp.sed tmp.log
+    [ -f /tmp/chk.fout ] && ( echo "chk.fout:" ; sed -f $tmp.sed /tmp/chk.fout )
+}
+
+# real QA test starts here
+cat <<End-of-File >$tmp.sed
+s/`hostname`/MYHOST/g
+s/$$/MYPID/g
+s/ started .*/ started .../
+s/ finished .*/ finished .../
+End-of-File
+
+echo "Case 1: should be error-free ..."
+for fd in 1 2 3
+do
+    _doit
+done
+
+echo
+echo "Case 2: __pmOpenLog expected to have problems ..."
+for fd in 1 2 3
+do
+    echo "THIS SHOULD NOT BE OVERWRITTEN" >tmp.log
+    chmod ugo-w tmp.log
+    chmod ugo-w .
+    _doit
+    chmod ugo+w .
+    rm -rf tmp.log
+done

@@ -1,0 +1,7 @@
+QA output created by 038
+OK, pmlogger survived
+
+count records in archive (expect 1 for preamble + 2) ...
+TIMESTAMP
+TIMESTAMP
+TIMESTAMP

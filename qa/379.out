@@ -1,0 +1,390 @@
+QA output created by 379
+
+===  -Dappl2 Serial-0:s0 ===
+parse: assuming file Serial-0 contains output from "show int" command
+Interface s0(0) is on host Serial-0
+Starting sproc ...
+cisco[0] host: Serial-0 username: (null) passwd: (null) prompt: > intf: 0-s0
+grab_cisco(Serial-0:s0):
+show int s0
+Parse:[noise] mygetwd: fd=3 wd=">" [prompt]
+[noise] mygetwd: fd=3 wd="show"
+[noise] mygetwd: fd=3 wd="interface"
+[noise] mygetwd: fd=3 wd="Serial0"
+[in_report] mygetwd: fd=3 wd="is"
+[in_report] mygetwd: fd=3 wd="up,"
+[in_report] mygetwd: fd=3 wd="line"
+[in_report] mygetwd: fd=3 wd="protocol"
+[in_report] mygetwd: fd=3 wd="is"
+[in_report] mygetwd: fd=3 wd="up"
+[in_report] mygetwd: fd=3 wd="Hardware"
+[in_report] mygetwd: fd=3 wd="is"
+[in_report] mygetwd: fd=3 wd="MK5025"
+[in_report] mygetwd: fd=3 wd="Description:"
+skip2eol:frame-relay to MtVA, Tokyo, Hong Kong 
+[in_report] mygetwd: fd=3 wd="Internet"
+[in_report] mygetwd: fd=3 wd="address"
+[in_report] mygetwd: fd=3 wd="is"
+[in_report] mygetwd: fd=3 wd="155.11.201.172,"
+[in_report] mygetwd: fd=3 wd="subnet"
+[in_report] mygetwd: fd=3 wd="mask"
+[in_report] mygetwd: fd=3 wd="is"
+[in_report] mygetwd: fd=3 wd="255.255.255.128"
+[in_report] mygetwd: fd=3 wd="MTU"
+[in_report] mygetwd: fd=3 wd="1500"
+[in_report] mygetwd: fd=3 wd="bytes,"
+[in_report] mygetwd: fd=3 wd="BW"
+[bw] mygetwd: fd=3 wd="64"
+[in_report] mygetwd: fd=3 wd="Kbit,"
+[in_report] mygetwd: fd=3 wd="DLY"
+[in_report] mygetwd: fd=3 wd="20000"
+[in_report] mygetwd: fd=3 wd="usec,"
+[in_report] mygetwd: fd=3 wd="rely"
+[in_report] mygetwd: fd=3 wd="255/255,"
+[in_report] mygetwd: fd=3 wd="load"
+[in_report] mygetwd: fd=3 wd="15/255"
+[in_report] mygetwd: fd=3 wd="Encapsulation"
+[in_report] mygetwd: fd=3 wd="FRAME-RELAY,"
+[in_report] mygetwd: fd=3 wd="loopback"
+[in_report] mygetwd: fd=3 wd="not"
+[in_report] mygetwd: fd=3 wd="set,"
+[in_report] mygetwd: fd=3 wd="keepalive"
+[in_report] mygetwd: fd=3 wd="set"
+[in_report] mygetwd: fd=3 wd="(10"
+[in_report] mygetwd: fd=3 wd="sec)"
+[in_report] mygetwd: fd=3 wd="LMI"
+[in_report] mygetwd: fd=3 wd="DLCI"
+[in_report] mygetwd: fd=3 wd="0,"
+[in_report] mygetwd: fd=3 wd="LMI"
+[in_report] mygetwd: fd=3 wd="sent"
+[in_report] mygetwd: fd=3 wd="346516,"
+[in_report] mygetwd: fd=3 wd="LMI"
+[in_report] mygetwd: fd=3 wd="stat"
+[in_report] mygetwd: fd=3 wd="recvd"
+[in_report] mygetwd: fd=3 wd="345070,"
+[in_report] mygetwd: fd=3 wd="LMI"
+[in_report] mygetwd: fd=3 wd="upd"
+[in_report] mygetwd: fd=3 wd="recvd"
+[in_report] mygetwd: fd=3 wd="2"
+[in_report] mygetwd: fd=3 wd="LMI"
+[in_report] mygetwd: fd=3 wd="type"
+[in_report] mygetwd: fd=3 wd="is"
+[in_report] mygetwd: fd=3 wd="ANSI"
+[in_report] mygetwd: fd=3 wd="Annex"
+[in_report] mygetwd: fd=3 wd="D"
+[in_report] mygetwd: fd=3 wd="Last"
+[in_report] mygetwd: fd=3 wd="input"
+[in_report] mygetwd: fd=3 wd="0:00:01,"
+[in_report] mygetwd: fd=3 wd="output"
+[in_report] mygetwd: fd=3 wd="0:00:00,"
+[in_report] mygetwd: fd=3 wd="output"
+[in_report] mygetwd: fd=3 wd="hang"
+[in_report] mygetwd: fd=3 wd="never"
+[in_report] mygetwd: fd=3 wd="Last"
+[in_report] mygetwd: fd=3 wd="clearing"
+[in_report] mygetwd: fd=3 wd="of"
+[in_report] mygetwd: fd=3 wd=""show"
+[in_report] mygetwd: fd=3 wd="interface""
+[in_report] mygetwd: fd=3 wd="counters"
+[in_report] mygetwd: fd=3 wd="never"
+[in_report] mygetwd: fd=3 wd="Output"
+[in_report] mygetwd: fd=3 wd="queue"
+[in_report] mygetwd: fd=3 wd="0/8,"
+[in_report] mygetwd: fd=3 wd="298580"
+[in_report] mygetwd: fd=3 wd="drops;"
+[in_report] mygetwd: fd=3 wd="input"
+[in_report] mygetwd: fd=3 wd="queue"
+[in_report] mygetwd: fd=3 wd="0/75,"
+[in_report] mygetwd: fd=3 wd="0"
+[in_report] mygetwd: fd=3 wd="drops"
+[in_report] mygetwd: fd=3 wd="Five"
+[in_report] mygetwd: fd=3 wd="minute"
+[rate] mygetwd: fd=3 wd="input"
+[rate_in] mygetwd: fd=3 wd="rate"
+[rate_in] mygetwd: fd=3 wd="60000"
+[in_report] mygetwd: fd=3 wd="bits/sec,"
+[in_report] mygetwd: fd=3 wd="16"
+[in_report] mygetwd: fd=3 wd="packets/sec"
+[in_report] mygetwd: fd=3 wd="Five"
+[in_report] mygetwd: fd=3 wd="minute"
+[rate] mygetwd: fd=3 wd="output"
+[rate_out] mygetwd: fd=3 wd="rate"
+[rate_out] mygetwd: fd=3 wd="4000"
+[in_report] mygetwd: fd=3 wd="bits/sec,"
+[in_report] mygetwd: fd=3 wd="12"
+[in_report] mygetwd: fd=3 wd="packets/sec"
+[in_report] mygetwd: fd=3 wd="18139408"
+[in_report] mygetwd: fd=3 wd="packets"
+[in_report] mygetwd: fd=3 wd="input,"
+[bytes_in] mygetwd: fd=3 wd="2763796661"
+[in_report] mygetwd: fd=3 wd="bytes,"
+[in_report] mygetwd: fd=3 wd="0"
+[in_report] mygetwd: fd=3 wd="no"
+[in_report] mygetwd: fd=3 wd="buffer"
+[in_report] mygetwd: fd=3 wd="Received"
+[in_report] mygetwd: fd=3 wd="0"
+[in_report] mygetwd: fd=3 wd="broadcasts,"
+[in_report] mygetwd: fd=3 wd="0"
+[in_report] mygetwd: fd=3 wd="runts,"
+[in_report] mygetwd: fd=3 wd="0"
+[in_report] mygetwd: fd=3 wd="giants"
+[in_report] mygetwd: fd=3 wd="189"
+[in_report] mygetwd: fd=3 wd="input"
+[in_report] mygetwd: fd=3 wd="errors,"
+[in_report] mygetwd: fd=3 wd="189"
+[in_report] mygetwd: fd=3 wd="CRC,"
+[in_report] mygetwd: fd=3 wd="0"
+[in_report] mygetwd: fd=3 wd="frame,"
+[in_report] mygetwd: fd=3 wd="0"
+[in_report] mygetwd: fd=3 wd="overrun,"
+[in_report] mygetwd: fd=3 wd="0"
+[in_report] mygetwd: fd=3 wd="ignored,"
+[in_report] mygetwd: fd=3 wd="0"
+[in_report] mygetwd: fd=3 wd="abort"
+[in_report] mygetwd: fd=3 wd="15860554"
+[in_report] mygetwd: fd=3 wd="packets"
+[in_report] mygetwd: fd=3 wd="output,"
+[bytes_out] mygetwd: fd=3 wd="3098844973"
+[in_report] mygetwd: fd=3 wd="bytes,"
+[in_report] mygetwd: fd=3 wd="0"
+[in_report] mygetwd: fd=3 wd="underruns"
+[in_report] mygetwd: fd=3 wd="0"
+[in_report] mygetwd: fd=3 wd="output"
+[in_report] mygetwd: fd=3 wd="errors,"
+[in_report] mygetwd: fd=3 wd="0"
+[in_report] mygetwd: fd=3 wd="collisions,"
+[in_report] mygetwd: fd=3 wd="668"
+[in_report] mygetwd: fd=3 wd="interface"
+[in_report] mygetwd: fd=3 wd="resets,"
+[in_report] mygetwd: fd=3 wd="0"
+[in_report] mygetwd: fd=3 wd="restarts"
+[in_report] mygetwd: fd=3 wd="686"
+[in_report] mygetwd: fd=3 wd="carrier"
+[in_report] mygetwd: fd=3 wd="transitions"
+[in_report] mygetwd: fd=3 wd=">" [prompt]
+Extracted 5 values ...
+bandwidth: 8000 bytes/sec
+recent rate (bytes/sec): 7500 in 500 out
+total bytes: 2763796661 in 3098844973 out ? out_bcast
+
+
+===  Serial-0:s0 ===
+parse: assuming file Serial-0 contains output from "show int" command
+Interface s0(0) is on host Serial-0
+Starting sproc ...
+cisco[0] host: Serial-0 username: (null) passwd: (null) prompt: > intf: 0-s0
+grab_cisco(Serial-0:s0):
+show int s0
+Extracted 5 values ...
+bandwidth: 8000 bytes/sec
+recent rate (bytes/sec): 7500 in 500 out
+total bytes: 2763796661 in 3098844973 out ? out_bcast
+
+
+===  -Ulogin Ethernet-0:e0 ===
+parse: assuming file Ethernet-0 contains output from "show int" command
+Interface e0(0) is on host Ethernet-0
+Starting sproc ...
+cisco[0] host: Ethernet-0 username: login passwd: (null) prompt: > intf: 0-e0
+grab_cisco(Ethernet-0:e0):
+show int e0
+Extracted 5 values ...
+bandwidth: 1250000 bytes/sec
+recent rate (bytes/sec): 625 in 7500 out
+total bytes: 1321046112 in 870622060 out ? out_bcast
+
+
+===  -Ulogin -Psecret Fddi-2-0:f2/0 ===
+parse: assuming file Fddi-2-0 contains output from "show int" command
+Interface f2/0(0) is on host Fddi-2-0
+Starting sproc ...
+cisco[0] host: Fddi-2-0 username: login passwd: secret prompt: > intf: 0-f2/0
+grab_cisco(Fddi-2-0:f2/0):
+show int f2/0
+Extracted 5 values ...
+bandwidth: 12500000 bytes/sec
+recent rate (bytes/sec): 20000 in 11625 out
+total bytes: 4009491185 in 612803885 out ? out_bcast
+
+
+===  Serial-1:s1 ===
+parse: assuming file Serial-1 contains output from "show int" command
+Interface s1(0) is on host Serial-1
+Starting sproc ...
+cisco[0] host: Serial-1 username: (null) passwd: (null) prompt: > intf: 0-s1
+grab_cisco(Serial-1:s1):
+show int s1
+Extracted 5 values ...
+bandwidth: 193000 bytes/sec
+recent rate (bytes/sec): 14625 in 4000 out
+total bytes: 1105345262 in 675844616 out ? out_bcast
+
+
+===  Ethernet-3-5:e3/5 ===
+parse: assuming file Ethernet-3-5 contains output from "show int" command
+Interface e3/5(0) is on host Ethernet-3-5
+Starting sproc ...
+cisco[0] host: Ethernet-3-5 username: (null) passwd: (null) prompt: > intf: 0-e3/5
+grab_cisco(Ethernet-3-5:e3/5):
+show int e3/5
+Extracted 5 values ...
+bandwidth: 1250000 bytes/sec
+recent rate (bytes/sec): 125 in 11375 out
+total bytes: 1448819515 in 3227527737 out ? out_bcast
+
+
+===  ATM-12-0:a12/0 ===
+parse: assuming file ATM-12-0 contains output from "show int" command
+Interface a12/0(0) is on host ATM-12-0
+Starting sproc ...
+cisco[0] host: ATM-12-0 username: (null) passwd: (null) prompt: > intf: 0-a12/0
+grab_cisco(ATM-12-0:a12/0):
+show int a12/0
+Extracted 5 values ...
+bandwidth: 19531250 bytes/sec
+recent rate (bytes/sec): 22625 in 20000 out
+total bytes: 1239748718 in 4188341273 out ? out_bcast
+
+
+===  Hssi-3-0:h3/0 ===
+parse: assuming file Hssi-3-0 contains output from "show int" command
+Interface h3/0(0) is on host Hssi-3-0
+Starting sproc ...
+cisco[0] host: Hssi-3-0 username: (null) passwd: (null) prompt: > intf: 0-h3/0
+grab_cisco(Hssi-3-0:h3/0):
+show int h3/0
+Extracted 5 values ...
+bandwidth: 5630625 bytes/sec
+recent rate (bytes/sec): 0 in 0 out
+total bytes: 1443052046 in 3684064154 out ? out_bcast
+
+
+===  -s cmd# FastEthernet-1-0:E1/0 ===
+parse: assuming file FastEthernet-1-0 contains output from "show int" command
+Interface FastEthernet1/0(0) is on host FastEthernet-1-0
+Starting sproc ...
+cisco[0] host: FastEthernet-1-0 username: (null) passwd: (null) prompt: cmd# intf: 0-FastEthernet1/0
+grab_cisco(FastEthernet-1-0:FastEthernet1/0):
+show int FastEthernet1/0
+Extracted 5 values ...
+bandwidth: 12500000 bytes/sec
+recent rate (bytes/sec): 1000 in 1375 out
+total bytes: 1942263093 in 1811832796 out ? out_bcast
+
+
+===  Serial-1-0-min:s1/0 ===
+parse: assuming file Serial-1-0-min contains output from "show int" command
+Interface s1/0(0) is on host Serial-1-0-min
+Starting sproc ...
+cisco[0] host: Serial-1-0-min username: (null) passwd: (null) prompt: > intf: 0-s1/0
+grab_cisco(Serial-1-0-min:s1/0):
+show int s1/0
+Extracted 5 values ...
+bandwidth: 8000 bytes/sec
+recent rate (bytes/sec): 375 in 375 out
+total bytes: 132623595 in 73186481 out ? out_bcast
+
+
+===  Serial-1-0-sec:s1/0 ===
+parse: assuming file Serial-1-0-sec contains output from "show int" command
+Interface s1/0(0) is on host Serial-1-0-sec
+Starting sproc ...
+cisco[0] host: Serial-1-0-sec username: (null) passwd: (null) prompt: > intf: 0-s1/0
+grab_cisco(Serial-1-0-sec:s1/0):
+show int s1/0
+Extracted 5 values ...
+bandwidth: 8000 bytes/sec
+recent rate (bytes/sec): 7750 in 1000 out
+total bytes: 630502832 in 230325061 out ? out_bcast
+
+
+===  Ethernet-1-0:e1/0 ===
+parse: assuming file Ethernet-1-0 contains output from "show int" command
+Interface e1/0(0) is on host Ethernet-1-0
+Starting sproc ...
+cisco[0] host: Ethernet-1-0 username: (null) passwd: (null) prompt: > intf: 0-e1/0
+grab_cisco(Ethernet-1-0:e1/0):
+show int e1/0
+Extracted 5 values ...
+bandwidth: 1250000 bytes/sec
+recent rate (bytes/sec): 3250 in 14750 out
+total bytes: 2161281566 in 4162655553 out ? out_bcast
+
+
+===  Vlan-256:Vl256 ===
+parse: assuming file Vlan-256 contains output from "show int" command
+Interface Vl256(0) is on host Vlan-256
+Starting sproc ...
+cisco[0] host: Vlan-256 username: (null) passwd: (null) prompt: > intf: 0-Vl256
+grab_cisco(Vlan-256:Vl256):
+show int Vl256
+Extracted 5 values ...
+bandwidth: 1250000 bytes/sec
+recent rate (bytes/sec): 219250 in 1125 out
+total bytes: 816292345 in 3736073981 out ? out_bcast
+
+
+===  -Ulogin -Psecret -s bgo-sw20# Vlan-1:Vl1 ===
+parse: assuming file Vlan-1 contains output from "show int" command
+Interface Vl1(0) is on host Vlan-1
+Starting sproc ...
+cisco[0] host: Vlan-1 username: login passwd: secret prompt: bgo-sw20# intf: 0-Vl1
+grab_cisco(Vlan-1:Vl1):
+show int Vl1
+Extracted 5 values ...
+bandwidth: 125000000 bytes/sec
+recent rate (bytes/sec): 0 in 0 out
+total bytes: 284700228 in 0 out ? out_bcast
+
+
+===  -Ulogin -Psecret -s bgo-sw20# Vlan-160:Vl160 ===
+parse: assuming file Vlan-160 contains output from "show int" command
+Interface Vl160(0) is on host Vlan-160
+Starting sproc ...
+cisco[0] host: Vlan-160 username: login passwd: secret prompt: bgo-sw20# intf: 0-Vl160
+grab_cisco(Vlan-160:Vl160):
+show int Vl160
+Extracted 5 values ...
+bandwidth: 125000000 bytes/sec
+recent rate (bytes/sec): 375 in 125 out
+total bytes: 5045205764 in 656481017 out ? out_bcast
+
+
+===  -Ulogin -Psecret -s bgo-sw20# FastEthernet-0-5:E0/5 ===
+parse: assuming file FastEthernet-0-5 contains output from "show int" command
+Interface FastEthernet0/5(0) is on host FastEthernet-0-5
+Starting sproc ...
+cisco[0] host: FastEthernet-0-5 username: login passwd: secret prompt: bgo-sw20# intf: 0-FastEthernet0/5
+grab_cisco(FastEthernet-0-5:FastEthernet0/5):
+show int FastEthernet0/5
+Extracted 5 values ...
+bandwidth: 12500000 bytes/sec
+recent rate (bytes/sec): 0 in 125 out
+total bytes: 7324243891 in 20222705373 out ? out_bcast
+
+
+===  -Ulogin -Psecret -s bgo-sw20# FastEthernet-0-6:E0/6 ===
+parse: assuming file FastEthernet-0-6 contains output from "show int" command
+Interface FastEthernet0/6(0) is on host FastEthernet-0-6
+Starting sproc ...
+cisco[0] host: FastEthernet-0-6 username: login passwd: secret prompt: bgo-sw20# intf: 0-FastEthernet0/6
+grab_cisco(FastEthernet-0-6:FastEthernet0/6):
+show int FastEthernet0/6
+Extracted 5 values ...
+bandwidth: 12500000 bytes/sec
+recent rate (bytes/sec): 0 in 500 out
+total bytes: 4063397146 in 27283555831 out ? out_bcast
+
+
+===  -Ulogin -Psecret -s bgo-sw20# GigabitEthernet-0-1:G0/1 ===
+parse: assuming file GigabitEthernet-0-1 contains output from "show int" command
+Interface G0/1(0) is on host GigabitEthernet-0-1
+Starting sproc ...
+cisco[0] host: GigabitEthernet-0-1 username: login passwd: secret prompt: bgo-sw20# intf: 0-G0/1
+grab_cisco(GigabitEthernet-0-1:G0/1):
+show int G0/1
+Extracted 5 values ...
+bandwidth: 12500000 bytes/sec
+recent rate (bytes/sec): 4000 in 250 out
+total bytes: 375837411567 in 168989386887 out ? out_bcast
+

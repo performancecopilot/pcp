@@ -1,0 +1,87 @@
+QA output created by 599
+expr_1 (Mon May  1 20:36:45 2000): ?
+
+expr_2 (Mon May  1 20:36:45 2000): ?
+expr_3 (Mon May  1 20:36:45 2000): ?
+
+expr_1 (Mon May  1 20:36:55 2000): ?
+
+expr_2 (Mon May  1 20:37:00 2000): ?
+expr_3 (Mon May  1 20:37:00 2000): ?
+
+expr_1 (Mon May  1 20:37:05 2000): 1
+
+expr_1 (Mon May  1 20:37:15 2000): 1
+
+expr_2 (Mon May  1 20:37:15 2000): 1
+expr_3 (Mon May  1 20:37:15 2000): 1.00
+
+expr_1 (Mon May  1 20:37:25 2000): 1
+
+expr_2 (Mon May  1 20:37:30 2000): 1
+expr_3 (Mon May  1 20:37:30 2000): 1.00
+
+expr_1 (Mon May  1 20:37:35 2000): 1
+
+expr_1 (Mon May  1 20:37:45 2000): 1
+
+expr_2 (Mon May  1 20:37:45 2000): 1
+expr_3 (Mon May  1 20:37:45 2000): 1.00
+
+----
+pmFetch returns ...
+pmResult dump from ADDR timestamp: 957177405.109313 20:36:45.109 numpmid: 1
+  29.0.2 (sample.seconds): No values returned!
+pmFetch returns ...
+pmResult dump from ADDR timestamp: 957177405.109313 20:36:45.109 numpmid: 2
+  29.0.2 (sample.seconds): No values returned!
+  29.0.3 (sample.milliseconds): No values returned!
+pmFetch returns ...
+pmResult dump from ADDR timestamp: 957177415.109313 20:36:55.109 numpmid: 1
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value 380442
+pmFetch returns ...
+pmResult dump from ADDR timestamp: 957177420.109313 20:37:00.109 numpmid: 2
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value 380447
+  29.0.3 (sample.milliseconds): numval: 1 valfmt: 1 vlist[]:
+   value 380446679.4060927
+pmFetch returns ...
+pmResult dump from ADDR timestamp: 957177425.109313 20:37:05.109 numpmid: 1
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value 380452
+pmFetch returns ...
+pmResult dump from ADDR timestamp: 957177435.109313 20:37:15.109 numpmid: 1
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value 380462
+pmFetch returns ...
+pmResult dump from ADDR timestamp: 957177435.109313 20:37:15.109 numpmid: 2
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value 380462
+  29.0.3 (sample.milliseconds): numval: 1 valfmt: 1 vlist[]:
+   value 380461679.4133077
+pmFetch returns ...
+pmResult dump from ADDR timestamp: 957177445.109313 20:37:25.109 numpmid: 1
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value 380472
+pmFetch returns ...
+pmResult dump from ADDR timestamp: 957177450.109313 20:37:30.109 numpmid: 2
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value 380477
+  29.0.3 (sample.milliseconds): numval: 1 valfmt: 1 vlist[]:
+   value 380476679.4082579
+pmFetch returns ...
+pmResult dump from ADDR timestamp: 957177455.109313 20:37:35.109 numpmid: 1
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value 380482
+pmFetch returns ...
+pmResult dump from ADDR timestamp: 957177465.109313 20:37:45.109 numpmid: 1
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value 380492
+pmFetch returns ...
+pmResult dump from ADDR timestamp: 957177465.109313 20:37:45.109 numpmid: 2
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value 380492
+  29.0.3 (sample.milliseconds): numval: 1 valfmt: 1 vlist[]:
+   value 380491679.4140744
+[DATE] pmie(PID) Info: evaluator exiting

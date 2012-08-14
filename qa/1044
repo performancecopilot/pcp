@@ -1,0 +1,140 @@
+#! /bin/sh
+# PCP QA Test No. 1044 (formerly 525)
+# exercises pmieconf cmd line
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=nathans
+
+seq=`basename $0`
+
+if which pmieconf >/dev/null 2>&1
+then
+    :
+else
+    echo "No pmieconf binary installed" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+
+_cleanup()
+{
+   [ -f $tmp.save ] && cp $tmp.save $HOME/.pcp/pmie/config.pmie
+   rm -f $tmp.*
+   exit $status
+}
+
+filterpmieerr()
+{
+    sed -e '
+/^pmieconf:.* already been used,/ {
+    s/"[^"]*"/"SOME.RULE"/
+}
+/, line [0-9]*\./ {
+    s/, line [0-9]*\./, line LINENUMBER./
+    s/"\.\/pconf\/.*",/"\.\/pconf\/SOME\/RULE",/
+}'
+}
+
+trap "_cleanup" 0 1 2 3 15
+# keep this to restore later in case its someones local pmie config file
+[ -f $HOME/.pcp/pmie/config.pmie ] && cp $HOME/.pcp/pmie/config.pmie $tmp.save
+rm -f $HOME/.pcp/pmie/config.pmie
+
+# real QA test starts here
+
+echo
+echo "=== basic test - check that we get one rule..."
+pmieconf -r ./pconf list memory
+
+echo
+echo "=== basic test - check that we get one rule..."
+pmieconf -r ./pconf l memory.exhausted
+
+echo
+echo "=== check for non-existant rules location"
+pmieconf -r /no/such/file -v 5 all
+
+rm -f $seq.full
+echo
+echo "=== check no fatal errors when creating config.pmie"
+pmieconf -r ./pconf -f $seq.full -F >/dev/null 2>$tmp.out
+sed -e "s/$$/PID/g" $tmp.out
+wc -l <$seq.full | sed -e 's/ //g'	# check the file is what we expect
+head -2 $seq.full			# check the initial lines generated OK
+
+echo
+echo "=== check generated config.pmie is good pmie syntax"
+# Mac OS X issue ... swap.pagesout is not supported, so we get
+# pmie: metric swap.pagesout not in namespace for host Colleens-iMac.local
+# pmLookupName failed: Unknown metric name
+#
+# Solaris issue ... some filesys.* metrics and swap.pagesout not
+# supported, so similar problem there
+#
+pmie -C $seq.full >$tmp.out 2>&1
+sts=$?
+
+if [ $PCP_PLATFORM = darwin ]
+then
+    $PCP_AWK_PROG <$tmp.out '
+BEGIN						{ skip = 0 }
+/pmie: metric swap.pagesout not in namespace/	{ skip = 2 }
+skip > 0					{ skip--; next }
+						{ print }'
+elif [ $PCP_PLATFORM = solaris ]
+then
+    $PCP_AWK_PROG <$tmp.out '
+BEGIN						{ skip = 0 }
+/pmie: metric filesys.used not in namespace/	{ skip = 2 }
+/pmie: metric filesys.capacity not in namespace/{ skip = 2 }
+/pmie: metric swap.pagesout not in namespace/	{ skip = 2 }
+skip > 0					{ skip--; next }
+						{ print }'
+else
+    cat $tmp.out
+fi
+
+echo status=$sts
+
+cat > $tmp.input << EOF
+list all
+quit
+EOF
+echo
+echo "=== check interactive similar to command line...."
+pmieconf -r ./pconf list all > $tmp.cmdline
+pmieconf -r ./pconf > $tmp.interact < $tmp.input
+echo >> $tmp.interact
+diff $tmp.cmdline $tmp.interact | sed -e "s,$HOME,HOME,g"
+
+echo
+echo "=== check rules path & duplicate rule names (-r)..."
+pmieconf -F -r ./pconf:./pconf 2>&1 | filterpmieerr
+echo status=$?
+
+echo
+echo "=== check rules path & duplicate rule names (env)..."
+PMIECONF_PATH=./pconf:/no/such/rules:./pconf
+export PMIECONF_PATH
+pmieconf -F -r ./pconf:./pconf 2>&1 | filterpmieerr
+echo status=$?
+
+echo
+echo "=== check env variable gets used over default..."
+pmieconf list all
+echo status=$?
+
+# success, all done
+status=0
+exit

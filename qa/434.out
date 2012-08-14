@@ -1,0 +1,116 @@
+QA output created by 434
+pmval: Cannot connect to PMCD on host "no.such.host": No route to host
+no.such.host - exit status 1
+pmval: Cannot open archive "no.such.archive": No such file or directory
+no.such.archive - exit status 1
+
+pmval: pmLookupName(no.such.metric): Unknown metric name
+no.such.metric - exit status 1
+
+pmval: instance no.such.instance not available
+no.such.instance - exit status 1
+Error: no metricname specified
+
+Usage: pmval [options] metricname
+
+Options:
+  -A align      align sample times on natural boundaries
+  -a archive    metrics source is a PCP log archive (interpolate values)
+  -d            delay, pause between updates for archive replay
+  -f N          fixed precision output format with N digits to the
+                right of the decimal point
+  -g            start in GUI mode with new time control
+  -h host       metrics source is PMCD on host
+  -i instance   metric instance or list of instances - elements in an
+                instance list are separated by commas or whitespace
+  -K spec       optional additional PMDA spec for local connection
+                spec is of the form op,domain,dso-path,init-routine
+  -n pmnsfile   use an alternative PMNS
+  -O offset     initial offset into the time window
+  -p port       port number for connection to existing time control
+  -r            output raw counter values
+  -S starttime  start of the time window
+  -s samples    terminate after this many samples
+  -T endtime    end of the time window
+  -t interval   sample interval [default 1 second]
+  -U archive    metrics source is a PCP log archive (do not interpolate
+                and -t option ignored)
+  -w width      set the width of each column of output
+  -Z timezone   set reporting timezone
+  -z            set reporting timezone to local time of metrics source
+usage - exit status 1
+
+metric:    sample.seconds
+host:      localhost
+semantics: cumulative counter (converting to rate)
+units:     sec (converting to time utilization)
+samples:   0
+counter -s 0 - exit status 0
+
+metric:    sample.seconds
+host:      localhost
+semantics: cumulative counter (converting to rate)
+units:     sec (converting to time utilization)
+samples:   1
+NUMBER
+counter -s 1 - exit status 0
+
+metric:    sample.seconds
+host:      localhost
+semantics: cumulative counter (converting to rate)
+units:     sec (converting to time utilization)
+samples:   2
+interval:  0.10 sec
+NUMBER
+NUMBER
+counter -s 2 - exit status 0
+
+metric:    sample.seconds
+host:      localhost
+semantics: cumulative counter
+units:     sec
+samples:   0
+counter -r -s 0 - exit status 0
+
+metric:    sample.seconds
+host:      localhost
+semantics: cumulative counter
+units:     sec
+samples:   1
+NUMBER
+counter -r -s 1 - exit status 0
+
+metric:    sample.seconds
+host:      localhost
+semantics: cumulative counter
+units:     sec
+samples:   2
+interval:  0.10 sec
+NUMBER
+NUMBER
+counter -r -s 2 - exit status 0
+
+metric:    sample.long.ten
+host:      localhost
+semantics: instantaneous value
+units:     none
+samples:   0
+instantaneuos -s 0 - exit status 0
+
+metric:    sample.long.ten
+host:      localhost
+semantics: instantaneous value
+units:     none
+samples:   1
+NUMBER
+instantaneuos -s 1 - exit status 0
+
+metric:    sample.long.ten
+host:      localhost
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  0.10 sec
+NUMBER
+NUMBER
+instantaneuos -s 2 - exit status 0

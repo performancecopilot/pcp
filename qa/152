@@ -1,0 +1,43 @@
+#! /bin/sh
+# PCP QA Test No. 152
+# pmcd.numclients was incorrect
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+pminfo -f pmcd.numclients >$tmp.out
+N=`sed -n '/value/s/    value //p' $tmp.out`
+sed "s/$N/N/" $tmp.out
+N=`expr $N + 4`
+
+KILL=""
+for i in 1 2 3 4
+do
+    sh -c "pmval -s2 -t5 pmcd.numagents" >/dev/null 2>&1 &
+    KILL="$KILL $!"
+done
+
+sleep 2
+pminfo -f pmcd.numclients >$tmp.out
+
+wait
+
+if grep "value $N" $tmp.out >/dev/null
+then
+    sed "s/$N/N+4/" $tmp.out
+else
+    echo "Error: expected value $N"
+    cat $tmp.out
+fi
+
+exit 0

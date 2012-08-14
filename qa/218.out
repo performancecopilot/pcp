@@ -1,0 +1,25 @@
+QA output created by 218
+=== pminfo, no mark, no core ===
+
+sample.long.ten
+    value 10
+
+=== pmdumplog, mark ===
+
+
+TIMESTAMP  29.0.10 (sample.long.one): value 1
+              29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+
+TIMESTAMP  <mark>
+
+
+TIMESTAMP  29.0.11 (sample.long.ten): value 10

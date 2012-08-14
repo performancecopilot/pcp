@@ -1,0 +1,163 @@
+QA output created by 476
+control file parsing ...
+Ignoring: TMP.control[16]: non-numeric threshold: bad1	>	12x3456
+Ignoring: TMP.control[18]: non-numeric threshold: bad2	!=	123 456
+Ignoring: TMP.control[20]: illegal operator: bad3 ! = 1 2 3
+Ignoring: TMP.control[22]: non-numeric threshold: bad4 > = 1 2 3
+Ignoring: TMP.control[24]: illegal operator: bad5 ?
+__pmFaultInject(test) not registered
+=== Fault Injection Summary Report ===
+ok1: guard trip>0, 0 trips, 0 faults
+ok2: guard trip>3, 0 trips, 0 faults
+ok3: guard trip%10, 0 trips, 0 faults
+ok4: guard trip<=100, 0 trips, 0 faults
+ok_with_a_long_ident_and_funny_chars,./<>()?[]{}|\:;"'!@#$%^&*+-_=5: guard trip==42, 0 trips, 0 faults
+ok6: guard trip%23, 0 trips, 0 faults
+ok7: guard trip!=42, 0 trips, 0 faults
+
+basic exercises ...
+__pmFaultInject(QA:1) ntrip=1 INJECT
+malloc:1[1] Cannot allocate memory
+__pmFaultInject(QA:2) ntrip=1 INJECT
+malloc:2[1] Cannot allocate memory
+__pmFaultInject(QA:3) ntrip=1 SKIP
+__pmFaultInject(QA:1) ntrip=2 INJECT
+malloc:1[2] Cannot allocate memory
+__pmFaultInject(QA:2) ntrip=2 INJECT
+malloc:2[2] Cannot allocate memory
+__pmFaultInject(QA:3) ntrip=2 SKIP
+__pmFaultInject(QA:1) ntrip=3 INJECT
+malloc:1[3] Cannot allocate memory
+__pmFaultInject(QA:2) ntrip=3 INJECT
+malloc:2[3] Cannot allocate memory
+__pmFaultInject(QA:3) ntrip=3 SKIP
+__pmFaultInject(QA:1) ntrip=4 INJECT
+malloc:1[4] Cannot allocate memory
+__pmFaultInject(QA:2) ntrip=4 SKIP
+__pmFaultInject(QA:3) ntrip=4 SKIP
+__pmFaultInject(QA:1) ntrip=5 INJECT
+malloc:1[5] Cannot allocate memory
+__pmFaultInject(QA:2) ntrip=5 SKIP
+__pmFaultInject(QA:3) ntrip=5 INJECT
+malloc:3[5] Cannot allocate memory
+__pmFaultInject(QA:1) ntrip=6 INJECT
+malloc:1[6] Cannot allocate memory
+__pmFaultInject(QA:2) ntrip=6 SKIP
+__pmFaultInject(QA:3) ntrip=6 INJECT
+malloc:3[6] Cannot allocate memory
+__pmFaultInject(QA:1) ntrip=7 INJECT
+malloc:1[7] Cannot allocate memory
+__pmFaultInject(QA:2) ntrip=7 SKIP
+__pmFaultInject(QA:3) ntrip=7 INJECT
+malloc:3[7] Cannot allocate memory
+__pmFaultInject(QA:1) ntrip=8 INJECT
+malloc:1[8] Cannot allocate memory
+__pmFaultInject(QA:2) ntrip=8 SKIP
+__pmFaultInject(QA:3) ntrip=8 INJECT
+malloc:3[8] Cannot allocate memory
+__pmFaultInject(QA:1) ntrip=9 INJECT
+malloc:1[9] Cannot allocate memory
+__pmFaultInject(QA:2) ntrip=9 SKIP
+__pmFaultInject(QA:3) ntrip=9 INJECT
+malloc:3[9] Cannot allocate memory
+__pmFaultInject(QA:1) ntrip=10 INJECT
+malloc:1[10] Cannot allocate memory
+__pmFaultInject(QA:2) ntrip=10 SKIP
+__pmFaultInject(QA:3) ntrip=10 INJECT
+malloc:3[10] Cannot allocate memory
+=== Fault Injection Summary Report ===
+QA:1: guard trip>0, 10 trips, 10 faults
+QA:2: guard trip<4, 10 trips, 3 faults
+QA:3: guard trip>=5, 10 trips, 6 faults
+
+__pmFaultInject(QA:1) ntrip=1 INJECT
+malloc:1[1] Cannot allocate memory
+__pmFaultInject(QA:2) ntrip=1 SKIP
+__pmFaultInject(QA:3) ntrip=1 SKIP
+__pmFaultInject(QA:1) ntrip=2 INJECT
+malloc:1[2] Cannot allocate memory
+__pmFaultInject(QA:2) ntrip=2 SKIP
+__pmFaultInject(QA:3) ntrip=2 SKIP
+__pmFaultInject(QA:1) ntrip=3 INJECT
+malloc:1[3] Cannot allocate memory
+__pmFaultInject(QA:2) ntrip=3 SKIP
+__pmFaultInject(QA:3) ntrip=3 SKIP
+__pmFaultInject(QA:1) ntrip=4 INJECT
+malloc:1[4] Cannot allocate memory
+__pmFaultInject(QA:2) ntrip=4 SKIP
+__pmFaultInject(QA:3) ntrip=4 SKIP
+__pmFaultInject(QA:1) ntrip=5 SKIP
+__pmFaultInject(QA:2) ntrip=5 INJECT
+malloc:2[5] Cannot allocate memory
+__pmFaultInject(QA:3) ntrip=5 SKIP
+__pmFaultInject(QA:1) ntrip=6 SKIP
+__pmFaultInject(QA:2) ntrip=6 SKIP
+__pmFaultInject(QA:3) ntrip=6 INJECT
+malloc:3[6] Cannot allocate memory
+__pmFaultInject(QA:1) ntrip=7 SKIP
+__pmFaultInject(QA:2) ntrip=7 SKIP
+__pmFaultInject(QA:3) ntrip=7 INJECT
+malloc:3[7] Cannot allocate memory
+__pmFaultInject(QA:1) ntrip=8 SKIP
+__pmFaultInject(QA:2) ntrip=8 SKIP
+__pmFaultInject(QA:3) ntrip=8 INJECT
+malloc:3[8] Cannot allocate memory
+__pmFaultInject(QA:1) ntrip=9 SKIP
+__pmFaultInject(QA:2) ntrip=9 SKIP
+__pmFaultInject(QA:3) ntrip=9 INJECT
+malloc:3[9] Cannot allocate memory
+__pmFaultInject(QA:1) ntrip=10 SKIP
+__pmFaultInject(QA:2) ntrip=10 SKIP
+__pmFaultInject(QA:3) ntrip=10 INJECT
+malloc:3[10] Cannot allocate memory
+=== Fault Injection Summary Report ===
+QA:1: guard trip<=4, 10 trips, 4 faults
+QA:2: guard trip==5, 10 trips, 1 faults
+QA:3: guard trip>5, 10 trips, 5 faults
+
+__pmFaultInject(QA:1) ntrip=1 INJECT
+malloc:1[1] Cannot allocate memory
+__pmFaultInject(QA:2) not registered
+__pmFaultInject(QA:3) ntrip=1 INJECT
+malloc:3[1] Cannot allocate memory
+__pmFaultInject(QA:1) ntrip=2 INJECT
+malloc:1[2] Cannot allocate memory
+__pmFaultInject(QA:2) not registered
+__pmFaultInject(QA:3) ntrip=2 SKIP
+__pmFaultInject(QA:1) ntrip=3 SKIP
+__pmFaultInject(QA:2) not registered
+__pmFaultInject(QA:3) ntrip=3 SKIP
+__pmFaultInject(QA:1) ntrip=4 INJECT
+malloc:1[4] Cannot allocate memory
+__pmFaultInject(QA:2) not registered
+__pmFaultInject(QA:3) ntrip=4 INJECT
+malloc:3[4] Cannot allocate memory
+__pmFaultInject(QA:1) ntrip=5 INJECT
+malloc:1[5] Cannot allocate memory
+__pmFaultInject(QA:2) not registered
+__pmFaultInject(QA:3) ntrip=5 SKIP
+__pmFaultInject(QA:1) ntrip=6 INJECT
+malloc:1[6] Cannot allocate memory
+__pmFaultInject(QA:2) not registered
+__pmFaultInject(QA:3) ntrip=6 SKIP
+__pmFaultInject(QA:1) ntrip=7 INJECT
+malloc:1[7] Cannot allocate memory
+__pmFaultInject(QA:2) not registered
+__pmFaultInject(QA:3) ntrip=7 INJECT
+malloc:3[7] Cannot allocate memory
+__pmFaultInject(QA:1) ntrip=8 INJECT
+malloc:1[8] Cannot allocate memory
+__pmFaultInject(QA:2) not registered
+__pmFaultInject(QA:3) ntrip=8 SKIP
+__pmFaultInject(QA:1) ntrip=9 INJECT
+malloc:1[9] Cannot allocate memory
+__pmFaultInject(QA:2) not registered
+__pmFaultInject(QA:3) ntrip=9 SKIP
+__pmFaultInject(QA:1) ntrip=10 INJECT
+malloc:1[10] Cannot allocate memory
+__pmFaultInject(QA:2) not registered
+__pmFaultInject(QA:3) ntrip=10 INJECT
+malloc:3[10] Cannot allocate memory
+=== Fault Injection Summary Report ===
+QA:1: guard trip!=3, 10 trips, 9 faults
+QA:3: guard trip%3, 10 trips, 4 faults

@@ -1,0 +1,16 @@
+QA output created by 541
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+
+=== operator some_inst ===
+sample.dynamic.counter 1 "zero"
+sample.dynamic.counter 2 "one" "two"
+counter: zero:?
+counter: one:? two:?
+
+=== operator all_inst ===
+sample.dynamic.counter 1 "zero"
+sample.dynamic.counter 2 "one" "two"
+counter: zero:?
+counter: one:? two:?

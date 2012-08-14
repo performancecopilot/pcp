@@ -1,0 +1,54 @@
+#! /bin/sh
+# PCP QA Test No. 077
+# exercise new _pm*Zone* functions
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+if [ $PCP_VER -lt 3600 ]
+then
+    # V1 archives supported
+    arch=src-oss/babylon.percpu
+else
+    # no support for V1 archives
+    arch=src-oss/babylon.percpu_v2
+fi
+
+status=0
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+remote=`./getpmcdhosts -n 1 -L`
+if [ -z "$remote" ]
+then
+    # errors reported from getpmcdhosts ...
+    #
+    status=1
+    exit
+fi
+
+# real QA test starts here
+echo "source local, local time"
+src-oss/exertz | sed -e '/PMAPI context/s/:.*/: LOCAL TIME at epoch/'
+
+echo ""
+echo "source local, Zulu time"
+src-oss/exertz -Z "ZST-4"
+
+echo ""
+echo "source remotehost, local time"
+src-oss/exertz -h $remote | sed -e '/PMAPI context/s/:.*/: LOCAL TIME at epoch/'
+
+echo ""
+echo "source remotehost, remotehost time"
+src-oss/exertz -h $remote -z $remote | sed -e '/PMAPI context/s/:.*/: REMOTE TIME at epoch/'
+
+echo ""
+echo "source babylon archive, babylon time"
+src-oss/exertz -a $arch -z babylon

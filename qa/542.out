@@ -1,0 +1,16 @@
+QA output created by 542
+
+=== %H:%M ===
+match
+
+=== %A %B ===
+match
+
+=== %c ===
+match
+
+=== some stuff to pad: %c ===
+match
+
+=== error checks ===
+pmdate: format too long

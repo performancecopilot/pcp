@@ -1,0 +1,84 @@
+QA output created by 010
+
+Value: 123 0x000000000000007b
+(long) 123 => (long) 123
+(long) 123 => (ulong) 123
+(long) 123 => (longlong) 123
+(long) 123 => (ulonglong) 123
+(long) 123 => (float) 1.230000e+02
+(long) 123 => (double) 1.230000e+02
+(long) 123 => (char *) : Impossible value or scale conversion
+(long) 123 => (pmValueBlock *) : Impossible value or scale conversion
+(long) 123 => (pmEventArray) : Impossible value or scale conversion
+(ulong) 123 => (long) 123
+(ulong) 123 => (ulong) 123
+(ulong) 123 => (longlong) 123
+(ulong) 123 => (ulonglong) 123
+(ulong) 123 => (float) 1.230000e+02
+(ulong) 123 => (double) 1.230000e+02
+(ulong) 123 => (char *) : Impossible value or scale conversion
+(ulong) 123 => (pmValueBlock *) : Impossible value or scale conversion
+(ulong) 123 => (pmEventArray) : Impossible value or scale conversion
+(longlong) 123 => (long) 123
+(longlong) 123 => (ulong) 123
+(longlong) 123 => (longlong) 123
+(longlong) 123 => (ulonglong) 123
+(longlong) 123 => (float) 1.230000e+02
+(longlong) 123 => (double) 1.230000e+02
+(longlong) 123 => (char *) : Impossible value or scale conversion
+(longlong) 123 => (pmValueBlock *) : Impossible value or scale conversion
+(longlong) 123 => (pmEventArray) : Impossible value or scale conversion
+(ulonglong) 123 => (long) 123
+(ulonglong) 123 => (ulong) 123
+(ulonglong) 123 => (longlong) 123
+(ulonglong) 123 => (ulonglong) 123
+(ulonglong) 123 => (float) 1.230000e+02
+(ulonglong) 123 => (double) 1.230000e+02
+(ulonglong) 123 => (char *) : Impossible value or scale conversion
+(ulonglong) 123 => (pmValueBlock *) : Impossible value or scale conversion
+(ulonglong) 123 => (pmEventArray) : Impossible value or scale conversion
+(float) 1.230000e+02 => (long) 123
+(float) 1.230000e+02 => (ulong) 123
+(float) 1.230000e+02 => (longlong) 123
+(float) 1.230000e+02 => (ulonglong) 123
+(float) 1.230000e+02 => (float) 1.230000e+02
+(float) 1.230000e+02 => (double) 1.230000e+02
+(float) 1.230000e+02 => (char *) : Impossible value or scale conversion
+(float) 1.230000e+02 => (pmValueBlock *) : Impossible value or scale conversion
+(float) 1.230000e+02 => (pmEventArray) : Impossible value or scale conversion
+(double) 1.230000e+02 => (long) 123
+(double) 1.230000e+02 => (ulong) 123
+(double) 1.230000e+02 => (longlong) 123
+(double) 1.230000e+02 => (ulonglong) 123
+(double) 1.230000e+02 => (float) 1.230000e+02
+(double) 1.230000e+02 => (double) 1.230000e+02
+(double) 1.230000e+02 => (char *) : Impossible value or scale conversion
+(double) 1.230000e+02 => (pmValueBlock *) : Impossible value or scale conversion
+(double) 1.230000e+02 => (pmEventArray) : Impossible value or scale conversion
+(char *) "123" => (long) : Impossible value or scale conversion
+(char *) "123" => (ulong) : Impossible value or scale conversion
+(char *) "123" => (longlong) : Impossible value or scale conversion
+(char *) "123" => (ulonglong) : Impossible value or scale conversion
+(char *) "123" => (float) : Impossible value or scale conversion
+(char *) "123" => (double) : Impossible value or scale conversion
+(char *) "123" => (char *) "123"
+(char *) "123" => (pmValueBlock *) : Impossible value or scale conversion
+(char *) "123" => (pmEventArray) : Impossible value or scale conversion
+(pmValueBlock *) [vlen=12] 0000007a 0000007b 0000007c => (long) : Impossible value or scale conversion
+(pmValueBlock *) [vlen=12] 0000007a 0000007b 0000007c => (ulong) : Impossible value or scale conversion
+(pmValueBlock *) [vlen=12] 0000007a 0000007b 0000007c => (longlong) : Impossible value or scale conversion
+(pmValueBlock *) [vlen=12] 0000007a 0000007b 0000007c => (ulonglong) : Impossible value or scale conversion
+(pmValueBlock *) [vlen=12] 0000007a 0000007b 0000007c => (float) : Impossible value or scale conversion
+(pmValueBlock *) [vlen=12] 0000007a 0000007b 0000007c => (double) : Impossible value or scale conversion
+(pmValueBlock *) [vlen=12] 0000007a 0000007b 0000007c => (char *) : Impossible value or scale conversion
+(pmValueBlock *) [vlen=12] 0000007a 0000007b 0000007c => (pmValueBlock *) [vlen=12] 0000007a 0000007b 0000007c
+(pmValueBlock *) [vlen=12] 0000007a 0000007b 0000007c => (pmEventArray) : Impossible value or scale conversion
+(pmEventArray) [1 event records] => (long) : Impossible value or scale conversion
+(pmEventArray) [1 event records] => (ulong) : Impossible value or scale conversion
+(pmEventArray) [1 event records] => (longlong) : Impossible value or scale conversion
+(pmEventArray) [1 event records] => (ulonglong) : Impossible value or scale conversion
+(pmEventArray) [1 event records] => (float) : Impossible value or scale conversion
+(pmEventArray) [1 event records] => (double) : Impossible value or scale conversion
+(pmEventArray) [1 event records] => (char *) : Impossible value or scale conversion
+(pmEventArray) [1 event records] => (pmValueBlock *) : Impossible value or scale conversion
+(pmEventArray) [1 event records] => (pmEventArray) : Impossible value or scale conversion

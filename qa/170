@@ -1,0 +1,78 @@
+#! /bin/sh
+# PCP QA Test No. 170
+# Test $PCP_RC_DIR/pcp script pmcd log location
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.product
+. ./common.check
+. ./common.filter
+
+status=0
+
+_cleanup()
+{
+    [ -f $tmp.save ] && $sudo mv $tmp.save $PCP_PMCDOPTIONS_PATH
+    $sudo rm -f $tmp.*
+    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+    exit $status
+}
+
+trap _cleanup 0 1 2 3 15
+
+# real QA test starts here
+
+rm -rf $tmp.* $seq.full
+echo "First, the standard logfile:" | tee -a $seq.full
+$sudo $PCP_RC_DIR/pcp stop >/dev/null
+$sudo rm -f $PCP_LOG_DIR/pmcd/pmcd.log
+$sudo $PCP_RC_DIR/pcp start | tee -a $seq.full >$tmp.out
+_wait_for_pmcd
+_wait_for_pmlogger
+grep -i 'starting pmcd' $tmp.out | _filter_pcp_start
+if [ -f $PCP_LOG_DIR/pmcd/pmcd.log ]
+then
+    echo '$PCP_LOG_DIR/pmcd/pmcd.log created'
+else
+    echo 'Error: $PCP_LOG_DIR/pmcd/pmcd.log not created'
+    status=1
+fi
+echo ""
+
+cp $PCP_PMCDOPTIONS_PATH $tmp.save
+cp $PCP_PMCDOPTIONS_PATH $tmp.options
+cat <<End-Of-File >>$tmp.options
+# Dummy lines added by PCP QA test 170
+#
+-l $tmp.1.pmcd.log
+-l $tmp.2.pmcd.log
+End-Of-File
+$sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
+
+echo "The logfile from the hacked \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee -a $seq.full
+$sudo $PCP_RC_DIR/pcp restart | tee -a $seq.full >$tmp.out
+_wait_for_pmcd
+_wait_for_pmlogger
+grep -i 'starting pmcd' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start
+if [ -f $tmp.1.pmcd.log ]
+then
+    echo 'Error: $tmp.1.pmcd.log created unexpectedly'
+    ls -l $tmp.1.pmcd.log
+    cat $tmp.1.pmcd.log
+    status=1
+fi
+if [ -f $tmp.2.pmcd.log ]
+then
+    echo '$tmp.2.pmcd.log created'
+else
+    echo 'Error: $tmp.2.pmcd.log not created'
+    status=1
+fi
+
+exit

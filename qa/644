@@ -1,0 +1,45 @@
+#! /bin/sh
+# PCP QA Test No. 644
+# concurrent Rebuild executions trash the PMNS?
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "_done; exit \$status" 0 1 2 3 15
+
+_done()
+{
+    cd $PCP_VAR_DIR/pmns
+    $sudo ./Rebuild -u </dev/null >/dev/null 2>&1
+    $sudo rm -f $tmp.*
+}
+
+# real QA test starts here
+cd $PCP_VAR_DIR/pmns
+
+for i in 1 2 3 4 5
+do
+    $sudo ./Rebuild -u </dev/null >$tmp.out.$i 2>&1 &
+done
+
+wait
+
+for i in 1 2 3 4 5
+do
+    echo
+    echo "=== Rebuild #$i ==="
+    cat $tmp.out.$i
+done
+
+# success, all done
+exit

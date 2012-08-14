@@ -1,0 +1,77 @@
+#! /bin/sh
+# PCP QA Test No. 145
+# Duplicate PMIDs in the PMNS
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+
+_filter()
+{
+    # initial ones are regular stuff ...
+    # later ones are for systems that are not network byte ordered
+    #
+    sed \
+	-e 's/ fd=[0-9][0-9]*/ fd=<n>/' \
+	-e 's/dump from.*/dump from .../' \
+	-e 's/^\[[0-9][0-9]*]/[PID]/' \
+	-e 's/from=[0-9][0-9]*/from=PMCD/' \
+	-e '/^000:/{
+s/\(000:.................. \)......../\1    FROM/
+s/\(000:..............7001......... \)........ ......../\1    DATE    STAMP/
+}' \
+	-e 's/ 1000000  b004007  1000000/       1  740000b        1/' \
+	-e 's/ 1000000      201/       1  1020000/' \
+	-e 's/ 1000000  b004007/       1  740000b/' \
+	-e 's/ffffffff  a000000/ffffffff        a/' \
+	-e 's/ffffffff  3000000/ffffffff        3/' \
+	-e 's/  b004007/  740000b/' \
+	-e 's/      102/  2010000/' \
+	-e 's/      201/  1020000/'
+}
+
+# real QA test starts here
+cat >$tmp <<End-of-File
+root {
+    ten		29:0:11
+    another_ten	29:0:11
+    yet
+}
+
+yet {
+    another
+    again	29:0:11
+}
+
+yet.another {
+    ten		29:0:11
+}
+End-of-File
+
+pminfo -b1 -n $tmp
+if [ $PCP_VER -lt 3600 ]
+then
+    pmnscomp -df -n $tmp $tmp.bin
+    rm -f $tmp
+    pminfo -b1 -D1 -n $tmp -fdm 2>&1 | _filter
+else
+    pminfo -b1 -D1 -N $tmp -fdm 2>&1 | _filter
+fi

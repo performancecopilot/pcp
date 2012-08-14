@@ -1,0 +1,275 @@
+#!/bin/sh
+# PCP QA Test No. 366
+# pmlogconf - migrate from version 1.0 to 2.0
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if [ -f $PCP_BINADM_DIR/pmlogconf-setup ]
+then
+    :
+else
+    _notrun "pmlogconf version 2.0 not installed"
+fi
+
+echo "QA output created by $seq"
+
+. ./localconfig
+rm -f $seq.out
+if [ -f $seq.$PCP_PLATFORM ]
+then
+    ln $seq.$PCP_PLATFORM $seq.out
+else
+    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+    exit 1
+fi
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<'End-of-File' >$tmp.conf
+#pmlogconf 1.0
+# pmlogconf.sh control file version
+#
+# pmlogger(1) config file created and updated by
+# pmlogconf.sh(1).
+#
+# DO NOT UPDATE THE INTITIAL SECTION OF THIS FILE.
+# Any changes may be lost the next time pmlogconf.sh is used
+# on this file.
+#
+
+# System configuration
+#
+#+ I0:n:once:
+## hardware configuration [nodevis, osvis, oview, routervis,
+## pmchart:Overview]
+#----
+
+# Disk activity
+#
+#+ D0:n:default:
+## activity (IOPs and bytes for both reads and writes) over all disks
+## [osvis, pmstat, pmchart:Disk, pmchart:Overview]
+#----
+#+ D1:n:default:
+## per controller disk activity [pmchart:DiskCntrls]
+#----
+#+ D2:n:default:
+## per spindle disk activity [dkvis, pmie:per_disk]
+#----
+#+ D3:n:default:
+## all available data per disk spindle
+#----
+
+# CPU activity
+#
+#+ C0:n:default:
+## utilization (usr, sys, idle, ...) over all CPUs [osvis, pmstat,
+## pmchart:CPU, pmchart:Overview, pmie:cpu]
+#----
+#+ C2:n:default:
+## contributions to CPU wait time
+#----
+#+ C1:n:default:
+## utilization per CPU [clustervis, mpvis, nodevis, oview, pmie:cpu,
+## pmie:per_cpu]
+#----
+#+ C3:n:default:
+## per CPU contributions to wait time
+#----
+
+# Kernel activity
+#
+#+ K0:n:default:
+## load average and number of logins [osvis, pmstat, pmchart:LoadAvg,
+## pmchart:Overview, pmie:cpu]
+#----
+#+ Ka:n:default:
+## run and swap queues [pmkstat]
+#----
+#+ K1:n:default:
+## context switches, total syscalls and counts for selected calls (e.g. read,
+## write, fork, exec, select) over all CPUs [pmstat, pmchart:Syscalls,
+## pmie:cpu]
+#----
+#+ K2:n:default:
+## per CPU context switches, total syscalls and counts for selected calls
+## [pmie:per_cpu]
+#----
+#+ K3:n:default:
+## bytes across the read() and write() syscall interfaces
+#----
+#+ K4:n:default:
+## interrupts [pmkstat]
+#----
+#+ K5:n:default:
+## buffer cache reads, writes, hits and misses [pmchart:BufferCache,
+## pmie:filesys]
+#----
+#+ K6:n:default:
+## all available buffer cache data
+#----
+#+ K7:n:default:
+## vnode activity
+#----
+#+ K8:n:default:
+## name cache (namei, iget, etc) activity [pmchart:DNLC, pmie:filesys]
+#----
+#+ K9:n:default:
+## asynchronous I/O activity
+#----
+
+# Memory
+#
+#+ M0:n:default:
+## pages in and out (severe VM demand) [pmstat, pmchart:Paging]
+#----
+#+ M1:n:default:
+## address translation (faults and TLB activity)
+#----
+#+ M2:n:default:
+## kernel memory allocation [osvis, pmstat, pmchart:Memory, pmchart:Overview]
+#----
+#+ M3:n:default:
+## current swap allocation and all swap activity [pmchart:Swap, pmie:memory]
+#----
+#+ M4:n:default:
+## swap configuration
+#----
+#+ M5:n:default:
+## "large" page and Origin node-based allocations and activity [nodevis,
+## oview]
+#----
+#+ M7:n:default:
+## NUMA migration stats [nodevis, oview]
+#----
+#+ M6:n:default:
+## all NUMA stats
+#----
+
+# Network
+#
+#+ N0:n:default:
+## bytes and packets (in and out) and bandwidth per network interface
+## [clustervis, osvis, pmchart:NetBytes, pmchart:Overview, pmie:per_netif]
+#----
+#+ N1:n:default:
+## all available data per network interface
+#----
+#+ N2:n:default:
+## TCP bytes and packets (in and out), connects, accepts, drops and closes
+## [pmchart:NetConnDrop, pmchart:NetPackets, pmie:network]
+#----
+#+ N3:n:default:
+## all available TCP data [pmchart:NetTCPCongestion]
+#----
+#+ N4:n:default:
+## UDP packets in and out [pmchart:NetPackets]
+#----
+#+ N5:n:default:
+## all available UDP data
+#----
+#+ N6:n:default:
+## socket stats (counts by type and state)
+#----
+#+ N7:n:default:
+## all available data for other protocols (IP, ICMP, IGMP)
+#----
+#+ N8:n:default:
+## mbuf stats (alloc, failed, waited, etc) [pmie:network]
+#----
+#+ N9:n:default:
+## multicast routing stats
+#----
+#+ Na:n:default:
+## SVR5 streams activity
+#----
+
+# Services
+#
+#+ S0:n:default:
+## NFS2 stats [nfsvis, pmchart:NFS2]
+#----
+#+ S1:n:default:
+## NFS3 stats [nfsvis, pmchart:NFS3]
+#----
+#+ S2:n:default:
+## RPC stats [pmie:rpc]
+#----
+
+# Filesystems and Volumes
+#
+#+ F0:n:default:
+## Filesystem fullness [pmchart:FileSystem, pmie:filesys]
+#----
+#+ F1:n:default:
+## XFS data and log traffic
+#----
+#+ F2:n:default:
+## all available XFS data
+#----
+#+ F3:n:default:
+## XLV operations and bytes per volume [xlv_vis]
+#----
+#+ F4:n:default:
+## XLV striped volume stats [xlv_vis]
+#----
+#+ F6:n:default:
+## XVM operations and bytes per volume
+#----
+#+ F7:n:default:
+## XVM stripe, mirror and concat volume stats [pmie:xvm]
+#----
+#+ F8:n:default:
+## all available XVM data
+#----
+#+ F5:n:default:
+## EFS activity
+#----
+
+# Hardware event counters
+#
+#+ H0:n:default:
+## NUMALink routers [nodevis, oview, routervis, pmchart:NUMALinks,
+## pmie:craylink]
+#----
+#+ H1:n:default:
+## Origin hubs [pmie:craylink]
+#----
+#+ H2:n:default:
+## global MIPS CPU event counters (enable first with ecadmin(1))
+#----
+#+ H3:n:default:
+## XBOW activity [xbowvis]
+#----
+
+# DO NOT UPDATE THE FILE ABOVE THIS LINE
+# Otherwise any changes may be lost the next time pmlogconf.sh is
+# used on this file.
+#
+# It is safe to make additions from here on ...
+#
+
+End-of-File
+cp $tmp.conf $tmp.orig
+
+# real QA test starts here
+echo q \
+| $PCP_BINADM_DIR/pmlogconf $tmp.conf >/dev/null
+
+cat $tmp.conf >$seq.full
+
+diff $tmp.orig $tmp.conf \
+| sed -e '/^[0-9]/d'
+
+# success, all done
+exit

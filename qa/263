@@ -1,0 +1,154 @@
+#!/bin/sh
+# PCP QA Test No. 263
+#
+# Exercise aggregate functions for derived metrics
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if grep -q 'pmRegisterDerived' $PCP_DIR/usr/include/pcp/pmapi.h
+then
+    :
+else
+    echo "No derived metric support" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+export PCP_DERIVED_CONFIG=$tmp.config
+
+# Derived metric expr dump from 0x8513a48...
+# expr node 0x867eb68 type=PLUS left=0x867eb98 right=0x867ed28
+_filter()
+{
+    cat $tmp.out >>$seq.full
+    awk <$tmp.out >$tmp.sed '
+BEGIN				{ n = 0 }
+$1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++ }
+				{ next }'
+    echo "=== sed ===" >>$seq.full
+    cat $tmp.sed >>$seq.full
+    sed -f $tmp.sed <$tmp.out \
+    | sed \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
+	-e 's/=0x0 /=(nil) /g' \
+	-e "s;$tmp;TMP;"
+# -e 's/ val=[0-9][0-9]*/ val=<number>/g'
+}
+
+# expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=1 [sample.pdu] master=0
+# ...
+# [0] inst=-1, val=49794
+_filter2()
+{
+    sed <$tmp.out -e 's/val=/val /' \
+    | awk >$tmp.sed2 '
+BEGIN			{ n = 0 }
+/expr.*sample\./	{ want=1; next }
+want == 1 && $3 == "val"	{ if (seen[$4] != "y") {
+				    print "s/ val=" $4 "$/ val=<value-" n ">/"
+				    n++
+				    seen[$4] = "y"
+				  }
+				}
+$1 == "expr"		{ want = 0 }'
+    echo "=== sed2 ===" >>$seq.full
+    cat $tmp.sed2 >>$seq.full
+    sed -f $tmp.sed2
+}
+
+# real QA test starts here
+
+echo "=== expression trees and pmDesc propagation ==="
+cat <<End-of-File >$tmp.config
+aggr.max32 = max(sample.bin)
+aggr.min32 = min(sample.long.hundred)
+aggr.maxu32_minu32 = max(sample.const_rate.value) - min(sample.const_rate.value)
+aggr.max64_min64 = max(sample.longlong.hundred) - min(sample.longlong.hundred)
+aggr.maxu64_minu64 = max(sample.pdu) - min(sample.pdu)
+aggr.maxuf_minuf = max(sample.float.million) - min(sample.float.million)
+aggr.maxud_minud = max(sample.double.million) - min(sample.double.million)
+aggr.count32 = count(sample.bin)
+aggr.avg32 = avg(sample.bin)
+aggr.max32_x = max(sample.bin)
+aggr.min32_x = min(sample.bin)
+aggr.sum32 = sum(sample.bin)
+aggr.avgu32 = avg(sample.ulong.bin_ctr)
+aggr.countu32 = count(sample.ulong.bin_ctr)
+aggr.maxu32 = max(sample.ulong.bin_ctr)
+aggr.minu32 = min(sample.ulong.bin_ctr)
+aggr.sumu32 = sum(sample.ulong.bin_ctr)
+aggr.avgf = avg(sample.float.bin)
+aggr.countf = count(sample.float.bin)
+aggr.maxf = max(sample.float.bin)
+aggr.minf = min(sample.float.bin)
+aggr.sumf = sum(sample.float.bin)
+aggr.avg64 = avg(sample.longlong.bin_ctr)
+aggr.count64 = count(sample.longlong.bin_ctr)
+aggr.max64 = max(sample.longlong.bin_ctr)
+aggr.min64 = min(sample.longlong.bin_ctr)
+aggr.sum64 = sum(sample.longlong.bin_ctr)
+aggr.avgu64 = avg(sample.ulonglong.bin_ctr)
+aggr.countu64 = count(sample.ulonglong.bin_ctr)
+aggr.maxu64 = max(sample.ulonglong.bin_ctr)
+aggr.minu64 = min(sample.ulonglong.bin_ctr)
+aggr.sumu64 = sum(sample.ulonglong.bin_ctr)
+aggr.avgd = avg(sample.double.bin)
+aggr.countd = count(sample.double.bin)
+aggr.maxd = max(sample.double.bin)
+aggr.mind = min(sample.double.bin)
+aggr.sumd = sum(sample.double.bin)
+aggr.count_err = count(sample.needprofile)
+aggr.sum_err = sum(sample.needprofile)
+aggr.countblob = count(sample.sysinfo)
+End-of-File
+echo
+cat $tmp.config
+
+echo
+pminfo -Dderive,appl0,appl1 -d aggr >$tmp.out 2>$tmp.err
+cat $tmp.err >>$tmp.out
+_filter
+
+echo
+echo "=== fetch values exercises ==="
+echo
+pminfo -f aggr >$tmp.out 2>$tmp.err
+cat $tmp.err >>$tmp.out
+_filter | _filter2 \
+| $PCP_AWK_PROG '
+$1 == "value" && $2 ~ /^[0-9.]+$/	{ if ($2 >= 499.99997 && $2 <= 500.00003) {
+					    $1 = "    value"
+					    $2 = 500
+					  }
+					}
+		{ print }'
+
+echo
+echo "=== semantic errors ==="
+cat <<End-of-File >$tmp.config
+aggr.non_arith = max(sample.lights)
+End-of-File
+echo
+cat $tmp.config
+
+echo
+pminfo -Dderive,appl0,appl1 -d aggr >$tmp.out 2>$tmp.err
+cat $tmp.err >>$tmp.out
+_filter
+
+# success, all done
+exit

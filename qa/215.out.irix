@@ -1,0 +1,94 @@
+QA output created by 215
+pmlogger launch, waiting ...
+
+=== pmlogger for localhost #1 connection ===
+
+libpcp_socks: debugging enabled.
+	Rconnect direct = 1
+	Rconnect direct connect, no error
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== pmlogger for localhost #2 connection ===
+
+libpcp_socks: debugging enabled.
+	Rconnect direct = 1
+	Rconnect direct connect, no error
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== pmlogger for OTHERHOST #1 connection ===
+
+libpcp_socks: debugging enabled.
+	Rconnect direct = 0
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== pmlogger for OTHERHOST #2 connection ===
+
+libpcp_socks: debugging enabled.
+	Rconnect direct = 0
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== pmlogger for www.sgi.com.au #1 connection ===
+
+libpcp_socks: debugging enabled.
+	Rconnect direct = 0
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== pmlogger for www.sgi.com.au #2 connection ===
+
+libpcp_socks: debugging enabled.
+	Rconnect direct = 0
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== localhost pmval connection ===
+libpcp_socks: debugging enabled.
+	Rconnect direct = 1
+	Rconnect direct connect, no error
+
+metric:    pmcd.control.debug
+semantics: DISCRETE or INSTANTANEOUS value
+          0
+
+=== hostname local pmval connection ===
+libpcp_socks: debugging enabled.
+	Rconnect direct = 1
+	Rconnect direct connect, no error
+
+metric:    pmcd.control.debug
+semantics: DISCRETE or INSTANTANEOUS value
+          0
+
+=== host OTHERHOST pmval connection ===
+libpcp_socks: debugging enabled.
+	Rconnect direct = 0
+
+metric:    pmcd.control.debug
+semantics: DISCRETE or INSTANTANEOUS value
+          0
+
+=== host www.sgi.com.au pmval connection ===
+libpcp_socks: debugging enabled.
+	Rconnect direct = 0
+
+metric:    pmcd.control.debug
+semantics: DISCRETE or INSTANTANEOUS value
+          0
+
+If failure, check 215.full (this) and 215.full.ok (reference)

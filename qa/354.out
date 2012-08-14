@@ -1,0 +1,364 @@
+QA output created by 354
+
+=== folio name relative to cwd ===
+
+host: HOST
+f_config: OK f_ipc: -1 pid: 0 status: -1
+logfile: /tmp/PID/MKTEMP.HOST.log
+host: localhost
+f_config: OK f_ipc: -1 pid: 0 status: -1
+logfile: /tmp/PID/MKTEMP.localhost.log
+host: HOST
+f_config: OK f_ipc: -1 pid: 0 status: -1
+logfile: /tmp/PID/MKTEMPa.HOST.log
+host: localhost
+f_config: OK f_ipc: -1 pid: 0 status: -1
+logfile: /tmp/PID/MKTEMPa.localhost.log
+
+sleeping ...
+
+host: HOST
+f_config: NULL f_ipc: 6 pid: pmlogger-pid-1 status: -1
+logfile: /tmp/PID/MKTEMP.HOST.log
+host: localhost
+f_config: NULL f_ipc: 7 pid: pmlogger-pid-2 status: -1
+logfile: /tmp/PID/MKTEMP.localhost.log
+host: HOST
+f_config: NULL f_ipc: 8 pid: pmlogger-pid-3 status: -1
+logfile: /tmp/PID/MKTEMPa.HOST.log
+host: localhost
+f_config: NULL f_ipc: 9 pid: pmlogger-pid-4 status: -1
+logfile: /tmp/PID/MKTEMPa.localhost.log
+
+send some control requests ...
+host: HOST
+ OFF
+host: localhost
+ DETACH
+host: HOST
+ STATUS
+host: localhost
+ close(fd_ipc)
+
+now stop 'em all ...
+host: HOST
+pmRecordControl(... OFF ...): Invalid argument
+host: localhost
+pmRecordControl(... OFF ...): Invalid argument
+host: HOST
+host: localhost
+pmRecordControl(... OFF ...): IPC protocol failure
+
+and again to get any exit status ...
+pmRecordControl( ... OFF ...): Invalid argument
+
+
+discover what's happened ...
+
+host: HOST
+f_config: NULL f_ipc: -1 pid: pmlogger-pid-1 status: 0
+logfile: /tmp/PID/MKTEMP.HOST.log
+host: localhost
+f_config: NULL f_ipc: -1 pid: pmlogger-pid-2 status: -1
+logfile: /tmp/PID/MKTEMP.localhost.log
+host: HOST
+f_config: NULL f_ipc: -1 pid: pmlogger-pid-3 status: 0
+logfile: /tmp/PID/MKTEMPa.HOST.log
+host: localhost
+f_config: NULL f_ipc: -1 pid: pmlogger-pid-4 status: 0
+logfile: /tmp/PID/MKTEMPa.localhost.log
+
+pmlogger processes:
+ps: pmlogger-pid-2 pmlogger -x 6 -h localhost
+
+files:
+MKTEMP
+MKTEMP.HOST.0
+MKTEMP.HOST.config
+MKTEMP.HOST.index
+MKTEMP.HOST.log
+MKTEMP.HOST.meta
+MKTEMP.localhost.0
+MKTEMP.localhost.config
+MKTEMP.localhost.index
+MKTEMP.localhost.log
+MKTEMP.localhost.meta
+MKTEMPa.HOST.0
+MKTEMPa.HOST.config
+MKTEMPa.HOST.index
+MKTEMPa.HOST.log
+MKTEMPa.HOST.meta
+MKTEMPa.localhost.0
+MKTEMPa.localhost.config
+MKTEMPa.localhost.index
+MKTEMPa.localhost.log
+MKTEMPa.localhost.meta
+foo
+
+=== MKTEMP.HOST.log ===
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+
+Error: pmconfirm(1) failed for recording session dialog
+Dialog:
+PCP recording for the archive folio "foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+
+This archive may be replayed with the following command:
+  $ pmafm foo replay
+
+The application that launched pmlogger has terminated this PCP recording session.
+pmlogger: Recording session terminated, exiting
+
+Log finished DATE
+
+=== MKTEMP.localhost.log ===
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+
+Error: pmconfirm(1) failed for recording session dialog
+Dialog:
+PCP recording for the archive folio "foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+
+This archive may be replayed with the following command:
+  $ pmafm foo replay
+
+The application that launched pmlogger has asked pmlogger to continue independently and the PCP archive will grow at the rate of SOME bytes per hour or SOME bytes per day.
+
+At any time this pmlogger process may be terminated with the following command:
+  $ pmsignal -s TERM pmlogger-pid-2
+pmlogger: Signalled (signal=15), exiting
+
+Log finished DATE
+
+=== MKTEMPa.HOST.log ===
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+
+Warning: pmconfirm(1) failed for recording session dialog
+Dialog:
+PCP recording for the archive folio "foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+
+This archive may be replayed with the following command:
+  $ pmafm foo replay
+
+At any time this pmlogger process may be terminated with the following command:
+  $ pmsignal -s TERM pmlogger-pid-3
+
+Error: pmconfirm(1) failed for recording session dialog
+Dialog:
+PCP recording for the archive folio "foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+
+This archive may be replayed with the following command:
+  $ pmafm foo replay
+
+The application that launched pmlogger has terminated this PCP recording session.
+pmlogger: Recording session terminated, exiting
+
+Log finished DATE
+
+=== MKTEMPa.localhost.log ===
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+
+Error: pmconfirm(1) failed for recording session dialog
+Dialog:
+PCP recording for the archive folio "foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+
+This archive may be replayed with the following command:
+  $ pmafm foo replay
+
+The application that launched pmlogger has exited and you must decide if the PCP recording session should be terminated or continued.  If recording is continued the PCP archive will grow at the rate of SOME bytes per hour or SOME bytes per day.
+
+At any time this pmlogger process may be terminated with the following command:
+  $ pmsignal -s TERM pmlogger-pid-4
+
+
+Terminate this PCP recording session now?pmlogger: Recording session terminated, exiting
+
+Log finished DATE
+
+=== absolute folio name ===
+
+host: HOST
+f_config: OK f_ipc: -1 pid: 0 status: -1
+logfile: /tmp/PID/MKTEMP.HOST.log
+host: localhost
+f_config: OK f_ipc: -1 pid: 0 status: -1
+logfile: /tmp/PID/MKTEMP.localhost.log
+host: HOST
+f_config: OK f_ipc: -1 pid: 0 status: -1
+logfile: /tmp/PID/MKTEMPa.HOST.log
+host: localhost
+f_config: OK f_ipc: -1 pid: 0 status: -1
+logfile: /tmp/PID/MKTEMPa.localhost.log
+
+sleeping ...
+
+host: HOST
+f_config: NULL f_ipc: 7 pid: pmlogger-pid-1 status: -1
+logfile: /tmp/PID/MKTEMP.HOST.log
+host: localhost
+f_config: NULL f_ipc: 8 pid: pmlogger-pid-2 status: -1
+logfile: /tmp/PID/MKTEMP.localhost.log
+host: HOST
+f_config: NULL f_ipc: 9 pid: pmlogger-pid-3 status: -1
+logfile: /tmp/PID/MKTEMPa.HOST.log
+host: localhost
+f_config: NULL f_ipc: 10 pid: pmlogger-pid-4 status: -1
+logfile: /tmp/PID/MKTEMPa.localhost.log
+
+send some control requests ...
+host: HOST
+ OFF
+host: localhost
+ DETACH
+host: HOST
+ STATUS
+host: localhost
+ close(fd_ipc)
+
+now stop 'em all ...
+host: HOST
+pmRecordControl(... OFF ...): Invalid argument
+host: localhost
+pmRecordControl(... OFF ...): Invalid argument
+host: HOST
+host: localhost
+pmRecordControl(... OFF ...): IPC protocol failure
+
+and again to get any exit status ...
+pmRecordControl( ... OFF ...): Invalid argument
+
+
+discover what's happened ...
+
+host: HOST
+f_config: NULL f_ipc: -1 pid: pmlogger-pid-1 status: 0
+logfile: /tmp/PID/MKTEMP.HOST.log
+host: localhost
+f_config: NULL f_ipc: -1 pid: pmlogger-pid-2 status: -1
+logfile: /tmp/PID/MKTEMP.localhost.log
+host: HOST
+f_config: NULL f_ipc: -1 pid: pmlogger-pid-3 status: 0
+logfile: /tmp/PID/MKTEMPa.HOST.log
+host: localhost
+f_config: NULL f_ipc: -1 pid: pmlogger-pid-4 status: 0
+logfile: /tmp/PID/MKTEMPa.localhost.log
+
+pmlogger processes:
+ps: pmlogger-pid-2 pmlogger -x 7 -h localhost
+
+files:
+MKTEMP
+MKTEMP.HOST.0
+MKTEMP.HOST.config
+MKTEMP.HOST.index
+MKTEMP.HOST.log
+MKTEMP.HOST.meta
+MKTEMP.localhost.0
+MKTEMP.localhost.config
+MKTEMP.localhost.index
+MKTEMP.localhost.log
+MKTEMP.localhost.meta
+MKTEMPa.HOST.0
+MKTEMPa.HOST.config
+MKTEMPa.HOST.index
+MKTEMPa.HOST.log
+MKTEMPa.HOST.meta
+MKTEMPa.localhost.0
+MKTEMPa.localhost.config
+MKTEMPa.localhost.index
+MKTEMPa.localhost.log
+MKTEMPa.localhost.meta
+foo
+
+=== MKTEMP.HOST.log ===
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+
+Error: pmconfirm(1) failed for recording session dialog
+Dialog:
+PCP recording for the archive folio "/tmp/PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+
+The application that launched pmlogger has terminated this PCP recording session.
+pmlogger: Recording session terminated, exiting
+
+Log finished DATE
+
+=== MKTEMP.localhost.log ===
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+
+Error: pmconfirm(1) failed for recording session dialog
+Dialog:
+PCP recording for the archive folio "/tmp/PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+
+The application that launched pmlogger has asked pmlogger to continue independently and the PCP archive will grow at the rate of SOME bytes per hour or SOME bytes per day.
+
+At any time this pmlogger process may be terminated with the following command:
+  $ pmsignal -s TERM pmlogger-pid-2
+pmlogger: Signalled (signal=15), exiting
+
+Log finished DATE
+
+=== MKTEMPa.HOST.log ===
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+
+Warning: pmconfirm(1) failed for recording session dialog
+Dialog:
+PCP recording for the archive folio "/tmp/PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+
+At any time this pmlogger process may be terminated with the following command:
+  $ pmsignal -s TERM pmlogger-pid-3
+
+Error: pmconfirm(1) failed for recording session dialog
+Dialog:
+PCP recording for the archive folio "/tmp/PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+
+The application that launched pmlogger has terminated this PCP recording session.
+pmlogger: Recording session terminated, exiting
+
+Log finished DATE
+
+=== MKTEMPa.localhost.log ===
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+
+Error: pmconfirm(1) failed for recording session dialog
+Dialog:
+PCP recording for the archive folio "/tmp/PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+
+The application that launched pmlogger has exited and you must decide if the PCP recording session should be terminated or continued.  If recording is continued the PCP archive will grow at the rate of SOME bytes per hour or SOME bytes per day.
+
+At any time this pmlogger process may be terminated with the following command:
+  $ pmsignal -s TERM pmlogger-pid-4
+
+
+Terminate this PCP recording session now?pmlogger: Recording session terminated, exiting
+
+Log finished DATE

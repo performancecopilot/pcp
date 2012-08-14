@@ -1,0 +1,71 @@
+QA output created by 060
+default ...
+defctx: pmLookupDesc(29.0.5): Attempt to use an illegal context
+
+explicit host context ...
+first pmFetch is OK
+pmResult dump from ...
+  29.0.5 (sample.colour): numval: 1 valfmt: 0 vlist[]:
+inst [1 or "green"] value VALUE
+defctx: pmDelProfile: Attempt to use an illegal context
+defctx: pmAddProfile: Attempt to use an illegal context
+defctx: pmFetch: Attempt to use an illegal context
+defctx: pmWhichContext: Attempt to use an illegal context
+NewContext: 0
+NewContext: 1
+Destroy(0)
+WhichContext: 1
+NewContext: 0
+Destroy(0)
+Destroy(1)
+
+explicit archive context ...
+first pmFetch is OK
+pmResult dump from ...
+  29.0.5 (sample.colour): numval: 1 valfmt: 0 vlist[]:
+inst [1 or "green"] value VALUE
+defctx: pmDelProfile: Attempt to use an illegal context
+defctx: pmAddProfile: Attempt to use an illegal context
+defctx: pmFetch: Attempt to use an illegal context
+defctx: pmWhichContext: Attempt to use an illegal context
+NewContext: 0
+NewContext: 1
+Destroy(0)
+WhichContext: 1
+NewContext: 0
+Destroy(0)
+Destroy(1)
+
+explicit multi-volume archive context ...
+first pmFetch is OK
+pmResult dump from ...
+  29.0.5 (sample.colour): numval: 1 valfmt: 0 vlist[]:
+inst [1 or "green"] value VALUE
+defctx: pmDelProfile: Attempt to use an illegal context
+defctx: pmAddProfile: Attempt to use an illegal context
+defctx: pmFetch: Attempt to use an illegal context
+defctx: pmWhichContext: Attempt to use an illegal context
+NewContext: 0
+NewContext: 1
+Destroy(0)
+WhichContext: 1
+NewContext: 0
+Destroy(0)
+Destroy(1)
+
+explicit no index archive context ...
+first pmFetch is OK
+pmResult dump from ...
+  29.0.5 (sample.colour): numval: 1 valfmt: 0 vlist[]:
+inst [1 or "green"] value VALUE
+defctx: pmDelProfile: Attempt to use an illegal context
+defctx: pmAddProfile: Attempt to use an illegal context
+defctx: pmFetch: Attempt to use an illegal context
+defctx: pmWhichContext: Attempt to use an illegal context
+NewContext: 0
+NewContext: 1
+Destroy(0)
+WhichContext: 1
+NewContext: 0
+Destroy(0)
+Destroy(1)

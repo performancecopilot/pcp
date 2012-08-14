@@ -1,0 +1,107 @@
+#! /bin/sh
+# PCP QA Test No. 184
+# simplest possible case for pmnewlog
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+signal=$PCP_BINADM_DIR/pmsignal
+trap "$signal -a pmlogger >/dev/null 2>&1; rm -f $tmp.*; exit" 0 1 2 3 15
+
+. ./common.check
+
+_filter_dumplog()
+{
+    sed \
+	-e '/\[[0-9][0-9]* bytes\]/d' \
+	-e '/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/s//TIMESTAMP/' \
+	-e 's/^\(log started  *\).*/\1DATESTAMP/' \
+	-e 's/^\(last log entry  *\).*/\1DATESTAMP/' \
+	-e 's/^\(current time  *\).*/\1DATESTAMP/' \
+	-e 's/^\(  *commencing *\).*/\1DATESTAMP/' \
+	-e 's/^\(  *ending *\).*/\1DATESTAMP/' \
+	-e '/^Performance metrics/s/host .*/host HOST/' \
+	-e '/(pmcd.control.register)/s/value [0-9][0-9]*/value INTEGER/' \
+	-e '/^InDom: 2.1/,/^$/s/[0-9][0-9]* or "[0-9][0-9]*"/LOGGER_PID or "LOGGER_PID"/g' \
+	-e '/pmcd.pmlogger.*inst/s/[0-9][0-9]* or "[0-9][0-9]*"/LOGGER_PID or "LOGGER_PID"/' \
+	-e '/pmcd.pmlogger.port/s/value .*/value PORT/' \
+	-e '/pmcd.pmlogger.host/s/value ".*/value "HOST"/' \
+	-e '/pmcd.pmlogger.archive/s/value ".*/value "PATH"/' \
+    | $PCP_AWK_PROG '
+$1 == "TIMESTAMP" && NF == 4	{ print "TIMESTAMP       0       OFFSET       OFFSET"; next }
+				{ print }'
+}
+
+
+
+_filter_newlog()
+{
+    sed \
+	-e 's/process [0-9][0-9]*/process PID/' \
+	-e '/pmlogger -L/s/.*/-- ps line removed --/' \
+	-e '/ \/usr\/pcp\/bin\/pmlogger /s/.*/-- ps line removed --/' \
+	-e 's/^\/usr\/pcp\/bin\/pmlogger/pmlogger/' \
+	-e '/^pmlogger/s/[0-9][0-9]*/PID/g' \
+	-e '/configuration file saved as/s/[0-9][0-9]*/PID/g' \
+	-e 's/\[[0-9][0-9]*]/[PID]/' \
+	-e '/PMCD host/d' \
+	-e 's/ host [^ ]*/ host HOST/g' \
+	-e '/^Getting logged/s/host HOST/host name/' \
+	-e 's/ -h [^ ]*/ -h HOST/g' \
+	-e 's/ SIG.* done/ signal stuff ... done/' \
+	-e '/Error \[<stdin>,/d' \
+	-e '/Warning \[<stdin>,/d' \
+	-e '/Not connected to any/d' \
+	-e '/Logging statement ignored/d' \
+	-e '/Try again. Information not currently available/d' \
+	-e '/Unknown or illegal metric identifier/d' \
+	-e '/Unknown or illegal instance domain identifier/d' \
+	-e '/Metric not supported by this version/d' \
+	-e '/^log size/s/[0-9][0-9]*/BYTES/' \
+	-e '/^Contacting pmlogger /d' \
+	-e '/^pmnewlog: Warning: errors from talking /d' \
+	-e '/^continuing .../d' \
+	-e '/New pmlogger configuration file saved /d' \
+	-e '/^[ 	]*$/d' \
+	-e 's;/tmp/PID/pcp;/tmp/PID;g'
+}
+
+# real QA test starts here
+
+# Note:
+# Logging a metric with an instance domain so that the record will be flushed.
+cat <<End-of-File >$tmp.config
+log mandatory on once pmcd.control.register["0"]
+End-of-File
+rm -f $tmp.arch.*
+pmlogger -L -c $tmp.config -l $tmp.log $tmp.arch >$tmp.err 2>&1 &
+logger_pid=$!
+_wait_for_pmlogger $logger_pid $tmp.log
+
+echo "=== old log ===" | tee $seq.full
+pmdumplog -a $tmp.arch | tee -a $seq.full | _filter_dumplog
+
+echo | tee -a $seq.full
+echo "=== pmnewlog ==" | tee -a $seq.full
+pmnewlog -V -p $logger_pid -l $tmp.log $tmp.newarch 2>&1 >$tmp.out
+cat $tmp.out >>$seq.full
+_filter_newlog <$tmp.out | _filter_dumplog
+
+# Cleanup after youself
+rm -f `dirname $tmp`/Latest
+
+echo
+echo "=== check old pmlogger has gone ==="
+ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == '$logger_pid' { print }'
+
+echo | tee -a $seq.full
+echo "=== check what's in the new log ===" | tee -a $seq.full
+sleep 1
+pmdumplog -a $tmp.newarch | tee -a $seq.full | _filter_dumplog

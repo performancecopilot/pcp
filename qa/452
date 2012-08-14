@@ -1,0 +1,40 @@
+#!/bin/sh
+# PCP QA Test No. 452
+# exercise dependencies between Linux PMDA clusters
+# e.g. CLUSTER_CPUINFO needs cpu indom initialized by CLUSTER_STAT
+#
+# Copyright (c) 2011 Red Hat, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ $PCP_PLATFORM != linux ]
+then
+    _notrun "Tests pmdalinux functionality on Linux"
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+# CLUSTER_CPUINFO needs cpu indom initialized by CLUSTER_STAT
+# without the fix, this will abort().
+echo "Exercising CPU instances with fetch PDU"
+pmprobe -Lv hinv.cpu.clock >/dev/null
+status=$?
+[ $status -ne 0 ] && exit
+
+echo "Exercising CPU instances with indom PDU"
+pmprobe -Lif hinv.cpu.clock >/dev/null
+status=$?
+
+exit

@@ -1,0 +1,102 @@
+#!/bin/sh
+#
+# Install the Cisco PMDA for PCP QA
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+tmp=/var/tmp/$$
+status=0
+trap "rm -f $tmp; exit \$status" 1 2 3 15
+
+. ./common.rc
+
+# need localconfig
+#
+if [ ! -f localconfig ]
+then
+    if ./mk.localconfig
+    then
+	:
+    else
+	echo "Arrggh: Cannot make localconfig ... fix the PCP QA installation first!"
+	status=1
+	exit
+    fi
+fi
+
+. ./localconfig
+
+#DEBUG# echo PCP_VER=$PCP_VER
+
+here=`pwd`
+cd $2
+
+# melbourne-l0 (was wanptg) should have no password ... complain to
+# noc@corp.sgi.com if one re-appears
+#
+# in Mtn View, here is the scoop from shambel@sgi.com on 14 Mar 2000
+#	The router that's on the other side of the ptg connection is
+#	intl2.corp.sgi.com which has no user level password.  Will this
+#	work for you?  When this router goes away (sometime later this
+#	year) you can use the user level password thed00rs on almost
+#	any of the cisco's in your region and most of the wan routers
+#	on the wanring here in Mt View.
+#
+#  Note: PCP_QA_CISCOROUTER needs to be defined in common.rc
+
+#  This is done to quickly get a fully qualified hostname, either from
+#  hostname(1), or pmhostname(1)
+hostnma=`$PCP_BINADM_DIR/pmhostname`
+hostnmb=`hostname`
+suprhostname=`echo "" | awk -v hostnma="$hostnma" -v hostnmb="$hostnmb" '
+END {
+    if (length(hostnma) > length(hostnmb)) print hostnma
+    else print hostnmb
+}'`
+case "$suprhostname"
+in
+    #  TEMPORARY: include engr and americas until a replacement for
+    #  b43-11-cisco6-168.corp can be found.
+    #
+    *.melbourne.*|*.engr.*|*.americas.*)
+	cat <<End-of-File >$tmp
+both
+$PCP_QA_CISCOROUTER
+
+End-of-File
+	if [ "$PCP_VER" -gt 2200 ]
+	then
+	    echo >>$tmp
+	fi
+	cat <<End-of-File >>$tmp
+s2/2
+s2/2.1
+e1/0
+quit
+
+End-of-File
+	#DEBUG# cat $tmp
+	$sudo ./Install <$tmp >>$here/$1.out
+    ;;
+
+#    *.engr.*)
+#	cat <<End-of-File | $sudo ./Install >>$here/$1.out
+#both
+#b43-11-cisco6-168.corp
+#
+#
+#
+#
+#
+#quit
+#
+#End-of-File
+#	;;
+
+    *)
+	echo "Error: don't know how to install cisco PMDA on host `$PCP_BINADM_DIR/pmhostname`"
+	exit 1
+	;;
+esac
+

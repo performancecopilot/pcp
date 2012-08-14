@@ -1,0 +1,39 @@
+QA output created by 326
+Starting pmcd ... 
+Starting pmlogger ... 
+=== kill sample PMDA process ===
+=== SIGHUP PMCD ===
+=== drop sample PMDA, like Remove ===
+=== add sample PMDA, like Install ===
+
+Trace of observed state changes and PMDA count ...
+   value 2
+PMCD state changes: agent(s) dropped
+   value 1
+PMCD state changes: agent(s) added restarted
+   value 2
+PMCD state changes: agent(s) dropped
+   value 1
+PMCD state changes: agent(s) added
+   value 2
+
+primary logger ...
+archive contents ...
+              2.0.2 (pmcd.numagents): value 2
+              2.0.2 (pmcd.numagents): value 1
+TIMESTAMP  <mark>
+              2.0.2 (pmcd.numagents): value 2
+              2.0.2 (pmcd.numagents): value 1
+TIMESTAMP  <mark>
+              2.0.2 (pmcd.numagents): value 2
+
+sanity check with pmval | filter ...
+TIMESTAMP  No values available
+TIMESTAMP non-negative number, less than 1.1
+TIMESTAMP  No values available
+TIMESTAMP non-negative number, less than 1.1
+
+Restore pmcd.conf and restart PMCD ...
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

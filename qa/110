@@ -1,0 +1,241 @@
+#! /bin/sh
+# PCP QA Test No. 110
+# check out simple PMDA
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    # Note - not sure what 110.out.2 is for - Ken
+    ln $seq.out.3 $seq.out || exit 1
+fi
+
+echo "[expect no compiler warnings]"
+echo "QA output created by $seq"
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1
+
+PMDA_LOG_PATH=`echo $PCP_PMCDLOG_PATH | sed -e 's/pmcd.log/simple.log/'`
+
+_cleanup()
+{
+	[ -f $tmp.conf.bak ] && $sudo cp $tmp.conf.bak $home/$iam/$iam.conf
+	if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+	then
+	    :
+	else
+
+# do a default install which ensures the pmns and any views are installed
+
+	    $sudo ./Install < /dev/null > /dev/null 2>&1
+
+# PMDA may have been installed differently to default. As everything is
+# installed we can use the old pmcd.conf file to restore state.
+
+	    if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+	    then
+		:
+	    else
+	    	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+		$sudo $signal -a -s HUP pmcd
+	    fi
+	fi
+	$sudo rm -f $tmp.*
+	exit $status
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+_failed()
+{
+    echo
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+    echo
+    echo "... and the tail of the pmcd log ..."
+    tail -20 $PCP_PMCDLOG_PATH
+    echo
+    echo "...and the PMDA log ..."
+    cat $PMDA_LOG_PATH
+}
+
+_filter()
+{
+    sed \
+	-e '/^	- /d' \
+	-e '/^[ 	]*rm /d' \
+	-e '/^[ 	]*mv /d' \
+	-e '/^[ 	]*cp /d' \
+	-e '/^[ 	]*.*cc /d' \
+	-e '/^[ 	]*.*install /d' \
+	-e '/^[ 	]*.*tag /d' \
+	-e '/^pmda.c:$/d' \
+	-e '/^simple.c:$/d' \
+	-e '/make: Nothing to be done/d' \
+	-e 's/ or perl//' \
+	-e 's/.* \(hash table entries\)/  NNN \1/' \
+	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(bytes of symbol table\)/  NNN \1/' \
+	-e "s;$tmp;TMP;" \
+	-e "s/$port1/PORT1/" \
+	-e "s/$port2/PORT2/"
+}
+
+_full()
+{
+    echo "--- pmcd.conf ---" >>$here/$seq.full
+    cat $PCP_PMCDCONF_PATH >>$here/$seq.full
+    echo "--- pmcd.log ---" >>$here/$seq.full
+    cat $PCP_PMCDLOG_PATH >>$here/$seq.full
+    echo "--- simple.log ---" >>$here/$seq.full
+    cat $PMDA_LOG_PATH >>$here/$seq.full
+    echo >>$here/$seq.full
+}
+
+rm -f $seq.full
+
+# real QA test starts here
+home=$PCP_PMDAS_DIR
+iam=simple
+if [ ! -d $home/$iam ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd $home/$iam
+unset ROOT
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+if $sudo make clobber >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh, make clobber failed"
+    exit
+fi
+
+# start from a known starting point
+$sudo ./Remove >/dev/null 2>&1
+
+echo
+echo "=== pipe daemon agent ==="
+echo "=== pipe daemon agent ===" >>$here/$seq.full
+$sudo ./Remove >$tmp.out 2>&1
+echo 'both
+daemon
+pipe' | $sudo ./Install -e >>$tmp.out 2>&1
+_full
+
+_filter <$tmp.out
+
+if pminfo -v simple
+then
+    :
+else
+    _failed
+fi
+
+echo
+echo "=== Unix socket daemon agent ==="
+echo "=== Unix socket daemon agent ===" >>$here/$seq.full
+$sudo ./Remove >$tmp.out 2>&1
+echo 'both
+daemon
+socket
+Unix
+'"$tmp.fifo-1" | $sudo ./Install -e >>$tmp.out 2>&1
+echo 'both
+daemon
+socket
+Unix
+'"$tmp.fifo-2" | $sudo ./Install -e >>$tmp.out 2>&1
+_full
+
+_filter <$tmp.out
+
+if pminfo -v simple
+then
+    :
+else
+    _failed
+fi
+
+echo
+echo "=== Internet socket daemon agent ==="
+echo "=== Internet socket daemon agent ===" >>$here/$seq.full
+$sudo ./Remove >$tmp.out 2>&1
+
+# pick a tcp port that is not in use
+#
+port1=`_get_port tcp 5650 5699`
+if [ -z "$port1" ]
+then
+    echo "Arrgh ... no free TCP port in the range 5650 ... 5699"
+    exit 1
+fi
+
+echo 'both
+daemon
+socket
+Internet
+'$port1 | $sudo ./Install -e >>$tmp.out 2>&1
+
+# use next port this time
+port2=`expr $port1 + 1`
+
+echo 'both
+daemon
+socket
+Internet
+'$port2 | $sudo ./Install -e >>$tmp.out 2>&1
+_full
+
+_filter <$tmp.out
+
+if pminfo -v simple
+then
+    :
+else
+    _failed
+fi
+
+echo
+echo "=== dso agent ==="
+echo "=== dso agent ===" >>$here/$seq.full
+$sudo ./Remove >$tmp.out 2>&1
+echo 'both
+dso' | $sudo ./Install -e >>$tmp.out 2>&1
+echo 'both
+dso' | $sudo ./Install -e >>$tmp.out 2>&1
+_full
+
+_filter <$tmp.out
+
+if pminfo -v simple
+then
+    :
+else
+    _failed
+fi
+
+$sudo ./Remove >$tmp.out 2>&1
+_filter <$tmp.out
+
+status=0
+exit

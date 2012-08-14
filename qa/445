@@ -1,0 +1,108 @@
+#! /bin/sh
+# PCP QA Test No. 445
+# check bug #580005 - trace PMDA doesn't exit if address in use
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+host=`hostname`
+
+_cleanup()
+{
+    if [ -f $tmp.bak ]
+    then
+	$sudo cp $tmp.bak $PCP_PMCDCONF_PATH
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+    fi
+    $sudo rm -f $tmp.*
+}
+
+status=1	# failure is the default!
+logging=0
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+case "$PCP_PLATFORM" in
+irix)
+    TRACELOG=$PCP_LOG_DIR/trace.log
+    cat >> $tmp.conf << EOF
+# temporary pmcd.conf for qa/$seq
+irix	1	dso	irix_init	libirixpmda.so
+pmcd    2       dso     pmcd_init       pmda_pmcd.so
+trace	10	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 10
+trace	99	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 99
+EOF
+    ;;
+
+linux)
+    TRACELOG=$PCP_LOG_DIR/pmcd/trace.log
+    cat >> $tmp.conf << EOF
+# temporary pmcd.conf for qa/$seq
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+linux   60      dso     linux_init      $PCP_PMDAS_DIR/linux/pmda_linux.so
+trace	10	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 10
+trace	99	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 99
+EOF
+    ;;
+
+darwin)
+    TRACELOG=$PCP_LOG_DIR/pmcd/trace.log
+    cat >> $tmp.conf << EOF
+# temporary pmcd.conf for qa/$seq
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+darwin  78      dso     darwin_init     $PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
+trace	10	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 10
+trace	99	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 99
+EOF
+    ;;
+
+solaris)
+    TRACELOG=$PCP_LOG_DIR/pmcd/trace.log
+    cat >> $tmp.conf << EOF
+# temporary pmcd.conf for qa/$seq
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
+trace	10	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 10
+trace	99	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 99
+EOF
+    ;;
+
+*)
+    echo "Unknown platfrom $PCP_PLATFORM"
+    exit 1
+    ;;
+esac
+
+# real QA test starts here
+$sudo rm -f $tmp.bak ${TRACELOG}*
+$sudo cp $PCP_PMCDCONF_PATH $tmp.bak
+$sudo cp $tmp.conf $PCP_PMCDCONF_PATH
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+sleep 15
+
+# filter the log ...
+sed \
+    -e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/'\
+    -e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/TIMESTAMP/g' \
+    -e "s/$host/HOST/g" \
+    -e 's/\([0-9][0-9]*\)/PID/' $TRACELOG
+
+fgrep "Address already in use" $TRACELOG >/dev/null 2>&1
+status=$?
+if [ $status -ne 0 ]
+then
+    echo "--- No match on 'Address already in use' in trace logs ---"
+    cat $TRACELOG
+    echo "--- End of trace logs ---"
+fi
+
+exit

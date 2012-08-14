@@ -1,0 +1,33 @@
+QA output created by 168
+Check initial metric set up ...
+
+sample.dynamic.meta.metric
+    value 42
+
+sample.dynamic.meta.pmdesc.type
+    value 0
+
+sample.dynamic.meta.pmdesc.indom
+    value 4294967295
+
+sample.dynamic.meta.pmdesc.sem
+    value 4
+
+sample.dynamic.meta.pmdesc.units
+    value 520105984
+Change metric type ...
+sample.dynamic.meta.pmdesc.type old value=0 new value=3
+pmlogextract: Error: metric sample.dynamic.meta.metric: type changed from 32 to U64!
+Archive "TMP.out" not created.
+Change metric indom ...
+sample.dynamic.meta.pmdesc.indom old value=4294967295 new value=42
+pmlogextract: Error: metric sample.dynamic.meta.metric: indom changed from PM_INDOM_NULL to 0.42!
+Archive "TMP.out" not created.
+Change metric semantics ...
+sample.dynamic.meta.pmdesc.sem old value=4 new value=0
+pmlogextract: Error: metric sample.dynamic.meta.metric: semantics changed from 4 to 0!
+Archive "TMP.out" not created.
+Change metric units ...
+sample.dynamic.meta.pmdesc.units old value=520105984 new value=0
+pmlogextract: Error: metric sample.dynamic.meta.metric: units changed from byte / sec to !
+Archive "TMP.out" not created.

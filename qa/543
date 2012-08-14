@@ -1,0 +1,87 @@
+#! /bin/sh
+# PCP QA Test No. 543
+# exercises the -m option to pmlogger_daily
+#
+# Note: this test will fail in the few days after a daylight savings
+#       change as the sample NOTICES file is not quite right
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+host=`hostname`
+NOTICES=$PCP_LOG_DIR/NOTICES
+MAIL=/var/mail/pcpqa
+FORWARD=/usr/people/pcpqa/.forward
+
+_cleanup()
+{
+    # put stuff we moved back in place
+    [ -f $tmp.notices ] && $sudo mv $tmp.notices $NOTICES
+    [ -f $tmp.mail ] && $sudo mv $tmp.mail $MAIL
+    [ -f $tmp.forward ] && $sudo mv $tmp.forward $FORWARD
+    rm -f $tmp.*
+}
+
+_filter()
+{
+    sed -e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATESTAMP/' \
+	-e 's/^[0-9][0-9]:[0-9][0-9]/TIME/' \
+        -e "s,$PCP_RC_DIR,\$PCP_RC_DIR,"
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+rm -f $seq.full
+
+# create a fake NOTICES file containing time-boundary entries
+# 
+twodaysago=`pmdate -2d '%a %b %e %T %Z %Y'`
+earlyyesterday=`pmdate -1d '%a %b %e %T %Y'`
+timenow=`pmdate '%a %b %e %T %Y'`
+oneminago=`pmdate -1M '%H:%M'`
+intwomins=`pmdate +5M '%H:%M'`
+infourmins=`pmdate +6M '%H:%M'`
+
+# expect to get none from two days ago, 2 of 3 from yesterday,
+# and all (1) from today
+# 
+cat >$tmp.new <<EOF
+Started by pmlogger_daily: $twodaysago
+09:38 stop pmcd from $PCP_RC_DIR/pcp
+11:54 start pmcd from $PCP_RC_DIR/pcp
+
+DATE: $earlyyesterday
+$oneminago stop pmcd from $PCP_RC_DIR/pcp
+$intwomins start pmcd from $PCP_RC_DIR/pcp
+$infourmins pmie: busy disk spindle 49.4:dks0d1@rattle
+
+DATE: $timenow
+$oneminago stop pmcd from $PCP_RC_DIR/pcp
+EOF
+
+# real QA test starts here
+$sudo mv $NOTICES $tmp.notices
+[ -f $MAIL ] && $sudo mv $MAIL $tmp.mail
+[ -f $FORWARD ] && $sudo mv $FORWARD $tmp.forward
+cp /dev/null $tmp.noconf
+$sudo cp $tmp.new $NOTICES
+cp $NOTICES $seq.full
+echo >>$seq.full
+$sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.noconf -m pcpqa@$host
+
+sleep 2	# let mail arrive (shouldn't take long)
+
+# see what we got ...
+cat $PCP_LOG_DIR/NOTICES.daily | tee -a $seq.full | _filter
+
+# success, all done
+status=0
+exit

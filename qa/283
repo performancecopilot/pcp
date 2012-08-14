@@ -1,0 +1,125 @@
+#! /bin/sh
+# PCP QA Test No. 283
+# Move pmcd port to iana registered 44321, and the associated multiple
+# port changes for ...
+#	pmcd via -p
+#	pmcd via PMCD_PORT
+#	clients via PMCD_PORT
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+. ./localconfig
+rm -f $seq.out
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
+then
+    if test $PCP_EOE_VER -ge 2704
+    then
+	ln $seq.out.2 $seq.out
+    else
+	ln $seq.out.1 $seq.out
+    fi
+else
+    echo "Need -p option support in pmcd" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+
+_cleanup()
+{
+    rm -f $tmp.*
+    [ -z "$pmcd_pid" ] || $signal -s KILL $pmcd_pid
+    unset PMCD_PORT
+    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -n \
+	-e '/^sample/p' \
+	-e '/^__pmConnectPMCD(/{
+s/(.*)/(HOST)/
+s/fd=[0-9][0-9]*/fd=<n>/
+p
+}'
+
+}
+
+
+$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
+# allow time to cleanup and close all sockets
+sleep 3
+
+rm -f $seq.full
+
+# real QA test starts here
+for pmcd_o in 1 2 3
+do
+    unset PMCD_PORT
+    pmcd_opt=''
+    case $pmcd_o
+    in
+	1)	# default
+		;;
+	2)	# PMCD_PORT is a list in the environment
+		PMCD_PORT="9876,44321,4321"
+		export PMCD_PORT
+		;;
+	3)	# -p option to pmcd
+		pmcd_opt="-p 4321 -p 44321 -p 9876"
+    esac
+
+    echo
+    echo "=== PMCD_PORT=$PMCD_PORT pmcd_opt=$pmcd_opt ==="
+    echo "=== PMCD_PORT=$PMCD_PORT pmcd_opt=$pmcd_opt ===" >>$seq.full
+    pmcd -f -l $tmp.log $pmcd_opt &
+    pmcd_pid=$!
+    sleep 1
+
+    for client_o in 1 2
+    do
+	unset PMCD_PORT
+	case $client_o
+	in
+	    1)	# default
+		;;
+	    2)	# PMCD_PORT is a list in the environment
+		PMCD_PORT="9876,4321,44321"
+		export PMCD_PORT
+		;;
+	esac
+
+	echo "--- PMCD_PORT=$PMCD_PORT ---"
+	echo "--- PMCD_PORT=$PMCD_PORT ---" >>$seq.full
+	pmprobe -v -D context sample.long.one >$tmp.tmp 2>&1
+	cat $tmp.tmp >>$seq.full
+	_filter <$tmp.tmp
+
+    done
+
+    $signal -s TERM $pmcd_pid
+    pmcd_pid=''
+    wait
+    sleep 3
+    cat $tmp.log >>$seq.full
+    # _filter_pmcd_log <$tmp.log
+
+done
+
+# success, all done
+exit

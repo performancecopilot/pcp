@@ -1,0 +1,45 @@
+QA output created by 385
+sample.event.reset old value=ANYTHING new value=0
+=== pmPrintValue ===
+
+sample.event.records
+    inst [0 or "fungus"] value [0 event records]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+
+sample.event.records
+    inst [0 or "fungus"] value [1 event record timestamp TIMESTAMP]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+
+sample.event.records
+    inst [0 or "fungus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+
+sample.event.records
+    inst [0 or "fungus"] value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+
+=== __pmPrintDesc ===
+
+sample.event.records
+    Data Type: event record array  InDom: 29.10 HEX
+    Semantics: instant  Units: none
+sample.event.reset old value=ANYTHING new value=0
+=== pmPrintValue ===
+
+sample.event.no_indom_records
+    value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+
+sample.event.no_indom_records
+    value [1 event record timestamp TIMESTAMP]
+
+sample.event.no_indom_records
+    value [1 event record timestamp TIMESTAMP]
+
+sample.event.no_indom_records
+    value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+
+=== __pmPrintDesc ===
+
+sample.event.no_indom_records
+    Data Type: event record array  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none

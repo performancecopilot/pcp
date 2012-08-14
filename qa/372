@@ -1,0 +1,92 @@
+#!/bin/sh
+# PCP QA Test No. 372
+# simple exerciser for sheet2pcp
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which sheet2pcp >/dev/null 2>&1
+then
+    :
+else
+    echo "sheet2pcp not installed" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+cat <<'End-of-File' >$tmp.mapfile
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- For PCP QA 372 -->
+<sheet heading="1" hostname="time.greenwich.com" datefmt="DMY">
+    <metric sem="PM_SEM_COUNTER">metric.a</metric>
+    <metric sem="PM_SEM_COUNTER">metric.b</metric>
+    <metric>metric.c</metric>
+    <metric type="PM_TYPE_32">metric.d</metric>
+    <metric type="PM_TYPE_STRING">metric.e</metric>
+    <datetime></datetime>
+    <data>metric.a</data>
+    <data>metric.b</data>
+    <data>metric.c</data>
+    <data>metric.d</data>
+    <data>metric.e</data>
+</sheet>
+End-of-File
+
+echo "=== CSV ==="
+rm -f $tmp.0 $tmp.index $tmp.meta
+sheet2pcp src-oss/simple.csv $tmp.mapfile $tmp 2>&1
+[ -f $tmp.0 ] && pmdumplog -az $tmp
+
+echo
+echo "=== resaved CSV ==="
+rm -f $tmp.0 $tmp.index $tmp.meta
+sheet2pcp src-oss/simple-resave.csv $tmp.mapfile $tmp 2>&1
+[ -f $tmp.0 ] && pmdumplog -az $tmp
+
+echo
+echo "=== ODS ==="
+rm -f $tmp.0 $tmp.index $tmp.meta
+sheet2pcp src-oss/simple.ods $tmp.mapfile $tmp 2>&1
+[ -f $tmp.0 ] && pmdumplog -az $tmp
+
+echo
+echo "=== SXC ==="
+rm -f $tmp.0 $tmp.index $tmp.meta
+sheet2pcp src-oss/simple.sxc $tmp.mapfile $tmp 2>&1
+[ -f $tmp.0 ] && pmdumplog -az $tmp
+
+echo
+echo "=== XLSX ==="
+rm -f $tmp.0 $tmp.index $tmp.meta
+sheet2pcp src-oss/simple-resave.xlsx $tmp.mapfile $tmp 2>&1
+[ -f $tmp.0 ] && pmdumplog -az $tmp
+
+echo
+echo "=== XLS ==="
+rm -f $tmp.0 $tmp.index $tmp.meta
+sheet2pcp src-oss/simple.xls $tmp.mapfile $tmp 2>&1
+[ -f $tmp.0 ] && pmdumplog -az $tmp
+
+echo
+echo "=== /dev/null ==="
+rm -f $tmp.0 $tmp.index $tmp.meta
+sheet2pcp /dev/null $tmp.mapfile $tmp 2>&1
+[ -f $tmp.0 ] && pmdumplog -az $tmp
+
+# success, all done
+exit

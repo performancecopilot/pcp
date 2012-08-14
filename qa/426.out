@@ -1,0 +1,136 @@
+QA output created by 426
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+
+--- Testing trace.point metrics ---
+pmtrace: point complete (tag="foo")
+pmtrace: point complete (tag="bar")
+pmtrace: point complete (tag="eek")
+
+SHOULD SEE 1="foo", 2="bar", 3="eek" ...
+
+trace.point.count
+    inst [1 or "foo"] value 1
+    inst [2 or "bar"] value 1
+    inst [3 or "eek"] value 1
+
+Resetting trace metrics (point #1)
+trace.control.reset old value=1 new value=1
+
+SHOULD SEE NO VALUES ...
+
+trace.point.count
+No value(s) available!
+pmtrace: point complete (tag="eek")
+pmtrace: point complete (tag="bar")
+
+SHOULD SEE 2="bar", 3="eek" ...
+
+trace.point.count
+    inst [2 or "bar"] value 1
+    inst [3 or "eek"] value 1
+
+Resetting trace metrics (point #2)
+trace.control.reset old value=1 new value=1
+
+SHOULD SEE NO VALUES ...
+
+trace.point.count
+No value(s) available!
+pmtrace: point complete (tag="new")
+pmtrace: point complete (tag="foo")
+
+SHOULD SEE 1="foo", 4="new" ...
+
+trace.point.count
+    inst [1 or "foo"] value 1
+    inst [4 or "new"] value 1
+
+--- Testing trace.observe metrics ---
+pmtrace: observation complete (tag="foo", value=1.000000)
+pmtrace: observation complete (tag="bar", value=1.000000)
+pmtrace: observation complete (tag="eek", value=1.000000)
+
+SHOULD SEE 1="foo", 2="bar", 3="eek" ...
+
+trace.observe.count
+    inst [1 or "foo"] value 1
+    inst [2 or "bar"] value 1
+    inst [3 or "eek"] value 1
+
+Resetting trace metrics (observe #1)
+trace.control.reset old value=1 new value=1
+
+SHOULD SEE NO VALUES ...
+
+trace.observe.count
+No value(s) available!
+pmtrace: observation complete (tag="eek", value=1.000000)
+pmtrace: observation complete (tag="bar", value=1.000000)
+
+SHOULD SEE 2="bar", 3="eek" ...
+
+trace.observe.count
+    inst [2 or "bar"] value 1
+    inst [3 or "eek"] value 1
+
+Resetting trace metrics (observe #2)
+trace.control.reset old value=1 new value=1
+
+SHOULD SEE NO VALUES ...
+
+trace.observe.count
+No value(s) available!
+pmtrace: observation complete (tag="new", value=1.000000)
+pmtrace: observation complete (tag="foo", value=1.000000)
+
+SHOULD SEE 1="foo", 4="new" ...
+
+trace.observe.count
+    inst [1 or "foo"] value 1
+    inst [4 or "new"] value 1
+
+--- Testing trace.transact metrics ---
+pmtrace: transaction complete (tag="foo")
+pmtrace: transaction complete (tag="bar")
+pmtrace: transaction complete (tag="eek")
+
+SHOULD SEE 1="foo", 2="bar", 3="eek" ...
+
+trace.transact.count
+    inst [1 or "foo"] value 1
+    inst [2 or "bar"] value 1
+    inst [3 or "eek"] value 1
+
+Resetting trace metrics (transact #1)
+trace.control.reset old value=1 new value=1
+
+SHOULD SEE NO VALUES ...
+
+trace.transact.count
+No value(s) available!
+pmtrace: transaction complete (tag="eek")
+pmtrace: transaction complete (tag="bar")
+
+SHOULD SEE 2="bar", 3="eek" ...
+
+trace.transact.count
+    inst [2 or "bar"] value 1
+    inst [3 or "eek"] value 1
+
+Resetting trace metrics (transact #2)
+trace.control.reset old value=1 new value=1
+
+SHOULD SEE NO VALUES ...
+
+trace.transact.count
+No value(s) available!
+pmtrace: transaction complete (tag="new")
+pmtrace: transaction complete (tag="foo")
+
+SHOULD SEE 1="foo", 4="new" ...
+
+trace.transact.count
+    inst [1 or "foo"] value 1
+    inst [4 or "new"] value 1

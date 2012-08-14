@@ -1,0 +1,140 @@
+#!/bin/sh
+# PCP QA Test No. 497
+# pmlogconf - error handling in pmlogconf-setup
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if [ -f $PCP_BINADM_DIR/pmlogconf-setup ]
+then
+    :
+else
+    _notrun "pmlogconf version 2.0 not installed"
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+mkdir $tmp
+
+# need to handle diff-c lines like this
+# *** TMP.conf	2010-06-17 06:36:00.000000000 +1000
+# --- /var/tmp/26102.ctl	2010-06-17 06:36:01.000000000 +1000
+#
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e '/^\*\*\* TMP\.conf/s/\.conf.*/.orig .../' \
+	-e '/^--- .*\.ctl/s/ .*/ TMP.new .../'
+}
+
+cat <<End-of-File >$tmp/01
+#pmlogconf-setup 2.0
+probe	sample.long.ten ? include : exclude
+ident	qa group one
+ident	this one contains no errors
+	sample.long.million
+End-of-File
+
+# real QA test starts here
+
+pmlogconf -d $tmp $tmp.conf \
+| _filter
+
+echo "--- start initial config file ---"
+cat $tmp.conf | _filter
+echo "--- end initial config file ---"
+
+echo
+echo "=== bad condition in probe clause ==="
+cat <<End-of-File >$tmp/02
+#pmlogconf-setup 2.0
+probe	sample.ulong.ten bozo ? include : exclude
+ident	foo
+	sample.ulong.ten
+End-of-File
+( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf \
+| _filter
+
+echo
+echo "=== missing val in probe condition ==="
+cat <<End-of-File >$tmp/02
+#pmlogconf-setup 2.0
+probe	sample.ulong.ten == ? include : exclude
+ident	foo
+	sample.ulong.ten
+End-of-File
+( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf \
+| _filter
+
+echo
+echo "=== bad keyword in probe state rule ==="
+cat <<End-of-File >$tmp/02
+#pmlogconf-setup 2.0
+probe	sample.ulong.ten exists ? include : foo
+ident	foo
+	sample.ulong.ten
+End-of-File
+( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf \
+| _filter
+
+echo
+echo "=== missing : probe state rule ==="
+cat <<End-of-File >$tmp/02
+#pmlogconf-setup 2.0
+probe	sample.ulong.ten exists ? include exclude
+ident	foo
+	sample.ulong.ten
+End-of-File
+( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf \
+| _filter
+
+echo
+echo "=== bad probe state rule ==="
+cat <<End-of-File >$tmp/02
+#pmlogconf-setup 2.0
+probe	sample.ulong.ten exists ? include ! exclude
+ident	foo
+	sample.ulong.ten
+End-of-File
+( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf \
+| _filter
+
+echo
+echo "=== extra text in probe state rule ==="
+cat <<End-of-File >$tmp/02
+#pmlogconf-setup 2.0
+probe	sample.ulong.ten exists ? include : exclude foo
+ident	foo
+	sample.ulong.ten
+End-of-File
+( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf \
+| _filter
+
+echo
+echo "=== bad force clause ==="
+cat <<End-of-File >$tmp/02
+#pmlogconf-setup 2.0
+force	foo
+ident	foo
+	sample.ulong.ten
+End-of-File
+( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf \
+| _filter
+
+echo "--- start final config file ---"
+cat $tmp.conf | _filter
+echo "--- end final config file ---"
+
+# success, all done
+exit

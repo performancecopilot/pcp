@@ -1,0 +1,209 @@
+#! /bin/sh
+# PCP QA Test No. 067
+# Test PMCD's ability to detect and cleanup agents it didn't create when they
+# terminate
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
+then
+    if test $PCP_EOE_VER -ge 2704
+    then
+	ln $seq.out.3 $seq.out
+    else
+	ln $seq.out.2 $seq.out
+    fi
+else
+    ln $seq.out.1 $seq.out
+fi
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+
+signal=$PCP_BINADM_DIR/pmsignal
+config=$PCP_PMCDCONF_PATH
+oconfig=$tmp.pmcd.config
+log=$PCP_PMCDLOG_PATH
+LOCALHOST=`hostname`
+
+_filter_log()
+{
+    sleep 1
+    _filter_pmcd_log <$log \
+    | sed \
+	-e '/^$/d' \
+	-e 's/ *$//' \
+	-e 's/^$//' \
+	-e '/^->/d' \
+	-e '/^00[08]:/d' \
+	-e '/^irix/s/\/var\//\/usr\//' \
+	-e '/^sample/s/.*/sample agent.../' \
+	-e 's;pcp/lib/mips_[^.]*\.;pcp/lib/ISA.;' \
+	-e 's/fd=[0-9][0-9]*/fd=<n>/g' \
+	-e 's/^  ok    [0-9]*/  ok  <n>/g' \
+	-e '/^irix/s/... ... ... dso/<n> <n> <n> dso/' \
+	-e '/^test/s/... ... ... bin/<n> <n> <n> bin/' \
+	-e '/Resource busy/d' \
+	-e 's/0x[^ ]*\([^ ][^ ][^ ]\)/ADDR...\1/' \
+	-e '/client connection from/,/^$/d' \
+	-e '/Cleanup/d' \
+	-e '/Info: spindle_stats_init/d'
+}
+
+_filter_pmda_log()
+{
+    sed \
+	-e 's/^\(Log for pmda[^ ]* on\) .*/\1 HOST .../' \
+	-e 's/^\(Log finished\) .*/\1 .../'
+}
+
+interrupt()
+{
+    echo "Interrupted"
+    exit
+}
+
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+
+cleanup()
+{
+    if [ -f $oconfig ]
+    then
+	$sudo mv $oconfig $config
+    fi
+    pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+    && $sudo sh $tmp.cmd
+    echo "Restarting pmcd"
+    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+    rm -f $tmp.*
+}
+
+trap interrupt 1 2 3 15
+trap cleanup 0
+
+if [ $PCP_PLATFORM = linux ]
+then
+    cat >$tmp  <<End-of-file
+linux	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+test	3	socket	inet 2222
+End-of-file
+elif [ $PCP_PLATFORM = linux ]
+then
+    cat >$tmp  <<End-of-file
+irix	1	dso	irix_init	libirixpmda.so
+pmcd	2	dso	pmcd_init	pmda_pmcd.so
+test	3	socket	inet 2222
+End-of-file
+elif [ $PCP_PLATFORM = darwin ]
+then
+    cat >$tmp  <<End-of-file
+darwin	78	dso	darwin_init	$PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+test	3	socket	inet 2222
+End-of-file
+elif [ $PCP_PLATFORM = solaris ]
+then
+    cat >>$tmp  <<End-of-File
+solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+test	3	socket	inet 2222
+End-of-File
+else
+    echo "Error - need pmcd.conf setup for $PCP_PLATFORM"
+    exit 1
+fi
+
+# netstat -an formats
+#
+# IRIX
+# tcp      0      0  *.2222                 *.*                    LISTEN
+#
+# Redhat 7.3 and 9
+# tcp        0      0 0.0.0.0:2222            0.0.0.0:*               LISTEN
+#
+# Mac OS X 10.6
+# tcp4       0      0  *.2222                 *.*                    LISTEN
+#
+# openindiana
+#      *.2222               *.*                0      0 128000      0 LISTEN
+#
+
+$sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
+src-oss/pmdashutdown -i 2222 -d 3 -l $tmp.pmdalog &
+pid=$!
+echo "pmdashutdown pid: $pid" >$seq.full
+sleep 1
+echo
+echo "port 2222 should be listening"
+netstat -an \
+| tee -a $seq.full \
+| grep '[.:]2222 ' \
+| sed \
+    -e 's/0\.0\.0\.0/*/g' \
+    -e 's/:/./g' \
+    -e 's/.*\(\*.2222\).*\(LISTEN\).*/... \1 ... \2/'
+echo
+
+cp $config $oconfig
+$sudo mv $tmp $config
+pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+&& $sudo sh $tmp.cmd
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+# echo "config:"
+# cat $config | sed -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;"
+echo
+
+# wait for pmdashutdown to finish
+#
+for t in 1 2 3 4 5 6
+do
+    echo >>$seq.full
+    echo "wait for pmdashutdown to finish ... cycle $t" >>$seq.full
+    if ps $PCP_PS_ALL_FLAGS | tee -a $seq.full | cut -f1 | grep $pid >/dev/null 2>&1
+    then
+	sleep 2
+    else
+	break
+    fi
+done
+
+echo >>$seq.full
+cat $tmp.pmdalog >>$seq.full
+echo
+echo "pmda log (should have terminated):"
+_filter_pmda_log <$tmp.pmdalog
+echo
+
+$sudo $signal -a -s HUP pmcd
+
+# wait for PMCD to finish writing log (or 5 seconds)
+for t in 1 2 3 4 5
+do
+    if egrep '^Cleanup "test" agent' $log >/dev/null 2>&1
+    then
+	break
+    fi
+    sleep 1
+done
+
+_filter_log

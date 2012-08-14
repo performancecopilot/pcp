@@ -1,0 +1,29 @@
+QA output created by 298
+=== live ===
+pmie errors ...
+pmie: metric kernel.all.cpu.wait.total not in namespace for host LOCALHOST
+pmLookupName failed: Unknown metric name
+  loadav    %usr    %sys    %wio   %idle maxiops
+ N       ?       ?       ?       ?       ?
+ N N N       ? N N
+ N N N       ? N N
+ N N N       ? N N
+
+=== live, pmie -e ===
+pmie errors ...
+pmie: metric kernel.all.cpu.wait.total not in namespace for host LOCALHOST
+pmLookupName failed: Unknown metric name
+                           loadav    %usr    %sys    %wio   %idle maxiops
+DATE N       ?       ?       ?       ?       ?
+DATE N N N       ? N N
+DATE N N N       ? N N
+DATE N N N       ? N N
+
+=== archive and pmie2col -w ===
+                            loadav     %usr     %sys     %wio    %idle  maxiops
+Sun Feb  8 12:30:00 2004      0.16        ?        ?        ?        ?        ?
+Sun Feb  8 13:00:00 2004      1.23     0.26     0.08     0.00     0.58     1.37
+Sun Feb  8 13:30:00 2004      1.35     0.35     0.10     0.00     0.55    19.70
+Sun Feb  8 14:00:00 2004      0.23     0.19     0.08     0.00     0.73     0.68
+Sun Feb  8 14:30:00 2004      0.56     0.00     0.08     0.00     0.92     0.63
+Sun Feb  8 15:00:00 2004      0.22     0.23     0.08     0.00     0.69     0.61

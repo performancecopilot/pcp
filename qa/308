@@ -1,0 +1,242 @@
+#! /bin/sh
+# PCP QA Test No. 308
+# pmlogger and pmlc for proc metrics ... indom problems
+# pv #452417
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    # some of this is because Linux and IRIX mixes produce different
+    # PIDs for the proc metrics, and the name of the init process is
+    # different
+    #
+    _filter_pmdumplog \
+    | grep proc.psinfo.ppid \
+    | sed -e 's/000*/zeroes.../' \
+	  -e 's/ 60\.8\.3 / PID /' \
+	  -e 's/ 3\.1\.8 / PID /' \
+	  -e 's/ init \[[0-9]*]/ init/' \
+	  -e 's/ \/etc\/init/ init/' \
+	  -e 's/ \/sbin\/init/ init/' \
+	  -e 's/init .*"/init"/'
+}
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+then
+    _notrun "No proc metrics for $PCP_PLATFORM"
+fi
+
+eval `./getpmcdhosts -L -n 2 -m 'proc.psinfo.ppid>=0' | sed -e 's/ / host2=/' -e 's/^/host1=/'`
+if [ -z "$host1" ]
+then
+    _notrun "Cannot get first remote pmcd host with proc.psinfo.ppid metrics"
+fi
+if [ -z "$host2" ]
+then
+    _notrun "Cannot get second remote pmcd host with proc.psinfo.ppid metrics"
+fi
+
+echo "QA output created by $seq"
+
+rm -f $seq.full
+echo "host1=$host1" >>$seq.full
+echo "host2=$host2" >>$seq.full
+
+# real QA test starts here
+
+echo | tee -a $seq.full
+echo "pmlogger directly ..." | tee -a $seq.full
+inst=`pminfo -F proc.psinfo.ppid \
+      | sed -n -e '/inst \[1 /{
+s/^[^"]*"/"/
+s/] value .*//
+p
+}'`
+
+echo "inst=$inst" >>$seq.full
+ps $PCP_PS_ALL_FLAGS | egrep "PID|$inst" >>$seq.full
+
+cat <<end-of-file >$tmp.conf
+log advisory on once { proc.psinfo.ppid[$inst] }
+end-of-file
+
+echo "=== pmlogger config ===" >>$seq.full
+cat $tmp.conf >>$seq.full
+
+rm -f $tmp.0 $tmp.index $tmp.meta
+pmlogger -s 1 -c $tmp.conf -l $tmp.log $tmp
+status=$?
+if [ $status -ne 0 ]
+then
+    echo "Warning: pmlogger exit status=$status"
+    cat $tmp.log
+fi
+x=`pmdumplog $tmp | _filter`
+if [ -z "$x" ]
+then
+    echo "Error: pmdumplog | filter produces nothing"
+    pmdumplog -a $tmp
+else
+    echo "$x"
+fi
+
+echo | tee -a $seq.full
+echo "pmlc for local pmlogger ..." | tee -a $seq.full
+rm -f $tmp.0 $tmp.index $tmp.meta $tmp.log
+pmlogger -L -s 1 -c /dev/null -l $tmp.log $tmp &
+pid=$!
+_wait_for_pmlogger $pid $tmp.log
+( echo "connect $!"; cat $tmp.conf ) | pmlc
+sleep 2
+x=`pmdumplog $tmp | _filter`
+if [ -z "$x" ]
+then
+    echo "Error: pmdumplog | filter produces nothing"
+    $signal -s TERM $pid
+    pmdumplog -a $tmp
+else
+    echo "$x"
+fi
+
+echo | tee -a $seq.full
+echo "pmlc local, pmcd and pmlogger remote ..." | tee -a $seq.full
+
+inst=`pminfo -F -h $host1 proc.psinfo.ppid \
+      | sed -n -e '/inst \[1 /{
+s/^[^"]*"/"/
+s/] value .*//
+p
+}'`
+cat <<end-of-file >$tmp.conf
+log advisory on once { proc.psinfo.ppid[$inst] }
+end-of-file
+
+echo "inst=$inst" >>$seq.full
+ssh -q pcpqa@$host1 ps -e | egrep "PID|$inst" >>$seq.full
+echo "=== pmlogger config ===" >>$seq.full
+cat $tmp.conf >>$seq.full
+
+cat <<end-of-file >$tmp.cmd
+. \$PCP_DIR/etc/pcp.env
+rm -f /tmp/\$\$.*
+( \$PCP_BINADM_DIR/pmlogger -L -s 1 -c /dev/null -l /tmp/\$\$.log /tmp/\$\$ </dev/null >/dev/null 2>&1 ) &
+echo rem_pid=\$! rem_tmp=\$\$
+end-of-file
+
+scp -q $tmp.cmd pcpqa@$host1:$tmp.cmd
+eval `ssh -q pcpqa@$host1 /bin/sh $tmp.cmd`
+
+if [ -z "$rem_pid" ]
+then
+    echo "Arrgh ... failed to get remote pmlogger pid"
+    exit
+fi
+
+if [ -z "$rem_tmp" ]
+then
+    echo "Arrgh ... failed to get remote archive basename"
+    exit
+fi
+
+# if this fails, /hosts/$host1 may not help to diagnose the failure
+# if $host1 is not exporting filesystems via NFS and/or the local
+# host is not mounting them via NFS ... only matters if the remote
+# pmlogger does not start ...
+#
+_wait_for_pmlogger "-h $host1 $rem_pid" /hosts/$host1/tmp/$rem_tmp.log
+
+( echo "connect $rem_pid@$host1"; cat $tmp.conf ) | pmlc
+sleep 2
+rm -f $tmp.0 $tmp.meta $tmp.index
+scp -q pcpqa@$host1:/tmp/$rem_tmp.index $tmp.index
+scp -q pcpqa@$host1:/tmp/$rem_tmp.meta $tmp.meta
+scp -q pcpqa@$host1:/tmp/$rem_tmp.0 $tmp.0
+x=`pmdumplog $tmp | _filter`
+if [ -z "$x" ]
+then
+    echo "Error: pmdumplog | filter produces nothing"
+    $signal -s TERM $pid
+    pmdumplog -a $tmp
+else
+    echo "$x"
+fi
+ssh -q pcpqa@$host1 "rm -f /tmp/$rem_tmp.*"
+
+echo | tee -a $seq.full
+echo "pmlc local, pmcd remote on one host, pmlogger remote on a different host ..." | tee -a $seq.full
+# need this in the format of the pmcd that pmlogger is connected to
+#
+inst=`pminfo -F -h $host2 proc.psinfo.ppid \
+      | sed -n -e '/inst \[1 /{
+s/^[^"]*"/"/
+s/] value .*//
+p
+}'`
+cat <<end-of-file >$tmp.conf
+log advisory on once { proc.psinfo.ppid[$inst] }
+end-of-file
+
+echo "inst=$inst" >>$seq.full
+ssh -q pcpqa@$host2 ps -e | egrep "PID|$inst" >>$seq.full
+echo "=== pmlogger config ===" >>$seq.full
+cat $tmp.conf >>$seq.full
+
+cat <<end-of-file >$tmp.cmd
+. /etc/pcp.env
+rm -f /tmp/\$\$.*
+( \$PCP_BINADM_DIR/pmlogger -h $host2 -L -s 1 -c /dev/null -l /tmp/\$\$.log /tmp/\$\$ </dev/null >/dev/null 2>&1 ) &
+echo rem_pid=\$! rem_tmp=\$\$
+end-of-file
+
+scp $tmp.cmd pcpqa@$host1:$tmp.cmd
+eval `ssh -q pcpqa@$host1 /bin/sh $tmp.cmd`
+
+if [ -z "$rem_pid" ]
+then
+    echo "Arrgh ... failed to get remote pmlogger pid"
+    exit
+fi
+
+if [ -z "$rem_tmp" ]
+then
+    echo "Arrgh ... failed to get remote archive basename"
+    exit
+fi
+
+# see note above about /hosts/$host1
+#
+_wait_for_pmlogger "-h $host1 $rem_pid" /hosts/$host1/tmp/$rem_tmp.log
+
+( echo "connect $rem_pid@$host1"; cat $tmp.conf ) | pmlc
+sleep 2
+rm -f $tmp.0 $tmp.meta $tmp.index
+scp pcpqa@$host1:/tmp/$rem_tmp.index $tmp.index
+scp pcpqa@$host1:/tmp/$rem_tmp.meta $tmp.meta
+scp pcpqa@$host1:/tmp/$rem_tmp.0 $tmp.0
+x=`pmdumplog $tmp | _filter`
+if [ -z "$x" ]
+then
+    echo "Error: pmdumplog | filter produces nothing"
+    $signal -s TERM $pid
+    pmdumplog -a $tmp
+else
+    echo "$x"
+fi
+ssh -q pcpqa@$host1 "rm -f /tmp/$rem_tmp.*"
+
+# success, all done
+status=0
+exit

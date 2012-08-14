@@ -1,0 +1,32 @@
+QA output created by 407
+=== This should work ===
+
+myevents
+    inst [0 or "fungus"] value [0 event records]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+
+myevents
+    inst [0 or "fungus"] value [1 event record timestamp TIMESTAMP]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+
+myevents
+    inst [0 or "fungus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+
+myevents
+    inst [0 or "fungus"] value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+
+=== These should NOT work ===
+Semantic error: derived metric my.bad_1: sample.event.records - sample.event.records: Non-arithmetic type for left operand
+Semantic error: derived metric my.bad_2: 1 + sample.event.records: Non-arithmetic type for right operand
+Semantic error: derived metric my.bad_3: <expr> + sample.event.records: Non-arithmetic type for right operand
+Semantic error: derived metric my.bad_4: sample.event.records - <expr>: Non-arithmetic type for left operand
+Semantic error: derived metric my.bad_5: 1 + sample.event.records: Non-arithmetic type for right operand
+Semantic error: derived metric my.bad_6: sample.event.records * 2: Non-arithmetic type for left operand
+my.bad_1: pmLookupDesc: Unknown or illegal metric identifier
+my.bad_2: pmLookupDesc: Unknown or illegal metric identifier
+my.bad_3: pmLookupDesc: Unknown or illegal metric identifier
+my.bad_4: pmLookupDesc: Unknown or illegal metric identifier
+my.bad_5: pmLookupDesc: Unknown or illegal metric identifier
+my.bad_6: pmLookupDesc: Unknown or illegal metric identifier

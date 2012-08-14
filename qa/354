@@ -1,0 +1,252 @@
+#! /bin/sh
+# PCP QA Test No. 354
+# more serious exercising of record mode in libpcp_gui
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+host=`hostname`
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+rm -rf $tmp
+mkdir $tmp
+if [ ! -d $tmp ]
+then
+    echo "Arrgh, failed to mkdir \"$tmp\""
+    ls -ld $tmp
+fi
+cd $tmp
+
+_build_sed()
+{
+    echo "s/$host/HOST/g" >$tmp.sed
+    $PCP_AWK_PROG <$1 >>$tmp.sed '
+BEGIN	{ numpid = 0; pid[""] = 1 }
+/pid:/	{ if ($6 == 0) next
+	  for (i in pid) {
+	    if ($6 == pid[i]) next
+	  }
+	  numpid++
+	  pid[numpid] = $6
+	  print "s/ " $6 " / pmlogger-pid-" numpid " /g"
+	}'
+}
+
+_filter()
+{
+    sed <$1 \
+	-e 's/$/ /' \
+	-e 's/^/ /' \
+    | sed -f $tmp.sed \
+    | sed \
+	-e 's/ $//' \
+	-e 's/^ //' \
+	-e "s/$MKTEMP/MKTEMP/" \
+	-e "s/$host/HOST/" \
+	-e 's/[0-9][^ ]* [kmKM]*bytes/SOME bytes/g' \
+	-e 's/[0-9][^ ]* seconds/SOME seconds/g' \
+	-e "s/$$/PID/g" \
+	-e '/xconfirm: Not found/d' \
+    | _filter_pmlogger_log \
+    | sed \
+        -e 's/\/[A-Z]*\/tmp/\/tmp/' \
+        -e 's/\/[a-z]*\/tmp/\/tmp/' 
+}
+
+_filter_ps()
+{
+$PCP_AWK_PROG '
+NR == 1	{ if ($2 != "PID") {
+	    print "PID not in field 2 of ps output!"
+	    print
+	    exit(1)
+	  }
+	  if ($8 == "CMD")
+	    # Linux
+	    cmd = 8
+	  else if ($11 == "COMMAND")
+	    # Darwin
+	    cmd = 11
+	  else {
+	    print "CMD (or COMMAND) not in field 8 (or 11) of ps output!"
+	    print
+	    exit(1)
+	  }
+	  next
+	}
+	{ print "ps:",$2,$cmd,$(cmd+1),$(cmd+2),$(cmd+3),$(cmd+4) }'
+}
+
+rm -f $here/$seq.full
+
+# NOT the default pmconfirm(1), please
+#
+cat <<'End-of-File' >$tmp.xconfirm
+#!/bin/sh
+# generate no output so pmlogger will report the message
+exit 0
+End-of-File
+chmod 755 $tmp.xconfirm
+export PCP_XCONFIRM_PROG=$tmp.xconfirm
+
+# real QA test starts here
+
+echo
+echo "=== folio name relative to cwd ==="
+echo "=== folio name relative to cwd ===" >>$here/$seq.full
+echo
+
+$here/src-oss/record foo no-1 1 $host localhost $host localhost 2>&1 >$tmp.out &
+sleep 10
+MKTEMP=`ls -d * | grep -v foo | grep -v '\.'`
+_build_sed $tmp.out
+_filter $tmp.out
+cat $tmp.out >>$here/$seq.full
+echo
+echo "pmlogger processes:"
+echo "pmlogger processes:" >>$here/$seq.full
+ps $PCP_PS_ALL_FLAGS 2>&1 \
+| tee -a $here/$seq.full \
+| sed -n -e 1p -e '/[p]mlogger.*-x/p' \
+| _filter_ps \
+| tee $tmp.tmp \
+| sed -f $tmp.sed \
+| LC_COLLATE=POSIX sort
+pid=`$PCP_AWK_PROG '{ print $2 }' <$tmp.tmp`
+if [ -z "$pid" ]
+then
+    # oops!
+    #
+    echo "Arrgh, no pmlogger process found ... see $seq.full"
+    exit
+else
+    echo "pmlogger pid: $pid" >>$here/$seq.full
+    npmlogger=`echo "$pid" | wc -w | sed -e 's/ //g'`
+    if [ "$npmlogger" -ne 1 ]
+    then
+	echo "Arrgh, expecting 1 pmlogger process found $npmlogger processes ... see $seq.full"
+	exit
+    fi
+    $signal -s TERM $pid
+fi
+
+for i in 1 2 3 4 5
+do
+    if pmlc $pid </dev/null 2>&1 | egrep "Connection refused|Transport endpoint is not connected" >/dev/null
+    then
+	# pmlogger has gone away, continue
+	#
+	break
+    else
+	# pmlogger still present
+	#
+	if [ $i = 5 ]
+	then
+	    echo "Arrgh, pmlogger process ($pid) will not die ... see $seq.full"
+	    exit
+	else
+	    sleep 2
+	fi
+    fi
+done
+
+echo
+echo "files:"
+for file in *
+do
+    new=`echo $file | sed -e "s/$MKTEMP/MKTEMP/" -e "s/$host/HOST/"`
+    [ "$new" != "$file" ] && mv $file $new
+done
+LC_COLLATE=POSIX ls
+for log in `LC_COLLATE=POSIX ls *.log`
+do
+    echo
+    echo "=== $log ==="
+    echo "=== $log ===" >>$here/$seq.full
+    _filter $log
+    cat $log >>$here/$seq.full
+done
+
+rm -rf *
+echo
+echo "=== absolute folio name ==="
+echo "=== absolute folio name ===" >>$here/$seq.full
+echo
+
+$here/src-oss/record `pwd`/foo no-2 0 $host localhost $host localhost 2>&1 >$tmp.out &
+sleep 10
+MKTEMP=`ls -d * | grep -v foo | grep -v '\.'`
+_build_sed $tmp.out
+cat $tmp.out >>$here/$seq.full
+_filter $tmp.out
+echo
+echo "pmlogger processes:"
+echo "pmlogger processes:" >>$here/$seq.full
+ps $PCP_PS_ALL_FLAGS 2>&1 \
+| tee -a $here/$seq.full \
+| sed -n -e 1p -e '/[p]mlogger.*-x/p' \
+| _filter_ps \
+| tee $tmp.tmp \
+| sed -f $tmp.sed \
+| LC_COLLATE=POSIX sort
+pid=`$PCP_AWK_PROG '{ print $2 }' <$tmp.tmp`
+if [ -z "$pid" ]
+then
+    # oops!
+    #
+    echo "Arrgh, no pmlogger process found ... see $seq.full"
+    exit
+else
+    echo "pmlogger pid: $pid" >>$here/$seq.full
+    $signal -s TERM $pid
+fi
+
+for i in 1 2 3 4 5
+do
+    if pmlc $pid </dev/null 2>&1 | egrep "Connection refused|Transport endpoint is not connected" >/dev/null
+    then
+	# pmlogger has gone away, continue
+	#
+	break
+    else
+	# pmlogger still present
+	#
+	if [ $i = 5 ]
+	then
+	    echo "Arrgh, pmlogger process ($pid) will not die ... see $seq.full"
+	    exit
+	else
+	    sleep 2
+	fi
+    fi
+done
+
+echo
+echo "files:"
+for file in *
+do
+    new=`echo $file | sed -e "s/$MKTEMP/MKTEMP/" -e "s/$host/HOST/"`
+    [ "$new" != "$file" ] && mv $file $new
+done
+LC_COLLATE=POSIX ls
+for log in `LC_COLLATE=POSIX ls *.log`
+do
+    echo
+    echo "=== $log ==="
+    echo "=== $log ===" >>$here/$seq.full
+    _filter $log
+    cat $log >>$here/$seq.full
+done
+
+# success, all done
+status=0
+exit

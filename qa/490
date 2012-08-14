@@ -1,0 +1,182 @@
+#!/bin/sh
+# PCP QA Test No. 490
+# check for mem leaks in pmlogrewrite
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which pmlogrewrite >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun pmlogrewrite not installed
+fi
+
+_check_valgrind
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/"
+}
+
+_cmp()
+{
+    if [ ! -f "$1.0" ]
+    then
+	echo "Arrgh ... $1.0 missing" | _filter
+	return
+    fi
+    if [ ! -f "$2.0" ]
+    then
+	echo "Arrgh ... $2.0 missing" | _filter
+	return
+    fi
+    pmdumplog -z -a $1 | tee -a $seq.full | sed -e '/\[[0-9][0-9]* bytes]/d' >$tmp.in
+    pmdumplog -z -a $2 | tee -a $seq.full | sed -e '/\[[0-9][0-9]* bytes]/d' >$tmp.out
+    if [ -n "$oldfilter" ]
+    then
+	$oldfilter <$tmp.in >$tmp.tmp
+	mv $tmp.tmp $tmp.in
+    fi
+    if [ -n "$newfilter" ]
+    then
+	$newfilter <$tmp.out >$tmp.tmp
+	mv $tmp.tmp $tmp.out
+    fi
+    echo "pmdumplog diffs ..."
+    diff -u $tmp.in $tmp.out | _filter
+}
+
+# find sample.mirage values and rescale like pmlogrewrite is expected to
+#
+# 10:47:07.419  29.0.37 (sample.mirage):
+#                inst [0 or "m-00"] value 27
+#                inst [12 or "m-12"] value 1226
+#                inst [13 or "m-13"] value 1325
+#                inst [15 or "m-15"] value 1524
+#                inst [16 or "m-16"] value 1623
+#              29.0.7 (sample.drift): value 88
+_scale()
+{
+    $PCP_AWK_PROG '
+/\(sample.mirage\):/		{ xlate=1; print; next }
+xlate == 1 && $1 != "inst"	{ xlate = 0 }
+xlate == 1 && $1 == "inst"	{ $6 = int((3600*$6 + 512)/1024) }
+				{ print }'
+}
+
+# same as _scale, w/out scale conversion ... copy awk whitespace rewriting
+_noscale()
+{
+    $PCP_AWK_PROG '
+/\(sample.mirage\):/		{ xlate=1; print; next }
+xlate == 1 && $1 != "inst"	{ xlate = 0 }
+xlate == 1 && $1 == "inst"	{ $6 = $6+0 }
+				{ print }'
+}
+
+# real QA test starts here
+
+cat <<End-of-File >$tmp.conf
+global {
+    hostname -> whizz-bang.engr.sgi.com
+    TZ -> "GMT+10"
+    Time -> +30
+}
+indom 1.5 {
+    indom -> 42.10
+    iname "15 minute" -> "forever"
+    iname "1 minute" -> "1 minute is not very long unlike this string"
+    inst 15 -> 9999
+}
+metric 1.*.* { pmid -> 42.*.* }
+metric irix.kernel.all.load { name->load type->double }
+metric hinv.ncpu { name->hinv.number_of_cpus type->U64 }
+End-of-File
+rm -f $tmp.new.*
+cat $tmp.conf >>$seq.full
+_run_valgrind pmlogrewrite -c $tmp.conf src-oss/rattle $tmp.new 2>$tmp.err | _filter
+cat $tmp.err >>$seq.full
+_cmp src-oss/rattle $tmp.new
+
+cat <<End-of-File >$tmp.conf
+metric sample.mirage_longlong { type->U32 indom->NULL }
+metric sample.scale_step.time_up_secs { type->FLOAT units->0,1,0,0,MSEC,0 }
+End-of-File
+rm -f $tmp.new.*
+cat $tmp.conf >>$seq.full
+_run_valgrind pmlogrewrite -c $tmp.conf src-oss/sample_expr $tmp.new 2>$tmp.err | _filter
+cat $tmp.err >>$seq.full
+_cmp src-oss/sample_expr $tmp.new
+
+cat <<End-of-File >$tmp.conf
+metric sample.bin { name -> x23456789.sample.bin type -> 64 }
+metric sample.mirage { type -> FLOAT units -> 1,-1,0,MBYTE,HOUR,0 }
+metric sample.drift { delete }
+indom 29.2 {
+    iname "bin-100" -> delete
+    iname "bin-400" -> delete
+    iname "bin-500" -> delete
+    iname "bin-600" -> delete
+    inst 900 -> delete }
+indom 29.3 { iname "m-00" -> delete inst 33 -> delete }
+End-of-File
+rm -f $tmp.new.*
+cat $tmp.conf >>$seq.full
+_run_valgrind pmlogrewrite -s -c $tmp.conf src-oss/mirage $tmp.new 2>$tmp.err | _filter
+cat $tmp.err >>$seq.full
+oldfilter=_scale
+newfilter=_noscale
+_cmp src-oss/mirage $tmp.new
+
+echo
+echo "=== correctness checked in QA 493 ... only care about valgrind here ==="
+cat <<End-of-File >$tmp.conf
+metric sample.ulong.bin_ctr {
+    indom -> NULL output MIN
+    type -> DOUBLE
+    units -> 1,0,0,BYTE,0,0
+}
+metric sample.ulonglong.bin_ctr {
+    indom -> NULL output MAX
+    type -> 32
+    units -> 1,0,0,BYTE,0,0
+}
+metric sampledso.double.bin_ctr {
+    indom -> NULL output AVG
+    type -> FLOAT
+}
+metric sample.float.bin_ctr {
+    indom -> NULL output SUM
+    type -> U64
+}
+metric sample.longlong.bin_ctr {
+    indom -> NULL output FIRST
+    type -> 64
+    units -> 1,-1,0,KBYTE,SEC,0
+}
+indom 29.2 { inst 200 -> DELETE }
+indom 30.2 { inst 800 -> DELETE }
+End-of-File
+rm -f $tmp.new.*
+cat $tmp.conf >>$seq.full
+_run_valgrind pmlogrewrite -s -c $tmp.conf src-oss/mirage $tmp.new 2>$tmp.err | _filter
+cat $tmp.err >>$seq.full
+
+# success, all done
+exit

@@ -1,0 +1,192 @@
+QA output created by 075
+
+$ pmstore -i bin-300,bin-400,bin-500 sample.bin 500
+sample.bin inst [300 or "bin-300"] old value=300 new value=500
+sample.bin inst [400 or "bin-400"] old value=400 new value=500
+sample.bin inst [500 or "bin-500"] old value=500 new value=500
+sample.bin: pmStore: No permission to perform requested operation
+
+$ pmstore -i bin-300,bin-400,bin-500 sample.bin 400
+sample.bin inst [300 or "bin-300"] old value=300 new value=400
+sample.bin inst [400 or "bin-400"] old value=400 new value=400
+sample.bin inst [500 or "bin-500"] old value=500 new value=400
+sample.bin: pmStore: No permission to perform requested operation
+
+$ pmstore -i bin-300 bin-400 bin-500 sample.bin 500
+sample.bin inst [300 or "bin-300"] old value=300 new value=500
+sample.bin inst [400 or "bin-400"] old value=400 new value=500
+sample.bin inst [500 or "bin-500"] old value=500 new value=500
+sample.bin: pmStore: No permission to perform requested operation
+
+$ pmstore -i bin-300
+bin-400
+bin-500 sample.bin 455
+sample.bin inst [300 or "bin-300"] old value=300 new value=455
+sample.bin inst [400 or "bin-400"] old value=400 new value=455
+sample.bin inst [500 or "bin-500"] old value=500 new value=455
+sample.bin: pmStore: No permission to perform requested operation
+
+$ pmstore -i bin-300,bin-400,bin-500 sample.bin 234
+sample.bin inst [300 or "bin-300"] old value=300 new value=234
+sample.bin inst [400 or "bin-400"] old value=400 new value=234
+sample.bin inst [500 or "bin-500"] old value=500 new value=234
+sample.bin: pmStore: No permission to perform requested operation
+
+$ pmstore -i bin-300,bin-400,bin-500 sample.bin 500
+sample.bin inst [300 or "bin-300"] old value=300 new value=500
+sample.bin inst [400 or "bin-400"] old value=400 new value=500
+sample.bin inst [500 or "bin-500"] old value=500 new value=500
+sample.bin: pmStore: No permission to perform requested operation
+
+$ pmstore -i bin-300 bin-400 bin-500 sample.bin 400
+Usage: pmstore [options] metricname value
+
+Options:
+  -h host       metrics source is PMCD on host
+  -i instance   metric instance or list of instances. Elements in an
+                instance list are separated by commas and/or newlines
+  -n pmnsfile   use an alternative PMNS
+
+$ pmstore -i bin-300.bin-400.bin-500 sample.bin 400
+pmLookupInDom sample.bin[bin-300.bin-400.bin-500]: Unknown or illegal instance identifier
+
+$ pmstore -i bin-300,bin-400,bin-500 sample.bin
+Usage: pmstore [options] metricname value
+
+Options:
+  -h host       metrics source is PMCD on host
+  -i instance   metric instance or list of instances. Elements in an
+                instance list are separated by commas and/or newlines
+  -n pmnsfile   use an alternative PMNS
+
+$ pmstore -i bin-300,bin-400,bin-500 -h REMOTEHOST sample.bin 500
+sample.bin inst [300 or "bin-300"] old value=300 new value=500
+sample.bin inst [400 or "bin-400"] old value=400 new value=500
+sample.bin inst [500 or "bin-500"] old value=500 new value=500
+sample.bin: pmStore: No permission to perform requested operation
+
+$ pmval -s 2 -i bin-300,bin-400,bin-500 sample.bin
+
+metric:    sample.bin
+host:      localhost
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  1.00 sec
+
+    bin-300     bin-400     bin-500 
+        300         400         500 
+        300         400         500 
+
+$ pmval -i bin-300,bin-400,bin-500 -s 2 sample.bin
+
+metric:    sample.bin
+host:      localhost
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  1.00 sec
+
+    bin-300     bin-400     bin-500 
+        300         400         500 
+        300         400         500 
+
+$ pmval -t 0.2 -s 2 -i bin-300 bin-400 bin-500 sample.bin
+
+metric:    sample.bin
+host:      localhost
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  0.20 sec
+
+    bin-300     bin-400     bin-500 
+        300         400         500 
+        300         400         500 
+
+$ pmval -t 0.2 -s 2 -i bin-300
+bin-400
+bin-500 sample.bin
+
+metric:    sample.bin
+host:      localhost
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  0.20 sec
+
+    bin-300     bin-400     bin-500 
+        300         400         500 
+        300         400         500 
+
+$ pmval -i bin-300,bin-400,bin-500 -s 2 sample.bin
+
+metric:    sample.bin
+host:      localhost
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  1.00 sec
+
+    bin-300     bin-400     bin-500 
+        300         400         500 
+        300         400         500 
+
+$ pmval -i bin-300,bin-400,bin-500 -s 2 sample.bin
+
+metric:    sample.bin
+host:      localhost
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  1.00 sec
+
+    bin-300     bin-400     bin-500 
+        300         400         500 
+        300         400         500 
+
+$ pmval -s 2 -t 0.3 -i bin-300 bin-400 bin-500 sample.bin
+Error: pmval can only process one metricname at a time
+
+Usage: pmval [options] metricname
+
+Options:
+  -A align      align sample times on natural boundaries
+  -a archive    metrics source is a PCP log archive (interpolate values)
+  -d            delay, pause between updates for archive replay
+  -f N          fixed precision output format with N digits to the
+                right of the decimal point
+  -g            start in GUI mode with new time control
+  -h host       metrics source is PMCD on host
+  -i instance   metric instance or list of instances - elements in an
+                instance list are separated by commas or whitespace
+  -n pmnsfile   use an alternative PMNS
+  -O offset     initial offset into the time window
+  -p port       port name for connection to existing time control
+  -r            output raw counter values
+  -S starttime  start of the time window
+  -s samples    terminate after this many samples
+  -T endtime    end of the time window
+  -t interval   sample interval [default 1 second]
+  -U archive    metrics source is a PCP log archive (do not interpolate
+                and -t option ignored)
+  -w width      set the width of each column of output
+  -Z timezone   set reporting timezone
+  -z            set reporting timezone to local time of metrics source
+
+$ pmval -s 2 -t 0.3 -i bin-300.bin-400.bin-500 sample.bin
+
+pmval: instance bin-300.bin-400.bin-500 not available
+
+$ pmval -i bin-300,bin-400 -s 2 sample.bin
+
+metric:    sample.bin
+host:      localhost
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  1.00 sec
+
+    bin-300     bin-400 
+        300         400 
+        300         400 

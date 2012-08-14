@@ -1,0 +1,244 @@
+#! /bin/sh
+# PCP QA Test No. 216
+#
+# Verify network.<protocol> statistics
+# (Linux version, see 117 for non-Linux version - although this version
+# has been completely re-written to deal with optional output from the
+# Linux version of netstat)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./localconfig
+
+seq=`basename $0`
+
+if [ $PCP_PLATFORM != linux ]
+then
+    echo "network.* checks for non-linux done in test 117" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+#debug# tmp=`pwd`/tmp
+compare=`pwd`/src-oss/compare
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+if [ ! -x $compare ]
+then
+    echo "Can't find compare, giving up"
+    exit 1
+fi
+
+if pminfo network.ip >/dev/null
+then
+    :
+else
+    echo "pminfo network.ip not working, giving up"
+    exit 1
+fi
+
+ns1=$tmp.netstat1
+pcp=$tmp.pcp
+ns2=$tmp.netstat2
+
+rm -f $seq.full
+rm -rf $ns1 $pcp $ns2
+
+cat <<'End-of-File' >$tmp.map
+# build by hand from the source file statistics.c used to make netstat
+# tags ...
+#	#notreported#	netstat -s does not report this
+#	#notcounter#	semantics is not counter, so not suitable for this test
+#
+# SNMP Name|netstat string|PCP name
+# Iptab[]
+#notreported#Forwarding|Forwarding is %s|network.ip.forwarding
+#notreported#DefaultTTL|Default TTL is NNN|network.ip.defaultttl
+InReceives|NNN total packets received|network.ip.inreceives
+InHdrErrors|NNN with invalid headers|network.ip.inhdrerrors
+InAddrErrors|NNN with invalid addresses|network.ip.inaddrerrors
+ForwDatagrams|NNN forwarded|network.ip.forwdatagrams
+InUnknownProtos|NNN with unknown protocol|network.ip.inunknownprotos
+InDiscards|NNN incoming packets discarded|network.ip.indiscards
+InDelivers|NNN incoming packets delivered|network.ip.indelivers
+OutRequests|NNN requests sent out|network.ip.outrequests
+OutDiscards|NNN outgoing packets dropped|network.ip.outdiscards
+OutNoRoutes|NNN dropped because of missing route|network.ip.outnoroutes
+ReasmTimeout|NNN fragments dropped after timeout|network.ip.reasmtimeout
+ReasmReqds|NNN reassemblies required|network.ip.reasmreqds
+ReasmOKs|NNN packets reassembled ok|network.ip.reasmoks
+ReasmFails|NNN packet reassembles failed|network.ip.reasmfails
+FragOKs|NNN fragments received ok|network.ip.fragoks
+FragFails|NNN fragments failed|network.ip.fragfails
+FragCreates|NNN fragments created|network.ip.fragcreates
+# Icmptab[]
+InMsgs|NNN ICMP messages received|network.icmp.inmsgs
+InErrors|NNN input ICMP message failed.|network.icmp.inerrors
+InDestUnreachs|ICMP input  *destination unreachable: NNN|network.icmp.indestunreachs
+InTimeExcds|ICMP input  *timeout in transit: NNN|network.icmp.intimeexcds
+nParmProbs|ICMP input  *wrong parameters: NNN|network.icmp.inparmprobs
+InSrcQuenchs|ICMP input  *source quenches: NNN|network.icmp.insrcquenchs
+InRedirects|ICMP input  *redirects: NNN|network.icmp.inredirects
+InEchos|ICMP input  *echo requests: NNN|network.icmp.inechos
+InEchoReps|ICMP input  *echo replies: NNN|network.icmp.inechoreps
+InTimestamps|ICMP input  *timestamp request: NNN|network.icmp.intimestamps
+InTimestampReps|ICMP input  *timestamp reply: NNN|network.icmp.intimestampreps
+InAddrMasks|ICMP input  *address mask request: NNN|network.icmp.inaddrmasks  
+InAddrMaskReps|ICMP input  *address mask replies: NNN|network.icmp.inaddrmaskreps
+OutMsgs|NNN ICMP messages sent|network.icmp.outmsgs
+OutErrors|NNN ICMP messages failed|network.icmp.outerrors
+OutDestUnreachs|ICMP output *destination unreachable: NNN|network.icmp.outdestunreachs
+OutTimeExcds|ICMP output  *time exceeded: NNN|network.icmp.outtimeexcds
+OutParmProbs|ICMP output  *wrong parameters: NNN|network.icmp.outparmprobs    
+OutSrcQuenchs|ICMP output  *source quench: NNN|network.icmp.outsrcquenchs
+OutRedirects|ICMP output  *redirect: NNN|network.icmp.outredirects
+OutEchos|ICMP output  *echo request: NNN|network.icmp.outechos
+OutEchoReps|ICMP output *echo replies: NNN|network.icmp.outechoreps
+OutTimestamps|ICMP output  *timestamp requests: NNN|network.icmp.outtimestamps
+OutTimestampReps|ICMP output  *timestamp replies: NNN|network.icmp.outtimestampreps
+OutAddrMasks|ICMP output  *address mask requests: NNN|network.icmp.outaddrmasks
+OutAddrMaskReps|ICMP output  *address mask replies: NNN|network.icmp.outaddrmaskreps
+# Tcptab[]
+#notreported#RtoAlgorithm|RTO algorithm is %s|network.tcp.rtoalgorithm
+#notreported#RtoMin||network.tcp.rtomin
+#notreported#RtoMax||network.tcp.rtomax
+#notreported#MaxConn||network.tcp.maxconn
+#notcounter#ActiveOpens|NNN active connections openings|network.tcp.activeopens
+#notcounter#PassiveOpens|NNN passive connection openings|network.tcp.passiveopens
+AttemptFails|NNN failed connection attempts|network.tcp.attemptfails
+EstabResets|NNN connection resets received|network.tcp.estabresets
+#notcounter#CurrEstab|NNN connections established|network.tcp.currestab
+InSegs|NNN segments received|network.tcp.insegs
+OutSegs|NNN segments send out|network.tcp.outsegs
+RetransSegs|NNN segments retransmited|network.tcp.retranssegs
+InErrs|NNN bad segments received.|network.tcp.inerrs
+OutRsts|NNN resets sent|network.tcp.outrsts
+# Udptab[]
+InDatagrams|NNN packets received|network.udp.indatagrams
+NoPorts|NNN packets to unknown port received.|network.udp.noports
+InErrors|NNN packet receive errors|network.udp.inerrors
+OutDatagrams|NNN packets sent|network.udp.outdatagrams
+#notreported#RcvbufErrors||network.udp.recvbuferrors
+#notreported#SndbufErrors||network.udp.sndbuferrors
+End-of-File
+
+# real QA test starts here
+
+_get_netstat()
+{
+    netstat -s \
+    | tee -a $seq.full \
+    | $PCP_AWK_PROG >$tmp.out '
+/ICMP input histogram:/		{ pfx = "ICMP input"; next }
+/ICMP output histogram:/	{ pfx = "ICMP output"; next }
+/^Ip:/				{ pfx = ""; skip = 0; print; next }
+/^Icmp:/			{ pfx = ""; skip = 0; print; next }
+/^Tcp:/				{ pfx = ""; skip = 0; print; next }
+/^Udp:/				{ pfx = ""; skip = 0; print; next }
+/^[A-Z]/			{ pfx = ""; skip = 1; print $0,"... skipped"; next }
+skip == 1			{ next }
+/:/				{ print pfx,$0; next }
+				{ pfx = ""; print }'
+    echo "--- Culled netstat ---" >>$seq.full
+    cat $tmp.out >>$seq.full
+    $PCP_AWK_PROG <$tmp.map -F\| '
+/^#/	{ next }
+	{ print $2 }' \
+    | sed -e 's/NNN/\\\\([0-9][0-9]*\\\\)/' \
+    | while read pat
+    do
+	echo "pat=$pat" >>$seq.full
+	sed -n -e 's/^[ 	]*//' -e "/$pat/s//\\1/p" <$tmp.out >$tmp.tmp
+	if [ -s $tmp.tmp ]
+	then
+	    cat $tmp.tmp
+	else
+	    # assume it is marked opt_number in the statistics table, so
+	    # netstat does not generate output if the value is zero
+	    echo "0"
+	fi
+    done
+}
+
+echo "=== First netstat ===" >>$seq.full
+_get_netstat >$ns1
+echo "=== Filtered first netstat ===" >>$seq.full
+cat $ns1 >>$seq.full
+
+echo "=== pmprobe ===" >>$seq.full
+$PCP_AWK_PROG <$tmp.map -F\| '
+/^#/	{ next }
+	{ print $3 }' \
+| tee $tmp.metrics \
+| while read metric
+do
+    pmprobe -v "$metric" 2>&1
+done \
+| tee -a $seq.full \
+| while read metric sts val
+do
+    if [ "$sts" = 1 ]
+    then
+	echo "$val"
+    else
+	# would prefer -1, but that messes up src-oss/compare and 0
+	# happens too often ... 42424242 has only a 1 in 2^31 chance
+	# of hitting a false match!
+	echo "42424242"
+    fi
+done >$pcp
+
+echo "=== Second netstat ===" >>$seq.full
+_get_netstat >$ns2
+echo "=== Filtered second netstat ===" >>$seq.full
+cat $ns2 >>$seq.full
+
+nm=`wc -l <$pcp | sed -e 's/[ 	]*//g'`
+nn=`wc -l <$ns2  | sed -e 's/[ 	]*//g'`
+if [ $nm -lt $nn ]
+then
+    echo "Update list! fewer metrics ($nm) than netstat statistics ($nn) -- see $seq.full"
+elif [ $nm -gt $nn ]
+then
+    echo "Update list! more metrics ($nm) than netstat statistics ($nn) -- see $seq.full"
+fi
+
+echo "#!/bin/sh" >>$tmp.sh
+echo "sts=0" >>$tmp.sh
+paste -d"   \n" $ns1 $pcp $ns2 $tmp.metrics \
+    | $PCP_AWK_PROG '
+NF == 4	{
+	  printf "if '$compare' %d %d %d; then :; else ", $1, $2, $3;
+	  printf "sts=1; echo \"%s = %d out of range %d..%d\"; fi\n", $4, $2, $1, $3
+	  next
+	}
+	{
+	  print "echo \"Test botch:",$0,"\""
+	  next
+	}' \
+    >>$tmp.sh
+echo "exit $sts" >>$tmp.sh
+chmod u+x $tmp.sh
+
+cat $tmp.sh >>$seq.full
+
+# for debugging
+# if sh -x $tmp.sh
+
+if sh $tmp.sh
+then
+    exit 0
+else
+    echo "Bad network.* metrics"
+    exit 1
+fi

@@ -1,0 +1,76 @@
+#! /bin/sh
+# PCP QA Test No. 136
+# exercise the -v N option to pmlogger to volume switch after N samples
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_do_ls()
+{
+    $PCP_AWK_PROG '
+/Cannot/	{ print; next }
+		{ print $9,int($5/100)*100 "-" 100+int($5/100)*100,"bytes" }' \
+    | sed -e "s;$tmp;MYLOG;"
+}
+
+_do_time()
+{
+    tstamp=`wc -l <$tmp.sed | sed -e 's/  *//g'`
+    tstamp=`expr $tstamp - 2`
+    sed >$tmp.tmp \
+	-e "s;$tmp;MYLOG;" \
+	-e 's/from host .*/from host LOCALHOST/'
+    sed -n <$tmp.tmp \
+      -e 's/.*\([0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9]\).*/\1/p' \
+    | sort -u \
+    | while read time
+    do
+    	if grep $time $tmp.sed >/dev/null
+	then
+	    :
+	else
+	    echo "s/$time/TIMESTAMP-$tstamp/g" >>$tmp.sed
+	    tstamp=`expr $tstamp + 1`
+	fi
+    done
+
+    sed -f $tmp.sed $tmp.tmp
+}
+
+# real QA test starts here
+rm -f $tmp.*
+echo 's/ [A-Z][a-z][a-z] [A-Z][a-z][a-z] .. / month-day /g' >$tmp.sed
+echo 's/ [12][0-9][0-9][0-9]$/ year/' >>$tmp.sed
+
+pmlogger -s 50 -v 10 -L -c /dev/null -l $tmp.log $tmp >$tmp.err 2>&1 &
+pid=$!
+
+sleep 3
+
+pmlc <<End-of-File
+connect $pid
+log mandatory on 100 msec { sampledso.milliseconds }
+End-of-File
+
+wait
+
+LC_TIME=POSIX ls -l $tmp.? | _do_ls
+
+echo
+pmdumplog -t $tmp | _do_time \
+| $PCP_AWK_PROG '
+$1 ~ /TIMESTAMP/ && NF == 4	{ print $1 "            " $2 "       OFFSET       OFFSET"; next }
+				{ print }'
+
+echo
+echo "=== samples, expect 50 + 3 for preamble ==="
+pmdumplog -m $tmp | sed -e '/^$/d' | wc -l | sed -e 's/  *//g'

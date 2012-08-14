@@ -1,0 +1,7 @@
+log advisory on 10 secs {
+    sample.seconds
+}
+
+log advisory on 3 sec {
+    sample.milliseconds
+}

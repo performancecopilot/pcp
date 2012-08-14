@@ -1,0 +1,142 @@
+#! /bin/sh
+# PCP QA Test No. 587
+# pmcd long line handling error
+# #754795 - pmcd botches handling of long lines in pmcd.conf
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux|darwin|solaris)
+	ln $seq.$PCP_PLATFORM $seq.out || exit 1
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    ( cd $PCP_PMDAS_DIR/trivial ; $sudo make >/dev/null 2>&1 )
+    if [ -f $PCP_PMCDCONF_PATH.$seq ]
+    then
+	echo
+	$sudo rm -f $PCP_PMCDCONF_PATH
+	$sudo mv $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+    else
+	$sudo $signal -a -s HUP pmcd
+    fi
+    rm -f $tmp.*
+    if [ -d $PCP_LOG_DIR/pmcd ]
+    then
+	$sudo rm -f $PCP_LOG_DIR/pmcd/this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-*-bytes*
+    else
+	$sudo rm -f $PCP_LOG_DIR/this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-*-bytes*
+    fi
+}
+
+# default case
+PMCDLOG=$PCP_LOG_DIR/pmcd/pmcd.log
+
+case "$PCP_PLATFORM" in
+irix)
+    PMCDLOG=$PCP_LOG_DIR/pmcd.log
+    cat <<End-of-File >$tmp.conf
+# temporary pmcd.conf for qa/$seq
+irix	1	dso	irix_init	libirixpmda.so
+pmcd	2	dso	pmcd_init	pmda_pmcd.so
+proc	3	dso	proc_init	pmda_proc.so
+End-of-File
+    ;;
+
+linux)
+    cat >> $tmp.conf << EOF
+# temporary pmcd.conf for qa/$seq
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+linux   60      dso     linux_init      $PCP_PMDAS_DIR/linux/pmda_linux.so
+EOF
+    ;;
+
+darwin)
+    cat >> $tmp.conf << EOF
+# temporary pmcd.conf for qa/$seq
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+darwin  78      dso     darwin_init     $PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
+EOF
+    ;;
+
+solaris)
+    cat >> $tmp.conf << EOF
+# temporary pmcd.conf for qa/$seq
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
+EOF
+    ;;
+
+*)
+    echo "Arrgh ... need pmcd.conf for $PCP_PLATFORM"
+    exit 1
+esac
+
+$sudo mv $PCP_PMCDCONF_PATH $PCP_PMCDCONF_PATH.$seq
+$sudo cp $tmp.conf $PCP_PMCDCONF_PATH
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+
+unset ROOT
+cd $PCP_PMDAS_DIR/trivial
+$sudo ./Install </dev/null >/dev/null
+cd $here
+
+echo 'bogus	249	pipe	binary 		'"$PCP_PMDAS_DIR/trivial/pmdatrivial"' -d 250 -l "this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-200-bytes-------------------------------------------------------------------"' >>$tmp.conf
+
+echo 'fungus	248	pipe	binary 		'"$PCP_PMDAS_DIR/trivial/pmdatrivial"' -d 250 -l "this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-400-bytes-------------------------------------------------------------------fungus    248     pipe    binary          '"$PCP_PMDAS_DIR/trivial/pmdatrivial"' -d 250 -l this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-500-bytes-------------------------------------------------------------------0123456768901234567689012345676890123456768901234567689012345676890123456768901234567689"' >>$tmp.conf
+
+echo 'humus	247	pipe	binary 		'"$PCP_PMDAS_DIR/trivial/pmdatrivial"' -d 250 -l "this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-2000-bytes------------------------------------------------------------------- 012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"' >>$tmp.conf
+
+cp $tmp.conf $tmp.conf+trivial
+grep '^trivial' $PCP_PMCDCONF_PATH >>$tmp.conf+trivial
+
+# real QA test starts here
+for i in 1 2 3 4 5 6
+do
+    echo
+    echo "=== Cycle $i ==="
+    echo "add trivial PMDA ..."
+    $sudo cp $tmp.conf+trivial $PCP_PMCDCONF_PATH
+    $sudo touch $PCP_PMCDCONF_PATH
+    $sudo $signal -a -s HUP pmcd
+    sleep 1
+    _wait_for_pmcd
+    pminfo -f pmcd.agent.type
+    echo "cull trivial PMDA ..."
+    $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
+    $sudo touch $PCP_PMCDCONF_PATH
+    $sudo $signal -a -s HUP pmcd
+    sleep 1
+    _wait_for_pmcd
+    pminfo -f pmcd.agent.type
+done
+
+grep ridiculous $PMCDLOG
+
+# success, all done
+status=0
+exit

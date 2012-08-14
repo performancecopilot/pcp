@@ -1,0 +1,100 @@
+#! /bin/sh
+# PCP QA Test No. 196
+#
+# Test pmcd's "-i ipaddr" option
+# Don't expect this one to work away from Melbourne!
+# Need pcpqa remote access to other machines
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+_needclean=true
+signal=$PCP_BINADM_DIR/pmsignal
+status=1
+trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    if $_needclean
+    then
+	_needclean=false
+	$sudo $signal -a -s KILL $PCP_PMCD_PROG
+	$sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
+	_wait_for_pmcd
+	_wait_for_pmlogger
+    fi
+}
+
+. ./common.check
+
+# real QA test starts here
+
+# This test requires a machine with two network interfaces.
+# gonzo is the only one we have that cut's it.
+#
+host=`hostname`
+if [ X$host != "Xgonzo" ]
+then
+    # if this isn't gonzo, fake it!
+    tail -n +2 196.out
+    status=0
+    exit
+fi
+
+goodif=`grep ptg-gate /etc/hosts | cut -f1`
+badif=`grep gonzo /etc/hosts | cut -f1`
+
+# choose different ports to the standard ones so we don't have to stop/start
+# pmcd.
+#
+PMCD_PORT=4320
+export PMCD_PORT
+
+# Do this in /var/tmp
+#
+cd /var/tmp
+pmcdlog=$tmp.pmcd.log
+if [ -x $PCP_PMCD_PROG ]
+then
+    $PCP_PMCD_PROG -i $goodif -l $pmcdlog >$tmp.pmcd.err 2>1
+else
+    echo "Cannot find pmcd?"
+    exit
+fi
+
+_wait_for_pmcd 20 ptg-gate
+
+metric=pmcd.control.debug
+echo "Test that new pmcd is OK..."
+if pminfo -f -h $goodif $metric
+then
+    echo "OK"
+else
+    echo "Error starting pmcd with -i $goodif -l $pmcdlog"
+    echo "pmcd.log contains:"
+    echo "======== start pmcd.log ========
+    cat $pmcdlog
+    echo "======== end pmcd.log ========
+    exit
+fi
+echo ""
+
+echo "Test access on good port..."
+cmd='sh -c "PMCD_PORT='$PMCD_PORT'; export PMCD_PORT; pminfo -f -h '$goodif' '$metric'"'
+ssh -q pcpqa@moomba.melbourne.sgi.com $cmd </dev/null
+
+echo
+echo "Test access on bad port (should fail)..."
+cmd='sh -c "PMCD_PORT='$PMCD_PORT'; export PMCD_PORT; pminfo -f -h '$badif' '$metric'"'
+ssh -q pcpqa@moomba.melbourne.sgi.com $cmd </dev/null 2>&1 \
+| sed -e "s/$badif/NOT-A-GOOD-IPADDR/"
+
+status=0
+exit

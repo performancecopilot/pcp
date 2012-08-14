@@ -1,0 +1,227 @@
+#! /bin/sh
+# PCP QA Test No. 066
+# Test PMCD correctly restores original access control list after
+# reconfiguration with a bad config file.
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
+then
+    if test $PCP_EOE_VER -ge 2704
+    then
+	ln $seq.out.3 $seq.out
+    else
+	ln $seq.out.2 $seq.out
+    fi
+else
+    ln $seq.out.1 $seq.out
+fi
+
+trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+rm -f $seq.full
+
+# real QA test starts here
+
+signal=$PCP_BINADM_DIR/pmsignal
+config=$PCP_PMCDCONF_PATH
+oconfig=$tmp.pmcd.config
+log=$PCP_PMCDLOG_PATH
+_needclean=true
+LOCALHOST=`hostname`
+
+_filter_log()
+{
+    sleep 1
+    _filter_pmcd_log <$log \
+    | grep -v "^access violation from host" \
+    | grep -v "^endclient client" \
+    | sed \
+	-e 's/^$//' \
+	-e '/^00[08]:/d' \
+	-e '/^linux/s/\/var\//\/usr\//' \
+	-e '/localhost/s/[0-9a-f][0-9a-f][0-9a-f]*/MYIPADDR/' \
+	-e '/^sample/s/.*/sample agent.../' \
+	-e 's;pcp/lib/mips_[^.]*\.;pcp/lib/ISA.;' \
+	-e '/client connection from/,/^$/d' \
+	-e 's/1 dso/X dso/' \
+	-e 's/2 dso/X dso/' \
+	-e 's/00001983  0000ffff/83190000  ffff0000/' \
+	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;g" \
+	-e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;g" \
+	-e 's;$PCP_PMDAS_DIR/pmcd/;;' \
+	-e "s;\.$DSO_SUFFIX;.\$DSO_SUFFIX;g"
+}
+
+interrupt()
+{
+    echo "Interrupted"
+    exit
+}
+
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+
+cleanup()
+{
+    if [ $_needclean ]
+    then
+	$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+	if [ -f $oconfig ]
+	then
+	    $sudo mv $oconfig $config
+	fi
+	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+	    && $sudo sh $tmp.cmd
+	echo "Restarting pmcd"
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	_needclean=false
+    fi
+    rm -f $tmp $tmp.*
+}
+
+_myfilter_config()
+{
+    sed \
+	-e "s/$other1/OTHER1/" \
+	-e "s/$other2/OTHER2/" \
+	-e "s;$PCP_RC_DIR;\$PCP_RC_DIR;g" \
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;g" \
+	-e "/^irix/s/.*/[platform PMDA]/" \
+	-e "/^linux/s/.*/[platform PMDA]/" \
+	-e "/^darwin/s/.*/[platform PMDA]/" \
+	-e "/^solaris/s/.*/[platform PMDA]/" \
+	-e 's;$PCP_PMDAS_DIR/pmcd/;;' \
+	-e "s;\.$DSO_SUFFIX;.\$DSO_SUFFIX;g" \
+    | _filter_pmcd_log
+}
+
+pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+    && $sudo sh $tmp.cmd
+
+trap "interrupt; cleanup; exit" 1 2 3 15
+trap "cleanup; exit" 0
+
+cat >$tmp  <<End-of-File
+# need the pmcd PMDA so that "init" restart can start pmlogger
+# the OS PMDA has to be there so that the default logging config works
+# created by QA 066
+#
+End-of-File
+
+if [ $PCP_PLATFORM = linux ]
+then
+    cat >>$tmp  <<End-of-File
+linux   60      dso     linux_init      $PCP_PMDAS_DIR/linux/pmda_linux.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
+elif [ $PCP_PLATFORM = irix ]
+then
+    cat >>$tmp  <<End-of-File
+irix	1	dso	irix_init	libirixpmda.so
+pmcd	2	dso	pmcd_init	pmda_pmcd.so
+End-of-File
+elif [ $PCP_PLATFORM = darwin ]
+then
+    cat >>$tmp  <<End-of-File
+darwin	78	dso	darwin_init	$PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+End-of-File
+elif [ $PCP_PLATFORM = solaris ]
+then
+    cat >>$tmp  <<End-of-File
+solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
+else
+    echo "Error - need pmcd.conf setup for $PCP_PLATFORM"
+    exit 1
+fi
+
+cat >>$tmp  <<End-of-File
+
+[access]
+allow localhost: all;
+disallow 131.25.*: store;
+disallow *: all;
+
+End-of-File
+
+eval `./getpmcdhosts -L -n 2 \
+      | $PCP_AWK_PROG '{ if (NF == 2) printf("other1=%s other2=%s\n",$1,$2); }'`
+
+if [ -z "$other1" ]
+then
+    echo "Cannot find first remote host running pmcd" >$seq.notrun
+    status=1
+    exit
+fi
+
+if [ -z "$other2" ]
+then
+    echo "Cannot find second remote host running pmcd" >$seq.notrun
+    status=1
+    exit
+fi
+
+cp $config $oconfig
+echo "+++ stopping pmcd +++" >>$seq.full
+$sudo $PCP_RC_DIR/pcp stop | tee -a $seq.full | _filter_pcp_stop
+$sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
+$sudo cp $tmp $config
+# try to dodge bind: Address already in use
+[ $PCP_PLATFORM = solaris ] && sleep 10
+echo "+++ starting pmcd +++" >>$seq.full
+$sudo $PCP_RC_DIR/pcp start | tee -a $seq.full | _filter_pcp_start
+echo "first config:"
+_myfilter_config  <$config
+echo
+
+cat >>$tmp  <<End-of-File
+
+disallow $other1: store;
+allow $other2: all;
+
+ddiissallow misspelt: all;
+End-of-File
+
+$sudo cp $tmp $config
+echo "second config:"
+_myfilter_config <$config
+
+echo
+$sudo $signal -a -s HUP pmcd
+_wait_for_pmcd
+
+# wait for PMCD to finish writing log (or 5 seconds)
+for t in 1 2 3 4 5
+do
+    if [ ! -f $log ]
+    then
+	echo "$log missing!"
+	ls -l `dirname $log`
+	cat ${log}.prev >>$seq.full
+	exit
+    elif [ `egrep '^Host access' $log | wc -l` = 2 ]
+    then
+	break
+    fi
+    sleep 1
+done
+
+_filter_log

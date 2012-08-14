@@ -1,0 +1,119 @@
+#!/bin/sh
+# PCP QA Test No. 301
+# Stop pmcd and check no pmdas are still running.
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+
+#  Useful definitions...
+DEADLIMIT=120	# seconds
+BREATHER=30	# seconds
+
+#  Debugging controls...
+CMND=$seq   	    	#  already done for us
+DBUG=${DBUG:-FALSE} 	#  normally, the name of this script, $0
+DBUGLVL=${DBUGLVL:-1}	#  normally set to 1
+
+#  Requires common.product:
+case $PCP_PLATFORM
+in
+    linux|darwin|solaris)
+	AMTIME1970PROG="date +%s"
+	;;
+    *)
+	if [ -x /usr/etc/amtime1970 ]
+	then
+	    AMTIME1970PROG=/usr/etc/amtime1970
+	else
+	    echo "Unknown platfrom $PCP_PLATFORM"
+	    exit 1
+	fi
+	;;
+esac
+
+dbugEcho () {
+    if [ $# -gt 1 -a "$DBUG" != FALSE -a "$DBUG" = "$CMND" -a "$DBUGLVL" -ge "$1" ]
+    then
+    	shift
+	printf "  ?: " 1>&2
+	for P
+	do
+    	    printf "%s" "$P" 1>&2
+	done
+	printf "\n" 1>&2
+    fi
+}
+
+
+waitTilDead () {
+    NUMPROC=1
+    DEADSTART=`$AMTIME1970PROG`
+    DEADTIME=0
+    while [ "$NUMPROC" -gt 0 -a $DEADTIME -lt $DEADLIMIT ]
+    do
+    	sleep 1
+    	NUMPROC=`ps -eo "args pid" | $PCP_AWK_PROG '
+/^\/var\/pcp\/pmdas\/.*pmda.*/	{ print $NF," ",$1 }
+' | wc -l`
+    	DEADTIME=`$AMTIME1970PROG`
+    	DEADTIME=`expr $DEADTIME - $DEADSTART`
+    done
+    
+    echo $DEADTIME
+    return 0
+}
+
+
+dbugEcho 1 "Shutting down PCP"
+$sudo sh $PCP_RC_DIR/pcp stop >/dev/null &
+
+#  Wait for PMDAs with sprocs to exit.
+dbugEcho 1 "Waiting until PCP is dead"
+SDTIME=`waitTilDead`
+if [ $? != 0 ]
+then
+    echo 1>&2 "$seq: unable to determine current time of day"
+    status=2
+else
+    if [ "$SDTIME" -ge $DEADLIMIT ]
+    then
+	echo 1>&2 "$seq: PCP could not be shut down after $DEADLIMIT seconds"
+    	status=2
+    else
+	dbugEcho 1 "PMDAs took $SDTIME second(s) to shut down"
+    fi
+fi
+
+# really make sure the "$PCP_RC_DIR/pcp stop" is complete, so it does
+# not terminate the pmcd we're going to start
+#
+$sudo $signal -a pmcd >/dev/null 2>&1
+wait
+
+if [ $status -gt 1 ]
+then
+    dbugEcho 1 "Recovering after $BREATHER seconds"
+    sleep $BREATHER
+fi
+dbugEcho 1 "Starting up PCP"
+$sudo sh $PCP_RC_DIR/pcp restart >/dev/null
+_wait_for_pmcd
+
+# success or failure, we've finished
+status=`expr $status - 1`
+exit

@@ -1,0 +1,157 @@
+#! /bin/sh
+# PCP QA Test No. 530
+# pmlogger_daily ... do you work at all?
+#
+# OLD VERSION for YYDDMM style naming convention (see also 338)
+#
+# NOTE - THIS TEST WILL FAIL IF RUN IN THE FIRST 5 MINUTES AFTER
+# MIDNIGHT - c'est la vie, I'm afraid.
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# check for new version ... may need -o to force "old style" behaviour
+#
+if pmlogger_daily -\? 2>&1 | grep '^.*-o.*(old style)' >/dev/null
+then
+    oflag='-o'
+else
+    oflag=''
+fi
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    tee -a $seq.full \
+    | $PCP_AWK_PROG '
+/^Archive files older than/	{ eatlines=1; longone="   "; print; next; }
+eatlines			{ if ( match ($0, "^    ") ) {
+				    for ( i=1; i <=NF; i++ ) {
+					longone = sprintf ("%s %s",longone,$i);
+				    }
+				  } else {
+				    print longone | "fmt -76";
+				    close ("fmt -76"); 
+				    longone = ""; eatlines = 0; 
+				    print;  
+				  }
+				  next;
+				}
+END				{ if ( eatlines ) {
+				    print longone | "fmt -76";
+				    close ("fmt -76"); 
+				  }
+				}
+				{ print }' \
+    | sed -f $tmp/sed \
+    | sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s/`hostname`/HOST/g" \
+	-e "s/`hostname | sed -e 's/\..*//'`/HOST/g" \
+	-e '/\/var\/adm\/pcplog\/NOTICES/d' \
+	-e 's/-rw-r--r--\./-rw-r--r--/' \
+    | $PCP_AWK_PROG '
+/-rw-r--r--/	{ print $1,"...",$5,"...",$9; next }
+		{ print }' \
+    | _filter_cron_scripts
+}
+
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp; $sudo mv $PCP_LOG_DIR/NOTICES.$$ $PCP_LOG_DIR/NOTICES; exit \$status" 0 1 2 3 15
+
+# take explicit control of the umask
+#
+umask 022
+
+$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$$
+rm -f $seq.full
+rm -rf $tmp
+mkdir $tmp
+
+# real QA test starts here
+unset verbose
+for loop in 1 2
+do
+    echo >$tmp/sed
+    for day in 0 1 2 3 4 5
+    do
+	fmt=%y%m%d
+	# aiming for the time to be 00:02 and 00:04 on each day,
+	# even if that is ahead of NOW for today
+	#
+	now_hr=`pmdate %H`
+	hour=-$now_hr
+	now_min=`pmdate %M`
+	min2=`expr 2 - $now_min`
+	[ "$min2" -ge 0 ] && min2="+$min2"
+	min4=`expr 4 - $now_min`
+	[ "$min4" -ge 0 ] && min4="+$min4"
+	namea=`pmdate -${day}d ${hour}H ${min2}M $fmt.%H.%M`
+	nameb=`pmdate -${day}d ${hour}H ${min4}M $fmt.%H.%M`
+	yesterday=`pmdate -1d ${hour}H ${min2}M $fmt`
+	stampa=`echo $namea | sed -e 's/\.//g'`
+	stampb=`echo $nameb | sed -e 's/\.//g'`
+	echo "s/$namea/NOW-$day.00.02/g" >>$tmp/sed
+	echo "s/$nameb/NOW-$day.00.04/g" >>$tmp/sed
+
+	for ext in 0 index meta
+	do
+	    cp src-oss/arch_a.$ext $tmp/$namea.$ext
+	    touch -t $stampa $tmp/$namea.$ext
+	    cp src-oss/arch_b.$ext $tmp/$nameb.$ext
+	    touch -t $stampb $tmp/$nameb.$ext
+	done
+    done
+    ls -lt $tmp >>$seq.full
+    echo "s/NOW-0/TODAY/g" >>$tmp/sed
+    echo "s/NOW-1/YESTERDAY/g" >>$tmp/sed
+    echo "s/`pmdate %y%m%d`/TODAY/g" >>$tmp/sed
+    echo "s/$yesterday/YESTERDAY/g" >>$tmp/sed
+
+    echo >$tmp/control '$version=1.1
+LOCALHOSTNAME	n   n	'"$tmp"'	./config'
+
+    echo
+    echo "=== [${verbose+verbose}] regular show ==="
+    echo "=== [${verbose+verbose}] regular show ===" >>$seq.full
+    pmlogger_daily $oflag -c $tmp/control -k 3 $verbose 2>&1 \
+    | _filter
+    ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort
+
+    echo
+    echo "=== [${verbose+verbose}] nothing to do but cull some more ==="
+    echo "=== [${verbose+verbose}] nothing to do but cull some more ===" >>$seq.full
+    for ext in 0 index meta
+    do
+	mv $tmp/$yesterday.$ext $tmp/save.$ext
+    done
+    pmlogger_daily $oflag -c $tmp/control -k 2 $verbose 2>&1 \
+    | _filter
+    ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort
+
+    echo
+    echo "=== [${verbose+verbose}] error, output already exists ==="
+    echo "=== [${verbose+verbose}] error, output already exists ===" >>$seq.full
+    for ext in 0 index meta
+    do
+	cp src-oss/arch_a.$ext $tmp/$yesterday.17.18.$ext
+	mv $tmp/save.$ext $tmp/$yesterday.$ext
+    done
+    pmlogger_daily $oflag -c $tmp/control -k 2 $verbose 2>&1 \
+    | _filter
+    ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort
+
+    verbose=-V
+    rm -f $tmp/*
+done
+
+# all done
+status=0
+exit

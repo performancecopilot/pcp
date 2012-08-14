@@ -1,0 +1,161 @@
+#!/bin/sh
+# PCP QA Test No. 486
+# pmlogrewrite - simple rewriting cases
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which pmlogrewrite >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun pmlogrewrite not installed
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/"
+}
+
+# 1.80.15 (disk.dev.bytes):
+#	inst [339 or "dks9d1"] value 179031
+_f1_old()
+{
+    $PCP_AWK_PROG '
+$2 == "(disk.dev.bytes):"	{ xlate=1; print; next }
+xlate == 1 && NF == 6		{ $6 = int(($6 + 512)/1024) }
+				{ print }
+xlate == 1 && NF != 6		{ xlate = 0 }'
+}
+_f1_new()
+{
+    $PCP_AWK_PROG '
+$2 == "(disk.dev.bytes):"	{ xlate=1; print; next }
+xlate == 1 && NF == 6		{ $6 = $6 }
+				{ print }
+xlate == 1 && NF != 6		{ xlate = 0 }'
+}
+
+_cmp()
+{
+    if [ ! -f "$1.0" ]
+    then
+	echo "Arrgh ... $1.0 missing" | _filter
+	return
+    fi
+    if [ ! -f "$2.0" ]
+    then
+	echo "Arrgh ... $2.0 missing" | _filter
+	return
+    fi
+    pmdumplog -z -a $1 | tee -a $seq.full >$tmp.in
+    pmdumplog -z -a $2 | tee -a $seq.full >$tmp.out
+    echo "pmdumplog diffs ..."
+    diff -u $tmp.in $tmp.out | _filter
+    [ -z "$filter_new" -a -z "$filter_old" ] && return
+    if [ ! -z "$filter_old" ]
+    then
+	$filter_old <$tmp.in >$tmp.tmp
+	echo >>$seq.full
+	echo "--- after $filter_old ---" >>$seq.full
+	cat $tmp.tmp >>$seq.full
+	mv $tmp.tmp $tmp.in
+    fi
+    if [ ! -z "$filter_new" ]
+    then
+	$filter_new <$tmp.out >$tmp.tmp
+	echo >>$seq.full
+	echo "--- after $filter_new ---" >>$seq.full
+	cat $tmp.tmp >>$seq.full
+	mv $tmp.tmp $tmp.out
+    fi
+    echo
+    echo "FILTERED pmdumplog diffs ..."
+    diff -u $tmp.in $tmp.out | _filter
+}
+
+# real QA test starts here
+sed -e '/^#/d' <<End-of-File | while read arch_args spec
+# archive[|arg1[|arg2[|...]]]	spec
+# rewrite pmDesc and pmid in pmResults
+src-oss/mirage	metric sample.bin { pmid->42.42.42 }
+# name is 3 bytes shorter
+src-oss/mirage	metric sample.bin { name -> sam.bin }
+# name is 10 bytes longer
+src-oss/mirage	metric sample.bin { name -> x23456789.sample.bin }
+# inst renumbering
+src-oss/mirage	indom 29.2 { inst 300 -> 42 }
+src-oss/mirage	indom 29.2 { inst 300 -> 400 }
+src-oss/mirage	indom 29.2 { iname "bin-700" -> "bin-900" }
+src-oss/mirage	indom 29.2 { iname "bin-700" -> "bin-900 and some" }
+src-oss/mirage	indom 29.2 { iname "bin-300" -> "bin-100" inst 300 -> 100 }
+src-oss/rattle	indom 1.5 { iname "1 minute" -> "5" }
+src-oss/rattle	indom 1.5 { iname "5 minute" -> "15 doo dah" }
+src-oss/rattle	indom 1.5 { iname "5" -> "5 hours" }
+# all metric semantics
+src-oss/mirage	metric 29.*.* { sem->DISCRETE } metric pmcd.pmlogger.port { sem->COUNTER }
+# scale conversion
+src-oss/snort-disks	metric disk.dev.bytes { units->1,0,0,MBYTE,0,0 }
+src-oss/snort-disks|-s	metric disk.dev.bytes { units->1,0,0,MBYTE,0,0 }
+src-oss/snort-disks	metric disk.dev.bytes { units->1,-1,0,Kbyte,Sec,0 }
+src-oss/snort-disks|-ws	metric disk.dev.bytes { units->1,-1,0,kbyte,sec,0 }
+src-oss/sample_expr	metric sample.scale_step.time_up_secs { units->0,1,0,0,MSEC,0 }
+# type conversion
+# 32 ->
+src-oss/mirage	metric sample.drift { type -> U32 }
+src-oss/mirage	metric sample.drift { type -> 64 }
+# double -> 
+src-oss/sample_expr	metric sample.scale_step.time_up_secs { type -> FLOAT }
+src-oss/sample_expr	metric sample.scale_step.time_up_secs { type -> U32 }
+# indom changes
+src-oss/rattle	metric pmcd.pmlogger.archive { indom -> 2.99 } indom 2.1 { indom -> 2.99 }
+src-oss/rattle	metric hinv.ndisk { indom -> 1.5 }
+src-oss/rattle	metric hinv.ndisk { indom -> 1.5 output inst 5 }
+src-oss/ok-foo	metric sample.colour { indom -> NULL }
+src-oss/ok-foo	metric sample.colour { indom -> NULL output first }
+src-oss/ok-foo	metric sample.colour { indom -> NULL output inst 1 }
+src-oss/ok-foo	metric sample.colour { indom -> NULL output last }
+src-oss/ok-foo	metric sample.colour { indom -> NULL output min }
+src-oss/ok-foo	metric sample.colour { indom -> NULL output max }
+src-oss/ok-foo	metric sample.colour { indom -> NULL output sum }
+src-oss/ok-foo	metric sample.colour { indom -> NULL output avg }
+src-oss/sample_expr	metric sample.mirage_longlong {indom->NULL}
+src-oss/sample_expr	metric sample.mirage_longlong {indom->NULL output last}
+End-of-File
+do
+    echo | tee -a $seq.full
+    echo "$spec" >$tmp.config
+    echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+    rm -f $tmp.new.*
+    arch=`echo "$arch_args" | sed -e 's/|.*//'`
+    args=`echo "$arch_args" | sed -n -e '/|/s/.*|//p'`
+    pmlogrewrite -w -c $tmp.config $args $arch $tmp.new 2>&1 | _filter
+    filter_old=''
+    filter_new=''
+    case "$arch_args"
+    in
+	'src-oss/snort-disks|-s')
+		filter_old=_f1_old
+		filter_new=_f1_new
+		;;
+    esac
+    _cmp $arch $tmp.new
+done
+
+# success, all done
+exit

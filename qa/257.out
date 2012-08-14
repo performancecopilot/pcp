@@ -1,0 +1,31 @@
+QA output created by 257
+
+=== pmapi 32 v2, local version --- style -s1 (local PMNS) ===
+differences relative to 031.out ...
+1d0
+< QA output created by 031
+
+=== pmapi 32 v2, pmcd 32 v2 --- style -s1 (local PMNS) ===
+differences relative to 031.out ...
+1d0
+< QA output created by 031
+
+=== pmapi 32 v2, pmcd 64 v2 --- style -s1 (local PMNS) ===
+differences relative to 031.out ...
+1d0
+< QA output created by 031
+
+=== pmapi 32 v2, local version --- style -s2 (distributed PMNS) ===
+differences relative to 031.out ...
+1d0
+< QA output created by 031
+
+=== pmapi 32 v2, pmcd 32 v2 --- style -s2 (distributed PMNS) ===
+differences relative to 031.out ...
+1d0
+< QA output created by 031
+
+=== pmapi 32 v2, pmcd 64 v2 --- style -s2 (distributed PMNS) ===
+differences relative to 031.out ...
+1d0
+< QA output created by 031

@@ -1,0 +1,144 @@
+QA output created by 382
+dbpmda> open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
+Start pmdasample PMDA: $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
+dbpmda> close
+dbpmda> 
+Log for pmdasample on LOCALHOST started DATE
+
+sample_ctx_end(0) [context is unknown, num_ctx=0]
+
+Log finished DATE
+dbpmda> open dso $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX sample_init 30
+dbpmda> close
+sample_ctx_end(0) [context is unknown, num_ctx=0]
+dbpmda> 
+dbpmda> open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
+Start pmdasample PMDA: $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
+dbpmda> fetch sample.percontext.pdu
+PMID(s): 29.0.43
+pmResult dump ...
+  29.0.43 (sample.percontext.pdu): numval: 1 valfmt: 0 vlist[]:
+   value 3
+dbpmda> close
+dbpmda> 
+Log for pmdasample on LOCALHOST started DATE
+
+sample_inc_recv(0) [new context, num_ctx=1]
+sample_ctx_end(0) [context is active]
+
+Log finished DATE
+dbpmda> open dso $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX sample_init 30
+dbpmda> fetch sample.percontext.pdu
+PMID(s): 29.0.43
+sample_inc_recv(0) [new context, num_ctx=1]
+pmResult dump ...
+  29.0.43 (sample.percontext.pdu): No values returned!
+dbpmda> close
+sample_ctx_end(0) [context is active]
+dbpmda> 
+dbpmda> open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
+Start pmdasample PMDA: $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
+dbpmda> fetch sample.percontext.pdu
+PMID(s): 29.0.43
+pmResult dump ...
+  29.0.43 (sample.percontext.pdu): numval: 1 valfmt: 0 vlist[]:
+   value 3
+dbpmda> quit
+Log for pmdasample on LOCALHOST started DATE
+
+sample_inc_recv(0) [new context, num_ctx=1]
+sample_ctx_end(0) [context is active]
+
+Log finished DATE
+dbpmda> open dso $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX sample_init 30
+dbpmda> fetch sample.percontext.pdu
+PMID(s): 29.0.43
+sample_inc_recv(0) [new context, num_ctx=1]
+pmResult dump ...
+  29.0.43 (sample.percontext.pdu): No values returned!
+dbpmda> quit
+sample_ctx_end(0) [context is active]
+dbpmda> open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
+Start pmdasample PMDA: $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
+dbpmda> fetch sample.percontext.pdu
+PMID(s): 29.0.43
+pmResult dump ...
+  29.0.43 (sample.percontext.pdu): numval: 1 valfmt: 0 vlist[]:
+   value 3
+dbpmda> exit
+Log for pmdasample on LOCALHOST started DATE
+
+sample_inc_recv(0) [new context, num_ctx=1]
+sample_ctx_end(0) [context is active]
+
+Log finished DATE
+dbpmda> open dso $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX sample_init 30
+dbpmda> fetch sample.percontext.pdu
+PMID(s): 29.0.43
+sample_inc_recv(0) [new context, num_ctx=1]
+pmResult dump ...
+  29.0.43 (sample.percontext.pdu): No values returned!
+dbpmda> exit
+sample_ctx_end(0) [context is active]
+dbpmda> open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
+Start pmdasample PMDA: $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
+dbpmda> fetch sample.percontext.pdu
+PMID(s): 29.0.43
+pmResult dump ...
+  29.0.43 (sample.percontext.pdu): numval: 1 valfmt: 0 vlist[]:
+   value 3
+dbpmda> 
+Log for pmdasample on LOCALHOST started DATE
+
+sample_inc_recv(0) [new context, num_ctx=1]
+sample_ctx_end(0) [context is active]
+
+Log finished DATE
+dbpmda> open dso $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX sample_init 30
+dbpmda> fetch sample.percontext.pdu
+PMID(s): 29.0.43
+sample_inc_recv(0) [new context, num_ctx=1]
+pmResult dump ...
+  29.0.43 (sample.percontext.pdu): No values returned!
+dbpmda> 
+sample_ctx_end(0) [context is active]
+dbpmda> open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
+Start pmdasample PMDA: $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
+dbpmda> fetch sample.percontext.pdu
+PMID(s): 29.0.43
+pmResult dump ...
+  29.0.43 (sample.percontext.pdu): numval: 1 valfmt: 0 vlist[]:
+   value 3
+dbpmda> fetch sample.percontext.pdu
+PMID(s): 29.0.43
+pmResult dump ...
+  29.0.43 (sample.percontext.pdu): numval: 1 valfmt: 0 vlist[]:
+   value 5
+dbpmda> fetch sample.percontext.pdu
+PMID(s): 29.0.43
+pmResult dump ...
+  29.0.43 (sample.percontext.pdu): numval: 1 valfmt: 0 vlist[]:
+   value 7
+dbpmda> 
+Log for pmdasample on LOCALHOST started DATE
+
+sample_inc_recv(0) [new context, num_ctx=1]
+sample_ctx_end(0) [context is active]
+
+Log finished DATE
+dbpmda> open dso $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX sample_init 30
+dbpmda> fetch sample.percontext.pdu
+PMID(s): 29.0.43
+sample_inc_recv(0) [new context, num_ctx=1]
+pmResult dump ...
+  29.0.43 (sample.percontext.pdu): No values returned!
+dbpmda> fetch sample.percontext.pdu
+PMID(s): 29.0.43
+pmResult dump ...
+  29.0.43 (sample.percontext.pdu): No values returned!
+dbpmda> fetch sample.percontext.pdu
+PMID(s): 29.0.43
+pmResult dump ...
+  29.0.43 (sample.percontext.pdu): No values returned!
+dbpmda> 
+sample_ctx_end(0) [context is active]

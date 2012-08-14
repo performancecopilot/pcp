@@ -1,0 +1,167 @@
+QA output created by 213
+=== DSO PMDA test ===
+dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.DSO_SUFFIX sample_init 30
+dbpmda> name 30.0.1001
+PMID: 30.0.1001
+   sampledso.secret.foo.one
+dbpmda> name 30.0.1007
+PMID: 30.0.1007
+   sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
+dbpmda> name 2.4.1
+PMID: 2.4.1
+   sampledso.secret.foo.bar.max.redirect
+dbpmda> pmid sampledso.secret.foo.two
+Metric: sampledso.secret.foo.two
+   30.0.1002
+dbpmda> pmid sampledso.secret.foo.bar.grunt.snort.six
+Metric: sampledso.secret.foo.bar.grunt.snort.six
+   30.0.1006
+dbpmda> pmid sampledso.secret.foo.bar.max.redirect
+Metric: sampledso.secret.foo.bar.max.redirect
+   2.4.1
+dbpmda> children sampledso.secret.foo
+Metric: sampledso.secret.foo
+   non-leaf bar
+       leaf one
+       leaf two
+dbpmda> traverse sampledso.secret.foo
+Metric: sampledso.secret.foo
+       leaf sampledso.secret.foo.bar.max.redirect
+       leaf sampledso.secret.foo.one
+       leaf sampledso.secret.foo.two
+       leaf sampledso.secret.foo.bar.three
+       leaf sampledso.secret.foo.bar.four
+       leaf sampledso.secret.foo.bar.grunt.five
+       leaf sampledso.secret.foo.bar.grunt.snort.six
+       leaf sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
+dbpmda> children sampledso.secret.foo.bar
+Metric: sampledso.secret.foo.bar
+   non-leaf max
+       leaf three
+       leaf four
+   non-leaf grunt
+dbpmda> traverse sampledso.secret.foo.bar
+Metric: sampledso.secret.foo.bar
+       leaf sampledso.secret.foo.bar.max.redirect
+       leaf sampledso.secret.foo.bar.three
+       leaf sampledso.secret.foo.bar.four
+       leaf sampledso.secret.foo.bar.grunt.five
+       leaf sampledso.secret.foo.bar.grunt.snort.six
+       leaf sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
+dbpmda> 
+
+=== Daemon PMDA test ===
+dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample 29
+Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample 29
+dbpmda> name 29.0.1001
+PMID: 29.0.1001
+   sample.secret.foo.one
+dbpmda> name 29.0.1007
+PMID: 29.0.1007
+   sample.secret.foo.bar.grunt.snort.huff.puff.seven
+dbpmda> name 2.4.1
+PMID: 2.4.1
+   sample.secret.foo.bar.max.redirect
+dbpmda> pmid sample.secret.foo.two
+Metric: sample.secret.foo.two
+   29.0.1002
+dbpmda> pmid sample.secret.foo.bar.grunt.snort.six
+Metric: sample.secret.foo.bar.grunt.snort.six
+   29.0.1006
+dbpmda> pmid sample.secret.foo.bar.max.redirect
+Metric: sample.secret.foo.bar.max.redirect
+   2.4.1
+dbpmda> children sample.secret.foo
+Metric: sample.secret.foo
+   non-leaf bar
+       leaf one
+       leaf two
+dbpmda> traverse sample.secret.foo
+Metric: sample.secret.foo
+   sample.secret.foo.bar.max.redirect
+   sample.secret.foo.one
+   sample.secret.foo.two
+   sample.secret.foo.bar.three
+   sample.secret.foo.bar.four
+   sample.secret.foo.bar.grunt.five
+   sample.secret.foo.bar.grunt.snort.six
+   sample.secret.foo.bar.grunt.snort.huff.puff.seven
+dbpmda> children sample.secret.foo.bar
+Metric: sample.secret.foo.bar
+   non-leaf max
+       leaf three
+       leaf four
+   non-leaf grunt
+dbpmda> traverse sample.secret.foo.bar
+Metric: sample.secret.foo.bar
+   sample.secret.foo.bar.max.redirect
+   sample.secret.foo.bar.three
+   sample.secret.foo.bar.four
+   sample.secret.foo.bar.grunt.five
+   sample.secret.foo.bar.grunt.snort.six
+   sample.secret.foo.bar.grunt.snort.huff.puff.seven
+dbpmda> 
+
+=== MMV PMDA test ===
+installed mmv files ...
+PCP_TMP_DIR/mmv/test
+dbpmda> desc mmv.test.strings
+Warning: No PMDA currently opened
+dbpmda> fetch mmv.test.strings mmv.test.counter
+Warning: No PMDA currently opened
+dbpmda> text mmv.test.strings
+Warning: No PMDA currently opened
+dbpmda> store mmv.reload "1"
+Warning: No PMDA currently opened
+dbpmda> open pipe $PCP_PMDAS_DIR/mmv/pmdammv
+Start pmdammv PMDA: $PCP_PMDAS_DIR/mmv/pmdammv
+dbpmda> desc mmv.test.strings
+PMID: 70.1.6
+    Data Type: string  InDom: 70.2049 0x11800801
+    Semantics: instant  Units: none
+dbpmda> fetch mmv.test.strings mmv.test.counter
+PMID(s): 70.1.6 70.1.1
+pmResult ... numpmid: 2
+  70.1.6 (<noname>): numval: 2 valfmt: 1 vlist[]:
+    inst [0 or ???] value STRING
+    inst [1 or ???] value STRING
+  70.1.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER NUMBER HEXNUMBER
+dbpmda> text mmv.test.strings
+PMID: 70.1.6
+[test string metrics]
+Yes, this is a test string metric with instances
+dbpmda> store mmv.reload "1"
+PMID: 70.0.0
+Getting description...
+Getting Result Structure...
+70.0.0: 0 -> 1
+Sending Result...
+dbpmda> desc mmv.no.such.metric
+                              ^ at or near here
+Error: Unknown metric name
+Type 'help' for a list of commands.
+dbpmda> close
+dbpmda> open dso $PCP_PMDAS_DIR/mmv/pmda_mmv.DSO_SUFFIX mmv_init 70
+dbpmda> desc mmv.test.strings
+PMID: 70.1.6
+    Data Type: string  InDom: 70.2049 0x11800801
+    Semantics: instant  Units: none
+dbpmda> fetch mmv.test.strings mmv.test.counter
+PMID(s): 70.1.6 70.1.1
+pmResult ... numpmid: 2
+  70.1.6 (<noname>): numval: 2 valfmt: 1 vlist[]:
+    inst [0 or ???] value STRING
+    inst [1 or ???] value STRING
+  70.1.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER NUMBER HEXNUMBER
+dbpmda> text mmv.test.strings
+PMID: 70.1.6
+[test string metrics]
+Yes, this is a test string metric with instances
+dbpmda> store mmv.reload "1"
+PMID: 70.0.0
+Getting description...
+Getting Result Structure...
+70.0.0: 0 -> 1
+dbpmda> 

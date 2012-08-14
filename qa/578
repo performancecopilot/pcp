@@ -1,0 +1,406 @@
+#! /bin/sh
+# PCP QA Test No. 578
+# Test for Bug #660497, change openfds metric to be the
+# largest known file descriptor used by pmcd.
+# This means the file descriptor can only ever increase.
+# The following behaviour is expected:
+#	the file descriptor will increase when a client or pmda connects
+# 	the file descriptor will stay the same when a client or pmda disconnects
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+rm -f $seq.full
+
+signal=$PCP_BINADM_DIR/pmsignal
+simple_domain=253
+if [ -x pmobjstyle ]
+then
+    style=`pmobjstyle`
+else
+    style=''
+fi
+
+_start_client()
+{
+    pmval -T 10sec kernel.all.load >$tmp.tmp 2>&1 &
+    echo "=== Started client ===" | tee -a $here/$seq.full
+    sleep 3
+}
+
+# Remove the PMDA and restore pmcd.conf
+#
+_cleanup()
+{
+    [ -f $PCP_PMDAS_DIR/simple/simple.conf.$seq ] && $sudo mv -f $PCP_PMDAS_DIR/simple/simple.conf.$seq $PCP_PMDAS_DIR/simple/simple.conf
+
+    if [ -f $tmp.conf ]
+    then
+	echo "=== Resetting pmcd.conf back to original state ==="
+	$sudo cp $tmp.conf $PCP_PMCDCONF_PATH
+        $sudo cp $tmp.root $PCP_VAR_DIR/pmns/root
+    fi
+    if [ -f $tmp.conf ]
+    then
+    	echo "=== Restart PMCD ==="
+	unset PMCD_PORT
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+    fi
+    
+    if grep '^simple' $PCP_PMCDCONF_PATH >/dev/null
+    then
+	:
+    else
+	# simple was not installed, cull namespace
+	#
+	cd $PCP_PMDAS_DIR/simple
+	$sudo ./Remove >/dev/null
+    fi
+    
+    if [ -f $tmp.log ]
+    then
+	echo '=== pmcd log' >>$here/$seq.full
+	cat $tmp.log >>$here/$seq.full
+    fi
+
+    rm -rf $tmp.*
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# Function to filter pminfo output
+#
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN           { value=0; metric=0; warn=0 }
+NF==0           { next }
+/ value /       { value++; next }
+/^'$1'/         { metric++
+                  if ($0 !~ /:/) next
+		}
+		{ warn++ }
+END             { if (warn) printf "%d warnings, ",warn
+		  printf "%d metrics and %d values\n",metric,value
+		}'
+}
+
+_filter_ins()
+{
+    sed \
+	-e 's/.* \(hash table entries\)/  NNN \1/' \
+	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(bytes of symbol table\)/  NNN \1/'
+}
+
+_filter_init()
+{
+    sed \
+	-e "s/$$/PID/g"
+}
+
+_filter_openfds_value()
+{
+    $PCP_AWK_PROG '
+BEGIN { fst_fds = "fst_fds"; sec_fds = "sec_fds"; thr_fds = "thr_fds"; step = 0 }
+$1 == "value" && step == 0 { 
+	fst_fds = $2; step = 1; next }
+$1 == "value" && step == 1 { 
+	sec_fds = $2; step = 2; next }
+$1 == "value" && step == 2 { 
+	thr_fds = $2; 
+	if (sec_fds > fst_fds)
+	    printf("=== Info: After install, openfds has increased as expected ===\n");
+	else {
+	    printf("=== Error: After install, openfds has unexpectedly decreased or stayed the same ===\n");
+	    printf("\t previous value %d, current value %d\n", fst_fds, sec_fds);
+	    }
+	if (sec_fds == thr_fds)
+	    printf("=== Info: After remove, openfds has stayed the same as expected ===\n");
+	else {
+	    printf("=== Error: After remove, openfds has unexpectedly changed ===\n") 
+	    printf("\t previous value %d, current value %d\n", fst_fds, sec_fds);
+	    }
+	next;
+	}
+	{ next } '
+}
+
+# no random clients, thanks
+#
+port=`_get_port tcp 6060 6070`
+if [ -z "$port" ]
+then
+    echo "Arrggh ... no free TCP port in the range 6060 ... 6070"
+    netstat -an
+    exit
+fi
+PMCD_PORT=$port
+export PMCD_PORT
+
+# Build simple agent
+#
+echo "=== Building simple agent ===" | tee -a $here/$seq.full
+unset ROOT TOOLROOT
+cd $PCP_PMDAS_DIR/simple
+
+# get rid of warnings from simple if no config exists
+[ -f simple.conf ] && $sudo mv simple.conf simple.conf.$seq
+echo "sec,min,hour" >$tmp.simple.conf
+$sudo cp $tmp.simple.conf simple.conf
+
+# Install the simple namespace, I don't bother to remove it again
+#
+$sudo ./Install -N < /dev/null | _filter_ins 2>&1
+echo "Namespace installed"
+
+if $sudo make > $tmp.make 2>&1
+then
+    echo "PMDA built"
+else
+    echo "Unable to build the simple PMDA:"
+    cat $tmp.make
+    exit
+fi
+
+sed -e "/^@ SIMPLE/s/SIMPLE/$simple_domain/" < help \
+| $sudo $PCP_BINADM_DIR/newhelp -v 2 -o help
+echo "Help generated"
+cd $here
+
+# Refresh PMCD
+#
+_renew_pmcd()
+{
+    echo "=== Restarting PMCD with minimal PMDAs ===" | tee -a $here/$seq.full
+    if [ -f $tmp.newconf ]
+    then
+	$sudo cp $tmp.newconf $PCP_PMCDCONF_PATH
+	$sudo $signal -a -s HUP pmcd
+	sleep 4
+	_wait_for_pmcd
+    else
+	echo caller - $1 - has not created $tmp.newconf !!!
+    fi
+}
+
+# Install a standard pmda, but do not mess with the namespace
+#
+_agent_install()
+{
+    agent=$1
+    domain=$2
+    daemon=$3
+    path=$PCP_PMDAS_DIR/$agent
+
+    echo "=== Installing $agent ===" | tee -a $here/$seq.full
+    cp $tmp.newconf $tmp.latest
+    if $daemon
+    then
+	cat << end-of-file >> $tmp.latest
+$agent	$domain	pipe	binary	$path/pmda$agent -d $domain
+end-of-file
+    else
+    	cat << end-of-file >> $tmp.latest
+$agent	$domain	dso	${agent}_init	$path/${style}pmda_$agent.$DSO_SUFFIX
+end-of-file
+    fi
+
+    $sudo cp $tmp.latest $PCP_PMCDCONF_PATH
+
+    $sudo $signal -a -s HUP pmcd
+    sleep 4
+    _wait_for_pmcd
+
+    if _check_agent $agent 2
+    then
+    	echo "$agent is alive and well"
+    else
+    	echo "Failed to install $agent"
+	exit
+    fi
+}
+
+# Remove a pmda
+#
+_agent_remove()
+{
+    agent=$1
+
+    echo "=== Removing $agent ===" | tee -a $here/$seq.full
+    _renew_pmcd _agent_remove
+
+    if _check_agent $agent 2
+    then
+    	echo "Failed to remove $agent"
+	exit
+    else
+    	echo "$agent was removed"
+    fi
+}
+
+# check that the agent is up and running
+#
+_check_agent() 
+{
+    agent=$1
+    sts=0
+
+    pminfo -f $agent 2>&1 | _filter $agent > $tmp.fetch 2>&1
+    pminfo -v $agent 2>&1 | LC_COLLATE=POSIX sort >$tmp.verify
+    
+    if grep warnings $tmp.fetch > /dev/null 2>&1
+    then
+	num_warn=`cut -d' ' -f1 < $tmp.fetch`
+	if [ "$num_warn" -gt 0 ]
+	then
+	    echo "Warnings when fetching $agent metrics:"
+	    cat $tmp.verify
+	    sts=1
+	fi
+    else
+    	num_warn=0
+    fi
+
+    return $sts
+}
+
+# real QA test starts here
+
+# Copy and replace pmcd.conf
+#
+cp $PCP_PMCDCONF_PATH $tmp.conf
+cp $PCP_VAR_DIR/pmns/root $tmp.root
+
+if [ $PCP_PLATFORM = linux ] 
+then
+    cat << end-of-file > $tmp.newconf
+# pmcd.conf generated by QA $seq
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+linux   60      dso     linux_init      $PCP_PMDAS_DIR/linux/pmda_linux.so
+end-of-file
+elif [ $PCP_PLATFORM = irix ]
+then
+    cat << end-of-file > $tmp.newconf
+# pmcd.conf generated by QA $seq
+irix    1       dso     irix_init       libirixpmda.so
+pmcd    2       dso     pmcd_init       pmda_pmcd.so
+proc    3       dso     proc_init       pmda_proc.so
+end-of-file
+elif [ $PCP_PLATFORM = darwin ]
+then
+    cat << end-of-file > $tmp.newconf
+# pmcd.conf generated by QA $seq
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+darwin  78      dso     darwin_init     $PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
+end-of-file
+elif [ $PCP_PLATFORM = solaris ]
+then
+    cat << end-of-file > $tmp.newconf
+# pmcd.conf generated by QA $seq
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
+end-of-file
+else
+    echo "Arrgh ... need pmcd.conf output for $PCP_PLATFORM"
+    exit 1
+fi
+
+#_renew_pmcd main
+
+if [ -f $tmp.newconf ]
+then
+    $sudo cp $tmp.newconf $PCP_PMCDCONF_PATH
+fi
+
+# Start with a fresh pmcd log
+#
+# need to do this indirectly because system sudo cleanses the environment
+#
+echo "export PMCD_PORT=$PMCD_PORT" >$tmp.start
+echo "$PCP_RC_DIR/pcp restart" >>$tmp.start
+$sudo sh $tmp.start | _filter_pcp_start | _filter_init 2>&1
+_wait_for_pmcd
+
+_test_pmda()
+{
+    pmda_type=$1
+
+    # Test PMDA 
+    #
+    echo
+    echo "=== Testing PMDA as a $pmda_type ===" | tee -a $here/$seq.full
+
+    rm -f $tmp.pminfo
+
+    pminfo -f pmcd.openfds >$tmp.pminfo
+    fst_openfds=$openfds_value
+
+    if [ "$pmda_type" != PIPE ]
+    then
+	_agent_install simple $simple_domain false
+    else
+	_agent_install simple $simple_domain true
+    fi
+    
+    pminfo -f pmcd.openfds >>$tmp.pminfo
+    
+    _agent_remove simple
+    pminfo -f pmcd.openfds >>$tmp.pminfo
+
+    cat $tmp.pminfo | _filter_openfds_value
+}
+
+_test_client()
+{
+    # Test a client
+    #
+    echo "=== Testing a Client ===" | tee -a $here/$seq.full
+
+    rm -f $tmp.pminfo
+
+    pminfo -f pmcd.openfds >$tmp.pminfo
+
+    _start_client
+    pminfo -f pmcd.openfds >>$tmp.pminfo
+
+    wait
+    pminfo -f pmcd.openfds >>$tmp.pminfo
+
+    echo "=== pmval output ===" >>$here/$seq.full
+    cat $tmp.tmp >>$here/$seq.full
+    echo "=== pminfo output ===" >>$here/$seq.full
+    cat $tmp.pminfo >>$here/$seq.full
+    
+    cat $tmp.pminfo | _filter_openfds_value
+}
+
+_test_client
+_test_pmda DSO
+_test_pmda PIPE
+
+status=0
+# success, all done
+exit
+

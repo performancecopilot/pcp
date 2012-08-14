@@ -1,0 +1,26 @@
+#!/bin/sh
+# PCP QA Test No. 406
+# make sure PM_MODE_INTERP does not work with PM_TYPE_EVENT metrics
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "Expect error for each pmFetch ..."
+src-oss/interp0 -t 0.5 -a src-oss/eventrec-old sample.event.records
+
+# success, all done
+exit

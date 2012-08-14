@@ -1,0 +1,93 @@
+#! /bin/sh
+# PCP QA Test No. 336
+# exercise a libpcp_trace problem
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.check
+. ./common.filter
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+LOCALHOST=`hostname`
+_needclean=true
+
+if [ -n "$PCP_TRACE_HOST" ]
+then
+    savedtracehost=$PCP_TRACE_HOST; unset PCP_TRACE_HOST
+fi
+
+_interrupt()
+{
+    status=1
+}
+
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+
+_cleanup()
+{
+    cd $here
+    if $_needclean
+    then
+	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+	&& $sudo sh $tmp.cmd
+	_change_config pmlogger on
+        $sudo cp /tmp/$seq.dir/pmcd.conf $PCP_PMCDCONF_PATH
+        $sudo cp /tmp/$seq.dir/root      $PCP_VAR_DIR/pmns/root 
+        rm -rf /tmp/$seq.dir
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	_needclean=false
+    fi
+    if [ -n "$savedtracehost" ]
+    then
+	PCP_TRACE_HOST=$savedtracehost; export PCP_TRACE_HOST
+    fi
+    rm -f $tmp.*
+    exit $status
+}
+
+# save pcp setup
+mkdir /tmp/$seq.dir
+cp $PCP_PMCDCONF_PATH /tmp/$seq.dir
+cp $PCP_VAR_DIR/pmns/root /tmp/$seq.dir
+
+_change_config pmlogger off
+
+trap "_cleanup" 0
+trap "_interrupt; _cleanup" 1 2 3 15
+
+pminfo trace >/dev/null 2>&1
+remove=$?
+
+# real QA test starts here
+
+echo "=== Checking pmtrace without a PMDA listening ==="
+cd $PCP_PMDAS_DIR/trace
+$sudo ./Remove >/dev/null 2>&1
+# use a bigger hammer
+$sudo $signal -a -s KILL pmdatrace > /dev/null 2>&1
+
+# Should produce a PMDA connect error ...
+pmtrace -h $LOCALHOST -q -v 1.1 foo
+
+if [ $remove -ne 1 ]
+then
+    $sudo $PCP_PMDAS_DIR/trace/Install < /dev/null > /dev/null 2>&1
+fi
+
+# success, all done
+status=0
+exit

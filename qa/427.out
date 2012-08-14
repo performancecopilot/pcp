@@ -1,0 +1,20 @@
+QA output created by 427
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+
+errors for bogus in /var/adm/pcplog/pmcd.log:
+pmcd: error starting bogus.pmda: No such file or directory
+pmcd: unexpected end-of-file at initial exchange with bogus PMDA
+
+pmcd agent metrics for bogus:
+pmcd.agent.type
+    inst [169 or "bogus"] value 4
+pmcd.agent.status
+    inst [169 or "bogus"] value 4
+
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+
+Anything below here may indicate that bogus has not gone away:

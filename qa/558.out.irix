@@ -1,0 +1,20 @@
+QA output created by 558
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+DATE: singular 1000000
+DATE: expr 2000000
+DATE: some_host HOST:1000000
+DATE: some_inst [bin-600]1200 [bin-700]1400 [bin-800]1600 [bin-900]1800
+DATE: some_host some_inst localhost:[bin-600]1200 localhost:[bin-700]1400 localhost:[bin-800]1600 localhost:[bin-900]1800 HOST:[bin-600]1200 HOST:[bin-700]1400 HOST:[bin-800]1600 HOST:[bin-900]1800
+[TIMESTAMP] pmie(PID) Error: pmFetch from HOST/localhost failed: [IPC shutdown]
+[TIMESTAMP] pmie(PID) Info: Lost connection to pmcd on host HOST/localhost
+[TIMESTAMP] pmie(PID) Error: pmFetch from HOST/localhost failed: [IPC shutdown]
+[TIMESTAMP] pmie(PID) Info: Lost connection to pmcd on host HOST/localhost
+[TIMESTAMP] pmie(PID) Info: Re-established connection to pmcd on host HOST/localhost
+[TIMESTAMP] pmie(PID) Info: Re-established connection to pmcd on host HOST/localhost
+DATE: singular 1000000
+DATE: expr 2000000
+DATE: some_host HOST:1000000
+DATE: some_inst [bin-600]1200 [bin-700]1400 [bin-800]1600 [bin-900]1800
+DATE: some_host some_inst localhost:[bin-600]1200 localhost:[bin-700]1400 localhost:[bin-800]1600 localhost:[bin-900]1800 HOST:[bin-600]1200 HOST:[bin-700]1400 HOST:[bin-800]1600 HOST:[bin-900]1800

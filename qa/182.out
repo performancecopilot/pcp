@@ -1,0 +1,14 @@
+QA output created by 182
+=== start and abort pmlc ===
+0 pmlc processes are running
+=== start and abort pmlc ===
+0 pmlc processes are running
+=== start and abort pmlc ===
+0 pmlc processes are running
+
+=== pmlogger log ===
+Log for pmlogger on HOST started MONTH-DAY TIME YEAR
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE

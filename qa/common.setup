@@ -1,0 +1,27 @@
+# per product QA setup
+#
+# called from "common" (before args processed and again after args processed)
+#
+# called from "common.product" so individual QA scripts can get access to
+# same information when run stand alone (not from check or remake)
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# standard stuff
+if [ -z "$__done_common_rc" ]
+then
+    . ./common.rc
+    __done_common_rc=yes
+fi
+
+# Checking options (true or false)
+#
+OPTION_AGENTS=true
+OPTION_LOGGER=true
+OPTION_PMCD_TRACE=true
+
+# Default PMCD host ... normally empty, but could be remote_hostname to
+# run QA using remote PMDAs
+#
+[ -z "$DEFAULT_HOST" ] && DEFAULT_HOST=''

@@ -1,0 +1,85 @@
+#! /bin/sh
+# PCP QA Test No. 398
+# checks pmcd handling empty $PCP_PMCDCONF_PATH
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.check
+. ./common.filter
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+
+_cleanup()
+{
+    [ -f $tmp.conf ] && $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
+    $sudo rm -f $tmp.*
+    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+}
+
+_check()
+{
+    # try to provoke a core
+    pminfo -v irix >/dev/null 2>&1
+    sleep 5
+
+    $sudo touch $PCP_PMCDLOG_PATH
+    grep -i "dumping to core" $PCP_PMCDLOG_PATH
+    sts=$?
+    if [ "`echo $PCP_LOG_DIR/core*`" != "$PCP_LOG_DIR/core*" -o "`echo $PCP_LOG_DIR/pmcd/core*`" != "$PCP_LOG_DIR/pmcd/core*" -o $sts -eq 0 ]
+    then
+	echo "=== core found or logfile claims dumping to core! ==="
+	echo '=== Here is $PCP_PMCDLOG_PATH ==='
+	cat $PCP_PMCDLOG_PATH
+	exit
+    else
+	echo '--- No core file at $PCP_LOG_DIR/core or $PCP_LOG_DIR/pmcd/core ---'
+    fi
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+
+# real QA test starts here
+
+# terminate any pmcds and get rid of core file to get to a sane starting place
+$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
+$sudo rm -f $PCP_LOG_DIR/core* $PCP_LOG_DIR/pmcd/core* $PCP_PMCDLOG_PATH
+
+_check
+
+# empty pmcd.conf
+$sudo cp $PCP_PMCDCONF_PATH $tmp.conf
+$sudo cp /dev/null $PCP_PMCDCONF_PATH
+
+# should be empty
+echo "--- pmcd.conf contents follow ---"
+cat $PCP_PMCDCONF_PATH
+$sudo $PCP_RC_DIR/pcp restart 2>&1 \
+| _filter_pcp_start \
+| fgrep -v "Waiting for PMCD to terminate" \
+| fgrep -v "pmcd_wait failed:"
+
+echo "Waiting for PMCD ..."
+pmcd_wait -t 5sec
+if [ $? -ne 2 ]
+then
+    echo "Expected timeout - got status $? from pmcd_wait!"
+else
+    echo "Connection timed out as expected"
+fi
+
+echo "Checking for core file ..."
+_check
+
+# success, all done
+status=0
+exit

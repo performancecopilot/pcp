@@ -1,0 +1,55 @@
+#!/bin/sh
+# PCP QA Test No. 474
+# multi-thread - help text services for contented contexts
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if grep '^#define PM_MULTI_THREAD 1' $PCP_DIR/usr/include/pcp/impl.h >/dev/null
+then
+    rm -f .notrun
+else
+    _notrun PM_MULTI_THREAD not defined in impl.h
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+$sudo rm -f /tmp/func?.out
+echo "Only one context ..."
+src-oss/multithread8 localhost
+cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
+
+echo
+echo "Two contexts, same host, different fd's ..."
+src-oss/multithread8 `hostname` localhost
+cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
+
+echo
+echo "Two contexts, same host, same fd's ..."
+src-oss/multithread8 `hostname` `hostname`
+cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
+
+echo
+echo "Three contexts, same host, different fd's ..."
+src-oss/multithread8 `hostname` localhost 127.0.0.1
+cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
+
+echo
+echo "Three contexts, same host, same fd's ..."
+src-oss/multithread8 `hostname` `hostname` `hostname`
+cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
+
+# success, all done
+exit

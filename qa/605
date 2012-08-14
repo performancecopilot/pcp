@@ -1,0 +1,153 @@
+#! /bin/sh
+# PCP QA Test No. 
+# checking trace stub library
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./localconfig
+
+rm -f $seq.out
+echo "QA output created by $seq" | tee $seq.out
+if [ $PCP_VER -lt 2200 ]; then
+    cat $seq.in >>$seq.out
+else
+    # tweak output for PCP 2.2...
+    cat $seq.in | perl -e '
+	@in=<>;
+	$"="";
+	print "@in[0..$#in-1]";
+	print "pmtracecounter: counter '\'counter\'', value=101.100000\n";
+	print "$in[$#in]";' >>$seq.out
+fi
+
+_cleanup()
+{
+    cd $here
+    if [ -n "$savedtracehost" ]
+    then
+	PCP_TRACE_HOST=$savedtracehost; export PCP_TRACE_HOST
+    fi
+    exit $status
+}
+
+_filter()
+{
+    sed -e "s#$PCP_DEMOS_DIR/trace/app1#app1#"
+}
+
+status=1        # failure is the default!
+trap "_cleanup" 0 1 2 3 15
+
+if [ -n "$PCP_TRACE_HOST" ]
+then
+    savedtracehost=$PCP_TRACE_HOST; unset PCP_TRACE_HOST
+fi
+
+# real QA test starts here
+
+if [ ! -x $PCP_DEMOS_DIR/trace/app1 ]
+then
+    echo "=== Error: $PCP_DEMOS_DIR/trace/app1 doesn't exist ==="
+    exit
+fi
+
+echo "Checking trace stub library builds ..."
+cd $PCP_DEMOS_DIR/trace
+$sudo make -f Makefile.stub clobber >/dev/null 2>&1
+if [ $PCP_PLATFORM = irix ]
+then
+    appstyle=`file $PCP_DEMOS_DIR/trace/app1` 
+    case "$appstyle" in
+    *"ELF New 32-bit MSB mips"*|*"ELF N32 MSB mips"*)
+	    $sudo make -f Makefile.stub lib32/libpcp_trace.so >/dev/null 2>&1
+	    _RLD_LIST=$PCP_DEMOS_DIR/trace/lib32/libpcp_trace.so.1:/usr/lib32/libc.so
+	    export _RLD_LIST
+	    ;;
+    *"ELF 32-bit MSB"*)
+	    $sudo make -f Makefile.stub lib/libpcp_trace.so >/dev/null 2>&1
+	    _RLD_LIST=$PCP_DEMOS_DIR/trace/lib/libpcp_trace.so.1:/usr/lib/libc.so
+	    export _RLD_LIST
+	    ;;
+    *"ELF 64-bit MSB mips"*)
+	    $sudo make -f Makefile.stub lib64/libpcp_trace.so >/dev/null 2>&1
+	    _RLD_LIST=$PCP_DEMOS_DIR/trace/lib64/libpcp_trace.so.1:/usr/lib64/libc.so
+	    export _RLD_LIST
+	    ;;
+    *)
+	    echo "=== Unknown IRIX application object style: $appstyle ==="
+	    exit
+	    ;;
+    esac
+elif [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris ]
+then
+    # we've had bad experience with file(1) and compiled "magic" files
+    # on assorted Linux versions ... try to use the uncompiled magic
+    # file if possible
+    #
+    # if you need to modify this, make consistent changes in
+    #       src/pmdas/pmcd/src/objstyle
+    #       qa/605
+    #
+    magic=''
+    for file in /usr/share/misc/magic /usr/share/file/magic /usr/share/magic \
+	/etc/magic
+    do
+	if [ -f "$file" ]
+	then
+	    # found a file, check it contains some definitions ...
+	    nl=`sed -e '/^#/d' -e '/^[      ]*$/d' <"$file" | wc -l | sed -e 's/ //g'`
+	    if [ "$nl" -gt 0 ]
+	    then
+		magic=$file
+		break
+	    fi
+	fi
+    done
+    if [ -n "$magic" ]
+    then
+	appstyle=`file -m $magic $PCP_DEMOS_DIR/trace/app1`
+    else
+	appstyle=`file $PCP_DEMOS_DIR/trace/app1`
+    fi
+    case "$appstyle" in
+    *"ELF 32-bit LSB executable"*)
+	    $sudo make -f Makefile.stub lib/libpcp_trace.so >/dev/null 2>&1
+	    LD_PRELOAD=$PCP_DEMOS_DIR/trace/lib/libpcp_trace.so.2
+	    export LD_PRELOAD
+	    ;;
+    *"ELF 64-bit LSB executable"*)
+	    $sudo make -f Makefile.stub lib/libpcp_trace.so >/dev/null 2>&1
+	    LD_PRELOAD=$PCP_DEMOS_DIR/trace/lib/libpcp_trace.so.2
+	    export LD_PRELOAD
+	    ;;
+    *)
+	    echo "=== Unknown Linux application object style: $appstyle ==="
+	    exit
+	    ;;
+    esac
+elif [ $PCP_PLATFORM = darwin ]
+then
+    $sudo make -f Makefile.stub >/dev/null 2>&1
+    DYLD_INSERT_LIBRARIES=$PCP_DEMOS_DIR/trace/lib/libpcp_trace.dylib
+    DYLD_FORCE_FLAT_NAMESPACE=yes
+    export DYLD_INSERT_LIBRARIES DYLD_FORCE_FLAT_NAMESPACE
+else
+    echo "=== Unknown platform ($PCP_PLATFORM) ==="
+    exit
+fi
+
+echo make succeeded.
+
+# this uses all of the externally visible libpcp_trace symbols
+$PCP_DEMOS_DIR/trace/app1 2>&1 | _filter
+
+# success, all done
+status=0
+exit

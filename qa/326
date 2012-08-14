@@ -1,0 +1,182 @@
+#! /bin/sh
+# PCP QA Test No. 326
+# Check PMCD state change notification, aka PMCD reset
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1
+done_clean=false
+LOCALHOST=`hostname | sed -e 's/\..*//'`
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	echo
+	echo "Restore pmcd.conf and restart PMCD ..."
+	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	rm -f $tmp.*
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	done_clean=true
+    fi
+    exit $status
+}
+
+_filter_pmval()
+{
+    sed \
+	-e '1,/^interval:/d' \
+	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g' \
+    | $PCP_AWK_PROG '
+/No values available/	{ print; next }
+0 <= $2 && $2 < 1.1	{ $2 = "non-negative number, less than 1.1" }
+			{  print }' \
+    | uniq
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+rm -f $seq.full
+
+# real QA test starts here
+
+if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris ]
+then
+	PMDA_PMCD_PATH=$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+elif [ $PCP_PLATFORM = darwin ]
+then
+	PMDA_PMCD_PATH=$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+else
+	PMDA_PMCD_PATH=/usr/pcp/lib/`pmobjstyle`.pmda_pmcd.so
+fi
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+# start from a known starting point
+$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
+
+cat <<End-of-File >$tmp.tmp
+# temporary for qa/$seq
+pmcd	2	dso	pmcd_init	$PMDA_PMCD_PATH
+sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29 
+End-of-File
+$sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
+
+# very odd inode update problem on kenj-pc with one variant of the Linux
+# 2.6.11 kernel ... this should be 100% benign for everyone else
+#
+sync
+
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+_wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
+
+echo 'connect primary
+log mandatory on 500 msec { pmcd.numagents sample.milliseconds }' \
+| pmlc
+
+# run for 20 seconds
+pmval -s 40 -t 0.5 -D fetch pmcd.numagents >$tmp.pmval 2>&1 &
+
+sleep 3
+
+echo "=== kill sample PMDA process ==="
+$sudo $signal -a -s TERM pmdasample
+pminfo -v sample >/dev/null 2>&1
+sleep 3
+
+echo "=== SIGHUP PMCD ==="
+$sudo $signal -a -s HUP pmcd
+sleep 3
+
+echo "=== drop sample PMDA, like Remove ==="
+cat <<End-of-File >$tmp.tmp
+# temporary for qa/$seq
+pmcd	2	dso	pmcd_init	$PMDA_PMCD_PATH
+End-of-File
+$sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
+$sudo $signal -a -s HUP pmcd
+sleep 3
+
+echo "=== add sample PMDA, like Install ==="
+cat <<End-of-File >$tmp.tmp
+# temporary for qa/$seq
+pmcd	2	dso	pmcd_init	$PMDA_PMCD_PATH
+sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29 
+End-of-File
+$sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
+$sudo $signal -a -s HUP pmcd
+sleep 3
+
+wait
+
+# if desperate!
+#echo >>$seq.full
+#cat $PCP_PMCDLOG_PATH >>$seq.full
+
+echo
+echo "Trace of observed state changes and PMDA count ..."
+egrep '(state changes)|( value )' $tmp.pmval \
+| uniq
+
+echo
+echo "primary logger ..."
+echo 'connect primary
+log mandatory off { pmcd.numagents sample.milliseconds }
+flush' \
+| pmlc
+sleep 2
+
+# if desperate!
+#echo >>$seq.full
+#echo "pmlogger log ..." >>$seq.full
+#_filter_pmlogger_log <$LOGGING_DIR/$LOCALHOST/pmlogger.log >>$seq.full
+
+echo "archive contents ..."
+pmafm $LOGGING_DIR/$LOCALHOST/Latest pmdumplog >$tmp.out 2>&1
+egrep '(<mark>)|(pmcd.numagents)' $tmp.out \
+| _filter_pmdumplog \
+| uniq
+
+# note clip after 4 filtered lines to avoid extra values that sometimes
+# appear due to non-determinism in pmlogger fetch samples
+#
+echo
+echo "sanity check with pmval | filter ..."
+pmafm $LOGGING_DIR/$LOCALHOST/Latest pmval -t 1 sample.milliseconds 2>&1 \
+| _filter_pmval \
+| sed -e 4q
+
+# if desperate!
+#echo >>$seq.full
+#echo "unfiltered pmval live output" >>$seq.full
+#cat $tmp.pmval >>$seq.full
+
+# if desperate!
+#echo >>$seq.full
+#echo "unfiltered pmval archive output" >>$seq.full
+#pmafm $LOGGING_DIR/$LOCALHOST/Latest pmval -t 1 sample.milliseconds >>$seq.full 2>&1
+
+status=0
+exit

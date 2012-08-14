@@ -1,0 +1,61 @@
+QA output created by 578
+=== Building simple agent ===
+You will need to choose an appropriate configuration for installation of
+the "simple" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [m] Updating the Performance Metrics Name Space (PMNS) ...
+Compiled PMNS contains
+  NNN hash table entries
+  NNN leaf nodes
+  NNN non-leaf nodes
+  NNN bytes of symbol table
+Skipping PMDA install and PMCD re-configuration
+Namespace installed
+PMDA built
+Help generated
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+=== Testing a Client ===
+=== Started client ===
+=== Info: After install, openfds has increased as expected ===
+=== Info: After remove, openfds has stayed the same as expected ===
+
+=== Testing PMDA as a DSO ===
+=== Installing simple ===
+simple is alive and well
+=== Removing simple ===
+=== Restarting PMCD with minimal PMDAs ===
+Warnings when fetching simple metrics:
+simple.color: pmLookupDesc: Unknown or illegal metric identifier
+simple.now: pmLookupDesc: Unknown or illegal metric identifier
+simple.numfetch: pmLookupDesc: Unknown or illegal metric identifier
+simple.time.sys: pmLookupDesc: Unknown or illegal metric identifier
+simple.time.user: pmLookupDesc: Unknown or illegal metric identifier
+simple was removed
+=== Info: After install, openfds has increased as expected ===
+=== Info: After remove, openfds has stayed the same as expected ===
+
+=== Testing PMDA as a PIPE ===
+=== Installing simple ===
+simple is alive and well
+=== Removing simple ===
+=== Restarting PMCD with minimal PMDAs ===
+Warnings when fetching simple metrics:
+simple.color: pmLookupDesc: Unknown or illegal metric identifier
+simple.now: pmLookupDesc: Unknown or illegal metric identifier
+simple.numfetch: pmLookupDesc: Unknown or illegal metric identifier
+simple.time.sys: pmLookupDesc: Unknown or illegal metric identifier
+simple.time.user: pmLookupDesc: Unknown or illegal metric identifier
+simple was removed
+=== Info: After install, openfds has increased as expected ===
+=== Info: After remove, openfds has stayed the same as expected ===
+=== Resetting pmcd.conf back to original state ===
+=== Restart PMCD ===
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

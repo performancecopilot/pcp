@@ -1,0 +1,100 @@
+#! /bin/sh
+# PCP QA Test No. 325
+# pmprintf checks
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+. ./common.product
+. ./common.check
+. ./common.config
+
+if which pmconfirm >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun pmconfirm not installed
+fi
+
+echo "QA output created by $seq"
+
+_cleanup()
+{
+    echo "at end ..." >>$seq.full
+    pid=`ps $PCP_PS_ALL_FLAGS | egrep '[p]mconfirm' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
+    echo "[p]mconfirm pid: $pid" >>$seq.full
+    [ -n "$pid" ] && $signal -s KILL $pid >/dev/null 2>&1
+    pid=`ps $PCP_PS_ALL_FLAGS | egrep '[p]mprintf' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
+    echo "[p]mprintf pid: $pid" >>$seq.full
+    [ -n "$pid" ] && $signal -s KILL $pid >/dev/null 2>&1
+    pid=`ps $PCP_PS_ALL_FLAGS | egrep '[p]mquery' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
+    echo "[p]mquery pid: $pid" >>$seq.full >/dev/null 2>&1
+    [ -n "$pid" ] && $signal -s KILL $pid
+    rm -f $tmp.*
+}
+
+_countem()
+{
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+	| grep $PCP_XCONFIRM_PROG | grep -v grep \
+	| tee -a $seq.full \
+	> $tmp.count
+    cat $tmp.count | wc -l | tr -d ' '
+}
+
+tmp=/tmp/$$
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+rm -f $seq.full
+
+# real QA test starts here
+
+echo "initially ..." >$seq.full
+OLDXCONFIRMCNT=`_countem`
+
+# Expect something on stderr
+unset PCP_STDERR
+src-oss/pmprintf foo bee doo
+
+# Expect something in an xconfirm
+export DISPLAY=$PCPQA_CLOSE_X_SERVER
+export PCP_STDERR=DISPLAY
+if [ -z "$PCP_XCONFIRM_PROG" ]
+then
+    echo 'Error: $PCP_XCONFIRM_PROG not set'
+    exit $status
+fi
+
+(src-oss/pmprintf some invisible text &)2>$tmp.err
+# wait for dialog to fire up
+sleep 3
+rm -f $tmp.out
+echo "after start up ..." >>$seq.full
+XCONFIRMCNT=`_countem`
+
+if [ $XCONFIRMCNT -gt $OLDXCONFIRMCNT ]
+then
+     echo '=== $PCP_XCONFIRM_PROG started OK ==='
+else
+     echo "=== Urk, no change in number of $PCP_XCONFIRM_PROG - $XCONFIRMCNT ==="
+     cat $tmp.count
+     echo
+     echo "Errors from src-oss/pmprintf?"
+     cat $tmp.err
+fi
+
+# Expect something in file
+[ -f  $tmp.pmprintf ] && rm -f $tmp.pmprintf
+PCP_STDERR=$tmp.pmprintf
+export PCP_STDERR
+src-oss/pmprintf sent all this text to a file
+src-oss/pmprintf and this too
+cat $tmp.pmprintf
+rm -f $tmp.pmprintf
+
+# success, all done
+status=0
+exit

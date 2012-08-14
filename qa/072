@@ -1,0 +1,85 @@
+#! /bin/sh
+# PCP QA Test No. 072
+# pmlogger dumps core on this one?
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+
+_filter()
+{
+    _filter_pmdumplog \
+    | sed \
+	-e 's/:.*//' \
+	-e 's/[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* (/PMID (/' \
+	-e 's/TIMESTAMP/            /'
+}
+
+rm -f $seq.full
+echo >$seq.full
+
+# real QA test starts here
+cat >$tmp.config <<End-of-File
+# verbose
+log mandatory on every 24 hours {
+	hinv.physmem
+	hinv.ncpu
+	hinv.ndisk
+	hinv.nfilesys
+}
+
+mandatory on 50 msecs {
+	kernel.percpu.cpu.user
+	kernel.all.load
+	disk.dev.total
+	network.interface.in.bytes
+	pmcd.pdu_in.fetch
+	disk.dev.total # note repeated set of metrics
+	mem.freemem
+}
+End-of-File
+
+remote=`./getpmcdhosts -L -n 1 2>$tmp.out`
+if [ -z "$remote" ]
+then
+    cat $tmp.out >$seq.notrun
+    exit
+fi
+
+for host in `hostname` $remote
+do
+    echo
+    echo "=== $host ===" >>$seq.full
+    rm -f $tmp.0 $tmp.meta $tmp.index
+    pmlogger -h $host -s 2 -c $tmp.config -l $tmp.out $tmp >$tmp.err 2>&1
+    ( echo "pmlogger output:"; cat $tmp.err $tmp.out ) >>$seq.full
+    cat $tmp.err $tmp.out | _filter_pmlogger_log
+
+    pmdumplog -i $tmp 2>&1 >$tmp.out
+    ( echo "pmdumplog -i:"; cat $tmp.out ) >>$seq.full
+
+    numindom=`grep InDom: $tmp.out | wc -l | sed -e 's/  *//g'`
+    if [ "X$numindom" != X5 ]
+    then
+	echo "for host $host, expected 5 InDom entries in the meta data, got ..."
+	cat $tmp.out
+    else
+	echo "number of InDom entries is OK"
+    fi
+
+    echo "expect 2 sets of values for disks and 2 sets of values for networks ..."
+    echo "pmdumplog:" >>$seq.full
+    pmdumplog $tmp 2>&1 \
+    | tee -a $seq.full \
+    | egrep 'disk\.|network\.' \
+    | _filter \
+    | LC_COLLATE=POSIX sort
+done

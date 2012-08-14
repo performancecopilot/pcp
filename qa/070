@@ -1,0 +1,79 @@
+#! /bin/sh
+# PCP QA Test No. 070
+# tests flags options in template.c 
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3602 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+prog=src-oss/template
+
+remote=`./getpmcdhosts -L -n 1 2>$tmp.out`
+if [ -z "$remote" ]
+then
+    cat $tmp.out >$seq.notrun
+    exit
+fi
+
+_cleanup()
+{
+    mv -- -V $$ >$tmp.err 2>&1 ; rm -f $$
+    mv -- -n $$ >$tmp.err 2>&1 ; rm -f $$
+}
+
+_myprog()
+{
+    echo ""
+    args=`echo "X$*" | sed -e "s/$remote/REMOTEHOST/" -e "s/^X//"`
+    echo "Trying ... $args"
+    $prog $* 2>&1 \
+    | sed \
+	-e "s/'//g" \
+	-e '/Broken pipe/d' \
+	-e 's;src-oss/template: option;Option;' \
+	-e 's;src-oss/template: invalid;Illegal;' \
+	-e 's;src-oss/template: illegal;Illegal;' \
+	-e "s/$remote/REMOTEHOST/"
+}
+
+# real QA test starts here
+
+_myprog -a
+_myprog -A
+_myprog -c
+_myprog -D
+_myprog -h
+_myprog -l
+_myprog -n
+_myprog -s
+_myprog -S
+_myprog -t
+_myprog -T
+_myprog -U
+_myprog -Z
+_myprog -h $remote -D -n
+_myprog -b
+_myprog -a -h $remote -D 1 
+_myprog -h $remote -D 1 -n davenamespace
+_myprog -a hoges.arh -f -l
+_myprog -h hoges -l
+_myprog -h hoges -l -n 
+
+_cleanup

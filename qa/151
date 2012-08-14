@@ -1,0 +1,184 @@
+#! /bin/sh
+# PCP QA Test No. 151
+# check the new behaviour of pmlogger_daily to collect archives
+# from longer ago than just yesterday.  Based on qa/532.
+#
+# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# check for new version ... 
+#
+if $PCP_BINADM_DIR/pmlogger_daily -\? 2>&1 | grep '^.*-o.*(old style)' >/dev/null
+then
+    :
+else
+    echo "No -o option to pmlogger_daily (old version installed)" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed -f $tmp/sed \
+    | sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s/`hostname`/HOST/g" \
+	-e "s/`hostname | sed -e 's/\..*//'`/HOST/g" \
+	-e '/\/var\/adm\/pcplog\/NOTICES/d' \
+	-e 's/-rw-r--r--\./-rw-r--r--/' \
+    | $PCP_AWK_PROG '
+/-rw-r--r--/	{ print $1,"...",$5,"...",$9; next }
+		{ print }' \
+    | _filter_cron_scripts
+}
+
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp $tmp.*; $sudo mv $PCP_LOG_DIR/NOTICES.$$ $PCP_LOG_DIR/NOTICES; exit \$status" 0 1 2 3 15
+
+# take explicit control of the umask
+#
+umask 022
+
+$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$$
+rm -f $seq.full
+rm -rf $tmp $tmp.*
+mkdir $tmp
+mkdir $tmp/foo
+
+# real QA test starts here
+
+echo >$tmp/sed
+# unmerged archives for these days ...
+#
+for day in 0 1 2 3
+do
+    for hour in 1 4 16
+    do
+	[ $day -gt 0 -a $hour -gt 1 ] && continue
+	# aiming for the time to be hour:10, hour:20 and hour:30 on
+	# each day, even if that is ahead of NOW for today
+	#
+	now_hr=`pmdate %H`
+	hr_set=`expr $hour - $now_hr`
+	[ "$hr_set" -ge 0 ] && hr_set="+$hr_set"
+	now_min=`pmdate %M`
+	min_set10=`expr 10 - $now_min`
+	[ "$min_set10" -ge 0 ] && min_set10="+$min_set10"
+	min_set20=`expr 20 - $now_min`
+	[ "$min_set20" -ge 0 ] && min_set20="+$min_set20"
+	min_set30=`expr 30 - $now_min`
+	[ "$min_set30" -ge 0 ] && min_set30="+$min_set30"
+	namea=`pmdate -${day}d ${hr_set}H ${min_set10}M %Y%m%d.%H.%M`
+	nameb=`pmdate -${day}d ${hr_set}H ${min_set20}M %Y%m%d.%H.%M`
+	namec=`pmdate -${day}d ${hr_set}H ${min_set30}M %Y%m%d.%H.%M`
+	stampa=`echo $namea | sed -e 's/\.//g'`
+	stampb=`echo $nameb | sed -e 's/\.//g'`
+	stampc=`echo $namec | sed -e 's/\.//g'`
+	nameb=${namea}-00
+	namec=${namea}-01
+	echo "s/$namea/TODAY-$day.${hour}H.MM/g" >>$tmp/sed
+	echo "s/$nameb/TODAY-$day.${hour}H.MM-00/g" >>$tmp/sed
+	echo "s/$namec/TODAY-$day.${hour}H.MM-01/g" >>$tmp/sed
+
+	for ext in 0 index meta
+	do
+	    if [ $hour -ne 4 ]
+	    then
+		cp src-oss/arch_a.$ext $tmp/$namea.$ext
+		touch -t $stampa $tmp/$namea.$ext
+	    fi
+	    cp src-oss/arch_b.$ext $tmp/$nameb.$ext
+	    touch -t $stampb $tmp/$nameb.$ext
+	    cp src-oss/arch_b.$ext $tmp/$namec.$ext
+	    touch -t $stampc $tmp/$namec.$ext
+	done
+    done
+    echo "s/`pmdate -${day}d ${hr_set}H ${min_set10}M %Y%m%d`/TODAY-$day/g" >>$tmp/sed
+done
+
+# merged archives for these days ...
+#
+for day in 4 5 6
+do
+    # aiming for the time to be 00:10 like when cron does its stuff
+    #
+    hr_set=-`pmdate %H`
+    now_min=`pmdate %M`
+    min_set=`expr 10 - $now_min`
+    [ "$min_set" -ge 0 ] && min_set="+$min_set"
+    namea=`pmdate -${day}d ${hr_set}H ${min_set}M %Y%m%d`
+    stampa=`echo $namea | sed -e 's/\.//g'`0010
+    echo "s/$namea/TODAY-$day/g" >>$tmp/sed
+
+    for ext in 0 index meta
+    do
+	cp src-oss/arch_a.$ext $tmp/$namea.$ext
+	touch -t $stampa $tmp/$namea.$ext
+    done
+    echo "s/$namea/TODAY-$day/g" >>$tmp/sed
+done
+
+echo "s/TODAY-0/TODAY/g" >>$tmp/sed
+echo "s/`pmdate %Y%m%d`/TODAY/g" >>$tmp/sed
+
+( cd $tmp; tar cf - *.0 *.meta *.index 2>/dev/null ) \
+| ( cd $tmp/foo; tar xpf - 2>/dev/null )
+
+echo >$tmp/control '$version=1.1
+LOCALHOSTNAME	n   n	'"$tmp"'	./config'
+
+echo
+echo "Before ..."
+ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort | tee $tmp.before
+echo "sed ..." >>$seq.full
+cat $tmp/sed >>$seq.full
+echo "before ..." >>$seq.full
+ls -l $tmp >>$seq.full
+
+# list of culled files is in directory order, hence the cut and sort
+# complexity at the end of this pipeline
+#
+echo
+echo "pmlogger_daily -k 4 -V ..." >>$seq.full
+pmlogger_daily -c $tmp/control -k 4 -V 2>&1 \
+| tee -a $tmp.full \
+| _filter \
+| $PCP_AWK_PROG '
+state == 0		{ print >"'$tmp.out.0'"
+			  if ($0 ~ /older than 4 days/) state = 1
+			  next
+			}
+state == 1 && NF == 0	{ state = 2 }
+state == 1		{ for (i = 1; i <= NF; i++) print $i >"'$tmp.out.1'" }'
+[ -f $tmp.out.0 ] && cat $tmp.out.0
+[ -f $tmp.out.1 ] && LC_COLLATE=POSIX sort $tmp.out.1
+
+echo "out.0 ..." >>$seq.full
+[ -f $tmp.out.0 ] && cat $tmp.out.0 >>$seq.full
+echo "out.1 ..." >>$seq.full
+[ -f $tmp.out.1 ] && cat $tmp.out.1 >>$seq.full
+
+echo
+echo "After ..."
+ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort | tee $tmp.after
+echo "after ..." >>$seq.full
+ls -l $tmp >>$seq.full
+
+echo
+echo "Differences ..."
+diff $tmp.before $tmp.after
+
+rm -rf $tmp/* $tmp.*
+
+# all done
+status=0
+exit

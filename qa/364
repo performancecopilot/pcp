@@ -1,0 +1,65 @@
+#!/bin/sh
+# PCP QA Test No. 364
+# pmlogconf metric accessibility
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+. ./localconfig
+rm -f $seq.out
+if [ -f $seq.$PCP_PLATFORM ]
+then
+    ln $seq.$PCP_PLATFORM $seq.out
+else
+    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+    exit 1
+fi
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/swap.in .* Metric not supported/d' \
+	-e '/swap.out .* Metric not supported/d'
+}
+
+# real QA test starts here
+pmlogconf $tmp.conf >$tmp.out 2>&1
+cat $tmp.out >$seq.full
+
+sed -e 's/:n:/:y:/' <$tmp.conf >$tmp.tmp
+mv $tmp.tmp $tmp.conf
+
+yes '' | pmlogconf $tmp.conf >$tmp.out
+cat $tmp.out >>$seq.full
+cat $tmp.conf >>$seq.full
+
+sed -n <$tmp.conf \
+    -e '/^[ 	]/{
+s/^[ 	]*//
+s/[ 	].*//
+p
+}' \
+| LC_COLLATE=POSIX sort \
+| uniq \
+| tee -a $seq.full \
+| xargs pmprobe \
+| _filter \
+| $PCP_AWK_PROG '
+$2 >= 0		{ next }
+		{ print }'
+
+# success, all done
+exit

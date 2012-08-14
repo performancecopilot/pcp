@@ -1,0 +1,106 @@
+#! /bin/sh
+#
+# re-create localconfig and localconfig.h if need be
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# generic initialization
+. ./common.rc
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_getversion()
+{
+    # output from versions looks like ...
+    # I  pcp.sw               1287046800  PCP Software, 2.2 beta-3
+    # I  pcp_eoe_noship       1276478200  Performance Co-Pilot NOSHIP EOE for IRIX 6.5, 2.2 beta-1
+    # I  pcp_eoe_noship.sw    1276478200  PCP EOE Software, 2.2 beta-1
+    # I  pcp_eoe_noship.sw.eoe  1276478200  PCP EOE, 2.2 beta-1
+    # I  pcp_eoe_noship.sw.monitor  1276478200  PCP EOE Monitor, 2.2 beta-1
+    versions -n $1 \
+    | grep '^I  ' \
+    | sed \
+	-e 's/.* \([1-9][0-9]*\) .*, */\1 /' \
+	-e 's/ beta-.*//' \
+	-e 's/ baobab//' \
+	-e '/ [^.]*\.[^.]*$/s/$/.0/' \
+	-e 's/\.\([0-9]\)$/.0\1/' \
+	-e 's/\.//g' \
+    | LC_COLLATE=POSIX sort -u \
+    | $PCP_AWK_PROG '{ print $2 }' >$tmp.tmp
+    if [ `wc -l <$tmp.tmp` -gt 1 ]
+    then
+	echo "mk.localconfig: Warning: multiple versions of $1 installed?"
+	versions -n $1
+	echo "... using the first one, hope that's OK"
+	sed 1q $tmp.tmp >$tmp.eek
+	mv $tmp.eek $tmp.tmp
+    fi
+}
+
+PCP_VER=`echo $PCP_VERSION \
+	     | sed \
+		 -e '/^[^.]*\.[^.]*$/s/$/.0/' \
+		 -e 's/\.\([0-9]\)$/.0\1/' \
+		 -e 's/\.//g'`
+[ -z "$PCP_VER" ] && PCP_VER=0
+PCP_EOE_VER=$PCP_VER
+PCP_EOE_NOSHIP_VER=0
+if which rpm >/dev/null 2>&1
+then
+    PCP_PRO_VER=0
+    rpm -q pcp-pro >/dev/null 2>&1
+    [ $? = 0 ] && {
+	PCP_PRO_VER=`rpm -q pcp-pro \
+		| sed -e 's/pcp-pro-//' \
+                              -e 's/\.//g' \
+                              -e 's/-.*//' \
+                              -e 's/^\(..\)\(.\)$/\10\2/'`
+	}
+else
+    PCP_PRO_VER=$PCP_VER
+fi
+
+cat <<End-of-File >$tmp.out
+#define PCP_PLATFORM $PCP_PLATFORM
+#define PCP_VER	$PCP_VER
+#define PCP_EOE_VER $PCP_EOE_VER
+#define PCP_PRO_VER $PCP_PRO_VER
+#define PCP_EOE_NOSHIP_VER $PCP_EOE_NOSHIP_VER
+End-of-File
+
+if [ ! -f localconfig.h ]
+then
+    echo "Installing \"localconfig.h\""
+    mv $tmp.out localconfig.h
+elif diff $tmp.out localconfig.h >/dev/null
+then
+    :
+else
+    echo "Updating \"localconfig.h\""
+    rm -f localconfig.h
+    mv $tmp.out localconfig.h
+fi
+
+cat <<End-of-File >$tmp.out
+PCP_PLATFORM=$PCP_PLATFORM
+PCP_VER=$PCP_VER
+PCP_EOE_VER=$PCP_EOE_VER
+PCP_PRO_VER=$PCP_PRO_VER
+PCP_EOE_NOSHIP_VER=$PCP_EOE_NOSHIP_VER
+End-of-File
+
+if [ ! -f localconfig ]
+then
+    echo "Installing \"localconfig\""
+    mv $tmp.out localconfig
+elif diff $tmp.out localconfig >/dev/null
+then
+    :
+else
+    echo "Updating \"localconfig\""
+    rm -f localconfig
+    mv $tmp.out localconfig
+fi

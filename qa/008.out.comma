@@ -1,0 +1,47 @@
+QA output created by 008
+Disks:
+	[0]: 0 disk0
+all drives should be included here
+pmResult ... numpmid: 1
+  78.7.47 (disk.dev.read): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or "disk0"] value ...
+
+no drives should be included here
+pmResult ... numpmid: 1
+  78.7.47 (disk.dev.read): No values returned!
+
+only the first and last drive should be included here
+pmResult ... numpmid: 1
+  78.7.47 (disk.dev.read): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or "disk0"] value ...
+
+all except drive zero should be included here
+pmResult ... numpmid: 1
+  78.7.47 (disk.dev.read): No values returned!
+
+drive zero ONLY should be included here
+pmResult ... numpmid: 1
+  78.7.47 (disk.dev.read): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or "disk0"] value ...
+all drives should be included here
+pmResult ... numpmid: 1
+  78.7.47 (disk.dev.read): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or "disk0"] value ...
+
+no drives should be included here
+pmResult ... numpmid: 1
+  78.7.47 (disk.dev.read): No values returned!
+
+only the first and last drive should be included here
+pmResult ... numpmid: 1
+  78.7.47 (disk.dev.read): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or "disk0"] value ...
+
+all except drive zero should be included here
+pmResult ... numpmid: 1
+  78.7.47 (disk.dev.read): No values returned!
+
+drive zero ONLY should be included here
+pmResult ... numpmid: 1
+  78.7.47 (disk.dev.read): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or "disk0"] value ...

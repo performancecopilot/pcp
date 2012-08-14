@@ -1,0 +1,180 @@
+#! /bin/sh
+# PCP QA Test No. 600
+# Test __pmTimezone
+#
+# This test looks like its tripping genuine bugs in Linux:
+# 1. for glibc-2.2.4 or earlier, Linux seems to invert the sense of the
+#    daylight savings ranges (- is valid output, + is broken linux version):
+#
+# diff -c 600.out 600.out.bad:
+# ...
+# ABC-10:00:00XYZ-11:00:00,M12.5.0/3:00:00,M7.5.0/2:00:00 -> ABC-10XYZ-11,M12.5.0/3,M7.5.0/2
+# -In March daylight saving is on, and the time is 01 March 2000 23:00 XYZ
+# +In March daylight saving is off, and the time is 01 March 2000 22:00 ABC
+# In September daylight saving is off, and the time is 01 September 2000 22:00 ABC
+# ...
+#
+# 2. linux appears to ignore invalid olsen style timezones
+# ...
+# -:Someplace/Somewhere -> ABC-10
+# +ABC-10 -> ABC-10
+# In March daylight saving is off, and the time is 01 March 2000 22:00 ABC
+# In September daylight saving is off, and the time is 01 September 2000 22:00 ABC
+# +
+# +:Someplace/Somewhere -> Someplace/Somewhere
+# +In March daylight saving is off, and the time is 01 March 2000 12:00 Someplace/Somewhere
+# +In September daylight saving is off, and the time is 01 September 2000 12:00 Someplace/Somewhere
+# ...
+#
+# 3. glibc 2.2.93 and 2.3.x just gets it wrong
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+. ./localconfig
+if [ $PCP_EOE_VER -le 2100 \
+    -o \( $PCP_EOE_VER -ge 6500 -a $PCP_EOE_VER -le 6508 \) ]
+then
+    echo "needs libpcp.so with TZ changes" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+rm -f $seq.out
+if [ $PCP_PLATFORM = linux ]
+then
+    a=''
+    which rpm >/dev/null 2>&1
+    if [ $? -eq 0 -a ! -f /etc/debian_version ]
+    then
+	eval `rpm -q glibc | sed -e 's/glibc-/a=/' -e 's/\./ b=/' -e 's/\./ c=/' -e 's/-.*//'`
+    elif which dpkg >/dev/null 2>&1
+    then
+	lib=`find /lib -name libc.so.\* | sed -e 1q`
+	if [ -n "$lib" ]
+	then
+	    pkg=`dpkg -S $lib | sed -e 's/:.*//' -e 1q`
+	    if [ -n "$pkg" ]
+	    then
+		eval `dpkg -l $pkg \
+		| $PCP_AWK_PROG '$2 == "'$pkg'" { print $3 }' \
+		| sed -e 's/^/a=/' -e 's/\./ b=/' -e 's/[-.].*//'`
+	    fi
+	fi
+    fi
+    if [ -z "$a" ]
+    then
+	eval `echo /lib/libc-*.so | sed -e 's/\.so.*//' -e 's/.*-//' -e 's/^/a=/' -e 's/\./ b=/' -e 's/\./ c=/'`
+    fi
+
+    if [ -z "$a" -o "$a" = "*" ]
+    then
+	#[ ! -f /etc/debian_version ] && rpm -q glibc
+	#ls -l /lib/libc-*.so
+        _notrun "Cannot find major version for libc"
+    fi
+
+    # Use glibc version
+    if [ "$a" -lt 2 ]
+    then
+	# a.?.?, a < 2
+	ln $seq.out.linux.0 $seq.out
+    elif [ "$a" -eq 2 ]
+    then
+	if [ -z "$b" -o "$b" = "*" ]
+	then
+	    echo "Arrggh ... cannot get minor version for libc"
+	    [ ! -f /etc/debian_version ] && rpm -q glibc
+	    ls -l /lib/libc-*.so
+	    exit 1
+	fi
+	if [ "$b" -lt 2 ]
+	then
+	    # 2.b.?, b < 2
+	    ln $seq.out.linux.0 $seq.out
+	elif [ "$b" -eq 2 ]
+	then
+	    if [ -z "$c" -o "$c" = "*" ]
+	    then
+		echo "Arrggh ... cannot get really minor version for libc"
+		[ ! -f /etc/debian_version ] && rpm -q glibc
+		ls -l /lib/libc-*.so
+		exit 1
+	    fi
+	    if [ "$c" -lt 4 ]
+	    then
+		# 2.2.c, c < 4
+		ln $seq.out.linux.0 $seq.out
+            elif [ "$c" -eq 93 ]
+	    then
+		# 2.2.93
+		ln $seq.out.linux.2 $seq.out
+	    else
+		# 2.2.c, c >= 4
+		# need this one for LBS 2.1
+		ln $seq.out.linux.1 $seq.out
+	    fi
+	elif [ "$b" -eq 3 ]
+	then
+	    if [ "$c" -lt 2 ]
+	    then
+		# 2.3.c, c < 2
+		ln $seq.out.linux.2 $seq.out
+	    else
+		# 2.3.c, c >= 3
+		# glibc-2.3.2-95.20	PP3 SP2
+		# glibc-2.3.3-98.3	SuSE SLES9 beta4
+		ln $seq.out.linux.1 $seq.out
+	    fi
+	elif [ "$b" -lt 8 ]
+	then
+	    # 2.b.?, b > 3 and b < 8
+	    ln $seq.out.linux.1 $seq.out
+	elif [ "$b" -lt 10 ]
+	then
+	    # 2.b.?, b == 8 or 9
+	    ln $seq.out.linux.3 $seq.out
+	else
+	    # 2.b.?, b >= 10
+	    ln $seq.out.linux.4 $seq.out
+	fi
+    else
+	# a.?.?, a > 2
+	ln $seq.out.linux.1 $seq.out
+    fi
+    #DEBUG# echo "glibc version $a.$b.$c"
+    #DEBUG# ls -l $seq*
+elif [ $PCP_PLATFORM = darwin ]
+then
+    ln $seq.out.darwin $seq.out
+elif [ $PCP_PLATFORM = solaris  ]
+then
+    ln $seq.out.solaris $seq.out
+else
+    ln $seq.out.irix $seq.out
+fi
+
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+TZ=XYZ-11; export TZ
+
+# I don't understand the sed replacement below - Ken, Jul 2003
+#
+src-oss/tztest \
+| tee $seq.full \
+| sed \
+	-e's|XYZ-11:03:04ABC-10:01:02,M12.5.0/3:04:05,M7.1.0/2:06:07|ABC-10:01:02XYZ-11:03:04,M12.5.0/3:04:05,M7.1.0/2:06:07|' \
+	-e's|XYZ-11ABC-10,M12.5.0/3:01:02,M7.1.0/2:03:04|ABC-10XYZ-11,M12.5.0/3:01:02,M7.1.0/2:03:04|'
+status=0
+exit

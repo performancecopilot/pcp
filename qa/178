@@ -1,0 +1,187 @@
+#! /bin/sh
+# PCP QA Test No. 178
+# pmlogextract exerciser
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+#debug# tmp=`pwd`/tmp
+
+_filter()
+{
+    $PCP_AWK_PROG '
+/\<mark\>/	{ next }
+/suspended/	{ next }
+/No values/	{ noval++; next }
+/\?/		{ noval++; next }
+/^[0-2][0-9]:/	{ sample++; next }
+END		{ printf "%d samples",sample
+		  if (noval > 0) printf ", %d \"no values\"",noval
+		  print ""
+		}'
+}
+
+_range()
+{
+    $PCP_AWK_PROG '
+'$1' <= $1 && $1 <= '$2'	{ print "Pass",$2,$3; next }
+				{ print "Fail (" $1 " " $2 " " $3 ")" }'
+}
+
+_stamp()
+{
+    sed -e 's/ [0-2][0-9]:.*$/ datestamp/'
+}
+
+_count_rec()
+{
+    $PCP_AWK_PROG '
+/^[0-2][0-9]:.*\<mark\>/	{ mark++; next }
+/^[0-2][0-9]:/			{ rec++; next }
+END				{ printf "%d",rec
+				  if (mark == 1) printf " (+%d mark)",mark
+				  else if (mark > 1) printf " (+%d marks)",mark
+				  print ""
+				}'
+}
+
+rm -f $seq.full $tmp.*
+
+# real QA test starts here
+cat >$tmp.a.config <<End-of-File
+log mandatory on 600 msec sample.bin
+End-of-File
+
+cat >$tmp.b.config <<End-of-File
+log mandatory on 300 msec {
+	sample.bin [ "bin-200" ]
+	sample.drift
+}
+End-of-File
+
+cat >$tmp.c.config <<End-of-File
+log mandatory on 300 msec {
+	sample.bin
+	sample.drift
+}
+End-of-File
+
+# a and b concurrently
+# a: 25 x 0.6 sec
+# b: 20 x 0.3 sec
+#
+pmlogger -c $tmp.a.config -l $tmp.a.log -s 25 $tmp.a >$tmp.a.err 2>&1 &
+pmlogger -c $tmp.b.config -l $tmp.b.log -s 20 $tmp.b >$tmp.b.err 2>&1 &
+
+wait
+echo "log for archive 'a' ..." >>$seq.full
+cat $tmp.a.err $tmp.a.log | tee -a $seq.full | _filter_pmlogger_log
+echo >>$seq.full
+echo "log for archive 'b' ..." >>$seq.full
+cat $tmp.b.err $tmp.b.log | tee -a $seq.full | _filter_pmlogger_log
+
+# c later
+#
+pmlogger -c $tmp.c.config -l $tmp.c.log -s 10 $tmp.c >$tmp.c.err 2>&1
+echo >>$seq.full
+echo "log for archive 'c' ..." >>$seq.full
+cat $tmp.c.err $tmp.c.log | tee -a $seq.full | _filter_pmlogger_log
+
+echo "Full merge ..."
+rm -f $tmp.merge.*
+pmlogextract $tmp.a $tmp.b $tmp.c $tmp.merge
+echo >>$seq.full
+echo "Log record counts ..." | tee -a $seq.full
+for i in a b c merge
+do
+    $PCP_ECHO_PROG $PCP_ECHO_N "$i: ""$PCP_ECHO_C"
+    ( echo; echo "=== $i ===" ) >>$seq.full
+    pmdumplog -m $tmp.$i | tee -a $seq.full | _count_rec
+done
+
+echo
+echo 'sample.bin ["bin-200"] ... expect 55 samples'
+pmval -i "bin-200" -U $tmp.merge sample.bin 2>&1 \
+| _filter
+
+echo
+echo 'sample.bin ["bin-100"] ... expect 35 samples, 20 no values'
+pmval -i "bin-100" -U $tmp.merge sample.bin 2>&1 \
+| _filter
+
+echo
+echo "sample.drift ... expect 30 samples"
+pmval -U $tmp.merge sample.drift 2>&1 \
+| _filter
+
+echo | tee -a $seq.full
+echo "merge -s 10" | tee -a $seq.full
+rm -f $tmp.merge.*
+pmlogextract -s 10 $tmp.a $tmp.b $tmp.c $tmp.merge
+$PCP_ECHO_PROG $PCP_ECHO_N "merge (expect 10): ""$PCP_ECHO_C"
+pmdumplog -m $tmp.merge \
+| tee -a $seq.full \
+| _count_rec 
+
+# all of b + 11 from a
+#
+echo | tee -a $seq.full
+echo "merge -T 6.9" | tee -a $seq.full
+rm -f $tmp.merge.*
+pmlogextract -T 6.9 $tmp.a $tmp.b $tmp.c $tmp.merge
+$PCP_ECHO_PROG $PCP_ECHO_N "merge (expect 31 + 2 preamble + 1 mark): ""$PCP_ECHO_C"
+pmdumplog -m $tmp.merge \
+| tee -a $seq.full \
+| _count_rec
+
+# tail of a (less 1), none of b or c
+echo | tee -a $seq.full
+echo "merge -S 6.9 -T 7.2" | tee -a $seq.full
+rm -f $tmp.merge.*
+pmlogextract -S 6.9 -T 7.2 $tmp.a $tmp.b $tmp.c $tmp.merge
+$PCP_ECHO_PROG $PCP_ECHO_N "merge (expect 12): ""$PCP_ECHO_C"
+pmdumplog -m $tmp.merge \
+| tee -a $seq.full \
+| _count_rec
+
+echo | tee -a $seq.full
+echo "Full merge with volume switch ..." | tee -a $seq.full
+rm -f $tmp.merge.*
+pmlogextract -v 15 $tmp.a $tmp.b $tmp.c $tmp.merge 2>&1 \
+| tee -a $seq.full \
+| _stamp
+echo "Log record counts ..." | tee -a $seq.full
+for i in a b c merge
+do
+    $PCP_ECHO_PROG $PCP_ECHO_N "$i: ""$PCP_ECHO_C"
+    ( echo; echo "=== $i ===" ) >>$seq.full
+    pmdumplog -m $tmp.$i \
+    | tee -a $seq.full \
+    | _count_rec
+done
+
+for file in $tmp.merge.[0-9]*
+do
+    mv $file $file.x
+done
+
+echo "Log record counts per merged volume ..." | tee -a $seq.full
+for vol in `echo $tmp.merge.[0-9]* | sed -e "s;$tmp\\.merge\\.\\([0-9]*\\)\\.x;\\1;g"`
+do
+    $PCP_ECHO_PROG $PCP_ECHO_N "volume $vol: ""$PCP_ECHO_C"
+    ( echo; echo "=== volume $vol ===" ) >>$seq.full
+    mv $tmp.merge.$vol.x $tmp.merge.$vol
+    pmdumplog -m $tmp.merge \
+    | tee -a $seq.full \
+    | _count_rec
+    mv $tmp.merge.$vol $tmp.merge.$vol.x
+done
+

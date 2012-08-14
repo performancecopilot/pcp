@@ -1,0 +1,427 @@
+#! /bin/sh
+# PCP QA Test No. 255
+# exercise pmcd <-> pmda version exchange
+# Bug #508731
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
+then
+    if [ $PCP_VER -ge 3600 ]
+    then
+	ln $seq.out.4 $seq.out || exit 1
+    elif test $PCP_EOE_VER -ge 2704
+    then
+	ln $seq.out.3 $seq.out || exit 1
+    else
+	ln $seq.out.2 $seq.out || exit 1
+    fi
+else
+    ln $seq.out.1 $seq.out || exit 1
+fi
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+errlist=''
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+$sudo rm -f $seq.full $tmp.*
+echo "=== I am PID $$" >>$seq.full
+echo "=== /tmp files" >>$seq.full
+$sudo ls -l /tmp/[0-9][0-9]*.* >>$seq.full 2>&1
+echo "=== config files" >>$seq.full
+ls -l $PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH >>$seq.full
+
+unset ROOT
+
+simple_domain=253
+broken_domain=249
+num_warn=0
+
+# pmcd may be quite some distance away
+#
+PMCD_CONNECT_TIMEOUT=30
+PMCD_REQUEST_TIMEOUT=30
+export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
+
+_filter_ins()
+{
+    sed \
+	-e '/^Installing .mchart view*/d' \
+	-e 's/.* \(hash table entries\)/  NNN \1/' \
+	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(bytes of symbol table\)/  NNN \1/'
+}
+
+_filter_pmcd()
+{
+    _filter_pmcd_log \
+    | sed \
+    	-e "/^simple.*bin/s/$simple_domain[ 	]*[0-9]*[ 	]*[0-9]*[ 	]*[0-9]*/SIMPLE PID FD FD/" \
+    	-e "/^simple.*dso/s/$simple_domain/SIMPLE/" \
+    	-e "/^broken.*bin/s/$broken_domain[ 	]*[0-9]*[ 	]*[0-9]*[ 	]*[0-9]*/BROKEN PID FD FD/" \
+	-e "s/[1-2][ 	]dso.*irix_init/LIBIRIXPMDA DSO/" \
+	-e "s/[1-2][ 	]dso.*linux_init/LINUX DSO/" \
+	-e "s;$PCP_PMDAS_DIR;PCP_PMDAS_DIR;g" \
+	-e "s/ISA\.//g" \
+	-e "s/ \[(nil)]//g" \
+	-e "s/cmd=.*pmdas\/broken./cmd=/" \
+	-e "s/ fd=[0-9]*/ fd=FD/" \
+	-e "s/\.$DSO_SUFFIX/.\$DSO_SUFFIX/g" \
+    | $PCP_AWK_PROG '
+BEGIN				{ skip = 0 }
+/client connection from/	{ print; print "..."; skip=1; next }
+skip == 1 && NF == 0		{ skip = 0 }
+skip == 1			{ next }
+				{ print }'
+}
+
+_filter_init()
+{
+    sed \
+    	-e "s/$$/PID/g" \
+    | _filter_pcp_start
+}
+
+# Remove the PMDA and restore pmcd.conf
+#
+_cleanup()
+{
+    echo ""
+    echo "=== Removing broken_pmda namespace ==="
+    cd $here/pmdas/broken
+    $sudo ./broken_Remove -N
+    cd $here
+    sleep 4
+    _wait_for_pmcd
+
+    if [ -f $tmp.conf ]
+    then
+	echo "=== Resetting pmcd.conf back to original state ==="
+	$sudo cp $tmp.conf $PCP_PMCDCONF_PATH
+    fi
+    if [ -f $tmp.options ]
+    then
+	echo "=== Resetting pmcd.options back to original state ==="
+	echo '=== $PCP_PMCDOPTIONS_PATH before cp' >>$seq.full
+	cat $PCP_PMCDOPTIONS_PATH >>$seq.full
+	echo '=== $tmp.options before cp' >>$seq.full
+	cat $tmp.options >>$seq.full
+	$sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
+    fi
+    if [ -f $tmp.conf -o -f $tmp.options ]
+    then
+    	echo "=== Restart PMCD ==="
+	echo '=== $PCP_PMCDCONF_PATH before init.d/pcp/start' >>$seq.full
+	cat $PCP_PMCDCONF_PATH >>$seq.full
+	echo '=== $PCP_PMCDOPTIONS_PATH before init.d/pcp/start' >>$seq.full
+	cat $PCP_PMCDOPTIONS_PATH >>$seq.full
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+    fi
+    if [ -f $tmp.log ]
+    then
+	echo "=== Filter pmcd.log ==="
+	cat $tmp.log | _filter_pmcd
+	echo '=== pmcd log' >>$seq.full
+	cat $tmp.log >>$seq.full
+    fi
+    if [ -f $tmp.cron ]
+    then
+	echo "=== Restoring crontab ==="
+    	_restore_cron $tmp.cron $sudo
+    fi
+    [ -f $PCP_PMDAS_DIR/simple/simple.conf.$seq ] && $sudo mv $PCP_PMDAS_DIR/simple/simple.conf.$seq $PCP_PMDAS_DIR/simple/simple.conf
+
+    echo "=== /tmp files" >>$seq.full
+    $sudo ls -l /tmp/[0-9][0-9]*.* >>$seq.full 2>&1
+    echo "=== config files" >>$seq.full
+    ls -l $PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH >>$seq.full
+
+    $sudo rm -rf $tmp.*
+    _wait_for_pmlogger
+}
+
+# Removing cron entries that may collide
+#
+echo "=== Removing potential cron conflicts ==="
+_remove_cron $tmp.cron $sudo
+
+# Install broken pmda namespace
+#
+echo "=== Install broken namespace ==="
+cd $here/pmdas/broken
+$sudo ./broken_Install -N < /dev/null | _filter_ins 2>&1
+cd $here
+echo "=== Broken PMNS ==="
+if pminfo broken
+then
+    :
+else
+    echo "Unable to install broken namespace, exiting"
+    exit
+fi
+
+# Build simple agent
+#
+echo "=== Building simple agent ==="
+cd $PCP_PMDAS_DIR/simple
+
+# get rid of warnings from simple if no config exists
+#
+[ -f simple.conf ] && $sudo mv simple.conf simple.conf.$seq
+echo "sec,min,hour" >$tmp.simple.conf
+$sudo cp $tmp.simple.conf simple.conf
+
+# Install the simple namespace, I don't bother to remove it again
+#
+$sudo ./Install -N < /dev/null | _filter_ins 2>&1
+echo "Namespace installed"
+
+# if $sudo smake -f Makefile > $tmp.make 2>&1
+if $sudo make > $tmp.make 2>&1
+then
+    echo "PMDA built"
+else
+    echo "Unable to build the simple PMDA:"
+    cat $tmp.make
+    exit
+fi
+sed -e "/^@ SIMPLE/s/SIMPLE/$simple_domain/" < help \
+| $sudo $PCP_BINADM_DIR/newhelp -v 2 -o help
+echo "Help generated"
+cd $here
+
+# Replace pmcd.options
+#
+echo "=== Replacing pmcd.options ==="
+$sudo cp $PCP_PMCDOPTIONS_PATH $tmp.options
+cat << end-of-file > $tmp.newoptions
+# New pmcd.options file created by QA 255
+#
+-t 10
+-l $tmp.log
+-T 0
+end-of-file
+
+$sudo cp $tmp.newoptions $PCP_PMCDOPTIONS_PATH
+# Do not restart pmcd here, do it after changing pmcd.conf later
+
+# Function to filter pminfo output
+#
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN		{ value=0; metric=0; warn=0 }
+NF==0		{ next }
+/ value /	{ value++; next }
+/^'$1'/		{ metric++
+		  if ($0 !~ /:/) next
+		}
+		{ warn++ }
+END		{ if (warn) printf "%d warnings, ",warn
+		  printf "%d metrics and %d values\n",metric,value
+		}'
+}
+
+_renew_pmcd()
+{
+    echo "=== Restarting PMCD with minimal PMDAs ==="
+    if [ -f $tmp.newconf ]
+    then
+	$sudo cp $tmp.newconf $PCP_PMCDCONF_PATH
+	$sudo $signal -a -s HUP pmcd >/dev/null 2>&1
+	sleep 4
+	_wait_for_pmcd
+    else
+	echo caller - $1 - has not created $tmp.newconf !!!
+    fi
+}
+
+# Install a standard pmda, but do not mess with the namespace
+#
+_agent_install()
+{
+    agent=$1
+    domain=$2
+    daemon=$3
+    path=$PCP_PMDAS_DIR/$agent
+
+    echo "=== Installing $agent ==="
+    cp $tmp.newconf $tmp.latest
+    if $daemon
+    then
+	cat << end-of-file >> $tmp.latest
+$agent	$domain	pipe	binary	$path/pmda$agent -d $domain
+end-of-file
+    else
+	prefix=
+	[ $PCP_PLATFORM = irix ] && prefix=`pmobjstyle`.
+    	cat << end-of-file >> $tmp.latest
+$agent	$domain	dso	${agent}_init	$path/${prefix}pmda_$agent.$DSO_SUFFIX
+end-of-file
+    fi
+
+    $sudo cp $tmp.latest $PCP_PMCDCONF_PATH
+    $sudo $signal -a -s HUP pmcd >/dev/null 2>&1
+    sleep 4
+    _wait_for_pmcd
+
+    if _check_agent $agent 2
+    then
+    	echo "$agent is alive and well"
+    else
+    	echo "Failed to install $agent"
+	exit
+    fi
+}
+
+# Remove a pmda
+#
+_agent_remove()
+{
+    agent=$1
+
+    echo "=== Removing $agent ==="
+    _renew_pmcd _agent_remove
+
+    if _check_agent $agent 2
+    then
+    	echo "Failed to remove $agent"
+	exit
+    else
+    	echo "$agent was removed"
+    fi
+}
+
+# Install broken pmda
+#
+_broken_install()
+{
+    agent=$1
+    ver=$2
+
+    echo "=== Installing $agent ==="
+    cp $tmp.newconf $tmp.latest
+    cat << end-of-file >> $tmp.latest
+broken	$broken_domain	pipe	binary	$here/pmdas/broken/$agent -d $broken_domain
+end-of-file
+
+    $sudo cp $tmp.latest $PCP_PMCDCONF_PATH
+    $sudo $signal -a -s HUP pmcd >/dev/null 2>&1
+    sleep 4
+    _wait_for_pmcd
+    
+    if _check_agent broken $ver
+    then
+    	echo "$agent is alive and well...hang on there should be some warnings"
+	pminfo -f broken
+	exit
+    elif [ "$num_warn" -ne 5 ]
+    then
+    	echo "Failed to properly install $agent, expected 4 warnings"
+	exit
+    else
+    	echo "$agent is alive and as well as can be expected"
+    fi
+}
+
+# check that the agent is up and running
+#
+_check_agent() 
+{
+    agent=$1
+    sts=0
+
+    pminfo -f $agent 2>&1 | _filter $agent > $tmp.fetch 2>&1
+    pminfo -v $agent 2>&1 | LC_COLLATE=POSIX sort >$tmp.verify
+    cat $tmp.fetch
+    if grep warnings $tmp.fetch > /dev/null 2>&1
+    then
+	num_warn=`cut -d' ' -f1 < $tmp.fetch`
+	if [ "$num_warn" -gt 0 ]
+	then
+	    echo "Warnings when fetching $agent metrics:"
+	    cat $tmp.verify
+	    sts=1
+	fi
+    else
+    	num_warn=0
+    fi
+
+    return $sts
+}
+
+# Copy and replace pmcd.conf
+#
+cp $PCP_PMCDCONF_PATH $tmp.conf
+cat << end-of-file > $tmp.newconf
+# pmcd.conf generated by QA 255
+#
+end-of-file
+
+if [ $PCP_PLATFORM = irix ]
+then
+    cat >>$tmp.newconf  <<End-of-File
+# from qa/$seq
+irix    1       dso     irix_init       libirixpmda.so
+pmcd    2       dso     pmcd_init       pmda_pmcd.so
+End-of-File
+elif [ $PCP_PLATFORM = linux ]
+then
+    cat >>$tmp.newconf  <<End-of-File
+# from qa/$seq
+linux   60      dso     linux_init      $PCP_PMDAS_DIR/linux/pmda_linux.so
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
+elif [ $PCP_PLATFORM = darwin ]
+then
+    cat >>$tmp.newconf  <<End-of-File
+# from qa/$seq
+darwin  78      dso     darwin_init     $PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+End-of-File
+elif [ $PCP_PLATFORM = solaris ]
+then
+    cat >>$tmp.newconf  <<End-of-File
+solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
+else
+    echo "Arrgh ... need pmcd.conf for $PCP_PLATFORM"
+    exit 1
+fi
+
+_renew_pmcd main
+
+# Start with a fresh pmcd log
+#
+$sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
+$sudo $PCP_RC_DIR/pcp restart | _filter_init 2>&1
+_wait_for_pmcd
+
+# Test 2.0 PMDA first
+#
+_agent_install simple $simple_domain true
+_agent_remove simple
+_agent_install simple $simple_domain false
+_agent_remove simple
+
+# Test 2.0 broken PMDA
+#
+_broken_install broken_pmda_2_0 2
+_agent_remove broken
+
+status=0
+exit

@@ -1,0 +1,259 @@
+#!/bin/sh
+# PCP QA Test No. 440
+# pmlogger -v conditions
+# Based on QA 252.
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+#
+#
+
+pmdumplog='pmdumplog'
+pmlogger='pmlogger'
+SECS_TOL=2	# number of seconds tolerance
+
+#
+_clean_archive()
+{
+rm -f $tmp.log $tmp.[0-9]* $tmp.index $tmp.meta
+}
+
+# Is given value within tolerance of expected value
+_tolerance()
+{
+  expected=$1
+  given=$2
+  tolerance=$3
+  upper_limit=`expr $expected + $tolerance`
+  lower_limit=`expr $expected - $tolerance`
+  [ $lower_limit -le $given -a $given -le $upper_limit ]
+}
+
+_num_recs()
+{
+  num_recs=`$pmdumplog $tmp | egrep -c '^[0-9][0-9]:[0-9][0-9]:'`
+  # subtract 1 for the preamble
+  num_recs=`expr $num_recs - 1`
+  echo "found $num_recs samples after the preamble" >>$seq.full
+}
+
+_test_sample_size()
+{
+  vol_arg=$1
+  size_arg=$2
+  num_vol=$3	# volumes expected
+  echo "_test_sample_size $@" >>$seq.full
+  $pmlogger -v $vol_arg -s $size_arg -c $tmp.config -l $tmp.log $tmp 
+  cat $tmp.log >>$seq.full
+  ls -l $tmp.* >>$seq.full
+  if [ -f $tmp.0 ]
+  then
+    vol=`ls $tmp.[0-9]* | wc -l | sed -e 's/ //g'`
+  else
+    vol=0
+  fi
+  echo "vol=$vol num_vol=$num_vol" >>$seq.full
+  if [ "$vol" != "$num_vol" ]
+  then
+    echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq.full
+    ls -l $tmp.[0-9]*
+    cat $tmp.log
+    $pmdumplog -a $tmp >>$seq.full
+  fi
+
+  _num_recs
+  if [ "$size_arg" = "$num_recs" ]
+  then
+    echo "Log size for $size_arg and volume size for $vol_arg is correct" | tee -a $seq.full
+  else
+    echo "Error: Log contains $num_recs samples, expected $size_arg" | tee -a $seq.full
+    ls -l $tmp.*
+    cat $tmp.log
+    $pmdumplog -a $tmp >>$seq.full
+  fi
+ _clean_archive
+}
+
+# Find out number of records, n,  for given size
+# Then make sure for (n-1) records that the size is smaller
+_test_file_size()
+{
+  vol_arg=$1
+  size_arg=$2
+  num_vol=$3	# volumes expected
+  num_bytes=$4	# bytes expected
+  echo "_test_file_size $@" >>$seq.full
+  $pmlogger -v $vol_arg -s $size_arg -c $tmp.config -l $tmp.log $tmp 
+  cat $tmp.log >>$seq.full
+  ls -l $tmp.* >>$seq.full
+  if [ -f $tmp.0 ]
+  then
+    vol=`ls $tmp.[0-9]* | wc -l | sed -e 's/ //g'`
+    bigger_size=`ls -l $tmp.[0-9]* | $PCP_AWK_PROG '{t += $5} END {print t}'`
+  else
+    vol=0
+    bigger_size=-1
+  fi
+  echo "bigger_size=$bigger_size" >>$seq.full
+  echo "vol=$vol num_vol=$num_vol" >>$seq.full
+  if [ "$vol" != "$num_vol" ]
+  then
+    echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq.full
+    ls -l $tmp.[0-9]*
+    cat $tmp.log
+    $pmdumplog -a $tmp >>$seq.full
+  fi
+  _num_recs
+  echo "num_recs=$num_recs" >>$seq.full
+  num_recs=`expr $num_recs - 1`
+  if [ $num_recs -gt 0 ]
+  then
+    _clean_archive
+    $pmlogger -v $vol_arg -s $num_recs -c $tmp.config -l $tmp.log $tmp 
+    cat $tmp.log >>$seq.full
+    ls -l $tmp.* >>$seq.full
+    if [ -f $tmp.0 ]
+    then
+      smaller_size=`ls -l $tmp.[0-9]* | $PCP_AWK_PROG ' {t += $5} END {print t}'`
+    else
+      smaller_size=-1
+    fi
+  else
+    smaller_size=-1
+  fi
+  echo "smaller_size=$smaller_size" >>$seq.full
+  if [ $smaller_size -le $num_bytes -a $num_bytes -le $bigger_size ]
+  then
+    echo "Log size for $size_arg and volume size for $vol_arg is correct" | tee -a $seq.full
+  else
+    echo "Error: Log size $num_bytes is not within range $smaller_size - $bigger_size" | tee -a $seq.full
+    ls -l $tmp.*
+    cat $tmp.log
+    $pmdumplog -a $tmp >>$seq.full
+  fi
+  _clean_archive
+}
+
+_time_me ()
+{
+    # return time in seconds
+    #
+    # /usr/bin/time IS bloody important - dont port-sh it. EVER!
+    /usr/bin/time $* 2>&1 >/dev/null | \
+	if [ $PCP_PLATFORM = linux ]
+	then
+	    # 0.00user 0.00system 0:00.00elapsed 0%CPU (0avgtext+0avgdata 2752maxresident)k
+	    tr ' ' "\n" | $PCP_AWK_PROG '/elapsed$/ { sub("elapsed", "", $1); 
+			                               split ($1,tt,"[:.]");
+			                               print (tt[1]*60)+tt[2];}'
+	elif [ $PCP_PLATFORM = darwin ]
+	then
+	    #         0.00 real         0.00 user         0.00 sys
+	    $PCP_AWK_PROG '{print $1}' | sed -e 's/\..*//'
+	else 
+	    # real        0.0
+	    # user        0.0
+	    # sys         0.0
+	    $PCP_AWK_PROG '/^real/ {print $2}' | sed -e 's/\..*//'
+	fi
+}
+
+# Note: size arg should be given in secs for comparison with /usr/bin/time
+_test_time_size()
+{
+  vol_arg=$1
+  size_arg=$2
+  num_vol=$3	# volumes expected
+  num_sec=$4	# elapsed seconds expected
+  echo "_test_time_size $@" >>$seq.full
+  time=`_time_me $pmlogger -v $vol_arg -s $size_arg -c $tmp.config -l $tmp.log $tmp`
+  [ -z "$time" ] && time=-1
+  cat $tmp.log >>$seq.full
+  ls -l $tmp.* >>$seq.full
+  if [ -f $tmp.0 ]
+  then
+    vol=`ls $tmp.[0-9]* | wc -l | sed -e 's/ //g'`
+  else
+    vol=0
+  fi
+  echo "vol=$vol num_vol=$num_vol" >>$seq.full
+  if [ "$vol" != "$num_vol" ]
+  then
+    echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq.full
+    ls -l $tmp.[0-9]*
+    cat $tmp.log
+    $pmdumplog -a $tmp >>$seq.full
+  fi
+  if _tolerance $num_sec $time $SECS_TOL
+  then
+    echo "Log time for $num_sec and volume time for $vol_arg is correct" | tee -a $seq.full
+  else
+    echo "Error: Log time $time, expected $num_sec +/- $SECS_TOL" | tee -a $seq.full
+    ls -l $tmp.*
+    cat $tmp.log
+    $pmdumplog -a $tmp >>$seq.full
+  fi
+ _clean_archive
+}
+
+# Create a simple configuration file for testing
+cat <<EOF >$tmp.config
+# pmlogger(1) configuration file for doing QA tests
+#
+log mandatory on 10 msec {
+    sample.control
+    sample.milliseconds
+    sample.load
+    sample.colour
+    sample.bin
+    sample.bucket
+    sample.drift
+    sample.step
+    sample.write_me
+    sample.lights
+    sample.magnitude
+    sample.pdu
+    sample.recv_pdu
+    sample.xmit_pdu
+    sample.noinst
+}
+EOF
+
+# real QA test starts here
+
+# Test out -v and -s
+_test_file_size 2000BYTE "4000bytes" 2 4000
+_test_file_size 1024b "4K" 4 4096
+_test_file_size 10Mbyte "4kilobytes" 1 4096
+_test_file_size 3K 4194B 2 4194
+_test_sample_size 3 8 3
+_test_time_size 3.5secs 5secs 2 5
+
+# Some error conditions
+$pmlogger -v 3bozobyte -s 10 -c /dev/null $tmp 2>&1 | sed -e '/Usage/q'
+$pmlogger -v 5 -s 3bozobyte -c /dev/null $tmp 2>&1 | sed -e '/Usage/q'
+$pmlogger -v-1 -s 10 -c /dev/null $tmp 2>&1 | sed -e '/Usage/q'
+$pmlogger -v 5 -s-1 -c /dev/null $tmp 2>&1 | sed -e '/Usage/q'
+$pmlogger -v 0.5Mbyte -s 10 -c /dev/null $tmp 2>&1 | sed -e '/Usage/q'
+$pmlogger -v 5 -s 0.5K -c /dev/null $tmp 2>&1 | sed -e '/Usage/q'
+$pmlogger -v 0.03 -s 10 -c /dev/null $tmp 2>&1 | sed -e '/Usage/q'
+$pmlogger -v 5 -s 0.03 -c /dev/null $tmp 2>&1 | sed -e '/Usage/q'
+
+# success, all done
+exit

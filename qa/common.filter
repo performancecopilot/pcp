@@ -1,0 +1,625 @@
+# standard PCP QA test output filters
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# pmcd log file
+#
+_filter_pmcd_log()
+{
+    $PCP_AWK_PROG '
+/^active/				{ state = 1 }
+/_pmRead: timeout/ && state == 0	{ next }
+/pduread: timeout/ && state == 0	{ next }
+/assuming PCP 1.x PMDA/ && state == 0	{ next }
+/ok .* INADDR_ANY/			{ $2 = "FD" }
+					{ print }' \
+    | sed \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \
+	-e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATE]/' \
+	-e '/pcp([0-9][0-9]*)/s//pcp(PID)/' \
+	-e '/pcp\[[0-9][0-9]*]/s//pcp[PID]/' \
+	-e '/pmcd([0-9][0-9]*)/s//pmcd(PID)/' \
+        -e '/^\(Log for pmcd on\) [^ ][^ ]*/s//\1 HOST/' \
+        -e '/^pmcd: PID/s/=.*/= PID/' \
+	-e '/started PMDA/s/=.*/= PID/' \
+	-e 's/ \[0x[0-9a-f]*]//' \
+	-e '/^->/s/->[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/->        /' \
+	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;" \
+	-e '/get_scsi_sn:/d' \
+	-e '/Info: CleanupAgent/d' \
+	-e '/using .* kmem interface/d' \
+	-e '/pmcd_wait failed: exit status:/d' \
+	-e '/pmcd caught SIG.* from pid=/s/=[0-9][0-9]*/=N/g' \
+	-e '/^linux.*pmda_linux/{
+s/linux/[OS] /
+s/60/??/
+s/ i:[0-9] / i:? /
+s/lib=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX/
+s/entry=[^ ]*/entry=[OS]_init/
+}' \
+	-e '/^darwin.*pmda_darwin/{
+s/darwin/[OS]  /
+s/78/??/
+s/ i:[0-9] / i:? /
+s/lib=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX/
+s/entry=[^ ]*/entry=[OS]_init/
+}' \
+	-e '/^solaris.*pmda_solaris/{
+s/solaris/[OS]   /
+s/75/??/
+s/ i:[0-9] / i:? /
+s/lib=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX/
+s/entry=[^ ]*/entry=[OS]_init/
+}' \
+	-e "/^pmcd.*pmda_pmcd/s/lib=.*pmda_pmcd.$DSO_SUFFIX/lib=...pmda_pmcd.\$DSO_SUFFIX/" \
+	-e '/Warning:.* linux .* Direct mapping/d' \
+	-e '/NOTICE: using \/proc\/partitions for disk I\/O stats/d' \
+	-e '/NOTICE: using \/proc\/diskstats for disk I\/O stats/d' \
+	-e '/NOTICE: detected slabinfo version/d' \
+	-e '/Warning: xfs metrics are not available/d' \
+	-e '/Warning: cihb_getstats: info+recv init: /d' \
+	-e '/Warning: cihb_getstats: V0 api probe: Not supported/d' \
+	-e '/Warning: cihb_getstats: V0 api probe: Invalid argument/d' \
+	-e '/Warning: cihb_getstats: V[01] api probe: Resource temporarily unavailable/d' \
+	-e '/Warning: cihb_getstats: no stats available in this kernel/d' \
+	-e '/Warning: cihb_getstats: no support for V0 or V1 api/d' \
+	-e '/Warning: common_init: NON-CXFS Kernel: disabling metrics/d' \
+	-e '/Warning: nfsd_init: direct map disabled/d' \
+	-e '/Warning: cxfs_.*: NON-CXFS Kernel: disabling metrics/d' \
+	-e '/Warning: cxfs_.*: NON-CXFS or incompatible Kernel: disabling metrics/d' \
+	-e '/Warning: cxfs_common_init: direct map disabled/d' \
+	-e '/Warning: cxfs_server_init: direct map disabled/d' \
+	-e '/Warning: kmeminit: cannot change to group "sys": Operation not permitted/d' \
+	-e '/Warning: cms_getstats: could not retrieve stats version Not supported/d' \
+	-e '/Warning: cms_getstats: could not retrieve stats version Invalid argument/d' \
+	-e '/Warning: cms_reload: No cms instrumentation in this kernel:/d' \
+	-e '/Error: Cannot open stat device \/hw\/tape/d' \
+	-e '/Note: computed HZ=/d' \
+	-e '/Warning: Symbol address mismatch between System.map/d' \
+	-e '/Warning: mismatch for .* between System.map/d' \
+	-e '/Warning: only reported first .* mismatches between System.map/d' \
+	-e '/Warning: proc.psinfo.wchan_s symbol names may not be accurate!/d' \
+	-e '/Warning: Valid System.map file not found!/d' \
+	-e '/Warning: proc.psinfo.wchan_s symbol names cannot be derived!/d' \
+	-e '/Warning: Addresses will be returned for proc.psinfo.wchan_s instead!/d' \
+	-e '/NOTICE: using ".*" for kernel symbols map/d' \
+        -e '/NOTICE: using kernel 2\.4 or earlier CPU types/d' \
+        -e '/NOTICE: using kernel 2\.6\.0 to 2\.6\.4 CPU types/d' \
+        -e '/NOTICE: using 64 bit CPU time types/d' \
+    | sed \
+	-e '/Connected from.*Operations denied/{
+P
+: more
+N
+s/^..*\n//
+t more
+}' \
+    | $PCP_AWK_PROG '
+/^active agent/		{ state = 1 }
+state == 2 && NF == 0	{ state = 0 }
+state == 2		{ print base,$0; next }
+			{ print NR,$0 }
+state == 1 && /^=====/	{ state = 2; base = NR+1 }' \
+    | LC_COLLATE=POSIX _POSIX2_VERSION=0 sort +0n -1 +2n -3 \
+    | sed -e 's/^[^ ]* //'
+}
+
+# pmlogger log file
+#
+_filter_pmlogger_log()
+{
+    sed \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+	-e 's/pmlogger([1-9][0-9]*) Error:/pmlogger(PID) Error:/' \
+        -e '/^\(Log for pmlogger on\) [^ ][^ ]*/s//\1 HOST/' \
+	-e '/^Starting logger/s/host ".*/host "HOST"/' \
+	-e '/^Archive basename: /s/:.*/: ARCHIVE/' \
+	-e '/^pmlc request/s/ from .*:/ from HOST:/'
+}
+
+# pmie log file
+#
+_filter_pmie_log()
+{
+    sed \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]/DATE/' \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/TIMESTAMP/' \
+	-e '/^\(Log for pmie on\) [^ ][^ ]*/s//\1 HOST/' \
+	-e 's/^pmie: PID = [0-9][0-9]*, default host = .*/pmie: PID,HOST/g' \
+	-e '/pmie([0-9][0-9]*)/s//pmie(PID)/' \
+	-e '/^pmie: /s/- on line/- near line/'
+}
+_show_pmie_exit()
+{
+    fgrep "evaluator exiting" | \
+	sed -e 's/.* Info: evaluator exiting/pmie: note - evaluator exiting/g'
+}
+_show_pmie_errors()
+{
+    egrep -v '^Log finished |^Log for pmie on ' \
+	| $PCP_AWK_PROG '{ if (NF > 0) print }' \
+	| sed \
+	    -e 's/.*Info: evaluator exiting/pmie: note - evaluator exiting/g' \
+	    -e '/^pmie: /s/- on line/- near line/'
+}
+
+# pmdumplog -a
+#
+_filter_pmdumplog()
+{
+    sed \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
+	-e '/^\(Performance metrics from host\) [^ ][^ ]*/s//\1 HOST/' \
+	-e '/^archive:/s/\(  *\).*/\1ARCHIVE/' \
+	-e '/^host:/s/\(  *\).*/\1HOST/'
+}
+
+# pmdumptext
+#
+_filter_pmdumptext()
+{
+    sed \
+	-e 's/^[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/'
+}
+
+# some common -D diagnostics
+#
+_filter_dbg()
+{
+    sed \
+	-e '/^__pmLogSetTime(/s/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g' \
+	-e '/^__pmLogRead:/s/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+}
+
+# cull the optional PMDA
+#
+_filter_optional_pmdas()
+{
+    sed \
+	-e '/pmdaaconex/d' \
+	-e '/pmdaapache/d' \
+	-e '/pmdaarray/d' \
+	-e '/pmdaash/d' \
+	-e '/pmdabash/d' \
+	-e '/pmdabonding/d' \
+	-e '/pmdabrocade/d' \
+	-e '/pmdacisco/d' \
+	-e '/pmdadbping/d' \
+	-e '/pmdadmf/d' \
+	-e '/pmda_environ/d' \
+	-e '/pmdaelasticsearch/d' \
+	-e '/pmdaespping/d' \
+	-e '/pmdahippi/d' \
+	-e '/pmdahotproc/d' \
+	-e '/pmdainfmx7/d' \
+	-e '/pmdainfmxping/d' \
+	-e '/pmdajstat/d' \
+	-e '/pmdakvm/d' \
+	-e '/pmdalab/d' \
+	-e '/pmdalogger/d' \
+	-e '/pmdalmsensors/d' \
+	-e '/pmdalockstat/d' \
+	-e '/pmdalsf/d' \
+	-e '/pmdamaillog/d' \
+	-e '/pmdamailq/d' \
+	-e '/pmdamemcache/d' \
+	-e '/pmdammv/d' \
+	-e '/pmdamounts/d' \
+	-e '/pmdampi/d' \
+	-e '/pmdamysql/d' \
+	-e '/pmdanamed/d' \
+	-e '/pmdanasavg/d' \
+	-e '/pmdanetfilter/d' \
+	-e '/pmdanetprobe/d' \
+	-e '/pmdanews/d' \
+	-e '/pmdaoracle/d' \
+	-e '/pmdaoraping/d' \
+	-e '/pmdapdns/d' \
+	-e '/pmdapmcd/d' \
+	-e '/pmdaprocess/d' \
+	-e '/pmdarsyslog/d' \
+	-e '/pmdaroomtemp/d' \
+	-e '/pmdasamba/d' \
+	-e '/pmdasendmail/d' \
+	-e '/pmdashping/d' \
+	-e '/pmda_simple/d' \
+	-e '/pmdasimple/d' \
+	-e '/pmdasnia/d' \
+	-e '/pmdasnmp/d' \
+	-e '/pmdassping/d' \
+	-e '/pmdasummary/d' \
+	-e '/pmdasystemtap/d' \
+	-e '/pmdasyb10/d' \
+	-e '/pmdasybping/d' \
+	-e '/pmdatrace/d' \
+	-e '/pmdatrivial/d' \
+	-e '/pmdatxmon/d' \
+	-e '/pmdavmware/d' \
+	-e '/pmdawatch/d' \
+	-e '/pmdaweblog/d' \
+	-e '/pmdawebping/d' \
+	-e '/pmdaxvm/d' \
+	-e '/pmdazimbra/d' \
+
+}
+
+# cull the optional top-level PMNS entries
+#
+_filter_top_pmns()
+{
+    sed \
+	-e 's/$/ /' \
+	-e '/^    aim /d' \
+	-e '/^    array /d' \
+	-e '/^    ash /d' \
+	-e '/^    bash /d' \
+	-e '/^    bonding /d' \
+	-e '/^    brocade /d' \
+	-e '/^    broken /d' \
+	-e '/^    cgroup /d' \
+	-e '/^    cisco /d' \
+	-e '/^    datatape /d' \
+	-e '/^    dbping /d' \
+	-e '/^    dmf /d' \
+	-e '/^    elasticsearch /d' \
+	-e '/^    environ /d' \
+	-e '/^    hippi /d' \
+	-e '/^    hotproc /d' \
+	-e '/^    hw /d' \
+	-e '/^    infmxping /d' \
+	-e '/^    informix /d' \
+	-e '/^    jstat /d' \
+	-e '/^    lab /d' \
+	-e '/^    lmsensors /d' \
+	-e '/^    logger /d' \
+	-e '/^    lsf /d' \
+	-e '/^    mailq /d' \
+	-e '/^    memcache /d' \
+	-e '/^    mmv /d' \
+	-e '/^    mpi /d' \
+	-e '/^    mysql /d' \
+	-e '/^    named /d' \
+	-e '/^    netfilter /d' \
+	-e '/^    netprobe /d' \
+	-e '/^    news /d' \
+	-e '/^    oracle /d' \
+	-e '/^    oraping /d' \
+	-e '/^    pdns /d' \
+	-e '/^    postgresql /d' \
+	-e '/^    proc /d' \
+	-e '/^    rsyslog /d' \
+	-e '/^    samba /d' \
+	-e '/^    sendmail /d' \
+	-e '/^    shping /d' \
+	-e '/^    simple /d' \
+	-e '/^    snmp /d' \
+	-e '/^    ssping /d' \
+	-e '/^    espping /d' \
+	-e '/^    summary /d' \
+	-e '/^    sybase /d' \
+	-e '/^    sybping /d' \
+	-e '/^    sysother /d' \
+	-e '/^    systemtap /d' \
+	-e '/^    trace /d' \
+	-e '/^    trivial /d' \
+	-e '/^    txmon /d' \
+	-e '/^    vmware /d' \
+	-e '/^    web /d' \
+	-e '/^    webping /d' \
+	-e '/^    zimbra /d' \
+	-e 's/ $//'
+
+}
+
+# handle pmDumpResult() output
+#
+_filter_dumpresult()
+{
+    sed \
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
+	-e '/value /{
+s/\(value.*\) 0x[0-9a-f][0-9a-f]*/\1 HEXNUMBER/
+s/\(value.*\) -*[0-9][0-9]*\.[0-9][0-9]*e[+-]*[0-9][0-9]*/\1 NUMBER/
+s/\(value.*\) -*[0-9][0-9]*\.[0-9][0-9]*/\1 NUMBER/
+s/\(value.*\) -*[0-9][0-9]*\.[0-9][0-9]*/\1 NUMBER/
+s/\(value.*\) -*[0-9][0-9]*e[+-]*[0-9][0-9]*/\1 NUMBER/
+s/\(value.*\) -*[0-9][0-9]*/\1 NUMBER/
+s/\(value.*\) \[.*]/\1 AGGREGATE/
+s/\(value.*\) ".*"/\1 STRING/
+}' \
+	-e '/inst /{
+s/inst \[[0-9][0-9]* or "dks..."]/inst [DISK]/
+s;inst \[[0-9][0-9]* or "/dev/[^"]*"];inst [DISK];
+}'
+
+}
+
+_filter_cron_scripts()
+{
+    sed \
+	-e 's/cron\.pmcheck/PMLOGGER.CHECK/g' \
+	-e 's/pmlogger_check/PMLOGGER.CHECK/g' \
+	-e 's/pmlogger\.check/PMLOGGER.CHECK/g' \
+	-e 's/cron\.pmdaily/PMLOGGER.DAILY/g' \
+	-e 's/pmlogger_daily/PMLOGGER.DAILY/g' \
+	-e 's/pmlogger\.daily/PMLOGGER.DAILY/g' \
+	-e 's/cron\.logmerge/PMLOGGER.MERGE/g' \
+	-e 's/cron\.pmlogmerge/PMLOGGER.MERGE/g' \
+	-e 's/pmlogger\.merge/PMLOGGER.MERGE/g' \
+	-e 's/pmlogger_merge/PMLOGGER.MERGE/g' \
+	-e 's/cron\.pmsnap/pmsnap/g'
+}
+
+_filter_pcp_start()
+{
+    sed \
+	-e "s;$PCP_LOG_DIR/pmcd/pmcd.log;\$PCP_LOG_DIR/pmcd.log;" \
+	-e "s;$PCP_LOG_DIR/pmcd.log;\$PCP_LOG_DIR/pmcd.log;" \
+	-e "s;$PCP_RC_DIR/pmcd;\$PCP_RC_DIR/pmcd;" \
+	-e "s;$PCP_RC_DIR/pmlogger;\$PCP_RC_DIR/pmlogger;" \
+	-e "s;$PCP_RC_DIR/pcp;\$PCP_RC_DIR/pmcd;" \
+	-e '/$PCP_RC_DIR\/pmcd/{
+s/ PMCD / pmcd /
+}' \
+	-e "s;$PCP_BINADM_DIR/pmcd;\$PCP_BINADM_DIR/pmcd;" \
+	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;" \
+	-e "s;$PCP_PMLOGGERCONTROL_PATH;\$PCP_PMLOGGERCONTROL_PATH;" \
+	-e "s;$PCP_VAR_DIR/;\$PCP_VAR_DIR/;" \
+	-e "s;/usr/etc/pmcd;\$PCP_BINADM_DIR/pmcd;" \
+	-e '/Warning: Forcing PMCD to terminate!/s/PMCD/pmcd/' \
+        -e '/^Starting PCP$/d' \
+	-e 's/^\(Performance Co-Pilot starting .*\.\.\.\) *\(\$PCP_RC_DIR\)/\1\
+\2/' \
+	-e '/^Performance Co-Pilot/s/\.\.\. *$/.../' \
+        -e '/^Performance Co-Pilot starting/{
+s/\.\.\.[. ]*done/.../
+s/\.\.\.[. ]*failed/.../
+s/Performance Co-Pilot starting PMCD (logfile is [^)]*) .../Starting pmcd ... /
+s/Performance Co-Pilot starting archive loggers .../Starting pmlogger ... /
+}' \
+	-e '/^Performance Co-Pilot installing/s//Installing/' \
+        -e '/^\.[. ]*done$/d' \
+        -e '/^\.[. ]*failed$/d' \
+	-e '/^Waiting for PMCD/{
+s/PMCD/pmcd/
+s/\.\.\.[. ]*done/.../
+}' \
+	-e 's/^\(Waiting .*\.\.\.\)\(\$PCP_RC_DIR\)/\1\
+\2/' \
+	-e '/^[ 	]*$/d' \
+    | _filter_init_distro
+}
+
+_filter_pcp_stop()
+{
+    sed \
+	-e '/Stopping pmlogger .../d' \
+	-e '/^Waiting for pmie/s/\.\.\.[. ]*done/.../' \
+	-e '/^Waiting for PMCD/{
+s/\.\.\.[. ]*done/.../
+s/PMCD/pmcd/
+}' \
+	-e '/Warning: Forcing PMCD to terminate!/s/PMCD/pmcd/' \
+	-e '/^Waiting for pmie/s/\.\.\. *$/.../' \
+	-e '/^Performance Co-Pilot/s/\.\.\. *$/.../' \
+        -e '/^\.[. ]*done$/d' \
+    | _filter_init_distro
+}
+
+_filterall_pcp_start()
+{
+    _filter_pcp_start \
+    | sed \
+        -e '/rebuilding PMNS/d' \
+        -e '/installing /d'
+}
+
+_sort_pmdumplog_d()
+{
+    cat >$tmp.tmp
+    egrep '(^Descriptions)|(^$)' $tmp.tmp
+    $PCP_AWK_PROG <$tmp.tmp '
+/^Descriptions/		{ next }
+NF == 0			{ next }
+$1 == "PMID:"		{ printf "%s|",$0; next }
+$1 == "Data"		{ printf "%s|",$0; next }
+			{ print }' \
+    | LC_COLLATE=POSIX _POSIX2_VERSION=0 sort -t'(' +1 -2 \
+    | tr '|' '\012' \
+    | src-oss/hex2nbo
+}
+
+_filter_pmda_install()
+{
+    sed \
+	-e 's/.* \(hash table entries\)/  NNN \1/' \
+	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(bytes of symbol table\)/  NNN \1/' \
+	-e '/^Installing .mchart view*/d' \
+	-e '/Terminate PMDA/,/Updating the PMCD/c\
+Terminate PMDA if already installed ...\
+[...install files, make output...]\
+Updating the PMCD control file, and notifying PMCD ...' \
+	-e '/Installing files/,/Updating the Performance Metrics/c\
+Installing files ...\
+[...install files, make output...]\
+Updating the Performance Metrics Name Space (PMNS) ...'
+}
+
+_filter_pmda_remove()
+{
+    _filter_pmda_install |
+    sed \
+	-e '/Removing files/d' \
+	-e '/Updating the PMCD control file/c\
+Updating the PMCD control file, and notifying PMCD ...\
+[...removing files...]'
+}
+
+# Make sure that quotes which span multiple lines get appended onto
+# the one line, separated by \\n (instead of newlines).
+# This allows for easier sed processing.
+# BUG: problem handling a single " which isn't supposed to match,
+#      say in a comment or pattern search
+# Partial solution: filter out: /"/
+#
+_quote_filter()
+{
+   sed -e 's#/"/#/dbl-quote/#g' |\
+   $PCP_AWK_PROG '
+	/"/ {  # unfinished quote - start or end
+	    n = split($0, arr, /"/)
+	    if ( (n % 2) == 0) { # odd number of quotes
+		    line[line_num++] = $0
+		    if (inquote) {      
+			inquote = 0
+			for(i=0;i<=line_num;i++){
+			    printf("%s\\n", line[i])
+			}       
+			printf("\n")
+			line_num = 0
+		    }
+		    else {
+			inquote = 1
+		    }
+		    next
+	    }
+	    else {
+	       print; next
+	    }
+        }
+        inquote == 1 {
+            line[line_num++] = $0
+            next
+        }
+        {print}
+    '
+}
+
+#
+# concat lines between inst/value pairs
+#    inst ... value
+#    inst ... value XXXX
+#        YYYYYYY
+#    inst ... value
+# becomes
+#    inst ... value
+#    inst ... value XXXX\\nYYYYYYY
+#    inst ... value
+#
+_inst_value_filter()
+{
+   $PCP_AWK_PROG '
+	function print_line() {
+	    if (line_num > 0) {
+		for(i=0;i<line_num-1;i++){
+		    printf("%s\\n", line[i])
+		}       
+		printf("%s", line[line_num-1]);
+		printf("\n")
+		line_num = 0
+	    }
+	}
+$1 == "inst" && $2 ~ /^\[/ {
+	    print_line()
+	    line[line_num++] = $0
+	    next
+	}
+        # terminate run of inst...value ".... extending over multiple
+	# lines with a line ending in a ", or a line introducing new
+	# proc metric 
+	/"$/ && line_num > 0 {
+	    line[line_num++] = $0
+	    print_line()
+	    next
+	}
+	( (/proc\./ && /numval/ && /valfmt/) || /^proc\./ ) \
+           && line_num > 0 { 
+	    x = $0
+            print_line()
+	    print x
+	    next
+	}
+	line_num>0 { # continuation of value
+	    line[line_num++] = $0
+	    next
+	}
+	{print}
+	END {
+	    print_line()
+	}
+   '
+}
+
+_filter_torture_api()
+{
+    sed \
+	-e '/Name space load/d' \
+	-e '/PMAPI operations/s/[0-9][0-9]* PMAPI/N PMAPI/' \
+    | _filter_top_pmns \
+    | _filter_dumpresult \
+    | sed -e '/PM_ID_NULL/{
+/No values returned!/s//No PMDA, no values [filtered]/
+/No PMCD agent for domain of request/s//No PMDA, no values [filtered]/
+}' \
+	-e '/kernel\.all\.pswitch/s/valfmt: [01]/valfmt: 0-or-1/' \
+	-e '/kernel\.all\.cpu/s/valfmt: [01]/valfmt: 0-or-1/' \
+	-e '/^    aconex /d' \
+	-e '/^    apache /d' \
+	-e '/^    bonding /d' \
+	-e '/^    cihb /d' \
+	-e '/^    cms /d' \
+	-e '/^    cxfs /d' \
+	-e '/^    dynamic /d' \
+	-e '/^    elasticsearch /d' \
+	-e '/^    engr /d' \
+	-e '/^    idiot /d' \
+	-e '/^    idl /d' \
+	-e '/^    ipc /d' \
+	-e '/^    kaio /d' \
+	-e '/^    kpreempt /d' \
+	-e '/^    kswitch /d' \
+	-e '/^    kvm /d' \
+	-e '/^    maillog /d' \
+	-e '/^    mounts /d' \
+	-e '/^    mt /d' \
+	-e '/^    named /d' \
+	-e '/^    nasavg /d' \
+	-e '/^    netfilter /d' \
+	-e '/^    numa /d' \
+	-e '/^    origin /d' \
+	-e '/^    pdns /d' \
+	-e '/^    p76 /d' \
+	-e '/^    process /d' \
+	-e '/^    roomtemp /d' \
+	-e '/^    rsyslog /d' \
+	-e '/^    samba /d' \
+	-e '/^    softtemp /d' \
+	-e '/^    stream /d' \
+	-e '/^    sysfs /d' \
+	-e '/^    sysioctl /d' \
+	-e '/^    tmpfs /d' \
+	-e '/^    udf /d' \
+	-e '/^    vfs /d' \
+	-e '/^    vmware /d' \
+	-e '/^    waitio /d' \
+	-e '/^    xvm /d' \
+	-e '/^    zimbra /d' \
+
+}
+
+_filter_install()
+{
+    sed \
+        -e 's/.* \(hash table entries\)/  NNN \1/' \
+        -e 's/.* \(non-leaf nodes\)/  NNN \1/' \
+        -e 's/.* \(leaf nodes\)/  NNN \1/' \
+        -e 's/.* \(bytes of symbol table\)/  NNN \1/' \
+        -e '/Performance Co-Pilot starting/d'
+}

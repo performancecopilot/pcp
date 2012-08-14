@@ -1,0 +1,20 @@
+#
+# this one is for the util progs and QA
+#
+# $Header: /plroot/eoe/pcp-1.0-melb/.RCS/PL/qa/src-oss/RCS/config.bar,v 1.1 2002/10/21 00:59:56 kenmcd Exp $
+#
+
+log mandatory on 100 msec {
+    sampledso.bin["bin-100"]
+    sampledso.milliseconds
+}
+
+log mandatory on 500 msec {
+    sampledso.bin["bin-500"]
+    sampledso.milliseconds
+}
+
+log mandatory on 900 msec {
+    sampledso.bin["bin-900"]
+    sampledso.milliseconds
+}

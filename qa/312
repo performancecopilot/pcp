@@ -1,0 +1,39 @@
+#! /bin/sh
+# PCP QA Test No. 312
+# sginap use in pmie with large deltas on 32 bit platforms can
+# wrap and cause a sleep with negative size which, funnily enough,
+# also causes multiple immediate rule evaluations (which we can
+# now test for, to detect pmie brokenness).
+#
+# Copyright (c) 2007 Aconex.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo 'load = sample.load;' | pmie -v -t 1hour >$tmp.out 2>$tmp.err &
+pmie_pid=$!
+
+sleep 2
+$signal -s TERM $pmie_pid
+wait
+
+echo "pmie output ..."
+cat $tmp.out
+echo "pmie stderr ..."
+cat $tmp.err
+
+# success, all done
+status=0
+exit

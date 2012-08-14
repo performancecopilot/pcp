@@ -1,0 +1,27 @@
+QA output created by 482
+
+=== testing instanteous metric value distribution ===
+QA calculates: (30)
+    Bin0  = 25
+    Bin1  = 0
+    Bin2  = 5
+pmlogsummary calculates: (30)
+    Bin0  = 25
+    Bin1  = 0
+    Bin2  = 5
+
+=== testing counter metric value distribution ===
+QA calculates: (29)
+    Bin0  = 1
+    Bin1  = 3
+    Bin2  = 23
+    Bin3  = 2
+pmlogsummary calculates: (29)
+    Bin0  = 1
+    Bin1  = 3
+    Bin2  = 23
+    Bin3  = 2
+
+=== testing boundary conditions ===
+done.
+

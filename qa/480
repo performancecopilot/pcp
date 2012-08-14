@@ -1,0 +1,85 @@
+#!/bin/sh
+# PCP QA Test No. 480
+# fault injection for libpcp/logmeta.c
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if src-oss/check_fault_injection >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun libpcp not built with fault injection enabled
+fi
+
+if [ -f $PCP_DIR/usr/include/pcp/platform_header.h ]
+then
+    # PCP 3.6 or later
+    defs=$PCP_DIR/usr/include/pcp/platform_header.h
+elif [ -f $PCP_DIR/usr/include/pcp/platform_defs.h ]
+then
+    # older PCP versions
+    defs=$PCP_DIR/usr/include/pcp/platform_defs.h
+else
+    _notrun "No $PCP_DIR/usr/include/pcp/platform_{header,defs}.h?"
+fi
+
+rm -f $seq.out
+if grep 'define HAVE_64BIT_PTR 1' $defs >/dev/null 2>&1
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# from __pmNoMem() - [Sun Sep  4 21:30:34] torture_logmeta(17548)
+_filter()
+{
+    sed \
+	-e '/^\[[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9:]*]/{
+s//[DATE]/
+s/([0-9][0-9]*)/(PID)/
+}' \
+	-e 's/Not enough space/Cannot allocate memory/'
+}
+
+# real QA test starts here
+export PM_FAULT_CONTROL=$tmp.control
+export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
+
+for i in 1 2 3 4 5 6 7 8 9
+do
+    echo "libpcp/logmeta.c:$i" >$tmp.control
+    echo
+    echo "=== `cat $tmp.control` ==="
+    case $i
+    in
+	1|2|3|4)
+	    pmdumplog -di src-oss/ace_v2 2>&1 | _filter
+	    ;;
+	7|8|9)
+	    src-oss/torture_logmeta -f src-oss/ace_v2 1 2 123 2>&1 | _filter
+	    ;;
+	5|6)
+	    rm -f $tmp.0 $tmp.meta $tmp.index
+	    echo "log mandatory on 100msec { sample.bin }" >$tmp.config
+	    pmlogger -c $tmp.config -s 2 -l $tmp.log $tmp
+	    _filter_pmlogger_log <$tmp.log | _filter
+	    ;;
+    esac
+done
+
+exit

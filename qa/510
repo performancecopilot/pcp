@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 510
+# pmlogger -Dall calls __pmDumpResult() which fails for usage with
+# pmlc control requests
+#
+# Copyright (c) 2012 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup" 0 1 2 3 15
+needclean=true
+
+_cleanup()
+{
+    if $needclean
+    then
+	if [ -s $PCP_PMLOGGERCONTROL_PATH.$seq ]
+	then
+	    $sudo rm -f $PCP_PMLOGGERCONTROL_PATH
+	    $sudo mv $PCP_PMLOGGERCONTROL_PATH.$seq $PCP_PMLOGGERCONTROL_PATH
+	fi
+	needclean=false
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+    fi
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+_filter()
+{
+    sed \
+	-e 's/Version [0-9].*/Version VERSION/'
+}
+
+# stop primary logger, add -Dall to config file and restart pmlogger
+$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
+sed -e '/^LOCALHOSTNAME/s/$/ -Dall/' <$PCP_PMLOGGERCONTROL_PATH >$tmp.control
+$sudo mv $PCP_PMLOGGERCONTROL_PATH $PCP_PMLOGGERCONTROL_PATH.$seq
+$sudo mv $tmp.control $PCP_PMLOGGERCONTROL_PATH
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+
+# real QA test starts here
+pmlc -ie <<End-of-File | _filter
+connect primary
+query sample.event
+log mandatory on once sample.event.records
+query sample.event
+End-of-File
+
+# success, all done
+exit

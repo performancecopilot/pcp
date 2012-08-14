@@ -1,0 +1,148 @@
+#! /bin/sh
+# PCP QA Test No. 571
+#
+# #676245 - dynamic indoms for pmlogger, uses sample.dynamic.*
+# Check that when the instance domain changes for logged metrics
+# the new indom is only added once. The bug was for pmlogger 
+# adding the indom once for each metric using it.
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+control=$PCP_PMDAS_DIR/sample/dynamic.indom
+logger_pid=-1
+
+PMLOGGER=pmlogger
+SLEEPY=5
+
+_cleanup()
+{
+    if [ $logger_pid -gt 0 ]
+    then
+	$signal -s TERM $logger_pid
+	logger_pid=-1
+    fi
+   
+   $sudo rm -f $control
+
+    [ -f $control.qa-$seq ] && $sudo mv $control.qa-$seq $control
+    rm -f $tmp.*
+}
+
+$sudo rm -f $control.qa-$seq
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+[ -f $control ] && $sudo mv $control $control.qa-$seq
+
+# real QA test starts here
+
+_start_logger()
+{
+    cat >$tmp.logconf <<End-of-File
+log advisory on 2 sec {
+    sample.dynamic
+}
+End-of-File
+
+    $PMLOGGER -c $tmp.logconf -l $tmp.log $tmp.logfile &
+    logger_pid=$!
+}
+
+_filter_unwanted_indom()
+{
+    _filter_pmdumplog | $PCP_AWK_PROG '
+/^InDom: 2.1/ && step == 0	{ step = 1; next }
+step == 1	{ step = 2; next }
+step == 2	{ step = 0; next }
+		{ print }'
+}
+
+_dumplog()
+{
+    sleep $SLEEPY
+    pmdumplog -i $tmp.logfile | _filter_unwanted_indom
+}
+
+# start the pmlogger
+#
+_start_logger
+
+# do the first instance dump
+#
+_dumplog
+
+# Change the instances
+#
+cat >$tmp.indom <<End-of-File
+10 one
+20 two
+30 three
+200 twenty
+End-of-File
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+
+# do the instance dump
+#
+_dumplog
+
+# Add an instance
+#
+cat >$tmp.indom <<End-of-File
+10 one
+20 two
+30 three
+200 twenty
+400 fourty
+End-of-File
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+
+# do the instance dump
+#
+_dumplog
+
+# Change an instance
+#
+cat >$tmp.indom <<End-of-File
+10 one
+20 two
+30 three
+200 twenty
+500 fifty
+End-of-File
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+
+# do the instance dump
+#
+_dumplog
+
+# Remove some instances
+#
+cat >$tmp.indom <<End-of-File
+10 one
+20 two
+30 three
+End-of-File
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+
+# do the instance dump
+#
+_dumplog
+
+# success, all done
+status=0
+exit

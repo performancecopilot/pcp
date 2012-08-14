@@ -1,0 +1,73 @@
+#! /bin/sh
+# PCP QA Test No. 057
+# pmnsdel problem
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+trap "cd $here; rm -rf $tmp; exit 0" 0 1 2 3 15
+
+# real QA test starts here
+rm -rf $tmp
+mkdir $tmp
+cd $tmp
+cat <<End-of-File >root
+root {
+    fred	0:0:0
+    bear	0:0:1
+}
+End-of-File
+
+if [ $PCP_VER -lt 3600 ]
+then
+    pmnscomp -n root root.bin
+fi
+
+cat <<End-of-File >foo
+foo {
+    bar		1:0:0
+}
+End-of-File
+
+pmnsadd -n root foo
+
+echo "Expect fred, bear and foo.bar ..."
+pminfo -n root
+
+pmnsdel -n root foo
+
+echo "Expect fred and bear ..."
+pminfo -n root
+
+pmnsadd -n root foo
+
+echo "Expect fred, bear and foo.bar ..."
+pminfo -n root
+
+# this seems to confuse pmnsdel ... not any more 8^)>
+rm -f foo
+rm -f root.bin
+
+pmnsdel -n root foo
+
+echo "Expect fred and bear ..."
+pminfo -n root
+
+exit 0

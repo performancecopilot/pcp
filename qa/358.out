@@ -1,0 +1,13 @@
+QA output created by 358
+=== 1 values for sample.dodgey.value ===
+DATE: long match ... [d1] NN	"\$\" ABC()[]789
+DATE: short match ... [d1] NN
+pmie: note - evaluator exiting
+=== 2 values for sample.dodgey.value ===
+DATE: long match ... [d1] NN [d2] NN	"\$\" ABC()[]789
+DATE: short match ... [d1] NN [d2] NN
+pmie: note - evaluator exiting
+=== 5 values for sample.dodgey.value ===
+DATE: long match ... [d1] NN [d2] NN [d3] NN [d4] NN [d5] NN	"\$\" ABC()[]789
+DATE: short match ... [d1] NN [d2] NN [d3] NN [d4] NN [d5] NN
+pmie: note - evaluator exiting

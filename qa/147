@@ -1,0 +1,71 @@
+#! /bin/sh
+# PCP QA Test No. 147
+# profile exerciser for dbpmda
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+_filter()
+{
+    sed \
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+	-e "s/\\.$DSO_SUFFIX/.\$DSO_SUFFIX/"
+}
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+
+if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+then
+    dsopmda=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX
+    pipepmda=$PCP_PMDAS_DIR/sample/pmdasample
+else
+    dsopmda=/var/pcp/lib/`pmobjstyle`.pmda_sample.so
+    pipepmda=$PCP_PMDAS_DIR/sample/pmdasample
+fi
+
+[ ! -f $pipepmda ] && echo "FATAL ERROR Could not find \"$pmda\" && exit 1
+[ ! -f $dsopmda ] && echo "FATAL ERROR Could not find \"$pmda\" && exit 1
+
+$sudo dbpmda -ie <<End-of-File 2>&1 | _filter
+open pipe $pipepmda -d 29
+getdesc on
+fetch 29.0.6
+profile 29.2 none
+profile 29.2 add 200
+profile 29.2 add 400
+profile 29.2 add 600
+profile 29.2 add 800
+fetch 29.0.6
+profile 29.2 all
+profile 29.2 delete 100
+profile 29.2 delete 300
+profile 29.2 delete 500
+profile 29.2 delete 700
+profile 29.2 delete 900
+fetch 29.0.6
+open dso $dsopmda sample_init 30
+fetch 30.0.6
+profile 30.2 none
+profile 30.2 add 200
+profile 30.2 add 400
+profile 30.2 add 600
+profile 30.2 add 800
+fetch 30.0.6
+profile 30.2 all
+profile 30.2 delete 100
+profile 30.2 delete 300
+profile 30.2 delete 500
+profile 30.2 delete 700
+profile 30.2 delete 900
+fetch 30.0.6
+End-of-File

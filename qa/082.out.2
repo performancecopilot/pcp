@@ -1,0 +1,43 @@
+QA output created by 082
+Compiled PMNS contains
+	    1 hash table entries
+	    2 leaf nodes
+	    1 non-leaf nodes
+	   15 bytes of symbol table
+permissions before add:
+-rw-r--r-- foo
+---------- new-default-mode
+-rw-r--r-- root
+-rw-r--r-- root.bin
+
+Compiled PMNS contains
+	    1 hash table entries
+	    3 leaf nodes
+	    2 non-leaf nodes
+	   23 bytes of symbol table
+
+permissions after add:
+-rw-r--r-- foo
+---------- new-default-mode
+-rw-r--r-- root
+-rw-r--r-- root.bin
+
+Expect fred, bear and foo.bar ...
+fred
+bear
+foo.bar
+Compiled PMNS contains
+	    1 hash table entries
+	    2 leaf nodes
+	    1 non-leaf nodes
+	   15 bytes of symbol table
+
+permissions after delete:
+-rw-r--r-- foo
+---------- new-default-mode
+-rw-r--r-- root
+-rw-r--r-- root.bin
+
+Expect fred and bear ...
+fred
+bear

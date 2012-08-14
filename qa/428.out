@@ -1,0 +1,78 @@
+QA output created by 428
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
+----------------------------
+Raw data (pmval -U)
+----------------------------
+
+Unique values for sample.long.write_me ...
+1024
+16
+256
+4096
+
+Unique values for sample.longlong.write_me ...
+1024
+16
+256
+4096
+
+Unique values for sample.float.write_me ...
+1024.
+16.00
+256.0
+4096.
+
+Unique values for sample.double.write_me ...
+1024.
+16.00
+256.0
+4096.
+
+Unique values for sample.string.write_me ...
+"1024"
+"16"
+"256"
+"4096"
+
+Unique values for sample.aggregate.write_me ...
+[3133]
+
+----------------------------
+Interpolated data (pmval -a)
+----------------------------
+
+Unique values for sample.long.write_me ...
+1024
+16
+256
+4096
+
+Unique values for sample.longlong.write_me ...
+1024
+16
+256
+4096
+
+Unique values for sample.float.write_me ...
+1024.
+16.00
+256.0
+4096.
+
+Unique values for sample.double.write_me ...
+1024.
+16.00
+256.0
+4096.
+
+Unique values for sample.string.write_me ...
+"1024"
+"16"
+"256"
+"4096"
+
+Unique values for sample.aggregate.write_me ...
+[3133]

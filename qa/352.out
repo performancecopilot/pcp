@@ -1,0 +1,91 @@
+QA output created by 352
+Expect this to fail as derived metrics not defined ...
+Log for pmlogger on HOST started DATE
+
+Warning [TMP.config, line 5]
+Problem with lookup for metric "sample.long.nine" ... logging not activated
+Reason: Unknown metric name
+Warning [TMP.config, line 6]
+Problem with lookup for metric "sample.long.ninety_nine" ... logging not activated
+Reason: Unknown metric name
+Warning [TMP.config, line 7]
+Problem with lookup for metric "sample.long.lots" ... logging not activated
+Reason: Unknown metric name
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+
+	...
+	...
+	...
+
+TIMESTAMP  29.0.11 (sample.long.ten): value 10
+              29.0.10 (sample.long.one): value 1
+
+TIMESTAMP  29.0.11 (sample.long.ten): value 10
+              29.0.10 (sample.long.one): value 1
+
+Now with derived metrics defined ...
+
+sample.long.one
+    value 1
+
+sample.long.ten
+    value 10
+
+sample.long.nine
+    value 9
+
+sample.long.ninety_nine
+    value 99
+
+sample.long.lots
+    value 999900
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+
+	...
+	...
+	...
+
+TIMESTAMP  511.0.3 (sample.long.lots): value 999900
+              511.0.2 (sample.long.ninety_nine): value 99
+              511.0.1 (sample.long.nine): value 9
+              29.0.11 (sample.long.ten): value 10
+              29.0.10 (sample.long.one): value 1
+
+TIMESTAMP  511.0.3 (sample.long.lots): value 999900
+              511.0.2 (sample.long.ninety_nine): value 99
+              511.0.1 (sample.long.nine): value 9
+              29.0.11 (sample.long.ten): value 10
+              29.0.10 (sample.long.one): value 1
+
+TIMESTAMP  511.0.3 (sample.long.lots): value 999900
+              511.0.2 (sample.long.ninety_nine): value 99
+              511.0.1 (sample.long.nine): value 9
+              29.0.11 (sample.long.ten): value 10
+              29.0.10 (sample.long.one): value 1
+
+sample.long.one
+    value 1
+
+sample.long.ten
+    value 10
+
+sample.long.nine
+    value 9
+
+sample.long.ninety_nine
+    value 99
+
+sample.long.lots
+    value 999900

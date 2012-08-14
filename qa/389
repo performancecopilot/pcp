@@ -1,0 +1,62 @@
+#! /bin/sh
+# PCP QA Test No. 389
+# pmlogger does not exit with -L when it loses pmcd connection?
+# #528442
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+host=`hostname`
+status=1	# failure is the default!
+
+_filter()
+{
+    sed -e '/myFetch: End of File: PMCD exited/d' \
+	-e '/pmlogger: Error: IPC protocol failure/d'
+}
+
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== empty config and _no_ -L, should exit immediately ==="
+rm -f $tmp.*
+pmlogger -c /dev/null -l $tmp.log $tmp &
+sleep 2
+echo "expect no pmlogger process ..."
+ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == "'$!'" { print }'
+_filter_pmlogger_log <$tmp.log | sed -e "s/$host/HOST/"
+
+echo
+echo "=== empty config and -L, should exit when pmcd restarted ==="
+rm -f $tmp.*
+pmlogger -L -c /dev/null -l $tmp.log $tmp &
+_wait_for_pmlogger $! $tmp.log 5
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+echo "expect no pmlogger process ..."
+ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == "'$!'" { print }'
+_filter_pmlogger_log <$tmp.log | sed -e "s/$host/HOST/"
+
+echo
+echo "=== non-empty config, should exit when pmcd restarted ==="
+rm -f $tmp.*
+echo "log mandatory on 1 sec pmcd.version" >$tmp.config
+pmlogger -c $tmp.config -l $tmp.log $tmp &
+_wait_for_pmlogger $! $tmp.log 5
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+echo "expect no pmlogger process ..."
+ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == "'$!'" { print }'
+_filter_pmlogger_log <$tmp.log | _filter | sed -e "s/$host/HOST/"
+
+# success, all done
+status=0
+exit
