@@ -15,15 +15,12 @@ PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 endif
 include $(PCP_INC_DIR)/builddefs
 
-SUBDIRS = src-oss
-ifeq ($(shell [ -d src ] && echo 0),0)
-SUBDIRS += src
-endif
-SUBDIRS += pmdas debian
+SUBDIRS = src-oss pmdas
+TESTDIR = $(PCP_VAR_DIR)/testsuite
 
 TESTS	= $(shell sed -n -e '/^[0-9]/s/[ 	].*//p' <group)
 
-default: localconfig new remake check qa_hosts $(OTHERS) $(SUBDIRS)
+default_pcp default: localconfig new remake check qa_hosts $(OTHERS) $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 setup: $(SUBDIRS) pconf cisco
@@ -60,26 +57,26 @@ cisco:	cisco.tar
 	touch cisco
 
 SCRIPTS = mk.localconfig new check recheck remake mk.qa_hosts findmetric \
-	  fix-rc getpmcdhosts group-stats mk.variant changeversion \
+	  getpmcdhosts group-stats mk.variant changeversion \
 	  check-gitignore check-group chk.setup sanity.coverage show-me \
 	  xlate_2_new_pmns Makepkgs
 
 COMMON = common common.check common.config common.filter common.install.cisco \
 	 common.pcpweb common.product common.rc common.setup
 
-OTHERS = group qa_hosts.master COPYING README pconf.tar \
-	 cisco.tar VERSION.pcpqa valgrind-suppress
+OTHERS = group qa_hosts.master COPYING README \
+	 pconf.tar cisco.tar valgrind-suppress
 
 DOTOUTFILES = $(shell git ls-tree --name-only HEAD | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$')
 
 LSRCFILES = $(SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS)
 
-install: $(SUBDIRS)
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/qa
-	$(INSTALL) -m 755 $(SCRIPTS) $(PCP_VAR_DIR)/qa
-	$(INSTALL) -m 644 GNUmakefile $(COMMON) $(OTHERS) $(PCP_VAR_DIR)/qa
-	$(INSTALL) -m 755 $(TESTS) $(PCP_VAR_DIR)/qa
-	$(INSTALL) -m 644 $(DOTOUTFILES) $(PCP_VAR_DIR)/qa
+install_pcp install: $(SUBDIRS)
+	$(INSTALL) -m 755 -d $(TESTDIR)
+	$(INSTALL) -m 755 $(SCRIPTS) $(TESTDIR)
+	$(INSTALL) -m 644 GNUmakefile $(COMMON) $(OTHERS) $(TESTDIR)
+	$(INSTALL) -m 755 $(TESTS) $(TESTDIR)
+	$(INSTALL) -m 644 $(DOTOUTFILES) $(TESTDIR)
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)

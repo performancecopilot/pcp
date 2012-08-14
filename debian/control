@@ -293,3 +293,11 @@ Description: Tool for importing data from iostat into PCP archive logs
  into standard PCP archive logs for replay with any PCP monitoring tool.
  (such as pmie, pmlogsummary, pmchart or pmdumptext).
 
+Package: pcp-testsuite
+Depends: pcp (= ${binary:Version})
+Architecture: any
+Provides: pcpqa
+Conflicts: pcpqa
+Replaces: pcpqa
+Description: Performance Co-Pilot (PCP) Test Suite
+ Quality assurance test suite for Performance Co-Pilot (PCP).

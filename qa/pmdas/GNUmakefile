@@ -11,17 +11,18 @@ endif
 PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
+TESTDIR = $(PCP_VAR_DIR)/testsuite
 SUBDIRS = broken bigun
 
-default: $(SUBDIRS)
+default default_pcp: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 setup: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
-install: $(SUBDIRS)
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/qa/pmdas
-	$(INSTALL) -m 644 GNUmakefile $(PCP_VAR_DIR)/qa/pmdas/GNUmakefile
+install install_pcp: $(SUBDIRS)
+	$(INSTALL) -m 755 -d $(TESTDIR)/pmdas
+	$(INSTALL) -m 644 GNUmakefile $(TESTDIR)/pmdas/GNUmakefile
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)

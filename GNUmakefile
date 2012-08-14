@@ -38,7 +38,7 @@ LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
 	debug*.list devel_files libs_files base_files.rpm libs_files.rpm \
 	devel_files.rpm perl-pcp*.list* conf_files
 
-SUBDIRS = src man build debian
+SUBDIRS = qa src man build debian
 
 default :: default_pcp
 

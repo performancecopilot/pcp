@@ -19,6 +19,8 @@ else
 PCP_VER=3000
 endif
 
+TESTDIR	= $(PCP_VAR_DIR)/testsuite
+
 PMLOGGER	= $(PCP_BINADM_DIR)/pmlogger
 PMLOGEXTRACT	= $(PCP_BINADM_DIR)/pmlogextract
 
@@ -210,16 +212,16 @@ LDIRT	+= *.log domain.h help.pag help.dir \
 .ORDER:	torture_api \
 	chkctx2 fetchrate
 
-default: $(CFILES_TARGETS) $(TARGETS) $(SRCARCH) $(SRCARCHPART) ipcs_clear
+default default_pcp: $(CFILES_TARGETS) $(TARGETS) $(SRCARCH) $(SRCARCHPART) ipcs_clear
 
 setup: default $(MKARCH) 
 
 $(TARGETS):
 
-install:
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/qa/src-oss
-	$(INSTALL) -m 644 GNUmakefile $(CFILES) $(MYFILES) $(PCP_VAR_DIR)/qa/src-oss
-	$(INSTALL) -m 755 $(MYSCRIPTS) $(PCP_VAR_DIR)/qa/src-oss
+install install_pcp:
+	$(INSTALL) -m 755 -d $(TESTDIR)/src-oss
+	$(INSTALL) -m 644 GNUmakefile $(CFILES) $(MYFILES) $(TESTDIR)/src-oss
+	$(INSTALL) -m 755 $(MYSCRIPTS) $(TESTDIR)/src-oss
 
 include $(BUILDRULES)
 

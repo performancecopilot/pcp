@@ -35,11 +35,11 @@ LDIRT = help.pag help.dir
 
 LLDLIBS = -lpcp_pmda -lpcp
 
-default setup: $(TARGETS)
+default default_pcp setup: $(TARGETS)
 
 $(LIBTARGET):	bigun.o
 
-install:
+install install_pcp:
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/qa/pmdas/bigun
 	$(INSTALL) -m 755 $(MYSCRIPTS) $(PCP_VAR_DIR)/qa/pmdas/bigun
 	$(INSTALL) -m 644 GNUmakefile $(CFILES) $(MYFILES) $(PCP_VAR_DIR)/qa/pmdas/bigun

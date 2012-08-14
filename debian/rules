@@ -21,6 +21,7 @@ pcp_import_sar = pcp-import-sar2pcp
 pcp_import_mrtg = pcp-import-mrtg2pcp
 pcp_import_sheet = pcp-import-sheet2pcp
 pcp_import_iostat = pcp-import-iostat2pcp
+pcp_testsuite = pcp-testsuite
 
 dirpcp = debian/$(pcp)
 dirlibpcp = debian/$(libpcp)
@@ -43,6 +44,7 @@ dirpcp_import_sar = debian/$(pcp_import_sar)
 dirpcp_import_mrtg = debian/$(pcp_import_mrtg)
 dirpcp_import_sheet = debian/$(pcp_import_sheet)
 dirpcp_import_iostat = debian/$(pcp_import_iostat)
+dirpcp_testsuite = debian/$(pcp_testsuite)
 allperldir = $(dirlibpcp_pmda_perl) $(dirlibpcp_import_perl) \
 		$(dirpcp_logsummary_perl) $(dirlibpcp_mmv_perl)
 alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) $(allperldir) \
@@ -53,6 +55,7 @@ alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) $(allperldir) \
 		$(dirlibpcp_mmv) $(dirlibpcp_mmvdev) \
 		$(dirpcp_import_sar) $(dirpcp_import_mrtg) \
 		$(dirpcp_import_sheet) $(dirpcp_import_iostat) \
+		$(dirpcp_testsuite)
 
 zip = @export GZIP=-9q
 pkgpcp = $(zip); export DIST_ROOT=`pwd`/$(dirpcp);
@@ -70,10 +73,12 @@ pkgpcp_import_sar = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_import_sar);
 pkgpcp_import_mrtg = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_import_mrtg);
 pkgpcp_import_sheet = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_import_sheet);
 pkgpcp_import_iostat = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_import_iostat);
+pkgpcp_testsuite = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_testsuite);
 
 options = export DEBUG=-DNDEBUG AWK=gawk;
 checkdir = test -f debian/rules
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
+uninstallt = cat debian/$(pcp_testsuite).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
 uninstalld = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include
 unrpathperl = find $(allperldir) -name \*.so | xargs chrpath -d
 
@@ -108,6 +113,7 @@ binary-arch: checkroot built
 	-rm -rf $(alldir)
 	$(pkgpcp) $(MAKE) -C . install
 	$(pkgpcp) $(MAKE) -C build pcp.src
+	$(pkgpcp_testsuite) $(MAKE) -C qa install
 	$(pkglibpcp_mmv_perl) $(MAKE) -C src/cpan/MMV install_perl
 	$(pkglibpcp_pmda_perl) $(MAKE) -C src/cpan/PMDA install_perl
 	$(pkglibpcp_import_perl) $(MAKE) -C src/cpan/LogImport install_perl
@@ -126,6 +132,7 @@ binary-arch: checkroot built
 	dh_install --sourcedir=debian/$(pcp)
 	@$(uninstall)
 	@$(uninstalld)
+	@$(uninstallt)
 	@$(unrpathperl)
 	dh_makeshlibs -N $(libpcp)
 	dh_makeshlibs --package $(libpcp)
