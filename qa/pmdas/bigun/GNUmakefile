@@ -27,6 +27,7 @@ endif
 
 CFILES = bigun.c
 LIBTARGET = bigun.$(DSOSUFFIX)
+TESTDIR = $(PCP_VAR_DIR)/testsuite
 TARGETS = $(LIBTARGET)
 MYFILES = domain.h help pmns root
 MYSCRIPTS = Install Remove
@@ -40,8 +41,8 @@ default default_pcp setup: $(TARGETS)
 $(LIBTARGET):	bigun.o
 
 install install_pcp:
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/qa/pmdas/bigun
-	$(INSTALL) -m 755 $(MYSCRIPTS) $(PCP_VAR_DIR)/qa/pmdas/bigun
-	$(INSTALL) -m 644 GNUmakefile $(CFILES) $(MYFILES) $(PCP_VAR_DIR)/qa/pmdas/bigun
+	$(INSTALL) -m 755 -d $(TESTDIR)/pmdas/bigun
+	$(INSTALL) -m 755 $(MYSCRIPTS) $(TARGETS) $(TESTDIR)/pmdas/bigun
+	$(INSTALL) -m 644 GNUmakefile $(CFILES) $(MYFILES) $(TESTDIR)/pmdas/bigun
 
 include $(PCP_INC_DIR)/buildrules

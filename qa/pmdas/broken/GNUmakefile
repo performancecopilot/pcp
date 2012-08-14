@@ -23,10 +23,10 @@ CFLAGS          = $(TMP) -I$(PCP_INC_DIR)/.. -L$(PCP_LIB_DIR)
 else
 CFLAGS          = $(TMP)
 endif
-
 CFILES = broken_pmda.c
 CFILES_TARGETS = $(CFILES)
 
+TESTDIR = $(PCP_VAR_DIR)/testsuite
 TARGETS = $(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
 	broken_pmda_2_0 broken_v2.dir broken_pmda_2_1 broken_pmda_2_2 \
 	broken_pmda_2_3 broken_pmda_2_4 broken_pmda_2_5 
@@ -51,9 +51,9 @@ include $(PCP_INC_DIR)/buildrules
 $(TARGETS):
 
 install install_pcp:
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/qa/pmdas/broken
-	$(INSTALL) -m 755 $(MYSCRIPTS) $(PCP_VAR_DIR)/qa/pmdas/broken
-	$(INSTALL) -m 644 GNUmakefile $(CFILES) $(MYFILES) $(PCP_VAR_DIR)/qa/pmdas/broken
+	$(INSTALL) -m 755 -d $(TESTDIR)/pmdas/broken
+	$(INSTALL) -m 755 $(MYSCRIPTS) $(TARGETS) $(TESTDIR)/pmdas/broken
+	$(INSTALL) -m 644 GNUmakefile $(CFILES) $(MYFILES) $(TESTDIR)/pmdas/broken
 
 OBJECTS = $(shell echo $(CFILES) | sed -e 's/\.c/.o/g')
 

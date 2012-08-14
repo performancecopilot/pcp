@@ -59,8 +59,8 @@ done
 
 if [ ! -f qa_hosts ]
 then
-    echo "$0: no #order line matches this host \"$my_fqdn\""
-    exit 1
+    echo "$0: no #order line matches this host \"$my_fqdn\", local testing only"
+    touch qa_hosts
 fi
 
 exit 0

@@ -21,6 +21,7 @@ check.time
 localconfig
 localconfig.h
 qa_hosts
+qa_outfiles
 rc_cron_check.clean
 sudo
 006.out

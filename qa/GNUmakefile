@@ -20,7 +20,7 @@ TESTDIR = $(PCP_VAR_DIR)/testsuite
 
 TESTS	= $(shell sed -n -e '/^[0-9]/s/[ 	].*//p' <group)
 
-default_pcp default: localconfig new remake check qa_hosts $(OTHERS) $(SUBDIRS)
+default_pcp default: localconfig new remake check qa_hosts qa_outfiles $(OTHERS) $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 setup: $(SUBDIRS) pconf cisco
@@ -30,7 +30,7 @@ LDIRT += 051.work 134.full.* \
          *.bak *.bad *.core *.full *.raw *.o core a.out core.* \
 	 *.log eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz \
 	 *.full.ok *.new rc_cron_check.clean \
-	  make.out qa_hosts localconfig localconfig.h check.time
+	  make.out qa_hosts qa_outfiles localconfig localconfig.h check.time
 	# these ones are links to the real files created when the associated
 	# test is run
 LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
@@ -59,7 +59,7 @@ cisco:	cisco.tar
 SCRIPTS = mk.localconfig new check recheck remake mk.qa_hosts findmetric \
 	  getpmcdhosts group-stats mk.variant changeversion \
 	  check-gitignore check-group chk.setup sanity.coverage show-me \
-	  xlate_2_new_pmns Makepkgs
+	  xlate_2_new_pmns
 
 COMMON = common common.check common.config common.filter common.install.cisco \
 	 common.pcpweb common.product common.rc common.setup
@@ -67,16 +67,18 @@ COMMON = common common.check common.config common.filter common.install.cisco \
 OTHERS = group qa_hosts.master COPYING README \
 	 pconf.tar cisco.tar valgrind-suppress
 
-DOTOUTFILES = $(shell git ls-tree --name-only HEAD | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$')
+DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || git ls-tree --name-only HEAD | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | tee qa_outfiles)
+LSRCFILES = $(SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS) qa_outfiles
 
-LSRCFILES = $(SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS)
+qa_outfiles:
+	@echo $(DOTOUTFILES) > qa_outfiles
 
 install_pcp install: $(SUBDIRS)
 	$(INSTALL) -m 755 -d $(TESTDIR)
+	$(INSTALL) -m 755 $(TESTS) $(TESTDIR)
 	$(INSTALL) -m 755 $(SCRIPTS) $(TESTDIR)
 	$(INSTALL) -m 644 GNUmakefile $(COMMON) $(OTHERS) $(TESTDIR)
-	$(INSTALL) -m 755 $(TESTS) $(TESTDIR)
-	$(INSTALL) -m 644 $(DOTOUTFILES) $(TESTDIR)
+	$(INSTALL) -m 644 qa_outfiles $(DOTOUTFILES) $(TESTDIR)
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)

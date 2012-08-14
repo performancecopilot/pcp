@@ -5,14 +5,6 @@
 # the only pre-requisite is that they be running some version of PCP.
 #
 
-# Aconex Section
-forge.engr.acx
-furnace.engr.acx
-edge.engr.acx
-verge.yarra.acx
-verge.scott.net.au
-web1.drp.acx
-
 # Kenj Section
 bozo.localdomain
 bozo-laptop.localdomain
@@ -25,6 +17,12 @@ vm03.localdomain
 
 # SGI Section
 grundy.sgi.com
+
+# Nathans Section
+smash.scott.net.au
+verge.scott.net.au
+cloud.scott.net.au
+sweet.scott.net.au
 
 # Mort Section
 opensuse11-1.bork.org
@@ -49,12 +47,8 @@ deb32.bork.org
 #order	.engr.sgi.com		.engr.sgi.com		.melbourne.sgi
 #order	.americas.sgi.com	.americas.sgi.com	.engr.sgi.com	.melbourne.sgi
 #order	.sgi.com		.sgi.com
-# Aconex Section
-#order	edge			.engr.acx
-#order	.engr.acx		.localdomain
-#order	.yarra.acx		.localdomain
+# Nathans Section
 #order	.scott.net.au		.localdomain
-#order	.aconex.com		.localdomain	.aconex.com
 #order	.localdomain		.localdomain
 # Kenj Section
 #order	bozo			.localdomain

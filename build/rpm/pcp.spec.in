@@ -54,7 +54,7 @@ Obsoletes: pcp < 3.0
 Performance Co-Pilot (PCP) run-time libraries
 
 #
-# pcp-libs-dvel
+# pcp-libs-devel
 #
 %package libs-devel
 License: GPLv2
@@ -66,6 +66,20 @@ Requires: pcp-libs = @package_version@
 
 %description libs-devel
 Performance Co-Pilot (PCP) headers, documentation and tools for development.
+
+#
+# pcp-testsuite
+#
+%package testsuite
+License: GPLv2
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) test suite
+URL: http://oss.sgi.com/projects/pcp/
+
+Requires: pcp-libs-devel = @package_version@
+
+%description testsuite
+Quality assurance test suite for Performance Co-Pilot (PCP).
 
 #
 # perl-PCP-PMDA. This is the PCP agent perl binding.
@@ -215,12 +229,12 @@ rm -f $DIST_MANIFEST
 PCP_CONF=$BACKDIR/src/include/pcp.conf
 export PCP_CONF
 . $BACKDIR/src/include/pcp.env
-LIBFILELIST=`ls -1 $BACKDIR/debian/*.{install,dirs} | fgrep -v -- -dev. | fgrep -v -- -import`
+LIBFILELIST=`ls -1 $BACKDIR/debian/*.{install,dirs} | fgrep -v -- -dev. | fgrep -v -- testsuite | fgrep -v -- -import`
 DEVFILELIST=`ls -1 $BACKDIR/debian/*-dev.{install,dirs}`
 
 #
-# Package split: pcp, pcp-libs, pcp-libs-devel, pcp-import-*
-# -libs gets first pick, then libs-devel, then pcp-import-*
+# Package split: pcp, pcp-libs, pcp-libs-devel, pcp-testsuite, pcp-import-*
+# -libs gets first pick, then libs-devel, then pcp-testsuite, then pcp-import-*
 # The base package catches-all remaining.
 #
 sed -e 's/^/\//' $LIBFILELIST >libs_files
@@ -240,6 +254,7 @@ egrep 'pcp\/(examples|demos)|pmdas\/(sample|simple|trivial|txmon)' >>devel_files
 # Note: /etc/pcp.conf is %config, but not noreplace
 # and is treated specially below.
 cat >conf_files <<EOFEOF
+etc/pcp.sh
 etc/pcp.env
 pmcd/pmcd.conf
 pmcd/pmcd.options
@@ -257,16 +272,19 @@ EOFEOF
 #
 # Files for the pcp-import subpackages. We use these sub-packages
 # to isolate the (somwhat exotic) dependencies for these tools
+# Likewise, for the pcp-testsuite subpackage.
+awk '{print $NF}' $DIST_MANIFEST | egrep 'testsuite' >testsuite_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'sar2pcp' >import_sar2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'iostat2pcp' >import_iostat2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'sheet2pcp' >import_sheet2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'mrtg2pcp' >import_mrtg2pcp_files
 
-rm -f devel_files.rpm libs_files.rpm base_files.rpm import_*_files.rpm
+rm -f devel_files.rpm libs_files.rpm base_files.rpm testsuite_files.rpm import_*_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
 BEGIN {
     while( getline < "libs_files") lib[$0]=1;
     while( getline < "devel_files") dev[$0]=1;
+    while( getline < "testsuite_files") testsuite[$0]=1;
     while( getline < "import_sar2pcp_files") import_sar2pcp[$0]=1;
     while( getline < "import_iostat2pcp_files") import_iostat2pcp[$0]=1;
     while( getline < "import_sheet2pcp_files") import_sheet2pcp[$0]=1;
@@ -276,6 +294,7 @@ BEGIN {
 {
     if (lib[$NF]) f="libs_files.rpm";
     else if (dev[$NF]) f="devel_files.rpm";
+    else if (testsuite[$NF]) f="testsuite_files.rpm";
     else if (import_sar2pcp[$NF]) f="import_sar2pcp_files.rpm";
     else if (import_iostat2pcp[$NF]) f="import_iostat2pcp_files.rpm";
     else if (import_sheet2pcp[$NF]) f="import_sheet2pcp_files.rpm";
@@ -297,6 +316,14 @@ $1 == "f" {
 	    }
 	    printf ("%%%%attr(%s,root,root) %s\n", $2, $6) >> f }
 $1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
+
+%pre testsuite
+getent group pcpqa >/dev/null || groupadd -g 161 -r pcpqa 2>/dev/null || groupadd -r pcpqa
+getent passwd pcpqa >/dev/null || \
+  useradd -c "PCP Quality Assurance" -u 160 -g pcpqa -d %{_sharedstatedir}/pcp/testsuite -m -r -s /bin/bash pcpqa 2>/dev/null || \
+  useradd -c "PCP Quality Assurance" -g pcpqa -d %{_sharedstatedir}/pcp/testsuite -m -r -s /bin/bash pcpqa 2>/dev/null
+test -e ~pcpqa && chmod 755 ~pcpqa && chown pcpqa.pcpqa ~pcpqa
+exit 0
 
 %preun
 if [ "$1" -eq 0 ]
@@ -339,6 +366,9 @@ fi
 %files libs-devel -f devel_files.rpm
 %defattr(-,root,root)
 
+%files testsuite -f testsuite_files.rpm
+%defattr(-,pcpqa,pcpqa)
+
 %files import-sar2pcp -f import_sar2pcp_files.rpm
 %defattr(-,root,root)
 
@@ -364,6 +394,9 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Thu Aug 16 2012 Nathan Scott <nathans@redhat.com> - 3.6.6-1
+- Update to latest PCP sources, creates a new testsuite package.
+
 * Thu Aug 16 2012 Nathan Scott <nathans@redhat.com> - 3.6.5-1
 - Update to latest PCP sources, resolves several security issues.
 

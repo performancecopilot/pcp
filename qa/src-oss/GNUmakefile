@@ -221,7 +221,7 @@ $(TARGETS):
 install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)/src-oss
 	$(INSTALL) -m 644 GNUmakefile $(CFILES) $(MYFILES) $(TESTDIR)/src-oss
-	$(INSTALL) -m 755 $(MYSCRIPTS) $(TESTDIR)/src-oss
+	$(INSTALL) -m 755 $(MYSCRIPTS) $(TARGETS) $(TESTDIR)/src-oss
 
 include $(BUILDRULES)
 
