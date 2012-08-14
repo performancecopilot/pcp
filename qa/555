@@ -36,7 +36,7 @@ signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 
 update_config=true
-if [ -f /etc/rsyslog.conf -a -f /var/run/rsyslogd.pid ]
+if [ -f /etc/rsyslog.conf -a -f /var/run/*syslogd.pid ]
 then
     # smells like rsyslogd
     #
