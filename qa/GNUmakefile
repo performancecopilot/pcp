@@ -5,7 +5,7 @@ SUBDIRS = src archives views interact
 BASEDIR = $(subst pcp,pcp-gui,$(PCP_VAR_DIR))
 TESTDIR = $(BASEDIR)/testsuite
 
-SCRIPTS = check new remake
+SCRIPTS = check new remake group
 COMMONS = $(shell echo common.*)
 AUTOTEST = $(shell echo [0-9][0-9][0-9])
 OUTFILES = $(shell echo *.out)
