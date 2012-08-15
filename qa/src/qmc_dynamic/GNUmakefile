@@ -16,6 +16,6 @@ default:
 
 install: default
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
+	$(INSTALL) -m 755 $(BINARY) $(TESTDIR)/$(COMMAND)
 
 include $(BUILDRULES)
