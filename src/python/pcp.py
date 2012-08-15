@@ -823,7 +823,6 @@ class pmContext( object ):
         else:
             n = len( nameA )
         names = (c_char_p * n)()
-
         if type(nameA) == type(""):
             names[0] = c_char_p(nameA)
         else:
@@ -1357,7 +1356,7 @@ class pmContext( object ):
     # PMAPI Record-Mode Services
 
     def pmRecordSetup( self, folio, creator, replay ):
-        """PMAPI - TBD - Setup an archive recording session
+        """PMAPI - Setup an archive recording session
         """
         # this method is context dependent and requires the pmapi lock
         pmContext._pmapiLock.acquire()
@@ -1398,7 +1397,7 @@ class pmContext( object ):
         return status, rhp
 
     def pmRecordControl( self, rhp, request, options ):
-        """PMAPI - TBD - Control an archive recording session
+        """PMAPI - Control an archive recording session
         """
         # this method is context dependent and requires the pmapi lock
         pmContext._pmapiLock.acquire()
