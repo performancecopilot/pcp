@@ -271,7 +271,7 @@ EOFEOF
 
 #
 # Files for the pcp-import subpackages. We use these sub-packages
-# to isolate the (somwhat exotic) dependencies for these tools
+# to isolate the (somewhat exotic) dependencies for these tools
 # Likewise, for the pcp-testsuite subpackage.
 awk '{print $NF}' $DIST_MANIFEST | egrep 'testsuite' >testsuite_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'sar2pcp' >import_sar2pcp_files
@@ -322,7 +322,6 @@ getent group pcpqa >/dev/null || groupadd -g 161 -r pcpqa 2>/dev/null || groupad
 getent passwd pcpqa >/dev/null || \
   useradd -c "PCP Quality Assurance" -u 160 -g pcpqa -d %{_sharedstatedir}/pcp/testsuite -m -r -s /bin/bash pcpqa 2>/dev/null || \
   useradd -c "PCP Quality Assurance" -g pcpqa -d %{_sharedstatedir}/pcp/testsuite -m -r -s /bin/bash pcpqa 2>/dev/null
-test -e ~pcpqa && chmod 755 ~pcpqa && chown pcpqa.pcpqa ~pcpqa
 exit 0
 
 %preun
@@ -367,7 +366,7 @@ fi
 %defattr(-,root,root)
 
 %files testsuite -f testsuite_files.rpm
-%defattr(-,pcpqa,pcpqa)
+%defattr(-,root,root)
 
 %files import-sar2pcp -f import_sar2pcp_files.rpm
 %defattr(-,root,root)
