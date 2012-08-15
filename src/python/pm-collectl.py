@@ -46,6 +46,8 @@ import copy
 from pcp import *
 from ctypes import *
 
+me = "pm-collectl"
+
 def check_code (code):
     if (code < 0):
         print pmErrStr(code)
@@ -99,8 +101,13 @@ def get_stats (metric, metric_name, metric_desc, metric_value, old_metric_value)
     
     list_type = type([])
 
-    (code, metric_result) = pm.pmFetch(metric_name)
-    check_code (code)
+    try:
+        (code, metric_result) = pm.pmFetch(metric_name)
+        check_code (code)
+    except pmErr as e:
+        if str(e).find("PM_ERR_EOL") != -1:
+            print "\nReached end of archive"
+            sys.exit(1)
 
     first = True if max(old_metric_value) == 0 else False
     # list of metric names
@@ -161,6 +168,30 @@ def get_scalar_value (var, idx):
         return var[idx]
     else:
         return var
+
+
+# record ---------------------------------------------------------------
+
+def record (pm, config, duration, file):
+    global me
+
+    if os.path.exists(file):
+        print "Directory %s already exists\n" % file
+        sys.exit(1)
+    os.mkdir (file)
+    status = pm.pmRecordSetup (file + "/" + me + ".pcp", me, 0)
+    check_code (status)
+    (status, rhp) = pm.pmRecordAddHost ("localhost", 1, configuration)
+    check_code (status)
+    status = pm.pmRecordControl (0, pmapi.PM_REC_SETARG, "-T" + str(duration) + "sec")
+    check_code (status)
+    status = pm.pmRecordControl (0, pmapi.PM_REC_ON, "")
+    check_code (status)
+    time.sleep(duration)
+    pm.pmRecordControl (0, pmapi.PM_REC_STATUS, "")
+    status = pm.pmRecordControl (rhp, pmapi.PM_REC_OFF, "")
+    if status < 0 and status != pmapi.PM_ERR_IPC:
+        check_status (status)
 
 
 # _subsys ---------------------------------------------------------------
@@ -244,10 +275,20 @@ class _cpu(_subsys):
         self.cpu_metrics_dict={i:self.cpu_metrics.index(i) for i in self.cpu_metrics}
         self.cpu_metric_value = [0 for i in range(len(self.cpu_metrics))]
         self.old_cpu_metric_value = [0 for i in range(len(self.cpu_metrics))]
+
+    def setup_metrics(self,pm):
         (code, self.cpu_metric_name) = pm.pmLookupName(self.cpu_metrics)
         check_code (code)
         (code, self.cpu_metric_desc) = pm.pmLookupDesc(self.cpu_metric_name)
         check_code (code)
+
+    def dump_metrics(self):
+        metrics_string = ""
+        for i in xrange(len(self.cpu_metrics)):
+            metrics_string += self.cpu_metrics[i]
+            metrics_string += " "
+        return metrics_string
+            
     def get_stats(self):
         get_stats (self.cpu_metrics, self.cpu_metric_name, self.cpu_metric_desc, self.cpu_metric_value, self.old_cpu_metric_value)
     def get_total(self):
@@ -390,20 +431,31 @@ class _interrupt(_subsys):
                                   'kernel.percpu.interrupts.line1',
                                   'kernel.percpu.interrupts.line0']
 
+        self.interrupt_metrics_dict={i:self.interrupt_metrics.index(i) for i in self.interrupt_metrics}
+        self.interrupt_metric_value = [0 for i in range(len(self.interrupt_metrics))]
+        self.old_interrupt_metric_value = [0 for i in range(len(self.interrupt_metrics))]
+
+    def setup_metrics(self,pm):
         # remove any unsupported metrics
         for j in range(len(self.interrupt_metrics)-1, -1, -1):
             try:
+
                 (code, self.int_metric_name) = pm.pmLookupName(self.interrupt_metrics[j])
             except pmErr as e:
                 self.interrupt_metrics.remove(self.interrupt_metrics[j])
 
-        self.interrupt_metrics_dict={i:self.interrupt_metrics.index(i) for i in self.interrupt_metrics}
-        self.interrupt_metric_value = [0 for i in range(len(self.interrupt_metrics))]
-        self.old_interrupt_metric_value = [0 for i in range(len(self.interrupt_metrics))]
         (code, self.int_metric_name) = pm.pmLookupName(self.interrupt_metrics)
         check_code (code)
         (code, self.int_metric_desc) = pm.pmLookupDesc(self.int_metric_name)
         check_code (code)
+
+    def dump_metrics(self):
+        metrics_string = ""
+        for i in xrange(len(self.interrupt_metrics)):
+            metrics_string += self.interrupt_metrics[i]
+            metrics_string += " "
+        return metrics_string
+            
     def get_stats(self):
         get_stats (self.interrupt_metrics, self.int_metric_name, self.int_metric_desc, self.interrupt_metric_value, self.old_interrupt_metric_value)
     def print_header1_brief(self):
@@ -457,10 +509,20 @@ class _process(_subsys):
         self.process_metrics_dict={i:self.process_metrics.index(i) for i in self.process_metrics}
         self.process_metric_value = [0 for i in range(len(self.process_metrics))]
         self.old_process_metric_value = [0 for i in range(len(self.process_metrics))]
+
+    def setup_metrics(self,pm):
         (code, self.process_metric_name) = pm.pmLookupName(self.process_metrics)
         check_code (code)
         (code, self.process_metric_desc) = pm.pmLookupDesc(self.process_metric_name)
         check_code (code)
+
+    def dump_metrics(self):
+        metrics_string = ""
+        for i in xrange(len(self.process_metrics)):
+            metrics_string += self.process_metrics[i]
+            metrics_string += " "
+        return metrics_string
+            
     def get_stats(self):
         get_stats (self.process_metrics, self.process_metric_name, self.process_metric_desc, self.process_metric_value, self.old_process_metric_value)
     def print_verbose(self):
@@ -492,11 +554,21 @@ class _disk(_subsys):
         self.disk_metrics_dict={i:self.disk_metrics.index(i) for i in self.disk_metrics}
         self.disk_metric_value = [0 for i in range(len(self.disk_metrics))]
         self.old_disk_metric_value = [0 for i in range(len(self.disk_metrics))]
+
+    def setup_metrics(self,pm):
         (code, self.disk_metric_name) = pm.pmLookupName(self.disk_metrics)
         check_code (code)
         (code, self.disk_metric_desc) = pm.pmLookupDesc(self.disk_metric_name)
         check_code (code)
 
+
+    def dump_metrics(self):
+        metrics_string = ""
+        for i in xrange(len(self.disk_metrics)):
+            metrics_string += self.disk_metrics[i]
+            metrics_string += " "
+        return metrics_string
+            
     def get_stats(self):
         get_stats (self.disk_metrics, self.disk_metric_name, self.disk_metric_desc, self.disk_metric_value, self.old_disk_metric_value)
     def print_header1_brief(self):
@@ -593,10 +665,20 @@ class _memory(_subsys):
         self.memory_metrics_dict={i:self.memory_metrics.index(i) for i in self.memory_metrics}
         self.memory_metric_value = [0 for i in range(len(self.memory_metrics))]
         self.old_memory_metric_value = [0 for i in range(len(self.memory_metrics))]
+
+    def setup_metrics(self,pm):
         (code, self.memory_metric_name) = pm.pmLookupName(self.memory_metrics)
         check_code (code)
         (code, self.memory_metric_desc) = pm.pmLookupDesc(self.memory_metric_name)
         check_code (code)
+
+    def dump_metrics(self):
+        metrics_string = ""
+        for i in xrange(len(self.memory_metrics)):
+            metrics_string += self.memory_metrics[i]
+            metrics_string += " "
+        return metrics_string
+            
     def get_stats(self):
         get_stats (self.memory_metrics, self.memory_metric_name, self.memory_metric_desc, self.memory_metric_value, self.old_memory_metric_value)
     def print_header1_brief(self):
@@ -664,10 +746,20 @@ class _net(_subsys):
         self.net_metrics_dict={i:self.net_metrics.index(i) for i in self.net_metrics}
         self.net_metric_value = [0 for i in range(len(self.net_metrics))]
         self.old_net_metric_value = [0 for i in range(len(self.net_metrics))]
+
+    def setup_metrics(self,pm):
         (code, self.net_metric_name) = pm.pmLookupName(self.net_metrics)
         check_code (code)
         (code, self.net_metric_desc) = pm.pmLookupDesc(self.net_metric_name)
         check_code (code)
+
+    def dump_metrics(self):
+        metrics_string = ""
+        for i in xrange(len(self.net_metrics)):
+            metrics_string += self.net_metrics[i]
+            metrics_string += " "
+        return metrics_string
+            
     def get_stats(self):
         get_stats (self.net_metrics, self.net_metric_name, self.net_metric_desc, self.net_metric_value, self.old_net_metric_value)
     def print_header1_brief(self):
@@ -743,8 +835,11 @@ if __name__ == '__main__':
     i = 1
     subsys = set()
     verbosity = "brief"
+    output_file = ""
+    input_file = ""
+    duration = 0
+    interval_arg = 1
 
-    pm = pmContext()
     ss = _subsys()
     cpu = _cpu()
     interrupt = _interrupt()
@@ -768,6 +863,20 @@ if __name__ == '__main__':
         if (sys.argv[i] == "-c"):
             i += 1
             n_samples = int(sys.argv[i])
+        elif (sys.argv[i] == "-f" or sys.argv[i] == "--filename"):
+            i += 1
+            output_file = sys.argv[i]
+        elif (sys.argv[i] == "-p" or sys.argv[i] == "--playback"):
+            i += 1
+            input_file = sys.argv[i]
+        elif (sys.argv[i] == "-R" or sys.argv[i] == "--runtime"):
+            i += 1
+            duration = sys.argv[i]
+            # Nwdhms
+        elif (sys.argv[i] == "-i" or sys.argv[i] == "--interval"):
+            i += 1
+            interval_arg = sys.argv[i]
+            # Nwdhms
         elif (sys.argv[i][:2] == "-c"):
             n_samples = int(sys.argv[i][2:])
         elif (sys.argv[i][:2] == "-s"):
@@ -791,14 +900,37 @@ if __name__ == '__main__':
         map( lambda x: subsys.add(x) , (disk, cpu, proc, net) )
     elif cpu in subsys:
         subsys.add(proc)
-    print "XXX",subsys
 
+    if input_file == "":
+        pm = pmContext()
+    else:
+        # -f saves the metrics in a directory, so get the archive basename
+        lol = []
+        if not os.path.isdir(input_file):
+            print input_file,"is not a directory"
+            sys.exit(1)
+        for line in open(input_file + "/" + me + ".pcp"):
+            lol.append(line[:-1].split())
+        archive = input_file + "/" + lol[len(lol)-1][2]
+
+        pm = pmContext(pmapi.PM_CONTEXT_ARCHIVE, archive)
     if (pm < 0):
         print "PCP is not running"
 
-    (code, delta, errmsg) = pm.pmParseInterval("1 seconds")
+    (code, delta, errmsg) = pm.pmParseInterval(str(interval_arg) + " seconds")
+
+    if output_file != "":
+        # ??? fix every
+        configuration = "log mandatory on every 1 seconds { "
+        for s in subsys:
+            configuration += s.dump_metrics()
+        configuration += "}"
+        duration = n_samples if n_samples != 0 else 10 * interval_arg
+        record (pm, configuration, duration, output_file)
+        sys.exit(0)
 
     for s in subsys:
+        s.setup_metrics(pm)
         s.set_verbosity(verbosity)
         s.get_stats()
 

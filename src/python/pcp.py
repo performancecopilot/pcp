@@ -1356,7 +1356,7 @@ class pmContext( object ):
     ##
     # PMAPI Record-Mode Services
 
-    def pmRecordSetup( self, folio, creator, config, replay ):
+    def pmRecordSetup( self, folio, creator, replay ):
         """PMAPI - TBD - Setup an archive recording session
         """
         # this method is context dependent and requires the pmapi lock
@@ -1369,17 +1369,12 @@ class pmContext( object ):
             pmContext._lastUsedContext = self
         file_result = libpcp_gui.pmRecordSetup ( c_char_p(folio), c_char_p(creator), replay )
 
-        print file_result
+        if (file_result == 0):
+            raise pmErr, file_result
         pmContext._pmapiLock.release()
-        if (file_result >= 0 and replay > 0):
-            status = libc.fputs (c_char_p(config), file_result)
-            if (status < 0):
-                libc.perror(c_char_p(""))
-                raise pmErr, status
-            libc.fclose (file_result)
         return file_result
 
-    def pmRecordAddHost( self, host, isdefault ):
+    def pmRecordAddHost( self, host, isdefault, config ):
         """PMAPI - TBD - Adds host to an archive recording session
         """
         # this method is context dependent and requires the pmapi lock
@@ -1392,10 +1387,14 @@ class pmContext( object ):
             pmContext._lastUsedContext = self
         rhp = POINTER(pmRecordHost)()
         status = libpcp_gui.pmRecordAddHost ( c_char_p(host), isdefault, byref(rhp) )
-
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
+        status = libc.fputs (c_char_p(config), rhp.contents.f_config)
+        if (status < 0):
+            libc.perror(c_char_p(""))
+            raise pmErr, status
+
+        pmContext._pmapiLock.release()
         return status, rhp
 
     def pmRecordControl( self, rhp, request, options ):
@@ -1409,10 +1408,11 @@ class pmContext( object ):
                 pmContext._pmapiLock.release()
                 raise pmErr, status
             pmContext._lastUsedContext = self
-        status = libpcp_gui.pmRecordControl ( cast(rhp,POINTER(pmRecordHost)), request, c_char_p(options) )
+#        status = libpcp_gui.pmRecordControl ( cast(rhp,POINTER(pmRecordHost)), request, c_char_p(options) )
+        status = libpcp_gui.pmRecordControl ( cast(0,POINTER(pmRecordHost)), request, c_char_p(options) )
 
         pmContext._pmapiLock.release()
-        if status < 0:
+        if status < 0 and status != pmapi.PM_ERR_IPC:
             raise pmErr, status
         return status
 
