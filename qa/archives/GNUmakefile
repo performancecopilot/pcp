@@ -3,15 +3,22 @@ include $(TOPDIR)/src/include/builddefs
 
 SRCARCH = chartqa1.0 viewqa1.0 viewqa2.0 viewqa3.0 rattle.0 oview-short.0 \
 	  snort-disks.0 vldb-disks.0 20071023.08\:06\:36.0 moomba.pmkstat.0
-LSRCFILES = $(SRCARCH) $(subst 0,meta,$(SRCARCH)) $(subst 0,index,$(SRCARCH))
+SRCEXTRAS = $(subst 0,meta,$(SRCARCH)) $(subst 0,index,$(SRCARCH))
+LSRCFILES = $(SRCARCH) $(SRCEXTRAS)
+TESTDIR = $(PCP_VAR_DIR)/../pcp-gui/testsuite/archives
 
 MKARCH = gap.0 gap2.0
-
-LDIRT = $(MKARCH) $(subst 0,meta,$(MKARCH)) $(subst 0,index,$(MKARCH)) \
-	pmlogger.log
+MKEXTRAS = $(subst 0,meta,$(MKARCH)) $(subst 0,index,$(MKARCH))
+LDIRT = $(MKARCH) $(MKEXTRAS) pmlogger.log
 LDIRDIRT = tmp
 
-default install: $(MKARCH)
+default:
+
+install: $(SRCARCH)
+	$(INSTALL) -m 755 -d $(TESTDIR)
+	$(INSTALL) -m 755 $(SRCARCH) $(TESTDIR)
+
+arch: $(MKARCH)
 
 include $(BUILDRULES)
 

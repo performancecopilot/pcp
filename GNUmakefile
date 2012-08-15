@@ -28,7 +28,7 @@ LDIRT = config.log .dep config.status config.cache confdefs.h conftest* \
 	install.manifest base_files.rpm docs_files.rpm conf_files
 LDIRDIRT = pcp-gui-*
 
-SUBDIRS = src m4 images doc man debian build
+SUBDIRS = qa src m4 images doc man debian build
 
 default :: default-pcp-gui
 
