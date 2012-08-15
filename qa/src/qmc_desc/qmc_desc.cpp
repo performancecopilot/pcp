@@ -53,7 +53,7 @@ main(int argc, char* argv[])
 
     fprintf(stderr,"*** Compare metric descriptor with pminfo output ***\n");
     QmcSource *src = QmcSource::getSource(PM_CONTEXT_HOST, source, false);
-    
+
     if (src->status() < 0) {
 	pmprintf("%s: Error: Unable to create context to \"%s\": %s\n",
 		 pmProgname, buf, pmErrStr(src->status()));

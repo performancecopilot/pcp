@@ -59,14 +59,8 @@ main(int argc, char* argv[])
 	return 1;
     }
 
-#ifdef HAVE_BITFIELDS_LTOR
-    __pmID_int hinv_map_cpu_s = { 0, 1, 26, 9 };
-#else
-    __pmID_int hinv_map_cpu_s = { 9, 26, 1, 0 };
-#endif
-    pmID hinv_map_cpu = *((pmID*)&hinv_map_cpu_s);
+    pmID hinv_map_cpu = pmid_build(1, 26, 9);
     QmcDesc hinv_map_cpu_pmc(hinv_map_cpu);
-
 
     if (hinv_map_cpu_pmc.status() < 0) {
 	pmprintf("\n%s: Error: hinv.map.cpu: %s\n",
@@ -137,5 +131,3 @@ main(int argc, char* argv[])
     pmflush();
     return sts;
 }
-
-
