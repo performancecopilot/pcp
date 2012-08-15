@@ -1,19 +1,7 @@
 . /etc/pcp.env
 
 export PCP_STDERR=""
-
-case `pwd`
-in
-    */qa)
-    	export PATH=.:`cd ..; pwd`:$PATH
-	;;
-    *)
-	echo "Warning: not in qa directory, I'm confused"
-	pwd
-	status=1
-	exit
-	;;
-esac
+export PATH=.:$PATH
 
 # get offset into an archive relative to the first pmResult
 # past the preamble
