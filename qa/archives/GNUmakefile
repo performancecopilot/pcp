@@ -2,10 +2,12 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 SRCARCH = chartqa1.0 viewqa1.0 viewqa2.0 viewqa3.0 rattle.0 oview-short.0 \
-	  snort-disks.0 vldb-disks.0 20071023.08\:06\:36.0 moomba.pmkstat.0
+	  snort-disks.0 vldb-disks.0 moomba.pmkstat.0
+# make substitution/expansion does funky things with these filenames
+DATEARCH = 20071023.08\:06\:36.0 20071023.08\:06\:36.index 20071023.08\:06\:36.meta
 SRCEXTRAS = $(subst 0,meta,$(SRCARCH)) $(subst 0,index,$(SRCARCH))
-LSRCFILES = $(SRCARCH) $(SRCEXTRAS)
-TESTDIR = $(PCP_VAR_DIR)/../pcp-gui/testsuite/archives
+LSRCFILES = $(SRCARCH) $(SRCEXTRAS) $(DATEARCH)
+TESTDIR = $(subst pcp,pcp-gui,$(PCP_VAR_DIR))/testsuite/archives
 
 MKARCH = gap.0 gap2.0
 MKEXTRAS = $(subst 0,meta,$(MKARCH)) $(subst 0,index,$(MKARCH))
@@ -14,9 +16,9 @@ LDIRDIRT = tmp
 
 default:
 
-install: $(SRCARCH)
+install:
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 755 $(SRCARCH) $(TESTDIR)
+	$(INSTALL) -m 755 $(SRCARCH) $(SRCEXTRAS) $(DATEARCH) $(TESTDIR)
 
 arch: $(MKARCH)
 

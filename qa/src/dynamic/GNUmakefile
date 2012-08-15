@@ -1,10 +1,10 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-MYTESTDIR = $(PCP_VAR_DIR)/../pcp-gui/testsuite/src/dynamic
+MYTESTDIR = $(subst pcp,pcp-gui,$(PCP_VAR_DIR))/testsuite/src/dynamic
 MYSCRIPTS = Install Remove
-PMDAFILES = domain.h GNUmakefile.install pmns help pmda.c
-LSRCFILES = $(SCRIPTS) $(PMDAFILES)
+PMDAFILES = domain.h GNUmakefile.install pmns help dynamic.c
+LSRCFILES = $(MYSCRIPTS) $(PMDAFILES)
 
 default:
 

@@ -1,3 +1,4 @@
+*~
 *.a
 *.o
 *.exe
@@ -10,10 +11,13 @@ qrc_*.cpp
 Logs
 debug
 release
-config.*
+config.log
+config.status
 configure
 Makefile
+.census
 cscope.*
+.DS_Store
 autom4te.cache
 src/include/builddefs
 src/include/version.h

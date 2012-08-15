@@ -2,25 +2,22 @@
 
 pcpgui = pcp-gui
 pcpdoc = pcp-doc
+pcpgui_testsuite = pcp-gui-testsuite
 
 dirgui = debian/$(pcpgui)
 dirdoc = debian/$(pcpdoc)
+dirpcpgui_testsuite = debian/$(pcpgui_testsuite)
+
 zip = @export GZIP=-9q
 pkggui = $(zip); export DIST_ROOT=`pwd`/$(dirgui);
 pkgdoc = $(zip); export DIST_ROOT=`pwd`/$(dirdoc);
+pkgpcpgui_testsuite = $(zip); export DIST_ROOT=`pwd`/$(dirpcpgui_testsuite);
 
 options = export DEBUG=-DNDEBUG DISTRIBUTION=debian;
 checkdir = test -f debian/rules
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcpgui)/," | xargs rm -f
-uninstalldirs =	debian/$(pcpgui)/usr/share/doc/pcp-doc/html/images \
-		debian/$(pcpgui)/usr/share/doc/pcp-doc/html/importdata \
-		debian/$(pcpgui)/usr/share/doc/pcp-doc/html/diskmodel \
-		debian/$(pcpgui)/usr/share/doc/pcp-doc/html/pmie \
-		debian/$(pcpgui)/usr/share/doc/pcp-doc/html/pmview \
-		debian/$(pcpgui)/usr/share/doc/pcp-doc/html \
-		debian/$(pcpgui)/usr/share/doc/pcp-doc \
-		debian/$(pcpgui)/usr/share/doc-base
-uninstalld = rmdir $(uninstalldirs)
+uninstalld = cat debian/$(pcpdoc).dirs | sed -e "s,^,debian/$(pcpgui)/," | xargs rm -fr
+uninstallt = cat debian/$(pcpgui_testsuite).dirs | sed -e "s,^,debian/$(pcpgui)/," | xargs rm -fr
 
 build: built
 built: config
@@ -40,7 +37,7 @@ clean:
 	$(checkdir)
 	-rm -f built .census
 	$(MAKE) distclean
-	-rm -rf $(dirgui) $(dirdoc)
+	-rm -rf $(dirgui) $(dirdoc) $(dirpcpgui_testsuite)
 	-rm -f debian/*substvars debian/files* debian/*.debhelper
 
 binary-indep: binary-arch
@@ -51,6 +48,7 @@ binary-arch: checkroot built
 	-rm -rf $(dirgui) $(dirdoc)
 	$(pkggui) $(MAKE) -C . install
 	$(pkggui) $(MAKE) -C build pcp-gui.src
+	$(pkggui_testsuite) $(MAKE) -C qa install
 
 	dh_installdocs
 	dh_installchangelogs
@@ -58,6 +56,7 @@ binary-arch: checkroot built
 	dh_install --sourcedir=debian/$(pcpgui)
 	@$(uninstall)
 	@$(uninstalld)
+	@$(uninstallt)
 	dh_strip
 	dh_compress
 	dh_fixperms

@@ -4,7 +4,7 @@ include $(TOPDIR)/src/include/builddefs
 COMMAND = qmc_dynamic
 PROJECT = $(COMMAND).pro
 SOURCES = $(COMMAND).cpp
-TESTDIR = $(PCP_VAR_DIR)/../pcp-gui/testsuite/src/$(COMMAND)
+TESTDIR = $(subst pcp,pcp-gui,$(PCP_VAR_DIR))/testsuite/src/$(COMMAND)
 
 LSRCFILES = $(PROJECT) $(SOURCES)
 LDIRDIRT = build $(COMMAND).xcodeproj

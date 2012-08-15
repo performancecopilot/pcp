@@ -4,10 +4,7 @@ Version: @pkg_version@
 Release: @pkg_release@
 Distribution: @pkg_distribution@
 BuildRoot: @build_root@ 
-Provides: kmchart
-Obsoletes: kmchart
 Conflicts: pcp-pro
-Prereq: /sbin/ldconfig
 Source: @pkg_name@-@pkg_version@.src.tar.gz
 License: GPLv2
 Vendor: Silicon Graphics, Inc.
@@ -49,6 +46,20 @@ level performance management.  It includes tutorials, HOWTOs,
 and other detailed documentation about the internals of core
 PCP utilities and daemons, and the PCP graphical tools.
 
+#
+# pcp-testsuite
+#
+%package testsuite
+License: GPLv2
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) GUI test suite
+URL: http://oss.sgi.com/projects/pcp/
+
+Requires: pcp-gui = @pkg_version@ pcp-testsuite
+
+%description testsuite
+Quality assurance test suite for Performance Co-Pilot (PCP) GUI.
+
 %prep
 %setup -q
 @make@ configure-pcp-gui
@@ -67,24 +78,26 @@ DIST_MANIFEST=`pwd`/install.manifest
 export DIST_ROOT DIST_MANIFEST
 @make@ install-pcp-gui
 
-set +x
-DOCFILELIST=`ls -1 $BACKDIR/debian/pcp-doc.{install,dirs}`
-sed -e 's/^/\//' $DOCFILELIST >docs_files
-
 # Patterns for files to be marked %config(noreplace).
 cat >conf_files <<EOFEOF
 pmsnap/control
 pmsnap/crontab
 EOFEOF
 
-rm -f docs_files.rpm base_files.rpm
+# Files for the pcp-doc and pcp-gui-testsuite subpackages.
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp-doc' >docs_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'testsuite' >testsuite_files
+
+rm -f docs_files.rpm testsuite_files.rpm base_files.rpm
 sort -u $DIST_MANIFEST | awk '
 BEGIN {
     while( getline < "docs_files") doc[$0]=1;
+    while( getline < "testsuite_files") testsuite[$0]=1;
     while( getline < "conf_files") conf[nconf++]=$0;
 }
 {
     if (doc[$NF]) f="docs_files.rpm";
+    else if (testsuite[$NF]) f="testsuite_files.rpm";
     else f="base_files.rpm"
 }
 $1 == "d" { printf ("%%%%dir %%%%attr(%s,root,root) %s\n", $2, $5) >> f }
@@ -109,7 +122,13 @@ set -x
 %files -n pcp-doc -f docs_files.rpm
 %defattr(-,root,root)
 
+%files testsuite -f testsuite_files.rpm
+%defattr(-,root,root)
+
 %changelog
+* Thu Aug 16 2012 Nathan Scott <nathans@redhat.com>
+- Update to latest sources, creates a new testsuite package.
+
 * Wed Mar 21 2012 Mark Goodwin <mgoodwin@redhat.com>
 - Updates to fix pmchart archive positioning bug.
 

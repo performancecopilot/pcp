@@ -1,7 +1,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-TESTDIR = $(PCP_VAR_DIR)/../pcp-gui/testsuite/interact
+TESTDIR = $(subst pcp,pcp-gui,$(PCP_VAR_DIR))/testsuite/interact
 TESTCASES = $(shell echo *-testcases)
 LSRCFILES = $(TESTCASES)
 
