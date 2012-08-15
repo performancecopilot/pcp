@@ -8,11 +8,7 @@ include $(PCP_CONF)
 else
 include $(PCP_DIR)/etc/pcp.conf
 endif
-ifeq ($(shell [ -d /usr/gnu/bin ] && echo 0),0)
-PATH	= /usr/gun/bin:$(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
-else
 PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
-endif
 include $(PCP_INC_DIR)/builddefs
 
 SUBDIRS = src-oss pmdas
