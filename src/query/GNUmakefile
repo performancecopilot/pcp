@@ -42,10 +42,7 @@ pmconfirm.sh: pmconfirm.sh.IN
 
 install: default
 	$(INSTALL) -m 755 -d $(PKG_BIN_DIR)
-ifeq ($(WINDOW),x11)
-	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
-endif
-ifeq ($(WINDOW),win)
+ifneq ($(WINDOW),mac)
 	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
 endif
 	$(INSTALL) -m 755 pmconfirm.sh $(PKG_BIN_DIR)/pmconfirm

@@ -44,13 +44,9 @@ $(WRAPPER): $(WRAPPER).IN
 
 install: default
 	$(INSTALL) -m 755 -d $(PKG_BIN_DIR)
-ifeq ($(WINDOW),x11)
+ifneq ($(WINDOW),mac)
 	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
-endif
-ifeq ($(WINDOW),win)
-	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
-endif
-ifeq ($(WINDOW),mac)
+else
 	$(INSTALL) -m 755 $(WRAPPER) $(PKG_BIN_DIR)/$(COMMAND)
 	$(call INSTALL_DIRECTORY_HIERARCHY,$(PKG_MAC_DIR),/Library)
 	$(INSTALL) -m 644 $(XMLFILE) $(PKG_MAC_DIR)/Info.plist
