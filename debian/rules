@@ -48,7 +48,7 @@ binary-arch: checkroot built
 	-rm -rf $(dirgui) $(dirdoc)
 	$(pkggui) $(MAKE) -C . install
 	$(pkggui) $(MAKE) -C build pcp-gui.src
-	$(pkggui_testsuite) $(MAKE) -C qa install
+	$(pkgpcpgui_testsuite) $(MAKE) -C qa install
 
 	dh_installdocs
 	dh_installchangelogs
