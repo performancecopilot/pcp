@@ -1,3 +1,22 @@
+# common routine for preventing a test from running on some platforms
+# use: _notrun "Reason for not running this test is ..."
+# 
+_notrun()
+{
+    echo $@ >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+}
+
+# common routine for failing a test in a standard way
+# use: _fail "Reason for failing this test is ..."
+#
+_fail()
+{
+    echo FAIL: $@ 1>&2
+    status=1
+    exit $status
+}
 
 _check_metric()
 {

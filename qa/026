@@ -9,8 +9,10 @@ echo "QA output created by $seq"
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-multi=`./getpmcdhosts -p multi -n 1`
-single=`./getpmcdhosts -p single -n 1`
+[ -x $PCP_VAR_DIR/pcp/testsuite/getpmcdhosts ] || \
+	_notrun "Cannot find getpmcdhosts script from PCP QA"
+multi=`$PCP_VAR_DIR/pcp/testsuite/getpmcdhosts -p multi -n 1`
+single=`$PCP_VAR_DIR/pcp/testsuite/getpmcdhosts -p single -n 1`
 
 _filter()
 {
