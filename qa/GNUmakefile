@@ -60,7 +60,7 @@ SCRIPTS = mk.localconfig new check recheck remake mk.qa_hosts findmetric \
 COMMON = common common.check common.config common.filter common.install.cisco \
 	 common.pcpweb common.product common.rc common.setup
 
-OTHERS = group qa_hosts.master COPYING README \
+OTHERS = group qa_hosts.master README \
 	 pconf.tar cisco.tar valgrind-suppress
 
 DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || git ls-tree --name-only HEAD | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | tee qa_outfiles)
