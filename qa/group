@@ -17,31 +17,31 @@ dumptext
 
 # test-group association ... one line per test
 #
-001 config chart
-002 config chart
-003 config chart
-004 config chart
-005 config chart
-006 config chart
-007 config chart
-008 libqmc
-009 libqmc
-010 libqmc
-011 libqmc
-012 libqmc
-013 libqmc
-014 libqmc
-015 libqmc
-016 libqmc
-017 libqmc
-018 libqmc
-019 libqmc
-020 libqmc
-021 libqmc
-022 dumptext
-023 dumptext
-024 dumptext chart
-025 dumptext
+001 config chart local
+002 config chart local
+003 config chart local
+004 config chart local
+005 config chart local
+006 config chart local
+007 config chart local
+008 libqmc local
+009 libqmc local
+010 libqmc local
+011 libqmc local
+012 libqmc local
+013 libqmc local
+014 libqmc local
+015 libqmc local
+016 libqmc local
+017 libqmc local
+018 libqmc local
+019 libqmc local
+020 libqmc local
+021 libqmc local
+022 dumptext local
+023 dumptext local
+024 dumptext chart local
+025 dumptext local
 026 dumptext
-027 dumptext
-028 dumptext
+027 dumptext local
+028 dumptext local
