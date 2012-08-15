@@ -41,3 +41,4 @@ qa/src/qmc_indom/qmc_indom
 qa/src/qmc_metric/qmc_metric
 qa/src/qmc_source/qmc_source
 debug*.list
+pcp-gui-[0-9].[0-9].[0-9]
