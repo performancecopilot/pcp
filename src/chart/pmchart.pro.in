@@ -6,7 +6,7 @@ HEADERS		= console.h pmchart.h main.h \
 		  recorddialog.h samplesdialog.h saveviewdialog.h \
 		  searchdialog.h seealsodialog.h settingsdialog.h \
 		  tab.h tabdialog.h \
-		  chart.h colorbutton.h colorscheme.h curve.h \
+		  chart.h colorbutton.h colorscheme.h sampling.h \
 		  fileiconprovider.h namespace.h qcolorpicker.h \
 		  tabwidget.h timeaxis.h timebutton.h timecontrol.h \
 		  statusbar.h groupcontrol.h gadget.h
@@ -16,7 +16,7 @@ SOURCES		= console.cpp pmchart.cpp main.cpp \
 		  recorddialog.cpp samplesdialog.cpp saveviewdialog.cpp \
 		  searchdialog.cpp seealsodialog.cpp settingsdialog.cpp \
 		  tab.cpp tabdialog.cpp \
-		  chart.cpp colorbutton.cpp colorscheme.cpp curve.cpp \
+		  chart.cpp colorbutton.cpp colorscheme.cpp sampling.cpp \
 		  fileiconprovider.cpp namespace.cpp qcolorpicker.cpp \
 		  tabwidget.cpp timeaxis.cpp timebutton.cpp timecontrol.cpp \
 		  statusbar.cpp groupcontrol.cpp gadget.cpp \

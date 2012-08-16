@@ -15,7 +15,7 @@
  */
 #include <qmc_desc.h>
 #include "main.h"
-#include "curve.h"
+#include "sampling.h"
 #include "saveviewdialog.h"
 
 #include <QtCore/QPoint>
@@ -191,7 +191,7 @@ void Chart::preserveLiveData(int i, int oi)
 	    plot->plotData[i] = plot->data[i] = plot->data[oi];
 	}
 	else {
-	    plot->plotData[i] = plot->data[i] = Curve::NaN();
+	    plot->plotData[i] = plot->data[i] = SamplingCurve::NaN();
 	}
     }
 }
@@ -206,7 +206,7 @@ void Chart::punchoutLiveData(int i)
 	return;
     for (int m = 0; m < my.plots.size(); m++) {
 	Plot *plot = my.plots[m];
-	plot->data[i] = plot->plotData[i] = Curve::NaN();
+	plot->data[i] = plot->plotData[i] = SamplingCurve::NaN();
     }
 }
 
@@ -240,7 +240,7 @@ void Chart::updateValues(bool forward, bool visible)
 
 	double value;
 	if (plot->metric->error(0))
-	    value = Curve::NaN();
+	    value = SamplingCurve::NaN();
 	else {
 	    // convert raw value to current chart scale
 	    pmAtomValue	raw;
@@ -305,15 +305,16 @@ void Chart::updateValues(bool forward, bool visible)
 	for (m = 0; m < my.plots.size(); m++) {
 	    if (!forward)
 		idx = my.plots[m]->dataCount - 1;
-	    if (!Curve::isNaN(my.plots[m]->data[idx]))
+	    if (!SamplingCurve::isNaN(my.plots[m]->data[idx]))
 		sum += my.plots[m]->data[idx];
 	}
 	// scale all components
 	for (m = 0; m < my.plots.size(); m++) {
 	    if (!forward)
 		idx = my.plots[m]->dataCount - 1;
-	    if (sum == 0 || my.plots[m]->hidden || Curve::isNaN(my.plots[m]->data[idx]))
-		my.plots[m]->plotData[idx] = Curve::NaN();
+	    if (sum == 0 || my.plots[m]->hidden ||
+		SamplingCurve::isNaN(my.plots[m]->data[idx]))
+		my.plots[m]->plotData[idx] = SamplingCurve::NaN();
 	    else
 		my.plots[m]->plotData[idx] = 100 * my.plots[m]->data[idx] / sum;
 	}
@@ -322,7 +323,7 @@ void Chart::updateValues(bool forward, bool visible)
 	for (m = 0; m < my.plots.size(); m++) {
 	    if (!forward)
 		idx = my.plots[m]->dataCount - 1;
-	    if (!Curve::isNaN(my.plots[m]->plotData[idx])) {
+	    if (!SamplingCurve::isNaN(my.plots[m]->plotData[idx])) {
 		sum += my.plots[m]->plotData[idx];
 		my.plots[m]->plotData[idx] = sum;
 	    }
@@ -334,8 +335,8 @@ void Chart::updateValues(bool forward, bool visible)
 	for (m = 0; m < my.plots.size(); m++) {
 	    if (!forward)
 		idx = my.plots[0]->dataCount - 1;
-	    if (my.plots[m]->hidden || Curve::isNaN(my.plots[m]->data[idx])) {
-		my.plots[m]->plotData[idx] = Curve::NaN();
+	    if (my.plots[m]->hidden || SamplingCurve::isNaN(my.plots[m]->data[idx])) {
+		my.plots[m]->plotData[idx] = SamplingCurve::NaN();
 	    }
 	    else {
 		sum += my.plots[m]->data[idx];
@@ -550,12 +551,12 @@ void Chart::redoScale(void)
 	//
 	for (m = 0; m < my.plots.size(); m++) {
 	    for (int i = my.plots[m]->dataCount-1; i >= 0; i--) {
-		if (my.plots[m]->data[i] != Curve::NaN()) {
+		if (my.plots[m]->data[i] != SamplingCurve::NaN()) {
 		    old_av.d = my.plots[m]->data[i];
 		    pmConvScale(PM_TYPE_DOUBLE, &old_av, &oldunits, &new_av, &my.units);
 		    my.plots[m]->data[i] = new_av.d;
 		}
-		if (my.plots[m]->plotData[i] != Curve::NaN()) {
+		if (my.plots[m]->plotData[i] != SamplingCurve::NaN()) {
 		    old_av.d = my.plots[m]->plotData[i];
 		    pmConvScale(PM_TYPE_DOUBLE, &old_av, &oldunits, &new_av, &my.units);
 		    my.plots[m]->plotData[i] = new_av.d;
@@ -720,7 +721,7 @@ int Chart::addPlot(pmMetricSpec *pmsp, const char *legend)
     resetDataArrays(plot, my.tab->group()->sampleHistory());
 
     // create and attach the plot right here
-    plot->curve = new Curve(plot->label);
+    plot->curve = new SamplingCurve(plot->label);
     plot->curve->attach(this);
 
     // the 1000 is arbitrary ... just want numbers to be monotonic
@@ -1021,19 +1022,20 @@ void Chart::redoPlotData(void)
 	    for (i = 0; i < maxCount; i++) {
 		sum = 0.0;
 		for (m = 0; m < my.plots.size(); m++) {
-		    if (i < my.plots[m]->dataCount && !Curve::isNaN(my.plots[m]->data[i]))
+		    if (i < my.plots[m]->dataCount &&
+			!SamplingCurve::isNaN(my.plots[m]->data[i]))
 			sum += my.plots[m]->data[i];
 		}
 		for (m = 0; m < my.plots.size(); m++) {
 		    if (sum == 0.0 || i >= my.plots[m]->dataCount || my.plots[m]->hidden ||
-			Curve::isNaN(my.plots[0]->data[i]))
-			my.plots[m]->plotData[i] = Curve::NaN();
+			SamplingCurve::isNaN(my.plots[0]->data[i]))
+			my.plots[m]->plotData[i] = SamplingCurve::NaN();
 		    else
 			my.plots[m]->plotData[i] = 100 * my.plots[m]->data[i] / sum;
 		}
 		sum = 0.0;
 		for (m = 0; m < my.plots.size(); m++) {
-		    if (!Curve::isNaN(my.plots[m]->plotData[i])) {
+		    if (!SamplingCurve::isNaN(my.plots[m]->plotData[i])) {
 			sum += my.plots[m]->plotData[i];
 			my.plots[m]->plotData[i] = sum;
 		    }
@@ -1048,13 +1050,13 @@ void Chart::redoPlotData(void)
 	    for (i = 0; i < maxCount; i++) {
 		for (m = 0; m < my.plots.size(); m++) {
 		    if (i >= my.plots[m]->dataCount || my.plots[m]->hidden)
-			my.plots[m]->plotData[i] = Curve::NaN();
+			my.plots[m]->plotData[i] = SamplingCurve::NaN();
 		    else
 			my.plots[m]->plotData[i] = my.plots[m]->data[i];
 		}
 		sum = 0.0;
 		for (m = 0; m < my.plots.size(); m++) {
-		    if (!Curve::isNaN(my.plots[m]->plotData[i])) {
+		    if (!SamplingCurve::isNaN(my.plots[m]->plotData[i])) {
 			sum += my.plots[m]->plotData[i];
 			my.plots[m]->plotData[i] = sum;
 		    }

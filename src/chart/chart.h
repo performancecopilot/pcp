@@ -28,7 +28,7 @@
 #include "gadget.h"
 
 class Tab;
-class Curve;
+class SamplingCurve;
 class ValueScaleEngine;
 
 class Chart : public QwtPlot, public Gadget
@@ -119,7 +119,7 @@ private slots:
 private:
     typedef struct {
 	QmcMetric *metric;
-	Curve *curve;
+	SamplingCurve *curve;
 	QString name;
 	char *legend;	// from config
 	QString label;	// as appears in plot legend

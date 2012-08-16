@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012, Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -11,10 +12,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include "curve.h"
+#include "sampling.h"
 #include <limits>
 
-void Curve::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+void SamplingCurve::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap,
 		 int, int) const
 {
     unsigned int okFrom, okTo = 0;
@@ -31,12 +32,12 @@ void Curve::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     }
 }
 
-double Curve::NaN()
+double SamplingCurve::NaN()
 {
     return std::numeric_limits<double>::quiet_NaN();
 }
 
-bool Curve::isNaN(double v)
+bool SamplingCurve::isNaN(double v)
 {
     return v != v;
 }

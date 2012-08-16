@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012, Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -11,17 +12,17 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef CURVE_H
-#define CURVE_H
+#ifndef SAMPLING_H
+#define SAMPLING_H
 
 #include <QtCore/QVariant>
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 
-class Curve : public QwtPlotCurve
+class SamplingCurve : public QwtPlotCurve
 {
 public:
-    Curve(const QString &title) : QwtPlotCurve(title) { }
+    SamplingCurve(const QString &title) : QwtPlotCurve(title) { }
     virtual void draw(QPainter *p,
 		const QwtScaleMap &xMap, const QwtScaleMap &yMap,
 		int from, int to) const;
@@ -30,4 +31,4 @@ public:
     static bool isNaN(double v);
 };
 
-#endif	// CURVE_H
+#endif	// SAMPLING_H
