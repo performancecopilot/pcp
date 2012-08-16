@@ -111,7 +111,7 @@ DSOSUFFIX = so
 endif
 
 CFLAGS_ABI = @cflags_abi@
-CFLAGS += $(CFLAGS_ABI) $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -g -DPCP_DEBUG \
+CFLAGS += $(CFLAGS_ABI) $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -O2 -g -DPCP_DEBUG \
 	-DPCP_VERSION=\"$(PCP_VERSION)\" \
 	-I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp
 
