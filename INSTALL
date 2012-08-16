@@ -247,7 +247,6 @@ PCP internet resources, and the pmchart utility.
    To run build and run a version of PCP that is installed in a private
    location (and does not require root privileges)
 
-   $ autoconf
    $ ./configure --prefix=/some/path
 
    This will populate /some/path with a full PCP installation.  To use this 
