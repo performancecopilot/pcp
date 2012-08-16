@@ -175,13 +175,14 @@ def get_scalar_value (var, idx):
 def record (pm, config, duration, file):
     global me
 
+    # -f saves the metrics in a directory
     if os.path.exists(file):
-        print "Directory %s already exists\n" % file
+        print me + "playback directory %s already exists\n" % file
         sys.exit(1)
     os.mkdir (file)
     status = pm.pmRecordSetup (file + "/" + me + ".pcp", me, 0)
     check_code (status)
-    (status, rhp) = pm.pmRecordAddHost ("localhost", 1, configuration)
+    (status, rhp) = pm.pmRecordAddHost ("localhost", 1, config)
     check_code (status)
     status = pm.pmRecordControl (0, pmapi.PM_REC_SETARG, "-T" + str(duration) + "sec")
     check_code (status)
@@ -839,6 +840,7 @@ if __name__ == '__main__':
     input_file = ""
     duration = 0
     interval_arg = 1
+    duration_arg = 0
 
     ss = _subsys()
     cpu = _cpu()
@@ -871,12 +873,10 @@ if __name__ == '__main__':
             input_file = sys.argv[i]
         elif (sys.argv[i] == "-R" or sys.argv[i] == "--runtime"):
             i += 1
-            duration = sys.argv[i]
-            # Nwdhms
+            duration_arg = sys.argv[i]
         elif (sys.argv[i] == "-i" or sys.argv[i] == "--interval"):
             i += 1
             interval_arg = sys.argv[i]
-            # Nwdhms
         elif (sys.argv[i][:2] == "-c"):
             n_samples = int(sys.argv[i][2:])
         elif (sys.argv[i][:2] == "-s"):
@@ -906,8 +906,11 @@ if __name__ == '__main__':
     else:
         # -f saves the metrics in a directory, so get the archive basename
         lol = []
-        if not os.path.isdir(input_file):
-            print input_file,"is not a directory"
+        if not os.path.exists(input_file):
+            print input_file, "does not exist"
+            sys.exit(1)
+        if not os.path.isdir(input_file) or not os.path.exists(input_file + "/pm-collectl.pcp"):
+            print input_file, "is not a", me, "playback directory"
             sys.exit(1)
         for line in open(input_file + "/" + me + ".pcp"):
             lol.append(line[:-1].split())
@@ -917,15 +920,25 @@ if __name__ == '__main__':
     if (pm < 0):
         print "PCP is not running"
 
+    if duration_arg != 0:
+        (code, timeval, errmsg) = pm.pmParseInterval(duration_arg)
+        if code < 0:
+            print errmsg
+            sys.exit(1)
+        duration = timeval.tv_sec
+
     (code, delta, errmsg) = pm.pmParseInterval(str(interval_arg) + " seconds")
 
     if output_file != "":
-        # ??? fix every
-        configuration = "log mandatory on every 1 seconds { "
+        configuration = "log mandatory on every " + str(interval_arg) + " seconds { "
         for s in subsys:
             configuration += s.dump_metrics()
         configuration += "}"
-        duration = n_samples if n_samples != 0 else 10 * interval_arg
+        if duration == 0:
+            if n_samples != 0:
+                duration = n_samples * interval_arg
+            else:
+                duration = 10 * interval_arg
         record (pm, configuration, duration, output_file)
         sys.exit(0)
 
