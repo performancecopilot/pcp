@@ -65,9 +65,10 @@ __pmDecodeTextReq(__pmPDU *pdubuf, int *ident, int *type)
     *type = ntohl(pp->type);
     if ((*type) & PM_TEXT_PMID)
 	*ident = __ntohpmID(pp->ident);
-    else
-    if ((*type) & PM_TEXT_INDOM)
+    else if ((*type) & PM_TEXT_INDOM)
 	*ident = __ntohpmInDom(pp->ident);
+    else
+	*ident = PM_INDOM_NULL;
 
     return 0;
 }
