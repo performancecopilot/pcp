@@ -185,7 +185,7 @@ class Metric( object ):
 # a cache for metric cores
 #
 # a cache of MetricCores is kept to reduce calls into the PMAPI library
-# this also slighly reduces the memory footprint of Metric instances
+# this also slightly reduces the memory footprint of Metric instances
 # that share a common MetricCore
 # a cache of instance domain information is also kept, which further
 # reduces calls into the PMAPI and reduces the memory footprint of
@@ -324,8 +324,8 @@ class MetricResultHandle(Structure):
 # a MetricGroup is a dictionary of Metric objects, for which data can
 # be fetched from a target system using a single call to pmFetch
 # the Metric objects are indexed by the metric name
-# pmFetch fetches data for a list of pmIDs, so there is alsa shadow dictionary
-# keyed by pmID, along with a shadow list of pmIDs
+# pmFetch fetches data for a list of pmIDs, so there is also a shadow
+# dictionary keyed by pmID, along with a shadow list of pmIDs
 
 class MetricGroup( dict ):
 

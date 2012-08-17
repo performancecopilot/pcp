@@ -906,7 +906,7 @@ class pmContext( object ):
 
     def pmUnLoadNameSpace( self ):
         """PMAPI - Unloads a local PMNS, if one was previously loaded
-        status = pm.pmLoadNameSpace("NameSpace")
+        status = pm.pmUnLoadNameSpace("NameSpace")
         """
         # this method is context dependent and requires the pmapi lock
         pmContext._pmapiLock.acquire()
