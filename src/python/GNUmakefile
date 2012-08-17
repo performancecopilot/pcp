@@ -16,37 +16,25 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
-TOPDIR = ..
+TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
--include ./GNUlocaldefs
+prefix = @prefix@
 
-SUBDIRS = include \
-	  libpcp libpcp_pmda libpcp_trace libpcp_http libpcp_pmcd libpcp_gui \
-	  libpcp_mmv \
-	  pmconfig pmns newhelp pminfo pmcpp \
-	  libpcp_import \
-	  pmcd pmerr pmdbg \
-	  pmcdctl pmlogctl win32ctl \
-	  pmdate pmie pmieconf pmpost pmprobe pmlock pmval pmlogger \
-	  pmdumplog pmlogextract pmstore pmhostname pmgenmap \
-	  pmlogconf pmloglabel pmlogsummary pmclient pcp pmlc dbpmda \
-	  pmtrace pmstat pmsocks pmdas pmafm procmemstat pmimport \
-	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop python \
-	  autofsd-probe telnet-probe bashrc pmiestatus \
-	  pmevent pmlogrewrite
+PYFILES = pcpi.py pcp.py pm-collectl.py pmapi.c
 
-ifneq "$(TARGET_OS)" "mingw"
-SUBDIRS	+= cpan
-endif
 
-default :: default_pcp
+s-setup : $(PYFILES)
+	python setup.py build
+	touch s-setup
 
-default_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-
-install :: default_pcp install_pcp
-
-install_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+default: s-setup; @true
 
 include $(BUILDRULES)
+
+# add  --root %(prefix) when prefix is available
+install: 
+	python setup.py install --skip-build
+
+default_pcp:    default
+
+install_pcp:    install
