@@ -41,36 +41,15 @@ public:
 class SamplingScaleEngine : public QwtLinearScaleEngine
 {
 public:
-    SamplingScaleEngine() : QwtLinearScaleEngine()
-    {
-	my.autoScale = true;
-	my.minimum = -1;
-	my.maximum = -1;
-    }
+    SamplingScaleEngine();
 
     double minimum() const { return my.minimum; }
     double maximum() const { return my.maximum; }
     bool autoScale() const { return my.autoScale; }
     void setAutoScale(bool autoScale) { my.autoScale = autoScale; }
-    void setScale(bool autoScale, double minimum, double maximum)
-    {
-	my.autoScale = autoScale;
-	my.minimum = minimum;
-	my.maximum = maximum;
-    }
-
+    void setScale(bool autoScale, double minimum, double maximum);
     virtual void autoScale(int maxSteps, double &minValue,
-			   double &maxValue, double &stepSize) const
-    {
-	if (my.autoScale) {
-	    if (minValue > 0)
-		minValue = 0.0;
-	} else {
-	    minValue = my.minimum;
-	    maxValue = my.maximum;
-	}
-	QwtLinearScaleEngine::autoScale(maxSteps, minValue, maxValue, stepSize);
-    }
+			   double &maxValue, double &stepSize) const;
 
 private:
     struct {

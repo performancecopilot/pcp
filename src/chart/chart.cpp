@@ -16,6 +16,7 @@
  */
 #include <qmc_desc.h>
 #include "main.h"
+#include "tracing.h"
 #include "sampling.h"
 #include "saveviewdialog.h"
 

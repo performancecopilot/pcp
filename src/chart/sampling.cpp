@@ -41,3 +41,30 @@ bool SamplingCurve::isNaN(double v)
 {
     return v != v;
 }
+
+SamplingScaleEngine::SamplingScaleEngine() : QwtLinearScaleEngine()
+{
+    my.autoScale = true;
+    my.minimum = -1;
+    my.maximum = -1;
+}
+
+void SamplingScaleEngine::setScale(bool autoScale, double minimum, double maximum)
+{
+    my.autoScale = autoScale;
+    my.minimum = minimum;
+    my.maximum = maximum;
+}
+
+void SamplingScaleEngine::autoScale(int maxSteps, double &minValue,
+			   double &maxValue, double &stepSize) const
+{
+    if (my.autoScale) {
+	if (minValue > 0)
+	    minValue = 0.0;
+    } else {
+	minValue = my.minimum;
+	maxValue = my.maximum;
+    }
+    QwtLinearScaleEngine::autoScale(maxSteps, minValue, maxValue, stepSize);
+}
