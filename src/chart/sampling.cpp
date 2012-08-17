@@ -49,15 +49,16 @@ SamplingScaleEngine::SamplingScaleEngine() : QwtLinearScaleEngine()
     my.maximum = -1;
 }
 
-void SamplingScaleEngine::setScale(bool autoScale, double minimum, double maximum)
+void SamplingScaleEngine::setScale(bool autoScale,
+			double minValue, double maxValue)
 {
     my.autoScale = autoScale;
-    my.minimum = minimum;
-    my.maximum = maximum;
+    my.minimum = minValue;
+    my.maximum = maxValue;
 }
 
 void SamplingScaleEngine::autoScale(int maxSteps, double &minValue,
-			   double &maxValue, double &stepSize) const
+			double &maxValue, double &stepSize) const
 {
     if (my.autoScale) {
 	if (minValue > 0)

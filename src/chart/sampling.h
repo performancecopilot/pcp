@@ -47,7 +47,7 @@ public:
     double maximum() const { return my.maximum; }
     bool autoScale() const { return my.autoScale; }
     void setAutoScale(bool autoScale) { my.autoScale = autoScale; }
-    void setScale(bool autoScale, double minimum, double maximum);
+    void setScale(bool autoScale, double minValue, double maxValue);
     virtual void autoScale(int maxSteps, double &minValue,
 			   double &maxValue, double &stepSize) const;
 

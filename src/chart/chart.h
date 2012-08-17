@@ -30,6 +30,7 @@
 
 class Tab;
 class SamplingCurve;
+class TracingScaleEngine;
 class SamplingScaleEngine;
 
 class Chart : public QwtPlot, public Gadget
@@ -138,6 +139,8 @@ private:
     bool isStepped(Plot *plot);
     void setStroke(Plot *plot, Style style, QColor color);
     void redoPlotData(void);
+    void setScaleEngine(void);
+    bool autoScale(void);
     void redoScale(void);
     void setColor(Plot *plot, QColor c);
     void setLabel(Plot *plot, QString s);
@@ -148,16 +151,20 @@ private:
     struct {
 	Tab *tab;
 	QList<Plot*> plots;
-	char *title;
+	pmUnits units;
+
 	Style style;
+	char *title;
 	QString scheme;
 	int sequence;
-	pmUnits units;
+
 	bool eventType;
 	bool rateConvert;
 	bool antiAliasing;
+
 	QwtPlotPicker *picker;
-	SamplingScaleEngine *engine;
+	TracingScaleEngine *tracingScaleEngine;
+	SamplingScaleEngine *samplingScaleEngine;
     } my;
 };
 

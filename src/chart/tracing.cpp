@@ -19,8 +19,16 @@ TracingScaleEngine::TracingScaleEngine() : QwtLinearScaleEngine()
 {
 }
 
-void TracingScaleEngine::autoScale(int maxSteps, double &minValue,
-		double &maxValue, double &stepSize) const
+void TracingScaleEngine::setScale(bool autoScale,
+		double minValue, double maxValue)
+{
+    (void)autoScale;
+    (void)minValue;
+    (void)maxValue;
+}
+
+void TracingScaleEngine::autoScale(int maxSteps,
+		double &minValue, double &maxValue, double &stepSize) const
 {
     QwtLinearScaleEngine::autoScale(maxSteps, minValue, maxValue, stepSize);
 }

@@ -56,20 +56,22 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
     connect(this, SIGNAL(legendChecked(QwtPlotItem *, bool)),
 	    SLOT(showCurve(QwtPlotItem *, bool)));
 
-    // start with autoscale y axis
-    my.engine = new SamplingScaleEngine();
-    setAxisAutoScale(QwtPlot::yLeft);
-    setAxisScaleEngine(QwtPlot::yLeft, my.engine);
-    setAxisFont(QwtPlot::yLeft, *globalFont);
-
     my.tab = chartTab;
     my.title = NULL;
-    my.eventType = false;
     my.rateConvert = true;
     my.antiAliasing = true;
     my.style = NoStyle;
     my.scheme = QString::null;
     my.sequence = 0;
+
+    // start with autoscale y axis
+    my.eventType = false;
+    my.tracingScaleEngine = new TracingScaleEngine();
+    my.samplingScaleEngine = new SamplingScaleEngine();
+    setAxisFont(QwtPlot::yLeft, *globalFont);
+    setAxisAutoScale(QwtPlot::yLeft);
+    setScaleEngine();
+
     my.picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
 			QwtPicker::PointSelection | QwtPicker::DragSelection,
 			QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOff,
@@ -85,6 +87,14 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
     replot();
 
     console->post("Chart::ctor complete(%p)", this);
+}
+
+void Chart::setScaleEngine()
+{
+    if (my.eventType)
+	setAxisScaleEngine(QwtPlot::yLeft, my.tracingScaleEngine);
+    else
+	setAxisScaleEngine(QwtPlot::yLeft, my.samplingScaleEngine);
 }
 
 Chart::~Chart()
@@ -312,6 +322,13 @@ void Chart::updateValues(bool forward, bool visible)
     }
 }
 
+bool Chart::autoScale(void)
+{
+    if (my.eventType)
+	return false;
+    return my.samplingScaleEngine->autoScale();
+}
+
 void Chart::redoScale(void)
 {
     bool	rescale = false;
@@ -324,7 +341,7 @@ void Chart::redoScale(void)
     // the upper bound of the y-axis range (hBound()) drives the choice
     // of appropriate units scaling.
     //
-    if (my.engine->autoScale() &&
+    if (autoScale() &&
 	axisScaleDiv(QwtPlot::yLeft)->upperBound() > 1000) {
 	double scaled_max = axisScaleDiv(QwtPlot::yLeft)->upperBound();
 	if (my.units.dimSpace == 1) {
@@ -408,7 +425,7 @@ void Chart::redoScale(void)
 	}
     }
 
-    if (rescale == false && my.engine->autoScale() &&
+    if (rescale == false && autoScale() &&
 	axisScaleDiv(QwtPlot::yLeft)->upperBound() < 0.1) {
 	double scaled_max = axisScaleDiv(QwtPlot::yLeft)->upperBound();
 	if (my.units.dimSpace == 1) {
@@ -883,7 +900,7 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
 	    plot->curve->setStyle(QwtPlotCurve::Sticks);
 	    if (my.style == UtilisationStyle)
-		my.engine->setAutoScale(true);
+		my.samplingScaleEngine->setAutoScale(true);
 	    break;
 
 	case AreaStyle:
@@ -892,14 +909,14 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	    plot->curve->setStyle(isStepped(plot) ?
 				  QwtPlotCurve::Steps : QwtPlotCurve::Lines);
 	    if (my.style == UtilisationStyle)
-		my.engine->setAutoScale(true);
+		my.samplingScaleEngine->setAutoScale(true);
 	    break;
 
 	case UtilisationStyle:
 	    plot->curve->setPen(QColor(Qt::black));
 	    plot->curve->setStyle(QwtPlotCurve::Steps);
 	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
-	    my.engine->setScale(false, 0.0, 100.0);
+	    my.samplingScaleEngine->setScale(false, 0.0, 100.0);
 	    break;
 
 	case LineStyle:
@@ -908,7 +925,7 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	    plot->curve->setStyle(isStepped(plot) ?
 				  QwtPlotCurve::Steps : QwtPlotCurve::Lines);
 	    if (my.style == UtilisationStyle)
-		my.engine->setAutoScale(true);
+		my.samplingScaleEngine->setAutoScale(true);
 	    break;
 
 	case StackStyle:
@@ -916,7 +933,7 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
 	    plot->curve->setStyle(QwtPlotCurve::Steps);
 	    if (my.style == UtilisationStyle)
-		my.engine->setAutoScale(true);
+		my.samplingScaleEngine->setAutoScale(true);
 	    break;
 
 	case NoStyle:
@@ -1046,18 +1063,28 @@ void Chart::setLabel(int m, QString s)
 
 void Chart::scale(bool *autoScale, double *yMin, double *yMax)
 {
-    *autoScale = my.engine->autoScale();
-    *yMin = my.engine->minimum();
-    *yMax = my.engine->maximum();
+    if (my.eventType) {
+	*autoScale = false;
+	*yMin = 0.0;
+	*yMax = 1.0;
+    } else {
+	*autoScale = my.samplingScaleEngine->autoScale();
+	*yMin = my.samplingScaleEngine->minimum();
+	*yMax = my.samplingScaleEngine->maximum();
+    }
 }
 
 void Chart::setScale(bool autoScale, double yMin, double yMax)
 {
-    my.engine->setScale(autoScale, yMin, yMin);
-    if (autoScale)
-	setAxisAutoScale(QwtPlot::yLeft);
-    else
-	setAxisScale(QwtPlot::yLeft, yMin, yMax);
+    if (my.eventType) {
+	my.tracingScaleEngine->setScale(autoScale, yMin, yMin);
+    } else {
+	my.samplingScaleEngine->setScale(autoScale, yMin, yMin);
+	if (autoScale)
+	    setAxisAutoScale(QwtPlot::yLeft);
+	else
+	    setAxisScale(QwtPlot::yLeft, yMin, yMax);
+    }
     replot();
     redoScale();
 }

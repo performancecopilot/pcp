@@ -30,6 +30,7 @@ class TracingScaleEngine : public QwtLinearScaleEngine
 public:
     TracingScaleEngine();
 
+    void setScale(bool autoScale, double minValue, double maxValue);
     virtual void autoScale(int maxSteps, double &minValue,
                            double &maxValue, double &stepSize) const;
 };
