@@ -318,9 +318,8 @@ $1 == "f" {
 $1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
 
 %pre testsuite
-getent group pcpqa >/dev/null || groupadd -g 161 -r pcpqa 2>/dev/null || groupadd -r pcpqa
+getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
-  useradd -c "PCP Quality Assurance" -u 160 -g pcpqa -d %{_sharedstatedir}/pcp/testsuite -m -r -s /bin/bash pcpqa 2>/dev/null || \
   useradd -c "PCP Quality Assurance" -g pcpqa -d %{_sharedstatedir}/pcp/testsuite -m -r -s /bin/bash pcpqa 2>/dev/null
 exit 0
 
