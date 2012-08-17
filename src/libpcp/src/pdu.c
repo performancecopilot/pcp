@@ -97,7 +97,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
     int			status = 0;
     int			have = 0;
     int			size;
-    fd_set		onefd;
+    __pmFdSet		onefd;
 
     while (len) {
 	if (timeout == GETPDU_ASYNC) {
@@ -169,9 +169,9 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		}
 		else
 		    wait = def_wait;
-		FD_ZERO(&onefd);
-		FD_SET(fd, &onefd);
-		status = select(fd+1, &onefd, NULL, NULL, &wait);
+		__pmFD_ZERO(&onefd);
+		__pmFD_SET(fd, &onefd);
+		status = __pmSelectRead(fd+1, &onefd, &wait);
 		if (status == 0) {
 		    if (__pmGetInternalState() != PM_STATE_APPL) {
 			/* special for PMCD and friends 
