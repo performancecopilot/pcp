@@ -337,6 +337,7 @@ endif
 PERL_INSTALL_BASE=@perl_install_base@
 PERL_INSTALLDIRS=@perl_installdirs@
 PCP_MAN_DIR=@pcp_man_dir@
+PYTHON_PREFIX=@python_prefix@
 
 # MakeMaker INSTALL_BASE needs to be unset for proper vendor_perl paths to be used for --prefix=/usr;
 ifeq "$(PERL_INSTALL_BASE)" "/usr"

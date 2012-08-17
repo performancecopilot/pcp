@@ -1664,6 +1664,14 @@ perl_install_base=`eval echo $perl_install_base`
 perl_install_base=`eval echo $perl_install_base`
 AC_SUBST(perl_install_base)
 
+AC_ARG_WITH(python_prefix,[AC_HELP_STRING([--with-python_prefix],[python setup.py prefix [PREFIX]])],
+                      [python_prefix=$withval],
+                      [python_prefix=$prefix])
+python_prefix=`eval echo $python_prefix`
+python_prefix=`eval echo $python_prefix`
+AC_SUBST(python_prefix)
+
+
 AC_PATH_XTRA
 pcp_x11_incflags=$X_CFLAGS
 AC_SUBST(pcp_x11_incflags)

@@ -629,6 +629,7 @@ X_LIBS
 X_PRE_LIBS
 X_CFLAGS
 XMKMF
+python_prefix
 perl_install_base
 perl_installdirs
 pcp_lib32_dir
@@ -805,6 +806,7 @@ enable_pie
 with_configdir
 with_perl_installdirs
 with_perl_install_base
+with_python_prefix
 with_x
 with_rcdir
 with_sysconfigdir
@@ -1456,6 +1458,7 @@ Optional Packages:
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
                           perl install_base [PREFIX]
+  --with-python_prefix    python setup.py prefix [PREFIX]
   --with-x                use the X Window System
   --with-rcdir            rc directory [SYSCONFDIR/rc.d]
   --with-sysconfigdir     sysconfig directory [SYSCONFDIR/sysconfig]
@@ -9781,6 +9784,19 @@ fi
 
 perl_install_base=`eval echo $perl_install_base`
 perl_install_base=`eval echo $perl_install_base`
+
+
+
+# Check whether --with-python_prefix was given.
+if test "${with_python_prefix+set}" = set; then :
+  withval=$with_python_prefix; python_prefix=$withval
+else
+  python_prefix=$prefix
+fi
+
+python_prefix=`eval echo $python_prefix`
+python_prefix=`eval echo $python_prefix`
+
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for X" >&5

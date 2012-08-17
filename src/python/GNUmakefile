@@ -14,13 +14,19 @@
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
-prefix = @prefix@
+
+ifeq "$(PYTHON_PREFIX)" "/usr"
+SETUP_PY_INSTALL_OPTIONS=
+else
+SETUP_PY_INSTALL_OPTIONS=--prefix=$(PYTHON_PREFIX)
+endif
 
 CFILES = pmapi.c
 PYFILES = pcpi.py pcp.py pm-collectl.py setup.py
 LSRCFILES = $(PYFILES)
 
 s-setup : $(CFILES) $(PYFILES)
+	python setup.py build_ext --include-dirs=$(TOPDIR)/src/include --library-dirs=$(TOPDIR)/src/libpcp/src
 	python setup.py build
 	touch s-setup
 
@@ -28,9 +34,8 @@ default: s-setup; @true
 
 include $(BUILDRULES)
 
-# add  --root %(prefix) when prefix is available
 install_python: 
-	python setup.py install --skip-build
+	python setup.py install --skip-build $(SETUP_PY_INSTALL_OPTIONS)
 
 default_pcp:    default
 
