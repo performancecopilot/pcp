@@ -2,19 +2,24 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# NB: this GNUmakefile is only for use from within the PCP build tree.  It governs
-# only the packaging of the testsuite into the $PCP_VAR_DIR/testsuite directory.
-# The nearby GNUmakefile.install file actually governs execution of the testsuite.
+# NB: this file is renamed GNUmakefile upon installation into $PCP_VAR_DIR/testsuite.
+# It is only for executing the testsuite.
 
-TOPDIR = ..
-include $(TOPDIR)/src/include/builddefs
--include ./GNUlocaldefs
+ifdef PCP_CONF
+include $(PCP_CONF)
+else
+include $(PCP_DIR)/etc/pcp.conf
+endif
+PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
+include $(PCP_INC_DIR)/builddefs
 
+SUBDIRS = src-oss pmdas
 TESTDIR = $(PCP_VAR_DIR)/testsuite
+
 TESTS	= $(shell sed -n -e '/^[0-9]/s/[ 	].*//p' <group)
 
-default_pcp default:
-setup:
+default_pcp default setup: $(SUBDIRS) pconf cisco localconfig new remake check qa_hosts qa_outfiles $(OTHERS)
+	$(SUBDIRS_MAKERULE)
 
 LDIRT += 051.work 134.full.* \
          *.bak *.bad *.core *.full *.raw *.o core a.out core.* \
@@ -26,6 +31,25 @@ LDIRT += 051.work 134.full.* \
 LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
 	# from QA 441
 LDIRT += big1.*
+
+# 051 depends on this rule being here
+051.work/die.001: 051.setup
+	chmod u+x 051.setup
+	./051.setup
+
+qa_hosts:	qa_hosts.master mk.qa_hosts
+	PATH=$(PATH); ./mk.qa_hosts
+
+localconfig:
+	PATH=$(PATH); ./mk.localconfig
+
+pconf:	pconf.tar
+	tar xf pconf.tar
+	touch pconf
+
+cisco:	cisco.tar
+	tar xf cisco.tar
+	touch cisco
 
 SCRIPTS = mk.localconfig new check recheck remake mk.qa_hosts findmetric \
 	  getpmcdhosts group-stats mk.variant changeversion \
@@ -44,13 +68,12 @@ LSRCFILES = $(SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS) qa_outfiles
 qa_outfiles:
 	@echo $(DOTOUTFILES) > qa_outfiles
 
-install_pcp install: $(SUBDIRS)
-	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 755 $(TESTS) $(TESTDIR)
-	$(INSTALL) -m 755 $(SCRIPTS) $(TESTDIR)
-	$(INSTALL) -m 644 $(COMMON) $(OTHERS) $(TESTDIR)
-	$(INSTALL) -m 644 GNUmakefile.installed $(TESTDIR)/GNUmakefile
-	$(INSTALL) -m 644 qa_outfiles $(DOTOUTFILES) $(TESTDIR)
-	$(SUBDIRS_MAKERULE)
+install_pcp install: 
+	@echo The PCPQA testsuite is already installed.
+	false
 
 include $(BUILDRULES)
+
+# Local variables:
+# mode: makefile
+# End:
