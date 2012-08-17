@@ -58,16 +58,14 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
 
     my.tab = chartTab;
     my.title = NULL;
+    my.eventType = false;
     my.rateConvert = true;
     my.antiAliasing = true;
     my.style = NoStyle;
     my.scheme = QString::null;
     my.sequence = 0;
-
-    // start with autoscale y axis
-    my.eventType = false;
-    my.tracingScaleEngine = new TracingScaleEngine();
-    my.samplingScaleEngine = new SamplingScaleEngine();
+    my.tracingScaleEngine = NULL;
+    my.samplingScaleEngine = NULL;
     setAxisFont(QwtPlot::yLeft, *globalFont);
     setAxisAutoScale(QwtPlot::yLeft);
     setScaleEngine();
@@ -91,10 +89,15 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
 
 void Chart::setScaleEngine()
 {
-    if (my.eventType)
+    if (my.eventType && !my.tracingScaleEngine) {
+	my.tracingScaleEngine = new TracingScaleEngine();
 	setAxisScaleEngine(QwtPlot::yLeft, my.tracingScaleEngine);
-    else
+	my.samplingScaleEngine = NULL;	// deleted in setAxisScaleEngine
+    } else if (!my.eventType && !my.samplingScaleEngine) {
+	my.samplingScaleEngine = new SamplingScaleEngine();
 	setAxisScaleEngine(QwtPlot::yLeft, my.samplingScaleEngine);
+	my.tracingScaleEngine = NULL;	// deleted in setAxisScaleEngine
+    }
 }
 
 Chart::~Chart()
@@ -639,9 +642,11 @@ int Chart::addPlot(pmMetricSpec *pmsp, const char *legend)
     }
 
     if (my.plots.size() == 0) {
+	console->post("Chart::addPlot initial units %s", pmUnitsStr(&my.units));
 	my.units = desc.units;
 	my.eventType = (desc.type == PM_TYPE_EVENT);
-	console->post("Chart::addPlot initial units %s", pmUnitsStr(&my.units));
+	my.style = my.eventType ? EventStyle : my.style;
+	setScaleEngine();
     }
     else {
 	// error reporting handled in caller
@@ -1033,6 +1038,7 @@ void Chart::redoPlotData(void)
 	    }
 	    break;
 
+	case EventStyle:
 	case NoStyle:
 	    break;
     }

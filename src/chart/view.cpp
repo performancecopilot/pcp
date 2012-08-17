@@ -1207,6 +1207,7 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
     if (s != NULL)
 	fprintf(f, " title \"%s\"", s);
     switch (cp->style()) {
+	case Chart::EventStyle:
 	case Chart::NoStyle:
 	    s = "none - botched in Save!";
     	    break;

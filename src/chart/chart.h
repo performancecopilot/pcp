@@ -47,7 +47,8 @@ public:
 	BarStyle,
 	StackStyle,
 	AreaStyle,
-	UtilisationStyle
+	UtilisationStyle,
+	EventStyle
     } Style;
 
     virtual void setCurrent(bool);
