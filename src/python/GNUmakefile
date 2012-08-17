@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2000,2004,2012 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2012 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -11,19 +11,16 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 prefix = @prefix@
 
-PYFILES = pcpi.py pcp.py pm-collectl.py pmapi.c
+CFILES = pmapi.c
+PYFILES = pcpi.py pcp.py pm-collectl.py setup.py
+LSRCFILES = $(PYFILES)
 
-
-s-setup : $(PYFILES)
+s-setup : $(CFILES) $(PYFILES)
 	python setup.py build
 	touch s-setup
 
@@ -32,9 +29,9 @@ default: s-setup; @true
 include $(BUILDRULES)
 
 # add  --root %(prefix) when prefix is available
-install: 
+install_python: 
 	python setup.py install --skip-build
 
 default_pcp:    default
 
-install_pcp:    install
+install_pcp install:
