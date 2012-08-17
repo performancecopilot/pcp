@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2012 Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
@@ -30,61 +31,11 @@
 #include <qwt_double_rect.h>
 #include <qwt_legend.h>
 #include <qwt_legend_item.h>
-#include <qwt_scale_draw.h>
 #include <qwt_scale_widget.h>
-#include <qwt_scale_engine.h>
 #include <qwt_text.h>
 #include <qwt_text_label.h>
 
 #define DESPERATE 0
-
-//
-// *Always* clamp minimum metric value at zero when positive -
-// preventing confusion when values silently change up towards
-// the maximum over time (for pmchart, our users are expecting
-// a constant zero baseline at all times, or so we're told).
-//
-class ValueScaleEngine : public QwtLinearScaleEngine
-{
-public:
-    ValueScaleEngine() : QwtLinearScaleEngine()
-    {
-	my.autoScale = true;
-	my.minimum = -1;
-	my.maximum = -1;
-    }
-
-    double minimum() const { return my.minimum; }
-    double maximum() const { return my.maximum; }
-    bool autoScale() const { return my.autoScale; }
-    void setAutoScale(bool autoScale) { my.autoScale = autoScale; }
-    void setScale(bool autoScale, double minimum, double maximum)
-    {
-	my.autoScale = autoScale;
-	my.minimum = minimum;
-	my.maximum = maximum;
-    }
-
-    virtual void autoScale(int maxSteps, double &minValue,
-			   double &maxValue, double &stepSize) const
-    {
-	if (my.autoScale) {
-	    if (minValue > 0)
-		minValue = 0.0;
-	} else {
-	    minValue = my.minimum;
-	    maxValue = my.maximum;
-	}
-	QwtLinearScaleEngine::autoScale(maxSteps, minValue, maxValue, stepSize);
-    }
-
-private:
-    struct {
-	bool autoScale;
-	double minimum;
-	double maximum;
-    } my;
-};
 
 Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
 {
@@ -105,7 +56,7 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
 	    SLOT(showCurve(QwtPlotItem *, bool)));
 
     // start with autoscale y axis
-    my.engine = new ValueScaleEngine();
+    my.engine = new SamplingScaleEngine();
     setAxisAutoScale(QwtPlot::yLeft);
     setAxisScaleEngine(QwtPlot::yLeft, my.engine);
     setAxisFont(QwtPlot::yLeft, *globalFont);

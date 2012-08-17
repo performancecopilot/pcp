@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2012 Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
@@ -29,7 +30,7 @@
 
 class Tab;
 class SamplingCurve;
-class ValueScaleEngine;
+class SamplingScaleEngine;
 
 class Chart : public QwtPlot, public Gadget
 {
@@ -156,7 +157,7 @@ private:
 	bool rateConvert;
 	bool antiAliasing;
 	QwtPlotPicker *picker;
-	ValueScaleEngine *engine;
+	SamplingScaleEngine *engine;
     } my;
 };
 
