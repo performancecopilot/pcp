@@ -134,6 +134,10 @@ __pmCreateSocket(void)
 #ifdef HAVE_NSS
     PRFileDesc *nsprFd;
 
+    /* Make sure that NSPR has been initialized */
+    if (PR_Initialized() != PR_TRUE)
+        PR_Init(PR_USER_THREAD, PR_PRIORITY_NORMAL, 0);
+
     if ((nsprFd = PR_OpenTCPSocket(PR_AF_INET)) == NULL)
 	return -neterror();
 
