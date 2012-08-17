@@ -311,7 +311,7 @@ void GroupControl::adjustLiveWorldViewForward(PmTime::Packet *packet)
     }
     // One (per-gadget) recalculation & refresh at the end, after all data moved
     for (int j = 0; j < gadgetCount(); j++)
-	my.gadgetsList.at(j)->adjustedLiveData();
+	my.gadgetsList.at(j)->adjustValues();
     my.timeState = (packet->state == PmTime::StoppedState) ?
 			StandbyState : ForwardState;
 
@@ -519,7 +519,7 @@ void GroupControl::setSampleHistory(int v)
 	my.samples = v;
 	for (int i = 0; i < gadgetCount(); i++)
 	    for (int m = 0; m < my.gadgetsList.at(i)->metricCount(); m++)
-		my.gadgetsList.at(i)->resetDataArrays(m, my.samples);
+		my.gadgetsList.at(i)->resetValues(m, my.samples);
 	my.timeData = (double *)malloc(my.samples * sizeof(my.timeData[0]));
 	if (my.timeData == NULL)
 	    nomem();

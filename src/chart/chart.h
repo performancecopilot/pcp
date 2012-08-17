@@ -87,10 +87,11 @@ public:
 
     virtual void updateTimeAxis(double, double, double);
     virtual void updateValues(bool, bool);
-    virtual void resetDataArrays(int m, int v);
+    virtual void resetValues(int m, int v);
+    virtual void adjustValues();
+
     virtual void preserveLiveData(int, int);
     virtual void punchoutLiveData(int);
-    virtual void adjustedLiveData();
 
     virtual int metricCount() const;
     virtual QString name(int) const;
@@ -106,12 +107,12 @@ public:
 
     void setupTree(QTreeWidget *);
     void addToTree(QTreeWidget *, QString, const QmcContext *,
-			  bool, QColor&, QString&);
+			  bool, QColor, QString);
 
     static QColor schemeColor(QString, int *);
 
 public slots:
-    void replot();
+    void replot(void);
 
 private slots:
     void selected(const QwtDoublePoint &);
@@ -144,7 +145,7 @@ private:
     void redoScale(void);
     void setColor(Plot *plot, QColor c);
     void setLabel(Plot *plot, QString s);
-    void resetDataArrays(Plot *plot, int v);
+    void resetValues(Plot *plot, int v);
     bool checkCompatibleUnits(pmUnits *);
     bool checkCompatibleTypes(int);
 

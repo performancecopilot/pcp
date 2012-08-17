@@ -172,7 +172,7 @@ void Chart::punchoutLiveData(int i)
     }
 }
 
-void Chart::adjustedLiveData()
+void Chart::adjustValues()
 {
     redoPlotData();
     replot();
@@ -583,7 +583,7 @@ void Chart::showCurve(QwtPlotItem *item, bool on)
     replot();
 }
 
-void Chart::resetDataArrays(Plot *plot, int v)
+void Chart::resetValues(Plot *plot, int v)
 {
     size_t size;
 
@@ -598,10 +598,10 @@ void Chart::resetDataArrays(Plot *plot, int v)
 	plot->dataCount = v;
 }
 
-void Chart::resetDataArrays(int m, int v)
+void Chart::resetValues(int m, int v)
 {
     // Reset sizes of pcp data array, the plot data array, and the time array
-    resetDataArrays(my.plots[m], v);
+    resetValues(my.plots[m], v);
 }
 
 // add a new plot
@@ -687,7 +687,7 @@ int Chart::addPlot(pmMetricSpec *pmsp, const char *legend)
     plot->dataCount = 0;
     plot->data = NULL;
     plot->plotData = NULL;
-    resetDataArrays(plot, my.tab->group()->sampleHistory());
+    resetValues(plot, my.tab->group()->sampleHistory());
 
     // create and attach the plot right here
     plot->curve = new SamplingCurve(plot->label);
@@ -1269,7 +1269,7 @@ void Chart::setupTree(QTreeWidget *tree)
 }
 
 void Chart::addToTree(QTreeWidget *treeview, QString metric,
-	const QmcContext *context, bool isInst, QColor &color, QString &label)
+	const QmcContext *context, bool isInst, QColor color, QString label)
 {
     QRegExp regexInstance("\\[(.*)\\]$");
     QRegExp regexNameNode(tr("\\."));
