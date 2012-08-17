@@ -100,8 +100,8 @@ fdTableIndex(int fd)
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (fd >= fdTableSize)
-        return -1;
-    if (fdTable[fd] == NULL)
+        fd = -1;
+    else if (fdTable[fd] == NULL)
         fd = -1;
     PM_UNLOCK(__pmLock_libpcp);
     return fd;
@@ -899,9 +899,11 @@ nsprSelect(int rwflag, __pmFdSet *fds, struct timeval *timeout)
 
     /* Convert the result back to the native format. */
     FD_ZERO(&fds->indexedSet);
-    for (fd = 0; fd < maxIndexed; ++fd) {
-      if ((pollfds[fd].out_flags & rwflag) != 0)
-	FD_SET(fd, &fds->indexedSet);
+    if (indexedReady != 0) {
+        for (fd = 0; fd < maxIndexed; ++fd) {
+	    if ((pollfds[fd].out_flags & rwflag) != 0)
+	        FD_SET(fd, &fds->indexedSet);
+	}
     }
     free(pollfds);
 
