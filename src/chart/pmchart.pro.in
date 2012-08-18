@@ -6,20 +6,20 @@ HEADERS		= console.h pmchart.h main.h \
 		  recorddialog.h samplesdialog.h saveviewdialog.h \
 		  searchdialog.h seealsodialog.h settingsdialog.h \
 		  tab.h tabdialog.h \
-		  chart.h colorbutton.h colorscheme.h curve.h \
+		  chart.h colorbutton.h colorscheme.h statusbar.h \
 		  fileiconprovider.h namespace.h qcolorpicker.h \
 		  tabwidget.h timeaxis.h timebutton.h timecontrol.h \
-		  statusbar.h groupcontrol.h gadget.h
+		  groupcontrol.h gadget.h sampling.h tracing.h
 SOURCES		= console.cpp pmchart.cpp main.cpp \
 		  aboutdialog.cpp chartdialog.cpp exportdialog.cpp \
 		  hostdialog.cpp infodialog.cpp openviewdialog.cpp \
 		  recorddialog.cpp samplesdialog.cpp saveviewdialog.cpp \
 		  searchdialog.cpp seealsodialog.cpp settingsdialog.cpp \
 		  tab.cpp tabdialog.cpp \
-		  chart.cpp colorbutton.cpp colorscheme.cpp curve.cpp \
+		  chart.cpp colorbutton.cpp colorscheme.cpp statusbar.cpp \
 		  fileiconprovider.cpp namespace.cpp qcolorpicker.cpp \
 		  tabwidget.cpp timeaxis.cpp timebutton.cpp timecontrol.cpp \
-		  statusbar.cpp groupcontrol.cpp gadget.cpp \
+		  groupcontrol.cpp gadget.cpp sampling.cpp tracing.cpp \
 		  view.cpp
 FORMS		= aboutdialog.ui chartdialog.ui console.ui exportdialog.ui \
 		  hostdialog.ui infodialog.ui pmchart.ui openviewdialog.ui \

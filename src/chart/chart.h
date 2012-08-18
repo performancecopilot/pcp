@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2012 Nathan Scott.  All Rights Reserved.
+ * Copyright (c) 2012, Red Hat.
+ * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * 
@@ -28,9 +29,15 @@
 #include "gadget.h"
 
 class Tab;
-class Curve;
-class ValueScaleEngine;
+class ChartItem;
+class TracingItem;
+class SamplingItem;
+class TracingScaleEngine;
+class SamplingScaleEngine;
 
+//
+// Centre of the pmchart universe
+//
 class Chart : public QwtPlot, public Gadget
 {
     Q_OBJECT
@@ -45,17 +52,19 @@ public:
 	BarStyle,
 	StackStyle,
 	AreaStyle,
-	UtilisationStyle
+	UtilisationStyle,
+	EventStyle
     } Style;
 
     virtual void setCurrent(bool);
     virtual QString scheme() const;	// return chart color scheme
     virtual void setScheme(QString);	// set the chart color scheme
 
-    int addPlot(pmMetricSpec *, const char *);
-    void delPlot(int);
-    bool activePlot(int);
-    void revivePlot(int m);
+    int addItem(pmMetricSpec *, const char *);
+    bool activeItem(int);
+    void removeItem(int);
+    void reviveItem(int);
+
     char *title(void);			// return chart title
     void changeTitle(char *, int);	// NULL to clear
     void changeTitle(QString, int);
@@ -85,10 +94,11 @@ public:
 
     virtual void updateTimeAxis(double, double, double);
     virtual void updateValues(bool, bool);
-    virtual void resetDataArrays(int m, int v);
+    virtual void resetValues(int m, int v);
+    virtual void adjustValues();
+
     virtual void preserveLiveData(int, int);
     virtual void punchoutLiveData(int);
-    virtual void adjustedLiveData();
 
     virtual int metricCount() const;
     virtual QString name(int) const;
@@ -104,59 +114,104 @@ public:
 
     void setupTree(QTreeWidget *);
     void addToTree(QTreeWidget *, QString, const QmcContext *,
-			  bool, QColor&, QString&);
+			  bool, QColor, QString);
 
     static QColor schemeColor(QString, int *);
 
 public slots:
-    void replot();
+    void replot(void);
 
 private slots:
     void selected(const QwtDoublePoint &);
     void moved(const QwtDoublePoint &);
-    void showCurve(QwtPlotItem *, bool);
+    void showItem(QwtPlotItem *, bool);
 
 private:
-    typedef struct {
-	QmcMetric *metric;
-	Curve *curve;
-	QString name;
-	char *legend;	// from config
-	QString label;	// as appears in plot legend
-	QColor color;
-	double scale;
-	double *data;
-	double *plotData;
-	int dataCount;
-	pmUnits units;
-	bool eventType;
-	bool removed;
-	bool hidden;	// true if hidden through legend push button
-    } Plot;
-
-    bool isStepped(Plot *plot);
-    void setStroke(Plot *plot, Style style, QColor color);
-    void redoPlotData(void);
-    void redoScale(void);
-    void setColor(Plot *plot, QColor c);
-    void setLabel(Plot *plot, QString s);
-    void resetDataArrays(Plot *plot, int v);
     bool checkCompatibleUnits(pmUnits *);
     bool checkCompatibleTypes(int);
 
+    void redoScale(void);
+    bool autoScale(void);
+    void setScaleEngine(void);
+    void setStroke(ChartItem *, Style, QColor);
+
+    void redoChartItems(void);
+    TracingItem *tracingItem(int);
+    SamplingItem *samplingItem(int);
+
     struct {
 	Tab *tab;
-	QList<Plot*> plots;
+	QList<ChartItem *> items;
+	pmUnits units;
+
 	char *title;
 	Style style;
 	QString scheme;
 	int sequence;
-	pmUnits units;
+
 	bool eventType;
 	bool rateConvert;
 	bool antiAliasing;
+
 	QwtPlotPicker *picker;
-	ValueScaleEngine *engine;
+	TracingScaleEngine *tracingScaleEngine;
+	SamplingScaleEngine *samplingScaleEngine;
+    } my;
+};
+
+//
+// Container for an individual plot item within a chart,
+// which is always backed by a single metric.
+//
+class ChartItem
+{
+public:
+    ChartItem(QmcMetric *, pmMetricSpec *, pmDesc *, const char *);
+    virtual ~ChartItem(void) { }
+
+    virtual QwtPlotItem *item(void) = 0;
+    virtual void preserveLiveData(int, int) = 0;
+    virtual void punchoutLiveData(int) = 0;
+    virtual void resetValues(int) = 0;
+    virtual void updateValues(bool, bool, int, pmUnits *) = 0;
+    virtual void rescaleValues(pmUnits *) = 0;
+    virtual void setStroke(Chart::Style, QColor, bool) = 0;
+    virtual void replot(int, double *) = 0;
+    virtual void revive(Chart *parent) = 0;
+    virtual void remove(void) = 0;
+
+    QString name(void) const { return my.name; }
+    QString label(void) const { return my.label; }
+    char *legendSpec(void) const { return my.legend; }
+    QString metricName(void) const { return my.metric->name(); }
+    QString metricInstance(void) const
+        { return my.metric->numInst() > 0 ? my.metric->instName(0) : QString::null; }
+    bool metricHasInstances(void) const { return my.metric->hasInstances(); }
+    QmcDesc *metricDesc(void) const { return (QmcDesc *)&my.metric->desc(); }
+    QmcContext *metricContext(void) const { return my.metric->context(); }
+    QmcMetric *metric(void) const { return my.metric; }
+    QColor color(void) const { return my.color; }
+
+    void setColor(QColor color) { my.color = color; }
+    void setLabel(QString label) { my.label = label; }
+
+    bool hidden(void) { return my.hidden; }
+    void setHidden(bool hidden) { my.hidden = hidden; }
+    bool removed(void) { return my.removed; }
+    void setRemoved(bool removed) { my.removed = removed; }
+
+protected:
+    struct {
+	QmcMetric *metric;
+	pmUnits units;
+
+	QString name;
+	char *legend;	// from config
+	QString label;	// as appears in plot legend
+	QColor color;
+
+	bool removed;
+	bool hidden;	// true if hidden through legend push button
     } my;
 };
 

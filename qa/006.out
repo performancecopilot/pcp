@@ -31,17 +31,15 @@ exit=0
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Chart::setCurrent(<addr>) true
 <timestamp>: Tab::addChart: [0]->Chart <addr>
-<timestamp>: Chart::addPlot src=<host>
-<timestamp>: addPlot metric=sample.seconds
-<timestamp>: Chart::addPlot initial units 
-<timestamp>: addPlot plot=<addr> nplots=1
-<timestamp>: Chart::setStroke [style 1->1]
-<timestamp>: Chart::addPlot src=<host>
-<timestamp>: addPlot metric=sample.milliseconds
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.seconds
+<timestamp>: Chart::addItem initial units 
+<timestamp>: addItem <addr> nitems=1
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.milliseconds
 <timestamp>: Chart::check units plot units 
 <timestamp>: Chart::check plot event type DOUBLE
-<timestamp>: addPlot plot=<addr> nplots=2
-<timestamp>: Chart::setStroke [style 1->1]
+<timestamp>: addItem <addr> nitems=2
 --- post ---
 === views/006-02 ===
 #kmchart
@@ -75,19 +73,16 @@ exit=0
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Chart::setCurrent(<addr>) true
 <timestamp>: Tab::addChart: [0]->Chart <addr>
-<timestamp>: Chart::addPlot src=<host>
-<timestamp>: addPlot metric=sample.seconds
-<timestamp>: Chart::addPlot initial units 
-<timestamp>: addPlot plot=<addr> nplots=1
-<timestamp>: Chart::setStroke [style 1->1]
-<timestamp>: Chart::addPlot src=<host>
-<timestamp>: addPlot metric=sample.control
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.seconds
+<timestamp>: Chart::addItem initial units 
+<timestamp>: addItem <addr> nitems=1
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.control
 <timestamp>: Chart::check units plot units 
 <timestamp>: Chart::check plot event type 32
-<timestamp>: addPlot plot=<addr> nplots=2
-<timestamp>: Chart::setStroke [style 1->1]
+<timestamp>: addItem <addr> nitems=2
 --- post ---
-pmtime: cannot write port for client: Broken pipe
 === views/006-03 ===
 #kmchart
 version 1
@@ -120,16 +115,14 @@ exit=0
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Chart::setCurrent(<addr>) true
 <timestamp>: Tab::addChart: [0]->Chart <addr>
-<timestamp>: Chart::addPlot src=<host>
-<timestamp>: addPlot metric=sample.seconds
-<timestamp>: Chart::addPlot initial units 
-<timestamp>: addPlot plot=<addr> nplots=1
-<timestamp>: Chart::setStroke [style 1->1]
-<timestamp>: Chart::addPlot src=<host>
-<timestamp>: addPlot metric=sample.step_counter
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.seconds
+<timestamp>: Chart::addItem initial units 
+<timestamp>: addItem <addr> nitems=1
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.step_counter
 <timestamp>: Chart::check units plot units count / sec
 --- post ---
-pmtime: cannot write port for client: Broken pipe
 Error: views/006-03[6] 
 Failed to plot metric "sample.step_counter" for
 host <host>:
@@ -177,64 +170,55 @@ exit=0
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Chart::setCurrent(<addr>) true
 <timestamp>: Tab::addChart: [0]->Chart <addr>
-<timestamp>: Chart::addPlot src=<host>
-<timestamp>: addPlot metric=sample.byte_rate
-<timestamp>: Chart::addPlot initial units byte / sec
-<timestamp>: addPlot plot=<addr> nplots=1
-<timestamp>: Chart::setStroke [style 1->1]
-<timestamp>: Chart::addPlot src=<host>
-<timestamp>: addPlot metric=sample.byte_ctr
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.byte_rate
+<timestamp>: Chart::addItem initial units byte / sec
+<timestamp>: addItem <addr> nitems=1
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.byte_ctr
 <timestamp>: Chart::check units plot units byte / sec
 <timestamp>: Chart::check plot event type 32
-<timestamp>: addPlot plot=<addr> nplots=2
-<timestamp>: Chart::setStroke [style 1->1]
+<timestamp>: addItem <addr> nitems=2
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: upateHeight() oldsize h=270,w=370 maximum=1030 proposed=350
 <timestamp>: Tab::addChart: [0]->Chart <addr>
-<timestamp>: Chart::addPlot src=<host>
-<timestamp>: addPlot metric=sample.byte_ctr
-<timestamp>: Chart::addPlot initial units byte / sec
-<timestamp>: addPlot plot=<addr> nplots=1
-<timestamp>: Chart::setStroke [style 1->1]
-<timestamp>: Chart::addPlot src=<host>
-<timestamp>: addPlot metric=sample.byte_rate
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.byte_ctr
+<timestamp>: Chart::addItem initial units byte / sec
+<timestamp>: addItem <addr> nitems=1
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.byte_rate
 <timestamp>: Chart::check units plot units byte / sec
 <timestamp>: Chart::check plot event type 32
-<timestamp>: addPlot plot=<addr> nplots=2
-<timestamp>: Chart::setStroke [style 1->1]
+<timestamp>: addItem <addr> nitems=2
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: upateHeight() oldsize h=350,w=370 maximum=1030 proposed=430
 <timestamp>: Tab::addChart: [0]->Chart <addr>
-<timestamp>: Chart::addPlot src=<host>
-<timestamp>: addPlot instance sample.mirage[m-00]
-<timestamp>: Chart::addPlot initial units Kbyte / sec
-<timestamp>: addPlot plot=<addr> nplots=1
-<timestamp>: Chart::setStroke [style 1->1]
-<timestamp>: Chart::addPlot src=<host>
-<timestamp>: addPlot instance sample.mirage_longlong[m-00]
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem instance sample.mirage[m-00]
+<timestamp>: Chart::addItem initial units Kbyte / sec
+<timestamp>: addItem <addr> nitems=1
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem instance sample.mirage_longlong[m-00]
 <timestamp>: Chart::check units plot units byte / millisec
 <timestamp>: Chart::check plot event type 64
-<timestamp>: addPlot plot=<addr> nplots=2
-<timestamp>: Chart::setStroke [style 1->1]
+<timestamp>: addItem <addr> nitems=2
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: upateHeight() oldsize h=430,w=370 maximum=1030 proposed=510
 <timestamp>: Tab::addChart: [0]->Chart <addr>
-<timestamp>: Chart::addPlot src=<host>
-<timestamp>: addPlot metric=sample.write_me
-<timestamp>: Chart::addPlot initial units count / sec
-<timestamp>: addPlot plot=<addr> nplots=1
-<timestamp>: Chart::setStroke [style 1->1]
-<timestamp>: Chart::addPlot src=<host>
-<timestamp>: addPlot metric=sample.pdu
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.write_me
+<timestamp>: Chart::addItem initial units count / sec
+<timestamp>: addItem <addr> nitems=1
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.pdu
 <timestamp>: Chart::check units plot units count / sec
 <timestamp>: Chart::check plot event type U64
-<timestamp>: addPlot plot=<addr> nplots=2
-<timestamp>: Chart::setStroke [style 1->1]
+<timestamp>: addItem <addr> nitems=2
 --- post ---
-pmtime: cannot write port for client: Broken pipe
 === views/006-05 ===
 #kmchart
 version 1
@@ -268,16 +252,14 @@ exit=0
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Chart::setCurrent(<addr>) true
 <timestamp>: Tab::addChart: [0]->Chart <addr>
-<timestamp>: Chart::addPlot src=<host>
-<timestamp>: addPlot instance sample.mirage_longlong[m-00]
-<timestamp>: Chart::addPlot initial units byte / millisec
-<timestamp>: addPlot plot=<addr> nplots=1
-<timestamp>: Chart::setStroke [style 1->1]
-<timestamp>: Chart::addPlot src=<host>
-<timestamp>: addPlot metric=sample.write_me
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem instance sample.mirage_longlong[m-00]
+<timestamp>: Chart::addItem initial units byte / millisec
+<timestamp>: addItem <addr> nitems=1
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.write_me
 <timestamp>: Chart::check units plot units count / sec
 --- post ---
-pmtime: cannot write port for client: Broken pipe
 Error: views/006-05[7] 
 Failed to plot metric "sample.write_me" for
 host <host>:

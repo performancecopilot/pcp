@@ -33,10 +33,10 @@ public:
     virtual void updateTimeAxis(double, double, double) { }
     virtual void updateValues(bool, bool) { }
 
-    virtual void resetDataArrays(int, int) { }
+    virtual void resetValues(int, int) { }
+    virtual void adjustValues() { }
     virtual void preserveLiveData(int, int) { }
     virtual void punchoutLiveData(int) { }
-    virtual void adjustedLiveData() { }
 
     virtual void showWidget() { return my.widget->show(); }
     virtual int width() const { return my.widget->width(); }

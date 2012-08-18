@@ -17,7 +17,7 @@ LSRCFILES = $(COMMONS) $(SCRIPTS) \
 
 LDIRT = check.log check.time pmlogger.log *.out.bad *.full
 
-default: $(SUBDIRS)
+default setup: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 install: $(SUBDIRS)

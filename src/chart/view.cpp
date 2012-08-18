@@ -1070,11 +1070,11 @@ try_plot:
 		    strcat(tmp, pms.inst[0]);
 		    w +=2;
 		    strcat(tmp, w);
-		    m = cp->addPlot(&pms, tmp);
+		    m = cp->addItem(&pms, tmp);
 		    free(tmp);
 		}
 		else
-		    m = cp->addPlot(&pms, legend);
+		    m = cp->addItem(&pms, legend);
 		if (m < 0) {
 		    if (!optional) {
 			QString	msg;
@@ -1207,6 +1207,7 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
     if (s != NULL)
 	fprintf(f, " title \"%s\"", s);
     switch (cp->style()) {
+	case Chart::EventStyle:
 	case Chart::NoStyle:
 	    s = "none - botched in Save!";
     	    break;
@@ -1240,7 +1241,7 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
     for (int m = 0; m < cp->metricCount(); m++) {
 	char	*p, *q, *qend;
 
-	if (cp->activePlot(m) == false)
+	if (cp->activeItem(m) == false)
 	    continue;
 	fprintf(f, "\tplot");
 	p = cp->legendSpec(m);
