@@ -789,7 +789,7 @@ void ChartDialog::changeChartPlot(Chart *cp, NameSpace *name, int m)
     Chart::Style style = (Chart::Style)(typeComboBox->currentIndex() + 1);
     cp->setStroke(m, style, name->currentColor());
     cp->setLabel(m, name->label());
-    cp->revivePlot(m);
+    cp->reviveItem(m);
 }
 
 void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
@@ -817,7 +817,7 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
 	pms.inst[0] = NULL;
     }
     cp->setStyle(style);
-    int m = cp->addPlot(&pms, nlabel);
+    int m = cp->addItem(&pms, nlabel);
     if (m < 0) {
 	QString	msg;
 	if (pms.inst[0] != NULL)
@@ -849,7 +849,7 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
 
 void ChartDialog::deleteChartPlot(Chart *cp, int m)
 {
-    cp->delPlot(m);
+    cp->removeItem(m);
 }
 
 void ChartDialog::setCurrentScheme(QString scheme)

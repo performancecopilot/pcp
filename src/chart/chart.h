@@ -33,6 +33,38 @@ class SamplingCurve;
 class TracingScaleEngine;
 class SamplingScaleEngine;
 
+//
+// Container for an individual plot item within a chart,
+// which is always backed by a single metric.
+//
+class ChartItem {
+public:
+    ChartItem() { }
+    virtual ~ChartItem(void) { }
+
+    struct {
+	QmcMetric *metric;
+	pmUnits units;
+
+	QString name;
+	char *legend;	// from config
+	QString label;	// as appears in plot legend
+	QColor color;
+
+	SamplingCurve *curve;
+	double scale;
+	double *data;
+	double *itemData;
+	int dataCount;
+
+	bool removed;
+	bool hidden;	// true if hidden through legend push button
+    } my;
+};
+
+//
+// Centre of the pmchart universe
+//
 class Chart : public QwtPlot, public Gadget
 {
     Q_OBJECT
@@ -55,10 +87,11 @@ public:
     virtual QString scheme() const;	// return chart color scheme
     virtual void setScheme(QString);	// set the chart color scheme
 
-    int addPlot(pmMetricSpec *, const char *);
-    void delPlot(int);
-    bool activePlot(int);
-    void revivePlot(int m);
+    int addItem(pmMetricSpec *, const char *);
+    bool activeItem(int);
+    void removeItem(int);
+    void reviveItem(int m);
+
     char *title(void);			// return chart title
     void changeTitle(char *, int);	// NULL to clear
     void changeTitle(QString, int);
@@ -118,45 +151,28 @@ public slots:
 private slots:
     void selected(const QwtDoublePoint &);
     void moved(const QwtDoublePoint &);
-    void showCurve(QwtPlotItem *, bool);
+    void showItem(QwtPlotItem *, bool);
 
 private:
-    typedef struct {
-	QmcMetric *metric;
-	SamplingCurve *curve;
-	QString name;
-	char *legend;	// from config
-	QString label;	// as appears in plot legend
-	QColor color;
-	double scale;
-	double *data;
-	double *plotData;
-	int dataCount;
-	pmUnits units;
-	bool eventType;
-	bool removed;
-	bool hidden;	// true if hidden through legend push button
-    } Plot;
-
-    bool isStepped(Plot *plot);
-    void setStroke(Plot *plot, Style style, QColor color);
-    void redoPlotData(void);
+    bool isStepped(ChartItem *item);
+    void setStroke(ChartItem *item, Style style, QColor color);
+    void redoChartItems(void);
     void setScaleEngine(void);
     bool autoScale(void);
     void redoScale(void);
-    void setColor(Plot *plot, QColor c);
-    void setLabel(Plot *plot, QString s);
-    void resetValues(Plot *plot, int v);
+    void setColor(ChartItem *item, QColor c);
+    void setLabel(ChartItem *item, QString s);
+    void resetValues(ChartItem *item, int v);
     bool checkCompatibleUnits(pmUnits *);
     bool checkCompatibleTypes(int);
 
     struct {
 	Tab *tab;
-	QList<Plot*> plots;
+	QList<ChartItem *> items;
 	pmUnits units;
 
-	Style style;
 	char *title;
+	Style style;
 	QString scheme;
 	int sequence;
 
