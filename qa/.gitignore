@@ -1,3 +1,5 @@
+*.bad
+*.full
 check.log
 check.time
 pmlogger.log
