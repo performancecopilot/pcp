@@ -27,17 +27,4 @@ src/query/*.icns
 src/query/*.png
 src/time/*.icns
 src/time/*.png
-qa/*.bad
-qa/*.full
-qa/check.log
-qa/check.time
-qa/src/qmc_context/qmc_context
-qa/src/qmc_desc/qmc_desc
-qa/src/qmc_dynamic/qmc_dynamic
-qa/src/qmc_format/qmc_format
-qa/src/qmc_group/qmc_group
-qa/src/qmc_hosts/qmc_hosts
-qa/src/qmc_indom/qmc_indom
-qa/src/qmc_metric/qmc_metric
-qa/src/qmc_source/qmc_source
 debug*.list
