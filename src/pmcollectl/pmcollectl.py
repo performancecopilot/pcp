@@ -45,19 +45,26 @@ def check_code (code):
         sys.exit(1)
 
 def usage ():
-    print sys.argv[0]," [-sSUBSYS] [-cN] [--verbose]"
-    print "Where: N is number of cycles"
-    print "       SUSBYS is one of:"
-    print "              d for disk"
-    print "              c for cpu"
-    print "              n for net"
-    print "              j for interrupt"
-    print "              m for memory"
-#    print "              b for ss"
-#    print "              f for ss"
-#    print "              y for ss"
-#    print "              Z for ss"
+    print "\nUsage:", sys.argv[0], "\n\t[-sSUBSYS] [-f|--filename FILE] [-p|--playback FILE]"
+    print '''\t[-R|--runtime N] [-cN] [-i|--interval N] [--verbose]
 
+	Collect and display current system status.
+	
+Where: -cN is number of cycles
+	-sSUBSYS is one of:
+	  d for disk
+	  c for cpu
+	  n for net
+	  j for interrupt
+	  m for memory
+	-f, --filename FILE outputs the status to FILE instead of displaying
+		current system data
+	-p, --playback FILE reads the status from FILE instead of using current
+		system data
+	-R, --runtime N is the amount of time to sample data.  N may have a
+		suffix of one of 'dhms'
+	-i, --interval N is the number of seconds to wait between samples
+'''
 
 # get_atom_value  -----------------------------------------------------------
 
