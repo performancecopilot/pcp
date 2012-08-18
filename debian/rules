@@ -45,7 +45,7 @@ binary-indep: binary-arch
 binary-arch: checkroot built
 	@echo "== dpkg-buildpackage: binary-arch" 1>&2
 	$(checkdir)
-	-rm -rf $(dirgui) $(dirdoc)
+	-rm -rf $(dirgui) $(dirdoc) $(dirpcpgui_testsuite)
 	$(pkggui) $(MAKE) -C . install
 	$(pkggui) $(MAKE) -C build pcp-gui.src
 	$(pkgpcpgui_testsuite) $(MAKE) -C qa install
