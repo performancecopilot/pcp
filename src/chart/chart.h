@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2012 Red Hat.
- * Copyright (c) 2012 Nathan Scott.  All Rights Reserved.
+ * Copyright (c) 2012, Red Hat.
+ * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * 
@@ -30,7 +30,8 @@
 
 class Tab;
 class ChartItem;
-class SamplingCurve;
+class TracingItem;
+class SamplingItem;
 class TracingScaleEngine;
 class SamplingScaleEngine;
 
@@ -62,7 +63,7 @@ public:
     int addItem(pmMetricSpec *, const char *);
     bool activeItem(int);
     void removeItem(int);
-    void reviveItem(int m);
+    void reviveItem(int);
 
     char *title(void);			// return chart title
     void changeTitle(char *, int);	// NULL to clear
@@ -126,17 +127,17 @@ private slots:
     void showItem(QwtPlotItem *, bool);
 
 private:
-    bool isStepped(ChartItem *item);
-    void setStroke(ChartItem *item, Style style, QColor color);
-    void redoChartItems(void);
-    void setScaleEngine(void);
-    bool autoScale(void);
-    void redoScale(void);
-    void setColor(ChartItem *item, QColor c);
-    void setLabel(ChartItem *item, QString s);
-    void resetValues(ChartItem *item, int v);
     bool checkCompatibleUnits(pmUnits *);
     bool checkCompatibleTypes(int);
+
+    void redoScale(void);
+    bool autoScale(void);
+    void setScaleEngine(void);
+    void setStroke(ChartItem *, Style, QColor);
+
+    void redoChartItems(void);
+    TracingItem *tracingItem(int);
+    SamplingItem *samplingItem(int);
 
     struct {
 	Tab *tab;
@@ -165,13 +166,41 @@ private:
 class ChartItem
 {
 public:
-    ChartItem(QmcMetric *, pmMetricSpec *, pmDesc *,
-		Chart::Style, const char *);
-    virtual ~ChartItem(void);
+    ChartItem(QmcMetric *, pmMetricSpec *, pmDesc *, const char *);
+    virtual ~ChartItem(void) { }
 
-    virtual void preserveLiveData(int, int);
-    virtual void punchoutLiveData(int);
+    virtual QwtPlotItem *item(void) = 0;
+    virtual void preserveLiveData(int, int) = 0;
+    virtual void punchoutLiveData(int) = 0;
+    virtual void resetValues(int) = 0;
+    virtual void updateValues(bool, bool, int, pmUnits *) = 0;
+    virtual void rescaleValues(pmUnits *) = 0;
+    virtual void setStroke(Chart::Style, QColor, bool) = 0;
+    virtual void replot(int, double *) = 0;
+    virtual void revive(Chart *parent) = 0;
+    virtual void remove(void) = 0;
 
+    QString name(void) const { return my.name; }
+    QString label(void) const { return my.label; }
+    char *legendSpec(void) const { return my.legend; }
+    QString metricName(void) const { return my.metric->name(); }
+    QString metricInstance(void) const
+        { return my.metric->numInst() > 0 ? my.metric->instName(0) : QString::null; }
+    bool metricHasInstances(void) const { return my.metric->hasInstances(); }
+    QmcDesc *metricDesc(void) const { return (QmcDesc *)&my.metric->desc(); }
+    QmcContext *metricContext(void) const { return my.metric->context(); }
+    QmcMetric *metric(void) const { return my.metric; }
+    QColor color(void) const { return my.color; }
+
+    void setColor(QColor color) { my.color = color; }
+    void setLabel(QString label) { my.label = label; }
+
+    bool hidden(void) { return my.hidden; }
+    void setHidden(bool hidden) { my.hidden = hidden; }
+    bool removed(void) { return my.removed; }
+    void setRemoved(bool removed) { my.removed = removed; }
+
+protected:
     struct {
 	QmcMetric *metric;
 	pmUnits units;
@@ -180,12 +209,6 @@ public:
 	char *legend;	// from config
 	QString label;	// as appears in plot legend
 	QColor color;
-
-	SamplingCurve *curve;
-	double scale;
-	double *data;
-	double *itemData;
-	int dataCount;
 
 	bool removed;
 	bool hidden;	// true if hidden through legend push button

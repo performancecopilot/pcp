@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012, Red Hat.
+ * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -19,17 +20,59 @@
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_scale_engine.h>
+#include "chart.h"
 
 class SamplingCurve : public QwtPlotCurve
 {
 public:
     SamplingCurve(const QString &title) : QwtPlotCurve(title) { }
+
     virtual void draw(QPainter *p,
 		const QwtScaleMap &xMap, const QwtScaleMap &yMap,
 		int from, int to) const;
 
     static double NaN();
     static bool isNaN(double v);
+};
+
+class SamplingItem : public ChartItem
+{
+public:
+    SamplingItem(Chart *,
+		QmcMetric *, pmMetricSpec *, pmDesc *,
+		const char *, Chart::Style, int, int);
+    ~SamplingItem(void);
+
+    QwtPlotItem *item();
+
+    void preserveLiveData(int, int);
+    void punchoutLiveData(int);
+    void updateValues(bool, bool, int, pmUnits *);
+    void rescaleValues(pmUnits *);
+    void replot(int, double *);
+    void resetValues(int);
+    void revive(Chart *);
+    void remove();
+    void setStroke(Chart::Style, QColor, bool);
+
+    void copyRawDataArray(void);
+    void copyRawDataPoint(int index);
+    void copyDataPoint(int index);
+    int maximumDataCount(int maximum);
+    void truncateData(int offset);
+    double sumData(int index, double sum);
+    void setPlotUtil(int index, double sum);
+    double setPlotStack(int index, double sum);
+    double setDataStack(int index, double sum);
+
+private:
+    struct {
+	SamplingCurve *curve;
+	double scale;
+	double *data;
+	double *itemData;
+	int dataCount;
+    } my;
 };
 
 //

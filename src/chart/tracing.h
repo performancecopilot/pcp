@@ -19,12 +19,32 @@
 #include <qwt_scale_engine.h>
 //#include <qwt_interval_symbol.h>
 
-//
-// Place-holder class for future work on vertical scale
-// characteristics of event traces.  This will need to
-// work in with the vertical arrangement of trace bars
-// such that identifiers make sense.  I think.
-//
+class TracingItem : public ChartItem
+{
+public:
+    TracingItem(Chart *, QmcMetric *, pmMetricSpec *, pmDesc *, const char *);
+    ~TracingItem(void);
+
+    QwtPlotItem* item();
+    void preserveLiveData(int, int);
+    void punchoutLiveData(int);
+    void resetValues(int);
+    void updateValues(bool, bool, int, pmUnits*);
+    void rescaleValues(pmUnits*);
+    void setStroke(Chart::Style, QColor, bool);
+    void replot(int, double*);
+    void revive(Chart *parent);
+    void remove(void);
+
+    void setPlotEnd(int index);
+
+private:
+    struct {
+//	QVector<QwtIntervalSample> records;
+//	QwtPlotIntervalCurve *curve;
+    } my;
+};
+
 class TracingScaleEngine : public QwtLinearScaleEngine
 {
 public:
