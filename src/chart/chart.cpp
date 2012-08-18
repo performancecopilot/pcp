@@ -38,6 +38,58 @@
 
 #define DESPERATE 0
 
+ChartItem::ChartItem(QmcMetric *mp, pmMetricSpec *msp, pmDesc *dp,
+			Chart::Style style, const char *legend)
+{
+    my.metric = mp;
+    my.units = dp->units;
+
+    my.name = QString(msp->metric);
+    if (msp->ninst == 1)
+	my.name.append("[").append(msp->inst[0]).append("]");
+
+    //
+    // Build the legend label string, even if the chart is declared
+    // "legend off" so that subsequent Edit->Chart Title and Legend
+    // changes can turn the legend on and off dynamically
+    //
+    if (legend != NULL) {
+	my.legend = strdup(legend);
+	my.label = QString(legend);
+    } else {
+	my.legend = NULL;
+	// show name as ...[end of name]
+	if (my.name.size() > PmChart::maximumLegendLength()) {
+	    int size = PmChart::maximumLegendLength() - 3;
+	    my.label = QString("...");
+	    my.label.append(my.name.right(size));
+	} else {
+	    my.label = my.name;
+	}
+    }
+
+    my.removed = false;
+    my.hidden = false;
+
+    my.scale = 1;
+    if (dp->sem == PM_SEM_COUNTER && dp->units.dimTime == 0 &&
+	style != Chart::UtilisationStyle) {
+	// value to plot is time / time ... set scale
+	if (dp->units.scaleTime == PM_TIME_USEC)
+	    my.scale = 0.000001;
+	else if (dp->units.scaleTime == PM_TIME_MSEC)
+	    my.scale = 0.001;
+    }
+}
+
+ChartItem::~ChartItem()
+{
+    if (my.data != NULL)
+	free(my.data);
+    if (my.itemData != NULL)
+	free(my.itemData);
+}
+
 Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
 {
     Gadget::setWidget(this);
@@ -104,14 +156,8 @@ Chart::~Chart()
 {
     console->post("Chart::~Chart() for chart %p", this);
 
-    for (int i = 0; i < my.items.size(); i++) {
-	ChartItem *item = my.items[i];
-	if (item->my.data != NULL)
-	    free(item->my.data);
-	if (item->my.itemData != NULL)
-	    free(item->my.itemData);
-	free(item);
-    }
+    for (int i = 0; i < my.items.size(); i++)
+	delete my.items[i];
     delete my.picker;
 }
 
@@ -150,15 +196,16 @@ void Chart::preserveLiveData(int index, int oldindex)
 
     if (my.items.size() < 1)
 	return;
-    for (int i = 0; i < my.items.size(); i++) {
-	ChartItem *item = my.items[i];
+    for (int i = 0; i < my.items.size(); i++)
+	my.items[i]->preserveLiveData(index, oldindex);
+}
 
-	if (item->my.dataCount > oldindex) {
-	    item->my.itemData[index] = item->my.data[index] = item->my.data[oldindex];
-	} else {
-	    item->my.itemData[index] = item->my.data[index] = SamplingCurve::NaN();
-	}
-    }
+void ChartItem::preserveLiveData(int index, int oldindex)
+{
+    if (my.dataCount > oldindex)
+	my.itemData[index] = my.data[index] = my.data[oldindex];
+    else
+	my.itemData[index] = my.data[index] = SamplingCurve::NaN();
 }
 
 void Chart::punchoutLiveData(int index)
@@ -169,10 +216,13 @@ void Chart::punchoutLiveData(int index)
 
     if (my.items.size() < 1)
 	return;
-    for (int i = 0; i < my.items.size(); i++) {
-	ChartItem *item = my.items[index];
-	item->my.data[index] = item->my.itemData[index] = SamplingCurve::NaN();
-    }
+    for (int i = 0; i < my.items.size(); i++)
+	my.items[i]->punchoutLiveData(index);
+}
+
+void ChartItem::punchoutLiveData(int index)
+{
+    my.data[index] = my.itemData[index] = SamplingCurve::NaN();
 }
 
 void Chart::adjustValues()
@@ -652,37 +702,9 @@ int Chart::addItem(pmMetricSpec *pmsp, const char *legend)
 	    return PM_ERR_CONV;
     }
 
-    ChartItem *item = new ChartItem;
+    ChartItem *item = new ChartItem(mp, pmsp, &desc, my.style, legend);
     my.items.append(item);
     console->post("addItem item=%p nitems=%d", item, my.items.size());
-
-    item->my.metric = mp;
-    item->my.name = QString(pmsp->metric);
-    if (pmsp->ninst == 1)
-	item->my.name.append("[").append(pmsp->inst[0]).append("]");
-    item->my.units = desc.units;
-
-    //
-    // Build the legend label string, even if the chart is declared
-    // "legend off" so that subsequent Edit->Chart Title and Legend
-    // changes can turn the legend on and off dynamically
-    //
-    if (legend != NULL) {
-	item->my.legend = strdup(legend);
-	item->my.label = QString(legend);
-    }
-    else {
-	item->my.legend = NULL;
-	if (item->my.name.size() > PmChart::maximumLegendLength()) {
-	    // show name as ...[end of name]
-	    int		size;
-	    item->my.label = QString("...");
-	    size = PmChart::maximumLegendLength() - 3;
-	    item->my.label.append(item->my.name.right(size));
-	} else {
-	    item->my.label = item->my.name;
-	}
-    }
 
     // initialize the pcp data and item data arrays
     item->my.dataCount = 0;
@@ -701,8 +723,6 @@ int Chart::addItem(pmMetricSpec *pmsp, const char *legend)
     // force plot to be visible, legend visibility is controlled by
     // legend() to a state matching the initial state
     showItem(item->my.curve, true);
-    item->my.removed = false;
-    item->my.hidden = false;
 
     // set the prevailing chart style and the default color
     setStroke(item, my.style, nextColor(my.scheme, &my.sequence));
@@ -717,16 +737,6 @@ int Chart::addItem(pmMetricSpec *pmsp, const char *legend)
 	    my.items[i]->my.data[index] = 0;
 	// don't re-set dataCount ... so we don't plot these values,
 	// we just want them to count 0 towards any Stack aggregation
-    }
-
-    item->my.scale = 1;
-    if (desc.sem == PM_SEM_COUNTER && desc.units.dimTime == 0 &&
-	my.style != UtilisationStyle) {
-	// value to plot is time / time ... set scale
-	if (desc.units.scaleTime == PM_TIME_USEC)
-	    item->my.scale = 0.000001;
-	else if (desc.units.scaleTime == PM_TIME_MSEC)
-	    item->my.scale = 0.001;
     }
 
     return my.items.size() - 1;

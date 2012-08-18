@@ -29,38 +29,10 @@
 #include "gadget.h"
 
 class Tab;
+class ChartItem;
 class SamplingCurve;
 class TracingScaleEngine;
 class SamplingScaleEngine;
-
-//
-// Container for an individual plot item within a chart,
-// which is always backed by a single metric.
-//
-class ChartItem {
-public:
-    ChartItem() { }
-    virtual ~ChartItem(void) { }
-
-    struct {
-	QmcMetric *metric;
-	pmUnits units;
-
-	QString name;
-	char *legend;	// from config
-	QString label;	// as appears in plot legend
-	QColor color;
-
-	SamplingCurve *curve;
-	double scale;
-	double *data;
-	double *itemData;
-	int dataCount;
-
-	bool removed;
-	bool hidden;	// true if hidden through legend push button
-    } my;
-};
 
 //
 // Centre of the pmchart universe
@@ -183,6 +155,40 @@ private:
 	QwtPlotPicker *picker;
 	TracingScaleEngine *tracingScaleEngine;
 	SamplingScaleEngine *samplingScaleEngine;
+    } my;
+};
+
+//
+// Container for an individual plot item within a chart,
+// which is always backed by a single metric.
+//
+class ChartItem
+{
+public:
+    ChartItem(QmcMetric *, pmMetricSpec *, pmDesc *,
+		Chart::Style, const char *);
+    virtual ~ChartItem(void);
+
+    virtual void preserveLiveData(int, int);
+    virtual void punchoutLiveData(int);
+
+    struct {
+	QmcMetric *metric;
+	pmUnits units;
+
+	QString name;
+	char *legend;	// from config
+	QString label;	// as appears in plot legend
+	QColor color;
+
+	SamplingCurve *curve;
+	double scale;
+	double *data;
+	double *itemData;
+	int dataCount;
+
+	bool removed;
+	bool hidden;	// true if hidden through legend push button
     } my;
 };
 
