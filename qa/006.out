@@ -25,10 +25,11 @@ exit=0
 <timestamp>: Loading resource :/fastback_archive.png
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
-<timestamp>: KmChart::setActiveTab index=0 r=1
+<timestamp>: PmChart::setActiveTab index=0 r=1
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
-<timestamp>: Tab::setCurrentChart(<addr>) -> 0
+<timestamp>: Chart::ctor complete(<addr>)
+<timestamp>: Chart::setCurrent(<addr>) true
 <timestamp>: Tab::addChart: [0]->Chart <addr>
 <timestamp>: Chart::addPlot src=<host>
 <timestamp>: addPlot metric=sample.seconds
@@ -37,7 +38,8 @@ exit=0
 <timestamp>: Chart::setStroke [style 1->1]
 <timestamp>: Chart::addPlot src=<host>
 <timestamp>: addPlot metric=sample.milliseconds
-<timestamp>: Chart::checkUnits plot units 
+<timestamp>: Chart::check units plot units 
+<timestamp>: Chart::check plot event type DOUBLE
 <timestamp>: addPlot plot=<addr> nplots=2
 <timestamp>: Chart::setStroke [style 1->1]
 --- post ---
@@ -67,10 +69,11 @@ exit=0
 <timestamp>: Loading resource :/fastback_archive.png
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
-<timestamp>: KmChart::setActiveTab index=0 r=1
+<timestamp>: PmChart::setActiveTab index=0 r=1
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
-<timestamp>: Tab::setCurrentChart(<addr>) -> 0
+<timestamp>: Chart::ctor complete(<addr>)
+<timestamp>: Chart::setCurrent(<addr>) true
 <timestamp>: Tab::addChart: [0]->Chart <addr>
 <timestamp>: Chart::addPlot src=<host>
 <timestamp>: addPlot metric=sample.seconds
@@ -79,10 +82,12 @@ exit=0
 <timestamp>: Chart::setStroke [style 1->1]
 <timestamp>: Chart::addPlot src=<host>
 <timestamp>: addPlot metric=sample.control
-<timestamp>: Chart::checkUnits plot units 
+<timestamp>: Chart::check units plot units 
+<timestamp>: Chart::check plot event type 32
 <timestamp>: addPlot plot=<addr> nplots=2
 <timestamp>: Chart::setStroke [style 1->1]
 --- post ---
+pmtime: cannot write port for client: Broken pipe
 === views/006-03 ===
 #kmchart
 version 1
@@ -109,10 +114,11 @@ exit=0
 <timestamp>: Loading resource :/fastback_archive.png
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
-<timestamp>: KmChart::setActiveTab index=0 r=1
+<timestamp>: PmChart::setActiveTab index=0 r=1
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
-<timestamp>: Tab::setCurrentChart(<addr>) -> 0
+<timestamp>: Chart::ctor complete(<addr>)
+<timestamp>: Chart::setCurrent(<addr>) true
 <timestamp>: Tab::addChart: [0]->Chart <addr>
 <timestamp>: Chart::addPlot src=<host>
 <timestamp>: addPlot metric=sample.seconds
@@ -121,8 +127,9 @@ exit=0
 <timestamp>: Chart::setStroke [style 1->1]
 <timestamp>: Chart::addPlot src=<host>
 <timestamp>: addPlot metric=sample.step_counter
-<timestamp>: Chart::checkUnits plot units count / sec
+<timestamp>: Chart::check units plot units count / sec
 --- post ---
+pmtime: cannot write port for client: Broken pipe
 Error: views/006-03[6] 
 Failed to plot metric "sample.step_counter" for
 host <host>:
@@ -164,10 +171,11 @@ exit=0
 <timestamp>: Loading resource :/fastback_archive.png
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
-<timestamp>: KmChart::setActiveTab index=0 r=1
+<timestamp>: PmChart::setActiveTab index=0 r=1
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
-<timestamp>: Tab::setCurrentChart(<addr>) -> 0
+<timestamp>: Chart::ctor complete(<addr>)
+<timestamp>: Chart::setCurrent(<addr>) true
 <timestamp>: Tab::addChart: [0]->Chart <addr>
 <timestamp>: Chart::addPlot src=<host>
 <timestamp>: addPlot metric=sample.byte_rate
@@ -176,12 +184,14 @@ exit=0
 <timestamp>: Chart::setStroke [style 1->1]
 <timestamp>: Chart::addPlot src=<host>
 <timestamp>: addPlot metric=sample.byte_ctr
-<timestamp>: Chart::checkUnits plot units byte / sec
+<timestamp>: Chart::check units plot units byte / sec
+<timestamp>: Chart::check plot event type 32
 <timestamp>: addPlot plot=<addr> nplots=2
 <timestamp>: Chart::setStroke [style 1->1]
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
-<timestamp>: Tab::setCurrentChart(<addr>) -> 1
-<timestamp>: Tab::addChart: [1]->Chart <addr>
+<timestamp>: Chart::ctor complete(<addr>)
+<timestamp>: upateHeight() oldsize h=270,w=370 maximum=1030 proposed=350
+<timestamp>: Tab::addChart: [0]->Chart <addr>
 <timestamp>: Chart::addPlot src=<host>
 <timestamp>: addPlot metric=sample.byte_ctr
 <timestamp>: Chart::addPlot initial units byte / sec
@@ -189,12 +199,14 @@ exit=0
 <timestamp>: Chart::setStroke [style 1->1]
 <timestamp>: Chart::addPlot src=<host>
 <timestamp>: addPlot metric=sample.byte_rate
-<timestamp>: Chart::checkUnits plot units byte / sec
+<timestamp>: Chart::check units plot units byte / sec
+<timestamp>: Chart::check plot event type 32
 <timestamp>: addPlot plot=<addr> nplots=2
 <timestamp>: Chart::setStroke [style 1->1]
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
-<timestamp>: Tab::setCurrentChart(<addr>) -> 2
-<timestamp>: Tab::addChart: [2]->Chart <addr>
+<timestamp>: Chart::ctor complete(<addr>)
+<timestamp>: upateHeight() oldsize h=350,w=370 maximum=1030 proposed=430
+<timestamp>: Tab::addChart: [0]->Chart <addr>
 <timestamp>: Chart::addPlot src=<host>
 <timestamp>: addPlot instance sample.mirage[m-00]
 <timestamp>: Chart::addPlot initial units Kbyte / sec
@@ -202,12 +214,14 @@ exit=0
 <timestamp>: Chart::setStroke [style 1->1]
 <timestamp>: Chart::addPlot src=<host>
 <timestamp>: addPlot instance sample.mirage_longlong[m-00]
-<timestamp>: Chart::checkUnits plot units byte / millisec
+<timestamp>: Chart::check units plot units byte / millisec
+<timestamp>: Chart::check plot event type 64
 <timestamp>: addPlot plot=<addr> nplots=2
 <timestamp>: Chart::setStroke [style 1->1]
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
-<timestamp>: Tab::setCurrentChart(<addr>) -> 3
-<timestamp>: Tab::addChart: [3]->Chart <addr>
+<timestamp>: Chart::ctor complete(<addr>)
+<timestamp>: upateHeight() oldsize h=430,w=370 maximum=1030 proposed=510
+<timestamp>: Tab::addChart: [0]->Chart <addr>
 <timestamp>: Chart::addPlot src=<host>
 <timestamp>: addPlot metric=sample.write_me
 <timestamp>: Chart::addPlot initial units count / sec
@@ -215,10 +229,12 @@ exit=0
 <timestamp>: Chart::setStroke [style 1->1]
 <timestamp>: Chart::addPlot src=<host>
 <timestamp>: addPlot metric=sample.pdu
-<timestamp>: Chart::checkUnits plot units count / sec
+<timestamp>: Chart::check units plot units count / sec
+<timestamp>: Chart::check plot event type U64
 <timestamp>: addPlot plot=<addr> nplots=2
 <timestamp>: Chart::setStroke [style 1->1]
 --- post ---
+pmtime: cannot write port for client: Broken pipe
 === views/006-05 ===
 #kmchart
 version 1
@@ -246,10 +262,11 @@ exit=0
 <timestamp>: Loading resource :/fastback_archive.png
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
-<timestamp>: KmChart::setActiveTab index=0 r=1
+<timestamp>: PmChart::setActiveTab index=0 r=1
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
-<timestamp>: Tab::setCurrentChart(<addr>) -> 0
+<timestamp>: Chart::ctor complete(<addr>)
+<timestamp>: Chart::setCurrent(<addr>) true
 <timestamp>: Tab::addChart: [0]->Chart <addr>
 <timestamp>: Chart::addPlot src=<host>
 <timestamp>: addPlot instance sample.mirage_longlong[m-00]
@@ -258,8 +275,9 @@ exit=0
 <timestamp>: Chart::setStroke [style 1->1]
 <timestamp>: Chart::addPlot src=<host>
 <timestamp>: addPlot metric=sample.write_me
-<timestamp>: Chart::checkUnits plot units count / sec
+<timestamp>: Chart::check units plot units count / sec
 --- post ---
+pmtime: cannot write port for client: Broken pipe
 Error: views/006-05[7] 
 Failed to plot metric "sample.write_me" for
 host <host>:

@@ -5,8 +5,8 @@ SUBDIRS = src archives views interact
 BASEDIR = $(subst pcp,pcp-gui,$(PCP_VAR_DIR))
 TESTDIR = $(BASEDIR)/testsuite
 
-COMMONS = common.cmd common.filter common.sh common.test
 SCRIPTS = check new remake
+COMMONS = $(shell echo common.*)
 AUTOTEST = $(shell echo [0-9][0-9][0-9])
 OUTFILES = $(shell echo *.out)
 FOLIOS = 20071023.08\:06\:36.folio
