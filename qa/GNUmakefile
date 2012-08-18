@@ -38,7 +38,7 @@ COMMON = common common.check common.config common.filter common.install.cisco \
 OTHERS = group qa_hosts.master README \
 	 pconf.tar cisco.tar valgrind-suppress
 
-DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || git ls-tree --name-only HEAD | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | tee qa_outfiles)
+DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | tee qa_outfiles)
 LSRCFILES = $(SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS) qa_outfiles
 
 qa_outfiles:
