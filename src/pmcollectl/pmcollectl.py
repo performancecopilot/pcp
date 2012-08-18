@@ -45,19 +45,26 @@ def check_code (code):
         sys.exit(1)
 
 def usage ():
-    print sys.argv[0]," [-sSUBSYS] [-cN] [--verbose]"
-    print "Where: N is number of cycles"
-    print "       SUSBYS is one of:"
-    print "              d for disk"
-    print "              c for cpu"
-    print "              n for net"
-    print "              j for interrupt"
-    print "              m for memory"
-#    print "              b for ss"
-#    print "              f for ss"
-#    print "              y for ss"
-#    print "              Z for ss"
+    print "\nUsage:", sys.argv[0], "\n\t[-sSUBSYS] [-f|--filename FILE] [-p|--playback FILE]"
+    print '''\t[-R|--runtime N] [-cN] [-i|--interval N] [--verbose]
 
+	Collect and display current system status.
+	
+Where: -cN is number of cycles
+	-sSUBSYS is one of:
+	  d for disk
+	  c for cpu
+	  n for net
+	  j for interrupt
+	  m for memory
+	-f, --filename FILE outputs the status to FILE instead of displaying
+		current system data
+	-p, --playback FILE reads the status from FILE instead of using current
+		system data
+	-R, --runtime N is the amount of time to sample data.  N may have a
+		suffix of one of 'dhms'
+	-i, --interval N is the number of seconds to wait between samples
+'''
 
 # get_atom_value  -----------------------------------------------------------
 
@@ -264,7 +271,7 @@ class _cpu(_subsys):
                             'kernel.percpu.cpu.irq.soft', 'kernel.percpu.cpu.wait.total',
                             'kernel.percpu.cpu.idle']
 
-        self.cpu_metrics_dict={i:self.cpu_metrics.index(i) for i in self.cpu_metrics}
+        self.cpu_metrics_dict=dict((i,self.cpu_metrics.index(i)) for i in self.cpu_metrics)
         self.cpu_metric_value = [0 for i in range(len(self.cpu_metrics))]
         self.old_cpu_metric_value = [0 for i in range(len(self.cpu_metrics))]
 
@@ -423,7 +430,7 @@ class _interrupt(_subsys):
                                   'kernel.percpu.interrupts.line1',
                                   'kernel.percpu.interrupts.line0']
 
-        self.interrupt_metrics_dict={i:self.interrupt_metrics.index(i) for i in self.interrupt_metrics}
+        self.interrupt_metrics_dict=dict((i,self.interrupt_metrics.index(i)) for i in self.interrupt_metrics)
         self.interrupt_metric_value = [0 for i in range(len(self.interrupt_metrics))]
         self.old_interrupt_metric_value = [0 for i in range(len(self.interrupt_metrics))]
 
@@ -498,7 +505,7 @@ class _process(_subsys):
     def __init__(self):
         self.process_metrics = ['kernel.all.nprocs', 'kernel.all.runnable', 'proc.runq.runnable', 'kernel.all.load', 'proc.runq.blocked']
 
-        self.process_metrics_dict={i:self.process_metrics.index(i) for i in self.process_metrics}
+        self.process_metrics_dict=dict((i,self.process_metrics.index(i)) for i in self.process_metrics)
         self.process_metric_value = [0 for i in range(len(self.process_metrics))]
         self.old_process_metric_value = [0 for i in range(len(self.process_metrics))]
 
@@ -543,7 +550,7 @@ class _disk(_subsys):
                              'disk.dev.read_merge', 'disk.dev.write_merge',
                              'disk.dev.blkread', 'disk.dev.blkwrite']
 
-        self.disk_metrics_dict={i:self.disk_metrics.index(i) for i in self.disk_metrics}
+        self.disk_metrics_dict=dict((i,self.disk_metrics.index(i)) for i in self.disk_metrics)
         self.disk_metric_value = [0 for i in range(len(self.disk_metrics))]
         self.old_disk_metric_value = [0 for i in range(len(self.disk_metrics))]
 
@@ -654,7 +661,7 @@ class _memory(_subsys):
                                ]
 
 
-        self.memory_metrics_dict={i:self.memory_metrics.index(i) for i in self.memory_metrics}
+        self.memory_metrics_dict=dict((i,self.memory_metrics.index(i)) for i in self.memory_metrics)
         self.memory_metric_value = [0 for i in range(len(self.memory_metrics))]
         self.old_memory_metric_value = [0 for i in range(len(self.memory_metrics))]
 
@@ -735,7 +742,7 @@ class _net(_subsys):
                             'network.interface.in.errors',
                             'network.interface.out.errors']
 
-        self.net_metrics_dict={i:self.net_metrics.index(i) for i in self.net_metrics}
+        self.net_metrics_dict=dict((i,self.net_metrics.index(i)) for i in self.net_metrics)
         self.net_metric_value = [0 for i in range(len(self.net_metrics))]
         self.old_net_metric_value = [0 for i in range(len(self.net_metrics))]
 
