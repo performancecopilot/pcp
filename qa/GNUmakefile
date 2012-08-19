@@ -19,7 +19,7 @@ TESTS	= $(shell sed -n -e '/^[0-9]/s/[ 	].*//p' <group)
 default_pcp default: localconfig new remake check qa_hosts qa_outfiles $(OTHERS) $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
-setup: $(SUBDIRS) pconf cisco
+setup: $(SUBDIRS) pconf cisco localconfig qa_hosts
 	$(SUBDIRS_MAKERULE)
 
 LDIRT += 051.work 134.full.* \
