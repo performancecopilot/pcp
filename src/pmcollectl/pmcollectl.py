@@ -193,6 +193,26 @@ def record (pm, config, duration, file):
         check_status (status)
 
 
+# record_add_creator ------------------------------------------------------
+
+def record_add_creator (fn):
+    f = open (fn + "/" + me + ".pcp", "r+")
+    args = ""
+    for i in sys.argv:
+        args = args + i + " "
+    f.write("# Created by " + args)
+    f.write("\n#\n")
+    f.close()
+
+# record_check_creator ------------------------------------------------------
+
+def record_check_creator (fn, doc):
+    f = open (fn + "/" + me + ".pcp", "r")
+    line = f.readline()
+    if line.find("# Created by ") == 0:
+        print doc + line[13:]
+    f.close()
+
 # _subsys ---------------------------------------------------------------
 
 
@@ -252,6 +272,8 @@ class _subsys(object):
             return 0
         else:
             return dividend / divisor
+    def setup_metrics(self,pm):
+        True
 
 
 # _cpu  -----------------------------------------------------------------
@@ -938,10 +960,20 @@ if __name__ == '__main__':
             else:
                 duration = 10 * interval_arg
         record (pm, configuration, duration, output_file)
+        record_add_creator (output_file)
         sys.exit(0)
 
     for s in subsys:
-        s.setup_metrics(pm)
+        try:
+            s.setup_metrics(pm)
+        except:
+            if input_file != "":
+                args = ""
+                for i in sys.argv:
+                    args = args + " " + i
+                print "Argument mismatch between invocation arguments:\n" + args
+                record_check_creator(input_file, "and arguments used to create the playback directory\n ")
+                sys.exit(1)
         s.set_verbosity(verbosity)
         s.get_stats()
 
