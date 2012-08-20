@@ -67,11 +67,14 @@ time.</string>
          <property name="orientation" >
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="bgStyle" >
-          <enum>QwtSlider::BgSlot</enum>
+         <property name="backgroundStyle" >
+          <enum>QwtSlider::Groove</enum>
          </property>
-         <property name="thumbLength" >
-          <number>12</number>
+         <property name="handleSize" >
+          <size>
+           <width>12</width>
+           <height>16</height>
+          </size>
          </property>
         </widget>
        </item>
@@ -122,11 +125,14 @@ time.</string>
          <property name="orientation" >
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="bgStyle" >
-          <enum>QwtSlider::BgSlot</enum>
+         <property name="backgroundStyle" >
+          <enum>QwtSlider::Groove</enum>
          </property>
-         <property name="thumbLength" >
-          <number>12</number>
+         <property name="handleSize" >
+          <size>
+           <width>12</width>
+           <height>16</height>
+          </size>
          </property>
         </widget>
        </item>
