@@ -14,6 +14,7 @@
 #include <QtCore/QEvent>
 #include <QtCore/QDateTime>
 #include <QtGui/QResizeEvent>
+#include <qwt_plot_renderer.h>
 #include <qwt_scale_draw.h>
 #include <qwt_scale_widget.h>
 #include <qwt_text.h>
@@ -62,8 +63,6 @@ void TimeAxis::init()
     enableAxis(yRight, false);
     enableAxis(xBottom, true);
 
-    setMargin(1);
-    setHideCanvas(true);
     setAutoReplot(false);
     setAxisFont(QwtPlot::xBottom, *globalFont);
     setAxisScaleDraw(QwtPlot::xBottom, new TimeScaleDraw());
@@ -72,17 +71,11 @@ void TimeAxis::init()
 
 void TimeAxis::print(QPainter *qp, QRect &rect, bool transparent)
 {
-    QwtPlotPrintFilter filter;
+    QwtPlotRenderer renderer;
 
     if (transparent)
-	filter.setOptions(QwtPlotPrintFilter::PrintAll &
-	    ~QwtPlotPrintFilter::PrintBackground &
-	    ~QwtPlotPrintFilter::PrintGrid);
-    else
-	filter.setOptions(QwtPlotPrintFilter::PrintAll &
-	    ~QwtPlotPrintFilter::PrintGrid);
-
-    QwtPlot::print(qp, rect, filter);
+	renderer.setDiscardFlag(QwtPlotRenderer::DiscardBackground);
+    renderer.render(this, qp, rect);
 }
 
 void TimeAxis::noArchiveSources()

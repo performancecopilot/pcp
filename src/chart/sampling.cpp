@@ -17,21 +17,25 @@
 #include "sampling.h"
 #include "main.h"
 
-void SamplingCurve::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-		 int, int) const
+void SamplingCurve::drawSeries(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+		const QRectF &canvasRect, int x, int y) const
 {
+#if 1	// TODO: move into qwt?
+	    QwtPlotCurve::drawSeries(p, xMap, yMap, canvasRect, (int)x, (int)y);
+#else	// old code:
     unsigned int okFrom, okTo = 0;
 
-    while (okTo < data().size()) {
+    while (okTo < dataSize()) {
 	okFrom = okTo;
-	while (isNaN(data().y(okFrom)) && okFrom < data().size())
+	while (isNaN(data().y(okFrom)) && okFrom < dataSize())
 	    ++okFrom;
 	okTo = okFrom;
-	while (!isNaN(data().y(okTo)) && okTo < data().size())
+	while (!isNaN(data().y(okTo)) && okTo < dataSize())
 	    ++okTo;
-	if (okFrom < data().size())
-	    QwtPlotCurve::draw(p, xMap, yMap, (int)okFrom, (int)okTo-1);
+	if (okFrom < dataSize())
+	    QwtPlotCurve::drawSeries(p, xMap, yMap, canvasRect, (int)okFrom, (int)okTo-1);
     }
+#endif
 }
 
 double SamplingCurve::NaN()
@@ -178,7 +182,7 @@ void SamplingItem::rescaleValues(pmUnits *new_units)
 void SamplingItem::replot(int history, double *timeData)
 {
     int count = qMin(history, my.dataCount);
-    my.curve->setRawData(timeData, my.itemData, count);
+    my.curve->setRawSamples(timeData, my.itemData, count);
 }
 
 void SamplingItem::revive(Chart *parent) // TODO: inheritance, move to ChartItem

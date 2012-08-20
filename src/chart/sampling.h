@@ -27,9 +27,9 @@ class SamplingCurve : public QwtPlotCurve
 public:
     SamplingCurve(const QString &title) : QwtPlotCurve(title) { }
 
-    virtual void draw(QPainter *p,
+    virtual void drawSeries(QPainter *p,
 		const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-		int from, int to) const;
+		const QRectF &canvasRect, int from, int to) const;
 
     static double NaN();
     static bool isNaN(double v);

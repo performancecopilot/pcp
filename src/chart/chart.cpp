@@ -29,7 +29,8 @@
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_picker.h>
-#include <qwt_double_rect.h>
+#include <qwt_picker_machine.h>
+#include <qwt_plot_renderer.h>
 #include <qwt_legend.h>
 #include <qwt_legend_item.h>
 #include <qwt_scale_widget.h>
@@ -80,9 +81,7 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
     plotLayout()->setAlignCanvasToScales(true);
     plotLayout()->setFixedAxisOffset(54, QwtPlot::yLeft);
     setAutoReplot(false);
-    setMargin(1);
     setCanvasBackground(globalSettings.chartBackground);
-    canvas()->setPaintAttribute(QwtPlotCanvas::PaintPacked, true);
     enableAxis(xBottom, false);
 
     setLegendVisible(true);
@@ -105,16 +104,16 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
     setScaleEngine();
 
     my.picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
-			QwtPicker::PointSelection | QwtPicker::DragSelection,
-			QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOff,
+			QwtPicker::CrossRubberBand, QwtPicker::AlwaysOff,
 			canvas());
+    my.picker->setStateMachine(new QwtPickerDragPointMachine);
     my.picker->setRubberBandPen(QColor(Qt::green));
     my.picker->setRubberBand(QwtPicker::CrossRubberBand);
     my.picker->setTrackerPen(QColor(Qt::white));
-    connect(my.picker, SIGNAL(selected(const QwtDoublePoint &)),
-			 SLOT(selected(const QwtDoublePoint &)));
-    connect(my.picker, SIGNAL(moved(const QwtDoublePoint &)),
-			 SLOT(moved(const QwtDoublePoint &)));
+    connect(my.picker, SIGNAL(selected(const QPointF &)),
+			 SLOT(selected(const QPointF &)));
+    connect(my.picker, SIGNAL(moved(const QPointF &)),
+			 SLOT(moved(const QPointF &)));
 
     replot();
 
@@ -870,7 +869,7 @@ void Chart::setYAxisTitle(const char *p)
     setAxisTitle(QwtPlot::yLeft, *t);
 }
 
-void Chart::selected(const QwtDoublePoint &p)
+void Chart::selected(const QPointF &p)
 {
     console->post("Chart::selected chart=%p x=%f y=%f", this, p.x(), p.y());
     my.tab->setCurrent(this);
@@ -880,7 +879,7 @@ void Chart::selected(const QwtDoublePoint &p)
     pmchart->setValueText(string);
 }
 
-void Chart::moved(const QwtDoublePoint &p)
+void Chart::moved(const QPointF &p)
 {
     console->post("Chart::moved chart=%p x=%f y=%f ", this, p.x(), p.y());
     QString string;
@@ -940,18 +939,11 @@ void Chart::save(FILE *f, bool hostDynamic)
 
 void Chart::print(QPainter *qp, QRect &rect, bool transparent)
 {
-    QwtPlotPrintFilter filter;
+    QwtPlotRenderer renderer;
 
     if (transparent)
-	filter.setOptions(QwtPlotPrintFilter::PrintAll &
-	    ~QwtPlotPrintFilter::PrintBackground &
-	    ~QwtPlotPrintFilter::PrintGrid);
-    else
-	filter.setOptions(QwtPlotPrintFilter::PrintAll &
-	    ~QwtPlotPrintFilter::PrintGrid);
-
-    console->post("Chart::print: options=%d", filter.options());
-    QwtPlot::print(qp, rect, filter);
+	renderer.setDiscardFlag(QwtPlotRenderer::DiscardBackground);
+    renderer.render(this, qp, rect);
 }
 
 bool Chart::antiAliasing()

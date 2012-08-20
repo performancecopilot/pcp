@@ -24,7 +24,6 @@
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_picker.h>
-#include <qwt_double_rect.h>
 #include <qmc_metric.h>
 #include "gadget.h"
 
@@ -122,8 +121,8 @@ public slots:
     void replot(void);
 
 private slots:
-    void selected(const QwtDoublePoint &);
-    void moved(const QwtDoublePoint &);
+    void selected(const QPointF &);
+    void moved(const QPointF &);
     void showItem(QwtPlotItem *, bool);
 
 private:
