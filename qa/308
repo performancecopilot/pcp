@@ -195,7 +195,7 @@ echo "=== pmlogger config ===" >>$seq.full
 cat $tmp.conf >>$seq.full
 
 cat <<end-of-file >$tmp.cmd
-. /etc/pcp.env
+. \$PCP_DIR/etc/pcp.env
 rm -f /tmp/\$\$.*
 ( \$PCP_BINADM_DIR/pmlogger -h $host2 -L -s 1 -c /dev/null -l /tmp/\$\$.log /tmp/\$\$ </dev/null >/dev/null 2>&1 ) &
 echo rem_pid=\$! rem_tmp=\$\$

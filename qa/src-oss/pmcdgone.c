@@ -326,7 +326,7 @@ Options:\n\
     err += exer(numpmid, pmidlist, 0);
 
     fprintf(stderr, "Kill off pmcd ...\n");
-    sts = system(". /etc/pcp.env; $PCP_RC_DIR/pcp stop");
+    sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pcp stop");
     if (sts != 0)
 	fprintf(stderr, "Warning: stop script returns %d\n", sts);
     sleep(10);
@@ -362,22 +362,22 @@ Options:\n\
      * 5. connect to pmlogger
      */
     fprintf(stderr, "Restart pmcd ...\n");
-    sts = system(". /etc/pcp.env; path_opt=''; if [ $PCP_PLATFORM = linux ]; then path_opt=pmlogger/; fi; pmafm $PCP_LOG_DIR/$path_opt`hostname`/Latest remove 2>/dev/null | sh");
+    sts = system(". $PCP_DIR/etc/pcp.env; path_opt=''; if [ $PCP_PLATFORM = linux ]; then path_opt=pmlogger/; fi; pmafm $PCP_LOG_DIR/$path_opt`hostname`/Latest remove 2>/dev/null | sh");
     if (sts != 0)
 	fprintf(stderr, "Warning: folio removal script %d\n", sts);
     close(ctlport);
-    sts = system(". /etc/pcp.env; $PCP_RC_DIR/pcp start");
+    sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pcp start");
     if (sts != 0)
 	fprintf(stderr, "Warning: stop script returns %d\n", sts);
 
     sprintf(path, "%s/pmcd_wait", binadm);
     if(access(path, X_OK) == 0) {
-        sts = system(". /etc/pcp.env; [ -x $PCP_BINADM_DIR/pmcd_wait ] && $PCP_BINADM_DIR/pmcd_wait");
+        sts = system(". $PCP_DIR/etc/pcp.env; [ -x $PCP_BINADM_DIR/pmcd_wait ] && $PCP_BINADM_DIR/pmcd_wait");
 	if (sts != 0)
 	    fprintf(stderr, "Warning: pmcd_wait script returns %d\n", sts);
     }
 
-    sts = system(". /etc/pcp.env; ( cat common.check; echo _wait_for_pmlogger -P $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log ) | sh");
+    sts = system(". $PCP_DIR/etc/pcp.env; ( cat common.check; echo _wait_for_pmlogger -P $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log ) | sh");
     if (sts != 0)
 	fprintf(stderr, "Warning: _wait_for_pmlogger script returns %d\n", sts);
     _ConnectLogger();

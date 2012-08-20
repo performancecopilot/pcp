@@ -7,7 +7,7 @@
 #
 
 # Get standard environment
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 if [ $PCP_PLATFORM = irix ]
 then

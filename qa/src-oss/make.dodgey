@@ -5,7 +5,7 @@
 # Make the various "dodgey" logs
 #
 
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 if [ $# -ne 2 ]
 then

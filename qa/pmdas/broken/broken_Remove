@@ -6,7 +6,7 @@
 #
 
 # source the PCP configuration environment variables
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 # Get the common procedures and variable assignments
 # 
