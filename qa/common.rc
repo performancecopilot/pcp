@@ -75,7 +75,7 @@ real_sudo="$sudo"
 # real sudo is guessed necessary.
 if [ -n "$PCP_DIR" ]
 then
-    pcp_dir_owner=`ls -ld $PCP_DIR | awk '{print $3}'
+    pcp_dir_owner=`ls -ld $PCP_DIR | awk '{print $3}'`
     whoami=`whoami`
     if [ "$pcp_dir_owner" = "$whoami" ]; then
         sudo=''
