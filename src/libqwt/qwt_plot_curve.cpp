@@ -49,6 +49,7 @@ public:
         legendAttributes( 0 )
     {
         pen = QPen( Qt::black );
+	legendPen = Qt::NoPen;
         curveFitter = new QwtSplineCurveFitter;
     }
 
@@ -65,6 +66,7 @@ public:
     QwtCurveFitter *curveFitter;
 
     QPen pen;
+    QPen legendPen;
     QBrush brush;
 
     QwtPlotCurve::CurveAttributes attributes;
@@ -273,6 +275,29 @@ void QwtPlotCurve::setBrush( const QBrush &brush )
 const QBrush& QwtPlotCurve::brush() const
 {
     return d_data->brush;
+}
+
+/*!
+  \brief Assign a pen for the legend
+  \param p New pen
+  \sa pen(), brush()
+*/
+void QwtPlotCurve::setLegendPen(const QPen &p)
+{
+    if ( p != d_data->legendPen )
+    {
+        d_data->legendPen = p;
+        itemChanged();
+    }
+}
+
+/*!
+  \brief Return the pen used to draw the legend lines
+  \sa setLegendPen(), brush()
+*/
+const QPen& QwtPlotCurve::legendPen() const
+{
+    return (d_data->legendPen != Qt::NoPen) ? d_data->legendPen : d_data->pen;
 }
 
 /*!
@@ -998,7 +1023,7 @@ void QwtPlotCurve::drawLegendIdentifier(
         if ( brush.style() == Qt::NoBrush )
         {
             if ( style() != QwtPlotCurve::NoCurve )
-                brush = QBrush( pen().color() );
+                brush = QBrush( legendPen().color() );
             else if ( d_data->symbol &&
                 ( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
             {
@@ -1015,9 +1040,9 @@ void QwtPlotCurve::drawLegendIdentifier(
     }
     if ( d_data->legendAttributes & QwtPlotCurve::LegendShowLine )
     {
-        if ( pen() != Qt::NoPen )
+        if ( legendPen() != Qt::NoPen )
         {
-            painter->setPen( pen() );
+            painter->setPen( legendPen() );
             QwtPainter::drawLine( painter, rect.left(), rect.center().y(),
                                   rect.right() - 1.0, rect.center().y() );
         }

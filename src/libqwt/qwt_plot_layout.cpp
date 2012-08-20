@@ -168,6 +168,7 @@ public:
     QwtPlot::LegendPosition legendPos;
     double legendRatio;
     unsigned int spacing;
+    unsigned int fixedOffset[QwtPlot::axisCnt];
     unsigned int canvasMargin[QwtPlot::axisCnt];
     bool alignCanvasToScales;
 };
@@ -181,6 +182,7 @@ QwtPlotLayout::QwtPlotLayout()
     d_data = new PrivateData;
 
     setLegendPosition( QwtPlot::BottomLegend );
+    setFixedAxisOffset(0);
     setCanvasMargin( 4 );
 
     invalidate();
@@ -229,6 +231,41 @@ int QwtPlotLayout::canvasMargin( int axis ) const
         return 0;
 
     return d_data->canvasMargin[axis];
+}
+
+/*!
+ *   Set a fixed offset for the given axis scale. The offset is the space
+ *     between an outer edge of the plot widget and the scale backbone.
+ *      
+ *        \param offset New offset
+ *          \param axis One of QwtPlot::Axis. Specifies which axis to make fixed offset.
+ *                        -1 means margin at all borders.
+ *                          \sa fixedAxisOffset() 
+ *                          */
+void QwtPlotLayout::setFixedAxisOffset(int offset, int axis)
+{
+    if ( offset < 0 )
+        offset = 0;
+
+    if ( axis == -1 )
+    {
+        for (axis = 0; axis < QwtPlot::axisCnt; axis++)
+            d_data->fixedOffset[axis] = offset;
+    }
+    else if ( axis >= 0 || axis < QwtPlot::axisCnt )
+        d_data->fixedOffset[axis] = offset;
+}
+
+/*!
+ *     \return Fixed offset, if any, for a given axis scale
+ *         \sa setFixedAxisOffset()
+ *         */
+int QwtPlotLayout::fixedAxisOffset(int axis) const
+{
+    if ( axis < 0 || axis >= QwtPlot::axisCnt )
+        return 0;
+
+    return d_data->fixedOffset[axis];
 }
 
 /*!
@@ -810,6 +847,13 @@ void QwtPlotLayout::expandLineBreaks( int options, const QRectF &rect,
 
                     if ( dimTitle > 0 )
                         length -= dimTitle + d_data->spacing;
+                }
+
+                if (d_data->fixedOffset[axis])
+                {
+                    dimAxis[axis] = d_data->fixedOffset[axis]
+                        + backboneOffset[QwtPlot::yLeft];
+                    continue;
                 }
 
                 int d = scaleData.dimWithoutTitle;
