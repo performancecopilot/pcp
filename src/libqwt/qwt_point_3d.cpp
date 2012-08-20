@@ -2,28 +2,21 @@
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
  * Copyright (C) 2002   Uwe Rathmann
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
+#include "qwt_point_3d.h"
 
-#ifndef QWT_ARRAY_H
-#define QWT_ARRAY_H
+#ifndef QT_NO_DEBUG_STREAM
 
-#include "qwt_global.h"
-
-/*!
-  \def QwtArray
- */
-
-#if QT_VERSION < 0x040000
-#include <qmemarray.h>
-#define QwtArray QMemArray
-#else
-#include <qvector.h>
-#define QwtArray QVector
-#endif
+QDebug operator<<( QDebug debug, const QwtPoint3D &point )
+{
+    debug.nospace() << "QwtPoint3D(" << point.x() 
+        << "," << point.y() << "," << point.z() << ")";
+    return debug.space();
+}
 
 #endif
+
