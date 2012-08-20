@@ -175,10 +175,10 @@ TARGETS	+= pv64
 endif
 
 LCFLAGS = -DHAVE_TRACE
-LLDLIBS	= -lpcp
+LLDLIBS	= -lpcp $(LDFLAGS)
 
 # libpcp_trace is ready
-TRACELIB	= -lpcp_trace
+TRACELIB	= -lpcp_trace $(LDFLAGS)
 
 # all archives, except the ones checked into the source tree,
 # then add executables beyond $(TARGETS)
