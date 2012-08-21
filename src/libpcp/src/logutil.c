@@ -1078,8 +1078,10 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
     oti.ti_vol = htonl(ti.ti_vol);
     oti.ti_meta = htonl(ti.ti_meta);
     oti.ti_log = htonl(ti.ti_log);
-    fwrite(&oti, 1, sizeof(oti), lcp->l_tifp);
-    fflush(lcp->l_tifp);
+    if (fwrite(&oti, 1, sizeof(oti), lcp->l_tifp) != sizeof(oti))
+	__pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive temporal index write failed\n");
+    if (fflush(lcp->l_tifp) != 0)
+	__pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive temporal index flush failed\n");
 }
 
 int
