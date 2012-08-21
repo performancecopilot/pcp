@@ -9,6 +9,7 @@ include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/pmdas
 SUBDIRS = broken bigun
+LSRCFILES = GNUmakefile.install
 
 default default_pcp: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

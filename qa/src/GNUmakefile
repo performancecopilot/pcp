@@ -14,7 +14,7 @@ else
 PCP_VER=3000
 endif
 
-TESTDIR	= $(PCP_VAR_DIR)/testsuite
+TESTDIR	= $(PCP_VAR_DIR)/testsuite/src
 
 PMLOGGER	= $(PCP_BINADM_DIR)/pmlogger
 PMLOGEXTRACT	= $(PCP_BINADM_DIR)/pmlogextract
@@ -157,7 +157,7 @@ MYSCRIPTS = grind-tools ipcs_clear make.dodgey mkarch-all mkbadlen \
 	mkeventrec mkinterpmark mkmirage mkproc mkrewrite mksample_expr \
 	mksa-sysstat mktzchange show-args
 
-LSRCFILES = $(MYFILES) $(MYSCRIPTS)
+LSRCFILES = $(MYFILES) $(MYSCRIPTS) GNUmakefile.install
 
 CFILES_TARGETS = $(CFILES)
 
@@ -214,9 +214,10 @@ setup: default $(MKARCH)
 $(TARGETS):
 
 install install_pcp:
-	$(INSTALL) -m 755 -d $(TESTDIR)/src
-	$(INSTALL) -m 644 GNUmakefile $(CFILES) $(MYFILES) $(TESTDIR)/src
-	$(INSTALL) -m 755 $(MYSCRIPTS) $(TARGETS) $(TESTDIR)/src
+	$(INSTALL) -m 755 -d $(TESTDIR)
+	$(INSTALL) -m 644 $(CFILES) $(MYFILES) $(TESTDIR)
+	$(INSTALL) -m 755 $(MYSCRIPTS) $(TARGETS) $(TESTDIR)
+	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 include $(BUILDRULES)
 
