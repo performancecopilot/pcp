@@ -38,11 +38,11 @@ SCRIPTS = mk.localconfig new check recheck remake mk.qa_hosts findmetric \
 COMMON = common common.check common.config common.filter common.install.cisco \
 	 common.pcpweb common.product common.rc common.setup
 
-OTHERS = group qa_hosts.master README \
+OTHERS = GNUmakefile.install group qa_hosts.master qa_outfiles README \
 	 pconf.tar cisco.tar valgrind-suppress
 
 DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | tee qa_outfiles)
-LSRCFILES = $(SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS) qa_outfiles
+LSRCFILES = $(SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS)
 
 qa_outfiles:
 	@echo $(DOTOUTFILES) > qa_outfiles
@@ -52,7 +52,7 @@ install_pcp install: $(SUBDIRS)
 	$(INSTALL) -m 755 $(TESTS) $(TESTDIR)
 	$(INSTALL) -m 755 $(SCRIPTS) $(TESTDIR)
 	$(INSTALL) -m 644 $(COMMON) $(OTHERS) $(TESTDIR)
-	$(INSTALL) -m 644 GNUmakefile.installed $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 	$(INSTALL) -m 644 qa_outfiles $(DOTOUTFILES) $(TESTDIR)
 	$(SUBDIRS_MAKERULE)
 

@@ -69,7 +69,7 @@ qa_outfiles:
 	@echo $(DOTOUTFILES) > qa_outfiles
 
 install_pcp install: 
-	@echo The PCPQA testsuite is already installed.
+	@echo The PCP QA testsuite is already installed.
 	false
 
 include $(BUILDRULES)
