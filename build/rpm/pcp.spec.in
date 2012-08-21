@@ -392,7 +392,7 @@ fi
 %defattr(-,root,root)
 
 %changelog
-* Thu Aug 16 2012 Nathan Scott <nathans@redhat.com> - 3.6.6-1
+* Thu Aug 21 2012 Nathan Scott <nathans@redhat.com> - 3.6.6-1
 - Update to latest PCP sources, creates a new testsuite package.
 
 * Thu Aug 16 2012 Nathan Scott <nathans@redhat.com> - 3.6.5-1
