@@ -60,7 +60,7 @@ newFdTableEntry(PRFileDesc *fd)
         if (fdTable[i] == NULL) {
 	    fdTable[i] = fd;
 	    PM_UNLOCK(__pmLock_libpcp);
-	    return i;
+	    return indexedFd(i);
 	}
     }
 
@@ -194,7 +194,7 @@ __pmCloseSocket(int fd)
 #ifdef HAVE_NSS
     if (isIndexedFd(fd)) {
 	int ix;
-	if ((ix = fdTableIndex(fd) < 0)) {
+	if ((ix = fdTableIndex(fd)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmCloseSocket: invalid file descriptor: %d\n", fd);
 	    return;
 	}
@@ -236,7 +236,7 @@ __pmSetSockOpt(int socket, int level, int option_name, const void *option_value,
 
     if (isIndexedFd(socket)) {
 	int ix;
-	if ((ix = fdTableIndex(socket) < 0)) {
+	if ((ix = fdTableIndex(socket)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmSetSockOpt: invalid file descriptor: %d\n", socket);
 	    return -1;
 	}
@@ -308,7 +308,7 @@ __pmGetSockOpt(int socket, int level, int option_name, void *option_value,
     /* Map the request to the NSPR equivalent, if possible. */
     if (isIndexedFd(socket)) {
 	int ix;
-	if ((ix = fdTableIndex(socket) < 0)) {
+	if ((ix = fdTableIndex(socket)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmGetSockOpt: invalid file descriptor: %d\n", socket);
 	    return -1;
 	}
@@ -394,7 +394,7 @@ __pmListen(int fd, int backlog)
     if (isIndexedFd(fd)) {
         PRStatus prStatus;
 	int ix;
-	if ((ix = fdTableIndex(fd) < 0)) {
+	if ((ix = fdTableIndex(fd)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmListen: invalid file descriptor: %d\n", fd);
 	    return -1;
 	}
@@ -413,7 +413,7 @@ __pmAccept(int fd, void *addr, mysocklen_t *addrlen)
     if (isIndexedFd(fd)) {
         PRFileDesc *newSocket;
 	int ix;
-	if ((ix = fdTableIndex(fd) < 0)) {
+	if ((ix = fdTableIndex(fd)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmAccept: invalid file descriptor: %d\n", fd);
 	    return -1;
 	}
@@ -436,7 +436,7 @@ __pmBind(int fd, void *addr, mysocklen_t addrlen)
     if (isIndexedFd(fd)) {
         PRStatus prStatus;
 	int ix;
-	if ((ix = fdTableIndex(fd) < 0)) {
+	if ((ix = fdTableIndex(fd)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmBind: invalid file descriptor: %d\n", fd);
 	    return -1;
 	}
@@ -455,7 +455,7 @@ __pmConnect(int fd, void *addr, mysocklen_t addrlen)
     if (isIndexedFd(fd)) {
         PRStatus prStatus;
 	int ix;
-	if ((ix = fdTableIndex(fd) < 0)) {
+	if ((ix = fdTableIndex(fd)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmConnect: invalid file descriptor: %d\n", fd);
 	    return -1;
 	}
@@ -474,7 +474,7 @@ __pmConnectTo(int fd, const __pmSockAddrIn *addr, int port)
     __pmSockAddrIn myAddr;
 
     myAddr = *addr;
-    __pmSetPort(&myAddr, htons(port));
+    __pmSetPort(&myAddr, port);
 
     if (__pmFcntlSetFlags(fd, fdFlags | FNDELAY) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
@@ -694,7 +694,7 @@ __pmFcntlGetFlags(int fd)
     /* Map the request to the NSPR equivalent, if possible. */
     if (isIndexedFd(fd)) {
 	int ix;
-	if ((ix = fdTableIndex(fd) < 0)) {
+	if ((ix = fdTableIndex(fd)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmFcntlGetFlags: invalid file descriptor: %d\n", fd);
 	    return -1;
 	}
@@ -718,7 +718,7 @@ __pmFcntlSetFlags(int fd, int flags)
     /* Map the request to the NSPR equivalent, if possible. */
     if (isIndexedFd(fd)) {
 	int ix;
-	if ((ix = fdTableIndex(fd) < 0)) {
+	if ((ix = fdTableIndex(fd)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmFcntlGetFlags: invalid file descriptor: %d\n", fd);
 	    return -1;
 	}
@@ -742,7 +742,7 @@ __pmSend(int socket, const void *buffer, size_t length, int flags)
     /* Map the request to the NSPR equivalent, if possible. */
     if (isIndexedFd(socket)) {
 	int ix;
-	if ((ix = fdTableIndex(socket) < 0)) {
+	if ((ix = fdTableIndex(socket)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmSend: invalid file descriptor: %d\n", socket);
 	    return -1;
 	}
@@ -760,7 +760,7 @@ __pmRecv(int socket, void *buffer, size_t length, int flags)
     /* Map the request to the NSPR equivalent, if possible. */
     if (isIndexedFd(socket)) {
 	int ix;
-	if ((ix = fdTableIndex(socket) < 0)) {
+	if ((ix = fdTableIndex(socket)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmRecv: invalid file descriptor: %d\n", socket);
 	    return -1;
 	}
@@ -777,7 +777,7 @@ __pmFD_CLR(int fd, __pmFdSet *set)
 #ifdef HAVE_NSS
     if (isIndexedFd(fd)) {
 	int ix;
-	if ((ix = fdTableIndex(fd) < 0)) {
+	if ((ix = fdTableIndex(fd)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmFD_CLR: invalid file descriptor: %d\n", fd);
 	    return;
 	}
@@ -805,7 +805,7 @@ __pmFD_ISSET(int fd, __pmFdSet *set)
 #ifdef HAVE_NSS
     if (isIndexedFd(fd)) {
 	int ix;
-	if ((ix = fdTableIndex(fd) < 0)) {
+	if ((ix = fdTableIndex(fd)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmFD_CLR: invalid file descriptor: %d\n", fd);
 	    return 0;
 	}
@@ -823,7 +823,7 @@ __pmFD_SET(int fd, __pmFdSet *set)
 #ifdef HAVE_NSS
     if (isIndexedFd(fd)) {
 	int ix;
-	if ((ix = fdTableIndex(fd) < 0)) {
+	if ((ix = fdTableIndex(fd)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmFD_SET: invalid file descriptor: %d\n", fd);
 	    return;
 	}
@@ -905,29 +905,32 @@ nsprSelect(int rwflag, __pmFdSet *fds, struct timeval *timeout)
     FD_ZERO(&fds->indexedSet);
     if (indexedReady != 0) {
         for (fd = 0; fd < maxIndexed; ++fd) {
-	    if ((pollfds[fd].out_flags & rwflag) != 0)
+	    if (pollfds[fd].fd != NULL && (pollfds[fd].out_flags & rwflag) != 0)
 	        FD_SET(fd, &fds->indexedSet);
 	}
     }
     free(pollfds);
 
-    /* Use the native 'select' function on the native fds. Ignore the nfds
-       passed to us and use the number from the set itself. */
-    if (rwflag == PR_POLL_READ)
-      nativeReady = select(fds->numNativeFds, &fds->nativeSet, NULL, NULL, timeout);
-    else
-      nativeReady = select(fds->numNativeFds, NULL, &fds->nativeSet, NULL, timeout);
-    if (nativeReady < 0) {
-      __pmNotifyErr(LOG_ERR, "nsprSelect: error polling native file descriptors\n");
-      return -1;
-    }
+    nativeReady = 0;
+    if (fds->numNativeFds > 0) {
+        /* Use the native 'select' function on the native fds. Ignore the nfds
+	   passed to us and use the number from the set itself. */
+        if (rwflag == PR_POLL_READ)
+	    nativeReady = select(fds->numNativeFds, &fds->nativeSet, NULL, NULL, timeout);
+	else
+	    nativeReady = select(fds->numNativeFds, NULL, &fds->nativeSet, NULL, timeout);
+	if (nativeReady < 0) {
+	    __pmNotifyErr(LOG_ERR, "nsprSelect: error polling native file descriptors\n");
+	    return -1;
+	}
 
-    /* Reset the max fd. */
-    for (fd = fds->numNativeFds - 1; fd >= 0; --fd) {
-      if (FD_ISSET(fd, &fds->nativeSet))
-	break;
+	/* Reset the max fd. */
+	for (fd = fds->numNativeFds - 1; fd >= 0; --fd) {
+	    if (FD_ISSET(fd, &fds->nativeSet))
+	        break;
+	}
+	fds->numNativeFds = fd + 1;
     }
-    fds->numNativeFds = fd + 1;
 
     /* Return the total number of ready fds. */
     return indexedReady + nativeReady;
