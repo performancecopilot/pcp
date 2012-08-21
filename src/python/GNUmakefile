@@ -24,6 +24,8 @@ endif
 CFILES = pmapi.c
 PYFILES = pcpi.py pcp.py pm-collectl.py setup.py
 LSRCFILES = $(PYFILES)
+LDIRDIRT = build
+LDIRT = s-setup
 
 s-setup : $(CFILES) $(PYFILES)
 	python setup.py build_ext --include-dirs=$(TOPDIR)/src/include --library-dirs=$(TOPDIR)/src/libpcp/src
@@ -34,7 +36,7 @@ default: s-setup; @true
 
 include $(BUILDRULES)
 
-install_python: 
+install_python: default
 	python setup.py install --skip-build $(SETUP_PY_INSTALL_OPTIONS)
 
 default_pcp:    default
