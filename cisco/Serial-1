@@ -1,0 +1,24 @@
+>
+show interface
+Serial1 is up, line protocol is up 
+  Hardware is HD64570
+  Description: Frame-relay, MtV, Hong Kong, Sydney
+  MTU 1500 bytes, BW 1544 Kbit, DLY 20000 usec, rely 255/255, load 5/255
+  Encapsulation FRAME-RELAY, loopback not set, keepalive set (10 sec)
+  LMI enq sent  14998, LMI stat recvd 14885, LMI upd recvd 0, DTE LMI up
+  LMI enq recvd 0, LMI stat sent  0, LMI upd sent  0
+  LMI DLCI 0  LMI type is ANSI Annex D  frame relay DTE
+  Broadcast queue 0/200, broadcasts sent/dropped 508604/0
+  Last input 0:00:00, output 0:00:00, output hang never
+  Last clearing of "show interface" counters never
+  Output queue 0/40, 947 drops; input queue 0/75, 0 drops
+  Five minute input rate 117000 bits/sec, 29 packets/sec
+  Five minute output rate 32000 bits/sec, 20 packets/sec
+     2578327 packets input, 1105345262 bytes, 0 no buffer
+     Received 0 broadcasts, 0 runts, 0 giants
+     54 input errors, 4 CRC, 0 frame, 0 overrun, 1 ignored, 4 abort
+     1975049 packets output, 675844616 bytes, 0 underruns
+     0 output errors, 0 collisions, 142 interface resets, 0 restarts
+     3 carrier transitions
+     DCD=up  DSR=up  DTR=up  RTS=up  CTS=up
+>

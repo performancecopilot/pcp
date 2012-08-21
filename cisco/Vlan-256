@@ -1,0 +1,23 @@
+>
+show int Vlan256
+Vlan256 is up, line protocol is up 
+  Hardware is Cat6k RP Virtual Ethernet, address is 0030.b630.b318 (bia 0030.b630.b318)
+  Description: Uplink to CTC tipctc2 (Area 2)
+  Internet address is 192.132.156.72/26
+  MTU 1500 bytes, BW 10000 Kbit, DLY 1000 usec, 
+     reliablility 255/255, txload 1/255, rxload 44/255
+  Encapsulation ARPA, loopback not set
+  ARP type: ARPA, ARP Timeout 04:00:00
+  Last input 00:00:00, output never, output hang never
+  Last clearing of "show interface" counters never
+  Queueing strategy: fifo
+  Output queue 0/40, 2 drops; input queue 0/75, 1027 drops
+  5 minute input rate 1754000 bits/sec, 158 packets/sec
+  5 minute output rate 9000 bits/sec, 6 packets/sec
+     3087365859 packets input, 816292345 bytes, 224 no buffer
+     Received 3085491728 broadcasts, 0 runts, 0 giants, 0 throttles
+     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+     110141390 packets output, 3736073981 bytes, 0 underruns
+     0 output errors, 3 interface resets
+     0 output buffer failures, 0 output buffers swapped out
+>

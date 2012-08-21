@@ -1,0 +1,93 @@
+#pmieconf-rules 1
+# 
+
+
+# 
+# parameter definitions applicable to all rules
+# (unless overridden at the level of an individual rule or group)
+# 
+
+double		global.delta
+		default = 120
+		help	=
+"Sample interval in seconds between evaluations of this rule.";
+
+unsigned	global.holdoff
+		default	= 15
+		help	=
+"Once the condition is true, this parameter controls suppression of
+further evaluation of the rule for the specified number of minutes.
+A value of zero allows re-evaluation of the rule at the next sample
+time.";
+
+hostlist	global.hosts
+		default	= ""
+		help	=
+"May be set to a list of host names for which the rules will be
+evaluated.  Each host name should be prefixed by a colon and
+multiple entries separated by white space, e.g. :myhost :yourhost
+If the list is empty, the host will be the host named in the -h
+option to pmie(1) if specified, else the local host.";
+
+
+# 
+# action definitions applicable to all rules follow
+# 
+# o  $rule$ defined locally & contains the "message" to be propagated
+# o  $action_expand$ often overridden locally & contains the part of the
+#    action string which is rule-semantics specific and will be expanded
+#    possibly multiple times on truthful evaluation of the predicate to
+#    contain values/instances/hosts which matched,e.g:
+#    "%v@%h" might expand to "1.1@moomba 1.7@rattle 4.5@wobbly" if all
+#    the rule is true for all of the hosts moomba, rattle and wobbly.
+# 
+
+string	global.action_expand
+	display	= no
+	modify	= no
+	default = "%v@%h";	# (value@host)
+		# some common alternatives:
+		#   %i@%h	  (inst@host)
+		#   %h		  (host)
+		#   %v:%i@%h	  (value:inst@host)
+		#   %v%@%h	  (value%@host)
+
+shell	global.email_action
+	enabled	= no
+	default	= "/usr/sbin/Mail -s '$rule$^ $action_expand$^' $email_recipients$"
+	help	=
+"The system log file /var/adm/SYSLOG will be updated when the rule
+condition is true.";
+
+string	global.email_recipients
+	default = "root"
+	help	=
+"Space separated list of e-mail addresses for notification from the
+\"email_action\" when it is enabled";
+
+shell	global.user_action
+	enabled	= no
+	default	= "$user_command$"
+	help	=
+"Execute \"user_command\" when the rule condition is true";
+
+string	global.user_command
+	default = "/usr/bin/true $rule$^ $action_expand$"
+	help	=
+"Shell (sh(1)) command line to execute when rule condition is true
+and \"user_action\" is enabled.";
+
+shell	global.pcplog_action
+	enabled	= yes
+	default	= "/usr/pcp/bin/pmpost $rule$^ $action_expand$"
+	help	=
+"The PCP notices file /var/adm/pcplog/NOTICES will be updated when
+the rule condition is true.";
+
+syslog	global.syslog_action
+	enabled	= no
+	default	= "-p daemon.info $rule$^ $action_expand$"
+	help	=
+"The system log file /var/adm/SYSLOG will be updated when the rule
+condition is true.";
+
