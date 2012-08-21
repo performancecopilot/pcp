@@ -11,7 +11,6 @@ TESTDIR = $(PCP_VAR_DIR)/testsuite/pmdas/bigun
 
 CFILES = bigun.c
 LIBTARGET = bigun.$(DSOSUFFIX)
-TESTDIR = $(PCP_VAR_DIR)/testsuite
 TARGETS = $(LIBTARGET)
 MYFILES = domain.h help pmns root
 MYSCRIPTS = Install Remove
