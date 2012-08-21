@@ -68,12 +68,18 @@ then
     sudo="$sudo -E"
 fi
 real_sudo="$sudo"
+
+# running with PCP_DIR set, probably don't want to do most things as
+# root ... leave $real_sudo alone just in case
+# However, if $PCP_DIR exists and is owned by someone other than ourselves,
+# real sudo is guessed necessary.
 if [ -n "$PCP_DIR" ]
 then
-    # running with PCP_DIR set, probably don't want to do most things as
-    # root ... leave $real_sudo alone just in case
-    #
-    sudo=''
+    pcp_dir_owner=`ls -ld $PCP_DIR | awk '{print $3}'`
+    whoami=`whoami`
+    if [ "$pcp_dir_owner" = "$whoami" ]; then
+        sudo=''
+    fi
 fi
 here=`pwd`
 tmp=/tmp/$$

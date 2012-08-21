@@ -84,7 +84,7 @@ _check_pmdas()
 # files in the PCP distribution
 #
 fail=false
-for file in /etc/pcp.env
+for file in $PCP_DIR/etc/pcp.env
 do
     if [ ! -f "$file" ]
     then
@@ -132,7 +132,7 @@ fi
 # common.product
 # 	common.setup
 #		common.rc
-#			/etc/pcp.env
+#			$PCP_DIR/etc/pcp.env
 #	localconfig
 # common.check
 # common.config
@@ -142,7 +142,7 @@ fi
 . ./common.check
 . ./common.config
 
-# things we care about from /etc/pcp.env
+# things we care about from $PCP_DIR/etc/pcp.env
 #
 
 # files
@@ -152,12 +152,12 @@ do
     eval file=\$$var
     if [ -z "$file" ]
     then
-	echo "$0: Error: variable \$$var is not set from /etc/pcp.env"
+	echo "$0: Error: variable \$$var is not set from $PCP_DIR/etc/pcp.env"
 	fail=true
     else
 	if [ ! -f "$file" ]
 	then
-	    echo "$0: Error: cannot find file \"$file\" (\$$var from /etc/pcp.env)"
+	    echo "$0: Error: cannot find file \"$file\" (\$$var from $PCP_DIR/etc/pcp.env)"
 	    fail=true
 	fi
     fi
@@ -172,14 +172,14 @@ do
     prog=`echo $prog | sed -e 's/ .*//'`
     if [ -z "$prog" ]
     then
-	echo "$0: Error: variable \$$var is not set from /etc/pcp.env"
+	echo "$0: Error: variable \$$var is not set from $PCP_DIR/etc/pcp.env"
 	fail=true
     else
 	if which $prog >/dev/null 2>&1
 	then
 	    :
 	else
-	    echo "$0: Error: cannot find executable program \"$prog\" (\$$var from /etc/pcp.env)"
+	    echo "$0: Error: cannot find executable program \"$prog\" (\$$var from $PCP_DIR/etc/pcp.env)"
 	    fail=true
 	fi
     fi
@@ -187,7 +187,7 @@ done
 
 # directories
 #
-# these ones should be in /etc/pcp.conf but are not currently used in
+# these ones should be in $PCP_DIR/etc/pcp.conf but are not currently used in
 # the QA scripts, but are tested here for completeness
 #
 xtra="PCP_LIB_DIR PCP_INC_DIR PCP_MAN_DIR"
@@ -199,11 +199,11 @@ do
     eval dir=\$$var
     if [ -z "$dir" ]
     then
-	echo "$0: Warning: variable \$$var is not set from /etc/pcp.env"
+	echo "$0: Warning: variable \$$var is not set from $PCP_DIR/etc/pcp.env"
     else
 	if [ ! -d "$dir" ]
 	then
-	    echo "$0: Warning: cannot find directory \"$prog\" (\$$var from /etc/pcp.env)"
+	    echo "$0: Warning: cannot find directory \"$prog\" (\$$var from $PCP_DIR/etc/pcp.env)"
 	fi
     fi
 done
@@ -215,7 +215,7 @@ done
 
 # localconfig will unconditionally set these ones ... no real sane checking
 # I can do here!
-#	$PCP_PLATFORM	(redundant, copied from /etc/pcp.conf)
+#	$PCP_PLATFORM	(redundant, copied from $PCP_DIR/etc/pcp.conf)
 #	$PCP_VER
 #	$PCP_EOE_VER
 #	$PCP_EOE_NOSHIP_VER

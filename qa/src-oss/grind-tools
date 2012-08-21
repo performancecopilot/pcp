@@ -11,7 +11,7 @@ _usage()
 }
 
 # Get standard environment
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 status=0
 tmp=/tmp/$$

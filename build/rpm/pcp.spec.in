@@ -207,7 +207,7 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 
 %prep
 %setup -q
-%configure
+%configure --with-rcdir=/etc/rc.d/init.d
 touch config.done
 
 %clean

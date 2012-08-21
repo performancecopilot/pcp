@@ -57,13 +57,13 @@ _chown ()
 	_st=$?
 	if [ $_st -ne 0 ] ; then
 	    if [ $REAL_UID != '0' ] ; then
-		if [ ! -f $DIST_ROOT/.chown.quite ] ; then
+		if [ ! -f $DIST_ROOT/.chown.quiet ] ; then
 		    echo '==============================================='
 		    echo Ownership of files under ${DIST_ROOT:-/}
 		    echo cannot be changed
 		    echo '==============================================='
 		    if [ -n "$DIST_ROOT" ] ; then
-			touch $DIST_ROOT/.chown.quite
+			touch $DIST_ROOT/.chown.quiet
 		    fi
 		fi
 	       _st=0
@@ -117,7 +117,8 @@ else
     RM=true; CP=true; LN=true; MKDIR=true; CHMOD=true; CHOWN=true
 fi
 
-[ -n "$DIST_ROOT" -a $REAL_UID -ne 0 ] && CHOWN=true
+
+test $REAL_UID -ne 0 && CHOWN=true
 
 while getopts "d:g:m:o:S:" c $*
 do

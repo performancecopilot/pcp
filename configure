@@ -563,7 +563,6 @@ PACKAGE_BUGREPORT=
 PACKAGE_URL=
 
 ac_unique_file="src/include/pcp/pmapi.h"
-ac_default_prefix=
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
@@ -613,6 +612,7 @@ pcp_log_dir
 pcp_sysconfig_dir
 pcp_rc_dir
 pcp_inc_dir
+pcp_sbin_dir
 pcp_bin_dir
 need_old_tbl_header
 have_xzed_manpages
@@ -620,7 +620,6 @@ have_lzmaed_manpages
 have_bzip2ed_manpages
 have_gzipped_manpages
 pcp_man_dir
-pcp_x11_appdefs_dir
 pcp_x11_pre
 pcp_x11_extra
 pcp_x11_libflags
@@ -630,6 +629,9 @@ X_LIBS
 X_PRE_LIBS
 X_CFLAGS
 XMKMF
+python_prefix
+perl_install_base
+perl_installdirs
 pcp_lib32_dir
 pcp_lib_dir
 pcp_pmdas_dir
@@ -801,7 +803,17 @@ with_64bit
 with_threads
 enable_ssp
 enable_pie
+with_configdir
+with_perl_installdirs
+with_perl_install_base
+with_python_prefix
 with_x
+with_rcdir
+with_sysconfigdir
+with_logdir
+with_rundir
+with_docdir
+with_demosdir
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1442,7 +1454,18 @@ Optional Packages:
   --with-64bit            turn on 64 bit compilation node (default is platform
                           dependent)
   --with-threads          enable support for multiple threads (default is on)
+  --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
+  --with-perl_installdirs perl installdirs [vendor]
+  --with-perl_install_base
+                          perl install_base [PREFIX]
+  --with-python_prefix    python setup.py prefix [PREFIX]
   --with-x                use the X Window System
+  --with-rcdir            rc directory [SYSCONFDIR/rc.d]
+  --with-sysconfigdir     sysconfig directory [SYSCONFDIR/sysconfig]
+  --with-logdir           log directory [LOCALSTATEDIR/log/pcp]
+  --with-rundir           run directory [LOCALSTATEDIR/run/pcp]
+  --with-docdir           docs directory [DOCDIR/pcp-VERSION]
+  --with-demosdir         run directory [DATADIR/pcp/demos]
 
 Some influential environment variables:
   CC          C compiler command
@@ -3420,7 +3443,9 @@ in
 esac
 
 
-
+# NB: No AC_PREFIX_DEFAULT is needed, as the default configure invocation
+# targets a build for non-system directories such as /usr/local.
+# AC_PREFIX_DEFAULT([])
 
 if test -f VERSION.pcp
 then
@@ -9690,103 +9715,37 @@ then
 fi
 
 
-if test ! -z "$PCP_ETC_DIR"
-then
-    pcp_etc_dir=$PCP_ETC_DIR
-else
-    if test -d /etc
-    then
-	pcp_etc_dir=/etc
-    else
-	echo "FATAL ERROR: could not find /etc directory."
-	echo "You need to set \$PCP_ETC_DIR in the environment"
-	echo "as the path to the directory containing \"pcp.conf\"."
-	rm -rf conftest conftest.*
-	exit 1
-    fi
-fi
+pcp_etc_dir=`eval echo $sysconfdir`
+pcp_etc_dir=`eval echo $pcp_etc_dir`
 
 
-pcp_share_dir=`eval echo $datadir`
+pcp_share_dir=`eval echo $datarootdir/pcp`
 pcp_share_dir=`eval echo $pcp_share_dir`
-if test -z "`echo $pcp_share_dir | sed 's;/.*\$;;'`"
-then
-    if test $target_os = mingw
-    then
-	pcp_share_dir=
-    elif test -d /usr/share
-    then
-	pcp_share_dir=/usr/share/pcp
-    elif test -d /usr/local
-    then
-	pcp_share_dir=/usr/local/pcp
-    else
-	pcp_share_dir=/usr/pcp
-    fi
-fi
 
 
-pcp_binadm_dir=`eval echo $libexecdir`
+pcp_binadm_dir=`eval echo $libexecdir/pcp/bin`
 pcp_binadm_dir=`eval echo $pcp_binadm_dir`
-if test -z "`echo $pcp_binadm_dir | sed 's;/.*\$;;'`"
-then
-    if test $target_distro = debian
-    then
-	pcp_binadm_dir=/usr/lib/pcp/bin
-    elif test $target_os = mingw
-    then
-	pcp_binadm_dir=/local/bin
-    elif test -d /usr/libexec
-    then
-	pcp_binadm_dir=/usr/libexec/pcp/bin
-    else
-	pcp_binadm_dir=$pcp_share_dir/bin
-    fi
-else
-   pcp_binadm_dir=`eval echo $pcp_binadm_dir/pcp/bin`
-fi
 
 
-pcp_var_dir=`eval echo $localstatedir`
+pcp_var_dir=`eval echo $localstatedir/lib/pcp`
 pcp_var_dir=`eval echo $pcp_var_dir`
-if test -z "`echo $pcp_var_dir | sed 's;/.*\$;;'`"
-then
-    if test $target_os = mingw
-    then
-	pcp_var_dir=
-    elif test -d /var/lib
-    then
-	pcp_var_dir=/var/lib/pcp
-    elif test -d /var
-    then
-	pcp_var_dir=/var/pcp
-    elif test -d /usr/local
-    then
-	pcp_var_dir=/usr/local/pcp
-    else
-	pcp_var_dir=/usr
-    fi
-fi
 
 
-if test $target_os = darwin -o $target_distro = debian
-then
-    pcp_pmcdconf_path=/etc/pmcd/pmcd.conf
-    pcp_pmcdrclocal_path=/etc/pmcd/rc.local
-    pcp_pmcdoptions_path=/etc/pmcd/pmcd.options
-    pcp_pmproxyoptions_path=/etc/pmproxy/pmproxy.options
-    pcp_pmiecontrol_path=/etc/pmie/control
-    pcp_pmsnapcontrol_path=/etc/pmsnap/control
-    pcp_pmloggercontrol_path=/etc/pmlogger/control
+
+# Check whether --with-configdir was given.
+if test "${with_configdir+set}" = set; then :
+  withval=$with_configdir; pcp_config_dir=$withval
 else
-    pcp_pmcdconf_path=$pcp_var_dir/config/pmcd/pmcd.conf
-    pcp_pmcdrclocal_path=$pcp_var_dir/config/pmcd/rc.local
-    pcp_pmcdoptions_path=$pcp_var_dir/config/pmcd/pmcd.options
-    pcp_pmproxyoptions_path=$pcp_var_dir/config/pmproxy/pmproxy.options
-    pcp_pmiecontrol_path=$pcp_var_dir/config/pmie/control
-    pcp_pmsnapcontrol_path=$pcp_var_dir/config/pmsnap/control
-    pcp_pmloggercontrol_path=$pcp_var_dir/config/pmlogger/control
+  pcp_config_dir=$pcp_var_dir/config
 fi
+
+pcp_pmcdconf_path=$pcp_config_dir/pmcd/pmcd.conf
+pcp_pmcdrclocal_path=$pcp_config_dir/pmcd/rc.local
+pcp_pmcdoptions_path=$pcp_config_dir/pmcd/pmcd.options
+pcp_pmproxyoptions_path=$pcp_config_dir/pmproxy/pmproxy.options
+pcp_pmiecontrol_path=$pcp_config_dir/pmie/control
+pcp_pmsnapcontrol_path=$pcp_config_dir/pmsnap/control
+pcp_pmloggercontrol_path=$pcp_config_dir/pmlogger/control
 
 
 
@@ -9798,44 +9757,45 @@ fi
 pcp_pmdas_dir=$pcp_var_dir/pmdas
 
 
-if test $target_os = mingw
-then
-    pcp_lib_dir=/local/bin
-    pcp_lib32_dir=/local/bin
-elif test $target_os = linux -a \( $target_cpu = x86_64 -o $target_cpu = powerpc64 -o $target_cpu = s390x \) -a $target_distro != debian
-then
-    # Linux on x86_64 and ppc64 puts libraries in .../lib64 (and rpmbuild
-    # enforces that convention) but $libdir lies about it.
-    pcp_lib_dir=/usr/lib64
-    pcp_lib32_dir=/usr/lib
-elif test $target_os = "solaris"
-then
-    if test "$PCP_PTR_SIZE" -eq 64
-    then
-	    pcp_lib_dir=/usr/lib/64
-	    pcp_lib32_dir=/usr/lib
-    else
-	    pcp_lib_dir=/usr/lib
-    fi
+pcp_lib_dir=`eval echo $libdir`
+pcp_lib_dir=`eval echo $pcp_lib_dir`
+pcp_lib32_dir=`echo $pcp_lib_dir | sed -e s,64,, -e s,//,/,`
+
+
+
+
+# Check whether --with-perl_installdirs was given.
+if test "${with_perl_installdirs+set}" = set; then :
+  withval=$with_perl_installdirs; perl_installdirs=$withval
 else
-    pcp_lib_dir=`eval echo $libdir`
-    pcp_lib_dir=`eval echo $pcp_lib_dir`
-    if test -z "`echo $pcp_lib_dir | sed 's;/.*\$;;'`"
-    then
-       if test -d /usr/lib
-       then
-	   pcp_lib_dir=/usr/lib
-       elif test -d /usr/local/lib
-       then
-	   pcp_lib_dir=/usr/local/lib
-       else
-	   pcp_lib_dir=/lib
-       fi
-    fi
+  perl_installdirs=vendor
 fi
-if test -z "$pcp_lib32_dir" ; then
-	pcp_lib32_dir=$pcp_lib_dir
+
+perl_installdirs=`eval echo $perl_installdirs`
+perl_installdirs=`eval echo $perl_installdirs`
+
+
+# Check whether --with-perl_install_base was given.
+if test "${with_perl_install_base+set}" = set; then :
+  withval=$with_perl_install_base; perl_install_base=$withval
+else
+  perl_install_base=$prefix
 fi
+
+perl_install_base=`eval echo $perl_install_base`
+perl_install_base=`eval echo $perl_install_base`
+
+
+
+# Check whether --with-python_prefix was given.
+if test "${with_python_prefix+set}" = set; then :
+  withval=$with_python_prefix; python_prefix=$withval
+else
+  python_prefix=$prefix
+fi
+
+python_prefix=`eval echo $python_prefix`
+python_prefix=`eval echo $python_prefix`
 
 
 
@@ -10531,31 +10491,6 @@ pcp_x11_extra=$X_EXTRA_LIBS
 pcp_x11_pre=$X_PRE_LIBS
 
 
-pcp_x11_appdefs_dir=
-if test "$with_x" != "no" ; then
-    ac_appdefs_dirs="/usr/lib/X11 /usr/X11/lib /usr/X11/lib/X11 /usr/share/X11"
-    if test -n "$x_includes" ; then
-	d=`dirname $x_includes`
-	ac_appdefs_dirs="$d/lib $d/lib/X11 $ac_appdefs_dirs"
-    fi
-    if test -n "$x_libraries" ; then
-	d=`dirname $x_libraries`
-	ac_appdefs_dirs="$d/lib $d/lib/X11 $ac_appdefs_dirs"
-    fi
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for X11 app-defaults directory" >&5
-$as_echo_n "checking for X11 app-defaults directory... " >&6; }
-    for d in $ac_appdefs_dirs; do
-	dd=$d/app-defaults
-	if test -d $dd ; then
-		pcp_x11_appdefs_dir=$dd
-		break;
-	fi
-    done
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pcp_x11_appdefs_dir" >&5
-$as_echo "$pcp_x11_appdefs_dir" >&6; }
-fi
-
-
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
 have_lzmaed_manpages=false
@@ -10564,102 +10499,38 @@ need_old_tbl_header=false
 man_header=
 pcp_man_dir=`eval echo $mandir`
 pcp_man_dir=`eval echo $pcp_man_dir`
-if test -z "`echo $pcp_man_dir | sed 's;/.*\$;;'`"
-then
-        if test $target_os = mingw
-    then
-	pcp_man_dir=/man
-    elif test -d /usr/share/man
-    then
-	pcp_man_dir=/usr/share/man
-    elif test -d /usr/local/man
-    then
-	pcp_man_dir=/usr/local/man
-    else
-	pcp_man_dir=/usr/man
-    fi
-        for d in /usr/man /usr/share/man $pcp_share_dir/man
+
+for d in /usr/man /usr/share/man $pcp_man_dir
+do
+    for sd in man1 sman1
     do
-	if test -f $d/man1/man.1.gz
+	if test -f $d/$sd/man.1.gz
 	then
 	    have_gzipped_manpages=true
-	    pcp_man_dir=$d
-	    man_header=`$ZIP -d < $d/man1/man.1.gz | head -1`
+	    man_header=`$ZIP -d < $d/$sd/man.1.gz | head -1`
 	    break
-	elif test -f $d/man1/man.1.bz2
+	elif test -f $d/$sd/man.1.bz2
 	then
 	    have_bzip2ed_manpages=true
-	    pcp_man_dir=$d
-	    man_header=`$BZIP2 -d < $d/man1/man.1.bz2 | head -1`
+	    man_header=`$BZIP2 -d < $d/$sd/man.1.bz2 | head -1`
 	    break
-	elif test -f $d/man1/man.1.lzma
+	elif test -f $d/$sd/man.1.lzma
 	then
 	    have_lzmaed_manpages=true
-	    pcp_man_dir=$d
-	    man_header=`$LZMA -d < $d/man1/man.1.lzma | head -1`
+	    man_header=`$LZMA -d < $d/$sd/man.1.lzma | head -1`
 	    break
-	elif test -f $d/man1/man.1.xz
+	elif test -f $d/$sd/man.1.xz
 	then
 	    have_xzed_manpages=true
-	    pcp_man_dir=$d
-	    man_header=`$XZ -d < $d/man1/man.1.xz | head -1`
+	    man_header=`$XZ -d < $d/$sd/man.1.xz | head -1`
 	    break
-	elif test -f $d/man1/man.1
+	elif test -f $d/$sd/man.1
 	then
-	    pcp_man_dir=$d
-	    man_header=`head -1 $d/man1/man.1`
-	    break
-	elif test -f $d/sman1/man.1.gz
-	then
-	    have_gzipped_manpages=true
-	    pcp_man_dir=$d
-	    man_header=`$ZIP -d < $d/sman1/man.1.gz | head -1`
-	    break
-	elif test -f $d/sman1/man.1.bz2
-	then
-	    have_bzip2ed_manpages=true
-	    pcp_man_dir=$d
-	    man_header=`$BZIP2 -d < $d/sman1/man.1.bz2 | head -1`
-	    break
-	elif test -f $d/sman1/man.1.lzma
-	then
-	    have_lzmaed_manpages=true
-	    pcp_man_dir=$d
-	    man_header=`$LZMA -d < $d/sman1/man.1.lzma | head -1`
-	    break
-	elif test -f $d/sman1/man.1.xz
-	then
-	    have_xzed_manpages=true
-	    pcp_man_dir=$d
-	    man_header=`$XZ -d < $d/sman1/man.1.xz | head -1`
-	    break
-	elif test -f $d/sman1/man.1
-	then
-	    pcp_man_dir=$d
-	    man_header=`head -1 $d/sman1/man.1`
-	    break
-	elif test -f $d/cat1/man.1
-	then
-	    pcp_man_dir=$d
-	    # cannot deduce troff meta control from formatted man
-	    # pages, so leave $man_header empty
+	    man_header=`head -1 $d/$sd/man.1`
 	    break
 	fi
     done
-    if test -x /usr/lib/rpm/brp-compress -a $target_distro != mandriva
-    then
-	have_gzipped_manpages=true
-	have_bzip2ed_manpages=false
-	have_lzmaed_manpages=false
-	have_xzed_manpages=false
-    fi
-fi
-if test -z "$pcp_man_dir"
-then
-    echo "FATAL ERROR: could not find pcp_man_dir directory."
-    rm -rf conftest conftest.*
-    exit 1
-fi
+done
 if test x"$man_header" = "x'\\\" t" -o x"$man_header" = "x'\\\" te" ; then
     need_old_tbl_header=true
 fi
@@ -10672,82 +10543,58 @@ fi
 
 pcp_bin_dir=`eval echo $bindir`
 pcp_bin_dir=`eval echo $pcp_bin_dir`
-if test -z "`echo $pcp_bin_dir | sed 's;/.*\$;;'`"
-then
-    if test $target_os = mingw
-    then
-	pcp_bin_dir=/local/bin
-    elif test -d /usr/bin
-    then
-	pcp_bin_dir=/usr/bin
-    else
-	pcp_bin_dir=/bin
-    fi
-fi
 
 
-pcp_inc_dir=`eval echo $includedir`
+pcp_sbin_dir=`eval echo $sbindir`
+pcp_sbin_dir=`eval echo $pcp_sbin_dir`
+
+
+pcp_inc_dir=`eval echo $includedir/pcp`
 pcp_inc_dir=`eval echo $pcp_inc_dir`
-if test -z "`echo $pcp_inc_dir | sed 's;/.*\$;;'`"
-then
-    if test $target_os = mingw
-    then
-	pcp_inc_dir=/include/pcp
-    else
-	pcp_inc_dir=/usr/include/pcp
-    fi
-fi
 
 
-if test $target_os = darwin
-then
-    pcp_rc_dir=/Library/StartupItems/pcp
-elif test $target_distro = suse -o $target_distro = debian
-then
-    pcp_rc_dir=/etc/init.d
+
+# Check whether --with-rcdir was given.
+if test "${with_rcdir+set}" = set; then :
+  withval=$with_rcdir; pcp_rc_dir=$withval
 else
-    for d in /etc/rc.d/init.d /etc/init.d /sbin/init.d ; do
-	if test -d $d
-	then
-	    pcp_rc_dir=$d
-	    break;
-	fi
-    done
-    if test -z "$pcp_rc_dir"
-    then
-	pcp_rc_dir=/etc
-    fi
+  pcp_rc_dir=$pcp_etc_dir/rc.d
 fi
 
 
-if test -d /etc/sysconfig
-then
-    pcp_sysconfig_dir=/etc/sysconfig
+
+
+# Check whether --with-sysconfigdir was given.
+if test "${with_sysconfigdir+set}" = set; then :
+  withval=$with_sysconfigdir; pcp_sysconfig_dir=$withval
 else
-                pcp_sysconfig_dir=
+  pcp_sysconfig_dir=$pcp_etc_dir/sysconfig
 fi
 
 
-if test -d /var/log
-then
-    pcp_log_dir=/var/log/pcp
-elif test $target_os = mingw
-then
-    pcp_log_dir=/var/log
+
+
+# Check whether --with-logdir was given.
+if test "${with_logdir+set}" = set; then :
+  withval=$with_logdir; pcp_log_dir=$withval
 else
-    pcp_log_dir=$pcp_var_dir/pcplog
+  pcp_log_dir=$localstatedir/log/pcp
 fi
 
+pcp_log_dir=`eval echo $pcp_log_dir`
+pcp_log_dir=`eval echo $pcp_log_dir`
 
-if test -d /var/run
-then
-    pcp_run_dir=/var/run/pcp
-elif test $target_os = mingw
-then
-    pcp_run_dir=/var/run
+
+
+# Check whether --with-rundir was given.
+if test "${with_rundir+set}" = set; then :
+  withval=$with_rundir; pcp_run_dir=$withval
 else
-    pcp_run_dir=$pcp_var_dir/pcprun
+  pcp_run_dir=$localstatedir/run/pcp
 fi
+
+pcp_run_dir=`eval echo $pcp_run_dir`
+pcp_run_dir=`eval echo $pcp_run_dir`
 
 
 if test -d /var/tmp
@@ -10758,32 +10605,26 @@ else
 fi
 
 
-if test $target_os = mingw
-then
-    pcp_doc_dir=/doc
-elif test -d /usr/share/doc/packages
-then
-    pcp_doc_dir=/usr/share/doc/packages/pcp-${PACKAGE_VERSION}
-elif test -d /usr/share/doc
-then
-    pcp_doc_dir=/usr/share/doc/pcp-${PACKAGE_VERSION}
-elif test -d /usr/doc
-then
-    pcp_doc_dir=/usr/doc/pcp-${PACKAGE_VERSION}
+
+# Check whether --with-docdir was given.
+if test "${with_docdir+set}" = set; then :
+  withval=$with_docdir; pcp_doc_dir=$withval
 else
-    pcp_doc_dir=/usr/share/pcp/doc
+  pcp_doc_dir=$docdir/pcp-${PACKAGE_VERSION}
 fi
 
+pcp_doc_dir=`eval echo $pcp_doc_dir`
+pcp_doc_dir=`eval echo $pcp_doc_dir`
 
-if test $target_os = mingw
-then
-    pcp_demos_dir=/demos
-elif test -d /usr/share/demos
-then
-    pcp_demos_dir=/usr/share/demos/pcp
+
+
+# Check whether --with-demosdir was given.
+if test "${with_demosdir+set}" = set; then :
+  withval=$with_demosdir; pcp_demos_dir=$withval
 else
-    pcp_demos_dir=/usr/share/pcp/demos
+  pcp_demos_dir=$pcp_share_dir/demos
 fi
+
 
 
 if test -z "$XCONFIRM"

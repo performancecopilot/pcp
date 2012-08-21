@@ -3,12 +3,12 @@
 # Script to recreate the tzshift series of archives
 #
 
-if [ ! -f /etc/pcp.env ]
+if [ ! -f $PCP_DIR/etc/pcp.env ]
 then
-    echo "No /etc/pcp.env ... I give up!"
+    echo "No $PCP_DIR/etc/pcp.env ... I give up!"
     exit 1
 fi
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 if make pmtimezone.so
 then

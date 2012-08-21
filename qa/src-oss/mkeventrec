@@ -2,7 +2,7 @@
 #
 # create the eventrec archive
 #
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 pmstore sample.event.reset 3
 

@@ -51,22 +51,18 @@ arbitrary strings with no embedded white space, e.g. mytx#1).
 '
 
     args=""
-    while [ -z "$args" ]
+    while true
     do
-	while true
-	do
-	    $PCP_ECHO_PROG $PCP_ECHO_N "Name for transaction type? [return if no more] ""$PCP_ECHO_C"
-	    read ans
-	    [ -z "$ans" ] && break
-	    args="$args $ans"
-	done
-	if [ -z "$args" ]
-	then
-	    echo "You need to specify at least one transaction type name!"
-	    echo "Please try again"
-	    echo
-	fi
+	$PCP_ECHO_PROG $PCP_ECHO_N "Name for transaction type? [return if no more] ""$PCP_ECHO_C"
+	read ans
+	[ -z "$ans" ] && break
+	args="$args $ans"
     done
+    if [ -z "$args" ]
+    then
+	echo "You need to specify at least one transaction type name!"
+	exit 1
+    fi
 fi
 
 pmdaInstall

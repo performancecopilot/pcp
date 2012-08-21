@@ -5,7 +5,7 @@
 
 rm -f proc.0 proc.index proc.meta
 
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 pmcd_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mcd' | $PCP_AWK_PROG '{ print $2 }'`
 if [ -z "$pmcd_pid" ]
