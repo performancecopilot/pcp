@@ -19,14 +19,9 @@ seq=`basename $0`
 #
 host=`hostname | sed -e 's/\..*//'`
 rm -f $seq.out
-if [ -f $seq.out.$host ]
-then
-    ln $seq.out.$host $seq.out
-else
-    echo "No qualified results file ($seq.out.$host) for the localhost" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
+[ -f $seq.out.$host ] || \
+	_notrun "No qualified results file ($seq.out.$host) for the localhost"
+ln $seq.out.$host $seq.out
 
 echo "QA output created by $seq"
 
