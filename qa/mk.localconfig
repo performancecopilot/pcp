@@ -11,35 +11,6 @@
 tmp=/var/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
-_getversion()
-{
-    # output from versions looks like ...
-    # I  pcp.sw               1287046800  PCP Software, 2.2 beta-3
-    # I  pcp_eoe_noship       1276478200  Performance Co-Pilot NOSHIP EOE for IRIX 6.5, 2.2 beta-1
-    # I  pcp_eoe_noship.sw    1276478200  PCP EOE Software, 2.2 beta-1
-    # I  pcp_eoe_noship.sw.eoe  1276478200  PCP EOE, 2.2 beta-1
-    # I  pcp_eoe_noship.sw.monitor  1276478200  PCP EOE Monitor, 2.2 beta-1
-    versions -n $1 \
-    | grep '^I  ' \
-    | sed \
-	-e 's/.* \([1-9][0-9]*\) .*, */\1 /' \
-	-e 's/ beta-.*//' \
-	-e 's/ baobab//' \
-	-e '/ [^.]*\.[^.]*$/s/$/.0/' \
-	-e 's/\.\([0-9]\)$/.0\1/' \
-	-e 's/\.//g' \
-    | LC_COLLATE=POSIX sort -u \
-    | $PCP_AWK_PROG '{ print $2 }' >$tmp.tmp
-    if [ `wc -l <$tmp.tmp` -gt 1 ]
-    then
-	echo "mk.localconfig: Warning: multiple versions of $1 installed?"
-	versions -n $1
-	echo "... using the first one, hope that's OK"
-	sed 1q $tmp.tmp >$tmp.eek
-	mv $tmp.eek $tmp.tmp
-    fi
-}
-
 PCP_VER=`echo $PCP_VERSION \
 	     | sed \
 		 -e '/^[^.]*\.[^.]*$/s/$/.0/' \
@@ -47,7 +18,6 @@ PCP_VER=`echo $PCP_VERSION \
 		 -e 's/\.//g'`
 [ -z "$PCP_VER" ] && PCP_VER=0
 PCP_EOE_VER=$PCP_VER
-PCP_EOE_NOSHIP_VER=0
 if which rpm >/dev/null 2>&1
 then
     PCP_PRO_VER=0
@@ -68,7 +38,6 @@ cat <<End-of-File >$tmp.out
 #define PCP_VER	$PCP_VER
 #define PCP_EOE_VER $PCP_EOE_VER
 #define PCP_PRO_VER $PCP_PRO_VER
-#define PCP_EOE_NOSHIP_VER $PCP_EOE_NOSHIP_VER
 End-of-File
 
 user=`id -un 2>/dev/null`
@@ -94,7 +63,6 @@ PCP_PLATFORM=$PCP_PLATFORM
 PCP_VER=$PCP_VER
 PCP_EOE_VER=$PCP_EOE_VER
 PCP_PRO_VER=$PCP_PRO_VER
-PCP_EOE_NOSHIP_VER=$PCP_EOE_NOSHIP_VER
 End-of-File
 
 if [ ! -f localconfig ]

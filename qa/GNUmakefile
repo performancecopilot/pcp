@@ -13,16 +13,16 @@ include $(TOPDIR)/src/include/builddefs
 TESTDIR = $(PCP_VAR_DIR)/testsuite
 TESTS	= $(shell sed -n -e '/^[0-9]/s/[ 	].*//p' <group)
 
-SUBDIRS = src pmdas
+SUBDIRS = src pmdas cisco pconf
 
 default_pcp default: new remake check qa_outfiles $(OTHERS) $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
-setup: $(SUBDIRS) pconf cisco localconfig qa_hosts
+setup: $(SUBDIRS) localconfig qa_hosts
 	$(SUBDIRS_MAKERULE)
 
 LDIRT += 051.work 134.full.* \
-         *.bak *.bad *.core *.full *.raw *.o core a.out core.* \
+	 *.bak *.bad *.core *.full *.raw *.o core a.out core.* \
 	 *.log eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz \
 	 *.full.ok *.new rc_cron_check.clean \
 	  make.out qa_hosts qa_outfiles localconfig localconfig.h check.time
@@ -41,7 +41,7 @@ COMMON = common common.check common.config common.filter common.install.cisco \
 	 common.pcpweb common.product common.rc common.setup
 
 OTHERS = GNUmakefile.install group qa_hosts.master qa_outfiles README \
-	 pconf.tar cisco.tar valgrind-suppress
+	 valgrind-suppress
 
 DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | tee qa_outfiles)
 LSRCFILES = $(SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS)

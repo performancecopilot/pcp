@@ -1,0 +1,29 @@
+#pmieconf-rules 1
+#
+
+rule	cpu.load_average
+	default = "$rule$"
+	predicate =
+"some_host (
+    kernel.all.load $hosts$ #'1 minute'
+        > hinv.ncpu $hosts$ * $threshold$
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"The current 1-minute load average is higher than threshold times the
+number of CPUs.
+The load average measures the number of processes that are running,
+runnable or soon to be runnable (i.e. in short term sleep).";
+
+string	rule
+	default = "high 1-minute load average"
+	modify	= no
+	display	= no;
+
+double	threshold
+	default	= 1.5
+	help	=
+"The threshold multiplier for load per CPU, typically in the range
+0.5 (very light load) to 4.0 (very heavy load ).";
+

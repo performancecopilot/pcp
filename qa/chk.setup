@@ -218,7 +218,6 @@ done
 #	$PCP_PLATFORM	(redundant, copied from $PCP_DIR/etc/pcp.conf)
 #	$PCP_VER
 #	$PCP_EOE_VER
-#	$PCP_EOE_NOSHIP_VER
 
 # files from common.product
 #
