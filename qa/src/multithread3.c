@@ -148,7 +148,10 @@ func2(void *arg)
 	printf("fopen: %s: failed: %s\n", pmnsfile, pmErrStr(-oserror()));
 	exit(1);
     }
-    fwrite(pmns, strlen(pmns), 1, f);
+    if (fwrite(pmns, strlen(pmns), 1, f) != 1) {
+	printf("fwrite: %s: failed: %s\n", pmnsfile, pmErrStr(-oserror()));
+	exit(1);
+    }
     fclose(f);
     if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
 	printf("%s: pmLoadNameSpace: [extra reload] %s\n", fn, pmErrStr(sts));
@@ -182,7 +185,10 @@ main(int argc, char **argv)
 	printf("fopen: %s: failed: %s\n", pmnsfile, pmErrStr(-oserror()));
 	exit(1);
     }
-    fwrite(pmns, strlen(pmns), 1, f);
+    if (fwrite(pmns, strlen(pmns), 1, f) != 1) {
+	printf("fwrite: %s: failed: %s\n", pmnsfile, pmErrStr(-oserror()));
+	exit(1);
+    }
     fclose(f);
 
     sts = pthread_barrier_init(&barrier, NULL, 2);
