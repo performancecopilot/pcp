@@ -1,7 +1,8 @@
 #!gmake
 #
-# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 TOPDIR = ../..
@@ -23,19 +24,6 @@ PMLOGEXTRACT	= $(PCP_BINADM_DIR)/pmlogextract
 DBG     = -DPCP_DEBUG -DDEBUG -g
 
 DEBUG   = $(DBG)
-
-# remove -Lpath and -Ipath options from builddefs CFLAGS value
-#
-PCP_LIBS	=
-TMP		:= $(CFLAGS:-I%=)
-ifdef PCP_DIR
-# put -Ipath and -Lpath back but use paths for run-time environment
-#
-CFLAGS          = $(TMP) -I$(PCP_INC_DIR)/..
-LDFLAGS         = -L$(PCP_LIB_DIR)
-else
-CFLAGS          = $(TMP)
-endif
 
 HAVE_64	= $(shell test `uname -m | sed -e 's/.*64/64/g'` = "64" && echo 1 || echo 0)
 
