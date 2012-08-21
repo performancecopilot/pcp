@@ -45,9 +45,9 @@ End-of-File
 if [ $PCP_VER -lt 3600 ]
 then
     pmnscomp -df -n $tmp $tmp.bin > $tmp.out 2>&1
-    src-oss/nameall -n $tmp "" >> $tmp.out 2>&1
+    src/nameall -n $tmp "" >> $tmp.out 2>&1
 else
-    src-oss/nameall -N $tmp "" >> $tmp.out 2>&1
+    src/nameall -N $tmp "" >> $tmp.out 2>&1
 fi
 
 sed < $tmp.out -e 's/[0-9\.]* msec/[TIME] msec/'

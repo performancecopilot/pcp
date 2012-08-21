@@ -58,11 +58,11 @@ for args in myname.const myname.a myname "myname.a sample.milliseconds" \
 do
     echo
     echo "=== $args ==="
-    pminfo -c $tmp.config -a src-oss/bigbin $args 2>&1 | _filter
+    pminfo -c $tmp.config -a src/bigbin $args 2>&1 | _filter
     echo "=== -d $args ==="
-    pminfo -c $tmp.config -a src-oss/bigbin -d $args 2>&1 | _filter
+    pminfo -c $tmp.config -a src/bigbin -d $args 2>&1 | _filter
     echo "=== -f $args ==="
-    pminfo -c $tmp.config -a src-oss/bigbin -f $args 2>&1 | _filter
+    pminfo -c $tmp.config -a src/bigbin -f $args 2>&1 | _filter
 done
 
 # success, all done

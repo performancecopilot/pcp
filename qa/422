@@ -14,8 +14,8 @@
 seq=`basename $0`
 
 # sane starting point
-src-oss/aggrstore sample.aggregate.write_me 13 >/dev/null
-src-oss/aggrstore sampledso.aggregate.write_me 13 >/dev/null
+src/aggrstore sample.aggregate.write_me 13 >/dev/null
+src/aggrstore sampledso.aggregate.write_me 13 >/dev/null
 pmstore sample.string.write_me 13 >/dev/null
 pmstore sampledso.string.write_me 13 >/dev/null
 
@@ -28,15 +28,15 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 for val in "" A AB ABC ABCD ABCDE "mary had a little lamb"
 do
-    src-oss/aggrstore sample.aggregate.write_me "$val"
-    src-oss/aggrstore sampledso.aggregate.write_me "$val"
+    src/aggrstore sample.aggregate.write_me "$val"
+    src/aggrstore sampledso.aggregate.write_me "$val"
     pmstore sample.string.write_me "$val"
     pmstore sampledso.string.write_me "$val"
 done
 
 # restore sanity
-src-oss/aggrstore sample.aggregate.write_me 13 >/dev/null
-src-oss/aggrstore sampledso.aggregate.write_me 13 >/dev/null
+src/aggrstore sample.aggregate.write_me 13 >/dev/null
+src/aggrstore sampledso.aggregate.write_me 13 >/dev/null
 pmstore sample.string.write_me 13 >/dev/null
 pmstore sampledso.string.write_me 13 >/dev/null
 

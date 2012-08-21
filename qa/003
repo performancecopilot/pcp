@@ -129,7 +129,7 @@ for root in \
 	nfs nfs3 resource rpc stream swap swapdev vnodes xfs \
 	pmcd
 do
-    src-oss/exercise -i 5 $root \
+    src/exercise -i 5 $root \
     | LC_COLLATE=POSIX sort \
     | sample_filter \
     | linux_filter \

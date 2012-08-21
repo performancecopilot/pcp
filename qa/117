@@ -23,7 +23,7 @@ fi
 
 echo "QA output created by $seq"
 
-compare=`pwd`/src-oss/compare
+compare=`pwd`/src/compare
 rm -rf $tmp.*
 
 trap "rm -rf $tmp.*" 0 1 2 3 15

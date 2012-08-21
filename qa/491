@@ -25,11 +25,11 @@ _filter()
 
 # real QA test starts here
 echo "=== with keys ==="
-src-oss/keycache2 -k 2>&1 | _filter
+src/keycache2 -k 2>&1 | _filter
 
 echo
 echo "=== using name for keys ==="
-src-oss/keycache2 2>&1 | _filter
+src/keycache2 2>&1 | _filter
 
 # success, all done
 exit

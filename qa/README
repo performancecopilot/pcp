@@ -78,7 +78,7 @@ Basic getting started
 	./check 000
 
     The first time you run "check" (see below) it will descend into the
-    src-oss directory (see below) and make all of the QA test programs and
+    src directory (see below) and make all of the QA test programs and
     dynamic PCP archives, so some patience may be required.
 
     If test 000 fails, it may be that you have locally developed PMDAs or
@@ -179,10 +179,10 @@ Doing the Real Work
 	various exotic remote locations (refer to the script).
 
 
-Make in the src-oss Directory
+Make in the src Directory
 -----------------------------
 
-    The src-oss directory contains a number of test applications that are
+    The src directory contains a number of test applications that are
     designed to exercise some of the more exotic corners of the PCP
     functionality.
 
@@ -192,9 +192,9 @@ Make in the src-oss Directory
 	make: [trace_dev.h] Error 1 (ignored)
 
     this is caused by the source for the pcp_trace library being out of sync
-    with the src-oss applications.  If this happens, please ...
+    with the src applications.  If this happens, please ...
 
-    1. cd src-oss
+    1. cd src
     2. diff -u trace_dev.h ../../src/include/trace_dev.h
        and mail the differences to pcp@oss.sgi.com so we can refine the
        Makefiles to avoid cosmetic differences

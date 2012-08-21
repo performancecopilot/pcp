@@ -12,7 +12,7 @@
 
 seq=`basename $0`
 
-if src-oss/check_fault_injection >/dev/null 2>&1
+if src/check_fault_injection >/dev/null 2>&1
 then
     rm -f .notrun
 else
@@ -31,7 +31,7 @@ $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-src-oss/err 0
+src/err 0
 
 echo
 export PM_FAULT_CONTROL=$tmp.control
@@ -39,7 +39,7 @@ export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
 cat >$tmp.control <<End-of-File
 libpcp/err.c:1
 End-of-File
-src-oss/err -Dfault 12345 12344
+src/err -Dfault 12345 12344
 
 # success, all done
 exit

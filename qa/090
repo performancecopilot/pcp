@@ -44,15 +44,15 @@ END				{ print total }'`
 }
 
 # real QA test starts here
-for arch in src-oss/ok-bigbin src-oss/ok-mv-bigbin
+for arch in src/ok-bigbin src/ok-mv-bigbin
 do
     echo
     echo "=== $arch ==="
     echo "100 samples, 80 msec apart"
-    src-oss/interp0 -a $arch -s 100 -t 0.08 sampledso.milliseconds \
+    src/interp0 -a $arch -s 100 -t 0.08 sampledso.milliseconds \
     2>/dev/null | _filter 75 85 85 400 450
 
     echo "100 samples, 8 msec appart"
-    src-oss/interp0 -a $arch -s 100 -t 0.008 sampledso.milliseconds \
+    src/interp0 -a $arch -s 100 -t 0.008 sampledso.milliseconds \
     2>/dev/null | _filter 6 9 85 40 110
 done

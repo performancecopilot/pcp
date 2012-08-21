@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
-$sudo src-oss/pmcdgone 2>&1 \
+$sudo src/pmcdgone 2>&1 \
 | tee $seq.full \
 | sed \
     -e '/__pmGetPDU: fd=3 BINARY hdr: Broken pipe/d' \

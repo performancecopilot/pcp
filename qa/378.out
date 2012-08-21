@@ -17,7 +17,7 @@ print Sun Feb  8 15:16:00 2004: kenj-pc: 1.56
 print Sun Feb  8 15:17:00 2004: kenj-pc: 1.53
 
 expect error as same host ...
-pmie: Error: archive src-oss/kenj-pc-2 not legal - archive src-oss/kenj-pc-1 is already open for host kenj-pc
+pmie: Error: archive src/kenj-pc-2 not legal - archive src/kenj-pc-1 is already open for host kenj-pc
 
 other archive (naslog) ...
 pmie: timezone set to local timezone of host snort

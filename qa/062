@@ -34,14 +34,14 @@ fi
 
 echo "testing single op for all ops..."
 echo "may dump core for IRIX 6.1 ... bug in gethostbyname()"
-src-oss/chkacc1
+src/chkacc1
 echo
 
 echo "testing all except one op for all ops..."
 echo "may dump core for IRIX 6.1 ... bug in gethostbyname()"
-src-oss/chkacc2
+src/chkacc2
 echo
 
 echo "testing all combinations of ops in a range..."
 echo "may dump core for IRIX 6.1 ... bug in gethostbyname()"
-src-oss/chkacc3
+src/chkacc3

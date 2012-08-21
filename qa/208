@@ -43,7 +43,7 @@ echo "=== PMNS_LOCAL ==="
 
 for name in sample.secret sample.secret.bar sample.secret.foo.one
 do
-    src-oss/torture_pmns -xb -v -s 1 -n $PCP_VAR_DIR/pmns/root $name \
+    src/torture_pmns -xb -v -s 1 -n $PCP_VAR_DIR/pmns/root $name \
 | _filter
 done
 
@@ -59,7 +59,7 @@ for name in sample.secret \
 	sample.secret.foo.bar.grunt.snort \
 	sample.secret.foo.bar.grunt.snort.huff.puff.seven
 do
-    src-oss/torture_pmns -b -v $name \
+    src/torture_pmns -b -v $name \
 | _filter
 done
 
@@ -75,7 +75,7 @@ for name in sampledso.secret \
 	sampledso.secret.foo.bar.grunt.snort \
 	sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
 do
-    src-oss/torture_pmns -b -v $name \
+    src/torture_pmns -b -v $name \
 | _filter
 done
 

@@ -24,7 +24,7 @@ PMNS location = 1
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src-oss/pmnsunload -i 3
+Command: src/pmnsunload -i 3
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

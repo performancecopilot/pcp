@@ -4,7 +4,7 @@ QA output created by 313
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    sample.seconds
-archive:   src-oss/changeinst
+archive:   src/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997
@@ -38,7 +38,7 @@ pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    sample.milliseconds
-archive:   src-oss/changeinst
+archive:   src/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997
@@ -72,7 +72,7 @@ pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    sample.drift
-archive:   src-oss/changeinst
+archive:   src/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997
@@ -104,7 +104,7 @@ interval:  1.00 sec
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    hinv.ncpu
-archive:   src-oss/changeinst
+archive:   src/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997
@@ -140,7 +140,7 @@ interval:  1.00 sec
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    irix.network.interface.total.packets
-archive:   src-oss/changeinst
+archive:   src/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997
@@ -182,7 +182,7 @@ pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    sample.bin
-archive:   src-oss/changeinst
+archive:   src/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997
@@ -220,7 +220,7 @@ interval:  1.00 sec
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    pmcd.pmlogger.port
-archive:   src-oss/changeinst
+archive:   src/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997
@@ -258,7 +258,7 @@ interval:  1.00 sec
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    sample.seconds
-archive:   src-oss/changeinst
+archive:   src/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997
@@ -310,7 +310,7 @@ pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    sample.milliseconds
-archive:   src-oss/changeinst
+archive:   src/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997
@@ -362,7 +362,7 @@ pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    sample.drift
-archive:   src-oss/changeinst
+archive:   src/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997
@@ -412,7 +412,7 @@ interval:  0.50 sec
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    hinv.ncpu
-archive:   src-oss/changeinst
+archive:   src/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997
@@ -466,7 +466,7 @@ interval:  0.50 sec
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    irix.network.interface.total.packets
-archive:   src-oss/changeinst
+archive:   src/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997
@@ -526,7 +526,7 @@ pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    sample.bin
-archive:   src-oss/changeinst
+archive:   src/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997
@@ -582,7 +582,7 @@ interval:  0.50 sec
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    pmcd.pmlogger.port
-archive:   src-oss/changeinst
+archive:   src/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997

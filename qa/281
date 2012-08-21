@@ -18,12 +18,12 @@ trap "cd; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 rm -rf $tmp
 mkdir $tmp
-cp src-oss/foo.* $tmp
+cp src/foo.* $tmp
 
 # real QA test starts here
 cd $tmp
 
-$here/src-oss/arch_maxfd foo \
+$here/src/arch_maxfd foo \
 | tee $seq.full \
 | $PCP_AWK_PROG '
 $1 == "max"	{ if (maxctx == "") maxctx = $NF
@@ -33,10 +33,10 @@ $1 == "max"	{ if (maxctx == "") maxctx = $NF
 
 if [ "`echo core*`" != "core*" ]
 then
-    echo "$here/src-oss/arch_maxfd dumped core!"
+    echo "$here/src/arch_maxfd dumped core!"
     ls -l core*
     unset TOOLROOT
-    echo where | dbx $here/src-oss/arch_maxfd
+    echo where | dbx $here/src/arch_maxfd
     exit
 fi
 

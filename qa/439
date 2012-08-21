@@ -30,22 +30,22 @@ _filter()
 
 # real QA test starts here
 export PMLOGGER_REQUEST_TIMEOUT=10
-src-oss/logcontrol -P $primary_port enquire sample.long.write_me
+src/logcontrol -P $primary_port enquire sample.long.write_me
 
 echo
 export PMLOGGER_REQUEST_TIMEOUT=10ABC
-src-oss/logcontrol -P$primary_port enquire sample.long.write_me 2>&1 \
+src/logcontrol -P$primary_port enquire sample.long.write_me 2>&1 \
 | _filter
 unset PMLOGGER_REQUEST_TIMEOUT
 
 echo
 # $PM_LOG_ALL_PIDS is not useful
-src-oss/logcontrol -Dcontext -p-1 enquire sample.long.write_me 2>&1 \
+src/logcontrol -Dcontext -p-1 enquire sample.long.write_me 2>&1 \
 | egrep '(__pmConnectLogger)|(logcontrol)'
 
 echo
 # punt that pid 1 is not pmlogger!
-src-oss/logcontrol -Dcontext -p1 enquire sample.long.write_me 2>&1 \
+src/logcontrol -Dcontext -p1 enquire sample.long.write_me 2>&1 \
 | egrep '(__pmConnectLogger)|(logcontrol)' \
 | _filter
 
@@ -53,17 +53,17 @@ src-oss/logcontrol -Dcontext -p1 enquire sample.long.write_me 2>&1 \
 # $PCP_TMP_DIR/pmlogger
 touch $tmp.ctl
 $sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
-src-oss/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
+src/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
 | egrep '(/__pmConnectLogger)|(__pmLog)|(logcontrol)' \
 | _filter
 echo "bad port" >$tmp.ctl
 $sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
-src-oss/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
+src/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
 | egrep '(/__pmConnectLogger)|(__pmLog)|(logcontrol)' \
 | _filter
 echo "123456" >$tmp.ctl
 $sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
-src-oss/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
+src/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
 | egrep '(/__pmConnectLogger)|(__pmLog)|(logcontrol)' \
 | _filter
 cat <<End-of-File >$tmp.ctl
@@ -71,7 +71,7 @@ cat <<End-of-File >$tmp.ctl
 no-such-host
 End-of-File
 $sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
-src-oss/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
+src/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
 | egrep '(/__pmConnectLogger)|(__pmLog)|(logcontrol)' \
 | _filter
 cat <<End-of-File >$tmp.ctl
@@ -80,7 +80,7 @@ no-such-host
 /no/such/file
 End-of-File
 $sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
-src-oss/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
+src/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
 | egrep '(/__pmConnectLogger)|(__pmLog)|(logcontrol)' \
 | _filter
 

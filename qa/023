@@ -58,7 +58,7 @@ s/value [0-9][0-9]*/value INTEGER/
 	-e '/endclient client.* No permission/d' \
 	-e 's/ while attempting to read 12 bytes out of 12 in .*on fd/ on fd/' \
 	-e 's/fd=[0-9][0-9]*/fd=FD/g' \
-	-e "s;$here/src-oss/;;" \
+	-e "s;$here/src/;;" \
     | $PCP_AWK_PROG '
 $3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
 $1 == "y" && $2 = "y" && $8 == "localhost"	{ $5 = "IP-addr-in-hex" }
@@ -155,10 +155,10 @@ echo 'hinv { ncpu 1:0:1 }' >> $FAKE_NS
 #
 cat <<EOF >$TMP_CONFIG
 # Created by QA $seq
-fake_irix 1 pipe binary $here/src-oss/dumb_pmda -d 1 fake_irix
-fake_proc 3 pipe binary $here/src-oss/dumb_pmda -d 3 fake_proc
-fake_cisco 5 pipe binary $here/src-oss/dumb_pmda -d 5 fake_cisco
-fake_six 6 pipe binary $here/src-oss/dumb_pmda -d 6 fake_six
+fake_irix 1 pipe binary $here/src/dumb_pmda -d 1 fake_irix
+fake_proc 3 pipe binary $here/src/dumb_pmda -d 3 fake_proc
+fake_cisco 5 pipe binary $here/src/dumb_pmda -d 5 fake_cisco
+fake_six 6 pipe binary $here/src/dumb_pmda -d 6 fake_six
 EOF
 sed -n <$CONFIG >>$TMP_CONFIG \
     -e '/^#/d' \
@@ -182,13 +182,13 @@ echo '$PCP_PMCDCONF_PATH contains:' | sed -e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;"
 echo '<BEGIN>'
 sed <$CONFIG \
     -e '/^pmcd 2 /s/2 .*/2 .../' \
-    -e "s;$here/src-oss/;;"
+    -e "s;$here/src/;;"
 echo '<END>'
 
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 #
 PMCD_PORT=$port
-PATH=$PATH:$here/src-oss
+PATH=$PATH:$here/src
 export PMCD_PORT PATH
 $PCP_PMCD_PROG -f -t 2 &
 pmcd=$!
@@ -227,8 +227,8 @@ echo
 #
 echo
 echo "pmcd.control.timeout tests"
-$here/src-oss/agenttimeout 5 3
-$here/src-oss/agenttimeout 6 8
+$here/src/agenttimeout 5 3
+$here/src/agenttimeout 6 8
 #
 # Be nice and set it back to 2 so that subsequent timeouts happen more quickly
 #

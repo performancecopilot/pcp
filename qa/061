@@ -108,7 +108,7 @@ End-of-File
 		$PCP_BINADM_DIR/pmlogger -L -D 640 -c $tmp.config -l $tmp.out $tmp >$tmp.err 2>&1 &
 		logger_pid=$!
 		_wait_for_pmlogger $logger_pid $tmp.out
-		src-oss/logcontrol -p $logger_pid enquire sample.colour
+		src/logcontrol -p $logger_pid enquire sample.colour
 		$signal -s TERM $logger_pid
 		wait
 		cat $tmp.err $tmp.out | _filter_pmlogger

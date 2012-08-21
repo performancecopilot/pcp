@@ -30,7 +30,7 @@ for arg in ilu ilululu illluluuluu ll iluu
 do
     echo
     echo "=== $arg ==="
-    src-oss/exerlock $arg
+    src/exerlock $arg
 done
 
 # success, all done

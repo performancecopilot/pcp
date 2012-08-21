@@ -16,7 +16,7 @@ status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-if src-oss/endian
+if src/endian
 then
     # success
     status=0

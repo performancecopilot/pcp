@@ -48,11 +48,11 @@ _cmp()
 
 # Notes
 #
-# src-oss/mirage ... diffs reflect semantically acceptable differences
+# src/mirage ... diffs reflect semantically acceptable differences
 #
-for arch in src-oss/ok-foo src-oss/541380_v2 src-oss/mirage src-oss/bigbin \
-	src-oss/ok-mv-foo src-oss/mirage-1 src-oss/mirage-2 src-oss/gap \
-	src-oss/gap2 '-Dall src-oss/ok-foo'
+for arch in src/ok-foo src/541380_v2 src/mirage src/bigbin \
+	src/ok-mv-foo src/mirage-1 src/mirage-2 src/gap \
+	src/gap2 '-Dall src/ok-foo'
 do
     echo | tee -a $seq.full
     echo "=== $arch ===" | tee -a $seq.full

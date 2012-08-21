@@ -29,6 +29,6 @@ eval `./getpmcdhosts -L -n 2 | \
 
 #
 # only interested in failure or output on stderr
-src-oss/whichtimezone $me $other1 $other2 \
+src/whichtimezone $me $other1 $other2 \
 	| sed -e '/Trying/d' -e '/^zone/d' -e '/^$/d'
 exit $?

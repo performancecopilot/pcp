@@ -30,7 +30,7 @@ s/value [0-9][0-9]*/value INTEGER/
     | $PCP_AWK_PROG '
 $1 == "TIMESTAMP" && NF == 4	{ print "TIMESTAMP       0       OFFSET       OFFSET"; next }
 				{ print }' \
-    | src-oss/hex2nbo
+    | src/hex2nbo
 }
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15

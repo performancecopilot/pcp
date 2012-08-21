@@ -25,7 +25,7 @@ status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 mkdir $tmp
-cp src-oss/mv-bigbin* $tmp
+cp src/mv-bigbin* $tmp
 
 _do()
 {
@@ -46,7 +46,7 @@ _do()
 }
 
 # real QA test starts here
-_do src-oss/mv-bigbin n | tee $full >$tmp.orig
+_do src/mv-bigbin n | tee $full >$tmp.orig
 cd $tmp
 
 echo "expect only a few lines of diff output ..."

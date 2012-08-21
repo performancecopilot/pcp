@@ -34,7 +34,7 @@ s/.* //
 s/\([^.]*\.[^.]*\.[^.]*\)\..*/\1/
 p
 }'`
-if [ ! -f src-oss/sa-sysstat-$version ]
+if [ ! -f src/sa-sysstat-$version ]
 then
     _notrun "no data file for sysstat version $version"
 fi
@@ -71,7 +71,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
-sar2pcp src-oss/sa-sysstat-$version $tmp
+sar2pcp src/sa-sysstat-$version $tmp
 
 # version 9.x output
 # 11:07:39        CPU     %user     %nice   %system   %iowait    %steal     %idle
@@ -81,7 +81,7 @@ sar2pcp src-oss/sa-sysstat-$version $tmp
 # 04:50:52 PM     CPU     %user     %nice   %system   %iowait    %steal     %idle
 # 04:50:57 PM     all      0.31      0.00      0.31      0.00      0.00     99.38
 #
-sar -f src-oss/sa-sysstat-$version -u \
+sar -f src/sa-sysstat-$version -u \
 | tee -a $seq.full \
 | sed -n '/^[0-2][0-9]:/{
 s/^00\(:..:..\) PM/12\1/
@@ -151,7 +151,7 @@ echo >>$seq.full
 # 04:50:52 PM       tps      rtps      wtps   bread/s   bwrtn/s
 # 04:50:57 PM      0.80      0.00      0.80      0.00      6.40
 #
-sar -f src-oss/sa-sysstat-$version -b \
+sar -f src/sa-sysstat-$version -b \
 | tee -a $seq.full \
 | sed -n '/^[0-2][0-9]:/{
 s/^00\(:..:..\) PM/12\1/

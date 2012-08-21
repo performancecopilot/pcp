@@ -12,7 +12,7 @@ pmlogreduce: sample.aggregate.write_me: Warning: skipping AGGREGATE metric
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
 metric:    sample.milliseconds
-archive:   src-oss/reduce-gap
+archive:   src/reduce-gap
 host:      kenj-pc
 start:     Wed Jan 19 21:57:00 2005
 end:       Wed Jan 19 22:10:26 2005
@@ -80,7 +80,7 @@ pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
 metric:    sample.milliseconds
-archive:   src-oss/reduce-gap
+archive:   src/reduce-gap
 host:      kenj-pc
 start:     Wed Jan 19 21:57:00 2005
 end:       Wed Jan 19 22:10:26 2005
@@ -338,7 +338,7 @@ interval:  15.00 sec
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
 metric:    sample.drift
-archive:   src-oss/reduce-gap
+archive:   src/reduce-gap
 host:      kenj-pc
 start:     Wed Jan 19 21:57:00 2005
 end:       Wed Jan 19 22:10:26 2005

@@ -28,27 +28,27 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 $sudo rm -f /tmp/func?.out
 echo "Only one context ..."
-src-oss/multithread8 localhost
+src/multithread8 localhost
 cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
 
 echo
 echo "Two contexts, same host, different fd's ..."
-src-oss/multithread8 `hostname` localhost
+src/multithread8 `hostname` localhost
 cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
 
 echo
 echo "Two contexts, same host, same fd's ..."
-src-oss/multithread8 `hostname` `hostname`
+src/multithread8 `hostname` `hostname`
 cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
 
 echo
 echo "Three contexts, same host, different fd's ..."
-src-oss/multithread8 `hostname` localhost 127.0.0.1
+src/multithread8 `hostname` localhost 127.0.0.1
 cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
 
 echo
 echo "Three contexts, same host, same fd's ..."
-src-oss/multithread8 `hostname` `hostname` `hostname`
+src/multithread8 `hostname` `hostname` `hostname`
 cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
 
 # success, all done

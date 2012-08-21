@@ -38,9 +38,9 @@ echo "long help text request:"
     pminfo -T sample.long.ten
     echo
 echo "fetch request:"
-    src-oss/fetchpdu
+    src/fetchpdu
     echo
 echo "store request:"
-    src-oss/storepdu
+    src/storepdu
 
 done

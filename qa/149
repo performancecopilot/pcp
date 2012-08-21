@@ -36,7 +36,7 @@ fi
 # note filter at the back end has to be aggressive because of variations
 # in the metrics coverage for the various IRIX and Linux PMDAs
 #
-src-oss/nullinst irix hinv sample \
+src/nullinst irix hinv sample \
 | sed \
     -e '/pmLookupDesc/d' \
     -e '/^hinv\.ntape/d' \

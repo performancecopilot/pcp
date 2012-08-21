@@ -2,8 +2,6 @@
  * libirixpmda Performance Metrics Name Space Definition
  *
  * From IRIX 6.5.5 ... for reference and V1 PCP archives.
- *
- * $Header: /plroot/eoe/pcp-1.0-melb/.RCS/PL/qa/src-oss/RCS/root_irix,v 1.1 2002/10/22 00:03:20 kenmcd Exp $
  */
 
 root {

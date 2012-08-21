@@ -32,23 +32,23 @@ $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-for arch in src-oss/bigbin
+for arch in src/bigbin
 do
     for delta in 2 0.012
     do
 	echo
 	echo "=== $arch delta=$delta ==="
-	_run_valgrind src-oss/interp3 -a $arch -t $delta | _filter
+	_run_valgrind src/interp3 -a $arch -t $delta | _filter
     done
 done
 
-for arch in src-oss/noti-ok-foo
+for arch in src/noti-ok-foo
 do
     for delta in 0.5 1.0 2.0
     do
 	echo
 	echo "=== $arch delta=$delta ==="
-	_run_valgrind src-oss/interp3 -a $arch -t $delta | _filter
+	_run_valgrind src/interp3 -a $arch -t $delta | _filter
     done
 done
 

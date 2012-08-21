@@ -12,7 +12,7 @@ seq=`basename $0`
 . ./common.filter
 . ./common.check
 
-_check_purify src-oss/pducheck
+_check_purify src/pducheck
 
 echo "QA output created by $seq"
 
@@ -21,7 +21,7 @@ trap "cd; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
-_setup_purify src-oss/pducheck
+_setup_purify src/pducheck
 _run_purify
 
 # all done

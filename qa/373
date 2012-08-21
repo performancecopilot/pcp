@@ -34,12 +34,12 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 for infile in \
-    src-oss/iostat-t src-oss/iostat-t.ISO \
-    src-oss/iostat-c src-oss/iostat-d \
-    src-oss/iostat src-oss/iostat-z \
-    src-oss/iostat-d-k src-oss/iostat-d-m src-oss/iostat-x \
-    src-oss/iostat-p-ALL \
-    src-oss/iostat-z-p-ALL
+    src/iostat-t src/iostat-t.ISO \
+    src/iostat-c src/iostat-d \
+    src/iostat src/iostat-z \
+    src/iostat-d-k src/iostat-d-m src/iostat-x \
+    src/iostat-p-ALL \
+    src/iostat-z-p-ALL
 do
     echo
     echo "=== $infile ==="

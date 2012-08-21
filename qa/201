@@ -40,40 +40,40 @@ _filter2()
 
 # real QA test starts here
 echo "basic operation tests ..."
-src-oss/torture_cache -Dindom a 2>&1 | _filter
+src/torture_cache -Dindom a 2>&1 | _filter
 
 echo
 echo "save tests ..."
 $sudo rm -f $PCP_VAR_DIR/config/pmda/123.8
 $sudo touch $PCP_VAR_DIR/config/pmda/123.8
-$sudo src-oss/torture_cache b 2>&1 | _filter
+$sudo src/torture_cache b 2>&1 | _filter
 
 echo
 echo "load tests ..."
 echo "-- empty file --"
 $sudo rm -f $PCP_VAR_DIR/config/pmda/123.13
 $sudo touch $PCP_VAR_DIR/config/pmda/123.13
-src-oss/torture_cache c 2>&1 | _filter
+src/torture_cache c 2>&1 | _filter
 echo "-- short header --"
 echo "1" >$tmp
 $sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
-src-oss/torture_cache c 2>&1 | _filter
+src/torture_cache c 2>&1 | _filter
 echo "-- bad version (x) --"
 echo "x 0" >$tmp
 $sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
-src-oss/torture_cache c 2>&1 | _filter
+src/torture_cache c 2>&1 | _filter
 echo "-- bad version (2) --"
 echo "2 0" >$tmp
 $sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
-src-oss/torture_cache c 2>&1 | _filter
+src/torture_cache c 2>&1 | _filter
 echo "-- bad ins_mode (-1) --"
 echo "1 -1" >$tmp
 $sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
-src-oss/torture_cache c 2>&1 | _filter
+src/torture_cache c 2>&1 | _filter
 echo "-- empty --"
 echo "1 0" >$tmp
 $sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
-src-oss/torture_cache c 2>&1 | _filter
+src/torture_cache c 2>&1 | _filter
 echo "-- interesting --"
 cat <<End-of-File >$tmp
 1 0
@@ -85,7 +85,7 @@ cat <<End-of-File >$tmp
 40 4444444 fubar-004
 End-of-File
 $sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
-$sudo src-oss/torture_cache c 2>&1 | _filter
+$sudo src/torture_cache c 2>&1 | _filter
 cat $PCP_VAR_DIR/config/pmda/123.13 | _filter2
 echo "-- interesting (PMDA_CACHE_REUSE) --"
 cat <<End-of-File >$tmp
@@ -98,7 +98,7 @@ cat <<End-of-File >$tmp
 40 4444444 fubar-004
 End-of-File
 $sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
-$sudo src-oss/torture_cache c 2>&1 | _filter
+$sudo src/torture_cache c 2>&1 | _filter
 cat $PCP_VAR_DIR/config/pmda/123.13 | _filter2
 
 echo
@@ -108,7 +108,7 @@ cat <<End-of-File >$tmp
 2147483645 4444444 biggest-inst-2
 End-of-File
 $sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.7
-$sudo src-oss/torture_cache -D indom d 2>&1 | _filter
+$sudo src/torture_cache -D indom d 2>&1 | _filter
 cat $PCP_VAR_DIR/config/pmda/123.7 | _filter2
 
 echo
@@ -118,7 +118,7 @@ cat <<End-of-File >$tmp
 1 0
 End-of-File
 $sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.11
-$sudo src-oss/torture_cache e 2>&1 | _filter
+$sudo src/torture_cache e 2>&1 | _filter
 cat $PCP_VAR_DIR/config/pmda/123.11 | _filter2
 echo "-- not empty --"
 cat <<End-of-File >$tmp
@@ -131,12 +131,12 @@ cat <<End-of-File >$tmp
 60 6666666 fubar-006
 End-of-File
 $sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.11
-$sudo src-oss/torture_cache f 2>&1 | _filter
+$sudo src/torture_cache f 2>&1 | _filter
 cat $PCP_VAR_DIR/config/pmda/123.11 | _filter2
 
 echo
 echo "exercise hash-table re-sizing ..."
-$sudo src-oss/torture_cache g 2>&1 | _filter
+$sudo src/torture_cache g 2>&1 | _filter
 
 echo
 echo "short name match test cases ..."
@@ -148,7 +148,7 @@ cat <<End-of-File >$tmp
 End-of-File
 cat $tmp
 $sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.17
-$sudo src-oss/torture_cache h 2>&1 | _filter
+$sudo src/torture_cache h 2>&1 | _filter
 echo "-- cache --"
 cat <<End-of-File >$tmp
 1 0
@@ -156,7 +156,7 @@ cat <<End-of-File >$tmp
 End-of-File
 cat $tmp
 $sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.17
-$sudo src-oss/torture_cache h 2>&1 | _filter
+$sudo src/torture_cache h 2>&1 | _filter
 echo "-- cache --"
 cat <<End-of-File >$tmp
 1 0
@@ -164,7 +164,7 @@ cat <<End-of-File >$tmp
 End-of-File
 cat $tmp
 $sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.17
-$sudo src-oss/torture_cache h 2>&1 | _filter
+$sudo src/torture_cache h 2>&1 | _filter
 
 echo
 echo "-- revised dirty cache semantics --"
@@ -172,7 +172,7 @@ for a in 1 2 3
 do
     echo "+ flags=$a +"
     $sudo rm -f $tmp $PCP_VAR_DIR/config/pmda/123.15
-    $sudo src-oss/torture_cache i $a 2>&1 | _filter
+    $sudo src/torture_cache i $a 2>&1 | _filter
 done
 
 # success, all done

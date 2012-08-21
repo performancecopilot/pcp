@@ -431,7 +431,7 @@ $1 == "Data"		{ printf "%s|",$0; next }
 			{ print }' \
     | LC_COLLATE=POSIX _POSIX2_VERSION=0 sort -t'(' +1 -2 \
     | tr '|' '\012' \
-    | src-oss/hex2nbo
+    | src/hex2nbo
 }
 
 _filter_pmda_install()

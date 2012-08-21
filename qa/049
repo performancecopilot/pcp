@@ -24,12 +24,12 @@ fi
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
-for arch in src-oss/mv-bigbin
+for arch in src/mv-bigbin
 do
     echo | tee -a $seq.full
     echo "=== $arch ===" | tee -a $seq.full
     pmdumplog -t $arch >>$seq.full
-    src-oss/xarch -a $arch -D128 2>&1 \
+    src/xarch -a $arch -D128 2>&1 \
     | tee -a $seq.full \
     | sed \
 	-e 's/posn=[0-9]*/posn=OFFSET/' \

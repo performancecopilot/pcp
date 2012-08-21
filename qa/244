@@ -90,7 +90,7 @@ _needclean=true
 
 # for local PMNS to avoid conflict with pmcd tests
 #
-NAMESPACE="-n $here/src-oss/root_irix"
+NAMESPACE="-n $here/src/root_irix"
 
 rm -rf $tmp $tmp.*
 mkdir $tmp
@@ -141,10 +141,10 @@ $sudo $signal -a -s TERM pmie >/dev/null 2>&1
 # NOTE: none of the domains should clash with the pmcd PMDA (domain 2) or the
 # sample agent (domain 254).  These agents will be appended to the file.
 #
-echo "fake_irix 1 pipe binary $here/src-oss/dumb_pmda -d 1 fake_irix" >$NEWCONFIG
-echo "fake_sampledso 30 pipe binary $here/src-oss/dumb_pmda -d 30 fake_sampledso" >>$NEWCONFIG
-echo "fake_cisco 5 pipe binary $here/src-oss/dumb_pmda -d 5 fake_cisco" >>$NEWCONFIG
-echo "fake_linux 60 pipe binary $here/src-oss/dumb_pmda -d 60 fake_linux" >>$NEWCONFIG
+echo "fake_irix 1 pipe binary $here/src/dumb_pmda -d 1 fake_irix" >$NEWCONFIG
+echo "fake_sampledso 30 pipe binary $here/src/dumb_pmda -d 30 fake_sampledso" >>$NEWCONFIG
+echo "fake_cisco 5 pipe binary $here/src/dumb_pmda -d 5 fake_cisco" >>$NEWCONFIG
+echo "fake_linux 60 pipe binary $here/src/dumb_pmda -d 60 fake_linux" >>$NEWCONFIG
 grep pmda_pmcd $CONFIGSAVE | sed -e 's/[ 	][ 	]*/ /g' -e 's/[ 	]*$//' >>$NEWCONFIG
 echo "[access]" >>$NEWCONFIG
 echo "allow localhost : all;" >>$NEWCONFIG
@@ -155,13 +155,13 @@ echo '$PCP_PMCDCONF_PATH contains:'
 echo '<BEGIN>'
 sed <$CONFIG \
     -e '/^pmcd/s; [^ ]*pmda_pmcd.'$DSO_SUFFIX'; ...pmda_pmcd.$DSO_SUFFIX;' \
-    -e "s;$here/src-oss/;;"
+    -e "s;$here/src/;;"
 echo '<END>'
 
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 # Sleep briefly to allow it time to start
 #
-PATH=$here/src-oss:$PATH
+PATH=$here/src:$PATH
 export PATH
 $PCP_PMCD_PROG -f -t 2 &
 pmcd=$!
@@ -193,7 +193,7 @@ echo '<BEGIN>'
 sed <$CONFIG \
     -e '/^pmcd/s; [^ ]*pmda_pmcd.'$DSO_SUFFIX'; ...pmda_pmcd.$DSO_SUFFIX;' \
     -e '/^sample/s; [^ ]*pmdasample; ...pmdasample;' \
-    -e "s;$here/src-oss/;;"
+    -e "s;$here/src/;;"
 echo '<END>'
 
 $signal -s HUP $pmcd
@@ -246,7 +246,7 @@ fi
 
 _filter_log \
 | sed \
-    -e "s;$here/src-oss/;;" \
+    -e "s;$here/src/;;" \
     -e '/Cleanup "fake_linux" agent (dom 60): unconfigured/q'
 echo
 echo "..."

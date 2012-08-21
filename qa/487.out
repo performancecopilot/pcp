@@ -102,7 +102,7 @@ pmval diffs ...
  Note: timezone set to local timezone of host "gonzo" from archive
  
  metric: sample.drift
--archive: src-oss/mirage
+-archive: src/mirage
 +archive: TMP.tmp
  host: gonzo
  start: Tue Feb 25 10:45:08 1997

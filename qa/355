@@ -77,7 +77,7 @@ _wait_for_pmcd
 
 
 # real QA test starts here
-$here/src-oss/torture_trace
+$here/src/torture_trace
 
 sleep 2
 

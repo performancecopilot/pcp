@@ -32,19 +32,19 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 _x()
 {
     echo
-    src-oss/parsemetricspec "sample$1" 1 default_arch
+    src/parsemetricspec "sample$1" 1 default_arch
     echo
-    src-oss/parsemetricspec "sample$1" 0 default_host
+    src/parsemetricspec "sample$1" 0 default_host
     echo
-    src-oss/parsemetricspec "my_arch/sample$1" 1 default_arch
+    src/parsemetricspec "my_arch/sample$1" 1 default_arch
     echo
-    src-oss/parsemetricspec "my_host:sample$1" 0 default_host
+    src/parsemetricspec "my_host:sample$1" 0 default_host
     echo
-    src-oss/parsemetricspec "other_host:sample$1" 1 default_arch
+    src/parsemetricspec "other_host:sample$1" 1 default_arch
     echo
-    src-oss/parsemetricspec "/other/arch/sample$1" 0 default_host
+    src/parsemetricspec "/other/arch/sample$1" 0 default_host
     echo
-    src-oss/parsemetricspec "@:sample$1" 0 default_host
+    src/parsemetricspec "@:sample$1" 0 default_host
 }
 
 # real QA test starts here
@@ -62,58 +62,58 @@ _x '[one,two,three]'
 echo
 echo "=== Some whitespace cases ==="
 echo
-src-oss/parsemetricspec " my_host : sample [ one , two , three ] " 0 default_host
+src/parsemetricspec " my_host : sample [ one , two , three ] " 0 default_host
 echo
-src-oss/parsemetricspec "my_arch   /   sample  [singular]" 1 default_arch
+src/parsemetricspec "my_arch   /   sample  [singular]" 1 default_arch
 
 echo
 echo "=== Miscellaneous cases ==="
 echo
-src-oss/parsemetricspec "../../relative/pathname/myarch/metric" 0 default_host
+src/parsemetricspec "../../relative/pathname/myarch/metric" 0 default_host
 echo
-src-oss/parsemetricspec "metric.a.b.c.d[]" 0 default_host
+src/parsemetricspec "metric.a.b.c.d[]" 0 default_host
 echo
-src-oss/parsemetricspec "/full/pathname/myarch/metric[fumble mumble]" 0 default_host
+src/parsemetricspec "/full/pathname/myarch/metric[fumble mumble]" 0 default_host
 echo
-src-oss/parsemetricspec "./myarch/metric[fumble,,mumble]" 0 default_host
+src/parsemetricspec "./myarch/metric[fumble,,mumble]" 0 default_host
 echo
-src-oss/parsemetricspec 'foo["instance with strange chars :/,[]\""]' 0 default_host
+src/parsemetricspec 'foo["instance with strange chars :/,[]\""]' 0 default_host
 echo
-src-oss/parsemetricspec '20080424:12:05/disk.dev.total["sda1"]' 0 default_host
+src/parsemetricspec '20080424:12:05/disk.dev.total["sda1"]' 0 default_host
 echo
-src-oss/parsemetricspec '20080424:12:05/disk.all.total' 0 default_host
+src/parsemetricspec '20080424:12:05/disk.all.total' 0 default_host
 
 echo
 echo "=== Some odd cases (incorrectly used to be classified as errors) ==="
 echo
-src-oss/parsemetricspec "one/two:three" 0 default_host
+src/parsemetricspec "one/two:three" 0 default_host
 echo
-src-oss/parsemetricspec "foo:bar/fumble[mumble]" 0 default_host
+src/parsemetricspec "foo:bar/fumble[mumble]" 0 default_host
 
 echo
 echo "=== Some error cases ==="
 echo
-src-oss/parsemetricspec "foo/bar[fumble]mumble" 0 default_host
+src/parsemetricspec "foo/bar[fumble]mumble" 0 default_host
 echo
-src-oss/parsemetricspec foo: 0 default_host
+src/parsemetricspec foo: 0 default_host
 echo
-src-oss/parsemetricspec :badhost 0 default_host
+src/parsemetricspec :badhost 0 default_host
 echo
-src-oss/parsemetricspec bad/arch/ 0 default_host
+src/parsemetricspec bad/arch/ 0 default_host
 echo
-src-oss/parsemetricspec '/bad/arch/[' 0 default_host
+src/parsemetricspec '/bad/arch/[' 0 default_host
 echo
-src-oss/parsemetricspec 'norsqb[' 0 default_host
+src/parsemetricspec 'norsqb[' 0 default_host
 echo
-src-oss/parsemetricspec 'nolsqb-instance]' 0 default_host
+src/parsemetricspec 'nolsqb-instance]' 0 default_host
 echo
-src-oss/parsemetricspec 'metric["noclosingquote' 0 default_host
+src/parsemetricspec 'metric["noclosingquote' 0 default_host
 echo
-src-oss/parsemetricspec 'metric["noclosingquote]' 0 default_host
+src/parsemetricspec 'metric["noclosingquote]' 0 default_host
 echo
-src-oss/parsemetricspec 'metric["noclosing]"' 0 default_host
+src/parsemetricspec 'metric["noclosing]"' 0 default_host
 echo
-src-oss/parsemetricspec 'metric["ends in backslash\' 0 default_host
+src/parsemetricspec 'metric["ends in backslash\' 0 default_host
 
 # success, all done
 status=0

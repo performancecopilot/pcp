@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
-cd src-oss
+cd src
 $sudo rm -f core*
 
 for args in "" "-L" "-h localhost" "-a foo"
@@ -31,7 +31,7 @@ do
 
     if [ "`echo core*`" != "core*" ]
     then
-	echo "In qa/src-oss, running  pcp_lite_crash  created a core dump"
+	echo "In qa/src, running  pcp_lite_crash  created a core dump"
 	echo until this is fixed, my pid = $$
 	echo exit status is $s
 	exit $s

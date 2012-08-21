@@ -28,7 +28,7 @@ fi
 echo "QA output created by $seq"
 
 #debug# tmp=`pwd`/tmp
-compare=`pwd`/src-oss/compare
+compare=`pwd`/src/compare
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -191,7 +191,7 @@ do
     then
 	echo "$val"
     else
-	# would prefer -1, but that messes up src-oss/compare and 0
+	# would prefer -1, but that messes up src/compare and 0
 	# happens too often ... 42424242 has only a 1 in 2^31 chance
 	# of hitting a false match!
 	echo "42424242"

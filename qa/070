@@ -23,7 +23,7 @@ fi
 echo "QA output created by $seq"
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
-prog=src-oss/template
+prog=src/template
 
 remote=`./getpmcdhosts -L -n 1 2>$tmp.out`
 if [ -z "$remote" ]
@@ -47,9 +47,9 @@ _myprog()
     | sed \
 	-e "s/'//g" \
 	-e '/Broken pipe/d' \
-	-e 's;src-oss/template: option;Option;' \
-	-e 's;src-oss/template: invalid;Illegal;' \
-	-e 's;src-oss/template: illegal;Illegal;' \
+	-e 's;src/template: option;Option;' \
+	-e 's;src/template: invalid;Illegal;' \
+	-e 's;src/template: illegal;Illegal;' \
 	-e "s/$remote/REMOTEHOST/"
 }
 

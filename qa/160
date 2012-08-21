@@ -36,13 +36,13 @@ $1 == "inst"	{ if (seen[$3] == "") {
 }
 
 # real QA test starts here
-src-oss/clientid -l a bb ccc dddd eeeee ffffff ggggggg hhhhhhhh iiiiiiiii >$tmp.1 2>$tmp.2 &
+src/clientid -l a bb ccc dddd eeeee ffffff ggggggg hhhhhhhh iiiiiiiii >$tmp.1 2>$tmp.2 &
 pidlist="$pidlist $!"
 sleep 2
-src-oss/clientid -l foo-bar-mumble >$tmp.3 2>$tmp.4 &
+src/clientid -l foo-bar-mumble >$tmp.3 2>$tmp.4 &
 pidlist="$pidlist $!"
 sleep 2
-src-oss/clientid -l "here is a longer string to go in the ident place holder to try things out that are not quite so short and boring" >$tmp.5 2>$tmp.6 &
+src/clientid -l "here is a longer string to go in the ident place holder to try things out that are not quite so short and boring" >$tmp.5 2>$tmp.6 &
 pidlist="$pidlist $!"
 sleep 2
 

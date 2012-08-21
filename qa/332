@@ -29,7 +29,7 @@ skip == 0		{ print }' \
 	-e '/Memory leaked:/s/([0-9][0-9.]*%)/(PERCENT)/g'
 }
 
-_check_purify src-oss/interp3
+_check_purify src/interp3
 
 echo "QA output created by $seq"
 
@@ -37,9 +37,9 @@ status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-_setup_purify src-oss/interp3
+_setup_purify src/interp3
 
-for arch in src-oss/bigbin
+for arch in src/bigbin
 do
     for delta in 2 0.012
     do
@@ -49,7 +49,7 @@ do
     done
 done
 
-for arch in src-oss/noti-foo
+for arch in src/noti-foo
 do
     for delta in 0.5 1.0 2.0
     do

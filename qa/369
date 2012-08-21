@@ -48,14 +48,14 @@ cd $tmp
 
 # real QA test starts here
 echo "C version ..."
-$here/src-oss/check_import 2>&1 | _filter1
+$here/src/check_import 2>&1 | _filter1
 pminfo -dm -a myarchive
 pmdumplog -a myarchive 2>&1 | _filter2
 
 echo
 echo "Perl wrapper version ..."
 rm -f myarchive.*
-perl $here/src-oss/check_import.pl 2>&1 | _filter1
+perl $here/src/check_import.pl 2>&1 | _filter1
 pminfo -dm -a myarchive
 pmdumplog -a myarchive 2>&1 | _filter2
 

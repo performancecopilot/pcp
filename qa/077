@@ -15,10 +15,10 @@ echo "QA output created by $seq"
 if [ $PCP_VER -lt 3600 ]
 then
     # V1 archives supported
-    arch=src-oss/babylon.percpu
+    arch=src/babylon.percpu
 else
     # no support for V1 archives
-    arch=src-oss/babylon.percpu_v2
+    arch=src/babylon.percpu_v2
 fi
 
 status=0
@@ -35,20 +35,20 @@ fi
 
 # real QA test starts here
 echo "source local, local time"
-src-oss/exertz | sed -e '/PMAPI context/s/:.*/: LOCAL TIME at epoch/'
+src/exertz | sed -e '/PMAPI context/s/:.*/: LOCAL TIME at epoch/'
 
 echo ""
 echo "source local, Zulu time"
-src-oss/exertz -Z "ZST-4"
+src/exertz -Z "ZST-4"
 
 echo ""
 echo "source remotehost, local time"
-src-oss/exertz -h $remote | sed -e '/PMAPI context/s/:.*/: LOCAL TIME at epoch/'
+src/exertz -h $remote | sed -e '/PMAPI context/s/:.*/: LOCAL TIME at epoch/'
 
 echo ""
 echo "source remotehost, remotehost time"
-src-oss/exertz -h $remote -z $remote | sed -e '/PMAPI context/s/:.*/: REMOTE TIME at epoch/'
+src/exertz -h $remote -z $remote | sed -e '/PMAPI context/s/:.*/: REMOTE TIME at epoch/'
 
 echo ""
 echo "source babylon archive, babylon time"
-src-oss/exertz -a $arch -z babylon
+src/exertz -a $arch -z babylon

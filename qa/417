@@ -17,7 +17,7 @@ rm -f $seq.out
 if [ $PCP_VER -lt 3600 ]
 then
     # V1 archives supported
-    arch=src-oss/bigace
+    arch=src/bigace
     case $PCP_PLATFORM
     in
 	irix|linux)
@@ -34,7 +34,7 @@ then
     esac
 else
     # no support for V1 archives
-    arch=src-oss/bigace_v2
+    arch=src/bigace_v2
     case $PCP_PLATFORM
     in
 	irix|linux)
@@ -101,46 +101,46 @@ export TZ
 
 echo
 echo "=== pminfo ==="
-pminfo -n $here/src-oss/bigace.pmns -a bad >$tmp.out 2>$tmp.err
+pminfo -n $here/src/bigace.pmns -a bad >$tmp.out 2>$tmp.err
 cat $tmp.err $tmp.out
 _check_core
 
 echo
 echo "=== pminfo -f irix ==="
-pminfo -n $here/src-oss/bigace.pmns -a bad -f irix
+pminfo -n $here/src/bigace.pmns -a bad -f irix
 _check_core
 
 echo
 echo "=== pmdumplog -t ==="
-pmdumplog -n $here/src-oss/bigace.pmns -z -t bad
+pmdumplog -n $here/src/bigace.pmns -z -t bad
 _check_core
 
 echo
 echo "=== pmdumplog -t, no index ==="
 mv bad.index save.index
-pmdumplog -n $here/src-oss/bigace.pmns -z -t bad
+pmdumplog -n $here/src/bigace.pmns -z -t bad
 mv save.index bad.index
 _check_core
 
 echo
 echo "=== pmdumplog -l ==="
-pmdumplog -n $here/src-oss/bigace.pmns -z -l bad
+pmdumplog -n $here/src/bigace.pmns -z -l bad
 _check_core
 
 echo
 echo "=== pmdumplog -L ==="
-pmdumplog -n $here/src-oss/bigace.pmns -z -L bad
+pmdumplog -n $here/src/bigace.pmns -z -L bad
 _check_core
 
 echo
 echo "=== pmdumplog -m ==="
-pmdumplog -n $here/src-oss/bigace.pmns -z -m bad >$tmp.out 2>$tmp.err
+pmdumplog -n $here/src/bigace.pmns -z -m bad >$tmp.out 2>$tmp.err
 cat $tmp.err $tmp.out
 _check_core
 
 echo
 echo "=== pmlogsummary ==="
-pmlogsummary -n $here/src-oss/bigace.pmns bad >$tmp.out 2>$tmp.err
+pmlogsummary -n $here/src/bigace.pmns bad >$tmp.out 2>$tmp.err
 cat $tmp.err $tmp.out | sed -e 's/^\*//g'
 _check_core
 

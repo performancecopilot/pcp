@@ -148,7 +148,7 @@ fi
 #
 
 $sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
-src-oss/pmdashutdown -i 2222 -d 3 -l $tmp.pmdalog &
+src/pmdashutdown -i 2222 -d 3 -l $tmp.pmdalog &
 pid=$!
 echo "pmdashutdown pid: $pid" >$seq.full
 sleep 1

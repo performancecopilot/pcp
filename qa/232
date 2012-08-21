@@ -67,10 +67,10 @@ do
     if [ $PCP_PLATFORM = solaris ]
     then
 	# need to be root to open /dev/kmem
-	$sudo $here/src-oss/torture_indom $metric >$tmp.out 2>&1
+	$sudo $here/src/torture_indom $metric >$tmp.out 2>&1
 	status=$?
     else
-	$here/src-oss/torture_indom $metric >$tmp.out 2>&1
+	$here/src/torture_indom $metric >$tmp.out 2>&1
 	status=$?
     fi
     sed -e '/using .* kmem interface/d' $tmp.out \

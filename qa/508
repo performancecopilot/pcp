@@ -61,7 +61,7 @@ NF % 2 == 1	{ for (i = 2; i < 2+(NF-1)/2; i++) {
 ok == 0		{ print }'
 }
 
-if pmlogreduce -A 3sec -t 3sec src-oss/interpmark $tmp.reduce
+if pmlogreduce -A 3sec -t 3sec src/interpmark $tmp.reduce
 then
     :
 else
@@ -70,7 +70,7 @@ else
     exit
 fi
 
-# from src-oss/mkinterpmark ...
+# from src/mkinterpmark ...
 #
 # metric		semantics	type	indom	sample
 # disk.dev.read		counter		U64	60.1	500msec
@@ -134,11 +134,11 @@ do
 	    ;;
     esac
     echo "=== $m ===" | tee -a $seq.full
-    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a src-oss/section-a $m \
+    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a src/section-a $m \
     | _filter1 >$tmp.in
-    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a src-oss/section-b $m \
+    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a src/section-b $m \
     | _filter2 >>$tmp.in
-    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a src-oss/section-d $m \
+    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a src/section-d $m \
     | _filter2 >>$tmp.in
     sed -n '/^[0-2]/{
 s/[ 	]*$//
@@ -146,9 +146,9 @@ s/No values/No input values/
 p
 }' $tmp.in >$tmp.in2
     echo "--- inputs compared to merge ---" | tee -a $seq.full
-    pmval -rz -w 12 -f 3 -U src-oss/interpmark $m >>$seq.full 2>&1
+    pmval -rz -w 12 -f 3 -U src/interpmark $m >>$seq.full 2>&1
 
-    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a src-oss/interpmark $m \
+    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a src/interpmark $m \
     | tee -a $seq.full \
     | _filter1 >$tmp.merge
     sed -n '/^[0-2]/{

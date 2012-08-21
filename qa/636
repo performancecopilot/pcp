@@ -23,7 +23,7 @@ echo "Expect no output ..."
 # on IRIX 6.5f should report Warning: cihb_getstats: ... EINVAL or nothing
 # on Linux shuld report nothing
 #
-src-oss/pminfo_lite -L pmcd.control.debug 2>&1 \
+src/pminfo_lite -L pmcd.control.debug 2>&1 \
 | grep 'No such PMAPI error code'
 
 # for IRIX this is ENOATTR, elsewhere should be No suchcPMAPI error code

@@ -74,9 +74,9 @@ echo "=== $iam agent installation ==="
 $sudo ./Install </dev/null >$tmp.out 2>&1
 _filter_pmda_install <$tmp.out
 
-$here/src-oss/mmv_instances cats
-$here/src-oss/mmv_instances dogs
-$here/src-oss/mmv_instances mice
+$here/src/mmv_instances cats
+$here/src/mmv_instances dogs
+$here/src/mmv_instances mice
 
 echo
 echo "=== validate values ==="

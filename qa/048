@@ -36,9 +36,9 @@ s/value ".*"/value STRING/
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
-for arch in src-oss/foo src-oss/mv-foo src-oss/noti-foo
+for arch in src/foo src/mv-foo src/noti-foo
 do
     echo
     echo "=== archive $arch ==="
-    src-oss/xarch -v -a $arch | _filter_dumplog
+    src/xarch -v -a $arch | _filter_dumplog
 done

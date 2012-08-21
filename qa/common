@@ -640,7 +640,7 @@ else
 
     # make in the subdirectories
     #
-    for dir in src src-oss pmdas
+    for dir in src pmdas
     do
 	[ -d $dir ] || continue
 	if ( cd $dir; unset ROOT TOOLROOT; ${MAKE:-make} -i setup )

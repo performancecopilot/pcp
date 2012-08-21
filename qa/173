@@ -16,11 +16,11 @@ echo "QA output created by $seq"
 if [ $PCP_VER -lt 3600 ]
 then
     # V1 archives supported
-    arch=src-oss/bug
-    pmns="-n src-oss/root_irix"
+    arch=src/bug
+    pmns="-n src/root_irix"
 else
     # no support for V1 archives
-    arch=src-oss/bug_v2
+    arch=src/bug_v2
     pmns=
 fi
 
@@ -35,10 +35,10 @@ export TZ
 
 # real QA test starts here
 
-# need -n src-oss/root_irix 'cause app looks up some metrics not in the
+# need -n src/root_irix 'cause app looks up some metrics not in the
 # archive
 #
-src-oss/interp_bug2 -n src-oss/root_irix -t 0.5 -a $arch
+src/interp_bug2 -n src/root_irix -t 0.5 -a $arch
 status=$?
 
 if [ $status != 0 ]

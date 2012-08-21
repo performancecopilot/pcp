@@ -46,7 +46,7 @@ skipv != 0 && NF == 0		{ skipv = 0 }
 skipv == 1			{ print "                <some values>"; skipv = 2; next }
 skipv == 2			{ next }
                                 { print }' \
-    | src-oss/hex2nbo
+    | src/hex2nbo
 }
 
 # real QA test starts here

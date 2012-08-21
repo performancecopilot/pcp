@@ -72,7 +72,7 @@ pmlogrewrite -c /dev/tty in out
 echo
 touch $tmp.forbidden
 chmod 0 $tmp.forbidden
-pmlogrewrite -c $tmp.forbidden src-oss/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -c $tmp.forbidden src/rattle $tmp.new 2>&1 | _filter
 rm -f $tmp.new.* $tmp.forbidden
 echo
 mkdir $tmp.forbiddendir
@@ -86,49 +86,49 @@ echo
 mkdir $tmp.configdir
 touch $tmp.configdir/forbidden
 chmod 0 $tmp.configdir/forbidden
-pmlogrewrite -v -c $tmp.configdir src-oss/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -v -c $tmp.configdir src/rattle $tmp.new 2>&1 | _filter
 echo
 ln -s $tmp.configdir/forbidden $tmp.link
-pmlogrewrite -v -c $tmp.link src-oss/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -v -c $tmp.link src/rattle $tmp.new 2>&1 | _filter
 rm -rf $tmp.config $tmp.forbidden
 echo
 rm -f $tmp.link
 ln -s $tmp.configdir $tmp.link
-pmlogrewrite -v -c $tmp.link src-oss/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -v -c $tmp.link src/rattle $tmp.new 2>&1 | _filter
 rm -rf $tmp.configdir $tmp.link
 
 echo
 echo "=== truncated archive ==="
-pmlogrewrite src-oss/ok-truncbin $tmp.new 2>&1 | _filter
-echo "input records: `_cnt_logrecs src-oss/ok-truncbin`"
+pmlogrewrite src/ok-truncbin $tmp.new 2>&1 | _filter
+echo "input records: `_cnt_logrecs src/ok-truncbin`"
 echo "output records: `_cnt_logrecs $tmp.new`"
 
 echo
 echo "=== truncated archive -d ==="
 rm -f $tmp.new.*
-pmlogrewrite -d src-oss/ok-truncbin $tmp.new 2>&1 | _filter
-echo "input records: `_cnt_logrecs src-oss/ok-truncbin`"
+pmlogrewrite -d src/ok-truncbin $tmp.new 2>&1 | _filter
+echo "input records: `_cnt_logrecs src/ok-truncbin`"
 echo "output records: `_cnt_logrecs $tmp.new`"
 
 echo
 echo "===  bad label ==="
 rm -f $tmp.new.*
-pmlogrewrite -d src-oss/badlen-8 $tmp.new 2>&1 | _filter
-echo "input records: `_cnt_logrecs src-oss/badlen-8`"
+pmlogrewrite -d src/badlen-8 $tmp.new 2>&1 | _filter
+echo "input records: `_cnt_logrecs src/badlen-8`"
 echo "output records: `_cnt_logrecs $tmp.new`"
 
 echo
 echo "=== truncated metadata ==="
 rm -f $tmp.new.*
-pmlogrewrite -d src-oss/badlen-9 $tmp.new 2>&1 | _filter
-echo "input records: `_cnt_logrecs src-oss/badlen-9`"
+pmlogrewrite -d src/badlen-9 $tmp.new 2>&1 | _filter
+echo "input records: `_cnt_logrecs src/badlen-9`"
 echo "output records: `_cnt_logrecs $tmp.new`"
 
 echo
 echo "===  bad version ==="
 rm -f $tmp.new.*
-pmlogrewrite -d src-oss/err_v1 $tmp.new 2>&1 | _filter
-echo "input records: `_cnt_logrecs src-oss/err_v1`"
+pmlogrewrite -d src/err_v1 $tmp.new 2>&1 | _filter
+echo "input records: `_cnt_logrecs src/err_v1`"
 echo "output records: `_cnt_logrecs $tmp.new`"
 
 rm -f $tmp.new.*

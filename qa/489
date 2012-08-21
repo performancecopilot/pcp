@@ -33,7 +33,7 @@ do
 	    ;;
     esac
 
-    $sudo src-oss/keycache $arg >$tmp.out 2>&1
+    $sudo src/keycache $arg >$tmp.out 2>&1
     cat $tmp.out >>$seq.full
 
     case "$arg"

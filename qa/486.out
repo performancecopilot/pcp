@@ -1660,7 +1660,7 @@ pmdumplog diffs ...
  [152 bytes]
  21:58:59.005  2.3.3 (pmcd.pmlogger.host): inst [3931 or "3931"] value "bozo.localdomain"
                2.3.0 (pmcd.pmlogger.port): inst [3931 or "3931"] value 4331
-               2.3.2 (pmcd.pmlogger.archive): inst [3931 or "3931"] value "/home/kenj/src/pcpqa/src-oss/sample_expr"
+               2.3.2 (pmcd.pmlogger.archive): inst [3931 or "3931"] value "/home/kenj/src/pcpqa/src/sample_expr"
  
 -[572 bytes]
 +[568 bytes]
@@ -1772,7 +1772,7 @@ pmdumplog diffs ...
  [152 bytes]
  21:58:59.005  2.3.3 (pmcd.pmlogger.host): inst [3931 or "3931"] value "bozo.localdomain"
                2.3.0 (pmcd.pmlogger.port): inst [3931 or "3931"] value 4331
-               2.3.2 (pmcd.pmlogger.archive): inst [3931 or "3931"] value "/home/kenj/src/pcpqa/src-oss/sample_expr"
+               2.3.2 (pmcd.pmlogger.archive): inst [3931 or "3931"] value "/home/kenj/src/pcpqa/src/sample_expr"
  
 -[572 bytes]
 +[560 bytes]
@@ -3187,7 +3187,7 @@ pmdumplog diffs ...
  [152 bytes]
  21:58:59.005  2.3.3 (pmcd.pmlogger.host): inst [3931 or "3931"] value "bozo.localdomain"
                2.3.0 (pmcd.pmlogger.port): inst [3931 or "3931"] value 4331
-               2.3.2 (pmcd.pmlogger.archive): inst [3931 or "3931"] value "/home/kenj/src/pcpqa/src-oss/sample_expr"
+               2.3.2 (pmcd.pmlogger.archive): inst [3931 or "3931"] value "/home/kenj/src/pcpqa/src/sample_expr"
  
 -[572 bytes]
 +[432 bytes]
@@ -3469,7 +3469,7 @@ pmdumplog diffs ...
  [152 bytes]
  21:58:59.005  2.3.3 (pmcd.pmlogger.host): inst [3931 or "3931"] value "bozo.localdomain"
                2.3.0 (pmcd.pmlogger.port): inst [3931 or "3931"] value 4331
-               2.3.2 (pmcd.pmlogger.archive): inst [3931 or "3931"] value "/home/kenj/src/pcpqa/src-oss/sample_expr"
+               2.3.2 (pmcd.pmlogger.archive): inst [3931 or "3931"] value "/home/kenj/src/pcpqa/src/sample_expr"
  
 -[572 bytes]
 +[432 bytes]

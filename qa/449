@@ -72,24 +72,24 @@ $1 == "traverse:" && $3 ~ /[0-9][0-9]*/ && $6 ~ /[0-9][0-9]*/	{
 
 # real QA test starts here
 echo "=== __pmMultiThreaded ===" | tee -a $seq.full
-src-oss/multithread0 | LC_COLLATE=POSIX sort
+src/multithread0 | LC_COLLATE=POSIX sort
 
 echo | tee -a $seq.full
 echo "=== PM_CONTEXT_LOCAL ===" | tee -a $seq.full
-src-oss/multithread1 >$tmp.out
+src/multithread1 >$tmp.out
 cat $tmp.out | _filter1 | LC_COLLATE=POSIX sort
 
 echo | tee -a $seq.full
 echo "=== PM_SCOPE_AF and PM_SCOPE_ACL ===" | tee -a $seq.full
-src-oss/multithread2 | _filter2
+src/multithread2 | _filter2
 
 echo | tee -a $seq.full
 echo "=== PMNS concurrency ===" | tee -a $seq.full
-src-oss/multithread3 $tmp.pmns | tee -a $seq.full | _filter3
+src/multithread3 $tmp.pmns | tee -a $seq.full | _filter3
 
 echo | tee -a $seq.full
 echo "=== PMNS Load/Unload & Traverse concurrency ===" | tee -a $seq.full
-src-oss/multithread4 | tee -a $seq.full | _filter4
+src/multithread4 | tee -a $seq.full | _filter4
 
 # success, all done
 exit

@@ -1,6 +1,6 @@
 QA output created by 087
 
-=== src-oss/interp ===
+=== src/interp ===
 
 interpolate 50, 1 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -491,7 +491,7 @@ sample[7] pmFetch: End of PCP archive log
 
 7 samples required 34-40 log reads
 
-=== src-oss/mv-interp ===
+=== src/mv-interp ===
 
 interpolate 50, 1 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -982,7 +982,7 @@ sample[7] pmFetch: End of PCP archive log
 
 7 samples required 34-40 log reads
 
-=== src-oss/noti-interp ===
+=== src/noti-interp ===
 
 interpolate 50, 1 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log

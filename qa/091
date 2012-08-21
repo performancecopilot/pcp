@@ -61,27 +61,27 @@ END	{ if (sum < 4 || sum > 7)
 }
 
 # real QA test starts here
-for arch in src-oss/foo src-oss/mv-foo src-oss/noti-foo
+for arch in src/foo src/mv-foo src/noti-foo
 do
     echo
     echo "=== archive $arch ==="
     echo
     echo "metric: sample.seconds"
-    src-oss/interp1 -s 6 -a $arch sample.seconds | _filter_logreads 8 12 | _filter_seconds
+    src/interp1 -s 6 -a $arch sample.seconds | _filter_logreads 8 12 | _filter_seconds
 
     echo ""
     echo "metric: sample.bin"
-    src-oss/interp1 -s 6 -a $arch sample.bin | _filter_logreads 8 12
+    src/interp1 -s 6 -a $arch sample.bin | _filter_logreads 8 12
 
     echo ""
     echo "metric: sample.colour"
-    src-oss/interp1 -s 6 -a $arch sample.colour | _filter_number | _filter_logreads 8 12
+    src/interp1 -s 6 -a $arch sample.colour | _filter_number | _filter_logreads 8 12
 
     echo ""
     echo "metric: sample.drift"
-    src-oss/interp1 -s 6 -a $arch sample.drift | _filter_number | _filter_logreads 8 12
+    src/interp1 -s 6 -a $arch sample.drift | _filter_number | _filter_logreads 8 12
 
     echo ""
     echo "metric: sample.lights"
-    src-oss/interp1 -s 6 -a $arch sample.lights | _filter_colour | _filter_logreads 8 12
+    src/interp1 -s 6 -a $arch sample.lights | _filter_colour | _filter_logreads 8 12
 done

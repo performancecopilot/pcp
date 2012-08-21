@@ -1,31 +1,31 @@
 QA output created by 484
 
-=== src-oss/ok-foo ===
+=== src/ok-foo ===
 pmdumplog diffs ...
 
-=== src-oss/541380_v2 ===
+=== src/541380_v2 ===
 pmdumplog diffs ...
 
-=== src-oss/mirage ===
+=== src/mirage ===
 pmdumplog diffs ...
 
-=== src-oss/bigbin ===
+=== src/bigbin ===
 pmdumplog diffs ...
 
-=== src-oss/ok-mv-foo ===
+=== src/ok-mv-foo ===
 pmdumplog diffs ...
 
-=== src-oss/mirage-1 ===
+=== src/mirage-1 ===
 pmdumplog diffs ...
 
-=== src-oss/mirage-2 ===
+=== src/mirage-2 ===
 pmdumplog diffs ...
 
-=== src-oss/gap ===
+=== src/gap ===
 pmdumplog diffs ...
 
-=== src-oss/gap2 ===
+=== src/gap2 ===
 pmdumplog diffs ...
 
-=== -Dall src-oss/ok-foo ===
+=== -Dall src/ok-foo ===
 pmdumplog diffs ...

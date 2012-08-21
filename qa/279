@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-killer=`pwd`/src-oss/killparent
+killer=`pwd`/src/killparent
 LOCALHOST=`hostname`
 _needclean=true
 

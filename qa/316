@@ -37,7 +37,7 @@ do_msec()
     done
     # sed needed for arithmetic precision and rounding differences between machines
     #
-    eval src-oss/parseinterval $arg \
+    eval src/parseinterval $arg \
     | sed \
 	-e 's/0.122999 sec/0.123000 sec/' \
 	-e 's/0.009122 sec/0.009123 sec/'
@@ -50,10 +50,10 @@ do_sec()
     do
 	_args "$a" second seconds sec secs s
     done
-    eval src-oss/parseinterval $arg
+    eval src/parseinterval $arg
     for a
     do
-	src-oss/parseinterval "$a"
+	src/parseinterval "$a"
     done
 }
 
@@ -64,7 +64,7 @@ do_min()
     do
 	_args "$a" minute minutes min mins m
     done
-    eval src-oss/parseinterval $arg
+    eval src/parseinterval $arg
 }
 
 do_hour()
@@ -74,7 +74,7 @@ do_hour()
     do
 	_args "$a" hour hours hr hrs h
     done
-    eval src-oss/parseinterval $arg
+    eval src/parseinterval $arg
 }
 
 do_day()
@@ -84,7 +84,7 @@ do_day()
     do
 	_args "$a" day d
     done
-    eval src-oss/parseinterval $arg
+    eval src/parseinterval $arg
 }
 
 # real QA test starts here
@@ -111,12 +111,12 @@ do_day 1 1.5 10. "   0.083333333333  "
 
 echo
 echo "some hybrids ..."
-src-oss/parseinterval 1min30sec 1d1h1m1s1msec "1.5 hr 10 min 15 sec"
-src-oss/parseinterval "1 2 3 4 5 6 7 8 9 10" 55seconds
+src/parseinterval 1min30sec 1d1h1m1s1msec "1.5 hr 10 min 15 sec"
+src/parseinterval "1 2 3 4 5 6 7 8 9 10" 55seconds
 
 echo
 echo "some errors ..."
-src-oss/parseinterval 123+sec 123.456.789min "4minutes 30secoonds" sec "123sec min"
+src/parseinterval 123+sec 123.456.789min "4minutes 30secoonds" sec "123sec min"
 
 # success, all done
 status=0

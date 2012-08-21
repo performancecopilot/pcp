@@ -24,10 +24,10 @@ else
 fi
 cd $here
 
-rm -f src-oss/descreqX2 src-oss/torture_logmeta
-rm -f src-oss/check_fault_injection src-oss/exercise_fault
+rm -f src/descreqX2 src/torture_logmeta
+rm -f src/check_fault_injection src/exercise_fault
 
-cd src-oss
+cd src
 ${MAKE:-make}
 cd $here
 

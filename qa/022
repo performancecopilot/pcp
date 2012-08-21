@@ -116,7 +116,7 @@ pminfo -F proc \
 
 if [ $PCP_PLATFORM = linux ]
 then
-    src-oss/proc_test \
+    src/proc_test \
 	proc.psinfo.utime \
 	proc.psinfo.stime \
 	proc.memory.rss \
@@ -124,7 +124,7 @@ then
 	> $tmp.out 2>&1
     code=$?
 else
-    src-oss/proc_test \
+    src/proc_test \
 	proc.psinfo.time \
 	proc.pstatus.utime \
 	proc.psusage.utime \
@@ -139,7 +139,7 @@ else
 fi
 
 echo >>$seq.full
-echo "=== src-oss/proc_test output ===" >>$seq.full
+echo "=== src/proc_test output ===" >>$seq.full
 cat $tmp.out >>$seq.full
 
 _proc_filter $tmp.out
@@ -198,7 +198,7 @@ then
     echo ""
     echo "Exercise the stuff for the SNMP HP-UX MIB ..."
     PMDA_LOCAL_PROC=yes; export PMDA_LOCAL_PROC
-    $sudo src-oss/hp-mib 2>$tmp.err.hpmib \
+    $sudo src/hp-mib 2>$tmp.err.hpmib \
     | _inst_value_filter \
     | _filter_pmids \
     | sed \

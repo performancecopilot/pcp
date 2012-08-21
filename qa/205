@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
-src-oss/pducheck -A
+src/pducheck -A
 
 echo
-src-oss/pducheck -N
+src/pducheck -N

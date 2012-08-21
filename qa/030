@@ -16,8 +16,8 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
 echo "Really expect no output ..."
-src-oss/store
+src/store
 
 echo
 echo "Same again for PM_CONTEXT_LOCAL ..."
-$sudo src-oss/store -L 2>&1 | _filter_pmcd_log
+$sudo src/store -L 2>&1 | _filter_pmcd_log

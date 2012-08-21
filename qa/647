@@ -82,7 +82,7 @@ echo "=== $iam agent installation ==="
 $sudo ./Install </dev/null >$tmp.out 2>&1
 _filter_pmda_install <$tmp.out
 
-$here/src-oss/mmv_genstats
+$here/src/mmv_genstats
 
 echo
 echo "=== validate values ==="
@@ -97,7 +97,7 @@ else
     cat $tmp.out
 fi
 
-$here/src-oss/mmv_noinit
+$here/src/mmv_noinit
 
 echo
 echo "=== validate metrics ==="

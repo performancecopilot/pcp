@@ -99,7 +99,7 @@ do
 
     DEBUG=
     DEBUG=-D16
-    src-oss/recon $DEBUG >$tmp.out 2>&1 &
+    src/recon $DEBUG >$tmp.out 2>&1 &
 
     sleep 2
     echo "begin stop pmcd `date`" >>$seq.full

@@ -76,18 +76,18 @@ sample.suba.subb.four = 4*sample.longlong.one
 sample.suba.subb.subc.subd.five = 5*sample.longlong.one
 sample.suba.subb.subc.subd.six = 6*sample.longlong.one
 
-=== -a src-oss/reduce-1 sample.suba.subb.subc.subd.six ===
+=== -a src/reduce-1 sample.suba.subb.subc.subd.six ===
 sample.suba.subb.subc.subd.six
-=== -a src-oss/reduce-1 -f sample.suba.subb.subc.subd.six ===
+=== -a src/reduce-1 -f sample.suba.subb.subc.subd.six ===
 
 sample.suba.subb.subc.subd.six
     value 6
 
-=== -a src-oss/reduce-1 sample.suba.subb ===
+=== -a src/reduce-1 sample.suba.subb ===
 sample.suba.subb.four
 sample.suba.subb.subc.subd.five
 sample.suba.subb.subc.subd.six
-=== -a src-oss/reduce-1 -f sample.suba.subb ===
+=== -a src/reduce-1 -f sample.suba.subb ===
 
 sample.suba.subb.four
     value 4
@@ -98,7 +98,7 @@ sample.suba.subb.subc.subd.five
 sample.suba.subb.subc.subd.six
     value 6
 
-=== -a src-oss/reduce-1 sample ===
+=== -a src/reduce-1 sample ===
 sample.milliseconds
 sample.load
 sample.colour
@@ -133,7 +133,7 @@ sample.suba.three
 sample.suba.subb.four
 sample.suba.subb.subc.subd.five
 sample.suba.subb.subc.subd.six
-=== -a src-oss/reduce-1 -f sample ===
+=== -a src/reduce-1 -f sample ===
 
 sample.milliseconds
     value 3388275.115
@@ -239,14 +239,14 @@ sample.suba.subb.subc.subd.five
 sample.suba.subb.subc.subd.six
     value 6
 
-=== -a src-oss/reduce-1 sample.one.bad ===
+=== -a src/reduce-1 sample.one.bad ===
 Error: sample.one.bad: Unknown metric name
-=== -a src-oss/reduce-1 -f sample.one.bad ===
+=== -a src/reduce-1 -f sample.one.bad ===
 Error: sample.one.bad: Unknown metric name
 
-=== -a src-oss/reduce-1 sample.suba.subb.subc.bad ===
+=== -a src/reduce-1 sample.suba.subb.subc.bad ===
 Error: sample.suba.subb.subc.bad: Unknown metric name
-=== -a src-oss/reduce-1 -f sample.suba.subb.subc.bad ===
+=== -a src/reduce-1 -f sample.suba.subb.subc.bad ===
 Error: sample.suba.subb.subc.bad: Unknown metric name
 
 LOCAL context ...

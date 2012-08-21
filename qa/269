@@ -179,7 +179,7 @@ num_samples=10
 tolerance="0.15e+09" # implies error of about 0.15 second
 mismatch_limit=1 # allow 1 mismatch
 
-src-oss/wrap_int -n $num_samples >$tmp.expected
+src/wrap_int -n $num_samples >$tmp.expected
 metric="long"
 
 echo "--- Testing pmval ---"

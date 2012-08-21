@@ -56,7 +56,7 @@ pmdumplog diffs ...
 -21:10:11.751  2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
 +21:10:41.751  2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
                2.3.0 (pmcd.pmlogger.port): inst [1933 or "1933"] value 4331
-               2.3.2 (pmcd.pmlogger.archive): inst [1933 or "1933"] value "/home/kenj/src/pcpqa/src-oss/rewrite"
+               2.3.2 (pmcd.pmlogger.archive): inst [1933 or "1933"] value "/home/kenj/src/pcpqa/src/rewrite"
  
  [144 bytes]
 -21:10:11.876  30.0.114 (sampledso.double.bin_ctr):
@@ -186,7 +186,7 @@ pmdumplog diffs ...
 -21:10:11.751  2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
 +21:10:11.752  2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
                2.3.0 (pmcd.pmlogger.port): inst [1933 or "1933"] value 4331
-               2.3.2 (pmcd.pmlogger.archive): inst [1933 or "1933"] value "/home/kenj/src/pcpqa/src-oss/rewrite"
+               2.3.2 (pmcd.pmlogger.archive): inst [1933 or "1933"] value "/home/kenj/src/pcpqa/src/rewrite"
  
  [144 bytes]
 -21:10:11.876  30.0.114 (sampledso.double.bin_ctr):
@@ -383,7 +383,7 @@ pmdumplog diffs ...
      Semantics: instant  Units: none
  
 @@ -107,23 +107,23 @@
-               2.3.2 (pmcd.pmlogger.archive): inst [1933 or "1933"] value "/home/kenj/src/pcpqa/src-oss/rewrite"
+               2.3.2 (pmcd.pmlogger.archive): inst [1933 or "1933"] value "/home/kenj/src/pcpqa/src/rewrite"
  
  [144 bytes]
 -21:10:11.876  30.0.114 (sampledso.double.bin_ctr):
@@ -671,7 +671,7 @@ pmval diffs ...
  Note: timezone set to local timezone of host "babylon" from archive
  
  metric:    disk.dev.read
--archive:   src-oss/babylon.pmview_v2
+-archive:   src/babylon.pmview_v2
 +archive:   TMP.new
  host:      babylon
  start:     Tue Mar 12 11:19:10 1996
@@ -697,7 +697,7 @@ pmval diffs ...
  Note: timezone set to local timezone of host "babylon" from archive
  
  metric:    disk.dev.write
--archive:   src-oss/babylon.pmview_v2
+-archive:   src/babylon.pmview_v2
 +archive:   TMP.new
  host:      babylon
  start:     Tue Mar 12 11:19:10 1996
@@ -723,7 +723,7 @@ pmval diffs ...
  Note: timezone set to local timezone of host "babylon" from archive
  
  metric:    disk.dev.total
--archive:   src-oss/babylon.pmview_v2
+-archive:   src/babylon.pmview_v2
 +archive:   TMP.new
  host:      babylon
  start:     Tue Mar 12 11:19:10 1996
@@ -931,7 +931,7 @@ pmdumplog -m diffs ...
 +++ TMP.out
 @@ -5,7 +5,7 @@
                2.3.0 (pmcd.pmlogger.port): inst [2950 or "2950"] value 4331
-               2.3.2 (pmcd.pmlogger.archive): inst [2950 or "2950"] value "/home/kenj/src/pcpqa/src-oss/proc"
+               2.3.2 (pmcd.pmlogger.archive): inst [2950 or "2950"] value "/home/kenj/src/pcpqa/src/proc"
  
 -20:10:22.959  60.51.0 (proc.fd.count):
 +20:10:22.959  123.51.0 (proc.fd.count):

@@ -40,27 +40,27 @@ _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
 
 # real QA test starts here
 _echo "expect this to be off"
-src-oss/logcontrol enquire sample.control
+src/logcontrol enquire sample.control
 
 _echo "force these off"
-src-oss/logcontrol mandatory off sample.bin sampledso.colour
+src/logcontrol mandatory off sample.bin sampledso.colour
 _echo "should fail to turn on"
-src-oss/logcontrol advisory on sampledso.colour
-src-oss/logcontrol -i bin-300 advisory on sample.bin
+src/logcontrol advisory on sampledso.colour
+src/logcontrol -i bin-300 advisory on sample.bin
 
 _echo "force these on"
-src-oss/logcontrol mandatory on sample.colour sampledso.bin
+src/logcontrol mandatory on sample.colour sampledso.bin
 _echo "should fail to turn off"
-src-oss/logcontrol advisory off sampledso.bin
-src-oss/logcontrol -i red advisory off sample.colour
+src/logcontrol advisory off sampledso.bin
+src/logcontrol -i red advisory off sample.colour
 
 _echo "allow advisory control over this one"
-src-oss/logcontrol mandatory maybe sample.lights
+src/logcontrol mandatory maybe sample.lights
 _echo "turn it on"
-src-oss/logcontrol advisory on sample.lights
+src/logcontrol advisory on sample.lights
 _echo "turn it on again (NOP)"
-src-oss/logcontrol advisory on sample.lights
+src/logcontrol advisory on sample.lights
 _echo "turn it off"
-src-oss/logcontrol advisory off sample.lights
+src/logcontrol advisory off sample.lights
 _echo "turn it on"
-src-oss/logcontrol advisory on sample.lights
+src/logcontrol advisory on sample.lights

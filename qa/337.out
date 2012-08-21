@@ -92,7 +92,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
               2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
-              2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
+              2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
 
 13:33:47.240  29.0.80 (sample.many.int):
                 inst [0 or "i-0"] value 0
@@ -512,7 +512,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 metric:    sample.mirage
-archive:   src-oss/mirage-1
+archive:   src/mirage-1
 host:      ken.engr.acx
 start:     Sat May 17 13:33:44 2008
 end:       Sat May 17 13:34:29 2008
@@ -541,7 +541,7 @@ pmval: pmFetchArchive: End of PCP archive log
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 metric:    sample.many.int
-archive:   src-oss/mirage-1
+archive:   src/mirage-1
 host:      ken.engr.acx
 start:     Sat May 17 13:33:44 2008
 end:       Sat May 17 13:34:29 2008
@@ -691,7 +691,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 13:33:49.623  2.3.3 (pmcd.pmlogger.host): inst [32224 or "32224"] value "ken.engr.acx"
               2.3.0 (pmcd.pmlogger.port): inst [32224 or "32224"] value 4331
-              2.3.2 (pmcd.pmlogger.archive): inst [32224 or "32224"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-2"
+              2.3.2 (pmcd.pmlogger.archive): inst [32224 or "32224"] value "/home/kmcdonell/src/pcpqa/src/mirage-2"
 
 13:33:50.622  29.0.80 (sample.many.int):
                 inst [0 or "i-0"] value 0
@@ -964,7 +964,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 metric:    sample.mirage
-archive:   src-oss/mirage-2
+archive:   src/mirage-2
 host:      ken.engr.acx
 start:     Sat May 17 13:33:49 2008
 end:       Sat May 17 13:33:59 2008
@@ -988,7 +988,7 @@ pmval: pmFetchArchive: End of PCP archive log
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 metric:    sample.many.int
-archive:   src-oss/mirage-2
+archive:   src/mirage-2
 host:      ken.engr.acx
 start:     Sat May 17 13:33:49 2008
 end:       Sat May 17 13:33:59 2008
@@ -1190,7 +1190,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
               2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
-              2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
+              2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
 
 13:33:47.240  29.0.80 (sample.many.int):
                 inst [0 or "i-0"] value 0
@@ -1217,7 +1217,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 13:33:49.623  2.3.3 (pmcd.pmlogger.host): inst [32224 or "32224"] value "ken.engr.acx"
               2.3.0 (pmcd.pmlogger.port): inst [32224 or "32224"] value 4331
-              2.3.2 (pmcd.pmlogger.archive): inst [32224 or "32224"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-2"
+              2.3.2 (pmcd.pmlogger.archive): inst [32224 or "32224"] value "/home/kmcdonell/src/pcpqa/src/mirage-2"
 
 13:33:50.240  29.0.80 (sample.many.int):
                 inst [0 or "i-0"] value 0

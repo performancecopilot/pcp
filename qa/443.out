@@ -64,12 +64,12 @@ somehost_and_no_metric:
                        ^ -- performance metric name expected
 
 --- illegal mixed sources ---
-=== src-oss/eventrec-old/sample.event.records foo/bar ===
-pmevent: foo/bar: only one metric source allowed, found archives src-oss/eventrec-old and foo
+=== src/eventrec-old/sample.event.records foo/bar ===
+pmevent: foo/bar: only one metric source allowed, found archives src/eventrec-old and foo
 === -a /some/path foo:bar ===
 pmevent: foo:bar: only one type of metric source allowed
-=== -a src-oss/eventrec-old src-oss/eventrec-old/sample.event.records foo/bar ===
-pmevent: foo/bar: only one metric source allowed, found archives src-oss/eventrec-old and foo
+=== -a src/eventrec-old src/eventrec-old/sample.event.records foo/bar ===
+pmevent: foo/bar: only one metric source allowed, found archives src/eventrec-old and foo
 === localhost:sample.event.records foo:bar ===
 pmevent: foo:bar: only one metric source allowed, found hosts localhost and foo
 === -h somehost foo/bar ===
@@ -216,10 +216,10 @@ sample.event.records[bogus]: 1 event records
     sample.event.param_string "fetch #2"
 
 --- archive exercises ---
-=== -z src-oss/eventrec-old/sample.event.records ===
+=== -z src/eventrec-old/sample.event.records ===
 Note: timezone set to local timezone of host "bozo" from archive
 
-archive:   src-oss/eventrec-old
+archive:   src/eventrec-old
 host:      bozo
 start:     Sat Dec  4 15:26:09 2010
 end:       Sat Dec  4 15:26:14 2010
@@ -278,10 +278,10 @@ samples:   all
     sample.event.type 16
     sample.event.param_float -17
     sample.event.param_aggregate [0103070f1f3f7fff]
-=== -z -S@15:26:11.073 -s 2 -a src-oss/eventrec-old sample.event.records ===
+=== -z -S@15:26:11.073 -s 2 -a src/eventrec-old sample.event.records ===
 Note: timezone set to local timezone of host "bozo" from archive
 
-archive:   src-oss/eventrec-old
+archive:   src/eventrec-old
 host:      bozo
 start:     Sat Dec  4 15:26:11 2010
 end:       Sat Dec  4 15:26:14 2010
@@ -290,10 +290,10 @@ samples:   2
 15:26:12.074  sample.event.records: 1 event records
   15:26:02.073 --- event record [0] ---
     ==> No parameters
-=== -z -O+2.5 -T+4.5 -a src-oss/eventrec-old sample.event.records ===
+=== -z -O+2.5 -T+4.5 -a src/eventrec-old sample.event.records ===
 Note: timezone set to local timezone of host "bozo" from archive
 
-archive:   src-oss/eventrec-old
+archive:   src/eventrec-old
 host:      bozo
 start:     Sat Dec  4 15:26:09 2010
 end:       Sat Dec  4 15:26:13 2010

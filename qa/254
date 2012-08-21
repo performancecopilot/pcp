@@ -87,6 +87,6 @@ pmcd=$!
 _wait_for_pmcd
 
 cd $here
-src-oss/nameall -s 2 ""
+src/nameall -s 2 ""
 
 status=$?

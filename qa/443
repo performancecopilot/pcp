@@ -102,9 +102,9 @@ _run somehost_and_no_metric:
 
 echo
 echo "--- illegal mixed sources ---"
-_run src-oss/eventrec-old/sample.event.records foo/bar
+_run src/eventrec-old/sample.event.records foo/bar
 _run -a /some/path foo:bar
-_run -a src-oss/eventrec-old src-oss/eventrec-old/sample.event.records foo/bar
+_run -a src/eventrec-old src/eventrec-old/sample.event.records foo/bar
 _run localhost:sample.event.records foo:bar
 _run -h somehost foo/bar
 _run -h localhost localhost:sample.event.records foo:bar
@@ -127,9 +127,9 @@ _run_ok -t 10msec -s 3 'sample.event.records[bogus]'
 
 echo
 echo "--- archive exercises ---"
-_run_arch -z src-oss/eventrec-old/sample.event.records
-_run_arch -z -S@15:26:11.073 -s 2 -a src-oss/eventrec-old sample.event.records
-_run_arch -z -O+2.5 -T+4.5 -a src-oss/eventrec-old sample.event.records
+_run_arch -z src/eventrec-old/sample.event.records
+_run_arch -z -S@15:26:11.073 -s 2 -a src/eventrec-old sample.event.records
+_run_arch -z -O+2.5 -T+4.5 -a src/eventrec-old sample.event.records
 
 
 # success, all done

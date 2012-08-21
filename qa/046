@@ -25,7 +25,7 @@ _filter()
     | $PCP_AWK_PROG '
 $1 == "TIMESTAMP" && NF == 4	{ print "TIMESTAMP       0       OFFSET       OFFSET"; next }
 				{ print }' \
-    | src-oss/hex2nbo
+    | src/hex2nbo
 }
 
 

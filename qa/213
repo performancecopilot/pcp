@@ -75,7 +75,7 @@ End-of-File
 echo
 echo "=== MMV PMDA test ==="
 $sudo rm -rf $PCP_TMP_DIR/mmv/*
-src-oss/mmv_genstats
+src/mmv_genstats
 echo "installed mmv files ..."
 find $PCP_TMP_DIR/mmv -type f | sed -e "s;$PCP_TMP_DIR;PCP_TMP_DIR;"
 cat <<End-of-File >$tmp.pmns

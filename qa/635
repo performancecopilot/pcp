@@ -237,7 +237,7 @@ do
 
     while read inst nv1 pcp nv2
     do
-	if src-oss/compare $nv1 $pcp $nv2
+	if src/compare $nv1 $pcp $nv2
 	then
 	    :
 	else

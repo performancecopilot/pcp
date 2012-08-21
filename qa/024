@@ -104,13 +104,13 @@ fi
 
 # real QA test starts here
 echo "=== expected to pass ==="
-src-oss/chkctx2 -D16 2>&1 | _filter
+src/chkctx2 -D16 2>&1 | _filter
 echo ""
-src-oss/chkctx2 -D16 -h localhost 2>&1 | _filter
+src/chkctx2 -D16 -h localhost 2>&1 | _filter
 echo ""
-src-oss/chkctx2 -D16 -h `hostname` 2>&1 | _filter
+src/chkctx2 -D16 -h `hostname` 2>&1 | _filter
 echo ""
-src-oss/chkctx2 -D16 -h $remote 2>&1 | _filter
+src/chkctx2 -D16 -h $remote 2>&1 | _filter
 echo ""
 
 PCP_LITE_SAMPLE=yes
@@ -118,7 +118,7 @@ export PCP_LITE_SAMPLE
 
 echo | tee -a $seq.full
 echo "=== try CONTEXT_LOCAL ===" | tee -a $seq.full
-$sudo src-oss/chkctx2_lite -D16 -L 2>&1 \
+$sudo src/chkctx2_lite -D16 -L 2>&1 \
 | tee -a $seq.full \
 | _filter \
 | _filter2 \

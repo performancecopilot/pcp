@@ -33,7 +33,7 @@ $1 == "29.0.135"	{ want = 1 }
 }
 
 # real QA test starts here
-src-oss/unpack 2>&1 | _filter
+src/unpack 2>&1 | _filter
 
 # success, all done
 exit

@@ -31,12 +31,12 @@ then
     exit 1
 fi
 
-src-oss/pdu-server -p $port -D pdu,appl0 -Z UTC >$tmp.out 2>&1 &
+src/pdu-server -p $port -D pdu,appl0 -Z UTC >$tmp.out 2>&1 &
 server_pid=$!
 
 sleep 1
 
-src-oss/pducheck -p $port -i 1 localhost
+src/pducheck -p $port -i 1 localhost
 
 sleep 1
 

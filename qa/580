@@ -48,10 +48,10 @@ _filter()
 }
 
 # real QA test starts here
-src-oss/indom -i 15 kernel.all.load | _filter
+src/indom -i 15 kernel.all.load | _filter
 if [ $PCP_PLATFORM != darwin -a $PCP_PLATFORM != solaris ]
 then
-    src-oss/indom -i 1 proc.psinfo.pid \
+    src/indom -i 1 proc.psinfo.pid \
     | _filter \
     | sed 's/<0*1/<ONE/g;
 s,/etc/init ,init,g;
@@ -60,8 +60,8 @@ s,/sbin/init,init,g;
 s,init[^>]*,init,g;'   # 6.2 has a space after the init, linux may have
                        #  extra arguments
 fi
-src-oss/indom -i 4 sample.needprofile sampledso.needprofile | _filter
-src-oss/indom -i 500 sample.bin | _filter
+src/indom -i 4 sample.needprofile sampledso.needprofile | _filter
+src/indom -i 500 sample.bin | _filter
 
 # success, all done
 status=0

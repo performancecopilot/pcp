@@ -17,4 +17,4 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 # real QA test starts here
 
 echo "All invocations should have the same file descriptors at startup and exec/exit"
-src-oss/context_fd_leak 4 | sort
+src/context_fd_leak 4 | sort

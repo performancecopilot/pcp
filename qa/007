@@ -17,7 +17,7 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 # optfetch routines use hashing on PMID and so the exact configuration
 # of the pmFetch groups is sensitive to endian-ness ... hence the
 # filter for a range of computed costs.
-src-oss/chkoptfetch \
+src/chkoptfetch \
 | tee $seq.full \
 | $PCP_AWK_PROG '
 /re-arrangement/	{ if ($5 == "1," || $5 == "2,") $5="1 or 2,"

@@ -101,7 +101,7 @@ echo
 echo "=== fetch values exercises ==="
 echo
 
-pminfo -f -a src-oss/sample_expr
+pminfo -f -a src/sample_expr
 
 # suggested by gcov analysis
 echo

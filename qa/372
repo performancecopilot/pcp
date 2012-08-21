@@ -49,37 +49,37 @@ End-of-File
 
 echo "=== CSV ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp src-oss/simple.csv $tmp.mapfile $tmp 2>&1
+sheet2pcp src/simple.csv $tmp.mapfile $tmp 2>&1
 [ -f $tmp.0 ] && pmdumplog -az $tmp
 
 echo
 echo "=== resaved CSV ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp src-oss/simple-resave.csv $tmp.mapfile $tmp 2>&1
+sheet2pcp src/simple-resave.csv $tmp.mapfile $tmp 2>&1
 [ -f $tmp.0 ] && pmdumplog -az $tmp
 
 echo
 echo "=== ODS ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp src-oss/simple.ods $tmp.mapfile $tmp 2>&1
+sheet2pcp src/simple.ods $tmp.mapfile $tmp 2>&1
 [ -f $tmp.0 ] && pmdumplog -az $tmp
 
 echo
 echo "=== SXC ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp src-oss/simple.sxc $tmp.mapfile $tmp 2>&1
+sheet2pcp src/simple.sxc $tmp.mapfile $tmp 2>&1
 [ -f $tmp.0 ] && pmdumplog -az $tmp
 
 echo
 echo "=== XLSX ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp src-oss/simple-resave.xlsx $tmp.mapfile $tmp 2>&1
+sheet2pcp src/simple-resave.xlsx $tmp.mapfile $tmp 2>&1
 [ -f $tmp.0 ] && pmdumplog -az $tmp
 
 echo
 echo "=== XLS ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp src-oss/simple.xls $tmp.mapfile $tmp 2>&1
+sheet2pcp src/simple.xls $tmp.mapfile $tmp 2>&1
 [ -f $tmp.0 ] && pmdumplog -az $tmp
 
 echo

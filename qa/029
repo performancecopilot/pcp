@@ -42,8 +42,8 @@ _filter()
 
 
 # real QA test starts here
-pmdumplog -d src-oss/foo | _sort_pmdumplog_d
+pmdumplog -d src/foo | _sort_pmdumplog_d
 
 echo ""
-src-oss/chktrim src-oss/foo | _filter \
+src/chktrim src/foo | _filter \
 | LC_COLLATE=POSIX sort

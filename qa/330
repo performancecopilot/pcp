@@ -22,7 +22,7 @@ BEGIN			{ skip = 1 }
 skip == 0		{ print }'
 }
 
-_check_purify src-oss/interp1
+_check_purify src/interp1
 
 echo "QA output created by $seq"
 
@@ -30,9 +30,9 @@ status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-_setup_purify src-oss/interp1
+_setup_purify src/interp1
 
-for arch in src-oss/foo src-oss/mv-foo src-oss/noti-foo
+for arch in src/foo src/mv-foo src/noti-foo
 do
     echo
     echo "=== archive $arch ==="

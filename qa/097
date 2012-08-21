@@ -46,16 +46,16 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
 echo "Archive foo ..."
-src-oss/interp4 -a src-oss/foo | _filterfoo
+src/interp4 -a src/foo | _filterfoo
 
 echo
 echo "Archive ok-bigbin ..."
-src-oss/interp4 -a src-oss/ok-bigbin | _filterbigbin
+src/interp4 -a src/ok-bigbin | _filterbigbin
 
 echo
 echo "Archive multi-volume foo ..."
-src-oss/interp4 -a src-oss/mv-foo | _filterfoo
+src/interp4 -a src/mv-foo | _filterfoo
 
 echo
 echo "Archive multi-volume ok-bigbin ..."
-src-oss/interp4 -a src-oss/ok-mv-bigbin | _filterbigbin
+src/interp4 -a src/ok-mv-bigbin | _filterbigbin

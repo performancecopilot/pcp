@@ -278,7 +278,7 @@ pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
 metric:    sample.wrap.ulong
-archive:   src-oss/uwrap
+archive:   src/uwrap
 host:      kenj-pc
 start:     Thu Jun 30 18:48:17 2005
 end:       Thu Jun 30 18:50:17 2005
@@ -412,7 +412,7 @@ pmval: pmFetchArchive: End of PCP archive log
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
 metric:    sample.wrap.ulong
-archive:   src-oss/uwrap
+archive:   src/uwrap
 host:      kenj-pc
 start:     Thu Jun 30 18:48:17 2005
 end:       Thu Jun 30 18:50:17 2005

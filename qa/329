@@ -22,7 +22,7 @@ BEGIN			{ skip = 1 }
 skip == 0		{ print }'
 }
 
-_check_purify src-oss/interp0
+_check_purify src/interp0
 
 echo "QA output created by $seq"
 
@@ -30,7 +30,7 @@ status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-_setup_purify src-oss/interp0
+_setup_purify src/interp0
 
 for delta in 1 4 5 8 10
 do
@@ -38,7 +38,7 @@ do
     [ $samples -gt 50 ] && samples=50
     echo
     echo "interpolate $samples, $delta seconds appart"
-    _run_purify -a $here/src-oss/interp -t 1 -s 50 \
+    _run_purify -a $here/src/interp -t 1 -s 50 \
     | _filter
 done
 

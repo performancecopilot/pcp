@@ -105,7 +105,7 @@ echo "=== folio name relative to cwd ==="
 echo "=== folio name relative to cwd ===" >>$here/$seq.full
 echo
 
-$here/src-oss/record foo no-1 1 $host localhost $host localhost 2>&1 >$tmp.out &
+$here/src/record foo no-1 1 $host localhost $host localhost 2>&1 >$tmp.out &
 sleep 10
 MKTEMP=`ls -d * | grep -v foo | grep -v '\.'`
 _build_sed $tmp.out
@@ -182,7 +182,7 @@ echo "=== absolute folio name ==="
 echo "=== absolute folio name ===" >>$here/$seq.full
 echo
 
-$here/src-oss/record `pwd`/foo no-2 0 $host localhost $host localhost 2>&1 >$tmp.out &
+$here/src/record `pwd`/foo no-2 0 $host localhost $host localhost 2>&1 >$tmp.out &
 sleep 10
 MKTEMP=`ls -d * | grep -v foo | grep -v '\.'`
 _build_sed $tmp.out

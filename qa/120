@@ -56,7 +56,7 @@ pminfo -f irix.resource.efs \
 # Generate some efs activity
 #
 cd $efs/$$
-$here/src-oss/mkfiles xxx $nfiles
+$here/src/mkfiles xxx $nfiles
 
 # Get the new values of the metrics
 pminfo -f irix.resource.efs \

@@ -98,14 +98,14 @@ pmlogrewrite: Cannot open config file "TMP.link": Permission denied
 pmlogrewrite: Cannot open config file "TMP.link/forbidden": Permission denied
 
 === truncated archive ===
-pmlogrewrite: Error: __pmLogRead[log src-oss/ok-truncbin]: Corrupted record in a PCP archive log
+pmlogrewrite: Error: __pmLogRead[log src/ok-truncbin]: Corrupted record in a PCP archive log
 pmlogrewrite: Error occurred at byte offset 204456 into a file of 204800 bytes.
 Archive "TMP.new" not created.
 input records: 416
 output records: no file
 
 === truncated archive -d ===
-pmlogrewrite: Error: __pmLogRead[log src-oss/ok-truncbin]: Corrupted record in a PCP archive log
+pmlogrewrite: Error: __pmLogRead[log src/ok-truncbin]: Corrupted record in a PCP archive log
 pmlogrewrite: Error occurred at byte offset 204456 into a file of 204800 bytes.
 The last record, and the remainder of this file will not be processed.
 Archive "TMP.new" creation truncated.
@@ -113,16 +113,16 @@ input records: 416
 output records: 416
 
 ===  bad label ===
-pmlogrewrite: Error: cannot open archive "src-oss/badlen-8": Illegal label record at start of a PCP archive log file
+pmlogrewrite: Error: cannot open archive "src/badlen-8": Illegal label record at start of a PCP archive log file
 input records: 0
 output records: no file
 
 === truncated metadata ===
-pmlogrewrite: Error: cannot open archive "src-oss/badlen-9": Corrupted record in a PCP archive log
+pmlogrewrite: Error: cannot open archive "src/badlen-9": Corrupted record in a PCP archive log
 input records: 0
 output records: no file
 
 ===  bad version ===
-pmlogrewrite: Error: illegal version number 1 in archive (src-oss/err_v1)
+pmlogrewrite: Error: illegal version number 1 in archive (src/err_v1)
 input records: 6
 output records: no file

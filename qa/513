@@ -11,4 +11,4 @@ which valgrind >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "valgrind unavailable on this platform"
 
 echo "QA output created by $seq"
-valgrind --quiet src-oss/pducrash
+valgrind --quiet src/pducrash

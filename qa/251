@@ -40,8 +40,8 @@ trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 mkdir $tmp
-cp src-oss/mv-bar.* $tmp
-offset=`_arch_start src-oss/mv-bar 0`
+cp src/mv-bar.* $tmp
+offset=`_arch_start src/mv-bar 0`
 cd $tmp
 
 for inst in "bin-100" "bin-100,bin-500,bin-900"

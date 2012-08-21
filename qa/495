@@ -54,7 +54,7 @@ _cmp()
 
 echo "non-null -> non-null cases"
 rm -f $tmp.old.*
-pmlogextract -s 3 src-oss/mirage-1 $tmp.old
+pmlogextract -s 3 src/mirage-1 $tmp.old
 sed -e '/^#/d' <<End-of-File | while read arch_args spec
 # archive[|arg1[|arg2[|...]]]	metric spec ...
 $tmp.old	metric sample.mirage { indom -> 29.8 }
@@ -84,7 +84,7 @@ done
 echo
 echo "non-null -> null cases"
 rm -f $tmp.old.*
-pmlogextract -s 3 src-oss/ok-foo $tmp.old
+pmlogextract -s 3 src/ok-foo $tmp.old
 sed -e '/^#/d' <<End-of-File | while read arch_args spec
 # archive[|arg1[|arg2[|...]]]	metric spec ...
 $tmp.old	metric sample.colour { indom -> NULL }
@@ -112,7 +112,7 @@ done
 echo
 echo "null -> non-null cases"
 rm -f $tmp.old.*
-pmlogextract -s 3 src-oss/ok-foo $tmp.old
+pmlogextract -s 3 src/ok-foo $tmp.old
 sed -e '/^#/d' <<End-of-File | while read arch_args spec
 # archive[|arg1[|arg2[|...]]]	metric spec ...
 $tmp.old	metric sample.seconds { indom -> 29.2 }
@@ -140,7 +140,7 @@ done
 echo
 echo "spaces in inames cases"
 rm -f $tmp.old.*
-pmlogextract -s 3 src-oss/moomba.pmkstat $tmp.old
+pmlogextract -s 3 src/moomba.pmkstat $tmp.old
 sed -e '/^#/d' <<End-of-File | while read arch_args spec
 # archive[|arg1[|arg2[|...]]]	metric spec ...
 # non-null -> null (so input side selection)

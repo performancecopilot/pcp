@@ -171,7 +171,7 @@ TZ=XYZ-11; export TZ
 
 # I don't understand the sed replacement below - Ken, Jul 2003
 #
-src-oss/tztest \
+src/tztest \
 | tee $seq.full \
 | sed \
 	-e's|XYZ-11:03:04ABC-10:01:02,M12.5.0/3:04:05,M7.1.0/2:06:07|ABC-10:01:02XYZ-11:03:04,M12.5.0/3:04:05,M7.1.0/2:06:07|' \

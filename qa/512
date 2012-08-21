@@ -12,7 +12,7 @@
 
 seq=`basename $0`
 
-if src-oss/check_fault_injection >/dev/null 2>&1
+if src/check_fault_injection >/dev/null 2>&1
 then
     rm -f .notrun
 else
@@ -89,7 +89,7 @@ _filter <$tmp.trace
 
 echo | tee -a $seq.full
 echo "== pmlogger ==" | tee -a $seq.full
-sed -e 's/1 sec/50 msec/' <src-oss/config.foo >$tmp.config
+sed -e 's/1 sec/50 msec/' <src/config.foo >$tmp.config
 _pre $SRC/pmlogger pmlogger
 $SRC/pmlogger/pmlogger.debug -Dlock -c $tmp.config -s 20 -l $tmp.log $tmp
 _post $SRC/pmlogger pmlogger
@@ -101,7 +101,7 @@ for arch in a b c
 do
     for i in 0 index meta
     do
-	cp src-oss/foo.$i $tmp-$arch.$i
+	cp src/foo.$i $tmp-$arch.$i
     done
 done
 _pre $SRC/pmlogextract pmlogextract

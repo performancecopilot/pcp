@@ -40,7 +40,7 @@ PMCD_CONNECT_TIMEOUT=60
 PMCD_REQUEST_TIMEOUT=60
 export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
 
-src-oss/disk_test \
+src/disk_test \
 | sed \
     -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
     -e '/ value /s/ value .*/ value .../'

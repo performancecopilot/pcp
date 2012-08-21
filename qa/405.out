@@ -1,7 +1,7 @@
 QA output created by 405
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src-oss/unpack
+Command: src/unpack
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

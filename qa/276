@@ -23,7 +23,7 @@ DISPLAY=$PCPQA_CLOSE_X_SERVER
 export DISPLAY
 
 # real QA test starts here
-src-oss/grind-tools -v -a src-oss/fcsw_indom fcsw.port.bytes_out
+src/grind-tools -v -a src/fcsw_indom fcsw.port.bytes_out
 
 # success, all done
 exit

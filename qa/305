@@ -19,43 +19,43 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 
 
-src-oss/matchInstanceName "" ""
-src-oss/matchInstanceName "" "a"
-src-oss/matchInstanceName "" "ab"
-src-oss/matchInstanceName "" "ab cd"
-src-oss/matchInstanceName "" "ab de"
+src/matchInstanceName "" ""
+src/matchInstanceName "" "a"
+src/matchInstanceName "" "ab"
+src/matchInstanceName "" "ab cd"
+src/matchInstanceName "" "ab de"
 
 echo
 
-src-oss/matchInstanceName "a" ""
-src-oss/matchInstanceName "a" "a"
-src-oss/matchInstanceName "a" "ab"
-src-oss/matchInstanceName "a" "ab cd"
-src-oss/matchInstanceName "a" "ab de"
+src/matchInstanceName "a" ""
+src/matchInstanceName "a" "a"
+src/matchInstanceName "a" "ab"
+src/matchInstanceName "a" "ab cd"
+src/matchInstanceName "a" "ab de"
 
 echo
 
-src-oss/matchInstanceName "ab" ""
-src-oss/matchInstanceName "ab" "a"
-src-oss/matchInstanceName "ab" "ab"
-src-oss/matchInstanceName "ab" "ab cd"
-src-oss/matchInstanceName "ab" "ab de"
+src/matchInstanceName "ab" ""
+src/matchInstanceName "ab" "a"
+src/matchInstanceName "ab" "ab"
+src/matchInstanceName "ab" "ab cd"
+src/matchInstanceName "ab" "ab de"
 
 echo
 
-src-oss/matchInstanceName "ab cd" ""
-src-oss/matchInstanceName "ab cd" "a"
-src-oss/matchInstanceName "ab cd" "ab"
-src-oss/matchInstanceName "ab cd" "ab cd"
-src-oss/matchInstanceName "ab cd" "ab de"
+src/matchInstanceName "ab cd" ""
+src/matchInstanceName "ab cd" "a"
+src/matchInstanceName "ab cd" "ab"
+src/matchInstanceName "ab cd" "ab cd"
+src/matchInstanceName "ab cd" "ab de"
 
 echo 
 
-src-oss/matchInstanceName "ab de" ""
-src-oss/matchInstanceName "ab de" "a"
-src-oss/matchInstanceName "ab de" "ab"
-src-oss/matchInstanceName "ab de" "ab cd"
-src-oss/matchInstanceName "ab de" "ab de"
+src/matchInstanceName "ab de" ""
+src/matchInstanceName "ab de" "a"
+src/matchInstanceName "ab de" "ab"
+src/matchInstanceName "ab de" "ab cd"
+src/matchInstanceName "ab de" "ab de"
 
 # success, all done
 exit

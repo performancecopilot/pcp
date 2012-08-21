@@ -12,7 +12,7 @@ seq=`basename $0`
 . ./common.filter
 . ./common.check
 
-_check_purify src-oss/pmnsunload
+_check_purify src/pmnsunload
 
 echo "QA output created by $seq"
 
@@ -20,7 +20,7 @@ status=1	# failure is the default!
 trap "cd; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-_setup_purify src-oss/pmnsunload
+_setup_purify src/pmnsunload
 _run_purify -i 3 
 
 # all done

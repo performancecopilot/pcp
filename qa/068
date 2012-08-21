@@ -57,4 +57,4 @@ echo "--- pcp stop ---" >>$seq.full
 $sudo $PCP_RC_DIR/pcp stop | tee -a $seq.full | _filter_pcp_stop
 echo >>$seq.full
 echo "--- run pmcdgone ---" >>$seq.full
-$sudo src-oss/pmcdgone | tee -a $seq.full
+$sudo src/pmcdgone | tee -a $seq.full

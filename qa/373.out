@@ -1,6 +1,6 @@
 QA output created by 373
 
-=== src-oss/iostat-t ===
+=== src/iostat-t ===
 stamp_style=1 zone=UTC basedate=2010-07-27 now=1280234857 stamp=2010-07-27T12:47:37.000000
 End of sample 0 @ 1280234857 2010-07-27T12:47:37.000000
 End of sample 1 @ 1280234860 2010-07-27T12:47:40.000000
@@ -93,7 +93,7 @@ Temporal Index
                 inst [1 or "sdb"] value 0
                 inst [2 or "scd0"] value 0
 
-=== src-oss/iostat-t.ISO ===
+=== src/iostat-t.ISO ===
 stamp_style=2 zone=+1000 basedate=2010-07-27 now=1280198770 stamp=2010-07-27T12:46:10.000000
 End of sample 0 @ 1280198770 2010-07-27T12:46:10.000000
 End of sample 1 @ 1280198773 2010-07-27T12:46:13.000000
@@ -186,7 +186,7 @@ Temporal Index
                 inst [1 or "sdb"] value 12
                 inst [2 or "scd0"] value 0
 
-=== src-oss/iostat-c ===
+=== src/iostat-c ===
 iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
 iostat2pcp: Warning: cannot determine sample interval, assuming 15 seconds
 stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188815 stamp=Tue Jul 27 00:00:15 2010 interval=15 first_tag=avg-cpu
@@ -243,7 +243,7 @@ Temporal Index
               245.0.5 (kernel.all.cpu.steal): value 0
               245.0.6 (kernel.all.cpu.idle): value 0
 
-=== src-oss/iostat-d ===
+=== src/iostat-d ===
 iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
 stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188803 stamp=Tue Jul 27 00:00:03 2010 interval=3 first_tag=Device
 End of sample 0 @ 1280188803 Tue Jul 27 00:00:03 2010
@@ -307,7 +307,7 @@ Temporal Index
                 inst [1 or "sdb"] value 817.21997
                 inst [2 or "scd0"] value 0
 
-=== src-oss/iostat ===
+=== src/iostat ===
 iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
 stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188803 stamp=Tue Jul 27 00:00:03 2010 interval=3 first_tag=avg-cpu
 End of sample 0 @ 1280188803 Tue Jul 27 00:00:03 2010
@@ -401,7 +401,7 @@ Temporal Index
                 inst [1 or "sdb"] value 569.90002
                 inst [2 or "scd0"] value 0
 
-=== src-oss/iostat-z ===
+=== src/iostat-z ===
 iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
 stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188803 stamp=Tue Jul 27 00:00:03 2010 interval=3 first_tag=avg-cpu
 End of sample 0 @ 1280188803 Tue Jul 27 00:00:03 2010
@@ -488,7 +488,7 @@ Temporal Index
                 inst [0 or "sda"] value 0
                 inst [1 or "sdb"] value 12
 
-=== src-oss/iostat-d-k ===
+=== src/iostat-d-k ===
 iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
 stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188803 stamp=Tue Jul 27 00:00:03 2010 interval=3 first_tag=Device
 End of sample 0 @ 1280188803 Tue Jul 27 00:00:03 2010
@@ -552,7 +552,7 @@ Temporal Index
                 inst [1 or "sdb"] value 0
                 inst [2 or "scd0"] value 0
 
-=== src-oss/iostat-d-m ===
+=== src/iostat-d-m ===
 iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
 stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188802 stamp=Tue Jul 27 00:00:02 2010 interval=2 first_tag=Device
 End of sample 0 @ 1280188802 Tue Jul 27 00:00:02 2010
@@ -616,7 +616,7 @@ Temporal Index
                 inst [1 or "sdb"] value 10.24
                 inst [2 or "scd0"] value 0
 
-=== src-oss/iostat-x ===
+=== src/iostat-x ===
 iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
 iostat2pcp: Warning: cannot determine sample interval, assuming 15 seconds
 stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188815 stamp=Tue Jul 27 00:00:15 2010 interval=15 first_tag=avg-cpu
@@ -755,7 +755,7 @@ Temporal Index
                 inst [1 or "sdb"] value 0
                 inst [2 or "scd0"] value 0
 
-=== src-oss/iostat-p-ALL ===
+=== src/iostat-p-ALL ===
 iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
 stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188803 stamp=Tue Jul 27 00:00:03 2010 interval=3 first_tag=avg-cpu
 End of sample 0 @ 1280188803 Tue Jul 27 00:00:03 2010
@@ -1108,7 +1108,7 @@ Temporal Index
                 inst [38 or "sdb6"] value 0
                 inst [39 or "scd0"] value 0
 
-=== src-oss/iostat-z-p-ALL ===
+=== src/iostat-z-p-ALL ===
 iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
 iostat2pcp: Warning: cannot determine sample interval, assuming 15 seconds
 stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188815 stamp=Tue Jul 27 00:00:15 2010 interval=15 first_tag=avg-cpu

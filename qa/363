@@ -16,11 +16,11 @@ rm -f $seq.out
 if [ $PCP_VER -lt 3600 ]
 then
     # V1 archives supported
-    arch=src-oss/ace
+    arch=src/ace
     ln $seq.out.1 $seq.out
 else
     # no support for V1 archives
-    arch=src-oss/ace_v2
+    arch=src/ace_v2
     ln $seq.out.2 $seq.out
 fi
 
@@ -28,9 +28,9 @@ status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # strip marks from archives
-src-oss/stripmark src-oss/changeinst.0 $tmp.changeinst.0 > /dev/null 2>&1
-cp src-oss/changeinst.index $tmp.changeinst.index
-cp src-oss/changeinst.meta $tmp.changeinst.meta
+src/stripmark src/changeinst.0 $tmp.changeinst.0 > /dev/null 2>&1
+cp src/changeinst.index $tmp.changeinst.index
+cp src/changeinst.meta $tmp.changeinst.meta
 
 # deal with an annoying libc error ... using TZ=:Australia/Melbourne
 # causes the -z option to report the wrong time, at least for some
@@ -42,11 +42,11 @@ export TZ
 # real QA test starts here
 echo
 echo "=== Sanity checks ==="
-pmlogsummary -z -n src-oss/root_irix -bmMy $arch \
+pmlogsummary -z -n src/root_irix -bmMy $arch \
      | LC_COLLATE=POSIX sort -f | ./xlate_2_new_pmns
 echo
 echo "=== Down-rev error check ==="
-pmlogsummary -v -z -n src-oss/root_irix -a src-oss/err_v1
+pmlogsummary -v -z -n src/root_irix -a src/err_v1
 echo
 echo "=== Changing inst check ==="
 pmlogsummary -z -a $tmp.changeinst
@@ -61,8 +61,8 @@ _filter()
 	# sample[dso].milliseconds is a fickle mistress
 }
 
-pmlogsummary src-oss/truncbin | _filter
-pmlogsummary src-oss/null
+pmlogsummary src/truncbin | _filter
+pmlogsummary src/null
 
 
 # success, all done

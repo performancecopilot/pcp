@@ -47,9 +47,9 @@ for i in \
 	9999500000000000 99995100000000000
 do
     echo $i | $PCP_AWK_PROG '{printf("%18s = ", $1); }'
-    src-oss/numberstr $i
+    src/numberstr $i
     echo -$i | $PCP_AWK_PROG '{printf("%18s = ", $1); }'
-    src-oss/numberstr -$i
+    src/numberstr -$i
 done
 
 # success, all done

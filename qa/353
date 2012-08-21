@@ -35,12 +35,12 @@ SOCKS_SERVER=$PCPQA_SOCKS_SERVER
 PMCD_CONNECT_TIMEOUT=30
 PMCD_REQUEST_TIMEOUT=30
 export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT SOCKS_SERVER
-pmsocks src-oss/pmsocks_objstyle -h $EXTERNAL_HOST | _filter
+pmsocks src/pmsocks_objstyle -h $EXTERNAL_HOST | _filter
 if [ "$PCP_PLATFORM" = "irix" ]
 then
-    pmsocks src-oss/pmsocks_objstyle_32 -h $EXTERNAL_HOST | _filter
-    pmsocks src-oss/pmsocks_objstyle_n32 -h $EXTERNAL_HOST | _filter
-    pmsocks src-oss/pmsocks_objstyle_64 -h $EXTERNAL_HOST | _filter
+    pmsocks src/pmsocks_objstyle_32 -h $EXTERNAL_HOST | _filter
+    pmsocks src/pmsocks_objstyle_n32 -h $EXTERNAL_HOST | _filter
+    pmsocks src/pmsocks_objstyle_64 -h $EXTERNAL_HOST | _filter
 fi
 
 exit

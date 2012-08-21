@@ -17,9 +17,9 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 . ./common.check
 
 host=`hostname`
-date=`pmdumplog -l src-oss/gap | grep commencing | 
+date=`pmdumplog -l src/gap | grep commencing | 
 	sed -e 's/  commencing //' -e 's/\.[0-9]*//'`
-offset=`_arch_start src-oss/gap 0.5`
+offset=`_arch_start src/gap 0.5`
 
 _filter_val()
 {
@@ -45,15 +45,15 @@ for metric in \
 do
     echo >> $tmp.out
     echo "pmval args: -U -r" >>$tmp.out
-    pmval -r -U src-oss/gap $metric >>$tmp.out 2>$tmp.err
+    pmval -r -U src/gap $metric >>$tmp.out 2>$tmp.err
     cat $tmp.err >>$tmp.out
     echo >>$tmp.out
     echo "pmval args: -a -r" >>$tmp.out
-    pmval -s 10 -O $offset -r -t2 -a src-oss/gap $metric >>$tmp.out 2>$tmp.err
+    pmval -s 10 -O $offset -r -t2 -a src/gap $metric >>$tmp.out 2>$tmp.err
     cat $tmp.err >>$tmp.out
     echo >>$tmp.out
     echo "pmval args: -a" >>$tmp.out
-    pmval -s 10 -O $offset -t2 -a src-oss/gap $metric >>$tmp.out 2>$tmp.err
+    pmval -s 10 -O $offset -t2 -a src/gap $metric >>$tmp.out 2>$tmp.err
     cat $tmp.err >>$tmp.out
 done
 

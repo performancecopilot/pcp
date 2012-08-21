@@ -68,10 +68,10 @@ metric kernel.all.load { pmid -> 1.2.3 }
 End-of-File
 i=`expr $i + 1`
 rm -f $tmp.new.*
-pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+pmlogrewrite -qsvw -c $tmp.conf.dir src/rewrite $tmp.new 2>&1 \
 | _filter \
 | LC_COLLATE=POSIX sort
-_cmp src-oss/rewrite $tmp.new
+_cmp src/rewrite $tmp.new
 
 echo
 echo "=== + indom not in archive ==="
@@ -80,10 +80,10 @@ indom 1.2 { inst 0 -> 1 }
 End-of-File
 i=`expr $i + 1`
 rm -f $tmp.new.*
-pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+pmlogrewrite -qsvw -c $tmp.conf.dir src/rewrite $tmp.new 2>&1 \
 | _filter \
 | LC_COLLATE=POSIX sort
-_cmp src-oss/rewrite $tmp.new
+_cmp src/rewrite $tmp.new
 
 echo
 echo "=== + empty global clause ==="
@@ -92,10 +92,10 @@ global { }
 End-of-File
 i=`expr $i + 1`
 rm -f $tmp.new.*
-pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+pmlogrewrite -qsvw -c $tmp.conf.dir src/rewrite $tmp.new 2>&1 \
 | _filter \
 | LC_COLLATE=POSIX sort
-_cmp src-oss/rewrite $tmp.new
+_cmp src/rewrite $tmp.new
 
 echo
 echo "=== + no-change global hostname clause ==="
@@ -104,10 +104,10 @@ global { hostname -> bozo-laptop }
 End-of-File
 i=`expr $i + 1`
 rm -f $tmp.new.*
-pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+pmlogrewrite -qsvw -c $tmp.conf.dir src/rewrite $tmp.new 2>&1 \
 | _filter \
 | LC_COLLATE=POSIX sort
-_cmp src-oss/rewrite $tmp.new
+_cmp src/rewrite $tmp.new
 
 echo
 echo "=== + no-change global time clause ==="
@@ -116,10 +116,10 @@ global { time -> 00:00:00.000000 }
 End-of-File
 i=`expr $i + 1`
 rm -f $tmp.new.*
-pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+pmlogrewrite -qsvw -c $tmp.conf.dir src/rewrite $tmp.new 2>&1 \
 | _filter \
 | LC_COLLATE=POSIX sort
-_cmp src-oss/rewrite $tmp.new
+_cmp src/rewrite $tmp.new
 
 echo
 echo "=== + no-change global timezone clause ==="
@@ -128,10 +128,10 @@ global { tz -> "EST-10" }
 End-of-File
 i=`expr $i + 1`
 rm -f $tmp.new.*
-pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+pmlogrewrite -qsvw -c $tmp.conf.dir src/rewrite $tmp.new 2>&1 \
 | _filter \
 | LC_COLLATE=POSIX sort
-_cmp src-oss/rewrite $tmp.new
+_cmp src/rewrite $tmp.new
 
 echo
 echo "=== + no-change indom clause ==="
@@ -148,10 +148,10 @@ indom 29.2 {
 End-of-File
 i=`expr $i + 1`
 rm -f $tmp.new.*
-pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+pmlogrewrite -qsvw -c $tmp.conf.dir src/rewrite $tmp.new 2>&1 \
 | _filter \
 | LC_COLLATE=POSIX sort
-_cmp src-oss/rewrite $tmp.new
+_cmp src/rewrite $tmp.new
 
 echo
 echo "=== + no-change metric clause ==="
@@ -167,10 +167,10 @@ metric sample.ulonglong.hundred {
 End-of-File
 i=`expr $i + 1`
 rm -f $tmp.new.*
-pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+pmlogrewrite -qsvw -c $tmp.conf.dir src/rewrite $tmp.new 2>&1 \
 | _filter \
 | LC_COLLATE=POSIX sort
-_cmp src-oss/rewrite $tmp.new
+_cmp src/rewrite $tmp.new
 
 echo
 echo "=== + change pmid clause ==="
@@ -179,10 +179,10 @@ metric sample.longlong.bin_ctr { pmid -> 1.2.3 }
 End-of-File
 i=`expr $i + 1`
 rm -f $tmp.new.*
-pmlogrewrite -qsvw -c $tmp.conf.dir src-oss/rewrite $tmp.new 2>&1 \
+pmlogrewrite -qsvw -c $tmp.conf.dir src/rewrite $tmp.new 2>&1 \
 | _filter \
 | LC_COLLATE=POSIX sort
-_cmp src-oss/rewrite $tmp.new
+_cmp src/rewrite $tmp.new
 
 # success, all done
 exit

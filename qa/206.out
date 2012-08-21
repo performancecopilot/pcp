@@ -3,7 +3,7 @@ QA output created by 206
 pmval args: -U -r
 
 metric:    hinv.ncpu
-archive:   src-oss/gap
+archive:   src/gap
 host:      HOST
 start:     START_TIME
 end:       END_TIME
@@ -37,7 +37,7 @@ pmval: pmFetchArchive: End of PCP archive log
 pmval args: -a -r
 
 metric:    hinv.ncpu
-archive:   src-oss/gap
+archive:   src/gap
 host:      HOST
 start:     START_TIME
 end:       END_TIME
@@ -59,7 +59,7 @@ TIME VALUE
 pmval args: -a
 
 metric:    hinv.ncpu
-archive:   src-oss/gap
+archive:   src/gap
 host:      HOST
 start:     START_TIME
 end:       END_TIME
@@ -81,7 +81,7 @@ TIME VALUE
 pmval args: -U -r
 
 metric:    pmcd.pdu_in.total
-archive:   src-oss/gap
+archive:   src/gap
 host:      HOST
 start:     START_TIME
 end:       END_TIME
@@ -115,7 +115,7 @@ pmval: pmFetchArchive: End of PCP archive log
 pmval args: -a -r
 
 metric:    pmcd.pdu_in.total
-archive:   src-oss/gap
+archive:   src/gap
 host:      HOST
 start:     START_TIME
 end:       END_TIME
@@ -137,7 +137,7 @@ TIME VALUE
 pmval args: -a
 
 metric:    pmcd.pdu_in.total
-archive:   src-oss/gap
+archive:   src/gap
 host:      HOST
 start:     START_TIME
 end:       END_TIME
@@ -160,7 +160,7 @@ TIME VALUE
 pmval args: -U -r
 
 metric:    pmcd.pdu_in.fetch
-archive:   src-oss/gap
+archive:   src/gap
 host:      HOST
 start:     START_TIME
 end:       END_TIME
@@ -194,7 +194,7 @@ pmval: pmFetchArchive: End of PCP archive log
 pmval args: -a -r
 
 metric:    pmcd.pdu_in.fetch
-archive:   src-oss/gap
+archive:   src/gap
 host:      HOST
 start:     START_TIME
 end:       END_TIME
@@ -216,7 +216,7 @@ TIME VALUE
 pmval args: -a
 
 metric:    pmcd.pdu_in.fetch
-archive:   src-oss/gap
+archive:   src/gap
 host:      HOST
 start:     START_TIME
 end:       END_TIME
@@ -239,7 +239,7 @@ TIME VALUE
 pmval args: -U -r
 
 metric:    pmcd.numagents
-archive:   src-oss/gap
+archive:   src/gap
 host:      HOST
 start:     START_TIME
 end:       END_TIME
@@ -273,7 +273,7 @@ pmval: pmFetchArchive: End of PCP archive log
 pmval args: -a -r
 
 metric:    pmcd.numagents
-archive:   src-oss/gap
+archive:   src/gap
 host:      HOST
 start:     START_TIME
 end:       END_TIME
@@ -295,7 +295,7 @@ TIME VALUE
 pmval args: -a
 
 metric:    pmcd.numagents
-archive:   src-oss/gap
+archive:   src/gap
 host:      HOST
 start:     START_TIME
 end:       END_TIME
@@ -317,7 +317,7 @@ TIME VALUE
 pmval args: -U -r
 
 metric:    sample.bin
-archive:   src-oss/gap
+archive:   src/gap
 host:      HOST
 start:     START_TIME
 end:       END_TIME
@@ -355,7 +355,7 @@ pmval: pmFetchArchive: End of PCP archive log
 pmval args: -a -r
 
 metric:    sample.bin
-archive:   src-oss/gap
+archive:   src/gap
 host:      HOST
 start:     START_TIME
 end:       END_TIME
@@ -381,7 +381,7 @@ TIME VALUE           ?         300         400           ?           ?          
 pmval args: -a
 
 metric:    sample.bin
-archive:   src-oss/gap
+archive:   src/gap
 host:      HOST
 start:     START_TIME
 end:       END_TIME

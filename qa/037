@@ -39,9 +39,9 @@ $1 == "refcnt" && $11 == "origin"	{ if (t == 0) {
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
-for arch in src-oss/foo src-oss/bar src-oss/mv-foo src-oss/mv-bar src-oss/noti-foo src-oss/noti-bar
+for arch in src/foo src/bar src/mv-foo src/mv-bar src/noti-foo src/noti-bar
 do
     echo
     echo "Archive $arch"
-    src-oss/xlog -v -a $arch | _filter | src-oss/hex2nbo
+    src/xlog -v -a $arch | _filter | src/hex2nbo
 done

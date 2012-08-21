@@ -47,14 +47,14 @@ _filter()
 
 # real QA test starts here
 
-src-oss/pmpost-exploit `which pmpost` >$tmp.out 2>&1
+src/pmpost-exploit `which pmpost` >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 if [ $sts = 0 ]
 then
-    echo "Success from src-oss/pmpost-exploit"
+    echo "Success from src/pmpost-exploit"
 else
-    echo "Failure from src-oss/pmpost-exploit"
+    echo "Failure from src/pmpost-exploit"
 fi
 
 if diff /etc/passwd $tmp.passwd

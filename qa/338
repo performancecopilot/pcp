@@ -106,9 +106,9 @@ do
 
 	for ext in 0 index meta
 	do
-	    cp src-oss/arch_a.$ext $tmp/$namea.$ext
+	    cp src/arch_a.$ext $tmp/$namea.$ext
 	    touch -t $stampa $tmp/$namea.$ext
-	    cp src-oss/arch_b.$ext $tmp/$nameb.$ext
+	    cp src/arch_b.$ext $tmp/$nameb.$ext
 	    touch -t $stampb $tmp/$nameb.$ext
 	done
     done
@@ -148,7 +148,7 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
     echo "=== [${verbose+verbose}] error, output already exists ===" >>$seq.full
     for ext in 0 index meta
     do
-	cp src-oss/arch_a.$ext $tmp/$yesterday.17.18.$ext
+	cp src/arch_a.$ext $tmp/$yesterday.17.18.$ext
 	mv $tmp/save.$ext $tmp/$yesterday.$ext
     done
     pmlogger_daily $oflag -c $tmp/control -k 2 $verbose 2>&1 \

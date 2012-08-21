@@ -37,27 +37,27 @@ _filter()
 
 # real QA test starts here
 echo "=== the dimension is NONE case ==="
-src-oss/pmconvscale | _filter
+src/pmconvscale | _filter
 status=`expr $status + $?`
 
 echo
 echo "=== the dimension is COUNT case ==="
-src-oss/pmconvscale c | _filter
+src/pmconvscale c | _filter
 status=`expr $status + $?`
 
 echo
 echo "=== the dimension is SPACE case ==="
-src-oss/pmconvscale s | _filter
+src/pmconvscale s | _filter
 status=`expr $status + $?`
 
 echo
 echo "=== the dimension is TIME case ==="
-src-oss/pmconvscale t | _filter
+src/pmconvscale t | _filter
 status=`expr $status + $?`
 
 echo
 echo "=== the dimension is SPACE/sec case ==="
-src-oss/pmconvscale r | _filter
+src/pmconvscale r | _filter
 status=`expr $status + $?`
 
 exit

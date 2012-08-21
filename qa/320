@@ -17,11 +17,11 @@ rm -f $seq.out
 if [ $PCP_VER -lt 3600 ]
 then
     # V1 archives supported
-    arch=src-oss/951127.23.01
+    arch=src/951127.23.01
     ln $seq.out.1 $seq.out
 else
     # no support for V1 archives
-    arch=src-oss/951127.23.01_v2
+    arch=src/951127.23.01_v2
     ln $seq.out.2 $seq.out
 fi
 
@@ -62,14 +62,14 @@ echo "SPECIAL=pmlogcheck" >>$HOME/.pcp/pmafm/qa.$seq
 # real QA test starts here
 
 echo "Running pmlogcheck ... expect no errors"
-mkaf `pwd`/src-oss/foo.* >$tmp
+mkaf `pwd`/src/foo.* >$tmp
 pmafm $tmp run pmlogcheck 2>&1 | _filter
 rm -f $tmp
 
 echo
 echo "Running pmclient ... expect error from pmclient once pmafm starts it"
 mkaf `pwd`/$arch.* >$tmp
-pmafm $tmp run pmclient -n src-oss/root_irix 2>&1 | _filter
+pmafm $tmp run pmclient -n src/root_irix 2>&1 | _filter
 rm -f $tmp
 
 # success, all done

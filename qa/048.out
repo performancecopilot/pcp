@@ -1,6 +1,6 @@
 QA output created by 048
 
-=== archive src-oss/foo ===
+=== archive src/foo ===
 
 Pass 1: forward scan
 pmResult ... numpmid: 6
@@ -131,7 +131,7 @@ Found 0 samples
 
 Pass 6: EOL tests, forwards and backwards
 
-=== archive src-oss/mv-foo ===
+=== archive src/mv-foo ===
 
 Pass 1: forward scan
 pmResult ... numpmid: 6
@@ -262,7 +262,7 @@ Found 0 samples
 
 Pass 6: EOL tests, forwards and backwards
 
-=== archive src-oss/noti-foo ===
+=== archive src/noti-foo ===
 
 Pass 1: forward scan
 pmResult ... numpmid: 6

@@ -3,8 +3,6 @@
 # instance domain during the log ... problems with interplote mode
 # and missing instances
 #
-# $Header: /plroot/eoe/pcp-1.0-melb/.RCS/PL/qa/src-oss/RCS/config.dodgey-some,v 1.1 2002/10/25 01:33:55 kenmcd Exp $
-#
 
 log mandatory on 500 msec {
 	sample.dodgey.value [ d2 d3 d4 d5 ]

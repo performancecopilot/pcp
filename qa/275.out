@@ -508,7 +508,7 @@ sample.byte_rate_perhour
     value 770
 
 pmcd.pmlogger.archive
-    inst [3931 or "3931"] value "/home/kenj/src/pcpqa/src-oss/sample_expr"
+    inst [3931 or "3931"] value "/home/kenj/src/pcpqa/src/sample_expr"
 
 pmcd.pmlogger.port
     inst [3931 or "3931"] value 4331

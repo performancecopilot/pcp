@@ -32,9 +32,9 @@ _filter_mmvdump()
 
 }
 
-src-oss/mmv_genstats test$$ &
+src/mmv_genstats test$$ &
 pid1=$!
-src-oss/mmv_nostats notest$$ &
+src/mmv_nostats notest$$ &
 pid2=$!
 wait
 $PCP_PMDAS_DIR/mmv/mmvdump $PCP_TMP_DIR/mmv/test$$ | _filter_mmvdump

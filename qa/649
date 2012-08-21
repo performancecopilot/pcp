@@ -82,19 +82,19 @@ echo "=== $iam agent installation ==="
 $sudo ./Install </dev/null >$tmp.out 2>&1
 _filter_pmda_install <$tmp.out
 
-$here/src-oss/mmv_genstats
+$here/src/mmv_genstats
 
 echo
 echo "=== Listing with a valid process and with prefix ==="
-$here/src-oss/mmv_poke -p $$ -f process "$MMV_STATS_DIR/test"
+$here/src/mmv_poke -p $$ -f process "$MMV_STATS_DIR/test"
 pmprobe -v mmv | _filter
 
 echo "=== Listing with a valid process and without prefix ==="
-$here/src-oss/mmv_poke -p $$ -f noprefix "$MMV_STATS_DIR/test"
+$here/src/mmv_poke -p $$ -f noprefix "$MMV_STATS_DIR/test"
 pmprobe -v mmv | _filter
 
 echo "=== Listing without a valid process ==="
-$here/src-oss/mmv_poke -p 4294967295 -f process "$MMV_STATS_DIR/test"
+$here/src/mmv_poke -p 4294967295 -f process "$MMV_STATS_DIR/test"
 pmprobe -v mmv | _filter
 
 echo

@@ -1,8 +1,8 @@
 QA output created by 080
-sum of src-oss/omen.client ...
-41308 src-oss/omen.client.0
-24558 src-oss/omen.client.index
-04838 src-oss/omen.client.meta
+sum of src/omen.client ...
+41308 src/omen.client.0
+24558 src/omen.client.index
+04838 src/omen.client.meta
 
 -- -t 0.2 -s 4 --
 
@@ -34,7 +34,7 @@ number, not one
 Note: timezone set to local timezone of host "omen" from archive
 
 metric:    kernel.all.load
-archive:   src-oss/omen.client
+archive:   src/omen.client
 host:      omen
 start:     Wed Feb 28 16:49:14 2001
 end:       Wed Feb 28 16:50:04 2001
@@ -60,7 +60,7 @@ pmval: pmFetchArchive: End of PCP archive log
 Note: timezone set to local timezone of host "omen" from archive
 
 metric:    kernel.all.load
-archive:   src-oss/omen.client
+archive:   src/omen.client
 host:      omen
 start:     Wed Feb 28 16:49:20 2001
 end:       Wed Feb 28 16:49:40 2001
@@ -96,7 +96,7 @@ interval:  1.00 sec
 Note: timezone set to local timezone of host "omen" from archive
 
 metric:    kernel.all.load
-archive:   src-oss/omen.client
+archive:   src/omen.client
 host:      omen
 start:     Wed Feb 28 16:49:20 2001
 end:       Wed Feb 28 16:49:40 2001
@@ -132,7 +132,7 @@ interval:  1.00 sec
 Note: timezone set to local timezone of host "omen" from archive
 
 metric:    kernel.all.load
-archive:   src-oss/omen.client
+archive:   src/omen.client
 host:      omen
 start:     Wed Feb 28 16:49:29 2001
 end:       Wed Feb 28 16:49:54 2001
@@ -173,7 +173,7 @@ interval:  1.00 sec
 Note: timezone set to "TZ=UTC"
 
 metric:    kernel.all.load
-archive:   src-oss/omen.client
+archive:   src/omen.client
 host:      omen
 start:     Wed Feb 28 05:49:29 2001
 end:       Wed Feb 28 05:49:54 2001
@@ -214,7 +214,7 @@ interval:  1.00 sec
 Note: timezone set to local timezone of host "omen" from archive
 
 metric:    kernel.all.load
-archive:   src-oss/omen.client
+archive:   src/omen.client
 host:      omen
 start:     Wed Feb 28 16:49:20 2001
 end:       Wed Feb 28 16:49:30 2001
@@ -240,7 +240,7 @@ interval:  1.00 sec
 Note: timezone set to local timezone of host "omen" from archive
 
 metric:    kernel.all.load
-archive:   src-oss/omen.client
+archive:   src/omen.client
 host:      omen
 start:     Wed Feb 28 16:49:20 2001
 end:       Wed Feb 28 16:49:30 2001
@@ -266,7 +266,7 @@ interval:  1.00 sec
 Note: timezone set to local timezone of host "omen" from archive
 
 metric:    kernel.all.load
-archive:   src-oss/omen.client
+archive:   src/omen.client
 host:      omen
 start:     Wed Feb 28 16:49:30 2001
 end:       Wed Feb 28 16:49:40 2001

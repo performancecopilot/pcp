@@ -72,7 +72,7 @@ _wait_for_pmcd
 
 # real QA test starts here
 pminfo -f trace.transact.count
-$here/src-oss/tabort
+$here/src/tabort
 status=$?
 pminfo -f trace.transact.count
 

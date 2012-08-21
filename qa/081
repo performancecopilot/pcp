@@ -15,11 +15,11 @@ echo "QA output created by $seq"
 if [ $PCP_VER -lt 3600 ]
 then
     # V1 archives supported
-    arch=src-oss/bozo.client
-    pmns="-n src-oss/root_irix"
+    arch=src/bozo.client
+    pmns="-n src/root_irix"
 else
     # no support for V1 archives
-    arch=src-oss/bozo.client_v2
+    arch=src/bozo.client_v2
     pmns=
 fi
 
@@ -40,11 +40,11 @@ fi
 
 # real QA test starts here
 echo "From pmcd ..."
-src-oss/archinst -h $host kernel.all.load kernel.percpu.cpu.user
+src/archinst -h $host kernel.all.load kernel.percpu.cpu.user
 
 echo ""
 echo "From archive on bozo ..."
 pmdumplog -z -i $arch | _filter
-src-oss/archinst $pmns -a $arch kernel.all.load kernel.percpu.cpu.user
+src/archinst $pmns -a $arch kernel.all.load kernel.percpu.cpu.user
 
 status=0

@@ -1,5 +1,5 @@
 QA output created by 093
-=== src-oss/foo ===
+=== src/foo ===
 start: TIMESTAMP
 end: TIMESTAMP
 step: 100 msec
@@ -15,7 +15,7 @@ step: 100 msec
 90% TIMESTAMP N forw + M back = 79-82 5-15 log reads
 100% TIMESTAMP N forw + M back = 79-82 5-15 log reads
 
-=== src-oss/ok-bigbin ===
+=== src/ok-bigbin ===
 start: TIMESTAMP
 end: TIMESTAMP
 step: 100 msec
@@ -31,7 +31,7 @@ step: 100 msec
 90% TIMESTAMP N forw + M back = 199-210 900-1210 log reads
 100% TIMESTAMP N forw + M back = 199-210 900-1210 log reads
 
-=== src-oss/mv-foo ===
+=== src/mv-foo ===
 start: TIMESTAMP
 end: TIMESTAMP
 step: 100 msec
@@ -47,7 +47,7 @@ step: 100 msec
 90% TIMESTAMP N forw + M back = 79-82 10-20 log reads
 100% TIMESTAMP N forw + M back = 79-82 10-20 log reads
 
-=== src-oss/ok-mv-bigbin ===
+=== src/ok-mv-bigbin ===
 start: TIMESTAMP
 end: TIMESTAMP
 step: 100 msec
@@ -63,7 +63,7 @@ step: 100 msec
 90% TIMESTAMP N forw + M back = 199-210 980-1025 log reads
 100% TIMESTAMP N forw + M back = 199-210 980-1025 log reads
 
-=== src-oss/noti-foo ===
+=== src/noti-foo ===
 start: TIMESTAMP
 end: TIMESTAMP
 step: 100 msec
@@ -79,7 +79,7 @@ step: 100 msec
 90% TIMESTAMP N forw + M back = 79-82 10-20 log reads
 100% TIMESTAMP N forw + M back = 79-82 10-20 log reads
 
-=== src-oss/ok-noti-bigbin ===
+=== src/ok-noti-bigbin ===
 start: TIMESTAMP
 end: TIMESTAMP
 step: 100 msec

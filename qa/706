@@ -34,10 +34,10 @@ _save_state
 
 for i in 1 2 3 4
 do
-    src-oss/multifetch -s 100 >$tmp.$i 2>&1 &
-    src-oss/multifetch -s 100 >$tmp.$i 2>&1 &
-    src-oss/multifetch -s 100 >$tmp.$i 2>&1 &
-    src-oss/multifetch -s 100 >$tmp.$i 2>&1 &
+    src/multifetch -s 100 >$tmp.$i 2>&1 &
+    src/multifetch -s 100 >$tmp.$i 2>&1 &
+    src/multifetch -s 100 >$tmp.$i 2>&1 &
+    src/multifetch -s 100 >$tmp.$i 2>&1 &
 done
 
 wait

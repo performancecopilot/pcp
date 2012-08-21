@@ -73,7 +73,7 @@ then
     #NOTREACHED#
 fi
 
-# see comment in src-oss/drain-server.c for choice of port #
+# see comment in src/drain-server.c for choice of port #
 #
 port=1214
 
@@ -87,7 +87,7 @@ echo "=== Hang on Connection Cases ===" | tee -a $seq.full
 
 echo | tee -a $seq.full
 echo "Expect hang ..." | tee -a $seq.full
-src-oss/drain-server -h &
+src/drain-server -h &
 draino=$!
 sleep 2
 pmlc -e -h localhost -P >$tmp.out 2>&1 &
@@ -103,7 +103,7 @@ sleep 2
 
 echo | tee -a $seq.full
 echo "Expect hang and warning ..." | tee -a $seq.full
-src-oss/drain-server -h &
+src/drain-server -h &
 draino=$!
 sleep 2
 export PMLOGGER_REQUEST_TIMEOUT=1.5
@@ -120,7 +120,7 @@ sleep 2
 
 echo | tee -a $seq.full
 echo "Expect no hang and unable to connect to pmlogger ..." | tee -a $seq.full
-src-oss/drain-server &
+src/drain-server &
 draino=$!
 sleep 2
 export PMLOGGER_REQUEST_TIMEOUT=1

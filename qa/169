@@ -116,7 +116,7 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 cat >$tmp.tmp <<End-Of-File
 # QA test 169 dummy pmcd.conf (blame Jonathan if you find this!)
 #
-dummyproc	$dummy_domain	pipe	binary 	$here/src-oss/dumb_pmda -d $dummy_domain $TAG
+dummyproc	$dummy_domain	pipe	binary 	$here/src/dumb_pmda -d $dummy_domain $TAG
 End-Of-File
 
 $PCP_AWK_PROG <$PCP_PMCDCONF_PATH >>$tmp.tmp '

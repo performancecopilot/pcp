@@ -37,7 +37,7 @@ status=0	# success by default
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # need a constant archive for this ...
-ARCH=src-oss/omen.client
+ARCH=src/omen.client
 
 # deal with an annoying libc error ... using TZ=:Australia/Melbourne
 # causes the -z option to report the wrong time, at least for some

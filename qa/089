@@ -27,6 +27,6 @@ $2 <= 0.95 || $2 >= 1.05	{ print "oops: " $0; next }
 # real QA test starts here
 
 # get the time of the first sample
-first_time=`pmval -U src-oss/bar -s2 sampledso.milliseconds | tail -1 | cut -f1 -d ' '`
+first_time=`pmval -U src/bar -s2 sampledso.milliseconds | tail -1 | cut -f1 -d ' '`
 
-pmval -S "@$first_time" -t 0.01 -s 485 -a src-oss/bar sampledso.milliseconds 2>/dev/null | _filter
+pmval -S "@$first_time" -t 0.01 -s 485 -a src/bar sampledso.milliseconds 2>/dev/null | _filter

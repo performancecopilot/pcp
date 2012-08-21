@@ -219,9 +219,9 @@ setup: default $(MKARCH)
 $(TARGETS):
 
 install install_pcp:
-	$(INSTALL) -m 755 -d $(TESTDIR)/src-oss
-	$(INSTALL) -m 644 GNUmakefile $(CFILES) $(MYFILES) $(TESTDIR)/src-oss
-	$(INSTALL) -m 755 $(MYSCRIPTS) $(TARGETS) $(TESTDIR)/src-oss
+	$(INSTALL) -m 755 -d $(TESTDIR)/src
+	$(INSTALL) -m 644 GNUmakefile $(CFILES) $(MYFILES) $(TESTDIR)/src
+	$(INSTALL) -m 755 $(MYSCRIPTS) $(TARGETS) $(TESTDIR)/src
 
 include $(BUILDRULES)
 
@@ -719,7 +719,7 @@ arch_maxfd.o:	localconfig.h
 scale.o:	localconfig.h
 
 localconfig.h:
-	cd ..; ./mk.localconfig && cp localconfig.h src-oss
+	cd ..; ./mk.localconfig && cp localconfig.h src
 
 bozo:
 	@echo TARGETS=$(TARGETS)

@@ -21,7 +21,7 @@ rm -f $seq.full
 
 # filtering needed because some non-determinism in ordinal numbering
 #
-src-oss/slow_af -D af 2>$tmp.err \
+src/slow_af -D af 2>$tmp.err \
 | sed \
     -e 's/#16$/#last/' \
     -e 's/#17$/#last/'

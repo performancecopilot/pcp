@@ -14,7 +14,7 @@ seq=`basename $0`
 
 _check_valgrind
 
-# can skip stdout from interp0 -a src-oss/interp ...
+# can skip stdout from interp0 -a src/interp ...
 # that's checked in 087
 #
 _filter()
@@ -38,7 +38,7 @@ do
     [ $samples -gt 15 ] && samples=15
     echo
     echo "interpolate $samples, $delta seconds appart"
-    _run_valgrind src-oss/interp0 -a src-oss/interp -t 1 -s $samples \
+    _run_valgrind src/interp0 -a src/interp -t 1 -s $samples \
     | _filter
 done
 

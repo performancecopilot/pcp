@@ -26,7 +26,7 @@ export TZ
 
 # real QA test starts here
 
-src-oss/mark-bug -z -a src-oss/mark-bug -s 60 -t 2
+src/mark-bug -z -a src/mark-bug -s 60 -t 2
 
 # success, all done
 status=0

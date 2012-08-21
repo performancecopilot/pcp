@@ -87,7 +87,7 @@ hosts = ":'$other1' :'$other2'";
 some_host (
   some_inst (
     ( 100 * filesys.used \$hosts / filesys.capacity \$hosts ) > 0 ) )
--> shell 15 "src-oss/show-args -c SYSMON -t PERF_INFO_SYSTEM -m 'file system over half-full" "\n%h:[%i] %v% " "'"
+-> shell 15 "src/show-args -c SYSMON -t PERF_INFO_SYSTEM -m 'file system over half-full" "\n%h:[%i] %v% " "'"
  & syslog 15 $SYSLOG_OPT "PCP QA $seq - please ignore - ..." " %h:[%i] %v% ";
 
 End-of-File

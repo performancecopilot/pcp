@@ -26,7 +26,7 @@ _filter()
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
-for arch in src-oss/bar src-oss/mv-bar src-oss/noti-bar
+for arch in src/bar src/mv-bar src/noti-bar
 do
     # get the time of the first sample
     first_time=`pmval -U $arch -s1 sampledso.bin | tail -1 | cut -f1 -d ' '`
@@ -51,4 +51,4 @@ done
 TZ=EST-10
 export TZ
 
-pmval -a src-oss/late -s1 -z sampledso.bin
+pmval -a src/late -s1 -z sampledso.bin

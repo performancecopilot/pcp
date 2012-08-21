@@ -57,7 +57,7 @@ OLDXCONFIRMCNT=`_countem`
 
 # Expect something on stderr
 unset PCP_STDERR
-src-oss/pmprintf foo bee doo
+src/pmprintf foo bee doo
 
 # Expect something in an xconfirm
 export DISPLAY=$PCPQA_CLOSE_X_SERVER
@@ -68,7 +68,7 @@ then
     exit $status
 fi
 
-(src-oss/pmprintf some invisible text &)2>$tmp.err
+(src/pmprintf some invisible text &)2>$tmp.err
 # wait for dialog to fire up
 sleep 3
 rm -f $tmp.out
@@ -82,7 +82,7 @@ else
      echo "=== Urk, no change in number of $PCP_XCONFIRM_PROG - $XCONFIRMCNT ==="
      cat $tmp.count
      echo
-     echo "Errors from src-oss/pmprintf?"
+     echo "Errors from src/pmprintf?"
      cat $tmp.err
 fi
 
@@ -90,8 +90,8 @@ fi
 [ -f  $tmp.pmprintf ] && rm -f $tmp.pmprintf
 PCP_STDERR=$tmp.pmprintf
 export PCP_STDERR
-src-oss/pmprintf sent all this text to a file
-src-oss/pmprintf and this too
+src/pmprintf sent all this text to a file
+src/pmprintf and this too
 cat $tmp.pmprintf
 rm -f $tmp.pmprintf
 

@@ -22,9 +22,9 @@ fi
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # blow away any residual junk
-$sudo src-oss/ipcs_clear
+$sudo src/ipcs_clear
 
-src-oss/ipc 2>&1 \
+src/ipc 2>&1 \
 | sed \
     -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
     -e 's/SHMID_[0-9]*/SHMID_INTEGER/g' \

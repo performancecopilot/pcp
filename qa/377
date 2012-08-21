@@ -41,12 +41,12 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo "=== read external format ==="
-src-oss/read-bf <src-oss/sgi.bf
+src/read-bf <src/sgi.bf
 
 echo
 echo "=== write external format ==="
-src-oss/write-bf >$tmp.out
-cmp src-oss/sgi.bf $tmp.out
+src/write-bf >$tmp.out
+cmp src/sgi.bf $tmp.out
 
 # success, all done
 status=0

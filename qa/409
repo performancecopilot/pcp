@@ -2,7 +2,7 @@
 # PCP QA Test No. 409
 # pminfo -x with an archive and event records
 # also needs a working pmlogger to generate the input archive
-# ... see src-oss/mkeventrec
+# ... see src/mkeventrec
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
@@ -33,7 +33,7 @@ $1 == "sample.event.param_aggregate"	{ want = 1 }
 }
 
 # real QA test starts here
-pminfo -x -a src-oss/eventrec-old | _filter
+pminfo -x -a src/eventrec-old | _filter
 
 # success, all done
 exit

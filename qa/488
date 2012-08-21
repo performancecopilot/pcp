@@ -49,11 +49,11 @@ _cmp()
 sed -e '/^#/d' <<End-of-File | while read arch_args spec
 # archive[|arg1[|arg2[|...]]]	spec
 # metric delete
-src-oss/rattle		metric hinv.ncpu { delete }
-src-oss/rattle		metric hinv.ncpu { delete } metric hinv.ndisk { delete }
-src-oss/rattle		metric 1.*.* { delete }
-src-oss/ace_v2		metric 40.*.* { delete } metric 1.25.* { delete }
-src-oss/mirage		indom 29.3 { iname "m-00" -> delete inst 33 -> delete }
+src/rattle		metric hinv.ncpu { delete }
+src/rattle		metric hinv.ncpu { delete } metric hinv.ndisk { delete }
+src/rattle		metric 1.*.* { delete }
+src/ace_v2		metric 40.*.* { delete } metric 1.25.* { delete }
+src/mirage		indom 29.3 { iname "m-00" -> delete inst 33 -> delete }
 End-of-File
 do
     echo | tee -a $seq.full

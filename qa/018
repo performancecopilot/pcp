@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
-src-oss/t_fetch 127
+src/t_fetch 127
 
 # NOTE!!!!
 #

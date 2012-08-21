@@ -30,7 +30,7 @@ echo "IPC error is expected as application waits until after pmlogger"
 echo "should be well finished ..."
 echo
 
-$here/src-oss/record-setarg foo
+$here/src/record-setarg foo
 
 pmdumplog *.0 sample | _filter_pmdumplog
 

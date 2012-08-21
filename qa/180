@@ -20,10 +20,10 @@ fi
 if [ $PCP_VER -lt 3600 ]
 then
     # V1 archives supported
-    arch=src-oss/bigace
+    arch=src/bigace
 else
     # no support for V1 archives
-    arch=src-oss/bigace_v2
+    arch=src/bigace_v2
     rm -f $seq.out
     ln $seq.out.3 $seq.out
 fi

@@ -142,33 +142,33 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
 echo "=== foo ==="
-src-oss/interp3 -t 0.5 -a src-oss/ok-foo | _filter05foo
-src-oss/interp3 -t 1.0 -a src-oss/ok-foo | _filter10foo
-src-oss/interp3 -t 2.0 -a src-oss/ok-foo | _filter20foo
+src/interp3 -t 0.5 -a src/ok-foo | _filter05foo
+src/interp3 -t 1.0 -a src/ok-foo | _filter10foo
+src/interp3 -t 2.0 -a src/ok-foo | _filter20foo
 
 echo
 echo "=== bigbin ==="
-src-oss/interp3 -t 2 -a src-oss/ok-bigbin | _filter05bigbin
-src-oss/interp3 -t 0.012 -a src-oss/ok-bigbin | _filter003bigbin
+src/interp3 -t 2 -a src/ok-bigbin | _filter05bigbin
+src/interp3 -t 0.012 -a src/ok-bigbin | _filter003bigbin
 
 echo "=== multi-volume foo ==="
-src-oss/interp3 -t 0.5 -a src-oss/ok-mv-foo | _filter05foo
-src-oss/interp3 -t 1.0 -a src-oss/ok-mv-foo | _filter10foo
-src-oss/interp3 -t 2.0 -a src-oss/ok-mv-foo | _filter20foo
+src/interp3 -t 0.5 -a src/ok-mv-foo | _filter05foo
+src/interp3 -t 1.0 -a src/ok-mv-foo | _filter10foo
+src/interp3 -t 2.0 -a src/ok-mv-foo | _filter20foo
 
 echo
 echo "=== multi-volume bigbin ==="
-src-oss/interp3 -t 2 -a src-oss/ok-mv-bigbin | _filter05bigbin
-src-oss/interp3 -t 0.012 -a src-oss/ok-mv-bigbin | _filter003bigbin
+src/interp3 -t 2 -a src/ok-mv-bigbin | _filter05bigbin
+src/interp3 -t 0.012 -a src/ok-mv-bigbin | _filter003bigbin
 
 echo "=== no index foo ==="
-src-oss/interp3 -t 0.5 -a src-oss/noti-ok-foo | _filter05foo
-src-oss/interp3 -t 1.0 -a src-oss/noti-ok-foo | _filter10foo
-src-oss/interp3 -t 2.0 -a src-oss/noti-ok-foo | _filter20foo
+src/interp3 -t 0.5 -a src/noti-ok-foo | _filter05foo
+src/interp3 -t 1.0 -a src/noti-ok-foo | _filter10foo
+src/interp3 -t 2.0 -a src/noti-ok-foo | _filter20foo
 
 echo
 echo "=== no index bigbin ==="
-src-oss/interp3 -t 2 -a src-oss/ok-noti-bigbin | _filter05bigbin
-src-oss/interp3 -t 0.012 -a src-oss/ok-noti-bigbin | _filter003bigbin
+src/interp3 -t 2 -a src/ok-noti-bigbin | _filter05bigbin
+src/interp3 -t 0.012 -a src/ok-noti-bigbin | _filter003bigbin
 
 exit

@@ -28,17 +28,17 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 echo "error cases ..."
 echo "bad variable"
-src-oss/getconfig NO_SUCH_VAR
+src/getconfig NO_SUCH_VAR
 echo "exit status=$?"
 
 echo
 echo "bad \$PCP_CONF"
-PCP_CONF=/no/such/file src-oss/getconfig PCP_BIN_DIR
+PCP_CONF=/no/such/file src/getconfig PCP_BIN_DIR
 echo "exit status=$?"
 
 echo
 echo "bad \$PCP_DIR"
-PCP_DIR=/no/such/directory src-oss/getconfig PCP_BIN_DIR
+PCP_DIR=/no/such/directory src/getconfig PCP_BIN_DIR
 echo "exit status=$?"
 
 if [ ! -r $PCP_DIR/etc/pcp.conf ]
@@ -59,7 +59,7 @@ sed <$PCP_DIR/etc/pcp.conf \
     -e 's/\\/<backslash>/g' \
 | while read var value
 do
-    xvalue=`src-oss/getconfig "$var" | sed -e 's/.* -> //' -e 's/[ 	]*$//' -e 's/\\\\/<backslash>/g'`
+    xvalue=`src/getconfig "$var" | sed -e 's/.* -> //' -e 's/[ 	]*$//' -e 's/\\\\/<backslash>/g'`
     #debug# echo "$var: $value ? $xvalue"
     if [ "X${value}X" != "X${xvalue}X" ]
     then

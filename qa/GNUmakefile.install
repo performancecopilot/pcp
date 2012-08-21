@@ -13,7 +13,7 @@ endif
 PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-SUBDIRS = src-oss pmdas
+SUBDIRS = src pmdas
 TESTDIR = $(PCP_VAR_DIR)/testsuite
 
 TESTS	= $(shell sed -n -e '/^[0-9]/s/[ 	].*//p' <group)

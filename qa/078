@@ -18,11 +18,11 @@ rm -f $seq.out
 if [ $PCP_VER -lt 3600 ]
 then
     # V1 archives supported
-    arch=src-oss/babylon.percpu
+    arch=src/babylon.percpu
     ln $seq.out.1 $seq.out
 else
     # no support for V1 archives
-    arch=src-oss/babylon.percpu_v2
+    arch=src/babylon.percpu_v2
     ln $seq.out.2 $seq.out
 fi
 

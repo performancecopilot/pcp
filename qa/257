@@ -54,21 +54,21 @@ _do_tests()
 
     echo ""
     echo "=== pmapi 32 v2, local version $style_str ===" | tee -a $seq.full
-    torture_api="src-oss/torture_api"
+    torture_api="src/torture_api"
     echo "torture_api = $torture_api" >> $seq.full
     $torture_api -v $style 2>&1 | _filter `uname -r` >$tmp.out
     _cmp $tmp.out
 
     echo ""
     echo "=== pmapi 32 v2, pmcd 32 v2 $style_str ===" | tee -a $seq.full
-    torture_api="src-oss/torture_api"
+    torture_api="src/torture_api"
     echo "torture_api = $torture_api" >> $seq.full
     $torture_api -v $style -h $host_32_v2 2>&1 | _filter $host_32_v2_os >$tmp.out
     _cmp $tmp.out
 
     echo ""
     echo "=== pmapi 32 v2, pmcd 64 v2 $style_str ===" | tee -a $seq.full
-    torture_api="src-oss/torture_api"
+    torture_api="src/torture_api"
     echo "torture_api = $torture_api" >> $seq.full
     $torture_api -v $style -h $host_64_v2 2>&1 | _filter $host_64_v2_os >$tmp.out
     _cmp $tmp.out

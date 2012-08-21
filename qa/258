@@ -107,7 +107,7 @@ $signal -a -s KILL app2 2>&1 >/dev/null
 # gives first calls value.
 echo
 echo "=== Checking observed value matches latest call ==="
-$here/src-oss/obs
+$here/src/obs
 # these values are deteministic
 pminfo -f trace.observe.count trace.observe.value
 

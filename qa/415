@@ -28,7 +28,7 @@ _do()
 
 # real QA test starts here
 _do pmval -s 1 sample.event.records
-_do pmval -s 1 -a src-oss/eventrec-old sample.event.records
+_do pmval -s 1 -a src/eventrec-old sample.event.records
 _do pmstore sample.event.records 1
 
 # success, all done

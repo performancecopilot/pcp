@@ -17,13 +17,13 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo "=== 32-bit ==="
-src-oss/pv
+src/pv
 
 echo
 echo "=== 64-bit === [note, may be fake on some systems]"
-if [ -x src-oss/pv64 ]
+if [ -x src/pv64 ]
 then
-    src-oss/pv64
+    src/pv64
 else
     cat <<End-of-File
 PM_TYPE_32: -65536 correct: -65536 (0xffff0000)

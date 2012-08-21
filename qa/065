@@ -16,12 +16,12 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
 echo "archive past ..."
-src-oss/storepast -a src-oss/foo
+src/storepast -a src/foo
 
 echo "multi-volume archive past ..."
-src-oss/storepast -a src-oss/mv-foo
+src/storepast -a src/mv-foo
 
 echo "no index archive past ..."
-src-oss/storepast -a src-oss/noti-foo
+src/storepast -a src/noti-foo
 
 

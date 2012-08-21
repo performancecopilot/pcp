@@ -13,7 +13,7 @@
 
 seq=`basename $0`
 
-if src-oss/check_fault_injection >/dev/null 2>&1
+if src/check_fault_injection >/dev/null 2>&1
 then
     rm -f .notrun
 else
@@ -64,7 +64,7 @@ bad4 > = 1 2 3
 # bad operator
 bad5 ?
 End-of-File
-src-oss/check_fault_injection -Dfault 2>&1 | _filter
+src/check_fault_injection -Dfault 2>&1 | _filter
 
 echo
 echo "basic exercises ..."
@@ -73,7 +73,7 @@ QA:1
 QA:2 <4
 QA:3 >=5
 End-of-File
-src-oss/exercise_fault -Dfault 2>&1 | _filter
+src/exercise_fault -Dfault 2>&1 | _filter
 
 echo
 cat >$tmp.control <<End-of-File
@@ -81,7 +81,7 @@ QA:1 <= 4
 QA:2 == 5
 QA:3 >  5
 End-of-File
-src-oss/exercise_fault -Dfault 2>&1 | _filter
+src/exercise_fault -Dfault 2>&1 | _filter
 
 echo
 cat >$tmp.control <<End-of-File
@@ -90,7 +90,7 @@ QA:1 != 3
 # 1,4,7,10
 QA:3  % 3
 End-of-File
-src-oss/exercise_fault -Dfault 2>&1 | _filter
+src/exercise_fault -Dfault 2>&1 | _filter
 
 # success, all done
 exit

@@ -93,49 +93,49 @@ _cmp()
 sed -e '/^#/d' <<End-of-File | while read arch_args spec
 # archive[|arg1[|arg2[|...]]]	spec
 # rewrite pmDesc and pmid in pmResults
-src-oss/mirage	metric sample.bin { pmid->42.42.42 }
+src/mirage	metric sample.bin { pmid->42.42.42 }
 # name is 3 bytes shorter
-src-oss/mirage	metric sample.bin { name -> sam.bin }
+src/mirage	metric sample.bin { name -> sam.bin }
 # name is 10 bytes longer
-src-oss/mirage	metric sample.bin { name -> x23456789.sample.bin }
+src/mirage	metric sample.bin { name -> x23456789.sample.bin }
 # inst renumbering
-src-oss/mirage	indom 29.2 { inst 300 -> 42 }
-src-oss/mirage	indom 29.2 { inst 300 -> 400 }
-src-oss/mirage	indom 29.2 { iname "bin-700" -> "bin-900" }
-src-oss/mirage	indom 29.2 { iname "bin-700" -> "bin-900 and some" }
-src-oss/mirage	indom 29.2 { iname "bin-300" -> "bin-100" inst 300 -> 100 }
-src-oss/rattle	indom 1.5 { iname "1 minute" -> "5" }
-src-oss/rattle	indom 1.5 { iname "5 minute" -> "15 doo dah" }
-src-oss/rattle	indom 1.5 { iname "5" -> "5 hours" }
+src/mirage	indom 29.2 { inst 300 -> 42 }
+src/mirage	indom 29.2 { inst 300 -> 400 }
+src/mirage	indom 29.2 { iname "bin-700" -> "bin-900" }
+src/mirage	indom 29.2 { iname "bin-700" -> "bin-900 and some" }
+src/mirage	indom 29.2 { iname "bin-300" -> "bin-100" inst 300 -> 100 }
+src/rattle	indom 1.5 { iname "1 minute" -> "5" }
+src/rattle	indom 1.5 { iname "5 minute" -> "15 doo dah" }
+src/rattle	indom 1.5 { iname "5" -> "5 hours" }
 # all metric semantics
-src-oss/mirage	metric 29.*.* { sem->DISCRETE } metric pmcd.pmlogger.port { sem->COUNTER }
+src/mirage	metric 29.*.* { sem->DISCRETE } metric pmcd.pmlogger.port { sem->COUNTER }
 # scale conversion
-src-oss/snort-disks	metric disk.dev.bytes { units->1,0,0,MBYTE,0,0 }
-src-oss/snort-disks|-s	metric disk.dev.bytes { units->1,0,0,MBYTE,0,0 }
-src-oss/snort-disks	metric disk.dev.bytes { units->1,-1,0,Kbyte,Sec,0 }
-src-oss/snort-disks|-ws	metric disk.dev.bytes { units->1,-1,0,kbyte,sec,0 }
-src-oss/sample_expr	metric sample.scale_step.time_up_secs { units->0,1,0,0,MSEC,0 }
+src/snort-disks	metric disk.dev.bytes { units->1,0,0,MBYTE,0,0 }
+src/snort-disks|-s	metric disk.dev.bytes { units->1,0,0,MBYTE,0,0 }
+src/snort-disks	metric disk.dev.bytes { units->1,-1,0,Kbyte,Sec,0 }
+src/snort-disks|-ws	metric disk.dev.bytes { units->1,-1,0,kbyte,sec,0 }
+src/sample_expr	metric sample.scale_step.time_up_secs { units->0,1,0,0,MSEC,0 }
 # type conversion
 # 32 ->
-src-oss/mirage	metric sample.drift { type -> U32 }
-src-oss/mirage	metric sample.drift { type -> 64 }
+src/mirage	metric sample.drift { type -> U32 }
+src/mirage	metric sample.drift { type -> 64 }
 # double -> 
-src-oss/sample_expr	metric sample.scale_step.time_up_secs { type -> FLOAT }
-src-oss/sample_expr	metric sample.scale_step.time_up_secs { type -> U32 }
+src/sample_expr	metric sample.scale_step.time_up_secs { type -> FLOAT }
+src/sample_expr	metric sample.scale_step.time_up_secs { type -> U32 }
 # indom changes
-src-oss/rattle	metric pmcd.pmlogger.archive { indom -> 2.99 } indom 2.1 { indom -> 2.99 }
-src-oss/rattle	metric hinv.ndisk { indom -> 1.5 }
-src-oss/rattle	metric hinv.ndisk { indom -> 1.5 output inst 5 }
-src-oss/ok-foo	metric sample.colour { indom -> NULL }
-src-oss/ok-foo	metric sample.colour { indom -> NULL output first }
-src-oss/ok-foo	metric sample.colour { indom -> NULL output inst 1 }
-src-oss/ok-foo	metric sample.colour { indom -> NULL output last }
-src-oss/ok-foo	metric sample.colour { indom -> NULL output min }
-src-oss/ok-foo	metric sample.colour { indom -> NULL output max }
-src-oss/ok-foo	metric sample.colour { indom -> NULL output sum }
-src-oss/ok-foo	metric sample.colour { indom -> NULL output avg }
-src-oss/sample_expr	metric sample.mirage_longlong {indom->NULL}
-src-oss/sample_expr	metric sample.mirage_longlong {indom->NULL output last}
+src/rattle	metric pmcd.pmlogger.archive { indom -> 2.99 } indom 2.1 { indom -> 2.99 }
+src/rattle	metric hinv.ndisk { indom -> 1.5 }
+src/rattle	metric hinv.ndisk { indom -> 1.5 output inst 5 }
+src/ok-foo	metric sample.colour { indom -> NULL }
+src/ok-foo	metric sample.colour { indom -> NULL output first }
+src/ok-foo	metric sample.colour { indom -> NULL output inst 1 }
+src/ok-foo	metric sample.colour { indom -> NULL output last }
+src/ok-foo	metric sample.colour { indom -> NULL output min }
+src/ok-foo	metric sample.colour { indom -> NULL output max }
+src/ok-foo	metric sample.colour { indom -> NULL output sum }
+src/ok-foo	metric sample.colour { indom -> NULL output avg }
+src/sample_expr	metric sample.mirage_longlong {indom->NULL}
+src/sample_expr	metric sample.mirage_longlong {indom->NULL output last}
 End-of-File
 do
     echo | tee -a $seq.full
@@ -149,7 +149,7 @@ do
     filter_new=''
     case "$arch_args"
     in
-	'src-oss/snort-disks|-s')
+	'src/snort-disks|-s')
 		filter_old=_f1_old
 		filter_new=_f1_new
 		;;

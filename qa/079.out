@@ -11,7 +11,7 @@ Dump first 128 bytes ...
 
 Local time, TZ=EST-10
 pmclient: pmFetch: End of PCP archive log
-Archive: src-oss/moomba.client, Host: moomba, 4 cpu(s), Fri Oct  8 14:20:56 1999
+Archive: src/moomba.client, Host: moomba, 4 cpu(s), Fri Oct  8 14:20:56 1999
   CPU  Busy    Busy  Free Mem   Disk     Load Average
  Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
  0.01     3    0.01    53.312      0     0.02    0.00
@@ -27,7 +27,7 @@ Archive: src-oss/moomba.client, Host: moomba, 4 cpu(s), Fri Oct  8 14:20:56 1999
 pmclient: pmFetch: End of PCP archive log
 Note: timezone set to "TZ=UTC"
 
-Archive: src-oss/moomba.client, Host: moomba, 4 cpu(s), Fri Oct  8 04:20:56 1999
+Archive: src/moomba.client, Host: moomba, 4 cpu(s), Fri Oct  8 04:20:56 1999
   CPU  Busy    Busy  Free Mem   Disk     Load Average
  Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
  0.01     3    0.01    53.312      0     0.02    0.00
@@ -43,7 +43,7 @@ Archive: src-oss/moomba.client, Host: moomba, 4 cpu(s), Fri Oct  8 04:20:56 1999
 pmclient: pmFetch: End of PCP archive log
 Note: timezone set to "TZ=PDT8"
 
-Archive: src-oss/moomba.client, Host: moomba, 4 cpu(s), Thu Oct  7 20:20:56 1999
+Archive: src/moomba.client, Host: moomba, 4 cpu(s), Thu Oct  7 20:20:56 1999
   CPU  Busy    Busy  Free Mem   Disk     Load Average
  Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
  0.01     3    0.01    53.312      0     0.02    0.00
@@ -59,7 +59,7 @@ local time at collection host
 pmclient: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "moomba" from archive
 
-Archive: src-oss/moomba.client, Host: moomba, 4 cpu(s), Fri Oct  8 14:20:56 1999
+Archive: src/moomba.client, Host: moomba, 4 cpu(s), Fri Oct  8 14:20:56 1999
   CPU  Busy    Busy  Free Mem   Disk     Load Average
  Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
  0.01     3    0.01    53.312      0     0.02    0.00
@@ -75,7 +75,7 @@ and again, but skip 15 seconds
 pmclient: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "moomba" from archive
 
-Archive: src-oss/moomba.client, Host: moomba, 4 cpu(s), Fri Oct  8 14:21:11 1999
+Archive: src/moomba.client, Host: moomba, 4 cpu(s), Fri Oct  8 14:21:11 1999
   CPU  Busy    Busy  Free Mem   Disk     Load Average
  Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
  0.00     1    0.01    53.609      1     0.01    0.00

@@ -29,25 +29,25 @@ _filter()
 }
 
 # real QA test starts here
-echo "=== src-oss/foo ==="
-src-oss/interp2 -a src-oss/foo | _filter 79 82 5 15
+echo "=== src/foo ==="
+src/interp2 -a src/foo | _filter 79 82 5 15
 
 echo
-echo "=== src-oss/ok-bigbin ==="
-src-oss/interp2 -a src-oss/ok-bigbin | _filter 199 210 900 1210
+echo "=== src/ok-bigbin ==="
+src/interp2 -a src/ok-bigbin | _filter 199 210 900 1210
 
 echo
-echo "=== src-oss/mv-foo ==="
-src-oss/interp2 -a src-oss/mv-foo | _filter 79 82 10 20
+echo "=== src/mv-foo ==="
+src/interp2 -a src/mv-foo | _filter 79 82 10 20
 
 echo
-echo "=== src-oss/ok-mv-bigbin ==="
-src-oss/interp2 -a src-oss/ok-mv-bigbin | _filter 199 210 980 1025
+echo "=== src/ok-mv-bigbin ==="
+src/interp2 -a src/ok-mv-bigbin | _filter 199 210 980 1025
 
 echo
-echo "=== src-oss/noti-foo ==="
-src-oss/interp2 -a src-oss/noti-foo | _filter 79 82 10 20
+echo "=== src/noti-foo ==="
+src/interp2 -a src/noti-foo | _filter 79 82 10 20
 
 echo
-echo "=== src-oss/ok-noti-bigbin ==="
-src-oss/interp2 -a src-oss/ok-noti-bigbin | _filter 199 210 1980 2010
+echo "=== src/ok-noti-bigbin ==="
+src/interp2 -a src/ok-noti-bigbin | _filter 199 210 1980 2010

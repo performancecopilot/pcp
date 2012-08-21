@@ -90,7 +90,7 @@ cd $here
 
 for i in 1 2 3 4
 do
-    src-oss/tstate $i 2>&1 | _tracefilter
+    src/tstate $i 2>&1 | _tracefilter
     sts=$?
     if [ $sts -ne 0 ]
     then

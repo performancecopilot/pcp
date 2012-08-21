@@ -33,29 +33,29 @@ $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-for arch in src-oss/foo src-oss/mv-foo src-oss/noti-foo
+for arch in src/foo src/mv-foo src/noti-foo
 do
     echo | tee -a $seq.full
     echo "=== archive $arch ===" | tee -a $seq.full
     echo | tee -a $seq.full
     echo "metric: sample.seconds" | tee -a $seq.full
-    _run_valgrind src-oss/interp1 -s 6 -a $arch sample.seconds | _filter
+    _run_valgrind src/interp1 -s 6 -a $arch sample.seconds | _filter
 
     echo | tee -a $seq.full
     echo "metric: sample.bin" | tee -a $seq.full
-    _run_valgrind src-oss/interp1 -s 6 -a $arch sample.bin | _filter
+    _run_valgrind src/interp1 -s 6 -a $arch sample.bin | _filter
 
     echo | tee -a $seq.full
     echo "metric: sample.colour" | tee -a $seq.full
-    _run_valgrind src-oss/interp1 -s 6 -a $arch sample.colour | _filter
+    _run_valgrind src/interp1 -s 6 -a $arch sample.colour | _filter
 
     echo | tee -a $seq.full
     echo "metric: sample.drift" | tee -a $seq.full
-    _run_valgrind src-oss/interp1 -s 6 -a $arch sample.drift | _filter
+    _run_valgrind src/interp1 -s 6 -a $arch sample.drift | _filter
 
     echo | tee -a $seq.full
     echo "metric: sample.lights" | tee -a $seq.full
-    _run_valgrind src-oss/interp1 -s 6 -a $arch sample.lights | _filter
+    _run_valgrind src/interp1 -s 6 -a $arch sample.lights | _filter
 done
 
 # success, all done

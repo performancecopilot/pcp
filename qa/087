@@ -57,7 +57,7 @@ BEGIN	{ s = '$1'
 }
 
 # real QA test starts here
-for arch in src-oss/interp src-oss/mv-interp src-oss/noti-interp
+for arch in src/interp src/mv-interp src/noti-interp
 do
     echo
     echo "=== $arch ==="
@@ -67,6 +67,6 @@ do
 	[ $samples -gt 50 ] && samples=50
 	echo ""
 	echo "interpolate $samples, $delta seconds appart"
-	src-oss/interp0 -n src-oss/root_irix -a $arch -t $delta -s $samples | _filter $samples
+	src/interp0 -n src/root_irix -a $arch -t $delta -s $samples | _filter $samples
     done
 done

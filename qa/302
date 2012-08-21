@@ -27,7 +27,7 @@ export TZ
 # real QA test starts here
 
 rm -rf $tmp.arch*
-pmlogextract -z src-oss/arch_a src-oss/arch_b $tmp.arch
+pmlogextract -z src/arch_a src/arch_b $tmp.arch
 
 # sed is strange to avoid printf issue between platforms
 #

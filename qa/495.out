@@ -69,7 +69,7 @@ non-null -> non-null cases
  
  13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
                2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
-               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240  29.0.80 (sample.many.int):
                  inst [0 or "i-0"] value 0
@@ -129,7 +129,7 @@ non-null -> non-null cases
  
  13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
                2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
-               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240  29.0.80 (sample.many.int):
                  inst [0 or "i-0"] value 0
@@ -189,7 +189,7 @@ non-null -> non-null cases
  
  13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
                2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
-               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240  29.0.80 (sample.many.int):
                  inst [0 or "i-0"] value 0
@@ -249,7 +249,7 @@ non-null -> non-null cases
  
  13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
                2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
-               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240  29.0.80 (sample.many.int):
                  inst [0 or "i-0"] value 0
@@ -309,7 +309,7 @@ non-null -> non-null cases
  
  13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
                2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
-               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240  29.0.80 (sample.many.int):
                  inst [0 or "i-0"] value 0
@@ -369,7 +369,7 @@ non-null -> non-null cases
  
  13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
                2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
-               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240  29.0.80 (sample.many.int):
                  inst [0 or "i-0"] value 0
@@ -429,7 +429,7 @@ non-null -> non-null cases
  
  13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
                2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
-               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240  29.0.80 (sample.many.int):
                  inst [0 or "i-0"] value 0
@@ -489,7 +489,7 @@ non-null -> non-null cases
  
  13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
                2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
-               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240  29.0.80 (sample.many.int):
                  inst [0 or "i-0"] value 0
@@ -553,7 +553,7 @@ Instance 12345 from OUTPUT clause not found in new indom 29.8
  
  13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
                2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
-               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240  29.0.80 (sample.many.int):
                  inst [0 or "i-0"] value 0
@@ -617,7 +617,7 @@ Instance "m-12345" from OUTPUT clause not found in new indom 29.8
  
  13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
                2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
-               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240  29.0.80 (sample.many.int):
                  inst [0 or "i-0"] value 0
@@ -679,7 +679,7 @@ Instance 11 from OUTPUT clause not found in new indom 29.8
  
  13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
                2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
-               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240  29.0.80 (sample.many.int):
                  inst [0 or "i-0"] value 0
@@ -741,7 +741,7 @@ Instance 2 from OUTPUT clause not found in old indom 29.3
  
  13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
                2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
-               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src-oss/mirage-1"
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240  29.0.80 (sample.many.int):
                  inst [0 or "i-0"] value 0

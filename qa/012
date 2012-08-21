@@ -41,7 +41,7 @@ _doit()
     echo
     echo "--- fd=$fd ---"
     $sudo rm -f /tmp/chk.fout
-    $here/src-oss/chkopenlog $fd tmp.log >$tmp.1 2>$tmp.2
+    $here/src/chkopenlog $fd tmp.log >$tmp.1 2>$tmp.2
     echo "stdout:" ; sed -f $tmp.sed $tmp.1
     echo "stderr:" ; sed -f $tmp.sed $tmp.2
     echo "log file:" ; sed -f $tmp.sed tmp.log

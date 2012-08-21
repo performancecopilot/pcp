@@ -29,4 +29,4 @@ _change_config pmlogger on
 $sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
 _wait_for_pmlogger
 
-src-oss/chknumval | _filter
+src/chknumval | _filter
