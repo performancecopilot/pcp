@@ -43,7 +43,7 @@ End-of-File
 user=`id -un 2>/dev/null`
 if [ X$user = Xpcpqa ]
 then
-    sudo chown -R pcpqa.pcpqa .
+    $sudo chown -R pcpqa.pcpqa .
 fi
 if [ ! -f localconfig.h ]
 then
