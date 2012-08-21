@@ -18,7 +18,7 @@ seq=`basename $0`
 which iostat2pcp >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "iostat2pcp not installed"
 perl -e "use Date::Parse" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "Date::Parse not installed"
+[ $? -eq 0 ] || _notrun "perl Date::Parse module not installed"
 
 echo "QA output created by $seq"
 
