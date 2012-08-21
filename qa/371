@@ -13,14 +13,10 @@
 
 seq=`basename $0`
 
-if which sheet2pcp >/dev/null 2>&1
-then
-    :
-else
-    echo "sheet2pcp not installed" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
+which sheet2pcp >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "sheet2pcp not installed"
+perl -e "use XML::TokeParser" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "XML::TokeParser not installed"
 
 _filter()
 {

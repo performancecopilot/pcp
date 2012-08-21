@@ -15,14 +15,10 @@ owner=kenj
 
 seq=`basename $0`
 
-if which iostat2pcp >/dev/null 2>&1
-then
-    :
-else
-    echo "iostat2pcp not installed" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
+which iostat2pcp >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "iostat2pcp not installed"
+perl -e "use Date::Parse" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "Date::Parse not installed"
 
 echo "QA output created by $seq"
 
