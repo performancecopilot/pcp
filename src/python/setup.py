@@ -6,17 +6,17 @@
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of pcp, the python extensions for SGI's Performance
-# Co-Pilot. Pcp is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Co-Pilot. 
 #
-# Pcp is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
-# more details. You should have received a copy of the GNU Lesser General
-# Public License along with pcp. If not, see <http://www.gnu.org/licenses/>.
-#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
 
 from distutils.core import setup, Extension
 
@@ -27,14 +27,14 @@ setup(name="pcp",
       author_email="mtw@protomagic.com",
       maintainer="Stan Cox",
       maintainer_email="scox@redhat.com",
-      url="ftp://oss.sgi.com/www/projects/pcp/download/",
+      url="http://oss.sgi.com/projects/pcp/",
       py_modules = ['pcp','pcpi','pm-collectl'],
       ext_modules=[ Extension( "pmapi", ["pmapi.c"],
                                libraries=["pcp"]
                              )
                   ],
       classifiers = [
-            'Development Status :: 2 - Pre-Alpha',
+            'Development Status :: 4 - Beta'
             'Intended Audience :: Developers',
             'Intended Audience :: System Administrators',
             'Intended Audience :: Information Technology',

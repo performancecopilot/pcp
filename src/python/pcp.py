@@ -7,17 +7,17 @@
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of pcp, the python extensions for SGI's Performance
-# Co-Pilot. Pcp is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Co-Pilot. 
 #
-# Pcp is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
-# more details. You should have received a copy of the GNU Lesser General
-# Public License along with pcp. If not, see <http://www.gnu.org/licenses/>.
-#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
 
 """Wrapper module for libpcp - SGI's Performace Co-Pilot client API, aka PMAPI
 
@@ -30,6 +30,47 @@ Performance Co-Pilot Programmer's Guide
 SGI Document 007-3434-005
 http://techpubs.sgi.com
 cf. Chapter 3. PMAPI - The Performance Metrics API
+
+EXAMPLE
+
+import pmapi
+from pcp import *
+
+# Create a pcp class
+pm = pmContext(pmapi.PM_CONTEXT_HOST,"localhost")
+
+# Get ids for number cpus and load metrics
+(code, metric_ids) = pm.pmLookupName(("hinv.ncpu","kernel.all.load"))
+# Get the description of the metrics
+(code, descs) = pm.pmLookupDesc(metric_ids)
+# Fetch the current value for number cpus
+(code, results) = pm.pmFetch(metric_ids)
+# Extract the value into a scalar value
+(code, atom) = pm.pmExtractValue(results.contents.get_valfmt(0),
+                                 results.contents.get_vlist(0, 0),
+                                 descs[0].contents.type,
+                                 pmapi.PM_TYPE_U32)
+print "#cpus=",atom.ul
+
+# Get the instance ids for kernel.all.load
+inst1 = pm.pmLookupInDom(descs[1], "1 minute")
+inst5 = pm.pmLookupInDom(descs[1], "5 minute")
+
+# Loop through the metric ids
+for i in xrange(results.contents.numpmid):
+    # Is this the kernel.all.load id?
+    if (results.contents.get_pmid(i) != metric_ids[1]):
+        continue
+    # Extrace the kernal.all.load instance
+    for j in xrange(results.contents.get_numval(i) - 1):
+        (code, atom) = pm.pmExtractValue(results.contents.get_valfmt(i),
+                                         results.contents.get_vlist(i, j),
+                                         descs[i].contents.type, pmapi.PM_TYPE_FLOAT)
+        value = atom.f
+        if results.contents.get_inst(i, j) == inst1:
+            print "load average 1=",atom.f
+        elif results.contents.get_inst(i, j) == inst5:
+            print "load average 5=",atom.f
 """
 
 
@@ -576,8 +617,8 @@ libpcp.pmFetchArchive.argtypes = [ POINTER(POINTER(pmResult)) ]
 libpcp.pmGetConfig.restype = c_char_p
 libpcp.pmGetConfig.argtypes = [ c_char_p ]
 
-libpcp.pmErrStr.restype = c_char_p
-libpcp.pmErrStr.argtypes = [ c_int ]
+libpcp.pmErrStr_r.restype = c_char_p
+libpcp.pmErrStr_r.argtypes = [ c_int ]
 
 libpcp.pmExtractValue.restype = c_int
 libpcp.pmExtractValue.argtypes = [
@@ -588,20 +629,20 @@ libpcp.pmConvScale.argtypes = [
            c_int, POINTER(pmAtomValue), POINTER(pmUnits),
            POINTER(pmAtomValue), POINTER(pmUnits)  ]
 
-libpcp.pmUnitsStr.restype = c_char_p
-libpcp.pmUnitsStr.argtypes = [ POINTER(pmUnits) ]
+libpcp.pmUnitsStr_r.restype = c_char_p
+libpcp.pmUnitsStr_r.argtypes = [ POINTER(pmUnits) ]
 
-libpcp.pmIDStr.restype = c_char_p
-libpcp.pmIDStr.argtypes = [ c_uint ]
+libpcp.pmIDStr_r.restype = c_char_p
+libpcp.pmIDStr_r.argtypes = [ c_uint ]
 
-libpcp.pmInDomStr.restype = c_char_p
-libpcp.pmInDomStr.argtypes = [ c_uint ]
+libpcp.pmInDomStr_r.restype = c_char_p
+libpcp.pmInDomStr_r.argtypes = [ c_uint ]
 
-libpcp.pmTypeStr.restype = c_char_p
-libpcp.pmTypeStr.argtypes = [ c_int ]
+libpcp.pmTypeStr_r.restype = c_char_p
+libpcp.pmTypeStr_r.argtypes = [ c_int ]
 
-libpcp.pmAtomStr.restype = c_char_p
-libpcp.pmAtomStr.argtypes = [ POINTER(pmAtomValue), c_int ]
+libpcp.pmAtomStr_r.restype = c_char_p
+libpcp.pmAtomStr_r.argtypes = [ POINTER(pmAtomValue), c_int ]
 
 libpcp.pmPrintValue.restype = None
 libpcp.pmPrintValue.argtypes=[c_void_p, c_int, c_int, POINTER(pmValue), c_int]
@@ -696,7 +737,7 @@ class pmContext( object ):
     ##
     # overloads
 
-    def __init__( self, type=PM_CONTEXT_HOST, target="127.0.0.1" ):
+    def __init__( self, type=PM_CONTEXT_HOST, target="localhost" ):
         self._type = type                                # the context type
         self._target = target                            # the context target
         pmContext._pmapiLock.acquire()
@@ -1573,9 +1614,8 @@ class pmContext( object ):
         """PMAPI - Return value from environment or pcp config file
         """
         # this method is _not_ context dependent and requires _no_ pmapi lock
-        # this method uses a static buffer and requires an individual lock
         pmContext._pmapiLock.acquire()
-        x = str( libpcp.pmErrStr( code ) )
+        x = str( libpcp.pmErrStr_r( code ) )
         pmContext._pmapiLock.release()
         return x
 
@@ -1620,9 +1660,8 @@ class pmContext( object ):
         """PMAPI - Convert units struct to a readable string
         """
         # this method is _not_ context dependent and requires _no_ pmapi lock
-        # this method uses a static buffer and requires an individual lock
         pmContext._pmapiLock.acquire()
-        x = str( libpcp.pmUnitsStr( units ) )
+        x = str( libpcp.pmUnitsStr_r( units ) )
         pmContext._pmapiLock.release()
         return x
 
@@ -1632,9 +1671,8 @@ class pmContext( object ):
         pmIDStr(c_uint pmid)
         """
         # this method is _not_ context dependent and requires _no_ pmapi lock
-        # this method uses a static buffer and requires an individual lock
         pmContext._pmapiLock.acquire()
-        x = str( libpcp.pmIDStr( pmid ) )
+        x = str( libpcp.pmIDStr_r( pmid ) )
         pmContext._pmapiLock.release()
         return x
 
@@ -1644,9 +1682,8 @@ class pmContext( object ):
         "dom" =  pmGetInDom(pmDesc pmdesc)
         """
         # this method is _not_ context dependent and requires _no_ pmapi lock
-        # this method uses a static buffer and requires an individual lock
         pmContext._pmapiLock.acquire()
-        x = str( libpcp.pmInDomStr( get_indom (pmdescp) ))
+        x = str( libpcp.pmInDomStr_r( get_indom (pmdescp) ))
         pmContext._pmapiLock.release()
         return x
 
@@ -1655,9 +1692,8 @@ class pmContext( object ):
         "type" = pmTypeStr (pmapi.PM_TYPE_FLOAT)
         """
         # this method is _not_ context dependent and requires _no_ pmapi lock
-        # this method uses a static buffer and requires an individual lock
         pmContext._pmapiLock.acquire()
-        x = str( libpcp.pmTypeStr( type ) )
+        x = str( libpcp.pmTypeStr_r( type ) )
         pmContext._pmapiLock.release()
         return x
 
@@ -1666,18 +1702,11 @@ class pmContext( object ):
         "value" = pmAtomStr (atom, pmapi.PM_TYPE_U32)
         """
         # this method is _not_ context dependent and requires _no_ pmapi lock
-        # this method uses a static buffer and requires an individual lock
         pmContext._pmapiLock.acquire()
-        x = str( libpcp.pmAtomStr( byref(atom), type ) )
+        x = str( libpcp.pmAtomStr_r( byref(atom), type ) )
         pmContext._pmapiLock.release()
         return x
 
-    def pmNumberStr( self, value ):
-        """PMAPI - NOOP - Convert a number to a string (not needed for python)
-        """
-        pass
-
-# pmPrintValue(stdout, result->vset[i]->valfmt, desc[i].type, &result->vset[i]->vlist[j], 8)
     def pmPrintValue( self, fileObj, result, type, vset_idx, vlist_idx, minWidth):
         """PMAPI - Print the value of a metric
         """
@@ -1749,6 +1778,7 @@ class pmContext( object ):
         # doesn't dynamically link (leading underscore issue?)
 #       libpcp.__pmtimevalSleep(timeVal_p)
         time.sleep(timeVal_p.tv_sec)
+
 
 ##############################################################################
 #
