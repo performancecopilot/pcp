@@ -3,12 +3,7 @@
 # Script to recreate the tzshift series of archives
 #
 
-if [ ! -f $PCP_DIR/etc/pcp.env ]
-then
-    echo "No $PCP_DIR/etc/pcp.env ... I give up!"
-    exit 1
-fi
-. $PCP_DIR/etc/pcp.env
+. ../common.rc  # for $sudo, $tmp, $here and pcp.env
 
 if make pmtimezone.so
 then
@@ -18,9 +13,9 @@ else
     exit 1
 fi
 
-../sudo $PCP_RC_DIR/pcp stop
+$sudo $PCP_RC_DIR/pcp stop
 
-[ -d /var/run/pcp ] && ../sudo chmod 777 /var/run/pcp
+[ -d $PCP_RUN_DIR ] && $sudo chmod 777 $PCP_RUN_DIR
 
 for hr in 10 11 12
 do
@@ -32,9 +27,9 @@ do
     do
 	echo "log mandatory on 200msec sample.drift" | pmlogger tzchange-$hr-$a -s 4
     done
-    ../sudo $PCP_RC_DIR/pcp stop
+    $sudo $PCP_RC_DIR/pcp stop
 done
 
-[ -d /var/run/pcp ] && ../sudo chmod 755 /var/run/pcp
+[ -d $PCP_RUN_DIR ] && $sudo chmod 755 $PCP_RUN_DIR
 unset LD_PRELOAD
-../sudo $PCP_RC_DIR/pcp start
+$sudo $PCP_RC_DIR/pcp start
