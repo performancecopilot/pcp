@@ -227,7 +227,7 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 			if (insts == NULL) {
 			    __pmNotifyErr(LOG_ERR, 
 					  "dynamic_store: Unable to realloc %d bytes\n",
-					  val * sizeof(struct Dynamic));
+					  (int)(val * sizeof(struct Dynamic)));
 			    sizeInsts = 0;
 			    numInsts = 0;
 			    changed = 1;
@@ -321,7 +321,7 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 	    if (instids == NULL) {
 		__pmNotifyErr(LOG_ERR, 
 			      "dynamic_store: Could not realloc %d bytes\n",
-			      numInsts * sizeof(pmdaInstid));
+			      (int)(numInsts * sizeof(pmdaInstid)));
 		sts = PM_ERR_TOOBIG;
 	    }
 	    else {
@@ -353,7 +353,6 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 
     return sts;
 }
-
 
 /*
  * Initialise the agent (both daemon and DSO).
@@ -396,15 +395,8 @@ main(int argc, char **argv)
 {
     int			err = 0;
     pmdaInterface	dispatch;
-    char		*p;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
-
+    __pmSetProgname(argv[0]);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, DYNAMIC,
 		"dynamic.log", "help");
 

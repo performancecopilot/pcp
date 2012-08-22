@@ -3,7 +3,7 @@ include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(subst pcp,pcp-gui,$(PCP_VAR_DIR))/testsuite/src
 SUBDIRS = qmc_context qmc_desc qmc_dynamic qmc_format qmc_group \
-	  qmc_hosts qmc_indom qmc_metric qmc_source dynamic
+	  qmc_hosts qmc_indom qmc_metric qmc_source
 
 SCRIPT = grind-tools
 LSRCFILES = $(SCRIPT) GNUmakefile.install

@@ -485,10 +485,3 @@ METRIC 3 2
  1 pmXmitPDU: PMNS_TRAVERSE
  4 pmXmitPDU: PROFILE
  1 pmXmitPDU: TEXT_REQ
-
-*** Cleanup ***
-Culling the Performance Metrics Name Space ...
-dynamic ... done
-Updating the PMCD control file, and notifying PMCD ...
-Removing files ...
-Check dynamic metrics have gone away ... OK

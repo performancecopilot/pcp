@@ -6,19 +6,20 @@ seq=`basename $0`
 echo "QA output created by $seq"
 . ./common.test
 
-status=0	# success is the default!
-rm -f $seq.full
-
 _cleanup()
 {
-    echo && echo "*** Cleanup ***"
-    _dynamic_remove
-    rm -f $tmp.*
+    if [ ! -f $tmp.done ]
+    then
+	cd $here/pmdas/dynamic
+	$sudo ./Remove >>$here/src/$seq.full
+	cd $here
+	touch $tmp.done
+    fi
 }
 
-trap "_cleanup; exit \$status" 0 1 2 3 15
-
-# real QA test starts here
+status=1	# failure is the default!
+rm -f $seq.full
+trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter1()
 {
@@ -66,19 +67,21 @@ _filter2()
     | uniq -c \
     | sed -e 's/  */ /g'
 
-    echo "*** Transactions ***" > $seq.full
+    echo "*** Transactions ***" >> $seq.full
     echo >> $seq.full
     cat $tmp.filtered >> $seq.full
 }
 
-_dynamic_install
-
+# real QA test starts here
+cd $here/pmdas/dynamic
+make >$here/$seq.full 2>&1
+$sudo ./Install </dev/null >>$here/$seq.full
+cd $here
 _check_metric dynamic.numinsts
 
 pmstore dynamic.control.del "-1"
-
 src/qmc_group/qmc_group -DPDU,PMC 2>$tmp.stderr | _filter1
-
 cat $tmp.stderr | _filter2
 
+status=0
 exit
