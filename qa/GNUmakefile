@@ -1,7 +1,7 @@
 TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
-SUBDIRS = src pmdas archives views interact
+SUBDIRS = src archives views interact
 BASEDIR = $(subst pcp,pcp-gui,$(PCP_VAR_DIR))
 TESTDIR = $(BASEDIR)/testsuite
 
