@@ -453,7 +453,7 @@ new_chart:
 		    }
 		    if (strcasecmp(w, "plot") == 0)
 			style = Chart::LineStyle;
-		    if (strcasecmp(w, "line") == 0)
+		    else if (strcasecmp(w, "line") == 0)
 			style = Chart::LineStyle;
 		    else if (strcasecmp(w, "bar") == 0)
 			style = Chart::BarStyle;
