@@ -3,6 +3,7 @@
 # check 2^31 volume switching for pmlogextract
 #
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2012 Red Hat.
 #
 
 # get standard environment, filters and checks
@@ -12,61 +13,25 @@
 
 seq=`basename $0`
 
-rm -f big2.* big3.*
+rm -f $seq.full src/big2.* src/big3.*
+./src/mkbig1 > $seq.full 2>&1
+[ $? -eq 0 ] || _notrun `cat $seq.full`
 
-# Filesystem           1M-blocks Used Available Use% Mounted on
-# /dev/sda5                57349     24838     29621  46% /
-free=`df -mP . \
-| $PCP_AWK_PROG '
-NR == 2	{ print $4 }'`
-
-rm -f .notrun
-if [ -z "$free" ]
-then
-    _notrun "Cannot determine free disk space (df -mP fails)"
-elif [ "$free" -lt 10240 ]
-then
-    # 10GB should keep us out of trouble
-    _notrun "Insufficient free disk space ($free MB)"
-    :
-elif [ ! -f big1.0 ]
-then
-    _notrun "big1 archive missing, run QA 441 first!"
-fi
+# 10GB should keep us out of trouble
+free=`_check_freespace 10240`
+[ -z "$free" ] || _notrun $free
 
 echo "QA output created by $seq"
 
-status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
-trap "rm -f $tmp.* big2.* big3.*; exit \$status" 0 1 2 3 15
+status=1	# failure is the default!
+trap "rm -f $tmp.* src/big2.* src/big3.*; exit \$status" 0 1 2 3 15
 
-_size()
-{
-    if [ $PCP_PLATFORM = darwin ]
-    then
-	# Mac OS X format
-	# stat(1) format
-	# 234881026 5304024 -rwxr-xr-x 1 kenj kenj 0 2016 "May  4 14:00:42 2011" "Apr 27 20:14:16 2011" "Apr 27 20:14:16 2011" "Apr 27 20:14:16 2011" 4096 8 0 441
-	stat $1 2>&1 | $PCP_AWK_PROG '{ print $8 }'
-    else
-	# stat(1) format
-	#   File: `441'
-	#   Size: 2016      	Blocks: 8          IO Block: 4096   regular file
-	# Device: 816h/2070d	Inode: 758237      Links: 1
-	# Access: (0755/-rwxr-xr-x)  Uid: ( 1000/    kenj)   Gid: ( 1000/    kenj)
-	# Access: 2011-05-09 06:52:58.000000000 +1000
-	# Modify: 2011-02-27 14:42:30.000000000 +1100
-	# Change: 2011-02-28 19:21:27.000000000 +1100
-	stat $1 2>&1 | $PCP_AWK_PROG '$1 == "Size:"	{ print $2 }'
-    fi
-}
-
-for file in big1.*
+for file in src/big1.*
 do
     ln $file `echo $file | sed -e 's/big1/big2/'`
     :
 done
-ls -l big1* big2* >$seq.full 2>&1
+ls -l src/big1* src/big2* >$seq.full 2>&1
 
 _filter()
 {
@@ -75,30 +40,30 @@ _filter()
 }
 
 # real QA test starts here
-pmlogextract big1 big2 big3 2>&1 | _filter
-ls -l big3* >>$seq.full 2>&1
+pmlogextract src/big1 src/big2 src/big3 2>&1 | _filter
+ls -l src/big3* >>$seq.full 2>&1
 
 # expect 3 volumes, and all < 2^31 bytes in size
 #
 limit=2147483648
-nvol=`ls big3.? | wc -l | sed -e 's/ //g'`
+nvol=`ls src/big3.? | wc -l | sed -e 's/ //g'`
 if [ $nvol -ne 3 ]
 then
-    ls -l big3.?
+    ls -l src/big3.?
     echo "Error: expecting 3 volumes, found $nvol"
     status=1
 fi
 
 echo "0" >$tmp.bc
-for vol in big1.?
+for vol in src/big1.?
 do
-    size=`_size $vol`
+    size=`_filesize $vol`
     echo "+2*$size" >>$tmp.bc
 done
 
-for vol in big3.?
+for vol in src/big3.?
 do
-    size=`_size $vol`
+    size=`_filesize $vol`
     if [ -z "$size" ]
     then
 	stat $vol
@@ -120,10 +85,12 @@ echo "sum(input data volume sizes) - sum(output data volume sizes)"
 
 echo
 echo "Temporal Index Entries ..."
-for arch in big1 big2 big3
+for arch in src/big1 src/big2 src/big3
 do
-    echo "$arch: `pmdumplog -t $arch | grep '^[0-9]' | wc -l | sed -e 's/ //g'`"
+    log=`echo $arch | sed -e 's/src\///g'`
+    echo "$log: `pmdumplog -t $arch | grep '^[0-9]' | wc -l | sed -e 's/ //g'`"
 done
 
 # success, all done
+status=0
 exit

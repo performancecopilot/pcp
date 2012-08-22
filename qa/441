@@ -2,10 +2,8 @@
 # PCP QA Test No. 441
 # check 2^31 volume switching for pmlogger
 #
-# Needs a lot of disk space, so is guarded by df check ... output
-# archive is left in place so other tests can use it.
-#
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2012 Red Hat.
 #
 
 # get standard environment, filters and checks
@@ -14,92 +12,30 @@
 . ./common.check
 
 seq=`basename $0`
-
-rm -f big1.*
-
-# Filesystem           1M-blocks Used Available Use% Mounted on
-# /dev/sda5                57349     24838     29621  46% /
-free=`df -mP . \
-| $PCP_AWK_PROG '
-NR == 2	{ print $4 }'`
-
-rm -f .notrun
-if [ -z "$free" ]
-then
-    _notrun "Cannot determine free disk space (df -mP fails)"
-elif [ "$free" -lt 10240 ]
-then
-    # 10GB should keep us out of trouble
-    _notrun "Insufficient free disk space ($free MB)"
-fi
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 echo "QA output created by $seq"
 
-status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
-trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
-
-_cleanup()
-{
-    if [ ! -f $tmp.done ]
-    then
-	cd pmdas/bigun
-	$sudo ./Remove >>$here/$seq.full
-	cd $here
-	touch $tmp.done
-    fi
-}
-
-cd pmdas/bigun
-make >$here/$seq.full 2>&1
-$sudo ./Install </dev/null >>$here/$seq.full
-cd $here
-
-cat <<End-of-File >$tmp.config
-log mandatory on default {
-    bigun
-    sample.hordes
-}
-End-of-File
-
 # real QA test starts here
-
-pmlogger -r -c $tmp.config -l $tmp.out -t 10msec -s 2049 big1
-echo >>$seq.full
-cat $tmp.out >>$seq.full
-echo >>$seq.full
-ls -l big1.* >>$seq.full
+rm -f $seq.full
+./src/mkbig1 > $seq.full 2>&1
+[ $? -eq 0 ] || _notrun `cat $seq.full`
 
 # expect 2 volumes, and both < 2^31 bytes in size
 #
 limit=2147483648
-nvol=`ls big1.? | wc -l | sed -e 's/ //g'`
+nvol=`ls src/big1.? | wc -l | sed -e 's/ //g'`
 if [ $nvol -ne 2 ]
 then
-    ls -l big1.?
+    ls -l src/big1.?
     echo "Error: expecting 2 volumes, found $nvol"
     status=1
 fi
 
-for vol in big1.?
+for vol in src/big1.?
 do
-    if [ $PCP_PLATFORM = darwin ]
-    then
-	# Mac OS X format
-	# stat(1) format
-	# 234881026 5304024 -rwxr-xr-x 1 kenj kenj 0 2016 "May  4 14:00:42 2011" "Apr 27 20:14:16 2011" "Apr 27 20:14:16 2011" "Apr 27 20:14:16 2011" 4096 8 0 441
-	size=`stat $vol 2>&1 | $PCP_AWK_PROG '{ print $8 }'`
-    else
-	# stat(1) format
-	#   File: `441'
-	#   Size: 2016      	Blocks: 8          IO Block: 4096   regular file
-	# Device: 816h/2070d	Inode: 758237      Links: 1
-	# Access: (0755/-rwxr-xr-x)  Uid: ( 1000/    kenj)   Gid: ( 1000/    kenj)
-	# Access: 2011-05-09 06:52:58.000000000 +1000
-	# Modify: 2011-02-27 14:42:30.000000000 +1100
-	# Change: 2011-02-28 19:21:27.000000000 +1100
-	size=`stat $vol 2>&1 | $PCP_AWK_PROG '$1 == "Size:"	{ print $2 }'`
-    fi
+    size=`_filesize $vol`
     if [ -z "$size" ]
     then
 	stat $vol

@@ -10,6 +10,10 @@ badpmcdpmid
 bar.0
 bar.index
 bar.meta
+big1.0
+big1.1
+big1.index
+big1.meta
 bigbin.0
 bigbin.index
 bigbin.meta
@@ -94,6 +98,7 @@ logcontrol
 mark-bug
 matchInstanceName
 mkfiles
+mkbig1.log
 mmv_genstats
 mmv_instances
 mmv_noinit

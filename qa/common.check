@@ -32,6 +32,51 @@ _fail()
     exit $status
 }
 
+# calculate the size of a given fail, echo it on standard output
+# 
+_filesize()
+{
+    filename=$1
+
+    if [ $PCP_PLATFORM = darwin ]
+    then
+	# Mac OS X format
+	# stat(1) format
+	# 234881026 5304024 -rwxr-xr-x 1 kenj kenj 0 2016 "May  4 14:00:42 2011" "Apr 27 20:14:16 2011" "Apr 27 20:14:16 2011" "Apr 27 20:14:16 2011" 4096 8 0 441
+	stat $filename 2>&1 | $PCP_AWK_PROG '{ print $8 }'
+    else
+	# stat(1) format
+	#   File: `441'
+	#   Size: 2016      	Blocks: 8          IO Block: 4096   regular file
+	# Device: 816h/2070d	Inode: 758237      Links: 1
+	# Access: (0755/-rwxr-xr-x)  Uid: ( 1000/    kenj)   Gid: ( 1000/    kenj)
+	# Access: 2011-05-09 06:52:58.000000000 +1000
+	# Modify: 2011-02-27 14:42:30.000000000 +1100
+	# Change: 2011-02-28 19:21:27.000000000 +1100
+	stat $filename 2>&1 | $PCP_AWK_PROG '$1 == "Size:" { print $2 }'
+    fi
+}
+
+# determine whether sufficient free space exists to run a test;
+# passed in parameter is the size needed, in megabytes.
+# 
+_check_freespace()
+{
+    needspace=$1
+
+    # Filesystem           1M-blocks Used Available Use% Mounted on
+    # /dev/sda5                57349     24838     29621  46% /
+    free=`df -mP . | $PCP_AWK_PROG 'NR == 2 { print $4 }'`
+
+    if [ -z "$free" ]
+    then
+	echo "Cannot determine free space (df -mP fails)"
+    elif [ "$free" -lt "$needspace" ]
+    then
+	echo "Insufficient free space ($free MB, need $needspace MB)"
+    fi
+}
+
 # host(1) examples
 #
 # 6:39 pcpqa@soggy ~ 10% host 134.14.55.202
