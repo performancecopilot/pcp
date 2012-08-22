@@ -30,7 +30,7 @@ fi
 echo "proc.psinfo.pid[$inst] 0" >$tmp.config
 echo "proc.psinfo.pid[1]" >> $tmp.config
 
-pmdumptext -g -s 1 -f '' -t 1 -c $tmp.config >$tmp.out 2>&1
+pmdumptext -G -s 1 -f '' -t 1 -c $tmp.config >$tmp.out 2>&1
 
 echo
 echo "expect two \"1\"s ..."
