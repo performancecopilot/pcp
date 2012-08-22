@@ -26,8 +26,6 @@ LDIRT += 051.work 134.full.* \
 	# these ones are links to the real files created when the associated
 	# test is run
 LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
-	# from QA 441
-LDIRT += big1.*
 
 # 051 depends on this rule being here
 051.work/die.001: 051.setup

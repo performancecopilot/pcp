@@ -156,6 +156,7 @@ LDIRT	+= *.log domain.h help.pag help.dir \
 	mv-foo.[0-9] mv-foo.index mv-foo.meta \
 	noti-foo.0 noti-foo.meta \
 	bar.0 bar.index bar.meta \
+	big[0-2].[0-2] big[0-2].index big[0-2].meta \
 	mv-bar.[0-9] mv-bar.index mv-bar.meta \
 	noti-bar.0 noti-bar.meta \
 	bigbin.0 bigbin.index bigbin.meta \

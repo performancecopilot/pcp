@@ -29,8 +29,6 @@ LDIRT += 051.work 134.full.* \
 	# these ones are links to the real files created when the associated
 	# test is run
 LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
-	# from QA 441
-LDIRT += big1.*
 
 SCRIPTS = mk.localconfig new check recheck remake mk.qa_hosts findmetric \
 	  getpmcdhosts group-stats mk.variant changeversion \
