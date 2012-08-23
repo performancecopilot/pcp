@@ -17,11 +17,12 @@ echo "QA output created by $seq"
 signal=$PCP_BINADM_DIR/pmsignal
 lhost=`hostname | sed -e 's/\..*//'`
 host=`_get_fqdn`
-remote=`./getpmcdhosts -n 1 -L 2>/dev/null`
+remote=`./getpmcdhosts -n 1 -L 2>$tmp.out`
 if [ -z "$remote" ]
 then
-    echo "Arrgh ... ./getpmcdhosts -n 1 -L failed!"
-    exit 1
+    cat $tmp.out >$seq.notrun
+    rm -f $tmp.out
+    exit
 fi
 needclean=false
 [ -z "$PCP_PMIECONTROL_PATH" ] && \

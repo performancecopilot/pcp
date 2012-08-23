@@ -24,12 +24,10 @@ fi
 status=0
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-remote=`./getpmcdhosts -n 1 -L`
+remote=`./getpmcdhosts -n 1 -L 2>$tmp.out`
 if [ -z "$remote" ]
 then
-    # errors reported from getpmcdhosts ...
-    #
-    status=1
+    cat $tmp.out >$seq.notrun
     exit
 fi
 
