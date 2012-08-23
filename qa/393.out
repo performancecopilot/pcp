@@ -1,0 +1,31 @@
+QA output created by 393
+
+=== src/bigbin ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp2 -a src/bigbin
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== src/mv-bigbin ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp2 -a src/mv-bigbin
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== src/noti-foo ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp2 -a src/noti-foo
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

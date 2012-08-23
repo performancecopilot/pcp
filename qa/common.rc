@@ -1,0 +1,85 @@
+# common preamble for lots of parts of the PCP QA environment ...
+# set $PATH, config-driven setup, etc
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+#
+# From pcpintro(1) man page ...
+#
+unset PCP_STDERR PCP_USE_STDERR
+unset PMCD_CONNECT_TIMEOUT PMCD_RECONNECT_TIMEOUT
+unset PMCD_REQUEST_TIMEOUT PMCD_WAIT_TIMEOUT
+unset PMNS_DEFAULT PCP_COUNTER_WRAP
+unset PMDA_PATH PMCD_PORT PMLOGGER_PORT
+unset PMDA_LOCAL_PROC PMDA_LOCAL_SAMPLE PMIECONF_PATH
+unset PMPROXY_PORT PMPROXY_HOST
+
+# source the PCP configuration environment variables
+if [ -r $PCP_DIR/etc/pcp.env ]
+then
+    . $PCP_DIR/etc/pcp.env
+else
+    echo "Error: unable to read $PCP_DIR/etc/pcp.env!" >&2
+    exit 1
+fi
+
+# augment $PATH for QA specific dirs
+#
+for dir in /sbin /usr/sbin
+do
+    [ -d "$dir" ] && PATH="$PATH:$dir"
+done
+
+# QA default environment variables
+PCP_PMCD_PROG=$PCP_BINADM_DIR/pmcd
+PCP_PMCDLOG_PATH=$PCP_LOG_DIR/pmcd/pmcd.log
+export PCP_PMCD_PROG PCP_PMCDLOG_PATH
+
+# In openSUSE 12.1, /etc/rc.status intercepts our rc script and passes
+# control to systemctl which uses systemd ... the result is that messages
+# from our rc scripts are sent to syslog by default, and there is no
+# apparent way to revert to the classical behaviour, so this "hack" allows
+# PCP QA to set $PCPQA_NO_RC_STATUS and continue to see stdout and stderr
+# from our rc scripts
+# - Ken 1 Dec 2011
+#
+PCPQA_NO_RC_STATUS=
+export PCPQA_NO_RC_STATUS
+
+case $PCP_PLATFORM
+in
+    linux|freebsd|solaris|aix)
+    	DSO_SUFFIX=so
+	;;
+    darwin)
+	DSO_SUFFIX=dylib
+	;;
+    mingw)
+	DSO_SUFFIX=dll
+	;;
+esac
+
+sudo=`which sudo`
+if $sudo -E true >/dev/null 2>&1
+then
+    # sudo has -E to preserve the environment
+    #
+    sudo="$sudo -E"
+fi
+real_sudo="$sudo"
+
+# running with PCP_DIR set, probably don't want to do most things as
+# root ... leave $real_sudo alone just in case
+# However, if $PCP_DIR exists and is owned by someone other than ourselves,
+# real sudo is guessed necessary.
+if [ -n "$PCP_DIR" ]
+then
+    pcp_dir_owner=`ls -ld $PCP_DIR | awk '{print $3}'`
+    whoami=`whoami`
+    if [ "$pcp_dir_owner" = "$whoami" ]; then
+        sudo=''
+    fi
+fi
+here=`pwd`
+tmp=/tmp/$$

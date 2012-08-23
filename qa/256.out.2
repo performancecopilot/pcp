@@ -1,0 +1,765 @@
+QA output created by 256
+HOST context ...
+
+myname.one = sample.long.one
+myname.suba.two = 2*sample.long.one
+myname.suba.three = 3*sample.long.one
+myname.suba.subb.four = 4*sample.long.one
+myname.suba.subb.subc.subd.five = 5*sample.long.one
+myname.suba.subb.subc.subd.six = 6*sample.long.one
+
+=== -h localhost myname.suba.subb.subc.subd.six ===
+myname.suba.subb.subc.subd.six
+=== -h localhost -f myname.suba.subb.subc.subd.six ===
+
+myname.suba.subb.subc.subd.six
+    value 6
+
+=== -h localhost myname.suba.subb ===
+myname.suba.subb.four
+myname.suba.subb.subc.subd.five
+myname.suba.subb.subc.subd.six
+=== -h localhost -f myname.suba.subb ===
+
+myname.suba.subb.four
+    value 4
+
+myname.suba.subb.subc.subd.five
+    value 5
+
+myname.suba.subb.subc.subd.six
+    value 6
+
+=== -h localhost myname ===
+myname.one
+myname.suba.two
+myname.suba.three
+myname.suba.subb.four
+myname.suba.subb.subc.subd.five
+myname.suba.subb.subc.subd.six
+=== -h localhost -f myname ===
+
+myname.one
+    value 1
+
+myname.suba.two
+    value 2
+
+myname.suba.three
+    value 3
+
+myname.suba.subb.four
+    value 4
+
+myname.suba.subb.subc.subd.five
+    value 5
+
+myname.suba.subb.subc.subd.six
+    value 6
+
+=== -h localhost myname.one.bad ===
+Error: myname.one.bad: Unknown metric name
+=== -h localhost -f myname.one.bad ===
+Error: myname.one.bad: Unknown metric name
+
+=== -h localhost myname.suba.subb.subc.bad ===
+Error: myname.suba.subb.subc.bad: Unknown metric name
+=== -h localhost -f myname.suba.subb.subc.bad ===
+Error: myname.suba.subb.subc.bad: Unknown metric name
+
+ARCHIVE context ...
+
+sample.one = sample.longlong.one
+sample.suba.two = 2*sample.longlong.one
+sample.suba.three = 3*sample.longlong.one
+sample.suba.subb.four = 4*sample.longlong.one
+sample.suba.subb.subc.subd.five = 5*sample.longlong.one
+sample.suba.subb.subc.subd.six = 6*sample.longlong.one
+
+=== -a src/reduce-1 sample.suba.subb.subc.subd.six ===
+sample.suba.subb.subc.subd.six
+=== -a src/reduce-1 -f sample.suba.subb.subc.subd.six ===
+
+sample.suba.subb.subc.subd.six
+    value 6
+
+=== -a src/reduce-1 sample.suba.subb ===
+sample.suba.subb.four
+sample.suba.subb.subc.subd.five
+sample.suba.subb.subc.subd.six
+=== -a src/reduce-1 -f sample.suba.subb ===
+
+sample.suba.subb.four
+    value 4
+
+sample.suba.subb.subc.subd.five
+    value 5
+
+sample.suba.subb.subc.subd.six
+    value 6
+
+=== -a src/reduce-1 sample ===
+sample.milliseconds
+sample.load
+sample.colour
+sample.drift
+sample.float.one
+sample.float.ten
+sample.float.hundred
+sample.float.million
+sample.float.write_me
+sample.longlong.one
+sample.longlong.ten
+sample.longlong.hundred
+sample.longlong.million
+sample.longlong.write_me
+sample.double.one
+sample.double.ten
+sample.double.hundred
+sample.double.million
+sample.double.write_me
+sample.string.null
+sample.string.hullo
+sample.string.write_me
+sample.aggregate.null
+sample.aggregate.hullo
+sample.aggregate.write_me
+sample.wrap.ulong
+sample.wrap.longlong
+sample.step_counter
+sample.one
+sample.suba.two
+sample.suba.three
+sample.suba.subb.four
+sample.suba.subb.subc.subd.five
+sample.suba.subb.subc.subd.six
+=== -a src/reduce-1 -f sample ===
+
+sample.milliseconds
+    value 3388275.115
+
+sample.load
+    value 42
+
+sample.colour
+    inst [0 or "red"] value 181
+    inst [1 or "green"] value 282
+    inst [2 or "blue"] value 383
+
+sample.drift
+    value 515
+
+sample.float.one
+    value 1
+
+sample.float.ten
+    value 10
+
+sample.float.hundred
+    value 100
+
+sample.float.million
+    value 1000000
+
+sample.float.write_me
+    value 13
+
+sample.longlong.one
+    value 1
+
+sample.longlong.ten
+    value 10
+
+sample.longlong.hundred
+    value 100
+
+sample.longlong.million
+    value 1000000
+
+sample.longlong.write_me
+    value 13
+
+sample.double.one
+    value 1
+
+sample.double.ten
+    value 10
+
+sample.double.hundred
+    value 100
+
+sample.double.million
+    value 1000000
+
+sample.double.write_me
+    value 13
+
+sample.string.null
+    value ""
+
+sample.string.hullo
+    value "hullo world!"
+
+sample.string.write_me
+    value "13"
+
+sample.aggregate.null
+    value "" []
+
+sample.aggregate.hullo
+    value "hullo world!" [68756c6c6f20776f726c6421]
+
+sample.aggregate.write_me
+    value "13" [3133]
+
+sample.wrap.ulong
+    value 2147483526
+
+sample.wrap.longlong
+    value 4611686018427387782
+
+sample.step_counter
+    value 2260
+
+sample.one
+    value 1
+
+sample.suba.two
+    value 2
+
+sample.suba.three
+    value 3
+
+sample.suba.subb.four
+    value 4
+
+sample.suba.subb.subc.subd.five
+    value 5
+
+sample.suba.subb.subc.subd.six
+    value 6
+
+=== -a src/reduce-1 sample.one.bad ===
+Error: sample.one.bad: Unknown metric name
+=== -a src/reduce-1 -f sample.one.bad ===
+Error: sample.one.bad: Unknown metric name
+
+=== -a src/reduce-1 sample.suba.subb.subc.bad ===
+Error: sample.suba.subb.subc.bad: Unknown metric name
+=== -a src/reduce-1 -f sample.suba.subb.subc.bad ===
+Error: sample.suba.subb.subc.bad: Unknown metric name
+
+LOCAL context ...
+
+sampledso.one = sampledso.longlong.one
+sampledso.suba.two = 2*sampledso.longlong.one
+sampledso.suba.three = 3*sampledso.longlong.one
+sampledso.suba.subb.four = 4*sampledso.longlong.one
+sampledso.suba.subb.subc.subd.five = 5*sampledso.longlong.one
+sampledso.suba.subb.subc.subd.six = 6*sampledso.longlong.one
+
+=== -L sampledso.suba.subb.subc.subd.six ===
+sampledso.suba.subb.subc.subd.six
+=== -L -f sampledso.suba.subb.subc.subd.six ===
+
+sampledso.suba.subb.subc.subd.six
+    value 6
+=== -n .../root -L ===
+sampledso.suba.subb.subc.subd.six
+=== -n .../root ===
+Name space load: N.NN msec
+
+=== -L sampledso.suba.subb ===
+sampledso.suba.subb.four
+sampledso.suba.subb.subc.subd.five
+sampledso.suba.subb.subc.subd.six
+=== -L -f sampledso.suba.subb ===
+
+sampledso.suba.subb.four
+    value 4
+
+sampledso.suba.subb.subc.subd.five
+    value 5
+
+sampledso.suba.subb.subc.subd.six
+    value 6
+=== -n .../root -L ===
+sampledso.suba.subb.four
+sampledso.suba.subb.subc.subd.five
+sampledso.suba.subb.subc.subd.six
+=== -n .../root ===
+Name space load: N.NN msec
+
+=== -L sampledso ===
+sampledso.control
+sampledso.daemon_pid
+sampledso.seconds
+sampledso.milliseconds
+sampledso.load
+sampledso.colour
+sampledso.darkness
+sampledso.bin
+sampledso.bucket
+sampledso.part_bin
+sampledso.bogus_bin
+sampledso.drift
+sampledso.step
+sampledso.step_counter
+sampledso.mirage
+sampledso.mirage_longlong
+sampledso.write_me
+sampledso.lights
+sampledso.magnitude
+sampledso.sysinfo
+sampledso.pdu
+sampledso.recv_pdu
+sampledso.xmit_pdu
+sampledso.noinst
+sampledso.needprofile
+sampledso.not_ready
+sampledso.rapid
+sampledso.error_code
+sampledso.error_check
+sampledso.bigid
+sampledso.byte_ctr
+sampledso.byte_rate
+sampledso.kbyte_ctr
+sampledso.kbyte_rate
+sampledso.byte_rate_perhour
+sampledso.datasize
+sampledso.secret.foo.bar.max.redirect
+sampledso.secret.foo.bar.three
+sampledso.secret.foo.bar.four
+sampledso.secret.foo.bar.grunt.five
+sampledso.secret.foo.bar.grunt.snort.six
+sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
+sampledso.secret.foo.one
+sampledso.secret.foo.two
+sampledso.secret.bar
+sampledso.long.one
+sampledso.long.ten
+sampledso.long.hundred
+sampledso.long.million
+sampledso.long.write_me
+sampledso.long.bin
+sampledso.long.bin_ctr
+sampledso.ulong.one
+sampledso.ulong.ten
+sampledso.ulong.hundred
+sampledso.ulong.million
+sampledso.ulong.write_me
+sampledso.ulong.bin
+sampledso.ulong.bin_ctr
+sampledso.ulong.count.base
+sampledso.ulong.count.deca
+sampledso.ulong.count.hecto
+sampledso.ulong.count.kilo
+sampledso.ulong.count.mega
+sampledso.longlong.one
+sampledso.longlong.ten
+sampledso.longlong.hundred
+sampledso.longlong.million
+sampledso.longlong.write_me
+sampledso.longlong.bin
+sampledso.longlong.bin_ctr
+sampledso.ulonglong.one
+sampledso.ulonglong.ten
+sampledso.ulonglong.hundred
+sampledso.ulonglong.million
+sampledso.ulonglong.write_me
+sampledso.ulonglong.bin
+sampledso.ulonglong.bin_ctr
+sampledso.float.one
+sampledso.float.ten
+sampledso.float.hundred
+sampledso.float.million
+sampledso.float.write_me
+sampledso.float.bin
+sampledso.float.bin_ctr
+sampledso.double.one
+sampledso.double.ten
+sampledso.double.hundred
+sampledso.double.million
+sampledso.double.write_me
+sampledso.double.bin
+sampledso.double.bin_ctr
+sampledso.string.null
+sampledso.string.hullo
+sampledso.string.write_me
+sampledso.aggregate.null
+sampledso.aggregate.hullo
+sampledso.aggregate.write_me
+sampledso.hordes.one
+sampledso.hordes.two
+sampledso.bad.unknown
+sampledso.bad.nosupport
+sampledso.wrap.long
+sampledso.wrap.ulong
+sampledso.wrap.longlong
+sampledso.wrap.ulonglong
+sampledso.dodgey.control
+sampledso.dodgey.value
+sampledso.dynamic.counter
+sampledso.dynamic.discrete
+sampledso.dynamic.instant
+sampledso.dynamic.meta.metric
+sampledso.dynamic.meta.pmdesc.type
+sampledso.dynamic.meta.pmdesc.indom
+sampledso.dynamic.meta.pmdesc.sem
+sampledso.dynamic.meta.pmdesc.units
+sampledso.scale_step.bytes_up
+sampledso.scale_step.bytes_down
+sampledso.scale_step.count_up
+sampledso.scale_step.count_down
+sampledso.scale_step.time_up_secs
+sampledso.scale_step.time_up_nanosecs
+sampledso.scale_step.none_up
+sampledso.const_rate.value
+sampledso.const_rate.gradient
+sampledso.many.count
+sampledso.many.int
+sampledso.scramble.version
+sampledso.scramble.bin
+sampledso.percontext.pdu
+sampledso.percontext.recv_pdu
+sampledso.percontext.xmit_pdu
+sampledso.percontext.control.ctx
+sampledso.percontext.control.active
+sampledso.percontext.control.start
+sampledso.percontext.control.end
+sampledso.event.records
+sampledso.event.no_indom_records
+sampledso.event.reset
+sampledso.event.type
+sampledso.event.param_32
+sampledso.event.param_u32
+sampledso.event.param_64
+sampledso.event.param_u64
+sampledso.event.param_float
+sampledso.event.param_double
+sampledso.event.param_string
+sampledso.event.param_aggregate
+sampledso.one
+sampledso.suba.two
+sampledso.suba.three
+sampledso.suba.subb.four
+sampledso.suba.subb.subc.subd.five
+sampledso.suba.subb.subc.subd.six
+=== -L -f sampledso ===
+
+sampledso.one
+    value 1
+
+sampledso.suba.two
+    value 2
+
+sampledso.suba.three
+    value 3
+
+sampledso.suba.subb.four
+    value 4
+
+sampledso.suba.subb.subc.subd.five
+    value 5
+
+sampledso.suba.subb.subc.subd.six
+    value 6
+=== -n .../root -L ===
+sampledso.control
+sampledso.daemon_pid
+sampledso.seconds
+sampledso.milliseconds
+sampledso.load
+sampledso.colour
+sampledso.darkness
+sampledso.bin
+sampledso.bucket
+sampledso.part_bin
+sampledso.bogus_bin
+sampledso.drift
+sampledso.step
+sampledso.step_counter
+sampledso.mirage
+sampledso.mirage_longlong
+sampledso.write_me
+sampledso.lights
+sampledso.magnitude
+sampledso.sysinfo
+sampledso.pdu
+sampledso.recv_pdu
+sampledso.xmit_pdu
+sampledso.noinst
+sampledso.needprofile
+sampledso.not_ready
+sampledso.rapid
+sampledso.error_code
+sampledso.error_check
+sampledso.bigid
+sampledso.byte_ctr
+sampledso.byte_rate
+sampledso.kbyte_ctr
+sampledso.kbyte_rate
+sampledso.byte_rate_perhour
+sampledso.datasize
+sampledso.secret.foo.bar.max.redirect
+sampledso.secret.foo.bar.three
+sampledso.secret.foo.bar.four
+sampledso.secret.foo.bar.grunt.five
+sampledso.secret.foo.bar.grunt.snort.six
+sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
+sampledso.secret.foo.one
+sampledso.secret.foo.two
+sampledso.secret.bar
+sampledso.long.one
+sampledso.long.ten
+sampledso.long.hundred
+sampledso.long.million
+sampledso.long.write_me
+sampledso.long.bin
+sampledso.long.bin_ctr
+sampledso.ulong.one
+sampledso.ulong.ten
+sampledso.ulong.hundred
+sampledso.ulong.million
+sampledso.ulong.write_me
+sampledso.ulong.bin
+sampledso.ulong.bin_ctr
+sampledso.ulong.count.base
+sampledso.ulong.count.deca
+sampledso.ulong.count.hecto
+sampledso.ulong.count.kilo
+sampledso.ulong.count.mega
+sampledso.longlong.one
+sampledso.longlong.ten
+sampledso.longlong.hundred
+sampledso.longlong.million
+sampledso.longlong.write_me
+sampledso.longlong.bin
+sampledso.longlong.bin_ctr
+sampledso.ulonglong.one
+sampledso.ulonglong.ten
+sampledso.ulonglong.hundred
+sampledso.ulonglong.million
+sampledso.ulonglong.write_me
+sampledso.ulonglong.bin
+sampledso.ulonglong.bin_ctr
+sampledso.float.one
+sampledso.float.ten
+sampledso.float.hundred
+sampledso.float.million
+sampledso.float.write_me
+sampledso.float.bin
+sampledso.float.bin_ctr
+sampledso.double.one
+sampledso.double.ten
+sampledso.double.hundred
+sampledso.double.million
+sampledso.double.write_me
+sampledso.double.bin
+sampledso.double.bin_ctr
+sampledso.string.null
+sampledso.string.hullo
+sampledso.string.write_me
+sampledso.aggregate.null
+sampledso.aggregate.hullo
+sampledso.aggregate.write_me
+sampledso.hordes.one
+sampledso.hordes.two
+sampledso.bad.unknown
+sampledso.bad.nosupport
+sampledso.wrap.long
+sampledso.wrap.ulong
+sampledso.wrap.longlong
+sampledso.wrap.ulonglong
+sampledso.dodgey.control
+sampledso.dodgey.value
+sampledso.dynamic.counter
+sampledso.dynamic.discrete
+sampledso.dynamic.instant
+sampledso.dynamic.meta.metric
+sampledso.dynamic.meta.pmdesc.type
+sampledso.dynamic.meta.pmdesc.indom
+sampledso.dynamic.meta.pmdesc.sem
+sampledso.dynamic.meta.pmdesc.units
+sampledso.scale_step.bytes_up
+sampledso.scale_step.bytes_down
+sampledso.scale_step.count_up
+sampledso.scale_step.count_down
+sampledso.scale_step.time_up_secs
+sampledso.scale_step.time_up_nanosecs
+sampledso.scale_step.none_up
+sampledso.const_rate.value
+sampledso.const_rate.gradient
+sampledso.many.count
+sampledso.many.int
+sampledso.scramble.version
+sampledso.scramble.bin
+sampledso.percontext.pdu
+sampledso.percontext.recv_pdu
+sampledso.percontext.xmit_pdu
+sampledso.percontext.control.ctx
+sampledso.percontext.control.active
+sampledso.percontext.control.start
+sampledso.percontext.control.end
+sampledso.event.records
+sampledso.event.no_indom_records
+sampledso.event.reset
+sampledso.event.type
+sampledso.event.param_32
+sampledso.event.param_u32
+sampledso.event.param_64
+sampledso.event.param_u64
+sampledso.event.param_float
+sampledso.event.param_double
+sampledso.event.param_string
+sampledso.event.param_aggregate
+sampledso.one
+sampledso.suba.two
+sampledso.suba.three
+sampledso.suba.subb.four
+sampledso.suba.subb.subc.subd.five
+sampledso.suba.subb.subc.subd.six
+=== -n .../root ===
+Name space load: N.NN msec
+pmNameAll(sampledso.secret): Unknown or illegal metric identifier
+
+=== -L sampledso.one.bad ===
+Error: sampledso.one.bad: Unknown metric name
+=== -L -f sampledso.one.bad ===
+=== -n .../root -L ===
+Error: sampledso.one.bad: Unknown metric name
+=== -n .../root ===
+Name space load: N.NN msec
+
+=== -L sampledso.suba.subb.subc.bad ===
+Error: sampledso.suba.subb.subc.bad: Unknown metric name
+=== -L -f sampledso.suba.subb.subc.bad ===
+=== -n .../root -L ===
+Error: sampledso.suba.subb.subc.bad: Unknown metric name
+=== -n .../root ===
+Name space load: N.NN msec
+
+Splice-n-dice into existing PMNS ...
+
+derived = sample.long.one
+derived_tree.ten = sample.long.ten
+derived_tree.hundred = sample.long.hundred
+derived_tree.sample.long.million = sample.long.million
+sample.long.derived = sample.long.one
+sample.long.foo.bar.derived = sample.long.one
+
+===  ===
+derived
+derived_tree.ten
+derived_tree.hundred
+derived_tree.sample.long.million
+sample.long.derived
+sample.long.foo.bar.derived
+
+=== derived ===
+derived
+
+=== derived_tree ===
+derived_tree.ten
+derived_tree.hundred
+derived_tree.sample.long.million
+
+=== sample ===
+sample.long.derived
+sample.long.foo.bar.derived
+
+Check diags ...
+derived.tree.one = sample.long.one
+derived.tree.ten = sample.long.ten
+derived.tree.hundred = sample.long.hundred
+derived.tree.a.million = sample.long.million
+derived.tree.b.million = sample.long.million
+derived.tree.b.cmillion = sample.long.million
+sample.long.derived = sample.long.one
+sample.long.foo.bar.derived = sample.long.one
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: register metric[0] derived.tree.one = sample.long.one
+pmRegisterDerived: register metric[1] derived.tree.ten = sample.long.ten
+pmRegisterDerived: register metric[2] derived.tree.hundred = sample.long.hundred
+pmRegisterDerived: register metric[3] derived.tree.a.million = sample.long.million
+pmRegisterDerived: register metric[4] derived.tree.b.million = sample.long.million
+pmRegisterDerived: register metric[5] derived.tree.b.cmillion = sample.long.million
+pmRegisterDerived: register metric[6] sample.long.derived = sample.long.one
+pmRegisterDerived: register metric[7] sample.long.foo.bar.derived = sample.long.one
+__dmopencontext(->ctx 0) called
+__dmopencontext: bind metric[0] derived.tree.one
+Derived metric expr dump from <addr-0>...
+expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+    PMID: 29.0.10 (511.0.1 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[1] derived.tree.ten
+Derived metric expr dump from <addr-1>...
+expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=0
+    PMID: 29.0.11 (511.0.2 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[2] derived.tree.hundred
+Derived metric expr dump from <addr-2>...
+expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=0
+    PMID: 29.0.12 (511.0.3 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[3] derived.tree.a.million
+Derived metric expr dump from <addr-3>...
+expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
+    PMID: 29.0.13 (511.0.4 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[4] derived.tree.b.million
+Derived metric expr dump from <addr-4>...
+expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
+    PMID: 29.0.13 (511.0.5 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[5] derived.tree.b.cmillion
+Derived metric expr dump from <addr-5>...
+expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
+    PMID: 29.0.13 (511.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[6] sample.long.derived
+Derived metric expr dump from <addr-6>...
+expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+    PMID: 29.0.10 (511.0.7 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[7] sample.long.foo.bar.derived
+Derived metric expr dump from <addr-7>...
+expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+    PMID: 29.0.10 (511.0.8 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+__dmgetpmid: metric "derived.tree" -> Unknown metric name
+__dmchildren: offspring[0] one (status=0)
+__dmchildren: offspring[1] ten (status=0)
+__dmchildren: offspring[2] hundred (status=0)
+__dmchildren: offspring[3] a (status=1)
+__dmchildren: offspring[4] b (status=1)
+pmGetChildren(name="derived.tree") no regular children (Unknown metric name), 5 derived children
+__dmchildren: offspring[0] one (status=0)
+__dmchildren: offspring[1] ten (status=0)
+__dmchildren: offspring[2] hundred (status=0)
+__dmchildren: offspring[3] a (status=1)
+__dmchildren: offspring[4] b (status=1)
+pmGetChildren(name="derived.tree") no regular children (Unknown metric name), 5 derived children
+__dmchildren: offspring[0] derived (status=1)
+__dmchildren: offspring[1] sample (status=1)
+pmGetChildren(name="") N regular children, 2 derived children
+__dmchildren: offspring[0] derived (status=1)
+__dmchildren: offspring[1] sample (status=1)
+pmGetChildren(name="") N regular children, 2 derived children
+pmLookupName() returns -12357 (Unknown metric name)
+derived.tree: id[0] = PM_ID_NULL
+
+pmGetChildren() returns 5
+pmGetChildrenStatus() returns 5
+
+pmGetChildren() returns N
+pmGetChildrenStatus() returns N

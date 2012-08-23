@@ -1,0 +1,223 @@
+#!/bin/sh
+# PCP QA Test No. 273
+# Increase testing code coverage in core parts of libpcp
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+rm -f $seq.out
+if [ $PCP_VER -ge 3605 -a "$PCP_PLATFORM" = linux ]
+then
+    ln $seq.out.3 $seq.out || exit 1
+elif [ $PCP_VER -ge 3600 ]
+then
+    ln $seq.out.2 $seq.out || exit 1
+else
+    ln $seq.out.1 $seq.out || exit 1
+fi
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full 
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/0x[0-9a-f][0-9a-f]*/HEX/g'
+}
+
+_filter2()
+{
+    sed \
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e '/build_dsotab/s/parsing .*/ parsing .../' \
+	-e '/^\[[0-9][0-9]*]/d' \
+	-e '/^0x[0-9a-f][0-9a-f]* \[[0-9][0-9]*]/d' \
+	-e '/__pmLocalPMDA/s/, .*/, .../' \
+	-e '/__pmConnectLogger:/s/pid = [0-9][0-9]*/pid = PID/' \
+	-e 's/fd=[0-9][0-9]*/fd=N/g' \
+	-e '/IPC table fd/s/:.*/: .../' \
+	-e '/__pmSendCreds/s/:.*/: .../' \
+	-e '/NotifyEndLocalContext: /s/:.*/: .../' \
+	-e '/value /s/ [0-9].*/ NUMBER/' \
+	-e 's/Permission denied/No permission to perform requested operation/'
+}
+
+# simple PMDA is using PMDA_INTERFACE_2
+#
+if [ ! -f $PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX ]
+then
+    ( cd $PCP_PMDAS_DIR/simple; $sudo make; $sudo ./Install </dev/null ) >/dev/null 2>&1
+fi
+
+# real QA test starts here
+
+# help.c
+#
+$sudo pminfo -t -L sampledso
+$sudo pminfo -T -L sampledso
+pminfo -T -a src/foo sample
+$sudo pminfo -T -L -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init simple.now
+
+# instance.c
+#
+$sudo pminfo -L -f -Dfetch sampledso.bin 2>&1 | _filter_dumpresult
+pminfo -f -Dindom sample.bin 2>&1 | _filter
+$sudo pminfo -fL -Dfetch,indom -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init simple 2>&1 \
+| _filter_dumpresult | _filter
+src/indom sample.bin
+src/indom sample.long.one
+pmval -s 1 -i "bin-123" sample.bin
+$sudo src/torture_indom -L sampledso.colour
+$sudo src/torture_indom -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init -L simple.now
+
+# fetchlocal.c
+#
+$sudo pminfo -f -L -Dfetch sampledso.bad.unknown 2>&1 | _filter_dumpresult
+
+# spec.c
+#
+pminfo -f -h localhost:44321 sample.long.hundred
+pminfo -f -h localhost:1,44321 sample.long.hundred
+pminfo -f -h localhost: sample.long.hundred
+pminfo -f -h localhost:44321,1x3 sample.long.hundred
+pminfo -f -h localhost:44321@no-host sample.long.hundred
+pminfo -f -h localhost:44321@no-host:44322 sample.long.hundred
+pminfo -f -h localhost:44321@ sample.long.hundred
+
+# units.c
+#
+# Pbyte / hour -> 1F055000
+pmstore sample.dynamic.meta.pmdesc.units 0x1F055000 >/dev/null
+pminfo -d sample.dynamic.meta.metric
+# Ebyte / sec -> 1F063000
+pmstore sample.dynamic.meta.pmdesc.units 0x1F063000 >/dev/null
+pminfo -d sample.dynamic.meta.metric
+# bigger than Ebyte -> 10070000
+pmstore sample.dynamic.meta.pmdesc.units 0x10070000 >/dev/null
+pminfo -d sample.dynamic.meta.metric
+# bigger than Hour -> 01006000
+pmstore sample.dynamic.meta.pmdesc.units 0x01006000 >/dev/null
+pminfo -d sample.dynamic.meta.metric
+# byte^2 -> 20000000
+pmstore sample.dynamic.meta.pmdesc.units 0x20000000 >/dev/null
+pminfo -d sample.dynamic.meta.metric
+# nsec / byte -> F1000000
+pmstore sample.dynamic.meta.pmdesc.units 0xF1000000 >/dev/null
+pminfo -d sample.dynamic.meta.metric
+# / byte^2 -> E0000000
+pmstore sample.dynamic.meta.pmdesc.units 0xE0000000 >/dev/null
+pminfo -d sample.dynamic.meta.metric
+# nsec^3 -> 03000000
+pmstore sample.dynamic.meta.pmdesc.units 0x03000000 >/dev/null
+pminfo -d sample.dynamic.meta.metric
+# / nsec^3 -> 0D000000
+pmstore sample.dynamic.meta.pmdesc.units 0x0D000000 >/dev/null
+pminfo -d sample.dynamic.meta.metric
+# count^2 -> 00200000
+pmstore sample.dynamic.meta.pmdesc.units 0x00200000 >/dev/null
+pminfo -d sample.dynamic.meta.metric
+# / count^2 -> 00E00000
+pmstore sample.dynamic.meta.pmdesc.units 0x00E00000 >/dev/null
+pminfo -d sample.dynamic.meta.metric
+# restore to byte / sec -> 1F003000
+pmstore sample.dynamic.meta.pmdesc.units 0x1F003000 >/dev/null
+
+# units.c using grind_cov
+#
+for type in 0 1 2 3 4 5
+do
+    # space
+    src/grind_conv $type 1024 1:0:0:4:0:0 1:0:0:3:0:0
+    src/grind_conv $type 1048576 1:0:0:3:0:0 1:0:0:4:0:0
+    # space / time
+    src/grind_conv $type 4096 1:-1:0:2:3:0 1:-1:0:3:5:0
+    src/grind_conv $type 14400 1:-1:0:3:5:0 1:-1:0:2:3:0
+    # space-time / count
+    src/grind_conv $type 92160 1:1:-1:1:3:0 1:1:-1:2:4:1
+    src/grind_conv $type 15 1:1:-1:2:4:1 1:1:-1:1:3:0
+    # time / space
+    src/grind_conv $type 1024 -1:1:0:2:3:0 -1:1:0:1:2:0
+    src/grind_conv $type 1000 -1:1:0:1:2:0 -1:1:0:2:3:0
+done
+# and some odd cases and error cases
+src/grind_conv -Dvalue 3 4096 1:0:0:5:0:0 1:0:0:6:0:0
+src/grind_conv 3 4 1:0:0:6:0:0 1:0:0:5:0:0
+src/grind_conv 3 4096 1:0:0:7:0:0 1:0:0:6:0:0
+src/grind_conv 3 4096 1:0:0:5:0:0 1:0:0:7:0:0
+src/grind_conv 3 3600 0:1:0:0:6:0 0:1:0:0:4:0
+src/grind_conv -Dvalue 3 3600 0:1:0:0:4:0 0:1:0:0:6:0 
+# dimensions not the same
+src/grind_conv 3 0 0:1:0:0:1:0 0:2:0:0:1:0
+# cannot convert events
+src/grind_conv 8 0 0:1:0:0:1:0 0:1:0:0:1:0
+
+# units.c using src/xval
+#
+echo
+src/xval -D 0x3fffffff 2>&1 \
+| sed -e '/pmExtract.*AGGREGATE/{
+s/feffff3f/3ffffffe/g
+s/ffffff3f/3fffffff/g
+s/00000040/40000000/g
+}'
+src/xval 0x7fffffff
+src/xval 0xffffffff
+src/xval 0x3fffffffffffffff
+src/xval 0x7fffffffffffffff
+src/xval 0xffffffffffffffff
+src/xval -u 0xffffffffffffffff
+echo
+src/xval -e
+
+# store.c
+#
+echo
+$sudo src/chknumval -L sampledso.long.write_me sampledso.ulong.write_me sampledso.longlong.write_me 2>&1 \
+| _filter2
+
+echo
+$sudo src/chknumval -Dcontext -L pmcd.control.debug sampledso.long.write_me sample.colour 2>&1 \
+| _filter2
+cat >$tmp.root <<End-of-File
+root {
+    pmcd
+    sample
+    sampledso
+}
+pmcd {
+    control
+}
+pmcd.control {
+    debug 2:0:0
+}
+sample {
+    colour 29:0:5
+}
+sampledso {
+    long
+}
+sampledso.long {
+    write_me 30:0:14
+}
+End-of-File
+
+echo
+$sudo src/chknumval -L -n $tmp.root pmcd.control.debug sampledso.long.write_me sample.colour 2>&1 \
+| _filter2
+
+echo
+$sudo src/chknumval -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init -L simple.now simple.now simple.now 2>&1 \
+| _filter2
+
+# success, all done
+exit

@@ -1,0 +1,88 @@
+#! /bin/sh
+# PCP QA Test No. 295
+# verify pmproxy cleans up correctly when clients are terminated
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if which pmproxy >/dev/null 2>&1
+then
+    :
+else
+    echo "No pmproxy binary installed" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    $sudo $signal -a pmproxy >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmproxy restart >/dev/null 2>&1
+}
+
+_filter_pmproxy()
+{
+    sed -e '/^__pmSetSocketIPC: fd=/d' -e '/^IPC table fd/d'
+}
+
+_check()
+{
+    echo "`grep AcceptNewClient $tmp.log | wc -l | sed -e 's/  *//g'` connects"
+    echo "`grep DeleteClient $tmp.log | wc -l | sed -e 's/  *//g'` disconnects"
+}
+
+$sudo $PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
+$sudo $signal -a pmproxy >/dev/null 2>&1
+
+pmproxy -Dcontext -l $tmp.log 2>&1 | _filter_pmproxy
+
+PMPROXY_HOST=localhost
+export PMPROXY_HOST
+
+# real QA test starts here
+pidlist=`sh -c "pmval hinv.ncpu >$tmp.1 2>&1 & echo \\\$!"`
+pid=`sh -c "pmstat >$tmp.2 2>&1 & echo \\\$!"`
+pidlist="$pidlist $pid"
+echo "kernel.all.load;" >$tmp.in
+pid=`sh -c "pmie -v -c $tmp.in >$tmp.3 2>&1 & echo \\\$!"`
+pidlist="$pidlist $pid"
+
+sleep 3
+
+echo all clients started
+echo "expect 4 connects and 1 disconnect, thanks to pmie"
+_check
+
+for pid in $pidlist
+do
+    echo
+    echo "kill off a client ..."
+    $signal -s KILL $pid
+    sleep 1
+    _check
+done
+
+echo "pmval output ..." >$seq.full
+cat $tmp.1 >>$seq.full
+echo >>$seq.full
+echo "pmstat output ..." >>$seq.full
+cat $tmp.2 >>$seq.full
+echo >>$seq.full
+echo "pmie output ..." >>$seq.full
+cat $tmp.3 >>$seq.full
+
+# success, all done
+exit

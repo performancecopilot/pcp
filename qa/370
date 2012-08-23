@@ -1,0 +1,212 @@
+#!/bin/sh
+# PCP QA Test No. 370
+#
+# exercise sar2pcp
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which sar >/dev/null 2>&1
+then
+    :
+else
+    _notrun "sar not installed"
+fi
+
+if which sadf >/dev/null 2>&1
+then
+    :
+else
+    _notrun "sadf not installed"
+fi
+
+# assume 9.0.6.anything is really the same as 9.0.6, etc
+#
+version=`sar -V 2>&1 | sed -n -e '/sysstat version /{
+s/.* //
+s/\([^.]*\.[^.]*\.[^.]*\)\..*/\1/
+p
+}'`
+if [ ! -f src/sa-sysstat-$version ]
+then
+    _notrun "no data file for sysstat version $version"
+fi
+
+rm -f $seq.out
+case "$version"
+in
+    9.0.6)
+	ln $seq.out.1 $seq.out || exit 1
+	;;
+    9.1.7)
+	ln $seq.out.2 $seq.out || exit 1
+	;;
+    10.0.1)
+	ln $seq.out.3 $seq.out || exit 1
+	;;
+    *)
+	_notrun "no qualified output for sysstat version $version"
+	;;
+esac
+
+if which sar2pcp >/dev/null 2>&1
+then
+    :
+else
+    _notrun "sar2pcp not installed"
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+sar2pcp src/sa-sysstat-$version $tmp
+
+# version 9.x output
+# 11:07:39        CPU     %user     %nice   %system   %iowait    %steal     %idle
+# 11:07:44        all      3.20      0.10      1.60      0.00      0.00     95.10
+#
+# version 10.x output
+# 04:50:52 PM     CPU     %user     %nice   %system   %iowait    %steal     %idle
+# 04:50:57 PM     all      0.31      0.00      0.31      0.00      0.00     99.38
+#
+sar -f src/sa-sysstat-$version -u \
+| tee -a $seq.full \
+| sed -n '/^[0-2][0-9]:/{
+s/^00\(:..:..\) PM/12\1/
+s/^01\(:..:..\) PM/13\1/
+s/^02\(:..:..\) PM/14\1/
+s/^03\(:..:..\) PM/15\1/
+s/^04\(:..:..\) PM/16\1/
+s/^05\(:..:..\) PM/17\1/
+s/^06\(:..:..\) PM/18\1/
+s/^07\(:..:..\) PM/19\1/
+s/^08\(:..:..\) PM/20\1/
+s/^09\(:..:..\) PM/21\1/
+s/^10\(:..:..\) PM/22\1/
+s/^11\(:..:..\) PM/23\1/
+s/^\(..:..:..\) AM/\1/
+p
+}' \
+| $PCP_AWK_PROG >$tmp.sar '
+NR == 1		{ next }
+		# percent to utilization
+		{ for (i = 2; i <= NF; i++) { $i = $i / 100 }
+		  print
+		}'
+
+echo "check user CPU time ..."
+pmval -f 8 -t 5 -a $tmp kernel.all.cpu.user \
+| sed -n '/^[0-2][0-9]:/{
+s/\.[0-9][0-9][0-9]//
+p
+}' >$tmp.pcp
+( echo ""; echo "kernel.all.cpu.user" ) >>$seq.full
+cat $tmp.pcp >>$seq.full
+paste $tmp.sar $tmp.pcp >$tmp.both
+$PCP_AWK_PROG <$tmp.both '
+{ if ($3-$NF > 0.000001 || $3-$NF < -0.000001) print "[",NR,"] mismatch:",$1,$3,$NF }'
+
+echo
+echo "check timestamps ..."
+$PCP_AWK_PROG <$tmp.both '
+$1 != $9	{ print "[",NR,"] mismatch:",$0 }'
+
+echo
+echo "check sys CPU time ..."
+# note sar's -u view of system is really sys+intr
+# ... saved by derived metrics!
+# also need to relax tolerance in comparison, 'cause sar seems to get
+# the arithmetic "not quite right" (tm)
+echo "system = kernel.all.cpu.sys + kernel.all.cpu.intr" >$tmp.config
+export PCP_DERIVED_CONFIG=$tmp.config
+pmval -f 8 -t 5 -a $tmp system \
+| sed -n '/^[0-2][0-9]:/{
+s/\.[0-9][0-9][0-9]//
+p
+}' >$tmp.pcp
+( echo ""; echo "system = kernel.all.cpu.sys + kernel.all.cpu.intr" ) >>$seq.full
+cat $tmp.pcp >>$seq.full
+paste $tmp.sar $tmp.pcp >$tmp.both
+$PCP_AWK_PROG <$tmp.both '
+{ if ($5-$NF > 0.0001 || $5-$NF < -0.0001) print "[",NR,"] mismatch:",$1,$5,$NF }'
+
+echo >>$seq.full
+# version 9.x output
+# 11:07:39          tps      rtps      wtps   bread/s   bwrtn/s
+# 11:07:44         0.00      0.00      0.00      0.00      0.00
+#
+# version 10.x output
+# 04:50:52 PM       tps      rtps      wtps   bread/s   bwrtn/s
+# 04:50:57 PM      0.80      0.00      0.80      0.00      6.40
+#
+sar -f src/sa-sysstat-$version -b \
+| tee -a $seq.full \
+| sed -n '/^[0-2][0-9]:/{
+s/^00\(:..:..\) PM/12\1/
+s/^01\(:..:..\) PM/13\1/
+s/^02\(:..:..\) PM/14\1/
+s/^03\(:..:..\) PM/15\1/
+s/^04\(:..:..\) PM/16\1/
+s/^05\(:..:..\) PM/17\1/
+s/^06\(:..:..\) PM/18\1/
+s/^07\(:..:..\) PM/19\1/
+s/^08\(:..:..\) PM/20\1/
+s/^09\(:..:..\) PM/21\1/
+s/^10\(:..:..\) PM/22\1/
+s/^11\(:..:..\) PM/23\1/
+s/^\(..:..:..\) AM/\1/
+p
+}' \
+| $PCP_AWK_PROG >$tmp.sar '
+NR == 1		{ next }
+		# blocks to Kbytes
+		{ for (i = 5; i <= NF; i++) { $i = $i /2 }
+		  print
+		}'
+
+echo
+echo "check user disk iops ..."
+# units are iops, so within 0.01 iop is ok
+pmval -f 8 -t 5 -a $tmp disk.all.total \
+| sed -n '/^[0-2][0-9]:/{
+s/\.[0-9][0-9][0-9]//
+p
+}' >$tmp.pcp
+( echo ""; echo "disk.all.total" ) >>$seq.full
+cat $tmp.pcp >>$seq.full
+paste $tmp.sar $tmp.pcp >$tmp.both
+$PCP_AWK_PROG <$tmp.both '
+{ if ($2-$NF > 0.01 || $2-$NF < -0.01) print "[",NR,"] mismatch:",$1,$2,$NF }'
+
+echo
+echo "check user disk write thruput ..."
+# units are iops, so within 0.01 iop is ok
+pmval -f 8 -t 5 -a $tmp disk.all.write_bytes \
+| sed -n '/^[0-2][0-9]:/{
+s/\.[0-9][0-9][0-9]//
+p
+}' >$tmp.pcp
+( echo ""; echo "disk.all.write_bytes" ) >>$seq.full
+cat $tmp.pcp >>$seq.full
+paste $tmp.sar $tmp.pcp >$tmp.both
+$PCP_AWK_PROG <$tmp.both '
+{ if ($6-$NF > 0.01 || $6-$NF < -0.01) print "[",NR,"] mismatch:",$1,$6,$NF }'
+
+echo
+echo "full dump ..."
+pmdumplog -a -z $tmp
+
+# success, all done
+exit

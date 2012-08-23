@@ -1,0 +1,219 @@
+#! /bin/sh 
+# PCP QA Test No. 252
+# pmlogger with its new formats for -s and -T stopping conditions
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+pmdumplog='pmdumplog'
+pmlogger='pmlogger'
+SECS_TOL=2	# number of seconds tolerance
+BYTES_TOL=1000	# number of bytes tolerance
+#debug=1	# give extra debugging info
+
+#
+_clean_archive()
+{
+rm -f $tmp.log $tmp.0 $tmp.index $tmp.meta
+}
+
+# Is given value within tolerance of expected value
+_tolerance()
+{
+  expected=$1
+  given=$2
+  tolerance=$3
+  upper_limit=`expr $expected + $tolerance`
+  [ $expected -le $given -a $given -le $upper_limit ]
+}
+
+_num_recs()
+{
+  num_recs=`$pmdumplog $tmp | egrep -c '^[0-9][0-9]:[0-9][0-9]:'`
+  # subtract 1 for the preamble
+  num_recs=`expr $num_recs - 1`
+  [ $debug ] && echo "found $num_recs samples after the preamble"
+}
+
+_test_sample_size()
+{
+  size_arg=$1
+  $pmlogger -s $size_arg -c $tmp.config -l $tmp.log $tmp 
+
+  _num_recs
+  echo "Expected log sample size: $size_arg"
+  echo "Actual log sample size:   $num_recs"
+ _clean_archive
+}
+
+_test_file_size_old()
+{
+  size_arg=$1
+  num_bytes=$2	# bytes version of size_arg
+  $pmlogger -s $size_arg -c $tmp.config -l $tmp.log $tmp 
+  if [ -f $tmp.0 ]
+  then
+    actual_size=`ls -l $tmp.0 | $PCP_AWK_PROG ' {print $5} '`
+  else
+    actual_size=-1
+  fi
+  echo "Expected log size of approx: $size_arg"
+  [ $debug ] && echo "Actual log size:             $actual_size bytes"
+  if _tolerance $num_bytes $actual_size $BYTES_TOL
+  then
+    echo "Log size is within tolerance"
+  else
+    echo "Log size is outside tolerance ($actual_size bytes)"
+  fi
+ _clean_archive
+}
+
+# Find out number of records, n,  for given size
+# Then make sure for (n-1) records that the size is smaller
+_test_file_size()
+{
+  size_arg=$1
+  num_bytes=$2	# bytes version of size_arg
+  $pmlogger -s $size_arg -c $tmp.config -l $tmp.log $tmp 
+  if [ -f $tmp.0 ]
+  then
+    bigger_size=`ls -l $tmp.0 | $PCP_AWK_PROG ' {print $5} '`
+  else
+    bigger_size=-1
+  fi
+  _num_recs
+  num_recs=`expr $num_recs - 1`
+  if [ $num_recs -gt 0 ]
+  then
+    _clean_archive
+    $pmlogger -s $num_recs -c $tmp.config -l $tmp.log $tmp 
+    if [ -f $tmp.0 ]
+    then
+      smaller_size=`ls -l $tmp.0 | $PCP_AWK_PROG ' {print $5} '`
+    else
+      smaller_size=-1
+    fi
+  else
+    smaller_size=-1
+  fi
+  [ $debug ] && echo "Range: $smaller_size .. $bigger_size"
+  if [ $smaller_size -le $num_bytes -a $num_bytes -le $bigger_size ]
+  then
+    echo "Log size for $size_arg is correct"
+  else
+    echo "$num_bytes is not within range $smaller_size - $bigger_size"
+  fi
+  _clean_archive
+}
+
+_time_me ()
+{
+    # return time in seconds
+    #
+    # /usr/bin/time IS bloody important - dont port-sh it. EVER!
+    /usr/bin/time $* 2>&1 >/dev/null | \
+	if [ $PCP_PLATFORM = linux ]
+	then
+	    # 0.00user 0.00system 0:00.00elapsed 0%CPU (0avgtext+0avgdata 2752maxresident)k
+	    tr ' ' "\n" | $PCP_AWK_PROG '/elapsed$/ { sub("elapsed", "", $1); 
+			                               split ($1,tt,"[:.]");
+			                               print (tt[1]*60)+tt[2];}'
+	elif [ $PCP_PLATFORM = darwin ]
+	then
+	    #         0.00 real         0.00 user         0.00 sys
+	    $PCP_AWK_PROG '{print $1}' | sed -e 's/\..*//'
+	else 
+	    # real        0.0
+	    # user        0.0
+	    # sys         0.0
+	    $PCP_AWK_PROG '/^real/ {print $2}' | sed -e 's/\..*//'
+	fi
+}
+
+# Note: size arg should be given in secs for comparison with /usr/bin/time
+_test_time_size()
+{
+  size_arg=$1
+  num_secs=$2	# secs version of size_arg
+  time=`_time_me $pmlogger -s $size_arg -c $tmp.config -l $tmp.log $tmp`
+  [ -z "$time" ] && time=-1
+  echo "Expected time size of: $size_arg"
+  [ $debug ] && echo "Actual time : $time"
+  if _tolerance $num_secs $time $SECS_TOL
+  then
+    echo "Log time is within tolerance"
+  else
+    echo "Log time is outside tolerance - $time secs"
+  fi
+ _clean_archive
+}
+
+
+
+# Note: size arg should be given in secs for comparison with /usr/bin/time
+_test_time_end()
+{
+  size_arg=$1
+  num_secs=$2	# secs version of size_arg
+  time=`_time_me $pmlogger -T $size_arg -c $tmp.config -l $tmp.log $tmp`
+  [ -z "$time" ] && time=-1
+  echo "Expected time size of: $size_arg"
+  [ $debug ] && echo "Actual time : $time"
+  if _tolerance $num_secs $time $SECS_TOL
+  then
+    echo "Log time is within tolerance"
+  else
+    echo "Log time is outside tolerance - $time secs"
+  fi
+ _clean_archive
+}
+
+# real QA test starts here
+
+
+# Create a simple configuration file for testing
+cat <<EOF >$tmp.config
+# pmlogger(1) configuration file for doing QA tests
+#
+log mandatory on 100 msec {
+    sample.control
+    sample.milliseconds
+    sample.load
+    sample.colour
+    sample.bin
+    sample.bucket
+    sample.drift
+    sample.step
+    sample.write_me
+    sample.lights
+    sample.magnitude
+    sample.pdu
+    sample.recv_pdu
+    sample.xmit_pdu
+    sample.noinst
+}
+EOF
+
+# Test out -s
+_test_file_size 4000bytes 4000
+_test_file_size 4K 4096
+_test_file_size 4194B 4194
+_test_sample_size 2
+_test_time_size 3secs 3
+
+# Test out -T
+_test_time_end 3secs 3
+
+# success, all done
+status=0
+exit

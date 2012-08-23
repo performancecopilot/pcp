@@ -1,0 +1,110 @@
+#! /bin/sh
+# PCP QA Test No. 128
+# Check NFS Server and Client stats (v2 and v3)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+then
+    _notrun "no nfs metrics for $PCP_PLATFORM"
+fi
+
+echo "QA output created by $seq"
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
+
+get_pminfo()
+{
+    perl -e '
+        open STATS, "pminfo -f '$1' |" || die "pminfo: $!";
+        while (<STATS>) {
+            if (m/.*"(\S+)"] value (\d+)/) {
+                printf("'$2'_%s %d\n", $1, $2);
+            }
+        }
+        close STATS;
+    ' | LC_COLLATE=POSIX sort
+}
+
+get_nfsstat()
+{
+    perl -e '
+    	$prefix = "";
+	open STATS, "nfsstat -n |" || die "nfsstat: $!";
+	while (<STATS>) {
+	    if (m/server nfs v2/i)          { $prefix = "nfs2_server_reqs_"; }
+	    elsif (m/server nfs v3/i)       { $prefix = "nfs3_server_reqs_"; }
+	    elsif (m/client nfs v2/i)       { $prefix = "nfs2_client_reqs_"; }
+	    elsif (m/client nfs v3/i)       { $prefix = "nfs3_client_reqs_"; }
+	    # NFSv4 unsupported.  Reset prefix to "" to ensure
+	    # that NFSv4 stats are not incorrectly attributed to
+	    # another NFS version.
+	    elsif (m/client nfs v4/i)       { $prefix = ""; }
+	    elsif (m/server nfs v4/i)	    { $prefix = ""; }
+    	    elsif ($prefix == "")	    { next; }
+	    elsif (m/((\d+)\s+\d+%)+/g) {
+		@values = split(/\s+/);
+		#print "found - @values, @instances\n";
+		for ($i = 0; $i <= $#instances; $i++) {
+		    print $prefix, $instances[$i], " ", $values[$i*2], "\n";
+		}
+	    }
+	    elsif (m/((\S+)\s+)+/g) {
+		#print "instances - $_\n";
+		@instances = split(/\s+/);
+	    }
+	}
+	close STATS;
+    ' | LC_COLLATE=POSIX sort
+}
+
+# real QA test starts here
+
+# if we can find a nfs loop-back mount, go hammer on it for a while
+#
+mnt=''
+[ -d /hosts/localhost/usr ] && mnt=/hosts/localhost/usr
+
+cat > $tmp.workload << EOF
+ls -R /$mnt >/dev/null 2>/dev/null &
+KILL_PID=\$!
+sleep 3
+$signal -s KILL \$KILL_PID >/dev/null 2>&1
+EOF
+chmod u+x $tmp.workload
+
+$tmp.workload >/dev/null 2>&1
+sleep 2
+
+rm -f $tmp.info $tmp.stat $tmp.join $seq.full
+
+echo | tee -a $seq.full
+echo "fetching nfsstat values..." | tee -a $seq.full
+get_nfsstat 2>$tmp.err | tee -a $seq.full >$tmp.stat 
+( echo "stderr from get_nfsstat ..."; cat $tmp.err ) >>$seq.full
+
+echo | tee -a $seq.full
+echo "fetching pminfo values..." | tee -a $seq.full
+get_pminfo nfs.server.reqs nfs2_server_reqs  | tee -a $seq.full >$tmp.info
+get_pminfo nfs3.server.reqs nfs3_server_reqs | tee -a $seq.full >>$tmp.info
+get_pminfo nfs.client.reqs nfs2_client_reqs  | tee -a $seq.full >>$tmp.info
+get_pminfo nfs3.client.reqs nfs3_client_reqs | tee -a $seq.full >>$tmp.info
+LC_COLLATE=POSIX sort -d < $tmp.info > $tmp.info2
+
+echo | tee -a $seq.full
+echo "comparing all values... (details in $seq.full)" | tee -a $seq.full
+join $tmp.info2 $tmp.stat | while read metric nfsvalue pmvalue
+do
+	_within_tolerance $metric $nfsvalue $pmvalue 2% -v >>$seq.full
+	[ $? -eq 1 ] && echo failed cross check on $metric: $nfsvalue $pmvalue
+done
+echo done

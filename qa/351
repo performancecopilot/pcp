@@ -1,0 +1,40 @@
+#!/bin/sh
+# PCP QA Test No. 351
+#
+# used to segv on the metric with the bad operand
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.config
+sample.long.nine = sample.long.ten - sample.long.one
+sample.long.ninety_nine = sample.long.hundred - sample.long.one
+# this is the bad one!
+sample.long.lots = sample.million - sample.long.hundred
+End-of-File
+
+unset PCP_DERIVED_CONFIG
+
+# real QA test starts here
+
+pminfo -f sample.long
+
+echo
+echo "Now with the derived metrics ..."
+pminfo -c $tmp.config -f sample.long
+
+# success, all done
+exit

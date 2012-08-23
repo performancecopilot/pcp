@@ -1,0 +1,213 @@
+#! /bin/sh
+# PCP QA Test No. 603
+# PCP 2.2 duplicate of 349 (pmdatrace, pmtrace, and libpcp_trace tests)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    # ptools problem ... cannot revert to $seq.out, so keep irix version as
+    # synonym
+    #
+    ln $seq.out.irix $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+
+_cleanup()
+{
+    cd $here
+    if [ -n "$savedtracehost" ]
+    then
+	PCP_TRACE_HOST=$savedtracehost; export PCP_TRACE_HOST
+    fi
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+_my_filter_pmda_install()
+{
+    _filter_pmda_install | sed -e "s/$qahost/HOSTNAME/g"
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+if [ -n "$PCP_TRACE_HOST" ]
+then
+    savedtracehost=$PCP_TRACE_HOST; unset PCP_TRACE_HOST
+fi
+
+qahost=`_get_fqdn`
+otherhost=`./getpmcdhosts -L -n 1 2>$tmp.out`
+if [ -z "$otherhost" ]
+then
+    cat $tmp.out >$seq.notrun
+    exit
+fi
+qanet=`_host_to_ipaddr $otherhost | sed -e 's/[0-9][0-9]*$/*/'`
+
+rm -f $seq.full
+echo "qahost=$qahost" >$seq.full
+echo "qanet=$qanet" >>$seq.full
+echo "otherhost=$otherhost" >>$seq.full
+
+cat > $tmp.conf1 << EOF
+n
+60
+10
+4323
+y
+y
+D
+$qahost
+
+EOF
+
+cat > $tmp.conf2 << EOF
+n
+60
+10
+4323
+y
+y
+D
+$qanet
+A
+$qahost
+1
+
+EOF
+
+pminfo trace >/dev/null 2>&1
+remove=$?
+echo "remove=$remove" >>$seq.full
+
+# real QA test starts here
+cd $PCP_PMDAS_DIR/trace
+
+echo >>$here/$seq.full
+echo "=== first local trace PMDA config ===" >>$here/$seq.full
+cat $tmp.conf1 >>$here/$seq.full
+echo "===" >>$here/$seq.full
+
+$sudo ./Install -R / < $tmp.conf1 2>&1 \
+| tee -a $here/$seq.full \
+| _my_filter_pmda_install
+_wait_for_pmcd
+grep trace $PCP_PMCDCONF_PATH >>$here/$seq.full
+
+echo '=== Attempting bad local access ==='
+echo "=== Attempting bad local access ===" >>$here/$seq.full
+# Error message mapping is for Linux
+#
+pmtrace -h $qahost $qahost 2>&1 \
+| tee -a $here/$seq.full \
+| sed \
+    -e "s/Connection reset by peer/Cannot connect to PMDA - permission denied/" \
+    -e "s/Connection refused/Cannot connect to PMDA - permission denied/"
+if [ -f $PCP_LOG_DIR/pmcd/trace.log ]
+then
+    cat $PCP_LOG_DIR/pmcd/trace.log >>$here/$seq.full
+elif [ -f $PCP_LOG_DIR/trace.log ]
+then
+    cat $PCP_LOG_DIR/trace.log >>$here/$seq.full
+else
+    echo "Arrggh! Cannot find log for trace PMDA!" >>$here/$seq.full
+fi
+
+echo
+
+echo >>$here/$seq.full
+echo "=== second local trace PMDA config ===" >>$here/$seq.full
+cat $tmp.conf2 >>$here/$seq.full
+echo "===" >>$here/$seq.full
+
+$sudo ./Install -R / < $tmp.conf2 2>&1 \
+| tee -a $here/$seq.full \
+| _my_filter_pmda_install
+_wait_for_pmcd
+grep trace $PCP_PMCDCONF_PATH >>$here/$seq.full
+
+echo '=== Building demo program (app2) ==='
+cd $PCP_DEMOS_DIR/trace
+$sudo make app2 >$tmp.make 2>&1
+if [ $? -ne 0 ]
+then
+    echo "trace app2 make failed.  Here is the make output ..."
+    cat $tmp.make
+    exit 1
+fi
+
+export PCP_TRACE_HOST=$qahost
+
+echo '=== Running demo program (app2) ==='
+# use app2 process to bump the number of connections.
+( ( $PCP_DEMOS_DIR/trace/app2 2>&1 >$tmp.out & ) )
+sleep 3
+
+echo '=== Check access limits ==='
+echo "=== Check access limits ===" >>$here/$seq.full
+# Error message mapping is for Linux
+#
+pmtrace -h $qahost 'limit exceeded' 2>&1 \
+| tee -a $here/$seq.full \
+| sed \
+    -e "s/Connection reset by peer/Cannot connect to PMDA - connection limit reached/"
+
+$signal -a -s KILL app2
+wait
+echo "=== app2 ===" >>$here/$seq.full
+cat $tmp.out >>$here/$seq.full
+
+unset PCP_TRACE_HOST
+
+echo '=== Attempting bad remote access ==='
+echo "=== Attempting bad remote access ===" >>$here/$seq.full
+# Error message mapping is for Linux
+#
+ssh -q pcpqa@$otherhost "sh -c 'PCP_TRACE_HOST=$qahost pmtrace -v 1 eek'" 2>&1 \
+| tee -a $here/$seq.full \
+| sed \
+    -e "s/Interrupted function call/Cannot connect to PMDA - permission denied/" \
+    -e "s/Connection refused/Cannot connect to PMDA - permission denied/"
+if [ -f $PCP_LOG_DIR/pmcd/trace.log ]
+then
+    cat $PCP_LOG_DIR/pmcd/trace.log >>$here/$seq.full
+elif [ -f $PCP_LOG_DIR/trace.log ]
+then
+    cat $PCP_LOG_DIR/trace.log >>$here/$seq.full
+else
+    echo "Arrggh! Cannot find log for trace PMDA!" >>$here/$seq.full
+fi
+
+echo
+
+# Reinstall defaults
+echo >>$here/$seq.full
+echo "=== Reinstall default config ===" >>$here/$seq.full
+cd $PCP_PMDAS_DIR/trace
+$sudo ./Install -R / < /dev/null 2>&1 \
+| tee -a $here/$seq.full \
+| _my_filter_pmda_install
+_wait_for_pmcd
+cd $here
+
+[ $remove -eq 1 ] && $sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
+
+# success, all done
+status=0
+exit

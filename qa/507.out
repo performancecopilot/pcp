@@ -1,0 +1,38 @@
+QA output created by 507
+pmlogger status=0
+status=0
+status=0
+status=0
+status=0
+=== Comparing noargs and local
+=== Comparing noargs and args
+=== Checking for missing archive metrics
+=== Checking bug 640234
+pminfo(1) output:
+
+pmcd.pmlogger.pmcd_host
+    inst [4139010 or "4139010"] value "wobbly.melbourne.sgi.com"
+    inst [4255198 or "4255198"] value "wobbly.melbourne.sgi.com"
+    inst [0 or "primary"] value "wobbly.melbourne.sgi.com"
+
+pmcd.pmlogger.archive
+    inst [4139010 or "4139010"] value "/tmp/foo"
+
+pmcd.pmlogger.port
+    inst [4139010 or "4139010"] value 4331
+
+pmcd.pmlogger.host
+    inst [4139010 or "4139010"] value "wobbly.melbourne.sgi.com"
+
+pcp(1) output:
+Performance Co-Pilot configuration on wobbly:
+
+  archive: src/pcpcmd
+ platform: IRIX wobbly 6.5 05190003 IP22
+ hardware: 1 R4400 cpu, 2 disks, 64MB RAM
+ timezone: EST-11EST-10,87/2:00,297/2:00
+     pmcd: Version 2.1 beta-1, 8 agents, 3 clients
+     pmda: irix pmcd proc cisco trace summary sample sampledso
+ pmlogger: primary logger: wobbly/19981006.00.35
+           wobbly.melbourne.sgi.com: /tmp/foo
+     pmie: 0: 0

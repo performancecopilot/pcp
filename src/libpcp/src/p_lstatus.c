@@ -79,8 +79,13 @@ int
 __pmDecodeLogStatus(__pmPDU *pdubuf, __pmLoggerStatus **status)
 {
     logstatus_t	*pp;
+    char	*pduend;
 
     pp = (logstatus_t *)pdubuf;
+    pduend = (char *)pdubuf + pp->hdr.len;
+
+    if ((pduend - (char*)pp) != sizeof(logstatus_t))
+	return PM_ERR_IPC;
 
     /* Conditional convertion from host to network byteorder HAVE to be
      * unconditional if one cares about endianess compatibiltity at all!

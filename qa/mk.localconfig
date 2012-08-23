@@ -1,0 +1,55 @@
+#! /bin/sh
+#
+# re-create localconfig files (platform, versions) if need be
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# generic initialization
+. ./common.rc
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+eval `./mk.pcpversion $PCP_VERSION`
+
+if which rpm >/dev/null 2>&1
+then
+    PCP_PRO_VER=0
+    rpm -q pcp-pro >/dev/null 2>&1
+    [ $? = 0 ] && {
+	PCP_PRO_VER=`rpm -q pcp-pro \
+		| sed -e 's/pcp-pro-//' \
+                              -e 's/\.//g' \
+                              -e 's/-.*//' \
+                              -e 's/^\(..\)\(.\)$/\10\2/'`
+	}
+else
+    PCP_PRO_VER=$PCP_VER
+fi
+
+cat <<End-of-File >$tmp.out
+PCP_PLATFORM=$PCP_PLATFORM
+PCP_VER=$PCP_VER
+PCP_EOE_VER=$PCP_VER
+PCP_PRO_VER=$PCP_PRO_VER
+End-of-File
+
+write_localconfig()
+{
+    awk -F= '{ print "#define",$1,$2 }' < $tmp.out > src/localconfig.h
+    mv $tmp.out localconfig
+}
+
+if [ ! -f localconfig ]
+then
+    echo "Installing \"localconfig\""
+    write_localconfig
+elif diff $tmp.out localconfig >/dev/null
+then
+    :
+else
+    echo "Updating \"localconfig\""
+    rm -f localconfig
+    write_localconfig
+fi

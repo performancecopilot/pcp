@@ -1,0 +1,137 @@
+#!/bin/sh
+# PCP QA Test No. 492
+# pmlogrewrite error cases
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if which pmlogrewrite >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun pmlogrewrite not installed
+fi
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g"
+}
+
+_filter_usage()
+{
+    sed \
+	-e '/illegal option/{
+s/illegal/invalid/
+s/.$/'"'&'"'/
+}' \
+	-e '/invalid option/s/[^'"'"']$/'"'&'"'/'
+}
+
+
+_cnt_logrecs()
+{
+    if [ ! -f $1.0 ]
+    then
+	echo no file
+    else
+	pmdumplog $1 2>/dev/null | grep '^[0-9]' | wc -l | sed -e 's/ //g'
+    fi
+}
+
+# real QA test starts here
+echo "=== usage cases ==="
+pmlogrewrite -x in out 2>&1 | _filter_usage
+echo
+pmlogrewrite in out foo
+echo
+pmlogrewrite -c no.such.file in out
+echo
+pmlogrewrite -c /dev/tty in out
+echo
+touch $tmp.forbidden
+chmod 0 $tmp.forbidden
+pmlogrewrite -c $tmp.forbidden src/rattle $tmp.new 2>&1 | _filter
+rm -f $tmp.new.* $tmp.forbidden
+echo
+mkdir $tmp.forbiddendir
+chmod 0 $tmp.forbiddendir
+pmlogrewrite -c $tmp.forbiddendir in out 2>&1 | _filter
+echo
+pmlogrewrite -c $tmp.forbiddendir/blah in out 2>&1 | _filter
+chmod 755 $tmp.forbiddendir
+rm -rf $tmp.forbiddendir
+echo
+mkdir $tmp.configdir
+touch $tmp.configdir/forbidden
+chmod 0 $tmp.configdir/forbidden
+pmlogrewrite -v -c $tmp.configdir src/rattle $tmp.new 2>&1 | _filter
+echo
+ln -s $tmp.configdir/forbidden $tmp.link
+pmlogrewrite -v -c $tmp.link src/rattle $tmp.new 2>&1 | _filter
+rm -rf $tmp.config $tmp.forbidden
+echo
+rm -f $tmp.link
+ln -s $tmp.configdir $tmp.link
+pmlogrewrite -v -c $tmp.link src/rattle $tmp.new 2>&1 | _filter
+rm -rf $tmp.configdir $tmp.link
+
+echo
+echo "=== truncated archive ==="
+pmlogrewrite src/ok-truncbin $tmp.new 2>&1 | _filter
+echo "input records: `_cnt_logrecs src/ok-truncbin`"
+echo "output records: `_cnt_logrecs $tmp.new`"
+
+echo
+echo "=== truncated archive -d ==="
+rm -f $tmp.new.*
+pmlogrewrite -d src/ok-truncbin $tmp.new 2>&1 | _filter
+echo "input records: `_cnt_logrecs src/ok-truncbin`"
+echo "output records: `_cnt_logrecs $tmp.new`"
+
+echo
+echo "===  bad label ==="
+rm -f $tmp.new.*
+pmlogrewrite -d src/badlen-8 $tmp.new 2>&1 | _filter
+echo "input records: `_cnt_logrecs src/badlen-8`"
+echo "output records: `_cnt_logrecs $tmp.new`"
+
+echo
+echo "=== truncated metadata ==="
+rm -f $tmp.new.*
+pmlogrewrite -d src/badlen-9 $tmp.new 2>&1 | _filter
+echo "input records: `_cnt_logrecs src/badlen-9`"
+echo "output records: `_cnt_logrecs $tmp.new`"
+
+echo
+echo "===  bad version ==="
+rm -f $tmp.new.*
+pmlogrewrite -d src/err_v1 $tmp.new 2>&1 | _filter
+echo "input records: `_cnt_logrecs src/err_v1`"
+echo "output records: `_cnt_logrecs $tmp.new`"
+
+rm -f $tmp.new.*
+
+# success, all done
+exit

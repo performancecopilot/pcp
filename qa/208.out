@@ -1,0 +1,253 @@
+QA output created by 208
+=== PMNS_LOCAL ===
+Name space load: NNN msec
+pmLookupName() returns 1
+sample.secret: id[0] = 29.*.*
+
+=== metric 0 === name: sample.secret pmid 29.*.*
+pmNameID() returns -12358 (Unknown or illegal metric identifier)
+pmNameAll() returns -12358 (Unknown or illegal metric identifier)
+pmGetChildren() returns 0
+pmGetChildrenStatus() returns 0
+Name space load: NNN msec
+pmLookupName() returns 1
+sample.secret.bar: id[0] = 29.*.*
+
+=== metric 0 === name: sample.secret.bar pmid 29.*.*
+pmNameID() returns -12358 (Unknown or illegal metric identifier)
+pmNameAll() returns -12358 (Unknown or illegal metric identifier)
+pmGetChildren() returns -12357 (Unknown metric name)
+pmGetChildrenStatus() returns -12357 (Unknown metric name)
+Name space load: NNN msec
+pmLookupName() returns 1
+sample.secret.foo.one: id[0] = 29.*.*
+
+=== metric 0 === name: sample.secret.foo.one pmid 29.*.*
+pmNameID() returns -12358 (Unknown or illegal metric identifier)
+pmNameAll() returns -12358 (Unknown or illegal metric identifier)
+pmGetChildren() returns -12357 (Unknown metric name)
+pmGetChildrenStatus() returns -12357 (Unknown metric name)
+
+=== PMNS_REMOTE (daemon PMDA) ===
+pmLookupName() returns -12357 (Unknown metric name)
+sample.secret: id[0] = PM_ID_NULL
+
+=== metric 0 === name: sample.secret pmid PM_ID_NULL
+pmGetChildren() returns 2
+pmGetChildrenStatus() returns 2
+children of "sample.secret" ...
+    bar                 <s = 0>
+    foo                 <s = 1>
+
+Real-time result ...
+pmResult ... numpmid: 1
+  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+pmLookupName() returns 1
+sample.secret.bar: id[0] = 29.0.1000
+
+=== metric 0 === name: sample.secret.bar pmid 29.0.1000
+pmNameID() returns 0
+pmid: 29.0.1000  name: sample.secret.bar
+pmNameAll() returns 1
+pmid: 29.0.1000  name: sample.secret.bar
+pmLookupDesc() returns 0
+
+Real-time result ...
+pmResult ... numpmid: 1
+  29.0.1000 (sample.secret.bar): numval: 1 valfmt: 1 vlist[]:
+   value "foo"
+pmLookupName() returns -12357 (Unknown metric name)
+sample.secret.foo: id[0] = PM_ID_NULL
+
+=== metric 0 === name: sample.secret.foo pmid PM_ID_NULL
+pmGetChildren() returns 3
+pmGetChildrenStatus() returns 3
+children of "sample.secret.foo" ...
+    bar                 <s = 1>
+    one                 <s = 0>
+    two                 <s = 0>
+
+Real-time result ...
+pmResult ... numpmid: 1
+  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+pmLookupName() returns 1
+sample.secret.foo.one: id[0] = 29.0.1001
+
+=== metric 0 === name: sample.secret.foo.one pmid 29.0.1001
+pmNameID() returns 0
+pmid: 29.0.1001  name: sample.secret.foo.one
+pmNameAll() returns 1
+pmid: 29.0.1001  name: sample.secret.foo.one
+pmLookupDesc() returns 0
+
+Real-time result ...
+pmResult ... numpmid: 1
+  29.0.1001 (sample.secret.foo.one): numval: 1 valfmt: 0 vlist[]:
+   value 1
+pmLookupName() returns -12357 (Unknown metric name)
+sample.secret.foo.bar: id[0] = PM_ID_NULL
+
+=== metric 0 === name: sample.secret.foo.bar pmid PM_ID_NULL
+pmGetChildren() returns 4
+pmGetChildrenStatus() returns 4
+children of "sample.secret.foo.bar" ...
+    four                <s = 0>
+    grunt               <s = 1>
+    max                 <s = 1>
+    three               <s = 0>
+
+Real-time result ...
+pmResult ... numpmid: 1
+  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+pmLookupName() returns -12357 (Unknown metric name)
+sample.secret.foo.bar.grunt: id[0] = PM_ID_NULL
+
+=== metric 0 === name: sample.secret.foo.bar.grunt pmid PM_ID_NULL
+pmGetChildren() returns 2
+pmGetChildrenStatus() returns 2
+children of "sample.secret.foo.bar.grunt" ...
+    five                <s = 0>
+    snort               <s = 1>
+
+Real-time result ...
+pmResult ... numpmid: 1
+  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+pmLookupName() returns -12357 (Unknown metric name)
+sample.secret.foo.bar.grunt.snort: id[0] = PM_ID_NULL
+
+=== metric 0 === name: sample.secret.foo.bar.grunt.snort pmid PM_ID_NULL
+pmGetChildren() returns 2
+pmGetChildrenStatus() returns 2
+children of "sample.secret.foo.bar.grunt.snort" ...
+    huff                <s = 1>
+    six                 <s = 0>
+
+Real-time result ...
+pmResult ... numpmid: 1
+  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+pmLookupName() returns 1
+sample.secret.foo.bar.grunt.snort.huff.puff.seven: id[0] = 29.0.1007
+
+=== metric 0 === name: sample.secret.foo.bar.grunt.snort.huff.puff.seven pmid 29.0.1007
+pmNameID() returns 0
+pmid: 29.0.1007  name: sample.secret.foo.bar.grunt.snort.huff.puff.seven
+pmNameAll() returns 1
+pmid: 29.0.1007  name: sample.secret.foo.bar.grunt.snort.huff.puff.seven
+pmLookupDesc() returns 0
+
+Real-time result ...
+pmResult ... numpmid: 1
+  29.0.1007 (sample.secret.foo.bar.grunt.snort.huff.puff.seven): numval: 1 valfmt: 0 vlist[]:
+   value 7
+
+=== PMNS_REMOTE (DSO PMDA) ===
+pmLookupName() returns -12357 (Unknown metric name)
+sampledso.secret: id[0] = PM_ID_NULL
+
+=== metric 0 === name: sampledso.secret pmid PM_ID_NULL
+pmGetChildren() returns 2
+pmGetChildrenStatus() returns 2
+children of "sampledso.secret" ...
+    bar                 <s = 0>
+    foo                 <s = 1>
+
+Real-time result ...
+pmResult ... numpmid: 1
+  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+pmLookupName() returns 1
+sampledso.secret.bar: id[0] = 30.0.1000
+
+=== metric 0 === name: sampledso.secret.bar pmid 30.0.1000
+pmNameID() returns 0
+pmid: 30.0.1000  name: sampledso.secret.bar
+pmNameAll() returns 1
+pmid: 30.0.1000  name: sampledso.secret.bar
+pmLookupDesc() returns 0
+
+Real-time result ...
+pmResult ... numpmid: 1
+  30.0.1000 (sampledso.secret.bar): numval: 1 valfmt: 1 vlist[]:
+   value "foo"
+pmLookupName() returns -12357 (Unknown metric name)
+sampledso.secret.foo: id[0] = PM_ID_NULL
+
+=== metric 0 === name: sampledso.secret.foo pmid PM_ID_NULL
+pmGetChildren() returns 3
+pmGetChildrenStatus() returns 3
+children of "sampledso.secret.foo" ...
+    bar                 <s = 1>
+    one                 <s = 0>
+    two                 <s = 0>
+
+Real-time result ...
+pmResult ... numpmid: 1
+  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+pmLookupName() returns 1
+sampledso.secret.foo.one: id[0] = 30.0.1001
+
+=== metric 0 === name: sampledso.secret.foo.one pmid 30.0.1001
+pmNameID() returns 0
+pmid: 30.0.1001  name: sampledso.secret.foo.one
+pmNameAll() returns 1
+pmid: 30.0.1001  name: sampledso.secret.foo.one
+pmLookupDesc() returns 0
+
+Real-time result ...
+pmResult ... numpmid: 1
+  30.0.1001 (sampledso.secret.foo.one): numval: 1 valfmt: 0 vlist[]:
+   value 1
+pmLookupName() returns -12357 (Unknown metric name)
+sampledso.secret.foo.bar: id[0] = PM_ID_NULL
+
+=== metric 0 === name: sampledso.secret.foo.bar pmid PM_ID_NULL
+pmGetChildren() returns 4
+pmGetChildrenStatus() returns 4
+children of "sampledso.secret.foo.bar" ...
+    four                <s = 0>
+    grunt               <s = 1>
+    max                 <s = 1>
+    three               <s = 0>
+
+Real-time result ...
+pmResult ... numpmid: 1
+  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+pmLookupName() returns -12357 (Unknown metric name)
+sampledso.secret.foo.bar.grunt: id[0] = PM_ID_NULL
+
+=== metric 0 === name: sampledso.secret.foo.bar.grunt pmid PM_ID_NULL
+pmGetChildren() returns 2
+pmGetChildrenStatus() returns 2
+children of "sampledso.secret.foo.bar.grunt" ...
+    five                <s = 0>
+    snort               <s = 1>
+
+Real-time result ...
+pmResult ... numpmid: 1
+  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+pmLookupName() returns -12357 (Unknown metric name)
+sampledso.secret.foo.bar.grunt.snort: id[0] = PM_ID_NULL
+
+=== metric 0 === name: sampledso.secret.foo.bar.grunt.snort pmid PM_ID_NULL
+pmGetChildren() returns 2
+pmGetChildrenStatus() returns 2
+children of "sampledso.secret.foo.bar.grunt.snort" ...
+    huff                <s = 1>
+    six                 <s = 0>
+
+Real-time result ...
+pmResult ... numpmid: 1
+  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+pmLookupName() returns 1
+sampledso.secret.foo.bar.grunt.snort.huff.puff.seven: id[0] = 30.0.1007
+
+=== metric 0 === name: sampledso.secret.foo.bar.grunt.snort.huff.puff.seven pmid 30.0.1007
+pmNameID() returns 0
+pmid: 30.0.1007  name: sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
+pmNameAll() returns 1
+pmid: 30.0.1007  name: sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
+pmLookupDesc() returns 0
+
+Real-time result ...
+pmResult ... numpmid: 1
+  30.0.1007 (sampledso.secret.foo.bar.grunt.snort.huff.puff.seven): numval: 1 valfmt: 0 vlist[]:
+   value 7

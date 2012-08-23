@@ -1,0 +1,130 @@
+#! /bin/sh
+# PCP QA Test No. 024
+# juggling with contexts, including the default one
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+PMCD_CONNECT_TIMEOUT=120
+PMCD_REQUEST_TIMEOUT=120
+export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
+
+_filter()
+{
+    # unfortunatley, -D16 maps to an internal libirixpmda debug flag
+    # for nodes et al
+    # filter for __pmDecodeXtendError diag, added in rev 2.23 of
+    # libpcp/src/p_error.c ... not always present
+    #
+    sed \
+	-e '/using .* kmem interface/d' \
+	-e 's/localhost/<&>/' \
+	-e "s/`hostname`\([):]\)/<localhost>\1/" \
+	-e "s/$remote\([):]\)/<remotehost>\1/" \
+	-e 's/fd=[0-9][0-9]*/fd=<n>/g' \
+	-e 's/port=[0-9][0-9]*/port=<n>/g' \
+	-e 's/handle=0x0/handle=(nil)/' \
+	-e '/ Debug: reload_nodes: /d'\
+	-e '/ Debug: reload_nodeinfo: /d'\
+	-e '/ Debug: node_init: /d' \
+	-e '/ Debug: reload_hubs: /d' \
+	-e '/ Debug: handle_entry: /d' \
+	-e '/^__pmDecodeXtendError: got error PDU/d' \
+	-e '/^pmWhichContext() -> /d' \
+	-e '/__pmSendCreds: #0/s/= 201/= 1020000/' \
+	-e 's/ [0-9][0-9]*(?)//g' \
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+	-e "s/$DSO_SUFFIX\([ ,]\)/\$DSO_SUFFIX\1/" \
+        -e '/IPC table/{
+s/ [0-9][0-9]*(?)//g
+s/ [0-9][0-9]*(2)/ <n>(2)/g
+s/ [0-9][0-9]*(2,1)/ <n>(2,1)/g
+}' \
+	-e 's/^\[[0-9][0-9]*]/[N]/' \
+	-e "s;/linux/;/OS/;" \
+	-e "s;/irix/;/OS/;" \
+	-e "s;/windows/;/OS/;" \
+	-e "s;/darwin/;/OS/;" \
+	-e "s;/solaris/;/OS/;" \
+	-e '/^0*x*[0-9a-f][0-9a-f]* /{
+s//ADDR /
+s/\[[0-9][0-9]*]/[N]/
+s;=[0-9].*/OS/.*;=N name=OS_PMDA, ...;
+}' \
+	-e '/^\[N] .*\/OS\//s/.*/[N] domain=N, name=OS_PMDA, .../' \
+	-e '/^__pmLocalPMDA(.*\/OS\//{
+s/name=.*/name=OS_PMDA, ...)/
+s/domain=[0-9][0-9]*/domain=N/
+}'
+
+}
+
+_filter2()
+{
+    $PCP_AWK_PROG '
+/build_dsotab:/			{ strip=1; print; print "<stripped lines>"; next }
+strip == 1 && /pmNewContext/	{ strip=0 }
+strip == 1			{ print >"'$tmp.tmp'"; next }
+				{ print }'
+}
+
+rm -f $seq.out
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
+then
+    if test $PCP_EOE_VER -ge 3013
+    then
+	ln $seq.out.4 $seq.out
+    elif test $PCP_EOE_VER -ge 2704
+    then
+	ln $seq.out.3 $seq.out
+    else
+	ln $seq.out.2 $seq.out
+    fi
+else
+    ln $seq.out.1 $seq.out
+fi
+
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+$sudo rm -rf $tmp.* $seq.full
+
+remote=`./getpmcdhosts -L -n 1 -a sample 2>$tmp.out`
+if [ -z "$remote" ]
+then
+    cat $tmp.out >$seq.notrun
+    exit
+fi
+
+# real QA test starts here
+echo "=== expected to pass ==="
+src/chkctx2 -D16 2>&1 | _filter
+echo ""
+src/chkctx2 -D16 -h localhost 2>&1 | _filter
+echo ""
+src/chkctx2 -D16 -h `hostname` 2>&1 | _filter
+echo ""
+src/chkctx2 -D16 -h $remote 2>&1 | _filter
+echo ""
+
+PCP_LITE_SAMPLE=yes
+export PCP_LITE_SAMPLE
+
+echo | tee -a $seq.full
+echo "=== try CONTEXT_LOCAL ===" | tee -a $seq.full
+$sudo src/chkctx2_lite -D16 -L 2>&1 \
+| tee -a $seq.full \
+| _filter \
+| _filter2 \
+| _filter_pmcd_log
+
+echo
+echo "sorted stripped lines ..."
+LC_COLLATE=POSIX sort $tmp.tmp
+

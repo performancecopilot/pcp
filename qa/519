@@ -1,0 +1,130 @@
+#! /bin/sh
+# PCP QA Test No. 519
+# exercise new action args (no limit of 2) for pmie ... caused
+# pmie to dump core initially
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+#
+# Solaris Note (OpenIndiana specifically)
+#
+# Need to edit /etc/syslog.conf and add these lines
+# # for PCP QA
+# daemon.info                     /var/log/syslog
+#
+# then kill -HUP <pid-for-syslogd>
+#
+
+seq=`basename $0`
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./localconfig
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux)
+	ln $seq.$PCP_PLATFORM $seq.out || exit 1
+	SYSLOG_OPT='"-p daemon.info"'
+	;;
+    darwin)
+	ln $seq.linux $seq.out || exit 1
+	SYSLOG_OPT=''
+	;;
+    solaris)
+	ln $seq.linux $seq.out || exit 1
+	SYSLOG_OPT='"-p daemon.info"'
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
+
+_filter()
+{
+    sed \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z] *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/TIMESTAMP/' \
+	-e 's/[A-Z][a-z][a-z] *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/TIMESTAMP/' \
+	-e "s/`hostname | sed -e 's/\..*//'`/HOST/" \
+	-e 's/[0-9][A-Z]:HOST/HOST/' \
+	-e 's/\(pmie[([]\)[0-9][0-9]*/\1PID/' \
+	-e 's/ \[ID [0-9][0-9]* daemon.info]//'
+}
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+PMCD_CONNECT_TIMEOUT=60
+PMCD_REQUEST_TIMEOUT=60
+export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
+
+eval `./getpmcdhosts -n 2 -L | sed -e 's/ / other2=/' -e 's/^/other1=/'`
+if [ -z "$other1" ]
+then
+    _notrun "Cannot find first remote host running pmcd"
+fi
+if [ -z "$other2" ]
+then
+    _notrun "Cannot find second remote host running pmcd"
+    exit
+fi
+
+echo "QA output created by $seq"
+
+# real QA test starts here
+$sudo rm -f core* $seq.core*
+
+cat <<End-of-File | pmie -T 10sec >$tmp.out 2>$tmp.err
+// use hosts not in QA circus
+//
+
+hosts = ":'$other1' :'$other2'";
+
+some_host (
+  some_inst (
+    ( 100 * filesys.used \$hosts / filesys.capacity \$hosts ) > 0 ) )
+-> shell 15 "src/show-args -c SYSMON -t PERF_INFO_SYSTEM -m 'file system over half-full" "\n%h:[%i] %v% " "'"
+ & syslog 15 $SYSLOG_OPT "PCP QA $seq - please ignore - ..." " %h:[%i] %v% ";
+
+End-of-File
+
+echo "pmie output ..."
+sed <$tmp.out \
+    -e "/^$other1:/d" \
+    -e "/^$other2:/d"
+grep "^$other1:" <$tmp.out >/dev/null && echo "... at least one line for other1 host"
+grep "^$other2:" <$tmp.out >/dev/null && echo "... at least one line for other2 host"
+
+echo
+echo "pmie stderr ..."
+_filter <$tmp.err
+
+echo
+echo "SYSLOG ..."
+SYSLOG=''
+for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages /var/log/syslog /var/log/system.log
+do
+    if [ -f $f ]
+    then
+	SYSLOG=$f
+	break
+    fi
+done
+if [ -z "$SYSLOG" ]
+then
+    echo "Arrgh! Cannot find your syslog file"
+    exit 1
+fi
+ 
+$sudo tail -100 $SYSLOG \
+| sed -n '/PCP QA '"$seq"' - please ignore/s/\.\.\..*/.../p' \
+| _filter \
+| sort -u
+
+_check_core
+
+exit

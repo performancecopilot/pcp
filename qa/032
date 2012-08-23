@@ -1,0 +1,66 @@
+#! /bin/sh
+# PCP QA Test No. 032
+# exercise pmControlLog over the primary logger
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.check
+. ./common.filter
+. ./common.product
+
+_echo()
+{
+    echo ""
+    echo "+++" $* "+++"
+}
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+
+# sensitive to the state of the primary logger and the sample PMDA,
+# so re-start them to make sure.  6O second delay is to avoid clash
+# in basename of archive between consecutive instances of the primary
+# logger.
+#
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+sleep 60
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
+
+# real QA test starts here
+_echo "expect this to be off"
+src/logcontrol enquire sample.control
+
+_echo "force these off"
+src/logcontrol mandatory off sample.bin sampledso.colour
+_echo "should fail to turn on"
+src/logcontrol advisory on sampledso.colour
+src/logcontrol -i bin-300 advisory on sample.bin
+
+_echo "force these on"
+src/logcontrol mandatory on sample.colour sampledso.bin
+_echo "should fail to turn off"
+src/logcontrol advisory off sampledso.bin
+src/logcontrol -i red advisory off sample.colour
+
+_echo "allow advisory control over this one"
+src/logcontrol mandatory maybe sample.lights
+_echo "turn it on"
+src/logcontrol advisory on sample.lights
+_echo "turn it on again (NOP)"
+src/logcontrol advisory on sample.lights
+_echo "turn it off"
+src/logcontrol advisory off sample.lights
+_echo "turn it on"
+src/logcontrol advisory on sample.lights

@@ -1,0 +1,29 @@
+#! /bin/sh
+# PCP QA Test No. 229
+# pmie dumps core on this
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+status=1
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat >$tmp.conf <<'End-of-File'
+null = "";
+
+x = $'null'sample.bin;
+End-of-File
+pmie -v -t 1 -T 1 <$tmp.conf >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | sed -e 's/  */ /g' | _show_pmie_errors
+
+# all done
+status=0
+exit

@@ -1,0 +1,38 @@
+QA output created by 565
+
+=== default sendmail agent installation ===
+Culling the Performance Metrics Name Space ...
+sendmail ... not found in Name Space, this is OK
+Updating the PMCD control file, and notifying PMCD ...
+Check sendmail metrics have gone away ... OK
+You will need to choose an appropriate configuration for installation of
+the "sendmail" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+Updating the PMCD control file, and notifying PMCD ...
+Check sendmail metrics have appeared ... 9 metrics and N values
+
+=== validate pmns ===
+sendmail.start_date
+sendmail.permailer.msgs_from
+sendmail.permailer.bytes_from
+sendmail.permailer.msgs_to
+sendmail.permailer.bytes_to
+sendmail.total.msgs_from
+sendmail.total.bytes_from
+sendmail.total.msgs_to
+sendmail.total.bytes_to
+
+=== remove sendmail agent ===
+Culling the Performance Metrics Name Space ...
+sendmail ... done
+Updating the PMCD control file, and notifying PMCD ...
+Check sendmail metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

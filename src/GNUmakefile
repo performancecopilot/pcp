@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2000,2004,2012 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -31,7 +31,7 @@ SUBDIRS = include \
 	  pmdumplog pmlogextract pmstore pmhostname pmgenmap \
 	  pmlogconf pmloglabel pmlogsummary pmclient pcp pmlc dbpmda \
 	  pmtrace pmstat pmsocks pmdas pmafm procmemstat pmimport \
-	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
+	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop python \
 	  autofsd-probe telnet-probe bashrc pmiestatus \
 	  pmevent pmlogrewrite
 

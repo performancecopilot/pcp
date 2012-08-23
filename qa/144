@@ -1,0 +1,71 @@
+#! /bin/sh
+# PCP QA Test No. 144
+# pmlogreduce data values
+#
+# Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    sed \
+	-e '/^archive:/d' \
+	-e 's/  */ /g'
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+rm -f $seq.full
+
+# real QA test starts here
+pmlogreduce -A 30sec -t 30sec src/naslog $tmp
+
+nch_in=`wc -c <src/naslog.0 | sed -e 's/ //g'`
+nch_out=`wc -c <$tmp.0 | sed -e 's/ //g'`
+echo "Data reduction: `echo scale=4\\;$nch_out/$nch_in | bc`"
+
+# network.interface.baudrate
+#     Data Type: 64-bit unsigned int  InDom: 1.6 0x400006
+#     Semantics: discrete  Units: byte / sec
+#
+# network.interface.in.packets
+#     Data Type: 32-bit unsigned int  InDom: 1.6 0x400006
+#     Semantics: counter  Units: count
+#
+# kernel.all.load
+#     Data Type: float  InDom: 1.5 0x400005
+#     Semantics: instant  Units: none
+#
+# kernel.all.cpu.idle
+#     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+#     Semantics: counter  Units: millisec
+#
+# disk.all.total
+#     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+#     Semantics: counter  Units: count
+
+for metric in network.interface.baudrate network.interface.in.packets \
+	kernel.all.load kernel.all.cpu.idle disk.all.total
+do
+    echo
+    echo "=== $metric ==="
+    echo "=== $metric ===" >>$seq.full
+    echo "--- original ---" >>$seq.full
+    pmval -z -a src/naslog -t 30sec -A 30sec $metric 2>&1 \
+    | tee -a $seq.full \
+    | _filter >$tmp.in
+
+    echo "--- reduced ---" >>$seq.full
+    pmval -z -a $tmp -t 30sec -A 30sec $metric 2>&1 \
+    | tee -a $seq.full \
+    | _filter >$tmp.out
+    diff $tmp.in $tmp.out
+done

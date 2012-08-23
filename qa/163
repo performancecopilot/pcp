@@ -1,0 +1,87 @@
+#! /bin/sh
+# PCP QA Test No. 163
+#
+# pv 929411
+# pmdanasavg SEGVs in pmGetArchiveEnd
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    # V1 archives supported
+    archlist="src/naslog src/all-irix-6.5.25 src/bigace"
+    ln $seq.out.1 $seq.out
+else
+    # no support for V1 archives
+    archlist="src/naslog src/all-irix-6.5.25 src/bigace_v2"
+    ln $seq.out.2 $seq.out
+fi
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# original failures ...
+#
+# src/naslog
+# Mismatch: end=06:11:45.000 serial=15:21:13.958
+# Failed @ 832292
+# ...
+#
+# src/all-irix-6.5.25
+# Mismatch: end=10:00:00.066 serial=18:55:00.683
+# Failed @ 120984
+#
+# src/bigace
+# Mismatch: end=10:17:04.001 serial=16:12:55.556
+# Failed @ 1192840
+# dumped core
+# Failed @ 1192996
+# dumped core
+# Failed @ 1193152
+#
+
+rm -f $seq.full
+
+# real QA test starts here
+
+for arch in $archlist
+do
+    echo "=== $arch ==="
+
+    rm -f $tmp.*
+    cp $arch.index $tmp.index
+    cp $arch.meta $tmp.meta
+
+    maxsz=`wc -c <$arch.0 | sed -e 's/ //g'`
+    minsz=`expr $maxsz - 16 \* 1024`
+
+    cp $arch.0 $tmp.0
+    chmod u+w $tmp.0
+
+    sz=`expr $maxsz - 4`
+    while [ $sz -ge $minsz ]
+    do
+	# echo $sz
+	if src/torture-eol -q -a $tmp -t $sz
+	then
+	    :
+	else
+	    echo "Failed @ $sz"
+	fi
+	sz=`expr $sz - 4`
+    done
+done
+
+# success, all done
+exit

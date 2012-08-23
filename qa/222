@@ -1,0 +1,55 @@
+#! /bin/sh
+# PCP QA Test No. 222
+# Check symlinks in $PCP_PMDAS_DIR
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+status=0
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "expect no output ..."
+
+if [ ! -d $PCP_PMDAS_DIR ]
+then
+    echo "No $PCP_PMDAS_DIR dir?"
+    exit 1
+fi
+
+cd $PCP_PMDAS_DIR
+
+for dir in *
+do
+    if [ $dir = "irix" ]
+    then
+	continue
+    fi
+
+    if [ -L $dir ]
+    then
+	if [ ! -d $dir ]
+	then
+	    echo "Error: symlink $PCP_PMDAS_DIR/$dir -> nowhere?"
+	fi
+    elif [ -d $dir ]
+    then
+	if [ ! -L /usr/pcp/pmdas/$dir -a -d /usr/pcp/pmdas/$dir ]
+	then
+	    echo "Error: $dir directory in both /usr/pcp and /var/pcp!"
+	fi
+    else
+	echo "Error: what is $PCP_PMDAS_DIR/$dir?"
+    fi
+
+done
+
+# all done
+exit

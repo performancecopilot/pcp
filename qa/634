@@ -1,0 +1,44 @@
+#! /bin/sh
+# PCP QA Test No. 634
+# pmval timezone problem, #825316
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "time zone from archive ..."
+pmval -t 5 -z -a src/gmt-boring hinv.ncpu 2>&1 | tee $tmp.out
+
+echo
+echo "GMT via -Z ..."
+pmval -t 5 -Z GMT -a src/gmt-boring hinv.ncpu
+
+echo
+echo "GMT via default local timezone ..."
+TZ=GMT pmval -t 5 -a src/gmt-boring hinv.ncpu
+
+echo
+echo "Default timezone ... should be different to -z ..."
+pmval -t 5 -a src/gmt-boring hinv.ncpu >$tmp.default 2>&1
+
+if diff $tmp.default $tmp.out >/dev/null
+then
+    echo "No differences ... you have the bug!"
+    status=1
+else
+    echo "Different, as expected"
+fi
+
+# all done
+exit

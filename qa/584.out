@@ -1,0 +1,25 @@
+QA output created by 584
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+
+=== stdout+stderr ===
+[TIMESTAMP] pmie.pure(PID) Error: pmFetch from HOST failed: IPC protocol failure
+[TIMESTAMP] pmie.pure(PID) Info: Lost connection to pmcd on host HOST
+[TIMESTAMP] pmie.pure(PID) Info: Re-established connection to pmcd on host HOST
+[TIMESTAMP] pmie.pure(PID) Info: evaluator exiting
+
+****  Purify instrumented TMP/pmie.pure (pid PID)  ****
+Current file descriptors in use: N
+...
+****  Purify instrumented TMP/pmie.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/pmie.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...

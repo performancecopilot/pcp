@@ -1,0 +1,47 @@
+QA output created by 177
+
+=== log sample.bin[bin-100] ===
+
+=== log sample.bin[bin-200] ===
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+
+DATE
+pmlc request from HOST: mandatory on 0.2 sec
+  metric: sample.bin
+    instance: bin-100
+
+DATE
+pmlc request from HOST: mandatory on 0.2 sec
+  metric: sample.bin
+    instance: bin-200
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+
+=== pmdumplog ===
+31-31 timestamps
+
+=== pmval -t 0.1 ===
+58-62 samples
+__pmLogRead-back 1-5 calls
+__pmLogRead-forw 51-56 calls
+__pmLogRead-peek 1-1 calls
+_pmFetchInterp 116-120 calls
+
+=== pmval -t 0.2 ===
+28-32 samples
+__pmLogRead-back 1-5 calls
+__pmLogRead-forw 51-56 calls
+__pmLogRead-peek 1-1 calls
+_pmFetchInterp 58-60 calls
+
+=== pmval -t 0.4 ===
+13-17 samples
+__pmLogRead-back 5-20 calls
+__pmLogRead-forw 51-56 calls
+__pmLogRead-peek 1-1 calls
+_pmFetchInterp 29-30 calls

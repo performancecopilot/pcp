@@ -1,0 +1,93 @@
+#! /bin/sh
+# PCP QA Test No. 148
+# validate ipc.shm metric values
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+if [ $PCP_PLATFORM != irix ]
+then
+    echo "No ipc/shm/sem metrics yet" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# blow away any residual junk
+$sudo src/ipcs_clear
+
+
+# real QA test starts here
+#
+# assumed output format from ipcs -am
+#IPC status from /dev/kmem as of Wed Mar 26 12:23:47 1997
+#T         ID     KEY        MODE       OWNER    GROUP  CREATOR   CGROUP NATTCH  SEGSZ  CPID  LPID   ATIME    DTIME    CTIME
+#Shared Memory:
+#m          9 0x09e4218f --rw-r-----   oracle      dba   oracle      dba     2351167232  6159 15032 12:03:49 12:06:18 15:47:42
+#
+# build the sed filter from the heading line of the output
+#
+$sudo ipcs -am >$tmp.out
+sed -n <$tmp.out >$tmp.sed -e '/NATTCH/{
+s/./.\\(/
+s/ID/..\\)/
+s/CGROUP/&\\(/
+s/NATTCH/&\\)\\(/
+s/\(SEGSZ\).*/\1\\).*/
+s/[A-Z ]/./g
+s/^/s\//
+s/$/\/\\1 \\2 \\3\/p/
+p
+q
+}'
+echo 's/  */ /g' >>$tmp.sed
+echo 's/^ //' >>$tmp.sed
+echo 's/ $//' >>$tmp.sed
+
+grep '^m' $tmp.out \
+| sed -f $tmp.sed \
+| LC_COLLATE=POSIX sort >$tmp.ipc
+
+pminfo -F ipc.shm.nattch \
+| sed -n \
+    -e '/ inst /{
+s/.*\[//
+s/ .* value / /p
+}' \
+| LC_COLLATE=POSIX sort >$tmp.1
+
+pminfo -F ipc.shm.segsz \
+| sed -n \
+    -e '/ inst /{
+s/.*\[//
+s/ .* value / /p
+}' \
+| LC_COLLATE=POSIX sort >$tmp.2
+
+join $tmp.1 $tmp.2 >$tmp.pcp
+
+if diff $tmp.pcp $tmp.ipc
+then
+    echo "ipc.shm and ipcs agree"
+else
+    echo "=== ipcs -am ==="
+    $sudo ipcs -am
+    echo "=== summary ==="
+    cat $tmp.ipc
+    echo "=== pminfo -F ==="
+    pminfo -F ipc.shm.nattch ipc.shm.segsz
+    echo "=== summary ==="
+    cat $tmp.pcp
+    echo "Mismatch error: summaries should be identical"
+    exit 1
+fi
+
+exit 0

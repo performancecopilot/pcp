@@ -1,0 +1,54 @@
+#! /bin/sh
+# PCP QA Test No. 088
+# interpolate mode, constant values, different logging rates
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+_filter()
+{
+    sed \
+	-e '/host:/d' \
+	-e '/start:/d' \
+	-e '/end:/d' \
+	-e 's/^..:..:..\..../TIMESTAMP   /' \
+    | LC_COLLATE=POSIX sort \
+    | uniq
+}
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+for arch in src/bar src/mv-bar src/noti-bar
+do
+    # get the time of the first sample
+    first_time=`pmval -U $arch -s1 sampledso.bin | tail -1 | cut -f1 -d ' '`
+
+    pmval -U $arch -S "@$first_time" \
+        -i bin-100,bin-500,bin-700,bin-900 sampledso.bin \
+	2>/dev/null | _filter
+
+    pmval -a $arch -S "@$first_time" -t 0.5 \
+        -i bin-100,bin-500,bin-700,bin-900 sampledso.bin \
+	2>/dev/null | _filter
+done
+
+# Test for bug #500237
+# (this should never print `end of log' - ie. there must be a timestamp,
+# even though the single sample s1 can't have been rate converted).
+
+# deal with an annoying libc error ... using TZ=:Australia/Melbourne
+# causes the -z option to report the wrong time, at least for some
+# times of the year
+#
+TZ=EST-10
+export TZ
+
+pmval -a src/late -s1 -z sampledso.bin

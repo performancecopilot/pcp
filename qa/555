@@ -1,0 +1,224 @@
+#!/bin/sh
+# PCP QA Test No. 555
+# pmie syslog(3) changes and parsing -t tag and -p pri arguments in
+# a syslog action
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./localconfig
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux)
+	ln $seq.$PCP_PLATFORM $seq.out || exit 1
+	;;
+    darwin|solaris)
+	ln $seq.linux $seq.out || exit 1
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
+
+rm -f $seq.full
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+
+update_config=true
+if [ -f /etc/rsyslog.conf -a -f /var/run/*syslogd.pid ]
+then
+    # smells like rsyslogd
+    #
+    daemon=rsyslogd
+    config=/etc/rsyslog.d/pcpqa.conf
+    update_config=false
+    # For Ubuntu 9.10 (at least) SIGHUP to rsyslogd does not really
+    # restart rsyslogd ... worse, /etc/init.d/rsyslogd may have been
+    # converted to use "upstart"
+    #
+    if [ -L /etc/init.d/rsyslog ]
+    then
+	upstart=true
+    elif [ -f /etc/init.d/rsyslog ]
+    then
+	upstart=false
+	init=/etc/init.d/rsyslog
+    elif [ -f /etc/init.d/syslog ]
+    then
+	# the SuSE way
+	upstart=false
+	init=/etc/init.d/syslog
+    else
+	echo "Botch: using rsyslog, but I don't know how to stop/start it"
+	exit 1
+    fi
+elif [ -f /etc/syslog.conf ]
+then
+    # regular old syslogd
+    #
+    daemon=syslogd
+    config=/etc/syslog.conf
+else
+    _notrun "No /etc/*syslog.conf -- probably using a different syslog package"
+fi
+
+# avoid systemd/systemctl wrapper
+#
+[ -f /etc/SuSE-release ] && export SYSTEMD_NO_WRAP=1
+[ -f /etc/fedora-release ] && export SYSTEMCTL_SKIP_REDIRECT=1
+
+cleanup()
+{
+    if [ -f $config.$seq ]; then
+	if $update_config
+	then
+	    $sudo mv $config.$seq $config
+	else
+	    $sudo rm $config.$seq $config
+	fi
+	if [ $daemon = rsyslogd ]
+	then
+	    if $upstart
+	    then
+		$sudo service rsyslog restart >>$seq.full 2>&1
+	    else
+		# kill should be enough, but restart to be sure
+		#
+		# $sudo kill -HUP `cat /var/run/rsyslogd.pid` || exit
+		$sudo $init restart >>$seq.full 2>&1
+	    fi
+	else
+	    $sudo $signal -a -s HUP $daemon || exit
+	fi
+    fi
+    rm -f $tmp.*
+    $sudo rm -f /tmp/syslog
+}
+trap "cleanup; exit \$status" 0 1 2 3 15
+
+# move aside the current syslog configuration, as we have NFI
+# what kind of setup is in use and where our messages will go
+#
+setup()
+{
+    $sudo cp /dev/null /tmp/syslog || exit
+    $sudo chmod 666 /tmp/syslog || exit
+    if $update_config
+    then
+	$sudo mv $config $config.$seq || exit
+    else
+	$sudo touch $config.$seq
+    fi
+    echo '*.*  /tmp/syslog' >$tmp.syslog.conf
+    $sudo cp $tmp.syslog.conf $config || exit
+    if [ $daemon = rsyslogd ]
+    then
+	if $upstart
+	then
+	    $sudo service rsyslog restart >>$seq.full 2>&1
+	else
+	    # kill should be enough, but restart to be sure
+	    #
+	    # $sudo kill -HUP `cat /var/run/rsyslogd.pid` || exit
+	    $sudo $init restart >>$seq.full 2>&1
+	fi
+    else
+	$sudo $signal -a -s HUP $daemon || exit
+    fi
+}
+
+# real QA test starts here
+setup
+
+# syslog	logger -p
+# 5D		daemon.notice		<--- default
+# 6D		daemon.info
+# 4D		daemon.warning
+# 5B		user.notice
+# 6B		user.info
+# 4B		user.warning
+# 5Q		local0.notice
+# 6Q		local0.info
+# 4Q		local0.warning
+
+cat <<'End-of-File' >$tmp.conf
+// errors
+hinv.ncpu > 0 -> syslog "-t";
+hinv.ncpu > 0 -> syslog "-ttag extra";
+hinv.ncpu > 0 -> syslog "-t" "tag extra";
+hinv.ncpu > 0 -> syslog "-p";
+hinv.ncpu > 0 -> syslog "-pinfo extra" "-pinfo [6D]" "{1}";
+hinv.ncpu > 0 -> syslog "-p" "info extra" "-pinfo [6D]" "{2}";
+hinv.ncpu > 0 -> syslog "-p" "evil" "-t" "bogus" "bad -p evil and -t" "{3}";
+hinv.ncpu > 0 -> syslog "-p" "evil.info" "bad facil for -p evil.info [6D]" "{4}";
+hinv.ncpu > 0 -> syslog "-p" "user.evil" "bad pri for -p user.evil [5B]" "{5}";
+
+// OK
+hinv.ncpu > 0 -> syslog "-t" "foo" "-p" "user.notice" "-t & -pinfo, 4 args [5B]" "{6}";
+hinv.ncpu > 0 -> syslog "-t" "foo" "-puser.notice" "-t & -pinfo, 3 args [5B]" "{7}";
+hinv.ncpu > 0 -> syslog "-tfoo" "-pinfo" "-t & -pinfo, 2 args [6D]" "{8}";
+hinv.ncpu > 0 -> syslog "-p" "user.info" "-p user.info, 2 args [6B]" "{9}";
+hinv.ncpu > 0 -> syslog "-pdaemon.info" "-pdaemon.info, 1 arg [6D]" "{10}";
+hinv.ncpu > 0 -> syslog "-t" "foo" "-t 2 args" "{11}";
+hinv.ncpu > 0 -> syslog "-tfoo" "-t 1 arg" "{12}";
+hinv.ncpu > 0 -> syslog "no -t or -p args" "{13}";
+
+
+// OK + holdoff
+hinv.ncpu > 0 -> syslog 1 min "-t" "foo" "-p" "local0.notice" "-t & -pinfo, 4 args [5Q] + holdoff" "{14}";
+hinv.ncpu > 0 -> syslog 1 min "-t" "foo" "-plocal0.notice" "-t & -pinfo, 3 args [5Q] + holdoff" "{14}";
+hinv.ncpu > 0 -> syslog 1 min "-tfoo" "-pinfo" "-t & -pinfo, 2 args [6D] + holdoff" "{15}";
+hinv.ncpu > 0 -> syslog 1 min "-p" "local0.info" "-p user.info, 2 args [6Q] + holdoff" "{16}";
+hinv.ncpu > 0 -> syslog 1 min "-pdaemon.info" "-pdaemon.info, 1 arg [6D] + holdoff" "{17}";
+hinv.ncpu > 0 -> syslog 1 min "-t" "foo" "-t 2 args + holdoff" "{18}";
+hinv.ncpu > 0 -> syslog 1 min "-tfoo" "-t 1 arg + holdoff" "{19}";
+hinv.ncpu > 0 -> syslog 1 min "no -t or -p args + holdoff" "{20}";
+
+End-of-File
+
+pmie -t 2sec -T 5sec >$tmp.log 2>&1 -c $tmp.conf &
+wait
+
+sed <$tmp.log \
+    -e "/Info: evaluator exiting/d" \
+    -e "s;$tmp;TMP;;"
+
+sleep 5
+echo
+
+# note - runpriv lines noticed on krelly with SGIconsole 2.0
+# note - agetty lines noticed on canary with SLES9 SP1 beta2
+# note - DHCPDISCOVER lines noticed on kenj-laptop with Ubuntu 8.10
+#
+echo "=== all of syslog ===" >>$seq.full
+cat /tmp/syslog >>$seq.full
+echo >>$seq.full
+echo "=== syslog for pid $! ===" >>$seq.full
+# More recent syslog format seen on Ubuntu 11.04
+# 2011-07-09T10:38:40+10:00 HOST pcp-pmie[PID]: 
+#
+grep '\['$!']:' /tmp/syslog \
+| tee -a $seq.full \
+| sed \
+    -e 's/^[A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+    -e 's/^[0-9][0-9][0-9][0-9]-[0-9][0-9]*-[0-9][0-9]*T[0-9][0-9]:[0-9][0-9]:[0-9][0-9][^ ]* /DATE /' \
+    -e "s/\\[$!]/[PID]/" \
+    -e "s/`hostname | sed -e 's/\..*//'` /HOST /" \
+    -e 's/[0-9][A-Z]:HOST/HOST/' \
+    | LC_COLLATE=POSIX sort \
+    | uniq
+
+# success, all done
+status=0
+exit

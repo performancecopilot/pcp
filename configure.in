@@ -1,6 +1,7 @@
 dnl
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
+dnl Copyright (c) 2012 Red Hat, Inc.  All Rights Reserved.
 dnl 
 dnl This program is free software; you can redistribute it and/or modify it
 dnl under the terms of the GNU General Public License as published by the
@@ -15,6 +16,7 @@ dnl
 
 dnl unpacking check - this file must exist
 AC_INIT(src/include/pcp/pmapi.h)
+AC_PREREQ([2.60])dnl
 
 dnl Irix build issue ... use the tools from the local filesystems
 unset ROOT TOOLROOT
@@ -176,8 +178,9 @@ in
 esac
 AC_SUBST(pcp_platform_paths)
 
-dnl default prefix
-AC_PREFIX_DEFAULT([])
+# NB: No AC_PREFIX_DEFAULT is needed, as the default configure invocation
+# targets a build for non-system directories such as /usr/local.
+# AC_PREFIX_DEFAULT([])
 
 if test -f VERSION.pcp
 then
@@ -1594,107 +1597,41 @@ dnl by the $PCP_CONF environment variable. If this is not set
 dnl (default /etc/pcp.conf), then $PCP_CONF must be set in
 dnl the environment.
 dnl
-if test ! -z "$PCP_ETC_DIR"
-then
-    pcp_etc_dir=$PCP_ETC_DIR
-else
-    if test -d /etc
-    then
-	pcp_etc_dir=/etc
-    else
-	echo "FATAL ERROR: could not find /etc directory."
-	echo "You need to set \$PCP_ETC_DIR in the environment"
-	echo "as the path to the directory containing \"pcp.conf\"."
-	rm -rf conftest conftest.*
-	exit 1
-    fi
-fi
+dnl The eval echo stuff is used to get around unfavourable
+dnl elements of the GNU standards, which cause embedding of
+dnl ${prefix} within many of these various $dirs.
+dnl http://www.gnu.org/software/autoconf/manual/autoconf.html#Installation-Directory-Variables
+dnl
+pcp_etc_dir=`eval echo $sysconfdir`
+pcp_etc_dir=`eval echo $pcp_etc_dir`
 AC_SUBST(pcp_etc_dir)
 
 dnl shared PCP files (shareable for diskless)
-pcp_share_dir=`eval echo $datadir`
+pcp_share_dir=`eval echo $datarootdir/pcp`
 pcp_share_dir=`eval echo $pcp_share_dir`
-if test -z "`echo $pcp_share_dir | sed 's;/.*\$;;'`"
-then
-    if test $target_os = mingw
-    then
-	pcp_share_dir=
-    elif test -d /usr/share
-    then
-	pcp_share_dir=/usr/share/pcp
-    elif test -d /usr/local
-    then
-	pcp_share_dir=/usr/local/pcp
-    else
-	pcp_share_dir=/usr/pcp
-    fi
-fi
 AC_SUBST(pcp_share_dir)
 
 dnl private PCP executables
-pcp_binadm_dir=`eval echo $libexecdir`
+pcp_binadm_dir=`eval echo $libexecdir/pcp/bin`
 pcp_binadm_dir=`eval echo $pcp_binadm_dir`
-if test -z "`echo $pcp_binadm_dir | sed 's;/.*\$;;'`"
-then
-    if test $target_distro = debian
-    then
-	pcp_binadm_dir=/usr/lib/pcp/bin
-    elif test $target_os = mingw
-    then
-	pcp_binadm_dir=/local/bin
-    elif test -d /usr/libexec
-    then
-	pcp_binadm_dir=/usr/libexec/pcp/bin
-    else
-	pcp_binadm_dir=$pcp_share_dir/bin
-    fi
-else
-   pcp_binadm_dir=`eval echo $pcp_binadm_dir/pcp/bin`
-fi
 AC_SUBST(pcp_binadm_dir)
 
 dnl non-shared (i.e. system local) PCP files
-pcp_var_dir=`eval echo $localstatedir`
+pcp_var_dir=`eval echo $localstatedir/lib/pcp`
 pcp_var_dir=`eval echo $pcp_var_dir`
-if test -z "`echo $pcp_var_dir | sed 's;/.*\$;;'`"
-then
-    if test $target_os = mingw
-    then
-	pcp_var_dir=
-    elif test -d /var/lib
-    then
-	pcp_var_dir=/var/lib/pcp
-    elif test -d /var
-    then
-	pcp_var_dir=/var/pcp
-    elif test -d /usr/local
-    then
-	pcp_var_dir=/usr/local/pcp
-    else
-	pcp_var_dir=/usr
-    fi
-fi
 AC_SUBST(pcp_var_dir)
 
 dnl pmcd control and options files
-if test $target_os = darwin -o $target_distro = debian
-then
-    pcp_pmcdconf_path=/etc/pmcd/pmcd.conf
-    pcp_pmcdrclocal_path=/etc/pmcd/rc.local
-    pcp_pmcdoptions_path=/etc/pmcd/pmcd.options
-    pcp_pmproxyoptions_path=/etc/pmproxy/pmproxy.options
-    pcp_pmiecontrol_path=/etc/pmie/control
-    pcp_pmsnapcontrol_path=/etc/pmsnap/control
-    pcp_pmloggercontrol_path=/etc/pmlogger/control
-else
-    pcp_pmcdconf_path=$pcp_var_dir/config/pmcd/pmcd.conf
-    pcp_pmcdrclocal_path=$pcp_var_dir/config/pmcd/rc.local
-    pcp_pmcdoptions_path=$pcp_var_dir/config/pmcd/pmcd.options
-    pcp_pmproxyoptions_path=$pcp_var_dir/config/pmproxy/pmproxy.options
-    pcp_pmiecontrol_path=$pcp_var_dir/config/pmie/control
-    pcp_pmsnapcontrol_path=$pcp_var_dir/config/pmsnap/control
-    pcp_pmloggercontrol_path=$pcp_var_dir/config/pmlogger/control
-fi
+AC_ARG_WITH(configdir,[AC_HELP_STRING([--with-configdir],[configuration directory [LOCALSTATEDIR/pcp/config]])],
+                      [pcp_config_dir=$withval],
+                      [pcp_config_dir=$pcp_var_dir/config])
+pcp_pmcdconf_path=$pcp_config_dir/pmcd/pmcd.conf
+pcp_pmcdrclocal_path=$pcp_config_dir/pmcd/rc.local
+pcp_pmcdoptions_path=$pcp_config_dir/pmcd/pmcd.options
+pcp_pmproxyoptions_path=$pcp_config_dir/pmproxy/pmproxy.options
+pcp_pmiecontrol_path=$pcp_config_dir/pmie/control
+pcp_pmsnapcontrol_path=$pcp_config_dir/pmsnap/control
+pcp_pmloggercontrol_path=$pcp_config_dir/pmlogger/control
 AC_SUBST(pcp_pmcdconf_path)
 AC_SUBST(pcp_pmcdoptions_path)
 AC_SUBST(pcp_pmcdrclocal_path)
@@ -1707,46 +1644,33 @@ pcp_pmdas_dir=$pcp_var_dir/pmdas
 AC_SUBST(pcp_pmdas_dir)
 
 dnl runtime shared libraries
-if test $target_os = mingw
-then
-    pcp_lib_dir=/local/bin
-    pcp_lib32_dir=/local/bin
-elif test $target_os = linux -a \( $target_cpu = x86_64 -o $target_cpu = powerpc64 -o $target_cpu = s390x \) -a $target_distro != debian
-then
-    # Linux on x86_64 and ppc64 puts libraries in .../lib64 (and rpmbuild
-    # enforces that convention) but $libdir lies about it.
-    pcp_lib_dir=/usr/lib64
-    pcp_lib32_dir=/usr/lib
-elif test $target_os = "solaris"
-then
-    if test "$PCP_PTR_SIZE" -eq 64
-    then 
-	    pcp_lib_dir=/usr/lib/64
-	    pcp_lib32_dir=/usr/lib
-    else
-	    pcp_lib_dir=/usr/lib
-    fi
-else
-    pcp_lib_dir=`eval echo $libdir`
-    pcp_lib_dir=`eval echo $pcp_lib_dir`
-    if test -z "`echo $pcp_lib_dir | sed 's;/.*\$;;'`"
-    then
-       if test -d /usr/lib
-       then
-	   pcp_lib_dir=/usr/lib
-       elif test -d /usr/local/lib
-       then
-	   pcp_lib_dir=/usr/local/lib
-       else
-	   pcp_lib_dir=/lib
-       fi
-    fi
-fi
-if test -z "$pcp_lib32_dir" ; then
-	pcp_lib32_dir=$pcp_lib_dir
-fi
+pcp_lib_dir=`eval echo $libdir`
+pcp_lib_dir=`eval echo $pcp_lib_dir`
+pcp_lib32_dir=`echo $pcp_lib_dir | sed -e s,64,, -e s,//,/,`
 AC_SUBST(pcp_lib_dir)
 AC_SUBST(pcp_lib32_dir)
+
+dnl perl/cpan modules
+AC_ARG_WITH(perl_installdirs,[AC_HELP_STRING([--with-perl_installdirs],[perl installdirs [vendor]])],
+                      [perl_installdirs=$withval],
+                      [perl_installdirs=vendor])
+perl_installdirs=`eval echo $perl_installdirs`
+perl_installdirs=`eval echo $perl_installdirs`
+AC_SUBST(perl_installdirs)
+AC_ARG_WITH(perl_install_base,[AC_HELP_STRING([--with-perl_install_base],[perl install_base [PREFIX]])],
+                      [perl_install_base=$withval],
+                      [perl_install_base=$prefix])
+perl_install_base=`eval echo $perl_install_base`
+perl_install_base=`eval echo $perl_install_base`
+AC_SUBST(perl_install_base)
+
+AC_ARG_WITH(python_prefix,[AC_HELP_STRING([--with-python_prefix],[python setup.py prefix [PREFIX]])],
+                      [python_prefix=$withval],
+                      [python_prefix=$prefix])
+python_prefix=`eval echo $python_prefix`
+python_prefix=`eval echo $python_prefix`
+AC_SUBST(python_prefix)
+
 
 AC_PATH_XTRA
 pcp_x11_incflags=$X_CFLAGS
@@ -1758,30 +1682,6 @@ AC_SUBST(pcp_x11_extra)
 pcp_x11_pre=$X_PRE_LIBS
 AC_SUBST(pcp_x11_pre)
 
-dnl Where is X11 app-defaults should go
-pcp_x11_appdefs_dir=
-if test "$with_x" != "no" ; then
-    ac_appdefs_dirs="/usr/lib/X11 /usr/X11/lib /usr/X11/lib/X11 /usr/share/X11"
-    if test -n "$x_includes" ; then
-	d=`dirname $x_includes`
-	ac_appdefs_dirs="$d/lib $d/lib/X11 $ac_appdefs_dirs"
-    fi
-    if test -n "$x_libraries" ; then
-	d=`dirname $x_libraries`
-	ac_appdefs_dirs="$d/lib $d/lib/X11 $ac_appdefs_dirs"
-    fi
-    AC_MSG_CHECKING([for X11 app-defaults directory])
-    for d in $ac_appdefs_dirs; do
-	dd=$d/app-defaults
-	if test -d $dd ; then
-		pcp_x11_appdefs_dir=$dd
-		break;
-	fi
-    done
-    AC_MSG_RESULT($pcp_x11_appdefs_dir)
-fi
-AC_SUBST(pcp_x11_appdefs_dir)
-
 dnl man pages (source)
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
@@ -1791,104 +1691,39 @@ need_old_tbl_header=false
 man_header=
 pcp_man_dir=`eval echo $mandir`
 pcp_man_dir=`eval echo $pcp_man_dir`
-if test -z "`echo $pcp_man_dir | sed 's;/.*\$;;'`"
-then
-    dnl some low risk defaults
-    if test $target_os = mingw
-    then
-	pcp_man_dir=/man
-    elif test -d /usr/share/man
-    then
-	pcp_man_dir=/usr/share/man
-    elif test -d /usr/local/man 
-    then
-	pcp_man_dir=/usr/local/man
-    else
-	pcp_man_dir=/usr/man
-    fi
-    dnl some more guided guesses
-    for d in /usr/man /usr/share/man $pcp_share_dir/man
+
+dnl guess compression in use
+for d in /usr/man /usr/share/man $pcp_man_dir
+do
+    for sd in man1 sman1
     do
-	if test -f $d/man1/man.1.gz
+	if test -f $d/$sd/man.1.gz
 	then
 	    have_gzipped_manpages=true
-	    pcp_man_dir=$d
-	    man_header=`$ZIP -d < $d/man1/man.1.gz | head -1`
+	    man_header=`$ZIP -d < $d/$sd/man.1.gz | head -1`
 	    break
-	elif test -f $d/man1/man.1.bz2
+	elif test -f $d/$sd/man.1.bz2
 	then
 	    have_bzip2ed_manpages=true
-	    pcp_man_dir=$d
-	    man_header=`$BZIP2 -d < $d/man1/man.1.bz2 | head -1`
+	    man_header=`$BZIP2 -d < $d/$sd/man.1.bz2 | head -1`
 	    break
-	elif test -f $d/man1/man.1.lzma
+	elif test -f $d/$sd/man.1.lzma
 	then
 	    have_lzmaed_manpages=true
-	    pcp_man_dir=$d
-	    man_header=`$LZMA -d < $d/man1/man.1.lzma | head -1`
+	    man_header=`$LZMA -d < $d/$sd/man.1.lzma | head -1`
 	    break
-	elif test -f $d/man1/man.1.xz
+	elif test -f $d/$sd/man.1.xz
 	then
 	    have_xzed_manpages=true
-	    pcp_man_dir=$d
-	    man_header=`$XZ -d < $d/man1/man.1.xz | head -1`
+	    man_header=`$XZ -d < $d/$sd/man.1.xz | head -1`
 	    break
-	elif test -f $d/man1/man.1
+	elif test -f $d/$sd/man.1
 	then
-	    pcp_man_dir=$d
-	    man_header=`head -1 $d/man1/man.1`
-	    break
-	elif test -f $d/sman1/man.1.gz
-	then
-	    have_gzipped_manpages=true
-	    pcp_man_dir=$d
-	    man_header=`$ZIP -d < $d/sman1/man.1.gz | head -1`
-	    break
-	elif test -f $d/sman1/man.1.bz2
-	then
-	    have_bzip2ed_manpages=true
-	    pcp_man_dir=$d
-	    man_header=`$BZIP2 -d < $d/sman1/man.1.bz2 | head -1`
-	    break
-	elif test -f $d/sman1/man.1.lzma
-	then
-	    have_lzmaed_manpages=true
-	    pcp_man_dir=$d
-	    man_header=`$LZMA -d < $d/sman1/man.1.lzma | head -1`
-	    break
-	elif test -f $d/sman1/man.1.xz
-	then
-	    have_xzed_manpages=true
-	    pcp_man_dir=$d
-	    man_header=`$XZ -d < $d/sman1/man.1.xz | head -1`
-	    break
-	elif test -f $d/sman1/man.1
-	then
-	    pcp_man_dir=$d
-	    man_header=`head -1 $d/sman1/man.1`
-	    break
-	elif test -f $d/cat1/man.1
-	then
-	    pcp_man_dir=$d
-	    # cannot deduce troff meta control from formatted man
-	    # pages, so leave $man_header empty
+	    man_header=`head -1 $d/$sd/man.1`
 	    break
 	fi
     done
-    if test -x /usr/lib/rpm/brp-compress -a $target_distro != mandriva
-    then
-	have_gzipped_manpages=true
-	have_bzip2ed_manpages=false
-	have_lzmaed_manpages=false
-	have_xzed_manpages=false
-    fi
-fi
-if test -z "$pcp_man_dir"
-then
-    echo "FATAL ERROR: could not find pcp_man_dir directory."
-    rm -rf conftest conftest.*
-    exit 1
-fi
+done
 if test x"$man_header" = "x'\\\" t" -o x"$man_header" = "x'\\\" te" ; then
     need_old_tbl_header=true
 fi
@@ -1902,93 +1737,45 @@ AC_SUBST(need_old_tbl_header)
 dnl public binaries
 pcp_bin_dir=`eval echo $bindir`
 pcp_bin_dir=`eval echo $pcp_bin_dir`
-if test -z "`echo $pcp_bin_dir | sed 's;/.*\$;;'`"
-then
-    if test $target_os = mingw
-    then
-	pcp_bin_dir=/local/bin
-    elif test -d /usr/bin
-    then
-	pcp_bin_dir=/usr/bin
-    else
-	pcp_bin_dir=/bin
-    fi
-fi
 AC_SUBST(pcp_bin_dir)
 
+pcp_sbin_dir=`eval echo $sbindir`
+pcp_sbin_dir=`eval echo $pcp_sbin_dir`
+AC_SUBST(pcp_sbin_dir)
+
 dnl include files
-pcp_inc_dir=`eval echo $includedir`
+pcp_inc_dir=`eval echo $includedir/pcp`
 pcp_inc_dir=`eval echo $pcp_inc_dir`
-if test -z "`echo $pcp_inc_dir | sed 's;/.*\$;;'`"
-then
-    if test $target_os = mingw
-    then
-	pcp_inc_dir=/include/pcp
-    else
-	pcp_inc_dir=/usr/include/pcp
-    fi
-fi
 AC_SUBST(pcp_inc_dir)
 
 dnl rc/startup files
-if test $target_os = darwin
-then
-    pcp_rc_dir=/Library/StartupItems/pcp
-elif test $target_distro = suse -o $target_distro = debian
-then
-    pcp_rc_dir=/etc/init.d
-else
-    for d in /etc/rc.d/init.d /etc/init.d /sbin/init.d ; do
-	if test -d $d
-	then
-	    pcp_rc_dir=$d
-	    break;
-	fi
-    done
-    if test -z "$pcp_rc_dir"
-    then
-	pcp_rc_dir=/etc
-    fi
-fi
+AC_ARG_WITH(rcdir,[AC_HELP_STRING([--with-rcdir],[rc directory [SYSCONFDIR/rc.d]])],
+                  [pcp_rc_dir=$withval],
+                  [pcp_rc_dir=$pcp_etc_dir/rc.d])
 AC_SUBST(pcp_rc_dir)
 
 dnl rc sysconfig dir
-if test -d /etc/sysconfig
-then
-    pcp_sysconfig_dir=/etc/sysconfig
-else
-    dnl we are _not_ going to use the sysconfig control mechanism to
-    dnl enable/disable pmcd, pmlogger, pmie, ... during the "rc" start
-    dnl and stop scripts
-    pcp_sysconfig_dir=
-fi
+AC_ARG_WITH(sysconfigdir,[AC_HELP_STRING([--with-sysconfigdir],[sysconfig directory [SYSCONFDIR/sysconfig]])],
+                  [pcp_sysconfig_dir=$withval],
+                  [pcp_sysconfig_dir=$pcp_etc_dir/sysconfig])
 AC_SUBST(pcp_sysconfig_dir)
 
 dnl logs
-if test -d /var/log
-then
-    pcp_log_dir=/var/log/pcp
-elif test $target_os = mingw
-then
-    pcp_log_dir=/var/log
-else
-    pcp_log_dir=$pcp_var_dir/pcplog
-fi
+AC_ARG_WITH(logdir,[AC_HELP_STRING([--with-logdir],[log directory [LOCALSTATEDIR/log/pcp]])],
+                   [pcp_log_dir=$withval],
+                   [pcp_log_dir=$localstatedir/log/pcp])
+pcp_log_dir=`eval echo $pcp_log_dir`
+pcp_log_dir=`eval echo $pcp_log_dir`
 AC_SUBST(pcp_log_dir)
 
-dnl pid files
-if test -d /var/run
-then
-    pcp_run_dir=/var/run/pcp
-elif test $target_os = mingw
-then
-    pcp_run_dir=/var/run
-else
-    pcp_run_dir=$pcp_var_dir/pcprun
-fi
+AC_ARG_WITH(rundir,[AC_HELP_STRING([--with-rundir],[run directory [LOCALSTATEDIR/run/pcp]])],
+                   [pcp_run_dir=$withval],
+                   [pcp_run_dir=$localstatedir/run/pcp])
+pcp_run_dir=`eval echo $pcp_run_dir`
+pcp_run_dir=`eval echo $pcp_run_dir`
 AC_SUBST(pcp_run_dir)
 
-dnl temp files
+dnl temp files; these can go into system /tmp independent of $prefix
 if test -d /var/tmp
 then
     pcp_tmp_dir=/var/tmp
@@ -1998,33 +1785,17 @@ fi
 AC_SUBST(pcp_tmp_dir)
 
 dnl doc directory
-if test $target_os = mingw
-then
-    pcp_doc_dir=/doc
-elif test -d /usr/share/doc/packages
-then
-    pcp_doc_dir=/usr/share/doc/packages/pcp-${PACKAGE_VERSION}
-elif test -d /usr/share/doc
-then
-    pcp_doc_dir=/usr/share/doc/pcp-${PACKAGE_VERSION}
-elif test -d /usr/doc
-then
-    pcp_doc_dir=/usr/doc/pcp-${PACKAGE_VERSION}
-else
-    pcp_doc_dir=/usr/share/pcp/doc
-fi
+AC_ARG_WITH(docdir,[AC_HELP_STRING([--with-docdir],[docs directory [DOCDIR/pcp-VERSION]])],
+                   [pcp_doc_dir=$withval],
+                   [pcp_doc_dir=$docdir/pcp-${PACKAGE_VERSION}])
+pcp_doc_dir=`eval echo $pcp_doc_dir`
+pcp_doc_dir=`eval echo $pcp_doc_dir`
 AC_SUBST(pcp_doc_dir)
 
 dnl demos directory
-if test $target_os = mingw
-then
-    pcp_demos_dir=/demos
-elif test -d /usr/share/demos
-then
-    pcp_demos_dir=/usr/share/demos/pcp
-else
-    pcp_demos_dir=/usr/share/pcp/demos
-fi
+AC_ARG_WITH(demosdir,[AC_HELP_STRING([--with-demosdir],[run directory [DATADIR/pcp/demos]])],
+                   [pcp_demos_dir=$withval],
+                   [pcp_demos_dir=$pcp_share_dir/demos])
 AC_SUBST(pcp_demos_dir)
 
 if test -z "$XCONFIRM" 

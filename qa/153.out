@@ -1,0 +1,78 @@
+QA output created by 153
+PCPFolio
+Version: 1
+# use pmafm(1) to process this PCP archive folio
+#
+Created: on  ...
+Creator: kmchart
+# 		Host			Basename
+#
+Archive: somehost bar
+
+mkaf: bar: No such file
+mkaf: Warning: no PCP archives found, so no folio created
+
+mkaf: short: Not a PCP archive file
+mkaf: not-archive: Not a PCP archive file
+mkaf: Warning: no PCP archives found, so no folio created
+
+mkaf: f_bad: Not a PCP archive file
+mkaf: f_ok: Not a PCP archive file
+Searching "find foo -follow ..."  done
+mkaf: not-archive: Not a PCP archive file
+mkaf: short: Not a PCP archive file
+PCPFolio
+Version: 1
+# use pmafm(1) to process this PCP archive folio
+#
+Created: on  ...
+Creator: kmchart
+# 		Host			Basename
+#
+Archive: somehost bar
+Archive: somehost foo/bar
+
+Searching "find . -follow ..."  done
+PCPFolio
+Version: 1
+# use pmafm(1) to process this PCP archive folio
+#
+Created: on  ...
+Creator: kmchart
+# 		Host			Basename
+#
+Archive: somehost ./bar
+Archive: somehost ./foo/bar
+
+pmafm> Note: running pminfo serially, once per archive
+Host: somehost Archive: ./bar
+
+sampledso.bin
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+Host: somehost Archive: ./foo/bar
+
+sampledso.bin
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+pmafm> 
+
+pminfo: Cannot open archive "./bar": Missing PCP archive log file
+pmafm> Note: running pminfo serially, once per archive
+Host: somehost Archive: ./bar
+Host: somehost Archive: ./foo/bar
+
+sampledso.bin
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+pmafm> 
+
+pminfo: Cannot open archive "./foo/bar": Illegal label record at start of a PCP archive log file
+pmafm> Note: running pminfo serially, once per archive
+Host: somehost Archive: ./bar
+
+sampledso.bin
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+Host: somehost Archive: ./foo/bar
+pmafm> 

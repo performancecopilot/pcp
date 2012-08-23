@@ -1,0 +1,94 @@
+QA output created by 435
+expect only a few lines of diff output ...
+
+--- gzip first volume ---
+> pmdumplog ...
+>              Warning: file missing or compressed for log volume 0
+> pminfo ...
+> pmprobe in the middle ...
+> pmval & pmval -r ...
+< archive:   src/mv-bigbin
+---
+> archive:   mv-bigbin
+< archive:   src/mv-bigbin
+---
+> archive:   mv-bigbin
+> pmie ...
+
+--- gzip last volume and use existing .9.gz in -a arg ---
+> pmdumplog ...
+>              Warning: file missing or compressed for log volume 9
+> pminfo ...
+> pmprobe in the middle ...
+> pmval & pmval -r ...
+< archive:   src/mv-bigbin
+---
+> archive:   mv-bigbin.9.gz
+< archive:   src/mv-bigbin
+---
+> archive:   mv-bigbin.9.gz
+> pmie ...
+
+--- gzip middle volume and used existing .1 in -a arg ---
+> pmdumplog ...
+>              Warning: file missing or compressed for log volume 5
+> pminfo ...
+> pmprobe in the middle ...
+> pmval & pmval -r ...
+< archive:   src/mv-bigbin
+---
+> archive:   mv-bigbin.1
+< archive:   src/mv-bigbin
+---
+> archive:   mv-bigbin.1
+> pmie ...
+
+--- gzip first, middle and last volume and use .meta in -a arg ---
+> pmdumplog ...
+>              Warning: file missing or compressed for log volume 0
+>              Warning: file missing or compressed for log volume 5
+>              Warning: file missing or compressed for log volume 9
+> pminfo ...
+> pmprobe in the middle ...
+> pmval & pmval -r ...
+< archive:   src/mv-bigbin
+---
+> archive:   mv-bigbin.meta
+< archive:   src/mv-bigbin
+---
+> archive:   mv-bigbin.meta
+> pmie ...
+
+--- gzip first few, middle and last few volumes and use existing .7.gz in -a arg ---
+> pmdumplog ...
+>              Warning: file missing or compressed for log volume 0
+>              Warning: file missing or compressed for log volume 1
+>              Warning: file missing or compressed for log volume 5
+>              Warning: file missing or compressed for log volume 7
+>              Warning: file missing or compressed for log volume 8
+>              Warning: file missing or compressed for log volume 9
+> pminfo ...
+> pmprobe in the middle ...
+> pmval & pmval -r ...
+< archive:   src/mv-bigbin
+---
+> archive:   mv-bigbin.7.gz
+< archive:   src/mv-bigbin
+---
+> archive:   mv-bigbin.7.gz
+> pmie ...
+
+--- some error cases ---
+pminfo: Cannot open archive "mv-bigbin.10": No such file or directory
+pmprobe: Cannot open archive "mv-bigbin.10": No such file or directory
+pmval: Cannot open archive "mv-bigbin.10": No such file or directory
+pmie: cannot open archive mv-bigbin.10
+pmNewContext failed: No such file or directory
+pminfo: Cannot open archive "mv-bigbin.10.gz": No such file or directory
+pmprobe: Cannot open archive "mv-bigbin.10.gz": No such file or directory
+pmval: Cannot open archive "mv-bigbin.10.gz": No such file or directory
+pmie: cannot open archive mv-bigbin.10.gz
+pmNewContext failed: No such file or directory
+
+gzip: ./null.0.gz: unexpected end of file
+pminfo: Cannot open archive "null": Corrupted record in a PCP archive log

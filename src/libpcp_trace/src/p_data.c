@@ -111,24 +111,34 @@ __pmtracesenddata(int fd, char *tag, int taglen, int tagtype, double data)
 }
 
 int
-__pmtracedecodedata(__pmTracePDU *pdubuf, char **tag, int *taglen,
+__pmtracedecodedata(__pmTracePDU *pdubuf, char **tag, int *taglenp,
 				int *tagtype, int *protocol, double *data)
 {
     tracedata_t	*pp;
     int		*ip;
     char	*cp;
+    char	*pduend;
+    int		taglen;
 
     if (pdubuf == NULL)
 	return PMTRACE_ERR_IPC;
 
     pp = (tracedata_t *)pdubuf;
+    pduend = (char *)pdubuf + pp->hdr.len;
+
+    if (pduend - (char*)pp < sizeof(tracedata_t) + sizeof(double))
+	return PMTRACE_ERR_IPC;
+
     ip = (int *)&pp->bits;
     *ip = ntohl(*ip);
-    if (pp->bits.taglen == 0)
-	return PMTRACE_ERR_IPC;
+    taglen = pp->bits.taglen;
     if (pp->bits.version != TRACE_PDU_VERSION)
 	return PMTRACE_ERR_VERSION;
-    *taglen = pp->bits.taglen;
+    if (taglen <= 0 || taglen >= CHAR_MAX - 1 || taglen > pp->hdr.len)
+	return PMTRACE_ERR_IPC;
+    if (pduend - (char *)pp < sizeof(tracedata_t) + sizeof(double) + taglen)
+	return PMTRACE_ERR_IPC;
+    *taglenp = taglen;
     *tagtype = pp->bits.tagtype;
     *protocol = pp->bits.protocol;
 
@@ -137,7 +147,10 @@ __pmtracedecodedata(__pmTracePDU *pdubuf, char **tag, int *taglen,
     memcpy((void *)data, (void *)cp, sizeof(double));
     __ntohll((char *)data);	/* receive in network byte order */
     cp += sizeof(double);
-    *tag = cp;
+    if ((*tag = (char *)malloc(taglen+1)) == NULL)
+	return -oserror();
+    strncpy(*tag, cp, taglen);
+    (*tag)[taglen] = '\0';
 
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_PDU)

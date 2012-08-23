@@ -1,0 +1,38 @@
+#! /bin/sh
+# PCP QA Test No. 193
+# bogus pdus attacking pmcd causing core dump or looping pmcd
+# pv 935490
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+$sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
+
+# real QA test starts here
+src/crashpmcd
+
+cat $PCP_PMCDLOG_PATH >$seq.full
+_filter_pmcd_log <$PCP_PMCDLOG_PATH \
+| sed \
+    -e '1,/ok FD /d' \
+    -e '/ok FD /d' \
+    -e 's/fd=[0-9][0-9]*/fd=N/' \
+    -e '/HandleClientInput/s/client\[[0-9][0-9]*]/client[N]/' \
+    -e 's/len=-1: Connection reset by peer.*/END-OF-FILE/' \
+    -e 's/Connection reset by peer/Broken pipe/' \
+    -e 's/have .*, want .*, got 0/END-OF-FILE/'
+
+# success, all done
+exit

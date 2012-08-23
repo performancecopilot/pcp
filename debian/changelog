@@ -1,8 +1,19 @@
+pcp (3.6.6) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Introduces an additional testsuite package for PCP QA tests.
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 21 Aug 2012 13:09:48 +1000
+
 pcp (3.6.5) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * Fixes for security advisory CVE-2012-3418 (PDU decoding errors)
+  * Workaround for security advisory CVE-2012-3419 (proc disclosure)
+  * Fixes for security advisory CVE-2012-3420 (libpcp/pmcd memleaks)
+  * Fixes for security advisory CVE-2012-3421 (pmcd slow-client DoS)
 
- -- Nathan Scott <nathans@debian.org>  Mon,  6 Aug 2012 08:31:28 +1000
+ -- Nathan Scott <nathans@debian.org>  Thu, 16 Aug 2012 00:00:00 +0000
 
 pcp (3.6.4) unstable; urgency=low
 

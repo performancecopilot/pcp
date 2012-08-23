@@ -1,0 +1,253 @@
+QA output created by 083
+this tests access control for pmlogger and exercises pmlc
+
+Running the access tests
+primary pmlogger terminated
+starting test pmlogger...
+primary pmlogger alive
+
+================
+checking enquire access for this host...
+Connected to primary pmlogger at ME
+kernel.all.load
+    mand on  nl       1 hour [1 or "1 minute"]
+    adv  off nl              [5 or "5 minute"]
+    adv  off nl              [15 or "15 minute"]
+
+Goodbye
+
+================
+checking enquire access for other1...
+Connected to primary pmlogger at ME
+kernel.all.load
+    mand on  nl       1 hour [1 or "1 minute"]
+    adv  off nl              [5 or "5 minute"]
+    adv  off nl              [15 or "15 minute"]
+
+Goodbye
+
+================
+checking enquire access for other2 (should fail)...
+Goodbye
+Errors:
+Unable to connect to primary pmlogger at ME: No permission to perform requested operation
+Error [<stdin>, line 1]
+Not connected to any pmlogger instance
+
+================
+re-checking enquire access for this host...
+Connected to primary pmlogger at ME
+kernel.all.load
+    mand on  nl       1 hour [1 or "1 minute"]
+    adv  off nl              [5 or "5 minute"]
+    adv  off nl              [15 or "15 minute"]
+
+Goodbye
+killing pmlogger used for enquire tests...
+primary pmlogger terminated
+
+starting new pmlogger for advisory & mandatory tests...
+primary pmlogger alive
+
+================
+checking advisory access for this host...
+(100,400 will change, 700 will not)
+Connected to primary pmlogger at ME
+sample.bin
+    adv  off nl              [100 or "bin-100"]
+    adv  off nl              [200 or "bin-200"]
+    adv  off nl              [300 or "bin-300"]
+    adv  off nl              [400 or "bin-400"]
+    adv  off nl              [500 or "bin-500"]
+    adv  off nl              [600 or "bin-600"]
+    mand off nl              [700 or "bin-700"]
+    mand off nl              [800 or "bin-800"]
+    mand off nl              [900 or "bin-900"]
+
+Warning: unable to change logging state for:
+sample.bin instance(s):
+    [700 or "bin-700"]
+
+sample.bin
+    adv  on  nl       1 hour [100 or "bin-100"]
+    adv  off nl              [200 or "bin-200"]
+    adv  off nl              [300 or "bin-300"]
+    adv  on  nl       2 hour [400 or "bin-400"]
+    adv  off nl              [500 or "bin-500"]
+    adv  off nl              [600 or "bin-600"]
+    mand off nl              [700 or "bin-700"]
+    mand off nl              [800 or "bin-800"]
+    mand off nl              [900 or "bin-900"]
+
+Goodbye
+
+================
+checking advisory access for other1...
+(200,500 will change, 800 will not)
+Connected to primary pmlogger at ME
+sample.bin
+    adv  on  nl       1 hour [100 or "bin-100"]
+    adv  off nl              [200 or "bin-200"]
+    adv  off nl              [300 or "bin-300"]
+    adv  on  nl       2 hour [400 or "bin-400"]
+    adv  off nl              [500 or "bin-500"]
+    adv  off nl              [600 or "bin-600"]
+    mand off nl              [700 or "bin-700"]
+    mand off nl              [800 or "bin-800"]
+    mand off nl              [900 or "bin-900"]
+
+Warning: unable to change logging state for:
+sample.bin instance(s):
+    [800 or "bin-800"]
+
+sample.bin
+    adv  on  nl       1 hour [100 or "bin-100"]
+    adv  on  nl       1 hour [200 or "bin-200"]
+    adv  off nl              [300 or "bin-300"]
+    adv  on  nl       2 hour [400 or "bin-400"]
+    adv  on  nl       2 hour [500 or "bin-500"]
+    adv  off nl              [600 or "bin-600"]
+    mand off nl              [700 or "bin-700"]
+    mand off nl              [800 or "bin-800"]
+    mand off nl              [900 or "bin-900"]
+
+Goodbye
+
+================
+checking advisory access for other2...
+(expect 3 permission errors)
+Connected to primary pmlogger at ME
+sample.bin
+    adv  on  nl       1 hour [100 or "bin-100"]
+    adv  on  nl       1 hour [200 or "bin-200"]
+    adv  off nl              [300 or "bin-300"]
+    adv  on  nl       2 hour [400 or "bin-400"]
+    adv  on  nl       2 hour [500 or "bin-500"]
+    adv  off nl              [600 or "bin-600"]
+    mand off nl              [700 or "bin-700"]
+    mand off nl              [800 or "bin-800"]
+    mand off nl              [900 or "bin-900"]
+
+sample.bin
+    adv  on  nl       1 hour [100 or "bin-100"]
+    adv  on  nl       1 hour [200 or "bin-200"]
+    adv  off nl              [300 or "bin-300"]
+    adv  on  nl       2 hour [400 or "bin-400"]
+    adv  on  nl       2 hour [500 or "bin-500"]
+    adv  off nl              [600 or "bin-600"]
+    mand off nl              [700 or "bin-700"]
+    mand off nl              [800 or "bin-800"]
+    mand off nl              [900 or "bin-900"]
+
+Goodbye
+Errors:
+Error: No permission to perform requested operation
+Error: No permission to perform requested operation
+Error: No permission to perform requested operation
+killing pmlogger used for advisory tests...
+primary pmlogger terminated
+
+starting new pmlogger for mandatory tests...
+primary pmlogger alive
+
+================
+checking mandatory access for this host...
+(100,400,700 will change)
+Connected to primary pmlogger at ME
+sample.bin
+    adv  off nl              [100 or "bin-100"]
+    adv  off nl              [200 or "bin-200"]
+    adv  off nl              [300 or "bin-300"]
+    adv  off nl              [400 or "bin-400"]
+    adv  off nl              [500 or "bin-500"]
+    adv  off nl              [600 or "bin-600"]
+    mand off nl              [700 or "bin-700"]
+    mand off nl              [800 or "bin-800"]
+    mand off nl              [900 or "bin-900"]
+
+sample.bin
+    mand on  nl       3 hour [100 or "bin-100"]
+    adv  off nl              [200 or "bin-200"]
+    adv  off nl              [300 or "bin-300"]
+    mand on  nl       4 hour [400 or "bin-400"]
+    adv  off nl              [500 or "bin-500"]
+    adv  off nl              [600 or "bin-600"]
+    mand on  nl       5 hour [700 or "bin-700"]
+    mand off nl              [800 or "bin-800"]
+    mand off nl              [900 or "bin-900"]
+
+Goodbye
+
+================
+checking mandatory access for other1...
+Expect 3 permission errors
+Connected to primary pmlogger at ME
+sample.bin
+    mand on  nl       3 hour [100 or "bin-100"]
+    adv  off nl              [200 or "bin-200"]
+    adv  off nl              [300 or "bin-300"]
+    mand on  nl       4 hour [400 or "bin-400"]
+    adv  off nl              [500 or "bin-500"]
+    adv  off nl              [600 or "bin-600"]
+    mand on  nl       5 hour [700 or "bin-700"]
+    mand off nl              [800 or "bin-800"]
+    mand off nl              [900 or "bin-900"]
+
+sample.bin
+    mand on  nl       3 hour [100 or "bin-100"]
+    adv  off nl              [200 or "bin-200"]
+    adv  off nl              [300 or "bin-300"]
+    mand on  nl       4 hour [400 or "bin-400"]
+    adv  off nl              [500 or "bin-500"]
+    adv  off nl              [600 or "bin-600"]
+    mand on  nl       5 hour [700 or "bin-700"]
+    mand off nl              [800 or "bin-800"]
+    mand off nl              [900 or "bin-900"]
+
+Goodbye
+Errors:
+Error: No permission to perform requested operation
+Error: No permission to perform requested operation
+Error: No permission to perform requested operation
+
+================
+checking mandatory access for other2...
+Expect 3 permission errors
+Connected to primary pmlogger at ME
+sample.bin
+    mand on  nl       3 hour [100 or "bin-100"]
+    adv  off nl              [200 or "bin-200"]
+    adv  off nl              [300 or "bin-300"]
+    mand on  nl       4 hour [400 or "bin-400"]
+    adv  off nl              [500 or "bin-500"]
+    adv  off nl              [600 or "bin-600"]
+    mand on  nl       5 hour [700 or "bin-700"]
+    mand off nl              [800 or "bin-800"]
+    mand off nl              [900 or "bin-900"]
+
+sample.bin
+    mand on  nl       3 hour [100 or "bin-100"]
+    adv  off nl              [200 or "bin-200"]
+    adv  off nl              [300 or "bin-300"]
+    mand on  nl       4 hour [400 or "bin-400"]
+    adv  off nl              [500 or "bin-500"]
+    adv  off nl              [600 or "bin-600"]
+    mand on  nl       5 hour [700 or "bin-700"]
+    mand off nl              [800 or "bin-800"]
+    mand off nl              [900 or "bin-900"]
+
+Goodbye
+Errors:
+Error: No permission to perform requested operation
+Error: No permission to perform requested operation
+Error: No permission to perform requested operation
+
+================
+checking 2nd pmlc for pmlogger (should fail)...
+Goodbye
+Errors:
+Unable to connect to primary pmlogger at ME: Address already in use
+Restarting pmcd and friends...
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

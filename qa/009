@@ -1,0 +1,38 @@
+#! /bin/sh
+# PCP QA Test No. 009
+# exercise ipc/shm/msg statistics
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+if [ $PCP_PLATFORM != irix ]
+then
+    echo "No ipc/shm/sem metrics in $PCP_PLATFORM" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# blow away any residual junk
+$sudo src/ipcs_clear
+
+src/ipc 2>&1 \
+| sed \
+    -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+    -e 's/SHMID_[0-9]*/SHMID_INTEGER/g' \
+    -e 's/SEMSET_[0-9]*/SEMSET_INTEGER/g' \
+    -e 's/SEMID_[0-9]*\.[0-9]*/SEMID_INTEGER/g' \
+    -e 's/inst \[[0-9]*/inst [ID/' \
+    -e '/ value /s/ value .*/ value .../' \
+    -e 's/valfmt: [01]/valfmt: ?/' \
+    -e '/^shmindom=/d'
+
+exit $?

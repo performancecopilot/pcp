@@ -1,0 +1,10 @@
+QA output created by 141
+=== bar bar ===
+
+=== bar ./bar ===
+
+=== ./bar ./bar ===
+
+=== bar ...fullpath.../bar ===
+
+=== ...fullpath.../bar ...fullpath.../bar ===

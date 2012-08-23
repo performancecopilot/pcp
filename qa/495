@@ -1,0 +1,177 @@
+#!/bin/sh
+# PCP QA Test No. 495
+# pmlogrewrite metric rule, indom clause - exercise all options
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which pmlogrewrite >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun pmlogrewrite not installed
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e '/[-+ ]\[[0-9][0-9]* bytes]/d' \
+	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/"
+}
+
+_cmp()
+{
+    if [ ! -f "$1.0" ]
+    then
+	echo "Arrgh ... $1.0 missing" | _filter
+	return
+    fi
+    if [ ! -f "$2.0" ]
+    then
+	echo "Arrgh ... $2.0 missing" | _filter
+	return
+    fi
+    pmdumplog -z -a $1 | tee -a $seq.full >$tmp.in
+    pmdumplog -z -a $2 | tee -a $seq.full >$tmp.out
+    diff -u $tmp.in $tmp.out | _filter
+}
+
+# real QA test starts here
+
+echo "non-null -> non-null cases"
+rm -f $tmp.old.*
+pmlogextract -s 3 src/mirage-1 $tmp.old
+sed -e '/^#/d' <<End-of-File | while read arch_args spec
+# archive[|arg1[|arg2[|...]]]	metric spec ...
+$tmp.old	metric sample.mirage { indom -> 29.8 }
+$tmp.old	metric sample.mirage { indom -> 29.8 output inst 4 }
+$tmp.old	metric sample.mirage { indom -> 29.8 output iname "m-04" }
+$tmp.old	metric sample.mirage { indom -> 29.8 output first }
+$tmp.old	metric sample.mirage { indom -> 29.8 output last }
+$tmp.old	metric sample.mirage { indom -> 29.8 output min }
+$tmp.old	metric sample.mirage { indom -> 29.8 output max }
+$tmp.old	metric sample.mirage { indom -> 29.8 output sum }
+$tmp.old	metric sample.mirage { indom -> 29.8 output avg }
+# warning cases
+$tmp.old	metric sample.mirage { indom -> 29.8 output inst 12345 }
+$tmp.old	metric sample.mirage { indom -> 29.8 output iname "m-12345" }
+$tmp.old	metric sample.mirage { indom -> 29.8 output inst 11 }
+$tmp.old	metric sample.mirage { indom -> 29.8 output inst 2 }
+End-of-File
+do
+    echo | tee -a $seq.full
+    echo "$spec" >$tmp.config
+    echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+    rm -f $tmp.new.*
+    pmlogrewrite -ws -c $tmp.config `echo $arch_args | sed -e 's/|/ /g'` $tmp.new 2>&1 | _filter
+    _cmp `echo $arch_args | sed -e 's/|.*//'` $tmp.new
+done
+
+echo
+echo "non-null -> null cases"
+rm -f $tmp.old.*
+pmlogextract -s 3 src/ok-foo $tmp.old
+sed -e '/^#/d' <<End-of-File | while read arch_args spec
+# archive[|arg1[|arg2[|...]]]	metric spec ...
+$tmp.old	metric sample.colour { indom -> NULL }
+$tmp.old	metric sample.colour { indom -> NULL output inst 1 }
+$tmp.old	metric sample.colour { indom -> NULL output iname "green with extra text for no value" }
+$tmp.old	metric sample.colour { indom -> NULL output first }
+$tmp.old	metric sample.colour { indom -> NULL output last }
+$tmp.old	metric sample.colour { indom -> NULL output min }
+$tmp.old	metric sample.colour { indom -> NULL output max }
+$tmp.old	metric sample.colour { indom -> NULL output sum }
+$tmp.old	metric sample.colour { indom -> NULL output avg }
+# warning cases
+$tmp.old	metric sample.colour { indom -> NULL output inst 12345 }
+$tmp.old	metric sample.colour { indom -> NULL output iname "purple" }
+End-of-File
+do
+    echo | tee -a $seq.full
+    echo "$spec" >$tmp.config
+    echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+    rm -f $tmp.new.*
+    pmlogrewrite -ws -c $tmp.config `echo $arch_args | sed -e 's/|/ /g'` $tmp.new 2>&1 | _filter
+    _cmp `echo $arch_args | sed -e 's/|.*//'` $tmp.new
+done
+
+echo
+echo "null -> non-null cases"
+rm -f $tmp.old.*
+pmlogextract -s 3 src/ok-foo $tmp.old
+sed -e '/^#/d' <<End-of-File | while read arch_args spec
+# archive[|arg1[|arg2[|...]]]	metric spec ...
+$tmp.old	metric sample.seconds { indom -> 29.2 }
+$tmp.old	metric sample.seconds { indom -> 29.2 output inst 100 }
+$tmp.old	metric sample.seconds { indom -> 29.2 output iname "bin-300" }
+$tmp.old	metric sample.seconds { indom -> 29.2 output first }
+$tmp.old	metric sample.seconds { indom -> 29.2 output last }
+$tmp.old	metric sample.seconds { indom -> 29.2 output min }
+$tmp.old	metric sample.seconds { indom -> 29.2 output max }
+$tmp.old	metric sample.seconds { indom -> 29.2 output sum }
+$tmp.old	metric sample.seconds { indom -> 29.2 output avg }
+# warning cases
+$tmp.old	metric sample.seconds { indom -> 29.2 output inst 12345 }
+$tmp.old	metric sample.seconds { indom -> 29.2 output iname "purple" }
+End-of-File
+do
+    echo | tee -a $seq.full
+    echo "$spec" >$tmp.config
+    echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+    rm -f $tmp.new.*
+    pmlogrewrite -ws -c $tmp.config `echo $arch_args | sed -e 's/|/ /g'` $tmp.new 2>&1 | _filter
+    _cmp `echo $arch_args | sed -e 's/|.*//'` $tmp.new
+done
+
+echo
+echo "spaces in inames cases"
+rm -f $tmp.old.*
+pmlogextract -s 3 src/moomba.pmkstat $tmp.old
+sed -e '/^#/d' <<End-of-File | while read arch_args spec
+# archive[|arg1[|arg2[|...]]]	metric spec ...
+# non-null -> null (so input side selection)
+$tmp.old	metric irix.kernel.all.load { indom -> NULL }
+$tmp.old	metric irix.kernel.all.load { indom -> NULL output inst 5 }
+$tmp.old	metric irix.kernel.all.load { indom -> NULL output iname "1" }
+$tmp.old	metric irix.kernel.all.load { indom -> NULL output iname "1 minute" }
+$tmp.old	metric irix.kernel.all.load { indom -> NULL output iname "1 xxx" }
+$tmp.old	metric irix.kernel.all.load { indom -> NULL output iname "15" }
+$tmp.old	metric irix.kernel.all.load { indom -> NULL output iname "15 " }
+$tmp.old	metric irix.kernel.all.load { indom -> NULL output iname "15 min but no one looks at this" }
+$tmp.old	metric irix.kernel.all.load { indom -> NULL output iname "159" }
+# null -> non-null (so output side selection)
+$tmp.old	metric irix.disk.all.read { indom -> 1.5 }
+$tmp.old	metric irix.disk.all.read { indom -> 1.5 output inst 5 }
+$tmp.old	metric irix.disk.all.read { indom -> 1.5 output iname "1" }
+$tmp.old	metric irix.disk.all.read { indom -> 1.5 output iname "1 minute" }
+$tmp.old	metric irix.disk.all.read { indom -> 1.5 output iname "1 xxx" }
+$tmp.old	metric irix.disk.all.read { indom -> 1.5 output iname "15" }
+$tmp.old	metric irix.disk.all.read { indom -> 1.5 output iname "15 " }
+$tmp.old	metric irix.disk.all.read { indom -> 1.5 output iname "15 min but no one looks at this" }
+$tmp.old	metric irix.disk.all.read { indom -> 1.5 output iname "159" }
+End-of-File
+do
+    echo | tee -a $seq.full
+    echo "$spec" >$tmp.config
+    echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+    rm -f $tmp.new.*
+    pmlogrewrite -ws -c $tmp.config `echo $arch_args | sed -e 's/|/ /g'` $tmp.new 2>&1 | _filter
+    _cmp `echo $arch_args | sed -e 's/|.*//'` $tmp.new
+done
+
+# success, all done
+exit

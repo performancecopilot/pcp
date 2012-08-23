@@ -1,0 +1,157 @@
+QA output created by 391
+
+=== archive src/foo ===
+
+metric: sample.seconds
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp1 -s 6 -a src/foo sample.seconds
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.bin
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp1 -s 6 -a src/foo sample.bin
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.colour
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp1 -s 6 -a src/foo sample.colour
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.drift
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp1 -s 6 -a src/foo sample.drift
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.lights
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp1 -s 6 -a src/foo sample.lights
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== archive src/mv-foo ===
+
+metric: sample.seconds
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp1 -s 6 -a src/mv-foo sample.seconds
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.bin
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp1 -s 6 -a src/mv-foo sample.bin
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.colour
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp1 -s 6 -a src/mv-foo sample.colour
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.drift
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp1 -s 6 -a src/mv-foo sample.drift
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.lights
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp1 -s 6 -a src/mv-foo sample.lights
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== archive src/noti-foo ===
+
+metric: sample.seconds
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp1 -s 6 -a src/noti-foo sample.seconds
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.bin
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp1 -s 6 -a src/noti-foo sample.bin
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.colour
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp1 -s 6 -a src/noti-foo sample.colour
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.drift
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp1 -s 6 -a src/noti-foo sample.drift
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric: sample.lights
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp1 -s 6 -a src/noti-foo sample.lights
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

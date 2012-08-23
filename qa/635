@@ -1,0 +1,250 @@
+#! /bin/sh
+# PCP QA Test No. 635
+# Check Linux network.interface metrics
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+. ./localconfig
+if [ $PCP_PLATFORM != linux ]
+then
+    echo "depends on Linux netstat -i output format" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo >$seq.full
+
+# Get the list of network interfaces from ifconfig
+#
+ifconfig -a \
+    | sed -n -e '/^[^ 	]/{
+s/[ 	].*//
+p
+}' \
+    | LC_COLLATE=POSIX sort \
+    > $tmp.net.indom
+
+pminfo -f network.interface.total.drops \
+    | $PCP_AWK_PROG '
+	/ inst /	{ print $4 }
+			{ next } ' \
+    | tr -d '"]' \
+    | LC_COLLATE=POSIX sort \
+    > $tmp.pcp.indom
+
+if diff $tmp.pcp.indom $tmp.net.indom >$tmp.indom.diff
+then
+    :
+else
+    echo "Instance domain for network.interface.total.drops incorrect:"
+    echo "diff output (PCP first, then ifconfig):"
+    cat $tmp.indom.diff
+    status=1
+fi
+
+# Metrics to test.  All of these should be counters.
+#	out.qlength, out.qmax
+# are excluded because they're instantaneous values.
+#
+cat >$tmp.metrics <<END
+in.errors
+in.packets
+in.drops
+out.errors
+out.packets
+out.drops
+END
+
+# sample output
+#kenj-pc 68% netstat -i
+#Kernel Interface table
+#Iface   MTU Met    RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg
+#eth0   1500   0     5212      0      0      0     3080      2      0      0 BRU
+#lo     3924   0   164293      0      0      0   164293      0      0      0 LRU
+#
+#
+# Grab the netstat statistics.  Get name and mtu:
+#
+echo >>$seq.full
+echo "=== netstat for first i/f name and mtu ===" >>$seq.full
+netstat -i \
+    | tee -a $seq.full \
+    | sed -e 's/\*/ /' \
+    | $PCP_AWK_PROG 'NR > 2 { print $1, $2 }' \
+    > $tmp.net.1a
+echo "===" >>$seq.full
+cat $tmp.net.1a >>$seq.full
+
+# Then recv packets, recv errors, recv drops, xmit packets, xmit errors
+# and xmit drops.
+#
+#Iface     MTU Met   RX-OK RX-ERR RX-DRP RX-OVR   TX-OK TX-ERR TX-DRP TX-OVR Flg
+#eth0       1500   0 12263928      0      0      0 3273749      0      0      0 BMRU
+#lo        16436   0 3489788      0      0      0 3489788      0      0      0 LRU
+#
+# Note: drops metric is really ?-DRP + ?-OVR ... visible in netstat, but
+# 	not /proc/net/dev that the Linux PMDA uses
+#
+echo >>$seq.full
+echo "=== netstat for first counts ===" >>$seq.full
+netstat -i \
+    | tee -a $seq.full \
+    | sed \
+	-e 's/\*/ /' \
+    | $PCP_AWK_PROG 'NR > 2 { print $4, $5, $6+$7, $8, $9, $10+$11 }' \
+    > $tmp.net.1b
+echo "===" >>$seq.full
+cat $tmp.net.1b >>$seq.full
+
+# and stick 'em together (just lick and press)
+#
+paste $tmp.net.1a $tmp.net.1b \
+    | LC_COLLATE=POSIX sort \
+    >$tmp.net.1
+
+# Now get the metrics
+#
+echo >>$seq.full
+echo "=== pminfo ==" >>$seq.full
+for m in `cat $tmp.metrics`
+do
+    pminfo -f network.interface.$m \
+    | tee -a $seq.full \
+    | $PCP_AWK_PROG '
+	/ inst /	{ print $4, $6 }
+			{ next } ' \
+    | tr -d '"]' \
+    | LC_COLLATE=POSIX sort \
+    > $tmp.vals.$m.1
+done
+
+otherhost=`./getpmcdhosts -L -n 1 2>$tmp.out`
+if [ -z "$otherhost" ]
+then
+    cat $tmp.out >$seq.notrun
+    exit
+fi
+
+# Generate a bit of network traffic
+#
+$sudo ping -f -c 100 localhost >/dev/null 2>&1 &
+$sudo ping -f -c 100 $otherhost >/dev/null 2>&1 &
+sleep 3
+
+for m in `cat $tmp.metrics`
+do
+    pminfo -f network.interface.$m \
+	| $PCP_AWK_PROG '
+	    / inst /	{ print $4, $6 }
+			{ next } ' \
+	| tr -d '"]' \
+	| LC_COLLATE=POSIX sort \
+	> $tmp.vals.$m.2
+
+    join -1 1 -2 1 -o 1.2,2.2,1.1 -t' ' $tmp.vals.$m.1 $tmp.vals.$m.2 >$tmp.vals
+    while read v1 v2 inst
+    do
+	if [ $v2 -lt $v1 ]
+	then
+	    echo "$m[\"$inst\"] decreased from $v1 to $v2!"
+	    status=1
+	fi
+    done <$tmp.vals
+
+done
+
+# Grab another batch of netstat statistics.  Get name and mtu:
+#
+echo >>$seq.full
+echo "=== netstat for second i/f name and mtu ===" >>$seq.full
+netstat -i \
+    | tee -a $seq.full \
+    | sed -e 's/\*/ /' \
+    | $PCP_AWK_PROG 'NR > 2 { print $1, $2 }' \
+    > $tmp.net.2a
+echo "===" >>$seq.full
+cat $tmp.net.2a >>$seq.full
+
+# Then recv packets, recv errors, recv drops, xmit packets, xmit errors
+# and xmit drops.
+#
+echo >>$seq.full
+echo "=== netstat for second counts ===" >>$seq.full
+netstat -i \
+    | tee -a $seq.full \
+    | sed \
+	-e 's/\*/ /' \
+    | $PCP_AWK_PROG 'NR > 2 { print $4, $5, $6+$7, $8, $9, $10+$11 }' \
+    > $tmp.net.2b
+echo "===" >>$seq.full
+cat $tmp.net.2b >>$seq.full
+
+# and stick 'em together (just lick and press)
+#
+paste $tmp.net.2a $tmp.net.2b \
+    | LC_COLLATE=POSIX sort \
+    >$tmp.net.2
+
+$PCP_AWK_PROG < $tmp.net.1 '
+	{
+	    print $1, $3 >"'$tmp.net.in.packets.1'"
+	    print $1, $4 >"'$tmp.net.in.errors.1'"
+	    print $1, $5 >"'$tmp.net.in.drops.1'"
+	    print $1, $6 >"'$tmp.net.out.packets.1'"
+	    print $1, $7 >"'$tmp.net.out.errors.1'"
+	    print $1, $8 >"'$tmp.net.out.drops.1'"
+	}'
+
+$PCP_AWK_PROG < $tmp.net.2 '
+	{
+	    print $3 >"'$tmp.net.in.packets.2'"
+	    print $4 >"'$tmp.net.in.errors.2'"
+	    print $5 >"'$tmp.net.in.drops.2'"
+	    print $6 >"'$tmp.net.out.packets.2'"
+	    print $7 >"'$tmp.net.out.errors.2'"
+	    print $8 >"'$tmp.net.out.drops.2'"
+	}'
+
+# Bring the two netstat snaps together and check the pminfo data falls
+# within the netstat data.
+#
+for m in `cat $tmp.metrics`
+do
+    [ ! -f $tmp.net.$m.1 ] && continue
+
+    paste $tmp.net.$m.1 $tmp.net.$m.2 > $tmp.net
+
+    echo '' >>$seq.full
+    echo "=== $m pminfo ===" >>$seq.full
+    cat $tmp.vals.$m.2 >>$seq.full
+    echo "--- $m netstat ---" >>$seq.full
+    cat $tmp.net >>$seq.full
+    join -1 1 -2 1 -o 1.1,2.2,1.2,2.3 $tmp.vals.$m.2 $tmp.net >$tmp.all
+
+    while read inst nv1 pcp nv2
+    do
+	if src/compare $nv1 $pcp $nv2
+	then
+	    :
+	else
+	    echo "network.interface.$m[\"$inst\"] value $pcp not in range $nv1..$nv2"
+	    status=1
+	fi
+    done <$tmp.all
+done
+
+exit

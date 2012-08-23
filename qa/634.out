@@ -1,0 +1,50 @@
+QA output created by 634
+time zone from archive ...
+Note: timezone set to local timezone of host "oasis.reading.sgi.com" from archive
+
+metric:    hinv.ncpu
+archive:   src/gmt-boring
+host:      oasis.reading.sgi.com
+start:     Wed May 30 03:54:49 2001
+end:       Wed May 30 03:55:03 2001
+semantics: discrete instantaneous value
+units:     none
+samples:   3
+interval:  5.00 sec
+03:54:49.319  No values available
+03:54:54.319          2
+03:54:59.319          2
+
+GMT via -Z ...
+Note: timezone set to "TZ=GMT"
+
+metric:    hinv.ncpu
+archive:   src/gmt-boring
+host:      oasis.reading.sgi.com
+start:     Wed May 30 02:54:49 2001
+end:       Wed May 30 02:55:03 2001
+semantics: discrete instantaneous value
+units:     none
+samples:   3
+interval:  5.00 sec
+02:54:49.319  No values available
+02:54:54.319          2
+02:54:59.319          2
+
+GMT via default local timezone ...
+
+metric:    hinv.ncpu
+archive:   src/gmt-boring
+host:      oasis.reading.sgi.com
+start:     Wed May 30 02:54:49 2001
+end:       Wed May 30 02:55:03 2001
+semantics: discrete instantaneous value
+units:     none
+samples:   3
+interval:  5.00 sec
+02:54:49.319  No values available
+02:54:54.319          2
+02:54:59.319          2
+
+Default timezone ... should be different to -z ...
+Different, as expected

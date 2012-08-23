@@ -1,0 +1,61 @@
+#! /bin/sh
+# PCP QA Test No. 046
+# archive logs for metrics with numval <= 0 ??
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+_filter()
+{
+    sed \
+	-e '/^\[[0-9]* bytes]/d' \
+	-e "/pmcd\.pmlogger\./s/\[$logger_pid/\[LOGGER_PID/g" \
+	-e "/pmcd\.pmlogger\./s/\"$logger_pid\"/\"LOGGER_PID\"/g" \
+	-e '/pmcd\.pmlogger\.port/s/value .*/value PORT/' \
+	-e '/pmcd\.pmlogger\.host/s/value ".*/value "HOST"/' \
+	-e '/pmcd\.pmlogger\.archive/s/value ".*/value "PATH"/' \
+	-e "/\"$logger_pid\"/s/$logger_pid/LOGGER_PID/g" \
+    | $PCP_AWK_PROG '
+$1 == "TIMESTAMP" && NF == 4	{ print "TIMESTAMP       0       OFFSET       OFFSET"; next }
+				{ print }' \
+    | src/hex2nbo
+}
+
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+cat > $tmp.config << EOF
+mandatory on 100 msec {
+	sample.noinst
+	sampledso.needprofile
+}
+EOF
+
+pmlogger -c $tmp.config -l $tmp.log -s 3 $tmp &
+logger_pid=$!
+wait
+_filter_pmlogger_log <$tmp.log
+pmdumplog -a $tmp | _filter_pmdumplog | _filter
+
+rm $tmp.*
+cat > $tmp.config << EOF
+mandatory on 100 msec {
+	sampledso.needprofile [terry,cathy,emma]
+}
+EOF
+
+pmlogger -c $tmp.config -l $tmp.log -s 3 $tmp &
+logger_pid=$!
+wait
+_filter_pmlogger_log <$tmp.log
+pmdumplog -a $tmp | _filter_pmdumplog | _filter
+
+exit 0

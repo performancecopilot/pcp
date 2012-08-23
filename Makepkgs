@@ -60,6 +60,7 @@ test ! -d $LOGDIR && mkdir $LOGDIR
 rm -rf $LOGDIR/* 
 
 tmp=/tmp/$$
+rm -f $tmp.failed
 trap "rm -f $tmp.*;" 0 1 2 3 15
 
 ARCH=`uname -m | sed -e 's/i.86/ia32/'`
@@ -159,6 +160,22 @@ echo "== Building pcp, log is in $LOGF"
 
 . ./VERSION.pcp
 
+configured="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
+echo "== Configuring pcp for vendor/distro installation ($configured)"
+if $verbose ; then
+    ./configure $configured 2>&1 | tee -a $LOGF || touch $tmp.failed
+else
+    ./configure $configured >> $LOGF 2>&1 || touch $tmp.failed
+fi
+if [ -f $tmp.failed ] ; then
+    if ! $verbose ; then
+        echo \"./configure\" failed, see log in $LOGF
+        tail $LOGF
+    fi
+    exit 1
+fi
+
+
 special=false
 [ "$VERS" = MINGW ] && special=windows
 [ -f /etc/debian_version ] && special=debian
@@ -166,12 +183,6 @@ special=false
 if [ $special != false ]
 then
     LOGF=`pwd`/$LOGF
-
-    if $verbose ; then
-	$MAKE -j 1 configure_pcp 2>&1 | tee -a $LOGF
-    else
-	$MAKE -j 1 configure_pcp 2>&1 >> $LOGF
-    fi
 
     echo
     echo "== src-link, log is in $LOGF" | tee -a $LOGF

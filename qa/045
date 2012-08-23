@@ -1,0 +1,29 @@
+#! /bin/sh
+# PCP QA Test No. 045
+# pmstore and numval == 0 or numval < 0
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/Permission denied/No permission to perform requested operation/'
+}
+
+# real QA test starts here
+pmstore sample.needprofile 1 | _filter
+
+pmstore -i terry sample.needprofile 1 | _filter
+
+pmstore sample.noinst 1 | _filter
+

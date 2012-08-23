@@ -1,0 +1,87 @@
+QA output created by 044
+
+metric:    sample.noinst
+host:      localhost
+semantics: instantaneous value
+units:     none
+samples:   1
+No values available
+
+sample.noinst
+No value(s) available!
+
+metric:    sampledso.needprofile
+host:      localhost
+semantics: discrete instantaneous value
+units:     none
+samples:   1
+
+pmval: pmFetch: Explicit instance identifier(s) required
+
+sampledso.needprofile
+Error: Explicit instance identifier(s) required
+
+metric:    proc.psinfo.pid
+host:      localhost
+semantics: discrete instantaneous value
+units:     none
+samples:   1
+
+pmval: pmFetch: Explicit instance identifier(s) required
+
+pmval: instance 123456789 not available
+
+proc.psinfo.pid
+Error: Explicit instance identifier(s) required
+
+metric:    proc.pstatus.syscall
+host:      localhost
+semantics: instantaneous value
+units:     none
+samples:   1
+
+pmval: pmFetch: Explicit instance identifier(s) required
+
+pmval: instance 123456789 not available
+
+proc.pstatus.syscall
+Error: Explicit instance identifier(s) required
+
+metric:    proc.pscred.ngroups
+host:      localhost
+semantics: instantaneous value
+units:     none
+samples:   1
+
+pmval: pmFetch: Explicit instance identifier(s) required
+
+pmval: instance 123456789 not available
+
+proc.pscred.ngroups
+Error: Explicit instance identifier(s) required
+
+metric:    proc.psusage.starttime
+host:      localhost
+semantics: discrete instantaneous value
+units:     sec
+samples:   1
+
+pmval: pmFetch: Explicit instance identifier(s) required
+
+pmval: instance 123456789 not available
+
+proc.psusage.starttime
+Error: Explicit instance identifier(s) required
+
+metric:    proc.memory.physical.stack
+host:      localhost
+semantics: instantaneous value
+units:     Kbyte
+samples:   1
+
+pmval: pmFetch: Explicit instance identifier(s) required
+
+pmval: instance 123456789 not available
+
+proc.memory.physical.stack
+Error: Explicit instance identifier(s) required

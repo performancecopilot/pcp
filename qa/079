@@ -1,0 +1,59 @@
+#! /bin/sh
+# PCP QA Test No. 079
+# exercise -z, -Z and -S for pmclient
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# need a constant archive for this ...
+#
+ARCH=src/moomba.client
+
+_filter()
+{
+    sed -e "s;$PCP_DOC_DIR;\$PCP_DOC_DIR;"
+}
+
+# real QA test starts here
+
+# be careful of bytes with the high-order bit set, the behaviour of
+# od(1) differs ... we don't really care too much about the first few
+# bytes, so the tr(1) mapping is OK ...
+#
+echo "Dump first 128 bytes ..."
+dd bs=128 count=1 if=$ARCH.0 2>/dev/null \
+| tr '\204\375\272' '\004\175\072' \
+| od -c \
+| sed -e 's/^\([0-7][0-7]*\)  */\1 /'
+
+echo ""
+TZ=EST-10
+export TZ
+echo "Local time, TZ=$TZ"
+pmclient -a $ARCH | _filter
+
+echo ""
+echo "-Z UTC"
+pmclient -a $ARCH -Z UTC | _filter
+
+echo ""
+echo "-Z PDT8"
+pmclient -a $ARCH -Z PDT8 | _filter
+
+echo ""
+echo "local time at collection host"
+pmclient -a $ARCH -z | _filter
+
+echo ""
+echo "and again, but skip 15 seconds"
+pmclient -a $ARCH -S 15 -z | _filter

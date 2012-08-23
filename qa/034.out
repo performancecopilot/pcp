@@ -1,0 +1,16 @@
+QA output created by 034
+
+=== src/bar ===
+100 msec requested: no. of samples within range, avg within 10% of requested delay
+500 msec requested: no. of samples within range, avg within 10% of requested delay
+900 msec requested: no. of samples within range, avg within 10% of requested delay
+
+=== src/mv-bar ===
+100 msec requested: no. of samples within range, avg within 10% of requested delay
+500 msec requested: no. of samples within range, avg within 10% of requested delay
+900 msec requested: no. of samples within range, avg within 10% of requested delay
+
+=== src/noti-bar ===
+100 msec requested: no. of samples within range, avg within 10% of requested delay
+500 msec requested: no. of samples within range, avg within 10% of requested delay
+900 msec requested: no. of samples within range, avg within 10% of requested delay

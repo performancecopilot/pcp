@@ -1,0 +1,69 @@
+#! /bin/sh
+# PCP QA Test No. 640
+# setuid root exploit with pmpost
+# pv:827972
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+if which pmpost >/dev/null 2>&1
+then
+    if ls -l `which pmpost` | cut -c4 | grep -q 's' 
+    then
+	:
+    else
+	echo "pmpost binary is not installed setuid" >$seq.notrun
+	echo "$seq: [not run] `cat $seq.notrun`"
+	exit 0
+    fi
+else
+    echo "No pmpost binary installed" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+$sudo cp /etc/passwd $tmp.passwd
+
+_filter()
+{
+    # map the IRIX message to the Linux message to avoid
+    # multiple *.out files
+    #
+    sed \
+	-e 's;Unknown user id: r00t;/bin/su: user r00t does not exist;' \
+	-e 's;Unknown id: r00t;/bin/su: user r00t does not exist;'
+}
+
+# real QA test starts here
+
+src/pmpost-exploit `which pmpost` >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+if [ $sts = 0 ]
+then
+    echo "Success from src/pmpost-exploit"
+else
+    echo "Failure from src/pmpost-exploit"
+fi
+
+if diff /etc/passwd $tmp.passwd
+then
+    :
+else
+    echo "Arrgh ... /etc/passwd was altered! ... restoring it"
+    $sudo cp $tmp.passwd /etc/passwd
+fi
+
+# success, all done
+exit

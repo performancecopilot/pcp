@@ -1,0 +1,207 @@
+QA output created by 214
+=== src/tzchange-10-a ===
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo-laptop
+  commencing Fri Oct 16 10:49:14.259 2009
+  ending     Fri Oct 16 10:49:15.060 2009
+Archive timezone: EST-10
+
+=== src/tzchange-10-b ===
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo-laptop
+  commencing Fri Oct 16 10:49:15.066 2009
+  ending     Fri Oct 16 10:49:15.866 2009
+Archive timezone: EST-10
+
+=== src/tzchange-11-a ===
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo-laptop
+  commencing Fri Oct 16 11:49:19.458 2009
+  ending     Fri Oct 16 11:49:20.258 2009
+Archive timezone: EST-11
+
+=== src/tzchange-11-b ===
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo-laptop
+  commencing Fri Oct 16 11:49:20.262 2009
+  ending     Fri Oct 16 11:49:21.062 2009
+Archive timezone: EST-11
+
+=== src/tzchange-12-a ===
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo-laptop
+  commencing Fri Oct 16 12:49:24.572 2009
+  ending     Fri Oct 16 12:49:25.372 2009
+Archive timezone: EST-12
+
+=== src/tzchange-12-b ===
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo-laptop
+  commencing Fri Oct 16 12:49:25.379 2009
+  ending     Fri Oct 16 12:49:26.178 2009
+Archive timezone: EST-12
+
+
+=== pmlogextract  src/tzchange-10-a src/tzchange-10-b src/tzchange-11-a src/tzchange-11-b src/tzchange-12-a src/tzchange-12-b ===
+pmlogextract: Warning: timezone mismatch for input archives
+archive: src/tzchange-12-b timezone: EST-12 [will be used]
+archive: src/tzchange-10-a timezone: EST-10 [will be ignored]
+pmlogextract: Warning: timezone mismatch for input archives
+archive: src/tzchange-12-b timezone: EST-12 [will be used]
+archive: src/tzchange-10-b timezone: EST-10 [will be ignored]
+pmlogextract: Warning: timezone mismatch for input archives
+archive: src/tzchange-12-b timezone: EST-12 [will be used]
+archive: src/tzchange-11-a timezone: EST-11 [will be ignored]
+pmlogextract: Warning: timezone mismatch for input archives
+archive: src/tzchange-12-b timezone: EST-12 [will be used]
+archive: src/tzchange-11-b timezone: EST-11 [will be ignored]
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo-laptop
+  commencing Fri Oct 16 12:49:14.259 2009
+  ending     Fri Oct 16 12:49:26.178 2009
+Archive timezone: EST-12
+
+=== pmlogextract -f src/tzchange-10-a src/tzchange-10-b src/tzchange-11-a src/tzchange-11-b src/tzchange-12-a src/tzchange-12-b ===
+pmlogextract: Warning: timezone mismatch for input archives
+archive: src/tzchange-10-a timezone: EST-10 [will be used]
+archive: src/tzchange-11-a timezone: EST-11 [will be ignored]
+pmlogextract: Warning: timezone mismatch for input archives
+archive: src/tzchange-10-a timezone: EST-10 [will be used]
+archive: src/tzchange-11-b timezone: EST-11 [will be ignored]
+pmlogextract: Warning: timezone mismatch for input archives
+archive: src/tzchange-10-a timezone: EST-10 [will be used]
+archive: src/tzchange-12-a timezone: EST-12 [will be ignored]
+pmlogextract: Warning: timezone mismatch for input archives
+archive: src/tzchange-10-a timezone: EST-10 [will be used]
+archive: src/tzchange-12-b timezone: EST-12 [will be ignored]
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo-laptop
+  commencing Fri Oct 16 10:49:14.259 2009
+  ending     Fri Oct 16 10:49:26.178 2009
+Archive timezone: EST-10
+
+=== pmlogextract  src/tzchange-10-a.0 src/tzchange-11-a.0 src/tzchange-12-a.0 ===
+pmlogextract: Warning: timezone mismatch for input archives
+archive: src/tzchange-12-a.0 timezone: EST-12 [will be used]
+archive: src/tzchange-10-a.0 timezone: EST-10 [will be ignored]
+pmlogextract: Warning: timezone mismatch for input archives
+archive: src/tzchange-12-a.0 timezone: EST-12 [will be used]
+archive: src/tzchange-11-a.0 timezone: EST-11 [will be ignored]
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo-laptop
+  commencing Fri Oct 16 12:49:14.259 2009
+  ending     Fri Oct 16 12:49:25.372 2009
+Archive timezone: EST-12
+
+=== pmlogextract -f src/tzchange-10-a.0 src/tzchange-11-a.0 src/tzchange-12-a.0 ===
+pmlogextract: Warning: timezone mismatch for input archives
+archive: src/tzchange-10-a.0 timezone: EST-10 [will be used]
+archive: src/tzchange-11-a.0 timezone: EST-11 [will be ignored]
+pmlogextract: Warning: timezone mismatch for input archives
+archive: src/tzchange-10-a.0 timezone: EST-10 [will be used]
+archive: src/tzchange-12-a.0 timezone: EST-12 [will be ignored]
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo-laptop
+  commencing Fri Oct 16 10:49:14.259 2009
+  ending     Fri Oct 16 10:49:25.372 2009
+Archive timezone: EST-10
+
+=== pmlogextract  src/tzchange-10-a.0 src/tzchange-11-a.0 ===
+pmlogextract: Warning: timezone mismatch for input archives
+archive: src/tzchange-11-a.0 timezone: EST-11 [will be used]
+archive: src/tzchange-10-a.0 timezone: EST-10 [will be ignored]
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo-laptop
+  commencing Fri Oct 16 11:49:14.259 2009
+  ending     Fri Oct 16 11:49:20.258 2009
+Archive timezone: EST-11
+
+=== pmlogextract -f src/tzchange-10-a.0 src/tzchange-11-a.0 ===
+pmlogextract: Warning: timezone mismatch for input archives
+archive: src/tzchange-10-a.0 timezone: EST-10 [will be used]
+archive: src/tzchange-11-a.0 timezone: EST-11 [will be ignored]
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo-laptop
+  commencing Fri Oct 16 10:49:14.259 2009
+  ending     Fri Oct 16 10:49:20.258 2009
+Archive timezone: EST-10
+
+=== pmlogextract  src/tzchange-10-a.0 ===
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo-laptop
+  commencing Fri Oct 16 10:49:14.259 2009
+  ending     Fri Oct 16 10:49:15.060 2009
+Archive timezone: EST-10
+
+=== pmlogextract -f src/tzchange-10-a.0 ===
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo-laptop
+  commencing Fri Oct 16 10:49:14.259 2009
+  ending     Fri Oct 16 10:49:15.060 2009
+Archive timezone: EST-10
+
+=== pmlogextract  src/tzchange-11-a.0 src/tzchange-11-b.0 ===
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo-laptop
+  commencing Fri Oct 16 11:49:19.458 2009
+  ending     Fri Oct 16 11:49:21.062 2009
+Archive timezone: EST-11
+
+=== pmlogextract -f src/tzchange-11-a.0 src/tzchange-11-b.0 ===
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Note: timezone set to local timezone of host "bozo-laptop" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo-laptop
+  commencing Fri Oct 16 11:49:19.458 2009
+  ending     Fri Oct 16 11:49:21.062 2009
+Archive timezone: EST-11

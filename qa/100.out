@@ -1,0 +1,953 @@
+QA output created by 100
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # mandatory on once -> mandatory on once
+pmlc> log mandatory on once sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log mandatory on once sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    mand on             once
+
+sample.drift
+    mand on             once
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # mandatory on once -> mandatory maybe
+pmlc> log mandatory on once sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log mandatory maybe sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    mand on             once
+
+sample.drift
+    adv  off                
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # mandatory on once -> mandatory off
+pmlc> log mandatory on once sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log mandatory off sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    mand on             once
+
+sample.drift
+    mand off                
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # mandatory on once -> advisory on once
+pmlc> log mandatory on once sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log advisory on once sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    mand on             once
+
+sample.drift
+    adv  on             once
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # mandatory on once -> advisory off
+pmlc> log mandatory on once sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log advisory off sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    mand on             once
+
+sample.drift
+    adv  off                
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # mandatory maybe -> mandatory on once
+pmlc> log mandatory maybe sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log mandatory on once sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    adv  off                
+
+sample.drift
+    mand on             once
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # mandatory maybe -> mandatory maybe
+pmlc> log mandatory maybe sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log mandatory maybe sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    adv  off                
+
+sample.drift
+    adv  off                
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # mandatory maybe -> mandatory off
+pmlc> log mandatory maybe sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log mandatory off sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    adv  off                
+
+sample.drift
+    mand off                
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # mandatory maybe -> advisory on once
+pmlc> log mandatory maybe sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log advisory on once sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    adv  off                
+
+sample.drift
+    adv  on             once
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # mandatory maybe -> advisory off
+pmlc> log mandatory maybe sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log advisory off sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    adv  off                
+
+sample.drift
+    adv  off                
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # mandatory off -> mandatory on once
+pmlc> log mandatory off sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log mandatory on once sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    mand off                
+
+sample.drift
+    mand on             once
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # mandatory off -> mandatory maybe
+pmlc> log mandatory off sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log mandatory maybe sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    mand off                
+
+sample.drift
+    adv  off                
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # mandatory off -> mandatory off
+pmlc> log mandatory off sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log mandatory off sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    mand off                
+
+sample.drift
+    mand off                
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # mandatory off -> advisory on once
+pmlc> log mandatory off sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log advisory on once sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    mand off                
+
+sample.drift
+    adv  on             once
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # mandatory off -> advisory off
+pmlc> log mandatory off sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log advisory off sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    mand off                
+
+sample.drift
+    adv  off                
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # advisory on once -> mandatory on once
+pmlc> log advisory on once sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log mandatory on once sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    adv  on             once
+
+sample.drift
+    mand on             once
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # advisory on once -> mandatory maybe
+pmlc> log advisory on once sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log mandatory maybe sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    adv  on             once
+
+sample.drift
+    adv  off                
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # advisory on once -> mandatory off
+pmlc> log advisory on once sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log mandatory off sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    adv  on             once
+
+sample.drift
+    mand off                
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # advisory on once -> advisory on once
+pmlc> log advisory on once sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log advisory on once sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    adv  on             once
+
+sample.drift
+    adv  on             once
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # advisory on once -> advisory off
+pmlc> log advisory on once sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log advisory off sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    adv  on             once
+
+sample.drift
+    adv  off                
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # advisory off -> mandatory on once
+pmlc> log advisory off sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log mandatory on once sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    adv  off                
+
+sample.drift
+    mand on             once
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # advisory off -> mandatory maybe
+pmlc> log advisory off sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log mandatory maybe sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    adv  off                
+
+sample.drift
+    adv  off                
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # advisory off -> mandatory off
+pmlc> log advisory off sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log mandatory off sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    adv  off                
+
+sample.drift
+    mand off                
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # advisory off -> advisory on once
+pmlc> log advisory off sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log advisory on once sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    adv  off                
+
+sample.drift
+    adv  on             once
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> # setup
+pmlc> log mandatory maybe { sample.seconds sample.drift }
+pmlc> # advisory off -> advisory off
+pmlc> log advisory off sample.seconds
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log advisory off sample.drift
+pmlc> query { sample.seconds sample.drift }
+sample.seconds
+    adv  off                
+
+sample.drift
+    adv  off                
+
+pmlc> 
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+[command summary deleted ...]
+
+Connected to pmlogger on port PORT at HOSTNAME
+pmlc> log mandatory on 25 msec sample.long.one
+pmlc> 
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory on once
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: mandatory on once
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory on once
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory on once
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: mandatory off
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory on once
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: advisory on once
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory on once
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: advisory off
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: mandatory on once
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: mandatory off
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: advisory on once
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: advisory off
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory off
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: mandatory on once
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory off
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory off
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: mandatory off
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory off
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: advisory on once
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory off
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: advisory off
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: advisory on once
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: mandatory on once
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: advisory on once
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: advisory on once
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: mandatory off
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: advisory on once
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: advisory on once
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: advisory on once
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: advisory off
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: advisory off
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: mandatory on once
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: advisory off
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: advisory off
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: mandatory off
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: advisory off
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: advisory on once
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory maybe
+  metric: sample.seconds
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: advisory off
+  metric: sample.seconds
+
+DATE
+pmlc request from HOST: advisory off
+  metric: sample.drift
+
+DATE
+pmlc request from HOST: mandatory on 0.0 sec
+  metric: sample.long.one
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+
+Uniq filtered entries from pmdumplog ...
+2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+29.0.10 (sample.long.one): value NUMBER
+29.0.2 (sample.seconds): value NUMBER
+29.0.7 (sample.drift): value NUMBER

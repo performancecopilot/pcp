@@ -1,0 +1,32 @@
+#! /bin/sh
+# PCP QA Test No. 317
+# exercise pmlogsummary handling of corrupt log
+# (archive with dodgey metric descriptor, caused a core dump)
+#
+# Copyright (c) 2007 Aconex.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo && echo "Verify no pmlogsummary coredump..."
+pmlogsummary -v -z src/logsummary-bug >$tmp.out 2>$tmp.err
+cat $tmp.out
+cat $tmp.err
+
+echo && echo "Verify no pmlogcheck coredump..."
+pmlogcheck -z src/logsummary-bug >$tmp.out 2>$tmp.err
+cat $tmp.out
+cat $tmp.err
+
+# success, all done
+status=0
+exit

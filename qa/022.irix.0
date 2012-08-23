@@ -1,0 +1,302 @@
+QA output created by 022
+proc.nprocs
+proc.psinfo.state
+proc.psinfo.sname
+proc.psinfo.zomb
+proc.psinfo.nice
+proc.psinfo.flag
+proc.psinfo.uid
+proc.psinfo.gid
+proc.psinfo.pid
+proc.psinfo.ppid
+proc.psinfo.pgrp
+proc.psinfo.sid
+proc.psinfo.addr
+proc.psinfo.size
+proc.psinfo.rssize
+proc.psinfo.wchan
+proc.psinfo.start
+proc.psinfo.time
+proc.psinfo.pri
+proc.psinfo.oldpri
+proc.psinfo.cpu
+proc.psinfo.ttydev
+proc.psinfo.clname
+proc.psinfo.fname
+proc.psinfo.psargs
+proc.psinfo.uname
+proc.psinfo.gname
+proc.psinfo.ttyname
+proc.psinfo.ttymajor
+proc.psinfo.ttyminor
+proc.psinfo.ctime
+proc.psinfo.shareuid
+proc.psinfo.pset
+proc.psinfo.sonproc
+proc.psinfo.spid
+proc.psinfo.qtime
+proc.psinfo.thds
+proc.psinfo.wname
+proc.psinfo.jid
+proc.pstatus.flags
+proc.pstatus.why
+proc.pstatus.what
+proc.pstatus.cursig
+proc.pstatus.sigpend
+proc.pstatus.sighold
+proc.pstatus.info
+proc.pstatus.altstack
+proc.pstatus.action
+proc.pstatus.syscall
+proc.pstatus.nsysarg
+proc.pstatus.errno
+proc.pstatus.rval1
+proc.pstatus.rval2
+proc.pstatus.sysarg
+proc.pstatus.pid
+proc.pstatus.ppid
+proc.pstatus.pgrp
+proc.pstatus.sid
+proc.pstatus.utime
+proc.pstatus.stime
+proc.pstatus.cutime
+proc.pstatus.cstime
+proc.pstatus.clname
+proc.pstatus.instr
+proc.pstatus.reg
+proc.pstatus.nthreads
+proc.pstatus.thsigpend
+proc.pstatus.who
+proc.pscred.euid
+proc.pscred.ruid
+proc.pscred.suid
+proc.pscred.egid
+proc.pscred.rgid
+proc.pscred.sgid
+proc.pscred.ngroups
+proc.psusage.tstamp
+proc.psusage.starttime
+proc.psusage.utime
+proc.psusage.stime
+proc.psusage.minf
+proc.psusage.majf
+proc.psusage.utlb
+proc.psusage.nswap
+proc.psusage.gbread
+proc.psusage.bread
+proc.psusage.gbwrit
+proc.psusage.bwrit
+proc.psusage.sigs
+proc.psusage.vctx
+proc.psusage.ictx
+proc.psusage.sysc
+proc.psusage.syscr
+proc.psusage.syscw
+proc.psusage.syscps
+proc.psusage.sysci
+proc.psusage.graphfifo
+proc.psusage.graph_req
+proc.psusage.graph_wait
+proc.psusage.size
+proc.psusage.rss
+proc.psusage.inblock
+proc.psusage.oublock
+proc.psusage.ktlb
+proc.psusage.vfault
+proc.memory.virtual.txt
+proc.memory.virtual.dat
+proc.memory.virtual.bss
+proc.memory.virtual.stack
+proc.memory.virtual.shm
+proc.memory.physical.txt
+proc.memory.physical.dat
+proc.memory.physical.bss
+proc.memory.physical.stack
+proc.memory.physical.shm
+proc.accounting.flag
+proc.accounting.ash
+proc.accounting.prid
+proc.accounting.timers.utime
+proc.accounting.timers.stime
+proc.accounting.timers.bwtime
+proc.accounting.timers.rwtime
+proc.accounting.timers.qwtime
+proc.accounting.counts.mem
+proc.accounting.counts.swaps
+proc.accounting.counts.chr
+proc.accounting.counts.chw
+proc.accounting.counts.br
+proc.accounting.counts.bw
+proc.accounting.counts.syscr
+proc.accounting.counts.syscw
+pid=PID ppid=PPID
+metrics[0] = <proc.psinfo.time>
+metrics[1] = <proc.pstatus.utime>
+metrics[2] = <proc.psusage.utime>
+metrics[3] = <proc.pscred.suid>
+metrics[4] = <proc.memory.virtual.txt>
+metrics[5] = <proc.memory.physical.txt>
+metrics[6] = <proc.psinfo.uname>
+metrics[7] = <proc.psinfo.gname>
+metrics[8] = <proc.psinfo.ttyname>
+
+==================
+=== Test: PMNS ===
+==================
+
+=========================
+=== End Of Test: PMNS ===
+=========================
+
+==================
+=== Test: desc ===
+==================
+
+=========================
+=== End Of Test: desc ===
+=========================
+
+======================
+=== Test: instance ===
+======================
+cpid=CPID
+
+--- GetInDom ---
+
+--- LookupInDom ---
+  Death of child detected, pid=CPID
+
+--- NameInDom ---
+  Death of child detected
+
+=============================
+=== End Of Test: instance ===
+=============================
+
+===========================
+=== Test: profile/fetch ===
+===========================
+
+--- Check profile in context dump... ---
+Dump Contexts: current context = 0
+Context[0] host localhost: pmcd=CONNECTED profile=NOT_SENT fd=N refcnt=N origin=0.000000 delta=0
+Dump Instance Profile state=INCLUDE, 1 profiles
+	Profile [0] indom=INDOM [INDOM] state=EXCLUDE 2 instances
+		Instances: [PID] [PPID]
+--- End Check profile in context dump... ---
+
+--- Fetch Over Restricted Instance Domain ... ---
+pmResult ... numpmid: 9
+  PMID (proc.psinfo.time): numval: 2 valfmt: 0 vlist[]:
+    inst [NNN] value INTEGER
+    inst [NNN] value INTEGER
+  PMID (proc.pstatus.utime): numval: 2 valfmt: 0 vlist[]:
+    inst [NNN] value INTEGER
+    inst [NNN] value INTEGER
+  PMID (proc.psusage.utime): numval: 2 valfmt: 0 vlist[]:
+    inst [NNN] value INTEGER
+    inst [NNN] value INTEGER
+  PMID (proc.pscred.suid): numval: 2 valfmt: 0 vlist[]:
+    inst [NNN] value INTEGER
+    inst [NNN] value INTEGER
+  PMID (proc.memory.virtual.txt): numval: 2 valfmt: 0-or-1 vlist[]:
+    inst [NNN] value INTEGER
+    inst [NNN] value INTEGER
+  PMID (proc.memory.physical.txt): numval: 2 valfmt: 0-or-1 vlist[]:
+    inst [NNN] value INTEGER
+    inst [NNN] value INTEGER
+  PMID (proc.psinfo.uname): numval: 2 valfmt: 1 vlist[]:
+    inst [NNN] value STRING
+    inst [NNN] value STRING
+  PMID (proc.psinfo.gname): numval: 2 valfmt: 1 vlist[]:
+    inst [NNN] value STRING
+    inst [NNN] value STRING
+  PMID (proc.psinfo.ttyname): numval: 2 valfmt: 1 vlist[]:
+    inst [NNN] value STRING
+    inst [NNN] value STRING
+--- End Fetch Over Restricted Instance Domain ... ---
+
+--- Fetch Over Entire Instance Domain ... ---
+pmResult ... numpmid: 9
+PMID (proc.psinfo.time): numval: LOTS valfmt: 0 vlist[]:
+PMID (proc.pstatus.utime): numval: LOTS valfmt: 0 vlist[]:
+PMID (proc.psusage.utime): numval: LOTS valfmt: 0 vlist[]:
+PMID (proc.pscred.suid): numval: LOTS valfmt: 0 vlist[]:
+PMID (proc.memory.virtual.txt): numval: LOTS valfmt: 0-or-1 vlist[]:
+PMID (proc.memory.physical.txt): numval: LOTS valfmt: 0-or-1 vlist[]:
+PMID (proc.psinfo.uname): numval: LOTS valfmt: 1 vlist[]:
+PMID (proc.psinfo.gname): numval: LOTS valfmt: 1 vlist[]:
+PMID (proc.psinfo.ttyname): numval: LOTS valfmt: 1 vlist[]:
+--- End Fetch Over Entire Instance Domain ... ---
+
+==================================
+=== End Of Test: profile/fetch ===
+==================================
+
+===================
+=== Test: store ===
+===================
+
+==========================
+=== End Of Test: store ===
+==========================
+
+All instances for selected metrics ...
+
+proc.nprocs
+
+proc.psinfo.time
+
+proc.pstatus.pid
+
+proc.pscred.suid
+
+proc.psusage.sysc
+
+Exercise the stuff for the SNMP HP-UX MIB ...
+
+
+-------- Result Dump --------------
+pmResult ... numpmid: 42
+  PMID (proc.nprocs): numval: LOTS
+  PMID (proc.psinfo.pid): numval: LOTS
+  PMID (proc.psinfo.uid): numval: LOTS
+  PMID (proc.psinfo.ppid): numval: LOTS
+  PMID (proc.psinfo.nice): numval: LOTS
+  PMID (proc.psinfo.ttydev): numval: LOTS
+  PMID (proc.psinfo.gid): numval: LOTS
+  PMID (proc.psinfo.pgrp): numval: LOTS
+  PMID (proc.psinfo.pri): numval: LOTS
+  PMID (proc.psinfo.oldpri): numval: LOTS
+  PMID (proc.psinfo.addr): numval: LOTS
+  PMID (proc.psinfo.cpu): numval: LOTS
+  PMID (proc.psinfo.uname): numval: LOTS
+  PMID (proc.psinfo.gname): numval: LOTS
+  PMID (proc.psinfo.ttyname): numval: LOTS
+  PMID (proc.pstatus.utime): numval: LOTS
+  PMID (proc.pstatus.stime): numval: LOTS
+  PMID (proc.psusage.starttime): numval: LOTS
+  PMID (proc.pstatus.flags): numval: LOTS
+  PMID (proc.psinfo.state): numval: LOTS
+  PMID (proc.psinfo.sname): numval: LOTS
+  PMID (proc.psinfo.wchan): numval: LOTS
+  PMID (proc.psinfo.fname): numval: LOTS
+  PMID (proc.psinfo.psargs): numval: LOTS
+  PMID (proc.psinfo.time): numval: LOTS
+  PMID (proc.psusage.tstamp): numval: LOTS
+  PMID (proc.psusage.starttime): numval: LOTS
+  PMID (proc.psinfo.clname): numval: LOTS
+  PMID (proc.psinfo.time): numval: LOTS
+  PMID (proc.psusage.rss): numval: LOTS
+  PMID (proc.pscred.suid): numval: LOTS
+  PMID (proc.psinfo.ttydev): numval: LOTS
+  PMID (proc.memory.virtual.txt): numval: LOTS
+  PMID (proc.memory.virtual.dat): numval: LOTS
+  PMID (proc.memory.virtual.bss): numval: LOTS
+  PMID (proc.memory.virtual.stack): numval: LOTS
+  PMID (proc.memory.virtual.shm): numval: LOTS
+  PMID (proc.memory.physical.txt): numval: LOTS
+  PMID (proc.memory.physical.dat): numval: LOTS
+  PMID (proc.memory.physical.bss): numval: LOTS
+  PMID (proc.memory.physical.stack): numval: LOTS
+  PMID (proc.memory.physical.shm): numval: LOTS

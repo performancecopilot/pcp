@@ -1,0 +1,118 @@
+#! /bin/sh
+# PCP QA Test No. 258
+# pmdatrace and libpcp_trace reconnect test
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.check
+. ./common.filter
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1
+LOCALHOST=`hostname`
+_needclean=true
+
+_interrupt()
+{
+    status=1
+}
+
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+
+_cleanup()
+{
+    cd $here
+    if $_needclean
+    then
+	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+	&& $sudo sh $tmp.cmd
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	_needclean=false
+    fi
+    if [ -n "$savedtracehost" ]
+    then
+	PCP_TRACE_HOST=$savedtracehost; export PCP_TRACE_HOST
+    fi
+    rm -f $tmp.*
+    exit $status
+}
+
+_change_config pmlogger on
+_change_config pmcd on
+
+trap "_cleanup" 0
+trap "_interrupt; _cleanup" 1 2 3 15
+
+if [ -n "$PCP_TRACE_HOST" ]
+then
+    savedtracehost=$PCP_TRACE_HOST; unset PCP_TRACE_HOST
+fi
+
+pminfo trace >/dev/null 2>&1
+remove=$?
+
+# real QA test starts here
+
+cd $PCP_PMDAS_DIR/trace
+$sudo ./Install -R / </dev/null >/dev/null 2>&1
+cd $here
+
+cd $PCP_DEMOS_DIR/trace
+$sudo make app2 2>&1 >$tmp.make
+if [ $? -ne 0 ]
+then
+    echo app2 programs make failed.  Heres the make output ...
+    cat $tmp.make
+else
+    echo make succeeded.
+fi
+
+# Allow app2 to reconnect asap
+#
+PCP_TRACE_RECONNECT=1
+export PCP_TRACE_RECONNECT
+
+( ( $PCP_DEMOS_DIR/trace/app2 >/dev/null 2>&1 & ) )
+sleep 3
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+
+# time_sucker transaction sleeps for 10 secs - wait for this
+sleep 11
+vals=`pminfo -f trace.transact.count | fgrep 'No value(s) available!' | wc -l`
+if [ $vals -eq 1 ]
+then
+    echo "Error: No value(s) available!"
+else
+    echo "Reconnect succeeded."
+echo
+fi
+
+$signal -a -s KILL app2 2>&1 >/dev/null
+
+# xcheck observe problem where value of second observation of same tag
+# gives first calls value.
+echo
+echo "=== Checking observed value matches latest call ==="
+$here/src/obs
+# these values are deteministic
+pminfo -f trace.observe.count trace.observe.value
+
+[ $remove -eq 1 ] && $sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
+
+# success, all done
+status=0
+exit

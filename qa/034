@@ -1,0 +1,72 @@
+#! /bin/sh
+# PCP QA Test No. 034
+# pmlogger with different logging rates
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+#
+
+# Logs are built for 70 samples (-s70) (see Makefile)
+# The sample metric rates are 100msec, 500msec, 900msec
+# Theoretically,....
+# This means that (x + x/5 + x/9 = 70) for integral x.
+# => 59x = 70 * 45
+# => x ~= 53.39
+# But x is integral
+# So, x = 54, x/5 = 10, x/9 = 6 (54 + 10 + 6 = 70)
+#
+# Note below that n[i] is not incremented on its 1st occurrence
+# => expect values of 53, 9, 5
+
+for arch in src/bar src/mv-bar src/noti-bar
+do
+    echo
+    echo "=== $arch ==="
+    pmdumplog $arch \
+    | sed -e 's/:/ /g' \
+    | $PCP_AWK_PROG '
+    /^[0-9]/	{ print $3,$NF }' \
+    | $PCP_AWK_PROG '
+	    { if (l[$2] != "") {
+		delta = $1 - l[$2];
+		if (delta < 0)
+		    delta += 60;
+		# print $2,delta
+		t[$2] += delta
+		n[$2]++
+	      }
+	      l[$2] = $1
+	    }
+    END	{ for (i in n) {
+		printf "%d msec requested: ",i
+		if (n[i] != 0)
+		    ave = 1000*t[i]/n[i]
+		else
+		    ave = 0
+		if (i == 100 && 51 <= n[i] && n[i] <= 54)
+		    printf "no. of samples within range, "
+		else if (i == 500 && 9 <= n[i] && n[i] <= 11)
+		    printf "no. of samples within range, "
+		else if (i == 900 && 4 <= n[i] && n[i] <= 6)
+		    printf "no. of samples within range, "
+		else
+		    printf "no. of samples (%d) unexpected, ",n[i]
+		if (0.9 * i <= ave && ave <= 1.1 * i)
+		    printf "avg within 10%% of requested delay\n"
+		else
+		    printf "avg (%.2f msec) outside 10%% of requested delay\n",1000*t[i]/n[i]
+	      }
+	    }' \
+    | LC_COLLATE=POSIX sort
+done

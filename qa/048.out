@@ -1,0 +1,394 @@
+QA output created by 048
+
+=== archive src/foo ===
+
+Pass 1: forward scan
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+Found 8 samples
+
+Pass 2: backwards scan
+Found 8 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found 16 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found 8 samples
+Found 6 samples
+Found 4 samples
+Found 2 samples
+Found 0 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found 8 samples
+Found 6 samples
+Found 4 samples
+Found 2 samples
+Found 0 samples
+
+Pass 6: EOL tests, forwards and backwards
+
+=== archive src/mv-foo ===
+
+Pass 1: forward scan
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+Found 8 samples
+
+Pass 2: backwards scan
+Found 8 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found 16 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found 8 samples
+Found 6 samples
+Found 4 samples
+Found 2 samples
+Found 0 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found 8 samples
+Found 6 samples
+Found 4 samples
+Found 2 samples
+Found 0 samples
+
+Pass 6: EOL tests, forwards and backwards
+
+=== archive src/noti-foo ===
+
+Pass 1: forward scan
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+pmResult ... numpmid: 6
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+  30.0.3 (sampledso.milliseconds): No values returned!
+  30.0.6 (sampledso.bin): No values returned!
+Found 8 samples
+
+Pass 2: backwards scan
+Found 8 samples
+
+Pass 3: concurrent forwards and backwards scans
+Found 16 samples
+
+Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
+Found 8 samples
+Found 6 samples
+Found 4 samples
+Found 2 samples
+Found 0 samples
+
+Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
+Found 8 samples
+Found 6 samples
+Found 4 samples
+Found 2 samples
+Found 0 samples
+
+Pass 6: EOL tests, forwards and backwards

@@ -1,0 +1,41 @@
+#! /bin/sh
+# PCP QA Test No. 408
+# checks metric help text for all metrics
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "exit \$status" 0 1 2 3 15
+
+
+_filter()
+{
+fgrep "Oneline or help text is not available" |\
+   egrep -v "^irix\.|^hw\.|^hinv\.|^mmv\."
+}
+
+# real QA test starts here
+pminfo -t 2>&1 | _filter
+
+# Filter ($PCP_AWK_PROG) the full text help msg such that the error
+# is output on the same line as the metric.
+# A blank line in output signifies next line will be the metric name.
+pminfo -T 2>&1 | \
+   $PCP_AWK_PROG '
+	/^ *$/ { getmetric = 1; next }
+	getmetric==1 { metric = $1; getmetric=0; next }
+	metric!=0 { print metric, $0; metric = 0; next }
+	{ print }
+   ' | _filter
+
+# success, all done
+status=0
+exit

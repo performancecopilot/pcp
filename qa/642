@@ -1,0 +1,96 @@
+#! /bin/sh
+# PCP QA Test No. 642
+# concurrent PMDA installs trash the PMNS?
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+done_clean=false
+
+_setup_pmdas()
+{
+    cd $PCP_PMDAS_DIR
+    for pmda in trivial simple sample sendmail trace
+    do
+	cd $pmda
+	$sudo ./Install -e -Q </dev/null >/dev/null 2>&1
+	cd ..
+    done
+}
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	[ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	_setup_pmdas
+	done_clean=true
+    fi
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# copy the pmcd config file to restore state later.
+$sudo cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+# real QA test starts here
+unset ROOT TOOLROOT
+_setup_pmdas
+pminfo -n $PCP_VAR_DIR/pmns/root | LC_COLLATE=POSIX sort >$tmp.pmns.start
+
+# do 'em in parallel
+#
+cd $PCP_PMDAS_DIR
+i=1
+for pmda in trivial simple sample sendmail trace
+do
+    cd $pmda
+    $sudo ./Install -e -Q </dev/null >$tmp.out.$i 2>&1 &
+    cd ..
+    i=`expr $i + 1`
+done
+
+wait
+
+for i in 1 2 3 4 5
+do
+    echo
+    echo "=== install #$i ==="
+    _filter_pmda_install <$tmp.out.$i
+done
+
+echo
+echo "=== PMNS differences (none expected) ==="
+pminfo -n $PCP_VAR_DIR/pmns/root \
+| LC_COLLATE=POSIX sort \
+| diff - $tmp.pmns.start
+echo
+
+# success, all done
+exit

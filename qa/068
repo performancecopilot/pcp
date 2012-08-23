@@ -1,0 +1,60 @@
+#! /bin/sh
+# PCP QA Test No. 068
+# pmNewContext() bad error status if pmcd is not running
+#
+# Note: this is the simplest test to get the pmcd start/stop filtering
+#	to be correct ... use this to tune _filter_pcp_start() and
+#	_filter_pcp_stop() in common.filter
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.product
+. ./common.check
+. ./common.filter
+
+_needclean=true
+LOCALHOST=`hostname`
+
+trap "_cleanup" 0 1 2 3 15
+
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+
+_cleanup()
+{
+    echo >>$seq.full
+    echo "--- cleanup ---" >>$seq.full
+    if [ $_needclean ]
+    then
+	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+	&& $sudo sh $tmp.cmd
+	echo >>$seq.full
+	echo "--- pcp start ---" >>$seq.full
+	$sudo $PCP_RC_DIR/pcp restart | tee -a $seq.full | _filter_pcp_start
+	echo >>$seq.full
+	echo "--- _wait_for_pmcd ---" >>$seq.full
+	_wait_for_pmcd | tee -a $seq.full
+	echo >>$seq.full
+	echo "--- _wait_for_pmlogger ---" >>$seq.full
+	_wait_for_pmlogger | tee -a $seq.full
+    fi
+    rm -f $tmp.*
+    exit 0
+}
+
+rm -f $seq.full
+
+# real QA test starts here
+echo "--- pcp stop ---" >>$seq.full
+$sudo $PCP_RC_DIR/pcp stop | tee -a $seq.full | _filter_pcp_stop
+echo >>$seq.full
+echo "--- run pmcdgone ---" >>$seq.full
+$sudo src/pmcdgone | tee -a $seq.full

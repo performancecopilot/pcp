@@ -1,0 +1,167 @@
+QA output created by 477
+host:      localhost
+samples:   10
+interval:  0.20 sec
+sample.event.records[fungus]: 0 event records
+sample.event.records[bogus]: pmUnpackEventRecords: Cannot allocate memory
+sample.event.records[fungus]: pmUnpackEventRecords: Cannot allocate memory
+sample.event.records[bogus]: pmUnpackEventRecords: Cannot allocate memory
+sample.event.records[fungus]: pmUnpackEventRecords: Cannot allocate memory
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #2"
+sample.event.records[fungus]: pmUnpackEventRecords: Cannot allocate memory
+sample.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #3"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
+sample.event.records[fungus]: 0 event records
+sample.event.records[bogus]: pmUnpackEventRecords: Cannot allocate memory
+sample.event.records[fungus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+sample.event.records[bogus]: pmUnpackEventRecords: Cannot allocate memory
+sample.event.records[fungus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.type 1
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.type 2
+    sample.event.param_64 -3
+sample.event.records[bogus]: pmUnpackEventRecords: Cannot allocate memory
+sample.event.records[fungus]: pmUnpackEventRecords: Cannot allocate memory
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #7"
+sample.event.records[fungus]: 0 event records
+sample.event.records[bogus]: pmUnpackEventRecords: Cannot allocate memory
+sample.event.records[fungus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+sample.event.records[bogus]: pmUnpackEventRecords: Cannot allocate memory
+
+__pmFaultInject(libpcp/events.c:1) ntrip=1 INJECT
+__pmFaultInject(libpcp/events.c:1) ntrip=2 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=1 INJECT
+__pmFaultInject(libpcp/events.c:1) ntrip=3 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=2 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=1 INJECT
+__pmFaultInject(libpcp/events.c:1) ntrip=4 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=3 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=2 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=3 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=4 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=4 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=5 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=6 SKIP
+__pmFaultInject(libpcp/events.c:3) ntrip=1 INJECT
+__pmFaultInject(libpcp/events.c:1) ntrip=5 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=5 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=7 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=8 SKIP
+__pmFaultInject(libpcp/events.c:3) ntrip=2 SKIP
+__pmFaultInject(libpcp/events.c:1) ntrip=6 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=6 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=9 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=10 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=11 SKIP
+__pmFaultInject(libpcp/events.c:3) ntrip=3 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=12 INJECT
+__pmFaultInject(libpcp/events.c:1) ntrip=7 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=7 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=13 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=14 SKIP
+__pmFaultInject(libpcp/events.c:3) ntrip=4 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=8 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=15 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=16 SKIP
+__pmFaultInject(libpcp/events.c:3) ntrip=5 SKIP
+__pmFaultInject(libpcp/events.c:1) ntrip=8 INJECT
+__pmFaultInject(libpcp/events.c:1) ntrip=9 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=9 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=17 SKIP
+__pmFaultInject(libpcp/events.c:1) ntrip=10 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=10 INJECT
+__pmFaultInject(libpcp/events.c:1) ntrip=11 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=11 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=18 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=19 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=12 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=20 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=21 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=22 SKIP
+__pmFaultInject(libpcp/events.c:3) ntrip=6 SKIP
+__pmFaultInject(libpcp/events.c:1) ntrip=12 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=13 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=23 INJECT
+__pmFaultInject(libpcp/events.c:1) ntrip=13 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=14 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=24 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=25 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=26 SKIP
+__pmFaultInject(libpcp/events.c:3) ntrip=7 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=27 SKIP
+__pmFaultInject(libpcp/events.c:3) ntrip=8 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=15 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=28 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=29 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=30 SKIP
+__pmFaultInject(libpcp/events.c:3) ntrip=9 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=31 SKIP
+__pmFaultInject(libpcp/events.c:3) ntrip=10 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=16 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=32 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=33 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=34 INJECT
+__pmFaultInject(libpcp/events.c:1) ntrip=14 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=17 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=35 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=36 SKIP
+__pmFaultInject(libpcp/events.c:3) ntrip=11 SKIP
+__pmFaultInject(libpcp/events.c:1) ntrip=15 INJECT
+__pmFaultInject(libpcp/events.c:1) ntrip=16 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=18 SKIP
+__pmFaultInject(libpcp/events.c:2) ntrip=37 SKIP
+__pmFaultInject(libpcp/events.c:1) ntrip=17 SKIP
+__pmFaultInject(libpcp/events.c:4) ntrip=19 INJECT
+=== Fault Injection Summary Report ===
+libpcp/events.c:1: guard trip%7, 17 trips, 3 faults
+libpcp/events.c:2: guard trip%11, 37 trips, 4 faults
+libpcp/events.c:3: guard trip%13, 11 trips, 1 faults
+libpcp/events.c:4: guard trip%9, 19 trips, 3 faults
+
+host:      localhost
+samples:   2
+interval:  0.20 sec
+sample.event.records[fungus]: pmUnpackEventRecords: QA fault injected
+sample.event.records[bogus]: pmUnpackEventRecords: QA fault injected
+sample.event.records[fungus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #1"
+
+__pmFaultInject(libpcp/events.c:5) ntrip=1 INJECT
+pmUnpackEventRecords: Warning: failed to register event.flags: QA fault injected
+__pmFaultInject(libpcp/events.c:5) ntrip=2 INJECT
+pmUnpackEventRecords: Warning: failed to register event.flags: QA fault injected
+__pmFaultInject(libpcp/events.c:5) ntrip=3 SKIP
+=== Fault Injection Summary Report ===
+libpcp/events.c:5: guard trip<3, 3 trips, 2 faults
+
+host:      localhost
+samples:   2
+interval:  0.20 sec
+sample.event.records[fungus]: pmUnpackEventRecords: QA fault injected
+sample.event.records[bogus]: pmUnpackEventRecords: QA fault injected
+sample.event.records[fungus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #1"
+
+__pmFaultInject(libpcp/events.c:6) ntrip=1 INJECT
+pmUnpackEventRecords: Warning: failed to register event.missed: QA fault injected
+__pmFaultInject(libpcp/events.c:6) ntrip=2 INJECT
+pmUnpackEventRecords: Warning: failed to register event.missed: QA fault injected
+__pmFaultInject(libpcp/events.c:6) ntrip=3 SKIP
+=== Fault Injection Summary Report ===
+libpcp/events.c:6: guard trip<3, 3 trips, 2 faults

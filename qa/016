@@ -1,0 +1,39 @@
+#! /bin/sh
+# PCP QA Test No. 016
+# an instance domain that changes in an archive
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+status=0
+trap "rm -f $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmdumplog -i src/mirage >$tmp 2>&1
+
+echo "For InDom 2.1 (pmcd.pmlogger.*) do not expect membership to change ..."
+echo "For InDom 29.2 (sample.bin) do not expect membership to change ..."
+echo "For InDom 29.3 (sample.drift) expect membership changes ..."
+( cat $tmp; echo "" ) \
+| $PCP_AWK_PROG '
+$1 == "InDom:" || NF == 0	{ if (indom) {
+				    if (num > 1) status = "membership changed"
+				    else status = "membership DID NOT change"
+				    print "InDom: " indom " " status
+				  }
+				  num = 0
+				  indom = $2
+				}
+/instances/			{ num++ }' \
+| LC_COLLATE=POSIX sort
+
+echo
+echo "Check for undefined instance indentifiers (expect none) ..."
+grep '?' $tmp

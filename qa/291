@@ -1,0 +1,65 @@
+#! /bin/sh
+# PCP QA Test No. 291
+# Check the handling of the log basename alias/duplicate handling
+# in pmlogger_merge.  Exercise pmlogextract in passing.
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "cd; rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+rm -rf $tmp
+mkdir $tmp
+cd $tmp
+
+# deal with an annoying libc error ... using TZ=:Australia/Melbourne
+# causes the -z option to report the wrong time, at least for some
+# times of the year
+#
+TZ=EST-10
+export TZ
+
+# real QA test starts here
+base=19970709
+
+pmlogextract -z -T "@22:30" $here/src/rattle $base.22.30-01
+pmlogextract -z -S "@22:30" -T "@23:30" $here/src/rattle $base.22.30-02
+pmlogextract -z -S "@23:30" -T "@00:30" $here/src/rattle $base.22.30
+pmlogextract -z -S "@00:30" -T "@01:30" $here/src/rattle $base.23.10
+
+echo "=== archives before ==="
+for arch in $base.22.30-01 $base.22.30-02 $base.22.30 $base.23.10
+do
+    echo
+    echo "::: $arch :::"
+    pmdumplog -lzm $arch
+done
+
+
+echo
+echo "=== cron.logmerge ==="
+pmlogger_merge -Vf '19970709.??.??' 19970709 \
+| $PCP_AWK_PROG '
+$1 ~ /^-r..r..r../	{ print "... ls details ...",$NF; next }
+			{ print }'
+
+echo
+echo "=== files after ==="
+ls
+
+echo
+echo "=== merged archive ==="
+pmdumplog -z 19970709
+
+# success, all done
+status=0
+exit

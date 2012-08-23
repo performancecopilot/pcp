@@ -1,0 +1,43 @@
+#! /bin/sh
+# PCP QA Test No. 094
+# interpolate unsigned long for PM_TYPE_INSTANT was busted when the
+# value decreased
+#
+# Note: rewritten Nov 2008 to use pmval instead of the retired pmkstat
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+if [ $PCP_VER -lt 3600 ]
+then
+    # V1 archives supported
+    arch=src/babylon.pmview
+    pmns="-n src/root_irix"
+else
+    # no support for V1 archives
+    arch=src/babylon.pmview_v2
+    pmns=
+fi
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+
+# note this is a V1 archive, hence the need for the -n src/root_irix
+# in the tests below.
+#
+echo "silence is golden ... "
+pmval $pmns -a $arch mem.freemem \
+| $PCP_AWK_PROG '
+state == 0 && $1 == "interval:"	{ state = 1; next }
+state == 0			{ next }
+$2 > 0				{ next }
+				{ print "botched ... " $0 }'
+

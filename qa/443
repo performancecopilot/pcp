@@ -1,0 +1,136 @@
+#!/bin/sh
+# PCP QA Test No. 443
+# error handling and basic functionality for pmevent
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which pmevent >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun pmevent executable not found
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_usage()
+{
+    sed \
+	-e '/^first=/s/=.*/=.../' \
+	-e '/^now=/s/=.*/=.../' \
+	-e '/^last=/s/=.*/=.../' \
+	-e '/Usage/q' \
+	-e '/illegal option/{
+s/illegal/invalid/
+s/.$/'"'&'"'/
+}' \
+	-e '/invalid option/s/[^'"'"']$/'"'&'"'/'
+}
+
+_filter()
+{
+    sed \
+	-e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+}
+
+_run()
+{
+    echo "=== $* ==="
+    pmevent $* 2>&1 | _filter_usage
+}
+
+_run_sudo()
+{
+    echo "=== $* ==="
+    $sudo pmevent $* 2>&1 | _filter_usage
+}
+
+_run_ok()
+{
+    echo "=== $* ==="
+    pmstore sample.event.reset 0 >/dev/null 2>&1
+    pmstore sampledso.event.reset 0 >/dev/null 2>&1
+    pmevent $* 2>&1 | _filter
+}
+
+_run_arch()
+{
+    echo "=== $* ==="
+    pmevent $* 2>&1
+}
+
+# real QA test starts here
+
+# command line arg syntax and semantic checks
+#
+_run -a foo -a bar
+_run  -h foo -h bar
+_run -a foo -h bar
+_run -h foo -a bar
+_run -D blah
+_run -g -p 1234
+_run -p 1234 -g
+_run -p 123foo
+_run_sudo -K blah,a,/no/such/file,no_init
+_run -s 456bar
+_run -s 3 -T+5min
+_run -T+5min -s 10
+_run -t 10foobars
+_run -Z GMT -z
+_run -z -Z EST
+_run -q
+_run -a foo
+
+# metric spec syntax and semantic checks
+#
+echo
+echo "--- bad metric spec ---"
+_run /some/path/no/metric/
+_run somehost_and_no_metric:
+
+echo
+echo "--- illegal mixed sources ---"
+_run src/eventrec-old/sample.event.records foo/bar
+_run -a /some/path foo:bar
+_run -a src/eventrec-old src/eventrec-old/sample.event.records foo/bar
+_run localhost:sample.event.records foo:bar
+_run -h somehost foo/bar
+_run -h localhost localhost:sample.event.records foo:bar
+_run_sudo @:sampledso.event.records foo:bar
+
+echo
+echo "--- problems at source of metrics ---"
+_run -h no.such.host sample.event.records
+_run -a /no/such/archive sample.event.records
+_run_sudo -L sample.event.records
+_run sample.event.records sample.colour
+_run -Dappl0 "sample.colour[red]"
+_run -Dappl0 "sample.event.no_indom_records[red]"
+
+echo
+echo "--- should be ok ---"
+_run_ok -t 10msec -s 1 sample.event.records sample.event.records
+_run_ok -t 10msec -s 8 sample.event.records
+_run_ok -t 10msec -s 3 'sample.event.records[bogus]'
+
+echo
+echo "--- archive exercises ---"
+_run_arch -z src/eventrec-old/sample.event.records
+_run_arch -z -S@15:26:11.073 -s 2 -a src/eventrec-old sample.event.records
+_run_arch -z -O+2.5 -T+4.5 -a src/eventrec-old sample.event.records
+
+
+# success, all done
+exit

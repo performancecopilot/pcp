@@ -1,0 +1,165 @@
+#!/bin/sh
+
+_usage()
+{
+    echo "Usage: $0 [-v] [-a archive] [-h host] metricspec [...]"
+    echo
+    echo "metricspec one of the forms:"
+    echo "    metric-name"
+    echo "    metric-name[instance]"
+    exit 1
+}
+
+# Get standard environment
+. $PCP_DIR/etc/pcp.env
+
+status=0
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+rm -f $tmp.*
+
+verbose=false
+very_verbose=false
+host=localhost
+archive=""
+while getopts "a:h:v" c
+do
+    case "$c"
+    in
+	a)
+	    src="-a $OPTARG"
+	    archive=$OPTARG
+	    host=""
+	    ;;
+	h)
+	    src="-h $OPTARG"
+	    archive=""
+	    host=$OPTARG
+	    ;;
+	v)
+	    $verbose && very_verbose=true
+	    verbose=true
+	    ;;
+	*)
+	    _usage
+	    # NOTREACHED
+	    ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $# -lt 1 ]
+then
+    _usage
+    # NOTREACHHED
+fi
+
+for arg
+do
+    case "$arg"
+    in
+	*[*)
+	    echo "$arg" >>$tmp.all
+	    ;;
+	*)
+	    pmprobe -I $src $arg \
+	    | sed  \
+		-e 's/ "/ /' \
+		-e 's/" "/ /g' \
+		-e 's/"$//' \
+		-e 's/ /\
+/g' \
+	    | sed -e '1,2d' \
+	    | while read inst
+	    do
+		echo "$arg[$inst]" >>$tmp.all
+	    done
+	    ;;
+    esac
+done
+
+sed <$tmp.all -e 's/\[.*//' \
+| sort -u >$tmp.metrics
+
+# cat $tmp.metrics
+# echo
+# cat $tmp.all
+
+# pmie
+#
+sed <$tmp.all >$tmp.config \
+    -e "s/\[/ #'/" \
+    -e "s/]/'/" \
+    -e 's/$/+/' \
+    -e '$s/$/1;/'
+$very_verbose && echo "pmie config ..." && cat $tmp.config
+if pmie $src -c $tmp.config -C
+then
+    $verbose && echo "pmie OK"
+else
+    echo "pmie FAILED"
+    echo "pmie config:"
+    cat $tmp.config
+    status=1
+fi
+
+# pmval
+#
+sed -e 's/]//' -e 's/\[/ /' <$tmp.all \
+    | $PCP_AWK_PROG '
+BEGIN		{ printf "pmval -s 2 -t 1sec '"$src"' -i " }
+$1 != metric	{ if (NR > 1) {
+		    print " " metric
+		    printf "pmval -s 2 -t 1sec '"$src"' -i "
+		  }
+		  metric = $1
+		}
+NR > 1		{ printf "," }
+		{ printf $2 }
+END		{ print " " metric
+		}' \
+| sed -e "s/-i /-i '/" -e "s/ [^ ]*\$/'&/" >$tmp.config
+$very_verbose && echo "pmval cmd ..." && cat $tmp.config
+cat $tmp.config | sh >$tmp.out 2>&1
+if grep '^samples: *2$' $tmp.out >/dev/null
+then
+    $verbose && echo "pmval OK"
+else
+    echo "pmval FAILED"
+    echo "pmval cmd:"
+    cat $tmp.config
+    cat $tmp.out
+    status=1
+fi
+
+# pmlogger
+#
+if [ -z "$host" ]
+then
+    echo "pmlogger skipped, source is an archive"
+else
+    echo "log mandatory on default {" >$tmp.config
+    sed -e 's/]//' -e 's/\[/ /' <$tmp.all \
+    | $PCP_AWK_PROG >>$tmp.config '
+$1 != metric	{ if (NR > 1) print " ]"
+		  print $1," ["
+		  metric = $1
+		}
+		{ print "  \"" $2 "\"" }
+END		{ print " ]"
+		  print "}"
+		}'
+    $very_verbose && echo "pmlogger config ..." && cat $tmp.config
+    if pmlogger -l $tmp.log $src -s 2 -t 1sec -c $tmp.config $tmp
+    then
+	$verbose && echo "pmlogger OK"
+	archive=$tmp
+    else
+	echo "pmlogger FAILED"
+	cat $tmp.log
+	echo "pmlogger config:"
+	cat $tmp.config
+	status=1
+    fi
+fi
+

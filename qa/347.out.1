@@ -1,0 +1,67 @@
+QA output created by 347
+
+=== default news agent installation ===
+Culling the Performance Metrics Name Space ...
+news ... not found in Name Space, this is OK
+Updating the PMCD control file, and notifying PMCD ...
+Check news metrics have gone away ... OK
+You will need to choose an appropriate configuration for installation of
+the "news" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
+Compiled PMNS contains
+  NNN hash table entries
+  NNN leaf nodes
+  NNN non-leaf nodes
+  NNN bytes of symbol table
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check news metrics have appeared ... 8 metrics and 16 values
+
+=== validate values ===
+
+news.articles.count
+    inst [1 or "comp.sys.sgi"] value NUMBER
+    inst [2 or "comp.sys.sgi.graphics"] value NUMBER
+    inst [3 or "comp.sys.sgi.hardware"] value NUMBER
+    inst [4 or "sgi.bad-attitude"] value NUMBER
+    inst [5 or "sgi.engr.all"] value NUMBER
+
+news.articles.last
+    inst [1 or "comp.sys.sgi"] value NUMBER
+    inst [2 or "comp.sys.sgi.graphics"] value NUMBER
+    inst [3 or "comp.sys.sgi.hardware"] value NUMBER
+    inst [4 or "sgi.bad-attitude"] value NUMBER
+    inst [5 or "sgi.engr.all"] value NUMBER
+
+news.articles.total
+    value NUMBER
+
+news.readers.nnrpd
+    value NUMBER
+
+news.readers.rn
+    value NUMBER
+
+news.readers.trn
+    value NUMBER
+
+news.readers.vn
+    value NUMBER
+
+news.readers.xrn
+    value NUMBER
+
+=== remove news agent ===
+Culling the Performance Metrics Name Space ...
+news ... done
+Updating the PMCD control file, and notifying PMCD ...
+Check news metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

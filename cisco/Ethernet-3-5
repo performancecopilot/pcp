@@ -1,0 +1,20 @@
+>
+show interface
+Ethernet3/5 is up, line protocol is up 
+  Hardware is cxBus Ethernet, address is 0000.0c38.436d (bia 0000.0c38.436d)
+  Internet address is 198.29.108.4, subnet mask is 255.255.255.0
+  MTU 1500 bytes, BW 10000 Kbit, DLY 1000 usec, rely 255/255, load 2/255
+  Encapsulation ARPA, loopback not set, keepalive set (10 sec)
+  ARP type: ARPA, ARP Timeout 4:00:00
+  Last input 0:00:03, output 0:00:01, output hang never
+  Last clearing of "show interface" counters 6w2d
+  Output queue 0/40, 54880 drops; input queue 0/75, 1492 drops
+  5 minute input rate 1000 bits/sec, 0 packets/sec
+  5 minute output rate 91000 bits/sec, 98 packets/sec
+     24627812 packets input, 1448819515 bytes, 862 no buffer
+     Received 3959194 broadcasts, 79 runts, 4 giants
+     292 input errors, 195 CRC, 14 frame, 0 overrun, 0 ignored, 0 abort
+     0 input packets with dribble condition detected
+     150470373 packets output, 3227527737 bytes, 0 underruns
+     1274 output errors, 11605581 collisions, 0 interface resets, 0 restarts
+>

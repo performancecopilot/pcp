@@ -1,0 +1,120 @@
+QA output created by 493
+
+=== pmval sample.ulong.bin_ctr diffs ===
+--- TMP.in
++++ TMP.out
+@@ -1,15 +1,13 @@
+ Note: timezone set to local timezone of host "bozo-laptop" from archive
+ 
+ metric:    sample.ulong.bin_ctr
+-archive:   src/rewrite
++archive:   TMP.new
+ host:      bozo-laptop
+ start:     Sat Oct  1 21:10:11 2011
+ end:       Sat Oct  1 21:10:12 2011
+ semantics: cumulative counter
+-units:     Kbyte
++units:     byte
+ samples:   all
+-
+-                 bin-100      bin-200      bin-300      bin-400      bin-500      bin-600      bin-700      bin-800      bin-900 
+-21:10:11.878         100          200          300          400          500          600          700          800          900 
+-21:10:12.003         100          200          300          400          500          600          700          800          900 
+-21:10:12.128         100          200          300          400          500          600          700          800          900 
++21:10:11.878    102400.0
++21:10:12.003    102400.0
++21:10:12.128    102400.0
+
+=== pmval sample.ulonglong.bin_ctr diffs ===
+--- TMP.in
++++ TMP.out
+@@ -1,15 +1,13 @@
+ Note: timezone set to local timezone of host "bozo-laptop" from archive
+ 
+ metric:    sample.ulonglong.bin_ctr
+-archive:   src/rewrite
++archive:   TMP.new
+ host:      bozo-laptop
+ start:     Sat Oct  1 21:10:11 2011
+ end:       Sat Oct  1 21:10:12 2011
+ semantics: cumulative counter
+-units:     Kbyte
++units:     byte
+ samples:   all
+-
+-                 bin-100      bin-200      bin-300      bin-400      bin-500      bin-600      bin-700      bin-800      bin-900 
+-21:10:11.878         100          200          300          400          500          600          700          800          900 
+-21:10:12.003         100          200          300          400          500          600          700          800          900 
+-21:10:12.128         100          200          300          400          500          600          700          800          900 
++21:10:11.878      921600
++21:10:12.003      921600
++21:10:12.128      921600
+
+=== pmval sampledso.double.bin_ctr diffs ===
+--- TMP.in
++++ TMP.out
+@@ -1,15 +1,13 @@
+ Note: timezone set to local timezone of host "bozo-laptop" from archive
+ 
+ metric:    sampledso.double.bin_ctr
+-archive:   src/rewrite
++archive:   TMP.new
+ host:      bozo-laptop
+ start:     Sat Oct  1 21:10:11 2011
+ end:       Sat Oct  1 21:10:12 2011
+ semantics: cumulative counter
+ units:     Kbyte
+ samples:   all
+-
+-                 bin-100      bin-200      bin-300      bin-400      bin-500      bin-600      bin-700      bin-800      bin-900 
+-21:10:11.876       100.0        200.0            ?            ?            ?            ?            ?        800.0        900.0 
+-21:10:12.001       100.0        200.0            ?            ?            ?            ?            ?        800.0        900.0 
+-21:10:12.126       100.0        200.0            ?            ?            ?            ?            ?        800.0        900.0 
++21:10:11.876       500.0
++21:10:12.001       500.0
++21:10:12.126       500.0
+
+=== pmval sample.float.bin_ctr diffs ===
+--- TMP.in
++++ TMP.out
+@@ -1,14 +1,12 @@
+ Note: timezone set to local timezone of host "bozo-laptop" from archive
+ 
+ metric:    sample.float.bin_ctr
+-archive:   src/rewrite
++archive:   TMP.new
+ host:      bozo-laptop
+ start:     Sat Oct  1 21:10:11 2011
+ end:       Sat Oct  1 21:10:12 2011
+ semantics: cumulative counter
+ units:     Kbyte
+ samples:   all
+-
+-                 bin-100      bin-200      bin-300      bin-400      bin-500      bin-600      bin-700      bin-800      bin-900 
+-21:10:11.889       100.0        200.0        300.0        400.0        500.0        600.0        700.0        800.0        900.0 
+-21:10:12.047       100.0        200.0        300.0        400.0        500.0        600.0        700.0        800.0        900.0 
++21:10:11.889        4500
++21:10:12.047        4500
+
+=== pmval sample.longlong.bin_ctr diffs ===
+--- TMP.in
++++ TMP.out
+@@ -1,14 +1,12 @@
+ Note: timezone set to local timezone of host "bozo-laptop" from archive
+ 
+ metric:    sample.longlong.bin_ctr
+-archive:   src/rewrite
++archive:   TMP.new
+ host:      bozo-laptop
+ start:     Sat Oct  1 21:10:11 2011
+ end:       Sat Oct  1 21:10:12 2011
+ semantics: cumulative counter
+-units:     Kbyte
++units:     Kbyte / sec
+ samples:   all
+-
+-                 bin-100      bin-200      bin-300      bin-400      bin-500      bin-600      bin-700      bin-800      bin-900 
+-21:10:11.889         100          200          300          400          500          600          700          800          900 
+-21:10:12.047         100          200          300          400          500          600          700          800          900 
++21:10:11.889         100
++21:10:12.047         100

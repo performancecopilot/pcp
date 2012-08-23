@@ -1,0 +1,26 @@
+>
+show interface
+Serial1/0 is up, line protocol is up 
+  Hardware is M4T
+  Description: frame-relay using subinterfaces 
+  MTU 1500 bytes, BW 64 Kbit, DLY 20000 usec, rely 255/255, load 31/255
+  Encapsulation FRAME-RELAY, loopback not set, keepalive set (10 sec)
+  LMI enq sent  39756, LMI stat recvd 39753, LMI upd recvd 0, DTE LMI up
+  LMI enq recvd 0, LMI stat sent  0, LMI upd sent  0
+  LMI DLCI 0  LMI type is ANSI Annex D  frame relay DTE
+  FR SVC disabled, LAPF state down
+  Broadcast queue 0/200, broadcasts sent/dropped 91696/0, interface broadcasts 85069
+  Last input 00:00:00, output 00:00:00, output hang never
+  Last clearing of "show interface" counters never
+  Queueing strategy: fifo
+  Output queue 0/8, 0 drops; input queue 0/75, 0 drops
+  30 second input rate 62000 bits/sec, 9 packets/sec
+  30 second output rate 8000 bits/sec, 5 packets/sec
+     2238005 packets input, 630502832 bytes, 0 no buffer
+     Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+     111 input errors, 108 CRC, 0 frame, 0 overrun, 0 ignored, 3 abort
+     2274950 packets output, 230325061 bytes, 0 underruns
+     0 output errors, 0 collisions, 2 interface resets
+     0 output buffer failures, 0 output buffers swapped out
+     3 carrier transitions     DCD=up  DSR=up  DTR=up  RTS=up  CTS=up
+>

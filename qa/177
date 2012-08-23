@@ -1,0 +1,134 @@
+#! /bin/sh
+# PCP QA Test No. 177
+# interp.c and excessive reading
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN		{ min["0.1"] = 58; max["0.1"] = 62
+		  min["0.2"] = 28; max["0.2"] = 32
+		  min["0.4"] = 13; max["0.4"] = 17
+		  xx = "'$1'"
+		}
+/^[0-2][0-9]:/	{ sample++; next }
+/No values/	{ noval++; next }
+END		{ if (min[xx] <= sample && sample <= max[xx])
+		      printf "%d-%d samples\n",min[xx],max[xx]
+		  else
+		      printf "unexpected %d samples, not %d-%d\n",sample,min[xx],max[xx]
+		  if (noval > 0) printf "Error: %d \"no values\"\n",noval
+		}'
+}
+
+_filter_err()
+{
+    $PCP_AWK_PROG '
+/LogRead.*peek/		{ print "__pmLogRead-peek"; next }
+/LogRead.*forw/		{ print "__pmLogRead-forw"; next }
+/LogRead.*back/		{ print "__pmLogRead-back"; next }
+/FetchInterp/		{ print "_pmFetchInterp"; next }' \
+    | LC_COLLATE=POSIX sort \
+    | uniq -c \
+    | $PCP_AWK_PROG '
+BEGIN           {
+		  min["0.1-interp"] = 116; max["0.1-interp"] = 120
+		  min["0.1-back"] = 1; max["0.1-back"] = 5
+		  min["0.1-forw"] = 51; max["0.1-forw"] = 56
+		  min["0.1-peek"] = 1; max["0.1-peek"] = 1
+
+		  min["0.2-interp"] = 58; max["0.2-interp"] = 60
+		  min["0.2-back"] = 1; max["0.2-back"] = 5
+		  min["0.2-forw"] = 51; max["0.2-forw"] = 56
+		  min["0.2-peek"] = 1; max["0.2-peek"] = 1
+
+		  min["0.4-interp"] = 29; max["0.4-interp"] = 30
+		  min["0.4-back"] = 5; max["0.4-back"] = 20
+		  min["0.4-forw"] = 51; max["0.4-forw"] = 56
+		  min["0.4-peek"] = 1; max["0.4-peek"] = 1
+		  xx = "'$1'"
+		}
+		{ yy = "" }
+$2 ~ /Interp/	{ yy = xx "-interp" }
+$2 ~ /-back/	{ yy = xx "-back" }
+$2 ~ /-forw/	{ yy = xx "-forw" }
+$2 ~ /-peek/	{ yy = xx "-peek" }
+		{ if (yy == "")
+		      print
+		  else if (min[yy] <= $1 && $1 <= max[yy])
+		      printf "%s %d-%d calls\n",$2,min[yy],max[yy]
+		  else
+		      printf "%s unexpected %d calls, not %d-%d\n",$2,$1,min[yy],max[yy]
+		}'
+}
+
+_filter_dump()
+{
+    _filter_pmdumplog \
+    | grep TIMESTAMP \
+    | wc -l \
+    | $PCP_AWK_PROG '
+BEGIN		{ min = 31; max = 31 }
+		{ if (min <= $1 && $1 <= max)
+		      printf "%d-%d timestamps\n",min,max
+		  else
+		      printf "unexpected %d timestamps, not %d-%d\n",$1,min,max
+		}'
+}
+
+# real QA test starts here
+rm -f $tmp.* $seq.full
+pmlogger -s 30 -L -c /dev/null -l $tmp.log $tmp &
+pid=$!
+sleep 1
+
+echo
+echo "=== log sample.bin[bin-100] ===" | tee -a $seq.full
+pmlc <<End-of-File
+connect $pid
+log mandatory on 200 msec sample.bin ["bin-100"]
+End-of-File
+sleep 4
+
+echo
+echo "=== log sample.bin[bin-200] ===" | tee -a $seq.full
+pmlc <<End-of-File
+connect $pid
+log mandatory on 200 msec sample.bin ["bin-200"]
+End-of-File
+
+wait
+_filter_pmlogger_log <$tmp.log
+cat $tmp.log >>$seq.full
+
+echo
+echo "=== pmdumplog ===" | tee -a $seq.full
+pmdumplog -m $tmp | tee -a $seq.full | _filter_dump
+
+offset=`_arch_start $tmp 0.05`
+echo "offset=$offset" >>$seq.full
+
+for delta in 0.1 0.2 0.4
+do
+    echo
+    echo "=== pmval -t $delta ===" | tee -a $seq.full
+    pmval -O $offset -Dlog,logmeta,interp -i "bin-100,bin-200" -t $delta -a $tmp sample.bin 2>$tmp.err \
+    | tee -a $seq.full \
+    | _filter $delta
+    _filter_err $delta <$tmp.err
+    cat $tmp.err >>$seq.full
+done
+
+exit 0

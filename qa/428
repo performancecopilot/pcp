@@ -1,0 +1,112 @@
+#! /bin/sh
+# PCP QA Test No. 428
+# interp mode problems with PM_SEM_INSTANT metric, see #564535
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+rm -f $seq.full
+
+_set()
+{
+    for m in long longlong float double string aggregate
+    do
+	pmstore sample.$m.write_me $1 >/dev/null
+    done
+}
+
+_filter()
+{
+    # second sed is for endian variations
+    #
+    sed \
+	-e '/^metric:/d' \
+	-e '/^archive:/d' \
+	-e '/^host:/d' \
+	-e '/^start:/d' \
+	-e '/^end:/d' \
+	-e '/^semantics:/d' \
+	-e '/^units:/d' \
+	-e '/^samples:/d' \
+	-e '/^interval:/d' \
+	-e '/No values available/d' \
+	-e '/End of PCP archive log/d' \
+    | $PCP_AWK_PROG '
+NF == 2 { print $2; next }
+NF == 3 { print $3; next }
+NF > 0	{ print }' \
+    | sed \
+	-e 's/\[00010000]/[00000100]/' \
+	-e 's/\[00040000]/[00000400]/' \
+	-e 's/\[00100000]/[00001000]/' \
+	-e 's/\[10000000]/[00000010]/' \
+    | LC_COLLATE=POSIX sort -u
+}
+
+# real QA test starts here
+_set 1024
+
+cat <<End-of-File >$tmp.config
+log mandatory on 500msec {
+    sample.long.write_me
+    sample.longlong.write_me
+    sample.float.write_me
+    sample.double.write_me
+    sample.string.write_me
+    sample.aggregate.write_me
+}
+End-of-File
+
+pmlogger <$tmp.config -l $tmp.log -T 10sec $tmp &
+
+sleep 2
+
+_set 4096
+
+sleep 2
+
+_set 256
+
+sleep 2
+
+_set 16
+
+wait
+
+cat $tmp.log >$seq.full
+
+echo "----------------------------"
+echo "Raw data (pmval -U)"
+echo "----------------------------"
+for m in long longlong float double string aggregate
+do
+    echo
+    echo "Unique values for sample.$m.write_me ..."
+    pmval -U $tmp sample.$m.write_me 2>&1 | tee -a $seq.full | _filter
+done
+
+echo
+echo "----------------------------"
+echo "Interpolated data (pmval -a)"
+echo "----------------------------"
+for m in long longlong float double string aggregate
+do
+    echo
+    echo "Unique values for sample.$m.write_me ..."
+    pmval -t 0.25sec -a $tmp sample.$m.write_me 2>&1 | tee -a $seq.full | _filter
+done
+
+# success, all done
+status=0
+exit

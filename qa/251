@@ -1,0 +1,109 @@
+#! /bin/sh
+# PCP QA Test No. 251
+# libpcp for archives with missing volumes
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    sed \
+	-e '/host:/s/ [^ ].*/ HOST/' \
+	-e '/start:/s/ [^ ].*/ DATE/' \
+	-e '/end:/s/ [^ ].*/ DATE/' \
+	-e 's/^..:..:..\..../TIMESTAMP   /' \
+	-e '/No values available/d'
+    if [ "`echo core*`" != "core*" ]
+    then
+	echo -n "Dumped core! ... saved in"
+	$sudo rm -f $here/core*
+	for c in core*
+	do
+	    $sudo mv $c $here/$c
+	    echo -n " $here/$c"
+	done
+	echo
+	touch die
+    fi
+}
+
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+mkdir $tmp
+cp src/mv-bar.* $tmp
+offset=`_arch_start src/mv-bar 0`
+cd $tmp
+
+for inst in "bin-100" "bin-100,bin-500,bin-900"
+do
+    echo
+    echo "All volumes present ... $inst ..."
+    pmval -O $offset -D128 -t2 -a mv-bar -i $inst sampledso.bin 2>err >out
+    egrep 'Skip|Change' err
+    _filter <out
+    [ -f die ] && exit
+
+    echo
+    echo "First volume missing ... $inst ..."
+    mv mv-bar.0 foo.0
+    pmval -O $offset -D128 -t2 -a mv-bar -i $inst sampledso.bin 2>err >out
+    egrep 'Skip|Change' err
+    _filter <out
+    [ -f die ] && exit
+    mv foo.0 mv-bar.0
+
+    echo
+    echo "Last volume missing ... $inst ..."
+    mv mv-bar.3 foo.3
+    pmval -O $offset -D128 -t2 -a mv-bar -i $inst sampledso.bin 2>err >out
+    egrep 'Skip|Change' err
+    _filter <out
+    [ -f die ] && exit
+    mv foo.3 mv-bar.3
+
+    echo
+    echo "Second volume missing ... $inst ..."
+    mv mv-bar.1 foo.1
+    pmval -O $offset -D128 -t2 -a mv-bar -i $inst sampledso.bin 2>err >out
+    egrep 'Skip|Change' err
+    _filter <out
+    [ -f die ] && exit
+    mv foo.1 mv-bar.1
+
+    echo
+    echo "Second last volume missing ... $inst ..."
+    mv mv-bar.2 foo.2
+    pmval -O $offset -D128 -t2 -a mv-bar -i $inst sampledso.bin 2>err >out
+    egrep 'Skip|Change' err
+    _filter <out
+    [ -f die ] && exit
+    mv foo.2 mv-bar.2
+
+    echo
+    echo "All volumes but second missing ... $inst ..."
+    mv mv-bar.0 foo.0
+    mv mv-bar.2 foo.2
+    mv mv-bar.3 foo.3
+    pmval -O $offset -D128 -t2 -a mv-bar -i $inst sampledso.bin 2>err >out
+    egrep 'Skip|Change' err
+    _filter <out
+    [ -f die ] && exit
+    mv foo.0 mv-bar.0
+    mv foo.2 mv-bar.2
+    mv foo.3 mv-bar.3
+
+done
+
+# success, all done
+status=0
+exit

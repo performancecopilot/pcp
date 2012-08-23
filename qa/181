@@ -1,0 +1,42 @@
+#! /bin/sh
+# PCP QA Test No. 181
+# match instance name with embedded spaces for an archive
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    # V1 archives supported
+    arch=src/bigace
+    ln $seq.out.1 $seq.out
+else
+    # no support for V1 archives
+    arch=src/bigace_v2
+    ln $seq.out.2 $seq.out
+fi
+
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+_filter()
+{
+    sed -e '/Note: timezone set to local timezone of host/d'
+}
+
+# real QA test starts here
+cat <<End-of-File >$tmp.pmns
+root {
+    foo	40:2:1
+}
+End-of-File
+
+pmval -z -U $arch -n $tmp.pmns -i 4653127 -s 3 foo | _filter

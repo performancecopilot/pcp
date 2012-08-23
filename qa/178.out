@@ -1,0 +1,64 @@
+QA output created by 178
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+Full merge ...
+Log record counts ...
+a: 26
+b: 21
+c: 11
+merge: 58 (+2 marks)
+
+sample.bin ["bin-200"] ... expect 55 samples
+55 samples
+
+sample.bin ["bin-100"] ... expect 35 samples, 20 no values
+35 samples, 20 "no values"
+
+sample.drift ... expect 30 samples
+30 samples
+
+merge -s 10
+merge (expect 10): 10
+
+merge -T 6.9
+merge (expect 31 + 2 preamble + 1 mark): 33 (+1 mark)
+
+merge -S 6.9 -T 7.2
+merge (expect 12): 12
+
+Full merge with volume switch ...
+pmlogextract: New log volume 1, at datestamp
+pmlogextract: New log volume 2, at datestamp
+pmlogextract: New log volume 3, at datestamp
+Log record counts ...
+a: 26
+b: 21
+c: 11
+merge: 58 (+2 marks)
+Log record counts per merged volume ...
+volume 0: 15
+volume 1: 15
+volume 2: 14 (+1 mark)
+volume 3: 14 (+1 mark)

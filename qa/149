@@ -1,0 +1,64 @@
+#! /bin/sh
+# PCP QA Test No. 149
+# check inst in pmResult for metrics with indom of PM_INDOM_NULL
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+rm -f $seq.out
+if [ $PCP_PLATFORM = irix ]
+then
+    ln $seq.out.irix $seq.out
+elif [ $PCP_PLATFORM = linux ]
+then
+    ln $seq.out.linux $seq.out
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+then
+    # same output as linux
+    ln $seq.out.linux $seq.out
+else
+    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+    exit 1
+fi
+
+# real QA test starts here
+
+# note filter at the back end has to be aggressive because of variations
+# in the metrics coverage for the various IRIX and Linux PMDAs
+#
+src/nullinst irix hinv sample \
+| sed \
+    -e '/pmLookupDesc/d' \
+    -e '/^hinv\.ntape/d' \
+    -e '/^irix\.engr/d' \
+    -e '/^irix\.gfx/d' \
+    -e '/^irix\.xfs/d' \
+    -e '/^sample\.event\.type/d' \
+    -e '/^sample\.event\.param_/d' \
+| if [ $PCP_PLATFORM != "irix" ]
+then
+    sed \
+	-e '/disk.*bytes:/d' \
+	-e '/disk.all.avactive/d' \
+	-e '/disk.all.aveq/d' \
+	-e '/irix.mem.util/d' \
+	-e '/irix.mem.vmstat/d' \
+	-e '/rpc.client/d' \
+	-e '/rpc.server/d' \
+	-e '/nfs3*.client.calls:/d' \
+	-e '/nfs3*.server.calls:/d' \
+	-e '/kernel.all.syscall:/d' \
+	-e '/hinv.nxbow:/d'
+else
+    cat
+fi

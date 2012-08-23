@@ -1,0 +1,92 @@
+#! /bin/sh
+# PCP QA Test No. 254
+# exercise pmNameAll for distributed PMNS with given namespace
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+signal=$PCP_BINADM_DIR/pmsignal
+_needclean=true
+pmns="nameall.pmns"
+
+rm -rf $tmp
+mkdir $tmp
+chmod ugo+rwx $tmp
+cd $tmp
+
+cleanup()
+{
+    cd $here
+    if $_needclean
+    then
+        _needclean=false
+	$signal -s TERM $pmcd
+	sleep 1
+        echo "Restart and ping pmcd ..."
+        $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+    fi
+    rm -rf $tmp
+}
+
+trap "cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+cat >$pmns <<End-of-File
+root {
+    ten		29:0:11
+    another_ten	29:0:11
+    yet
+}
+
+yet {
+    another
+    again	29:0:11
+}
+
+yet.another {
+    ten		29:0:11
+}
+End-of-File
+
+if [ $PCP_VER -lt 3600 ]
+then
+    pmnscomp -df -n $pmns $pmns.bin
+fi
+
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+
+# Note: start pmcd with -f so that its PID stays the same (no daemon)
+#
+if [ $PCP_VER -lt 3600 ]
+then
+    $PCP_PMCD_PROG -f -n $pmns -l $seq.full &
+else
+    $PCP_PMCD_PROG -f -N $pmns -l $seq.full &
+fi
+pmcd=$!
+_wait_for_pmcd
+
+cd $here
+src/nameall -s 2 ""
+
+status=$?

@@ -1,0 +1,117 @@
+#! /bin/sh
+# PCP QA Test No. 188
+# exercise __pmMktime
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+rm -f $seq.out
+if [ $PCP_PLATFORM = irix ] ; then
+    ln $seq.irix $seq.out
+elif [ $PCP_PLATFORM = linux ] ; then
+    # Linux is all over the shop here!
+    #
+    # History (linux version of $seq.out)
+    # 	glibc-2.3.3-98.*	SuSE SLES9
+    #
+    # History (irix version of $seq.out)
+    #	glibc-2.3.3-27		RedHat Fedora Core 2
+    #
+    if [ -f /etc/SuSE-release ]
+    then
+	case `cat /etc/SuSE-release`
+	in
+	    'SUSE LINUX Enterprise Server 9 '*|\
+	    'SUSE Linux Enterprise Server 10 '*|\
+	    'SUSE Linux Enterprise Server 11 '*|\
+	    'openSUSE 11'*|\
+	    'openSUSE 12'*)
+		ln $seq.linux $seq.out
+		;;
+	esac
+    elif [ -f /etc/redhat-release ]
+    then
+	case `cat /etc/redhat-release`
+	in
+	    'Fedora Core release 2 '*)
+		ln $seq.irix $seq.out
+		;;
+	    'Fedora Core release 6 '*)
+		ln $seq.linux.fc6 $seq.out
+		;;
+	    'Fedora release 7'*)
+		ln $seq.linux.fc6 $seq.out
+		;;
+	    *)
+		ln $seq.linux $seq.out
+		;;
+	esac
+    elif [ -f /etc/debian_version ]
+    then
+	ln $seq.linux $seq.out
+    fi
+    if [ ! -f $seq.out ]
+    then
+	# this is some old folklore ... better to handle in the explicit
+	# case above if possible
+	#
+	if which rpm >/dev/null 2>&1
+	then
+	    case `rpm -q glibc`
+	    in
+		glibc-1.*|glibc-2.[01].*|glibc-2.2.[0-4]-*|glibc-2.3.3-*)
+		    ln $seq.linux $seq.out
+		    ;;
+		*)
+		    ln $seq.irix $seq.out
+		    ;;
+	    esac
+	elif which emerge >/dev/null 2>&1
+	then
+	    # looking for a line like ...
+	    # sys-libs/glibc-2.12.2 was built with the following:
+	    version="`emerge --info glibc | sed -n -e '/was built with/{
+s/ was built with.*//
+s/.*\///
+p
+}'`"
+	    case "$version"
+	    in
+		glibc-2\.1[23][-.]*)
+		    ln $seq.linux $seq.out
+		    ;;
+		*)
+		    echo "Arrgh ... don't know what to do with glibc version $version"
+		    exit 1
+		    ;;
+	    esac
+	else
+	    echo "Arrg ... don't know how to determine glibc version"
+	    exit 1
+	fi
+    fi
+elif [ $PCP_PLATFORM = darwin ]
+then
+    ln $seq.darwin $seq.out
+elif [ $PCP_PLATFORM = solaris ]
+then
+    ln $seq.solaris $seq.out
+fi
+
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+# real QA test starts here
+
+# dodge daylight saving nonsense
+#
+TZ=EST-11; export TZ
+
+src/xmktime

@@ -1,0 +1,431 @@
+#! /bin/sh
+# PCP QA Test No. 083
+# Test pmlogger access control stuff and pmlc
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+. ./common.product
+. ./common.check
+. ./common.filter
+. ./localconfig
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+trap "rm -rf $tmp $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+
+echo "this tests access control for pmlogger and exercises pmlc"
+
+# Remember that we cd into $tmp
+#
+here=`pwd`
+signal=$PCP_BINADM_DIR/pmsignal
+tmp=/var/tmp/qa083.$$
+config=$tmp/pmlogger.conf
+log=$tmp/pmlogger.log
+me=`_get_fqdn`
+shortme=`hostname`
+errors=$tmp/errors.pmlc
+
+echo "me=$me" >$here/$seq.full
+echo "shortme=$shortme" >>$here/$seq.full
+
+_filter()
+{
+    # for Linux sometimes see "Connection reset by peer" ... this is believed
+    # to be a timing issue, and the results are semantically equivalent for
+    # the purposes of this test, so ...
+    # and the "receiving response from pmlogger" part of the no permission
+    # error message may not be there for older pmlc versions, so ...
+    #
+    tee -a $here/$seq.full \
+    | sed -e "s/$me/ME/" \
+	-e "s/$shortme/ME/" \
+	-e "s/$other1/OTHER1/" \
+	-e "s/$other2/OTHER2/" \
+        -e 's/Connection reset by peer/Address already in use/' \
+	-e '/No permission to perform/s/ receiving response from pmlogger//'
+}
+
+# Wait for appearance ($1 is true) or disappearance ($1 is false) of primary
+# pmlogger
+#
+_await_logger()
+{
+    for i in 1 2 3 4 5
+    do
+	if $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger.*-P' | grep -v sudo >/dev/null
+	then
+	    # if it's there and we're waiting for it, break
+	    $1 && break
+	else
+	    # if it's not there and we're waiting for it to disappear, break
+	    $1 || break
+	fi
+	sleep 2
+    done
+    logger_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger.*-P' | grep -v sudo | $PCP_AWK_PROG '{ print $2 }'`
+    if [ ! -z "$logger_pid" ]
+    then
+	# it's alive...
+	if $1
+	then
+	    echo "primary pmlogger alive"
+	else
+	    # ...but meant to die
+	    echo
+	    echo "primary pmlogger won't die, can't do QA test, ...giving up!"
+	    exit 1
+	fi
+    else
+	# it's not alive...
+	if $1
+	then
+	    # ...but should be
+	    echo
+	    echo "primary pmlogger won't start, can't do QA test, ...giving up!"
+	    echo "pmlogger log file:"
+	    cat $log
+	    exit 1
+	else
+	    echo "primary pmlogger terminated"
+	fi
+    fi
+}
+
+interrupt()
+{
+    echo "Interrupted"
+    exit
+}
+
+cleanup()
+{
+    cd $here
+    rm -rf $tmp $tmp.*
+    echo "Restarting pmcd and friends..."
+    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+}
+
+trap interrupt 1 2 3 15
+trap cleanup 0
+
+# real QA test starts here
+
+echo
+echo "Running the access tests"
+
+# ideally want a host with only 1 network interface ... getpmcdhosts
+# cannot express this, so we used to go for 1 CPU as a likely co-condition,
+# but even that has been dropped now that single CPU systems are so
+# rare
+#
+eval `./getpmcdhosts -L -n2 -v 'pcp>=2' | sed -e 's/^/other1=/' -e 's/ / other2=/'`
+if [ -z "$other1" ]
+then
+    echo "Cannot find first remote host running pmcd v2.x" >$seq.notrun
+    status=1
+    exit
+fi
+if [ -z "$other2" ]
+then
+    echo "Cannot find second remote host running pmcd v2.x" >$seq.notrun
+    status=1
+    exit
+fi
+echo "other1=$other1" >>$here/$seq.full
+echo "other2=$other2" >>$here/$seq.full
+
+# kill off any existing primary pmlogger
+#
+$sudo $signal -a -s TERM pmlogger
+_await_logger false
+
+if mkdir $tmp
+then
+    cd $tmp
+else
+    echo "Unable to create working directory $tmp, ...giving up!"
+    exit 1
+fi
+
+cat >$config <<End-Of-File
+# test various "all" commands
+log mandatory on 1 hour {
+    kernel.all.load [ "1 minute" ]
+}
+
+log mandatory maybe sample.bin["bin-100","bin-200","bin-300","bin-400"]
+log mandatory off   sample.bin["bin-600","bin-700","bin-800","bin-900"]
+
+[access]
+allow $other1 :		all except mandatory;
+disallow $other2 :	all;
+allow $me :		all;
+allow localhost :	all;
+End-Of-File
+
+echo >>$here/$seq.full
+cat $config >>$here/$seq.full
+
+echo "starting test pmlogger..."
+#
+# extra parentheses and I/O redirection so that shell doesn't print pid
+#
+( sh -c "$sudo $PCP_BINADM_DIR/pmlogger -P -c $config -l $log TEST" >/dev/null 2>&1 & ) >/dev/null 2>&1
+_await_logger true
+_wait_for_pmlogger $logger_pid $log
+
+# Check connect and enquire access
+
+echo | tee -a $here/$seq.full
+echo "================" | tee -a $here/$seq.full
+echo "checking enquire access for this host..." | tee -a $here/$seq.full
+pmlc -P <<End-Of-File 2>$errors \
+| _filter
+query kernel.all.load[1,5,15]
+quit
+End-Of-File
+if [ -s $errors ]
+then
+    echo Errors: | tee -a $here/$seq.full
+    _filter < $errors
+    exit 1
+fi
+
+
+echo | tee -a $here/$seq.full
+echo "================" | tee -a $here/$seq.full
+echo "checking enquire access for other1..." | tee -a $here/$seq.full
+ssh -q pcpqa@$other1 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
+| _filter
+query kernel.all.load[1,5,15]
+quit
+End-Of-File
+if [ -s $errors ]
+then
+    echo Errors: | tee -a $here/$seq.full
+    _filter < $errors
+    echo FAILED ... sleeping
+    sleep 300
+    exit 1
+fi
+
+echo | tee -a $here/$seq.full
+echo "================" | tee -a $here/$seq.full
+echo "checking enquire access for other2 (should fail)..." | tee -a $here/$seq.full
+ssh -q pcpqa@$other2 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
+| _filter
+query kernel.all.load[1,5,15]
+quit
+End-Of-File
+if [ -s $errors ]
+then
+    echo Errors: | tee -a $here/$seq.full
+    _filter < $errors
+fi
+
+echo | tee -a $here/$seq.full
+echo "================" | tee -a $here/$seq.full
+echo "re-checking enquire access for this host..." | tee -a $here/$seq.full
+pmlc -P <<End-Of-File 2>$errors \
+| _filter
+query kernel.all.load[1,5,15]
+quit
+End-Of-File
+if [ -s $errors ]
+then
+    echo Errors: | tee -a $here/$seq.full
+    _filter < $errors
+    exit 1
+fi
+
+# Now check advisory access using sample.bin
+
+cat >$config <<End-Of-File
+# test various explicit access commands
+
+log mandatory maybe sample.bin["bin-100","bin-200","bin-300"]
+log mandatory off   sample.bin["bin-700","bin-800","bin-900"]
+
+[access]
+allow $me :		enquire, advisory, mandatory;
+allow localhost :	enquire, advisory, mandatory;
+allow $other1 :		enquire, advisory;
+allow $other2 :		enquire;
+disallow *: all;
+End-Of-File
+
+echo >>$here/$seq.full
+cat $config >>$here/$seq.full
+
+echo "killing pmlogger used for enquire tests..."
+$sudo $signal -a -s TERM pmlogger
+_await_logger false
+
+echo
+echo "starting new pmlogger for advisory & mandatory tests..."
+#
+# extra parentheses and I/O redirection so that shell doesn't print pid
+#
+( sh -c "$sudo $PCP_BINADM_DIR/pmlogger -P -c $config -l $log TEST2" >/dev/null 2>&1 & ) >/dev/null 2>&1
+_await_logger true
+_wait_for_pmlogger $logger_pid $log
+
+echo | tee -a $seq.full
+echo "================" | tee -a $seq.full
+echo "checking advisory access for this host..." | tee -a $seq.full
+echo "(100,400 will change, 700 will not)" | tee -a $seq.full
+pmlc -P <<End-Of-File 2>$errors \
+| _filter
+query sample.bin[100,200,300,400,500,600,700,800,900]
+advisory on 1 hour sample.bin[100]
+advisory on 2 hour sample.bin[400]
+advisory on 3 hour sample.bin[700]
+query sample.bin[100,200,300,400,500,600,700,800,900]
+quit
+End-Of-File
+if [ -s $errors ]
+then
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlc
+    cat $log
+    echo Errors: | tee -a $seq.full
+    _filter < $errors
+    exit 1
+fi
+
+echo | tee -a $seq.full
+echo "================" | tee -a $seq.full
+echo "checking advisory access for other1..." | tee -a $seq.full
+echo "(200,500 will change, 800 will not)" | tee -a $seq.full
+ssh -q pcpqa@$other1 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
+| _filter
+query sample.bin[100,200,300,400,500,600,700,800,900]
+advisory on 1 hour sample.bin[200]
+advisory on 2 hour sample.bin[500]
+advisory on 3 hour sample.bin[800]
+query sample.bin[100,200,300,400,500,600,700,800,900]
+quit
+End-Of-File
+if [ -s $errors ]
+then
+    echo Errors: | tee -a $seq.full
+    _filter < $errors
+fi
+
+echo | tee -a $seq.full
+echo "================" | tee -a $seq.full
+echo "checking advisory access for other2..." | tee -a $seq.full
+echo "(expect 3 permission errors)" | tee -a $seq.full
+ssh -q pcpqa@$other2 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
+| _filter
+query sample.bin[100,200,300,400,500,600,700,800,900]
+advisory on 1 hour sample.bin[300]
+advisory on 2 hour sample.bin[600]
+advisory on 3 hour sample.bin[900]
+query sample.bin[100,200,300,400,500,600,700,800,900]
+quit
+End-Of-File
+if [ -s $errors ]
+then
+    echo Errors: | tee -a $seq.full
+    _filter < $errors
+fi
+
+# Now check mandatory access using sample.bin (same config file as for advisory
+# access)
+
+echo "killing pmlogger used for advisory tests..."
+$sudo $signal -a -s TERM pmlogger
+_await_logger false
+
+echo
+echo "starting new pmlogger for mandatory tests..."
+#
+# extra parentheses and I/O redirection so that shell doesn't print pid
+#
+( sh -c "$sudo $PCP_BINADM_DIR/pmlogger -P -c $config -l $log TEST3" >/dev/null 2>&1 & ) >/dev/null 2>&1
+_await_logger true
+_wait_for_pmlogger $logger_pid $log
+
+echo | tee -a $seq.full
+echo "================" | tee -a $seq.full
+echo "checking mandatory access for this host..." | tee -a $seq.full
+echo "(100,400,700 will change)" | tee -a $seq.full
+pmlc -P <<End-Of-File 2>$errors \
+| _filter
+query sample.bin[100,200,300,400,500,600,700,800,900]
+mandatory on 3 hour sample.bin[100]
+mandatory on 4 hour sample.bin[400]
+mandatory on 5 hour sample.bin[700]
+query sample.bin[100,200,300,400,500,600,700,800,900]
+quit
+End-Of-File
+if [ -s $errors ]
+then
+    echo Errors: | tee -a $seq.full
+    _filter < $errors
+fi
+
+echo | tee -a $seq.full
+echo "================" | tee -a $seq.full
+echo "checking mandatory access for other1..." | tee -a $seq.full
+echo "Expect 3 permission errors" | tee -a $seq.full
+ssh -q pcpqa@$other1 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
+| _filter
+query sample.bin[100,200,300,400,500,600,700,800,900]
+mandatory on 3 hour sample.bin[200]
+mandatory on 4 hour sample.bin[500]
+mandatory on 5 hour sample.bin[800]
+query sample.bin[100,200,300,400,500,600,700,800,900]
+quit
+End-Of-File
+if [ -s $errors ]
+then
+    echo Errors: | tee -a $seq.full
+    _filter < $errors
+fi
+
+echo | tee -a $seq.full
+echo "================" | tee -a $seq.full
+echo "checking mandatory access for other2..." | tee -a $seq.full
+echo "Expect 3 permission errors" | tee -a $seq.full
+ssh -q pcpqa@$other2 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
+| _filter
+query sample.bin[100,200,300,400,500,600,700,800,900]
+mandatory on 3 hour sample.bin[300]
+mandatory on 4 hour sample.bin[600]
+mandatory on 5 hour sample.bin[900]
+query sample.bin[100,200,300,400,500,600,700,800,900]
+quit
+End-Of-File
+if [ -s $errors ]
+then
+    echo Errors: | tee -a $seq.full
+    _filter < $errors
+fi
+
+# Check that each pmlogger only accepts one pmlc connection at a time
+
+echo | tee -a $seq.full
+echo "================" | tee -a $seq.full
+echo "checking 2nd pmlc for pmlogger (should fail)..." | tee -a $seq.full
+( ( sleep 5 | pmlc -P ) & ) >/dev/null 2>&1
+sleep 3
+pmlc -P <<End-Of-File 2>$errors \
+| _filter
+quit
+End-Of-File
+if [ -s $errors ]
+then
+    echo Errors: | tee -a $seq.full
+    _filter < $errors
+fi
+
+wait

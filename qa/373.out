@@ -1,0 +1,1197 @@
+QA output created by 373
+
+=== src/iostat-t ===
+stamp_style=1 zone=UTC basedate=2010-07-27 now=1280234857 stamp=2010-07-27T12:47:37.000000
+End of sample 0 @ 1280234857 2010-07-27T12:47:37.000000
+End of sample 1 @ 1280234860 2010-07-27T12:47:40.000000
+Note: timezone set to local timezone of host "bozo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo
+  commencing Tue Jul 27 12:47:37.000 2010
+  ending     Tue Jul 27 12:47:40.000 2010
+
+Descriptions for Metrics in the Log ...
+PMID: 245.0.4 (kernel.all.cpu.wait.total)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.5 (kernel.all.cpu.steal)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.6 (kernel.all.cpu.idle)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.1 (kernel.all.cpu.user)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.7 (disk.dev.total)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: count / sec
+PMID: 245.0.8 (disk.dev.read_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.2 (kernel.all.cpu.nice)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.9 (disk.dev.write_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.3 (kernel.all.cpu.sys)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+Instance Domains in the Log ...
+InDom: 245.0
+12:47:37.000 3 instances
+                 0 or "sda"
+                 1 or "sdb"
+                 2 or "scd0"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+12:47:37.000       0          132          132
+12:47:37.000       0          730          132
+12:47:40.000       0          730          868
+
+[368 bytes]
+12:47:37.000  245.0.1 (kernel.all.cpu.user): value 0.0199
+              245.0.2 (kernel.all.cpu.nice): value 0
+              245.0.3 (kernel.all.cpu.sys): value 0.053199999
+              245.0.4 (kernel.all.cpu.wait.total): value 0.2193
+              245.0.5 (kernel.all.cpu.steal): value 0
+              245.0.6 (kernel.all.cpu.idle): value 0.7076
+              245.0.7 (disk.dev.total):
+                inst [0 or "sda"] value 172.09
+                inst [1 or "sdb"] value 1
+                inst [2 or "scd0"] value 0
+              245.0.8 (disk.dev.read_bytes):
+                inst [0 or "sda"] value 1291.6949
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.9 (disk.dev.write_bytes):
+                inst [0 or "sda"] value 45.185001
+                inst [1 or "sdb"] value 10.63
+                inst [2 or "scd0"] value 0
+
+[368 bytes]
+12:47:40.000  245.0.1 (kernel.all.cpu.user): value 0.0167
+              245.0.2 (kernel.all.cpu.nice): value 0
+              245.0.3 (kernel.all.cpu.sys): value 0.02
+              245.0.4 (kernel.all.cpu.wait.total): value 0
+              245.0.5 (kernel.all.cpu.steal): value 0
+              245.0.6 (kernel.all.cpu.idle): value 0.96329999
+              245.0.7 (disk.dev.total):
+                inst [0 or "sda"] value 104.67
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.8 (disk.dev.read_bytes):
+                inst [0 or "sda"] value 696
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.9 (disk.dev.write_bytes):
+                inst [0 or "sda"] value 17.334999
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+
+=== src/iostat-t.ISO ===
+stamp_style=2 zone=+1000 basedate=2010-07-27 now=1280198770 stamp=2010-07-27T12:46:10.000000
+End of sample 0 @ 1280198770 2010-07-27T12:46:10.000000
+End of sample 1 @ 1280198773 2010-07-27T12:46:13.000000
+Note: timezone set to local timezone of host "bozo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo
+  commencing Tue Jul 27 12:46:10.000 2010
+  ending     Tue Jul 27 12:46:13.000 2010
+
+Descriptions for Metrics in the Log ...
+PMID: 245.0.4 (kernel.all.cpu.wait.total)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.5 (kernel.all.cpu.steal)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.6 (kernel.all.cpu.idle)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.1 (kernel.all.cpu.user)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.7 (disk.dev.total)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: count / sec
+PMID: 245.0.8 (disk.dev.read_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.2 (kernel.all.cpu.nice)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.9 (disk.dev.write_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.3 (kernel.all.cpu.sys)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+Instance Domains in the Log ...
+InDom: 245.0
+12:46:10.000 3 instances
+                 0 or "sda"
+                 1 or "sdb"
+                 2 or "scd0"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+12:46:10.000       0          132          132
+12:46:10.000       0          730          132
+12:46:13.000       0          730          868
+
+[368 bytes]
+12:46:10.000  245.0.1 (kernel.all.cpu.user): value 0.039900001
+              245.0.2 (kernel.all.cpu.nice): value 0
+              245.0.3 (kernel.all.cpu.sys): value 0.039900001
+              245.0.4 (kernel.all.cpu.wait.total): value 0.0066
+              245.0.5 (kernel.all.cpu.steal): value 0
+              245.0.6 (kernel.all.cpu.idle): value 0.91360003
+              245.0.7 (disk.dev.total):
+                inst [0 or "sda"] value 93.019997
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.8 (disk.dev.read_bytes):
+                inst [0 or "sda"] value 713.62
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.9 (disk.dev.write_bytes):
+                inst [0 or "sda"] value 5.3150001
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+
+[368 bytes]
+12:46:13.000  245.0.1 (kernel.all.cpu.user): value 0.0133
+              245.0.2 (kernel.all.cpu.nice): value 0
+              245.0.3 (kernel.all.cpu.sys): value 0.0133
+              245.0.4 (kernel.all.cpu.wait.total): value 0.3567
+              245.0.5 (kernel.all.cpu.steal): value 0
+              245.0.6 (kernel.all.cpu.idle): value 0.61669999
+              245.0.7 (disk.dev.total):
+                inst [0 or "sda"] value 121
+                inst [1 or "sdb"] value 1.67
+                inst [2 or "scd0"] value 0
+              245.0.8 (disk.dev.read_bytes):
+                inst [0 or "sda"] value 850.66498
+                inst [1 or "sdb"] value 1.335
+                inst [2 or "scd0"] value 0
+              245.0.9 (disk.dev.write_bytes):
+                inst [0 or "sda"] value 232
+                inst [1 or "sdb"] value 12
+                inst [2 or "scd0"] value 0
+
+=== src/iostat-c ===
+iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
+iostat2pcp: Warning: cannot determine sample interval, assuming 15 seconds
+stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188815 stamp=Tue Jul 27 00:00:15 2010 interval=15 first_tag=avg-cpu
+End of sample 0 @ 1280188815 Tue Jul 27 00:00:15 2010
+End of sample 1 @ 1280188830 Tue Jul 27 00:00:30 2010
+Note: timezone set to local timezone of host "bozo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo
+  commencing Tue Jul 27 00:00:15.000 2010
+  ending     Tue Jul 27 00:00:30.000 2010
+
+Descriptions for Metrics in the Log ...
+PMID: 245.0.6 (kernel.all.cpu.idle)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.5 (kernel.all.cpu.steal)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.4 (kernel.all.cpu.wait.total)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.3 (kernel.all.cpu.sys)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.2 (kernel.all.cpu.nice)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.1 (kernel.all.cpu.user)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+Instance Domains in the Log ...
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+00:00:15.000       0          132          132
+00:00:15.000       0          492          132
+00:00:30.000       0          492          508
+
+[188 bytes]
+00:00:15.000  245.0.1 (kernel.all.cpu.user): value 0.75
+              245.0.2 (kernel.all.cpu.nice): value 0
+              245.0.3 (kernel.all.cpu.sys): value 0.25
+              245.0.4 (kernel.all.cpu.wait.total): value 0
+              245.0.5 (kernel.all.cpu.steal): value 0
+              245.0.6 (kernel.all.cpu.idle): value 0
+
+[188 bytes]
+00:00:30.000  245.0.1 (kernel.all.cpu.user): value 0.85619998
+              245.0.2 (kernel.all.cpu.nice): value 0
+              245.0.3 (kernel.all.cpu.sys): value 0.14380001
+              245.0.4 (kernel.all.cpu.wait.total): value 0
+              245.0.5 (kernel.all.cpu.steal): value 0
+              245.0.6 (kernel.all.cpu.idle): value 0
+
+=== src/iostat-d ===
+iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
+stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188803 stamp=Tue Jul 27 00:00:03 2010 interval=3 first_tag=Device
+End of sample 0 @ 1280188803 Tue Jul 27 00:00:03 2010
+End of sample 1 @ 1280188806 Tue Jul 27 00:00:06 2010
+Note: timezone set to local timezone of host "bozo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo
+  commencing Tue Jul 27 00:00:03.000 2010
+  ending     Tue Jul 27 00:00:06.000 2010
+
+Descriptions for Metrics in the Log ...
+PMID: 245.0.3 (disk.dev.write_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.2 (disk.dev.read_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.1 (disk.dev.total)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: count / sec
+
+Instance Domains in the Log ...
+InDom: 245.0
+00:00:03.000 3 instances
+                 0 or "sda"
+                 1 or "sdb"
+                 2 or "scd0"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+00:00:03.000       0          132          132
+00:00:03.000       0          370          132
+00:00:06.000       0          370          532
+
+[200 bytes]
+00:00:03.000  245.0.1 (disk.dev.total):
+                inst [0 or "sda"] value 3.3399999
+                inst [1 or "sdb"] value 10.03
+                inst [2 or "scd0"] value 0
+              245.0.2 (disk.dev.read_bytes):
+                inst [0 or "sda"] value 5.3499999
+                inst [1 or "sdb"] value 121.74
+                inst [2 or "scd0"] value 0
+              245.0.3 (disk.dev.write_bytes):
+                inst [0 or "sda"] value 38.794998
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+
+[200 bytes]
+00:00:06.000  245.0.1 (disk.dev.total):
+                inst [0 or "sda"] value 9.2700005
+                inst [1 or "sdb"] value 83.440002
+                inst [2 or "scd0"] value 0
+              245.0.2 (disk.dev.read_bytes):
+                inst [0 or "sda"] value 21.190001
+                inst [1 or "sdb"] value 91.389999
+                inst [2 or "scd0"] value 0
+              245.0.3 (disk.dev.write_bytes):
+                inst [0 or "sda"] value 67.550003
+                inst [1 or "sdb"] value 817.21997
+                inst [2 or "scd0"] value 0
+
+=== src/iostat ===
+iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
+stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188803 stamp=Tue Jul 27 00:00:03 2010 interval=3 first_tag=avg-cpu
+End of sample 0 @ 1280188803 Tue Jul 27 00:00:03 2010
+End of sample 1 @ 1280188806 Tue Jul 27 00:00:06 2010
+Note: timezone set to local timezone of host "bozo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo
+  commencing Tue Jul 27 00:00:03.000 2010
+  ending     Tue Jul 27 00:00:06.000 2010
+
+Descriptions for Metrics in the Log ...
+PMID: 245.0.4 (kernel.all.cpu.wait.total)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.5 (kernel.all.cpu.steal)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.6 (kernel.all.cpu.idle)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.1 (kernel.all.cpu.user)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.7 (disk.dev.total)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: count / sec
+PMID: 245.0.8 (disk.dev.read_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.2 (kernel.all.cpu.nice)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.9 (disk.dev.write_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.3 (kernel.all.cpu.sys)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+Instance Domains in the Log ...
+InDom: 245.0
+00:00:03.000 3 instances
+                 0 or "sda"
+                 1 or "sdb"
+                 2 or "scd0"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+00:00:03.000       0          132          132
+00:00:03.000       0          730          132
+00:00:06.000       0          730          868
+
+[368 bytes]
+00:00:03.000  245.0.1 (kernel.all.cpu.user): value 0.3612
+              245.0.2 (kernel.all.cpu.nice): value 0
+              245.0.3 (kernel.all.cpu.sys): value 0.2207
+              245.0.4 (kernel.all.cpu.wait.total): value 0.4181
+              245.0.5 (kernel.all.cpu.steal): value 0
+              245.0.6 (kernel.all.cpu.idle): value 0
+              245.0.7 (disk.dev.total):
+                inst [0 or "sda"] value 2.3399999
+                inst [1 or "sdb"] value 78.93
+                inst [2 or "scd0"] value 0
+              245.0.8 (disk.dev.read_bytes):
+                inst [0 or "sda"] value 34.785
+                inst [1 or "sdb"] value 317.05499
+                inst [2 or "scd0"] value 0
+              245.0.9 (disk.dev.write_bytes):
+                inst [0 or "sda"] value 6.6900001
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+
+[368 bytes]
+00:00:06.000  245.0.1 (kernel.all.cpu.user): value 0.0099999998
+              245.0.2 (kernel.all.cpu.nice): value 0
+              245.0.3 (kernel.all.cpu.sys): value 0.023399999
+              245.0.4 (kernel.all.cpu.wait.total): value 0.9666
+              245.0.5 (kernel.all.cpu.steal): value 0
+              245.0.6 (kernel.all.cpu.idle): value 0
+              245.0.7 (disk.dev.total):
+                inst [0 or "sda"] value 4.3499999
+                inst [1 or "sdb"] value 124.08
+                inst [2 or "scd0"] value 0
+              245.0.8 (disk.dev.read_bytes):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 488.29501
+                inst [2 or "scd0"] value 0
+              245.0.9 (disk.dev.write_bytes):
+                inst [0 or "sda"] value 30.77
+                inst [1 or "sdb"] value 569.90002
+                inst [2 or "scd0"] value 0
+
+=== src/iostat-z ===
+iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
+stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188803 stamp=Tue Jul 27 00:00:03 2010 interval=3 first_tag=avg-cpu
+End of sample 0 @ 1280188803 Tue Jul 27 00:00:03 2010
+End of sample 1 @ 1280188806 Tue Jul 27 00:00:06 2010
+Note: timezone set to local timezone of host "bozo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo
+  commencing Tue Jul 27 00:00:03.000 2010
+  ending     Tue Jul 27 00:00:06.000 2010
+
+Descriptions for Metrics in the Log ...
+PMID: 245.0.4 (kernel.all.cpu.wait.total)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.5 (kernel.all.cpu.steal)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.6 (kernel.all.cpu.idle)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.1 (kernel.all.cpu.user)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.7 (disk.dev.total)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: count / sec
+PMID: 245.0.8 (disk.dev.read_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.2 (kernel.all.cpu.nice)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.9 (disk.dev.write_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.3 (kernel.all.cpu.sys)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+Instance Domains in the Log ...
+InDom: 245.0
+00:00:03.000 2 instances
+                 0 or "sda"
+                 1 or "sdb"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+00:00:03.000       0          132          132
+00:00:03.000       0          717          132
+00:00:06.000       0          717          772
+
+[320 bytes]
+00:00:03.000  245.0.1 (kernel.all.cpu.user): value 0.0099999998
+              245.0.2 (kernel.all.cpu.nice): value 0
+              245.0.3 (kernel.all.cpu.sys): value 0.0066999998
+              245.0.4 (kernel.all.cpu.wait.total): value 0
+              245.0.5 (kernel.all.cpu.steal): value 0
+              245.0.6 (kernel.all.cpu.idle): value 0.98329997
+              245.0.7 (disk.dev.total):
+                inst [0 or "sda"] value 2.6700001
+                inst [1 or "sdb"] value 0.33000001
+              245.0.8 (disk.dev.read_bytes):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 1.335
+              245.0.9 (disk.dev.write_bytes):
+                inst [0 or "sda"] value 18.665001
+                inst [1 or "sdb"] value 0
+
+[320 bytes]
+00:00:06.000  245.0.1 (kernel.all.cpu.user): value 0.0099999998
+              245.0.2 (kernel.all.cpu.nice): value 0
+              245.0.3 (kernel.all.cpu.sys): value 0.0066999998
+              245.0.4 (kernel.all.cpu.wait.total): value 0
+              245.0.5 (kernel.all.cpu.steal): value 0
+              245.0.6 (kernel.all.cpu.idle): value 0.98329997
+              245.0.7 (disk.dev.total):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 1
+              245.0.8 (disk.dev.read_bytes):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 0
+              245.0.9 (disk.dev.write_bytes):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 12
+
+=== src/iostat-d-k ===
+iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
+stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188803 stamp=Tue Jul 27 00:00:03 2010 interval=3 first_tag=Device
+End of sample 0 @ 1280188803 Tue Jul 27 00:00:03 2010
+End of sample 1 @ 1280188806 Tue Jul 27 00:00:06 2010
+Note: timezone set to local timezone of host "bozo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo
+  commencing Tue Jul 27 00:00:03.000 2010
+  ending     Tue Jul 27 00:00:06.000 2010
+
+Descriptions for Metrics in the Log ...
+PMID: 245.0.3 (disk.dev.write_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.2 (disk.dev.read_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.1 (disk.dev.total)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: count / sec
+
+Instance Domains in the Log ...
+InDom: 245.0
+00:00:03.000 3 instances
+                 0 or "sda"
+                 1 or "sdb"
+                 2 or "scd0"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+00:00:03.000       0          132          132
+00:00:03.000       0          370          132
+00:00:06.000       0          370          532
+
+[200 bytes]
+00:00:03.000  245.0.1 (disk.dev.total):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 5
+                inst [2 or "scd0"] value 0
+              245.0.2 (disk.dev.read_bytes):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.3 (disk.dev.write_bytes):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 366.67001
+                inst [2 or "scd0"] value 0
+
+[200 bytes]
+00:00:06.000  245.0.1 (disk.dev.total):
+                inst [0 or "sda"] value 3.3199999
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.2 (disk.dev.read_bytes):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.3 (disk.dev.write_bytes):
+                inst [0 or "sda"] value 42.52
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+
+=== src/iostat-d-m ===
+iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
+stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188802 stamp=Tue Jul 27 00:00:02 2010 interval=2 first_tag=Device
+End of sample 0 @ 1280188802 Tue Jul 27 00:00:02 2010
+End of sample 1 @ 1280188804 Tue Jul 27 00:00:04 2010
+Note: timezone set to local timezone of host "bozo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo
+  commencing Tue Jul 27 00:00:02.000 2010
+  ending     Tue Jul 27 00:00:04.000 2010
+
+Descriptions for Metrics in the Log ...
+PMID: 245.0.3 (disk.dev.write_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.2 (disk.dev.read_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.1 (disk.dev.total)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: count / sec
+
+Instance Domains in the Log ...
+InDom: 245.0
+00:00:02.000 3 instances
+                 0 or "sda"
+                 1 or "sdb"
+                 2 or "scd0"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+00:00:02.000       0          132          132
+00:00:02.000       0          370          132
+00:00:04.000       0          370          532
+
+[200 bytes]
+00:00:02.000  245.0.1 (disk.dev.total):
+                inst [0 or "sda"] value 98.010002
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.2 (disk.dev.read_bytes):
+                inst [0 or "sda"] value 604.15997
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.3 (disk.dev.write_bytes):
+                inst [0 or "sda"] value 51.200001
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+
+[200 bytes]
+00:00:04.000  245.0.1 (disk.dev.total):
+                inst [0 or "sda"] value 113.33
+                inst [1 or "sdb"] value 1
+                inst [2 or "scd0"] value 0
+              245.0.2 (disk.dev.read_bytes):
+                inst [0 or "sda"] value 747.52002
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.3 (disk.dev.write_bytes):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 10.24
+                inst [2 or "scd0"] value 0
+
+=== src/iostat-x ===
+iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
+iostat2pcp: Warning: cannot determine sample interval, assuming 15 seconds
+stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188815 stamp=Tue Jul 27 00:00:15 2010 interval=15 first_tag=avg-cpu
+End of sample 0 @ 1280188815 Tue Jul 27 00:00:15 2010
+End of sample 1 @ 1280188830 Tue Jul 27 00:00:30 2010
+Note: timezone set to local timezone of host "bozo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo
+  commencing Tue Jul 27 00:00:15.000 2010
+  ending     Tue Jul 27 00:00:30.000 2010
+
+Descriptions for Metrics in the Log ...
+PMID: 245.0.10 (disk.dev.write)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: count / sec
+PMID: 245.0.4 (kernel.all.cpu.wait.total)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.11 (disk.dev.read_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.5 (kernel.all.cpu.steal)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.12 (disk.dev.write_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.6 (kernel.all.cpu.idle)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.13 (disk.dev.avactive)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: none
+PMID: 245.0.1 (kernel.all.cpu.user)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.7 (disk.dev.read_merge)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: count / sec
+PMID: 245.0.8 (disk.dev.write_merge)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: count / sec
+PMID: 245.0.2 (kernel.all.cpu.nice)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.9 (disk.dev.read)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: count / sec
+PMID: 245.0.3 (kernel.all.cpu.sys)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+Instance Domains in the Log ...
+InDom: 245.0
+00:00:15.000 3 instances
+                 0 or "sda"
+                 1 or "sdb"
+                 2 or "scd0"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+00:00:15.000       0          132          132
+00:00:15.000       0          959          132
+00:00:30.000       0          959         1348
+
+[608 bytes]
+00:00:15.000  245.0.1 (kernel.all.cpu.user): value 0.8538
+              245.0.2 (kernel.all.cpu.nice): value 0
+              245.0.3 (kernel.all.cpu.sys): value 0.1462
+              245.0.4 (kernel.all.cpu.wait.total): value 0
+              245.0.5 (kernel.all.cpu.steal): value 0
+              245.0.6 (kernel.all.cpu.idle): value 0
+              245.0.7 (disk.dev.read_merge):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.8 (disk.dev.write_merge):
+                inst [0 or "sda"] value 10.3
+                inst [1 or "sdb"] value 83.389999
+                inst [2 or "scd0"] value 0
+              245.0.9 (disk.dev.read):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 0.33000001
+                inst [2 or "scd0"] value 0
+              245.0.10 (disk.dev.write):
+                inst [0 or "sda"] value 4.3200002
+                inst [1 or "sdb"] value 10.63
+                inst [2 or "scd0"] value 0
+              245.0.11 (disk.dev.read_bytes):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 1.33
+                inst [2 or "scd0"] value 0
+              245.0.12 (disk.dev.write_bytes):
+                inst [0 or "sda"] value 58.470001
+                inst [1 or "sdb"] value 377.41
+                inst [2 or "scd0"] value 0
+              245.0.13 (disk.dev.avactive):
+                inst [0 or "sda"] value 0.13
+                inst [1 or "sdb"] value 0.93000001
+                inst [2 or "scd0"] value 0
+
+[608 bytes]
+00:00:30.000  245.0.1 (kernel.all.cpu.user): value 0.83279997
+              245.0.2 (kernel.all.cpu.nice): value 0
+              245.0.3 (kernel.all.cpu.sys): value 0.1672
+              245.0.4 (kernel.all.cpu.wait.total): value 0
+              245.0.5 (kernel.all.cpu.steal): value 0
+              245.0.6 (kernel.all.cpu.idle): value 0
+              245.0.7 (disk.dev.read_merge):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.8 (disk.dev.write_merge):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.9 (disk.dev.read):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.10 (disk.dev.write):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.11 (disk.dev.read_bytes):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.12 (disk.dev.write_bytes):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+              245.0.13 (disk.dev.avactive):
+                inst [0 or "sda"] value 0
+                inst [1 or "sdb"] value 0
+                inst [2 or "scd0"] value 0
+
+=== src/iostat-p-ALL ===
+iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
+stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188803 stamp=Tue Jul 27 00:00:03 2010 interval=3 first_tag=avg-cpu
+End of sample 0 @ 1280188803 Tue Jul 27 00:00:03 2010
+End of sample 1 @ 1280188806 Tue Jul 27 00:00:06 2010
+Note: timezone set to local timezone of host "bozo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo
+  commencing Tue Jul 27 00:00:03.000 2010
+  ending     Tue Jul 27 00:00:06.000 2010
+
+Descriptions for Metrics in the Log ...
+PMID: 245.0.4 (kernel.all.cpu.wait.total)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.5 (kernel.all.cpu.steal)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.6 (kernel.all.cpu.idle)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.1 (kernel.all.cpu.user)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.7 (disk.dev.total)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: count / sec
+PMID: 245.0.8 (disk.dev.read_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.2 (kernel.all.cpu.nice)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.9 (disk.dev.write_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.3 (kernel.all.cpu.sys)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+Instance Domains in the Log ...
+InDom: 245.0
+00:00:03.000 40 instances
+                 0 or "ram0"
+                 1 or "ram1"
+                 2 or "ram2"
+                 3 or "ram3"
+                 4 or "ram4"
+                 5 or "ram5"
+                 6 or "ram6"
+                 7 or "ram7"
+                 8 or "ram8"
+                 9 or "ram9"
+                 10 or "ram10"
+                 11 or "ram11"
+                 12 or "ram12"
+                 13 or "ram13"
+                 14 or "ram14"
+                 15 or "ram15"
+                 16 or "loop0"
+                 17 or "loop1"
+                 18 or "loop2"
+                 19 or "loop3"
+                 20 or "loop4"
+                 21 or "loop5"
+                 22 or "loop6"
+                 23 or "loop7"
+                 24 or "fd0"
+                 25 or "sda"
+                 26 or "sda1"
+                 27 or "sda2"
+                 28 or "sda3"
+                 29 or "sda4"
+                 30 or "sda5"
+                 31 or "sda6"
+                 32 or "sdb"
+                 33 or "sdb1"
+                 34 or "sdb2"
+                 35 or "sdb3"
+                 36 or "sdb4"
+                 37 or "sdb5"
+                 38 or "sdb6"
+                 39 or "scd0"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+00:00:03.000       0          132          132
+00:00:03.000       0         1224          132
+00:00:06.000       0         1224         4420
+
+[2144 bytes]
+00:00:03.000  245.0.1 (kernel.all.cpu.user): value 0.84670001
+              245.0.2 (kernel.all.cpu.nice): value 0
+              245.0.3 (kernel.all.cpu.sys): value 0.1533
+              245.0.4 (kernel.all.cpu.wait.total): value 0
+              245.0.5 (kernel.all.cpu.steal): value 0
+              245.0.6 (kernel.all.cpu.idle): value 0
+              245.0.7 (disk.dev.total):
+                inst [0 or "ram0"] value 0
+                inst [1 or "ram1"] value 0
+                inst [2 or "ram2"] value 0
+                inst [3 or "ram3"] value 0
+                inst [4 or "ram4"] value 0
+                inst [5 or "ram5"] value 0
+                inst [6 or "ram6"] value 0
+                inst [7 or "ram7"] value 0
+                inst [8 or "ram8"] value 0
+                inst [9 or "ram9"] value 0
+                inst [10 or "ram10"] value 0
+                inst [11 or "ram11"] value 0
+                inst [12 or "ram12"] value 0
+                inst [13 or "ram13"] value 0
+                inst [14 or "ram14"] value 0
+                inst [15 or "ram15"] value 0
+                inst [16 or "loop0"] value 0
+                inst [17 or "loop1"] value 0
+                inst [18 or "loop2"] value 0
+                inst [19 or "loop3"] value 0
+                inst [20 or "loop4"] value 0
+                inst [21 or "loop5"] value 0
+                inst [22 or "loop6"] value 0
+                inst [23 or "loop7"] value 0
+                inst [24 or "fd0"] value 0
+                inst [25 or "sda"] value 4.6700001
+                inst [26 or "sda1"] value 4.6700001
+                inst [27 or "sda2"] value 0
+                inst [28 or "sda3"] value 0
+                inst [29 or "sda4"] value 0
+                inst [30 or "sda5"] value 0
+                inst [31 or "sda6"] value 0
+                inst [32 or "sdb"] value 9.3299999
+                inst [33 or "sdb1"] value 0
+                inst [34 or "sdb2"] value 0
+                inst [35 or "sdb3"] value 0
+                inst [36 or "sdb4"] value 0
+                inst [37 or "sdb5"] value 0
+                inst [38 or "sdb6"] value 9.3299999
+                inst [39 or "scd0"] value 0
+              245.0.8 (disk.dev.read_bytes):
+                inst [0 or "ram0"] value 0
+                inst [1 or "ram1"] value 0
+                inst [2 or "ram2"] value 0
+                inst [3 or "ram3"] value 0
+                inst [4 or "ram4"] value 0
+                inst [5 or "ram5"] value 0
+                inst [6 or "ram6"] value 0
+                inst [7 or "ram7"] value 0
+                inst [8 or "ram8"] value 0
+                inst [9 or "ram9"] value 0
+                inst [10 or "ram10"] value 0
+                inst [11 or "ram11"] value 0
+                inst [12 or "ram12"] value 0
+                inst [13 or "ram13"] value 0
+                inst [14 or "ram14"] value 0
+                inst [15 or "ram15"] value 0
+                inst [16 or "loop0"] value 0
+                inst [17 or "loop1"] value 0
+                inst [18 or "loop2"] value 0
+                inst [19 or "loop3"] value 0
+                inst [20 or "loop4"] value 0
+                inst [21 or "loop5"] value 0
+                inst [22 or "loop6"] value 0
+                inst [23 or "loop7"] value 0
+                inst [24 or "fd0"] value 0
+                inst [25 or "sda"] value 0
+                inst [26 or "sda1"] value 0
+                inst [27 or "sda2"] value 0
+                inst [28 or "sda3"] value 0
+                inst [29 or "sda4"] value 0
+                inst [30 or "sda5"] value 0
+                inst [31 or "sda6"] value 0
+                inst [32 or "sdb"] value 0
+                inst [33 or "sdb1"] value 0
+                inst [34 or "sdb2"] value 0
+                inst [35 or "sdb3"] value 0
+                inst [36 or "sdb4"] value 0
+                inst [37 or "sdb5"] value 0
+                inst [38 or "sdb6"] value 0
+                inst [39 or "scd0"] value 0
+              245.0.9 (disk.dev.write_bytes):
+                inst [0 or "ram0"] value 0
+                inst [1 or "ram1"] value 0
+                inst [2 or "ram2"] value 0
+                inst [3 or "ram3"] value 0
+                inst [4 or "ram4"] value 0
+                inst [5 or "ram5"] value 0
+                inst [6 or "ram6"] value 0
+                inst [7 or "ram7"] value 0
+                inst [8 or "ram8"] value 0
+                inst [9 or "ram9"] value 0
+                inst [10 or "ram10"] value 0
+                inst [11 or "ram11"] value 0
+                inst [12 or "ram12"] value 0
+                inst [13 or "ram13"] value 0
+                inst [14 or "ram14"] value 0
+                inst [15 or "ram15"] value 0
+                inst [16 or "loop0"] value 0
+                inst [17 or "loop1"] value 0
+                inst [18 or "loop2"] value 0
+                inst [19 or "loop3"] value 0
+                inst [20 or "loop4"] value 0
+                inst [21 or "loop5"] value 0
+                inst [22 or "loop6"] value 0
+                inst [23 or "loop7"] value 0
+                inst [24 or "fd0"] value 0
+                inst [25 or "sda"] value 64
+                inst [26 or "sda1"] value 64
+                inst [27 or "sda2"] value 0
+                inst [28 or "sda3"] value 0
+                inst [29 or "sda4"] value 0
+                inst [30 or "sda5"] value 0
+                inst [31 or "sda6"] value 0
+                inst [32 or "sdb"] value 384
+                inst [33 or "sdb1"] value 0
+                inst [34 or "sdb2"] value 0
+                inst [35 or "sdb3"] value 0
+                inst [36 or "sdb4"] value 0
+                inst [37 or "sdb5"] value 0
+                inst [38 or "sdb6"] value 384
+                inst [39 or "scd0"] value 0
+
+[2144 bytes]
+00:00:06.000  245.0.1 (kernel.all.cpu.user): value 0.88330001
+              245.0.2 (kernel.all.cpu.nice): value 0
+              245.0.3 (kernel.all.cpu.sys): value 0.1167
+              245.0.4 (kernel.all.cpu.wait.total): value 0
+              245.0.5 (kernel.all.cpu.steal): value 0
+              245.0.6 (kernel.all.cpu.idle): value 0
+              245.0.7 (disk.dev.total):
+                inst [0 or "ram0"] value 0
+                inst [1 or "ram1"] value 0
+                inst [2 or "ram2"] value 0
+                inst [3 or "ram3"] value 0
+                inst [4 or "ram4"] value 0
+                inst [5 or "ram5"] value 0
+                inst [6 or "ram6"] value 0
+                inst [7 or "ram7"] value 0
+                inst [8 or "ram8"] value 0
+                inst [9 or "ram9"] value 0
+                inst [10 or "ram10"] value 0
+                inst [11 or "ram11"] value 0
+                inst [12 or "ram12"] value 0
+                inst [13 or "ram13"] value 0
+                inst [14 or "ram14"] value 0
+                inst [15 or "ram15"] value 0
+                inst [16 or "loop0"] value 0
+                inst [17 or "loop1"] value 0
+                inst [18 or "loop2"] value 0
+                inst [19 or "loop3"] value 0
+                inst [20 or "loop4"] value 0
+                inst [21 or "loop5"] value 0
+                inst [22 or "loop6"] value 0
+                inst [23 or "loop7"] value 0
+                inst [24 or "fd0"] value 0
+                inst [25 or "sda"] value 0
+                inst [26 or "sda1"] value 0
+                inst [27 or "sda2"] value 0
+                inst [28 or "sda3"] value 0
+                inst [29 or "sda4"] value 0
+                inst [30 or "sda5"] value 0
+                inst [31 or "sda6"] value 0
+                inst [32 or "sdb"] value 0
+                inst [33 or "sdb1"] value 0
+                inst [34 or "sdb2"] value 0
+                inst [35 or "sdb3"] value 0
+                inst [36 or "sdb4"] value 0
+                inst [37 or "sdb5"] value 0
+                inst [38 or "sdb6"] value 0
+                inst [39 or "scd0"] value 0
+              245.0.8 (disk.dev.read_bytes):
+                inst [0 or "ram0"] value 0
+                inst [1 or "ram1"] value 0
+                inst [2 or "ram2"] value 0
+                inst [3 or "ram3"] value 0
+                inst [4 or "ram4"] value 0
+                inst [5 or "ram5"] value 0
+                inst [6 or "ram6"] value 0
+                inst [7 or "ram7"] value 0
+                inst [8 or "ram8"] value 0
+                inst [9 or "ram9"] value 0
+                inst [10 or "ram10"] value 0
+                inst [11 or "ram11"] value 0
+                inst [12 or "ram12"] value 0
+                inst [13 or "ram13"] value 0
+                inst [14 or "ram14"] value 0
+                inst [15 or "ram15"] value 0
+                inst [16 or "loop0"] value 0
+                inst [17 or "loop1"] value 0
+                inst [18 or "loop2"] value 0
+                inst [19 or "loop3"] value 0
+                inst [20 or "loop4"] value 0
+                inst [21 or "loop5"] value 0
+                inst [22 or "loop6"] value 0
+                inst [23 or "loop7"] value 0
+                inst [24 or "fd0"] value 0
+                inst [25 or "sda"] value 0
+                inst [26 or "sda1"] value 0
+                inst [27 or "sda2"] value 0
+                inst [28 or "sda3"] value 0
+                inst [29 or "sda4"] value 0
+                inst [30 or "sda5"] value 0
+                inst [31 or "sda6"] value 0
+                inst [32 or "sdb"] value 0
+                inst [33 or "sdb1"] value 0
+                inst [34 or "sdb2"] value 0
+                inst [35 or "sdb3"] value 0
+                inst [36 or "sdb4"] value 0
+                inst [37 or "sdb5"] value 0
+                inst [38 or "sdb6"] value 0
+                inst [39 or "scd0"] value 0
+              245.0.9 (disk.dev.write_bytes):
+                inst [0 or "ram0"] value 0
+                inst [1 or "ram1"] value 0
+                inst [2 or "ram2"] value 0
+                inst [3 or "ram3"] value 0
+                inst [4 or "ram4"] value 0
+                inst [5 or "ram5"] value 0
+                inst [6 or "ram6"] value 0
+                inst [7 or "ram7"] value 0
+                inst [8 or "ram8"] value 0
+                inst [9 or "ram9"] value 0
+                inst [10 or "ram10"] value 0
+                inst [11 or "ram11"] value 0
+                inst [12 or "ram12"] value 0
+                inst [13 or "ram13"] value 0
+                inst [14 or "ram14"] value 0
+                inst [15 or "ram15"] value 0
+                inst [16 or "loop0"] value 0
+                inst [17 or "loop1"] value 0
+                inst [18 or "loop2"] value 0
+                inst [19 or "loop3"] value 0
+                inst [20 or "loop4"] value 0
+                inst [21 or "loop5"] value 0
+                inst [22 or "loop6"] value 0
+                inst [23 or "loop7"] value 0
+                inst [24 or "fd0"] value 0
+                inst [25 or "sda"] value 0
+                inst [26 or "sda1"] value 0
+                inst [27 or "sda2"] value 0
+                inst [28 or "sda3"] value 0
+                inst [29 or "sda4"] value 0
+                inst [30 or "sda5"] value 0
+                inst [31 or "sda6"] value 0
+                inst [32 or "sdb"] value 0
+                inst [33 or "sdb1"] value 0
+                inst [34 or "sdb2"] value 0
+                inst [35 or "sdb3"] value 0
+                inst [36 or "sdb4"] value 0
+                inst [37 or "sdb5"] value 0
+                inst [38 or "sdb6"] value 0
+                inst [39 or "scd0"] value 0
+
+=== src/iostat-z-p-ALL ===
+iostat2pcp: Warning: no timestamps, assuming data starts at 2010-07-27 00:00:00 UTC
+iostat2pcp: Warning: cannot determine sample interval, assuming 15 seconds
+stamp_style=0 zone=UTC basedate=2010-07-27 now=1280188815 stamp=Tue Jul 27 00:00:15 2010 interval=15 first_tag=avg-cpu
+End of sample 0 @ 1280188815 Tue Jul 27 00:00:15 2010
+End of sample 1 @ 1280188830 Tue Jul 27 00:00:30 2010
+Note: timezone set to local timezone of host "bozo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo
+  commencing Tue Jul 27 00:00:15.000 2010
+  ending     Tue Jul 27 00:00:30.000 2010
+
+Descriptions for Metrics in the Log ...
+PMID: 245.0.4 (kernel.all.cpu.wait.total)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.5 (kernel.all.cpu.steal)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.6 (kernel.all.cpu.idle)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.1 (kernel.all.cpu.user)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.7 (disk.dev.total)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: count / sec
+PMID: 245.0.8 (disk.dev.read_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.2 (kernel.all.cpu.nice)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.9 (disk.dev.write_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.3 (kernel.all.cpu.sys)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+Instance Domains in the Log ...
+InDom: 245.0
+00:00:30.000 4 instances
+                 0 or "sda"
+                 1 or "sda1"
+                 2 or "sdb"
+                 3 or "sdb6"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+00:00:15.000       0          132          132
+00:00:15.000       0          492          132
+00:00:30.000       0          743          320
+00:00:30.000       0          743          736
+
+[188 bytes]
+00:00:15.000  245.0.1 (kernel.all.cpu.user): value 0.86000001
+              245.0.2 (kernel.all.cpu.nice): value 0
+              245.0.3 (kernel.all.cpu.sys): value 0.14
+              245.0.4 (kernel.all.cpu.wait.total): value 0
+              245.0.5 (kernel.all.cpu.steal): value 0
+              245.0.6 (kernel.all.cpu.idle): value 0
+
+[416 bytes]
+00:00:30.000  245.0.1 (kernel.all.cpu.user): value 0.86049998
+              245.0.2 (kernel.all.cpu.nice): value 0
+              245.0.3 (kernel.all.cpu.sys): value 0.13950001
+              245.0.4 (kernel.all.cpu.wait.total): value 0
+              245.0.5 (kernel.all.cpu.steal): value 0
+              245.0.6 (kernel.all.cpu.idle): value 0
+              245.0.7 (disk.dev.total):
+                inst [0 or "sda"] value 2.99
+                inst [1 or "sda1"] value 2.99
+                inst [2 or "sdb"] value 20.6
+                inst [3 or "sdb6"] value 20.6
+              245.0.8 (disk.dev.read_bytes):
+                inst [0 or "sda"] value 0
+                inst [1 or "sda1"] value 0
+                inst [2 or "sdb"] value 1.33
+                inst [3 or "sdb6"] value 1.33
+              245.0.9 (disk.dev.write_bytes):
+                inst [0 or "sda"] value 38.540001
+                inst [1 or "sda1"] value 38.540001
+                inst [2 or "sdb"] value 445.185
+                inst [3 or "sdb6"] value 445.185

@@ -1,0 +1,58 @@
+#! /bin/sh
+# PCP QA Test No. 090
+# more interpolate trickery
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_filter()
+{
+    cat >$tmp.out
+
+    grep 'sample ' $tmp.out
+    grep 'log reads' $tmp.out \
+    | $PCP_AWK_PROG '
+	{ if ('$4' <= $4 && $4 <= '$5')
+	    print $1 " samples required " '$4' "-" '$5' " log reads"
+	  else
+	    print $0 " ... no. log reads unexpected"
+	}'
+
+    ok=`LC_COLLATE=POSIX sort <$tmp.out \
+    | uniq -c \
+    | tee $tmp.tee \
+    | grep "sampledso.milliseconds: delta: " \
+    | $PCP_AWK_PROG '
+'$1' <= $4 && $4 <= '$2'	{ total += $1 }
+END				{ print total }'`
+    if [ "$ok" -gt $3 ]
+    then
+	echo "more than $3 data values in the range $1 - $2"
+    else
+	echo "value failure ... got: $ok expected: >= $3 (data values in the range $1 - $2)"
+	cat $tmp.tee
+    fi
+}
+
+# real QA test starts here
+for arch in src/ok-bigbin src/ok-mv-bigbin
+do
+    echo
+    echo "=== $arch ==="
+    echo "100 samples, 80 msec apart"
+    src/interp0 -a $arch -s 100 -t 0.08 sampledso.milliseconds \
+    2>/dev/null | _filter 75 85 85 400 450
+
+    echo "100 samples, 8 msec appart"
+    src/interp0 -a $arch -s 100 -t 0.008 sampledso.milliseconds \
+    2>/dev/null | _filter 6 9 85 40 110
+done

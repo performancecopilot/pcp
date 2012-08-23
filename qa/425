@@ -1,0 +1,137 @@
+#! /bin/sh
+# PCP QA Test No. 425
+# Test out wrapping for pmlogsummary
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_wrap_off()
+{
+    wrap=0
+    unset PCP_COUNTER_WRAP
+    echo "--- Wrapping OFF ---"
+}
+
+_wrap_on()
+{
+    wrap=1
+    PCP_COUNTER_WRAP=
+    export PCP_COUNTER_WRAP
+    echo "--- Wrapping ON ---"
+}
+
+_calc_stats()
+{ 
+    _archive=$1
+    _metric=$2
+    _wrap=$3
+    pmdumplog $_archive $_metric \
+    | sed -n -e "/($2)/"'{
+    s/:/ /
+    s/:/ /
+    p
+    }' \
+    | $PCP_AWK_PROG -v wrap=$_wrap '
+    BEGIN			{ maxuint=4294967295 ; print "wrap =", wrap}
+    NR==1			{ hr=$1; min=$2; offset=0; seen=0 }
+    $1 != hr || $2 != min	{ offset+=60*(60*(hr-$1)+(min-$2))
+			      hr=$1; min=$2
+			    }
+			    { t=offset+$3 }
+			    { printf $1 ":" $2 ":" $3 " value " $7 }
+    NR>1			{ 
+			      newv = $7
+			      printf " delta(t)=" t-lastt
+			      printf " delta(v)=" newv-lastv
+			      print ""
+			      if (newv < lastv && wrap == 1) {
+				  newv += maxuint;
+			      }
+			      rate=(newv-lastv)/(t-lastt)
+			      printf " rate=%f",rate
+			      if (rate > 0) {
+				  avr += rate
+				  count++
+				  if (seen == 0) {
+				    minr = rate
+				    maxr = rate
+				    seen = 1
+				  }
+				  else {
+				    if (rate > maxr) maxr=rate
+				    if (rate < minr) minr=rate
+				  }
+			       }
+			       else
+				printf " ... SKIP"
+			    }
+			    { print ""; lastt=t; lastv=$7 }
+    END			{ print ""
+			      printf "avg-rate: %f\n",avr/count
+			      printf "max-rate: %f\n",maxr
+			      printf "min-rate: %f\n",minr
+			    }'
+}
+
+_compare_results()
+{
+    results=$1
+    $PCP_AWK_PROG '
+      function stat_match(val1, val2, label) {
+	if (val1-tolerance <= val2 && val2 <= val1+tolerance) {
+	    print "matches on", label;
+	}
+	else {
+	    print "mismatches on", label;
+	    print "mismatch between:", val1, "and", val2;
+	}
+      }
+      BEGIN { tolerance = 1e7 }
+      /avg-rate/ { avg_rate = $2; next; }
+      /max-rate/ { max_rate = $2; next; }
+      /min-rate/ { min_rate = $2; next; }
+      /sample.wrap.long/ { 
+		    summary_stoch_avg = $2;
+		    summary_time_avg = $3;
+		    summary_min = $4;
+		    summary_max = $5;
+		    stat_match(avg_rate, summary_stoch_avg, "average"); 
+		    stat_match(min_rate, summary_min, "minimum"); 
+		    stat_match(max_rate, summary_max, "maximum"); 
+      }
+      /SKIP/ { print "wrap detected"; }
+    ' $results
+}
+
+# real QA test starts here
+
+archive="src/wrap"
+metric="sample.wrap.long"
+
+_wrap_off > $seq.full
+_calc_stats $archive $metric $wrap >> $seq.full
+pmlogsummary -bmM $archive $metric >> $seq.full
+
+_wrap_on >> $seq.full
+_calc_stats $archive $metric $wrap >> $seq.full
+pmlogsummary -bmM $archive $metric >> $seq.full
+
+_compare_results $seq.full
+
+echo
+echo "If failure, check $seq.full"
+
+# success, all done
+status=0
+exit

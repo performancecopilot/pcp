@@ -53,6 +53,7 @@ extern long bash_maxmem;
 extern void event_init(void);
 extern void event_refresh(pmInDom);
 extern int event_start(bash_process_t *, struct timeval *);
+extern void process_stat_timestamp(bash_process_t *, struct timeval *);
 
 #define MINIMUM_VERSION	1
 #define MAXIMUM_VERSION	1

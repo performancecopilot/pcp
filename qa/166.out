@@ -1,0 +1,497 @@
+QA output created by 166
+pmlogreduce: sample.aggregate.null: Warning: skipping AGGREGATE metric
+pmlogreduce: sample.aggregate.hullo: Warning: skipping AGGREGATE metric
+pmlogreduce: sample.aggregate.write_me: Warning: skipping AGGREGATE metric
+--- mark records in input archive ---
+22:01:48.423  <mark>
+--- mark records in reduced archive ---
+22:01:48.423  <mark>
+
+=== sample.milliseconds ===
+--- pmval using input archive ---
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    sample.milliseconds
+archive:   src/reduce-gap
+host:      kenj-pc
+start:     Wed Jan 19 21:57:00 2005
+end:       Wed Jan 19 22:10:26 2005
+semantics: cumulative counter (converting to rate)
+units:     millisec (converting to time utilization)
+samples:   54
+interval:  15.00 sec
+21:57:15.000               1.000 
+21:57:30.000               1.000 
+21:57:45.000               1.000 
+21:58:00.000               1.000 
+21:58:15.000               1.000 
+21:58:30.000               1.000 
+21:58:45.000               1.000 
+21:59:00.000               1.000 
+21:59:15.000               1.000 
+21:59:30.000               1.000 
+21:59:45.000               1.000 
+22:00:00.000               1.000 
+22:00:15.000               1.000 
+22:00:30.000               1.000 
+22:00:45.000               1.000 
+22:01:00.000               1.000 
+22:01:15.000               1.000 
+22:01:30.000               1.000 
+22:01:45.000               1.000 
+22:02:00.000  No values available
+22:02:15.000  No values available
+22:02:30.000  No values available
+22:02:45.000  No values available
+22:03:00.000  No values available
+22:03:15.000  No values available
+22:03:30.000  No values available
+22:03:45.000  No values available
+22:04:00.000  No values available
+22:04:15.000  No values available
+22:04:30.000  No values available
+22:04:45.000  No values available
+22:05:00.000  No values available
+22:05:15.000  No values available
+22:05:30.000  No values available
+22:05:45.000  No values available
+22:06:00.000               1.000 
+22:06:15.000               1.000 
+22:06:30.000               1.000 
+22:06:45.000               1.000 
+22:07:00.000               1.000 
+22:07:15.000               1.000 
+22:07:30.000               1.000 
+22:07:45.000               1.000 
+22:08:00.000               1.000 
+22:08:15.000               1.000 
+22:08:30.000               1.000 
+22:08:45.000               1.000 
+22:09:00.000               1.000 
+22:09:15.000               1.000 
+22:09:30.000               1.000 
+22:09:45.000               1.000 
+22:10:00.000               1.000 
+22:10:15.000               1.000 
+
+pmval: pmFetch: End of PCP archive log
+
+--- raw pmval using input archive ---
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    sample.milliseconds
+archive:   src/reduce-gap
+host:      kenj-pc
+start:     Wed Jan 19 21:57:00 2005
+end:       Wed Jan 19 22:10:26 2005
+semantics: cumulative counter
+units:     millisec
+samples:   54
+interval:  15.00 sec
+21:57:00.000              3394854
+21:57:15.000              3409854
+21:57:30.000              3424854
+21:57:45.000              3439854
+21:58:00.000              3454854
+21:58:15.000              3469854
+21:58:30.000              3484854
+21:58:45.000              3499854
+21:59:00.000              3514854
+21:59:15.000              3529854
+21:59:30.000              3544854
+21:59:45.000              3559854
+22:00:00.000              3574854
+22:00:15.000              3589854
+22:00:30.000              3604854
+22:00:45.000              3619854
+22:01:00.000              3634854
+22:01:15.000              3649854
+22:01:30.000              3664854
+22:01:45.000              3679854
+22:02:00.000  No values available
+22:02:15.000  No values available
+22:02:30.000  No values available
+22:02:45.000  No values available
+22:03:00.000  No values available
+22:03:15.000  No values available
+22:03:30.000  No values available
+22:03:45.000  No values available
+22:04:00.000  No values available
+22:04:15.000  No values available
+22:04:30.000  No values available
+22:04:45.000  No values available
+22:05:00.000  No values available
+22:05:15.000  No values available
+22:05:30.000  No values available
+22:05:45.000              3919854
+22:06:00.000              3934854
+22:06:15.000              3949854
+22:06:30.000              3964854
+22:06:45.000              3979854
+22:07:00.000              3994854
+22:07:15.000              4009854
+22:07:30.000              4024854
+22:07:45.000              4039854
+22:08:00.000              4054854
+22:08:15.000              4069854
+22:08:30.000              4084854
+22:08:45.000              4099854
+22:09:00.000              4114854
+22:09:15.000              4129854
+22:09:30.000              4144854
+22:09:45.000              4159854
+22:10:00.000              4174854
+22:10:15.000              4189854
+
+--- pmval -U using reduced archive ---
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    sample.milliseconds
+archive:   TMP
+host:      kenj-pc
+start:     Wed Jan 19 21:57:00 2005
+end:       Wed Jan 19 22:10:00 2005
+semantics: cumulative counter (converting to rate)
+units:     millisec (converting to time utilization)
+samples:   all
+21:58:00.000               1.000 
+21:59:00.000               1.000 
+22:00:00.000               1.000 
+22:01:00.000               1.000 
+22:01:48.423  Archive logging suspended
+22:02:00.000  No values available
+22:03:00.000  No values available
+22:04:00.000  No values available
+22:05:00.000  No values available
+22:06:00.000  No values available
+22:07:00.000               1.000 
+22:08:00.000               1.000 
+22:09:00.000               1.000 
+22:10:00.000               1.000 
+
+pmval: pmFetchArchive: End of PCP archive log
+
+--- raw pmval -U using reduced archive ---
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    sample.milliseconds
+archive:   TMP
+host:      kenj-pc
+start:     Wed Jan 19 21:57:00 2005
+end:       Wed Jan 19 22:10:00 2005
+semantics: cumulative counter
+units:     millisec
+samples:   all
+21:57:00.000              3394854
+21:58:00.000              3454854
+21:59:00.000              3514854
+22:00:00.000              3574854
+22:01:00.000              3634854
+22:01:48.423  Archive logging suspended
+22:02:00.000  No values available
+22:03:00.000  No values available
+22:04:00.000  No values available
+22:05:00.000  No values available
+22:06:00.000              3934854
+22:07:00.000              3994854
+22:08:00.000              4054854
+22:09:00.000              4114854
+22:10:00.000              4174854
+
+pmval: pmFetchArchive: End of PCP archive log
+
+--- pmval using reduced archive ---
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    sample.milliseconds
+archive:   TMP
+host:      kenj-pc
+start:     Wed Jan 19 21:57:00 2005
+end:       Wed Jan 19 22:10:00 2005
+semantics: cumulative counter (converting to rate)
+units:     millisec (converting to time utilization)
+samples:   53
+interval:  15.00 sec
+21:57:15.000               1.000 
+21:57:30.000               1.000 
+21:57:45.000               1.000 
+21:58:00.000               1.000 
+21:58:15.000               1.000 
+21:58:30.000               1.000 
+21:58:45.000               1.000 
+21:59:00.000               1.000 
+21:59:15.000               1.000 
+21:59:30.000               1.000 
+21:59:45.000               1.000 
+22:00:00.000               1.000 
+22:00:15.000               1.000 
+22:00:30.000               1.000 
+22:00:45.000               1.000 
+22:01:00.000               1.000 
+22:01:15.000  No values available
+22:01:30.000  No values available
+22:01:45.000  No values available
+22:02:00.000  No values available
+22:02:15.000  No values available
+22:02:30.000  No values available
+22:02:45.000  No values available
+22:03:00.000  No values available
+22:03:15.000  No values available
+22:03:30.000  No values available
+22:03:45.000  No values available
+22:04:00.000  No values available
+22:04:15.000  No values available
+22:04:30.000  No values available
+22:04:45.000  No values available
+22:05:00.000  No values available
+22:05:15.000  No values available
+22:05:30.000  No values available
+22:05:45.000  No values available
+22:06:00.000  No values available
+22:06:15.000               1.000 
+22:06:30.000               1.000 
+22:06:45.000               1.000 
+22:07:00.000               1.000 
+22:07:15.000               1.000 
+22:07:30.000               1.000 
+22:07:45.000               1.000 
+22:08:00.000               1.000 
+22:08:15.000               1.000 
+22:08:30.000               1.000 
+22:08:45.000               1.000 
+22:09:00.000               1.000 
+22:09:15.000               1.000 
+22:09:30.000               1.000 
+22:09:45.000               1.000 
+22:10:00.000               1.000 
+
+pmval: pmFetch: End of PCP archive log
+
+--- raw pmval using reduced archive ---
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    sample.milliseconds
+archive:   TMP
+host:      kenj-pc
+start:     Wed Jan 19 21:57:00 2005
+end:       Wed Jan 19 22:10:00 2005
+semantics: cumulative counter
+units:     millisec
+samples:   53
+interval:  15.00 sec
+21:57:00.000              3394854
+21:57:15.000              3409854
+21:57:30.000              3424854
+21:57:45.000              3439854
+21:58:00.000              3454854
+21:58:15.000              3469854
+21:58:30.000              3484854
+21:58:45.000              3499854
+21:59:00.000              3514854
+21:59:15.000              3529854
+21:59:30.000              3544854
+21:59:45.000              3559854
+22:00:00.000              3574854
+22:00:15.000              3589854
+22:00:30.000              3604854
+22:00:45.000              3619854
+22:01:00.000              3634854
+22:01:15.000  No values available
+22:01:30.000  No values available
+22:01:45.000  No values available
+22:02:00.000  No values available
+22:02:15.000  No values available
+22:02:30.000  No values available
+22:02:45.000  No values available
+22:03:00.000  No values available
+22:03:15.000  No values available
+22:03:30.000  No values available
+22:03:45.000  No values available
+22:04:00.000  No values available
+22:04:15.000  No values available
+22:04:30.000  No values available
+22:04:45.000  No values available
+22:05:00.000  No values available
+22:05:15.000  No values available
+22:05:30.000  No values available
+22:05:45.000  No values available
+22:06:00.000              3934854
+22:06:15.000              3949854
+22:06:30.000              3964854
+22:06:45.000              3979854
+22:07:00.000              3994854
+22:07:15.000              4009854
+22:07:30.000              4024854
+22:07:45.000              4039854
+22:08:00.000              4054854
+22:08:15.000              4069854
+22:08:30.000              4084854
+22:08:45.000              4099854
+22:09:00.000              4114854
+22:09:15.000              4129854
+22:09:30.000              4144854
+22:09:45.000              4159854
+22:10:00.000              4174854
+
+=== sample.drift ===
+--- pmval using input archive ---
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    sample.drift
+archive:   src/reduce-gap
+host:      kenj-pc
+start:     Wed Jan 19 21:57:00 2005
+end:       Wed Jan 19 22:10:26 2005
+semantics: instantaneous value
+units:     none
+samples:   54
+interval:  15.00 sec
+21:57:00.000        479
+21:57:15.000        399
+21:57:30.000        346
+21:57:45.000        246
+21:58:00.000        253
+21:58:15.000        306
+21:58:30.000        255
+21:58:45.000        271
+21:59:00.000        262
+21:59:15.000        162
+21:59:30.000        159
+21:59:45.000        134
+22:00:00.000         94
+22:00:15.000          0
+22:00:30.000         67
+22:00:45.000        166
+22:01:00.000        265
+22:01:15.000        324
+22:01:30.000        387
+22:01:45.000        435
+22:02:00.000  No values available
+22:02:15.000  No values available
+22:02:30.000  No values available
+22:02:45.000  No values available
+22:03:00.000  No values available
+22:03:15.000  No values available
+22:03:30.000  No values available
+22:03:45.000  No values available
+22:04:00.000  No values available
+22:04:15.000  No values available
+22:04:30.000  No values available
+22:04:45.000  No values available
+22:05:00.000  No values available
+22:05:15.000  No values available
+22:05:30.000  No values available
+22:05:45.000        408
+22:06:00.000        363
+22:06:15.000        235
+22:06:30.000        264
+22:06:45.000        346
+22:07:00.000        280
+22:07:15.000        318
+22:07:30.000        273
+22:07:45.000        281
+22:08:00.000        319
+22:08:15.000        277
+22:08:30.000        333
+22:08:45.000        298
+22:09:00.000        360
+22:09:15.000        343
+22:09:30.000        326
+22:09:45.000        311
+22:10:00.000        314
+22:10:15.000        284
+
+--- pmval -U using reduced archive ---
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    sample.drift
+archive:   TMP
+host:      kenj-pc
+start:     Wed Jan 19 21:57:00 2005
+end:       Wed Jan 19 22:10:00 2005
+semantics: instantaneous value
+units:     none
+samples:   all
+21:57:00.000        479
+21:58:00.000        253
+21:59:00.000        262
+22:00:00.000         94
+22:01:00.000        265
+22:01:48.423  Archive logging suspended
+22:02:00.000  No values available
+22:03:00.000  No values available
+22:04:00.000  No values available
+22:05:00.000  No values available
+22:06:00.000        363
+22:07:00.000        280
+22:08:00.000        319
+22:09:00.000        360
+22:10:00.000        314
+
+pmval: pmFetchArchive: End of PCP archive log
+
+--- pmval using reduced archive ---
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    sample.drift
+archive:   TMP
+host:      kenj-pc
+start:     Wed Jan 19 21:57:00 2005
+end:       Wed Jan 19 22:10:00 2005
+semantics: instantaneous value
+units:     none
+samples:   53
+interval:  15.00 sec
+21:57:00.000        479
+21:57:15.000        479
+21:57:30.000        479
+21:57:45.000        479
+21:58:00.000        253
+21:58:15.000        253
+21:58:30.000        253
+21:58:45.000        253
+21:59:00.000        262
+21:59:15.000        262
+21:59:30.000        262
+21:59:45.000        262
+22:00:00.000         94
+22:00:15.000         94
+22:00:30.000         94
+22:00:45.000         94
+22:01:00.000        265
+22:01:15.000  No values available
+22:01:30.000  No values available
+22:01:45.000  No values available
+22:02:00.000  No values available
+22:02:15.000  No values available
+22:02:30.000  No values available
+22:02:45.000  No values available
+22:03:00.000  No values available
+22:03:15.000  No values available
+22:03:30.000  No values available
+22:03:45.000  No values available
+22:04:00.000  No values available
+22:04:15.000  No values available
+22:04:30.000  No values available
+22:04:45.000  No values available
+22:05:00.000  No values available
+22:05:15.000  No values available
+22:05:30.000  No values available
+22:05:45.000  No values available
+22:06:00.000        363
+22:06:15.000        363
+22:06:30.000        363
+22:06:45.000        363
+22:07:00.000        280
+22:07:15.000        280
+22:07:30.000        280
+22:07:45.000        280
+22:08:00.000        319
+22:08:15.000        319
+22:08:30.000        319
+22:08:45.000        319
+22:09:00.000        360
+22:09:15.000        360
+22:09:30.000        360
+22:09:45.000        360
+22:10:00.000        314

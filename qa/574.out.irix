@@ -1,0 +1,95 @@
+QA output created by 574
+
+pmid: 0xc00000 name: proc.nprocs
+
+pmid: 0x800000 name: pmcd.control.debug
+
+pmid: 0x800004 name: pmcd.control.timeout
+
+pmid: 0xffffffff name: proc.accounting.counts
+children of "proc.accounting.counts" ...
+    br                  <s = 0>
+    bw                  <s = 0>
+    chr                 <s = 0>
+    chw                 <s = 0>
+    mem                 <s = 0>
+    swaps               <s = 0>
+    syscr               <s = 0>
+    syscw               <s = 0>
+
+pmid: 0x80000f name: pmcd.control.sighup
+
+pmid: 0x404802 name: hinv.ncpu
+
+pmid: 0xffffffff name: pmcd.control
+children of "pmcd.control" ...
+    debug               <s = 0>
+    dumpconn            <s = 0>
+    dumptrace           <s = 0>
+    register            <s = 0>
+    sighup              <s = 0>
+    timeout             <s = 0>
+    tracebufs           <s = 0>
+    traceconn           <s = 0>
+    tracenobuf          <s = 0>
+    tracepdu            <s = 0>
+
+pmid: 0x7800022 name: sampledso.aggregate.hullo
+
+pmid: 0x7400002 name: sample.seconds
+
+pmid: 0x7400005 name: sample.colour
+
+pmid: 0xffffffff name: sample.longlong
+children of "sample.longlong" ...
+    hundred             <s = 0>
+    million             <s = 0>
+    one                 <s = 0>
+    ten                 <s = 0>
+    write_me            <s = 0>
+
+pmid: 0xffffffff name: bozo.the.clown
+
+children of "" ...
+    hinv                <s = 1>
+    pmcd                <s = 1>
+    sample              <s = 1>
+    sampledso           <s = 1>
+
+Archive result ...
+Fetch of proc.nprocs:
+pmResult ... numpmid: 1
+  3.0.0 (proc.nprocs): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+Fetch of pmcd.control.debug:
+pmResult ... numpmid: 1
+  2.0.0 (pmcd.control.debug): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+Fetch of pmcd.control.timeout:
+pmResult ... numpmid: 1
+  2.0.4 (pmcd.control.timeout): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+Fetch of pmcd.control.sighup:
+pmResult ... numpmid: 1
+  2.0.15 (pmcd.control.sighup): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+Fetch of hinv.ncpu:
+pmResult ... numpmid: 1
+  1.18.2 (hinv.ncpu): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+Fetch of sampledso.aggregate.hullo:
+pmResult ... numpmid: 1
+  30.0.34 (sampledso.aggregate.hullo): numval: 1 valfmt: 1 vlist[]:
+   value STRING AGGREGATE
+Fetch of sample.seconds:
+pmResult ... numpmid: 1
+  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+Fetch of sample.colour:
+pmResult ... numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+
+Unexpected failure for 0 of N PMAPI operations

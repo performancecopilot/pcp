@@ -1,0 +1,632 @@
+#
+# common procedures for PCP QA scripts
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# for _wait_for_pmlogger() and _change_config()
+. ./common.check 
+
+# per product QA script customization
+#
+. ./common.setup
+[ -z "$DEFAULT_HOST" ] && DEFAULT_HOST=`hostname`
+
+_setenvironment()
+{
+    MSGVERB="text:action"
+    export MSGVERB
+}
+
+_log_fyi()
+{
+    echo "FYI ... here are the PMCD logs"
+    for log
+    do
+	if [ ! -f $log ]
+	then
+	    # try in the other place
+	    #
+	    case $log
+	    in
+		$PCP_LOG_DIR/pmcd/*)
+		    __try=`echo $log | sed -e "s;/pmcd/;/;"`
+		    ;;
+		*)
+		    __try=`echo $log | sed -e "s;$PCP_LOG_DIR/;$PCP_LOG_DIR/pmcd/;"`
+		    ;;
+	    esac
+	    [ -f $__try ] && log=$__try
+	fi
+	if [ -f $log ]
+	then
+	    echo ":::::::::  start $log  ::::::::"
+	    cat $log
+	    echo "::::::::::  end $log  :::::::::"
+	    
+	    [ $log != $PCP_LOG_DIR/pmcd/pmcd.log ] && $sudo rm -f $log
+	else
+	    echo "$log: not found"
+	fi
+    done
+}
+
+_havesudo()
+{
+    if [ -z "$PCP_DIR" ]
+    then
+	setuid=`$sudo id | sed -e 's/(.*//' -e 's/.*=//'`
+	if [ "$setuid" != 0 ]
+	then
+	    echo "\"sudo\" is not an executable setuid root. This is fatal."
+	    echo "As root, you need to setup your sudoers file for pcpqa."
+	    exit 1
+	fi
+    fi
+}
+
+_haveagents()
+{
+    restart=false
+    here=`pwd`
+
+    # PMDAs than need to be here for QA
+    #
+    COMMON_PMDAS="sample sampledso simple"
+    if [ -d $PCP_PMDAS_DIR/cisco ]
+    then
+	# cisco PMDA requires that you can reach a router
+	#
+	if which ping >/dev/null 2>&1
+	then
+	    #  Note: PCP_QA_CISCOROUTER needs to be defined in common.rc
+	    if ping -c 1 $PCP_QA_CISCOROUTER >/dev/null 2>&1
+	    then
+		COMMON_PMDAS="$COMMON_PMDAS cisco"
+	    fi
+	fi
+    fi
+
+    for agent in $COMMON_PMDAS
+    do
+	probe=$agent
+	agentlog=$PCP_LOG_DIR/pmcd/$agent.log
+
+	# make this empty to stop any attempt to reinstall
+	#
+	agentdir=$PCP_PMDAS_DIR/$agent
+
+	case $agent
+	in
+	    cisco)
+		probe=cisco.bytes_in
+		;;
+	    sample)
+		probe=sample.milliseconds
+		;;
+	    sampledso)
+		probe=sampledso.milliseconds
+		agentdir=$PCP_PMDAS_DIR/sample
+		;;
+	    simple)
+		probe=simple.numfetch
+		;;
+	    weblog)
+		probe=web.allservers.numalive
+		;;
+	    webping)
+		probe=webping.count
+		;;
+	    oracle)
+		eval "probe=oracle.$ORACLE_SID.version"
+		eval "agentlog=$PCP_LOG_DIR/pmcd/oracle-$ORACLE_SID.log"
+		agentdir=''
+		;;
+	    oraping)
+		probe=oraping.control.count
+		;;
+	esac
+	reinstall=false
+	while true
+	do
+	    echo "PMDA probe: pminfo -h $QA_HOST -f $probe"
+	    if pminfo -h $QA_HOST -f $probe 2>&1 \
+	       | tail -1 \
+	       | egrep "^[ 	]*((value)|(inst))[ 	]" >/dev/null
+	    then
+		break
+	    else
+		echo "PMDA $agent is not responding"
+		if $restart
+		then
+		    :
+		else
+		    _log_fyi $PCP_LOG_DIR/pmcd/pmcd.log $agentlog
+		    echo "Restarting PMCD ..."
+		    $sudo $PCP_RC_DIR/pcp restart
+		    restart=true
+		fi
+		if $reinstall
+		then
+		    [ -f $here/$iam.out ] && cat $here/$iam.out
+		    echo "Cannot make PMDA $agent work, ... giving up!"
+		    exit 1
+		else
+		    if [ -z "$agentdir" ]
+		    then
+			echo "Skip PMDA re-install"
+			break
+		    elif [ -d "$agentdir" ]
+		    then
+			echo "Trying to re-install PMDA $agent from $agentdir ..."
+			_log_fyi $PCP_LOG_DIR/pmcd/pmcd.log $agentlog
+			cd $agentdir
+			unset ROOT
+			unset TOOLROOT
+			$sudo ./Remove </dev/null >>$here/$iam.out
+			case $agent
+			in
+			    cisco)
+				cd $here
+				./common.install.cisco $iam $agentdir
+				;;
+			    *)
+				$sudo ./Install </dev/null >>$here/$iam.out
+				;;
+			esac
+			cd $here
+			reinstall=true
+		    else
+			echo "Cannot find PMDA directory ($agentdir)"
+			echo "to re-install, ... giving up!"
+			exit 1
+		    fi
+		fi
+	    fi
+	done
+    done
+}
+
+_havelogger()
+{
+    if [ -z "`_get_pids_by_name 'pmlogger.*-P'`" ]
+    then
+	echo "Primary pmlogger not running ..."
+	echo "chkconfig pmlogger on, and restart PMCD"
+	_change_config pmlogger on
+	[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+	if sed -e '/^#/d' "$PCP_PMLOGGERCONTROL_PATH" \
+	   | $PCP_AWK_PROG '$2 == "y" && $3 == "n" { sts=1 } END { exit 1-sts }'
+	then
+	    : echo "have primary pmlogger line in control file"
+	else
+	    : echo "no primary pmlogger line in control file"
+	    if $PCP_AWK_PROG '$2 == "y" && $3 == "n" { sts=1} END { exit 1-sts }' <$PCP_PMLOGGERCONTROL_PATH
+	    then
+		: echo uncomment
+		sed <$PCP_PMLOGGERCONTROL_PATH >$tmp.tmp \
+		    -e '/^#[^ 	][^ 	]*[ 	][ 	]*y/s/#//'
+		$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
+	    else
+	    	: echo add
+		cp $PCP_PMLOGGERCONTROL_PATH $tmp.tmp
+		if [ -e $PCP_LOG_DIR/pmlogger ]
+		then
+		    cat >>$tmp.tmp <<'End-of-File'
+
+# added by PCP QA
+LOCALHOSTNAME	y   n	PCP_LOG_DIR/pmlogger/LOCALHOSTNAME	-c config.default
+End-of-File
+		else
+		    cat >>$tmp.tmp <<'End-of-File'
+
+# added by PCP QA
+LOCALHOSTNAME	y   n	PCP_LOG_DIR/LOCALHOSTNAME	-c config.default
+End-of-File
+		fi
+		$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
+	    fi
+	fi
+	$sudo $PCP_RC_DIR/pcp restart
+	_wait_for_pmlogger
+    fi
+}
+
+_havepmcdtrace()
+{
+    fix=false
+    for trace in traceconn tracepdu
+    do
+	bit=`pminfo -h $QA_HOST -f pmcd.control.$trace | sed -n -e '/value/s/ *value *//p'`
+	if [ "X$bit" != X1 ]
+	then
+	    pminfo -h $QA_HOST -f pmcd.control.$trace
+	    echo "PMCD event tracing not enabled!"
+	    fix=true
+	fi
+    done
+    if $fix
+    then
+	echo "fix options, and restart PMCD"
+	[ -z "PCP_PMCDOPTIONS_PATH" ] && \
+	      PCP_PMCDOPTIONS_PATH="$PCP_VAR_DIR/config/pmcd/pmcd.options"
+	PCPQA_PMCDOPTIONS="$PCP_PMCDOPTIONS_PATH"
+	sed <$PCPQA_PMCDOPTIONS >$tmp.tmp -e '/^-T/s/^/#/'
+	cat >>$tmp.tmp <<'End-of-File'
+
+# added by PCP QA
+-T 3
+End-of-File
+	$sudo cp $tmp.tmp $PCPQA_PMCDOPTIONS
+	$sudo $PCP_RC_DIR/pcp restart
+	_wait_for_pmlogger
+    fi
+
+}
+
+here=`pwd`
+rm -f $here/$iam.out
+_setenvironment
+
+check=${check-true}
+quick=${quick-false}
+
+if $check
+then
+    if $quick
+    then
+	:
+    else
+	if ${MAKE:-make} >/tmp/$$.make 2>&1
+	then
+	    :
+	else
+	    cat /tmp/$$.make
+	    echo "Warning: ${MAKE:-make} failed -- some tests may be missing"
+	    warn=1
+	fi
+	rm -f /tmp/$$.make
+    fi
+fi
+
+diff=diff
+if [ ! -z "$DISPLAY" ]
+then
+    which tkdiff >/dev/null 2>&1 && diff=tkdiff
+    which xdiff >/dev/null 2>&1 && diff=xdiff
+    which xxdiff >/dev/null 2>&1 && diff=xxdiff
+    which gdiff >/dev/null 2>&1 && diff=gdiff
+fi
+
+verbose=false
+paranoid=false
+group=false
+xgroup=false
+selbygroup=false
+snarf=''
+showme=false
+sortme=false
+have_test_arg=false
+check_config=false
+rm -f $tmp.list $tmp.tmp $tmp.sed
+
+for r
+do
+
+    if $group
+    then
+    	selbygroup=true
+
+	# arg after -g
+	group_list=`sed -n <group -e 's/$/ /' -e "/^[0-9][0-9][0-9].* $r /"'{
+s/ .*//p
+}'`
+	if [ -z "$group_list" ]
+	then
+	    echo "Group \"$r\" is empty or not defined; ignored"
+	else
+	    [ ! -s $tmp.list ] && touch $tmp.list
+	    for t in $group_list
+	    do
+		if grep -s "^$t\$" $tmp.list >/dev/null
+		then
+		    :
+		else
+		    echo "$t" >>$tmp.list
+		fi
+	    done
+    	fi
+	group=false
+	continue
+
+    elif $xgroup
+    then
+    	selbygroup=true
+
+	# if no test numbers, do everything from group file
+	[ ! -s $tmp.list ] && sed -n -e '/^[0-9]/s/[ 	].*//p' <group >$tmp.list
+
+	# arg after -x
+	group_list=`sed -n <group \
+	    -e "/^[0-9].* $r /s/[ 	].*//p" \
+	    -e "/^[0-9].* $r\$/s/[ 	].*//p"`
+	if [ -z "$group_list" ]
+	then
+	    echo "Group \"$r\" is empty or not defined; ignored"
+	else
+	    numsed=0
+	    rm -f $tmp.sed
+	    for t in $group_list
+	    do
+		if [ $numsed -gt 100 ]
+		then
+		    sed -f $tmp.sed <$tmp.list >$tmp.tmp
+		    mv $tmp.tmp $tmp.list
+		    numsed=0
+		    rm -f $tmp.sed
+		fi
+		echo "/^$t\$/d" >>$tmp.sed
+		numsed=`expr $numsed + 1`
+	    done
+	    sed -f $tmp.sed <$tmp.list >$tmp.tmp
+	    mv $tmp.tmp $tmp.list
+    	fi
+	xgroup=false
+	continue
+
+    elif [ ! -z "$snarf" ]
+    then
+	case $snarf
+	in
+	    d)
+		QA_DIR=$r
+		;;
+	    h)
+		QA_HOST=$r
+		;;
+	    u)
+		QA_USER=$r
+		;;
+	esac
+	snarf=''
+	continue
+    fi
+
+    xpand=true
+    range=false
+    case "$r"
+    in
+
+	-\?)	# usage
+	    echo "Usage: $0 [options] [testlist]"'
+
+common options
+    -v			verbose
+
+check options
+    -c		check configuration files [off]
+    -g group	include tests from these groups (multiple flags allowed)
+    -G          report groups and number of tests per group
+    -l		line mode diff [xdiff]
+    -n		show me, do not run tests
+    -q		quick, no PMDA checks (you are on your own)
+    -t		turn on tracing
+    -T		output timestamps
+    -x group	exclude tests from these groups (multiple flags allowed)
+
+show-me options
+    -d QA_DIR		[isms/pcp2.0/qa]
+    -h QA_HOST		['`hostname`']
+    -u QA_USER		[pcpqa]
+'
+	    exit 0
+	    ;;
+
+	-c)	# check config files
+	    check_config=true
+	    xpand=false
+	    ;;
+
+	-d)	# directory for show-me
+	    snarf=d
+	    xpand=false
+	    ;;
+
+	-G)	# -G report groups and number of tests per group
+	    sed -n -e '/^[a-z]/s/[ 	].*//p' <group >$tmp.group
+	    LC_COLLATE=POSIX sort $tmp.group \
+	    | while read group
+	    do
+		num=`egrep "[ 	]$group([ 	]|$)" group | wc -l | sed -e 's/ //g'`
+		printf "%-20.20s %3d\n" $group $num
+	    done
+	    exit 0
+	    ;;
+
+	-g)	# -g group ... pick from group file
+	    group=true
+	    xpand=false
+	    ;;
+
+	-h)	# host for show-me
+	    snarf=h
+	    xpand=false
+	    ;;
+
+	-l)	# line mode for diff, not gdiff over modems
+	    diff=diff
+	    xpand=false
+	    ;;
+
+	-q)	# "quick", no PMDA checks (you are on your own)
+	    quick=true
+	    xpand=false
+	    ;;
+
+	-n)	# show me, don't do it
+	    showme=true
+	    quick=true
+	    xpand=false
+	    ;;
+
+	-t)	# turn on tracing
+	    qatrace=true
+	    xpand=false
+	    ;;
+
+	-T)	# turn on timestamp output
+	    timestamp=true
+	    xpand=false
+	    ;;
+
+	-u)	# user for show-me
+	    snarf=u
+	    xpand=false
+	    ;;
+
+	-v)
+	    verbose=true
+	    xpand=false
+	    ;;
+
+	-x)	# -x group ... exclude from group file
+	    xgroup=true
+	    xpand=false
+	    ;;
+
+	'[0-9][0-9][0-9] [0-9][0-9][0-9][0-9]')
+	    echo "No tests?"
+	    status=1
+	    exit $status
+	    ;;
+
+	[0-9]*-[0-9]*)
+	    eval `echo $r | sed -e 's/^/start=/' -e 's/-/ end=/'`
+	    range=true
+	    ;;
+
+	[0-9]*-)
+	    eval `echo $r | sed -e 's/^/start=/' -e 's/-//'`
+	    end=`echo [0-9][0-9][0-9] [0-9][0-9][0-9][0-9] | sed -e 's/\[0-9]//g' -e 's/  *$//' -e 's/.* //'`
+	    if [ -z "$end" ]
+	    then
+		echo "No tests in range \"$r\"?"
+		status=1
+		exit $status
+	    fi
+	    range=true
+	    ;;
+
+	*)
+	    start=$r
+	    end=$r
+	    ;;
+
+    esac
+
+    if $xpand
+    then
+	start=`echo $start | sed -e 's/^0*\(.\)/\1/'`
+	end=`echo $end | sed -e 's/^0*\(.\)/\1/'`
+	have_test_arg=true
+	$PCP_AWK_PROG </dev/null '
+BEGIN	{ for (t='$start'; t<='$end'; t++) printf "%03d\n",t }' \
+	| while read id
+	do
+	    # if test not present, silently forget about it
+	    [ -f $id ] || continue
+	    if grep -s "^$id[ 	]" group >/dev/null
+	    then
+		# in group file ... OK
+		echo $id >>$tmp.list
+	    else
+		# oops
+		$range || echo "$id - unknown test, ignored"
+	    fi
+	done
+    fi
+
+done
+
+if [ -s $tmp.list ]
+then
+    # found some valid test numbers ... this is good
+    :
+else
+    if $have_test_arg
+    then
+	# had test numbers, but none in group file ... do nothing
+	touch $tmp.list
+    else
+	if $selbygroup
+    	then
+    	    echo "No tests selected?"
+    	    exit 1
+    	else
+	    # no test numbers, do everything from group file
+	    touch $tmp.list
+	    sed -n -e '/^[0-9]/s/[ 	].*//p' <group \
+	    | while read id
+	    do
+		[ -f $id ] || continue
+		echo $id >>$tmp.list
+	    done
+    	fi
+    fi
+fi
+
+list=`sort -n $tmp.list`
+rm -f $tmp.list $tmp.tmp $tmp.sed
+
+# re-process the product-specific setup in case command line args have
+# changed things, e.g. -h hostname
+#
+. ./common.setup
+
+[ -z "$QA_HOST" ] && QA_HOST=$DEFAULT_HOST
+export QA_HOST QA_DIR QA_USER
+
+if $check
+then
+    x=`pminfo -h $QA_HOST -v pmcd.control.timeout 2>&1`
+    if [ ! -z "$x" ]
+    then
+	echo "Is pmcd running on host $QA_HOST?  Simple test produces ..."
+	echo "$x"
+	exit 1
+    fi
+fi
+
+case $iam
+in
+    show-me)
+	# don't need sudo
+	;;
+    *)
+
+	_havesudo
+	;;
+esac
+
+case $iam
+in
+    check|remake)
+	# $PCP_RC_DIR/pcp needs this to produce deterministic output now
+	#
+	_change_config verbose on
+	;;
+esac
+
+if $quick
+then
+    :
+else
+    ./mk.localconfig
+
+    $OPTION_AGENTS && _haveagents
+    $OPTION_LOGGER && _havelogger
+    $OPTION_PMCD_TRACE && _havepmcdtrace
+
+    ${MAKE:-make} setup
+fi

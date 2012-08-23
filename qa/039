@@ -1,0 +1,61 @@
+#! /bin/sh
+# PCP QA Test No. 039
+# Can we access archives as they are being created?
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+_filter()
+{
+    sed \
+        -e '/Performance metrics from host /s/ host .*/ host .../' \
+	-e '/commencing/d' \
+	-e '/ending/d' \
+	-e '/^\[[0-9]* bytes]/d' \
+	-e '/value /{
+s/value [0-9][0-9]*/value INTEGER/
+}' \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
+	-e "/\"$logger_pid\"/s/$logger_pid/LOGGER_PID/g" \
+	-e '/pmcd.pmlogger.port/s/value .*/value PORT/' \
+	-e '/pmcd.pmlogger.host/s/value ".*/value "HOST"/' \
+	-e '/pmcd.pmlogger.archive/s/value ".*/value "PATH"/' \
+    | $PCP_AWK_PROG '
+$1 == "TIMESTAMP" && NF == 4	{ print "TIMESTAMP       0       OFFSET       OFFSET"; next }
+				{ print }' \
+    | src/hex2nbo
+}
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+rm -f $tmp.*
+cat <<End-of-File >$tmp.config
+log mandatory on 1500 msec {
+    sample.colour
+}
+End-of-File
+
+sleep 1		# get into sync
+pmlogger -c $tmp.config -l $tmp.log -s 4 $tmp &
+logger_pid=$!
+sleep 2
+
+echo "Partial, expect meta data"
+pmdumplog -id $tmp | _filter
+
+wait
+echo ""
+echo "Complete, expect meta data and 4 sets of results"
+pmdumplog -a $tmp | _filter
+
+echo ""
+echo "pmlogger log"
+_filter_pmlogger_log <$tmp.log

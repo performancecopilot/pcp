@@ -1,0 +1,95 @@
+QA output created by 350
+
+simple.color
+    inst [0 or "red"] value N
+    inst [1 or "green"] value N
+    inst [2 or "blue"] value N
+
+simple.now
+    inst [0 or "sec"] value N
+    inst [1 or "min"] value N
+    inst [2 or "hour"] value N
+
+simple.numfetch
+    value N
+
+simple.time.sys
+    value N
+
+simple.time.user
+    value N
+
+simple.color
+Help:
+This metric has 3 instances, designated "red", "green" and "blue".
+
+The value of the metric is monotonic increasing in the range 0 to
+255, then back to 0.  The different instances have different starting
+values, namely 0 (red), 100 (green) and 200 (blue).
+
+The metric values my be altered using pmstore(1).
+
+simple.now
+Help:
+The value reflects the current time of day through a dynamically
+reconfigurable instance domain.  On each metric value fetch request,
+the agent checks to see whether the configuration file in
+$PCP_PMDAS_DIR/simple/simple.conf has been modified - if it has then
+the file is re-parsed and the instance domain for this metric is again
+constructed according to its contents.
+
+This configuration file contains a single line of comma-separated time
+tokens from this set:
+  "sec"  (seconds after the minute),
+  "min"  (minutes after the hour),
+  "hour" (hour since midnight).
+
+An example configuration file could be:  sec,min,hour
+and in this case the simple.now metric would export values
+for the three instances "sec", "min" and "hour" corresponding
+respectively to the components seconds, minutes and hours of the
+current time of day.
+
+The instance domain reflects each token present in the file, and the
+values reflect the time at which the PMDA processes the fetch.
+
+simple.numfetch
+Help:
+The cumulative number of pmFetch operations directed to the "simple"
+PMDA.
+
+This counter may be modified with pmstore(1).
+
+simple.time.sys
+Help:
+The time in seconds that the CPU has spent executing system code for
+the agent.
+
+simple.time.user
+Help:
+The time in seconds that the CPU has spent executing user code for the
+agent.
+
+simple.color
+    inst [0 or "red"] value N
+    inst [1 or "green"] value N
+    inst [2 or "blue"] value N
+
+simple.now
+    inst [0 or "sec"] value N
+    inst [1 or "min"] value N
+    inst [2 or "hour"] value N
+
+simple.numfetch
+    value N
+
+simple.time.sys
+    value N
+
+simple.time.user
+    value N
+simple.color [Metrics which increment with each fetch]
+simple.now [Time of day with a configurable instance domain]
+simple.numfetch [Number of pmFetch operations.]
+simple.time.sys [Time agent has spent executing system code]
+simple.time.user [Time agent has spent executing user code]

@@ -1,0 +1,157 @@
+#! /bin/sh
+# PCP QA Test No. 381
+# pmlc with new -p port and "connect port <n>" options
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+rem_host=`./getpmcdhosts -L -n 1 -P 2>$seq.notrun`
+if [ -z "$rem_host" ]
+then
+    cat $seq.notrun
+    exit
+fi
+rm -f $seq.notrun
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    sed \
+	-e '/Performance Co-Pilot Logger/,/ <instance> /d' \
+	-e '/^PMCD host/d' \
+	-e "s/ $pid / QA-PMLOGGER-PID /" \
+	-e "s/\[$pid\]/[QA-PMLOGGER-PID]/" \
+	-e "s/_logger_id=$pid/_logger_id=QA-PMLOGGER-PID/" \
+	-e 's/connect [0-9][0-9]* /connect PID /' \
+	-e "s/\[[0-9][0-9]*\]/[PMLOGGER-PID]/" \
+	-e "s/_logger_id=[0-9][0-9]*/_logger_id=PMLOGGER-PID/" \
+	-e "s/$rem_host/REMOTE-HOST/" \
+	-e "s/$myhost/LOCAL-HOST/" \
+	-e "s/port $port /port QA-PMLOGGER-PORT /" \
+	-e 's/logging metrics from host .*/logging metrics from host .../' \
+	-e '/^log started/d' \
+	-e '/^last log entry/d' \
+	-e '/^current time/d' \
+	-e '/^log volume/d' \
+	-e '/^log size/s/.*/... status output .../'
+}
+
+# _speak_to_me <host> <pid>
+#
+_speak_to_me()
+{
+    echo
+    echo "=== _host=$1 _logger_id=$2 ===" >$tmp.out
+    echo >>$seq.full
+    echo "=== _host=$1 _logger_id=$2 ===" >>$seq.full
+    # allow pmlogger socket to be closed and ready to accept()
+    #
+    sleep 2
+    cat <<End-of-File | pmlc $DEBUG -ei >>$tmp.out 2>&1
+connect primary $1
+status
+query sample.drift
+connect port 4330 $1
+status
+flush
+connect $2 $1
+status
+flush
+End-of-File
+    cat $tmp.out >>$seq.full
+    _filter <$tmp.out
+}
+
+_cleanup()
+{
+    if $need_clean
+    then
+	if [ ! -z "$pid" ]
+	then
+	    $signal -s TERM $pid
+	    sleep 1
+	    pid=''
+	fi
+	echo
+	_filter_pmlogger_log <$tmp.log
+	echo
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	need_clean=false
+    fi
+    rm -f $tmp.*
+    exit
+}
+
+need_clean=true
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+DEBUG=''
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+myhost=`hostname`
+pid=''
+
+rm -f $tmp.*
+
+rem_pid=`pminfo -f -h $rem_host pmcd.pmlogger.port \
+	 | sed -n -e '/primary/d' -e '/ value 4330 *$/{
+s/.* "//
+s/".*//p
+}'`
+if [ -z "$rem_pid" ]
+then
+    pminfo -f -h $rem_host pmcd.pmlogger.port
+    echo "Error: cannot find pid for remote primary logger!"
+    exit
+fi
+
+
+( pmlogger -h $rem_host -L -c /dev/null -l $tmp.log $tmp </dev/null >/dev/null 2>&1 ) &
+pid=$!
+
+_wait_for_pmlogger $pid $tmp.log
+
+port=`pminfo -f pmcd.pmlogger.port \
+      | sed -n -e '/primary/d' -e '/\['$pid' /{
+s/.* value //p
+}'`
+
+rm -f $seq.full
+echo "Remote host: $rem_host [pid: $rem_pid]" >>$seq.full
+echo "Local host: $myhost [pid: $pid port: $port]" >>$seq.full
+
+# real QA test starts here
+
+_speak_to_me "" $pid
+_speak_to_me "" "port $port"
+
+_speak_to_me @$myhost $pid
+_speak_to_me @$myhost "port $port"
+
+_speak_to_me @$rem_host $rem_pid
+
+# make sure the primary logger is terminated and stop pmcd
+#
+prim_pid=`ps $PCP_PS_ALL_FLAGS | grep pmlogger | grep ' -P' | $PCP_AWK_PROG '{ print $2 }'`
+[ ! -z "$prim_pid" ] && $sudo $signal -s TERM $prim_pid
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+
+echo
+_speak_to_me "" $pid
+_speak_to_me "" "port $port"
+#debug# DEBUG="-D all"
+_speak_to_me @$rem_host $rem_pid
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,5 @@
+QA output created by 045
+sample.needprofile: Error: Explicit instance identifier(s) required
+sample.needprofile inst [1 or "terry"] old value=12.05 new value=1
+sample.needprofile: pmStore: No permission to perform requested operation
+sample.noinst: No value(s) available!

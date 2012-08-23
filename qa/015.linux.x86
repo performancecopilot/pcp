@@ -1,0 +1,187 @@
+QA output created by 015
+
+stuff "123" into sampledso.long.write_me
+sampledso.long.write_me old value=? new value=123
+sampledso.long.write_me
+    value 123
+
+stuff "123.456" into sampledso.long.write_me
+The value "123.456" is incompatible with the data type (PM_TYPE_32)
+
+stuff "1e10" into sampledso.long.write_me
+The value "1e10" is incompatible with the data type (PM_TYPE_32)
+
+stuff "9.87654321e40" into sampledso.long.write_me
+The value "9.87654321e40" is incompatible with the data type (PM_TYPE_32)
+
+stuff "0xdeadbeef" into sampledso.long.write_me
+sampledso.long.write_me old value=? new value=-559038737
+sampledso.long.write_me
+    value -559038737
+
+stuff "0x100000000" into sampledso.long.write_me
+The value "0x100000000" is out of range for the data type (PM_TYPE_32)
+
+stuff "0xdeadbeefcafefeed" into sampledso.long.write_me
+The value "0xdeadbeefcafefeed" is out of range for the data type (PM_TYPE_32)
+
+stuff "zoo" into sampledso.long.write_me
+The value "zoo" is incompatible with the data type (PM_TYPE_32)
+
+stuff "123" into sampledso.longlong.write_me
+sampledso.longlong.write_me old value=? new value=123
+sampledso.longlong.write_me
+    value 123
+
+stuff "123.456" into sampledso.longlong.write_me
+The value "123.456" is incompatible with the data type (PM_TYPE_64)
+
+stuff "1e10" into sampledso.longlong.write_me
+The value "1e10" is incompatible with the data type (PM_TYPE_64)
+
+stuff "9.87654321e40" into sampledso.longlong.write_me
+The value "9.87654321e40" is incompatible with the data type (PM_TYPE_64)
+
+stuff "0xdeadbeef" into sampledso.longlong.write_me
+sampledso.longlong.write_me old value=? new value=3735928559
+sampledso.longlong.write_me
+    value 3735928559
+
+stuff "0x100000000" into sampledso.longlong.write_me
+sampledso.longlong.write_me old value=? new value=4294967296
+sampledso.longlong.write_me
+    value 4294967296
+
+stuff "0xdeadbeefcafefeed" into sampledso.longlong.write_me
+sampledso.longlong.write_me old value=? new value=-2401053089206436115
+sampledso.longlong.write_me
+    value -2401053089206436115
+
+stuff "zoo" into sampledso.longlong.write_me
+The value "zoo" is incompatible with the data type (PM_TYPE_64)
+
+stuff "123" into sampledso.float.write_me
+sampledso.float.write_me old value=? new value=123
+sampledso.float.write_me
+    value 123
+
+stuff "123.456" into sampledso.float.write_me
+sampledso.float.write_me old value=? new value=123.456
+sampledso.float.write_me
+    value 123.456
+
+stuff "1e10" into sampledso.float.write_me
+sampledso.float.write_me old value=? new value=1e+10
+sampledso.float.write_me
+    value 1e+10
+
+stuff "9.87654321e40" into sampledso.float.write_me
+The value "9.87654321e40" is out of range for the data type (PM_TYPE_FLOAT)
+
+stuff "0xdeadbeef" into sampledso.float.write_me
+The value "0xdeadbeef" is incompatible with the data type (PM_TYPE_FLOAT)
+
+stuff "0x100000000" into sampledso.float.write_me
+The value "0x100000000" is incompatible with the data type (PM_TYPE_FLOAT)
+
+stuff "0xdeadbeefcafefeed" into sampledso.float.write_me
+The value "0xdeadbeefcafefeed" is incompatible with the data type (PM_TYPE_FLOAT)
+
+stuff "zoo" into sampledso.float.write_me
+The value "zoo" is incompatible with the data type (PM_TYPE_FLOAT)
+
+stuff "123" into sampledso.double.write_me
+sampledso.double.write_me old value=? new value=123
+sampledso.double.write_me
+    value 123
+
+stuff "123.456" into sampledso.double.write_me
+sampledso.double.write_me old value=? new value=123.456
+sampledso.double.write_me
+    value 123.456
+
+stuff "1e10" into sampledso.double.write_me
+sampledso.double.write_me old value=? new value=10000000000
+sampledso.double.write_me
+    value 10000000000
+
+stuff "9.87654321e40" into sampledso.double.write_me
+sampledso.double.write_me old value=? new value=9.87654321e+40
+sampledso.double.write_me
+    value 9.87654321e+40
+
+stuff "0xdeadbeef" into sampledso.double.write_me
+The value "0xdeadbeef" is incompatible with the data type (PM_TYPE_DOUBLE)
+
+stuff "0x100000000" into sampledso.double.write_me
+The value "0x100000000" is incompatible with the data type (PM_TYPE_DOUBLE)
+
+stuff "0xdeadbeefcafefeed" into sampledso.double.write_me
+The value "0xdeadbeefcafefeed" is incompatible with the data type (PM_TYPE_DOUBLE)
+
+stuff "zoo" into sampledso.double.write_me
+The value "zoo" is incompatible with the data type (PM_TYPE_DOUBLE)
+
+stuff "123" into sampledso.string.write_me
+sampledso.string.write_me old value=? new value="123"
+sampledso.string.write_me
+    value "123"
+
+stuff "123.456" into sampledso.string.write_me
+sampledso.string.write_me old value=? new value="123.456"
+sampledso.string.write_me
+    value "123.456"
+
+stuff "1e10" into sampledso.string.write_me
+sampledso.string.write_me old value=? new value="1e10"
+sampledso.string.write_me
+    value "1e10"
+
+stuff "9.87654321e40" into sampledso.string.write_me
+sampledso.string.write_me old value=? new value="9.87654321e40"
+sampledso.string.write_me
+    value "9.87654321e40"
+
+stuff "0xdeadbeef" into sampledso.string.write_me
+sampledso.string.write_me old value=? new value="0xdeadbeef"
+sampledso.string.write_me
+    value "0xdeadbeef"
+
+stuff "0x100000000" into sampledso.string.write_me
+sampledso.string.write_me old value=? new value="0x100000000"
+sampledso.string.write_me
+    value "0x100000000"
+
+stuff "0xdeadbeefcafefeed" into sampledso.string.write_me
+sampledso.string.write_me old value=? new value="0xdeadbeefcafefeed"
+sampledso.string.write_me
+    value "0xdeadbeefcafefeed"
+
+stuff "zoo" into sampledso.string.write_me
+sampledso.string.write_me old value=? new value="zoo"
+sampledso.string.write_me
+    value "zoo"
+
+stuff "123" into sampledso.aggregate.write_me
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
+
+stuff "123.456" into sampledso.aggregate.write_me
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
+
+stuff "1e10" into sampledso.aggregate.write_me
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
+
+stuff "9.87654321e40" into sampledso.aggregate.write_me
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
+
+stuff "0xdeadbeef" into sampledso.aggregate.write_me
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
+
+stuff "0x100000000" into sampledso.aggregate.write_me
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
+
+stuff "0xdeadbeefcafefeed" into sampledso.aggregate.write_me
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
+
+stuff "zoo" into sampledso.aggregate.write_me
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics

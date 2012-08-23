@@ -1,0 +1,89 @@
+#!/bin/sh
+# PCP QA Test No. 246
+#
+# Exercise derived metric memory allocation and freeing around the
+# creating and destroying of contexts.
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if grep -q 'pmRegisterDerived' $PCP_DIR/usr/include/pcp/pmapi.h
+then
+    :
+else
+    echo "No derived metric support" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+unset PCP_DERIVED_CONFIG
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# Note
+#	addresses from malloc are obviously dependent on the implementation
+#	but if there is no memory leaks, we expect the SAME addresses to be
+#	allocated over and over ... we're arbitrarily picking a pool of
+#	up to the first 40 unique addresses we encounter (see the variable
+#	PICK in the awk below) and this works for glibc 2.10.1 ... this
+#	number may need to be increased for other malloc implementations
+#
+_filter()
+{
+    echo "--- stdout ---" >>$seq.full
+    cat $tmp.out >>$seq.full
+    echo "--- stderr ---" >>$seq.full
+    cat $tmp.err >>$seq.full
+    # __dmclosecontext(->ctx 8) called dm->0x9216d58 3 metrics
+    cat $tmp.err \
+    | sed \
+	-e 's/(->ctx [0-9][0-9]*)//' \
+	-e 's/->/ /' \
+    | awk >$tmp.sed '
+BEGIN				{ n = 0; PICK = 40 }
+$1 == "__dmclosecontext"	{ if (map[$4] != "") next
+				  if (n >= PICK) next
+				  print "s/" $4 "/<addr>/"
+				  map[$4] = 1
+				  n++
+				}
+				{ next }'
+    echo "=== sed ===" >>$seq.full
+    cat $tmp.sed >>$seq.full
+    sed <$tmp.err \
+	-e '/bind metric\[[12]] myname.[bc]/d' \
+	-e '/bind metric\[0] myname.a/{
+s/bind metric... //
+s/$/ .../
+}' \
+	-e '/__dmopencontext/s/__dmopencontext:/open/' \
+	-e '/__dmclosecontext/s/__dmclosecontext(->ctx [0-9][0-9]*) called dm->/close /' \
+	-e "s;$tmp;TMP;" \
+    | sed -f $tmp.sed
+
+    cat $tmp.out
+}
+
+# real QA test starts here
+cat <<End-of-File >$tmp.config
+myname.a = sample.long.one + sample.long.ten + sample.long.hundred + sample.long.million + sample.longlong.one + sample.longlong.ten + sample.longlong.hundred + sample.longlong.million
+myname.b = sample.long.one + sample.long.ten + sample.long.hundred + sample.long.million - sample.longlong.one - sample.longlong.ten - sample.longlong.hundred - sample.longlong.million
+myname.c= sample.long.one * sample.longlong.one + sample.long.ten * sample.longlong.ten + sample.long.hundred * sample.longlong.hundred + sample.long.million * sample.longlong.million
+End-of-File
+
+src/grind_ctx -D derive -c $tmp.config -s 100 >$tmp.out 2>$tmp.err
+_filter
+
+# success, all done
+exit

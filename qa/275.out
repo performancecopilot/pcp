@@ -1,0 +1,801 @@
+QA output created by 275
+=== expression trees and pmDesc propagation ===
+
+my.space_over_time1 = sample.mirage + sample.mirage_longlong
+my.space_over_time2 = sample.mirage_longlong + sample.mirage
+my.space_over_time3 = sample.mirage_longlong + sample.mirage - sample.byte_rate
+my.space_over_time4 = sample.byte_rate + sample.byte_rate_perhour
+my.space = sample.byte_ctr + sample.kbyte_ctr
+my.byte1 = sample.byte_rate * sample.scale_step.time_up_secs
+my.byte2 = sample.byte_rate * sample.scale_step.time_up_nanosecs
+my.x1 = sample.scale_step.bytes_down / sample.scale_step.time_up_secs
+my.x2 = sample.scale_step.bytes_down / sample.scale_step.time_up_secs + sample.mirage
+my.x3 = sample.scale_step.count_up * sample.scale_step.count_down
+my.x4 = sample.scale_step.count_down / sample.scale_step.count_up
+# discrete and instantaneous combinations
+my.i1 = 42 + sample.scale_step.none_up
+my.i2 = sample.scale_step.none_up + 42
+my.i3 = pmcd.pmlogger.port - pmcd.pmlogger.port
+
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: name="my.space_over_time1" expr="sample.mirage + sample.mirage_longlong"
+parse(1) state=P_INIT type=L_NAME "sample.mirage"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.mirage_longlong"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[0] my.space_over_time1 = sample.mirage + sample.mirage_longlong
+Derived metric expr dump from <addr-0>...
+expr node <addr-0> type=PLUS left=<addr-1> right=<addr-2> save_last=0
+expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage] master=1
+expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage_longlong] master=1
+pmRegisterDerived: name="my.space_over_time2" expr="sample.mirage_longlong + sample.mirage"
+parse(1) state=P_INIT type=L_NAME "sample.mirage_longlong"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.mirage"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[1] my.space_over_time2 = sample.mirage_longlong + sample.mirage
+Derived metric expr dump from <addr-3>...
+expr node <addr-3> type=PLUS left=<addr-4> right=<addr-5> save_last=0
+expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage_longlong] master=1
+expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage] master=1
+pmRegisterDerived: name="my.space_over_time3" expr="sample.mirage_longlong + sample.mirage - sample.byte_rate"
+parse(1) state=P_INIT type=L_NAME "sample.mirage_longlong"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.mirage"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_NAME "sample.byte_rate"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[2] my.space_over_time3 = sample.mirage_longlong + sample.mirage - sample.byte_rate
+Derived metric expr dump from <addr-6>...
+expr node <addr-6> type=MINUS left=<addr-7> right=<addr-10> save_last=0
+expr node <addr-7> type=PLUS left=<addr-8> right=<addr-9> save_last=0
+expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage_longlong] master=1
+expr node <addr-9> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage] master=1
+expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] master=1
+pmRegisterDerived: name="my.space_over_time4" expr="sample.byte_rate + sample.byte_rate_perhour"
+parse(1) state=P_INIT type=L_NAME "sample.byte_rate"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.byte_rate_perhour"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[3] my.space_over_time4 = sample.byte_rate + sample.byte_rate_perhour
+Derived metric expr dump from <addr-11>...
+expr node <addr-11> type=PLUS left=<addr-12> right=<addr-13> save_last=0
+expr node <addr-12> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] master=1
+expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate_perhour] master=1
+pmRegisterDerived: name="my.space" expr="sample.byte_ctr + sample.kbyte_ctr"
+parse(1) state=P_INIT type=L_NAME "sample.byte_ctr"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.kbyte_ctr"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[4] my.space = sample.byte_ctr + sample.kbyte_ctr
+Derived metric expr dump from <addr-14>...
+expr node <addr-14> type=PLUS left=<addr-15> right=<addr-16> save_last=0
+expr node <addr-15> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_ctr] master=1
+expr node <addr-16> type=NAME left=(nil) right=(nil) save_last=0 [sample.kbyte_ctr] master=1
+pmRegisterDerived: name="my.byte1" expr="sample.byte_rate * sample.scale_step.time_up_secs"
+parse(1) state=P_INIT type=L_NAME "sample.byte_rate"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "sample.scale_step.time_up_secs"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[5] my.byte1 = sample.byte_rate * sample.scale_step.time_up_secs
+Derived metric expr dump from <addr-17>...
+expr node <addr-17> type=STAR left=<addr-18> right=<addr-19> save_last=0
+expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] master=1
+expr node <addr-19> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.time_up_secs] master=1
+pmRegisterDerived: name="my.byte2" expr="sample.byte_rate * sample.scale_step.time_up_nanosecs"
+parse(1) state=P_INIT type=L_NAME "sample.byte_rate"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "sample.scale_step.time_up_nanosecs"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[6] my.byte2 = sample.byte_rate * sample.scale_step.time_up_nanosecs
+Derived metric expr dump from <addr-20>...
+expr node <addr-20> type=STAR left=<addr-21> right=<addr-22> save_last=0
+expr node <addr-21> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] master=1
+expr node <addr-22> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.time_up_nanosecs] master=1
+pmRegisterDerived: name="my.x1" expr="sample.scale_step.bytes_down / sample.scale_step.time_up_secs"
+parse(1) state=P_INIT type=L_NAME "sample.scale_step.bytes_down"
+parse(1) state=P_LEAF type=L_SLASH "/"
+parse(1) state=P_BINOP type=L_NAME "sample.scale_step.time_up_secs"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[7] my.x1 = sample.scale_step.bytes_down / sample.scale_step.time_up_secs
+Derived metric expr dump from <addr-23>...
+expr node <addr-23> type=SLASH left=<addr-24> right=<addr-25> save_last=0
+expr node <addr-24> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.bytes_down] master=1
+expr node <addr-25> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.time_up_secs] master=1
+pmRegisterDerived: name="my.x2" expr="sample.scale_step.bytes_down / sample.scale_step.time_up_secs + sample.mirage"
+parse(1) state=P_INIT type=L_NAME "sample.scale_step.bytes_down"
+parse(1) state=P_LEAF type=L_SLASH "/"
+parse(1) state=P_BINOP type=L_NAME "sample.scale_step.time_up_secs"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.mirage"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[8] my.x2 = sample.scale_step.bytes_down / sample.scale_step.time_up_secs + sample.mirage
+Derived metric expr dump from <addr-26>...
+expr node <addr-26> type=PLUS left=<addr-27> right=<addr-30> save_last=0
+expr node <addr-27> type=SLASH left=<addr-28> right=<addr-29> save_last=0
+expr node <addr-28> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.bytes_down] master=1
+expr node <addr-29> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.time_up_secs] master=1
+expr node <addr-30> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage] master=1
+pmRegisterDerived: name="my.x3" expr="sample.scale_step.count_up * sample.scale_step.count_down"
+parse(1) state=P_INIT type=L_NAME "sample.scale_step.count_up"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "sample.scale_step.count_down"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[9] my.x3 = sample.scale_step.count_up * sample.scale_step.count_down
+Derived metric expr dump from <addr-31>...
+expr node <addr-31> type=STAR left=<addr-32> right=<addr-33> save_last=0
+expr node <addr-32> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.count_up] master=1
+expr node <addr-33> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.count_down] master=1
+pmRegisterDerived: name="my.x4" expr="sample.scale_step.count_down / sample.scale_step.count_up"
+parse(1) state=P_INIT type=L_NAME "sample.scale_step.count_down"
+parse(1) state=P_LEAF type=L_SLASH "/"
+parse(1) state=P_BINOP type=L_NAME "sample.scale_step.count_up"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[10] my.x4 = sample.scale_step.count_down / sample.scale_step.count_up
+Derived metric expr dump from <addr-34>...
+expr node <addr-34> type=SLASH left=<addr-35> right=<addr-36> save_last=0
+expr node <addr-35> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.count_down] master=1
+expr node <addr-36> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.count_up] master=1
+pmRegisterDerived: name="my.i1" expr="42 + sample.scale_step.none_up"
+parse(1) state=P_INIT type=L_NUMBER "42"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.scale_step.none_up"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[11] my.i1 = 42 + sample.scale_step.none_up
+Derived metric expr dump from <addr-37>...
+expr node <addr-37> type=PLUS left=<addr-38> right=<addr-39> save_last=0
+expr node <addr-38> type=NUMBER left=(nil) right=(nil) save_last=0 [42] master=1
+expr node <addr-39> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.none_up] master=1
+pmRegisterDerived: name="my.i2" expr="sample.scale_step.none_up + 42"
+parse(1) state=P_INIT type=L_NAME "sample.scale_step.none_up"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NUMBER "42"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[12] my.i2 = sample.scale_step.none_up + 42
+Derived metric expr dump from <addr-40>...
+expr node <addr-40> type=PLUS left=<addr-41> right=<addr-42> save_last=0
+expr node <addr-41> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.none_up] master=1
+expr node <addr-42> type=NUMBER left=(nil) right=(nil) save_last=0 [42] master=1
+pmRegisterDerived: name="my.i3" expr="pmcd.pmlogger.port - pmcd.pmlogger.port"
+parse(1) state=P_INIT type=L_NAME "pmcd.pmlogger.port"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_NAME "pmcd.pmlogger.port"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[13] my.i3 = pmcd.pmlogger.port - pmcd.pmlogger.port
+Derived metric expr dump from <addr-43>...
+expr node <addr-43> type=MINUS left=<addr-44> right=<addr-45> save_last=0
+expr node <addr-44> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pmlogger.port] master=1
+expr node <addr-45> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pmlogger.port] master=1
+__dmopencontext(->ctx 0) called
+__dmopencontext: bind metric[0] my.space_over_time1
+Derived metric expr dump from <addr-46>...
+expr node <addr-46> type=PLUS left=<addr-47> right=<addr-48> save_last=0
+    PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 0
+    Data Type: double  InDom: 29.3 0x7400003
+    Semantics: instant  Units: Kbyte / sec
+expr node <addr-47> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage] master=0
+    PMID: 29.0.37 (29.0.37 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.3 0x7400003
+    Semantics: instant  Units: Kbyte / sec
+expr node <addr-48> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage_longlong] master=0
+    PMID: 29.0.38 (29.0.38 from pmDesc) numval: 0 div_scale: 1024 mul_scale: 1000
+    Data Type: 64-bit int  InDom: 29.3 0x7400003
+    Semantics: instant  Units: byte / millisec
+__dmopencontext: bind metric[1] my.space_over_time2
+Derived metric expr dump from <addr-49>...
+expr node <addr-49> type=PLUS left=<addr-50> right=<addr-51> save_last=0
+    PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 0
+    Data Type: double  InDom: 29.3 0x7400003
+    Semantics: instant  Units: Kbyte / sec
+expr node <addr-50> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage_longlong] master=0
+    PMID: 29.0.38 (29.0.38 from pmDesc) numval: 0 div_scale: 1024 mul_scale: 1000
+    Data Type: 64-bit int  InDom: 29.3 0x7400003
+    Semantics: instant  Units: byte / millisec
+expr node <addr-51> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage] master=0
+    PMID: 29.0.37 (29.0.37 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.3 0x7400003
+    Semantics: instant  Units: Kbyte / sec
+__dmopencontext: bind metric[2] my.space_over_time3
+Derived metric expr dump from <addr-52>...
+expr node <addr-52> type=MINUS left=<addr-53> right=<addr-56> save_last=0
+    PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
+    Data Type: double  InDom: 29.3 0x7400003
+    Semantics: instant  Units: Kbyte / sec
+expr node <addr-53> type=PLUS left=<addr-54> right=<addr-55> save_last=0
+    PMID: PM_ID_NULL (29.0.38 from pmDesc) numval: 0
+    Data Type: double  InDom: 29.3 0x7400003
+    Semantics: instant  Units: Kbyte / sec
+expr node <addr-54> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage_longlong] master=0
+    PMID: 29.0.38 (29.0.38 from pmDesc) numval: 0 div_scale: 1024 mul_scale: 1000
+    Data Type: 64-bit int  InDom: 29.3 0x7400003
+    Semantics: instant  Units: byte / millisec
+expr node <addr-55> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage] master=0
+    PMID: 29.0.37 (29.0.37 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.3 0x7400003
+    Semantics: instant  Units: Kbyte / sec
+expr node <addr-56> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] master=0
+    PMID: 29.0.82 (29.0.82 from pmDesc) numval: 0 div_scale: 1024
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / sec
+__dmopencontext: bind metric[3] my.space_over_time4
+Derived metric expr dump from <addr-57>...
+expr node <addr-57> type=PLUS left=<addr-58> right=<addr-59> save_last=0
+    PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / hour
+expr node <addr-58> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] master=0
+    PMID: 29.0.82 (29.0.82 from pmDesc) numval: 0 mul_scale: 3600
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / sec
+expr node <addr-59> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate_perhour] master=0
+    PMID: 29.0.85 (29.0.85 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / hour
+__dmopencontext: bind metric[4] my.space
+Derived metric expr dump from <addr-60>...
+expr node <addr-60> type=PLUS left=<addr-61> right=<addr-62> save_last=0
+    PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+expr node <addr-61> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_ctr] master=0
+    PMID: 29.0.81 (29.0.81 from pmDesc) numval: 0 div_scale: 1024
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+expr node <addr-62> type=NAME left=(nil) right=(nil) save_last=0 [sample.kbyte_ctr] master=0
+    PMID: 29.0.83 (29.0.83 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+__dmopencontext: bind metric[5] my.byte1
+Derived metric expr dump from <addr-63>...
+expr node <addr-63> type=STAR left=<addr-64> right=<addr-65> save_last=0
+    PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+expr node <addr-64> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] master=0
+    PMID: 29.0.82 (29.0.82 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / sec
+expr node <addr-65> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.time_up_secs] master=0
+    PMID: 29.0.69 (29.0.69 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+__dmopencontext: bind metric[6] my.byte2
+Derived metric expr dump from <addr-66>...
+expr node <addr-66> type=STAR left=<addr-67> right=<addr-68> save_last=0
+    PMID: PM_ID_NULL (511.0.7 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+expr node <addr-67> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] master=0
+    PMID: 29.0.82 (29.0.82 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / sec
+expr node <addr-68> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.time_up_nanosecs] master=0
+    PMID: 29.0.70 (29.0.70 from pmDesc) numval: 0 div_scale: 1000000000
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: nanosec
+__dmopencontext: bind metric[7] my.x1
+Derived metric expr dump from <addr-69>...
+expr node <addr-69> type=SLASH left=<addr-70> right=<addr-71> save_last=0
+    PMID: PM_ID_NULL (511.0.8 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / sec
+expr node <addr-70> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.bytes_down] master=0
+    PMID: 29.0.66 (29.0.66 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+expr node <addr-71> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.time_up_secs] master=0
+    PMID: 29.0.69 (29.0.69 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+__dmopencontext: bind metric[8] my.x2
+Derived metric expr dump from <addr-72>...
+expr node <addr-72> type=PLUS left=<addr-73> right=<addr-76> save_last=0
+    PMID: PM_ID_NULL (511.0.9 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte / sec
+expr node <addr-73> type=SLASH left=<addr-74> right=<addr-75> save_last=0
+    PMID: PM_ID_NULL (29.0.66 from pmDesc) numval: 0 div_scale: 1024
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / sec
+expr node <addr-74> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.bytes_down] master=0
+    PMID: 29.0.66 (29.0.66 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+expr node <addr-75> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.time_up_secs] master=0
+    PMID: 29.0.69 (29.0.69 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+expr node <addr-76> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage] master=0
+    PMID: 29.0.37 (29.0.37 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.3 0x7400003
+    Semantics: instant  Units: Kbyte / sec
+__dmopencontext: bind metric[9] my.x3
+Derived metric expr dump from <addr-77>...
+expr node <addr-77> type=STAR left=<addr-78> right=<addr-79> save_last=0
+    PMID: PM_ID_NULL (511.0.10 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count^2 / sec
+expr node <addr-78> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.count_up] master=0
+    PMID: 29.0.67 (29.0.67 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count / sec
+expr node <addr-79> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.count_down] master=0
+    PMID: 29.0.68 (29.0.68 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+__dmopencontext: bind metric[10] my.x4
+Derived metric expr dump from <addr-80>...
+expr node <addr-80> type=SLASH left=<addr-81> right=<addr-82> save_last=0
+    PMID: PM_ID_NULL (511.0.11 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+expr node <addr-81> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.count_down] master=0
+    PMID: 29.0.68 (29.0.68 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-82> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.count_up] master=0
+    PMID: 29.0.67 (29.0.67 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count / sec
+__dmopencontext: bind metric[11] my.i1
+Derived metric expr dump from <addr-83>...
+expr node <addr-83> type=PLUS left=<addr-84> right=<addr-85> save_last=0
+    PMID: PM_ID_NULL (511.0.12 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-84> type=NUMBER left=(nil) right=(nil) save_last=0 [42] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-85> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.none_up] master=0
+    PMID: 29.0.71 (29.0.71 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[12] my.i2
+Derived metric expr dump from <addr-86>...
+expr node <addr-86> type=PLUS left=<addr-87> right=<addr-88> save_last=0
+    PMID: PM_ID_NULL (511.0.13 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-87> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.none_up] master=0
+    PMID: 29.0.71 (29.0.71 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-88> type=NUMBER left=(nil) right=(nil) save_last=0 [42] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+__dmopencontext: bind metric[13] my.i3
+Derived metric expr dump from <addr-89>...
+expr node <addr-89> type=MINUS left=<addr-90> right=<addr-91> save_last=0
+    PMID: PM_ID_NULL (511.0.14 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+expr node <addr-90> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pmlogger.port] master=0
+    PMID: 2.3.0 (2.3.0 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+expr node <addr-91> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pmlogger.port] master=0
+    PMID: 2.3.0 (2.3.0 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+__dmgetpmid: metric "my.space_over_time1" -> PMID 511.0.1
+__dmgetpmid: metric "my.space_over_time2" -> PMID 511.0.2
+__dmgetpmid: metric "my.space_over_time3" -> PMID 511.0.3
+__dmgetpmid: metric "my.space_over_time4" -> PMID 511.0.4
+__dmgetpmid: metric "my.space" -> PMID 511.0.5
+__dmgetpmid: metric "my.byte1" -> PMID 511.0.6
+__dmgetpmid: metric "my.byte2" -> PMID 511.0.7
+__dmgetpmid: metric "my.x1" -> PMID 511.0.8
+__dmgetpmid: metric "my.x2" -> PMID 511.0.9
+__dmgetpmid: metric "my.x3" -> PMID 511.0.10
+__dmgetpmid: metric "my.x4" -> PMID 511.0.11
+__dmgetpmid: metric "my.i1" -> PMID 511.0.12
+__dmgetpmid: metric "my.i2" -> PMID 511.0.13
+__dmgetpmid: metric "my.i3" -> PMID 511.0.14
+
+my.space_over_time1
+    Data Type: double  InDom: 29.3 0x7400003
+    Semantics: instant  Units: Kbyte / sec
+
+my.space_over_time2
+    Data Type: double  InDom: 29.3 0x7400003
+    Semantics: instant  Units: Kbyte / sec
+
+my.space_over_time3
+    Data Type: double  InDom: 29.3 0x7400003
+    Semantics: instant  Units: Kbyte / sec
+
+my.space_over_time4
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / hour
+
+my.space
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+
+my.byte1
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+
+my.byte2
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+
+my.x1
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / sec
+
+my.x2
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte / sec
+
+my.x3
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count^2 / sec
+
+my.x4
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+
+my.i1
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+my.i2
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+my.i3
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+
+=== fetch values exercises ===
+
+
+sample.mirage
+    inst [0 or "m-00"] value 26
+    inst [46 or "m-46"] value 4625
+    inst [47 or "m-47"] value 4724
+    inst [10 or "m-10"] value 1023
+    inst [15 or "m-15"] value 1522
+    inst [16 or "m-16"] value 1621
+    inst [17 or "m-17"] value 1720
+    inst [18 or "m-18"] value 1819
+
+sample.mirage_longlong
+    inst [0 or "m-00"] value 34000000
+    inst [46 or "m-46"] value 4633000000
+    inst [47 or "m-47"] value 4732000000
+    inst [10 or "m-10"] value 1031000000
+    inst [15 or "m-15"] value 1530000000
+    inst [16 or "m-16"] value 1629000000
+    inst [17 or "m-17"] value 1728000000
+    inst [18 or "m-18"] value 1827000000
+
+sample.scale_step.bytes_up
+    value 1
+
+sample.scale_step.bytes_down
+    value 1
+
+sample.scale_step.count_up
+    value 1
+
+sample.scale_step.count_down
+    value 1
+
+sample.scale_step.time_up_secs
+    value 1
+
+sample.scale_step.time_up_nanosecs
+    value 1
+
+sample.scale_step.none_up
+    value 1
+
+sample.byte_ctr
+    value 23833
+
+sample.byte_rate
+    value 767
+
+sample.kbyte_ctr
+    value 23132
+
+sample.byte_rate_perhour
+    value 770
+
+pmcd.pmlogger.archive
+    inst [3931 or "3931"] value "/home/kenj/src/pcpqa/src/sample_expr"
+
+pmcd.pmlogger.port
+    inst [3931 or "3931"] value 4331
+
+pmcd.pmlogger.host
+    inst [3931 or "3931"] value "bozo.localdomain"
+
+my.space_over_time1
+    inst [0 or "m-00"] value 33203151
+    inst [46 or "m-46"] value 4524418687.5
+    inst [47 or "m-47"] value 4621098474
+    inst [10 or "m-10"] value 1006836960.5
+    inst [15 or "m-15"] value 1494142147
+    inst [16 or "m-16"] value 1590821933.5
+    inst [17 or "m-17"] value 1687501720
+    inst [18 or "m-18"] value 1784181506.5
+
+my.space_over_time2
+    inst [0 or "m-00"] value 33203151
+    inst [46 or "m-46"] value 4524418687.5
+    inst [47 or "m-47"] value 4621098474
+    inst [10 or "m-10"] value 1006836960.5
+    inst [15 or "m-15"] value 1494142147
+    inst [16 or "m-16"] value 1590821933.5
+    inst [17 or "m-17"] value 1687501720
+    inst [18 or "m-18"] value 1784181506.5
+
+my.space_over_time3
+    inst [0 or "m-00"] value 33203150.25097656
+    inst [46 or "m-46"] value 4524418686.750977
+    inst [47 or "m-47"] value 4621098473.250977
+    inst [10 or "m-10"] value 1006836959.750977
+    inst [15 or "m-15"] value 1494142146.250977
+    inst [16 or "m-16"] value 1590821932.750977
+    inst [17 or "m-17"] value 1687501719.250977
+    inst [18 or "m-18"] value 1784181505.750977
+
+my.space_over_time4
+    value 2761970
+
+my.space
+    value 23155.2744140625
+
+my.byte1
+    value 767
+
+my.byte2
+    value 7.67e-07
+
+my.x1
+    value 1
+
+my.x2
+    value 26.0009765625
+    value 4625.0009765625
+    value 4724.0009765625
+    value 1023.0009765625
+    value 1522.0009765625
+    value 1621.0009765625
+    value 1720.0009765625
+    value 1819.0009765625
+
+my.x3
+    value 1
+
+my.x4
+    value 1
+
+my.i1
+    value 43
+
+my.i2
+    value 43
+
+my.i3
+    inst [3931 or "3931"] value 0
+
+=== some more scale conversion tests ===
+
+gcov.a = ( 1 / sample.mirage_longlong ) / (1 / sample.mirage )
+gcov.b = ( 1 / sample.mirage ) / (1 / sample.mirage_longlong )
+gcov.c = sample.seconds + disk.all.total
+gcov.d = sample.ulong.count.base - sample.ulong.count.kilo
+gcov.e = sample.ulong.count.mega - sample.ulong.count.kilo
+gcov.f = (1/sample.ulong.count.base) - (1/sample.ulong.count.kilo)
+gcov.g = (1/sample.ulong.count.mega) - (1/sample.ulong.count.kilo)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: register metric[0] gcov.a = ( 1 / sample.mirage_longlong ) / (1 / sample.mirage )
+pmRegisterDerived: register metric[1] gcov.b = ( 1 / sample.mirage ) / (1 / sample.mirage_longlong )
+pmRegisterDerived: register metric[2] gcov.c = sample.seconds + disk.all.total
+pmRegisterDerived: register metric[3] gcov.d = sample.ulong.count.base - sample.ulong.count.kilo
+pmRegisterDerived: register metric[4] gcov.e = sample.ulong.count.mega - sample.ulong.count.kilo
+pmRegisterDerived: register metric[5] gcov.f = (1/sample.ulong.count.base) - (1/sample.ulong.count.kilo)
+pmRegisterDerived: register metric[6] gcov.g = (1/sample.ulong.count.mega) - (1/sample.ulong.count.kilo)
+__dmopencontext(->ctx 0) called
+__dmopencontext: bind metric[0] gcov.a
+Derived metric expr dump from <addr-0>...
+expr node <addr-0> type=SLASH left=<addr-1> right=<addr-4> save_last=0
+    PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 0
+    Data Type: double  InDom: 29.3 0x7400003
+    Semantics: instant  Units: none
+expr node <addr-1> type=SLASH left=<addr-2> right=<addr-3> save_last=0
+    PMID: PM_ID_NULL (29.0.38 from pmDesc) numval: 0 div_scale: 1000 mul_scale: 1024
+    Data Type: double  InDom: 29.3 0x7400003
+    Semantics: instant  Units: millisec / byte
+expr node <addr-2> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage_longlong] master=0
+    PMID: 29.0.38 (29.0.38 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: 29.3 0x7400003
+    Semantics: instant  Units: byte / millisec
+expr node <addr-4> type=SLASH left=<addr-5> right=<addr-6> save_last=0
+    PMID: PM_ID_NULL (29.0.37 from pmDesc) numval: 0
+    Data Type: double  InDom: 29.3 0x7400003
+    Semantics: instant  Units: sec / Kbyte
+expr node <addr-5> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage] master=0
+    PMID: 29.0.37 (29.0.37 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.3 0x7400003
+    Semantics: instant  Units: Kbyte / sec
+__dmopencontext: bind metric[1] gcov.b
+Derived metric expr dump from <addr-7>...
+expr node <addr-7> type=SLASH left=<addr-8> right=<addr-11> save_last=0
+    PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 0
+    Data Type: double  InDom: 29.3 0x7400003
+    Semantics: instant  Units: none
+expr node <addr-8> type=SLASH left=<addr-9> right=<addr-10> save_last=0
+    PMID: PM_ID_NULL (29.0.37 from pmDesc) numval: 0
+    Data Type: double  InDom: 29.3 0x7400003
+    Semantics: instant  Units: sec / Kbyte
+expr node <addr-9> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage] master=0
+    PMID: 29.0.37 (29.0.37 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.3 0x7400003
+    Semantics: instant  Units: Kbyte / sec
+expr node <addr-11> type=SLASH left=<addr-12> right=<addr-13> save_last=0
+    PMID: PM_ID_NULL (29.0.38 from pmDesc) numval: 0 div_scale: 1000 mul_scale: 1024
+    Data Type: double  InDom: 29.3 0x7400003
+    Semantics: instant  Units: millisec / byte
+expr node <addr-12> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage_longlong] master=0
+    PMID: 29.0.38 (29.0.38 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: 29.3 0x7400003
+    Semantics: instant  Units: byte / millisec
+Semantic error: derived metric gcov.c: sample.seconds + disk.all.total: Dimensions are not the same
+__dmopencontext: bind metric[3] gcov.d
+Derived metric expr dump from <addr-14>...
+expr node <addr-14> type=MINUS left=<addr-15> right=<addr-16> save_last=0
+    PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count x 10^3 / Mbyte
+expr node <addr-15> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.base] master=0
+    PMID: 29.0.115 (29.0.115 from pmDesc) numval: 0 div_scale: 1000
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count / Mbyte
+expr node <addr-16> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.kilo] master=0
+    PMID: 29.0.118 (29.0.118 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count x 10^3 / Mbyte
+__dmopencontext: bind metric[4] gcov.e
+Derived metric expr dump from <addr-17>...
+expr node <addr-17> type=MINUS left=<addr-18> right=<addr-19> save_last=0
+    PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count x 10^6 / Mbyte
+expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.mega] master=0
+    PMID: 29.0.119 (29.0.119 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count x 10^6 / Mbyte
+expr node <addr-19> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.kilo] master=0
+    PMID: 29.0.118 (29.0.118 from pmDesc) numval: 0 div_scale: 1000
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count x 10^3 / Mbyte
+__dmopencontext: bind metric[5] gcov.f
+Derived metric expr dump from <addr-20>...
+expr node <addr-20> type=MINUS left=<addr-21> right=<addr-24> save_last=0
+    PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / count x 10^3
+expr node <addr-21> type=SLASH left=<addr-22> right=<addr-23> save_last=0
+    PMID: PM_ID_NULL (29.0.115 from pmDesc) numval: 0 mul_scale: 1000
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / count
+expr node <addr-22> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-23> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.base] master=0
+    PMID: 29.0.115 (29.0.115 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count / Mbyte
+expr node <addr-24> type=SLASH left=<addr-25> right=<addr-26> save_last=0
+    PMID: PM_ID_NULL (29.0.118 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / count x 10^3
+expr node <addr-25> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.kilo] master=0
+    PMID: 29.0.118 (29.0.118 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count x 10^3 / Mbyte
+__dmopencontext: bind metric[6] gcov.g
+Derived metric expr dump from <addr-27>...
+expr node <addr-27> type=MINUS left=<addr-28> right=<addr-31> save_last=0
+    PMID: PM_ID_NULL (511.0.7 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / count x 10^6
+expr node <addr-28> type=SLASH left=<addr-29> right=<addr-30> save_last=0
+    PMID: PM_ID_NULL (29.0.119 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / count x 10^6
+expr node <addr-29> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-30> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.mega] master=0
+    PMID: 29.0.119 (29.0.119 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count x 10^6 / Mbyte
+expr node <addr-31> type=SLASH left=<addr-32> right=<addr-33> save_last=0
+    PMID: PM_ID_NULL (29.0.118 from pmDesc) numval: 0 mul_scale: 1000
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / count x 10^3
+expr node <addr-32> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-33> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.kilo] master=0
+    PMID: 29.0.118 (29.0.118 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count x 10^3 / Mbyte
+__dmgetpmid: metric "gcov.a" -> PMID 511.0.1
+__dmgetpmid: metric "gcov.b" -> PMID 511.0.2
+__dmgetpmid: metric "gcov.c" -> PMID 511.0.3
+__dmgetpmid: metric "gcov.d" -> PMID 511.0.4
+__dmgetpmid: metric "gcov.e" -> PMID 511.0.5
+__dmgetpmid: metric "gcov.f" -> PMID 511.0.6
+__dmgetpmid: metric "gcov.g" -> PMID 511.0.7
+
+gcov.a
+    Data Type: double  InDom: 29.3 0x7400003
+    Semantics: instant  Units: none
+
+gcov.b
+    Data Type: double  InDom: 29.3 0x7400003
+    Semantics: instant  Units: none
+gcov.c: pmLookupDesc: Unknown or illegal metric identifier
+
+gcov.d
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count x 10^3 / Mbyte
+
+gcov.e
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count x 10^6 / Mbyte
+
+gcov.f
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / count x 10^3
+
+gcov.g
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / count x 10^6
+Semantic error: derived metric gcov.c: sample.seconds + disk.all.total: Dimensions are not the same
+
+gcov.d
+    value 0
+
+gcov.e
+    value 0
+
+gcov.f
+    value 0
+
+gcov.g
+    value -3.469446951953614e-18

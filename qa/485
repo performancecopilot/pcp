@@ -1,0 +1,69 @@
+#!/bin/sh
+# PCP QA Test No. 485
+# check pmlogrewrite archive rewriting - global specifications
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which pmlogrewrite >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun pmlogrewrite not installed
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/"
+}
+
+_cmp()
+{
+    pmdumplog -z -a $1 | tee -a $seq.full >$tmp.in
+    pmdumplog -z -a $2 | tee -a $seq.full >$tmp.out
+    echo "pmdumplog diffs ..."
+    diff -u $tmp.in $tmp.out | _filter
+}
+
+# real QA test starts here
+echo | tee -a $seq.full
+echo "=== global hostname -> foo.bar.com ===" | tee -a $seq.full
+echo 'global { hostname -> foo.bar.com }' >$tmp.config
+rm -f $tmp.new.*
+pmlogrewrite -wv -c $tmp.config src/541380_v2 $tmp.new 2>&1 | _filter
+_cmp src/541380_v2 $tmp.new
+
+echo | tee -a $seq.full
+echo "=== global tz -> "GMT" ===" | tee -a $seq.full
+echo 'global { tz -> "GMT" }' >$tmp.config
+rm -f $tmp.new.*
+pmlogrewrite -wv -c $tmp.config src/541380_v2 $tmp.new 2>&1 | _filter
+_cmp src/541380_v2 $tmp.new
+
+for t in 10:20:30 +10:20:30 -10:20:30 "-22:33:24.637 tz->\"GMT\" hostname->eek"
+do
+    echo | tee -a $seq.full
+    echo "=== global time->$t ===" | tee -a $seq.full
+    echo "global{time->$t}" >$tmp.config
+    rm -f $tmp.new.*
+    pmlogrewrite -wv -c $tmp.config src/541380_v2 $tmp.new 2>&1 | _filter
+    _cmp src/541380_v2 $tmp.new
+done
+
+# success, all done
+exit

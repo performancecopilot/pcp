@@ -1,0 +1,64 @@
+#! /bin/sh
+# PCP QA Test No. 233
+#
+# How fast can you fetch sampledso.sysinfo?
+# Using a local context (direct to the DSO) should be significantly
+# faster than going through PMCD. On Linux and IRIX the sampldso.sysinfo
+# metric ends up with a call to sysinfo which on Linux is so slow that
+# it stuffs up the timings this test is making, so.. we don't run it on
+# Linux.
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+status=0
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+. ./localconfig
+if [ $PCP_PLATFORM = linux ]; then
+    echo "fetchrate tests not run on linux: sysinfo is too slow" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    status=0
+    exit
+fi
+    
+_filter()
+{
+    _filter_pmcd_log | $PCP_AWK_PROG '
+    /^fetchrate.* fetches\/second$/ {
+	if ($4 >= '$1') {
+	    print "FETCHRATE:",$2,$3,">='$1'",$5;
+	    next
+	}
+	else {
+	    print; print "Not >='$1'!"
+	}
+    }
+    { print }'
+}
+
+# real QA test starts here
+echo "without PMCD ..."
+if [ -x src/fetchrate_lite ]
+then
+    PMDA_LOCAL_SAMPLE=yes; export PMDA_LOCAL_SAMPLE
+    $sudo src/fetchrate_lite -L sampledso.sysinfo 2>&1 | _filter 6500
+else
+    $sudo src/fetchrate -L sampledso.sysinfo 2>&1 | _filter 6500
+fi
+e1=$?
+
+echo
+echo "with PMCD ..."
+src/fetchrate sampledso.sysinfo 2>&1 | _filter 480
+e2=$?
+
+status=`expr $e1 + $e2`
+exit

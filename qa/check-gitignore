@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+# check .gitignore
+#
+
+#debug# tmp=/var/tmp/$$
+tmp=`pwd`/tmp
+sts=0
+#debug# trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+rm -f $tmp.*
+
+if [ ! -f .gitignore ]
+then
+    echo "No .gitignore here, do you know what you're doing?"
+    sts=1
+    exit $sts
+fi
+
+# check for .gitignore lines that do not match any existing file
+#
+sed -e '/^#/d' .gitignore \
+| while read pat
+do
+    for file in $pat
+    do
+	if [ ! -f "$file" ]
+	then
+	    echo "Warning: no file matching .gitignore line: $pat"
+	else
+	    echo "$file" >>$tmp.ignore
+	fi
+    done
+done
+
+sort -o $tmp.ignore $tmp.ignore
+
+git status \
+| awk '
+/Untracked files:/	{ state = 1; next }
+state == 1 && /to include in what will be committed/	{ state = 2; next }
+state == 2		{ print }' \
+| sed -e 's/^#[ 	]*//' >$tmp.status
+

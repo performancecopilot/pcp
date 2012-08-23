@@ -1,0 +1,81 @@
+#! /bin/sh
+# PCP QA Test No. 179
+# pmval -i failure for indom not defined at start of archive?
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_filter_pmlc()
+{
+    sed \
+	-e 's/connect [0-9][0-9]*/connect PID/' \
+	-e 's/ nl /    /' \
+	-e "/timed out/d" \
+	-e 's/Version [0-9].*/Version VERSION/'
+}
+
+_filter()
+{
+    _filter_pmdumplog \
+    | sed \
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e '/(hinv.ndisk)/{
+s/value [0-9][0-9]*/value INTEGER/
+s/[0-9]*\.[0-9]*\.[0-9]*/PMID/
+}' \
+	-e "/\"$pid\"/s/$pid/LOGGER_PID/g" \
+	-e '/pmcd.pmlogger.port/s/value .*/value PORT/' \
+	-e '/pmcd.pmlogger.host/s/value ".*/value "HOST"/' \
+	-e '/pmcd.pmlogger.archive/s/value ".*/value "PATH"/'
+}
+
+# real QA test starts here
+
+echo "=== just bin.sample ==="
+rm -f $tmp.*
+pmlogger -s4 -L -c /dev/null -l $tmp.log $tmp >$tmp.err 2>&1 &
+pid=$!
+
+sleep 3
+
+pmlc -ie <<End-of-File 2>&1 | _filter_pmlc
+connect $pid
+log mandatory on 20 msec sample.bin
+End-of-File
+wait
+
+pmdumplog -im $tmp | _filter
+echo "pmval ..."
+pmval -i "bin-100,bin-300,bin-500" -U $tmp sample.bin 2>$tmp.err | _filter
+_filter <$tmp.err
+
+echo
+echo "=== hinv.ndisk, then bin.sample ==="
+rm -f $tmp.*
+pmlogger -s5 -L -c /dev/null -l $tmp.log $tmp &
+pid=$!
+
+sleep 3
+
+pmlc -ie <<End-of-File 2>&1 | _filter_pmlc
+connect $pid
+log mandatory on once hinv.ndisk
+log mandatory on 20 msec sample.bin
+End-of-File
+wait
+
+pmdumplog -im $tmp | _filter
+echo "pmval ..."
+pmval -i "bin-100,bin-300,bin-500" -U $tmp sample.bin 2>$tmp.err | _filter
+_filter <$tmp.err
+
+exit 0

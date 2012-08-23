@@ -1,0 +1,223 @@
+#!/bin/sh
+#
+# Make a new PCP QA test
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# Usage: new [base-seq-no group ...]
+#
+# base-seq-no defaults to 100 (for open src and sgi tests), and the other
+# useful value is 1000 (for sgi-only tests, as used by new-sgi)
+#
+
+# generic initialization
+. ./common.rc
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_cleanup()
+{
+    :
+}
+
+if [ "$USER" = "pcpqa" ]
+then
+    if [ ! -z "$REMOTEUSER" -a "$REMOTEUSER" != UNKNOWN ]
+    then
+	USER=$REMOTEUSER
+    else
+	echo "Error: user \"pcpqa\" cannot create tests ... who are you?"
+	$PCP_ECHO_PROG $PCP_ECHO_N "Enter login: ""$PCP_ECHO_C"
+	read USER
+	if [ ! -z "$USER" ]
+	then
+	    grep "^$USER:" /etc/passwd >/dev/null || USER=''
+	fi
+	if [ -z "$USER" ]
+	then
+	    echo "If you're not going to be serious, then I won't play"
+	    exit 1
+	fi
+    fi
+fi
+
+if [ ! -f group ]
+then
+    echo "Creating the group index ..."
+    cat <<'End-of-File' >group
+# QA groups control
+#
+# $Id: new,v 2.40 2005/02/21 22:33:43 kenmcd Exp $
+#
+# define groups
+# do not start group name with a digit
+#
+
+# catch-all
+#
+other
+
+# test-group association ... one line per test
+#
+End-of-File
+fi
+
+if [ ! -w group ]
+then
+    echo "Error: cannot write index file \"group\""
+    _cleanup
+    exit 1
+fi
+
+if ${MAKE:-make} >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Warning: ${MAKE:-make} failed -- some tests may be missing"
+fi
+
+if [ $# -gt 0 ]
+then
+    try=$1
+    shift
+else
+    try=100
+fi
+# pick first hole after $try, provided the test does not already exist
+#
+while true
+do
+    id=`sed -n -e '/^[0-9]/s/[ 	].*//p' <group \
+	| LC_COLLATE=POSIX sort -n \
+	| $PCP_AWK_PROG '
+BEGIN		{ last = '$try' }
+$1 > '$try'	{ if ($1 != last+1) {
+			exit
+		   }
+		   last = $1
+		}
+END		{ printf "%03d\n",last+1 }'`
+    [ ! -f $id ] && break
+    # already exists, move on ...
+    #
+    try=`expr $id + 1`
+done
+
+echo "Next test is $id"
+
+if [ -f $id ]
+then
+    echo "Error: test $id already exists!"
+    _cleanup
+    exit 1
+fi
+
+$PCP_ECHO_PROG $PCP_ECHO_N "Creating skeletal script for you to edit ...""$PCP_ECHO_C"
+
+cat <<End-of-File >$id
+#!/bin/sh
+# PCP QA Test No. $id
+# what am I here for?
+#
+# Copyright (c) `date +%Y` Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=\`basename \$0\`
+
+#if test something
+#then
+#    rm -f $seq.notrun
+#else
+#    _notrun No support for something
+#fi
+
+echo "QA output created by \$seq"
+
+status=0	# success is the default!
+\$sudo rm -rf \$tmp.* \$seq.full
+trap "rm -f \$tmp.*; exit \\\$status" 0 1 2 3 15
+
+# real QA test starts here
+
+# if error
+exit
+
+# optional stuff if your test has verbose output to help resolve problems
+#echo
+#echo "If failure, check \$seq.full"
+status=1
+exit
+
+# success, all done
+exit
+End-of-File
+
+if [ "$LOGNAME" = kenj ]
+then
+    sed <$id >$tmp.tmp \
+	-e '/Copyright/s/Silicon Graphics, Inc/Ken McDonell/'
+    mv $tmp.tmp $id
+fi
+
+sleep 2		# latency to read messages to this point
+echo ""
+
+chmod 755 $id
+${EDITOR-vi} $id
+
+if [ $# -eq 0 ]
+then
+    while true
+    do
+	$PCP_ECHO_PROG $PCP_ECHO_N "Add to group(s) [other] (? for list): ""$PCP_ECHO_C"
+	read ans
+	[ -z "$ans" ] && ans=other
+	if [ "X$ans" = "X?" ]
+	then
+	    $PCP_AWK_PROG <group '
+BEGIN		{ text = "# ???" }
+/^[a-zA-Z]/	{ printf "%-16.16s %s\n",$1,text; text = "# ???"; next }
+NF < 2		{ next }
+		{ text = $0 }' \
+	    | LC_COLLATE=POSIX sort
+	else
+	    break
+	fi
+    done
+    $PCP_ECHO_PROG $PCP_ECHO_N "Runs on QA machine alone? (local pmcd, local pmlogger, no ssh, ...) [y] ""$PCP_ECHO_C"
+    read _ans
+    if [ -z "$_ans" -o "$_ans" = "y" ]
+    then
+	ans="$ans local"
+    else
+	ans="$ans remote"
+    fi
+else
+    # expert mode, groups are on the command line
+    #
+    for g in $*
+    do
+	if grep "^$g[ 	]" group >/dev/null
+	then
+	    :
+	else
+	    echo "Warning: group \"$g\" not defined in ./group"
+	fi
+    done
+    ans="$*"
+fi
+
+$PCP_ECHO_PROG $PCP_ECHO_N "Adding $id to group index ...""$PCP_ECHO_C"
+dist=oss
+[ "$id" -ge 1000 ] && dist=sgi
+echo "$id $ans $dist" >>group
+echo " done."
+
+exit 0

@@ -1,0 +1,41 @@
+#! /bin/sh
+# PCP QA Test No. 204
+# localhost in archive label .. not!
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+host=`pmhostname`
+
+# short host name possible in log label
+short_host=`echo $host | sed 's/\..*//'`
+
+_filter()
+{
+    pmdumplog -l $tmp \
+    | grep host \
+    | sed -e "s/$host/REALHOSTNAME/" \
+          -e "s/$short_host/REALHOSTNAME/"
+}
+
+# real QA test starts here
+
+rm -f $tmp.*
+echo
+echo "pmlogger with no -h"
+echo "log mandatory on 10msec hinv.ncpu" | pmlogger -s 1 $tmp >/dev/null 2>&1
+_filter
+
+rm -f $tmp.*
+echo
+echo "pmlogger -h localhost"
+echo "log mandatory on 10msec hinv.ncpu" | pmlogger -h localhost -s 1 $tmp >/dev/null 2>&1
+_filter

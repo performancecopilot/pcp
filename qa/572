@@ -1,0 +1,136 @@
+#! /bin/sh
+# PCP QA Test No. 572
+# pmcd agent table rellocation and libpcp_pmda botch for PMDA_INTERFACE_3.
+# linux PMDA returns no values after weblog Install was the original
+# observation.
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+pmcdconf=$PCP_PMCDCONF_PATH
+rootconf=$PCP_VAR_DIR/pmns/root
+needclean=false
+
+unset ROOT TOOLROOT
+
+_cleanup()
+{
+    if $needclean
+    then
+	[ -f $tmp.pmcd.bak ] && $sudo cp $tmp.pmcd.bak $pmcdconf
+	[ -f $tmp.root.bak ] && $sudo cp $tmp.root.bak $rootconf
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	$sudo rm -f $tmp.*
+	needclean=false
+    fi
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# create a basic pmcd config file
+if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris ]
+then
+cat >$tmp.pmcd.conf << EOF
+# from QA $seq
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+EOF
+elif [ $PCP_PLATFORM = irix ]
+then
+cat >$tmp.pmcd.conf << EOF
+# from QA $seq
+pmcd	2	dso	pmcd_init	pmda_pmcd.so
+EOF
+elif [ $PCP_PLATFORM = darwin ]
+then
+cat >$tmp.pmcd.conf << EOF
+# from QA $seq
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+EOF
+else
+    echo "Arrgh ... need pmcd.conf for $PCP_PLATFORM"
+    exit 1
+fi
+
+# create my pmns
+cat <<End-of-File >$tmp.pmns
+root {
+	pmcd
+	sample
+	trivial
+	simple
+}
+pmcd {
+    	numagents	2:0:2
+}
+sample {
+	string
+}
+sample.string {
+	write_me	29:0:32
+}
+trivial {
+	time		250:0:0
+}
+simple {
+	numfetch	253:0:0
+}
+End-of-File
+
+# real QA test starts here
+cp $pmcdconf $tmp.pmcd.bak
+cp $rootconf $tmp.root.bak
+
+needclean=true
+$sudo cp $tmp.pmcd.conf $pmcdconf 
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+
+for pmda in '' sample trivial simple
+do
+    echo
+    if [ ! -z "$pmda" ]
+    then
+	echo "=== $pmda PMDA ==="
+	cd $PCP_PMDAS_DIR/$pmda
+	$sudo ./Install </dev/null >/dev/null 2> $tmp.stderr
+        # strip blank lines from stderr
+        # strip cc warning messages (assumed to be 4 non-blanks long)
+        $PCP_AWK_PROG  '
+            /^ *$/ {
+                next 
+            }
+            /^cc-.*cc: WARNING/ {
+                getline ; getline ; getline ; getline
+                next
+            }
+            {    
+                print
+            }
+        ' < $tmp.stderr
+    fi
+    pmstore -n $tmp.pmns sample.string.write_me "$pmda"
+    pminfo -n $tmp.pmns -f \
+	pmcd.numagents \
+	sample.string.write_me \
+	trivial.time \
+	simple.numfetch \
+    | $PCP_AWK_PROG '
+mask == 1	{ if ($1 == "value") $2 = "NUMBER"
+		  mask = 0
+		}
+		{ print }
+/pmcd.numagents/ && "'"$pmda"'" == ""	{ mask = 1 }
+/trivial.time$/	{ mask = 1 }'
+
+done
+
+status=0
+exit

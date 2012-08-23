@@ -1,0 +1,79 @@
+#! /bin/sh
+# PCP QA Test No. 311
+# check error code handling of 1.3 pmlogger generated archives
+# pv #509592
+#
+# Note: archive src/err_v1 has been converted from V.1 to V.2 format,
+#	so this test is now somewhat different.
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ $PCP_VER -lt 3600 ]
+then
+    # V1 archives supported
+    :
+else
+    # no support for V1 archives
+    _notrun "no support for V1 archives"
+    # NOTREACHED
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_order()
+{
+    $PCP_AWK_PROG '
+NF == 0		{ next }
+/^pmcd/		{ if (NF > 1) print; else printf("%s|", $0); next }
+/^proc/		{ printf("%s|", $0); next }
+/^sample/	{ printf("%s|", $0); next }
+		{ print }' \
+    | LC_COLLATE=POSIX sort \
+    | $PCP_AWK_PROG -F'|' '{ print $1; if (NF == 2) print $2 }'
+}
+
+_filter()
+{
+    sed \
+	-e '/^\[[0-9]* bytes]/d' \
+	-e 's/): inst/):  inst/'
+}
+
+# deal with an annoying libc error ... using TZ=:Australia/Melbourne
+# causes the -z option to report the wrong time, at least for some
+# times of the year
+#
+TZ=EST-10
+export TZ
+
+# real QA test starts here
+echo "== pminfo preamble and no values =="
+pminfo -n src/root_irix -z -f -a src/err_v1 | _order
+
+echo
+echo "== pminfo skip preamble and errors instead of values =="
+pminfo -n src/root_irix -z -O 1sec -f -a src/err_v1 | _order
+
+echo
+echo "== pmdumplog for 1 metric (expect error) ==="
+pmdumplog -n src/root_irix -z src/err_v1 sample.bad.nosupport
+
+echo
+echo "== diffs for pmdumplog all metrics compared to PCP 1.x output (expect none) =="
+pmdumplog -n src/root_irix -z -a src/err_v1 \
+| _filter \
+| diff - src/err_v1.dump
+
+# success, all done
+exit

@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# Check group file and qa scripts for a specific pcp command ($1)
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+if [ $# -ne 1 ]
+then
+    echo "Usage: $0 pcp-app"
+    exit 1
+fi
+
+egrep -l "(^$1([ \'\"]|$))|([ \'\"]$1([ \'\"]|$))" ??? | sort >$tmp.scripts
+
+check -n -g "$1" | sort \
+| while read f
+do
+    [ -f "$f" ] && echo "$f"
+done >$tmp.group
+
+comm -23 $tmp.scripts $tmp.group >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    echo "$1 in QA scripts and NOT in group ..."
+    sed -e 's/^/    /' $tmp.tmp
+    echo
+fi
+
+comm -13 $tmp.scripts $tmp.group >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    echo "$1 in group and NOT in QA scripts ..."
+    sed -e 's/^/    /' $tmp.tmp
+fi
+
+comm -12 $tmp.scripts $tmp.group >$tmp.tmp
+echo "$1 in group and QA scripts `wc -l <$tmp.tmp | sed -e 's/ //g'` times"

@@ -1,0 +1,265 @@
+#! /bin/sh
+# PCP QA Test No. 023
+# Test PMCD's PMDA timeout behaviour
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if which pmobjstyle >/dev/null 2>&1
+then
+    BINFMT=`pmobjstyle`
+else
+    BINFMT=unknown-obj
+fi
+
+_filter_log()
+{
+    sleep 3
+    _filter_pmcd_log <./pmcd.log \
+    | sed \
+	-e '/^DATA: from client/d' \
+	-e 's/Cannot open 000000660066: No such file or directory//' \
+	-e 's/^$//' \
+	-e '/^00[08]:/d' \
+	-e '/started PMDA ora_/d' \
+	-e '/cmd=\/usr\/pcp\/lib\/pmdaoracle7/d' \
+	-e '/started PMDA watch/d' \
+	-e '/cmd=\/usr\/pcp\/lib\/pmdawatch/d' \
+	-e '/pmGetPDU/{
+s/\[[0-9][0-9]*]/[PID]/
+s/from=.*/from=PID/
+}' \
+	-e '/_pmHaveMoreInput/{
+s/\[[0-9][0-9]*]/[PID]/
+s/0x[^ ]*\([^ ][^ ][^ ]\)/ADDR...\1/
+}' \
+	-e '/Piggy-back/{
+s/0x[^ ]*\([^ ][^ ][^ ]\)/ADDR...\1/
+s/from=.*/from=PID/
+}' \
+	-e '/pmXmitPDU/s/\[[0-9][0-9]*]/[PID]/' \
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e '/value /{
+s/value [0-9][0-9]*/value INTEGER/
+}' \
+	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;g" \
+	-e 's#/usr/pcp/lib/mips#mips#' \
+	-e 's#/usr/lib/pcp/mips#mips#' \
+	-e "s/$BINFMT/ISA/g" \
+	-e '/access violation from host/d' \
+	-e '/endclient client.* No permission/d' \
+	-e 's/ while attempting to read 12 bytes out of 12 in .*on fd/ on fd/' \
+	-e 's/fd=[0-9][0-9]*/fd=FD/g' \
+	-e "s;$here/src/;;" \
+    | $PCP_AWK_PROG '
+$3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
+$1 == "y" && $2 = "y" && $8 == "localhost"	{ $5 = "IP-addr-in-hex" }
+/pipe cmd=/		{ $4 = "FD"; $5 = "FD" }
+			{ print }' \
+    | sed -e '/^pmcd 2 A_PID /s/ A_PID .*/ A_PID .../'
+}
+
+CONFIG=$PCP_PMCDCONF_PATH
+TMP_CONFIG=$tmp/conf.tmp
+SAVE_CONFIG=$tmp/pmcd.conf.save
+[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+LOGCONTROL="$PCP_PMLOGGERCONTROL_PATH"
+SAVE_LOGCONTROL=$tmp/control.save
+signal=$PCP_BINADM_DIR/pmsignal
+_needclean=true
+
+rm -rf $tmp $tmp.*
+mkdir $tmp
+chmod ugo+rwx $tmp
+cd $tmp
+
+SAVE_LOGGER=`_get_config pmlogger`
+[ -f $LOGCONTROL ] && $sudo mv $LOGCONTROL $SAVE_LOGCONTROL
+
+cleanup()
+{
+    echo >>$here/$seq.full
+    echo "pmcd.log at cleanup" >>$here/$seq.full
+    cat pmcd.log >>$here/$seq.full
+    cd $here
+    if $_needclean
+    then
+	_needclean=false
+	$sudo $signal -a -s TERM pmcd
+
+        [ -f $SAVE_CONFIG ] && $sudo mv $SAVE_CONFIG $CONFIG
+	echo "=== restored $CONFIG ===" >>$here/$seq.full
+	cat $CONFIG >>$here/$seq.full
+	[ -f $SAVE_LOGCONTROL ] && $sudo mv $SAVE_LOGCONTROL $LOGCONTROL
+	echo "=== restored $LOGCONTROL ===" >>$here/$seq.full
+	cat $LOGCONTROL >>$here/$seq.full
+	[ ! -z "$SAVE_LOGGER" ] && _change_config pmlogger $SAVE_LOGGER
+	echo "Restart and ping pmcd ..."
+	unset PMCD_PORT # don't worry about preserving just get rid of it
+	$sudo $PCP_RC_DIR/pcp restart \
+	| tee -a $here/$seq.full \
+	| _filterall_pcp_start \
+	| sed -e '/Waiting for pmcd to terminate/d'
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	pmprobe pmcd.control.debug
+	sleepers=`ps $PCP_PS_ALL_FLAGS | grep '[d]umb_pmda' | $PCP_AWK_PROG '$3 == 1 { print $2 }'`
+	[ ! -z "$sleepers" ] && $sudo $signal -s TERM $sleepers
+    fi
+    rm -rf $tmp $tmp.*
+}
+
+trap "cleanup; exit \$status" 0 1 2 3 15
+
+rm -f $here/$seq.full
+
+# real QA test starts here
+
+# Get a domain number for the 'fake_kernel' pmda
+FAKE_DOM=`pminfo -m hinv.ncpu | $PCP_AWK_PROG '{split ($3,d,"."); print d[1];}'`
+
+# pick a tcp port that is not in use
+#
+port=`_get_port tcp 4340 4350`
+if [ -z "$port" ]
+then
+    echo "Arrgh ... no free TCP port in the range 4340 ... 4350"
+    exit 1
+fi
+
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+_change_config pmlogger off
+$sudo $signal -a -s TERM pmie 2>/dev/null
+$sudo $signal -a -s TERM pmlogger 2>/dev/null
+
+# Create a fake namespace to force pminfo to query the fake agent
+FAKE_NS=$tmp/$seq.fake_ns
+
+echo 'root { hinv } ' > $FAKE_NS
+echo 'hinv { ncpu 1:0:1 }' >> $FAKE_NS
+
+# Make our own version of pmcd.conf with dummy agents that will time out.
+# Copy the pmcd PMDA from the original pmcd.conf so that we can check pmcd's
+# timeouts by storing into pmcd.control.timeout
+# NOTE: none of the domains should clash with the pmcd PMDA (domain 2) or the
+# sample agent (domain 254).  These agents will be appended to the file.
+#
+cat <<EOF >$TMP_CONFIG
+# Created by QA $seq
+fake_irix 1 pipe binary $here/src/dumb_pmda -d 1 fake_irix
+fake_proc 3 pipe binary $here/src/dumb_pmda -d 3 fake_proc
+fake_cisco 5 pipe binary $here/src/dumb_pmda -d 5 fake_cisco
+fake_six 6 pipe binary $here/src/dumb_pmda -d 6 fake_six
+EOF
+sed -n <$CONFIG >>$TMP_CONFIG \
+    -e '/^#/d' \
+    -e '/pmda_pmcd/s/[ 	][ 	]*/ /gp' \
+    -e '/pmdapmcd/s/[ 	][ 	]*/ /gp'
+cat <<EOF >>$TMP_CONFIG
+[access]
+allow localhost : all;
+disallow * : all;
+EOF
+
+$sudo mv $CONFIG $SAVE_CONFIG
+$sudo mv $TMP_CONFIG $CONFIG
+
+# very odd inode update problem on kenj-pc with one variant of the Linux
+# 2.6.11 kernel ... this should be 100% benign for everyone else
+#
+sync
+
+echo '$PCP_PMCDCONF_PATH contains:' | sed -e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;"
+echo '<BEGIN>'
+sed <$CONFIG \
+    -e '/^pmcd 2 /s/2 .*/2 .../' \
+    -e "s;$here/src/;;"
+echo '<END>'
+
+# Note: start pmcd with -f so that its PID stays the same (no daemon)
+#
+PMCD_PORT=$port
+PATH=$PATH:$here/src
+export PMCD_PORT PATH
+$PCP_PMCD_PROG -f -t 2 &
+pmcd=$!
+if [ -d /var/run/pcp ]
+then
+    echo "$pmcd" >$tmp.tmp
+    $sudo cp $tmp.tmp /var/run/pcp/pmcd.pid
+fi
+
+# Sleep 3 sec for each fake pmda
+sleep 15 
+_wait_for_pmcd
+_filter_log
+echo "pmcd.log after pmcd first started" >>$here/$seq.full
+cat pmcd.log >>$here/$seq.full
+
+# Get pmcd to stop the fake_kernel PMDA by asking for a metric from it.
+# Sleep won't do anything, so it'll be timed out returning an IPC protocol
+# failure.  The next fetch for the domain will return a "No agent for
+# domain..." error.
+#
+echo
+echo "Restart dead agent test"
+echo "Expect \"IPC protocol failure\" then \"No agent for domain...\":"
+pminfo -n $FAKE_NS -d hinv.ncpu
+pminfo -n $FAKE_NS -d hinv.ncpu
+
+pminfo -f pmcd.agent.status
+echo
+
+# Check the functionality of pmcd.control.timeout.  agenttimeout sets the pmcd
+# agenttimeout for a specified domain to a given timeout, then fetches from
+# the domain, expecting the agent to timeout and finally checks the timeout
+# against the elapsed time for the fetch.
+# Usage: agenttimeout domain timeout
+#
+echo
+echo "pmcd.control.timeout tests"
+$here/src/agenttimeout 5 3
+$here/src/agenttimeout 6 8
+#
+# Be nice and set it back to 2 so that subsequent timeouts happen more quickly
+#
+pmstore pmcd.control.timeout 2
+
+pminfo -f pmcd.agent.status
+echo
+
+# Get PMCD to restart any deceased agents.  (The config file hasn't changed)
+#
+sleep 1
+$signal -s HUP $pmcd
+
+# Sleep 3 sec for each fake pmda in the config
+sleep 15
+_wait_for_pmcd
+_filter_log
+echo >>$here/$seq.full
+echo "pmcd.log after pmcd SIGHUP" >>$here/$seq.full
+cat pmcd.log >>$here/$seq.full
+
+pminfo -f pmcd.agent.status
+echo
+
+# If agent not restarted then both messages will be "no agent for domain..."
+#
+echo "Expect \"IPC protocol failure\" then \"No PMCD agent...\":"
+pminfo -n $FAKE_NS -d hinv.ncpu
+pminfo -n $FAKE_NS -d hinv.ncpu
+
+pminfo -f pmcd.agent.status
+echo
+
+status=0

@@ -1,0 +1,106 @@
+#! /bin/sh
+# PCP QA Test No. 213
+# exercise dbpmda with dynamic metrics
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if echo help | dbpmda | grep -q children
+then
+    :
+else
+    echo "No dynamic metric support in dbpmda" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed \
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+	-e "s;$PCP_TMP_DIR;\$PCP_TMP_DIR;" \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+	-e 's/dbpmda([0-9][0-9]*)/dbpmda(PID)/' \
+	-e "s/\.$DSO_SUFFIX/.DSO_SUFFIX/g" \
+    | _filter_dumpresult
+}
+
+
+# real QA test starts here
+echo "=== DSO PMDA test ==="
+cat <<End-of-File | dbpmda -ei 2>&1 | _filter
+open dso $PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX sample_init 30
+name 30.0.1001
+name 30.0.1007
+name 2.4.1
+pmid sampledso.secret.foo.two
+pmid sampledso.secret.foo.bar.grunt.snort.six
+pmid sampledso.secret.foo.bar.max.redirect
+children sampledso.secret.foo
+traverse sampledso.secret.foo
+children sampledso.secret.foo.bar
+traverse sampledso.secret.foo.bar
+End-of-File
+
+echo
+echo "=== Daemon PMDA test ==="
+cat <<End-of-File | dbpmda -ei 2>&1 | _filter
+open pipe $PCP_PMDAS_DIR/sample/pmdasample 29
+name 29.0.1001
+name 29.0.1007
+name 2.4.1
+pmid sample.secret.foo.two
+pmid sample.secret.foo.bar.grunt.snort.six
+pmid sample.secret.foo.bar.max.redirect
+children sample.secret.foo
+traverse sample.secret.foo
+children sample.secret.foo.bar
+traverse sample.secret.foo.bar
+End-of-File
+
+echo
+echo "=== MMV PMDA test ==="
+$sudo rm -rf $PCP_TMP_DIR/mmv/*
+src/mmv_genstats
+echo "installed mmv files ..."
+find $PCP_TMP_DIR/mmv -type f | sed -e "s;$PCP_TMP_DIR;PCP_TMP_DIR;"
+cat <<End-of-File >$tmp.pmns
+root {
+    mmv	70:*:*
+}
+End-of-File
+cat <<End-of-File | dbpmda -ei -n $tmp.pmns 2>&1 | _filter
+desc mmv.test.strings
+fetch mmv.test.strings mmv.test.counter
+text mmv.test.strings
+store mmv.reload "1"
+open pipe $PCP_PMDAS_DIR/mmv/pmdammv
+desc mmv.test.strings
+fetch mmv.test.strings mmv.test.counter
+text mmv.test.strings
+store mmv.reload "1"
+desc mmv.no.such.metric
+close
+open dso $PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX mmv_init 70
+desc mmv.test.strings
+fetch mmv.test.strings mmv.test.counter
+text mmv.test.strings
+store mmv.reload "1"
+End-of-File
+
+# success, all done
+exit

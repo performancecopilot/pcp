@@ -1,0 +1,152 @@
+#! /bin/sh
+# PCP QA Test No. 374
+# pmlogger (PCP 2.0) and pmlc (assorted) version compatibility
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+PMCD_CONNECT_TIMEOUT=30
+PMCD_REQUEST_TIMEOUT=30
+export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux|darwin|solaris)
+	if [ $PCP_VER -lt 3600 ]
+	then
+	    ln $seq.$PCP_PLATFORM $seq.out || exit 1
+	else
+	    ln $seq.$PCP_PLATFORM.2 $seq.out || exit 1
+	fi
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
+
+_filter()
+{
+    _filter_pmdumplog \
+    | sed \
+	-e '/^pmlogger .* on host .* is logging metrics from host .*/d' \
+	-e '/^PMCD host/d' \
+	-e '/^TIMESTAMP started/d' \
+    | $PCP_AWK_PROG '
+$1 == "log" && $2 == "size"	{ if ($3 > 100 && $3 <= 200) $3 = "more than 100"
+				  else if ($3 > 200 && $3 <= 300) $3 = "more than 200"
+				}
+				{ print }'
+}
+
+_speak_to_me()
+{
+    host=$1
+    rm -f /tmp/$$.*
+    ( pmlogger -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1 ) &
+    pid=$!
+
+    _wait_for_pmlogger $pid /tmp/$$.log
+
+    # the success cases
+    #
+    cat <<End-of-File | ssh -q pcpqa@$host "sh -c 'PMCD_CONNECT_TIMEOUT=$PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT=$PMCD_REQUEST_TIMEOUT pmlc'" >$tmp.out 2>$tmp.err
+connect $pid@$me
+status
+new volume
+status
+flush
+# singular, all instances
+query { pmcd.simabi pmcd.control.register }
+# some instances
+query pmcd.agent.type [ "$PCP_PLATFORM" "pmcd" "sample"]
+# non-leaf
+query pmcd.pdu_in
+# logging
+log mandatory on once pmcd.agent.type ["$PCP_PLATFORM" "pmcd"]
+log mandatory off pmcd.agent.type ["sample"]
+End-of-File
+    # do ssh again is probably long enough for "once" metrics above
+    # to have been logged
+    #
+    cat <<End-of-File | ssh -q pcpqa@$host "sh -c 'PMCD_CONNECT_TIMEOUT=$PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT=$PMCD_REQUEST_TIMEOUT pmlc'" >>$tmp.out 2>>$tmp.err
+connect $pid@$me
+query pmcd.agent.type ["$PCP_PLATFORM" "pmcd" "sample"]
+End-of-File
+    cat $tmp.err $tmp.out | _filter
+
+    # the failures
+    #
+    # echo "log mandatory on once sample" | pmlc -h $host $pid -D1
+    echo "connect $pid@$me" | ssh -q pcpqa@$host "sh -c 'PMCD_CONNECT_TIMEOUT=$PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT=$PMCD_REQUEST_TIMEOUT pmlc'" >$tmp.out 2>$tmp.err
+    cat $tmp.err $tmp.out | _filter
+
+    # cleanup
+    #
+    if [ ! -z "$host" ]
+    then
+	$signal -s TERM $pid
+	pid=''
+    fi
+
+}
+
+_cleanup()
+{
+    if $need_clean
+    then
+	if [ ! -z "$pid" ]
+	then
+	    $signal -s TERM $pid
+	    sleep 1
+	    $signal -s KILL $pid
+	    pid=''
+	fi
+	need_clean=false
+    fi
+    rm -f $tmp.*
+    exit
+}
+
+need_clean=true
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+if [ -x $PCP_BINADM_DIR/pmhostname ]
+then
+    me=`pmhostname`
+else
+    host=`hostname`
+    me=`_host_to_fqdn $host`
+fi
+pid=''
+
+# real QA test starts here
+
+for type in "-b 32 -v pcp>=2" "-b 64 -v pcp>=2"
+do
+    echo
+    echo "=== pmlc host type: $type ==="
+    host=`./getpmcdhosts -L -n 1 $type`
+    if [ -z "$host" ]
+    then
+	_notrun "Cannot find a 64-bit host running PCP"
+    else
+	# echo $host
+	_speak_to_me $host
+    fi
+done
+
+# success, all done
+status=0
+exit

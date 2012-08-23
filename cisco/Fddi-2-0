@@ -1,0 +1,26 @@
+Username:
+Password:
+>
+show interface
+Fddi2/0 is up, line protocol is up 
+  Hardware is cxBus FDDI, address is 0000.0c38.4360 (bia 0000.0c38.4360)
+  Internet address is 192.26.80.22, subnet mask is 255.255.255.0
+  MTU 4470 bytes, BW 100000 Kbit, DLY 100 usec, rely 255/255, load 1/255
+  Encapsulation SNAP, loopback not set, keepalive not set
+  ARP type: SNAP, ARP Timeout 4:00:00
+  Phy-A state is connect, neighbor is unk, cmt signal bits 008/000, status QLS
+  Phy-B state is  active, neighbor is   M, cmt signal bits 20C/00E, status ILS
+  CFM is wrap B, token rotation 5000 usec, ring operational 0:00:58
+  Upstream neighbor 0800.6904.155d, downstream neighbor 0040.0b80.a052
+  Last input 0:00:00, output 0:00:00, output hang never
+  Last clearing of "show interface" counters 1w0d
+  Output queue 0/40, 85 drops; input queue 0/75, 33437 drops
+  Five minute input rate 160000 bits/sec, 39 packets/sec
+  Five minute output rate 93000 bits/sec, 108 packets/sec
+     33780622 packets input, 4009491185 bytes, 87 no buffer
+     Received 3768432 broadcasts, 0 runts, 0 giants
+     2 input errors, 1 CRC, 1 frame, 0 overrun, 19 ignored, 0 abort
+     83194423 packets output, 612803885 bytes, 492 underruns
+     0 output errors, 0 collisions, 0 interface resets, 0 restarts
+     21602 transitions, 0 traces,  11625 claims, 0 beacon
+>

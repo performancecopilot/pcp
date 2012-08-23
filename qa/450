@@ -1,0 +1,43 @@
+#! /bin/sh
+# PCP QA Test No. 450
+# pmlogextract fail to process multivolume archives
+# pv #584487
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmlogger -c src/config.foo -s 8 -v 3 $tmp
+
+pmlogextract src/mv-foo $tmp $tmp.out
+
+pmval -U $tmp.out sample.drift 2>&1 \
+| sed \
+	-e '/^$/d' \
+	-e '/^metric:/d' \
+	-e '/^archive:/d' \
+	-e '/^host:/d' \
+	-e '/^start:/d' \
+	-e '/^end:/d' \
+	-e '/^semantics:/d' \
+	-e '/^units:/d' \
+	-e '/^samples:/d' \
+	-e '/^interval:/d' \
+	-e '/No values available/d' \
+	-e '/End of PCP archive log/d' \
+	-e 's/  *[0-9][0-9]*$/  NUMBER/' \
+	-e 's/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/'
+
+status=0
+exit

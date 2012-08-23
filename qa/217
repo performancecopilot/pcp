@@ -1,0 +1,104 @@
+#! /bin/sh
+# PCP QA Test No. 217
+# check mkaf and pmafm, after file(1) not used
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    # V1 archives supported
+    LIST="src/951127.23.01.0 src/960624.08.17.0 src/ace.0 src/bar.0 src/bigace.0 src/bigbin.0 src/bug.0 src/dodgey-all.0 src/dodgey-mixed.0 src/dodgey-some.0 src/foo.0 src/interp.0 src/mirage.0 src/mv-bar.0 src/mv-bigbin.0 src/mv-foo.0 src/mv-interp.0 src/truncbin.0"
+    ln $seq.out.1 $seq.out
+else
+    # no support for V1 archives
+    LIST="src/951127.23.01_v2.0 src/960624.08.17_v2.0 src/ace_v2.0 src/bar.0 src/bigace_v2.0 src/bigbin.0 src/bug_v2.0 src/dodgey-all.0 src/dodgey-mixed.0 src/dodgey-some.0 src/foo.0 src/interp.0 src/mirage.0 src/mv-bar.0 src/mv-bigbin.0 src/mv-foo.0 src/mv-interp.0 src/truncbin.0"
+    ln $seq.out.2 $seq.out
+fi
+
+tmp=$$"_pmafm"
+$sudo rm -f $tmp
+
+status=0
+trap "rm -f $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    host=`hostname`
+    sed \
+	-e '/^Created:/{
+s/'"$host"'/HOSTNAME/
+s/ at .*/ at DATE/
+}' \
+	-e "s;`pwd`;<initial-path>/qa;" \
+	-e '/^Creator:/{
+s/mkaf/MKAF_OR_CHART/
+s/kmchart/MKAF_OR_CHART/
+s/pmchart/MKAF_OR_CHART/
+}' \
+| $PCP_AWK_PROG '
+$1 == "Archive:"	{ if ($3 ~ /bar$/ || $3 ~ /bigbin$/ ||
+			      $3 ~ /dodgey/ || $3 ~ /foo$/ ||
+			      $3 ~ /interp$/ || $3 ~ /truncbin$/)
+				$2 = "HOSTNAME"
+#               Host                    Basename
+
+			  printf "%-16s%-24s%s\n",$1,$2,$3
+			  next
+			}
+			{ print }'
+
+}
+
+HERE=`pwd`
+ABSLIST=""
+RELLIST=""
+for i in $LIST
+do
+    ABSLIST="$ABSLIST $HERE/$i"
+    RELLIST="$RELLIST $i"
+done
+
+
+# real QA test starts here
+echo "=== relative names ==="
+cd src
+echo $LIST | sed -e 's/ /\
+/g' | sed -n -e '/src\//s///p' >$tmp.tmp
+
+mkaf `cat $tmp.tmp` >$tmp
+_filter <$tmp
+rm -f $tmp.tmp
+
+echo
+pmafm $tmp check
+rm -f $tmp
+cd ..
+
+echo
+echo "=== absolute pathnames ==="
+mkaf $ABSLIST >$tmp
+_filter <$tmp
+echo
+pmafm $tmp check 2>&1 | sed -e "s;`pwd`;<initial-path>/qa;"
+rm -f $tmp
+
+echo
+echo "=== relative names, down one dir ==="
+mkaf $RELLIST >$tmp
+_filter <$tmp
+echo
+pmafm $tmp check
+rm -f $tmp
+
+# all done
+exit

@@ -1,0 +1,107 @@
+#! /bin/sh
+# PCP QA Test No. 455
+# Sanity checks for rsyslog pmda
+#
+# Copyright (c) 2011 Aconex.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.check
+. ./common.filter
+
+seq=`basename $0`
+
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+test $? -eq 0 || _notrun "PCP::PMDA perl module is not installed"
+
+rm -f $seq.out
+if grep rsyslog.elasticsearch.submits $PCP_PMDAS_DIR/rsyslog/pmdarsyslog.pl >/dev/null
+then
+    if [ $PCP_VER -lt 3600 ]
+    then
+	ln $seq.out.2 $seq.out || exit 1
+    else
+	ln $seq.out.3 $seq.out || exit 1
+    fi
+else
+    ln $seq.out.1 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+status=1
+done_clean=false
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	rm -f $tmp.*
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	done_clean=true
+    fi
+    exit $status
+}
+
+_filter()
+{
+    sed -e '/Creating rsyslog statistics file/d'
+}
+
+_val_filter()
+{
+    $PCP_AWK_PROG '
+/^rsyslog\.interval/	{ fix = 1 }
+fix == 1 && /value [0-9][0-9]*/	{ $2 = "NUMBER" }
+			{ print }
+NF == 0			{ fix = 0 }'
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+# real QA test starts here
+iam=rsyslog
+cd $PCP_PMDAS_DIR/$iam
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+# start from a known starting point
+$sudo ./Remove >/dev/null 2>&1
+$sudo rm -f pmns domain.h
+
+echo
+echo "=== $iam agent installation ==="
+$sudo ./Install </dev/null >$tmp.out 2>&1
+_filter_pmda_install <$tmp.out \
+| _filter
+
+echo
+echo "=== validate values ==="
+rm -f $tmp.stats
+echo "\
+2011-05-11T08:18:02.420771+10:00 host rsyslogd-pstats: imuxsock: submitted=85 ratelimit.discarded=0 ratelimit.numratelimiters=24 
+2011-05-11T08:18:02.420797+10:00 host rsyslogd-pstats: main Q: size=1181 enqueued=1181 full=0 maxqsize=1181 
+2011-05-11T08:18:07.423713+10:00 host rsyslogd-pstats: imuxsock: submitted=85 ratelimit.discarded=0 ratelimit.numratelimiters=24 
+2011-05-11T08:18:07.423752+10:00 host rsyslogd-pstats: main Q: size=1 enqueued=1183 full=0 maxqsize=1182" > $tmp.stats
+
+$sudo sh -c "cat $tmp.stats >> /var/log/pcp/rsyslog/stats"
+sleep 2	# give some time for pmdarsyslog to be told
+$sudo sh -c "cat $tmp.stats >> /var/log/pcp/rsyslog/stats"
+sleep 2	# give more time for pmdarsyslog to be told
+pminfo -f rsyslog \
+| _val_filter
+
+echo
+echo "=== remove $iam agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_remove <$tmp.out
+
+status=0
+exit

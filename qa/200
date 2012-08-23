@@ -1,0 +1,121 @@
+#! /bin/sh
+# PCP QA Test No. 200
+# $PMCD_RECONNECT_TIMEOUT validation
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+. ./localconfig
+
+echo "QA output created by $seq"
+
+. ./common.product
+. ./common.check
+. ./common.filter
+
+LOCALHOST=`hostname`
+status=1
+rm -f $seq.full
+
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN		{ last = "" }
+$0 != last	{ print; last = $0 }' \
+    | sed \
+	-e 's/failed: Connection reset by peer/failed: IPC protocol failure/' \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+	-e '/recon([0-9][0-9]*)/s//recon(PID)/' \
+	-e '/^Context\[/d' \
+	-e '/^pmReconnectContext(/d' \
+	-e '/^Dump Contexts:/d' \
+	-e '/^Dump Instance Profile /d' \
+	-e '/^IPC table fd/d' \
+	-e '/^__pmConnectPMCD(/d' \
+	-e '/^__pmDecodeXtendError:/d' \
+	-e '/^pmNewContext(/d' \
+	-e '/^__pmSendCreds:/d' \
+	-e '/^__pmSetSocketIPC:/d' \
+	-e '/^__pmSetVersionIPC:/d' \
+	-e '/^pmWhichContext(/d' \
+    | $PCP_AWK_PROG '
+/delay: 6 /	{ print "delay: 6-10 secs"; next }
+/delay: 7 /	{ print "delay: 6-10 secs"; next }
+/delay: 8 /	{ print "delay: 6-10 secs"; next }
+/delay: 9 /	{ print "delay: 6-10 secs"; next }
+/delay: 10 /	{ print "delay: 6-10 secs"; next }
+/delay: 14 /	{ print "delay: 14-16 secs"; next }
+/delay: 15 /	{ print "delay: 14-16 secs"; next }
+/delay: 16 /	{ print "delay: 14-16 secs"; next }
+		{ print }'
+}
+
+cat >$tmp.new <<End-of-File
+# From QA 200
+#
+# Name	Id	IPC	IPC Params 	File/Cmd
+irix	1	dso	irix_init	$PCP_PMDAS_DIR/irix/libirixpmda.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+proc	3	dso	proc_init	$PCP_PMDAS_DIR/proc/pmda_proc.so
+sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29 
+sampledso	30	dso	sample_init	$PCP_PMDAS_DIR/sample/pmda_sample.so 
+End-of-File
+
+# copy the pmcd config file to restore state later.
+$sudo cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+$sudo cp $tmp.new $PCP_PMCDCONF_PATH
+
+_cleanup()
+{
+    [ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+    [ "$PCP_PLATFORM" != "linux" ] && _change_config pmlogger on
+    $sudo $PCP_RC_DIR/pcp restart >/dev/null
+    _wait_for_pmcd
+    _wait_for_pmlogger
+    $sudo rm -f $tmp.pmcd.conf
+    rm -f $tmp.*
+    exit $status
+}
+
+trap _cleanup 0 1 2 3 15
+
+# real QA test starts here
+for xxx in "" "1,3,5" "2" "1-2" "1,2,foo"
+do
+    if [ "X$xxx" = X ]
+    then
+	unset PMCD_RECONNECT_TIMEOUT
+    else
+	PMCD_RECONNECT_TIMEOUT="$xxx"
+	export PMCD_RECONNECT_TIMEOUT
+    fi
+
+    echo
+    echo "PMCD_RECONNECT_TIMEOUT=\"$PMCD_RECONNECT_TIMEOUT\""
+    echo "start PMCD_RECONNECT_TIMEOUT=$PMCD_RECONNECT_TIMEOUT" >>$seq.full
+    echo "start `date`" >>$seq.full
+
+    DEBUG=
+    DEBUG=-D16
+    src/recon $DEBUG >$tmp.out 2>&1 &
+
+    sleep 2
+    echo "begin stop pmcd `date`" >>$seq.full
+    $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+    echo "end stop pmcd `date`" >>$seq.full
+    sleep 4
+    echo "begin start pmcd `date`" >>$seq.full
+    $sudo $PCP_RC_DIR/pcp start \
+    | _filter_pcp_start \
+    | sed -e '/starting archive loggers/d' -e '/Starting pmlogger/d'
+    echo "end start pmcd `date`" >>$seq.full
+
+    wait
+    _filter <$tmp.out
+    cat $tmp.out >>$seq.full
+done
+
+status=0
+exit

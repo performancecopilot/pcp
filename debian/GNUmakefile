@@ -7,6 +7,10 @@ LINTDIR = $(PCP_SHARE_DIR)/../lintian/overrides
 PCP_FILES = pcp.prerm pcp.postinst pcp.postrm pcp.conffiles
 PCP_LINT = pcp.lintian 
 
+PCPTESTSUITE = pcp-testsuite
+PCPTESTSUITE_FILES = pcp-testsuite.dirs
+PCPTESTSUITE_DOC_DIR = $(PCP_DOC_DIR)/../pcp-testsuite
+
 PCPIMPORTSAR = pcp-import-sar2pcp
 PCPIMPORTSAR_FILES = pcp-import-sar2pcp.install
 PCPIMPORTSAR_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-sar2pcp
@@ -67,6 +71,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files $(LIBPCPPCP) $(LIBPCPPCP)-dev \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT)
 LSRCFILES = changelog compat control copyright rules $(LINTIAN) $(PCP_LINT) \
 		$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) \
+		$(PCPTESTSUITE_FILES) \
 		$(LIBGUI_FILES) $(DEVGUI_FILES) \
 		$(LIBMMV_FILES) $(DEVMMV_FILES) \
 		$(LIBPMDA_FILES) $(DEVPMDA_FILES) \
@@ -88,6 +93,13 @@ endif
 default_pcp : default
 
 install_pcp : install
+
+install-testsuite: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPTESTSUITEDIR)
+	$(INSTALL) -m 644 copyright $(PCPTESTSUITEDIR)
+	$(INSTALL) -m 644 changelog $(PCPTESTSUITEDIR)/changelog.Debian
+endif
 
 install-libpcp: default
 ifeq ($(PACKAGE_DISTRIBUTION), debian)

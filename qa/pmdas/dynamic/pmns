@@ -1,0 +1,18 @@
+/*
+ * Metrics for a dynamic PMDA
+ */
+
+#include <stdpmid>
+
+dynamic {
+    numinsts	DYNAMIC:0:0
+    discrete	DYNAMIC:0:1
+    instant	DYNAMIC:0:2
+    counter	DYNAMIC:0:3
+    control
+}
+
+dynamic.control {
+    add		DYNAMIC:1:4
+    del		DYNAMIC:1:5
+}

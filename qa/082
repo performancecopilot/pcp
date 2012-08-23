@@ -1,0 +1,92 @@
+#! /bin/sh
+# PCP QA Test No. 082
+# Test permissions left on namespace by pmnsadd, pmnsdel
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+rm -f $seq.out
+if [ $PCP_EOE_VER -ge 6514 -o \( $PCP_EOE_VER -ge 2201 -a $PCP_EOE_VER -lt 6500 \) ]
+then
+    if [ $PCP_VER -lt 3600 ]
+    then
+	# IRIX 6.5.14 or later, else pcp 2.2.1 or later (Linux or IRIX 6.2)
+	#
+	ln $seq.out.2 $seq.out
+    else
+	ln $seq.out.3 $seq.out
+    fi
+else
+    ln $seq.out.1 $seq.out
+fi
+
+trap "cd $here; rm -rf $tmp; exit" 0 1 2 3 15
+
+_ls()
+{
+    ls -l \
+    | sed \
+	-e '/^total /d' \
+	-e 's/-rw-r--r--\./-rw-r--r--/' \
+	-e 's/----------\./----------/' \
+    | $PCP_AWK_PROG '
+	{ print $1, $NF }'
+    echo
+}
+
+# real QA test starts here
+
+umask 022
+
+rm -rf $tmp
+mkdir $tmp
+cd $tmp
+cat <<End-of-File >root
+root {
+    fred	0:0:0
+    bear	0:0:1
+}
+End-of-File
+
+if [ $PCP_VER -lt 3600 ]
+then
+    pmnscomp -n root root.bin
+fi
+
+cat <<End-of-File >foo
+foo {
+    bar		1:0:0
+}
+End-of-File
+
+umask 777
+touch new-default-mode
+echo "permissions before add:"
+_ls
+
+pmnsadd -n root foo
+
+echo
+echo "permissions after add:"
+_ls
+
+echo "Expect fred, bear and foo.bar ..."
+pminfo -n root
+
+pmnsdel -n root foo
+
+echo
+echo "permissions after delete:"
+_ls
+
+echo "Expect fred and bear ..."
+pminfo -n root
+
+exit 0

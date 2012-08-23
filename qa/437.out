@@ -1,0 +1,37 @@
+QA output created by 437
+
+
+
+
+	Input file = ./null.0.bz2, output file = (stdout)
+	perhaps it is corrupted?  *Possible* reason follows.
+It is possible that the compressed file(s) have become corrupted.
+You can use the -tvv option to test integrity of such files.
+You can use the `bzip2recover' program to attempt to recover
+__pmLogOpen: inspect file "./null.0.bz2"
+__pmLogOpen: inspect file "./null.index"
+__pmLogOpen: inspect file "./null.meta"
+__pmLogOpen: uncompress failed, exit status: 2
+__pmLogOpen: uncompress using: bzip2 -dc ./null.0.bz2
+bzip2: Compressed file ends unexpectedly;
+bzip2: Success
+data from undamaged sections of corrupted files.
+pminfo: Cannot open archive "null": Corrupted record in a PCP archive log
+
+
+
+
+	Input file = ./null.0.bz2, output file = (stdout)
+	perhaps it is corrupted?  *Possible* reason follows.
+It is possible that the compressed file(s) have become corrupted.
+You can use the -tvv option to test integrity of such files.
+You can use the `bzip2recover' program to attempt to recover
+__pmLogOpen: inspect file "./null.0.bz2"
+__pmLogOpen: inspect file "./null.index"
+__pmLogOpen: inspect file "./null.meta"
+__pmLogOpen: uncompress failed, exit status: 2
+__pmLogOpen: uncompress using: bzip2 -dc ./null.0.bz2
+bzip2: Compressed file ends unexpectedly;
+bzip2: Success
+data from undamaged sections of corrupted files.
+pminfo: Cannot open archive "null": Corrupted record in a PCP archive log

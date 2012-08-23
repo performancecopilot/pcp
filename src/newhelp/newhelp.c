@@ -174,8 +174,7 @@ newentry(char *buf)
 	if (!status) status = 1;
     }
 
-    fwrite(start, sizeof(*start), p - start, f);
-    if (ferror(f)) {
+    if (fwrite(start, sizeof(*start), p - start, f) != p - start || ferror(f)) {
 	fprintf(stderr, "%s: [%s:%d] %s: write oneline failed, entry abandoned\n",
 		pmProgname, filename, ln, name);
 	thisindex--;
@@ -206,8 +205,7 @@ newentry(char *buf)
 	if (!status) status = 1;
     }
 
-    fwrite(p, sizeof(*p), i+1, f);
-    if (ferror(f)) {
+    if (fwrite(p, sizeof(*p), i+1, f) != i+1 || ferror(f)) {
 	fprintf(stderr, 
 		"%s: [%s:%d] %s: write help failed, entry abandoned\n",
 		pmProgname, filename, ln, name);
@@ -454,8 +452,7 @@ Options:\n\
 	/* "1" => dir, next char is version */
 	hdr.off_oneline = 0x31000000 | (('0' + version) << 16);
 	hdr.off_text = thisindex + 1;	/* # entries */
-	fwrite(&hdr, sizeof(hdr), 1, f);
-	if (ferror(f)) {
+	if (fwrite(&hdr, sizeof(hdr), 1, f) != 1 || ferror(f)) {
 	     fprintf(stderr, "%s: fwrite index failed: %s\n",
 		     pmProgname, osstrerror());
 	     exit(2);
@@ -464,8 +461,8 @@ Options:\n\
 	/* sort and write index */
 	qsort((void *)hindex, thisindex+1, sizeof(hindex[0]), idcomp);
 	for (i = 0; i <= thisindex; i++) {
-	    fwrite(&hindex[i], sizeof(hindex[0]), 1, f);
-	    if (ferror(f)) {
+	    if (fwrite(&hindex[i], sizeof(hindex[0]), 1, f) != 1
+		|| ferror(f)) {
 		 fprintf(stderr, "%s: fwrite index failed: %s\n",
 			 pmProgname, osstrerror());
 		 exit(2);

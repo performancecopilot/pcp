@@ -1,0 +1,189 @@
+#! /bin/sh
+# PCP QA Test No. 038
+# pmlogger would die with horrible errors when diagnostics enabled, due
+# to early timer events
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+_filter_dumplog()
+{
+    _filter_dumpresult | sed \
+	-e '/inst /{
+s;inst \[[0-9][0-9]* or ".*/dbs/.*\.dbf"];inst [FILE];
+}'
+
+}
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+rm -f $tmp.*
+cat <<End-of-File >$tmp.config
+log mandatory on 1 sec {
+    sample.control
+    sample.milliseconds
+    sample.load
+    sample.colour
+    sample.bin
+    sample.bucket
+    sample.drift
+    sample.step
+    sample.write_me
+    sample.lights
+    sample.magnitude
+    sample.sysinfo
+    sample.pdu
+    sample.recv_pdu
+    sample.xmit_pdu
+    sample.noinst
+    disk.all.read
+    disk.all.write
+    disk.all.total
+    disk.all.blkread
+    disk.all.blkwrite
+    disk.all.blktotal
+    disk.all.active
+    disk.all.response
+    disk.all.bytes
+    disk.all.read_bytes
+    disk.all.write_bytes
+    disk.all.avg_disk.active
+    disk.all.avg_disk.response
+    kernel.all.cpu.idle
+    kernel.all.cpu.intr
+    kernel.all.cpu.sys
+    kernel.all.cpu.sxbrk
+    kernel.all.cpu.user
+    kernel.all.cpu.wait.total
+    kernel.all.cpu.wait.gfxc
+    kernel.all.cpu.wait.gfxf
+    kernel.all.cpu.wait.io
+    kernel.all.cpu.wait.pio
+    kernel.all.cpu.wait.swap
+    kernel.all.io.iget
+    kernel.all.io.bread
+    kernel.all.io.bwrite
+    kernel.all.io.lread
+    kernel.all.io.lwrite
+    kernel.all.io.phread
+    kernel.all.io.phwrite
+    kernel.all.io.wcancel
+    kernel.all.io.namei
+    kernel.all.io.dirblk
+    kernel.all.swap.swpocc
+    kernel.all.swap.swpque
+    kernel.all.load
+    kernel.all.users
+    kernel.all.pswitch
+    kernel.all.readch
+    kernel.all.runocc
+    kernel.all.runque
+    kernel.all.syscall
+    kernel.all.sysexec
+    kernel.all.sysfork
+    kernel.all.sysread
+    kernel.all.syswrite
+    kernel.all.writech
+    kernel.all.tty.recvintr
+    kernel.all.tty.xmitintr
+    kernel.all.tty.mdmintr
+    kernel.all.tty.out
+    kernel.all.tty.raw
+    kernel.all.tty.canon
+    kernel.all.intr.vme
+    kernel.all.intr.non_vme
+    kernel.all.ipc.msg
+    kernel.all.ipc.sema
+    kernel.all.pty.masterch
+    kernel.all.pty.slavech
+    kernel.all.flock.alloc
+    kernel.all.flock.inuse
+    hinv.ncpu
+    hinv.dcache
+    hinv.icache
+    hinv.physmem
+    hinv.pmeminterleave
+    hinv.ndisk
+}
+End-of-File
+
+$sudo rm -f core*
+# -D 511 is all of the PMAPI debug flags, excluding PM_TRACE_AF (the
+# latter is non-deterministic, unfortunately)
+pmlogger -D 511 -c $tmp.config -s 2 -l $tmp.log $tmp >$tmp.out 2>&1 &
+logger_pid=$!
+
+wait
+
+if [ "`echo core*`" != "core*" ]
+then
+    echo "Arrgh ... pmlogger dumped core?"
+    ls -l core*
+    file core*
+else
+    echo "OK, pmlogger survived"
+fi
+
+# The traces and the list of metrics depend on which operating
+# system you're running on.  There is no real point in generating all
+# this output (filtered diagnostics and verbose pmdumplog) because
+# I expect to be different.
+# -Ken 1 June 2001
+#
+# Simple sanity check on the number of pmResults in the archive ...
+
+echo
+echo "count records in archive (expect 1 for preamble + 2) ..."
+pmdumplog $tmp 2>&1 \
+| _filter_dumplog \
+| sed -n -e '/TIMESTAMP/s/STAMP.*/STAMP/p'
+
+# and truncate the test here!
+#
+exit
+
+# enable this to see what is really happening!
+echo "=== out ===" >038.full
+cat $tmp.out >>038.full
+echo >>038.full
+echo "=== log ===" >>038.full
+cat $tmp.log >>038.full
+
+# may need this yet...
+# 
+# filter output and sum by diagnostic type
+cat $tmp.out $tmp.log \
+| sed \
+    -e '/success*/d' \
+    -e 's/Log f.*/Log/g' \
+    -e 's/searchindom/__localLogGetInDom/g' \
+| _filter_dumpresult \
+| sed \
+    -e 's/^\[[0-9][0-9]*]//' \
+    -e '/^[0-9][0-9][0-9]:/d' \
+    -e 's/^  *//' \
+    -e 's/After loading config/After_loading_config/' \
+    -e 's/Dump Contexts/Dump_Contexts/' \
+    -e 's/Dump Instance Profile/Dump_Instance_Profile/' \
+    -e 's/Dump optfetch/Dump_optfetch/' \
+    -e 's/free pdubuf/free_pdubuf/' \
+    -e '/__pmDecodeXtendError/d' \
+    -e '/__pmFdLookupIPC/d' \
+    -e 's/[(: =].*//'
+
+# now, what is in the log? ...
+pmdumplog $tmp 2>&1 \
+| _filter_dumplog \
+| sed \
+	-e "/\"$logger_pid\"/s/$logger_pid/LOGGER_PID/g" \
+	-e '/pmcd.pmlogger.port/s/value .*/value PORT/' \
+	-e '/pmcd.pmlogger.host/s/value ".*/value "HOST"/' \
+| ./xlate_2_new_pmns

@@ -1,0 +1,108 @@
+#! /bin/sh
+# PCP QA Test No. 135
+# Simple forwards and backwards scan of a multi-volume log
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
+
+_do_time()
+{
+    tstamp=`wc -l <$tmp.sed | sed -e 's/  *//g'`
+    tstamp=`expr $tstamp - 2`
+    sed >$tmp.tmp \
+	-e "s;$tmp;MYLOG;" \
+	-e 's/from host .*/from host LOCALHOST/' \
+	-e "/\"$logger_pid\"/s/$logger_pid/LOGGER_PID/g" \
+	-e '/pmcd.pmlogger.port/s/value .*/value PORT/' \
+	-e '/pmcd.pmlogger.host/s/value ".*/value "HOST"/' \
+	-e '/pmcd.pmlogger.archive/s/value ".*/value "PATH"/'
+    sed -n <$tmp.tmp \
+      -e 's/.*\([0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]\).*/\1/p' \
+    | LC_COLLATE=POSIX sort -u \
+    | while read time
+    do
+    	if grep $time $tmp.sed >/dev/null
+	then
+	    :
+	else
+	    echo "s/$time/TIMESTAMP-$tstamp/g" >>$tmp.sed
+	    tstamp=`expr $tstamp + 1`
+	fi
+    done
+
+    sed <$tmp.sed >$tmp.sed.tmp \
+	-e '${
+s/^s/xs/
+s/TIME/FOO/
+}' \
+	-e '4,${
+s/^s\//\//
+s/.TIME.*/\/d/
+}' \
+	-e '${
+s/^xs/s/
+s/FOO/TIME/
+s/P-.*/P-LAST\//
+}'
+    mv $tmp.sed.tmp $tmp.sed
+
+    sed -f $tmp.sed $tmp.tmp \
+    | sed -e 's/value .*/value .../' \
+	  -e 's/ [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/ hh:mm:ss/'
+}
+
+# real QA test starts here
+rm -f $tmp.*
+
+echo 's/ [A-Z][a-z][a-z] [A-Z][a-z][a-z] .. / month-day /g' >$tmp.sed
+echo 's/ [12][0-9][0-9][0-9]/ year/' >>$tmp.sed
+
+pmlogger -L -c /dev/null -l $tmp.log $tmp >$tmp.err 2>&1 &
+logger_pid=$!
+
+sleep 3
+
+pmlc <<End-of-File
+connect $logger_pid
+log mandatory on 100 msec sampledso.milliseconds
+End-of-File
+
+for i in 1 2 3 4 5
+do
+    sleep 1
+    pmlc <<End-of-File
+connect $logger_pid
+new volume
+End-of-File
+done
+
+sleep 1
+$signal -s TERM $logger_pid
+wait
+
+echo
+echo "=== forwards ==="
+pmdumplog -lm $tmp | sed -e '/^$/d' | tee $tmp.list | _do_time
+LC_COLLATE=POSIX sort -o $tmp.list $tmp.list
+
+echo
+echo "=== backwards ==="
+pmdumplog -lmr $tmp | sed -e '/^$/d' | tee $tmp.rev | _do_time
+sed -e '/dump in reverse order/d' $tmp.rev \
+| LC_COLLATE=POSIX sort -o $tmp.rev
+
+echo
+echo "=== expect no differences ==="
+diff $tmp.list $tmp.rev
+
+exit 0

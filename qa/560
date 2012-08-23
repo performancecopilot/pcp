@@ -1,0 +1,92 @@
+#!/bin/sh
+# PCP QA Test No. 560
+# #681487 error handling in pmdaproc.sh dialogs
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./localconfig
+
+if [ $PCP_EOE_VER -eq 2000 -o \
+    \( $PCP_EOE_VER -ge 6500 -a $PCP_EOE_VER -le 6504 \) ] ; then
+    _notrun "This test is not applicable on PCP 2.0 or Irix 6.5[0-4]"
+fi
+
+echo "QA output created by $seq"
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux)
+	ln $seq.$PCP_PLATFORM $seq.out || exit 1
+	;;
+    darwin|solaris)
+	# same output for Mac OS X and OpenSolaris
+	ln $seq.linux $seq.out || exit 1
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cd $PCP_PMDAS_DIR/simple
+
+$sudo make clobber >/dev/null 2>&1
+$sudo make >/dev/null 2>&1
+
+unset ROOT
+
+cat <<End-of-File | $sudo ./Install -e >$tmp.out 2>&1
+foo
+both
+foo
+daemon
+foo
+socket
+foo
+Unix
+
+Internet
+
+End-of-File
+
+sed <$tmp.out \
+    -e 's/daemon or perl or dso,/"daemon" or "dso",/g' \
+    -e 's/daemon or perl or dso agent/daemon or dso agent/' \
+    -e '/.[0-9][0-9]* hash table entries/d' \
+    -e '/.[0-9][0-9]* leaf nodes/d' \
+    -e '/.[0-9][0-9]* non-leaf nodes/d' \
+    -e '/.[0-9][0-9]* bytes of symbol table/d' \
+    -e '/Compiled PMNS contains/d' \
+    -e '/make: Nothing to be done/d'
+
+echo "in \$PCP_PMCDCONF_PATH ..."
+sed -n "/^simple/s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;p" <$PCP_PMCDCONF_PATH
+
+$sudo ./Remove
+
+echo
+if $sudo make >$tmp.tmp
+then
+    :
+else
+    cat $tmp.tmp
+    echo "make prior to Install failed!"
+fi
+$sudo ./Install </dev/null \
+| grep 'Check'
+
+# success, all done
+status=0
+exit

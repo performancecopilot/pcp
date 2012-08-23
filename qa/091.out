@@ -1,0 +1,532 @@
+QA output created by 091
+
+=== archive src/foo ===
+
+metric: sample.seconds
+metric[0]: sample.seconds
+
+sample 1, delta time=-1.000 secs
+sample.seconds: 
+delta[0]: INT
+
+sample 2, delta time=-1.000 secs
+sample.seconds: 
+delta[0]: INT
+
+sample 3, delta time=-1.000 secs
+sample.seconds: 
+delta[0]: INT
+
+sample 4, delta time=-1.000 secs
+sample.seconds: 
+delta[0]: INT
+
+sample 5, delta time=-1.000 secs
+sample.seconds: 
+delta[0]: INT
+
+6 samples required 8 - 12 log reads
+
+metric: sample.bin
+metric[0]: sample.bin
+
+sample 1, delta time=-1.000 secs
+sample.bin: 
+delta[0]: 0
+delta[1]: 0
+delta[2]: 0
+delta[3]: 0
+delta[4]: 0
+delta[5]: 0
+delta[6]: 0
+delta[7]: 0
+delta[8]: 0
+
+sample 2, delta time=-1.000 secs
+sample.bin: 
+delta[0]: 0
+delta[1]: 0
+delta[2]: 0
+delta[3]: 0
+delta[4]: 0
+delta[5]: 0
+delta[6]: 0
+delta[7]: 0
+delta[8]: 0
+
+sample 3, delta time=-1.000 secs
+sample.bin: 
+delta[0]: 0
+delta[1]: 0
+delta[2]: 0
+delta[3]: 0
+delta[4]: 0
+delta[5]: 0
+delta[6]: 0
+delta[7]: 0
+delta[8]: 0
+
+sample 4, delta time=-1.000 secs
+sample.bin: 
+delta[0]: 0
+delta[1]: 0
+delta[2]: 0
+delta[3]: 0
+delta[4]: 0
+delta[5]: 0
+delta[6]: 0
+delta[7]: 0
+delta[8]: 0
+
+sample 5, delta time=-1.000 secs
+sample.bin: 
+delta[0]: 0
+delta[1]: 0
+delta[2]: 0
+delta[3]: 0
+delta[4]: 0
+delta[5]: 0
+delta[6]: 0
+delta[7]: 0
+delta[8]: 0
+
+6 samples required 8 - 12 log reads
+
+metric: sample.colour
+metric[0]: sample.colour
+
+sample 1, delta time=-1.000 secs
+sample.colour: 
+delta[0]: NUMBER
+delta[1]: NUMBER
+delta[2]: NUMBER
+
+sample 2, delta time=-1.000 secs
+sample.colour: 
+delta[0]: NUMBER
+delta[1]: NUMBER
+delta[2]: NUMBER
+
+sample 3, delta time=-1.000 secs
+sample.colour: 
+delta[0]: NUMBER
+delta[1]: NUMBER
+delta[2]: NUMBER
+
+sample 4, delta time=-1.000 secs
+sample.colour: 
+delta[0]: NUMBER
+delta[1]: NUMBER
+delta[2]: NUMBER
+
+sample 5, delta time=-1.000 secs
+sample.colour: 
+delta[0]: NUMBER
+delta[1]: NUMBER
+delta[2]: NUMBER
+
+6 samples required 8 - 12 log reads
+
+metric: sample.drift
+metric[0]: sample.drift
+
+sample 1, delta time=-1.000 secs
+sample.drift: 
+delta[0]: NUMBER
+
+sample 2, delta time=-1.000 secs
+sample.drift: 
+delta[0]: NUMBER
+
+sample 3, delta time=-1.000 secs
+sample.drift: 
+delta[0]: NUMBER
+
+sample 4, delta time=-1.000 secs
+sample.drift: 
+delta[0]: NUMBER
+
+sample 5, delta time=-1.000 secs
+sample.drift: 
+delta[0]: NUMBER
+
+6 samples required 8 - 12 log reads
+
+metric: sample.lights
+metric[0]: sample.lights
+
+sample 1, delta time=-1.000 secs
+sample.lights: 
+value[0]: COLOUR
+
+sample 2, delta time=-1.000 secs
+sample.lights: 
+value[0]: COLOUR
+
+sample 3, delta time=-1.000 secs
+sample.lights: 
+value[0]: COLOUR
+
+sample 4, delta time=-1.000 secs
+sample.lights: 
+value[0]: COLOUR
+
+sample 5, delta time=-1.000 secs
+sample.lights: 
+value[0]: COLOUR
+
+6 samples required 8 - 12 log reads
+
+=== archive src/mv-foo ===
+
+metric: sample.seconds
+metric[0]: sample.seconds
+
+sample 1, delta time=-1.000 secs
+sample.seconds: 
+delta[0]: INT
+
+sample 2, delta time=-1.000 secs
+sample.seconds: 
+delta[0]: INT
+
+sample 3, delta time=-1.000 secs
+sample.seconds: 
+delta[0]: INT
+
+sample 4, delta time=-1.000 secs
+sample.seconds: 
+delta[0]: INT
+
+sample 5, delta time=-1.000 secs
+sample.seconds: 
+delta[0]: INT
+
+6 samples required 8 - 12 log reads
+
+metric: sample.bin
+metric[0]: sample.bin
+
+sample 1, delta time=-1.000 secs
+sample.bin: 
+delta[0]: 0
+delta[1]: 0
+delta[2]: 0
+delta[3]: 0
+delta[4]: 0
+delta[5]: 0
+delta[6]: 0
+delta[7]: 0
+delta[8]: 0
+
+sample 2, delta time=-1.000 secs
+sample.bin: 
+delta[0]: 0
+delta[1]: 0
+delta[2]: 0
+delta[3]: 0
+delta[4]: 0
+delta[5]: 0
+delta[6]: 0
+delta[7]: 0
+delta[8]: 0
+
+sample 3, delta time=-1.000 secs
+sample.bin: 
+delta[0]: 0
+delta[1]: 0
+delta[2]: 0
+delta[3]: 0
+delta[4]: 0
+delta[5]: 0
+delta[6]: 0
+delta[7]: 0
+delta[8]: 0
+
+sample 4, delta time=-1.000 secs
+sample.bin: 
+delta[0]: 0
+delta[1]: 0
+delta[2]: 0
+delta[3]: 0
+delta[4]: 0
+delta[5]: 0
+delta[6]: 0
+delta[7]: 0
+delta[8]: 0
+
+sample 5, delta time=-1.000 secs
+sample.bin: 
+delta[0]: 0
+delta[1]: 0
+delta[2]: 0
+delta[3]: 0
+delta[4]: 0
+delta[5]: 0
+delta[6]: 0
+delta[7]: 0
+delta[8]: 0
+
+6 samples required 8 - 12 log reads
+
+metric: sample.colour
+metric[0]: sample.colour
+
+sample 1, delta time=-1.000 secs
+sample.colour: 
+delta[0]: NUMBER
+delta[1]: NUMBER
+delta[2]: NUMBER
+
+sample 2, delta time=-1.000 secs
+sample.colour: 
+delta[0]: NUMBER
+delta[1]: NUMBER
+delta[2]: NUMBER
+
+sample 3, delta time=-1.000 secs
+sample.colour: 
+delta[0]: NUMBER
+delta[1]: NUMBER
+delta[2]: NUMBER
+
+sample 4, delta time=-1.000 secs
+sample.colour: 
+delta[0]: NUMBER
+delta[1]: NUMBER
+delta[2]: NUMBER
+
+sample 5, delta time=-1.000 secs
+sample.colour: 
+delta[0]: NUMBER
+delta[1]: NUMBER
+delta[2]: NUMBER
+
+6 samples required 8 - 12 log reads
+
+metric: sample.drift
+metric[0]: sample.drift
+
+sample 1, delta time=-1.000 secs
+sample.drift: 
+delta[0]: NUMBER
+
+sample 2, delta time=-1.000 secs
+sample.drift: 
+delta[0]: NUMBER
+
+sample 3, delta time=-1.000 secs
+sample.drift: 
+delta[0]: NUMBER
+
+sample 4, delta time=-1.000 secs
+sample.drift: 
+delta[0]: NUMBER
+
+sample 5, delta time=-1.000 secs
+sample.drift: 
+delta[0]: NUMBER
+
+6 samples required 8 - 12 log reads
+
+metric: sample.lights
+metric[0]: sample.lights
+
+sample 1, delta time=-1.000 secs
+sample.lights: 
+value[0]: COLOUR
+
+sample 2, delta time=-1.000 secs
+sample.lights: 
+value[0]: COLOUR
+
+sample 3, delta time=-1.000 secs
+sample.lights: 
+value[0]: COLOUR
+
+sample 4, delta time=-1.000 secs
+sample.lights: 
+value[0]: COLOUR
+
+sample 5, delta time=-1.000 secs
+sample.lights: 
+value[0]: COLOUR
+
+6 samples required 8 - 12 log reads
+
+=== archive src/noti-foo ===
+
+metric: sample.seconds
+metric[0]: sample.seconds
+
+sample 1, delta time=-1.000 secs
+sample.seconds: 
+delta[0]: INT
+
+sample 2, delta time=-1.000 secs
+sample.seconds: 
+delta[0]: INT
+
+sample 3, delta time=-1.000 secs
+sample.seconds: 
+delta[0]: INT
+
+sample 4, delta time=-1.000 secs
+sample.seconds: 
+delta[0]: INT
+
+sample 5, delta time=-1.000 secs
+sample.seconds: 
+delta[0]: INT
+
+6 samples required 8 - 12 log reads
+
+metric: sample.bin
+metric[0]: sample.bin
+
+sample 1, delta time=-1.000 secs
+sample.bin: 
+delta[0]: 0
+delta[1]: 0
+delta[2]: 0
+delta[3]: 0
+delta[4]: 0
+delta[5]: 0
+delta[6]: 0
+delta[7]: 0
+delta[8]: 0
+
+sample 2, delta time=-1.000 secs
+sample.bin: 
+delta[0]: 0
+delta[1]: 0
+delta[2]: 0
+delta[3]: 0
+delta[4]: 0
+delta[5]: 0
+delta[6]: 0
+delta[7]: 0
+delta[8]: 0
+
+sample 3, delta time=-1.000 secs
+sample.bin: 
+delta[0]: 0
+delta[1]: 0
+delta[2]: 0
+delta[3]: 0
+delta[4]: 0
+delta[5]: 0
+delta[6]: 0
+delta[7]: 0
+delta[8]: 0
+
+sample 4, delta time=-1.000 secs
+sample.bin: 
+delta[0]: 0
+delta[1]: 0
+delta[2]: 0
+delta[3]: 0
+delta[4]: 0
+delta[5]: 0
+delta[6]: 0
+delta[7]: 0
+delta[8]: 0
+
+sample 5, delta time=-1.000 secs
+sample.bin: 
+delta[0]: 0
+delta[1]: 0
+delta[2]: 0
+delta[3]: 0
+delta[4]: 0
+delta[5]: 0
+delta[6]: 0
+delta[7]: 0
+delta[8]: 0
+
+6 samples required 8 - 12 log reads
+
+metric: sample.colour
+metric[0]: sample.colour
+
+sample 1, delta time=-1.000 secs
+sample.colour: 
+delta[0]: NUMBER
+delta[1]: NUMBER
+delta[2]: NUMBER
+
+sample 2, delta time=-1.000 secs
+sample.colour: 
+delta[0]: NUMBER
+delta[1]: NUMBER
+delta[2]: NUMBER
+
+sample 3, delta time=-1.000 secs
+sample.colour: 
+delta[0]: NUMBER
+delta[1]: NUMBER
+delta[2]: NUMBER
+
+sample 4, delta time=-1.000 secs
+sample.colour: 
+delta[0]: NUMBER
+delta[1]: NUMBER
+delta[2]: NUMBER
+
+sample 5, delta time=-1.000 secs
+sample.colour: 
+delta[0]: NUMBER
+delta[1]: NUMBER
+delta[2]: NUMBER
+
+6 samples required 8 - 12 log reads
+
+metric: sample.drift
+metric[0]: sample.drift
+
+sample 1, delta time=-1.000 secs
+sample.drift: 
+delta[0]: NUMBER
+
+sample 2, delta time=-1.000 secs
+sample.drift: 
+delta[0]: NUMBER
+
+sample 3, delta time=-1.000 secs
+sample.drift: 
+delta[0]: NUMBER
+
+sample 4, delta time=-1.000 secs
+sample.drift: 
+delta[0]: NUMBER
+
+sample 5, delta time=-1.000 secs
+sample.drift: 
+delta[0]: NUMBER
+
+6 samples required 8 - 12 log reads
+
+metric: sample.lights
+metric[0]: sample.lights
+
+sample 1, delta time=-1.000 secs
+sample.lights: 
+value[0]: COLOUR
+
+sample 2, delta time=-1.000 secs
+sample.lights: 
+value[0]: COLOUR
+
+sample 3, delta time=-1.000 secs
+sample.lights: 
+value[0]: COLOUR
+
+sample 4, delta time=-1.000 secs
+sample.lights: 
+value[0]: COLOUR
+
+sample 5, delta time=-1.000 secs
+sample.lights: 
+value[0]: COLOUR
+
+6 samples required 8 - 12 log reads

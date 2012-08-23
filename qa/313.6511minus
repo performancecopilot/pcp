@@ -1,0 +1,871 @@
+QA output created by 313
+
+=== delta=1sec counter in each non-preamble result in all 3 sections ===
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    sample.seconds
+archive:   src/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: cumulative counter (converting to rate)
+units:     sec (converting to time utilization)
+samples:   19
+interval:  1.00 sec
+07:45:41.422  No values available
+07:45:42.422  No values available
+07:45:43.422     1.000 
+07:45:44.422     1.000 
+07:45:45.422  No values available
+07:45:46.422  No values available
+07:45:47.422  No values available
+07:45:48.422  No values available
+07:45:49.422  No values available
+07:45:50.422  No values available
+07:45:51.422     1.000 
+07:45:52.422     1.000 
+07:45:53.422  No values available
+07:45:54.422  No values available
+07:45:55.422  No values available
+07:45:56.422  No values available
+07:45:57.422  No values available
+07:45:58.422     1.000 
+07:45:59.422     1.000 
+
+pmval: pmFetch: End of PCP archive log
+
+=== delta=1sec counter in the 2nd section only ===
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    sample.milliseconds
+archive:   src/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: cumulative counter (converting to rate)
+units:     millisec (converting to time utilization)
+samples:   19
+interval:  1.00 sec
+07:45:41.422  No values available
+07:45:42.422  No values available
+07:45:43.422  No values available
+07:45:44.422  No values available
+07:45:45.422  No values available
+07:45:46.422  No values available
+07:45:47.422  No values available
+07:45:48.422  No values available
+07:45:49.422  No values available
+07:45:50.422  No values available
+07:45:51.422               1.000 
+07:45:52.422               1.000 
+07:45:53.422  No values available
+07:45:54.422  No values available
+07:45:55.422  No values available
+07:45:56.422  No values available
+07:45:57.422  No values available
+07:45:58.422  No values available
+07:45:59.422  No values available
+
+pmval: pmFetch: End of PCP archive log
+
+=== delta=1sec instantaneous in 1st and 3rd sections ===
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    sample.drift
+archive:   src/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: instantaneous value
+units:     none
+samples:   19
+interval:  1.00 sec
+07:45:41.422  No values available
+07:45:42.422        184
+07:45:43.422        183
+07:45:44.422        183
+07:45:45.422  No values available
+07:45:46.422  No values available
+07:45:47.422  No values available
+07:45:48.422  No values available
+07:45:49.422  No values available
+07:45:50.422  No values available
+07:45:51.422  No values available
+07:45:52.422  No values available
+07:45:53.422  No values available
+07:45:54.422  No values available
+07:45:55.422  No values available
+07:45:56.422  No values available
+07:45:57.422         70
+07:45:58.422         50
+07:45:59.422         40
+
+=== delta=1sec discrete and logged once in the 1st and 3rd sections ===
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    hinv.ncpu
+archive:   src/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: discrete instantaneous value
+units:     none
+samples:   19
+interval:  1.00 sec
+07:45:41.422  No values available
+07:45:42.422          1
+07:45:43.422          1
+07:45:44.422          1
+07:45:45.422          1
+07:45:46.422  No values available
+07:45:47.422  No values available
+07:45:48.422  No values available
+07:45:49.422  No values available
+07:45:50.422  No values available
+07:45:51.422  No values available
+07:45:52.422  No values available
+07:45:53.422  No values available
+07:45:54.422  No values available
+07:45:55.422  No values available
+07:45:56.422          1
+07:45:57.422          1
+07:45:58.422          1
+07:45:59.422          1
+
+=== delta=1sec counter and indom all over the place ===
+  lo0     ec0     ec2     section
+  yes     yes     no      1
+  no      no      no      2
+  yes     no      yes     3
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    network.interface.total.packets
+archive:   src/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   19
+interval:  1.00 sec
+07:45:41.422  No values available
+
+                 ec0         ec2         lo0    
+07:45:42.422  No values available
+07:45:43.422     5.000            ?     48.00   
+07:45:44.422     1.000            ?      8.000  
+07:45:45.422  No values available
+07:45:46.422  No values available
+07:45:47.422  No values available
+07:45:48.422  No values available
+07:45:49.422  No values available
+07:45:50.422  No values available
+07:45:51.422  No values available
+07:45:52.422  No values available
+07:45:53.422  No values available
+07:45:54.422  No values available
+07:45:55.422  No values available
+07:45:56.422  No values available
+
+                 ec0         ec2         lo0    
+07:45:57.422  No values available
+07:45:58.422          ?     35.00       28.00   
+07:45:59.422          ?     44.00        8.000  
+
+pmval: pmFetch: End of PCP archive log
+
+=== delta=1sec instantaneous and indom all over the place ===
+  bin-100 bin-200 bin-300 bin-400 bin-500 section
+  yes     yes     no      yes     no      1
+  yes     no      yes     yes     once    2
+  no      yes     yes     yes     no      3
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    sample.bin
+archive:   src/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: instantaneous value
+units:     none
+samples:   19
+interval:  1.00 sec
+07:45:41.422  No values available
+
+                bin-100     bin-200     bin-300     bin-400     bin-500 
+07:45:42.422        100         200           ?         400           ? 
+07:45:43.422        100         200           ?         400           ? 
+07:45:44.422        100         200           ?         400           ? 
+07:45:45.422  No values available
+07:45:46.422  No values available
+07:45:47.422  No values available
+07:45:48.422  No values available
+07:45:49.422  No values available
+
+                bin-100     bin-200     bin-300     bin-400     bin-500 
+07:45:50.422        100           ?         300         400           ? 
+07:45:51.422        100           ?         300         400           ? 
+07:45:52.422        100           ?         300         400           ? 
+07:45:53.422  No values available
+07:45:54.422  No values available
+07:45:55.422  No values available
+07:45:56.422  No values available
+
+                bin-100     bin-200     bin-300     bin-400     bin-500 
+07:45:57.422          ?         200         300         400         500 
+07:45:58.422          ?         200         300         400         500 
+07:45:59.422          ?         200         300         400         500 
+
+=== delta=1sec discrete logged once, different indom in each section ===
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    pmcd.pmlogger.port
+archive:   src/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: discrete instantaneous value
+units:     none
+samples:   19
+interval:  1.00 sec
+
+                   1368        1342        1318 
+07:45:41.422          ?           ?        4331 
+07:45:42.422          ?           ?        4331 
+07:45:43.422          ?           ?        4331 
+07:45:44.422          ?           ?        4331 
+07:45:45.422          ?           ?        4331 
+07:45:46.422  No values available
+07:45:47.422  No values available
+07:45:48.422  No values available
+
+                   1368        1342        1318 
+07:45:49.422          ?        4331           ? 
+07:45:50.422          ?        4331           ? 
+07:45:51.422          ?        4331           ? 
+07:45:52.422          ?        4331           ? 
+07:45:53.422  No values available
+07:45:54.422  No values available
+07:45:55.422  No values available
+
+                   1368        1342        1318 
+07:45:56.422       4331           ?           ? 
+07:45:57.422       4331           ?           ? 
+07:45:58.422       4331           ?           ? 
+07:45:59.422       4331           ?           ? 
+
+=== delta=0.5sec counter in each non-preamble result in all 3 sections ===
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    sample.seconds
+archive:   src/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: cumulative counter (converting to rate)
+units:     sec (converting to time utilization)
+samples:   37
+interval:  0.50 sec
+07:45:41.422  No values available
+07:45:41.922  No values available
+07:45:42.422  No values available
+07:45:42.922     2.000 
+07:45:43.422     0.0   
+07:45:43.922     2.000 
+07:45:44.422     0.0   
+07:45:44.922     2.000 
+07:45:45.422  No values available
+07:45:45.922  No values available
+07:45:46.422  No values available
+07:45:46.922  No values available
+07:45:47.422  No values available
+07:45:47.922  No values available
+07:45:48.422  No values available
+07:45:48.922  No values available
+07:45:49.422  No values available
+07:45:49.922  No values available
+07:45:50.422     2.000 
+07:45:50.922     0.0   
+07:45:51.422     2.000 
+07:45:51.922     0.0   
+07:45:52.422     2.000 
+07:45:52.922  No values available
+07:45:53.422  No values available
+07:45:53.922  No values available
+07:45:54.422  No values available
+07:45:54.922  No values available
+07:45:55.422  No values available
+07:45:55.922  No values available
+07:45:56.422  No values available
+07:45:56.922  No values available
+07:45:57.422     2.000 
+07:45:57.922     0.0   
+07:45:58.422     2.000 
+07:45:58.922     0.0   
+07:45:59.422     2.000 
+
+pmval: pmFetch: End of PCP archive log
+
+=== delta=0.5sec counter in the 2nd section only ===
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    sample.milliseconds
+archive:   src/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: cumulative counter (converting to rate)
+units:     millisec (converting to time utilization)
+samples:   37
+interval:  0.50 sec
+07:45:41.422  No values available
+07:45:41.922  No values available
+07:45:42.422  No values available
+07:45:42.922  No values available
+07:45:43.422  No values available
+07:45:43.922  No values available
+07:45:44.422  No values available
+07:45:44.922  No values available
+07:45:45.422  No values available
+07:45:45.922  No values available
+07:45:46.422  No values available
+07:45:46.922  No values available
+07:45:47.422  No values available
+07:45:47.922  No values available
+07:45:48.422  No values available
+07:45:48.922  No values available
+07:45:49.422  No values available
+07:45:49.922  No values available
+07:45:50.422               1.000 
+07:45:50.922               1.000 
+07:45:51.422               1.000 
+07:45:51.922               1.000 
+07:45:52.422               1.000 
+07:45:52.922  No values available
+07:45:53.422  No values available
+07:45:53.922  No values available
+07:45:54.422  No values available
+07:45:54.922  No values available
+07:45:55.422  No values available
+07:45:55.922  No values available
+07:45:56.422  No values available
+07:45:56.922  No values available
+07:45:57.422  No values available
+07:45:57.922  No values available
+07:45:58.422  No values available
+07:45:58.922  No values available
+07:45:59.422  No values available
+
+pmval: pmFetch: End of PCP archive log
+
+=== delta=0.5sec instantaneous in 1st and 3rd sections ===
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    sample.drift
+archive:   src/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: instantaneous value
+units:     none
+samples:   37
+interval:  0.50 sec
+07:45:41.422  No values available
+07:45:41.922  No values available
+07:45:42.422        184
+07:45:42.922        184
+07:45:43.422        183
+07:45:43.922        183
+07:45:44.422        183
+07:45:44.922        166
+07:45:45.422  No values available
+07:45:45.922  No values available
+07:45:46.422  No values available
+07:45:46.922  No values available
+07:45:47.422  No values available
+07:45:47.922  No values available
+07:45:48.422  No values available
+07:45:48.922  No values available
+07:45:49.422  No values available
+07:45:49.922  No values available
+07:45:50.422  No values available
+07:45:50.922  No values available
+07:45:51.422  No values available
+07:45:51.922  No values available
+07:45:52.422  No values available
+07:45:52.922  No values available
+07:45:53.422  No values available
+07:45:53.922  No values available
+07:45:54.422  No values available
+07:45:54.922  No values available
+07:45:55.422  No values available
+07:45:55.922  No values available
+07:45:56.422  No values available
+07:45:56.922         70
+07:45:57.422         70
+07:45:57.922         50
+07:45:58.422         50
+07:45:58.922         40
+07:45:59.422         40
+
+=== delta=0.5sec discrete and logged once in the 1st and 3rd sections ===
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    hinv.ncpu
+archive:   src/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: discrete instantaneous value
+units:     none
+samples:   37
+interval:  0.50 sec
+07:45:41.422  No values available
+07:45:41.922          1
+07:45:42.422          1
+07:45:42.922          1
+07:45:43.422          1
+07:45:43.922          1
+07:45:44.422          1
+07:45:44.922          1
+07:45:45.422          1
+07:45:45.922  No values available
+07:45:46.422  No values available
+07:45:46.922  No values available
+07:45:47.422  No values available
+07:45:47.922  No values available
+07:45:48.422  No values available
+07:45:48.922  No values available
+07:45:49.422  No values available
+07:45:49.922  No values available
+07:45:50.422  No values available
+07:45:50.922  No values available
+07:45:51.422  No values available
+07:45:51.922  No values available
+07:45:52.422  No values available
+07:45:52.922  No values available
+07:45:53.422  No values available
+07:45:53.922  No values available
+07:45:54.422  No values available
+07:45:54.922  No values available
+07:45:55.422  No values available
+07:45:55.922  No values available
+07:45:56.422          1
+07:45:56.922          1
+07:45:57.422          1
+07:45:57.922          1
+07:45:58.422          1
+07:45:58.922          1
+07:45:59.422          1
+
+=== delta=0.5sec counter and indom all over the place ===
+  lo0     ec0     ec2     section
+  yes     yes     no      1
+  no      no      no      2
+  yes     no      yes     3
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    network.interface.total.packets
+archive:   src/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   37
+interval:  0.50 sec
+07:45:41.422  No values available
+07:45:41.922  No values available
+
+                 ec0         ec2         lo0    
+07:45:42.422  No values available
+07:45:42.922     6.000            ?     48.00   
+07:45:43.422     4.000            ?     48.00   
+07:45:43.922     2.000            ?      8.000  
+07:45:44.422     0.0              ?      8.000  
+07:45:44.922     4.000            ?      8.000  
+07:45:45.422  No values available
+07:45:45.922  No values available
+07:45:46.422  No values available
+07:45:46.922  No values available
+07:45:47.422  No values available
+07:45:47.922  No values available
+07:45:48.422  No values available
+07:45:48.922  No values available
+07:45:49.422  No values available
+07:45:49.922  No values available
+07:45:50.422  No values available
+07:45:50.922  No values available
+07:45:51.422  No values available
+07:45:51.922  No values available
+07:45:52.422  No values available
+07:45:52.922  No values available
+07:45:53.422  No values available
+07:45:53.922  No values available
+07:45:54.422  No values available
+07:45:54.922  No values available
+07:45:55.422  No values available
+07:45:55.922  No values available
+07:45:56.422  No values available
+
+                 ec0         ec2         lo0    
+07:45:56.922  No values available
+07:45:57.422          ?     32.00       48.00   
+07:45:57.922          ?     30.00       48.00   
+07:45:58.422          ?     40.00        8.000  
+07:45:58.922          ?     40.00        8.000  
+07:45:59.422          ?     48.00        8.000  
+
+pmval: pmFetch: End of PCP archive log
+
+=== delta=0.5sec instantaneous and indom all over the place ===
+  bin-100 bin-200 bin-300 bin-400 bin-500 section
+  yes     yes     no      yes     no      1
+  yes     no      yes     yes     once    2
+  no      yes     yes     yes     no      3
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    sample.bin
+archive:   src/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: instantaneous value
+units:     none
+samples:   37
+interval:  0.50 sec
+07:45:41.422  No values available
+07:45:41.922  No values available
+
+                bin-100     bin-200     bin-300     bin-400     bin-500 
+07:45:42.422        100         200           ?         400           ? 
+07:45:42.922        100         200           ?         400           ? 
+07:45:43.422        100         200           ?         400           ? 
+07:45:43.922        100         200           ?         400           ? 
+07:45:44.422        100         200           ?         400           ? 
+07:45:44.922        100         200           ?         400           ? 
+07:45:45.422  No values available
+07:45:45.922  No values available
+07:45:46.422  No values available
+07:45:46.922  No values available
+07:45:47.422  No values available
+07:45:47.922  No values available
+07:45:48.422  No values available
+07:45:48.922  No values available
+07:45:49.422  No values available
+
+                bin-100     bin-200     bin-300     bin-400     bin-500 
+07:45:49.922        100           ?         300         400           ? 
+07:45:50.422        100           ?         300         400           ? 
+07:45:50.922        100           ?         300         400           ? 
+07:45:51.422        100           ?         300         400           ? 
+07:45:51.922        100           ?         300         400           ? 
+07:45:52.422        100           ?         300         400           ? 
+07:45:52.922  No values available
+07:45:53.422  No values available
+07:45:53.922  No values available
+07:45:54.422  No values available
+07:45:54.922  No values available
+07:45:55.422  No values available
+07:45:55.922  No values available
+07:45:56.422  No values available
+
+                bin-100     bin-200     bin-300     bin-400     bin-500 
+07:45:56.922          ?         200         300         400         500 
+07:45:57.422          ?         200         300         400         500 
+07:45:57.922          ?         200         300         400         500 
+07:45:58.422          ?         200         300         400         500 
+07:45:58.922          ?         200         300         400         500 
+07:45:59.422          ?         200         300         400         500 
+
+=== delta=0.5sec discrete logged once, different indom in each section ===
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    pmcd.pmlogger.port
+archive:   src/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: discrete instantaneous value
+units:     none
+samples:   37
+interval:  0.50 sec
+
+                   1368        1342        1318 
+07:45:41.422          ?           ?        4331 
+07:45:41.922          ?           ?        4331 
+07:45:42.422          ?           ?        4331 
+07:45:42.922          ?           ?        4331 
+07:45:43.422          ?           ?        4331 
+07:45:43.922          ?           ?        4331 
+07:45:44.422          ?           ?        4331 
+07:45:44.922          ?           ?        4331 
+07:45:45.422          ?           ?        4331 
+07:45:45.922  No values available
+07:45:46.422  No values available
+07:45:46.922  No values available
+07:45:47.422  No values available
+07:45:47.922  No values available
+07:45:48.422  No values available
+
+                   1368        1342        1318 
+07:45:48.922          ?        4331           ? 
+07:45:49.422          ?        4331           ? 
+07:45:49.922          ?        4331           ? 
+07:45:50.422          ?        4331           ? 
+07:45:50.922          ?        4331           ? 
+07:45:51.422          ?        4331           ? 
+07:45:51.922          ?        4331           ? 
+07:45:52.422          ?        4331           ? 
+07:45:52.922  No values available
+07:45:53.422  No values available
+07:45:53.922  No values available
+07:45:54.422  No values available
+07:45:54.922  No values available
+07:45:55.422  No values available
+
+                   1368        1342        1318 
+07:45:55.922       4331           ?           ? 
+07:45:56.422       4331           ?           ? 
+07:45:56.922       4331           ?           ? 
+07:45:57.422       4331           ?           ? 
+07:45:57.922       4331           ?           ? 
+07:45:58.422       4331           ?           ? 
+07:45:58.922       4331           ?           ? 
+07:45:59.422       4331           ?           ? 
+
+=== the whole shooting match ===
+Note: timezone set to local timezone of host "gonzo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host gonzo
+  commencing Tue Aug  5 07:45:41.422 1997
+  ending     Tue Aug  5 07:45:59.912 1997
+
+Descriptions for Metrics in the Log ...
+PMID: 1.18.2 (hinv.ncpu)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 29.0.6 (sample.bin)
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+PMID: 1.25.19 (irix.network.interface.total.packets)
+    Data Type: 32-bit unsigned int  InDom: 1.6 0x400006
+    Semantics: counter  Units: count
+PMID: 29.0.7 (sample.drift)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 29.0.2 (sample.seconds)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+PMID: 29.0.3 (sample.milliseconds)
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+
+Instance Domains in the Log ...
+InDom: 1.6
+07:45:42.422 3 instances
+                 1 or "ec0"
+                 2 or "ec2"
+                 3 or "lo0"
+07:45:56.912 3 instances
+                 1 or "ec0"
+                 2 or "ec2"
+                 3 or "lo0"
+InDom: 29.2
+07:45:42.422 9 instances
+                 100 or "bin-100"
+                 200 or "bin-200"
+                 300 or "bin-300"
+                 400 or "bin-400"
+                 500 or "bin-500"
+                 600 or "bin-600"
+                 700 or "bin-700"
+                 800 or "bin-800"
+                 900 or "bin-900"
+07:45:48.657 9 instances
+                 100 or "bin-100"
+                 200 or "bin-200"
+                 300 or "bin-300"
+                 400 or "bin-400"
+                 500 or "bin-500"
+                 600 or "bin-600"
+                 700 or "bin-700"
+                 800 or "bin-800"
+                 900 or "bin-900"
+07:45:56.912 9 instances
+                 100 or "bin-100"
+                 200 or "bin-200"
+                 300 or "bin-300"
+                 400 or "bin-400"
+                 500 or "bin-500"
+                 600 or "bin-600"
+                 700 or "bin-700"
+                 800 or "bin-800"
+                 900 or "bin-900"
+InDom: 2.1
+07:45:41.422 1 instances
+                 1318 or "1318"
+07:45:48.643 1 instances
+                 1342 or "1342"
+07:45:55.913 1 instances
+                 1368 or "1368"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+07:45:41.422       0          190          132
+07:45:41.422       0          231          256
+07:45:42.422       0          673          440
+07:45:42.422       0          867          440
+07:45:48.643       0          908         1016
+07:45:48.657       0         1080         1056
+07:45:55.913       0         1180         1632
+07:45:56.912       0         1352         1804
+07:45:56.912       0         1416         1804
+
+07:45:41.422  2.3.3 (pmcd.pmlogger.host):  inst [1318 or "1318"] value "gonzo.melbourne.sgi.com"
+              2.3.0 (pmcd.pmlogger.port):  inst [1318 or "1318"] value 4331
+              2.3.2 (pmcd.pmlogger.archive):  inst [1318 or "1318"] value "/tmp/1306.A"
+
+07:45:41.435  1.18.2 (hinv.ncpu): value 1
+
+07:45:42.422  29.0.7 (sample.drift): value 184
+              29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [400 or "bin-400"] value 400
+              29.0.2 (sample.seconds): value 9993
+              1.25.19 (irix.network.interface.total.packets):
+                inst [1 or "ec0"] value 6648807
+                inst [3 or "lo0"] value 315790
+              1.18.2 (hinv.ncpu): value 1
+
+07:45:43.422  29.0.7 (sample.drift): value 183
+              29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [400 or "bin-400"] value 400
+              29.0.2 (sample.seconds): value 9994
+              1.25.19 (irix.network.interface.total.packets):
+                inst [1 or "ec0"] value 6648812
+                inst [3 or "lo0"] value 315838
+              1.18.2 (hinv.ncpu): value 1
+
+07:45:44.422  29.0.7 (sample.drift): value 166
+              29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [400 or "bin-400"] value 400
+              29.0.2 (sample.seconds): value 9995
+              1.25.19 (irix.network.interface.total.packets):
+                inst [1 or "ec0"] value 6648813
+                inst [3 or "lo0"] value 315846
+              1.18.2 (hinv.ncpu): value 1
+
+07:45:45.422  29.0.7 (sample.drift): value 117
+              29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [400 or "bin-400"] value 400
+              29.0.2 (sample.seconds): value 9996
+              1.25.19 (irix.network.interface.total.packets):
+                inst [1 or "ec0"] value 6648816
+                inst [3 or "lo0"] value 315854
+              1.18.2 (hinv.ncpu): value 1
+
+07:45:45.423  <mark>
+
+07:45:48.643  2.3.3 (pmcd.pmlogger.host):  inst [1342 or "1342"] value "gonzo.melbourne.sgi.com"
+              2.3.0 (pmcd.pmlogger.port):  inst [1342 or "1342"] value 4331
+              2.3.2 (pmcd.pmlogger.archive):  inst [1342 or "1342"] value "/tmp/1306.B"
+
+07:45:48.657  29.0.6 (sample.bin):  inst [500 or "bin-500"] value 500
+
+07:45:49.641  29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+              29.0.3 (sample.milliseconds): value 10000485.487
+              29.0.2 (sample.seconds): value 10000
+
+07:45:50.641  29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+              29.0.3 (sample.milliseconds): value 10001485.28
+              29.0.2 (sample.seconds): value 10001
+
+07:45:51.641  29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+              29.0.3 (sample.milliseconds): value 10002485.518
+              29.0.2 (sample.seconds): value 10002
+
+07:45:52.641  29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+              29.0.3 (sample.milliseconds): value 10003485.271
+              29.0.2 (sample.seconds): value 10003
+
+07:45:52.642  <mark>
+
+07:45:55.913  2.3.3 (pmcd.pmlogger.host):  inst [1368 or "1368"] value "gonzo.melbourne.sgi.com"
+              2.3.0 (pmcd.pmlogger.port):  inst [1368 or "1368"] value 4331
+              2.3.2 (pmcd.pmlogger.archive):  inst [1368 or "1368"] value "/tmp/1306.C"
+
+07:45:55.928  1.18.2 (hinv.ncpu): value 1
+
+07:45:56.912  29.0.7 (sample.drift): value 70
+              29.0.6 (sample.bin):
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+              29.0.2 (sample.seconds): value 10007
+              1.25.19 (irix.network.interface.total.packets):
+                inst [2 or "ec2"] value 4106724
+                inst [3 or "lo0"] value 316134
+
+07:45:57.912  29.0.7 (sample.drift): value 50
+              29.0.6 (sample.bin):
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+              29.0.2 (sample.seconds): value 10008
+              1.25.19 (irix.network.interface.total.packets):
+                inst [2 or "ec2"] value 4106755
+                inst [3 or "lo0"] value 316182
+
+07:45:58.912  29.0.7 (sample.drift): value 40
+              29.0.6 (sample.bin):
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+              29.0.2 (sample.seconds): value 10009
+              1.25.19 (irix.network.interface.total.packets):
+                inst [2 or "ec2"] value 4106795
+                inst [3 or "lo0"] value 316190
+
+07:45:59.912  29.0.7 (sample.drift): value 26
+              29.0.6 (sample.bin):
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+              29.0.2 (sample.seconds): value 10010
+              1.25.19 (irix.network.interface.total.packets):
+                inst [2 or "ec2"] value 4106843
+                inst [3 or "lo0"] value 316198

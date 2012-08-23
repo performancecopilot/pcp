@@ -1,0 +1,235 @@
+#! /bin/sh
+# PCP QA Test No. 367
+# pdu encode-decode
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+rm -f $seq.full
+
+# real QA test starts here
+$signal -a -s KILL pdu-server >/dev/null 2>&1
+sleep 1
+
+port=`_get_port tcp 6666 6676`
+if [ -z "$port" ]
+then
+    netstat -an | grep '66.6'
+    echo "Argh ... no free tcp port in the range 6666 ... 6676"
+    exit 1
+fi
+
+src/pdu-server -p $port -D pdu,appl0 -Z UTC >$tmp.out 2>&1 &
+server_pid=$!
+
+sleep 1
+
+src/pducheck -p $port -i 1 localhost
+
+sleep 1
+
+$signal -s TERM $server_pid
+
+cp $tmp.out $seq.full
+
+eval `sed -n <$tmp.out -e '/MYPID/{
+s/.*MYPID /server=/
+s/ / server_x=/p
+q
+}'`
+
+echo >>$seq.full
+echo "================" >>$seq.full
+echo "server=$server" >>$seq.full
+echo "server_x=$server_x" >>$seq.full
+
+if [ -z "$server" -o -z "$server_x" ]
+then
+    cat $tmp.out
+    echo "Error: arrgh, cannot get server PID from output ..."
+    exit
+fi
+
+eval `sed -n <$tmp.out -e '/CLIENTPID/{
+s/.*CLIENTPID /client=/
+s/ / client_x=/p
+q
+}'`
+echo "client=$client" >>$seq.full
+echo "client_x=$client_x" >>$seq.full
+
+if [ -z "$client" -o -z "$client_x" ]
+then
+    cat $tmp.out
+    echo "Error: arrgh, cannot get client PID from output ..."
+    exit
+fi
+
+sed <$tmp.out \
+    -e '/MYPID/d' \
+    -e '/CLIENTPID/d' \
+    -e '/ name\[/s/ ="/: "/' \
+    -e '/ status\[/s/ ="\(.*\)"/: \1/' \
+    -e 's/ fd=[0-9][0-9]*/ fd=<n>/' \
+    -e '/ id\[/{
+s/ id/ PMID/
+s/ =/:/
+s/0.0.0/0x00000000 &/
+s/123.456.789/0x1ec72315 &/
+s/255.0.0/0x3fc00000 &/
+s/0.4095.0/0x003ffc00 &/
+s/0.0.1023/0x000003ff &/
+s/PM_ID_NULL/0xffffffff &/
+}' \
+    -e '/pmGetPDU:/{
+s/\['$server'\]/[SERVER]/
+s/from='$client'/from=CLIENT/
+}' \
+    -e '/pmXmitPDU:/s/\['$server'\]/[SERVER]/' \
+    -e '/__pmtracexmitPDU:/s/\['$server'\]/[SERVER]/' \
+    -e '/PDU_CREDS:/s/sender='$client' /sender=CLIENT /' \
+    -e '/pmResult dump/s/0x[^ ]*/ADDR/' \
+    -e '/pmInResult dump/s/0x[^ ]*/ADDR/' \
+    -e '/value/s/[0-9]\.[0-9]*e-42/0/' \
+    -e '/value/s/[0-9]\.[0-9]*e-31[12]/0/' \
+    -e '/noname/s/Not privileged/Operation not permitted/' \
+    -e '/noname/s/Not owner/Operation not permitted/' \
+    -e '/^000:/{
+s/^\(...: ........ ........ \) *'$server_x' /\1  SERVER /
+s/^\(...: ........ ........ \) *'$client_x' /\1  CLIENT /
+s/e0a50100 40e20100  7000000 adde0000  1000000/   1a5e0    1e240        7     dead        1/
+s/2a000000  1000000  2000000        0 fecaadde/      2a        1        2        0 deadcafe/
+s/2b000000        0        0  6000000        0/      2b        0        0        6        0/
+s/efbeadde  2000000 cefa0000  1000000  10f5200/deadbeef        2     face        1 1f025000/
+s/62000000        0  b000000  5000000 68706c61/      62        0        b        5 616c7068/
+s/62000000  b000000  b000000 fbffffff  5000000/      62        b        b fffffffb        5/
+s/ 1000000  d000000 626d756d 662e656c 6c626d75/       1        d 6d756d62 6c652e66 756d626c/
+s/cefa0000 c04b0300 f1fb0900 adde0000        0/    face    34bc0    9fbf1     dead        0/
+s/cefa0000 c04b0300 f1fb0900 adde0000  5000000/    face    34bc0    9fbf1     dead        5/
+s/cefa0000 c04b0300 f1fb0900        0  5000000/    face    34bc0    9fbf1        0        5/
+s/34120000  b000000  1000000  5000000 68706c61/    1234        b        1        5 616c7068/
+s/34120000  b000000  1000000        0  2000000/    1234        b        1        0        2/
+s/34120000  b000000 ffffffff  5000000 68706c61/    1234        b ffffffff        5 616c7068/
+s/34120000  b000000 ffffffff  5000000 68706c61/    1234        b ffffffff        5 616c7068/
+s/2b000000  6000000        0 1523c71e     c03f/      2b        6        0 1ec72315 3fc00000/
+s/80030601 2955385e 402f6a7a 622b3162 7e7e0032/ 1060380 402f6a7a 2955385e 62312b62 32007e7e/
+s/80030601 7a6a2f40 5e385529 622b3162 7e7e0032/ 1060380 402f6a7a 2955385e 62312b62 32007e7e/
+s/80030501 54442d18 402921fb 622b3162 7e7e7e00/ 1050380 402921fb 54442d18 62312b62   7e7e7e/
+s/80030501 fb212940 182d4454 622b3162 7e7e7e00/ 1050380 402921fb 54442d18 62312b62   7e7e7e/
+s/ b000000  1000000 e8030000  2000000 adde0000/       b        1      3e8        2     dead/
+s/d0b60000 39300000 dab60000 a05b0000/    b6d0     3039     b6da     5ba0/
+s/34000000 7972616d 64616820 6c206120/      34 6d617279 20686164 2061206c/
+s/ d000000 2e6f6f66 2e726162 726f6e73/       d 666f6f2e 6261722e 736e6f72/
+s/80030401 7f3321d2 4022d97c   2b3162/ 1040380 4022d97c 7f3321d2 62312b00/
+s/80030401 7cd92240 d221337f   2b3162/ 1040380 4022d97c 7f3321d2 62312b00/
+s/80030301 54442d18 401921fb 7e003162/ 1030380 401921fb 54442d18 6231007e/
+s/80030301 fb211940 182d4454 7e003162/ 1030380 401921fb 54442d18 6231007e/
+s/80030201 54442d18 400921fb 7e7e0062/ 1020380 400921fb 54442d18 62007e7e/
+s/80030201 fb210940 182d4454 7e7e0062/ 1020380 400921fb 54442d18 62007e7e/
+s/cefa0000 c04b0300 f1fb0900/    face    34bc0    9fbf1/
+s/ 2000000  b0a0201 16151402/       2  1020a0b  2141516/
+s/34123412  5000000/12341234        5/
+s/    8001        0 ......../    8001        0 ?? pad ?/
+s/    8001        0 ......../    8001        0 ?? pad ?/
+s/    8002        0  3000000/    8002        0        3/
+s/SERVER  3000000/SERVER        3/
+s/CLIENT 41000000/CLIENT       41/
+s/SERVER 39300000/SERVER     3039/
+s/CLIENT 39300000/CLIENT     3039/
+s/SERVER c7cfffff/SERVER ffffcfc7/
+s/CLIENT c7cfffff/CLIENT ffffcfc7/
+s/SERVER efbeadde/SERVER deadbeef/
+s/CLIENT efbeadde/CLIENT deadbeef/
+s/CLIENT 80030601 7a6a2f40 5e385529 622b3162 7e7e0032/CLIENT  1060380 402f6a7a 2955385e 62312b62 32007e7e/
+s/CLIENT 80030501 fb212940 182d4454 622b3162 7e7e7e00/CLIENT  1050380 402921fb 54442d18 62312b62   7e7e7e/
+s/CLIENT 80030401 7cd92240 d221337f   2b3162/CLIENT  1040380 4022d97c 7f3321d2 62312b00/
+s/CLIENT 80030301 fb211940 182d4454 7e003162/CLIENT  1030380 401921fb 54442d18 6231007e/
+s/CLIENT 80030201 fb210940 182d4454 7e7e0062/CLIENT  1020380 400921fb 54442d18 62007e7e/
+}' \
+    -e '/^008:/{
+s/68706c61 7e7e7e61 fcffffff  4000000 61746562 fdffffff  5000000 6d6d6167/616c7068 617e7e7e fffffffc        4 62657461 fffffffd        5 67616d6d/
+s/7e7e7e61  4000000 61746562  5000000 6d6d6167 7e7e7e61 28000000 676e6f6c/617e7e7e        4 62657461        5 67616d6d 617e7e7e       28 6c6f6e67/
+s/6c747469 616c2065 690a626d 66207374 6365656c 61772065 68772073 20657469/6974746c 65206c61 6d620a69 74732066 6c656563 65207761 73207768 69746520/
+s/ 1000000 ffffffff d2040000 efbe0000  3000000  2000000 29090000  4000000/       1 ffffffff      4d2     beef        3        2      929        4/
+s/7e7e7e61  2000000  4000000 61746562  4000000  5000000 6d6d6167 7e7e7e61/617e7e7e        2        4 62657461        4        5 67616d6d 617e7e7e/
+s/7e7e7e61 ffffffff  4000000 61746562 ffffffff  5000000 6d6d6167 7e7e7e61/617e7e7e ffffffff        4 62657461 ffffffff        5 67616d6d 617e7e7e/
+s/efbe0000  3000000  2000000 29090000  4000000 800d0000  8000000/    beef        3        2      929        4      d80        8/
+s/e4b60000  7870000  1000000  1000000        0    80000   6f6f66/    b6e4     8707        1        1        0      800 666f6f00/
+s/ 4000000        0  8000000        0 10000000        0 20000000/       4        0        8        0       10        0       20/
+s/ 2000000        0 cefa0000  1000000  1000000        0  1000000/       2        0     face        1        1        0        1/
+s/d2040000 efbe0000  3000000        0  2000000 29090000/     4d2     beef        3        0        2      929/
+s/1523c71e     c03f   fc3f00 ff030000 ffffffff/1ec72315 3fc00000   3ffc00      3ff ffffffff/
+s/    c03f   fc3f00 ff030000 ffffffff/3fc00000   3ffc00      3ff ffffffff/
+s/68736966 7e7e7e6f/66697368 6f7e7e7e/
+s/008:   fc3f00 ff030000 ffffffff/008:   3ffc00      3ff ffffffff/
+s/008: 7e7e7e74/008: 747e7e7e/
+s/008: 7e7e7e65/008: 657e7e7e/
+}' \
+    -e '/^016:/{
+s/7e7e7e61 feffffff 28000000 676e6f6c 6e6f6e2d 6572672d 6c2d6b65 65747465/617e7e7e fffffffe       28 6c6f6e67 2d6e6f6e 2d677265 656b2d6c 65747465/
+s/6e6f6e2d 6572672d 6c2d6b65 65747465 616e2d72 692d656d 68742d6e 696d2d65/2d6e6f6e 2d677265 656b2d6c 65747465 722d6e61 6d652d69 6e2d7468 652d6d69/
+s/ffffffff 28000000 676e6f6c 6e6f6e2d 6572672d 6c2d6b65 65747465 616e2d72/ffffffff       28 6c6f6e67 2d6e6f6e 2d677265 656b2d6c 65747465 722d6e61/
+s/ 8000000 28000000 676e6f6c 6e6f6e2d 6572672d 6c2d6b65 65747465 616e2d72/       8       28 6c6f6e67 2d6e6f6e 2d677265 656b2d6c 65747465 722d6e61/
+s/40000000        0 80000000        0    10000        0    20000/      40        0       80        0      100        0      200/
+s/ 4000000 800d0000  8000000 d7110000        0  1000000  1000000/       4      d80        8     11d7        0        1        1/
+s/800d0000  8000000 d7110000/     d80        8     11d7/
+s/ 2000000    40000/       2      400/
+s/016: 73207361  a776f6e/016: 61732073 6e6f770a/
+s/016: d7110000/016:     11d7/
+}' \
+    -e '/^024:/{
+s/616e2d72 692d656d 68742d6e 696d2d65 656c6464 ffffffff  5000000 746c6564/722d6e61 6d652d69 6e2d7468 652d6d69 64646c65 ffffffff        5 64656c74/
+s/656c6464  5000000 746c6564 7e7e7e61  7000000 69737065 7e6e6f6c  3000000/64646c65        5 64656c74 617e7e7e        7 65707369 6c6f6e7e        3/
+s/692d656d 68742d6e 696d2d65 656c6464 ffffffff  5000000 746c6564 7e7e7e61/6d652d69 6e2d7468 652d6d69 64646c65 ffffffff        5 64656c74 617e7e7e/
+s/692d656d 68742d6e 696d2d65 656c6464 10000000  5000000 746c6564 7e7e7e61/6d652d69 6e2d7468 652d6d69 64646c65       10        5 64656c74 617e7e7e/
+s/2a000000 1523c71e  1000000  1000000 ffffffff 2c000000     c03f  1000000/      2a 1ec72315        1        1 ffffffff       2c 3fc00000        1/
+s/024:        0    40000        0/024:        0      400        0/
+s/2e6f6f66 2e726162/666f6f2e 6261722e/
+}' \
+    -e '/^032:/{
+s/7e7e7e61        0  7000000 69737065 7e6e6f6c  1000000  3000000 7e696870/617e7e7e        0        7 65707369 6c6f6e7e        1        3 7068697e/
+s/7e696870  2000000 7e7e756d  6000000 626d616c 7e7e6164  5000000 67656d6f/7068697e        2 6d757e7e        6 6c616d62 64617e7e        5 6f6d6567/
+s/ffffffff  7000000 69737065 7e6e6f6c ffffffff  3000000 7e696870 ffffffff/ffffffff        7 65707369 6c6f6e7e ffffffff        3 7068697e ffffffff/
+s/ 1000000 ffffffff 2f000000   fc3f00  1000000  1000000 ffffffff 31000000/       1 ffffffff       2f   3ffc00        1        1 ffffffff       31/
+s/20000000  7000000 69737065 7e6e6f6c 40000000  3000000 7e696870 80000000/      20        7 65707369 6c6f6e7e       40        3 7068697e       80/
+s/032:   6d6f63/032: 636f6d00/
+}' \
+    -e '/^040:/{
+s/ 2000000  2000000 7e7e756d  3000000  6000000 626d616c 7e7e6164  4000000/       2        2 6d757e7e        3        6 6c616d62 64617e7e        4/
+s/ 2000000 7e7e756d ffffffff  6000000 626d616c 7e7e6164 ffffffff  5000000/       2 6d757e7e ffffffff        6 6c616d62 64617e7e ffffffff        5/
+s/fecaadde c7cfffff  6000006 7e7e0030  c000003 21436587 78563412  8000004/deadcafe ffffcfc7  6000006 30007e7e  300000c 87654321 12345678  4000008/
+s/ 2000000 7e7e756d    10000  6000000 626d616c 7e7e6164    20000  5000000/       2 6d757e7e      100        6 6c616d62 64617e7e      200        5/
+s/542d5a54 45524548/545a2d54 48455245/
+s/7e7e7e61  5000000 74656874 7e7e7e61/617e7e7e        5 74686574 617e7e7e/
+}' \
+    -e '/^048:/{
+s/ 5000000 67656d6f 7e7e7e61  5000000  5000000 74656874 7e7e7e61/       5 6f6d6567 617e7e7e        5        5 74686574 617e7e7e/
+s/67656d6f 7e7e7e61    40000  5000000 74656874 7e7e7e61/6f6d6567 617e7e7e      400        5 74686574 617e7e7e/
+s/67656d6f 7e7e7e61 ffffffff  5000000 74656874 7e7e7e61/6f6d6567 617e7e7e ffffffff        5 74686574 617e7e7e/
+s/7d1a6963  c000005 9b979b59 135a208f/63691a7d  500000c 599b979b 8f205a13/
+}' \
+    -e '/^056:/{
+s/482d5a54   455245/545a2d48 45524500/
+}' \
+    -e '/_pmSendRequest/s/type=50331648/type=3/' \
+    -e '/Semantics: counter/s/count x 10\^-1\^5/Mbyte \/ hour/' \
+| $PCP_AWK_PROG '
+/PDU_LOG_CONTROL/	{ fix = 2 }
+/pmResult/ && fix > 0	{ fix--; $6 = "NOW"; $7 = "TODAY" }
+			{ print }'
+
+# success, all done
+status=0
+exit

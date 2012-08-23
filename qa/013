@@ -1,0 +1,61 @@
+#! /bin/sh
+# PCP QA Test No. 013
+# pmdumplog dumps core when fed a metadata file instead of a basename?
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter_trace()
+{
+    sed \
+	-e '/chkLabel:/d' \
+	-e '/__pmLogChkLabel:/d' \
+	-e '/__pmLogLoadMeta:/d' \
+	-e '/__pmLogSetTime/d' \
+	-e '/__pmLogRead/d'
+}
+
+trap "rm -f $tmp.* /tmp/bogus.* /tmp/fungus.* /tmp/fungus /tmp/bogus; exit 0" 0 1 2 3 15
+
+# real QA test starts here
+echo "For PCP 1.1 Expect cannot open archive error message, and no core file ..."
+echo "For PCP 2.0 -l src/foo.meta is a synonym for -l src/foo, so this works ..."
+
+$sudo rm -f /tmp/bogus.* /tmp/fungus.* /tmp/fungus
+touch /tmp/bogus.verylongsuffix /tmp/fungus
+for dir in /etc /sbin /bin /usr/sbin /usr/bin
+do
+    [ ! -f $dir/init ] && continue
+    cp $dir/init /tmp/fungus
+    break
+done
+
+for bad in src/foo.meta /tmp/fungus /tmp/bogus
+do
+    echo
+    if [ -f $bad ]
+    then
+	echo "=== $bad: exists ==="
+    else
+	echo "=== $bad: does not exist ==="
+    fi
+    $sudo rm -f core*
+    pmdumplog -D 128 -l $bad 2>$tmp.err >$tmp.out
+
+    _filter_pmdumplog <$tmp.out
+    if [ -s $tmp.err ]
+    then
+	# need sort 'cause "inspect file" diag order is not determinisitic
+	echo "[filtered and sorted stderr]"
+	_filter_trace <$tmp.err | LC_COLLATE=POSIX sort
+    fi
+    _check_core
+done

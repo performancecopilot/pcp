@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 190 (formerly 1003, and before that 383)
+# test bug in pmConvScale(3)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# we really on can rely on 6 digits of precision ..
+#
+_filter()
+{
+    sed \
+	-e 's/123456...........\.[0-9]/123456???????????.?/g' \
+	-e 's/123456..........\.[0-9]/123456??????????.?/g' \
+	-e 's/123456.........\.[0-9]/123456?????????.?/g' \
+	-e 's/123456........\.[0-9]/123456????????.?/g' \
+	-e 's/123456.......\.[0-9]/123456???????.?/g' \
+	-e 's/123456......\.[0-9]/123456??????.?/g' \
+	-e 's/123456.....\.[0-9]/123456?????.?/g' \
+	-e 's/123456....\.[0-9]/123456????.?/g' \
+	-e 's/123456...\.[0-9]/123456???.?/g' \
+	-e 's/123456..\.[0-9]/123456??.?/g' \
+	-e 's/123456.\.[0-9]/123456?.?/g'\
+	-e 's/123456\.[0-9]/123456.?/g'
+}
+
+# real QA test starts here
+echo "=== the dimension is NONE case ==="
+src/pmconvscale | _filter
+status=`expr $status + $?`
+
+echo
+echo "=== the dimension is COUNT case ==="
+src/pmconvscale c | _filter
+status=`expr $status + $?`
+
+echo
+echo "=== the dimension is SPACE case ==="
+src/pmconvscale s | _filter
+status=`expr $status + $?`
+
+echo
+echo "=== the dimension is TIME case ==="
+src/pmconvscale t | _filter
+status=`expr $status + $?`
+
+echo
+echo "=== the dimension is SPACE/sec case ==="
+src/pmconvscale r | _filter
+status=`expr $status + $?`
+
+exit

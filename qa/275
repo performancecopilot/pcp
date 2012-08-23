@@ -1,0 +1,143 @@
+#!/bin/sh
+# PCP QA Test No. 275
+#
+# pmUnits handling for derived metrics
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if grep -q 'pmRegisterDerived' $PCP_DIR/usr/include/pcp/pmapi.h
+then
+    :
+else
+    echo "No derived metric support" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+export PCP_DERIVED_CONFIG=$tmp.config
+
+# Derived metric expr dump from 0x8513a48...
+# expr node 0x867eb68 type=PLUS left=0x867eb98 right=0x867ed28
+_filter()
+{
+    cat $tmp.out >>$seq.full
+    awk <$tmp.out >$tmp.sed '
+BEGIN				{ n = 0 }
+$1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++ }
+				{ next }'
+    echo "=== sed ===" >>$seq.full
+    cat $tmp.sed >>$seq.full
+    sed -f $tmp.sed <$tmp.out \
+    | sed \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
+	-e 's/=0x0 /=(nil) /g' \
+	-e "s;$tmp;TMP;"
+# -e 's/ val=[0-9][0-9]*/ val=<number>/g'
+}
+
+# expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=1 [sample.pdu] master=0
+# ...
+# [0] inst=-1, val=49794
+_filter2()
+{
+    sed <$tmp.out -e 's/val=/val /' \
+    | awk >$tmp.sed2 '
+BEGIN			{ n = 0 }
+/expr.*sample\./	{ want=1; next }
+want == 1 && $3 == "val"	{ if (seen[$4] != "y") {
+				    print "s/ val=" $4 "$/ val=<value-" n ">/"
+				    n++
+				    seen[$4] = "y"
+				  }
+				}
+$1 == "expr"		{ want = 0 }'
+    echo "=== sed2 ===" >>$seq.full
+    cat $tmp.sed2 >>$seq.full
+    sed -f $tmp.sed2
+}
+
+# real QA test starts here
+
+echo "=== expression trees and pmDesc propagation ==="
+cat <<End-of-File >$tmp.config
+my.space_over_time1 = sample.mirage + sample.mirage_longlong
+my.space_over_time2 = sample.mirage_longlong + sample.mirage
+my.space_over_time3 = sample.mirage_longlong + sample.mirage - sample.byte_rate
+my.space_over_time4 = sample.byte_rate + sample.byte_rate_perhour
+my.space = sample.byte_ctr + sample.kbyte_ctr
+my.byte1 = sample.byte_rate * sample.scale_step.time_up_secs
+my.byte2 = sample.byte_rate * sample.scale_step.time_up_nanosecs
+my.x1 = sample.scale_step.bytes_down / sample.scale_step.time_up_secs
+my.x2 = sample.scale_step.bytes_down / sample.scale_step.time_up_secs + sample.mirage
+my.x3 = sample.scale_step.count_up * sample.scale_step.count_down
+my.x4 = sample.scale_step.count_down / sample.scale_step.count_up
+# discrete and instantaneous combinations
+my.i1 = 42 + sample.scale_step.none_up
+my.i2 = sample.scale_step.none_up + 42
+my.i3 = pmcd.pmlogger.port - pmcd.pmlogger.port
+End-of-File
+echo
+cat $tmp.config
+
+echo
+pminfo -Dderive,appl0,appl1 -d my >$tmp.out 2>&1
+_filter
+
+echo
+echo "=== fetch values exercises ==="
+echo
+
+pminfo -f -a src/sample_expr
+
+# suggested by gcov analysis
+echo
+echo "=== some more scale conversion tests ==="
+
+cat <<End-of-File >$tmp.config
+gcov.a = ( 1 / sample.mirage_longlong ) / (1 / sample.mirage )
+gcov.b = ( 1 / sample.mirage ) / (1 / sample.mirage_longlong )
+gcov.c = sample.seconds + disk.all.total
+gcov.d = sample.ulong.count.base - sample.ulong.count.kilo
+gcov.e = sample.ulong.count.mega - sample.ulong.count.kilo
+gcov.f = (1/sample.ulong.count.base) - (1/sample.ulong.count.kilo)
+gcov.g = (1/sample.ulong.count.mega) - (1/sample.ulong.count.kilo)
+End-of-File
+echo
+cat $tmp.config
+
+pminfo -Dderive,appl1 -d gcov >$tmp.out 2>&1
+_filter | _filter2
+
+pminfo -f gcov.d gcov.e gcov.f gcov.g
+
+exit
+
+# don't have any semantic checking at this stage ... all done earlier
+
+echo
+echo "=== semantic errors ==="
+cat <<End-of-File >$tmp.config
+End-of-File
+echo
+cat $tmp.config
+
+echo
+pminfo -Dderive,appl0,appl1 -d my >$tmp.out 2>&1
+_filter
+
+# success, all done
+exit

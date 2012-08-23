@@ -1,0 +1,384 @@
+QA output created by 260
+=== expression trees and pmDesc propagation ===
+
+delta.m1 = delta(pmcd.pdu_in.total)
+delta.m2 = delta(pmcd.pdu_out.total) + sample.bigid
+delta.m3 = sample.bigid - delta(pmcd.pdu_out.total)
+delta.m4 = sample.bigid - 3 * delta(pmcd.pdu_out.total) / sample.long.ten
+delta.m5 =  delta(pmcd.pdu_in.total) / ( delta(pmcd.pdu_in.total) + delta(pmcd.pdu_out.total) )
+delta.m6 =  delta(pmcd.pdu_in.total) / delta(pmcd.pdu_in.total) - delta(pmcd.pdu_out.total) / delta(pmcd.pdu_in.total)
+
+=== delta ===
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: name="delta.m1" expr="delta(pmcd.pdu_in.total)"
+parse(1) state=P_INIT type=L_DELTA "delta("
+parse(1) state=P_FUNC_OP type=L_NAME "pmcd.pdu_in.total"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[0] delta.m1 = delta(pmcd.pdu_in.total)
+Derived metric expr dump from <addr-0>...
+expr node <addr-0> type=DELTA left=<addr-1> right=(nil) save_last=0
+expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=1
+pmRegisterDerived: name="delta.m2" expr="delta(pmcd.pdu_out.total) + sample.bigid"
+parse(1) state=P_INIT type=L_DELTA "delta("
+parse(1) state=P_FUNC_OP type=L_NAME "pmcd.pdu_out.total"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.bigid"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[1] delta.m2 = delta(pmcd.pdu_out.total) + sample.bigid
+Derived metric expr dump from <addr-2>...
+expr node <addr-2> type=PLUS left=<addr-3> right=<addr-5> save_last=0
+expr node <addr-3> type=DELTA left=<addr-4> right=(nil) save_last=0
+expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_out.total] master=1
+expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] master=1
+pmRegisterDerived: name="delta.m3" expr="sample.bigid - delta(pmcd.pdu_out.total)"
+parse(1) state=P_INIT type=L_NAME "sample.bigid"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_DELTA "delta("
+parse(1) state=P_FUNC_OP type=L_NAME "pmcd.pdu_out.total"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[2] delta.m3 = sample.bigid - delta(pmcd.pdu_out.total)
+Derived metric expr dump from <addr-6>...
+expr node <addr-6> type=MINUS left=<addr-7> right=<addr-8> save_last=0
+expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] master=1
+expr node <addr-8> type=DELTA left=<addr-9> right=(nil) save_last=0
+expr node <addr-9> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_out.total] master=1
+pmRegisterDerived: name="delta.m4" expr="sample.bigid - 3 * delta(pmcd.pdu_out.total) / sample.long.ten"
+parse(1) state=P_INIT type=L_NAME "sample.bigid"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_NUMBER "3"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_DELTA "delta("
+parse(1) state=P_FUNC_OP type=L_NAME "pmcd.pdu_out.total"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_SLASH "/"
+parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[3] delta.m4 = sample.bigid - 3 * delta(pmcd.pdu_out.total) / sample.long.ten
+Derived metric expr dump from <addr-10>...
+expr node <addr-10> type=MINUS left=<addr-11> right=<addr-12> save_last=0
+expr node <addr-11> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] master=1
+expr node <addr-12> type=SLASH left=<addr-13> right=<addr-17> save_last=0
+expr node <addr-13> type=STAR left=<addr-14> right=<addr-15> save_last=0
+expr node <addr-14> type=NUMBER left=(nil) right=(nil) save_last=0 [3] master=1
+expr node <addr-15> type=DELTA left=<addr-16> right=(nil) save_last=0
+expr node <addr-16> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_out.total] master=1
+expr node <addr-17> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
+pmRegisterDerived: name="delta.m5" expr="delta(pmcd.pdu_in.total) / ( delta(pmcd.pdu_in.total) + delta(pmcd.pdu_out.total) )"
+parse(1) state=P_INIT type=L_DELTA "delta("
+parse(1) state=P_FUNC_OP type=L_NAME "pmcd.pdu_in.total"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_SLASH "/"
+parse(1) state=P_BINOP type=L_LPAREN "("
+parse(2) state=P_INIT type=L_DELTA "delta("
+parse(2) state=P_FUNC_OP type=L_NAME "pmcd.pdu_in.total"
+parse(2) state=P_FUNC_END type=L_RPAREN ")"
+parse(2) state=P_LEAF type=L_PLUS "+"
+parse(2) state=P_BINOP type=L_DELTA "delta("
+parse(2) state=P_FUNC_OP type=L_NAME "pmcd.pdu_out.total"
+parse(2) state=P_FUNC_END type=L_RPAREN ")"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_EOF ""
+pmRegisterDerived: register metric[4] delta.m5 = delta(pmcd.pdu_in.total) / ( delta(pmcd.pdu_in.total) + delta(pmcd.pdu_out.total) )
+Derived metric expr dump from <addr-18>...
+expr node <addr-18> type=SLASH left=<addr-19> right=<addr-21> save_last=0
+expr node <addr-19> type=DELTA left=<addr-20> right=(nil) save_last=0
+expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=1
+expr node <addr-21> type=PLUS left=<addr-22> right=<addr-24> save_last=0
+expr node <addr-22> type=DELTA left=<addr-23> right=(nil) save_last=0
+expr node <addr-23> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=1
+expr node <addr-24> type=DELTA left=<addr-25> right=(nil) save_last=0
+expr node <addr-25> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_out.total] master=1
+pmRegisterDerived: name="delta.m6" expr="delta(pmcd.pdu_in.total) / delta(pmcd.pdu_in.total) - delta(pmcd.pdu_out.total) / delta(pmcd.pdu_in.total)"
+parse(1) state=P_INIT type=L_DELTA "delta("
+parse(1) state=P_FUNC_OP type=L_NAME "pmcd.pdu_in.total"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_SLASH "/"
+parse(1) state=P_BINOP type=L_DELTA "delta("
+parse(1) state=P_FUNC_OP type=L_NAME "pmcd.pdu_in.total"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_DELTA "delta("
+parse(1) state=P_FUNC_OP type=L_NAME "pmcd.pdu_out.total"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_SLASH "/"
+parse(1) state=P_BINOP type=L_DELTA "delta("
+parse(1) state=P_FUNC_OP type=L_NAME "pmcd.pdu_in.total"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[5] delta.m6 = delta(pmcd.pdu_in.total) / delta(pmcd.pdu_in.total) - delta(pmcd.pdu_out.total) / delta(pmcd.pdu_in.total)
+Derived metric expr dump from <addr-26>...
+expr node <addr-26> type=MINUS left=<addr-27> right=<addr-32> save_last=0
+expr node <addr-27> type=SLASH left=<addr-28> right=<addr-30> save_last=0
+expr node <addr-28> type=DELTA left=<addr-29> right=(nil) save_last=0
+expr node <addr-29> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=1
+expr node <addr-30> type=DELTA left=<addr-31> right=(nil) save_last=0
+expr node <addr-31> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=1
+expr node <addr-32> type=SLASH left=<addr-33> right=<addr-35> save_last=0
+expr node <addr-33> type=DELTA left=<addr-34> right=(nil) save_last=0
+expr node <addr-34> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_out.total] master=1
+expr node <addr-35> type=DELTA left=<addr-36> right=(nil) save_last=0
+expr node <addr-36> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=1
+__dmopencontext(->ctx 0) called
+__dmopencontext: bind metric[0] delta.m1
+Derived metric expr dump from <addr-37>...
+expr node <addr-37> type=DELTA left=<addr-38> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-38> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=0
+    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+__dmopencontext: bind metric[1] delta.m2
+Derived metric expr dump from <addr-39>...
+expr node <addr-39> type=PLUS left=<addr-40> right=<addr-42> save_last=0
+    PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-40> type=DELTA left=<addr-41> right=(nil) save_last=0
+    PMID: PM_ID_NULL (2.2.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-41> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_out.total] master=0
+    PMID: 2.2.16 (2.2.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+expr node <addr-42> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] master=0
+    PMID: 29.0.1023 (29.0.1023 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+__dmopencontext: bind metric[2] delta.m3
+Derived metric expr dump from <addr-43>...
+expr node <addr-43> type=MINUS left=<addr-44> right=<addr-45> save_last=0
+    PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-44> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] master=0
+    PMID: 29.0.1023 (29.0.1023 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-45> type=DELTA left=<addr-46> right=(nil) save_last=0
+    PMID: PM_ID_NULL (2.2.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-46> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_out.total] master=0
+    PMID: 2.2.16 (2.2.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+__dmopencontext: bind metric[3] delta.m4
+Derived metric expr dump from <addr-47>...
+expr node <addr-47> type=MINUS left=<addr-48> right=<addr-49> save_last=0
+    PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-48> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] master=0
+    PMID: 29.0.1023 (29.0.1023 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-49> type=SLASH left=<addr-50> right=<addr-54> save_last=0
+    PMID: PM_ID_NULL (2.2.16 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-50> type=STAR left=<addr-51> right=<addr-52> save_last=0
+    PMID: PM_ID_NULL (2.2.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-51> type=NUMBER left=(nil) right=(nil) save_last=0 [3] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-52> type=DELTA left=<addr-53> right=(nil) save_last=0
+    PMID: PM_ID_NULL (2.2.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-53> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_out.total] master=0
+    PMID: 2.2.16 (2.2.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+expr node <addr-54> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=0
+    PMID: 29.0.11 (29.0.11 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+__dmopencontext: bind metric[4] delta.m5
+Derived metric expr dump from <addr-55>...
+expr node <addr-55> type=SLASH left=<addr-56> right=<addr-58> save_last=0
+    PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-56> type=DELTA left=<addr-57> right=(nil) save_last=0
+    PMID: PM_ID_NULL (2.1.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-57> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=0
+    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+expr node <addr-58> type=PLUS left=<addr-59> right=<addr-61> save_last=0
+    PMID: PM_ID_NULL (2.1.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-59> type=DELTA left=<addr-60> right=(nil) save_last=0
+    PMID: PM_ID_NULL (2.1.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-60> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=0
+    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+expr node <addr-61> type=DELTA left=<addr-62> right=(nil) save_last=0
+    PMID: PM_ID_NULL (2.2.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-62> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_out.total] master=0
+    PMID: 2.2.16 (2.2.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+__dmopencontext: bind metric[5] delta.m6
+Derived metric expr dump from <addr-63>...
+expr node <addr-63> type=MINUS left=<addr-64> right=<addr-69> save_last=0
+    PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-64> type=SLASH left=<addr-65> right=<addr-67> save_last=0
+    PMID: PM_ID_NULL (2.1.16 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-65> type=DELTA left=<addr-66> right=(nil) save_last=0
+    PMID: PM_ID_NULL (2.1.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-66> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=0
+    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+expr node <addr-67> type=DELTA left=<addr-68> right=(nil) save_last=0
+    PMID: PM_ID_NULL (2.1.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-68> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=0
+    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+expr node <addr-69> type=SLASH left=<addr-70> right=<addr-72> save_last=0
+    PMID: PM_ID_NULL (2.2.16 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-70> type=DELTA left=<addr-71> right=(nil) save_last=0
+    PMID: PM_ID_NULL (2.2.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-71> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_out.total] master=0
+    PMID: 2.2.16 (2.2.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+expr node <addr-72> type=DELTA left=<addr-73> right=(nil) save_last=0
+    PMID: PM_ID_NULL (2.1.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-73> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=0
+    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+__dmgetpmid: metric "delta.m1" -> PMID 511.0.1
+__dmgetpmid: metric "delta.m2" -> PMID 511.0.2
+__dmgetpmid: metric "delta.m3" -> PMID 511.0.3
+__dmgetpmid: metric "delta.m4" -> PMID 511.0.4
+__dmgetpmid: metric "delta.m5" -> PMID 511.0.5
+__dmgetpmid: metric "delta.m6" -> PMID 511.0.6
+
+delta.m1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+delta.m2
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+delta.m3
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+delta.m4
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+delta.m5
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+delta.m6
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+=== fetch values exercises ===
+r: ?
+l: ?
+ull: ?
+f: ?
+d: ?
+
+r: 0.4
+l: 0
+ull: 0
+f: 0
+d: 0
+
+r: 0.50
+l: 0
+ull: 0
+f: 0
+d: 0
+
+r: 0.50
+l: 0
+ull: 0
+f: 0
+d: 0
+
+r: 0.50
+l: 0
+ull: 0
+f: 0
+d: 0
+
+r: 0.50
+l: 0
+ull: 0
+f: 0
+d: 0
+
+r: 0.50
+l: 0
+ull: 0
+f: 0
+d: 0
+
+r: 0.50
+l: 0
+ull: 0
+f: 0
+d: 0
+
+r: 0.50
+l: 0
+ull: 0
+f: 0
+d: 0
+
+r: 0.50
+l: 0
+ull: 0
+f: 0
+d: 0
+
+r: 0.50
+l: 0
+ull: 0
+f: 0
+d: 0
+
+pmie: note - evaluator exiting

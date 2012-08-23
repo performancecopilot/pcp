@@ -1,0 +1,14 @@
+QA output created by 622
+load: using config file TMPFILE
+yylex() -> IDENT "delta"
+yylex() -> TOKEN '=' (0x3d)
+yylex() -> NUMBER 1
+yylex() -> UNITS "sec"
+yylex() -> END-OF-RULE
+yylex() -> IDENT "one"
+yylex() -> TOKEN '=' (0x3d)
+yylex() -> IDENT "sample.long.no-hyphen"
+yylex() -> TOKEN ':' (0x3a)
+yylex() -> IDENT "PCPQA_HYPHEN_HOST"
+yylex() -> END-OF-RULE
+pmie: metric sample.long.no-hyphen not in namespace for host PCPQA_HYPHEN_HOST

@@ -1,0 +1,87 @@
+#! /bin/sh
+# PCP QA Test No. 091
+# interpolate mode backwards
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_filter_logreads()
+{
+    $PCP_AWK_PROG '
+/log reads/ { if ('$1' <= $4 && $4 <= '$2')
+		print $1 " samples required '$1' - '$2' log reads"
+	      else
+		print $0 " ... no. log reads unexpected"
+	      next
+	    }
+	    { print }'
+}
+
+_filter_number()
+{
+    sed -e '/delta/s/: -*[0-9][0-9]*$/: NUMBER/'
+}
+
+_filter_colour()
+{
+    sed \
+	-e '/value\[0]:/{
+s/ red/ COLOUR/
+s/ yellow/ COLOUR/
+s/ green/ COLOUR/
+}'
+}
+
+_filter_seconds()
+{
+    $PCP_AWK_PROG '
+BEGIN	{ previous = -1; sum = 0 }
+/^delta/ { sum += -(int($2));
+	  if ($2 < -2 || $2 > 0)
+	    printf("%s: Error - out of range !(-2<=%d<=0)\n", $0, $2);
+	  else if (previous == $2 && previous != -1)
+	    printf("$s: Error - previous (%d) == current (%d)\n", $0, previous, $2);
+	  else
+	    print "delta[0]: INT"
+	  next
+	}		   
+	{ print }
+END	{ if (sum < 4 || sum > 7)
+	    printf("sum of sample.seconds is out of range !(4<=%d<=7)\n", sum)
+	}'
+}
+
+# real QA test starts here
+for arch in src/foo src/mv-foo src/noti-foo
+do
+    echo
+    echo "=== archive $arch ==="
+    echo
+    echo "metric: sample.seconds"
+    src/interp1 -s 6 -a $arch sample.seconds | _filter_logreads 8 12 | _filter_seconds
+
+    echo ""
+    echo "metric: sample.bin"
+    src/interp1 -s 6 -a $arch sample.bin | _filter_logreads 8 12
+
+    echo ""
+    echo "metric: sample.colour"
+    src/interp1 -s 6 -a $arch sample.colour | _filter_number | _filter_logreads 8 12
+
+    echo ""
+    echo "metric: sample.drift"
+    src/interp1 -s 6 -a $arch sample.drift | _filter_number | _filter_logreads 8 12
+
+    echo ""
+    echo "metric: sample.lights"
+    src/interp1 -s 6 -a $arch sample.lights | _filter_colour | _filter_logreads 8 12
+done

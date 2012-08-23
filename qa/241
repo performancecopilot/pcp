@@ -1,0 +1,131 @@
+#!/bin/sh
+# PCP QA Test No. 241
+# mmv pmda exerciser ... Martin's test case that was failing
+# mmv install/cleanup borrowed from 647
+#
+# Copyright (c) 2009 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+done_clean=false
+MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
+SAVE_MMV_STATS_DIR="$PCP_TMP_DIR/mmv.$seq"
+
+$sudo rm -rf $tmp.*
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	[ -d $SAVE_MMV_STATS_DIR ] && rm -fr "$MMV_STATS_DIR"
+	[ -d $SAVE_MMV_STATS_DIR ] && $sudo mv $SAVE_MMV_STATS_DIR $MMV_STATS_DIR
+	rm -f $tmp.*
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	done_clean=true
+    fi
+    exit $status
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+home="$PCP_PMDAS_DIR"
+iam=mmv
+if [ ! -d "$home/$iam" ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd "$home/$iam"
+unset ROOT
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH "$tmp.pmcd.conf"
+# move the MMV directory to restore contents later.
+[ -d $MMV_STATS_DIR ] && $sudo mv -f $MMV_STATS_DIR $SAVE_MMV_STATS_DIR
+
+# start from a known starting point
+$sudo ./Remove >/dev/null 2>&1
+
+mkdir "$MMV_STATS_DIR"
+chmod 1777 "$MMV_STATS_DIR"
+
+cat <<'End-of-File' >$tmp.perl
+use strict;
+use warnings;
+use PCP::MMV;
+
+my @indoms = ();
+my @metrics = (
+    ['export_value',
+     1, MMV_TYPE_U64, MMV_INDOM_NULL,
+     mmv_units(0,0,0,0,0,0), MMV_SEM_INSTANT,
+     'A counter of some value', ''
+    ]
+);
+
+my $handle = mmv_stats_init('mymmv', 0, MMV_FLAG_PROCESS, \@metrics, \@indoms);
+die ("mmv_stats_init failed\n") unless (defined($handle));
+
+while (my $line = <STDIN>) {
+    print $line;
+    next if not $line =~ /^new value:/;
+    
+    my $val;
+    ($val = $line) =~ s/^new value: (\d+)/$1/;
+    chomp $val;
+    mmv_stats_set($handle, 'export_value', '', $val);
+}
+End-of-File
+
+# real QA test starts here
+
+echo
+echo "=== $iam agent installation ==="
+cat <<End-of-File | $sudo ./Install -e >$tmp.out 2>&1
+b
+dso
+End-of-File
+_filter_pmda_install <$tmp.out
+
+value=5
+for i in 1 2 3 4
+do
+   echo "new value: $value"
+   value=`expr $value + 1`
+   sleep 1
+   [ "$i" = 1 ] && pmval -t 0.5sec -s 20 mmv.mymmv.export_value >$tmp.out 2>&1 &
+   sleep 1
+done \
+| perl $tmp.perl
+
+wait
+
+echo "Filtered pmval output ..."
+grep '^[a-z]' $tmp.out
+grep '^[^a-z]' $tmp.out | LC_COLLATE=POSIX sort -u
+
+# success, all done
+exit

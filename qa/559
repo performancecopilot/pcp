@@ -1,0 +1,49 @@
+#! /bin/sh
+# PCP QA Test No. 559
+# exercise pmlogsummary mark record handling - #556340
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# 
+# Note: markmerge archive created using this pmlogger config:
+# 
+
+# #
+# # config for archives for pmlogsummary mark record QA testing ...
+# #   (the rapid counter is used to push the mark record created by merging
+# #    two of these files away from the interesting data - by default,
+# #    pmlogextract appends it one millisecond after the last record in 1st
+# #    archive - which is less useful for pmlogsummary stats calculations).
+# #
+# 
+# log mandatory on 100 milliseconds
+#     sample.const_rate.value     # arbitrary metric
+# 
+# log mandatory on once
+#     sample.dynamic.discrete
+# 
+# log mandatory on 2 seconds {
+#     sample.dynamic.instant
+#     sample.dynamic.counter
+# }
+# 
+
+
+# real QA test starts here
+pmlogsummary -za src/markmerge
+
+# success, all done
+status=0
+exit

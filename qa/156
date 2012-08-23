@@ -1,0 +1,156 @@
+#! /bin/sh
+# PCP QA Test No. 156
+# check out sample PMDA
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd 240
+_wait_for_pmlogger
+
+_filter()
+{
+    _filter_pmda_install | \
+    sed -e 's/ 1[1-2][0-9][0-9] values/ 1200+ values/' \
+	-e 's/ 1[0-9] warnings/ 10+ warnings/' \
+	-e 's/ 1[0-4][0-9] metrics/ 100+ metrics/' \
+	-e "s;$tmp;TMP;" \
+	-e "s/$port1/PORT1/" \
+	-e "s/$port2/PORT2/"
+}
+
+_filter_rem()
+{
+    sed \
+	-e '/mips_64/d' \
+	-e '/mips_o32/d' \
+	-e '/mips_n32/d'
+}
+
+_check_pmda_gone()
+{
+    sleep 2
+    pminfo -v $1 && echo "Error: pminfo -v found some \"$1\" metrics"
+    ps $PCP_PS_ALL_FLAGS | grep pmda$1 >$tmp.tmp
+    if [ ! -z "`grep -v grep <$tmp.tmp`" ]
+    then
+	echo "Error: some \"$1\" PMDAs still present"
+	cat $tmp.tmp
+    fi
+    rm -f $tmp.tmp
+}
+
+status=1
+
+# save pmcd.conf and restore it after the test
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+home=$PCP_PMDAS_DIR
+iam=sample
+if [ ! -d $home/$iam ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd $home/$iam
+unset ROOT
+
+if [ ! -f dynamic.indom ]
+then
+    echo "1 one" >$tmp.indom
+    echo "2 two" >>$tmp.indom
+    $sudo cp $tmp.indom dynamic.indom
+fi
+
+# make sure sample agent is running again at the end, so other QA tests
+# continue to work
+#
+trap "echo; echo 'Reinstall PMDA ...'; $sudo ./Install </dev/null >$tmp.out; _filter <$tmp.out; $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH; $sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+echo
+echo "=== remove agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+_filter_rem <$tmp.out
+_check_pmda_gone $iam
+
+echo
+echo "=== pipe agent ==="
+echo 'both
+pipe' | $sudo ./Install -e >$tmp.out 2>&1
+_filter <$tmp.out
+pminfo -v sample || echo "... failed!"
+echo 'both
+pipe' | $sudo ./Install -e >$tmp.out 2>&1
+_filter <$tmp.out
+pminfo -v sample || echo "... failed!"
+
+echo
+echo "=== socket Internet agent ==="
+
+# pick a tcp port that is not in use
+#
+port1=`_get_port tcp 5670 5689`
+if [ -z "$port1" ]
+then
+    echo "Arrgh ... no free TCP port in the range 5670 ... 5689"
+    exit 1
+fi
+
+echo 'both
+socket
+Internet
+'$port1 | $sudo ./Install -e >$tmp.out 2>&1
+_filter <$tmp.out
+pminfo -v sample || echo "... failed!"
+
+# use next port this time
+port2=`expr $port1 + 1`
+
+echo 'both
+socket
+Internet
+'$port2 | $sudo ./Install -e >$tmp.out 2>&1
+_filter <$tmp.out
+pminfo -v sample || echo "... failed!"
+
+echo
+echo "=== socket Unix agent ==="
+echo 'both
+socket
+Unix
+'"$tmp.fifo" | $sudo ./Install -e >$tmp.out 2>&1
+_filter <$tmp.out
+pminfo -v sample || echo "... failed!"
+echo 'both
+socket
+Unix
+'"$tmp.fifo" | $sudo ./Install -e >$tmp.out 2>&1
+_filter <$tmp.out
+pminfo -v sample || echo "... failed!"
+
+$sudo ./Remove >$tmp.out 2>&1
+_filter_rem <$tmp.out
+_check_pmda_gone $iam
+
+status=0
+exit

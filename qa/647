@@ -1,0 +1,129 @@
+#! /bin/sh
+# PCP QA Test No. 647
+# Install/Remove for Memory Mapped Value PMDA
+#
+# Copyright (c) 2009 Aconex.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+status=1
+done_clean=false
+MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	if [ -d $tmp.mmv.dir ]
+	then
+	    rm -fr "$MMV_STATS_DIR"
+	    $sudo mv $tmp.mmv.dir $MMV_STATS_DIR
+	fi
+	rm -f $tmp.*
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	done_clean=true
+    fi
+    exit $status
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+_filter_mmv_values()
+{
+    sed -e \
+	's/"eggs"\] value .*/"eggs"] value USEC/g'
+}
+
+# real QA test starts here
+home="$PCP_PMDAS_DIR"
+iam=mmv
+if [ ! -d "$home/$iam" ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd "$home/$iam"
+unset ROOT
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH "$tmp.pmcd.conf"
+# move the MMV directory to restore contents later.
+[ -d $MMV_STATS_DIR ] && $sudo mv -f $MMV_STATS_DIR $tmp.mmv.dir
+
+# start from a known starting point
+$sudo ./Remove >/dev/null 2>&1
+
+mkdir "$MMV_STATS_DIR"
+chmod 1777 "$MMV_STATS_DIR"
+
+echo
+echo "=== $iam agent installation ==="
+$sudo ./Install </dev/null >$tmp.out 2>&1
+_filter_pmda_install <$tmp.out
+
+$here/src/mmv_genstats
+
+echo
+echo "=== validate values ==="
+if pminfo $iam | LC_COLLATE=POSIX sort >$tmp.names
+then
+    for name in `cat $tmp.names`
+    do
+	pminfo -fdmtT $name | _filter_mmv_values
+    done
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+$here/src/mmv_noinit
+
+echo
+echo "=== validate metrics ==="
+if pminfo $iam | LC_COLLATE=POSIX sort >$tmp.names
+then
+    for name in `cat $tmp.names`
+    do
+	pminfo -fdmtT $name
+    done
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+echo
+echo "=== remove $iam agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_remove <$tmp.out
+
+echo
+echo "=== $iam agent re-installation ==="
+cat <<End-of-File | $sudo ./Install >$tmp.out 2>&1
+b
+dso
+End-of-File
+_filter_pmda_install <$tmp.out
+
+status=0
+exit

@@ -1,0 +1,148 @@
+#!/bin/sh
+#
+# Recipe to recreate the interpmark archive
+#
+# Final archive is
+#	section-a
+#	<mark>
+#	section-b
+#	<mark>
+#	section-c
+#	<mark>
+#	[nothing]
+#	<mark>
+#	section-d
+#
+# section-a contains metrics from this matrix
+#	semantics { counter, discrete, instant } x
+#	type { 32-bit, 64-bit } x
+#	instances { singular, indom } x
+#	sample intervals { 500msec, 2sec, 10sec (once or 2sec for discrete) }
+# for a total time of 35 seconds
+#
+# metric		semantics	type	indom	sample
+# disk.dev.read		counter		U64	60.1	500msec
+# disk.dev.write	counter		U64	60.1	2sec
+# disk.dev.total	counter		U64	60.1	10sec
+# disk.all.read		counter		U64	NULL	500msec
+# disk.all.write	counter		U64	NULL	2sec
+# disk.all.total	counter		U64	NULL	10sec
+# disk.dev.read_bytes	counter		U32	60.1	500msec
+# disk.dev.write_bytes	counter		U32	60.1	2sec
+# disk.dev.total_bytes	counter		U32	60.1	10sec
+# disk.all.read_bytes	counter		U32	NULL	500msec
+# disk.all.write_bytes	counter		U32	NULL	2sec
+# disk.all.total_bytes	counter		U32	NULL	10sec
+#
+# filesys.used		instant		U64	60.5	500msec
+# sample.longlong.bin	instant		64	29.2	2sec
+# filesys.free		instant		U64	60.5	10sec
+# sample.longlong.one	instant		64	NULL	500msec
+# swap.length		instant		U64	NULL	2sec
+# mem.util.kernelStack	instant		U64	NULL	10sec
+# filesys.usedfiles	instant		U32	60.5	500msec
+# swapdev.free		instant		U32	60.6	2sec
+# pmcd.buf.alloc	instant		32	2.5	10sec
+# sample.control	instant		32	NULL	500msec
+# kernel.all.uptime	instant		U32	NULL	2sec
+# network.tcpconn.close	instant		U32	NULL	10sec
+# 
+# filesys.capacity	discrete	U64	60.5	2sec
+# tmpfs.capacity	discrete	U64	60.18	once
+#
+# mem.physmem		discrete	U64	NULL	2sec
+#
+# filesys.capacity	discrete	U32	60.5	2sec
+# hinv.cpu.cache	discrete	U32	60.0	once
+# filesys.maxfiles	discrete	U32	60.5	once
+# hinv.physmem		discrete	U32	NULL	2sec
+# hinv.pagesize		discrete	U32	NULL	once
+# hinv.ncpu		discrete	U32	NULL	once
+#
+# section-b and section-d are the same as section-a (same pmlogger config)
+#
+# section-c contains only one sample for the 500msec sampling data
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat >$tmp.conf <<End-of-File
+log mandatory on once {
+    tmpfs.capacity
+    hinv.cpu.cache
+    filesys.maxfiles
+    hinv.pagesize
+    hinv.ncpu
+}
+
+log mandatory on 500msec {
+    disk.dev.read
+    disk.all.read
+    disk.dev.read_bytes
+    disk.all.read_bytes
+    filesys.used
+    sample.longlong.one
+    filesys.usedfiles
+    sample.control
+}
+
+log mandatory on 2sec {
+    disk.dev.write
+    disk.all.write
+    disk.dev.write_bytes
+    disk.all.write_bytes
+    sample.longlong.bin
+    swap.length
+    swapdev.free
+    kernel.all.uptime
+    filesys.capacity
+    mem.physmem
+    filesys.capacity
+    hinv.physmem
+}
+
+log mandatory on 10sec {
+    disk.dev.total
+    disk.all.total
+    disk.dev.total_bytes
+    disk.all.total_bytes
+    filesys.free
+    mem.util.kernelStack
+    pmcd.buf.alloc
+    network.tcpconn.close
+}
+End-of-File
+
+cat >$tmp.conf.c <<End-of-File
+log mandatory on once {
+    disk.dev.read
+    disk.all.read
+    disk.dev.read_bytes
+    disk.all.read_bytes
+    filesys.used
+    sample.longlong.one
+    filesys.usedfiles
+    sample.control
+}
+End-of-File
+
+echo "section-a"
+rm -f section-a.*
+pmlogger -c $tmp.conf -l a.log -T +35sec section-a
+sleep 2
+echo "section-b"
+rm -f section-b.*
+pmlogger -c $tmp.conf -l b.log -T +35sec section-b
+sleep 2
+echo "section-c"
+rm -f section-c.*
+pmlogger -c $tmp.conf.c -l c.log -s 1 section-c
+sleep 10
+echo "section-d"
+rm -f section-d.*
+pmlogger -c $tmp.conf -l d.log -T +35sec section-d
+
+rm interpmark.*
+pmlogextract section-a section-b section-c section-d interpmark
+

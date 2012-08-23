@@ -1,0 +1,217 @@
+#! /bin/sh
+# PCP QA Test No. 270
+# Test `pmlogextract':
+#	 1. one input file, one output file, no parameters		- work
+#	 2. one input file, one output file, -S, -T and -z parameters	- work
+#		(-S and -T are within the archive)
+#	 3. one input file, one output file, -S and -z parameters	- work
+#		(-S is out of range)
+#	 4. one input file, one output file, -T and -z parameters	- work
+#		(-T is out of range)
+#	 5. one input file, one output file, -t parameter		- work
+#	 6. one input file, one output file, -c parameter		- work
+#	 7. one input file, one output file, -c, -S, -T & -z parameter	- work
+#	 8. one input file, one output file, -S, -T, -w & -z parameter	- work
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_check_output()
+{
+    [ $# != 1 ] && return
+    prog=$1
+
+    if [ -f $tmp.err ]
+    then
+	if [ -s $tmp.err ]
+	then
+	    echo "Warning: $prog reported the following errors:"
+	    cat $tmp.err | sed -e 's/tmp\/[0-9]*/tmp\/PID/'
+	    echo
+	fi
+    else
+	echo "Warning: cannot find error file \"$tmp.err\"."
+    fi
+}
+
+
+# real QA test starts here
+echo "Test pmlogextract"
+
+
+# step 1
+rm -rf $tmp.arch*
+echo
+echo " --- step 1: no flags ---"
+echo "(output depends on src/mirage{0,index,meta})"
+pmlogextract src/mirage $tmp.arch >$tmp.out 2>$tmp.err
+_check_output pmlogextract
+pmdumplog -L -z $tmp.arch | sed -e '/^PID/s/: [0-9]*/: PID/'
+
+
+# step 2
+rm -rf $tmp.arch*
+echo
+echo " --- step 2: test -S, -T and -z flags ---"
+echo "(output depends on src/mirage{0,index,meta})"
+pmlogextract -S "@10:50:00" -T "@11:00:00" -z src/mirage $tmp.arch >$tmp.out 2>$tmp.err
+_check_output pmlogextract
+pmdumplog -L -z $tmp.arch | sed -e '/^PID/s/: [0-9]*/: PID/'
+
+
+# step 3
+rm -rf $tmp.arch*
+echo
+echo " --- step 3: test -S out of range ---"
+echo "(output depends on src/mirage{0,index,meta})"
+pmlogextract -S "@10:00:00" -z src/mirage $tmp.arch >$tmp.out 2>$tmp.err
+_check_output pmlogextract
+pmdumplog -L -z $tmp.arch | sed -e '/^PID/s/: [0-9]*/: PID/'
+
+
+# step 4
+rm -rf $tmp.arch*
+echo
+echo " --- step 4: test -T out of range ---"
+echo "(output depends on src/mirage{0,index,meta})"
+pmlogextract -T "@12:00:00" -z src/mirage $tmp.arch >$tmp.out 2>$tmp.err
+_check_output pmlogextract
+pmdumplog -L -z $tmp.arch | sed -e '/^PID/s/: [0-9]*/: PID/'
+
+
+# this was never implemented correctly .. skip it
+## step 5
+#rm -rf $tmp.arch*
+#echo
+#echo " --- step 5: test -t flag ---"
+#echo "(output depends on src/mirage{0,index,meta})"
+## update interval for "sample.drift" in src/mirage is 1 minute
+#pmlogextract -n src/root_irix -t "2min" src/mirage $tmp.arch >$tmp.out 2>$tmp.err1
+#cat $tmp.err1 \
+#	| sed -e '/^Description unavailable/d' \
+#	| sed -e '/^Reason:/d' \
+#	| sed -e '/^Warning \[/d' > $tmp.err
+#_check_output pmlogextract
+#pmdumplog -m -z $tmp.arch sample.drift | sed -e '/^$/d'
+
+# step 6
+rm -rf $tmp.arch*
+rm -rf $tmp.config
+echo
+echo " --- step 6: test config file ---"
+echo "(output depends on src/mirage{0,index,meta})"
+# src/mirage contains "sample.bin", "sample.drift", & "sample.mirage"
+cat >$tmp.config <<'End-of-file'
+#
+# pmlogextract config file
+#
+sample.bin ["bin-300" "bin-700" "bin-100"]		# out of order
+sample.drift
+sample.mirage ["m-00" "m-13" "m-17" "m-24"]		# in order
+End-of-file
+    
+pmlogextract -c $tmp.config src/mirage $tmp.arch >$tmp.out 2>$tmp.err
+_check_output pmlogextract
+# dump descriptors
+echo
+echo "--- dump descriptors ---"
+pmdumplog -d -z $tmp.arch | sed -e '/^$/d'
+
+# dump instance domain
+echo
+echo "--- dump instance domain ---"
+pmdumplog -i -z $tmp.arch | sed -e '/^$/d'
+
+# dump values for sample.bin
+echo
+echo "--- dump values for sample.bin ---"
+pmdumplog -m -z $tmp.arch sample.bin | sed -e '/^$/d'
+
+# dump values for sample.drift
+echo
+echo "--- dump values for sample.drift ---"
+pmdumplog -m -z $tmp.arch sample.drift | sed -e '/^$/d'
+
+# dump values for sample.mirage
+echo
+echo "--- dump values for sample.mirage ---"
+pmdumplog -m -z $tmp.arch sample.mirage | sed -e '/^$/d'
+
+
+# step 7
+rm -rf $tmp.arch*
+rm -rf $tmp.config
+echo
+echo " --- step 7: test config file, plus -S, -T and -z flags ---"
+echo "(output depends on src/mirage{0,index,meta})"
+# src/mirage contains "sample.drift"
+cat >$tmp.config <<'End-of-file'
+#
+# pmlogextract config file
+#
+sample.drift
+End-of-file
+
+pmlogextract -c $tmp.config -S "@10:50:00" -T "@11:00:00" -z src/mirage $tmp.arch >$tmp.out 2>$tmp.err
+_check_output pmlogextract
+
+# dump values for sample.drift
+echo "--- dump values for sample.drift ---"
+pmdumplog -m -z src/mirage sample.drift \
+	| sed -e '/^$/d' \
+	| $PCP_AWK_PROG -F":" '{ if ($1 == 10 && $2 >= 50) print $0; }' > $tmp.m
+pmdumplog -m -z $tmp.arch sample.drift \
+	| sed -e '/^$/d' \
+	| grep -v "timezone set to local" > $tmp.a
+diff $tmp.m $tmp.a
+x=$?
+if [ $x = 0 ]
+then
+    echo "sample.drift the same ... good"
+else
+    echo "sample.drift different ... BAD"
+fi
+
+
+# step 8
+rm -rf $tmp.arch*
+rm -rf $tmp.config
+echo
+echo " --- step 8: test -w flag (with -S, -T and -z) ---"
+echo "(output depends on src/rattle{0,index,meta})"
+# src/rattle contains "irix.kernel.all.load"
+
+pmlogextract -S "@00:00:00" -T "@12:00:00" -w -z src/rattle $tmp.arch >$tmp.out 2>$tmp.err
+_check_output pmlogextract
+
+# dump values for irix.kernel.all.load
+echo "--- dump values for irix.kernel.all.load ---"
+pmdumplog -m -z src/rattle irix.kernel.all.load \
+	| sed -e '/^$/d' \
+	| $PCP_AWK_PROG -F":" '{ if ($1 >= 0 && $1 < 12) print $0; }' > $tmp.m
+pmdumplog -m -z $tmp.arch irix.kernel.all.load \
+	| sed -e '/^$/d' \
+	| grep -v "timezone set to local" > $tmp.a
+diff $tmp.m $tmp.a
+x=$?
+if [ $x = 0 ]
+then
+    echo "irix.kernel.all.load the same ... good"
+else
+    echo "irix.kernel.all.load different ... BAD"
+fi
+
+
+# success, all done
+status=0
+exit

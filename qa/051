@@ -1,0 +1,191 @@
+#! /bin/sh
+# PCP QA Test No. 051
+# Check pmcd access control parsing
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
+then
+    ln $seq.out.2 $seq.out
+else
+    ln $seq.out.1 $seq.out
+fi
+
+# get valid hostnames: $remote_1, $remote_2, etc.
+#
+. ./051.hosts
+
+# Remember that we cd into 051.work
+#
+signal=$PCP_BINADM_DIR/pmsignal
+config=$PCP_PMCDCONF_PATH
+oconfig=$config.O
+log=./pmcd.log
+me=`hostname`
+
+rm -f $here/$seq.full
+
+_filter_hostnames()
+{
+    sed \
+	-e "s/$remote_1/remote-host-1/" \
+	-e "s/$remote_2/remote-host-2/" \
+	-e "s/$remote_3/remote-host-3/" \
+	-e "s/$remote_4/remote-host-4/" \
+	-e "s/$remote_5/remote-host-5/"
+}
+
+_filter_die_log()
+{
+    _filter_pmcd_log <$log \
+    | _filter_hostnames \
+    | sed \
+	-e 's/^$//' \
+	-e '/Permission clash/s/for .*/for .../' \
+	-e '/gethostbyname(/s/name([0-9.]*)/name(IPADDR)/' \
+	-e '/gethostbyname(/s/).*/) ERROR.../' \
+	-e "/host '.*':/s/host '.*'/host 'HOST'/"
+}
+
+_filter_kill_log()
+{
+    sleep 3
+    _filter_pmcd_log <$log \
+    | _filter_hostnames \
+    | sed \
+	-e 's/Cannot open 000000660066: No such file or directory//' \
+	-e 's/^$//' \
+	-e '/^00[08]:/d' \
+    | $PCP_AWK_PROG '
+$3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
+			{ print }'
+
+}
+
+interrupt()
+{
+    echo "Interrupted"
+    rm -f $tmp.*
+    exit
+}
+
+cleanup()
+{
+    if [ -f $oconfig ]
+    then
+	$sudo mv $oconfig $config
+    fi
+    echo "Restarting pmcd"
+    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+    rm -f $tmp.*
+}
+
+trap interrupt 1 2 3 15
+trap cleanup 0
+
+# real QA test starts here
+
+echo "Make sure all the config files are there"
+if make 051.work/die.001 > $tmp.err 2>&1
+then
+    :
+else
+    echo "make 051.work/die.001 failed:"
+    cat $tmp.err
+    exit 1
+fi
+
+ls 051.work/die.*
+ls 051.work/kill*
+cd 051.work
+
+echo "terminating pmcd..."
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+if [ -f $config ]
+then
+    $sudo mv $config $oconfig
+else
+    echo "Warning: $config not found"
+fi
+
+echo
+echo "Running the scanner/parser tests (die.\*)"
+
+for t in die.*
+do
+    rm -f pmcd.log
+    $sudo cp $t $config
+    rm -f pmcd.log
+    echo
+    $PCP_ECHO_PROG $PCP_ECHO_N "$t================""$PCP_ECHO_C"
+    $PCP_ECHO_PROG "$t================" >>$here/$seq.full
+    cat $t >>$here/$seq.full
+    case $t
+    in
+	die.029|die.035|die.036|die.043)
+	    echo " may dump core for IRIX 6.1 ... bug in gethostbyname()"
+	    ;;
+	*)
+	    echo
+    esac
+    if [ "X$t" = "Xdie.029" -o "X$t" = "Xdie.043" ]
+    then
+	echo "(config for $t is host-specific)"
+    else
+	_filter_hostnames <$config \
+	| sed -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;g"
+    fi
+    $PCP_PMCD_PROG -f -x /no/such/file
+    echo "$t logfile----------------"
+    echo "$t logfile----------------" >>$here/$seq.full
+    cat $log >>$here/$seq.full
+    if [ -x filter.$t ]
+    then
+	./filter.$t <$log
+    else
+	_filter_die_log
+    fi
+    echo "$t endlog ----------------"
+done
+
+echo
+echo
+echo "Running the scanner/parser tests (kill.\*)"
+echo
+
+for t in kill.*
+do
+    rm -f pmcd.log
+    $sudo cp $t $config
+    rm -f pmcd.log
+    echo "$t================"
+    echo "$t================" >>$here/$seq.full
+    cat $t >>$here/$seq.full
+    _filter_hostnames <$config \
+    | sed -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;g"
+    # Give pmcd 3 seconds to run
+    ((sleep 3; $signal -a -s TERM pmcd)&) >/dev/null 2>&1
+    $PCP_PMCD_PROG -f
+    echo "$t logfile----------------"
+    echo "$t logfile----------------" >>$here/$seq.full
+    cat $log >>$here/$seq.full
+    if [ -x filter.$t ]
+    then
+	./filter.$t <$log
+    else
+	_filter_kill_log
+    fi
+    echo "$t endlog ----------------"
+done

@@ -1,0 +1,40 @@
+#! /bin/sh
+# PCP QA Test No. 150
+# Check for supression of instantaneous metrics that have not been
+# seen in an interval ... for pmlogreduce
+#
+# Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    sed \
+	-e '/^archive:/d' \
+	-e 's/  */ /g'
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+rm -f $seq.full
+
+# real QA test starts here
+pmlogreduce -A 30sec -t 30sec src/naslog $tmp
+
+echo "=== input archive ==="
+pmval -z -U src/naslog hinv.ncpu \
+| _filter
+
+echo "=== reduced archive ==="
+pmval -z -U $tmp hinv.ncpu \
+| _filter
+

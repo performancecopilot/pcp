@@ -1,0 +1,34 @@
+#pmieconf-rules 1
+#
+
+rule	cpu.aggregate_util
+	default	= "$rule$"
+	predicate =
+"some_host (
+    kernel.all.cpu.user $hosts$ +
+    kernel.all.cpu.sys $hosts$ +
+    kernel.all.cpu.intr $hosts$
+	> hinv.ncpu $hosts$ * $threshold$ / 100
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"The average processor utilization over all CPUs exceeded
+threshold percent during the last sample interval.";
+
+string	rule
+	default	= "aggregate processor saturation"
+	modify	= no
+	display	= no;
+
+percent	threshold
+	default	= 90
+	help	=
+"Threshold percentage for CPU saturation, in the range 0 (idle)
+to 100 (completely busy), independent of the number of CPUs.";
+
+string	action_expand
+	default	= %h
+	display	= no
+	modify	= no;
+

@@ -1,0 +1,71 @@
+#!/bin/sh
+# PCP QA Test No. 448
+# pmGetConfig exerciser
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if [ $PCP_VER -lt 3600 ]
+then
+    _notrun Fix for __pmConfig is in PCP 3.6
+else
+    rm -f $seq.notrun
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "error cases ..."
+echo "bad variable"
+src/getconfig NO_SUCH_VAR
+echo "exit status=$?"
+
+echo
+echo "bad \$PCP_CONF"
+PCP_CONF=/no/such/file src/getconfig PCP_BIN_DIR
+echo "exit status=$?"
+
+echo
+echo "bad \$PCP_DIR"
+PCP_DIR=/no/such/directory src/getconfig PCP_BIN_DIR
+echo "exit status=$?"
+
+if [ ! -r $PCP_DIR/etc/pcp.conf ]
+then
+    echo "Error: unable to read $PCP_DIR/etc/pcp.conf!"
+    exit 1
+fi
+
+echo
+echo "all vars in pcp.conf ... report only errors"
+sed <$PCP_DIR/etc/pcp.conf \
+    -e '/^#/d' \
+    -e '/^[ 	]*$/d' \
+    -e 's/[ 	][ 	]*"/"/' \
+    -e 's/"[ 	][ 	]*/"/' \
+    -e 's/"//g' \
+    -e 's/=/ /' \
+    -e 's/\\/<backslash>/g' \
+| while read var value
+do
+    xvalue=`src/getconfig "$var" | sed -e 's/.* -> //' -e 's/[ 	]*$//' -e 's/\\\\/<backslash>/g'`
+    #debug# echo "$var: $value ? $xvalue"
+    if [ "X${value}X" != "X${xvalue}X" ]
+    then
+	echo "$var: expecting \"$value\", got \"$xvalue\""
+    fi
+done
+
+# success, all done
+exit

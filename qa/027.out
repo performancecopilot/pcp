@@ -1,0 +1,41 @@
+QA output created by 027
+Expect some error? lines due to precision underflow in conversion
+
+error?  7200 nanosec / count -> 7 microsec / count -> 7000 nanosec / count
+error?  7200 microsec / count -> 7 millisec / count -> 7000 microsec / count
+error?  7200 millisec / count -> 7 sec / count -> 7000 millisec / count
+error?  7200 count / microsec -> 7 count / nanosec -> 7000 count / microsec
+error?  7200 count / millisec -> 7 count / microsec -> 7000 count / millisec
+error?  7200 count / sec -> 7 count / millisec -> 7000 count / sec
+
+Pass 1: plus 48 underflows to zero
+
+error?  1048576 byte / sec^2 -> 1 byte / millisec^2 -> 1000000 byte / sec^2
+error?  1048576 byte / sec^2 -> 4 Gbyte / min^2 -> 1193046 byte / sec^2
+error?  1048576 Kbyte / sec^2 -> 1074 byte / millisec^2 -> 1048828 Kbyte / sec^2
+error?  1048576 Kbyte / sec^2 -> 1 Kbyte / millisec^2 -> 1000000 Kbyte / sec^2
+error?  1048576 Kbyte / sec^2 -> 4 Tbyte / min^2 -> 1193046 Kbyte / sec^2
+error?  1048576 Mbyte / sec^2 -> 1074 Kbyte / millisec^2 -> 1048828 Mbyte / sec^2
+error?  1048576 Mbyte / sec^2 -> 1 Mbyte / millisec^2 -> 1000000 Mbyte / sec^2
+error?  1048576 Gbyte / sec^2 -> 1074 Mbyte / millisec^2 -> 1048828 Gbyte / sec^2
+error?  1048576 Gbyte / sec^2 -> 1 Gbyte / millisec^2 -> 1000000 Gbyte / sec^2
+error?  1048576 Tbyte / sec^2 -> 1074 Gbyte / millisec^2 -> 1048828 Tbyte / sec^2
+error?  1048576 Tbyte / sec^2 -> 1 Tbyte / millisec^2 -> 1000000 Tbyte / sec^2
+
+Pass 2: plus 50 underflows to zero
+{   0,  1, -1,  0,  2,  3 } millisec / count x 10^3
+{   0,  1, -1,  0,  2,  2 } millisec / count x 10^2
+{   0,  1, -1,  0,  2,  1 } millisec / count x 10
+{   0,  1, -1,  0,  2,  0 } millisec / count
+{   0,  1, -1,  0,  2, -1 } millisec / count x 10^-1
+{   0,  1, -1,  0,  2, -2 } millisec / count x 10^-2
+{   0,  1, -1,  0,  2, -3 } millisec / count x 10^-3
+{   0, -1,  1,  0,  2,  3 } count x 10^3 / millisec
+{   0, -1,  1,  0,  2,  2 } count x 10^2 / millisec
+{   0, -1,  1,  0,  2,  1 } count x 10 / millisec
+{   0, -1,  1,  0,  2,  0 } count / millisec
+{   0, -1,  1,  0,  2, -1 } count x 10^-1 / millisec
+{   0, -1,  1,  0,  2, -2 } count x 10^-2 / millisec
+{   0, -1,  1,  0,  2, -3 } count x 10^-3 / millisec
+
+Pass 3:

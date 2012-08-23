@@ -1,0 +1,39 @@
+#! /bin/sh
+# PCP QA Test No. 420
+#
+# exercise pmRecord*() and in particular the new PM_REC_SETARG for
+# pmRecordControl
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+echo "Not yet working - libpcp_gui recording" > $seq.notrun
+exit 0
+
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+$sudo rm -rf $tmp
+mkdir $tmp
+cd $tmp
+
+# real QA test starts here
+echo "IPC error is expected as application waits until after pmlogger"
+echo "should be well finished ..."
+echo
+
+$here/src/record-setarg foo
+
+pmdumplog *.0 sample | _filter_pmdumplog
+
+# success, all done
+status=0
+exit

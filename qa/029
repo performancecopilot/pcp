@@ -1,0 +1,49 @@
+#! /bin/sh
+# PCP QA Test No. 029
+# pmTrimNameSpace() exerciser
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# Note that pmTrimNameSpace would not be used much any
+# more since pcp2.0 with pmns in archives.
+# However, still provided in API.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+#
+# Get rid of some new sample metrics which
+# would make the test vary.
+# Can do this since the point of the test is 
+# testing out pmTrimNameSpace
+# --tes
+#
+_filter()
+{
+    sed \
+	-e '/sample\.dynamic/d' \
+	-e '/sample\.many/d' \
+	-e '/sample\.bigid/d' \
+	-e '/sample\.byte_/d' \
+	-e '/sample\.kbyte_/d' \
+	-e '/sample\.datasize/d' \
+	-e '/sample\.darkness/d' \
+	-e '/sample\.secret/d' \
+
+}
+
+
+# real QA test starts here
+pmdumplog -d src/foo | _sort_pmdumplog_d
+
+echo ""
+src/chktrim src/foo | _filter \
+| LC_COLLATE=POSIX sort

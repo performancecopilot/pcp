@@ -1,0 +1,179 @@
+#! /bin/sh
+# PCP QA Test No. 201
+# exercise pmdaCache routines
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    # Note pmdaCacheDump: indom PM_INDOM_NULL lines come from QA
+    # fault injection
+    sed \
+	-e "s;$PCP_VAR_DIR/;\$PCP_VAR_DIR/;" \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+	-e 's/^\([0-9][0-9]*\) [0-9][0-9]* /\1 timestamp /' \
+	-e 's/torture_cache([0-9][0-9]*)/torture_cache(PID)/' \
+	-e '/active /s/ 0x0 / (nil) /' \
+	-e 's/^Cannot open /cat: /' \
+	-e '/pmdaCacheDump: indom PM_INDOM_NULL/d'
+}
+
+_filter2()
+{
+    sed \
+	-e 's/ 4444444 / orig-timestamp /' \
+	-e 's/^\([0-9][0-9]*\) [0-9][0-9]* /\1 timestamp /'
+}
+
+# real QA test starts here
+echo "basic operation tests ..."
+src/torture_cache -Dindom a 2>&1 | _filter
+
+echo
+echo "save tests ..."
+$sudo rm -f $PCP_VAR_DIR/config/pmda/123.8
+$sudo touch $PCP_VAR_DIR/config/pmda/123.8
+$sudo src/torture_cache b 2>&1 | _filter
+
+echo
+echo "load tests ..."
+echo "-- empty file --"
+$sudo rm -f $PCP_VAR_DIR/config/pmda/123.13
+$sudo touch $PCP_VAR_DIR/config/pmda/123.13
+src/torture_cache c 2>&1 | _filter
+echo "-- short header --"
+echo "1" >$tmp
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
+src/torture_cache c 2>&1 | _filter
+echo "-- bad version (x) --"
+echo "x 0" >$tmp
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
+src/torture_cache c 2>&1 | _filter
+echo "-- bad version (2) --"
+echo "2 0" >$tmp
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
+src/torture_cache c 2>&1 | _filter
+echo "-- bad ins_mode (-1) --"
+echo "1 -1" >$tmp
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
+src/torture_cache c 2>&1 | _filter
+echo "-- empty --"
+echo "1 0" >$tmp
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
+src/torture_cache c 2>&1 | _filter
+echo "-- interesting --"
+cat <<End-of-File >$tmp
+1 0
+10 4444444 fubar-001
+15 4444444 this is a name with some spaces in it
+20 4444444 fubar-002
+30 4444444 fubar-003
+35 4444444 longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again
+40 4444444 fubar-004
+End-of-File
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
+$sudo src/torture_cache c 2>&1 | _filter
+cat $PCP_VAR_DIR/config/pmda/123.13 | _filter2
+echo "-- interesting (PMDA_CACHE_REUSE) --"
+cat <<End-of-File >$tmp
+1 1
+10 4444444 fubar-001
+15 4444444 this is a name with some spaces in it
+20 4444444 fubar-002
+30 4444444 fubar-003
+35 4444444 longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again
+40 4444444 fubar-004
+End-of-File
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
+$sudo src/torture_cache c 2>&1 | _filter
+cat $PCP_VAR_DIR/config/pmda/123.13 | _filter2
+
+echo
+echo "test inst wrap and ins_mode change ..."
+cat <<End-of-File >$tmp
+1 0
+2147483645 4444444 biggest-inst-2
+End-of-File
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.7
+$sudo src/torture_cache -D indom d 2>&1 | _filter
+cat $PCP_VAR_DIR/config/pmda/123.7 | _filter2
+
+echo
+echo "test purge operation ..."
+echo "-- empty @ start and end --"
+cat <<End-of-File >$tmp
+1 0
+End-of-File
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.11
+$sudo src/torture_cache e 2>&1 | _filter
+cat $PCP_VAR_DIR/config/pmda/123.11 | _filter2
+echo "-- not empty --"
+cat <<End-of-File >$tmp
+1 1
+01 4444444 fubar-001
+02 4444444 fubar-002
+05 4444444 fubar-003
+06 4444444 fubar-004
+07 5555555 fubar-005
+60 6666666 fubar-006
+End-of-File
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.11
+$sudo src/torture_cache f 2>&1 | _filter
+cat $PCP_VAR_DIR/config/pmda/123.11 | _filter2
+
+echo
+echo "exercise hash-table re-sizing ..."
+$sudo src/torture_cache g 2>&1 | _filter
+
+echo
+echo "short name match test cases ..."
+echo "-- cache --"
+cat <<End-of-File >$tmp
+1 0
+01 4444444 foo
+02 4444444 foobar
+End-of-File
+cat $tmp
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.17
+$sudo src/torture_cache h 2>&1 | _filter
+echo "-- cache --"
+cat <<End-of-File >$tmp
+1 0
+01 4444444 foo bar
+End-of-File
+cat $tmp
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.17
+$sudo src/torture_cache h 2>&1 | _filter
+echo "-- cache --"
+cat <<End-of-File >$tmp
+1 0
+01 4444444 foo blah
+End-of-File
+cat $tmp
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.17
+$sudo src/torture_cache h 2>&1 | _filter
+
+echo
+echo "-- revised dirty cache semantics --"
+for a in 1 2 3
+do
+    echo "+ flags=$a +"
+    $sudo rm -f $tmp $PCP_VAR_DIR/config/pmda/123.15
+    $sudo src/torture_cache i $a 2>&1 | _filter
+done
+
+# success, all done
+exit

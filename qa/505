@@ -1,0 +1,76 @@
+#!/bin/sh
+# PCP QA Test No. 505
+# pmlogrewrite - multi-volume archive tests
+#
+# Copyright (c) 2011 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which pmlogrewrite >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun pmlogrewrite not installed
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e '/[-+ ]\[[0-9][0-9]* bytes]/d' \
+	-e "s/^\([+-][+-][+-] TMP\.[a-z]*\).*/\1/"
+}
+
+_cmp()
+{
+    if [ ! -f "$1.0" ]
+    then
+	echo "Arrgh ... $1.0 missing" | _filter
+	return
+    fi
+    pmdumplog -z -a $1 \
+    | tee -a $seq.full \
+    | sed -e '/\[[0-9][0-9]* bytes]/d' >$tmp.out
+    diff -u $tmp.ref $tmp.out | _filter
+}
+
+# real QA test starts here
+
+pmdumplog -z -a src/ok-mv-foo \
+| tee -a $seq.full \
+| sed -e '/\[[0-9][0-9]* bytes]/d' >$tmp.ref
+
+echo | tee -a $seq.full
+echo "metric sample.seconds { type -> U64 }" >$tmp.config
+echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+rm -f $tmp.new.*
+pmlogrewrite -ws -c $tmp.config src/ok-mv-foo $tmp.new 2>&1 | _filter
+echo "Output archive contains: `ls $tmp.new.* | tee -a $seq.full | wc -l | sed -e 's/ //g'` files"
+_cmp $tmp.new
+
+echo | tee -a $seq.full
+echo "metric sample.seconds { type -> U64 }" >$tmp.config
+echo "=== -i `cat $tmp.config` ===" | tee -a $seq.full
+rm -f $tmp.new.*
+for i in index meta 0 1 2
+do
+    cp src/ok-mv-foo.$i $tmp.new.$i
+done
+pmlogrewrite -iws -c $tmp.config $tmp.new 2>&1 | _filter
+echo "Output archive contains: `ls $tmp.new.* | tee -a $seq.full | wc -l | sed -e 's/ //g'` files"
+_cmp $tmp.new
+
+# success, all done
+exit

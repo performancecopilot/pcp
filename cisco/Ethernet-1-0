@@ -1,0 +1,27 @@
+>
+show int e1/0
+Ethernet1/0 is up, line protocol is up
+  Hardware is AmdP2, address is 0050.7343.f011 (bia 0050.7343.f011)
+  Description: >>> Connecion to melbourne pix-e1 <<<
+  Internet address is 134.14.71.241/30
+  MTU 1500 bytes, BW 10000 Kbit, DLY 1000 usec,
+     reliability 255/255, txload 3/255, rxload 1/255
+  Encapsulation ARPA, loopback not set
+  Keepalive set (10 sec)
+  ARP type: ARPA, ARP Timeout 04:00:00
+  Last input 00:09:05, output 00:00:00, output hang never
+  Last clearing of "show interface" counters never
+  Queueing strategy: fifo
+  Output queue 0/40, 0 drops; input queue 0/75, 0 drops
+  30 second input rate 26000 bits/sec, 4 packets/sec
+  30 second output rate 118000 bits/sec, 97 packets/sec
+     3657465 packets input, 2161281566 bytes, 0 no buffer
+     Received 79047 broadcasts, 0 runts, 0 giants, 0 throttles
+     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+     0 input packets with dribble condition detected
+     13202080 packets output, 4162655553 bytes, 0 underruns
+     6 output errors, 249819 collisions, 11 interface resets
+     0 babbles, 0 late collision, 207020 deferred
+     6 lost carrier, 0 no carrier
+     0 output buffer failures, 0 output buffers swapped out
+>

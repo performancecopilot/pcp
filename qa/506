@@ -1,0 +1,103 @@
+#!/bin/sh
+# PCP QA Test No. 506
+# check 2^31 volume switching for pmlogrewrite
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2012 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f src/big2.*
+
+rm -f $seq.full
+./src/mkbig1 > $seq.full 2>&1
+[ $? -eq 0 ] || _notrun `cat $seq.full`
+
+# 10GB should keep us out of trouble
+free=`_check_freespace 10240`
+[ -z "$free" ] || _notrun $free
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.* src/big2.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+}
+
+_check()
+{
+    # expect 3 volumes, and all < 2^31 bytes in size
+    #
+    sts=0
+    limit=2147483648
+    nvol=`ls $1.? | wc -l | sed -e 's/ //g'`
+    if [ $nvol -ne 3 ]
+    then
+	ls -l $1.?
+	echo "Error: expecting 3 volumes, found $nvol"
+	sts=1
+    fi
+
+    for vol in $1.?
+    do
+	size=`_filesize $vol`
+	if [ -z "$size" ]
+	then
+	    stat $vol
+	    echo "Error: cannot extract size for volume $vol"
+	    sts=1
+	elif [ "$size" -ge $limit ]
+	then
+	    ls -l $vol
+	    echo "Error: size ($size) exceeds limit ($limit)"
+	    sts=1
+	fi
+    done
+    if [ $sts -eq 0 ]
+    then
+	echo "OK"
+    else
+	status=$sts
+    fi
+}
+
+echo "metric sample.hordes.one { type -> 64 }" >$tmp.config
+echo "metric sample.hordes.two { type -> 64 }" >>$tmp.config
+
+# real QA test starts here
+echo "rewrite and copy" | tee -a $seq.full
+rm -f src/big2*
+ls -l src/big1* >>$seq.full 2>&1
+pminfo -d -a src/big1 >>$seq.full
+pmlogrewrite -w -c $tmp.config src/big1 src/big2 2>&1 | _filter
+ls -l src/big2* >>$seq.full 2>&1
+pminfo -d -a src/big2 >>$seq.full
+_check src/big2
+
+echo | tee -a $seq.full
+echo "rewrite in place" | tee -a $seq.full
+rm -f src/big2*
+for file in src/big1.*
+do
+    cp $file `echo $file | sed -e 's/big1/big2/'`
+done
+ls -l src/big2* >>$seq.full 2>&1
+pminfo -d -a src/big2 >>$seq.full
+pmlogrewrite -iw -c $tmp.config src/big2 2>&1 | _filter
+ls -l src/big2* >>$seq.full 2>&1
+pminfo -d -a src/big2 >>$seq.full
+_check src/big2
+
+# success, all done
+exit

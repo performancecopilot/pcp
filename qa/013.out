@@ -1,0 +1,27 @@
+QA output created by 013
+For PCP 1.1 Expect cannot open archive error message, and no core file ...
+For PCP 2.0 -l src/foo.meta is a synonym for -l src/foo, so this works ...
+
+=== src/foo.meta: exists ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+[filtered and sorted stderr]
+__pmLogChangeVol: change to volume 0
+__pmLogOpen: inspect file "src/foo.0"
+__pmLogOpen: inspect file "src/foo.index"
+__pmLogOpen: inspect file "src/foo.meta"
+
+=== /tmp/fungus: exists ===
+[filtered and sorted stderr]
+__pmLogOpen: Not found: data file "fungus.0" (or similar)
+__pmLogOpen: Not found: metadata file "fungus.meta"
+pmdumplog: Cannot open archive "/tmp/fungus": No such file or directory
+
+=== /tmp/bogus: does not exist ===
+[filtered and sorted stderr]
+__pmLogOpen: Not found: data file "bogus.0" (or similar)
+__pmLogOpen: Not found: metadata file "bogus.meta"
+__pmLogOpen: inspect file "/tmp/bogus.verylongsuffix"
+pmdumplog: Cannot open archive "/tmp/bogus": No such file or directory

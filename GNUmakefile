@@ -24,6 +24,8 @@ TOPDIR = .
 -include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
+AUTOCONF_GENERATED = pcp.lsm $(TOPDIR)/src/include/builddefs $(TOPDIR)/src/include/pcp/platform_defs.h
+
 LICFILES = COPYING
 DOCFILES = README INSTALL CHANGELOG VERSION.pcp
 CONFFILES = pcp.lsm
@@ -38,13 +40,13 @@ LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
 	debug*.list devel_files libs_files base_files.rpm libs_files.rpm \
 	devel_files.rpm perl-pcp*.list* conf_files
 
-SUBDIRS = src man build debian
+SUBDIRS = src qa man build debian
 
 default :: default_pcp
 
 pcp : default_pcp
 
-default_pcp : configure_pcp
+default_pcp : $(AUTOCONF_GENERATED)
 	@for d in `echo $(SUBDIRS)`; do \
 	    if test -d "$$d" ; then \
 		echo === $$d ===; \
@@ -107,8 +109,6 @@ realclean distclean clean clobber:
 	@true
 endif
 
-configure_pcp: pcp.lsm src/include/pcp/platform_defs.h
-
-pcp.lsm src/include/pcp/platform_defs.h: configure pcp.lsm.in src/include/pcp/platform_defs.h.in
-	./configure
-
+pcp.lsm src/include/builddefs src/include/pcp/platform_defs.h: configure pcp.lsm.in src/include/builddefs.in src/include/pcp/platform_defs.h.in
+	@echo Please run ./configure with the appropriate options to generate $@.
+	@false

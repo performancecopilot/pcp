@@ -1,0 +1,266 @@
+#!/bin/sh
+# PCP QA Test No. 230
+#
+# Check timeouts for pmlc's calls to __pmGetPDU
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+rm -f $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    if [ -f $PCP_TMP_DIR/pmlogger/primary.qa.$seq ]
+    then
+	$sudo cp $PCP_TMP_DIR/pmlogger/primary.qa.$seq $PCP_TMP_DIR/pmlogger/primary
+	$sudo rm -f $PCP_TMP_DIR/pmlogger/primary.qa.$seq
+    fi
+    rm -f $tmp.*
+}
+
+_check()
+{
+    echo "_check $1" >>$seq.full
+    sleep 2
+    pidlist=`_get_pids_by_name "pmlc"`
+    echo "pidlist=$pidlist" >>$seq.full
+    for pid in $pidlist
+    do
+	if [ "$pid" = "$1" ]
+	then
+	    echo "pmlc still running ... killing it off"
+	    kill -TERM $pid
+	    return
+	fi
+    done
+    echo "pmlc has exited"
+}
+
+_filter()
+{
+    echo >>$seq.full
+    echo "=== $tmp.out ===">>$seq.full
+    cat $tmp.out >>$seq.full
+    sed <$tmp.out \
+	-e 's/^\[.*]/[DATE]/' \
+	-e 's/pmlc([0-9][0-9]*)/pmlc(PID)/' \
+	-e "s/`hostname`/MYHOST/g" \
+	-e '/^PMCD host/s/\(   *\).*/\1HOST/' \
+	-e '/^log started/s/\(   *\).*/\1DATE/' \
+	-e '/^last log entry/s/\(   *\).*/\1DATE/' \
+	-e '/^current time/s/\(   *\).*/\1DATE/' \
+	-e '/^log volume/s/\(   *\).*/\1NUMBER/' \
+	-e '/^log size/s/\(   *\).*/\1NUMBER/' \
+
+}
+
+if [ ! -f $PCP_TMP_DIR/pmlogger/primary ]
+then
+    echo "Arrgh ... cannot find $PCP_TMP_DIR/pmlogger/primary"
+    status=1
+    exit
+    #NOTREACHED#
+fi
+
+# see comment in src/drain-server.c for choice of port #
+#
+port=1214
+
+$sudo sed -e "1s/.*/$port/" $PCP_TMP_DIR/pmlogger/primary >$tmp.primary
+$sudo cp $PCP_TMP_DIR/pmlogger/primary $PCP_TMP_DIR/pmlogger/primary.qa.$seq
+$sudo cp $tmp.primary $PCP_TMP_DIR/pmlogger/primary
+
+# real QA test starts here
+
+echo "=== Hang on Connection Cases ===" | tee -a $seq.full
+
+echo | tee -a $seq.full
+echo "Expect hang ..." | tee -a $seq.full
+src/drain-server -h &
+draino=$!
+sleep 2
+pmlc -e -h localhost -P >$tmp.out 2>&1 &
+sleep 2
+_check $!
+_filter
+pidlist=`_get_pids_by_name "drain-server"`
+for pid in $pidlist
+do
+    [ "$draino" = "$pid" ] && kill -TERM $draino
+done
+sleep 2
+
+echo | tee -a $seq.full
+echo "Expect hang and warning ..." | tee -a $seq.full
+src/drain-server -h &
+draino=$!
+sleep 2
+export PMLOGGER_REQUEST_TIMEOUT=1.5
+pmlc -e -h localhost -P >$tmp.out 2>&1 &
+sleep 2
+_check $!
+_filter
+pidlist=`_get_pids_by_name "drain-server"`
+for pid in $pidlist
+do
+    [ "$draino" = "$pid" ] && kill -TERM $draino
+done
+sleep 2
+
+echo | tee -a $seq.full
+echo "Expect no hang and unable to connect to pmlogger ..." | tee -a $seq.full
+src/drain-server &
+draino=$!
+sleep 2
+export PMLOGGER_REQUEST_TIMEOUT=1
+pmlc -e -h localhost -P >$tmp.out 2>&1 </dev/null
+_check $!
+_filter
+pidlist=`_get_pids_by_name "drain-server"`
+for pid in $pidlist
+do
+    [ "$draino" = "$pid" ] && kill -TERM $draino
+done
+
+echo | tee -a $seq.full
+echo "=== Timeout on pmlc commands cases ===" | tee -a $seq.full
+
+# put port info back to original state
+#
+$sudo cp $PCP_TMP_DIR/pmlogger/primary.qa.$seq $PCP_TMP_DIR/pmlogger/primary
+$sudo rm -f $PCP_TMP_DIR/pmlogger/primary.qa.$seq
+
+echo | tee -a $seq.full
+echo "Check QA code cleared when pmlc exits ..." | tee -a $seq.full
+unset PMLOGGER_REQUEST_TIMEOUT
+cat <<'End-of-File' | pmlc -e -P >$tmp.out 2>&1
+qa 1
+quit
+End-of-File
+_check $!
+_filter
+cat <<'End-of-File' | pmlc -e -P >$tmp.out 2>&1
+status
+quit
+End-of-File
+_check $!
+_filter
+
+echo | tee -a $seq.full
+echo "Expect no hang and log command to timeout connecting to pmcd ..." | tee -a $seq.full
+export PMLOGGER_REQUEST_TIMEOUT=1
+cat <<'End-of-File' | pmlc -e -P >$tmp.out 2>&1
+qa 1
+log mandatory on once sample.long.million
+quit
+End-of-File
+_check $!
+_filter
+sleep 3		# let pmlogger get out of sleep() so can use pmlc again
+
+echo | tee -a $seq.full
+echo "Expect no hang and 2nd log command to timeout changing logging status ..." | tee -a $seq.full
+export PMLOGGER_REQUEST_TIMEOUT=1
+cat <<'End-of-File' | pmlc -e -P >$tmp.out 2>&1
+log mandatory on once sample.long.million
+qa 1
+log mandatory on once sample.long.million
+quit
+End-of-File
+sleep 1		# pmlogger needs a little longer for this one
+_check $!
+_filter
+sleep 3		# let pmlogger get out of sleep() so can use pmlc again
+
+echo | tee -a $seq.full
+echo "Expect no hang and status command to timeout ..." | tee -a $seq.full
+export PMLOGGER_REQUEST_TIMEOUT=1
+cat <<'End-of-File' | pmlc -e -P >$tmp.out 2>&1
+qa 1
+status
+quit
+End-of-File
+_check $!
+_filter
+sleep 3		# let pmlogger get out of sleep() so can use pmlc again
+
+echo | tee -a $seq.full
+echo "Expect hang and flush command to timeout  ..." | tee -a $seq.full
+export PMLOGGER_REQUEST_TIMEOUT=1
+cat <<'End-of-File' | pmlc -e -P >$tmp.out 2>&1
+qa 1
+flush
+quit
+End-of-File
+_check $!
+_filter
+sleep 3		# let pmlogger get out of sleep() so can use pmlc again
+
+echo | tee -a $seq.full
+echo "Expect hang and new volume command to timeout ..." | tee -a $seq.full
+export PMLOGGER_REQUEST_TIMEOUT=1
+cat <<'End-of-File' | pmlc -e -P >$tmp.out 2>&1 &
+qa 1
+new volume
+quit
+End-of-File
+sleep 2
+_check $!
+_filter
+sleep 3		# let pmlogger get out of sleep() so can use pmlc again
+
+# skip show loggers command ... this one communicates with pmcd not
+# pmlogger
+#
+#echo | tee -a $seq.full
+#echo "Expect hang and show loggers to timeout ..." | tee -a $seq.full
+#export PMLOGGER_REQUEST_TIMEOUT=1
+#cat <<'End-of-File' | pmlc -e -P >$tmp.out 2>&1 &
+#qa 1
+#show loggers
+#quit
+#End-of-File
+#sleep 2
+#_check $!
+#_filter
+#sleep 3		# let pmlogger get out of sleep() so can use pmlc again
+
+echo | tee -a $seq.full
+echo "Expect no hang and query command to timeout connecting to pmcd ..." | tee -a $seq.full
+export PMLOGGER_REQUEST_TIMEOUT=1
+cat <<'End-of-File' | pmlc -e -P >$tmp.out 2>&1
+qa 1
+query sample.long.million
+quit
+End-of-File
+_check $!
+_filter
+sleep 3		# let pmlogger get out of sleep() so can use pmlc again
+
+echo | tee -a $seq.full
+echo "Expect no hang and 2nd query command to timeout fetching logging status ..." | tee -a $seq.full
+export PMLOGGER_REQUEST_TIMEOUT=1
+cat <<'End-of-File' | pmlc -e -P >$tmp.out 2>&1
+query sample.long.million
+qa 1
+query sample.long.million
+quit
+End-of-File
+sleep 1		# pmlogger needs a little longer for this one
+_check $!
+_filter
+sleep 3		# let pmlogger get out of sleep() so can use pmlc again
+
+# success, all done
+exit

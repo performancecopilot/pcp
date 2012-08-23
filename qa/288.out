@@ -1,0 +1,163 @@
+QA output created by 288
+
+=== metric mem.physmem alignment  ===
+Note: timezone set to local timezone of host "mortenb.oslo.sgi.com" from archive
+
+metric:    mem.physmem
+archive:   src/20041125
+host:      mortenb.oslo.sgi.com
+start:     Thu Nov 25 00:10:06 2004
+end:       Thu Nov 25 00:58:06 2004
+semantics: discrete instantaneous value
+units:     Kbyte
+samples:   25
+interval:  120.00 sec
+00:10:06.248  No values available
+00:12:06.248               514216
+00:14:06.248               514216
+00:16:06.248               514216
+00:18:06.248               514216
+00:20:06.248               514216
+00:22:06.248               514216
+00:24:06.248               514216
+00:26:06.248               514216
+00:28:06.248               514216
+00:30:06.248               514216
+00:32:06.248               514216
+00:34:06.248               514216
+00:36:06.248               514216
+00:38:06.248               514216
+00:40:06.248               514216
+00:42:06.248               514216
+00:44:06.248               514216
+00:46:06.248               514216
+00:48:06.248               514216
+00:50:06.248               514216
+00:52:06.248               514216
+00:54:06.248               514216
+00:56:06.248               514216
+00:58:06.248               514216
+
+reported samples: 
+total log reads: forward 51 backwards 1
+
+=== metric mem.physmem alignment -A 1min ===
+Note: timezone set to local timezone of host "mortenb.oslo.sgi.com" from archive
+
+metric:    mem.physmem
+archive:   src/20041125
+host:      mortenb.oslo.sgi.com
+start:     Thu Nov 25 00:11:00 2004
+end:       Thu Nov 25 00:58:06 2004
+semantics: discrete instantaneous value
+units:     Kbyte
+samples:   24
+interval:  120.00 sec
+00:11:00.000               514216
+00:13:00.000               514216
+00:15:00.000               514216
+00:17:00.000               514216
+00:19:00.000               514216
+00:21:00.000               514216
+00:23:00.000               514216
+00:25:00.000               514216
+00:27:00.000               514216
+00:29:00.000               514216
+00:31:00.000               514216
+00:33:00.000               514216
+00:35:00.000               514216
+00:37:00.000               514216
+00:39:00.000               514216
+00:41:00.000               514216
+00:43:00.000               514216
+00:45:00.000               514216
+00:47:00.000               514216
+00:49:00.000               514216
+00:51:00.000               514216
+00:53:00.000               514216
+00:55:00.000               514216
+00:57:00.000               514216
+
+reported samples: 
+total log reads: forward 49 backwards 1
+
+=== metric mem.freemem alignment  ===
+Note: timezone set to local timezone of host "mortenb.oslo.sgi.com" from archive
+
+metric:    mem.freemem
+archive:   src/20041125
+host:      mortenb.oslo.sgi.com
+start:     Thu Nov 25 00:10:06 2004
+end:       Thu Nov 25 00:58:06 2004
+semantics: instantaneous value
+units:     Kbyte
+samples:   25
+interval:  120.00 sec
+00:10:06.248  No values available
+00:12:06.248                 1672
+00:14:06.248               148488
+00:16:06.248               148552
+00:18:06.248               148488
+00:20:06.248               148488
+00:22:06.248               148488
+00:24:06.248               148424
+00:26:06.248               146752
+00:28:06.248               146888
+00:30:06.248               146376
+00:32:06.248               146376
+00:34:06.248               146376
+00:36:06.248               146376
+00:38:06.248               146376
+00:40:06.248               146376
+00:42:06.248               146376
+00:44:06.248               146312
+00:46:06.248               146312
+00:48:06.248               146312
+00:50:06.248               146312
+00:52:06.248               146312
+00:54:06.248               146248
+00:56:06.248               145792
+00:58:06.248               146056
+
+reported samples: 
+total log reads: forward 51 backwards 1
+
+=== metric mem.freemem alignment -A 1min ===
+Note: timezone set to local timezone of host "mortenb.oslo.sgi.com" from archive
+
+metric:    mem.freemem
+archive:   src/20041125
+host:      mortenb.oslo.sgi.com
+start:     Thu Nov 25 00:11:00 2004
+end:       Thu Nov 25 00:58:06 2004
+semantics: instantaneous value
+units:     Kbyte
+samples:   24
+interval:  120.00 sec
+00:11:00.000  No values available
+00:13:00.000               148808
+00:15:00.000               148552
+00:17:00.000               148552
+00:19:00.000               148488
+00:21:00.000               148488
+00:23:00.000               148488
+00:25:00.000               148488
+00:27:00.000               146888
+00:29:00.000               146376
+00:31:00.000               146376
+00:33:00.000               146376
+00:35:00.000               146376
+00:37:00.000               146376
+00:39:00.000               146376
+00:41:00.000               146312
+00:43:00.000               146312
+00:45:00.000               146312
+00:47:00.000               146312
+00:49:00.000               146248
+00:51:00.000               146248
+00:53:00.000               146248
+00:55:00.000               146248
+00:57:00.000               146056
+
+reported samples: 
+total log reads: forward 47 backwards 3

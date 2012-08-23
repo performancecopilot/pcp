@@ -1,0 +1,61 @@
+#! /bin/sh
+# PCP QA Test No. 097
+# check time updates after EOL/SOL in interpolate mode
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+_filterfoo()
+{
+    $PCP_AWK_PROG '
+BEGIN	{ lo[0] = 15; hi[0] = 17
+	  f = 0
+	}
+/^Found/	{ if (lo[f] <= $2 && $2 <= hi[f])
+		    print "Found between " lo[f] " and " hi[f] " samples"
+		  else
+		    print $0 " .. no. of samples unexpected"
+		  next
+		}
+		{ print }'
+}
+
+_filterbigbin()
+{
+    $PCP_AWK_PROG '
+BEGIN	{ lo[0] = 40; hi[0] = 42
+	  f = 0
+	}
+/^Found/	{ if (lo[f] <= $2 && $2 <= hi[f])
+		    print "Found between " lo[f] " and " hi[f] " samples"
+		  else
+		    print $0 " .. no. of samples unexpected"
+		  next
+		}
+		{ print }'
+}
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+echo "Archive foo ..."
+src/interp4 -a src/foo | _filterfoo
+
+echo
+echo "Archive ok-bigbin ..."
+src/interp4 -a src/ok-bigbin | _filterbigbin
+
+echo
+echo "Archive multi-volume foo ..."
+src/interp4 -a src/mv-foo | _filterfoo
+
+echo
+echo "Archive multi-volume ok-bigbin ..."
+src/interp4 -a src/ok-mv-bigbin | _filterbigbin

@@ -1,0 +1,29 @@
+#pmieconf-rules 1
+#
+
+rule	cpu.system_calls
+	default	= "$rule$"
+	predicate =
+"some_host (
+    ( kernel.all.syscall $hosts$ / hinv.ncpu $hosts$ )
+	> $threshold$ count/sec
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"Average number of system calls per CPU per second exceeded threshold
+over the past sample interval.";
+
+string	rule
+	default	= "high average system call rate per CPU"
+	modify	= no
+	display	= no;
+
+double	threshold
+	default	= 2500
+	help	=
+"The threshold of system calls per second per CPU.  The appropriate
+value is a function of the processor type and the workload, but in
+the range 500 (a few, expensive systems calls) to 5000 (many,
+lightweight system calls) would be typical.";
+

@@ -1,0 +1,33 @@
+#!/bin/sh
+# PCP QA Test No. 289
+# exposes a bug in interp when rewind across mark record
+# pv #505498
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# deal with an annoying libc error ... using TZ=:Australia/Melbourne
+# causes the -z option to report the wrong time, at least for some
+# times of the year
+#
+TZ=EST-10
+export TZ
+
+# real QA test starts here
+
+src/mark-bug -z -a src/mark-bug -s 60 -t 2
+
+# success, all done
+status=0
+exit

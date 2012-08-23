@@ -1,0 +1,25 @@
+QA output created by 386
+=== std out ===
+=== std err ===
++++++++++++++++++++++++++++
++ Mode: PDU_BINARY Pass 0 +
++++++++++++++++++++++++++++
++++++++++++++++++++++++++++
++ Mode: PDU_BINARY Pass 1 +
++++++++++++++++++++++++++++
++++++++++++++++++++++++++++
++ Mode: PDU_BINARY Pass 2 +
++++++++++++++++++++++++++++
++++++++++++++++++++++++++++
++ Mode: PDU_BINARY Pass 3 +
++++++++++++++++++++++++++++
++++++++++++++++++++++++++++
++ Mode: PDU_BINARY Pass 4 +
++++++++++++++++++++++++++++
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/pducheck
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

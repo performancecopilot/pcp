@@ -96,6 +96,9 @@ pduread(int fd, char *buf, int len, int part, int timeout)
     int			status = 0;
     int			have = 0;
     int			size;
+    int			onetrip = 1;
+    struct timeval	dead_hand;
+    struct timeval	now;
     fd_set		onefd;
 
     while (len) {
@@ -168,9 +171,35 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		}
 		else
 		    wait = def_wait;
+		if (onetrip) {
+		    /*
+		     * Need all parts of the PDU to be received by dead_hand
+		     * This enforces a low overall timeout for the whole PDU
+		     * (as opposed to just a timeout for individual calls to
+		     * recv).  A more invasive alternative (better) approach
+		     * would see all I/O performed in the main event loop,
+		     * and I/O routines transformed to continuation-passing
+		     * style.
+		     */
+		    gettimeofday(&dead_hand, NULL);
+		    dead_hand.tv_sec += wait.tv_sec;
+		    dead_hand.tv_usec += wait.tv_usec;
+		    while (dead_hand.tv_usec >= 1000000) {
+			dead_hand.tv_usec -= 1000000;
+			dead_hand.tv_sec++;
+		    }
+		    onetrip = 0;
+		}
 		FD_ZERO(&onefd);
 		FD_SET(fd, &onefd);
 		status = select(fd+1, &onefd, NULL, NULL, &wait);
+		if (status > 0) {
+		    gettimeofday(&now, NULL);
+		    if (now.tv_sec > dead_hand.tv_sec ||
+		        (now.tv_sec == dead_hand.tv_sec &&
+			 now.tv_usec > dead_hand.tv_usec))
+		    status = 0;
+		}
 		if (status == 0) {
 		    if (__pmGetInternalState() != PM_STATE_APPL) {
 			/* special for PMCD and friends 
@@ -525,6 +554,15 @@ check_read_len:
 
     *result = (__pmPDU *)php;
     php->type = ntohl((unsigned int)php->type);
+    if (php->type < 0) {
+	/*
+	 * PDU type is bad ... could be a possible mem leak attack like
+	 * https://bugzilla.redhat.com/show_bug.cgi?id=841319
+	 */
+	__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d illegal PDU type=%d in hdr", fd, php->type);
+	__pmUnpinPDUBuf(pdubuf);
+	return PM_ERR_IPC;
+    }
     php->from = ntohl((unsigned int)php->from);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU) {

@@ -1,0 +1,29 @@
+QA output created by 137
+dbpmda> open dso $PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX simple_init 253
+dbpmda> getdesc on
+dbpmda> desc simple.numfetch
+PMID: 253.0.0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+dbpmda> fetch simple.numfetch
+PMID(s): 253.0.0
+pmResult ... numpmid: 1
+  253.0.0 (simple.numfetch): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+dbpmda> desc simple.color
+PMID: 253.0.1
+    Data Type: 32-bit int  InDom: 253.0 0x3f400000
+    Semantics: instant  Units: none
+dbpmda> fetch simple.color
+PMID(s): 253.0.1
+pmResult ... numpmid: 1
+  253.0.1 (simple.color): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or ???] value NUMBER
+    inst [1 or ???] value NUMBER
+    inst [2 or ???] value NUMBER
+dbpmda> instance 253.0
+pmInDom: 253.0
+[  0] inst: 0 name: "red"
+[  1] inst: 1 name: "green"
+[  2] inst: 2 name: "blue"
+dbpmda> 

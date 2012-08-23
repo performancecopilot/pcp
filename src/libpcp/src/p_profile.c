@@ -15,6 +15,8 @@
 #include "pmapi.h"
 #include "impl.h"
 
+#define LIMIT_CTXNUM	2048
+
 /*
  * PDU used to transmit __pmProfile prior to pmFetch (PDU_PROFILE)
  */
@@ -102,30 +104,44 @@ __pmSendProfile(int fd, int from, int ctxnum, __pmProfile *instprof)
 }
 
 int
-__pmDecodeProfile(__pmPDU *pdubuf, int *ctxnum, __pmProfile **result)
+__pmDecodeProfile(__pmPDU *pdubuf, int *ctxnump, __pmProfile **resultp)
 {
-    __pmProfile		*instprof = NULL;
+    __pmProfile		*instprof;
     __pmInDomProfile	*prof, *p_end;
     profile_t		*pduProfile;
     instprof_t		*pduInstProf;
-    __pmPDU		*p;
+    __pmPDU		*p = (__pmPDU *)pdubuf;
+    char		*pdu_end;
+    int			ctxnum;
     int			sts = 0;
 
-    p = (__pmPDU *)pdubuf;
-
     /* First the profile */
-    pduProfile = (profile_t *)p;
-    *ctxnum = ntohl(pduProfile->ctxnum);
+    pduProfile = (profile_t *)pdubuf;
+    pdu_end = (char*)pdubuf + pduProfile->hdr.len;
+    if (pdu_end - (char*)pdubuf < sizeof(profile_t))
+	return PM_ERR_IPC;
+
+    ctxnum = ntohl(pduProfile->ctxnum);
+    if (ctxnum < 0 || ctxnum > LIMIT_CTXNUM)
+	return PM_ERR_IPC;
     if ((instprof = (__pmProfile *)malloc(sizeof(__pmProfile))) == NULL)
 	return -oserror();
     instprof->state = ntohl(pduProfile->g_state);
     instprof->profile = NULL;
     instprof->profile_len = ntohl(pduProfile->numprof);
+    if (instprof->profile_len < 0)
+	return PM_ERR_IPC;
+
     p += sizeof(profile_t) / sizeof(__pmPDU);
 
     if (instprof->profile_len > 0) {
-	if ((instprof->profile = (__pmInDomProfile *)malloc(
-	     instprof->profile_len * sizeof(__pmInDomProfile))) == NULL) {
+	if (instprof->profile_len >= INT_MAX / sizeof(__pmInDomProfile) ||
+	    instprof->profile_len >= pduProfile->hdr.len) {
+	    sts = PM_ERR_IPC;
+	    goto fail;
+	}
+	if ((instprof->profile = (__pmInDomProfile *)calloc(
+	     instprof->profile_len, sizeof(__pmInDomProfile))) == NULL) {
 	    sts = -oserror();
 	    goto fail;
 	}
@@ -134,6 +150,10 @@ __pmDecodeProfile(__pmPDU *pdubuf, int *ctxnum, __pmProfile **result)
 	for (prof = instprof->profile, p_end = prof + instprof->profile_len;
 	     prof < p_end;
 	     prof++) {
+	    if ((char *)p >= pdu_end) {
+		sts = PM_ERR_IPC;
+		goto fail;
+	    }
 	    pduInstProf = (instprof_t *)p;
 	    prof->indom = __ntohpmInDom(pduInstProf->indom);
 	    prof->state = ntohl(pduInstProf->state);
@@ -149,22 +169,37 @@ __pmDecodeProfile(__pmPDU *pdubuf, int *ctxnum, __pmProfile **result)
 	    int j;
 
 	    if (prof->instances_len > 0) {
-		prof->instances = (int *)malloc(prof->instances_len * sizeof(int));
+		if (prof->instances_len >= INT_MAX / sizeof(int) ||
+		    prof->instances_len >= pduProfile->hdr.len) {
+		    sts = PM_ERR_IPC;
+		    goto fail;
+		}
+		prof->instances = (int *)calloc(prof->instances_len, sizeof(int));
 		if (prof->instances == NULL) {
 		    sts = -oserror();
 		    goto fail;
 		}
-		for (j = 0; j < prof->instances_len; j++, p++)
+		for (j = 0; j < prof->instances_len; j++, p++) {
+		    if ((char *)p >= pdu_end) {
+			sts = PM_ERR_IPC;
+			goto fail;
+		    }
 		    prof->instances[j] = ntohl(*p);
-	    }
-	    else
+		}
+	    } else if (prof->instances_len < 0) {
+		sts = PM_ERR_IPC;
+		goto fail;
+	    } else {
 		prof->instances = NULL;
+	    }
 	}
     }
-    else
+    else {
 	instprof->profile = NULL;
+    }
 
-    *result = instprof;
+    *resultp = instprof;
+    *ctxnump = ctxnum;
     return 0;
 
 fail:

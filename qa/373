@@ -1,0 +1,53 @@
+#!/bin/sh
+# PCP QA Test No. 373
+#
+# iostat2pcp exerciser
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+
+# creator
+owner=kenj
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+which iostat2pcp >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "iostat2pcp not installed"
+perl -e "use Date::Parse" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl Date::Parse module not installed"
+
+echo "QA output created by $seq"
+
+tmp=/tmp/$$
+here=`pwd`
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+for infile in \
+    src/iostat-t src/iostat-t.ISO \
+    src/iostat-c src/iostat-d \
+    src/iostat src/iostat-z \
+    src/iostat-d-k src/iostat-d-m src/iostat-x \
+    src/iostat-p-ALL \
+    src/iostat-z-p-ALL
+do
+    echo
+    echo "=== $infile ==="
+    rm -f $tmp.0 $tmp.index $tmp.meta
+    iostat2pcp -v $infile $tmp
+
+    if [ -f $tmp.0 ]
+    then
+	pmdumplog -z -a $tmp
+    fi
+done
+
+# success, all done
+exit
+

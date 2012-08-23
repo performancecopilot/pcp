@@ -1,0 +1,32 @@
+QA output created by 292
+start pmlogger ...
+kill and restart pmlogger ...
+kill and restart pmlogger ...
+kill and restart pmlogger ...
+kill and restart pmlogger ...
+
+Checking ...
+Found at least one "-00" suffix
+Found at least one "-01" suffix
+
+merge 'em together ...
+
+pmval: pmFetchArchive: End of PCP archive log
+
+metric:    pmcd.control.debug
+archive:   out
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: discrete instantaneous value
+units:     none
+samples:   all
+TIMESTAMP             0
+TIMESTAMP     Archive logging suspended
+TIMESTAMP             0
+TIMESTAMP     Archive logging suspended
+TIMESTAMP             0
+TIMESTAMP     Archive logging suspended
+TIMESTAMP             0
+TIMESTAMP     Archive logging suspended
+TIMESTAMP             0

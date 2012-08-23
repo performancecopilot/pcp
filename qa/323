@@ -1,0 +1,100 @@
+#!/bin/sh
+# PCP QA Test No. 323
+# validate some values for pmdashping
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+_cleanup()
+{
+    _restore_pmda_install $iam
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+iam=shping
+status=1
+trap "_cleanup" 0 1 2 3 15
+rm -f $seq.full
+here=`pwd`
+
+_filter_info()
+{
+    sed \
+	-e 's/value -[0-9][0-9]*\.[0-9]*/value NEGATIVE NUMBER/' \
+	-e 's/value -[0-9][0-9]*/value NEGATIVE NUMBER/' \
+	-e 's/value [0-9][0-9]*\.[0-9]*/value NUMBER/' \
+	-e 's/value [0-9][0-9]*/value NUMBER/'
+}
+
+# real QA test starts here
+_prepare_pmda_install $iam
+
+# make sure no old config file is hanging about, otherwise the "3" answer
+# below would need to be "4" !
+#
+$sudo rm -f $PCP_VAR_DIR/config/$iam/$iam.conf
+
+# timing is real tricky here ...
+echo
+echo "=== install $iam agent ===" | tee -a $here/$seq.full
+echo 'b
+3
+y
+null exit 0
+slow sleep 3
+timeout sleep 10
+
+60
+6' \
+| $sudo ./Install >$tmp.out 2>&1
+_filter_pmda_install <$tmp.out
+cat $tmp.out >>$here/$seq.full
+
+if pminfo -v $iam
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+echo
+echo "=== check values ==="
+pminfo -f shping.status shping.error shping.cmd
+pminfo -f shping.control.cycletime shping.control.timeout
+pminfo -f shping.time.real shping.time.cpu_usr shping.time.cpu_sys 2>&1 \
+| _filter_info
+
+echo | tee -a $here/$seq.full
+echo "=== remove $iam agent ===" | tee -a $here/$seq.full
+$sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_remove <$tmp.out
+cat $tmp.out >>$here/$seq.full
+
+echo >>$here/$seq.full
+ls -l $PCP_LOG_DIR/pmcd/shping.log >>$here/$seq.full
+cat $PCP_LOG_DIR/pmcd/shping.log >>$here/$seq.full
+echo >>$here/$seq.full
+ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+cat $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+
+status=0
+exit

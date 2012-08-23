@@ -1,0 +1,124 @@
+#! /bin/sh
+# PCP QA Test No. 129
+# pmlogreduce rate conversion
+#
+# Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+rm -f $seq.full
+
+_filter()
+{
+    sed \
+	-e '/^ *$/d' \
+	-e 's/  */ /g' \
+	-e 's/ $//' \
+	-e '/End of PCP archive log/d' \
+    | $PCP_AWK_PROG '
+BEGIN			{ skip = 1 }
+$1 == "interval:"	{ skip = 0; next }
+skip == 0		{ print }'
+}
+
+_fix_e_fmt()
+{
+    sed \
+	-e 's/\([0-9]\)E/\1 E /' \
+    | $PCP_AWK_PROG '
+	{ printf "%s",$1
+	  for (i = 2; i <= NF; i++) {
+	    if ($(i+1) == "E") {
+		b = $(i+2)
+		s = 1.0
+		while (b < 0) {
+		    s /= 10
+		    b++
+		}
+		while (b > 0) {
+		    s *= 10
+		    b--
+		}
+		$i *= s
+		printf " %s",$i
+		i += 2
+	    }
+	    else
+		printf " %s",$i
+	  }
+	  print ""
+	}'
+}
+
+_do()
+{
+    $PCP_ECHO_PROG $PCP_ECHO_N "$1""$PCP_ECHO_C"
+    echo >>$seq.full
+    echo "=== $1 orig ===" >>$seq.full
+    pmval -z -O 1m -A 15m -t 15m -a src/kenj-pc-1 $1 2>$tmp.orig.err \
+    | tee -a $seq.full \
+    | _fix_e_fmt \
+    | _filter >$tmp.orig
+    echo "--- stderr ---" >>$seq.full
+    cat $tmp.orig.err >>$seq.full
+    echo "--- filtered ---" >>$seq.full
+    cat $tmp.orig >>$seq.full
+
+    echo "=== $1 reduce ===" >>$seq.full
+    pmval -z -O 15m -A 15m -t 15m -a $tmp $1 2>$tmp.reduce.err \
+    | tee -a $seq.full \
+    | _fix_e_fmt \
+    | _filter >$tmp.reduce
+    echo "--- stderr ---" >>$seq.full
+    cat $tmp.reduce.err >>$seq.full
+    echo "--- filtered ---" >>$seq.full
+    cat $tmp.reduce >>$seq.full
+
+    join -a 1 -a 2 -e "?" $tmp.orig $tmp.reduce >$tmp.join
+
+# cat $tmp.join
+
+    $PCP_AWK_PROG <$tmp.join >$tmp.chk '
+NF != 3		{ if (NR > 1) print
+		  next
+		}
+$2 == "?"	{ print; next }
+$3 == "?"	{ print; next }
+		{ if (0.99*$2 <= $3 && $3 <= 1.01*$2) next }
+		{ print }'
+
+    if [ -s $tmp.chk ]
+    then
+	$PCP_ECHO_PROG " mismatches ..."
+	echo "--- chk ---" >>$seq.full
+	cat $tmp.chk >>$seq.full
+	cat $tmp.orig.err
+	cat $tmp.reduce.err
+	diff -u $tmp.orig $tmp.reduce
+    else
+	$PCP_ECHO_PROG " OK"
+    fi
+}
+
+# real QA test starts here
+pmlogreduce -A 15m -t 15m -D appl0,appl1,appl2 src/kenj-pc-1 $tmp 2>>$seq.full
+
+for m in \
+    disk.all.total kernel.all.cpu.idle \
+    disk.dev.total kernel.percpu.cpu.user
+do
+    _do $m
+done
+
+

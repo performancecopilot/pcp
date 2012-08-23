@@ -1,0 +1,134 @@
+QA output created by 363
+
+=== Sanity checks ===
+
+disk.dev.read ["dks1d1"] 0.083 0.090 0.000 0.498 6 count / sec
+disk.dev.read ["dks1d2"] 0.000 0.000 0.000 0.000 6 count / sec
+disk.dev.read ["dks1d3"] 0.000 0.000 0.000 0.000 6 count / sec
+disk.dev.read ["dks3d1"] 0.000 0.000 0.000 0.000 6 count / sec
+disk.dev.read ["dks3d2"] 0.000 0.000 0.000 0.000 6 count / sec
+disk.dev.read ["dks3d3"] 0.000 0.000 0.000 0.000 6 count / sec
+disk.dev.read ["dks3d4"] 0.000 0.000 0.000 0.000 6 count / sec
+disk.dev.read ["dks4d1"] 0.000 0.000 0.000 0.000 6 count / sec
+disk.dev.read ["dks4d2"] 49.645 50.478 11.952 93.907 6 count / sec
+disk.dev.total ["dks1d1"] 0.416 0.449 0.000 1.992 6 count / sec
+disk.dev.total ["dks1d2"] 0.000 0.000 0.000 0.000 6 count / sec
+disk.dev.total ["dks1d3"] 0.000 0.000 0.000 0.000 6 count / sec
+disk.dev.total ["dks3d1"] 0.416 0.449 0.000 1.499 6 count / sec
+disk.dev.total ["dks3d2"] 0.000 0.000 0.000 0.000 6 count / sec
+disk.dev.total ["dks3d3"] 0.000 0.000 0.000 0.000 6 count / sec
+disk.dev.total ["dks3d4"] 0.752 0.808 0.000 1.519 6 count / sec
+disk.dev.total ["dks4d1"] 0.000 0.000 0.000 0.000 6 count / sec
+disk.dev.total ["dks4d2"] 63.287 63.681 38.345 95.406 6 count / sec
+disk.dev.write ["dks1d1"] 0.333 0.359 0.000 1.494 6 count / sec
+disk.dev.write ["dks1d2"] 0.000 0.000 0.000 0.000 6 count / sec
+disk.dev.write ["dks1d3"] 0.000 0.000 0.000 0.000 6 count / sec
+disk.dev.write ["dks3d1"] 0.416 0.449 0.000 1.499 6 count / sec
+disk.dev.write ["dks3d2"] 0.000 0.000 0.000 0.000 6 count / sec
+disk.dev.write ["dks3d3"] 0.000 0.000 0.000 0.000 6 count / sec
+disk.dev.write ["dks3d4"] 0.752 0.808 0.000 1.519 6 count / sec
+disk.dev.write ["dks4d1"] 0.000 0.000 0.000 0.000 6 count / sec
+disk.dev.write ["dks4d2"] 13.642 13.203 0.000 26.394 6 count / sec
+kernel.all.cpu.idle  1.737 1.515 0.380 4.700 6 none
+kernel.all.cpu.intr  0.052 0.053 0.030 0.095 6 none
+kernel.all.cpu.sxbrk  0.000 0.000 0.000 0.000 6 none
+kernel.all.cpu.sys  0.693 0.695 0.518 0.805 6 none
+kernel.all.cpu.user  0.297 0.296 0.194 0.375 6 none
+kernel.all.cpu.wait.total  1.718 1.754 1.120 2.508 6 none
+kernel.all.ipc.msg  0.000 0.000 0.000 0.000 6 count / sec
+kernel.all.ipc.sema  0.000 0.000 0.000 0.000 6 count / sec
+kernel.all.load ["1 minute"] 0.360 0.352 0.207 0.470 7 none
+kernel.all.load ["15 minute"] 0.059 0.058 0.047 0.068 7 none
+kernel.all.load ["5 minute"] 0.174 0.172 0.139 0.199 7 none
+kernel.all.pswitch  331.975 311.847 231.886 597.243 6 count / sec
+kernel.all.readch  120634.709 117620.705 36702.036 195571.844 6 byte / sec
+kernel.all.runocc  0.896 0.898 0.498 1.013 6 / sec
+kernel.all.runque  0.896 0.898 0.498 1.013 6 / sec
+kernel.all.syscall  12014.115 11956.885 7749.259 14049.148 6 count / sec
+kernel.all.writech  31096.325 30067.537 1104.102 58530.036 6 byte / sec
+network.interface.in.bytes ["et0"] 2184.880 1936.379 0.000 5551.761 6 count / sec
+network.interface.in.bytes ["lo0"] 3950.859 3663.033 1115.900 7774.543 6 count / sec
+network.interface.in.bytes ["sl0"] 10.079 9.161 0.000 25.974 6 count / sec
+network.interface.out.bytes ["et0"] 456.969 429.957 43.165 1560.210 6 count / sec
+network.interface.out.bytes ["lo0"] 3950.859 3663.033 1115.900 7774.543 6 count / sec
+network.interface.out.bytes ["sl0"] 834.937 807.640 0.000 2802.711 6 count / sec
+Note: timezone set to local timezone of host "moomba" from archive
+
+=== Down-rev error check ===
+pmlogsummary: Cannot open archive "src/err_v1": Illegal label record at start of a PCP archive log file
+
+=== Changing inst check ===
+Note: timezone set to local timezone of host "gonzo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host gonzo
+  commencing Tue Aug  5 07:45:41.422 1997
+  ending     Tue Aug  5 07:45:59.912 1997
+irix.network.interface.total.packets ["ec0"] 3.000 3.000 1.000 5.000 3 count / sec
+irix.network.interface.total.packets ["lo0"] 21.766 23.327 7.995 48.003 7 count / sec
+irix.network.interface.total.packets ["ec2"] 39.657 39.659 30.997 47.972 3 count / sec
+sample.milliseconds  1.000 1.000 1.000 1.000 3 none
+sample.seconds  0.989 0.972 0.937 1.000 11 none
+sample.bin ["bin-100"] 100.000 100.000 100.000 100.000 8 none
+sample.bin ["bin-200"] 200.000 200.000 200.000 200.000 8 none
+sample.bin ["bin-400"] 400.000 400.000 400.000 400.000 12 none
+sample.bin ["bin-500"] 500.000 500.000 500.000 500.000 5 none
+sample.bin ["bin-300"] 300.000 300.000 300.000 300.000 8 none
+sample.drift  104.500 116.483 26.000 184.000 8 none
+hinv.ncpu  1.000 1.000 1.000 1.000 6 none
+pmcd.pmlogger.port [1318] 4331.000 4331.000 4331.000 4331.000 1 none
+pmcd.pmlogger.port [1342] 4331.000 4331.000 4331.000 4331.000 1 none
+pmcd.pmlogger.port ["1368"] 4331.000 4331.000 4331.000 4331.000 1 none
+
+=== Bogus archive check ===
+pmlogsummary: fetch failed: Corrupted record in a PCP archive log
+sample.milliseconds  1.000 none
+sample.colour (masked out)
+sample.colour (masked out)
+sample.colour (masked out)
+sample.bin ["bin-100"] 100.000 none
+sample.bin ["bin-200"] 200.000 none
+sample.bin ["bin-300"] 300.000 none
+sample.bin ["bin-400"] 400.000 none
+sample.bin ["bin-500"] 500.000 none
+sample.bin ["bin-600"] 600.000 none
+sample.bin ["bin-700"] 700.000 none
+sample.bin ["bin-800"] 800.000 none
+sample.bin ["bin-900"] 900.000 none
+sample.bucket ["bin-100"] 100.000 none
+sample.bucket ["bin-200"] 200.000 none
+sample.bucket ["bin-300"] 300.000 none
+sample.bucket ["bin-400"] 400.000 none
+sample.bucket ["bin-500"] 500.000 none
+sample.bucket ["bin-600"] 600.000 none
+sample.bucket ["bin-700"] 700.000 none
+sample.bucket ["bin-800"] 800.000 none
+sample.bucket ["bin-900"] 900.000 none
+sampledso.milliseconds  1.000 none
+sample.colour (masked out)
+sample.colour (masked out)
+sample.colour (masked out)
+sampledso.bin ["bin-100"] 100.000 none
+sampledso.bin ["bin-200"] 200.000 none
+sampledso.bin ["bin-300"] 300.000 none
+sampledso.bin ["bin-400"] 400.000 none
+sampledso.bin ["bin-500"] 500.000 none
+sampledso.bin ["bin-600"] 600.000 none
+sampledso.bin ["bin-700"] 700.000 none
+sampledso.bin ["bin-800"] 800.000 none
+sampledso.bin ["bin-900"] 900.000 none
+sampledso.bucket ["bin-100"] 100.000 none
+sampledso.bucket ["bin-200"] 200.000 none
+sampledso.bucket ["bin-300"] 300.000 none
+sampledso.bucket ["bin-400"] 400.000 none
+sampledso.bucket ["bin-500"] 500.000 none
+sampledso.bucket ["bin-600"] 600.000 none
+sampledso.bucket ["bin-700"] 700.000 none
+sampledso.bucket ["bin-800"] 800.000 none
+sampledso.bucket ["bin-900"] 900.000 none
+pmcd.pmlogger.port [PID] PORT none
+pmlogsummary: Cannot locate end of archive: Corrupted record in a PCP archive log
+
+WARNING: This archive is sufficiently damaged that it may not be possible to
+         produce complete information.  Continuing and hoping for the best.
+

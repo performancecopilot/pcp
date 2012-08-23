@@ -1,0 +1,173 @@
+#! /bin/sh
+# PCP QA Test No. 279
+# Check recovery actions when procedures in pmdaproc.sh fail to
+# restart/start PMCD
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+killer=`pwd`/src/killparent
+LOCALHOST=`hostname`
+_needclean=true
+
+rm -f $seq.full
+
+_interrupt()
+{
+    status=1
+}
+
+_cleanup()
+{
+    if $_needclean
+    then
+	echo
+	echo "Restoring real \$PCP_PMCDCONF_PATH ..."
+	[ -f $tmp.pmcd.conf.save ] && $sudo mv $tmp.pmcd.conf.save $PCP_PMCDCONF_PATH
+	_restore_loggers
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	_needclean=false
+    fi
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN		{ skip = 0 }
+/Save current/	{ print ""; skip = 0 }
+/Sorry, failed/	{ print ""; skip = 0 }
+skip == 0	{ print }
+/Here is the PMCD logfile/	{ print "[logfile deleted]"; skip = 1; next }' \
+    | sed \
+	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;g" \
+    | _filter_pcp_start \
+    | _filter_pmcd_log
+}
+
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf.save
+_disable_loggers
+pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+&& $sudo sh $tmp.cmd
+
+trap "_cleanup" 0
+trap "_interrupt; _cleanup" 1 2 3 15
+
+# real QA test starts here
+
+# get to a known starting state, esp for pmcd.log
+#
+if [ $PCP_PLATFORM = irix ]
+then
+    cat <<End-of-File >$tmp.conf
+# temporary pmcd.conf for qa/$seq
+irix	1	dso	irix_init	libirixpmda.so
+pmcd	2	dso	pmcd_init	pmda_pmcd.so
+proc	3	dso	proc_init	pmda_proc.so
+End-of-File
+elif [ $PCP_PLATFORM = linux ]
+then
+    cat <<End-of-File >$tmp.conf
+# temporary pmcd.conf for qa/$seq
+linux	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
+elif [ $PCP_PLATFORM = darwin ]
+then
+    cat <<End-of-File >$tmp.conf
+# temporary pmcd.conf for qa/$seq
+darwin	78	dso	darwin_init	$PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+End-of-File
+elif [ $PCP_PLATFORM = solaris ]
+then
+    cat <<End-of-File >$tmp.conf
+# temporary pmcd.conf for qa/$seq
+solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
+else
+    echo "Arrgh ... need pmcd.conf for $PCP_PLATFORM"
+    exit 1
+fi
+echo "=== initial pmcd.conf ===" >>$seq.full
+cat $tmp.conf >>$seq.full
+echo "=== ===" >>$seq.full
+$sudo cp $tmp.conf $PCP_PMCDCONF_PATH
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+
+cat <<End-of-File >$tmp.cmd
+rm -f $PCP_PMCDCONF_PATH.prev
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+__pmda_add "bogus	111	pipe	binary 		$killer"
+End-of-File
+
+echo
+echo "__pmda_add test: expect this to fail and revert to the status quo ..."
+echo "__pmda_add test: expect this to fail and revert to the status quo ..." >>$seq.full
+echo
+
+$sudo sh $tmp.cmd 2>&1 \
+| tee $tmp.out \
+| _filter
+cat $tmp.out >>$seq.full
+
+echo "=== pmcd.conf after bogus install ===" >>$seq.full
+cat $PCP_PMCDCONF_PATH >>$seq.full
+echo "=== ===" >>$seq.full
+
+echo "\$PCP_PMCDCONF_PATH should be put back the way it was ... diffs ..."
+diff $PCP_PMCDCONF_PATH $tmp.conf
+
+echo
+cat <<End-of-File >$tmp.cmd
+rm -f $PCP_PMCDCONF_PATH.prev
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+__pmda_cull fungus 222
+End-of-File
+
+echo "bogus 111     pipe    binary          $killer" >>$tmp.conf
+echo "fungus 222     pipe    binary         $killer" >>$tmp.conf
+echo "=== next pmcd.conf ===" >>$seq.full
+cat $tmp.conf >>$seq.full
+echo "=== ===" >>$seq.full
+$sudo cp $tmp.conf $PCP_PMCDCONF_PATH
+
+echo
+echo "__pmda_cull test: expect this to fail and restoration to fail ..."
+echo "__pmda_cull test: expect this to fail and restoration to fail ..." >>$seq.full
+echo
+
+$sudo sh $tmp.cmd 2>&1 \
+| tee $tmp.out \
+| _filter
+cat $tmp.out >>$seq.full
+
+echo "=== pmcd.conf after fungus remove ===" >>$seq.full
+cat $PCP_PMCDCONF_PATH >>$seq.full
+echo "=== ===" >>$seq.full
+
+# success, all done
+status=0
+
+exit

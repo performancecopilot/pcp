@@ -1,0 +1,93 @@
+#! /bin/sh
+# PCP QA Test No. 210
+# Check dynamic metrics work with PMAPI clients - DSO PMDA version
+# See also 467 for the related tests using pmdumptext
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if grep -q ' RESERVED_DO_NOT_USE[ 	]*511' $PCP_VAR_DIR/pmns/stdpmid
+then
+    :
+else
+    echo "No support for dynamic PMNS entries" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+rm -f $seq.full
+
+_filter_probe()
+{
+    $PCP_AWK_PROG '
+# sample ... sampledso.secret.foo.bar.max.redirect 8 0 0 0 0 0 0 4 0
+/secret\.foo\.bar\.max\.redirect/	{ if ($2 > 3 )
+					    print $1,"> 3 values ..."
+					  else
+					    print
+					  next
+					}
+					{ print }'
+}
+
+_do() {
+    echo
+    echo "== $* =="
+    pminfo $* | LC_COLLATE=POSIX sort
+    pmprobe -v $* | _filter_probe | LC_COLLATE=POSIX sort 
+}
+
+# real QA test starts here
+
+echo "PMNS traversal tests ..."
+pminfo sampledso | grep '\.secret\.' | LC_COLLATE=POSIX sort
+_do sampledso.secret
+_do sampledso.secret.bar sampledso.secret.foo
+_do sampledso.secret.foo.bar.grunt
+
+echo
+echo "pmval ..."
+pmval -s 3 -t 0.1 sampledso.secret.foo.bar.grunt.five
+
+echo
+echo "pmie ..."
+echo 'sampledso.secret.foo.bar.four == 4 -> print "Bingo!"' \
+| pmie -t 0.1 -T 0.3 2>&1 \
+| _filter_pmie_log \
+| sed -e '/.* Info: evaluator exiting/d' \
+| sort -u
+
+echo
+echo "pmlogger ..."
+cat <<'End-of-File' >$tmp.config
+log mandatory on 100 msec {
+    sampledso.secret.bar
+    sampledso.secret.foo.one
+    sampledso.secret.foo.two
+    sampledso.secret.foo.bar.three
+    sampledso.secret.foo.bar.four
+    sampledso.secret.foo.bar.grunt
+}
+End-of-File
+echo "+ pmlogger -T 0.3 -c $tmp.config -l $tmp.log $tmp" >>$seq.full
+pmlogger -T 0.3 -c $tmp.config -l $tmp.log $tmp
+
+cat $tmp.log >>$seq.full
+pmdumplog $tmp 2>&1 \
+| tee -a $seq.full \
+| _filter_pmdumplog \
+| sed -e 1,4d
+
+
+exit

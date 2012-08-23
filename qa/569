@@ -1,0 +1,117 @@
+#!/bin/sh
+# PCP QA Test No. 569
+# exercise pmprobe, and pv 679693 in particular
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/^sample\.many\./d' \
+	-e '/^sample\.bigid/d' \
+	-e '/sample\.byte_/d' \
+	-e '/sample\.kbyte_/d' \
+	-e '/sample\.dynamic\.meta/d' \
+	-e '/sample\.datasize/d' \
+	-e '/sample\.darkness/d' \
+	-e '/sample\.scramble/d' \
+	-e '/^sample\.mirage/s/ [0-9].*/ NUMVAL VAL or INST .../' \
+	-e '/^sample\.dynamic\./s/ [0-9].*/ NUMVAL VAL or INST .../' \
+	-e '/sample\.wrap\./{
+s/ -*[0-9][0-9]*/ NUMBER/g
+s/ NUMBER/ 1/
+}' \
+	-e '/sample\.daemon_pid /{
+s/ [0-9][0-9]*/ NUMBER/g
+s/ NUMBER/ 1/
+}' \
+	-e '/sample\..*\.write_me /{
+s/ [0-9][0-9]*/ NUMBER/g
+s/ ".*"/ "STRING"/g
+s/ NUMBER/ 1/
+}' \
+	-e '/sample\..*seconds /{
+s/ [0-9][0-9.]*/ NUMBER/g
+s/ NUMBER/ 1/
+}' \
+	-e '/sample\.colour /{
+s/ \([0-9]\)/ X\1/
+s/ [0-9][0-9.]*/ NUMBER/g
+s/ X/ /
+}' \
+	-e '/sample\.drift /{
+s/ [0-9][0-9.]*/ NUMBER/g
+s/ NUMBER/ 1/
+}' \
+	-e '/sample\.step/{
+s/ [0-9][0-9.]*/ NUMBER/g
+s/ NUMBER/ 1/
+}' \
+	-e '/sample\..*pdu /{
+s/ [0-9][0-9.]*/ NUMBER/g
+s/ NUMBER/ 1/
+}' \
+	-e '/sample\.rapid /{
+s/ [0-9][0-9.]*/ NUMBER/g
+s/ NUMBER/ 1/
+}' \
+	-e '/sample\.dodgey\./{
+s/ \([0-9]\)/ X\1/
+s/ [0-9][0-9.]*/ NUMBER/g
+s/ X/ /
+}' \
+	-e '/sample\.magnitude /{
+s/ [0-9][0-9.]*/ NUMBER/g
+s/ NUMBER/ 1/
+}' \
+	-e '/sample\.scale_step\./{
+s/ [0-9][0-9.]*/ NUMBER/g
+s/ NUMBER/ 1/
+}' \
+	-e '/sample\.lights /s/ ".*"/ "STRING"/g' \
+	-e '/sample\.sysinfo 1/d' \
+	-e '/sample\.secret\.foo\.bar\.max\.redirect/{
+s/ [0-9][0-9.]*.*/ NUMBER .../g
+}' \
+	-e '/sample\.event\.records/s/\[.*/[RECORDS]/' \
+	-e '/sample\.event\.no_indom_records/s/\[.*/[RECORDS]/' \
+	-e '/sample\.event\.reset/{
+s/ \([0-9]\)/ X\1/
+s/ [0-9][0-9.]*/ NUMBER/g
+s/ X/ /
+}' \
+    | $PCP_AWK_PROG '
+( $1 == "sample.percontext.control.ctx" ||
+  $1 == "sample.percontext.control.active" ||
+  $1 == "sample.percontext.control.start" ||
+  $1 == "sample.percontext.control.end") &&
+$3 ~ /^[0-9][0-9]*$/	{ $3 = "NUMBER" }
+			{ print }' \
+    | fold -w160
+}
+
+# real QA test starts here
+for arg in '' -i -I -v -iI -iv -iIv
+do
+    echo
+    echo "=== $arg ==="
+    pmprobe $arg sample \
+    | _filter
+done
+
+# success, all done
+status=0
+exit

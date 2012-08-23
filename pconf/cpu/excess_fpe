@@ -1,0 +1,43 @@
+#pmieconf-rules 1
+#
+
+rule	cpu.excess_fpe
+	default	= "$rule$"
+	predicate =
+"some_host (
+    some_inst (
+	kernel.percpu.cpu.sys $hosts$ > $systime_util$ / 100 &&
+	kernel.percpu.syscall $hosts$ < $syscall_rate$
+    )
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"This predicate attempts to detect processes generating very large
+numbers of floating point exceptions (FPEs).  Characteristic of this
+situation is heavy system time coupled with low system call rates
+(exceptions are delivered through the kernel to the process, taking
+some system time, but no system call is serviced on the applications
+behalf.";
+
+string	rule
+	default	= "possible high floating point exception rate"
+	modify	= no
+	display	= no;
+
+percent	systime_util
+	default	= 50
+	help	=
+"Threshold percentage for kernel CPU utilization, in the range 0
+(idle) to 100 (completely busy)";
+
+double	syscall_rate
+	default	= 100
+	help	=
+"Threshold system call rate at which something is deemed amiss.";
+
+string	action_expand
+	default	= %i@%h
+	display	= no
+	modify	= no;
+

@@ -1,21 +1,47 @@
-pcp-3.6.5 (06 August 2012)
+pcp-3.6.5 (16 August 2012)
+    - Fixes for security advisory CVE-2012-3418
+	o Add field validation to PCP instance PDU (Red Hat #841240)
+	o Fix __pmDecodeInstanceReq heap buffer overflow (Red Hat #841284)
+	o Fix __pmDecodeText heap overflow (Red Hat #841249)
+	o Multiple issues in result PDU decoding (Red Hat #841159)
+	o Fix __pmDecodeNameReq buffer overflow (Red Hat #841180)
+	o Add length checks to __pmDecodeLogControl (Red Hat #841290)
+	o Add size check to __pmDecodeIDList (Red Hat #841112)
+	o Fix __pmDecodeNameList buffer overflow (Red Hat #840920)
+	o Add missing __pmDecodeFetch namelen checks (Red Hat #841183)
+	o Add length checks to __pmDecodeProfile (Red Hat #841126)
+	o Add length checks to __pmDecodeCreds (Red Hat #840822)
+    - Workaround for security advisory CVE-2012-3419
+	o Split the Linux kernel and proc PMDAs to prevent information
+	  leakage in default installs - esp. /proc/pid/maps exposure,
+	  but other proc metrics as well - and no longer export process
+	  metrics by default (Red Hat #841702)
+    - Fixes for security advisory CVE-2012-3420
+	o Memory leak in pmcd DoFetch error path (Red Hat #841298)
+	o Memory leak in __pmGetPDU in-band signalling (Red Hat #841319)
+    - Fixes for security advisory CVE-2012-3421
+	o Resolve event-driven programming flaw in pmcd (Red Hat #841706)
+    - Correct buffer unpinning logic in a PMNS traversal error path
+	o Red Hat bugzilla bug #847314.
+    - All of the above issues were identified by Florian Weimer of the
+      Red Hat Security Team, who also assisted extensively in fixing
+      and testing; a huge thank you to Florian from all PCP developers
+      and users!
     - Add modern gcc/glibc security protection mechanisms where
-      available.
+      available.  Thanks to the Frank Eigler.
+    - Harden all boundary checking in the remaining PDU decoders.
     - Resolve an issue with configure script checking for the init(1)
       process on Fedora 17 (and other systems using systemd).  Thanks
       to Lukas Berk.
     - pmdaelasticsearch only reports on nodes in the cluster now,
       and not other client nodes.  Thanks to Nigel Donaldson.
-    - Added an interface to allow PMDAs to register event queues
-      with existing clients (pmdaEventNewActiveQueue).
-    - New (experimental) bash event tracing PMDA added (bash v4+)
     - Added interfaces to PCP::PMDA Perl module to allow PMDAs to
       use a hash instance domain (instead of int/string array).
       These make use of the pmdaCacheOp(3) interfaces - the hash
       keys are the (external) PCP instance names, and the value
       associated with each key is an opaque reference.
-    - Work begun on Project Lazarus, bringing pmdaoracle back from
-      the firey depths of hell.  Jonathan will surely be pleased.
+    - Added an interface to allow PMDAs to register event queues
+      with existing clients (pmdaEventNewActiveQueue).
     - Initial version of the (experimental) bash tracing PMDA.
 
 pcp-3.6.4 (12 June 2012)

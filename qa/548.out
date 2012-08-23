@@ -1,0 +1,5 @@
+QA output created by 548
+! match_inst  bin-100 bin-200 bin-300 bin-400 bin-600 bin-800
+! nomatch_inst  bin-100 bin-200 bin-300 bin-400 bin-500 bin-700 bin-900
+match_inst  bin-500 bin-700 bin-900
+nomatch_inst  bin-600 bin-800

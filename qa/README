@@ -1,0 +1,253 @@
+Open Source Release of the PCP QA Suite - Version 1.5 - September 2005
+======================================================================
+
+Preliminaries
+-------------
+
+    PCP needs to be installed on the local host, with pmcd operational.
+    The sample PMDA needs to be installed.
+
+Basic getting started
+---------------------
+
+    Unpack the gzipped tarball into a directory.
+
+    There is some local configuration needed ... check the file
+    "common.config" ... this script uses heuristics to set a number of
+    interesting variables, specifically:
+
+    $PCPQA_CLOSE_X_SERVER
+	The $DISPLAY setting for an X server that is willing to accept
+	connections from X clients running on the local machine.  Not used
+	in the Open Source PCP QA tests.
+
+    $PCPQA_FAR_PMCD
+	The hostname for a host running pmcd, but the host is preferably a
+	long way away (over a WAN) for timing test.
+
+	Test 131 is the only one that uses this variable.
+
+    $PCPQA_HYPHEN_HOST
+	The hostname for a host running pmcd, with a hyphen (-) in the
+	hostname.
+
+	Test 116 is the only Open Source PCP QA test that uses this
+	variable.
+
+    Next, mk.qa_hosts is a script that includes heuristics for selecting and
+    sorting the list of potential remote PCP QA hosts (qa_hosts.master).
+    Refer to the comments in qa_hosts.master, and make appropriate changes.
+
+    For each of the potential remote PCP QA hosts, the following must be
+    set up:
+
+    (a) PCP installed,
+    (b) pmcd(1) running,
+    (c) a login for the user "pcpqa" needs to be created, and then set
+        up in such a way that ssh/scp will work without the need for any
+	password, i.e. these sorts of commands
+	    $ ssh pcpqa@pcp-qa-host some-command
+	    $ scp some-file pcpqa@pcp-qa-host:some-dir
+	must work correctly when run from the local host.
+        The "pcpqa" user's environment must also be initialized 
+        so that their shell's path includes all of the PCP binary
+        directories, so that all PCP commands are executable without  
+        full pathnames.  Of most concern would be auxilliary directory
+        (usually /usr/pcp/bin or /usr/share/pcp/bin) where commands like
+        pmlogger(1), pmhostname(1), mkaf(1), etc.) are installed.
+
+    Once you've modified common.config and qa_hosts.master, then run
+    "chk.setup" to validate the settings.
+
+    For test 051 we need five local hostnames that are valid, although
+    PCP does not need to be installed there, nor pmcd(1) running.  Edit
+    051.hosts (the comments at the start of this file explain what is
+    required).
+
+    The PCP QA tests are designed to be run by a non-root user.  Where
+    root privileges are needed, e.g. to stop or start pmcd, install/remove
+    PMDAs, etc. the "sudo" application is used.  When using sudo for QA,
+    your local or pcpqa user needs to be able to execute commands as root
+    without being prompted for a password.  This can be achieved by adding
+    the following line to the /etc/sudoers file:
+
+	pcpqa   ALL=(ALL) NOPASSWD: ALL
+
+    You can now verify your QA setup, by running:
+
+	./check 000
+
+    The first time you run "check" (see below) it will descend into the
+    src directory (see below) and make all of the QA test programs and
+    dynamic PCP archives, so some patience may be required.
+
+    If test 000 fails, it may be that you have locally developed PMDAs or
+    optional PMDAs installed.  Edit common.filter, and modify the
+    _filter_top_pmns() procedure to strip the top-level name components for
+    any new metric names (there are lots of examples already there) ... if
+    these are distributed PMDAs, you should send patches back to
+    pcp@oss.sgi.com.
+
+
+Doing the Real Work
+-------------------
+
+
+    check ...
+	This script runs tests and verifies the output.  In general,
+	test NNN is expected to terminate with an exit status of 0,
+	no core file and produce output that matches that in the file
+	NNN.out ... failures leave the current output in NNN.out.bad,
+	and may leave a more verbose trace that is useful for diagnosing
+	failures in NNN.full.
+
+	The command line options to check are:
+
+	NNN	run test NNN (leading zeros will be added as necessary
+		to the test sequence number, so 00N and N are equivalent)
+
+	NNN-	all tests >= NNN
+
+	NNN-MMM	all tests in the range NNN ... MMM
+
+	-l	diffs in line mode (the default is to use xdiff or similar)
+
+	-n	show me, do not run any tests
+
+	-q	quick mode, by-pass the initial setup integrity checks
+		(recommended that you do not use this the first time, nor
+		if the last run test failed)
+
+	-g xxx	include tests from a named group (xxx) ... refer to the
+		"groups" file
+
+	-x xxx	exclude tests from a named group (xxx) ... refer to the
+		"groups" file
+
+	If none of the NNN variants or -g is specified, then the default
+	is to run all tests.
+
+	Each of the NNN scripts that may be run by check follows the
+	same basic scheme:
+
+	- include some optional shell procedures and set variables to
+	  define the local configuration options
+	- optionally, check the run-time environment to see if it makes
+	  sense to run the test at all, and if not echo the reason to the
+	  file NNN.notrun and exit ... check will notice the NNN.notrun
+	  file and skip any testing of the exit status or comparison
+	  of output
+	- define $tmp as a prefix to be used for all temporary files, and
+	  install a trap handler to remove temporary files when the scipt
+	  exits
+	- optionally, check the run-time environment to choose one of
+	  a number of expected output formats, and link the selected
+	  file to NNN.out ... if the same output is expected in all
+	  environments, the NNN.out file will already exist as part of
+	  the PCP QA distribution
+	- run the test
+	- optionally save all the output in the file NNN.full ... this
+	  is only useful for debugging test failures
+	- filter the output to produce deterministic output that will
+	  match NNN.out if the test has been successful
+
+    remake NNN
+	This script creates a new NNN.out file.  Since the NNN.out files
+	are precious, and reflect the state of the qualified and expected
+	output, they should typically not be changed unless some change
+	has been made to the NNN script or the filters it uses.
+
+    new
+	Make sure "group" is writeable, then run "new" to
+	create the skeletal framework of a new test.
+
+	It is strongly suggested that you base your test on an existing test
+	... pay particular attention to making the output deterministic so
+	the test uses the "not run" protocols (see 009 and check for
+	examples) to avoid running the test (and hence failing) if an
+	optional application, feature or platform is not available, and uses
+	appropriate filters (see common.filter for lots of useful filters
+	already packaged as shell procedures).
+
+    show-me ...
+	Report differences between the NNN.out and NNN.out.bad files.
+	By default, uses all of the NNN.out.bad files in the current
+	directory, but can also specify test numbers or ranges of test
+	numbers on the command line.
+
+	Other options may be used to fetch good and bad output files from
+	various exotic remote locations (refer to the script).
+
+
+Make in the src Directory
+-----------------------------
+
+    The src directory contains a number of test applications that are
+    designed to exercise some of the more exotic corners of the PCP
+    functionality.
+
+    In making these applications, you may see this ...
+
+	Error: trace_dev.h and ../../src/include/trace_dev.h are different!
+	make: [trace_dev.h] Error 1 (ignored)
+
+    this is caused by the source for the pcp_trace library being out of sync
+    with the src applications.  If this happens, please ...
+
+    1. cd src
+    2. diff -u trace_dev.h ../../src/include/trace_dev.h
+       and mail the differences to pcp@oss.sgi.com so we can refine the
+       Makefiles to avoid cosmetic differences
+    3. mv trace_dev.h trace_dev.h.orig
+       cp ../../src/include/trace_dev.h trace_dev.h
+    4. make
+
+cisco PMDA Issues
+-----------------
+
+    The original PCP QA required the cisco PMDA to be installed as a
+    pre-condition to running any tests.  The issue here is that not everyone
+    has access to a Cisco and/or the necessary permissions to telnet to a
+    Cisco router and extract per-interface traffic metrics.
+
+    The current dependencies on the installation of the cisco PMDA are as
+    follows:
+
+    test 159
+	Exercises the installation and removal of the cisco PMDA.
+
+    test 212
+	Is a regression test for a problem in an earlier version of the
+	cisco PMDA.
+
+    there are other references to parts of the cisco PMDA configuration
+    files in other places, but none of these assume the PMDA is actually
+    installed and running.
+
+    If you are unable to install the cisco PMDA, then the workarounds are:
+
+    1. don't run tests 159 and 212, or
+    2. edit the "group" file to comment out the lines for tests 159 and 212, 
+       or
+    3. alway run tests using -x pmda.cisco with the "check" script (this
+       will exclude all of the pmda.cisco group, which is somewhat larger
+       than just tests 159 and 212).
+
+008 Issues
+----------
+
+    Test 008 depends on the local disk configuration, so you need to make
+    your own 008.out file (or rather a variant that 008 will link to 008.out
+    when the test is run).  Refer to the 008 script, but here is the basic
+    recipe:
+
+	$ touch touch 008.out.`hostname`
+	$ remake 008
+	$ mv 008.out 008.out.`hostname`
+
+Fixes
+-----
+    
+    If you find something that does not work, and fix it, or create
+    additional QA tests, please send the details to pcp@oss.sgi.com.
+

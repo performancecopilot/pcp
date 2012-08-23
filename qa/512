@@ -1,0 +1,143 @@
+#!/bin/sh
+# PCP QA Test No. 512
+# lock recursion depth for some pcp apps
+#
+# Copyright (c) 2012 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if src/check_fault_injection >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun "libpcp not built with fault injection & lock tracing enabled"
+fi
+
+if [ -d ../pcp/src ]
+then
+    SRC=../pcp/src
+else
+    _notrun "PCP source not found at ../pcp/src"
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed -n \
+	-e '/count=/s/^[^ ][^ ]* //p' \
+    | LC_COLLATE=POSIX sort \
+    | uniq
+}
+
+_pre()
+{
+    if [ ! -d $1 ]
+    then
+	echo "_pre: botch: $1 does not exist"
+    else
+	cd $1
+	make clean >/dev/null 2>&1
+	# This is a gross hack ...
+	# need to over-ride LDFLAGS from the PCP builddefs so we search for
+	# libpcp.so in the libpcp_fault directory
+	#
+	if LCFLAGS=-DPM_MULTI_THREAD_DEBUG=1 LDFLAGS="-L../../src/libpcp_fault/src" make $2 >$tmp.out 2>&1
+	then
+	    mv $2 $2.debug
+	    make clean >/dev/null 2>&1
+	else
+	    echo "_pre: botch: make failed"
+	    cat $tmp.out
+	fi
+	cd $here
+    fi
+}
+
+_post()
+{
+    if [ ! -d $1 ]
+    then
+	echo "_post: botch: $1 does not exist"
+    else
+	cd $1
+	rm -f $2.debug
+	cd $here
+    fi
+}
+
+# real QA test starts here
+export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
+
+
+echo "== pminfo ==" | tee -a $seq.full
+_pre $SRC/pminfo pminfo
+$SRC/pminfo/pminfo.debug -v -Dlock >/dev/null 2>$tmp.trace
+_post $SRC/pminfo pminfo
+_filter <$tmp.trace
+
+echo | tee -a $seq.full
+echo "== pmlogger ==" | tee -a $seq.full
+sed -e 's/1 sec/50 msec/' <src/config.foo >$tmp.config
+_pre $SRC/pmlogger pmlogger
+$SRC/pmlogger/pmlogger.debug -Dlock -c $tmp.config -s 20 -l $tmp.log $tmp
+_post $SRC/pmlogger pmlogger
+_filter <$tmp.log
+
+echo | tee -a $seq.full
+echo "== pmlogextract ==" | tee -a $seq.full
+for arch in a b c
+do
+    for i in 0 index meta
+    do
+	cp src/foo.$i $tmp-$arch.$i
+    done
+done
+_pre $SRC/pmlogextract pmlogextract
+$SRC/pmlogextract/pmlogextract.debug -Dlock $tmp-a $tmp-b $tmp-c $tmp-out 2>$tmp.trace
+_post $SRC/pmlogextract pmlogextract
+_filter <$tmp.trace
+
+echo | tee -a $seq.full
+echo "== pmdumplog ==" | tee -a $seq.full
+_pre $SRC/pmdumplog pmdumplog
+$SRC/pmdumplog/pmdumplog.debug -a -Dlock $tmp-out >$tmp.trace 2>&1
+_post $SRC/pmdumplog pmdumplog
+_filter <$tmp.trace
+
+echo | tee -a $seq.full
+echo "== dbpmda ==" | tee -a $seq.full
+_pre $SRC/dbpmda/src dbpmda
+# based on QA 137
+$SRC/dbpmda/src/dbpmda.debug -Dlock -n $PCP_PMDAS_DIR/simple/root -ie >$tmp.trace 2>&1 <<End-of-File
+open dso $PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX simple_init 253
+getdesc on
+desc simple.numfetch
+fetch simple.numfetch
+desc simple.color
+fetch simple.color
+instance 253.0
+open pipe $PCP_PMDAS_DIR/simple/pmdasimple -d 253
+desc simple.numfetch
+fetch simple.numfetch
+desc simple.color
+fetch simple.color
+instance 253.0
+End-of-File
+_post $SRC/dbpmda/src dbpmda
+_filter <$tmp.trace
+
+
+# success, all done
+exit

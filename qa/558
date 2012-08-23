@@ -1,0 +1,83 @@
+#! /bin/sh
+# PCP QA Test No. 558
+# pmie problems where metrics initially available and later become
+# unavailable
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+. ./localconfig
+
+rm -f $seq.out
+ln $seq.out.linux $seq.out
+
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+$sudo rm -f core
+DEBUG="-v -Dappl1,appl2"
+DEBUG=
+HOST=`hostname`
+
+PMCD_RECONNECT_TIMEOUT=1; export PMCD_RECONNECT_TIMEOUT
+
+# real QA test starts here
+
+cat <<End-of-File | pmie -t 1sec $DEBUG >$tmp.log 2>&1 &
+sample.long.million > hinv.ncpu
+    -> print 5 sec "singular" " %v";
+sample.float.million + sample.double.million >= sample.long.million
+    -> print 5 sec "expr" " %v";
+some_host sample.long.million > hinv.ncpu
+    -> print 5 sec "some_host" " %h:%v";
+some_inst sample.bin + sample.bin > 1000
+    -> print 5 sec "some_inst" " [%i]%v";
+some_host
+    some_inst
+	sample.bin :localhost :'$HOST'
+	+ sample.bin  :localhost :'$HOST'
+	> 1000
+    -> print 5 sec "some_host some_inst" " %h:[%i]%v";
+End-of-File
+
+sleep 3
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+
+sleep 10
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+pmcd_wait
+sleep 10
+$signal -s TERM $!
+wait
+
+cp $tmp.log $seq.full
+
+_filter_pmie_log <$tmp.log \
+| sed \
+    -e "s/ host $HOST/ host HOST\/localhost/g" \
+    -e "s/ from $HOST/ from HOST\/localhost/g" \
+    -e "s/$HOST/HOST/g" \
+    -e "s/ host localhost/ host HOST\/localhost/g" \
+    -e "s/ from localhost/ from HOST\/localhost/g" \
+    -e 's/failed: IPC protocol failure/failed: [IPC shutdown]/' \
+    -e 's/failed: Connection reset by peer/failed: [IPC shutdown]/' \
+| $PCP_AWK_PROG '
+$1 == "DATE:" && $2 == "singular"	{ if (state > 0) skip = 1
+					  state++
+					}
+$1 != "DATE:"		{ skip = 0; state = 0 }
+skip == 0		{ print }'
+
+_check_core
+
+exit

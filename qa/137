@@ -1,0 +1,42 @@
+#! /bin/sh
+# PCP QA Test No. 137
+# exercise dbpmda
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's,/[^/]*\.pmda,/ISA.pmda,' \
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+	-e "s/\.$DSO_SUFFIX/.\$DSO_SUFFIX/" \
+    | _filter_dumpresult
+}
+
+# make sure the simple PMDA has been made (binaries and the help
+# text ... Installing it is the only safe way)
+#
+( cd $PCP_PMDAS_DIR/simple; $sudo ./Install ) </dev/null >/dev/null 2>&1
+
+# real QA test starts here
+$sudo dbpmda -n $PCP_PMDAS_DIR/simple/root -ie <<End-of-File 2>&1 | _filter
+open dso $PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX simple_init 253
+getdesc on
+desc simple.numfetch
+fetch simple.numfetch
+desc simple.color
+fetch simple.color
+instance 253.0
+End-of-File
+
+exit 0

@@ -1,0 +1,96 @@
+QA output created by 093
+=== src/foo ===
+start: TIMESTAMP
+end: TIMESTAMP
+step: 100 msec
+0% TIMESTAMP N forw + M back = 79-82 5-15 log reads
+10% TIMESTAMP N forw + M back = 79-82 5-15 log reads
+20% TIMESTAMP N forw + M back = 79-82 5-15 log reads
+30% TIMESTAMP N forw + M back = 79-82 5-15 log reads
+40% TIMESTAMP N forw + M back = 79-82 5-15 log reads
+50% TIMESTAMP N forw + M back = 79-82 5-15 log reads
+60% TIMESTAMP N forw + M back = 79-82 5-15 log reads
+70% TIMESTAMP N forw + M back = 79-82 5-15 log reads
+80% TIMESTAMP N forw + M back = 79-82 5-15 log reads
+90% TIMESTAMP N forw + M back = 79-82 5-15 log reads
+100% TIMESTAMP N forw + M back = 79-82 5-15 log reads
+
+=== src/ok-bigbin ===
+start: TIMESTAMP
+end: TIMESTAMP
+step: 100 msec
+0% TIMESTAMP N forw + M back = 199-210 900-1210 log reads
+10% TIMESTAMP N forw + M back = 199-210 900-1210 log reads
+20% TIMESTAMP N forw + M back = 199-210 900-1210 log reads
+30% TIMESTAMP N forw + M back = 199-210 900-1210 log reads
+40% TIMESTAMP N forw + M back = 199-210 900-1210 log reads
+50% TIMESTAMP N forw + M back = 199-210 900-1210 log reads
+60% TIMESTAMP N forw + M back = 199-210 900-1210 log reads
+70% TIMESTAMP N forw + M back = 199-210 900-1210 log reads
+80% TIMESTAMP N forw + M back = 199-210 900-1210 log reads
+90% TIMESTAMP N forw + M back = 199-210 900-1210 log reads
+100% TIMESTAMP N forw + M back = 199-210 900-1210 log reads
+
+=== src/mv-foo ===
+start: TIMESTAMP
+end: TIMESTAMP
+step: 100 msec
+0% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+10% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+20% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+30% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+40% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+50% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+60% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+70% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+80% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+90% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+100% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+
+=== src/ok-mv-bigbin ===
+start: TIMESTAMP
+end: TIMESTAMP
+step: 100 msec
+0% TIMESTAMP N forw + M back = 199-210 980-1025 log reads
+10% TIMESTAMP N forw + M back = 199-210 980-1025 log reads
+20% TIMESTAMP N forw + M back = 199-210 980-1025 log reads
+30% TIMESTAMP N forw + M back = 199-210 980-1025 log reads
+40% TIMESTAMP N forw + M back = 199-210 980-1025 log reads
+50% TIMESTAMP N forw + M back = 199-210 980-1025 log reads
+60% TIMESTAMP N forw + M back = 199-210 980-1025 log reads
+70% TIMESTAMP N forw + M back = 199-210 980-1025 log reads
+80% TIMESTAMP N forw + M back = 199-210 980-1025 log reads
+90% TIMESTAMP N forw + M back = 199-210 980-1025 log reads
+100% TIMESTAMP N forw + M back = 199-210 980-1025 log reads
+
+=== src/noti-foo ===
+start: TIMESTAMP
+end: TIMESTAMP
+step: 100 msec
+0% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+10% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+20% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+30% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+40% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+50% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+60% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+70% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+80% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+90% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+100% TIMESTAMP N forw + M back = 79-82 10-20 log reads
+
+=== src/ok-noti-bigbin ===
+start: TIMESTAMP
+end: TIMESTAMP
+step: 100 msec
+0% TIMESTAMP N forw + M back = 199-210 1980-2010 log reads
+10% TIMESTAMP N forw + M back = 199-210 1980-2010 log reads
+20% TIMESTAMP N forw + M back = 199-210 1980-2010 log reads
+30% TIMESTAMP N forw + M back = 199-210 1980-2010 log reads
+40% TIMESTAMP N forw + M back = 199-210 1980-2010 log reads
+50% TIMESTAMP N forw + M back = 199-210 1980-2010 log reads
+60% TIMESTAMP N forw + M back = 199-210 1980-2010 log reads
+70% TIMESTAMP N forw + M back = 199-210 1980-2010 log reads
+80% TIMESTAMP N forw + M back = 199-210 1980-2010 log reads
+90% TIMESTAMP N forw + M back = 199-210 1980-2010 log reads
+100% TIMESTAMP N forw + M back = 199-210 1980-2010 log reads

@@ -1,0 +1,1591 @@
+QA output created by 201
+basic operation tests ...
+Add foo ...
+return -> 0
+pmdaCacheDump: indom 123.7: nentry=1 ins_mode=0 hstate=3 hsize=16
+          0    active (nil) foo
+
+Add bar ...
+return -> 1
+pmdaCacheDump: indom 123.7: nentry=2 ins_mode=0 hstate=3 hsize=16
+          0    active (nil) foo
+          1    active 0xdeadbeef bar
+
+Add java coffee beans ...
+return -> 2
+pmdaCacheDump: indom 123.7: nentry=3 ins_mode=0 hstate=3 hsize=16
+          0    active (nil) foo
+          1    active 0xdeadbeef bar
+          2    active 0xcafecafe java coffee beans [match len=4]
+
+Add another one ...
+return -> 3
+pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+          0    active (nil) foo
+          1    active 0xdeadbeef bar
+          2    active 0xcafecafe java coffee beans [match len=4]
+          3    active (nil) another one [match len=7]
+
+Hide another one ...
+return -> 3
+pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+          0    active (nil) foo
+          1    active 0xdeadbeef bar
+          2    active 0xcafecafe java coffee beans [match len=4]
+          3  inactive (nil) another one [match len=7]
+
+Cull foo ...
+return -> 0
+pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+(         0)    empty
+          1    active 0xdeadbeef bar
+          2    active 0xcafecafe java coffee beans [match len=4]
+          3  inactive (nil) another one [match len=7]
+
+Cull foo again, should fail ...
+pmdaCache store: indom 123.7: instance "foo" not in cache: flags=4 not allowed
+return -> -12360: Unknown or illegal instance identifier
+pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+(         0)    empty
+          1    active 0xdeadbeef bar
+          2    active 0xcafecafe java coffee beans [match len=4]
+          3  inactive (nil) another one [match len=7]
+
+Count instances ...
+entries: 4
+active entries: 2
+inactive entries: 1
+
+Probe bar ...
+return -> 1
+pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+(         0)    empty
+          1    active 0xdeadbeef bar
+          2    active 0xcafecafe java coffee beans [match len=4]
+          3  inactive (nil) another one [match len=7]
+
+Probe another one (hidden) ...
+return -> 3 [inactive]
+pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+(         0)    empty
+          1    active 0xdeadbeef bar
+          2    active 0xcafecafe java coffee beans [match len=4]
+          3  inactive (nil) another one [match len=7]
+
+Add foo in another indom ...
+return -> 0
+pmdaCacheDump: indom 123.8: nentry=1 ins_mode=0 hstate=3 hsize=16
+          0    active (nil) foo
+pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+(         0)    empty
+          1    active 0xdeadbeef bar
+          2    active 0xcafecafe java coffee beans [match len=4]
+          3  inactive (nil) another one [match len=7]
+
+Probe bar (not in this indom) ...
+return -> -12360: Unknown or illegal instance identifier
+pmdaCacheDump: indom 123.8: nentry=1 ins_mode=0 hstate=3 hsize=16
+          0    active (nil) foo
+
+Mark all active ...
+return -> 1
+pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+(         0)    empty
+          1    active 0xdeadbeef bar
+          2    active 0xcafecafe java coffee beans [match len=4]
+          3    active (nil) another one [match len=7]
+
+Mark all inactive ...
+return -> 3
+pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+(         0)    empty
+          1  inactive 0xdeadbeef bar
+          2  inactive 0xcafecafe java coffee beans [match len=4]
+          3  inactive (nil) another one [match len=7]
+
+Cull all ...
+return -> 3
+pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+(         0)    empty
+(         1)    empty
+(         2)    empty
+(         3)    empty
+
+save tests ...
+
+Populate the instance domain ...
+Save ...
+Before:
+return -> 7
+After:
+1 0
+0 timestamp 000
+1 timestamp 001
+2 timestamp 002
+3 timestamp 003
+4 timestamp 004
+5 timestamp 005
+6 timestamp 006
+Save ...
+Before:
+1 0
+0 timestamp 000
+1 timestamp 001
+2 timestamp 002
+3 timestamp 003
+4 timestamp 004
+5 timestamp 005
+6 timestamp 006
+return -> 14
+After:
+1 0
+0 timestamp 000
+1 timestamp 001
+2 timestamp 002
+3 timestamp 003
+4 timestamp 004
+5 timestamp 005
+6 timestamp 006
+7 timestamp 007
+8 timestamp 008
+9 timestamp 009
+10 timestamp 010
+11 timestamp 011
+12 timestamp 012
+13 timestamp 013
+Start save after changes ...
+Save -> 16
+1 0
+0 timestamp 000
+1 timestamp 001
+2 timestamp 002
+3 timestamp 003
+4 timestamp 004
+5 timestamp 005
+6 timestamp 006
+7 timestamp 007
+8 timestamp 008
+9 timestamp 009
+10 timestamp 010
+11 timestamp 011
+12 timestamp 012
+13 timestamp 013
+14 timestamp 014
+15 timestamp 015
+Save -> 17
+1 0
+0 timestamp 000
+1 timestamp 001
+2 timestamp 002
+3 timestamp 003
+4 timestamp 004
+5 timestamp 005
+6 timestamp 006
+7 timestamp 007
+8 timestamp 008
+9 timestamp 009
+10 timestamp 010
+11 timestamp 011
+12 timestamp 012
+13 timestamp 013
+14 timestamp 014
+15 timestamp 015
+16 timestamp 016
+Save -> 18
+1 0
+0 timestamp 000
+1 timestamp 001
+2 timestamp 002
+3 timestamp 003
+4 timestamp 004
+5 timestamp 005
+6 timestamp 006
+7 timestamp 007
+8 timestamp 008
+9 timestamp 009
+10 timestamp 010
+11 timestamp 011
+12 timestamp 012
+13 timestamp 013
+14 timestamp 014
+15 timestamp 015
+16 timestamp 016
+17 timestamp 017
+Save -> 19
+1 0
+0 timestamp 000
+1 timestamp 001
+2 timestamp 002
+3 timestamp 003
+4 timestamp 004
+5 timestamp 005
+6 timestamp 006
+7 timestamp 007
+8 timestamp 008
+9 timestamp 009
+10 timestamp 010
+11 timestamp 011
+12 timestamp 012
+13 timestamp 013
+14 timestamp 014
+15 timestamp 015
+16 timestamp 016
+17 timestamp 017
+18 timestamp 018
+Save -> 20
+1 0
+0 timestamp 000
+1 timestamp 001
+2 timestamp 002
+3 timestamp 003
+4 timestamp 004
+5 timestamp 005
+6 timestamp 006
+7 timestamp 007
+8 timestamp 008
+9 timestamp 009
+10 timestamp 010
+11 timestamp 011
+12 timestamp 012
+13 timestamp 013
+14 timestamp 014
+15 timestamp 015
+16 timestamp 016
+17 timestamp 017
+18 timestamp 018
+19 timestamp 019
+pmdaCacheDump: indom 123.8: nentry=20 ins_mode=0 hstate=0 hsize=16
+          0    active 0xbeef0001 000
+          1  inactive 0xbeef0002 001
+          2  inactive 0xbeef0003 002
+          3    active 0xbeef0004 003
+          4  inactive 0xbeef0005 004
+          5    active 0xbeef0006 005
+          6    active 0xbeef0007 006
+          7    active 0xbeef0008 007
+          8  inactive 0xbeef0009 008
+          9    active 0xbeef000a 009
+         10    active 0xbeef000b 010
+         11    active 0xbeef000c 011
+         12    active 0xbeef000d 012
+         13    active 0xbeef000e 013
+         14    active 0xbeef000f 014
+         15    active 0xbeef0010 015
+         16  inactive 0xbeef0011 016
+         17    active 0xbeef0012 017
+         18    active 0xbeef0013 018
+         19    active 0xbeef0014 019
+
+Hide 011 ...
+Save -> 0
+1 0
+0 timestamp 000
+1 timestamp 001
+2 timestamp 002
+3 timestamp 003
+4 timestamp 004
+5 timestamp 005
+6 timestamp 006
+7 timestamp 007
+8 timestamp 008
+9 timestamp 009
+10 timestamp 010
+11 timestamp 011
+12 timestamp 012
+13 timestamp 013
+14 timestamp 014
+15 timestamp 015
+16 timestamp 016
+17 timestamp 017
+18 timestamp 018
+19 timestamp 019
+Add 011 ...
+Save -> 0
+1 0
+0 timestamp 000
+1 timestamp 001
+2 timestamp 002
+3 timestamp 003
+4 timestamp 004
+5 timestamp 005
+6 timestamp 006
+7 timestamp 007
+8 timestamp 008
+9 timestamp 009
+10 timestamp 010
+11 timestamp 011
+12 timestamp 012
+13 timestamp 013
+14 timestamp 014
+15 timestamp 015
+16 timestamp 016
+17 timestamp 017
+18 timestamp 018
+19 timestamp 019
+Cull 011 ...
+Save -> 19
+1 0
+0 timestamp 000
+1 timestamp 001
+2 timestamp 002
+3 timestamp 003
+4 timestamp 004
+5 timestamp 005
+6 timestamp 006
+7 timestamp 007
+8 timestamp 008
+9 timestamp 009
+10 timestamp 010
+12 timestamp 012
+13 timestamp 013
+14 timestamp 014
+15 timestamp 015
+16 timestamp 016
+17 timestamp 017
+18 timestamp 018
+19 timestamp 019
+Add 011 ...
+Save -> 20
+1 0
+0 timestamp 000
+1 timestamp 001
+2 timestamp 002
+3 timestamp 003
+4 timestamp 004
+5 timestamp 005
+6 timestamp 006
+7 timestamp 007
+8 timestamp 008
+9 timestamp 009
+10 timestamp 010
+12 timestamp 012
+13 timestamp 013
+14 timestamp 014
+15 timestamp 015
+16 timestamp 016
+17 timestamp 017
+18 timestamp 018
+19 timestamp 019
+20 timestamp 011
+
+load tests ...
+-- empty file --
+Load the instance domain ...
+[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: empty file?
+PMDA_CACHE_LOAD failed: Generic error, already reported above
+-- short header --
+Load the instance domain ...
+[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: illegal first record: 1
+
+PMDA_CACHE_LOAD failed: Generic error, already reported above
+-- bad version (x) --
+Load the instance domain ...
+[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: illegal first record: x 0
+
+PMDA_CACHE_LOAD failed: Generic error, already reported above
+-- bad version (2) --
+Load the instance domain ...
+[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: illegal first record: 2 0
+
+PMDA_CACHE_LOAD failed: Generic error, already reported above
+-- bad ins_mode (-1) --
+Load the instance domain ...
+[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: illegal first record: 1 -1
+
+PMDA_CACHE_LOAD failed: Generic error, already reported above
+-- empty --
+Load the instance domain ...
+PMDA_CACHE_HIDE failed for "fubar-001": Unknown or illegal instance identifier
+PMDA_CACHE_CULL failed for "fubar-003": Unknown or illegal instance identifier
+pmdaCacheDump: indom 123.13: nentry=2 ins_mode=0 hstate=3 hsize=16
+          0    active (nil) fubar-002
+          1    active (nil) fubar-009
+-- interesting --
+Load the instance domain ...
+pmdaCacheDump: indom 123.13: nentry=7 ins_mode=0 hstate=3 hsize=16
+         10  inactive (nil) fubar-001
+         15  inactive (nil) this is a name with some spaces in it [match len=4]
+         20    active (nil) fubar-002
+(        30)    empty
+         35  inactive (nil) longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again
+         40  inactive (nil) fubar-004
+         41    active (nil) fubar-009
+1 0
+10 orig-timestamp fubar-001
+15 orig-timestamp this is a name with some spaces in it
+20 timestamp fubar-002
+35 orig-timestamp longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again
+40 orig-timestamp fubar-004
+41 timestamp fubar-009
+-- interesting (PMDA_CACHE_REUSE) --
+Load the instance domain ...
+pmdaCacheDump: indom 123.13: nentry=7 ins_mode=1 hstate=3 hsize=16
+          0    active (nil) fubar-009
+         10  inactive (nil) fubar-001
+         15  inactive (nil) this is a name with some spaces in it [match len=4]
+         20    active (nil) fubar-002
+(        30)    empty
+         35  inactive (nil) longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again
+         40  inactive (nil) fubar-004
+1 1
+0 timestamp fubar-009
+10 orig-timestamp fubar-001
+15 orig-timestamp this is a name with some spaces in it
+20 timestamp fubar-002
+35 orig-timestamp longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again
+40 orig-timestamp fubar-004
+
+test inst wrap and ins_mode change ...
+Load the instance domain ...
+After PMDA_CACHE_LOAD
+pmdaCacheDump: indom 123.7: nentry=1 ins_mode=0 hstate=0 hsize=16
+ 2147483645  inactive (nil) biggest-inst-2
+Add foo ...
+return -> 2147483646
+
+Add bar ...
+return -> 2147483647
+
+Add java coffee beans ...
+return -> 0
+
+Add another one ...
+return -> 1
+
+Hide another one ...
+return -> 1
+
+Cull foo ...
+return -> 2147483646
+
+Cull foo again, should fail ...
+pmdaCache store: indom 123.7: instance "foo" not in cache: flags=4 not allowed
+return -> -12360: Unknown or illegal instance identifier
+
+Count instances ...
+entries: 5
+active entries: 2
+inactive entries: 2
+
+Probe bar ...
+return -> 2147483647
+
+Probe another one (hidden) ...
+return -> 1 [inactive]
+After cache_save hstate={DIRTY_INSTANCE}
+pmdaCacheDump: indom 123.7: nentry=5 ins_mode=1 hstate=0 hsize=16
+          0    active 0xcafecafe java coffee beans [match len=4]
+          1  inactive (nil) another one [match len=7]
+ 2147483645  inactive (nil) biggest-inst-2
+(2147483646)    empty
+ 2147483647    active 0xdeadbeef bar
+1 1
+0 timestamp java coffee beans
+1 timestamp another one
+2147483645 orig-timestamp biggest-inst-2
+2147483647 timestamp bar
+
+test purge operation ...
+-- empty @ start and end --
+Save -> 10
+Before purge ...
+pmdaCacheDump: indom 123.11: nentry=10 ins_mode=0 hstate=0 hsize=16
+          0    active 0xcaffe000 boring-instance-000
+          1  inactive 0xcaffe001 boring-instance-001
+          2  inactive 0xcaffe002 boring-instance-002
+          3    active 0xcaffe003 boring-instance-003
+          4  inactive 0xcaffe004 boring-instance-004
+          5    active 0xcaffe005 boring-instance-005
+          6    active 0xcaffe006 boring-instance-006
+          7    active 0xcaffe007 boring-instance-007
+          8  inactive 0xcaffe008 boring-instance-008
+          9    active 0xcaffe009 boring-instance-009
+Purged 10 entries
+After purge ...
+Save -> 0
+pmdaCacheDump: indom 123.11: nentry=10 ins_mode=0 hstate=0 hsize=16
+(         0)    empty
+(         1)    empty
+(         2)    empty
+(         3)    empty
+(         4)    empty
+(         5)    empty
+(         6)    empty
+(         7)    empty
+(         8)    empty
+(         9)    empty
+1 0
+-- not empty --
+Save -> 16
+Before purge ...
+pmdaCacheDump: indom 123.11: nentry=16 ins_mode=1 hstate=0 hsize=16
+          0    active 0xcaffe000 boring-instance-000
+          1  inactive (nil) fubar-001
+          2  inactive (nil) fubar-002
+          3  inactive 0xcaffe001 boring-instance-001
+          4  inactive 0xcaffe002 boring-instance-002
+          5  inactive (nil) fubar-003
+          6  inactive (nil) fubar-004
+          7  inactive (nil) fubar-005
+          8    active 0xcaffe003 boring-instance-003
+          9  inactive 0xcaffe004 boring-instance-004
+         10    active 0xcaffe005 boring-instance-005
+         11    active 0xcaffe006 boring-instance-006
+         12    active 0xcaffe007 boring-instance-007
+         13  inactive 0xcaffe008 boring-instance-008
+         14    active 0xcaffe009 boring-instance-009
+         60  inactive (nil) fubar-006
+Purged 6 entries
+After purge ...
+Save -> 10
+pmdaCacheDump: indom 123.11: nentry=16 ins_mode=1 hstate=0 hsize=16
+          0    active 0xcaffe000 boring-instance-000
+(         1)    empty
+(         2)    empty
+          3  inactive 0xcaffe001 boring-instance-001
+          4  inactive 0xcaffe002 boring-instance-002
+(         5)    empty
+(         6)    empty
+(         7)    empty
+          8    active 0xcaffe003 boring-instance-003
+          9  inactive 0xcaffe004 boring-instance-004
+         10    active 0xcaffe005 boring-instance-005
+         11    active 0xcaffe006 boring-instance-006
+         12    active 0xcaffe007 boring-instance-007
+         13  inactive 0xcaffe008 boring-instance-008
+         14    active 0xcaffe009 boring-instance-009
+(        60)    empty
+1 1
+0 timestamp boring-instance-000
+3 timestamp boring-instance-001
+4 timestamp boring-instance-002
+8 timestamp boring-instance-003
+9 timestamp boring-instance-004
+10 timestamp boring-instance-005
+11 timestamp boring-instance-006
+12 timestamp boring-instance-007
+13 timestamp boring-instance-008
+14 timestamp boring-instance-009
+
+exercise hash-table re-sizing ...
+pmdaCacheDump: indom 123.7: nentry=254 ins_mode=0 hstate=3 hsize=64
+          1    active 0xdeaf0001 hashing-instance-001
+          2  inactive 0xdeaf0002 hashing-instance-002
+          3    active 0xdeaf0003 hashing-instance-003
+          4  inactive 0xdeaf0004 hashing-instance-004
+          5    active 0xdeaf0005 hashing-instance-005
+          6  inactive 0xdeaf0006 hashing-instance-006
+          8  inactive 0xdeaf0008 hashing-instance-008
+          9    active 0xdeaf0009 hashing-instance-009
+         10  inactive 0xdeaf000a hashing-instance-010
+         11    active 0xdeaf000b hashing-instance-011
+         12  inactive 0xdeaf000c hashing-instance-012
+         13    active 0xdeaf000d hashing-instance-013
+         15    active 0xdeaf000f hashing-instance-015
+         16  inactive 0xdeaf0010 hashing-instance-016
+         17    active 0xdeaf0011 hashing-instance-017
+         18  inactive 0xdeaf0012 hashing-instance-018
+         19    active 0xdeaf0013 hashing-instance-019
+         20  inactive 0xdeaf0014 hashing-instance-020
+         22  inactive 0xdeaf0016 hashing-instance-022
+         23    active 0xdeaf0017 hashing-instance-023
+         24  inactive 0xdeaf0018 hashing-instance-024
+         25    active 0xdeaf0019 hashing-instance-025
+         26  inactive 0xdeaf001a hashing-instance-026
+         27    active 0xdeaf001b hashing-instance-027
+         29    active 0xdeaf001d hashing-instance-029
+         30  inactive 0xdeaf001e hashing-instance-030
+         31    active 0xdeaf001f hashing-instance-031
+         32  inactive 0xdeaf0020 hashing-instance-032
+         33    active 0xdeaf0021 hashing-instance-033
+         34  inactive 0xdeaf0022 hashing-instance-034
+         36  inactive 0xdeaf0024 hashing-instance-036
+         37    active 0xdeaf0025 hashing-instance-037
+         38  inactive 0xdeaf0026 hashing-instance-038
+         39    active 0xdeaf0027 hashing-instance-039
+         40  inactive 0xdeaf0028 hashing-instance-040
+         41    active 0xdeaf0029 hashing-instance-041
+         43    active 0xdeaf002b hashing-instance-043
+         44  inactive 0xdeaf002c hashing-instance-044
+         45    active 0xdeaf002d hashing-instance-045
+         46  inactive 0xdeaf002e hashing-instance-046
+         47    active 0xdeaf002f hashing-instance-047
+         48  inactive 0xdeaf0030 hashing-instance-048
+         50  inactive 0xdeaf0032 hashing-instance-050
+         51    active 0xdeaf0033 hashing-instance-051
+         52  inactive 0xdeaf0034 hashing-instance-052
+         53    active 0xdeaf0035 hashing-instance-053
+         54  inactive 0xdeaf0036 hashing-instance-054
+         55    active 0xdeaf0037 hashing-instance-055
+         57    active 0xdeaf0039 hashing-instance-057
+         58  inactive 0xdeaf003a hashing-instance-058
+         59    active 0xdeaf003b hashing-instance-059
+         60  inactive 0xdeaf003c hashing-instance-060
+         61    active 0xdeaf003d hashing-instance-061
+         62  inactive 0xdeaf003e hashing-instance-062
+         64  inactive 0xdeaf0040 hashing-instance-064
+         65    active 0xdeaf0041 hashing-instance-065
+         66  inactive 0xdeaf0042 hashing-instance-066
+         67    active 0xdeaf0043 hashing-instance-067
+         68  inactive 0xdeaf0044 hashing-instance-068
+         69    active 0xdeaf0045 hashing-instance-069
+         71    active 0xdeaf0047 hashing-instance-071
+         72  inactive 0xdeaf0048 hashing-instance-072
+         73    active 0xdeaf0049 hashing-instance-073
+         74  inactive 0xdeaf004a hashing-instance-074
+         75    active 0xdeaf004b hashing-instance-075
+         76  inactive 0xdeaf004c hashing-instance-076
+         78  inactive 0xdeaf004e hashing-instance-078
+         79    active 0xdeaf004f hashing-instance-079
+         80  inactive 0xdeaf0050 hashing-instance-080
+         81    active 0xdeaf0051 hashing-instance-081
+         82  inactive 0xdeaf0052 hashing-instance-082
+         83    active 0xdeaf0053 hashing-instance-083
+         85    active 0xdeaf0055 hashing-instance-085
+         86  inactive 0xdeaf0056 hashing-instance-086
+         87    active 0xdeaf0057 hashing-instance-087
+         88  inactive 0xdeaf0058 hashing-instance-088
+         89    active 0xdeaf0059 hashing-instance-089
+         90  inactive 0xdeaf005a hashing-instance-090
+         92  inactive 0xdeaf005c hashing-instance-092
+         93    active 0xdeaf005d hashing-instance-093
+         94  inactive 0xdeaf005e hashing-instance-094
+         95    active 0xdeaf005f hashing-instance-095
+         96  inactive 0xdeaf0060 hashing-instance-096
+         97    active 0xdeaf0061 hashing-instance-097
+         99    active 0xdeaf0063 hashing-instance-099
+        100  inactive 0xdeaf0064 hashing-instance-100
+        101    active 0xdeaf0065 hashing-instance-101
+        102  inactive 0xdeaf0066 hashing-instance-102
+        103    active 0xdeaf0067 hashing-instance-103
+        104  inactive 0xdeaf0068 hashing-instance-104
+        106  inactive 0xdeaf006a hashing-instance-106
+        107    active 0xdeaf006b hashing-instance-107
+        108  inactive 0xdeaf006c hashing-instance-108
+        109    active 0xdeaf006d hashing-instance-109
+        110  inactive 0xdeaf006e hashing-instance-110
+        111    active 0xdeaf006f hashing-instance-111
+        113    active 0xdeaf0071 hashing-instance-113
+        114  inactive 0xdeaf0072 hashing-instance-114
+        115    active 0xdeaf0073 hashing-instance-115
+        116  inactive 0xdeaf0074 hashing-instance-116
+        117    active 0xdeaf0075 hashing-instance-117
+        118  inactive 0xdeaf0076 hashing-instance-118
+        120  inactive 0xdeaf0078 hashing-instance-120
+        121    active 0xdeaf0079 hashing-instance-121
+        122  inactive 0xdeaf007a hashing-instance-122
+        123    active 0xdeaf007b hashing-instance-123
+        124  inactive 0xdeaf007c hashing-instance-124
+        125    active 0xdeaf007d hashing-instance-125
+        127    active 0xdeaf007f hashing-instance-127
+        128  inactive 0xdeaf0080 hashing-instance-128
+        129    active 0xdeaf0081 hashing-instance-129
+        130  inactive 0xdeaf0082 hashing-instance-130
+        131    active 0xdeaf0083 hashing-instance-131
+        132  inactive 0xdeaf0084 hashing-instance-132
+(       133)    empty
+        134  inactive 0xdeaf0086 hashing-instance-134
+        135    active 0xdeaf0087 hashing-instance-135
+        136  inactive 0xdeaf0088 hashing-instance-136
+        137    active 0xdeaf0089 hashing-instance-137
+        138  inactive 0xdeaf008a hashing-instance-138
+        139    active 0xdeaf008b hashing-instance-139
+(       140)    empty
+        141    active 0xdeaf008d hashing-instance-141
+        142  inactive 0xdeaf008e hashing-instance-142
+        143    active 0xdeaf008f hashing-instance-143
+        144  inactive 0xdeaf0090 hashing-instance-144
+        145    active 0xdeaf0091 hashing-instance-145
+        146  inactive 0xdeaf0092 hashing-instance-146
+(       147)    empty
+        148  inactive 0xdeaf0094 hashing-instance-148
+        149    active 0xdeaf0095 hashing-instance-149
+        150  inactive 0xdeaf0096 hashing-instance-150
+        151    active 0xdeaf0097 hashing-instance-151
+        152  inactive 0xdeaf0098 hashing-instance-152
+        153    active 0xdeaf0099 hashing-instance-153
+(       154)    empty
+        155    active 0xdeaf009b hashing-instance-155
+        156  inactive 0xdeaf009c hashing-instance-156
+        157    active 0xdeaf009d hashing-instance-157
+        158  inactive 0xdeaf009e hashing-instance-158
+        159    active 0xdeaf009f hashing-instance-159
+        160  inactive 0xdeaf00a0 hashing-instance-160
+(       161)    empty
+        162  inactive 0xdeaf00a2 hashing-instance-162
+        163    active 0xdeaf00a3 hashing-instance-163
+        164  inactive 0xdeaf00a4 hashing-instance-164
+        165    active 0xdeaf00a5 hashing-instance-165
+        166  inactive 0xdeaf00a6 hashing-instance-166
+        167    active 0xdeaf00a7 hashing-instance-167
+(       168)    empty
+        169    active 0xdeaf00a9 hashing-instance-169
+        170  inactive 0xdeaf00aa hashing-instance-170
+        171    active 0xdeaf00ab hashing-instance-171
+        172  inactive 0xdeaf00ac hashing-instance-172
+        173    active 0xdeaf00ad hashing-instance-173
+        174  inactive 0xdeaf00ae hashing-instance-174
+(       175)    empty
+        176  inactive 0xdeaf00b0 hashing-instance-176
+        177    active 0xdeaf00b1 hashing-instance-177
+        178  inactive 0xdeaf00b2 hashing-instance-178
+        179    active 0xdeaf00b3 hashing-instance-179
+        180  inactive 0xdeaf00b4 hashing-instance-180
+        181    active 0xdeaf00b5 hashing-instance-181
+(       182)    empty
+        183    active 0xdeaf00b7 hashing-instance-183
+        184  inactive 0xdeaf00b8 hashing-instance-184
+        185    active 0xdeaf00b9 hashing-instance-185
+        186  inactive 0xdeaf00ba hashing-instance-186
+        187    active 0xdeaf00bb hashing-instance-187
+        188  inactive 0xdeaf00bc hashing-instance-188
+(       189)    empty
+        190  inactive 0xdeaf00be hashing-instance-190
+        191    active 0xdeaf00bf hashing-instance-191
+        192  inactive 0xdeaf00c0 hashing-instance-192
+        193    active 0xdeaf00c1 hashing-instance-193
+        194  inactive 0xdeaf00c2 hashing-instance-194
+        195    active 0xdeaf00c3 hashing-instance-195
+(       196)    empty
+        197    active 0xdeaf00c5 hashing-instance-197
+        198  inactive 0xdeaf00c6 hashing-instance-198
+        199    active 0xdeaf00c7 hashing-instance-199
+        200  inactive 0xdeaf00c8 hashing-instance-200
+        201    active 0xdeaf00c9 hashing-instance-201
+        202  inactive 0xdeaf00ca hashing-instance-202
+(       203)    empty
+        204  inactive 0xdeaf00cc hashing-instance-204
+        205    active 0xdeaf00cd hashing-instance-205
+        206  inactive 0xdeaf00ce hashing-instance-206
+        207    active 0xdeaf00cf hashing-instance-207
+        208  inactive 0xdeaf00d0 hashing-instance-208
+        209    active 0xdeaf00d1 hashing-instance-209
+(       210)    empty
+        211    active 0xdeaf00d3 hashing-instance-211
+        212  inactive 0xdeaf00d4 hashing-instance-212
+        213    active 0xdeaf00d5 hashing-instance-213
+        214  inactive 0xdeaf00d6 hashing-instance-214
+        215    active 0xdeaf00d7 hashing-instance-215
+        216  inactive 0xdeaf00d8 hashing-instance-216
+(       217)    empty
+        218  inactive 0xdeaf00da hashing-instance-218
+        219    active 0xdeaf00db hashing-instance-219
+        220  inactive 0xdeaf00dc hashing-instance-220
+        221    active 0xdeaf00dd hashing-instance-221
+        222  inactive 0xdeaf00de hashing-instance-222
+        223    active 0xdeaf00df hashing-instance-223
+(       224)    empty
+        225    active 0xdeaf00e1 hashing-instance-225
+        226  inactive 0xdeaf00e2 hashing-instance-226
+        227    active 0xdeaf00e3 hashing-instance-227
+        228  inactive 0xdeaf00e4 hashing-instance-228
+        229    active 0xdeaf00e5 hashing-instance-229
+        230  inactive 0xdeaf00e6 hashing-instance-230
+(       231)    empty
+        232  inactive 0xdeaf00e8 hashing-instance-232
+        233    active 0xdeaf00e9 hashing-instance-233
+        234  inactive 0xdeaf00ea hashing-instance-234
+        235    active 0xdeaf00eb hashing-instance-235
+        236  inactive 0xdeaf00ec hashing-instance-236
+        237    active 0xdeaf00ed hashing-instance-237
+(       238)    empty
+        239    active 0xdeaf00ef hashing-instance-239
+        240  inactive 0xdeaf00f0 hashing-instance-240
+        241    active 0xdeaf00f1 hashing-instance-241
+        242  inactive 0xdeaf00f2 hashing-instance-242
+        243    active 0xdeaf00f3 hashing-instance-243
+        244  inactive 0xdeaf00f4 hashing-instance-244
+(       245)    empty
+        246  inactive 0xdeaf00f6 hashing-instance-246
+        247    active 0xdeaf00f7 hashing-instance-247
+        248  inactive 0xdeaf00f8 hashing-instance-248
+        249    active 0xdeaf00f9 hashing-instance-249
+        250  inactive 0xdeaf00fa hashing-instance-250
+        251    active 0xdeaf00fb hashing-instance-251
+(       252)    empty
+        253    active 0xdeaf00fd hashing-instance-253
+inst hash
+ [000] -> 192I -> 128I -> 64I
+ [001] -> 193 -> 129 -> 1 -> 65
+ [002] -> 194I -> 130I -> 2I -> 66I
+ [003] -> 195 -> 131 -> 3 -> 67
+ [004] -> 196E -> 132I -> 4I -> 68I
+ [005] -> 197 -> 133E -> 5 -> 69
+ [006] -> 198I -> 134I -> 6I
+ [007] -> 199 -> 135 -> 71
+ [008] -> 200I -> 136I -> 8I -> 72I
+ [009] -> 201 -> 137 -> 9 -> 73
+ [010] -> 202I -> 138I -> 10I -> 74I
+ [011] -> 203E -> 139 -> 11 -> 75
+ [012] -> 204I -> 140E -> 12I -> 76I
+ [013] -> 205 -> 141 -> 13
+ [014] -> 206I -> 142I -> 78I
+ [015] -> 207 -> 143 -> 15 -> 79
+ [016] -> 208I -> 144I -> 16I -> 80I
+ [017] -> 209 -> 145 -> 17 -> 81
+ [018] -> 210E -> 146I -> 18I -> 82I
+ [019] -> 211 -> 147E -> 19 -> 83
+ [020] -> 212I -> 148I -> 20I
+ [021] -> 213 -> 149 -> 85
+ [022] -> 214I -> 150I -> 22I -> 86I
+ [023] -> 215 -> 151 -> 23 -> 87
+ [024] -> 216I -> 152I -> 24I -> 88I
+ [025] -> 217E -> 153 -> 25 -> 89
+ [026] -> 218I -> 154E -> 26I -> 90I
+ [027] -> 219 -> 155 -> 27
+ [028] -> 220I -> 156I -> 92I
+ [029] -> 221 -> 157 -> 29 -> 93
+ [030] -> 222I -> 158I -> 30I -> 94I
+ [031] -> 223 -> 159 -> 31 -> 95
+ [032] -> 224E -> 160I -> 32I -> 96I
+ [033] -> 225 -> 161E -> 33 -> 97
+ [034] -> 226I -> 162I -> 34I
+ [035] -> 227 -> 163 -> 99
+ [036] -> 228I -> 164I -> 36I -> 100I
+ [037] -> 229 -> 165 -> 37 -> 101
+ [038] -> 230I -> 166I -> 38I -> 102I
+ [039] -> 231E -> 167 -> 39 -> 103
+ [040] -> 232I -> 168E -> 40I -> 104I
+ [041] -> 233 -> 169 -> 41
+ [042] -> 234I -> 170I -> 106I
+ [043] -> 235 -> 171 -> 43 -> 107
+ [044] -> 236I -> 172I -> 44I -> 108I
+ [045] -> 237 -> 173 -> 45 -> 109
+ [046] -> 238E -> 174I -> 46I -> 110I
+ [047] -> 239 -> 175E -> 47 -> 111
+ [048] -> 240I -> 176I -> 48I
+ [049] -> 241 -> 177 -> 113
+ [050] -> 242I -> 178I -> 50I -> 114I
+ [051] -> 243 -> 179 -> 51 -> 115
+ [052] -> 244I -> 180I -> 52I -> 116I
+ [053] -> 245E -> 181 -> 53 -> 117
+ [054] -> 246I -> 182E -> 54I -> 118I
+ [055] -> 247 -> 183 -> 55
+ [056] -> 248I -> 184I -> 120I
+ [057] -> 249 -> 185 -> 57 -> 121
+ [058] -> 250I -> 186I -> 58I -> 122I
+ [059] -> 251 -> 187 -> 59 -> 123
+ [060] -> 252E -> 188I -> 60I -> 124I
+ [061] -> 253 -> 189E -> 61 -> 125
+ [062] -> 190I -> 62I
+ [063] -> 191 -> 127
+name hash
+ [000] -> 197 -> 51 -> 85
+ [001] -> 64I -> 66I
+ [002] -> 249 -> 87
+ [003] -> 89 -> 88I
+ [004] -> 201 -> 130I -> 13
+ [005] -> 243 -> 190I -> 178I -> 153 -> 150I -> 48I
+ [006] -> 245E
+ [007] -> 229 -> 221 -> 45 -> 82I
+ [008] -> 165 -> 83 -> 107 -> 58I -> 10I
+ [009] -> 218I -> 213 -> 73
+ [010]
+ [011] -> 232I -> 161E -> 143 -> 136I -> 46I -> 94I -> 102I
+ [012] -> 242I -> 162I
+ [013] -> 60I -> 6I -> 78I
+ [014] -> 247 -> 151 -> 127 -> 32I
+ [015] -> 220I -> 144I -> 72I
+ [016] -> 222I -> 206I -> 174I -> 141 -> 135 -> 133E -> 65 -> 44I
+ [017] -> 244I -> 225 -> 185 -> 157 -> 33 -> 38I
+ [018] -> 103
+ [019] -> 228I -> 209 -> 31 -> 118I
+ [020] -> 217E -> 104I
+ [021] -> 200I -> 170I -> 132I -> 9
+ [022] -> 248I -> 202I -> 181 -> 81 -> 95 -> 92I
+ [023] -> 163 -> 97
+ [024] -> 250I -> 189E -> 184I -> 15 -> 18I -> 74I -> 120I -> 124I
+ [025] -> 241 -> 239 -> 166I -> 142I -> 23
+ [026] -> 214I -> 204I -> 139
+ [027] -> 235 -> 3
+ [028] -> 29 -> 52I -> 110I
+ [029] -> 177 -> 134I -> 34I -> 80I
+ [030] -> 215 -> 194I -> 55 -> 121
+ [031] -> 53 -> 37
+ [032] -> 196E -> 175E -> 158I -> 155 -> 149
+ [033] -> 186I -> 131 -> 36I
+ [034] -> 195 -> 128I -> 24I
+ [035] -> 234I -> 212I -> 203E -> 191 -> 164I -> 138I -> 61 -> 16I -> 12I -> 96I -> 114I
+ [036] -> 207 -> 57
+ [037] -> 238E -> 171 -> 93 -> 40I
+ [038] -> 251 -> 223 -> 101
+ [039] -> 208I -> 19 -> 20I -> 116I
+ [040] -> 169 -> 17 -> 109
+ [041] -> 253 -> 216I -> 188I -> 47
+ [042] -> 210E
+ [043] -> 199 -> 99 -> 125 -> 68I
+ [044] -> 183 -> 43
+ [045] -> 233 -> 152I -> 54I
+ [046] -> 179 -> 129 -> 115
+ [047] -> 176I -> 67 -> 122I
+ [048] -> 252E -> 246I -> 205 -> 8I -> 108I
+ [049] -> 237 -> 236I -> 159 -> 140E -> 111 -> 113 -> 76I -> 90I
+ [050] -> 198I -> 160I -> 145 -> 62I
+ [051] -> 173 -> 27 -> 123
+ [052] -> 156I -> 41
+ [053] -> 231E -> 172I -> 106I
+ [054] -> 230I -> 147E
+ [055] -> 227 -> 226I
+ [056] -> 192I -> 187 -> 50I
+ [057] -> 154E -> 59 -> 79 -> 26I -> 2I
+ [058] -> 211 -> 193 -> 182E -> 11 -> 30I -> 22I -> 100I
+ [059] -> 168E -> 146I -> 86I
+ [060] -> 240I -> 5 -> 117
+ [061] -> 224E -> 71 -> 4I
+ [062] -> 148I -> 39 -> 25 -> 1 -> 69
+ [063] -> 219 -> 180I -> 167 -> 137 -> 75
+Add foo ...
+return -> 254
+
+Add bar ...
+return -> 255
+
+Add java coffee beans ...
+return -> 256
+
+Add another one ...
+return -> 257
+
+Hide another one ...
+return -> 257
+
+Cull foo ...
+return -> 254
+
+Cull foo again, should fail ...
+return -> -12360: Unknown or illegal instance identifier
+
+Count instances ...
+entries: 258
+active entries: 111
+inactive entries: 109
+
+Probe bar ...
+return -> 255
+
+Probe another one (hidden) ...
+return -> 257 [inactive]
+pmdaCacheDump: indom 123.7: nentry=258 ins_mode=0 hstate=3 hsize=128
+          1    active 0xdeaf0001 hashing-instance-001
+          2  inactive 0xdeaf0002 hashing-instance-002
+          3    active 0xdeaf0003 hashing-instance-003
+          4  inactive 0xdeaf0004 hashing-instance-004
+          5    active 0xdeaf0005 hashing-instance-005
+          6  inactive 0xdeaf0006 hashing-instance-006
+          8  inactive 0xdeaf0008 hashing-instance-008
+          9    active 0xdeaf0009 hashing-instance-009
+         10  inactive 0xdeaf000a hashing-instance-010
+         11    active 0xdeaf000b hashing-instance-011
+         12  inactive 0xdeaf000c hashing-instance-012
+         13    active 0xdeaf000d hashing-instance-013
+         15    active 0xdeaf000f hashing-instance-015
+         16  inactive 0xdeaf0010 hashing-instance-016
+         17    active 0xdeaf0011 hashing-instance-017
+         18  inactive 0xdeaf0012 hashing-instance-018
+         19    active 0xdeaf0013 hashing-instance-019
+         20  inactive 0xdeaf0014 hashing-instance-020
+         22  inactive 0xdeaf0016 hashing-instance-022
+         23    active 0xdeaf0017 hashing-instance-023
+         24  inactive 0xdeaf0018 hashing-instance-024
+         25    active 0xdeaf0019 hashing-instance-025
+         26  inactive 0xdeaf001a hashing-instance-026
+         27    active 0xdeaf001b hashing-instance-027
+         29    active 0xdeaf001d hashing-instance-029
+         30  inactive 0xdeaf001e hashing-instance-030
+         31    active 0xdeaf001f hashing-instance-031
+         32  inactive 0xdeaf0020 hashing-instance-032
+         33    active 0xdeaf0021 hashing-instance-033
+         34  inactive 0xdeaf0022 hashing-instance-034
+         36  inactive 0xdeaf0024 hashing-instance-036
+         37    active 0xdeaf0025 hashing-instance-037
+         38  inactive 0xdeaf0026 hashing-instance-038
+         39    active 0xdeaf0027 hashing-instance-039
+         40  inactive 0xdeaf0028 hashing-instance-040
+         41    active 0xdeaf0029 hashing-instance-041
+         43    active 0xdeaf002b hashing-instance-043
+         44  inactive 0xdeaf002c hashing-instance-044
+         45    active 0xdeaf002d hashing-instance-045
+         46  inactive 0xdeaf002e hashing-instance-046
+         47    active 0xdeaf002f hashing-instance-047
+         48  inactive 0xdeaf0030 hashing-instance-048
+         50  inactive 0xdeaf0032 hashing-instance-050
+         51    active 0xdeaf0033 hashing-instance-051
+         52  inactive 0xdeaf0034 hashing-instance-052
+         53    active 0xdeaf0035 hashing-instance-053
+         54  inactive 0xdeaf0036 hashing-instance-054
+         55    active 0xdeaf0037 hashing-instance-055
+         57    active 0xdeaf0039 hashing-instance-057
+         58  inactive 0xdeaf003a hashing-instance-058
+         59    active 0xdeaf003b hashing-instance-059
+         60  inactive 0xdeaf003c hashing-instance-060
+         61    active 0xdeaf003d hashing-instance-061
+         62  inactive 0xdeaf003e hashing-instance-062
+         64  inactive 0xdeaf0040 hashing-instance-064
+         65    active 0xdeaf0041 hashing-instance-065
+         66  inactive 0xdeaf0042 hashing-instance-066
+         67    active 0xdeaf0043 hashing-instance-067
+         68  inactive 0xdeaf0044 hashing-instance-068
+         69    active 0xdeaf0045 hashing-instance-069
+         71    active 0xdeaf0047 hashing-instance-071
+         72  inactive 0xdeaf0048 hashing-instance-072
+         73    active 0xdeaf0049 hashing-instance-073
+         74  inactive 0xdeaf004a hashing-instance-074
+         75    active 0xdeaf004b hashing-instance-075
+         76  inactive 0xdeaf004c hashing-instance-076
+         78  inactive 0xdeaf004e hashing-instance-078
+         79    active 0xdeaf004f hashing-instance-079
+         80  inactive 0xdeaf0050 hashing-instance-080
+         81    active 0xdeaf0051 hashing-instance-081
+         82  inactive 0xdeaf0052 hashing-instance-082
+         83    active 0xdeaf0053 hashing-instance-083
+         85    active 0xdeaf0055 hashing-instance-085
+         86  inactive 0xdeaf0056 hashing-instance-086
+         87    active 0xdeaf0057 hashing-instance-087
+         88  inactive 0xdeaf0058 hashing-instance-088
+         89    active 0xdeaf0059 hashing-instance-089
+         90  inactive 0xdeaf005a hashing-instance-090
+         92  inactive 0xdeaf005c hashing-instance-092
+         93    active 0xdeaf005d hashing-instance-093
+         94  inactive 0xdeaf005e hashing-instance-094
+         95    active 0xdeaf005f hashing-instance-095
+         96  inactive 0xdeaf0060 hashing-instance-096
+         97    active 0xdeaf0061 hashing-instance-097
+         99    active 0xdeaf0063 hashing-instance-099
+        100  inactive 0xdeaf0064 hashing-instance-100
+        101    active 0xdeaf0065 hashing-instance-101
+        102  inactive 0xdeaf0066 hashing-instance-102
+        103    active 0xdeaf0067 hashing-instance-103
+        104  inactive 0xdeaf0068 hashing-instance-104
+        106  inactive 0xdeaf006a hashing-instance-106
+        107    active 0xdeaf006b hashing-instance-107
+        108  inactive 0xdeaf006c hashing-instance-108
+        109    active 0xdeaf006d hashing-instance-109
+        110  inactive 0xdeaf006e hashing-instance-110
+        111    active 0xdeaf006f hashing-instance-111
+        113    active 0xdeaf0071 hashing-instance-113
+        114  inactive 0xdeaf0072 hashing-instance-114
+        115    active 0xdeaf0073 hashing-instance-115
+        116  inactive 0xdeaf0074 hashing-instance-116
+        117    active 0xdeaf0075 hashing-instance-117
+        118  inactive 0xdeaf0076 hashing-instance-118
+        120  inactive 0xdeaf0078 hashing-instance-120
+        121    active 0xdeaf0079 hashing-instance-121
+        122  inactive 0xdeaf007a hashing-instance-122
+        123    active 0xdeaf007b hashing-instance-123
+        124  inactive 0xdeaf007c hashing-instance-124
+        125    active 0xdeaf007d hashing-instance-125
+        127    active 0xdeaf007f hashing-instance-127
+        128  inactive 0xdeaf0080 hashing-instance-128
+        129    active 0xdeaf0081 hashing-instance-129
+        130  inactive 0xdeaf0082 hashing-instance-130
+        131    active 0xdeaf0083 hashing-instance-131
+        132  inactive 0xdeaf0084 hashing-instance-132
+        134  inactive 0xdeaf0086 hashing-instance-134
+        135    active 0xdeaf0087 hashing-instance-135
+        136  inactive 0xdeaf0088 hashing-instance-136
+        137    active 0xdeaf0089 hashing-instance-137
+        138  inactive 0xdeaf008a hashing-instance-138
+        139    active 0xdeaf008b hashing-instance-139
+        141    active 0xdeaf008d hashing-instance-141
+        142  inactive 0xdeaf008e hashing-instance-142
+        143    active 0xdeaf008f hashing-instance-143
+        144  inactive 0xdeaf0090 hashing-instance-144
+        145    active 0xdeaf0091 hashing-instance-145
+        146  inactive 0xdeaf0092 hashing-instance-146
+        148  inactive 0xdeaf0094 hashing-instance-148
+        149    active 0xdeaf0095 hashing-instance-149
+        150  inactive 0xdeaf0096 hashing-instance-150
+        151    active 0xdeaf0097 hashing-instance-151
+        152  inactive 0xdeaf0098 hashing-instance-152
+        153    active 0xdeaf0099 hashing-instance-153
+        155    active 0xdeaf009b hashing-instance-155
+        156  inactive 0xdeaf009c hashing-instance-156
+        157    active 0xdeaf009d hashing-instance-157
+        158  inactive 0xdeaf009e hashing-instance-158
+        159    active 0xdeaf009f hashing-instance-159
+        160  inactive 0xdeaf00a0 hashing-instance-160
+        162  inactive 0xdeaf00a2 hashing-instance-162
+        163    active 0xdeaf00a3 hashing-instance-163
+        164  inactive 0xdeaf00a4 hashing-instance-164
+        165    active 0xdeaf00a5 hashing-instance-165
+        166  inactive 0xdeaf00a6 hashing-instance-166
+        167    active 0xdeaf00a7 hashing-instance-167
+        169    active 0xdeaf00a9 hashing-instance-169
+        170  inactive 0xdeaf00aa hashing-instance-170
+        171    active 0xdeaf00ab hashing-instance-171
+        172  inactive 0xdeaf00ac hashing-instance-172
+        173    active 0xdeaf00ad hashing-instance-173
+        174  inactive 0xdeaf00ae hashing-instance-174
+        176  inactive 0xdeaf00b0 hashing-instance-176
+        177    active 0xdeaf00b1 hashing-instance-177
+        178  inactive 0xdeaf00b2 hashing-instance-178
+        179    active 0xdeaf00b3 hashing-instance-179
+        180  inactive 0xdeaf00b4 hashing-instance-180
+        181    active 0xdeaf00b5 hashing-instance-181
+        183    active 0xdeaf00b7 hashing-instance-183
+        184  inactive 0xdeaf00b8 hashing-instance-184
+        185    active 0xdeaf00b9 hashing-instance-185
+        186  inactive 0xdeaf00ba hashing-instance-186
+        187    active 0xdeaf00bb hashing-instance-187
+        188  inactive 0xdeaf00bc hashing-instance-188
+        190  inactive 0xdeaf00be hashing-instance-190
+        191    active 0xdeaf00bf hashing-instance-191
+        192  inactive 0xdeaf00c0 hashing-instance-192
+        193    active 0xdeaf00c1 hashing-instance-193
+        194  inactive 0xdeaf00c2 hashing-instance-194
+        195    active 0xdeaf00c3 hashing-instance-195
+        197    active 0xdeaf00c5 hashing-instance-197
+        198  inactive 0xdeaf00c6 hashing-instance-198
+        199    active 0xdeaf00c7 hashing-instance-199
+        200  inactive 0xdeaf00c8 hashing-instance-200
+        201    active 0xdeaf00c9 hashing-instance-201
+        202  inactive 0xdeaf00ca hashing-instance-202
+        204  inactive 0xdeaf00cc hashing-instance-204
+        205    active 0xdeaf00cd hashing-instance-205
+        206  inactive 0xdeaf00ce hashing-instance-206
+        207    active 0xdeaf00cf hashing-instance-207
+        208  inactive 0xdeaf00d0 hashing-instance-208
+        209    active 0xdeaf00d1 hashing-instance-209
+        211    active 0xdeaf00d3 hashing-instance-211
+        212  inactive 0xdeaf00d4 hashing-instance-212
+        213    active 0xdeaf00d5 hashing-instance-213
+        214  inactive 0xdeaf00d6 hashing-instance-214
+        215    active 0xdeaf00d7 hashing-instance-215
+        216  inactive 0xdeaf00d8 hashing-instance-216
+        218  inactive 0xdeaf00da hashing-instance-218
+        219    active 0xdeaf00db hashing-instance-219
+        220  inactive 0xdeaf00dc hashing-instance-220
+        221    active 0xdeaf00dd hashing-instance-221
+        222  inactive 0xdeaf00de hashing-instance-222
+        223    active 0xdeaf00df hashing-instance-223
+        225    active 0xdeaf00e1 hashing-instance-225
+        226  inactive 0xdeaf00e2 hashing-instance-226
+        227    active 0xdeaf00e3 hashing-instance-227
+        228  inactive 0xdeaf00e4 hashing-instance-228
+        229    active 0xdeaf00e5 hashing-instance-229
+        230  inactive 0xdeaf00e6 hashing-instance-230
+        232  inactive 0xdeaf00e8 hashing-instance-232
+        233    active 0xdeaf00e9 hashing-instance-233
+        234  inactive 0xdeaf00ea hashing-instance-234
+        235    active 0xdeaf00eb hashing-instance-235
+        236  inactive 0xdeaf00ec hashing-instance-236
+        237    active 0xdeaf00ed hashing-instance-237
+        239    active 0xdeaf00ef hashing-instance-239
+        240  inactive 0xdeaf00f0 hashing-instance-240
+        241    active 0xdeaf00f1 hashing-instance-241
+        242  inactive 0xdeaf00f2 hashing-instance-242
+        243    active 0xdeaf00f3 hashing-instance-243
+        244  inactive 0xdeaf00f4 hashing-instance-244
+        246  inactive 0xdeaf00f6 hashing-instance-246
+        247    active 0xdeaf00f7 hashing-instance-247
+        248  inactive 0xdeaf00f8 hashing-instance-248
+        249    active 0xdeaf00f9 hashing-instance-249
+        250  inactive 0xdeaf00fa hashing-instance-250
+        251    active 0xdeaf00fb hashing-instance-251
+        253    active 0xdeaf00fd hashing-instance-253
+(       254)    empty
+        255    active 0xdeadbeef bar
+        256    active 0xcafecafe java coffee beans [match len=4]
+        257  inactive (nil) another one [match len=7]
+inst hash
+ [000] -> 256 -> 128I
+ [001] -> 257I -> 1 -> 129
+ [002] -> 2I -> 130I
+ [003] -> 3 -> 131
+ [004] -> 4I -> 132I
+ [005] -> 5
+ [006] -> 6I -> 134I
+ [007] -> 135
+ [008] -> 8I -> 136I
+ [009] -> 9 -> 137
+ [010] -> 10I -> 138I
+ [011] -> 11 -> 139
+ [012] -> 12I
+ [013] -> 13 -> 141
+ [014] -> 142I
+ [015] -> 15 -> 143
+ [016] -> 16I -> 144I
+ [017] -> 17 -> 145
+ [018] -> 18I -> 146I
+ [019] -> 19
+ [020] -> 20I -> 148I
+ [021] -> 149
+ [022] -> 22I -> 150I
+ [023] -> 23 -> 151
+ [024] -> 24I -> 152I
+ [025] -> 25 -> 153
+ [026] -> 26I
+ [027] -> 27 -> 155
+ [028] -> 156I
+ [029] -> 29 -> 157
+ [030] -> 30I -> 158I
+ [031] -> 31 -> 159
+ [032] -> 32I -> 160I
+ [033] -> 33
+ [034] -> 34I -> 162I
+ [035] -> 163
+ [036] -> 36I -> 164I
+ [037] -> 37 -> 165
+ [038] -> 38I -> 166I
+ [039] -> 39 -> 167
+ [040] -> 40I
+ [041] -> 41 -> 169
+ [042] -> 170I
+ [043] -> 43 -> 171
+ [044] -> 44I -> 172I
+ [045] -> 45 -> 173
+ [046] -> 46I -> 174I
+ [047] -> 47
+ [048] -> 48I -> 176I
+ [049] -> 177
+ [050] -> 50I -> 178I
+ [051] -> 51 -> 179
+ [052] -> 52I -> 180I
+ [053] -> 53 -> 181
+ [054] -> 54I
+ [055] -> 55 -> 183
+ [056] -> 184I
+ [057] -> 57 -> 185
+ [058] -> 58I -> 186I
+ [059] -> 59 -> 187
+ [060] -> 60I -> 188I
+ [061] -> 61
+ [062] -> 62I -> 190I
+ [063] -> 191
+ [064] -> 64I -> 192I
+ [065] -> 65 -> 193
+ [066] -> 66I -> 194I
+ [067] -> 67 -> 195
+ [068] -> 68I
+ [069] -> 69 -> 197
+ [070] -> 198I
+ [071] -> 71 -> 199
+ [072] -> 72I -> 200I
+ [073] -> 73 -> 201
+ [074] -> 74I -> 202I
+ [075] -> 75
+ [076] -> 76I -> 204I
+ [077] -> 205
+ [078] -> 78I -> 206I
+ [079] -> 79 -> 207
+ [080] -> 80I -> 208I
+ [081] -> 81 -> 209
+ [082] -> 82I
+ [083] -> 83 -> 211
+ [084] -> 212I
+ [085] -> 85 -> 213
+ [086] -> 86I -> 214I
+ [087] -> 87 -> 215
+ [088] -> 88I -> 216I
+ [089] -> 89
+ [090] -> 90I -> 218I
+ [091] -> 219
+ [092] -> 92I -> 220I
+ [093] -> 93 -> 221
+ [094] -> 94I -> 222I
+ [095] -> 95 -> 223
+ [096] -> 96I
+ [097] -> 97 -> 225
+ [098] -> 226I
+ [099] -> 99 -> 227
+ [100] -> 100I -> 228I
+ [101] -> 101 -> 229
+ [102] -> 102I -> 230I
+ [103] -> 103
+ [104] -> 104I -> 232I
+ [105] -> 233
+ [106] -> 106I -> 234I
+ [107] -> 107 -> 235
+ [108] -> 108I -> 236I
+ [109] -> 109 -> 237
+ [110] -> 110I
+ [111] -> 111 -> 239
+ [112] -> 240I
+ [113] -> 113 -> 241
+ [114] -> 114I -> 242I
+ [115] -> 115 -> 243
+ [116] -> 116I -> 244I
+ [117] -> 117
+ [118] -> 118I -> 246I
+ [119] -> 247
+ [120] -> 120I -> 248I
+ [121] -> 121 -> 249
+ [122] -> 122I -> 250I
+ [123] -> 123 -> 251
+ [124] -> 124I
+ [125] -> 125 -> 253
+ [126] -> 254E
+ [127] -> 127 -> 255
+name hash
+ [000] -> 85 -> 51
+ [001]
+ [002] -> 87
+ [003] -> 89 -> 88I
+ [004] -> 13
+ [005] -> 243 -> 150I -> 178I -> 190I
+ [006] -> 254E
+ [007] -> 221
+ [008] -> 107 -> 83 -> 165
+ [009] -> 73 -> 218I
+ [010]
+ [011] -> 102I -> 94I -> 46I -> 232I
+ [012]
+ [013] -> 78I
+ [014] -> 247 -> 32I
+ [015] -> 72I
+ [016] -> 65 -> 141 -> 222I
+ [017] -> 33 -> 157 -> 38I
+ [018]
+ [019] -> 209 -> 118I
+ [020] -> 104I
+ [021] -> 9 -> 170I
+ [022] -> 81 -> 92I
+ [023] -> 97
+ [024] -> 120I -> 74I -> 250I
+ [025] -> 23 -> 166I
+ [026] -> 139 -> 204I -> 214I
+ [027] -> 3 -> 235
+ [028] -> 110I
+ [029] -> 80I -> 34I
+ [030] -> 121 -> 55 -> 215
+ [031] -> 53
+ [032] -> 149
+ [033] -> 131
+ [034]
+ [035] -> 61 -> 114I -> 96I -> 138I
+ [036] -> 207
+ [037] -> 93 -> 171
+ [038] -> 251
+ [039] -> 20I
+ [040] -> 109 -> 17
+ [041] -> 47 -> 188I
+ [042]
+ [043] -> 125 -> 199 -> 68I
+ [044] -> 183
+ [045] -> 54I
+ [046]
+ [047] -> 67 -> 122I
+ [048]
+ [049] -> 111 -> 90I -> 236I
+ [050] -> 145
+ [051] -> 123
+ [052]
+ [053]
+ [054]
+ [055] -> 257I
+ [056]
+ [057] -> 2I
+ [058] -> 11 -> 30I
+ [059]
+ [060] -> 5 -> 240I
+ [061] -> 4I
+ [062] -> 1 -> 25 -> 39
+ [063] -> 137 -> 180I
+ [064] -> 197
+ [065] -> 66I -> 64I
+ [066] -> 249
+ [067]
+ [068] -> 201 -> 130I
+ [069] -> 153 -> 48I
+ [070]
+ [071] -> 45 -> 229 -> 82I
+ [072] -> 10I -> 58I
+ [073] -> 213
+ [074]
+ [075] -> 143 -> 255 -> 136I
+ [076] -> 162I -> 242I
+ [077] -> 6I -> 60I
+ [078] -> 127 -> 151
+ [079] -> 144I -> 220I
+ [080] -> 135 -> 44I -> 174I -> 206I
+ [081] -> 185 -> 225 -> 244I
+ [082] -> 103
+ [083] -> 31 -> 228I
+ [084]
+ [085] -> 132I -> 200I
+ [086] -> 95 -> 181 -> 202I -> 248I
+ [087] -> 163
+ [088] -> 256 -> 15 -> 124I -> 18I -> 184I
+ [089] -> 239 -> 241 -> 142I
+ [090]
+ [091]
+ [092] -> 29 -> 52I
+ [093] -> 177 -> 134I
+ [094] -> 194I
+ [095] -> 37
+ [096] -> 155 -> 158I
+ [097] -> 36I -> 186I
+ [098] -> 195 -> 24I -> 128I
+ [099] -> 191 -> 12I -> 16I -> 164I -> 212I -> 234I
+ [100] -> 57
+ [101] -> 40I
+ [102] -> 101 -> 223
+ [103] -> 19 -> 116I -> 208I
+ [104] -> 169
+ [105] -> 253 -> 216I
+ [106]
+ [107] -> 99
+ [108] -> 43
+ [109] -> 233 -> 152I
+ [110] -> 115 -> 129 -> 179
+ [111] -> 176I
+ [112] -> 205 -> 108I -> 8I -> 246I
+ [113] -> 113 -> 159 -> 237 -> 76I
+ [114] -> 62I -> 160I -> 198I
+ [115] -> 27 -> 173
+ [116] -> 41 -> 156I
+ [117] -> 106I -> 172I
+ [118] -> 230I
+ [119] -> 227 -> 226I
+ [120] -> 187 -> 50I -> 192I
+ [121] -> 79 -> 59 -> 26I
+ [122] -> 193 -> 211 -> 100I -> 22I
+ [123] -> 86I -> 146I
+ [124] -> 117
+ [125] -> 71
+ [126] -> 69 -> 148I
+ [127] -> 75 -> 167 -> 219
+
+short name match test cases ...
+-- cache --
+1 0
+01 4444444 foo
+02 4444444 foobar
+[foo]
+ADD -> 1
+HIDE -> 1
+[foobar]
+ADD -> 2
+HIDE -> 2
+[foo bar]
+ADD failed: Invalid argument
+-- cache --
+1 0
+01 4444444 foo bar
+[foo]
+ADD -> 1
+HIDE -> 1
+[foobar]
+ADD -> 2
+HIDE -> 2
+[foo bar]
+ADD -> 1
+HIDE -> 1
+-- cache --
+1 0
+01 4444444 foo blah
+[foo]
+ADD -> 1
+HIDE -> 1
+[foobar]
+ADD -> 2
+HIDE -> 2
+[foo bar]
+ADD failed: Invalid argument
+
+-- revised dirty cache semantics --
++ flags=1 +
+PMDA_CACHE_LOAD failed: No such file or directory
+[ernie]
+ADD -> 0
+SAVE -> 1
+HIDE -> 0
+SAVE -> 0
+[bert]
+ADD -> 1
+SAVE -> 2
+HIDE -> 1
+ADD -> 1
+SAVE -> 0
+[kermit]
+ADD -> 2
+SAVE -> 3
+CULL -> 2
+SAVE -> 2
+[oscar]
+ADD -> 3
+SAVE -> 3
+extra [felix-the-cat]
+ADD -> 4
+SAVE -> 4
+[big bird]
+ADD -> 5
+SAVE -> 5
+SAVE -> 0
+[miss piggy]
+ADD -> 6
+SAVE -> 6
+CULL ALL -> 6
+SAVE -> 0
++ flags=2 +
+PMDA_CACHE_LOAD failed: No such file or directory
+[ernie]
+ADD -> 0
+SAVE -> 1
+HIDE -> 0
+SYNC -> 0
+[bert]
+ADD -> 1
+SAVE -> 2
+HIDE -> 1
+ADD -> 1
+SYNC -> 2
+[kermit]
+ADD -> 2
+SAVE -> 3
+CULL -> 2
+SYNC -> 2
+[oscar]
+ADD -> 3
+SAVE -> 3
+extra [felix-the-cat]
+ADD -> 4
+SYNC -> 4
+[big bird]
+ADD -> 5
+SAVE -> 5
+SYNC -> 0
+[miss piggy]
+ADD -> 6
+SAVE -> 6
+CULL ALL -> 6
+SYNC -> 0
++ flags=3 +
+PMDA_CACHE_LOAD failed: No such file or directory
+[ernie]
+ADD -> 0
+SAVE -> 1
+HIDE -> 0
+SAVE -> 0
+SYNC -> 0
+[bert]
+ADD -> 1
+SAVE -> 2
+HIDE -> 1
+ADD -> 1
+SAVE -> 0
+SYNC -> 2
+[kermit]
+ADD -> 2
+SAVE -> 3
+CULL -> 2
+SAVE -> 2
+SYNC -> 0
+[oscar]
+ADD -> 3
+SAVE -> 3
+extra [felix-the-cat]
+ADD -> 4
+SAVE -> 4
+SYNC -> 0
+[big bird]
+ADD -> 5
+SAVE -> 5
+SAVE -> 0
+SYNC -> 0
+[miss piggy]
+ADD -> 6
+SAVE -> 6
+CULL ALL -> 6
+SAVE -> 0
+SYNC -> 0

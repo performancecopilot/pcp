@@ -1,0 +1,18 @@
+#! /bin/sh
+# PCP QA Test No. 004
+# exercise contexts for the live data from the pmcd
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+src/context_test -i6
+src/context_test -i5

@@ -53,8 +53,14 @@ int
 __pmtracedecodeack(__pmTracePDU *pdubuf, __int32_t *data)
 {
     ack_t	*pp;
+    char	*pduend;
 
     pp = (ack_t *)pdubuf;
+    pduend = (char *)pdubuf + pp->hdr.len;
+
+    if (pduend - (char*)pp != sizeof(ack_t))
+	return PMTRACE_ERR_IPC;
+
     *data = ntohl(pp->data);
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_PDU)

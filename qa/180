@@ -1,0 +1,89 @@
+#! /bin/sh
+# PCP QA Test No. 180
+# log scanning for bigace
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+. ./localconfig
+rm -f $seq.out
+if [ $PCP_EOE_VER -ge 6512 -o \
+     \( $PCP_EOE_VER -ge 2200 -a $PCP_EOE_VER -lt 6500 \) ]
+then
+    ln $seq.out.1 $seq.out
+else
+    ln $seq.out.2 $seq.out
+fi
+
+if [ $PCP_VER -lt 3600 ]
+then
+    # V1 archives supported
+    arch=src/bigace
+else
+    # no support for V1 archives
+    arch=src/bigace_v2
+    rm -f $seq.out
+    ln $seq.out.3 $seq.out
+fi
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# On linux, there are some annoying differences in arithemtic values
+# from printf() and friends ... map the know ones back to the IRIX
+# values
+_filter()
+{
+    sed \
+	-e '/^16:07:51.554/s/0.1164/0.1163/' \
+	-e '/^16:09:51.554/s/0.1033/0.1032/'
+}
+
+_do_cpu()
+{
+    $PCP_AWK_PROG	'
+	{ cpu += $2 }
+END	{ if (cpu < 3) print "CPU: less than 3 sec"
+	  else if (cpu < 10) print "CPU: between 3 and 10 sec"
+	  else print "CPU: roughly " 10*int((cpu+5)/10) " sec"
+	}'
+}
+
+# real QA test starts here
+cat <<End-of-File >$tmp.pmns
+root {
+    foo	40:2:1
+}
+End-of-File
+
+DEBUG=-D386
+DEBUG=-D128
+DEBUG=
+
+DELTA=20
+
+echo "=== all of the instances ==="
+(time pmval -z -n $tmp.pmns -a $arch -t $DELTA foo) >$tmp.out 2>$tmp.err
+_filter <$tmp.out
+echo
+echo "samples: `grep '^[0-9][0-9]:' $tmp.out | wc -l | sed -e 's/  *//g'`"
+egrep '^(user|sys)' $tmp.err | _do_cpu
+pmval -z -D128 -n $tmp.pmns -a $arch -t $DELTA foo 2>$tmp.err >/dev/null
+echo "__pmLogReads: `grep __pmLogRead $tmp.err | wc -l | sed -e 's/  *//g'`"
+
+echo
+echo "=== just instance #4653127 (always there) ==="
+(time pmval -z -i 4653127 -n $tmp.pmns -a $arch -t $DELTA foo) >$tmp.out 2>$tmp.err
+_filter <$tmp.out
+echo
+echo "samples: `grep '^[0-9][0-9]:' $tmp.out | wc -l | sed -e 's/  *//g'`"
+egrep '^(user|sys)' $tmp.err | _do_cpu
+pmval -z -D128 -i 4653127 -n $tmp.pmns -a $arch -t $DELTA foo 2>$tmp.err >/dev/null
+echo "__pmLogReads: `grep __pmLogRead $tmp.err | wc -l | sed -e 's/  *//g'`"

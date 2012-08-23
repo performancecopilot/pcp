@@ -1,0 +1,34 @@
+QA output created by 284
++++++++++++++++++++++++++++
++ Mode: PDU_BINARY Pass 0 +
++++++++++++++++++++++++++++
++++++++++++++++++++++++++++
++ Mode: PDU_BINARY Pass 1 +
++++++++++++++++++++++++++++
++++++++++++++++++++++++++++
++ Mode: PDU_BINARY Pass 2 +
++++++++++++++++++++++++++++
++++++++++++++++++++++++++++
++ Mode: PDU_BINARY Pass 3 +
++++++++++++++++++++++++++++
++++++++++++++++++++++++++++
++ Mode: PDU_BINARY Pass 4 +
++++++++++++++++++++++++++++
+
+****  Purify instrumented TMP/pducheck.pure (pid PID)  ****
+Current file descriptors in use: 5
+FIU: file descriptor 0: <stdin>
+FIU: file descriptor 1: <stdout>
+FIU: file descriptor 2: <stderr>
+
+****  Purify instrumented TMP/pducheck.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/pducheck.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...

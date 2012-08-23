@@ -1,0 +1,140 @@
+#!/bin/sh
+# PCP QA Test No. 496
+# pmlogrewrite - multiple -c options and -c dir option
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if which pmlogrewrite >/dev/null 2>&1
+then
+    rm -f .notrun
+else
+    _notrun pmlogrewrite not installed
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s;/$$\.;/PID.;g" \
+	-e '/[-+ ]\[[0-9][0-9]* bytes]/d' \
+	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/"
+}
+
+_cmp()
+{
+    if [ ! -f "$1.0" ]
+    then
+	echo "Arrgh ... $1.0 missing" | _filter
+	return
+    fi
+    if [ ! -f "$2.0" ]
+    then
+	echo "Arrgh ... $2.0 missing" | _filter
+	return
+    fi
+    pmdumplog -z -a $1 | tee -a $seq.full >$tmp.in
+    pmdumplog -z -a $2 | tee -a $seq.full >$tmp.out
+    diff -u $tmp.in $tmp.out | _filter
+}
+
+cat <<End-of-File >$tmp.conf.1
+metric sample.ulong.bin_ctr {
+    indom -> NULL output MIN
+    type -> DOUBLE
+    units -> 1,0,0,BYTE,0,0
+}
+metric sample.ulonglong.bin_ctr {
+    indom -> NULL output MAX
+    type -> 32
+    units -> 1,0,0,BYTE,0,0
+}
+End-of-File
+cat <<End-of-File >$tmp.conf.2
+metric sampledso.double.bin_ctr {
+    indom -> NULL output AVG
+    type -> FLOAT
+}
+metric sample.float.bin_ctr {
+    indom -> NULL output SUM
+    type -> U64
+}
+metric sample.longlong.bin_ctr {
+    indom -> NULL output FIRST
+    type -> 64
+    units -> 1,-1,0,KBYTE,SEC,0
+}
+End-of-File
+cat <<End-of-File >$tmp.conf.3
+indom 29.2 { inst 200 -> DELETE }
+indom 30.2 { inst 800 -> DELETE }
+End-of-File
+
+cat $tmp.conf.? >$tmp.conf.all
+
+# real QA test starts here
+
+# Note - correctness of this archive and config is established in QA 493
+#
+echo "=== baseline ==="
+rm -f $tmp.baseline.*
+pmlogrewrite -ws -c $tmp.conf.all src/rewrite $tmp.baseline 2>&1 | _filter
+
+echo
+echo "=== one config file ==="
+rm -f $tmp.new.*
+pmlogrewrite -ws -c $tmp.conf.all src/rewrite $tmp.new 2>&1 | _filter
+_cmp $tmp.baseline $tmp.new
+
+echo
+echo "=== three config files ==="
+rm -f $tmp.new.*
+pmlogrewrite -ws -c $tmp.conf.1 -c $tmp.conf.2 -c $tmp.conf.3 src/rewrite $tmp.new 2>&1 | _filter
+_cmp $tmp.baseline $tmp.new
+
+echo
+echo "=== config dir with regular files ==="
+mkdir $tmp.conf.dir
+cp $tmp.conf.[123] $tmp.conf.dir
+rm -f $tmp.new.*
+pmlogrewrite -ws -c $tmp.conf.dir src/rewrite $tmp.new 2>&1 | _filter
+_cmp $tmp.baseline $tmp.new
+
+echo
+echo "=== config dir with symlinks files and hidden files ==="
+rm -f $tmp.conf.dir/*
+for i in 1 2 3
+do
+    ln -s $tmp.conf.$i $tmp.conf.dir
+done
+echo "metric sampledso.ulong.hundred { type -> U32 }" >$tmp.conf.dir/.$$.conf.4
+rm -f $tmp.new.*
+pmlogrewrite -ws -c $tmp.conf.dir src/rewrite $tmp.new 2>&1 | _filter
+_cmp $tmp.baseline $tmp.new
+
+echo
+echo "=== config dir unhide bad file ==="
+mv $tmp.conf.dir/.$$.conf.4 $tmp.conf.dir/$$.conf.4
+rm -f $tmp.new.*
+# need to sort here because the order in which the files are processed
+# depends in readdir() and is not deterministic
+pmlogrewrite -ws -c $tmp.conf.dir src/rewrite $tmp.new 2>&1 \
+| LC_COLLATE=POSIX sort \
+| _filter
+_cmp $tmp.baseline $tmp.new
+
+# success, all done
+exit

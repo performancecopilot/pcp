@@ -1,0 +1,116 @@
+QA output created by 332
+
+=== src/bigbin delta=2 ===
+****  Purify instrumented TMP/interp3.pure (pid PID)  ****
+Current file descriptors in use: 8
+****  Purify instrumented TMP/interp3.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 28 bytes (PERCENT); potentially leaked: 0 bytes (PERCENT)
+
+MLK: 28 bytes leaked at ADDR
+  * This memory was allocated from:
+	_malloc        [...]
+	pmNewContext   [...]
+	pmDupContext   [...]
+	main           [...]
+	START          [...]
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp3.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+=== src/bigbin delta=0.012 ===
+****  Purify instrumented TMP/interp3.pure (pid PID)  ****
+Current file descriptors in use: 8
+****  Purify instrumented TMP/interp3.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 28 bytes (PERCENT); potentially leaked: 0 bytes (PERCENT)
+
+MLK: 28 bytes leaked at ADDR
+  * This memory was allocated from:
+	_malloc        [...]
+	pmNewContext   [...]
+	pmDupContext   [...]
+	main           [...]
+	START          [...]
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp3.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+=== src/noti-foo delta=0.5 ===
+****  Purify instrumented TMP/interp3.pure (pid PID)  ****
+Current file descriptors in use: 7
+****  Purify instrumented TMP/interp3.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 28 bytes (PERCENT); potentially leaked: 0 bytes (PERCENT)
+
+MLK: 28 bytes leaked at ADDR
+  * This memory was allocated from:
+	_malloc        [...]
+	pmNewContext   [...]
+	pmDupContext   [...]
+	main           [...]
+	START          [...]
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp3.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+=== src/noti-foo delta=1.0 ===
+****  Purify instrumented TMP/interp3.pure (pid PID)  ****
+Current file descriptors in use: 7
+****  Purify instrumented TMP/interp3.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 28 bytes (PERCENT); potentially leaked: 0 bytes (PERCENT)
+
+MLK: 28 bytes leaked at ADDR
+  * This memory was allocated from:
+	_malloc        [...]
+	pmNewContext   [...]
+	pmDupContext   [...]
+	main           [...]
+	START          [...]
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp3.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+=== src/noti-foo delta=2.0 ===
+****  Purify instrumented TMP/interp3.pure (pid PID)  ****
+Current file descriptors in use: 7
+****  Purify instrumented TMP/interp3.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 28 bytes (PERCENT); potentially leaked: 0 bytes (PERCENT)
+
+MLK: 28 bytes leaked at ADDR
+  * This memory was allocated from:
+	_malloc        [...]
+	pmNewContext   [...]
+	pmDupContext   [...]
+	main           [...]
+	START          [...]
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp3.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...

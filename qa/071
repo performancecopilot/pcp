@@ -1,0 +1,42 @@
+#! /bin/sh
+# PCP QA Test No. 071
+# used to cause core dump when using libpcp_lite ... problem moved
+# slightly when libpcp_lite replaced by PM_CONTEXT_LOCAL
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+cd src
+$sudo rm -f core*
+
+for args in "" "-L" "-h localhost" "-a foo"
+do
+    echo
+    echo "sudo ./pcp_lite_crash $args ..."
+    eval $sudo ./pcp_lite_crash $args >$tmp.out 2>&1
+    s=$?
+
+    sed -e '/using .* kmem interface/d' $tmp.out \
+    | _filter_pmcd_log
+
+    if [ "`echo core*`" != "core*" ]
+    then
+	echo "In qa/src, running  pcp_lite_crash  created a core dump"
+	echo until this is fixed, my pid = $$
+	echo exit status is $s
+	exit $s
+    fi
+done
+
+exit 0
+

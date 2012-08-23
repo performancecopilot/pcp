@@ -1,0 +1,13 @@
+QA output created by 308
+
+pmlogger directly ...
+TIMESTAMP  PID (proc.psinfo.ppid): inst [1 or "zeroes...1 init"] value 0
+
+pmlc for local pmlogger ...
+TIMESTAMP  PID (proc.psinfo.ppid): inst [1 or "zeroes...1 init"] value 0
+
+pmlc local, pmcd and pmlogger remote ...
+TIMESTAMP  PID (proc.psinfo.ppid): inst [1 or "zeroes...1 init"] value 0
+
+pmlc local, pmcd remote on one host, pmlogger remote on a different host ...
+TIMESTAMP  PID (proc.psinfo.ppid): inst [1 or "zeroes...1 init"] value 0

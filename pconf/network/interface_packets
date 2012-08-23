@@ -1,0 +1,53 @@
+#pmieconf-rules 1
+#
+
+rule	network.interface_packets
+	default = "$rule$"
+	predicate =
+"some_host (
+    some_inst (
+	network.interface.total.packets $hosts$ $interfaces$ >
+	    $threshold$ count/sec
+    )
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"For at least one network interface, the average rate of packet
+transfers (in and/or out) exceeded the threshold during the last
+sample interval.";
+
+string	rule
+	default = "busy network interface (packets)"
+	modify	= no
+	display	= no;
+
+double	threshold
+	default	= 2000
+	help	=
+"Threshold in units of packets (in or out) per second per interface.
+A tolerable value depends on the type of network interface and
+the packet size; some experimentation may be required to find
+an accpetable threshold.";
+
+string	interfaces
+	default	=""
+	help	=
+"May be set to a list of network interfaces for which the rule will
+be evaluated, as a subset of configured network interfaces.  Each
+network interface should be enclosed in single quotes, prefixed by a
+pound or hash (#) and multiple entries separated by white space,
+e.g.  #'ec0' #'ec2'
+To discover the names of the network interfaces, execute the
+following command on the target host:
+	  pminfo -f network.interface.total.packets
+the (double) quoted instance names are the required network interface
+names.
+This is most useful to remove the loopback, SLIP and PPP interfaces
+from the rule evaluations.";
+
+string	action_expand
+	default = "%v:%i@%h"
+	display = no
+	modify  = no;
+

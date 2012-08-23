@@ -1,0 +1,92 @@
+QA output created by 509
+
+sample.secret.foo.one PMID: 29.0.1001
+    value 1
+
+my.derived PMID: 511.0.1
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+sample.secret.foo.two PMID: 29.0.1002
+    value 2
+pmGetPMNSLocation() -> Remote
+pmLookupName: request_names -> [0] sample.bin
+__pmSendNameList
+namelist dump: numnames = 1
+  name[0]: "sample.bin"
+__pmDecodeIDList
+IDlist dump: numids = 1
+  PMID[0]: ADDR 29.0.6
+pmLookupName: receive_names <- [0] 29.0.6
+pmLookupName(1, ...) -> 1
+SendNameReq: from=0 name="sample.secret.foo.one" pdu=PMNS_TRAVERSE subtype=0
+__pmDecodeNameList
+namelist dump: numnames = 1
+  name[0]: "sample.secret.foo.one"
+SendNameReq: from=0 name="my.derived" pdu=PMNS_TRAVERSE subtype=0
+SendNameReq: from=0 name="foo.bar" pdu=PMNS_TRAVERSE subtype=0
+Error: foo.bar: Unknown metric name
+SendNameReq: from=0 name="sample.secret.foo.two" pdu=PMNS_TRAVERSE subtype=0
+__pmDecodeNameList
+namelist dump: numnames = 1
+  name[0]: "sample.secret.foo.two"
+pmLookupName: request_names -> [0] sample.secret.foo.one [1] my.derived [2] sample.secret.foo.two
+__pmSendNameList
+namelist dump: numnames = 3
+  name[0]: "sample.secret.foo.one"
+  name[1]: "my.derived"
+  name[2]: "sample.secret.foo.two"
+__pmDecodeIDList
+IDlist dump: numids = 3
+  PMID[0]: ADDR 29.0.1001
+  PMID[1]: ADDR PM_ID_NULL
+  PMID[2]: ADDR 29.0.1002
+pmLookupName: receive_names <- [0] 29.0.1001 [1] PM_ID_NULL [2] 29.0.1002
+pmLookupName(3, ...) -> 3
+dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29
+Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29
+dbpmda> fetch sample.secret.foo.one, my.derived, sample.secret.foo.two
+PMID(s): 29.0.1001 511.0.1 29.0.1002
+pmResult dump from ADDR timestamp: 0.000000 HH:00:00.000 numpmid: 3
+  29.0.1001 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 1 1.4012985e-45 ADDR
+  511.0.1 (my.derived): No values returned!
+  29.0.1002 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 2 2.8025969e-45 ADDR
+dbpmda> 
+load(name=(null), binok=1, dupok=0) lic case=0 fname=/var/lib/pcp/pmns/root
+loadbinary(file=/var/lib/pcp/pmns/root.bin)
+Version 2 Binary PMNS Checksums: got=CHECKSUM expected=CHECKSUM
+Loaded Version 1 or 2 Binary PMNS, nodetab ent = NN bytes
+pmGetPMNSLocation() -> Local
+pmLookupName(1, ...) using local PMNS returns 1 and ...
+  name[0]: "sample.bin" PMID: ADDR 29.0.6
+pmLookupName(1, ...) -> 1
+pmLookupName(1, ...) using local PMNS returns 1 and ...
+  name[0]: "sample.secret.foo.one" PMID: ADDR 29.*.*
+pmLookupName(1, ...) -> 1
+__pmSendNameList
+namelist dump: numnames = 1
+  name[0]: "sample.secret.foo.one"
+__pmDecodeIDList
+IDlist dump: numids = 1
+  PMID[0]: ADDR 29.0.1001
+pmLookupName(1, ...) using local PMNS returns 0 and ...
+  name[0]: "my.derived" PMID: ADDR PM_ID_NULL
+pmLookupName(1, ...) -> 1
+pmLookupName(1, ...) using local PMNS returns 1 and ...
+  name[0]: "sample.secret.foo.two" PMID: ADDR 29.*.*
+pmLookupName(1, ...) -> 1
+__pmSendNameList
+namelist dump: numnames = 1
+  name[0]: "sample.secret.foo.two"
+__pmDecodeIDList
+IDlist dump: numids = 1
+  PMID[0]: ADDR 29.0.1002

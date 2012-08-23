@@ -172,22 +172,24 @@ int
 __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 {
     int		numpmid;	/* number of metrics */
-    int		sts;		/* function status */
-    int		i = 0;		/* range of metrics */
+    int		i;		/* range of metrics */
     int		j;		/* range over values */
-    int		version;
+    int		index;
+    int		vsize;		/* size of vlist_t's in PDU buffer */
+    char	*pduend;	/* end pointer for incoming buffer */
+    char	*vsplit;	/* vlist/valueblock division point */
     result_t	*pp;
     vlist_t	*vlp;
-    pmResult	*pr = NULL;
+    pmResult	*pr;
 #if defined(HAVE_64BIT_PTR)
     char	*newbuf;
     int		valfmt;
     int		numval;
+    int		need;
 /*
  * Note: all sizes are in units of bytes ... beware that pp->data is in
  *	 units of __pmPDU
  */
-    int		vsize;		/* size of vlist_t's in PDU buffer */
     int		nvsize;		/* size of pmValue's after decode */
     int		offset;		/* differences in sizes */
     int		vbsize;		/* size of pmValueBlocks */
@@ -198,11 +200,16 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
     Bozo - unexpected sizeof pointer!!
 #endif
 
-    if ((sts = version = __pmLastVersionIPC()) < 0)
-	return sts;
-
     pp = (result_t *)pdubuf;
+    pduend = (char *)pdubuf + pp->hdr.len;
+    if (pduend - (char *)pdubuf < sizeof(result_t) - sizeof(__pmPDU))
+	return PM_ERR_IPC;
+
     numpmid = ntohl(pp->numpmid);
+    if (numpmid < 0 || numpmid > pp->hdr.len)
+	return PM_ERR_IPC;
+    if (numpmid >= (INT_MAX - sizeof(pmResult)) / sizeof(pmValueSet *))
+	return PM_ERR_IPC;
     if ((pr = (pmResult *)malloc(sizeof(pmResult) +
 			     (numpmid - 1) * sizeof(pmValueSet *))) == NULL) {
 	return -oserror();
@@ -212,10 +219,16 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
     pr->timestamp.tv_usec = ntohl(pp->timestamp.tv_usec);
 
 #if defined(HAVE_64BIT_PTR)
+    vsplit = pduend;	/* smallest observed value block pointer */
     nvsize = vsize = vbsize = 0;
     for (i = 0; i < numpmid; i++) {
 	vlp = (vlist_t *)&pp->data[vsize/sizeof(__pmPDU)];
+
+	if (sizeof(*vlp) - sizeof(vlp->vlist) - sizeof(int) > (pduend - (char *)vlp))
+	    goto corrupt;
+
 	vsize += sizeof(vlp->pmid) + sizeof(vlp->numval);
+	nvsize += sizeof(pmValueSet);
 	numval = ntohl(vlp->numval);
 	valfmt = ntohl(vlp->valfmt);
 #ifdef DESPERATE
@@ -226,8 +239,14 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 			i, pmIDStr_r(pmid, strbuf, sizeof(strbuf)), numval);
 	}
 #endif
-	nvsize += sizeof(pmValueSet);
+	/* numval may be negative - it holds an error code in that case */
+	if (numval > pp->hdr.len)
+	    goto corrupt;
 	if (numval > 0) {
+	    if (sizeof(*vlp) - sizeof(vlp->vlist) > (pduend - (char *)vlp))
+		goto corrupt;
+	    if (numval >= (INT_MAX - sizeof(*vlp)) / sizeof(__pmValue_PDU))
+		goto corrupt;
 	    vsize += sizeof(vlp->valfmt) + numval * sizeof(__pmValue_PDU);
 	    nvsize += (numval - 1) * sizeof(pmValue);
 #ifdef DESPERATE
@@ -236,10 +255,25 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 #endif
 	    if (valfmt != PM_VAL_INSITU) {
 		for (j = 0; j < numval; j++) {
-		    int		index = ntohl(vlp->vlist[j].value.pval);
-		    pmValueBlock *pduvbp = (pmValueBlock *)&pdubuf[index];
+		    __pmValue_PDU *pduvp;
+		    pmValueBlock *pduvbp;
 
+		    pduvp = &vlp->vlist[j];
+		    if (sizeof(__pmValue_PDU) > (size_t)(pduend - (char *)pduvp))
+			goto corrupt;
+		    index = ntohl(pduvp->value.lval);
+		    if (index < 0 || index > pp->hdr.len)
+			goto corrupt;
+		    pduvbp = (pmValueBlock *)&pdubuf[index];
+		    if (vsplit > (char *)pduvbp)
+			vsplit = (char *)pduvbp;
+		    if (sizeof(unsigned int) > (size_t)(pduend - (char *)pduvbp))
+			goto corrupt;
 		    __ntohpmValueBlock(pduvbp);
+		    if (pduvbp->vlen < PM_VAL_HDR_SIZE || pduvbp->vlen > pp->hdr.len)
+			goto corrupt;
+		    if (pduvbp->vlen > (size_t)(pduend - (char *)pduvbp))
+			goto corrupt;
 		    vbsize += PM_PDU_SIZE_BYTES(pduvbp->vlen);
 #ifdef DESPERATE
 		    fprintf(stderr, " len: %d type: %d",
@@ -256,33 +290,44 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
     fprintf(stderr, "vsize: %d nvsize: %d vbsize: %d\n", vsize, nvsize, vbsize);
 #endif
 
-    /* the original pdubuf is already pinned so we won't just allocate that again */
-    if ((newbuf = (char *)__pmFindPDUBuf((int)nvsize + vbsize)) == NULL) {
+    need = nvsize + vbsize;
+    offset = sizeof(result_t) - sizeof(__pmPDU) + vsize;
+    if (need < 0 ||
+	vsize > INT_MAX / sizeof(__pmPDU) ||
+	vbsize > INT_MAX / sizeof(pmValueBlock) ||
+	offset != pp->hdr.len - (pduend - vsplit) ||
+	offset + vbsize != pduend - (char *)pdubuf)
+	goto corrupt;
+
+    /* the original pdubuf is already pinned so we won't allocate that again */
+    if ((newbuf = (char *)__pmFindPDUBuf(need)) == NULL) {
 	free(pr);
 	return -oserror();
     }
 
     /*
-     * At this point, we have the following set up ...
+     * At this point, we have verified the contents of the incoming PDU and
+     * the following is set up ...
      *
      * From the original PDU buffer ...
-     * :-----:---------:-----------:----------------:--------------------:
-     * : Hdr : numpmid : timestamp : ... vlists ... : .. pmValueBocks .. :
-     * :-----:---------:-----------:----------------:--------------------:
-     *                              <---  vsize ---> <---   vbsize   --->
-     *                                    bytes             bytes
+     * :-----:---------:-----------:----------------:---------------------:
+     * : Hdr : timestamp : numpmid : ... vlists ... : .. pmValueBlocks .. :
+     * :-----:---------:-----------:----------------:---------------------:
+     *                              <---  vsize ---> <----   vbsize  ---->
+     *                                    bytes              bytes
      *
      * and in the new PDU buffer we are going to build ...
-     * :---------------------:--------------------:
-     * : ... pmValueSets ... : .. pmValueBocks .. :
-     * :---------------------:--------------------:
-     *  <---   nvsize    ---> <---   vbsize   --->
-     *         bytes                 bytes
+     * :---------------------:---------------------:
+     * : ... pmValueSets ... : .. pmValueBlocks .. :
+     * :---------------------:---------------------:
+     *  <---   nvsize    ---> <----   vbsize  ---->
+     *         bytes                  bytes
      */
 
     if (vbsize) {
 	/* pmValueBlocks (if any) are copied across "as is" */
-	memcpy((void *)&newbuf[nvsize], (void *)&pp->data[vsize/sizeof(__pmPDU)], vbsize);
+	index = vsize / sizeof(__pmPDU);
+	memcpy((void *)&newbuf[nvsize], (void *)&pp->data[index], vbsize);
     }
 
     /*
@@ -334,7 +379,8 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 		     * in the input PDU buffer, pval is an index to the
 		     * start of the pmValueBlock, in units of __pmPDU
 		     */
-		    nvp->value.pval = (pmValueBlock *)&newbuf[sizeof(__pmPDU) * ntohl(vp->value.pval) + offset];
+		    index = sizeof(__pmPDU) * ntohl(vp->value.pval) + offset;
+		    nvp->value.pval = (pmValueBlock *)&newbuf[index];
 #ifdef DESPERATE
 		    {
 			int		k, len;
@@ -360,56 +406,93 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
     pr->timestamp.tv_sec = ntohl(pp->timestamp.tv_sec);
     pr->timestamp.tv_usec = ntohl(pp->timestamp.tv_usec);
     vlp = (vlist_t *)pp->data;
+    vsplit = pduend;
+    vsize = 0;
+
     /*
      * Now fix up any pointers in pmValueBlocks (currently offsets into
      * the PDU buffer) by adding the base address of the PDU buffer.
      */
     for (i = 0; i < numpmid; i++) {
+	if (sizeof(*vlp) - sizeof(vlp->vlist) - sizeof(int) > (pduend - (char *)vlp))
+	    goto corrupt;
+
 	vsp = pr->vset[i] = (pmValueSet *)vlp;
-#ifndef HAVE_NETWORK_BYTEORDER
 	vsp->pmid = __ntohpmID(vsp->pmid);
 	vsp->numval = ntohl(vsp->numval);
+	/* numval may be negative - it holds an error code in that case */
+	if (vsp->numval > pp->hdr.len)
+	    goto corrupt;
+
+	vsize += sizeof(vsp->pmid) + sizeof(vsp->numval);
 	if (vsp->numval > 0) {
+	    if (sizeof(*vlp) - sizeof(vlp->vlist) > (pduend - (char *)vlp))
+		goto corrupt;
+	    if (vsp->numval >= (INT_MAX - sizeof(*vlp)) / sizeof(__pmValue_PDU))
+		goto corrupt;
 	    vsp->valfmt = ntohl(vsp->valfmt);
+	    vsize += sizeof(vsp->valfmt) + vsp->numval * sizeof(__pmValue_PDU);
 	    for (j = 0; j < vsp->numval; j++) {
-		vsp->vlist[j].inst = ntohl(vsp->vlist[j].inst);
-		if (vsp->valfmt == PM_VAL_INSITU)
-		    vsp->vlist[j].value.lval = ntohl(vsp->vlist[j].value.lval);
-	    }
-	}
-#endif
-	if (vsp->numval > 0) {
-	    if (vsp->valfmt != PM_VAL_INSITU) {
-		/* salvage pmValueBlocks from end of PDU */
-		for (j = 0; j < vsp->numval; j++) {
-		    vsp->vlist[j].value.pval = (pmValueBlock *)&pdubuf[ntohl(vsp->vlist[j].value.lval)];
-		    __ntohpmValueBlock(vsp->vlist[j].value.pval);
+		__pmValue_PDU *pduvp;
+		pmValueBlock *pduvbp;
+
+		pduvp = &vsp->vlist[j];
+		if (sizeof(__pmValue_PDU) > (size_t)(pduend - (char *)pduvp))
+		    goto corrupt;
+
+		pduvp->inst = ntohl(pduvp->inst);
+		if (vsp->valfmt == PM_VAL_INSITU) {
+		    pduvp->value.lval = ntohl(pduvp->value.lval);
+		} else {
+		    /* salvage pmValueBlocks from end of PDU */
+		    index = ntohl(pduvp->value.lval);
+		    if (index < 0 || index > pp->hdr.len)
+			goto corrupt;
+		    pduvbp = (pmValueBlock *)&pdubuf[index];
+		    if (vsplit > (char *)pduvbp)
+			vsplit = (char *)pduvbp;
+		    if (sizeof(unsigned int) > (size_t)(pduend - (char *)pduvbp))
+			goto corrupt;
+		    __ntohpmValueBlock(pduvbp);
+		    if (pduvbp->vlen < PM_VAL_HDR_SIZE || pduvbp->vlen > pp->hdr.len)
+			goto corrupt;
+		    if (pduvbp->vlen > (size_t)(pduend - (char *)pduvbp))
+			goto corrupt;
+		    pduvp->value.pval = pduvbp;
 		}
 	    }
 	    vlp = (vlist_t *)((__psint_t)vlp + sizeof(*vlp) + (vsp->numval-1)*sizeof(vlp->vlist[0]));
 	}
-	else
+	else {
 	    vlp = (vlist_t *)((__psint_t)vlp + sizeof(vlp->pmid) + sizeof(vlp->numval));
+	}
     }
-    if (numpmid > 0)
+    if (numpmid > 0) {
+	if (sizeof(result_t) - sizeof(__pmPDU) + vsize != pp->hdr.len - (pduend - vsplit))
+	    goto corrupt;
 	/*
 	 * PDU buffer already pinned on entry, pin again so that
 	 * the caller can safely call _both_ pmFreeResult() and
 	 * __pmUnpinPDUBuf() ... refer to thread-safe notes above.
 	 */
 	__pmPinPDUBuf(pdubuf);
+    }
 #endif
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU)
 	__pmDumpResult(stderr, pr);
 #endif
-    *result = pr;
 
     /*
      * Note we return with the input buffer (pdubuf) still pinned and
      * for the 64-bit pointer case the new buffer (newbuf) also pinned -
      * if numpmid != 0 see the thread-safe comments above
      */
+    *result = pr;
     return 0;
+
+corrupt:
+    free(pr);
+    return PM_ERR_IPC;
 }

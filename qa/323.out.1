@@ -1,0 +1,88 @@
+QA output created by 323
+
+=== install shping agent ===
+You will need to choose an appropriate configuration for installation of
+the "shping" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Possible configuration files to choose from:
+[1] ./sample.conf
+[2] Specify your own configuration file.
+[3] None of the above (abandon configuration file selection).
+Which configuration file do you want to use ? [1] Abandoning configuration file selection.
+Do you wish to enter commands to create a new configuration file? [y] 
+Enter one ping specification per line, in the format
+
+tag		command line details
+
+where the "tag" is a single unique word (no spaces) and the "command line
+details" are the corresponding sh(1) command.  For example
+
+dns-self	nslookup `hostname`
+
+An empty line terminates the specification process and there must be at
+least one specification.
+
+Tag Command: Tag Command: Tag Command: Tag Command: 
+All commands are run one after another as a group and the group is run
+once per "cycle" time.   Enter the cycle time in seconds [120] 
+Each command must complete within a timeout period, or it will be aborted
+by the "shping" PMDA.  Enter the timeout period (in seconds) [20] Updating the Performance Metrics Name Space (PMNS) ...
+Compiled PMNS contains
+  NNN hash table entries
+  NNN leaf nodes
+  NNN non-leaf nodes
+  NNN bytes of symbol table
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Wait 10 seconds for the shping agent to initialize ...
+Check shping metrics have appeared ... 11 metrics and 23 values
+
+=== check values ===
+
+shping.status
+    inst [0 or "null"] value 0
+    inst [1 or "slow"] value 0
+    inst [2 or "timeout"] value 3
+
+shping.error
+    inst [0 or "null"] value 0
+    inst [1 or "slow"] value 0
+    inst [2 or "timeout"] value -12353
+
+shping.cmd
+    inst [0 or "null"] value "exit 0"
+    inst [1 or "slow"] value "sleep 3"
+    inst [2 or "timeout"] value "sleep 10"
+
+shping.control.cycletime
+    value 60
+
+shping.control.timeout
+    value 6
+
+shping.time.real
+    inst [0 or "null"] value NUMBER
+    inst [1 or "slow"] value NUMBER
+    inst [2 or "timeout"] value NEGATIVE NUMBER
+
+shping.time.cpu_usr
+    inst [0 or "null"] value NUMBER
+    inst [1 or "slow"] value NUMBER
+    inst [2 or "timeout"] value NEGATIVE NUMBER
+
+shping.time.cpu_sys
+    inst [0 or "null"] value NUMBER
+    inst [1 or "slow"] value NUMBER
+    inst [2 or "timeout"] value NEGATIVE NUMBER
+
+=== remove shping agent ===
+Culling the Performance Metrics Name Space ...
+shping ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check shping metrics have gone away ... OK

@@ -1,0 +1,82 @@
+#! /bin/sh
+# PCP QA Test No. 564
+# exercise archive compression thru pmlogger_daily
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+
+_cleanup()
+{
+    [ -d $tmp.distdir ] && rm -fr $tmp.distdir
+    [ -d $tmp.relaydir ] && rm -fr $tmp.relaydir
+    rm -f $tmp.*
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# create test control file, directories and populate with dummy archives
+cat >$tmp.ctl<<EOF
+\$version=1.1
+#Host           P?  S?  directory       args
+dist.engr       n   n   $tmp.distdir    -c config.default
+relay.engr      n   n   $tmp.relaydir   -c config.default
+EOF
+
+mkdir -p $tmp.distdir $tmp.relaydir
+
+# some archives for today...
+TODAY=`pmdate %Y%m%d.0`
+cp $tmp.ctl $tmp.distdir/$TODAY.0
+cp $tmp.ctl $tmp.distdir/$TODAY.meta
+cp $tmp.ctl $tmp.distdir/$TODAY.index
+cp $tmp.ctl $tmp.relaydir/$TODAY.0
+cp $tmp.ctl $tmp.relaydir/$TODAY.meta
+cp $tmp.ctl $tmp.relaydir/$TODAY.index
+
+# some archives for a five days ago...
+FIVEDAYS=`pmdate -5d %Y%m%d.0`
+cp $tmp.ctl $tmp.distdir/$FIVEDAYS.0
+cp $tmp.ctl $tmp.distdir/$FIVEDAYS.meta
+cp $tmp.ctl $tmp.distdir/$FIVEDAYS.index
+cp $tmp.ctl $tmp.relaydir/$FIVEDAYS.0
+cp $tmp.ctl $tmp.relaydir/$FIVEDAYS.1
+cp $tmp.ctl $tmp.relaydir/$FIVEDAYS.meta
+cp $tmp.ctl $tmp.relaydir/$FIVEDAYS.index
+cp $tmp.ctl $tmp.relaydir/mumble
+cp $tmp.ctl $tmp.relaydir/mumble.0
+STAMP=`pmdate -5d %Y%m%d`0010
+touch -t "$STAMP" $tmp.*/$FIVEDAYS.* $tmp.relaydir/mumble*
+
+# some archives for five months ago...
+FIVEMONTHS=`pmdate -5m %Y%m%d.0`
+cp $tmp.ctl $tmp.distdir/$FIVEMONTHS.0
+cp $tmp.ctl $tmp.distdir/$FIVEMONTHS.meta
+cp $tmp.ctl $tmp.distdir/$FIVEMONTHS.index
+cp $tmp.ctl $tmp.relaydir/$FIVEMONTHS.0
+cp $tmp.ctl $tmp.relaydir/$FIVEMONTHS.meta
+cp $tmp.ctl $tmp.relaydir/$FIVEMONTHS.index
+STAMP=`pmdate -5m %Y%m%d`0010
+touch -t "$STAMP" $tmp.*/$FIVEMONTHS.*
+
+# real QA test starts here
+pmlogger_daily -V -N -x 3 -X bzip2 -c $tmp.ctl | sed \
+	-e "s/$TODAY/TODAY/g" \
+	-e "s/$FIVEDAYS/FIVEDAYS/g" \
+	-e "s/$FIVEMONTHS/FIVEMONTHS/g" \
+	-e "s/$$/PID/g" \
+	-e '/Warning: no archives found to merge/d' \
+	-e "s;/private/;/;g" \
+	-e "s,/var/tmp,TMP,g" \
+	-e "s,/tmp,TMP,g" \
+
+# success, all done
+status=0
+exit

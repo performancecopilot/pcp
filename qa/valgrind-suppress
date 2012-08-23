@@ -1,0 +1,171 @@
+# to add to these, run the failing case with
+# valgrind --leak-check=full --suppressions=valgrind-suppress --gen-suppressions=yes ...
+#
+# I see different results on Ubuntu 10.10 depending if the binaries
+# are build by Makepkgs or build and installed from a source repository
+# which probably a compiler flags issue
+# - Ken
+#
+{
+   posix_formatter calls putenv debug binaries
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:posix_formatter
+   fun:__pmConfig
+   fun:pmGetConfig
+   fun:getfname
+   fun:load
+   fun:pmLoadNameSpace
+   fun:*
+}
+
+{
+   posix_formatter calls putenv for packaged binaries
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   obj:/usr/lib/libpcp.so*
+   fun:__pmConfig
+   fun:pmGetConfig
+   obj:/usr/lib/libpcp.so*
+   obj:/usr/lib/libpcp.so*
+   fun:pmLoadNameSpace
+   fun:*
+}
+
+{
+   posix_formatter calls putenv for CentOS 5.6 binaries
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:posix_formatter
+   fun:__pmConfig
+   fun:pmGetConfig
+   fun:build_dsotab
+   fun:__pmConnectLocal
+   fun:pmNewContext
+   fun:main
+}
+
+{
+   pthreads initialization from pmLoadNameSpace
+   Memcheck:Cond
+   fun:pthread_mutex_init
+   fun:pthread_mutex_init
+   fun:__pmInitLocks
+   fun:pmLoadNameSpace
+   fun:main
+}
+
+{
+   pthreads initialization from pmNewContext
+   Memcheck:Cond
+   fun:pthread_mutex_init
+   fun:pthread_mutex_init
+   fun:__pmInitLocks
+   fun:pmNewContext
+   fun:main
+}
+
+{
+   pthreads initialization from pmNewContext with PM_CONTEXT_LOCAL
+   Memcheck:Cond
+   fun:pthread_mutex_init
+   fun:pthread_mutex_init
+   fun:__pmInitLocks
+   fun:pmNewContext
+   obj:*
+   fun:(below main)
+}
+
+{
+   CentOS 5.6 dlopen -> expand_dynamic_string_token
+   Memcheck:Leak
+   fun:malloc
+   fun:expand_dynamic_string_token
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.1
+   fun:__pmConnectLocal
+   fun:pmNewContext
+}
+
+{
+   CentOS 5.6 dlopen -> _dl_new_object
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.1
+   fun:__pmConnectLocal
+}
+
+{
+   CentOS 5.6 dlopen -> _dl_map_object_deps
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.1
+   fun:__pmConnectLocal
+   fun:pmNewContext
+   fun:main
+}
+
+{
+   CentOS 5.6 dlopen -> _dl_check_map_versions
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_check_map_versions
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.1
+   fun:__pmConnectLocal
+   fun:pmNewContext
+   fun:main
+}
+
+{
+   valgrind-3.7.0 in 64-bit Debian 6.0.5 _dl_start -> index
+   Memcheck:Cond
+   fun:index
+   fun:expand_dynamic_string_token
+   fun:_dl_map_object
+   fun:map_doit
+   fun:_dl_catch_error
+   fun:do_preload
+   fun:dl_main
+   fun:_dl_sysdep_start
+   fun:_dl_start
+   obj:*
+}
+
+{
+   openSUSE 12.1 strlen() Conditional jump or move depends on uninitialised value(s)
+   Memcheck:Cond
+   fun:strlen
+   obj:*
+}
+

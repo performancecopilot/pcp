@@ -64,8 +64,14 @@ int
 __pmDecodeLogRequest(const __pmPDU *pdubuf, int *type)
 {
     const notify_t	*pp;
+    const char		*pduend;
 
     pp = (const notify_t *)pdubuf;
+    pduend = (const char *)pdubuf + pp->hdr.len;
+
+    if (pduend - (char*)pp < sizeof(notify_t))
+	return PM_ERR_IPC;
+
     *type = ntohl(pp->type);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU) {

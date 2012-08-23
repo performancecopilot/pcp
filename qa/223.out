@@ -1,0 +1,312 @@
+QA output created by 223
+=== PMNS_OLD does not exist ===
+Rebuilding the Performance Metrics Name Space (PMNS) in /tmp/PID/new ...
+Rebuild: PCP upgrade processing for migrated PMNS files ...
+Rebuild: PCP upgrade processing for "root" PMNS changes ...
+Rebuild: merging the following PMNS files: 
+root
+Rebuild: PMNS is unchanged.
+Exit status: 0
+PMNS_OLD pathname is: symlink
+PMNS_NEW contents:
+root
+root.bin
+Compiled PMNS contains
+	    1 hash table entries
+	    1 leaf nodes
+	    2 non-leaf nodes
+	   13 bytes of symbol table
+pminfo:
+foo.one PMID: 0.0.1
+
+=== PMNS_OLD is empty ===
+Rebuilding the Performance Metrics Name Space (PMNS) in /tmp/PID/new ...
+Rebuild: PCP upgrade processing for migrated PMNS files ...
+Relocating /tmp/PID/old files to /tmp/PID/new ...
+Rebuild: PCP upgrade processing for "root" PMNS changes ...
+Rebuild: merging the following PMNS files: 
+root
+Rebuild: PMNS is unchanged.
+Exit status: 0
+PMNS_OLD pathname is: directory
+PMNS_NEW contents:
+root
+root.bin
+Compiled PMNS contains
+	    1 hash table entries
+	    1 leaf nodes
+	    2 non-leaf nodes
+	   13 bytes of symbol table
+pminfo:
+foo.one PMID: 0.0.1
+
+=== PMNS_OLD contains scripts that can safely be nuked ===
+Rebuilding the Performance Metrics Name Space (PMNS) in /tmp/PID/new ...
+Rebuild: PCP upgrade processing for migrated PMNS files ...
+Relocating /tmp/PID/old files to /tmp/PID/new ...
+Rebuild: PCP upgrade processing for "root" PMNS changes ...
+Rebuild: merging the following PMNS files: 
+root
+Rebuild: PMNS is unchanged.
+Exit status: 0
+PMNS_OLD pathname is: directory
+PMNS_NEW contents:
+root
+root.bin
+Compiled PMNS contains
+	    1 hash table entries
+	    1 leaf nodes
+	    2 non-leaf nodes
+	   13 bytes of symbol table
+pminfo:
+foo.one PMID: 0.0.1
+
+=== PMNS_OLD contains files not in conflict with PMNS_NEW, copy them ===
+Rebuilding the Performance Metrics Name Space (PMNS) in /tmp/PID/new ...
+Rebuild: PCP upgrade processing for migrated PMNS files ...
+Relocating /tmp/PID/old files to /tmp/PID/new ...
+Warning: the following new PMNS files may have to be merged ...
+    root.N
+Rebuild: PCP upgrade processing for "root" PMNS changes ...
+Rebuild: merging the following PMNS files: 
+root
+Rebuild: PMNS is unchanged.
+Exit status: 0
+PMNS_OLD pathname is: directory
+PMNS_NEW contents:
+root
+root.N
+root.bin
+urk
+urk.O
+xxx
+Compiled PMNS contains
+	    1 hash table entries
+	    1 leaf nodes
+	    2 non-leaf nodes
+	   13 bytes of symbol table
+pminfo:
+foo.one PMID: 0.0.1
+
+=== files in PMNS_OLD and PMNS_NEW are identical ===
+Rebuilding the Performance Metrics Name Space (PMNS) in /tmp/PID/new ...
+Rebuild: PCP upgrade processing for migrated PMNS files ...
+Relocating /tmp/PID/old files to /tmp/PID/new ...
+Warning: the following new PMNS files may have to be merged ...
+    xxx.N
+Rebuild: PCP upgrade processing for "root" PMNS changes ...
+Rebuild: merging the following PMNS files: 
+root
+Rebuild: PMNS is unchanged.
+Exit status: 0
+PMNS_OLD pathname is: directory
+PMNS_NEW contents:
+root
+root.bin
+xxx
+xxx.N
+yyy
+yyy.O
+Compiled PMNS contains
+	    1 hash table entries
+	    2 leaf nodes
+	    4 non-leaf nodes
+	   27 bytes of symbol table
+pminfo:
+extra.xxx.two PMID: 0.0.3
+extra.yyy.two PMID: 0.0.4
+
+=== salvage useful stuff from PMNS_OLD ===
+Exit status: N/A
+PMNS_OLD pathname is: directory
+PMNS_NEW contents:
+root
+yyy
+yyy.O
+Rebuilding the Performance Metrics Name Space (PMNS) in /tmp/PID/new ...
+Rebuild: PCP upgrade processing for migrated PMNS files ...
+Relocating /tmp/PID/old files to /tmp/PID/new ...
+Warning: the following new PMNS files may have to be merged ...
+    xxx.N
+Rebuild: PCP upgrade processing for "root" PMNS changes ...
+Rebuild: merging the following PMNS files: 
+root
+Rebuild: PMNS is unchanged.
+Exit status: 0
+PMNS_OLD pathname is: directory
+PMNS_NEW contents:
+root
+root.bin
+xxx
+xxx.N
+yyy
+yyy.O
+Compiled PMNS contains
+	    1 hash table entries
+	    2 leaf nodes
+	    4 non-leaf nodes
+	   27 bytes of symbol table
+pminfo:
+extra.xxx.two PMID: 0.0.3
+extra.yyy.two PMID: 0.0.4
+
+=== hard cases ===
+Exit status: N/A
+PMNS_OLD pathname is: directory
+PMNS_NEW contents:
+root
+xxx
+xxx.N
+yyy
+yyy.O
+Compiled PMNS contains
+	    1 hash table entries
+	    2 leaf nodes
+	    4 non-leaf nodes
+	   27 bytes of symbol table
+pminfo:
+extra.xxx.two PMID: 0.0.3
+extra.yyy.two PMID: 0.0.4
+Rebuilding the Performance Metrics Name Space (PMNS) in /tmp/PID/new ...
+Rebuild: PCP upgrade processing for migrated PMNS files ...
+Relocating /tmp/PID/old files to /tmp/PID/new ...
+Warning: the following new PMNS files may have to be merged ...
+    xxx.N yyy.N
+Rebuild: PCP upgrade processing for "root" PMNS changes ...
+Rebuild: merging the following PMNS files: 
+root
+Rebuild: PMNS is unchanged.
+Exit status: 0
+PMNS_OLD pathname is: directory
+PMNS_NEW contents:
+root
+root.bin
+xxx
+xxx.N
+xxx.O
+yyy
+yyy.N
+yyy.O
+Compiled PMNS contains
+	    1 hash table entries
+	    2 leaf nodes
+	    4 non-leaf nodes
+	   29 bytes of symbol table
+pminfo:
+extra.xxx.two PMID: 0.0.3
+extra.yyy.three PMID: 0.0.4
+
+=== PMNS_OLD is a file (error) ===
+Rebuilding the Performance Metrics Name Space (PMNS) in /tmp/PID/new ...
+Rebuild: PCP upgrade processing for migrated PMNS files ...
+Rebuild: "/tmp/PID/old" is neither a directory nor a symbolic link, cannot proceed
+Exit status: 1
+PMNS_OLD pathname is: file
+PMNS_NEW contents:
+root
+Compiled PMNS contains
+	    1 hash table entries
+	    1 leaf nodes
+	    2 non-leaf nodes
+	   13 bytes of symbol table
+pminfo:
+foo.one PMID: 0.0.1
+
+=== www.orphan, xxx.N and yyy.O in both places, waste the ones from PMNS_OLD ===
+Exit status: N/A
+PMNS_OLD pathname is: directory
+PMNS_NEW contents:
+root
+www.orphan
+xxx
+xxx.N
+yyy
+yyy.O
+Compiled PMNS contains
+	    1 hash table entries
+	    2 leaf nodes
+	    4 non-leaf nodes
+	   27 bytes of symbol table
+pminfo:
+extra.xxx.two PMID: 0.0.3
+extra.yyy.two PMID: 0.0.4
+Rebuilding the Performance Metrics Name Space (PMNS) in /tmp/PID/new ...
+Rebuild: PCP upgrade processing for migrated PMNS files ...
+Relocating /tmp/PID/old files to /tmp/PID/new ...
+Warning: the following new PMNS files may have to be merged ...
+    www.orphan.N xxx.N
+Rebuild: PCP upgrade processing for "root" PMNS changes ...
+Rebuild: merging the following PMNS files: 
+root
+Rebuild: PMNS is unchanged.
+Exit status: 0
+PMNS_OLD pathname is: directory
+PMNS_NEW contents:
+root
+root.bin
+www.orphan
+www.orphan.N
+xxx
+xxx.N
+yyy
+yyy.O
+Compiled PMNS contains
+	    1 hash table entries
+	    2 leaf nodes
+	    4 non-leaf nodes
+	   27 bytes of symbol table
+pminfo:
+extra.xxx.two PMID: 0.0.3
+extra.yyy.two PMID: 0.0.4
+
+=== orphan (saveme) in PMNS_OLD ===
+Rebuilding the Performance Metrics Name Space (PMNS) in /tmp/PID/new ...
+Rebuild: PCP upgrade processing for migrated PMNS files ...
+Relocating /tmp/PID/old files to /tmp/PID/new ...
+Rebuild: PCP upgrade processing for "root" PMNS changes ...
+Rebuild: merging the following PMNS files: 
+root
+Rebuild: PMNS is unchanged.
+Exit status: 0
+PMNS_OLD pathname is: directory
+PMNS_NEW contents:
+root
+root.bin
+saveme
+Compiled PMNS contains
+	    1 hash table entries
+	    1 leaf nodes
+	    2 non-leaf nodes
+	   13 bytes of symbol table
+pminfo:
+foo.one PMID: 0.0.1
+
+=== nested decls, a la DBMS PMDAS ===
+Rebuilding the Performance Metrics Name Space (PMNS) in /tmp/PID/new ...
+Rebuild: PCP upgrade processing for migrated PMNS files ...
+Relocating /tmp/PID/old files to /tmp/PID/new ...
+Rebuild: PCP upgrade processing for "root" PMNS changes ...
+Rebuild: merging the following PMNS files: 
+root
+Rebuild: PMNS is unchanged.
+Exit status: 0
+PMNS_OLD pathname is: directory
+PMNS_NEW contents:
+dummy
+extra
+root
+root.bin
+xxx
+yyy
+Compiled PMNS contains
+	    7 hash table entries
+	    6 leaf nodes
+	    6 non-leaf nodes
+	   63 bytes of symbol table
+pminfo:
+extra.xxx.one PMID: 0.1.1
+extra.xxx.special.two PMID: 0.1.2
+extra.xxx.special.three PMID: 0.1.3
+extra.yyy.one PMID: 0.2.1
+extra.yyy.special.two PMID: 0.2.2
+extra.yyy.special.three PMID: 0.2.3

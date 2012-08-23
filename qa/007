@@ -1,0 +1,26 @@
+#! /bin/sh
+# PCP QA Test No. 007
+# exercise optFetch routines
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# optfetch routines use hashing on PMID and so the exact configuration
+# of the pmFetch groups is sensitive to endian-ness ... hence the
+# filter for a range of computed costs.
+src/chkoptfetch \
+| tee $seq.full \
+| $PCP_AWK_PROG '
+/re-arrangement/	{ if ($5 == "1," || $5 == "2,") $5="1 or 2,"
+			  if ($NF >= 62 && $NF <= 84) $NF = "[in range]"
+			}
+			{ print }'

@@ -1,0 +1,88 @@
+#! /bin/sh
+# PCP QA Test No. 153
+# Check out pmafm/mkaf changes to no longer use file(1)
+#
+# Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+rm -rf $tmp
+mkdir $tmp
+cp src/bar.* $tmp
+cd $tmp
+mkdir foo
+cp bar.* foo
+
+_filter()
+{
+    sed \
+	-e 's/\(Created: on \).*/\1 .../' \
+	-e 's/pmchart/kmchart/' \
+    | $PCP_AWK_PROG '
+$1 == "Archive:"	{ $2 = "somehost" }
+$1 == "Host:"		{ $2 = "somehost" }
+$2 ~ /[0-9]]$/		{ $3 = "somehost" }
+			{ print }'
+
+}
+
+# real QA test starts here
+
+# ok with simple files
+mkaf bar.* >f_ok
+_filter <f_ok
+
+# no such file
+echo
+mkaf bar >f_bad
+[ -f f_bad ] && _filter <f_bad
+
+# bad files ... short, not-archive
+echo
+touch short
+echo "i am not a PCP archive" >not-archive
+mkaf short not-archive >f_bad
+[ -f f_bad ] && _filter <f_bad
+echo
+mkaf * >f_ok
+[ -f f_ok ] && _filter <f_ok
+
+# should skip all but archives
+echo
+mkaf . >f_ok
+_filter <f_ok
+
+# pmafm tests
+
+# ok
+echo
+echo run pminfo -d sampledso.bin | pmafm f_ok | _filter
+
+# one missing file
+echo
+cp f_ok f_bad
+mv bar.meta oops.meta
+echo run pminfo -d sampledso.bin | pmafm f_bad | _filter
+mv oops.meta bar.meta
+
+# one bad file
+echo
+mv foo/bar.0 oops.0
+cp not-archive foo/bar.0
+echo run pminfo -d sampledso.bin | pmafm f_bad | _filter
+mv oops.0 foo/bar.0
+
+
+# success, all done
+exit

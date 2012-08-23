@@ -1,0 +1,58 @@
+#! /bin/sh
+# PCP QA Test No. 060
+# changes in the semantics of the default context
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/dump from.*/dump from .../' \
+    | $PCP_AWK_PROG '
+/value/	{ for (i = 1; i < NF; i++)
+	    printf "%s ",$i
+	  if (val == 0) {
+	    print "VALUE"
+	    val = $NF
+	  }
+	  else {
+	    delta = $NF-val
+	    if (delta == 1)
+		print "LAST VALUE + 1"
+	    else
+		print "SOME OTHER VALUE"
+	  }
+	  next
+	}
+	{ print }'
+}
+
+# real QA test starts here
+echo "default ..."
+src/defctx 2>&1 | _filter
+
+echo ""
+echo "explicit host context ..."
+src/defctx -h localhost 2>&1 | _filter
+
+echo ""
+echo "explicit archive context ..."
+src/defctx -a src/foo 2>&1 | _filter
+
+echo ""
+echo "explicit multi-volume archive context ..."
+src/defctx -a src/mv-foo 2>&1 | _filter
+
+echo ""
+echo "explicit no index archive context ..."
+src/defctx -a src/noti-foo 2>&1 | _filter

@@ -1,0 +1,77 @@
+#! /bin/sh
+# PCP QA Test No. 320
+# check out user-added pmafm control files
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3600 ]
+then
+    # V1 archives supported
+    arch=src/951127.23.01
+    ln $seq.out.1 $seq.out
+else
+    # no support for V1 archives
+    arch=src/951127.23.01_v2
+    ln $seq.out.2 $seq.out
+fi
+
+status=1	# failure is the default!
+trap "rm -f $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+HOME=`cd $HOME; pwd`
+
+_filter()
+{
+    sed -e "s;`pwd`;HERE;g" \
+    | $PCP_AWK_PROG '
+$1 == "Host:"	{ $2 = "HOST" }
+		{ print }' \
+    | ./xlate_2_new_pmns
+}
+
+if [ ! -d $HOME/.pcp/pmafm ]
+then
+    mkdir -p $HOME/.pcp/pmafm
+    if [ ! -d $HOME/.pcp/pmafm ]
+    then
+	echo "Arrgh ... cannot make directory \"$HOME/.pcp/pmafm\""
+	exit
+    fi
+fi
+
+rm -f  $HOME/.pcp/pmafm/qa.$seq
+if [ -f $HOME/.pcp/pmafm/qa.$seq ]
+then
+    echo "Arrgh ... cannot remove \"$HOME/.pcp/pmafm/qa.$seq\""
+    exit
+fi
+
+echo 'SINGLE="pmclient pmlogcheck"' >$HOME/.pcp/pmafm/qa.$seq
+echo "SPECIAL=pmlogcheck" >>$HOME/.pcp/pmafm/qa.$seq
+
+# real QA test starts here
+
+echo "Running pmlogcheck ... expect no errors"
+mkaf `pwd`/src/foo.* >$tmp
+pmafm $tmp run pmlogcheck 2>&1 | _filter
+rm -f $tmp
+
+echo
+echo "Running pmclient ... expect error from pmclient once pmafm starts it"
+mkaf `pwd`/$arch.* >$tmp
+pmafm $tmp run pmclient -n src/root_irix 2>&1 | _filter
+rm -f $tmp
+
+# success, all done
+status=0
+exit

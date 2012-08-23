@@ -1,0 +1,179 @@
+#! /bin/sh
+# PCP QA Test No. 120
+#
+# Verify some irix.resource.efs metrics
+#
+# See the instructions below for updating expected ranges (search for NOTE)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+rm -rf $tmp.*
+
+# Find an efs filesystem ... if you do not have one, abandon ship
+#
+efs=`df 2>/dev/null \
+	| grep -v CDROM \
+	| $PCP_AWK_PROG ' $2 == "efs"	{ print $NF; exit }'`
+
+if [ "X$efs" = "X" ]
+then
+    # not much you can do if no EFS filesystem found ...
+    sed 1d <$seq.out
+    exit 0
+fi
+
+[ ! -d $efs/$$ ] && $sudo mkdir $efs/$$
+$sudo chmod 777 $efs/$$
+
+trap "$sudo rm -rf $tmp.* $efs/$$" 0 1 2 3 15
+#
+# real QA starts here
+
+# Don't change this lightly---the DELTAS will require tuning
+#
+nfiles=250
+
+# Find	metric values and metric names in $tmp.vals.1
+#
+pminfo -f irix.resource.efs \
+    | $PCP_AWK_PROG '
+	/^$/		{ next }
+	/^No val/	{ next }
+	/^irix./	{ metric = $1 }
+	/ value /	{ print metric, $2 }
+			{ next } ' \
+    | LC_COLLATE=POSIX sort \
+    > $tmp.vals.1
+
+# Generate some efs activity
+#
+cd $efs/$$
+$here/src/mkfiles xxx $nfiles
+
+# Get the new values of the metrics
+pminfo -f irix.resource.efs \
+    | $PCP_AWK_PROG '
+	/^$/		{ next }
+	/^No val/	{ next }
+	/^irix./	{ metric = $1 }
+	/ value /	{ print metric, $2 }
+			{ next } ' \
+    | LC_COLLATE=POSIX sort \
+    > $tmp.vals.2
+
+# clean up mkfiles' handiwork
+#
+cd $here
+if $sudo rm -rf $efs/$$
+then
+    :
+else
+    echo "Error removing files to exercise efs from $efs/$$"
+    exit 1
+fi
+
+# Create and execute a shell script which computes the differences between
+# the efs metrics and displays the equivalent of
+#	 printf("%d\t%s", delta, metric_name)
+#
+echo '#!/bin/sh' >$tmp.sh
+join -j 1 -o 2.2 1.2 1.1 -e ERR $tmp.vals.1 $tmp.vals.2 \
+    | $PCP_AWK_PROG '{ printf "echo %s `expr %d - %d`\n", $3, $1, $2 }' \
+    >> $tmp.sh
+sh $tmp.sh >$tmp.delta
+
+# NOTE : how to update the expected value ranges
+# When new metrics appear use this to determine what resonable differences
+# may be expected:
+#
+# echo "DELTAS:"
+# cat $tmp.delta
+# echo ""
+
+# Here is where to paste the new values AFTER adjusting them to multiples of
+# the expected minimum delta (nfiles).  Values less than the minimum delta
+# should NOT appear.
+#
+# Things to beware of!
+#
+# 1. Use only nondeterministic metrics.  Some metrics rely on kernel data
+# structures which may or not be populated with the "right" objects when the
+# test is run e.g. things like "allocated from free list" vs "allocated new".
+#
+# 2. Different versions of the kernel may have different paths through the
+# statistics gathering code.  Be conservative in the minima you set below.
+# The test must work on all of them.  If possible, try on a variety of kernels.
+# E.g. if x.y.z returns 758 on IRIX 6.1 and 516 on IRIX 5.3 the minimum should
+# be set to 500.
+#
+# 3. Use a quiescent system!
+#
+# DO NOT INCREASE THESE FIGURES WITHOUT CHECKING THE OUTPUT ON 5.3 and 6.1
+#
+# Nondeterministic metrics zeroed in list below:
+#	bmapfbc, itobpf, found
+#
+cat >$tmp.delta.expect <<END
+irix.resource.efs.attempts      250
+irix.resource.efs.attrchg       0
+irix.resource.efs.bmapfbc       0
+irix.resource.efs.bmapfbm       0
+irix.resource.efs.bmaprd        250
+irix.resource.efs.dirupd        250
+irix.resource.efs.dup           0
+irix.resource.efs.found         0
+irix.resource.efs.frecycle      0
+irix.resource.efs.ialloccoll    0
+irix.resource.efs.iallocrd      250
+irix.resource.efs.iallocrdf     250
+irix.resource.efs.icreat        250
+irix.resource.efs.itobp         500
+irix.resource.efs.itobpf        0
+irix.resource.efs.iupacc        250
+irix.resource.efs.iupchg        500
+irix.resource.efs.iupdat        500
+irix.resource.efs.iupmod        0
+irix.resource.efs.iupunk        0
+irix.resource.efs.iupupd        500
+irix.resource.efs.missed        0
+irix.resource.efs.reclaims      0
+irix.resource.efs.truncs        0
+END
+
+LC_COLLATE=POSIX sort $tmp.delta.expect | sed -e 's/[	 ][ 	]*/ /' >$tmp.filtered
+mv $tmp.filtered $tmp.delta.expect
+
+# Now generate and run another shell script to compare the observed deltas
+# with the expected ones
+#
+echo '#!/bin/sh' >$tmp.delta.sh
+echo 'sts=0' >>$tmp.delta.sh
+join -j 1 -o 1.2 2.2 1.1 $tmp.delta $tmp.delta.expect \
+    | tee $tmp.join \
+    | $PCP_AWK_PROG '{
+	      printf "[ %d -lt %d ]", $1, $2;
+	      printf " && sts=1 && " ;
+	      printf "echo \"%s: got %d expected min %d\"\n", $3, $1, $2;
+	   } ' \
+    >>$tmp.delta.sh
+echo 'exit $sts' >>$tmp.delta.sh
+
+# For debuging use sh -x
+#
+if sh $tmp.delta.sh
+then
+    :
+else
+    echo ""
+    echo "irix.resource.efs: one or more metrics failed range tests"
+    exit 1
+fi
+exit 0

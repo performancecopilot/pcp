@@ -1,0 +1,33 @@
+QA output created by 592
+sample.many.count [number of instances in sample.many.int's domain]
+sample.many.int [variable sized instance domain]
+
+sample.many.count
+    value 5
+
+sample.many.int
+    inst [0 or "i-0"] value 0
+    inst [1 or "i-1"] value 1
+    inst [2 or "i-2"] value 2
+    inst [3 or "i-3"] value 3
+    inst [4 or "i-4"] value 4
+sample.many.count old value=5 new value=13
+
+sample.many.count
+    value 13
+
+sample.many.int
+    inst [0 or "i-0"] value 0
+    inst [1 or "i-1"] value 1
+    inst [2 or "i-2"] value 2
+    inst [3 or "i-3"] value 3
+    inst [4 or "i-4"] value 4
+    inst [5 or "i-5"] value 5
+    inst [6 or "i-6"] value 6
+    inst [7 or "i-7"] value 7
+    inst [8 or "i-8"] value 8
+    inst [9 or "i-9"] value 9
+    inst [10 or "i-10"] value 10
+    inst [11 or "i-11"] value 11
+    inst [12 or "i-12"] value 12
+sample.many.count old value=13 new value=5

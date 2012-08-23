@@ -140,45 +140,35 @@ DoText(ClientInfo *cp, __pmPDU* pb)
 int
 DoProfile(ClientInfo *cp, __pmPDU *pb)
 {
-    int		sts;
     __pmProfile	*newProf;
-    int		ctxnum;
+    int		ctxnum, sts, i;
 
     sts = __pmDecodeProfile(pb, &ctxnum, &newProf);
     if (sts >= 0) {
-	int i;
-
-	if (ctxnum < 0) {
-	    __pmNotifyErr(LOG_ERR, "DoProfile: bad ctxnum = %d\n", ctxnum);
-	    __pmFreeProfile(newProf);
-	    return PM_ERR_NOCONTEXT;
-	}
-
 	/* Allocate more profile pointers if required */
 	if (ctxnum >= cp->szProfile) {
-	    int		oldSize = cp->szProfile;
 	    __pmProfile	**newProfPtrs;
-	    unsigned	n;
+	    int		need, oldSize = cp->szProfile;
 
 	    if (ctxnum - cp->szProfile < 4)
 		cp->szProfile += 4;
 	    else
 		cp->szProfile = ctxnum + 1;
-	    n = cp->szProfile * (int)sizeof(__pmProfile *);
-	    if ((newProfPtrs = (__pmProfile **)malloc(n)) == NULL) {
+	    need = cp->szProfile * (int)sizeof(__pmProfile *);
+	    if ((newProfPtrs = (__pmProfile **)malloc(need)) == NULL) {
 		cp->szProfile = oldSize;
-		__pmNoMem("DoProfile.newProfPtrs", n, PM_RECOV_ERR);
+		__pmNoMem("DoProfile.newProfPtrs", need, PM_RECOV_ERR);
 		__pmFreeProfile(newProf);
 		return -oserror();
 	    }
 
 	    /* Copy any old pointers and zero the newly allocated ones */
-	    if ((n = oldSize * (int)sizeof(__pmProfile *))) {
-		memcpy(newProfPtrs, cp->profile, n);
+	    if ((need = oldSize * (int)sizeof(__pmProfile *))) {
+		memcpy(newProfPtrs, cp->profile, need);
 		free(cp->profile);	/* But not the __pmProfile ptrs! */
 	    }
-	    n = (cp->szProfile - oldSize) * (int)sizeof(__pmProfile *);
-	    memset(&newProfPtrs[oldSize], 0, n);
+	    need = (cp->szProfile - oldSize) * (int)sizeof(__pmProfile *);
+	    memset(&newProfPtrs[oldSize], 0, need);
 	    cp->profile = newProfPtrs;
 	}
 	else				/* cp->profile is big enough */
@@ -282,7 +272,7 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
 int
 DoInstance(ClientInfo *cp, __pmPDU* pb)
 {
-    int			sts = 0, s;
+    int			sts, s;
     __pmTimeval		when;
     pmInDom		indom;
     int			inst;
@@ -291,7 +281,9 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
     AgentInfo		*ap;
     int			fdfail = -1;
 
-    __pmDecodeInstanceReq(pb, &when, &indom, &inst, &name);
+    sts = __pmDecodeInstanceReq(pb, &when, &indom, &inst, &name);
+    if (sts < 0)
+	return sts;
     if (when.tv_sec != 0 || when.tv_usec != 0) {
 	/*
 	 * we have no idea how to do anything but current, yet!

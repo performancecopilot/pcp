@@ -1,0 +1,15 @@
+QA output created by 125
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    kernel.all.cpu.idle
+archive:   src/kenj-pc-1
+host:      kenj-pc
+start:     Sun Feb  8 15:28:30 2004
+end:       Sun Feb  8 15:28:46 2004
+semantics: cumulative counter (converting to rate)
+units:     millisec (converting to time utilization)
+samples:   2
+interval:  15.00 sec
+15:28:45.729     0.8971
+
+__pmLogRead calls: 23

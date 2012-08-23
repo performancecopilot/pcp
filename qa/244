@@ -1,0 +1,252 @@
+#! /bin/sh
+# PCP QA Test No. 244
+# PMCD SIGHUP processing tests with $PCP_PMCDCONF_PATH changes
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+. ./localconfig
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+#
+# Use a different port to avoid interference by remote monitors
+#
+PMCD_PORT=5432
+export PMCD_PORT
+
+_filter_log()
+{
+    sleep 3
+    _filter_pmcd_log <./pmcd.log \
+    | sed \
+	-e '/^DATA: from client/d' \
+	-e '/cmd=.*pmdasample/s//cmd=...pmdasample/' \
+	-e 's/ \[(nil)]//' \
+	-e 's/Cannot open 000000660066: No such file or directory//' \
+	-e 's/^$//' \
+	-e '/^00[08]:/d' \
+	-e '/started PMDA ora_/d' \
+	-e '/cmd=\/usr\/pcp\/lib\/pmdaoracle7/d' \
+	-e '/started PMDA watch/d' \
+	-e '/cmd=\/usr\/pcp\/lib\/pmdawatch/d' \
+	-e '/pmGetPDU/{
+s/\[[0-9][0-9]*]/[PID]/
+s/from=.*/from=PID/
+}' \
+	-e '/_pmHaveMoreInput/{
+s/\[[0-9][0-9]*]/[PID]/
+s/0x[^ ]*\([^ ][^ ][^ ]\)/ADDR...\1/
+}' \
+	-e '/Piggy-back/{
+s/0x[^ ]*\([^ ][^ ][^ ]\)/ADDR...\1/
+s/from=.*/from=PID/
+}' \
+	-e '/pmXmitPDU/s/\[[0-9][0-9]*]/[PID]/' \
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e '/value /{
+s/value [0-9][0-9]*/value INTEGER/
+}' \
+	-e 's;pcp/lib/mips_[^.]*\.;pcp/lib/ISA.;' \
+	-e '/access violation from host/d' \
+	-e '/endclient client.* No permission/d' \
+	-e '/localhost/s/ [0-9a-f][0-9a-f][0-9a-f]* / MYIPADDR /' \
+	-e 's/fd=[0-9][0-9]*/fd=FD/g' \
+	-e "/sed: couldn't flush stdout: Broken pipe/d" \
+    | $PCP_AWK_PROG '
+$3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
+$1 == "news"		{ $4 = "fd_in"; $5 = "fd_out" }
+$1 == "cisco"		{ $4 = "fd_in"; $5 = "fd_out"
+			  for (i = 9; i <= NF; i++) {
+			    # cull args like wanfoo:s0 or wanbar:e1
+			    if ($i ~ /:[a-z]/) $i = ""
+			  }
+			}
+/pipe cmd=/		{ $4 = "FD"; $5 = "FD" }
+			{ print }' \
+    | _filter_optional_pmdas \
+    | sed \
+	-e 's/_o32/_SIZE/' \
+	-e 's/_n32/_SIZE/' \
+	-e 's/_64/_SIZE/'
+}
+
+CONFIG=$PCP_PMCDCONF_PATH
+NEWCONFIG=$tmp/pmcd.conf
+CONFIGSAVE=$tmp/pmcd.conf.save
+[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+LOGCONTROL=$PCP_PMLOGGERCONTROL_PATH
+SAVE_LOGCONTROL=$tmp/control.save
+signal=$PCP_BINADM_DIR/pmsignal
+_needclean=true
+
+# for local PMNS to avoid conflict with pmcd tests
+#
+NAMESPACE="-n $here/src/root_irix"
+
+rm -rf $tmp $tmp.*
+mkdir $tmp
+chmod ugo+rwx $tmp
+cd $tmp
+
+$sudo chmod u+w $CONFIG
+cp $CONFIG $CONFIGSAVE
+[ -f $LOGCONTROL ] && $sudo mv $LOGCONTROL $SAVE_LOGCONTROL
+
+cleanup()
+{
+    cd $here
+    if $_needclean
+    then
+	_needclean=false
+	$signal -s TERM $pmcd
+	sleep 1
+	$sudo rm -f $CONFIG
+	$sudo cp $CONFIGSAVE $CONFIG
+	$sudo chmod u-w $CONFIG
+	[ -f $SAVE_LOGCONTROL ] && $sudo mv $SAVE_LOGCONTROL $LOGCONTROL
+	_restore_loggers
+	echo "Restart and ping pmcd ..."
+	unset PMCD_PORT
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	pmprobe pmcd.control.debug
+	sleepers=`ps $PCP_PS_ALL_FLAGS | grep '[d]umb_pmda' | $PCP_AWK_PROG '$3 == 1 { print $2 }'`
+	[ ! -z "$sleepers" ] && $sudo $signal -s KILL $sleepers
+    fi
+    rm -rf $tmp $tmp.*
+}
+
+trap cleanup 0 1 2 3 15
+
+# real QA test starts here
+
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+$sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
+_disable_loggers
+$sudo $signal -a -s TERM pmie >/dev/null 2>&1
+
+# Make our own version of pmcd.conf with dummy agents that will time out.
+# Copy the pmcd PMDA from the original pmcd.conf so that we can check pmcd's
+# timeouts by storing into pmcd.control.timeout
+# NOTE: none of the domains should clash with the pmcd PMDA (domain 2) or the
+# sample agent (domain 254).  These agents will be appended to the file.
+#
+echo "fake_irix 1 pipe binary $here/src/dumb_pmda -d 1 fake_irix" >$NEWCONFIG
+echo "fake_sampledso 30 pipe binary $here/src/dumb_pmda -d 30 fake_sampledso" >>$NEWCONFIG
+echo "fake_cisco 5 pipe binary $here/src/dumb_pmda -d 5 fake_cisco" >>$NEWCONFIG
+echo "fake_linux 60 pipe binary $here/src/dumb_pmda -d 60 fake_linux" >>$NEWCONFIG
+grep pmda_pmcd $CONFIGSAVE | sed -e 's/[ 	][ 	]*/ /g' -e 's/[ 	]*$//' >>$NEWCONFIG
+echo "[access]" >>$NEWCONFIG
+echo "allow localhost : all;" >>$NEWCONFIG
+echo "disallow * : all;" >>$NEWCONFIG
+$sudo cp $NEWCONFIG $CONFIG
+
+echo '$PCP_PMCDCONF_PATH contains:'
+echo '<BEGIN>'
+sed <$CONFIG \
+    -e '/^pmcd/s; [^ ]*pmda_pmcd.'$DSO_SUFFIX'; ...pmda_pmcd.$DSO_SUFFIX;' \
+    -e "s;$here/src/;;"
+echo '<END>'
+
+# Note: start pmcd with -f so that its PID stays the same (no daemon)
+# Sleep briefly to allow it time to start
+#
+PATH=$here/src:$PATH
+export PATH
+$PCP_PMCD_PROG -f -t 2 &
+pmcd=$!
+# complete V1 PMDA timeouts, then wait for pmcd
+#
+sleep 12
+_wait_for_pmcd
+
+# If agent not restarted then both messages will be "no agent for domain..."
+#
+echo "Expect \"IPC protocol failure\" ..."
+pminfo $NAMESPACE -d hinv.ncpu
+
+# Now remove the fake_sampledso agent and add the sample agent from the
+# original config file and restart PMCD.
+# The config file has changed and there is also a dead agent to restart.
+#
+sed <$NEWCONFIG >$tmp.tmp \
+    -e '1{
+a \
+'"`grep pmdasample $CONFIGSAVE | sed -e 's/[ 	][ 	]*/ /g' -e 's/[ 	]*$//'`"'
+}' \
+    -e '/fake_sampledso/d'
+mv $tmp.tmp $NEWCONFIG
+$sudo cp $NEWCONFIG $CONFIG
+
+echo '$PCP_PMCDCONF_PATH now contains:'
+echo '<BEGIN>'
+sed <$CONFIG \
+    -e '/^pmcd/s; [^ ]*pmda_pmcd.'$DSO_SUFFIX'; ...pmda_pmcd.$DSO_SUFFIX;' \
+    -e '/^sample/s; [^ ]*pmdasample; ...pmdasample;' \
+    -e "s;$here/src/;;"
+echo '<END>'
+
+$signal -s HUP $pmcd
+_wait_for_pmcd
+
+echo "Expect \"Unknown or illegal metric identifier\" ..."
+pminfo $NAMESPACE -d sampledso.control
+echo "Expect \"IPC protocol failure\" ..."
+pminfo $NAMESPACE -d hinv.ncpu
+echo "Expect 9 values available ..."
+pmprobe $NAMESPACE -v sample.bin
+
+# Next, get the PID of the sample agent, copy the original config file back,
+# restart PMCD (the sample agent's config line will be unchanged) and check
+# that the sample agent has the same PID.
+# The bogus fake_sampledso agent should have been terminated because it is
+# no longer in the config file. 
+# That isn't enough to terminate the sleep agent.
+#
+echo
+echo "Deleting, adding and keeping agents test"
+sample=`pminfo $NAMESPACE -f sample.daemon_pid | $PCP_AWK_PROG '
+$1 == "value"	{ print $2 }
+'`
+sleep 1
+ps -edf | grep dumb_pmda | grep fake_cisco >/dev/null || echo "Error: phony fake_cisco agent died prematurely"
+
+$sudo cp $CONFIGSAVE $CONFIG
+
+$signal -s HUP $pmcd
+_wait_for_pmcd
+
+ps -edf | grep dumb_pmda | grep fake_cisco >/dev/null && echo "Error: phony fake_cisco agent still lives!"
+
+# Generate a PDU into the domain where the fake_sampledso agent used to be (#30 is
+# assumed to be the sampledso PMDA)
+#
+echo "Getting a desriptor from domain 30 (fake_sampledso agent had this domain)"
+pminfo $NAMESPACE -md sampledso.control
+
+# check pmdasample has same pid (not restarted)
+#
+sample2=`pminfo $NAMESPACE -f sample.daemon_pid | $PCP_AWK_PROG '
+$1 == "value"	{ print $2 }
+'`
+if [ "X$sample" != "X$sample2" ]
+then
+    echo "Sample agent needlessly restarted (pid changed from $sample to $sample2)"
+fi
+
+_filter_log \
+| sed \
+    -e "s;$here/src/;;" \
+    -e '/Cleanup "fake_linux" agent (dom 60): unconfigured/q'
+echo
+echo "..."

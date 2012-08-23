@@ -1,0 +1,28 @@
+#! /bin/sh
+# PCP QA Test No. 074
+# permuted pmids for pmFetch, across multiple PMDAs
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+rm -f $seq.out
+# proc metrics may not be available
+#
+if pminfo proc.nprocs >/dev/null 2>&1
+then
+    ln $seq.out.other $seq.out
+else
+    ln $seq.out.noproc $seq.out
+fi
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+src/permfetch sample kernel pmcd proc

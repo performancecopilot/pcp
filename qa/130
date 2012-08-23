@@ -1,0 +1,136 @@
+#! /bin/sh
+# PCP QA Test No. 130
+# Compare rpc.server metrics with what nfsstat reports
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+rm -f $seq.out
+if [ $PCP_PLATFORM != irix ]
+then
+    echo "TODO: Need to reconcile rpc.server metrics" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo checking PCP metric values against: nfsstat -rs
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
+
+# Don't bother about dupage
+# Not very popular and has a bug: pv#652216
+
+
+cat > $tmp.workload << \EOF
+ls -R /hosts/localhost/usr >/dev/null 2>/dev/null &
+KILL_PID=$!
+sleep 3
+$signal -s KILL $KILL_PID >/dev/null 2>&1
+EOF
+chmod u+x $tmp.workload
+
+$tmp.workload >/dev/null 2>&1
+sleep 2
+
+# Example Output:
+# > pminfo -f rpc.server
+# 
+# rpc.server.badcalls
+#     value 0
+# 
+# rpc.server.badlen
+#     value 0
+# 
+# rpc.server.calls
+#     value 111217257
+# 
+# rpc.server.duphits
+#     value 426
+# 
+# rpc.server.nullrecv
+#     value 11687166
+# 
+# rpc.server.xdrcall
+#     value 0
+# 
+# > nfsstat -rs
+# 
+# Server RPC:
+# calls      badcalls   nullrecv   badlen     xdrcall    duphits    dupage
+# 111220948  0          11687178   0          0          426        6198.58 
+
+
+pminfo -f rpc.server >$tmp.pminfo
+nfsstat -rs >$tmp.nfs
+
+# acceptance: abs diff within 10 or diff within 5%
+#
+cat $tmp.pminfo $tmp.nfs | tee $seq.full | $PCP_AWK_PROG '
+NF == 0	{ next }
+/Server RPC/ { nfstat=1; next }
+/rpc.server/ { # pminfo name 
+               metric = $1
+               sub("rpc.server.", "", metric)
+               next
+             }
+/value/ { # pminfo value
+          value=$2
+          if (metric == "dupage") {
+             value /= 1000
+          }
+          pminfo[metric] = value
+          next
+        } 
+NF>3 && nfstat==1 && /calls/ { # stat names
+          for(i=1;i<=NF;i++){
+	     stat_names[i] = $i
+          }
+	  next
+        }
+NF>3 && nfstat==1 { # stat values
+          for(i=1;i<=NF;i++){
+	    name = stat_names[i]
+            stat_chk[name] = 1
+	    stat_value = $i
+            if (! (name in pminfo) ) { 
+		print name ": not in pminfo output" 
+		next
+            }
+            pminfo_value = pminfo[name]
+            delta = pminfo_value - stat_value
+	    if (delta < 0) delta *= -1
+
+            ok=0
+	    if (delta < 10) { 
+                  ok = 1 
+            }
+            else {
+                if (stat_value == 0) {
+                   ok = 0 
+                } else { 
+		    pct = delta / stat_value
+		    ok = (0.95 <= pct && pct <= 1.05)
+                }
+            }
+            if (ok) 
+		  print name ": OK"
+	    else
+		  print name ": mismatch, pcp=" pminfo_value " nfsstat=" stat_value 
+          }
+        }
+END {
+	for (name in pminfo) {
+           if (! (name in stat_chk) ) {
+		print name ": not in stats output" 
+           }
+        }
+    }
+' | sort 

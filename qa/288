@@ -1,0 +1,41 @@
+#! /bin/sh
+# PCP QA Test No. 288
+# pv:925800 under some conditions, interpolation was taking forever!
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+for m in mem.physmem mem.freemem
+do
+    for a in "" "-A 1min"
+    do
+	echo
+	echo "=== metric $m alignment $a ==="
+	pmval -z -Dinterp -t 2min $a -a src/20041125 $m 2>$tmp.trace
+	echo
+	$PCP_AWK_PROG <$tmp.trace '
+/log reads/		{ f+=$5; b+=$7; next}
+/__pmLogFetchInterp/	{ next }
+/[0-9][0-9]:[0-9][0-9]:/{ c++; next }
+END			{ print "reported samples:",c
+		  print "total log reads: forward",f,"backwards",b
+		}'
+    done
+done
+
+# success, all done
+exit

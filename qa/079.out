@@ -1,0 +1,85 @@
+QA output created by 079
+Dump first 128 bytes ...
+0000000 \0  \0  \0 004   P 005   & 002  \0  \0   ]   |   7   }   q   #
+0000020 \0  \f 022   :  \0  \0  \0  \0   m   o   o   m   b   a  \0  \0
+0000040 \0  \0  \0  \0  \0  \0  \0  \0  \0  \0  \0  \0  \0  \0  \0  \0
+*
+0000120 \0  \0  \0  \0  \0  \0  \0  \0   E   S   T   -   1   1   E   S
+0000140 T   -   1   0   ,   8   7   /   2   :   0   0   ,   3   0   4
+0000160 /   3   :   0   0  \0  \0  \0  \0  \0  \0  \0  \0  \0  \0  \0
+0000200
+
+Local time, TZ=EST-10
+pmclient: pmFetch: End of PCP archive log
+Archive: src/moomba.client, Host: moomba, 4 cpu(s), Fri Oct  8 14:20:56 1999
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.01     3    0.01    53.312      0     0.02    0.00
+ 0.01     3    0.02    53.609      5     0.02    0.00
+ 0.01     3    0.01    53.609      1     0.02    0.00
+ 0.00     1    0.01    53.609      1     0.01    0.00
+ 0.01     3    0.01    53.609      2     0.01    0.00
+ 0.00     1    0.00    53.594      0     0.01    0.00
+ 0.09     1    0.26    53.250      3     0.01    0.00
+ 0.00     3    0.01    53.250      2     0.01    0.00
+
+-Z UTC
+pmclient: pmFetch: End of PCP archive log
+Note: timezone set to "TZ=UTC"
+
+Archive: src/moomba.client, Host: moomba, 4 cpu(s), Fri Oct  8 04:20:56 1999
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.01     3    0.01    53.312      0     0.02    0.00
+ 0.01     3    0.02    53.609      5     0.02    0.00
+ 0.01     3    0.01    53.609      1     0.02    0.00
+ 0.00     1    0.01    53.609      1     0.01    0.00
+ 0.01     3    0.01    53.609      2     0.01    0.00
+ 0.00     1    0.00    53.594      0     0.01    0.00
+ 0.09     1    0.26    53.250      3     0.01    0.00
+ 0.00     3    0.01    53.250      2     0.01    0.00
+
+-Z PDT8
+pmclient: pmFetch: End of PCP archive log
+Note: timezone set to "TZ=PDT8"
+
+Archive: src/moomba.client, Host: moomba, 4 cpu(s), Thu Oct  7 20:20:56 1999
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.01     3    0.01    53.312      0     0.02    0.00
+ 0.01     3    0.02    53.609      5     0.02    0.00
+ 0.01     3    0.01    53.609      1     0.02    0.00
+ 0.00     1    0.01    53.609      1     0.01    0.00
+ 0.01     3    0.01    53.609      2     0.01    0.00
+ 0.00     1    0.00    53.594      0     0.01    0.00
+ 0.09     1    0.26    53.250      3     0.01    0.00
+ 0.00     3    0.01    53.250      2     0.01    0.00
+
+local time at collection host
+pmclient: pmFetch: End of PCP archive log
+Note: timezone set to local timezone of host "moomba" from archive
+
+Archive: src/moomba.client, Host: moomba, 4 cpu(s), Fri Oct  8 14:20:56 1999
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.01     3    0.01    53.312      0     0.02    0.00
+ 0.01     3    0.02    53.609      5     0.02    0.00
+ 0.01     3    0.01    53.609      1     0.02    0.00
+ 0.00     1    0.01    53.609      1     0.01    0.00
+ 0.01     3    0.01    53.609      2     0.01    0.00
+ 0.00     1    0.00    53.594      0     0.01    0.00
+ 0.09     1    0.26    53.250      3     0.01    0.00
+ 0.00     3    0.01    53.250      2     0.01    0.00
+
+and again, but skip 15 seconds
+pmclient: pmFetch: End of PCP archive log
+Note: timezone set to local timezone of host "moomba" from archive
+
+Archive: src/moomba.client, Host: moomba, 4 cpu(s), Fri Oct  8 14:21:11 1999
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     1    0.01    53.609      1     0.01    0.00
+ 0.01     3    0.01    53.609      2     0.01    0.00
+ 0.00     1    0.00    53.594      0     0.01    0.00
+ 0.09     1    0.26    53.250      3     0.01    0.00
+ 0.00     3    0.01    53.250      2     0.01    0.00

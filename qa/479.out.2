@@ -1,0 +1,571 @@
+QA output created by 479
+
+=== bad #1 ===
+__pmLogLoadMeta: record len=49, type=1 @ offset=132
+__pmLogLoadMeta: PMID: 1.18.2 name: hinv.ncpu
+__pmLogLoadMeta: record len=54, type=1 @ offset=181
+__pmLogLoadMeta: PMID: 1.82.9 name: disk.all.total
+__pmLogLoadMeta: header read -> 8: expected: 8 or len=-194
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+
+=== bad #2 ===
+__pmLogLoadMeta: record len=49, type=1 @ offset=132
+__pmLogLoadMeta: PMID: 1.18.2 name: hinv.ncpu
+__pmLogLoadMeta: record len=54, type=1 @ offset=181
+__pmLogLoadMeta: PMID: 1.82.9 name: disk.all.total
+__pmLogLoadMeta: record len=62, type=1 @ offset=235
+__pmLogLoadMeta: PMID: 1.28.11 name: kernel.percpu.cpu.user
+__pmLogLoadMeta: record len=41, type=2 @ offset=297
+addindom( ..., 1.1, TIMESTAMP, numinst=1)
+__pmLogLoadMeta: record len=61, type=1 @ offset=338
+__pmLogLoadMeta: PMID: 1.28.9 name: kernel.percpu.cpu.sys
+__pmLogLoadMeta: record len=55, type=1 @ offset=399
+__pmLogLoadMeta: PMID: 1.18.3 name: kernel.all.load
+__pmLogLoadMeta: record len=80, type=2 @ offset=454
+addindom( ..., 1.5, TIMESTAMP, numinst=3)
+__pmLogLoadMeta: trailer read -> 4 or len=-1: expected 80 @ offset=530
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+
+=== size 100 ===
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Illegal label record at start of a PCP archive log file
+
+=== size 132 ===
+__pmLogLoadMeta: no metrics found?
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+
+=== size 136 ===
+__pmLogLoadMeta: no metrics found?
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+
+=== size 160 ===
+__pmLogLoadMeta: record len=49, type=1 @ offset=132
+__pmLogLoadMeta: numnames read -> 0: expected: 4
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+
+=== size 164 ===
+__pmLogLoadMeta: record len=49, type=1 @ offset=132
+__pmLogLoadMeta: len name[0] read -> 0: expected: 4
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+
+=== size 407 ===
+__pmLogLoadMeta: record len=49, type=1 @ offset=132
+__pmLogLoadMeta: PMID: 1.18.2 name: hinv.ncpu
+__pmLogLoadMeta: record len=54, type=1 @ offset=181
+__pmLogLoadMeta: PMID: 1.82.9 name: disk.all.total
+__pmLogLoadMeta: record len=62, type=1 @ offset=235
+__pmLogLoadMeta: PMID: 1.28.11 name: kernel.percpu.cpu.user
+__pmLogLoadMeta: record len=41, type=2 @ offset=297
+addindom( ..., 1.1, TIMESTAMP, numinst=1)
+__pmLogLoadMeta: record len=61, type=1 @ offset=338
+__pmLogLoadMeta: PMID: 1.28.9 name: kernel.percpu.cpu.sys
+__pmLogLoadMeta: record len=55, type=1 @ offset=399
+__pmLogLoadMeta: pmDesc read -> 0: expected: 20
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+
+=== size 440 ===
+__pmLogLoadMeta: record len=49, type=1 @ offset=132
+__pmLogLoadMeta: PMID: 1.18.2 name: hinv.ncpu
+__pmLogLoadMeta: record len=54, type=1 @ offset=181
+__pmLogLoadMeta: PMID: 1.82.9 name: disk.all.total
+__pmLogLoadMeta: record len=62, type=1 @ offset=235
+__pmLogLoadMeta: PMID: 1.28.11 name: kernel.percpu.cpu.user
+__pmLogLoadMeta: record len=41, type=2 @ offset=297
+addindom( ..., 1.1, TIMESTAMP, numinst=1)
+__pmLogLoadMeta: record len=61, type=1 @ offset=338
+__pmLogLoadMeta: PMID: 1.28.9 name: kernel.percpu.cpu.sys
+__pmLogLoadMeta: record len=55, type=1 @ offset=399
+__pmLogLoadMeta: name[0] read -> 5: expected: 15
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+
+=== size 512 ===
+__pmLogLoadMeta: record len=49, type=1 @ offset=132
+__pmLogLoadMeta: PMID: 1.18.2 name: hinv.ncpu
+__pmLogLoadMeta: record len=54, type=1 @ offset=181
+__pmLogLoadMeta: PMID: 1.82.9 name: disk.all.total
+__pmLogLoadMeta: record len=62, type=1 @ offset=235
+__pmLogLoadMeta: PMID: 1.28.11 name: kernel.percpu.cpu.user
+__pmLogLoadMeta: record len=41, type=2 @ offset=297
+addindom( ..., 1.1, TIMESTAMP, numinst=1)
+__pmLogLoadMeta: record len=61, type=1 @ offset=338
+__pmLogLoadMeta: PMID: 1.28.9 name: kernel.percpu.cpu.sys
+__pmLogLoadMeta: record len=55, type=1 @ offset=399
+__pmLogLoadMeta: PMID: 1.18.3 name: kernel.all.load
+__pmLogLoadMeta: record len=80, type=2 @ offset=454
+__pmLogLoadMeta: indom read -> 50: expected: 68
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+
+torture_indom ... silence is golden
+
+pmie archive meta data exercises ...
+pmie: timezone set to local timezone of host moomba
+print DATE: active disks: dks1d1 dks3d1 dks3d4 dks4d2
+print DATE: active disks: dks1d1 dks3d1 dks3d4 dks4d2
+print DATE: active disks: dks3d1 dks3d4 dks4d2
+print DATE: active disks: dks4d2
+
+__pmLogLoadMeta: record len=46, type=1 @ offset=132
+__pmLogLoadMeta: PMID: 40.0.8 name: 40.0.8
+__pmLogLoadMeta: record len=46, type=1 @ offset=178
+__pmLogLoadMeta: PMID: 40.0.7 name: 40.0.7
+__pmLogLoadMeta: record len=46, type=1 @ offset=224
+__pmLogLoadMeta: PMID: 40.0.5 name: 40.0.5
+__pmLogLoadMeta: record len=46, type=1 @ offset=270
+__pmLogLoadMeta: PMID: 40.0.4 name: 40.0.4
+__pmLogLoadMeta: record len=46, type=1 @ offset=316
+__pmLogLoadMeta: PMID: 40.0.3 name: 40.0.3
+__pmLogLoadMeta: record len=46, type=1 @ offset=362
+__pmLogLoadMeta: PMID: 40.0.2 name: 40.0.2
+__pmLogLoadMeta: record len=46, type=1 @ offset=408
+__pmLogLoadMeta: PMID: 40.0.1 name: 40.0.1
+__pmLogLoadMeta: record len=46, type=1 @ offset=454
+__pmLogLoadMeta: PMID: 40.0.0 name: 40.0.0
+__pmLogLoadMeta: record len=54, type=1 @ offset=500
+__pmLogLoadMeta: PMID: 1.80.7 name: disk.dev.total
+__pmLogLoadMeta: record len=163, type=2 @ offset=554
+addindom( ..., 1.2, TIMESTAMP, numinst=9)
+__pmLogLoadMeta: record len=54, type=1 @ offset=717
+__pmLogLoadMeta: PMID: 1.80.2 name: disk.dev.write
+__pmLogLoadMeta: record len=53, type=1 @ offset=771
+__pmLogLoadMeta: PMID: 1.80.1 name: disk.dev.read
+__pmLogLoadMeta: record len=67, type=1 @ offset=824
+__pmLogLoadMeta: PMID: 1.25.12 name: network.interface.out.bytes
+__pmLogLoadMeta: record len=64, type=2 @ offset=891
+addindom( ..., 1.6, TIMESTAMP, numinst=3)
+__pmLogLoadMeta: record len=66, type=1 @ offset=955
+__pmLogLoadMeta: PMID: 1.25.7 name: network.interface.in.bytes
+__pmLogLoadMeta: record len=55, type=1 @ offset=1021
+__pmLogLoadMeta: PMID: 1.18.3 name: kernel.all.load
+__pmLogLoadMeta: record len=80, type=2 @ offset=1076
+addindom( ..., 1.5, TIMESTAMP, numinst=3)
+__pmLogLoadMeta: record len=59, type=1 @ offset=1156
+__pmLogLoadMeta: PMID: 1.10.54 name: kernel.all.ipc.sema
+__pmLogLoadMeta: record len=58, type=1 @ offset=1215
+__pmLogLoadMeta: PMID: 1.10.53 name: kernel.all.ipc.msg
+__pmLogLoadMeta: record len=58, type=1 @ offset=1273
+__pmLogLoadMeta: PMID: 1.10.29 name: kernel.all.writech
+__pmLogLoadMeta: record len=58, type=1 @ offset=1331
+__pmLogLoadMeta: PMID: 1.10.19 name: kernel.all.syscall
+__pmLogLoadMeta: record len=57, type=1 @ offset=1389
+__pmLogLoadMeta: PMID: 1.10.16 name: kernel.all.runque
+__pmLogLoadMeta: record len=57, type=1 @ offset=1446
+__pmLogLoadMeta: PMID: 1.10.15 name: kernel.all.runocc
+__pmLogLoadMeta: record len=57, type=1 @ offset=1503
+__pmLogLoadMeta: PMID: 1.10.14 name: kernel.all.readch
+__pmLogLoadMeta: record len=65, type=1 @ offset=1560
+__pmLogLoadMeta: PMID: 1.10.12 name: kernel.all.cpu.wait.total
+__pmLogLoadMeta: record len=59, type=1 @ offset=1625
+__pmLogLoadMeta: PMID: 1.10.11 name: kernel.all.cpu.user
+__pmLogLoadMeta: record len=60, type=1 @ offset=1684
+__pmLogLoadMeta: PMID: 1.10.10 name: kernel.all.cpu.sxbrk
+__pmLogLoadMeta: record len=58, type=1 @ offset=1744
+__pmLogLoadMeta: PMID: 1.10.9 name: kernel.all.cpu.sys
+__pmLogLoadMeta: record len=59, type=1 @ offset=1802
+__pmLogLoadMeta: PMID: 1.10.8 name: kernel.all.cpu.intr
+__pmLogLoadMeta: record len=59, type=1 @ offset=1861
+__pmLogLoadMeta: PMID: 1.10.7 name: kernel.all.cpu.idle
+__pmLogLoadMeta: record len=58, type=1 @ offset=1920
+__pmLogLoadMeta: PMID: 1.10.3 name: kernel.all.pswitch
+__pmLogLoadMeta: record len=46, type=1 @ offset=132
+__pmLogLoadMeta: PMID: 40.0.8 name: 40.0.8
+__pmLogLoadMeta: record len=46, type=1 @ offset=178
+__pmLogLoadMeta: PMID: 40.0.7 name: 40.0.7
+__pmLogLoadMeta: record len=46, type=1 @ offset=224
+__pmLogLoadMeta: PMID: 40.0.5 name: 40.0.5
+__pmLogLoadMeta: record len=46, type=1 @ offset=270
+__pmLogLoadMeta: PMID: 40.0.4 name: 40.0.4
+__pmLogLoadMeta: record len=46, type=1 @ offset=316
+__pmLogLoadMeta: PMID: 40.0.3 name: 40.0.3
+__pmLogLoadMeta: record len=46, type=1 @ offset=362
+__pmLogLoadMeta: PMID: 40.0.2 name: 40.0.2
+__pmLogLoadMeta: record len=46, type=1 @ offset=408
+__pmLogLoadMeta: PMID: 40.0.1 name: 40.0.1
+__pmLogLoadMeta: record len=46, type=1 @ offset=454
+__pmLogLoadMeta: PMID: 40.0.0 name: 40.0.0
+__pmLogLoadMeta: record len=54, type=1 @ offset=500
+__pmLogLoadMeta: PMID: 1.80.7 name: disk.dev.total
+__pmLogLoadMeta: record len=163, type=2 @ offset=554
+addindom( ..., 1.2, TIMESTAMP, numinst=9)
+__pmLogLoadMeta: record len=54, type=1 @ offset=717
+__pmLogLoadMeta: PMID: 1.80.2 name: disk.dev.write
+__pmLogLoadMeta: record len=53, type=1 @ offset=771
+__pmLogLoadMeta: PMID: 1.80.1 name: disk.dev.read
+__pmLogLoadMeta: record len=67, type=1 @ offset=824
+__pmLogLoadMeta: PMID: 1.25.12 name: network.interface.out.bytes
+__pmLogLoadMeta: record len=64, type=2 @ offset=891
+addindom( ..., 1.6, TIMESTAMP, numinst=3)
+__pmLogLoadMeta: record len=66, type=1 @ offset=955
+__pmLogLoadMeta: PMID: 1.25.7 name: network.interface.in.bytes
+__pmLogLoadMeta: record len=55, type=1 @ offset=1021
+__pmLogLoadMeta: PMID: 1.18.3 name: kernel.all.load
+__pmLogLoadMeta: record len=80, type=2 @ offset=1076
+addindom( ..., 1.5, TIMESTAMP, numinst=3)
+__pmLogLoadMeta: record len=59, type=1 @ offset=1156
+__pmLogLoadMeta: PMID: 1.10.54 name: kernel.all.ipc.sema
+__pmLogLoadMeta: record len=58, type=1 @ offset=1215
+__pmLogLoadMeta: PMID: 1.10.53 name: kernel.all.ipc.msg
+__pmLogLoadMeta: record len=58, type=1 @ offset=1273
+__pmLogLoadMeta: PMID: 1.10.29 name: kernel.all.writech
+__pmLogLoadMeta: record len=58, type=1 @ offset=1331
+__pmLogLoadMeta: PMID: 1.10.19 name: kernel.all.syscall
+__pmLogLoadMeta: record len=57, type=1 @ offset=1389
+__pmLogLoadMeta: PMID: 1.10.16 name: kernel.all.runque
+__pmLogLoadMeta: record len=57, type=1 @ offset=1446
+__pmLogLoadMeta: PMID: 1.10.15 name: kernel.all.runocc
+__pmLogLoadMeta: record len=57, type=1 @ offset=1503
+__pmLogLoadMeta: PMID: 1.10.14 name: kernel.all.readch
+__pmLogLoadMeta: record len=65, type=1 @ offset=1560
+__pmLogLoadMeta: PMID: 1.10.12 name: kernel.all.cpu.wait.total
+__pmLogLoadMeta: record len=59, type=1 @ offset=1625
+__pmLogLoadMeta: PMID: 1.10.11 name: kernel.all.cpu.user
+__pmLogLoadMeta: record len=60, type=1 @ offset=1684
+__pmLogLoadMeta: PMID: 1.10.10 name: kernel.all.cpu.sxbrk
+__pmLogLoadMeta: record len=58, type=1 @ offset=1744
+__pmLogLoadMeta: PMID: 1.10.9 name: kernel.all.cpu.sys
+__pmLogLoadMeta: record len=59, type=1 @ offset=1802
+__pmLogLoadMeta: PMID: 1.10.8 name: kernel.all.cpu.intr
+__pmLogLoadMeta: record len=59, type=1 @ offset=1861
+__pmLogLoadMeta: PMID: 1.10.7 name: kernel.all.cpu.idle
+__pmLogLoadMeta: record len=58, type=1 @ offset=1920
+__pmLogLoadMeta: PMID: 1.10.3 name: kernel.all.pswitch
+pmie: timezone set to local timezone of host moomba
+__pmLogLoadMeta: record len=46, type=1 @ offset=132
+__pmLogLoadMeta: PMID: 40.0.8 name: 40.0.8
+__pmLogLoadMeta: record len=46, type=1 @ offset=178
+__pmLogLoadMeta: PMID: 40.0.7 name: 40.0.7
+__pmLogLoadMeta: record len=46, type=1 @ offset=224
+__pmLogLoadMeta: PMID: 40.0.5 name: 40.0.5
+__pmLogLoadMeta: record len=46, type=1 @ offset=270
+__pmLogLoadMeta: PMID: 40.0.4 name: 40.0.4
+__pmLogLoadMeta: record len=46, type=1 @ offset=316
+__pmLogLoadMeta: PMID: 40.0.3 name: 40.0.3
+__pmLogLoadMeta: record len=46, type=1 @ offset=362
+__pmLogLoadMeta: PMID: 40.0.2 name: 40.0.2
+__pmLogLoadMeta: record len=46, type=1 @ offset=408
+__pmLogLoadMeta: PMID: 40.0.1 name: 40.0.1
+__pmLogLoadMeta: record len=46, type=1 @ offset=454
+__pmLogLoadMeta: PMID: 40.0.0 name: 40.0.0
+__pmLogLoadMeta: record len=54, type=1 @ offset=500
+__pmLogLoadMeta: PMID: 1.80.7 name: disk.dev.total
+__pmLogLoadMeta: record len=163, type=2 @ offset=554
+addindom( ..., 1.2, TIMESTAMP, numinst=9)
+__pmLogLoadMeta: record len=54, type=1 @ offset=717
+__pmLogLoadMeta: PMID: 1.80.2 name: disk.dev.write
+__pmLogLoadMeta: record len=53, type=1 @ offset=771
+__pmLogLoadMeta: PMID: 1.80.1 name: disk.dev.read
+__pmLogLoadMeta: record len=67, type=1 @ offset=824
+__pmLogLoadMeta: PMID: 1.25.12 name: network.interface.out.bytes
+__pmLogLoadMeta: record len=64, type=2 @ offset=891
+addindom( ..., 1.6, TIMESTAMP, numinst=3)
+__pmLogLoadMeta: record len=66, type=1 @ offset=955
+__pmLogLoadMeta: PMID: 1.25.7 name: network.interface.in.bytes
+__pmLogLoadMeta: record len=55, type=1 @ offset=1021
+__pmLogLoadMeta: PMID: 1.18.3 name: kernel.all.load
+__pmLogLoadMeta: record len=80, type=2 @ offset=1076
+addindom( ..., 1.5, TIMESTAMP, numinst=3)
+__pmLogLoadMeta: record len=59, type=1 @ offset=1156
+__pmLogLoadMeta: PMID: 1.10.54 name: kernel.all.ipc.sema
+__pmLogLoadMeta: record len=58, type=1 @ offset=1215
+__pmLogLoadMeta: PMID: 1.10.53 name: kernel.all.ipc.msg
+__pmLogLoadMeta: record len=58, type=1 @ offset=1273
+__pmLogLoadMeta: PMID: 1.10.29 name: kernel.all.writech
+__pmLogLoadMeta: record len=58, type=1 @ offset=1331
+__pmLogLoadMeta: PMID: 1.10.19 name: kernel.all.syscall
+__pmLogLoadMeta: record len=57, type=1 @ offset=1389
+__pmLogLoadMeta: PMID: 1.10.16 name: kernel.all.runque
+__pmLogLoadMeta: record len=57, type=1 @ offset=1446
+__pmLogLoadMeta: PMID: 1.10.15 name: kernel.all.runocc
+__pmLogLoadMeta: record len=57, type=1 @ offset=1503
+__pmLogLoadMeta: PMID: 1.10.14 name: kernel.all.readch
+__pmLogLoadMeta: record len=65, type=1 @ offset=1560
+__pmLogLoadMeta: PMID: 1.10.12 name: kernel.all.cpu.wait.total
+__pmLogLoadMeta: record len=59, type=1 @ offset=1625
+__pmLogLoadMeta: PMID: 1.10.11 name: kernel.all.cpu.user
+__pmLogLoadMeta: record len=60, type=1 @ offset=1684
+__pmLogLoadMeta: PMID: 1.10.10 name: kernel.all.cpu.sxbrk
+__pmLogLoadMeta: record len=58, type=1 @ offset=1744
+__pmLogLoadMeta: PMID: 1.10.9 name: kernel.all.cpu.sys
+__pmLogLoadMeta: record len=59, type=1 @ offset=1802
+__pmLogLoadMeta: PMID: 1.10.8 name: kernel.all.cpu.intr
+__pmLogLoadMeta: record len=59, type=1 @ offset=1861
+__pmLogLoadMeta: PMID: 1.10.7 name: kernel.all.cpu.idle
+__pmLogLoadMeta: record len=58, type=1 @ offset=1920
+__pmLogLoadMeta: PMID: 1.10.3 name: kernel.all.pswitch
+[TIMESTAMP] pmie(PID) Error: metric disk.dev.total from archive src/ace_v2 (host moomba) does not (currently) have instance "dks1d7"
+
+pmval archive meta data exercises ...
+__pmLogLoadMeta: record len=58, type=1 @ offset=132
+__pmLogLoadMeta: PMID: 2.3.3 name: pmcd.pmlogger.host
+__pmLogLoadMeta: record len=41, type=2 @ offset=190
+addindom( ..., 2.1, TIMESTAMP, numinst=1)
+__pmLogLoadMeta: record len=58, type=1 @ offset=231
+__pmLogLoadMeta: PMID: 2.3.0 name: pmcd.pmlogger.port
+__pmLogLoadMeta: record len=61, type=1 @ offset=289
+__pmLogLoadMeta: PMID: 2.3.2 name: pmcd.pmlogger.archive
+__pmLogLoadMeta: record len=55, type=1 @ offset=350
+__pmLogLoadMeta: PMID: 60.2.0 name: kernel.all.load
+__pmLogLoadMeta: record len=80, type=2 @ offset=405
+addindom( ..., 60.2, TIMESTAMP, numinst=3)
+__pmLogLoadMeta: record len=49, type=1 @ offset=485
+__pmLogLoadMeta: PMID: 60.1.7 name: swap.used
+__pmLogLoadMeta: record len=55, type=1 @ offset=534
+__pmLogLoadMeta: PMID: 60.1.5 name: mem.util.cached
+__pmLogLoadMeta: record len=55, type=1 @ offset=589
+__pmLogLoadMeta: PMID: 60.1.4 name: mem.util.bufmem
+__pmLogLoadMeta: record len=53, type=1 @ offset=644
+__pmLogLoadMeta: PMID: 60.1.2 name: mem.util.free
+__pmLogLoadMeta: record len=57, type=1 @ offset=697
+__pmLogLoadMeta: PMID: 60.0.27 name: disk.all.blkwrite
+__pmLogLoadMeta: record len=56, type=1 @ offset=754
+__pmLogLoadMeta: PMID: 60.0.26 name: disk.all.blkread
+__pmLogLoadMeta: record len=59, type=1 @ offset=810
+__pmLogLoadMeta: PMID: 60.0.23 name: kernel.all.cpu.idle
+__pmLogLoadMeta: record len=58, type=1 @ offset=869
+__pmLogLoadMeta: PMID: 60.0.22 name: kernel.all.cpu.sys
+__pmLogLoadMeta: record len=59, type=1 @ offset=927
+__pmLogLoadMeta: PMID: 60.0.21 name: kernel.all.cpu.nice
+__pmLogLoadMeta: record len=59, type=1 @ offset=986
+__pmLogLoadMeta: PMID: 60.0.20 name: kernel.all.cpu.user
+__pmLogLoadMeta: record len=58, type=1 @ offset=1045
+__pmLogLoadMeta: PMID: 60.0.13 name: kernel.all.pswitch
+__pmLogLoadMeta: record len=55, type=1 @ offset=1103
+__pmLogLoadMeta: PMID: 60.0.12 name: kernel.all.intr
+__pmLogLoadMeta: record len=48, type=1 @ offset=1158
+__pmLogLoadMeta: PMID: 60.0.11 name: swap.out
+__pmLogLoadMeta: record len=47, type=1 @ offset=1206
+__pmLogLoadMeta: PMID: 60.0.10 name: swap.in
+Note: timezone set to local timezone of host "ac15" from archive
+
+metric:    kernel.all.load
+archive:   src/ac15
+host:      ac15
+start:     Sat Jul  9 08:48:29 2005
+end:       Sat Jul  9 08:48:54 2005
+semantics: instantaneous value
+units:     none
+samples:   5
+interval:  5.00 sec
+08:48:29.436  No values available
+
+                 1 minute      5 minute     15 minute 
+08:48:34.436      31.16         31.19         31.16   
+08:48:39.436      31.16         31.19         31.16   
+08:48:44.436      31.16         31.19         31.16   
+08:48:49.436      31.13         31.18         31.16   
+
+__pmLogLoadMeta: record len=58, type=1 @ offset=132
+__pmLogLoadMeta: PMID: 2.3.3 name: pmcd.pmlogger.host
+__pmLogLoadMeta: record len=41, type=2 @ offset=190
+addindom( ..., 2.1, TIMESTAMP, numinst=1)
+__pmLogLoadMeta: record len=58, type=1 @ offset=231
+__pmLogLoadMeta: PMID: 2.3.0 name: pmcd.pmlogger.port
+__pmLogLoadMeta: record len=61, type=1 @ offset=289
+__pmLogLoadMeta: PMID: 2.3.2 name: pmcd.pmlogger.archive
+__pmLogLoadMeta: record len=55, type=1 @ offset=350
+__pmLogLoadMeta: PMID: 60.2.0 name: kernel.all.load
+__pmLogLoadMeta: record len=80, type=2 @ offset=405
+addindom( ..., 60.2, TIMESTAMP, numinst=3)
+__pmLogLoadMeta: record len=49, type=1 @ offset=485
+__pmLogLoadMeta: PMID: 60.1.7 name: swap.used
+__pmLogLoadMeta: record len=55, type=1 @ offset=534
+__pmLogLoadMeta: PMID: 60.1.5 name: mem.util.cached
+__pmLogLoadMeta: record len=55, type=1 @ offset=589
+__pmLogLoadMeta: PMID: 60.1.4 name: mem.util.bufmem
+__pmLogLoadMeta: record len=53, type=1 @ offset=644
+__pmLogLoadMeta: PMID: 60.1.2 name: mem.util.free
+__pmLogLoadMeta: record len=57, type=1 @ offset=697
+__pmLogLoadMeta: PMID: 60.0.27 name: disk.all.blkwrite
+__pmLogLoadMeta: record len=56, type=1 @ offset=754
+__pmLogLoadMeta: PMID: 60.0.26 name: disk.all.blkread
+__pmLogLoadMeta: record len=59, type=1 @ offset=810
+__pmLogLoadMeta: PMID: 60.0.23 name: kernel.all.cpu.idle
+__pmLogLoadMeta: record len=58, type=1 @ offset=869
+__pmLogLoadMeta: PMID: 60.0.22 name: kernel.all.cpu.sys
+__pmLogLoadMeta: record len=59, type=1 @ offset=927
+__pmLogLoadMeta: PMID: 60.0.21 name: kernel.all.cpu.nice
+__pmLogLoadMeta: record len=59, type=1 @ offset=986
+__pmLogLoadMeta: PMID: 60.0.20 name: kernel.all.cpu.user
+__pmLogLoadMeta: record len=58, type=1 @ offset=1045
+__pmLogLoadMeta: PMID: 60.0.13 name: kernel.all.pswitch
+__pmLogLoadMeta: record len=55, type=1 @ offset=1103
+__pmLogLoadMeta: PMID: 60.0.12 name: kernel.all.intr
+__pmLogLoadMeta: record len=48, type=1 @ offset=1158
+__pmLogLoadMeta: PMID: 60.0.11 name: swap.out
+__pmLogLoadMeta: record len=47, type=1 @ offset=1206
+__pmLogLoadMeta: PMID: 60.0.10 name: swap.in
+Note: timezone set to local timezone of host "ac15" from archive
+
+metric:    kernel.all.load
+archive:   src/ac15
+host:      ac15
+start:     Sat Jul  9 08:48:29 2005
+end:       Sat Jul  9 08:48:54 2005
+semantics: instantaneous value
+units:     none
+samples:   5
+interval:  5.00 sec
+08:48:29.436  No values available
+
+                 1 minute             5     15 minute 
+08:48:34.436      31.16         31.19         31.16   
+08:48:39.436      31.16         31.19         31.16   
+08:48:44.436      31.16         31.19         31.16   
+08:48:49.436      31.13         31.18         31.16   
+
+torture ...
+
+=== iteration 0 context -1 ===
+pmGetInDomArchive(PM_INDOM_NULL) -> Unknown or illegal instance domain identifier
+pmLookupInDomArchive(PM_INDOM_NULL, foobar) -> Unknown or illegal instance domain identifier
+pmNameInDomArchive(PM_INDOM_NULL, 1234567) -> Unknown or illegal instance domain identifier
+pmGetInDomArchive(60.2) -> Attempt to use an illegal context
+pmLookupInDomArchive(60.2, foobar) -> Attempt to use an illegal context
+pmNameInDomArchive(60.2, 1234567) -> Attempt to use an illegal context
+pmGetInDomArchive(60.123) -> Attempt to use an illegal context
+pmLookupInDomArchive(60.123, foobar) -> Attempt to use an illegal context
+pmNameInDomArchive(60.123, 1234567) -> Attempt to use an illegal context
+
+=== iteration 1 context 0 ===
+pmGetInDomArchive(PM_INDOM_NULL) -> Unknown or illegal instance domain identifier
+pmLookupInDomArchive(PM_INDOM_NULL, foobar) -> Unknown or illegal instance domain identifier
+pmNameInDomArchive(PM_INDOM_NULL, 1234567) -> Unknown or illegal instance domain identifier
+pmGetInDomArchive(60.2) -> Operation requires context with archive source of metrics
+pmLookupInDomArchive(60.2, foobar) -> Operation requires context with archive source of metrics
+pmNameInDomArchive(60.2, 1234567) -> Operation requires context with archive source of metrics
+pmGetInDomArchive(60.123) -> Operation requires context with archive source of metrics
+pmLookupInDomArchive(60.123, foobar) -> Operation requires context with archive source of metrics
+pmNameInDomArchive(60.123, 1234567) -> Operation requires context with archive source of metrics
+__pmLogLoadMeta: record len=58, type=1 @ offset=132
+__pmLogLoadMeta: PMID: 2.3.3 name: pmcd.pmlogger.host
+__pmLogLoadMeta: record len=41, type=2 @ offset=190
+addindom( ..., 2.1, TIMESTAMP, numinst=1)
+__pmLogLoadMeta: record len=58, type=1 @ offset=231
+__pmLogLoadMeta: PMID: 2.3.0 name: pmcd.pmlogger.port
+__pmLogLoadMeta: record len=61, type=1 @ offset=289
+__pmLogLoadMeta: PMID: 2.3.2 name: pmcd.pmlogger.archive
+__pmLogLoadMeta: record len=55, type=1 @ offset=350
+__pmLogLoadMeta: PMID: 60.2.0 name: kernel.all.load
+__pmLogLoadMeta: record len=80, type=2 @ offset=405
+addindom( ..., 60.2, TIMESTAMP, numinst=3)
+__pmLogLoadMeta: record len=49, type=1 @ offset=485
+__pmLogLoadMeta: PMID: 60.1.7 name: swap.used
+__pmLogLoadMeta: record len=55, type=1 @ offset=534
+__pmLogLoadMeta: PMID: 60.1.5 name: mem.util.cached
+__pmLogLoadMeta: record len=55, type=1 @ offset=589
+__pmLogLoadMeta: PMID: 60.1.4 name: mem.util.bufmem
+__pmLogLoadMeta: record len=53, type=1 @ offset=644
+__pmLogLoadMeta: PMID: 60.1.2 name: mem.util.free
+__pmLogLoadMeta: record len=57, type=1 @ offset=697
+__pmLogLoadMeta: PMID: 60.0.27 name: disk.all.blkwrite
+__pmLogLoadMeta: record len=56, type=1 @ offset=754
+__pmLogLoadMeta: PMID: 60.0.26 name: disk.all.blkread
+__pmLogLoadMeta: record len=59, type=1 @ offset=810
+__pmLogLoadMeta: PMID: 60.0.23 name: kernel.all.cpu.idle
+__pmLogLoadMeta: record len=58, type=1 @ offset=869
+__pmLogLoadMeta: PMID: 60.0.22 name: kernel.all.cpu.sys
+__pmLogLoadMeta: record len=59, type=1 @ offset=927
+__pmLogLoadMeta: PMID: 60.0.21 name: kernel.all.cpu.nice
+__pmLogLoadMeta: record len=59, type=1 @ offset=986
+__pmLogLoadMeta: PMID: 60.0.20 name: kernel.all.cpu.user
+__pmLogLoadMeta: record len=58, type=1 @ offset=1045
+__pmLogLoadMeta: PMID: 60.0.13 name: kernel.all.pswitch
+__pmLogLoadMeta: record len=55, type=1 @ offset=1103
+__pmLogLoadMeta: PMID: 60.0.12 name: kernel.all.intr
+__pmLogLoadMeta: record len=48, type=1 @ offset=1158
+__pmLogLoadMeta: PMID: 60.0.11 name: swap.out
+__pmLogLoadMeta: record len=47, type=1 @ offset=1206
+__pmLogLoadMeta: PMID: 60.0.10 name: swap.in
+
+=== iteration 2 context 1 ===
+pmGetInDomArchive(PM_INDOM_NULL) -> Unknown or illegal instance domain identifier
+pmLookupInDomArchive(PM_INDOM_NULL, foobar) -> Unknown or illegal instance domain identifier
+pmNameInDomArchive(PM_INDOM_NULL, 1234567) -> Unknown or illegal instance domain identifier
+searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
+__pmLogGetInDom(PM_INDOM_NULL) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
+__pmLogLookupInDom(PM_INDOM_NULL, foobar) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
+__pmLogNameInDom(PM_INDOM_NULL, 1234567) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
+__pmLogGetInDom(PM_INDOM_NULL) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
+__pmLogLookupInDom(PM_INDOM_NULL, foobar) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
+__pmLogNameInDom(PM_INDOM_NULL, 1234567) -> Instance domain identifier not defined in the PCP archive log
+pmGetInDomArchive(60.2) -> 3
+   [1] 1 minute
+   [5] 5 minute
+   [15] 15 minute
+pmLookupInDomArchive(60.2, foobar) -> Instance identifier not defined in the PCP archive log
+pmLookupInDomArchive(60.2, 1 minute) -> 1
+pmLookupInDomArchive(60.2, 1) -> 1
+pmNameInDomArchive(60.2, 1234567) -> Instance identifier not defined in the PCP archive log
+pmNameInDomArchive(60.2, 1) -> 1 minute
+searchindom( ..., 60.2, TIMESTAMP)
+request @ 08:48:29.436 is too early for indom @ 08:48:34.052
+__pmLogGetInDom(60.2) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.2, TIMESTAMP)
+request @ 08:48:29.436 is too early for indom @ 08:48:34.052
+__pmLogLookupInDom(60.2, foobar) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.2, TIMESTAMP)
+request @ 08:48:29.436 is too early for indom @ 08:48:34.052
+__pmLogLookupInDom(60.2, 1 minute) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.2, TIMESTAMP)
+request @ 08:48:29.436 is too early for indom @ 08:48:34.052
+__pmLogLookupInDom(60.2, 1) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.2, TIMESTAMP)
+request @ 08:48:29.436 is too early for indom @ 08:48:34.052
+__pmLogNameInDom(60.2, 1234567) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.2, TIMESTAMP)
+request @ 08:48:29.436 is too early for indom @ 08:48:34.052
+__pmLogNameInDom(60.2, 1) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.2, TIMESTAMP)
+success for indom @ 08:48:34.052
+__pmLogGetInDom(60.2) -> 3
+   [1] 1 minute
+   [5] 5 minute
+   [15] 15 minute
+searchindom( ..., 60.2, TIMESTAMP)
+success for indom @ 08:48:34.052
+__pmLogLookupInDom(60.2, foobar) -> Instance identifier not defined in the PCP archive log
+searchindom( ..., 60.2, TIMESTAMP)
+success for indom @ 08:48:34.052
+__pmLogLookupInDom(60.2, 1 minute) -> 1
+searchindom( ..., 60.2, TIMESTAMP)
+success for indom @ 08:48:34.052
+__pmLogLookupInDom(60.2, 1) -> 1
+searchindom( ..., 60.2, TIMESTAMP)
+success for indom @ 08:48:34.052
+__pmLogNameInDom(60.2, 1234567) -> Instance identifier not defined in the PCP archive log
+searchindom( ..., 60.2, TIMESTAMP)
+success for indom @ 08:48:34.052
+__pmLogNameInDom(60.2, 1) -> 1 minute
+pmGetInDomArchive(60.123) -> Instance domain identifier not defined in the PCP archive log
+pmLookupInDomArchive(60.123, foobar) -> Instance domain identifier not defined in the PCP archive log
+pmLookupInDomArchive(60.123, 1 minute) -> Instance domain identifier not defined in the PCP archive log
+pmLookupInDomArchive(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
+pmNameInDomArchive(60.123, 1234567) -> Instance domain identifier not defined in the PCP archive log
+pmNameInDomArchive(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.123, TIMESTAMP)
+__pmLogGetInDom(60.123) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.123, TIMESTAMP)
+__pmLogLookupInDom(60.123, foobar) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.123, TIMESTAMP)
+__pmLogLookupInDom(60.123, 1 minute) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.123, TIMESTAMP)
+__pmLogLookupInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.123, TIMESTAMP)
+__pmLogNameInDom(60.123, 1234567) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.123, TIMESTAMP)
+__pmLogNameInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.123, TIMESTAMP)
+__pmLogGetInDom(60.123) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.123, TIMESTAMP)
+__pmLogLookupInDom(60.123, foobar) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.123, TIMESTAMP)
+__pmLogLookupInDom(60.123, 1 minute) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.123, TIMESTAMP)
+__pmLogLookupInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.123, TIMESTAMP)
+__pmLogNameInDom(60.123, 1234567) -> Instance domain identifier not defined in the PCP archive log
+searchindom( ..., 60.123, TIMESTAMP)
+__pmLogNameInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive log

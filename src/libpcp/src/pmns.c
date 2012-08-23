@@ -2432,9 +2432,10 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
 		}
 		numnames = 0;
 	    }
-	    else if (sts != PM_ERR_TIMEOUT) {
-		__pmUnpinPDUBuf(pb);
-		return PM_ERR_IPC;
+	    else {
+		if (pinpdu > 0)
+		    __pmUnpinPDUBuf(pb);
+		return (sts == PM_ERR_TIMEOUT) ? sts : PM_ERR_IPC;
 	    }
 
 	    if (pinpdu > 0)

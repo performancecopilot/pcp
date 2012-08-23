@@ -1,0 +1,328 @@
+#! /bin/sh
+# PCP QA Test No. 234
+# pmlogsummary exerciser
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+status=0
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+rm -f $seq.full
+
+stocave=0
+noncountstocave=0
+timeave=0
+noncounttimeave=0
+minimum=5000
+maximum=0
+limit=0
+overflow=0
+debug=false
+
+_xtract()
+{
+    # pmdumplog -D1 produces something like ...
+    #
+    # pmResult dump from 0x100051d0 timestamp: 882429086.522227 18:11:26.522 ...
+    #  29.0.64 (sample.rapid): numval: 1 valfmt: 0 vlist[]:
+    #   value 1810065408
+    # ...
+    #  29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
+    #   value 101
+    # ...
+    # <empty line>
+    #
+    # the initial archive processing may cause the same pmResult to
+    # be reported twice, hence the sort at the end
+    #
+    # _xtract produces 3 columns:  time  time_t  value
+    #
+    # Usage: _xtract metric
+    #
+    pmdumplog -D1 $tmp.merge $1 2>&1 \
+    | $PCP_AWK_PROG '
+$1 == "pmResult"		{ state=1; time=$7; stamp=$6; next }
+state == 1 && /\('"$1"'\)/	{ state=2; next }
+state == 2			{ state=0; print time,stamp,$2; next }
+NF==0				{ state=0; next }' \
+    | LC_COLLATE=POSIX _POSIX2_VERSION=0 sort -u +1n -2
+}
+
+_check()
+{
+    $debug && echo "+ check pmlogsummary=$1 qa=$2"
+    echo "$1 $2" \
+    | $PCP_AWK_PROG '
+    { if ($1 == 0 && $2 == 0)
+	err=0
+      else if ($1 == 0)
+	err=100		# infinity
+      else
+	err=($1-$2)/$1
+      if (-0.05 <= err && err <= 0.05)
+	  print "Pass"
+      else
+	  print "Fail: pmlogsummary=" $1 " qa=" $2
+    }'
+}
+
+########
+
+_check_counter_stocave()
+{
+    from_summary=`pmlogsummary -x $tmp.merge $1 \
+		  | $PCP_AWK_PROG '$1 == "'$1'" { print $2 }'`
+    
+    echo "_check_counter_stocave" >>$seq.full
+    from_qa=`_xtract $1 | tee -a $seq.full | $PCP_AWK_PROG '
+	{
+	  if (count > 0) {
+	      avg += ($3 - prevval)/($2 - prevtime)
+	  }
+	  count++
+	  prevval = $3
+	  prevtime = $2
+	  next
+	}
+END	{ print avg/(count-1) }'`
+
+    _check $from_summary $from_qa
+}
+
+########
+
+_check_noncounter_stocave()
+{
+    from_summary=`pmlogsummary -x $tmp.merge $1 \
+		  | $PCP_AWK_PROG '$1 == "'$1'" { print $2 }'`
+    
+    from_qa=`pmdumplog -m $tmp.merge $1 | $PCP_AWK_PROG '
+/\('"$1"'\)/	{ sum += $5; count++; next }
+END		{ print sum/count }'`
+
+    _check $from_summary $from_qa
+}
+
+########
+
+_check_counter_timeave()
+{
+    from_summary=`pmlogsummary $tmp.merge $1 \
+		  | $PCP_AWK_PROG '$1 == "'$1'" { print $2 }'`
+    
+    from_qa=`_xtract $1 | $PCP_AWK_PROG '
+	{
+	  if (count > 0) avg += ($3 - prevval)
+	  if (count == 0) firsttime = $2
+	  count++
+	  prevval = $3
+	  lasttime = $2
+	  next
+	}
+END	{ print avg/(lasttime-firsttime) }'`
+
+    _check $from_summary $from_qa
+}
+
+########
+
+_check_noncounter_timeave()
+{
+    from_summary=`pmlogsummary $tmp.merge $1 \
+		  | $PCP_AWK_PROG '$1 == "'$1'" { print $2 }'`
+
+    from_qa=`_xtract $1 | $PCP_AWK_PROG '
+	{
+	  if (count > 0) avg += (prevval * ($2 - prevtime))
+	  if (count == 0) firsttime = $2
+	  count++
+	  prevval = $3
+	  prevtime = $2
+	  next
+	}
+END	{ print avg/(prevtime-firsttime) }'`
+
+    _check $from_summary $from_qa
+}
+
+########
+
+_qa_minimum()
+{
+    pmdumplog -m $tmp.merge sample.drift | $PCP_AWK_PROG '
+/sample.drift/	{ if (($5 < min) || (count < 1)) min = $5; count++; next }
+END		{ printf "%.3f",min }'
+}
+
+_qa_maximum()
+{
+    pmdumplog -m $tmp.merge sample.drift | $PCP_AWK_PROG '
+/sample.drift/	{ if (($5 > max) || (count < 1)) max = $5; count++; next }
+END		{ printf "%.3f",max }'
+}
+
+_check_minmax()
+{
+    $PCP_AWK_PROG -v min=$minimum -v max=$maximum '
+/sample.drift/	{
+	  if ($3 == min) print "Minimum test passed."
+	  else printf "Minimum test failed (pmlogsummary:%.3f != qa:%.3f)\n",$3,min
+	  if ($4 == max) print "Maximum test passed."
+	  else printf "Maximum test failed (pmlogsummary:%.3f != qa:%.3f)\n",$4,max
+	}'
+}
+
+
+########
+
+# use stochastic average of counter
+#
+_check_overflow()
+{
+    from_summary=`pmlogsummary -x $tmp.merge $1 \
+		  | $PCP_AWK_PROG '$1 == "'$1'" { print $2 }'`
+
+    from_qa=`_xtract $1 \
+	     | $PCP_AWK_PROG '
+BEGIN	{ prevval = -1; print "scale=3"; printf "( 0" }
+	{
+	  if (prevval != -1) {
+	      if ($3 >= prevval) {
+		  printf " + ((%f-%f)/(%f-%f))",$3,prevval,$2,prevtime
+		  count++
+		}
+	  }
+	  prevval = $3
+	  prevtime = $2
+	  next
+	}
+END	{ printf ") / %d\n",count }' \
+	     | bc`
+
+    _check $from_summary $from_qa
+}
+
+# use stochastic average of counter
+#
+_check_old_overflow()
+{
+    PCP_COUNTER_WRAP=yes
+    export PCP_COUNTER_WRAP
+
+    from_summary=`pmlogsummary -x $tmp.merge $1 \
+		  | $PCP_AWK_PROG '$1 == "'$1'" { print $2 }'`
+
+    from_qa=`_xtract $1 \
+	     | $PCP_AWK_PROG '
+BEGIN	{ prevval = -1; print "scale=3"; printf "( 0" }
+	{
+	  if (prevval != -1) {
+	    current = $3
+	    #
+	    # this wrap adjustment only works for 32-bit counters
+	    #
+	    if (current < prevval) current += (4294967295+1)
+	    printf " + ((%f-%f)/(%f-%f))",current,prevval,$2,prevtime
+	    count++
+	  }
+	  prevval = $3
+	  prevtime = $2
+	  next
+	}
+END	{ printf ") / %d\n",count }' \
+	     | bc`
+
+    _check $from_summary $from_qa
+}
+
+########
+
+# real QA test starts here
+
+cat >$tmp.a.config <<End-of-File
+log mandatory on 30 msec {
+	sample.control
+	sample.rapid
+	sample.xmit_pdu
+	sample.drift
+}
+End-of-File
+
+cat >$tmp.b.config <<End-of-File
+log mandatory on 90 msec {
+	sample.control
+	sample.rapid
+        sample.xmit_pdu
+	sample.drift
+}
+End-of-File
+
+echo "Creating log files ..."
+$sudo rm -f $tmp.a.0 $tmp.a.meta $tmp.a.index
+$sudo rm -f $tmp.b.0 $tmp.b.meta $tmp.b.index
+pmlogger -c $tmp.a.config -l $tmp.a.log -s 3 $tmp.a >$tmp.a.err 2>&1
+pmlogger -c $tmp.b.config -l $tmp.b.log -s 5 $tmp.b >$tmp.b.err 2>&1
+
+echo "=== tmp.a ===" >>$seq.full
+pmdumplog $tmp.a >>$seq.full
+echo "=== tmp.b ===" >>$seq.full
+pmdumplog $tmp.b >>$seq.full
+
+wait
+echo "Filtering ..."
+cat $tmp.a.err $tmp.a.log | _filter_pmlogger_log
+cat $tmp.b.err $tmp.b.log | _filter_pmlogger_log
+
+echo "Merging ..."
+rm -f $tmp.merge.*
+pmlogextract $tmp.a $tmp.b $tmp.merge
+
+echo "=== tmp.merge ===" >>$seq.full
+pmdumplog $tmp.merge >>$seq.full
+
+# ensure no mark records in archive...
+# 
+mv $tmp.merge.0 $tmp.markedmerge.0
+src/stripmark $tmp.markedmerge.0 $tmp.merge.0 2>&1 \
+| sed -e 's/byte [0-9][0-9]*/byte N/'
+
+echo
+echo "Checking non-counter stochastic average (sample.drift) ..."
+_check_noncounter_stocave sample.drift
+
+echo
+echo "Checking non-counter time average (sample.drift) ..."
+_check_noncounter_timeave sample.drift
+
+echo
+echo "Checking counter stochastic average (sample.xmit_pdu) ..."
+_check_counter_stocave sample.xmit_pdu
+
+echo
+echo "Checking counter time averaging (sample.xmit_pdu) ..."
+_check_counter_timeave sample.xmit_pdu
+
+echo
+echo "Checking minimum & maximum ..."
+minimum=`_qa_minimum`
+maximum=`_qa_maximum`
+pmlogsummary -mM $tmp.merge | _check_minmax
+
+echo
+echo "Checking overflow (sample.rapid) ..."
+_check_overflow sample.rapid
+
+echo
+echo "Checking PCP 1.x style overflow (sample.rapid) ..."
+_check_old_overflow sample.rapid
+
+# all done
+exit

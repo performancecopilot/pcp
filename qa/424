@@ -1,0 +1,53 @@
+#! /bin/sh
+# PCP QA Test No. 424
+# Test out instance handling for pmlogsummary
+#
+# Copyright (c) 2010 Aconex.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -e '/^pmcd.pmlogger.port/d'
+}
+
+# real QA test starts here
+
+echo
+echo "Every metric, every instance"
+pmlogsummary src/bar | _filter
+echo
+
+echo "Single noindom metric, no instances"
+pmlogsummary src/bar 'sampledso.milliseconds'
+echo
+
+echo "Single noindom metric, bad instances"
+pmlogsummary src/bar 'sampledso.milliseconds[bad]'
+echo
+
+echo "Single indom metric, all instances"
+pmlogsummary src/bar 'sampledso.bin'
+echo
+
+echo "Single indom metric, one instance"
+pmlogsummary src/bar 'sampledso.bin[bin-900]'
+echo
+
+echo "Single indom metric, bad instance"
+pmlogsummary src/bar 'sampledso.bin[bad]'
+echo
+
+# success, all done
+status=0
+exit

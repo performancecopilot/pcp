@@ -382,7 +382,11 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
     /* Check that a profile has been received from the specified context */
     if (ctxnum < 0 || ctxnum >= cip->szProfile ||
 	cip->profile[ctxnum] == NULL) {
-	__pmNotifyErr(LOG_ERR, "DoFetch: no profile for ctxnum = %d\n", ctxnum);
+	__pmUnpinPDUBuf(pb);
+	if (ctxnum < 0 || ctxnum >= cip->szProfile)
+	    __pmNotifyErr(LOG_ERR, "DoFetch: bad ctxnum=%d\n", ctxnum);
+	else
+	    __pmNotifyErr(LOG_ERR, "DoFetch: no profile for ctxnum=%d\n", ctxnum);
 	return PM_ERR_NOPROFILE;
     }
 

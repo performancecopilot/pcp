@@ -1,0 +1,72 @@
+#! /bin/sh
+# PCP QA Test No. 161
+# pmlogger now reads config from standard input by default
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+cat <<End-of-File >$tmp.tmp
+log mandatory on once sample.bin
+End-of-File
+
+pmlogger -s 1 -c $tmp.tmp -l $tmp.log $tmp.A >$tmp.err 2>&1
+cat $tmp.err $tmp.log | _filter_pmlogger_log
+
+pmlogger -s 1 <$tmp.tmp -l $tmp.log $tmp.B >$tmp.err 2>&1
+cat $tmp.err $tmp.log | _filter_pmlogger_log
+
+if [ ! -f $tmp.A.meta ]
+then
+    echo "Cannot find $tmp.A.meta"
+else
+    if [ ! -f $tmp.B.meta ]
+    then
+	echo "Cannot find $tmp.B.meta"
+    else
+	sizeA=`wc -c <$tmp.A.meta`
+	sizeB=`wc -c <$tmp.B.meta`
+	diff=`expr $sizeA - $sizeB`
+	if [ "$diff" -lt -4 -o "$diff" -gt 4 ]
+	then
+	    echo "Different sizes ..."
+	    ls -l $tmp.A.meta $tmp.B.meta
+	else
+	    echo "*.meta: sizes within 5 bytes"
+	fi
+    fi
+fi
+
+for ext in index 0
+do
+    if [ ! -f $tmp.A.$ext ]
+    then
+	echo "Cannot find $tmp.A.$ext"
+    else
+	if [ ! -f $tmp.B.$ext ]
+	then
+	    echo "Cannot find $tmp.B.$ext"
+	else
+	    sizeA=`wc -c <$tmp.A.$ext`
+	    sizeB=`wc -c <$tmp.B.$ext`
+	    if [ "`wc -c <$tmp.A.$ext`" != "`wc -c <$tmp.B.$ext`" ]
+	    then
+		echo "Different sizes ..."
+		ls -l $tmp.A.$ext $tmp.B.$ext
+	    else
+		echo "*.$ext: sizes match"
+	    fi
+	fi
+    fi
+done
+
+exit 0

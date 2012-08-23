@@ -1,0 +1,46 @@
+#! /bin/sh
+# PCP QA Test No. 142
+# memory leaks from pmlogreduce
+#
+# Note on number of samples in the output ... due to slight timestamp
+# variations, for some of the output sample intervals there are _no_
+# input records ... earlier pmlogreduce versions incorrectly generated
+# mark records in this case, but there should simply be no output record
+# for 46 of the 745 samples for this particular input archive and command
+# line arguments to pmlogreduce
+#
+# Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmlogreduce -Dappl2 -S 15s -t 15s src/kenj-pc-1 $tmp >$tmp.out 2>&1
+
+echo "Samples: `pmdumplog $tmp | grep '^[0-2]' | wc -l | sed -e 's/ //g'`"
+
+# echo "memusage: huge (delta 123)" >>$tmp.out
+
+# skip first 5 fetches until things settle down, real interest is in no
+# leaks for the next 740 samples
+#
+echo "Leaks: ..."
+grep memusage $tmp.out \
+| sed \
+    -e 1,5d \
+    -e '/delta 0)/d'
+
+echo
+echo "Mark records: ... (expect none)"
+pmdumplog $tmp | grep '<mark>'
+
+cp $tmp.out $seq.full

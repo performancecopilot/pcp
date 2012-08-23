@@ -1,0 +1,141 @@
+#! /bin/sh
+# PCP QA Test No. 457
+# checks basic pmdalogger functionality
+#
+# Copyright (c) 2011 Aconex.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d "$PCP_PMDAS_DIR/logger" ] || _notrun "No pmdalogger installed"
+_notrun "Test $seq needs to be updated"
+
+_cleanup()
+{
+    _restore_pmda_install $iam
+    $sudo rm -fr $tmp.dir
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+_testdata()
+{
+    # generate data in a single write, for pmda determinism
+    echo \
+"TeSt DaTa ... TeSt DaTa ...
+TeSt2 DaTa2 ... TeSt2 DaTa2"
+}
+
+_filter()
+{
+    sed \
+	-e "s,$tmp,TMPFILE,g" \
+	-e "s,$PCP_VAR_DIR,PCP_VAR_DIR,g" \
+	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+}
+
+iam=logger
+status=1	# failure is the default!
+trap "_cleanup" 0 1 2 3 15
+
+$sudo rm -fr $tmp.dir
+$sudo rm -f $tmp.*
+
+# real QA test starts here
+_prepare_pmda_install $iam
+
+# prepare test case files (see below)
+_testdata > $tmp.reg
+mkdir $tmp.dir
+mkfifo $tmp.fifo
+touch $tmp.empty
+echo -n "#!/bin/sh
+echo \$\$ > $tmp.pipe.pid
+trap \"echo child\" USR1
+read book
+" > $tmp.pipe	# i.e. print something when sigusr1 delivered
+chmod 755 $tmp.pipe
+
+# setup pmdalogger configuration file
+echo "
+reg	n	$tmp.reg
+fifo	n	$tmp.fifo
+none	n	$tmp.none
+empty	n	$tmp.empty
+dir	n	$tmp.dir
+pipe	n	$tmp.pipe|
+" > $tmp.conf
+$sudo cp $tmp.conf $PCP_VAR_DIR/config/logger/logger.conf
+
+# install PMDA accepting the defaults (esp config file)
+$sudo ./Remove < /dev/null >/dev/null 2>&1
+$sudo ./Install < /dev/null >$tmp.out 2>&1
+cat $tmp.out | _filter_pmda_install | _filter
+
+echo
+echo "=== 1. simple working case ==="
+echo -n "Checking initial data:"
+pminfo -f logger.perfile.reg | _filter
+_testdata >> $tmp.reg
+echo -n "Checking appended data:"
+pminfo -f logger.perfile.reg | _filter
+
+echo
+echo "=== 2. named pipe (fifo) ==="
+echo -n "Check initial pipe"
+pminfo -f logger.perfile.fifo | _filter
+echo -n "Checking new pipe data"
+_testdata >> $tmp.fifo
+pminfo -f logger.perfile.fifo | _filter
+echo -n "Unlink the fifo"
+rm -f $tmp.fifo
+pminfo -f logger.perfile.fifo | _filter
+
+echo
+echo "=== 3. log file rotation ==="
+rm -f $tmp.reg
+echo -n "Checking removed file"
+pminfo -f logger.perfile.reg  | _filter
+echo -n "Checking new log file"
+_testdata >> $tmp.reg
+pminfo -f logger.perfile.reg | _filter
+
+echo
+echo "=== 4. non-existant file ==="
+echo -n "Check a missing file"
+pminfo -f logger.perfile.none | _filter
+_testdata >> $tmp.none
+echo -n "Checking new log file"
+pminfo -f logger.perfile.none | _filter
+
+echo
+echo "=== 5. empty file ==="
+echo -n "Check an empty file"
+pminfo -f logger.perfile.empty | _filter
+_testdata >> $tmp.empty
+echo -n "Checking new log file"
+pminfo -f logger.perfile.empty | _filter
+
+echo
+echo "=== 6. directory ==="
+echo -n "Check a directory"
+pminfo -f logger.perfile.dir | _filter
+
+echo
+echo "=== 7. command pipe ==="
+[ -f $tmp.pipe.pid ] || _fail "PID file from command pipe not found"
+pid=`cat $tmp.pipe.pid`
+echo -n "Check a piped command"
+pminfo -f logger.perfile.pipe | _filter
+echo -n "Signal the command"
+pmsignal -s USR1 $pid >/dev/null 2>&1
+sleep 2	# some time for it to be delivered
+pminfo -f logger.perfile.pipe | _filter
+
+status=0
+exit

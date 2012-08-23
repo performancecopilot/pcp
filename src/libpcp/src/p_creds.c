@@ -15,6 +15,8 @@
 #include "pmapi.h"
 #include "impl.h"
 
+#define LIMIT_CREDS	1024
+
 /*
  * PDU for process credentials (PDU_CREDS)
  */
@@ -27,12 +29,12 @@ typedef struct {
 int
 __pmSendCreds(int fd, int from, int credcount, const __pmCred *credlist)
 {
-    size_t	need = 0;
-    creds_t	*pp = NULL;
+    size_t	need;
+    creds_t	*pp;
     int		i;
     int		sts;
 
-    if (credcount <= 0 || credlist == NULL)
+    if (credcount <= 0 || credcount > LIMIT_CREDS || credlist == NULL)
 	return PM_ERR_IPC;
 
     need = sizeof(creds_t) + ((credcount-1) * sizeof(__pmCred));
@@ -61,12 +63,20 @@ __pmDecodeCreds(__pmPDU *pdubuf, int *sender, int *credcount, __pmCred **credlis
 {
     creds_t	*pp;
     int		i;
+    int		len;
+    int		need;
     int		numcred;
     __pmCred	*list;
 
     pp = (creds_t *)pdubuf;
+    len = pp->hdr.len;		/* ntohl() converted already in __pmGetPDU() */
     numcred = ntohl(pp->numcreds);
-    if (pp == NULL || numcred < 0) return PM_ERR_IPC;
+    if (numcred < 0 || numcred > LIMIT_CREDS)
+	return PM_ERR_IPC;
+    need = sizeof(creds_t) + ((numcred-1) * sizeof(__pmCred));
+    if (need != len)
+	return PM_ERR_IPC;
+
     *sender = pp->hdr.from;	/* ntohl() converted already in __pmGetPDU() */
     if ((list = (__pmCred *)malloc(sizeof(__pmCred) * numcred)) == NULL)
 	return -oserror();

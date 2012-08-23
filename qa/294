@@ -1,0 +1,140 @@
+#! /bin/sh
+# PCP QA Test No. 294
+# Basic pmproxy functionality
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+echo "QA output created by $seq"
+
+rm -f $seq.out
+if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+then
+    if which pmdumptext >/dev/null 2>&1
+    then
+	ln $seq.out.3 $seq.out
+    else
+	ln $seq.out.4 $seq.out
+    fi
+else
+    if which pmdumptext >/dev/null 2>&1
+    then
+	ln $seq.out.1 $seq.out
+    else
+	ln $seq.out.2 $seq.out
+    fi
+fi
+
+#debug# tmp=`pwd`/tmp
+signal=$PCP_BINADM_DIR/pmsignal
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    $sudo $signal -a pmproxy >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmproxy restart >/dev/null 2>&1
+}
+
+_filter()
+{
+    sed \
+	-e '/hinv/s/ [0-9][0-9]*$/ N/' \
+	-e '/^[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/{
+# pmdumptext
+s//DATE/
+s/	[0-9][0-9.]*/	N/g
+}' \
+	-e '/^\[[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]]/{
+# pmie trailer
+s//[DATE]/
+s/([0-9][0-9]*)/(PID)/
+}' \
+	-e '/expr_1/s/  *[0-9][0-9.]*/ N/g' \
+	-e '/^@ [A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][[0-9][0-9][0-9]/{
+# pmstat header1
+s//@ DATE/
+}' \
+	-e '/^   1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id/{
+# pmstat header3
+s//   1 min   swpd   free   buff  cache   si   so   bi   bo   in   cs  us  sy  id/
+}' \
+	-e '/[0-9.]*[0-9Km]  *[0-9.]*[0-9Km]  *[0-9.]*[0-9Km]  *[0-9.]*[0-9Km]  *[0-9.]*[0-9Km]/{
+# pmstat data
+s/  *[0-9.]*[0-9Km]/ N/g
+}' \
+    | _filter_me
+}
+
+_filter_me()
+{
+    sed \
+	-e "s/`pmhostname`/MY_HOSTNAME/g" \
+	-e "s/`hostname | sed -e 's/\..*//'`/MY_HOSTNAME/" \
+	-e "s#$tmp#TMP#g" \
+	-e "s#$PCP_VAR_DIR#PCP_VAR_DIR#g" \
+
+}
+
+_filter_pmproxy()
+{
+    sed -e '/^__pmSetSocketIPC: fd=/d' -e '/^IPC table fd/d'
+}
+
+_do()
+{
+    echo
+    echo "+++ $* +++" | tee -a $seq.full | _filter_me
+    if which $1 >/dev/null 2>&1
+    then
+	eval $* 2>&1 | tee -a $seq.full | _filter
+	echo "`grep AcceptNewClient $tmp.log | wc -l | sed -e 's/  *//g'` connects"
+	echo "`grep DeleteClient $tmp.log | wc -l | sed -e 's/  *//g'` disconnects"
+    else
+	echo "Skipped, no $1 binary installed"
+    fi
+}
+
+$sudo $PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
+$sudo $signal -a pmproxy >/dev/null 2>&1
+
+pmproxy -Dcontext -l $tmp.log 2>&1 | _filter_pmproxy
+
+PMPROXY_HOST=localhost
+export PMPROXY_HOST
+
+rm -f $seq.full
+
+# real QA test starts here
+_do pminfo -d pmcd.agent
+_do pminfo -f sample.hordes
+_do pmprobe -v -h localhost hinv.ncpu
+_do pmval -h `pmhostname` -t 0.5 -s 3 sample.bin
+
+echo "kernel.all.load;" >$tmp.in
+_do pmie -c $tmp.in -v -t 0.5 -T 1.5 
+echo "kernel.all.cpu.user :localhost;" >$tmp.in
+_do pmie -c $tmp.in -v -t 0.5 -T 1.5 
+_do pmdumptext -h `hostname | sed -e 's/\..*//'` -t 0.5 -s 2 sample.string.hullo
+_do pmdumptext -t 0.5 -s 2 `hostname | sed -e 's/\..*//'`:sample.string.hullo
+_do pmdumptext -t 0.5 -s 2 `pmhostname`:kernel.all.load
+if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+then
+    : not much to do, as metrics for pmstat are largely missing
+    : on Mac OS X and OpenSolaris
+else
+    _do pmstat -t 0.5 -s 2
+    _do pmlogger -c $PCP_VAR_DIR/config/pmlogger/config.pmstat -t 0.5sec -s 3 -l $tmp.logger.log $tmp.arch
+    _do pmstat -S +0.25sec -t 0.5sec -a $tmp.arch
+fi
+
+# success, all done
+exit

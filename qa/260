@@ -1,0 +1,102 @@
+#!/bin/sh
+# PCP QA Test No. 260
+#
+# Exercise delta() for derived metrics
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if grep -q 'pmRegisterDerived' $PCP_DIR/usr/include/pcp/pmapi.h
+then
+    :
+else
+    echo "No derived metric support" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+export PCP_DERIVED_CONFIG=$tmp.config
+
+# Derived metric expr dump from 0x8513a48...
+# expr node 0x867eb68 type=PLUS left=0x867eb98 right=0x867ed28
+_filter()
+{
+    cat $tmp.out >>$seq.full
+    awk <$tmp.out >$tmp.sed '
+BEGIN				{ n = 0 }
+# expr node 0x9edc340 type=PLUS left=0x9edc2f8 right=0x9edc370
+$1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++ }
+				{ next }'
+    echo "=== sed ===" >>$seq.full
+    cat $tmp.sed >>$seq.full
+    sed -f $tmp.sed <$tmp.out \
+    | sed \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
+	-e 's/=0x0 /=(nil) /g' \
+	-e "s;$tmp;TMP;"
+# -e 's/ val=[0-9][0-9]*/ val=<number>/g'
+}
+
+# real QA test starts here
+
+echo "=== expression trees and pmDesc propagation ==="
+cat <<End-of-File >$tmp.config
+delta.m1 = delta(pmcd.pdu_in.total)
+delta.m2 = delta(pmcd.pdu_out.total) + sample.bigid
+delta.m3 = sample.bigid - delta(pmcd.pdu_out.total)
+delta.m4 = sample.bigid - 3 * delta(pmcd.pdu_out.total) / sample.long.ten
+delta.m5 =  delta(pmcd.pdu_in.total) / ( delta(pmcd.pdu_in.total) + delta(pmcd.pdu_out.total) )
+delta.m6 =  delta(pmcd.pdu_in.total) / delta(pmcd.pdu_in.total) - delta(pmcd.pdu_out.total) / delta(pmcd.pdu_in.total)
+End-of-File
+echo
+cat $tmp.config
+
+for args in delta
+do
+    echo
+    echo "=== $args ==="
+    pminfo -Dderive,appl0,appl1 -d $args >$tmp.out 2>&1
+    _filter
+done
+
+
+echo
+echo "=== fetch values exercises ==="
+cat <<End-of-File >$tmp.config
+d1 = delta(pmcd.pdu_in.total)
+d2 = delta(pmcd.pdu_out.total)
+ratio =  delta(pmcd.pdu_in.total) / ( delta(pmcd.pdu_in.total) + delta(pmcd.pdu_out.total) )
+delta_l = delta(sample.long.hundred)
+delta_ull = delta(sample.ulonglong.hundred)
+delta_f = delta(sample.float.hundred)
+delta_d = delta(sample.double.hundred)
+End-of-File
+
+cat <<End-of-File \
+| pmie -v -t 0.2 -T '+2sec' 2>&1 \
+| sed \
+    -e 's/.*Info: evaluator exiting/pmie: note - evaluator exiting/g'
+r = ratio;
+l = delta_l;
+ull = delta_ull;
+f = delta_f;
+d = delta_d;
+// in = pmcd.pdu_in.total;
+// out = pmcd.pdu_out.total;
+End-of-File
+
+# success, all done
+exit

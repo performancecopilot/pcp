@@ -1,0 +1,409 @@
+QA output created by 037
+
+Archive src/foo
+
+=== Context 0 ===
+Dump Contexts: current context = 0
+Context[0] log src/foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
+refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin TIME delta 5
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmLookupName: Warning: some metrics unknown
+	sampledso.milliseconds - not known
+	sampledso.bin - not known
+
+pmid: 0x7400002 name: sample.seconds indom: 0xffffffff
+desc: type=1 indom=0xffffffff sem=1 units=sec
+
+pmid: 0x7400006 name: sample.bin indom: 0x7400002
+desc: type=0 indom=0x7400002 sem=3 units=none
+ numinst: 9
+  instance id: 0x64 bin-100 (== bin-100?)
+  instance id: 0xc8 bin-200 (== bin-200?)
+  instance id: 0x12c bin-300 (== bin-300?)
+  instance id: 0x190 bin-400 (== bin-400?)
+  instance id: 0x1f4 bin-500 (== bin-500?)
+  instance id: 0x258 bin-600 (== bin-600?)
+  instance id: 0x2bc bin-700 (== bin-700?)
+  instance id: 0x320 bin-800 (== bin-800?)
+  instance id: 0x384 bin-900 (== bin-900?)
+
+pmid: 0x7400005 name: sample.colour indom: 0x7400001
+desc: type=0 indom=0x7400001 sem=3 units=none
+ numinst: 3
+  instance id: 0x0 red (== red?)
+  instance id: 0x1 green (== green?)
+  instance id: 0x2 blue (== blue?)
+
+pmid: 0x7400007 name: sample.drift indom: 0xffffffff
+desc: type=0 indom=0xffffffff sem=3 units=none
+
+pmid: 0x740002e name: sample.lights indom: 0xffffffff
+desc: type=6 indom=0xffffffff sem=4 units=none
+
+=== Context 1 ===
+Dump Contexts: current context = 1
+Context[1] log src/foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
+refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin SAME TIME delta 5
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmLookupName: Warning: some metrics unknown
+	sampledso.milliseconds - not known
+	sampledso.bin - not known
+
+pmid: 0x7400002 name: sample.seconds indom: 0xffffffff
+desc: type=1 indom=0xffffffff sem=1 units=sec
+
+pmid: 0x7400006 name: sample.bin indom: 0x7400002
+desc: type=0 indom=0x7400002 sem=3 units=none
+ numinst: 9
+  instance id: 0x64 bin-100 (== bin-100?)
+  instance id: 0xc8 bin-200 (== bin-200?)
+  instance id: 0x12c bin-300 (== bin-300?)
+  instance id: 0x190 bin-400 (== bin-400?)
+  instance id: 0x1f4 bin-500 (== bin-500?)
+  instance id: 0x258 bin-600 (== bin-600?)
+  instance id: 0x2bc bin-700 (== bin-700?)
+  instance id: 0x320 bin-800 (== bin-800?)
+  instance id: 0x384 bin-900 (== bin-900?)
+
+pmid: 0x7400005 name: sample.colour indom: 0x7400001
+desc: type=0 indom=0x7400001 sem=3 units=none
+ numinst: 3
+  instance id: 0x0 red (== red?)
+  instance id: 0x1 green (== green?)
+  instance id: 0x2 blue (== blue?)
+
+pmid: 0x7400007 name: sample.drift indom: 0xffffffff
+desc: type=0 indom=0xffffffff sem=3 units=none
+
+pmid: 0x740002e name: sample.lights indom: 0xffffffff
+desc: type=6 indom=0xffffffff sem=4 units=none
+
+Archive src/bar
+
+=== Context 0 ===
+Dump Contexts: current context = 0
+Context[0] log src/bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
+refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin TIME delta 5
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmLookupName: Warning: some metrics unknown
+	sample.seconds - not known
+	sample.bin - not known
+	sample.colour - not known
+	sample.drift - not known
+	sample.lights - not known
+
+pmid: 0x7800003 name: sampledso.milliseconds indom: 0xffffffff
+desc: type=5 indom=0xffffffff sem=1 units=millisec
+
+pmid: 0x7800006 name: sampledso.bin indom: 0x7800002
+desc: type=0 indom=0x7800002 sem=3 units=none
+ numinst: 9
+  instance id: 0x64 bin-100 (== bin-100?)
+  instance id: 0xc8 bin-200 (== bin-200?)
+  instance id: 0x12c bin-300 (== bin-300?)
+  instance id: 0x190 bin-400 (== bin-400?)
+  instance id: 0x1f4 bin-500 (== bin-500?)
+  instance id: 0x258 bin-600 (== bin-600?)
+  instance id: 0x2bc bin-700 (== bin-700?)
+  instance id: 0x320 bin-800 (== bin-800?)
+  instance id: 0x384 bin-900 (== bin-900?)
+
+=== Context 1 ===
+Dump Contexts: current context = 1
+Context[1] log src/bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
+refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin SAME TIME delta 5
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmLookupName: Warning: some metrics unknown
+	sample.seconds - not known
+	sample.bin - not known
+	sample.colour - not known
+	sample.drift - not known
+	sample.lights - not known
+
+pmid: 0x7800003 name: sampledso.milliseconds indom: 0xffffffff
+desc: type=5 indom=0xffffffff sem=1 units=millisec
+
+pmid: 0x7800006 name: sampledso.bin indom: 0x7800002
+desc: type=0 indom=0x7800002 sem=3 units=none
+ numinst: 9
+  instance id: 0x64 bin-100 (== bin-100?)
+  instance id: 0xc8 bin-200 (== bin-200?)
+  instance id: 0x12c bin-300 (== bin-300?)
+  instance id: 0x190 bin-400 (== bin-400?)
+  instance id: 0x1f4 bin-500 (== bin-500?)
+  instance id: 0x258 bin-600 (== bin-600?)
+  instance id: 0x2bc bin-700 (== bin-700?)
+  instance id: 0x320 bin-800 (== bin-800?)
+  instance id: 0x384 bin-900 (== bin-900?)
+
+Archive src/mv-foo
+
+=== Context 0 ===
+Dump Contexts: current context = 0
+Context[0] log src/mv-foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
+refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin TIME delta 5
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmLookupName: Warning: some metrics unknown
+	sampledso.milliseconds - not known
+	sampledso.bin - not known
+
+pmid: 0x7400002 name: sample.seconds indom: 0xffffffff
+desc: type=1 indom=0xffffffff sem=1 units=sec
+
+pmid: 0x7400006 name: sample.bin indom: 0x7400002
+desc: type=0 indom=0x7400002 sem=3 units=none
+ numinst: 9
+  instance id: 0x64 bin-100 (== bin-100?)
+  instance id: 0xc8 bin-200 (== bin-200?)
+  instance id: 0x12c bin-300 (== bin-300?)
+  instance id: 0x190 bin-400 (== bin-400?)
+  instance id: 0x1f4 bin-500 (== bin-500?)
+  instance id: 0x258 bin-600 (== bin-600?)
+  instance id: 0x2bc bin-700 (== bin-700?)
+  instance id: 0x320 bin-800 (== bin-800?)
+  instance id: 0x384 bin-900 (== bin-900?)
+
+pmid: 0x7400005 name: sample.colour indom: 0x7400001
+desc: type=0 indom=0x7400001 sem=3 units=none
+ numinst: 3
+  instance id: 0x0 red (== red?)
+  instance id: 0x1 green (== green?)
+  instance id: 0x2 blue (== blue?)
+
+pmid: 0x7400007 name: sample.drift indom: 0xffffffff
+desc: type=0 indom=0xffffffff sem=3 units=none
+
+pmid: 0x740002e name: sample.lights indom: 0xffffffff
+desc: type=6 indom=0xffffffff sem=4 units=none
+
+=== Context 1 ===
+Dump Contexts: current context = 1
+Context[1] log src/mv-foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
+refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin SAME TIME delta 5
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmLookupName: Warning: some metrics unknown
+	sampledso.milliseconds - not known
+	sampledso.bin - not known
+
+pmid: 0x7400002 name: sample.seconds indom: 0xffffffff
+desc: type=1 indom=0xffffffff sem=1 units=sec
+
+pmid: 0x7400006 name: sample.bin indom: 0x7400002
+desc: type=0 indom=0x7400002 sem=3 units=none
+ numinst: 9
+  instance id: 0x64 bin-100 (== bin-100?)
+  instance id: 0xc8 bin-200 (== bin-200?)
+  instance id: 0x12c bin-300 (== bin-300?)
+  instance id: 0x190 bin-400 (== bin-400?)
+  instance id: 0x1f4 bin-500 (== bin-500?)
+  instance id: 0x258 bin-600 (== bin-600?)
+  instance id: 0x2bc bin-700 (== bin-700?)
+  instance id: 0x320 bin-800 (== bin-800?)
+  instance id: 0x384 bin-900 (== bin-900?)
+
+pmid: 0x7400005 name: sample.colour indom: 0x7400001
+desc: type=0 indom=0x7400001 sem=3 units=none
+ numinst: 3
+  instance id: 0x0 red (== red?)
+  instance id: 0x1 green (== green?)
+  instance id: 0x2 blue (== blue?)
+
+pmid: 0x7400007 name: sample.drift indom: 0xffffffff
+desc: type=0 indom=0xffffffff sem=3 units=none
+
+pmid: 0x740002e name: sample.lights indom: 0xffffffff
+desc: type=6 indom=0xffffffff sem=4 units=none
+
+Archive src/mv-bar
+
+=== Context 0 ===
+Dump Contexts: current context = 0
+Context[0] log src/mv-bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
+refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin TIME delta 5
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmLookupName: Warning: some metrics unknown
+	sample.seconds - not known
+	sample.bin - not known
+	sample.colour - not known
+	sample.drift - not known
+	sample.lights - not known
+
+pmid: 0x7800003 name: sampledso.milliseconds indom: 0xffffffff
+desc: type=5 indom=0xffffffff sem=1 units=millisec
+
+pmid: 0x7800006 name: sampledso.bin indom: 0x7800002
+desc: type=0 indom=0x7800002 sem=3 units=none
+ numinst: 9
+  instance id: 0x64 bin-100 (== bin-100?)
+  instance id: 0xc8 bin-200 (== bin-200?)
+  instance id: 0x12c bin-300 (== bin-300?)
+  instance id: 0x190 bin-400 (== bin-400?)
+  instance id: 0x1f4 bin-500 (== bin-500?)
+  instance id: 0x258 bin-600 (== bin-600?)
+  instance id: 0x2bc bin-700 (== bin-700?)
+  instance id: 0x320 bin-800 (== bin-800?)
+  instance id: 0x384 bin-900 (== bin-900?)
+
+=== Context 1 ===
+Dump Contexts: current context = 1
+Context[1] log src/mv-bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
+refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin SAME TIME delta 5
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmLookupName: Warning: some metrics unknown
+	sample.seconds - not known
+	sample.bin - not known
+	sample.colour - not known
+	sample.drift - not known
+	sample.lights - not known
+
+pmid: 0x7800003 name: sampledso.milliseconds indom: 0xffffffff
+desc: type=5 indom=0xffffffff sem=1 units=millisec
+
+pmid: 0x7800006 name: sampledso.bin indom: 0x7800002
+desc: type=0 indom=0x7800002 sem=3 units=none
+ numinst: 9
+  instance id: 0x64 bin-100 (== bin-100?)
+  instance id: 0xc8 bin-200 (== bin-200?)
+  instance id: 0x12c bin-300 (== bin-300?)
+  instance id: 0x190 bin-400 (== bin-400?)
+  instance id: 0x1f4 bin-500 (== bin-500?)
+  instance id: 0x258 bin-600 (== bin-600?)
+  instance id: 0x2bc bin-700 (== bin-700?)
+  instance id: 0x320 bin-800 (== bin-800?)
+  instance id: 0x384 bin-900 (== bin-900?)
+
+Archive src/noti-foo
+
+=== Context 0 ===
+Dump Contexts: current context = 0
+Context[0] log src/noti-foo: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
+refcnt 2 vol 0 offset 132 (vol 0) serial 0 origin TIME delta 5
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmLookupName: Warning: some metrics unknown
+	sampledso.milliseconds - not known
+	sampledso.bin - not known
+
+pmid: 0x7400002 name: sample.seconds indom: 0xffffffff
+desc: type=1 indom=0xffffffff sem=1 units=sec
+
+pmid: 0x7400006 name: sample.bin indom: 0x7400002
+desc: type=0 indom=0x7400002 sem=3 units=none
+ numinst: 9
+  instance id: 0x64 bin-100 (== bin-100?)
+  instance id: 0xc8 bin-200 (== bin-200?)
+  instance id: 0x12c bin-300 (== bin-300?)
+  instance id: 0x190 bin-400 (== bin-400?)
+  instance id: 0x1f4 bin-500 (== bin-500?)
+  instance id: 0x258 bin-600 (== bin-600?)
+  instance id: 0x2bc bin-700 (== bin-700?)
+  instance id: 0x320 bin-800 (== bin-800?)
+  instance id: 0x384 bin-900 (== bin-900?)
+
+pmid: 0x7400005 name: sample.colour indom: 0x7400001
+desc: type=0 indom=0x7400001 sem=3 units=none
+ numinst: 3
+  instance id: 0x0 red (== red?)
+  instance id: 0x1 green (== green?)
+  instance id: 0x2 blue (== blue?)
+
+pmid: 0x7400007 name: sample.drift indom: 0xffffffff
+desc: type=0 indom=0xffffffff sem=3 units=none
+
+pmid: 0x740002e name: sample.lights indom: 0xffffffff
+desc: type=6 indom=0xffffffff sem=4 units=none
+
+=== Context 1 ===
+Dump Contexts: current context = 1
+Context[1] log src/noti-foo: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
+refcnt 2 vol 0 offset 132 (vol 0) serial 0 origin SAME TIME delta 5
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmLookupName: Warning: some metrics unknown
+	sampledso.milliseconds - not known
+	sampledso.bin - not known
+
+pmid: 0x7400002 name: sample.seconds indom: 0xffffffff
+desc: type=1 indom=0xffffffff sem=1 units=sec
+
+pmid: 0x7400006 name: sample.bin indom: 0x7400002
+desc: type=0 indom=0x7400002 sem=3 units=none
+ numinst: 9
+  instance id: 0x64 bin-100 (== bin-100?)
+  instance id: 0xc8 bin-200 (== bin-200?)
+  instance id: 0x12c bin-300 (== bin-300?)
+  instance id: 0x190 bin-400 (== bin-400?)
+  instance id: 0x1f4 bin-500 (== bin-500?)
+  instance id: 0x258 bin-600 (== bin-600?)
+  instance id: 0x2bc bin-700 (== bin-700?)
+  instance id: 0x320 bin-800 (== bin-800?)
+  instance id: 0x384 bin-900 (== bin-900?)
+
+pmid: 0x7400005 name: sample.colour indom: 0x7400001
+desc: type=0 indom=0x7400001 sem=3 units=none
+ numinst: 3
+  instance id: 0x0 red (== red?)
+  instance id: 0x1 green (== green?)
+  instance id: 0x2 blue (== blue?)
+
+pmid: 0x7400007 name: sample.drift indom: 0xffffffff
+desc: type=0 indom=0xffffffff sem=3 units=none
+
+pmid: 0x740002e name: sample.lights indom: 0xffffffff
+desc: type=6 indom=0xffffffff sem=4 units=none
+
+Archive src/noti-bar
+
+=== Context 0 ===
+Dump Contexts: current context = 0
+Context[0] log src/noti-bar: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
+refcnt 2 vol 0 offset 132 (vol 0) serial 0 origin TIME delta 5
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmLookupName: Warning: some metrics unknown
+	sample.seconds - not known
+	sample.bin - not known
+	sample.colour - not known
+	sample.drift - not known
+	sample.lights - not known
+
+pmid: 0x7800003 name: sampledso.milliseconds indom: 0xffffffff
+desc: type=5 indom=0xffffffff sem=1 units=millisec
+
+pmid: 0x7800006 name: sampledso.bin indom: 0x7800002
+desc: type=0 indom=0x7800002 sem=3 units=none
+ numinst: 9
+  instance id: 0x64 bin-100 (== bin-100?)
+  instance id: 0xc8 bin-200 (== bin-200?)
+  instance id: 0x12c bin-300 (== bin-300?)
+  instance id: 0x190 bin-400 (== bin-400?)
+  instance id: 0x1f4 bin-500 (== bin-500?)
+  instance id: 0x258 bin-600 (== bin-600?)
+  instance id: 0x2bc bin-700 (== bin-700?)
+  instance id: 0x320 bin-800 (== bin-800?)
+  instance id: 0x384 bin-900 (== bin-900?)
+
+=== Context 1 ===
+Dump Contexts: current context = 1
+Context[1] log src/noti-bar: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
+refcnt 2 vol 0 offset 132 (vol 0) serial 0 origin SAME TIME delta 5
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmLookupName: Warning: some metrics unknown
+	sample.seconds - not known
+	sample.bin - not known
+	sample.colour - not known
+	sample.drift - not known
+	sample.lights - not known
+
+pmid: 0x7800003 name: sampledso.milliseconds indom: 0xffffffff
+desc: type=5 indom=0xffffffff sem=1 units=millisec
+
+pmid: 0x7800006 name: sampledso.bin indom: 0x7800002
+desc: type=0 indom=0x7800002 sem=3 units=none
+ numinst: 9
+  instance id: 0x64 bin-100 (== bin-100?)
+  instance id: 0xc8 bin-200 (== bin-200?)
+  instance id: 0x12c bin-300 (== bin-300?)
+  instance id: 0x190 bin-400 (== bin-400?)
+  instance id: 0x1f4 bin-500 (== bin-500?)
+  instance id: 0x258 bin-600 (== bin-600?)
+  instance id: 0x2bc bin-700 (== bin-700?)
+  instance id: 0x320 bin-800 (== bin-800?)
+  instance id: 0x384 bin-900 (== bin-900?)

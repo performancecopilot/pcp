@@ -1,0 +1,155 @@
+#! /bin/sh
+# PCP QA Test No. 532
+# pmlogger_check with *-xx.* archives and .meta files in subdirs
+# (loosely based on 530 and 338)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# check for new version ... may need -o to force "old style" behaviour
+#
+if pmlogger_daily -\? 2>&1 | grep '^.*-o.*(old style)' >/dev/null
+then
+    oflag='-o'
+else
+    oflag=''
+fi
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed -f $tmp/sed \
+    | sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s/`hostname`/HOST/g" \
+	-e "s/`hostname | sed -e 's/\..*//'`/HOST/g" \
+	-e '/\/var\/adm\/pcplog\/NOTICES/d' \
+	-e 's/-rw-r--r--\./-rw-r--r--/' \
+    | $PCP_AWK_PROG '
+/-rw-r--r--/	{ print $1,"...",$5,"...",$9; next }
+		{ print }' \
+    | _filter_cron_scripts
+}
+
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp $tmp.*; $sudo mv $PCP_LOG_DIR/NOTICES.$$ $PCP_LOG_DIR/NOTICES; exit \$status" 0 1 2 3 15
+
+# take explicit control of the umask
+#
+umask 022
+
+$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$$
+rm -f $seq.full
+rm -rf $tmp $tmp.*
+mkdir $tmp
+mkdir $tmp/foo
+
+# real QA test starts here
+verbose=-V
+echo >$tmp/sed
+for day in 0 1 2 3
+do
+    fmt=%Y%m%d
+
+    for hour in 1 4 16
+    do
+	[ $day -gt 0 -a $hour -gt 1 ] && continue
+	# aiming for the time to be hour:10, hour:20 and hour:30 on
+	# each day, even if that is ahead of NOW for today
+	#
+	now_hr=`pmdate %H`
+	hr_set=`expr $hour - $now_hr`
+	[ "$hr_set" -ge 0 ] && hr_set="+$hr_set"
+	now_min=`pmdate %M`
+	min_set10=`expr 10 - $now_min`
+	[ "$min_set10" -ge 0 ] && min_set10="+$min_set10"
+	min_set20=`expr 20 - $now_min`
+	[ "$min_set20" -ge 0 ] && min_set20="+$min_set20"
+	min_set30=`expr 30 - $now_min`
+	[ "$min_set30" -ge 0 ] && min_set30="+$min_set30"
+	namea=`pmdate -${day}d ${hr_set}H ${min_set10}M $fmt.%H.%M`
+	nameb=`pmdate -${day}d ${hr_set}H ${min_set20}M $fmt.%H.%M`
+	namec=`pmdate -${day}d ${hr_set}H ${min_set30}M $fmt.%H.%M`
+	yesterday=`pmdate -1d ${hr_set}H ${min_set10}M $fmt`
+	stampa=`echo $namea | sed -e 's/\.//g'`
+	stampb=`echo $nameb | sed -e 's/\.//g'`
+	stampc=`echo $namec | sed -e 's/\.//g'`
+	nameb=${namea}-00
+	namec=${namea}-01
+	echo "s/$namea/NOW-$day.${hour}H.MM/g" >>$tmp/sed
+	echo "s/$nameb/NOW-$day.${hour}H.MM-00/g" >>$tmp/sed
+	echo "s/$namec/NOW-$day.${hour}H.MM-01/g" >>$tmp/sed
+
+	for ext in 0 index meta
+	do
+	    if [ $hour -ne 4 ]
+	    then
+		cp src/arch_a.$ext $tmp/$namea.$ext
+		touch -t $stampa $tmp/$namea.$ext
+	    fi
+	    cp src/arch_b.$ext $tmp/$nameb.$ext
+	    touch -t $stampb $tmp/$nameb.$ext
+	    cp src/arch_b.$ext $tmp/$namec.$ext
+	    touch -t $stampc $tmp/$namec.$ext
+	done
+    done
+done
+
+( cd $tmp; tar cf - *.0 *.meta *.index 2>/dev/null ) \
+| ( cd $tmp/foo; tar xpf - 2>/dev/null )
+
+echo "s/NOW-0/TODAY/g" >>$tmp/sed
+echo "s/NOW-1/YESTERDAY/g" >>$tmp/sed
+echo "s/`pmdate %Y%m%d`/TODAY/g" >>$tmp/sed
+echo "s/$yesterday/YESTERDAY/g" >>$tmp/sed
+
+echo >$tmp/control '$version=1.1
+LOCALHOSTNAME	n   n	'"$tmp"'	./config'
+
+echo
+echo "Before ..."
+ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort | tee $tmp.before
+ls -l $tmp >>$seq.full
+
+# list of culled files is in directory order, hence the cut and sort
+# complexity at the end of this pipeline
+#
+echo
+pmlogger_daily $oflag -c $tmp/control -k 2 $verbose 2>&1 \
+| _filter \
+| $PCP_AWK_PROG '
+state == 0		{ print >"'$tmp.out.0'"
+			  if ($0 ~ /older than 2 days/) state = 1
+			  next
+			}
+state == 1 && NF == 0	{ state = 2 }
+state == 1		{ for (i = 1; i <= NF; i++) print $i >"'$tmp.out.1'" }'
+cat $tmp.out.0
+LC_COLLATE=POSIX sort $tmp.out.1
+
+echo "out.0 ..." >>$seq.full
+cat $tmp.out.0 >>$seq.full
+echo "out.1 ..." >>$seq.full
+cat $tmp.out.1 >>$seq.full
+
+echo
+echo "After ..."
+ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort | tee $tmp.after
+
+echo
+echo "Differences ..."
+diff $tmp.before $tmp.after
+
+rm -rf $tmp/* $tmp.*
+
+# all done
+status=0
+exit

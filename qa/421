@@ -1,0 +1,81 @@
+#! /bin/sh
+# PCP QA Test No. 421
+# verifies pmtraceabort functionality
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.check
+
+# Different output for different circumstances:
+# On irix we install Makefile for trace, so we're going to get
+# "Installing files..." fluff. On Linux we don't get that. In PCP 2.2. we
+# changed procpmda.sh to be less verbose and added some extra trace
+# metrics, so more stuff to change.
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    irix|linux)
+	if [ $PCP_VER -ge 2200 ]
+	then
+	    ln $seq.$PCP_PLATFORM.2 $seq.out || exit 1
+	else
+	    ln $seq.$PCP_PLATFORM.1 $seq.out || exit 1
+	fi
+	;;
+    darwin|solaris)
+	# same output for Mac OS X and OpenSolaris
+	ln $seq.linux.2 $seq.out || exit 1
+	;;
+    *)
+	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
+
+_cleanup()
+{
+    cd $here
+    if [ -n "$savedtracehost" ]
+    then
+	PCP_TRACE_HOST=$savedtracehost; export PCP_TRACE_HOST
+    fi
+    exit $status
+}
+
+status=1	# failure is the default!
+trap "_cleanup" 0 1 2 3 15
+
+if [ -n "$PCP_TRACE_HOST" ]
+then
+    savedtracehost=$PCP_TRACE_HOST; unset PCP_TRACE_HOST
+fi
+
+pminfo trace >/dev/null 2>&1
+remove=$?
+
+cd $PCP_PMDAS_DIR/trace
+$sudo ./Install -R / </dev/null 2>&1 | sed \
+	-e '/.[0-9][0-9]* hash table entries/d' \
+	-e '/.[0-9][0-9]* leaf nodes/d' \
+	-e '/.[0-9][0-9]* non-leaf nodes/d' \
+	-e '/.[0-9][0-9]* bytes of symbol table/d' \
+	-e '/Compiled PMNS contains/d' \
+	-e "/make: Nothing to be done for .install./d" \
+	-e '/Installing files \.\.\./d'
+_wait_for_pmcd
+
+# real QA test starts here
+pminfo -f trace.transact.count
+$here/src/tabort
+status=$?
+pminfo -f trace.transact.count
+
+[ $remove -eq 1 ] && $sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
+
+exit

@@ -1,0 +1,42 @@
+#! /bin/sh
+# PCP QA Test No. 006
+# Check error codes ... 
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+rm -f $seq.out
+if pmerr -l | grep 'asynchronous operation' >/dev/null
+then
+    # before PCP 3.6, still have async api and other error codes
+    ln $seq.out.1 $seq.out
+else
+    ln $seq.out.2 $seq.out
+fi
+
+PM_ERR_BASE=12345
+PM_ERR_COUNT=100
+
+sts=$PM_ERR_BASE
+top=`expr $PM_ERR_BASE + $PM_ERR_COUNT`
+while [ $sts -lt $top ]
+do
+    pmerr -$sts
+    sts=`expr $sts + 1`
+done \
+| sed -e 's/0x........ //' \
+      -e 's/Code: //' \
+      -e 's/Text: //' \
+      -e '/-12349/s/One-line/Oneline/'
+
+# last sed substitution thanks to pv:937345 which changed the wording
+# ... preserving the old form so QA passes

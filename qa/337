@@ -1,0 +1,52 @@
+#! /bin/sh
+# PCP QA Test No. 337
+# pmlogextract with temporally overlapping archives
+#
+# Copyright (c) 2008 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -e "s;$tmp;TMP;g"
+}
+
+# real QA test starts here
+echo "=== mirage-1 ==="
+pmdumplog -z -d src/mirage-1
+pmdumplog -z -i src/mirage-1
+pmdumplog -z src/mirage-1
+pmval -z -U src/mirage-1 sample.mirage
+pmval -z -U src/mirage-1 sample.many.int
+
+echo
+echo "=== mirage-2 ==="
+pmdumplog -z -d src/mirage-2
+pmdumplog -z -i src/mirage-2
+pmdumplog -z src/mirage-2
+pmval -z -U src/mirage-2 sample.mirage
+pmval -z -U src/mirage-2 sample.many.int
+
+pmlogextract src/mirage-1 src/mirage-2 $tmp
+
+echo
+echo "=== merged archive ==="
+pmdumplog -z -d $tmp
+pmdumplog -z -i $tmp
+pmdumplog -z $tmp
+pmval -z -U $tmp sample.mirage 2>&1 | _filter
+pmval -z -U $tmp sample.many.int 2>&1 | _filter
+
+# success, all done
+exit

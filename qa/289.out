@@ -1,0 +1,139 @@
+QA output created by 289
+Note: timezone set to local timezone of host "sandpit" from archive
+
+archive src/mark-bug
+startTime: Wed Jul  9 12:09:16 1997+933192  
+endTime  : Wed Jul  9 12:12:11 1997+621362  
+samples=60 delta=2000ms
+forwards  @ Wed Jul  9 12:09:16 1997+933192   vset[0]->numval=0
+forwards  @ Wed Jul  9 12:09:16 1997+933192   vset[1]->numval=0
+fetch OK forwards  @ Wed Jul  9 12:09:18 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:20 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:22 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:24 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:26 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:28 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:30 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:32 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:34 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:36 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:38 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:40 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:42 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:44 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:46 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:48 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:50 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:52 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:54 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:56 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:09:58 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:00 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:02 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:04 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:06 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:08 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:10 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:12 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:14 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:16 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:18 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:20 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:22 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:24 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:26 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:28 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:30 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:32 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:34 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:36 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:38 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:40 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:42 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:44 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:46 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:48 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:50 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:52 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:10:54 1997+933192  
+forwards  @ Wed Jul  9 12:10:56 1997+933192   vset[0]->numval=0
+forwards  @ Wed Jul  9 12:10:56 1997+933192   vset[1]->numval=0
+forwards  @ Wed Jul  9 12:10:58 1997+933192   vset[0]->numval=0
+forwards  @ Wed Jul  9 12:10:58 1997+933192   vset[1]->numval=0
+forwards  @ Wed Jul  9 12:11:00 1997+933192   vset[0]->numval=0
+forwards  @ Wed Jul  9 12:11:00 1997+933192   vset[1]->numval=0
+forwards  @ Wed Jul  9 12:11:02 1997+933192   vset[0]->numval=0
+forwards  @ Wed Jul  9 12:11:02 1997+933192   vset[1]->numval=0
+forwards  @ Wed Jul  9 12:11:04 1997+933192   vset[0]->numval=0
+forwards  @ Wed Jul  9 12:11:04 1997+933192   vset[1]->numval=0
+fetch OK forwards  @ Wed Jul  9 12:11:06 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:11:08 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:11:10 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:11:12 1997+933192  
+fetch OK forwards  @ Wed Jul  9 12:11:14 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:11:14 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:11:12 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:11:10 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:11:08 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:11:06 1997+933192  
+rewinding @ Wed Jul  9 12:11:04 1997+933192   vset[0]->numval=0
+rewinding @ Wed Jul  9 12:11:04 1997+933192   vset[1]->numval=0
+rewinding @ Wed Jul  9 12:11:02 1997+933192   vset[0]->numval=0
+rewinding @ Wed Jul  9 12:11:02 1997+933192   vset[1]->numval=0
+rewinding @ Wed Jul  9 12:11:00 1997+933192   vset[0]->numval=0
+rewinding @ Wed Jul  9 12:11:00 1997+933192   vset[1]->numval=0
+rewinding @ Wed Jul  9 12:10:58 1997+933192   vset[0]->numval=0
+rewinding @ Wed Jul  9 12:10:58 1997+933192   vset[1]->numval=0
+rewinding @ Wed Jul  9 12:10:56 1997+933192   vset[0]->numval=0
+rewinding @ Wed Jul  9 12:10:56 1997+933192   vset[1]->numval=0
+fetch OK rewinding @ Wed Jul  9 12:10:54 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:52 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:50 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:48 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:46 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:44 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:42 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:40 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:38 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:36 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:34 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:32 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:30 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:28 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:26 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:24 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:22 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:20 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:18 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:16 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:14 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:12 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:10 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:08 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:06 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:04 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:02 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:10:00 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:58 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:56 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:54 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:52 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:50 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:48 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:46 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:44 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:42 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:40 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:38 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:36 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:34 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:32 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:30 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:28 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:26 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:24 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:22 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:20 1997+933192  
+fetch OK rewinding @ Wed Jul  9 12:09:18 1997+933192  
+rewinding @ Wed Jul  9 12:09:16 1997+933192   vset[0]->numval=0
+rewinding @ Wed Jul  9 12:09:16 1997+933192   vset[1]->numval=0

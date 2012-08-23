@@ -1,0 +1,14 @@
+QA output created by 196
+Test that new pmcd is OK...
+
+pmcd.control.debug
+    value 0
+OK
+
+Test access on good port...
+
+pmcd.control.debug
+    value 0
+
+Test access on bad port (should fail)...
+pminfo: Cannot connect to PMCD on host "NOT-A-GOOD-IPADDR": Connection refused

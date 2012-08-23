@@ -1,0 +1,11 @@
+# define product-specific macros for QA tests
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# set up, in case QA test is run stand alone (not from check or remake)
+#
+. ./common.setup
+. ./localconfig
+
+PCP_PMCD_PATH=$PCP_BINADM_DIR/pmcd

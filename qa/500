@@ -1,0 +1,102 @@
+#! /bin/sh
+# PCP QA Test No. 500
+# #636417 - pmnewlog fails to accept all pmlogger options
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp; $signal -a -s TERM pmlogger >/dev/null 2>&1; exit \$status" 0 1 2 3 15
+
+mkdir $tmp
+cd $tmp
+wai=`whoami`
+
+_filter_pmnewlog()
+{
+    sed \
+	-e 's/process [0-9][0-9]*/process PID/' \
+	-e "s/^ *$wai/   pcpqa/" \
+	-e '/^   pcpqa.*pmlogger -L.*.*-c null one/	s/.*/-- ps line removed --/' \
+	-e '/^pcpqa.*pmlogger -L.*.*-c null one/	s/.*/-- ps line removed --/' \
+	-e '/^[0-9][0-9]*.* pmlogger -L.*.*-c null one/	s/.*/-- ps line removed --/' \
+	-e '/^\/usr\/pcp\/bin\/pmlogger/		s/\/usr\/pcp\/bin\///' \
+	-e 's/ SIG.* done/ signal stuff ... done/' \
+	-e "s;$tmp;TMP;g" \
+	-e 's/ -h [^ ]*/ -h HOST/g' \
+	-e '/pmlogger \[[0-9][0-9]*].*/{
+		s/\[.*/[PID] .../
+		q
+	}'
+}
+
+foo()
+{
+    sed \
+	-e '/^Getting logged/s/host HOST/host name/' \
+	-e 's/ host [^ ]*/ host HOST/g' \
+	-e '/Error \[<stdin>,/d' \
+	-e '/Warning \[<stdin>,/d' \
+	-e '/Not connected to any/d' \
+	-e '/Logging statement ignored/d' \
+	-e '/Problem with lookup for metric/d' \
+	-e '/Try again. Information not currently available/d' \
+	-e '/Unknown or illegal metric identifier/d' \
+	-e '/^log size/s/[0-9][0-9]*/BYTES/' \
+	-e '/^Contacting pmlogger /d' \
+	-e '/^pmnewlog: Warning: errors from talking /d' \
+	-e '/^continuing .../d' \
+	-e '/New pmlogger configuration file saved /d' \
+	-e '/^[ 	]*$/d'
+}
+
+# real QA test starts here
+
+touch null
+pmlogger -L -c null one &
+pmlogger_pid=$!
+
+for arg in '-D pdu' -r '-t 5sec' '-v 100k'
+do
+    echo
+    echo "pmnewlog args: -V -L -c null -p ... $arg one"
+    _wait_for_pmlogger $pmlogger_pid pmlogger.log
+    rm -f one.*
+    eval pmnewlog -V -L -c null -p $pmlogger_pid $arg one >out
+    _filter_pmnewlog <out
+
+    pmlogger_pid=`sed -n <out '/^pmlogger \[/{
+s/].*//
+s/.*\[//
+p
+}'`
+    if [ -z "$pmlogger_pid" ]
+    then
+	echo "Cannot extract pmlogger PID from ..."
+	cat out
+	echo
+	echo "... giving up!"
+	exit
+    fi
+
+done
+
+$signal -s TERM $pmlogger_pid
+sleep 2
+
+echo
+echo "expect none of my pmloggers to be running ..."
+ps $PCP_PS_ALL_FLAGS | grep pmlogger | grep 'null one' | grep -v grep
+
+# success, all done
+status=0
+exit

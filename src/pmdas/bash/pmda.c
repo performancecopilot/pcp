@@ -93,8 +93,11 @@ bash_trace_parser(bash_process_t *bash, bash_trace_t *trace,
     /* empty event inserted into queue to signal process has exited */
     if (size <= 0) {
 	trace->flags = PM_EVENT_FLAG_END;
-	// TODO: need to stat the trace file and get last modified
-	memcpy(&trace->timestamp, timestamp, sizeof(*timestamp));
+	if (fstat(bash->fd, &bash->stat) < 0 || !S_ISFIFO(bash->stat.st_mode))
+	    memcpy(&trace->timestamp, timestamp, sizeof(*timestamp));
+	else
+	    process_stat_timestamp(bash, &trace->timestamp);
+	close(bash->fd);
     } else {
 	char	*p = (char *)buffer, *end = (char *)buffer + size - 1;
 	int	sz, time = -1;

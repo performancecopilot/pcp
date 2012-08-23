@@ -1,0 +1,196 @@
+#! /bin/sh
+# PCP QA Test No. 003
+# Check that we get the expected metrics failing for each OS
+# Will need to be updated with every kernel pmda change
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+case "$PCP_PLATFORM"
+in
+    linux|darwin|solaris)
+	;;
+    *)
+	echo "Need to hand-craft the exceptions list in ./003 for this platform"
+	exit 1
+	;;
+esac
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# Expected error messages
+#
+nosupport="pmFetch: Metric not supported"
+unknown="pmLookupDesc: Unknown or illegal metric identifier"
+unavailable="pmFetch: no value available"
+explicit="pmFetch: Explicit instance identifier(s) required"
+missing="pmFetch: Missing metric value(s)"
+nyi="pmFetch: Functionality not yet implemented"
+
+pmie_filter()
+{
+    sed -e "/pmcd\.pmie\.actions: $unavailable/d" \
+    	-e "/pmcd\.pmie\.configfile: $unavailable/d" \
+    	-e "/pmcd\.pmie\.eval\.actual: $unavailable/d" \
+    	-e "/pmcd\.pmie\.eval\.expected: $unavailable/d" \
+    	-e "/pmcd\.pmie\.eval\.false: $unavailable/d" \
+    	-e "/pmcd\.pmie\.eval\.true: $unavailable/d" \
+    	-e "/pmcd\.pmie\.eval\.unknown: $unavailable/d" \
+    	-e "/pmcd\.pmie\.logfile: $unavailable/d" \
+    	-e "/pmcd\.pmie\.numrules: $unavailable/d" \
+    	-e "/pmcd\.pmie\.pmcd_host: $unavailable/d" \
+    	-e "/pmcd\.pmie\.host: $unavailable/d"
+}
+
+linux_filter()
+{
+    sed \
+	-e "/filesys\.readonly: $unknown/d" \
+	-e "/kernel\.pernode..*: $unavailable/d" \
+	-e "/mem\.util\.active_anon: $unavailable/d" \
+	-e "/mem\.util\.active_file: $unavailable/d" \
+	-e "/mem\.util\.anonhugepages: $unavailable/d" \
+	-e "/mem\.util\.corrupthardware: $unavailable/d" \
+	-e "/mem\.util\.directMap2M: $unavailable/d" \
+	-e "/mem\.util\.directMap4k: $unavailable/d" \
+	-e "/mem\.util\.highFree: $unavailable/d" \
+	-e "/mem\.util\.highTotal: $unavailable/d" \
+	-e "/mem\.util\.hugepagesFree: $unavailable/d" \
+	-e "/mem\.util\.hugepagesRsvd: $unavailable/d" \
+	-e "/mem\.util\.hugepagesSurp: $unavailable/d" \
+	-e "/mem\.util\.hugepagesTotal: $unavailable/d" \
+	-e "/mem\.util\.inactive_anon: $unavailable/d" \
+	-e "/mem\.util\.inactive_file: $unavailable/d" \
+	-e "/mem\.util\.kernelStack: $unavailable/d" \
+	-e "/mem\.util\.lowFree: $unavailable/d" \
+	-e "/mem\.util\.lowTotal: $unavailable/d" \
+	-e "/mem\.util\.mlocked: $unavailable/d" \
+	-e "/mem\.util\.mmap_copy: $unavailable/d" \
+	-e "/mem\.util\.quicklists: $unavailable/d" \
+	-e "/mem\.util\.shmem: $unavailable/d" \
+	-e "/mem\.util\.slabReclaimable: $unavailable/d" \
+	-e "/mem\.util\.slabUnreclaimable: $unavailable/d" \
+	-e "/mem\.util\.unevictable: $unavailable/d" \
+	-e "/mem\.vmstat\..*: $unavailable/d" \
+	-e "/swapdev\.free: $unavailable/d" \
+	-e "/swapdev\.length: $unavailable/d" \
+	-e "/swapdev\.maxswap: $unavailable/d" \
+	-e "/swapdev\.priority: $unavailable/d" \
+	-e "/swapdev\.vlength: $unavailable/d" \
+	-e "/swap\.in: $nosupport/d" \
+	-e "/swap\.out: $nosupport/d"
+
+}
+
+sample_filter()
+{
+    sed -e "/sample\.bad\.nosupport: $nosupport/d" \
+	-e "/sample\.bad\.unknown: $unknown/d" \
+	-e "/sample\.needprofile: $explicit/d" \
+	-e "/sample\.noinst: $unavailable/d" \
+	-e "/sample\.dynamic\.counter: $unavailable/d" \
+	-e "/sample\.dynamic\.discrete: $unavailable/d" \
+	-e "/sample\.dynamic\.instant: $unavailable/d" \
+	-e "/sample\.darkness: $unavailable/d" \
+	-e "/sample\.secret: $unknown/d" \
+	-e "/sample\.event\.type: $unavailable/d" \
+	-e "/sample\.event\.param_.*: $unavailable/d" \
+	-e "/sampledso\.bad\.nosupport: $nosupport/d" \
+	-e "/sampledso\.bad\.unknown: $unknown/d" \
+	-e "/sampledso\.needprofile: $explicit/d" \
+	-e "/sampledso\.noinst: $unavailable/d" \
+	-e "/sampledso\.dynamic\.counter: $unavailable/d" \
+	-e "/sampledso\.dynamic\.discrete: $unavailable/d" \
+	-e "/sampledso\.dynamic\.instant: $unavailable/d" \
+	-e "/sampledso\.darkness: $unavailable/d" \
+	-e "/sampledso\.secret: $unknown/d" \
+	-e "/sampledso\.event\.type: $unavailable/d" \
+	-e "/sampledso\.event\.param_.*: $unavailable/d" \
+
+}
+
+count_filter()
+{
+    sed -e '/[0-9][0-9]* metrics, [0-9][0-9]* getindom, [0-9][0-9]* insitu, [0-9][0-9]* ptr/d'
+}
+
+echo "=== no output is good news ==="
+
+for root in \
+	sample sampledso \
+	buffer_cache disk filesys hinv hw ipc kernel mem name_cache network \
+	nfs nfs3 resource rpc stream swap swapdev vnodes xfs \
+	pmcd
+do
+    src/exercise -i 5 $root \
+    | LC_COLLATE=POSIX sort \
+    | sample_filter \
+    | linux_filter \
+    | pmie_filter \
+    | count_filter >$tmp.tmp
+
+    if [ "$PCP_PLATFORM" = linux ]
+    then
+	  sed <$tmp.tmp \
+	    -e "/disk\.all\.avactive: $unavailable/d" \
+	    -e "/disk\.all\.aveq: $unavailable/d" \
+	    -e "/disk\.all\..*_bytes: $unavailable/d" \
+	    -e "/disk\.dev\.avactive: $unavailable/d" \
+	    -e "/disk\.dev\.aveq: $unavailable/d" \
+	    -e "/disk\.dev\..*_bytes: $unavailable/d" \
+	    -e "/disk\.partitions\./d" \
+	    -e "/disk\.xvm\..*: $unavailable/d" \
+	    -e "/hinv\.interconnect: $unavailable/d" \
+	    -e "/hinv\.map\.cpu: $unavailable/d" \
+	    -e "/hinv\.map\.disk: $unavailable/d" \
+	    -e "/hinv\.map\.node: $unavailable/d" \
+	    -e "/hinv\.map\.routerport: $unavailable/d" \
+	    -e "/hinv\.map\.router: $unavailable/d" \
+	    -e "/hinv\.map\.scsi: $unavailable/d" \
+	    -e "/hinv\.map\.xbow: $unavailable/d" \
+	    -e "/hinv\.nxbow: $nyi/d" \
+	    -e "/hw\.hub\..*: $missing/d" \
+	    -e "/hw\.hub\..*: $unavailable/d" \
+	    -e "/hw\.router\..*: $unavailable/d" \
+	    -e "/kernel\..*\.syscall: $unavailable/d" \
+	    -e "/mem\.slabinfo\.objects\.active: $unavailable/d" \
+	    -e "/mem\.slabinfo\.objects\.size: $unavailable/d" \
+	    -e "/mem\.slabinfo\.objects\.total: $unavailable/d" \
+	    -e "/mem\.slabinfo\.slabs\.active: $unavailable/d" \
+	    -e "/mem\.slabinfo\.slabs\.objects_per_slab: $unavailable/d" \
+	    -e "/mem\.slabinfo\.slabs\.pages_per_slab: $unavailable/d" \
+	    -e "/mem\.slabinfo\.slabs\.total: $unavailable/d" \
+	    -e "/mem\.slabinfo\.slabs\.total_size: $unavailable/d" \
+	    -e "/mem\.vmstat\.nr_slab: $unavailable/d" \
+	    -e "/mem\.numa\..*: $unavailable/d" \
+	    -e "/mem\.util\.other: $unavailable/d" \
+	    -e "/mem\.util\.reverseMaps: $unavailable/d" \
+	    -e "/mem\.util\.shared: $unavailable/d" \
+	    -e "/network\.ib\..*/d" \
+	    -e "/network\.interface\.baudrate: $unavailable/d" \
+	    -e "/network\.interface\.duplex: $unavailable/d" \
+	    -e "/network\.interface\.inet_addr: $unavailable/d" \
+	    -e "/network\.interface\.speed: $unavailable/d" \
+	    -e "/nfs3\.server\..*: $unavailable/d" \
+	    -e "/nfs.*\.client\.calls: $unavailable/d" \
+	    -e "/nfs.*\.client\.reqs: $unavailable/d" \
+	    -e "/nfs\.server\..*: $unavailable/d" \
+	    -e '/pmcd\.simabi/d' \
+	    -e "/rpc\.client\..*: $unavailable/d" \
+	    -e "/rpc\.server\..*: $unavailable/d" \
+	    -e "/sampledso\.sysinfo: $nosupport/d" \
+	    -e "/sample\.sysinfo: $nosupport/d" \
+	    -e "/xfs\..*: $unavailable/d"
+    elif [ "$PCP_PLATFORM" = darwin ]
+    then
+	  sed <$tmp.tmp \
+	    -e 's/a/a/'
+    fi
+done

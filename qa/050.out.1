@@ -1,0 +1,127 @@
+QA output created by 050
+
+Archive src/foo ...
+
+Pass 1: forward scan
+Found 9 samples, with 9 log reads
+
+Pass 2: before start of log scan
+  2.1: FORWARD, expect success
+    found 1 with 1 log reads
+  2.2: BACKWARD, expect EOL
+    End of PCP archive log with 0 log_reads
+  2.3: INTERP, expect EOL
+    End of PCP archive log with 0 log_reads
+
+Pass 3: after end of log scan
+  3.1: FORWARD, expect EOL
+    End of PCP archive log with 0 log_reads
+  3.2: BACKWARD, expect success
+    found 1 with 1 log reads
+  3.3: INTERP, expect EOL
+    End of PCP archive log with 1 log_reads
+
+Archive src/bigbin ...
+
+Pass 1: forward scan
+Found 1001 samples, with 1001 log reads
+
+Pass 2: before start of log scan
+  2.1: FORWARD, expect success
+    found 1 with 1 log reads
+  2.2: BACKWARD, expect EOL
+    End of PCP archive log with 0 log_reads
+  2.3: INTERP, expect EOL
+    End of PCP archive log with 0 log_reads
+
+Pass 3: after end of log scan
+  3.1: FORWARD, expect EOL
+    End of PCP archive log with 0 log_reads
+  3.2: BACKWARD, expect success
+    found 1 with 1 log reads
+  3.3: INTERP, expect EOL
+    End of PCP archive log with 1 log_reads
+
+Archive src/mv-foo ...
+
+Pass 1: forward scan
+Found 9 samples, with 9 log reads
+
+Pass 2: before start of log scan
+  2.1: FORWARD, expect success
+    found 1 with 1 log reads
+  2.2: BACKWARD, expect EOL
+    End of PCP archive log with 0 log_reads
+  2.3: INTERP, expect EOL
+    End of PCP archive log with 0 log_reads
+
+Pass 3: after end of log scan
+  3.1: FORWARD, expect EOL
+    End of PCP archive log with 0 log_reads
+  3.2: BACKWARD, expect success
+    found 1 with 1 log reads
+  3.3: INTERP, expect EOL
+    End of PCP archive log with 1 log_reads
+
+Archive src/mv-bigbin ...
+
+Pass 1: forward scan
+Found 1001 samples, with 1001 log reads
+
+Pass 2: before start of log scan
+  2.1: FORWARD, expect success
+    found 1 with 1 log reads
+  2.2: BACKWARD, expect EOL
+    End of PCP archive log with 0 log_reads
+  2.3: INTERP, expect EOL
+    End of PCP archive log with 0 log_reads
+
+Pass 3: after end of log scan
+  3.1: FORWARD, expect EOL
+    End of PCP archive log with 0 log_reads
+  3.2: BACKWARD, expect success
+    found 1 with 1 log reads
+  3.3: INTERP, expect EOL
+    End of PCP archive log with 1 log_reads
+
+Archive src/noti-foo ...
+
+Pass 1: forward scan
+Found 9 samples, with 9 log reads
+
+Pass 2: before start of log scan
+  2.1: FORWARD, expect success
+    found 1 with 1 log reads
+  2.2: BACKWARD, expect EOL
+    End of PCP archive log with 9 log_reads
+  2.3: INTERP, expect EOL
+    End of PCP archive log with 0 log_reads
+
+Pass 3: after end of log scan
+  3.1: FORWARD, expect EOL
+    End of PCP archive log with 9 log_reads
+  3.2: BACKWARD, expect success
+    found 1 with 1 log reads
+  3.3: INTERP, expect EOL
+    End of PCP archive log with 1 log_reads
+
+Archive src/noti-bigbin ...
+
+Pass 1: forward scan
+Found 1001 samples, with 1001 log reads
+
+Pass 2: before start of log scan
+  2.1: FORWARD, expect success
+    found 1 with 1 log reads
+  2.2: BACKWARD, expect EOL
+    End of PCP archive log with 1001 log_reads
+  2.3: INTERP, expect EOL
+    End of PCP archive log with 0 log_reads
+
+Pass 3: after end of log scan
+  3.1: FORWARD, expect EOL
+    End of PCP archive log with 1001 log_reads
+  3.2: BACKWARD, expect success
+    found 1 with 1 log reads
+  3.3: INTERP, expect EOL
+    End of PCP archive log with 1 log_reads

@@ -1,0 +1,260 @@
+#! /bin/sh
+# PCP QA Test No. 113
+# check filesys metrics against df and mount
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ $PCP_PLATFORM = solaris ]
+then
+    _notrun No filesys metrics for Solaris
+fi
+
+echo "QA output created by $seq"
+
+status=0
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+rm -f $seq.full
+
+filesystems=`mount \
+	     | sed -e 's/[(,)]//g' \
+             | $PCP_AWK_PROG '
+$4 == "type" && ($5 == "efs" || $5 == "xfs" || $5 == "ext2" || $5 == "ext3" || $5 == "ext4") { print $1 }
+$4 == "hfs" { print $1 }'`
+
+if [ -z "$filesystems" ]
+then
+    echo "Botch: cannot extract filesystems list from mount(1) output ..."
+    mount
+    sts=1
+    exit
+fi
+
+rootdev=`mount | $PCP_AWK_PROG '$1 ~ /\// && $3 == "/" { print $1 }'`
+
+# disk name aliases are a real pain ...
+#
+mount \
+| sed \
+    -e '/ type proc/d' \
+    -e '/ type sysfs/d' \
+    -e '/ type devpts/d' \
+    -e '/ type devtmpfs/d' \
+    -e '/ type tmpfs/d' \
+    -e '/ type debugfs/d' \
+    -e '/ type autofs/d' \
+    -e '/ type securityfs/d' \
+    -e '/ type selinuxfs/d' \
+    -e '/ type rpc_pipefs/d' \
+    -e '/ type fusectl/d' \
+    -e '/ type binfmt_misc/d' \
+    -e '/ type fuse.gvfs-fuse-daemon/d' \
+    -e '/ type cgroup/d' \
+    -e '/ type hugetlbfs/d' \
+    -e '/ type mqueue/d' \
+    -e '/ type rootfs/d' \
+    -e 's/[ 	].*//' \
+| while read dev
+do
+    [ ! -L $dev ] && continue
+    [ "$dev" = "/dev/root" ] && continue
+    echo "mount device: $dev" >>$seq.full
+    link=$dev
+    while true
+    do
+	next=`ls -l $link | sed -n -e '/ -> /s/.* -> //p'`
+	[ -z "$next" ] && break
+	echo "    $link -> $next" >>$seq.full
+	case $next
+	in
+	    md/*|xscsi/*)
+		# relative pathname in LBS!
+		link=/dev/$next
+		;;
+	    /*)
+		link=$next
+		;;
+	    ../*)
+		dir=`dirname $link`
+		dir=`dirname $dir`
+		next=`echo $next | sed -e 's/^\.\.\///'`
+		link=$dir/$next
+		;;
+	    *)
+		dir=`dirname $link`
+		link=$dir/$next
+		;;
+	esac
+    done
+    [ "$link" != "$dev" ] && echo "s;$dev;$link;" >>$tmp.map
+done
+
+if [ -f $tmp.map ]
+then
+    # need longest prefix replacements first ... ~ should sort "high"
+    #
+    sed -e 's/;/~/' $tmp.map \
+    | LC_COLLATE=POSIX sort \
+    | sed -e 's/~/;/' >$tmp.tmp
+    mv $tmp.tmp $tmp.map
+else
+    echo "s;$rootdev;/dev/root;" >>$tmp.map
+fi
+
+if grep "s;$rootdev;" $tmp.map >/dev/null
+then
+    # already have a mapping for this one
+    :
+else
+    echo "s;$rootdev;/dev/root;" >>$tmp.map
+fi
+
+echo "-- map --" >>$seq.full
+cat $tmp.map >>$seq.full
+
+numval=`pmprobe -v filesys.avail 2>/dev/null | $PCP_AWK_PROG '{print $2}'`
+if [ ! -z "$numval" -a "$numval" -gt 0 ]
+then
+    # better match for df "free" if available on Linux
+    #
+    free=filesys.avail
+else
+    free=filesys.free
+fi
+
+echo "-- pcp --" >>$seq.full
+pminfo -f filesys >>$seq.full
+
+pminfo -f \
+    filesys.capacity \
+    filesys.used \
+    $free \
+    filesys.maxfiles \
+    filesys.usedfiles \
+    filesys.freefiles \
+    filesys.mountdir \
+    filesys.full \
+| sed \
+    -e '/"devfs"/d' \
+    -e '/"map -hosts"/d' \
+    -e '/"map auto_home"/d' \
+    -e "s/$free/filesys.free/" \
+    -e 's/\[//g' -e 's/\]//g' \
+    -e 's/\"//g' \
+| $PCP_AWK_PROG '
+/^[ \t]*$/	{next}
+/^filesys/	{metric=$1}
+$1 == "inst" { printf "%s_%s %s\n", metric, $4, $6 }' \
+| LC_COLLATE=POSIX sort > $tmp.1
+
+echo "-- pcp-filtered-1 --" >>$seq.full
+cat $tmp.1 >>$seq.full
+
+# map symbolic link names and /dev/root for pcp output
+#
+sed -f $tmp.map $tmp.1 | LC_COLLATE=POSIX sort >$tmp.tmp
+mv $tmp.tmp $tmp.1
+
+echo "-- pcp-filtered-2 --" >>$seq.full
+cat $tmp.1 >>$seq.full
+
+(for f in $filesystems
+do
+    if [ $PCP_PLATFORM = irix ]
+    then
+	df -lki $f \
+	| $PCP_AWK_PROG '
+/^Filesystem/	{next}
+		{
+		  dev="'$f'"
+		  printf "%s_%s %d\n", "filesys.capacity",  dev, $3
+		  printf "%s_%s %d\n", "filesys.used", dev, $4
+		  printf "%s_%s %d\n", "filesys.free", dev, $5
+		  printf "%s_%s %d\n", "filesys.maxfiles", dev, $7+$8
+		  printf "%s_%s %d\n", "filesys.usedfiles", dev, $7
+		  printf "%s_%s %d\n", "filesys.freefiles", dev, $8
+		  printf "%s_%s %d\n", "filesys.mountdir", dev, $10
+		}' 
+    elif [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin ]
+    then
+	$sudo df -lk \
+	| grep $f \
+	| $PCP_AWK_PROG '
+BEGIN		{ dev="'$f'" }
+NF == 1		{ next }
+NF == 6		{ printf "%s_%s %d\n", "filesys.capacity",  dev, $2
+		  printf "%s_%s %d\n", "filesys.used", dev, $3
+		  printf "%s_%s %d\n", "filesys.free", dev, $4
+		  printf "%s_%s %d\n", "filesys.mountdir", dev, $6
+		}
+NF == 5		{ printf "%s_%s %d\n", "filesys.capacity",  dev, $1
+		  printf "%s_%s %d\n", "filesys.used", dev, $2
+		  printf "%s_%s %d\n", "filesys.free", dev, $3
+		  printf "%s_%s %d\n", "filesys.mountdir", dev, $5
+		}'
+	$sudo df -li \
+	| grep $f \
+	| $PCP_AWK_PROG '
+BEGIN		{ dev="'$f'" }
+NF == 1		{ next }
+NF == 6		{ printf "%s_%s %d\n", "filesys.maxfiles",  dev, $2
+		  printf "%s_%s %d\n", "filesys.usedfiles", dev, $3
+		  printf "%s_%s %d\n", "filesys.freefiles", dev, $4
+		}
+NF == 5		{ printf "%s_%s %d\n", "filesys.maxfiles",  dev, $1
+		  printf "%s_%s %d\n", "filesys.usedfiles", dev, $2
+		  printf "%s_%s %d\n", "filesys.freefiles", dev, $3
+		}
+NF == 9		{ printf "%s_%s %d\n", "filesys.maxfiles",  dev, $6+$7
+		  printf "%s_%s %d\n", "filesys.usedfiles", dev, $6
+		  printf "%s_%s %d\n", "filesys.freefiles", dev, $7
+		}'
+    else
+	echo "Blah, what sort df magic is needed for a \"$PCP_PLATFORM\" system?" >&2
+	status=1
+	exit
+    fi
+done) | LC_COLLATE=POSIX sort > $tmp.2
+
+# map symbolic link names and /dev/root for df output
+#
+sed -f $tmp.map $tmp.2 | LC_COLLATE=POSIX sort >$tmp.tmp
+mv $tmp.tmp $tmp.2
+
+echo "-- df --" >>$seq.full
+$sudo df -li >>$seq.full 2>&1
+echo "-- df-filtered --" >>$seq.full
+cat $tmp.2 >>$seq.full
+
+join -a2 -1 1 $tmp.1 $tmp.2 \
+| $PCP_AWK_PROG '{
+    a=$2; b=$3; d=a-b;
+    if (d<0) d = -d;
+    if (d > 5 && d>a/100) {
+	print "'$0' : Diff of more than 5 in total and 1 percent: ", $0
+	err++
+    }
+}
+END {
+    exit err
+}'
+
+status=$?
+if [ $status != 0 ]
+then
+    echo $0 =========== pcp output ==============
+    cat $tmp.1
+    echo $0 =========== df output ==============
+    cat $tmp.2
+    echo $0 exit status $status
+fi
+
+exit $status

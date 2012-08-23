@@ -1,0 +1,42 @@
+#! /bin/sh
+# PCP QA Test No. 414
+# slow AF callback handling, pv #550109
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+rm -f $seq.full
+
+# real QA test starts here
+
+# filtering needed because some non-determinism in ordinal numbering
+#
+src/slow_af -D af 2>$tmp.err \
+| sed \
+    -e 's/#16$/#last/' \
+    -e 's/#17$/#last/'
+
+cat $tmp.err >>$seq.full
+echo
+echo "Diagnostic output lines ..."
+sed <$tmp.err \
+    -e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9][0-9][0-9][0-9]/TIME/g' \
+    -e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIME/g' \
+    -e 's/0x0)/(nil))/g' \
+    -e 's/0x[0-9a-f][0-9a-f]*/ADDR/g' \
+| LC_COLLATE=POSIX sort \
+| uniq
+
+# success, all done
+status=0
+exit

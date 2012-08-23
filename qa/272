@@ -1,0 +1,329 @@
+#! /bin/sh
+# PCP QA Test No. 272
+# pmcd access control tests (used to be the second half of 051)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+# preliminary check
+#
+./getpmcdhosts -n 2 -L -a sample -v 'pcp>=2' -s IRIX64 2>$seq.notrun >/dev/null
+if [ $? -eq 1 ]; then
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit
+fi
+rm -f $seq.notrun
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rsignal=pmsignal
+status=1	# failure is the default!
+
+# pmcd may be quite some distance away
+#
+PMCD_CONNECT_TIMEOUT=30
+PMCD_REQUEST_TIMEOUT=30
+
+NETSTAT=netstat
+
+export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT NETSTAT
+
+# --- from here on down, originally copied _to_ 339, so need to push
+# --- changes into that qa test ... but the tests have now diverged, sigh!
+#
+
+# real QA test starts here
+
+config=$PCP_PMCDCONF_PATH
+oconfig=$tmp.config
+
+# get FQDN
+#
+host=`hostname | sed -e 's/\..*//'`
+me=`_host_to_fqdn $host`
+if [ -z "$me" ]
+then
+    echo "Cannot get fully qualified domain name for $host"
+    exit
+fi
+
+_needclean=true
+
+# get standard filters
+. ./common.filter
+. ./common.check
+
+# _wait_for_pmcd_from_remote remote-host [max-wait]
+#
+_wait_for_pmcd_from_remote()
+{
+    # 20 seconds default seems like a reasonble max time to get going
+    can_wait=${2-20}
+    i=0
+    dead=true
+    while [ $i -lt $can_wait ]
+    do
+	clients=`ssh $1 -q -n -l pcpqa "sh -c 'PMCD_PORT=$port pmprobe -h $me pmcd.numclients'" 2>/dev/null | sed -e 's/.* //'`
+	if [ $i -eq 0 ]
+	then
+	    echo >>$seq.full
+	    echo "+ ssh $1 -q -n -l pcpqa \"sh -c 'PMCD_PORT=$port pmprobe -h $me pmcd.numclients'\"" >>$seq.full
+	    ssh $1 -q -n -l pcpqa "sh -c 'PMCD_PORT=$port pmprobe -h $me pmcd.numclients'" >>$seq.full 2>&1
+	    echo "clients=\"$clients\"" >>$seq.full
+	fi
+	if [ ! -z "$clients" ]
+	then
+	    if [ "$clients" -gt 0 ]
+	    then
+		dead=false
+		break
+	    fi
+	fi
+	sleep 1
+	i=`expr $i + 1`
+    done
+    if $dead
+    then
+	echo "Arrgghhh ... pmcd failed to start after $can_wait seconds"
+	ssh $1 -q -n -l pcpqa cat $PCP_PMCDLOG_PATH
+	ps $PCP_PS_ALL_FLAGS
+	status=2
+	exit $status
+    fi
+}
+
+cleanup()
+{
+    if $_needclean
+    then
+	unset PMCD_PORT
+	[ -f $oconfig ] && $sudo cp $oconfig $config
+	# _change_config pmlogger on
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+        _needclean=false
+    fi
+    $sudo rm -f $tmp.*
+}
+
+trap "cleanup; exit \$status" 0 1 2 3 15
+
+rm -f $seq.full
+touch $seq.full
+
+# real QA test starts here
+port=`_get_port tcp 6060 6070`
+if [ -z "$port" ]
+then
+    echo "Arrggh ... no free TCP port in the range 6060 ... 6070"
+    $NETSTAT -a
+    exit 1
+fi
+echo "port=$port" >>$seq.full
+
+# _change_config pmlogger off
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+
+$sudo cp $config $oconfig
+
+other1=bogus
+other2=bogus
+
+eval `./getpmcdhosts -n 2 -L -a sample -v 'pcp>=2' -s IRIX64 2>/dev/null \
+      | $PCP_AWK_PROG '{ if (NF >= 2) printf("other1=%s other2=%s\n",$1,$2); }'`
+
+if [ "X$other1" = Xbogus -o "X$other2" = Xbogus ]
+then
+    echo "Error: Unable to find two hosts configured with the sample PMDA"
+    echo "+ ./getpmcdhosts -D -n 2 -L -a sample -v 'pcp>=2' -s IRIX64 "
+    ./getpmcdhosts -D -n 2 -L -a sample -v 'pcp>=2' -s IRIX64
+    echo "Desperate: check all hosts in qa_hosts ..."
+    cat $tmp.hosts \
+    | while read host
+    do
+	echo "=== $host ==="
+	pminfo -b 1 -f -h $host pmcd.numagents pmcd.agent.status sample.seconds
+    done
+    exit 1
+fi
+
+list1=`_all_hostnames $other1`
+if [ -z "$list1" ]
+then
+    echo "Arrgh ... failed to expand other1=\"$other1\" to all hostnames"
+    echo "netstat reports ..."
+    ssh -q </dev/null $other1 -n -l pcpqa $NETSTAT -in
+    exit
+fi
+list2=`_all_hostnames $other2`
+if [ -z "$list2" ]
+then
+    echo "Arrgh ... failed to expand other2=\"$other2\" to all hostnames"
+    echo "netstat reports ..."
+    ssh -q </dev/null $other2 -n -l pcpqa $NETSTAT -in
+    exit
+fi
+echo "other1=$other1 list1=$list1" >>$seq.full
+echo "other2=$other2 list2=$list2" >>$seq.full
+
+cat >$tmp.access <<End-Of-File
+
+[access]
+allow $list1 :	   all;
+disallow $list2 : all except fetch;
+allow $list2 :	   maximum 1 connections;
+End-Of-File
+
+$sudo "sed -e '/\[access]/q' $oconfig | sed -e '/\[access]/d' >$config"
+$sudo "cat $tmp.access >>$config"
+
+echo >>$seq.full
+echo "=== First pmcd.conf ===" >>$seq.full
+cat $config >>$seq.full
+
+# don'use the regular port ...
+#
+PMCD_PORT=$port
+export PMCD_PORT
+
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+
+#DEBUG# pmstore pmcd.control.traceconn 1
+#DEBUG# pmstore pmcd.control.tracepdu 1
+#DEBUG# pmstore pmcd.control.tracenobuf 1
+#DEBUG# pmstore pmcd.control.debug 1
+
+echo "    checking default access for this host ..."
+pminfo -f sample.long.million
+pmstore sample.write_me 111
+
+echo
+echo "    checking access for OTHERHOST1 (both should succeed)"
+ssh -q $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pminfo -h $me -f sample.long.million'"
+ssh -q $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me sample.write_me 222'"
+
+echo
+echo "    checking access for OTHERHOST2 (store should fail)"
+ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pminfo -h $me -f sample.long.hundred'"
+ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me sample.write_me 333'"
+
+echo
+echo "    checking connection limit for OTHERHOST2 (will exceed connection limit)"
+ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmval -h $me -t 666 sample.long.ten'" >/dev/null 2>&1 &
+# guess at delay
+#
+sleep `expr $PMCD_CONNECT_TIMEOUT / 2`
+# note on sed ... some systems appear to be able to deliver the socket
+# reset by peer state ahead of completing the read() on the receiver side,
+# so we never get the PCP error PDU ... there has been extensive analysis
+# of this for pmcd on a Linux host and $other2 being an IRIX host, and it
+# is _not_ a PCP protocol failure.
+#
+ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pminfo -h $me -f sample.long.one'" 2>&1 \
+| sed \
+    -e 's/".*"/"OTHERHOST2"/' \
+    -e 's/IPC protocol failure/PMCD connection limit for this host exceeded/'
+#DEBUG# echo "Trying connection limit pminfo again ..." >>$seq.full
+#DEBUG# ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port par -s -SS pminfo -Dall -h $me -f sample.long.one'" >>$seq.full 2>&1
+ssh -q $other2 -n -l pcpqa $rsignal -a pmval > /dev/null 2>&1
+
+echo "pmcd.log:======="
+sed -n <$PCP_PMCDLOG_PATH -e '/endclient/{
+s/\[[0-9]*]/[M]/
+s/(fd [0-9]*)/(fd N)/
+p
+}'
+echo "================"
+
+echo "pmcd.log ..." >>$seq.full
+cat $PCP_PMCDLOG_PATH >>$seq.full
+
+iplist1=`_all_ipaddrs $other1`
+if [ -z "$iplist1" ]
+then
+    echo "QA Error: cannot generate all ip addrs from \"$other1\""
+    status=3
+    exit
+fi
+iplist2=`_all_ipaddrs $other2`
+if [ -z "$iplist2" ]
+then
+    echo "QA Error: cannot generate all ip addrs from \"$other2\""
+    status=3
+    exit
+fi
+iplist3=`_all_ipaddrs localhost`
+if [ -z "$iplist3" ]
+then
+    echo "QA Error: cannot generate all ip addrs from localhost"
+    status=3
+    exit
+fi
+echo "other1=$other1 iplist1=$iplist1" >>$seq.full
+echo "other2=$other2 iplist2=$iplist2" >>$seq.full
+echo "localhost iplist3=$iplist3" >>$seq.full
+
+netlist2=`echo $iplist2,$iplist3 | sed -e 's/$/,/' -e 's/[0-9][0-9]*\.[0-9][0-9]*,/*,/g' -e 's/,$//'`
+
+cat >$tmp.access <<End-Of-File
+
+[access]
+allow $iplist1 :    all;
+disallow $netlist2 : all except fetch;
+disallow * :	     all;
+End-Of-File
+
+$sudo "sed -e '/\[access]/q' $oconfig | sed -e '/\[access]/d' >$config"
+$sudo "cat $tmp.access >>$config"
+
+echo >>$seq.full
+echo "=== Second pmcd.conf ===" >>$seq.full
+cat $config >>$seq.full
+
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd_from_remote $other1
+ssh -q $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me pmcd.control.debug 4096'"
+
+echo "    checking default access for this host (store should fail) ..."
+
+pminfo -f sample.long.million
+pmstore sample.write_me 444
+
+echo
+echo "    checking access for OTHERHOST1 (both should succeed)"
+ssh -q $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pminfo -h $me -f sample.long.million'"
+ssh -q $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me sample.write_me 555'"
+
+echo
+echo "    checking access for OTHERHOST2 (store should fail)"
+ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pminfo -h $me -f sample.long.hundred'"
+ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me sample.write_me 666'"
+
+echo
+echo "    checking default access for explicit/localhost (both should fail)"
+pmstore -h localhost sample.write_me 21
+pmstore -h $me sample.write_me 42
+
+echo "pmcd.log:======="
+sed -n <$PCP_PMCDLOG_PATH -e '/endclient/{
+s/\[[0-9]*]/[M]/
+s/(fd [0-9]*)/(fd N)/
+p
+}'
+echo "================"
+
+echo "pmcd.log ..." >>$seq.full
+cat $PCP_PMCDLOG_PATH >>$seq.full
+
+# success, all done
+status=0
+exit

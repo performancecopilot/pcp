@@ -1,0 +1,84 @@
+#! /bin/sh
+# PCP QA Test No. 327
+# Check pmloglabel detects and repairs all forms of log label corruption
+#
+# Copyright (c) 2008 Aconex.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1
+trap "rm -fr $tmp; exit \$status" 0 1 2 3 15
+rm -f $seq.full
+
+filter_paths()
+{
+    sed -e "s,$tmp,<TMPPATH>,g"
+}
+
+test_and_repair()
+{
+    opts="$@"
+    archive="$tmp/ok-mv-foo"
+
+    pmdumplog -z -L $archive 2>&1 | filter_paths 	# test
+    pmloglabel $archive		# check
+    pmloglabel $opts $archive	# repair
+    pmdumplog -z -L $archive	# test
+}
+
+# real QA test starts here
+mkdir $tmp
+
+if [ $PCP_PLATFORM = darwin ]
+then
+    convert="conv=notrunc"
+else
+    convert="conv=nocreat,notrunc"
+fi
+
+for suffix in 0 1 meta index
+do
+    echo "=== checking corrupt ok-mv-foo.$suffix label ==="
+    cp -f $here/src/ok-mv-foo.* $tmp
+    of=$tmp/ok-mv-foo.$suffix
+
+    # Offsets: 4+20+64+40+4  (prefix+5*int+hostname+timezone+suffix)
+
+    echo "*** bad prefix length ***"
+    echo 12 | dd of=$of $convert ibs=1 obs=1 seek=0 count=4 >>$here/$seq.full 2>&1
+    test_and_repair -s
+
+    echo "*** bad magic/version length ***"
+    echo 42 | dd of=$of $convert ibs=1 obs=1 seek=4 count=2 >>$here/$seq.full 2>&1
+    test_and_repair -V 2
+
+    echo "*** mismatched pid ***"
+    echo 01 | dd of=$of $convert ibs=1 obs=1 seek=8 count=2 >>$here/$seq.full 2>&1
+    test_and_repair -p 12345
+
+    echo "*** bad volume number ***"
+    echo 05 | dd of=$of $convert ibs=1 obs=1 seek=20 count=2 >>$here/$seq.full 2>&1
+    test_and_repair -s
+
+    echo "*** mismatched hostname ***"
+    echo HNAME | dd of=$of $convert ibs=1 obs=1 seek=24 count=5 >>$here/$seq.full 2>&1
+    test_and_repair -h gonzo.com
+
+    echo "*** mismatched timezone ***"
+    echo BADTZ | dd of=$of $convert ibs=1 obs=1 seek=88 count=5 >>$here/$seq.full 2>&1
+    test_and_repair -Z GMT
+
+    echo "*** bad suffix length ***"
+    echo 21 | dd of=$of $convert ibs=1 obs=1 seek=128 count=4 >>$here/$seq.full 2>&1
+    test_and_repair -s
+done
+
+status=0
+exit
