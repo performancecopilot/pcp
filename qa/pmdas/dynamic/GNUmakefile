@@ -16,6 +16,7 @@ MYSCRIPTS = Install Remove
 LSRCFILES = $(MYSCRIPTS) $(MYFILES) GNUmakefile.install
 LDIRT = help.pag help.dir
 
+LLDFLAGS = $(PCP_LIBS)
 LLDLIBS = -lpcp_pmda -lpcp
 
 default default_pcp setup: $(TARGETS)

@@ -146,7 +146,7 @@ LCFLAGS = -DHAVE_TRACE
 LLDLIBS	= -lpcp $(LDFLAGS)
 
 # libpcp_trace is ready
-TRACELIB	= -lpcp_trace $(LDFLAGS)
+TRACELIB	= -lpcp_trace $(LLDLIBS)
 
 # all archives, except the ones checked into the source tree,
 # then add executables beyond $(TARGETS)
