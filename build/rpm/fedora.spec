@@ -63,7 +63,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) test suite
 URL: http://oss.sgi.com/projects/pcp/
 
-Requires: pcp-libs-devel = %{version}
+Requires: pcp-libs-devel = %{version} valgrind
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
