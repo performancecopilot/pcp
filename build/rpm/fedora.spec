@@ -14,8 +14,8 @@ BuildRequires: procps autoconf bison flex ncurses-devel readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts python-devel man-db hostname
  
-Requires: bash gawk sed grep fileutils findutils initscripts python
-Requires: pcp-libs = %{version}
+Requires: bash gawk sed grep fileutils findutils initscripts perl python
+Requires: pcp-libs = %{version} perl-PCP-PMDA = %{version}
 
 %define _pmdasdir %{_localstatedir}/lib/pcp/pmdas
 %define _testsdir %{_localstatedir}/lib/pcp/testsuite
@@ -76,7 +76,7 @@ License: GPLv2
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) Perl bindings and documentation
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp >= %{version}
+Requires: pcp-libs = %{version}
 
 %description -n perl-PCP-PMDA
 The PCP::PMDA Perl module contains the language bindings for
