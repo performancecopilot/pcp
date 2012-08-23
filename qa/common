@@ -622,38 +622,11 @@ if $quick
 then
     :
 else
-    # need localconfig
-    #
-    if ./mk.localconfig
-    then
-	${MAKE:-make} setup | egrep -v 'Entering|Leaving|Nothing'
-    else
-	echo "Arrggh ... fix the PCP QA installation first!"
-	exit 1
-    fi
+    ./mk.localconfig
 
-    # check other stuff
-    #
     $OPTION_AGENTS && _haveagents
     $OPTION_LOGGER && _havelogger
     $OPTION_PMCD_TRACE && _havepmcdtrace
 
-    # make in the subdirectories
-    #
-    for dir in src pmdas
-    do
-	[ -d $dir ] || continue
-	if ( cd $dir; unset ROOT TOOLROOT; ${MAKE:-make} -i setup )
-	then
-	    :
-	else
-	    echo
-	    echo ":----------------------------------------------"
-	    echo ": Warning: ${MAKE:-make} failed in $dir -- some tests may fail as a result"
-	    echo ":----------------------------------------------"
-	    echo
-	    warn=1
-	fi
-    done
-
+    ${MAKE:-make} setup
 fi

@@ -34,9 +34,9 @@ LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
 SCRIPTS = mk.localconfig mk.pcpversion mk.qa_hosts mk.variant getpmcdhosts \
 	  new check recheck remake findmetric group-stats changeversion \
 	  check-gitignore check-group chk.setup sanity.coverage show-me \
-	  xlate_2_new_pmns
+	  xlate_2_new_pmns common
 
-COMMON = common common.check common.config common.filter common.install.cisco \
+COMMON = common.check common.config common.filter common.install.cisco \
 	 common.pcpweb common.product common.rc common.setup
 
 OTHERS = GNUmakefile.install group qa_hosts.master qa_outfiles README \
