@@ -1,20 +1,22 @@
+Summary: Visualization tools for the Performance Co-Pilot toolkit
 Name: pcp-gui
-Version: 1.5.5
-Release: 2%{?dist}
+Version: 1.5.6
+%define buildversion 1
+
+Release: %{buildversion}%{?dist}
 License: GPLv2+ and LGPLv2+ and LGPLv2+ with exceptions
 URL: http://oss.sgi.com/projects/pcp
+Group: Applications/System
+Source0: ftp://oss.sgi.com/projects/pcp/download/rpm/pcp-gui/pcp-gui-%{version}-%{buildversion}.src.tar.gz
 
-Source0: ftp://oss.sgi.com/projects/pcp/download/rpm/pcp-gui/pcp-gui-%{version}.src.tar.gz
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: autoconf, bison, flex, gawk, pcp >= 2.0, pcp-libs-devel >= 2.0, qt4-devel >= 4.2
+BuildRequires: autoconf, bison, flex, gawk
+BuildRequires: pcp >= 2.0, pcp-libs-devel >= 2.0, qt4-devel >= 4.2
 BuildRequires: desktop-file-utils
 %if (0%{?fedora} > 12 || 0%{?rhel} > 5)
 BuildRequires: qt-assistant-adp-devel
 %endif
 Requires: pcp
-
-Group: Applications/System
-Summary: Visualization tools for the Performance Co-Pilot toolkit
 
 %description
 Visualization tools for the Performance Co-Pilot toolkit.
@@ -30,7 +32,23 @@ may not be installed on server machines, so PCP GUI is delivered,
 managed and maintained as a separate (source and binary) package
 to the core PCP infrastructure.
 
+#
+# pcp-gui-testsuite
+#
+%package testsuite
+License: GPLv2
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) GUI test suite
+URL: http://oss.sgi.com/projects/pcp/
 
+Requires: pcp-testsuite
+
+%description testsuite
+Quality assurance test suite for Performance Co-Pilot (PCP) GUI.
+
+#
+# pcp-doc
+#
 %package -n pcp-doc
 Group: Documentation
 Summary: Documentation and tutorial for the Performance Co-Pilot
@@ -78,12 +96,19 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/pixmaps/*
 %{_datadir}/applications/pmchart.desktop
 
+%files testsuite
+%defattr(-,root,root)
+%{_localstatedir}/lib/pcp-gui/testsuite
+
 %files -n pcp-doc
 %defattr(-,root,root,-)
 %{_datadir}/doc/pcp-doc
 
 
 %changelog
+* Thu Aug 23 2012 Nathan Scott <nathans@redhat.com> - 1.5.6-1
+- interim build: update to latest sources, add testsuite sub-package
+
 * Fri Jul 20 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5.5-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
