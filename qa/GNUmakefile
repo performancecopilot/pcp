@@ -48,9 +48,12 @@ LSRCFILES = $(SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS)
 qa_outfiles:
 	@echo $(DOTOUTFILES) > qa_outfiles
 
+qa_hosts:	qa_hosts.master mk.qa_hosts
+	./mk.qa_hosts
+
 localconfig:
 	@echo PCP_PLATFORM=$(PCP_PLATFORM) > localconfig
-	@./mk.pcpversion $(PCP_VERSION) >> localconfig
+	./mk.pcpversion $(PCP_VERSION) >> localconfig
 	@echo 'PCP_EOE_VER=0' >> localconfig
 	@echo 'PCP_PRO_VER=0' >> localconfig
 
