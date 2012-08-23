@@ -21,6 +21,8 @@ else
 SETUP_PY_INSTALL_OPTIONS=--prefix=$(PYTHON_PREFIX)
 endif
 
+SETUP_PY_INSTALL_OPTIONS += --root=$${DIST_ROOT-/}
+
 CFILES = pmapi.c
 PYFILES = pcpi.py pcp.py pm-collectl.py setup.py
 LSRCFILES = $(PYFILES)
@@ -41,4 +43,4 @@ install_python: default
 
 default_pcp:    default
 
-install_pcp install:
+install_pcp install: install_python

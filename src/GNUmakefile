@@ -31,9 +31,13 @@ SUBDIRS = include \
 	  pmdumplog pmlogextract pmstore pmhostname pmgenmap \
 	  pmlogconf pmloglabel pmlogsummary pmclient pcp pmlc dbpmda \
 	  pmtrace pmstat pmsocks pmdas pmafm procmemstat pmimport \
-	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop python \
+	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
 	  autofsd-probe telnet-probe bashrc pmiestatus \
 	  pmevent pmlogrewrite
+
+ifneq "$(PYTHON)" ""
+SUBDIRS += python
+endif
 
 ifneq "$(TARGET_OS)" "mingw"
 SUBDIRS	+= cpan
