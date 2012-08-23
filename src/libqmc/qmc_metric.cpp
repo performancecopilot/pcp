@@ -60,10 +60,11 @@ QmcMetric::QmcMetric(QmcGroup *group, const char *string,
     if (my.status < 0) {
 	pmprintf("%s: Error: Unable to parse metric spec:\n%s\n", 
 		 pmProgname, msg);
+	my.name = QString::null;
 	free(msg);
     }
     else {
-	my.name = metricSpec->metric;
+	my.name = QString(metricSpec->metric);
 	setup(group, metricSpec);
 	free(metricSpec);
     }
@@ -73,7 +74,7 @@ QmcMetric::QmcMetric(QmcGroup *group, pmMetricSpec *metricSpec,
 		       double scale, bool active)
 {
     my.status = 0;
-    my.name = metricSpec->metric;
+    my.name = QString(metricSpec->metric);
     my.group = group;
     my.scale = scale;
     my.contextIndex = UINT_MAX;
@@ -110,6 +111,8 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 {
     int contextType = PM_CONTEXT_HOST;
     int descType;
+    char *src = NULL;
+    char *name = NULL;
 
     if (metricSpec->isarch == 1)
 	contextType = PM_CONTEXT_ARCHIVE;
@@ -125,12 +128,15 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 
 	my.status = context()->lookupDesc(metricSpec->metric,
 					    my.descIndex, my.indomIndex);
-	if (my.status < 0)
+	if (my.status < 0) {
+	    name = strdup(nameAscii());
+	    src = strdup(context()->source().sourceAscii());
 	    pmprintf("%s: Error: %s%c%s: %s\n", 
-		     pmProgname, contextType == PM_CONTEXT_LOCAL ?
-			"@" : context()->source().sourceAscii(),
+		     pmProgname,
+		     contextType == PM_CONTEXT_LOCAL ?  "@" : src,
 		     contextType == PM_CONTEXT_ARCHIVE ? '/' : ':',
-		     nameAscii(), pmErrStr(my.status));
+		     name, pmErrStr(my.status));
+	}
     }
     else 
 	pmprintf("%s: Error: %s: %s\n", pmProgname,
@@ -140,24 +146,31 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 	descType = desc().desc().type;
 	if (descType == PM_TYPE_NOSUPPORT) {
 	    my.status = PM_ERR_CONV;
+	    name = strdup(nameAscii());
+	    src = strdup(context()->source().sourceAscii());
 	    pmprintf("%s: Error: %s%c%s is not supported on %s\n",
-		     pmProgname, contextType == PM_CONTEXT_LOCAL ?
-			"@" : context()->source().sourceAscii(),
+		     pmProgname, contextType == PM_CONTEXT_LOCAL ? "@" : src,
 		     (contextType == PM_CONTEXT_ARCHIVE ? '/' : ':'),
-		     nameAscii(), context()->source().hostAscii());
+		     name, context()->source().hostAscii());
 	}
 	else if (descType == PM_TYPE_AGGREGATE ||
 		 descType == PM_TYPE_AGGREGATE_STATIC ||
 		 descType == PM_TYPE_UNKNOWN) {
 	    my.status = PM_ERR_CONV;
+	    name = strdup(nameAscii());
+	    src = strdup(context()->source().sourceAscii());
 	    pmprintf("%s: Error: %s%c%s has type \"%s\","
 		     " which is not a number or a string\n",
-		     pmProgname, contextType == PM_CONTEXT_LOCAL ?
-			"@" : context()->source().sourceAscii(),
+		     pmProgname, contextType == PM_CONTEXT_LOCAL ? "@" : src,
 		     (contextType == PM_CONTEXT_ARCHIVE ? '/' : ':'),
-		     nameAscii(), pmTypeStr(descType));
+		     name, pmTypeStr(descType));
 	}
     }
+
+    if (name)
+	free(name);
+    if (src)
+	free(src);
 }
 
 void

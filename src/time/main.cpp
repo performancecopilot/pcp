@@ -124,9 +124,11 @@ int main(int argc, char **argv)
     } else if (autoport) {	/* write to stdout for client */
 	c = snprintf(portname, sizeof(portname), "port=%u\n", port);
 	if (write(fileno(stdout), portname, c + 1) < 0) {
-	    pmprintf("%s: cannot write port for client: %s\n",
+	    if (errno != EPIPE) {
+		pmprintf("%s: cannot write port for client: %s\n",
 		    pmProgname, strerror(errno));
-	    pmflush();
+		pmflush();
+	    }
 	    exit(1);
 	}
     }

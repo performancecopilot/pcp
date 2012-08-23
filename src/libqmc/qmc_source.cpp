@@ -16,6 +16,7 @@ QmcSource::QmcSource(int type, QString &source)
 {
     my.status = -1;
     my.type = type;
+    my.tz = 0;
     my.dupFlag = false;
 
     if (localHost.length() == 0) {

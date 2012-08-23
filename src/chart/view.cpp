@@ -453,6 +453,8 @@ new_chart:
 		    }
 		    if (strcasecmp(w, "plot") == 0)
 			style = Chart::LineStyle;
+		    else if (strcasecmp(w, "line") == 0)
+			style = Chart::LineStyle;
 		    else if (strcasecmp(w, "bar") == 0)
 			style = Chart::BarStyle;
 		    else if (strcasecmp(w, "stacking") == 0)

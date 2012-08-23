@@ -17,5 +17,6 @@ default:
 install: default
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 755 $(BINARY) $(TESTDIR)/$(COMMAND)
+	$(INSTALL) -m 644 $(PROJECT) $(SOURCES) $(TESTDIR)
 
 include $(BUILDRULES)

@@ -1,6 +1,5 @@
 //
 // Test QmcGroup class
-// This illustrates the functionality needed for pmjd
 // It creates three groups representing three clients
 // Two groups are using live contexts, one group is using archives.
 //
@@ -17,11 +16,6 @@ QTextStream cout(stdout);
 
 #define mesg(str)	msg(__LINE__, str)
 #define checksts()	pmflush(); if (sts < 0) fail(__LINE__, sts);
-
-//
-// Dummy pmjd client class - should be replaced by real class
-// which is installed with pcp_noship
-//
 
 class Client
 {

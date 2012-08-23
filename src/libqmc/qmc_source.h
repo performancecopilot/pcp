@@ -84,10 +84,10 @@ private:
 	QString host;
 	QString	desc;
 	QString timezone;
-	int tz;
 	QList<int> handles;	// Contexts created for this source
 	struct timeval start;
 	struct timeval end;
+	int tz;
 	bool dupFlag;		// Dup has been called and 1st context is in use
     } my;
 
