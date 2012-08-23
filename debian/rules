@@ -116,10 +116,10 @@ binary-arch: checkroot built
 	$(pkgpcp) $(MAKE) -C . install
 	$(pkgpcp) $(MAKE) -C build pcp.src
 	$(pkgpcp_testsuite) $(MAKE) -C qa install
-	$(pkglibpcp_mmv_perl) $(MAKE) -C src/cpan/MMV install_perl
-	$(pkglibpcp_pmda_perl) $(MAKE) -C src/cpan/PMDA install_perl
-	$(pkglibpcp_import_perl) $(MAKE) -C src/cpan/LogImport install_perl
-	$(pkgpcp_logsummary_perl) $(MAKE) -C src/cpan/LogSummary install_perl
+	$(pkglibpcp_mmv_perl) $(MAKE) -C src/perl/MMV install_perl
+	$(pkglibpcp_pmda_perl) $(MAKE) -C src/perl/PMDA install_perl
+	$(pkglibpcp_import_perl) $(MAKE) -C src/perl/LogImport install_perl
+	$(pkgpcp_logsummary_perl) $(MAKE) -C src/perl/LogSummary install_perl
 	$(pkgpcp_import_sar) $(MAKE) -C src/pmimport/sar2pcp install
 	$(pkgpcp_import_mrtg) $(MAKE) -C src/pmimport/mrtg2pcp install
 	$(pkgpcp_import_sheet) $(MAKE) -C src/pmimport/sheet2pcp install

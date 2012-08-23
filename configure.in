@@ -1650,7 +1650,7 @@ pcp_lib32_dir=`echo $pcp_lib_dir | sed -e s,64,, -e s,//,/,`
 AC_SUBST(pcp_lib_dir)
 AC_SUBST(pcp_lib32_dir)
 
-dnl perl/cpan modules
+dnl perl modules
 AC_ARG_WITH(perl_installdirs,[AC_HELP_STRING([--with-perl_installdirs],[perl installdirs [vendor]])],
                       [perl_installdirs=$withval],
                       [perl_installdirs=vendor])
