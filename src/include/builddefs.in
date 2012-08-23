@@ -423,5 +423,6 @@ endif
 endif
 
 GIT=@GIT@
+PYTHON=@PYTHON@
 
 endif # _BUILDDEFS_INCLUDED_

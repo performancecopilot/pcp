@@ -35,6 +35,10 @@ SUBDIRS = include \
 	  autofsd-probe telnet-probe bashrc pmiestatus \
 	  pmevent pmlogrewrite
 
+ifneq "$(PYTHON)" ""
+SUBDIRS += python
+endif
+
 ifneq "$(TARGET_OS)" "mingw"
 SUBDIRS	+= perl python
 endif
