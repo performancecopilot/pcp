@@ -30,8 +30,8 @@ LDIRDIRT = build
 LDIRT = s-setup
 
 s-setup : $(CFILES) $(PYFILES)
-	python setup.py build_ext --include-dirs=$(TOPDIR)/src/include --library-dirs=$(TOPDIR)/src/libpcp/src
-	python setup.py build
+	$(PYTHON) setup.py build_ext --include-dirs=$(TOPDIR)/src/include --library-dirs=$(TOPDIR)/src/libpcp/src
+	$(PYTHON) setup.py build
 	touch s-setup
 
 default: s-setup; @true
@@ -39,7 +39,7 @@ default: s-setup; @true
 include $(BUILDRULES)
 
 install_python: default
-	python setup.py install --skip-build $(SETUP_PY_INSTALL_OPTIONS)
+	$(PYTHON) setup.py install --skip-build $(SETUP_PY_INSTALL_OPTIONS)
 
 default_pcp:    default
 
