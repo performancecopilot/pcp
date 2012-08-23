@@ -682,8 +682,5 @@ pmtimezone.so:	pmtimezone.o
 arch_maxfd.o:	localconfig.h
 scale.o:	localconfig.h
 
-localconfig.h:
-	cd ..; ./mk.localconfig && cp localconfig.h src
-
 bozo:
 	@echo TARGETS=$(TARGETS)

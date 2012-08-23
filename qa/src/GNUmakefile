@@ -12,14 +12,11 @@ TESTDIR	= $(PCP_VAR_DIR)/testsuite/src
 
 LSRCFILES = $(MYFILES) $(MYSCRIPTS) GNUmakefile.install GNUlocaldefs
 
-ifeq ($(shell test -f ../localconfig && echo 1), 1)
-include ../localconfig
-else
-# Warning: ../localconfig does not exist, assuming PCP 3.0
-PCP_VER=3000
-endif
-
+-include ../localconfig
 include GNUlocaldefs
+
+localconfig.h:
+	@awk -F= '{ print "#define",$$1,$$2 }' < ../localconfig > localconfig.h
 
 install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)

@@ -35,4 +35,8 @@ endif
 
 include GNUlocaldefs
 
+localconfig.h:
+	@cd .. && ./mk.localconfig
+	@awk -F= '{ print "#define",$$1,$$2 }' < ../localconfig > localconfig.h
+
 install install_pcp:

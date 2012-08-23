@@ -1,0 +1,15 @@
+#! /bin/sh
+#
+# given a dotted notation pcp version string, produce a single number
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+VERSION=$1
+PCP_VER=`echo "$VERSION" \
+	     | sed \
+		 -e '/^[^.]*\.[^.]*$/s/$/.0/' \
+		 -e 's/\.\([0-9]\)$/.0\1/' \
+		 -e 's/\.//g'`
+[ -z "$PCP_VER" ] && PCP_VER=0
+echo PCP_VER=$PCP_VER

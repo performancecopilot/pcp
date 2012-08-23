@@ -38,16 +38,15 @@ qa_hosts:	qa_hosts.master mk.qa_hosts
 localconfig:
 	PATH=$(PATH); ./mk.localconfig
 
-SCRIPTS = mk.localconfig new check recheck remake mk.qa_hosts findmetric \
-	  getpmcdhosts group-stats mk.variant changeversion \
+SCRIPTS = mk.localconfig mk.pcpversion mk.qa_hosts mk.variant getpmcdhosts \
+	  new check recheck remake findmetric group-stats changeversion \
 	  check-gitignore check-group chk.setup sanity.coverage show-me \
 	  xlate_2_new_pmns
 
 COMMON = common common.check common.config common.filter common.install.cisco \
 	 common.pcpweb common.product common.rc common.setup
 
-OTHERS = group qa_hosts.master README \
-	 valgrind-suppress
+OTHERS = group qa_hosts.master README valgrind-suppress
 
 install_pcp install: 
 	@echo The PCP QA testsuite is already installed.

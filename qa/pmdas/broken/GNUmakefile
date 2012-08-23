@@ -33,7 +33,7 @@ MYFILES = broken_help broken_pmns
 MYSCRIPTS = broken_Install broken_Remove
 LSRCFILES += $(MYFILES) $(MYSCRIPTS) GNUmakefile.install
 
-include $(PCP_INC_DIR)/buildrules
+include $(BUILDRULES)
 
 $(TARGETS):
 
