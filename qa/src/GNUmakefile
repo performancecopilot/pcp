@@ -10,6 +10,11 @@ include $(TOPDIR)/src/include/builddefs
 
 TESTDIR	= $(PCP_VAR_DIR)/testsuite/src
 
+LLDFLAGS = -L$(TOPDIR)/src/libpcp_trace/$(LIBPCP_ABIDIR) \
+	-L$(TOPDIR)/src/libpcp_mmv/$(LIBPCP_ABIDIR) \
+	-L$(TOPDIR)/src/libpcp_gui/$(LIBPCP_ABIDIR) \
+	-L$(TOPDIR)/src/libpcp_import/$(LIBPCP_ABIDIR)
+
 LSRCFILES = $(MYFILES) $(MYSCRIPTS) GNUmakefile.install GNUlocaldefs
 
 -include ../localconfig
