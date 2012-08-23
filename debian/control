@@ -294,7 +294,7 @@ Description: Tool for importing data from iostat into PCP archive logs
  (such as pmie, pmlogsummary, pmchart or pmdumptext).
 
 Package: pcp-testsuite
-Depends: pcp (= ${binary:Version})
+Depends: pcp (= ${binary:Version}), valgrind
 Architecture: any
 Provides: pcpqa
 Conflicts: pcpqa
