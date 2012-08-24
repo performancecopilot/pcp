@@ -33,7 +33,7 @@ applications to easily retrieve and process any subset of that data.
 #
 %package libs
 License: LGPLv2
-Group: Applications/System
+Group: Development/Libraries
 Summary: Performance Co-Pilot run-time libraries
 URL: http://oss.sgi.com/projects/pcp/
 
@@ -45,7 +45,7 @@ Performance Co-Pilot (PCP) run-time libraries
 #
 %package libs-devel
 License: GPLv2
-Group: Applications/System
+Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development headers and documentation
 URL: http://oss.sgi.com/projects/pcp/
 
@@ -59,7 +59,7 @@ Performance Co-Pilot (PCP) headers, documentation and tools for development.
 #
 %package testsuite
 License: GPLv2
-Group: Applications/System
+Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) test suite
 URL: http://oss.sgi.com/projects/pcp/
 
@@ -73,7 +73,7 @@ Quality assurance test suite for Performance Co-Pilot (PCP).
 #
 %package -n perl-PCP-PMDA
 License: GPLv2
-Group: Applications/System
+Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings and documentation
 URL: http://oss.sgi.com/projects/pcp/
 Requires: pcp-libs = %{version}
@@ -90,7 +90,7 @@ an application, etc.
 #
 %package -n perl-PCP-MMV
 License: GPLv2
-Group: Applications/System
+Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for PCP Memory Mapped Values
 URL: http://oss.sgi.com/projects/pcp/
 Requires: pcp >= %{version}
@@ -108,7 +108,7 @@ and analysis with pmchart, pmie, pmlogger and other PCP tools.
 #
 %package -n perl-PCP-LogImport
 License: GPLv2
-Group: Applications/System
+Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for importing external data into PCP archives
 URL: http://oss.sgi.com/projects/pcp/
 Requires: pcp >= %{version}
@@ -123,7 +123,7 @@ they can be replayed with standard PCP monitoring tools.
 #
 %package -n perl-PCP-LogSummary
 License: GPLv2
-Group: Applications/System
+Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for post-processing output of pmlogsummary
 URL: http://oss.sgi.com/projects/pcp/
 Requires: pcp >= %{version}
@@ -177,6 +177,20 @@ Requires: pcp-libs >= %{version} perl-PCP-LogImport >= %{version}
 %description import-mrtg2pcp
 Performance Co-Pilot (PCP) front-end tools for importing MTRG data
 into standard PCP archive logs for replay with any PCP monitoring tool.
+
+#
+# python-pcp. This is the PCP library bindings for python.
+#
+%package -n python-pcp
+License: GPLv2
+Group: Development/Libraries
+Summary: Performance Co-Pilot (PCP) Python bindings and documentation
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp-libs = @package_version@
+
+%description -n python-pcp
+The python PCP module contains the language bindings for
+building Performance Metric API (PMAPI) tools using Python.
 
 %prep
 %setup -q
@@ -362,6 +376,9 @@ fi
 %defattr(-,root,root)
 
 %files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
+%defattr(-,root,root)
+
+%files -n python-pcp -f python-pcp.list.rpm
 %defattr(-,root,root)
 
 %changelog

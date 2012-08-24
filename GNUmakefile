@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -11,10 +12,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 
 ifneq (,)
 This makefile requires GNU Make.
@@ -38,7 +35,7 @@ LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
 	root-*/include root-*/lib root-*/*.rpm root-*/default_pro \
 	autom4te.cache install.manifest install_pro.manifest \
 	debug*.list devel_files libs_files base_files.rpm libs_files.rpm \
-	devel_files.rpm perl-pcp*.list* conf_files
+	devel_files.rpm perl-pcp*.list* python-pcp*.list* conf_files
 
 SUBDIRS = src qa man build debian
 

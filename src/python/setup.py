@@ -28,7 +28,7 @@ setup(name="pcp",
       maintainer="Stan Cox",
       maintainer_email="scox@redhat.com",
       url="http://oss.sgi.com/projects/pcp/",
-      py_modules = ['pcp','pcpi','pm-collectl'],
+      py_modules = ['pcp','pcpi'],
       ext_modules=[ Extension( "pmapi", ["pmapi.c"],
                                libraries=["pcp"]
                              )
@@ -53,5 +53,4 @@ setup(name="pcp",
             'Topic :: System :: Networking :: Monitoring',
             'Topic :: Software Development :: Libraries',
       ],
-
 )

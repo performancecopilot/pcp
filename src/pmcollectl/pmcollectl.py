@@ -1,12 +1,8 @@
-
-##############################################################################
+#!/usr/bin/python
 #
-# pm-collectl.py
+# pmcollectl.py
 #
 # Copyright (C) 2012 Red Hat Inc.
-#
-# This file is part of pcp, the python extensions for SGI's Performance
-# Co-Pilot.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,6 +13,7 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
+#
 
 """System status collector using the libpcp Wrapper module
 
@@ -24,13 +21,7 @@ Additional Information:
 
 Performance Co-Pilot Web Site
 http://oss.sgi.com/projects/pcp
-
-Performance Co-Pilot Programmer's Guide
-SGI Document 007-3434-005
-http://techpubs.sgi.com
-cf. Chapter 3. PMAPI - The Performance Metrics API
 """
-
 
 ##############################################################################
 #
@@ -46,7 +37,7 @@ import copy
 from pcp import *
 from ctypes import *
 
-me = "pm-collectl"
+me = "pmcollectl"
 
 def check_code (code):
     if (code < 0):
@@ -909,7 +900,7 @@ if __name__ == '__main__':
         if not os.path.exists(input_file):
             print input_file, "does not exist"
             sys.exit(1)
-        if not os.path.isdir(input_file) or not os.path.exists(input_file + "/pm-collectl.pcp"):
+        if not os.path.isdir(input_file) or not os.path.exists(input_file + "/pmcollectl.pcp"):
             print input_file, "is not a", me, "playback directory"
             sys.exit(1)
         for line in open(input_file + "/" + me + ".pcp"):

@@ -15,32 +15,39 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-ifeq "$(PYTHON_PREFIX)" "/usr"
-SETUP_PY_INSTALL_OPTIONS=
-else
-SETUP_PY_INSTALL_OPTIONS=--prefix=$(PYTHON_PREFIX)
-endif
+SETUP_PY_BUILD_OPTIONS = --include-dirs=$(TOPDIR)/src/include
+SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/libpcp/src
 
+SETUP_PY_INSTALL_OPTIONS = --skip-build
+ifneq "$(PYTHON_PREFIX)" "/usr"
+SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
+endif
 SETUP_PY_INSTALL_OPTIONS += --root=$${DIST_ROOT-/}
+SETUP_PY_INSTALL_OPTIONS += --record=$(TOPDIR)/python-pcp.list
 
 CFILES = pmapi.c
-PYFILES = pcpi.py pcp.py pm-collectl.py setup.py
-LSRCFILES = $(PYFILES)
-LDIRDIRT = build
-LDIRT = s-setup
+PYFILES = pcpi.py pcp.py setup.py
+LDIRDIRT = build dist
+LDIRT = build_python
 
-s-setup : $(CFILES) $(PYFILES)
-	$(PYTHON) setup.py build_ext --include-dirs=$(TOPDIR)/src/include --library-dirs=$(TOPDIR)/src/libpcp/src
+default default_pcp: build_python
+
+ifneq "$(PYTHON)" ""
+build_python: $(CFILES) $(PYFILES)
+	$(PYTHON) setup.py build_ext $(SETUP_PY_BUILD_OPTIONS)
 	$(PYTHON) setup.py build
-	touch s-setup
-
-default: s-setup; @true
-
-include $(BUILDRULES)
+	touch build_python
 
 install_python: default
-	$(PYTHON) setup.py install --skip-build $(SETUP_PY_INSTALL_OPTIONS)
+	$(PYTHON) setup.py install $(SETUP_PY_INSTALL_OPTIONS)
+	# RPM byte-compiles and installs results in DIST_ROOT:
+	$(AWK) '{print} /.pyc$$/ {sub(/.pyc$$/,".pyo"); print}' \
+		< $(TOPDIR)/python-pcp.list > $(TOPDIR)/python-pcp.list.rpm
+else
+build_python: 
+install_python: 
+endif
 
-default_pcp:    default
+include $(BUILDRULES)
 
 install_pcp install: install_python
