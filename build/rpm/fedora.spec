@@ -15,7 +15,10 @@ BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts python-devel man-db hostname
  
 Requires: bash gawk sed grep fileutils findutils initscripts perl python
-Requires: pcp-libs = %{version} perl-PCP-PMDA = %{version}
+
+Requires: pcp-libs = %{version}
+Requires: python-pcp = %{version}
+Requires: perl-PCP-PMDA = %{version}
 
 %define _pmdasdir %{_localstatedir}/lib/pcp/pmdas
 %define _testsdir %{_localstatedir}/lib/pcp/testsuite
