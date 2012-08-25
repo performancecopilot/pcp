@@ -92,6 +92,9 @@ from ctypes.util import *
 # needed for mutex lock
 import threading
 
+# needed for environment manipulation
+import os
+
 # constants adapted from C header file <pcp/pmapi.h>
 import pmapi
 from pmapi import *
@@ -105,6 +108,15 @@ import time
 
 # helper func for platform independent loading of shared libraries
 def loadLib( lib ):
+    # Just in case this platform uses gcc to resolve ctypes libraries,
+    # and those libraries are in some non-system directory, then
+    # $LIBRARY_PATH is helpful to set.
+    if ('PCP_LIB_DIR' in os.environ):
+        try:
+            os.environ['LIBRARY_PATH'] += ':' + os.environ['PCP_LIB_DIR']
+        except KeyError:
+            os.environ['LIBRARY_PATH'] = os.environ['PCP_LIB_DIR']
+
     name = find_library( lib )
     try:
         handle = WinDLL( name )
