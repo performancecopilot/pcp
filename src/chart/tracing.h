@@ -16,8 +16,12 @@
 #define TRACING_H
 
 #include "chart.h"
+#include <qvector.h>
+#include <qwt_plot.h>
+#include <qwt_plot_curve.h>
 #include <qwt_scale_engine.h>
-//#include <qwt_interval_symbol.h>
+#include <qwt_interval_symbol.h>
+#include <qwt_plot_intervalcurve.h>
 
 class TracingItem : public ChartItem
 {
@@ -40,8 +44,8 @@ public:
 
 private:
     struct {
-//	QVector<QwtIntervalSample> records;
-//	QwtPlotIntervalCurve *curve;
+	QVector<QwtIntervalSample> records;
+	QwtPlotIntervalCurve *curve;
     } my;
 };
 

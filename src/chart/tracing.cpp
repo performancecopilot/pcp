@@ -13,21 +13,35 @@
  * for more details.
  */ 
 #include "tracing.h"
+#include <qwt_plot_marker.h>
 
 TracingItem::TracingItem(Chart *parent,
 	QmcMetric *mp, pmMetricSpec *msp, pmDesc *dp, const char *legend)
 	: ChartItem(mp, msp, dp, legend)
 {
-    (void)parent;
+    // some dummy data
+    my.records.append(QwtIntervalSample(10, QwtInterval(800000, 800100)));
+    my.records.append(QwtIntervalSample(2,  QwtInterval(800400, 800500)));
+    my.records.append(QwtIntervalSample(18, QwtInterval(800600, 800700)));
+
+    my.curve = new QwtPlotIntervalCurve("XXX TODO");
+    QwtIntervalSymbol *symbol = new QwtIntervalSymbol(QwtIntervalSymbol::Box);
+    my.curve->setSymbol(symbol);
+    my.curve->setSamples(my.records);
+    my.curve->setStyle(QwtPlotIntervalCurve::NoCurve);
+    my.curve->setOrientation(Qt::Horizontal);
+    my.curve->setPen(QPen(Qt::blue));
+    my.curve->attach(parent);
 }
 
 TracingItem::~TracingItem(void)
 {
+    delete my.curve;
 }
 
 QwtPlotItem* TracingItem::item(void)
 {
-    return NULL;
+    return my.curve;
 }
 
 void TracingItem::preserveLiveData(int, int)
@@ -58,7 +72,7 @@ void TracingItem::replot(int, double*)
 {
 }
 
-void TracingItem::revive(Chart *parent)
+void TracingItem::revive(Chart *)
 {
 }
 
@@ -66,9 +80,8 @@ void TracingItem::remove(void)
 {
 }
 
-void TracingItem::setPlotEnd(int index)
+void TracingItem::setPlotEnd(int)
 {
-    (void)index;	// extend any active trace to the right
 }
 
 
