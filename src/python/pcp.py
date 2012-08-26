@@ -103,6 +103,32 @@ import time
 
 ##############################################################################
 #
+# configuration tools
+#
+
+# Return a dict form of the key=value fields from pcp.conf
+def pcp_conf():
+    import shlex, string
+    if ('PCP_DIR' in os.environ):
+        file=os.environ['PCP_DIR']+'/etc/pcp.conf'
+    else:
+        file='/etc/pcp.conf'
+    D={}
+    for line in open(file):
+        try:
+            l = shlex.split(line, True)
+            if (len(l) == 0): # comments
+                continue
+            (key,value) = string.split(l[0],'=')
+            D[key]=value
+            continue
+        except ValueError:
+            continue
+    # XXX: cache D?
+    return D
+
+##############################################################################
+#
 # dynamic library loads
 #
 
@@ -111,11 +137,13 @@ def loadLib( lib ):
     # Just in case this platform uses gcc to resolve ctypes libraries,
     # and those libraries are in some non-system directory, then
     # $LIBRARY_PATH is helpful to set.
-    if ('PCP_LIB_DIR' in os.environ):
+    pc = pcp_conf()
+    # XXX: don't append same path multiple times
+    if ('PCP_LIB_DIR' in pc):
         try:
-            os.environ['LIBRARY_PATH'] += ':' + os.environ['PCP_LIB_DIR']
+            os.environ['LIBRARY_PATH'] += ':' + pc['PCP_LIB_DIR']
         except KeyError:
-            os.environ['LIBRARY_PATH'] = os.environ['PCP_LIB_DIR']
+            os.environ['LIBRARY_PATH'] = pc['PCP_LIB_DIR']
 
     name = find_library( lib )
     try:
