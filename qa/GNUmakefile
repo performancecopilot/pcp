@@ -58,6 +58,7 @@ localconfig:
 	@echo 'PCP_PRO_VER=0' >> localconfig
 
 install_pcp install: $(SUBDIRS)
+ifeq (, $(filter mingw darwin solaris, $(TARGET_OS)))
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 755 $(TESTS) $(TESTDIR)
 	$(INSTALL) -m 755 $(SCRIPTS) $(TESTDIR)
@@ -65,5 +66,6 @@ install_pcp install: $(SUBDIRS)
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 	$(INSTALL) -m 644 qa_outfiles $(DOTOUTFILES) $(TESTDIR)
 	$(SUBDIRS_MAKERULE)
+endif
 
 include $(BUILDRULES)
