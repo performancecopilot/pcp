@@ -15,16 +15,6 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-SETUP_PY_BUILD_OPTIONS = --include-dirs=$(TOPDIR)/src/include
-SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/libpcp/src
-
-SETUP_PY_INSTALL_OPTIONS = --skip-build
-ifneq "$(PYTHON_PREFIX)" "/usr"
-SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
-endif
-SETUP_PY_INSTALL_OPTIONS += --root=$${DIST_ROOT-/}
-SETUP_PY_INSTALL_OPTIONS += --record=$(TOPDIR)/python-pcp.list
-
 CFILES = pmapi.c
 PYFILES = pcpi.py pcp.py setup.py
 LDIRDIRT = build dist
@@ -40,9 +30,7 @@ build_python: $(CFILES) $(PYFILES)
 
 install_python: default
 	$(PYTHON) setup.py install $(SETUP_PY_INSTALL_OPTIONS)
-	# RPM byte-compiles and installs results in DIST_ROOT:
-	$(AWK) '{print} /.pyc$$/ {sub(/.pyc$$/,".pyo"); print}' \
-		< $(TOPDIR)/python-pcp.list > $(TOPDIR)/python-pcp.list.rpm
+	$(PYTHON_INSTALL)
 else
 build_python: 
 install_python: 
