@@ -189,7 +189,7 @@ License: GPLv2
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp-libs = @package_version@
+Requires: pcp-libs = %{version}
 
 %description -n python-pcp
 The python PCP module contains the language bindings for
@@ -385,7 +385,7 @@ fi
 %defattr(-,root,root)
 
 %changelog
-* Thu Aug 23 2012 Mark Goodwin <mgoodwin@redhat.com> - 3.6.6-1
+* Mon Aug 27 2012 Mark Goodwin <mgoodwin@redhat.com> - 3.6.6-1
 - interim builds: Update to latest PCP sources, see installed CHANGELOG for details.
 
 * Thu Aug 16 2012 Mark Goodwin <mgoodwin@redhat.com> - 3.6.5-1
