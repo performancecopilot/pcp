@@ -716,7 +716,8 @@ Options:\n\
 	exit(1);
     }
     pmcdfd = ctxp->c_pmcd->pc_fd;
-    strcpy(local, ctxp->c_pmcd->pc_hosts[0].name);
+    strncpy(local, ctxp->c_pmcd->pc_hosts[0].name, MAXHOSTNAMELEN-1);
+    local[MAXHOSTNAMELEN-1] = '\0';
     pmcd_host = local;
     PM_UNLOCK(ctxp->c_lock);
 
