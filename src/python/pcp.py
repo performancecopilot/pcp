@@ -875,7 +875,7 @@ class pmContext( object ):
         libpcp.pmLookupName.argtypes = [ c_int, (c_char_p * n), POINTER(c_uint) ]
         status = libpcp.pmLookupName( n, names, pmidA )
         pmContext._pmapiLock.release()
-        if status == PM_ERR_NAME:
+        if status != n:
             badL = [name for (name,pmid) in zip(nameA,pmidA) \
                                                 if pmid == PM_ID_NULL]
             raise pmErr, (status, pmidA, badL )

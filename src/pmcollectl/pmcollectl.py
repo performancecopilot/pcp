@@ -294,14 +294,22 @@ class _cpu(_subsys):
                             'kernel.percpu.cpu.idle']
 
         self.cpu_metrics_dict=dict((i,self.cpu_metrics.index(i)) for i in self.cpu_metrics)
-        self.cpu_metric_value = [0 for i in range(len(self.cpu_metrics))]
-        self.old_cpu_metric_value = [0 for i in range(len(self.cpu_metrics))]
 
     def setup_metrics(self,pm):
+        # remove any unsupported metrics
+        for j in range(len(self.cpu_metrics)-1, -1, -1):
+            try:
+
+                (code, self.int_metric_name) = pm.pmLookupName(self.cpu_metrics[j])
+            except pmErr as e:
+                self.cpu_metrics.remove(self.cpu_metrics[j])
+
         (code, self.cpu_metric_name) = pm.pmLookupName(self.cpu_metrics)
         check_code (code)
         (code, self.cpu_metric_desc) = pm.pmLookupDesc(self.cpu_metric_name)
         check_code (code)
+        self.cpu_metric_value = [0 for i in range(len(self.cpu_metrics))]
+        self.old_cpu_metric_value = [0 for i in range(len(self.cpu_metrics))]
 
     def dump_metrics(self):
         metrics_string = ""
@@ -453,8 +461,6 @@ class _interrupt(_subsys):
                                   'kernel.percpu.interrupts.line0']
 
         self.interrupt_metrics_dict=dict((i,self.interrupt_metrics.index(i)) for i in self.interrupt_metrics)
-        self.interrupt_metric_value = [0 for i in range(len(self.interrupt_metrics))]
-        self.old_interrupt_metric_value = [0 for i in range(len(self.interrupt_metrics))]
 
     def setup_metrics(self,pm):
         # remove any unsupported metrics
@@ -469,6 +475,8 @@ class _interrupt(_subsys):
         check_code (code)
         (code, self.int_metric_desc) = pm.pmLookupDesc(self.int_metric_name)
         check_code (code)
+        self.interrupt_metric_value = [0 for i in range(len(self.interrupt_metrics))]
+        self.old_interrupt_metric_value = [0 for i in range(len(self.interrupt_metrics))]
 
     def dump_metrics(self):
         metrics_string = ""
@@ -495,7 +503,7 @@ class _interrupt(_subsys):
         int_count = []
         for k in range(len(self.interrupt_metric_value[_['kernel.percpu.interrupts.MCP']])):
             int_count.append(0)
-            for j  in range(_['kernel.percpu.interrupts.MCP'], len(self.interrupt_metrics_dict)):
+            for j  in range(_['kernel.percpu.interrupts.MCP'], len(self.interrupt_metric_value)):
                 int_count[k] += self.interrupt_metric_value[j][k]
                 
         for k in range(len(self.interrupt_metric_value[_['kernel.percpu.interrupts.MCP']])):
@@ -528,14 +536,22 @@ class _process(_subsys):
         self.process_metrics = ['kernel.all.nprocs', 'kernel.all.runnable', 'proc.runq.runnable', 'kernel.all.load', 'proc.runq.blocked']
 
         self.process_metrics_dict=dict((i,self.process_metrics.index(i)) for i in self.process_metrics)
-        self.process_metric_value = [0 for i in range(len(self.process_metrics))]
-        self.old_process_metric_value = [0 for i in range(len(self.process_metrics))]
 
     def setup_metrics(self,pm):
+        # remove any unsupported metrics
+        for j in range(len(self.process_metrics)-1, -1, -1):
+            try:
+
+                (code, self.int_metric_name) = pm.pmLookupName(self.process_metrics[j])
+            except pmErr as e:
+                self.process_metrics.remove(self.process_metrics[j])
+
         (code, self.process_metric_name) = pm.pmLookupName(self.process_metrics)
         check_code (code)
         (code, self.process_metric_desc) = pm.pmLookupDesc(self.process_metric_name)
         check_code (code)
+        self.process_metric_value = [0 for i in range(len(self.process_metrics))]
+        self.old_process_metric_value = [0 for i in range(len(self.process_metrics))]
 
     def dump_metrics(self):
         metrics_string = ""
@@ -573,15 +589,22 @@ class _disk(_subsys):
                              'disk.dev.blkread', 'disk.dev.blkwrite']
 
         self.disk_metrics_dict=dict((i,self.disk_metrics.index(i)) for i in self.disk_metrics)
-        self.disk_metric_value = [0 for i in range(len(self.disk_metrics))]
-        self.old_disk_metric_value = [0 for i in range(len(self.disk_metrics))]
 
     def setup_metrics(self,pm):
+        # remove any unsupported metrics
+        for j in range(len(self.disk_metrics)-1, -1, -1):
+            try:
+
+                (code, self.int_metric_name) = pm.pmLookupName(self.disk_metrics[j])
+            except pmErr as e:
+                self.disk_metrics.remove(self.disk_metrics[j])
+
         (code, self.disk_metric_name) = pm.pmLookupName(self.disk_metrics)
         check_code (code)
         (code, self.disk_metric_desc) = pm.pmLookupDesc(self.disk_metric_name)
         check_code (code)
-
+        self.disk_metric_value = [0 for i in range(len(self.disk_metrics))]
+        self.old_disk_metric_value = [0 for i in range(len(self.disk_metrics))]
 
     def dump_metrics(self):
         metrics_string = ""
@@ -684,14 +707,22 @@ class _memory(_subsys):
 
 
         self.memory_metrics_dict=dict((i,self.memory_metrics.index(i)) for i in self.memory_metrics)
-        self.memory_metric_value = [0 for i in range(len(self.memory_metrics))]
-        self.old_memory_metric_value = [0 for i in range(len(self.memory_metrics))]
 
     def setup_metrics(self,pm):
+        # remove any unsupported metrics
+        for j in range(len(self.memory_metrics)-1, -1, -1):
+            try:
+
+                (code, self.int_metric_name) = pm.pmLookupName(self.memory_metrics[j])
+            except pmErr as e:
+                self.memory_metrics.remove(self.memory_metrics[j])
+
         (code, self.memory_metric_name) = pm.pmLookupName(self.memory_metrics)
         check_code (code)
         (code, self.memory_metric_desc) = pm.pmLookupDesc(self.memory_metric_name)
         check_code (code)
+        self.memory_metric_value = [0 for i in range(len(self.memory_metrics))]
+        self.old_memory_metric_value = [0 for i in range(len(self.memory_metrics))]
 
     def dump_metrics(self):
         metrics_string = ""
@@ -765,14 +796,22 @@ class _net(_subsys):
                             'network.interface.out.errors']
 
         self.net_metrics_dict=dict((i,self.net_metrics.index(i)) for i in self.net_metrics)
-        self.net_metric_value = [0 for i in range(len(self.net_metrics))]
-        self.old_net_metric_value = [0 for i in range(len(self.net_metrics))]
 
     def setup_metrics(self,pm):
+        # remove any unsupported metrics
+        for j in range(len(self.net_metrics)-1, -1, -1):
+            try:
+
+                (code, self.int_metric_name) = pm.pmLookupName(self.net_metrics[j])
+            except pmErr as e:
+                self.net_metrics.remove(self.net_metrics[j])
+
         (code, self.net_metric_name) = pm.pmLookupName(self.net_metrics)
         check_code (code)
         (code, self.net_metric_desc) = pm.pmLookupDesc(self.net_metric_name)
         check_code (code)
+        self.net_metric_value = [0 for i in range(len(self.net_metrics))]
+        self.old_net_metric_value = [0 for i in range(len(self.net_metrics))]
 
     def dump_metrics(self):
         metrics_string = ""
@@ -912,7 +951,8 @@ if __name__ == '__main__':
             usage()
             sys.exit(1)
         elif (sys.argv[i][:1] == "-"):
-            print "Unknown option ", sys.argv[i]
+            print sys.argv[0] + ": Unknown option ", sys.argv[i]
+            print "Try `" + sys.argv[0] + "--help' for more information."
             sys.exit(1)
         i += 1
 
