@@ -1,9 +1,10 @@
 pcp (3.6.6) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * Introduces a python-pcp package for client scripts.
   * Introduces an additional testsuite package for PCP QA tests.
 
- -- Nathan Scott <nathans@debian.org>  Tue, 21 Aug 2012 13:09:48 +1000
+ -- Nathan Scott <nathans@debian.org>  Tue, 28 Aug 2012 13:09:48 +1000
 
 pcp (3.6.5) unstable; urgency=low
 

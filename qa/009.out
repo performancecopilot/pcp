@@ -276,12 +276,12 @@ pmResult ... numpmid: 1
   1.29.2 (ipc.shm.nattch): Explicit instance identifier(s) required
 
 
-deliberate error check (1 unkown instance) : No error
+deliberate error check (1 unknown instance) : No error
 pmResult ... numpmid: 1
   1.29.2 (ipc.shm.nattch): Unknown or illegal instance identifier
 
 
-deliberate error check (1 unkown instance + 1 known) : No error
+deliberate error check (1 unknown instance + 1 known) : No error
 pmResult ... numpmid: 1
   1.29.2 (ipc.shm.nattch): numval: 1 valfmt: ? vlist[]:
     inst [ID or "KEY_0xabcd0000"] value ...
@@ -292,12 +292,12 @@ pmResult ... numpmid: 1
   1.31.1 (ipc.sem.nsems): Explicit instance identifier(s) required
 
 
-deliberate error check (1 unkown instance) : No error
+deliberate error check (1 unknown instance) : No error
 pmResult ... numpmid: 1
   1.31.1 (ipc.sem.nsems): No values returned!
 
 
-deliberate error check (1 unkown instance + 1 known) : No error
+deliberate error check (1 unknown instance + 1 known) : No error
 pmResult ... numpmid: 1
   1.31.1 (ipc.sem.nsems): numval: 1 valfmt: ? vlist[]:
     inst [ID or "KEY_0xabcd0001"] value ...
@@ -308,12 +308,12 @@ pmResult ... numpmid: 1
   1.31.2 (ipc.sem.ncnt): Explicit instance identifier(s) required
 
 
-deliberate error check (1 unkown instance) : No error
+deliberate error check (1 unknown instance) : No error
 pmResult ... numpmid: 1
   1.31.2 (ipc.sem.ncnt): No values returned!
 
 
-deliberate error check (1 unkown instance + 1 known) : No error
+deliberate error check (1 unknown instance + 1 known) : No error
 pmResult ... numpmid: 1
   1.31.2 (ipc.sem.ncnt): numval: 1 valfmt: ? vlist[]:
     inst [ID or "KEY_0xabcd0001.0"] value ...

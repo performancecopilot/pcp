@@ -18,14 +18,12 @@ include $(TOPDIR)/src/include/builddefs
 IAM		= bash
 DOMAIN		= BASH
 
-CMDTARGET	= pmdabash$(EXECSUFFIX)
-#LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
-TARGETS		= $(CMDTARGET) $(LIBTARGET)
+TARGETS		= $(IAM)$(EXECSUFFIX)
 LLDLIBS		= -lpcp -lpcp_pmda
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
-LDIRT		= domain.h *.log *.dir *.pag so_locations
+LDIRT		= domain.h *.log *.dir *.pag so_locations $(TARGETS)
 
-CFILES		= event.c pmda.c util.c
+CFILES		= event.c bash.c util.c
 HFILES		= event.h
 SCRIPTS		= bashproc.sh pcp.sh
 SAMPLES		= test-child.sh test-trace.sh
@@ -35,26 +33,25 @@ default:	build-me
 
 include $(BUILDRULES)
 
-build-me: domain.h $(CMDTARGET)
+build-me: $(TARGETS)
 
 install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(TARGETS) Install Remove $(PMDADIR)
+	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
+	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 root help pmns $(PMDADIR)
 	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
-	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
 	$(INSTALL) -m 644 bashproc.sh $(PCP_SHARE_DIR)/lib/bashproc.sh
 	$(INSTALL) -m 644 pcp.sh $(PCP_ETC_DIR)/pcp.sh
 
-pmda.o: domain.h
-event.o pmda.o util.o: event.h
+$(IAM)$(EXECSUFFIX):	$(OBJECTS)
 
-.NOTPARALLEL:
-.ORDER:	domain.h $(OBJECTS)
+bash.o: domain.h
+event.o bash.o util.o: event.h
+
+domain.h: ../../pmns/stdpmid
+	$(DOMAIN_MAKERULE)
 
 default_pcp : default
 
 install_pcp : install
-
-domain.h: ../../pmns/stdpmid
-	$(DOMAIN_MAKERULE)

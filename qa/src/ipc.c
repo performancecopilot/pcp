@@ -49,7 +49,7 @@ _force_err(pmInDom indom, int inst, pmID pmid)
     i = -3;
     pmAddProfile(indom, 1, &i);
     sts = pmFetch(1, &pmid, &result);
-    fprintf(stderr, "\n\ndeliberate error check (1 unkown instance) : %s\n", pmErrStr(sts));
+    fprintf(stderr, "\n\ndeliberate error check (1 unknown instance) : %s\n", pmErrStr(sts));
     __pmDumpResult(stderr, result);
     pmFreeResult(result);
 
@@ -57,7 +57,7 @@ _force_err(pmInDom indom, int inst, pmID pmid)
     i = -3; pmAddProfile(indom, 1, &i);
     pmAddProfile(indom, 1, &inst);
     sts = pmFetch(1, &pmid, &result);
-    fprintf(stderr, "\n\ndeliberate error check (1 unkown instance + 1 known) : %s\n", pmErrStr(sts));
+    fprintf(stderr, "\n\ndeliberate error check (1 unknown instance + 1 known) : %s\n", pmErrStr(sts));
     __pmDumpResult(stderr, result);
     pmFreeResult(result);
 }

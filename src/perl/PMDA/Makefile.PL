@@ -19,7 +19,7 @@ else {
 }
 if ($ENV{TARGET_OS} eq "darwin") {
     # standard ones, minus -arch ppc
-    $lddlflags = "-arch x86_64 -arch i386 -bundle -undefined dynamic_lookup -L/usr/local/lib";
+    $lddlflags = "-arch x86_64 -arch i386 -bundle -undefined dynamic_lookup";
 }
 else {
     $lddlflags = "-shared \$(OPTIMIZE) \$(LDFLAGS)";

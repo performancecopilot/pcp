@@ -15,7 +15,7 @@ include $(PCP_INC_DIR)/builddefs
 
 SUBDIRS = src pmdas
 
-default_pcp default setup: $(SUBDIRS) localconfig new remake check qa_hosts $(OTHERS)
+default_pcp default setup: $(SUBDIRS) localconfig new remake check qa_hosts
 	$(SUBDIRS_MAKERULE)
 
 LDIRT += 051.work 134.full.* \
@@ -37,16 +37,6 @@ qa_hosts:	qa_hosts.master mk.qa_hosts
 
 localconfig:
 	PATH=$(PATH); ./mk.localconfig
-
-SCRIPTS = mk.localconfig mk.pcpversion mk.qa_hosts mk.variant getpmcdhosts \
-	  new check recheck remake findmetric group-stats changeversion \
-	  check-gitignore check-group chk.setup sanity.coverage show-me \
-	  xlate_2_new_pmns common
-
-COMMON = common.check common.config common.filter common.install.cisco \
-	 common.pcpweb common.product common.rc common.setup
-
-OTHERS = group qa_hosts.master README valgrind-suppress
 
 install_pcp install: 
 	@echo The PCP QA testsuite is already installed.

@@ -147,6 +147,7 @@ YACC	= @yacc@
 ECHO	= @echo@
 LN_S	= @LN_S@
 GREP    = @grep@
+GIT	= @GIT@
 
 INSTALL_SH = $(TOPDIR)/install-sh
 INSTALL	= $(INSTALL_SH) -o @pcp_owner@ -g @pcp_group@
@@ -179,6 +180,7 @@ HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
 HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
 HAVE_LZMAED_MANPAGES = @have_lzmaed_manpages@
 HAVE_XZED_MANPAGES = @have_xzed_manpages@
+PCP_MAN_DIR = @pcp_man_dir@
 
 NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 RDYNAMIC_FLAG = @rdynamic_flag@
@@ -333,15 +335,16 @@ INSTALL_MAN = \
     done
 endif
 
-
-PERL_INSTALL_BASE=@perl_install_base@
-PERL_INSTALLDIRS=@perl_installdirs@
-PCP_MAN_DIR=@pcp_man_dir@
-PYTHON_PREFIX=@python_prefix@
+PERL_INSTALL_BASE = @perl_install_base@
+PERL_INSTALLDIRS = @perl_installdirs@
 
 # MakeMaker INSTALL_BASE needs to be unset for proper vendor_perl paths to be used for --prefix=/usr;
 ifeq "$(PERL_INSTALL_BASE)" "/usr"
+ifneq "$(TARGET_OS)" "darwin"
 MAKEMAKER_EXTRA_OPTIONS=
+else
+MAKEMAKER_EXTRA_OPTIONS=INSTALL_BASE=$(PERL_INSTALL_BASE)  INSTALLBASE=$(PERL_INSTALL_BASE)
+endif
 else
 MAKEMAKER_EXTRA_OPTIONS=INSTALL_BASE=$(PERL_INSTALL_BASE)  INSTALLBASE=$(PERL_INSTALL_BASE)
 endif
@@ -403,6 +406,76 @@ PERL_GET_FILELIST = \
 endif
 endif
 
+# Create perl manifest files explicitly for some distributions
+ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
+                -o '$(PACKAGE_DISTRIBUTION)' = macosx \
+                -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
+                -o '$(PACKAGE_DISTRIBUTION)' = solaris \
+	      ] && echo 1)" "1"
+PERL_INSTALL = \
+	# Gather installed Perl files before packaging
+	if [ -n "$(DIST_MANIFEST)" ]; then \
+	    if [ "`echo $(TOPDIR)/perl-pcp-*.list`" != "$(TOPDIR)/perl-pcp-*.list" ]; then \
+		cat $(TOPDIR)/perl-pcp-*.list | while read f; do \
+		    bn=`basename $$f .gz`; \
+		    dn=`dirname $$f`; \
+		    $(INSTALL) -d $$dn || exit 1; \
+		    src=`find */blib -name $$bn`; \
+		    if [ -x $$src ] ; then mode=0755; else mode=0644; fi; \
+		    $(INSTALL) -m $$mode $$src $$dn/$$bn || exit 1; \
+		done; \
+	    fi; \
+	fi
+else
+PERL_INSTALL =
+endif
+
+#
+# Python platform-specific installation quirks
+PYTHON=@PYTHON@
+PYTHON_PREFIX=@python_prefix@
+SETUP_PY_BUILD_OPTIONS = --include-dirs=$(TOPDIR)/src/include
+SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/libpcp/src
+SETUP_PY_INSTALL_OPTIONS = --skip-build
+SETUP_PY_INSTALL_OPTIONS += --root=$${DIST_ROOT-/}
+SETUP_PY_INSTALL_OPTIONS += --record=$(TOPDIR)/python-pcp.list
+ifeq "$(PYTHON_PREFIX)" "/usr"
+ifeq "$(PACKAGE_DISTRIBUTION)" "debian"
+SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
+endif
+else
+SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
+endif
+# RPM byte-compiles and installs results in our DIST_ROOT, cater for this:
+ifeq "$(TARGET_OS)" "linux"
+PYTHON_INSTALL = \
+	$(AWK) '{print} /.pyc$$/ {sub(/.pyc$$/,".pyo"); print}' \
+		< $(TOPDIR)/python-pcp.list > $(TOPDIR)/python-pcp.list.rpm
+else
+ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
+                -o '$(PACKAGE_DISTRIBUTION)' = macosx \
+                -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
+                -o '$(PACKAGE_DISTRIBUTION)' = solaris \
+	      ] && echo 1)" "1"
+PYTHON_INSTALL = \
+	# Gather installed Python files before packaging
+	if [ -n "$(DIST_MANIFEST)" ]; then \
+	    if [ "`echo $(TOPDIR)/python-pcp*.list`" != "$(TOPDIR)/python-pcp*.list" ]; then \
+		cat $(TOPDIR)/python-pcp*.list | while read f; do \
+		    bn=`basename $$f .gz`; \
+		    dn=`dirname $$f`; \
+		    $(INSTALL) -d $$dn || exit 1; \
+		    src=`find */blib -name $$bn`; \
+		    if [ -x $$src ] ; then mode=0755; else mode=0644; fi; \
+		    $(INSTALL) -m $$mode $$src $$dn/$$bn || exit 1; \
+		done; \
+	    fi; \
+	fi
+else
+PYTHON_INSTALL = 
+endif
+endif
+
 #
 # For targets that should always be rebuilt,
 # define a target that is never up-to-date.
@@ -421,8 +494,5 @@ PCP_ALTLIBS =
 endif
 endif
 endif
-
-GIT=@GIT@
-PYTHON=@PYTHON@
 
 endif # _BUILDDEFS_INCLUDED_

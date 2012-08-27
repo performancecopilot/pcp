@@ -411,9 +411,9 @@ fi
 %defattr(-,root,root)
 
 %changelog
-* Thu Aug 21 2012 Nathan Scott <nathans@redhat.com> - 3.6.6-1
-- Update to latest PCP sources
-- Creates new testsuite and python sub-packages.
+* Tue Aug 28 2012 Mark Goodwin <mgoodwin@redhat.com> - 3.6.6-1
+- Update to latest PCP sources, see installed CHANGELOG for details.
+- Introduces new python-pcp and pcp-testsuite sub-packages.
 
 * Thu Aug 16 2012 Nathan Scott <nathans@redhat.com> - 3.6.5-1
 - Update to latest PCP sources, resolves several security issues.

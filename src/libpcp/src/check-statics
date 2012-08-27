@@ -21,8 +21,7 @@ in
 	    arch=`uname -m 2>/dev/null`
 	    [ "$arch" = "i686" -o "$arch" = "x86_64" ] || exit 0
 	    ;;
-    darwin)
-	    ;;
+    #darwin)
     *)
 	    echo "Warning: check-statics skipped for PCP_PLATFORM=$PCP_PLATFORM"
 	    exit 0

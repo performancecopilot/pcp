@@ -15,7 +15,7 @@ main(int argc, char *argv[])
     int		fd;
 
     if (argc < 2) {
-	fprintf(stderr, "Bad pmprintf invokation (need more args)\n");
+	fprintf(stderr, "Bad pmprintf invocation (need more args)\n");
 	exit(1);
     }
 

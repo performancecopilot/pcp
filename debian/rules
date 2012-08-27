@@ -22,6 +22,7 @@ pcp_import_mrtg = pcp-import-mrtg2pcp
 pcp_import_sheet = pcp-import-sheet2pcp
 pcp_import_iostat = pcp-import-iostat2pcp
 pcp_testsuite = pcp-testsuite
+pcp_python = python-pcp
 
 dirpcp = debian/$(pcp)
 dirlibpcp = debian/$(libpcp)
@@ -45,6 +46,7 @@ dirpcp_import_mrtg = debian/$(pcp_import_mrtg)
 dirpcp_import_sheet = debian/$(pcp_import_sheet)
 dirpcp_import_iostat = debian/$(pcp_import_iostat)
 dirpcp_testsuite = debian/$(pcp_testsuite)
+dirpcp_python = debian/$(pcp_python)
 allperldir = $(dirlibpcp_pmda_perl) $(dirlibpcp_import_perl) \
 		$(dirpcp_logsummary_perl) $(dirlibpcp_mmv_perl)
 alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) $(allperldir) \
@@ -55,7 +57,7 @@ alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) $(allperldir) \
 		$(dirlibpcp_mmv) $(dirlibpcp_mmvdev) \
 		$(dirpcp_import_sar) $(dirpcp_import_mrtg) \
 		$(dirpcp_import_sheet) $(dirpcp_import_iostat) \
-		$(dirpcp_testsuite)
+		$(dirpcp_testsuite) $(dirpcp_python)
 
 zip = @export GZIP=-9q
 pkgpcp = $(zip); export DIST_ROOT=`pwd`/$(dirpcp);
@@ -74,14 +76,17 @@ pkgpcp_import_mrtg = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_import_mrtg);
 pkgpcp_import_sheet = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_import_sheet);
 pkgpcp_import_iostat = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_import_iostat);
 pkgpcp_testsuite = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_testsuite);
+pkgpcp_python = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_python);
 
 configure_tools = export DEBUG=-DNDEBUG AWK=gawk;
 configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var
 
 checkdir = test -f debian/rules
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
-uninstallt = cat debian/$(pcp_testsuite).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
-uninstalld = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include
+uninstallpy = cat python-pcp.list | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
+uninstallpydir = ls -d debian/$(pcp)/usr/lib*/python* | xargs rm -fr
+uninstalltest = cat debian/$(pcp_testsuite).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
+uninstalldirs = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include
 unrpathperl = find $(allperldir) -name \*.so | xargs chrpath -d
 
 build: build-arch build-indep
@@ -116,6 +121,7 @@ binary-arch: checkroot built
 	$(pkgpcp) $(MAKE) -C . install
 	$(pkgpcp) $(MAKE) -C build pcp.src
 	$(pkgpcp_testsuite) $(MAKE) -C qa install
+	$(pkgpcp_python) $(MAKE) -C src/python install
 	$(pkglibpcp_mmv_perl) $(MAKE) -C src/perl/MMV install_perl
 	$(pkglibpcp_pmda_perl) $(MAKE) -C src/perl/PMDA install_perl
 	$(pkglibpcp_import_perl) $(MAKE) -C src/perl/LogImport install_perl
@@ -133,8 +139,10 @@ binary-arch: checkroot built
 	dh_installdirs
 	dh_install --sourcedir=debian/$(pcp)
 	@$(uninstall)
-	@$(uninstalld)
-	@$(uninstallt)
+	@$(uninstalldirs)
+	@$(uninstalltest)
+	@$(uninstallpydir)
+	@$(uninstallpy)
 	@$(unrpathperl)
 	dh_makeshlibs -N $(libpcp)
 	dh_makeshlibs --package $(libpcp)
@@ -148,6 +156,7 @@ binary-arch: checkroot built
 	dh_makeshlibs --package $(libpcp_gui)
 	dh_makeshlibs -N $(libpcp_mmv)
 	dh_makeshlibs --package $(libpcp_mmv)
+	dh_python2 $(pcp_python)
 	dh_perl -p $(libpcp_mmv_perl)
 	dh_perl -p $(libpcp_pmda_perl)
 	dh_perl -p $(libpcp_import_perl)
