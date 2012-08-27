@@ -205,10 +205,9 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 		    }
 		    else if (val < sizeInsts) {
 			if (insts[val].id >= 0) {
-			    sts = -EBADSLT;
+			    sts = PM_ERR_INST;
 			}
 			else {
-
 #ifdef PCP_DEBUG
 			    if (pmDebug & DBG_TRACE_APPL0)
 				__pmNotifyErr(LOG_DEBUG, 
@@ -272,7 +271,7 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 		    }
 		    else if (val < sizeInsts) {
 			if (insts[val].id < 0) {
-			    sts = -EBADSLT;
+			    sts = PM_ERR_INST;
 			}
 			else {
 #ifdef PCP_DEBUG
@@ -288,7 +287,7 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 			}
 		    }
 		    else
-			sts = -EBADSLT;
+			sts = PM_ERR_INST;
 		    break;
 
 		default:
