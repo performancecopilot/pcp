@@ -8,10 +8,10 @@ Build-Depends: bison, flex, gawk, procps, debhelper (>= 5), perl (>= 5.6), libre
 Standards-Version: 3.9.2
 
 Package: pcp
-Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, sysv-rc-conf
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, sysv-rc-conf, libpcp-pmda-perl, pcp-python
 Suggests: tsocks
 Conflicts: pgpool2
-Recommends: libpcp-pmda-perl, pcp-gui, libpcp-import-perl
+Recommends: pcp-gui, libpcp-import-perl
 Architecture: any
 Description: System level performance monitoring and performance management
  Performance Co-Pilot (PCP) is a framework and services to
