@@ -33,14 +33,14 @@ LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
 
 SCRIPTS = mk.localconfig mk.pcpversion mk.qa_hosts mk.variant getpmcdhosts \
 	  new check recheck remake findmetric group-stats changeversion \
-	  check-gitignore check-group chk.setup sanity.coverage show-me \
+	  check-gitignore check-group chk.setup show-me disk-work \
 	  xlate_2_new_pmns common
 
 COMMON = common.check common.config common.filter common.install.cisco \
 	 common.pcpweb common.product common.rc common.setup
 
 OTHERS = GNUmakefile.install group qa_hosts.master qa_outfiles README \
-	 valgrind-suppress
+	 valgrind-suppress sanity.coverage
 
 DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | tee qa_outfiles)
 LSRCFILES = $(SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS)

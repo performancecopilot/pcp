@@ -61,7 +61,7 @@ sum_inst disk.dev.response - disk.all.response > $rspTolerance
 -> print "disk.all.response off by more than 8% from sum disk.dev.response, delta: %v";
 EOF
 
-/bin/sh ./$seq.work >$tmp.workload.out 2>&1 &
+/bin/sh ./disk-work >$tmp.workload.out 2>&1 &
 KILL_PID=$!
 
 pmie -T 20 $tmp.config >$tmp.out 2>$tmp.err
