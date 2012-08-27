@@ -37,7 +37,7 @@ LLDLIBS	= -lpcp
 # all archives, except the ones checked into the source tree,
 # then add executables beyond $(TARGETS)
 #
-LDIRT	= *.log domain.h help.pag help.dir $(subst .c,.o,$(CFILES)) \
+LDIRT	= *.log help.pag help.dir $(subst .c,.o,$(CFILES)) \
 	broken_pmda_*.c real_broken_pmns broken_v?.dir broken_v?.pag \
 	$(TARGETS)
 
@@ -51,14 +51,6 @@ include $(PCP_INC_DIR)/buildrules
 $(TARGETS):
 
 install install_pcp:
-
-domain.h:	$(STDPMID)
-	rm -f $@
-	echo "/*" >domain.h
-	echo " * built from $(STDPMID) on `date`" >>domain.h
-	echo " */" >>domain.h
-	sed -n -e 's/[ 	]*$$//' -e '/define[ 	]BROKEN[ 	]/s/.*[ 	]/#define BROKEN /p' $(STDPMID) >>domain.h
-	sed -n -e 's/[ 	]*$$//' -e '/define[ 	]DYNAMIC[ 	]/s/.*[ 	]/#define DYNAMIC /p' $(STDPMID) >>domain.h
 
 broken_v2.dir:	broken_help real_broken_pmns
 	rm -f broken_v2.pag broken_v2.dir
