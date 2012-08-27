@@ -1,3 +1,17 @@
+pcp-3.6.6 (28 August 2012)
+    - Added the python PMAPI bindings and an initial python client
+      in pmcollectl.  Separate, new package exists for python libs
+      for those platforms that split out packages (rpm, deb).
+    - Added a pcp-testsuite package for those platforms that might
+      want this (rpm, deb again, mainly)
+    - Re-introduced the pcp/qa subdirectory in pcp and deprecated
+      the external pcpqa git tree.
+    - Fix potential buffer overflow in pmlogger host name handling.
+    - Reworked the configure --prefix handling to be more like the
+      rest of the open source world.
+    - Ensure the __pmDecodeText ident parameter is always set
+      Resolves Red Hat bugzilla bug #841306.
+
 pcp-3.6.5 (16 August 2012)
     - Fixes for security advisory CVE-2012-3418
 	o Add field validation to PCP instance PDU (Red Hat #841240)

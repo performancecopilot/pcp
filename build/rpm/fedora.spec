@@ -385,8 +385,9 @@ fi
 %defattr(-,root,root)
 
 %changelog
-* Mon Aug 27 2012 Mark Goodwin <mgoodwin@redhat.com> - 3.6.6-1
-- interim builds: Update to latest PCP sources, see installed CHANGELOG for details.
+* Tue Aug 28 2012 Mark Goodwin <mgoodwin@redhat.com> - 3.6.6-1
+- Update to latest PCP sources, see installed CHANGELOG for details.
+- Introduces new python-pcp and pcp-testsuite sub-packages.
 
 * Thu Aug 16 2012 Mark Goodwin <mgoodwin@redhat.com> - 3.6.5-1
 - Update to latest PCP sources, see installed CHANGELOG for details.
