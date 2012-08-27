@@ -195,6 +195,20 @@ Description: Performance Co-Pilot data import library
  client applications to easily retrieve and process any subset of
  that data.
 
+Package: pcp-python
+Section: python
+Priority: optional
+Architecture: any
+Depends: libpcp3 (= ${binary:Version})
+Description: Performance Co-Pilot Python PMAPI module
+ The PCP Python module contains the language bindings for
+ building Performance Metric API client tools using Python.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
 Package: libpcp-pmda-perl
 Section: perl
 Priority: optional
@@ -294,10 +308,14 @@ Description: Tool for importing data from iostat into PCP archive logs
  (such as pmie, pmlogsummary, pmchart or pmdumptext).
 
 Package: pcp-testsuite
-Depends: pcp (= ${binary:Version}), valgrind
+Depends: ${shlibs:Depends}, pcp (= ${binary:Version}), valgrind
 Architecture: any
 Provides: pcpqa
 Conflicts: pcpqa
 Replaces: pcpqa
 Description: Performance Co-Pilot (PCP) Test Suite
  Quality assurance test suite for Performance Co-Pilot (PCP).
+ .
+ Provides a series of tests that exercise the many utilities and daemon
+ processes that form the PCP toolkit.  Regular users should never have
+ any need to install this package, it is for developers and testers only.
