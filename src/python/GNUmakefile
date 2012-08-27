@@ -19,9 +19,7 @@ SETUP_PY_BUILD_OPTIONS = --include-dirs=$(TOPDIR)/src/include
 SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/libpcp/src
 
 SETUP_PY_INSTALL_OPTIONS = --skip-build
-ifneq "$(PYTHON_PREFIX)" "/usr"
 SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
-endif
 SETUP_PY_INSTALL_OPTIONS += --root=$${DIST_ROOT-/}
 SETUP_PY_INSTALL_OPTIONS += --record=$(TOPDIR)/python-pcp.list
 
