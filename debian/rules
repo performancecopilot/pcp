@@ -22,7 +22,7 @@ pcp_import_mrtg = pcp-import-mrtg2pcp
 pcp_import_sheet = pcp-import-sheet2pcp
 pcp_import_iostat = pcp-import-iostat2pcp
 pcp_testsuite = pcp-testsuite
-pcp_python = pcp-python
+pcp_python = python-pcp
 
 dirpcp = debian/$(pcp)
 dirlibpcp = debian/$(libpcp)
@@ -83,8 +83,10 @@ configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --locals
 
 checkdir = test -f debian/rules
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
-uninstallt = cat debian/$(pcp_testsuite).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
-uninstalld = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include
+uninstallpy = cat python-pcp.list | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
+uninstallpydir = ls -d debian/$(pcp)/usr/lib*/python* | xargs rm -fr
+uninstalltest = cat debian/$(pcp_testsuite).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
+uninstalldirs = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include
 unrpathperl = find $(allperldir) -name \*.so | xargs chrpath -d
 
 build: build-arch build-indep
@@ -137,8 +139,10 @@ binary-arch: checkroot built
 	dh_installdirs
 	dh_install --sourcedir=debian/$(pcp)
 	@$(uninstall)
-	@$(uninstalld)
-	@$(uninstallt)
+	@$(uninstalldirs)
+	@$(uninstalltest)
+	@$(uninstallpydir)
+	@$(uninstallpy)
 	@$(unrpathperl)
 	dh_makeshlibs -N $(libpcp)
 	dh_makeshlibs --package $(libpcp)
