@@ -10,7 +10,6 @@
 
 #include <qmc_context.h>
 #include <qmc_metric.h>
-#include <assert.h>
 #include <limits.h>
 #include <qvector.h>
 #include <qstringlist.h>
@@ -275,7 +274,7 @@ QmcContext::fetch(bool update)
 		QmcMetric *metric = my.metrics[i];
 		if (metric->status() < 0)
 		    continue;
-		assert((int)metric->idIndex() < result->numpmid);
+		Q_ASSERT((int)metric->idIndex() < result->numpmid);
 		metric->extractValues(result->vset[metric->idIndex()]);
 	    }
 	    pmFreeResult(result);
