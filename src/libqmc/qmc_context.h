@@ -95,6 +95,7 @@ public:
 private:
     struct {
 	int context;			// PMAPI Context handle
+	bool needReconnect;		// Need to reconnect the context
 	QmcSource *source;		// Handle to the source description
 	QList<QmcNameToId> names;	// Mapping between names and PMIDs
 	QList<int> pmids;		// List of valid PMIDs to be fetched
@@ -104,7 +105,6 @@ private:
 	struct timeval currentTime;	// Time of current fetch
 	struct timeval previousTime;	// Time of previous fetch
 	double delta;			// Time between fetches
-	bool needReconnect;		// Need to reconnect the context
     } my;
 
     static QStringList *theStringList;	// List of metric names in traversal
