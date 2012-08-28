@@ -174,7 +174,7 @@ class pmErr( Exception ):
         try:
             errSym = pmErrSymD[ errNum ]
             errStr = libpcp.pmErrStr( errNum )
-        except KeyError as e:
+        except KeyError:
             errSym = errStr = ""
 
         if self.args[0] == PM_ERR_NAME:
@@ -326,7 +326,10 @@ class pmValueSet(Structure):
                  ("valfmt", c_int),
                  ("vlist", (pmValue * 1)) ]
     def __str__(self):
-        return "pmValueSet@%#lx id=%#lx numval=%d valfmt=%d" % (addressof(self), self.pmid, self.numval, self.valfmt) + (str([" %s" % str(self.vlist[i]) for i in xrange(self.numval)])) if self.valfmt == 0 else ""
+	if self.valfmt == 0:
+	    return "pmValueSet@%#lx id=%#lx numval=%d valfmt=%d" % (addressof(self), self.pmid, self.numval, self.valfmt) + (str([" %s" % str(self.vlist[i]) for i in xrange(self.numval)]))
+	else:
+	    return ""
                    
     def vlist_read( self ):
         return pointer( self._vlist[0] )
