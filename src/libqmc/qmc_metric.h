@@ -16,6 +16,7 @@
 #include <qmc_context.h>
 
 #include <qlist.h>
+#include <qvector.h>
 #include <qstring.h>
 #include <qtextstream.h>
 
@@ -37,9 +38,11 @@ public:
     void subValue(double value) { my.value -= value; }
     QString stringValue() const { return my.stringValue; }
     void setStringValue(const char *s) { my.stringValue = s; }
+    QString eventValue() const { return my.stringValue; /* TODO */ }
 
     int currentError() const { return my.currentError; }
-    void setCurrentError(int error) { my.currentError = error; }
+    void setCurrentError(int error)
+	{ my.currentError = error; resetCurrentValue(); }
     double currentValue() const { return my.currentValue; }
     void setCurrentValue(double value) { my.currentValue = value; }
     int previousError() const { return my.previousError; }
@@ -49,6 +52,9 @@ public:
 			 my.currentError = 0; }
 
 private:
+    void resetCurrentValue()
+	{ setCurrentValue(0.0); setStringValue(""); }
+
     struct {
 	int instance;
 	int error;
@@ -79,7 +85,7 @@ public:
     QmcContext *context() const
 	{ return my.group->context(my.contextIndex); }
     const QmcDesc &desc() const
-	{ return my.group->context(my.contextIndex)->desc(my.descIndex); }
+	{ return context()->desc(my.pmid); }
     bool hasInstances() const
 	{ return (my.status >= 0 && my.indomIndex < UINT_MAX); }
 
@@ -127,7 +133,11 @@ public:
     // Scaling modifier applied to metric values
     double scale() const { return my.scale; }
 
-    // Metric has real values (as opposed to string/other values)
+    // Metric has event records (as opposed to real/string/aggregate values)
+    bool event() const { return event(desc().desc().type); }
+    static bool event(int type) { return type == PM_TYPE_EVENT; }
+
+    // Metric has real values (as opposed to event/string/aggregate values)
     bool real() const { return real(desc().desc().type); }
     static bool real(int type)
 	{ return type > PM_TYPE_NOSUPPORT && type < PM_TYPE_STRING; }
@@ -144,6 +154,9 @@ public:
     QString stringValue(int index) const	// Current string value
 	{ return my.values[index].stringValue(); }
 
+    QString eventValue(int index) const		// Current event records
+	{ return my.values[index].eventValue(); }
+
     int error(int index) const	// Current error code (after rate-conversion)
 	{ return my.values[index].error(); }
 
@@ -159,9 +172,6 @@ public:
     uint contextIndex() const	// Index for context in group list
 	{ return my.contextIndex; }
 
-    // Index for desc in context list
-    uint descIndex() const { return my.descIndex; }
-
     // Index for metric into pmResult
     uint idIndex() const { return my.idIndex; }
 
@@ -169,7 +179,7 @@ public:
     uint indomIndex() const { return my.indomIndex; }
 
     // Set the canonical units
-    void setScaleUnits(pmUnits const& units) { descRef().setScaleUnits(units); }
+    void setScaleUnits(pmUnits const& units);
 
     // Generate a metric spec
     QString spec(bool srcFlag = false,
@@ -196,6 +206,7 @@ public:
 
 private:
     struct {
+	pmID pmid;
 	int status;
 	QString name;
 	QmcGroup *group;
@@ -204,7 +215,6 @@ private:
 
 	uint contextIndex;	// Index into the context list for the group
 	uint idIndex;		// Index into the pmid list for the context.
-	uint descIndex;		// Index into the desc list for the context.
 	uint indomIndex;	// Index into the indom list for the context.
 
 	bool explicitInst;	// Instances explicitly specified
@@ -216,9 +226,11 @@ private:
     void setupIndom(pmMetricSpec *theMetric);
     void setupValues(int num);
 
+    void extractNumericMetric(pmValueSet const *vset, pmValue const *v, QmcMetricValue &vref);
+    void extractArrayMetric(pmValueSet const *vset, pmValue const *v, QmcMetricValue &vref);
+    void extractEventMetric(pmValueSet const *vset, int index, QmcMetricValue &vref);
+
     void setIdIndex(uint index) { my.idIndex = index; }
-    QmcDesc &descRef()
-	{ return my.group->context(my.contextIndex)->desc(my.descIndex); }
 
     // Dump error messages
     void dumpAll() const;

@@ -7,14 +7,14 @@ QmcSource::QmcSource: Created context 0 to host "HOST"
 QmcGroup::createLocalContext: Default context to host "HOST"
 QmcSource::dupContext: Using original context for host "HOST"
 QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
-QmcContext::lookupDesc: Add descriptor for <pmid for hinv.ncpu>
+QmcContext::lookupInDom: Add descriptor for <pmid for hinv.ncpu>
 HOST:hinv.ncpu from host "HOST" with scale = 0 and units = none
 hinv.ncpu = Missing metric value(s)
 
 *** Metric with an Indom ***
 QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
-QmcContext::lookupDesc: Add descriptor for 29.0.6
-QmcContext::lookupDesc: Add indom for 29.2
+QmcContext::lookupInDom: Add descriptor for 29.0.6
+QmcContext::lookupInDom: Add indom for 29.2
 HOST:sample.bin["bin-100", "bin-200", "bin-300", "bin-400", "bin-500", "bin-600", "bin-700", "bin-800", "bin-900"] from host "HOST" with scale = 0 and units = none
 sample.bin: 9 instances
   [100 or "bin-100" (0)] = Missing metric value(s)
@@ -29,8 +29,8 @@ sample.bin: 9 instances
 
 *** proc style specific instance ***
 QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
-QmcContext::lookupDesc: Add descriptor for <pmid for kernel.all.load>
-QmcContext::lookupDesc: Add indom for <indom for kernel.all.load>
+QmcContext::lookupInDom: Add descriptor for <pmid for kernel.all.load>
+QmcContext::lookupInDom: Add indom for <indom for kernel.all.load>
 QmcIndom::lookup: inst "1"(0) matched to "1 minute"(0)
 QmcIndom::lookup: inst "5"(1) matched to "5 minute"(1)
 HOST:kernel.all.load["1 minute", "5 minute"] from host "HOST" with scale = 0 and units = none
@@ -40,13 +40,13 @@ kernel.all.load: 2 instances
 
 *** String metric ***
 QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
-QmcContext::lookupDesc: Add descriptor for 29.0.31
+QmcContext::lookupInDom: Add descriptor for 29.0.31
 HOST:sample.string.hullo from host "HOST" with scale = 0 and units = none
 sample.string.hullo = Missing metric value(s)
 
 *** Rate converted metric ***
 QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
-QmcContext::lookupDesc: Add descriptor for 29.0.2
+QmcContext::lookupInDom: Add descriptor for 29.0.2
 HOST:sample.seconds from host "HOST" with scale = 0 and units = sec / second
 sample.seconds = Missing metric value(s)
 
@@ -56,9 +56,9 @@ qmc_metric: Error: HOST:bogus.metric: Unknown metric name
 
 *** Bogus instance ***
 QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
-QmcContext::lookupDesc: Matched "kernel.all.load" to id <pmid for kernel.all.load>
-QmcContext::lookupDesc: Reusing descriptor <pmid for kernel.all.load>
-QmcContext::lookupDesc: Reusing indom <indom for kernel.all.load>
+QmcContext::lookupPMID: Matched "kernel.all.load" to id 60.2.0
+QmcContext::lookupInDom: Reusing descriptor <pmid for kernel.all.load>
+QmcContext::lookupInDom: Reusing indom <indom for kernel.all.load>
 qmc_metric: Error: HOST:kernel.all.load[2]: Unknown or illegal instance identifier
 
 *** Group 1 Fetch 1 ***
@@ -169,8 +169,8 @@ QmcSource::getSource: Matched HOST to source 0
 QmcGroup::createLocalContext: Default context to host "HOST"
 QmcSource::dupContext: host "HOST" duplicated, handle[1] = 1
 QmcGroup::use: Using current context 0 (handle = 1) for host "HOST"
-QmcContext::lookupDesc: Add descriptor for 253.2.4
-QmcContext::lookupDesc: Add indom for 253.1
+QmcContext::lookupInDom: Add descriptor for 253.2.4
+QmcContext::lookupInDom: Add indom for 253.1
 HOST:simple.now["sec"] from host "HOST" with scale = 0 and units = none
 simple.now: 1 instance
   [0 or "sec" (0)] = Missing metric value(s)
@@ -261,9 +261,9 @@ simple.now: 2 instances
 
 *** Add another metric with the same indom ***
 QmcGroup::use: Using current context 0 (handle = 1) for host "HOST"
-QmcContext::lookupDesc: Matched "simple.now" to id 253.2.4
-QmcContext::lookupDesc: Reusing descriptor 253.2.4
-QmcContext::lookupDesc: Reusing indom 253.1
+QmcContext::lookupPMID: Matched "simple.now" to id 253.2.4
+QmcContext::lookupInDom: Reusing descriptor 253.2.4
+QmcContext::lookupInDom: Reusing indom 253.1
 HOST:simple.now["sec", "hour"] from host "HOST" with scale = 0 and units = none
 simple.now: 2 instances
   [0 or "sec" (0)] = Missing metric value(s)

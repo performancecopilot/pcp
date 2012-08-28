@@ -42,13 +42,10 @@ public:
     pmID id(unsigned int index) const	// Access to each unique pmID
 	{ return my.pmids[index]; }
 
-    unsigned int numDesc() const	// Number of descriptors
-	{ return my.descs.size(); }
-
-    QmcDesc const& desc(unsigned int index) const
-	{ return *(my.descs[index]); }	// Access to each descriptor
-    QmcDesc& desc(unsigned int index)	// Access to each descriptor
-	{ return *(my.descs[index]); }
+    QmcDesc const& desc(pmID pmid) const
+	{ return *(my.descs.value(pmid)); }
+    QmcDesc& desc(pmID pmid)		// Access to each descriptor
+	{ return *(my.descs.value(pmid)); }
 
     unsigned int numIndoms() const	// Number of indom descriptors
 	{ return my.indoms.size(); }	// requested from this context
@@ -58,10 +55,10 @@ public:
     QmcIndom& indom(unsigned int index)	// Access to each indom
 	{ return *(my.indoms[index]); }
 
-    // Lookup the descriptor and indom for metric <name>
-    int lookupDesc(const char *name, pmID& id);
-    int lookupDesc(const char *name, unsigned int& desc, unsigned int& indom);
-    int lookupDesc(pmID pmid, unsigned int& desc, unsigned int& indom);
+    // Lookup the pmid or indom (implies descriptor) for metric <name>|<id>
+    int lookupPMID(const char *name, pmID& id);
+    int lookupInDom(const char *name, unsigned int& indom);
+    int lookupInDom(pmID pmid, unsigned int& indom);
 
     int useTZ();			// Use this timezone
 
@@ -95,8 +92,8 @@ private:
 	bool needReconnect;		// Need to reconnect the context
 	QmcSource *source;		// Handle to the source description
 	QHash<QString, pmID> names;	// Mapping between names and PMIDs
-	QList<int> pmids;		// List of valid PMIDs to be fetched
-	QList<QmcDesc*> descs;		// List of requested metric descs
+	QHash<pmID, QmcDesc*> descs;	// Mapping between PMIDs and descs
+	QList<pmID> pmids;		// List of valid PMIDs to be fetched
 	QList<QmcIndom*> indoms;	// List of requested indoms 
 	QList<QmcMetric*> metrics;	// List of metrics using this context
 	struct timeval currentTime;	// Time of current fetch

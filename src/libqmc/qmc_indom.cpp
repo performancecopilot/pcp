@@ -16,9 +16,8 @@
 #include <qmc_indom.h>
 #include <qmc_desc.h>
 #include <ctype.h>
-#include <qvector.h>
-#include <qstringlist.h>
-#include <pcp/pmapi.h>
+#include <QVector>
+#include <QStringList>
 
 QmcInstance::QmcInstance()
 {

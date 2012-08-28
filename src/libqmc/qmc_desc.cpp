@@ -8,7 +8,7 @@
  * (at your option) any later version.
  */
 #include <qmc_desc.h>
-#include <qtextstream.h>
+#include <QTextStream>
 
 QmcDesc::QmcDesc(pmID pmid)
 {

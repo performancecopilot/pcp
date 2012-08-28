@@ -12,7 +12,9 @@
 #include <qmc_context.h>
 #include <qmc_metric.h>
 #include <limits.h>
-#include <qstringlist.h>
+#include <QVector>
+#include <QStringList>
+#include <QHashIterator>
 
 QStringList *QmcContext::theStringList;
 
@@ -31,23 +33,23 @@ QmcContext::QmcContext(QmcSource* source)
 
 QmcContext::~QmcContext()
 {
-    int i;
-
-    for (i = 0; i < my.metrics.size(); i++)
-	if (my.metrics[i])
-	    delete my.metrics[i];
-    for (i = 0; i < my.descs.size(); i++)
-	if (my.descs[i])
-	    delete my.descs[i];
-    for (i = 0; i < my.indoms.size(); i++)
-	if (my.indoms[i])
-	    delete my.indoms[i];
+    while (my.metrics.isEmpty() == false) {
+	delete my.metrics.takeFirst();
+    }
+    QHashIterator<pmID, QmcDesc*> descs(my.descs);
+    while (descs.hasNext()) {
+	descs.next();
+	delete descs.value();
+    }
+    while (my.indoms.isEmpty() == false) {
+	delete my.indoms.takeFirst();
+    }
     if (my.context >= 0)
 	my.source->delContext(my.context);
 }
 
 int
-QmcContext::lookupDesc(const char *name, pmID& id)
+QmcContext::lookupPMID(const char *name, pmID& id)
 {
     QString key = name;
     int sts;
@@ -59,7 +61,7 @@ QmcContext::lookupDesc(const char *name, pmID& id)
 	id = my.names.value(key);
 	if (pmDebug & DBG_TRACE_PMC) {
 	    QTextStream cerr(stderr);
-	    cerr << "QmcContext::lookupDesc: Matched \"" << name
+	    cerr << "QmcContext::lookupPMID: Matched \"" << name
 		 << "\" to id " << pmIDStr(id) << endl;
 	}
 	sts = 1;
@@ -68,54 +70,47 @@ QmcContext::lookupDesc(const char *name, pmID& id)
 }
 
 int
-QmcContext::lookupDesc(const char *name, uint_t& desc, uint_t& indom)
+QmcContext::lookupInDom(const char *name, uint_t& indom)
 {
-    pmID id;
-    int sts = lookupDesc(name, id);
+    pmID pmid;
+    int sts = lookupPMID(name, pmid);
     if (sts < 0)
 	return sts;
-    return lookupDesc(id, desc, indom);    
+    return lookupInDom(pmid, indom);    
 }
 
 int
-QmcContext::lookupDesc(pmID pmid, uint_t& desc, uint_t& indom)
+QmcContext::lookupInDom(pmID pmid, uint_t& indom)
 {
-    int i, sts = 0;
+    int i, sts;
     QmcDesc *descPtr;
     QmcIndom *indomPtr;
 
-    desc = UINT_MAX;
-    indom = UINT_MAX;
-
-    for (i = 0; i < my.descs.size(); i++)
-	if (my.descs[i]->desc().pmid == pmid)
-	    break;
-
-    if (i == my.descs.size()) {
+    if (my.descs.contains(pmid) == false) {
 	descPtr = new QmcDesc(pmid);
 	if (descPtr->status() < 0) {
 	    sts = descPtr->status();
 	    delete descPtr;
 	    return sts;
 	}
-	my.descs.append(descPtr);
-	desc = my.descs.size() - 1;
+	my.descs.insert(pmid, descPtr);
 	if (pmDebug & DBG_TRACE_PMC) {
 	    QTextStream cerr(stderr);
-	    cerr << "QmcContext::lookupDesc: Add descriptor for "
+	    cerr << "QmcContext::lookupInDom: Add descriptor for "
 		 << pmIDStr(descPtr->id()) << endl;
 	}
     }
     else {
-	descPtr = my.descs[i];
-	desc = i;
+	descPtr = my.descs.value(pmid);
 	if (pmDebug & DBG_TRACE_PMC) {
 	    QTextStream cerr(stderr);
-	    cerr << "QmcContext::lookupDesc: Reusing descriptor "
+	    cerr << "QmcContext::lookupInDom: Reusing descriptor "
 		 << pmIDStr(descPtr->id()) << endl;
 	}
     }
-	
+
+    sts = 0;
+    indom = UINT_MAX;
     if (descPtr->desc().indom != PM_INDOM_NULL) {
 	for (i = 0; i < my.indoms.size(); i++)
 	    if (my.indoms[i]->id() == (int)descPtr->desc().indom)
@@ -131,7 +126,7 @@ QmcContext::lookupDesc(pmID pmid, uint_t& desc, uint_t& indom)
 	    indom = my.indoms.size() - 1;
 	    if (pmDebug & DBG_TRACE_PMC) {
 		QTextStream cerr(stderr);
-		cerr << "QmcContext::lookupDesc: Add indom for "
+		cerr << "QmcContext::lookupInDom: Add indom for "
 		     << pmInDomStr(indomPtr->id()) << endl;
 	    }
 	}
@@ -140,7 +135,7 @@ QmcContext::lookupDesc(pmID pmid, uint_t& desc, uint_t& indom)
 	    indom = i;
 	    if (pmDebug & DBG_TRACE_PMC) {
 		QTextStream cerr(stderr);
-		cerr << "QmcContext::lookupDesc: Reusing indom "
+		cerr << "QmcContext::lookupInDom: Reusing indom "
 		     << pmInDomStr(indomPtr->id()) << endl;
 	    }
 	}
@@ -183,17 +178,17 @@ QmcContext::dumpMetrics(QTextStream &stream)
 void
 QmcContext::addMetric(QmcMetric *metric)
 {
-    pmID id;
+    pmID pmid;
     int i;
 
     my.metrics.append(metric);
     if (metric->status() >= 0) {
-	id = metric->desc().desc().pmid;
+	pmid = metric->desc().desc().pmid;
 	for (i = 0; i < my.pmids.size(); i++)
-	    if (my.pmids[i] == (int)id)
+	    if (my.pmids[i] == pmid)
 		break;
 	if (i == my.pmids.size())
-	    my.pmids.append(id);
+	    my.pmids.append(pmid);
 	metric->setIdIndex(i);
     }
 }
