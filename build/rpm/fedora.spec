@@ -12,7 +12,7 @@ Source0: ftp://oss.sgi.com/projects/pcp/download/pcp-%{version}-%{buildversion}.
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: procps autoconf bison flex ncurses-devel readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
-BuildRequires: initscripts python-devel man-db hostname
+BuildRequires: initscripts python-devel man /bin/hostname
  
 Requires: bash gawk sed grep fileutils findutils initscripts perl python
 
