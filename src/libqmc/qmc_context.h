@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 1998-2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
+ * Copyright (c) 1998-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -15,14 +16,10 @@
 #include <qmc_indom.h>
 #include <qmc_source.h>
 
+#include <qhash.h>
 #include <qlist.h>
 #include <qstring.h>
 #include <qtextstream.h>
-
-struct QmcNameToId {
-    QString	name;
-    pmID	id;
-};
 
 class QmcContext
 {
@@ -97,7 +94,7 @@ private:
 	int context;			// PMAPI Context handle
 	bool needReconnect;		// Need to reconnect the context
 	QmcSource *source;		// Handle to the source description
-	QList<QmcNameToId> names;	// Mapping between names and PMIDs
+	QHash<QString, pmID> names;	// Mapping between names and PMIDs
 	QList<int> pmids;		// List of valid PMIDs to be fetched
 	QList<QmcDesc*> descs;		// List of requested metric descs
 	QList<QmcIndom*> indoms;	// List of requested indoms 

@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 1997,2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
+ * Copyright (c) 1997,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -11,7 +12,6 @@
 #include <qmc_context.h>
 #include <qmc_metric.h>
 #include <limits.h>
-#include <qvector.h>
 #include <qstringlist.h>
 
 QStringList *QmcContext::theStringList;
@@ -49,33 +49,21 @@ QmcContext::~QmcContext()
 int
 QmcContext::lookupDesc(const char *name, pmID& id)
 {
-    int sts = 0;
-    int i, len = strlen(name);
+    QString key = name;
+    int sts;
 
-    for (i = 0; i < my.names.size(); i++) {
-	const QmcNameToId &item = my.names[i];
-	if (item.name.length() == len && item.name == name) {
-	    sts = 1;
-	    id = item.id;
-	    if (pmDebug & DBG_TRACE_PMC) {
-		QTextStream cerr(stderr);
-		cerr << "QmcContext::lookupDesc: Matched \"" << name
-		     << "\" to id " << pmIDStr(id) << endl;
-	    }
-	    break;
+    if (my.names.contains(key) == false) {
+        if ((sts = pmLookupName(1, (char **)(&name), &id)) >= 0)
+	    my.names.insert(key, id);
+    } else {
+	id = my.names.value(key);
+	if (pmDebug & DBG_TRACE_PMC) {
+	    QTextStream cerr(stderr);
+	    cerr << "QmcContext::lookupDesc: Matched \"" << name
+		 << "\" to id " << pmIDStr(id) << endl;
 	}
+	sts = 1;
     }
-
-    if (i == my.names.size()) {
-	sts = pmLookupName(1, (char **)(&name), &id);
-	if (sts >= 0) {
-	    QmcNameToId newName;
-	    newName.name = name;
-	    newName.id = id;
-	    my.names.append(newName);
-	}
-    }
-
     return sts;
 }
 
