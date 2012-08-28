@@ -46,11 +46,11 @@ def check_code (code):
 
 def usage ():
     print "\nUsage:", sys.argv[0], "\n\t[-sSUBSYS] [-f|--filename FILE] [-p|--playback FILE]"
-    print '''\t[-R|--runtime N] [-cN] [-i|--interval N] [--verbose]
+    print '''\t[-R|--runtime N] [-c|--count N] [-i|--interval N] [--verbose]
 
 	Collect and display current system status.
-	
-Where: -cN is number of cycles
+
+Where:	-cN is number of cycles
 	-sSUBSYS is one of:
 	  d for disk
 	  c for cpu
@@ -921,9 +921,11 @@ if __name__ == '__main__':
                  }
 
     while i < len(sys.argv):
-        if (sys.argv[i] == "-c"):
+        if (sys.argv[i] == "-c" or sys.argv[i] == "--count"):
             i += 1
             n_samples = int(sys.argv[i])
+        elif (sys.argv[i][:2] == "-c"):
+            n_samples = int(sys.argv[i][2:])
         elif (sys.argv[i] == "-f" or sys.argv[i] == "--filename"):
             i += 1
             output_file = sys.argv[i]
@@ -936,8 +938,7 @@ if __name__ == '__main__':
         elif (sys.argv[i] == "-i" or sys.argv[i] == "--interval"):
             i += 1
             interval_arg = sys.argv[i]
-        elif (sys.argv[i][:2] == "-c"):
-            n_samples = int(sys.argv[i][2:])
+	# TODO: --subsys XYZ
         elif (sys.argv[i][:2] == "-s"):
             for j in xrange(len(sys.argv[i][2:])):
                 subsys_arg = sys.argv[i][j+2:j+3]
