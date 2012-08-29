@@ -47,12 +47,17 @@ s/[0-9][0-9]* none/VALUE none/
 s/\[[0-9][0-9]*]/[K]/
 }' \
 	-e "/hinv\.ncpu =/s/[0-9][0-9]* none/VALUE none/" \
-	-e "/lookupInDom:/s/1\.18\.2$/<pmid for hinv.ncpu>/" \
-	-e "/lookupInDom:/s/60\.0\.32$/<pmid for hinv.ncpu>/" \
-	-e "/lookupInDom:/s/1\.18\.3$/<pmid for kernel.all.load>/" \
-	-e "/lookupInDom:/s/60\.2\.0$/<pmid for kernel.all.load>/" \
+	-e "/lookupDesc:/s/29\.0\.31$/<pmid for sample.string.hullo>/" \
+	-e "/lookupDesc:/s/29\.0\.6$/<pmid for sample.bin>/" \
+	-e "/lookupDesc:/s/29\.0\.2$/<pmid for sample.seconds>/" \
+	-e "/lookupDesc:/s/1\.18\.2$/<pmid for hinv.ncpu>/" \
+	-e "/lookupDesc:/s/60\.0\.32$/<pmid for hinv.ncpu>/" \
+	-e "/lookupDesc:/s/1\.18\.3$/<pmid for kernel.all.load>/" \
+	-e "/lookupDesc:/s/60\.2\.0$/<pmid for kernel.all.load>/" \
+	-e "/lookupPMID:/s/60\.2\.0$/<pmid for kernel.all.load>/" \
 	-e "/lookupInDom:/s/1\.5$/<indom for kernel.all.load>/" \
 	-e "/lookupInDom:/s/60\.2$/<indom for kernel.all.load>/" \
+	-e "/lookupInDom:/s/29\.2$/<indom for sample.bin>/" \
 	-e "/::genProfile/s/id = [0-9]*,/id = NNN,/" \
 	-e "/::genProfile/s/ptr = 0$/ptr = 0x0/"
 

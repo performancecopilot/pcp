@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 1998-2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
+ * Copyright (c) 1998-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,31 +21,63 @@
 #include <qstring.h>
 #include <qtextstream.h>
 
+class QmcMetricValue;
+
+class QmcEventRecord
+{
+public:
+    QmcEventRecord() { my.missed = my.flags = 0; }
+
+    void setTimestamp(struct timeval *tv) { my.timestamp = *tv; }
+    void setMissed(int missed) { my.missed = missed; }
+    void setFlags(int flags) { my.flags = flags; }
+
+    int add(pmID pmid, QmcContext *cp, pmValueSet const *vp);
+
+    static pmID eventFlags();
+    static pmID eventMissed();
+
+private:
+    struct {
+	struct timeval	timestamp;
+	int		missed;
+	int		flags;
+	QVector<QmcMetricValue> parameters;
+    } my;
+};
+
 class QmcMetricValue
 {
 public:
     QmcMetricValue();
     QmcMetricValue const& operator=(QmcMetricValue const& rhs);
+
     int instance() const { return my.instance; }
     void setInstance(int instance) { my.instance = instance; }
+
     int error() const { return my.error; }
     void setError(int error) { my.error = error; }
     void setAllErrors(int error)
 	{ my.error = my.currentError = my.previousError = error; }
+
     double value() const { return my.value; }
     void setValue(double value) { my.value = value; }
     void divValue(double value) { my.value /= value; }
     void addValue(double value) { my.value += value; }
     void subValue(double value) { my.value -= value; }
+
     QString stringValue() const { return my.stringValue; }
     void setStringValue(const char *s) { my.stringValue = s; }
-    QString eventValue() const { return my.stringValue; /* TODO */ }
+
+    QString eventValue() const { return QString::null; /* TODO */ }
+    void setEventRecords(QVector<QmcEventRecord> &records) { my.eventRecords = records; }
 
     int currentError() const { return my.currentError; }
     void setCurrentError(int error)
 	{ my.currentError = error; resetCurrentValue(); }
     double currentValue() const { return my.currentValue; }
     void setCurrentValue(double value) { my.currentValue = value; }
+
     int previousError() const { return my.previousError; }
     double previousValue() const { return my.previousValue; }
     void shiftValues() { my.previousValue = my.currentValue;
@@ -53,7 +86,7 @@ public:
 
 private:
     void resetCurrentValue()
-	{ setCurrentValue(0.0); setStringValue(""); }
+	{ my.currentValue = 0.0; my.stringValue = QString::null; my.eventRecords.clear(); }
 
     struct {
 	int instance;
@@ -64,6 +97,7 @@ private:
 	int currentError;
 	int previousError;
 	QString stringValue;
+	QVector<QmcEventRecord> eventRecords;
     } my;
 };
 
