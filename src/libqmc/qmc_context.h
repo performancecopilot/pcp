@@ -43,9 +43,9 @@ public:
 	{ return my.pmids[index]; }
 
     QmcDesc const& desc(pmID pmid) const
-	{ return *(my.descs.value(pmid)); }
+	{ return *(my.descCache.value(pmid)); }
     QmcDesc& desc(pmID pmid)		// Access to each descriptor
-	{ return *(my.descs.value(pmid)); }
+	{ return *(my.descCache.value(pmid)); }
 
     unsigned int numIndoms() const	// Number of indom descriptors
 	{ return my.indoms.size(); }	// requested from this context
@@ -58,7 +58,13 @@ public:
     // Lookup the pmid or indom (implies descriptor) for metric <name>|<id>
     int lookupPMID(const char *name, pmID& id);
     int lookupInDom(const char *name, unsigned int& indom);
+    int lookupInDom(QmcDesc *desc, uint_t& indom);
+
+    // Lookup various structures using the pmid
     int lookupInDom(pmID pmid, unsigned int& indom);
+    int lookupName(pmID pmid, QString &name);
+    int lookupDesc(pmID pmid, QmcDesc **desc);
+    int lookup(pmID pmid, QString &name, QmcDesc **desc, QmcIndom **indom);
 
     int useTZ();			// Use this timezone
 
@@ -91,8 +97,9 @@ private:
 	int context;			// PMAPI Context handle
 	bool needReconnect;		// Need to reconnect the context
 	QmcSource *source;		// Handle to the source description
-	QHash<QString, pmID> names;	// Mapping between names and PMIDs
-	QHash<pmID, QmcDesc*> descs;	// Mapping between PMIDs and descs
+	QHash<QString, pmID> nameCache;	// Reverse map from names to PMIDs
+	QHash<pmID, QString> pmidCache;	// Mapping between PMIDs and names
+	QHash<pmID, QmcDesc*> descCache;// Mapping between PMIDs and descs
 	QList<pmID> pmids;		// List of valid PMIDs to be fetched
 	QList<QmcIndom*> indoms;	// List of requested indoms 
 	QList<QmcMetric*> metrics;	// List of metrics using this context

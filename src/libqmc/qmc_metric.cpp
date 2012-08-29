@@ -657,7 +657,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 		    else if (!event())
 			extractArrayMetric(set, value, valueRef);
 		    else
-			extractEventMetric(set, 0, valueRef);
+			extractEventMetric(set, index, valueRef);
 		}
 		else {	// Cannot find it
 		    if (pmDebug & DBG_TRACE_OPTFETCH) {
@@ -756,8 +756,102 @@ QmcMetric::extractNumericMetric(pmValueSet const *set, pmValue const *value, Qmc
 }
 
 void
-QmcMetric::extractEventMetric(pmValueSet const *, int, QmcMetricValue &)
+QmcMetric::extractEventMetric(pmValueSet const *valueSet, int index, QmcMetricValue &valueRef)
 {
+    pmResult **result;
+    int sts;
+
+    if ((sts = pmUnpackEventRecords((pmValueSet*)valueSet, index, &result)) >= 0) {
+	QVector<QmcEventRecord> records(sts);
+	pmID missedID = QmcEventRecord::eventMissed();
+	pmID flagsID = QmcEventRecord::eventFlags();
+	pmID paramID;
+
+	for (int r = 0; r < sts; r++) {
+	    QmcEventRecord record = records.at(r);
+	    record.setTimestamp(&result[r]->timestamp);
+	    for (int i = 0; i < result[r]->numpmid; i++) {
+		valueSet = result[r]->vset[i];
+		paramID = valueSet->pmid;
+		if (paramID == flagsID)
+		    record.setFlags(valueSet->vlist[0].value.lval);
+		else if (paramID == missedID)
+		    record.setMissed(valueSet->vlist[0].value.lval);
+		else
+		    record.add(paramID, context(), valueSet);
+	    }
+	}
+	valueRef.setEventRecords(records);
+	pmFreeEventResult(result);
+    }
+    else {
+	valueRef.setCurrentError(sts);
+    }
+}
+
+int
+QmcEventRecord::add(pmID pmid, QmcContext *context, pmValueSet const *vsp)
+{
+    QString name;
+    QmcDesc *desc;
+    QmcIndom *indom;
+    int sts, type;
+
+    if (vsp->numval <= 0)	// no value or an error
+	return vsp->numval;
+
+    if ((sts = context->lookup(pmid, name, &desc, &indom)) < 0)
+	return sts;
+
+    type = desc->desc().type;
+    QVector<QmcMetricValue> parameters(vsp->numval);
+    for (int i = 0; i < vsp->numval; i++) {
+	const pmValue *vp = &vsp->vlist[i];
+	QmcMetricValue *value = &parameters[i];
+	pmAtomValue result = { 0 };
+
+	sts = 0;
+	if (QmcMetric::real(type) == true) {
+	    if ((sts = pmExtractValue(vsp->valfmt, vp,
+			    type, &result, PM_TYPE_DOUBLE)) >= 0)
+		value->setCurrentValue(result.d);
+	} else if (QmcMetric::event(type) == false) {
+	    if ((sts = pmExtractValue(vsp->valfmt, vp,
+			    type, &result, PM_TYPE_STRING)) >= 0)
+		value->setStringValue(result.cp);
+	}
+	value->setInstance(vp->inst);
+	if (sts < 0)
+	    value->setCurrentError(sts);
+	else if (result.cp)
+	    free(result.cp);
+    }
+    my.parameters = parameters;
+    return 0;
+}
+
+pmID
+QmcEventRecord::eventMissed(void)
+{
+    static pmID eventMissed = PM_IN_NULL;
+    static const char *nameMissed[] = { "event.missed" };
+
+    if (eventMissed == PM_ID_NULL)
+        if (pmLookupName(1, (char **)nameMissed, &eventMissed) < 0)
+            eventMissed = PM_ID_NULL;
+    return eventMissed;
+}
+
+pmID
+QmcEventRecord::eventFlags(void)
+{
+    static pmID eventFlags = PM_IN_NULL;
+    static const char *nameFlags[] = { "event.flags" };
+
+    if (eventFlags == PM_ID_NULL)
+	if (pmLookupName(1, (char **)nameFlags, &eventFlags) < 0)
+	    eventFlags = PM_ID_NULL;
+    return eventFlags;
 }
 
 bool
