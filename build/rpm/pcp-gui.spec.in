@@ -10,9 +10,9 @@ License: GPLv2
 Vendor: Silicon Graphics, Inc.
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
-Requires: pcp >= 2.0
+Requires: pcp >= 3.5.0, pcp-libs-devel >= 3.5.0
 Requires: pcp-gui >= 1.5.0
-BuildRequires: pcp >= 2.0
+BuildRequires: pcp >= 3.5.0
 %if "%{_vendor}" == "suse"
 Requires: qt >= 4.2
 BuildRequires: qt-devel >= 4.2
@@ -34,7 +34,7 @@ to the core PCP infrastructure.
 License: GPLv2
 BuildArch: noarch
 Group: Documentation
-Conflicts: pcp-gui < 1.5.0
+Conflicts: pcp-gui <= 1.5.5
 Summary: Performance Co-Pilot documentation and tutorials
 Vendor: Silicon Graphics, Inc.
 URL: http://oss.sgi.com/projects/pcp/
@@ -86,6 +86,7 @@ EOFEOF
 
 # Files for the pcp-doc and pcp-gui-testsuite subpackages.
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp-doc' >docs_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'tutorials' >>docs_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'testsuite' >testsuite_files
 
 rm -f docs_files.rpm testsuite_files.rpm base_files.rpm

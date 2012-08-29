@@ -59,7 +59,7 @@ _filter2()
 
 # real QA test starts here
 cd $PCP_VAR_DIR/testsuite/pmdas/dynamic
-make >$here/$seq.full 2>&1
+$sudo make >$here/$seq.full 2>&1
 $sudo ./Install </dev/null >>$here/$seq.full
 cd $here
 _check_metric dynamic.numinsts

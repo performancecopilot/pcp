@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 1998-2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
+ * Copyright (c) 1998-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -16,32 +17,67 @@
 #include <qmc_context.h>
 
 #include <qlist.h>
+#include <qvector.h>
 #include <qstring.h>
 #include <qtextstream.h>
+
+class QmcMetricValue;
+
+class QmcEventRecord
+{
+public:
+    QmcEventRecord() { my.missed = my.flags = 0; }
+
+    void setTimestamp(struct timeval *tv) { my.timestamp = *tv; }
+    void setMissed(int missed) { my.missed = missed; }
+    void setFlags(int flags) { my.flags = flags; }
+
+    int add(pmID pmid, QmcContext *cp, pmValueSet const *vp);
+
+    static pmID eventFlags();
+    static pmID eventMissed();
+
+private:
+    struct {
+	struct timeval	timestamp;
+	int		missed;
+	int		flags;
+	QVector<QmcMetricValue> parameters;
+    } my;
+};
 
 class QmcMetricValue
 {
 public:
     QmcMetricValue();
     QmcMetricValue const& operator=(QmcMetricValue const& rhs);
+
     int instance() const { return my.instance; }
     void setInstance(int instance) { my.instance = instance; }
+
     int error() const { return my.error; }
     void setError(int error) { my.error = error; }
     void setAllErrors(int error)
 	{ my.error = my.currentError = my.previousError = error; }
+
     double value() const { return my.value; }
     void setValue(double value) { my.value = value; }
     void divValue(double value) { my.value /= value; }
     void addValue(double value) { my.value += value; }
     void subValue(double value) { my.value -= value; }
+
     QString stringValue() const { return my.stringValue; }
     void setStringValue(const char *s) { my.stringValue = s; }
 
+    QString eventValue() const { return QString::null; /* TODO */ }
+    void setEventRecords(QVector<QmcEventRecord> &records) { my.eventRecords = records; }
+
     int currentError() const { return my.currentError; }
-    void setCurrentError(int error) { my.currentError = error; }
+    void setCurrentError(int error)
+	{ my.currentError = error; resetCurrentValue(); }
     double currentValue() const { return my.currentValue; }
     void setCurrentValue(double value) { my.currentValue = value; }
+
     int previousError() const { return my.previousError; }
     double previousValue() const { return my.previousValue; }
     void shiftValues() { my.previousValue = my.currentValue;
@@ -49,6 +85,9 @@ public:
 			 my.currentError = 0; }
 
 private:
+    void resetCurrentValue()
+	{ my.currentValue = 0.0; my.stringValue = QString::null; my.eventRecords.clear(); }
+
     struct {
 	int instance;
 	int error;
@@ -58,6 +97,7 @@ private:
 	int currentError;
 	int previousError;
 	QString stringValue;
+	QVector<QmcEventRecord> eventRecords;
     } my;
 };
 
@@ -79,7 +119,7 @@ public:
     QmcContext *context() const
 	{ return my.group->context(my.contextIndex); }
     const QmcDesc &desc() const
-	{ return my.group->context(my.contextIndex)->desc(my.descIndex); }
+	{ return context()->desc(my.pmid); }
     bool hasInstances() const
 	{ return (my.status >= 0 && my.indomIndex < UINT_MAX); }
 
@@ -127,7 +167,11 @@ public:
     // Scaling modifier applied to metric values
     double scale() const { return my.scale; }
 
-    // Metric has real values (as opposed to string/other values)
+    // Metric has event records (as opposed to real/string/aggregate values)
+    bool event() const { return event(desc().desc().type); }
+    static bool event(int type) { return type == PM_TYPE_EVENT; }
+
+    // Metric has real values (as opposed to event/string/aggregate values)
     bool real() const { return real(desc().desc().type); }
     static bool real(int type)
 	{ return type > PM_TYPE_NOSUPPORT && type < PM_TYPE_STRING; }
@@ -144,6 +188,9 @@ public:
     QString stringValue(int index) const	// Current string value
 	{ return my.values[index].stringValue(); }
 
+    QString eventValue(int index) const		// Current event records
+	{ return my.values[index].eventValue(); }
+
     int error(int index) const	// Current error code (after rate-conversion)
 	{ return my.values[index].error(); }
 
@@ -159,9 +206,6 @@ public:
     uint contextIndex() const	// Index for context in group list
 	{ return my.contextIndex; }
 
-    // Index for desc in context list
-    uint descIndex() const { return my.descIndex; }
-
     // Index for metric into pmResult
     uint idIndex() const { return my.idIndex; }
 
@@ -169,7 +213,7 @@ public:
     uint indomIndex() const { return my.indomIndex; }
 
     // Set the canonical units
-    void setScaleUnits(pmUnits const& units) { descRef().setScaleUnits(units); }
+    void setScaleUnits(pmUnits const& units);
 
     // Generate a metric spec
     QString spec(bool srcFlag = false,
@@ -196,6 +240,7 @@ public:
 
 private:
     struct {
+	pmID pmid;
 	int status;
 	QString name;
 	QmcGroup *group;
@@ -204,7 +249,6 @@ private:
 
 	uint contextIndex;	// Index into the context list for the group
 	uint idIndex;		// Index into the pmid list for the context.
-	uint descIndex;		// Index into the desc list for the context.
 	uint indomIndex;	// Index into the indom list for the context.
 
 	bool explicitInst;	// Instances explicitly specified
@@ -216,9 +260,11 @@ private:
     void setupIndom(pmMetricSpec *theMetric);
     void setupValues(int num);
 
+    void extractNumericMetric(pmValueSet const *vset, pmValue const *v, QmcMetricValue &vref);
+    void extractArrayMetric(pmValueSet const *vset, pmValue const *v, QmcMetricValue &vref);
+    void extractEventMetric(pmValueSet const *vset, int index, QmcMetricValue &vref);
+
     void setIdIndex(uint index) { my.idIndex = index; }
-    QmcDesc &descRef()
-	{ return my.group->context(my.contextIndex)->desc(my.descIndex); }
 
     // Dump error messages
     void dumpAll() const;

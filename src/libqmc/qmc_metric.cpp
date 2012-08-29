@@ -8,7 +8,6 @@
  * (at your option) any later version.
  */
 
-#include <assert.h>
 #include <strings.h>
 #include <qmc_metric.h>
 #include <qmc_group.h>
@@ -50,7 +49,6 @@ QmcMetric::QmcMetric(QmcGroup *group, const char *string,
     my.group = group;
     my.scale = scale;
     my.idIndex = UINT_MAX;
-    my.descIndex = UINT_MAX;
     my.indomIndex = UINT_MAX;
     my.contextIndex = UINT_MAX;
     my.explicitInst = false;
@@ -73,13 +71,13 @@ QmcMetric::QmcMetric(QmcGroup *group, const char *string,
 QmcMetric::QmcMetric(QmcGroup *group, pmMetricSpec *metricSpec,
 		       double scale, bool active)
 {
+    my.pmid = PM_ID_NULL;
     my.status = 0;
     my.name = QString(metricSpec->metric);
     my.group = group;
     my.scale = scale;
     my.contextIndex = UINT_MAX;
     my.idIndex = 0;
-    my.descIndex = UINT_MAX;
     my.indomIndex = UINT_MAX;
     my.explicitInst = false;
     my.active = active;
@@ -125,9 +123,9 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 
     if (my.status >= 0) {
 	contextType = context()->source().type();
-
-	my.status = context()->lookupDesc(metricSpec->metric,
-					    my.descIndex, my.indomIndex);
+	my.status = context()->lookupPMID(metricSpec->metric, my.pmid);
+	if (my.status >= 0)
+	    my.status = context()->lookupInDom(my.pmid, my.indomIndex);
 	if (my.status < 0) {
 	    name = strdup(nameAscii());
 	    src = strdup(context()->source().sourceAscii());
@@ -188,7 +186,7 @@ QmcMetric::setupIndom(pmMetricSpec *metricSpec)
 	    setupValues(1);
     }
     else if (metricSpec->ninst) {
-	assert(hasInstances());
+	Q_ASSERT(hasInstances());
 	setupValues(metricSpec->ninst);
 
 	for (i = 0 ; i < metricSpec->ninst && my.status >= 0; i++) {
@@ -204,7 +202,7 @@ QmcMetric::setupIndom(pmMetricSpec *metricSpec)
 	my.explicitInst = true;
     }
     else {
-	assert(hasInstances());
+	Q_ASSERT(hasInstances());
 
 	if (my.active) {
 	    setupValues(indomPtr->numActiveInsts());
@@ -364,6 +362,14 @@ operator<<(QTextStream &stream, const QmcMetric &metric)
 	stream << "\"]";
     }
     return stream;
+}
+
+void
+QmcMetric::setScaleUnits(pmUnits const& units)
+{
+    QmcContext *context = my.group->context(my.contextIndex);
+    QmcDesc &desc = context->desc(my.pmid);
+    desc.setScaleUnits(units);
 }
 
 int
@@ -592,23 +598,18 @@ QmcMetric::setError(int sts)
     for (int i = 0; i < numValues(); i++) {
 	QmcMetricValue &value = my.values[i];
 	value.setCurrentError(sts);
-	if (real())
-	    value.setCurrentValue(0.0);
-	else
-	    value.setStringValue("");
     }
 }
 
 void
 QmcMetric::extractValues(pmValueSet const* set)
 {
-    int i, j, index, inst, sts;
+    int i, j, index, inst;
     pmValue const *value = NULL;
-    pmAtomValue result;
     bool found;
     QmcIndom *indomPtr = indom();
 
-    assert(set->pmid == desc().id());
+    Q_ASSERT(set->pmid == desc().id());
 
     if (set->numval > 0) {
 	if (hasInstances()) {
@@ -643,6 +644,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 		// Search for it from the top
 		for (j = 0; found == false && j < set->numval; j++) {
 		    if (set->vlist[j].inst == indomPtr->inst(inst)) {
+			index = j;
 			value = &(set->vlist[j]);
 			indomPtr->setIndex(inst, j);
 			found = true;
@@ -650,31 +652,12 @@ QmcMetric::extractValues(pmValueSet const* set)
 		}
 
 		if (found) {
-		    if (!real()) {
-			sts = pmExtractValue(set->valfmt, value,
-					     desc().desc().type, &result,
-					     PM_TYPE_STRING);
-			if (sts >= 0) {
-			    valueRef.setStringValue(result.cp);
-			    if (result.cp)
-				free(result.cp);
-			}
-			else {
-			    valueRef.setCurrentError(sts);
-			    valueRef.setStringValue("");
-			}
-		    }
-		    else {
-			sts = pmExtractValue(set->valfmt, value,
-					     desc().desc().type, &result,
-					     PM_TYPE_DOUBLE);
-			if (sts >= 0)
-			    valueRef.setCurrentValue(result.d);
-			else {
-			    valueRef.setCurrentError(sts);
-			    valueRef.setCurrentValue(0.0);
-			}
-		    }
+		    if (real())
+			extractNumericMetric(set, value, valueRef);
+		    else if (!event())
+			extractArrayMetric(set, value, valueRef);
+		    else
+			extractEventMetric(set, index, valueRef);
 		}
 		else {	// Cannot find it
 		    if (pmDebug & DBG_TRACE_OPTFETCH) {
@@ -688,10 +671,6 @@ QmcMetric::extractValues(pmValueSet const* set)
 			indomPtr->hasChanged();
 
 		    valueRef.setCurrentError(PM_ERR_VALUE);
-		    if (real())
-			valueRef.setCurrentValue(0.0);
-		    else
-			valueRef.setStringValue("");
 		}
 	    }
 	}
@@ -702,31 +681,13 @@ QmcMetric::extractValues(pmValueSet const* set)
 	    else {
 		QmcMetricValue &valueRef = my.values[0];
 		value = &(set->vlist[0]);
-		if (!real()) {
-		    sts = pmExtractValue(set->valfmt, value,
-					 desc().desc().type, &result,
-					 PM_TYPE_STRING);
-		    if (sts >= 0) {
-			valueRef.setStringValue(result.cp);
-			if (result.cp)
-			    free(result.cp);
-		    }
-		    else {
-			valueRef.setCurrentError(sts);
-			valueRef.setStringValue("");
-		    }
-		}
-		else {
-		    sts = pmExtractValue(set->valfmt, value,
-					 desc().desc().type, &result,
-					 PM_TYPE_DOUBLE);
-		    if (sts >= 0)
-			valueRef.setCurrentValue(result.d);
-		    else {
-			valueRef.setCurrentError(sts);
-			valueRef.setCurrentValue(0.0);
-		    }
-		}
+
+		if (real())
+		    extractNumericMetric(set, value, valueRef);
+		else if (!event())
+		    extractArrayMetric(set, value, valueRef);
+		else
+		    extractEventMetric(set, 0, valueRef);
 	    }
 	}
 	else {	// Did not expect any instances
@@ -763,6 +724,134 @@ QmcMetric::extractValues(pmValueSet const* set)
 	if (hasInstances())
 	    indomPtr->hasChanged();
     }
+}
+
+void
+QmcMetric::extractArrayMetric(pmValueSet const *set, pmValue const *value, QmcMetricValue &valueRef)
+{
+    pmAtomValue result;
+    int sts;
+
+    if ((sts = pmExtractValue(set->valfmt, value,
+		    desc().desc().type, &result, PM_TYPE_STRING)) >= 0) {
+	valueRef.setStringValue(result.cp);
+	if (result.cp)
+	    free(result.cp);
+    } else {
+	valueRef.setCurrentError(sts);
+    }
+}
+
+void
+QmcMetric::extractNumericMetric(pmValueSet const *set, pmValue const *value, QmcMetricValue &valueRef)
+{
+    pmAtomValue result;
+    int sts;
+
+    if ((sts = pmExtractValue(set->valfmt, value,
+		    desc().desc().type, &result, PM_TYPE_DOUBLE)) >= 0)
+	valueRef.setCurrentValue(result.d);
+    else
+	valueRef.setCurrentError(sts);
+}
+
+void
+QmcMetric::extractEventMetric(pmValueSet const *valueSet, int index, QmcMetricValue &valueRef)
+{
+    pmResult **result;
+    int sts;
+
+    if ((sts = pmUnpackEventRecords((pmValueSet*)valueSet, index, &result)) >= 0) {
+	QVector<QmcEventRecord> records(sts);
+	pmID missedID = QmcEventRecord::eventMissed();
+	pmID flagsID = QmcEventRecord::eventFlags();
+	pmID paramID;
+
+	for (int r = 0; r < sts; r++) {
+	    QmcEventRecord record = records.at(r);
+	    record.setTimestamp(&result[r]->timestamp);
+	    for (int i = 0; i < result[r]->numpmid; i++) {
+		valueSet = result[r]->vset[i];
+		paramID = valueSet->pmid;
+		if (paramID == flagsID)
+		    record.setFlags(valueSet->vlist[0].value.lval);
+		else if (paramID == missedID)
+		    record.setMissed(valueSet->vlist[0].value.lval);
+		else
+		    record.add(paramID, context(), valueSet);
+	    }
+	}
+	valueRef.setEventRecords(records);
+	pmFreeEventResult(result);
+    }
+    else {
+	valueRef.setCurrentError(sts);
+    }
+}
+
+int
+QmcEventRecord::add(pmID pmid, QmcContext *context, pmValueSet const *vsp)
+{
+    QString name;
+    QmcDesc *desc;
+    QmcIndom *indom;
+    int sts, type;
+
+    if (vsp->numval <= 0)	// no value or an error
+	return vsp->numval;
+
+    if ((sts = context->lookup(pmid, name, &desc, &indom)) < 0)
+	return sts;
+
+    type = desc->desc().type;
+    QVector<QmcMetricValue> parameters(vsp->numval);
+    for (int i = 0; i < vsp->numval; i++) {
+	const pmValue *vp = &vsp->vlist[i];
+	QmcMetricValue *value = &parameters[i];
+	pmAtomValue result = { 0 };
+
+	sts = 0;
+	if (QmcMetric::real(type) == true) {
+	    if ((sts = pmExtractValue(vsp->valfmt, vp,
+			    type, &result, PM_TYPE_DOUBLE)) >= 0)
+		value->setCurrentValue(result.d);
+	} else if (QmcMetric::event(type) == false) {
+	    if ((sts = pmExtractValue(vsp->valfmt, vp,
+			    type, &result, PM_TYPE_STRING)) >= 0)
+		value->setStringValue(result.cp);
+	}
+	value->setInstance(vp->inst);
+	if (sts < 0)
+	    value->setCurrentError(sts);
+	else if (result.cp)
+	    free(result.cp);
+    }
+    my.parameters = parameters;
+    return 0;
+}
+
+pmID
+QmcEventRecord::eventMissed(void)
+{
+    static pmID eventMissed = PM_IN_NULL;
+    static const char *nameMissed[] = { "event.missed" };
+
+    if (eventMissed == PM_ID_NULL)
+        if (pmLookupName(1, (char **)nameMissed, &eventMissed) < 0)
+            eventMissed = PM_ID_NULL;
+    return eventMissed;
+}
+
+pmID
+QmcEventRecord::eventFlags(void)
+{
+    static pmID eventFlags = PM_IN_NULL;
+    static const char *nameFlags[] = { "event.flags" };
+
+    if (eventFlags == PM_ID_NULL)
+	if (pmLookupName(1, (char **)nameFlags, &eventFlags) < 0)
+	    eventFlags = PM_ID_NULL;
+    return eventFlags;
 }
 
 bool
@@ -884,7 +973,7 @@ QmcMetric::addInst(QString const& name)
 void
 QmcMetric::removeInst(uint index)
 {
-    assert(hasInstances());
+    Q_ASSERT(hasInstances());
     indom()->removeRef(my.values[index].instance());
     my.values.removeAt(index);
 }

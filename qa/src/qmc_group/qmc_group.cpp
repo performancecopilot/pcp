@@ -26,8 +26,8 @@ private:
 
     enum KeyWords { keyArch, keyContext, keyDesc, keyError, keyFetch,
 		    keyHost, keyIndom, keyJump, keyList, keyMetric,
-		    keyName, keyReal, keyString, keyText, keyUpdate,
-		    keyWipe };
+		    keyName, keyReal, keyString, keyEvent,
+		    keyText, keyUpdate, keyWipe };
 
     static char const*	keywords[];
     static char const*	terminator;
@@ -85,7 +85,7 @@ operator<<(QTextStream& os, struct timeval const& tv)
 
 char const* Client::keywords[] = { "ARCH", "CONTEXT", "DESC", "ERROR",
 				   "FETCH", "HOST", "INDOM", "JUMP", "LIST",
-				   "METRIC", "NAME", "REAL", "STRING",
+				   "METRIC", "NAME", "REAL", "STRING", "EVENT",
 				   "TEXT", "UPDATE", "WIPE" };
 
 char const* Client::terminator = ".\n";
@@ -166,7 +166,7 @@ Client::text(int context, char const* metric)
 	sts = _group->use(context);
 
     if (sts >= 0)
-	sts = _group->context()->lookupDesc(metric, id);
+	sts = _group->context()->lookupPMID(metric, id);
 
     if (sts >= 0)
 	sts = pmLookupText(id, PM_TEXT_HELP, &buf);
@@ -199,8 +199,6 @@ Client::list(QStringList const& list)
 
     for (l = 0; l < list.size(); l++)
 	_metrics.append(_group->addMetric(list[l].toAscii(), 0.0, false));
-
-// TODO - reset, how will this work if we accept CONTEXTs separately?
 
     cout << keywords[keyList] << sep << _group->numContexts() << endl;
 
@@ -246,19 +244,16 @@ Client::list(QStringList const& list)
 	for (j = 0; j < context->numIDs(); j++) {
 
 	    pmID id = context->id(j);
+	    QmcDesc const& desc = context->desc(id);
 
-	    for (k = j; k < context->numDesc(); k++) {
-		if (context->desc(k).desc().pmid == id) {
-		    QmcDesc const& desc = context->desc(k);
-		    cout << keywords[keyDesc] << sep << j << sep;
-		    if (desc.desc().type == PM_TYPE_STRING)
-			cout << keywords[keyString];
-		    else
-			cout << keywords[keyReal];
-		    cout << sep << desc.units() << endl;
-		    break;
-		}
-	    }
+	    cout << keywords[keyDesc] << sep << j << sep;
+	    if (desc.desc().type == PM_TYPE_STRING)
+		cout << keywords[keyString];
+	    else if (desc.desc().type == PM_TYPE_EVENT)
+		cout << keywords[keyEvent];
+	    else
+		cout << keywords[keyReal];
+	    cout << sep << desc.units() << endl;
 	}
     }
 
@@ -350,13 +345,14 @@ Client::fetch()
 		else {
 		    if (metric.desc().desc().type == PM_TYPE_STRING)
 			cout << metric.stringValue(j);
+		    else if (metric.desc().desc().type == PM_TYPE_EVENT)
+			cout << metric.eventValue(j);
 		    else
 			cout << metric.value(j);
 		    cout << endl;
 		}
 	    }
 	}
-
     }
 
     cout << terminator;

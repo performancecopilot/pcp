@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 1997,2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
+ * Copyright (c) 1997,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -10,10 +11,10 @@
 
 #include <qmc_context.h>
 #include <qmc_metric.h>
-#include <assert.h>
 #include <limits.h>
-#include <qvector.h>
-#include <qstringlist.h>
+#include <QVector>
+#include <QStringList>
+#include <QHashIterator>
 
 QStringList *QmcContext::theStringList;
 
@@ -32,87 +33,89 @@ QmcContext::QmcContext(QmcSource* source)
 
 QmcContext::~QmcContext()
 {
-    int i;
-
-    for (i = 0; i < my.metrics.size(); i++)
-	if (my.metrics[i])
-	    delete my.metrics[i];
-    for (i = 0; i < my.descs.size(); i++)
-	if (my.descs[i])
-	    delete my.descs[i];
-    for (i = 0; i < my.indoms.size(); i++)
-	if (my.indoms[i])
-	    delete my.indoms[i];
+    while (my.metrics.isEmpty() == false) {
+	delete my.metrics.takeFirst();
+    }
+    QHashIterator<pmID, QmcDesc*> descs(my.descCache);
+    while (descs.hasNext()) {
+	descs.next();
+	delete descs.value();
+    }
+    while (my.indoms.isEmpty() == false) {
+	delete my.indoms.takeFirst();
+    }
     if (my.context >= 0)
 	my.source->delContext(my.context);
 }
 
 int
-QmcContext::lookupDesc(const char *name, pmID& id)
+QmcContext::lookupName(pmID pmid, QString &name)
 {
-    int sts = 0;
-    int i, len = strlen(name);
+    char *value;
+    int sts;
 
-    for (i = 0; i < my.names.size(); i++) {
-	const QmcNameToId &item = my.names[i];
-	if (item.name.length() == len && item.name == name) {
-	    sts = 1;
-	    id = item.id;
-	    if (pmDebug & DBG_TRACE_PMC) {
-		QTextStream cerr(stderr);
-		cerr << "QmcContext::lookupDesc: Matched \"" << name
-		     << "\" to id " << pmIDStr(id) << endl;
-	    }
-	    break;
+    if (my.pmidCache.contains(pmid) == false) {
+	if ((sts = pmNameID(pmid, &value)) >= 0) {
+	    my.pmidCache.insert(pmid, QString(value));
+	    free(value);
 	}
-    }
-
-    if (i == my.names.size()) {
-	sts = pmLookupName(1, (char **)(&name), &id);
-	if (sts >= 0) {
-	    QmcNameToId newName;
-	    newName.name = name;
-	    newName.id = id;
-	    my.names.append(newName);
+    } else {
+	name = my.pmidCache.value(pmid);
+	if (pmDebug & DBG_TRACE_PMC) {
+	    QTextStream cerr(stderr);
+	    cerr << "QmcContext::lookupName: Matched id "
+		 << pmIDStr(pmid) << " to \"" << name << "\"" << endl;
 	}
+	sts = 1;
     }
-
     return sts;
 }
 
 int
-QmcContext::lookupDesc(const char *name, uint_t& desc, uint_t& indom)
+QmcContext::lookupPMID(const char *name, pmID& id)
 {
-    pmID id;
-    int sts = lookupDesc(name, id);
-    if (sts < 0)
-	return sts;
-    return lookupDesc(id, desc, indom);    
+    QString key = name;
+    int sts;
+
+    if (my.nameCache.contains(key) == false) {
+        if ((sts = pmLookupName(1, (char **)(&name), &id)) >= 0)
+	    my.nameCache.insert(key, id);
+    } else {
+	id = my.nameCache.value(key);
+	if (pmDebug & DBG_TRACE_PMC) {
+	    QTextStream cerr(stderr);
+	    cerr << "QmcContext::lookupPMID: Matched \"" << name
+		 << "\" to id " << pmIDStr(id) << endl;
+	}
+	sts = 1;
+    }
+    return sts;
 }
 
 int
-QmcContext::lookupDesc(pmID pmid, uint_t& desc, uint_t& indom)
+QmcContext::lookupInDom(const char *name, uint_t& indom)
 {
-    int i, sts = 0;
+    pmID pmid;
+    int sts = lookupPMID(name, pmid);
+    if (sts < 0)
+	return sts;
+    return lookupInDom(pmid, indom);    
+}
+
+int
+QmcContext::lookupDesc(pmID pmid, QmcDesc **descriptor)
+{
+    int sts;
     QmcDesc *descPtr;
-    QmcIndom *indomPtr;
 
-    desc = UINT_MAX;
-    indom = UINT_MAX;
-
-    for (i = 0; i < my.descs.size(); i++)
-	if (my.descs[i]->desc().pmid == pmid)
-	    break;
-
-    if (i == my.descs.size()) {
+    if (my.descCache.contains(pmid) == false) {
 	descPtr = new QmcDesc(pmid);
 	if (descPtr->status() < 0) {
 	    sts = descPtr->status();
 	    delete descPtr;
 	    return sts;
 	}
-	my.descs.append(descPtr);
-	desc = my.descs.size() - 1;
+	my.descCache.insert(pmid, descPtr);
 	if (pmDebug & DBG_TRACE_PMC) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcContext::lookupDesc: Add descriptor for "
@@ -120,15 +123,51 @@ QmcContext::lookupDesc(pmID pmid, uint_t& desc, uint_t& indom)
 	}
     }
     else {
-	descPtr = my.descs[i];
-	desc = i;
+	descPtr = my.descCache.value(pmid);
 	if (pmDebug & DBG_TRACE_PMC) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcContext::lookupDesc: Reusing descriptor "
 		 << pmIDStr(descPtr->id()) << endl;
 	}
     }
-	
+    *descriptor = descPtr;
+    return 0;
+}
+
+int
+QmcContext::lookup(pmID pmid, QString &namePtr, QmcDesc **descPtr, QmcIndom **indomPtr)
+{
+    uint_t indom;
+    int sts;
+
+    if ((sts = lookupName(pmid, namePtr)) < 0)
+	return sts;
+    if ((sts = lookupDesc(pmid, descPtr)) < 0)
+	return sts;
+    if ((sts = lookupInDom(pmid, indom)) < 0)
+	return sts;
+    *indomPtr = my.indoms[indom];
+    return 0;
+}
+
+int
+QmcContext::lookupInDom(pmID pmid, uint_t& indom)
+{
+    QmcDesc *descPtr;
+    int sts;
+
+    if ((sts = lookupDesc(pmid, &descPtr)) < 0)
+	return sts;
+    return lookupInDom(descPtr, indom);
+}
+
+int
+QmcContext::lookupInDom(QmcDesc *descPtr, uint_t& indom)
+{
+    int i, sts;
+    QmcIndom *indomPtr;
+
+    indom = UINT_MAX;
     if (descPtr->desc().indom != PM_INDOM_NULL) {
 	for (i = 0; i < my.indoms.size(); i++)
 	    if (my.indoms[i]->id() == (int)descPtr->desc().indom)
@@ -144,7 +183,7 @@ QmcContext::lookupDesc(pmID pmid, uint_t& desc, uint_t& indom)
 	    indom = my.indoms.size() - 1;
 	    if (pmDebug & DBG_TRACE_PMC) {
 		QTextStream cerr(stderr);
-		cerr << "QmcContext::lookupDesc: Add indom for "
+		cerr << "QmcContext::lookupInDom: Add indom for "
 		     << pmInDomStr(indomPtr->id()) << endl;
 	    }
 	}
@@ -153,12 +192,12 @@ QmcContext::lookupDesc(pmID pmid, uint_t& desc, uint_t& indom)
 	    indom = i;
 	    if (pmDebug & DBG_TRACE_PMC) {
 		QTextStream cerr(stderr);
-		cerr << "QmcContext::lookupDesc: Reusing indom "
+		cerr << "QmcContext::lookupInDom: Reusing indom "
 		     << pmInDomStr(indomPtr->id()) << endl;
 	    }
 	}
     }
-    return sts;
+    return 0;
 }
 
 int
@@ -180,7 +219,7 @@ operator<<(QTextStream &stream, const QmcContext &context)
 void
 QmcContext::dump(QTextStream &stream)
 {
-    stream << "Context " << my.context << " has " << my.names.size()
+    stream << "Context " << my.context << " has " << my.nameCache.size()
        << " metric names for source:" << endl;
     my.source->dump(stream);
 }
@@ -196,17 +235,17 @@ QmcContext::dumpMetrics(QTextStream &stream)
 void
 QmcContext::addMetric(QmcMetric *metric)
 {
-    pmID id;
+    pmID pmid;
     int i;
 
     my.metrics.append(metric);
     if (metric->status() >= 0) {
-	id = metric->desc().desc().pmid;
+	pmid = metric->desc().desc().pmid;
 	for (i = 0; i < my.pmids.size(); i++)
-	    if (my.pmids[i] == (int)id)
+	    if (my.pmids[i] == pmid)
 		break;
 	if (i == my.pmids.size())
-	    my.pmids.append(id);
+	    my.pmids.append(pmid);
 	metric->setIdIndex(i);
     }
 }
@@ -275,7 +314,7 @@ QmcContext::fetch(bool update)
 		QmcMetric *metric = my.metrics[i];
 		if (metric->status() < 0)
 		    continue;
-		assert((int)metric->idIndex() < result->numpmid);
+		Q_ASSERT((int)metric->idIndex() < result->numpmid);
 		metric->extractValues(result->vset[metric->idIndex()]);
 	    }
 	    pmFreeResult(result);

@@ -11,12 +11,13 @@ Source0: ftp://oss.sgi.com/projects/pcp/download/rpm/pcp-gui/pcp-gui-%{version}-
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf, bison, flex, gawk
-BuildRequires: pcp >= 2.0, pcp-libs-devel >= 2.0, qt4-devel >= 4.2
+BuildRequires: pcp >= 3.5.0, pcp-libs-devel >= 3.5.0
 BuildRequires: desktop-file-utils
+BuildRequires: qt4-devel >= 4.2
 %if (0%{?fedora} > 12 || 0%{?rhel} > 5)
 BuildRequires: qt-assistant-adp-devel
 %endif
-Requires: pcp
+Requires: pcp >= 3.5.0
 
 %description
 Visualization tools for the Performance Co-Pilot toolkit.
@@ -92,7 +93,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libexecdir}/*
 %{_localstatedir}/lib/pcp
 %{_mandir}/man1/*
-%{_datadir}/pcp
 %{_datadir}/pixmaps/*
 %{_datadir}/applications/pmchart.desktop
 
@@ -103,6 +103,7 @@ rm -rf $RPM_BUILD_ROOT
 %files -n pcp-doc
 %defattr(-,root,root,-)
 %{_datadir}/doc/pcp-doc
+%{_datadir}/pcp/demos/tutorials
 
 
 %changelog
