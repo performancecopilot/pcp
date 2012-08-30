@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -181,9 +182,10 @@ GetPort(char *file)
     int			mapfd;
     FILE		*mapstream;
     int			sts;
-    struct sockaddr_in	myAddr;
+    __pmSockAddrIn	myAddr;
     static int		port_base = -1;
-    struct hostent	*hep;
+    __pmHostEnt		he;
+    char		*hebuf;
 
     fd = __pmCreateSocket();
     if (fd < 0) {
@@ -216,11 +218,8 @@ GetPort(char *file)
      * and try again.
      */
     for (ctlport = port_base; ; ctlport++) {
-	memset(&myAddr, 0, sizeof(myAddr));
-	myAddr.sin_family = AF_INET;
-	myAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	myAddr.sin_port = htons(ctlport);
-	sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
+        __pmInitSockAddr(&myAddr, htonl(INADDR_ANY), htons(ctlport));
+	sts = __pmBind(fd, (__pmSockAddr*)&myAddr, sizeof(myAddr));
 	if (sts < 0) {
 	    if (neterror() != EADDRINUSE) {
 		fprintf(stderr, "bind(%d): %s\n", ctlport, netstrerror());
@@ -230,9 +229,9 @@ GetPort(char *file)
 	else
 	    break;
     }
-    sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
+    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	fprintf(stderr, "listen: %s\n", netstrerror());
+	fprintf(stderr, "__pmListen: %s\n", netstrerror());
 	exit(1);
     }
 
@@ -254,8 +253,11 @@ GetPort(char *file)
     fprintf(mapstream, "%d\n", ctlport);
 
     /* then the PMCD host */
-    hep = gethostbyname(pmcd_host);
-    fprintf(mapstream, "%s\n", hep == NULL ? "" : hep->h_name);
+    hebuf = __pmAllocHostEntBuffer();
+    if (__pmGetHostByName(pmcd_host, &he, hebuf) != NULL)
+        fprintf(mapstream, "%s", he.h_name);
+    fprintf(mapstream, "\n");
+    __pmFreeHostEntBuffer(hebuf);
 
     /* then the full pathname to the archive base */
     __pmNativePath(archBase);
@@ -403,12 +405,13 @@ int
 control_req(void)
 {
     int			fd, sts;
-    struct sockaddr_in	addr;
-    struct hostent	*hp;
-    mysocklen_t		addrlen;
+    __pmSockAddrIn	addr;
+    __pmHostEnt		h;
+    char		*hbuf, abuf;
+    __pmSockLen		addrlen;
 
     addrlen = sizeof(addr);
-    fd = accept(ctlfd, (struct sockaddr *)&addr, &addrlen);
+    fd = __pmAccept(ctlfd, (__pmSockAddr *)&addr, &addrlen);
     if (fd == -1) {
 	fprintf(stderr, "error accepting client: %s\n", netstrerror());
 	return 0;
@@ -435,23 +438,23 @@ control_req(void)
 	return 0;
     }
 
-    hp = gethostbyaddr((void *)&addr.sin_addr.s_addr, sizeof(addr.sin_addr.s_addr), AF_INET);
-    if (hp == NULL || strlen(hp->h_name) > MAXHOSTNAMELEN-1) {
-	char	*p = (char *)&addr.sin_addr.s_addr;
-
-	sprintf(pmlc_host, "%d.%d.%d.%d",
-		p[0] & 0xff, p[1] & 0xff, p[2] & 0xff, p[3] & 0xff);
+    hbuf = __pmAllocHostEntBuffer();
+    if (__pmGetHostByAddr(& addr, &h, hbuf) == NULL || strlen(h.h_name) > MAXHOSTNAMELEN-1) {
+	abuf = __pmSockAddrInToString(&addr);
+        sprintf(pmlc_host, "%s", abuf);
+	free(abuf);
     }
     else
 	/* this is safe, due to strlen() test above */
-	strcpy(pmlc_host, hp->h_name);
+	strcpy(pmlc_host, h.h_name);
+    __pmFreeHostEntBuffer(hbuf);
 
-    if ((sts = __pmAccAddClient(&addr.sin_addr, &clientops)) < 0) {
+    if ((sts = __pmAccAddClient(__pmSockAddrInToIPAddr(&addr), &clientops)) < 0) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
-	    char	*p = (char *)&addr.sin_addr.s_addr;
-	    fprintf(stderr, "client addr: %d.%d.%d.%d\n",
-		p[0] & 0xff, p[1] & 0xff, p[2] & 0xff, p[3] & 0xff);
+	    abuf = __pmSockAddrInToString(&addr);
+	    fprintf(stderr, "client addr: %s\n", abuf);
+	    free(abuf);
 	    __pmAccDumpHosts(stderr);
 	    fprintf(stderr, "control_req: connection rejected on fd=%d from %s: %s\n", fd, pmlc_host, pmErrStr(sts));
 	}

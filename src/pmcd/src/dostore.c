@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +17,6 @@
 #include "impl.h"
 #include "pmcd.h"
 #include <assert.h>
-
-extern int _pmSelectReadable(int, fd_set *);
 
 /* Routine to split a result into a list of results, each containing metrics
  * from a single domain.  The end of the list is marked by a pmResult with a
@@ -135,8 +134,8 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
     pmResult	*result;
     pmResult	**dResult;
     int		i;
-    fd_set	readyFds;
-    fd_set	waitFds;
+    __pmFdSet	readyFds;
+    __pmFdSet	waitFds;
     int		nWait = 0;
     int		maxFd = -1;
     int		badStore;		/* != 0 => store to nonexistent agent */
@@ -151,7 +150,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 
     /* Send the per-domain results to their respective agents */
 
-    FD_ZERO(&waitFds);
+    __pmFD_ZERO(&waitFds);
     for (i = 0; dResult[i]->numpmid > 0; i++) {
 	int fd;
 	ap = FindDomainAgent(((__pmID_int *)&dResult[i]->vset[0]->pmid)->domain);
@@ -177,7 +176,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 		if (s >= 0) {
 		    ap->status.busy = 1;
 		    fd = ap->outFd;
-		    FD_SET(fd, &waitFds);
+		    __pmFD_SET(fd, &waitFds);
 		    if (fd > maxFd)
 			maxFd = fd;
 		    nWait++;
@@ -206,12 +205,12 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
     /* Collect error PDUs containing store status from each active agent */
 
     while (nWait > 0) {
-	memcpy(&readyFds, &waitFds, sizeof(readyFds));
+        __pmFD_COPY(&readyFds, &waitFds);
 	if (nWait > 1) {
 	    timeout.tv_sec = _pmcd_timeout;
 	    timeout.tv_usec = 0;
 
-	    s = select(maxFd+1, &readyFds, NULL, NULL, &timeout);
+	    s = __pmSelectRead(maxFd+1, &readyFds, &timeout);
 
 	    if (s == 0) {
 		__pmNotifyErr(LOG_INFO, "DoStore: select timeout");
@@ -238,10 +237,10 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	for (i = 0; i < nAgents; i++) {
 	    int		pinpdu;
 	    ap = &agent[i];
-	    if (!ap->status.busy || !FD_ISSET(ap->outFd, &readyFds))
+	    if (!ap->status.busy || !__pmFD_ISSET(ap->outFd, &readyFds))
 		continue;
 	    ap->status.busy = 0;
-	    FD_CLR(ap->outFd, &waitFds);
+	    __pmFD_CLR(ap->outFd, &waitFds);
 	    nWait--;
 	    pinpdu = s = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 	    if (s > 0 && _pmcd_trace_mask)

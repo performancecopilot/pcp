@@ -26,7 +26,7 @@
 typedef struct {
     int			fd;		/* client socket descriptor */
     int			version;	/* proxy-client protocol version */
-    struct sockaddr_in	addr;		/* address of client */
+    __pmSockAddrIn	addr;		/* address of client */
     struct {				/* Status of connection to client */
 	unsigned int	connected : 1;	/* Client connected */
     } status;
@@ -39,7 +39,7 @@ extern ClientInfo	*client;		/* Array of clients */
 extern int		nClients;		/* Number of entries in array */
 extern int		maxSockFd;		/* largest fd for a clients
 						 * and pmcd connections */
-extern fd_set		sockFds;		/* for select() */
+extern __pmFdSet	sockFds;		/* for select() */
 
 /* prototypes */
 extern ClientInfo *AcceptNewClient(int);

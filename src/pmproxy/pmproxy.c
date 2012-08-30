@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -225,7 +226,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 {
     int			fd;
     int			sts;
-    struct sockaddr_in	myAddr;
+    __pmSockAddrIn	myAddr;
     int			one = 1;
 
     fd = __pmCreateSocket();
@@ -236,52 +237,49 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     }
     if (fd > maxSockFd)
 	maxSockFd = fd;
-    FD_SET(fd, &sockFds);
+    __pmFD_SET(fd, &sockFds);
 
 #ifndef IS_MINGW
     /* Ignore dead client connections */
-    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one,
-			(mysocklen_t)sizeof(one)) < 0) {
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one,
+			(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d) setsockopt(SO_REUSEADDR): %s\n",
+		"OpenRequestSocket(%d) __pmSetSockopt(SO_REUSEADDR): %s\n",
 		port, netstrerror());
 	DontStart();
     }
 #else
     /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
-    if (setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one,
-			(mysocklen_t)sizeof(one)) < 0) {
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one,
+			(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d) setsockopt(SO_EXCLUSIVEADDRUSE): %s\n",
+		"OpenRequestSocket(%d) __pmSetSockOpt(SO_EXCLUSIVEADDRUSE): %s\n",
 		port, netstrerror());
 	DontStart();
     }
 #endif
 
     /* and keep alive please - pv 916354 bad networks eat fds */
-    if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one,
-			(mysocklen_t)sizeof(one)) < 0) {
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one,
+			(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, 0x%x) setsockopt(SO_KEEPALIVE): %s\n",
+		"OpenRequestSocket(%d, 0x%x) __pmSetSockOpt(SO_KEEPALIVE): %s\n",
 		port, ipAddr, netstrerror());
 	DontStart();
     }
 
-    memset(&myAddr, 0, sizeof(myAddr));
-    myAddr.sin_family = AF_INET;
-    myAddr.sin_addr.s_addr = ipAddr;
-    myAddr.sin_port = htons(port);
-    sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
+    __pmInitSockAddr(&myAddr, ipAddr, htons(port));
+    sts = __pmBind(fd, (__pmSockAddr *)&myAddr, sizeof(myAddr));
     if (sts < 0){
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) bind: %s\n",
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) __pmBind: %s\n",
 			port, netstrerror());
 	__pmNotifyErr(LOG_ERR, "pmproxy is already running\n");
 	DontStart();
     }
 
-    sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
+    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) listen: %s\n",
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) __pmListen: %s\n",
 			port, netstrerror());
 	DontStart();
     }
@@ -310,7 +308,7 @@ CleanupClient(ClientInfo *cp, int sts)
  * as required.
  */
 void
-HandleInput(fd_set *fdsPtr)
+HandleInput(__pmFdSet *fdsPtr)
 {
     int		ists;
     int		osts;
@@ -320,7 +318,7 @@ HandleInput(fd_set *fdsPtr)
 
     /* input from client */
     for (i = 0; i < nClients; i++) {
-	if (!client[i].status.connected || !FD_ISSET(client[i].fd, fdsPtr))
+	if (!client[i].status.connected || !__pmFD_ISSET(client[i].fd, fdsPtr))
 	    continue;
 
 	cp = &client[i];
@@ -352,7 +350,7 @@ HandleInput(fd_set *fdsPtr)
 
     /* input from pmcd */
     for (i = 0; i < nClients; i++) {
-	if (!client[i].status.connected || !FD_ISSET(client[i].pmcd_fd, fdsPtr))
+	if (!client[i].status.connected || !__pmFD_ISSET(client[i].pmcd_fd, fdsPtr))
 	    continue;
 
 	cp = &client[i];
@@ -445,7 +443,7 @@ ClientLoop(void)
 {
     int		i, sts;
     int		maxFd;
-    fd_set	readableFds;
+    __pmFdSet	readableFds;
     int		CheckClientAccess(ClientInfo *);
     ClientInfo	*cp;
 
@@ -456,19 +454,19 @@ ClientLoop(void)
 	readableFds = sockFds;
 	maxFd = maxSockFd + 1;
 
-	sts = select(maxFd, &readableFds, NULL, NULL, NULL);
+	sts = __pmSelectRead(maxFd, &readableFds, NULL);
 
 	if (sts > 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
 		for (i = 0; i <= maxSockFd; i++)
-		    if (FD_ISSET(i, &readableFds))
-			fprintf(stderr, "select(): from %s fd=%d\n", FdToString(i), i);
+		    if (__pmFD_ISSET(i, &readableFds))
+			fprintf(stderr, "__pmSelectRead(): from %s fd=%d\n", FdToString(i), i);
 #endif
 	    /* Accept any new client connections */
 	    for (i = 0; i < nReqPorts; i++) {
 		int rfd = reqPorts[i].fd;
-		if (FD_ISSET(rfd, &readableFds)) {
+		if (__pmFD_ISSET(rfd, &readableFds)) {
 		    cp = AcceptNewClient(rfd);
 		    if (cp == NULL) {
 			/* failed to negotiate correctly, already cleaned up */
@@ -491,7 +489,7 @@ ClientLoop(void)
 		    else {
 			if (cp->pmcd_fd > maxSockFd)
 			    maxSockFd = cp->pmcd_fd;
-			FD_SET(cp->pmcd_fd, &sockFds);
+			__pmFD_SET(cp->pmcd_fd, &sockFds);
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_CONTEXT)
 			    /* append to message started in AcceptNewClient() */

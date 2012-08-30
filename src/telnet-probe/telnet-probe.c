@@ -72,8 +72,8 @@ main(int argc, char *argv[])
 	    fprintf(stderr, "socket: %s\n", netstrerror());
 	goto done;
     }
-    setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char *) &nodelay, (mysocklen_t)sizeof(nodelay));
-    setsockopt(s, SOL_SOCKET, SO_LINGER, (char *) &nolinger, (mysocklen_t)sizeof(nolinger));
+    setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char *) &nodelay, (__pmSockLen)sizeof(nodelay));
+    setsockopt(s, SOL_SOCKET, SO_LINGER, (char *) &nolinger, (__pmSockLen)sizeof(nolinger));
     memset(&myAddr, 0, sizeof(myAddr));
     myAddr.sin_family = AF_INET;
     memcpy(&myAddr.sin_addr, servInfo->h_addr, servInfo->h_length);

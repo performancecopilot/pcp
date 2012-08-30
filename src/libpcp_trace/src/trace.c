@@ -747,7 +747,7 @@ _pmauxtraceconnect(void)
 
     /* avoid 200 ms delay */
     if (setsockopt(__pmfd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
-				    (mysocklen_t)sizeof(nodelay)) < 0) {
+				    (__pmSockLen)sizeof(nodelay)) < 0) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
 	    fprintf(stderr, "_pmtraceconnect(setsockopt1 failed): %s\n",
@@ -758,7 +758,7 @@ _pmauxtraceconnect(void)
 
     /* don't linger on close */
     if (setsockopt(__pmfd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
-				    (mysocklen_t)sizeof(nolinger)) < 0) {
+				    (__pmSockLen)sizeof(nolinger)) < 0) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
 	    fprintf(stderr, "_pmtraceconnect(setsockopt2 failed): %s\n",

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -99,7 +100,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
     int			onetrip = 1;
     struct timeval	dead_hand;
     struct timeval	now;
-    fd_set		onefd;
+   __pmFdSet		onefd;
 
     while (len) {
 	if (timeout == GETPDU_ASYNC) {
@@ -114,7 +115,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 	    __pmPDU	*lp;
 
 	    if (socketipc) {
-		status = recv(fd, buf, (int)sizeof(__pmPDU), 0);
+		status = __pmRecv(fd, buf, (int)sizeof(__pmPDU), 0);
 		setoserror(neterror());
 	    } else {
 		status = read(fd, buf, (int)sizeof(__pmPDU));
@@ -130,7 +131,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 	    have = ntohl(*lp);
 	    size = have - (int)sizeof(__pmPDU);
 	    if (socketipc) {
-		status = recv(fd, &buf[sizeof(__pmPDU)], size, 0);
+		status = __pmRecv(fd, &buf[sizeof(__pmPDU)], size, 0);
 		setoserror(neterror());
 	    } else {
 		status = read(fd, &buf[sizeof(__pmPDU)], size);
@@ -190,9 +191,9 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		    }
 		    onetrip = 0;
 		}
-		FD_ZERO(&onefd);
-		FD_SET(fd, &onefd);
-		status = select(fd+1, &onefd, NULL, NULL, &wait);
+		__pmFD_ZERO(&onefd);
+		__pmFD_SET(fd, &onefd);
+		status = __pmSelectRead(fd+1, &onefd, &wait);
 		if (status > 0) {
 		    gettimeofday(&now, NULL);
 		    if (now.tv_sec > dead_hand.tv_sec ||
@@ -234,7 +235,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		}
 	    }
 	    if (socketipc) {
-		status = recv(fd, buf, len, 0);
+		status = __pmRecv(fd, buf, len, 0);
 		setoserror(neterror());
 	    } else {
 		status = read(fd, buf, len);
@@ -366,7 +367,7 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 
 	p += off;
 
-	n = socketipc ? send(fd, p, len-off, 0) : write(fd, p, len-off);
+	n = socketipc ? __pmSend(fd, p, len-off, 0) : write(fd, p, len-off);
 	if (n < 0)
 	    break;
 	off += n;
