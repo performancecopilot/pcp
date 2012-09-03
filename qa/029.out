@@ -1,0 +1,50 @@
+QA output created by 029
+*** Create a single fetch group ***
+
+*** Event metric ***
+QmcSource::getSource: Creating new source for HOST
+QmcSource::QmcSource: Created context 0 to host "HOST"
+QmcGroup::createLocalContext: Default context to host "HOST"
+QmcSource::dupContext: Using original context for host "HOST"
+QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
+QmcContext::lookupDesc: Add descriptor for <pmid for sample.event.records>
+QmcContext::lookupInDom: Add indom for <indom for sample.event.records>
+HOST:sample.event.records["fungus", "bogus"] from host "HOST" with scale = 0 and units = none
+sample.event.records: 2 instances
+  [0 or "fungus" (0)] = Missing metric value(s)
+  [1 or "bogus" (1)] = Missing metric value(s)
+QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
+QmcContext::lookupDesc: Add descriptor for <pmid for sample.seconds>
+HOST:sample.seconds from host "HOST" with scale = 0 and units = sec / second
+sample.seconds = Missing metric value(s)
+
+*** Group Fetch 0 ***
+QmcGroup::fetch: 1 contexts
+QmcIndom::genProfile: id = NNN, count = 2, numInsts = 2, active = 2, activeRef = 2: ALL ptr = 0x0
+QmcContext::fetch: fetching context host "HOST" has 2 metrics
+QmcContext::lookupDesc: Add descriptor for <pmid for sample.event.param_string>
+QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_string>
+QmcContext::fetch: Updating metrics
+QmcGroup::fetch: Done
+sample.event.records: 2 instances
+  [0 or "fungus" (0)] = 
+  [1 or "bogus" (1)] = 
+sample.seconds = Missing metric value(s)
+
+*** Group Fetch 1 ***
+QmcGroup::fetch: 1 contexts
+QmcContext::fetch: fetching context host "HOST" has 2 metrics
+QmcContext::lookupDesc: Add descriptor for <pmid for sample.event.type>
+QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.type>
+
+*** Group Fetch 2 ***
+QmcGroup::fetch: 1 contexts
+QmcContext::fetch: fetching context host "HOST" has 2 metrics
+QmcContext::lookupDesc: Add descriptor for <pmid for sample.event.type>
+QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.type>
+
+*** Group Fetch 3 ***
+QmcGroup::fetch: 1 contexts
+QmcContext::fetch: fetching context host "HOST" has 2 metrics
+QmcContext::lookupDesc: Add descriptor for <pmid for sample.event.type>
+QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.type>
