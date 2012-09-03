@@ -2379,7 +2379,7 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
 	__pmContext  *ctxp;
 
 	/* As we have PMNS_REMOTE there must be a current host context */
-	if ((sts = pmWhichContext() < 0) || (ctxp = __pmHandleToPtr(sts)) == NULL)
+	if ((sts = pmWhichContext()) < 0 || (ctxp = __pmHandleToPtr(sts)) == NULL)
 	    return PM_ERR_NOCONTEXT;
 	PM_LOCK(ctxp->c_pmcd->pc_lock);
 	sts = __pmSendTraversePMNSReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), name);
