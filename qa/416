@@ -12,6 +12,9 @@
 
 seq=`basename $0`
 
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+
 echo "QA output created by $seq"
 
 status=0	# success is the default!

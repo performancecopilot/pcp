@@ -27,11 +27,6 @@ LDIRT += 051.work 134.full.* \
 	# test is run
 LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
 
-# 051 depends on this rule being here
-051.work/die.001: 051.setup
-	chmod u+x 051.setup
-	./051.setup
-
 qa_hosts:	qa_hosts.master mk.qa_hosts
 	PATH=$(PATH); ./mk.qa_hosts
 

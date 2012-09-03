@@ -14,6 +14,9 @@
 
 seq=`basename $0`
 
+perl -e "use PCP::MMV" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::MMV module not installed"
+
 rm -f $seq.out
 if [ $PCP_VER -lt 3600 ]
 then
