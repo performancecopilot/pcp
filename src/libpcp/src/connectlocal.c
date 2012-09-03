@@ -34,10 +34,10 @@
  *
  * The same arguments apply to EndLocalContext() and __pmConnectLocal().
  *
- * __pmLocalPMDA() is a mixed bag, sharing some of the justifcation from
+ * __pmLocalPMDA() is a mixed bag, sharing some of the justification from
  * __pmSpecLocalPMDA() and some from __pmConnectLocal().
  *
- * Because __pmConnectLocal() is not going to be used in a mult-threaded
+ * Because __pmConnectLocal() is not going to be used in a multi-threaded
  * environment, the call to the thread-unsafe dlerror() is OK.
  */
 
