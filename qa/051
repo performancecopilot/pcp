@@ -98,11 +98,10 @@ trap cleanup 0
 # real QA test starts here
 
 echo "Make sure all the config files are there"
-if make 051.work/die.001 > $tmp.err 2>&1
+/bin/sh 051.setup > $tmp.err 2>&1
+if [ $? -ne 0 ]
 then
-    :
-else
-    echo "make 051.work/die.001 failed:"
+    echo "051.setup failed:"
     cat $tmp.err
     exit 1
 fi
