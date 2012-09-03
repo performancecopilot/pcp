@@ -17,6 +17,8 @@
 #ifndef VERSION_H
 #define VERSION_H
 
+#include <pcp/pmapi.h>
+
 #define VERSION "@pkg_version@"
 #define HTMLDIR "@pkg_html_dir@"
 
