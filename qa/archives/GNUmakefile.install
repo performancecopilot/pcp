@@ -6,33 +6,6 @@ endif
 PATH    = $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-MKARCH = gap.0 gap2.0
-MKEXTRAS = $(subst 0,meta,$(MKARCH)) $(subst 0,index,$(MKARCH))
-LDIRT = $(MKARCH) $(MKEXTRAS) pmlogger.log
-LDIRDIRT = tmp
-
-default setup: $(MKARCH)
-
-install:
+default setup install:
 
 include $(BUILDRULES)
-
-# gap: 10 sec data, 5 sec gap, 10 sec data
-# gap2: 10 sec data, 5 sec gap, 10 sec data, 5 sec gap, 10 sec data
-# sample.bin instances change across gaps
-gap.0 gap2.0:
-	rm -rf tmp
-	mkdir tmp
-	echo 'log mandatory on 1sec { pmcd.pdu_in,pmcd.numagents,hinv.ncpu,sample.bin["bin-100","bin-200","bin-400"] }' >tmp/A.config
-	echo 'log mandatory on 1sec { pmcd.pdu_in,pmcd.numagents,hinv.ncpu,sample.bin["bin-100","bin-300","bin-400"] }' >tmp/B.config
-	echo 'log mandatory on 1sec { pmcd.pdu_in,pmcd.numagents,hinv.ncpu,sample.bin["bin-100","bin-400"] }' >tmp/C.config
-	$(PCP_BINADM_DIR)/pmlogger -s 10 -c tmp/A.config tmp/A
-	sleep 5
-	$(PCP_BINADM_DIR)/pmlogger -s 10 -c tmp/B.config tmp/B
-	sleep 5
-	$(PCP_BINADM_DIR)/pmlogger -s 10 -c tmp/C.config tmp/C
-	rm -f gap.index gap.meta gap.0
-	$(PCP_BINADM_DIR)/pmlogextract tmp/A tmp/B gap
-	rm -f gap2.index gap2.meta gap2.0
-	$(PCP_BINADM_DIR)/pmlogextract tmp/A tmp/B tmp/C gap2
-	rm -rf tmp

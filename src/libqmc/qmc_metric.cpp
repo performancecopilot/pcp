@@ -808,7 +808,7 @@ QmcEventRecord::add(pmID pmid, QmcContext *context, pmValueSet const *vsp)
     for (int i = 0; i < vsp->numval; i++) {
 	const pmValue *vp = &vsp->vlist[i];
 	QmcMetricValue *value = &parameters[i];
-	pmAtomValue result = { 0 };
+	pmAtomValue result;
 
 	sts = 0;
 	if (QmcMetric::real(type) == true) {
@@ -817,14 +817,14 @@ QmcEventRecord::add(pmID pmid, QmcContext *context, pmValueSet const *vsp)
 		value->setCurrentValue(result.d);
 	} else if (QmcMetric::event(type) == false) {
 	    if ((sts = pmExtractValue(vsp->valfmt, vp,
-			    type, &result, PM_TYPE_STRING)) >= 0)
+			    type, &result, PM_TYPE_STRING)) >= 0) {
 		value->setStringValue(result.cp);
+		free(result.cp);
+	    }
 	}
 	value->setInstance(vp->inst);
 	if (sts < 0)
 	    value->setCurrentError(sts);
-	else if (result.cp)
-	    free(result.cp);
     }
     my.parameters = parameters;
     return 0;

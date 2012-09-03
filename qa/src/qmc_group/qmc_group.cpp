@@ -198,7 +198,7 @@ Client::list(QStringList const& list)
     _group->useDefault();
 
     for (l = 0; l < list.size(); l++)
-	_metrics.append(_group->addMetric(list[l].toAscii(), 0.0, false));
+	_metrics.append(_group->addMetric(list[l].toAscii().constData(), 0.0, false));
 
     cout << keywords[keyList] << sep << _group->numContexts() << endl;
 
@@ -617,13 +617,13 @@ main(int argc, char* argv[])
     Client* client3 = new Client;
 
     mesg("Client3: CONTEXT ARCH archive1");
-    string = archive1.toAscii();
+    string = archive1.toAscii().constData();
     sts = client3->context(PM_CONTEXT_ARCHIVE, string);
 
     checksts();
 
     mesg("Client3: CONTEXT ARCH archive2");
-    string = archive2.toAscii();
+    string = archive2.toAscii().constData();
     sts = client3->context(PM_CONTEXT_ARCHIVE, string);
 
     checksts();
@@ -661,11 +661,11 @@ main(int argc, char* argv[])
     // names
     //
 
-    mesg("Client3: LIST 4 snort:disk.dev.read[dks0d1,dks1d1,dks9d1] vldb-disks/disk.dev.total[dks17d8,dks11d3,dks45d2] disk.dev.write[dks1d1,dks0d4] vldb.engr:disk.dev.total[dks18d6,dks11d3]");
+    mesg("Client3: LIST 4 snort:disk.dev.read[dks0d1,dks1d1,dks9d1] archives/vldb-disks/disk.dev.total[dks17d8,dks11d3,dks45d2] disk.dev.write[dks1d1,dks0d4] vldb.engr:disk.dev.total[dks18d6,dks11d3]");
 
     metrics.clear();
     metrics.append("snort:disk.dev.read[dks0d1,dks1d1,dks9d1]");
-    metrics.append("vldb-disks/disk.dev.total[dks17d8,dks11d3,dks45d2]");
+    metrics.append("archives/vldb-disks/disk.dev.total[dks17d8,dks11d3,dks45d2]");
     metrics.append("disk.dev.write[dks1d1,dks0d4]");
     metrics.append("vldb.engr:disk.dev.total[dks18d6,dks11d3]");
 
@@ -785,7 +785,7 @@ main(int argc, char* argv[])
     //
 
     mesg("Client1: CONTEXT ARCH moomba.pmkstat");
-    string = archive3.toAscii();
+    string = archive3.toAscii().constData();
     sts = client1->context(PM_CONTEXT_ARCHIVE, string);
 
     checksts();
