@@ -12,15 +12,11 @@
 
 seq=`basename $0`
 
-if [ $PCP_PLATFORM != linux ]
-then
-    _notrun "KVM only exists on Linux"
-fi
+[ $PCP_PLATFORM = linux ] || _notrun "KVM only exists on Linux"
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 kvm_stats_path=/sys/kernel/debug/kvm
-if $sudo [ ! -d $kvm_stats_path ]
-then
-    _notrun "KVM sysfs interface not available"
-fi
+$sudo [ ! -d $kvm_stats_path ] || _notrun "KVM sysfs interface not available"
 
 rm -f $seq.out
 if [ $PCP_VER -lt 3600 ]

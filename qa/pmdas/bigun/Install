@@ -2,15 +2,14 @@
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
+PCP_PMDAS_DIR=${PCP_VAR_DIR}/testsuite/pmdas
 
 iam=bigun
-pmdaSetup
-
 pmda_interface=4
 dso_opt=true
 dso_name=`pwd`/bigun.${dso_suffix}
 daemon_opt=false
 
+pmdaSetup
 pmdaInstall
-
 exit 0

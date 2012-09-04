@@ -21,6 +21,10 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
+
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 
 trap "rm -rf $tmp; exit" 0 1 2 3 15
 

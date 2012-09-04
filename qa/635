@@ -8,12 +8,7 @@
 seq=`basename $0`
 
 . ./localconfig
-if [ $PCP_PLATFORM != linux ]
-then
-    echo "depends on Linux netstat -i output format" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
+[ $PCP_PLATFORM = linux ] || _notrun "Depends on Linux netstat -i output format"
 
 echo "QA output created by $seq"
 
@@ -133,11 +128,7 @@ do
 done
 
 otherhost=`./getpmcdhosts -L -n 1 2>$tmp.out`
-if [ -z "$otherhost" ]
-then
-    cat $tmp.out >$seq.notrun
-    exit
-fi
+[ -z "$otherhost" ] && _notrun `cat $tmp.out`
 
 # Generate a bit of network traffic
 #

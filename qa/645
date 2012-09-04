@@ -20,7 +20,9 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 _filter()
 {
     sed \
-    -e '/gethostbyname(/s/ Resolver Error 0 (no error)/ Unknown host/'
+    -e 's/__pmGetHostByName(/gethostbyname(/g' \
+    -e '/gethostbyname(/s/ Resolver Error 0 (no error)/ Unknown host/' \
+
 }
 
 # real QA test starts here

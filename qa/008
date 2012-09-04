@@ -14,6 +14,12 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
 
 # need per-host checked in results
 #
@@ -22,12 +28,6 @@ rm -f $seq.out
 [ -f $seq.out.$host ] || \
 	_notrun "No qualified results file ($seq.out.$host) for the localhost"
 ln $seq.out.$host $seq.out
-
-echo "QA output created by $seq"
-
-# get standard filters
-. ./common.product
-. ./common.filter
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 

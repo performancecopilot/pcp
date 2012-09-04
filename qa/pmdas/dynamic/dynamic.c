@@ -157,7 +157,7 @@ dynamic_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     else
 	return PM_ERR_PMID;
 
-    return 0;
+    return 1;
 }
 
 /*
@@ -392,12 +392,17 @@ usage(void)
 int
 main(int argc, char **argv)
 {
+    int			sep = __pmPathSeparator();
     int			err = 0;
     pmdaInterface	dispatch;
+    char		helppath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, DYNAMIC,
-		"dynamic.log", "help");
+    snprintf(helppath, sizeof(helppath),
+		"%s%c" "testsuite" "%c" "pmdas" "%c" "dynamic" "%c" "help",
+		pmGetConfig("PCP_VAR_DIR"), sep, sep, sep, sep);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, DYNAMIC,
+		"dynamic.log", helppath);
 
     if (pmdaGetOpt(argc, argv, "D:d:h:i:l:pu:?", &dispatch, &err) != EOF)
     	err++;
