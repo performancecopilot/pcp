@@ -619,8 +619,12 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
+<<<<<<< HEAD
 ac_subst_vars='PACKAGE_CONFIGURE
 GIT
+=======
+ac_subst_vars='GIT
+>>>>>>> regenerate configure
 HAVE_LIBMICROHTTPD
 lib_for_curses
 lib_for_readline
@@ -11835,6 +11839,7 @@ fi
 
 LIBS=$savedLIBS
 
+<<<<<<< HEAD
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for AI_ADDRCONFIG" >&5
 $as_echo_n "checking for AI_ADDRCONFIG... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -11862,6 +11867,8 @@ $as_echo "no" >&6; }
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
+=======
+>>>>>>> regenerate configure
 savedLIBS=$LIBS
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for MHD_start_daemon in -lmicrohttpd" >&5
 $as_echo_n "checking for MHD_start_daemon in -lmicrohttpd... " >&6; }
