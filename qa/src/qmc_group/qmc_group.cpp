@@ -346,7 +346,7 @@ Client::fetch()
 		    if (metric.desc().desc().type == PM_TYPE_STRING)
 			cout << metric.stringValue(j);
 		    else if (metric.desc().desc().type == PM_TYPE_EVENT)
-			cout << metric.eventValue(j);
+			metric.dumpEventRecords(cout, j);
 		    else
 			cout << metric.value(j);
 		    cout << endl;

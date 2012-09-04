@@ -146,7 +146,7 @@ QmcContext::lookup(pmID pmid, QString **namePtr, QmcDesc **descPtr, QmcIndom **i
 	return sts;
     if ((sts = lookupInDom(pmid, indom)) < 0)
 	return sts;
-    *indomPtr = my.indoms[indom];
+    *indomPtr = (indom == UINT_MAX) ? NULL : my.indoms[indom];
     return 0;
 }
 

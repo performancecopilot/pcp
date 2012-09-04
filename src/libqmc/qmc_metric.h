@@ -64,7 +64,7 @@ public:
     static pmID eventFlags();
     static pmID eventMissed();
 
-    void dump(QTextStream &os, uint instance) const;
+    void dump(QTextStream &os, uint instance, uint recordID) const;
 
 private:
     struct {
@@ -257,6 +257,9 @@ public:
     // Dump out the metric source
     void dumpSource(QTextStream &os) const;
 
+    // Dump out any stream of event records
+    void dumpEventRecords(QTextStream &os, uint index) const;
+
     // Format a value into a fixed width format
     static const char *formatNumber(double value);
 
@@ -297,9 +300,6 @@ private:
     void dumpAll() const;
     void dumpErr() const;
     void dumpErr(const char *inst) const;
-
-    void dumpEventRecords(QTextStream &os, int index) const	// Current raw error code
-	{ my.values[index].dumpEventRecords(os, index); }
 };
 
 #endif	// QMC_METRIC_H

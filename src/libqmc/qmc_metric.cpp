@@ -303,11 +303,9 @@ QmcMetric::dumpValue(QTextStream &stream, uint inst) const
 {
     if (error(inst) < 0)
 	stream << pmErrStr(error(inst));
-    else if (event())
-	dumpEventRecords(stream, inst);
     else if (!real())
 	stream << stringValue(inst);
-    else
+    else if (!event())
 	stream << value(inst) << " " << desc().units();
 }
 
@@ -321,6 +319,8 @@ QmcMetric::dump(QTextStream &stream, bool srcFlag, uint instance) const
 
     if (my.status < 0)
 	stream << ": " << pmErrStr(my.status) << endl;
+    else if (event())
+	dumpEventRecords(stream, instance);
     else if (hasInstances()) {
 	if (instance == UINT_MAX) {
 	    if (numInst() == 1)
@@ -772,7 +772,6 @@ QmcMetric::extractEventMetric(pmValueSet const *valueSet, int index, QmcMetricVa
 
 	for (r = 0; r < sts; r++) {
 	    QmcEventRecord record = records.at(r);
-	    record.setTimestamp(&result[r]->timestamp);
 
 	    // count is the size of my.parameter vector (less flags/missed)
 	    paramCount = 0;
@@ -781,7 +780,12 @@ QmcMetric::extractEventMetric(pmValueSet const *valueSet, int index, QmcMetricVa
 		if (paramID != flagsID && paramID != missedID)
 		    paramCount++;
 	    }
+
+	    // initialise this record
+	    record.setTimestamp(&result[r]->timestamp);
 	    record.setParameterCount(paramCount);
+	    record.setMissed(0);
+	    record.setFlags(0);
 
 	    // i indexes into result[r], p indexes into my.parameter vector
 	    for (i = p = 0; i < result[r]->numpmid; i++) {
@@ -850,28 +854,15 @@ QmcEventRecord::setParameter(int index, pmID pmid, QmcContext *context, pmValueS
 }
 
 void
-QmcEventRecord::dump(QTextStream &os, uint instance) const
-{
-    os << "   " << QmcSource::timeString((struct timeval *)&my.timestamp);
-    if (my.flags)
-	os << " flags " << my.flags << " (" << pmEventFlagsStr(my.flags) << ")";
-    os << " ---" << endl;
-    if (my.flags & PM_EVENT_FLAG_MISSED)
-	os << " ==> " << my.missed << " missed event records" << endl;
-    for (int i = 0; i < my.parameters.size(); i++)
-	my.parameters.at(i).dump(os, instance);
-}
-
-void
-QmcEventParameter::dump(QTextStream &os, uint inst) const
+QmcEventParameter::dump(QTextStream &os, uint instance) const
 {
     pmDesc desc = my.desc->desc();
 
     for (int i = 0; i < my.values.size(); i++) {
 	QmcMetricValue const &value = my.values.at(i);
-	int instance = value.instance();
+	int inst = value.instance();
 
-	if (inst != UINT_MAX && inst != (uint)instance)
+	if (instance != UINT_MAX && (uint)inst != instance)
 	    continue;
 
 	os << "    " << my.name;
@@ -895,10 +886,42 @@ QmcEventParameter::dump(QTextStream &os, uint inst) const
 }
 
 void
+QmcEventRecord::dump(QTextStream &os, uint instance, uint recordID) const
+{
+    os << "  " << QmcSource::timeStringBrief(&my.timestamp);
+    os << " --- event record [" << recordID << "]";
+    if (my.flags) {
+	os.setIntegerBase(16);
+	os << " flags " << my.flags << " (" << pmEventFlagsStr(my.flags) << ")";
+	os.setIntegerBase(10);
+    }
+    os << " ---" << endl;
+    if (my.flags & PM_EVENT_FLAG_MISSED)
+	os << " ==> " << my.missed << " missed event records" << endl;
+    for (int i = 0; i < my.parameters.size(); i++)
+	my.parameters.at(i).dump(os, instance);
+}
+
+void
 QmcMetricValue::dumpEventRecords(QTextStream &os, uint instance) const
 {
     for (int i = 0; i < my.eventRecords.size(); i++)
-	my.eventRecords.at(i).dump(os, instance);
+	my.eventRecords.at(i).dump(os, instance, i);
+}
+
+void
+QmcMetric::dumpEventRecords(QTextStream &os, uint instance) const
+{
+    if (instance != UINT_MAX) {
+	QString name = instName(instance);
+	if (name == QString::null)
+	    os << "[" << instance << "]";
+	else
+	    os << "[\"" << name << "\"]";
+    }
+    os << ": " << my.values.size() << " event records" << endl;
+    for (int i = 0; i < my.values.size(); i++)
+	my.values[i].dumpEventRecords(os, instance);
 }
 
 pmID
