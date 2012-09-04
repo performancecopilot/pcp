@@ -1,0 +1,55 @@
+#!/bin/sh
+# PCP QA Test No. 416
+# test python PMAPI layer
+#
+# Copyright (c) 2012 Red Hat, Inc.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+here=`pwd`
+
+home=$PCP_PMDAS_DIR
+
+remove_extra_whitespace() {
+sed -e 's/[0-9]/9/g' -e 's/9[9]*/9/g' -e 's/  *$//' -e '/^ *$/d' -e 's/  */ /g'
+}
+
+# sed -e 's/ [a-zA-Z0-9]* *$//'
+remove_extra_columns() {
+sed -e 's/^ *//' -e 's/ [a-zA-Z0-9 ]* *$//'
+}
+
+# real QA test starts here
+
+# PYTHONPATH=/work/scox/pcp/src/src/python/build/lib.linux-x86_64-2.7/ python test_pcp.py
+TEST_PCP=`pwd`/src/test_pcp.py
+$TEST_PCP >$tmp.out 2>&1
+grep OK $tmp.out 
+
+pmcollectl.py -sc -c1 | remove_extra_whitespace | tee -a $tmp.out 2>&1
+pmcollectl.py -sd -c1 | remove_extra_whitespace | tee -a $tmp.out 2>&1
+pmcollectl.py -sn -c1 | remove_extra_whitespace | tee -a $tmp.out 2>&1
+pmcollectl.py -sj -c1 | remove_extra_whitespace | remove_extra_columns | tee -a $tmp.out 2>&1
+pmcollectl.py -sm -c1 | remove_extra_whitespace | tee -a $tmp.out 2>&1
+pmcollectl.py -sc -c1 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+pmcollectl.py -sd -c1 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+pmcollectl.py -sn -c1 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+pmcollectl.py -sm -c1 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+
+
+cat $tmp.out >>$here/$seq.full
+
+# success, all done
+status=0
+exit

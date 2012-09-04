@@ -123,8 +123,8 @@ This is the name of a PCP archive to write the output to.
 .\" 
 .B "\-i, --interval interval"
 .RS
-This is the sampling interval in seconds.  The default is 10 seconds when run
-as a daemon and 1 second otherwise.
+This is the sampling interval in seconds.  The default is 1 second.
+.\" The default is 10 seconds when run as a daemon and 1 second otherwise.
 .RE
 .\" 
 .\" .B --nohup
@@ -137,14 +137,14 @@ as a daemon and 1 second otherwise.
 .\" NOTE - when running as a daemon, --nohup is implied.
 .\" .RE
 .\" 
-.\" .B "\-R, --runtime duration"
-.\" .RS
-.\" Specify the duration of data collection where the duration is a number followed
-.\" by one of 
-.\" .BR wdhms,
-.\" indicating how many weeks, days, hours, minutes or seconds
-.\" the collection is to be taken for.
-.\" .RE
+.B "\-R, --runtime duration"
+.RS
+Specify the duration of data collection where the duration is a number followed
+by one of 
+.BR wdhms,
+indicating how many weeks, days, hours, minutes or seconds
+the collection is to be taken for.
+.RE
 .\" 
 .PP
 .SH "PLAYBACK MODE OPTIONS"
@@ -157,7 +157,6 @@ utility.
 .RS
 If specified, this is the name of a PCP archive to write the output to (rather
 than the terminal).
-This requires the \-P flag as well.
 .RE
 .PP
 .\" .B "--from timerange"
@@ -207,18 +206,19 @@ This field controls which subsystem data is to be collected or played back
 for. The rules for displaying results vary depending on the type of data to be
 displayed.  If you write data for CPUs and DISKs to a raw file and play it back
 with \-sc, you will only see CPU data.  If you play it back with \f3\-scm\f1 you
-will still only see CPU data since memory data was not collected.  However, when 
-used with \f3\-P\f1,
-.B pmcollectl
-will always honor the subsystems specified with 
-this switch so in the previous example you will see CPU
-data plus memory data of all 0s.  To see the current set of default subsystems,
+will still only see CPU data since memory data was not collected.  
+.\" However, when  used with \f3\-P\f1,
+.\" .B pmcollectl
+.\" will always honor the subsystems specified with 
+.\" this switch so in the previous example you will see CPU
+.\" data plus memory data of all 0s.  
+To see the current set of default subsystems,
 which are a subset of this full list,
 use \f3\-h\f1.
 .PP
-You can also use + or \- to add or subtract subsystems to/from the default values. 
-For example, "\-s\-cdn+N"< will remove cpu, disk and network monitoring from the
-defaults while adding network detail.
+.\" You can also use + or \- to add or subtract subsystems to/from the default values. 
+.\" For example, "\-s\-cdn+N"< will remove cpu, disk and network monitoring from the
+.\" defaults while adding network detail.
 .PP
 The default is "cdn", which stands for CPU, Disk and Network summary data.
 .TP
@@ -266,9 +266,8 @@ one will only see a single total taken
 across all 3 disks.  If one
 chooses 
 .B \-sD,
-individual disk totals will be reported but no totals.  Choosing 
-.B \-sdD
-will get you both.
+individual disk totals will be reported but no totals.  
+.\" Choosing .B \-sdD will get you both.
 .PP
 .br
 C \- CPU
