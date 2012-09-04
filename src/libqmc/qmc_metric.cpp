@@ -303,6 +303,8 @@ QmcMetric::dumpValue(QTextStream &stream, uint inst) const
 {
     if (error(inst) < 0)
 	stream << pmErrStr(error(inst));
+    else if (event())
+	dumpEventRecords(stream, inst);
     else if (!real())
 	stream << stringValue(inst);
     else
@@ -766,11 +768,23 @@ QmcMetric::extractEventMetric(pmValueSet const *valueSet, int index, QmcMetricVa
 	pmID missedID = QmcEventRecord::eventMissed();
 	pmID flagsID = QmcEventRecord::eventFlags();
 	pmID paramID;
+	int i, p, r, paramCount;
 
-	for (int r = 0; r < sts; r++) {
+	for (r = 0; r < sts; r++) {
 	    QmcEventRecord record = records.at(r);
 	    record.setTimestamp(&result[r]->timestamp);
-	    for (int i = 0; i < result[r]->numpmid; i++) {
+
+	    // count is the size of my.parameter vector (less flags/missed)
+	    paramCount = 0;
+	    for (i = 0; i < result[r]->numpmid; i++) {
+		paramID = result[r]->vset[i]->pmid;
+		if (paramID != flagsID && paramID != missedID)
+		    paramCount++;
+	    }
+	    record.setParameterCount(paramCount);
+
+	    // i indexes into result[r], p indexes into my.parameter vector
+	    for (i = p = 0; i < result[r]->numpmid; i++) {
 		valueSet = result[r]->vset[i];
 		paramID = valueSet->pmid;
 		if (paramID == flagsID)
@@ -778,7 +792,7 @@ QmcMetric::extractEventMetric(pmValueSet const *valueSet, int index, QmcMetricVa
 		else if (paramID == missedID)
 		    record.setMissed(valueSet->vlist[0].value.lval);
 		else
-		    record.add(paramID, context(), valueSet);
+		    record.setParameter(p++, paramID, context(), valueSet);
 	    }
 	}
 	valueRef.setEventRecords(records);
@@ -790,9 +804,9 @@ QmcMetric::extractEventMetric(pmValueSet const *valueSet, int index, QmcMetricVa
 }
 
 int
-QmcEventRecord::add(pmID pmid, QmcContext *context, pmValueSet const *vsp)
+QmcEventRecord::setParameter(int index, pmID pmid, QmcContext *context, pmValueSet const *vsp)
 {
-    QString name;
+    QString *name;
     QmcDesc *desc;
     QmcIndom *indom;
     int sts, type;
@@ -800,17 +814,23 @@ QmcEventRecord::add(pmID pmid, QmcContext *context, pmValueSet const *vsp)
     if (vsp->numval <= 0)	// no value or an error
 	return vsp->numval;
 
-    if ((sts = context->lookup(pmid, name, &desc, &indom)) < 0)
+    if ((sts = context->lookup(pmid, &name, &desc, &indom)) < 0)
 	return sts;
 
-    type = desc->desc().type;
-    QVector<QmcMetricValue> parameters(vsp->numval);
-    for (int i = 0; i < vsp->numval; i++) {
-	const pmValue *vp = &vsp->vlist[i];
-	QmcMetricValue *value = &parameters[i];
-	pmAtomValue result;
+    QmcEventParameter &parameter = my.parameters[index];
+    parameter.setPMID(pmid);
+    parameter.setNamePtr(name);
+    parameter.setDescPtr(desc);
+    parameter.setIndomPtr(indom);
+    parameter.setValueCount(vsp->numval);
 
-	sts = 0;
+    type = desc->desc().type;
+    for (int i = 0; i < vsp->numval; i++) {
+	pmAtomValue result;
+	const pmValue *vp = &vsp->vlist[i];
+	QmcMetricValue *value = parameter.valuePtr(i);
+
+	sts = PM_ERR_TYPE;	// no nesting events
 	if (QmcMetric::real(type) == true) {
 	    if ((sts = pmExtractValue(vsp->valfmt, vp,
 			    type, &result, PM_TYPE_DOUBLE)) >= 0)
@@ -826,8 +846,59 @@ QmcEventRecord::add(pmID pmid, QmcContext *context, pmValueSet const *vsp)
 	if (sts < 0)
 	    value->setCurrentError(sts);
     }
-    my.parameters = parameters;
     return 0;
+}
+
+void
+QmcEventRecord::dump(QTextStream &os, uint instance) const
+{
+    os << "   " << QmcSource::timeString((struct timeval *)&my.timestamp);
+    if (my.flags)
+	os << " flags " << my.flags << " (" << pmEventFlagsStr(my.flags) << ")";
+    os << " ---" << endl;
+    if (my.flags & PM_EVENT_FLAG_MISSED)
+	os << " ==> " << my.missed << " missed event records" << endl;
+    for (int i = 0; i < my.parameters.size(); i++)
+	my.parameters.at(i).dump(os, instance);
+}
+
+void
+QmcEventParameter::dump(QTextStream &os, uint inst) const
+{
+    pmDesc desc = my.desc->desc();
+
+    for (int i = 0; i < my.values.size(); i++) {
+	QmcMetricValue const &value = my.values.at(i);
+	int instance = value.instance();
+
+	if (inst != UINT_MAX && inst != (uint)instance)
+	    continue;
+
+	os << "    " << my.name;
+	if (desc.indom != PM_INDOM_NULL) {
+	    if (my.values.size() > 1)
+		os << endl << "        ";
+	    QString name = my.indom->name(instance);
+	    if (name == QString::null)
+		os << "[" << instance << "]";
+	    else
+		os << "[\"" << name << "\"]";
+	}
+	os << " ";
+
+	if (QmcMetric::real(desc.type) == true)
+	    os << value.currentValue();
+	else if (QmcMetric::event(desc.type) == false)
+	    os << value.stringValue();
+	os << endl;
+    }
+}
+
+void
+QmcMetricValue::dumpEventRecords(QTextStream &os, uint instance) const
+{
+    for (int i = 0; i < my.eventRecords.size(); i++)
+	my.eventRecords.at(i).dump(os, instance);
 }
 
 pmID

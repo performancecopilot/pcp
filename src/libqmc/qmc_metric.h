@@ -23,6 +23,31 @@
 
 class QmcMetricValue;
 
+class QmcEventParameter
+{
+public:
+    QmcEventParameter() { my.pmid = PM_ID_NULL; }
+
+    void setPMID(pmID pmid) { my.pmid = pmid; }
+    void setNamePtr(QString *name) { my.name = name; }
+    void setDescPtr(QmcDesc *desc) { my.desc = desc; }
+    void setIndomPtr(QmcIndom *indom) { my.indom = indom; }
+
+    void setValueCount(int numInst) { my.values.resize(numInst); }
+    QmcMetricValue *valuePtr(int inst) { return &my.values[inst]; }
+
+    void dump(QTextStream &os, uint instance) const;
+
+private:
+    struct {
+	pmID		pmid;	// pmid for a parameter to an event
+	QString		*name;	// direct pointer into external cache
+	QmcDesc		*desc;	// direct pointer into external cache
+	QmcIndom	*indom;	// direct pointer into external cache
+	QVector<QmcMetricValue>	values;
+    } my;
+};
+
 class QmcEventRecord
 {
 public:
@@ -32,17 +57,21 @@ public:
     void setMissed(int missed) { my.missed = missed; }
     void setFlags(int flags) { my.flags = flags; }
 
-    int add(pmID pmid, QmcContext *cp, pmValueSet const *vp);
+    void setParameterCount(int numParams)
+	{ my.parameters.resize(numParams); }
+    int setParameter(int n, pmID pmid, QmcContext *cp, pmValueSet const *vp);
 
     static pmID eventFlags();
     static pmID eventMissed();
+
+    void dump(QTextStream &os, uint instance) const;
 
 private:
     struct {
 	struct timeval	timestamp;
 	int		missed;
 	int		flags;
-	QVector<QmcMetricValue> parameters;
+	QVector<QmcEventParameter> parameters;
     } my;
 };
 
@@ -69,9 +98,6 @@ public:
     QString stringValue() const { return my.stringValue; }
     void setStringValue(const char *s) { my.stringValue = s; }
 
-    QString eventValue() const { return QString::null; /* TODO */ }
-    void setEventRecords(QVector<QmcEventRecord> &records) { my.eventRecords = records; }
-
     int currentError() const { return my.currentError; }
     void setCurrentError(int error)
 	{ my.currentError = error; resetCurrentValue(); }
@@ -83,6 +109,10 @@ public:
     void shiftValues() { my.previousValue = my.currentValue;
 			 my.previousError = my.currentError;
 			 my.currentError = 0; }
+
+    void setEventRecords(QVector<QmcEventRecord> &records)
+	{ my.eventRecords = records; }
+    void dumpEventRecords(QTextStream &os, uint instance) const;
 
 private:
     void resetCurrentValue()
@@ -188,9 +218,6 @@ public:
     QString stringValue(int index) const	// Current string value
 	{ return my.values[index].stringValue(); }
 
-    QString eventValue(int index) const		// Current event records
-	{ return my.values[index].eventValue(); }
-
     int error(int index) const	// Current error code (after rate-conversion)
 	{ return my.values[index].error(); }
 
@@ -270,6 +297,9 @@ private:
     void dumpAll() const;
     void dumpErr() const;
     void dumpErr(const char *inst) const;
+
+    void dumpEventRecords(QTextStream &os, int index) const	// Current raw error code
+	{ my.values[index].dumpEventRecords(os, index); }
 };
 
 #endif	// QMC_METRIC_H
