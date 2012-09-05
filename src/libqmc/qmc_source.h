@@ -72,8 +72,9 @@ public:
     // Local host name (from gethostname(2))
     static QString localHost;
 
-    // Convert a time to a string
-    static QString timeString(struct timeval *timeval);
+    // Convert a time to a string (long and short forms)
+    static QString timeString(const struct timeval *timeval);
+    static QString timeStringBrief(const struct timeval *timeval);
 
 private:
     struct {

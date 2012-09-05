@@ -49,24 +49,25 @@ QmcContext::~QmcContext()
 }
 
 int
-QmcContext::lookupName(pmID pmid, QString &name)
+QmcContext::lookupName(pmID pmid, QString **name)
 {
     char *value;
-    int sts;
+    int sts = 0;
 
     if (my.pmidCache.contains(pmid) == false) {
 	if ((sts = pmNameID(pmid, &value)) >= 0) {
-	    my.pmidCache.insert(pmid, QString(value));
+	    *name = new QString(value);
+	    my.pmidCache.insert(pmid, *name);
 	    free(value);
 	}
     } else {
-	name = my.pmidCache.value(pmid);
+	QString *np = my.pmidCache.value(pmid);
 	if (pmDebug & DBG_TRACE_PMC) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcContext::lookupName: Matched id "
-		 << pmIDStr(pmid) << " to \"" << name << "\"" << endl;
+		 << pmIDStr(pmid) << " to \"" << *np << "\"" << endl;
 	}
-	sts = 1;
+	*name = np;
     }
     return sts;
 }
@@ -135,7 +136,7 @@ QmcContext::lookupDesc(pmID pmid, QmcDesc **descriptor)
 }
 
 int
-QmcContext::lookup(pmID pmid, QString &namePtr, QmcDesc **descPtr, QmcIndom **indomPtr)
+QmcContext::lookup(pmID pmid, QString **namePtr, QmcDesc **descPtr, QmcIndom **indomPtr)
 {
     uint_t indom;
     int sts;
@@ -146,7 +147,7 @@ QmcContext::lookup(pmID pmid, QString &namePtr, QmcDesc **descPtr, QmcIndom **in
 	return sts;
     if ((sts = lookupInDom(pmid, indom)) < 0)
 	return sts;
-    *indomPtr = my.indoms[indom];
+    *indomPtr = (indom == UINT_MAX) ? NULL : my.indoms[indom];
     return 0;
 }
 

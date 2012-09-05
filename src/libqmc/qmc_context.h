@@ -62,9 +62,9 @@ public:
 
     // Lookup various structures using the pmid
     int lookupInDom(pmID pmid, unsigned int& indom);
-    int lookupName(pmID pmid, QString &name);
+    int lookupName(pmID pmid, QString **name);
     int lookupDesc(pmID pmid, QmcDesc **desc);
-    int lookup(pmID pmid, QString &name, QmcDesc **desc, QmcIndom **indom);
+    int lookup(pmID pmid, QString **name, QmcDesc **desc, QmcIndom **indom);
 
     int useTZ();			// Use this timezone
 
@@ -98,7 +98,7 @@ private:
 	bool needReconnect;		// Need to reconnect the context
 	QmcSource *source;		// Handle to the source description
 	QHash<QString, pmID> nameCache;	// Reverse map from names to PMIDs
-	QHash<pmID, QString> pmidCache;	// Mapping between PMIDs and names
+	QHash<pmID, QString*> pmidCache;// Mapping between PMIDs and names
 	QHash<pmID, QmcDesc*> descCache;// Mapping between PMIDs and descs
 	QList<pmID> pmids;		// List of valid PMIDs to be fetched
 	QList<QmcIndom*> indoms;	// List of requested indoms 

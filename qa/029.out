@@ -10,9 +10,8 @@ QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
 QmcContext::lookupDesc: Add descriptor for <pmid for sample.event.records>
 QmcContext::lookupInDom: Add indom for <indom for sample.event.records>
 HOST:sample.event.records["fungus", "bogus"] from host "HOST" with scale = 0 and units = none
-sample.event.records: 2 instances
-  [0 or "fungus" (0)] = Missing metric value(s)
-  [1 or "bogus" (1)] = Missing metric value(s)
+sample.event.records["fungus"]: 0 event records
+sample.event.records["bogus"]: 0 event records
 QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
 QmcContext::lookupDesc: Add descriptor for <pmid for sample.seconds>
 HOST:sample.seconds from host "HOST" with scale = 0 and units = sec / second
@@ -26,9 +25,11 @@ QmcContext::lookupDesc: Add descriptor for <pmid for sample.event.param_string>
 QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_string>
 QmcContext::fetch: Updating metrics
 QmcGroup::fetch: Done
-sample.event.records: 2 instances
-  [0 or "fungus" (0)] = 
-  [1 or "bogus" (1)] = 
+sample.event.records["fungus"]: 1 event records
+  <timestamp> --- event record [0] flags 0x1 (point) ---
+sample.event.records["bogus"]: 1 event records
+  <timestamp> --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #1"
 sample.seconds = Missing metric value(s)
 
 *** Group Fetch 1 ***
@@ -46,9 +47,15 @@ QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_string>
 QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_string>
 QmcContext::fetch: Updating metrics
 QmcGroup::fetch: Done
-sample.event.records: 2 instances
-  [0 or "fungus" (0)] = 
-  [1 or "bogus" (1)] = 
+sample.event.records["fungus"]: 2 event records
+  <timestamp> --- event record [0] flags 0x1 (point) ---
+    sample.event.type 1
+  <timestamp> --- event record [1] flags 0x1 (point) ---
+    sample.event.type 2
+    sample.event.param_64 -3
+sample.event.records["bogus"]: 1 event records
+  <timestamp> --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #2"
 sample.seconds = NUMBER sec / second
 
 *** Group Fetch 2 ***
@@ -101,9 +108,33 @@ QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_string>
 QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_string>
 QmcContext::fetch: Updating metrics
 QmcGroup::fetch: Done
-sample.event.records: 2 instances
-  [0 or "fungus" (0)] = 
-  [1 or "bogus" (1)] = 
+sample.event.records["fungus"]: 5 event records
+  <timestamp> --- event record [0] flags 0x1a (start,id,parent) ---
+    sample.event.type 4
+    sample.event.param_u64 5
+    sample.event.param_string "6"
+  <timestamp> --- event record [1] flags 0x1 (point) ---
+    sample.event.type 7
+    sample.event.param_double 8
+    sample.event.param_double -9
+  <timestamp> --- event record [2] flags 0x4 (end) ---
+    sample.event.type 10
+    sample.event.param_u64 11
+    sample.event.param_string "twelve"
+    sample.event.param_string "thirteen"
+    sample.event.param_32 -14
+    sample.event.param_u32 15
+  <timestamp> --- event record [3] flags 0x80000000 (missed) ---
+ ==> 7 missed event records
+  <timestamp> --- event record [4] flags 0x1 (point) ---
+    sample.event.type 16
+    sample.event.param_float -17
+    sample.event.param_aggregate []
+sample.event.records["bogus"]: 2 event records
+  <timestamp> --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #3"
+  <timestamp> --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
 sample.seconds = NUMBER sec / second
 
 *** Group Fetch 3 ***
@@ -114,9 +145,10 @@ QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_string>
 QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_string>
 QmcContext::fetch: Updating metrics
 QmcGroup::fetch: Done
-sample.event.records: 2 instances
-  [0 or "fungus" (0)] = 
-  [1 or "bogus" (1)] = 
+sample.event.records["fungus"]: 0 event records
+sample.event.records["bogus"]: 1 event records
+  <timestamp> --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #4"
 sample.seconds = NUMBER sec / second
 
 *** Exiting ***
