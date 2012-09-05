@@ -343,12 +343,13 @@ Client::fetch()
 		if (metric.error(j) < 0)
 		    cout << '?' << endl;
 		else {
-		    if (metric.desc().desc().type == PM_TYPE_STRING)
-			cout << metric.stringValue(j);
-		    else if (metric.desc().desc().type == PM_TYPE_EVENT)
-			metric.dumpEventRecords(cout, j);
-		    else
+		    int type = metric.desc().desc().type;
+		    if (QmcMetric::real(type))
 			cout << metric.value(j);
+		    else if (QmcMetric::event(type))
+			metric.dump(cout, j);
+		    else
+			cout << metric.stringValue(j);
 		    cout << endl;
 		}
 	    }
