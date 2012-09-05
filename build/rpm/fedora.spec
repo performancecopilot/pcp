@@ -3,7 +3,7 @@ Name: pcp
 Version: 3.6.6
 %define buildversion 1
 
-Release: %{buildversion}%{?dist}
+Release: %{buildversion}%{?dist}.1
 License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
@@ -197,12 +197,12 @@ building Performance Metric API (PMAPI) tools using Python.
 
 %prep
 %setup -q
-%configure --with-rcdir=/etc/rc.d/init.d
 
 %clean
 rm -Rf $RPM_BUILD_ROOT
 
 %build
+%configure --with-rcdir=/etc/rc.d/init.d
 make default_pcp
 
 %install
@@ -385,6 +385,9 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Wed Sep 05 2012 Nathan Scott <nathans@redhat.com> - 3.6.6-1.1
+- Move configure step from prep to build section of spec (BZ 854128)
+
 * Tue Aug 28 2012 Mark Goodwin <mgoodwin@redhat.com> - 3.6.6-1
 - Update to latest PCP sources, see installed CHANGELOG for details.
 - Introduces new python-pcp and pcp-testsuite sub-packages.
