@@ -36,7 +36,7 @@ public:
     void setValueCount(int numInst) { my.values.resize(numInst); }
     QmcMetricValue *valuePtr(int inst) { return &my.values[inst]; }
 
-    void dump(QTextStream &os, uint instance) const;
+    void dump(QTextStream &os, int instID) const;
 
 private:
     struct {
@@ -64,7 +64,7 @@ public:
     static pmID eventFlags();
     static pmID eventMissed();
 
-    void dump(QTextStream &os, uint instance, uint recordID) const;
+    void dump(QTextStream &os, int instID, uint recordID) const;
 
 private:
     struct {
@@ -110,9 +110,8 @@ public:
 			 my.previousError = my.currentError;
 			 my.currentError = 0; }
 
-    void setEventRecords(QVector<QmcEventRecord> &records)
-	{ my.eventRecords = records; }
-    void dumpEventRecords(QTextStream &os, uint instance) const;
+    void extractEventRecords(QmcContext *context, int recordCount, pmResult **result);
+    void dumpEventRecords(QTextStream &os, int instid) const;
 
 private:
     void resetCurrentValue()
@@ -201,6 +200,11 @@ public:
     bool event() const { return event(desc().desc().type); }
     static bool event(int type) { return type == PM_TYPE_EVENT; }
 
+    bool aggregate() const { return aggregate(desc().desc().type); }
+    static void aggregateAsString(pmValue const *, char *, int);
+    static bool aggregate(int type)
+	{ return type == PM_TYPE_AGGREGATE || type == PM_TYPE_AGGREGATE_STATIC; }
+
     // Metric has real values (as opposed to event/string/aggregate values)
     bool real() const { return real(desc().desc().type); }
     static bool real(int type)
@@ -257,9 +261,6 @@ public:
     // Dump out the metric source
     void dumpSource(QTextStream &os) const;
 
-    // Dump out any stream of event records
-    void dumpEventRecords(QTextStream &os, uint index) const;
-
     // Format a value into a fixed width format
     static const char *formatNumber(double value);
 
@@ -300,6 +301,12 @@ private:
     void dumpAll() const;
     void dumpErr() const;
     void dumpErr(const char *inst) const;
+
+    // Dump out different metric flavours and their current value(s)
+    void dumpEventMetric(QTextStream &os, bool srcFlag = false,
+	      uint instance = UINT_MAX) const;
+    void dumpSampledMetric(QTextStream &os, bool srcFlag = false,
+	      uint instance = UINT_MAX) const;
 };
 
 #endif	// QMC_METRIC_H

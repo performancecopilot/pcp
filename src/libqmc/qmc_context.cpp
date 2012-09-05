@@ -61,12 +61,13 @@ QmcContext::lookupName(pmID pmid, QString **name)
 	    free(value);
 	}
     } else {
-	*name = my.pmidCache.value(pmid);
+	QString *np = my.pmidCache.value(pmid);
 	if (pmDebug & DBG_TRACE_PMC) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcContext::lookupName: Matched id "
-		 << pmIDStr(pmid) << " to \"" << *name << "\"" << endl;
+		 << pmIDStr(pmid) << " to \"" << *np << "\"" << endl;
 	}
+	*name = np;
     }
     return sts;
 }
