@@ -110,8 +110,7 @@ QmcGroup::use(int type, const QString &theSource)
 	}
 
 	for (i = 0; i < numContexts(); i++) {
-	    if (source == my.contexts[i]->source().source() &&
-	        type == my.contexts[i]->source().type())
+	    if (source == my.contexts[i]->source().source())
 		break;
 	}
     }
