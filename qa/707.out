@@ -14,7 +14,7 @@ OK
 9
 #<-----------Memory----------->
 #Free Buff Cach Inac Slab Map
- 9M 9M 9M 9M 9M 9M
+9M 9M 9M 9M 9M 9M
 # CPU SUMMARY (INTR, CTXSW & PROC /sec)
 #User Nice Sys Wait IRQ Soft Steal Idle CPUs Intr Ctxsw Proc RunQ Run Avg9 Avg9 Avg9 RunT BlkT
  9 9 9 9 9 9 9 9 9 9 9 9 9 9 9.9 9.9 9.9 9 9

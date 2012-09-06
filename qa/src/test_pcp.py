@@ -226,8 +226,8 @@ def test_pcp(self, context = 'local', path = ''):
     code = pm.pmAddProfile(descs[0], inst15);
     self.assertTrue(code >= 0)
 
-    previous_cpu_user = [0,0,0,0]
-    previous_cpu_sys = [0,0,0,0]
+    previous_cpu_user = [0 for i in range(ncpu)]
+    previous_cpu_sys = [0 for i in range(ncpu)]
     previous_disk = 0
 
     # pmParseInterval
@@ -269,7 +269,7 @@ def test_pcp(self, context = 'local', path = ''):
                 if (results.contents.get_pmid(i) != self.metric_ids[1]):
                     continue
                 (code, atom) = pm.pmExtractValue(results.contents.get_valfmt(i),
-                                                 results.contents.get_vlist(i, 0),
+                                                 results.contents.get_vlist(i, cpu),
                                                  descs[i].contents.type, pmapi.PM_TYPE_FLOAT)
             self.assertTrue(code >= 0)
             cpu_val = atom.f - previous_cpu_user[cpu]
@@ -280,12 +280,13 @@ def test_pcp(self, context = 'local', path = ''):
                 if (results.contents.get_pmid(i) != self.metric_ids[2]):
                     continue
                 (code, atom) = pm.pmExtractValue(results.contents.get_valfmt(i),
-                                                 results.contents.get_vlist(i, 0),
+                                                 results.contents.get_vlist(i, cpu),
                                                  descs[i].contents.type, pmapi.PM_TYPE_FLOAT)
             self.assertTrue(code >= 0)
             cpu_val = cpu_val + atom.f - previous_cpu_sys[cpu]
-            print "cpu_val=", cpu_val
-            self.assertTrue(cpu_val > 0)
+            print "cpu_val=", cpu_val, " cpu=",cpu
+            # may possibly have cpu_val of 0 for a machine with many cpus
+            self.assertTrue(cpu_val > 0 or (cpu_val == 0 and n == 1))
             previous_cpu_sys[cpu] = atom.f
             cpu = cpu + 1
 
