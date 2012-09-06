@@ -18,24 +18,21 @@
 #include "main.h"
 
 void SamplingCurve::drawSeries(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-		const QRectF &canvasRect, int x, int y) const
+		const QRectF &canvasRect, int from, int to) const
 {
-#if 1	// TODO: move into qwt?
-	    QwtPlotCurve::drawSeries(p, xMap, yMap, canvasRect, (int)x, (int)y);
-#else	// old code:
-    unsigned int okFrom, okTo = 0;
+    int okFrom, okTo = from;
+    int size = (to > 0) ? to : dataSize();
 
-    while (okTo < dataSize()) {
+    while (okTo < size) {
 	okFrom = okTo;
-	while (isNaN(data().y(okFrom)) && okFrom < dataSize())
+	while (isNaN(sample(okFrom).y()) && okFrom < size)
 	    ++okFrom;
 	okTo = okFrom;
-	while (!isNaN(data().y(okTo)) && okTo < dataSize())
+	while (!isNaN(sample(okTo).y()) && okTo < size)
 	    ++okTo;
-	if (okFrom < dataSize())
-	    QwtPlotCurve::drawSeries(p, xMap, yMap, canvasRect, (int)okFrom, (int)okTo-1);
+	if (okFrom < size)
+	    QwtPlotCurve::drawSeries(p, xMap, yMap, canvasRect, okFrom, okTo-1);
     }
-#endif
 }
 
 double SamplingCurve::NaN()
