@@ -275,7 +275,7 @@ void QwtLegendItem::paintEvent( QPaintEvent *e )
     QPainter painter( this );
     painter.setClipRegion( e->region() );
 
-    if ( d_data->isDown )
+    if ( d_data->isDown == false )
     {
         qDrawWinButton( &painter, 0, 0, width(), height(),
             palette(), true );
