@@ -1,6 +1,6 @@
 #! /bin/sh
-# PCP QA Test No. 116 (open source part of 1061)
-# Check hypen in host name
+# PCP QA Test No. 116
+# Check hyphen in host name
 #
 # Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -14,11 +14,8 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.config
 
-if [ -z "$PCPQA_HYPHEN_HOST" ]
-then
-    echo 'Setup error: $PCPQA_HYPHEN_HOST is not set in ./common.config'
-    exit 1
-fi
+[ -z "$PCPQA_HYPHEN_HOST" -o "$PCPQA_HYPHEN_HOST" = "some-host" ] && \
+    _notrun 'PCPQA_HYPHEN_HOST is not set in ./common.config'
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
