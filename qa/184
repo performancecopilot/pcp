@@ -60,6 +60,7 @@ _filter_newlog()
 	-e '/Warning \[<stdin>,/d' \
 	-e '/Not connected to any/d' \
 	-e '/Logging statement ignored/d' \
+	-e '/Problem with lookup for metric/d' \
 	-e '/Try again. Information not currently available/d' \
 	-e '/Unknown or illegal metric identifier/d' \
 	-e '/Unknown or illegal instance domain identifier/d' \
