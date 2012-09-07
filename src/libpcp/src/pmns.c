@@ -2183,7 +2183,7 @@ pmNameID(pmID pmid, char **name)
 	__pmContext  *ctxp;
 
 	/* As we have PMNS_REMOTE there must be a current host context */
-	if ((n = pmWhichContext() < 0) || (ctxp = __pmHandleToPtr(n)) == NULL)
+	if ((n = pmWhichContext()) < 0 || (ctxp = __pmHandleToPtr(n)) == NULL)
 	    return PM_ERR_NOCONTEXT;
 	PM_LOCK(ctxp->c_pmcd->pc_lock);
 	if ((n = request_namebypmid(ctxp, pmid)) >= 0) {
@@ -2269,7 +2269,7 @@ pmNameAll(pmID pmid, char ***namelist)
 	__pmContext  *ctxp;
 
 	/* As we have PMNS_REMOTE there must be a current host context */
-	if ((n = pmWhichContext() < 0) || (ctxp = __pmHandleToPtr(n)) == NULL)
+	if ((n = pmWhichContext()) < 0 || (ctxp = __pmHandleToPtr(n)) == NULL)
 	    return PM_ERR_NOCONTEXT;
 	PM_LOCK(ctxp->c_pmcd->pc_lock);
 	if ((n = request_namebypmid (ctxp, pmid)) >= 0) {
@@ -2379,7 +2379,7 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
 	__pmContext  *ctxp;
 
 	/* As we have PMNS_REMOTE there must be a current host context */
-	if ((sts = pmWhichContext() < 0) || (ctxp = __pmHandleToPtr(sts)) == NULL)
+	if ((sts = pmWhichContext()) < 0 || (ctxp = __pmHandleToPtr(sts)) == NULL)
 	    return PM_ERR_NOCONTEXT;
 	PM_LOCK(ctxp->c_pmcd->pc_lock);
 	sts = __pmSendTraversePMNSReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), name);

@@ -817,6 +817,7 @@ pmlogrewrite
 651 pmproxy local oss
 703 pcpweb local oss
 706 libpcp local oss
+707 pcp.py local oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
 1046 pmie local pmieconf sgi

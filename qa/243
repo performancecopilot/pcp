@@ -31,8 +31,10 @@ echo "QA output created by $seq"
 _filter_err()
 {
     _filter_pmcd_log \
-    | sed -e 's/may already be running/is already running/g' \
-    | sed -e '/Log for pmcd/,/INADDR_ANY/c\
+    | sed \
+	-e 's/ __pmBind: / bind: /g' \
+	-e 's/may already be running/is already running/g' \
+	-e '/Log for pmcd/,/INADDR_ANY/c\
 ... boring stuff deleted'
 }
 

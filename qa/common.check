@@ -77,78 +77,24 @@ _check_freespace()
     fi
 }
 
-# host(1) examples
-#
-# 6:39 pcpqa@soggy ~ 10% host 134.14.55.202
-# 202.55.14.134.in-addr.arpa. domain name pointer soggy.melbourne.sgi.com.
-# 6:39 pcpqa@soggy ~ 11% host moomba
-# moomba.melbourne.sgi.com. has address 134.14.55.137
-#
-# nslookup(1) examples
-# bozo 33% nslookup 134.14.55.202
-# Server:  larry.melbourne.sgi.com
-# Address:  134.14.52.130
-# Aliases:  130.52.14.134.in-addr.arpa
-# 
-# Name:    soggy.melbourne.sgi.com
-# Address:  134.14.55.202
-# 
-# bozo 34% nslookup moomba
-# Server:  larry.melbourne.sgi.com
-# Address:  134.14.52.130
-# Aliases:  130.52.14.134.in-addr.arpa
-# 
-# Name:    moomba.melbourne.sgi.com
-# Address:  134.14.55.137
-
 _host_to_ipaddr()
 {
-    if which host >/dev/null 2>&1
-    then
-	# assume linux host(1)
-	#
-	host $1 2>&1 \
-	| sed -n \
-	    -e '/ has address /s/.* has address //p' \
-	    -e '/ domain name pointer /{
-s/\.in-addr\.arpa.*//
-s/\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^.]*\)/\4.\3.\2.\1/
-p
-}'
-    elif which nslookup >/dev/null 2>&1
-    then
-	nslookup $1 2>&1 \
-	| sed -n \
-	    -e '1,/^$/d' \
-	    -e '/^Address:  */s///p'
-    else
-	echo "_host_to_ipaddr: cannot find dns lookup command" >&2
-    fi
+    perl -MSocket -e '
+	my $packed_ip = gethostbyname('$1');
+	if (defined $packed_ip) {
+	    my $ip_address = inet_ntoa($packed_ip);
+	    print $ip_address;
+	}'
 }
 
 _ipaddr_to_host()
 {
-    if which host >/dev/null 2>&1
-    then
-	# assume linux host(1)
-	#
-	host $1 2>&1 \
-	| sed -n \
-	    -e '/ has address /s/\.* has address .*//p' \
-	    -e '/ domain name pointer /{
-s/.* domain name pointer //
-s/\.$//
-p
-}'
-    elif which nslookup >/dev/null 2>&1
-    then
-	nslookup $1 2>&1 \
-	| sed -n \
-	    -e '1,/^$/d' \
-	    -e '/^Name:  */s///p'
-    else
-	echo "_ipaddr_to_host: cannot find dns lookup command" >&2
-    fi
+    perl -MSocket -e '
+	my $iaddr = inet_aton('$1');
+	if (defined $iaddr) {
+	    my $name  = gethostbyaddr($iaddr, AF_INET);
+	    print $name;
+	}'
 }
 
 _host_to_fqdn()

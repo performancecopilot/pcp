@@ -11,18 +11,6 @@
 . ./common.check
 
 seq=`basename $0`
-
-rm -f $seq.out
-if [ $PCP_VER -lt 3600 ]
-then
-    # ptools problem ... cannot revert to $seq.out, so keep irix version as
-    # synonym
-    #
-    ln $seq.out.irix $seq.out || exit 1
-else
-    ln $seq.out.2 $seq.out || exit 1
-fi
-
 echo "QA output created by $seq"
 
 signal=$PCP_BINADM_DIR/pmsignal
@@ -39,9 +27,13 @@ _cleanup()
     exit $status
 }
 
-_my_filter_pmda_install()
+_filter_trace_install()
 {
-    _filter_pmda_install | sed -e "s/$qahost/HOSTNAME/g"
+    # some warnings are *expected* - no trace values yet
+    tee -a $here/$seq.full | \
+    _filter_pmda_install | sed \
+	-e 's/ *[0-9]+ warnings,//g' \
+	-e "s/$qahost/HOSTNAME/g"
 }
 
 trap "_cleanup" 0 1 2 3 15
@@ -101,8 +93,7 @@ cat $tmp.conf1 >>$here/$seq.full
 echo "===" >>$here/$seq.full
 
 $sudo ./Install -R / < $tmp.conf1 2>&1 \
-| tee -a $here/$seq.full \
-| _my_filter_pmda_install
+| _filter_trace_install
 _wait_for_pmcd
 grep trace $PCP_PMCDCONF_PATH >>$here/$seq.full
 
@@ -133,8 +124,7 @@ cat $tmp.conf2 >>$here/$seq.full
 echo "===" >>$here/$seq.full
 
 $sudo ./Install -R / < $tmp.conf2 2>&1 \
-| tee -a $here/$seq.full \
-| _my_filter_pmda_install
+| _filter_trace_install
 _wait_for_pmcd
 grep trace $PCP_PMCDCONF_PATH >>$here/$seq.full
 
@@ -197,8 +187,7 @@ echo >>$here/$seq.full
 echo "=== Reinstall default config ===" >>$here/$seq.full
 cd $PCP_PMDAS_DIR/trace
 $sudo ./Install -R / < /dev/null 2>&1 \
-| tee -a $here/$seq.full \
-| _my_filter_pmda_install
+| _filter_trace_install
 _wait_for_pmcd
 cd $here
 

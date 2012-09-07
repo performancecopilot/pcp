@@ -1,24 +1,28 @@
+%{?scl:%scl_package pcp}
+# BZ847916
+%global _localstatedir %{_scl_root}/var
+
 Summary: System-level performance monitoring and performance management
-Name: pcp
+Name: %{?scl_prefix}pcp
 Version: 3.6.6
 %define buildversion 1
-
-Release: %{buildversion}%{?dist}.1
+Release: %{buildversion}%{?dist}
 License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
 Source0: pcp-%{version}-%{buildversion}.src.tar.gz
+Patch0: pcpqa_service_prefix.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: procps autoconf bison flex ncurses-devel readline-devel
+BuildRequires: procps bison flex ncurses-devel readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts python-devel man /bin/hostname
  
 Requires: bash gawk sed grep fileutils findutils initscripts perl python
-
-Requires: pcp-libs = %{version}-%{release}
-Requires: python-pcp = %{version}-%{release}
-Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: %{?scl_prefix}pcp-libs = %{version}-%{release}
+Requires: %{?scl_prefix}python-pcp = %{version}-%{release}
+Requires: %{?scl_prefix}perl-PCP-PMDA = %{version}-%{release}
+%{?scl:Requires:%scl_runtime}
 
 %define _pmdasdir %{_localstatedir}/lib/pcp/pmdas
 %define _testsdir %{_localstatedir}/lib/pcp/testsuite
@@ -51,8 +55,7 @@ License: GPLv2
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development headers and documentation
 URL: http://oss.sgi.com/projects/pcp/
-
-Requires: pcp-libs = %{version}-%{release}
+Requires: %{?scl_prefix}pcp-libs = %{version}-%{release}
 
 %description libs-devel
 Performance Co-Pilot (PCP) headers, documentation and tools for development.
@@ -65,9 +68,9 @@ License: GPLv2
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) test suite
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp = %{version}-%{release}
-Requires: pcp-libs-devel = %{version}-%{release}
-# Requires: valgrind	# arch-specific
+Requires: %{?scl_prefix}pcp = %{version}-%{release}
+Requires: %{?scl_prefix}pcp-libs-devel = %{version}-%{release}
+# Requires: valgrind
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
@@ -75,14 +78,14 @@ Quality assurance test suite for Performance Co-Pilot (PCP).
 #
 # perl-PCP-PMDA. This is the PCP agent perl binding.
 #
-%package -n perl-PCP-PMDA
+%package -n %{?scl_prefix}perl-PCP-PMDA
 License: GPLv2
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings and documentation
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp-libs = %{version}-%{release}
+Requires: %{?scl_prefix}pcp-libs >= %{version}-%{release}
 
-%description -n perl-PCP-PMDA
+%description -n %{?scl_prefix}perl-PCP-PMDA
 The PCP::PMDA Perl module contains the language bindings for
 building Performance Metric Domain Agents (PMDAs) using Perl.
 Each PMDA exports performance data for one specific domain, for
@@ -92,14 +95,14 @@ an application, etc.
 #
 # perl-PCP-MMV
 #
-%package -n perl-PCP-MMV
+%package -n %{?scl_prefix}perl-PCP-MMV
 License: GPLv2
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for PCP Memory Mapped Values
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp >= %{version}-%{release}
+Requires: %{?scl_prefix}pcp-libs >= %{version}-%{release}
 
-%description -n perl-PCP-MMV
+%description -n %{?scl_prefix}perl-PCP-MMV
 The PCP::MMV module contains the Perl language bindings for
 building scripts instrumented with the Performance Co-Pilot
 (PCP) Memory Mapped Value (MMV) mechanism.
@@ -110,14 +113,14 @@ and analysis with pmchart, pmie, pmlogger and other PCP tools.
 #
 # perl-PCP-LogImport
 #
-%package -n perl-PCP-LogImport
+%package -n %{?scl_prefix}perl-PCP-LogImport
 License: GPLv2
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for importing external data into PCP archives
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp >= %{version}-%{release}
+Requires: %{?scl_prefix}pcp-libs >= %{version}-%{release}
 
-%description -n perl-PCP-LogImport
+%description -n %{?scl_prefix}perl-PCP-LogImport
 The PCP::LogImport module contains the Perl language bindings for
 importing data in various 3rd party formats into PCP archives so
 they can be replayed with standard PCP monitoring tools.
@@ -125,14 +128,14 @@ they can be replayed with standard PCP monitoring tools.
  #
 # perl-PCP-LogSummary
 #
-%package -n perl-PCP-LogSummary
+%package -n %{?scl_prefix}perl-PCP-LogSummary
 License: GPLv2
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for post-processing output of pmlogsummary
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp >= %{version}-%{release}
+Requires: %{?scl_prefix}pcp-libs >= %{version}-%{release}
 
-%description -n perl-PCP-LogSummary
+%description -n %{?scl_prefix}perl-PCP-LogSummary
 The PCP::LogSummary module provides a Perl module for using the
 statistical summary data produced by the Performance Co-Pilot
 pmlogsummary utility.  This utility produces various averages,
@@ -148,8 +151,8 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing sar data into PCP archive logs
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp-libs >= %{version}-%{release}
-Requires: perl-PCP-LogImport >= %{version}-%{release}
+Requires: %{?scl_prefix}pcp-libs >= %{version}-%{release}
+Requires: %{?scl_prefix}perl-PCP-LogImport >= %{version}
 Requires: sysstat
 
 %description import-sar2pcp
@@ -164,8 +167,8 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing iostat data into PCP archive logs
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp-libs >= %{version}-%{release}
-Requires: perl-PCP-LogImport >= %{version}-%{release}
+Requires: %{?scl_prefix}pcp-libs >= %{version}-%{release}
+Requires: %{?scl_prefix}perl-PCP-LogImport >= %{version}
 Requires: sysstat
 
 %description import-iostat2pcp
@@ -180,8 +183,8 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing MTRG data into PCP archive logs
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp-libs >= %{version}-%{release}
-Requires: perl-PCP-LogImport >= %{version}-%{release}
+Requires: %{?scl_prefix}pcp-libs >= %{version}-%{release}
+Requires: %{?scl_prefix}perl-PCP-LogImport >= %{version}
 
 %description import-mrtg2pcp
 Performance Co-Pilot (PCP) front-end tools for importing MTRG data
@@ -190,25 +193,36 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 #
 # python-pcp. This is the PCP library bindings for python.
 #
-%package -n python-pcp
+%package -n %{?scl_prefix}python-pcp
 License: GPLv2
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp-libs = %{version}-%{release}
+Requires: %{?scl_prefix}pcp-libs >= %{version}-%{release}
 
-%description -n python-pcp
+%description -n %{?scl_prefix}python-pcp
 The python PCP module contains the language bindings for
 building Performance Metric API (PMAPI) tools using Python.
 
+%package scl-initscripts
+License: LGPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot /etc/rc.d/init.d initscripts
+URL: http://oss.sgi.com/projects/pcp/
+Requires: %{?scl_prefix}pcp
+
+%description scl-initscripts
+Software Collection-compatible initscript wrappers for PCP daemons.
+
 %prep
-%setup -q
+%setup -q %{?scl:-n %{pkg_name}-%{version}}
+%patch0 -p1 -b .pcpqa
 
 %clean
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure --with-rcdir=/etc/rc.d/init.d
+%configure --with-rcdir=%{_sysconfdir}/rc.d/init.d --with-docdir=%{_docdir}/%{name}-%{version}
 make default_pcp
 
 %install
@@ -221,12 +235,25 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/*.a
 mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/run/pcp
 
 # remove sheet2pcp until BZ 830923 and BZ 754678 are resolved.
-rm -f $RPM_BUILD_ROOT/%{_bindir}/sheet2pcp $RPM_BUILD_ROOT/%{_mandir}/man1/sheet2pcp.1.gz
+rm -f $RPM_BUILD_ROOT/%{_bindir}/sheet2pcp $RPM_BUILD_ROOT/%{_mandir}/man1/sheet2pcp.1*
 
 # default chkconfig off for Fedora and RHEL
 for f in $RPM_BUILD_ROOT/%{_sysconfdir}/rc.d/init.d/{pcp,pmcd,pmlogger,pmie,pmproxy}; do
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
 done
+
+# create dummy /etc/init.d/ files for scl packaging 
+for f in $RPM_BUILD_ROOT/%{_sysconfdir}/rc.d/init.d/{pcp,pmcd,pmlogger,pmie,pmproxy}; do
+    daemon=`basename $f`
+    initfile=$RPM_BUILD_ROOT%{_root_sysconfdir}/rc.d/init.d/%{?scl_prefix}$daemon
+    mkdir -p `dirname $initfile`
+    rm -f $initfile
+    sed -n '/BEGIN INIT INFO/,/END INIT INFO/p' < $f > $initfile
+    # NB: there is no use setting environment variables here; /sbin/service runs things with env -i
+    echo 'echo %{_sysconfdir}/rc.d/init.d/'$daemon' "$@" | scl enable %{scl} -' >> $initfile
+    chmod 755 $initfile
+done
+
 
 # list of PMDAs in the base pkg
 ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} | egrep -v 'simple|sample|trivial|txmon' |\
@@ -240,43 +267,57 @@ sed -e 's#^#'%{_mandir}'\/man1\/#' >base_man1files.list
 
 cat base_pmdas.list base_binfiles.list base_man1files.list > base_specialfiles.list
 
-%pre testsuite
-getent group pcpqa >/dev/null || groupadd -r pcpqa
-getent passwd pcpqa >/dev/null || \
-  useradd -c "PCP Quality Assurance" -g pcpqa -m -r -s /bin/bash pcpqa 2>/dev/null
-exit 0
+# compress man pages that may be skipped by normal brp-compress (bz844028)
+find $RPM_BUILD_ROOT/%{_mandir}/man3 -name '*.3pm' | xargs -r gzip -n
 
-%preun
+
+%files scl-initscripts
+%{_root_sysconfdir}/rc.d/init.d/*
+
+%preun scl-initscripts
 if [ "$1" -eq 0 ]
 then
     #
     # Stop daemons before erasing the package
     #
-    /sbin/service pmlogger stop >/dev/null 2>&1
-    /sbin/service pmie stop >/dev/null 2>&1
-    /sbin/service pmproxy stop >/dev/null 2>&1
-    /sbin/service pcp stop >/dev/null 2>&1
-    /sbin/service pmcd stop >/dev/null 2>&1
+    /sbin/service %{?scl_prefix}pmlogger stop >/dev/null 2>&1
+    /sbin/service %{?scl_prefix}pmie stop >/dev/null 2>&1
+    /sbin/service %{?scl_prefix}pmproxy stop >/dev/null 2>&1
+    /sbin/service %{?scl_prefix}pcp stop >/dev/null 2>&1
+    /sbin/service %{?scl_prefix}pmcd stop >/dev/null 2>&1
 
-    /sbin/chkconfig --del pcp >/dev/null 2>&1
-    /sbin/chkconfig --del pmcd >/dev/null 2>&1
-    /sbin/chkconfig --del pmlogger >/dev/null 2>&1
-    /sbin/chkconfig --del pmie >/dev/null 2>&1
-    /sbin/chkconfig --del pmproxy >/dev/null 2>&1
+    /sbin/chkconfig --del %{?scl_prefix}pcp >/dev/null 2>&1
+    /sbin/chkconfig --del %{?scl_prefix}pmcd >/dev/null 2>&1
+    /sbin/chkconfig --del %{?scl_prefix}pmlogger >/dev/null 2>&1
+    /sbin/chkconfig --del %{?scl_prefix}pmie >/dev/null 2>&1
+    /sbin/chkconfig --del %{?scl_prefix}pmproxy >/dev/null 2>&1
 fi
 
-%post
-/sbin/chkconfig --add pmcd >/dev/null 2>&1
-/sbin/service pmcd condrestart
-/sbin/chkconfig --add pmlogger >/dev/null 2>&1
-/sbin/service pmlogger condrestart
-/sbin/chkconfig --add pmie >/dev/null 2>&1
-/sbin/service pmie condrestart
-/sbin/chkconfig --add pmproxy >/dev/null 2>&1
-/sbin/service pmproxy condrestart
+%post %{?scl:scl-initscripts}
+/sbin/chkconfig --add %{?scl_prefix}pmcd >/dev/null 2>&1
+/sbin/service %{?scl_prefix}pmcd condrestart
+/sbin/chkconfig --add %{?scl_prefix}pmlogger >/dev/null 2>&1
+/sbin/service %{?scl_prefix}pmlogger condrestart
+/sbin/chkconfig --add %{?scl_prefix}pmie >/dev/null 2>&1
+/sbin/service %{?scl_prefix}pmie condrestart
+/sbin/chkconfig --add%{?scl_prefix} pmproxy >/dev/null 2>&1
+/sbin/service %{?scl_prefix}pmproxy condrestart
 
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
+
+%pre testsuite
+getent group pcpqa >/dev/null || groupadd -r pcpqa
+getent passwd pcpqa >/dev/null || useradd -c "PCP Quality Assurance" -g pcpqa -m -r -s /bin/bash pcpqa 2>/dev/null
+exit 0
+
+%files testsuite
+%defattr(-,pcpqa,pcpqa)
+%{_testsdir}
+
+%files -n %{?scl_prefix}python-pcp
+%defattr(-,root,root)
+%{_libdir}/python*/site-packages/*
 
 %files -f base_specialfiles.list
 #
@@ -297,6 +338,7 @@ fi
 %{_datadir}/pcp/lib
 %{_localstatedir}/log/pcp
 %{_localstatedir}/lib/pcp/pmns
+%ghost %{_localstatedir}/lib/pcp/pmns/.NeedRebuild
 %{_initrddir}/pcp
 %{_initrddir}/pmcd
 %{_initrddir}/pmlogger
@@ -305,7 +347,7 @@ fi
 %{_mandir}/man4/*
 %config %{_sysconfdir}/bash_completion.d/pcp
 %config %{_sysconfdir}/pcp.env
-%{_sysconfdir}/pcp.sh
+%config %{_sysconfdir}/pcp.sh
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmcd/pmcd.conf
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmcd/pmcd.options
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmcd/rc.local
@@ -345,7 +387,7 @@ fi
 %{_libdir}/libpcp_trace.so
 %{_libdir}/libpcp_import.so
 %{_includedir}/pcp/*.h
-%{_mandir}/man3/*.3.gz
+%{_mandir}/man3/*
 %{_datadir}/pcp/demos
 %{_datadir}/pcp/examples
 
@@ -356,51 +398,52 @@ fi
 %{_localstatedir}/lib/pcp/pmdas/trivial
 %{_localstatedir}/lib/pcp/pmdas/txmon
 
-%files testsuite
-%defattr(-,pcpqa,pcpqa)
-%{_testsdir}
-
 %files import-sar2pcp
 %defattr(-,root,root)
 %{_bindir}/sar2pcp
-%{_mandir}/man1/sar2pcp.1.gz
+%{_mandir}/man1/sar2pcp.*
 
 %files import-iostat2pcp
 %defattr(-,root,root)
 %{_bindir}/iostat2pcp
-%{_mandir}/man1/iostat2pcp.1.gz
+%{_mandir}/man1/iostat2pcp.*
 
 %files import-mrtg2pcp
 %defattr(-,root,root)
 %{_bindir}/mrtg2pcp
-%{_mandir}/man1/mrtg2pcp.1.gz
+%{_mandir}/man1/mrtg2pcp.*
 
-%files -n perl-PCP-PMDA -f perl-pcp-pmda.list
+%files -n %{?scl_prefix}perl-PCP-PMDA -f perl-pcp-pmda.list
 %defattr(-,root,root)
 
-%files -n perl-PCP-MMV -f perl-pcp-mmv.list
+%files -n %{?scl_prefix}perl-PCP-MMV -f perl-pcp-mmv.list
 %defattr(-,root,root)
 
-%files -n perl-PCP-LogImport -f perl-pcp-logimport.list
+%files -n %{?scl_prefix}perl-PCP-LogImport -f perl-pcp-logimport.list
 %defattr(-,root,root)
 
-%files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
-%defattr(-,root,root)
-
-%files -n python-pcp -f python-pcp.list.rpm
+%files -n %{?scl_prefix}perl-PCP-LogSummary -f perl-pcp-logsummary.list
 %defattr(-,root,root)
 
 %changelog
-* Wed Sep 05 2012 Nathan Scott <nathans@redhat.com> - 3.6.6-1.1
-- Move configure step from prep to build section of spec (BZ 854128)
+* Wed Aug 28 2012 Frank Ch. Eigler <fche@redhat.com> - 3.6.6-1
+- Update to official PCP 3.6.6-1 sources.
+- Adopt more spec patterns from fedora/rawhide.
 
-* Tue Aug 28 2012 Mark Goodwin <mgoodwin@redhat.com> - 3.6.6-1
-- Update to latest PCP sources, see installed CHANGELOG for details.
-- Introduces new python-pcp and pcp-testsuite sub-packages.
+* Fri Aug 24 2012 Frank Ch. Eigler <fche@redhat.com> - 3.6.6-0.3
+- Switch pcpqa files' ownership.
 
-* Thu Aug 16 2012 Mark Goodwin <mgoodwin@redhat.com> - 3.6.5-1
-- Update to latest PCP sources, see installed CHANGELOG for details.
-- Fix security flaws: CVE-2012-3418 CVE-2012-3419 CVE-2012-3420 and CVE-2012-3421 (BZ 848629)
+* Fri Aug 24 2012 Frank Ch. Eigler <fche@redhat.com> - 3.6.6-0.2
+- Update to 3.6.5-1-1253-ga93aa22 snapshot, add pcpqa_service_prefix.patch.
+
+* Fri Aug 17 2012 Frank Ch. Eigler <fche@redhat.com> - 3.6.6-0.1
+- Update to latest PCP sources, creates a new testsuite package.
+
+* Fri Jul 27 2012 Frank Ch. Eigler <fche@redhat.com> - 3.6.5-0.3
+- include -scl-initscripts subrpm
+
+* Fri Jul 27 2012 Frank Ch. Eigler <fche@redhat.com> - 3.6.5-0.2
+- scl trial build of a snapshot of pcpfans.git fche/prefix branch
 
 * Thu Jul 19 2012 Mark Goodwin <mgoodwin@redhat.com>
 - pmcd and pmlogger services are not supposed to be enabled by default (BZ 840763) - 3.6.3-1.3
@@ -408,7 +451,7 @@ fi
 * Thu Jun 21 2012 Mark Goodwin <mgoodwin@redhat.com>
 - remove pcp-import-sheet2pcp subpackage due to missing deps (BZ 830923) - 3.6.3-1.2
 
-* Fri May 18 2012 Dan Horák <dan[at]danny.cz> - 3.6.3-1.1
+* Fri May 18 2012 Dan Hork <dan[at]danny.cz> - 3.6.3-1.1
 - fix build on s390x
 
 * Mon Apr 30 2012 Mark Goodwin - 3.6.3-1

@@ -26,6 +26,11 @@ status=0	# success is the default!
 $sudo rm -rf $tmp.*
 done_clean=false
 
+pminfo trace >/dev/null 2>&1
+remove_trace=$?
+pminfo sendmail >/dev/null 2>&1
+remove_sendmail=$?
+
 _setup_pmdas()
 {
     cd $PCP_PMDAS_DIR
@@ -91,6 +96,9 @@ pminfo -n $PCP_VAR_DIR/pmns/root \
 | LC_COLLATE=POSIX sort \
 | diff - $tmp.pmns.start
 echo
+
+[ $remove_trace -eq 1 ] && $sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
+[ $remove_sendmail -eq 1 ] && $sudo $PCP_PMDAS_DIR/sendmail/Remove >/dev/null 2>&1
 
 # success, all done
 exit

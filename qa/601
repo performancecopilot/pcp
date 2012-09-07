@@ -11,15 +11,6 @@
 . ./common.check
 
 seq=`basename $0`
-
-rm -f $seq.out
-if [ $PCP_VER -lt 3600 ]
-then
-    ln $seq.out.1 $seq.out || exit 1
-else
-    ln $seq.out.2 $seq.out || exit 1
-fi
-
 echo "QA output created by $seq"
 
 _cleanup()
@@ -45,10 +36,17 @@ thishost=`hostname`
 pminfo trace >/dev/null 2>&1
 remove=$?
 
+_filter_trace_install()
+{
+    # some warnings are *expected* - no trace values yet
+    _filter_pmda_install | sed \
+	-e 's/ *[0-9]+ warnings,//g'
+}
+
 # real QA test starts here
 
 cd $PCP_PMDAS_DIR/trace
-$sudo ./Install -R / </dev/null 2>&1 | _filter_pmda_install
+$sudo ./Install -R / </dev/null 2>&1 | _filter_trace_install
 cd $here
 
 _wait_for_pmcd

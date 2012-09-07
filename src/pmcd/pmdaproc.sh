@@ -820,8 +820,8 @@ _setup()
     # some more configuration controls
     pmns_name=${pmns_name-$iam}
     pmda_name=pmda$iam
-    dso_name="${PCP_PMDAS_DIR}/${iam}/pmda_${iam}.${dso_suffix}"
-    dso_name="$dso_name"
+    pmda_dso_name="${PCP_PMDAS_DIR}/${iam}/pmda_${iam}.${dso_suffix}"
+    dso_name="${dso_name-$pmda_dso_name}"
     dso_entry=${iam}_init
     pmda_dir="${PCP_PMDAS_DIR}/${iam}"
 
