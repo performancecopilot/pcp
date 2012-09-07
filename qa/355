@@ -10,25 +10,8 @@ echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
+. ./common.filter
 . ./common.check
-. ./localconfig
-
-rm -f $seq.out
-case $PCP_PLATFORM
-in
-    irix|linux|darwin|solaris)
-	if [ $PCP_VER -ge 2200 ]
-	then
-	    ln $seq.$PCP_PLATFORM.2 $seq.out || exit 1
-	else
-	    ln $seq.$PCP_PLATFORM.1 $seq.out || exit 1
-	fi
-	;;
-    *)
-	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
-	exit 1
-	;;
-esac
 
 _cleanup()
 {
@@ -60,21 +43,16 @@ END     { printf "%d\n",sum }'
 pminfo trace >/dev/null 2>&1
 remove=$?
 
+_filter_trace_install()
+{
+    # some warnings are *expected* - no trace values yet
+    _filter_pmda_install | sed \
+	-e 's/ *[0-9]+ warnings,//g'
+}
+
 cd $PCP_PMDAS_DIR/trace
-
-$sudo ./Install -R / </dev/null 2>&1 | sed \
-        -e '/.[0-9][0-9]* hash table entries/d' \
-        -e '/.[0-9][0-9]* leaf nodes/d' \
-        -e '/.[0-9][0-9]* non-leaf nodes/d' \
-        -e '/.[0-9][0-9]* bytes of symbol table/d' \
-        -e '/Compiled PMNS contains/d' \
-	-e '/Nothing to be done/d' \
-	-e '/^Installing .mchart view*/d' \
-    	-e '/^Installing files ...$/d' \
-    	-e '/^Removing files ...$/d'
-
+$sudo ./Install -R / </dev/null 2>&1 | _filter_trace_install
 _wait_for_pmcd
-
 
 # real QA test starts here
 $here/src/torture_trace
@@ -90,7 +68,6 @@ pminfo -f trace.point.count | _countinst
 
 $PCP_ECHO_PROG $PCP_ECHO_N "    pmtracetransact ""$PCP_ECHO_C"
 pminfo -f trace.transact.count | _countinst
-
 
 [ $remove -eq 1 ] && $sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
 
