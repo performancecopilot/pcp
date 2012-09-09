@@ -1017,7 +1017,7 @@ class pmContext( object ):
         (status, (pmDesc* pmdesc)[]) = pmLookupDesc(c_uint pmid)
         """
         # this method is context dependent and requires the pmapi lock
-        if type(pmids_p) == type(0):
+        if type(pmids_p) == type(int(0)) or type(pmids_p) == type(long(0)):
             n = 1
         else:
             n = len( pmids_p)
@@ -1746,16 +1746,16 @@ class pmContext( object ):
         """
         # this method is _not_ context dependent and requires _no_ pmapi lock
         pmContext._pmapiLock.acquire()
-        x = str( libpcp.pmAtomStr_r( byref(atom), type ) )
+        x = str( libpcp.pmAtomStr( byref(atom), type ) )
         pmContext._pmapiLock.release()
         return x
 
-    def pmPrintValue( self, fileObj, result, type, vset_idx, vlist_idx, minWidth):
+    def pmPrintValue( self, fileObj, result, ptype, vset_idx, vlist_idx, minWidth):
         """PMAPI - Print the value of a metric
         """
         # this method is _not_ context dependent and requires _no_ pmapi lock
         fp = ctypes.pythonapi.PyFile_AsFile( fileObj )
-        libpcp.pmPrintValue (fileObj, result.contents.vset[vset_idx].contents.valfmt, type, byref(result.contents.vset[vset_idx].contents.vlist[vlist_idx]), minWidth)
+        libpcp.pmPrintValue (fp, c_int(result.contents.vset[vset_idx].contents.valfmt), c_int(ptype.contents.type), byref(result.contents.vset[vset_idx].contents.vlist[vlist_idx]), minWidth)
 
     def pmflush( self ):
         """PMAPI - flush the internal buffer shared with pmprintf
@@ -1805,12 +1805,12 @@ class pmContext( object ):
 
     def pmParseMetricSpec( self, string, isarch, source ):
         """PMAPI - parse a textual metric specification into a struct
+        (status,result,errormssg) = pmTypeStr ("kernel.all.load", 0, "localhost")
         """
         # this method is _not_ context dependent and requires _no_ pmapi lock
         rsltp = POINTER(pmMetricSpec)()
         # errmsg = POINTER(c_char_p)         
         errmsg = c_char_p()
-        print string,isarch,source,rsltp
         status = libpcp.pmParseMetricSpec( string, isarch, source, byref(rsltp), byref(errmsg))
         if status < 0:
             raise pmErr, status
