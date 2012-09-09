@@ -15,18 +15,8 @@ seq=`basename $0`
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 test $? -eq 0 || _notrun "PCP::PMDA perl module is not installed"
 
-rm -f $seq.out
-if grep rsyslog.elasticsearch.submits $PCP_PMDAS_DIR/rsyslog/pmdarsyslog.pl >/dev/null
-then
-    if [ $PCP_VER -lt 3600 ]
-    then
-	ln $seq.out.2 $seq.out || exit 1
-    else
-	ln $seq.out.3 $seq.out || exit 1
-    fi
-else
-    ln $seq.out.1 $seq.out || exit 1
-fi
+grep rsyslog.elasticsearch.submits $PCP_PMDAS_DIR/rsyslog/pmdarsyslog.pl >/dev/null
+[ $? -eq 0 ] || _notrun "Newer version of rsyslog PMDA needed"
 
 echo "QA output created by $seq"
 
@@ -51,7 +41,10 @@ _cleanup()
 
 _filter()
 {
-    sed -e '/Creating rsyslog statistics file/d'
+    # number of warnings depends on rsyslog config
+    sed \
+	-e '/Creating rsyslog statistics file/d' \
+	-e 's/ [0-9]* warnings/ some warnings/g'
 }
 
 _val_filter()

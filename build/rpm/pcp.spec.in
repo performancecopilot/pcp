@@ -78,7 +78,8 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) test suite
 URL: http://oss.sgi.com/projects/pcp/
 
-Requires: pcp-libs-devel = @package_version@ valgrind
+Requires: pcp-libs-devel = @package_version@
+# Requires: valgrind	# arch-specific
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
@@ -336,7 +337,7 @@ $1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
 %pre testsuite
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
-  useradd -c "PCP Quality Assurance" -g pcpqa -d %{_sharedstatedir}/pcp/testsuite -m -r -s /bin/bash pcpqa 2>/dev/null
+  useradd -c "PCP Quality Assurance" -g pcpqa -m -r -s /bin/bash pcpqa 2>/dev/null
 exit 0
 
 %preun

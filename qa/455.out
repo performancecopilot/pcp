@@ -12,7 +12,7 @@ Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Met
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check rsyslog metrics have appeared ... 12 warnings, 12 metrics and 0 values
+Check rsyslog metrics have appeared ... some warnings, 12 metrics and 0 values
 
 === validate values ===
 

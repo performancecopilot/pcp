@@ -119,7 +119,7 @@ EOF
 
 cat $tmp.config >>$seq.full
 
-rm -f /tmp/pmie.err
+$sudo rm -f /tmp/pmie.err
 pmie -T 10 -v $tmp.config >$tmp.out 2>$tmp.err
 ( echo; echo "=== err ==="; cat $tmp.err ) >>$seq.full
 cat $tmp.err | _show_pmie_exit

@@ -354,7 +354,7 @@ main(int argc, char **argv)
 #if defined(BUG_5)
     /*
      * we don't grok PMDA_INTERFACE_77 ... 77 is arbitrary, just needs
-     * to be bigger than currently validand supported
+     * to be bigger than currently valid and supported
      */
     pmdaDaemon(&desc, 77, pmProgname, BROKEN, _logFile,
 	       _helpText);

@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -11,10 +12,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
@@ -23,8 +20,9 @@ include $(TOPDIR)/src/include/builddefs
 SPEC = pcp.spec
 LDIRT += *-[0-9]*.*.rpm $(SPEC) rpmmacros 
 
+SPECFILES = fedora.spec devtoolset.spec
 PERLFILES = pcp-pmda-perl.desc pcp-logsummary-perl.desc pcp-mmv-perl.desc
-LSRCFILES = macros.template pcp.spec.in $(PERLFILES)
+LSRCFILES = macros.template pcp.spec.in $(PERLFILES) $(SPECFILES)
 
 default install install_pcp default_pcp :
 

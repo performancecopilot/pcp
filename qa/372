@@ -16,8 +16,8 @@ which sheet2pcp >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "sheet2pcp not installed"
 perl -e "use XML::TokeParser" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl XML::TokeParser module not installed"
-perl -e "use Spreadsheet::Read.pm" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "perl Spreadsheet::Read.pm module not installed"
+perl -e "use Spreadsheet::Read" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl Spreadsheet::Read module not installed"
 
 echo "QA output created by $seq"
 

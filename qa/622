@@ -6,7 +6,7 @@
 # This is in response to test 503, which did not allow for the fact that
 # a hostname may have a hyphen in it!  By the way, test 503 should be
 # fixed (by now) to allow for hosts with hyphens in their names... this
-# test shows how the config file out to have been built.
+# test shows how the config file ought to have been built.
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -20,29 +20,20 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.config
 
-if [ -z "$PCPQA_HYPHEN_HOST" ]
-then
-    echo 'Setup error: $PCPQA_HYPHEN_HOST is not set in ./common.config'
-    exit 1
-fi
+[ -z "$PCPQA_HYPHEN_HOST" -o "$PCPQA_HYPHEN_HOST" = "some-host" ] && \
+    _notrun 'PCPQA_HYPHEN_HOST is not set in ./common.config'
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-
-# shell functs for QA test
-
-mkPMIEConfig() {
-	cat >$tmp.rule <<EOF
-delta = 1 sec;
-one = 'sample.long.no-hyphen' :'$PCPQA_HYPHEN_HOST';
-EOF
-}
-
-
 # real QA test starts here
 
 mkPMIEConfig
+    cat >$tmp.rule <<EOF
+delta = 1 sec;
+one = 'sample.long.no-hyphen' :'$PCPQA_HYPHEN_HOST';
+EOF
+
 pmie -D APPL0 -C -c $tmp.rule 2>&1 \
 | sed \
     -e 's,/tmp/[0-9]*\.rule,TMPFILE,' \
