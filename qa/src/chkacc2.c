@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
@@ -15,7 +16,8 @@ main()
     int			s, sts, op, host;
     unsigned int	i;
     char		name[20];
-    struct in_addr	inaddr;
+    __pmInAddr		inaddr;
+    __pmIPAddr		ipaddr;
 
     sts = 0;
     for (op = 0; op < WORD_BIT; op++)
@@ -53,7 +55,8 @@ main()
 #else
 	    inet_aton(buf, &inaddr);
 #endif
-	    sts = __pmAccAddClient(&inaddr, &i);
+	    ipaddr = __pmInAddrToIPAddr(&inaddr);
+	    sts = __pmAccAddClient(ipaddr, &i);
 	    if (sts < 0) {
 		if (j == host && sts == PM_ERR_CONNLIMIT)
 		    continue;
