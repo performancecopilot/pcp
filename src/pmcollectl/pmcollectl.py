@@ -291,7 +291,9 @@ class _cpu(_subsys):
                             'kernel.percpu.cpu.intr', 'kernel.percpu.cpu.sys',
                             'kernel.percpu.cpu.steal', 'kernel.percpu.cpu.irq.hard',
                             'kernel.percpu.cpu.irq.soft', 'kernel.percpu.cpu.wait.total',
-                            'kernel.percpu.cpu.idle']
+                            'kernel.percpu.cpu.idle', 'kernel.all.nprocs',
+                            'kernel.all.runnable', 'proc.runq.runnable',
+                            'kernel.all.load', 'proc.runq.blocked']
 
     def setup_metrics(self,pm):
         # remove any unsupported metrics
@@ -420,6 +422,15 @@ class _cpu(_subsys):
             self.get_cpu_metric_value('kernel.all.intr'),
             self.get_cpu_metric_value('kernel.all.pswitch')
             ),
+        print "%5d %5d %5d %5.2f %5.2f %5.2f %4d %4d" % (
+            self.get_cpu_metric_value('kernel.all.nprocs'),
+            self.get_cpu_metric_value('kernel.all.runnable'),
+            self.get_cpu_metric_value('proc.runq.runnable'),
+            self.get_cpu_metric_value('kernel.all.load')[0],
+            self.get_cpu_metric_value('kernel.all.load')[1],
+            self.get_cpu_metric_value('kernel.all.load')[2],
+            self.get_cpu_metric_value('kernel.all.runnable'),
+            self.get_cpu_metric_value('proc.runq.blocked'))
 
 
 # _interrupt  -----------------------------------------------------------------
@@ -497,14 +508,14 @@ class _interrupt(_subsys):
             return 0
 
     def print_header1_brief(self):
-            print '#<--Int--->'
+            print '#<--Int--->',
     def print_header1_detail(self):
             print '# INTERRUPT DETAILS'
             print '# Int    Cpu0   Cpu1   Type            Device(s)'
     def print_header1_verbose(self):
             print '# INTERRUPT SUMMARY'
     def print_header2_brief(self):
-            print '#Cpu0 Cpu1'
+            print '#Cpu0 Cpu1',
     def print_header2_verbose(self):
             print '#    Cpu0   Cpu1'
     def print_brief(self):
@@ -536,59 +547,7 @@ class _interrupt(_subsys):
     def print_verbose(self):
         print "     ",
         self.print_brief()
-
-# _process  -----------------------------------------------------------------
-
-
-class _process(_subsys):
-    def __init__(self):
-        self.process_metrics = ['kernel.all.nprocs', 'kernel.all.runnable', 'proc.runq.runnable', 'kernel.all.load', 'proc.runq.blocked']
-
-    def setup_metrics(self,pm):
-        # remove any unsupported metrics
-        for j in range(len(self.process_metrics)-1, -1, -1):
-            try:
-
-                (code, self.process_metric_name) = pm.pmLookupName(self.process_metrics[j])
-            except pmErr as e:
-                self.process_metrics.remove(self.process_metrics[j])
-
-        self.process_metrics_dict=dict((i,self.process_metrics.index(i)) for i in self.process_metrics)
-        (code, self.process_metric_name) = pm.pmLookupName(self.process_metrics)
-        check_code (code)
-        (code, self.process_metric_desc) = pm.pmLookupDesc(self.process_metric_name)
-        check_code (code)
-        self.process_metric_value = [0 for i in range(len(self.process_metrics))]
-        self.old_process_metric_value = [0 for i in range(len(self.process_metrics))]
-
-
-    def dump_metrics(self):
-        metrics_string = ""
-        for i in xrange(len(self.process_metrics)):
-            metrics_string += self.process_metrics[i]
-            metrics_string += " "
-        return metrics_string
-            
-    def get_stats(self):
-        get_stats (self.process_metrics, self.process_metric_name, self.process_metric_desc, self.process_metric_value, self.old_process_metric_value)
-
-    def get_process_metric_value(self, idx):
-        if idx in self.process_metrics:
-            return self.process_metric_value[self.process_metrics_dict[idx]]
-        else:
-            return 0
-
-    def print_verbose(self):
-        print "%5d %5d %5d %5.2f %5.2f %5.2f %4d %4d" % (
-            self.get_process_metric_value('kernel.all.nprocs'),
-            self.get_process_metric_value('kernel.all.runnable'),
-            self.get_process_metric_value('proc.runq.runnable'),
-            self.get_process_metric_value('kernel.all.load')[0],
-            self.get_process_metric_value('kernel.all.load')[1],
-            self.get_process_metric_value('kernel.all.load')[2],
-            self.get_process_metric_value('kernel.all.runnable'),
-            self.get_process_metric_value('proc.runq.blocked')),
-
+        print
 
 # _disk  -----------------------------------------------------------------
 
@@ -649,7 +608,7 @@ class _disk(_subsys):
             print '#          <---------reads---------><---------writes---------><--------averages--------> Pct'
             print '#Name       KBytes Merged  IOs Size  KBytes Merged  IOs Size  RWSize  QLen  Wait SvcTim Util'
     def print_header2_verbose(self):
-            print '#KBRead RMerged  Reads SizeKB  KBWrite WMerged Writes SizeKB\n'
+            print '#KBRead RMerged  Reads SizeKB  KBWrite WMerged Writes SizeKB\n',
     def print_brief(self):
         print "%6d %6d %6d %6d" % (
             self.get_disk_metric_value('disk.all.read_bytes') / 1024,
@@ -692,7 +651,7 @@ class _disk(_subsys):
                    self.get_disk_metric_value('disk.all.write'),
             self.get_disk_metric_value('disk.all.write_merge'),
             self.get_disk_metric_value('disk.all.write'),
-            0),
+            0)
 
 
 # _memory  -----------------------------------------------------------------
@@ -777,7 +736,7 @@ class _memory(_subsys):
             round(self.get_memory_metric_value('mem.util.cached'), 1000),
             round(self.get_memory_metric_value('mem.util.inactive'), 1000),
             round(self.get_memory_metric_value('mem.util.slab'), 1000),
-            round(self.get_memory_metric_value('mem.util.mapped'), 1000))
+            round(self.get_memory_metric_value('mem.util.mapped'), 1000)),
     def print_verbose(self):
         print "%8dM %6dM %6dM %6dM %6dM %6dM %6dM %6dM %6dM %6dM %5dM %5dM %5dM %5dM %6d %6d %6d %6d %6d %6d " % (
             round(self.get_memory_metric_value('mem.physmem'), 1000),
@@ -887,7 +846,7 @@ class _net(_subsys):
             sum(self.get_net_metric_value('network.interface.out.bytes')) /
             sum(self.get_net_metric_value('network.interface.out.packets')),
             sum(self.get_net_metric_value('network.interface.total.mcasts')),
-            sum(self.get_net_metric_value('network.interface.out.errors'))),
+            sum(self.get_net_metric_value('network.interface.out.errors')))
     def print_detail(self):
         for j in xrange(len(self.get_net_metric_value('network.interface.in.bytes'))):
             for k in xrange(len(self.net_metric_name)):
@@ -921,7 +880,7 @@ if __name__ == '__main__':
 
     n_samples = 0
     i = 1
-    subsys = set()
+    subsys = list()
     verbosity = "brief"
     output_file = ""
     input_file = ""
@@ -932,7 +891,6 @@ if __name__ == '__main__':
     ss = _subsys()
     cpu = _cpu()
     interrupt = _interrupt()
-    proc = _process()
     disk = _disk()
     memory = _memory()
     net = _net()
@@ -970,7 +928,7 @@ if __name__ == '__main__':
         elif (sys.argv[i][:2] == "-s"):
             for j in xrange(len(sys.argv[i][2:])):
                 subsys_arg = sys.argv[i][j+2:j+3]
-                subsys.add(s_options[subsys_arg][0])
+                subsys.append(s_options[subsys_arg][0])
                 if subsys_arg.isupper():
                     verbosity =  s_options[subsys_arg][1]
         elif (sys.argv[i] == "--verbose"):
@@ -986,9 +944,7 @@ if __name__ == '__main__':
         i += 1
 
     if len(subsys) == 0:
-        map( lambda x: subsys.add(x) , (disk, cpu, proc, net) )
-    elif cpu in subsys:
-        subsys.add(proc)
+        map( lambda x: subsys.append(x) , (cpu, disk, net) )
 
     if input_file == "":
         pm = pmContext()
@@ -1047,28 +1003,40 @@ if __name__ == '__main__':
         s.get_stats()
 
     # brief headings for different subsystems are concatenated together
-    for s in subsys:
-        if s == 0: continue
-        s.print_header1()
-    print
-    for s in subsys:
-        if s == 0: continue
-        s.print_header2()
-    print
+    if verbosity == "brief":
+        for s in subsys:
+            if s == 0: continue
+            s.print_header1()
+        print
+        for s in subsys:
+            if s == 0: continue
+            s.print_header2()
+        print
 
     n = 0
 
+    host = pm.pmGetContextHostName()
+    if host == "localhost":
+        host = os.uname()[1]
+
     try:
-        print_header = True
         while (n < n_samples) or (n_samples == 0):
             pm.pmtimevalSleep(delta)
+            if verbosity != "brief" and len(subsys) > 1:
+                print "\n### RECORD %d >>> %s <<< %s ###" % (n+1,  host, time.strftime("%a %b %d %H:%M:%S %Y"))
 
             for s in subsys:
                 if s == 0: continue
+                if verbosity != "brief" and (len(subsys) > 1 or n == 0):
+                    print
+                    s.print_header1()
+                    s.print_header2()
                 s.get_stats()
                 s.get_total()
                 s.print_line()
-            print
+            if verbosity == "brief":
+                print
+
             n += 1
     except KeyboardInterrupt:
         True
