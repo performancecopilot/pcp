@@ -407,7 +407,7 @@ control_req(void)
     int			fd, sts;
     __pmSockAddrIn	addr;
     __pmHostEnt		h;
-    char		*hbuf, abuf;
+    char		*hbuf, *abuf;
     __pmSockLen		addrlen;
 
     addrlen = sizeof(addr);

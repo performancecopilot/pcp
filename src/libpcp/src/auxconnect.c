@@ -501,6 +501,12 @@ __pmIPAddrIsLoopBack(const __pmIPAddr *addr)
     return *addr == htonl(INADDR_LOOPBACK);
 }
 
+__pmIPAddr
+__pmLoopbackAddress(void)
+{
+    return htonl(INADDR_LOOPBACK);
+}
+
 const __pmIPAddr
 __pmSockAddrInToIPAddr(const __pmSockAddrIn *inaddr)
 {
