@@ -18,7 +18,7 @@ $sudo rm -f $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 remove_extra_whitespace() {
-sed -e 's/>>>.*<<<//g' -e 's/[0-9]/9/g' -e 's/9[9]*/9/g' -e 's/  *$//' -e '/^ *$/d' -e 's/  */ /g'
+sed -e 's/>>>.*<<<//g' -e 's/[0-9]/9/g' -e 's/9[9]*/9/g' -e 's/  *$//' -e '/^ *$/d' -e 's/  */ /g' -e 's/^ *//' -e 's/RECORD.*$/RECORD/'
 }
 
 # sed -e 's/ [a-zA-Z0-9]* *$//'

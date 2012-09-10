@@ -276,9 +276,9 @@ def test_pcp(self, context = 'local', path = ''):
     self.assertTrue(code >= 0)
 
     # pmSortInstances
-    code = pm.pmSortInstances(results)
+    pm.pmSortInstances(results)
     print "pmSortInstances:", code
-    self.assertTrue(code == 4)
+    self.assertTrue(True)	# pmSortInstances returns void
 
     # pmStore
     try:

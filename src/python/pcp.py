@@ -702,7 +702,7 @@ libpcp.pmflush.argtypes=[ ]
 libpcp.pmprintf.restype = c_int
 libpcp.pmprintf.argtypes=[ c_char_p ]
 
-libpcp.pmSortInstances.restype = c_int
+libpcp.pmSortInstances.restype = None
 # libpcp.pmSortInstances.argtypes = [ POINTER(pmResult) ]
 
 libpcp.__pmtimevalSleep.restype = c_int
@@ -1785,10 +1785,8 @@ class pmContext( object ):
         """
         # this method is _not_ context dependent and requires _no_ pmapi lock
         libpcp.pmSortInstances.argtypes = [ (type(result_p)) ]
-        status = libpcp.pmSortInstances( result_p )
-        if status < 0:
-            raise pmErr, status
-        return status
+        libpcp.pmSortInstances( result_p )
+        return None
 
     def pmParseInterval( self, str ):
         """PMAPI - parse a textual time interval into a timeval struct
