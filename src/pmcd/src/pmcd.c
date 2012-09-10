@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -354,11 +355,11 @@ ParseOptions(int argc, char *argv[])
  * from clients use ipAddr = htonl(INADDR_ANY).
  */
 static int
-OpenRequestSocket(int port, __uint32_t ipAddr)
+OpenRequestSocket(int port, int ipAddr)
 {
     int			fd;
     int			one, sts;
-    struct sockaddr_in	myAddr;
+    __pmSockAddrIn	myAddr;
 
     fd = __pmCreateSocket();
     if (fd < 0) {
@@ -368,54 +369,52 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     }
     if (fd > maxClientFd)
 	maxClientFd = fd;
-    FD_SET(fd, &clientFds);
+    __pmFD_SET(fd, &clientFds);
 
     /* Ignore dead client connections */
     one = 1;
 #ifndef IS_MINGW
-    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
-		(mysocklen_t)sizeof(one)) < 0) {
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
+		(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, 0x%x) setsockopt(SO_REUSEADDR): %s\n",
+		"OpenRequestSocket(%d, 0x%x) __pmSetSockOpt(SO_REUSEADDR): %s\n",
 		port, ipAddr, netstrerror());
 	goto fail;
     }
 #else
-    if (setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
-		(mysocklen_t)sizeof(one)) < 0) {
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
+		(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d,0x%x) setsockopt(EXCLUSIVEADDRUSE): %s\n",
+		"OpenRequestSocket(%d,0x%x) __pmSetSockOpt(EXCLUSIVEADDRUSE): %s\n",
 		port, ipAddr, netstrerror());
 	goto fail;
     }
 #endif
 
     /* and keep alive please - pv 916354 bad networks eat fds */
-    if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one,
-		(mysocklen_t)sizeof(one)) < 0) {
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one,
+		(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, 0x%x) setsockopt(SO_KEEPALIVE): %s\n",
+		"OpenRequestSocket(%d, 0x%x) __pmSetSockOpt(SO_KEEPALIVE): %s\n",
 		port, ipAddr, netstrerror());
 	goto fail;
     }
 
-    memset(&myAddr, 0, sizeof(myAddr));
-    myAddr.sin_family = AF_INET;
-    myAddr.sin_addr.s_addr = ipAddr;
-    myAddr.sin_port = htons(port);
-    sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
+    __pmInitSockAddr(&myAddr, ipAddr, htons(port));
+
+    sts = __pmBind(fd, (__pmSockAddr*)&myAddr, sizeof(myAddr));
     if (sts < 0) {
 	sts = neterror();
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) bind: %s\n",
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) __pmBind: %s\n",
 		port, ipAddr, netstrerror());
 	if (sts == EADDRINUSE)
 	    __pmNotifyErr(LOG_ERR, "pmcd may already be running\n");
 	goto fail;
     }
 
-    sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
+    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) listen: %s\n",
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) __pmListen: %s\n",
 		port, ipAddr, netstrerror());
 	goto fail;
     }
@@ -443,7 +442,7 @@ extern int DoPMNSTraverse(ClientInfo *, __pmPDU *);
  */
 
 void
-HandleClientInput(fd_set *fdsPtr)
+HandleClientInput(__pmFdSet *fdsPtr)
 {
     int		sts;
     int		i;
@@ -453,7 +452,7 @@ HandleClientInput(fd_set *fdsPtr)
 
     for (i = 0; i < nClients; i++) {
 	int		pinpdu;
-	if (!client[i].status.connected || !FD_ISSET(client[i].fd, fdsPtr))
+	if (!client[i].status.connected || !__pmFD_ISSET(client[i].fd, fdsPtr))
 	    continue;
 
 	cp = &client[i];
@@ -689,7 +688,7 @@ SignalReloadPMNS(void)
  * to handle PDUs.
  */
 static int
-HandleReadyAgents(fd_set *readyFds)
+HandleReadyAgents(__pmFdSet *readyFds)
 {
     int		i, s, sts;
     int		fd;
@@ -702,7 +701,7 @@ HandleReadyAgents(fd_set *readyFds)
 	ap = &agent[i];
 	if (ap->status.notReady) {
 	    fd = ap->outFd;
-	    if (FD_ISSET(fd, readyFds)) {
+	    if (__pmFD_ISSET(fd, readyFds)) {
 		int		pinpdu;
 		/* Expect an error PDU containing PM_ERR_PMDAREADY */
 		reason = AT_COMM;	/* most errors are protocol failures */
@@ -766,7 +765,7 @@ ClientLoop(void)
     int		maxFd;
     int		checkAgents;
     int		reload_ns = 0;
-    fd_set	readableFds;
+    __pmFdSet	readableFds;
     int		CheckClientAccess(ClientInfo *);
     ClientInfo	*cp;
     __pmPDUInfo	xchallenge;
@@ -789,7 +788,7 @@ ClientLoop(void)
 
 	    if (ap->status.notReady) {
 		fd = ap->outFd;
-		FD_SET(fd, &readableFds);
+		__pmFD_SET(fd, &readableFds);
 		if (fd > maxFd)
 		    maxFd = fd + 1;
 		checkAgents = 1;
@@ -802,13 +801,13 @@ ClientLoop(void)
 	    }
 	}
 
-	sts = select(maxFd, &readableFds, NULL, NULL, NULL);
+	sts = __pmSelectRead(maxFd, &readableFds, NULL);
 
 	if (sts > 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
 		for (i = 0; i <= maxClientFd; i++)
-		    if (FD_ISSET(i, &readableFds))
+		    if (__pmFD_ISSET(i, &readableFds))
 			fprintf(stderr, "DATA: from %s (fd %d)\n", FdToString(i), i);
 #endif
 	    /* Accept any new client connections */
@@ -816,7 +815,7 @@ ClientLoop(void)
 		int rfd = reqPorts[i].fd;
 		if (rfd == -1)
 		    continue;
-		if (FD_ISSET(rfd, &readableFds)) {
+		if (__pmFD_ISSET(rfd, &readableFds)) {
 		    int	sts, s;
 		    int	accepted = 1;
 
@@ -826,7 +825,7 @@ ClientLoop(void)
 		    if (cp == NULL)
 		    	continue;
 
-		    sts = __pmAccAddClient(&cp->addr.sin_addr, &cp->denyOps);
+		    sts = __pmAccAddClient(__pmSockAddrInToIPAddr(&cp->addr), &cp->denyOps);
 		    if (sts >= 0) {
 			cp->pduInfo.zero = 0;
 			cp->pduInfo.version = PDU_VERSION;
@@ -1175,15 +1174,15 @@ main(int argc, char *argv[])
 
 static int		 nBadHosts = 0;
 static int		 szBadHosts = 0;
-static struct in_addr	*badHost = NULL;
+static __pmIPAddr	*badHost = NULL;
 
 static int
-AddBadHost(struct in_addr *hostId)
+AddBadHost(__pmSockAddrIn *hostId)
 {
     int		i, need;
 
     for (i = 0; i < nBadHosts; i++)
-	if (hostId->s_addr == badHost[i].s_addr)
+        if (__pmSockAddrInToIPAddr(hostId) == badHost[i])
 	    /* already there */
 	    return 0;
 
@@ -1191,11 +1190,11 @@ AddBadHost(struct in_addr *hostId)
     if (nBadHosts == szBadHosts) {
 	szBadHosts += 8;
 	need = szBadHosts * (int)sizeof(badHost[0]);
-	if ((badHost = (struct in_addr *)realloc(badHost, need)) == NULL) {
+	if ((badHost = (__pmIPAddr *)realloc(badHost, need)) == NULL) {
 	    __pmNoMem("pmcd.AddBadHost", need, PM_FATAL_ERR);
 	}
     }
-    badHost[nBadHosts++].s_addr = hostId->s_addr;
+    badHost[nBadHosts++] = __pmSockAddrInToIPAddr(hostId);
     return 1;
 }
 
@@ -1211,6 +1210,7 @@ ResetBadHosts(void)
 void
 CleanupClient(ClientInfo *cp, int sts)
 {
+    char	*caddr;
     int		i, msg;
     int		force;
 
@@ -1225,9 +1225,10 @@ CleanupClient(ClientInfo *cp, int sts)
 	 * been dinged for an access violation since startup or reconfiguration
 	 */
 	if (sts == PM_ERR_PERMISSION || sts == PM_ERR_CONNLIMIT) {
-	    if ( (msg = AddBadHost(&cp->addr.sin_addr)) ) {
-		fprintf(stderr, "access violation from host %s:\n",
-				inet_ntoa(cp->addr.sin_addr));
+	    if ( (msg = AddBadHost(&cp->addr)) ) {
+		caddr = __pmSockAddrInToString(&cp->addr);
+		fprintf(stderr, "access violation from host %s:\n", caddr);
+		free(client);
 	    }
 	}
 	else
@@ -1248,7 +1249,7 @@ CleanupClient(ClientInfo *cp, int sts)
      * count
      */
     if (sts != PM_ERR_PERMISSION && sts != PM_ERR_CONNLIMIT)
-	__pmAccDelClient(&cp->addr.sin_addr);
+        __pmAccDelClient(__pmSockAddrInToIPAddr(&cp->addr));
 
     pmcd_trace(TR_DEL_CLIENT, cp->fd, sts, 0);
     DeleteClient(cp);

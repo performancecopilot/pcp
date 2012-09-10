@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -35,12 +36,12 @@ negotiate_proxy(int fd, const char *hostname, int port)
 
     /*
      * version negotiation (converse to pmproxy logic)
-     *   send my client version message
-     *   recv server version message
-     *   send hostname and port
+     *   __pmSend my client version message
+     *   __pmRecv server version message
+     *   __pmSend hostname and port
      */
 
-    if (send(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
+    if (__pmSend(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_WARNING,
 	     "__pmConnectPMCD: send version string to pmproxy failed: %s\n",
@@ -48,7 +49,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
 	return PM_ERR_IPC;
     }
     for (bp = buf; bp < &buf[MY_BUFLEN]; bp++) {
-	if (recv(fd, bp, 1, 0) != 1) {
+	if (__pmRecv(fd, bp, 1, 0) != 1) {
 	    *bp = '\0';
 	    bp = &buf[MY_BUFLEN];
 	    break;
@@ -71,7 +72,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
     }
 
     snprintf(buf, sizeof(buf), "%s %d\n", hostname, port);
-    if (send(fd, buf, strlen(buf), 0) != strlen(buf)) {
+    if (__pmSend(fd, buf, strlen(buf), 0) != strlen(buf)) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_WARNING,
 	     "__pmConnectPMCD: send hostname+port string to pmproxy failed: %s'\n",
@@ -286,7 +287,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	for (i = 0; i < nports; i++) {
 	    if ((fd = __pmAuxConnectPMCDPort(hosts[0].name, ports[i])) >= 0) {
 		if ((sts = __pmConnectHandshake(fd)) < 0) {
-		    close(fd);
+		    __pmCloseSocket(fd);
 		}
 		else
 		    /* success */
@@ -344,9 +345,9 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	    return fd;
 	}
 	if ((sts = version = negotiate_proxy(fd, hosts[0].name, ports[i])) < 0)
-	    close(fd);
+	    __pmCloseSocket(fd);
 	else if ((sts = __pmConnectHandshake(fd)) < 0)
-	    close(fd);
+	    __pmCloseSocket(fd);
 	else
 	    /* success */
 	    break;

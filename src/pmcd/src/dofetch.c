@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -355,8 +356,8 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
     static int		nDoms = 0;
     static pmResult	**results = NULL;
     static int		*resIndex = NULL;
-    fd_set		waitFds;
-    fd_set		readyFds;
+    __pmFdSet		waitFds;
+    __pmFdSet		readyFds;
     int			nWait;
     int			maxFd;
     struct timeval	timeout;
@@ -409,7 +410,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
      * suitable pmResult (containing metric not available values) will be
      * returned.
      */
-    FD_ZERO(&waitFds);
+    __pmFD_ZERO(&waitFds);
     nWait = 0;
     maxFd = -1;
     for (i = 0; dList[i].domain != -1; i++) {
@@ -418,7 +419,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	if (results[j] == NULL) { /* Wait for agent's response */
 	    int fd = agent[j].outFd;
 	    agent[j].status.busy = 1;
-	    FD_SET(fd, &waitFds);
+	    __pmFD_SET(fd, &waitFds);
 	    if (fd > maxFd)
 		maxFd = fd;
 	    nWait++;
@@ -430,12 +431,12 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 
     /* Wait for results to roll in from agents */
     while (nWait > 0) {
-	memcpy(&readyFds, &waitFds, sizeof(readyFds));
+        __pmFD_COPY(&readyFds, &waitFds);
 	if (nWait > 1) {
 	    timeout.tv_sec = _pmcd_timeout;
 	    timeout.tv_usec = 0;
 
-	    sts = select(maxFd+1, &readyFds, NULL, NULL, &timeout);
+	    sts = __pmSelectRead(maxFd+1, &readyFds, &timeout);
 
 	    if (sts == 0) {
 		__pmNotifyErr(LOG_INFO, "DoFetch: select timeout");
@@ -469,10 +470,10 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	for (i = 0; i < nAgents; i++) {
 	    AgentInfo	*ap = &agent[i];
 	    int		pinpdu;
-	    if (!ap->status.busy || !FD_ISSET(ap->outFd, &readyFds))
+	    if (!ap->status.busy || !__pmFD_ISSET(ap->outFd, &readyFds))
 		continue;
 	    ap->status.busy = 0;
-	    FD_CLR(ap->outFd, &waitFds);
+	    __pmFD_CLR(ap->outFd, &waitFds);
 	    nWait--;
 	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 	    if (sts > 0 && _pmcd_trace_mask)

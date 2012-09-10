@@ -33,7 +33,7 @@ client_t *
 acceptClient(int reqfd)
 {
     int		i, fd;
-    mysocklen_t	addrlen;
+    __pmSockLen	addrlen;
 
     i = newClient();
     addrlen = sizeof(clients[i].addr);

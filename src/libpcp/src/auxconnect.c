@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -23,15 +24,12 @@
 static struct timeval	canwait = { 5, 000000 };
 
 int
-__pmCreateSocket(void)
+__pmInitSocket(int fd)
 {
-    int			fd;
-    int			sts;
-    int			nodelay=1;
-    struct linger	nolinger = {1, 0};
-
-    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-	return -neterror();
+    int sts;
+    int	nodelay = 1;
+    struct linger nolinger = {1, 0};
+    char errmsg[PM_MAXERRMSGLEN];
 
     if ((sts = __pmSetSocketIPC(fd)) < 0) {
 	__pmCloseSocket(fd);
@@ -39,58 +37,45 @@ __pmCreateSocket(void)
     }
 
     /* avoid 200 ms delay */
-    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
-		   (mysocklen_t)sizeof(nodelay)) < 0) {
-	char	errmsg[PM_MAXERRMSGLEN];
+    if (__pmSetSockOpt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
+		   (__pmSockLen)sizeof(nodelay)) < 0) {
 	__pmNotifyErr(LOG_ERR, 
-		      "__pmCreateSocket(%d): setsockopt TCP_NODELAY: %s\n",
+		      "__pmCreateSocket(%d): __pmSetSockOpt TCP_NODELAY: %s\n",
 		      fd, netstrerror_r(errmsg, sizeof(errmsg)));
     }
 
     /* don't linger on close */
-    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
-		   (mysocklen_t)sizeof(nolinger)) < 0) {
-	char	errmsg[PM_MAXERRMSGLEN];
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
+		   (__pmSockLen)sizeof(nolinger)) < 0) {
 	__pmNotifyErr(LOG_ERR, 
-		      "__pmCreateSocket(%d): setsockopt SO_LINGER: %s\n",
+		      "__pmCreateSocket(%d): __pmSetSockOpt SO_LINGER: %s\n",
 		      fd, netstrerror_r(errmsg, sizeof(errmsg)));
     }
 
     return fd;
 }
 
-void
-__pmCloseSocket(int fd)
-{
-    __pmResetIPC(fd);
-
-#if defined(IS_MINGW)
-    closesocket(fd);
-#else
-    close(fd);
-#endif
-}
-
 int
-__pmConnectTo(int fd, const struct sockaddr *addr, int port)
+__pmConnectTo(int fd, const __pmSockAddrIn *addr, int port)
 {
-    int sts, fdFlags = fcntl(fd, F_GETFL);
-    struct sockaddr_in myAddr;
+    int sts, fdFlags = __pmGetFileStatusFlags(fd);
+    __pmSockAddrIn myAddr;
 
-    memcpy(&myAddr, addr, sizeof (struct sockaddr_in));
-    myAddr.sin_port = htons(port);
+    myAddr = *addr;
+    __pmSetPort(&myAddr, port);
 
-    if (fcntl(fd, F_SETFL, fdFlags | FNDELAY) < 0) {
+    if (__pmSetFileStatusFlags(fd, fdFlags | FNDELAY) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
+
         __pmNotifyErr(LOG_ERR, "__pmConnectTo: cannot set FNDELAY - "
 		      "fcntl(%d,F_SETFL,0x%x) failed: %s\n",
 		      fd, fdFlags|FNDELAY , osstrerror_r(errmsg, sizeof(errmsg)));
     }
     
-    if (connect(fd, (struct sockaddr*)&myAddr, sizeof(myAddr)) < 0) {
+    if (__pmConnect(fd, &myAddr, sizeof(myAddr)) < 0) {
 	sts = neterror();
 	if (sts != EINPROGRESS) {
-	    close(fd);
+	    __pmCloseSocket(fd);
 	    return -sts;
 	}
     }
@@ -102,13 +87,13 @@ int
 __pmConnectCheckError(int fd)
 {
     int	so_err;
-    mysocklen_t	olen = sizeof(int);
+    __pmSockLen	olen = sizeof(int);
+    char errmsg[PM_MAXERRMSGLEN];
 
-    if (getsockopt(fd, SOL_SOCKET, SO_ERROR, (void *)&so_err, &olen) < 0) {
-	char	errmsg[PM_MAXERRMSGLEN];
+    if (__pmGetSockOpt(fd, SOL_SOCKET, SO_ERROR, (void *)&so_err, &olen) < 0) {
 	so_err = neterror();
 	__pmNotifyErr(LOG_ERR, 
-		"__pmConnectCheckError: getsockopt(SO_ERROR) failed: %s\n",
+		"__pmConnectCheckError: __pmGetSockOpt(SO_ERROR) failed: %s\n",
 		netstrerror_r(errmsg, sizeof(errmsg)));
     }
     return so_err;
@@ -118,25 +103,24 @@ int
 __pmConnectRestoreFlags(int fd, int fdFlags)
 {
     int sts;
+    char errmsg[PM_MAXERRMSGLEN];
 
-    if (fcntl(fd, F_SETFL, fdFlags) < 0) {
-	char	errmsg[PM_MAXERRMSGLEN];
+    if (__pmSetFileStatusFlags(fd, fdFlags) < 0) {
 	__pmNotifyErr(LOG_WARNING,"__pmConnectRestoreFlags: cannot restore "
 		      "flags fcntl(%d,F_SETFL,0x%x) failed: %s\n",
 		      fd, fdFlags, osstrerror_r(errmsg, sizeof(errmsg)));
     }
 
-    if ((fdFlags = fcntl(fd, F_GETFD)) >= 0)
-        sts = fcntl(fd, F_SETFD, fdFlags | FD_CLOEXEC);
+    if ((fdFlags = __pmGetFileDescriptorFlags(fd)) >= 0)
+        sts = __pmSetFileDescriptorFlags(fd, fdFlags | FD_CLOEXEC);
     else
         sts = fdFlags;
 
     if (sts == -1) {
-	char	errmsg[PM_MAXERRMSGLEN];
         __pmNotifyErr(LOG_WARNING, "__pmConnectRestoreFlags: "
 		      "fcntl(%d) get/set flags failed: %s\n",
 		      fd, osstrerror_r(errmsg, sizeof(errmsg)));
-	close(fd);
+	__pmCloseSocket(fd);
 	return sts;
     }
 
@@ -221,21 +205,24 @@ __pmAuxConnectPMCD(const char *hostname)
 int
 __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 {
-    struct sockaddr_in	myAddr;
-    struct hostent*	servInfo;
+    __pmSockAddrIn	myAddr;
+    __pmHostEnt		servInfo;
+    char		*sibuf;
     int			fd;	/* Fd for socket connection to pmcd */
     int			sts;
     int			fdFlags;
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    if ((servInfo = gethostbyname(hostname)) == NULL) {
+    sibuf = __pmAllocHostEntBuffer();
+    if (__pmGetHostByName(hostname, &servInfo, sibuf) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
 	    fprintf(stderr, "__pmAuxConnectPMCDPort(%s, %d) : hosterror=%d, ``%s''\n",
 		    hostname, pmcd_port, hosterror(), hoststrerror());
 	}
 #endif
+	__pmFreeHostEntBuffer(sibuf);
 	PM_UNLOCK(__pmLock_libpcp);
 	return -EHOSTUNREACH;
     }
@@ -243,31 +230,27 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     __pmConnectTimeout();
 
     if ((fd = __pmCreateSocket()) < 0) {
+	__pmFreeHostEntBuffer(sibuf);
 	PM_UNLOCK(__pmLock_libpcp);
 	return fd;
     }
 
-    memset(&myAddr, 0, sizeof(myAddr));	/* Arrgh! &myAddr, not myAddr */
-    myAddr.sin_family = AF_INET;
-    memcpy(&myAddr.sin_addr, servInfo->h_addr, servInfo->h_length);
+    __pmInitSockAddr(&myAddr, htonl(INADDR_ANY), 0);
+    __pmSetSockAddr(&myAddr, &servInfo);
+    __pmFreeHostEntBuffer(sibuf);
     PM_UNLOCK(__pmLock_libpcp);
 
-    if ((fdFlags = __pmConnectTo(fd, (const struct sockaddr *)&myAddr,
-				 pmcd_port)) < 0) {
-	return (fdFlags);
-    } else { /* FNDELAY and we're in progress - wait on select */
-	int	rc;
-	fd_set wfds;
-	// TODO hope this goes away with ASYNC API stuff else need lock
-	// and more tricky logic to make sure canwait has indeed been
-	// initialized
+    if ((fdFlags = __pmConnectTo(fd, &myAddr, pmcd_port)) >= 0) {
+	/* FNDELAY and we're in progress - wait on select */
 	struct timeval stv = canwait;
 	struct timeval *pstv = (stv.tv_sec || stv.tv_usec) ? &stv : NULL;
+	__pmFdSet wfds;
+	int rc;
 
-	FD_ZERO(&wfds);
-	FD_SET(fd, &wfds);
+	__pmFD_ZERO(&wfds);
+	__pmFD_SET(fd, &wfds);
 	sts = 0;
-	if ((rc = select(fd+1, NULL, &wfds, NULL, pstv)) == 1) {
+	if ((rc = __pmSelectWrite(fd+1, &wfds, pstv)) == 1) {
 	    sts = __pmConnectCheckError(fd);
 	}
 	else if (rc == 0) {
@@ -278,13 +261,293 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	}
 	
 	if (sts) {
-	    close(fd);
+	    __pmCloseSocket(fd);
 	    return -sts;
 	}
+
+	/*
+	 * If we're here, it means we have a valid connection; restore the
+	 * flags and make sure this file descriptor is closed if exec() is
+	 * called
+	 */
+	return __pmConnectRestoreFlags(fd, fdFlags);
     }
-    
-    /* If we're here, it means we have valid connection, restore the
-     * flags and make sure this file descriptor is closed if exec() is
-     * called */
-    return __pmConnectRestoreFlags (fd, fdFlags);
+    return fdFlags;
 }
+
+#if !defined(HAVE_NSS)
+
+int
+__pmCreateSocket(void)
+{
+    int sts, fd;
+
+    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	return -neterror();
+    if ((sts = __pmInitSocket(fd)) < 0)
+        return sts;
+    return fd;
+}
+
+void
+__pmCloseSocket(int fd)
+{
+    __pmResetIPC(fd);
+#if defined(IS_MINGW)
+    closesocket(fd);
+#else
+    close(fd);
+#endif
+}
+
+int
+__pmSetSockOpt(int socket, int level, int option_name, const void *option_value,
+	       __pmSockLen option_len)
+{
+    return setsockopt(socket, level, option_name, option_value, option_len);
+}
+
+int
+__pmGetSockOpt(int socket, int level, int option_name, void *option_value,
+	       __pmSockLen *option_len)
+{
+    return getsockopt(socket, level, option_name, option_value, option_len);
+}
+ 
+void
+__pmInitSockAddr(__pmSockAddrIn *addr, int address, int port)
+{
+    memset(addr, 0, sizeof(*addr));
+    addr->sin_family = AF_INET;
+    addr->sin_addr.s_addr = address;
+    addr->sin_port = port;
+}
+
+void
+__pmSetSockAddr(__pmSockAddrIn *addr, __pmHostEnt *he)
+{
+    memcpy(&addr->sin_addr, he->h_addr, he->h_length);
+}
+
+void
+__pmSetPort(__pmSockAddrIn *addr, int port)
+{
+    addr->sin_port = htons(port);
+}
+
+int
+__pmListen(int fd, int backlog)
+{
+    return listen(fd, backlog);
+}
+
+int
+__pmAccept(int fd, void *addr, __pmSockLen *addrlen)
+{
+    return accept(fd, (struct sockaddr *)addr, addrlen);
+}
+
+int
+__pmBind(int fd, void *addr, __pmSockLen addrlen)
+{
+    return bind(fd, (struct sockaddr *)addr, addrlen);
+}
+
+int
+__pmConnect(int fd, void *addr, __pmSockLen addrlen)
+{
+    return connect(fd, (struct sockaddr *)addr, addrlen);
+}
+
+int
+__pmGetFileStatusFlags(int fd)
+{
+    return fcntl(fd, F_GETFL);
+}
+
+int
+__pmSetFileStatusFlags(int fd, int flags)
+{
+    return fcntl(fd, F_SETFL, flags);
+}
+
+int
+__pmGetFileDescriptorFlags(int fd)
+{
+    return fcntl(fd, F_GETFD);
+}
+
+int
+__pmSetFileDescriptorFlags(int fd, int flags)
+{
+    return fcntl(fd, F_SETFD, flags);
+}
+
+ssize_t
+__pmSend(int socket, const void *buffer, size_t length, int flags)
+{
+    return send(socket, buffer, length, flags);
+}
+
+ssize_t
+__pmRecv(int socket, void *buffer, size_t length, int flags)
+{
+    return recv(socket, buffer, length, flags);
+}
+
+void
+__pmFD_CLR(int fd, __pmFdSet *set)
+{
+    FD_CLR(fd, set);
+}
+
+int
+__pmFD_ISSET(int fd, __pmFdSet *set)
+{
+    return FD_ISSET(fd, set);
+}
+
+void
+__pmFD_SET(int fd, __pmFdSet *set)
+{
+    FD_SET(fd, set);
+}
+
+void
+__pmFD_ZERO(__pmFdSet *set)
+{
+    FD_ZERO(set);
+}
+
+void
+__pmFD_COPY(__pmFdSet *s1, const __pmFdSet *s2)
+{
+    memcpy(s1, s2, sizeof(*s1));
+}
+
+int
+__pmSelectRead(int nfds, __pmFdSet *readfds, struct timeval *timeout)
+{
+    return select(nfds, readfds, NULL, NULL, timeout);
+}
+
+int
+__pmSelectWrite(int nfds, __pmFdSet *writefds, struct timeval *timeout)
+{
+    return select(nfds, NULL, writefds, NULL, timeout);
+}
+
+char *
+__pmAllocHostEntBuffer(void)
+{
+    return NULL;
+}
+
+void
+__pmFreeHostEntBuffer(char *buffer)
+{
+    /* No buffer was actually allocated.  Our work here is done. */
+}
+
+__pmHostEnt *
+__pmGetHostByName(const char *hostName, __pmHostEnt *hostEntry, char *buffer)
+{
+    __pmHostEnt *he = gethostbyname(hostName);
+
+    if (he == NULL)
+	return NULL;
+    *hostEntry = *he;
+    return hostEntry;
+}
+
+__pmHostEnt *
+__pmGetHostByAddr(__pmSockAddrIn *address, __pmHostEnt *hostEntry, char *buffer)
+{
+    __pmHostEnt *he = gethostbyaddr((void *)&address->sin_addr.s_addr, sizeof(address->sin_addr.s_addr), AF_INET);
+    if (he == NULL)
+	return NULL;
+    *hostEntry = *he;
+    return hostEntry;
+}
+
+__pmIPAddr
+__pmHostEntGetIPAddr(const __pmHostEnt *he, int ix)
+{
+    return ((struct in_addr *)he->h_addr_list[ix])->s_addr;
+}
+
+void
+__pmSetIPAddr(__pmIPAddr *addr, unsigned int a)
+{
+    *addr = a;
+}
+
+__pmIPAddr *
+__pmMaskIPAddr(__pmIPAddr *addr, const __pmIPAddr *mask)
+{
+    *addr &= *mask;
+    return addr;
+}
+
+int
+__pmCompareIPAddr(const __pmIPAddr *addr1, const __pmIPAddr *addr2)
+{
+    return *addr1 - *addr2;
+}
+
+int
+__pmIPAddrIsLoopBack(const __pmIPAddr *addr)
+{
+    return *addr == htonl(INADDR_LOOPBACK);
+}
+
+__pmIPAddr
+__pmLoopbackAddress(void)
+{
+    return htonl(INADDR_LOOPBACK);
+}
+
+const __pmIPAddr
+__pmSockAddrInToIPAddr(const __pmSockAddrIn *inaddr)
+{
+    return __pmInAddrToIPAddr(&inaddr->sin_addr);
+}
+
+const __pmIPAddr
+__pmInAddrToIPAddr(const __pmInAddr *inaddr)
+{
+    return inaddr->s_addr;
+}
+
+int
+__pmIPAddrToInt(const __pmIPAddr *addr)
+{
+    return *addr;
+}
+
+/*
+ * Convert an address in network byte order to a string.
+ * The caller must free the buffer.
+ */
+static char *
+__pmInAddrToString(__pmInAddr *address)
+{
+    char *buf = inet_ntoa(*address);
+
+    if (buf == NULL)
+	return NULL;
+    return strdup(buf);
+}
+
+char *
+__pmSockAddrInToString(__pmSockAddrIn *address)
+{
+    return __pmInAddrToString(&address->sin_addr);
+}
+
+#else	/* NSS */
+
+/* NSS variants here, if that makes sense? */
+/* Alternatives might be ipc.c, or a nss.c */
+
+#endif	/* NSS */
