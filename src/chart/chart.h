@@ -91,8 +91,7 @@ public:
     virtual void save(FILE *, bool);
     virtual void print(QPainter *, QRect &, bool);
 
-    virtual void updateTimeAxis(double, double, double);
-    virtual void updateValues(bool, bool);
+    virtual void updateValues(bool, bool, int, double, double, double);
     virtual void resetValues(int m, int v);
     virtual void adjustValues();
 
@@ -172,7 +171,7 @@ public:
     virtual void preserveLiveData(int, int) = 0;
     virtual void punchoutLiveData(int) = 0;
     virtual void resetValues(int) = 0;
-    virtual void updateValues(bool, bool, int, pmUnits *) = 0;
+    virtual void updateValues(bool, bool, pmUnits *, int, double, double, double) = 0;
     virtual void rescaleValues(pmUnits *) = 0;
     virtual void setStroke(Chart::Style, QColor, bool) = 0;
     virtual void replot(int, double *) = 0;

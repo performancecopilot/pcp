@@ -119,7 +119,8 @@ void SamplingItem::punchoutLiveData(int i)
 }
 
 void SamplingItem::updateValues(bool forward,
-		bool rateConvert, int sampleHistory, pmUnits *units)
+		bool rateConvert, pmUnits *units, int sampleHistory,
+		double, double, double)
 {
     pmAtomValue	scaled, raw;
     QmcMetric	*metric = ChartItem::my.metric;

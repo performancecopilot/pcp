@@ -171,11 +171,10 @@ void GroupControl::refreshGadgets(bool active)
     double left = my.timeData[my.visible - 1];
     double right = my.timeData[0];
     double interval = pmchart->timeAxis()->scaleValue(my.realDelta, my.visible);
+
     for (int i = 0; i < gadgetCount(); i++) {
-	Gadget *gadget = my.gadgetsList.at(i);
-	if (active)
-	    gadget->updateTimeAxis(left, right, interval);
-	gadget->updateValues(my.timeState != BackwardState, active);
+	my.gadgetsList.at(i)->updateValues(my.timeState != BackwardState, active,
+	                                   my.samples, left, right, interval);
     }
     if (active) {
 	updateTimeButton();
@@ -343,6 +342,10 @@ void GroupControl::adjustArchiveWorldViewForward(PmTime::Packet *packet, bool se
     double tolerance = my.realDelta / 20.0;	// 5% of the sample interval
     double position = my.realPosition - (my.realDelta * last);
 
+    double left = position;
+    double right = my.realPosition;
+    double interval = pmchart->timeAxis()->scaleValue((double)delta, my.visible);
+
     for (int i = last; i >= 0; i--, position += my.realDelta) {
 	if (setup == false &&
 	    fuzzyTimeMatch(my.timeData[i], position, tolerance) == true) {
@@ -363,7 +366,8 @@ void GroupControl::adjustArchiveWorldViewForward(PmTime::Packet *packet, bool se
 			i, position, timeString(position),
 			timeState(), gadgetCount());
 	for (int j = 0; j < gadgetCount(); j++)
-	    my.gadgetsList.at(j)->updateValues(true, false);
+	    my.gadgetsList.at(j)->updateValues(true, false, my.samples,
+						left, right, interval);
     }
 
     bool active = isActive(packet);
@@ -397,6 +401,10 @@ void GroupControl::adjustArchiveWorldViewBackward(PmTime::Packet *packet, bool s
     double tolerance = my.realDelta / 20.0;	// 5% of the sample interval
     double position = my.realPosition;
 
+    double left = position - (my.realDelta * last);
+    double right = position;
+    double interval = pmchart->timeAxis()->scaleValue((double)delta, my.visible);
+
     for (int i = 0; i <= last; i++, position -= my.realDelta) {
 	if (setup == false &&
 	    fuzzyTimeMatch(my.timeData[i], position, tolerance) == true) {
@@ -417,7 +425,8 @@ void GroupControl::adjustArchiveWorldViewBackward(PmTime::Packet *packet, bool s
 			i, position, timeString(position),
 			timeState(), gadgetCount());
 	for (int j = 0; j < gadgetCount(); j++)
-	    my.gadgetsList.at(j)->updateValues(false, false);
+	    my.gadgetsList.at(j)->updateValues(false, false, my.samples,
+						left, right, interval);
     }
 
     bool active = isActive(packet);
@@ -433,12 +442,12 @@ void GroupControl::adjustArchiveWorldViewStopped(PmTime::Packet *packet, bool ne
 {
     if (needFetch) {	// stopped, but VCR reposition event occurred
 	adjustArchiveWorldViewForward(packet, needFetch);
-	return;
+    } else {
+	my.timeState = StandbyState;
+	packet->state = PmTime::StoppedState;
+	newButtonState(packet->state, packet->mode, pmchart->isTabRecording());
+	updateTimeButton();
     }
-    my.timeState = StandbyState;
-    packet->state = PmTime::StoppedState;
-    newButtonState(packet->state, packet->mode, pmchart->isTabRecording());
-    updateTimeButton();
 }
 
 //

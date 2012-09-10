@@ -47,7 +47,7 @@ public:
 
     void preserveLiveData(int, int);
     void punchoutLiveData(int);
-    void updateValues(bool, bool, int, pmUnits *);
+    void updateValues(bool, bool, pmUnits *, int, double, double, double);
     void rescaleValues(pmUnits *);
     void replot(int, double *);
     void resetValues(int);

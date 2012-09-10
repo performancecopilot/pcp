@@ -33,8 +33,12 @@ public:
     void setDescPtr(QmcDesc *desc) { my.desc = desc; }
     void setIndomPtr(QmcIndom *indom) { my.indom = indom; }
 
-    void setValueCount(int numInst) { my.values.resize(numInst); }
-    QmcMetricValue *valuePtr(int inst) { return &my.values[inst]; }
+    void setValueCount(int numInst);
+    QmcMetricValue *valuePtr(int inst);
+
+    int type() const;
+    double value(int inst) const;
+    QString stringValue(int inst) const;
 
     void dump(QTextStream &os, int instID) const;
 
@@ -53,20 +57,30 @@ class QmcEventRecord
 public:
     QmcEventRecord() { my.missed = my.flags = 0; }
 
+    const struct timeval *timestamp() const { return &my.timestamp; }
     void setTimestamp(struct timeval *tv) { my.timestamp = *tv; }
-    void setMissed(int missed) { my.missed = missed; }
+
+    int flags() const { return my.flags; }
     void setFlags(int flags) { my.flags = flags; }
+
+    int missed() const { return my.missed; }
+    void setMissed(int missed) { my.missed = missed; }
 
     void setParameterCount(int numParams)
 	{ my.parameters.resize(numParams); }
     int setParameter(int n, pmID pmid, QmcContext *cp, pmValueSet const *vp);
 
+    QString parent() const;
+    QString identifier() const;
+    QString parameterSummary() const;
+    void dump(QTextStream &os, int instID, uint recordID) const;
+
     static pmID eventFlags();
     static pmID eventMissed();
 
-    void dump(QTextStream &os, int instID, uint recordID) const;
-
 private:
+    QString parameterAsString(int index) const;
+
     struct {
 	struct timeval	timestamp;
 	int		missed;
@@ -110,6 +124,7 @@ public:
 			 my.previousError = my.currentError;
 			 my.currentError = 0; }
 
+    QVector<QmcEventRecord> const &eventRecords() const { return my.eventRecords; }
     void extractEventRecords(QmcContext *context, int recordCount, pmResult **result);
     void dumpEventRecords(QTextStream &os, int instid) const;
 
@@ -221,6 +236,9 @@ public:
 
     QString stringValue(int index) const	// Current string value
 	{ return my.values[index].stringValue(); }
+
+    QVector<QmcEventRecord> const &eventRecords(int index) const
+	{ return my.values[index].eventRecords(); }
 
     int error(int index) const	// Current error code (after rate-conversion)
 	{ return my.values[index].error(); }

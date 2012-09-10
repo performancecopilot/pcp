@@ -194,11 +194,6 @@ void Chart::adjustValues(void)
     replot();
 }
 
-void Chart::updateTimeAxis(double leftmost, double rightmost, double delta)
-{
-    setAxisScale(QwtPlot::xBottom, leftmost, rightmost, delta);
-}
-
 SamplingItem *Chart::samplingItem(int index)
 {
     Q_ASSERT(my.eventType == false);
@@ -211,11 +206,10 @@ TracingItem *Chart::tracingItem(int index)
     return (TracingItem *)my.items[index];
 }
 
-void Chart::updateValues(bool forward, bool visible)
+void Chart::updateValues(bool forward, bool visible, int size, double left, double right, double delta)
 {
     int		itemCount = my.items.size();
-    int		i, size = my.tab->group()->sampleHistory();
-    int		index = forward ? 0 : -1;	/* first or last data point */
+    int		i, index = forward ? 0 : -1;	/* first or last data point */
 
 #if DESPERATE
     console->post(PmChart::DebugForce,
@@ -226,9 +220,10 @@ void Chart::updateValues(bool forward, bool visible)
     if (itemCount < 1)
 	return;
 
+    if (visible)
+	setAxisScale(QwtPlot::xBottom, left, right, delta);
     for (i = 0; i < itemCount; i++)
-	my.items[i]->updateValues(forward, my.rateConvert, size, &my.units);
-
+	my.items[i]->updateValues(forward, my.rateConvert, &my.units, size, left, right, delta);
     if (my.style == BarStyle || my.style == AreaStyle || my.style == LineStyle) {
 	for (i = 0; i < itemCount; i++)
 	    samplingItem(i)->copyRawDataPoint(index);
@@ -909,10 +904,10 @@ void Chart::setLegendVisible(bool on)
 	    // currently disabled, enable it
 	    QwtLegend *l = new QwtLegend;
 	    l->setItemMode(QwtLegend::CheckableItem);
-	    l->setFrameStyle(QFrame::NoFrame);
-	    l->setFrameShadow((Shadow)0);
-	    l->setMidLineWidth(0);
-	    l->setLineWidth(0);
+//	    l->setFrameStyle(QFrame::NoFrame);
+//	    l->setFrameShadow((Shadow)0);
+//	    l->setMidLineWidth(0);
+//	    l->setLineWidth(0);
 	    insertLegend(l, QwtPlot::BottomLegend);
 	    // force each Legend item to "checked" state matching
 	    // the initial plotting state

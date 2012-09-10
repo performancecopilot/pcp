@@ -23,6 +23,30 @@
 #include <qwt_interval_symbol.h>
 #include <qwt_plot_intervalcurve.h>
 
+class TraceEvent
+{
+public:
+    TraceEvent(QmcEventRecord *);
+
+    int flags(void) const { return my.flags; }
+    int missed(void) const { return my.missed; }
+    double timestamp(void) const { return my.timestamp; }
+
+    const QString &spanID(void) const { return my.spanID; }
+    const QString &rootID(void) const { return my.rootID; }
+    const QString &description(void) const { return my.description; }
+
+private:
+    struct {
+	double		timestamp;
+	int		missed;
+	int		flags;
+	QString		spanID;		// identifier
+	QString		rootID;		// parent ID
+	QString 	description;	// parameters, etc
+    } my;
+};
+
 class TracingItem : public ChartItem
 {
 public:
@@ -30,10 +54,10 @@ public:
     ~TracingItem(void);
 
     QwtPlotItem* item();
-    void preserveLiveData(int, int);
-    void punchoutLiveData(int);
+    void preserveLiveData(int, int) { }
+    void punchoutLiveData(int) { }
     void resetValues(int);
-    void updateValues(bool, bool, int, pmUnits*);
+    void updateValues(bool, bool, pmUnits*, int, double, double, double);
     void rescaleValues(pmUnits*);
     void setStroke(Chart::Style, QColor, bool);
     void replot(int, double*);
@@ -44,8 +68,11 @@ public:
 
 private:
     struct {
-	QVector<QwtIntervalSample> records;
+	QList<TraceEvent> events;		// all events, raw data
+	QVector<QwtIntervalSample> intervals;	// displayed trace data
+
 	QwtPlotIntervalCurve *curve;
+	QwtIntervalSymbol *symbol;
     } my;
 };
 
