@@ -27,7 +27,7 @@ YFILES	= gram.y
 
 CMDTARGET = pmlogextract$(EXECSUFFIX)
 
-LLDLIBS	= -lpcp -lm
+LLDLIBS	= -lpcp -lm $(LIB_FOR_PTHREADS)
 LDIRT	= $(YFILES:%.y=%.tab.?)
 
 default:	$(CMDTARGET)
