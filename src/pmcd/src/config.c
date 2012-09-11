@@ -1317,7 +1317,7 @@ static int
 ConnectSocketAgent(AgentInfo *aPtr)
 {
     int		sts = 0;
-    int		fd;
+    int		fd = -1;	/* pander to gcc */
 
     if (aPtr->ipc.socket.addrDomain == AF_INET) {
 	struct sockaddr_in	addr;
