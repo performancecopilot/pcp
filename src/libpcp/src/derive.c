@@ -66,6 +66,9 @@
 #include "derive.h"
 #include "internal.h"
 #include "fault.h"
+#ifdef IS_MINGW
+extern const char *strerror_r(int, char *, size_t);
+#endif
 
 static int		need_init = 1;
 static ctl_t		registered = {

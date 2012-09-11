@@ -30,6 +30,9 @@
 #include "impl.h"
 #include "internal.h"
 #include <string.h>
+#ifdef IS_MINGW
+extern const char *strerror_r(int, char *, size_t);
+#endif
 
 static __pmContext	**contexts;		/* array of context ptrs */
 static int		contexts_len;		/* number of contexts */

@@ -16,6 +16,9 @@
 #include "impl.h"
 #include "fault.h"
 #include <ctype.h>
+#ifdef IS_MINGW
+extern const char *strerror_r(int, char *, size_t);
+#endif
 
 /*
  * if you modify this table at all, be sure to remake qa/006
