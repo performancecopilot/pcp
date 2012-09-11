@@ -2229,7 +2229,7 @@ $as_echo "$as_me: loading site script $ac_site_file" >&6;}
       || { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "failed to load site script $ac_site_file
-See \`config.log' for more details" "$LINENO" 5; }
+See \`config.log' for more details" "$LINENO" 5 ; }
   fi
 done
 
@@ -2395,7 +2395,7 @@ fi
 $as_echo "$ac_cv_build" >&6; }
 case $ac_cv_build in
 *-*-*) ;;
-*) as_fn_error $? "invalid value of canonical build" "$LINENO" 5;;
+*) as_fn_error $? "invalid value of canonical build" "$LINENO" 5 ;;
 esac
 build=$ac_cv_build
 ac_save_IFS=$IFS; IFS='-'
@@ -2428,7 +2428,7 @@ fi
 $as_echo "$ac_cv_host" >&6; }
 case $ac_cv_host in
 *-*-*) ;;
-*) as_fn_error $? "invalid value of canonical host" "$LINENO" 5;;
+*) as_fn_error $? "invalid value of canonical host" "$LINENO" 5 ;;
 esac
 host=$ac_cv_host
 ac_save_IFS=$IFS; IFS='-'
@@ -2461,7 +2461,7 @@ fi
 $as_echo "$ac_cv_target" >&6; }
 case $ac_cv_target in
 *-*-*) ;;
-*) as_fn_error $? "invalid value of canonical target" "$LINENO" 5;;
+*) as_fn_error $? "invalid value of canonical target" "$LINENO" 5 ;;
 esac
 target=$ac_cv_target
 ac_save_IFS=$IFS; IFS='-'
@@ -2876,7 +2876,7 @@ fi
 test -z "$CC" && { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "no acceptable C compiler found in \$PATH
-See \`config.log' for more details" "$LINENO" 5; }
+See \`config.log' for more details" "$LINENO" 5 ; }
 
 # Provide some information about the compiler.
 $as_echo "$as_me:${as_lineno-$LINENO}: checking for C compiler version" >&5
@@ -2991,7 +2991,7 @@ sed 's/^/| /' conftest.$ac_ext >&5
 { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error 77 "C compiler cannot create executables
-See \`config.log' for more details" "$LINENO" 5; }
+See \`config.log' for more details" "$LINENO" 5 ; }
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
@@ -3034,7 +3034,7 @@ else
   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "cannot compute suffix of executables: cannot compile and link
-See \`config.log' for more details" "$LINENO" 5; }
+See \`config.log' for more details" "$LINENO" 5 ; }
 fi
 rm -f conftest conftest$ac_cv_exeext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_exeext" >&5
@@ -3093,7 +3093,7 @@ $as_echo "$ac_try_echo"; } >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "cannot run C compiled programs.
 If you meant to cross compile, use \`--host'.
-See \`config.log' for more details" "$LINENO" 5; }
+See \`config.log' for more details" "$LINENO" 5 ; }
     fi
   fi
 fi
@@ -3145,7 +3145,7 @@ sed 's/^/| /' conftest.$ac_ext >&5
 { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "cannot compute suffix of object files: cannot compile
-See \`config.log' for more details" "$LINENO" 5; }
+See \`config.log' for more details" "$LINENO" 5 ; }
 fi
 rm -f conftest.$ac_cv_objext conftest.$ac_ext
 fi
@@ -4209,7 +4209,7 @@ do
     "src/include/pcp/platform_header.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/platform_header.h" ;;
     "src/include/pcp/platform_defs.h") CONFIG_FILES="$CONFIG_FILES src/include/pcp/platform_defs.h" ;;
 
-  *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
+  *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5 ;;
   esac
 done
 
@@ -4526,7 +4526,7 @@ do
   esac
   case $ac_mode$ac_tag in
   :[FHL]*:*);;
-  :L* | :C*:*) as_fn_error $? "invalid tag \`$ac_tag'" "$LINENO" 5;;
+  :L* | :C*:*) as_fn_error $? "invalid tag \`$ac_tag'" "$LINENO" 5 ;;
   :[FH]-) ac_tag=-:-;;
   :[FH]*) ac_tag=$ac_tag:$ac_tag.in;;
   esac
@@ -4554,7 +4554,7 @@ do
 	   [\\/$]*) false;;
 	   *) test -f "$srcdir/$ac_f" && ac_f="$srcdir/$ac_f";;
 	   esac ||
-	   as_fn_error 1 "cannot find input file: \`$ac_f'" "$LINENO" 5;;
+	   as_fn_error 1 "cannot find input file: \`$ac_f'" "$LINENO" 5 ;;
       esac
       case $ac_f in *\'*) ac_f=`$as_echo "$ac_f" | sed "s/'/'\\\\\\\\''/g"`;; esac
       as_fn_append ac_file_inputs " '$ac_f'"
@@ -4581,7 +4581,7 @@ $as_echo "$as_me: creating $ac_file" >&6;}
 
     case $ac_tag in
     *:-:* | *:-) cat >"$ac_tmp/stdin" \
-      || as_fn_error $? "could not create $ac_file" "$LINENO" 5 ;;
+      || as_fn_error $? "could not create $ac_file" "$LINENO" 5  ;;
     esac
     ;;
   esac
@@ -4900,7 +4900,7 @@ fi
 test -z "$CC" && { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "no acceptable C compiler found in \$PATH
-See \`config.log' for more details" "$LINENO" 5; }
+See \`config.log' for more details" "$LINENO" 5 ; }
 
 # Provide some information about the compiler.
 $as_echo "$as_me:${as_lineno-$LINENO}: checking for C compiler version" >&5
@@ -5427,7 +5427,7 @@ else
   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "C preprocessor \"$CPP\" fails sanity check
-See \`config.log' for more details" "$LINENO" 5; }
+See \`config.log' for more details" "$LINENO" 5 ; }
 fi
 
 ac_ext=c
@@ -8672,7 +8672,7 @@ End-of-File
 (eval $ac_link) 2>&5
 ans=`./conftest`
 echo "./conftest -> \"$ans\"" >&5
-case $ans
+case "$ans"
 in
     0x*)
 	$as_echo "#define HAVE_PRINTF_P_PFX 1" >>confdefs.h
@@ -8970,13 +8970,18 @@ ans=`./conftest`
 echo "./conftest -> \"$ans\"" >&5
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 $as_echo "$ans" >&6; }
-if test $ans -eq 4; then
+if test "$ans" = 4; then
     $as_echo "#define HAVE_32BIT_LONG 1" >>confdefs.h
 
-fi
-if test $ans -eq 8; then
+elif test "$ans" = 8; then
     $as_echo "#define HAVE_64BIT_LONG 1" >>confdefs.h
 
+else
+    echo
+    echo "FATAL ERROR: size of long is not 32 or 64 bits, cannot proceed."
+    echo "sizeof(char *) -> $ans"
+    rm -rf conftest conftest.*
+    exit 1
 fi
 rm -rf conftest conftest.*
 
@@ -8992,11 +8997,11 @@ ans=`./conftest`
 echo "./conftest -> \"$ans\"" >&5
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 $as_echo "$ans" >&6; }
-if test $ans -eq 4; then
+if test "$ans" = 4; then
     $as_echo "#define HAVE_32BIT_PTR 1" >>confdefs.h
 
     PCP_PTR_SIZE=32
-elif test $ans -eq 8; then
+elif test "$ans" = 8; then
     $as_echo "#define HAVE_64BIT_PTR 1" >>confdefs.h
 
     PCP_PTR_SIZE=64
@@ -9021,7 +9026,7 @@ ans=`./conftest`
 echo "./conftest -> \"$ans\"" >&5
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 $as_echo "$ans" >&6; }
-if test $ans -ne 4
+if test "$ans" != 4
 then
     echo
     echo "FATAL ERROR: sizeof(int) is not 32 bits, cannot proceed."
@@ -9042,7 +9047,7 @@ End-of-File
 (eval $ac_link) 2>&5
 ans=`./conftest`
 echo "./conftest -> \"$ans\"" >&5
-case $ans
+case "$ans"
 in
     1200*|*0012)
 	# left-to-right starting from MSB (SGI cc on MIPS), or
@@ -9858,7 +9863,7 @@ if test "x$with_x" = xno; then
   have_x=disabled
 else
   case $x_includes,$x_libraries in #(
-    *\'*) as_fn_error $? "cannot use X directory names containing '" "$LINENO" 5;; #(
+    *\'*) as_fn_error $? "cannot use X directory names containing '" "$LINENO" 5 ;; #(
     *,NONE | NONE,*) if ${ac_cv_have_x+:} false; then :
   $as_echo_n "(cached) " >&6
 else
@@ -11747,7 +11752,7 @@ do
     "src/include/pcp.conf") CONFIG_FILES="$CONFIG_FILES src/include/pcp.conf" ;;
     "pcp.lsm") CONFIG_FILES="$CONFIG_FILES pcp.lsm" ;;
 
-  *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
+  *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5 ;;
   esac
 done
 
@@ -12064,7 +12069,7 @@ do
   esac
   case $ac_mode$ac_tag in
   :[FHL]*:*);;
-  :L* | :C*:*) as_fn_error $? "invalid tag \`$ac_tag'" "$LINENO" 5;;
+  :L* | :C*:*) as_fn_error $? "invalid tag \`$ac_tag'" "$LINENO" 5 ;;
   :[FH]-) ac_tag=-:-;;
   :[FH]*) ac_tag=$ac_tag:$ac_tag.in;;
   esac
@@ -12092,7 +12097,7 @@ do
 	   [\\/$]*) false;;
 	   *) test -f "$srcdir/$ac_f" && ac_f="$srcdir/$ac_f";;
 	   esac ||
-	   as_fn_error 1 "cannot find input file: \`$ac_f'" "$LINENO" 5;;
+	   as_fn_error 1 "cannot find input file: \`$ac_f'" "$LINENO" 5 ;;
       esac
       case $ac_f in *\'*) ac_f=`$as_echo "$ac_f" | sed "s/'/'\\\\\\\\''/g"`;; esac
       as_fn_append ac_file_inputs " '$ac_f'"
@@ -12119,7 +12124,7 @@ $as_echo "$as_me: creating $ac_file" >&6;}
 
     case $ac_tag in
     *:-:* | *:-) cat >"$ac_tmp/stdin" \
-      || as_fn_error $? "could not create $ac_file" "$LINENO" 5 ;;
+      || as_fn_error $? "could not create $ac_file" "$LINENO" 5  ;;
     esac
     ;;
   esac
