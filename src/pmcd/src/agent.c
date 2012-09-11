@@ -42,7 +42,9 @@ void
 CleanupAgent(AgentInfo* aPtr, int why, int status)
 {
     extern int	AgentDied;
+#ifndef IS_MINGW
     int		exit_status = status;
+#endif
     int		reason = 0;
 
     if (aPtr->ipcType == AGENT_DSO) {
@@ -86,7 +88,9 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
 	} else {
 	    reason = REASON_PROTOCOL;
 	    fprintf(stderr, " protocol failure for fd=%d", status);
+#ifndef IS_MINGW
 	    exit_status = -1;
+#endif
 	}
 	if (aPtr->status.isChild == 1) {
 	    pid_t	pid = (pid_t)-1;
@@ -109,7 +113,9 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
 		done = 0;
 #endif
 		if (done == pid) {
+#ifndef IS_MINGW
 		    exit_status = wait_status;
+#endif
 		    break;
 		}
 		if (done > 0) {
