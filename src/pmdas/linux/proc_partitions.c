@@ -60,6 +60,18 @@ _pm_isramdisk(char *dname)
     return strncmp(dname, "ram", 3) == 0;
 }
 
+static int
+_pm_ismmcdisk(char *dname)
+{
+    if (strncmp(dname, "mmcblk", 6) != 0)
+	return 0;
+    /*
+     * Are we a disk or a partition of the disk? If there is a "p" 
+     * assume it is a partition - e.g. mmcblk0p6.
+     */
+    return (strchr(dname + 6, 'p') == NULL);
+}
+
 /*
  * slight improvement to heuristic suggested by
  * Tim Bradshaw <tfb@cley.com> on 29 Dec 2003
@@ -67,13 +79,13 @@ _pm_isramdisk(char *dname)
 int
 _pm_ispartition(char *dname)
 {
-    int m = strlen(dname) - 1;
-    if (strchr(dname, '/')) {
+    int p, m = strlen(dname) - 1;
+
     /*
      * looking at something like foo/x, and we hope x ends p<n>, for 
      * a partition, or not for a disk.
      */
-	int p;
+    if (strchr(dname, '/')) {
 	for (p = m; p > 0 && isdigit(dname[p]); p--)
 	    ;
 	if (p == m)
@@ -89,9 +101,14 @@ _pm_ispartition(char *dname)
     else {
 	/*
 	 * default test : partition names end in a digit do not
-	 * look like loopback devices
+	 * look like loopback devices.  Handle other special-cases
+	 * here - mostly seems to be RAM-type disk drivers that're
+	 * choosing to end device names with numbers.
 	 */
-	return !_pm_isloop(dname) && !_pm_isramdisk(dname) && isdigit(dname[m]);
+	return isdigit(dname[m]) &&
+		!_pm_isloop(dname) &&
+		!_pm_isramdisk(dname) &&
+		!_pm_ismmcdisk(dname);
     }
 }
 
