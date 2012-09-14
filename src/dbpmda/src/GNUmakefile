@@ -22,7 +22,7 @@ LFILES	= lex.l
 YFILES	= gram.y
 
 LDIRT	= *.log foo.* gram.h $(YFILES:%.y=%.tab.?) $(LFILES:%.l=%.c)
-LLDLIBS	= $(PCPLIB) $(LIB_FOR_READLINE) $(LIB_FOR_CURSES)
+LLDLIBS	= $(PCPLIB) $(LIB_FOR_DLOPEN) $(LIB_FOR_READLINE) $(LIB_FOR_CURSES)
 
 default:	$(CMDTARGET)
 

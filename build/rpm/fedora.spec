@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.6.6
+Version: 3.6.7
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}.1
@@ -394,6 +394,9 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Fri Sep 14 2012 Nathan Scott <nathans@redhat.com> - 3.6.7-1
+- Update to latest PCP sources.
+
 * Wed Sep 05 2012 Nathan Scott <nathans@redhat.com> - 3.6.6-1.1
 - Move configure step from prep to build section of spec (BZ 854128)
 
