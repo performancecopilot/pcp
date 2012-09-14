@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 CFILES = pmevent.c doargs.c
 HFILES = pmevent.h
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
-LLDLIBS = $(PCP_GUILIB)
+LLDLIBS = $(PCP_GUILIB) $(LIB_FOR_MATH)
 
 CMDTARGET = pmevent$(EXECSUFFIX)
 

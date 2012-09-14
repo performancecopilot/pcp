@@ -17,7 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = pmval.c
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
-LLDLIBS = $(PCP_GUILIB)
+LLDLIBS = $(PCP_GUILIB) $(LIB_FOR_MATH)
 
 CMDTARGET = pmval$(EXECSUFFIX)
 

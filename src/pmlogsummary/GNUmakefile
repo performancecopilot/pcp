@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 CFILES	= pmlogcheck.c pmlogsummary.c
 TARGETS	= pmlogcheck$(EXECSUFFIX) pmlogsummary$(EXECSUFFIX)
 LSRCFILES = pmwtf.sh
-LLDLIBS	= $(PCPLIB)
+LLDLIBS	= $(PCPLIB) $(LIB_FOR_MATH)
 LDIRT += $(TARGETS)
 
 default:	$(TARGETS)
