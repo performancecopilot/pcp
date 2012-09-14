@@ -383,7 +383,7 @@ fi
 %defattr(-,root,root)
 
 %files testsuite -f testsuite_files.rpm
-%defattr(-,root,root)
+%defattr(-,pcpqa,pcpqa)
 
 %files import-sar2pcp -f import_sar2pcp_files.rpm
 %defattr(-,root,root)
