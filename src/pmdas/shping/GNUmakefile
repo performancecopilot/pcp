@@ -26,7 +26,7 @@ CHARTS	= shping.CPUTime.pmchart shping.RealTime.pmchart
 PMIECS	= shping.status.pmie shping.response.pmie
 
 LSRCFILES = $(OTHERS) $(CHARTS) $(PMIECS) Install Remove pmlogconf.summary
-LLDLIBS	= $(PCP_PMDALIB)
+LLDLIBS	= $(PCP_PMDALIB) $(LIB_FOR_PTHREAD)
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 PMCHART	= $(PCP_VAR_DIR)/config/pmchart
