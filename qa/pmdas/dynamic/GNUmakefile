@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2012 Red Hat.
 #
@@ -17,7 +16,7 @@ LSRCFILES = $(MYSCRIPTS) $(MYFILES) GNUmakefile.install
 LDIRT = help.pag help.dir
 
 LLDFLAGS = $(PCP_LIBS)
-LLDLIBS = -lpcp_pmda -lpcp
+LLDLIBS = $(PCP_PMDALIB)
 
 default default_pcp setup: $(TARGETS)
 

@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (C) 2000 Michal Kara.  All Rights Reserved.
 #
@@ -12,10 +11,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-# 
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
@@ -35,7 +30,7 @@ PMCHART	= $(PCP_VAR_DIR)/config/pmchart
 LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so $(TARGETS)
 LCFLAGS = -I$(TOPDIR)/src/libpcp_http/src
 LLDFLAGS= -L$(TOPDIR)/src/libpcp_http/src
-LLDLIBS	= -lpcp_http -lpcp_pmda -lpcp
+LLDLIBS	= -lpcp_http $(PCP_PMDALIB)
 
 default: build-me
 

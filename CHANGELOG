@@ -12,6 +12,7 @@ pcp-3.6.7 (14 September 2012)
     - Fix handling of multiple contexts with a remote namespace.
     - Core socket interface abstractions to support NSS (later).
     - Fix man page SYNOPSIS section for pmUnpackEventRecords.
+    - Add --disable-shared build option for static builds.
 
 pcp-3.6.6 (28 August 2012)
     - Added the python PMAPI bindings and an initial python client

@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -11,10 +10,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
 TOPDIR = ../../../..
@@ -33,7 +28,7 @@ ifeq "$(TARGET_OS)" "darwin"
 # Update: -Wl,-m is apparently now obsolete
 LLDFLAGS += -Wl,-bind_at_load
 endif
-LLDLIBS	= -lpcp_pmda -lpcp -lpcp_trace
+LLDLIBS	= -lpcp_trace $(PCP_PMDALIB)
 
 IAM	= trace
 DOMAIN	= TRACE

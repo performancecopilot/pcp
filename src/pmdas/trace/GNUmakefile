@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2000-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -11,10 +10,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
 TOPDIR = ../../..
@@ -35,7 +30,7 @@ APPS	= app1$(EXECSUFFIX) app2$(EXECSUFFIX) app3$(EXECSUFFIX)
 
 LCFLAGS = -I.
 LLDFLAGS= -L$(TOPDIR)/src/libpcp/src -L$(TOPDIR)/src/libpcp_trace/src
-LLDLIBS = -lpcp -lpcp_trace
+LLDLIBS = $(PCP_TRACELIB)
 
 LDIRT	= *.log *.dir *.pag *.o $(APPS) tmp.c \
 	  pmtrace.c Makefile.demos

@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 1995-2002,2007 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -11,10 +10,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
 TOPDIR = ../../..
@@ -63,7 +58,7 @@ include $(BUILDRULES)
 #LCINCS  = $(PCP_INC_PATH)
 #LCDEFS	= $(DEBUG)
 #LLDOPTS	= $(PCP_LIBS_PATH)
-#LLDLIBS	= -lpcp_pmda -lpcp -lc -ll
+#LLDLIBS	= $(PCP_PMDALIB)
 #
 #PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 #LDIRT	= domain.h *.log *.dir *.pag 

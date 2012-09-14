@@ -31,7 +31,7 @@ HFILES		= cgroups.h clusters.h dynamic.h proc_pid.h indom.h getinfo.h \
 LSRCFILES 	= Install Remove help pmns pmns.cgroup root linux_proc_migrate.conf
 LDIRT		= domain.h
 
-LLDLIBS		= -lpcp_pmda -lpcp
+LLDLIBS		= $(PCP_PMDALIB)
 
 # Uncomment these flags for profiling
 # LCFLAGS	= -pg

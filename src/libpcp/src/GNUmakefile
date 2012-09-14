@@ -66,11 +66,14 @@ STATICLIBTARGET =
 LIBTARGET = libpcp.$(DSOSUFFIX)
 SYMTARGET =
 endif
+ifeq "$(ENABLE_SHARED)" "no"
+LIBTARGET = 
+SYMTARGET =
+endif
 
 LDIRT += $(SYMTARGET) check.done
 
-base default : $(LIBTARGET) check.done $(SYMTARGET)
-$(LIBTARGET):	$(STATICLIBTARGET)
+base default : $(LIBTARGET) check.done $(SYMTARGET) $(STATICLIBTARGET)
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET): 
@@ -99,7 +102,9 @@ kernel_pmda_dso	= $(TARGET_OS)
 endif
 
 install : default
+ifneq "$(LIBTARGET)" ""
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
+endif
 ifneq "$(SYMTARGET)" ""
 	for tt in $(SYMTARGET); do \
 	    $(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$$tt || exit 1; \

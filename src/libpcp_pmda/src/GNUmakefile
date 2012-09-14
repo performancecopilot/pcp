@@ -53,22 +53,34 @@ LIBTARGET_V2 =
 LIBTARGET_V3 =
 endif
 
+ifeq "$(ENABLE_SHARED)" "no"
+LIBTARGET =
+LIBTARGET_V1 =
+LIBTARGET_V2 =
+LIBTARGET_V3 =
+endif
+
 LDIRT = $(LIBTARGET_V1) $(LIBTARGET_V2) $(LIBTARGET_V3)
 
 default: $(LIBTARGET_V1) $(LIBTARGET_V2) $(LIBTARGET) $(STATICLIBTARGET)
 
+ifneq "$(LIBTARGET_V1)" ""
 $(LIBTARGET_V1): $(LIBTARGET_V3)
 	$(LN_S) -f $(LIBTARGET_V3) $(LIBTARGET_V1)
-
+endif
+ifneq "$(LIBTARGET_V2)" ""
 $(LIBTARGET_V2): $(LIBTARGET_V3)
 	$(LN_S) -f $(LIBTARGET_V3) $(LIBTARGET_V2)
+endif
 
 callback.o mainloop.o open.o : libdefs.h
 
 include $(BUILDRULES)
 
 install : default
+ifneq "$(LIBTARGET)" ""
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
+endif
 ifneq "$(LIBTARGET_V1)" ""
 	$(INSTALL) -S $(LIBTARGET_V3) $(PCP_LIB_DIR)/$(LIBTARGET_V1)
 endif

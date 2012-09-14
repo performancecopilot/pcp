@@ -4,7 +4,7 @@
 
 Summary: System-level performance monitoring and performance management
 Name: %{?scl_prefix}pcp
-Version: 3.6.6
+Version: 3.6.7
 %define buildversion 1
 Release: %{buildversion}%{?dist}
 License: GPLv2
@@ -225,7 +225,7 @@ Software Collection-compatible initscript wrappers for PCP daemons.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure --with-rcdir=%{_sysconfdir}/rc.d/init.d --with-docdir=%{_docdir}/%{name}-%{version}
+%configure --disable-shared --with-rcdir=%{_sysconfdir}/rc.d/init.d --with-docdir=%{_docdir}/%{name}-%{version}
 make default_pcp
 
 %install
@@ -370,25 +370,10 @@ exit 0
 %{_includedir}/pcp/builddefs
 %{_includedir}/pcp/buildrules
 %config %{_sysconfdir}/pcp.conf
-%{_libdir}/libpcp.so.3
-%{_libdir}/libpcp_gui.so.2
-%{_libdir}/libpcp_mmv.so.1
-%{_libdir}/libpcp_pmda.so.3
-%{_libdir}/libpcp_trace.so.2
-%{_libdir}/libpcp_import.so.1
 
 %files libs-devel
 %defattr(-,root,root)
 
-%{_libdir}/libpcp.so
-%{_libdir}/libpcp.so.2
-%{_libdir}/libpcp_gui.so
-%{_libdir}/libpcp_gui.so.1
-%{_libdir}/libpcp_mmv.so
-%{_libdir}/libpcp_pmda.so
-%{_libdir}/libpcp_pmda.so.2
-%{_libdir}/libpcp_trace.so
-%{_libdir}/libpcp_import.so
 %{_includedir}/pcp/*.h
 %{_mandir}/man3/*
 %{_datadir}/pcp/demos
@@ -431,9 +416,10 @@ exit 0
 %changelog
 * Fri Sep 14 2012 Nathan Scott <nathans@redhat.com> - 3.6.7-1
 - Update to latest PCP sources.
+- Make use of the new --disable-shared configure option (BZ 856651)
 
 * Mon Sep 10 2012 Frank Ch. Eigler <fche@redhat.com> - 3.6.6-2
-- bumped release number
+- Bumped release number
 
 * Fri Sep 07 2012 Nathan Scott <nathans@redhat.com> - 3.6.6-1.1
 - Move configure step from prep to build section of spec (BZ 854128)

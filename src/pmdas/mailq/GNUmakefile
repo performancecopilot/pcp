@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2000-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -12,10 +11,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
@@ -27,7 +22,7 @@ CMDTARGET = $(IAM)$(EXECSUFFIX)
 CFILES	= mailq.c
 DFILES	= README
 LSRCFILES = Install Remove root help pmns $(DFILES) pmlogconf.summary
-LLDLIBS	= -lpcp_pmda -lpcp $(LIB_FOR_REGEX)
+LLDLIBS	= $(PCP_PMDALIB) $(LIB_FOR_REGEX)
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 LDIRT	= domain.h *.log *.dir *.pag so_locations

@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -12,10 +13,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 
 # Common gmake macros for building
 #
@@ -61,8 +58,10 @@ PACKAGE_BUILDER = @package_builder@
 WARN_OFF = -Wall
 
 LIBPCP_ABIDIR ?= src
-PCP_LIBS = -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) \
-	   -L$(TOPDIR)/src/libpcp_pmda/$(LIBPCP_ABIDIR)
+PCPLIB_LDFLAGS = -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) \
+		 -L$(TOPDIR)/src/libpcp_pmda/$(LIBPCP_ABIDIR)
+# backward compatibility
+PCP_LIBS = $(PCPLIB_LDFLAGS)
 
 # platform-specific CFLAGS, LDLIBS, and shared library extension
 #
@@ -184,6 +183,7 @@ PCP_MAN_DIR = @pcp_man_dir@
 
 NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 RDYNAMIC_FLAG = @rdynamic_flag@
+ENABLE_SHARED = @enable_shared@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
@@ -484,6 +484,17 @@ _FORCE = __force_build
 
 PCP_OWNER = @pcp_owner@
 PCP_GROUP = @pcp_group@
+
+PCPLIB = -lpcp
+ifneq "$(PCPLIB)" "$(LIB_FOR_BASENAME)"
+PCPLIB += $(LIB_FOR_BASENAME)
+endif
+ifeq "$(ENABLE_SHARED)" "no"
+PCPLIB += $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS) $(LIB_FOR_DLOPEN)
+endif
+PCP_GUILIB = -lpcp_gui $(PCPLIB)
+PCP_PMDALIB = -lpcp_pmda $(PCPLIB)
+PCP_TRACELIB = -lpcp_trace $(PCPLIB)
 
 ifdef PCP_ALTLIBS
 ifeq ($(PCP_LIB_DIR),$(PCP_LIB32_DIR))

@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2000-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -11,10 +10,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
 TOPDIR = ../../..
@@ -38,7 +33,7 @@ PMDADIR	= $(PCP_PMDAS_DIR)/weblog
 PMCHARTDIR = $(PCP_VAR_DIR)/config/pmchart
 CONFDIR	= $(PCP_VAR_DIR)/config/web
 
-LDLIBS	= -lpcp_pmda -lpcp $(LIB_FOR_PTHREADS)
+LDLIBS	= $(PCP_PMDALIB)
 
 default:	build-me
 

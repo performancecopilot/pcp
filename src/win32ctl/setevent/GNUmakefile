@@ -17,7 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = pcp-setevent.c
 CMDTARGET = pcp-setevent.exe
-LLDLIBS = -lpcp
+LLDLIBS = $(PCPLIB)
 LSRCFILES = $(WRAPPERS)
 
 default:	build-me

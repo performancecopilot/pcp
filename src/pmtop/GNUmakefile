@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2007 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
@@ -13,16 +12,12 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES = pmtop.c
-LLDLIBS = -lpcp
+LLDLIBS = $(PCPLIB)
 CMDTARGET = pmtop$(EXECSUFFIX)
 
 default : $(CMDTARGET)

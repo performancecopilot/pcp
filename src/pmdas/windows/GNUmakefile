@@ -24,7 +24,7 @@ HFILES		= hypnotoad.h
 LCFLAGS		= -DWIN32_LEAN_AND_MEAN -D_WIN32_WINNT=0x0500 \
 		  -I$(WINDIR)/include
 LLDFLAGS	= -L$(WINDIR)/lib
-LLDLIBS		= -lpcp -lpcp_pmda -lpcp_pdh
+LLDLIBS		= $(PCP_PMDALIB) -lpcp_pdh
 PMNS		= pmns.disk pmns.kernel pmns.mem pmns.network \
 		  pmns.sqlserver pmns.filesys pmns.hinv pmns.pmda \
 		  pmns.process

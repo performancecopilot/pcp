@@ -19,7 +19,7 @@ IAM		= bash
 DOMAIN		= BASH
 
 TARGETS		= $(IAM)$(EXECSUFFIX)
-LLDLIBS		= -lpcp -lpcp_pmda
+LLDLIBS		= $(PCP_PMDALIB)
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 LDIRT		= domain.h *.log *.dir *.pag so_locations $(TARGETS)
 

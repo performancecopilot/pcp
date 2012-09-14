@@ -11,20 +11,7 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#*************************************************************************
-#
-# Makefile - sample PMDA (both shared object and daemon)
-#
-#*************************************************************************
 
-#
-# Every Makefile must define ISM_DEPTH to be the path to the top of
-# the ISM. In this case the top is two directories up. The ismdefs file
-# must then be included.
-#
 TOPDIR = ../../../..
 include $(TOPDIR)/src/include/builddefs
 
@@ -44,7 +31,7 @@ CFILES = pmda.c sample.c percontext.c events.c
 HFILES = percontext.h events.h
 
 LCFLAGS = -DDYNAMIC_SPEC=\"$(PCP_PMDAS_DIR)/sample/dynamic.indom\"
-LLDLIBS = -lpcp -lpcp_pmda
+LLDLIBS = $(PCP_PMDALIB)
 
 default:	../domain.h $(TARGETS)
 
