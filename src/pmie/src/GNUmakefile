@@ -30,7 +30,7 @@ LSRCFILES = $(SKELETAL) meta logger.h
 
 LDIRT += $(YFILES:%.y=%.tab.?) fun.c fun.o $(TARGET) grammar.h
 
-LLDLIBS = $(PCPLIB) $(LIB_FOR_REGEX)
+LLDLIBS = $(PCPLIB) $(LIB_FOR_MATH) $(LIB_FOR_REGEX)
 
 LCFLAGS += $(PIECFLAGS)
 LLDFLAGS += $(PIELDFLAGS)

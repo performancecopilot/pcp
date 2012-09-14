@@ -24,7 +24,7 @@ LFILES  = lex.l
 YFILES	= gram.y
 
 CMDTARGET = pmlogrewrite$(EXECSUFFIX)
-LLDLIBS	= $(PCPLIB)
+LLDLIBS	= $(PCPLIB) $(LIB_FOR_MATH)
 LDIRT	+= $(YFILES:%.y=%.tab.?)
 
 default:	$(CMDTARGET)

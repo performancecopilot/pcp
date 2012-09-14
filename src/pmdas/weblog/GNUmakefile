@@ -33,7 +33,7 @@ PMDADIR	= $(PCP_PMDAS_DIR)/weblog
 PMCHARTDIR = $(PCP_VAR_DIR)/config/pmchart
 CONFDIR	= $(PCP_VAR_DIR)/config/web
 
-LDLIBS	= $(PCP_PMDALIB)
+LDLIBS	= $(PCP_PMDALIB) $(LIB_FOR_PTHREADS)
 
 default:	build-me
 
