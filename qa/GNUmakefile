@@ -34,7 +34,7 @@ LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
 SCRIPTS = mk.localconfig mk.pcpversion mk.qa_hosts mk.variant getpmcdhosts \
 	  new check recheck remake findmetric group-stats changeversion \
 	  check-gitignore check-group chk.setup show-me disk-work \
-	  xlate_2_new_pmns common
+	  xlate_2_new_pmns common setup.051
 
 COMMON = common.check common.config common.filter common.install.cisco \
 	 common.pcpweb common.product common.rc common.setup
@@ -61,8 +61,8 @@ install_pcp install: $(SUBDIRS)
 ifeq (, $(filter mingw darwin solaris, $(TARGET_OS)))
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 755 $(TESTS) $(TESTDIR)
-	$(INSTALL) -m 755 $(SCRIPTS) $(TESTDIR)
-	$(INSTALL) -m 644 $(COMMON) $(OTHERS) $(TESTDIR)
+	$(INSTALL) -m 755 $(SCRIPTS) $(COMMON) $(TESTDIR)
+	$(INSTALL) -m 644 $(OTHERS) $(TESTDIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 	$(INSTALL) -m 644 qa_outfiles $(DOTOUTFILES) $(TESTDIR)
 	$(SUBDIRS_MAKERULE)
