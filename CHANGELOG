@@ -1,4 +1,4 @@
-pcp-3.6.7 (14 September 2012)
+pcp-3.6.8 (14 September 2012)
     - Corrects the disk/partition identification for the MMC
       driver, which makes disk indom handling correct on the
       Raspberry Pi (http://www.raspberrypi.org/)
