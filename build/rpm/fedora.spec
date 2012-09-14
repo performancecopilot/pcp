@@ -1,9 +1,9 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.6.7
+Version: 3.6.8
 %define buildversion 1
 
-Release: %{buildversion}%{?dist}.1
+Release: %{buildversion}%{?dist}
 License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
@@ -394,7 +394,7 @@ fi
 %defattr(-,root,root)
 
 %changelog
-* Fri Sep 14 2012 Nathan Scott <nathans@redhat.com> - 3.6.7-1
+* Fri Sep 14 2012 Nathan Scott <nathans@redhat.com> - 3.6.8-1
 - Update to latest PCP sources.
 
 * Wed Sep 05 2012 Nathan Scott <nathans@redhat.com> - 3.6.6-1.1
@@ -414,7 +414,7 @@ fi
 * Thu Jun 21 2012 Mark Goodwin <mgoodwin@redhat.com>
 - remove pcp-import-sheet2pcp subpackage due to missing deps (BZ 830923) - 3.6.3-1.2
 
-* Fri May 18 2012 Dan Horák <dan[at]danny.cz> - 3.6.3-1.1
+* Fri May 18 2012 Dan Hork <dan[at]danny.cz> - 3.6.3-1.1
 - fix build on s390x
 
 * Mon Apr 30 2012 Mark Goodwin - 3.6.3-1
