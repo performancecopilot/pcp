@@ -569,8 +569,8 @@ extern int __pmCompareIPAddr (const __pmIPAddr *, const __pmIPAddr *);
 extern int __pmIPAddrIsLoopBack(const __pmIPAddr *);
 extern __pmIPAddr __pmLoopbackAddress(void);
 
-extern const __pmIPAddr __pmSockAddrInToIPAddr(const __pmSockAddrIn *);
-extern const __pmIPAddr __pmInAddrToIPAddr(const __pmInAddr *);
+extern __pmIPAddr __pmSockAddrInToIPAddr(const __pmSockAddrIn *);
+extern __pmIPAddr __pmInAddrToIPAddr(const __pmInAddr *);
 extern int __pmIPAddrToInt(const __pmIPAddr *);
 extern char *__pmSockAddrInToString(__pmSockAddrIn *);
 

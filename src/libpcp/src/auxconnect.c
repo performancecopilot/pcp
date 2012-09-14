@@ -507,13 +507,13 @@ __pmLoopbackAddress(void)
     return htonl(INADDR_LOOPBACK);
 }
 
-const __pmIPAddr
+__pmIPAddr
 __pmSockAddrInToIPAddr(const __pmSockAddrIn *inaddr)
 {
     return __pmInAddrToIPAddr(&inaddr->sin_addr);
 }
 
-const __pmIPAddr
+__pmIPAddr
 __pmInAddrToIPAddr(const __pmInAddr *inaddr)
 {
     return inaddr->s_addr;
