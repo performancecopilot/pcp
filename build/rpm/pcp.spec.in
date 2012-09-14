@@ -6,21 +6,22 @@ License: GPLv2
 Vendor: Silicon Graphics, Inc.
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
-
-Source: @package_name@-@package_version@-@package_release@.src.tar.gz
-
-Distribution: @package_distribution@
+Source: @package_name@-@package_version@.src.tar.gz
 BuildRoot: @build_root@ 
-BuildRequires: procps bison flex ncurses-devel readline-devel
+Distribution: @package_distribution@
+BuildRequires: procps bison flex
+BuildRequires: python-devel
+BuildRequires: ncurses-devel
+BuildRequires: readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
 %if "%{_vendor}" == "redhat"
-BuildRequires: initscripts
+BuildRequires: initscripts man /bin/hostname
 %endif
 
 Conflicts: pcp-pro < 2.2
 
-# Stuff used indirectly e.g. by shell scripts we install
+# Utilities used indirectly e.g. by scripts we install
 Requires: bash gawk sed grep coreutils findutils perl python
 %if "%{_vendor}" == "suse"
 Requires: sysconfig

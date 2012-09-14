@@ -1,8 +1,8 @@
 pcp (3.6.7) unstable; urgency=low
 
-  * In-development (full details in CHANGELOG).
+  * New release (full details in CHANGELOG).
 
- -- Nathan Scott <nathans@debian.org>  Mon, 10 Sep 2012 08:37:48 +1000
+ -- Nathan Scott <nathans@debian.org>  Fri, 14 Sep 2012 09:34:44 +1000
 
 pcp (3.6.6) unstable; urgency=low
 

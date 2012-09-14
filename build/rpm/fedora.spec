@@ -7,12 +7,15 @@ Release: %{buildversion}%{?dist}.1
 License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
-Source0: pcp-%{version}-%{buildversion}.src.tar.gz
+Source0: pcp-%{version}.src.tar.gz
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: procps autoconf bison flex ncurses-devel readline-devel
+BuildRequires: procps autoconf bison flex
+BuildRequires: python-devel
+BuildRequires: ncurses-devel
+BuildRequires: readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
-BuildRequires: initscripts python-devel man /bin/hostname
+BuildRequires: initscripts man /bin/hostname
  
 Requires: bash gawk sed grep fileutils findutils initscripts perl python
 

@@ -10,13 +10,16 @@ Release: %{buildversion}%{?dist}
 License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
-Source0: pcp-%{version}-%{buildversion}.src.tar.gz
+Source0: pcp-%{version}.src.tar.gz
 Patch0: pcpqa_service_prefix.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: procps bison flex ncurses-devel readline-devel
+BuildRequires: procps bison flex
+BuildRequires: python-devel
+BuildRequires: ncurses-devel
+BuildRequires: readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
-BuildRequires: initscripts python-devel man /bin/hostname
+BuildRequires: initscripts man /bin/hostname
  
 Requires: bash gawk sed grep fileutils findutils initscripts perl python
 Requires: %{?scl_prefix}pcp-libs = %{version}-%{release}
@@ -426,6 +429,17 @@ exit 0
 %defattr(-,root,root)
 
 %changelog
+* Fri Sep 14 2012 Nathan Scott <nathans@redhat.com> - 3.6.7-1
+- Update to latest PCP sources.
+
+* Mon Sep 10 2012 Frank Ch. Eigler <fche@redhat.com> - 3.6.6-2
+- bumped release number
+
+* Fri Sep 07 2012 Nathan Scott <nathans@redhat.com> - 3.6.6-1.1
+- Move configure step from prep to build section of spec (BZ 854128)
+- Add %ghost to handle the .NeedRebuild build leftover (BZ 850359)
+- Merge in further spec work from fedora/rawhide.
+
 * Wed Aug 28 2012 Frank Ch. Eigler <fche@redhat.com> - 3.6.6-1
 - Update to official PCP 3.6.6-1 sources.
 - Adopt more spec patterns from fedora/rawhide.
