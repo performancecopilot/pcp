@@ -90,6 +90,11 @@ QwtPlotItem *SamplingItem::item(void)
     return my.curve;
 }
 
+QwtPlotCurve *SamplingItem::curve(void)
+{
+    return my.curve;
+}
+
 void SamplingItem::resetValues(int values)
 {
     size_t size;
@@ -252,6 +257,17 @@ void SamplingItem::setStroke(Chart::Style style, QColor color, bool antiAlias)
 	default:
 	    break;
     }
+}
+
+void SamplingItem::showCursor(bool show, const QPointF &p, int)
+{       
+    QString string = QString::null;
+        
+    if (show) {
+	string.sprintf("[%.2f %s at %s]",
+		(float)p.y(), pmUnitsStr(&ChartItem::my.units), timeHiResString(p.x()));
+    } 
+    pmchart->setValueText(string);
 }
 
 void SamplingItem::copyRawDataPoint(int index)

@@ -26,7 +26,7 @@
 class TraceEvent
 {
 public:
-    TraceEvent(QmcEventRecord *);
+    TraceEvent(QmcEventRecord const &);
 
     int flags(void) const { return my.flags; }
     int missed(void) const { return my.missed; }
@@ -54,11 +54,15 @@ public:
     ~TracingItem(void);
 
     QwtPlotItem* item();
+    QwtPlotCurve* curve();
+
     void preserveLiveData(int, int) { }
     void punchoutLiveData(int) { }
     void resetValues(int);
     void updateValues(bool, bool, pmUnits*, int, double, double, double);
     void rescaleValues(pmUnits*);
+    void showCursor(bool, const QPointF &, int);
+    void showPoints(const QRectF &);
     void setStroke(Chart::Style, QColor, bool);
     void replot(int, double*);
     void revive(Chart *parent);
@@ -68,11 +72,20 @@ public:
 
 private:
     struct {
-	QList<TraceEvent> events;		// all events, raw data
-	QVector<QwtIntervalSample> intervals;	// displayed trace data
+	QHash<QString, int> yMap;		// reverse map, event ID to y-axis point
+	QList<TraceEvent*> events;		// all events, raw data
 
-	QwtPlotIntervalCurve *curve;
-	QwtIntervalSymbol *symbol;
+	QVector<QPointF> points;		// displayed trace data (point form)
+	QwtPlotCurve *pointCurve;
+	QwtSymbol *pointSymbol;
+
+	QVector<QwtIntervalSample> spans;	// displayed trace data (horizontal span)
+	QwtPlotIntervalCurve *spanCurve;
+	QwtIntervalSymbol *spanSymbol;
+
+	QVector<QwtIntervalSample> drops;	// displayed trace data (vertical drop)
+	QwtPlotIntervalCurve *dropCurve;
+	QwtIntervalSymbol *dropSymbol;
     } my;
 };
 

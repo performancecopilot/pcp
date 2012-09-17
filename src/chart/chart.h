@@ -122,6 +122,7 @@ public slots:
 private slots:
     void selected(const QPointF &);
     void moved(const QPointF &);
+    void selected(const QPolygon &);
     void showItem(QwtPlotItem *, bool);
 
 private:
@@ -131,7 +132,10 @@ private:
     void redoScale(void);
     bool autoScale(void);
     void setScaleEngine(void);
+    void setPickerMachine(void);
     void setStroke(ChartItem *, Style, QColor);
+    void showPoint(const QPointF &);
+    void showPoints(const QPolygon &);
 
     void redoChartItems(void);
     TracingItem *tracingItem(int);
@@ -151,7 +155,12 @@ private:
 	bool rateConvert;
 	bool antiAliasing;
 
+	int selectedPoint;
+	ChartItem *selectedItem;
 	QwtPlotPicker *picker;
+	QwtPickerMachine *tracingPickerMachine;
+	QwtPickerMachine *samplingPickerMachine;
+
 	TracingScaleEngine *tracingScaleEngine;
 	SamplingScaleEngine *samplingScaleEngine;
     } my;
@@ -168,11 +177,14 @@ public:
     virtual ~ChartItem(void) { }
 
     virtual QwtPlotItem *item(void) = 0;
+    virtual QwtPlotCurve *curve(void) = 0;
+
     virtual void preserveLiveData(int, int) = 0;
     virtual void punchoutLiveData(int) = 0;
     virtual void resetValues(int) = 0;
     virtual void updateValues(bool, bool, pmUnits *, int, double, double, double) = 0;
     virtual void rescaleValues(pmUnits *) = 0;
+    virtual void showCursor(bool, const QPointF &, int) = 0;
     virtual void setStroke(Chart::Style, QColor, bool) = 0;
     virtual void replot(int, double *) = 0;
     virtual void revive(Chart *parent) = 0;

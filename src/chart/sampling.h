@@ -44,6 +44,7 @@ public:
     ~SamplingItem(void);
 
     QwtPlotItem *item();
+    QwtPlotCurve *curve();
 
     void preserveLiveData(int, int);
     void punchoutLiveData(int);
@@ -54,6 +55,7 @@ public:
     void revive(Chart *);
     void remove();
     void setStroke(Chart::Style, QColor, bool);
+    void showCursor(bool, const QPointF &, int);
 
     void copyRawDataArray(void);
     void copyRawDataPoint(int index);

@@ -92,12 +92,14 @@ Q_SIGNALS:
 protected:
     QRectF scaleRect() const;
 
+public:
     QRectF invTransform( const QRect & ) const;
     QRect transform( const QRectF & ) const;
 
     QPointF invTransform( const QPoint & ) const;
     QPoint transform( const QPointF & ) const;
 
+protected:
     virtual QwtText trackerText( const QPoint & ) const;
     virtual QwtText trackerTextF( const QPointF & ) const;
 

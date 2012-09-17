@@ -97,8 +97,12 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
     my.style = NoStyle;
     my.scheme = QString::null;
     my.sequence = 0;
+    my.selectedItem = NULL;
+    my.selectedPoint = -1;
     my.tracingScaleEngine = NULL;
     my.samplingScaleEngine = NULL;
+    my.tracingPickerMachine = NULL;
+    my.samplingPickerMachine = NULL;
     setAxisFont(QwtPlot::yLeft, *globalFont);
     setAxisAutoScale(QwtPlot::yLeft);
     setScaleEngine();
@@ -106,10 +110,9 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
     my.picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
 			QwtPicker::CrossRubberBand, QwtPicker::AlwaysOff,
 			canvas());
-    my.picker->setStateMachine(new QwtPickerDragPointMachine);
-    my.picker->setRubberBandPen(QColor(Qt::green));
-    my.picker->setRubberBand(QwtPicker::CrossRubberBand);
-    my.picker->setTrackerPen(QColor(Qt::white));
+    setPickerMachine();
+    connect(my.picker, SIGNAL(selected(const QPolygon &)),
+			 SLOT(selected(const QPolygon &)));
     connect(my.picker, SIGNAL(selected(const QPointF &)),
 			 SLOT(selected(const QPointF &)));
     connect(my.picker, SIGNAL(moved(const QPointF &)),
@@ -130,6 +133,25 @@ void Chart::setScaleEngine()
 	my.samplingScaleEngine = new SamplingScaleEngine();
 	setAxisScaleEngine(QwtPlot::yLeft, my.samplingScaleEngine);
 	my.tracingScaleEngine = NULL;	// deleted in setAxisScaleEngine
+    }
+}
+
+void Chart::setPickerMachine()
+{
+    if (my.eventType && !my.tracingPickerMachine) {
+	// use a rectangular point picker for event tracing
+	my.tracingPickerMachine = new QwtPickerDragRectMachine();
+	my.picker->setStateMachine(my.tracingPickerMachine);
+	my.picker->setRubberBand(QwtPicker::RectRubberBand);
+	my.picker->setRubberBandPen(QColor(Qt::green));
+	my.samplingPickerMachine = NULL;
+    } else if (!my.eventType && !my.samplingPickerMachine) {
+	// use an individual point picker for sampled data
+	my.samplingPickerMachine = new QwtPickerDragPointMachine();
+	my.picker->setStateMachine(my.samplingPickerMachine);
+	my.picker->setRubberBand(QwtPicker::CrossRubberBand);
+	my.picker->setRubberBandPen(QColor(Qt::green));
+	my.tracingPickerMachine = NULL;
     }
 }
 
@@ -594,6 +616,7 @@ int Chart::addItem(pmMetricSpec *msp, const char *legend)
 	my.units = desc.units;
 	my.eventType = (desc.type == PM_TYPE_EVENT);
 	my.style = my.eventType ? EventStyle : my.style;
+	setPickerMachine();
 	setScaleEngine();
     }
     else {
@@ -864,23 +887,84 @@ void Chart::setYAxisTitle(const char *p)
     setAxisTitle(QwtPlot::yLeft, *t);
 }
 
+void Chart::selected(const QPolygon &poly)
+{
+    console->post(PmChart::DebugForce, "Chart::selected(polygon) chart=%p npoints=%d", this, poly.size());
+    if (my.eventType)
+	showPoints(poly);
+    my.tab->setCurrent(this);
+}
+
 void Chart::selected(const QPointF &p)
 {
-    console->post("Chart::selected chart=%p x=%f y=%f", this, p.x(), p.y());
+    console->post("Chart::selected(point) chart=%p x=%f y=%f", this, p.x(), p.y());
+    showPoint(p);
     my.tab->setCurrent(this);
-    QString string;
-    string.sprintf("[%.2f %s at %s]",
-		   (float)p.y(), pmUnitsStr(&my.units), timeHiResString(p.x()));
-    pmchart->setValueText(string);
 }
 
 void Chart::moved(const QPointF &p)
 {
-    console->post("Chart::moved chart=%p x=%f y=%f ", this, p.x(), p.y());
-    QString string;
-    string.sprintf("[%.2f %s at %s]",
-		   (float)p.y(), pmUnitsStr(&my.units), timeHiResString(p.x()));
-    pmchart->setValueText(string);
+    console->post("Chart::moved(point) chart=%p x=%f y=%f ", this, p.x(), p.y());
+    if (!my.eventType)
+	showPoint(p);
+}
+
+#define	PICK_TOLERANCE	10	// #pixels tolerance
+
+void Chart::showPoint(const QPointF &p)
+{
+    ChartItem *item = NULL;
+    double dist, distance = 10e10;
+    int index = -1;
+
+    // pixel point
+    QPoint pp = my.picker->transform(p);
+
+    // seek the closest curve to the point selected
+    for (int i = 0; i < my.items.size(); i++) {
+	QwtPlotCurve *curve = my.items[i]->curve();
+	int point = curve->closestPoint(pp, &dist);
+
+	if (dist < distance) {
+	    distance = dist;
+	    index = point;
+	    item = my.items[i];
+	}
+    }
+
+    if (item && dist < PICK_TOLERANCE) {
+	my.selectedItem = item;
+	my.selectedPoint = index;
+	item->showCursor(true, p, my.selectedPoint);
+    } else if (my.selectedItem) {
+	item = my.selectedItem;
+	item->showCursor(false, p, my.selectedPoint);
+	my.selectedPoint = -1;
+	my.selectedItem = NULL;
+    }
+}
+
+void Chart::showPoints(const QPolygon &poly)
+{
+    Q_ASSERT(poly.size() == 2);
+
+    console->post("Chart::showPoints: %d,%d -> %d,%d",
+	poly.at(0).x(), poly.at(0).y(), poly.at(1).x(), poly.at(1).y());
+
+    // Transform selected (pixel) points to our coordinate system
+    QRectF cp = my.picker->invTransform(poly.boundingRect());
+
+    //
+    // If a single-point selected, use showPoint instead
+    // (this uses proximity checking, not bounding box).
+    //
+    if (cp.width() == 0 && cp.height() == 0) {
+	showPoint(cp.topLeft());
+    } else {
+	// mark all points enclosed by the polygon selection
+	for (int i = 0; i < my.items.size(); i++)
+	    tracingItem(i)->showPoints(cp);
+    }
 }
 
 bool Chart::legendVisible()
