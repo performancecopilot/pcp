@@ -11,12 +11,16 @@ Context 0 has 0 metric names for source:
 
 *** Cacheing of descriptors and indoms ***
 QmcContext::lookupDesc: Add descriptor for 1.18.2
+QmcContext::lookupPMID: Matched "hinv.ncpu" to id 1.18.2
 QmcContext::lookupDesc: Add descriptor for 1.26.13
-QmcContext::lookupDesc: Add indom for 1.1
+QmcContext::lookupInDom: Add indom for 1.1
+QmcContext::lookupPMID: Matched "hinv.cputype" to id 1.26.13
 QmcContext::lookupDesc: Add descriptor for 1.26.9
-QmcContext::lookupDesc: Reusing indom 1.1
-QmcContext::lookupDesc: Matched "hinv.ncpu" to id 1.18.2
+QmcContext::lookupInDom: Reusing indom 1.1
+QmcContext::lookupPMID: Matched "hinv.map.cpu" to id 1.26.9
+QmcContext::lookupPMID: Matched "hinv.ncpu" to id 1.18.2
 QmcContext::lookupDesc: Reusing descriptor 1.18.2
+QmcContext::lookupPMID: Matched "hinv.ncpu" to id 1.18.2
 Context 0 has 3 metric names for source:
   sts = 0, type = 2, source = oview-short
   host = snort, timezone = TZ, tz hndl = HANDLE

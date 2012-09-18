@@ -6,6 +6,7 @@ pmlogger.log
 src/qmc_context/qmc_context
 src/qmc_desc/qmc_desc
 src/qmc_dynamic/qmc_dynamic
+src/qmc_event/qmc_event
 src/qmc_format/qmc_format
 src/qmc_group/qmc_group
 src/qmc_hosts/qmc_hosts

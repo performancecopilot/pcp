@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 1998-2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
+ * Copyright (c) 1998-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -16,39 +17,106 @@
 #include <qmc_context.h>
 
 #include <qlist.h>
+#include <qvector.h>
 #include <qstring.h>
 #include <qtextstream.h>
+
+class QmcMetricValue;
+
+class QmcEventParameter
+{
+public:
+    QmcEventParameter() { my.pmid = PM_ID_NULL; }
+
+    void setPMID(pmID pmid) { my.pmid = pmid; }
+    void setNamePtr(QString *name) { my.name = name; }
+    void setDescPtr(QmcDesc *desc) { my.desc = desc; }
+    void setIndomPtr(QmcIndom *indom) { my.indom = indom; }
+
+    void setValueCount(int numInst) { my.values.resize(numInst); }
+    QmcMetricValue *valuePtr(int inst) { return &my.values[inst]; }
+
+    void dump(QTextStream &os, int instID) const;
+
+private:
+    struct {
+	pmID		pmid;	// pmid for a parameter to an event
+	QString		*name;	// direct pointer into external cache
+	QmcDesc		*desc;	// direct pointer into external cache
+	QmcIndom	*indom;	// direct pointer into external cache
+	QVector<QmcMetricValue>	values;
+    } my;
+};
+
+class QmcEventRecord
+{
+public:
+    QmcEventRecord() { my.missed = my.flags = 0; }
+
+    void setTimestamp(struct timeval *tv) { my.timestamp = *tv; }
+    void setMissed(int missed) { my.missed = missed; }
+    void setFlags(int flags) { my.flags = flags; }
+
+    void setParameterCount(int numParams)
+	{ my.parameters.resize(numParams); }
+    int setParameter(int n, pmID pmid, QmcContext *cp, pmValueSet const *vp);
+
+    static pmID eventFlags();
+    static pmID eventMissed();
+
+    void dump(QTextStream &os, int instID, uint recordID) const;
+
+private:
+    struct {
+	struct timeval	timestamp;
+	int		missed;
+	int		flags;
+	QVector<QmcEventParameter> parameters;
+    } my;
+};
 
 class QmcMetricValue
 {
 public:
     QmcMetricValue();
     QmcMetricValue const& operator=(QmcMetricValue const& rhs);
+
     int instance() const { return my.instance; }
     void setInstance(int instance) { my.instance = instance; }
+
     int error() const { return my.error; }
     void setError(int error) { my.error = error; }
     void setAllErrors(int error)
 	{ my.error = my.currentError = my.previousError = error; }
+
     double value() const { return my.value; }
     void setValue(double value) { my.value = value; }
     void divValue(double value) { my.value /= value; }
     void addValue(double value) { my.value += value; }
     void subValue(double value) { my.value -= value; }
+
     QString stringValue() const { return my.stringValue; }
     void setStringValue(const char *s) { my.stringValue = s; }
 
     int currentError() const { return my.currentError; }
-    void setCurrentError(int error) { my.currentError = error; }
+    void setCurrentError(int error)
+	{ my.currentError = error; resetCurrentValue(); }
     double currentValue() const { return my.currentValue; }
     void setCurrentValue(double value) { my.currentValue = value; }
+
     int previousError() const { return my.previousError; }
     double previousValue() const { return my.previousValue; }
     void shiftValues() { my.previousValue = my.currentValue;
 			 my.previousError = my.currentError;
 			 my.currentError = 0; }
 
+    void extractEventRecords(QmcContext *context, int recordCount, pmResult **result);
+    void dumpEventRecords(QTextStream &os, int instid) const;
+
 private:
+    void resetCurrentValue()
+	{ my.currentValue = 0.0; my.stringValue = QString::null; my.eventRecords.clear(); }
+
     struct {
 	int instance;
 	int error;
@@ -58,6 +126,7 @@ private:
 	int currentError;
 	int previousError;
 	QString stringValue;
+	QVector<QmcEventRecord> eventRecords;
     } my;
 };
 
@@ -79,7 +148,7 @@ public:
     QmcContext *context() const
 	{ return my.group->context(my.contextIndex); }
     const QmcDesc &desc() const
-	{ return my.group->context(my.contextIndex)->desc(my.descIndex); }
+	{ return context()->desc(my.pmid); }
     bool hasInstances() const
 	{ return (my.status >= 0 && my.indomIndex < UINT_MAX); }
 
@@ -127,7 +196,16 @@ public:
     // Scaling modifier applied to metric values
     double scale() const { return my.scale; }
 
-    // Metric has real values (as opposed to string/other values)
+    // Metric has event records (as opposed to real/string/aggregate values)
+    bool event() const { return event(desc().desc().type); }
+    static bool event(int type) { return type == PM_TYPE_EVENT; }
+
+    bool aggregate() const { return aggregate(desc().desc().type); }
+    static void aggregateAsString(pmValue const *, char *, int);
+    static bool aggregate(int type)
+	{ return type == PM_TYPE_AGGREGATE || type == PM_TYPE_AGGREGATE_STATIC; }
+
+    // Metric has real values (as opposed to event/string/aggregate values)
     bool real() const { return real(desc().desc().type); }
     static bool real(int type)
 	{ return type > PM_TYPE_NOSUPPORT && type < PM_TYPE_STRING; }
@@ -159,9 +237,6 @@ public:
     uint contextIndex() const	// Index for context in group list
 	{ return my.contextIndex; }
 
-    // Index for desc in context list
-    uint descIndex() const { return my.descIndex; }
-
     // Index for metric into pmResult
     uint idIndex() const { return my.idIndex; }
 
@@ -169,7 +244,7 @@ public:
     uint indomIndex() const { return my.indomIndex; }
 
     // Set the canonical units
-    void setScaleUnits(pmUnits const& units) { descRef().setScaleUnits(units); }
+    void setScaleUnits(pmUnits const& units);
 
     // Generate a metric spec
     QString spec(bool srcFlag = false,
@@ -196,6 +271,7 @@ public:
 
 private:
     struct {
+	pmID pmid;
 	int status;
 	QString name;
 	QmcGroup *group;
@@ -204,7 +280,6 @@ private:
 
 	uint contextIndex;	// Index into the context list for the group
 	uint idIndex;		// Index into the pmid list for the context.
-	uint descIndex;		// Index into the desc list for the context.
 	uint indomIndex;	// Index into the indom list for the context.
 
 	bool explicitInst;	// Instances explicitly specified
@@ -216,14 +291,22 @@ private:
     void setupIndom(pmMetricSpec *theMetric);
     void setupValues(int num);
 
+    void extractNumericMetric(pmValueSet const *vset, pmValue const *v, QmcMetricValue &vref);
+    void extractArrayMetric(pmValueSet const *vset, pmValue const *v, QmcMetricValue &vref);
+    void extractEventMetric(pmValueSet const *vset, int index, QmcMetricValue &vref);
+
     void setIdIndex(uint index) { my.idIndex = index; }
-    QmcDesc &descRef()
-	{ return my.group->context(my.contextIndex)->desc(my.descIndex); }
 
     // Dump error messages
     void dumpAll() const;
     void dumpErr() const;
     void dumpErr(const char *inst) const;
+
+    // Dump out different metric flavours and their current value(s)
+    void dumpEventMetric(QTextStream &os, bool srcFlag = false,
+	      uint instance = UINT_MAX) const;
+    void dumpSampledMetric(QTextStream &os, bool srcFlag = false,
+	      uint instance = UINT_MAX) const;
 };
 
 #endif	// QMC_METRIC_H

@@ -26,8 +26,8 @@ private:
 
     enum KeyWords { keyArch, keyContext, keyDesc, keyError, keyFetch,
 		    keyHost, keyIndom, keyJump, keyList, keyMetric,
-		    keyName, keyReal, keyString, keyText, keyUpdate,
-		    keyWipe };
+		    keyName, keyReal, keyString, keyEvent,
+		    keyText, keyUpdate, keyWipe };
 
     static char const*	keywords[];
     static char const*	terminator;
@@ -85,7 +85,7 @@ operator<<(QTextStream& os, struct timeval const& tv)
 
 char const* Client::keywords[] = { "ARCH", "CONTEXT", "DESC", "ERROR",
 				   "FETCH", "HOST", "INDOM", "JUMP", "LIST",
-				   "METRIC", "NAME", "REAL", "STRING",
+				   "METRIC", "NAME", "REAL", "STRING", "EVENT",
 				   "TEXT", "UPDATE", "WIPE" };
 
 char const* Client::terminator = ".\n";
@@ -166,7 +166,7 @@ Client::text(int context, char const* metric)
 	sts = _group->use(context);
 
     if (sts >= 0)
-	sts = _group->context()->lookupDesc(metric, id);
+	sts = _group->context()->lookupPMID(metric, id);
 
     if (sts >= 0)
 	sts = pmLookupText(id, PM_TEXT_HELP, &buf);
@@ -198,9 +198,7 @@ Client::list(QStringList const& list)
     _group->useDefault();
 
     for (l = 0; l < list.size(); l++)
-	_metrics.append(_group->addMetric(list[l].toAscii(), 0.0, false));
-
-// TODO - reset, how will this work if we accept CONTEXTs separately?
+	_metrics.append(_group->addMetric(list[l].toAscii().constData(), 0.0, false));
 
     cout << keywords[keyList] << sep << _group->numContexts() << endl;
 
@@ -246,19 +244,16 @@ Client::list(QStringList const& list)
 	for (j = 0; j < context->numIDs(); j++) {
 
 	    pmID id = context->id(j);
+	    QmcDesc const& desc = context->desc(id);
 
-	    for (k = j; k < context->numDesc(); k++) {
-		if (context->desc(k).desc().pmid == id) {
-		    QmcDesc const& desc = context->desc(k);
-		    cout << keywords[keyDesc] << sep << j << sep;
-		    if (desc.desc().type == PM_TYPE_STRING)
-			cout << keywords[keyString];
-		    else
-			cout << keywords[keyReal];
-		    cout << sep << desc.units() << endl;
-		    break;
-		}
-	    }
+	    cout << keywords[keyDesc] << sep << j << sep;
+	    if (desc.desc().type == PM_TYPE_STRING)
+		cout << keywords[keyString];
+	    else if (desc.desc().type == PM_TYPE_EVENT)
+		cout << keywords[keyEvent];
+	    else
+		cout << keywords[keyReal];
+	    cout << sep << desc.units() << endl;
 	}
     }
 
@@ -348,15 +343,17 @@ Client::fetch()
 		if (metric.error(j) < 0)
 		    cout << '?' << endl;
 		else {
-		    if (metric.desc().desc().type == PM_TYPE_STRING)
-			cout << metric.stringValue(j);
-		    else
+		    int type = metric.desc().desc().type;
+		    if (QmcMetric::real(type))
 			cout << metric.value(j);
+		    else if (QmcMetric::event(type))
+			metric.dump(cout, j);
+		    else
+			cout << metric.stringValue(j);
 		    cout << endl;
 		}
 	    }
 	}
-
     }
 
     cout << terminator;
@@ -621,13 +618,13 @@ main(int argc, char* argv[])
     Client* client3 = new Client;
 
     mesg("Client3: CONTEXT ARCH archive1");
-    string = archive1.toAscii();
+    string = archive1.toAscii().constData();
     sts = client3->context(PM_CONTEXT_ARCHIVE, string);
 
     checksts();
 
     mesg("Client3: CONTEXT ARCH archive2");
-    string = archive2.toAscii();
+    string = archive2.toAscii().constData();
     sts = client3->context(PM_CONTEXT_ARCHIVE, string);
 
     checksts();
@@ -665,11 +662,11 @@ main(int argc, char* argv[])
     // names
     //
 
-    mesg("Client3: LIST 4 snort:disk.dev.read[dks0d1,dks1d1,dks9d1] vldb-disks/disk.dev.total[dks17d8,dks11d3,dks45d2] disk.dev.write[dks1d1,dks0d4] vldb.engr:disk.dev.total[dks18d6,dks11d3]");
+    mesg("Client3: LIST 4 snort:disk.dev.read[dks0d1,dks1d1,dks9d1] archives/vldb-disks/disk.dev.total[dks17d8,dks11d3,dks45d2] disk.dev.write[dks1d1,dks0d4] vldb.engr:disk.dev.total[dks18d6,dks11d3]");
 
     metrics.clear();
     metrics.append("snort:disk.dev.read[dks0d1,dks1d1,dks9d1]");
-    metrics.append("vldb-disks/disk.dev.total[dks17d8,dks11d3,dks45d2]");
+    metrics.append("archives/vldb-disks/disk.dev.total[dks17d8,dks11d3,dks45d2]");
     metrics.append("disk.dev.write[dks1d1,dks0d4]");
     metrics.append("vldb.engr:disk.dev.total[dks18d6,dks11d3]");
 
@@ -789,7 +786,7 @@ main(int argc, char* argv[])
     //
 
     mesg("Client1: CONTEXT ARCH moomba.pmkstat");
-    string = archive3.toAscii();
+    string = archive3.toAscii().constData();
     sts = client1->context(PM_CONTEXT_ARCHIVE, string);
 
     checksts();

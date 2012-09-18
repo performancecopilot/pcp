@@ -8,7 +8,6 @@
  * (at your option) any later version.
  */
 
-#include <assert.h>
 #include <strings.h>
 #include <qmc_metric.h>
 #include <qmc_group.h>
@@ -50,7 +49,6 @@ QmcMetric::QmcMetric(QmcGroup *group, const char *string,
     my.group = group;
     my.scale = scale;
     my.idIndex = UINT_MAX;
-    my.descIndex = UINT_MAX;
     my.indomIndex = UINT_MAX;
     my.contextIndex = UINT_MAX;
     my.explicitInst = false;
@@ -73,13 +71,13 @@ QmcMetric::QmcMetric(QmcGroup *group, const char *string,
 QmcMetric::QmcMetric(QmcGroup *group, pmMetricSpec *metricSpec,
 		       double scale, bool active)
 {
+    my.pmid = PM_ID_NULL;
     my.status = 0;
     my.name = QString(metricSpec->metric);
     my.group = group;
     my.scale = scale;
     my.contextIndex = UINT_MAX;
     my.idIndex = 0;
-    my.descIndex = UINT_MAX;
     my.indomIndex = UINT_MAX;
     my.explicitInst = false;
     my.active = active;
@@ -125,9 +123,9 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 
     if (my.status >= 0) {
 	contextType = context()->source().type();
-
-	my.status = context()->lookupDesc(metricSpec->metric,
-					    my.descIndex, my.indomIndex);
+	my.status = context()->lookupPMID(metricSpec->metric, my.pmid);
+	if (my.status >= 0)
+	    my.status = context()->lookupInDom(my.pmid, my.indomIndex);
 	if (my.status < 0) {
 	    name = strdup(nameAscii());
 	    src = strdup(context()->source().sourceAscii());
@@ -188,7 +186,7 @@ QmcMetric::setupIndom(pmMetricSpec *metricSpec)
 	    setupValues(1);
     }
     else if (metricSpec->ninst) {
-	assert(hasInstances());
+	Q_ASSERT(hasInstances());
 	setupValues(metricSpec->ninst);
 
 	for (i = 0 ; i < metricSpec->ninst && my.status >= 0; i++) {
@@ -204,7 +202,7 @@ QmcMetric::setupIndom(pmMetricSpec *metricSpec)
 	my.explicitInst = true;
     }
     else {
-	assert(hasInstances());
+	Q_ASSERT(hasInstances());
 
 	if (my.active) {
 	    setupValues(indomPtr->numActiveInsts());
@@ -307,13 +305,24 @@ QmcMetric::dumpValue(QTextStream &stream, uint inst) const
 	stream << pmErrStr(error(inst));
     else if (!real())
 	stream << stringValue(inst);
-    else
+    else if (!event())
 	stream << value(inst) << " " << desc().units();
 }
 
 void
 QmcMetric::dump(QTextStream &stream, bool srcFlag, uint instance) const
 {
+    if (event())
+	dumpEventMetric(stream, srcFlag, instance);
+    else
+	dumpSampledMetric(stream, srcFlag, instance);
+}
+
+void
+QmcMetric::dumpSampledMetric(QTextStream &stream, bool srcFlag, uint instance) const
+{
+    Q_ASSERT(!event());
+
     stream << name();
 
     if (srcFlag == true)
@@ -364,6 +373,14 @@ operator<<(QTextStream &stream, const QmcMetric &metric)
 	stream << "\"]";
     }
     return stream;
+}
+
+void
+QmcMetric::setScaleUnits(pmUnits const& units)
+{
+    QmcContext *context = my.group->context(my.contextIndex);
+    QmcDesc &desc = context->desc(my.pmid);
+    desc.setScaleUnits(units);
 }
 
 int
@@ -592,23 +609,18 @@ QmcMetric::setError(int sts)
     for (int i = 0; i < numValues(); i++) {
 	QmcMetricValue &value = my.values[i];
 	value.setCurrentError(sts);
-	if (real())
-	    value.setCurrentValue(0.0);
-	else
-	    value.setStringValue("");
     }
 }
 
 void
 QmcMetric::extractValues(pmValueSet const* set)
 {
-    int i, j, index, inst, sts;
+    int i, j, index, inst;
     pmValue const *value = NULL;
-    pmAtomValue result;
     bool found;
     QmcIndom *indomPtr = indom();
 
-    assert(set->pmid == desc().id());
+    Q_ASSERT(set->pmid == desc().id());
 
     if (set->numval > 0) {
 	if (hasInstances()) {
@@ -643,6 +655,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 		// Search for it from the top
 		for (j = 0; found == false && j < set->numval; j++) {
 		    if (set->vlist[j].inst == indomPtr->inst(inst)) {
+			index = j;
 			value = &(set->vlist[j]);
 			indomPtr->setIndex(inst, j);
 			found = true;
@@ -650,31 +663,12 @@ QmcMetric::extractValues(pmValueSet const* set)
 		}
 
 		if (found) {
-		    if (!real()) {
-			sts = pmExtractValue(set->valfmt, value,
-					     desc().desc().type, &result,
-					     PM_TYPE_STRING);
-			if (sts >= 0) {
-			    valueRef.setStringValue(result.cp);
-			    if (result.cp)
-				free(result.cp);
-			}
-			else {
-			    valueRef.setCurrentError(sts);
-			    valueRef.setStringValue("");
-			}
-		    }
-		    else {
-			sts = pmExtractValue(set->valfmt, value,
-					     desc().desc().type, &result,
-					     PM_TYPE_DOUBLE);
-			if (sts >= 0)
-			    valueRef.setCurrentValue(result.d);
-			else {
-			    valueRef.setCurrentError(sts);
-			    valueRef.setCurrentValue(0.0);
-			}
-		    }
+		    if (real())
+			extractNumericMetric(set, value, valueRef);
+		    else if (!event())
+			extractArrayMetric(set, value, valueRef);
+		    else
+			extractEventMetric(set, index, valueRef);
 		}
 		else {	// Cannot find it
 		    if (pmDebug & DBG_TRACE_OPTFETCH) {
@@ -688,10 +682,6 @@ QmcMetric::extractValues(pmValueSet const* set)
 			indomPtr->hasChanged();
 
 		    valueRef.setCurrentError(PM_ERR_VALUE);
-		    if (real())
-			valueRef.setCurrentValue(0.0);
-		    else
-			valueRef.setStringValue("");
 		}
 	    }
 	}
@@ -702,31 +692,13 @@ QmcMetric::extractValues(pmValueSet const* set)
 	    else {
 		QmcMetricValue &valueRef = my.values[0];
 		value = &(set->vlist[0]);
-		if (!real()) {
-		    sts = pmExtractValue(set->valfmt, value,
-					 desc().desc().type, &result,
-					 PM_TYPE_STRING);
-		    if (sts >= 0) {
-			valueRef.setStringValue(result.cp);
-			if (result.cp)
-			    free(result.cp);
-		    }
-		    else {
-			valueRef.setCurrentError(sts);
-			valueRef.setStringValue("");
-		    }
-		}
-		else {
-		    sts = pmExtractValue(set->valfmt, value,
-					 desc().desc().type, &result,
-					 PM_TYPE_DOUBLE);
-		    if (sts >= 0)
-			valueRef.setCurrentValue(result.d);
-		    else {
-			valueRef.setCurrentError(sts);
-			valueRef.setCurrentValue(0.0);
-		    }
-		}
+
+		if (real())
+		    extractNumericMetric(set, value, valueRef);
+		else if (!event())
+		    extractArrayMetric(set, value, valueRef);
+		else
+		    extractEventMetric(set, 0, valueRef);
 	    }
 	}
 	else {	// Did not expect any instances
@@ -763,6 +735,275 @@ QmcMetric::extractValues(pmValueSet const* set)
 	if (hasInstances())
 	    indomPtr->hasChanged();
     }
+}
+
+/*
+ * Display-able aggregate (for diagnostics) - up to
+ * first 16 characters displayed.  Uses a similar
+ * approach to that taken in pmPrintValue().
+ */
+void
+QmcMetric::aggregateAsString(pmValue const *vp, char *buffer, int buflen)
+{
+    char *p = &vp->value.pval->vbuf[0];
+
+    memset(buffer, '.', buflen);
+    for (int i = 0; i < (buflen/2)-1; i++, p++) {
+	if (i < vp->value.pval->vlen - PM_VAL_HDR_SIZE)
+	    sprintf(buffer + (i*2), "%02x", *p & 0xff);
+    }
+    buffer[buflen-1] = '\0';
+}
+
+void
+QmcMetric::extractArrayMetric(pmValueSet const *set, pmValue const *vp, QmcMetricValue &valueRef)
+{
+    pmAtomValue result;
+    int sts, type = desc().desc().type;
+
+    if (aggregate(type)) {
+	char buffer[32];
+	aggregateAsString(vp, buffer, sizeof(buffer));
+	valueRef.setStringValue(buffer);
+    }
+    else if ((sts = pmExtractValue(set->valfmt, vp,
+		    type, &result, PM_TYPE_STRING)) >= 0) {
+	valueRef.setStringValue(result.cp);
+	if (result.cp)
+	    free(result.cp);
+    }
+    else {
+	valueRef.setCurrentError(sts);
+    }
+}
+
+void
+QmcMetric::extractNumericMetric(pmValueSet const *set, pmValue const *value, QmcMetricValue &valueRef)
+{
+    pmAtomValue result;
+    int sts;
+
+    if ((sts = pmExtractValue(set->valfmt, value,
+		    desc().desc().type, &result, PM_TYPE_DOUBLE)) >= 0)
+	valueRef.setCurrentValue(result.d);
+    else
+	valueRef.setCurrentError(sts);
+}
+
+void
+QmcMetricValue::extractEventRecords(QmcContext *context, int recordCount, pmResult **result)
+{
+    pmID parameterID;
+    pmID missedID = QmcEventRecord::eventMissed();
+    pmID flagsID = QmcEventRecord::eventFlags();
+    int i, p, r, parameterCount;
+
+    my.eventRecords.resize(recordCount);
+
+    for (r = 0; r < recordCount; r++) {
+	QmcEventRecord &record = my.eventRecords[r];
+
+	// count is the size of my.parameter vector (less flags/missed)
+	parameterCount = 0;
+	for (i = 0; i < result[r]->numpmid; i++) {
+	    parameterID = result[r]->vset[i]->pmid;
+	    if (parameterID != flagsID && parameterID != missedID)
+		parameterCount++;
+        }
+
+	// initialise this record
+	record.setTimestamp(&result[r]->timestamp);
+	record.setParameterCount(parameterCount);
+	record.setMissed(0);
+	record.setFlags(0);
+
+	// i indexes into result[r], p indexes into my.parameter vector
+	for (i = p = 0; i < result[r]->numpmid; i++) {
+	    pmValueSet *valueSet = result[r]->vset[i];
+	    parameterID = valueSet->pmid;
+	    if (parameterID == flagsID)
+		record.setFlags(valueSet->vlist[0].value.lval);
+	    else if (parameterID == missedID)
+		record.setMissed(valueSet->vlist[0].value.lval);
+	    else
+		record.setParameter(p++, parameterID, context, valueSet);
+	}
+    }
+}
+
+void
+QmcMetric::extractEventMetric(pmValueSet const *valueSet, int index, QmcMetricValue &valueRef)
+{
+    pmValueSet *values = (pmValueSet *)valueSet;
+    pmResult **result;
+    int sts;
+
+    if ((sts = pmUnpackEventRecords(values, index, &result)) >= 0) {
+	valueRef.extractEventRecords(context(), sts, result);
+	pmFreeEventResult(result);
+    }
+    else {
+	valueRef.setCurrentError(sts);
+    }
+}
+
+int
+QmcEventRecord::setParameter(int index, pmID pmid, QmcContext *context, pmValueSet const *vsp)
+{
+    QString *name;
+    QmcDesc *desc;
+    QmcIndom *indom;
+    int sts, type;
+
+    if (vsp->numval <= 0)	// no value or an error
+	return vsp->numval;
+
+    if ((sts = context->lookup(pmid, &name, &desc, &indom)) < 0)
+	return sts;
+
+    QmcEventParameter &parameter = my.parameters[index];
+    parameter.setPMID(pmid);
+    parameter.setNamePtr(name);
+    parameter.setDescPtr(desc);
+    parameter.setIndomPtr(indom);
+    parameter.setValueCount(vsp->numval);
+
+    type = desc->desc().type;
+    for (int i = 0; i < vsp->numval; i++) {
+	pmAtomValue result;
+	const pmValue *vp = &vsp->vlist[i];
+	QmcMetricValue *value = parameter.valuePtr(i);
+
+	sts = PM_ERR_TYPE;	// no nesting events
+	if (QmcMetric::real(type) == true) {
+	    if ((sts = pmExtractValue(vsp->valfmt, vp,
+			    type, &result, PM_TYPE_DOUBLE)) >= 0)
+		value->setCurrentValue(result.d);
+	} else if (QmcMetric::aggregate(type) == true) {
+	    char buffer[32];
+	    QmcMetric::aggregateAsString(vp, buffer, sizeof(buffer));
+	    value->setStringValue(buffer);
+	} else if (QmcMetric::event(type) == false) {
+	    if ((sts = pmExtractValue(vsp->valfmt, vp,
+			    type, &result, PM_TYPE_STRING)) >= 0) {
+		value->setStringValue(result.cp);
+		free(result.cp);
+	    }
+	}
+	value->setInstance(vp->inst);
+	if (sts < 0)
+	    value->setCurrentError(sts);
+    }
+    return 0;
+}
+
+void
+QmcEventParameter::dump(QTextStream &os, int instID) const
+{
+    pmDesc desc = my.desc->desc();
+
+    for (int i = 0; i < my.values.size(); i++) {
+	QmcMetricValue const &value = my.values.at(i);
+
+	os << "    " << *my.name;
+	if (desc.indom != PM_INDOM_NULL) {
+	    if (my.values.size() > 1)
+		os << endl << "        ";
+	    QString name = my.indom->name(instID);
+	    if (name == QString::null)
+		os << "[" << instID << "]";
+	    else
+		os << "[\"" << name << "\"]";
+	}
+	os << " ";
+
+	if (QmcMetric::real(desc.type))
+	    os << value.currentValue();
+	else if (QmcMetric::aggregate(desc.type))
+	    os << "[" << value.stringValue() << "]";
+	else if (QmcMetric::event(desc.type) == false)
+	    os << "\"" << value.stringValue() << "\"";
+	os << endl;
+    }
+}
+
+void
+QmcEventRecord::dump(QTextStream &os, int instID, uint recordID) const
+{
+    os << "  " << QmcSource::timeStringBrief(&my.timestamp);
+    os << " --- event record [" << recordID << "]";
+    if (my.flags) {
+	os.setIntegerBase(16);
+	os << " flags 0x" << (uint)my.flags << " (" << pmEventFlagsStr(my.flags) << ")";
+	os.setIntegerBase(10);
+    }
+    os << " ---" << endl;
+    if (my.flags & PM_EVENT_FLAG_MISSED)
+	os << " ==> " << my.missed << " missed event records" << endl;
+    for (int i = 0; i < my.parameters.size(); i++)
+	my.parameters.at(i).dump(os, instID);
+}
+
+void
+QmcMetricValue::dumpEventRecords(QTextStream &os, int instID) const
+{
+    os << my.eventRecords.size() << " event records" << endl;
+    for (int i = 0; i < my.eventRecords.size(); i++)
+	my.eventRecords.at(i).dump(os, instID, i);
+}
+
+void
+QmcMetric::dumpEventMetric(QTextStream &os, bool srcFlag, uint instance) const
+{
+    Q_ASSERT(event());
+
+    for (int i = 0; i < my.values.size(); i++) {
+	int instID;
+
+	if (srcFlag == true)
+	    dumpSource(os);
+	os << name();
+
+	instID = PM_IN_NULL;
+	if (hasInstances()) {
+	    if (instance != UINT_MAX)
+		instID = (int)instance;
+	    else
+		instID = my.values[i].instance();
+
+	    QString inst = instName(instID);
+	    if (inst == QString::null)
+		os << "[" << instID << "]";
+	    else
+		os << "[\"" << inst << "\"]";
+	}
+	os << ": ";
+	my.values[i].dumpEventRecords(os, instID);
+    }
+}
+
+pmID
+QmcEventRecord::eventMissed(void)
+{
+    static pmID eventMissed = PM_IN_NULL;
+    static const char *nameMissed[] = { "event.missed" };
+
+    if (eventMissed == PM_ID_NULL)
+        if (pmLookupName(1, (char **)nameMissed, &eventMissed) < 0)
+            eventMissed = PM_ID_NULL;
+    return eventMissed;
+}
+
+pmID
+QmcEventRecord::eventFlags(void)
+{
+    static pmID eventFlags = PM_IN_NULL;
+    static const char *nameFlags[] = { "event.flags" };
+
+    if (eventFlags == PM_ID_NULL)
+	if (pmLookupName(1, (char **)nameFlags, &eventFlags) < 0)
+	    eventFlags = PM_ID_NULL;
+    return eventFlags;
 }
 
 bool
@@ -884,7 +1125,7 @@ QmcMetric::addInst(QString const& name)
 void
 QmcMetric::removeInst(uint index)
 {
-    assert(hasInstances());
+    Q_ASSERT(hasInstances());
     indom()->removeRef(my.values[index].instance());
     my.values.removeAt(index);
 }

@@ -1,0 +1,5 @@
+*.icns
+*.pro
+*.png
+include/builddefs
+include/version.h

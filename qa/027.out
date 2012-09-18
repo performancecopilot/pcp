@@ -1,8 +1,5 @@
 QA output created by 027
-expected to fail, $PMDA_LOCAL_SAMPLE unset
-pmdumptext: Error: @:sampledso.bin: No PMCD agent for domain of request
-pmdumptext: no valid metrics, exiting.
-expected to pass, $PMDA_LOCAL_SAMPLE set
+expected to pass when sampledso is installed
 DATE	100.000	200.000	300.000	400.000	500.000	600.000	700.000	800.000	900.000
 sampledso.write_me old value=2 new value=42
 expect 2 2 42

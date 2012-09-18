@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -15,6 +16,8 @@
  */
 #ifndef VERSION_H
 #define VERSION_H
+
+#include <pcp/pmapi.h>
 
 #define VERSION "@pkg_version@"
 #define HTMLDIR "@pkg_html_dir@"
@@ -41,6 +44,8 @@ static inline void __pmtimevalNow(struct timeval *t) { gettimeofday(t, NULL); }
 
 #if HAVE_DECL_PM_TYPE_EVENT == 0
 #define PM_TYPE_EVENT	9
+static inline void pmUnpackEventRecords(pmResult **) { }
+static inline int pmFreeEventResult(pmValueSet *, int, pmResult ***) { return -ENOSYS; }
 #endif
 
 #endif // VERSION_H
