@@ -15,6 +15,7 @@
 #include <qwt_plot_directpainter.h>
 #include <qwt_plot_marker.h>
 #include <qwt_symbol.h>
+#include <values.h>
 #include "tracing.h"
 #include "main.h"
 
@@ -83,41 +84,127 @@ TraceEvent::TraceEvent(QmcEventRecord const &record)
     my.description = record.parameterSummary();
 }
 
+//
+// Walk the vectors/lists and drop no-longer-needed events.
+// Events arrive time-ordered, so we can short-circuit these
+// walks once we are within the time window.  Two passes -
+// one from the left, one (subsequent, after modification to
+// original structure) from the right.
+//
+
+void TracingItem::cullOutlyingRanges(QVector<QwtIntervalSample> &range, double left, double right)
+{
+    int i, cull;
+
+    for (i = cull = 0; i < range.size(); i++, cull++)
+	if (range.at(i).value >= left)
+	    break;
+    if (cull)
+	range.remove(0, cull); // cull from the start (0-index)
+    for (i = range.size() - 1, cull = 0; i >= 0; i--, cull++)
+	if (range.at(i).value <= right)
+	    break;
+    if (cull)
+	range.remove(range.size() - cull, cull); // cull from end
+}
+
+void TracingItem::cullOutlyingPoints(QVector<QPointF> &points, double left, double right)
+{
+    int i, cull;
+
+    for (i = cull = 0; i < points.size(); i++, cull++)
+	if (points.at(i).y() >= left)
+	    break;
+    if (cull)
+	points.remove(0, cull); // cull from the start (0-index)
+    for (i = points.size() - 1, cull = 0; i >= 0; i--, cull++)
+	if (points.at(i).y() <= right)
+	    break;
+    if (cull)
+	points.remove(points.size() - cull, cull); // cull from end
+}
+
+void TracingItem::cullOutlyingEvents(QList<TraceEvent*> &events, double left, double right)
+{
+    while (!events.isEmpty()) {
+	TraceEvent *event = events.first();
+	if (event->timestamp() >= left)
+	    break;
+	events.removeFirst();
+	delete event;
+    }
+
+    while (!events.isEmpty()) {
+	TraceEvent *event = events.first();
+	if (event->timestamp() <= right)
+	    break;
+	events.removeLast();
+	delete event;
+    }
+}
+
+//
+// Requirement here is to merge in any event records that have
+// just arrived in the last timestep (my.metric) with the set
+// already being displayed.
+// Additionally, we need to cull those that are no longer within
+// the time window of interest.
+//
 void TracingItem::updateValues(bool, bool, pmUnits*, int size, double left, double right, double delta)
 {
     console->post(PmChart::DebugForce, "TracingItem::updateValues: "
 		"%d events, size: %d left: %.2f right=%.2f delta=%.2f",
 		my.events.size(), size, left, right, delta);
-#if 0
 
+    cullOutlyingRanges(my.drops, left, right);
+    cullOutlyingRanges(my.spans, left, right);
+    cullOutlyingPoints(my.points, left, right);
+    cullOutlyingEvents(my.events, left, right);
+
+    // crack open newly arrived records
     QmcMetric *metric = ChartItem::my.metric;
+    if (metric->numValues() > 0)
+	updateEvents(metric);
 
-    if (metric->numValues() == 0)
-	return;
+    // update the display
+    my.dropCurve->setSamples(my.drops);
+    my.spanCurve->setSamples(my.spans);
+    my.pointCurve->setSamples(my.points);
+}
 
-    // TODO: walk the vectors/lists and drop no-longer-needed events
+//
+// Fetch the new set of events, merging them into the existing sets
+// - "Points" curve has an entry for *every* event to be displayed.
+// - "Span" curve has an entry for all *begin/end* flagged events.
+//   These are initially unpaired, unless PMDA is playing games, and
+//   so usually min/max is used as a placeholder until corresponding
+//   begin/end event arrives.
+// - "Drop" curve has an entry to match up events with the parents.
+//   The parent is the root "span" (terminology on loan from Dapper)
+//
+void TracingItem::updateEvents(QmcMetric *metric)
+{
+    if (metric->hasInstances() && !metric->explicitInsts()) {
+	for (int i = 0; i < metric->numInst(); i++)
+	    updateEventRecords(metric, i);
+    } else {
+	updateEventRecords(metric, 0);
+    }
+}
 
-    //
-    // First lookup the event "slot" (aka "span" / y-axis-entry)
-    // Strategy is to use the ID from the event (if one exists),
-    // which must be mapped to an y-axis zero-indexed value.  If
-    // no ID, we fall back to metric instance ID, else just zero.
-    //
-    int slot = metric->hasInstances() > 0 ? metric->instIndex(0) : 0;
-    int parentSlot = 0;
+void TracingItem::updateEventRecords(QmcMetric *metric, int index)
+{
+    if (metric->error(index) == false) {
+	QVector<QmcEventRecord> const &records = metric->eventRecords(index);
+	int slot = metric->instIndex(index), parentSlot = -1;
 
-    //
-    // Fetch the new set of events, merging them into the existing sets
-    // - "Points" curve has an entry for *every* event to be displayed.
-    // - "Span" curve has an entry for all *begin/end* flagged events.
-    //   These are initially unpaired, unless PMDA is playing games, and
-    //   so usually min/max is used as a placeholder until corresponding
-    //   begin/end event arrives.
-    // - "Drop" curve has an entry to match up events with the parents.
-    //   The parent is the root "span" (terminology on loan from Dapper)
-    //
-    if (metric->error(0) == false) {
-	QVector<QmcEventRecord> const &records = metric->eventRecords(0);
+	// First lookup the event "slot" (aka "span" / y-axis-entry)
+	// Strategy is to use the ID from the event (if one exists),
+	// which must be mapped to a y-axis zero-indexed value.  If
+	// no ID, we fall back to metric instance ID, else just zero.
+	//
+	if (metric->hasInstances() && metric->explicitInsts())
+	    slot = metric->instIndex(0);
 
 	for (int i = 0; i < records.size(); i++) {
 	    QmcEventRecord const &record = records.at(i);
@@ -128,20 +215,16 @@ void TracingItem::updateValues(bool, bool, pmUnits*, int size, double left, doub
 
 	    my.events.append(event);
 
-	    if (flags & PM_EVENT_FLAG_ID) {	// lookup ID in yMap
-#if 0
-		slot = ...;	// VERY IMPORTANT!  override slot before the above
-		my.drops.append(QwtIntervalSample(slot,
-				QwtInterval(timestamp, 
-#endif
-	    }
+	    // find the "slot" (y-axis value) for this identifier
+	    if (flags & PM_EVENT_FLAG_ID)
+		slot = my.yMap.value(event->spanID(), slot);
 
 	    // this adds the basic point (ellipse), all events get one
 	    my.points.append(QPointF(timestamp, slot));
+	    my.yMap.insert(event->spanID(), slot);
 
-#if 0
 	    if (flags & PM_EVENT_FLAG_PARENT) {	// lookup parent in yMap
-		parentSlot = ...;
+		parentSlot = my.yMap.value(event->rootID(), parentSlot);
 		// do this on start/end only?  (or if first?)
 		my.drops.append(QwtIntervalSample(timestamp,
 				    QwtInterval(slot, parentSlot)));
@@ -155,7 +238,7 @@ void TracingItem::updateValues(bool, bool, pmUnits*, int size, double left, doub
 		    if (active.interval.maxValue() == DBL_MAX)
 			active.interval.setMaxValue(timestamp);
 		}
-		// no matter what we'll start a new span here
+		// no matter what, we'll start a new span here
 		my.spans.append(QwtIntervalSample(index,
 				    QwtInterval(timestamp, DBL_MAX)));
 	    }
@@ -172,61 +255,18 @@ void TracingItem::updateValues(bool, bool, pmUnits*, int size, double left, doub
 				    QwtInterval(DBL_MIN, timestamp)));
 		}
 	    }
-	    // TODO: handle missed events -> event.missed()
-	    // Could have a separate list of events? (render differently)
-#endif
+	    // Have not yet handled missed events (i.e. event.missed())
+	    // Could have a separate list of events? (render differently?)
 	}
     } else {
 	//
-	// Hmm, what does this mean?  Host down, for example.
+	// Hmm, what does an error here mean?  (e.g. host down).
 	// We need some visual representation that makes sense.
+	// Perhaps a background gridline (e.g. just y-axis dots)
+	// and then leave a blank section when this happens?
+	// Might need to have (another) curve to implement this.
 	//
     }
-#else
-    // finally, update the display
-
-    double range = right - left;
-    double start, end;
-
-    // test data, proof-of-concept stuff...
-    my.points.clear();
-    my.spans.clear();
-    my.drops.clear();
-
-    start = (left + drand48() * range);
-    end = (right - drand48() * range);
-    my.spans.append(QwtIntervalSample(0.0, QwtInterval(start, end)));
-    my.points.append(QPointF(start, 0.0));
-    my.points.append(QPointF(end, 0.0));
-
-    start = (left + drand48() * range);
-    end = (right - drand48() * range);
-    my.spans.append(QwtIntervalSample(1.0, QwtInterval(start, end)));
-    my.points.append(QPointF(start, 1.0));
-    my.points.append(QPointF(end, 1.0));
-
-    start = (left + drand48() * range);
-    end = (right - drand48() * range);
-    my.spans.append(QwtIntervalSample(2.0, QwtInterval(start, end)));
-    my.points.append(QPointF(start, 2.0));
-    my.points.append(QPointF(end, 2.0));
-
-    my.drops.append(QwtIntervalSample(start, QwtInterval(1.0, 2.0)));
-    my.drops.append(QwtIntervalSample(end, QwtInterval(1.0, 2.0)));
-
-    my.points.append(QPointF((left + drand48() * range), 0.0));
-    my.points.append(QPointF((left + drand48() * range), 1.0));
-    my.points.append(QPointF((left + drand48() * range), 2.0));
-    my.points.append(QPointF((right - drand48() * range), 0.0));
-    my.points.append(QPointF((right - drand48() * range), 1.0));
-    my.points.append(QPointF((right - drand48() * range), -1.0));
-    my.points.append(QPointF((right - drand48() * range), 3.0));
-
-#endif
-
-    my.dropCurve->setSamples(my.drops);
-    my.spanCurve->setSamples(my.spans);
-    my.pointCurve->setSamples(my.points);
 }
 
 void TracingItem::rescaleValues(pmUnits*)
@@ -293,7 +333,7 @@ void TracingItem::replot(int history, double*)
     my.pointCurve->setSamples(my.points);
 }
 
-void TracingItem::revive(Chart *parent)	// TODO: inheritance, move to ChartItem
+void TracingItem::revive(Chart *parent)
 {
     if (removed()) {
         setRemoved(false);
@@ -303,7 +343,7 @@ void TracingItem::revive(Chart *parent)	// TODO: inheritance, move to ChartItem
     }
 }
 
-void TracingItem::remove(void)		// TODO: inheritance, move to ChartItem?
+void TracingItem::remove(void)
 {
     setRemoved(true);
     my.dropCurve->detach();

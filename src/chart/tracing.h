@@ -27,6 +27,8 @@ class TraceEvent
 {
 public:
     TraceEvent(QmcEventRecord const &);
+    bool operator<(TraceEvent const& rhs)	// for sorting
+	{ return my.timestamp < rhs.timestamp(); }
 
     int flags(void) const { return my.flags; }
     int missed(void) const { return my.missed; }
@@ -71,6 +73,13 @@ public:
     void setPlotEnd(int index);
 
 private:
+    void cullOutlyingRanges(QVector<QwtIntervalSample> &, double, double);
+    void cullOutlyingPoints(QVector<QPointF> &, double, double);
+    void cullOutlyingEvents(QList<TraceEvent*> &, double, double);
+
+    void updateEvents(QmcMetric *);
+    void updateEventRecords(QmcMetric *, int);
+
     struct {
 	QHash<QString, int> yMap;		// reverse map, event ID to y-axis point
 	QList<TraceEvent*> events;		// all events, raw data
