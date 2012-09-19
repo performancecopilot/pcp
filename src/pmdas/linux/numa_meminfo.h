@@ -1,6 +1,7 @@
 /*
  * Linux NUMA meminfo metrics cluster from sysfs
  *
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2009 Silicon Graphics Inc.,  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,5 +28,5 @@ typedef struct {
     pmdaIndom	*node_indom;
 } numa_meminfo_t;
 
-extern int refresh_numa_meminfo(numa_meminfo_t *);
+extern int refresh_numa_meminfo(numa_meminfo_t *, proc_cpuinfo_t *, proc_stat_t *);
 
