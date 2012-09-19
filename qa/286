@@ -1,0 +1,44 @@
+#!/bin/sh
+# PCP QA Test No. 286
+# exercise local context kernel pmda metrics
+# (fetch and instance PDUs).  See RH BZ 858384.
+#
+# Copyright (c) 2012 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+rm -f $seq.full
+
+# iterate over local context (dso) kernel pmda metrics,
+# checking each one with different PDU orderings.
+
+pminfo -L kernel hinv 2>/dev/null |
+while read metric
+do
+    echo checking metric: $metric  >> $seq.full
+
+    # check fetch (eg. RH BZ 858384)
+    pmval -s 1 @:$metric  >> $seq.full
+    [ $? -ne 0 ] && echo "$metric failed (pmval)"
+
+    # check instance identifiers (only, no fetch)
+    pmprobe -L -i $metric  >> $seq.full
+    [ $? -ne 0 ] && echo "$metric failed (pmprobe)"
+done
+
+# success, all done
+status=0
+exit
