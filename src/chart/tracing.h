@@ -26,13 +26,21 @@
 class TraceEvent
 {
 public:
+    TraceEvent() { }
     TraceEvent(QmcEventRecord const &);
     bool operator<(TraceEvent const& rhs)	// for sorting
 	{ return my.timestamp < rhs.timestamp(); }
+    virtual ~TraceEvent();
 
-    int flags(void) const { return my.flags; }
-    int missed(void) const { return my.missed; }
+    int slot(void) const { return my.slot; }
+    void setSlot(int slot) { my.slot = slot; }
+
     double timestamp(void) const { return my.timestamp; }
+    int missed(void) const { return my.missed; }
+    bool hasIdentifier(void) const { return my.flags & PM_EVENT_FLAG_ID; }
+    bool hasParent(void) const { return my.flags & PM_EVENT_FLAG_PARENT; }
+    bool hasStartFlag(void) const { return my.flags & PM_EVENT_FLAG_START; }
+    bool hasEndFlag(void) const { return my.flags & PM_EVENT_FLAG_END; }
 
     const QString &spanID(void) const { return my.spanID; }
     const QString &rootID(void) const { return my.rootID; }
@@ -40,9 +48,10 @@ public:
 
 private:
     struct {
-	double		timestamp;
-	int		missed;
-	int		flags;
+	double		timestamp;	// from PMDA
+	int		missed;		// from PMDA
+	int		flags;		// from PMDA
+	int		slot;		// Y-Axis position
 	QString		spanID;		// identifier
 	QString		rootID;		// parent ID
 	QString 	description;	// parameters, etc
@@ -52,19 +61,25 @@ private:
 class TracingItem : public ChartItem
 {
 public:
+    TracingItem() { }
     TracingItem(Chart *, QmcMetric *, pmMetricSpec *, pmDesc *, const char *);
-    ~TracingItem(void);
+    virtual ~TracingItem();
 
-    QwtPlotItem* item();
-    QwtPlotCurve* curve();
+    QwtPlotItem *item();
+    QwtPlotCurve *curve();
 
     void preserveLiveData(int, int) { }
     void punchoutLiveData(int) { }
     void resetValues(int);
     void updateValues(bool, bool, pmUnits*, int, double, double, double);
     void rescaleValues(pmUnits*);
-    void showCursor(bool, const QPointF &, int);
-    void showPoints(const QRectF &);
+
+    void clearCursor(void);
+    bool containsPoint(const QRectF &, int);
+    void updateCursor(const QPointF &, int);
+    void showCursor();
+    const QString &cursorInfo();
+
     void setStroke(Chart::Style, QColor, bool);
     void replot(int, double*);
     void revive(Chart *parent);
@@ -75,14 +90,17 @@ public:
 private:
     void cullOutlyingRanges(QVector<QwtIntervalSample> &, double, double);
     void cullOutlyingPoints(QVector<QPointF> &, double, double);
-    void cullOutlyingEvents(QList<TraceEvent*> &, double, double);
+    void cullOutlyingEvents(QVector<TraceEvent> &, double, double);
 
     void updateEvents(QmcMetric *);
     void updateEventRecords(QmcMetric *, int);
+    void showEventInfo(bool, int);
 
     struct {
 	QHash<QString, int> yMap;		// reverse map, event ID to y-axis point
-	QList<TraceEvent*> events;		// all events, raw data
+	QVector<TraceEvent> events;		// all events, raw data
+	QVector<int> selections;		// indices into curve data, selected points
+	QString selectionInfo;
 
 	QVector<QPointF> points;		// displayed trace data (point form)
 	QwtPlotCurve *pointCurve;

@@ -84,6 +84,11 @@ TraceEvent::TraceEvent(QmcEventRecord const &record)
     my.description = record.parameterSummary();
 }
 
+TraceEvent::~TraceEvent()
+{
+    my.timestamp = 0.0;
+}
+
 //
 // Walk the vectors/lists and drop no-longer-needed events.
 // Events arrive time-ordered, so we can short-circuit these
@@ -124,29 +129,26 @@ void TracingItem::cullOutlyingPoints(QVector<QPointF> &points, double left, doub
 	points.remove(points.size() - cull, cull); // cull from end
 }
 
-void TracingItem::cullOutlyingEvents(QList<TraceEvent*> &events, double left, double right)
+void TracingItem::cullOutlyingEvents(QVector<TraceEvent> &events, double left, double right)
 {
-    while (!events.isEmpty()) {
-	TraceEvent *event = events.first();
-	if (event->timestamp() >= left)
-	    break;
-	events.removeFirst();
-	delete event;
-    }
+    int i, cull;
 
-    while (!events.isEmpty()) {
-	TraceEvent *event = events.first();
-	if (event->timestamp() <= right)
+    for (i = cull = 0; i < events.size(); i++, cull++)
+	if (events.at(i).timestamp() >= left)
 	    break;
-	events.removeLast();
-	delete event;
-    }
+    if (cull)
+	events.remove(0, cull); // cull from the start (0-index)
+    for (i = events.size() - 1, cull = 0; i >= 0; i--, cull++)
+	if (events.at(i).timestamp() <= right)
+	    break;
+    if (cull)
+	events.remove(events.size() - cull, cull); // cull from end
 }
 
 //
 // Requirement here is to merge in any event records that have
-// just arrived in the last timestep (my.metric) with the set
-// already being displayed.
+// just arrived in the last timestep (from my.metric) with the
+// set already being displayed.
 // Additionally, we need to cull those that are no longer within
 // the time window of interest.
 //
@@ -161,7 +163,7 @@ void TracingItem::updateValues(bool, bool, pmUnits*, int size, double left, doub
     cullOutlyingPoints(my.points, left, right);
     cullOutlyingEvents(my.events, left, right);
 
-    // crack open newly arrived records
+    // crack open newly arrived event records
     QmcMetric *metric = ChartItem::my.metric;
     if (metric->numValues() > 0)
 	updateEvents(metric);
@@ -170,6 +172,16 @@ void TracingItem::updateValues(bool, bool, pmUnits*, int size, double left, doub
     my.dropCurve->setSamples(my.drops);
     my.spanCurve->setSamples(my.spans);
     my.pointCurve->setSamples(my.points);
+}
+
+void TracingItem::updateEvents(QmcMetric *metric)
+{
+    if (metric->hasInstances() && !metric->explicitInsts()) {
+	for (int i = 0; i < metric->numInst(); i++)
+	    updateEventRecords(metric, i);
+    } else {
+	updateEventRecords(metric, 0);
+    }
 }
 
 //
@@ -182,16 +194,6 @@ void TracingItem::updateValues(bool, bool, pmUnits*, int size, double left, doub
 // - "Drop" curve has an entry to match up events with the parents.
 //   The parent is the root "span" (terminology on loan from Dapper)
 //
-void TracingItem::updateEvents(QmcMetric *metric)
-{
-    if (metric->hasInstances() && !metric->explicitInsts()) {
-	for (int i = 0; i < metric->numInst(); i++)
-	    updateEventRecords(metric, i);
-    } else {
-	updateEventRecords(metric, 0);
-    }
-}
-
 void TracingItem::updateEventRecords(QmcMetric *metric, int index)
 {
     if (metric->error(index) == false) {
@@ -209,50 +211,48 @@ void TracingItem::updateEventRecords(QmcMetric *metric, int index)
 	for (int i = 0; i < records.size(); i++) {
 	    QmcEventRecord const &record = records.at(i);
 
-	    TraceEvent *event = new TraceEvent(record);
-	    double timestamp = event->timestamp();
-	    int flags = event->flags();
-
-	    my.events.append(event);
+	    my.events.append(TraceEvent(record));
+	    TraceEvent &event = my.events.last();
 
 	    // find the "slot" (y-axis value) for this identifier
-	    if (flags & PM_EVENT_FLAG_ID)
-		slot = my.yMap.value(event->spanID(), slot);
+	    if (event.hasIdentifier())
+		slot = my.yMap.value(event.spanID(), slot);
+	    event.setSlot(slot);
 
 	    // this adds the basic point (ellipse), all events get one
-	    my.points.append(QPointF(timestamp, slot));
-	    my.yMap.insert(event->spanID(), slot);
+	    my.points.append(QPointF(event.timestamp(), slot));
+	    my.yMap.insert(event.spanID(), slot);
 
-	    if (flags & PM_EVENT_FLAG_PARENT) {	// lookup parent in yMap
-		parentSlot = my.yMap.value(event->rootID(), parentSlot);
+	    if (event.hasParent()) {	// lookup parent in yMap
+		parentSlot = my.yMap.value(event.rootID(), parentSlot);
 		// do this on start/end only?  (or if first?)
-		my.drops.append(QwtIntervalSample(timestamp,
+		my.drops.append(QwtIntervalSample(event.timestamp(),
 				    QwtInterval(slot, parentSlot)));
 	    }
 
-	    if (flags & PM_EVENT_FLAG_START) {
+	    if (event.hasStartFlag()) {
 		if (!my.spans.isEmpty()) {
 		    QwtIntervalSample &active = my.spans.last();
 		    // did we get a start, then another start?
 		    // (if so, just end the previous span now)
 		    if (active.interval.maxValue() == DBL_MAX)
-			active.interval.setMaxValue(timestamp);
+			active.interval.setMaxValue(event.timestamp());
 		}
 		// no matter what, we'll start a new span here
 		my.spans.append(QwtIntervalSample(index,
-				    QwtInterval(timestamp, DBL_MAX)));
+				    QwtInterval(event.timestamp(), DBL_MAX)));
 	    }
-	    if (flags & PM_EVENT_FLAG_END) {
+	    if (event.hasEndFlag()) {
 		if (!my.spans.isEmpty()) {
 		    QwtIntervalSample &active = my.spans.last();
 		    // did we get an end, then another end?
 		    // (if so, move previous span end to now)
 		    if (active.interval.maxValue() != DBL_MAX)
-			active.interval.setMaxValue(timestamp);
+			active.interval.setMaxValue(event.timestamp());
 		} else {
 		    // got an end, but we haven't seen a start
 		    my.spans.append(QwtIntervalSample(index,
-				    QwtInterval(DBL_MIN, timestamp)));
+				    QwtInterval(DBL_MIN, event.timestamp())));
 		}
 	    }
 	    // Have not yet handled missed events (i.e. event.missed())
@@ -296,30 +296,56 @@ void TracingItem::setStroke(Chart::Style, QColor color, bool)
     my.pointSymbol->setPen(outline);
 }
 
-void TracingItem::showCursor(bool selected, const QPointF &, int index)
+bool TracingItem::containsPoint(const QRectF &rect, int index)
+{
+    if (my.points.isEmpty())
+	return false;
+    return rect.contains(my.points.at(index));
+}
+
+void TracingItem::updateCursor(const QPointF &, int index)
+{
+    Q_ASSERT(index <= my.points.size());
+    Q_ASSERT(index <= (int)my.pointCurve->dataSize());
+
+    my.selections.append(index);
+}
+
+void TracingItem::clearCursor(void)
+{
+    my.selections.clear();
+}
+
+void TracingItem::showCursor()
 {
     const QBrush brush = my.pointSymbol->brush();
 
-    console->post(PmChart::DebugForce,
-		  "TracingItem::showCursor: selected=%c index=%d",
-		  selected? 'y' : 'n', index);
-
-    if (selected)
-	my.pointSymbol->setBrush(my.pointSymbol->brush().color().dark(180));
-
-    QwtPlotDirectPainter directPainter;
-    directPainter.drawSeries(my.pointCurve, index, index);
-
-    if (selected)
-	my.pointSymbol->setBrush(brush);   // reset brush
+    my.pointSymbol->setBrush(my.pointSymbol->brush().color().dark(180));
+    for (int i = 0; i < my.selections.size(); i++) {
+	int index = my.selections.at(i);
+	QwtPlotDirectPainter directPainter;
+	directPainter.drawSeries(my.pointCurve, index, index);
+    }
+    my.pointSymbol->setBrush(brush);   // reset brush
 }
 
-void TracingItem::showPoints(const QRectF &rect)
+//
+// Display information text associated with selected events
+//
+const QString &TracingItem::cursorInfo()
 {
-    console->post(PmChart::DebugForce, "TracingItem::showPoints: "
-		  "top left x,y=%f,%f bottom right x,y=%f,%f",
-		  rect.topLeft().x(), rect.topLeft().y(),
-		  rect.bottomRight().x(), rect.bottomRight().y());
+    my.selectionInfo = QString::null;
+
+    for (int i = 0; i < my.selections.size(); i++) {
+	TraceEvent const &event = my.events.at(i);
+	double stamp = event.timestamp();
+	if (i)
+	    my.selectionInfo.append("\n");
+	my.selectionInfo.append(timeHiResString(stamp));
+	my.selectionInfo.append(": ");
+	my.selectionInfo.append(event.description());
+    }
+    return my.selectionInfo;
 }
 
 void TracingItem::replot(int history, double*)

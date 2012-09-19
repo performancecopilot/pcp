@@ -259,15 +259,35 @@ void SamplingItem::setStroke(Chart::Style style, QColor color, bool antiAlias)
     }
 }
 
-void SamplingItem::showCursor(bool show, const QPointF &p, int)
-{       
-    QString string = QString::null;
-        
-    if (show) {
-	string.sprintf("[%.2f %s at %s]",
-		(float)p.y(), pmUnitsStr(&ChartItem::my.units), timeHiResString(p.x()));
-    } 
+void SamplingItem::clearCursor()
+{
+    // nothing to do here.
+}
+
+bool SamplingItem::containsPoint(const QRectF &, int)
+{
+    return false;
+}
+
+void SamplingItem::updateCursor(const QPointF &p, int)
+{
+    QString string;
+
+    string.sprintf("[%.2f %s at %s]",
+		(float)p.y(),
+		pmUnitsStr(&ChartItem::my.units),
+		timeHiResString(p.x()));
     pmchart->setValueText(string);
+}
+
+void SamplingItem::showCursor()
+{
+    // nothing to do here.
+}
+
+const QString &SamplingItem::cursorInfo()
+{
+    return ChartItem::my.name;
 }
 
 void SamplingItem::copyRawDataPoint(int index)

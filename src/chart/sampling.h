@@ -55,7 +55,12 @@ public:
     void revive(Chart *);
     void remove();
     void setStroke(Chart::Style, QColor, bool);
-    void showCursor(bool, const QPointF &, int);
+
+    void clearCursor();
+    bool containsPoint(const QRectF &, int);
+    void updateCursor(const QPointF &, int);
+    const QString &cursorInfo();
+    void showCursor();
 
     void copyRawDataArray(void);
     void copyRawDataPoint(int index);
@@ -70,6 +75,7 @@ public:
 private:
     struct {
 	SamplingCurve *curve;
+	QString info;
 	double scale;
 	double *data;
 	double *itemData;

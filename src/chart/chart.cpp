@@ -23,7 +23,9 @@
 #include <QtCore/QPoint>
 #include <QtCore/QRegExp>
 #include <QtGui/QApplication>
+#include <QtGui/QWhatsThis>
 #include <QtGui/QPainter>
+#include <QtGui/QCursor>
 #include <QtGui/QLabel>
 #include <qwt_plot_layout.h>
 #include <qwt_plot_canvas.h>
@@ -97,8 +99,6 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
     my.style = NoStyle;
     my.scheme = QString::null;
     my.sequence = 0;
-    my.selectedItem = NULL;
-    my.selectedPoint = -1;
     my.tracingScaleEngine = NULL;
     my.samplingScaleEngine = NULL;
     my.tracingPickerMachine = NULL;
@@ -892,19 +892,20 @@ void Chart::selected(const QPolygon &poly)
     console->post(PmChart::DebugForce, "Chart::selected(polygon) chart=%p npoints=%d", this, poly.size());
     if (my.eventType)
 	showPoints(poly);
+    else
+	showPoint(poly.point(0));
     my.tab->setCurrent(this);
 }
 
 void Chart::selected(const QPointF &p)
 {
-    console->post("Chart::selected(point) chart=%p x=%f y=%f", this, p.x(), p.y());
+    console->post(PmChart::DebugForce, "Chart::selected(point) chart=%p x=%f y=%f", this, p.x(), p.y());
     showPoint(p);
     my.tab->setCurrent(this);
 }
 
 void Chart::moved(const QPointF &p)
 {
-    console->post("Chart::moved(point) chart=%p x=%f y=%f ", this, p.x(), p.y());
     if (!my.eventType)
 	showPoint(p);
 }
@@ -913,7 +914,7 @@ void Chart::moved(const QPointF &p)
 
 void Chart::showPoint(const QPointF &p)
 {
-    ChartItem *item = NULL;
+    ChartItem *selected = NULL;
     double dist, distance = 10e10;
     int index = -1;
 
@@ -926,21 +927,20 @@ void Chart::showPoint(const QPointF &p)
 	int point = curve->closestPoint(pp, &dist);
 
 	if (dist < distance) {
-	    distance = dist;
 	    index = point;
-	    item = my.items[i];
+	    distance = dist;
+	    selected = my.items[i];
 	}
     }
 
-    if (item && dist < PICK_TOLERANCE) {
-	my.selectedItem = item;
-	my.selectedPoint = index;
-	item->showCursor(true, p, my.selectedPoint);
-    } else if (my.selectedItem) {
-	item = my.selectedItem;
-	item->showCursor(false, p, my.selectedPoint);
-	my.selectedPoint = -1;
-	my.selectedItem = NULL;
+    // clear existing selections then show this one
+    for (int i = 0; i < my.items.size(); i++) {
+	ChartItem *item = my.items[i];
+
+	item->clearCursor();
+	if (item == selected && dist < PICK_TOLERANCE)
+	    item->updateCursor(p, index);
+	item->showCursor();
     }
 }
 
@@ -953,18 +953,48 @@ void Chart::showPoints(const QPolygon &poly)
 
     // Transform selected (pixel) points to our coordinate system
     QRectF cp = my.picker->invTransform(poly.boundingRect());
+    const QPointF &p = cp.topLeft();
 
     //
     // If a single-point selected, use showPoint instead
     // (this uses proximity checking, not bounding box).
     //
     if (cp.width() == 0 && cp.height() == 0) {
-	showPoint(cp.topLeft());
-    } else {
-	// mark all points enclosed by the polygon selection
-	for (int i = 0; i < my.items.size(); i++)
-	    tracingItem(i)->showPoints(cp);
+	showPoint(p);
     }
+    else {
+	// clear existing selections, find and show new ones
+	for (int i = 0; i < my.items.size(); i++) {
+	    ChartItem *item = my.items[i];
+	    int itemDataSize = item->curve()->dataSize();
+
+	    item->clearCursor();
+	    for (int index = 0; index < itemDataSize; index++)
+		if (item->containsPoint(cp, index))
+		    item->updateCursor(p, index);
+	    item->showCursor();
+	}
+    }
+
+    showInfo();
+}
+
+//
+// give feedback (popup) about the selection
+//
+void Chart::showInfo(void)
+{
+    QString info = QString::null;
+
+    for (int i = 0; i < my.items.size(); i++) {
+	ChartItem *item = my.items[i];
+	info.append(item->cursorInfo());
+    }
+
+    if (info != QString::null)
+	QWhatsThis::showText(QCursor::pos(), info, this);
+    else
+	QWhatsThis::hideText();
 }
 
 bool Chart::legendVisible()

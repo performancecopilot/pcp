@@ -134,6 +134,7 @@ private:
     void setScaleEngine(void);
     void setPickerMachine(void);
     void setStroke(ChartItem *, Style, QColor);
+    void showInfo(void);
     void showPoint(const QPointF &);
     void showPoints(const QPolygon &);
 
@@ -155,8 +156,6 @@ private:
 	bool rateConvert;
 	bool antiAliasing;
 
-	int selectedPoint;
-	ChartItem *selectedItem;
 	QwtPlotPicker *picker;
 	QwtPickerMachine *tracingPickerMachine;
 	QwtPickerMachine *samplingPickerMachine;
@@ -173,6 +172,7 @@ private:
 class ChartItem
 {
 public:
+    ChartItem() { }
     ChartItem(QmcMetric *, pmMetricSpec *, pmDesc *, const char *);
     virtual ~ChartItem(void) { }
 
@@ -184,7 +184,13 @@ public:
     virtual void resetValues(int) = 0;
     virtual void updateValues(bool, bool, pmUnits *, int, double, double, double) = 0;
     virtual void rescaleValues(pmUnits *) = 0;
-    virtual void showCursor(bool, const QPointF &, int) = 0;
+
+    virtual void clearCursor() = 0;
+    virtual bool containsPoint(const QRectF &, int) = 0;
+    virtual void updateCursor(const QPointF &, int) = 0;
+    virtual void showCursor() = 0;
+    virtual const QString &cursorInfo() = 0;
+
     virtual void setStroke(Chart::Style, QColor, bool) = 0;
     virtual void replot(int, double *) = 0;
     virtual void revive(Chart *parent) = 0;
