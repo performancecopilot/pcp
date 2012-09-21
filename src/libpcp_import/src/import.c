@@ -396,7 +396,7 @@ pmiAddInstance(pmInDom indom, const char *instance, int inst)
     pmi_indom	*idp;
     const char	*p;
     char	*np;
-    int		ilen;
+    int		spaced;
     int		i;
     int		j;
 
@@ -429,10 +429,14 @@ pmiAddInstance(pmInDom indom, const char *instance, int inst)
      */
     for (p = instance; *p && *p != ' '; p++)
 	;
-    ilen = p - instance;
+    spaced = (*p == ' ') ? p - instance + 1: 0;	/* +1 => *must* compare the space too */
     for (j = 0; j < idp->ninstance; j++) {
-	if (strncmp(instance, idp->name[j], ilen) == 0) {
-	    return current->last_sts = PMI_ERR_DUPINSTNAME;
+	if (spaced) {
+	    if (strncmp(instance, idp->name[j], spaced) == 0)
+		return current->last_sts = PMI_ERR_DUPINSTNAME;
+	} else {
+	    if (strcmp(instance, idp->name[j]) == 0)
+		return current->last_sts = PMI_ERR_DUPINSTNAME;
 	}
 	if (inst == idp->inst[j]) {
 	    return current->last_sts = PMI_ERR_DUPINSTID;
@@ -472,7 +476,7 @@ make_handle(const char *name, const char *instance, pmi_handle *hp)
     int		m;
     int		i;
     int		j;
-    int		ilen;
+    int		spaced;
     const char	*p;
     pmi_indom	*idp;
 
@@ -511,10 +515,15 @@ make_handle(const char *name, const char *instance, pmi_handle *hp)
 
 	for (p = instance; *p && *p != ' '; p++)
 	    ;
-	ilen = p - instance;
+	spaced = (*p == ' ') ? p - instance + 1: 0;	/* +1 => *must* compare the space too */
 	for (j = 0; j < idp->ninstance; j++) {
-	    if (strncmp(instance, idp->name[j], ilen) == 0)
-		break;
+	    if (spaced) {
+		if (strncmp(instance, idp->name[j], spaced) == 0)
+		    break;
+	    } else {
+		if (strcmp(instance, idp->name[j]) == 0)
+		    break;
+	    }
 	}
 	if (j == idp->ninstance)
 	    return current->last_sts = PM_ERR_INST;
