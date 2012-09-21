@@ -746,6 +746,7 @@ pmlogrewrite
 508 archive pmlogreduce pmlogextract local oss
 509 derive pmns local oss
 510 pmlogger local oss
+511 pmimport pmdumplog pmlogsummary perl local oss
 512 threads pminfo pmlogger pmlogextract pmdumplog dbpmda local oss
 513 libpcp pdu local oss
 519 pmie remote oss

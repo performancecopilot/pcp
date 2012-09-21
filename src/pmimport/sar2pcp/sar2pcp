@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -108,7 +109,7 @@ sub def_multi($$)
     my ($name,$indom) = @_;
     my $units = pmiUnits(0,0,0,0,0,0);
     my $type = PM_TYPE_FLOAT;
-    if ($name eq "proc.runq.runnable") {
+    if ($name eq "proc.runq.runnable" || $name eq "proc.nprocs") {
 	$units = pmiUnits(0,0,1,0,0,PM_COUNT_ONE);
 	$type = PM_TYPE_U32;
     }
@@ -217,7 +218,7 @@ while (defined(my $token = $parser->get_token())) {
 		    def_single("kernel.all.cpu.steal");
 		    # intr is irq + soft
 		    def_single("kernel.all.cpu.intr");
-		    # pro tem, skip guest
+		    def_single("kernel.all.cpu.guest");
 		    def_single("kernel.all.cpu.idle");
 		}
 		put($token->attr->{'usr'}/100);
@@ -226,6 +227,7 @@ while (defined(my $token = $parser->get_token())) {
 		put($token->attr->{'iowait'}/100);
 		put($token->attr->{'steal'}/100);
 		put(($token->attr->{'irq'}+$token->attr->{'soft'})/100);
+		put($token->attr->{'guest'}/100);
 		put($token->attr->{'idle'}/100);
 	    }
 	    else {
@@ -240,6 +242,7 @@ while (defined(my $token = $parser->get_token())) {
 			def_multi("kernel.percpu.cpu.steal", $indom);
 			# intr is irq + soft
 			def_multi("kernel.percpu.cpu.intr", $indom);
+			def_multi("kernel.percpu.cpu.guest", $indom);
 			def_multi("kernel.percpu.cpu.idle", $indom);
 		    }
 		    def_metric_inst("kernel.percpu.cpu.user", $indom, $instance);
@@ -248,6 +251,7 @@ while (defined(my $token = $parser->get_token())) {
 		    def_metric_inst("kernel.percpu.cpu.wait.total", $indom, $instance);
 		    def_metric_inst("kernel.percpu.cpu.steal", $indom, $instance);
 		    def_metric_inst("kernel.percpu.cpu.intr", $indom, $instance);
+		    def_metric_inst("kernel.percpu.cpu.guest", $indom, $instance);
 		    def_metric_inst("kernel.percpu.cpu.idle", $indom, $instance);
 		}
 		put($token->attr->{'usr'}/100);
@@ -256,6 +260,7 @@ while (defined(my $token = $parser->get_token())) {
 		put($token->attr->{'iowait'}/100);
 		put($token->attr->{'steal'}/100);
 		put(($token->attr->{'irq'}+$token->attr->{'soft'})/100);
+		put($token->attr->{'guest'}/100);
 		put($token->attr->{'idle'}/100);
 	    }
 	}
@@ -390,21 +395,42 @@ while (defined(my $token = $parser->get_token())) {
 		def_single("vfs.inodes.count");
 		# pro tem skip pty-nr
 	    }
-	    put($token->attr->{'dentunusd'});
-	    put($token->attr->{'file-nr'});
-	    put($token->attr->{'inode-nr'});
+	    # depending on sadc version, these may be attributes
+	    # or separate tags (below).
+	    if (defined($token->attr->{'dentunusd'})) {
+		put($token->attr->{'dentunusd'});
+		put($token->attr->{'file-nr'});
+		put($token->attr->{'inode-nr'});
+	    }
 	}
+	elsif ($token->tag eq "dentunusd") {
+	    # <dentunusd>75415</dentunusd>
+	    # metric defined already (above - different XML output versions!)
+	    $snarf_text = 1;
+	}
+	elsif ($token->tag eq "file-nr") {
+	    # <file-nr>4608</file-nr>
+	    # metric defined already (above - different XML output versions!)
+	    $snarf_text = 1;
+	}
+	elsif ($token->tag eq "inode-nr") {
+	    # <inode-nr>72802</inode-nr>
+	    # metric defined already (above - different XML output versions!)
+	    $snarf_text = 1;
+	}
+	# pro tem skip pty-nr
 	elsif ($token->tag eq "queue") {
 	    if ($sample == 1) {
 		my $indom = pmInDom_build(PMI_DOMAIN, 1);
 		def_single("proc.runq.runnable");
-		# pro tem skip plist-sz
+		def_single("proc.nproc");
 		def_multi("kernel.all.load", $indom);
 		def_metric_inst("kernel.all.load", $indom, "1 minute");
 		def_metric_inst("kernel.all.load", $indom, "5 minute");
 		def_metric_inst("kernel.all.load", $indom, "15 minute");
 	    }
 	    put($token->attr->{'runq-sz'});
+	    put($token->attr->{'plist-sz'});
 	    put($token->attr->{'ldavg-1'});
 	    put($token->attr->{'ldavg-5'});
 	    put($token->attr->{'ldavg-15'});
@@ -540,6 +566,9 @@ while (defined(my $token = $parser->get_token())) {
 	       $token->tag eq "statistics" ||
 	       $token->tag eq "interrupts" ||
 	       $token->tag eq "int-global" ||
+	       $token->tag eq "serial" ||
+	       $token->tag eq "pty-nr" ||
+	       $token->tag eq "tty" ||
 	       $token->tag eq "memory" ||
 	       $token->tag eq "memused-percent" ||
 	       $token->tag eq "commit" ||

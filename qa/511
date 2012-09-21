@@ -1,0 +1,65 @@
+#!/bin/sh
+# PCP QA Test No. 511
+#
+# Exercise sar2pcp for RH BZ 859117
+# This may prove too optimistic (asking sadf to replay different sar
+# files, that sar generated ... backwards compatibility much?) - if
+# thats the case, we'll have to special case things.
+#
+# Copyright (c) 2012 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+which sadf >/dev/null 2>&1 || _notrun "sadf not installed (sysstat package)"
+
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+logcheck()
+{
+    safile="$1"
+    pcplog="$2"
+
+    # should be no errors/warnings and pcp tools should also not fail
+    pmdumplog -z -l $pcplog >>$seq.full
+    [ $? -eq 0 ] && echo "pmdumplog approved of the $safile conversion"
+
+    # this will visit and examine in detail every single result stored
+    pmlogsummary $pcplog >>$seq.full
+    [ $? -eq 0 ] && echo "pmlogsummary approved of the $safile conversion"
+}
+
+# real QA test starts here
+rm -f $seq.full
+for safile in $here/sadist/*.bin
+do
+    echo "Checking $safile" | tee -a $seq.full
+    pcplog=$tmp.pcplog
+    sar2pcp $safile $pcplog
+    [ $? -eq 0 ] && "sar2pcp thinks $safile is going well so far"
+    logcheck $safile $pcplog
+    rm -f $tmp.pcplog.*
+done
+
+for xmlfile in $here/sadist/*.xml
+do
+    echo "Checking $xmlfile" | tee -a $seq.full
+    pcplog=$tmp.pcplog
+    sar2pcp -x $xmlfile $pcplog
+    [ $? -eq 0 ] && "sar2pcp thinks $xmlfile is going well so far"
+    logcheck $xmlfile $pcplog
+    rm -f $tmp.pcplog.*
+done
+
+# success, all done
+status=0
+exit

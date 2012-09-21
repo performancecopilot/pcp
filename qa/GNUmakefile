@@ -13,7 +13,7 @@ include $(TOPDIR)/src/include/builddefs
 TESTDIR = $(PCP_VAR_DIR)/testsuite
 TESTS	= $(shell sed -n -e '/^[0-9]/s/[ 	].*//p' <group)
 
-SUBDIRS = src pmdas cisco pconf
+SUBDIRS = src pmdas cisco pconf sadist
 LCONFIG = localconfig
 
 default_pcp default: new remake check qa_outfiles $(OTHERS) $(SUBDIRS) $(LCONFIG)
