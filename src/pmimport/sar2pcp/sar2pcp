@@ -13,15 +13,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Kenj Note:
-#	Since we don't know what sort of system the data came from
-#	there is no point trying to match the PMIDs with those from
-#	any particular OS PMDA.  For the names we'll use the common
-#	names where possible, else the Linux names (as the most likely
-#	case).
-# Nathans Note:
-#	Perhaps the sysname XML tag could be used to solve that issue?
-#
 
 use strict;
 use warnings;
@@ -33,16 +24,16 @@ use PCP::LogImport;
 
 my $sample = 0;
 my $stamp;
-my $zone = 'UTC';	# timestamps from sadf are in UTC
+my $zone = 'UTC';	# timestamps from sadf are in UTC by default
 my $parser;
 my %handlemap;		# pmi* handles, one per metric-instance pair
 my %instmap;		# ensures we don't add duplicate indom/instance pairs
 my $putsts = 0;		# pmiPutValue() errors are only checked @ end of loop
-my %warnings;
 my $in_cpu_load = 0;
 my $snarf_text = 0;
 my $snarf_name;
 my $save_text;
+my $interface;
 my $disk_all_total;
 my $disk_all_total_bytes;
 
@@ -65,6 +56,34 @@ sub dodate($)
     defined($mm_map{$mm}) or die "dodate: bad month in datetime: \"$datetime\"\n";
     return $fields[2] . '-' . $mm_map{$mm} . '-' . $fields[0];
 }
+
+my %warning_tags;	# XML tags we do not know and will issue warnings about
+my %skipped_tags = (	# XML tags we know about, but have no metric to map yet
+	'sysstat' => 1,		'sysdata-version' => 1,
+	'sysname' => 1,		'release' => 1,
+	'machine' => 1,		'restarts' => 1,
+	'file-date' => 1,	'statistics' => 1,
+	'interrupts' => 1,	'int-global' => 1,
+	'int-proc' => 1,	'irqcpu' => 1,
+	'serial' => 1,		'pty-nr' => 1,
+	'tty' => 1,
+	'super-sz' => 1,	'super-sz-percent' => 1,
+	'dquot-sz' => 1,	'dquot-sz-percent' => 1,
+	'rtsig-sz' => 1,	'rtsig-sz-percent' => 1,
+	'memory' => 1,		'memused-percent' => 1,
+	'commit' => 1,		'commit-percent' => 1,
+	'swpused' => 1,		'swpused-percent' => 1,
+	'swpcad-percent' => 1,
+	'frmpg' => 1,	'bufpg' => 1,	'campg' => 1,
+	'disk' => 1,		'network' => 1,
+	'power-management' => 1,
+	'cpu-frequency' => 1,	'cpu-weighted-frequency' => 1,
+	'cpufreq' => 1,		'cpuwfreq' => 1,
+	'cpu' => 1,
+	'hugepages' => 1,	'hugfree' => 1,
+	'hugused' => 1,		'hugused-percent' => 1,
+	'active' => 1,		'inactive' => 1,
+);
 
 # Register metrics with a singular value.
 #
@@ -231,51 +250,67 @@ while (defined(my $token = $parser->get_token())) {
 	    #  iowait="0.00" steal="0.00" irq="0.00" soft="0.00"
 	    #  guest="0.00" idle="96.79"/>
 	    # <cpu number="0" usr="2.00" .../>
+	    # Take care: some are missing, some attribute names change!
+	    #
+	    my ($usr, $sys, $nice, $wait, $irq, $soft, $intr, $guest, $steal, $idle);
+
+	    $usr = $token->attr->{'usr'};
+	    $usr = $token->attr->{'user'} unless defined($usr); # name change
+	    $usr /= 100;
+	    $sys = $token->attr->{'sys'};
+	    $sys = $token->attr->{'system'} unless defined($sys); # name change
+	    $sys /= 100;
+	    $idle = $token->attr->{'idle'};
+	    $idle /= 100;
+	    $nice = $token->attr->{'nice'};
+	    $nice /= 100;
+	    $wait = $token->attr->{'iowait'};
+	    $wait /= 100;
+	    $irq  = $token->attr->{'irq'};
+	    $soft = $token->attr->{'soft'};
+	    $intr = ($irq + $soft) / 100 unless (!defined($irq) || !defined($soft));
+	    $guest = $token->attr->{'guest'};
+	    $guest /= 100 if (defined($guest));
+	    $steal = $token->attr->{'steal'};
+	    $steal /= 100 if (defined($steal));
+
 	    if ($token->attr->{'number'} eq 'all') {
-		put('kernel.all.cpu.user', $token->attr->{'usr'}/100);
-		put('kernel.all.cpu.nice', $token->attr->{'nice'}/100);
-		put('kernel.all.cpu.sys', $token->attr->{'sys'}/100);
-		put('kernel.all.cpu.wait.total', $token->attr->{'iowait'}/100);
-		put('kernel.all.cpu.steal', $token->attr->{'steal'}/100);
-		# intr is irq + soft
-		put('kernel.all.cpu.intr', ($token->attr->{'irq'}+$token->attr->{'soft'})/100);
-		put('kernel.all.cpu.guest', $token->attr->{'guest'}/100);
-		put('kernel.all.cpu.idle', $token->attr->{'idle'}/100);
+		put('kernel.all.cpu.user', $usr);
+		put('kernel.all.cpu.nice', $nice);
+		put('kernel.all.cpu.sys', $sys);
+		put('kernel.all.cpu.wait.total', $wait);
+		put('kernel.all.cpu.steal', $steal);
+		put('kernel.all.cpu.intr', $intr);
+		put('kernel.all.cpu.guest', $guest);
+		put('kernel.all.cpu.idle', $idle);
 	    }
 	    else {
 		my $instance = 'cpu' . $token->attr->{'number'};
 		my $indom = pmInDom_build(PMI_DOMAIN, 0);
 
-		putinst('kernel.percpu.cpu.user', $indom, $instance,
-			$token->attr->{'usr'}/100);
-		putinst('kernel.percpu.cpu.nice', $indom, $instance,
-			$token->attr->{'nice'}/100);
-		putinst('kernel.percpu.cpu.sys',
-			$indom, $instance, $token->attr->{'sys'}/100);
-		putinst('kernel.percpu.cpu.wait.total',
-			$indom, $instance, $token->attr->{'iowait'}/100);
-		putinst('kernel.percpu.cpu.steal',
-			$indom, $instance, $token->attr->{'steal'}/100);
-		putinst('kernel.percpu.cpu.intr', $indom, $instance,
-			($token->attr->{'irq'}+$token->attr->{'soft'})/100);
-		putinst('kernel.percpu.cpu.guest', $indom, $instance,
-			$token->attr->{'guest'}/100);
-		putinst('kernel.percpu.cpu.idle', $indom, $instance,
-			$token->attr->{'idle'}/100);
+		putinst('kernel.percpu.cpu.user', $indom, $instance, $usr);
+		putinst('kernel.percpu.cpu.nice', $indom, $instance, $nice);
+		putinst('kernel.percpu.cpu.sys', $indom, $instance, $sys);
+		putinst('kernel.percpu.cpu.wait.total', $indom, $instance, $wait);
+		putinst('kernel.percpu.cpu.steal', $indom, $instance, $steal);
+		putinst('kernel.percpu.cpu.intr', $indom, $instance, $intr);
+		putinst('kernel.percpu.cpu.guest', $indom, $instance, $guest);
+		putinst('kernel.percpu.cpu.idle', $indom, $instance, $idle);
 	    }
 	}
-	elsif ($token->tag eq 'process-and-context-switch') {
+	elsif ($token->tag eq 'process-and-context-switch' ||
+		$token->tag eq 'processes' || $token->tag eq 'context-switch') {
 	    # <process-and-context-switch per="second" proc="0.00"
 	    #  cswch="652.10"/>
-	    put('kernel.all.pswitch', $token->attr->{'proc'});
-	    # pro tem skip cswch
+	    put('kernel.all.pswitch', $token->attr->{'cswch'});
+	    # pro tem skip proc
 	}
 	elsif ($token->tag eq 'irq') {
 	    # <irq intr="sum" value="230.46"/>
 	    if ($token->attr->{'intr'} eq 'sum') {
 		put('kernel.all.intr', $token->attr->{'value'});
 	    }
-	    # skip all other intr counts
+	    # skip all other intr counts for now
 	}
 	elsif ($token->tag eq 'swap-pages') {
 	    # <swap-pages per="second" pswpin="0.00" pswpout="0.00"/>
@@ -367,13 +402,13 @@ while (defined(my $token = $parser->get_token())) {
 	    $snarf_name = 'vfs.dentry.count';
 	    $snarf_text = 1;
 	}
-	elsif ($token->tag eq 'file-nr') {
+	elsif ($token->tag eq 'file-nr' || $token->tag eq 'file-sz') {
 	    # <file-nr>4608</file-nr>
 	    # metric defined already (above - different XML output versions!)
 	    $snarf_name = 'vfs.files.count';
 	    $snarf_text = 1;
 	}
-	elsif ($token->tag eq 'inode-nr') {
+	elsif ($token->tag eq 'inode-nr' || $token->tag eq 'inode-sz') {
 	    # <inode-nr>72802</inode-nr>
 	    # metric defined already (above - different XML output versions!)
 	    $snarf_name = 'vfs.inodes.count';
@@ -405,34 +440,40 @@ while (defined(my $token = $parser->get_token())) {
 	    # pro tem skip avgrq-sz, avgqu-sz, await, svctm
 	    # TODO disk.all aggregation?
 	}
+	elsif ($token->tag eq 'net-device') {
+	    # <net-device iface="eth0">
+	    $interface = $token->attr->{'iface'};
+	}
 	elsif ($token->tag eq 'net-dev') {
 	    # <net-dev iface="eth0" rxpck="0.00" txpck="0.00" rxkB="0.00"
 	    #  txkB="0.00" rxcmp="0.00" txcmp="0.00" rxmcst="0.00"/>
-	    my $instance = $token->attr->{'iface'};
 	    my $indom = pmInDom_build(PMI_DOMAIN, 4);
+	    my $iface = $token->attr->{'iface'};
+	    $interface = $iface if (defined($iface));	# else it comes from net-device
 
-	    putinst('network.interface.in.packets', $indom, $instance, $token->attr->{'rxpck'});
-	    putinst('network.interface.out.packets', $indom, $instance, $token->attr->{'txpck'});
-	    putinst('network.interface.in.bytes', $indom, $instance, $token->attr->{'rxkB'});
-	    putinst('network.interface.out.bytes', $indom, $instance, $token->attr->{'txkB'});
+	    putinst('network.interface.in.packets', $indom, $interface, $token->attr->{'rxpck'});
+	    putinst('network.interface.out.packets', $indom, $interface, $token->attr->{'txpck'});
+	    putinst('network.interface.in.bytes', $indom, $interface, $token->attr->{'rxkB'});
+	    putinst('network.interface.out.bytes', $indom, $interface, $token->attr->{'txkB'});
 	    # pro tem skip rxcmp, txcmp, rxmcst
 	}
 	elsif ($token->tag eq 'net-edev') {
 	    # <net-edev iface="eth0" rxerr="0.00" txerr="0.00" coll="0.00"
 	    #  rxdrop="0.00" txdrop="0.00" txcarr="0.00" rxfram="0.00"
 	    #  rxfifo="0.00" txfifo="0.00"/>
-	    my $instance = $token->attr->{'iface'};
 	    my $indom = pmInDom_build(PMI_DOMAIN, 4);
+	    my $iface = $token->attr->{'iface'};
+	    $interface = $iface if (defined($iface));	# else it comes from net-device
 
-	    putinst('network.interface.in.errors', $indom, $instance, $token->attr->{'rxerr'});
-	    putinst('network.interface.out.errors', $indom, $instance, $token->attr->{'txerr'});
-	    putinst('network.interface.collisions', $indom, $instance, $token->attr->{'coll'});
-	    putinst('network.interface.in.drops', $indom, $instance, $token->attr->{'rxdrop'});
-	    putinst('network.interface.out.drops', $indom, $instance, $token->attr->{'txdrop'});
-	    putinst('network.interface.out.carrier', $indom, $instance, $token->attr->{'txcarr'});
-	    putinst('network.interface.in.frame', $indom, $instance, $token->attr->{'rxfram'});
-	    putinst('network.interface.in.fifo', $indom, $instance, $token->attr->{'rxfifo'});
-	    putinst('network.interface.out.fifo', $indom, $instance, $token->attr->{'txfifo'});
+	    putinst('network.interface.in.errors', $indom, $interface, $token->attr->{'rxerr'});
+	    putinst('network.interface.out.errors', $indom, $interface, $token->attr->{'txerr'});
+	    putinst('network.interface.collisions', $indom, $interface, $token->attr->{'coll'});
+	    putinst('network.interface.in.drops', $indom, $interface, $token->attr->{'rxdrop'});
+	    putinst('network.interface.out.drops', $indom, $interface, $token->attr->{'txdrop'});
+	    putinst('network.interface.out.carrier', $indom, $interface, $token->attr->{'txcarr'});
+	    putinst('network.interface.in.frame', $indom, $interface, $token->attr->{'rxfram'});
+	    putinst('network.interface.in.fifo', $indom, $interface, $token->attr->{'rxfifo'});
+	    putinst('network.interface.out.fifo', $indom, $interface, $token->attr->{'txfifo'});
 	}
 	elsif ($token->tag eq 'net-nfs' || $token->tag eq 'net-nfsd' ||
 	       $token->tag eq 'net-sock' || $token->tag eq 'net-sock6' ||
@@ -457,48 +498,8 @@ while (defined(my $token = $parser->get_token())) {
 	    $snarf_name = 'hinv.ncpu';
 	    $snarf_text = 2;
 	}
-	elsif ($token->tag eq 'sysstat' ||
-	       $token->tag eq 'sysdata-version' ||
-	       $token->tag eq 'sysname' ||
-	       $token->tag eq 'release' ||
-	       $token->tag eq 'machine' ||
-	       $token->tag eq 'restarts' ||
-	       $token->tag eq 'file-date' ||
-	       $token->tag eq 'statistics' ||
-	       $token->tag eq 'interrupts' ||
-	       $token->tag eq 'int-global' ||
-	       $token->tag eq 'serial' ||
-	       $token->tag eq 'pty-nr' ||
-	       $token->tag eq 'tty' ||
-	       $token->tag eq 'memory' ||
-	       $token->tag eq 'memused-percent' ||
-	       $token->tag eq 'commit' ||
-	       $token->tag eq 'commit-percent' ||
-	       $token->tag eq 'swpused' ||
-	       $token->tag eq 'swpused-percent' ||
-	       $token->tag eq 'swpcad-percent' ||
-	       $token->tag eq 'frmpg' ||
-	       $token->tag eq 'bufpg' ||
-	       $token->tag eq 'campg' ||
-	       $token->tag eq 'disk' ||
-	       $token->tag eq 'network' ||
-	       $token->tag eq 'power-management' ||
-	       $token->tag eq 'cpu-frequency' ||
-	       $token->tag eq 'cpu-weighted-frequency' ||
-	       $token->tag eq 'cpufreq' ||
-	       $token->tag eq 'cpuwfreq' ||
-	       $token->tag eq 'cpu' ||
-	       $token->tag eq 'hugepages' ||
-	       $token->tag eq 'hugfree' ||
-	       $token->tag eq 'hugused' ||
-	       $token->tag eq 'hugused-percent' ||
-	       $token->tag eq 'active' ||
-	       $token->tag eq 'inactive') {
-	    # ones we know about, but don't care about
-	    next;
-	}
-	else {
-	    $warnings{$token->tag} = 1;
+	elsif (!defined($skipped_tags{$token->tag})) {
+	    $warning_tags{$token->tag} = 1;
 	}
 	$putsts == 0 or die "pmiPutValue: Failed @ $stamp: " . pmiErrStr($putsts) . "\n";
 	next;
@@ -551,17 +552,15 @@ while (defined(my $token = $parser->get_token())) {
     }
 }
 
-if (%warnings) {
-    my @warned = keys %warnings;
+if (%warning_tags) {
+    my @warned = keys %warning_tags;
     my $nwarns = $#warned + 1;
     print STDERR
 	"PCP archive produced, but $nwarns unrecognised tag(s) detected in ".
 	"$sample samples:\n\t";
     print STDERR '"', pop(@warned), '"';
     while (@warned) { print STDERR ', "', pop(@warned), '"'; }
-    print STDERR "\n" .
-	"Please report this to the PCP mailing list, along with sar version\n".
-	"and ideally some sample sar data for diagnosis too.  Thanks!\n\n";
+    print STDERR "\n";
 }
 
 pmiEnd();
