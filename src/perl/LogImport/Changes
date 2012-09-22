@@ -1,5 +1,8 @@
 Revision history for Perl extension PCP::LogImport
 
+1.01  Sat Sep 22 10:34:53 EST 2012
+      - add in definitions of the API error codes
+
 1.00  Tue Jul 13 16:41:17 EST 2010
       - initial version
 
