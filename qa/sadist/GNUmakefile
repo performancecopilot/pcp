@@ -5,8 +5,10 @@ include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/sadist
 
-SADBIN = fche-csb6-rhel6.bin
-SADXML = fche-csb6-rhel6.xml smash-rhel6.xml
+SADBIN = fche-csb6-rhel6.bin 859117-rhel5.bin f16-sa20.bin \
+	 rhel5-sa20.bin
+SADXML = fche-csb6-rhel6.xml smash-rhel6.xml smash-rhel5.xml \
+	 859117-rhel5.xml
 
 LSRCFILES = $(SADBIN) $(SADXML)
 
