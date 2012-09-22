@@ -57,11 +57,24 @@ sub dodate($)
     return $fields[2] . '-' . $mm_map{$mm} . '-' . $fields[0];
 }
 
+sub dovalue($)
+{
+    # convert string to floating point value:  "0,00" / "0.00" / undef
+    # (older sysstat versions use a comma instead of a decimal point).
+    # fail to convert (or attempt arithmetic on unconverted values) =>
+    # e.g. 'Argument "\x{31}\x{2c}..." isn't numeric in addition (+)'
+    #
+    my ($value) = @_;
+    return $value unless defined($value);
+    return $value =~ s/,/./g; 
+}
+
 my %warning_tags;	# XML tags we do not know and will issue warnings about
 my %skipped_tags = (	# XML tags we know about, but have no metric to map yet
 	'sysstat' => 1,		'sysdata-version' => 1,
 	'sysname' => 1,		'release' => 1,
-	'machine' => 1,		'restarts' => 1,
+	'machine' => 1,
+	'restarts' => 1,	'boot' => 1,
 	'file-date' => 1,	'statistics' => 1,
 	'interrupts' => 1,	'int-global' => 1,
 	'int-proc' => 1,	'irqcpu' => 1,
@@ -182,7 +195,7 @@ sub putinst($$$$)
 	die "pmiGetHandle($name, $instance): " . pmiErrStr($sts) . "\n" unless ($sts >= 0);
 	$handlemap{$handlekey} = $handle = $sts;
     }
-    $sts = pmiPutValueHandle($handle, $value);
+    $sts = pmiPutValueHandle($handle, dovalue($value));
     if ($sts < 0 && $putsts == 0) { $putsts = $sts };
 }
 
@@ -202,7 +215,7 @@ sub put($$)
 	$sts >= 0 or die "pmiGetHandle($name, ...): " . pmiErrStr($sts) . "\n";
 	$handlemap{$name} = $handle = $sts;
     }
-    $sts = pmiPutValueHandle($handle, $value);
+    $sts = pmiPutValueHandle($handle, dovalue($value));
     if ($sts < 0 && $putsts == 0) { $putsts = $sts };
 }
 
@@ -256,23 +269,25 @@ while (defined(my $token = $parser->get_token())) {
 
 	    $usr = $token->attr->{'usr'};
 	    $usr = $token->attr->{'user'} unless defined($usr); # name change
-	    $usr /= 100;
+	    $usr = dovalue($usr) / 100 if defined($usr);
 	    $sys = $token->attr->{'sys'};
 	    $sys = $token->attr->{'system'} unless defined($sys); # name change
-	    $sys /= 100;
+	    $sys = dovalue($sys) / 100 if defined($sys);
 	    $idle = $token->attr->{'idle'};
-	    $idle /= 100;
+	    $idle = dovalue($idle) / 100 if defined($idle);
 	    $nice = $token->attr->{'nice'};
-	    $nice /= 100;
+	    $nice = dovalue($nice) / 100 if defined($nice);
 	    $wait = $token->attr->{'iowait'};
-	    $wait /= 100;
-	    $irq  = $token->attr->{'irq'};
-	    $soft = $token->attr->{'soft'};
+	    $wait = dovalue($wait) / 100 if defined($wait);
+
+	    $irq  = dovalue($token->attr->{'irq'});
+	    $soft = dovalue($token->attr->{'soft'});
 	    $intr = ($irq + $soft) / 100 unless (!defined($irq) || !defined($soft));
+
 	    $guest = $token->attr->{'guest'};
-	    $guest /= 100 if (defined($guest));
+	    $guest = dovalue($guest) / 100 if defined($guest);
 	    $steal = $token->attr->{'steal'};
-	    $steal /= 100 if (defined($steal));
+	    $steal = dovalue($steal) / 100 if defined($steal);
 
 	    if ($token->attr->{'number'} eq 'all') {
 		put('kernel.all.cpu.user', $usr);
@@ -339,20 +354,32 @@ while (defined(my $token = $parser->get_token())) {
 	elsif ($token->tag eq 'io-reads') {
 	    # <io-reads rtps="0.00" bread="0.00"/>
 	    # assume blocks are 512 bytes
-	    put('disk.all.read', $token->attr->{'rtps'});
-	    put('disk.all.read_bytes', $token->attr->{'bread'}/2);
-	    $disk_all_total = $token->attr->{'rtps'}/2;
-	    $disk_all_total_bytes = $token->attr->{'bread'}/2;
+	    my $iops = dovalue($token->attr->{'rtps'});
+	    if (defined($iops)) {
+		put('disk.all.read', $iops);
+		$disk_all_total = $iops;
+	    }
+	    my $bytes = dovalue($token->attr->{'bread'});
+	    if (defined($bytes)) {
+		put('disk.all.read_bytes', $bytes / 2);
+		$disk_all_total_bytes = $bytes;
+	    }
 	}
 	elsif ($token->tag eq 'io-writes') {
 	    # <io-writes wtps="0.80" bwrtn="17.64"/>
 	    # assume blocks are 512 bytes
-	    put('disk.all.write', $token->attr->{'wtps'});
-	    $disk_all_total += $token->attr->{'wtps'};
-	    put('disk.all.write_bytes', $token->attr->{'bwrtn'}/2);
-	    $disk_all_total_bytes += $token->attr->{'bwrtn'}/2;
-	    put('disk.all.total', $disk_all_total);
-	    put('disk.all.total_bytes', $disk_all_total_bytes);
+	    my $iops = dovalue($token->attr->{'wtps'});
+	    if (defined($iops)) {
+		$disk_all_total += $iops;
+		put('disk.all.write', $iops);
+		put('disk.all.total', $disk_all_total);
+	    }
+	    my $bytes = dovalue($token->attr->{'bwrtn'});
+	    if (defined($bytes)) {
+		put('disk.all.write_bytes', $bytes / 2);
+		$disk_all_total_bytes += $bytes;
+		put('disk.all.total_bytes', $disk_all_total_bytes / 2);
+	    }
 	}
 	elsif ($token->tag eq 'memfree') {
 	    # <memfree>78896</memfree>
@@ -429,14 +456,26 @@ while (defined(my $token = $parser->get_token())) {
 	    #  util-percent="0.00"/>
 	    my $instance = 'disk' . $token->attr->{'dev'};
 	    my $indom = pmInDom_build(PMI_DOMAIN, 2);
+	    my ($read_bytes, $write_bytes, $percent);
 
 	    putinst('disk.dev.total', $indom, $instance, $token->attr->{'tps'});
 	    # 512-byte sectors/sec
-	    putinst('disk.dev.read_bytes', $indom, $instance, $token->attr->{'rd_sec'}/2);
-	    putinst('disk.dev.write_bytes', $indom, $instance, $token->attr->{'wr_sec'}/2);
-	    putinst('disk.dev.total_bytes', $indom, $instance,
-			($token->attr->{'rd_sec'} + $token->attr->{'wr_sec'})/2);
-	    putinst('disk.dev.avactive', $indom, $instance, $token->attr->{'util-percent'}/100);
+	    $percent = dovalue($token->attr->{'util-percent'});
+	    $read_bytes = dovalue($token->attr->{'rd_sec'});
+	    $write_bytes = dovalue($token->attr->{'wr_sec'});
+	    if (defined($read_bytes)) {
+		putinst('disk.dev.read_bytes', $indom, $instance, $read_bytes / 2);
+	    }
+	    if (defined($write_bytes)) {
+		putinst('disk.dev.write_bytes', $indom, $instance, $write_bytes / 2);
+	    }
+	    if (defined($read_bytes) && defined($write_bytes)) {
+		putinst('disk.dev.total_bytes', $indom, $instance,
+			($read_bytes + $write_bytes) / 2);
+	    }
+	    if (defined($percent)) {
+		putinst('disk.dev.avactive', $indom, $instance, $percent / 100);
+	    }
 	    # pro tem skip avgrq-sz, avgqu-sz, await, svctm
 	    # TODO disk.all aggregation?
 	}
@@ -501,7 +540,10 @@ while (defined(my $token = $parser->get_token())) {
 	elsif (!defined($skipped_tags{$token->tag})) {
 	    $warning_tags{$token->tag} = 1;
 	}
-	$putsts == 0 or die "pmiPutValue: Failed @ $stamp: " . pmiErrStr($putsts) . "\n";
+	if ($putsts != 0) {
+	    my $tag = $token->tag;
+	    die "pmiPutValue: Failed @ $stamp on $tag: " . pmiErrStr($putsts) . "\n";
+	}
 	next;
     }
     elsif ($token->is_end_tag) {
