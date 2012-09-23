@@ -1,12 +1,6 @@
 #!/usr/bin/python
-##############################################################################
-#
-# test_pcp.py
 #
 # Copyright (C) 2012 Red Hat Inc.
-#
-# This file is part of pcp, the python extensions for SGI's Performance
-# Co-Pilot.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,24 +11,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-
-"""Test for libpcp Wrapper module
-
-Additional Information:
-
-Performance Co-Pilot Web Site
-http://oss.sgi.com/projects/pcp
-
-Performance Co-Pilot Programmer's Guide
-SGI Document 007-3434-005
-http://techpubs.sgi.com
-cf. Chapter 3. PMAPI - The Performance Metrics API
-"""
-
-
-##############################################################################
-#
-# imports
 #
 
 import unittest
