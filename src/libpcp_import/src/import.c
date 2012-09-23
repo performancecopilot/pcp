@@ -121,12 +121,33 @@ pmiUnits(int dimSpace, int dimTime, int dimCount, int scaleSpace, int scaleTime,
     return units;
 }
 
+pmID
+pmiID(int domain, int cluster, int item)
+{
+    return pmid_build(domain, cluster, item);
+}
+
+pmInDom
+pmiInDom(int domain, int serial)
+{
+    return pmInDom_build(domain, serial);
+}
+
 const char *
 pmiErrStr(int sts)
 {
+    static char errmsg[PMI_MAXERRMSGLEN];
+    pmiErrStr_r(sts, errmsg, sizeof(errmsg));
+    return errmsg;
+}
+
+char *
+pmiErrStr_r(int code, char *buf, int buflen)
+{
     const char *msg;
-    if (sts == -1 && current != NULL) sts = current->last_sts;
-    switch (sts) {
+
+    if (code == -1 && current != NULL) code = current->last_sts;
+    switch (code) {
 	case PMI_ERR_DUPMETRICNAME:
 	    msg = "Metric name already defined";
 	    break;
@@ -161,10 +182,11 @@ pmiErrStr(int sts)
 	    msg = "No data to output";
 	    break;
 	default:
-	    msg = pmErrStr(sts);
-	    break;
+	    return pmErrStr_r(code, buf, buflen);
     }
-    return msg;
+    strncpy(buf, msg, buflen);
+    buf[buflen-1] = '\0';
+    return buf;
 }
 
 int
