@@ -60,13 +60,14 @@ sub dodate($)
 sub dovalue($)
 {
     # convert string to floating point value:  "0,00" / "0.00" / undef
-    # (older sysstat versions use a comma instead of a decimal point).
+    # (unusual LC_NUMERIC settings put comma instead of decimal point)
     # fail to convert (or attempt arithmetic on unconverted values) =>
     # e.g. 'Argument "\x{31}\x{2c}..." isn't numeric in addition (+)'
     #
     my ($value) = @_;
     return $value unless defined($value);
-    return $value =~ s/,/./g; 
+    $value =~ s/,/./g; 
+    return $value;
 }
 
 my %warning_tags;	# XML tags we do not know and will issue warnings about
