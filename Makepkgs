@@ -160,7 +160,13 @@ echo "== Building pcp, log is in $LOGF"
 
 . ./VERSION.pcp
 
-configured="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
+if [ "$VERS" = MINGW ]
+then
+    configured="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-ssp"
+else
+    configured="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
+fi
+
 echo "== Configuring pcp for vendor/distro installation ($configured)"
 if $verbose ; then
     ./configure $configured 2>&1 | tee -a $LOGF || touch $tmp.failed
