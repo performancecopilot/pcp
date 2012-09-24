@@ -1,4 +1,3 @@
-#!gmake
 #
 #  Copyright (c) 2001 Alan Bailey (bailey@mcs.anl.gov or abailey@ncsa.uiuc.edu) 
 #  for the portions of the code supporting the initial agent functionality.
@@ -14,10 +13,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
 TOPDIR = ../../..
@@ -36,7 +31,7 @@ PMCHART	= $(PCP_VAR_DIR)/config/pmchart
 
 LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so $(TARGETS) \
 	help.pag help.dir
-LLDLIBS	= -lpcp_pmda -lpcp
+LLDLIBS	= $(PCP_PMDALIB)
 
 default:	build-me
 

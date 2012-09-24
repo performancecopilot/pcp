@@ -33,12 +33,12 @@ STATICLIBTARGET =
 LIBTARGET = libpcp_trace.$(DSOSUFFIX)
 SYMTARGET =
 endif
+ifeq "$(ENABLE_SHARED)" "no"
+LIBTARGET =
+SYMTARGET =
+endif
 
 LDIRT = $(SYMTARGET)
-
-#
-# Java support (needs jni.h)
-# CFILES += jtrace.c
 
 base default: $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
@@ -50,7 +50,9 @@ endif
 include $(BUILDRULES)
 
 install : default
+ifneq "$(LIBTARGET)" ""
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
+endif
 ifneq "$(SYMTARGET)" ""
 	$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$(SYMTARGET)
 endif

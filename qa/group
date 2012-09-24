@@ -521,6 +521,7 @@ pmlogrewrite
 283 context pmcd local oss
 284 pdu local purify oss
 285 dbpmda local oss
+286 pmda.linux local oss
 287 pmlogreduce local oss pmval
 288 archive local oss
 289 libpcp fetch archive #505498 local oss
@@ -745,6 +746,7 @@ pmlogrewrite
 508 archive pmlogreduce pmlogextract local oss
 509 derive pmns local oss
 510 pmlogger local oss
+511 pmimport pmdumplog pmlogsummary perl local oss
 512 threads pminfo pmlogger pmlogextract pmdumplog dbpmda local oss
 513 libpcp pdu local oss
 519 pmie remote oss
@@ -817,6 +819,9 @@ pmlogrewrite
 651 pmproxy local oss
 703 pcpweb local oss
 706 libpcp local oss
+707 pcp.py libpcp local oss
+708 pcp.py pmimport local oss
+709 pcp.py local oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
 1046 pmie local pmieconf sgi

@@ -1,24 +1,27 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.6.6
+Version: 3.6.8
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
 License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
-Source0: ftp://oss.sgi.com/projects/pcp/download/pcp-%{version}-%{buildversion}.src.tar.gz
+Source0: pcp-%{version}.src.tar.gz
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: procps autoconf bison flex ncurses-devel readline-devel
+BuildRequires: procps autoconf bison flex
+BuildRequires: python-devel
+BuildRequires: ncurses-devel
+BuildRequires: readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
-BuildRequires: initscripts python-devel man /bin/hostname
+BuildRequires: initscripts man /bin/hostname
  
 Requires: bash gawk sed grep fileutils findutils initscripts perl python
 
-Requires: pcp-libs = %{version}
-Requires: python-pcp = %{version}
-Requires: perl-PCP-PMDA = %{version}
+Requires: pcp-libs = %{version}-%{release}
+Requires: python-pcp = %{version}-%{release}
+Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %define _pmdasdir %{_localstatedir}/lib/pcp/pmdas
 %define _testsdir %{_localstatedir}/lib/pcp/testsuite
@@ -52,7 +55,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development headers and documentation
 URL: http://oss.sgi.com/projects/pcp/
 
-Requires: pcp-libs = %{version}
+Requires: pcp-libs = %{version}-%{release}
 
 %description libs-devel
 Performance Co-Pilot (PCP) headers, documentation and tools for development.
@@ -65,8 +68,9 @@ License: GPLv2
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) test suite
 URL: http://oss.sgi.com/projects/pcp/
-
-Requires: pcp-libs-devel = %{version} valgrind
+Requires: pcp = %{version}-%{release}
+Requires: pcp-libs-devel = %{version}-%{release}
+# Requires: valgrind	# arch-specific
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
@@ -79,7 +83,7 @@ License: GPLv2
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings and documentation
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp-libs = %{version}
+Requires: pcp-libs = %{version}-%{release}
 
 %description -n perl-PCP-PMDA
 The PCP::PMDA Perl module contains the language bindings for
@@ -96,7 +100,7 @@ License: GPLv2
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for PCP Memory Mapped Values
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp >= %{version}
+Requires: pcp >= %{version}-%{release}
 
 %description -n perl-PCP-MMV
 The PCP::MMV module contains the Perl language bindings for
@@ -114,7 +118,7 @@ License: GPLv2
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for importing external data into PCP archives
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp >= %{version}
+Requires: pcp >= %{version}-%{release}
 
 %description -n perl-PCP-LogImport
 The PCP::LogImport module contains the Perl language bindings for
@@ -129,7 +133,7 @@ License: GPLv2
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for post-processing output of pmlogsummary
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp >= %{version}
+Requires: pcp >= %{version}-%{release}
 
 %description -n perl-PCP-LogSummary
 The PCP::LogSummary module provides a Perl module for using the
@@ -147,7 +151,9 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing sar data into PCP archive logs
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp-libs >= %{version} perl-PCP-LogImport >= %{version} sysstat
+Requires: pcp-libs >= %{version}-%{release}
+Requires: perl-PCP-LogImport >= %{version}-%{release}
+Requires: sysstat
 
 %description import-sar2pcp
 Performance Co-Pilot (PCP) front-end tools for importing sar data
@@ -161,7 +167,9 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing iostat data into PCP archive logs
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp-libs >= %{version} perl-PCP-LogImport >= %{version} sysstat
+Requires: pcp-libs >= %{version}-%{release}
+Requires: perl-PCP-LogImport >= %{version}-%{release}
+Requires: sysstat
 
 %description import-iostat2pcp
 Performance Co-Pilot (PCP) front-end tools for importing iostat data
@@ -175,7 +183,8 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing MTRG data into PCP archive logs
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp-libs >= %{version} perl-PCP-LogImport >= %{version}
+Requires: pcp-libs >= %{version}-%{release}
+Requires: perl-PCP-LogImport >= %{version}-%{release}
 
 %description import-mrtg2pcp
 Performance Co-Pilot (PCP) front-end tools for importing MTRG data
@@ -189,7 +198,7 @@ License: GPLv2
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp-libs = %{version}
+Requires: pcp-libs = %{version}-%{release}
 
 %description -n python-pcp
 The python PCP module contains the language bindings for
@@ -197,12 +206,12 @@ building Performance Metric API (PMAPI) tools using Python.
 
 %prep
 %setup -q
-%configure --with-rcdir=/etc/rc.d/init.d
 
 %clean
 rm -Rf $RPM_BUILD_ROOT
 
 %build
+%configure --with-rcdir=/etc/rc.d/init.d
 make default_pcp
 
 %install
@@ -237,7 +246,7 @@ cat base_pmdas.list base_binfiles.list base_man1files.list > base_specialfiles.l
 %pre testsuite
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
-  useradd -c "PCP Quality Assurance" -g pcpqa -d %{_testsdir} -m -r -s /bin/bash pcpqa 2>/dev/null
+  useradd -c "PCP Quality Assurance" -g pcpqa -m -r -s /bin/bash pcpqa 2>/dev/null
 exit 0
 
 %preun
@@ -351,7 +360,7 @@ fi
 %{_localstatedir}/lib/pcp/pmdas/txmon
 
 %files testsuite
-%defattr(-,root,root)
+%defattr(-,pcpqa,pcpqa)
 %{_testsdir}
 
 %files import-sar2pcp
@@ -385,6 +394,12 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Fri Sep 14 2012 Nathan Scott <nathans@redhat.com> - 3.6.8-1
+- Update to latest PCP sources.
+
+* Wed Sep 05 2012 Nathan Scott <nathans@redhat.com> - 3.6.6-1.1
+- Move configure step from prep to build section of spec (BZ 854128)
+
 * Tue Aug 28 2012 Mark Goodwin <mgoodwin@redhat.com> - 3.6.6-1
 - Update to latest PCP sources, see installed CHANGELOG for details.
 - Introduces new python-pcp and pcp-testsuite sub-packages.
@@ -399,7 +414,7 @@ fi
 * Thu Jun 21 2012 Mark Goodwin <mgoodwin@redhat.com>
 - remove pcp-import-sheet2pcp subpackage due to missing deps (BZ 830923) - 3.6.3-1.2
 
-* Fri May 18 2012 Dan Horák <dan[at]danny.cz> - 3.6.3-1.1
+* Fri May 18 2012 Dan Hork <dan[at]danny.cz> - 3.6.3-1.1
 - fix build on s390x
 
 * Mon Apr 30 2012 Mark Goodwin - 3.6.3-1

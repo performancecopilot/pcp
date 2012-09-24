@@ -17,7 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = pmtrace.c
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_trace/src
-LLDLIBS = -lpcp_trace -lpcp
+LLDLIBS = $(PCP_TRACELIB)
 LCFLAGS = -I.
 
 CMDTARGET = pmtrace$(EXECSUFFIX)

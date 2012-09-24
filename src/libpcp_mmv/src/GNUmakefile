@@ -30,6 +30,10 @@ LIBTARGET = libpcp_mmv.$(DSOSUFFIX)
 SYMTARGET =
 STATICLIBTARGET	=
 endif
+ifeq "$(ENABLE_SHARED)" "no"
+LIBTARGET =
+SYMTARGET =
+endif
 
 LCFLAGS = -I.
 LLDLIBS = -lpcp
@@ -40,7 +44,9 @@ default: $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 include $(BUILDRULES)
 
 install: default
+ifneq "$(LIBTARGET)" ""
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
+endif
 ifneq "$(SYMTARGET)" ""
 	for tt in $(SYMTARGET); do \
 		$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$$tt || exit 1; \

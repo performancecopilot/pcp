@@ -8,9 +8,7 @@ CFILES	= pmtop.c
 TARGETS	= pmtop
 LCOPTS	= -fullwarn $(PCP_INC_PATH)
 LCDEFS	= $(DEBUG)
-LLDOPTS	= $(PCP_LIBS_PATH)
-LLDLIBS	= -lpcp -lgen
-IDBTAG	= PMTOP
+LLDLIBS	= $(PCPLIB)
 LDIRT	=
 
 default:	$(TARGETS)

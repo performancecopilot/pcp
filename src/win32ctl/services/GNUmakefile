@@ -17,7 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = pcp-services.c
 CMDTARGET = pcp-services.exe
-LLDLIBS = -lpcp
+LLDLIBS = $(PCPLIB)
 LSRCFILES = $(WRAPPERS)
 
 default:	build-me

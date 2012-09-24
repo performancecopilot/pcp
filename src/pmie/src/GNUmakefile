@@ -11,16 +11,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#*************************************************************************
-#
-# Makefile - pmie
-#
-# This Makefile builds the pmie program executable.
-#
-#*************************************************************************
 
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
@@ -40,7 +30,7 @@ LSRCFILES = $(SKELETAL) meta logger.h
 
 LDIRT += $(YFILES:%.y=%.tab.?) fun.c fun.o $(TARGET) grammar.h
 
-LLDLIBS = -lpcp -lm $(LIB_FOR_REGEX)
+LLDLIBS = $(PCPLIB) $(LIB_FOR_MATH) $(LIB_FOR_REGEX)
 
 LCFLAGS += $(PIECFLAGS)
 LLDFLAGS += $(PIELDFLAGS)

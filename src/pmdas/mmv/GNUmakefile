@@ -29,7 +29,7 @@ LSRCFILES	= Install Remove mmvdump.c root_mmv
 
 LCFLAGS		= -I.
 LLDFLAGS	= -L$(TOPDIR)/src/libpcp_mmv/src
-LLDLIBS		= -lpcp_pmda -lpcp
+LLDLIBS		= $(PCP_PMDALIB)
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE = "mmv	70	dso	mmv_init	$(PCP_PMDAS_DIR)/mmv/pmda_mmv.$(DSOSUFFIX)"
@@ -59,4 +59,4 @@ pmns :
 	$(LN_S) -f root_mmv pmns
 
 mmvdump$(EXECSUFFIX):    mmvdump.o
-	$(CCF) -o $@ mmvdump.o $(LDFLAGS) -lpcp -lpcp_mmv
+	$(CCF) -o $@ mmvdump.o $(LDFLAGS) $(PCPLIB) -lpcp_mmv

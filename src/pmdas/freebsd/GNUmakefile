@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
@@ -32,7 +31,7 @@ HFILES		= freebsd.h
 LSRCFILES	= help root_freebsd
 LDIRT		= help.dir help.pag help.sed help.tmp domain.h $(IAM).log
 
-LLDLIBS = -lpcp -lpcp_pmda -ldevstat
+LLDLIBS = $(PCP_PMDALIB) -ldevstat
 
 default:	build-me
 

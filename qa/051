@@ -51,6 +51,7 @@ _filter_die_log()
     | _filter_hostnames \
     | sed \
 	-e 's/^$//' \
+	-e 's/__pmGetHostByName/gethostbyname/g' \
 	-e '/Permission clash/s/for .*/for .../' \
 	-e '/gethostbyname(/s/name([0-9.]*)/name(IPADDR)/' \
 	-e '/gethostbyname(/s/).*/) ERROR.../' \
@@ -98,10 +99,10 @@ trap cleanup 0
 # real QA test starts here
 
 echo "Make sure all the config files are there"
-/bin/sh 051.setup > $tmp.err 2>&1
+/bin/sh setup.051 > $tmp.err 2>&1
 if [ $? -ne 0 ]
 then
-    echo "051.setup failed:"
+    echo "setup.051 failed:"
     cat $tmp.err
     exit 1
 fi

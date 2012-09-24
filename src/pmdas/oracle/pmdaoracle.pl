@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2009,2012 Aconex.  All Rights Reserved.
 # Copyright (c) 1998 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -34,6 +35,7 @@ use vars qw( $pmda %sid_instances );
 use vars qw( %latch_instances %file_instances %rollback_instances );
 use vars qw( %reqdist_instances %rowcache_instances %session_instances );
 use vars qw( %object_cache_instances %system_event_instances );
+use vars qw( %librarycache_instances %waitstat_instances );
 
 my $latch_indom		= 0;
 my $file_indom		= 1;
@@ -48,7 +50,7 @@ my $waitstat_indom	= 9;
 my $sid_indom		= 10;
 
 my @novalues = ();
-my %object_cache_instances = [
+my %object_cache_instances = (
 	'INDEX' => \@novalues,		'TABLE' => \@novalues,
 	'CLUSTER' => \@novalues,	'VIEW' => \@novalues,
 	'SET' => \@novalues,		'SYNONYM' => \@novalues,
@@ -58,7 +60,7 @@ my %object_cache_instances = [
 	'CLASS' => \@novalues,		'OBJECT' => \@novalues,	
 	'USER' => \@novalues,		'DBLINK' => \@novalues,
 	'NON-EXISTENT' => \@novalues,	'NOT_LOADED' => \@novalues,
-	'OTHER' => \@novalues ];
+	'OTHER' => \@novalues );
 
 my %sids_by_name;
 my %tables_by_name = (
@@ -128,7 +130,7 @@ my %tables_by_name = (
 my %tables_by_cluster = (
     '0'  => {
 	name	=> 'sysstat',
-	setup	=> \&setup_license,
+	setup	=> \&setup_sysstat,
 	indom	=> $sid_indom,
 	values	=> \&sysstat_values },
     '1'  => {
@@ -166,11 +168,11 @@ my %tables_by_cluster = (
 	setup	=> \&setup_rowcache,
 	indom	=> $rowcache_indom,
 	values	=> \&rowcache_values },
-    '8'  => {
-	name	=> 'sesstat',
-	setup	=> \&setup_sesstat,
-	indom	=> $session_indom,
-	values	=> \&sesstat_values },
+#    '8'  => {
+#	name	=> 'sesstat',
+#	setup	=> \&setup_sesstat,
+#	indom	=> $session_indom,
+#	values	=> \&sesstat_values },
     '9'  => {
 	name	=> 'object_cache',
 	setup	=> \&setup_object_cache,
@@ -322,13 +324,13 @@ sub system_event_insts
     $pmda->replace_indom($system_event_indom, \%system_event_instances);
 }
 
+sub license_values { }
+sub license_insts { }
+
+
 
 sub oracle_indoms_setup
 {
-    $pmda->add_indom($sid_indom, \%sid_instances,
-		'Instance domain "SID" from Oracle PMDA',
-'The system identifiers used by the RDBMS and monitored by this PMDA.');
-
     $pmda->add_indom($latch_indom, \%latch_instances,
 		'Instance domain "latch" from Oracle PMDA',
 'The latches used by the RDBMS.  The latch instance domain does not
@@ -385,6 +387,15 @@ flushed out of the database object cache.');
 'The various system events which the database may wait on.  This
 includes events such as interprocess communication, control file I/O,
 log file I/O, timers.');
+
+    $pmda->add_indom($librarycache_indom, \%librarycache_instances,
+		'Instance domain "librarycache" from Oracle PMDA', '');
+    $pmda->add_indom($waitstat_indom, \%waitstat_instances,
+		'Instance domain "wait statistics" from Oracle PMDA', '');
+
+    $pmda->add_indom($sid_indom, \%sid_instances,
+		'Instance domain "SID" from Oracle PMDA',
+'The system identifiers used by the RDBMS and monitored by this PMDA.');
 }
 
 sub oracle_metrics_setup
@@ -402,7 +413,7 @@ sub oracle_metrics_setup
 
 sub setup_waitstat	# block contention stats from v$waitstat
 {
-    $pmda->add_metric(pmda_pmid(12,0), PM_TYPE_U32, $waitstat_indom,
+    $pmda->add_metric(pmda_pmid(13,0), PM_TYPE_U32, $waitstat_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 	'oracle.waitstat.count',
 	'Number of waits for each block class',

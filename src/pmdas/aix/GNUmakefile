@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -11,10 +10,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 # 
 
 TOPDIR = ../../..
@@ -29,7 +24,7 @@ CONF_LINE = "aix	80	dso	aix_init	$(PMDADIR)/$(LIBTARGET)"
 
 CFILES	= aix.c data.c disk_total.c disk.c cpu_total.c cpu.c netif.c
 
-LLDLIBS = -lpcp -lpcp_pmda -lperfstat
+LLDLIBS = $(PCP_PMDALIB) -lperfstat
 PMNS	= pmns.disk pmns.kernel pmns.mem pmns.network pmns.hinv
 LSRCFILES = $(PMNS) help root common.h
 

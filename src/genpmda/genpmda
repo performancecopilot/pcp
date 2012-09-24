@@ -895,8 +895,7 @@ GSRCFILES = $oflag/help $oflag/root $oflag/pmns \
 
 OBJECTS	+= \$(GCFILES:.c=.o)
 LCFLAGS =
-
-LLDLIBS	= \$(PCP_LIBS) -lpcp_pmda -lpcp
+LLDLIBS	= \$(PCP_PMDALIB)
 
 PMDADIR = \$(PCP_PMDAS_DIR)/\$(IAM)
 LDIRT	= generated *.o \$(TARGETS) *.log *.dir *.pag pcp

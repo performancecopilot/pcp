@@ -1,0 +1,26 @@
+#!/bin/sh
+# PCP QA Test No. 707
+# Exercise python PMAPI layer
+#
+# Copyright (c) 2012 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+$sudo rm -f $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+$here/src/test_pcp.py >$tmp.out 2>&1
+grep OK $tmp.out 
+
+# success, all done
+status=$?
+exit

@@ -41,7 +41,7 @@ conn_cisco(cisco_t * cp)
     }
 
     i = 1;
-    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i, (mysocklen_t)sizeof(i)) < 0) {
+    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i, (__pmSockLen)sizeof(i)) < 0) {
 	fprintf(stderr, "conn_cisco(%s): setsockopt: %s\n",
 		cp->host, netstrerror());
 	close(fd);

@@ -104,11 +104,14 @@ TRACEFILES = \
 PERLFILES = \
 	check_import.pl
 
+PYTHONFILES = \
+	test_pcp.py test_pmi.py
+
 ifneq "$(TARGET_OS)" "mingw"
 CFILES += $(POSIXFILES) $(TRACEFILES)
 else
-MYFILES += $(POSIXFILES) $(TRACEFILES) $(PERLFILES)
-MYSCRIPTS += $(PERLFILES)
+MYFILES += $(POSIXFILES) $(TRACEFILES) $(PERLFILES) $(PYTHONFILES)
+MYSCRIPTS += $(PERLFILES) $(PYTHONFILES)
 endif
 
 MYFILES += $(SRCARCH) \
@@ -143,7 +146,7 @@ TARGETS	+= pv64
 endif
 
 LCFLAGS = -DHAVE_TRACE
-LLDLIBS	= -lpcp $(LDFLAGS)
+LLDLIBS	= $(PCPLIB) $(LDFLAGS)
 
 # libpcp_trace is ready
 TRACELIB	= -lpcp_trace $(LLDLIBS)

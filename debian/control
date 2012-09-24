@@ -1,11 +1,11 @@
 Source: pcp
 Section: utils
-Priority: extra
+Priority: optional
 Homepage: http://oss.sgi.com/projects/pcp
 Maintainer: Nathan Scott <nathans@debian.org>
 Uploaders: Anibal Monsalve Salazar <anibal@debian.org>
-Build-Depends: bison, flex, gawk, procps, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any]
-Standards-Version: 3.9.2
+Build-Depends: bison, flex, gawk, procps, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any] | python2.7-dev
+Standards-Version: 3.9.3
 
 Package: pcp
 Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, sysv-rc-conf, libpcp-pmda-perl, python-pcp
@@ -197,9 +197,8 @@ Description: Performance Co-Pilot data import library
 
 Package: python-pcp
 Section: python
-Priority: optional
 Architecture: any
-Depends: ${shlibs:Depends}, libpcp3 (= ${binary:Version})
+Depends: ${misc:Depends}, ${shlibs:Depends}, libpcp3 (= ${binary:Version}), python
 Description: Performance Co-Pilot Python PMAPI module
  The PCP Python module contains the language bindings for
  building Performance Metric API client tools using Python.
@@ -211,7 +210,6 @@ Description: Performance Co-Pilot Python PMAPI module
 
 Package: libpcp-pmda-perl
 Section: perl
-Priority: optional
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends}, libpcp-pmda3 (= ${binary:Version})
 Description: Performance Co-Pilot Domain Agent Perl module
@@ -228,7 +226,6 @@ Description: Performance Co-Pilot Domain Agent Perl module
 
 Package: libpcp-import-perl
 Section: perl
-Priority: optional
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends}, libpcp-import1 (= ${binary:Version})
 Description: Performance Co-Pilot log import Perl module
@@ -244,7 +241,6 @@ Description: Performance Co-Pilot log import Perl module
 
 Package: libpcp-logsummary-perl
 Section: perl
-Priority: optional
 Architecture: any
 Depends: ${misc:Depends}, ${perl:Depends}, pcp (= ${binary:Version})
 Description: Performance Co-Pilot historical log summary module
@@ -262,7 +258,6 @@ Description: Performance Co-Pilot historical log summary module
 
 Package: libpcp-mmv-perl
 Section: perl
-Priority: optional
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${perl:Depends}, libpcp-mmv1 (= ${binary:Version})
 Description: Performance Co-Pilot Memory Mapped Value Perl module
@@ -308,8 +303,9 @@ Description: Tool for importing data from iostat into PCP archive logs
  (such as pmie, pmlogsummary, pmchart or pmdumptext).
 
 Package: pcp-testsuite
-Depends: ${shlibs:Depends}, pcp (= ${binary:Version}), valgrind
+Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
 Architecture: any
+Suggests: valgrind
 Provides: pcpqa
 Conflicts: pcpqa
 Replaces: pcpqa

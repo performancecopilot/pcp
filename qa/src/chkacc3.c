@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.
  */
 
 /* Check access control wildcarding, bad ops etc. */
@@ -19,7 +20,8 @@ main()
     unsigned int	perm;
     char		name[20];
     char		*wnames[4] = { "*", "38.*", "38.202.*", "38.202.16.*" };
-    struct in_addr	inaddr;
+    __pmInAddr		inaddr;
+    __pmIPAddr		ipaddr;
 
     /* there are 10 ops numbered from 0 to 9 */
     sts = 0;
@@ -96,7 +98,8 @@ main()
 #else
 			inet_aton(buf, &inaddr);
 #endif
-			s = __pmAccAddClient(&inaddr, &perm);
+			ipaddr = __pmInAddrToIPAddr(&inaddr);
+			s = __pmAccAddClient(ipaddr, &perm);
 			if (s < 0) {
 			    fprintf(stderr, "from %s error: %s\n",
 				    inet_ntoa(inaddr), pmErrStr(s));

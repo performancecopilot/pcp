@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -12,10 +11,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 
 TOPDIR = ../../../..
 include $(TOPDIR)/src/include/builddefs
@@ -42,10 +37,10 @@ BUILD = unknown
 endif
 
 LCFLAGS += -DBUILD=\"$(BUILD)\"
-LLDLIBS = -lpcp_pmda -lpcp
+LLDLIBS = $(PCP_PMDALIB)
 ifeq "$(TARGET_OS)" "mingw"
 LLDLIBS += -lpcp_pmcd
-PCP_LIBS += -L$(TOPDIR)/src/libpcp_pmcd/src
+PCPLIB_LDFLAGS += -L$(TOPDIR)/src/libpcp_pmcd/src
 endif
 
 default: $(LIBTARGET)

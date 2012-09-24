@@ -1,8 +1,9 @@
 /*
  * Linux /proc/stat metrics cluster
  *
+ * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
- * Portions Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,19 +27,18 @@
 #include "proc_cpuinfo.h"
 #include "proc_stat.h"
 
-static int started;
-static char *statbuf;
-static int maxstatbuf;
-static char **bufindex;
-static int nbufindex;
-static int maxbufindex;
-
 int
 refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 {
     pmdaIndom *idp = &indomtab[CPU_INDOM];
     char fmt[64];
     static int fd = -1; /* kept open until exit() */
+    static int started;
+    static char *statbuf;
+    static int maxstatbuf;
+    static char **bufindex;
+    static int nbufindex;
+    static int maxbufindex;
     int n;
     int i;
     int j;

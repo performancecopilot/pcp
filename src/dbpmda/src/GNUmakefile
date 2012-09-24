@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -11,10 +10,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
 TOPDIR = ../../..
@@ -27,7 +22,7 @@ LFILES	= lex.l
 YFILES	= gram.y
 
 LDIRT	= *.log foo.* gram.h $(YFILES:%.y=%.tab.?) $(LFILES:%.l=%.c)
-LLDLIBS	= -lpcp $(LIB_FOR_DLOPEN) $(LIB_FOR_READLINE) $(LIB_FOR_CURSES)
+LLDLIBS	= $(PCPLIB) $(LIB_FOR_DLOPEN) $(LIB_FOR_READLINE) $(LIB_FOR_CURSES)
 
 default:	$(CMDTARGET)
 

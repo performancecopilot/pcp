@@ -5,7 +5,7 @@
 # installed nor pmcd(1) running ... but they _do_ need to map to five
 # unique IP addresses
 #
-# Used in 051.setup and 051.
+# Used in setup.051 and 051.
 #
 remote_1=www.sgi.com
 remote_2=www.aconex.com

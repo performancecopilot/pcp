@@ -1,3 +1,19 @@
+pcp-3.6.8 (14 September 2012)
+    - Corrects the disk/partition identification for the MMC
+      driver, which makes disk indom handling correct on the
+      Raspberry Pi (http://www.raspberrypi.org/)
+    - Several minor/basic fixes for pmdaoracle.
+    - Improve pmcollectl compatibility.
+    - Make a few clarifications to pmcollectl.1.
+    - Improve python API test coverage.
+    - Numerous updates to the test suite in general.
+    - Allow pmda Install scripts to specify own dso name again.
+    - Reconcile spec file differences between PCP flavours.
+    - Fix handling of multiple contexts with a remote namespace.
+    - Core socket interface abstractions to support NSS (later).
+    - Fix man page SYNOPSIS section for pmUnpackEventRecords.
+    - Add --disable-shared build option for static builds.
+
 pcp-3.6.6 (28 August 2012)
     - Added the python PMAPI bindings and an initial python client
       in pmcollectl.  Separate, new package exists for python libs

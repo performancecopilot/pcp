@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -11,10 +10,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 # 
 
 TOPDIR = ../../..
@@ -29,7 +24,7 @@ CFILES	= summary.c pmda.c mainloop.c
 
 LSRCFILES = Install README Remove help pmns root summary.pmie
 LLDFLAGS= -L$(TOPDIR)/src/libpcp/src -L$(TOPDIR)/src/libpcp_pmda/src
-LLDLIBS	= -lpcp_pmda -lpcp
+LLDLIBS	= $(PCP_PMDALIB)
 LDIRT	= domain.h *.log *.dir *.pag  $(TARGETS)
 
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)

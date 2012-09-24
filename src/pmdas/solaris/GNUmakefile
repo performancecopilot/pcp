@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -12,10 +11,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
@@ -35,7 +30,7 @@ PMNS	= $(BARE_NS:%=pmns.%)
 LSRCFILES = $(PMNS) help root common.h clusters.h netmib2.h
 LDIRT	= domain.h *.log *.dir *.pag root_solaris
 
-LLDLIBS = -lpcp -lpcp_pmda -lkstat -lzfs -lnvpair -lkvm -ldevinfo
+LLDLIBS = $(PCP_PMDALIB) -lkstat -lzfs -lnvpair -lkvm -ldevinfo
 
 default: build-me
 

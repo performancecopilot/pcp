@@ -1,6 +1,7 @@
 /*
  * Linux NUMA meminfo metrics cluster from sysfs
  *
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2009 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,6 +24,8 @@
 #include "pmda.h"
 #include "indom.h"
 #include "linux_table.h"
+#include "proc_cpuinfo.h"
+#include "proc_stat.h"
 #include "numa_meminfo.h"
 
 /* sysfs file for numa meminfo */
@@ -73,26 +76,26 @@ static struct linux_table numa_memstat_table[] = {
     { field: NULL }
 };
 
-int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo)
+int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo, proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 {
     int i;
     FILE *fp;
-    pmdaIndom	*idp = &indomtab[NODE_INDOM];
-    static int started = 0;
+    pmdaIndom *idp = &indomtab[NODE_INDOM];
+    static int started;
 
     /* First time only */
     if (!started) {
-	int max_node = idp->it_numinst;
+	refresh_proc_stat(proc_cpuinfo, proc_stat);
 
-	numa_meminfo->node_info = (nodeinfo_t *)malloc(max_node * sizeof(nodeinfo_t));
+	if (!numa_meminfo->node_info)	/* may have allocated this, but failed below */
+	    numa_meminfo->node_info = (nodeinfo_t *)calloc(idp->it_numinst, sizeof(nodeinfo_t));
 	if (!numa_meminfo->node_info) {
 	    fprintf(stderr, "%s: error allocating numa node_info: %s\n",
 		__FUNCTION__, osstrerror());
 	    return -1;
 	}
-	memset(numa_meminfo->node_info, 0, max_node * sizeof(nodeinfo_t));
 
-	for (i = 0; i < max_node; i++) {
+	for (i = 0; i < idp->it_numinst; i++) {
 	    numa_meminfo->node_info[i].meminfo = linux_table_clone(numa_meminfo_table);
 	    if (!numa_meminfo->node_info[i].meminfo) {
 		fprintf(stderr, "%s: error allocating meminfo: %s\n",
@@ -110,7 +113,6 @@ int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo)
 	numa_meminfo->node_indom = idp;
 	started = 1;
     }
-
 
     /* Refresh */
     for (i = 0; i < idp->it_numinst; i++) {

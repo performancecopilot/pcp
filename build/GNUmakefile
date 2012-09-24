@@ -10,10 +10,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
 TOPDIR = ..
@@ -79,7 +75,7 @@ pcp.src : $(_FORCE)
 	    sed -e "s;^\.;$$SRC_ROOT;" </tmp/$$$$.makesrc >$$CDIR/$@ ;\
 	    rm -f /tmp/$$$$.makesrc; \
 	    unset TAPE; MD5=$$CDIR/tar/pcp.md5sum.src; \
-	    SRCTAR=$$CDIR/tar/$${PKG_ROOT}-$(PACKAGE_BUILD).src.tar.gz;\
+	    SRCTAR=$$CDIR/tar/$${PKG_ROOT}.src.tar.gz;\
 	    $(TAR) -T $$CDIR/$@ -cf - | gzip > $$SRCTAR; \
 	    $(MD5SUM) -b $$SRCTAR | sed -e 's/ .*//g' > $$MD5; \
 	    $(MAKE) -j 1 -C $$CDIR/$(MD5DIR) md5sum_pcp; \
@@ -91,6 +87,5 @@ pcp.src : $(_FORCE)
 		fi; \
 	    fi; \
 	fi
-
 
 include $(BUILDRULES)

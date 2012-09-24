@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2012 Red Hat.
 # Copyright (c) 2009-2010 Aconex.  All Rights Reserved.
@@ -19,7 +18,7 @@ TARGETS = $(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
 	broken_pmda_2_3 broken_pmda_2_4 broken_pmda_2_5 
 
 LLDFLAGS = $(PCP_LIBS)
-LLDLIBS	= -lpcp
+LLDLIBS	= $(PCPLIB)
 
 # all archives, except the ones checked into the source tree,
 # then add executables beyond $(TARGETS)

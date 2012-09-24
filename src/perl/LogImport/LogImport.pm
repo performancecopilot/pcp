@@ -13,7 +13,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
     pmiStart pmiUseContext pmiEnd pmiSetHostname pmiSetTimezone
     pmiAddMetric pmiAddInstance pmiPutValue pmiGetHandle pmiPutValueHandle
     pmiWrite
-    pmiDump pmiErrStr pmiUnits
+    pmiDump pmiErrStr pmiUnits pmiID pmiInDom
     pmid_build pmInDom_build
     PM_ID_NULL PM_INDOM_NULL PM_IN_NULL
     PM_SPACE_BYTE PM_SPACE_KBYTE PM_SPACE_MBYTE PM_SPACE_GBYTE PM_SPACE_TBYTE
@@ -28,7 +28,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
 @EXPORT_OK = qw();
 
 # set the version for version checking
-$VERSION = '1.00';
+$VERSION = '1.01';
 
 # metric identification
 sub PM_ID_NULL		{ 0xffffffff; }
@@ -72,6 +72,19 @@ sub PM_SEM_DISCRETE	{ 4; }	# instantaneous value, discrete domain
 
 # reserved domain (see $PCP_VAR_DIR/pmns/stdpmid)
 sub PMI_DOMAIN		{ 245; }
+
+# error codes
+sub PMI_ERR_DUPMETRICNAME { -20001; }
+sub PMI_ERR_DUPMETRICID	{ -20002; }	# Metric pmID already defined
+sub PMI_ERR_DUPINSTNAME { -20003; }	# External instance name already defined
+sub PMI_ERR_DUPINSTID   { -20004; }	# Internal instance identifer already defined
+sub PMI_ERR_INSTNOTNULL { -20005; }	# Non-null instance expected for a singular metric
+sub PMI_ERR_INSTNULL    { -20006; }	# Null instance not allowed for a non-singular metric
+sub PMI_ERR_BADHANDLE   { -20007; }	# Illegal handle
+sub PMI_ERR_DUPVALUE    { -20008; }	# Value already assigned for singular metric
+sub PMI_ERR_BADTYPE     { -20009; }	# Illegal metric type
+sub PMI_ERR_BADSEM      { -20010; }	# Illegal metric semantics
+sub PMI_ERR_NODATA      { -20011; }	# No data to output
 
 bootstrap PCP::LogImport $VERSION;
 

@@ -11,29 +11,15 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#*************************************************************************
-#
-# Makefile - newhelp and chkhelp
-#
-# This Makefile builds the newhelp and chkhelp program executables.
-#
-#*************************************************************************
-#
 
 TOPDIR = ../..
 include	$(TOPDIR)/src/include/builddefs
 
 TARGETS = newhelp$(EXECSUFFIX) chkhelp$(EXECSUFFIX)
-
-LLDFLAGS = $(WARN_OFF)
-
 CFILES = newhelp.c chkhelp.c
 
-LLDLIBS = -lpcp_pmda -lpcp
-
+LLDFLAGS = $(WARN_OFF)
+LLDLIBS = $(PCP_PMDALIB)
 LDIRT = $(TARGETS)
 
 default:	$(TARGETS)

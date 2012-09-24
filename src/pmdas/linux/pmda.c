@@ -1,9 +1,10 @@
 /*
  * Linux PMDA
  *
+ * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
+ * Copyright (c) 2002 International Business Machines Corp.
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
- * Portions Copyright (c) 2002 International Business Machines Corp.
- * Portions Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -3784,7 +3785,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
 	refresh_proc_meminfo(&proc_meminfo);
 
     if (need_refresh[CLUSTER_NUMA_MEMINFO])
-	refresh_numa_meminfo(&numa_meminfo);
+	refresh_numa_meminfo(&numa_meminfo, &proc_cpuinfo, &proc_stat);
 
     if (need_refresh[CLUSTER_LOADAVG])
 	refresh_proc_loadavg(&proc_loadavg);

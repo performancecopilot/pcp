@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -24,7 +23,7 @@ PMNS_LIB_DIR = $(PCP_SHARE_DIR)/lib
 # Take control here ... do not need to search in libpcp_pmda directory
 # for libpcp_pmda DSO, and it is not even built yet for a virgin make.
 #
-PCP_LIBS = -L$(TOPDIR)/src/libpcp/src
+PCPLIB_LDFLAGS = -L$(TOPDIR)/src/libpcp/src
 
 CFILES  = pmnsmerge.c pmnsutil.c pmnsdel.c
 HFILES  = pmnsutil.h
@@ -36,7 +35,7 @@ STDPMID = stdpmid.pcp stdpmid.local
 LSRCFILES = Make.stdpmid GNUmakefile.install Rebuild ReplacePmnsSubtree \
 	    $(STDPMID) $(SCRIPTS) $(LOCKERS)
 
-LLDLIBS = -lpcp
+LLDLIBS = $(PCPLIB)
 LDIRT	= *.log *.pmns stdpmid .NeedRebuild build.script $(TARGETS)
 
 default:	$(SCRIPTS) $(LOCKERS) $(TARGETS) \

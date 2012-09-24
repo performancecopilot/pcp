@@ -39,8 +39,13 @@ void
 bigun_init(pmdaInterface *dp)
 {
     int		i;
+    int		sep = __pmPathSeparator();
+    char	helppath[MAXPATHLEN];
 
-    pmdaDSO(dp, PMDA_INTERFACE_4, "bigun DSO", NULL);
+    snprintf(helppath, sizeof(helppath),
+		"%s%c" "testsuite" "%c" "pmdas" "%c" "bigun" "%c" "help",
+		pmGetConfig("PCP_VAR_DIR"), sep, sep, sep, sep);
+    pmdaDSO(dp, PMDA_INTERFACE_4, "bigun DSO", helppath);
     if (dp->status != 0)
 	return;
 

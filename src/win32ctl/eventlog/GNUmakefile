@@ -17,7 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = pcp-eventlog.c
 CMDTARGET = pcp-eventlog.exe
-LLDLIBS = -lpcp
+LLDLIBS = $(PCPLIB)
 LSRCFILES = $(WRAPPERS)
 
 default:	build-me

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
  *
  * exercise multi-threaded checks for PM_SCOPE_AF and PM_SCOPE_ACL
@@ -14,7 +15,7 @@
 #include "pthread_barrier.h"
 #endif
 
-struct in_addr addr;
+__pmIPAddr addr;
 
 static pthread_barrier_t barrier;
 
@@ -73,7 +74,7 @@ func1(void *arg)
 	printf("%s: __pmAccRestoreHosts -> OK\n", fn);
     else
 	printf("%s: __pmAccRestoreHosts -> %s\n", fn, pmErrStr(sts));
-    sts = __pmAccAddClient(&addr, &op);
+    sts = __pmAccAddClient(addr, &op);
     if (sts == 0)
 	printf("%s: __pmAccAddClient -> %d\n", fn, op);
     else
@@ -135,7 +136,7 @@ func2(void *arg)
 	printf("%s: __pmAccRestoreHosts -> OK\n", fn);
     else
 	printf("%s: __pmAccRestoreHosts -> %s\n", fn, pmErrStr(sts));
-    sts = __pmAccAddClient(&addr, &op);
+    sts = __pmAccAddClient(addr, &op);
     if (sts == 0)
 	printf("%s: __pmAccAddClient -> %d\n", fn, op);
     else
@@ -152,7 +153,7 @@ main()
     int		sts;
     char	*msg;
 
-    addr.s_addr = htonl(INADDR_LOOPBACK);
+    addr = __pmLoopbackAddress();
 
     sts = pthread_barrier_init(&barrier, NULL, 2);
     if (sts != 0) {

@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2011, Nathan Scott.  All Rights Reserved.
 # 
@@ -24,7 +23,7 @@ HFILES		= util.h event.h
 LSRCFILES	= tdhlist.c tdhconsume.c pcp.xml pmns root help
 LCFLAGS		= -I$(WINDIR)/include -D_WIN32_WINNT=0x0600 -DFORCEINLINE="static inline"
 LLDFLAGS	= -L$(WINDIR)/lib
-LLDLIBS		= -lpcp -lpcp_pmda -lpcp_tdh
+LLDLIBS		= $(PCP_PMDALIB) -lpcp_tdh
 
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 LIBTARGET	= pmda_etw.dll

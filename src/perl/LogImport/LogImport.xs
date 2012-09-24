@@ -57,6 +57,17 @@ pmiUnits(dimSpace, dimTime, dimCount, scaleSpace, scaleTime, scaleCount)
 	int	scaleTime;
 	int	scaleCount;
 
+pmID
+pmiID(domain, cluster, item)
+	int	domain;
+	int	cluster;
+	int	item;
+
+pmInDom
+pmiInDom(domain, serial)
+	int	domain;
+	int	serial;
+
 const char *
 pmiErrStr(sts)
 	int	sts;
