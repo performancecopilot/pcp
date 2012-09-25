@@ -69,7 +69,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	record.c record-setarg.c clientid.c killparent.c grind_ctx.c \
 	pmdacache.c check_import.c unpack.c aggrstore.c atomstr.c \
 	grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \
-	keycache2.c pmdaqueue.c drain-server.c template.c
+	keycache2.c pmdaqueue.c drain-server.c template.c anon-sa.c
 
 ifeq ($(shell test $(PCP_VER) -ge 3600 && echo 1), 1)
 CFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
@@ -265,6 +265,9 @@ sys5_ipc:	sys5_ipc.c
 
 stripmark: stripmark.c
 	$(CCF) $(CDEFS) -o $@ stripmark.c
+
+anon-sa: anon-sa.c
+	$(CCF) $(CDEFS) -o $@ anon-sa.c
 
 # --- need libpcp
 #
