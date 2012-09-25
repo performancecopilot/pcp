@@ -76,3 +76,7 @@ HTTP GET/POST URL patterns:
   /pmapi/NNNN/_profile_del?indom=DDDD,instance=JJJJ
   /pmapi/NNNN/_profile_del?indom=DDDD,iname=INAME1,INAME2
 
+* metric derivation management:
+
+  /pmapi/NNNN/_derive?name=NAME,expr=EXPRESSION
+
