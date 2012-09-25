@@ -1082,7 +1082,7 @@ End-of-File
 (eval $ac_link) 2>&5
 ans=`./conftest`
 echo "./conftest -> \"$ans\"" >&5
-case $ans
+case "$ans"
 in
     0x*)
 	AC_DEFINE(HAVE_PRINTF_P_PFX)
@@ -1302,11 +1302,16 @@ End-of-File
 ans=`./conftest`
 echo "./conftest -> \"$ans\"" >&5
 AC_MSG_RESULT($ans)
-if test $ans -eq 4; then
+if test "$ans" = 4; then
     AC_DEFINE(HAVE_32BIT_LONG)
-fi
-if test $ans -eq 8; then
+elif test "$ans" = 8; then
     AC_DEFINE(HAVE_64BIT_LONG)
+else
+    echo
+    echo "FATAL ERROR: size of long is not 32 or 64 bits, cannot proceed."
+    echo "sizeof(char *) -> $ans"
+    rm -rf conftest conftest.*
+    exit 1
 fi
 rm -rf conftest conftest.*
 
@@ -1321,10 +1326,10 @@ End-of-File
 ans=`./conftest`
 echo "./conftest -> \"$ans\"" >&5
 AC_MSG_RESULT($ans)
-if test $ans -eq 4; then
+if test "$ans" = 4; then
     AC_DEFINE(HAVE_32BIT_PTR)
     PCP_PTR_SIZE=32
-elif test $ans -eq 8; then
+elif test "$ans" = 8; then
     AC_DEFINE(HAVE_64BIT_PTR)
     PCP_PTR_SIZE=64
 else
@@ -1347,7 +1352,7 @@ End-of-File
 ans=`./conftest`
 echo "./conftest -> \"$ans\"" >&5
 AC_MSG_RESULT($ans)
-if test $ans -ne 4
+if test "$ans" != 4
 then
     echo
     echo "FATAL ERROR: sizeof(int) is not 32 bits, cannot proceed."
@@ -1368,7 +1373,7 @@ End-of-File
 (eval $ac_link) 2>&5
 ans=`./conftest`
 echo "./conftest -> \"$ans\"" >&5
-case $ans
+case "$ans"
 in
     1200*|*0012)
 	# left-to-right starting from MSB (SGI cc on MIPS), or

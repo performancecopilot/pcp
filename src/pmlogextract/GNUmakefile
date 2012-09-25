@@ -22,7 +22,7 @@ YFILES	= gram.y
 
 CMDTARGET = pmlogextract$(EXECSUFFIX)
 
-LLDLIBS	= $(PCPLIB) $(LIB_FOR_MATH)
+LLDLIBS	= $(PCPLIB) $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS)
 LDIRT	= $(YFILES:%.y=%.tab.?)
 
 default:	$(CMDTARGET)

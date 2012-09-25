@@ -20,6 +20,9 @@
 #include <execinfo.h>
 #endif
 #endif
+#ifdef IS_MINGW
+extern const char *strerror_r(int, char *, size_t);
+#endif
 
 /* the big libpcp lock */
 #ifdef PM_MULTI_THREAD

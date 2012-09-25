@@ -16,7 +16,6 @@
 
 #include <unistd.h>
 #include <ctype.h>
-#include <regex.h>
 #include "event.h"
 #include "pmda.h"
 
