@@ -52,30 +52,8 @@ int mhd_respond (void *cls, struct MHD_Connection *connection,
   }
   *con_cls = NULL;
 
-
-  if (verbosity > 1) {
-    struct sockaddr *so;
-    char hostname[128];
-    char servname[128];
-    int rc = -1;
-
-    so = (struct sockaddr *)
-      MHD_get_connection_info (connection,MHD_CONNECTION_INFO_CLIENT_ADDRESS)->client_addr;
-    if (so && so->sa_family == AF_INET)
-      rc = getnameinfo (so, sizeof(struct sockaddr_in),
-                        hostname, sizeof(hostname),
-                        servname, sizeof(servname),
-                        0);
-    else if (so && so->sa_family == AF_INET6)
-      rc = getnameinfo (so, sizeof(struct sockaddr_in6),
-                        hostname, sizeof(hostname),
-                        servname, sizeof(servname),
-                        0);
-    if (rc != 0)
-      hostname[0] = servname[0] = '\0';
-
-    __pmNotifyErr (LOG_INFO, "%s:%s %s %s %s", hostname, servname, version, method, url);
-  }
+  if (verbosity > 1)
+    pmweb_notify (LOG_INFO, connection, "%s %s %s", version, method, url);
 
   /* Determine whether request is a pmapi or a resource call. */
   if (0 == strncmp(url, uriprefix, strlen(uriprefix)))
@@ -256,3 +234,56 @@ int main(int argc, char *argv[])
   return 0;
 }
 
+
+/* Generate a __pmNotifyErr with the given arguments, but also adding some per-connection
+   metadata info. */
+void
+pmweb_notify (int priority, struct MHD_Connection* connection, const char *fmt, ...)
+{
+  va_list arg;
+  char message_buf [2048]; /* size similar to that used in __pmNotifyErr itself. */
+  char *message_tail;
+  size_t message_len;
+  struct sockaddr *so;
+  char hostname[128];
+  char servname[128];
+  int rc = -1;
+
+  /* Look up client address data. */
+  so = (struct sockaddr *)
+    MHD_get_connection_info (connection,MHD_CONNECTION_INFO_CLIENT_ADDRESS)->client_addr;
+  if (so && so->sa_family == AF_INET)
+    rc = getnameinfo (so, sizeof(struct sockaddr_in),
+                      hostname, sizeof(hostname),
+                      servname, sizeof(servname),
+                      0);
+  else if (so && so->sa_family == AF_INET6)
+    rc = getnameinfo (so, sizeof(struct sockaddr_in6),
+                      hostname, sizeof(hostname),
+                      servname, sizeof(servname),
+                      0);
+  if (rc != 0)
+    hostname[0] = servname[0] = '\0';
+
+  /* Add the [hostname:port] as a prefix */
+  rc = snprintf (message_buf, sizeof(message_buf), "[%s:%s] ", hostname, servname);
+  if (rc > 0 && rc < sizeof(message_buf))
+    {
+      message_tail = message_buf + rc; /* Keep it only if successful. */
+      message_len = sizeof(message_buf)-rc;
+    }
+  else
+    {
+      message_tail = message_buf;
+      message_len = sizeof(message_buf);
+    }
+
+  /* Add the remaining incoming text. */
+  va_start (arg, fmt);
+  rc = vsnprintf (message_tail, message_len, fmt, arg);
+  va_end (arg);
+  (void) rc; /* If this fails, we can't do much really. */
+
+  /* Delegate, but avoid format-string vulnerabilities. */
+  __pmNotifyErr (priority, "%s", message_buf);
+}

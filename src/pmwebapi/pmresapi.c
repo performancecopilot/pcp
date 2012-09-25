@@ -68,7 +68,7 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
 
   /* Reject some obvious ways of escaping resourcedir. */
   if (NULL != strstr (url, "/..")) {
-    __pmNotifyErr (LOG_ERR, "pmwebres suspicious url %s\n", url);
+    pmweb_notify (LOG_ERR, connection, "pmwebres suspicious url %s\n", url);
     goto out;
   }
 
@@ -79,29 +79,29 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
 
   fd = open (filename, O_RDONLY);
   if (fd < 0) {
-    __pmNotifyErr (LOG_ERR, "pmwebres open %s failed (%d)\n", filename, fd);
+    pmweb_notify (LOG_ERR, connection, "pmwebres open %s failed (%d)\n", filename, fd);
     goto out; /* unceremonious; consider 404 HTTP instead. */
   }
 
   rc = fstat (fd, &fds);
   if (rc < 0) {
-    __pmNotifyErr (LOG_ERR, "pmwebres stat %s failed (%d)\n", filename, rc);
+    pmweb_notify (LOG_ERR, connection, "pmwebres stat %s failed (%d)\n", filename, rc);
     close (fd);
     goto out;
   }
 
   if (! S_ISREG (fds.st_mode)) { /* XXX: consider directory-listing instead. */
-    __pmNotifyErr (LOG_ERR, "pmwebres non-file %s attempted\n", filename);
+    pmweb_notify (LOG_ERR, connection, "pmwebres non-file %s attempted\n", filename);
     close (fd);
     goto out;
   }
 
   if (verbosity)
-    __pmNotifyErr (LOG_INFO, "pmwebres serving file %s.\n", filename);
+    pmweb_notify (LOG_INFO, connection, "pmwebres serving file %s.\n", filename);
 
   resp = MHD_create_response_from_fd_at_offset (fds.st_size, fd, 0);    /* auto-closes fd */
   if (resp == NULL) {
-    __pmNotifyErr (LOG_ERR, "MHD_create_response_from_callback failed\n");
+    pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_callback failed\n");
     close (fd);
     goto out;
   }

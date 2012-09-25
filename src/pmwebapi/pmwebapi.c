@@ -53,11 +53,13 @@ pmHashIterResult_t pmwebapi_gc_fn (const __pmHashCtl *hcp, void *cdata,
 
   if (value->expires < now)
     {
-      int rc = pmDestroyContext (value->context);
+      int rc;
       if (verbosity)
         __pmNotifyErr (LOG_INFO, "context (%d=%d) expired.\n", kv->key, value->context);
-      if (rc) __pmNotifyErr (LOG_ERR, "pmDestroyContext (%d) failed: %d\n",
-                             value->context, rc);
+      rc = pmDestroyContext (value->context);
+      if (rc)
+        __pmNotifyErr (LOG_ERR, "pmDestroyContext (%d) failed: %d\n",
+                       value->context, rc);
       return PM_PHI_CONTINUE_DELETE;
     }
   else
@@ -121,7 +123,7 @@ int pmwebapi_respond_new_context (struct MHD_Connection *connection)
   }
 
   if (context < 0) {
-    __pmNotifyErr (LOG_ERR, "new context failed\n");
+    pmweb_notify (LOG_ERR, connection, "new context failed\n");
     goto out;
   }
 
@@ -133,7 +135,7 @@ int pmwebapi_respond_new_context (struct MHD_Connection *connection)
     iterations ++;
     if (iterations > 100)
       {
-        __pmNotifyErr (LOG_ERR, "webapi_ctx allocation failed\n");
+        pmweb_notify (LOG_ERR, connection, "webapi_ctx allocation failed\n");
         pmDestroyContext (context);
         goto out;
       }
@@ -147,7 +149,7 @@ int pmwebapi_respond_new_context (struct MHD_Connection *connection)
   struct webcontext *c = malloc(sizeof(struct webcontext));
   if (! c)
     {
-      __pmNotifyErr (LOG_ERR, "context malloc failed\n");
+      pmweb_notify (LOG_ERR, connection, "context malloc failed\n");
       pmDestroyContext (context);
       goto out;
     }
@@ -158,7 +160,7 @@ int pmwebapi_respond_new_context (struct MHD_Connection *connection)
   rc = __pmHashAdd(webapi_ctx, c, & contexts);
   if (rc < 0)
     {
-      __pmNotifyErr (LOG_ERR, "pmHashAdd failed (%d)\n", rc);
+      pmweb_notify (LOG_ERR, connection, "pmHashAdd failed (%d)\n", rc);
       free (c);
       pmDestroyContext (context);
       goto out;
@@ -168,7 +170,7 @@ int pmwebapi_respond_new_context (struct MHD_Connection *connection)
      periodic context GC will do it all. */
   
   if (verbosity)
-    __pmNotifyErr (LOG_INFO, "context (%d=%d) created, expires in %us.\n",
+    pmweb_notify (LOG_INFO, connection, "context (%d=%d) created, expires in %us.\n",
                    webapi_ctx, context, polltimeout);
   
   rc = snprintf (http_response, sizeof(http_response), "{ \"context\": %d }", webapi_ctx);
@@ -176,15 +178,15 @@ int pmwebapi_respond_new_context (struct MHD_Connection *connection)
   resp = MHD_create_response_from_buffer (strlen(http_response), http_response,
                                           MHD_RESPMEM_PERSISTENT);
   if (resp == NULL) {
-    __pmNotifyErr (LOG_ERR, "MHD_create_response_from_buffer failed\n");
+    pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_buffer failed\n");
     goto out;
   }
   rc = MHD_add_response_header (resp, "Content-Type", JSON_MIMETYPE);
   if (rc != MHD_YES) {
-    __pmNotifyErr (LOG_ERR, "MHD_add_response_header failed\n");
+    pmweb_notify (LOG_ERR, connection, "MHD_add_response_header failed\n");
   }
   rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
-  if (rc != MHD_YES) __pmNotifyErr (LOG_ERR, "MHD_queue_response failed\n");
+  if (rc != MHD_YES) pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
   MHD_destroy_response (resp);
   return rc;
 
@@ -418,17 +420,17 @@ int pmwebapi_respond_metric_list (struct MHD_Connection *connection,
   mhdb_printf(&mltc.mhdb, "] }");
   resp = mhdb_fini_response (& mltc.mhdb);
   if (resp == NULL) {
-    __pmNotifyErr (LOG_ERR, "mhdb_response failed\n");
+    pmweb_notify (LOG_ERR, connection, "mhdb_response failed\n");
     goto out;
   }
   rc = MHD_add_response_header (resp, "Content-Type", JSON_MIMETYPE);
   if (rc != MHD_YES) {
-    __pmNotifyErr (LOG_ERR, "MHD_add_response_header failed\n");
+    pmweb_notify (LOG_ERR, connection, "MHD_add_response_header failed\n");
     goto out1;
   }
   rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
   if (rc != MHD_YES) {
-    __pmNotifyErr (LOG_ERR, "MHD_queue_response failed\n");
+    pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
     goto out1;
   }
 
@@ -472,7 +474,7 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
   num_metrics = 0;
   metrics = calloc ((size_t) max_num_metrics, sizeof(pmID));
   if (metrics == NULL) {
-    __pmNotifyErr (LOG_ERR, "calloc pmIDs[%d] oom\n", max_num_metrics);
+    pmweb_notify (LOG_ERR, connection, "calloc pmIDs[%d] oom\n", max_num_metrics);
     goto out;
   }
 
@@ -491,14 +493,14 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
   }  
   if (num_metrics == 0) {
     free (metrics);
-    __pmNotifyErr (LOG_ERR, "no metrics requested\n");
+    pmweb_notify (LOG_ERR, connection, "no metrics requested\n");
     goto out;
   }
 
   rc = pmFetch (num_metrics, metrics, & results);
   free (metrics); /* don't need any more */
   if (rc < 0) {
-    __pmNotifyErr (LOG_ERR, "pmFetch failed\n");
+    pmweb_notify (LOG_ERR, connection, "pmFetch failed\n");
     goto out;
   }
   /* NB: we don't care about the possibility of PMCD_*_AGENT bits
@@ -603,17 +605,17 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
 
   resp = mhdb_fini_response (& output);
   if (resp == NULL) {
-    __pmNotifyErr (LOG_ERR, "mhdb_response failed\n");
+    pmweb_notify (LOG_ERR, connection, "mhdb_response failed\n");
     goto out;
   }
   rc = MHD_add_response_header (resp, "Content-Type", JSON_MIMETYPE);
   if (rc != MHD_YES) {
-    __pmNotifyErr (LOG_ERR, "MHD_add_response_header failed\n");
+    pmweb_notify (LOG_ERR, connection, "MHD_add_response_header failed\n");
     goto out1;
   }
   rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
   if (rc != MHD_YES) {
-    __pmNotifyErr (LOG_ERR, "MHD_queue_response failed\n");
+    pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
     goto out1;
   }
   MHD_destroy_response (resp);
@@ -652,7 +654,7 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
   /* All other calls use $CTX/command, so we parse $CTX
      generally and map it to the webcontext* */
   if (! (0 == strcmp (method, "POST") || 0 == strcmp (method, "GET"))) {
-    __pmNotifyErr (LOG_WARNING, "unknown method %s\n", method);
+    pmweb_notify (LOG_WARNING, connection, "unknown method %s\n", method);
     goto out;
   }
   errno = 0;
@@ -661,7 +663,7 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
       || webapi_ctx <= 0 /* range check, plus string-nonemptyness check */
       || webapi_ctx > INT_MAX /* matches random() loop above */
       || *context_command != '/') { /* parsed up to the next slash */
-    __pmNotifyErr (LOG_WARNING, "unrecognized %s url %s \n", method, url);
+    pmweb_notify (LOG_WARNING, connection, "unrecognized %s url %s \n", method, url);
     goto out;
   }
   context_command ++; /* skip the / */
@@ -669,7 +671,7 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
   /* if-multithreaded: read-lock contexts */
   chn = __pmHashSearch ((int)webapi_ctx, & contexts);
   if (chn == NULL) {
-    __pmNotifyErr (LOG_WARNING, "unknown web context #%ld\n", webapi_ctx);
+    pmweb_notify (LOG_WARNING, connection, "unknown web context #%ld\n", webapi_ctx);
     goto out;
   }
   c = (struct webcontext *) chn->data;
@@ -699,7 +701,7 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
     return pmwebapi_respond_metric_fetch (connection, c);
 
 
-  __pmNotifyErr (LOG_WARNING, "unrecognized %s context command %s \n", method, context_command);
+  pmweb_notify (LOG_WARNING, connection, "unrecognized %s context command %s \n", method, context_command);
 
 out:
   return MHD_NO;
