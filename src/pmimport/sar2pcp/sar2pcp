@@ -74,7 +74,7 @@ my %warning_tags;	# XML tags we do not know and will issue warnings about
 my %skipped_tags = (	# XML tags we know about, but have no metric to map yet
 	'sysstat' => 1,		'sysdata-version' => 1,
 	'sysname' => 1,		'release' => 1,
-	'machine' => 1,
+	'machine' => 1,		'comments' => 1,
 	'restarts' => 1,	'boot' => 1,
 	'file-date' => 1,	'statistics' => 1,
 	'interrupts' => 1,	'int-global' => 1,
@@ -89,6 +89,7 @@ my %skipped_tags = (	# XML tags we know about, but have no metric to map yet
 	'swpused' => 1,		'swpused-percent' => 1,
 	'swpcad-percent' => 1,
 	'frmpg' => 1,	'bufpg' => 1,	'campg' => 1,
+	'usb-devices' => 1,
 	'disk' => 1,		'network' => 1,
 	'power-management' => 1,
 	'cpu-frequency' => 1,	'cpu-weighted-frequency' => 1,

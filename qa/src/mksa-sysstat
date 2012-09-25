@@ -25,9 +25,19 @@ then
     exit 1
 fi
 
+sadc=""
+[ -x /usr/lib/sa/sadc ] && sadc=/usr/lib/sa/sadc
+[ -x /usr/lib64/sa/sadc ] && sadc=/usr/lib64/sa/sadc
+[ -x /usr/lib/sysstat/sadc ] && sadc=/usr/lib/sysstat/sadc
+if [ "X$sadc" = X ]
+then
+    echo "Error: cannot find sadc in any of the known places"
+    exit 1
+fi
+
 # collect data every 5 secs for 3 mins
 echo -n "Creating sa-sysstat-$version ..."
-/usr/lib/sysstat/sadc -S ALL 5 36 sa-sysstat-$version
+$sadc -S XALL 5 36 sa-sysstat-$version
 echo
 
 exit 0
