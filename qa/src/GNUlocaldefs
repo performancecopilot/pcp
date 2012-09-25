@@ -105,7 +105,7 @@ PERLFILES = \
 	check_import.pl
 
 PYTHONFILES = \
-	test_pcp.py test_pmi.py
+	test_pcp.py test_pmi.py check_import.py
 
 ifneq "$(TARGET_OS)" "mingw"
 CFILES += $(POSIXFILES) $(TRACEFILES)
