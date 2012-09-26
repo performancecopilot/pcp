@@ -284,6 +284,11 @@ pmweb_notify (int priority, struct MHD_Connection* connection, const char *fmt, 
   va_end (arg);
   (void) rc; /* If this fails, we can't do much really. */
 
-  /* Delegate, but avoid format-string vulnerabilities. */
+  /* Delegate, but avoid format-string vulnerabilities.  Drop the
+   trailing \n, if there is one, since __pmNotifyErr will add one for
+   us (since it is missing from the %s format string). */
+  if (rc >= 0 && rc < message_len)
+    if (message_tail[rc-1] == '\n')
+      message_tail[rc-1] = '\0';
   __pmNotifyErr (priority, "%s", message_buf);
 }
