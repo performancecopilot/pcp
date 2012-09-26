@@ -30,9 +30,6 @@ public:
     virtual void drawSeries(QPainter *p,
 		const QwtScaleMap &xMap, const QwtScaleMap &yMap,
 		const QRectF &canvasRect, int from, int to) const;
-
-    static double NaN();
-    static bool isNaN(double v);
 };
 
 class SamplingItem : public ChartItem

@@ -16,6 +16,7 @@
 #include <limits>
 #include "sampling.h"
 #include "main.h"
+#include <qnumeric.h>
 
 void SamplingCurve::drawSeries(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap,
 		const QRectF &canvasRect, int from, int to) const
@@ -25,24 +26,14 @@ void SamplingCurve::drawSeries(QPainter *p, const QwtScaleMap &xMap, const QwtSc
 
     while (okTo < size) {
 	okFrom = okTo;
-	while (isNaN(sample(okFrom).y()) && okFrom < size)
+	while (qIsNaN(sample(okFrom).y()) && okFrom < size)
 	    ++okFrom;
 	okTo = okFrom;
-	while (!isNaN(sample(okTo).y()) && okTo < size)
+	while (!qIsNaN(sample(okTo).y()) && okTo < size)
 	    ++okTo;
 	if (okFrom < size)
 	    QwtPlotCurve::drawSeries(p, xMap, yMap, canvasRect, okFrom, okTo-1);
     }
-}
-
-double SamplingCurve::NaN()
-{
-    return std::numeric_limits<double>::quiet_NaN();
-}
-
-bool SamplingCurve::isNaN(double v)
-{
-    return v != v;
 }
 
 SamplingItem::SamplingItem(Chart *parent,
@@ -115,12 +106,12 @@ void SamplingItem::preserveLiveData(int index, int oldindex)
     if (my.dataCount > oldindex)
 	my.itemData[index] = my.data[index] = my.data[oldindex];
     else
-	my.itemData[index] = my.data[index] = SamplingCurve::NaN();
+	my.itemData[index] = my.data[index] = qQNaN();
 }
 
 void SamplingItem::punchoutLiveData(int i)
 {
-    my.data[i] = my.itemData[i] = SamplingCurve::NaN();
+    my.data[i] = my.itemData[i] = qQNaN();
 }
 
 void SamplingItem::updateValues(bool forward,
@@ -133,7 +124,7 @@ void SamplingItem::updateValues(bool forward,
     int		sz;
 
     if (metric->error(0)) {
-	value = SamplingCurve::NaN();
+	value = qQNaN();
     } else {
 	// convert raw value to current chart scale
 	raw.d = rateConvert ? metric->value(0) : metric->currentValue(0);
@@ -169,12 +160,12 @@ void SamplingItem::rescaleValues(pmUnits *new_units)
 			pmUnitsStr(old_units), pmUnitsStr(new_units));
 
     for (int i = my.dataCount - 1; i >= 0; i--) {
-	if (my.data[i] != SamplingCurve::NaN()) {
+	if (my.data[i] != qQNaN()) {
 	    old_av.d = my.data[i];
 	    pmConvScale(PM_TYPE_DOUBLE, &old_av, old_units, &new_av, new_units);
 	    my.data[i] = new_av.d;
 	}
-	if (my.itemData[i] != SamplingCurve::NaN()) {
+	if (my.itemData[i] != qQNaN()) {
 	    old_av.d = my.itemData[i];
 	    pmConvScale(PM_TYPE_DOUBLE, &old_av, old_units, &new_av, new_units);
 	    my.itemData[i] = new_av.d;
@@ -315,7 +306,7 @@ double SamplingItem::sumData(int index, double sum)
 {
     if (index < 0)
 	index = my.dataCount - 1;
-    if (index < my.dataCount && !SamplingCurve::isNaN(my.data[index]))
+    if (index < my.dataCount && !qIsNaN(my.data[index]))
 	sum += my.data[index];
     return sum;
 }
@@ -329,7 +320,7 @@ void SamplingItem::copyRawDataArray(void)
 void SamplingItem::copyDataPoint(int index)
 {
     if (hidden() || index >= my.dataCount)
-	my.itemData[index] = SamplingCurve::NaN();
+	my.itemData[index] = qQNaN();
     else
 	my.itemData[index] = my.data[index];
 }
@@ -339,8 +330,8 @@ void SamplingItem::setPlotUtil(int index, double sum)
     if (index < 0)
 	index = my.dataCount - 1;
     if (hidden() || sum == 0.0 ||
-	index >= my.dataCount || SamplingCurve::isNaN(my.data[index]))
-	my.itemData[index] = SamplingCurve::NaN();
+	index >= my.dataCount || qIsNaN(my.data[index]))
+	my.itemData[index] = qQNaN();
     else
 	my.itemData[index] = 100.0 * my.data[index] / sum;
 }
@@ -349,7 +340,7 @@ double SamplingItem::setPlotStack(int index, double sum)
 {
     if (index < 0)
 	index = my.dataCount - 1;
-    if (!hidden() && !SamplingCurve::isNaN(my.itemData[index])) {
+    if (!hidden() && !qIsNaN(my.itemData[index])) {
 	sum += my.itemData[index];
 	my.itemData[index] = sum;
     }
@@ -360,8 +351,8 @@ double SamplingItem::setDataStack(int index, double sum)
 {
     if (index < 0)
 	index = my.dataCount - 1;
-    if (hidden() || SamplingCurve::isNaN(my.data[index])) {
-	my.itemData[index] = SamplingCurve::NaN();
+    if (hidden() || qIsNaN(my.data[index])) {
+	my.itemData[index] = qQNaN();
     } else {
 	sum += my.data[index];
 	my.itemData[index] = sum;
