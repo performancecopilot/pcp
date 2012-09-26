@@ -1,5 +1,6 @@
 #!/bin/sh
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2011 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -22,7 +23,7 @@ iam=rsyslog
 perl_opt=true
 daemon_opt=false
 
-statsfile=/var/log/pcp/rsyslog/stats
+statsfile="$PCP_LOG_DIR/rsyslog/stats"
 statsdir=`dirname "$statsfile"`
 
 if ! test -d "$statsdir"; then
