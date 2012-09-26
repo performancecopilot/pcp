@@ -226,7 +226,7 @@ if ($#ARGV != 1) {
     exit(1);
 }
 
-if ($ARGV[0] =~ /\.xml$/) {
+if ($ARGV[0] =~ /\.xml$/i) {
     my $sts = open(XMLDATA, '<', $ARGV[0]);
     if (!defined($sts)) {
 	print STDERR "sar2pcp: " .
@@ -234,12 +234,18 @@ if ($ARGV[0] =~ /\.xml$/) {
 	exit(1);
     }
 } else {
-    my $pid = open(XMLDATA, '-|', "sadf -x $ARGV[0] -- -A");
+    my $sadf = 'sadf';
+    $sadf = $ENV{SADF} if defined($ENV{SADF});
+    my $pid = open(XMLDATA, '-|', "$sadf -x $ARGV[0] -- -A");
     if (!defined($pid)) {
 	print STDERR "sar2pcp: " .
-		"Failed to launch sadf to convert \"$ARGV[0]\" to XML\n";
+		"Failed to launch $sadf to convert \"$ARGV[0]\" to XML\n";
 	exit(1);
     }
+}
+if (eof(XMLDATA)) {
+    print STDERR "sar2pcp: XML document from $ARGV[0] contains no data\n";
+    exit(1);
 }
 
 $parser = XML::TokeParser->new(\*XMLDATA, Noempty => 1);
