@@ -22,6 +22,7 @@
 #include "impl.h"
 #include <assert.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <microhttpd.h>
 
 /* ------------------------------------------------------------------------ */

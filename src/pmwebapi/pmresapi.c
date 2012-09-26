@@ -90,6 +90,8 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
     goto out;
   }
 
+  /* XXX: handle if-modified-since */
+
   if (! S_ISREG (fds.st_mode)) { /* XXX: consider directory-listing instead. */
     pmweb_notify (LOG_ERR, connection, "pmwebres non-file %s attempted\n", filename);
     close (fd);
@@ -116,6 +118,13 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
   ctype = create_rfc822_date (fds.st_mtime);
   if (ctype)
     (void) MHD_add_response_header (resp, "Last-Modified", ctype);
+
+  /* Add a 5-minute expiry. */
+  ctype = create_rfc822_date (time(0) + 300); /* XXX: configure */
+  if (ctype)
+    (void) MHD_add_response_header (resp, "Expires", ctype);
+
+  (void) MHD_add_response_header (resp, "Cache-Control", "public");
 
   rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
   MHD_destroy_response (resp);
