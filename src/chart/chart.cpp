@@ -105,6 +105,7 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
     my.samplingPickerMachine = NULL;
     setAxisFont(QwtPlot::yLeft, *globalFont);
     setAxisAutoScale(QwtPlot::yLeft);
+    setAxisScale(QwtPlot::yLeft, 0.0, 1.0, 0.0);
     setScaleEngine();
 
     my.picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,

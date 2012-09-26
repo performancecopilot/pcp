@@ -383,8 +383,9 @@ void TracingItem::setPlotEnd(int)
 }
 
 
-TracingScaleEngine::TracingScaleEngine()
+TracingScaleEngine::TracingScaleEngine() : QwtLinearScaleEngine()
 {
+    setMargins(0.5, 0.5);
 }
 
 void TracingScaleEngine::setScale(bool autoScale, double minValue, double maxValue)
@@ -397,8 +398,18 @@ void TracingScaleEngine::setScale(bool autoScale, double minValue, double maxVal
 void TracingScaleEngine::autoScale(int maxSteps, double &minValue,
                            double &maxValue, double &stepSize) const
 {
-    (void)maxSteps;
-    (void)minValue;
-    (void)maxValue;
-    (void)stepSize;
+    maxSteps = 1;
+    minValue = 0.0;
+    maxValue = maxSteps * 1.0;
+    stepSize = 1.0;
+    QwtLinearScaleEngine::autoScale(maxSteps, minValue, maxValue, stepSize);
+}
+
+QwtScaleDiv
+TracingScaleEngine::divideScale(double x1, double x2, int numMajorSteps,
+                           int /*numMinorSteps*/, double /*stepSize*/) const
+{
+    // discard minor steps - y-axis is displaying trace identifiers;
+    // sub-divisions of an identifier makes no sense
+    return QwtLinearScaleEngine::divideScale(x1, x2, numMajorSteps, 0, 1.0);
 }

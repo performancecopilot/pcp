@@ -61,7 +61,7 @@ private:
 class TracingItem : public ChartItem
 {
 public:
-    TracingItem() { }
+    TracingItem() : ChartItem() { }
     TracingItem(Chart *, QmcMetric *, pmMetricSpec *, pmDesc *, const char *);
     virtual ~TracingItem();
 
@@ -124,6 +124,8 @@ public:
     void setScale(bool autoScale, double minValue, double maxValue);
     virtual void autoScale(int maxSteps, double &minValue,
                            double &maxValue, double &stepSize) const;
+    virtual QwtScaleDiv divideScale( double x1, double x2,
+        int numMajorSteps, int numMinorSteps, double stepSize = 0.0 ) const;
 };
 
 #endif	// TRACING_H

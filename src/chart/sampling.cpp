@@ -372,8 +372,8 @@ double SamplingItem::setDataStack(int index, double sum)
 SamplingScaleEngine::SamplingScaleEngine() : QwtLinearScaleEngine()
 {
     my.autoScale = true;
-    my.minimum = -1;
-    my.maximum = -1;
+    my.minimum = 0.0;
+    my.maximum = 1.0;
 }
 
 void SamplingScaleEngine::setScale(bool autoScale,
