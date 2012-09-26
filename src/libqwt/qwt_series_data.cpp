@@ -9,6 +9,7 @@
 
 #include "qwt_series_data.h"
 #include "qwt_math.h"
+#include <qnumeric.h>
 
 static inline QRectF qwtBoundingRect( const QPointF &sample )
 {
@@ -94,9 +95,13 @@ QRectF qwtBoundingRectT(
         const QRectF rect = qwtBoundingRect( series.sample( i ) );
         if ( rect.width() >= 0.0 && rect.height() >= 0.0 )
         {
+          if (!qIsNaN(rect.left()))
             boundingRect.setLeft( qMin( boundingRect.left(), rect.left() ) );
+          if (!qIsNaN(rect.right()))
             boundingRect.setRight( qMax( boundingRect.right(), rect.right() ) );
+          if (!qIsNaN(rect.top()))
             boundingRect.setTop( qMin( boundingRect.top(), rect.top() ) );
+          if (!qIsNaN(rect.bottom()))
             boundingRect.setBottom( qMax( boundingRect.bottom(), rect.bottom() ) );
         }
     }
