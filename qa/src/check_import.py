@@ -15,6 +15,7 @@
 
 import os
 import pmapi
+import time
 from pcp import *
 from ctypes import *
 
@@ -22,49 +23,38 @@ def check_import (archive, hostname, timezone):
 
     pmi = pmiLogImport(archive)
     code = pmi.pmiSetHostname(hostname)
-    if (code < 0):
-        print "pmiSetHostname: ", pmi.pmiErrStr(code)
+
     code = pmi.pmiSetTimezone(timezone)
-    if (code < 0):
-        print "pmiSetTimezone: ", pmi.pmiErrStr(code)
 
     pmid = pmi.pmiID(60, 2, 0)
+
     indom = pmi.pmiInDom(60, 2)
+
     units = pmi.pmiUnits(0,0,0,0,0,0)
 
     # create a metric with no instances (hinv.ncpu)
     code = pmi.pmiAddMetric("hinv.ncpu", PM_ID_NULL, PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, units)
-    if (code < 0):
-        print "pmiAddMetric: adding hinv.ncpu - ", pmi.pmiErrStr(code)
+
     # give it a value
     code = pmi.pmiPutValue("hinv.ncpu", "", "42")
-    if (code < 0):
-        print "pmiPutValue: hinv.ncpu - ", pmi.pmiErrStr(code)
 
     # create a metric with instances (kernel.all.load)
     code = pmi.pmiAddMetric("kernel.all.load", pmid, PM_TYPE_FLOAT, indom, PM_SEM_DISCRETE, units)
-    if (code < 0):
-        print "pmiAddMetric: adding kernel.all.load - ", pmi.pmiErrStr(code)
+
     code = pmi.pmiAddInstance(indom, "1 minute", 1)
-    if (code < 0):
-        print "pmiAddInstance: adding kernel.all.load[1] - ", pmi.pmiErrStr(code)
+
     code = pmi.pmiAddInstance(indom, "5 minute", 5)
-    if (code < 0):
-        print "pmiAddInstance: adding kernel.all.load[5] - ", pmi.pmiErrStr(code)
+
     code = pmi.pmiAddInstance(indom, "15 minute", 15)
-    if (code < 0):
-        print "pmiAddInstance: adding kernel.all.load[15] - ", pmi.pmiErrStr(code)
 
     # give them values
     code = pmi.pmiPutValue("kernel.all.load", "1 minute", "0.01")
-    if (code < 0):
-        print "pmiPutValue: kernel.all.load[1 minute] - ", pmi.pmiErrStr(code)
+
     code = pmi.pmiPutValue("kernel.all.load", "5 minute", "0.05")
-    if (code < 0):
-        print "pmiPutValue: kernel.all.load[5 minute] - ", pmi.pmiErrStr(code)
+
     code = pmi.pmiPutValue("kernel.all.load", "15 minute", "0.15")
-    if (code < 0):
-        print "pmiPutValue: kernel.all.load[15 minute] - ", pmi.pmiErrStr(code)
+
+    code = pmi.pmiWrite(time.gmtime().tm_sec,0)
 
     del pmi
 
