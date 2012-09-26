@@ -495,7 +495,7 @@ void Chart::replot()
     double *vp = my.tab->group()->timeAxisData();
 
 #if DESPERATE
-    console->post("Chart::replot vh=%d, %d items)", vh, my.items.size());
+    console->post(PmChart::DebugForce, "Chart::replot vh=%d, %d items)", vh, my.items.size());
 #endif
     for (int m = 0; m < my.items.size(); m++)
 	my.items[m]->replot(vh, vp);
@@ -534,7 +534,7 @@ void Chart::redoChartItems(void)
     double	sum;
 
 #if DESPERATE
-    console->post("Chart::redoChartItems %d items)", itemCount);
+    console->post(PmChart::DebugForce, "Chart::redoChartItems %d items)", itemCount);
 #endif
     switch (my.style) {
 	case BarStyle:
@@ -786,6 +786,10 @@ void Chart::setStroke(ChartItem *item, Style style, QColor color)
 {
     item->setColor(color);
     item->setStroke(style, color, my.antiAliasing);
+
+#if DESPERATE
+    console->post(PmChart::DebugForce, "Chart::setStroke");
+#endif
 
     // Y-Axis title choice is difficult.  A Utilisation plot by definition
     // is dimensionless and scaled to a percentage, so a label of just

@@ -127,9 +127,9 @@ double TimeAxis::scaleValue(double delta, int points)
     }
 
 #if DESPERATE
-    console->post("TimeAxis::scaleValue"
+    console->post(PmChart::DebugForce, "TimeAxis::scaleValue"
 		  " width=%d points=%d scale=%.2f delta=%.2f maj=%d min=%d\n",
-		    width(), points, my.scale, delta, maxMajor, maxMajor);
+		    width(), points, my.scale, delta, maxMajor, maxMinor);
 #endif
 
     my.delta = delta;
