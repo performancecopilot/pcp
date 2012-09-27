@@ -112,7 +112,11 @@ __pmConnectRestoreFlags(int fd, int fdFlags)
     }
 
     if ((fdFlags = __pmGetFileDescriptorFlags(fd)) >= 0)
-        sts = __pmSetFileDescriptorFlags(fd, fdFlags | FD_CLOEXEC);
+#if defined(IS_MINGW)
+        sts = __pmSetFileDescriptorFlags(fd, fdFlags);
+#else
+	sts = __pmSetFileDescriptorFlags(fd, fdFlags | FD_CLOEXEC);
+#endif
     else
         sts = fdFlags;
 
