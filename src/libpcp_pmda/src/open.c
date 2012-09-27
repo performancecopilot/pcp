@@ -70,7 +70,7 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
     }
 #else
     /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
-    if (__pmSetsockOpt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
+    if (__pmSetSockOpt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: __pmSetSockOpt(excladdruse): %s\n",
 			netstrerror());
