@@ -60,20 +60,21 @@ sub dodate($)
 sub dovalue($)
 {
     # convert string to floating point value:  "0,00" / "0.00" / undef
-    # (older sysstat versions use a comma instead of a decimal point).
+    # (unusual LC_NUMERIC settings put comma instead of decimal point)
     # fail to convert (or attempt arithmetic on unconverted values) =>
     # e.g. 'Argument "\x{31}\x{2c}..." isn't numeric in addition (+)'
     #
     my ($value) = @_;
     return $value unless defined($value);
-    return $value =~ s/,/./g; 
+    $value =~ s/,/./g; 
+    return $value;
 }
 
 my %warning_tags;	# XML tags we do not know and will issue warnings about
 my %skipped_tags = (	# XML tags we know about, but have no metric to map yet
 	'sysstat' => 1,		'sysdata-version' => 1,
 	'sysname' => 1,		'release' => 1,
-	'machine' => 1,
+	'machine' => 1,		'comments' => 1,
 	'restarts' => 1,	'boot' => 1,
 	'file-date' => 1,	'statistics' => 1,
 	'interrupts' => 1,	'int-global' => 1,
@@ -88,6 +89,7 @@ my %skipped_tags = (	# XML tags we know about, but have no metric to map yet
 	'swpused' => 1,		'swpused-percent' => 1,
 	'swpcad-percent' => 1,
 	'frmpg' => 1,	'bufpg' => 1,	'campg' => 1,
+	'usb-devices' => 1,
 	'disk' => 1,		'network' => 1,
 	'power-management' => 1,
 	'cpu-frequency' => 1,	'cpu-weighted-frequency' => 1,
@@ -224,7 +226,7 @@ if ($#ARGV != 1) {
     exit(1);
 }
 
-if ($ARGV[0] =~ /\.xml$/) {
+if ($ARGV[0] =~ /\.xml$/i) {
     my $sts = open(XMLDATA, '<', $ARGV[0]);
     if (!defined($sts)) {
 	print STDERR "sar2pcp: " .
@@ -232,12 +234,18 @@ if ($ARGV[0] =~ /\.xml$/) {
 	exit(1);
     }
 } else {
-    my $pid = open(XMLDATA, '-|', "sadf -x $ARGV[0] -- -A");
+    my $sadf = 'sadf';
+    $sadf = $ENV{SADF} if defined($ENV{SADF});
+    my $pid = open(XMLDATA, '-|', "$sadf -x $ARGV[0] -- -A");
     if (!defined($pid)) {
 	print STDERR "sar2pcp: " .
-		"Failed to launch sadf to convert \"$ARGV[0]\" to XML\n";
+		"Failed to launch $sadf to convert \"$ARGV[0]\" to XML\n";
 	exit(1);
     }
+}
+if (eof(XMLDATA)) {
+    print STDERR "sar2pcp: XML document from $ARGV[0] contains no data\n";
+    exit(1);
 }
 
 $parser = XML::TokeParser->new(\*XMLDATA, Noempty => 1);
@@ -646,16 +654,38 @@ B<sar2pcp> is a Perl script that uses the PCP::LogImport Perl wrapper
 around the PCP I<libpcp_import>
 library, and as such could be used as an example to develop new
 tools to import other types of performance data and create PCP archives.
+A Python wrapper module is also available.
 
-=head1 CAVEAT
+=head1 CAVEATS
 
-B<sar2pcp> requires I<infile> to have been created by the version
-of B<sadc>(1) from
-L<http://freshmeat.net/projects/sysstat>
+When not using the XML input option, B<sar2pcp> requires I<infile> to
+have been created by a version of B<sadc>(1) from
+L<http://sebastien.godard.pagesperso-orange.fr/>
 which includes the B<sadf>(1) utility
-to translate I<infile> into an XML stream;
+to translate I<infile> into an XML stream (any since version 6);
 B<sar2pcp> will automatically run B<sadf>(1) and translate the resultant
 XML into a PCP archive.
+
+When using binary B<sadc> files
+it is important to ensure the installed B<sadf> is compatible with the
+version of B<sadc> that originally generated the binary files.  Simply
+assuming a newer installed version will work is unfortunately far too
+optimistic, and nor should one assume that binary data from different
+platforms (e.g. different endianness) will work - these issues are due
+to limitations in B<sadc> and B<sadf>, and not in B<sar2pcp> itself.
+
+Fortunately, the B<sadf> message indicating that an incompatibility has
+been detected is consistent across versions, and is always prefixed
+
+Invalid system activity file
+
+Using an XML I<infile> has the advantage that the installed version
+of B<sadf> is completely bypassed.  B<sar2pcp> undertakes to transform
+any valid XML produced by any of the different variations of B<sadf>
+into a valid PCP archive.  Any version of PCP will be able to interpret
+the archive files produced by any version of B<sar2pcp>, and you are
+also free to move the binary PCP archive between different platforms,
+different hardware, even different operating systems - it Just Works (TM).
 
 =head1 SEE ALSO
 

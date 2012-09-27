@@ -1,0 +1,33 @@
+QA output created by 710
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+Descriptions for Metrics in the Log ...
+PMID: 60.2.0 (kernel.all.load)
+    Data Type: float  InDom: 60.2 0xf000002
+    Semantics: instant  Units: none
+PMID: 245.0.1 (hinv.ncpu)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+Instance Domains in the Log ...
+InDom: 60.2
+TIMESTAMP 3 instances
+                 1 or "1 minute"
+                 5 or "5 minute"
+                 15 or "15 minute"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+TIMESTAMP       0          132          132
+TIMESTAMP       0          316          132
+TIMESTAMP       0          316          232
+
+[100 bytes]
+TIMESTAMP  245.0.1 (hinv.ncpu): value 42
+              60.2.0 (kernel.all.load):
+                inst [1 or "1 minute"] value DOUBLE
+                inst [5 or "5 minute"] value DOUBLE
+                inst [15 or "15 minute"] value DOUBLE

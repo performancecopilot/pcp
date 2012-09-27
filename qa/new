@@ -119,9 +119,9 @@ $PCP_ECHO_PROG $PCP_ECHO_N "Creating skeletal script for you to edit ...""$PCP_E
 cat <<End-of-File >$id
 #!/bin/sh
 # PCP QA Test No. $id
-# what am I here for?
+# [what am I here for?]
 #
-# Copyright (c) `date +%Y` Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) `date +%Y` [who are you?].  All Rights Reserved.
 #
 
 # get standard environment, filters and checks
@@ -131,16 +131,11 @@ cat <<End-of-File >$id
 
 seq=\`basename \$0\`
 
-#if test something
-#then
-#    rm -f $seq.notrun
-#else
-#    _notrun No support for something
-#fi
+# test for-some-thing || _notrun No support for some-thing
 
 echo "QA output created by \$seq"
 
-status=0	# success is the default!
+status=1	# failure is the default!
 \$sudo rm -rf \$tmp.* \$seq.full
 trap "rm -f \$tmp.*; exit \\\$status" 0 1 2 3 15
 
@@ -152,19 +147,12 @@ exit
 # optional stuff if your test has verbose output to help resolve problems
 #echo
 #echo "If failure, check \$seq.full"
-status=1
+status=0
 exit
 
 # success, all done
 exit
 End-of-File
-
-if [ "$LOGNAME" = kenj ]
-then
-    sed <$id >$tmp.tmp \
-	-e '/Copyright/s/Silicon Graphics, Inc/Ken McDonell/'
-    mv $tmp.tmp $id
-fi
 
 sleep 2		# latency to read messages to this point
 echo ""

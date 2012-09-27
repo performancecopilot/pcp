@@ -409,7 +409,7 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
     if (pmda->e_helptext != NULL) {
 	pmda->e_help = pmdaOpenHelp(pmda->e_helptext);
 	if (pmda->e_help < 0) {
-	    __pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: Unable to open help text file \"%s\": %s\n",
+	    __pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: Unable to open help text file(s) from \"%s\": %s\n",
 		    pmda->e_name, pmda->e_helptext, pmErrStr(pmda->e_help));
 	}
 #ifdef PCP_DEBUG

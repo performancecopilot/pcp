@@ -21,7 +21,7 @@
 from distutils.core import setup, Extension
 
 setup(name="pcp",
-      version="0.1",
+      version="0.2",
       description="Python Interface to Performance Co-Pilot API",
       author="Michael Werner",
       author_email="mtw@protomagic.com",
