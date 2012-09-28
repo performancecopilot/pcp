@@ -492,6 +492,7 @@ extern const char *wsastrerror(int);
 #define HAVE_FNDELAY
 
 #define MAP_FAILED	NULL
+#define FD_CLOEXEC	0
 #define O_NDELAY	0
 #define SIGHUP		(NSIG+1)
 #define SIGUSR1		(NSIG+2)
