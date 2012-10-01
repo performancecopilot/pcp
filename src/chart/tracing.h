@@ -88,9 +88,10 @@ public:
     void setPlotEnd(int index);
 
 private:
-    void cullOutlyingRanges(QVector<QwtIntervalSample> &, double, double);
-    void cullOutlyingPoints(QVector<QPointF> &, double, double);
-    void cullOutlyingEvents(QVector<TraceEvent> &, double, double);
+    void cullOutlyingDrops(double, double);
+    void cullOutlyingSpans(double, double);
+    void cullOutlyingPoints(double, double);
+    void cullOutlyingEvents(double, double);
 
     void updateEvents(QmcMetric *);
     void updateEventRecords(QmcMetric *, int);

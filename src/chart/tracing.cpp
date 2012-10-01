@@ -93,58 +93,75 @@ TraceEvent::~TraceEvent()
 
 //
 // Walk the vectors/lists and drop no-longer-needed events.
-// Events arrive time-ordered, so we can short-circuit these
-// walks once we are within the time window.  Two passes -
-// one from the left, one (subsequent, after modification to
-// original structure) from the right.
+// For points/events/drops (single time value):
+//   Events arrive time-ordered, so we can short-circuit these
+//   walks once we are within the time window.  Two phases -
+//   walk once from the left, then a subsequent walk from the
+//   right (note: done *after* we modify the original vector)
+// For horizonal spans (i.e. two time values):
+//   This is still true - events arrive in order - but we have
+//   to walk the entire list as these ranges can overlap.  But
+//   thats OK - we expect far fewer spans than total events.
 //
 
-void TracingItem::cullOutlyingRanges(QVector<QwtIntervalSample> &range, double left, double right)
+void TracingItem::cullOutlyingSpans(double left, double right)
 {
-    int i, cull;
-
-    for (i = cull = 0; i < range.size(); i++, cull++)
-	if (range.at(i).value >= left)
-	    break;
-    if (cull)
-	range.remove(0, cull); // cull from the start (0-index)
-    for (i = range.size() - 1, cull = 0; i >= 0; i--, cull++)
-	if (range.at(i).value <= right)
-	    break;
-    if (cull)
-	range.remove(range.size() - cull, cull); // cull from end
+    // Start from the end so that we can remove as we go
+    // without interfering with the index we are using.
+    for (int i = my.spans.size() - 1; i >= 0; i--) {
+	if (my.spans.at(i).interval.maxValue() >= left ||
+	    my.spans.at(i).interval.minValue() <= right)
+	    continue;
+	my.spans.remove(i);
+    }
 }
 
-void TracingItem::cullOutlyingPoints(QVector<QPointF> &points, double left, double right)
+void TracingItem::cullOutlyingDrops(double left, double right)
 {
     int i, cull;
 
-    for (i = cull = 0; i < points.size(); i++, cull++)
-	if (points.at(i).y() >= left)
+    for (i = cull = 0; i < my.drops.size(); i++, cull++)
+	if (my.drops.at(i).value >= left)
 	    break;
     if (cull)
-	points.remove(0, cull); // cull from the start (0-index)
-    for (i = points.size() - 1, cull = 0; i >= 0; i--, cull++)
-	if (points.at(i).y() <= right)
+	my.drops.remove(0, cull); // cull from the start (0-index)
+    for (i = my.drops.size() - 1, cull = 0; i >= 0; i--, cull++)
+	if (my.drops.at(i).value <= right)
 	    break;
     if (cull)
-	points.remove(points.size() - cull, cull); // cull from end
+	my.drops.remove(my.drops.size() - cull, cull); // cull from end
 }
 
-void TracingItem::cullOutlyingEvents(QVector<TraceEvent> &events, double left, double right)
+void TracingItem::cullOutlyingPoints(double left, double right)
 {
     int i, cull;
 
-    for (i = cull = 0; i < events.size(); i++, cull++)
-	if (events.at(i).timestamp() >= left)
+    for (i = cull = 0; i < my.points.size(); i++, cull++)
+	if (my.points.at(i).x() >= left)
 	    break;
     if (cull)
-	events.remove(0, cull); // cull from the start (0-index)
-    for (i = events.size() - 1, cull = 0; i >= 0; i--, cull++)
-	if (events.at(i).timestamp() <= right)
+	my.points.remove(0, cull); // cull from the start (0-index)
+    for (i = my.points.size() - 1, cull = 0; i >= 0; i--, cull++)
+	if (my.points.at(i).x() <= right)
 	    break;
     if (cull)
-	events.remove(events.size() - cull, cull); // cull from end
+	my.points.remove(my.points.size() - cull, cull); // cull from end
+}
+
+void TracingItem::cullOutlyingEvents(double left, double right)
+{
+    int i, cull;
+
+    for (i = cull = 0; i < my.events.size(); i++, cull++)
+	if (my.events.at(i).timestamp() >= left)
+	    break;
+    if (cull)
+	my.events.remove(0, cull); // cull from the start (0-index)
+    for (i = my.events.size() - 1, cull = 0; i >= 0; i--, cull++)
+	if (my.events.at(i).timestamp() <= right)
+	    break;
+    if (cull)
+	my.events.remove(my.events.size() - cull, cull); // cull from end
 }
 
 //
@@ -154,16 +171,20 @@ void TracingItem::cullOutlyingEvents(QVector<TraceEvent> &events, double left, d
 // Additionally, we need to cull those that are no longer within
 // the time window of interest.
 //
-void TracingItem::updateValues(bool, bool, pmUnits*, int size, int points, double left, double right, double delta)
+void TracingItem::updateValues(bool, bool, pmUnits*, int, int, double left, double right, double)
 {
+#ifdef DESPERATE
     console->post(PmChart::DebugForce, "TracingItem::updateValues: "
-		"%d events, chart size=%d points=%d, left: %.2f right=%.2f delta=%.2f",
-		my.events.size(), size, points, left, right, delta);
+		"%d total events, left=%.2f right=%.2f\n"
+		"Metadata counts: drops=%d spans=%d points=%d"
+		my.events.size(), left, right,
+		my.drops.size(), my.spans.size(), my.points.size());
+#endif
 
-    cullOutlyingRanges(my.drops, left, right);
-    cullOutlyingRanges(my.spans, left, right);
-    cullOutlyingPoints(my.points, left, right);
-    cullOutlyingEvents(my.events, left, right);
+    cullOutlyingSpans(left, right);
+    cullOutlyingDrops(left, right);
+    cullOutlyingPoints(left, right);
+    cullOutlyingEvents(left, right);
 
     // crack open newly arrived event records
     QmcMetric *metric = ChartItem::my.metric;
