@@ -25,11 +25,19 @@
 class SamplingCurve : public QwtPlotCurve
 {
 public:
-    SamplingCurve(const QString &title) : QwtPlotCurve(title) { }
+    SamplingCurve(const QString &title)
+	: QwtPlotCurve(title), legendColor(Qt::white) { }
 
-    virtual void drawSeries(QPainter *p,
+    void setLegendColor(QColor color) { legendColor = color; }
+
+    virtual void drawLegendIdentifier(QPainter *painter,
+		const QRectF &rect ) const;
+    virtual void drawSeries(QPainter *painter,
 		const QwtScaleMap &xMap, const QwtScaleMap &yMap,
 		const QRectF &canvasRect, int from, int to) const;
+
+private:
+    QColor legendColor;
 };
 
 class SamplingItem : public ChartItem

@@ -18,24 +18,6 @@
 #include "main.h"
 #include <qnumeric.h>
 
-void SamplingCurve::drawSeries(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-		const QRectF &canvasRect, int from, int to) const
-{
-    int okFrom, okTo = from;
-    int size = (to > 0) ? to : dataSize();
-
-    while (okTo < size) {
-	okFrom = okTo;
-	while (qIsNaN(sample(okFrom).y()) && okFrom < size)
-	    ++okFrom;
-	okTo = okFrom;
-	while (!qIsNaN(sample(okTo).y()) && okTo < size)
-	    ++okTo;
-	if (okFrom < size)
-	    QwtPlotCurve::drawSeries(p, xMap, yMap, canvasRect, okFrom, okTo-1);
-    }
-}
-
 SamplingItem::SamplingItem(Chart *parent,
 	QmcMetric *mp, pmMetricSpec *msp, pmDesc *dp,
 	const char *legend, Chart::Style style, int samples, int index)
@@ -179,7 +161,7 @@ void SamplingItem::replot(int history, double *timeData)
     my.curve->setRawSamples(timeData, my.itemData, count);
 }
 
-void SamplingItem::revive(Chart *parent) // TODO: inheritance, move to ChartItem
+void SamplingItem::revive(Chart *parent)
 {
     if (removed()) {
 	setRemoved(false);
@@ -187,7 +169,7 @@ void SamplingItem::revive(Chart *parent) // TODO: inheritance, move to ChartItem
     }
 }
 
-void SamplingItem::remove() // TODO: inheritance, move to ChartItem?
+void SamplingItem::remove()
 {
     setRemoved(true);
     my.curve->detach();
@@ -208,10 +190,8 @@ void SamplingItem::setStroke(Chart::Style style, QColor color, bool antiAlias)
 {
     int  sem = metric()->desc().desc().sem;
     bool step = (sem == PM_SEM_INSTANT || sem == PM_SEM_DISCRETE);
-    QPen p(color);
 
-    p.setWidth(8);
-    my.curve->setLegendPen(p);
+    my.curve->setLegendColor(color);
     my.curve->setRenderHint(QwtPlotItem::RenderAntialiased, antiAlias);
 
     switch (style) {
@@ -359,6 +339,56 @@ double SamplingItem::setDataStack(int index, double sum)
     }
     return sum;
 }
+
+
+//
+// SamplingCurve deals with overriding some QwtPlotCurve defaults;
+// particularly around dealing with empty sections of chart (NaN),
+// and the way the legend is rendered.
+//
+
+void SamplingCurve::drawSeries(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+		const QRectF &canvasRect, int from, int to) const
+{
+    int okFrom, okTo = from;
+    int size = (to > 0) ? to : dataSize();
+
+    while (okTo < size) {
+	okFrom = okTo;
+	while (qIsNaN(sample(okFrom).y()) && okFrom < size)
+	    ++okFrom;
+	okTo = okFrom;
+	while (!qIsNaN(sample(okTo).y()) && okTo < size)
+	    ++okTo;
+	if (okFrom < size)
+	    QwtPlotCurve::drawSeries(p, xMap, yMap, canvasRect, okFrom, okTo-1);
+    }
+}
+
+void SamplingCurve::drawLegendIdentifier(QPainter *painter, const QRectF &rect) const
+{
+    if (rect.isEmpty())
+        return;
+
+    const double dim = qMin(rect.width(), rect.height());
+    QSizeF size(dim, dim);
+    QRectF r(0, 0, size.width()-1, size.height()-1);
+    r.moveCenter(rect.center());
+
+    QPen pen(QColor(Qt::black));
+    pen.setCapStyle(Qt::FlatCap);
+    QBrush brush(legendColor, Qt::SolidPattern);
+
+    painter->setPen(pen);
+    painter->setBrush(brush);
+    painter->setRenderHint(QPainter::Antialiasing, false);
+    painter->drawRect(r.x(), r.y(), r.width(), r.height());
+}
+
+
+//
+// SamplingScaleEngine deals with rendering the vertical Y-Axis
+//
 
 SamplingScaleEngine::SamplingScaleEngine() : QwtLinearScaleEngine()
 {
