@@ -123,7 +123,7 @@ private slots:
     void selected(const QPointF &);
     void moved(const QPointF &);
     void selected(const QPolygon &);
-    void showItem(QwtPlotItem *, bool);
+    void legendChecked(QwtPlotItem *, bool);
 
 private:
     bool checkCompatibleUnits(pmUnits *);
@@ -134,6 +134,7 @@ private:
     void setScaleEngine(void);
     void setPickerMachine(void);
     void setStroke(ChartItem *, Style, QColor);
+    void showItem(QwtPlotItem *, bool);
     void showInfo(void);
     void showPoint(const QPointF &);
     void showPoints(const QPolygon &);

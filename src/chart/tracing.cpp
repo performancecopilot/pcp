@@ -33,6 +33,7 @@ TracingItem::TracingItem(Chart *parent,
 
     my.dropSymbol = new QwtIntervalSymbol(QwtIntervalSymbol::Box);
     my.dropCurve = new QwtPlotIntervalCurve(label());
+    my.dropCurve->setItemAttribute(QwtPlotItem::Legend, false);
     my.dropCurve->setStyle(QwtPlotIntervalCurve::NoCurve);
     my.dropCurve->setOrientation(Qt::Vertical);
     my.dropCurve->setSymbol(my.dropSymbol);
@@ -41,6 +42,7 @@ TracingItem::TracingItem(Chart *parent,
 
     my.pointSymbol = new QwtSymbol(QwtSymbol::Ellipse);
     my.pointCurve = new QwtPlotCurve(label());
+    my.pointCurve->setItemAttribute(QwtPlotItem::Legend, false);
     my.pointCurve->setStyle(QwtPlotCurve::NoCurve);
     my.pointCurve->setSymbol(my.pointSymbol);
     my.pointCurve->setZ(3);	// highest/closest

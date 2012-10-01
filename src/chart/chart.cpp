@@ -89,7 +89,7 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
     setLegendVisible(true);
     legend()->contentsWidget()->setFont(*globalFont);
     connect(this, SIGNAL(legendChecked(QwtPlotItem *, bool)),
-	    SLOT(showItem(QwtPlotItem *, bool)));
+		    SLOT(legendChecked(QwtPlotItem *, bool)));
 
     my.tab = chartTab;
     my.title = NULL;
@@ -503,28 +503,30 @@ void Chart::replot()
     QwtPlot::replot();
 }
 
-void Chart::showItem(QwtPlotItem *item, bool on)
+void Chart::showItem(QwtPlotItem *item, bool visible)
 {
-    item->setVisible(on);
-    if (legend()) {
-	QWidget *w = legend()->find(item);
-	if (w && w->inherits("QwtLegendItem")) {
-	    QwtLegendItem *li = (QwtLegendItem *)w;
-	    li->setChecked(on);
-	    li->setFont(*globalFont);
-	}
-    }
+    item->setVisible(visible);
+    replot();
+}
+
+void Chart::legendChecked(QwtPlotItem *item, bool down)
+{
+#ifdef DESPERATE
+    console->post(PmChart::DebugForce, "Chart::legendChecked %s for item %p",
+		down? "down":"up", item);
+#endif
+
     // find matching item and update hidden status if required
     for (int i = 0; i < my.items.size(); i++) {
-	if (my.items[i]->item() == item)
+	if (my.items[i]->item() != item)
 	    continue;
-	if (my.items[i]->hidden() == on) {
-	    // boolean sense is reversed here, on == true => show plot
-	    my.items[i]->setHidden(!on);
+	// if the state is changing, note it and update
+	if (my.items[i]->hidden() != down) {
+	    my.items[i]->setHidden(down);
 	    redoChartItems();
 	}
     }
-    replot();
+    showItem(item, down == false);
 }
 
 void Chart::redoChartItems(void)
@@ -613,7 +615,6 @@ int Chart::addItem(pmMetricSpec *msp, const char *legend)
     }
 
     if (my.items.size() == 0) {
-	console->post("Chart::addItem initial units %s", pmUnitsStr(&desc.units));
 	my.units = desc.units;
 	my.eventType = (desc.type == PM_TYPE_EVENT);
 	my.style = my.eventType ? EventStyle : my.style;
