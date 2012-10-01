@@ -30,7 +30,7 @@ public:
     virtual QString scheme() const { return my.scheme; }
 
     virtual void updateBackground(QColor) { }
-    virtual void updateValues(bool, bool, int, double, double, double) { }
+    virtual void updateValues(bool, bool, int, int, double, double, double) { }
 
     virtual void resetValues(int, int) { }
     virtual void adjustValues() { }

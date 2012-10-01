@@ -71,7 +71,7 @@ public:
     void preserveLiveData(int, int) { }
     void punchoutLiveData(int) { }
     void resetValues(int);
-    void updateValues(bool, bool, pmUnits*, int, double, double, double);
+    void updateValues(bool, bool, pmUnits*, int, int, double, double, double);
     void rescaleValues(pmUnits*);
 
     void clearCursor(void);

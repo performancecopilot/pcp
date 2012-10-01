@@ -168,13 +168,12 @@ void GroupControl::refreshGadgets(bool active)
 		"GroupControl::refreshGadgets: state=%s", timeState());
 #endif
 
-    double left = my.timeData[my.visible - 1];
-    double right = my.timeData[0];
-    double interval = pmchart->timeAxis()->scaleValue(my.realDelta, my.visible);
-
     for (int i = 0; i < gadgetCount(); i++) {
-	my.gadgetsList.at(i)->updateValues(my.timeState != BackwardState, active,
-	                                   my.samples, left, right, interval);
+	my.gadgetsList.at(i)->updateValues(my.timeState != BackwardState,
+					active, my.samples, my.visible,
+					my.timeData[my.visible - 1],
+					my.timeData[0],
+					my.realDelta);
     }
     if (active) {
 	updateTimeButton();
@@ -366,7 +365,7 @@ void GroupControl::adjustArchiveWorldViewForward(PmTime::Packet *packet, bool se
 			i, position, timeString(position),
 			timeState(), gadgetCount());
 	for (int j = 0; j < gadgetCount(); j++)
-	    my.gadgetsList.at(j)->updateValues(true, false, my.samples,
+	    my.gadgetsList.at(j)->updateValues(true, false, my.samples, my.visible,
 						left, right, interval);
     }
 
@@ -425,7 +424,7 @@ void GroupControl::adjustArchiveWorldViewBackward(PmTime::Packet *packet, bool s
 			i, position, timeString(position),
 			timeState(), gadgetCount());
 	for (int j = 0; j < gadgetCount(); j++)
-	    my.gadgetsList.at(j)->updateValues(false, false, my.samples,
+	    my.gadgetsList.at(j)->updateValues(false, false, my.samples, my.visible,
 						left, right, interval);
     }
 

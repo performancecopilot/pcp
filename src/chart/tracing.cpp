@@ -154,11 +154,11 @@ void TracingItem::cullOutlyingEvents(QVector<TraceEvent> &events, double left, d
 // Additionally, we need to cull those that are no longer within
 // the time window of interest.
 //
-void TracingItem::updateValues(bool, bool, pmUnits*, int size, double left, double right, double delta)
+void TracingItem::updateValues(bool, bool, pmUnits*, int size, int points, double left, double right, double delta)
 {
     console->post(PmChart::DebugForce, "TracingItem::updateValues: "
-		"%d events, size: %d left: %.2f right=%.2f delta=%.2f",
-		my.events.size(), size, left, right, delta);
+		"%d events, chart size=%d points=%d, left: %.2f right=%.2f delta=%.2f",
+		my.events.size(), size, points, left, right, delta);
 
     cullOutlyingRanges(my.drops, left, right);
     cullOutlyingRanges(my.spans, left, right);

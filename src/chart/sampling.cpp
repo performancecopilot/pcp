@@ -97,7 +97,7 @@ void SamplingItem::punchoutLiveData(int i)
 }
 
 void SamplingItem::updateValues(bool forward,
-		bool rateConvert, pmUnits *units, int sampleHistory,
+		bool rateConvert, pmUnits *units, int sampleHistory, int,
 		double, double, double)
 {
     pmAtomValue	scaled, raw;

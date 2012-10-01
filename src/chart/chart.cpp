@@ -229,24 +229,28 @@ TracingItem *Chart::tracingItem(int index)
     return (TracingItem *)my.items[index];
 }
 
-void Chart::updateValues(bool forward, bool visible, int size, double left, double right, double delta)
+void Chart::updateValues(bool forward, bool visible, int size, int points,
+			 double left, double right, double delta)
 {
     int		itemCount = my.items.size();
     int		i, index = forward ? 0 : -1;	/* first or last data point */
 
 #if DESPERATE
     console->post(PmChart::DebugForce,
-		  "Chart::updateValues(forward=%d,visible=%d) sz=%d (%d items)",
-		  forward, visible, size, itemCount);
+		  "Chart::updateValues(forward=%d,visible=%d) sz=%d pts=%d (%d items)",
+		  forward, visible, size, points, itemCount);
 #endif
 
-    if (itemCount < 1)
-	return;
+    if (visible) {
+	double scale = pmchart->timeAxis()->scaleValue(delta, points);
+	setAxisScale(QwtPlot::xBottom, left, right, scale);
+    }
 
-    if (visible)
-	setAxisScale(QwtPlot::xBottom, left, right, delta);
+    if (itemCount < 1)
+	goto updated;
+
     for (i = 0; i < itemCount; i++)
-	my.items[i]->updateValues(forward, my.rateConvert, &my.units, size, left, right, delta);
+	my.items[i]->updateValues(forward, my.rateConvert, &my.units, size, points, left, right, delta);
     if (my.style == BarStyle || my.style == AreaStyle || my.style == LineStyle) {
 	for (i = 0; i < itemCount; i++)
 	    samplingItem(i)->copyRawDataPoint(index);
@@ -283,6 +287,7 @@ void Chart::updateValues(bool forward, bool visible, int size, double left, doub
     }
 #endif
 
+updated:
     if (visible) {
 	replot();	// done first so Value Axis range is updated
 	redoScale();
@@ -925,7 +930,7 @@ void Chart::showPoint(const QPointF &p)
     int index = -1;
 
     // pixel point
-    QPoint pp = my.picker->transform(p);
+    QPoint pp = my.picker->transform(p);	// XXX: problematic!
 
     // seek the closest curve to the point selected
     for (int i = 0; i < my.items.size(); i++) {

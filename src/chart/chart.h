@@ -91,7 +91,7 @@ public:
     virtual void save(FILE *, bool);
     virtual void print(QPainter *, QRect &, bool);
 
-    virtual void updateValues(bool, bool, int, double, double, double);
+    virtual void updateValues(bool, bool, int, int, double, double, double);
     virtual void resetValues(int m, int v);
     virtual void adjustValues();
 
@@ -183,7 +183,7 @@ public:
     virtual void preserveLiveData(int, int) = 0;
     virtual void punchoutLiveData(int) = 0;
     virtual void resetValues(int) = 0;
-    virtual void updateValues(bool, bool, pmUnits *, int, double, double, double) = 0;
+    virtual void updateValues(bool, bool, pmUnits *, int, int, double, double, double) = 0;
     virtual void rescaleValues(pmUnits *) = 0;
 
     virtual void clearCursor() = 0;
