@@ -497,14 +497,12 @@ void Chart::redoScale(void)
 
 void Chart::replot()
 {
-    int	vh = my.tab->group()->visibleHistory();
-    double *vp = my.tab->group()->timeAxisData();
-
-#if DESPERATE
-    console->post(PmChart::DebugForce, "Chart::replot vh=%d, %d items)", vh, my.items.size());
-#endif
-    for (int m = 0; m < my.items.size(); m++)
-	my.items[m]->replot(vh, vp);
+    if (my.eventType == false) {
+	int     vh = my.tab->group()->visibleHistory();
+	double *vp = my.tab->group()->timeAxisData();
+	for (int i = 0; i < my.items.size(); i++)
+	    samplingItem(i)->replot(vh, vp);
+    }
     QwtPlot::replot();
 }
 
@@ -951,7 +949,6 @@ void Chart::showPoint(const QPointF &p)
 	item->clearCursor();
 	if (item == selected && dist < PICK_TOLERANCE)
 	    item->updateCursor(p, index);
-	item->showCursor();
     }
 }
 
@@ -983,7 +980,6 @@ void Chart::showPoints(const QPolygon &poly)
 	    for (int index = 0; index < itemDataSize; index++)
 		if (item->containsPoint(cp, index))
 		    item->updateCursor(p, index);
-	    item->showCursor();
 	}
     }
 
@@ -1238,4 +1234,30 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
 	    tree = n;
 	}
     }
+}
+
+
+//
+// Override behaviour from QwtPlotCurve legend rendering
+// Gives us fine-grained control over the colour that we
+// display in the legend boxes for each ChartItem.
+//
+void ChartCurve::drawLegendIdentifier(QPainter *painter, const QRectF &rect) const
+{
+    if (rect.isEmpty())
+        return;
+
+    const double dim = qMin(rect.width(), rect.height());
+    QSizeF size(dim, dim);
+    QRectF r(0, 0, size.width()-1, size.height()-1);
+    r.moveCenter(rect.center());
+
+    QPen pen(QColor(Qt::black));
+    pen.setCapStyle(Qt::FlatCap);
+    QBrush brush(legendColor, Qt::SolidPattern);
+
+    painter->setPen(pen);
+    painter->setBrush(brush);
+    painter->setRenderHint(QPainter::Antialiasing, false);
+    painter->drawRect(r.x(), r.y(), r.width(), r.height());
 }

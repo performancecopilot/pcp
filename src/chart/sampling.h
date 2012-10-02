@@ -22,22 +22,14 @@
 #include <qwt_scale_engine.h>
 #include "chart.h"
 
-class SamplingCurve : public QwtPlotCurve
+class SamplingCurve : public ChartCurve
 {
 public:
-    SamplingCurve(const QString &title)
-	: QwtPlotCurve(title), legendColor(Qt::white) { }
+    SamplingCurve(const QString &title) : ChartCurve(title) { }
 
-    void setLegendColor(QColor color) { legendColor = color; }
-
-    virtual void drawLegendIdentifier(QPainter *painter,
-		const QRectF &rect ) const;
     virtual void drawSeries(QPainter *painter,
 		const QwtScaleMap &xMap, const QwtScaleMap &yMap,
 		const QRectF &canvasRect, int from, int to) const;
-
-private:
-    QColor legendColor;
 };
 
 class SamplingItem : public ChartItem
@@ -55,7 +47,6 @@ public:
     void punchoutLiveData(int);
     void updateValues(bool, bool, pmUnits *, int, int, double, double, double);
     void rescaleValues(pmUnits *);
-    void replot(int, double *);
     void resetValues(int);
     void revive(Chart *);
     void remove();
@@ -65,8 +56,8 @@ public:
     bool containsPoint(const QRectF &, int);
     void updateCursor(const QPointF &, int);
     const QString &cursorInfo();
-    void showCursor();
 
+    void replot(int, double *);
     void copyRawDataArray(void);
     void copyRawDataPoint(int index);
     void copyDataPoint(int index);

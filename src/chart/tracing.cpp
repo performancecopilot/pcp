@@ -25,11 +25,11 @@ TracingItem::TracingItem(Chart *parent,
 {
     my.spanSymbol = new QwtIntervalSymbol(QwtIntervalSymbol::Box);
     my.spanCurve = new QwtPlotIntervalCurve(label());
+    my.spanCurve->setItemAttribute(QwtPlotItem::Legend, false);
     my.spanCurve->setStyle(QwtPlotIntervalCurve::NoCurve);
     my.spanCurve->setOrientation(Qt::Horizontal);
     my.spanCurve->setSymbol(my.spanSymbol);
     my.spanCurve->setZ(1);	// lowest/furthest
-    my.spanCurve->attach(parent);
 
     my.dropSymbol = new QwtIntervalSymbol(QwtIntervalSymbol::Box);
     my.dropCurve = new QwtPlotIntervalCurve(label());
@@ -38,27 +38,36 @@ TracingItem::TracingItem(Chart *parent,
     my.dropCurve->setOrientation(Qt::Vertical);
     my.dropCurve->setSymbol(my.dropSymbol);
     my.dropCurve->setZ(2);	// middle/central
-    my.dropCurve->attach(parent);
 
     my.pointSymbol = new QwtSymbol(QwtSymbol::Ellipse);
-    my.pointCurve = new QwtPlotCurve(label());
-    my.pointCurve->setItemAttribute(QwtPlotItem::Legend, false);
+    my.pointCurve = new ChartCurve(label());
     my.pointCurve->setStyle(QwtPlotCurve::NoCurve);
     my.pointCurve->setSymbol(my.pointSymbol);
-    my.pointCurve->setZ(3);	// highest/closest
+    my.pointCurve->setZ(3);	// higher/closer
+
+    my.selectionSymbol = new QwtSymbol(QwtSymbol::Ellipse);
+    my.selectionCurve = new QwtPlotCurve(label());
+    my.selectionCurve->setItemAttribute(QwtPlotItem::Legend, false);
+    my.selectionCurve->setStyle(QwtPlotCurve::NoCurve);
+    my.selectionCurve->setSymbol(my.selectionSymbol);
+    my.selectionCurve->setZ(4);	// highest/closest
+
+    my.spanCurve->attach(parent);
+    my.dropCurve->attach(parent);
     my.pointCurve->attach(parent);
+    my.selectionCurve->attach(parent);
 }
 
 TracingItem::~TracingItem(void)
 {
-    delete my.pointSymbol;
-    delete my.pointCurve;
-
-    delete my.spanSymbol;
     delete my.spanCurve;
-
-    delete my.dropSymbol;
+    delete my.spanSymbol;
     delete my.dropCurve;
+    delete my.dropSymbol;
+    delete my.pointCurve;
+    delete my.pointSymbol;
+    delete my.selectionCurve;
+    delete my.selectionSymbol;
 }
 
 QwtPlotItem* TracingItem::item(void)
@@ -76,7 +85,7 @@ void TracingItem::resetValues(int)
     console->post(PmChart::DebugForce, "TracingItem::resetValue: %d events", my.events.size());
 }
 
-TraceEvent::TraceEvent(QmcEventRecord const &record)
+TracingEvent::TracingEvent(QmcEventRecord const &record)
 {
     my.timestamp = tosec(*record.timestamp());
     my.missed = record.missed();
@@ -86,7 +95,7 @@ TraceEvent::TraceEvent(QmcEventRecord const &record)
     my.description = record.parameterSummary();
 }
 
-TraceEvent::~TraceEvent()
+TracingEvent::~TracingEvent()
 {
     my.timestamp = 0.0;
 }
@@ -195,6 +204,7 @@ void TracingItem::updateValues(bool, bool, pmUnits*, int, int, double left, doub
     my.dropCurve->setSamples(my.drops);
     my.spanCurve->setSamples(my.spans);
     my.pointCurve->setSamples(my.points);
+    my.selectionCurve->setSamples(my.selections);
 }
 
 void TracingItem::updateEvents(QmcMetric *metric)
@@ -234,8 +244,8 @@ void TracingItem::updateEventRecords(QmcMetric *metric, int index)
 	for (int i = 0; i < records.size(); i++) {
 	    QmcEventRecord const &record = records.at(i);
 
-	    my.events.append(TraceEvent(record));
-	    TraceEvent &event = my.events.last();
+	    my.events.append(TracingEvent(record));
+	    TracingEvent &event = my.events.last();
 
 	    // find the "slot" (y-axis value) for this identifier
 	    if (event.hasIdentifier())
@@ -299,15 +309,20 @@ void TracingItem::rescaleValues(pmUnits*)
 
 void TracingItem::setStroke(Chart::Style, QColor color, bool)
 {
-    QColor alphaColor = color;
     console->post(PmChart::DebugForce, "TracingItem::setStroke");
 
     QPen outline(QColor(Qt::black));
+    QColor darkColor(color);
+    QColor alphaColor(color);
+
+    darkColor.dark(180);
     alphaColor.setAlpha(196);
-    QBrush brush(alphaColor);
+    QBrush alphaBrush(alphaColor);
+
+    my.pointCurve->setLegendColor(color);
 
     my.spanSymbol->setWidth(6);
-    my.spanSymbol->setBrush(brush);
+    my.spanSymbol->setBrush(alphaBrush);
     my.spanSymbol->setPen(outline);
 
     my.dropSymbol->setWidth(1);
@@ -317,6 +332,10 @@ void TracingItem::setStroke(Chart::Style, QColor color, bool)
     my.pointSymbol->setSize(8);
     my.pointSymbol->setColor(color);
     my.pointSymbol->setPen(outline);
+
+    my.selectionSymbol->setSize(8);
+    my.selectionSymbol->setColor(color.dark(180));
+    my.selectionSymbol->setPen(outline);
 }
 
 bool TracingItem::containsPoint(const QRectF &rect, int index)
@@ -331,25 +350,24 @@ void TracingItem::updateCursor(const QPointF &, int index)
     Q_ASSERT(index <= my.points.size());
     Q_ASSERT(index <= (int)my.pointCurve->dataSize());
 
-    my.selections.append(index);
+    my.selections.append(my.points.at(index));
+
+    // required for immediate chart update after selection
+    QBrush pointBrush = my.pointSymbol->brush();
+    my.pointSymbol->setBrush(my.selectionSymbol->brush());
+    QwtPlotDirectPainter directPainter;
+    directPainter.drawSeries(my.pointCurve, index, index);
+    my.pointSymbol->setBrush(pointBrush);
 }
 
 void TracingItem::clearCursor(void)
 {
-    my.selections.clear();
-}
-
-void TracingItem::showCursor()
-{
-    const QBrush brush = my.pointSymbol->brush();
-
-    my.pointSymbol->setBrush(my.pointSymbol->brush().color().dark(180));
-    for (int i = 0; i < my.selections.size(); i++) {
-	int index = my.selections.at(i);
+    // immediately clear any current visible selections
+    for (int index = 0; index < my.points.size(); index++) {
 	QwtPlotDirectPainter directPainter;
 	directPainter.drawSeries(my.pointCurve, index, index);
     }
-    my.pointSymbol->setBrush(brush);   // reset brush
+    my.selections.clear();
 }
 
 //
@@ -360,7 +378,7 @@ const QString &TracingItem::cursorInfo()
     my.selectionInfo = QString::null;
 
     for (int i = 0; i < my.selections.size(); i++) {
-	TraceEvent const &event = my.events.at(i);
+	TracingEvent const &event = my.events.at(i);
 	double stamp = event.timestamp();
 	if (i)
 	    my.selectionInfo.append("\n");
@@ -371,17 +389,6 @@ const QString &TracingItem::cursorInfo()
     return my.selectionInfo;
 }
 
-void TracingItem::replot(int history, double*)
-{
-    console->post(PmChart::DebugForce,
-		  "TracingItem::replot: %d event records (%d samples)",
-		  my.events.size(), history);
-
-    my.dropCurve->setSamples(my.drops);
-    my.spanCurve->setSamples(my.spans);
-    my.pointCurve->setSamples(my.points);
-}
-
 void TracingItem::revive(Chart *parent)
 {
     if (removed()) {
@@ -389,6 +396,7 @@ void TracingItem::revive(Chart *parent)
         my.dropCurve->attach(parent);
         my.spanCurve->attach(parent);
         my.pointCurve->attach(parent);
+        my.selectionCurve->attach(parent);
     }
 }
 
@@ -398,6 +406,7 @@ void TracingItem::remove(void)
     my.dropCurve->detach();
     my.spanCurve->detach();
     my.pointCurve->detach();
+    my.selectionCurve->detach();
 }
 
 void TracingItem::setPlotEnd(int)

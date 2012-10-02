@@ -167,6 +167,21 @@ private:
 };
 
 //
+// Helper dealing with overriding of legend behaviour
+//
+class ChartCurve : public QwtPlotCurve
+{
+public:
+    ChartCurve(const QString &title)
+	: QwtPlotCurve(title), legendColor(Qt::white) { }
+
+    virtual void drawLegendIdentifier(QPainter *painter,
+		const QRectF &rect ) const;
+    void setLegendColor(QColor color) { legendColor = color; }
+    QColor legendColor;
+};
+
+//
 // Container for an individual plot item within a chart,
 // which is always backed by a single metric.
 //
@@ -189,11 +204,9 @@ public:
     virtual void clearCursor() = 0;
     virtual bool containsPoint(const QRectF &, int) = 0;
     virtual void updateCursor(const QPointF &, int) = 0;
-    virtual void showCursor() = 0;
     virtual const QString &cursorInfo() = 0;
 
     virtual void setStroke(Chart::Style, QColor, bool) = 0;
-    virtual void replot(int, double *) = 0;
     virtual void revive(Chart *parent) = 0;
     virtual void remove(void) = 0;
 

@@ -251,11 +251,6 @@ void SamplingItem::updateCursor(const QPointF &p, int)
     pmchart->setValueText(string);
 }
 
-void SamplingItem::showCursor()
-{
-    // nothing to do here.
-}
-
 const QString &SamplingItem::cursorInfo()
 {
     return ChartItem::my.name;
@@ -363,26 +358,6 @@ void SamplingCurve::drawSeries(QPainter *p, const QwtScaleMap &xMap, const QwtSc
 	if (okFrom < size)
 	    QwtPlotCurve::drawSeries(p, xMap, yMap, canvasRect, okFrom, okTo-1);
     }
-}
-
-void SamplingCurve::drawLegendIdentifier(QPainter *painter, const QRectF &rect) const
-{
-    if (rect.isEmpty())
-        return;
-
-    const double dim = qMin(rect.width(), rect.height());
-    QSizeF size(dim, dim);
-    QRectF r(0, 0, size.width()-1, size.height()-1);
-    r.moveCenter(rect.center());
-
-    QPen pen(QColor(Qt::black));
-    pen.setCapStyle(Qt::FlatCap);
-    QBrush brush(legendColor, Qt::SolidPattern);
-
-    painter->setPen(pen);
-    painter->setBrush(brush);
-    painter->setRenderHint(QPainter::Antialiasing, false);
-    painter->drawRect(r.x(), r.y(), r.width(), r.height());
 }
 
 

@@ -23,14 +23,14 @@
 #include <qwt_interval_symbol.h>
 #include <qwt_plot_intervalcurve.h>
 
-class TraceEvent
+class TracingEvent
 {
 public:
-    TraceEvent() { }
-    TraceEvent(QmcEventRecord const &);
-    bool operator<(TraceEvent const& rhs)	// for sorting
+    TracingEvent() { }
+    TracingEvent(QmcEventRecord const &);
+    bool operator<(TracingEvent const& rhs)	// for sorting
 	{ return my.timestamp < rhs.timestamp(); }
-    virtual ~TraceEvent();
+    virtual ~TracingEvent();
 
     int slot(void) const { return my.slot; }
     void setSlot(int slot) { my.slot = slot; }
@@ -77,11 +77,9 @@ public:
     void clearCursor(void);
     bool containsPoint(const QRectF &, int);
     void updateCursor(const QPointF &, int);
-    void showCursor();
     const QString &cursorInfo();
 
     void setStroke(Chart::Style, QColor, bool);
-    void replot(int, double*);
     void revive(Chart *parent);
     void remove(void);
 
@@ -99,13 +97,17 @@ private:
 
     struct {
 	QHash<QString, int> yMap;		// reverse map, event ID to y-axis point
-	QVector<TraceEvent> events;		// all events, raw data
-	QVector<int> selections;		// indices into curve data, selected points
+	QVector<TracingEvent> events;		// all events, raw data
+	QVector<QPointF> selections;		// time series of selected points
 	QString selectionInfo;
 
 	QVector<QPointF> points;		// displayed trace data (point form)
-	QwtPlotCurve *pointCurve;
+	ChartCurve *pointCurve;
 	QwtSymbol *pointSymbol;
+
+	QVector<QPointF> selectionPoints;	// displayed user-selected trace points
+	QwtPlotCurve *selectionCurve;
+	QwtSymbol *selectionSymbol;
 
 	QVector<QwtIntervalSample> spans;	// displayed trace data (horizontal span)
 	QwtPlotIntervalCurve *spanCurve;
