@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 _filter()
 {
     tee -a $seq.full \
-    _filter_pmcd_log \
+    | _filter_pmcd_log \
     | sed \
 	-e '/^ *$/d' \
 	-e 's/ -t [0-9][0-9]* / /' \
