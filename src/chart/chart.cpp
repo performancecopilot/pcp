@@ -930,6 +930,9 @@ void Chart::showPoint(const QPointF &p)
     // pixel point
     QPoint pp = my.picker->transform(p);	// XXX: problematic!
 
+    console->post(PmChart::DebugForce, "Chart::showPoint p=%.2f,%.2f pixel=%d,%d",
+			p.x(), p.y(), pp.x(), pp.y());
+
     // seek the closest curve to the point selected
     for (int i = 0; i < my.items.size(); i++) {
 	QwtPlotCurve *curve = my.items[i]->curve();
@@ -956,7 +959,7 @@ void Chart::showPoints(const QPolygon &poly)
 {
     Q_ASSERT(poly.size() == 2);
 
-    console->post("Chart::showPoints: %d,%d -> %d,%d",
+    console->post(PmChart::DebugForce, "Chart::showPoints: %d,%d -> %d,%d",
 	poly.at(0).x(), poly.at(0).y(), poly.at(1).x(), poly.at(1).y());
 
     // Transform selected (pixel) points to our coordinate system
@@ -1021,14 +1024,10 @@ void Chart::setLegendVisible(bool on)
     console->post("Chart::setLegendVisible(%d) legend()=%p", on, legend());
 
     if (on) {
-	if (legend() == NULL) {
-	    // currently disabled, enable it
+	if (legend() == NULL) {	// currently disabled, enable it
 	    QwtLegend *l = new QwtLegend;
+
 	    l->setItemMode(QwtLegend::CheckableItem);
-//	    l->setFrameStyle(QFrame::NoFrame);
-//	    l->setFrameShadow((Shadow)0);
-//	    l->setMidLineWidth(0);
-//	    l->setLineWidth(0);
 	    insertLegend(l, QwtPlot::BottomLegend);
 	    // force each Legend item to "checked" state matching
 	    // the initial plotting state
@@ -1247,9 +1246,7 @@ void ChartCurve::drawLegendIdentifier(QPainter *painter, const QRectF &rect) con
     if (rect.isEmpty())
         return;
 
-    const double dim = qMin(rect.width(), rect.height());
-    QSizeF size(dim, dim);
-    QRectF r(0, 0, size.width()-1, size.height()-1);
+    QRectF r(0, 0, rect.width()-1, rect.height()-1);
     r.moveCenter(rect.center());
 
     QPen pen(QColor(Qt::black));

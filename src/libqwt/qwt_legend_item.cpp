@@ -19,6 +19,8 @@
 #include <qstyleoption.h>
 #include <qapplication.h>
 
+static const int PixmapHeight = 10;
+static const int PixmapWidth = 15;
 static const int ButtonFrame = 2;
 static const int Margin = 2;
 
@@ -40,7 +42,7 @@ public:
     PrivateData():
         itemMode( QwtLegend::ReadOnlyItem ),
         isDown( false ),
-        identifierSize( 8, 8 ),
+        identifierSize( PixmapWidth, PixmapHeight ),
         spacing( Margin )
     {
     }
@@ -145,7 +147,7 @@ QPixmap QwtLegendItem::identifier() const
 
 /*!
   Set the size for the identifier
-  Default is 8x8 pixels
+  Default is PixmapWidth x PixmapHeight pixels
 
   \param size New size
 
