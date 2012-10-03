@@ -31,6 +31,7 @@ class Tab;
 class ChartItem;
 class TracingItem;
 class SamplingItem;
+class TracingScaleDraw;
 class TracingScaleEngine;
 class SamplingScaleEngine;
 
@@ -98,6 +99,10 @@ public:
     virtual void preserveLiveData(int, int);
     virtual void punchoutLiveData(int);
 
+    void setTraceSlot(const QString &, int);
+    int getTraceSlot(const QString &, int) const;
+    QString getTraceID(int) const;
+
     virtual int metricCount() const;
     virtual QString name(int) const;
     virtual char *legendSpec(int) const;
@@ -130,10 +135,13 @@ private:
     bool checkCompatibleTypes(int);
 
     void redoScale(void);
-    bool autoScale(void);
     void setScaleEngine(void);
+    void redoTracingScale(void);
+    void redoSamplingScale(void);
+
     void setPickerMachine(void);
     void setStroke(ChartItem *, Style, QColor);
+
     void showItem(QwtPlotItem *, bool);
     void showInfo(void);
     void showPoint(const QPointF &);
@@ -146,23 +154,35 @@ private:
     struct {
 	Tab *tab;
 	QList<ChartItem *> items;
-	pmUnits units;
-
 	char *title;
-	Style style;
 	QString scheme;
 	int sequence;
+	QwtPlotPicker *picker;
 
-	bool eventType;
+	bool eventType;		// Sub-classing Chart is probably needed at this point?
+				// difficulty is: one can delete all plots, then have an
+				// "empty" class, then request a metric of alternate type
+				// (similarly, charts start out empty from "New Chart").
+				// Perhaps a ChartRuntime (ChartPlot?) which carves off
+				// those bits that change, and allocates/frees whichever
+				// type (tracing/sampling) we need?  That could be passed
+				// to the chart items as well.		TODO
+
+	// sampling-specific fields
+	pmUnits units;
+	Style style;
 	bool rateConvert;
 	bool antiAliasing;
-
-	QwtPlotPicker *picker;
-	QwtPickerMachine *tracingPickerMachine;
-	QwtPickerMachine *samplingPickerMachine;
-
-	TracingScaleEngine *tracingScaleEngine;
 	SamplingScaleEngine *samplingScaleEngine;
+	QwtPickerMachine *samplingPickerMachine;
+	QwtScaleDraw *samplingScaleDraw;	// the default (values)
+
+	// tracing-specific fields
+	QHash<QString, int> traceSpanMap;	// map, event ID to y-axis point
+	QHash<int, QString> reverseSpanMap;	// reverse map, y-axis point to ID
+	QwtPickerMachine *tracingPickerMachine;
+	TracingScaleEngine *tracingScaleEngine;
+	TracingScaleDraw *tracingScaleDraw;	// convert ints to spanID
     } my;
 };
 
@@ -199,7 +219,6 @@ public:
     virtual void punchoutLiveData(int) = 0;
     virtual void resetValues(int) = 0;
     virtual void updateValues(bool, bool, pmUnits *, int, int, double, double, double) = 0;
-    virtual void rescaleValues(pmUnits *) = 0;
 
     virtual void clearCursor() = 0;
     virtual bool containsPoint(const QRectF &, int) = 0;
@@ -207,7 +226,7 @@ public:
     virtual const QString &cursorInfo() = 0;
 
     virtual void setStroke(Chart::Style, QColor, bool) = 0;
-    virtual void revive(Chart *parent) = 0;
+    virtual void revive(void) = 0;
     virtual void remove(void) = 0;
 
     QString name(void) const { return my.name; }

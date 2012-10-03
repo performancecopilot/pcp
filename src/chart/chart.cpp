@@ -99,9 +99,11 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
     my.style = NoStyle;
     my.scheme = QString::null;
     my.sequence = 0;
+    my.tracingScaleDraw = NULL;
     my.tracingScaleEngine = NULL;
-    my.samplingScaleEngine = NULL;
     my.tracingPickerMachine = NULL;
+    my.samplingScaleDraw = NULL;
+    my.samplingScaleEngine = NULL;
     my.samplingPickerMachine = NULL;
     setAxisFont(QwtPlot::yLeft, *globalFont);
     setAxisAutoScale(QwtPlot::yLeft);
@@ -126,13 +128,25 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
 
 void Chart::setScaleEngine()
 {
+    if (!my.samplingScaleDraw)	// stash the default Qwt made
+	my.samplingScaleDraw = axisScaleDraw(QwtPlot::yLeft);
+
     if (my.eventType && !my.tracingScaleEngine) {
-	my.tracingScaleEngine = new TracingScaleEngine();
+	if (my.tracingScaleDraw)
+	    delete my.tracingScaleDraw;
+	my.tracingScaleDraw = new TracingScaleDraw(this);
+	setAxisScaleDraw(QwtPlot::yLeft, my.tracingScaleDraw);
+
+	my.tracingScaleEngine = new TracingScaleEngine(this);
 	setAxisScaleEngine(QwtPlot::yLeft, my.tracingScaleEngine);
+
 	my.samplingScaleEngine = NULL;	// deleted in setAxisScaleEngine
     } else if (!my.eventType && !my.samplingScaleEngine) {
+	setAxisScaleDraw(QwtPlot::yLeft, my.samplingScaleDraw);
+
 	my.samplingScaleEngine = new SamplingScaleEngine();
 	setAxisScaleEngine(QwtPlot::yLeft, my.samplingScaleEngine);
+
 	my.tracingScaleEngine = NULL;	// deleted in setAxisScaleEngine
     }
 }
@@ -159,6 +173,9 @@ void Chart::setPickerMachine()
 Chart::~Chart()
 {
     console->post("Chart::~Chart() for chart %p", this);
+
+    if (my.tracingScaleDraw)
+	delete my.tracingScaleDraw;
 
     for (int i = 0; i < my.items.size(); i++)
 	delete my.items[i];
@@ -251,6 +268,7 @@ void Chart::updateValues(bool forward, bool visible, int size, int points,
 
     for (i = 0; i < itemCount; i++)
 	my.items[i]->updateValues(forward, my.rateConvert, &my.units, size, points, left, right, delta);
+
     if (my.style == BarStyle || my.style == AreaStyle || my.style == LineStyle) {
 	for (i = 0; i < itemCount; i++)
 	    samplingItem(i)->copyRawDataPoint(index);
@@ -274,10 +292,6 @@ void Chart::updateValues(bool forward, bool visible, int size, int points,
 	for (i = 0; i < itemCount; i++)
 	    sum = samplingItem(i)->setDataStack(index, sum);
     }
-    else if (my.style == EventStyle) {
-	for (i = 0; i < itemCount; i++)
-	    tracingItem(i)->setPlotEnd(index);
-    }
 
 #if DESPERATE
     if (!my.eventType) {
@@ -294,17 +308,46 @@ updated:
     }
 }
 
-bool Chart::autoScale(void)
+int Chart::getTraceSlot(const QString &spanID, int slot) const
 {
-    if (my.eventType)
-	return false;
-    return my.samplingScaleEngine->autoScale();
+    return my.traceSpanMap.value(spanID, slot);
+}
+
+void Chart::setTraceSlot(const QString &spanID, int slot)
+{
+    my.traceSpanMap.insert(spanID, slot);
+    my.reverseSpanMap.insert(slot, spanID);
+}
+
+QString Chart::getTraceID(int slot) const
+{
+    return my.reverseSpanMap.value(slot);
 }
 
 void Chart::redoScale(void)
 {
+    if (my.eventType)
+	redoTracingScale();
+    else
+	redoSamplingScale();
+}
+
+void Chart::redoTracingScale(void)
+{
+    int minValue = 0, maxValue = 1;
+
+    Q_ASSERT(my.eventType == true);
+    for (int i = 0; i < my.items.size(); i++)
+	tracingItem(i)->rescaleValues(&minValue, &maxValue);
+    my.tracingScaleEngine->setScale(minValue, maxValue);
+}
+
+void Chart::redoSamplingScale(void)
+{
     bool	rescale = false;
     pmUnits	oldunits = my.units;
+
+    Q_ASSERT(my.eventType == false);
 
     // The 1,000 and 0.1 thresholds are just a heuristic guess.
     //
@@ -312,7 +355,7 @@ void Chart::redoScale(void)
     // the upper bound of the y-axis range (hBound()) drives the choice
     // of appropriate units scaling.
     //
-    if (autoScale() &&
+    if (my.samplingScaleEngine->autoScale() &&
 	axisScaleDiv(QwtPlot::yLeft)->upperBound() > 1000) {
 	double scaled_max = axisScaleDiv(QwtPlot::yLeft)->upperBound();
 	if (my.units.dimSpace == 1) {
@@ -396,7 +439,8 @@ void Chart::redoScale(void)
 	}
     }
 
-    if (rescale == false && autoScale() &&
+    if (rescale == false &&
+	my.samplingScaleEngine->autoScale() &&
 	axisScaleDiv(QwtPlot::yLeft)->upperBound() < 0.1) {
 	double scaled_max = axisScaleDiv(QwtPlot::yLeft)->upperBound();
 	if (my.units.dimSpace == 1) {
@@ -486,7 +530,7 @@ void Chart::redoScale(void)
 	// data, new data will be taken care of by changing my.units.
 	//
 	for (int i = 0; i < my.items.size(); i++)
-	    my.items[i]->rescaleValues(&my.units);
+	    samplingItem(i)->rescaleValues(&my.units);
 	if (my.style == UtilisationStyle)
 	    setYAxisTitle("% utilization");
 	else
@@ -659,7 +703,7 @@ int Chart::addItem(pmMetricSpec *msp, const char *legend)
 void Chart::reviveItem(int i)
 {
     console->post("Chart::reviveItem=%d (%d)", i, my.items[i]->removed());
-    my.items[i]->revive(this);
+    my.items[i]->revive();
 }
 
 void Chart::removeItem(int i)

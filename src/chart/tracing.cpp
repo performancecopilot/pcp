@@ -19,10 +19,15 @@
 #include "tracing.h"
 #include "main.h"
 
-TracingItem::TracingItem(Chart *parent,
+TracingItem::TracingItem(Chart *chart,
 	QmcMetric *mp, pmMetricSpec *msp, pmDesc *dp, const char *legend)
 	: ChartItem(mp, msp, dp, legend)
 {
+    my.chart = chart;
+    my.minSpanID = 0;
+    my.maxSpanID = 1;
+    my.previousTimestamp = 0.0;
+
     my.spanSymbol = new QwtIntervalSymbol(QwtIntervalSymbol::Box);
     my.spanCurve = new QwtPlotIntervalCurve(label());
     my.spanCurve->setItemAttribute(QwtPlotItem::Legend, false);
@@ -52,10 +57,10 @@ TracingItem::TracingItem(Chart *parent,
     my.selectionCurve->setSymbol(my.selectionSymbol);
     my.selectionCurve->setZ(4);	// highest/closest
 
-    my.spanCurve->attach(parent);
-    my.dropCurve->attach(parent);
-    my.pointCurve->attach(parent);
-    my.selectionCurve->attach(parent);
+    my.spanCurve->attach(chart);
+    my.dropCurve->attach(chart);
+    my.pointCurve->attach(chart);
+    my.selectionCurve->attach(chart);
 }
 
 TracingItem::~TracingItem(void)
@@ -80,16 +85,12 @@ QwtPlotCurve* TracingItem::curve(void)
     return my.pointCurve;
 }
 
-void TracingItem::resetValues(int)
-{
-    console->post(PmChart::DebugForce, "TracingItem::resetValue: %d events", my.events.size());
-}
-
 TracingEvent::TracingEvent(QmcEventRecord const &record)
 {
     my.timestamp = tosec(*record.timestamp());
     my.missed = record.missed();
     my.flags = record.flags();
+    my.slot = 0;
     my.spanID = record.identifier();
     my.rootID = record.parent();
     my.description = record.parameterSummary();
@@ -98,6 +99,15 @@ TracingEvent::TracingEvent(QmcEventRecord const &record)
 TracingEvent::~TracingEvent()
 {
     my.timestamp = 0.0;
+}
+
+void
+TracingItem::rescaleValues(int *minValue, int *maxValue)
+{
+    if (my.minSpanID < *minValue)
+	*minValue = my.minSpanID;
+    if (my.maxSpanID > *maxValue)
+	*maxValue = my.maxSpanID;
 }
 
 //
@@ -111,21 +121,32 @@ TracingEvent::~TracingEvent()
 //   This is still true - events arrive in order - but we have
 //   to walk the entire list as these ranges can overlap.  But
 //   thats OK - we expect far fewer spans than total events.
+//   While we're at it, we can keep track of min/max span ID.
 //
 
-void TracingItem::cullOutlyingSpans(double left, double right)
+void
+TracingItem::cullOutlyingSpans(double left, double right)
 {
+    int minSpanID = 0, maxSpanID = 1;
+
     // Start from the end so that we can remove as we go
     // without interfering with the index we are using.
     for (int i = my.spans.size() - 1; i >= 0; i--) {
-	if (my.spans.at(i).interval.maxValue() >= left ||
-	    my.spans.at(i).interval.minValue() <= right)
-	    continue;
-	my.spans.remove(i);
+	const QwtIntervalSample &span = my.spans.at(i);
+	if (span.interval.maxValue() >= left ||
+	    span.interval.minValue() <= right) {
+	    minSpanID = qMin(minSpanID, (int)span.value);
+	    maxSpanID = qMax(maxSpanID, (int)span.value);
+	} else {
+	    my.spans.remove(i);
+	}
     }
+    my.minSpanID = minSpanID;
+    my.maxSpanID = maxSpanID;
 }
 
-void TracingItem::cullOutlyingDrops(double left, double right)
+void
+TracingItem::cullOutlyingDrops(double left, double right)
 {
     int i, cull;
 
@@ -141,7 +162,8 @@ void TracingItem::cullOutlyingDrops(double left, double right)
 	my.drops.remove(my.drops.size() - cull, cull); // cull from end
 }
 
-void TracingItem::cullOutlyingPoints(double left, double right)
+void
+TracingItem::cullOutlyingPoints(double left, double right)
 {
     int i, cull;
 
@@ -157,7 +179,8 @@ void TracingItem::cullOutlyingPoints(double left, double right)
 	my.points.remove(my.points.size() - cull, cull); // cull from end
 }
 
-void TracingItem::cullOutlyingEvents(double left, double right)
+void
+TracingItem::cullOutlyingEvents(double left, double right)
 {
     int i, cull;
 
@@ -173,6 +196,14 @@ void TracingItem::cullOutlyingEvents(double left, double right)
 	my.events.remove(my.events.size() - cull, cull); // cull from end
 }
 
+void
+TracingItem::resetValues(int samples)
+{
+    // TODO
+    console->post(PmChart::DebugForce, "TracingItem::resetValues: sample count change: NYI: %d", samples);
+}
+
+
 //
 // Requirement here is to merge in any event records that have
 // just arrived in the last timestep (from my.metric) with the
@@ -180,7 +211,8 @@ void TracingItem::cullOutlyingEvents(double left, double right)
 // Additionally, we need to cull those that are no longer within
 // the time window of interest.
 //
-void TracingItem::updateValues(bool, bool, pmUnits*, int, int, double left, double right, double)
+void
+TracingItem::updateValues(bool, bool, pmUnits*, int, int, double left, double right, double)
 {
 #ifdef DESPERATE
     console->post(PmChart::DebugForce, "TracingItem::updateValues: "
@@ -248,20 +280,37 @@ void TracingItem::updateEventRecords(QmcMetric *metric, int index)
 	    TracingEvent &event = my.events.last();
 
 	    // find the "slot" (y-axis value) for this identifier
-	    if (event.hasIdentifier())
-		slot = my.yMap.value(event.spanID(), slot);
-	    event.setSlot(slot);
+	    // do not modify slot inside the loop (TODO: abstract
+	    // the loop internals out into a separate routine?)
+	    if (event.hasIdentifier()) {
+		int childSlot = my.chart->getTraceSlot(event.spanID(), slot);
+		event.setSlot(childSlot);
+	    } else {
+		event.setSlot(slot);
+	    }
 
 	    // this adds the basic point (ellipse), all events get one
-	    my.points.append(QPointF(event.timestamp(), slot));
-	    my.yMap.insert(event.spanID(), slot);
+	    my.points.append(QPointF(event.timestamp(), event.slot()));
+	    my.chart->setTraceSlot(event.spanID(), event.slot());
 
 	    if (event.hasParent()) {	// lookup parent in yMap
-		parentSlot = my.yMap.value(event.rootID(), parentSlot);
+		parentSlot = my.chart->getTraceSlot(event.rootID(), parentSlot);
 		// do this on start/end only?  (or if first?)
 		my.drops.append(QwtIntervalSample(event.timestamp(),
-				    QwtInterval(slot, parentSlot)));
+				    QwtInterval(event.slot(), parentSlot)));
+	    } else {
+		parentSlot = -1;
 	    }
+
+	    console->post(PmChart::DebugForce, "TracingItem::updateEventRecords: "
+		"[%.2f] span: %s (slot=%d) id=%s, root: %s (slot=%d,id=%s), start=%s end=%s",
+		event.timestamp() - my.previousTimestamp,
+		(const char *)event.spanID().toAscii(), event.slot(),
+		event.hasIdentifier() ? "y" : "n",
+		(const char *)event.rootID().toAscii(), parentSlot,
+		event.hasParent() ? "y" : "n",
+		event.hasStartFlag() ? "y" : "n", event.hasEndFlag() ? "y" : "n");
+	    my.previousTimestamp = event.timestamp();
 
 	    if (event.hasStartFlag()) {
 		if (!my.spans.isEmpty()) {
@@ -300,11 +349,6 @@ void TracingItem::updateEventRecords(QmcMetric *metric, int index)
 	// Might need to have (another) curve to implement this.
 	//
     }
-}
-
-void TracingItem::rescaleValues(pmUnits*)
-{
-    console->post(PmChart::DebugForce, "TracingItem::rescaleValues");
 }
 
 void TracingItem::setStroke(Chart::Style, QColor color, bool)
@@ -373,7 +417,7 @@ void TracingItem::clearCursor(void)
 //
 // Display information text associated with selected events
 //
-const QString &TracingItem::cursorInfo()
+const QString &TracingItem::cursorInfo(void)
 {
     my.selectionInfo = QString::null;
 
@@ -389,14 +433,14 @@ const QString &TracingItem::cursorInfo()
     return my.selectionInfo;
 }
 
-void TracingItem::revive(Chart *parent)
+void TracingItem::revive(void)
 {
     if (removed()) {
         setRemoved(false);
-        my.dropCurve->attach(parent);
-        my.spanCurve->attach(parent);
-        my.pointCurve->attach(parent);
-        my.selectionCurve->attach(parent);
+        my.dropCurve->attach(my.chart);
+        my.spanCurve->attach(my.chart);
+        my.pointCurve->attach(my.chart);
+        my.selectionCurve->attach(my.chart);
     }
 }
 
@@ -409,31 +453,31 @@ void TracingItem::remove(void)
     my.selectionCurve->detach();
 }
 
-void TracingItem::setPlotEnd(int)
+TracingScaleEngine::TracingScaleEngine(Chart *chart) : QwtLinearScaleEngine()
 {
-    console->post(PmChart::DebugForce, "TracingItem::setPlotEnd");
-}
-
-
-TracingScaleEngine::TracingScaleEngine() : QwtLinearScaleEngine()
-{
+    my.chart = chart;
     setMargins(0.5, 0.5);
 }
 
-void TracingScaleEngine::setScale(bool autoScale, double minValue, double maxValue)
+void
+TracingScaleEngine::setScale(int minValue, int maxValue)
 {
-    (void)autoScale;
-    (void)minValue;
-    (void)maxValue;
+    console->post(PmChart::DebugForce, "TracingItem::setScale: min=%d max=%d",
+		minValue, maxValue);
 }
 
-void TracingScaleEngine::autoScale(int maxSteps, double &minValue,
+void
+TracingScaleEngine::autoScale(int maxSteps, double &minValue,
                            double &maxValue, double &stepSize) const
 {
+    console->post(PmChart::DebugForce, "TracingItem::aut0Scale: maxSteps=%d min=%.2f max=%.2f sizeSteps=%.2f",
+		maxSteps, minValue, maxValue, stepSize);
     maxSteps = 1;
     minValue = 0.0;
     maxValue = maxSteps * 1.0;
     stepSize = 1.0;
+    console->post(PmChart::DebugForce, "TracingItem::autoScale: maxSteps=%d min=%.2f max=%.2f sizeSteps=%.2f",
+		maxSteps, minValue, maxValue, stepSize);
     QwtLinearScaleEngine::autoScale(maxSteps, minValue, maxValue, stepSize);
 }
 
@@ -444,4 +488,29 @@ TracingScaleEngine::divideScale(double x1, double x2, int numMajorSteps,
     // discard minor steps - y-axis is displaying trace identifiers;
     // sub-divisions of an identifier makes no sense
     return QwtLinearScaleEngine::divideScale(x1, x2, numMajorSteps, 0, 1.0);
+}
+
+
+//
+// Use the hash map to provide event identifiers that map to given numeric IDs
+// These values were mapped into the hash when we decoded the event records.
+//
+QwtText
+TracingScaleDraw::label(double v) const
+{
+    int	slot = (int)v;
+    console->post(PmChart::DebugForce, "TracingScaleDraw::label: lookup ID=%d", slot);
+    return my.chart->getTraceID(slot);
+}
+
+void
+TracingScaleDraw::getBorderDistHint(const QFont &f, int &start, int &end) const
+{
+    if (orientation() == Qt::Vertical) {
+	start = 0;
+	end = 0;
+    }
+    else {
+	QwtScaleDraw::getBorderDistHint(f, start, end);
+    }
 }

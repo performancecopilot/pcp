@@ -25,13 +25,14 @@ SamplingItem::SamplingItem(Chart *parent,
 {
     pmDesc desc = mp->desc().desc();
 
+    my.chart = parent;
+    my.info = QString::null;
+
     // initialize the pcp data and item data arrays
     my.dataCount = 0;
     my.data = NULL;
     my.itemData = NULL;
     resetValues(samples);
-
-    my.info = QString::null;
 
     // set base scale, then tweak if value to plot is time / time
     my.scale = 1;
@@ -163,15 +164,15 @@ void SamplingItem::replot(int history, double *timeData)
     my.curve->setRawSamples(timeData, my.itemData, count);
 }
 
-void SamplingItem::revive(Chart *parent)
+void SamplingItem::revive(void)
 {
     if (removed()) {
 	setRemoved(false);
-	my.curve->attach(parent);
+	my.curve->attach(my.chart);
     }
 }
 
-void SamplingItem::remove()
+void SamplingItem::remove(void)
 {
     setRemoved(true);
     my.curve->detach();

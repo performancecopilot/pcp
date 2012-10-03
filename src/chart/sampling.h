@@ -48,7 +48,7 @@ public:
     void updateValues(bool, bool, pmUnits *, int, int, double, double, double);
     void rescaleValues(pmUnits *);
     void resetValues(int);
-    void revive(Chart *);
+    void revive();
     void remove();
     void setStroke(Chart::Style, QColor, bool);
 
@@ -70,6 +70,7 @@ public:
 
 private:
     struct {
+	Chart *chart;
 	SamplingCurve *curve;
 	QString info;
 	double scale;
