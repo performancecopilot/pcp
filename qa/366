@@ -21,6 +21,13 @@ fi
 
 echo "QA output created by $seq"
 
+_filter()
+{
+    sed \
+	-e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;g" \
+	-e '/^[0-9]/d'
+}
+
 . ./localconfig
 rm -f $seq.out
 if [ -f $seq.$PCP_PLATFORM ]
@@ -268,8 +275,7 @@ echo q \
 
 cat $tmp.conf >$seq.full
 
-diff $tmp.orig $tmp.conf \
-| sed -e '/^[0-9]/d'
+diff $tmp.orig $tmp.conf | _filter
 
 # success, all done
 exit
