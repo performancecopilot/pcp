@@ -484,7 +484,10 @@ while (defined(my $token = $parser->get_token())) {
 	    if (defined($percent)) {
 		putinst('disk.dev.avactive', $indom, $instance, $percent / 100);
 	    }
-	    # pro tem skip avgrq-sz, avgqu-sz, await, svctm
+	    putinst('disk.dev.avrqsz', $indom, $instance, dovalue($token->attr->{'avgrq-sz'}));
+	    putinst('disk.dev.avqsz', $indom, $instance, dovalue($token->attr->{'avgqu-sz'}));
+	    putinst('disk.dev.await', $indom, $instance, dovalue($token->attr->{'await'}));
+	    putinst('disk.dev.svctm', $indom, $instance, dovalue($token->attr->{'svctm'}));
 	    # TODO disk.all aggregation?
 	}
 	elsif ($token->tag eq 'net-device') {
