@@ -15,7 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
-include /etc/pcp.conf
+include $(PCP_ETC_DIR)/etc/pcp.conf
 
 # need to deal with these ...
 # ELF style
