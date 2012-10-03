@@ -998,6 +998,8 @@ void Chart::showInfo(void)
 
     for (int i = 0; i < my.items.size(); i++) {
 	ChartItem *item = my.items[i];
+	if (info != QString::null)
+	    info.append("\n");
 	info.append(item->cursorInfo());
     }
 

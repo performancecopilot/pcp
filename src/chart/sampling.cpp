@@ -31,6 +31,8 @@ SamplingItem::SamplingItem(Chart *parent,
     my.itemData = NULL;
     resetValues(samples);
 
+    my.info = QString::null;
+
     // set base scale, then tweak if value to plot is time / time
     my.scale = 1;
     if (style != Chart::UtilisationStyle &&
@@ -242,18 +244,16 @@ bool SamplingItem::containsPoint(const QRectF &, int)
 
 void SamplingItem::updateCursor(const QPointF &p, int)
 {
-    QString string;
-
-    string.sprintf("[%.2f %s at %s]",
+    my.info.sprintf("[%.2f %s at %s]",
 		(float)p.y(),
 		pmUnitsStr(&ChartItem::my.units),
 		timeHiResString(p.x()));
-    pmchart->setValueText(string);
+    pmchart->setValueText(my.info);
 }
 
 const QString &SamplingItem::cursorInfo()
 {
-    return ChartItem::my.name;
+    return my.info;
 }
 
 void SamplingItem::copyRawDataPoint(int index)
