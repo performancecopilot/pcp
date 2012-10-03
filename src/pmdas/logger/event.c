@@ -1,7 +1,7 @@
 /*
  * Event support for the Logger PMDA
  *
- * Copyright (c) 2011 Red Hat Inc.
+ * Copyright (c) 2011-2012 Red Hat Inc.
  * Copyright (c) 2011 Nathan Scott.  All rights reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -124,7 +124,7 @@ event_config(const char *fname)
     int			sts = 0;
     size_t		len;
     char		line[MAXPATHLEN * 2];
-    char		*ptr, *name, *restrict;
+    char		*ptr, *name, *noaccess;
 
     configFile = fopen(fname, "r");
     if (configFile == NULL) {
@@ -203,7 +203,7 @@ event_config(const char *fname)
 	}
 
 	/* Skip past any extra whitespace between NAME and ACCESS */
-	ptr = restrict = lstrip(ptr);
+	ptr = noaccess = lstrip(ptr);
 
 	/* Look for the next whitespace, and that terminate ACCESS */
 	while (*ptr != '\0' && ! isspace(*ptr)) {
@@ -241,7 +241,7 @@ event_config(const char *fname)
 	}
 	logfile = &logfiles[numlogfiles];
 	memset(logfile, 0, sizeof(*logfile));
-	logfile->restrict = (restrict[0] == 'y' || restrict[0] == 'Y');
+	logfile->noaccess = (noaccess[0] == 'y' || noaccess[0] == 'Y');
 	strncpy(logfile->pmnsname, name, sizeof(logfile->pmnsname));
 	strncpy(logfile->pathname, ptr, sizeof(logfile->pathname));
 	/* remaining fields filled in after pmdaInit() is called. */
@@ -395,6 +395,11 @@ event_queueid(int handle)
 {
     if (handle < 0 || handle >= numlogfiles)
 	return 0;
+
+    /* if logfile unrestricted, allow this client access to this queue */
+    if (logfiles[handle].noaccess == 0)
+	pmdaEventSetAccess(pmdaGetContext(), logfiles[handle].queueid, 1);
+
     return logfiles[handle].queueid;
 }
 
