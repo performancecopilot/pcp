@@ -86,9 +86,6 @@ from ctypes import *
 # needed for find_library() - to load libpcp
 from ctypes.util import *
 
-# needed for mutex lock
-import threading
-
 # needed for environment manipulation
 import os
 
@@ -800,22 +797,6 @@ class pmContext( object ):
     ##
     # class attributes
 
-    # Many PMAPI function operate on global state or static memory.
-    # A global lock will be used for now.
-    # Some finer grained locking of specific functions should be done later.
-
-    _pmapiLock = threading.Lock()
-
-    # Many calls into the PMAPI execute within preestabished context, which 
-    # defines a metric source - a target host or a metrics archive file. The
-    # trouble is: the PMAPI shared library keeps track of the current context
-    # in a single global state. That global context state must be changed
-    # to operate on metrics from a different source. The last used context is
-    # tracked in the following class attribute, to reduce the number of
-    # context change calls made to the PMAPI
-
-    _lastUsedContext = None
-
     ##
     # property read methods
 
@@ -839,20 +820,13 @@ class pmContext( object ):
     def __init__( self, type=PM_CONTEXT_HOST, target="localhost" ):
         self._type = type                                # the context type
         self._target = target                            # the context target
-        pmContext._pmapiLock.acquire()
         self._ctx = libpcp.pmNewContext( type, target )  # the context handle
         if self._ctx < 0:
-            pmContext._pmapiLock.release()
             raise pmErr, self._ctx
-        pmContext._lastUsedContext = self
-        pmContext._pmapiLock.release()
 
     def __del__(self):
-        pmContext._pmapiLock.acquire()
         if libpcp:
             libpcp.pmDestroyContext( self.ctx )
-        pmContext._lastUsedContext = None
-        pmContext._pmapiLock.release()
 
     ##
     # PMAPI Name Space Services
@@ -862,17 +836,11 @@ class pmContext( object ):
         """PMAPI - Return names of children of the given PMNS node NAME
         tuple names = pmGetChildren("kernel")
         """
-        # this method is context dependent and requires the pmapi lock
         offspring = POINTER(c_char_p)()
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmGetChildren( name, byref( offspring ) )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         if status > 0:
@@ -886,18 +854,12 @@ class pmContext( object ):
         """PMAPI - Return names and status of children of the given metric NAME
         (tuple names,tuple status) = pmGetChildrenStatus("kernel")
         """
-        # this method is context dependent and requires the pmapi lock
         offspring = POINTER(c_char_p)()
         childstat = POINTER(c_int)()
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmGetChildrenStatus (name, byref(offspring), byref(childstat))
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         if status > 0:
@@ -913,16 +875,10 @@ class pmContext( object ):
         """PMAPI - Return the namespace location type
         loc = pmGetPMNSLocation()
         """
-        # this method is context dependent and requires the pmapi lock
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmGetPMNSLocation( )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status
@@ -931,16 +887,10 @@ class pmContext( object ):
         """PMAPI - Load a local namespace
         status = pmLoadNameSpace("filename")
         """
-        # this method is context dependent and requires the pmapi lock
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmLoadNameSpace( filename )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status
@@ -964,16 +914,11 @@ class pmContext( object ):
                 names[i] = c_char_p(nameA[i])
 
         pmidA = (c_uint * n)()
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         libpcp.pmLookupName.argtypes = [ c_int, (c_char_p * n), POINTER(c_uint) ]
         status = libpcp.pmLookupName( n, names, pmidA )
-        pmContext._pmapiLock.release()
         if status != n:
             badL = [name for (name,pmid) in zip(nameA,pmidA) \
                                                 if pmid == PM_ID_NULL]
@@ -986,17 +931,11 @@ class pmContext( object ):
         """PMAPI - Return list of all metric names having this identical PMID
         tuple names = pmNameAll(metric_id)
         """
-        # this method is context dependent and requires the pmapi lock
         nameA_p = POINTER(c_char_p)()
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmNameAll( pmid, byref(nameA_p) )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         nameL = map( lambda x: str( nameA_p[x] ), range( status ) )
@@ -1007,17 +946,11 @@ class pmContext( object ):
         """PMAPI - Return a metric name from a PMID
         name = pmNameID(self.metric_id)
         """
-        # this method is context dependent and requires the pmapi lock
         k = c_char_p()
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmNameID( pmid, byref(k) )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         name = k.value
@@ -1028,18 +961,11 @@ class pmContext( object ):
         """PMAPI - Scan namespace, depth first, run CALLBACK at each node
         status = pmTraversePMNS("kernel", traverse_callback)
         """
-        # this method is context dependent and requires the pmapi lock
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         cb = traverseCB_type( callback )
         status = libpcp.pmTraversePMNS( name, cb )
-        #status = libpcp.pmTraversePMNS( name, traverseCB_type( callback ) )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status
@@ -1048,16 +974,10 @@ class pmContext( object ):
         """PMAPI - Unloads a local PMNS, if one was previously loaded
         status = pm.pmUnLoadNameSpace("NameSpace")
         """
-        # this method is context dependent and requires the pmapi lock
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmUnloadNameSpace( )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status
@@ -1072,20 +992,15 @@ class pmContext( object ):
         (status, (pmDesc* pmdesc)[]) = pmLookupDesc(c_uint pmid[N])
         (status, (pmDesc* pmdesc)[]) = pmLookupDesc(c_uint pmid)
         """
-        # this method is context dependent and requires the pmapi lock
         if type(pmids_p) == type(int(0)) or type(pmids_p) == type(long(0)):
             n = 1
         else:
             n = len( pmids_p)
 
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
-        
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
+
         desc = (POINTER(pmDesc) * n)()
 
         for i in xrange(n):
@@ -1096,9 +1011,8 @@ class pmContext( object ):
                 pmids =  c_uint (pmids_p[i])
 
             status = libpcp.pmLookupDesc( pmids, desc[i])
-        pmContext._pmapiLock.release()
-        if status < 0:
-            raise pmErr, status
+            if status < 0:
+                raise pmErr, status
         return status, desc
 
     def pmLookupInDomText( self, pmdesc, kind=PM_TEXT_ONELINE ):
@@ -1106,18 +1020,12 @@ class pmContext( object ):
 
         "instance" = pmLookupInDomText(pmDesc pmdesc)
         """
-        # this method is context dependent and requires the pmapi lock
         buf = c_char_p()
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
-             
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
+
         status = libpcp.pmLookupInDomText( get_indom (pmdesc), kind, byref(buf) )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         text = str( buf.value )
@@ -1128,17 +1036,11 @@ class pmContext( object ):
         """PMAPI - Lookup the description of a metric from its pmID
         "desc" = pmLookupText(pmid)
         """
-        # this method is context dependent and requires the pmapi lock
         buf = c_char_p()
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmLookupText( pmid, kind, byref(buf) )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         text = buf.value
@@ -1153,18 +1055,12 @@ class pmContext( object ):
 
         ([instance1, instance2...] [name1, name2...]) pmGetInDom(pmDesc pmdesc)
         """
-        # this method is context dependent and requires the pmapi lock
         instA_p = POINTER(c_int)()
         nameA_p = POINTER(c_char_p)()
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmGetInDom( get_indom (pmdescp), byref(instA_p), byref(nameA_p) )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         if status > 0:
@@ -1181,16 +1077,10 @@ class pmContext( object ):
 
         c_uint instid = pmLookupInDom(pmDesc pmdesc, "Instance")   
         """
-        # this method is context dependent and requires the pmapi lock
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmLookupInDom( get_indom (pmdesc), name )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status
@@ -1200,20 +1090,13 @@ class pmContext( object ):
 
         "string" = pmNameInDom(pmDesc pmdesc, c_uint instid)
         """
-        # this method is context dependent and requires the pmapi lock
-        #if c_uint(instval).value == PM_IN_NULL:
         if instval == PM_IN_NULL:
             return "PM_IN_NULL"
         name_p = c_char_p()
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmNameInDom( get_indom (pmdesc), instval, byref( name_p ) )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         outName = str( name_p.value )
@@ -1229,7 +1112,6 @@ class pmContext( object ):
         This is unimplemented. A new context is established when a pmContext
         object is created.
         """
-        # this method is context dependent and requires the pmapi lock
         pass
 
     def pmDestroyContext( self, handle ):
@@ -1238,24 +1120,17 @@ class pmContext( object ):
         This is unimplemented. The context is destroyed when the pmContext
         object is destroyed.
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
         pass
 
     def pmDupContext( self ):
         """PMAPI - Duplicate the current PMAPI Context
 
-        This should be implemented to support copying a pmContext object
+        This supports copying a pmContext object
         """
-        # this method is context dependent and requires the pmapi lock
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmDupContext( )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status
@@ -1266,14 +1141,12 @@ class pmContext( object ):
         This is unimplemented. Context changes are handled by the individual
         methods in a pmContext class instance.
         """
-        # this method is context dependent and requires the pmapi lock
         pass
 
     def pmWhichContext( self ):
         """PMAPI - Returns the handle of the current PMAPI context
         context = pmWhichContext()
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
         status = libpcp.pmWhichContext( )
         if status < 0:
             raise pmErr, status
@@ -1284,7 +1157,6 @@ class pmContext( object ):
 
         status = pmAddProfile(pmDesc pmdesc, c_uint instid)   
         """
-        # this method is context dependent and requires the pmapi lock
         if type(instL) == type(0):
             numinst = 1
             instA = (c_int * numinst)()
@@ -1296,15 +1168,10 @@ class pmContext( object ):
             instA = (c_int * numinst)()
             for index, value in enumerate( instL ):
                 instA[index] = value
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmAddProfile( get_indom(pmdesc), numinst, instA )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status
@@ -1315,7 +1182,6 @@ class pmContext( object ):
         status = pmDelProfile(pmDesc pmdesc, c_uint inst)
         status = pmDelProfile(pmDesc pmdesc, [c_uint inst])
         """
-        # this method is context dependent and requires the pmapi lock
         if instL == None or len(instL) == 0:
             numinst = 0 ; instA = POINTER(c_int)()
         else:
@@ -1323,16 +1189,11 @@ class pmContext( object ):
             instA = (c_int * numinst)()
             for index, value in enumerate( instL ):
                 instA[index] = value
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         apmDesc = pmDesc()
         status = libpcp.pmDelProfile( get_indom (pmdesc), numinst, instA )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status
@@ -1341,17 +1202,10 @@ class pmContext( object ):
         """PMAPI - set interpolation mode for reading archive files
         code = pmSetMode (pmapi.PM_MODE_INTERP, timeval, 0)
         """
-        # this method is context dependent and requires the pmapi lock
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmSetMode( mode, pointer(timeVal), delta )
-        status = 0
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status
@@ -1363,7 +1217,6 @@ class pmContext( object ):
         This method simply attempts to reestablish the the context belonging
         to its pmContext instance object.
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
         status = libpcp.pmReconnectContext( self.ctx )
         if status < 0:
             raise pmErr, status
@@ -1378,7 +1231,6 @@ class pmContext( object ):
 
         "hostname" = pmGetContextHostName ()
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
         status = libpcp.pmGetContextHostName( self.ctx )
         if status < 0:
             raise pmErr, status
@@ -1390,16 +1242,10 @@ class pmContext( object ):
     def pmNewContextZone( self ):
         """PMAPI - Query and set the current reporting timezone
         """
-        # this method is context dependent and requires the pmapi lock
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmNewContextZone( )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status
@@ -1407,16 +1253,10 @@ class pmContext( object ):
     def pmNewZone( self, tz ):
         """PMAPI - Create new zone handle and set reporting timezone
         """
-        # this method is context dependent and requires the pmapi lock
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmNewContextZone( tz )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status
@@ -1424,16 +1264,10 @@ class pmContext( object ):
     def pmUseZone( self, tz_handle ):
         """PMAPI - Sets the current reporting timezone
         """
-        # this method is context dependent and requires the pmapi lock
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmUseZone( tz_handle )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status
@@ -1441,7 +1275,6 @@ class pmContext( object ):
     def pmWhichZone( self ):
         """PMAPI - Query the current reporting timezone
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
         status = libpcp.pmGetContextHostName( self.ctx )
         if status < 0:
             raise pmErr, status
@@ -1456,17 +1289,11 @@ class pmContext( object ):
 
         (status, pmResult* pmresult) = pmFetch (c_uint pmid[])
         """
-        # this method is context dependent and requires the pmapi lock
         result_p = POINTER(pmResult)()
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmFetch( len(pmidA), pmidA, byref(result_p) )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status, result_p
@@ -1475,24 +1302,17 @@ class pmContext( object ):
         """PMAPI - Free a result previously allocated by pmFetch
         pmFreeResult(pmResult* pmresult)
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
         libpcp.pmFreeResult( result_p )
 
     def pmStore( self, result ):
         """PMAPI - Set values on target source, inverse of pmFetch
         code = pmStore(pmResult* pmresult)
         """
-        # this method is context dependent and requires the pmapi lock
         libpcp.pmStore.argtypes = [ (type(result)) ]
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmStore( result )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status, result
@@ -1504,33 +1324,21 @@ class pmContext( object ):
         """PMAPI - Setup an archive recording session
         File* file = pmRecordSetup("folio", "creator", 0)
         """
-        # this method is context dependent and requires the pmapi lock
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         file_result = libpcp_gui.pmRecordSetup ( c_char_p(folio), c_char_p(creator), replay )
-
         if (file_result == 0):
             raise pmErr, file_result
-        pmContext._pmapiLock.release()
         return file_result
 
     def pmRecordAddHost( self, host, isdefault, config ):
         """PMAPI - Adds host to an archive recording session
         (status, pmRecordHost* pmrecordhost) = pmRecordAddHost("host", 1, "configuration")
         """
-        # this method is context dependent and requires the pmapi lock
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         rhp = POINTER(pmRecordHost)()
         status = libpcp_gui.pmRecordAddHost ( c_char_p(host), isdefault, byref(rhp) )
         if status < 0:
@@ -1539,8 +1347,6 @@ class pmContext( object ):
         if (status < 0):
             libc.perror(c_char_p(""))
             raise pmErr, status
-
-        pmContext._pmapiLock.release()
         return status, rhp
 
     def pmRecordControl( self, rhp, request, options ):
@@ -1549,17 +1355,10 @@ class pmContext( object ):
         status = pmRecordControl (0, pmapi.PM_REC_ON)
         status = pmRecordControl (0, pmapi.PM_REC_OFF)
         """
-        # this method is context dependent and requires the pmapi lock
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp_gui.pmRecordControl ( cast(rhp,POINTER(pmRecordHost)), request, c_char_p(options) )
-
-        pmContext._pmapiLock.release()
         if status < 0 and status != pmapi.PM_ERR_IPC:
             raise pmErr, status
         return status
@@ -1571,37 +1370,23 @@ class pmContext( object ):
         """PMAPI - Get the label record from the archive
         (status, loglabel) = pmGetArchiveLabel()
         """
-        # this method is context dependent and requires the pmapi lock
         loglabel = pmLogLabel()
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmGetArchiveLabel ( byref(loglabel) )
-
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status, loglabel
     
-
     def pmGetArchiveEnd( self ):
         """PMAPI - Get the last recorded timestamp from the archive
         """
-        # this method is context dependent and requires the pmapi lock
         tvp = POINTER(timeval)()
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmGetArchiveEnd ( tvp )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status, tvp
@@ -1611,18 +1396,12 @@ class pmContext( object ):
 
         ((instance1, instance2...) (name1, name2...)) pmGetInDom(pmDesc pmdesc)
         """
-        # this method is context dependent and requires the pmapi lock
-        pmContext._pmapiLock.acquire()
         instA_p = POINTER(c_int)()
         nameA_p = POINTER(c_char_p)()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmGetInDomArchive( get_indom (pmdescp), byref(instA_p), byref(nameA_p) )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         if status > 0:
@@ -1639,16 +1418,10 @@ class pmContext( object ):
 
         c_uint instid = pmLookupInDomArchive(pmDesc pmdesc, "Instance")   
         """
-        # this method is context dependent and requires the pmapi lock
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmLookupInDomArchive(get_indom (pmdesc), name )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status
@@ -1658,17 +1431,11 @@ class pmContext( object ):
 
         "string" = pmNameInDomArchive(pmDesc pmdesc, c_uint instid)
         """
-        # this method is context dependent and requires the pmapi lock
         name_p = c_char_p()
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmNameInDomArchive(get_indom (pmdesc), inst, byref(name_p) )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         outName = str( name_p.value )
@@ -1680,23 +1447,18 @@ class pmContext( object ):
 
         (status, pmResult* pmresult) = pmFetch ()
         """
-        # this method is context dependent and requires the pmapi lock
         result_p = POINTER(pmResult)()
-        pmContext._pmapiLock.acquire()
-        if not self == pmContext._lastUsedContext: 
-            status = libpcp.pmUseContext( self.ctx )
-            if status < 0:
-                pmContext._pmapiLock.release()
-                raise pmErr, status
-            pmContext._lastUsedContext = self
+        status = libpcp.pmUseContext( self.ctx )
+        if status < 0:
+            raise pmErr, status
         status = libpcp.pmFetchArchive(byref(result_p) )
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status, result_p
 
     ##
     # PMAPI Time Control Services
+    # (Not Yet Implemented)
 
 
     ##
@@ -1705,21 +1467,14 @@ class pmContext( object ):
     def pmGetConfig( self, variable ):
         """PMAPI - Return value from environment or pcp config file
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
         x = str( libpcp.pmGetConfig( variable ) )
         return x
 
     def pmErrStr( self, code ):
         """PMAPI - Return value from environment or pcp config file
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
-        pmContext._pmapiLock.acquire()
         x = str( libpcp.pmErrStr_r( code ) )
-        pmContext._pmapiLock.release()
         return x
-
-# int pmExtractValue(int valfmt, const pmValue *ival, int itype,
-# pmAtomValue *oval, int otype)
 
     def pmExtractValue( self, valfmt, vlist, intype, outtype ):
         """PMAPI - Extract a value from a pmValue struct and convert its type
@@ -1729,13 +1484,11 @@ class pmContext( object ):
                                                descs[i].contents.type,
                                                pmapi.PM_TYPE_FLOAT)
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
         outAtom = pmAtomValue()
         code = libpcp.pmExtractValue (valfmt, vlist, intype, byref(outAtom), outtype)
         if code < 0:
             raise pmErr (code)
         return code, outAtom
-
 
     def pmConvScale( self, inType, inAtom, desc, metric_idx, outUnits ):
         """PMAPI - Convert a value to a different scale
@@ -1743,7 +1496,6 @@ class pmContext( object ):
         (status, pmAtomValue) = pmConvScale(pmapi.PM_TYPE_FLOAT, pmAtomValue,
         				    pmDesc*, 3, pmapi.PM_SPACE_MBYTE)
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
         outAtom = pmAtomValue()
         pmunits = pmUnits()
         pmunits.dimSpace = 1;
@@ -1758,10 +1510,7 @@ class pmContext( object ):
     def pmUnitsStr( self, units ):
         """PMAPI - Convert units struct to a readable string
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
-        pmContext._pmapiLock.acquire()
         x = str( libpcp.pmUnitsStr_r( units ) )
-        pmContext._pmapiLock.release()
         return x
 
     def pmIDStr( self, pmid ):
@@ -1769,10 +1518,7 @@ class pmContext( object ):
 
         pmIDStr(c_uint pmid)
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
-        pmContext._pmapiLock.acquire()
         x = str( libpcp.pmIDStr_r( pmid ) )
-        pmContext._pmapiLock.release()
         return x
 
     def pmInDomStr( self, pmdescp ):
@@ -1780,47 +1526,33 @@ class pmContext( object ):
 
         "dom" =  pmGetInDom(pmDesc pmdesc)
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
-        pmContext._pmapiLock.acquire()
         x = str( libpcp.pmInDomStr_r( get_indom (pmdescp) ))
-        pmContext._pmapiLock.release()
         return x
 
     def pmTypeStr( self, type ):
         """PMAPI - Convert a performance metric type to a readable string
         "type" = pmTypeStr (pmapi.PM_TYPE_FLOAT)
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
-        pmContext._pmapiLock.acquire()
         x = str( libpcp.pmTypeStr_r( type ) )
-        pmContext._pmapiLock.release()
         return x
 
     def pmAtomStr( self, atom, type ):
         """PMAPI - Convert a value atom to a readable string
         "value" = pmAtomStr (atom, pmapi.PM_TYPE_U32)
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
-        pmContext._pmapiLock.acquire()
         x = str( libpcp.pmAtomStr( byref(atom), type ) )
-        pmContext._pmapiLock.release()
         return x
 
     def pmPrintValue( self, fileObj, result, ptype, vset_idx, vlist_idx, minWidth):
         """PMAPI - Print the value of a metric
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
         fp = ctypes.pythonapi.PyFile_AsFile( fileObj )
         libpcp.pmPrintValue (fp, c_int(result.contents.vset[vset_idx].contents.valfmt), c_int(ptype.contents.type), byref(result.contents.vset[vset_idx].contents.vlist[vlist_idx]), minWidth)
 
     def pmflush( self ):
         """PMAPI - flush the internal buffer shared with pmprintf
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
-        # this method uses a static buffer and requires an individual lock
-        # use of pmflush and pmprintf require lock held for consecutive calls
         status = libpcp.pmflush( ) 
-        pmContext._pmapiLock.release()
         if status < 0:
             raise pmErr, status
         return status
@@ -1828,10 +1560,6 @@ class pmContext( object ):
     def pmprintf( self, format, *args ):
         """PMAPI - append message to internal buffer for later printing
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
-        # this method uses a static buffer and requires an individual lock
-        # use of pmflush and pmprintf require lock held for consecutive calls
-        status = pmContext._pmapiLock.acquire()
         if status == 0:
             raise pmErr, status
         libpcp.pmprintf( format, *args ) 
@@ -1839,7 +1567,6 @@ class pmContext( object ):
     def pmSortInstances( self, result_p ):
         """PMAPI - sort all metric instances in result returned by pmFetch
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
         libpcp.pmSortInstances.argtypes = [ (type(result_p)) ]
         libpcp.pmSortInstances( result_p )
         return None
@@ -1849,7 +1576,6 @@ class pmContext( object ):
 
         (status, timeval_ctype, "error message") = pmParseInterval ("time string")
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
         tvp = timeval()
         errmsg = POINTER(c_char_p)()
         status = libpcp.pmParseInterval( str, byref(tvp), errmsg )
@@ -1861,7 +1587,6 @@ class pmContext( object ):
         """PMAPI - parse a textual metric specification into a struct
         (status,result,errormssg) = pmTypeStr ("kernel.all.load", 0, "localhost")
         """
-        # this method is _not_ context dependent and requires _no_ pmapi lock
         rsltp = POINTER(pmMetricSpec)()
         # errmsg = POINTER(c_char_p)         
         errmsg = c_char_p()

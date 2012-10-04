@@ -70,7 +70,7 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
     }
 #else
     /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
-    if (__pmSetsockOpt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
+    if (__pmSetSockOpt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: __pmSetSockOpt(excladdruse): %s\n",
 			netstrerror());
@@ -409,7 +409,7 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
     if (pmda->e_helptext != NULL) {
 	pmda->e_help = pmdaOpenHelp(pmda->e_helptext);
 	if (pmda->e_help < 0) {
-	    __pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: Unable to open help text file \"%s\": %s\n",
+	    __pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: Unable to open help text file(s) from \"%s\": %s\n",
 		    pmda->e_name, pmda->e_helptext, pmErrStr(pmda->e_help));
 	}
 #ifdef PCP_DEBUG

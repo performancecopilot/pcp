@@ -28,7 +28,7 @@ F77DEMO	= fapp1.f77
 F90DEMO	= fapp1.f90
 JDEMO	= japp1.class
 
-CFLAGS	= -DPMTRACE_DEBUG -I/usr/include/pcp
+CFLAGS	= -DPMTRACE_DEBUG -I$(PCP_INC_DIR)
 FFLAGS	=
 JFLAGS	=
 

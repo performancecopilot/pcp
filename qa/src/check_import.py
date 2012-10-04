@@ -15,6 +15,7 @@
 
 import os
 import pmapi
+import math
 import time
 from pcp import *
 from ctypes import *
@@ -39,7 +40,7 @@ def check_import (archive, hostname, timezone):
     code = pmi.pmiPutValue("hinv.ncpu", "", "42")
 
     # create a metric with instances (kernel.all.load)
-    code = pmi.pmiAddMetric("kernel.all.load", pmid, PM_TYPE_FLOAT, indom, PM_SEM_DISCRETE, units)
+    code = pmi.pmiAddMetric("kernel.all.load", pmid, PM_TYPE_FLOAT, indom, PM_SEM_INSTANT, units)
 
     code = pmi.pmiAddInstance(indom, "1 minute", 1)
 
@@ -54,7 +55,10 @@ def check_import (archive, hostname, timezone):
 
     code = pmi.pmiPutValue("kernel.all.load", "15 minute", "0.15")
 
-    code = pmi.pmiWrite(time.gmtime().tm_sec,0)
+    timetuple = math.modf(time.time())
+    useconds = int(timetuple[0] * 1000000)
+    seconds = int(timetuple[1])
+    status = pmi.pmiWrite(seconds, useconds)
 
     del pmi
 

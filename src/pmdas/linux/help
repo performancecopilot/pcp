@@ -207,6 +207,26 @@ When converted to a rate, this metric represents the average utilization of
 the disk during the sampling interval.  A value of 0.5 (or 50%) means the
 disk was active (i.e. busy) half the time.
 
+@ disk.dev.read_rawactive per-disk raw count of active read time
+When converted to a rate, this metric represents the raw utilization of
+the disk during the sampling interval as a result of reads.  Accounting for
+this metric is only done on I/O completion and can thus result in more than a
+second's worth of IO being accounted for within any one second, leading to
+>100% utilisation.  It is suitable mainly for use in calculations with other
+metrics, e.g. mirroring the results from existing performance tools:
+
+ iostat.dev.r_await = delta(disk.dev.read_rawactive) / delta(disk.dev.read)
+
+@ disk.dev.write_rawactive per-disk raw count of active write time
+When converted to a rate, this metric represents the raw utilization of
+the disk during the sampling interval as a result of writes.  Accounting for
+this metric is only done on I/O completion and can thus result in more than a
+second's worth of IO being accounted for within any one second, leading to
+>100% utilisation.  It is suitable mainly for use in calculations with other
+metrics, e.g. mirroring the results from existing performance tools:
+
+ iostat.dev.w_await = delta(disk.dev.write_rawactive) / delta(disk.dev.write)
+
 @ disk.dev.aveq per-disk time averaged count of request queue length
 When converted to a rate, this metric represents the time averaged disk
 request queue length during the sampling interval.  A value of 2.5 (or 250%)
@@ -229,6 +249,26 @@ Total count of write requests that were merged with an already queued write requ
 When converted to a rate, this metric represents the average utilization of
 all disks during the sampling interval.  A value of 0.25 (or 25%) means that
 on average every disk was active (i.e. busy) one quarter of the time.
+
+@ disk.all.read_rawactive raw count of active read time, summed for all disks
+When converted to a rate, this metric represents the raw utilization of all
+disks during the sampling interval due to read requests.  The accounting for
+this metric is only done on I/O completion and can thus result in more than a
+second's worth of IO being accounted for within any one second, leading to
+>100% utilisation.  It is suitable mainly for use in calculations with other
+metrics, e.g. mirroring the results from existing performance tools:
+
+ iostat.all.r_await = delta(disk.all.read_rawactive) / delta(disk.all.read)
+
+@ disk.all.write_rawactive raw count of active write time, summed for all disks
+When converted to a rate, this metric represents the raw utilization of all
+disks during the sampling interval due to write requests.  The accounting for
+this metric is only done on I/O completion and can thus result in more than a
+second's worth of IO being accounted for within any one second, leading to
+>100% utilisation.  It is suitable mainly for use in calculations with other
+metrics, e.g. mirroring the result from existing performance tools:
+
+ iostat.all.w_await = delta(disk.all.write_rawactive) / delta(disk.all.write)
 
 @ disk.all.aveq total time averaged count of request queue length, summed for all disks
 When converted to a rate, this metric represents the average across all disks

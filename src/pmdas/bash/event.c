@@ -160,7 +160,7 @@ process_alloc(const char *bashname, bash_process_t *init, int numclients)
     }
 
     /* Tough access situation - how to log without this? */
-    /* pmdaEventSetAccess(pmdaGetContext(), queueid, 1); */
+    pmdaEventSetAccess(pmdaGetContext(), queueid, 1);
 
     bashful->fd = init->fd;
     bashful->pid = init->pid;

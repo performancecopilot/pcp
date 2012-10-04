@@ -14,23 +14,20 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# real QA test starts here
-
 rm -f $seq.out
-if [ $PCP_PLATFORM = irix ]
+endian=`perl -MConfig -e 'print substr $Config{byteorder}, 0, 4'`
+if [ "$endian" = "4321" ]
 then
-    ln $seq.out.irix $seq.out
-elif [ $PCP_PLATFORM = linux ]
+    ln $seq.out.4321 $seq.out
+elif [ "$endian" = "1234" ]
 then
-    ln $seq.out.linux $seq.out
-elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
-then
-    # same output as for linux
-    ln $seq.out.linux $seq.out
+    ln $seq.out.1234 $seq.out
 else
-    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
+    echo "Arrgh ... cannot determine host endianness"
     exit 1
 fi
+
+# real QA test starts here
 
 echo "testing single op for all ops..."
 echo "may dump core for IRIX 6.1 ... bug in gethostbyname()"

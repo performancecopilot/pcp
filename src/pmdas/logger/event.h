@@ -25,7 +25,7 @@ typedef struct event_logfile {
     int			fd;
     pid_t	        pid;
     int			queueid;
-    int			restrict;
+    int			noaccess;
     struct stat		pathstat;
     char		pmnsname[MAXPATHLEN];
     char		pathname[MAXPATHLEN];

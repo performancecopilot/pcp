@@ -822,6 +822,7 @@ pmlogrewrite
 707 pcp.py libpcp local oss
 708 pcp.py pmimport local oss
 709 pcp.py local oss
+710 pcp.py pmimport local oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
 1046 pmie local pmieconf sgi

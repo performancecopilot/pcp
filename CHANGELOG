@@ -1,3 +1,26 @@
+pcp-3.6.9 (under development)
+    - Python wrapper for the pmimport API
+    - Make sar2pcp work with the sysstat versions from RHEL5,
+      RHEL6, and all recent Fedora versions (which is almost
+      all current versions of sysstat verified).
+    - Added a number of additional metrics into the importer
+      for people starting to use it to analyse sar data from
+      real customer incidents.
+    - Rework use of C99 "restrict" keyword in pmdalogger
+      (Debian bug: 689552)
+    - Alot of work on the PCP QA suite, special thanks to Tomas
+      Dohnalek for all his efforts there.
+    - Win32 build updates
+    - Add "raw" disk active metrics so that existing tools like
+      iostat can be emulated
+    - Allow sar2pcp to accept XML input directly (.xml suffix),
+      allowing it to not have to run on the same platform as the
+      sadc/sadf that originally generated it.
+    - Add PMI error codes into the PCP::LogImport perl module.
+    - Fix a typo in pmiUnits man page synopsis section
+    - Resolve pmdalinux ordering issue in NUMA/CPU indom setup
+      (Redhat bug: 858384)
+
 pcp-3.6.8 (14 September 2012)
     - Corrects the disk/partition identification for the MMC
       driver, which makes disk indom handling correct on the

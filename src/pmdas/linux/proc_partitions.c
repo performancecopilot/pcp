@@ -252,10 +252,9 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
 	    /* Linux source: block/genhd.c::diskstats_show(1) */
 	    n = sscanf(buf, "%d %d %s %lu %lu %llu %u %lu %lu %llu %u %u %u %u",
 		&p->major, &p->minor, namebuf,
-		&p->rd_ios, &p->rd_merges, &p->rd_sectors,
-		&p->rd_ticks, &p->wr_ios, &p->wr_merges,
-		&p->wr_sectors, &p->wr_ticks, &p->ios_in_flight,
-		&p->io_ticks, &p->aveq);
+		&p->rd_ios, &p->rd_merges, &p->rd_sectors, &p->rd_ticks,
+		&p->wr_ios, &p->wr_merges, &p->wr_sectors, &p->wr_ticks,
+		&p->ios_in_flight, &p->io_ticks, &p->aveq);
 	    if (n != 14) {
 		p->rd_merges = p->wr_merges = p->wr_ticks =
 			p->ios_in_flight = p->io_ticks = p->aveq = 0;
@@ -327,6 +326,8 @@ static pmID disk_metric_table[] = {
     /* disk.dev.avactive */	     PMDA_PMID(CLUSTER_STAT,46),
     /* disk.dev.aveq */		     PMDA_PMID(CLUSTER_STAT,47),
     /* disk.dev.scheduler */	     PMDA_PMID(CLUSTER_STAT,59),
+    /* disk.dev.read_rawactive */    PMDA_PMID(CLUSTER_STAT,72),
+    /* disk.dev.write_rawactive	*/   PMDA_PMID(CLUSTER_STAT,73),
 
     /* disk.all.read */		     PMDA_PMID(CLUSTER_STAT,24),
     /* disk.all.write */	     PMDA_PMID(CLUSTER_STAT,25),
@@ -341,6 +342,8 @@ static pmID disk_metric_table[] = {
     /* disk.all.write_merge */	     PMDA_PMID(CLUSTER_STAT,52),
     /* disk.all.avactive */	     PMDA_PMID(CLUSTER_STAT,44),
     /* disk.all.aveq */		     PMDA_PMID(CLUSTER_STAT,45),
+    /* disk.all.read_rawactive */    PMDA_PMID(CLUSTER_STAT,74),
+    /* disk.all.write_rawactive	*/   PMDA_PMID(CLUSTER_STAT,75),
 
     /* disk.partitions.read */	     PMDA_PMID(CLUSTER_PARTITIONS,0),
     /* disk.partitions.write */	     PMDA_PMID(CLUSTER_PARTITIONS,1),
@@ -474,10 +477,10 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 40: /* disk.dev.total_bytes */
 	    atom->ull = (p->rd_sectors + p->wr_sectors) / 2;
 	    break;
-	case 46: /* disk.dev.avactive ... already msec from /proc/partitions */
+	case 46: /* disk.dev.avactive ... already msec from /proc/diskstats */
 	    atom->ul = p->io_ticks;
 	    break;
-	case 47: /* disk.dev.aveq ... already msec from /proc/partitions */
+	case 47: /* disk.dev.aveq ... already msec from /proc/diskstats */
 	    atom->ul = p->aveq;
 	    break;
 	case 49: /* disk.dev.read_merge */
@@ -488,6 +491,12 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 59: /* disk.dev.scheduler */
 	    atom->cp = _pm_ioscheduler(p->namebuf);
+	    break;
+	case 72: /* disk.dev.read_rawactive ... already msec from /proc/diskstats */
+	    atom->ul = p->rd_ticks;
+	    break;
+	case 73: /* disk.dev.write_rawactive ... already msec from /proc/diskstats */
+	    atom->ul = p->wr_ticks;
 	    break;
 	default:
 	    /* disk.all.* is a singular instance domain */
@@ -525,10 +534,10 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		case 43: /* disk.all.total_bytes */
 		    atom->ull += (p->rd_sectors + p->wr_sectors) / 2;
 		    break;
-		case 44: /* disk.all.avactive ... already msec from /proc/partitions */
+		case 44: /* disk.all.avactive ... already msec from /proc/diskstats */
 		    atom->ull += p->io_ticks;
 		    break;
-		case 45: /* disk.all.aveq ... already msec from /proc/partitions */
+		case 45: /* disk.all.aveq ... already msec from /proc/diskstats */
 		    atom->ull += p->aveq;
 		    break;
 		case 51: /* disk.all.read_merge */
@@ -536,6 +545,12 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    break;
 		case 52: /* disk.all.write_merge */
 		    atom->ull += p->wr_merges;
+		    break;
+		case 74: /* disk.all.read_rawactive ... already msec from /proc/diskstats */
+		    atom->ull += p->rd_ticks;
+		    break;
+		case 75: /* disk.all.write_rawactive ... already msec from /proc/diskstats */
+		    atom->ull += p->wr_ticks;
 		    break;
 		default:
 		    return PM_ERR_PMID;
