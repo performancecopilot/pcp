@@ -413,7 +413,7 @@ fi
 %defattr(-,root,root)
 
 %changelog
-* Mon Sep 10 2012 Nathan Scott <nathans@redhat.com> - 3.6.7-1
+* Thu Oct  4 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-1
 - Under development, see installed CHANGELOG for details.
 
 * Tue Aug 28 2012 Mark Goodwin <mgoodwin@redhat.com> - 3.6.6-1
