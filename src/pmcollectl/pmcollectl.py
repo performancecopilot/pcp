@@ -28,11 +28,9 @@ http://oss.sgi.com/projects/pcp
 # imports
 #
 
-import unittest
 import pmapi
 import time
 import sys
-import argparse
 import copy
 from pcp import *
 from ctypes import *
