@@ -99,9 +99,9 @@ public:
     virtual void preserveLiveData(int, int);
     virtual void punchoutLiveData(int);
 
-    void setTraceSlot(const QString &, int);
-    int getTraceSlot(const QString &, int) const;
-    QString getTraceID(int) const;
+    void addTraceSpan(const QString &, int);
+    int getTraceSpan(const QString &, int) const;
+    QString getSpanLabel(int) const;
 
     virtual int metricCount() const;
     virtual QString name(int) const;
@@ -178,8 +178,8 @@ private:
 	QwtScaleDraw *samplingScaleDraw;	// the default (values)
 
 	// tracing-specific fields
-	QHash<QString, int> traceSpanMap;	// map, event ID to y-axis point
-	QHash<int, QString> reverseSpanMap;	// reverse map, y-axis point to ID
+	QHash<QString, int> traceSpanMapping;	// map, event ID to y-axis point
+	QHash<int, QString> labelSpanMapping;	// reverse -> y-axis point to ID
 	QwtPickerMachine *tracingPickerMachine;
 	TracingScaleEngine *tracingScaleEngine;
 	TracingScaleDraw *tracingScaleDraw;	// convert ints to spanID

@@ -90,7 +90,6 @@ TracingEvent::TracingEvent(QmcEventRecord const &record)
     my.timestamp = tosec(*record.timestamp());
     my.missed = record.missed();
     my.flags = record.flags();
-    my.slot = 0;
     my.spanID = record.identifier();
     my.rootID = record.parent();
     my.description = record.parameterSummary();
@@ -102,7 +101,7 @@ TracingEvent::~TracingEvent()
 }
 
 void
-TracingItem::rescaleValues(int *minValue, int *maxValue)
+TracingItem::rescaleValues(double *minValue, double *maxValue)
 {
     if (my.minSpanID < *minValue)
 	*minValue = my.minSpanID;
@@ -127,7 +126,7 @@ TracingItem::rescaleValues(int *minValue, int *maxValue)
 void
 TracingItem::cullOutlyingSpans(double left, double right)
 {
-    int minSpanID = 0, maxSpanID = 1;
+    double minSpanID = 0.0, maxSpanID = 1.0;
 
     // Start from the end so that we can remove as we go
     // without interfering with the index we are using.
@@ -135,8 +134,8 @@ TracingItem::cullOutlyingSpans(double left, double right)
 	const QwtIntervalSample &span = my.spans.at(i);
 	if (span.interval.maxValue() >= left ||
 	    span.interval.minValue() <= right) {
-	    minSpanID = qMin(minSpanID, (int)span.value);
-	    maxSpanID = qMax(maxSpanID, (int)span.value);
+	    minSpanID = qMin(minSpanID, span.value);
+	    maxSpanID = qMax(maxSpanID, span.value);
 	} else {
 	    my.spans.remove(i);
 	}
@@ -261,17 +260,26 @@ void TracingItem::updateEvents(QmcMetric *metric)
 //
 void TracingItem::updateEventRecords(QmcMetric *metric, int index)
 {
+
     if (metric->error(index) == false) {
 	QVector<QmcEventRecord> const &records = metric->eventRecords(index);
-	int slot = metric->instIndex(index), parentSlot = -1;
+	int slot = 0, parentSlot = -1;
+	QString name;
 
 	// First lookup the event "slot" (aka "span" / y-axis-entry)
 	// Strategy is to use the ID from the event (if one exists),
-	// which must be mapped to a y-axis zero-indexed value.  If
+	// which must be mapped to a y-axis integer-based index.  If
 	// no ID, we fall back to metric instance ID, else just zero.
 	//
-	if (metric->hasInstances() && metric->explicitInsts())
-	    slot = metric->instIndex(0);
+	if (metric->hasInstances()) {
+	    if (metric->explicitInsts())
+		index = 0;
+	    slot = metric->instIndex(index);
+	    name = metric->instName(index);
+	} else {
+	    name = metric->name();
+	}
+	my.chart->addTraceSpan(name, slot);
 
 	for (int i = 0; i < records.size(); i++) {
 	    QmcEventRecord const &record = records.at(i);
@@ -279,37 +287,33 @@ void TracingItem::updateEventRecords(QmcMetric *metric, int index)
 	    my.events.append(TracingEvent(record));
 	    TracingEvent &event = my.events.last();
 
-	    // find the "slot" (y-axis value) for this identifier
-	    // do not modify slot inside the loop (TODO: abstract
-	    // the loop internals out into a separate routine?)
-	    if (event.hasIdentifier()) {
-		int childSlot = my.chart->getTraceSlot(event.spanID(), slot);
-		event.setSlot(childSlot);
-	    } else {
-		event.setSlot(slot);
+	    if (event.hasIdentifier() && name == QString::null) {
+		my.chart->addTraceSpan(event.spanID(), slot);
 	    }
 
 	    // this adds the basic point (ellipse), all events get one
-	    my.points.append(QPointF(event.timestamp(), event.slot()));
-	    my.chart->setTraceSlot(event.spanID(), event.slot());
+	    my.points.append(QPointF(event.timestamp(), slot));
 
+	    parentSlot = -1;
 	    if (event.hasParent()) {	// lookup parent in yMap
-		parentSlot = my.chart->getTraceSlot(event.rootID(), parentSlot);
+		parentSlot = my.chart->getTraceSpan(event.rootID(), parentSlot);
+		if (parentSlot == -1)
+		    my.chart->addTraceSpan(event.rootID(), parentSlot);
 		// do this on start/end only?  (or if first?)
 		my.drops.append(QwtIntervalSample(event.timestamp(),
-				    QwtInterval(event.slot(), parentSlot)));
-	    } else {
-		parentSlot = -1;
+				    QwtInterval(slot, parentSlot)));
 	    }
 
+#ifdef DESPERATE
 	    console->post(PmChart::DebugForce, "TracingItem::updateEventRecords: "
 		"[%.2f] span: %s (slot=%d) id=%s, root: %s (slot=%d,id=%s), start=%s end=%s",
 		event.timestamp() - my.previousTimestamp,
-		(const char *)event.spanID().toAscii(), event.slot(),
+		(const char *)event.spanID().toAscii(), slot,
 		event.hasIdentifier() ? "y" : "n",
 		(const char *)event.rootID().toAscii(), parentSlot,
 		event.hasParent() ? "y" : "n",
 		event.hasStartFlag() ? "y" : "n", event.hasEndFlag() ? "y" : "n");
+#endif
 	    my.previousTimestamp = event.timestamp();
 
 	    if (event.hasStartFlag()) {
@@ -456,28 +460,25 @@ void TracingItem::remove(void)
 TracingScaleEngine::TracingScaleEngine(Chart *chart) : QwtLinearScaleEngine()
 {
     my.chart = chart;
+    my.minSpanID = 0.0;
+    my.maxSpanID = 1.0;
     setMargins(0.5, 0.5);
 }
 
 void
-TracingScaleEngine::setScale(int minValue, int maxValue)
+TracingScaleEngine::setScale(double minValue, double maxValue)
 {
-    console->post(PmChart::DebugForce, "TracingItem::setScale: min=%d max=%d",
-		minValue, maxValue);
+    my.minSpanID = minValue;
+    my.maxSpanID = maxValue;
 }
 
 void
 TracingScaleEngine::autoScale(int maxSteps, double &minValue,
                            double &maxValue, double &stepSize) const
 {
-    console->post(PmChart::DebugForce, "TracingItem::aut0Scale: maxSteps=%d min=%.2f max=%.2f sizeSteps=%.2f",
-		maxSteps, minValue, maxValue, stepSize);
-    maxSteps = 1;
-    minValue = 0.0;
-    maxValue = maxSteps * 1.0;
+    minValue = my.minSpanID;
+    maxValue = my.maxSpanID;
     stepSize = 1.0;
-    console->post(PmChart::DebugForce, "TracingItem::autoScale: maxSteps=%d min=%.2f max=%.2f sizeSteps=%.2f",
-		maxSteps, minValue, maxValue, stepSize);
     QwtLinearScaleEngine::autoScale(maxSteps, minValue, maxValue, stepSize);
 }
 
@@ -496,21 +497,32 @@ TracingScaleEngine::divideScale(double x1, double x2, int numMajorSteps,
 // These values were mapped into the hash when we decoded the event records.
 //
 QwtText
-TracingScaleDraw::label(double v) const
+TracingScaleDraw::label(double value) const
 {
-    int	slot = (int)v;
-    console->post(PmChart::DebugForce, "TracingScaleDraw::label: lookup ID=%d", slot);
-    return my.chart->getTraceID(slot);
+    int	slot = (int)value;
+    const int LABEL_CUTOFF = 8;	// maximum width for label (units: characters)
+    QString label = my.chart->getSpanLabel(slot);
+
+#ifdef DESPERATE
+    console->post(PmChart::DebugForce,
+		"TracingScaleDraw::label: lookup ID %d (=>\"%s\")",
+		slot, (const char *)label.toAscii());
+#endif
+
+    // ensure label is not too long to fit
+    if (label.length() > LABEL_CUTOFF)
+	label.remove(LABEL_CUTOFF);
+    // and only use up to the first space
+    if ((slot = label.indexOf(' ')) >= 0)
+	label.remove(slot);
+    return label;
 }
 
 void
 TracingScaleDraw::getBorderDistHint(const QFont &f, int &start, int &end) const
 {
-    if (orientation() == Qt::Vertical) {
-	start = 0;
-	end = 0;
-    }
-    else {
+    if (orientation() == Qt::Vertical)
+	start = end = 0;
+    else
 	QwtScaleDraw::getBorderDistHint(f, start, end);
-    }
 }

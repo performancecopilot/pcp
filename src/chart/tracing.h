@@ -33,9 +33,6 @@ public:
 	{ return my.timestamp < rhs.timestamp(); }
     virtual ~TracingEvent();
 
-    int slot(void) const { return my.slot; }
-    void setSlot(int slot) { my.slot = slot; }
-
     double timestamp(void) const { return my.timestamp; }
     int missed(void) const { return my.missed; }
     bool hasIdentifier(void) const { return my.flags & PM_EVENT_FLAG_ID; }
@@ -52,7 +49,6 @@ private:
 	double		timestamp;	// from PMDA
 	int		missed;		// from PMDA
 	int		flags;		// from PMDA
-	int		slot;		// Y-Axis position
 	QString		spanID;		// identifier
 	QString		rootID;		// parent ID
 	QString 	description;	// parameters, etc
@@ -73,7 +69,7 @@ public:
     void punchoutLiveData(int) { /*TODO*/ }
     void resetValues(int);
     void updateValues(bool, bool, pmUnits*, int, int, double, double, double);
-    void rescaleValues(int *, int *);
+    void rescaleValues(double *, double *);
 
     void clearCursor(void);
     bool containsPoint(const QRectF &, int);
@@ -115,8 +111,8 @@ private:
 	QwtPlotIntervalCurve *dropCurve;
 	QwtIntervalSymbol *dropSymbol;
 
-	int minSpanID;
-	int maxSpanID;
+	double minSpanID;
+	double maxSpanID;
 	double previousTimestamp;
 	Chart *chart;
     } my;
@@ -132,12 +128,12 @@ public:
     virtual QwtScaleDiv divideScale(double x1, double x2,
         int numMajorSteps, int numMinorSteps, double stepSize = 0.0) const;
 
-    void setScale(int minSpanID, int maxSpanID);
+    void setScale(double minSpanID, double maxSpanID);
 
 private:
     struct {
-	int	maxSpanID;
-	int	minSpanID;
+	double	maxSpanID;
+	double	minSpanID;
 	Chart	*chart;
     } my;
 };
@@ -148,6 +144,7 @@ public:
     TracingScaleDraw(Chart *chart) : QwtScaleDraw() { my.chart = chart; }
     virtual QwtText label(double v) const;
     virtual void getBorderDistHint(const QFont &f, int &start, int &end) const;
+    void invalidate() { invalidateCache(); }
 
 private:
     struct {

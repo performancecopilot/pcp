@@ -308,20 +308,25 @@ updated:
     }
 }
 
-int Chart::getTraceSlot(const QString &spanID, int slot) const
+int Chart::getTraceSpan(const QString &spanID, int slot) const
 {
-    return my.traceSpanMap.value(spanID, slot);
+    return my.traceSpanMapping.value(spanID, slot);
 }
 
-void Chart::setTraceSlot(const QString &spanID, int slot)
+void Chart::addTraceSpan(const QString &spanID, int slot)
 {
-    my.traceSpanMap.insert(spanID, slot);
-    my.reverseSpanMap.insert(slot, spanID);
+    Q_ASSERT(spanID != QString::null && spanID != "");
+    Q_ASSERT(my.traceSpanMapping.size() == my.labelSpanMapping.size());
+
+    console->post("Chart::addTraceSpan: \"%s\" <=> slot %d (%d total)",
+			(const char *)spanID.toAscii(), slot, my.traceSpanMapping.size());
+    my.traceSpanMapping.insert(spanID, slot);
+    my.labelSpanMapping.insert(slot, spanID);
 }
 
-QString Chart::getTraceID(int slot) const
+QString Chart::getSpanLabel(int slot) const
 {
-    return my.reverseSpanMap.value(slot);
+    return my.labelSpanMapping.value(slot);
 }
 
 void Chart::redoScale(void)
@@ -334,12 +339,14 @@ void Chart::redoScale(void)
 
 void Chart::redoTracingScale(void)
 {
-    int minValue = 0, maxValue = 1;
+    double minValue = 0.0, maxValue = 1.0;
 
     Q_ASSERT(my.eventType == true);
     for (int i = 0; i < my.items.size(); i++)
 	tracingItem(i)->rescaleValues(&minValue, &maxValue);
     my.tracingScaleEngine->setScale(minValue, maxValue);
+    my.tracingScaleDraw->invalidate();
+    replot();
 }
 
 void Chart::redoSamplingScale(void)
