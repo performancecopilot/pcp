@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.6.8
+Version: 3.6.9
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -394,6 +394,9 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Fri Oct  5 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-1
+- Update to latest PCP sources.
+
 * Fri Sep 14 2012 Nathan Scott <nathans@redhat.com> - 3.6.8-1
 - Update to latest PCP sources.
 

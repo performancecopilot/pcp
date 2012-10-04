@@ -4,7 +4,7 @@
 
 Summary: System-level performance monitoring and performance management
 Name: %{?scl_prefix}pcp
-Version: 3.6.8
+Version: 3.6.9
 %define buildversion 1
 Release: %{buildversion}%{?dist}
 License: GPLv2
@@ -414,6 +414,10 @@ exit 0
 %defattr(-,root,root)
 
 %changelog
+* Fri Oct  5 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-1
+- Update to latest PCP sources.
+- Remove unused pmcollectl arguments (BZ 863210)
+
 * Fri Sep 14 2012 Nathan Scott <nathans@redhat.com> - 3.6.8-1
 - Update to latest PCP sources.
 - Make use of the new --disable-shared configure option (BZ 856651)
