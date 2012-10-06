@@ -86,13 +86,15 @@ bash_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
-static void
+static int
 bash_trace_parser(bash_process_t *bash, bash_trace_t *trace,
 	struct timeval *timestamp, const char *buffer, size_t size)
 {
+    trace->flags = (PM_EVENT_FLAG_ID | PM_EVENT_FLAG_PARENT);
+
     /* empty event inserted into queue to signal process has exited */
     if (size <= 0) {
-	trace->flags = PM_EVENT_FLAG_END;
+	trace->flags |= PM_EVENT_FLAG_END;
 	if (fstat(bash->fd, &bash->stat) < 0 || !S_ISFIFO(bash->stat.st_mode))
 	    memcpy(&trace->timestamp, timestamp, sizeof(*timestamp));
 	else
@@ -112,6 +114,10 @@ bash_trace_parser(bash_process_t *bash, bash_trace_t *trace,
 	if (sz <= 0)	/* wierd trace - no command */
 	    trace->command[0] = '\0';
 
+	if (strncmp(trace->command, "pcp_trace ", 10) == 0 ||
+	    strncmp(trace->function, "pcp_trace", 10) == 0)
+	    return 1;	/* suppress tracing function, its white noise */
+
 	if (time != -1) {	/* normal case */
 	    trace->timestamp.tv_sec = bash->starttime.tv_sec + time;
 	    trace->timestamp.tv_usec = bash->starttime.tv_usec;
@@ -119,7 +125,6 @@ bash_trace_parser(bash_process_t *bash, bash_trace_t *trace,
 	    memcpy(&trace->timestamp, timestamp, sizeof(*timestamp));
 	}
 
-	trace->flags = (PM_EVENT_FLAG_ID | PM_EVENT_FLAG_PARENT);
 	if (event_start(bash, &trace->timestamp))
 	    trace->flags |= PM_EVENT_FLAG_START;
 
@@ -128,6 +133,7 @@ bash_trace_parser(bash_process_t *bash, bash_trace_t *trace,
 		"event parsed: flags: %x time: %d line: %d func: '%s' cmd: '%s'",
 		trace->flags, time, trace->line, trace->function, trace->command);
     }
+    return 0;
 }
 
 static int
@@ -143,7 +149,8 @@ bash_trace_decoder(int eventarray,
     if (pmDebug & DBG_TRACE_APPL0)
 	__pmNotifyErr(LOG_DEBUG, "bash_trace_decoder[%ld bytes]", (long)size);
 
-    bash_trace_parser(process, &trace, timestamp, (const char *)buffer, size);
+    if (bash_trace_parser(process, &trace, timestamp, (const char *)buffer, size))
+	return 0;
 
     sts = pmdaEventAddRecord(eventarray, &trace.timestamp, trace.flags);
     if (sts < 0)

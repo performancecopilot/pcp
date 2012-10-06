@@ -146,7 +146,7 @@ process_alloc(const char *bashname, bash_process_t *init, int numclients)
     int queueid = pmdaEventNewActiveQueue(bashname, bash_maxmem, numclients);
     bash_process_t *bashful = malloc(sizeof(bash_process_t));
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebug & DBG_TRACE_APPL1)
 	__pmNotifyErr(LOG_DEBUG, "process_alloc: %s, queueid=%d", bashname, queueid);
 
     if (!bashful) {
@@ -213,7 +213,7 @@ process_init(const char *bashname, bash_process_t **bp)
     pmAtomValue atom;
     pmdaEventClients(&atom);
 
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebug & DBG_TRACE_APPL0)
 	__pmNotifyErr(LOG_DEBUG, "process_init: %s (%d clients)",
 			bashname, atom.ul);
 
@@ -302,18 +302,60 @@ multiread:
 }
 
 static void
-process_done(bash_process_t *process)
+process_unlink(bash_process_t *process, const char *bashname)
+{
+    char path[MAXPATHLEN];
+
+    snprintf(path, sizeof(path), "%s%c%s", pidpath, __pmPathSeparator(), bashname);
+    unlink(path);
+    snprintf(path, sizeof(path), "%s%c.%s", pidpath, __pmPathSeparator(), bashname);
+    unlink(path);
+
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_DEBUG, "process_unlink: removed %s", bashname);
+}
+
+static int
+process_drained(bash_process_t *process)
+{
+    pmAtomValue value = { 0 };
+
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_DEBUG, "process_queue_drained check on queue %d (pid %d)",
+		      process->queueid, process->pid);
+    if (pmdaEventQueueMemory(process->queueid, &value) < 0)
+	return 1;	/* error, consider it drained and cleanup */
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_DEBUG, "process_queue_drained: %s (%llu)", value.ll?"n":"y", (long long)value.ull);
+    return value.ull == 0;
+}
+
+static void
+process_done(bash_process_t *process, const char *bashname)
 {
     struct timeval timestamp;
 
     if (process->exited == 0) {
 	process->exited = (__pmProcessExists(process->pid) == 0);
+
+	if (!process->exited)
+	    return;
 	/* empty event inserted into queue to denote bash has exited */
-	if (process->exited && !process->finished) {
+	if (!process->finished) {
 	    process->finished = 1;	/* generate no further events */
 	    process_stat_timestamp(process, &timestamp);
 	    pmdaEventQueueAppend(process->queueid, NULL, 0, &timestamp);
+
+	    if (pmDebug & DBG_TRACE_APPL0)
+		__pmNotifyErr(LOG_DEBUG, "process_done: marked queueid %d (pid %d) done",
+					process->queueid, process->pid);
 	}
+    }
+
+    if (process->finished) {
+	/* once all clients have seen final events, clean named queue */
+	if (process_drained(process))
+	    process_unlink(process, bashname);
     }
 }
 
@@ -324,11 +366,12 @@ event_refresh(pmInDom bash_indom)
     bash_process_t *bp;
     int i, id, sts, num = scandir(pidpath, &files, NULL, NULL);
 
-    if (pmDebug & DBG_TRACE_APPL1)
-	__pmNotifyErr(LOG_DEBUG, "event_refresh: %d files", num);
+    if (pmDebug & DBG_TRACE_APPL0 && num > 2)
+	__pmNotifyErr(LOG_DEBUG, "event_refresh: phase1: %d files", num - 2);
 
     pmdaCacheOp(bash_indom, PMDA_CACHE_INACTIVE);
 
+    /* (re)activate processes that are actively generating events */
     for (i = 0; i < num; i++) {
 	char	*processid = files[i]->d_name;
 
@@ -347,7 +390,7 @@ event_refresh(pmInDom bash_indom)
 	process_read(bp);
 
 	/* check if process is running and generate end marker if not */
-	process_done(bp);
+	process_done(bp, files[i]->d_name);
     }
 }
 

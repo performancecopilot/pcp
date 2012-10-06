@@ -31,9 +31,7 @@ pcp_trace()
         stop|off)
             [ -e "${PCP_TRACE_DATA}" ] || return 0
             exec 99>/dev/null
-            unlink "${PCP_TRACE_DATA}" 2>/dev/null
-            unlink "${PCP_TRACE_HEADER}" 2>/dev/null
-            wait
+            # unlink is performed by pmdabash to resolve race conditions
             ;;
 
         start|on)
