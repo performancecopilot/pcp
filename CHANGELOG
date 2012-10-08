@@ -21,6 +21,7 @@ pcp-3.6.9 (under development)
     - Resolve pmdalinux ordering issue in NUMA/CPU indom setup
       (Redhat bug: 858384)
     - Remove unused pmcollectl imports (Redhat bug: 863210)
+    - Allow event traces to be used in libpcp interpolate mode
 
 pcp-3.6.8 (14 September 2012)
     - Corrects the disk/partition identification for the MMC

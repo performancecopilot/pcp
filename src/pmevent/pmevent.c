@@ -23,7 +23,7 @@
 
 #include "pmevent.h"
 
-static int		amode = PM_MODE_FORW;		/* archive scan mode */
+static int		amode = PM_MODE_INTERP;		/* archive scan mode */
 static pmTime		*pmtime;
 
 char		*host;				/* original host */
@@ -55,43 +55,8 @@ getvals(pmResult **result)
 {
     pmResult	*rp = NULL;
     int		sts;
-    int		i;
-    int		m;
 
-    if (archive != NULL) {
-	/*
-	 * for archives read until we find a pmResult with at least
-	 * one of the pmids we are after
-	 */
-	for ( ; ; ) {
-	    sts = pmFetchArchive(&rp);
-	    if (sts < 0)
-		break;
-
-	    if (rp->numpmid == 0)
-		/* skip mark records */
-		continue;
-
-	    /*
-	     * scan for any of the metrics of interest ... keep skipping
-	     * archive records until one found
-	     */
-	    for (i = 0; i < rp->numpmid; i++) {
-		for (m = 0; m < nmetric; m++) {
-		    if (rp->vset[i]->pmid == metrictab[m].pmid) {
-			/* match */
-			goto done;
-		    }
-		}
-	    }
-	    pmFreeResult(rp);
-	    rp = NULL;
-	}
-    }
-    else
-	sts = pmFetch(nmetric, pmidlist, &rp);
-
-done:
+    sts = pmFetch(nmetric, pmidlist, &rp);
     if (sts >= 0)
 	*result = rp;
     else if (rp)

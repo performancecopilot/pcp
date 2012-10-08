@@ -703,9 +703,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	if (pcp->desc.type == -1) {
 	    pcp->numval = PM_ERR_PMID_LOG;
 	}
-	else if (pcp->desc.type == PM_TYPE_EVENT) {
-	    pcp->numval = PM_ERR_TYPE;
-	}
 	else if (pcp->desc.indom != PM_INDOM_NULL) {
 	    /* use the profile to filter the instances to be returned */
 	    for (icp = pcp->first; icp != NULL; icp = icp->next) {
@@ -1461,6 +1458,7 @@ retry_forw:
 		    }
 		}
 		else if ((pcp->desc.type == PM_TYPE_AGGREGATE ||
+			  pcp->desc.type == PM_TYPE_EVENT ||
 			  pcp->desc.type == PM_TYPE_STRING) &&
 			 icp->t_prior >= 0) {
 		    int		need;
@@ -1476,6 +1474,10 @@ retry_forw:
 		    rp->vset[j]->valfmt = PM_VAL_DPTR;
 		    rp->vset[j]->vlist[i++].value.pval = vp;
 		    memcpy((void *)vp, icp->v_prior.pval, need);
+		}
+		else {
+		    /* unknown type - skip it, else junk in result */
+		    i--;
 		}
 	    }
 	}
