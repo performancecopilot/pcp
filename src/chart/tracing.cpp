@@ -19,6 +19,8 @@
 #include "tracing.h"
 #include "main.h"
 
+#define DESPERATE 0
+
 TracingItem::TracingItem(Chart *chart,
 	QmcMetric *mp, pmMetricSpec *msp, pmDesc *dp, const char *legend)
 	: ChartItem(mp, msp, dp, legend)
@@ -213,12 +215,15 @@ TracingItem::resetValues(int samples)
 void
 TracingItem::updateValues(bool, bool, pmUnits*, int, int, double left, double right, double)
 {
+    QmcMetric *metric = ChartItem::my.metric;
+
 #ifdef DESPERATE
     console->post(PmChart::DebugForce, "TracingItem::updateValues: "
 		"%d total events, left=%.2f right=%.2f\n"
-		"Metadata counts: drops=%d spans=%d points=%d"
+		"Metadata counts: drops=%d spans=%d points=%d  "
+		"Metric values: %d count\n",
 		my.events.size(), left, right,
-		my.drops.size(), my.spans.size(), my.points.size());
+		my.drops.size(), my.spans.size(), my.points.size(), metric->numValues());
 #endif
 
     cullOutlyingSpans(left, right);
@@ -227,7 +232,6 @@ TracingItem::updateValues(bool, bool, pmUnits*, int, int, double left, double ri
     cullOutlyingEvents(left, right);
 
     // crack open newly arrived event records
-    QmcMetric *metric = ChartItem::my.metric;
     if (metric->numValues() > 0)
 	updateEvents(metric);
 
@@ -260,8 +264,7 @@ void TracingItem::updateEvents(QmcMetric *metric)
 //
 void TracingItem::updateEventRecords(QmcMetric *metric, int index)
 {
-
-    if (metric->error(index) == false) {
+    if (metric->error(index) == 0) {
 	QVector<QmcEventRecord> const &records = metric->eventRecords(index);
 	int slot = 0, parentSlot = -1;
 	QString name;
@@ -346,12 +349,12 @@ void TracingItem::updateEventRecords(QmcMetric *metric, int index)
 	}
     } else {
 	//
-	// Hmm, what does an error here mean?  (e.g. host down).
-	// We need some visual representation that makes sense.
-	// Perhaps a background gridline (e.g. just y-axis dots)
-	// and then leave a blank section when this happens?
-	// Might need to have (another) curve to implement this.
+	// TODO: need to track this failure point, and ensure that the
+	// begin/end spans do not cross this boundary.
 	//
+	console->post(PmChart::DebugForce,
+		"TracingItem::updateEventRecords: NYI error path: %d (%s)",
+		metric->error(index), pmErrStr(metric->error(index)));
     }
 }
 
@@ -456,6 +459,17 @@ void TracingItem::remove(void)
     my.pointCurve->detach();
     my.selectionCurve->detach();
 }
+
+void TracingItem::redraw(void)
+{
+    if (removed() == false) {
+	// point curve update by legend check, but not the rest:
+	my.dropCurve->setVisible(hidden() == false);
+	my.spanCurve->setVisible(hidden() == false);
+	my.selectionCurve->setVisible(hidden() == false);
+    }
+}
+
 
 TracingScaleEngine::TracingScaleEngine(Chart *chart) : QwtLinearScaleEngine()
 {

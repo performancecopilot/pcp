@@ -551,6 +551,7 @@ void Chart::replot()
     if (my.eventType == false) {
 	int     vh = my.tab->group()->visibleHistory();
 	double *vp = my.tab->group()->timeAxisData();
+
 	for (int i = 0; i < my.items.size(); i++)
 	    samplingItem(i)->replot(vh, vp);
     }
@@ -571,16 +572,23 @@ void Chart::legendChecked(QwtPlotItem *item, bool down)
 #endif
 
     // find matching item and update hidden status if required
+    bool changed = false;
     for (int i = 0; i < my.items.size(); i++) {
 	if (my.items[i]->item() != item)
 	    continue;
 	// if the state is changing, note it and update
 	if (my.items[i]->hidden() != down) {
 	    my.items[i]->setHidden(down);
-	    redoChartItems();
+	    changed = true;
 	}
+	break;
     }
-    showItem(item, down == false);
+
+    if (changed) {
+	item->setVisible(down == false);
+	redoChartItems();
+	replot();
+    }
 }
 
 void Chart::redoChartItems(void)
@@ -629,6 +637,10 @@ void Chart::redoChartItems(void)
 	    break;
 
 	case EventStyle:
+	    for (i = 0; i < itemCount; i++)
+		tracingItem(i)->redraw();
+	    break;
+
 	case NoStyle:
 	    break;
     }

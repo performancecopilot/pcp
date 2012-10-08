@@ -79,6 +79,7 @@ public:
     void setStroke(Chart::Style, QColor, bool);
     void revive(void);
     void remove(void);
+    void redraw(void);
 
 private:
     void cullOutlyingDrops(double, double);
