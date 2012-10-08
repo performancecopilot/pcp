@@ -11,7 +11,7 @@ default install install-dev install-lib:
 
 .PHONY: pack-pcp-gui
 pack-pcp-gui :
-	@ BINTAR=$(PKG_NAME)-$(PKG_VERSION).tar.gz; HERE=`pwd`; \
+	@ BINTAR=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE).tar.gz; HERE=`pwd`; \
 	cd $${DIST_ROOT:-/}; \
 	$(SORT) -u $$DIST_MANIFEST \
 	| $(AWK) ' \

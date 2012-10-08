@@ -24,7 +24,6 @@
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_picker.h>
-#include <qwt_double_rect.h>
 #include <qmc_metric.h>
 #include "gadget.h"
 
@@ -32,6 +31,7 @@ class Tab;
 class ChartItem;
 class TracingItem;
 class SamplingItem;
+class TracingScaleDraw;
 class TracingScaleEngine;
 class SamplingScaleEngine;
 
@@ -92,13 +92,16 @@ public:
     virtual void save(FILE *, bool);
     virtual void print(QPainter *, QRect &, bool);
 
-    virtual void updateTimeAxis(double, double, double);
-    virtual void updateValues(bool, bool);
+    virtual void updateValues(bool, bool, int, int, double, double, double);
     virtual void resetValues(int m, int v);
     virtual void adjustValues();
 
     virtual void preserveLiveData(int, int);
     virtual void punchoutLiveData(int);
+
+    void addTraceSpan(const QString &, int);
+    int getTraceSpan(const QString &, int) const;
+    QString getSpanLabel(int) const;
 
     virtual int metricCount() const;
     virtual QString name(int) const;
@@ -122,18 +125,27 @@ public slots:
     void replot(void);
 
 private slots:
-    void selected(const QwtDoublePoint &);
-    void moved(const QwtDoublePoint &);
-    void showItem(QwtPlotItem *, bool);
+    void selected(const QPointF &);
+    void moved(const QPointF &);
+    void selected(const QPolygon &);
+    void legendChecked(QwtPlotItem *, bool);
 
 private:
     bool checkCompatibleUnits(pmUnits *);
     bool checkCompatibleTypes(int);
 
     void redoScale(void);
-    bool autoScale(void);
     void setScaleEngine(void);
+    void redoTracingScale(void);
+    void redoSamplingScale(void);
+
+    void setPickerMachine(void);
     void setStroke(ChartItem *, Style, QColor);
+
+    void showItem(QwtPlotItem *, bool);
+    void showInfo(void);
+    void showPoint(const QPointF &);
+    void showPoints(const QPolygon &);
 
     void redoChartItems(void);
     TracingItem *tracingItem(int);
@@ -142,21 +154,51 @@ private:
     struct {
 	Tab *tab;
 	QList<ChartItem *> items;
-	pmUnits units;
-
 	char *title;
-	Style style;
 	QString scheme;
 	int sequence;
+	QwtPlotPicker *picker;
 
-	bool eventType;
+	bool eventType;		// Sub-classing Chart is probably needed at this point?
+				// difficulty is: one can delete all plots, then have an
+				// "empty" class, then request a metric of alternate type
+				// (similarly, charts start out empty from "New Chart").
+				// Perhaps a ChartRuntime (ChartPlot?) which carves off
+				// those bits that change, and allocates/frees whichever
+				// type (tracing/sampling) we need?  That could be passed
+				// to the chart items as well.		TODO
+
+	// sampling-specific fields
+	pmUnits units;
+	Style style;
 	bool rateConvert;
 	bool antiAliasing;
-
-	QwtPlotPicker *picker;
-	TracingScaleEngine *tracingScaleEngine;
 	SamplingScaleEngine *samplingScaleEngine;
+	QwtPickerMachine *samplingPickerMachine;
+	QwtScaleDraw *samplingScaleDraw;	// the default (values)
+
+	// tracing-specific fields
+	QHash<QString, int> traceSpanMapping;	// map, event ID to y-axis point
+	QHash<int, QString> labelSpanMapping;	// reverse -> y-axis point to ID
+	QwtPickerMachine *tracingPickerMachine;
+	TracingScaleEngine *tracingScaleEngine;
+	TracingScaleDraw *tracingScaleDraw;	// convert ints to spanID
     } my;
+};
+
+//
+// Helper dealing with overriding of legend behaviour
+//
+class ChartCurve : public QwtPlotCurve
+{
+public:
+    ChartCurve(const QString &title)
+	: QwtPlotCurve(title), legendColor(Qt::white) { }
+
+    virtual void drawLegendIdentifier(QPainter *painter,
+		const QRectF &rect ) const;
+    void setLegendColor(QColor color) { legendColor = color; }
+    QColor legendColor;
 };
 
 //
@@ -166,18 +208,25 @@ private:
 class ChartItem
 {
 public:
+    ChartItem() { }
     ChartItem(QmcMetric *, pmMetricSpec *, pmDesc *, const char *);
     virtual ~ChartItem(void) { }
 
     virtual QwtPlotItem *item(void) = 0;
+    virtual QwtPlotCurve *curve(void) = 0;
+
     virtual void preserveLiveData(int, int) = 0;
     virtual void punchoutLiveData(int) = 0;
     virtual void resetValues(int) = 0;
-    virtual void updateValues(bool, bool, int, pmUnits *) = 0;
-    virtual void rescaleValues(pmUnits *) = 0;
+    virtual void updateValues(bool, bool, pmUnits *, int, int, double, double, double) = 0;
+
+    virtual void clearCursor() = 0;
+    virtual bool containsPoint(const QRectF &, int) = 0;
+    virtual void updateCursor(const QPointF &, int) = 0;
+    virtual const QString &cursorInfo() = 0;
+
     virtual void setStroke(Chart::Style, QColor, bool) = 0;
-    virtual void replot(int, double *) = 0;
-    virtual void revive(Chart *parent) = 0;
+    virtual void revive(void) = 0;
     virtual void remove(void) = 0;
 
     QString name(void) const { return my.name; }

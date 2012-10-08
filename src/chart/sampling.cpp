@@ -16,33 +16,7 @@
 #include <limits>
 #include "sampling.h"
 #include "main.h"
-
-void SamplingCurve::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-		 int, int) const
-{
-    unsigned int okFrom, okTo = 0;
-
-    while (okTo < data().size()) {
-	okFrom = okTo;
-	while (isNaN(data().y(okFrom)) && okFrom < data().size())
-	    ++okFrom;
-	okTo = okFrom;
-	while (!isNaN(data().y(okTo)) && okTo < data().size())
-	    ++okTo;
-	if (okFrom < data().size())
-	    QwtPlotCurve::draw(p, xMap, yMap, (int)okFrom, (int)okTo-1);
-    }
-}
-
-double SamplingCurve::NaN()
-{
-    return std::numeric_limits<double>::quiet_NaN();
-}
-
-bool SamplingCurve::isNaN(double v)
-{
-    return v != v;
-}
+#include <qnumeric.h>
 
 SamplingItem::SamplingItem(Chart *parent,
 	QmcMetric *mp, pmMetricSpec *msp, pmDesc *dp,
@@ -50,6 +24,9 @@ SamplingItem::SamplingItem(Chart *parent,
 	: ChartItem(mp, msp, dp, legend)
 {
     pmDesc desc = mp->desc().desc();
+
+    my.chart = parent;
+    my.info = QString::null;
 
     // initialize the pcp data and item data arrays
     my.dataCount = 0;
@@ -89,6 +66,11 @@ QwtPlotItem *SamplingItem::item(void)
     return my.curve;
 }
 
+QwtPlotCurve *SamplingItem::curve(void)
+{
+    return my.curve;
+}
+
 void SamplingItem::resetValues(int values)
 {
     size_t size;
@@ -109,16 +91,17 @@ void SamplingItem::preserveLiveData(int index, int oldindex)
     if (my.dataCount > oldindex)
 	my.itemData[index] = my.data[index] = my.data[oldindex];
     else
-	my.itemData[index] = my.data[index] = SamplingCurve::NaN();
+	my.itemData[index] = my.data[index] = qQNaN();
 }
 
 void SamplingItem::punchoutLiveData(int i)
 {
-    my.data[i] = my.itemData[i] = SamplingCurve::NaN();
+    my.data[i] = my.itemData[i] = qQNaN();
 }
 
 void SamplingItem::updateValues(bool forward,
-		bool rateConvert, int sampleHistory, pmUnits *units)
+		bool rateConvert, pmUnits *units, int sampleHistory, int,
+		double, double, double)
 {
     pmAtomValue	scaled, raw;
     QmcMetric	*metric = ChartItem::my.metric;
@@ -126,7 +109,7 @@ void SamplingItem::updateValues(bool forward,
     int		sz;
 
     if (metric->error(0)) {
-	value = SamplingCurve::NaN();
+	value = qQNaN();
     } else {
 	// convert raw value to current chart scale
 	raw.d = rateConvert ? metric->value(0) : metric->currentValue(0);
@@ -162,12 +145,12 @@ void SamplingItem::rescaleValues(pmUnits *new_units)
 			pmUnitsStr(old_units), pmUnitsStr(new_units));
 
     for (int i = my.dataCount - 1; i >= 0; i--) {
-	if (my.data[i] != SamplingCurve::NaN()) {
+	if (my.data[i] != qQNaN()) {
 	    old_av.d = my.data[i];
 	    pmConvScale(PM_TYPE_DOUBLE, &old_av, old_units, &new_av, new_units);
 	    my.data[i] = new_av.d;
 	}
-	if (my.itemData[i] != SamplingCurve::NaN()) {
+	if (my.itemData[i] != qQNaN()) {
 	    old_av.d = my.itemData[i];
 	    pmConvScale(PM_TYPE_DOUBLE, &old_av, old_units, &new_av, new_units);
 	    my.itemData[i] = new_av.d;
@@ -178,18 +161,18 @@ void SamplingItem::rescaleValues(pmUnits *new_units)
 void SamplingItem::replot(int history, double *timeData)
 {
     int count = qMin(history, my.dataCount);
-    my.curve->setRawData(timeData, my.itemData, count);
+    my.curve->setRawSamples(timeData, my.itemData, count);
 }
 
-void SamplingItem::revive(Chart *parent) // TODO: inheritance, move to ChartItem
+void SamplingItem::revive(void)
 {
     if (removed()) {
 	setRemoved(false);
-	my.curve->attach(parent);
+	my.curve->attach(my.chart);
     }
 }
 
-void SamplingItem::remove() // TODO: inheritance, move to ChartItem?
+void SamplingItem::remove(void)
 {
     setRemoved(true);
     my.curve->detach();
@@ -210,10 +193,8 @@ void SamplingItem::setStroke(Chart::Style style, QColor color, bool antiAlias)
 {
     int  sem = metric()->desc().desc().sem;
     bool step = (sem == PM_SEM_INSTANT || sem == PM_SEM_DISCRETE);
-    QPen p(color);
 
-    p.setWidth(8);
-    my.curve->setLegendPen(p);
+    my.curve->setLegendColor(color);
     my.curve->setRenderHint(QwtPlotItem::RenderAntialiased, antiAlias);
 
     switch (style) {
@@ -252,6 +233,30 @@ void SamplingItem::setStroke(Chart::Style style, QColor color, bool antiAlias)
     }
 }
 
+void SamplingItem::clearCursor()
+{
+    // nothing to do here.
+}
+
+bool SamplingItem::containsPoint(const QRectF &, int)
+{
+    return false;
+}
+
+void SamplingItem::updateCursor(const QPointF &p, int)
+{
+    my.info.sprintf("[%.2f %s at %s]",
+		(float)p.y(),
+		pmUnitsStr(&ChartItem::my.units),
+		timeHiResString(p.x()));
+    pmchart->setValueText(my.info);
+}
+
+const QString &SamplingItem::cursorInfo()
+{
+    return my.info;
+}
+
 void SamplingItem::copyRawDataPoint(int index)
 {
     if (index < 0)
@@ -277,7 +282,7 @@ double SamplingItem::sumData(int index, double sum)
 {
     if (index < 0)
 	index = my.dataCount - 1;
-    if (index < my.dataCount && !SamplingCurve::isNaN(my.data[index]))
+    if (index < my.dataCount && !qIsNaN(my.data[index]))
 	sum += my.data[index];
     return sum;
 }
@@ -291,7 +296,7 @@ void SamplingItem::copyRawDataArray(void)
 void SamplingItem::copyDataPoint(int index)
 {
     if (hidden() || index >= my.dataCount)
-	my.itemData[index] = SamplingCurve::NaN();
+	my.itemData[index] = qQNaN();
     else
 	my.itemData[index] = my.data[index];
 }
@@ -301,8 +306,8 @@ void SamplingItem::setPlotUtil(int index, double sum)
     if (index < 0)
 	index = my.dataCount - 1;
     if (hidden() || sum == 0.0 ||
-	index >= my.dataCount || SamplingCurve::isNaN(my.data[index]))
-	my.itemData[index] = SamplingCurve::NaN();
+	index >= my.dataCount || qIsNaN(my.data[index]))
+	my.itemData[index] = qQNaN();
     else
 	my.itemData[index] = 100.0 * my.data[index] / sum;
 }
@@ -311,7 +316,7 @@ double SamplingItem::setPlotStack(int index, double sum)
 {
     if (index < 0)
 	index = my.dataCount - 1;
-    if (!hidden() && !SamplingCurve::isNaN(my.itemData[index])) {
+    if (!hidden() && !qIsNaN(my.itemData[index])) {
 	sum += my.itemData[index];
 	my.itemData[index] = sum;
     }
@@ -322,8 +327,8 @@ double SamplingItem::setDataStack(int index, double sum)
 {
     if (index < 0)
 	index = my.dataCount - 1;
-    if (hidden() || SamplingCurve::isNaN(my.data[index])) {
-	my.itemData[index] = SamplingCurve::NaN();
+    if (hidden() || qIsNaN(my.data[index])) {
+	my.itemData[index] = qQNaN();
     } else {
 	sum += my.data[index];
 	my.itemData[index] = sum;
@@ -331,11 +336,41 @@ double SamplingItem::setDataStack(int index, double sum)
     return sum;
 }
 
+
+//
+// SamplingCurve deals with overriding some QwtPlotCurve defaults;
+// particularly around dealing with empty sections of chart (NaN),
+// and the way the legend is rendered.
+//
+
+void SamplingCurve::drawSeries(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+		const QRectF &canvasRect, int from, int to) const
+{
+    int okFrom, okTo = from;
+    int size = (to > 0) ? to : dataSize();
+
+    while (okTo < size) {
+	okFrom = okTo;
+	while (qIsNaN(sample(okFrom).y()) && okFrom < size)
+	    ++okFrom;
+	okTo = okFrom;
+	while (!qIsNaN(sample(okTo).y()) && okTo < size)
+	    ++okTo;
+	if (okFrom < size)
+	    QwtPlotCurve::drawSeries(p, xMap, yMap, canvasRect, okFrom, okTo-1);
+    }
+}
+
+
+//
+// SamplingScaleEngine deals with rendering the vertical Y-Axis
+//
+
 SamplingScaleEngine::SamplingScaleEngine() : QwtLinearScaleEngine()
 {
     my.autoScale = true;
-    my.minimum = -1;
-    my.maximum = -1;
+    my.minimum = 0.0;
+    my.maximum = 1.0;
 }
 
 void SamplingScaleEngine::setScale(bool autoScale,

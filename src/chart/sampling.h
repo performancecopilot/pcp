@@ -22,17 +22,14 @@
 #include <qwt_scale_engine.h>
 #include "chart.h"
 
-class SamplingCurve : public QwtPlotCurve
+class SamplingCurve : public ChartCurve
 {
 public:
-    SamplingCurve(const QString &title) : QwtPlotCurve(title) { }
+    SamplingCurve(const QString &title) : ChartCurve(title) { }
 
-    virtual void draw(QPainter *p,
+    virtual void drawSeries(QPainter *painter,
 		const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-		int from, int to) const;
-
-    static double NaN();
-    static bool isNaN(double v);
+		const QRectF &canvasRect, int from, int to) const;
 };
 
 class SamplingItem : public ChartItem
@@ -44,17 +41,23 @@ public:
     ~SamplingItem(void);
 
     QwtPlotItem *item();
+    QwtPlotCurve *curve();
 
     void preserveLiveData(int, int);
     void punchoutLiveData(int);
-    void updateValues(bool, bool, int, pmUnits *);
+    void updateValues(bool, bool, pmUnits *, int, int, double, double, double);
     void rescaleValues(pmUnits *);
-    void replot(int, double *);
     void resetValues(int);
-    void revive(Chart *);
+    void revive();
     void remove();
     void setStroke(Chart::Style, QColor, bool);
 
+    void clearCursor();
+    bool containsPoint(const QRectF &, int);
+    void updateCursor(const QPointF &, int);
+    const QString &cursorInfo();
+
+    void replot(int, double *);
     void copyRawDataArray(void);
     void copyRawDataPoint(int index);
     void copyDataPoint(int index);
@@ -67,7 +70,9 @@ public:
 
 private:
     struct {
+	Chart *chart;
 	SamplingCurve *curve;
+	QString info;
 	double scale;
 	double *data;
 	double *itemData;

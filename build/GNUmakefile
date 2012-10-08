@@ -7,7 +7,7 @@ include $(TOPDIR)/src/include/builddefs
 
 LDIRT = $(wildcard *.src.tar.gz) pack-pcp-gui.bin pcp-gui.src \
 	$(TOPDIR)/$(PKG_NAME)-$(PKG_VERSION) \
-	$(TOPDIR)/$(PKG_NAME)-$(PKG_VERSION)-$(PKG_REVISION)
+	$(TOPDIR)/$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)
 LDIRDIRT = deb
 
 # for clean and clobber
@@ -39,7 +39,7 @@ pack-pcp-gui : pcp-gui.src
 # After sources have been packed, touch .census in the topdir to
 # prevent second run on setup by RPM.
 pcp-gui.src : $(_FORCE)
-	export PKG_ROOT=$(PKG_NAME)-$(PKG_VERSION); \
+	export PKG_ROOT=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE); \
 	if [ "$(PCP_PLATFORM)" = mingw ] ; then \
 	    export SRC_ROOT=. ; \
 	else \

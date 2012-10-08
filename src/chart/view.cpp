@@ -1005,7 +1005,7 @@ done_tab:
 			numinst = pmGetInDomArchive(desc.indom, &instlist, &namelist);
 		    else
 			numinst = pmGetInDom(desc.indom, &instlist, &namelist);
-		    if (numinst < 1) {
+		    if (numinst < 0) {
 			QString	msg = QString();
 			msg.sprintf("\nMetric \"%s\" for\n%s %s: empty instance domain",
 			    pms.metric, pms.isarch ? "archive" : "host",
@@ -1023,7 +1023,7 @@ done_tab:
 			    goto skip;
 			}
 		    }
-		    pms.ninst = 1;
+		    pms.ninst = numinst ? 1 : 0;
 		    if (pms.inst[0] != NULL) {
 			free(pms.inst[0]);
 			pms.inst[0] = NULL;
