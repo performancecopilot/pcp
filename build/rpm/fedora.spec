@@ -94,7 +94,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/lib/pcp
 %{_mandir}/man1/*
 %{_datadir}/pixmaps/*
-%{_datadir}/applications/pmchart.desktop
+%{_datadir}/applications/*
 
 %files testsuite
 %defattr(-,root,root)
@@ -107,8 +107,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Thu Aug 23 2012 Nathan Scott <nathans@redhat.com> - 1.5.6-1
-- interim build: update to latest sources, add testsuite sub-package
+* Fri Oct 12 2012 Nathan Scott <nathans@redhat.com> - 1.5.6-1
+- Update to latest sources, add testsuite sub-package
 
 * Fri Jul 20 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5.5-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild

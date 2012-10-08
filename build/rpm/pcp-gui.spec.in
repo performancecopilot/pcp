@@ -11,7 +11,6 @@ Vendor: Silicon Graphics, Inc.
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
 Requires: pcp >= 3.5.0, pcp-libs-devel >= 3.5.0
-Requires: pcp-gui >= 1.5.0
 BuildRequires: pcp >= 3.5.0
 %if "%{_vendor}" == "suse"
 Requires: qt >= 4.2
@@ -55,7 +54,8 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) GUI test suite
 URL: http://oss.sgi.com/projects/pcp/
 
-Requires: pcp-gui = @pkg_version@ pcp-testsuite
+Requires: pcp-gui = @pkg_version@
+Requires: pcp-testsuite
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP) GUI.
@@ -124,13 +124,13 @@ set -x
 %defattr(-,root,root)
 
 %files testsuite -f testsuite_files.rpm
-%defattr(-,root,root)
+%defattr(-,pcpqa,pcpqa)
 
 %changelog
-* Thu Aug 16 2012 Nathan Scott <nathans@redhat.com>
+* Thu Oct 12 2012 Nathan Scott <nathans@redhat.com> - 1.5.6-1
 - Update to latest sources, creates a new testsuite package.
 
-* Wed Mar 21 2012 Mark Goodwin <mgoodwin@redhat.com>
+* Wed Mar 21 2012 Mark Goodwin <mgoodwin@redhat.com> - 1.5.5-1
 - Updates to fix pmchart archive positioning bug.
 
 * Mon Jan 09 2012 Nathan Scott <nathans@aconex.com>
