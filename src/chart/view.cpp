@@ -463,6 +463,8 @@ new_chart:
 			style = Chart::AreaStyle;
 		    else if (strcasecmp(w, "utilization") == 0)
 			style = Chart::UtilisationStyle;
+		    else if (strcasecmp(w, "event") == 0)
+			style = Chart::EventStyle;
 		    else {
 			xpect("<chart style>", w);
 			goto abort_chart;
@@ -1209,10 +1211,6 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
     if (s != NULL)
 	fprintf(f, " title \"%s\"", s);
     switch (cp->style()) {
-	case Chart::EventStyle:
-	case Chart::NoStyle:
-	    s = "none - botched in Save!";
-    	    break;
 	case Chart::LineStyle:
 	    s = "plot";
 	    break;
@@ -1228,6 +1226,13 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 	case Chart::UtilisationStyle:
 	    s = "utilization";
 	    break;
+	case Chart::EventStyle:
+	    s = "event";
+	    break;
+	case Chart::NoStyle:
+	default:
+	    s = "none";
+	    break;
     }
     fprintf(f, " style %s", s);
     if (cp->style() != Chart::UtilisationStyle) {
@@ -1242,6 +1247,7 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
     fputc('\n', f);
     for (int m = 0; m < cp->metricCount(); m++) {
 	char	*p, *q, *qend;
+	bool	saveInsts = false;
 
 	if (cp->activeItem(m) == false)
 	    continue;
@@ -1253,21 +1259,26 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 	if (hostDynamic == false)
 	    fprintf(f, " host %s", (const char *)
 			cp->metricContext(m)->source().host().toAscii());
-	p = (char *)(const char *)cp->name(m).toAscii();
-	if ((q = strchr(p, '[')) != NULL) {
-	    // metric with an instance
-	    if ((qend = strrchr(q, ']')) == NULL) {
-		QString	msg;
-		msg.sprintf("Botch @ metric name: \"%s\"", p);
-		err(E_CRIT, false, msg);
-	    }
-	    else {
-		*q++ = '\0';
-		*qend = '\0';
-		fprintf(f, " metric %s instance \"%s\"", p, q);
+	saveInsts = cp->metric(m)->explicitInsts();
+	if (saveInsts) {
+	    p = (char *)(const char *)cp->name(m).toAscii();
+	    if ((q = strchr(p, '[')) != NULL) {
+		// metric with an instance
+		if ((qend = strrchr(q, ']')) == NULL) {
+		    QString	msg;
+		    msg.sprintf("Botch @ metric name: \"%s\"", p);
+		    err(E_CRIT, false, msg);
+		}
+		else {
+		    *q++ = '\0';
+		    *qend = '\0';
+		    fprintf(f, " metric %s instance \"%s\"", p, q);
+		}
+	    } else {
+		saveInsts = false;
 	    }
 	}
-	else // singular metric
+	if (!saveInsts) // singular metric or non-explicit insts
 	    fprintf(f, " metric %s", p);
 	fputc('\n', f);
     }
