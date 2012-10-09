@@ -2,7 +2,6 @@
 *.a
 *.o
 *.exe
-*.pro
 *.lsm
 *.adp
 ui_*.h
@@ -19,13 +18,5 @@ Makefile
 cscope.*
 .DS_Store
 autom4te.cache
-src/include/builddefs
-src/include/version.h
-src/chart/*.icns
-src/chart/*.png
-src/query/*.icns
-src/query/*.png
-src/time/*.icns
-src/time/*.png
 debug*.list
 pcp-gui-[0-9].[0-9].[0-9]

@@ -2,27 +2,20 @@
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
  * Copyright (C) 2002   Uwe Rathmann
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
-
-// vim: expandtab
 
 #ifndef QWT_GLOBAL_H
 #define QWT_GLOBAL_H
 
 #include <qglobal.h>
-#if QT_VERSION < 0x040000
-#include <qmodules.h>
-#endif
 
 // QWT_VERSION is (major << 16) + (minor << 8) + patch.
 
-#define QWT_VERSION       0x050201
-#define QWT_VERSION_STR   "5.2.1"
-
-#if defined(Q_WS_WIN)
+#define QWT_VERSION       0x060002
+#define QWT_VERSION_STR   "6.0.2"
 
 #if defined(_MSC_VER) /* MSVC Compiler */
 /* template-class specialization 'identifier' is already instantiated */
@@ -32,15 +25,12 @@
 #ifdef QWT_DLL
 
 #if defined(QWT_MAKEDLL)     // create a Qwt DLL library 
-#define QWT_EXPORT  __declspec(dllexport)
-#define QWT_TEMPLATEDLL
+#define QWT_EXPORT Q_DECL_EXPORT
 #else                        // use a Qwt DLL library
-#define QWT_EXPORT  __declspec(dllimport)
+#define QWT_EXPORT Q_DECL_IMPORT 
 #endif
 
 #endif // QWT_DLL
-
-#endif // Q_WS_WIN
 
 #ifndef QWT_EXPORT
 #define QWT_EXPORT
@@ -48,4 +38,4 @@
 
 // #define QWT_NO_COMPAT 1 // disable withdrawn functionality
 
-#endif // QWT_GLOBAL_H
+#endif 

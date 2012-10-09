@@ -8,7 +8,6 @@
  * (at your option) any later version.
  */
 
-#include <assert.h>
 #include <limits.h>
 #include <float.h>
 #include <math.h>
@@ -336,9 +335,6 @@ QmcGroup::createLocalContext()
 	QTextStream cerr(stderr);
 	QmcSource *localSource = QmcSource::getSource(PM_CONTEXT_HOST,
 							localHost, false);
-	// This should never happen
-	assert(localSource != NULL);
-
 	if (localSource->status() < 0 && pmDebug & DBG_TRACE_PMC)
 	    cerr << "QmcGroup::createLocalContext: Default context to "
 		 << localSource->desc() << " failed: " 

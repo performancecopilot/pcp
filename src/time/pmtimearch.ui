@@ -288,14 +288,14 @@ and also with respect to any "play mode" changes requested.</string>
         <property name="orientation" >
          <enum>Qt::Horizontal</enum>
         </property>
-        <property name="bgStyle" >
-         <enum>QwtSlider::BgSlot</enum>
+        <property name="backgroundStyle" >
+         <enum>QwtSlider::Groove</enum>
         </property>
-        <property name="thumbLength" >
-         <number>12</number>
-        </property>
-        <property name="thumbWidth" >
-         <number>16</number>
+        <property name="handleSize" >
+         <size>
+          <width>12</width>
+          <height>16</height>
+         </size>
         </property>
         <property name="borderWidth" >
          <number>2</number>
@@ -577,7 +577,7 @@ right (faster).  This only affects normal play/back modes.</string>
           <property name="orientation" >
            <enum>Qt::Horizontal</enum>
           </property>
-          <property name="internalBorder" >
+          <property name="wheelBorderWidth" >
            <number>1</number>
           </property>
          </widget>

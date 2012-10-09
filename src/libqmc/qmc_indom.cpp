@@ -16,10 +16,8 @@
 #include <qmc_indom.h>
 #include <qmc_desc.h>
 #include <ctype.h>
-#include <assert.h>
-#include <qvector.h>
-#include <qstringlist.h>
-#include <pcp/pmapi.h>
+#include <QVector>
+#include <QStringList>
 
 QmcInstance::QmcInstance()
 {
@@ -216,7 +214,7 @@ QmcIndom::refAll(bool active)
 void
 QmcIndom::removeRef(uint index)
 {
-    assert(my.instances[index].refCount());
+    Q_ASSERT(my.instances[index].refCount());
 
     my.instances[index].refCountDec();
     if (my.instances[index].refCount() == 0) {

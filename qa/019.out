@@ -63,7 +63,8 @@ NAME 6
 .
 
 *** 7: Line <N> - Client2: TEXT 0 dynamic.numinsts ***
-ERROR -12349
+TEXT 48
+The number of instances currently being exported
 .
 
 *** 8: Line <N> - Client1: FETCH ***
@@ -120,7 +121,7 @@ METRIC 2 0
 METRIC 3 0
 .
 
-*** 15: Line <N> - Client3: LIST 4 snort:disk.dev.read[dks0d1,dks1d1,dks9d1] vldb-disks/disk.dev.total[dks17d8,dks11d3,dks45d2] disk.dev.write[dks1d1,dks0d4] vldb.engr:disk.dev.total[dks18d6,dks11d3] ***
+*** 15: Line <N> - Client3: LIST 4 snort:disk.dev.read[dks0d1,dks1d1,dks9d1] archives/vldb-disks/disk.dev.total[dks17d8,dks11d3,dks45d2] disk.dev.write[dks1d1,dks0d4] vldb.engr:disk.dev.total[dks18d6,dks11d3] ***
 LIST 2
 CONTEXT 0 1 2 2
 INDOM 0 4
@@ -472,16 +473,17 @@ METRIC 3 2
 
 *** PDUs ***
  8 pmGetPDU: DESC
- 3 pmGetPDU: ERROR
+ 2 pmGetPDU: ERROR
  3 pmGetPDU: INSTANCE
- 9 pmGetPDU: PMNS_IDS
+ 10 pmGetPDU: PMNS_IDS
  1 pmGetPDU: PMNS_NAMES
  11 pmGetPDU: RESULT
+ 1 pmGetPDU: TEXT
  2 pmXmitPDU: CREDS
  8 pmXmitPDU: DESC_REQ
  11 pmXmitPDU: FETCH
  3 pmXmitPDU: INSTANCE_REQ
- 9 pmXmitPDU: PMNS_NAMES
+ 10 pmXmitPDU: PMNS_NAMES
  1 pmXmitPDU: PMNS_TRAVERSE
  4 pmXmitPDU: PROFILE
  1 pmXmitPDU: TEXT_REQ

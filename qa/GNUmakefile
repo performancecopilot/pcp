@@ -9,8 +9,8 @@ SCRIPTS = check new remake group
 COMMONS = $(shell echo common.*)
 AUTOTEST = $(shell echo [0-9][0-9][0-9])
 OUTFILES = $(shell echo *.out)
-FOLIOS = 20071023.08\:06\:36.folio
-VIEWS = 20071023.08\:06\:36.view
+FOLIOS = 20071023.08-06-36.folio
+VIEWS = 20071023.08-06-36.view
 LSRCFILES = $(COMMONS) $(SCRIPTS) \
 	    $(AUTOTEST) $(OUTFILES) \
 	    $(FOLIOS) $(VIEWS) GNUmakefile.install
