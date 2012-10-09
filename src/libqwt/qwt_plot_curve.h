@@ -252,27 +252,27 @@ protected:
 
     void init();
 
-    virtual void drawCurve( QPainter *p, int style,
+    virtual void drawCurve( QPainter *, int style,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
-    virtual void drawSymbols( QPainter *p, const QwtSymbol &,
+    virtual void drawSymbols( QPainter *, const QwtSymbol &,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
-    void drawLines( QPainter *p,
+    void drawLines( QPainter *,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
-    void drawSticks( QPainter *p,
+    void drawSticks( QPainter *,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
-    void drawDots( QPainter *p,
+    void drawDots( QPainter *,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
-    void drawSteps( QPainter *p,
+    void drawSteps( QPainter *,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 

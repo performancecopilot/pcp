@@ -410,7 +410,7 @@ void QwtMagnifier::widgetWheelEvent( QWheelEvent *wheelEvent )
             of 120 (== 15 * 8).
          */
         double f = qPow( d_data->wheelFactor, 
-            qAbs( wheelEvent->delta() / 120 ) );
+            qAbs( wheelEvent->delta() / 120.0 ) );
 
         if ( wheelEvent->delta() > 0 )
             f = 1 / f;

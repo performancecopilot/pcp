@@ -102,7 +102,7 @@ public:
         const QSizeF &sizeMM, int resolution = 85 );
 
     void renderDocument( QwtPlot *,
-        const QString &title, const QString &fileName,
+        const QString &fileName, const QString &format,
         const QSizeF &sizeMM, int resolution = 85 );
 
 #ifndef QWT_NO_SVG
