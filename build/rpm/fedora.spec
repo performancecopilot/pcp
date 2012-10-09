@@ -7,7 +7,7 @@ Release: %{buildversion}%{?dist}
 License: GPLv2+ and LGPLv2+ and LGPLv2+ with exceptions
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
-Source0: ftp://oss.sgi.com/projects/pcp/download/rpm/pcp-gui/pcp-gui-%{version}-%{buildversion}.src.tar.gz
+Source0: pcp-gui-%{version}.src.tar.gz
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf, bison, flex, gawk
