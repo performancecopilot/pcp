@@ -13,6 +13,7 @@
  * for more details.
  */ 
 #include <qwt_plot_directpainter.h>
+#include <qwt_picker_machine.h>
 #include <qwt_plot_marker.h>
 #include <qwt_symbol.h>
 #include <values.h>
@@ -77,12 +78,14 @@ TracingItem::~TracingItem(void)
     delete my.selectionSymbol;
 }
 
-QwtPlotItem* TracingItem::item(void)
+QwtPlotItem *
+TracingItem::item(void)
 {
     return my.pointCurve;
 }
 
-QwtPlotCurve* TracingItem::curve(void)
+QwtPlotCurve *
+TracingItem::curve(void)
 {
     return my.pointCurve;
 }
@@ -200,10 +203,8 @@ TracingItem::cullOutlyingEvents(double left, double right)
 void
 TracingItem::resetValues(int samples)
 {
-    // TODO
     console->post(PmChart::DebugForce, "TracingItem::resetValues: sample count change: NYI: %d", samples);
 }
-
 
 //
 // Requirement here is to merge in any event records that have
@@ -213,11 +214,11 @@ TracingItem::resetValues(int samples)
 // the time window of interest.
 //
 void
-TracingItem::updateValues(bool, bool, pmUnits*, int, int, double left, double right, double)
+TracingItem::updateValues(TracingEngine *engine, double left, double right)
 {
     QmcMetric *metric = ChartItem::my.metric;
 
-#ifdef DESPERATE
+#if DESPERATE
     console->post(PmChart::DebugForce, "TracingItem::updateValues: "
 		"%d total events, left=%.2f right=%.2f\n"
 		"Metadata counts: drops=%d spans=%d points=%d  "
@@ -233,7 +234,7 @@ TracingItem::updateValues(bool, bool, pmUnits*, int, int, double left, double ri
 
     // crack open newly arrived event records
     if (metric->numValues() > 0)
-	updateEvents(metric);
+	updateEvents(engine, metric);
 
     // update the display
     my.dropCurve->setSamples(my.drops);
@@ -242,13 +243,13 @@ TracingItem::updateValues(bool, bool, pmUnits*, int, int, double left, double ri
     my.selectionCurve->setSamples(my.selections);
 }
 
-void TracingItem::updateEvents(QmcMetric *metric)
+void TracingItem::updateEvents(TracingEngine *engine, QmcMetric *metric)
 {
     if (metric->hasInstances() && !metric->explicitInsts()) {
 	for (int i = 0; i < metric->numInst(); i++)
-	    updateEventRecords(metric, i);
+	    updateEventRecords(engine, metric, i);
     } else {
-	updateEventRecords(metric, 0);
+	updateEventRecords(engine, metric, 0);
     }
 }
 
@@ -262,7 +263,8 @@ void TracingItem::updateEvents(QmcMetric *metric)
 // - "Drop" curve has an entry to match up events with the parents.
 //   The parent is the root "span" (terminology on loan from Dapper)
 //
-void TracingItem::updateEventRecords(QmcMetric *metric, int index)
+void
+TracingItem::updateEventRecords(TracingEngine *engine, QmcMetric *metric, int index)
 {
     if (metric->error(index) == 0) {
 	QVector<QmcEventRecord> const &records = metric->eventRecords(index);
@@ -282,7 +284,7 @@ void TracingItem::updateEventRecords(QmcMetric *metric, int index)
 	} else {
 	    name = metric->name();
 	}
-	my.chart->addTraceSpan(name, slot);
+	engine->addTraceSpan(name, slot);
 
 	for (int i = 0; i < records.size(); i++) {
 	    QmcEventRecord const &record = records.at(i);
@@ -291,7 +293,7 @@ void TracingItem::updateEventRecords(QmcMetric *metric, int index)
 	    TracingEvent &event = my.events.last();
 
 	    if (event.hasIdentifier() && name == QString::null) {
-		my.chart->addTraceSpan(event.spanID(), slot);
+		engine->addTraceSpan(event.spanID(), slot);
 	    }
 
 	    // this adds the basic point (ellipse), all events get one
@@ -299,15 +301,15 @@ void TracingItem::updateEventRecords(QmcMetric *metric, int index)
 
 	    parentSlot = -1;
 	    if (event.hasParent()) {	// lookup parent in yMap
-		parentSlot = my.chart->getTraceSpan(event.rootID(), parentSlot);
+		parentSlot = engine->getTraceSpan(event.rootID(), parentSlot);
 		if (parentSlot == -1)
-		    my.chart->addTraceSpan(event.rootID(), parentSlot);
+		    engine->addTraceSpan(event.rootID(), parentSlot);
 		// do this on start/end only?  (or if first?)
 		my.drops.append(QwtIntervalSample(event.timestamp(),
 				    QwtInterval(slot, parentSlot)));
 	    }
 
-#ifdef DESPERATE
+#if DESPERATE
 	    console->post(PmChart::DebugForce, "TracingItem::updateEventRecords: "
 		"[%.2f] span: %s (slot=%d) id=%s, root: %s (slot=%d,id=%s), start=%s end=%s",
 		event.timestamp() - my.previousTimestamp,
@@ -358,10 +360,9 @@ void TracingItem::updateEventRecords(QmcMetric *metric, int index)
     }
 }
 
-void TracingItem::setStroke(Chart::Style, QColor color, bool)
+void
+TracingItem::setStroke(Chart::Style, QColor color, bool)
 {
-    console->post(PmChart::DebugForce, "TracingItem::setStroke");
-
     QPen outline(QColor(Qt::black));
     QColor darkColor(color);
     QColor alphaColor(color);
@@ -389,14 +390,16 @@ void TracingItem::setStroke(Chart::Style, QColor color, bool)
     my.selectionSymbol->setPen(outline);
 }
 
-bool TracingItem::containsPoint(const QRectF &rect, int index)
+bool
+TracingItem::containsPoint(const QRectF &rect, int index)
 {
     if (my.points.isEmpty())
 	return false;
     return rect.contains(my.points.at(index));
 }
 
-void TracingItem::updateCursor(const QPointF &, int index)
+void
+TracingItem::updateCursor(const QPointF &, int index)
 {
     Q_ASSERT(index <= my.points.size());
     Q_ASSERT(index <= (int)my.pointCurve->dataSize());
@@ -411,7 +414,8 @@ void TracingItem::updateCursor(const QPointF &, int index)
     my.pointSymbol->setBrush(pointBrush);
 }
 
-void TracingItem::clearCursor(void)
+void
+TracingItem::clearCursor(void)
 {
     // immediately clear any current visible selections
     for (int index = 0; index < my.points.size(); index++) {
@@ -424,7 +428,8 @@ void TracingItem::clearCursor(void)
 //
 // Display information text associated with selected events
 //
-const QString &TracingItem::cursorInfo(void)
+const QString &
+TracingItem::cursorInfo(void)
 {
     my.selectionInfo = QString::null;
 
@@ -440,7 +445,8 @@ const QString &TracingItem::cursorInfo(void)
     return my.selectionInfo;
 }
 
-void TracingItem::revive(void)
+void
+TracingItem::revive(void)
 {
     if (removed()) {
         setRemoved(false);
@@ -451,7 +457,8 @@ void TracingItem::revive(void)
     }
 }
 
-void TracingItem::remove(void)
+void
+TracingItem::remove(void)
 {
     setRemoved(true);
     my.dropCurve->detach();
@@ -460,7 +467,8 @@ void TracingItem::remove(void)
     my.selectionCurve->detach();
 }
 
-void TracingItem::redraw(void)
+void
+TracingItem::redraw(void)
 {
     if (removed() == false) {
 	// point curve update by legend check, but not the rest:
@@ -471,9 +479,9 @@ void TracingItem::redraw(void)
 }
 
 
-TracingScaleEngine::TracingScaleEngine(Chart *chart) : QwtLinearScaleEngine()
+TracingScaleEngine::TracingScaleEngine(TracingEngine *engine) : QwtLinearScaleEngine()
 {
-    my.chart = chart;
+    my.engine = engine;
     my.minSpanID = 0.0;
     my.maxSpanID = 1.0;
     setMargins(0.5, 0.5);
@@ -515,9 +523,9 @@ TracingScaleDraw::label(double value) const
 {
     int	slot = (int)value;
     const int LABEL_CUTOFF = 8;	// maximum width for label (units: characters)
-    QString label = my.chart->getSpanLabel(slot);
+    QString label = my.engine->getSpanLabel(slot);
 
-#ifdef DESPERATE
+#if DESPERATE
     console->post(PmChart::DebugForce,
 		"TracingScaleDraw::label: lookup ID %d (=>\"%s\")",
 		slot, (const char *)label.toAscii());
@@ -539,4 +547,124 @@ TracingScaleDraw::getBorderDistHint(const QFont &f, int &start, int &end) const
 	start = end = 0;
     else
 	QwtScaleDraw::getBorderDistHint(f, start, end);
+}
+
+
+//
+// The (chart-level) implementation of tracing charts
+//
+TracingEngine::TracingEngine(Chart *chart)
+{
+    QwtPlotPicker *picker = chart->my.picker;
+
+    my.chart = chart;
+    my.chart->my.style = Chart::EventStyle;
+
+    my.scaleDraw = new TracingScaleDraw(this);
+    chart->setAxisScaleDraw(QwtPlot::yLeft, my.scaleDraw);
+
+    my.scaleEngine = new TracingScaleEngine(this);
+    chart->setAxisScaleEngine(QwtPlot::yLeft, my.scaleEngine);
+
+    // use a rectangular point picker for event tracing
+    picker->setStateMachine(new QwtPickerDragRectMachine());
+    picker->setRubberBand(QwtPicker::RectRubberBand);
+    picker->setRubberBandPen(QColor(Qt::green));
+}
+
+ChartItem *
+TracingEngine::addItem(QmcMetric *mp, pmMetricSpec *msp, pmDesc *desc, const char *legend)
+{
+    return new TracingItem(my.chart, mp, msp, desc, legend);
+}
+
+TracingItem *
+TracingEngine::tracingItem(int index)
+{
+    return (TracingItem *)my.chart->my.items[index];
+}
+
+void
+TracingEngine::selected(const QPolygon &poly)
+{
+    my.chart->showPoints(poly);
+}
+
+void
+TracingEngine::replot(void)
+{
+    for (int i = 0; i < my.chart->metricCount(); i++)
+	tracingItem(i)->redraw();
+}
+
+void
+TracingEngine::updateValues(bool, int, int, double left, double right, double)
+{
+    // Drive new values into each chart item
+    for (int i = 0; i < my.chart->metricCount(); i++)
+	tracingItem(i)->updateValues(this, left, right);
+}
+
+int
+TracingEngine::getTraceSpan(const QString &spanID, int slot) const
+{
+    return my.traceSpanMapping.value(spanID, slot);
+}
+
+void
+TracingEngine::addTraceSpan(const QString &spanID, int slot)
+{
+    Q_ASSERT(spanID != QString::null && spanID != "");
+    Q_ASSERT(my.traceSpanMapping.size() == my.labelSpanMapping.size());
+
+    console->post("TracingEngine::addTraceSpan: \"%s\" <=> slot %d (%d total)",
+			(const char *)spanID.toAscii(), slot, my.traceSpanMapping.size());
+    my.traceSpanMapping.insert(spanID, slot);
+    my.labelSpanMapping.insert(slot, spanID);
+}
+
+QString
+TracingEngine::getSpanLabel(int slot) const
+{
+    return my.labelSpanMapping.value(slot);
+}
+
+void
+TracingEngine::redoScale(void)
+{
+    double minValue = 0.0, maxValue = 1.0;
+
+    for (int i = 0; i < my.chart->metricCount(); i++)
+	tracingItem(i)->rescaleValues(&minValue, &maxValue);
+
+    my.scaleEngine->setScale(minValue, maxValue);
+    my.scaleDraw->invalidate();
+    replot();
+}
+
+bool
+TracingEngine::isCompatible(pmDesc &desc)
+{
+    console->post("TracingEngine::isCompatible type=%d", desc.type);
+    return (desc.type == PM_TYPE_EVENT);
+}
+
+void
+TracingEngine::scale(bool *autoScale, double *yMin, double *yMax)
+{
+    *autoScale = false;
+    *yMin = 0.0;
+    *yMax = 1.0;
+}
+
+void
+TracingEngine::setScale(bool, double, double)
+{
+    my.chart->setAxisAutoScale(QwtPlot::yLeft);
+}
+
+void
+TracingEngine::setStyle(Chart::Style)
+{
+    my.chart->setYAxisTitle("");
 }

@@ -43,8 +43,8 @@ public:
     QwtPlotItem *item();
     QwtPlotCurve *curve();
 
-    void preserveLiveData(int, int);
-    void punchoutLiveData(int);
+    void preserveSample(int, int);
+    void punchoutSample(int);
     void updateValues(bool, bool, pmUnits *, int, int, double, double, double);
     void rescaleValues(pmUnits *);
     void resetValues(int);
@@ -88,6 +88,8 @@ private:
 //
 class SamplingScaleEngine : public QwtLinearScaleEngine
 {
+    friend class Chart;
+
 public:
     SamplingScaleEngine();
 
@@ -104,6 +106,47 @@ private:
 	bool autoScale;
 	double minimum;
 	double maximum;
+    } my;
+};
+//
+// 
+// Implement sampling-specific behaviour within a Chart
+//
+class SamplingEngine : public ChartEngine
+{
+public:
+    SamplingEngine(Chart *chart, pmDesc &);
+
+    bool isCompatible(pmDesc &);
+    ChartItem *addItem(QmcMetric *, pmMetricSpec *, pmDesc *, const char *);
+
+    void updateValues(bool, int, int, double, double, double);
+    void replot(void);
+
+    bool autoScale() { return my.scaleEngine->autoScale(); }
+    void redoScale(void);
+    void setScale(bool, double, double);
+    void scale(bool *, double *, double *);
+    void setStyle(Chart::Style);
+
+    bool rateConvert() const { return my.rateConvert; }
+    void setRateConvert(bool enabled) { my.rateConvert = enabled; }
+    bool antiAliasing() const { return my.antiAliasing; }
+    void setAntiAliasing(bool enabled) { my.antiAliasing = enabled; }
+
+    void selected(const QPolygon &);
+    void moved(const QPointF &);
+
+private:
+    SamplingItem *samplingItem(int index);
+    void normaliseUnits(pmDesc &desc);
+
+    struct {
+	pmUnits units;
+	bool rateConvert;
+	bool antiAliasing;
+	SamplingScaleEngine *scaleEngine;
+	Chart *chart;
     } my;
 };
 

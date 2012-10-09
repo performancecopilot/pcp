@@ -14,7 +14,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <qmc_desc.h>
 #include "main.h"
 #include "tracing.h"
 #include "sampling.h"
@@ -24,22 +23,72 @@
 #include <QtCore/QRegExp>
 #include <QtGui/QApplication>
 #include <QtGui/QWhatsThis>
-#include <QtGui/QPainter>
 #include <QtGui/QCursor>
-#include <QtGui/QLabel>
-#include <qwt_plot_layout.h>
-#include <qwt_plot_canvas.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_picker.h>
-#include <qwt_picker_machine.h>
 #include <qwt_plot_renderer.h>
-#include <qwt_legend.h>
 #include <qwt_legend_item.h>
 #include <qwt_scale_widget.h>
-#include <qwt_text.h>
-#include <qwt_text_label.h>
 
 #define DESPERATE 0
+
+Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
+{
+    my.tab = chartTab;
+    my.title = NULL;
+    my.style = NoStyle;
+    my.scheme = QString::null;
+    my.sequence = 0;
+
+    Gadget::setWidget(this);
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    plotLayout()->setCanvasMargin(0);
+    plotLayout()->setAlignCanvasToScales(true);
+    plotLayout()->setFixedAxisOffset(54, QwtPlot::yLeft);
+    enableAxis(xBottom, false);
+
+    // prepare initial engine dealing with (no) chart type
+    my.engine = new ChartEngine(this);
+
+    // setup the legend (all charts must have one)
+    setLegendVisible(true);
+    legend()->contentsWidget()->setFont(*globalFont);
+    connect(this, SIGNAL(legendChecked(QwtPlotItem *, bool)),
+		    SLOT(legendChecked(QwtPlotItem *, bool)));
+
+    // setup a picker (all charts must have one)
+    my.picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
+			QwtPicker::CrossRubberBand, QwtPicker::AlwaysOff,
+			canvas());
+    connect(my.picker, SIGNAL(selected(const QPolygon &)),
+			 SLOT(selected(const QPolygon &)));
+    connect(my.picker, SIGNAL(selected(const QPointF &)),
+			 SLOT(selected(const QPointF &)));
+    connect(my.picker, SIGNAL(moved(const QPointF &)),
+			 SLOT(moved(const QPointF &)));
+
+    console->post("Chart::ctor complete(%p)", this);
+}
+
+Chart::~Chart()
+{
+    console->post("Chart::~Chart() for chart %p", this);
+
+    for (int i = 0; i < my.items.size(); i++)
+	delete my.items[i];
+    delete my.engine;
+    delete my.picker;
+}
+
+ChartEngine::ChartEngine(Chart *chart)
+{
+    my.rateConvert = true;
+    my.antiAliasing = true;
+    chart->setAutoReplot(false);
+    chart->setCanvasBackground(globalSettings.chartBackground);
+    chart->setAxisFont(QwtPlot::yLeft, *globalFont);
+    chart->setAxisAutoScale(QwtPlot::yLeft);
+}
 
 ChartItem::ChartItem(QmcMetric *mp,
 		pmMetricSpec *msp, pmDesc *dp, const char *legend)
@@ -75,114 +124,8 @@ ChartItem::ChartItem(QmcMetric *mp,
     my.hidden = false;
 }
 
-Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
-{
-    Gadget::setWidget(this);
-    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    plotLayout()->setCanvasMargin(0);
-    plotLayout()->setAlignCanvasToScales(true);
-    plotLayout()->setFixedAxisOffset(54, QwtPlot::yLeft);
-    setAutoReplot(false);
-    setCanvasBackground(globalSettings.chartBackground);
-    enableAxis(xBottom, false);
-
-    setLegendVisible(true);
-    legend()->contentsWidget()->setFont(*globalFont);
-    connect(this, SIGNAL(legendChecked(QwtPlotItem *, bool)),
-		    SLOT(legendChecked(QwtPlotItem *, bool)));
-
-    my.tab = chartTab;
-    my.title = NULL;
-    my.eventType = false;
-    my.rateConvert = true;
-    my.antiAliasing = true;
-    my.style = NoStyle;
-    my.scheme = QString::null;
-    my.sequence = 0;
-    my.tracingScaleDraw = NULL;
-    my.tracingScaleEngine = NULL;
-    my.tracingPickerMachine = NULL;
-    my.samplingScaleDraw = NULL;
-    my.samplingScaleEngine = NULL;
-    my.samplingPickerMachine = NULL;
-    setAxisFont(QwtPlot::yLeft, *globalFont);
-    setAxisAutoScale(QwtPlot::yLeft);
-    setAxisScale(QwtPlot::yLeft, 0.0, 1.0, 0.0);
-    setScaleEngine();
-
-    my.picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
-			QwtPicker::CrossRubberBand, QwtPicker::AlwaysOff,
-			canvas());
-    setPickerMachine();
-    connect(my.picker, SIGNAL(selected(const QPolygon &)),
-			 SLOT(selected(const QPolygon &)));
-    connect(my.picker, SIGNAL(selected(const QPointF &)),
-			 SLOT(selected(const QPointF &)));
-    connect(my.picker, SIGNAL(moved(const QPointF &)),
-			 SLOT(moved(const QPointF &)));
-
-    replot();
-
-    console->post("Chart::ctor complete(%p)", this);
-}
-
-void Chart::setScaleEngine()
-{
-    if (!my.samplingScaleDraw)	// stash the default Qwt made
-	my.samplingScaleDraw = axisScaleDraw(QwtPlot::yLeft);
-
-    if (my.eventType && !my.tracingScaleEngine) {
-	if (my.tracingScaleDraw)
-	    delete my.tracingScaleDraw;
-	my.tracingScaleDraw = new TracingScaleDraw(this);
-	setAxisScaleDraw(QwtPlot::yLeft, my.tracingScaleDraw);
-
-	my.tracingScaleEngine = new TracingScaleEngine(this);
-	setAxisScaleEngine(QwtPlot::yLeft, my.tracingScaleEngine);
-
-	my.samplingScaleEngine = NULL;	// deleted in setAxisScaleEngine
-    } else if (!my.eventType && !my.samplingScaleEngine) {
-	setAxisScaleDraw(QwtPlot::yLeft, my.samplingScaleDraw);
-
-	my.samplingScaleEngine = new SamplingScaleEngine();
-	setAxisScaleEngine(QwtPlot::yLeft, my.samplingScaleEngine);
-
-	my.tracingScaleEngine = NULL;	// deleted in setAxisScaleEngine
-    }
-}
-
-void Chart::setPickerMachine()
-{
-    if (my.eventType && !my.tracingPickerMachine) {
-	// use a rectangular point picker for event tracing
-	my.tracingPickerMachine = new QwtPickerDragRectMachine();
-	my.picker->setStateMachine(my.tracingPickerMachine);
-	my.picker->setRubberBand(QwtPicker::RectRubberBand);
-	my.picker->setRubberBandPen(QColor(Qt::green));
-	my.samplingPickerMachine = NULL;
-    } else if (!my.eventType && !my.samplingPickerMachine) {
-	// use an individual point picker for sampled data
-	my.samplingPickerMachine = new QwtPickerDragPointMachine();
-	my.picker->setStateMachine(my.samplingPickerMachine);
-	my.picker->setRubberBand(QwtPicker::CrossRubberBand);
-	my.picker->setRubberBandPen(QColor(Qt::green));
-	my.tracingPickerMachine = NULL;
-    }
-}
-
-Chart::~Chart()
-{
-    console->post("Chart::~Chart() for chart %p", this);
-
-    if (my.tracingScaleDraw)
-	delete my.tracingScaleDraw;
-
-    for (int i = 0; i < my.items.size(); i++)
-	delete my.items[i];
-    delete my.picker;
-}
-
-void Chart::setCurrent(bool enable)
+void
+Chart::setCurrent(bool enable)
 {
     QwtScaleWidget *sp;
     QPalette palette;
@@ -208,54 +151,43 @@ void Chart::setCurrent(bool enable)
     sp->setTitle(t);
 }
 
-void Chart::preserveLiveData(int index, int oldindex)
+void
+Chart::preserveSample(int index, int oldindex)
 {
 #if DESPERATE
-    console->post("Chart::preserveLiveData %d/%d (%d items)",
+    console->post("Chart::preserveSample %d <- %d (%d items)",
 			index, oldindex, my.items.size());
 #endif
     for (int i = 0; i < my.items.size(); i++)
-	my.items[i]->preserveLiveData(index, oldindex);
+	my.items[i]->preserveSample(index, oldindex);
 }
 
-void Chart::punchoutLiveData(int index)
+void
+Chart::punchoutSample(int index)
 {
 #if DESPERATE
-    console->post("Chart::punchoutLiveData=%d (%d items)",
+    console->post("Chart::punchoutSample %d (%d items)",
 			index, my.items.size());
 #endif
     for (int i = 0; i < my.items.size(); i++)
-	my.items[i]->punchoutLiveData(index);
+	my.items[i]->punchoutSample(index);
 }
 
-void Chart::adjustValues(void)
+void
+Chart::adjustValues(void)
 {
-    redoChartItems();
+    my.engine->replot();
     replot();
 }
 
-SamplingItem *Chart::samplingItem(int index)
-{
-    Q_ASSERT(my.eventType == false);
-    return (SamplingItem *)my.items[index];
-}
-
-TracingItem *Chart::tracingItem(int index)
-{
-    Q_ASSERT(my.eventType == true);
-    return (TracingItem *)my.items[index];
-}
-
-void Chart::updateValues(bool forward, bool visible, int size, int points,
+void
+Chart::updateValues(bool forward, bool visible, int size, int points,
 			 double left, double right, double delta)
 {
-    int		itemCount = my.items.size();
-    int		i, index = forward ? 0 : -1;	/* first or last data point */
-
 #if DESPERATE
     console->post(PmChart::DebugForce,
 		  "Chart::updateValues(forward=%d,visible=%d) sz=%d pts=%d (%d items)",
-		  forward, visible, size, points, itemCount);
+		  forward, visible, size, points, my.items.size());
 #endif
 
     if (visible) {
@@ -263,308 +195,24 @@ void Chart::updateValues(bool forward, bool visible, int size, int points,
 	setAxisScale(QwtPlot::xBottom, left, right, scale);
     }
 
-    if (itemCount < 1)
-	goto updated;
+    if (my.items.size() > 0)
+	my.engine->updateValues(forward, size, points, left, right, delta);
 
-    for (i = 0; i < itemCount; i++)
-	my.items[i]->updateValues(forward, my.rateConvert, &my.units, size, points, left, right, delta);
-
-    if (my.style == BarStyle || my.style == AreaStyle || my.style == LineStyle) {
-	for (i = 0; i < itemCount; i++)
-	    samplingItem(i)->copyRawDataPoint(index);
-    }
-    // Utilisation: like Stack, but normalize value to a percentage (0,100)
-    else if (my.style == UtilisationStyle) {
-	double	sum = 0.0;
-	// compute sum
-	for (i = 0; i < itemCount; i++)
-	    sum = samplingItem(i)->sumData(index, sum);
-	// scale all components
-	for (i = 0; i < itemCount; i++)
-	    samplingItem(i)->setPlotUtil(index, sum);
-	// stack components
-	sum = 0.0;
-	for (i = 0; i < itemCount; i++)
-	    sum = samplingItem(i)->setPlotStack(index, sum);
-    }
-    else if (my.style == StackStyle) {
-	double	sum = 0.0;
-	for (i = 0; i < itemCount; i++)
-	    sum = samplingItem(i)->setDataStack(index, sum);
-    }
-
-#if DESPERATE
-    if (!my.eventType) {
-	for (i = 0; i < my.items.size(); i++)
-	    console->post(PmChart::DebugForce, "metric[%d] value %f",
-		  i, samplingItem(i)->metric()->currentValue(0));
-    }
-#endif
-
-updated:
     if (visible) {
 	replot();	// done first so Value Axis range is updated
-	redoScale();
+	my.engine->redoScale();
     }
 }
 
-int Chart::getTraceSpan(const QString &spanID, int slot) const
+void
+Chart::replot()
 {
-    return my.traceSpanMapping.value(spanID, slot);
-}
-
-void Chart::addTraceSpan(const QString &spanID, int slot)
-{
-    Q_ASSERT(spanID != QString::null && spanID != "");
-    Q_ASSERT(my.traceSpanMapping.size() == my.labelSpanMapping.size());
-
-    console->post("Chart::addTraceSpan: \"%s\" <=> slot %d (%d total)",
-			(const char *)spanID.toAscii(), slot, my.traceSpanMapping.size());
-    my.traceSpanMapping.insert(spanID, slot);
-    my.labelSpanMapping.insert(slot, spanID);
-}
-
-QString Chart::getSpanLabel(int slot) const
-{
-    return my.labelSpanMapping.value(slot);
-}
-
-void Chart::redoScale(void)
-{
-    if (my.eventType)
-	redoTracingScale();
-    else
-	redoSamplingScale();
-}
-
-void Chart::redoTracingScale(void)
-{
-    double minValue = 0.0, maxValue = 1.0;
-
-    Q_ASSERT(my.eventType == true);
-    for (int i = 0; i < my.items.size(); i++)
-	tracingItem(i)->rescaleValues(&minValue, &maxValue);
-    my.tracingScaleEngine->setScale(minValue, maxValue);
-    my.tracingScaleDraw->invalidate();
-    replot();
-}
-
-void Chart::redoSamplingScale(void)
-{
-    bool	rescale = false;
-    pmUnits	oldunits = my.units;
-
-    Q_ASSERT(my.eventType == false);
-
-    // The 1,000 and 0.1 thresholds are just a heuristic guess.
-    //
-    // We're assuming lBound() plays no part in this, which is OK as
-    // the upper bound of the y-axis range (hBound()) drives the choice
-    // of appropriate units scaling.
-    //
-    if (my.samplingScaleEngine->autoScale() &&
-	axisScaleDiv(QwtPlot::yLeft)->upperBound() > 1000) {
-	double scaled_max = axisScaleDiv(QwtPlot::yLeft)->upperBound();
-	if (my.units.dimSpace == 1) {
-	    switch (my.units.scaleSpace) {
-		case PM_SPACE_BYTE:
-		    my.units.scaleSpace = PM_SPACE_KBYTE;
-		    rescale = true;
-		    break;
-		case PM_SPACE_KBYTE:
-		    my.units.scaleSpace = PM_SPACE_MBYTE;
-		    rescale = true;
-		    break;
-		case PM_SPACE_MBYTE:
-		    my.units.scaleSpace = PM_SPACE_GBYTE;
-		    rescale = true;
-		    break;
-		case PM_SPACE_GBYTE:
-		    my.units.scaleSpace = PM_SPACE_TBYTE;
-		    rescale = true;
-		    break;
-		case PM_SPACE_TBYTE:
-		    my.units.scaleSpace = PM_SPACE_PBYTE;
-		    rescale = true;
-		    break;
-		case PM_SPACE_PBYTE:
-		    my.units.scaleSpace = PM_SPACE_EBYTE;
-		    rescale = true;
-		    break;
-	    }
-	    if (rescale) {
-		// logic here depends on PM_SPACE_* values being consecutive
-		// integer values as the scale increases
-		scaled_max /= 1024;
-		while (scaled_max > 1000) {
-		    my.units.scaleSpace++;
-		    scaled_max /= 1024;
-		    if (my.units.scaleSpace == PM_SPACE_EBYTE) break;
-		}
-	    }
-	}
-	else if (my.units.dimTime == 1) {
-	    switch (my.units.scaleTime) {
-		case PM_TIME_NSEC:
-		    my.units.scaleTime = PM_TIME_USEC;
-		    rescale = true;
-		    scaled_max /= 1000;
-		    break;
-		case PM_TIME_USEC:
-		    my.units.scaleTime = PM_TIME_MSEC;
-		    rescale = true;
-		    scaled_max /= 1000;
-		    break;
-		case PM_TIME_MSEC:
-		    my.units.scaleTime = PM_TIME_SEC;
-		    rescale = true;
-		    scaled_max /= 1000;
-		    break;
-		case PM_TIME_SEC:
-		    my.units.scaleTime = PM_TIME_MIN;
-		    rescale = true;
-		    scaled_max /= 60;
-		    break;
-		case PM_TIME_MIN:
-		    my.units.scaleTime = PM_TIME_HOUR;
-		    rescale = true;
-		    scaled_max /= 60;
-		    break;
-	    }
-	    if (rescale) {
-		// logic here depends on PM_TIME* values being consecutive
-		// integer values as the scale increases
-		while (scaled_max > 1000) {
-		    my.units.scaleTime++;
-		    if (my.units.scaleTime <= PM_TIME_SEC)
-			scaled_max /= 1000;
-		    else
-			scaled_max /= 60;
-		    if (my.units.scaleTime == PM_TIME_HOUR) break;
-		}
-	    }
-	}
-    }
-
-    if (rescale == false &&
-	my.samplingScaleEngine->autoScale() &&
-	axisScaleDiv(QwtPlot::yLeft)->upperBound() < 0.1) {
-	double scaled_max = axisScaleDiv(QwtPlot::yLeft)->upperBound();
-	if (my.units.dimSpace == 1) {
-	    switch (my.units.scaleSpace) {
-		case PM_SPACE_KBYTE:
-		    my.units.scaleSpace = PM_SPACE_BYTE;
-		    rescale = true;
-		    break;
-		case PM_SPACE_MBYTE:
-		    my.units.scaleSpace = PM_SPACE_KBYTE;
-		    rescale = true;
-		    break;
-		case PM_SPACE_GBYTE:
-		    my.units.scaleSpace = PM_SPACE_MBYTE;
-		    rescale = true;
-		    break;
-		case PM_SPACE_TBYTE:
-		    my.units.scaleSpace = PM_SPACE_GBYTE;
-		    rescale = true;
-		    break;
-		case PM_SPACE_PBYTE:
-		    my.units.scaleSpace = PM_SPACE_TBYTE;
-		    rescale = true;
-		    break;
-		case PM_SPACE_EBYTE:
-		    my.units.scaleSpace = PM_SPACE_PBYTE;
-		    rescale = true;
-		    break;
-	    }
-	    if (rescale) {
-		// logic here depends on PM_SPACE_* values being consecutive
-		// integer values (in reverse) as the scale decreases
-		scaled_max *= 1024;
-		while (scaled_max < 0.1) {
-		    my.units.scaleSpace--;
-		    scaled_max *= 1024;
-		    if (my.units.scaleSpace == PM_SPACE_BYTE) break;
-		}
-	    }
-	}
-	else if (my.units.dimTime == 1) {
-	    switch (my.units.scaleTime) {
-		case PM_TIME_USEC:
-		    my.units.scaleTime = PM_TIME_NSEC;
-		    rescale = true;
-		    scaled_max *= 1000;
-		    break;
-		case PM_TIME_MSEC:
-		    my.units.scaleTime = PM_TIME_USEC;
-		    rescale = true;
-		    scaled_max *= 1000;
-		    break;
-		case PM_TIME_SEC:
-		    my.units.scaleTime = PM_TIME_MSEC;
-		    rescale = true;
-		    scaled_max *= 1000;
-		    break;
-		case PM_TIME_MIN:
-		    my.units.scaleTime = PM_TIME_SEC;
-		    rescale = true;
-		    scaled_max *= 60;
-		    break;
-		case PM_TIME_HOUR:
-		    my.units.scaleTime = PM_TIME_MIN;
-		    rescale = true;
-		    scaled_max *= 60;
-		    break;
-	    }
-	    if (rescale) {
-		// logic here depends on PM_TIME* values being consecutive
-		// integer values (in reverse) as the scale decreases
-		while (scaled_max < 0.1) {
-		    my.units.scaleTime--;
-		    if (my.units.scaleTime < PM_TIME_SEC)
-			scaled_max *= 1000;
-		    else
-			scaled_max *= 60;
-		    if (my.units.scaleTime == PM_TIME_NSEC) break;
-		}
-	    }
-	}
-    }
-
-    if (rescale) {
-	//
-	// need to rescale ... we transform all of the historical (raw)
-	// data, new data will be taken care of by changing my.units.
-	//
-	for (int i = 0; i < my.items.size(); i++)
-	    samplingItem(i)->rescaleValues(&my.units);
-	if (my.style == UtilisationStyle)
-	    setYAxisTitle("% utilization");
-	else
-	    setYAxisTitle(pmUnitsStr(&my.units));
-	replot();
-    }
-}
-
-void Chart::replot()
-{
-    if (my.eventType == false) {
-	int     vh = my.tab->group()->visibleHistory();
-	double *vp = my.tab->group()->timeAxisData();
-
-	for (int i = 0; i < my.items.size(); i++)
-	    samplingItem(i)->replot(vh, vp);
-    }
+    my.engine->replot();
     QwtPlot::replot();
 }
 
-void Chart::showItem(QwtPlotItem *item, bool visible)
-{
-    item->setVisible(visible);
-    replot();
-}
-
-void Chart::legendChecked(QwtPlotItem *item, bool down)
+void
+Chart::legendChecked(QwtPlotItem *item, bool down)
 {
 #ifdef DESPERATE
     console->post(PmChart::DebugForce, "Chart::legendChecked %s for item %p",
@@ -586,170 +234,94 @@ void Chart::legendChecked(QwtPlotItem *item, bool down)
 
     if (changed) {
 	item->setVisible(down == false);
-	redoChartItems();
+	my.engine->replot();
 	replot();
     }
 }
 
-void Chart::redoChartItems(void)
-{
-    int		i, m;
-    int		maxCount = 0;
-    int		itemCount = my.items.size();
-    double	sum;
-
-#if DESPERATE
-    console->post(PmChart::DebugForce, "Chart::redoChartItems %d items)", itemCount);
-#endif
-    switch (my.style) {
-	case BarStyle:
-	case AreaStyle:
-	case LineStyle:
-	    for (i = 0; i < itemCount; i++)
-		samplingItem(i)->copyRawDataArray();
-	    break;
-
-	case UtilisationStyle:
-	    for (i = 0; i < itemCount; i++)
-		maxCount = samplingItem(i)->maximumDataCount(maxCount);
-	    for (m = 0; m < maxCount; m++) {
-		sum = 0.0;
-		for (i = 0; i < itemCount; i++)
-		    sum = samplingItem(i)->sumData(m, sum);
-		for (i = 0; i < itemCount; i++)
-		    samplingItem(i)->setPlotUtil(m, sum);
-		sum = 0.0;
-		for (i = 0; i < itemCount; i++)
-		    sum = samplingItem(i)->setPlotStack(m, sum);
-	    }
-	    break;
-
-	case StackStyle:
-	    for (i = 0; i < itemCount; i++)
-		maxCount = samplingItem(i)->maximumDataCount(maxCount);
-	    for (m = 0; m < maxCount; m++) {
-		for (i = 0; i < itemCount; i++)
-		    samplingItem(i)->copyDataPoint(m);
-		sum = 0.0;
-		for (i = 0; i < itemCount; i++)
-		    sum = samplingItem(i)->setPlotStack(m, sum);
-	    }
-	    break;
-
-	case EventStyle:
-	    for (i = 0; i < itemCount; i++)
-		tracingItem(i)->redraw();
-	    break;
-
-	case NoStyle:
-	    break;
-    }
-}
-
-// add a new chart item
-// the pmMetricSpec has been filled in, and ninst is always 0
-// (PM_INDOM_NULL) or 1 (one instance at a time)
 //
-int Chart::addItem(pmMetricSpec *msp, const char *legend)
+// Add a new chart item (metric, usually with a specific instance)
+//
+int
+Chart::addItem(pmMetricSpec *msp, const char *legend)
 {
-    QmcMetric	*mp;
-    pmDesc	desc;
-    ChartItem	*item;
-
     console->post("Chart::addItem src=%s", msp->source);
     if (msp->ninst == 0)
 	console->post("addItem metric=%s", msp->metric);
     else
 	console->post("addItem instance %s[%s]", msp->metric, msp->inst[0]);
 
-    mp = my.tab->group()->addMetric(msp, 0.0, true);
+    QmcMetric *mp = my.tab->group()->addMetric(msp, 0.0, true);
     if (mp->status() < 0)
 	return mp->status();
-    desc = mp->desc().desc();
-    if (my.rateConvert && desc.sem == PM_SEM_COUNTER) {
-	if (desc.units.dimTime == 0) {
-	    desc.units.dimTime = -1;
-	    desc.units.scaleTime = PM_TIME_SEC;
-	}
-	else if (desc.units.dimTime == 1) {
-	    desc.units.dimTime = 0;
-	    // don't play with scaleTime, need native per item scaleTime
-	    // so we can apply correct scaling via item->scale, e.g. in
-	    // the msec -> msec/sec after rate conversion ... see the
-	    // calculation for item->scale below
-	}
-    }
 
+    pmDesc desc = mp->desc().desc();
     if (my.items.size() == 0) {
-	my.units = desc.units;
-	my.eventType = (desc.type == PM_TYPE_EVENT);
-	my.style = my.eventType ? EventStyle : my.style;
-	setPickerMachine();
-	setScaleEngine();
+	// first plot item, setup a new ChartEngine
+	ChartEngine *engine = (desc.type == PM_TYPE_EVENT) ?
+			(ChartEngine *) new TracingEngine(this) :
+			(ChartEngine *) new SamplingEngine(this, desc);
+	delete my.engine;
+	my.engine = engine;
     }
-    else {
-	// error reporting handled in caller
-	if (checkCompatibleUnits(&desc.units) == false)
-	    return PM_ERR_CONV;
-	if (checkCompatibleTypes(desc.type) == false)
-	    return PM_ERR_CONV;
+    else if (!my.engine->isCompatible(desc)) {
+	// not compatible with existing metrics, fail
+	return PM_ERR_CONV;
     }
 
-    if (my.eventType) {
-	item = (ChartItem *)new TracingItem(this, mp, msp, &desc, legend);
-    } else {
-	int	i, size = 0;
-
-	item = (ChartItem *)new SamplingItem(this, mp, msp, &desc, legend,
-		my.style, my.tab->group()->sampleHistory(), my.items.size());
-	// Find current max count for all plot items, then zero any plot
-	// from there to the end, so that Stack<->Line transitions work.
-	for (i = 0; i < my.items.size(); i++)
-	    size = samplingItem(i)->maximumDataCount(size);
-	for (i = 0; i < my.items.size(); i++)
-	    samplingItem(i)->truncateData(size);
-    }
-
-    // set the prevailing chart style and default color, show it
+    // Finally, request the engine allocate a new chart item,
+    // set prevailing chart style and default color, show it.
+    //
+    ChartItem *item = my.engine->addItem(mp, msp, &desc, legend);
     setStroke(item, my.style, nextColor(my.scheme, &my.sequence));
-    showItem(item->item(), true);
-    my.items.append(item);
+    item->setVisible(true);
+    replot();
 
+    my.items.append(item);
     console->post("addItem %p nitems=%d", item, my.items.size());
     return my.items.size() - 1;
 }
 
-void Chart::reviveItem(int i)
+bool
+Chart::activeItem(int index)
 {
-    console->post("Chart::reviveItem=%d (%d)", i, my.items[i]->removed());
-    my.items[i]->revive();
+    return (my.items[index]->removed() == false);
 }
 
-void Chart::removeItem(int i)
+void
+Chart::removeItem(int index)
 {
-    console->post("Chart::removeItem=%d", i);
-    my.items[i]->remove();
+    my.items[index]->remove();
 }
 
-void Chart::resetValues(int i, int v)
+void
+Chart::reviveItem(int index)
 {
-    console->post("Chart::resetValues=%d (%d)", i, v);
+    my.items[index]->revive();
+}
+
+void
+Chart::resetValues(int i, int v)
+{
     my.items[i]->resetValues(v);
 }
 
-int Chart::metricCount() const
+int
+Chart::metricCount() const
 {
     return my.items.size();
 }
 
-char *Chart::title()
+char *
+Chart::title()
 {
     return my.title;
 }
 
-// expand is true to expand %h to host name in title
+// If expand is true then expand %h to host name in title
 //
-void Chart::changeTitle(char *title, int expand)
+void
+Chart::changeTitle(char *title, int expand)
 {
     bool hadTitle = (my.title != NULL);
 
@@ -803,149 +375,124 @@ void Chart::changeTitle(char *title, int expand)
     }
 }
 
-void Chart::changeTitle(QString title, int expand)
+void
+Chart::changeTitle(QString title, int expand)
 {
     changeTitle((char *)(const char *)title.toAscii(), expand);
 }
 
-QString Chart::scheme() const
+QString
+Chart::scheme() const
 {
     return my.scheme;
 }
 
-void Chart::setScheme(QString scheme)
+void
+Chart::setScheme(QString scheme)
 {
     my.sequence = 0;
     my.scheme = scheme;
 }
 
-int Chart::sequence()
-{
-    return my.sequence;
-}
-
-void Chart::setSequence(int sequence)
-{
-    my.sequence = sequence;
-}
-
-void Chart::setScheme(QString scheme, int sequence)
+void
+Chart::setScheme(QString scheme, int sequence)
 {
     my.sequence = sequence;
     my.scheme = scheme;
 }
 
-Chart::Style Chart::style()
+Chart::Style
+Chart::style()
 {
     return my.style;
 }
 
-void Chart::setStyle(Style style)
+void
+Chart::setStyle(Style style)
 {
-    my.style = my.eventType ? EventStyle : style;
+    my.style = style;
 }
 
-void Chart::setStroke(int index, Style style, QColor color)
+void
+Chart::setStroke(int index, Style style, QColor color)
 {
     setStroke(my.items[index], style, color);
 }
 
-void Chart::setStroke(ChartItem *item, Style style, QColor color)
+void
+Chart::setStroke(ChartItem *item, Style style, QColor color)
 {
     item->setColor(color);
-    item->setStroke(style, color, my.antiAliasing);
+    item->setStroke(style, color, my.engine->antiAliasing());
 
-#if DESPERATE
-    console->post(PmChart::DebugForce, "Chart::setStroke");
-#endif
-
-    // Y-Axis title choice is difficult.  A Utilisation plot by definition
-    // is dimensionless and scaled to a percentage, so a label of just
-    // "% utilization" makes sense ... there has been some argument in
-    // support of "% time utilization" as a special case when the metrics
-    // involve some aspect of time, but the base metrics in the common case
-    // are counters in units of time (e.g. the CPU view), which after rate
-    // conversion is indistinguishable from instantaneous or discrete
-    // metrics of dimension time^0 which are units compatible ... so we're
-    // opting for the simplest possible interpretation of utilization or
-    // everything else.
-    //
     if (style != my.style) {
-	switch (style) {
-	case BarStyle:
-	case AreaStyle:
-	case LineStyle:
-	case StackStyle:
-	    if (my.style == UtilisationStyle)
-		my.samplingScaleEngine->setAutoScale(true);
-	    setYAxisTitle(pmUnitsStr(&my.units));
-	    break;
-	case UtilisationStyle:
-	    my.samplingScaleEngine->setScale(false, 0.0, 100.0);
-	    setYAxisTitle("% utilization");
-	    break;
-	case EventStyle:
-	case NoStyle:
-	    setYAxisTitle("");
-	    break;
-	}
+	my.engine->setStyle(my.style);
 	my.style = style;
 	adjustValues();
     }
 }
 
-QColor Chart::color(int index)
+QColor
+Chart::color(int index)
 {
     if (index >= 0 && index < my.items.size())
 	return my.items[index]->color();
     return QColor("white");
 }
 
-void Chart::setLabel(int index, QString s)
+void
+Chart::setLabel(int index, QString s)
 {
     if (index >= 0 && index < my.items.size())
 	my.items[index]->setLabel(s);
 }
 
-void Chart::scale(bool *autoScale, double *yMin, double *yMax)
+void
+Chart::scale(bool *autoScale, double *yMin, double *yMax)
 {
-    if (my.eventType) {
-	*autoScale = false;
-	*yMin = 0.0;
-	*yMax = 1.0;
-    } else {
-	*autoScale = my.samplingScaleEngine->autoScale();
-	*yMin = my.samplingScaleEngine->minimum();
-	*yMax = my.samplingScaleEngine->maximum();
-    }
+    my.engine->scale(autoScale, yMin, yMax);
 }
 
-void Chart::setScale(bool autoScale, double yMin, double yMax)
+bool
+Chart::autoScale(void)
 {
-    if (my.eventType) {
-	setAxisAutoScale(QwtPlot::yLeft);
-    } else {
-	my.samplingScaleEngine->setScale(autoScale, yMin, yMin);
-	if (autoScale)
-	    setAxisAutoScale(QwtPlot::yLeft);
-	else
-	    setAxisScale(QwtPlot::yLeft, yMin, yMax);
-    }
+    return my.engine->autoScale();
+}
+
+void
+Chart::setScale(bool autoScale, double yMin, double yMax)
+{
+    my.engine->setScale(autoScale, yMin, yMax);
     replot();
-    redoScale();
+    my.engine->redoScale();
 }
 
-bool Chart::rateConvert()
+bool
+Chart::rateConvert()
 {
-    return my.rateConvert;
+    return my.engine->rateConvert();
 }
 
-void Chart::setRateConvert(bool rateConvert)
+void
+Chart::setRateConvert(bool enabled)
 {
-    my.rateConvert = rateConvert;
+    my.engine->setRateConvert(enabled);
 }
 
-void Chart::setYAxisTitle(const char *p)
+bool
+Chart::antiAliasing()
+{
+    return my.engine->antiAliasing();
+}
+
+void
+Chart::setAntiAliasing(bool enabled)
+{
+    my.engine->setAntiAliasing(enabled);
+}
+
+void
+Chart::setYAxisTitle(const char *p)
 {
     QwtText *t;
     bool enable = (my.tab->currentGadget() == this);
@@ -959,42 +506,43 @@ void Chart::setYAxisTitle(const char *p)
     setAxisTitle(QwtPlot::yLeft, *t);
 }
 
-void Chart::selected(const QPolygon &poly)
+void
+Chart::selected(const QPolygon &poly)
 {
-    console->post(PmChart::DebugForce, "Chart::selected(polygon) chart=%p npoints=%d", this, poly.size());
-    if (my.eventType)
-	showPoints(poly);
-    else
-	showPoint(poly.point(0));
+    console->post("Chart::selected(polygon) chart=%p npoints=%d", this, poly.size());
+    my.engine->selected(poly);
     my.tab->setCurrent(this);
 }
 
-void Chart::selected(const QPointF &p)
+void
+Chart::selected(const QPointF &p)
 {
-    console->post(PmChart::DebugForce, "Chart::selected(point) chart=%p x=%f y=%f", this, p.x(), p.y());
+    console->post("Chart::selected(point) chart=%p x=%f y=%f", this, p.x(), p.y());
     showPoint(p);
     my.tab->setCurrent(this);
 }
 
-void Chart::moved(const QPointF &p)
+void
+Chart::moved(const QPointF &p)
 {
-    if (!my.eventType)
-	showPoint(p);
+    console->post("Chart::moved(point) chart=%p x=%f y=%f", this, p.x(), p.y());
+    my.engine->moved(p);
 }
+
 
 #define	PICK_TOLERANCE	10	// #pixels tolerance
 
-void Chart::showPoint(const QPointF &p)
+void
+Chart::showPoint(const QPointF &p)
 {
     ChartItem *selected = NULL;
     double dist, distance = 10e10;
     int index = -1;
 
     // pixel point
-    QPoint pp = my.picker->transform(p);	// XXX: problematic!
+    QPoint pp = my.picker->transform(p);
 
-    console->post(PmChart::DebugForce, "Chart::showPoint p=%.2f,%.2f pixel=%d,%d",
-			p.x(), p.y(), pp.x(), pp.y());
+    console->post("Chart::showPoint p=%.2f,%.2f pixel=%d,%d", p.x(), p.y(), pp.x(), pp.y());
 
     // seek the closest curve to the point selected
     for (int i = 0; i < my.items.size(); i++) {
@@ -1018,12 +566,13 @@ void Chart::showPoint(const QPointF &p)
     }
 }
 
-void Chart::showPoints(const QPolygon &poly)
+void
+Chart::showPoints(const QPolygon &poly)
 {
     Q_ASSERT(poly.size() == 2);
 
-    console->post(PmChart::DebugForce, "Chart::showPoints: %d,%d -> %d,%d",
-	poly.at(0).x(), poly.at(0).y(), poly.at(1).x(), poly.at(1).y());
+    console->post("Chart::showPoints: %d,%d -> %d,%d",
+		poly.at(0).x(), poly.at(0).y(), poly.at(1).x(), poly.at(1).y());
 
     // Transform selected (pixel) points to our coordinate system
     QRectF cp = my.picker->invTransform(poly.boundingRect());
@@ -1055,7 +604,8 @@ void Chart::showPoints(const QPolygon &poly)
 //
 // give feedback (popup) about the selection
 //
-void Chart::showInfo(void)
+void
+Chart::showInfo(void)
 {
     QString info = QString::null;
 
@@ -1072,7 +622,8 @@ void Chart::showInfo(void)
 	QWhatsThis::hideText();
 }
 
-bool Chart::legendVisible()
+bool
+Chart::legendVisible()
 {
     // Legend is on or off for all items, only need to test the first item
     if (my.items.size() > 0)
@@ -1084,7 +635,8 @@ bool Chart::legendVisible()
 // Clicking on individual legend buttons will hide/show the
 // corresponding item.
 //
-void Chart::setLegendVisible(bool on)
+void
+Chart::setLegendVisible(bool on)
 {
     console->post("Chart::setLegendVisible(%d) legend()=%p", on, legend());
 
@@ -1097,7 +649,8 @@ void Chart::setLegendVisible(bool on)
 	    // force each Legend item to "checked" state matching
 	    // the initial plotting state
 	    for (int i = 0; i < my.items.size(); i++)
-		showItem(my.items[i]->item(), my.items[i]->removed());
+		my.items[i]->item()->setVisible(my.items[i]->removed());
+	    replot();
 	}
     }
     else {
@@ -1112,29 +665,20 @@ void Chart::setLegendVisible(bool on)
     }
 }
 
-void Chart::save(FILE *f, bool hostDynamic)
+void
+Chart::save(FILE *f, bool hostDynamic)
 {
     SaveViewDialog::saveChart(f, this, hostDynamic);
 }
 
-void Chart::print(QPainter *qp, QRect &rect, bool transparent)
+void
+Chart::print(QPainter *qp, QRect &rect, bool transparent)
 {
     QwtPlotRenderer renderer;
 
     if (transparent)
 	renderer.setDiscardFlag(QwtPlotRenderer::DiscardBackground);
     renderer.render(this, qp, rect);
-}
-
-bool Chart::antiAliasing()
-{
-    return my.antiAliasing;
-}
-
-void Chart::setAntiAliasing(bool on)
-{
-    console->post("Chart::setAntiAliasing [%d -> %d]", my.antiAliasing, on);
-    my.antiAliasing = on;
 }
 
 QString Chart::name(int index) const
@@ -1182,34 +726,8 @@ QSize Chart::sizeHint() const
     return QSize(150,100);
 }
 
-bool Chart::checkCompatibleUnits(pmUnits *newUnits)
-{
-    console->post("Chart::check units plot units %s", pmUnitsStr(newUnits));
-    if (my.units.dimSpace != newUnits->dimSpace ||
-	my.units.dimTime != newUnits->dimTime ||
-	my.units.dimCount != newUnits->dimCount)
-	return false;
-    return true;
-}
-
-bool Chart::checkCompatibleTypes(int newType)
-{
-    console->post("Chart::check plot event type %s", pmTypeStr(newType));
-    if (my.eventType == true && newType != PM_TYPE_EVENT)
-	return false;
-    if (my.eventType == false && newType == PM_TYPE_EVENT)
-	return false;
-    return true;
-}
-
-bool Chart::activeItem(int index)
-{
-    if (index >= 0 && index < my.items.size())
-	return (my.items[index]->removed() == false);
-    return false;
-}
-
-void Chart::setupTree(QTreeWidget *tree)
+void
+Chart::setupTree(QTreeWidget *tree)
 {
     for (int i = 0; i < my.items.size(); i++) {
 	ChartItem *item = my.items[i];
@@ -1222,7 +740,8 @@ void Chart::setupTree(QTreeWidget *tree)
     }
 }
 
-void Chart::addToTree(QTreeWidget *treeview, QString metric,
+void
+Chart::addToTree(QTreeWidget *treeview, QString metric,
 	const QmcContext *context, bool isInst, QColor color, QString label)
 {
     QRegExp regexInstance("\\[(.*)\\]$");
@@ -1306,7 +825,8 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
 // Gives us fine-grained control over the colour that we
 // display in the legend boxes for each ChartItem.
 //
-void ChartCurve::drawLegendIdentifier(QPainter *painter, const QRectF &rect) const
+void
+ChartCurve::drawLegendIdentifier(QPainter *painter, const QRectF &rect) const
 {
     if (rect.isEmpty())
         return;

@@ -18,7 +18,6 @@
 #include "chart.h"
 #include <qvector.h>
 #include <qwt_plot.h>
-#include <qwt_plot_curve.h>
 #include <qwt_scale_draw.h>
 #include <qwt_scale_engine.h>
 #include <qwt_interval_symbol.h>
@@ -65,10 +64,10 @@ public:
     QwtPlotItem *item();
     QwtPlotCurve *curve();
 
-    void preserveLiveData(int, int) { /*TODO*/ }
-    void punchoutLiveData(int) { /*TODO*/ }
+    void preserveSample(int, int) { }
+    void punchoutSample(int) { }
     void resetValues(int);
-    void updateValues(bool, bool, pmUnits*, int, int, double, double, double);
+    void updateValues(TracingEngine *, double, double);
     void rescaleValues(double *, double *);
 
     void clearCursor(void);
@@ -87,8 +86,8 @@ private:
     void cullOutlyingPoints(double, double);
     void cullOutlyingEvents(double, double);
 
-    void updateEvents(QmcMetric *);
-    void updateEventRecords(QmcMetric *, int);
+    void updateEvents(TracingEngine *, QmcMetric *);
+    void updateEventRecords(TracingEngine *, QmcMetric *, int);
     void showEventInfo(bool, int);
 
     struct {
@@ -119,10 +118,13 @@ private:
     } my;
 };
 
+//
+// Handles updates to the Y-Axis
+//
 class TracingScaleEngine : public QwtLinearScaleEngine
 {
 public:
-    TracingScaleEngine(Chart *chart);
+    TracingScaleEngine(TracingEngine *engine);
 
     virtual void autoScale(int maxSteps, double &minValue,
                            double &maxValue, double &stepSize) const;
@@ -135,21 +137,64 @@ private:
     struct {
 	double	maxSpanID;
 	double	minSpanID;
-	Chart	*chart;
+	TracingEngine *engine;
     } my;
 };
 
+//
+// Implements a mapping from span identifier to span name
+// for updating the Y-Axis display.
+//
 class TracingScaleDraw : public QwtScaleDraw
 {
 public:
-    TracingScaleDraw(Chart *chart) : QwtScaleDraw() { my.chart = chart; }
+    TracingScaleDraw(TracingEngine *engine) : QwtScaleDraw() { my.engine = engine; }
     virtual QwtText label(double v) const;
     virtual void getBorderDistHint(const QFont &f, int &start, int &end) const;
     void invalidate() { invalidateCache(); }
 
 private:
     struct {
-	Chart	*chart;
+	TracingEngine *engine;
+    } my;
+};
+
+//
+// Implement tracing-specific behaviour within a Chart
+//
+class TracingEngine : public ChartEngine
+{
+    friend class Chart;
+
+public:
+    TracingEngine(Chart *);
+
+    bool isCompatible(pmDesc &);
+    ChartItem *addItem(QmcMetric *, pmMetricSpec *, pmDesc *, const char *);
+
+    void updateValues(bool, int, int, double, double, double);
+
+    void redoScale(void);
+    void setScale(bool, double, double);
+    void scale(bool *, double *, double *);
+    void setStyle(Chart::Style);
+
+    void addTraceSpan(const QString &, int);
+    int getTraceSpan(const QString &, int) const;
+    QString getSpanLabel(int) const;
+
+    void selected(const QPolygon &);
+    void replot(void);
+
+private:
+    TracingItem *tracingItem(int index);
+
+    struct {
+	QHash<QString, int> traceSpanMapping;	// map, event ID to y-axis point
+	QHash<int, QString> labelSpanMapping;	// reverse -> y-axis point to ID
+	TracingScaleEngine *scaleEngine;
+	TracingScaleDraw *scaleDraw;		// convert ints to spanID
+	Chart *chart;
     } my;
 };
 
