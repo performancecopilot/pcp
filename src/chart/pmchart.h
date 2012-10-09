@@ -54,7 +54,7 @@ public:
     static int defaultSampleHistory() { return 180; }
     static int defaultTimeout() { return 8000; }		// milliseconds
     static int minimumPoints() { return 2; }
-    static int maximumPoints() { return 360; }
+    static int maximumPoints() { return 720; }
     static int maximumLegendLength() { return 120; }	// chars
     static int minimumChartHeight() { return 80; }	// pixels
 
