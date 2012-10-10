@@ -33,19 +33,6 @@
  * If NSS/NSPR is available, then we also keep NSPR file descriptor information
  * here. This allows us to handle NSPR sockets which in turn allows us to support
  * SSL/TLS.
- * 
- * NSPR file descriptors are not integers, however, integral file descriptors are
- * expected in many parts of pcp. In order to deal with this assumption, when
- * NSS/NSPR is available, for sockets using NSPR, we must assign an integral fd
- * number. However this must not collide with the native fd numbers also in use.
- * Obtaining the hard max fd number using getrlimit() was considered, but a
- * sysadmin could change this limit arbitrarily while we are running. We can't use
- * negative values, since these indicate an error.
- *
- * There is a limit on the range of fd's which can be passed to the fd_set API.
- * It is FD_SETSIZE. So, consider all fd's >= FD_SETSIZE to be ones which
- * represent NSPR sockets. Using this threshold will also allow us to easily
- * manage mixed sets of native and indexed fds.
  */
 typedef struct {
     int		version;	/* one or two */
