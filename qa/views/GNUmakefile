@@ -10,7 +10,7 @@ default setup:
 
 install: $(VIEWFILES)
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 755 $(VIEWFILES) $(TESTDIR)
-	$(INSTALL) -m 755 GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 644 $(VIEWFILES) $(TESTDIR)
+	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 include $(BUILDRULES)
