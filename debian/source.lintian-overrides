@@ -1,0 +1,2 @@
+# pcp-gui build requires a makefile in every directory
+pcp-gui source: unknown-file-in-debian-source GNUmakefile

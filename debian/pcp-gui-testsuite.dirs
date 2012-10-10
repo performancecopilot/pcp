@@ -6,6 +6,7 @@ var/lib/pcp-gui/testsuite/src/dynamic
 var/lib/pcp-gui/testsuite/src/qmc_context
 var/lib/pcp-gui/testsuite/src/qmc_desc
 var/lib/pcp-gui/testsuite/src/qmc_dynamic
+var/lib/pcp-gui/testsuite/src/qmc_event
 var/lib/pcp-gui/testsuite/src/qmc_format
 var/lib/pcp-gui/testsuite/src/qmc_group
 var/lib/pcp-gui/testsuite/src/qmc_hosts
