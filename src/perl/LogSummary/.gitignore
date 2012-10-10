@@ -1,4 +1,4 @@
-blib/
+blib
 COPYING
 Makefile
 META.yml
