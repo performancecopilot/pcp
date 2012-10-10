@@ -90,14 +90,16 @@ TracingItem::curve(void)
     return my.pointCurve;
 }
 
-TracingEvent::TracingEvent(QmcEventRecord const &record)
+TracingEvent::TracingEvent(QmcEventRecord const &record, pmID pmid, int inst)
 {
     my.timestamp = tosec(*record.timestamp());
     my.missed = record.missed();
     my.flags = record.flags();
+    my.pmid = pmid;
+    my.inst = inst;
     my.spanID = record.identifier();
     my.rootID = record.parent();
-    my.description = record.parameterSummary();
+    record.parameterSummary(my.description, inst);
 }
 
 TracingEvent::~TracingEvent()
@@ -289,7 +291,7 @@ TracingItem::updateEventRecords(TracingEngine *engine, QmcMetric *metric, int in
 	for (int i = 0; i < records.size(); i++) {
 	    QmcEventRecord const &record = records.at(i);
 
-	    my.events.append(TracingEvent(record));
+	    my.events.append(TracingEvent(record, metric->metricID(), index));
 	    TracingEvent &event = my.events.last();
 
 	    if (event.hasIdentifier() && name == QString::null) {
@@ -615,10 +617,9 @@ void
 TracingEngine::addTraceSpan(const QString &spanID, int slot)
 {
     Q_ASSERT(spanID != QString::null && spanID != "");
-    Q_ASSERT(my.traceSpanMapping.size() == my.labelSpanMapping.size());
-
-    console->post("TracingEngine::addTraceSpan: \"%s\" <=> slot %d (%d total)",
-			(const char *)spanID.toAscii(), slot, my.traceSpanMapping.size());
+    console->post("TracingEngine::addTraceSpan: \"%s\" <=> slot %d (%d/%d span/label)",
+			(const char *)spanID.toAscii(), slot,
+			my.traceSpanMapping.size(), my.labelSpanMapping.size());
     my.traceSpanMapping.insert(spanID, slot);
     my.labelSpanMapping.insert(slot, spanID);
 }

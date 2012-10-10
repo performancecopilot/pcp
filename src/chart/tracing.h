@@ -27,7 +27,7 @@ class TracingEvent
 {
 public:
     TracingEvent() { }
-    TracingEvent(QmcEventRecord const &);
+    TracingEvent(QmcEventRecord const &, pmID, int);
     bool operator<(TracingEvent const& rhs)	// for sorting
 	{ return my.timestamp < rhs.timestamp(); }
     virtual ~TracingEvent();
@@ -48,6 +48,8 @@ private:
 	double		timestamp;	// from PMDA
 	int		missed;		// from PMDA
 	int		flags;		// from PMDA
+	pmID		pmid;		// metric
+	int		inst;		// instance
 	QString		spanID;		// identifier
 	QString		rootID;		// parent ID
 	QString 	description;	// parameters, etc

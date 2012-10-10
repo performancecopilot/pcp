@@ -938,10 +938,41 @@ QmcEventRecord::parent() const
     return QString::null;
 }
 
-QString
-QmcEventRecord::parameterSummary() const
+void
+QmcEventRecord::parameterSummary(QString &os, int instID) const
 {
-    return QString::null;	// TODO
+    for (int i = 0; i < my.parameters.size(); i++)
+	my.parameters.at(i).summary(os, instID);
+}
+
+void
+QmcEventParameter::summary(QString &os, int instID) const
+{
+    pmDesc desc = my.desc->desc();
+
+    for (int i = 0; i < my.values.size(); i++) {
+	QmcMetricValue const &value = my.values.at(i);
+
+        os.append("    ").append(*my.name);
+        if (desc.indom != PM_INDOM_NULL) {
+            if (my.values.size() > 1)
+                os.append("\n").append("        ");
+            QString name = my.indom->name(instID);
+            if (name == QString::null)
+                os.append("[").append(instID).append("]");
+            else
+                os.append("[\"").append(name).append("\"]");
+        }
+        os.append(" ");
+
+        if (QmcMetric::real(desc.type))
+            os.append(QString::number(value.currentValue()));
+        else if (QmcMetric::aggregate(desc.type))
+            os.append("[").append(value.stringValue()).append("]");
+        else if (QmcMetric::event(desc.type) == false)
+            os.append("\"").append(value.stringValue()).append("\"");
+        os.append("\n");
+    }
 }
 
 void
