@@ -73,7 +73,6 @@ ifeq ($(WINDOW),win)
 endif
 ifeq ($(WINDOW),x11)
 	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
-	$(INSTALL) -S $(BINARY) $(PKG_BIN_DIR)/kmchart
 	$(INSTALL) -m 755 -d $(PKG_DESKTOP_DIR)
 	$(INSTALL) -m 644 $(DESKTOP) $(PKG_DESKTOP_DIR)/$(DESKTOP)
 endif
