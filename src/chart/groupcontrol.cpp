@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012, Red Hat.
  * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * 
@@ -31,7 +32,8 @@ GroupControl::GroupControl()
     memset(&my.position, 0, sizeof(struct timeval));
 }
 
-void GroupControl::init(int samples, int visible,
+void
+GroupControl::init(int samples, int visible,
 			struct timeval *interval, struct timeval *position)
 {
     my.samples = samples;
@@ -55,7 +57,8 @@ void GroupControl::init(int samples, int visible,
 	my.timeData[i] = my.realPosition - (i * my.realDelta);
 }
 
-bool GroupControl::isArchiveSource(void)
+bool
+GroupControl::isArchiveSource(void)
 {
     // Note: We purposefully are not using QmcGroup::mode() here, as we
     // may not have initialised any contexts yet.  In such a case, live
@@ -64,7 +67,8 @@ bool GroupControl::isArchiveSource(void)
     return this == archiveGroup;
 }
 
-bool GroupControl::isActive(PmTime::Packet *packet)
+bool
+GroupControl::isActive(PmTime::Packet *packet)
 {
     return (((activeGroup == archiveGroup) &&
 	     (packet->source == PmTime::ArchiveSource)) ||
@@ -72,30 +76,35 @@ bool GroupControl::isActive(PmTime::Packet *packet)
 	     (packet->source == PmTime::HostSource)));
 }
 
-void GroupControl::addGadget(Gadget *gadget)
+void
+GroupControl::addGadget(Gadget *gadget)
 {
     my.gadgetsList.append(gadget);
 }
 
-void GroupControl::deleteGadget(Gadget *gadget)
+void
+GroupControl::deleteGadget(Gadget *gadget)
 {
     for (int i = 0; i < gadgetCount(); i++)
 	if (my.gadgetsList.at(i) == gadget)
 	    my.gadgetsList.removeAt(i);
 }
 
-int GroupControl::gadgetCount() const
+int
+GroupControl::gadgetCount() const
 {
     return my.gadgetsList.size();
 }
 
-void GroupControl::updateBackground(void)
+void
+GroupControl::updateBackground(void)
 {
     for (int i = 0; i < gadgetCount(); i++)
 	my.gadgetsList.at(i)->updateBackground(globalSettings.chartBackground);
 }
 
-void GroupControl::updateTimeAxis(void)
+void
+GroupControl::updateTimeAxis(void)
 {
     QString tz, otz, unused;
 
@@ -129,17 +138,20 @@ void GroupControl::updateTimeAxis(void)
     }
 }
 
-void GroupControl::updateTimeButton(void)
+void
+GroupControl::updateTimeButton(void)
 {
     pmchart->setButtonState(my.buttonState);
 }
 
-PmTime::State GroupControl::pmtimeState(void)
+PmTime::State
+GroupControl::pmtimeState(void)
 {
     return my.pmtimeState;
 }
 
-char *GroupControl::timeState()
+char *
+GroupControl::timeState()
 {
     static char buf[16];
 
@@ -157,7 +169,8 @@ char *GroupControl::timeState()
 //
 // Drive all updates into each gadget (refresh the display)
 //
-void GroupControl::refreshGadgets(bool active)
+void
+GroupControl::refreshGadgets(bool active)
 {
 #if DESPERATE
     for (int s = 0; s < my.samples; s++)
@@ -168,14 +181,12 @@ void GroupControl::refreshGadgets(bool active)
 		"GroupControl::refreshGadgets: state=%s", timeState());
 #endif
 
-    double left = my.timeData[my.visible - 1];
-    double right = my.timeData[0];
-    double interval = pmchart->timeAxis()->scaleValue(my.realDelta, my.visible);
     for (int i = 0; i < gadgetCount(); i++) {
-	Gadget *gadget = my.gadgetsList.at(i);
-	if (active)
-	    gadget->updateTimeAxis(left, right, interval);
-	gadget->updateValues(my.timeState != BackwardState, active);
+	my.gadgetsList.at(i)->updateValues(my.timeState != BackwardState,
+					active, my.samples, my.visible,
+					my.timeData[my.visible - 1],
+					my.timeData[0],
+					my.realDelta);
     }
     if (active) {
 	updateTimeButton();
@@ -188,7 +199,8 @@ void GroupControl::refreshGadgets(bool active)
 // All of the work is in archive mode; in live mode we have
 // not yet got any historical data that we can display...
 //
-void GroupControl::setupWorldView(void)
+void
+GroupControl::setupWorldView(void)
 {
     if (isArchiveSource() == false)
 	return;
@@ -209,7 +221,8 @@ void GroupControl::setupWorldView(void)
 // and possibly rethink everything.  This can result from a time
 // control position change, delta change, direction change, etc.
 //
-void GroupControl::adjustWorldView(PmTime::Packet *packet, bool vcrMode)
+void
+GroupControl::adjustWorldView(PmTime::Packet *packet, bool vcrMode)
 {
     my.delta = packet->delta;
     my.position = packet->position;
@@ -236,7 +249,8 @@ void GroupControl::adjustWorldView(PmTime::Packet *packet, bool vcrMode)
 	adjustLiveWorldViewStopped(packet);
 }
 
-void GroupControl::adjustLiveWorldViewStopped(PmTime::Packet *packet)
+void
+GroupControl::adjustLiveWorldViewStopped(PmTime::Packet *packet)
 {
     if (isActive(packet)) {
 	newButtonState(packet->state, packet->mode, pmchart->isTabRecording());
@@ -244,7 +258,8 @@ void GroupControl::adjustLiveWorldViewStopped(PmTime::Packet *packet)
     }
 }
 
-static bool fuzzyTimeMatch(double a, double b, double tolerance)
+static bool
+fuzzyTimeMatch(double a, double b, double tolerance)
 {
     // a matches b if the difference is within 1% of the delta (tolerance)
     return (a == b ||
@@ -252,7 +267,8 @@ static bool fuzzyTimeMatch(double a, double b, double tolerance)
 	    (b < a && a - tolerance < b));
 }
 
-void GroupControl::adjustLiveWorldViewForward(PmTime::Packet *packet)
+void
+GroupControl::adjustLiveWorldViewForward(PmTime::Packet *packet)
 {
     //
     // X-Axis _max_ becomes packet->position.
@@ -286,7 +302,7 @@ void GroupControl::adjustLiveWorldViewForward(PmTime::Packet *packet)
 	    console->post("Saved live data (oi=%d/i=%d) for %s", oi, i,
 						timeString(position));
 	    for (int j = 0; j < gadgetCount(); j++)
-		my.gadgetsList.at(j)->preserveLiveData(i, oi);
+		my.gadgetsList.at(j)->preserveSample(i, oi);
 	    my.timeData[i] = my.timeData[oi];
 	    preserve = true;
 	    oi--;
@@ -304,7 +320,7 @@ void GroupControl::adjustLiveWorldViewForward(PmTime::Packet *packet)
 #endif
 	    my.timeData[i] = position;
 	    for (int j = 0; j < gadgetCount(); j++)
-		my.gadgetsList.at(j)->punchoutLiveData(i);
+		my.gadgetsList.at(j)->punchoutSample(i);
 	}
 	else
 	    preserve = false;
@@ -321,7 +337,8 @@ void GroupControl::adjustLiveWorldViewForward(PmTime::Packet *packet)
     refreshGadgets(active);
 }
 
-void GroupControl::adjustArchiveWorldViewForward(PmTime::Packet *packet, bool setup)
+void
+GroupControl::adjustArchiveWorldViewForward(PmTime::Packet *packet, bool setup)
 {
     console->post("GroupControl::adjustArchiveWorldViewForward");
     my.timeState = ForwardState;
@@ -343,6 +360,10 @@ void GroupControl::adjustArchiveWorldViewForward(PmTime::Packet *packet, bool se
     double tolerance = my.realDelta / 20.0;	// 5% of the sample interval
     double position = my.realPosition - (my.realDelta * last);
 
+    double left = position;
+    double right = my.realPosition;
+    double interval = pmchart->timeAxis()->scaleValue((double)delta, my.visible);
+
     for (int i = last; i >= 0; i--, position += my.realDelta) {
 	if (setup == false &&
 	    fuzzyTimeMatch(my.timeData[i], position, tolerance) == true) {
@@ -363,7 +384,8 @@ void GroupControl::adjustArchiveWorldViewForward(PmTime::Packet *packet, bool se
 			i, position, timeString(position),
 			timeState(), gadgetCount());
 	for (int j = 0; j < gadgetCount(); j++)
-	    my.gadgetsList.at(j)->updateValues(true, false);
+	    my.gadgetsList.at(j)->updateValues(true, false, my.samples, my.visible,
+						left, right, interval);
     }
 
     bool active = isActive(packet);
@@ -375,7 +397,8 @@ void GroupControl::adjustArchiveWorldViewForward(PmTime::Packet *packet, bool se
     refreshGadgets(active);
 }
 
-void GroupControl::adjustArchiveWorldViewBackward(PmTime::Packet *packet, bool setup)
+void
+GroupControl::adjustArchiveWorldViewBackward(PmTime::Packet *packet, bool setup)
 {
     console->post("GroupControl::adjustArchiveWorldViewBackward");
     my.timeState = BackwardState;
@@ -397,6 +420,10 @@ void GroupControl::adjustArchiveWorldViewBackward(PmTime::Packet *packet, bool s
     double tolerance = my.realDelta / 20.0;	// 5% of the sample interval
     double position = my.realPosition;
 
+    double left = position - (my.realDelta * last);
+    double right = position;
+    double interval = pmchart->timeAxis()->scaleValue((double)delta, my.visible);
+
     for (int i = 0; i <= last; i++, position -= my.realDelta) {
 	if (setup == false &&
 	    fuzzyTimeMatch(my.timeData[i], position, tolerance) == true) {
@@ -417,7 +444,8 @@ void GroupControl::adjustArchiveWorldViewBackward(PmTime::Packet *packet, bool s
 			i, position, timeString(position),
 			timeState(), gadgetCount());
 	for (int j = 0; j < gadgetCount(); j++)
-	    my.gadgetsList.at(j)->updateValues(false, false);
+	    my.gadgetsList.at(j)->updateValues(false, false, my.samples, my.visible,
+						left, right, interval);
     }
 
     bool active = isActive(packet);
@@ -429,16 +457,17 @@ void GroupControl::adjustArchiveWorldViewBackward(PmTime::Packet *packet, bool s
     refreshGadgets(active);
 }
 
-void GroupControl::adjustArchiveWorldViewStopped(PmTime::Packet *packet, bool needFetch)
+void
+GroupControl::adjustArchiveWorldViewStopped(PmTime::Packet *packet, bool needFetch)
 {
     if (needFetch) {	// stopped, but VCR reposition event occurred
 	adjustArchiveWorldViewForward(packet, needFetch);
-	return;
+    } else {
+	my.timeState = StandbyState;
+	packet->state = PmTime::StoppedState;
+	newButtonState(packet->state, packet->mode, pmchart->isTabRecording());
+	updateTimeButton();
     }
-    my.timeState = StandbyState;
-    packet->state = PmTime::StoppedState;
-    newButtonState(packet->state, packet->mode, pmchart->isTabRecording());
-    updateTimeButton();
 }
 
 //
@@ -446,7 +475,8 @@ void GroupControl::adjustArchiveWorldViewStopped(PmTime::Packet *packet, bool ne
 // in position.  This happens when we restart after a stop in live
 // mode (both with and without a change in the delta).
 //
-static bool sideStep(double n, double o, double interval)
+static bool
+sideStep(double n, double o, double interval)
 {
     // tolerance set to 5% of the sample interval:
     return fuzzyTimeMatch(o + interval, n, interval/20.0) == false;
@@ -456,7 +486,8 @@ static bool sideStep(double n, double o, double interval)
 // Fetch all metric values across all gadgets, and also update the
 // unified time axis.
 //
-void GroupControl::step(PmTime::Packet *packet)
+void
+GroupControl::step(PmTime::Packet *packet)
 {
     double stepPosition = tosec(packet->position);
 
@@ -496,13 +527,15 @@ void GroupControl::step(PmTime::Packet *packet)
     refreshGadgets(active);
 }
 
-void GroupControl::VCRMode(PmTime::Packet *packet, bool dragMode)
+void
+GroupControl::VCRMode(PmTime::Packet *packet, bool dragMode)
 {
     if (!dragMode)
 	adjustWorldView(packet, true);
 }
 
-void GroupControl::setTimezone(PmTime::Packet *packet, char *tz)
+void
+GroupControl::setTimezone(PmTime::Packet *packet, char *tz)
 {
     console->post(PmChart::DebugProtocol, "GroupControl::setTimezone %s", tz);
 
@@ -512,7 +545,8 @@ void GroupControl::setTimezone(PmTime::Packet *packet, char *tz)
 	updateTimeAxis();
 }
 
-void GroupControl::setSampleHistory(int v)
+void
+GroupControl::setSampleHistory(int v)
 {
     console->post("GroupControl::setSampleHistory (%d -> %d)", my.samples, v);
     if (my.samples != v) {
@@ -528,35 +562,41 @@ void GroupControl::setSampleHistory(int v)
     }
 }
 
-int GroupControl::sampleHistory(void)
+int
+GroupControl::sampleHistory(void)
 {
     return my.samples;
 }
 
-void GroupControl::setVisibleHistory(int v)
+void
+GroupControl::setVisibleHistory(int v)
 {
     console->post("GroupControl::setVisibleHistory (%d -> %d)", my.visible, v);
-    if (my.visible != v) {
+
+    if (my.visible != v)
 	my.visible = v;
-    }
 }
 
-int GroupControl::visibleHistory(void)
+int
+GroupControl::visibleHistory(void)
 {
     return my.visible;
 }
 
-double *GroupControl::timeAxisData(void)
+double *
+GroupControl::timeAxisData(void)
 {
     return my.timeData;
 }
 
-TimeButton::State GroupControl::buttonState(void)
+TimeButton::State
+GroupControl::buttonState(void)
 {
     return my.buttonState;
 }
 
-void GroupControl::newButtonState(PmTime::State s, PmTime::Mode m, bool record)
+void
+GroupControl::newButtonState(PmTime::State s, PmTime::Mode m, bool record)
 {
     if (isArchiveSource() == false) {
 	if (s == PmTime::StoppedState)

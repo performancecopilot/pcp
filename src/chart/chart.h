@@ -24,16 +24,14 @@
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_picker.h>
-#include <qwt_double_rect.h>
 #include <qmc_metric.h>
 #include "gadget.h"
 
 class Tab;
 class ChartItem;
-class TracingItem;
-class SamplingItem;
-class TracingScaleEngine;
-class SamplingScaleEngine;
+class ChartEngine;
+class TracingEngine;
+class SamplingEngine;
 
 //
 // Centre of the pmchart universe
@@ -68,37 +66,45 @@ public:
     char *title(void);			// return chart title
     void changeTitle(char *, int);	// NULL to clear
     void changeTitle(QString, int);
-    QColor color(int);			// return color for ith plot
+
     Style style(void);			// return chart style
     void setStyle(Style);		// set default chart plot style
+
+    QColor color(int);			// return color for ith plot
+    static QColor schemeColor(QString, int *);
     void setStroke(int, Style, QColor);	// set chart style and color
-    int sequence();			// return chart color scheme position
-    void setSequence(int);		// set the chart color scheme position
     void setScheme(QString, int);	// set the chart scheme and position
+
+    int sequence()			// return chart color scheme position
+	{ return my.sequence; }
+    void setSequence(int sequence)	// set the chart color scheme position
+	{ my.sequence = sequence; }
+
     QString label(int);			// return legend label for ith plot
     void setLabel(int, QString);	// set plot legend label
+
+    bool autoScale(void);
     void scale(bool *, double *, double *);
 			// return autoscale state and fixed scale parameters
     void setScale(bool, double, double);
 			// set autoscale state and fixed scale parameters
-    bool rateConvert();
-    void setRateConvert(bool);
     void setYAxisTitle(const char *);
     bool legendVisible();
     void setLegendVisible(bool);
+    bool rateConvert();
+    void setRateConvert(bool);
     bool antiAliasing();
     void setAntiAliasing(bool);
 
     virtual void save(FILE *, bool);
     virtual void print(QPainter *, QRect &, bool);
 
-    virtual void updateTimeAxis(double, double, double);
-    virtual void updateValues(bool, bool);
+    virtual void updateValues(bool, bool, int, int, double, double, double);
     virtual void resetValues(int m, int v);
     virtual void adjustValues();
 
-    virtual void preserveLiveData(int, int);
-    virtual void punchoutLiveData(int);
+    virtual void preserveSample(int, int);
+    virtual void punchoutSample(int);
 
     virtual int metricCount() const;
     virtual QString name(int) const;
@@ -116,47 +122,103 @@ public:
     void addToTree(QTreeWidget *, QString, const QmcContext *,
 			  bool, QColor, QString);
 
-    static QColor schemeColor(QString, int *);
-
 public slots:
     void replot(void);
 
 private slots:
-    void selected(const QwtDoublePoint &);
-    void moved(const QwtDoublePoint &);
-    void showItem(QwtPlotItem *, bool);
+    void selected(const QPointF &);
+    void moved(const QPointF &);
+    void selected(const QPolygon &);
+    void legendChecked(QwtPlotItem *, bool);
 
 private:
-    bool checkCompatibleUnits(pmUnits *);
-    bool checkCompatibleTypes(int);
-
-    void redoScale(void);
-    bool autoScale(void);
-    void setScaleEngine(void);
+    // changing properties
     void setStroke(ChartItem *, Style, QColor);
 
-    void redoChartItems(void);
-    TracingItem *tracingItem(int);
-    SamplingItem *samplingItem(int);
+    // handling selection
+    void showInfo(void);
+    void showPoint(const QPointF &);
+    void showPoints(const QPolygon &);
 
     struct {
 	Tab *tab;
 	QList<ChartItem *> items;
-	pmUnits units;
 
 	char *title;
-	Style style;
 	QString scheme;
 	int sequence;
+	Style style;
 
-	bool eventType;
-	bool rateConvert;
-	bool antiAliasing;
-
+	ChartEngine *engine;
 	QwtPlotPicker *picker;
-	TracingScaleEngine *tracingScaleEngine;
-	SamplingScaleEngine *samplingScaleEngine;
     } my;
+
+    friend class TracingEngine;
+    friend class SamplingEngine;
+};
+
+//
+// Abstraction for differences between event tracing and sampling models
+// Note that this base class is used for an initially empty chart
+//
+class ChartEngine
+{
+public:
+    ChartEngine() { }
+    ChartEngine(Chart *chart);
+
+    // test whether a new metric (type and units) would be compatible
+    // with this engine and any metrics already plotted in the chart.
+    virtual bool isCompatible(pmDesc &) { return true; }
+
+    // insert a new item (plot curve) into a chart
+    virtual ChartItem *addItem(QmcMetric *, pmMetricSpec *, pmDesc *, const char *)
+	{ return NULL; }	// cannot add to an empty engine
+
+    // indicates movement forward/backward occurred
+    virtual void updateValues(bool, int, int, double, double, double) { }
+
+    // indicates the Y-axis scale needs updating
+    virtual bool autoScale(void) { return false; }
+    virtual void redoScale(void) { }
+    virtual void setScale(bool, double, double) { }
+    virtual void scale(bool *autoScale, double *yMin, double *yMax)
+	{ *autoScale = false; *yMin = 0.0; *yMax = 1.0; }
+
+    // get/set other attributes of the chart
+    virtual bool rateConvert(void) const { return my.rateConvert; }
+    virtual void setRateConvert(bool enabled) { my.rateConvert = enabled; }
+    virtual bool antiAliasing(void) const { return my.antiAliasing; }
+    virtual void setAntiAliasing(bool enabled) { my.antiAliasing = enabled; }
+    virtual void setStyle(Chart::Style) { }
+
+    // prepare for chart replot() being called
+    virtual void replot(void) { }
+
+    // a selection has been made/changed, handle it
+    virtual void selected(const QPolygon &) { }
+    virtual void moved(const QPointF &) { }
+
+private:
+    struct {
+	bool	rateConvert;
+	bool	antiAliasing;
+    } my;
+};
+
+//
+// Helper dealing with overriding of legend behaviour
+//
+class ChartCurve : public QwtPlotCurve
+{
+public:
+    ChartCurve(const QString &title)
+	: QwtPlotCurve(title), legendColor(Qt::white) { }
+
+    virtual void drawLegendIdentifier(QPainter *painter,
+		const QRectF &rect ) const;
+    void setLegendColor(QColor color) { legendColor = color; }
+    QColor legendColor;
 };
 
 //
@@ -166,18 +228,25 @@ private:
 class ChartItem
 {
 public:
+    ChartItem() { }
     ChartItem(QmcMetric *, pmMetricSpec *, pmDesc *, const char *);
     virtual ~ChartItem(void) { }
 
     virtual QwtPlotItem *item(void) = 0;
-    virtual void preserveLiveData(int, int) = 0;
-    virtual void punchoutLiveData(int) = 0;
+    virtual QwtPlotCurve *curve(void) = 0;
+
+    virtual void preserveSample(int, int) = 0;
+    virtual void punchoutSample(int) = 0;
     virtual void resetValues(int) = 0;
-    virtual void updateValues(bool, bool, int, pmUnits *) = 0;
-    virtual void rescaleValues(pmUnits *) = 0;
+
+    virtual void clearCursor() = 0;
+    virtual bool containsPoint(const QRectF &, int) = 0;
+    virtual void updateCursor(const QPointF &, int) = 0;
+    virtual const QString &cursorInfo() = 0;
+
+    virtual void setVisible(bool on) { item()->setVisible(on); }
     virtual void setStroke(Chart::Style, QColor, bool) = 0;
-    virtual void replot(int, double *) = 0;
-    virtual void revive(Chart *parent) = 0;
+    virtual void revive(void) = 0;
     virtual void remove(void) = 0;
 
     QString name(void) const { return my.name; }
@@ -197,6 +266,7 @@ public:
 
     bool hidden(void) { return my.hidden; }
     void setHidden(bool hidden) { my.hidden = hidden; }
+
     bool removed(void) { return my.removed; }
     void setRemoved(bool removed) { my.removed = removed; }
 

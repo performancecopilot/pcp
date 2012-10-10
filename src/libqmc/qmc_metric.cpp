@@ -897,6 +897,83 @@ QmcEventRecord::setParameter(int index, pmID pmid, QmcContext *context, pmValueS
     return 0;
 }
 
+QString
+QmcEventRecord::parameterAsString(int index) const
+{
+    QString identifier;
+
+    if (index >= my.parameters.size())
+	return QString::null;
+
+    int type = my.parameters[index].type();
+    if (QmcMetric::real(type))
+	return QString::number(my.parameters.at(index).value(0));
+    if (QmcMetric::event(type))
+	return QString::null;
+    return my.parameters.at(index).stringValue(0);
+}
+
+QString
+QmcEventRecord::identifier() const
+{
+    //
+    // If the ID flag is set, the identifier is always the
+    // first parameter.
+    //
+    if (my.flags & PM_EVENT_FLAG_ID)
+	return parameterAsString(0);
+    return QString::null;
+}
+
+QString
+QmcEventRecord::parent() const
+{
+    //
+    // If PARENT flag is set, then parent identifier is either
+    // the first parameter (if no ID, bit wierd) or the second
+    // (thats expected typical usage anyway).
+    //
+    if (my.flags & PM_EVENT_FLAG_PARENT)
+	return parameterAsString((my.flags & PM_EVENT_FLAG_ID) != 0);
+    return QString::null;
+}
+
+QString
+QmcEventRecord::parameterSummary() const
+{
+    return QString::null;	// TODO
+}
+
+void
+QmcEventParameter::setValueCount(int numInst)
+{
+    my.values.resize(numInst);
+}
+
+QmcMetricValue *
+QmcEventParameter::valuePtr(int inst)
+{
+    return &my.values[inst];
+}
+
+int
+QmcEventParameter::type() const
+{
+    return my.desc->desc().type;
+}
+
+double
+QmcEventParameter::value(int inst) const
+{
+    return my.values[inst].currentValue();
+}
+
+QString
+QmcEventParameter::stringValue(int inst) const
+{
+    return my.values[inst].stringValue();
+}
+
 void
 QmcEventParameter::dump(QTextStream &os, int instID) const
 {

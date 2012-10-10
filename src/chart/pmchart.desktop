@@ -1,9 +1,9 @@
 [Desktop Entry]
 Name=PCP Charts
-Comment=Strip Chart tool for plotting Performance Co-Pilot metrics.
+Comment=Strip Chart tool for plotting Performance Co-Pilot metrics
 Exec=pmchart
-Icon=pmchart.png
+Icon=pmchart
 Terminal=false
 Type=Application
-Categories=System;Utility;
+Categories=System;Utility;Network;Qt;
 Encoding=UTF-8

@@ -4,7 +4,7 @@ Scaling Charts
 See also qa 006 for automated tests.
 
 [ ] Start pmchart as follows:
-	$ pmafm 20071023.08:06:36.folio replay
+	$ pmafm 20071023-08-06-36.folio replay
 
 [ ] The initial configuration should be from top to bottom (5 charts):
 

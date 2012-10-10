@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012, Red Hat.
  * Copyright (c) 2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -30,13 +31,12 @@ public:
     virtual QString scheme() const { return my.scheme; }
 
     virtual void updateBackground(QColor) { }
-    virtual void updateTimeAxis(double, double, double) { }
-    virtual void updateValues(bool, bool) { }
+    virtual void updateValues(bool, bool, int, int, double, double, double) { }
 
     virtual void resetValues(int, int) { }
     virtual void adjustValues() { }
-    virtual void preserveLiveData(int, int) { }
-    virtual void punchoutLiveData(int) { }
+    virtual void preserveSample(int, int) { }
+    virtual void punchoutSample(int) { }
 
     virtual void showWidget() { return my.widget->show(); }
     virtual int width() const { return my.widget->width(); }
