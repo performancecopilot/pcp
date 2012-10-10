@@ -214,7 +214,7 @@ Chart::replot()
 void
 Chart::legendChecked(QwtPlotItem *item, bool down)
 {
-#ifdef DESPERATE
+#if DESPERATE
     console->post(PmChart::DebugForce, "Chart::legendChecked %s for item %p",
 		down? "down":"up", item);
 #endif
