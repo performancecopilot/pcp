@@ -213,12 +213,10 @@ DeleteClient(ClientInfo *cp)
 #endif
 
     if (cp->fd >= 0) {
-	__pmResetIPC(cp->fd);
 	__pmFD_CLR(cp->fd, &sockFds);
 	__pmCloseSocket(cp->fd);
     }
     if (cp->pmcd_fd >= 0) {
-	__pmResetIPC(cp->pmcd_fd);
 	__pmFD_CLR(cp->pmcd_fd, &sockFds);
 	__pmCloseSocket(cp->pmcd_fd);
     }

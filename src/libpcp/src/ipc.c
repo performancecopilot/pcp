@@ -29,10 +29,30 @@
  * connection, which is most important for the Windows port, as socket interfaces
  * are braindead and do not use the usual file descriptor read/write/close calls,
  * but must rather use recv/send/closesocket.
+ *
+ * If NSS/NSPR is available, then we also keep NSPR file descriptor information
+ * here. This allows us to handle NSPR sockets which in turn allows us to support
+ * SSL/TLS.
+ * 
+ * NSPR file descriptors are not integers, however, integral file descriptors are
+ * expected in many parts of pcp. In order to deal with this assumption, when
+ * NSS/NSPR is available, for sockets using NSPR, we must assign an integral fd
+ * number. However this must not collide with the native fd numbers also in use.
+ * Obtaining the hard max fd number using getrlimit() was considered, but a
+ * sysadmin could change this limit arbitrarily while we are running. We can't use
+ * negative values, since these indicate an error.
+ *
+ * There is a limit on the range of fd's which can be passed to the fd_set API.
+ * It is FD_SETSIZE. So, consider all fd's >= FD_SETSIZE to be ones which
+ * represent NSPR sockets. Using this threshold will also allow us to easily
+ * manage mixed sets of native and indexed fds.
  */
 typedef struct {
     int		version;	/* one or two */
     int		socket;		/* true or false */
+#if defined(HAVE_NSS)
+    PRFileDesc *nsprFD;
+#endif
 } __pmIPC;
 
 static int	__pmLastUsedFd = -INT_MAX;
@@ -165,6 +185,50 @@ __pmSocketIPC(int fd)
     PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
+
+#if defined(HAVE_NSS)
+int
+__pmSetNSPRFdIPC(int fd, PRFileDesc *nsprFD)
+{
+    int sts;
+
+    if (pmDebug & DBG_TRACE_CONTEXT)
+	fprintf(stderr, "__pmSetSocketIPC: fd=%d\n", fd);
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    if ((sts = __pmResizeIPC(fd)) < 0) {
+	PM_UNLOCK(__pmLock_libpcp);
+	return sts;
+    }
+
+    __pmIPCTablePtr[fd].nsprFD = nsprFD;
+    __pmLastUsedFd = fd;
+
+    if (pmDebug & DBG_TRACE_CONTEXT)
+	__pmPrintIPC();
+
+    PM_UNLOCK(__pmLock_libpcp);
+    return sts;
+}
+
+PRFileDesc *
+__pmNSPRFdIPC(int fd)
+{
+    PRFileDesc *sts;
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    if (__pmIPCTablePtr == NULL || fd < 0 || fd >= ipctablesize) {
+	PM_UNLOCK(__pmLock_libpcp);
+	return 0;
+    }
+    sts = __pmIPCTablePtr[fd].nsprFD;
+
+    PM_UNLOCK(__pmLock_libpcp);
+    return sts;
+}
+#endif /* defined(HAVE_NSS) */
 
 /*
  * Called by log readers who need version info for result decode,

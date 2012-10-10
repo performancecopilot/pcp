@@ -109,10 +109,13 @@ ifeq "$(TARGET_OS)" "freebsd"
 DSOSUFFIX = so
 endif
 
+NSS_CFLAGS = @nss_incflags@
+NSPR_CFLAGS = @nspr_incflags@
+
 CFLAGS_ABI = @cflags_abi@
 CFLAGS += $(CFLAGS_ABI) $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -O2 -g -DPCP_DEBUG \
 	-DPCP_VERSION=\"$(PCP_VERSION)\" \
-	-I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp
+	-I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp $(NSS_CFLAGS) $(NSPR_CFLAGS)
 
 PIECFLAGS = @PIECFLAGS@
 PIELDFLAGS = @PIELDFLAGS@
@@ -122,7 +125,7 @@ LDFLAGS += $(CFLAGS_ABI) $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(MFILES) \
 	$(LSRCFILES) $(LFILES) $(YFILES) $(PYFILES)
 
-LDLIBS = $(LLDLIBS) $(PLDLIBS)
+LDLIBS = $(LLDLIBS) $(PLDLIBS) $(LIB_FOR_NSS) $(LIB_FOR_NSPR)
 MAKEOPTS = --no-print-directory
 DIRT = $(LDIRT) dep dep.bak $(OBJECTS) $(CMDTARGET) \
 	$(LIBTARGET) $(STATICLIBTARGET) \
@@ -193,6 +196,8 @@ LIB_FOR_MATH = @lib_for_math@
 LIB_FOR_READLINE = @lib_for_readline@
 LIB_FOR_CURSES = @lib_for_curses@
 LIB_FOR_PTHREADS = @lib_for_pthreads@
+LIB_FOR_NSS = @lib_for_nss@
+LIB_FOR_NSPR = @lib_for_nspr@
 
 SHELL = /bin/sh
 IMAGES_DIR = $(TOPDIR)/all-images
@@ -351,6 +356,7 @@ endif
 
 PERL_MAKE_MAKEFILE = \
 	export PCP_TOPDIR=`cd $(TOPDIR) && pwd`; \
+	NSS_CFLAGS="$(NSS_CFLAGS)" NSPR_CFLAGS="$(NSPR_CFLAGS)" \
         TARGET_OS="$(TARGET_OS)" CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_EXTRA_OPTIONS) $(MAKEMAKER_OPTIONS)
 
 # Collect files from a Perl "make -f Makefile install" below

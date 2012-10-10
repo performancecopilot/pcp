@@ -14,7 +14,7 @@ if ($ENV{TARGET_OS} eq "mingw") {
 }
 else {
     $ldfrom = "LogImport.o",
-    $inc = "-I$ENV{PCP_TOPDIR}/src/include/pcp -I/usr/include/pcp";
+    $inc = "-I$ENV{PCP_TOPDIR}/src/include/pcp -I/usr/include/pcp $ENV{NSS_CFLAGS} $ENV{NSPR_CFLAGS}";
     $libs = ["-L$ENV{PCP_TOPDIR}/src/libpcp/src -L$ENV{PCP_TOPDIR}/src/libpcp_import/src -lpcp_import -lpcp"];
 }
 if ($ENV{TARGET_OS} eq "darwin") {
