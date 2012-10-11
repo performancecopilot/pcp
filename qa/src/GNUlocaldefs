@@ -110,8 +110,7 @@ PYTHONFILES = \
 ifneq "$(TARGET_OS)" "mingw"
 CFILES += $(POSIXFILES) $(TRACEFILES)
 else
-MYFILES += $(POSIXFILES) $(TRACEFILES) $(PERLFILES) $(PYTHONFILES)
-MYSCRIPTS += $(PERLFILES) $(PYTHONFILES)
+MYFILES += $(POSIXFILES) $(TRACEFILES)
 endif
 
 MYFILES += $(SRCARCH) \
@@ -119,7 +118,7 @@ MYFILES += $(SRCARCH) \
 	ok-mv-bigbin.[1-9] ok-mv-foo.[12] \
 	$(SRCARCHPART) \
 	ok-noti-bigbin.meta err_v1.dump \
-	bigace.pmns check_import.pl \
+	bigace.pmns \
 	config.bar config.bigbin config.dodgey-all config.dodgey-mixed \
 	config.dodgey-some config.foo config.interp kenj-pc-2.config \
 	reduce.config uwrap.config wrap.config \
@@ -134,6 +133,8 @@ MYFILES += $(SRCARCH) \
 MYSCRIPTS = grind-tools ipcs_clear make.dodgey mkarch-all mkbadlen \
 	mkeventrec mkinterpmark mkmirage mkproc mkrewrite mksample_expr \
 	mksa-sysstat mktzchange show-args mkbig1
+
+PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
 
 CFILES_TARGETS = $(CFILES)
 
