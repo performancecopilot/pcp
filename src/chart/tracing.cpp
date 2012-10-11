@@ -352,6 +352,7 @@ TracingItem::updateEventRecords(TracingEngine *engine, QmcMetric *metric, int in
 	    // Could have a separate list of events? (render differently?)
 	}
     } else {
+#if DESPERATE
 	//
 	// TODO: need to track this failure point, and ensure that the
 	// begin/end spans do not cross this boundary.
@@ -359,6 +360,7 @@ TracingItem::updateEventRecords(TracingEngine *engine, QmcMetric *metric, int in
 	console->post(PmChart::DebugForce,
 		"TracingItem::updateEventRecords: NYI error path: %d (%s)",
 		metric->error(index), pmErrStr(metric->error(index)));
+#endif
     }
 }
 
@@ -534,11 +536,13 @@ TracingScaleDraw::label(double value) const
 #endif
 
     // ensure label is not too long to fit
-    if (label.length() > LABEL_CUTOFF)
-	label.remove(LABEL_CUTOFF);
+    label.truncate(LABEL_CUTOFF);
     // and only use up to the first space
     if ((slot = label.indexOf(' ')) >= 0)
-	label.remove(slot);
+	label.truncate(slot);
+
+    console->post(PmChart::DebugForce,
+		"TracingScaleDraw::label: final %d label is \"%s\"", slot, (const char *)label.toAscii());
     return label;
 }
 
