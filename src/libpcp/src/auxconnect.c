@@ -16,6 +16,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include <fcntl.h>
+#include <assert.h>
 #ifdef HAVE_NETINET_TCP_H
 #include <netinet/tcp.h>
 #endif
@@ -621,6 +622,7 @@ __pmCreateSocket(void)
     if (PR_Initialized() != PR_TRUE)
         PR_Init(PR_USER_THREAD, PR_PRIORITY_NORMAL, 0);
 
+    /* Open the socket */
     if ((nsprFd = PR_OpenTCPSocket(PR_AF_INET)) == NULL)
 	return -neterror();
 
@@ -1009,44 +1011,47 @@ nsprSelect(int rwflag, __pmFdSet *fds, struct timeval *timeout)
     PRPollDesc *pollfds;
     int fd;
 
-    /* Convert the fd_set for the nspr fds to the form required by NSPR. */
-    pollfds = malloc(fds->num_nspr_fds * sizeof(*pollfds));
-    for (fd = 0; fd < fds->num_nspr_fds; ++fd) {
-      if (FD_ISSET(fd, &fds->nspr_set)) {
-	pollfds[fd].fd = __pmNSPRFdIPC(NSPR_HANDLE_BASE + fd);
-	pollfds[fd].in_flags = rwflag;
-      }
-      else
-	pollfds[fd].fd = NULL;
-    }
+    nsprReady = 0;
+    if (fds->num_nspr_fds > 0) {
+        /* Convert the fd_set for the nspr fds to the form required by NSPR. */
+        pollfds = malloc(fds->num_nspr_fds * sizeof(*pollfds));
+	for (fd = 0; fd < fds->num_nspr_fds; ++fd) {
+	    if (FD_ISSET(fd, &fds->nspr_set)) {
+	        pollfds[fd].fd = __pmNSPRFdIPC(NSPR_HANDLE_BASE + fd);
+		pollfds[fd].in_flags = rwflag;
+	    }
+	    else
+	        pollfds[fd].fd = NULL;
+	}
 
-    /* Convert the given timeout to the form required by NSPR. */
-    if (timeout != NULL) {
-      nsprTimeout = PR_SecondsToInterval(timeout->tv_sec);
-      nsprTimeout += PR_MicrosecondsToInterval(timeout->tv_usec);
-    }
-    else
-      nsprTimeout = PR_INTERVAL_NO_TIMEOUT;
+	/* Convert the given timeout to the form required by NSPR. */
+	if (timeout != NULL) {
+	    nsprTimeout = PR_SecondsToInterval(timeout->tv_sec);
+	    nsprTimeout += PR_MicrosecondsToInterval(timeout->tv_usec);
+	}
+	else
+	    nsprTimeout = PR_INTERVAL_NO_TIMEOUT;
 
-    /* Poll the given fds. */
-    nsprReady = PR_Poll(pollfds, fds->num_nspr_fds, nsprTimeout);
-    if (nsprReady < 0) {
-      __pmNotifyErr(LOG_ERR, "nsprSelect: error polling nspr file descriptors\n");
-      free(pollfds);
-      return -1;
-    }
+	/* Poll the given fds. */
+	nsprReady = PR_Poll(pollfds, fds->num_nspr_fds, nsprTimeout);
+	if (nsprReady < 0) {
+	    __pmNotifyErr(LOG_ERR, "nsprSelect: error polling nspr file descriptors\n");
+	    free(pollfds);
+	    return -1;
+	}
 
-    /* Convert the result back to the native format. */
-    FD_ZERO(&fds->nspr_set);
-    if (nsprReady != 0) {
-        for (fd = 0; fd < fds->num_nspr_fds; ++fd) {
-	    if (pollfds[fd].fd != NULL && (pollfds[fd].out_flags & rwflag) != 0) {
-	        FD_SET(fd, &fds->nspr_set);
-		fds->num_nspr_fds = fd + 1;
+	/* Convert the result back to the native format. */
+	FD_ZERO(&fds->nspr_set);
+	if (nsprReady != 0) {
+	    for (fd = 0; fd < fds->num_nspr_fds; ++fd) {
+	        if (pollfds[fd].fd != NULL && (pollfds[fd].out_flags & rwflag) != 0) {
+	            FD_SET(fd, &fds->nspr_set);
+		    fds->num_nspr_fds = fd + 1;
+		}
 	    }
 	}
+	free(pollfds);
     }
-    free(pollfds);
 
     nativeReady = 0;
     if (fds->num_native_fds > 0) {
