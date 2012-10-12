@@ -394,8 +394,11 @@ fi
 %defattr(-,root,root)
 
 %changelog
-* Fri Oct  5 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-1
+* Fri Oct 12 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-1
 - Update to latest PCP sources.
+- Fix pmcd sigsegv in NUMA/CPU indom setup (BZ 858384)
+- Fix sar2pcp uninitialised perl variable warning (BZ 859117)
+- Fix pcp.py and pmcollectl with older python versions (BZ 852234)
 
 * Fri Sep 14 2012 Nathan Scott <nathans@redhat.com> - 3.6.8-1
 - Update to latest PCP sources.

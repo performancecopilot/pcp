@@ -1,4 +1,4 @@
-pcp-3.6.9 (under development)
+pcp-3.6.9 (12 October 2012)
     - Python wrapper for the pmimport API
     - Make sar2pcp work with the sysstat versions from RHEL5,
       RHEL6, and all recent Fedora versions (which is almost

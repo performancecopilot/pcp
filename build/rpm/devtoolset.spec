@@ -414,8 +414,9 @@ exit 0
 %defattr(-,root,root)
 
 %changelog
-* Fri Oct  5 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-1
+* Fri Oct 12 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-1
 - Update to latest PCP sources.
+- Rebase for next DTS beta release (BZ 857773)
 - Remove unused pmcollectl arguments (BZ 863210)
 
 * Fri Sep 14 2012 Nathan Scott <nathans@redhat.com> - 3.6.8-1
