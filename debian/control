@@ -4,11 +4,11 @@ Priority: optional
 Homepage: http://oss.sgi.com/projects/pcp
 Maintainer: Nathan Scott <nathans@debian.org>
 Uploaders: Anibal Monsalve Salazar <anibal@debian.org>
-Build-Depends: bison, flex, gawk, procps, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any] | python2.7-dev
+Build-Depends: bison, flex, gawk, procps, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python
 Standards-Version: 3.9.3
 
 Package: pcp
-Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, sysv-rc-conf, libpcp-pmda-perl, python-pcp
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, sysv-rc-conf, libpcp-pmda-perl, python-pcp, python
 Suggests: tsocks
 Conflicts: pgpool2
 Recommends: pcp-gui, libpcp-import-perl

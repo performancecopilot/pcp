@@ -90,12 +90,12 @@ uninstalldirs = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include
 unrpathperl = find $(allperldir) -name \*.so | xargs chrpath -d
 
 build: build-arch build-indep
-build-arch: built
-build-indep: built
-built: config
+build-arch: build-stamp
+build-indep: build-stamp
+build-stamp: config
 	@echo "== dpkg-buildpackage: build" 1>&2
 	$(MAKE) default
-	touch built
+	touch build-stamp
 
 config: .census
 .census:
@@ -107,14 +107,14 @@ config: .census
 clean:
 	@echo "== dpkg-buildpackage: clean" 1>&2
 	$(checkdir)
-	-rm -f built .census
+	-rm -f build-stamp .census
 	$(MAKE) realclean
 	-rm -rf $(alldir)
 	-rm -f debian/*substvars debian/files* debian/*.debhelper
 
 binary-indep:
 
-binary-arch: checkroot built
+binary-arch: checkroot build-stamp
 	@echo "== dpkg-buildpackage: binary-arch" 1>&2
 	$(checkdir)
 	-rm -rf $(alldir)
