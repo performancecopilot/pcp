@@ -405,6 +405,7 @@ Interval.</string>
     <addaction name="helpManualAction" />
     <addaction name="separator" />
     <addaction name="helpAboutAction" />
+    <addaction name="helpAboutQtAction" />
     <addaction name="helpSeeAlsoAction" />
     <addaction name="separator" />
     <addaction name="helpWhats_ThisAction" />
@@ -561,6 +562,18 @@ level of runtime verbosity to be configured (default is "none").</string>
     <string>Ctrl+C</string>
    </property>
   </action>
+  <action name="helpAboutQtAction" >
+   <property name="text" >
+    <string>About Qt</string>
+   </property>
+   <property name="iconText" >
+    <string>About Qt</string>
+   </property>
+   <property name="whatsThis" >
+    <string>&lt;b>Help|About Qt&lt;/b>&lt;br>
+Click on this menu option to bring up the See Also dialog, with author and website information about Qt - which provides software infrastructure on which this tool was built.</string>
+   </property>
+  </action>
   <action name="helpSeeAlsoAction" >
    <property name="text" >
     <string>See Also</string>
@@ -635,32 +648,18 @@ Click this menu option to invoke a small question mark that is attached to the m
    <signal>triggered()</signal>
    <receiver>PmTimeLive</receiver>
    <slot>helpAbout()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
+  </connection>
+  <connection>
+   <sender>helpAboutQtAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmTimeLive</receiver>
+   <slot>helpAboutQt()</slot>
   </connection>
   <connection>
    <sender>helpSeeAlsoAction</sender>
    <signal>triggered()</signal>
    <receiver>PmTimeLive</receiver>
    <slot>helpSeeAlso()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
   </connection>
   <connection>
    <sender>buttonPlay</sender>

@@ -77,6 +77,7 @@ public slots:
     virtual void assistantError(const QString &);
     virtual void helpManual();
     virtual void helpAbout();
+    virtual void helpAboutQt();
     virtual void helpSeeAlso();
     virtual void whatsThis();
 

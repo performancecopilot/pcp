@@ -26,7 +26,7 @@ LSRCFILES = $(PROJECT).in $(QRCFILE) $(RCFILE) $(UIFILES) $(HEADERS) $(SOURCES) 
 	  $(DESKTOP) $(WRAPPER).IN $(XMLFILE).in
 LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(XMLFILE)
 
-ICONLINKS = aboutpcp.png aboutqt.png aboutpmchart.png pmchart.png pmtime.png \
+ICONLINKS = aboutpcp.png aboutpmchart.png pmchart.png pmtime.png \
 	    document-close.png document-new.png document-open.png \
 	    document-print.png document-export.png document-properties.png \
 	    document-save.png emblem-system.png \

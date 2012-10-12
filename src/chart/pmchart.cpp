@@ -430,6 +430,11 @@ void PmChart::helpAbout()
     about.exec();
 }
 
+void PmChart::helpAboutQt()
+{
+    QApplication::aboutQt();
+}
+
 void PmChart::helpSeeAlso()
 {
     SeeAlsoDialog seealso(this);
