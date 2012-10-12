@@ -1006,76 +1006,75 @@ __pmFD_COPY(__pmFdSet *s1, const __pmFdSet *s2)
 static int
 nsprSelect(int rwflag, __pmFdSet *fds, struct timeval *timeout)
 {
-    int nsprReady, nativeReady;
-    PRIntervalTime nsprTimeout;
-    PRPollDesc *pollfds;
-    int fd;
+    fd_set	combined;
+    int		numCombined;
+    int		fd;
+    int		nativeFD;
+    PRFileDesc *nsprFD;
+    int		ready;
+    char	errmsg[PM_MAXERRMSGLEN];
 
-    nsprReady = 0;
-    if (fds->num_nspr_fds > 0) {
-        /* Convert the fd_set for the nspr fds to the form required by NSPR. */
-        pollfds = malloc(fds->num_nspr_fds * sizeof(*pollfds));
-	for (fd = 0; fd < fds->num_nspr_fds; ++fd) {
-	    if (FD_ISSET(fd, &fds->nspr_set)) {
-	        pollfds[fd].fd = __pmNSPRFdIPC(NSPR_HANDLE_BASE + fd);
-		pollfds[fd].in_flags = rwflag;
-	    }
-	    else
-	        pollfds[fd].fd = NULL;
-	}
+    /* fds contains two sets; one of native file descriptors and one of NSPR file
+       descriptors. We can't poll them separately, since one may block the other.
+       We can either convert the native file descriptors to NSPR or vice-versa.
+       The NSPR function PR_Poll does not seem to respond to SIGINT, so we will
+       convert the NSPR file descriptors to native ones and use select(3) to
+       do the polling.
 
-	/* Convert the given timeout to the form required by NSPR. */
-	if (timeout != NULL) {
-	    nsprTimeout = PR_SecondsToInterval(timeout->tv_sec);
-	    nsprTimeout += PR_MicrosecondsToInterval(timeout->tv_usec);
-	}
-	else
-	    nsprTimeout = PR_INTERVAL_NO_TIMEOUT;
+       First initialize our working set from the set of native file descriptors in
+       fds.
+    */
+    combined = fds->native_set;
+    numCombined = fds->num_native_fds;
 
-	/* Poll the given fds. */
-	nsprReady = PR_Poll(pollfds, fds->num_nspr_fds, nsprTimeout);
-	if (nsprReady < 0) {
-	    __pmNotifyErr(LOG_ERR, "nsprSelect: error polling nspr file descriptors\n");
-	    free(pollfds);
-	    return -1;
+    /* Now add the native fds associated with the NSPR fds in nspr_set, if any. */
+    for (fd = 0; fd < fds->num_nspr_fds; ++fd) {
+        if (FD_ISSET(fd, &fds->nspr_set)) {
+	  nsprFD = __pmNSPRFdIPC(NSPR_HANDLE_BASE + fd);
+	  nativeFD = PR_FileDesc2NativeHandle(nsprFD);
+	  FD_SET(nativeFD, &combined);
+	  if (nativeFD >= numCombined)
+	    numCombined = nativeFD + 1;
 	}
-
-	/* Convert the result back to the native format. */
-	FD_ZERO(&fds->nspr_set);
-	if (nsprReady != 0) {
-	    for (fd = 0; fd < fds->num_nspr_fds; ++fd) {
-	        if (pollfds[fd].fd != NULL && (pollfds[fd].out_flags & rwflag) != 0) {
-	            FD_SET(fd, &fds->nspr_set);
-		    fds->num_nspr_fds = fd + 1;
-		}
-	    }
-	}
-	free(pollfds);
     }
 
-    nativeReady = 0;
-    if (fds->num_native_fds > 0) {
-        /* Use the native 'select' function on the native fds. Ignore the nfds
-	   passed to us and use the number from the set itself. */
-        if (rwflag == PR_POLL_READ)
-	    nativeReady = select(fds->num_native_fds, &fds->native_set, NULL, NULL, timeout);
-	else
-	    nativeReady = select(fds->num_native_fds, NULL, &fds->native_set, NULL, timeout);
-	if (nativeReady < 0) {
-	    __pmNotifyErr(LOG_ERR, "nsprSelect: error polling native file descriptors\n");
-	    return -1;
-	}
-
-	/* Reset the max fd. */
-	for (fd = fds->num_native_fds - 1; fd >= 0; --fd) {
-	    if (FD_ISSET(fd, &fds->native_set))
-	        break;
-	}
-	fds->num_native_fds = fd + 1;
+    /* Use the select(3) function to do the polling. Ignore the nfds passed to us
+       and use the number that we have computed. */
+    if (rwflag == PR_POLL_READ)
+        ready = select(numCombined, &combined, NULL, NULL, timeout);
+    else
+        ready = select(numCombined, NULL, &combined, NULL, timeout);
+    if (ready < 0 && neterror() != EINTR) {
+        __pmNotifyErr(LOG_ERR, "nsprSelect: error polling file descriptors: %s\n",
+		      netstrerror_r(errmsg, sizeof(errmsg)));
+	return -1;
     }
+
+    /* Separate the results into their corresponding sets again. */
+    for (fd = 0; fd < fds->num_nspr_fds; ++fd) {
+        if (FD_ISSET(fd, &fds->nspr_set)) {
+	   nsprFD = __pmNSPRFdIPC(NSPR_HANDLE_BASE + fd);
+	   nativeFD = PR_FileDesc2NativeHandle(nsprFD);
+
+	   /* As we copy the result to the nspr set, make sure the bit is cleared in the
+	      combined set. That way we can simply copy the resulting combined set to the
+	      native set when we're done. */
+	   if (! FD_ISSET(nativeFD, &combined))
+	       FD_CLR(fd, &fds->nspr_set);
+	   else
+	       FD_CLR(nativeFD, &combined);
+	}
+    }
+    fds->native_set = combined;
+
+    /* Reset the size of each set. */
+    while (fds->num_nspr_fds > 0 && ! FD_ISSET(fds->num_nspr_fds - 1, &fds->nspr_set))
+        --fds->num_nspr_fds;
+    while (fds->num_native_fds > 0 && ! FD_ISSET(fds->num_native_fds - 1, &fds->native_set))
+        --fds->num_native_fds;
 
     /* Return the total number of ready fds. */
-    return nsprReady + nativeReady;
+    return ready;
 }
 
 int
