@@ -32,5 +32,5 @@ main()
 }
 End-of-File
 
-cc -o $tmp $tmp.c -I$PCP_INC_DIR -I$PCP_INC_DIR/.. -L$PCP_LIB_DIR -lpcp
+cc -o $tmp $tmp.c -I$PCP_INC_DIR -I$PCP_INC_DIR/.. -L$PCP_LIB_DIR -lpcp -lpthread -ldl -lm
 $tmp
