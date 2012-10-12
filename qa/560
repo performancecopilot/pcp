@@ -69,6 +69,8 @@ sed <$tmp.out \
     -e '/.[0-9][0-9]* non-leaf nodes/d' \
     -e '/.[0-9][0-9]* bytes of symbol table/d' \
     -e '/Compiled PMNS contains/d' \
+    -e '/In function .vpmprintf.:/d' \
+    -e '/warning: the use of .tempnam./d' \
     -e '/make: Nothing to be done/d'
 
 echo "in \$PCP_PMCDCONF_PATH ..."

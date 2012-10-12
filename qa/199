@@ -87,6 +87,8 @@ _filter()
 	-e '/^x86_64-mandriva-linux-gnu-gcc/d' \
 	-e '/\/usr\/bin\/gcc/d' \
 	-e '/make: Nothing to be done/d' \
+	-e '/In function .vpmprintf.:/d' \
+	-e '/warning: the use of .tempnam./d' \
 	-e '/^pmda.c:$/d' \
 	-e '/^trivial.c:$/d' \
 	-e 's/.* \(hash table entries\)/  NNN \1/' \

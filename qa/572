@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 572
-# pmcd agent table rellocation and libpcp_pmda botch for PMDA_INTERFACE_3.
+# pmcd agent table relocation and libpcp_pmda botch for PMDA_INTERFACE_3.
 # linux PMDA returns no values after weblog Install was the original
 # observation.
 #
