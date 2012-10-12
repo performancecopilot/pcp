@@ -364,6 +364,9 @@ badintfspec:
 	exit(1);
     }
 
+#ifdef PARSE_ONLY
+    dispatch.version.two.text = NULL;
+#endif
 
     /* initialize */
     cisco_init(&dispatch);
