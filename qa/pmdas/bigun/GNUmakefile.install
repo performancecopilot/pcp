@@ -32,7 +32,7 @@ MYFILES = domain.h help pmns root
 MYSCRIPTS = Install Remove
 LDIRT = help.pag help.dir
 
-LLDLIBS = -lpcp_pmda -lpcp
+LLDLIBS = -lpcp_pmda -lpcp -lm -ldl -lpthread
 
 default default_pcp setup: $(TARGETS)
 

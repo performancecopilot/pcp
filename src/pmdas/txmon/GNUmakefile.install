@@ -39,7 +39,7 @@ IAM	= txmon
 CFILES	= $(IAM).c
 CMDTARGET = pmda$(IAM)
 TARGETS	= txrecord $(CMDTARGET)
-LDLIBS	= -lpcp_pmda -lpcp
+LLDLIBS	= -lpcp_pmda -lpcp -lm -ldl -lpthread
 LDIRT	= *.log help.dir help.pag txrecord
 
 default: $(TARGETS)
