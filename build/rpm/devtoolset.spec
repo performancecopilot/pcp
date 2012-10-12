@@ -225,7 +225,8 @@ Software Collection-compatible initscript wrappers for PCP daemons.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure --disable-shared --with-rcdir=%{_sysconfdir}/rc.d/init.d --with-docdir=%{_docdir}/%{name}-%{version}
+# TODO: --disable-shared (847911, 856651)
+%configure --with-rcdir=%{_sysconfdir}/rc.d/init.d --with-docdir=%{_docdir}/%{name}-%{version}
 make default_pcp
 
 %install
@@ -234,7 +235,7 @@ export DIST_ROOT=$RPM_BUILD_ROOT
 make install_pcp
 
 # Fix stuff we do/don't want to ship
-rm -f $RPM_BUILD_ROOT/%{_libdir}/*.a
+rm -f $RPM_BUILD_ROOT/%{_libdir}/*.a	# TODO: keep when --disable-shared?
 mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/run/pcp
 
 # remove sheet2pcp until BZ 830923 and BZ 754678 are resolved.
@@ -376,6 +377,7 @@ exit 0
 
 %{_includedir}/pcp/*.h
 %{_mandir}/man3/*
+#%{_libdir}/*.a		# TODO: need static libs when --disable-shared?
 %{_datadir}/pcp/demos
 %{_datadir}/pcp/examples
 
