@@ -24,12 +24,12 @@ filter_dump()
 }
 
 # real QA test starts here
-$here/src/check_import.py $tmp.pcplog >$tmp.out 2>&1
+python $here/src/check_import.python $tmp.pcplog >$tmp.out 2>&1
 if [ $? -eq 0 ]
 then
     pmdumplog -a $tmp.pcplog 2>&1 | filter_dump
 else
-    echo "check_import.py script gave non-zero result"
+    echo "check_import python script gave non-zero result"
 fi
 
 # success, all done

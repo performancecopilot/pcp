@@ -102,10 +102,10 @@ TRACEFILES = \
 	obs.c tstate.c tabort.c 
 
 PERLFILES = \
-	check_import.pl
+	check_import.perl
 
 PYTHONFILES = \
-	test_pcp.py test_pmi.py check_import.py
+	test_pcp.python test_pmi.python check_import.python
 
 ifneq "$(TARGET_OS)" "mingw"
 CFILES += $(POSIXFILES) $(TRACEFILES)
