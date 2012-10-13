@@ -2,6 +2,7 @@
 # PCP QA Test No. 369
 # Check out libpcp_import
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
 
@@ -12,13 +13,15 @@
 
 seq=`basename $0`
 
-if [ -f $PCP_DIR/usr/include/pcp/import.h ]
+[ -f ${PCP_LIB_DIR}/libpcp_import.${DSO_SUFFIX} ] || \
+	_notrun "No support for libpcp_import"
+
+rm -f $seq.out
+if [ $PCP_VER -ge 3609 ]
 then
-    :
+    ln $seq.out.2 $seq.out || exit 1
 else
-    echo "No support for libpcp_import" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    ln $seq.out.1 $seq.out || exit 1
 fi
 
 echo "QA output created by $seq"
